@@ -39,6 +39,7 @@ export class AudioPlayerX extends DynamicPath<AudioState, AudioAction> implement
     // private _startTime = 0;
 
     private _sourceNode: SourceNode;
+    private _stereo: StereoPannerNode;
     // private _ctx: AudioContext;
     private _clip: AudioClip;
 
@@ -59,8 +60,9 @@ export class AudioPlayerX extends DynamicPath<AudioState, AudioAction> implement
         this._sourceNode.onEnded = this._onEnded;
         this._clip = clip;
         // this._ctx = defaultContext;
-
-        this._sourceNode.connect(defaultContext.destination);
+        this._stereo = defaultContext.createStereoPanner();
+        this._stereo.connect(defaultContext.destination);
+        this._sourceNode.connect(this._stereo);
         if (options) {
             if (options.volume) {
                 this._sourceNode.volume = options.volume;
@@ -109,14 +111,16 @@ export class AudioPlayerX extends DynamicPath<AudioState, AudioAction> implement
         return this._sourceNode.playbackRate;
     }
     set pan (pan: number) {
-        throw new Error('Method not implemented.');
+        console.log(`Pan setting ${pan}`);
+        this._stereo.pan.value = pan;
     }
     get pan (): number {
-        throw new Error('Method not implemented.');
+        return this._stereo.pan.value;
     }
     destroy () {
         systemInfo.off('hide', this._onHide, this);
         systemInfo.off('show', this._onShow, this);
+        this.stop();
     }
 
     private _onHide () {

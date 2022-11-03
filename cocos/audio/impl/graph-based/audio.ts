@@ -32,8 +32,8 @@ interface SourceNodeCacheProperties {
 }
 export class SourceNode {
     // Note: Properties for rebuild
-    private _absn: AudioBufferSourceNode | null;
-    private _gain: GainNode | null;
+    private _absn: AudioBufferSourceNode;
+    private _gain: GainNode;
     private _ctx: AudioContext;
     private _buffer: AudioBuffer | null = null;
     private _cacheProperties : SourceNodeCacheProperties;
@@ -163,7 +163,7 @@ export class SourceNode {
     // Offset is the number of second, should sync with absn
     start (time?: number) {
         if (!this._buffer) {
-            throw new Error('[SourceNode] No buffer is provided!! Play audio faield');
+            throw new Error('[SourceNode] No buffer is provided!! Play audio failed');
         }
         if (time) {
             this._restart(time);
@@ -188,30 +188,36 @@ export class SourceNode {
             }
         }
     }
-    _restart (time: number) {
-        this.stop();
+    private _restart (time: number) {
+        this._pureStop();
         this._rebuild();
         this._pureStart(time);
     }
-    _pureStart (time: number) {
+    private _pureStart (time: number) {
         this._cacheProperties.pastTime = time;
         this._absn.start(0, time);
         this._cacheProperties.startTime = this._ctx.currentTime;
         this._innerState = ABSNState.PLAYING;
     }
+
+    private _pureStop () {
+        // TODO: If stop is a public API, it should make the absn ready to play.
+        try {
+            this._absn.stop();
+            console.log('Stopped');
+        } catch { /*DONOTHING*/ }
+    }
     pause () {
         if (this._innerState !== ABSNState.PLAYING) {
             return;
         }
+        this._cacheProperties.playbackRate = this._absn.playbackRate.value;
         this._cacheProperties.pastTime = this.currentTime;
         this._absn.playbackRate.value = 0;
         this._innerState = ABSNState.PAUSED;
     }
     stop () {
-        try {
-            this._absn.stop();
-            console.log('Stopped');
-        } catch { /*DONOTHING*/ }
+        this._pureStop();
     }
     public onEnded (callback: ()=>void) {
         this._onExternalEnded = callback;

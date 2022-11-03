@@ -7,6 +7,6 @@ public:
     AudioClip(const ccstd::string& url);
     std::shared_ptr<AudioBuffer> buffer;
 
-    static ccstd::unordered_map<ccstd::string, AudioBuffer*> bufferMap;
+static ccstd::unordered_map<ccstd::string, AudioBuffer*> bufferMap;
 };
 }

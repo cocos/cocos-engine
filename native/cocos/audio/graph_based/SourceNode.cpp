@@ -1,92 +1,140 @@
 #include "audio/graph_based/SourceNode.h"
 #include "audio/AudioClip.h"
+#include "base/Log.h"
 #include "LabSound/core/SampledAudioNode.h"
 #include "LabSound/extended/AudioContextLock.h"
 namespace cc {
 
-SourceNode::SourceNode(BaseAudioContext* ctx, const char* url = nullptr, const SourceOptions& options) : AudioScheduledSourceNode(ctx) {
-    _ctx = std::shared_ptr<BaseAudioContext>(ctx);
-    _node = std::make_shared<lab::SampledAudioNode>(*ctx->getInnerContext());
-
-    if (url) {
-        // Set buffer if clip is ready.
-        _buffer = std::shared_ptr<AudioBuffer>(AudioClip::bufferMap[url]);
-        lab::ContextRenderLock lck(_ctx->getInnerContext(), "setBus");
+SourceNode::SourceNode(BaseAudioContext* ctx, AudioBuffer* buffer) {
+    _ctx = ctx->getInnerContext();
+    _absn = std::make_shared<lab::SampledAudioNode>(*ctx->getInnerContext());
+    _gain = std::make_shared<lab::GainNode>(*ctx->getInnerContext());
+    if (buffer) {
+        _buffer = buffer;
+        lab::ContextRenderLock lck(_ctx.get(), "setBus");
         auto bus = _buffer->_bus;
-        std::dynamic_pointer_cast<lab::SampledAudioNode>(_node)->setBus(lck, bus);
+        _absn->setBus(lck, bus);
+        _innerState = ABSNState::READY;
     }
-    auto detune = AudioParam::createParam(std::dynamic_pointer_cast<lab::SampledAudioNode>(_node)->detune().get());
-    _detune = std::shared_ptr<AudioParam>(detune);
-    if (options.detune) {
-        _detune->setValue(options.detune);
+    _ctx->connect(_gain, _absn);
+    _playbackRate = AudioParam::createParam(_absn->playbackRate());
+}
+
+ AudioNode* SourceNode::connect(AudioNode* node) {
+    if (std::find(_connections.begin(), _connections.end(), node) != _connections.end()) {
+        // Connection is ignored.
+        return node;
     }
-    _playbackRate = std::shared_ptr<AudioParam>(AudioParam::createParam(std::dynamic_pointer_cast<lab::SampledAudioNode>(_node)->playbackRate().get()));
-    if (options.playbackRate) {
-        _playbackRate->setValue(options.playbackRate);
+    CC_LOG_DEBUG("=== Emplace back an audio node which will call add ref ===");
+    _connections.emplace_back(node);
+    CC_LOG_DEBUG("====");
+    _ctx->connect(node->_node, _gain);
+    return node;
+}
+void SourceNode::disconnect() {
+    // input index of destination. It calls destIndex in labsound.
+    CC_LOG_DEBUG("==== Waiting for release call ====");
+    _connections.clear();
+    _ctx->disconnect(_gain);
+}
+void SourceNode::start(float time) {
+    if (!_buffer) {
+        CC_LOG_ERROR("[SourceNode] No buffer is provided!! Play audio failed");
+        return;
     }
-    static_cast<lab::SampledAudioNode*>(_node.get())->setOnEnded([this]() {
-        for each (auto cb in _cbs) {
-            cb();
+    if (time) {
+        _restart(time);
+    } else {
+        switch (_innerState) {
+            case ABSNState::PAUSED:
+                _startTime = _ctx->currentTime();
+                _restart(_pastTime);
+                _innerState = ABSNState::PLAYING;
+                break;
+            case ABSNState::PLAYING:
+                _restart(0);
+                break;
+            case ABSNState::DIRTY:
+                _restart(_pastTime);
+                break;
+            case ABSNState::READY:
+                _pureStart(0);
+                break;
+            default:
+                break;
         }
-    });
-}
-void SourceNode::startAt(float offset) {
-    start(0, offset, 0);
-}
-void SourceNode::restartAt(float offset) {
-    stop();
-    start(0, offset, 0);
-
-    _pastTime = 0;
-    _startTime = _ctx->currentTime();
-}
-void SourceNode::pause() {
-    _playbackRate->setValue(0);
-}
-void SourceNode::stop(float when) {
-    static_cast<lab::SampledAudioNode*>(_node.get())->stop(when);
-}
-void SourceNode::start(float when, float offset, float duration) {
-    if (_loop) {
-        _loopStart = offset;
-        _loopEnd = offset + duration;
     }
+}
 
-    static_cast<lab::SampledAudioNode*>(_node.get())->start(when, /*grainOffset*/ offset, /*grainDuration*/ duration, _loop?-1:0);
+void SourceNode::pause() {
+    if (_innerState != ABSNState::PLAYING) {
+        return;
+    }
+    _pastTime = getCurrentTime();
+    // Hard to set value to 0 to pause the audio.
+    _absn->clearSchedules();
+    _innerState = ABSNState::PAUSED;
 }
-AudioParam* SourceNode::detune() {
-    return _detune.get();
+void SourceNode::stop() {
+    try {
+        _absn->clearSchedules();
+        _pastTime = 0;
+        _innerState = ABSNState::READY;
+        CC_LOG_DEBUG("Stopping the source node");
+    } catch (std::exception e){
+        // Do nothing
+    }
 }
-AudioParam* SourceNode::playbackRate() {
-    return _playbackRate.get();
+
+void SourceNode::_restart(float time) {
+    stop();
+    _pureStart(time);
+}
+void SourceNode::_pureStart(float time) {
+    _pastTime = time;
+    _absn->schedule(0, time, _loop?-1:0);
+    _startTime = _ctx->currentTime();
+    _innerState = ABSNState::PLAYING;
+}
+void SourceNode::setBuffer(AudioBuffer* buffer) {
+    _buffer.reset(buffer);
+    lab::ContextRenderLock lck(_ctx.get(), "setBus");
+    auto bus = _buffer->_bus;
+    _absn->setBus(lck, bus);
+}
+AudioBuffer* SourceNode::getBuffer() {
+    return _buffer.get();
+}
+void SourceNode::setPlaybackRate(float rate) {
+    _playbackRate->setValue(rate);
+}
+float SourceNode::getPlaybackRate() {
+    return _playbackRate->getValue();
 }
 void SourceNode::setLoop(bool loop) {
     if (loop != _loop) {
         if (loop) {
-            static_cast<lab::SampledAudioNode*>(_node.get())->schedule(0, _loopStart, _loopEnd - _loopStart, -1);
+            _absn->schedule(0, -1);
         } else {
-            static_cast<lab::SampledAudioNode*>(_node.get())->schedule(0, 0);
+            _absn->schedule(0, 0);
         }
     }
     _loop = loop;
 }
 
-float SourceNode::currentTime() {
-    return _pastTime + (_ctx->currentTime() - _startTime) * _playbackRate->value();
+float SourceNode::getCurrentTime() {
+    if (_innerState != ABSNState::PLAYING) {
+        return _pastTime;
+    }
+    return _pastTime + (_ctx->currentTime() - _startTime) * _playbackRate->getValue();
 }
 void SourceNode::setCurrentTime(float time) {
-    restartAt(time);
-}
-void SourceNode::setLoopStart(float loopStart) {
-    _loopStart = loopStart;
-    if (_loop) {
-        std::dynamic_pointer_cast<lab::SampledAudioNode>(_node)->schedule(0, _loopStart, _loopEnd - _loopStart, -1);
+    if (_innerState != ABSNState::PLAYING) {
+        _pastTime = time;
+        _innerState = ABSNState::DIRTY;
+    } else {
+        start(time);
     }
 }
-void SourceNode::setLoopEnd(float loopEnd) {
-    _loopEnd = loopEnd;
-    if (_loop) {
-        std::dynamic_pointer_cast<lab::SampledAudioNode>(_node)->schedule(0, _loopStart, _loopEnd - _loopStart, -1);
-    }
-}
+
 } // namespace cc

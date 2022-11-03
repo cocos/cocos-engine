@@ -6,14 +6,14 @@ namespace cc {
 AudioContext::AudioContext(const AudioContextOptions& options) {
     auto inputConfig = lab::GetDefaultInputAudioDeviceConfiguration();
     auto outputConfig = lab::GetDefaultOutputAudioDeviceConfiguration();
-    _ctx = std::unique_ptr<lab::AudioContext>(lab::MakeRealtimeAudioContext(outputConfig, inputConfig));
+    _ctx = std::move(lab::MakeRealtimeAudioContext(outputConfig, inputConfig));
     // The destination node of LabSound is the device node of audio context, as described in examples.
-    _dest = std::shared_ptr<AudioDestinationNode>(AudioDestinationNode::createDestination( this, _ctx->device().get()));
+    _dest = AudioDestinationNode::createDestination(this, _ctx->device());
 }
-double AudioContext::baseLatency() {
+double AudioContext::getBaseLatency() {
     return 0.0;
 }
-double AudioContext::outputLatency() {
+double AudioContext::getOutputLatency() {
     return 0.0;
 }
 bool AudioContext::suspend() {

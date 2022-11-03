@@ -4,9 +4,9 @@ namespace cc {
 GainNode::GainNode(BaseAudioContext* ctx, const GainNodeOptions& options) : AudioNode(ctx) {
     _node = std::make_shared<lab::GainNode>(*ctx->getInnerContext());
     if (options.gain) {
-        _gain = std::shared_ptr<AudioParam>(AudioParam::createParam(std::dynamic_pointer_cast<lab::GainNode>(_node)->gain().get()));
+        _gain = AudioParam::createParam(std::dynamic_pointer_cast<lab::GainNode>(_node)->gain());
     };
-    lab::ContextGraphLock lck(_ctx->getInnerContext(), "initNode");
+    lab::ContextGraphLock lck(_ctx->getInnerContext().get(), "initNode");
     if (options.channelCount.is_initialized()) {
         _node->setChannelCount(lck, options.channelCount.get()); 
     }
@@ -15,8 +15,6 @@ GainNode::GainNode(BaseAudioContext* ctx, const GainNodeOptions& options) : Audi
         _node->setChannelInterpretation(options.channelInterpretation.get());
     }
 }
-AudioParam* GainNode::gain() {
-    return _gain.get();
-}
+
 
 }

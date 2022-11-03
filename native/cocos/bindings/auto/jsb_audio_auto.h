@@ -52,6 +52,20 @@
 bool register_all_audio(se::Object* obj);
 
 
+JSB_REGISTER_OBJECT_TYPE(cc::AudioContextOptions);
+extern se::Object *__jsb_cc_AudioContextOptions_proto; // NOLINT
+extern se::Class * __jsb_cc_AudioContextOptions_class; // NOLINT
+
+
+template<>
+bool sevalue_to_native(const se::Value &from, cc::AudioContextOptions * to, se::Object *ctx);
+
+
+JSB_REGISTER_OBJECT_TYPE(cc::BaseAudioContext);
+extern se::Object *__jsb_cc_BaseAudioContext_proto; // NOLINT
+extern se::Class * __jsb_cc_BaseAudioContext_class; // NOLINT
+
+
 JSB_REGISTER_OBJECT_TYPE(cc::AudioTimestamp);
 extern se::Object *__jsb_cc_AudioTimestamp_proto; // NOLINT
 extern se::Class * __jsb_cc_AudioTimestamp_class; // NOLINT
@@ -135,15 +149,6 @@ bool sevalue_to_native(const se::Value &from, cc::StereoPannerOptions * to, se::
 JSB_REGISTER_OBJECT_TYPE(cc::StereoPannerNode);
 extern se::Object *__jsb_cc_StereoPannerNode_proto; // NOLINT
 extern se::Class * __jsb_cc_StereoPannerNode_class; // NOLINT
-
-
-JSB_REGISTER_OBJECT_TYPE(cc::SourceOptions);
-extern se::Object *__jsb_cc_SourceOptions_proto; // NOLINT
-extern se::Class * __jsb_cc_SourceOptions_class; // NOLINT
-
-
-template<>
-bool sevalue_to_native(const se::Value &from, cc::SourceOptions * to, se::Object *ctx);
 
 
 JSB_REGISTER_OBJECT_TYPE(cc::SourceNode);

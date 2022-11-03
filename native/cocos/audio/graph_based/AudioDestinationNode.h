@@ -1,15 +1,15 @@
 #include "audio/graph_based/AudioNode.h"
 namespace cc {
-class AudioDestinationNode : AudioNode {
+class AudioDestinationNode : public AudioNode {
 public:
-    uint32_t maxChannelCount() { return _maxChannelCount; };
+    uint32_t getMaxChannelCount() { return _maxChannelCount; };
     void setMaxChannelCount(uint32_t channelCount);
-    static AudioDestinationNode* createDestination(BaseAudioContext* ctx, lab::AudioNode* node);
+    static AudioDestinationNode* createDestination(BaseAudioContext* ctx, std::shared_ptr<lab::AudioNode> node);
 
 private:
     friend class BaseAudioContext;
-    AudioDestinationNode(BaseAudioContext* ctx, lab::AudioNode* node);
-    uint32_t _maxChannelCount;
+    AudioDestinationNode(BaseAudioContext* ctx, std::shared_ptr<lab::AudioNode> node);
+    uint32_t _maxChannelCount{0};
 };
 }
 

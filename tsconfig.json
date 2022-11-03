@@ -33,7 +33,6 @@
       "./node_modules/@types/jest/index",
 
       // pal
-      "./@types/pal/audio",
       "./@types/pal/system-info",
       "./@types/pal/screen-adapter",
       "./@types/pal/minigame",

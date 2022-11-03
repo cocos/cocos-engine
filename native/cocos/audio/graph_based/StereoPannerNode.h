@@ -2,15 +2,15 @@
 #include "LabSound/core/StereoPannerNode.h"
 namespace cc {
 class AudioContext;
-struct StereoPannerOptions : AudioNodeOptions {
+struct StereoPannerOptions : public AudioNodeOptions {
     float pan{0.0f};
 };
-class StereoPannerNode : AudioNode {
+class StereoPannerNode : public AudioNode {
 public:
     StereoPannerNode( BaseAudioContext* ctx, const StereoPannerOptions& options = {});
-    AudioParam* pan();
+    AudioParam* getPan() { return _pan; }
 
 private:
-    std::shared_ptr<AudioParam> _pan{nullptr};
+    IntrusivePtr<AudioParam> _pan{nullptr};
 };
 }

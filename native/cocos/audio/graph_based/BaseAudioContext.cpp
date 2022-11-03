@@ -6,7 +6,7 @@
 #include "audio/graph_based/PannerNode.h"
 #include "LabSound/LabSound.h"
 namespace cc {
-AudioContextState BaseAudioContext::state() {
+AudioContextState BaseAudioContext::getState() {
     return _state;
 }
 void BaseAudioContext::onStateChanged(StateChangeCallback cb) {
@@ -16,14 +16,15 @@ AudioBuffer* BaseAudioContext::createBuffer(uint32_t numOfChannels, uint32_t len
     auto options = AudioBufferOptions{numOfChannels, length, sampleRate};
     return new AudioBuffer(options);
 }
-SourceNode* BaseAudioContext::createBufferSource() {
-    return new SourceNode(this);
-}
 
 GainNode* BaseAudioContext::createGain() {
     return new GainNode(this);
 }
 
+AudioBuffer* BaseAudioContext::decodeAudioData(const ccstd::string& url) {
+    return AudioBuffer::createBuffer(url);
+
+}
 //PannerNode* BaseAudioContext::createPanner() {
 //    return new PannerNode(this);
 //}

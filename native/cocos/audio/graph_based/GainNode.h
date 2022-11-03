@@ -2,16 +2,16 @@
 #include "LabSound/core/GainNode.h"
 namespace cc {
 class AudioContext;
-struct GainNodeOptions : AudioNodeOptions {
+struct GainNodeOptions : public AudioNodeOptions {
     /* A-Rate range */
     float gain{1.0};
 };
-class GainNode : AudioNode {
+class GainNode : public AudioNode {
 public:
     GainNode(BaseAudioContext* ctx, const GainNodeOptions& options = {});
-    AudioParam* gain();
+    AudioParam* getGain() { return _gain; };
 
 private:
-    std::shared_ptr<AudioParam> _gain;
+    IntrusivePtr<AudioParam> _gain;
 };
 }; // namespace cc

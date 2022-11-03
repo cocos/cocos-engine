@@ -59,47 +59,47 @@
 #include "bindings/auto/jsb_audio_auto.h"
 
 
-#define cc_AudioContext_baseLatency_get(self_) self_->baseLatency()
+#define cc_AudioContext_baseLatency_get(self_) self_->getBaseLatency()
   
 
-#define cc_AudioContext_outputLatency_get(self_) self_->outputLatency()
+#define cc_AudioContext_outputLatency_get(self_) self_->getOutputLatency()
   
 
-#define cc_AudioBuffer_duration_get(self_) self_->duration()
+#define cc_AudioBuffer_duration_get(self_) self_->getDuration()
   
 
-#define cc_AudioBuffer_length_get(self_) self_->length()
+#define cc_AudioBuffer_length_get(self_) self_->getLength()
   
 
-#define cc_AudioBuffer_numberOfChannels_get(self_) self_->numberOfChannels()
+#define cc_AudioBuffer_numberOfChannels_get(self_) self_->getNumberOfChannels()
   
 
-#define cc_AudioBuffer_sampleRate_get(self_) self_->sampleRate()
+#define cc_AudioBuffer_sampleRate_get(self_) self_->getSampleRate()
   
 
-#define cc_AudioNode_numberOfInputs_get(self_) self_->numberOfInputs()
+#define cc_AudioNode_numberOfInputs_get(self_) self_->getNumberOfInputs()
   
 
-#define cc_AudioNode_numberOfOutputs_get(self_) self_->numberOfOutputs()
+#define cc_AudioNode_numberOfOutputs_get(self_) self_->getNumberOfOutputs()
   
 
-#define cc_AudioNode_channelCount_get(self_) self_->channelCount()
+#define cc_AudioNode_channelCount_get(self_) self_->getChannelCount()
 #define cc_AudioNode_channelCount_set(self_, val_) self_->setChannelCount(val_)
   
 
-#define cc_AudioNode_channelCountMode_get(self_) self_->channelCountMode()
+#define cc_AudioNode_channelCountMode_get(self_) self_->getChannelCountMode()
 #define cc_AudioNode_channelCountMode_set(self_, val_) self_->setChannelCountMode(val_)
   
 
-#define cc_AudioNode_channelInterpretation_get(self_) self_->channelInterpretation()
+#define cc_AudioNode_channelInterpretation_get(self_) self_->getChannelInterpretation()
 #define cc_AudioNode_channelInterpretation_set(self_, val_) self_->setChannelInterpretation(val_)
   
 
-#define cc_AudioDestinationNode_maxChannelCount_get(self_) self_->maxChannelCount()
+#define cc_AudioDestinationNode_maxChannelCount_get(self_) self_->getMaxChannelCount()
 #define cc_AudioDestinationNode_maxChannelCount_set(self_, val_) self_->setMaxChannelCount(val_)
   
 
-#define cc_AudioParam_value_get(self_) self_->value()
+#define cc_AudioParam_value_get(self_) self_->getValue()
 #define cc_AudioParam_value_set(self_, val_) self_->setValue(val_)
   
 
@@ -112,45 +112,557 @@
 #define cc_AudioParam_minValue_get(self_) self_->minValue()
   
 
-#define cc_BaseAudioContext_currentTime_get(self_) self_->currentTime()
+#define cc_BaseAudioContext_currentTime_get(self_) self_->getCurrentTime()
   
 
-#define cc_BaseAudioContext_destination_get(self_) self_->destination()
+#define cc_BaseAudioContext_destination_get(self_) self_->getDestination()
   
 
-#define cc_BaseAudioContext_sampleRate_get(self_) self_->sampleRate()
+#define cc_BaseAudioContext_sampleRate_get(self_) self_->getSampleRate()
   
 
-#define cc_BaseAudioContext_state_get(self_) self_->state()
+#define cc_BaseAudioContext_state_get(self_) self_->getState()
   
 
-#define cc_GainNode_gain_get(self_) self_->gain()
+#define cc_GainNode_gain_get(self_) self_->getGain()
   
 
-#define cc_StereoPannerNode_pan_get(self_) self_->pan()
+#define cc_StereoPannerNode_pan_get(self_) self_->getPan()
   
 
-#define cc_SourceNode_detune_get(self_) self_->detune()
-  
-
-#define cc_SourceNode_playbackRate_get(self_) self_->playbackRate()
-  
-
-#define cc_SourceNode_loop_get(self_) self_->loop()
+#define cc_SourceNode_loop_get(self_) self_->getLoop()
 #define cc_SourceNode_loop_set(self_, val_) self_->setLoop(val_)
   
 
-#define cc_SourceNode_currentTime_get(self_) self_->currentTime()
+#define cc_SourceNode_currentTime_get(self_) self_->getCurrentTime()
 #define cc_SourceNode_currentTime_set(self_, val_) self_->setCurrentTime(val_)
   
 
-#define cc_SourceNode_loopStart_get(self_) self_->loopStart()
-#define cc_SourceNode_loopStart_set(self_, val_) self_->setLoopStart(val_)
+#define cc_SourceNode_playbackRate_get(self_) self_->getPlaybackRate()
+#define cc_SourceNode_playbackRate_set(self_, val_) self_->setPlaybackRate(val_)
   
 
-#define cc_SourceNode_loopEnd_get(self_) self_->loopEnd()
-#define cc_SourceNode_loopEnd_set(self_, val_) self_->setLoopEnd(val_)
-  
+
+se::Class* __jsb_cc_AudioContextOptions_class = nullptr;
+se::Object* __jsb_cc_AudioContextOptions_proto = nullptr;
+SE_DECLARE_FINALIZE_FUNC(js_delete_cc_AudioContextOptions) 
+
+static bool js_cc_AudioContextOptions_latencyHint_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::AudioContextOptions *arg1 = (cc::AudioContextOptions *) NULL ;
+    int32_t temp2 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::AudioContextOptions>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) enum SWIGTYPE (int32_t temp2)
+    ok &= sevalue_to_native(args[0], &temp2);
+    SE_PRECONDITION2(ok, false, "AudioContextOptions_latencyHint_set,2,SWIGTYPE_cc__AudioContextLatencyCategory");
+    arg1->latencyHint = (cc::AudioContextLatencyCategory)temp2;
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_AudioContextOptions_latencyHint_set) 
+
+static bool js_cc_AudioContextOptions_latencyHint_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::AudioContextOptions *arg1 = (cc::AudioContextOptions *) NULL ;
+    int32_t temp ;
+    
+    arg1 = SE_THIS_OBJECT<cc::AudioContextOptions>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // out 4
+    s.rval().setInt32(static_cast<int32_t>(arg1->latencyHint));
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_AudioContextOptions_latencyHint_get) 
+
+static bool js_cc_AudioContextOptions_sampleRate_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::AudioContextOptions *arg1 = (cc::AudioContextOptions *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::AudioContextOptions>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg1->sampleRate, s.thisObject());
+    SE_PRECONDITION2(ok, false, "AudioContextOptions_sampleRate_set,2,SWIGTYPE_ccstd__optionalT_float_t"); 
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_AudioContextOptions_sampleRate_set) 
+
+static bool js_cc_AudioContextOptions_sampleRate_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::AudioContextOptions *arg1 = (cc::AudioContextOptions *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::AudioContextOptions>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(arg1->sampleRate, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "AudioContextOptions_sampleRate_get, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(arg1->sampleRate, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_AudioContextOptions_sampleRate_get) 
+
+// js_ctor
+static bool js_new_cc_AudioContextOptions(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    
+    cc::AudioContextOptions *result;
+    result = (cc::AudioContextOptions *)new cc::AudioContextOptions();
+    
+    
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    s.thisObject()->setPrivateObject(ptr);
+    return true;
+}
+SE_BIND_CTOR(js_new_cc_AudioContextOptions, __jsb_cc_AudioContextOptions_class, js_delete_cc_AudioContextOptions)
+
+static bool js_delete_cc_AudioContextOptions(se::State& s)
+{
+    // js_dtoroverride
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_delete_cc_AudioContextOptions) 
+
+template<>
+bool sevalue_to_native(const se::Value &from, cc::AudioContextOptions * to, se::Object *ctx)
+{
+    assert(from.isObject());
+    se::Object *json = from.toObject();
+    auto* data = reinterpret_cast<cc::AudioContextOptions*>(json->getPrivateData());
+    if (data) {
+        *to = *data;
+        return true;
+    }
+    se::Value field;
+    bool ok = true;
+    
+    json->getProperty("latencyHint", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->latencyHint), ctx);
+    }
+    
+    
+    json->getProperty("sampleRate", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->sampleRate), ctx);
+    }
+    
+    
+    return ok;
+}
+
+
+bool js_register_cc_AudioContextOptions(se::Object* obj) {
+    auto* cls = se::Class::create("AudioContextOptions", obj, nullptr, _SE(js_new_cc_AudioContextOptions)); 
+    
+    cls->defineProperty("latencyHint", _SE(js_cc_AudioContextOptions_latencyHint_get), _SE(js_cc_AudioContextOptions_latencyHint_set)); 
+    cls->defineProperty("sampleRate", _SE(js_cc_AudioContextOptions_sampleRate_get), _SE(js_cc_AudioContextOptions_sampleRate_set)); 
+    
+    
+    
+    
+    
+    cls->defineFinalizeFunction(_SE(js_delete_cc_AudioContextOptions));
+    
+    
+    cls->install();
+    JSBClassType::registerClass<cc::AudioContextOptions>(cls);
+    
+    __jsb_cc_AudioContextOptions_proto = cls->getProto();
+    __jsb_cc_AudioContextOptions_class = cls;
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
+
+se::Class* __jsb_cc_BaseAudioContext_class = nullptr;
+se::Object* __jsb_cc_BaseAudioContext_proto = nullptr;
+SE_DECLARE_FINALIZE_FUNC(js_delete_cc_BaseAudioContext) 
+
+// js_ctor
+static bool js_new_cc_BaseAudioContext(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    
+    cc::BaseAudioContext *result;
+    result = (cc::BaseAudioContext *)new cc::BaseAudioContext();
+    
+    
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    s.thisObject()->setPrivateObject(ptr);
+    return true;
+}
+SE_BIND_CTOR(js_new_cc_BaseAudioContext, __jsb_cc_BaseAudioContext_class, js_delete_cc_BaseAudioContext)
+
+static bool js_delete_cc_BaseAudioContext(se::State& s)
+{
+    // js_dtoroverride
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_delete_cc_BaseAudioContext) 
+
+static bool js_cc_BaseAudioContext_onStateChanged(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::BaseAudioContext *arg1 = (cc::BaseAudioContext *) NULL ;
+    cc::StateChangeCallback arg2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::BaseAudioContext>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "BaseAudioContext_onStateChanged,2,SWIGTYPE_std__functionT_void_fcc__AudioContextStateF_t"); 
+    
+    (arg1)->onStateChanged(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_BaseAudioContext_onStateChanged) 
+
+static bool js_cc_BaseAudioContext_createBuffer__SWIG_0(se::State& s)
+{
+    // js_overloaded_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    cc::BaseAudioContext *arg1 = (cc::BaseAudioContext *) NULL ;
+    uint32_t arg2 ;
+    uint32_t arg3 ;
+    float arg4 ;
+    cc::AudioBuffer *result = 0 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::BaseAudioContext>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "BaseAudioContext_createBuffer,2,SWIGTYPE_uint32_t"); 
+    
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[1], &arg3, s.thisObject());
+    SE_PRECONDITION2(ok, false, "BaseAudioContext_createBuffer,3,SWIGTYPE_uint32_t"); 
+    
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[2], &arg4, nullptr);
+    SE_PRECONDITION2(ok, false, "BaseAudioContext_createBuffer,4,SWIGTYPE_float"); 
+    result = (cc::AudioBuffer *)(arg1)->createBuffer(arg2,arg3,arg4);
+    // %typemap(out) SWIGTYPE*
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "BaseAudioContext_createBuffer, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+
+static bool js_cc_BaseAudioContext_createBuffer__SWIG_1(se::State& s)
+{
+    // js_overloaded_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    cc::BaseAudioContext *arg1 = (cc::BaseAudioContext *) NULL ;
+    uint32_t arg2 ;
+    uint32_t arg3 ;
+    cc::AudioBuffer *result = 0 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::BaseAudioContext>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "BaseAudioContext_createBuffer,2,SWIGTYPE_uint32_t"); 
+    
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[1], &arg3, s.thisObject());
+    SE_PRECONDITION2(ok, false, "BaseAudioContext_createBuffer,3,SWIGTYPE_uint32_t"); 
+    
+    result = (cc::AudioBuffer *)(arg1)->createBuffer(arg2,arg3);
+    // %typemap(out) SWIGTYPE*
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "BaseAudioContext_createBuffer, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+
+static bool js_cc_BaseAudioContext_createBuffer__SWIG_2(se::State& s)
+{
+    // js_overloaded_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    cc::BaseAudioContext *arg1 = (cc::BaseAudioContext *) NULL ;
+    uint32_t arg2 ;
+    cc::AudioBuffer *result = 0 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::BaseAudioContext>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "BaseAudioContext_createBuffer,2,SWIGTYPE_uint32_t"); 
+    
+    result = (cc::AudioBuffer *)(arg1)->createBuffer(arg2);
+    // %typemap(out) SWIGTYPE*
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "BaseAudioContext_createBuffer, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+
+static bool js_cc_BaseAudioContext_createBuffer__SWIG_3(se::State& s)
+{
+    // js_overloaded_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    cc::BaseAudioContext *arg1 = (cc::BaseAudioContext *) NULL ;
+    cc::AudioBuffer *result = 0 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::BaseAudioContext>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (cc::AudioBuffer *)(arg1)->createBuffer();
+    // %typemap(out) SWIGTYPE*
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "BaseAudioContext_createBuffer, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+
+static bool js_cc_BaseAudioContext_createBuffer(se::State& s)
+{
+    // js_function_dispatcher
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    
+    // js_function_dispatch_case
+    if (argc == 3) {
+        ok = js_cc_BaseAudioContext_createBuffer__SWIG_0(s);
+        if (ok) {
+            return true; 
+        }
+    } // js_function_dispatch_case
+    if (argc == 2) {
+        ok = js_cc_BaseAudioContext_createBuffer__SWIG_1(s);
+        if (ok) {
+            return true; 
+        }
+    } // js_function_dispatch_case
+    if (argc == 1) {
+        ok = js_cc_BaseAudioContext_createBuffer__SWIG_2(s);
+        if (ok) {
+            return true; 
+        }
+    } // js_function_dispatch_case
+    if (argc == 0) {
+        ok = js_cc_BaseAudioContext_createBuffer__SWIG_3(s);
+        if (ok) {
+            return true; 
+        }
+    } 
+    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
+    return false;
+}
+SE_BIND_FUNC(js_cc_BaseAudioContext_createBuffer) 
+
+static bool js_cc_BaseAudioContext_createGain(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::BaseAudioContext *arg1 = (cc::BaseAudioContext *) NULL ;
+    cc::GainNode *result = 0 ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::BaseAudioContext>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (cc::GainNode *)(arg1)->createGain();
+    // %typemap(out) SWIGTYPE*
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "BaseAudioContext_createGain, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_BaseAudioContext_createGain) 
+
+static bool js_cc_BaseAudioContext_getInnerContext(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::BaseAudioContext *arg1 = (cc::BaseAudioContext *) NULL ;
+    std::shared_ptr< lab::AudioContext > result;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::BaseAudioContext>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (arg1)->getInnerContext();
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "BaseAudioContext_getInnerContext, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_BaseAudioContext_getInnerContext) 
+
+static bool js_cc_BaseAudioContext_currentTime_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::BaseAudioContext *arg1 = (cc::BaseAudioContext *) NULL ;
+    double result;
+    
+    arg1 = SE_THIS_OBJECT<cc::BaseAudioContext>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (double)cc_BaseAudioContext_currentTime_get(arg1);
+    
+    // out 1
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_BaseAudioContext_currentTime_get) 
+
+static bool js_cc_BaseAudioContext_destination_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::BaseAudioContext *arg1 = (cc::BaseAudioContext *) NULL ;
+    cc::AudioDestinationNode *result = 0 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::BaseAudioContext>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (cc::AudioDestinationNode *)cc_BaseAudioContext_destination_get(arg1);
+    // %typemap(out) SWIGTYPE*
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "BaseAudioContext_destination_get, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_BaseAudioContext_destination_get) 
+
+static bool js_cc_BaseAudioContext_sampleRate_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::BaseAudioContext *arg1 = (cc::BaseAudioContext *) NULL ;
+    float result;
+    
+    arg1 = SE_THIS_OBJECT<cc::BaseAudioContext>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (float)cc_BaseAudioContext_sampleRate_get(arg1);
+    
+    // out 1
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_BaseAudioContext_sampleRate_get) 
+
+static bool js_cc_BaseAudioContext_state_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::BaseAudioContext *arg1 = (cc::BaseAudioContext *) NULL ;
+    cc::AudioContextState result;
+    int32_t temp ;
+    
+    arg1 = SE_THIS_OBJECT<cc::BaseAudioContext>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (cc::AudioContextState)cc_BaseAudioContext_state_get(arg1);
+    // out 4
+    s.rval().setInt32(static_cast<int32_t>(result));
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_BaseAudioContext_state_get) 
+
+bool js_register_cc_BaseAudioContext(se::Object* obj) {
+    auto* cls = se::Class::create("BaseAudioContext", obj, nullptr, _SE(js_new_cc_BaseAudioContext)); 
+    
+    cls->defineProperty("currentTime", _SE(js_cc_BaseAudioContext_currentTime_get), nullptr); 
+    cls->defineProperty("destination", _SE(js_cc_BaseAudioContext_destination_get), nullptr); 
+    cls->defineProperty("sampleRate", _SE(js_cc_BaseAudioContext_sampleRate_get), nullptr); 
+    cls->defineProperty("state", _SE(js_cc_BaseAudioContext_state_get), nullptr); 
+    
+    cls->defineFunction("onStateChanged", _SE(js_cc_BaseAudioContext_onStateChanged)); 
+    cls->defineFunction("createBuffer", _SE(js_cc_BaseAudioContext_createBuffer)); 
+    cls->defineFunction("createGain", _SE(js_cc_BaseAudioContext_createGain)); 
+    cls->defineFunction("getInnerContext", _SE(js_cc_BaseAudioContext_getInnerContext)); 
+    
+    
+    
+    
+    cls->defineFinalizeFunction(_SE(js_delete_cc_BaseAudioContext));
+    
+    
+    cls->install();
+    JSBClassType::registerClass<cc::BaseAudioContext>(cls);
+    
+    __jsb_cc_BaseAudioContext_proto = cls->getProto();
+    __jsb_cc_BaseAudioContext_class = cls;
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
 
 
 se::Class* __jsb_cc_AudioTimestamp_class = nullptr;
@@ -492,7 +1004,7 @@ static bool js_delete_cc_AudioContext(se::State& s)
 SE_BIND_FINALIZE_FUNC(js_delete_cc_AudioContext) 
 
 bool js_register_cc_AudioContext(se::Object* obj) {
-    auto* cls = se::Class::create("AudioContext", obj, nullptr, _SE(js_new_AudioContext)); 
+    auto* cls = se::Class::create("AudioContext", obj, __jsb_cc_BaseAudioContext_proto, _SE(js_new_AudioContext)); 
     
     cls->defineProperty("baseLatency", _SE(js_cc_AudioContext_baseLatency_get), nullptr); 
     cls->defineProperty("outputLatency", _SE(js_cc_AudioContext_outputLatency_get), nullptr); 
@@ -1428,7 +1940,7 @@ static bool js_delete_cc_AudioNode(se::State& s)
 }
 SE_BIND_FINALIZE_FUNC(js_delete_cc_AudioNode) 
 
-static bool js_cc_AudioNode_context(se::State& s)
+static bool js_cc_AudioNode_getContext(se::State& s)
 {
     // js_function
     
@@ -1444,16 +1956,16 @@ static bool js_cc_AudioNode_context(se::State& s)
     }
     arg1 = SE_THIS_OBJECT<cc::AudioNode>(s);
     SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    result = (cc::BaseAudioContext *)(arg1)->context();
+    result = (cc::BaseAudioContext *)(arg1)->getContext();
     // %typemap(out) SWIGTYPE*
     ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "AudioNode_context, Error processing arguments");
+    SE_PRECONDITION2(ok, false, "AudioNode_getContext, Error processing arguments");
     SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
     
     
     return true;
 }
-SE_BIND_FUNC(js_cc_AudioNode_context) 
+SE_BIND_FUNC(js_cc_AudioNode_getContext) 
 
 static bool js_cc_AudioNode_connect__SWIG_0(se::State& s)
 {
@@ -2070,7 +2582,7 @@ bool js_register_cc_AudioNode(se::Object* obj) {
     cls->defineProperty("channelCountMode", _SE(js_cc_AudioNode_channelCountMode_get), _SE(js_cc_AudioNode_channelCountMode_set)); 
     cls->defineProperty("channelInterpretation", _SE(js_cc_AudioNode_channelInterpretation_get), _SE(js_cc_AudioNode_channelInterpretation_set)); 
     
-    cls->defineFunction("context", _SE(js_cc_AudioNode_context)); 
+    cls->defineFunction("getContext", _SE(js_cc_AudioNode_getContext)); 
     cls->defineFunction("connect", _SE(js_cc_AudioNode_connect)); 
     cls->defineFunction("disconnect", _SE(js_cc_AudioNode_disconnect)); 
     
@@ -2257,7 +2769,8 @@ static bool js_cc_AudioScheduledSourceNode_onEnded(se::State& s)
     const auto& args = s.args();
     size_t argc = args.size();
     cc::AudioScheduledSourceNode *arg1 = (cc::AudioScheduledSourceNode *) NULL ;
-    cc::CommonCallback arg2 ;
+    cc::CommonCallback *arg2 = 0 ;
+    cc::CommonCallback temp2 ;
     
     if(argc != 1) {
         SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -2265,12 +2778,12 @@ static bool js_cc_AudioScheduledSourceNode_onEnded(se::State& s)
     }
     arg1 = SE_THIS_OBJECT<cc::AudioScheduledSourceNode>(s);
     SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) SWIGTYPE&
+    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "AudioScheduledSourceNode_onEnded,2,SWIGTYPE_p_std__functionT_void_fF_t");
+    arg2 = &temp2;
     
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "AudioScheduledSourceNode_onEnded,2,SWIGTYPE_std__functionT_void_fF_t"); 
-    
-    (arg1)->onEnded(arg2);
+    (arg1)->onEnded((cc::CommonCallback const &)*arg2);
     
     
     return true;
@@ -2283,7 +2796,8 @@ static bool js_cc_AudioScheduledSourceNode_offEnded(se::State& s)
     const auto& args = s.args();
     size_t argc = args.size();
     cc::AudioScheduledSourceNode *arg1 = (cc::AudioScheduledSourceNode *) NULL ;
-    cc::CommonCallback arg2 ;
+    cc::CommonCallback *arg2 = 0 ;
+    cc::CommonCallback temp2 ;
     
     if(argc != 1) {
         SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -2291,12 +2805,12 @@ static bool js_cc_AudioScheduledSourceNode_offEnded(se::State& s)
     }
     arg1 = SE_THIS_OBJECT<cc::AudioScheduledSourceNode>(s);
     SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) SWIGTYPE&
+    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "AudioScheduledSourceNode_offEnded,2,SWIGTYPE_p_std__functionT_void_fF_t");
+    arg2 = &temp2;
     
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "AudioScheduledSourceNode_offEnded,2,SWIGTYPE_std__functionT_void_fF_t"); 
-    
-    (arg1)->offEnded(arg2);
+    (arg1)->offEnded((cc::CommonCallback const &)*arg2);
     
     
     return true;
@@ -2542,7 +3056,7 @@ static bool js_delete_cc_GainNode(se::State& s)
 SE_BIND_FINALIZE_FUNC(js_delete_cc_GainNode) 
 
 bool js_register_cc_GainNode(se::Object* obj) {
-    auto* cls = se::Class::create("GainNode", obj, nullptr, _SE(js_new_GainNode)); 
+    auto* cls = se::Class::create("GainNode", obj, __jsb_cc_AudioNode_proto, _SE(js_new_GainNode)); 
     
     cls->defineProperty("gain", _SE(js_cc_GainNode_gain_get), nullptr); 
     
@@ -2800,323 +3314,6 @@ bool js_register_cc_StereoPannerNode(se::Object* obj) {
 }
 
 
-se::Class* __jsb_cc_SourceOptions_class = nullptr;
-se::Object* __jsb_cc_SourceOptions_proto = nullptr;
-SE_DECLARE_FINALIZE_FUNC(js_delete_cc_SourceOptions) 
-
-static bool js_cc_SourceOptions_buffer_set(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::SourceOptions *arg1 = (cc::SourceOptions *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::SourceOptions>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) SWIGTYPE*
-    ok &= sevalue_to_native(args[0], &arg1->buffer, s.thisObject());
-    SE_PRECONDITION2(ok, false, "SourceOptions_buffer_set,2,SWIGTYPE_p_cc__AudioBuffer"); 
-    
-    
-    return true;
-}
-SE_BIND_PROP_SET(js_cc_SourceOptions_buffer_set) 
-
-static bool js_cc_SourceOptions_buffer_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::SourceOptions *arg1 = (cc::SourceOptions *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::SourceOptions>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(out) SWIGTYPE*
-    ok &= nativevalue_to_se(arg1->buffer, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "SourceOptions_buffer_get, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(arg1->buffer, s.thisObject(), s.rval()); 
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_SourceOptions_buffer_get) 
-
-static bool js_cc_SourceOptions_detune_set(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::SourceOptions *arg1 = (cc::SourceOptions *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::SourceOptions>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[0], &arg1->detune, nullptr);
-    SE_PRECONDITION2(ok, false, "SourceOptions_detune_set,2,SWIGTYPE_float"); 
-    
-    
-    return true;
-}
-SE_BIND_PROP_SET(js_cc_SourceOptions_detune_set) 
-
-static bool js_cc_SourceOptions_detune_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::SourceOptions *arg1 = (cc::SourceOptions *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::SourceOptions>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    
-    // out 1
-    ok &= nativevalue_to_se(arg1->detune, s.rval(), s.thisObject() /*ctx*/); 
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_SourceOptions_detune_get) 
-
-static bool js_cc_SourceOptions_loop_set(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::SourceOptions *arg1 = (cc::SourceOptions *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::SourceOptions>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) bool
-    ok &= sevalue_to_native(args[0], &arg1->loop);
-    SE_PRECONDITION2(ok, false, "SourceOptions_loop_set,2,SWIGTYPE_bool"); 
-    
-    
-    return true;
-}
-SE_BIND_PROP_SET(js_cc_SourceOptions_loop_set) 
-
-static bool js_cc_SourceOptions_loop_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::SourceOptions *arg1 = (cc::SourceOptions *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::SourceOptions>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // out 5
-    ok &= nativevalue_to_se(arg1->loop, s.rval(), s.thisObject() /*ctx*/);
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_SourceOptions_loop_get) 
-
-static bool js_cc_SourceOptions_loopEnd_set(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::SourceOptions *arg1 = (cc::SourceOptions *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::SourceOptions>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[0], &arg1->loopEnd, nullptr);
-    SE_PRECONDITION2(ok, false, "SourceOptions_loopEnd_set,2,SWIGTYPE_float"); 
-    
-    
-    return true;
-}
-SE_BIND_PROP_SET(js_cc_SourceOptions_loopEnd_set) 
-
-static bool js_cc_SourceOptions_loopEnd_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::SourceOptions *arg1 = (cc::SourceOptions *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::SourceOptions>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    
-    // out 1
-    ok &= nativevalue_to_se(arg1->loopEnd, s.rval(), s.thisObject() /*ctx*/); 
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_SourceOptions_loopEnd_get) 
-
-static bool js_cc_SourceOptions_loopStart_set(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::SourceOptions *arg1 = (cc::SourceOptions *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::SourceOptions>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[0], &arg1->loopStart, nullptr);
-    SE_PRECONDITION2(ok, false, "SourceOptions_loopStart_set,2,SWIGTYPE_float"); 
-    
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_SET(js_cc_SourceOptions_loopStart_set) 
-
-static bool js_cc_SourceOptions_loopStart_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::SourceOptions *arg1 = (cc::SourceOptions *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::SourceOptions>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    
-    // out 1
-    ok &= nativevalue_to_se(arg1->loopStart, s.rval(), s.thisObject() /*ctx*/); 
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_SourceOptions_loopStart_get) 
-
-static bool js_cc_SourceOptions_playbackRate_set(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::SourceOptions *arg1 = (cc::SourceOptions *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::SourceOptions>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[0], &arg1->playbackRate, nullptr);
-    SE_PRECONDITION2(ok, false, "SourceOptions_playbackRate_set,2,SWIGTYPE_float"); 
-    
-    
-    return true;
-}
-SE_BIND_PROP_SET(js_cc_SourceOptions_playbackRate_set) 
-
-static bool js_cc_SourceOptions_playbackRate_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::SourceOptions *arg1 = (cc::SourceOptions *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::SourceOptions>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    
-    // out 1
-    ok &= nativevalue_to_se(arg1->playbackRate, s.rval(), s.thisObject() /*ctx*/); 
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_SourceOptions_playbackRate_get) 
-
-// js_ctor
-static bool js_new_cc_SourceOptions(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    
-    cc::SourceOptions *result;
-    result = (cc::SourceOptions *)new cc::SourceOptions();
-    
-    
-    auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
-    s.thisObject()->setPrivateObject(ptr);
-    return true;
-}
-SE_BIND_CTOR(js_new_cc_SourceOptions, __jsb_cc_SourceOptions_class, js_delete_cc_SourceOptions)
-
-static bool js_delete_cc_SourceOptions(se::State& s)
-{
-    // js_dtoroverride
-    return true;
-}
-SE_BIND_FINALIZE_FUNC(js_delete_cc_SourceOptions) 
-
-template<>
-bool sevalue_to_native(const se::Value &from, cc::SourceOptions * to, se::Object *ctx)
-{
-    assert(from.isObject());
-    se::Object *json = from.toObject();
-    auto* data = reinterpret_cast<cc::SourceOptions*>(json->getPrivateData());
-    if (data) {
-        *to = *data;
-        return true;
-    }
-    se::Value field;
-    bool ok = true;
-    
-    json->getProperty("buffer", &field, true);
-    if (!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->buffer), ctx);
-    }
-    
-    
-    json->getProperty("detune", &field, true);
-    if (!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->detune), ctx);
-    }
-    
-    
-    json->getProperty("loop", &field, true);
-    if (!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->loop), ctx);
-    }
-    
-    
-    json->getProperty("loopEnd", &field, true);
-    if (!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->loopEnd), ctx);
-    }
-    
-    
-    json->getProperty("loopStart", &field, true);
-    if (!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->loopStart), ctx);
-    }
-    
-    
-    json->getProperty("playbackRate", &field, true);
-    if (!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->playbackRate), ctx);
-    }
-    
-    
-    return ok;
-}
-
-
-bool js_register_cc_SourceOptions(se::Object* obj) {
-    auto* cls = se::Class::create("SourceOptions", obj, __jsb_cc_AudioNodeOptions_proto, _SE(js_new_cc_SourceOptions)); 
-    
-    cls->defineProperty("buffer", _SE(js_cc_SourceOptions_buffer_get), _SE(js_cc_SourceOptions_buffer_set)); 
-    cls->defineProperty("detune", _SE(js_cc_SourceOptions_detune_get), _SE(js_cc_SourceOptions_detune_set)); 
-    cls->defineProperty("loop", _SE(js_cc_SourceOptions_loop_get), _SE(js_cc_SourceOptions_loop_set)); 
-    cls->defineProperty("loopEnd", _SE(js_cc_SourceOptions_loopEnd_get), _SE(js_cc_SourceOptions_loopEnd_set)); 
-    cls->defineProperty("loopStart", _SE(js_cc_SourceOptions_loopStart_get), _SE(js_cc_SourceOptions_loopStart_set)); 
-    cls->defineProperty("playbackRate", _SE(js_cc_SourceOptions_playbackRate_get), _SE(js_cc_SourceOptions_playbackRate_set)); 
-    
-    
-    
-    
-    
-    cls->defineFinalizeFunction(_SE(js_delete_cc_SourceOptions));
-    
-    
-    cls->install();
-    JSBClassType::registerClass<cc::SourceOptions>(cls);
-    
-    __jsb_cc_SourceOptions_proto = cls->getProto();
-    __jsb_cc_SourceOptions_class = cls;
-    se::ScriptEngine::getInstance()->clearException();
-    return true;
-}
-
-
 se::Class* __jsb_cc_SourceNode_class = nullptr;
 se::Object* __jsb_cc_SourceNode_proto = nullptr;
 SE_DECLARE_FINALIZE_FUNC(js_delete_cc_SourceNode) 
@@ -3127,14 +3324,14 @@ static bool js_new_cc_SourceNode__SWIG_0(se::State& s) // NOLINT(readability-ide
     const auto& args = s.args();
     CC_UNUSED bool ok = true;
     cc::BaseAudioContext *arg1 = (cc::BaseAudioContext *) NULL ;
-    cc::AudioClip *arg2 = (cc::AudioClip *) NULL ;
+    cc::AudioBuffer *arg2 = (cc::AudioBuffer *) NULL ;
     cc::SourceNode *result;
     // %typemap(in) SWIGTYPE*
     ok &= sevalue_to_native(args[0], &arg1, s.thisObject());
     SE_PRECONDITION2(ok, false, "new_SourceNode,1,SWIGTYPE_p_cc__BaseAudioContext"); 
     // %typemap(in) SWIGTYPE*
     ok &= sevalue_to_native(args[1], &arg2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "new_SourceNode,2,SWIGTYPE_p_cc__AudioClip"); 
+    SE_PRECONDITION2(ok, false, "new_SourceNode,2,SWIGTYPE_p_cc__AudioBuffer"); 
     result = (cc::SourceNode *)new cc::SourceNode(arg1,arg2);
     
     
@@ -3194,186 +3391,10 @@ static bool js_new_SourceNode(se::State& s) // NOLINT(readability-identifier-nam
 }
 SE_BIND_CTOR(js_new_SourceNode, __jsb_cc_SourceNode_class, js_delete_cc_SourceNode)
 
-static bool js_cc_SourceNode_startAt(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::SourceNode *arg1 = (cc::SourceNode *) NULL ;
-    float arg2 ;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::SourceNode>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[0], &arg2, nullptr);
-    SE_PRECONDITION2(ok, false, "SourceNode_startAt,2,SWIGTYPE_float"); 
-    (arg1)->startAt(arg2);
-    
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_SourceNode_startAt) 
-
-static bool js_cc_SourceNode_restartAt(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::SourceNode *arg1 = (cc::SourceNode *) NULL ;
-    float arg2 ;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::SourceNode>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[0], &arg2, nullptr);
-    SE_PRECONDITION2(ok, false, "SourceNode_restartAt,2,SWIGTYPE_float"); 
-    (arg1)->restartAt(arg2);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_SourceNode_restartAt) 
-
-static bool js_cc_SourceNode_pause(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::SourceNode *arg1 = (cc::SourceNode *) NULL ;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::SourceNode>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    (arg1)->pause();
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_SourceNode_pause) 
-
-static bool js_cc_SourceNode_stop__SWIG_0(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    cc::SourceNode *arg1 = (cc::SourceNode *) NULL ;
-    float arg2 ;
-    
-    arg1 = SE_THIS_OBJECT<cc::SourceNode>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[0], &arg2, nullptr);
-    SE_PRECONDITION2(ok, false, "SourceNode_stop,2,SWIGTYPE_float"); 
-    (arg1)->stop(arg2);
-    
-    
-    return true;
-}
-
-static bool js_cc_SourceNode_stop__SWIG_1(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    cc::SourceNode *arg1 = (cc::SourceNode *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::SourceNode>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    (arg1)->stop();
-    
-    
-    return true;
-}
-
-static bool js_cc_SourceNode_stop(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    
-    
-    if (argc == 1) {
-        ok = js_cc_SourceNode_stop__SWIG_0(s);
-        if (ok) {
-            return true; 
-        }
-    } // js_function_dispatch_case
-    if (argc == 0) {
-        ok = js_cc_SourceNode_stop__SWIG_1(s);
-        if (ok) {
-            return true; 
-        }
-    } 
-    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
-    return false;
-}
-SE_BIND_FUNC(js_cc_SourceNode_stop) 
-
 static bool js_cc_SourceNode_start__SWIG_0(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    cc::SourceNode *arg1 = (cc::SourceNode *) NULL ;
-    float arg2 ;
-    float arg3 ;
-    float arg4 ;
-    
-    arg1 = SE_THIS_OBJECT<cc::SourceNode>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[0], &arg2, nullptr);
-    SE_PRECONDITION2(ok, false, "SourceNode_start,2,SWIGTYPE_float"); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[1], &arg3, nullptr);
-    SE_PRECONDITION2(ok, false, "SourceNode_start,3,SWIGTYPE_float"); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[2], &arg4, nullptr);
-    SE_PRECONDITION2(ok, false, "SourceNode_start,4,SWIGTYPE_float"); 
-    (arg1)->start(arg2,arg3,arg4);
-    
-    
-    return true;
-}
-
-static bool js_cc_SourceNode_start__SWIG_1(se::State& s)
 {
     // js_overloaded_function
     
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    cc::SourceNode *arg1 = (cc::SourceNode *) NULL ;
-    float arg2 ;
-    float arg3 ;
-    
-    arg1 = SE_THIS_OBJECT<cc::SourceNode>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[0], &arg2, nullptr);
-    SE_PRECONDITION2(ok, false, "SourceNode_start,2,SWIGTYPE_float"); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[1], &arg3, nullptr);
-    SE_PRECONDITION2(ok, false, "SourceNode_start,3,SWIGTYPE_float"); 
-    (arg1)->start(arg2,arg3);
-    
-    
-    return true;
-}
-
-static bool js_cc_SourceNode_start__SWIG_2(se::State& s)
-{
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     cc::SourceNode *arg1 = (cc::SourceNode *) NULL ;
@@ -3390,10 +3411,8 @@ static bool js_cc_SourceNode_start__SWIG_2(se::State& s)
     return true;
 }
 
-static bool js_cc_SourceNode_start__SWIG_3(se::State& s)
+static bool js_cc_SourceNode_start__SWIG_1(se::State& s)
 {
-    // js_overloaded_function
-    
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     cc::SourceNode *arg1 = (cc::SourceNode *) NULL ;
@@ -3412,27 +3431,15 @@ static bool js_cc_SourceNode_start(se::State& s)
     const auto& args = s.args();
     size_t argc = args.size();
     
-    // js_function_dispatch_case
-    if (argc == 3) {
-        ok = js_cc_SourceNode_start__SWIG_0(s);
-        if (ok) {
-            return true; 
-        }
-    } 
-    if (argc == 2) {
-        ok = js_cc_SourceNode_start__SWIG_1(s);
-        if (ok) {
-            return true; 
-        }
-    } // js_function_dispatch_case
+    
     if (argc == 1) {
-        ok = js_cc_SourceNode_start__SWIG_2(s);
+        ok = js_cc_SourceNode_start__SWIG_0(s);
         if (ok) {
             return true; 
         }
     } // js_function_dispatch_case
     if (argc == 0) {
-        ok = js_cc_SourceNode_start__SWIG_3(s);
+        ok = js_cc_SourceNode_start__SWIG_1(s);
         if (ok) {
             return true; 
         }
@@ -3442,43 +3449,155 @@ static bool js_cc_SourceNode_start(se::State& s)
 }
 SE_BIND_FUNC(js_cc_SourceNode_start) 
 
-static bool js_cc_SourceNode_detune_get(se::State& s)
+static bool js_cc_SourceNode_pause(se::State& s)
 {
-    CC_UNUSED bool ok = true;
-    cc::SourceNode *arg1 = (cc::SourceNode *) NULL ;
-    cc::AudioParam *result = 0 ;
+    // js_function
     
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::SourceNode *arg1 = (cc::SourceNode *) NULL ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
     arg1 = SE_THIS_OBJECT<cc::SourceNode>(s);
     SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    result = (cc::AudioParam *)cc_SourceNode_detune_get(arg1);
-    // %typemap(out) SWIGTYPE*
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "SourceNode_detune_get, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
+    (arg1)->pause();
     
     
     return true;
 }
-SE_BIND_PROP_GET(js_cc_SourceNode_detune_get) 
+SE_BIND_FUNC(js_cc_SourceNode_pause) 
 
-static bool js_cc_SourceNode_playbackRate_get(se::State& s)
+static bool js_cc_SourceNode_stop(se::State& s)
 {
-    CC_UNUSED bool ok = true;
-    cc::SourceNode *arg1 = (cc::SourceNode *) NULL ;
-    cc::AudioParam *result = 0 ;
+    // js_function
     
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::SourceNode *arg1 = (cc::SourceNode *) NULL ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
     arg1 = SE_THIS_OBJECT<cc::SourceNode>(s);
     SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    result = (cc::AudioParam *)cc_SourceNode_playbackRate_get(arg1);
+    (arg1)->stop();
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_SourceNode_stop) 
+
+static bool js_cc_SourceNode_setBuffer(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::SourceNode *arg1 = (cc::SourceNode *) NULL ;
+    cc::AudioBuffer *arg2 = (cc::AudioBuffer *) NULL ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::SourceNode>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) SWIGTYPE*
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "SourceNode_setBuffer,2,SWIGTYPE_p_cc__AudioBuffer"); 
+    (arg1)->setBuffer(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_SourceNode_setBuffer) 
+
+static bool js_cc_SourceNode_getBuffer(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::SourceNode *arg1 = (cc::SourceNode *) NULL ;
+    cc::AudioBuffer *result = 0 ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::SourceNode>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (cc::AudioBuffer *)(arg1)->getBuffer();
     // %typemap(out) SWIGTYPE*
     ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "SourceNode_playbackRate_get, Error processing arguments");
+    SE_PRECONDITION2(ok, false, "SourceNode_getBuffer, Error processing arguments");
     SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
     
     
     return true;
 }
-SE_BIND_PROP_GET(js_cc_SourceNode_playbackRate_get) 
+SE_BIND_FUNC(js_cc_SourceNode_getBuffer) 
+
+static bool js_cc_SourceNode_connect(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::SourceNode *arg1 = (cc::SourceNode *) NULL ;
+    cc::AudioNode *arg2 = (cc::AudioNode *) NULL ;
+    cc::AudioNode *result = 0 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::SourceNode>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) SWIGTYPE*
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "SourceNode_connect,2,SWIGTYPE_p_cc__AudioNode"); 
+    result = (cc::AudioNode *)(arg1)->connect(arg2);
+    // %typemap(out) SWIGTYPE*
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "SourceNode_connect, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_SourceNode_connect) 
+
+static bool js_cc_SourceNode_disconnect(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::SourceNode *arg1 = (cc::SourceNode *) NULL ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::SourceNode>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    (arg1)->disconnect();
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_SourceNode_disconnect) 
 
 static bool js_cc_SourceNode_loop_set(se::State& s)
 {
@@ -3555,7 +3674,7 @@ static bool js_cc_SourceNode_currentTime_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_SourceNode_currentTime_get) 
 
-static bool js_cc_SourceNode_loopStart_set(se::State& s)
+static bool js_cc_SourceNode_playbackRate_set(se::State& s)
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
@@ -3567,17 +3686,17 @@ static bool js_cc_SourceNode_loopStart_set(se::State& s)
     SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
     // %typemap(in) int, short, long, signed char, float, double
     ok &= sevalue_to_native(args[0], &arg2, nullptr);
-    SE_PRECONDITION2(ok, false, "SourceNode_loopStart_set,2,SWIGTYPE_float"); 
-    cc_SourceNode_loopStart_set(arg1,arg2);
+    SE_PRECONDITION2(ok, false, "SourceNode_playbackRate_set,2,SWIGTYPE_float"); 
+    cc_SourceNode_playbackRate_set(arg1,arg2);
     
     ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
     
     
     return true;
 }
-SE_BIND_PROP_SET(js_cc_SourceNode_loopStart_set) 
+SE_BIND_PROP_SET(js_cc_SourceNode_playbackRate_set) 
 
-static bool js_cc_SourceNode_loopStart_get(se::State& s)
+static bool js_cc_SourceNode_playbackRate_get(se::State& s)
 {
     CC_UNUSED bool ok = true;
     cc::SourceNode *arg1 = (cc::SourceNode *) NULL ;
@@ -3585,7 +3704,7 @@ static bool js_cc_SourceNode_loopStart_get(se::State& s)
     
     arg1 = SE_THIS_OBJECT<cc::SourceNode>(s);
     SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    result = (float)cc_SourceNode_loopStart_get(arg1);
+    result = (float)cc_SourceNode_playbackRate_get(arg1);
     
     // out 1
     ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/); 
@@ -3593,45 +3712,7 @@ static bool js_cc_SourceNode_loopStart_get(se::State& s)
     
     return true;
 }
-SE_BIND_PROP_GET(js_cc_SourceNode_loopStart_get) 
-
-static bool js_cc_SourceNode_loopEnd_set(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::SourceNode *arg1 = (cc::SourceNode *) NULL ;
-    float arg2 ;
-    
-    arg1 = SE_THIS_OBJECT<cc::SourceNode>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[0], &arg2, nullptr);
-    SE_PRECONDITION2(ok, false, "SourceNode_loopEnd_set,2,SWIGTYPE_float"); 
-    cc_SourceNode_loopEnd_set(arg1,arg2);
-    
-    
-    return true;
-}
-SE_BIND_PROP_SET(js_cc_SourceNode_loopEnd_set) 
-
-static bool js_cc_SourceNode_loopEnd_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::SourceNode *arg1 = (cc::SourceNode *) NULL ;
-    float result;
-    
-    arg1 = SE_THIS_OBJECT<cc::SourceNode>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    result = (float)cc_SourceNode_loopEnd_get(arg1);
-    
-    // out 1
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/); 
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_SourceNode_loopEnd_get) 
+SE_BIND_PROP_GET(js_cc_SourceNode_playbackRate_get) 
 
 static bool js_delete_cc_SourceNode(se::State& s)
 {
@@ -3641,20 +3722,19 @@ static bool js_delete_cc_SourceNode(se::State& s)
 SE_BIND_FINALIZE_FUNC(js_delete_cc_SourceNode) 
 
 bool js_register_cc_SourceNode(se::Object* obj) {
-    auto* cls = se::Class::create("SourceNode", obj, __jsb_cc_AudioScheduledSourceNode_proto, _SE(js_new_SourceNode)); 
+    auto* cls = se::Class::create("SourceNode", obj, nullptr, _SE(js_new_SourceNode)); 
     
-    cls->defineProperty("detune", _SE(js_cc_SourceNode_detune_get), nullptr); 
-    cls->defineProperty("playbackRate", _SE(js_cc_SourceNode_playbackRate_get), nullptr); 
     cls->defineProperty("loop", _SE(js_cc_SourceNode_loop_get), _SE(js_cc_SourceNode_loop_set)); 
     cls->defineProperty("currentTime", _SE(js_cc_SourceNode_currentTime_get), _SE(js_cc_SourceNode_currentTime_set)); 
-    cls->defineProperty("loopStart", _SE(js_cc_SourceNode_loopStart_get), _SE(js_cc_SourceNode_loopStart_set)); 
-    cls->defineProperty("loopEnd", _SE(js_cc_SourceNode_loopEnd_get), _SE(js_cc_SourceNode_loopEnd_set)); 
+    cls->defineProperty("playbackRate", _SE(js_cc_SourceNode_playbackRate_get), _SE(js_cc_SourceNode_playbackRate_set)); 
     
-    cls->defineFunction("startAt", _SE(js_cc_SourceNode_startAt)); 
-    cls->defineFunction("restartAt", _SE(js_cc_SourceNode_restartAt)); 
+    cls->defineFunction("start", _SE(js_cc_SourceNode_start)); 
     cls->defineFunction("pause", _SE(js_cc_SourceNode_pause)); 
     cls->defineFunction("stop", _SE(js_cc_SourceNode_stop)); 
-    cls->defineFunction("start", _SE(js_cc_SourceNode_start)); 
+    cls->defineFunction("setBuffer", _SE(js_cc_SourceNode_setBuffer)); 
+    cls->defineFunction("getBuffer", _SE(js_cc_SourceNode_getBuffer)); 
+    cls->defineFunction("connect", _SE(js_cc_SourceNode_connect)); 
+    cls->defineFunction("disconnect", _SE(js_cc_SourceNode_disconnect)); 
     
     
     
@@ -3685,6 +3765,8 @@ bool register_all_audio(se::Object* obj) {
     }
     se::Object* ns = nsVal.toObject();
     /* Register classes */
+    js_register_cc_AudioContextOptions(ns); 
+    js_register_cc_BaseAudioContext(ns); 
     js_register_cc_AudioTimestamp(ns); 
     js_register_cc_AudioContext(ns); 
     js_register_cc_AudioBufferOptions(ns); 
@@ -3698,7 +3780,6 @@ bool register_all_audio(se::Object* obj) {
     js_register_cc_GainNode(ns); 
     js_register_cc_StereoPannerOptions(ns); 
     js_register_cc_StereoPannerNode(ns); 
-    js_register_cc_SourceOptions(ns); 
     js_register_cc_SourceNode(ns); 
     
     /* Register global variables & global functions */

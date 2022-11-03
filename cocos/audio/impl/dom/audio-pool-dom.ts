@@ -37,7 +37,7 @@ class AudioPool {
         console.log(`url is ${url}`);
         if (!this._infoMap[url]) {
             const domAudio: HTMLAudioElement = new Audio(url);
-            this._domPool[url].push(domAudio);
+            this._domPool[url] = [];
             this._infoMap[url] = {
                 duration: domAudio.duration,
             };

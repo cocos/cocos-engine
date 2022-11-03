@@ -239,8 +239,6 @@ if(USE_AUDIO)
     # )
     if(WINDOWS)
         cocos_source_files(
-            cocos/audio/AudioClip.cpp
-            cocos/audio/AudioClip.h
             cocos/audio/graph_based/AudioBuffer.h
             cocos/audio/graph_based/AudioBuffer.cpp
             cocos/audio/graph_based/SourceNode.h
@@ -2496,12 +2494,12 @@ cocos_source_files(
             cocos/bindings/manual/jsb_pipeline_manual.h
             cocos/bindings/manual/jsb_pipeline_manual.cpp
 )
-# if(USE_AUDIO)
-#     cocos_source_files(
-#             cocos/bindings/manual/jsb_audio_manual.cpp
-#             cocos/bindings/manual/jsb_audio_manual.h
-#     )
-# endif()
+if(USE_AUDIO)
+    cocos_source_files(
+            cocos/bindings/manual/jsb_audio_manual.cpp
+            cocos/bindings/manual/jsb_audio_manual.h
+    )
+endif()
 if(USE_SOCKET)
     cocos_source_files(
                      cocos/bindings/manual/jsb_socketio.cpp
@@ -3043,6 +3041,55 @@ if(MSVC)
         /wd4996 # deprecated
         /wd4099 # PDB 'filename' was not found with 'object/library' or at 'path'; linking object as if no debug info
     )
+endif()
+
+if(WIN32)
+    # Arch AVX is problematic for many users, so disable it until
+    # some reasonable strategy (a separate AVX target?) is determined
+    #target_compile_options(${proj} PRIVATE /arch:AVX /Zi)
+    target_compile_options(${ENGINE_NAME} PUBLIC /Zi)
+    target_compile_definitions(${ENGINE_NAME} PUBLIC __WINDOWS_WASAPI__=1)
+    # TODO: These vars are for libniquist and should be set in the find libynquist script.
+    target_compile_definitions(${ENGINE_NAME} PUBLIC HAVE_STDINT_H=1 HAVE_SINF=1)
+elseif(APPLE)
+elseif(ANDROID)
+    target_compile_options(${ENGINE_NAME} PRIVATE -fPIC)
+    target_compile_definitions(${ENGINE_NAME} PRIVATE USE_KISS_FFT=1)
+    target_link_libraries(${ENGINE_NAME} OpenSLES)
+    if(LABSOUND_JACK)
+        target_link_libraries(${ENGINE_NAME} jack)
+        target_compile_definitions(${ENGINE_NAME} PRIVATE __UNIX_JACK__=1)
+    endif()
+    if(LABSOUND_PULSE)
+        target_link_libraries(${ENGINE_NAME} pulse pulse-simple)
+        target_compile_definitions(${ENGINE_NAME} PRIVATE __LINUX_PULSE__=1)
+    endif()
+    if(LABSOUND_ASOUND)
+        target_link_libraries(${ENGINE_NAME} asound)
+        target_compile_definitions(${ENGINE_NAME} PRIVATE __LINUX_ASOUND__=1)
+    endif()
+    # TODO: These vars are for libnyquist and should be set in the find libynquist script.
+    # TODO: libnyquist's loadabc calls getenv and setenv. That's undesirable.
+    target_compile_definitions(${ENGINE_NAME} PRIVATE HAVE_STDINT_H=1 HAVE_SETENV=1 HAVE_SINF=1)
+elseif(UNIX)
+    # target_link_libraries(${proj} pthread)
+    target_compile_options(${ENGINE_NAME} PRIVATE -fPIC)
+    target_compile_definitions(${ENGINE_NAME} PRIVATE USE_KISS_FFT=1)
+    if(LABSOUND_JACK)
+        # target_link_libraries(${proj} jack)
+        target_compile_definitions(${ENGINE_NAME} PRIVATE __UNIX_JACK__=1)
+    endif()
+    if(LABSOUND_PULSE)
+        # target_link_libraries(${proj} pulse pulse-simple)
+        target_compile_definitions(${ENGINE_NAME} PRIVATE __LINUX_PULSE__=1)
+    endif()
+    if(LABSOUND_ASOUND)
+        target_link_libraries(${ENGINE_NAME} asound)
+        target_compile_definitions(${ENGINE_NAME} PRIVATE __LINUX_ASOUND__=1)
+    endif()
+    # TODO: These vars are for libnyquist and should be set in the find libynquist script.
+    # TODO: libnyquist's loadabc calls getenv and setenv. That's undesirable.
+    target_compile_definitions(${ENGINE_NAME} PRIVATE HAVE_STDINT_H=1 HAVE_SETENV=1 HAVE_SINF=1)
 endif()
 
 if(CC_USE_VULKAN)

@@ -1,58 +1,69 @@
 #pragma once
+#include "base/RefCounted.h"
 #include "audio/graph_based/AudioNode.h"
 #include "audio/graph_based/AudioScheduledSourceNode.h"
 #include "LabSound/core/SampledAudioNode.h"
+#include "LabSound/core/GainNode.h"
 namespace cc {
 class AudioBuffer;
 class AudioClip;
-struct SourceOptions : AudioNodeOptions {
-    /*AudioBuffer* buffer;*/
-    /* K rate */
-    float detune{0};
-    bool loop{false};
-    float loopEnd{0.f};
-    float loopStart{0.f};
-    /* A rate */
-    float playbackRate{1.f};
+enum ABSNState {
+    // Buffer is not set
+    UNSET,
+    // Buffer is set, not played
+    READY,
+    // ABSN is used but not stopped.
+    PLAYING,
+    PAUSED,
+    // Should restart
+    DIRTY,
 };
-class SourceNode : public AudioScheduledSourceNode {
+
+class SourceNode : public RefCounted{
 public:
     SourceNode() = delete;
-    SourceNode(BaseAudioContext* ctx, const char* url = nullptr, const SourceOptions& options = {});
+    SourceNode(BaseAudioContext* ctx, AudioBuffer* buffer = nullptr);
     /*
     JSB binding methods, work for AudioPlayerX.
     */
-    void startAt(float offset);
-    void restartAt(float offset);
+    void start(float time = 0);
     void pause();
-    void stop(float when = 0);
+    void stop();
     
     // Standard methods, thinking of abolish.
     /*
     * Is not virtual method, as described in labSound or WebAudio, start for scheduled time for a relative time.
     */
-    void start(float when = 0.f, float offset = 0.f, float duration = 0.f);
-    AudioParam* detune();
-    AudioParam* playbackRate();
-    bool loop() { return _loop; }
+
+    float getPlaybackRate();
+    void setPlaybackRate(float rate);
+    bool getLoop() { return _loop; }
+    void setBuffer(AudioBuffer* buffer);
+    AudioBuffer* getBuffer();
     void setLoop(bool loop);
-    float currentTime();
+    float getCurrentTime();
     void setCurrentTime(float time);
-    float loopStart() { return _loopStart; }
-    void setLoopStart(float loopStart);
-    float loopEnd() { return _loopEnd; }
-    void setLoopEnd(float loopEnd);
+    AudioNode* connect(AudioNode* node);
+    void disconnect();
 
 private:
-    std::shared_ptr<AudioBuffer> _buffer{nullptr};
+    void _pureStart(float time);
+    void _restart(float time);
+    std::shared_ptr<lab::AudioContext> _ctx;
+    std::shared_ptr<lab::SampledAudioNode> _absn;
+    std::shared_ptr<lab::GainNode> _gain;
+    // When the source node start, we will save the context current time.
+    float _cachePlaybackRate{1.f};
+    float _startTime{0.f};
+    // current time = past time + (ctx.current time - start time) * playback rate
+    // past time =  last current time before playbackrate changes.
+    float _pastTime{0.f};
+    ABSNState _innerState = ABSNState::UNSET;
+    IntrusivePtr<AudioBuffer> _buffer{nullptr};
     bool _loop{false};
     float _loopStart{0.f};
     float _loopEnd{0.f};
-    std::shared_ptr<AudioParam> _detune{nullptr};
-    std::shared_ptr<AudioParam> _playbackRate{nullptr};
-
-    float _cacheCurrentTIme{0.f};
-    float _pastTime{0.f};
-    float _startTime{0.f};
+    IntrusivePtr<AudioParam> _playbackRate{nullptr};
+    ccstd::vector<IntrusivePtr<AudioNode>> _connections;
 };
 }

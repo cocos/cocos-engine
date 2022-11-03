@@ -114,7 +114,8 @@
         "xtr1common": "cpp",
         "xtree": "cpp",
         "xutility": "cpp",
-        "*.ipp": "cpp"
+        "*.ipp": "cpp",
+        "ptr.h": "c"
     },
     "cmake.configureOnOpen": false,
 }

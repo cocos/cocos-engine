@@ -1,3 +1,5 @@
+#pragma once
+#include "base/RefCounted.h"
 #include "LabSound/core/AudioParam.h"
 #include "base/std/container/string.h"
 namespace cc {
@@ -5,7 +7,7 @@ namespace cc {
 * AudioParam is a class containning a lab::AudioParam.It represent a value with the specified name
 */
 
-class AudioParam {
+class AudioParam : public RefCounted {
 public:
     //AudioParam(ccstd::string &name, ccstd::string &shortName, double defaultValue, double minValue, double maxValue);
 
@@ -18,7 +20,7 @@ public:
     float maxValue() { return _param->maxValue(); };
     float minValue() { return _param->minValue(); }
     void setValue(float val) { _param->setValue(val); }
-    float value() { return _param->value(); }
+    float getValue() { return _param->value(); }
 
     // TODO(timlyeee): Methods are uncertained to add at current time, both are unnessecary or bad to use. 
 
@@ -31,11 +33,11 @@ public:
     //void setTargetAtTime(double target, double startTime, float timeConstant);
     //void setValueAtTime(float val, double startTime);
     //void setValueCurveAtTime(std::vector<float> values, double startTime, double duration);
-    static AudioParam* createParam(lab::AudioParam* param);
+    static AudioParam* createParam(std::shared_ptr<lab::AudioParam> param);
     
 
 private:
-    AudioParam(lab::AudioParam* param);
+    AudioParam(std::shared_ptr<lab::AudioParam> param);
     friend class AudioNode;
     // All self defined audio param descriptor will be saved here. Normally there's no need to construct a desc yourself.
     std::shared_ptr<lab::AudioParam> _param{nullptr};

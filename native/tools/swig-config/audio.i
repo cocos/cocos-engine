@@ -43,7 +43,14 @@
 // %ignore cc::AudioEngine::getOriginalPCMBuffer;
 // %ignore cc::AudioEngine::getPCMBufferByFormat;
 %ignore cc::AudioContext::getInnerContext;
-%ignore cc::BaseAudioContext;
+// %ignore cc::BaseAudioContext;
+%ignore cc::AudioParam::createParam;
+%ignore cc::AudioDestinationNode::createDestination;
+%ignore cc::AudioBuffer::bufferMap;
+%ignore cc::AudioBuffer::createBuffer;
+%ignore cc::AudioBuffer::getBus;
+%ignore cc::BaseAudioContext::decodeAudioData;
+
 // %ignore cc::AudioParam::createParam;
 // ----- Rename Section ------
 // Brief: Classes, methods or attributes needs to be renamed
@@ -90,43 +97,40 @@
 //  4. 'Attribute Section' should be placed before 'Import Section' and 'Include Section'
 //
 // AudioContext
-%attribute(cc::AudioContext, double, baseLatency, baseLatency);
-%attribute(cc::AudioContext, double, outputLatency, outputLatency);
+%attribute(cc::AudioContext, double, baseLatency, getBaseLatency);
+%attribute(cc::AudioContext, double, outputLatency, getOutputLatency);
 
 // AudioBuffer
-%attribute(cc::AudioBuffer, double, duration, duration);
-%attribute(cc::AudioBuffer, size_t, length, length);
-%attribute(cc::AudioBuffer, uint32_t, numberOfChannels, numberOfChannels);
-%attribute(cc::AudioBuffer, uint32_t, sampleRate, sampleRate);
+%attribute(cc::AudioBuffer, double, duration, getDuration);
+%attribute(cc::AudioBuffer, size_t, length, getLength);
+%attribute(cc::AudioBuffer, uint32_t, numberOfChannels, getNumberOfChannels);
+%attribute(cc::AudioBuffer, uint32_t, sampleRate, getSampleRate);
 // AudioNode
-%attribute(cc::AudioNode, uint32_t, numberOfInputs, numberOfInputs);
-%attribute(cc::AudioNode, uint32_t, numberOfOutputs, numberOfOutputs);
-%attribute(cc::AudioNode, uint32_t, channelCount, channelCount, setChannelCount);
-%attribute(cc::AudioNode, uint32_t, channelCountMode, channelCountMode, setChannelCountMode);
-%attribute(cc::AudioNode, uint32_t, channelInterpretation, channelInterpretation, setChannelInterpretation);
+%attribute(cc::AudioNode, uint32_t, numberOfInputs, getNumberOfInputs);
+%attribute(cc::AudioNode, uint32_t, numberOfOutputs, getNumberOfOutputs);
+%attribute(cc::AudioNode, uint32_t, channelCount, getChannelCount, setChannelCount);
+%attribute(cc::AudioNode, uint32_t, channelCountMode, getChannelCountMode, setChannelCountMode);
+%attribute(cc::AudioNode, uint32_t, channelInterpretation, getChannelInterpretation, setChannelInterpretation);
 // AudioDestinationNode
-%attribute(cc::AudioDestinationNode, uint32_t, maxChannelCount, maxChannelCount, setMaxChannelCount);
+%attribute(cc::AudioDestinationNode, uint32_t, maxChannelCount, getMaxChannelCount, setMaxChannelCount);
 // AudioParam
-%attribute(cc::AudioParam, float, value, value, setValue);
+%attribute(cc::AudioParam, float, value, getValue, setValue);
 %attribute(cc::AudioParam, float, defaultValue, defaultValue);
 %attribute(cc::AudioParam, float, maxValue, maxValue)
 %attribute(cc::AudioParam, float, minValue, minValue)
 // BaseAudioContext
-%attribute(cc::BaseAudioContext, double, currentTime, currentTime);
-%attribute(cc::BaseAudioContext, cc::AudioDestinationNode, destination, destination);
-%attribute(cc::BaseAudioContext, float, sampleRate, sampleRate);
-%attribute(cc::BaseAudioContext, uint32_t, state, state);
+%attribute(cc::BaseAudioContext, double, currentTime, getCurrentTime);
+%attribute(cc::BaseAudioContext, cc::AudioDestinationNode*, destination, getDestination);
+%attribute(cc::BaseAudioContext, float, sampleRate, getSampleRate);
+%attribute(cc::BaseAudioContext, cc::AudioContextState, state, getState);
 // GainNode
-%attribute(cc::GainNode, cc::AudioParam*, gain, gain);
+%attribute(cc::GainNode, cc::AudioParam*, gain, getGain);
 // StereoPannerNode
-%attribute(cc::StereoPannerNode, cc::AudioParam*, pan, pan);
+%attribute(cc::StereoPannerNode, cc::AudioParam*, pan, getPan);
 // SourceNode
-%attribute(cc::SourceNode, cc::AudioParam*, detune, detune);
-%attribute(cc::SourceNode, cc::AudioParam*, playbackRate, playbackRate);
-%attribute(cc::SourceNode, bool, loop, loop, setLoop);
-%attribute(cc::SourceNode, float, currentTime, currentTime, setCurrentTime);
-%attribute(cc::SourceNode, float, loopStart, loopStart, setLoopStart);
-%attribute(cc::SourceNode, float, loopEnd, loopEnd, setLoopEnd);
+%attribute(cc::SourceNode, bool, loop, getLoop, setLoop);
+%attribute(cc::SourceNode, float, currentTime, getCurrentTime, setCurrentTime);
+%attribute(cc::SourceNode, float, playbackRate, getPlaybackRate, setPlaybackRate);
 
 // ----- Import Section ------
 // Brief: Import header files which are depended by 'Include Section'
@@ -134,13 +138,13 @@
 //   %import "your_header_file.h" will not generate code for that header file
 //
 %import "audio/Export.h"
-%import "audio/graph_based/BaseAudioContext.h"
 
 
 
 // ----- Include Section ------
 // Brief: Include header files in which classes and methods will be bound
 // %include "audio/include/AudioEngine.h"
+%include "audio/graph_based/BaseAudioContext.h"
 %include "audio/graph_based/AudioContext.h"
 %include "audio/graph_based/AudioBuffer.h"
 %include "audio/graph_based/AudioParam.h"

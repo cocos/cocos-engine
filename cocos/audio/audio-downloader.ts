@@ -24,12 +24,13 @@
  THE SOFTWARE.
  */
 
-import { audioLoader } from 'pal/audio';
+import { audioLoader } from './pal/web/index';
 import { AudioClip, AudioMeta } from './audio-clip';
 import { CompleteCallback, IDownloadParseOptions } from '../asset/asset-manager/shared';
 import downloader from '../asset/asset-manager/downloader';
 import factory from '../asset/asset-manager/factory';
 import { AudioInfo } from './type';
+import { legacyCC } from '../core/global-exports';
 
 export function loadAudioPlayer (url: string, options: IDownloadParseOptions, onComplete: CompleteCallback) {
     console.log(`load audio clip with ${url}`);
@@ -77,3 +78,5 @@ factory.register({
     '.wav': createAudioClip,
     '.m4a': createAudioClip,
 });
+
+legacyCC.internal.loadAudioPlayer = loadAudioPlayer;

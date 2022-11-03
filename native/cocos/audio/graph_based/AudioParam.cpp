@@ -1,10 +1,10 @@
 #include "audio/graph_based/AudioParam.h"
 
 namespace cc {
-AudioParam* AudioParam::createParam(lab::AudioParam* param) {
+AudioParam* AudioParam::createParam(std::shared_ptr<lab::AudioParam> param) {
     return new AudioParam(param);
 }
-AudioParam::AudioParam(lab::AudioParam* param) : _param(param){};
+AudioParam::AudioParam(std::shared_ptr<lab::AudioParam> param) : _param(param){};
 
 };
 

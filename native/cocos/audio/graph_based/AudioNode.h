@@ -1,5 +1,8 @@
 #pragma once
 #include "base/std/optional.h"
+#include "base/RefCounted.h"
+#include "base/Ptr.h"
+#include "base/std/container/vector.h"
 #include "audio/graph_based/AudioContext.h"
 #include "audio/graph_based/AudioParam.h"
 #include "LabSound/core/AudioNode.h"
@@ -9,22 +12,23 @@ struct AudioNodeOptions {
     ccstd::optional<lab::ChannelCountMode> channelCountMode;
     ccstd::optional<lab::ChannelInterpretation> channelInterpretation;
 };
-class AudioNode {
+class AudioNode : public RefCounted {
 public:
     AudioNode() = delete;
 
     virtual ~AudioNode() = default;
-    BaseAudioContext* context() { return _ctx.get(); };
-    uint32_t numberOfInputs() { return _node->numberOfInputs(); };
-    uint32_t numberOfOutputs() { return _node->numberOfOutputs(); };
-    uint32_t channelCount() { return _node->channelCount(); };
+    BaseAudioContext* getContext() { return _ctx; };
+    uint32_t getNumberOfInputs() { return _node->numberOfInputs(); };
+    uint32_t getNumberOfOutputs() { return _node->numberOfOutputs(); };
 
+    uint32_t getChannelCount() { return _node->channelCount(); };
     void setChannelCount(uint32_t count);
 
     /* Channel Count mode means nothing in moments, this interface is about to lose */
-    uint32_t channelCountMode();
+    uint32_t getChannelCountMode();
     void setChannelCountMode(uint32_t mode);
-    uint32_t channelInterpretation();
+
+    uint32_t getChannelInterpretation();
     void setChannelInterpretation(uint32_t interpretation);
 
     /**
@@ -48,8 +52,11 @@ public:
 
 protected:
     friend class AudioContext;
+    friend class SourceNode;
     explicit AudioNode(BaseAudioContext* ctx);
-    std::shared_ptr<BaseAudioContext> _ctx;
+    IntrusivePtr<BaseAudioContext> _ctx;
+    // For all LabSound object, use shared ptr to set use count as so on.
     std::shared_ptr<lab::AudioNode> _node;
+    ccstd::vector<IntrusivePtr<AudioNode>> _connections;
 };
 }

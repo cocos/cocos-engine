@@ -1,7 +1,19 @@
 #include "audio/graph_based/AudioBuffer.h"
+#include "LabSound/extended/AudioFileReader.h"
+#include "FileUtils.h"
 namespace cc {
-AudioBuffer::AudioBuffer(lab::AudioBus* bus) {
-    _bus = std::shared_ptr<lab::AudioBus>(bus);
+ccstd::unordered_map<ccstd::string, IntrusivePtr<AudioBuffer>> AudioBuffer::bufferMap;
+AudioBuffer* AudioBuffer::createBuffer(const ccstd::string& url) {
+    auto buffer = AudioBuffer::bufferMap.find(url);
+    if (buffer != AudioBuffer::bufferMap.end()) {
+        return buffer->second;
+    }
+    auto fullPath = FileUtils::getInstance()->fullPathForFilename(url);
+    auto bus = lab::MakeBusFromFile(fullPath, false);
+    auto ret = new AudioBuffer(bus);
+    AudioBuffer::bufferMap[url] = ret;
+    assert(ret->getRefCount() == 1);
+    return ret;
 }
 
 AudioBuffer::AudioBuffer(const AudioBufferOptions& options) {
@@ -9,19 +21,19 @@ AudioBuffer::AudioBuffer(const AudioBufferOptions& options) {
     _bus->setSampleRate(options.sampleRate);
 }
 
-double AudioBuffer::duration() {
+double AudioBuffer::getDuration() {
     return _bus->length() / _bus->sampleRate(); //Too heavy
 }
 
-size_t AudioBuffer::length() {
+size_t AudioBuffer::getLength() {
     return _bus->length();
 }
 
-uint32_t AudioBuffer::numberOfChannels() {
+uint32_t AudioBuffer::getNumberOfChannels() {
     return _bus->numberOfChannels();
 }
 
-uint32_t AudioBuffer::sampleRate() {
+uint32_t AudioBuffer::getSampleRate() {
     return _bus->sampleRate();
 }
 

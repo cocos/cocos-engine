@@ -20,8 +20,8 @@ public:
     AudioContext(const AudioContextOptions& options = {});
     /* a double that represents the number of seconds of processing latency incurred by the AudioContext passing an audio buffer from
     the AudioDestinationNode — i.e. the end of the audio graph — into the host system's audio subsystem ready for playing.*/
-    double baseLatency(); // need realtime calculate, readonly
-    double outputLatency();
+    double getBaseLatency(); // need realtime calculate, readonly
+    double getOutputLatency();
     //AudioListener* listener();
 
     //Close for the audio context should be implemented as delete inner context and all resources.
