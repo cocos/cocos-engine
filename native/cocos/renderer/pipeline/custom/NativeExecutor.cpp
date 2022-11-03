@@ -245,14 +245,12 @@ gfx::BufferBarrierInfo getBufferBarrier(const cc::render::Barrier& barrier) {
     return {
         gfx::getAccessFlags(
             beginUsage, memUsage,
-            barrier.beginStatus.visibility,
             barrier.beginStatus.access,
-            barrier.beginStatus.passType),
+            barrier.beginStatus.visibility),
         gfx::getAccessFlags(
             endUsage, memUsage,
-            barrier.endStatus.visibility,
             barrier.endStatus.access,
-            barrier.endStatus.passType),
+            barrier.endStatus.visibility),
         barrier.type,
         bufferRange.offset, bufferRange.size};
 }
