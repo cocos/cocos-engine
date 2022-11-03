@@ -1,11 +1,10 @@
 import { Component } from '../../scene-graph/component';
 import { AnimationGraph } from './animation-graph';
 import type { AnimationGraphRunTime } from './animation-graph';
-import { property, ccclass, menu } from '../../core/data/class-decorator';
+import { _decorator, assertIsNonNullable } from '../../core';
 import { AnimationGraphEval } from './graph-eval';
 import type { MotionStateStatus, TransitionStatus, ClipStatus } from './graph-eval';
 import { Value } from './variable';
-import { assertIsNonNullable } from '../../core/data/utils/asserts';
 
 export type {
     MotionStateStatus,
@@ -23,8 +22,8 @@ export type {
  * 将动画图应用到动画控制器组件所挂载的节点上。
  * 当动画控制器开始运行时，动画图会被实例化。然后便可以设置动画图实例中的变量或者查询动画图的运行状况。
  */
-@ccclass('cc.animation.AnimationController')
-@menu('Animation/Animation Controller')
+@_decorator.ccclass('cc.animation.AnimationController')
+@_decorator.menu('Animation/Animation Controller')
 export class AnimationController extends Component {
     /**
      * @zh
@@ -32,7 +31,7 @@ export class AnimationController extends Component {
      * @en
      * The animation graph associated with the animation controller.
      */
-    @property(AnimationGraph)
+    @_decorator.property(AnimationGraph)
     public graph: AnimationGraphRunTime | null = null;
 
     private _graphEval: AnimationGraphEval | null = null;

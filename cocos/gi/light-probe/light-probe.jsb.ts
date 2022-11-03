@@ -22,14 +22,13 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-import { serializable } from 'cc.decorator';
-import { ccclass } from "../../core/data/class-decorator";
+import { _decorator } from "../../core";
 
 export const LightProbes = jsb.LightProbes;
-ccclass('cc.LightProbes')(LightProbes);
+_decorator.ccclass('cc.LightProbes')(LightProbes);
 
 export const LightProbesData = jsb.LightProbesData;
 const LightProbesDataProto = LightProbesData.prototype;
-serializable(LightProbesDataProto, '_probes');
-serializable(LightProbesDataProto, '_tetrahedrons');
-ccclass('cc.LightProbesData')(LightProbesData);
+_decorator.serializable(LightProbesDataProto, '_probes');
+_decorator.serializable(LightProbesDataProto, '_tetrahedrons');
+_decorator.ccclass('cc.LightProbesData')(LightProbesData);

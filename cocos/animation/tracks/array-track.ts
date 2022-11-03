@@ -1,5 +1,4 @@
-import { ccclass, serializable } from 'cc.decorator';
-import { RealCurve } from '../../core/curves';
+import { _decorator, RealCurve } from '../../core';
 import { CLASS_NAME_PREFIX_ANIM, createEvalSymbol } from '../define';
 import { Channel, RealChannel, RuntimeBinding, Track } from './track';
 
@@ -11,7 +10,7 @@ import { Channel, RealChannel, RuntimeBinding, Track } from './track';
  * 实数数组轨道描述目标上某个实数数组属性（例如网格渲染器的形变权重）的动画。
  * 数组中的每个元素都对应一条实数通道。
  */
-@ccclass(`${CLASS_NAME_PREFIX_ANIM}RealArrayTrack`)
+@_decorator.ccclass(`${CLASS_NAME_PREFIX_ANIM}RealArrayTrack`)
 export class RealArrayTrack extends Track {
     /**
      * @en The number of elements in the array which this track produces.
@@ -52,7 +51,7 @@ export class RealArrayTrack extends Track {
         return new RealArrayTrackEval(this._channels.map(({ curve }) => curve));
     }
 
-    @serializable
+    @_decorator.serializable
     private _channels: RealChannel[] = [];
 }
 

@@ -39,6 +39,9 @@ export const serializable: LegacyPropertyDecorator = (target, propertyKey, descr
     setImplicitSerializable(propertyStash);
 };
 
+/**
+ * @engineInternal
+ */
 export function formerlySerializedAs (name: string): LegacyPropertyDecorator {
     return (target, propertyKey, descriptor) => {
         const propertyStash = getOrCreatePropertyStash(target, propertyKey, descriptor);

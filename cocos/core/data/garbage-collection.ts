@@ -81,4 +81,7 @@ class GarbageCollectionManager {
 }
 
 const garbageCollectionManager = new GarbageCollectionManager();
+/**
+ * @engineInternal
+ */
 export { garbageCollectionManager };

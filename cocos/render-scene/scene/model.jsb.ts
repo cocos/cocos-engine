@@ -24,7 +24,7 @@
  */
 
 import { Attribute, deviceManager } from '../../gfx';
-import { Vec3 } from '../../core/math';
+import { Vec3 } from '../../core';
 
 export interface IInstancedAttributeBlock {
     buffer: Uint8Array;

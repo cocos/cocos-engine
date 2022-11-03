@@ -1,4 +1,4 @@
-import { ccclass, serializable, type, visible } from '../core/data/decorators';
+import { _decorator } from '../core';
 import { Component } from '../scene-graph/component';
 import { Prefab } from '../scene-graph/prefab';
 
@@ -13,10 +13,10 @@ import { Prefab } from '../scene-graph/prefab';
  * 由于新的 Prefab 系统还不完善，所以旧的 Prefab 系统中和 Prefab 资源差异过大的 Prefab 无法实现自动迁移。
  * 此组件用于保存在旧 Prefab 系统中这个节点关联的 Prefab 资源，等新的 Prefab 系统完善，会自动迁移到新的 Prefab 系统上。
  */
-@ccclass('cc.PrefabLink')
+@_decorator.ccclass('cc.PrefabLink')
 export class PrefabLink extends Component {
-    @type(Prefab)
-    @serializable
-    @visible(true)
+    @_decorator.type(Prefab)
+    @_decorator.serializable
+    @_decorator.visible(true)
     public prefab: Prefab | null = null;
 }

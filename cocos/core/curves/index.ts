@@ -25,3 +25,5 @@ export {
 export type {
     ObjectCurveKeyframe,
 } from './object-curve';
+
+export { EasingMethod } from './easing-method';

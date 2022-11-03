@@ -36,11 +36,10 @@ import {
     serializable,
     tooltip,
 } from 'cc.decorator';
-import { Vec3 } from '../../../../core/math';
+import { Vec3, IVec3Like } from '../../../../core';
 import { Collider } from './collider';
 import { ISimplexShape } from '../../../spec/i-physics-shape';
 import { ESimplexType, EColliderType } from '../../physics-enum';
-import { IVec3Like } from '../../../../core/math/type-define';
 
 /**
  * @en

@@ -1,11 +1,10 @@
-
 import { Joint2D } from './joint-2d';
-import { ccclass, property, menu, type } from '../../../../core/data/class-decorator';
+import { _decorator } from '../../../../core';
 import { IFixedJoint } from '../../../spec/i-physics-joint';
 import { EJoint2DType } from '../../physics-types';
 
-@ccclass('cc.FixedJoint2D')
-@menu('Physics2D/Joints/FixedJoint2D')
+@_decorator.ccclass('cc.FixedJoint2D')
+@_decorator.menu('Physics2D/Joints/FixedJoint2D')
 export class FixedJoint2D extends Joint2D {
     TYPE = EJoint2DType.FIXED;
 
@@ -15,7 +14,7 @@ export class FixedJoint2D extends Joint2D {
      * @zh
      * 弹性系数。
      */
-    @property
+    @_decorator.property
     get frequency (): number {
         return this._frequency;
     }
@@ -32,7 +31,7 @@ export class FixedJoint2D extends Joint2D {
      * @zh
      * 阻尼，表示关节变形后，恢复到初始状态受到的阻力。
      */
-    @property
+    @_decorator.property
     get dampingRatio (): number {
         return this._dampingRatio;
     }
@@ -45,8 +44,8 @@ export class FixedJoint2D extends Joint2D {
 
     /// private properties
 
-    @property
+    @_decorator.property
     private _frequency = 0.7;
-    @property
+    @_decorator.property
     private _dampingRatio = 0.5;
 }

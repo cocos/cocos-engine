@@ -1,13 +1,12 @@
-import { serializable } from 'cc.decorator';
-import { ccclass } from '../../core/data/class-decorator';
+import { _decorator } from '../../core';
 import { createEval } from './create-eval';
 import { MotionEvalContext } from './motion';
 import { AnimationBlend, AnimationBlendEval, AnimationBlendItem } from './animation-blend';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
 
-@ccclass(`${CLASS_NAME_PREFIX_ANIM}AnimationBlendDirectItem`)
+@_decorator.ccclass(`${CLASS_NAME_PREFIX_ANIM}AnimationBlendDirectItem`)
 class AnimationBlendDirectItem extends AnimationBlendItem {
-    @serializable
+    @_decorator.serializable
     public weight = 0.0;
 
     public clone () {
@@ -23,11 +22,11 @@ class AnimationBlendDirectItem extends AnimationBlendItem {
     }
 }
 
-@ccclass('cc.animation.AnimationBlendDirect')
+@_decorator.ccclass('cc.animation.AnimationBlendDirect')
 export class AnimationBlendDirect extends AnimationBlend {
     public static Item = AnimationBlendDirectItem;
 
-    @serializable
+    @_decorator.serializable
     private _items: AnimationBlendDirectItem[] = [];
 
     get items () {

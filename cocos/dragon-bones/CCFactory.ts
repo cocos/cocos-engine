@@ -25,8 +25,7 @@
 
 import { EDITOR } from 'internal:constants';
 import { Armature, BaseObject, Animation, BaseFactory, DragonBones } from '@cocos/dragonbones-js';
-import { ISchedulable, Scheduler, System, cclegacy } from '../core';
-import { ccclass } from '../core/data/class-decorator';
+import { ISchedulable, Scheduler, System, cclegacy, _decorator } from '../core';
 import { CCTextureAtlasData } from './CCTextureData';
 import { TextureBase } from '../asset/assets/texture-base';
 import { CCSlot } from './CCSlot';
@@ -41,7 +40,7 @@ import { director, Game, game } from '../game';
  * @extends BaseFactory
  * @deprecated since v3.5.1, this is an engine private interface that will be removed in the future.
 */
-@ccclass('CCFactory')
+@_decorator.ccclass('CCFactory')
 export class CCFactory extends BaseFactory implements ISchedulable {
     static _factory: CCFactory | null = null;
 

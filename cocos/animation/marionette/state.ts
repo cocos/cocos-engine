@@ -1,23 +1,20 @@
-import { ccclass, serializable } from 'cc.decorator';
 import { OwnedBy, ownerSymbol } from './ownership';
 import type { Layer, StateMachine, TransitionInternal } from './animation-graph';
-import { EditorExtendable } from '../../core/data/editor-extendable';
+import { EditorExtendable, js, editorExtrasTag, _decorator } from '../../core';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
 import { StateMachineComponent } from './state-machine-component';
-import { js } from '../../core';
 import { instantiate } from '../../serialization/instantiate';
-import { editorExtrasTag } from '../../core/data';
 import { cloneAnimationGraphEditorExtrasFrom } from './animation-graph-editor-extras-clone-helper';
 
 export const outgoingsSymbol = Symbol('[[Outgoing transitions]]');
 
 export const incomingsSymbol = Symbol('[[Incoming transitions]]');
 
-@ccclass('cc.animation.State')
+@_decorator.ccclass('cc.animation.State')
 export class State extends EditorExtendable implements OwnedBy<Layer | StateMachine> {
     declare [ownerSymbol]: StateMachine | undefined;
 
-    @serializable
+    @_decorator.serializable
     public name = '';
 
     public [outgoingsSymbol]: TransitionInternal[] = [];
@@ -36,7 +33,7 @@ export class State extends EditorExtendable implements OwnedBy<Layer | StateMach
 
 type StateMachineComponentConstructor<T extends StateMachineComponent> = Constructor<T>;
 
-@ccclass(`${CLASS_NAME_PREFIX_ANIM}InteractiveState`)
+@_decorator.ccclass(`${CLASS_NAME_PREFIX_ANIM}InteractiveState`)
 export class InteractiveState extends State {
     get components (): Iterable<StateMachineComponent> {
         return this._components;
@@ -66,6 +63,6 @@ export class InteractiveState extends State {
         that._components = this.instantiateComponents();
     }
 
-    @serializable
+    @_decorator.serializable
     private _components: StateMachineComponent[] = [];
 }

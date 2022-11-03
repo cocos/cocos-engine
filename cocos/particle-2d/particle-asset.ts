@@ -24,10 +24,9 @@
  THE SOFTWARE.
 */
 
-import { ccclass, serializable, editable } from '../core/data/decorators';
 import { Asset } from '../asset/assets/asset';
 import { SpriteFrame } from '../2d/assets/sprite-frame';
-import { legacyCC } from '../core/global-exports';
+import { cclegacy, _decorator } from '../core';
 
 /**
  * @en Class for 2D particle asset handling.
@@ -35,11 +34,11 @@ import { legacyCC } from '../core/global-exports';
  * @class ParticleAsset
  * @extends Asset
  */
-@ccclass('cc.ParticleAsset')
+@_decorator.ccclass('cc.ParticleAsset')
 export class ParticleAsset extends Asset {
-    @serializable
-    @editable
+    @_decorator.serializable
+    @_decorator.editable
     public spriteFrame: SpriteFrame | null= null;
 }
 
-legacyCC.ParticleAsset = ParticleAsset;
+cclegacy.ParticleAsset = ParticleAsset;

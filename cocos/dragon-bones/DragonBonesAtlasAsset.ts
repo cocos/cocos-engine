@@ -25,11 +25,10 @@
 
 import { JSB } from 'internal:constants';
 import { TextureAtlasData } from '@cocos/dragonbones-js';
-import { ccclass, serializable, type } from '../core/data/decorators';
 import { ArmatureCache } from './ArmatureCache';
 import { ArmatureDisplay } from './ArmatureDisplay';
 import { CCFactory } from './CCFactory';
-import { cclegacy } from '../core';
+import { cclegacy, _decorator } from '../core';
 import { Asset, Texture2D } from '../asset/assets';
 import { Node } from '../scene-graph';
 
@@ -39,14 +38,14 @@ import { Node } from '../scene-graph';
  * @class DragonBonesAtlasAsset
  * @extends Asset
  */
-@ccclass('dragonBones.DragonBonesAtlasAsset')
+@_decorator.ccclass('dragonBones.DragonBonesAtlasAsset')
 export class DragonBonesAtlasAsset extends Asset {
     constructor () {
         super();
         this._clear();
     }
 
-    @serializable
+    @_decorator.serializable
     _atlasJson = '';
 
     get atlasJson () {
@@ -57,11 +56,11 @@ export class DragonBonesAtlasAsset extends Asset {
         this._atlasJsonData = JSON.parse(this.atlasJson);
         this._clear();
     }
-    @serializable
-    @type(Texture2D)
+    @_decorator.serializable
+    @_decorator.type(Texture2D)
     _texture: Texture2D | null = null;
 
-    @serializable
+    @_decorator.serializable
     _atlasJsonData: any = {};
 
     _factory: CCFactory| null = null;
@@ -76,7 +75,7 @@ export class DragonBonesAtlasAsset extends Asset {
         this._clear();
     }
 
-    @serializable
+    @_decorator.serializable
     _textureAtlasData: TextureAtlasData | null = null;
 
     createNode (callback: (error: Error | null, node: Node) => void) {

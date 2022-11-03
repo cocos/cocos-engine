@@ -1,12 +1,10 @@
-
 import { Joint2D } from './joint-2d';
-import { ccclass, property, menu, type } from '../../../../core/data/class-decorator';
 import { IDistanceJoint } from '../../../spec/i-physics-joint';
 import { EJoint2DType } from '../../physics-types';
-import { Vec3 } from '../../../../core';
+import { Vec3, _decorator } from '../../../../core';
 
-@ccclass('cc.DistanceJoint2D')
-@menu('Physics2D/Joints/DistanceJoint2D')
+@_decorator.ccclass('cc.DistanceJoint2D')
+@_decorator.menu('Physics2D/Joints/DistanceJoint2D')
 export class DistanceJoint2D extends Joint2D {
     TYPE = EJoint2DType.DISTANCE;
 
@@ -16,7 +14,7 @@ export class DistanceJoint2D extends Joint2D {
      * @zh
      * 最大长度。
      */
-    @property
+    @_decorator.property
     get maxLength () {
         if (this._autoCalcDistance && this.connectedBody) {
             return Vec3.distance(this.node.worldPosition, this.connectedBody.node.worldPosition);
@@ -36,7 +34,7 @@ export class DistanceJoint2D extends Joint2D {
      * @zh
      * 自动计算关节连接的两个刚体间的距离
      */
-    @property
+    @_decorator.property
     get autoCalcDistance () {
         return this._autoCalcDistance;
     }
@@ -46,8 +44,8 @@ export class DistanceJoint2D extends Joint2D {
 
     /// private properties
 
-    @property
+    @_decorator.property
     private _maxLength = 5;
-    @property
+    @_decorator.property
     private _autoCalcDistance = true;
 }

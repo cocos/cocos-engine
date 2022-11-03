@@ -25,12 +25,10 @@
 
 import { ccclass, type, serializable, editable } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
-import { Color } from '../../core/math';
-import { Enum } from '../../core/value-types';
+import { Color, Enum, cclegacy } from '../../core';
 import Gradient, { AlphaKey, ColorKey } from './gradient';
 import { Texture2D } from '../../asset/assets';
 import { PixelFormat, Filter, WrapMode } from '../../asset/assets/asset-enum';
-import { legacyCC } from '../../core/global-exports';
 
 const SerializableTable = EDITOR && [
     ['_mode', 'color'],
@@ -59,7 +57,7 @@ export default class GradientRange {
     }
 
     set mode (m) {
-        if (EDITOR && !legacyCC.GAME_VIEW) {
+        if (EDITOR && !cclegacy.GAME_VIEW) {
             if (m === Mode.RandomColor) {
                 if (this.gradient.colorKeys.length === 0) {
                     this.gradient.colorKeys.push(new ColorKey());

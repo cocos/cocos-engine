@@ -1,4 +1,4 @@
-import { ccclass, serializable } from '../../core/data/decorators';
+import { _decorator } from '../../core';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
 import { VariableNotDefinedError, VariableTypeMismatchedError } from './errors';
 import type { VarInstance } from './graph-eval';
@@ -14,12 +14,12 @@ export interface Bindable<TValue> {
     clone(): Bindable<TValue>;
 }
 
-@ccclass(`${CLASS_NAME_PREFIX_ANIM}BindableNumber`)
+@_decorator.ccclass(`${CLASS_NAME_PREFIX_ANIM}BindableNumber`)
 export class BindableNumber implements Bindable<number> {
-    @serializable
+    @_decorator.serializable
     public variable = '';
 
-    @serializable
+    @_decorator.serializable
     public value = 0.0;
 
     constructor (value = 0.0) {
@@ -34,12 +34,12 @@ export class BindableNumber implements Bindable<number> {
     }
 }
 
-@ccclass(`${CLASS_NAME_PREFIX_ANIM}BindableBoolean`)
+@_decorator.ccclass(`${CLASS_NAME_PREFIX_ANIM}BindableBoolean`)
 export class BindableBoolean implements Bindable<boolean> {
-    @serializable
+    @_decorator.serializable
     public variable = '';
 
-    @serializable
+    @_decorator.serializable
     public value = false;
 
     constructor (value = false) {

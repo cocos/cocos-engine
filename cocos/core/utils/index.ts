@@ -53,6 +53,3 @@ export {
 };
 
 export * from './coordinates-converts-utils';
-
-// export const js = cc.js;
-// export const path = cc.path;

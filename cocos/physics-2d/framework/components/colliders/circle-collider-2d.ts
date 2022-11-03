@@ -1,20 +1,19 @@
-import { ccclass, property, menu } from '../../../../core/data/class-decorator';
-import { Vec2 } from '../../../../core';
+import { Vec2, _decorator } from '../../../../core';
 import { Collider2D } from './collider-2d';
 import { ECollider2DType } from '../../physics-types';
 import { ICircleShape } from '../../../spec/i-physics-shape';
 
-@ccclass('cc.CircleCollider2D')
-@menu('Physics2D/Colliders/CircleCollider2D')
+@_decorator.ccclass('cc.CircleCollider2D')
+@_decorator.menu('Physics2D/Colliders/CircleCollider2D')
 export class CircleCollider2D extends Collider2D {
-    @property
+    @_decorator.property
     private _radius = 1;
 
     /**
      * @en Circle radius
      * @zh 圆形半径
      */
-    @property
+    @_decorator.property
     get radius () {
         return this._radius;
     }

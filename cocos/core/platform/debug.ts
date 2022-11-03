@@ -119,6 +119,9 @@ export function debug (...data: any[]) {
     return ccDebug(...data);
 }
 
+/**
+ * @engineInternal
+ */
 export function _resetDebugSetting (mode: DebugMode) {
     // reset
     ccLog = ccWarn = ccError = ccAssert = ccDebug = () => {

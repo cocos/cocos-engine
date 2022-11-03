@@ -1,10 +1,7 @@
-import { Vec2 } from '../../core';
-import { ccclass } from '../../core/data/class-decorator';
-import { ccenum } from '../../core/value-types/enum';
+import { Vec2, _decorator, ccenum } from '../../core';
 import { createEval } from './create-eval';
 import { AnimationBlend, AnimationBlendEval, AnimationBlendItem } from './animation-blend';
 import { MotionEvalContext } from './motion';
-import { serializable } from '../../core/data/decorators';
 import { BindableNumber, bindOr, VariableType } from './parametric';
 import { sampleFreeformCartesian, sampleFreeformDirectional, blendSimpleDirectional } from './blend-2d';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
@@ -17,9 +14,9 @@ enum Algorithm {
 
 ccenum(Algorithm);
 
-@ccclass(`${CLASS_NAME_PREFIX_ANIM}AnimationBlend2DItem`)
+@_decorator.ccclass(`${CLASS_NAME_PREFIX_ANIM}AnimationBlend2DItem`)
 class AnimationBlend2DItem extends AnimationBlendItem {
-    @serializable
+    @_decorator.serializable
     public threshold = new Vec2();
 
     public clone () {
@@ -35,22 +32,22 @@ class AnimationBlend2DItem extends AnimationBlendItem {
     }
 }
 
-@ccclass('cc.animation.AnimationBlend2D')
+@_decorator.ccclass('cc.animation.AnimationBlend2D')
 export class AnimationBlend2D extends AnimationBlend {
     public static Algorithm = Algorithm;
 
     public static Item = AnimationBlend2DItem;
 
-    @serializable
+    @_decorator.serializable
     public algorithm = Algorithm.SIMPLE_DIRECTIONAL;
 
-    @serializable
+    @_decorator.serializable
     private _items: AnimationBlend2DItem[] = [];
 
-    @serializable
+    @_decorator.serializable
     public paramX = new BindableNumber();
 
-    @serializable
+    @_decorator.serializable
     public paramY = new BindableNumber();
 
     get items (): Iterable<AnimationBlend2DItem> {

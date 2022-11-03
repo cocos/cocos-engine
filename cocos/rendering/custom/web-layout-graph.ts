@@ -1,6 +1,6 @@
 import { DEBUG } from 'internal:constants';
 import { EffectAsset } from '../../asset/assets';
-import { ccclass } from '../../core/data/decorators';
+import { _decorator } from '../../core';
 // eslint-disable-next-line max-len
 import { DescriptorSetInfo, DescriptorSetLayout, DescriptorSetLayoutBinding, DescriptorSetLayoutInfo, DescriptorType, Device, ShaderStageFlagBit, Type, UniformBlock } from '../../gfx';
 import { VectorGraphColorMap } from './effect';
@@ -187,7 +187,7 @@ class PrintVisitor extends DefaultVisitor {
     oss = '';
 }
 
-@ccclass('cc.WebLayoutGraphBuilder')
+@_decorator.ccclass('cc.WebLayoutGraphBuilder')
 export class WebLayoutGraphBuilder implements LayoutGraphBuilder  {
     private _data: LayoutGraphData;
     private _device: Device | null;

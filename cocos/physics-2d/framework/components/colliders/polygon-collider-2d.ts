@@ -1,23 +1,22 @@
-import { ccclass, property, menu } from '../../../../core/data/class-decorator';
-import { Vec2 } from '../../../../core';
+import { Vec2, _decorator } from '../../../../core';
 import { Collider2D } from './collider-2d';
 import { ECollider2DType } from '../../physics-types';
 import { IPolygonShape } from '../../../spec/i-physics-shape';
 
-@ccclass('cc.PolygonCollider2D')
-@menu('Physics2D/Colliders/PolygonCollider2D')
+@_decorator.ccclass('cc.PolygonCollider2D')
+@_decorator.menu('Physics2D/Colliders/PolygonCollider2D')
 export class PolygonCollider2D extends Collider2D {
-    @property({ serializable: false, displayOrder: 0 })
+    @_decorator.property({ serializable: false, displayOrder: 0 })
     threshold = 1;
 
-    @property
+    @_decorator.property
     private _points = [new Vec2(-1, -1), new Vec2(1, -1), new Vec2(1, 1), new Vec2(-1, 1)];
 
     /**
      * @en Polygon points
      * @zh 多边形顶点数组
      */
-    @property({ type: Vec2 })
+    @_decorator.property({ type: Vec2 })
     get points () {
         return this._points;
     }

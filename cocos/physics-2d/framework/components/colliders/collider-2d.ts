@@ -1,27 +1,23 @@
 import { EDITOR } from 'internal:constants';
 
-import { editable } from 'cc.decorator';
-import { ccclass, property, type } from '../../../../core/data/class-decorator';
-import { Vec2, Rect } from '../../../../core';
+import { Vec2, Rect, _decorator, Eventify, cclegacy } from '../../../../core';
 import { PhysicsGroup } from '../../../../physics/framework/physics-enum';
-import { Eventify } from '../../../../core/event';
 
 import { RigidBody2D } from '../rigid-body-2d';
 import { createShape } from '../../physics-selector';
 import { ECollider2DType } from '../../physics-types';
 import { IBaseShape } from '../../../spec/i-physics-shape';
-import { legacyCC } from '../../../../core/global-exports';
 import { Component } from '../../../../scene-graph';
 
-@ccclass('cc.Collider2D')
+@_decorator.ccclass('cc.Collider2D')
 export class Collider2D extends Eventify(Component) {
-    @editable
+    @_decorator.editable
     editing = false;
     /**
      * @en Tag. If a node has several collider components, you can judge which type of collider is collided according to the tag.
      * @zh 标签。当一个节点上有多个碰撞组件时，在发生碰撞后，可以使用此标签来判断是节点上的哪个碰撞组件被碰撞了。
      */
-    @property
+    @_decorator.property
     tag = 0;
 
     /**
@@ -30,7 +26,7 @@ export class Collider2D extends Eventify(Component) {
      * @zh
      * 获取或设置分组。
      */
-    @type(PhysicsGroup)
+    @_decorator.type(PhysicsGroup)
     public get group (): number {
         return this._group;
     }
@@ -45,7 +41,7 @@ export class Collider2D extends Eventify(Component) {
      * @en The density.
      * @zh 密度
      */
-    @property
+    @_decorator.property
     get density () {
         return this._density;
     }
@@ -59,7 +55,7 @@ export class Collider2D extends Eventify(Component) {
      * @zh
      * 一个传感器类型的碰撞体会产生碰撞回调，但是不会发生物理碰撞效果。
      */
-    @property
+    @_decorator.property
     get sensor () {
         return this._sensor;
     }
@@ -73,7 +69,7 @@ export class Collider2D extends Eventify(Component) {
      * @zh
      * 摩擦系数，取值一般在 [0, 1] 之间
      */
-    @property
+    @_decorator.property
     get friction () {
         return this._friction;
     }
@@ -87,7 +83,7 @@ export class Collider2D extends Eventify(Component) {
      * @zh
      * 弹性系数，取值一般在 [0, 1]之间
      */
-    @property
+    @_decorator.property
     get restitution () {
         return this._restitution;
     }
@@ -98,7 +94,7 @@ export class Collider2D extends Eventify(Component) {
      * @en Position offset
      * @zh 位置偏移量
      */
-    @property
+    @_decorator.property
     get offset () {
         return this._offset;
     }
@@ -125,7 +121,7 @@ export class Collider2D extends Eventify(Component) {
     /// COMPONENT LIFECYCLE ///
 
     protected onLoad () {
-        if (!EDITOR || legacyCC.GAME_VIEW) {
+        if (!EDITOR || cclegacy.GAME_VIEW) {
             this._shape = createShape(this.TYPE);
             this._shape.initialize(this);
 
@@ -186,16 +182,16 @@ export class Collider2D extends Eventify(Component) {
     protected _shape: IBaseShape | null = null;
     protected _body: RigidBody2D | null = null;
 
-    @property
+    @_decorator.property
     protected _group = PhysicsGroup.DEFAULT;
-    @property
+    @_decorator.property
     protected _density = 1.0;
-    @property
+    @_decorator.property
     protected _sensor = false;
-    @property
+    @_decorator.property
     protected _friction = 0.2;
-    @property
+    @_decorator.property
     protected _restitution = 0;
-    @property
+    @_decorator.property
     protected _offset = new Vec2();
 }

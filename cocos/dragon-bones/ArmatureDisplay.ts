@@ -25,11 +25,9 @@
 
 import { EDITOR } from 'internal:constants';
 import { Armature, Bone, EventObject } from '@cocos/dragonbones-js';
-import { ccclass, executeInEditMode, help, menu } from '../core/data/class-decorator';
 import { UIRenderer } from '../2d/framework/ui-renderer';
-import { CCClass, Color, Enum, ccenum, errorID, RecyclePool, js, CCObject, EventTarget, cclegacy } from '../core';
+import { CCClass, Color, Enum, ccenum, errorID, RecyclePool, js, CCObject, EventTarget, cclegacy, _decorator } from '../core';
 import { BlendFactor } from '../gfx';
-import { displayName, displayOrder, editable, override, serializable, tooltip, type, visible } from '../core/data/decorators';
 import { AnimationCache, ArmatureCache, ArmatureFrame } from './ArmatureCache';
 import { AttachUtil } from './AttachUtil';
 import { CCFactory } from './CCFactory';
@@ -103,23 +101,23 @@ export interface ArmatureDisplayDrawData {
     indexCount: number;
 }
 
-@ccclass('dragonBones.ArmatureDisplay.DragonBoneSocket')
+@_decorator.ccclass('dragonBones.ArmatureDisplay.DragonBoneSocket')
 export class DragonBoneSocket {
     /**
      * @en Path of the target joint.
      * @zh 此挂点的目标骨骼路径。
      */
-    @serializable
-    @editable
+    @_decorator.serializable
+    @_decorator.editable
     public path = '';
 
     /**
      * @en Transform output node.
      * @zh 此挂点的变换信息输出节点。
      */
-    @type(Node)
-    @editable
-    @serializable
+    @_decorator.type(Node)
+    @_decorator.editable
+    @_decorator.serializable
     public target: Node | null = null;
 
     public boneIndex: number | null = null;
@@ -153,10 +151,10 @@ interface BoneIndex extends Number {
  * @class ArmatureDisplay
  * @extends RenderComponent
  */
-@ccclass('dragonBones.ArmatureDisplay')
-@help('i18n:dragonBones.ArmatureDisplay')
-@menu('DragonBones/ArmatureDisplay')
-@executeInEditMode
+@_decorator.ccclass('dragonBones.ArmatureDisplay')
+@_decorator.help('i18n:dragonBones.ArmatureDisplay')
+@_decorator.menu('DragonBones/ArmatureDisplay')
+@_decorator.executeInEditMode
 export class ArmatureDisplay extends UIRenderer {
     static AnimationCacheMode = AnimationCacheMode;
 
@@ -171,9 +169,9 @@ export class ArmatureDisplay extends UIRenderer {
      * 多个 ArmatureDisplay 可以共用相同的骨骼数据。
      * @property {DragonBonesAsset} dragonAsset
      */
-    @editable
-    @type(DragonBonesAsset)
-    @tooltip('i18n:COMPONENT.dragon_bones.dragon_bones_asset')
+    @_decorator.editable
+    @_decorator.type(DragonBonesAsset)
+    @_decorator.tooltip('i18n:COMPONENT.dragon_bones.dragon_bones_asset')
     get dragonAsset () {
         return this._dragonAsset;
     }
@@ -194,9 +192,9 @@ export class ArmatureDisplay extends UIRenderer {
      * 骨骼数据所需的 Atlas Texture 数据。
      * @property {DragonBonesAtlasAsset} dragonAtlasAsset
      */
-    @editable
-    @type(DragonBonesAtlasAsset)
-    @tooltip('i18n:COMPONENT.dragon_bones.dragon_bones_atlas_asset')
+    @_decorator.editable
+    @_decorator.type(DragonBonesAtlasAsset)
+    @_decorator.tooltip('i18n:COMPONENT.dragon_bones.dragon_bones_atlas_asset')
     get dragonAtlasAsset () { return this._dragonAtlasAsset; }
     set dragonAtlasAsset (value) {
         this._dragonAtlasAsset = value;
@@ -209,7 +207,7 @@ export class ArmatureDisplay extends UIRenderer {
      * @zh 当前的 Armature 名称。
      * @property {String} armatureName
      */
-    @visible(false)
+    @_decorator.visible(false)
     get armatureName () { return this._armatureName; }
     set armatureName (name) {
         this._armatureName = name;
@@ -240,7 +238,7 @@ export class ArmatureDisplay extends UIRenderer {
      * @zh 当前播放的动画名称。
      * @property {String} animationName
      */
-    @visible(false)
+    @_decorator.visible(false)
     get animationName () {
         return this._animationName;
     }
@@ -248,10 +246,10 @@ export class ArmatureDisplay extends UIRenderer {
         this._animationName = value;
     }
 
-    @displayName('Armature')
-    @editable
-    @type(DefaultArmaturesEnum)
-    @tooltip('i18n:COMPONENT.dragon_bones.armature_name')
+    @_decorator.displayName('Armature')
+    @_decorator.editable
+    @_decorator.type(DefaultArmaturesEnum)
+    @_decorator.tooltip('i18n:COMPONENT.dragon_bones.armature_name')
     get _defaultArmatureIndex () {
         return this._defaultArmatureIndexValue;
     }
@@ -279,10 +277,10 @@ export class ArmatureDisplay extends UIRenderer {
         this.markForUpdateRenderData();
     }
 
-    @editable
-    @type(DefaultAnimsEnum)
-    @displayName('Animation')
-    @tooltip('i18n:COMPONENT.dragon_bones.animation_name')
+    @_decorator.editable
+    @_decorator.type(DefaultAnimsEnum)
+    @_decorator.displayName('Animation')
+    @_decorator.tooltip('i18n:COMPONENT.dragon_bones.animation_name')
     get _animationIndex () {
         return this._animationIndexValue;
     }
@@ -312,9 +310,9 @@ export class ArmatureDisplay extends UIRenderer {
         }
     }
 
-    @editable
-    @displayName('Animation Cache Mode')
-    @tooltip('i18n:COMPONENT.dragon_bones.animation_cache_mode')
+    @_decorator.editable
+    @_decorator.displayName('Animation Cache Mode')
+    @_decorator.tooltip('i18n:COMPONENT.dragon_bones.animation_cache_mode')
     get _defaultCacheMode () { return this._defaultCacheModeValue; }
     set _defaultCacheMode (value) {
         this._defaultCacheModeValue = value;
@@ -334,9 +332,9 @@ export class ArmatureDisplay extends UIRenderer {
      * @property {Number} timeScale
      * @default 1
      */
-    @editable
-    @tooltip('i18n:COMPONENT.dragon_bones.time_scale')
-    @serializable
+    @_decorator.editable
+    @_decorator.tooltip('i18n:COMPONENT.dragon_bones.time_scale')
+    @_decorator.serializable
     get timeScale () { return this._timeScale; }
     set timeScale (value) {
         this._timeScale = value;
@@ -358,9 +356,9 @@ export class ArmatureDisplay extends UIRenderer {
      * @property {Number} playTimes
      * @default -1
      */
-    @tooltip('i18n:COMPONENT.dragon_bones.play_times')
-    @editable
-    @serializable
+    @_decorator.tooltip('i18n:COMPONENT.dragon_bones.play_times')
+    @_decorator.editable
+    @_decorator.serializable
     public playTimes = -1;
 
     /**
@@ -372,9 +370,9 @@ export class ArmatureDisplay extends UIRenderer {
      * @property {Boolean} premultipliedAlpha
      * @default false
      */
-    @serializable
-    @editable
-    @tooltip('i18n:COMPONENT.skeleton.premultipliedAlpha')
+    @_decorator.serializable
+    @_decorator.editable
+    @_decorator.tooltip('i18n:COMPONENT.skeleton.premultipliedAlpha')
     public premultipliedAlpha = false;
 
     /**
@@ -383,8 +381,8 @@ export class ArmatureDisplay extends UIRenderer {
      * @property {Boolean} debugBones
      * @default false
      */
-    @tooltip('i18n:COMPONENT.dragon_bones.debug_bones')
-    @editable
+    @_decorator.tooltip('i18n:COMPONENT.dragon_bones.debug_bones')
+    @_decorator.editable
     get debugBones () { return this._debugBones; }
     set debugBones (value) {
         this._debugBones = value;
@@ -395,8 +393,8 @@ export class ArmatureDisplay extends UIRenderer {
      * @en Enabled batch model, if mesh is complex, do not enable batch, or will lower performance.
      * @zh 开启合批，如果渲染大量相同纹理，且结构简单的龙骨动画，开启合批可以降低drawcall，否则请不要开启，cpu消耗会上升。
     */
-    @tooltip('i18n:COMPONENT.dragon_bones.enabled_batch')
-    @editable
+    @_decorator.tooltip('i18n:COMPONENT.dragon_bones.enabled_batch')
+    @_decorator.editable
     get enableBatch () { return this._enableBatch; }
     set enableBatch (value) {
         if (value !== this._enableBatch) {
@@ -412,8 +410,8 @@ export class ArmatureDisplay extends UIRenderer {
      * @zh
      * 当前动画组件维护的挂点数组。要挂载自定义节点到受动画驱动的骨骼上，必须先在此注册挂点。
      */
-    @type([DragonBoneSocket])
-    @tooltip('i18n:animation.sockets')
+    @_decorator.type([DragonBoneSocket])
+    @_decorator.tooltip('i18n:animation.sockets')
     get sockets (): DragonBoneSocket[] {
         return this._sockets;
     }
@@ -436,31 +434,31 @@ export class ArmatureDisplay extends UIRenderer {
 
     get drawList () { return this._drawList; }
 
-    @serializable
+    @_decorator.serializable
     protected _defaultArmatureIndexValue: DefaultArmaturesEnum = DefaultArmaturesEnum.default;
-    @serializable
+    @_decorator.serializable
     /* protected */ _dragonAsset: DragonBonesAsset | null = null;
-    @serializable
+    @_decorator.serializable
     /* protected */ _dragonAtlasAsset: DragonBonesAtlasAsset | null = null;
-    @serializable
+    @_decorator.serializable
     /* protected */ _armatureName = '';
-    @serializable
+    @_decorator.serializable
     protected _animationName = '';
-    @serializable
+    @_decorator.serializable
     protected _animationIndexValue: DefaultAnimsEnum = 0;
     protected _preCacheMode = -1;
     protected _cacheMode: AnimationCacheMode = AnimationCacheMode.REALTIME;
-    @serializable
+    @_decorator.serializable
     protected _defaultCacheModeValue: AnimationCacheMode = AnimationCacheMode.REALTIME;
-    @serializable
+    @_decorator.serializable
     protected _timeScale = 1;
-    @serializable
+    @_decorator.serializable
     protected _playTimes = -1;
 
-    @serializable
+    @_decorator.serializable
     protected _debugBones = false;
 
-    @serializable
+    @_decorator.serializable
     protected _enableBatch = false;
 
     /* protected */ _debugDraw: Graphics | null = null;
@@ -527,7 +525,7 @@ export class ArmatureDisplay extends UIRenderer {
     protected _socketNodes: Map<string, Node> = new Map();
     protected _cachedSockets: Map<string, BoneIndex> = new Map();
 
-    @serializable
+    @_decorator.serializable
     protected _sockets: DragonBoneSocket[] = [];
 
     private _inited;
@@ -624,10 +622,10 @@ export class ArmatureDisplay extends UIRenderer {
         return inst;
     }
 
-    @override
-    @type(Material)
-    @displayOrder(0)
-    @displayName('CustomMaterial')
+    @_decorator.override
+    @_decorator.type(Material)
+    @_decorator.displayOrder(0)
+    @_decorator.displayName('CustomMaterial')
     get customMaterial () {
         return this._customMaterial;
     }

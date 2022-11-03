@@ -22,13 +22,11 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-import { legacyCC } from '../../core/global-exports';
-import { Vec3 } from '../../core/math';
-import { Enum } from '../../core/value-types';
+import { Vec3, Enum, cclegacy } from '../../core';
 
 export type Ambient = jsb.Ambient;
 export const Ambient = jsb.Ambient;
-legacyCC.Ambient = Ambient;
+cclegacy.Ambient = Ambient;
 
 export const LODData = jsb.LODData;
 export const LODGroup = jsb.LODGroup;
@@ -74,19 +72,19 @@ export enum LightType {
 export const nt2lm = (size: number) => 4 * Math.PI * Math.PI * size * size;
 export const Light = jsb.Light;
 export type Light = jsb.Light;
-legacyCC.Light = jsb.Light;
+cclegacy.Light = jsb.Light;
 
 export const DirectionalLight = jsb.DirectionalLight;
 export type DirectionalLight = jsb.DirectionalLight;
-legacyCC.DirectionalLight = jsb.DirectionalLight;
+cclegacy.DirectionalLight = jsb.DirectionalLight;
 
 export const SpotLight = jsb.SpotLight;
 export type SpotLight = jsb.SpotLight;
-legacyCC.SpotLight = jsb.SpotLight;
+cclegacy.SpotLight = jsb.SpotLight;
 
 export const SphereLight = jsb.SphereLight;
 export type SphereLight = jsb.SphereLight;
-legacyCC.SphereLight = jsb.SphereLight;
+cclegacy.SphereLight = jsb.SphereLight;
 
 /**
  * Fog related.
@@ -130,7 +128,7 @@ export const FogInfo = jsb.FogInfo;
 export type FogInfo = jsb.FogInfo;
 export const Fog = jsb.Fog;
 export type Fog = jsb.Fog;
-legacyCC.Fog = Fog;
+cclegacy.Fog = Fog;
 
 /**
  * Shadows related.
@@ -290,11 +288,11 @@ export const ShadowsInfo = jsb.ShadowsInfo;
 export type ShadowsInfo = jsb.ShadowsInfo;
 export const Shadows = jsb.Shadow;
 export type Shadows = jsb.Shadow;
-legacyCC.Shadows = Shadows;
+cclegacy.Shadows = Shadows;
 
 export const Skybox = jsb.Skybox;
 export type Skybox = jsb.Skybox;
-legacyCC.Skybox = Skybox;
+cclegacy.Skybox = Skybox;
 
 export * from './model';
 export * from './submodel';

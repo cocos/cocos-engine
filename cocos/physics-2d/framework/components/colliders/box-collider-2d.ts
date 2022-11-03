@@ -1,22 +1,19 @@
-
-
-import { ccclass, property, menu } from '../../../../core/data/class-decorator';
-import { Vec2, Size } from '../../../../core';
+import { Vec2, Size, _decorator } from '../../../../core';
 import { Collider2D } from './collider-2d';
 import { ECollider2DType } from '../../physics-types';
 import { IBoxShape } from '../../../spec/i-physics-shape';
 
-@ccclass('cc.BoxCollider2D')
-@menu('Physics2D/Colliders/BoxCollider2D')
+@_decorator.ccclass('cc.BoxCollider2D')
+@_decorator.menu('Physics2D/Colliders/BoxCollider2D')
 export class BoxCollider2D extends Collider2D {
-    @property
+    @_decorator.property
     private _size = new Size(1, 1);
 
     /**
      * @en Box size
      * @zh 包围盒大小
      */
-    @property
+    @_decorator.property
     get size () {
         return this._size;
     }

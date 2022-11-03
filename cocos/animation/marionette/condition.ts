@@ -4,7 +4,7 @@ import {
     bindNumericOr,
     validateVariableTypeTriggerLike,
 } from './parametric';
-import { ccclass, serializable } from '../../core/data/decorators';
+import { _decorator } from '../../core';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
 import { createEval } from './create-eval';
 import { VariableTypeMismatchedError } from './errors';
@@ -32,17 +32,17 @@ enum BinaryOperator {
     GREATER_THAN_OR_EQUAL_TO,
 }
 
-@ccclass(`${CLASS_NAME_PREFIX_ANIM}BinaryCondition`)
+@_decorator.ccclass(`${CLASS_NAME_PREFIX_ANIM}BinaryCondition`)
 export class BinaryCondition implements Condition {
     public static readonly Operator = BinaryOperator;
 
-    @serializable
+    @_decorator.serializable
     public operator: BinaryOperator = BinaryOperator.EQUAL_TO;
 
-    @serializable
+    @_decorator.serializable
     public lhs: BindableNumber = new BindableNumber();
 
-    @serializable
+    @_decorator.serializable
     public rhs: BindableNumber = new BindableNumber();
 
     public clone () {
@@ -149,14 +149,14 @@ enum UnaryOperator {
     FALSY,
 }
 
-@ccclass(`${CLASS_NAME_PREFIX_ANIM}UnaryCondition`)
+@_decorator.ccclass(`${CLASS_NAME_PREFIX_ANIM}UnaryCondition`)
 export class UnaryCondition implements Condition {
     public static readonly Operator = UnaryOperator;
 
-    @serializable
+    @_decorator.serializable
     public operator: UnaryOperator = UnaryOperator.TRUTHY;
 
-    @serializable
+    @_decorator.serializable
     public operand = new BindableBoolean();
 
     public clone () {
@@ -226,9 +226,9 @@ class UnaryConditionEval implements ConditionEval {
     }
 }
 
-@ccclass(`${CLASS_NAME_PREFIX_ANIM}TriggerCondition`)
+@_decorator.ccclass(`${CLASS_NAME_PREFIX_ANIM}TriggerCondition`)
 export class TriggerCondition implements Condition {
-    @serializable
+    @_decorator.serializable
     public trigger = '';
 
     public clone () {

@@ -26,13 +26,12 @@
 import { BaseObject, TextureAtlasData, TextureData } from '@cocos/dragonbones-js';
 import { SpriteFrame } from '../2d';
 import { TextureBase } from '../asset/assets/texture-base';
-import { ccclass } from '../core/data/decorators';
-import { Rect } from '../core';
+import { Rect, _decorator } from '../core';
 
 /**
 * @deprecated since v3.5.1, this is an engine private interface that will be removed in the future.
 */
-@ccclass('dragonBones.CCTextureAtlasData')
+@_decorator.ccclass('dragonBones.CCTextureAtlasData')
 export class CCTextureAtlasData extends TextureAtlasData {
     get renderTexture () {
         return this._renderTexture;
@@ -88,7 +87,7 @@ export class CCTextureAtlasData extends TextureAtlasData {
 /**
 * @deprecated since v3.5.1, this is an engine private interface that will be removed in the future.
 */
-@ccclass('dragonBones.CCTextureData')
+@_decorator.ccclass('dragonBones.CCTextureData')
 export class CCTextureData extends TextureData {
     spriteFrame: SpriteFrame | null = null
 

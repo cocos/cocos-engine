@@ -24,8 +24,7 @@
  */
 
 import { MeshRenderer } from '../3d/framework/mesh-renderer';
-import { Vec3 } from '../core';
-import intersect from '../core/geometry/intersect';
+import { Vec3, geometry } from '../core';
 import { Camera, Model } from '../render-scene/scene';
 import { ReflectionProbe } from '../render-scene/scene/reflection-probe';
 import { IRenderObject } from './define';
@@ -95,7 +94,7 @@ export class ReflectionProbeManager {
     public addRenderObject (camera: Camera, obj: IRenderObject, bSkybox?: boolean) {
         const probe = this.getProbeByCamera(camera);
         if (!probe) return;
-        if ((obj.model.worldBounds && intersect.aabbWithAABB(obj.model.worldBounds, probe.boundingBox)) || bSkybox) {
+        if ((obj.model.worldBounds && geometry.intersect.aabbWithAABB(obj.model.worldBounds, probe.boundingBox)) || bSkybox) {
             probe.renderObjects.push(obj);
         }
     }
@@ -216,7 +215,7 @@ export class ReflectionProbeManager {
         let idx = 0;
 
         for (let i = 0; i < this._probes.length; i++) {
-            if (!this._probes[i].validate() || !intersect.aabbWithAABB(model.worldBounds, this._probes[i].boundingBox)) {
+            if (!this._probes[i].validate() || !geometry.intersect.aabbWithAABB(model.worldBounds, this._probes[i].boundingBox)) {
                 continue;
             }
             if (i === 0) {

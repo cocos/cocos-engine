@@ -25,9 +25,8 @@
 
 import { EDITOR } from 'internal:constants';
 import { Asset } from '../asset/assets';
-import { ccclass, serializable } from '../core/data/decorators';
 import { ArmatureCache } from './ArmatureCache';
-import { Enum, cclegacy } from '../core';
+import { Enum, cclegacy, _decorator } from '../core';
 import { CCFactory } from './CCFactory';
 import { Node } from '../scene-graph';
 
@@ -37,7 +36,7 @@ import { Node } from '../scene-graph';
  * @class DragonBonesAsset
  * @extends Asset
  */
-@ccclass('dragonBones.DragonBonesAsset')
+@_decorator.ccclass('dragonBones.DragonBonesAsset')
 export class DragonBonesAsset extends Asset {
     /**
      * @en
@@ -46,7 +45,7 @@ export class DragonBonesAsset extends Asset {
      * 可查看 DragonBones 官方文档 http://developer.egret.com/cn/github/egret-docs/DB/dbLibs/dataFormat/index.html
      * @property {string} dragonBonesJson
      */
-    @serializable
+    @_decorator.serializable
     protected _dragonBonesJson = '';
 
     get dragonBonesJson () {

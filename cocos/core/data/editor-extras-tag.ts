@@ -1,6 +1,6 @@
 /**
  * Tag to visit editor extras of an object. Never concern about its value please.
- * @internal
+ * @engineInternal
  */
 export const editorExtrasTag = '__editorExtras__';
 

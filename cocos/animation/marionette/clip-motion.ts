@@ -1,6 +1,4 @@
-import { editorExtrasTag } from '../../core/data/editor-extras-tag';
-import { ccclass, type } from '../../core/data/class-decorator';
-import { EditorExtendable } from '../../core/data/editor-extendable';
+import { editorExtrasTag, _decorator, EditorExtendable } from '../../core';
 import { AnimationClip } from '../animation-clip';
 import { AnimationState } from '../animation-state';
 import { cloneAnimationGraphEditorExtrasFrom } from './animation-graph-editor-extras-clone-helper';
@@ -9,9 +7,9 @@ import { getMotionRuntimeID, RUNTIME_ID_ENABLED } from './graph-debug';
 import { ClipStatus } from './graph-eval';
 import { MotionEvalContext, Motion, MotionEval } from './motion';
 
-@ccclass('cc.animation.ClipMotion')
+@_decorator.ccclass('cc.animation.ClipMotion')
 export class ClipMotion extends EditorExtendable implements Motion {
-    @type(AnimationClip)
+    @_decorator.type(AnimationClip)
     public clip: AnimationClip | null = null;
 
     public [createEval] (context: MotionEvalContext) {

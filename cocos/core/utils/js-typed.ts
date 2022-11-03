@@ -25,7 +25,7 @@
 
 import { EDITOR, DEV, TEST } from 'internal:constants';
 import { warnID, error, errorID } from '../platform/debug';
-import IDGenerator from './id-generator';
+import { IDGenerator }  from './id-generator';
 
 const tempCIDGenerator = new IDGenerator('TmpCId.');
 
@@ -191,6 +191,7 @@ export const set = (() => {
  * @param [forceDictMode=false] Apply the delete operator to newly created map object.
  * This causes V8 to put the object in "dictionary mode" and disables creation of hidden classes
  * which are very expensive for objects that are constantly changing shape.
+ * @engineInternal
  */
 export function createMap (forceDictMode?: boolean): any {
     const map = Object.create(null);
@@ -504,7 +505,7 @@ export function getSuper (constructor: Function) {
  */
 export function isChildClassOf<T extends Constructor>(subclass: unknown, superclass: T): subclass is T;
 export function isChildClassOf(subclass: unknown, superclass: unknown): boolean;
-export function isChildClassOf(subclass: unknown, superclass: unknown) {
+export function isChildClassOf (subclass: unknown, superclass: unknown) {
     if (subclass && superclass) {
         if (typeof subclass !== 'function') {
             return false;

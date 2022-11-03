@@ -23,21 +23,18 @@
  THE SOFTWARE.
  */
 
-import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
-import { CCFloat, CCInteger } from '../../core';
-import { range, rangeStep, slide, visible } from '../../core/data/decorators/editable';
-import { Vec3 } from '../../core/math';
+import { CCFloat, CCInteger, _decorator, Vec3 } from '../../core';
 import { ParticleNoise } from '../noise';
 import { Particle, PARTICLE_MODULE_NAME, ParticleModuleBase } from '../particle';
 
-@ccclass('cc.NoiseModule')
+@_decorator.ccclass('cc.NoiseModule')
 export class NoiseModule extends ParticleModuleBase {
-    @serializable
+    @_decorator.serializable
     _enable = false;
     /**
      * @zh 是否启用。
      */
-    @displayOrder(0)
+    @_decorator.displayOrder(0)
     public get enable () {
         return this._enable;
     }
@@ -49,185 +46,185 @@ export class NoiseModule extends ParticleModuleBase {
         this.target.enableModule(this.name, val, this);
     }
 
-    @type(CCFloat)
-    @range([0, 100])
-    @displayOrder(16)
-    @slide
+    @_decorator.type(CCFloat)
+    @_decorator.range([0, 100])
+    @_decorator.displayOrder(16)
+    @_decorator.slide
     get strengthX () {
         return this._strengthX;
     }
     set strengthX (value: number) {
         this._strengthX = value;
     }
-    @serializable
+    @_decorator.serializable
     private _strengthX = 10;
 
-    @type(CCFloat)
-    @range([0, 100])
-    @displayOrder(16)
-    @slide
+    @_decorator.type(CCFloat)
+    @_decorator.range([0, 100])
+    @_decorator.displayOrder(16)
+    @_decorator.slide
     get strengthY () {
         return this._strengthY;
     }
     set strengthY (value: number) {
         this._strengthY = value;
     }
-    @serializable
+    @_decorator.serializable
     private _strengthY = 10;
 
-    @type(CCFloat)
-    @range([0, 100])
-    @displayOrder(16)
-    @slide
+    @_decorator.type(CCFloat)
+    @_decorator.range([0, 100])
+    @_decorator.displayOrder(16)
+    @_decorator.slide
     get strengthZ () {
         return this._strengthZ;
     }
     set strengthZ (value: number) {
         this._strengthZ = value;
     }
-    @serializable
+    @_decorator.serializable
     private _strengthZ = 10;
 
-    @type(CCFloat)
-    @range([0, 100])
-    @slide
-    @displayOrder(16)
+    @_decorator.type(CCFloat)
+    @_decorator.range([0, 100])
+    @_decorator.slide
+    @_decorator.displayOrder(16)
     get noiseSpeedX () {
         return this._noiseSpeedX;
     }
     set noiseSpeedX (value: number) {
         this._noiseSpeedX = value;
     }
-    @serializable
+    @_decorator.serializable
     private _noiseSpeedX = 0;
 
-    @type(CCFloat)
-    @range([0, 100])
-    @displayOrder(16)
-    @slide
+    @_decorator.type(CCFloat)
+    @_decorator.range([0, 100])
+    @_decorator.displayOrder(16)
+    @_decorator.slide
     get noiseSpeedY () {
         return this._noiseSpeedY;
     }
     set noiseSpeedY (value: number) {
         this._noiseSpeedY = value;
     }
-    @serializable
+    @_decorator.serializable
     private _noiseSpeedY = 0;
 
-    @type(CCFloat)
-    @range([0, 100])
-    @displayOrder(16)
-    @slide
+    @_decorator.type(CCFloat)
+    @_decorator.range([0, 100])
+    @_decorator.displayOrder(16)
+    @_decorator.slide
     get noiseSpeedZ () {
         return this._noiseSpeedZ;
     }
     set noiseSpeedZ (value: number) {
         this._noiseSpeedZ = value;
     }
-    @serializable
+    @_decorator.serializable
     private _noiseSpeedZ = 0;
 
-    @type(CCFloat)
-    @range([0, 100])
-    @rangeStep(0.1)
-    @displayOrder(16)
-    @slide
+    @_decorator.type(CCFloat)
+    @_decorator.range([0, 100])
+    @_decorator.rangeStep(0.1)
+    @_decorator.displayOrder(16)
+    @_decorator.slide
     get noiseFrequency () {
         return this._noiseFrequency;
     }
     set noiseFrequency (value: number) {
         this._noiseFrequency = value;
     }
-    @serializable
+    @_decorator.serializable
     private _noiseFrequency = 1;
 
-    @visible(false)
-    @type(CCFloat)
-    @range([0, 1])
-    @rangeStep(0.1)
-    @displayOrder(16)
-    @slide
+    @_decorator.visible(false)
+    @_decorator.type(CCFloat)
+    @_decorator.range([0, 1])
+    @_decorator.rangeStep(0.1)
+    @_decorator.displayOrder(16)
+    @_decorator.slide
     get remapX () {
         return this._remapX;
     }
     set remapX (value: number) {
         this._remapX = value;
     }
-    @serializable
+    @_decorator.serializable
     private _remapX = 0;
 
-    @visible(false)
-    @type(CCFloat)
-    @range([0, 1])
-    @rangeStep(0.1)
-    @displayOrder(16)
-    @slide
+    @_decorator.visible(false)
+    @_decorator.type(CCFloat)
+    @_decorator.range([0, 1])
+    @_decorator.rangeStep(0.1)
+    @_decorator.displayOrder(16)
+    @_decorator.slide
     get remapY () {
         return this._remapY;
     }
     set remapY (value: number) {
         this._remapY = value;
     }
-    @serializable
+    @_decorator.serializable
     private _remapY = 0;
 
-    @visible(false)
-    @type(CCFloat)
-    @range([0, 1])
-    @rangeStep(0.1)
-    @displayOrder(16)
-    @slide
+    @_decorator.visible(false)
+    @_decorator.type(CCFloat)
+    @_decorator.range([0, 1])
+    @_decorator.rangeStep(0.1)
+    @_decorator.displayOrder(16)
+    @_decorator.slide
     get remapZ () {
         return this._remapZ;
     }
     set remapZ (value: number) {
         this._remapZ = value;
     }
-    @serializable
+    @_decorator.serializable
     private _remapZ = 0;
 
-    @type(CCInteger)
-    @range([1, 4])
-    @rangeStep(1)
-    @displayOrder(16)
-    @slide
+    @_decorator.type(CCInteger)
+    @_decorator.range([1, 4])
+    @_decorator.rangeStep(1)
+    @_decorator.displayOrder(16)
+    @_decorator.slide
     get octaves () {
         return this._octaves;
     }
     set octaves (value: number) {
         this._octaves = value;
     }
-    @serializable
+    @_decorator.serializable
     private _octaves = 1;
 
     // eslint-disable-next-line func-names
-    @visible(function (this: NoiseModule) { return this._octaves > 1; })
-    @type(CCFloat)
-    @range([0, 1])
-    @rangeStep(0.1)
-    @displayOrder(16)
+    @_decorator.visible(function (this: NoiseModule) { return this._octaves > 1; })
+    @_decorator.type(CCFloat)
+    @_decorator.range([0, 1])
+    @_decorator.rangeStep(0.1)
+    @_decorator.displayOrder(16)
     get octaveMultiplier () {
         return this._octaveMultiplier;
     }
     set octaveMultiplier (value: number) {
         this._octaveMultiplier = value;
     }
-    @serializable
+    @_decorator.serializable
     private _octaveMultiplier = 0.5;
 
     // eslint-disable-next-line func-names
-    @visible(function (this: NoiseModule) { return this._octaves > 1; })
-    @type(CCFloat)
-    @range([1, 4])
-    @rangeStep(0.1)
-    @displayOrder(16)
+    @_decorator.visible(function (this: NoiseModule) { return this._octaves > 1; })
+    @_decorator.type(CCFloat)
+    @_decorator.range([1, 4])
+    @_decorator.rangeStep(0.1)
+    @_decorator.displayOrder(16)
     get octaveScale () {
         return this._octaveScale;
     }
     set octaveScale (value: number) {
         this._octaveScale = value;
     }
-    @serializable
+    @_decorator.serializable
     private _octaveScale = 2;
 
     public name = PARTICLE_MODULE_NAME.NOISE;

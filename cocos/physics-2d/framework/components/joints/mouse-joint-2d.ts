@@ -1,13 +1,10 @@
-
-
 import { Joint2D } from './joint-2d';
-import { ccclass, property, menu, type } from '../../../../core/data/class-decorator';
 import { IMouseJoint } from '../../../spec/i-physics-joint';
 import { EJoint2DType } from '../../physics-types';
-import { Vec2 } from '../../../../core';
+import { Vec2, _decorator } from '../../../../core';
 
-@ccclass('cc.MouseJoint2D')
-@menu('Physics2D/Joints/MouseJoint2D')
+@_decorator.ccclass('cc.MouseJoint2D')
+@_decorator.menu('Physics2D/Joints/MouseJoint2D')
 export class MouseJoint2D extends Joint2D {
     TYPE = EJoint2DType.MOUSE;
 
@@ -27,7 +24,7 @@ export class MouseJoint2D extends Joint2D {
      * @zh
      * 弹簧系数。
      */
-    @property
+    @_decorator.property
     get frequency (): number {
         return this._frequency;
     }
@@ -44,7 +41,7 @@ export class MouseJoint2D extends Joint2D {
      * @zh
      * 阻尼，表示关节变形后，恢复到初始状态受到的阻力。
      */
-    @property
+    @_decorator.property
     get dampingRatio (): number {
         return this._dampingRatio;
     }
@@ -61,7 +58,7 @@ export class MouseJoint2D extends Joint2D {
      * @zh
      * 最大阻力值
      */
-    @property
+    @_decorator.property
     get maxForce (): number {
         return this._maxForce;
     }
@@ -76,11 +73,11 @@ export class MouseJoint2D extends Joint2D {
         this._joint!.update!(dt);
     }
 
-    @property
+    @_decorator.property
     private _maxForce = 1000;
-    @property
+    @_decorator.property
     private _dampingRatio = 0.7;
-    @property
+    @_decorator.property
     private _frequency = 5;
     private _target = new Vec2();
 }

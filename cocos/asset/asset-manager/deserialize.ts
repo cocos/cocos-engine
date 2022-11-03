@@ -27,8 +27,7 @@ import { EDITOR } from 'internal:constants';
 import { Asset } from '../assets/asset';
 import { MissingScript } from '../../misc/missing-script';
 import { deserialize, Details } from '../../serialization/deserialize';
-import { error } from '../../core/platform/debug';
-import { js } from '../../core/utils/js';
+import { error, js } from '../../core';
 import { dependMap, nativeDependMap } from './depend-maps';
 import { decodeUuid } from './helper';
 

@@ -24,8 +24,7 @@
  */
 
 import { Armature, Matrix } from '@cocos/dragonbones-js';
-import { Mat4, Vec3 } from '../core';
-import { ccclass } from '../core/data/class-decorator';
+import { Mat4, Vec3, _decorator } from '../core';
 import { Node } from '../scene-graph';
 import { ArmatureFrameBoneInfo } from './ArmatureCache';
 import { ArmatureDisplay } from './ArmatureDisplay';
@@ -38,7 +37,7 @@ const _tempMat4 = new Mat4();
  * @class dragonBones.AttachUtil
  */
 
-@ccclass('dragonBones.AttachUtil')
+@_decorator.ccclass('dragonBones.AttachUtil')
 export class AttachUtil {
     _inited = false;
     _armature: Armature | null = null;

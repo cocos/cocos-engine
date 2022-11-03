@@ -1,16 +1,13 @@
-
-
 import { Joint2D } from './joint-2d';
-import { ccclass, property, menu, type } from '../../../../core/data/class-decorator';
 import { IRelativeJoint } from '../../../spec/i-physics-joint';
 import { EJoint2DType } from '../../physics-types';
-import { Vec3, Vec2, IVec2Like, Quat } from '../../../../core';
+import { Vec3, Vec2, IVec2Like, Quat, _decorator } from '../../../../core';
 
 const tempVec3_1 = new Vec3();
 const tempVec3_2 = new Vec3();
 
-@ccclass('cc.RelativeJoint2D')
-@menu('Physics2D/Joints/RelativeJoint2D')
+@_decorator.ccclass('cc.RelativeJoint2D')
+@_decorator.menu('Physics2D/Joints/RelativeJoint2D')
 export class RelativeJoint2D extends Joint2D {
     TYPE = EJoint2DType.RELATIVE;
 
@@ -20,7 +17,7 @@ export class RelativeJoint2D extends Joint2D {
      * @zh
      * 可以应用于刚体的最大的力值
      */
-    @property
+    @_decorator.property
     get maxForce (): number {
         return this._maxForce;
     }
@@ -37,7 +34,7 @@ export class RelativeJoint2D extends Joint2D {
      * @zh
      * 可以应用于刚体的最大扭矩值
      */
-    @property
+    @_decorator.property
     get maxTorque (): number {
         return this._maxTorque;
     }
@@ -54,7 +51,7 @@ export class RelativeJoint2D extends Joint2D {
      * @zh
      * 位置矫正系数，范围为 [0, 1]
      */
-    @property
+    @_decorator.property
     get correctionFactor (): number {
         return this._correctionFactor;
     }
@@ -71,7 +68,7 @@ export class RelativeJoint2D extends Joint2D {
      * @zh
      * 关节另一端的刚体相对于起始端刚体的位置偏移量
      */
-    @property
+    @_decorator.property
     get linearOffset (): Vec2 {
         if (this._autoCalcOffset && this.connectedBody) {
             return Vec2.subtract(this._linearOffset, this.connectedBody.node.worldPosition as IVec2Like, this.node.worldPosition as IVec2Like) as Vec2;
@@ -91,7 +88,7 @@ export class RelativeJoint2D extends Joint2D {
      * @zh
      * 关节另一端的刚体相对于起始端刚体的角度偏移量
      */
-    @property
+    @_decorator.property
     get angularOffset (): number {
         if (this._autoCalcOffset && this.connectedBody) {
             Quat.toEuler(tempVec3_1, this.node.worldRotation);
@@ -113,7 +110,7 @@ export class RelativeJoint2D extends Joint2D {
      * @zh
      * 自动计算关节连接的两个刚体间的 angularOffset 和 linearOffset
      */
-    @property
+    @_decorator.property
     get autoCalcOffset (): boolean {
         return this._autoCalcOffset;
     }
@@ -123,16 +120,16 @@ export class RelativeJoint2D extends Joint2D {
 
     /// private properties
 
-    @property
+    @_decorator.property
     private _maxForce = 5;
-    @property
+    @_decorator.property
     private _maxTorque = 0.7;
-    @property
+    @_decorator.property
     private _correctionFactor = 0.3;
-    @property
+    @_decorator.property
     private _angularOffset = 0;
-    @property
+    @_decorator.property
     private _linearOffset = new Vec2();
-    @property
+    @_decorator.property
     private _autoCalcOffset = true;
 }

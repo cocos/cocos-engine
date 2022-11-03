@@ -23,11 +23,10 @@
  THE SOFTWARE.
  */
 
-import { absMax } from '../../../core';
+import { absMax, IVec3Like } from '../../../core';
 import { BulletShape } from './bullet-shape';
 import { CapsuleCollider } from '../../../../exports/physics-framework';
 import { ICapsuleShape } from '../../spec/i-physics-shape';
-import { IVec3Like } from '../../../core/math/type-define';
 import { bt } from '../instantiated';
 
 export class BulletCapsuleShape extends BulletShape implements ICapsuleShape {

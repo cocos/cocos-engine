@@ -25,8 +25,7 @@
 
 import { Asset } from '../assets/asset';
 import { SceneAsset } from '../assets/scene-asset';
-import { legacyCC } from '../../core/global-exports';
-import { error, errorID } from '../../core/platform/debug';
+import { error, errorID, cclegacy } from '../../core';
 import Config, { IAddressableInfo, IAssetInfo, IConfigOption, ISceneInfo } from './config';
 import releaseManager from './release-manager';
 import RequestItem from './request-item';
@@ -234,7 +233,7 @@ export default class Bundle {
     ) {
         const { type: _type, onProgress: onProg, onComplete: onComp } = parseLoadResArgs(type, onProgress, onComplete);
         const options = { __requestType__: RequestType.PATH, type: _type, bundle: this.name, __outputAsArray__: Array.isArray(paths) };
-        legacyCC.assetManager.loadAny(paths, options, onProg, onComp);
+        cclegacy.assetManager.loadAny(paths, options, onProg, onComp);
     }
 
     /**
@@ -287,7 +286,7 @@ export default class Bundle {
         onComplete?: CompleteCallbackWithData<RequestItem[]> | null,
     ) {
         const { type: _type, onProgress: onProg, onComplete: onComp } = parseLoadResArgs(type, onProgress, onComplete);
-        legacyCC.assetManager.preloadAny(paths, { __requestType__: RequestType.PATH, type: _type, bundle: this.name }, onProg, onComp);
+        cclegacy.assetManager.preloadAny(paths, { __requestType__: RequestType.PATH, type: _type, bundle: this.name }, onProg, onComp);
     }
 
     /**
@@ -338,7 +337,7 @@ export default class Bundle {
         onComplete?: CompleteCallbackWithData<T[]> | null,
     ) {
         const { type: _type, onProgress: onProg, onComplete: onComp } = parseLoadResArgs(type, onProgress, onComplete);
-        legacyCC.assetManager.loadAny(dir, { __requestType__: RequestType.DIR, type: _type, bundle: this.name, __outputAsArray__: true }, onProg, onComp);
+        cclegacy.assetManager.loadAny(dir, { __requestType__: RequestType.DIR, type: _type, bundle: this.name, __outputAsArray__: true }, onProg, onComp);
     }
 
     /**
@@ -390,7 +389,7 @@ export default class Bundle {
         onComplete?: CompleteCallbackWithData<RequestItem[]>| null,
     ) {
         const { type: _type, onProgress: onProg, onComplete: onComp } = parseLoadResArgs(type, onProgress, onComplete);
-        legacyCC.assetManager.preloadAny(dir, { __requestType__: RequestType.DIR, type: _type, bundle: this.name }, onProg, onComp);
+        cclegacy.assetManager.preloadAny(dir, { __requestType__: RequestType.DIR, type: _type, bundle: this.name }, onProg, onComp);
     }
 
     /**
@@ -428,7 +427,7 @@ export default class Bundle {
 
         opts.preset = opts.preset || 'scene';
         opts.bundle = this.name;
-        legacyCC.assetManager.loadAny({ scene: sceneName }, opts, onProg, (err, sceneAsset) => {
+        cclegacy.assetManager.loadAny({ scene: sceneName }, opts, onProg, (err, sceneAsset) => {
             if (err) {
                 error(err.message, err.stack);
             } else if (sceneAsset.scene) {
@@ -480,7 +479,7 @@ export default class Bundle {
         const { options: opts, onProgress: onProg, onComplete: onComp } = parseParameters<CompleteCallbackNoData>(options, onProgress, onComplete);
 
         opts.bundle = this.name;
-        legacyCC.assetManager.preloadAny({ scene: sceneName }, opts, onProg, (err) => {
+        cclegacy.assetManager.preloadAny({ scene: sceneName }, opts, onProg, (err) => {
             if (err) {
                 errorID(1210, sceneName, err.message);
             }
@@ -607,4 +606,4 @@ export default class Bundle {
  * resources 是一个 bundle，用于管理所有在 assets/resources 下的资源
  */
 export const resources: Bundle = new Bundle();
-legacyCC.resources = resources;
+cclegacy.resources = resources;
