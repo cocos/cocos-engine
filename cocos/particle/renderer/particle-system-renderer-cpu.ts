@@ -412,7 +412,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
 
         for (let i = this._particles!.length; i >= 0; --i) {
             const p = this._particles!.data[i];
-            if (p === undefined || p === null) {
+            if (p === undefined || p === null || !p.active) {
                 continue;
             }
             p.remainingLifetime -= dt;
@@ -490,7 +490,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
                     if (!p.subemitter[se].actDie) {
                         p.subemitter[se].stopEmitting();
                     } else {
-                        if (!p.subemitter[se]._isPlaying) {
+                        if (!p.subemitter[se]._trigged) {
                             p.subemitter[se].play();
                             if (p.subemitter[se]._trailModule && p.subemitter[se]._trailModule.enable) {
                                 p.subemitter[se]._trailModule._detachFromScene();
@@ -501,27 +501,25 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
                         actDie = true;
                     }
                 }
-                if (!actDie) {
-                    p.delay = 0;
-                } else if (p.delay <= 0) {
-                    p.delay = 3;
-                }
 
                 let allSubStop = true;
                 for (let se = 0; se < p.subemitter.length; ++se) {
-                    if (p.subemitter[se].processor._particles.length > 0) {
+                    if (!p.subemitter[se]._trigged || p.subemitter[se].processor._particles.length > 0) {
                         allSubStop = false;
                         break;
                     }
                 }
 
                 if (p.subemitter.length > 0 && allSubStop) {
-                    --p.delay;
-                    if (p.delay <= 0) {
-                        p.delay = 0;
-                        for (let se = 0; se < p.subemitter.length; ++se) {
+                    let allTrigged = true;
+                    for (let se = 0; se < p.subemitter.length; ++se) {
+                        if (p.subemitter[se]._trigged) {
                             p.subemitter[se].stop();
+                        } else {
+                            allTrigged = false;
                         }
+                    }
+                    if (allTrigged) {
                         p.active = false;
                         this._particles!.removeAt(i);
                     }
