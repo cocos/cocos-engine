@@ -106,6 +106,10 @@ void RenderQueue::recordCommandBuffer(gfx::Device * /*device*/, scene::Camera *c
             auto *shader = subModel->getShader(passIdx);
             auto *pso = PipelineStateManager::getOrCreatePipelineState(pass, shader, inputAssembler, renderPass, subpassIndex);
 
+            auto &defines = pass->getDefines();
+            const_cast<cc::scene::Pass *>(pass)->setDefine("CC_USE_RGBE_OUTPUT", false);
+            const_cast<cc::scene::SubModel *>(subModel)->onPipelineStateChanged();
+
             cmdBuff->bindPipelineState(pso);
             cmdBuff->bindDescriptorSet(materialSet, pass->getDescriptorSet());
             cmdBuff->bindDescriptorSet(localSet, subModel->getDescriptorSet());

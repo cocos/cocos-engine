@@ -58,7 +58,7 @@ void ReflectionProbe::initialize(Node* node) {
         info.projection = CameraProjection::PERSPECTIVE;
         info.window = Root::getInstance()->getTempWindow();
         info.priority = 0;
-        info.cameraType = CameraType::REFLECTION_PROBE;
+        info.cameraType = CameraType::DEFAULT;
         info.trackingType = TrackingType::NO_TRACKING;
         _camera->initialize(info);
     }
@@ -77,6 +77,7 @@ void ReflectionProbe::initialize(Node* node) {
     _camera->setAperture(CameraAperture::F16_0);
     _camera->setShutter(CameraShutter::D125);
     _camera->setIso(CameraISO::ISO100);
+    
 
     RenderWindow *win =  Root::getInstance()->getMainWindow();
     _realtimePlanarTexture = ccnew RenderTexture();
@@ -85,6 +86,9 @@ void ReflectionProbe::initialize(Node* node) {
     info.height = win->getHeight();
     info.width = win->getWidth();
     _realtimePlanarTexture->initialize(info);
+
+    //realtimeTempTexture = ccnew RenderTexture();
+    //realtimeTempTexture->initialize(info);
 }
 
 void ReflectionProbe::syncCameraParams(const Camera* camera) {
@@ -103,8 +107,8 @@ void ReflectionProbe::renderPlanarReflection(const Camera* sourceCamera){
     if (!sourceCamera) return;
     syncCameraParams(sourceCamera);
     transformReflectionCamera(sourceCamera);
-    attachCameraToScene();
-    setTargetTexture(_realtimePlanarTexture);
+    //attachCameraToScene();
+    //setTargetTexture(_realtimePlanarTexture);
     _needRender = true;
 }
 
@@ -151,6 +155,7 @@ void ReflectionProbe::attachCameraToScene() {
     }
 }
 
+
 void ReflectionProbe::setTargetTexture(const RenderTexture* rt) {
     if (!_camera) return;
     if (rt) {
@@ -162,6 +167,11 @@ void ReflectionProbe::setTargetTexture(const RenderTexture* rt) {
         _camera->changeTargetWindow(Root::getInstance()->getTempWindow());
         _camera->setWindowSize(true);
     }
+}
+void ReflectionProbe::setEnable(bool b)
+{
+    if (!_camera) return;
+    _camera->setEnabled(b);
 }
 void ReflectionProbe::updateBoundingBox() {
 }

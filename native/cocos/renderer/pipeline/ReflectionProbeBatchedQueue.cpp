@@ -40,6 +40,7 @@
 #include "scene/Camera.h"
 #include "scene/ReflectionProbe.h"
 #include "scene/Skybox.h"
+#include "renderer/core/ProgramLib.h"
 namespace cc {
 namespace pipeline {
 
@@ -55,7 +56,7 @@ ReflectionProbeBatchedQueue::~ReflectionProbeBatchedQueue() = default;
 void ReflectionProbeBatchedQueue::gatherRenderObjects(const scene::Camera *camera, gfx::CommandBuffer *cmdBuffer) {
     const auto probe = ReflectionProbeManager::getInstance()->getProbeByCamera(camera);
     if (probe == nullptr) {
-        return;
+       // return;
     }
     clear();
     const PipelineSceneData *sceneData = _pipeline->getPipelineSceneData();
@@ -81,10 +82,8 @@ void ReflectionProbeBatchedQueue::gatherRenderObjects(const scene::Camera *camer
                     add(model);
                     continue;
                 }
-                auto probeBoundingBox = probe->getBoundingBox();
-                if (modelWorldBounds->aabbAabb(*probeBoundingBox)) {
-                    add(model);
-                }
+                //auto probeBoundingBox = probe->getBoundingBox();
+                add(model);
             }
         }
     }
@@ -129,12 +128,12 @@ void ReflectionProbeBatchedQueue::add(const scene::Model *model) {
             _shaders.emplace_back(subModel->getShader(passIdx));
             _passes.emplace_back(pass);
             if (!bUseReflectPass) {
-                /*auto &defines = pass->getDefines();
-                defines["CC_USE_RGBE_OUTPUT"] = true;*/
-                //auto define = pass->getDefines();
-                pass->setDefine("CC_USE_RGBE_OUTPUT", true);
+                auto &defines = pass->getDefines();
+                defines["CC_USE_RGBE_OUTPUT"] = true;
+                /*auto define = pass->getDefines();
+                pass->setDefine("CC_USE_RGBE_OUTPUT", true);*/
                 pass->tryCompile();
-                //subModel->onPipelineStateChanged();
+                subModel->onPipelineStateChanged();
             }
         }
 
@@ -151,21 +150,13 @@ void ReflectionProbeBatchedQueue::recordCommandBuffer(gfx::Device *device, gfx::
         auto *const shader = _shaders[i];
         const auto *pass = _passes[i];
         auto *const ia = subModel->getInputAssembler();
-        auto *const pso = PipelineStateManager::getOrCreatePipelineState(pass, shader, ia, renderPass);
- /*       if (!isUseReflectMapPass(subModel)) {
-            const_cast<cc::scene::Pass *>(pass)->setDefine("CC_USE_RGBE_OUTPUT", true);
-            const_cast<cc::scene::SubModel *>(subModel)->onPipelineStateChanged();
-        }*/
+        auto *const pso = PipelineStateManager::getOrCreatePipelineState(pass, shader, ia, renderPass); 
+
         cmdBuffer->bindPipelineState(pso);
         cmdBuffer->bindDescriptorSet(materialSet, pass->getDescriptorSet());
         cmdBuffer->bindDescriptorSet(localSet, subModel->getDescriptorSet());
         cmdBuffer->bindInputAssembler(ia);
         cmdBuffer->draw(ia);
-
-   /*     if (!isUseReflectMapPass(subModel)) {
-            const_cast<cc::scene::Pass *>(pass)->removeDefine("CC_USE_RGBE_OUTPUT");
-            const_cast<cc::scene::SubModel *>(subModel)->onPipelineStateChanged();
-        }*/
     }
 }
 void ReflectionProbeBatchedQueue::resetMacro() const {
@@ -173,8 +164,8 @@ void ReflectionProbeBatchedQueue::resetMacro() const {
         scene::SubModel *subModel = const_cast<scene::SubModel *>(_subModels[i]);
         auto pass = _passes[i];
         auto &defines = pass->getDefines();
-        pass->setDefine("CC_USE_RGBE_OUTPUT", false);
-        pass->tryCompile();
+        defines["CC_USE_RGBE_OUTPUT"] = false;
+        const_cast<cc::scene::SubModel *>(subModel)->onPipelineStateChanged();
     }
 }
 

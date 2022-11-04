@@ -34,7 +34,8 @@
 #include "math/Vec2.h"
 #include "profiler/Profiler.h"
 #include "scene/Camera.h"
-
+#include "pipeline/ReflectionProbeManager.h"
+#include "scene/ReflectionProbe.h"
 namespace cc {
 namespace pipeline {
 
@@ -63,12 +64,16 @@ void ReflectionProbeStage::activate(RenderPipeline *pipeline, RenderFlow *flow) 
 }
 
 void ReflectionProbeStage::render(scene::Camera *camera) {
-    CC_PROFILE(ShadowStageRender);
+    CC_PROFILE(ReflectionProbeStage);
     const auto *sceneData = _pipeline->getPipelineSceneData();
 
     auto *cmdBuffer = _pipeline->getCommandBuffers()[0];
 
     _reflectionProbeBatchedQueue->gatherRenderObjects(camera, cmdBuffer);
+
+    const auto probe = ReflectionProbeManager::getInstance()->_probes[0];
+
+    _pipeline->getPipelineUBO()->updateCameraUBO(probe->getCamera(), camera->getScene());
 
     _renderArea.x = 0;
     _renderArea.y = 0;
@@ -79,15 +84,21 @@ void ReflectionProbeStage::render(scene::Camera *camera) {
     auto *renderPass = _framebuffer->getRenderPass();
 
     cmdBuffer->beginRenderPass(renderPass, _framebuffer, _renderArea,
-                               _clearColors, camera->getClearDepth(), camera->getClearStencil());
+                               _clearColors, probe->getCamera()->getClearDepth(), probe->getCamera()->getClearStencil());
 
     const ccstd::array<uint32_t, 1> globalOffsets = {_pipeline->getPipelineUBO()->getCurrentCameraUBOOffset()};
     cmdBuffer->bindDescriptorSet(globalSet, _pipeline->getDescriptorSet(), utils::toUint(globalOffsets.size()), globalOffsets.data());
     _reflectionProbeBatchedQueue->recordCommandBuffer(_device, renderPass, cmdBuffer);
 
     cmdBuffer->endRenderPass();
+
+ 
+    _pipeline->getPipelineUBO()->updateCameraUBO(camera, camera->getScene());
     _reflectionProbeBatchedQueue->resetMacro();
+
+
 }
+
 void ReflectionProbeStage::destroy() {
     _framebuffer = nullptr;
 

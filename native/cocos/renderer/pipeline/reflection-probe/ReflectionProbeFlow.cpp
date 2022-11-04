@@ -70,20 +70,22 @@ void ReflectionProbeFlow::activate(RenderPipeline *pipeline) {
 void ReflectionProbeFlow::render(scene::Camera *camera) {
     CC_PROFILE(ReflectionProbeFlowRender);
     const auto *sceneData = _pipeline->getPipelineSceneData();
-    if (camera->getCameraType() != scene::CameraType::REFLECTION_PROBE) {
-        return;
-    }
+
+    
     renderStage(camera);
 }
 
 void ReflectionProbeFlow::renderStage(scene::Camera *camera) {
-    const auto probe = ReflectionProbeManager::getInstance()->getProbeByCamera(camera);
+    //const auto probe = ReflectionProbeManager::getInstance()->getProbeByCamera(camera);
+    const auto probe = ReflectionProbeManager::getInstance()->_probes[0];
+
     for (auto &stage : _stages) {
+        //probe->setTargetTexture(probe->getRealtimePlanarTexture());
         auto framebuffer = probe->getRealtimePlanarTexture()->getWindow()->getFramebuffer();
         auto *reflectionProbeStage = static_cast<ReflectionProbeStage *>(stage.get());
         reflectionProbeStage->setUsage(framebuffer);
         reflectionProbeStage->render(camera);
-
+       // probe->setTargetTexture(nullptr);
         
         const scene::RenderScene *const scene = camera->getScene();
         for (const auto &model : scene->getModels()) {
@@ -102,9 +104,12 @@ void ReflectionProbeFlow::renderStage(scene::Camera *camera) {
                 }*/
             }
         }
+        //probe->setTargetTexture(probe->realtimeTempTexture);
+       
 
     }
 }
+
 
 void ReflectionProbeFlow::destroy() {
     _renderPass = nullptr;

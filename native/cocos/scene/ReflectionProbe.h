@@ -152,15 +152,18 @@ public:
     }
     void setTargetTexture(const RenderTexture* rt);
 
+    void setEnable(bool b);
+
     void updateBoundingBox();
     void syncCameraParams(const Camera* camera);
     void transformReflectionCamera(const Camera* sourceCamera);
     void attachCameraToScene();
     void renderPlanarReflection(const Camera* camera);
     Vec3 reflect(const Vec3& point, const Vec3& normal, int32_t offset);
-
+    IntrusivePtr<cc::RenderTexture> realtimeTempTexture{ nullptr };
 private:
     IntrusivePtr<cc::RenderTexture> _realtimePlanarTexture{nullptr};
+    
     int32_t _resolution = 512;
     gfx::ClearFlagBit _clearFlag = gfx::ClearFlagBit::NONE;
     gfx::Color _backgroundColor;

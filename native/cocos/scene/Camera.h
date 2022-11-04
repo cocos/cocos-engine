@@ -122,7 +122,6 @@ enum class CameraType {
     LEFT_EYE = 0,
     RIGHT_EYE = 1,
     MAIN = 2,
-    REFLECTION_PROBE = 3,
 };
 
 enum class TrackingType {
