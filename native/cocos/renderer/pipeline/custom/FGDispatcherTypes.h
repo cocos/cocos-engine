@@ -245,7 +245,7 @@ struct ResourceAccessGraph {
     PmrFlatMap<RenderGraph::vertex_descriptor, LeafStatus> leafPasses;
     PmrFlatSet<RenderGraph::vertex_descriptor> culledPasses;
     PmrFlatMap<uint32_t, ResourceTransition> accessRecord;
-    PmrFlatMap<PmrString, ResourceLifeRecord> resourceLifeRecord;
+    PmrFlatMap<ccstd::pmr::string, ResourceLifeRecord> resourceLifeRecord;
     ccstd::pmr::vector<RenderGraph::vertex_descriptor> topologicalOrder;
 };
 

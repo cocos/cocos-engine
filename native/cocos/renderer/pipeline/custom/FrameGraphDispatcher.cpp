@@ -203,8 +203,12 @@ void buildAccessGraph(const RenderGraph &renderGraph, const Graphs &graphs) {
     resourceAccessGraph.resourceIndex.reserve(128);
 
     resourceAccessGraph.topologicalOrder.reserve(numPasses);
-    resourceAccessGraph.resourceLifeRecord.reserve(resourceGraph)
+    resourceAccessGraph.topologicalOrder.clear();
+    resourceAccessGraph.resourceLifeRecord.reserve(resourceGraph.names.size());
 
+    if (!resourceAccessGraph.resourceLifeRecord.empty()) {
+        resourceAccessGraph.resourceLifeRecord.clear();
+    }
 
     if (!resourceAccessGraph.leafPasses.empty()) {
         resourceAccessGraph.leafPasses.clear();
@@ -318,25 +322,23 @@ struct BarrierVisitor : public boost::bfs_visitor<> {
 
     explicit BarrierVisitor(
         const ResourceGraph &rg,
-        BarrierMap &barriers,   // what we get
-        ExternalResMap &extMap, // record external res between frames
-        ResourceNames &externalNames, // for external record
-        const AccessTable &accessRecordIn,  // resource last meet
-        ResourceLifeRecordMap& rescLifeRecord // resource lifetime
+        BarrierMap &barriers,                 // what we get
+        ExternalResMap &extMap,               // record external res between frames
+        ResourceNames &externalNames,         // for external record
+        const AccessTable &accessRecordIn,    // resource last meet
+        ResourceLifeRecordMap &rescLifeRecord // resource lifetime
         )
     : barrierMap(barriers), resourceGraph(rg), externalMap(extMap), externalResNames(externalNames), accessRecord(accessRecordIn), resourceLifeRecord(rescLifeRecord) {}
 
-    void updateResourceLifeTime(const ResourceAccessNode& node, ResourceAccessGraph::vertex_descriptor u) {
+    void updateResourceLifeTime(const ResourceAccessNode &node, ResourceAccessGraph::vertex_descriptor u) {
         for (auto access : node.attachmentStatus) {
             auto name = get(ResourceGraph::Name, resourceGraph, access.vertID);
             if (resourceLifeRecord.find(name) == resourceLifeRecord.end()) {
                 resourceLifeRecord.emplace(name, ResourceLifeRecord{u, u});
-            }
-            else {
+            } else {
                 resourceLifeRecord.at(name).end = u;
             }
         }
-
     }
 
     struct AccessNodeInfo {
@@ -706,7 +708,7 @@ void buildBarriers(FrameGraphDispatcher &fgDispatcher) {
         ResourceNames namesSet;
         {
             // _externalResNames records external resource between frames
-            BarrierVisitor visitor(resourceGraph, batchedBarriers, externalResMap, namesSet, rag.accessRecord);
+            BarrierVisitor visitor(resourceGraph, batchedBarriers, externalResMap, namesSet, rag.accessRecord, rag.resourceLifeRecord);
             auto colors = rag.colors(scratch);
             boost::queue<AccessVertex> q;
 

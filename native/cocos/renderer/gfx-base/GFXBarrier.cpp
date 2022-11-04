@@ -251,7 +251,7 @@ constexpr bool validateAccess(ResourceType type, CommonUsage usage, MemoryAccess
     bool res = true;
     if (type == ResourceType::BUFFER) {
         uint32_t conflicts[] = {
-            hasFlag(usage, CommonUsage::ROM) && hasFlag(access, MemoryAccess::WRITE_ONLY),                                       // unoform has write access.
+            hasFlag(usage, CommonUsage::ROM) && hasFlag(access, MemoryAccess::WRITE_ONLY),                                       // uniform has write access.
             hasAnyFlags(usage, CommonUsage::IB_OR_CA | CommonUsage::VB_OR_DS) && !hasFlag(visibility, ShaderStageFlags::VERTEX), // color/ds/input not in fragment
             hasAllFlags(usage, CommonUsage::ROM | CommonUsage::STORAGE),                                                         // storage ^ sampled
             hasFlag(usage, CommonUsage::COPY_SRC) && hasAllFlags(MemoryAccess::READ_ONLY, access),                               // transfer src ==> read_only
