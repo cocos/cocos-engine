@@ -128,24 +128,27 @@ export function mergeAllCompressedTexture (files: ArrayBuffer[] | ArrayBufferVie
         }
         fileLength += fileHeaderLength;   // add file header length
         out = new ArrayBuffer(fileLength);
+        const outView = new Uint8Array(out);
 
         // Append compresssed header
-        const fileView = new DataView(out);
-        fileView.setUint32(0, COMPRESSED_MIPMAP_MAGIC, true); // add magic
-        fileView.setUint32(COMPRESSED_MIPMAP_MAGIC, files.length, true); // add mipmap level number
+        const header = new ArrayBuffer(fileHeaderLength);
+        const headerView = new DataView(header);
+        headerView.setUint32(0, COMPRESSED_MIPMAP_MAGIC, true); // add magic
+        headerView.setUint32(COMPRESSED_HEADER_LENGTH, files.length, true); // add mipmap level number
         for (let i = 0; i < files.length; i++) {
             const file = files[i];
             const buffer = file instanceof ArrayBuffer ? file : file.buffer;
-            fileView.setUint32(COMPRESSED_MIPMAP_MAGIC + COMPRESSED_MIPMAP_MAGIC + i * COMPRESSED_MIPMAP_DATA_SIZE_LENGTH,
+            headerView.setUint32(COMPRESSED_HEADER_LENGTH + COMPRESSED_MIPMAP_LEVEL_COUNT_LENGTH + i * COMPRESSED_MIPMAP_DATA_SIZE_LENGTH,
                 buffer.byteLength, true);
         }
+        outView.set(header as Uint8Array);
 
         // Append compresssed file
         let dataOffset = fileHeaderLength;
         for (const file of files) {
             const buffer = file instanceof ArrayBuffer ? file : file.buffer;
             const srcIBView = new Uint8Array(buffer);
-            (out as Uint8Array).set(srcIBView, dataOffset);
+            outView.set(srcIBView, dataOffset);
             dataOffset += srcIBView.byteLength;
         }
     } catch (e) {
