@@ -20,7 +20,7 @@ function compareStringArray(array1: string[] | undefined, array2: string[] | und
 
 @ccclass('cc.TargetInfo')
 export class TargetInfo {
-    // 用于标识目标在prefab 资源中的ID，区别于UUID
+    // as the target's fileId in prefab asset,used to find the target when prefab expanded.
     @serializable
     public localID: string[] = [];
 }
@@ -115,30 +115,32 @@ export class PrefabInstance {
     @serializable
     public fileId = '';
 
-    // 记录PrefabInstance所属的Prefab的Root节点信息
+    // record the node with the Prefab that this prefabInstance belongs to.
     @serializable
     @type(Node)
     public prefabRootNode?: Node;
 
-    // 实例化的Prefab中额外增加的子节点数据
+    // record children nodes that exist in this prefabInstance but not in prefab asset.
     @serializable
     @type([MountedChildrenInfo])
     public mountedChildren: MountedChildrenInfo[] = [];
 
-    // 实例化的Prefab中额外增加的Component数据
+    // record components that exist in this prefabInstance but not in prefab asset.
     @serializable
     @type([MountedComponentsInfo])
     public mountedComponents: MountedComponentsInfo[] = [];
 
-    // 属性的覆盖数据
+    // override properties info in this prefabInstance.
     @serializable
     @type([PropertyOverrideInfo])
     public propertyOverrides: PropertyOverrideInfo[] = [];
 
+    // record components that exist in ths prefab asset but not in prefabInstance.
     @serializable
     @type([TargetInfo])
     public removedComponents: TargetInfo[] = [];
 
+    // record children's id in prefab asset.
     @serializable
     public ids: string[] = [];
 
@@ -183,12 +185,12 @@ export class PrefabInfo {
     @type(Node)
     public root?: Node;
 
-    // 所属的 prefab 资源对象 (cc.Prefab)
+    // reference to the prefab asset file.
     // In Editor, only asset._uuid is usable because asset will be changed.
     @serializable
     public asset?: Prefab;
 
-    // 用来标识别该节点在 prefab 资源中的位置，因此这个 ID 只需要保证在 Assets 里不重复就行
+    // prefabInfo's id,unique in the asset.
     @serializable
     @editable
     public fileId = '';

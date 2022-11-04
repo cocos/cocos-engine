@@ -459,9 +459,9 @@ export function applyPrefabInstanceIds (node: Node) {
     // @ts-expect-error private member access
     const prefab = node._prefab;
     if (prefab?.instance?.ids) {
-        const ids:string[] = prefab.instance.ids;
-        const idsLength:number = ids.length;
-        if (idsLength <= 0) return;
+        const ids: string[] = prefab.instance.ids;
+        const idsLength: number = ids.length;
+        if (idsLength === 0) return;
         let index = 0;
         let childrenCount = 0;
         let matched = true;
@@ -477,7 +477,7 @@ export function applyPrefabInstanceIds (node: Node) {
             });
         });
         if (!matched) {
-            console.warn(`node:${node.name} applyPrefabInstanceIds failed:${childrenCount} id expected,only have ${idsLength}`);
+            warn(`node:${node.name} applyPrefabInstanceIds failed:${childrenCount} id expected,only have ${idsLength}`);
         }
     }
 }
