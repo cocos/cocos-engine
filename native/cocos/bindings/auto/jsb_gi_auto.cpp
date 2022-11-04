@@ -406,6 +406,40 @@ se::Class* __jsb_cc_gi_CircumSphere_class = nullptr;
 se::Object* __jsb_cc_gi_CircumSphere_proto = nullptr;
 SE_DECLARE_FINALIZE_FUNC(js_delete_cc_gi_CircumSphere) 
 
+static bool js_cc_gi_CircumSphere_radiusSquared_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::gi::CircumSphere *arg1 = (cc::gi::CircumSphere *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gi::CircumSphere>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[0], &arg1->radiusSquared, nullptr);
+    SE_PRECONDITION2(ok, false, "CircumSphere_radiusSquared_set,2,SWIGTYPE_float"); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_gi_CircumSphere_radiusSquared_set) 
+
+static bool js_cc_gi_CircumSphere_radiusSquared_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::gi::CircumSphere *arg1 = (cc::gi::CircumSphere *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gi::CircumSphere>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // out 1
+    ok &= nativevalue_to_se(arg1->radiusSquared, s.rval(), s.thisObject() /*ctx*/); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_gi_CircumSphere_radiusSquared_get) 
+
 static bool js_cc_gi_CircumSphere_center_set(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -443,40 +477,6 @@ static bool js_cc_gi_CircumSphere_center_get(se::State& s)
     return true;
 }
 SE_BIND_PROP_GET(js_cc_gi_CircumSphere_center_get) 
-
-static bool js_cc_gi_CircumSphere_radiusSquared_set(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::gi::CircumSphere *arg1 = (cc::gi::CircumSphere *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::gi::CircumSphere>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[0], &arg1->radiusSquared, nullptr);
-    SE_PRECONDITION2(ok, false, "CircumSphere_radiusSquared_set,2,SWIGTYPE_float"); 
-    
-    
-    return true;
-}
-SE_BIND_PROP_SET(js_cc_gi_CircumSphere_radiusSquared_set) 
-
-static bool js_cc_gi_CircumSphere_radiusSquared_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::gi::CircumSphere *arg1 = (cc::gi::CircumSphere *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::gi::CircumSphere>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    
-    // out 1
-    ok &= nativevalue_to_se(arg1->radiusSquared, s.rval(), s.thisObject() /*ctx*/); 
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_gi_CircumSphere_radiusSquared_get) 
 
 // js_ctor
 static bool js_new_cc_gi_CircumSphere(se::State& s) // NOLINT(readability-identifier-naming)
@@ -565,15 +565,15 @@ bool sevalue_to_native(const se::Value &from, cc::gi::CircumSphere * to, se::Obj
     se::Value field;
     bool ok = true;
     
-    json->getProperty("center", &field, true);
-    if (!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->center), ctx);
-    }
-    
-    
     json->getProperty("radiusSquared", &field, true);
     if (!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->radiusSquared), ctx);
+    }
+    
+    
+    json->getProperty("center", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->center), ctx);
     }
     
     
@@ -584,8 +584,8 @@ bool sevalue_to_native(const se::Value &from, cc::gi::CircumSphere * to, se::Obj
 bool js_register_cc_gi_CircumSphere(se::Object* obj) {
     auto* cls = se::Class::create("CircumSphere", obj, nullptr, _SE(js_new_cc_gi_CircumSphere)); 
     
-    cls->defineProperty("center", _SE(js_cc_gi_CircumSphere_center_get), _SE(js_cc_gi_CircumSphere_center_set)); 
     cls->defineProperty("radiusSquared", _SE(js_cc_gi_CircumSphere_radiusSquared_get), _SE(js_cc_gi_CircumSphere_radiusSquared_set)); 
+    cls->defineProperty("center", _SE(js_cc_gi_CircumSphere_center_get), _SE(js_cc_gi_CircumSphere_center_set)); 
     
     cls->defineFunction("init", _SE(js_cc_gi_CircumSphere_init)); 
     
