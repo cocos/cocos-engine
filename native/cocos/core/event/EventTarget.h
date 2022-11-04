@@ -24,6 +24,7 @@
  ****************************************************************************/
 #pragma once
 
+#include <array>
 #include <memory>
 #include <unordered_map>
 #include "base/Macros.h"
@@ -213,303 +214,305 @@ private:
     IdType _eventId{};
 };
 
-class EventTarget {
-public:
-    static constexpr bool HAS_PARENT = false;
-
-    template <typename TgtEvent, typename Fn>
-    TargetEventID<TgtEvent> addEventListener(Fn &&func, bool useCapture, bool once) {
-        // CC_ASSERT(!_emittingEvent);
-        using func_type = std::conditional_t<intl::FunctionTrait<Fn>::IS_LAMBDA,
-                                             typename intl::lambda_without_class_t<Fn>, Fn>;
-        using wrap_type = intl::TgtEvtFnTrait<func_type>;
-        auto stdfn = wrap_type::template wrap<TgtEvent>(intl::convertLambda(std::forward<Fn>(func)));
-        auto *newHandler = new event::TargetEventListener<TgtEvent>(stdfn);
-        auto newId = ++_handlerId;
-        newHandler->id = newId;
-        if (once) {
-            newHandler->setOnce();
-        }
-        if constexpr (wrap_type::IS_MEMBER_FUNC) {
-            newHandler->setMemberFuncAddr(std::forward<Fn>(func), nullptr);
-        }
-        if (useCapture) {
-            intl::listAppend<TargetEventListenerBase>(&_capturingHandlersMap[TgtEvent::TypeID()], newHandler);
-        } else {
-            intl::listAppend<TargetEventListenerBase>(&_bubblingHandlersMap[TgtEvent::TypeID()], newHandler);
-        }
-        return TargetEventID<TgtEvent>(newId);
-    }
-
-    template <typename TgtEvent, typename Fn>
-    TargetEventID<TgtEvent> once(Fn &&func, bool useCapture) {
-        return this->template addEventListener(std::forward<Fn>(func), useCapture, true);
-    }
-
-    template <typename TgtEvent, typename Fn, typename O>
-    TargetEventID<TgtEvent> addEventListener(Fn &&func, O *ctx, bool useCapture, bool once) {
-        // CC_ASSERT(!_emittingEvent);
-        using wrap_type = event::intl::TgtEvtFnTrait<Fn>;
-        auto stdfn = wrap_type::template wrapWithContext<TgtEvent>(std::forward<Fn>(func), ctx);
-        auto *newHandler = new event::TargetEventListener<TgtEvent>(stdfn);
-        auto newId = ++_handlerId;
-        newHandler->id = newId;
-        if (once) {
-            newHandler->setOnce();
-        }
-        if constexpr (wrap_type::IS_MEMBER_FUNC) {
-            newHandler->setMemberFuncAddr(std::forward<Fn>(func), ctx);
-        }
-        if (useCapture) {
-            intl::listAppend<TargetEventListenerBase>(&_capturingHandlersMap[TgtEvent::TypeID()], newHandler);
-        } else {
-            intl::listAppend<TargetEventListenerBase>(&_bubblingHandlersMap[TgtEvent::TypeID()], newHandler);
-        }
-        return TargetEventID<TgtEvent>(newId);
-    }
-
-    template <typename TgtEvent, typename Fn, typename O>
-    TargetEventID<TgtEvent> once(Fn &&func, O *ctx) {
-        return this->template addEventListener(std::forward<Fn>(func), ctx, true);
-    }
-
-    template <typename TgtEvent>
-    bool off(TargetEventID<TgtEvent> eventId) {
-        CC_ASSERT(!_emittingEvent[TgtEvent::TypeID()]);
-
-        TargetEventListenerBase *&bubblingHandlers = _bubblingHandlersMap[TgtEvent::TypeID()];
-
-        EVENT_LIST_LOOP_REV_BEGIN(handle, bubblingHandlers)
-        if (handle && handle->id == eventId.value()) {
-            CC_ASSERT(handle->getEventTypeID() == TgtEvent::TypeID());
-            intl::detachFromList(&bubblingHandlers, handle);
-            delete handle;
-            return true;
-        }
-        EVENT_LIST_LOOP_REV_END(handle, bubblingHandlers)
-        TargetEventListenerBase *&capturingHandlers = _capturingHandlersMap[TgtEvent::TypeID()];
-        EVENT_LIST_LOOP_REV_BEGIN(handle, capturingHandlers)
-        if (handle && handle->id == eventId.value()) {
-            CC_ASSERT(handle->getEventTypeID() == TgtEvent::TypeID());
-            intl::detachFromList(&capturingHandlers, handle);
-            delete handle;
-            return true;
-        }
-        EVENT_LIST_LOOP_REV_END(handle, capturingHandlers)
-        return false;
-    }
-
-    void offAll() {
-#if CC_DEBUG
-        for (auto &itr : _emittingEvent) {
-            CC_ASSERT(!itr.second);
-        }
-#endif
-        for (auto &itr : _bubblingHandlersMap) {
-            TargetEventListenerBase *&handlers = itr.second;
+template <size_t N>
+struct TargetListenerContainer final {
+    std::array<TargetEventListenerBase *, N> data{nullptr};
+    TargetEventListenerBase *&operator[](size_t index) { return data[index]; }
+    void clear() {
+        for (size_t i = 0; i < N; i++) {
+            auto &handlers = data[i];
             EVENT_LIST_LOOP_REV_BEGIN(handle, handlers)
             delete handle;
             EVENT_LIST_LOOP_REV_END(handle, handlers)
         }
-
-        for (auto &itr : _capturingHandlersMap) {
-            TargetEventListenerBase *&handlers = itr.second;
-            EVENT_LIST_LOOP_REV_BEGIN(handle, handlers)
-            delete handle;
-            EVENT_LIST_LOOP_REV_END(handle, handlers)
-        }
-
-        _bubblingHandlersMap.clear();
-        _capturingHandlersMap.clear();
     }
-
-    template <typename TgtEvent>
-    void off() {
-        static_assert(std::is_base_of_v<TgtEventTraitClass, TgtEvent>, "incorrect template argument");
-        CC_ASSERT(!_emittingEvent[TgtEvent::TypeID()]);
-        TargetEventListenerBase *&bubblingHandlers = _bubblingHandlersMap[TgtEvent::TypeID()];
-
-        EVENT_LIST_LOOP_REV_BEGIN(handle, bubblingHandlers)
-        if (handle) {
-            intl::detachFromList(&bubblingHandlers, handle);
-            delete handle;
-        }
-        EVENT_LIST_LOOP_REV_END(handle, bubblingHandlers)
-
-        TargetEventListenerBase *&capturingHandlers = _capturingHandlersMap[TgtEvent::TypeID()];
-        EVENT_LIST_LOOP_REV_BEGIN(handle, capturingHandlers)
-        if (handle) {
-            intl::detachFromList(&capturingHandlers, handle);
-            delete handle;
-        }
-        EVENT_LIST_LOOP_REV_END(handle, capturingHandlers)
+    ~TargetListenerContainer() {
+        clear();
     }
-
-    template <typename TgtEvent, typename Self, typename... ARGS>
-    void emit(ARGS &&...args) {
-        // TODO(): statistics
-        using _handler_function_type = event::TargetEventListener<TgtEvent>;
-        using EventType = typename TgtEvent::EventType;
-        static_assert(sizeof...(ARGS) == TgtEvent::ARG_COUNT, "Parameter count incorrect for function EventTarget::emit");
-        event::intl::validateParameters<0, TgtEvent, ARGS...>(std::forward<ARGS>(args)...);
-        EventType eventObj(std::make_tuple<ARGS...>(std::forward<ARGS>(args)...));
-        eventObj.target = static_cast<Self *>(this);
-        eventObj.currentTarget = static_cast<Self *>(this);
-
-        emitEvtObj<false, Self, TgtEvent>(&eventObj);
-    }
-    template <bool useCapture, typename Self, typename TgtEvent, typename EvtObj>
-    void emitEvtObj(EvtObj *eventObj) {
-        using EventType = typename TgtEvent::EventType;
-        using _handler_function_type = event::TargetEventListener<TgtEvent>;
-        static_assert(std::is_same_v<EventType, EvtObj>, "Event type mismatch");
-        _emittingEvent[TgtEvent::TypeID()]++;
-        if constexpr (useCapture) {
-            TargetEventListenerBase *&handlers = _capturingHandlersMap[TgtEvent::TypeID()];
-            EVENT_LIST_LOOP_BEGIN(handle, handlers)
-            if (handle && handle->isEnabled()) {
-                static_cast<_handler_function_type *>(handle)->apply(static_cast<Self *>(this), eventObj);
-            }
-            EVENT_LIST_LOOP_END(handle, handlers);
-        } else {
-            TargetEventListenerBase *&handlers = _bubblingHandlersMap[TgtEvent::TypeID()];
-            EVENT_LIST_LOOP_BEGIN(handle, handlers)
-            if (handle && handle->isEnabled()) {
-                static_cast<_handler_function_type *>(handle)->apply(static_cast<Self *>(this), eventObj);
-            }
-            EVENT_LIST_LOOP_END(handle, handlers);
-        }
-        _emittingEvent[TgtEvent::TypeID()]--;
-    }
-    template <typename TgtEvent, typename Self, typename EvtType>
-    std::enable_if_t<std::is_same_v<typename TgtEvent::EventType, std::decay_t<EvtType>>, void>
-    dispatchEvent(EvtType &eventObj) {
-        if constexpr (Self::HAS_PARENT) {
-            std::vector<Self *> parents;
-            Self *curr = static_cast<Self *>(this)->Self::evGetParent();
-            while (curr) {
-                if (curr->template hasEventHandler<TgtEvent>()) {
-                    parents.emplace_back(curr);
-                }
-                curr = curr->evGetParent();
-            }
-            for (auto itr = parents.rbegin(); itr != parents.rend(); itr++) {
-                eventObj.currentTarget = *itr;
-                (*itr)->template emitEvtObj<true, Self, TgtEvent>(&eventObj);
-                if (eventObj.propagationStopped) {
-                    return;
-                }
-            }
-        }
-
-        eventObj.eventPhase = EventPhaseType::AT_TARGET;
-        eventObj.currentTarget = static_cast<Self *>(this);
-
-        emitEvtObj<true, Self, TgtEvent>(&eventObj);
-        if (!eventObj.propagationStopped) {
-            emitEvtObj<false, Self, TgtEvent>(&eventObj);
-        }
-
-        if constexpr (Self::HAS_PARENT) {
-            if (!eventObj.propagationStopped && eventObj.bubbles) {
-                auto *curr = static_cast<Self *>(this)->Self::evGetParent();
-                std::vector<Self *> parents;
-
-                while (curr) {
-                    if (curr->template hasEventHandler<TgtEvent>()) {
-                        parents.emplace_back(curr);
-                    }
-                    curr = curr->evGetParent();
-                }
-                for (auto itr = parents.begin(); itr != parents.end(); itr++) {
-                    eventObj.currentTarget = *itr;
-                    (*itr)->template emitEvtObj<false, Self, TgtEvent>(&eventObj);
-                    if (eventObj.propagationStopped) {
-                        return;
-                    }
-                }
-            }
-        }
-    }
-
-    template <typename TgtEvent, typename Self, typename... ARGS>
-    std::enable_if_t<sizeof...(ARGS) != 1 || (sizeof...(ARGS) == 1 && !std::is_same_v<typename TgtEvent::EventType, std::remove_pointer_t<typename intl::HeadType<ARGS...>::head>>), void>
-    dispatchEvent(ARGS &&...args) {
-        using _handler_function_type = event::TargetEventListener<TgtEvent>;
-        using EventType = typename TgtEvent::EventType;
-        static_assert(sizeof...(ARGS) == TgtEvent::ARG_COUNT, "Parameter count incorrect for function EventTarget::emit");
-        event::intl::validateParameters<0, TgtEvent, ARGS...>(std::forward<ARGS>(args)...);
-        EventType eventObj(std::make_tuple<ARGS...>(std::forward<ARGS>(args)...));
-        eventObj.target = static_cast<Self *>(this);
-        eventObj.currentTarget = static_cast<Self *>(this);
-        eventObj.eventPhase = EventPhaseType::CAPTUREING_PHASE;
-        dispatchEvent<TgtEvent, Self, EventType>(eventObj);
-    }
-
-    template <typename TgtEvent, typename Self>
-    void dispatchEvent() {
-        using _handler_function_type = event::TargetEventListener<TgtEvent>;
-        using EventType = typename TgtEvent::EventType;
-        static_assert(0 == TgtEvent::ARG_COUNT, "Parameter count incorrect for function EventTarget::emit");
-        EventType eventObj;
-        eventObj.target = static_cast<Self *>(this);
-        eventObj.currentTarget = static_cast<Self *>(this);
-        eventObj.eventPhase = EventPhaseType::CAPTUREING_PHASE;
-        dispatchEvent<TgtEvent, Self, EventType>(eventObj);
-    }
-
-    template <typename TgtEvent>
-    bool hasEventHandler() {
-        TargetEventListenerBase *&bubblingHandlers = _bubblingHandlersMap[TgtEvent::TypeID()];
-        EVENT_LIST_LOOP_BEGIN(handle, bubblingHandlers)
-        if (handle && handle->isEnabled()) {
-            return true;
-        }
-        EVENT_LIST_LOOP_END(handle, bubblingHandlers);
-        TargetEventListenerBase *&capturingHandlers = _capturingHandlersMap[TgtEvent::TypeID()];
-        EVENT_LIST_LOOP_BEGIN(handle, capturingHandlers)
-        if (handle && handle->isEnabled()) {
-            return true;
-        }
-        EVENT_LIST_LOOP_END(handle, capturingHandlers);
-        return false;
-    }
-
-    template <typename TgtEvent, typename Fn, typename C>
-    bool hasEventHandler(Fn func, C *target) {
-        using wrap_type = event::intl::TgtEvtFnTrait<Fn>;
-        using _handler_function_type = event::TargetEventListener<TgtEvent>;
-        static_assert(std::is_same<typename wrap_type::target_type, C>::value, "member function type mismatch");
-
-        TargetEventListenerBase *&bubblingHandlers = _bubblingHandlersMap[TgtEvent::TypeID()];
-        EVENT_LIST_LOOP_BEGIN(handle, bubblingHandlers)
-        if (handle && handle->isEnabled() && handle->getContext() == target) {
-            auto *ptr = static_cast<_handler_function_type *>(handle);
-            return ptr->getMemberFuncAddr() == func;
-        }
-        EVENT_LIST_LOOP_END(handle, bubblingHandlers);
-        TargetEventListenerBase *&capturingHandlers = _capturingHandlersMap[TgtEvent::TypeID()];
-        EVENT_LIST_LOOP_BEGIN(handle, capturingHandlers)
-        if (handle && handle->isEnabled() && handle->getContext() == target) {
-            auto *ptr = static_cast<_handler_function_type *>(handle);
-            return ptr->getMemberFuncAddr() == func;
-        }
-        EVENT_LIST_LOOP_END(handle, capturingHandlers);
-
-        return false;
-    }
-    virtual ~EventTarget() { offAll(); }
-
-protected:
-    std::unordered_map<size_t, TargetEventListenerBase *> _bubblingHandlersMap;
-    std::unordered_map<size_t, TargetEventListenerBase *> _capturingHandlersMap;
-
-    TargetEventIdType _handlerId{1};
-    std::unordered_map<size_t, int> _emittingEvent;
 };
 
 } // namespace event
 } // namespace cc
+// NOLINTNEXTLINE
+#define _IMPL_EVENT_TARGET_(Self)                                                                                                    \
+    using _emitter_type = Self;                                                                                                      \
+                                                                                                                                     \
+protected:                                                                                                                           \
+    template <typename TgtEvent, typename Fn>                                                                                        \
+    cc::event::TargetEventID<TgtEvent> addEventListener(Fn &&func, bool useCapture, bool once) {                                     \
+        /* CC_ASSERT(!_emittingEvent); */                                                                                            \
+        using func_type = std::conditional_t<cc::event::intl::FunctionTrait<Fn>::IS_LAMBDA,                                          \
+                                             typename cc::event::intl::lambda_without_class_t<Fn>, Fn>;                              \
+        using wrap_type = cc::event::intl::TgtEvtFnTrait<func_type>;                                                                 \
+        auto stdfn = wrap_type::template wrap<TgtEvent>(cc::event::intl::convertLambda(std::forward<Fn>(func)));                     \
+        auto *newHandler = new cc::event::TargetEventListener<TgtEvent>(stdfn);                                                      \
+        auto newId = ++_handlerId;                                                                                                   \
+        newHandler->id = newId;                                                                                                      \
+        if (once) {                                                                                                                  \
+            newHandler->setOnce();                                                                                                   \
+        }                                                                                                                            \
+        if constexpr (wrap_type::IS_MEMBER_FUNC) {                                                                                   \
+            newHandler->setMemberFuncAddr(std::forward<Fn>(func), nullptr);                                                          \
+        }                                                                                                                            \
+        if (useCapture) {                                                                                                            \
+            cc::event::intl::listAppend<cc::event::TargetEventListenerBase>(&_capturingHandlersMap[TgtEvent::TypeID()], newHandler); \
+        } else {                                                                                                                     \
+            cc::event::intl::listAppend<cc::event::TargetEventListenerBase>(&_bubblingHandlersMap[TgtEvent::TypeID()], newHandler);  \
+        }                                                                                                                            \
+        return cc::event::TargetEventID<TgtEvent>(newId);                                                                            \
+    }                                                                                                                                \
+                                                                                                                                     \
+    template <typename TgtEvent, typename Fn, typename O>                                                                            \
+    cc::event::TargetEventID<TgtEvent> addEventListener(Fn &&func, O *ctx, bool useCapture, bool once) {                             \
+        /* CC_ASSERT(!_emittingEvent);*/                                                                                             \
+        using wrap_type = cc::event::intl::TgtEvtFnTrait<Fn>;                                                                        \
+        auto stdfn = wrap_type::template wrapWithContext<TgtEvent>(std::forward<Fn>(func), ctx);                                     \
+        auto *newHandler = new cc::event::TargetEventListener<TgtEvent>(stdfn);                                                      \
+        auto newId = ++_handlerId;                                                                                                   \
+        newHandler->id = newId;                                                                                                      \
+        if (once) {                                                                                                                  \
+            newHandler->setOnce();                                                                                                   \
+        }                                                                                                                            \
+        if constexpr (wrap_type::IS_MEMBER_FUNC) {                                                                                   \
+            newHandler->setMemberFuncAddr(std::forward<Fn>(func), ctx);                                                              \
+        }                                                                                                                            \
+        if (useCapture) {                                                                                                            \
+            cc::event::intl::listAppend<cc::event::TargetEventListenerBase>(&_capturingHandlersMap[TgtEvent::TypeID()], newHandler); \
+        } else {                                                                                                                     \
+            cc::event::intl::listAppend<cc::event::TargetEventListenerBase>(&_bubblingHandlersMap[TgtEvent::TypeID()], newHandler);  \
+        }                                                                                                                            \
+        return cc::event::TargetEventID<TgtEvent>(newId);                                                                            \
+    }                                                                                                                                \
+                                                                                                                                     \
+public:                                                                                                                              \
+    template <typename TgtEvent, typename Fn>                                                                                        \
+    cc::event::TargetEventID<TgtEvent> once(Fn &&func, bool useCapture) {                                                            \
+        return this->template addEventListener(std::forward<Fn>(func), useCapture, true);                                            \
+    }                                                                                                                                \
+                                                                                                                                     \
+    template <typename TgtEvent, typename Fn, typename O>                                                                            \
+    cc::event::TargetEventID<TgtEvent> once(Fn &&func, O *ctx) {                                                                     \
+        return this->template addEventListener(std::forward<Fn>(func), ctx, true);                                                   \
+    }                                                                                                                                \
+    template <typename TgtEvent, typename Fn>                                                                                        \
+    cc::event::TargetEventID<TgtEvent> on(Fn &&func, bool useCapture = false) {                                                      \
+        static_assert(std::is_base_of<typename TgtEvent::_emitter_type, Self>::value, "mismatch target type");                       \
+        return this->template addEventListener<TgtEvent, Fn>(std::forward<Fn>(func), useCapture, false);                             \
+    }                                                                                                                                \
+    template <typename TgtEvent, typename Fn, typename O>                                                                            \
+    cc::event::TargetEventID<TgtEvent> on(Fn &&func, O *ctx, bool useCapture = false) {                                              \
+        return this->template addEventListener<TgtEvent, Fn, O>(std::forward<Fn>(func), ctx, useCapture, false);                     \
+    }                                                                                                                                \
+    template <typename TgtEvent>                                                                                                     \
+    bool off(cc::event::TargetEventID<TgtEvent> eventId) {                                                                           \
+        CC_ASSERT(!_emittingEvent[TgtEvent::TypeID()]);                                                                              \
+                                                                                                                                     \
+        cc::event::TargetEventListenerBase *&bubblingHandlers = _bubblingHandlersMap[TgtEvent::TypeID()];                            \
+                                                                                                                                     \
+        EVENT_LIST_LOOP_REV_BEGIN(handle, bubblingHandlers)                                                                          \
+        if (handle && handle->id == eventId.value()) {                                                                               \
+            CC_ASSERT(handle->getEventTypeID() == TgtEvent::TypeID());                                                               \
+            cc::event::intl::detachFromList(&bubblingHandlers, handle);                                                              \
+            delete handle;                                                                                                           \
+            return true;                                                                                                             \
+        }                                                                                                                            \
+        EVENT_LIST_LOOP_REV_END(handle, bubblingHandlers)                                                                            \
+        cc::event::TargetEventListenerBase *&capturingHandlers = _capturingHandlersMap[TgtEvent::TypeID()];                          \
+        EVENT_LIST_LOOP_REV_BEGIN(handle, capturingHandlers)                                                                         \
+        if (handle && handle->id == eventId.value()) {                                                                               \
+            CC_ASSERT(handle->getEventTypeID() == TgtEvent::TypeID());                                                               \
+            cc::event::intl::detachFromList(&capturingHandlers, handle);                                                             \
+            delete handle;                                                                                                           \
+            return true;                                                                                                             \
+        }                                                                                                                            \
+        EVENT_LIST_LOOP_REV_END(handle, capturingHandlers)                                                                           \
+        return false;                                                                                                                \
+    }                                                                                                                                \
+                                                                                                                                     \
+    void offAll() {                                                                                                                  \
+        _bubblingHandlersMap.clear();                                                                                                \
+        _capturingHandlersMap.clear();                                                                                               \
+    }                                                                                                                                \
+                                                                                                                                     \
+    template <typename TgtEvent>                                                                                                     \
+    void off() {                                                                                                                     \
+        static_assert(std::is_base_of_v<cc::event::TgtEventTraitClass, TgtEvent>, "incorrect template argument");                    \
+        CC_ASSERT(!_emittingEvent[TgtEvent::TypeID()]);                                                                              \
+        cc::event::TargetEventListenerBase *&bubblingHandlers = _bubblingHandlersMap[TgtEvent::TypeID()];                            \
+                                                                                                                                     \
+        EVENT_LIST_LOOP_REV_BEGIN(handle, bubblingHandlers)                                                                          \
+        if (handle) {                                                                                                                \
+            cc::event::intl::detachFromList(&bubblingHandlers, handle);                                                              \
+            delete handle;                                                                                                           \
+        }                                                                                                                            \
+        EVENT_LIST_LOOP_REV_END(handle, bubblingHandlers)                                                                            \
+                                                                                                                                     \
+        cc::event::TargetEventListenerBase *&capturingHandlers = _capturingHandlersMap[TgtEvent::TypeID()];                          \
+        EVENT_LIST_LOOP_REV_BEGIN(handle, capturingHandlers)                                                                         \
+        if (handle) {                                                                                                                \
+            cc::event::intl::detachFromList(&capturingHandlers, handle);                                                             \
+            delete handle;                                                                                                           \
+        }                                                                                                                            \
+        EVENT_LIST_LOOP_REV_END(handle, capturingHandlers)                                                                           \
+    }                                                                                                                                \
+                                                                                                                                     \
+    template <typename TgtEvent, typename... ARGS>                                                                                   \
+    void emit(ARGS &&...args) {                                                                                                      \
+        /* TODO() : statistics */                                                                                                    \
+        using _handler_function_type = cc::event::TargetEventListener<TgtEvent>;                                                     \
+        using EventType = typename TgtEvent::EventType;                                                                              \
+        static_assert(sizeof...(ARGS) == TgtEvent::ARG_COUNT, "Parameter count incorrect for function EventTarget::emit");           \
+        cc::event::intl::validateParameters<0, TgtEvent, ARGS...>(std::forward<ARGS>(args)...);                                      \
+        EventType eventObj(std::make_tuple<ARGS...>(std::forward<ARGS>(args)...));                                                   \
+        eventObj.target = this;                                                                                                      \
+        eventObj.currentTarget = this;                                                                                               \
+                                                                                                                                     \
+        emitEvtObj<false, TgtEvent>(&eventObj);                                                                                      \
+    }                                                                                                                                \
+    template <bool useCapture, typename TgtEvent, typename EvtObj>                                                                   \
+    void emitEvtObj(EvtObj *eventObj) {                                                                                              \
+        using EventType = typename TgtEvent::EventType;                                                                              \
+        using _handler_function_type = cc::event::TargetEventListener<TgtEvent>;                                                     \
+        static_assert(std::is_same_v<EventType, EvtObj>, "Event type mismatch");                                                     \
+        _emittingEvent[TgtEvent::TypeID()]++;                                                                                        \
+        if constexpr (useCapture) {                                                                                                  \
+            cc::event::TargetEventListenerBase *&handlers = _capturingHandlersMap[TgtEvent::TypeID()];                               \
+            EVENT_LIST_LOOP_BEGIN(handle, handlers)                                                                                  \
+            if (handle && handle->isEnabled()) {                                                                                     \
+                static_cast<_handler_function_type *>(handle)->apply(this, eventObj);                                                \
+            }                                                                                                                        \
+            EVENT_LIST_LOOP_END(handle, handlers);                                                                                   \
+        } else {                                                                                                                     \
+            cc::event::TargetEventListenerBase *&handlers = _bubblingHandlersMap[TgtEvent::TypeID()];                                \
+            EVENT_LIST_LOOP_BEGIN(handle, handlers)                                                                                  \
+            if (handle && handle->isEnabled()) {                                                                                     \
+                static_cast<_handler_function_type *>(handle)->apply(this, eventObj);                                                \
+            }                                                                                                                        \
+            EVENT_LIST_LOOP_END(handle, handlers);                                                                                   \
+        }                                                                                                                            \
+        _emittingEvent[TgtEvent::TypeID()]--;                                                                                        \
+    }                                                                                                                                \
+    template <typename TgtEvent, typename EvtType>                                                                                   \
+    std::enable_if_t<std::is_same_v<typename TgtEvent::EventType, std::decay_t<EvtType>>, void>                                      \
+    dispatchEvent(EvtType &eventObj) {                                                                                               \
+        if constexpr (HAS_PARENT) {                                                                                                  \
+            std::vector<Self *> parents;                                                                                             \
+            Self *curr = this->evGetParent();                                                                                        \
+            while (curr) {                                                                                                           \
+                if (curr->hasEventHandler<TgtEvent>()) {                                                                             \
+                    parents.emplace_back(curr);                                                                                      \
+                }                                                                                                                    \
+                curr = curr->evGetParent();                                                                                          \
+            }                                                                                                                        \
+            for (auto itr = parents.rbegin(); itr != parents.rend(); itr++) {                                                        \
+                eventObj.currentTarget = *itr;                                                                                       \
+                (*itr)->emitEvtObj<true, TgtEvent>(&eventObj);                                                                       \
+                if (eventObj.propagationStopped) {                                                                                   \
+                    return;                                                                                                          \
+                }                                                                                                                    \
+            }                                                                                                                        \
+        }                                                                                                                            \
+                                                                                                                                     \
+        eventObj.eventPhase = cc::event::EventPhaseType::AT_TARGET;                                                                  \
+        eventObj.currentTarget = static_cast<Self *>(this);                                                                          \
+                                                                                                                                     \
+        emitEvtObj<true, TgtEvent>(&eventObj);                                                                                       \
+        if (!eventObj.propagationStopped) {                                                                                          \
+            emitEvtObj<false, TgtEvent>(&eventObj);                                                                                  \
+        }                                                                                                                            \
+                                                                                                                                     \
+        if constexpr (HAS_PARENT) {                                                                                                  \
+            if (!eventObj.propagationStopped && eventObj.bubbles) {                                                                  \
+                auto *curr = static_cast<Self *>(this)->evGetParent();                                                               \
+                std::vector<Self *> parents;                                                                                         \
+                                                                                                                                     \
+                while (curr) {                                                                                                       \
+                    if (curr->template hasEventHandler<TgtEvent>()) {                                                                \
+                        parents.emplace_back(curr);                                                                                  \
+                    }                                                                                                                \
+                    curr = curr->evGetParent();                                                                                      \
+                }                                                                                                                    \
+                for (auto itr = parents.begin(); itr != parents.end(); itr++) {                                                      \
+                    eventObj.currentTarget = *itr;                                                                                   \
+                    (*itr)->template emitEvtObj<false, TgtEvent>(&eventObj);                                                         \
+                    if (eventObj.propagationStopped) {                                                                               \
+                        return;                                                                                                      \
+                    }                                                                                                                \
+                }                                                                                                                    \
+            }                                                                                                                        \
+        }                                                                                                                            \
+    }                                                                                                                                \
+                                                                                                                                     \
+    template <typename TgtEvent, typename... ARGS>                                                                                   \
+    std::enable_if_t<sizeof...(ARGS) != 1 ||                                                                                         \
+                         (sizeof...(ARGS) == 1 &&                                                                                    \
+                          !std::is_same_v<typename TgtEvent::EventType,                                                              \
+                                          std::remove_pointer_t<typename cc::event::intl::HeadType<ARGS...>::head>>),                \
+                     void>                                                                                                           \
+    dispatchEvent(ARGS &&...args) {                                                                                                  \
+        using _handler_function_type = cc::event::TargetEventListener<TgtEvent>;                                                     \
+        using EventType = typename TgtEvent::EventType;                                                                              \
+        static_assert(sizeof...(ARGS) == TgtEvent::ARG_COUNT, "Parameter count incorrect for function EventTarget::emit");           \
+        cc::event::intl::validateParameters<0, TgtEvent, ARGS...>(std::forward<ARGS>(args)...);                                      \
+        EventType eventObj(std::make_tuple<ARGS...>(std::forward<ARGS>(args)...));                                                   \
+        eventObj.target = this;                                                                                                      \
+        eventObj.currentTarget = this;                                                                                               \
+        eventObj.eventPhase = cc::event::EventPhaseType::CAPTUREING_PHASE;                                                           \
+        dispatchEvent<TgtEvent, EventType>(eventObj);                                                                                \
+    }                                                                                                                                \
+                                                                                                                                     \
+    template <typename TgtEvent>                                                                                                     \
+    void dispatchEvent() {                                                                                                           \
+        using _handler_function_type = cc::event::TargetEventListener<TgtEvent>;                                                     \
+        using EventType = typename TgtEvent::EventType;                                                                              \
+        static_assert(0 == TgtEvent::ARG_COUNT, "Parameter count incorrect for function EventTarget::emit");                         \
+        EventType eventObj;                                                                                                          \
+        eventObj.target = this;                                                                                                      \
+        eventObj.currentTarget = this;                                                                                               \
+        eventObj.eventPhase = cc::event::EventPhaseType::CAPTUREING_PHASE;                                                           \
+        dispatchEvent<TgtEvent, Self, EventType>(eventObj);                                                                          \
+    }                                                                                                                                \
+                                                                                                                                     \
+    template <typename TgtEvent>                                                                                                     \
+    bool hasEventHandler() {                                                                                                         \
+        cc::event::TargetEventListenerBase *&bubblingHandlers = _bubblingHandlersMap[TgtEvent::TypeID()];                            \
+        EVENT_LIST_LOOP_BEGIN(handle, bubblingHandlers)                                                                              \
+        if (handle && handle->isEnabled()) {                                                                                         \
+            return true;                                                                                                             \
+        }                                                                                                                            \
+        EVENT_LIST_LOOP_END(handle, bubblingHandlers);                                                                               \
+        cc::event::TargetEventListenerBase *&capturingHandlers = _capturingHandlersMap[TgtEvent::TypeID()];                          \
+        EVENT_LIST_LOOP_BEGIN(handle, capturingHandlers)                                                                             \
+        if (handle && handle->isEnabled()) {                                                                                         \
+            return true;                                                                                                             \
+        }                                                                                                                            \
+        EVENT_LIST_LOOP_END(handle, capturingHandlers);                                                                              \
+        return false;                                                                                                                \
+    }                                                                                                                                \
+                                                                                                                                     \
+    template <typename TgtEvent, typename Fn, typename C>                                                                            \
+    bool hasEventHandler(Fn func, C *target) {                                                                                       \
+        using wrap_type = cc::event::intl::TgtEvtFnTrait<Fn>;                                                                        \
+        using _handler_function_type = event::TargetEventListener<TgtEvent>;                                                         \
+        static_assert(std::is_same<typename wrap_type::target_type, C>::value, "member function type mismatch");                     \
+                                                                                                                                     \
+        cc::event::TargetEventListenerBase *&bubblingHandlers = _bubblingHandlersMap[TgtEvent::TypeID()];                            \
+        EVENT_LIST_LOOP_BEGIN(handle, bubblingHandlers)                                                                              \
+        if (handle && handle->isEnabled() && handle->getContext() == target) {                                                       \
+            auto *ptr = static_cast<_handler_function_type *>(handle);                                                               \
+            return ptr->getMemberFuncAddr() == func;                                                                                 \
+        }                                                                                                                            \
+        EVENT_LIST_LOOP_END(handle, bubblingHandlers);                                                                               \
+        cc::event::TargetEventListenerBase *&capturingHandlers = _capturingHandlersMap[TgtEvent::TypeID()];                          \
+        EVENT_LIST_LOOP_BEGIN(handle, capturingHandlers)                                                                             \
+        if (handle && handle->isEnabled() && handle->getContext() == target) {                                                       \
+            auto *ptr = static_cast<_handler_function_type *>(handle);                                                               \
+            return ptr->getMemberFuncAddr() == func;                                                                                 \
+        }                                                                                                                            \
+        EVENT_LIST_LOOP_END(handle, capturingHandlers);                                                                              \
+                                                                                                                                     \
+        return false;                                                                                                                \
+    }
 
 #define TARGET_EVENT_ARG0(EventTypeClass)                                                 \
     class EventTypeClass final : public cc::event::TgtEventTrait<_emitter_type> {         \
@@ -520,7 +523,11 @@ protected:
         using _persist_function_type = std::function<void(_emitter_type *, EventType *)>; \
         using _handler_function_type = std::function<void(EventType *)>;                  \
         constexpr static const char *EVENT_NAME = #EventTypeClass;                        \
+        constexpr static size_t TYPE_ID = __COUNTER__ - __counter_start__ - 1;            \
         constexpr static size_t TypeID() {                                                \
+            return TYPE_ID;                                                               \
+        }                                                                                 \
+        constexpr static size_t TypeHash() {                                              \
             return cc::event::intl::hash(#EventTypeClass);                                \
         }                                                                                 \
     };
@@ -535,72 +542,48 @@ protected:
         using _persist_function_type = std::function<void(_emitter_type *, EventType *)>;      \
         using _handler_function_type = std::function<void(EventType *)>;                       \
         constexpr static const char *EVENT_NAME = #EventTypeClass;                             \
+        constexpr static size_t TYPE_ID = __COUNTER__ - __counter_start__ - 1;                 \
         constexpr static size_t TypeID() {                                                     \
+            return TYPE_ID;                                                                    \
+        }                                                                                      \
+        constexpr static size_t TypeHash() {                                                   \
             return cc::event::intl::hash(#EventTypeClass);                                     \
         }                                                                                      \
     };
 
-// NOLINTNEXTLINE
-#define _IMPL_EVENT_TARGET_(TargetClass)                                                                                \
-    template <typename TgtEvent, typename Fn>                                                                           \
-    cc::event::TargetEventID<TgtEvent> on(Fn &&func, bool useCapture = false) {                                         \
-        static_assert(std::is_base_of<typename TgtEvent::_emitter_type, TargetClass>::value, "mismatch target type");   \
-        return EventTarget::template addEventListener<TgtEvent, Fn>(std::forward<Fn>(func), useCapture, false);         \
-    }                                                                                                                   \
-    template <typename TgtEvent, typename Fn, typename O>                                                               \
-    cc::event::TargetEventID<TgtEvent> on(Fn &&func, O *ctx, bool useCapture = false) {                                 \
-        return EventTarget::template addEventListener<TgtEvent, Fn, O>(std::forward<Fn>(func), ctx, useCapture, false); \
-    }                                                                                                                   \
-    template <typename TgtEvent, typename Fn>                                                                           \
-    cc::event::TargetEventID<TgtEvent> once(Fn &&func, bool useCapture = false) {                                       \
-        static_assert(std::is_base_of<typename TgtEvent::_emitter_type, TargetClass>::value, "mismatch target type");   \
-        return EventTarget::template addEventListener<TgtEvent, Fn>(std::forward<Fn>(func), useCapture, true);          \
-    }                                                                                                                   \
-    template <typename TgtEvent, typename Fn, typename O>                                                               \
-    cc::event::TargetEventID<TgtEvent> once(Fn func, O *ctx, bool useCapture = false) {                                 \
-        return EventTarget::template addEventListener<TgtEvent, Fn, O>(std::forward<Fn>(func), ctx, useCapture, true);  \
-    }                                                                                                                   \
-    template <typename TgtEvent>                                                                                        \
-    void off() {                                                                                                        \
-        static_assert(std::is_base_of<typename TgtEvent::_emitter_type, TargetClass>::value, "mismatch target type");   \
-        EventTarget::template off<TgtEvent>();                                                                          \
-    }                                                                                                                   \
-                                                                                                                        \
-    template <typename TgtEvent>                                                                                        \
-    bool off(cc::event::TargetEventID<TgtEvent> eventID) {                                                              \
-        return EventTarget::off(eventID);                                                                               \
-    }                                                                                                                   \
-                                                                                                                        \
-    template <typename TgtEvent, typename... ARGS>                                                                      \
-    void emit(ARGS &&...args) {                                                                                         \
-        static_assert(std::is_base_of<typename TgtEvent::_emitter_type, TargetClass>::value, "mismatch target type");   \
-        EventTarget::template emit<TgtEvent, TargetClass, ARGS...>(std::forward<ARGS>(args)...);                        \
-    }                                                                                                                   \
-    template <typename TgtEvent, typename... ARGS>                                                                      \
-    void dispatchEvent(ARGS &&...args) {                                                                                \
-        EventTarget::template dispatchEvent<TgtEvent, TargetClass, ARGS...>(std::forward<ARGS>(args)...);               \
-    }
-
-#define IMPL_EVENT_TARGET(TargetClass)        \
-public:                                       \
-    static constexpr bool HAS_PARENT = false; \
+#define IMPL_EVENT_TARGET(TargetClass)             \
+public:                                            \
+    static constexpr bool HAS_PARENT = false;      \
+    TargetClass *evGetParent() { return nullptr; } \
     _IMPL_EVENT_TARGET_(TargetClass)
 
 #define IMPL_EVENT_TARGET_WITH_PARENT(TargetClass, getParentMethod) \
 public:                                                             \
     static constexpr bool HAS_PARENT = true;                        \
-    TargetClass *evGetParent() {                                    \
-        if constexpr (HAS_PARENT) {                                 \
-            return getParentMethod();                               \
-        } else {                                                    \
-            return nullptr;                                         \
-        }                                                           \
+    auto evGetParent() {                                            \
+        return getParentMethod();                                   \
     }                                                               \
     _IMPL_EVENT_TARGET_(TargetClass)
 
-#define DECLARE_TARGET_EVENT_BEGIN(TargetClass) \
-    using _emitter_type = TargetClass;
+#define DECLARE_TARGET_EVENT_BEGIN(TargetClass)           \
+    using Self = TargetClass;                             \
+                                                          \
+private:                                                  \
+    constexpr static int __counter_start__ = __COUNTER__; \
+                                                          \
+public:
 
-#define DECLARE_TARGET_EVENT_END()
+#define DECLARE_TARGET_EVENT_END()                                             \
+private:                                                                       \
+    constexpr static int __counter_stop__ = __COUNTER__;                       \
+    constexpr static int __event_count = __counter_stop__ - __counter_start__; \
+                                                                               \
+protected:                                                                     \
+    cc::event::TargetListenerContainer<__event_count> _bubblingHandlersMap;    \
+    cc::event::TargetListenerContainer<__event_count> _capturingHandlersMap;   \
+    cc::event::TargetEventIdType _handlerId{1};                                \
+    std::array<int, __event_count> _emittingEvent{0};                          \
+                                                                               \
+public:
 
 #include "intl/EventTargetMacros.h"
