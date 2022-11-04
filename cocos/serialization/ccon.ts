@@ -114,7 +114,7 @@ export function encodeCCONBinary (ccon: CCON) {
  * @returns out @zh 合并后的压缩纹理字节数据
  */
 export function mergeAllCompressedTexture (files: ArrayBuffer[] | ArrayBufferView[]) {
-    let out = new ArrayBuffer(0);
+    let out = new Uint8Array(0);
 
     let err: Error | null = null;
     try {
@@ -127,7 +127,7 @@ export function mergeAllCompressedTexture (files: ArrayBuffer[] | ArrayBufferVie
             fileLength += buffer.byteLength;
         }
         fileLength += fileHeaderLength;   // add file header length
-        out = new ArrayBuffer(fileLength);
+        out = new Uint8Array(fileLength);
         const outView = new DataView(out);
         // Append compresssed header
         outView.setUint32(0, COMPRESSED_MIPMAP_MAGIC, true); // add magic
@@ -144,8 +144,7 @@ export function mergeAllCompressedTexture (files: ArrayBuffer[] | ArrayBufferVie
         for (const file of files) {
             const buffer = file instanceof ArrayBuffer ? file : file.buffer;
             const srcArray = new Uint8Array(buffer);
-            const outArray = new Uint8Array(out);
-            outArray.set(srcArray, dataOffset);
+            out.set(srcArray, dataOffset);
             dataOffset += srcArray.byteLength;
         }
     } catch (e) {
