@@ -1,0 +1,81 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Component-wise animation Animation graph 1`] = `
+Array [
+  Object {
+    "defaultProperties": Object {
+      "x": 0.1,
+      "y": 0.23333333333333334,
+      "z": 0.3666666666666667,
+    },
+    "expectedAnimatedProperties": Object {
+      "x": 0.5,
+      "z": 0.75,
+    },
+    "specName": "Vec3",
+  },
+]
+`;
+
+exports[`Component-wise animation Traditional 1`] = `
+Array [
+  Object {
+    "defaultProperties": Object {
+      "x": 0.1,
+      "y": 0.30000000000000004,
+    },
+    "expectedAnimatedProperties": Object {
+      "y": 0.5,
+    },
+    "specName": "Vec2",
+  },
+  Object {
+    "defaultProperties": Object {
+      "x": 0.1,
+      "y": 0.23333333333333334,
+      "z": 0.3666666666666667,
+    },
+    "expectedAnimatedProperties": Object {
+      "x": 0.5,
+      "z": 0.75,
+    },
+    "specName": "Vec3",
+  },
+  Object {
+    "defaultProperties": Object {
+      "w": 0.1,
+      "x": 0.2,
+      "y": 0.30000000000000004,
+      "z": 0.4,
+    },
+    "expectedAnimatedProperties": Object {
+      "w": 0.75,
+      "x": 0.5,
+    },
+    "specName": "Vec4",
+  },
+  Object {
+    "defaultProperties": Object {
+      "a": 25,
+      "b": 51,
+      "g": 76,
+      "r": 102,
+    },
+    "expectedAnimatedProperties": Object {
+      "a": 191,
+      "r": 127,
+    },
+    "specName": "Color",
+  },
+  Object {
+    "defaultProperties": Object {
+      "height": 0.1,
+      "width": 0.30000000000000004,
+    },
+    "expectedAnimatedProperties": Object {
+      "width": 0.5,
+    },
+    "specName": "Size",
+  },
+]
+`;

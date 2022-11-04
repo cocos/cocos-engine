@@ -953,6 +953,8 @@ ccstd::string mu::spirv2MSL(const uint32_t *ir, size_t word_count,
 #endif
     options.emulate_subgroups = true;
     options.pad_fragment_output_components = true;
+    // fully support
+    options.set_msl_version(2, 0, 0);
     if (isFramebufferFetchSupported()) {
         options.use_framebuffer_fetch_subpasses = true;
 #if (CC_PLATFORM == CC_PLATFORM_MACOS)

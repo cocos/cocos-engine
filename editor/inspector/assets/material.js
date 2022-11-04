@@ -229,8 +229,12 @@ exports.methods = {
                     const $section = $container.$children[i].querySelector('ui-section');
                     $section.appendChild($checkbox);
 
-                    const $label = $section.querySelector('ui-label');
-                    $label.style.width = 'calc(var(--left-width) - 10px)';
+                    // header and switch element appear in `header` slot at the same time, keep the middle distance 12px
+                    const $header = $section.querySelector('div[slot=header]');
+                    $header.style.width = 'auto';
+                    $header.style.flex = '1';
+                    $header.style.minWidth = '0';
+                    $header.style.marginRight = '12px';
                 }
 
                 $container.$children[i].querySelectorAll('ui-prop').forEach(($prop) => {

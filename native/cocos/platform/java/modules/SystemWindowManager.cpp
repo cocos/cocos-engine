@@ -29,7 +29,6 @@
 
 namespace cc {
 
-SystemWindowManager::SystemWindowManager() = default;
 
 int SystemWindowManager::init() {
     return 0;

@@ -24,39 +24,26 @@
 ****************************************************************************/
 
 #include <jni.h>
-#include "cocos/bindings/event/EventDispatcher.h"
+#include "engine/EngineEvents.h"
 #include "platform/interfaces/modules/Device.h"
 #include "platform/java/jni/JniHelper.h"
 #include "platform/java/jni/glue/JniNativeGlue.h"
-#if CC_PLATFORM == CC_PLATFORM_ANDROID
-    #include "platform/BasePlatform.h"
-    #include "platform/android/AndroidPlatform.h"
-#endif
 
 extern "C" {
-//NOLINTNEXTLINE
+// NOLINTNEXTLINE
 JNIEXPORT void JNICALL Java_com_cocos_lib_CocosOrientationHelper_nativeOnOrientationChanged(JNIEnv *env, jclass thiz, jint rotation) {
     int orientation;
     switch (rotation) {
-        case 0: //ROTATION_0
+        case 0: // ROTATION_0
             orientation = (int)cc::Device::Orientation::PORTRAIT;
-        case 1: //ROTATION_90
+        case 1: // ROTATION_90
             orientation = (int)cc::Device::Orientation::LANDSCAPE_RIGHT;
-        case 2: //ROTATION_180
+        case 2: // ROTATION_180
             orientation = (int)cc::Device::Orientation::PORTRAIT_UPSIDE_DOWN;
-        case 3: //ROTATION_270
+        case 3: // ROTATION_270
             orientation = (int)cc::Device::Orientation::LANDSCAPE_LEFT;
     }
-
-    cc::DeviceEvent ev;
-    ev.type = cc::DeviceEvent::Type::ORIENTATION;
-    ev.args[0].intVal = orientation;
-#if CC_PLATFORM == CC_PLATFORM_ANDROID
-    auto *platform = cc::BasePlatform::getPlatform();
-    auto *androidPlatform = static_cast<cc::AndroidPlatform *>(platform);
-    androidPlatform->dispatchEvent(ev);
-#else
-    JNI_NATIVE_GLUE()->dispatchEvent(ev);
-#endif
+    // run callbacks in game thread?
+    cc::events::Orientation::broadcast(orientation);
 }
 }

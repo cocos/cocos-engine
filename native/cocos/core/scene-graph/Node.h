@@ -31,12 +31,9 @@
 //#include "core/components/Component.h"
 //#include "core/event/Event.h"
 #include "core/data/Object.h"
-#include "core/event/EventTypesToJS.h"
+#include "core/event/EventTarget.h"
 #include "core/scene-graph/Layers.h"
 #include "core/scene-graph/NodeEnum.h"
-#include "core/scene-graph/NodeEvent.h"
-#include "core/scene-graph/NodeEventProcessor.h"
-
 #include "math/Mat3.h"
 #include "math/Mat4.h"
 #include "math/Quaternion.h"
@@ -46,18 +43,57 @@
 namespace cc {
 
 class Scene;
-class NodeEventProcessor;
-
 /**
  * Event types emitted by Node
  */
-using EventType = NodeEventType;
 /**
  * Bit masks for Node transformation parts
  */
 using TransformDirtyBit = TransformBit;
 
-class Node : public CCObject {
+class Node : public CCObject, public event::EventTarget {
+    IMPL_EVENT_TARGET_WITH_PARENT(Node, getParent)
+    DECLARE_TARGET_EVENT_BEGIN(Node)
+    TARGET_EVENT_ARG0(TouchStart)
+    TARGET_EVENT_ARG0(TouchMove)
+    TARGET_EVENT_ARG0(TouchEnd)
+    TARGET_EVENT_ARG0(TouchCancel)
+    TARGET_EVENT_ARG0(MouseDown)
+    TARGET_EVENT_ARG0(MouseMove)
+    TARGET_EVENT_ARG0(MouseUp)
+    TARGET_EVENT_ARG0(MouseWheel)
+    TARGET_EVENT_ARG0(MouseEnter)
+    TARGET_EVENT_ARG0(MouseLeave)
+    TARGET_EVENT_ARG0(KeyDown)
+    TARGET_EVENT_ARG0(KeyUp)
+    TARGET_EVENT_ARG0(DeviceMotion)
+    TARGET_EVENT_ARG1(TransformChanged, TransformBit)
+    TARGET_EVENT_ARG0(SceneChangedForPersist)
+    TARGET_EVENT_ARG0(SizeChanged)
+    TARGET_EVENT_ARG0(AnchorChanged)
+    TARGET_EVENT_ARG0(ColorChanged)
+    TARGET_EVENT_ARG1(ChildAdded, Node *)
+    TARGET_EVENT_ARG1(ChildRemoved, Node *)
+    TARGET_EVENT_ARG1(ParentChanged, Node *)
+    TARGET_EVENT_ARG0(NodeDestroyed)
+    TARGET_EVENT_ARG1(LayerChanged, uint32_t)
+    TARGET_EVENT_ARG0(SiblingOrderChanged)
+    TARGET_EVENT_ARG0(ActiveInHierarchyChanged)
+    TARGET_EVENT_ARG0(MobilityChanged)
+    TARGET_EVENT_ARG1(AncestorTransformChanged, TransformBit)
+    TARGET_EVENT_ARG0(Reattach)
+    TARGET_EVENT_ARG0(RemovePersistRootNode)
+    TARGET_EVENT_ARG0(DestroyComponents)
+    TARGET_EVENT_ARG0(UITransformDirty)
+    TARGET_EVENT_ARG1(ActiveNode, bool)
+    TARGET_EVENT_ARG1(BatchCreated, bool)
+    TARGET_EVENT_ARG1(SceneUpdated, cc::Scene *)
+    TARGET_EVENT_ARG3(LocalPositionUpdated, float, float, float)
+    TARGET_EVENT_ARG4(LocalRotationUpdated, float, float, float, float)
+    TARGET_EVENT_ARG3(LocalScaleUpdated, float, float, float)
+    TARGET_EVENT_ARG10(LocalRTSUpdated, float, float, float, float, float, float, float, float, float, float)
+    TARGET_EVENT_ARG1(EditorAttached, bool)
+    DECLARE_TARGET_EVENT_END()
 public:
     class UserData : public RefCounted {
     public:
@@ -110,97 +146,6 @@ public:
     void walk(const WalkCallback &preFunc);
     void walk(const WalkCallback &preFunc, const WalkCallback &postFunc);
 
-    //NOTE: swig could not parse template function in a class.
-    // It will trigger an error: cocos/core/scene-graph/Node.h:115: Error: Syntax error in input(3).
-    // Therefore, hide them in swig environment.
-#ifndef SWIGCOCOS
-    template <typename Target, typename... Args>
-    void on(const CallbacksInvoker::KeyType &type, void (Target::*memberFn)(Args...), Target *target, bool useCapture = false);
-
-    template <typename... Args>
-    void on(const CallbacksInvoker::KeyType &type, std::function<void(Args...)> &&callback, CallbackID &cbID, bool useCapture = false);
-
-    template <typename Target, typename... Args>
-    void on(const CallbacksInvoker::KeyType &type, std::function<void(Args...)> &&callback, Target *target, CallbackID &cbID, bool useCapture = false);
-
-    template <typename Target, typename LambdaType>
-    std::enable_if_t<!std::is_member_function_pointer<LambdaType>::value, void>
-    on(const CallbacksInvoker::KeyType &type, LambdaType &&callback, Target *target, CallbackID &cbID, bool useCapture = false);
-
-    template <typename LambdaType>
-    std::enable_if_t<!std::is_member_function_pointer<LambdaType>::value, void>
-    on(const CallbacksInvoker::KeyType &type, LambdaType &&callback, CallbackID &cbID, bool useCapture = false);
-
-    template <typename... Args>
-    void on(const CallbacksInvoker::KeyType &type, std::function<void(Args...)> &&callback, bool useCapture = false);
-
-    template <typename Target, typename... Args>
-    void on(const CallbacksInvoker::KeyType &type, std::function<void(Args...)> &&callback, Target *target, bool useCapture = false);
-
-    template <typename Target, typename LambdaType>
-    std::enable_if_t<!std::is_member_function_pointer<LambdaType>::value, void>
-    on(const CallbacksInvoker::KeyType &type, LambdaType &&callback, Target *target, bool useCapture = false);
-
-    template <typename LambdaType>
-    std::enable_if_t<!std::is_member_function_pointer<LambdaType>::value, void>
-    on(const CallbacksInvoker::KeyType &type, LambdaType &&callback, bool useCapture = false);
-
-    template <typename Target, typename... Args>
-    void once(const CallbacksInvoker::KeyType &type, void (Target::*memberFn)(Args...), Target *target, bool useCapture = false);
-
-    template <typename... Args>
-    void once(const CallbacksInvoker::KeyType &type, std::function<void(Args...)> &&callback, CallbackID &cbID, bool useCapture = false);
-
-    template <typename Target, typename... Args>
-    void once(const CallbacksInvoker::KeyType &type, std::function<void(Args...)> &&callback, Target *target, CallbackID &cbID, bool useCapture = false);
-
-    template <typename LambdaType>
-    std::enable_if_t<!std::is_member_function_pointer<LambdaType>::value, void>
-    once(const CallbacksInvoker::KeyType &type, LambdaType &&callback, CallbackID &cbID, bool useCapture = false);
-
-    template <typename Target, typename LambdaType>
-    std::enable_if_t<!std::is_member_function_pointer<LambdaType>::value, void>
-    once(const CallbacksInvoker::KeyType &type, LambdaType &&callback, Target *target, CallbackID &cbID, bool useCapture = false);
-
-    template <typename... Args>
-    void once(const CallbacksInvoker::KeyType &type, std::function<void(Args...)> &&callback, bool useCapture = false);
-
-    template <typename Target, typename... Args>
-    void once(const CallbacksInvoker::KeyType &type, std::function<void(Args...)> &&callback, Target *target, bool useCapture = false);
-
-    template <typename LambdaType>
-    std::enable_if_t<!std::is_member_function_pointer<LambdaType>::value, void>
-    once(const CallbacksInvoker::KeyType &type, LambdaType &&callback, bool useCapture = false);
-
-    template <typename Target, typename LambdaType>
-    std::enable_if_t<!std::is_member_function_pointer<LambdaType>::value, void>
-    once(const CallbacksInvoker::KeyType &type, LambdaType &&callback, Target *target, bool useCapture = false);
-
-    void off(const CallbacksInvoker::KeyType &type, bool useCapture = false);
-
-    void off(const CallbacksInvoker::KeyType &type, const CallbackID &cbID, bool useCapture = false);
-
-    void off(const CallbacksInvoker::KeyType &type, void *target, bool useCapture = false);
-
-    template <typename Target, typename... Args>
-    void off(const CallbacksInvoker::KeyType &type, void (Target::*memberFn)(Args...), Target *target, bool useCapture = false);
-
-    template <typename... Args>
-    void emit(const CallbacksInvoker::KeyType &type, Args &&...args);
-
-    //    void dispatchEvent(event::Event *event);
-    bool hasEventListener(const CallbacksInvoker::KeyType &type) const;
-    bool hasEventListener(const CallbacksInvoker::KeyType &type, const CallbackID &cbID) const;
-    bool hasEventListener(const CallbacksInvoker::KeyType &type, void *target) const;
-    bool hasEventListener(const CallbacksInvoker::KeyType &type, void *target, const CallbackID &cbID) const;
-
-    template <typename Target, typename... Args>
-    bool hasEventListener(const CallbacksInvoker::KeyType &type, void (Target::*memberFn)(Args...), Target *target) const;
-
-    void targetOff(const CallbacksInvoker::KeyType &type);
-
-#endif // SWIGCOCOS
-
     bool destroy() override {
         if (CCObject::destroy()) {
             setActive(false);
@@ -220,7 +165,7 @@ public:
         for (const auto &child : _children) {
             child->_siblingIndex = i++;
         }
-        emit(NodeEventType::SIBLING_ORDER_CHANGED);
+        emit<SiblingOrderChanged>();
     }
 
     inline void addChild(Node *node) { node->setParent(this); }
@@ -265,7 +210,7 @@ public:
 
     inline const ccstd::vector<IntrusivePtr<Node>> &getChildren() const { return _children; }
     inline Node *getParent() const { return _parent; }
-    inline NodeEventProcessor *getEventProcessor() const { return _eventProcessor; }
+    // inline NodeEventProcessor *getEventProcessor() const { return _eventProcessor; }
 
     Node *getChildByUuid(const ccstd::string &uuid) const;
     Node *getChildByName(const ccstd::string &name) const;
@@ -510,7 +455,7 @@ public:
 
     inline void setMobility(MobilityMode m) {
         _mobility = m;
-        emit(NodeEventType::MOBILITY_CHANGED);
+        emit<MobilityChanged>();
     }
 
     /**
@@ -529,7 +474,7 @@ public:
     inline uint32_t getDirtyFlag() const { return _dirtyFlag; }
     inline void setLayer(uint32_t layer) {
         _layer = layer;
-        emit(NodeEventType::LAYER_CHANGED, layer);
+        emit<LayerChanged>(layer);
     }
     inline uint32_t getLayer() const { return _layer; }
 
@@ -655,27 +600,27 @@ private:
     void updateWorldTransformRecursive(uint32_t &superDirtyBits);
 
     inline void notifyLocalPositionUpdated() {
-        emit(EventTypesToJS::NODE_LOCAL_POSITION_UPDATED, _localPosition.x, _localPosition.y, _localPosition.z);
+        emit<LocalPositionUpdated>(_localPosition.x, _localPosition.y, _localPosition.z);
     }
 
     inline void notifyLocalRotationUpdated() {
-        emit(EventTypesToJS::NODE_LOCAL_ROTATION_UPDATED, _localRotation.x, _localRotation.y, _localRotation.z, _localRotation.w);
+        emit<LocalRotationUpdated>(_localRotation.x, _localRotation.y, _localRotation.z, _localRotation.w);
     }
 
     inline void notifyLocalScaleUpdated() {
-        emit(EventTypesToJS::NODE_LOCAL_SCALE_UPDATED, _localScale.x, _localScale.y, _localScale.z);
+        emit<LocalScaleUpdated>(_localScale.x, _localScale.y, _localScale.z);
     }
 
     inline void notifyLocalPositionRotationScaleUpdated() {
-        emit(EventTypesToJS::NODE_LOCAL_POSITION_ROTATION_SCALE_UPDATED,
-             _localPosition.x, _localPosition.y, _localPosition.z,
-             _localRotation.x, _localRotation.y, _localRotation.z, _localRotation.w,
-             _localScale.x, _localScale.y, _localScale.z);
+        emit<LocalRTSUpdated>(
+            _localPosition.x, _localPosition.y, _localPosition.z,
+            _localRotation.x, _localRotation.y, _localRotation.z, _localRotation.w,
+            _localScale.x, _localScale.y, _localScale.z);
     }
 
 #if CC_EDITOR
     inline void notifyEditorAttached(bool attached) {
-        emit(EventTypesToJS::NODE_EDITOR_ATTACHED, attached);
+        emit<EditorAttached>(attached);
     }
 #endif
 
@@ -686,7 +631,6 @@ private:
     static uint32_t clearRound;
 
     Scene *_scene{nullptr};
-    NodeEventProcessor *_eventProcessor{nullptr};
     IntrusivePtr<UserData> _userData;
 
     ccstd::vector<IntrusivePtr<Node>> _children;
@@ -731,149 +675,4 @@ template <typename T>
 bool Node::isNode(T *obj) {
     return dynamic_cast<Node *>(obj) != nullptr && dynamic_cast<Scene *>(obj) == nullptr;
 }
-
-#ifndef SWIGCOCOS
-
-template <typename... Args>
-void Node::emit(const CallbacksInvoker::KeyType &type, Args &&...args) {
-    _eventProcessor->emit(type, std::forward<Args>(args)...);
-}
-
-template <typename Target, typename... Args>
-void Node::on(const CallbacksInvoker::KeyType &type, void (Target::*memberFn)(Args...), Target *target, bool useCapture) {
-    if (type == NodeEventType::TRANSFORM_CHANGED) {
-        _eventMask |= TRANSFORM_ON;
-    }
-    _eventProcessor->on(type, memberFn, target, useCapture);
-}
-
-template <typename... Args>
-void Node::on(const CallbacksInvoker::KeyType &type, std::function<void(Args...)> &&callback, CallbackID &cbID, bool useCapture) {
-    if (type == NodeEventType::TRANSFORM_CHANGED) {
-        _eventMask |= TRANSFORM_ON;
-    }
-    _eventProcessor->on(type, std::forward<std::function<void(Args...)>>(callback), cbID, useCapture);
-}
-
-template <typename Target, typename... Args>
-void Node::on(const CallbacksInvoker::KeyType &type, std::function<void(Args...)> &&callback, Target *target, CallbackID &cbID, bool useCapture) {
-    if (type == NodeEventType::TRANSFORM_CHANGED) {
-        _eventMask |= TRANSFORM_ON;
-    }
-    _eventProcessor->on(type, std::forward<std::function<void(Args...)>>(callback), target, cbID, useCapture);
-}
-
-template <typename Target, typename LambdaType>
-std::enable_if_t<!std::is_member_function_pointer<LambdaType>::value, void>
-Node::on(const CallbacksInvoker::KeyType &type, LambdaType &&callback, Target *target, CallbackID &cbID, bool useCapture) {
-    if (type == NodeEventType::TRANSFORM_CHANGED) {
-        _eventMask |= TRANSFORM_ON;
-    }
-    _eventProcessor->on(type, callback, target, cbID, useCapture);
-}
-
-template <typename LambdaType>
-std::enable_if_t<!std::is_member_function_pointer<LambdaType>::value, void>
-Node::on(const CallbacksInvoker::KeyType &type, LambdaType &&callback, CallbackID &cbID, bool useCapture) {
-    if (type == NodeEventType::TRANSFORM_CHANGED) {
-        _eventMask |= TRANSFORM_ON;
-    }
-    _eventProcessor->on(type, callback, cbID, useCapture);
-}
-
-template <typename... Args>
-void Node::on(const CallbacksInvoker::KeyType &type, std::function<void(Args...)> &&callback, bool useCapture) {
-    CallbackID unusedID{0};
-    on(type, callback, unusedID, useCapture);
-}
-
-template <typename Target, typename... Args>
-void Node::on(const CallbacksInvoker::KeyType &type, std::function<void(Args...)> &&callback, Target *target, bool useCapture) {
-    CallbackID unusedID{0};
-    on(type, callback, target, unusedID, useCapture);
-}
-
-template <typename Target, typename LambdaType>
-std::enable_if_t<!std::is_member_function_pointer<LambdaType>::value, void>
-Node::on(const CallbacksInvoker::KeyType &type, LambdaType &&callback, Target *target, bool useCapture) {
-    CallbackID unusedID{0};
-    on(type, callback, target, unusedID, useCapture);
-}
-
-template <typename LambdaType>
-std::enable_if_t<!std::is_member_function_pointer<LambdaType>::value, void>
-Node::on(const CallbacksInvoker::KeyType &type, LambdaType &&callback, bool useCapture) {
-    CallbackID unusedID{0};
-    on(type, callback, unusedID, useCapture);
-}
-template <typename Target, typename... Args>
-void Node::once(const CallbacksInvoker::KeyType &type, void (Target::*memberFn)(Args...), Target *target, bool useCapture) {
-    _eventProcessor->once(type, memberFn, target, useCapture);
-}
-template <typename... Args>
-void Node::once(const CallbacksInvoker::KeyType &type, std::function<void(Args...)> &&callback, CallbackID &cbID, bool useCapture) {
-    _eventProcessor->once(type, callback, cbID, useCapture);
-}
-
-template <typename Target, typename... Args>
-void Node::once(const CallbacksInvoker::KeyType &type, std::function<void(Args...)> &&callback, Target *target, CallbackID &cbID, bool useCapture) {
-    _eventProcessor->once(type, std::forward<std::function<void(Args...)>>(callback), target, cbID, useCapture);
-}
-
-template <typename LambdaType>
-std::enable_if_t<!std::is_member_function_pointer<LambdaType>::value, void>
-Node::once(const CallbacksInvoker::KeyType &type, LambdaType &&callback, CallbackID &cbID, bool useCapture) {
-    _eventProcessor->once(type, callback, cbID, useCapture);
-}
-
-template <typename Target, typename LambdaType>
-std::enable_if_t<!std::is_member_function_pointer<LambdaType>::value, void>
-Node::once(const CallbacksInvoker::KeyType &type, LambdaType &&callback, Target *target, CallbackID &cbID, bool useCapture) {
-    _eventProcessor->once(type, callback, target, cbID, useCapture);
-}
-
-template <typename... Args>
-void Node::once(const CallbacksInvoker::KeyType &type, std::function<void(Args...)> &&callback, bool useCapture) {
-    CallbackID unusedID{0};
-    once(type, callback, unusedID, useCapture);
-}
-
-template <typename Target, typename... Args>
-void Node::once(const CallbacksInvoker::KeyType &type, std::function<void(Args...)> &&callback, Target *target, bool useCapture) {
-    CallbackID unusedID{0};
-    once(type, callback, target, unusedID, useCapture);
-}
-
-template <typename LambdaType>
-std::enable_if_t<!std::is_member_function_pointer<LambdaType>::value, void>
-Node::once(const CallbacksInvoker::KeyType &type, LambdaType &&callback, bool useCapture) {
-    CallbackID unusedID{0};
-    once(type, callback, unusedID, useCapture);
-}
-
-template <typename Target, typename LambdaType>
-std::enable_if_t<!std::is_member_function_pointer<LambdaType>::value, void>
-Node::once(const CallbacksInvoker::KeyType &type, LambdaType &&callback, Target *target, bool useCapture) {
-    CallbackID unusedID{0};
-    once(type, callback, target, unusedID, useCapture);
-}
-
-template <typename Target, typename... Args>
-void Node::off(const CallbacksInvoker::KeyType &type, void (Target::*memberFn)(Args...), Target *target, bool useCapture) {
-    _eventProcessor->off(type, memberFn, target, useCapture);
-    bool hasListeners = _eventProcessor->hasEventListener(type);
-    if (!hasListeners) {
-        if (type == NodeEventType::TRANSFORM_CHANGED) {
-            _eventMask &= ~TRANSFORM_ON;
-        }
-    }
-}
-
-template <typename Target, typename... Args>
-bool Node::hasEventListener(const CallbacksInvoker::KeyType &type, void (Target::*memberFn)(Args...), Target *target) const {
-    return _eventProcessor->hasEventListener(type, memberFn, target);
-}
-
-#endif // SWIGCOCOS
-
 } // namespace cc

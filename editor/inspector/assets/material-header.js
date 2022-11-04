@@ -176,4 +176,6 @@ exports.close = function() {
     callMaterialPreviewFunction('hide');
     panel.resizeObserver.unobserve(panel.$.container);
     Editor.Message.removeBroadcastListener('material-inspector:change-dump', this.updatePreviewDataDirtyBind);
+    // clear the canvas on close hook
+    panel.glPreview.destroyGL();
 };

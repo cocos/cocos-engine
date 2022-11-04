@@ -168,9 +168,6 @@ export class PhysXShape implements IBaseShape {
         Quat.copy(rot, this._rotation);
         const trans = getTempTransform(pos, rot);
         this._impl.setLocalPose(trans);
-        if (this._collider.enabled && !this._collider.isTrigger) {
-            this._sharedBody.updateCenterOfMass();
-        }
     }
 
     getAABB (v: AABB): void {

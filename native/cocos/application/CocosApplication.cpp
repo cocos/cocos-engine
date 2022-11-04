@@ -28,7 +28,6 @@
 #include "base/Macros.h"
 
 #include "ApplicationManager.h"
-#include "cocos/bindings/event/CustomEventTypes.h"
 #include "cocos/bindings/event/EventDispatcher.h"
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_classtype.h"
@@ -50,10 +49,7 @@ CocosApplication::~CocosApplication() {
 
 void CocosApplication::unregisterAllEngineEvents() {
     if (_engine != nullptr) {
-        _engine->offAll(BaseEngine::ON_START);
-        _engine->offAll(BaseEngine::ON_RESUME);
-        _engine->offAll(BaseEngine::ON_PAUSE);
-        _engine->offAll(BaseEngine::ON_CLOSE);
+        _engine->off(_engineEvents);
     }
 }
 
@@ -63,20 +59,25 @@ int CocosApplication::init() {
     }
     unregisterAllEngineEvents();
 
-    _engine->on(BaseEngine::ON_START, [this]() {
-        this->onStart();
-    });
-
     _systemWindow = CC_GET_MAIN_SYSTEM_WINDOW();
 
-    _engine->on(BaseEngine::ON_RESUME, [this]() {
-        this->onResume();
-    });
-    _engine->on(BaseEngine::ON_PAUSE, [this]() {
-        this->onPause();
-    });
-    _engine->on(BaseEngine::ON_CLOSE, [this]() {
-        this->onClose();
+    _engineEvents = _engine->on<BaseEngine::EngineStatusChange>([this](BaseEngine * /*emitter*/, BaseEngine::EngineStatus status) {
+        switch (status) {
+            case BaseEngine::ON_START:
+                this->onStart();
+                break;
+            case BaseEngine::ON_RESUME:
+                this->onResume();
+                break;
+            case BaseEngine::ON_PAUSE:
+                this->onPause();
+                break;
+            case BaseEngine::ON_CLOSE:
+                this->onClose();
+                break;
+            default:
+                CC_ASSERT(false);
+        }
     });
 
     se::ScriptEngine *se = se::ScriptEngine::getInstance();
@@ -95,7 +96,8 @@ int CocosApplication::init() {
     auto logicSize = _systemWindow->getViewSize();
     IScreen *screen = _engine->getInterface<IScreen>();
     float pixelRatio = screen->getDevicePixelRatio();
-    cc::EventDispatcher::dispatchResizeEvent(logicSize.x * pixelRatio, logicSize.y * pixelRatio);
+    uint32_t windowId = _systemWindow->getWindowId();
+    events::Resize::broadcast(logicSize.width * pixelRatio, logicSize.height * pixelRatio, windowId);
 #endif
     return 0;
 }

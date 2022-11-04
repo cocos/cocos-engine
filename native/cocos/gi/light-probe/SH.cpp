@@ -41,8 +41,11 @@ Vec3 LightProbeSampler::uniformSampleSphere(float u1, float u2) {
     return Vec3(x, y, z);
 }
 
-ccstd::vector<Vec3> LightProbeSampler::uniformSampleSphereAll(uint32_t uCount1, uint32_t uCount2) {
-    CC_ASSERT(uCount1 > 0U && uCount2 > 0U);
+ccstd::vector<Vec3> LightProbeSampler::uniformSampleSphereAll(uint32_t sampleCount) {
+    CC_ASSERT(sampleCount > 0U);
+
+    const auto uCount1 = static_cast<uint32_t>(std::sqrt(sampleCount));
+    const auto uCount2 = uCount1;
 
     ccstd::vector<Vec3> samples;
     const auto uDelta1 = 1.0F / static_cast<float>(uCount1);

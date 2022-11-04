@@ -57,6 +57,11 @@ exports.ready = function() {
         });
 
         if (result.response === 0) {
+            // 先关闭盒子模式
+            if (panel.sceneProbeBoxMode) {
+                await Editor.Message.request('scene', 'toggle-light-probe-bounding-box-edit-mode', !panel.sceneProbeBoxMode);
+            }
+
             const uuidObject = panel.dump.value.uuid;
             const uuids = uuidObject.values ? uuidObject.values : [uuidObject.value];
             for (const uuid of uuids) {

@@ -40,6 +40,7 @@ Checks: >
     -readability-implicit-bool-conversion,
     -readability-implicit-bool-cast,
     -readability-magic-numbers,
+    -readability-identifier-length,
     -bugprone-branch-clone,
     -misc-static-assert,
 

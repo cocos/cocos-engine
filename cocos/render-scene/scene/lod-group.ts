@@ -81,7 +81,7 @@ export class LODGroup {
     /**
      *@en The array of LODs
      */
-    protected _LODs: LODData[] = [];
+    protected _lodDataArray: LODData[] = [];
 
     /**
      * For editor only, users maybe operate several LOD's object
@@ -96,7 +96,7 @@ export class LODGroup {
 
     get localBoundaryCenter () : Readonly<Vec3> { return this._localBoundaryCenter.clone(); }
 
-    get lodCount () { return this._LODs.length; }
+    get lodCount () { return this._lodDataArray.length; }
 
     set objectSize (val: number) {
         this._objectSize = val;
@@ -104,8 +104,7 @@ export class LODGroup {
 
     get objectSize () { return this._objectSize; }
 
-    get LODs () : readonly LODData[] { return this._LODs; }
-
+    get lodDataArray () : readonly LODData[] { return this._lodDataArray; }
     attachToScene (scene: RenderScene) {
         this.scene = scene;
     }
@@ -115,27 +114,27 @@ export class LODGroup {
     }
 
     lockLODLevels (lockLev: number[]) {
-        this._lockedLODLevelVec  = lockLev;
+        this._lockedLODLevelVec = lockLev;
     }
 
-    getLockLODLevels (): number[] {
+    getLockedLODLevels (): readonly number[] {
         return this._lockedLODLevelVec;
     }
 
     clearLODs () {
-        this._LODs.length = 0;
+        this._lodDataArray.length = 0;
     }
 
     insertLOD (index: number, lod: LODData) {
-        this._LODs.splice(index, 0, lod);
+        this._lodDataArray.splice(index, 0, lod);
     }
 
     updateLOD (index: number, lod: LODData) {
-        this._LODs[index] = lod;
+        this._lodDataArray[index] = lod;
     }
 
     eraseLOD (index: number) {
-        this._LODs.splice(index, 1);
+        this._lodDataArray.splice(index, 1);
     }
 
     /**
@@ -143,13 +142,13 @@ export class LODGroup {
      * @param camera current perspective camera
      * @returns visible LOD index in lodGroup
      */
-    getVisibleLOD (camera: Camera): number {
-        const relativeHeight = this.getRelativeHeight(camera) || 0;
+    getVisibleLODLevel (camera: Camera): number {
+        const screenUsagePercentage = this.getScreenUsagePercentage(camera);
 
         let lodIndex = -1;
         for (let i = 0; i < this.lodCount; ++i) {
-            const lod = this.LODs[i];
-            if (relativeHeight >= lod.screenUsagePercentage) {
+            const lod = this.lodDataArray[i];
+            if (screenUsagePercentage >= lod.screenUsagePercentage) {
                 lodIndex = i;
                 break;
             }
@@ -160,20 +159,20 @@ export class LODGroup {
     /**
      *
      * @param camera current perspective camera
-     * @returns height of current lod group relvative to camera position in screen space, aka. relativeHeight
+     * @returns height of current lod group relative to camera position in screen space, aka. relativeHeight
      */
-    getRelativeHeight (camera: Camera): number|null {
-        if (!this.node) return null;
+    getScreenUsagePercentage (camera: Camera): number {
+        if (!this.node) return 0;
 
         let distance: number | undefined;
         if (camera.projectionType === CameraProjection.PERSPECTIVE) {
             distance =  Vec3.len(this.localBoundaryCenter.transformMat4(this.node.worldMatrix).subtract(camera.node.position));
         }
 
-        return this.distanceToRelativeHeight(camera, distance, this.getWorldSpaceSize());
+        return this.distanceToScreenUsagePercentage(camera, distance, this.getWorldSpaceSize());
     }
 
-    private distanceToRelativeHeight (camera: Camera, distance: number | undefined, size: number): number {
+    private distanceToScreenUsagePercentage (camera: Camera, distance: number | undefined, size: number): number {
         if (camera.projectionType === CameraProjection.PERSPECTIVE) {
             assertIsTrue(typeof distance === 'number', 'distance must be present for perspective projection');
             return (size * camera.matProj.m05) / (distance * 2.0); // note: matProj.m11 is 1 / tan(fov / 2.0)
