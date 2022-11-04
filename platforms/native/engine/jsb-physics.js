@@ -643,6 +643,6 @@ cc.physics.selector.register('physx', {
     CylinderShape,
     TrimeshShape,
     TerrainShape,
-    PointToPointConstraint: DistanceJoint,
+    PointToPointConstraint: SphericalJoint,
     HingeConstraint: RevoluteJoint,
 });

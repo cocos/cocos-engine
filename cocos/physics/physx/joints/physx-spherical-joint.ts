@@ -29,7 +29,7 @@ import { IPointToPointConstraint } from '../../spec/i-physics-constraint';
 import { PX, _trans, getTempTransform, _pxtrans } from '../physx-adapter';
 import { PhysXJoint } from './physx-joint';
 
-export class PhysXDistanceJoint extends PhysXJoint implements IPointToPointConstraint {
+export class PhysXSphericalJoint extends PhysXJoint implements IPointToPointConstraint {
     setPivotA (v: IVec3Like): void {
         const cs = this.constraint;
         const pos = _trans.translation;
@@ -64,7 +64,7 @@ export class PhysXDistanceJoint extends PhysXJoint implements IPointToPointConst
     }
 
     onComponentSet (): void {
-        this._impl = PX.createDistanceJoint(PhysXJoint.tempActor, _pxtrans, null, _pxtrans);
+        this._impl = PX.createSphericalJoint(PhysXJoint.tempActor, _pxtrans, null, _pxtrans);
         this.setPivotA(this.constraint.pivotA);
         this.setPivotB(this.constraint.pivotB);
     }

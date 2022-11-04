@@ -23,7 +23,7 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "physics/physx/joints/PhysXDistance.h"
+#include "physics/physx/joints/PhysXSpherical.h"
 #include "math/Quaternion.h"
 #include "physics/physx/PhysXSharedBody.h"
 #include "physics/physx/PhysXUtils.h"
@@ -31,29 +31,29 @@
 namespace cc {
 namespace physics {
 
-void PhysXDistance::onComponentSet() {
-    _mJoint = PxDistanceJointCreate(PxGetPhysics(), &getTempRigidActor(), physx::PxTransform{physx::PxIdentity}, nullptr, physx::PxTransform{physx::PxIdentity});
+void PhysXSpherical::onComponentSet() {
+    _mJoint = PxSphericalJointCreate(PxGetPhysics(), &getTempRigidActor(), physx::PxTransform{physx::PxIdentity}, nullptr, physx::PxTransform{physx::PxIdentity});
 }
 
-void PhysXDistance::setPivotA(float x, float y, float z) {
+void PhysXSpherical::setPivotA(float x, float y, float z) {
     _mPivotA = physx::PxVec3{x, y, z};
     updatePose();
 }
 
-void PhysXDistance::setPivotB(float x, float y, float z) {
+void PhysXSpherical::setPivotB(float x, float y, float z) {
     _mPivotB = physx::PxVec3{x, y, z};
     updatePose();
 }
 
-void PhysXDistance::updateScale0() {
+void PhysXSpherical::updateScale0() {
     updatePose();
 }
 
-void PhysXDistance::updateScale1() {
+void PhysXSpherical::updateScale1() {
     updatePose();
 }
 
-void PhysXDistance::updatePose() {
+void PhysXSpherical::updatePose() {
     physx::PxTransform pose0{physx::PxIdentity};
     physx::PxTransform pose1{physx::PxIdentity};
     auto *node0 = _mSharedBody->getNode();
