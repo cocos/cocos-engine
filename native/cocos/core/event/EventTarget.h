@@ -26,7 +26,6 @@
 
 #include <array>
 #include <memory>
-#include <unordered_map>
 #include "base/Macros.h"
 #include "intl/EventIntl.h"
 #include "intl/List.h"
@@ -224,6 +223,7 @@ struct TargetListenerContainer final {
             EVENT_LIST_LOOP_REV_BEGIN(handle, handlers)
             delete handle;
             EVENT_LIST_LOOP_REV_END(handle, handlers)
+            data[i] = nullptr;
         }
     }
     ~TargetListenerContainer() {
@@ -470,7 +470,7 @@ public:                                                                         
         eventObj.target = this;                                                                                                      \
         eventObj.currentTarget = this;                                                                                               \
         eventObj.eventPhase = cc::event::EventPhaseType::CAPTUREING_PHASE;                                                           \
-        dispatchEvent<TgtEvent, Self, EventType>(eventObj);                                                                          \
+        dispatchEvent<TgtEvent, EventType>(eventObj);                                                                          \
     }                                                                                                                                \
                                                                                                                                      \
     template <typename TgtEvent>                                                                                                     \
