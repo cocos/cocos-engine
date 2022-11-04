@@ -34,6 +34,7 @@ export class b2PhysicsWorld implements IPhysicsWorld {
     protected _bodies: b2RigidBody2D[] = [];
     protected _animatedBodies: b2RigidBody2D[] = [];
     protected _rotationAxis: Vec3 = new Vec3();
+    protected _physicsGroundBody: b2.Body;
 
     protected _contactListener: PhysicsContactListener;
     protected _aabbQueryCallback: PhysicsAABBQueryCallback;
@@ -43,9 +44,16 @@ export class b2PhysicsWorld implements IPhysicsWorld {
         return this._world;
     }
 
+    get groundBodyImpl () {
+        return this._physicsGroundBody;
+    }
+
     constructor () {
         this._world = new b2.World(new b2.Vec2(0, -10));
-
+        const tempBodyDef = new b2.BodyDef();
+        //tempBodyDef.position.Set(480 / PHYSICS_2D_PTM_RATIO, 320 / PHYSICS_2D_PTM_RATIO);//temporary
+        this._physicsGroundBody = this._world.CreateBody(tempBodyDef);
+        console.log(this._physicsGroundBody);
         const listener = new PhysicsContactListener();
         listener.setBeginContact(this._onBeginContact);
         listener.setEndContact(this._onEndContact);

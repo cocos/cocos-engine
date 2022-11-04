@@ -2,6 +2,7 @@ import b2 from '@cocos/box2d';
 import { IJoint2D } from '../../spec/i-physics-joint';
 import { Joint2D, PhysicsSystem2D, RigidBody2D } from '../../framework';
 import { b2PhysicsWorld } from '../physics-world';
+import { Vec2 } from '../../../core';
 
 export class b2Joint implements IJoint2D {
     get impl () {
@@ -52,13 +53,20 @@ export class b2Joint implements IJoint2D {
             return;
         }
 
+        def.bodyA = this._body!.impl!.impl;
         const connectedBody = comp.connectedBody;
-        if (!connectedBody || !connectedBody.enabledInHierarchy) {
+        //if connected body is set but not active, return
+        if (connectedBody && !connectedBody.enabledInHierarchy) {
             return;
         }
 
-        def.bodyA = this._body!.impl!.impl;
-        def.bodyB = connectedBody.impl!.impl;
+        //if connected body is not set, use scene origin as connected body
+        if (!connectedBody) {
+            def.bodyB = (PhysicsSystem2D.instance.physicsWorld as b2PhysicsWorld).groundBodyImpl;
+        } else {
+            def.bodyB = connectedBody.impl!.impl;
+        }
+
         def.collideConnected = comp.collideConnected;
 
         this._b2joint = (PhysicsSystem2D.instance.physicsWorld as b2PhysicsWorld).impl.CreateJoint(def);
@@ -80,7 +88,6 @@ export class b2Joint implements IJoint2D {
     }
 
     isValid () {
-        return this._b2joint && this._body && this._body.impl
-            && this._jointComp && this._jointComp.connectedBody && this._jointComp.connectedBody.impl;
+        return this._b2joint && this._body && this._body.impl && this._jointComp;
     }
 }

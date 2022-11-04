@@ -1,4 +1,3 @@
-
 import { Joint2D } from './joint-2d';
 import { ccclass, property, menu, type } from '../../../../core/data/class-decorator';
 import { IDistanceJoint } from '../../../spec/i-physics-joint';
@@ -18,8 +17,13 @@ export class DistanceJoint2D extends Joint2D {
      */
     @property
     get maxLength () {
-        if (this._autoCalcDistance && this.connectedBody) {
-            return Vec3.distance(this.node.worldPosition, this.connectedBody.node.worldPosition);
+        if (this._autoCalcDistance) {
+            if (this.connectedBody) {
+                return Vec3.distance(this.node.worldPosition, this.connectedBody.node.worldPosition);
+            } else { //if connected body is not set, use scene origin as connected body
+                console.log(this, 'maxLength', Vec3.len(this.node.worldPosition));
+                return Vec3.len(this.node.worldPosition);
+            }
         }
         return this._maxLength;
     }

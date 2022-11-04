@@ -1,5 +1,3 @@
-
-
 import { Joint2D } from './joint-2d';
 import { ccclass, property, menu, type } from '../../../../core/data/class-decorator';
 import { ISpringJoint } from '../../../spec/i-physics-joint';
@@ -53,8 +51,12 @@ export class SpringJoint2D extends Joint2D {
      */
     @property
     get distance () {
-        if (this._autoCalcDistance && this.connectedBody) {
-            return Vec3.distance(this.node.worldPosition, this.connectedBody.node.worldPosition);
+        if (this._autoCalcDistance) {
+            if (this.connectedBody) {
+                return Vec3.distance(this.node.worldPosition, this.connectedBody.node.worldPosition);
+            } else { //if connected body is not set, use scene origin as connected body
+                return Vec3.len(this.node.worldPosition);
+            }
         }
         return this._distance;
     }
