@@ -48,8 +48,6 @@ public:
         _framebuffer = framebuffer;
     }
 
-    void clearFramebuffer(const scene::Camera *camera);
-
 private:
     static RenderStageInfo initInfo;
 

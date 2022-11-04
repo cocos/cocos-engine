@@ -124,17 +124,15 @@ void ReflectionProbeBatchedQueue::add(const scene::Model *model) {
             batchedBuffer->merge(subModel, passIdx, model);
             _batchedQueue->add(batchedBuffer);
         } else { // standard draw
-            _subModels.emplace_back(subModel);
-            _shaders.emplace_back(subModel->getShader(passIdx));
-            _passes.emplace_back(pass);
             if (!bUseReflectPass) {
                 auto &defines = pass->getDefines();
                 defines["CC_USE_RGBE_OUTPUT"] = true;
-                /*auto define = pass->getDefines();
-                pass->setDefine("CC_USE_RGBE_OUTPUT", true);*/
-                pass->tryCompile();
                 subModel->onPipelineStateChanged();
             }
+            _subModels.emplace_back(subModel);
+            _shaders.emplace_back(subModel->getShader(passIdx));
+            _passes.emplace_back(pass);
+          
         }
 
     
@@ -158,6 +156,7 @@ void ReflectionProbeBatchedQueue::recordCommandBuffer(gfx::Device *device, gfx::
         cmdBuffer->bindInputAssembler(ia);
         cmdBuffer->draw(ia);
     }
+    resetMacro();
 }
 void ReflectionProbeBatchedQueue::resetMacro() const {
     for (size_t i = 0; i < _subModels.size(); i++) {

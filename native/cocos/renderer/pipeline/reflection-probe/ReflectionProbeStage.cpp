@@ -94,8 +94,7 @@ void ReflectionProbeStage::render(scene::Camera *camera) {
 
  
     _pipeline->getPipelineUBO()->updateCameraUBO(camera, camera->getScene());
-    _reflectionProbeBatchedQueue->resetMacro();
-
+    //_reflectionProbeBatchedQueue->resetMacro();
 
 }
 
@@ -104,32 +103,6 @@ void ReflectionProbeStage::destroy() {
 
     CC_SAFE_DESTROY_AND_DELETE(_reflectionProbeBatchedQueue);
     RenderStage::destroy();
-}
-
-void ReflectionProbeStage::clearFramebuffer(const scene::Camera *camera) {
-    if ( !_framebuffer) {
-        return;
-    }
-
-    const auto *sceneData = _pipeline->getPipelineSceneData();
-    const auto *shadowInfo = sceneData->getShadows();
-    const Vec4 &viewport = camera->getViewport();
-    const Vec2 &shadowMapSize = shadowInfo->getSize();
-
-    auto *cmdBuffer = _pipeline->getCommandBuffers()[0];
-
-    _renderArea.x = static_cast<int>(viewport.x * shadowMapSize.x);
-    _renderArea.y = static_cast<int>(viewport.y * shadowMapSize.y);
-    _renderArea.width = static_cast<uint32_t>(viewport.z * shadowMapSize.x * sceneData->getShadingScale());
-    _renderArea.height = static_cast<uint32_t>(viewport.w * shadowMapSize.y * sceneData->getShadingScale());
-
-    _clearColors[0] = {1.0F, 1.0F, 1.0F, 1.0F};
-    auto *renderPass = _framebuffer->getRenderPass();
-
-    cmdBuffer->beginRenderPass(renderPass, _framebuffer, _renderArea,
-                               _clearColors, camera->getClearDepth(), camera->getClearStencil());
-
-    cmdBuffer->endRenderPass();
 }
 
 } // namespace pipeline
