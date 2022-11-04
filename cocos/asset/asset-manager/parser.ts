@@ -184,7 +184,7 @@ function _parseCompressedTexs (file: ArrayBuffer | ArrayBufferView, options: IDo
 }
 
 /**
- * @zh 解析 PVR 格式的压缩纹理
+ * @zh 解析压缩纹理
  * @param file @zh ccon 文件
  * @param levelIndex @zh 当前 mipmap 层级
  * @param beginOffset @zh 压缩纹理开始时的偏移
@@ -230,26 +230,26 @@ function _parsePVRTex (file: ArrayBuffer | ArrayBufferView, levelIndex: number,
             // Gather other basic metrics and a view of the raw the DXT data.
             const dataOffset = beginOffset + header[PVR_HEADER_METADATA] + 52;
             if (endOffset > 0) {
-                const srcIBView = new Uint8Array(buffer, dataOffset, endOffset - header.byteLength);
-                const dstIBView = new Uint8Array(out._data!.byteLength + srcIBView.byteLength);
-                dstIBView.set(out._data as Uint8Array);
-                dstIBView.set(srcIBView, out._data!.byteLength);
-                out._data  = dstIBView;
-                out.mipmapLevelDataSize![levelIndex] = srcIBView.byteLength;
+                const srcView = new Uint8Array(buffer, dataOffset, endOffset - header.byteLength);
+                const dstView = new Uint8Array(out._data!.byteLength + srcView.byteLength);
+                dstView.set(out._data as Uint8Array);
+                dstView.set(srcView, out._data!.byteLength);
+                out._data  = dstView;
+                out.mipmapLevelDataSize![levelIndex] = srcView.byteLength;
             } else {
                 out._data = new Uint8Array(buffer, dataOffset);
             }
             out.width = levelIndex > 0 ? out.width : header[PVR_HEADER_WIDTH];
             out.height = levelIndex > 0 ? out.height : header[PVR_HEADER_HEIGHT];
         } else if (header[11] === 0x21525650) {
-            const dataOffset = header[0]  + beginOffset;
+            const dataOffset = beginOffset + header[0];
             if (endOffset > 0) {
-                const srcIBView = new Uint8Array(buffer, dataOffset, endOffset - header.byteLength);
-                const dstIBView = new Uint8Array(out._data!.byteLength + srcIBView.byteLength);
-                dstIBView.set(out._data as Uint8Array);
-                dstIBView.set(srcIBView, out._data!.byteLength);
-                out._data  = dstIBView;
-                out.mipmapLevelDataSize![levelIndex] = srcIBView.byteLength;
+                const srcView = new Uint8Array(buffer, dataOffset, endOffset - header.byteLength);
+                const dstView = new Uint8Array(out._data!.byteLength + srcView.byteLength);
+                dstView.set(out._data as Uint8Array);
+                dstView.set(srcView, out._data!.byteLength);
+                out._data  = dstView;
+                out.mipmapLevelDataSize![levelIndex] = srcView.byteLength;
             } else {
                 out._data  = new Uint8Array(buffer, dataOffset);
             }
@@ -284,12 +284,12 @@ function _parsePKMTex (file: ArrayBuffer | ArrayBufferView, levelIndex: number,
 
         const dataOffset = beginOffset + ETC_PKM_HEADER_LENGTH;
         if (endOffset > 0) {
-            const srcIBView = new Uint8Array(buffer, dataOffset, endOffset - ETC_PKM_HEADER_LENGTH);
-            const dstIBView = new Uint8Array(out._data!.byteLength + srcIBView.byteLength);
-            dstIBView.set(out._data as Uint8Array);
-            dstIBView.set(srcIBView, out._data!.byteLength);
-            out._data  = dstIBView;
-            out.mipmapLevelDataSize![levelIndex] = srcIBView.byteLength;
+            const srcView = new Uint8Array(buffer, dataOffset, endOffset - ETC_PKM_HEADER_LENGTH);
+            const dstView = new Uint8Array(out._data!.byteLength + srcView.byteLength);
+            dstView.set(out._data as Uint8Array);
+            dstView.set(srcView, out._data!.byteLength);
+            out._data  = dstView;
+            out.mipmapLevelDataSize![levelIndex] = srcView.byteLength;
         } else {
             out._data = new Uint8Array(buffer, dataOffset);
         }
@@ -332,12 +332,12 @@ function _parseASTCTex (file: ArrayBuffer | ArrayBufferView, levelIndex: number,
         const format = getASTCFormat(xdim, ydim);
         const dataOffset = beginOffset + ASTC_HEADER_LENGTH;
         if (endOffset > 0) {
-            const srcIBView = new Uint8Array(buffer, dataOffset, endOffset - ASTC_HEADER_LENGTH);
-            const dstIBView = new Uint8Array(out._data!.byteLength + srcIBView.byteLength);
-            dstIBView.set(out._data as Uint8Array);
-            dstIBView.set(srcIBView, out._data!.byteLength);
-            out._data  = dstIBView;
-            out.mipmapLevelDataSize![levelIndex] = srcIBView.byteLength;
+            const srcView = new Uint8Array(buffer, dataOffset, endOffset - ASTC_HEADER_LENGTH);
+            const dstView = new Uint8Array(out._data!.byteLength + srcView.byteLength);
+            dstView.set(out._data as Uint8Array);
+            dstView.set(srcView, out._data!.byteLength);
+            out._data  = dstView;
+            out.mipmapLevelDataSize![levelIndex] = srcView.byteLength;
         } else {
             out._data = new Uint8Array(buffer, dataOffset);
         }
