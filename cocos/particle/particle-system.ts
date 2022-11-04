@@ -59,7 +59,7 @@ import { CCBoolean, CCFloat, CCObject, Node } from '../core';
 
 const _world_mat = new Mat4();
 const _world_rol = new Quat();
-const _inv_world_mat = new Mat4();
+const _inv_world_rol = new Quat();
 const _inv_velo = new Vec3();
 
 const superMaterials = Object.getOwnPropertyDescriptor(Renderer.prototype, 'sharedMaterials')!;
@@ -924,7 +924,7 @@ export class ParticleSystem extends ModelRenderer {
         sub.renderer.renderMode = subSrc.renderer.renderMode;
         sub.stop();
         this.addSubEmitter(sub);
-        sub.node._objFlags |= CCObject.Flags.HideInHierarchy;
+        // sub.node._objFlags |= CCObject.Flags.HideInHierarchy;
     }
 
     private refreshSubemitters () {
@@ -1518,8 +1518,11 @@ export class ParticleSystem extends ModelRenderer {
                     let offst = 0;
                     for (let se = 0; se < this._baseEmitters.length; ++se) {
                         const currCnt = this.capacity * this._baseEmitters[se].subPercent;
-                        particle.subemitter.push(this._subEmitters[offst + (particle.id % currCnt)]);
-                        offst += currCnt;
+                        const emitterToPush = this._subEmitters[offst + (particle.id % currCnt)];
+                        if (!emitterToPush._particle) {
+                            particle.subemitter.push(emitterToPush);
+                            offst += currCnt;
+                        }
                     }
                 }
                 for (let se = 0; se < particle.subemitter.length; ++se) {
@@ -1553,9 +1556,9 @@ export class ParticleSystem extends ModelRenderer {
                 const veloLen = particle.velocity.length();
 
                 if (this._particle.particleSystem._simulationSpace === Space.World) {
-                    this._particle.particleSystem.node.getWorldMatrix(_inv_world_mat);
-                    Mat4.invert(_inv_world_mat, _inv_world_mat);
-                    Vec3.transformMat4(_inv_velo, this._particle.velocity, _inv_world_mat);
+                    this._particle.particleSystem.node.getWorldRotation(_inv_world_rol);
+                    Quat.invert(_inv_world_rol, _inv_world_rol);
+                    Vec3.transformQuat(_inv_velo, this._particle.velocity, _inv_world_rol);
                 } else {
                     _inv_velo.set(this._particle.velocity);
                 }
@@ -1614,6 +1617,7 @@ export class ParticleSystem extends ModelRenderer {
             particle.randomSeed = randomRangeInt(0, 233280);
             particle.loopCount++;
 
+            particle.active = true;
             this.processor.setNewParticle(particle);
         } // end of particles forLoop.
     }
@@ -1634,6 +1638,10 @@ export class ParticleSystem extends ModelRenderer {
 
     // internal function
     private _emit (dt) {
+        if (this._particle && !this._particle.active) {
+            return;
+        }
+
         // emit particles.
         const startDelay = this.startDelay.evaluate(0, 1)!;
         if (this._time > startDelay) {
