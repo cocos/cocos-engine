@@ -279,7 +279,7 @@ void buildAccessGraph(const RenderGraph &renderGraph, const Graphs &graphs) {
 
     // no present pass found, add a fake node to gather leaf node(s).
     if (resourceAccessGraph.presentPassID == 0xFFFFFFFF) {
-        auto ragEndNode = add_vertex(rag, rag.getCurrentID());
+        auto ragEndNode = add_vertex(rag, 0xFFFFFFFF - 0x1);
         auto rlgEndNode = add_vertex(relationGraph);
         // keep sync before pass reorder done.
         CC_EXPECTS(ragEndNode == rlgEndNode);
@@ -1365,8 +1365,6 @@ auto getResourceStatus(PassType passType, const PmrString &name, gfx::MemoryAcce
             CC_EXPECTS(outColorFlag ^ depthStencilFlag);
 
             inputFlag &= gfx::hasFlag(memAccess, gfx::MemoryAccess::READ_ONLY);
-            outColorFlag &= gfx::hasFlag(memAccess, gfx::MemoryAccess::WRITE_ONLY);
-            depthStencilFlag &= gfx::hasFlag(memAccess, gfx::MemoryAccess::WRITE_ONLY);
 
             gfx::TextureUsage texUsage = gfx::TextureUsage::NONE;
             if (outColorFlag) texUsage |= gfx::TextureUsage::COLOR_ATTACHMENT;
