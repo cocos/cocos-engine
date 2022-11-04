@@ -28,7 +28,9 @@ import { CCClass } from '../class';
 import { error } from '../../platform/debug';
 import { getClassName } from '../../utils/js-typed';
 
-export type BabelPropertyDecoratorDescriptor = PropertyDescriptor & { initializer?: any };
+export type Initializer = () => unknown;
+
+export type BabelPropertyDecoratorDescriptor = PropertyDescriptor & { initializer?: Initializer };
 
 /**
  * @en
@@ -38,7 +40,7 @@ export type BabelPropertyDecoratorDescriptor = PropertyDescriptor & { initialize
  * 该签名同时兼容 TypeScript legacy 装饰器以及 Babel legacy 装饰器。
  * `descriptor` 参数只会在 Babel 情况下出现。
  */
-export type LegacyPropertyDecorator = (target: Object, propertyKey: string | symbol, descriptor?: BabelPropertyDecoratorDescriptor) => void;
+export type LegacyPropertyDecorator = (target: Object, propertyKey: string | symbol, descriptorOrInitializer?: BabelPropertyDecoratorDescriptor | Initializer) => void;
 
 /**
  * @en
