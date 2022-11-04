@@ -89,8 +89,8 @@ void PipelineUBO::updateGlobalUBOView(const scene::Camera *camera, ccstd::array<
     }
 }
 
-void PipelineUBO::updateCameraUBOView(const RenderPipeline *pipeline, float *output, const scene::Camera *camera, const scene::RenderScene* tscene) {
-    const auto *const scene = tscene ? tscene : camera->getScene();
+void PipelineUBO::updateCameraUBOView(const RenderPipeline *pipeline, float *output, const scene::Camera *camera, const scene::RenderScene *renderScene) {
+    const auto *const scene = renderScene ? renderScene : camera->getScene();
     const scene::DirectionalLight *mainLight = scene->getMainLight();
     const auto *sceneData = pipeline->getPipelineSceneData();
     const scene::Shadows *const shadowInfo = sceneData->getShadows();
@@ -491,13 +491,7 @@ void PipelineUBO::updateGlobalUBO(const scene::Camera *camera) {
     globalDSManager->update();
 }
 
-void PipelineUBO::updateCameraUBO(const scene::Camera *camera) {
-    auto *const cmdBuffer = _pipeline->getCommandBuffers()[0];
-    updateCameraUBOView(_pipeline, _cameraUBOs.data(), camera, camera->getScene());
-    cmdBuffer->updateBuffer(_cameraBuffer, _cameraUBOs.data());
-}
-void PipelineUBO::updateCameraUBO(const scene::Camera *camera, const scene::RenderScene* scene)
-{
+void PipelineUBO::updateCameraUBO(const scene::Camera *camera, const scene::RenderScene *scene) {
     auto *const cmdBuffer = _pipeline->getCommandBuffers()[0];
     updateCameraUBOView(_pipeline, _cameraUBOs.data(), camera, scene);
     cmdBuffer->updateBuffer(_cameraBuffer, _cameraUBOs.data());
@@ -527,7 +521,7 @@ void PipelineUBO::updateMultiCameraUBO(GlobalDSManager *globalDSMgr, const ccstd
     for (uint32_t cameraIdx = 0; cameraIdx < cameraCount; ++cameraIdx) {
         const auto *camera = cameras[cameraIdx];
         const auto offset = cameraIdx * _alignedCameraUBOSize / sizeof(float);
-        PipelineUBO::updateCameraUBOView(_pipeline, &_cameraUBOs[offset], camera, camera->getScene());
+        PipelineUBO::updateCameraUBOView(_pipeline, &_cameraUBOs[offset], camera);
     }
     _cameraBuffer->update(_cameraUBOs.data());
 

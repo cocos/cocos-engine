@@ -29,6 +29,9 @@
 #include "scene/Define.h"
 
 namespace cc {
+namespace scene {
+class ReflectionProbe;
+}
 namespace pipeline {
 class ForwardPipeline;
 
@@ -48,14 +51,12 @@ public:
     void destroy() override;
 
 private:
-    void renderStage(scene::Camera *camera);
-
+    void renderStage(scene::Camera *camera, scene::ReflectionProbe *probe);
 
     static RenderFlowInfo initInfo;
 
     // weak reference
     gfx::RenderPass *_renderPass{nullptr};
-
 
     static ccstd::unordered_map<ccstd::hash_t, IntrusivePtr<cc::gfx::RenderPass>> renderPassHashMap;
 };

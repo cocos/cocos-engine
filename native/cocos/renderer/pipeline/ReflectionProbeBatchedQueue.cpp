@@ -36,11 +36,11 @@
 #include "forward/ForwardPipeline.h"
 #include "gfx-base/GFXCommandBuffer.h"
 #include "gfx-base/GFXDevice.h"
+#include "renderer/core/ProgramLib.h"
 #include "renderer/pipeline/ReflectionProbeManager.h"
 #include "scene/Camera.h"
 #include "scene/ReflectionProbe.h"
 #include "scene/Skybox.h"
-#include "renderer/core/ProgramLib.h"
 namespace cc {
 namespace pipeline {
 
@@ -53,10 +53,9 @@ ReflectionProbeBatchedQueue::ReflectionProbeBatchedQueue(RenderPipeline *pipelin
 
 ReflectionProbeBatchedQueue::~ReflectionProbeBatchedQueue() = default;
 
-void ReflectionProbeBatchedQueue::gatherRenderObjects(const scene::Camera *camera, gfx::CommandBuffer *cmdBuffer) {
-    const auto probe = ReflectionProbeManager::getInstance()->getProbeByCamera(camera);
+void ReflectionProbeBatchedQueue::gatherRenderObjects(const scene::Camera *camera, gfx::CommandBuffer *cmdBuffer, const scene::ReflectionProbe *probe) {
     if (probe == nullptr) {
-       // return;
+        return;
     }
     clear();
     const PipelineSceneData *sceneData = _pipeline->getPipelineSceneData();
@@ -82,8 +81,10 @@ void ReflectionProbeBatchedQueue::gatherRenderObjects(const scene::Camera *camer
                     add(model);
                     continue;
                 }
-                //auto probeBoundingBox = probe->getBoundingBox();
-                add(model);
+                auto probeBoundingBox = probe->getBoundingBox();
+                if (modelWorldBounds->aabbAabb(*probeBoundingBox)) {
+                    add(model);
+                }
             }
         }
     }
@@ -132,10 +133,7 @@ void ReflectionProbeBatchedQueue::add(const scene::Model *model) {
             _subModels.emplace_back(subModel);
             _shaders.emplace_back(subModel->getShader(passIdx));
             _passes.emplace_back(pass);
-          
         }
-
-    
     }
 }
 
@@ -148,7 +146,7 @@ void ReflectionProbeBatchedQueue::recordCommandBuffer(gfx::Device *device, gfx::
         auto *const shader = _shaders[i];
         const auto *pass = _passes[i];
         auto *const ia = subModel->getInputAssembler();
-        auto *const pso = PipelineStateManager::getOrCreatePipelineState(pass, shader, ia, renderPass); 
+        auto *const pso = PipelineStateManager::getOrCreatePipelineState(pass, shader, ia, renderPass);
 
         cmdBuffer->bindPipelineState(pso);
         cmdBuffer->bindDescriptorSet(materialSet, pass->getDescriptorSet());
@@ -168,7 +166,7 @@ void ReflectionProbeBatchedQueue::resetMacro() const {
     }
 }
 
-bool ReflectionProbeBatchedQueue::isUseReflectMapPass(const scene::SubModel *subModel)const {
+bool ReflectionProbeBatchedQueue::isUseReflectMapPass(const scene::SubModel *subModel) const {
     auto passIdx = getReflectMapPassIndex(subModel);
     return passIdx != -1;
 }

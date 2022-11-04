@@ -44,9 +44,9 @@ public:
 
     scene::ReflectionProbe* getProbeByCamera(const scene::Camera* camera);
 
+    const ccstd::vector<scene::ReflectionProbe*>& getAllProbes() const{ return _probes; }
 
-
-//private:
+private:
     ccstd::vector<scene::ReflectionProbe*> _probes;
 };
 

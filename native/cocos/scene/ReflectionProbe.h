@@ -40,9 +40,15 @@ class ReflectionProbe final {
 public:
     ReflectionProbe(int32_t id);
     ~ReflectionProbe() = default;
+    void initialize(Node* node);
     enum class ProbeType {
         CUBE = 0,
         PLANAR = 1,
+    };
+    enum class UseProbeType {
+        NONE = 0,
+        BAKED_CUBEMAP = 1,
+        PLANAR_REFLECTION = 2,
     };
     /**
      * @en Set probe type,cube or planar.
@@ -51,122 +57,74 @@ public:
     inline void setProbeType(ProbeType type) {
         _probeType = type;
     }
-    inline ProbeType getProbeType() const {
-        return _probeType;
-    }
+    inline ProbeType getProbeType() const { return _probeType; }
 
-    inline int32_t getResolution() const {
-        return _resolution;
-    }
+    inline void setResolution(int32_t resolution) { _resolution = resolution; }
+    inline int32_t getResolution() const { return _resolution; }
     /**
      * @en Clearing flags of the camera, specifies which part of the framebuffer will be actually cleared every frame.
      * @zh 相机的缓冲清除标志位，指定帧缓冲的哪部分要每帧清除。
      */
-    inline void setClearFlag(gfx::ClearFlagBit value) {
-        _clearFlag = value;
-    }
-    inline gfx::ClearFlagBit getClearFlag() const {
-        return _clearFlag;
-    }
+    inline void setClearFlag(gfx::ClearFlagBit value) { _clearFlag = value; }
+    inline gfx::ClearFlagBit getClearFlag() const { return _clearFlag; }
 
     /**
      * @en Clearing color of the camera.
      * @zh 相机的颜色缓冲默认值。
      */
-    inline void setBackgroundColor(gfx::Color val) {
-        _backgroundColor = val;
-    }
-    inline gfx::Color getBackgroundColor() const {
-        return _backgroundColor;
-    }
+    inline void setBackgroundColor(gfx::Color& val) { _backgroundColor = val; }
+    inline const gfx::Color& getBackgroundColor() const { return _backgroundColor; }
 
     /**
     * @en Visibility mask, declaring a set of node layers that will be visible to this camera.
     * @zh 可见性掩码，声明在当前相机中可见的节点层级集合。
     */
-    inline void setVisibility(int32_t val) {
-        _visibility = val;
-    }
-    inline int32_t getVisibility() const {
-        return _visibility;
-    }
+    inline void setVisibility(int32_t val) { _visibility = val; }
+    inline int32_t getVisibility() const { return _visibility; }
 
     /**
     * @en Gets or sets the size of the bouding box, in local space.
     * @zh 获取或设置包围盒的大小。
     */
-    inline void setBoudingSize(Vec3 value) {
+    inline void setBoudingSize(Vec3& value) {
         _size = value;
         const Vec3 pos = _node->getWorldPosition();
         geometry::AABB::set(_boundingBox, pos.x, pos.y, pos.z, _size.x, _size.y, _size.z);
     }
-    inline Vec3 getBoudingSize() const {
-        return _size;
-    }
-
-    /**
-    * @en The cubemap generated in bake mode.
-    * @zh bake模式下生成的cubemap。
-    */
-    inline void setBakedCubemap(TextureCube* val) {
-        _cubemap = val;
-    }
-    inline TextureCube* setBakedCubemap() const {
-        return _cubemap;
-    }
-
+    inline const Vec3& getBoudingSize() const { return _size; }
     /**
     * @en Object to be render by probe
     * @zh probe需要渲染的物体。
     */
     const ccstd::vector<Model*>& getRenderObjects() const;
     void addRenderObject(Model* model);
-
     /**
      * @en The node of the probe.
      * @zh probe绑定的节点
      */
-    inline Node* getNode() {
-        return _node;
-    }
-    inline Camera* getCamera() {
-        return _camera;
-    }
-  
-    inline bool needRender() const {
-        return _needRender;
-    }
+    inline Node* getNode() { return _node; }
+    inline Camera* getCamera() { return _camera; }
+    inline bool needRender() const { return _needRender; }
+    inline const geometry::AABB* getBoundingBox() const { return _boundingBox; }
+    inline Node* getCameraNode() { return _cameraNode; }
 
-    inline const geometry::AABB* getBoundingBox() {
-        return _boundingBox;
-    }
-
-    inline Node* getCameraNode() {
-        return _cameraNode;
-    }
-    void initialize(Node* node);
-
-
-    inline RenderTexture* getRealtimePlanarTexture() const {
-        return _realtimePlanarTexture;
-    }
-    void setTargetTexture(const RenderTexture* rt);
-
-    void setEnable(bool b);
-
+    inline RenderTexture* getRealtimePlanarTexture() const { return _realtimePlanarTexture; }
     void updateBoundingBox();
     void syncCameraParams(const Camera* camera);
     void transformReflectionCamera(const Camera* sourceCamera);
-    void attachCameraToScene();
     void renderPlanarReflection(const Camera* camera);
     Vec3 reflect(const Vec3& point, const Vec3& normal, int32_t offset);
-    IntrusivePtr<cc::RenderTexture> realtimeTempTexture{ nullptr };
+
+    void updatePlanarTexture(const Camera* camera);
+
+    void destroy();
+
 private:
     IntrusivePtr<cc::RenderTexture> _realtimePlanarTexture{nullptr};
-    
+
     int32_t _resolution = 512;
     gfx::ClearFlagBit _clearFlag = gfx::ClearFlagBit::NONE;
-    gfx::Color _backgroundColor;
+    gfx::Color _backgroundColor{1.0, 1.0, 1.0, 1.0};
     int32_t _visibility = 0;
     ProbeType _probeType = ProbeType::CUBE;
     IntrusivePtr<TextureCube> _cubemap{nullptr};
@@ -188,7 +146,6 @@ private:
      * @zh probe的唯一id
      */
     int32_t _probeId = 0;
-
 
     bool _needRender = false;
 

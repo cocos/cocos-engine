@@ -34,9 +34,11 @@ ReflectionProbe::ReflectionProbe(int32_t id) {
     _probeId = id;
     pipeline::ReflectionProbeManager::getInstance()->registerProbe(this);
 }
+
 const ccstd::vector<Model*>& ReflectionProbe::getRenderObjects() const {
     return _renderObjects;
 }
+
 void ReflectionProbe::addRenderObject(Model* model) {
     _renderObjects.push_back(model);
 }
@@ -77,18 +79,14 @@ void ReflectionProbe::initialize(Node* node) {
     _camera->setAperture(CameraAperture::F16_0);
     _camera->setShutter(CameraShutter::D125);
     _camera->setIso(CameraISO::ISO100);
-    
 
-    RenderWindow *win =  Root::getInstance()->getMainWindow();
+    RenderWindow* win = Root::getInstance()->getMainWindow();
     _realtimePlanarTexture = ccnew RenderTexture();
     IRenderTextureCreateInfo info;
     info.name = "realtimePlanarTexture";
     info.height = win->getHeight();
     info.width = win->getWidth();
     _realtimePlanarTexture->initialize(info);
-
-    //realtimeTempTexture = ccnew RenderTexture();
-    //realtimeTempTexture->initialize(info);
 }
 
 void ReflectionProbe::syncCameraParams(const Camera* camera) {
@@ -103,12 +101,10 @@ void ReflectionProbe::syncCameraParams(const Camera* camera) {
     _camera->setPriority(camera->getPriority() - 1);
 }
 
-void ReflectionProbe::renderPlanarReflection(const Camera* sourceCamera){
+void ReflectionProbe::renderPlanarReflection(const Camera* sourceCamera) {
     if (!sourceCamera) return;
     syncCameraParams(sourceCamera);
     transformReflectionCamera(sourceCamera);
-    //attachCameraToScene();
-    //setTargetTexture(_realtimePlanarTexture);
     _needRender = true;
 }
 
@@ -135,6 +131,7 @@ void ReflectionProbe::transformReflectionCamera(const Camera* sourceCamera) {
     _cameraNode->setWorldRotation(_cameraWorldRotation);
     _camera->update(true);
 }
+
 Vec3 ReflectionProbe::reflect(const Vec3& point, const Vec3& normal, int32_t offset) {
     Vec3 n = normal;
     n.normalize();
@@ -145,38 +142,47 @@ Vec3 ReflectionProbe::reflect(const Vec3& point, const Vec3& normal, int32_t off
     return mirrorPos;
 }
 
-void ReflectionProbe::attachCameraToScene() {
-    if (!_node->getScene() || !_camera) {
-        return;
-    }
-    RenderScene* rs = _node->getScene()->getRenderScene();
-    if (rs) {
-        rs->addCamera(_camera);
-    }
-}
-
-
-void ReflectionProbe::setTargetTexture(const RenderTexture* rt) {
-    if (!_camera) return;
-    if (rt) {
-        auto window = rt->getWindow();
-        _camera->changeTargetWindow(window);
-        _camera->setFixedSize(window->getWidth(), window->getHeight());
-        _camera->update();
-    } else {
-        _camera->changeTargetWindow(Root::getInstance()->getTempWindow());
-        _camera->setWindowSize(true);
-    }
-}
-void ReflectionProbe::setEnable(bool b)
-{
-    if (!_camera) return;
-    _camera->setEnabled(b);
-}
 void ReflectionProbe::updateBoundingBox() {
+    if (_node) {
+        auto pos = _node->getWorldPosition();
+        _boundingBox = geometry::AABB::set(_boundingBox, pos.x, pos.y, pos.z, _size.x, _size.y, _size.z);
+    }
 }
 
+void ReflectionProbe::updatePlanarTexture(const Camera* camera)
+{
+    const scene::RenderScene *const scene = camera->getScene();
+    for (const auto &model : scene->getModels()) {
+        // filter model by view visibility
+        uint32_t useProbeType = static_cast<uint32_t>(scene::ReflectionProbe::UseProbeType::PLANAR_REFLECTION);
+        if (model->isEnabled() && model->getReflectionProbeType() == useProbeType) {
+            const auto visibility = camera->getVisibility();
+            const auto *const node = model->getNode();
+            if ((model->getNode() && ((visibility & node->getLayer()) == node->getLayer())) ||
+                (visibility & static_cast<uint32_t>(model->getVisFlags()))) {
+                const auto *modelWorldBounds = model->getWorldBounds();
+                if (!modelWorldBounds) {
+                    continue;
+                }
+                auto probeBoundingBox = getBoundingBox();
+                if (modelWorldBounds->aabbAabb(*probeBoundingBox)) {
+                    model->updateReflctionProbePlanarMap(_realtimePlanarTexture->getGFXTexture());
+                }
+            }
+        }
+    }
+}
 
+void ReflectionProbe::destroy() {
+    if (_camera) {
+        _camera->destroy();
+        _camera = nullptr;
+    }
+    if (_realtimePlanarTexture) {
+        _realtimePlanarTexture->destroy();
+        _realtimePlanarTexture = nullptr;
+    }
+}
 
 } // namespace scene
 } // namespace cc

@@ -27,20 +27,20 @@
 #include "../Define.h"
 #include "../PipelineSceneData.h"
 #include "../PipelineUBO.h"
-#include "../RenderPipeline.h"
 #include "../ReflectionProbeBatchedQueue.h"
+#include "../RenderPipeline.h"
 #include "gfx-base/GFXCommandBuffer.h"
 #include "gfx-base/GFXFramebuffer.h"
 #include "math/Vec2.h"
+#include "pipeline/ReflectionProbeManager.h"
 #include "profiler/Profiler.h"
 #include "scene/Camera.h"
-#include "pipeline/ReflectionProbeManager.h"
 #include "scene/ReflectionProbe.h"
 namespace cc {
 namespace pipeline {
 
-    ReflectionProbeStage::ReflectionProbeStage() = default;
-    ReflectionProbeStage::~ReflectionProbeStage() = default;
+ReflectionProbeStage::ReflectionProbeStage() = default;
+ReflectionProbeStage::~ReflectionProbeStage() = default;
 
 RenderStageInfo ReflectionProbeStage::initInfo = {
     "ReflectionStage",
@@ -69,22 +69,20 @@ void ReflectionProbeStage::render(scene::Camera *camera) {
 
     auto *cmdBuffer = _pipeline->getCommandBuffers()[0];
 
-    _reflectionProbeBatchedQueue->gatherRenderObjects(camera, cmdBuffer);
+    _reflectionProbeBatchedQueue->gatherRenderObjects(camera, cmdBuffer, _probe);
 
-    const auto probe = ReflectionProbeManager::getInstance()->_probes[0];
-
-    _pipeline->getPipelineUBO()->updateCameraUBO(probe->getCamera(), camera->getScene());
+    _pipeline->getPipelineUBO()->updateCameraUBO(_probe->getCamera(), camera->getScene());
 
     _renderArea.x = 0;
     _renderArea.y = 0;
-    _renderArea.width = static_cast<uint32_t>(1280);
-    _renderArea.height = static_cast<uint32_t>(720);
+    _renderArea.width = _probe->getRealtimePlanarTexture()->getWidth();
+    _renderArea.height = _probe->getRealtimePlanarTexture()->getHeight();
 
-    _clearColors[0] = {1.0F, 1.0F, 1.0F, 1.0F};
+    _clearColors[0] = _probe->getCamera()->getClearColor();
     auto *renderPass = _framebuffer->getRenderPass();
 
     cmdBuffer->beginRenderPass(renderPass, _framebuffer, _renderArea,
-                               _clearColors, probe->getCamera()->getClearDepth(), probe->getCamera()->getClearStencil());
+                               _clearColors, _probe->getCamera()->getClearDepth(), _probe->getCamera()->getClearStencil());
 
     const ccstd::array<uint32_t, 1> globalOffsets = {_pipeline->getPipelineUBO()->getCurrentCameraUBOOffset()};
     cmdBuffer->bindDescriptorSet(globalSet, _pipeline->getDescriptorSet(), utils::toUint(globalOffsets.size()), globalOffsets.data());
@@ -92,10 +90,7 @@ void ReflectionProbeStage::render(scene::Camera *camera) {
 
     cmdBuffer->endRenderPass();
 
- 
-    _pipeline->getPipelineUBO()->updateCameraUBO(camera, camera->getScene());
-    //_reflectionProbeBatchedQueue->resetMacro();
-
+    _pipeline->getPipelineUBO()->updateCameraUBO(camera);
 }
 
 void ReflectionProbeStage::destroy() {

@@ -31,6 +31,7 @@ namespace cc {
 namespace scene {
 class Camera;
 class Pass;
+class ReflectionProbe;
 } // namespace scene
 namespace pipeline {
 struct RenderObject;
@@ -47,7 +48,7 @@ public:
     void destroy();
 
     void clear();
-    void gatherRenderObjects(const scene::Camera *, gfx::CommandBuffer *);
+    void gatherRenderObjects(const scene::Camera *, gfx::CommandBuffer *, const scene::ReflectionProbe *probe);
     void add(const scene::Model *);
     void recordCommandBuffer(gfx::Device *, gfx::RenderPass *, gfx::CommandBuffer *) const;
 

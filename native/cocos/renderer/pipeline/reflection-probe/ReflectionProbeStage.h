@@ -27,6 +27,9 @@
 #include "../RenderStage.h"
 
 namespace cc {
+namespace scene {
+class ReflectionProbe;
+}
 namespace pipeline {
 class RenderQueue;
 class ReflectionProbeBatchedQueue;
@@ -44,8 +47,9 @@ public:
     void activate(RenderPipeline *pipeline, RenderFlow *flow) override;
 
     inline void setFramebuffer(gfx::Framebuffer *framebuffer) { _framebuffer = framebuffer; }
-    inline void setUsage(gfx::Framebuffer *framebuffer) {
+    inline void setUsage(gfx::Framebuffer *framebuffer, scene::ReflectionProbe *probe) {
         _framebuffer = framebuffer;
+        _probe = probe;
     }
 
 private:
@@ -54,6 +58,7 @@ private:
     gfx::Rect _renderArea;
     gfx::Framebuffer *_framebuffer = nullptr;
 
+    scene::ReflectionProbe *_probe = nullptr;
 
     ReflectionProbeBatchedQueue *_reflectionProbeBatchedQueue = nullptr;
 };

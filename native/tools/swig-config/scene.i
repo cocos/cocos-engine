@@ -517,6 +517,11 @@ using namespace cc;
 %attribute(cc::Scene, bool, autoReleaseAssets, isAutoReleaseAssets, setAutoReleaseAssets);
 
 %attribute(cc::scene::ReflectionProbe, cc::scene::ReflectionProbe::ProbeType, probeType, getProbeType, setProbeType);
+%attribute(cc::scene::ReflectionProbe, uint32_t, resolution, getResolution, setResolution);
+%attribute(cc::scene::ReflectionProbe, cc::gfx::ClearFlagBit, clearFlag, getClearFlag, setClearFlag);
+%attribute(cc::scene::ReflectionProbe, cc::gfx::Color&, backgroundColor, getBackgroundColor, setBackgroundColor);
+%attribute(cc::scene::ReflectionProbe, uint32_t, visibility, getVisibility, setVisibility);
+%attribute(cc::scene::ReflectionProbe, Vec3&, size, getBoudingSize, setBoudingSize);
 
 
 

@@ -30,13 +30,13 @@
 #include "pipeline//Define.h"
 #include "pipeline/GlobalDescriptorSetManager.h"
 #include "pipeline/PipelineSceneData.h"
+#include "pipeline/ReflectionProbeManager.h"
 #include "pipeline/RenderPipeline.h"
 #include "pipeline/SceneCulling.h"
 #include "profiler/Profiler.h"
 #include "scene/Camera.h"
-#include "scene/RenderScene.h"
-#include "pipeline/ReflectionProbeManager.h"
 #include "scene/ReflectionProbe.h"
+#include "scene/RenderScene.h"
 namespace cc {
 namespace pipeline {
 ccstd::unordered_map<ccstd::hash_t, IntrusivePtr<cc::gfx::RenderPass>> ReflectionProbeFlow::renderPassHashMap;
@@ -59,7 +59,6 @@ bool ReflectionProbeFlow::initialize(const RenderFlowInfo &info) {
         probeStage->initialize(ReflectionProbeStage::getInitializeInfo());
         _stages.emplace_back(probeStage);
     }
-
     return true;
 }
 
@@ -70,46 +69,21 @@ void ReflectionProbeFlow::activate(RenderPipeline *pipeline) {
 void ReflectionProbeFlow::render(scene::Camera *camera) {
     CC_PROFILE(ReflectionProbeFlowRender);
     const auto *sceneData = _pipeline->getPipelineSceneData();
-
-    
-    renderStage(camera);
-}
-
-void ReflectionProbeFlow::renderStage(scene::Camera *camera) {
-    //const auto probe = ReflectionProbeManager::getInstance()->getProbeByCamera(camera);
-    const auto probe = ReflectionProbeManager::getInstance()->_probes[0];
-
-    for (auto &stage : _stages) {
-        //probe->setTargetTexture(probe->getRealtimePlanarTexture());
-        auto framebuffer = probe->getRealtimePlanarTexture()->getWindow()->getFramebuffer();
-        auto *reflectionProbeStage = static_cast<ReflectionProbeStage *>(stage.get());
-        reflectionProbeStage->setUsage(framebuffer);
-        reflectionProbeStage->render(camera);
-       // probe->setTargetTexture(nullptr);
-        
-        const scene::RenderScene *const scene = camera->getScene();
-        for (const auto &model : scene->getModels()) {
-            // filter model by view visibility
-            if (model->isEnabled() && model->getReflectionProbeType() == 2) {
-                model->updateReflctionProbePlanarMap(probe->getRealtimePlanarTexture()->getGFXTexture());
-                //const auto visibility = camera->getVisibility();
-                //const auto *const node = model->getNode();
-
-              /*  if ((model->getNode() && ((visibility & node->getLayer()) == node->getLayer())) ||
-                    (visibility & static_cast<uint32_t>(model->getVisFlags()))) {
-                    const auto *modelWorldBounds = model->getWorldBounds();
-                    if (!modelWorldBounds) {
-                        continue;
-                    }
-                }*/
-            }
-        }
-        //probe->setTargetTexture(probe->realtimeTempTexture);
-       
-
+    const auto probes = ReflectionProbeManager::getInstance()->getAllProbes();
+    for (size_t i = 0; i < probes.size(); i++) {
+        renderStage(camera, probes[i]);
     }
 }
 
+void ReflectionProbeFlow::renderStage(scene::Camera *camera, scene::ReflectionProbe *probe) {
+    for (auto &stage : _stages) {
+        auto framebuffer = probe->getRealtimePlanarTexture()->getWindow()->getFramebuffer();
+        auto *reflectionProbeStage = static_cast<ReflectionProbeStage *>(stage.get());
+        reflectionProbeStage->setUsage(framebuffer, probe);
+        reflectionProbeStage->render(camera);
+        probe->updatePlanarTexture(camera);
+    }
+}
 
 void ReflectionProbeFlow::destroy() {
     _renderPass = nullptr;
