@@ -141,15 +141,16 @@ export function mergeAllCompressedTexture (files: ArrayBuffer[] | ArrayBufferVie
             headerView.setUint32(COMPRESSED_HEADER_LENGTH + COMPRESSED_MIPMAP_LEVEL_COUNT_LENGTH + i * COMPRESSED_MIPMAP_DATA_SIZE_LENGTH,
                 buffer.byteLength, true);
         }
-        outView.set(header as Uint8Array);
+        const headerArray = new Uint8Array(header);
+        outView.set(headerArray);
 
         // Append compresssed file
         let dataOffset = fileHeaderLength;
         for (const file of files) {
             const buffer = file instanceof ArrayBuffer ? file : file.buffer;
-            const srcIBView = new Uint8Array(buffer);
-            outView.set(srcIBView, dataOffset);
-            dataOffset += srcIBView.byteLength;
+            const srcView = new Uint8Array(buffer);
+            outView.set(srcView, dataOffset);
+            dataOffset += srcView.byteLength;
         }
     } catch (e) {
         err = e as Error;
