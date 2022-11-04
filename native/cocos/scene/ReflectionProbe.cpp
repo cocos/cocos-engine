@@ -149,26 +149,19 @@ void ReflectionProbe::updateBoundingBox() {
     }
 }
 
-void ReflectionProbe::updatePlanarTexture(const Camera* camera)
+void ReflectionProbe::updatePlanarTexture(const Camera* camera, const cc::pipeline::RenderObjectList& renderObjects)
 {
     const scene::RenderScene *const scene = camera->getScene();
-    for (const auto &model : scene->getModels()) {
-        // filter model by view visibility
-        uint32_t useProbeType = static_cast<uint32_t>(scene::ReflectionProbe::UseProbeType::PLANAR_REFLECTION);
-        if (model->isEnabled() && model->getReflectionProbeType() == useProbeType) {
-            const auto visibility = camera->getVisibility();
-            const auto *const node = model->getNode();
-            if ((model->getNode() && ((visibility & node->getLayer()) == node->getLayer())) ||
-                (visibility & static_cast<uint32_t>(model->getVisFlags()))) {
-                const auto *modelWorldBounds = model->getWorldBounds();
-                if (!modelWorldBounds) {
-                    continue;
-                }
-                auto probeBoundingBox = getBoundingBox();
-                if (modelWorldBounds->aabbAabb(*probeBoundingBox)) {
-                    model->updateReflctionProbePlanarMap(_realtimePlanarTexture->getGFXTexture());
-                }
-            }
+
+    for (const auto &ro : renderObjects) {
+        const auto *const model = ro.model;
+        const auto *modelWorldBounds = model->getWorldBounds();
+        if (!modelWorldBounds) {
+            continue;
+        }
+        auto probeBoundingBox = getBoundingBox();
+        if (modelWorldBounds->aabbAabb(*probeBoundingBox)) {
+            //model->updateReflctionProbePlanarMap(_realtimePlanarTexture->getGFXTexture());
         }
     }
 }

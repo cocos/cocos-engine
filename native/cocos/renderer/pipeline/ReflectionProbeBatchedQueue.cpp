@@ -69,25 +69,19 @@ void ReflectionProbeBatchedQueue::gatherRenderObjects(const scene::Camera *camer
         }
     }
 
-    for (const auto &model : scene->getModels()) {
-        if (model->isEnabled()) {
-            const auto visibility = camera->getVisibility();
-            const auto *const node = model->getNode();
-
-            if ((model->getNode() && ((visibility & node->getLayer()) == node->getLayer())) ||
-                (visibility & static_cast<uint32_t>(model->getVisFlags()))) {
-                const auto *modelWorldBounds = model->getWorldBounds();
-                if (!modelWorldBounds) {
-                    add(model);
-                    continue;
-                }
-                auto probeBoundingBox = probe->getBoundingBox();
-                if (modelWorldBounds->aabbAabb(*probeBoundingBox)) {
-                    add(model);
-                }
-            }
+    const auto &renderObjects = sceneData->getRenderObjects();
+    for (const auto &ro : renderObjects) {
+        const auto *const model = ro.model;
+        const auto *modelWorldBounds = model->getWorldBounds();
+        if (!modelWorldBounds) {
+            add(model);
+            continue;
         }
-    }
+        auto probeBoundingBox = probe->getBoundingBox();
+        if (modelWorldBounds->aabbAabb(*probeBoundingBox)) {
+            add(model);
+        }
+     }
 
     _instancedQueue->uploadBuffers(cmdBuffer);
     _batchedQueue->uploadBuffers(cmdBuffer);

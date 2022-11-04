@@ -81,7 +81,10 @@ void ReflectionProbeFlow::renderStage(scene::Camera *camera, scene::ReflectionPr
         auto *reflectionProbeStage = static_cast<ReflectionProbeStage *>(stage.get());
         reflectionProbeStage->setUsage(framebuffer, probe);
         reflectionProbeStage->render(camera);
-        probe->updatePlanarTexture(camera);
+
+        const PipelineSceneData *sceneData = _pipeline->getPipelineSceneData();
+        const auto &renderObjects = sceneData->getRenderObjects();
+        probe->updatePlanarTexture(camera, renderObjects);
     }
 }
 

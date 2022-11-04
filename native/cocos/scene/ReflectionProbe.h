@@ -115,7 +115,7 @@ public:
     void renderPlanarReflection(const Camera* camera);
     Vec3 reflect(const Vec3& point, const Vec3& normal, int32_t offset);
 
-    void updatePlanarTexture(const Camera* camera);
+    void updatePlanarTexture(const Camera* camera, const cc::pipeline::RenderObjectList& _shadowObjects);
 
     void destroy();
 
