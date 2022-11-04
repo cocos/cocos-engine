@@ -1,0 +1,4 @@
+#include <surfaces/default-functions/common-vs>
+#include <surfaces/module-functions/common-vs>
+
+#include <shading-entries/main-functions/render-to-scene/vs>

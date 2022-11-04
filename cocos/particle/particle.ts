@@ -62,6 +62,7 @@ export class Particle {
     public subemitter: ParticleSystem[];
     public id;
     public delay;
+    public active: boolean;
 
     constructor (particleSystem: any) {
         this.particleSystem = particleSystem;
@@ -95,6 +96,7 @@ export class Particle {
         this.subemitter = [];
         this.id = -1;
         this.delay = 0;
+        this.active = false;
     }
 
     public reset () {

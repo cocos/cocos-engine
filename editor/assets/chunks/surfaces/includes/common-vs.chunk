@@ -1,0 +1,29 @@
+#define CC_USE_SURFACE_SHADER 1
+
+// Surface
+#include <shading-entries/data-structures/vs-input>
+#include <shading-entries/data-structures/vs-output>
+#include <shading-entries/data-structures/vs-intermediate>
+
+// UBO
+#include <builtin/uniforms/cc-global>
+#include <builtin/uniforms/cc-shadow>
+
+// Base
+#include <common/common-define>
+#include <common/data/unpack>
+
+// Functional
+#include <builtin/functionalities/world-transform>
+
+#if CC_USE_MORPH
+  #include <builtin/functionalities/morph-animation>
+#endif
+
+#if CC_USE_SKINNING
+  #include <builtin/functionalities/skinning-animation-lbs>
+#endif
+
+#if CC_USE_FOG != CC_FOG_NONE && !CC_USE_ACCURATE_FOG
+  #include <builtin/functionalities/fog>
+#endif

@@ -71,19 +71,22 @@ export function createNodeWithPrefab (node: Node) {
 
     // instantiate prefab
     legacyCC.game._isCloning = true;
-    if (SUPPORT_JIT) {
-        // @ts-expect-error: private member access
-        prefabInfo.asset._doInstantiate(node);
-    } else {
-        // root in prefab asset is always synced
-        const prefabRoot = prefabInfo.asset.data;
+    // compileFunction is slow so do not use jit here
+    // if (SUPPORT_JIT) {
+    //     console.time('createNodeWithPrefab');
+    //     // @ts-expect-error: private member access
+    //     prefabInfo.asset._doInstantiate(node);
+    //     console.timeEnd('createNodeWithPrefab');
+    // } else {
+    // root in prefab asset is always synced
+    const prefabRoot = prefabInfo.asset.data;
 
-        // use node as the instantiated prefabRoot to make references to prefabRoot in prefab redirect to node
-        prefabRoot._iN$t = node;
+    // use node as the instantiated prefabRoot to make references to prefabRoot in prefab redirect to node
+    prefabRoot._iN$t = node;
 
-        // instantiate prefab and apply to node
-        legacyCC.instantiate._clone(prefabRoot, prefabRoot);
-    }
+    // instantiate prefab and apply to node
+    legacyCC.instantiate._clone(prefabRoot, prefabRoot);
+    // }
     legacyCC.game._isCloning = false;
 
     // restore preserved props
