@@ -103,6 +103,9 @@ public:
         if (tryCreate<GLES2Device>(info, &device)) return device;
 #endif
 
+#ifdef CC_EDITOR
+    Device::isSupportDetachDeviceThread = false;
+#endif
         if (tryCreate<EmptyDevice>(info, &device)) return device;
 
         return nullptr;

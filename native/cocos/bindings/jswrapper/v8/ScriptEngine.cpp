@@ -61,6 +61,18 @@ ccstd::unordered_map<ccstd::string, unsigned> jsbFunctionInvokedRecords;
         if (!(cond)) return val
 
 namespace se {
+AutoHandleScope::AutoHandleScope()
+: _handleScope(v8::Isolate::GetCurrent()) {
+#if CC_EDITOR
+    ScriptEngine::getInstance()->_getContext()->Enter();
+#endif
+}
+
+AutoHandleScope::~AutoHandleScope() {
+#if CC_EDITOR
+    ScriptEngine::getInstance()->_getContext()->Exit();
+#endif
+}
 
 namespace {
 
@@ -502,13 +514,14 @@ ScriptEngine::~ScriptEngine() { //NOLINT(bugprone-exception-escape)
 
 bool ScriptEngine::postInit() {
     v8::HandleScope hs(_isolate);
+#if !CC_EDITOR
     _isolate->Enter();
     _isolate->SetCaptureStackTraceForUncaughtExceptions(true, JSB_STACK_FRAME_LIMIT, v8::StackTrace::kOverview);
     _isolate->SetFatalErrorHandler(onFatalErrorCallback);
     _isolate->SetOOMErrorHandler(onOOMErrorCallback);
     _isolate->AddMessageListener(onMessageCallback);
     _isolate->SetPromiseRejectCallback(onPromiseRejectCallback);
-
+#endif
     NativePtrToObjectMap::init();
 
     Class::setIsolate(_isolate);
@@ -517,7 +530,7 @@ bool ScriptEngine::postInit() {
     _globalObj = Object::_createJSObject(nullptr, _isolate->GetCurrentContext()->Global());
     _globalObj->root();
     _globalObj->setProperty("window", Value(_globalObj));
-
+#if !CC_EDITOR
     se::Value consoleVal;
     if (_globalObj->getProperty("console", &consoleVal) && consoleVal.isObject()) {
         consoleVal.toObject()->getProperty("log", &oldConsoleLog);
@@ -538,7 +551,7 @@ bool ScriptEngine::postInit() {
         consoleVal.toObject()->getProperty("assert", &oldConsoleAssert);
         consoleVal.toObject()->defineFunction("assert", _SE(jsbConsoleAssert));
     }
-
+#endif
     _globalObj->setProperty("scriptEngineType", se::Value("V8"));
 
     _globalObj->defineFunction("log", seLogCallback);
@@ -583,7 +596,6 @@ bool ScriptEngine::init(v8::Isolate *isolate) {
         _isolate = isolate;
         v8::Local<v8::Context> context = _isolate->GetCurrentContext();
         _context.Reset(_isolate, context);
-        _context.Get(isolate)->Enter();
     } else {
         static v8::ArrayBuffer::Allocator *arrayBufferAllocator{nullptr};
         if (arrayBufferAllocator == nullptr) {
