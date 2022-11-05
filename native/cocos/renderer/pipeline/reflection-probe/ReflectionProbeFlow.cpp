@@ -39,8 +39,6 @@
 #include "scene/RenderScene.h"
 namespace cc {
 namespace pipeline {
-ccstd::unordered_map<ccstd::hash_t, IntrusivePtr<cc::gfx::RenderPass>> ReflectionProbeFlow::renderPassHashMap;
-
 RenderFlowInfo ReflectionProbeFlow::initInfo = {
     "ReflectionProbeFlow",
     static_cast<uint32_t>(0),
@@ -71,7 +69,10 @@ void ReflectionProbeFlow::render(scene::Camera *camera) {
     const auto *sceneData = _pipeline->getPipelineSceneData();
     const auto probes = ReflectionProbeManager::getInstance()->getAllProbes();
     for (size_t i = 0; i < probes.size(); i++) {
-        renderStage(camera, probes[i]);
+        if (probes[i]->needRender())
+        {
+            renderStage(camera, probes[i]);
+        }
     }
 }
 
@@ -81,17 +82,11 @@ void ReflectionProbeFlow::renderStage(scene::Camera *camera, scene::ReflectionPr
         auto *reflectionProbeStage = static_cast<ReflectionProbeStage *>(stage.get());
         reflectionProbeStage->setUsage(framebuffer, probe);
         reflectionProbeStage->render(camera);
-
-        const PipelineSceneData *sceneData = _pipeline->getPipelineSceneData();
-        const auto &renderObjects = sceneData->getRenderObjects();
-        probe->updatePlanarTexture(camera, renderObjects);
+        probe->updatePlanarTexture(camera->getScene());
     }
 }
 
 void ReflectionProbeFlow::destroy() {
-    _renderPass = nullptr;
-    renderPassHashMap.clear();
-
     RenderFlow::destroy();
 }
 
