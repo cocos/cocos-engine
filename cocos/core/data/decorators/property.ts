@@ -212,11 +212,11 @@ function mergePropertyOptions (
                 warnID(3655, propertyKey, getClassName(ctor), propertyKey, propertyKey);
             }
         }
-        if (descriptorOrInitializer.get) {
-            propertyRecord.get = descriptorOrInitializer.get;
+        if ((<BabelPropertyDecoratorDescriptor>descriptorOrInitializer).get) {
+            propertyRecord.get = (<BabelPropertyDecoratorDescriptor>descriptorOrInitializer).get;
         }
-        if (descriptorOrInitializer.set) {
-            propertyRecord.set = descriptorOrInitializer.set;
+        if ((<BabelPropertyDecoratorDescriptor>descriptorOrInitializer).set) {
+            propertyRecord.set = (<BabelPropertyDecoratorDescriptor>descriptorOrInitializer).set;
         }
     } else { // Target property is non-accessor
         if (DEV && (propertyRecord.get || propertyRecord.set)) {
