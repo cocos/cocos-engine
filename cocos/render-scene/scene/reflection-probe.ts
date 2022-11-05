@@ -283,7 +283,6 @@ export class ReflectionProbe {
         }
         this._syncCameraParams(sourceCamera);
         this._transformReflectionCamera(sourceCamera);
-        this.setTargetTexture();
         this._needRender = true;
     }
 
@@ -292,19 +291,6 @@ export class ReflectionProbe {
             this._needRender = false;
         } else if (sourceCamera !== undefined) {
             this.renderPlanarReflection(sourceCamera);
-        }
-    }
-
-    public setTargetTexture (rt: RenderTexture | null = null) {
-        if (!this.camera) return;
-        if (rt) {
-            const window = rt.window!;
-            this.camera.changeTargetWindow(window);
-            this.camera.setFixedSize(window.width, window.height);
-            this.camera.update();
-        } else {
-            this.camera.changeTargetWindow(EDITOR ? legacyCC.director.root.tempWindow : null);
-            this.camera.isWindowSize = true;
         }
     }
 
