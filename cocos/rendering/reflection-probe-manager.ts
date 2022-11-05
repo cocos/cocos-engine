@@ -31,6 +31,7 @@ import { Camera, Model } from '../render-scene/scene';
 import { ReflectionProbe } from '../render-scene/scene/reflection-probe';
 import { CAMERA_DEFAULT_MASK } from './define';
 
+const SPHERE_NODE_NAME = 'Reflection Probe Sphere';
 export class ReflectionProbeManager {
     public static probeManager: ReflectionProbeManager;
     private _probes: ReflectionProbe[] = [];
@@ -139,7 +140,7 @@ export class ReflectionProbeManager {
         const models = scene.models;
         for (let i = 0; i < models.length; i++) {
             const model = models[i];
-            if (model.node && model.worldBounds && (model.node.layer & CAMERA_DEFAULT_MASK)) {
+            if (model.node && model.worldBounds && ((model.node.layer & CAMERA_DEFAULT_MASK)) || model.node.name === SPHERE_NODE_NAME) {
                 const nearest = this._getNearestProbe(model);
                 if (!nearest) {
                     const meshRender = model.node.getComponent(MeshRenderer);
