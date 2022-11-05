@@ -305,6 +305,10 @@ export class WebDescriptorHierarchy {
                     this.setDescriptor(localSamplerFragTarget, 'cc_spriteTexture', Type.SAMPLER2D);
                 } else if (samplerName === 'cc_reflectionTexture') {
                     this.setDescriptor(localSamplerFragTarget, 'cc_reflectionTexture', Type.SAMPLER2D);
+                } else if (samplerName === 'cc_reflectionProbeCubemap') {
+                    this.setDescriptor(localSamplerFragTarget, 'cc_reflectionProbeCubemap', Type.SAMPLER_CUBE);
+                } else if (samplerName === 'cc_reflectionProbePlanarMap') {
+                    this.setDescriptor(localSamplerFragTarget, 'cc_reflectionProbePlanarMap', Type.SAMPLER2D);
                 }
             }
 

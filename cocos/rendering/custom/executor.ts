@@ -1230,14 +1230,36 @@ class DeviceSceneTask extends WebSceneTask {
         fromDesc.update();
         const fromGpuDesc = fromDesc.gpuDescriptorSet;
         const toGpuDesc = toDesc.gpuDescriptorSet;
+        const extResId: number[] = [];
         for (let i = 0; i < toGpuDesc.gpuDescriptors.length; i++) {
             const currRes = toGpuDesc.gpuDescriptors[i];
-            if (!currRes.gpuBuffer) {
+            if (!currRes.gpuBuffer && fromGpuDesc.gpuDescriptors[i].gpuBuffer) {
                 currRes.gpuBuffer = fromGpuDesc.gpuDescriptors[i].gpuBuffer;
-            } else if (!currRes.gpuTextureView) {
+                extResId.push(i);
+            } else if ('gpuTextureView' in currRes && !currRes.gpuTextureView) {
                 currRes.gpuTextureView = fromGpuDesc.gpuDescriptors[i].gpuTextureView;
-            } else if (!currRes.gpuSampler) {
                 currRes.gpuSampler = fromGpuDesc.gpuDescriptors[i].gpuSampler;
+                extResId.push(i);
+            } else if ('gpuTexture' in currRes && !currRes.gpuTexture) {
+                currRes.gpuTexture = fromGpuDesc.gpuDescriptors[i].gpuTexture;
+                currRes.gpuSampler = fromGpuDesc.gpuDescriptors[i].gpuSampler;
+                extResId.push(i);
+            }
+        }
+        return extResId;
+    }
+
+    private _clearExtBlitDesc (desc, extResId: number[]) {
+        const toGpuDesc = desc.gpuDescriptorSet;
+        for (let i = 0; i < extResId.length; i++) {
+            const currDesc = toGpuDesc.gpuDescriptors[extResId[i]];
+            if (currDesc.gpuBuffer) currDesc.gpuBuffer = null;
+            else if (currDesc.gpuTextureView) {
+                currDesc.gpuTextureView = null;
+                currDesc.gpuSampler = null;
+            } else if (currDesc.gpuTexture) {
+                currDesc.gpuTexture = null;
+                currDesc.gpuSampler = null;
             }
         }
     }
@@ -1272,12 +1294,15 @@ class DeviceSceneTask extends WebSceneTask {
         if (pso) {
             this.visitor.bindPipelineState(pso);
             const layoutStage = devicePass.renderLayout;
-            this._mergeMatToBlitDesc(pass.descriptorSet, layoutStage!.descriptorSet!);
+            const layoutDesc = layoutStage!.descriptorSet!;
+            const extResId: number[] = this._mergeMatToBlitDesc(pass.descriptorSet, layoutDesc);
             // TODO: It will be changed to global later
-            this.visitor.bindDescriptorSet(SetIndex.MATERIAL, layoutStage!.descriptorSet!);
+            this.visitor.bindDescriptorSet(SetIndex.MATERIAL, layoutDesc);
             this.visitor.bindDescriptorSet(SetIndex.LOCAL, this._currentQueue.blitDesc!.stageDesc!);
             this.visitor.bindInputAssembler(screenIa);
             this.visitor.draw(screenIa);
+            // The desc data obtained from the outside should be cleaned up so that the data can be modified
+            this._clearExtBlitDesc(layoutDesc, extResId);
         }
         this._endBindBlitUbo(devicePass);
     }

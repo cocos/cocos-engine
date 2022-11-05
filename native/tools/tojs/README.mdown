@@ -1,5 +1,7 @@
-How to Use bindings-generator
+How to Use ~~bindings-generator~~
 ==================
+
+> Notice: this bindings-generator approach has been deprecated in cocos engine internal usage since Cocos Creator 3.7.0, but you could still use it to generate JS binding code for your own projects. However, we recommend you to use [Swig](https://github.com/cocos/cocos-engine/blob/develop/native/tools/swig-config/README.md) which is more convenient.
 
 On Windows:
 ------------

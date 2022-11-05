@@ -25,7 +25,6 @@
  THE SOFTWARE.
 */
 
-import * as jsarray from './array';
 import IDGenerator from './id-generator';
 import {
     _idToClass,
@@ -61,18 +60,21 @@ import {
     value,
 } from './js-typed';
 import Pool from './pool';
-
+import * as array from './array';
 import { legacyCC } from '../global-exports';
 
 export * from './js-typed';
 export { default as IDGenerator } from './id-generator';
 export { default as Pool } from './pool';
-export const array = jsarray;
+export { array };
 
+/**
+ * @deprecated since 3.7.0, all functions expect deprecated function are exported by core.js
+ */
 export const js = {
     IDGenerator,
     Pool,
-    array: jsarray,
+    array,
     isNumber,
     isString,
     isEmptyObject,

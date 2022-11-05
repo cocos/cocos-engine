@@ -26,10 +26,7 @@
 #include "core/Root.h"
 #include "2d/renderer/Batcher2d.h"
 #include "application/ApplicationManager.h"
-#include "bindings/event/CustomEventTypes.h"
 #include "bindings/event/EventDispatcher.h"
-#include "core/event/CallbacksInvoker.h"
-#include "core/event/EventTypesToJS.h"
 #include "platform/interfaces/modules/IScreen.h"
 #include "platform/interfaces/modules/ISystemWindow.h"
 #include "platform/interfaces/modules/ISystemWindowManager.h"
@@ -47,6 +44,7 @@
 #include "scene/Camera.h"
 #include "scene/DirectionalLight.h"
 #include "scene/SpotLight.h"
+#include "engine/EngineEvents.h"
 
 namespace cc {
 
@@ -61,7 +59,6 @@ Root *Root::getInstance() {
 Root::Root(gfx::Device *device)
 : _device(device) {
     instance = this;
-    _eventProcessor = new CallbacksInvoker();
     // TODO(minggo):
     //    this._dataPoolMgr = legacyCC.internal.DataPoolManager && new legacyCC.internal.DataPoolManager(device) as DataPoolManager;
 
@@ -71,7 +68,6 @@ Root::Root(gfx::Device *device)
 
 Root::~Root() {
     destroy();
-    CC_SAFE_DELETE(_eventProcessor);
     instance = nullptr;
 }
 
@@ -90,8 +86,8 @@ void Root::initialize(gfx::Swapchain * /*swapchain*/) {
     addWindowEventListener();
     // TODO(minggo):
     // return Promise.resolve(builtinResMgr.initBuiltinRes(this._device));
-
-    uint32_t maxJoints = (_device->getCapabilities().maxVertexUniformVectors - 38) / 3;
+    const uint32_t usedUBOVectorCount = (pipeline::UBOGlobal::COUNT + pipeline::UBOCamera::COUNT + pipeline::UBOShadow::COUNT + pipeline::UBOLocal::COUNT) / 4;
+    uint32_t maxJoints = (_device->getCapabilities().maxVertexUniformVectors - usedUBOVectorCount) / 3;
     maxJoints = maxJoints < 256 ? maxJoints : 256;
     pipeline::localDescriptorSetLayoutResizeMaxJoints(maxJoints);
 }
@@ -110,8 +106,8 @@ scene::RenderWindow *Root::createRenderWindowFromSystemWindow(ISystemWindow *win
     const auto &size = window->getViewSize();
 
     gfx::SwapchainInfo info;
-    info.width = static_cast<uint32_t>(size.x);
-    info.height = static_cast<uint32_t>(size.y);
+    info.width = static_cast<uint32_t>(size.width);
+    info.height = static_cast<uint32_t>(size.height);
     info.windowHandle = reinterpret_cast<void *>(handle);
     info.windowId = window->getWindowId();
 
@@ -402,8 +398,7 @@ void Root::frameMoveProcess(bool isNeedUpdateScene, int32_t totalFrames, const c
 
 void Root::frameMoveEnd() {
     if (_pipelineRuntime != nullptr && !_cameraList.empty()) {
-        _eventProcessor->emit(EventTypesToJS::DIRECTOR_BEFORE_COMMIT, this);
-
+        emit<BeforeCommit>();
         std::stable_sort(_cameraList.begin(), _cameraList.end(), [](const auto *a, const auto *b) {
             return a->getPriority() < b->getPriority();
         });
@@ -416,7 +411,7 @@ void Root::frameMoveEnd() {
             }
         }
     #endif
-        _eventProcessor->emit(EventTypesToJS::DIRECTOR_BEFORE_RENDER, this);
+        emit<BeforeRender>();
         _pipelineRuntime->render(_cameraList);
 #endif
         _device->present();
@@ -624,22 +619,22 @@ void Root::doXRFrameMove(int32_t totalFrames) {
 }
 
 void Root::addWindowEventListener() {
-    _windowDestroyEventId = EventDispatcher::addCustomEventListener(EVENT_DESTROY_WINDOW, [this](const CustomEvent &e) -> void {
+    _windowDestroyListener.bind([this](uint32_t windowId) -> void {
         for (const auto &window : _renderWindows) {
-            window->onNativeWindowDestroy(static_cast<uint32_t>(e.args[0].intVal));
+            window->onNativeWindowDestroy(windowId);
         }
     });
 
-    _windowResumeEventId = EventDispatcher::addCustomEventListener(EVENT_RECREATE_WINDOW, [this](const CustomEvent &e) -> void {
+    _windowRecreatedListener.bind([this](uint32_t windowId) -> void {
         for (const auto &window : _renderWindows) {
-            window->onNativeWindowResume(static_cast<uint32_t>(e.args[0].intVal));
+            window->onNativeWindowResume(windowId);
         }
     });
 }
 
-void Root::removeWindowEventListener() const {
-    EventDispatcher::removeCustomEventListener(EVENT_DESTROY_WINDOW, _windowDestroyEventId);
-    EventDispatcher::removeCustomEventListener(EVENT_RECREATE_WINDOW, _windowResumeEventId);
+void Root::removeWindowEventListener() {
+    _windowDestroyListener.reset();
+    _windowRecreatedListener.reset();
 }
 
 } // namespace cc

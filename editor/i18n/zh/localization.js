@@ -150,6 +150,7 @@ module.exports = {
         illuminance: '光源强度',
         luminous_flux: '光通量',
         luminance: '光亮度',
+        visibility: '可见性掩码，声明在当前精确光源中可见的节点层级集合（对方向光不生效）',
         term: '当前使用的光度学计量单位',
         size: '光源大小',
         range: '光源范围',
@@ -1014,6 +1015,9 @@ module.exports = {
     },
     light_probe: {
         enabled: '光照探针开关',
+        giScale: 'GI乘数',
+        giSamples: 'GI采样数量',
+        bounces: '光照反弹次数',
         reduceRinging: '减少光照探针的振铃效果',
         showProbe: '是否显示光照探针',
         showWireframe: '是否显示光照探针连线',

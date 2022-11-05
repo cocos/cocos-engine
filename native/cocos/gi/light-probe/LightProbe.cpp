@@ -34,17 +34,26 @@
 namespace cc {
 namespace gi {
 
-void LightProbesData::build(const ccstd::vector<Vec3> &points) {
-    Delaunay delaunay;
-    delaunay.build(points);
+void LightProbesData::updateProbes(ccstd::vector<Vec3> &points) {
+    _probes.clear();
 
-    _probes = delaunay.getProbes();
-    _tetrahedrons = delaunay.getTetrahedrons();
+    auto pointCount = points.size();
+    _probes.reserve(pointCount);
+    for (auto i = 0; i < pointCount; i++) {
+        _probes.emplace_back(points[i]);
+    }
 }
 
-int32_t LightProbesData::getInterpolationSHCoefficients(const Vec3 &position, int32_t tetIndex, ccstd::vector<Vec3> &coefficients) const {
-    Vec4 weights{0.0F, 0.0F, 0.0F, 0.0F};
-    tetIndex = getInterpolationWeights(position, tetIndex, weights);
+void LightProbesData::updateTetrahedrons() {
+    Delaunay delaunay;
+    _tetrahedrons = delaunay.build(_probes);
+}
+
+bool LightProbesData::getInterpolationSHCoefficients(int32_t tetIndex, const Vec4 &weights, ccstd::vector<Vec3> &coefficients) const {
+    if (!hasCoefficients()) {
+        return false;
+    }
+
     const auto length = SH::getBasisCount();
     coefficients.resize(length);
 
@@ -65,7 +74,7 @@ int32_t LightProbesData::getInterpolationSHCoefficients(const Vec3 &position, in
         }
     }
 
-    return tetIndex;
+    return true;
 }
 
 int32_t LightProbesData::getInterpolationWeights(const Vec3 &position, int32_t tetIndex, Vec4 &weights) const {
@@ -181,6 +190,9 @@ void LightProbesData::getOuterCellBarycentricCoord(const Vec3 &position, const T
 
 void LightProbes::initialize(LightProbeInfo *info) {
     _enabled = info->isEnabled();
+    _giScale = info->getGIScale();
+    _giSamples = info->getGISamples();
+    _bounces = info->getBounces();
     _reduceRinging = info->getReduceRinging();
     _showProbe = info->isShowProbe();
     _showWireframe = info->isShowWireframe();
@@ -201,6 +213,13 @@ void LightProbes::updatePipeline() const {
 void LightProbeInfo::activate(LightProbes *resource) {
     _resource = resource;
     _resource->initialize(this);
+}
+
+void LightProbeInfo::clearSHCoefficients() {
+    auto &probes = _data.getProbes();
+    for (auto &probe : probes) {
+        probe.coefficients.clear();
+    }
 }
 
 } // namespace gi

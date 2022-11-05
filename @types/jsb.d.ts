@@ -194,6 +194,27 @@ declare namespace jsb {
         export function getOriginalPCMBuffer (url: string, channelID: number): ArrayBuffer | undefined;
     }
 
+    class NativePOD {
+        underlyingData(): ArrayBuffer;
+        _data(): TypedArray;
+        __data: TypedArray;
+    }
+
+    export class Color extends NativePOD {
+    }
+    export class Quat extends NativePOD {
+    }
+    export class Vec2 extends NativePOD {
+    }
+    export class Vec3 extends NativePOD {
+    }
+    export class Vec4 extends NativePOD {
+    }
+
+    export class Mat3 extends NativePOD {
+    }
+    export class Mat4 extends NativePOD {
+    }
     export interface ManifestAsset {
         md5: string;
         path: string;

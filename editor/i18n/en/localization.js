@@ -153,6 +153,7 @@ module.exports = {
         illuminance: 'Illuminance of the light',
         luminous_power: 'Luminous power of the light',
         luminance: 'Luminance of the light',
+        visibility: 'Visibility mask, declaring a set of node layers that will be visible to this valid punctual Light(Does not work with directional light)',
         term: 'The photometric term currently being used',
         size: 'Size of the light',
         range: 'Range of the light',
@@ -1033,6 +1034,9 @@ module.exports = {
     },
     light_probe: {
         enabled: 'The switch of light probe.',
+        giScale: 'The value of GI multiplier.',
+        giSamples: 'The value of GI sample counts.',
+        bounces: 'The value of light bounces.',
         reduceRinging: 'The value to reduce ringing of light probe.',
         showProbe: 'The switch of showing light probe.',
         showWireframe: 'The switch of showing connection of light probe.',

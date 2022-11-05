@@ -22,7 +22,6 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-
 import { intersect, Sphere } from '../core/geometry';
 import { Model } from '../render-scene/scene/model';
 import { Camera, SKYBOX_FLAG } from '../render-scene/scene/camera';
@@ -34,6 +33,8 @@ import { ShadowType, CSMOptimizationMode } from '../render-scene/scene/shadows';
 import { PipelineSceneData } from './pipeline-scene-data';
 import { ShadowLayerVolume } from './shadow/csm-layers';
 import { warnID } from '../core/platform';
+import { ReflectionProbeManager } from './reflection-probe-manager';
+import { LODModelsCachedUtils } from './lod-models-utils';
 
 const _tempVec3 = new Vec3();
 const _sphere = Sphere.create(0, 0, 0, 1);
@@ -157,11 +158,13 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
     const models = scene.models;
     const visibility = camera.visibility;
 
-    for (let i = 0; i < models.length; i++) {
-        const model = models[i];
-
+    function enqueueRenderObject (model: Model) {
         // filter model by view visibility
         if (model.enabled) {
+            if (LODModelsCachedUtils.isLODModelCulled(model)) {
+                return;
+            }
+
             if (model.castShadow) {
                 castShadowObjects.push(getRenderObject(model, camera));
                 csmLayerObjects.push(getRenderObject(model, camera));
@@ -171,10 +174,43 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
                  || (visibility & model.visFlags)) {
                 // frustum culling
                 if (model.worldBounds && !intersect.aabbFrustum(model.worldBounds, camera.frustum)) {
-                    continue;
+                    return;
                 }
 
                 renderObjects.push(getRenderObject(model, camera));
+            }
+        }
+    }
+
+    LODModelsCachedUtils.updateCachedLODModels(scene, camera);
+    for (let i = 0; i < models.length; i++) {
+        enqueueRenderObject(models[i]);
+    }
+    LODModelsCachedUtils.clearCachedLODModels();
+}
+
+export function reflectionProbeCulling (sceneData: PipelineSceneData, camera: Camera) {
+    const scene = camera.scene!;
+    const skybox = sceneData.skybox;
+
+    ReflectionProbeManager.probeManager.clearRenderObject(camera);
+
+    if (skybox.enabled && skybox.model && (camera.clearFlag & SKYBOX_FLAG)) {
+        ReflectionProbeManager.probeManager.addRenderObject(camera, getRenderObject(skybox.model, camera), true);
+    }
+
+    const models = scene.models;
+    const visibility = camera.visibility;
+
+    for (let i = 0; i < models.length; i++) {
+        const model = models[i];
+        // filter model by view visibility
+        if (model.enabled) {
+            if (model.node && ((visibility & model.node.layer) === model.node.layer)
+                  || (visibility & model.visFlags)) {
+                if (model.bakeToReflectionProbe) {
+                    ReflectionProbeManager.probeManager.addRenderObject(camera, getRenderObject(model, camera));
+                }
             }
         }
     }

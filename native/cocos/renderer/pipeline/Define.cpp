@@ -166,7 +166,7 @@ const gfx::DescriptorSetLayoutBinding UBOCSM::DESCRIPTOR = {
     UBOCSM::BINDING,
     gfx::DescriptorType::UNIFORM_BUFFER,
     1,
-    gfx::ShaderStageFlagBit::ALL,
+    gfx::ShaderStageFlagBit::FRAGMENT,
     {},
 };
 const gfx::UniformBlock UBOCSM::LAYOUT = {
@@ -576,6 +576,38 @@ const gfx::UniformStorageImage REFLECTIONSTORAGE::LAYOUT = {
     static_cast<uint32_t>(ModelLocalBindings::STORAGE_REFLECTION),
     "cc_reflectionStorage",
     gfx::Type::IMAGE2D,
+    1,
+};
+
+const ccstd::string REFLECTIONPROBECUBEMAP::NAME = "cc_reflectionProbeCubemap";
+const gfx::DescriptorSetLayoutBinding REFLECTIONPROBECUBEMAP::DESCRIPTOR = {
+    REFLECTIONPROBECUBEMAP::BINDING,
+    gfx::DescriptorType::SAMPLER_TEXTURE,
+    1,
+    gfx::ShaderStageFlagBit::FRAGMENT,
+    {},
+};
+const gfx::UniformSamplerTexture REFLECTIONPROBECUBEMAP::LAYOUT = {
+    localSet,
+    REFLECTIONPROBECUBEMAP::BINDING,
+    REFLECTIONPROBECUBEMAP::NAME,
+    gfx::Type::SAMPLER_CUBE,
+    1,
+};
+
+const ccstd::string REFLECTIONPROBEPLANARMAP::NAME = "cc_reflectionProbePlanarMap";
+const gfx::DescriptorSetLayoutBinding REFLECTIONPROBEPLANARMAP::DESCRIPTOR = {
+    REFLECTIONPROBEPLANARMAP::BINDING,
+    gfx::DescriptorType::SAMPLER_TEXTURE,
+    1,
+    gfx::ShaderStageFlagBit::FRAGMENT,
+    {},
+};
+const gfx::UniformSamplerTexture REFLECTIONPROBEPLANARMAP::LAYOUT = {
+    localSet,
+    REFLECTIONPROBEPLANARMAP::BINDING,
+    REFLECTIONPROBEPLANARMAP::NAME,
+    gfx::Type::SAMPLER2D,
     1,
 };
 

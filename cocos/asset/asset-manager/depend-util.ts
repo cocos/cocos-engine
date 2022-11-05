@@ -25,14 +25,14 @@
 
 import { BUILD, EDITOR } from 'internal:constants';
 import { Asset } from '../assets';
-import { hasNativeDep, isCompiledJson, parseUuidDependencies } from '../../core/data/deserialize';
+import { hasNativeDep, isCompiledJson, parseUuidDependencies } from '../../serialization/deserialize';
 import Cache from './cache';
 import deserialize from './deserialize';
 import { decodeUuid } from './helper';
 import { files, parsed } from './shared';
 import { dependMap, nativeDependMap } from './depend-maps';
 import { assertIsNonNullable } from '../../core/data/utils/asserts';
-import { CCON } from '../../core/data/ccon';
+import { CCON } from '../../serialization/ccon';
 
 export interface IDependencies {
     nativeDep?: Record<string, any>;

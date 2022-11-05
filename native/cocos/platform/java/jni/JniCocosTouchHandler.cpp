@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 #include <jni.h>
-#include "cocos/bindings/event/EventDispatcher.h"
+#include "engine/EngineEvents.h"
 #include "platform/java/jni/JniHelper.h"
 #include "platform/java/jni/glue/JniNativeGlue.h"
 

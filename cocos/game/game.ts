@@ -693,7 +693,9 @@ export class Game extends EventTarget {
                 }
                 const debugMode = config.debugMode || debug.DebugMode.NONE;
                 debug._resetDebugSetting(debugMode);
-                sys.init();
+            })
+            .then(() => sys.init())
+            .then(() => {
                 this._initEvents();
             })
             .then(() => settings.init(config.settingsPath, config.overrideSettings))

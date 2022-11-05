@@ -15,6 +15,7 @@
 // Insert code at the beginning of generated source file (.cpp)
 %{
 #include "bindings/auto/jsb_geometry_auto.h"
+#include "bindings/auto/jsb_cocos_auto.h"
 %}
 
 // ----- Ignore Section ------
@@ -47,16 +48,6 @@
 %ignore cc::geometry::AABB::setHalfExtents;
 
 %ignore cc::geometry::Frustum::update;
-%ignore cc::geometry::Frustum::type;
-%ignore cc::geometry::Frustum::split;
-
-%ignore cc::geometry::Plane::clone;
-%ignore cc::geometry::Plane::copy;
-%ignore cc::geometry::Plane::normalize;
-%ignore cc::geometry::Plane::getSpotAngle;
-%ignore cc::geometry::Plane::fromNormalAndPoint;
-%ignore cc::geometry::Plane::fromPoints;
-%ignore cc::geometry::Plane::set;
 
 %ignore cc::geometry::Ray::computeHit;
 

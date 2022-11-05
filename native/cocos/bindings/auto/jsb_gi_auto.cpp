@@ -61,6 +61,8 @@
 #include "bindings/manual/jsb_global.h"
 
 
+#include "bindings/auto/jsb_geometry_auto.h"
+#include "bindings/auto/jsb_cocos_auto.h"
 #include "bindings/auto/jsb_gi_auto.h"
 
 using namespace cc;
@@ -77,6 +79,18 @@ using namespace cc::gi;
 
 #define cc_gi_LightProbes_enabled_get(self_) self_->isEnabled()
 #define cc_gi_LightProbes_enabled_set(self_, val_) self_->setEnabled(val_)
+  
+
+#define cc_gi_LightProbes_giScale_get(self_) self_->getGIScale()
+#define cc_gi_LightProbes_giScale_set(self_, val_) self_->setGIScale(val_)
+  
+
+#define cc_gi_LightProbes_giSamples_get(self_) self_->getGISamples()
+#define cc_gi_LightProbes_giSamples_set(self_, val_) self_->setGISamples(val_)
+  
+
+#define cc_gi_LightProbes_bounces_get(self_) self_->getBounces()
+#define cc_gi_LightProbes_bounces_set(self_, val_) self_->setBounces(val_)
   
 
 #define cc_gi_LightProbes_reduceRinging_get(self_) self_->getReduceRinging()
@@ -103,6 +117,18 @@ using namespace cc::gi;
 #define cc_gi_LightProbeInfo_enabled_set(self_, val_) self_->setEnabled(val_)
   
 
+#define cc_gi_LightProbeInfo_giScale_get(self_) self_->getGIScale()
+#define cc_gi_LightProbeInfo_giScale_set(self_, val_) self_->setGIScale(val_)
+  
+
+#define cc_gi_LightProbeInfo_giSamples_get(self_) self_->getGISamples()
+#define cc_gi_LightProbeInfo_giSamples_set(self_, val_) self_->setGISamples(val_)
+  
+
+#define cc_gi_LightProbeInfo_bounces_get(self_) self_->getBounces()
+#define cc_gi_LightProbeInfo_bounces_set(self_, val_) self_->setBounces(val_)
+  
+
 #define cc_gi_LightProbeInfo_reduceRinging_get(self_) self_->getReduceRinging()
 #define cc_gi_LightProbeInfo_reduceRinging_set(self_, val_) self_->setReduceRinging(val_)
   
@@ -127,6 +153,44 @@ using namespace cc::gi;
 se::Class* __jsb_cc_gi_Vertex_class = nullptr;
 se::Object* __jsb_cc_gi_Vertex_proto = nullptr;
 SE_DECLARE_FINALIZE_FUNC(js_delete_cc_gi_Vertex) 
+
+static bool js_cc_gi_Vertex_coefficients_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::gi::Vertex *arg1 = (cc::gi::Vertex *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gi::Vertex>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg1->coefficients, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Vertex_coefficients_set,2,SWIGTYPE_ccstd__vectorT_Vec3_t"); 
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_gi_Vertex_coefficients_set) 
+
+static bool js_cc_gi_Vertex_coefficients_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::gi::Vertex *arg1 = (cc::gi::Vertex *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gi::Vertex>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(arg1->coefficients, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "Vertex_coefficients_get, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(arg1->coefficients, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_gi_Vertex_coefficients_get) 
 
 static bool js_cc_gi_Vertex_position_set(se::State& s)
 {
@@ -203,44 +267,6 @@ static bool js_cc_gi_Vertex_normal_get(se::State& s)
     return true;
 }
 SE_BIND_PROP_GET(js_cc_gi_Vertex_normal_get) 
-
-static bool js_cc_gi_Vertex_coefficients_set(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::gi::Vertex *arg1 = (cc::gi::Vertex *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::gi::Vertex>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[0], &arg1->coefficients, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vertex_coefficients_set,2,SWIGTYPE_ccstd__vectorT_Vec3_t"); 
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_SET(js_cc_gi_Vertex_coefficients_set) 
-
-static bool js_cc_gi_Vertex_coefficients_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::gi::Vertex *arg1 = (cc::gi::Vertex *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::gi::Vertex>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(arg1->coefficients, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "Vertex_coefficients_get, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(arg1->coefficients, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_gi_Vertex_coefficients_get) 
 
 static bool js_new_cc_gi_Vertex__SWIG_0(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -330,6 +356,12 @@ bool sevalue_to_native(const se::Value &from, cc::gi::Vertex * to, se::Object *c
     se::Value field;
     bool ok = true;
     
+    json->getProperty("coefficients", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->coefficients), ctx);
+    }
+    
+    
     json->getProperty("position", &field, true);
     if (!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->position), ctx);
@@ -342,12 +374,6 @@ bool sevalue_to_native(const se::Value &from, cc::gi::Vertex * to, se::Object *c
     }
     
     
-    json->getProperty("coefficients", &field, true);
-    if (!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->coefficients), ctx);
-    }
-    
-    
     return ok;
 }
 
@@ -355,9 +381,9 @@ bool sevalue_to_native(const se::Value &from, cc::gi::Vertex * to, se::Object *c
 bool js_register_cc_gi_Vertex(se::Object* obj) {
     auto* cls = se::Class::create("Vertex", obj, nullptr, _SE(js_new_Vertex)); 
     
+    cls->defineProperty("coefficients", _SE(js_cc_gi_Vertex_coefficients_get), _SE(js_cc_gi_Vertex_coefficients_set)); 
     cls->defineProperty("position", _SE(js_cc_gi_Vertex_position_get), _SE(js_cc_gi_Vertex_position_set)); 
     cls->defineProperty("normal", _SE(js_cc_gi_Vertex_normal_get), _SE(js_cc_gi_Vertex_normal_set)); 
-    cls->defineProperty("coefficients", _SE(js_cc_gi_Vertex_coefficients_get), _SE(js_cc_gi_Vertex_coefficients_set)); 
     
     
     
@@ -379,6 +405,40 @@ bool js_register_cc_gi_Vertex(se::Object* obj) {
 se::Class* __jsb_cc_gi_CircumSphere_class = nullptr;
 se::Object* __jsb_cc_gi_CircumSphere_proto = nullptr;
 SE_DECLARE_FINALIZE_FUNC(js_delete_cc_gi_CircumSphere) 
+
+static bool js_cc_gi_CircumSphere_radiusSquared_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::gi::CircumSphere *arg1 = (cc::gi::CircumSphere *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gi::CircumSphere>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[0], &arg1->radiusSquared, nullptr);
+    SE_PRECONDITION2(ok, false, "CircumSphere_radiusSquared_set,2,SWIGTYPE_float"); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_gi_CircumSphere_radiusSquared_set) 
+
+static bool js_cc_gi_CircumSphere_radiusSquared_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::gi::CircumSphere *arg1 = (cc::gi::CircumSphere *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gi::CircumSphere>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // out 1
+    ok &= nativevalue_to_se(arg1->radiusSquared, s.rval(), s.thisObject() /*ctx*/); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_gi_CircumSphere_radiusSquared_get) 
 
 static bool js_cc_gi_CircumSphere_center_set(se::State& s)
 {
@@ -417,40 +477,6 @@ static bool js_cc_gi_CircumSphere_center_get(se::State& s)
     return true;
 }
 SE_BIND_PROP_GET(js_cc_gi_CircumSphere_center_get) 
-
-static bool js_cc_gi_CircumSphere_radiusSquared_set(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::gi::CircumSphere *arg1 = (cc::gi::CircumSphere *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::gi::CircumSphere>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[0], &arg1->radiusSquared, nullptr);
-    SE_PRECONDITION2(ok, false, "CircumSphere_radiusSquared_set,2,SWIGTYPE_float"); 
-    
-    
-    return true;
-}
-SE_BIND_PROP_SET(js_cc_gi_CircumSphere_radiusSquared_set) 
-
-static bool js_cc_gi_CircumSphere_radiusSquared_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::gi::CircumSphere *arg1 = (cc::gi::CircumSphere *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::gi::CircumSphere>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    
-    // out 1
-    ok &= nativevalue_to_se(arg1->radiusSquared, s.rval(), s.thisObject() /*ctx*/); 
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_gi_CircumSphere_radiusSquared_get) 
 
 // js_ctor
 static bool js_new_cc_gi_CircumSphere(se::State& s) // NOLINT(readability-identifier-naming)
@@ -539,15 +565,15 @@ bool sevalue_to_native(const se::Value &from, cc::gi::CircumSphere * to, se::Obj
     se::Value field;
     bool ok = true;
     
-    json->getProperty("center", &field, true);
-    if (!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->center), ctx);
-    }
-    
-    
     json->getProperty("radiusSquared", &field, true);
     if (!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->radiusSquared), ctx);
+    }
+    
+    
+    json->getProperty("center", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->center), ctx);
     }
     
     
@@ -558,8 +584,8 @@ bool sevalue_to_native(const se::Value &from, cc::gi::CircumSphere * to, se::Obj
 bool js_register_cc_gi_CircumSphere(se::Object* obj) {
     auto* cls = se::Class::create("CircumSphere", obj, nullptr, _SE(js_new_cc_gi_CircumSphere)); 
     
-    cls->defineProperty("center", _SE(js_cc_gi_CircumSphere_center_get), _SE(js_cc_gi_CircumSphere_center_set)); 
     cls->defineProperty("radiusSquared", _SE(js_cc_gi_CircumSphere_radiusSquared_get), _SE(js_cc_gi_CircumSphere_radiusSquared_set)); 
+    cls->defineProperty("center", _SE(js_cc_gi_CircumSphere_center_get), _SE(js_cc_gi_CircumSphere_center_set)); 
     
     cls->defineFunction("init", _SE(js_cc_gi_CircumSphere_init)); 
     
@@ -1369,8 +1395,9 @@ static bool js_cc_gi_Delaunay_build(se::State& s)
     const auto& args = s.args();
     size_t argc = args.size();
     cc::gi::Delaunay *arg1 = (cc::gi::Delaunay *) NULL ;
-    ccstd::vector< Vec3 > *arg2 = 0 ;
-    ccstd::vector< Vec3 > temp2 ;
+    ccstd::vector< cc::gi::Vertex > *arg2 = 0 ;
+    ccstd::vector< cc::gi::Vertex > temp2 ;
+    ccstd::vector< cc::gi::Tetrahedron > result;
     
     if(argc != 1) {
         SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -1380,10 +1407,15 @@ static bool js_cc_gi_Delaunay_build(se::State& s)
     SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
     // %typemap(in) SWIGTYPE&
     ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Delaunay_build,2,SWIGTYPE_p_ccstd__vectorT_Vec3_t");
+    SE_PRECONDITION2(ok, false, "Delaunay_build,2,SWIGTYPE_p_ccstd__vectorT_cc__gi__Vertex_t");
     arg2 = &temp2;
     
-    (arg1)->build((ccstd::vector< Vec3 > const &)*arg2);
+    result = (arg1)->build((ccstd::vector< cc::gi::Vertex > const &)*arg2);
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "Delaunay_build, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
     
     
     return true;
@@ -1460,7 +1492,7 @@ static bool js_cc_gi_LightProbesData_empty(se::State& s)
 }
 SE_BIND_FUNC(js_cc_gi_LightProbesData_empty) 
 
-static bool js_cc_gi_LightProbesData_available(se::State& s)
+static bool js_cc_gi_LightProbesData_reset(se::State& s)
 {
     // js_function
     
@@ -1468,7 +1500,6 @@ static bool js_cc_gi_LightProbesData_available(se::State& s)
     const auto& args = s.args();
     size_t argc = args.size();
     cc::gi::LightProbesData *arg1 = (cc::gi::LightProbesData *) NULL ;
-    bool result;
     
     if(argc != 0) {
         SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -1476,16 +1507,14 @@ static bool js_cc_gi_LightProbesData_available(se::State& s)
     }
     arg1 = SE_THIS_OBJECT<cc::gi::LightProbesData>(s);
     SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    result = (bool)((cc::gi::LightProbesData const *)arg1)->available();
-    // out 5
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    (arg1)->reset();
     
     
     return true;
 }
-SE_BIND_FUNC(js_cc_gi_LightProbesData_available) 
+SE_BIND_FUNC(js_cc_gi_LightProbesData_reset) 
 
-static bool js_cc_gi_LightProbesData_build(se::State& s)
+static bool js_cc_gi_LightProbesData_updateProbes(se::State& s)
 {
     // js_function
     
@@ -1504,15 +1533,37 @@ static bool js_cc_gi_LightProbesData_build(se::State& s)
     SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
     // %typemap(in) SWIGTYPE&
     ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "LightProbesData_build,2,SWIGTYPE_p_ccstd__vectorT_Vec3_t");
+    SE_PRECONDITION2(ok, false, "LightProbesData_updateProbes,2,SWIGTYPE_p_ccstd__vectorT_Vec3_t");
     arg2 = &temp2;
     
-    (arg1)->build((ccstd::vector< Vec3 > const &)*arg2);
+    (arg1)->updateProbes(*arg2);
     
     
     return true;
 }
-SE_BIND_FUNC(js_cc_gi_LightProbesData_build) 
+SE_BIND_FUNC(js_cc_gi_LightProbesData_updateProbes) 
+
+static bool js_cc_gi_LightProbesData_updateTetrahedrons(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::gi::LightProbesData *arg1 = (cc::gi::LightProbesData *) NULL ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::gi::LightProbesData>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    (arg1)->updateTetrahedrons();
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_gi_LightProbesData_updateTetrahedrons) 
 
 static bool js_cc_gi_LightProbesData_getInterpolationSHCoefficients(se::State& s)
 {
@@ -1522,11 +1573,56 @@ static bool js_cc_gi_LightProbesData_getInterpolationSHCoefficients(se::State& s
     const auto& args = s.args();
     size_t argc = args.size();
     cc::gi::LightProbesData *arg1 = (cc::gi::LightProbesData *) NULL ;
+    int32_t arg2 ;
+    Vec4 *arg3 = 0 ;
+    ccstd::vector< Vec3 > *arg4 = 0 ;
+    Vec4 temp3 ;
+    ccstd::vector< Vec3 > temp4 ;
+    bool result;
+    
+    if(argc != 3) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::gi::LightProbesData>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "LightProbesData_getInterpolationSHCoefficients,2,SWIGTYPE_int32_t"); 
+    
+    // %typemap(in) SWIGTYPE&
+    ok &= sevalue_to_native(args[1], &temp3, s.thisObject());
+    SE_PRECONDITION2(ok, false, "LightProbesData_getInterpolationSHCoefficients,3,SWIGTYPE_p_Vec4");
+    arg3 = &temp3;
+    
+    // %typemap(in) SWIGTYPE&
+    ok &= sevalue_to_native(args[2], &temp4, s.thisObject());
+    SE_PRECONDITION2(ok, false, "LightProbesData_getInterpolationSHCoefficients,4,SWIGTYPE_p_ccstd__vectorT_Vec3_t");
+    arg4 = &temp4;
+    
+    result = (bool)((cc::gi::LightProbesData const *)arg1)->getInterpolationSHCoefficients(arg2,(Vec4 const &)*arg3,*arg4);
+    // out 5
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_gi_LightProbesData_getInterpolationSHCoefficients) 
+
+static bool js_cc_gi_LightProbesData_getInterpolationWeights(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::gi::LightProbesData *arg1 = (cc::gi::LightProbesData *) NULL ;
     Vec3 *arg2 = 0 ;
     int32_t arg3 ;
-    ccstd::vector< Vec3 > *arg4 = 0 ;
+    Vec4 *arg4 = 0 ;
     Vec3 temp2 ;
-    ccstd::vector< Vec3 > temp4 ;
+    Vec4 temp4 ;
     int32_t result;
     
     if(argc != 3) {
@@ -1537,30 +1633,30 @@ static bool js_cc_gi_LightProbesData_getInterpolationSHCoefficients(se::State& s
     SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
     // %typemap(in) SWIGTYPE&
     ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "LightProbesData_getInterpolationSHCoefficients,2,SWIGTYPE_p_Vec3");
+    SE_PRECONDITION2(ok, false, "LightProbesData_getInterpolationWeights,2,SWIGTYPE_p_Vec3");
     arg2 = &temp2;
     
     
     // %typemap(in) SWIGTYPE value in
     ok &= sevalue_to_native(args[1], &arg3, s.thisObject());
-    SE_PRECONDITION2(ok, false, "LightProbesData_getInterpolationSHCoefficients,3,SWIGTYPE_int32_t"); 
+    SE_PRECONDITION2(ok, false, "LightProbesData_getInterpolationWeights,3,SWIGTYPE_int32_t"); 
     
     // %typemap(in) SWIGTYPE&
     ok &= sevalue_to_native(args[2], &temp4, s.thisObject());
-    SE_PRECONDITION2(ok, false, "LightProbesData_getInterpolationSHCoefficients,4,SWIGTYPE_p_ccstd__vectorT_Vec3_t");
+    SE_PRECONDITION2(ok, false, "LightProbesData_getInterpolationWeights,4,SWIGTYPE_p_Vec4");
     arg4 = &temp4;
     
-    result = ((cc::gi::LightProbesData const *)arg1)->getInterpolationSHCoefficients((Vec3 const &)*arg2,arg3,*arg4);
+    result = ((cc::gi::LightProbesData const *)arg1)->getInterpolationWeights((Vec3 const &)*arg2,arg3,*arg4);
     // %typemap(out) SWIGTYPE
     ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "LightProbesData_getInterpolationSHCoefficients, Error processing arguments");
+    SE_PRECONDITION2(ok, false, "LightProbesData_getInterpolationWeights, Error processing arguments");
     SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
     
     
     
     return true;
 }
-SE_BIND_FUNC(js_cc_gi_LightProbesData_getInterpolationSHCoefficients) 
+SE_BIND_FUNC(js_cc_gi_LightProbesData_getInterpolationWeights) 
 
 static bool js_cc_gi_LightProbesData__probes_set(se::State& s)
 {
@@ -1738,9 +1834,11 @@ bool js_register_cc_gi_LightProbesData(se::Object* obj) {
     cls->defineProperty("tetrahedrons", _SE(js_cc_gi_LightProbesData_tetrahedrons_get), _SE(js_cc_gi_LightProbesData_tetrahedrons_set)); 
     
     cls->defineFunction("empty", _SE(js_cc_gi_LightProbesData_empty)); 
-    cls->defineFunction("available", _SE(js_cc_gi_LightProbesData_available)); 
-    cls->defineFunction("build", _SE(js_cc_gi_LightProbesData_build)); 
+    cls->defineFunction("reset", _SE(js_cc_gi_LightProbesData_reset)); 
+    cls->defineFunction("updateProbes", _SE(js_cc_gi_LightProbesData_updateProbes)); 
+    cls->defineFunction("updateTetrahedrons", _SE(js_cc_gi_LightProbesData_updateTetrahedrons)); 
     cls->defineFunction("getInterpolationSHCoefficients", _SE(js_cc_gi_LightProbesData_getInterpolationSHCoefficients)); 
+    cls->defineFunction("getInterpolationWeights", _SE(js_cc_gi_LightProbesData_getInterpolationWeights)); 
     
     
     
@@ -1812,7 +1910,7 @@ static bool js_cc_gi_LightProbes_initialize(se::State& s)
 }
 SE_BIND_FUNC(js_cc_gi_LightProbes_initialize) 
 
-static bool js_cc_gi_LightProbes_available(se::State& s)
+static bool js_cc_gi_LightProbes_empty(se::State& s)
 {
     // js_function
     
@@ -1828,14 +1926,14 @@ static bool js_cc_gi_LightProbes_available(se::State& s)
     }
     arg1 = SE_THIS_OBJECT<cc::gi::LightProbes>(s);
     SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    result = (bool)((cc::gi::LightProbes const *)arg1)->available();
+    result = (bool)((cc::gi::LightProbes const *)arg1)->empty();
     // out 5
     ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
     
     
     return true;
 }
-SE_BIND_FUNC(js_cc_gi_LightProbes_available) 
+SE_BIND_FUNC(js_cc_gi_LightProbes_empty) 
 
 static bool js_cc_gi_LightProbes__enabled_set(se::State& s)
 {
@@ -1869,6 +1967,116 @@ static bool js_cc_gi_LightProbes__enabled_get(se::State& s)
     return true;
 }
 SE_BIND_PROP_GET(js_cc_gi_LightProbes__enabled_get) 
+
+static bool js_cc_gi_LightProbes__giScale_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::gi::LightProbes *arg1 = (cc::gi::LightProbes *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gi::LightProbes>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[0], &arg1->_giScale, nullptr);
+    SE_PRECONDITION2(ok, false, "LightProbes__giScale_set,2,SWIGTYPE_float"); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_gi_LightProbes__giScale_set) 
+
+static bool js_cc_gi_LightProbes__giScale_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::gi::LightProbes *arg1 = (cc::gi::LightProbes *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gi::LightProbes>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // out 1
+    ok &= nativevalue_to_se(arg1->_giScale, s.rval(), s.thisObject() /*ctx*/); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_gi_LightProbes__giScale_get) 
+
+static bool js_cc_gi_LightProbes__giSamples_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::gi::LightProbes *arg1 = (cc::gi::LightProbes *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gi::LightProbes>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg1->_giSamples, s.thisObject());
+    SE_PRECONDITION2(ok, false, "LightProbes__giSamples_set,2,SWIGTYPE_uint32_t"); 
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_gi_LightProbes__giSamples_set) 
+
+static bool js_cc_gi_LightProbes__giSamples_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::gi::LightProbes *arg1 = (cc::gi::LightProbes *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gi::LightProbes>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(arg1->_giSamples, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "LightProbes__giSamples_get, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(arg1->_giSamples, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_gi_LightProbes__giSamples_get) 
+
+static bool js_cc_gi_LightProbes__bounces_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::gi::LightProbes *arg1 = (cc::gi::LightProbes *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gi::LightProbes>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg1->_bounces, s.thisObject());
+    SE_PRECONDITION2(ok, false, "LightProbes__bounces_set,2,SWIGTYPE_uint32_t"); 
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_gi_LightProbes__bounces_set) 
+
+static bool js_cc_gi_LightProbes__bounces_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::gi::LightProbes *arg1 = (cc::gi::LightProbes *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gi::LightProbes>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(arg1->_bounces, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "LightProbes__bounces_get, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(arg1->_bounces, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_gi_LightProbes__bounces_get) 
 
 static bool js_cc_gi_LightProbes__reduceRinging_set(se::State& s)
 {
@@ -2078,19 +2286,141 @@ static bool js_cc_gi_LightProbes_enabled_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_gi_LightProbes_enabled_get) 
 
+static bool js_cc_gi_LightProbes_giScale_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::gi::LightProbes *arg1 = (cc::gi::LightProbes *) NULL ;
+    float arg2 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gi::LightProbes>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[0], &arg2, nullptr);
+    SE_PRECONDITION2(ok, false, "LightProbes_giScale_set,2,SWIGTYPE_float"); 
+    cc_gi_LightProbes_giScale_set(arg1,arg2);
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_gi_LightProbes_giScale_set) 
+
+static bool js_cc_gi_LightProbes_giScale_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::gi::LightProbes *arg1 = (cc::gi::LightProbes *) NULL ;
+    float result;
+    
+    arg1 = SE_THIS_OBJECT<cc::gi::LightProbes>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (float)cc_gi_LightProbes_giScale_get(arg1);
+    
+    // out 1
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_gi_LightProbes_giScale_get) 
+
+static bool js_cc_gi_LightProbes_giSamples_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::gi::LightProbes *arg1 = (cc::gi::LightProbes *) NULL ;
+    uint32_t arg2 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gi::LightProbes>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "LightProbes_giSamples_set,2,SWIGTYPE_uint32_t"); 
+    
+    cc_gi_LightProbes_giSamples_set(arg1,arg2);
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_gi_LightProbes_giSamples_set) 
+
+static bool js_cc_gi_LightProbes_giSamples_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::gi::LightProbes *arg1 = (cc::gi::LightProbes *) NULL ;
+    uint32_t result;
+    
+    arg1 = SE_THIS_OBJECT<cc::gi::LightProbes>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = cc_gi_LightProbes_giSamples_get(arg1);
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "LightProbes_giSamples_get, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_gi_LightProbes_giSamples_get) 
+
+static bool js_cc_gi_LightProbes_bounces_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::gi::LightProbes *arg1 = (cc::gi::LightProbes *) NULL ;
+    uint32_t arg2 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gi::LightProbes>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "LightProbes_bounces_set,2,SWIGTYPE_uint32_t"); 
+    
+    cc_gi_LightProbes_bounces_set(arg1,arg2);
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_gi_LightProbes_bounces_set) 
+
+static bool js_cc_gi_LightProbes_bounces_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::gi::LightProbes *arg1 = (cc::gi::LightProbes *) NULL ;
+    uint32_t result;
+    
+    arg1 = SE_THIS_OBJECT<cc::gi::LightProbes>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = cc_gi_LightProbes_bounces_get(arg1);
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "LightProbes_bounces_get, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_gi_LightProbes_bounces_get) 
+
 static bool js_cc_gi_LightProbes_reduceRinging_set(se::State& s)
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
     cc::gi::LightProbes *arg1 = (cc::gi::LightProbes *) NULL ;
-    bool arg2 ;
+    float arg2 ;
     
     arg1 = SE_THIS_OBJECT<cc::gi::LightProbes>(s);
     SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) bool
-    ok &= sevalue_to_native(args[0], &arg2);
-    SE_PRECONDITION2(ok, false, "LightProbes_reduceRinging_set,2,SWIGTYPE_bool"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[0], &arg2, nullptr);
+    SE_PRECONDITION2(ok, false, "LightProbes_reduceRinging_set,2,SWIGTYPE_float"); 
     cc_gi_LightProbes_reduceRinging_set(arg1,arg2);
     
     
@@ -2102,13 +2432,14 @@ static bool js_cc_gi_LightProbes_reduceRinging_get(se::State& s)
 {
     CC_UNUSED bool ok = true;
     cc::gi::LightProbes *arg1 = (cc::gi::LightProbes *) NULL ;
-    bool result;
+    float result;
     
     arg1 = SE_THIS_OBJECT<cc::gi::LightProbes>(s);
     SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    result = (bool)cc_gi_LightProbes_reduceRinging_get(arg1);
-    // out 5
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    result = (float)cc_gi_LightProbes_reduceRinging_get(arg1);
+    
+    // out 1
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/); 
     
     
     return true;
@@ -2272,12 +2603,18 @@ bool js_register_cc_gi_LightProbes(se::Object* obj) {
     auto* cls = se::Class::create("LightProbes", obj, nullptr, _SE(js_new_cc_gi_LightProbes)); 
     
     cls->defineProperty("_enabled", _SE(js_cc_gi_LightProbes__enabled_get), _SE(js_cc_gi_LightProbes__enabled_set)); 
+    cls->defineProperty("_giScale", _SE(js_cc_gi_LightProbes__giScale_get), _SE(js_cc_gi_LightProbes__giScale_set)); 
+    cls->defineProperty("_giSamples", _SE(js_cc_gi_LightProbes__giSamples_get), _SE(js_cc_gi_LightProbes__giSamples_set)); 
+    cls->defineProperty("_bounces", _SE(js_cc_gi_LightProbes__bounces_get), _SE(js_cc_gi_LightProbes__bounces_set)); 
     cls->defineProperty("_reduceRinging", _SE(js_cc_gi_LightProbes__reduceRinging_get), _SE(js_cc_gi_LightProbes__reduceRinging_set)); 
     cls->defineProperty("_showProbe", _SE(js_cc_gi_LightProbes__showProbe_get), _SE(js_cc_gi_LightProbes__showProbe_set)); 
     cls->defineProperty("_showWireframe", _SE(js_cc_gi_LightProbes__showWireframe_get), _SE(js_cc_gi_LightProbes__showWireframe_set)); 
     cls->defineProperty("_showConvex", _SE(js_cc_gi_LightProbes__showConvex_get), _SE(js_cc_gi_LightProbes__showConvex_set)); 
     cls->defineProperty("_data", _SE(js_cc_gi_LightProbes__data_get), _SE(js_cc_gi_LightProbes__data_set)); 
     cls->defineProperty("enabled", _SE(js_cc_gi_LightProbes_enabled_get), _SE(js_cc_gi_LightProbes_enabled_set)); 
+    cls->defineProperty("giScale", _SE(js_cc_gi_LightProbes_giScale_get), _SE(js_cc_gi_LightProbes_giScale_set)); 
+    cls->defineProperty("giSamples", _SE(js_cc_gi_LightProbes_giSamples_get), _SE(js_cc_gi_LightProbes_giSamples_set)); 
+    cls->defineProperty("bounces", _SE(js_cc_gi_LightProbes_bounces_get), _SE(js_cc_gi_LightProbes_bounces_set)); 
     cls->defineProperty("reduceRinging", _SE(js_cc_gi_LightProbes_reduceRinging_get), _SE(js_cc_gi_LightProbes_reduceRinging_set)); 
     cls->defineProperty("showProbe", _SE(js_cc_gi_LightProbes_showProbe_get), _SE(js_cc_gi_LightProbes_showProbe_set)); 
     cls->defineProperty("showWireframe", _SE(js_cc_gi_LightProbes_showWireframe_get), _SE(js_cc_gi_LightProbes_showWireframe_set)); 
@@ -2285,7 +2622,7 @@ bool js_register_cc_gi_LightProbes(se::Object* obj) {
     cls->defineProperty("data", _SE(js_cc_gi_LightProbes_data_get), _SE(js_cc_gi_LightProbes_data_set)); 
     
     cls->defineFunction("initialize", _SE(js_cc_gi_LightProbes_initialize)); 
-    cls->defineFunction("available", _SE(js_cc_gi_LightProbes_available)); 
+    cls->defineFunction("empty", _SE(js_cc_gi_LightProbes_empty)); 
     
     
     
@@ -2357,6 +2694,28 @@ static bool js_cc_gi_LightProbeInfo_activate(se::State& s)
 }
 SE_BIND_FUNC(js_cc_gi_LightProbeInfo_activate) 
 
+static bool js_cc_gi_LightProbeInfo_clearSHCoefficients(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::gi::LightProbeInfo *arg1 = (cc::gi::LightProbeInfo *) NULL ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::gi::LightProbeInfo>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    (arg1)->clearSHCoefficients();
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_gi_LightProbeInfo_clearSHCoefficients) 
+
 static bool js_cc_gi_LightProbeInfo__enabled_set(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -2389,6 +2748,116 @@ static bool js_cc_gi_LightProbeInfo__enabled_get(se::State& s)
     return true;
 }
 SE_BIND_PROP_GET(js_cc_gi_LightProbeInfo__enabled_get) 
+
+static bool js_cc_gi_LightProbeInfo__giScale_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::gi::LightProbeInfo *arg1 = (cc::gi::LightProbeInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gi::LightProbeInfo>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[0], &arg1->_giScale, nullptr);
+    SE_PRECONDITION2(ok, false, "LightProbeInfo__giScale_set,2,SWIGTYPE_float"); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_gi_LightProbeInfo__giScale_set) 
+
+static bool js_cc_gi_LightProbeInfo__giScale_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::gi::LightProbeInfo *arg1 = (cc::gi::LightProbeInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gi::LightProbeInfo>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // out 1
+    ok &= nativevalue_to_se(arg1->_giScale, s.rval(), s.thisObject() /*ctx*/); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_gi_LightProbeInfo__giScale_get) 
+
+static bool js_cc_gi_LightProbeInfo__giSamples_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::gi::LightProbeInfo *arg1 = (cc::gi::LightProbeInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gi::LightProbeInfo>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg1->_giSamples, s.thisObject());
+    SE_PRECONDITION2(ok, false, "LightProbeInfo__giSamples_set,2,SWIGTYPE_uint32_t"); 
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_gi_LightProbeInfo__giSamples_set) 
+
+static bool js_cc_gi_LightProbeInfo__giSamples_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::gi::LightProbeInfo *arg1 = (cc::gi::LightProbeInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gi::LightProbeInfo>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(arg1->_giSamples, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "LightProbeInfo__giSamples_get, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(arg1->_giSamples, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_gi_LightProbeInfo__giSamples_get) 
+
+static bool js_cc_gi_LightProbeInfo__bounces_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::gi::LightProbeInfo *arg1 = (cc::gi::LightProbeInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gi::LightProbeInfo>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg1->_bounces, s.thisObject());
+    SE_PRECONDITION2(ok, false, "LightProbeInfo__bounces_set,2,SWIGTYPE_uint32_t"); 
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_gi_LightProbeInfo__bounces_set) 
+
+static bool js_cc_gi_LightProbeInfo__bounces_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::gi::LightProbeInfo *arg1 = (cc::gi::LightProbeInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gi::LightProbeInfo>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(arg1->_bounces, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "LightProbeInfo__bounces_get, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(arg1->_bounces, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_gi_LightProbeInfo__bounces_get) 
 
 static bool js_cc_gi_LightProbeInfo__reduceRinging_set(se::State& s)
 {
@@ -2598,19 +3067,141 @@ static bool js_cc_gi_LightProbeInfo_enabled_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_gi_LightProbeInfo_enabled_get) 
 
+static bool js_cc_gi_LightProbeInfo_giScale_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::gi::LightProbeInfo *arg1 = (cc::gi::LightProbeInfo *) NULL ;
+    float arg2 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gi::LightProbeInfo>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[0], &arg2, nullptr);
+    SE_PRECONDITION2(ok, false, "LightProbeInfo_giScale_set,2,SWIGTYPE_float"); 
+    cc_gi_LightProbeInfo_giScale_set(arg1,arg2);
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_gi_LightProbeInfo_giScale_set) 
+
+static bool js_cc_gi_LightProbeInfo_giScale_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::gi::LightProbeInfo *arg1 = (cc::gi::LightProbeInfo *) NULL ;
+    float result;
+    
+    arg1 = SE_THIS_OBJECT<cc::gi::LightProbeInfo>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (float)cc_gi_LightProbeInfo_giScale_get(arg1);
+    
+    // out 1
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_gi_LightProbeInfo_giScale_get) 
+
+static bool js_cc_gi_LightProbeInfo_giSamples_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::gi::LightProbeInfo *arg1 = (cc::gi::LightProbeInfo *) NULL ;
+    uint32_t arg2 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gi::LightProbeInfo>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "LightProbeInfo_giSamples_set,2,SWIGTYPE_uint32_t"); 
+    
+    cc_gi_LightProbeInfo_giSamples_set(arg1,arg2);
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_gi_LightProbeInfo_giSamples_set) 
+
+static bool js_cc_gi_LightProbeInfo_giSamples_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::gi::LightProbeInfo *arg1 = (cc::gi::LightProbeInfo *) NULL ;
+    uint32_t result;
+    
+    arg1 = SE_THIS_OBJECT<cc::gi::LightProbeInfo>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = cc_gi_LightProbeInfo_giSamples_get(arg1);
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "LightProbeInfo_giSamples_get, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_gi_LightProbeInfo_giSamples_get) 
+
+static bool js_cc_gi_LightProbeInfo_bounces_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::gi::LightProbeInfo *arg1 = (cc::gi::LightProbeInfo *) NULL ;
+    uint32_t arg2 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gi::LightProbeInfo>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "LightProbeInfo_bounces_set,2,SWIGTYPE_uint32_t"); 
+    
+    cc_gi_LightProbeInfo_bounces_set(arg1,arg2);
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_gi_LightProbeInfo_bounces_set) 
+
+static bool js_cc_gi_LightProbeInfo_bounces_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::gi::LightProbeInfo *arg1 = (cc::gi::LightProbeInfo *) NULL ;
+    uint32_t result;
+    
+    arg1 = SE_THIS_OBJECT<cc::gi::LightProbeInfo>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = cc_gi_LightProbeInfo_bounces_get(arg1);
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "LightProbeInfo_bounces_get, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_gi_LightProbeInfo_bounces_get) 
+
 static bool js_cc_gi_LightProbeInfo_reduceRinging_set(se::State& s)
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
     cc::gi::LightProbeInfo *arg1 = (cc::gi::LightProbeInfo *) NULL ;
-    bool arg2 ;
+    float arg2 ;
     
     arg1 = SE_THIS_OBJECT<cc::gi::LightProbeInfo>(s);
     SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) bool
-    ok &= sevalue_to_native(args[0], &arg2);
-    SE_PRECONDITION2(ok, false, "LightProbeInfo_reduceRinging_set,2,SWIGTYPE_bool"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[0], &arg2, nullptr);
+    SE_PRECONDITION2(ok, false, "LightProbeInfo_reduceRinging_set,2,SWIGTYPE_float"); 
     cc_gi_LightProbeInfo_reduceRinging_set(arg1,arg2);
     
     
@@ -2622,13 +3213,14 @@ static bool js_cc_gi_LightProbeInfo_reduceRinging_get(se::State& s)
 {
     CC_UNUSED bool ok = true;
     cc::gi::LightProbeInfo *arg1 = (cc::gi::LightProbeInfo *) NULL ;
-    bool result;
+    float result;
     
     arg1 = SE_THIS_OBJECT<cc::gi::LightProbeInfo>(s);
     SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    result = (bool)cc_gi_LightProbeInfo_reduceRinging_get(arg1);
-    // out 5
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    result = (float)cc_gi_LightProbeInfo_reduceRinging_get(arg1);
+    
+    // out 1
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/); 
     
     
     return true;
@@ -2792,12 +3384,18 @@ bool js_register_cc_gi_LightProbeInfo(se::Object* obj) {
     auto* cls = se::Class::create("LightProbeInfo", obj, nullptr, _SE(js_new_cc_gi_LightProbeInfo)); 
     
     cls->defineProperty("_enabled", _SE(js_cc_gi_LightProbeInfo__enabled_get), _SE(js_cc_gi_LightProbeInfo__enabled_set)); 
+    cls->defineProperty("_giScale", _SE(js_cc_gi_LightProbeInfo__giScale_get), _SE(js_cc_gi_LightProbeInfo__giScale_set)); 
+    cls->defineProperty("_giSamples", _SE(js_cc_gi_LightProbeInfo__giSamples_get), _SE(js_cc_gi_LightProbeInfo__giSamples_set)); 
+    cls->defineProperty("_bounces", _SE(js_cc_gi_LightProbeInfo__bounces_get), _SE(js_cc_gi_LightProbeInfo__bounces_set)); 
     cls->defineProperty("_reduceRinging", _SE(js_cc_gi_LightProbeInfo__reduceRinging_get), _SE(js_cc_gi_LightProbeInfo__reduceRinging_set)); 
     cls->defineProperty("_showProbe", _SE(js_cc_gi_LightProbeInfo__showProbe_get), _SE(js_cc_gi_LightProbeInfo__showProbe_set)); 
     cls->defineProperty("_showWireframe", _SE(js_cc_gi_LightProbeInfo__showWireframe_get), _SE(js_cc_gi_LightProbeInfo__showWireframe_set)); 
     cls->defineProperty("_showConvex", _SE(js_cc_gi_LightProbeInfo__showConvex_get), _SE(js_cc_gi_LightProbeInfo__showConvex_set)); 
     cls->defineProperty("_data", _SE(js_cc_gi_LightProbeInfo__data_get), _SE(js_cc_gi_LightProbeInfo__data_set)); 
     cls->defineProperty("enabled", _SE(js_cc_gi_LightProbeInfo_enabled_get), _SE(js_cc_gi_LightProbeInfo_enabled_set)); 
+    cls->defineProperty("giScale", _SE(js_cc_gi_LightProbeInfo_giScale_get), _SE(js_cc_gi_LightProbeInfo_giScale_set)); 
+    cls->defineProperty("giSamples", _SE(js_cc_gi_LightProbeInfo_giSamples_get), _SE(js_cc_gi_LightProbeInfo_giSamples_set)); 
+    cls->defineProperty("bounces", _SE(js_cc_gi_LightProbeInfo_bounces_get), _SE(js_cc_gi_LightProbeInfo_bounces_set)); 
     cls->defineProperty("reduceRinging", _SE(js_cc_gi_LightProbeInfo_reduceRinging_get), _SE(js_cc_gi_LightProbeInfo_reduceRinging_set)); 
     cls->defineProperty("showProbe", _SE(js_cc_gi_LightProbeInfo_showProbe_get), _SE(js_cc_gi_LightProbeInfo_showProbe_set)); 
     cls->defineProperty("showWireframe", _SE(js_cc_gi_LightProbeInfo_showWireframe_get), _SE(js_cc_gi_LightProbeInfo_showWireframe_set)); 
@@ -2805,6 +3403,7 @@ bool js_register_cc_gi_LightProbeInfo(se::Object* obj) {
     cls->defineProperty("data", _SE(js_cc_gi_LightProbeInfo_data_get), _SE(js_cc_gi_LightProbeInfo_data_set)); 
     
     cls->defineFunction("activate", _SE(js_cc_gi_LightProbeInfo_activate)); 
+    cls->defineFunction("clearSHCoefficients", _SE(js_cc_gi_LightProbeInfo_clearSHCoefficients)); 
     
     
     

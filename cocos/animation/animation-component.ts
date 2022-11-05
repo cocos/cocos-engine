@@ -27,7 +27,6 @@ import { ccclass, executeInEditMode, executionOrder, help, menu, tooltip, type, 
 import { EDITOR, TEST } from 'internal:constants';
 import { Component } from '../scene-graph/component';
 import { Eventify, warnID, js, cclegacy } from '../core';
-import * as ArrayUtils from '../core/utils/array';
 import { createMap } from '../core/utils/js-typed';
 import { AnimationClip } from './animation-clip';
 import { AnimationState, EventType } from './animation-state';
@@ -319,7 +318,7 @@ export class Animation extends Eventify(Component) {
      * @returns The created animation state
      */
     public addClip (clip: AnimationClip, name?: string): AnimationState {
-        if (!ArrayUtils.contains(this._clips, clip)) {
+        if (js.array.contains(this._clips, clip)) {
             this._clips.push(clip);
         }
         return this.createState(clip, name);
