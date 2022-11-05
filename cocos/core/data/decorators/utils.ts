@@ -151,6 +151,7 @@ export function getClassCache (ctor, decoratorName?) {
         error('`@%s` should be used after @ccclass for class "%s"', decoratorName, getClassName(ctor));
         return null;
     }
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return getSubDict(ctor, CACHE_KEY);
 }
 
