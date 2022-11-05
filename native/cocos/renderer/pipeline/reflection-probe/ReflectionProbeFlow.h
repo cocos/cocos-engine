@@ -55,9 +55,6 @@ private:
 
     static RenderFlowInfo initInfo;
 
-    // weak reference
-    gfx::RenderPass *_renderPass{nullptr};
-
     static ccstd::unordered_map<ccstd::hash_t, IntrusivePtr<cc::gfx::RenderPass>> renderPassHashMap;
 };
 } // namespace pipeline

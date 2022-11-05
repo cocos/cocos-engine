@@ -149,14 +149,14 @@ void ReflectionProbe::updateBoundingBox() {
     }
 }
 
-void ReflectionProbe::updatePlanarTexture(const Camera* camera)
+void ReflectionProbe::updatePlanarTexture(const scene::RenderScene* scene)
 {
-    const scene::RenderScene *const scene = camera->getScene();
+    if (!scene) return;
     for (const auto &model : scene->getModels()) {
         // filter model by view visibility
         uint32_t useProbeType = static_cast<uint32_t>(scene::ReflectionProbe::UseProbeType::PLANAR_REFLECTION);
         if (model->isEnabled() && model->getReflectionProbeType() == useProbeType) {
-            const auto visibility = camera->getVisibility();
+            const auto visibility = _camera->getVisibility();
             const auto *const node = model->getNode();
             if ((model->getNode() && ((visibility & node->getLayer()) == node->getLayer())) ||
                 (visibility & static_cast<uint32_t>(model->getVisFlags()))) {
@@ -177,6 +177,11 @@ void ReflectionProbe::destroy() {
     if (_camera) {
         _camera->destroy();
         _camera = nullptr;
+    }
+    if (_cameraNode)
+    {
+        _cameraNode->destroy();
+        _cameraNode = nullptr;
     }
     if (_realtimePlanarTexture) {
         _realtimePlanarTexture->destroy();
