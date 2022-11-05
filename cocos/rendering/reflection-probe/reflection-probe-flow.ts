@@ -76,10 +76,10 @@ export class ReflectionProbeFlow extends RenderFlow {
         for (let i = 0; i < this._stages.length; i++) {
             const probeStage = this._stages[i] as ReflectionProbeStage;
             if (probe.probeType === ProbeType.PLANAR) {
-                ReflectionProbeManager.probeManager.unbindingPlanarMap(probe);
+                ReflectionProbeManager.probeManager.updatePlanarMap(probe, null);
                 probeStage.setUsageInfo(probe, probe.realtimePlanarTexture!.window!.framebuffer);
                 probeStage.render(camera);
-                ReflectionProbeManager.probeManager.updatePlanarMap(probe);
+                ReflectionProbeManager.probeManager.updatePlanarMap(probe, probe.realtimePlanarTexture!.getGFXTexture());
             } else {
                 for (let faceIdx = 0; faceIdx < 6; faceIdx++) {
                     //update camera dirction

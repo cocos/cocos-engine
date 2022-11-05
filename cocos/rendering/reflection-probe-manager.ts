@@ -26,6 +26,7 @@
 import { MeshRenderer } from '../3d/framework/mesh-renderer';
 import { Vec3 } from '../core';
 import intersect from '../core/geometry/intersect';
+import { Texture } from '../gfx';
 import { Camera, Model } from '../render-scene/scene';
 import { ReflectionProbe } from '../render-scene/scene/reflection-probe';
 import { CAMERA_DEFAULT_MASK } from './define';
@@ -110,31 +111,18 @@ export class ReflectionProbeManager {
      * @zh 更新反射探针渲染的平面反射贴图
      * @param probe update the texture for this probe
      */
-    public updatePlanarMap (probe: ReflectionProbe) {
-        const models = this._getModelsByProbe(probe);
-        if (!probe.realtimePlanarTexture) return;
+    public updatePlanarMap (probe: ReflectionProbe, texture: Texture | null) {
+        if (!probe.node || !probe.node.scene) return;
+        const scene = probe.node.scene.renderScene;
+        const models = scene!.models;
         for (let i = 0; i < models.length; i++) {
             const model = models[i];
-            const meshRender = model.node.getComponent(MeshRenderer);
-            if (meshRender) {
-                meshRender.updateProbePlanarMap(probe.realtimePlanarTexture.getGFXTexture());
-            }
-        }
-    }
-
-    /**
-     * @en Unbind planar reflection map
-     * @zh 解除绑定的平面反射贴图
-     * @param probe unbind the texture for this probe
-     */
-    public unbindingPlanarMap (probe: ReflectionProbe) {
-        const models = this._getModelsByProbe(probe);
-        if (!probe.realtimePlanarTexture) return;
-        for (let i = 0; i < models.length; i++) {
-            const model = models[i];
-            const meshRender = model.node.getComponent(MeshRenderer);
-            if (meshRender) {
-                meshRender.updateProbePlanarMap(null);
+            if (!model.node || !model.worldBounds) continue;
+            if ((model.node.layer & CAMERA_DEFAULT_MASK) && intersect.aabbWithAABB(model.worldBounds, probe.boundingBox)) {
+                const meshRender = model.node.getComponent(MeshRenderer);
+                if (meshRender) {
+                    meshRender.updateProbePlanarMap(texture);
+                }
             }
         }
     }
