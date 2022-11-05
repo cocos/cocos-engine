@@ -68,13 +68,13 @@ export function property (...args: Parameters<LegacyPropertyDecorator>): void;
 export function property (
     target?: Parameters<LegacyPropertyDecorator>[0],
     propertyKey?: Parameters<LegacyPropertyDecorator>[1],
-    descriptor?: Parameters<LegacyPropertyDecorator>[2],
+    descriptorOrInitializer?: Parameters<LegacyPropertyDecorator>[2],
 ) {
     let options: IPropertyOptions | PropertyType | null = null;
     function normalized (
         target: Parameters<LegacyPropertyDecorator>[0],
         propertyKey: Parameters<LegacyPropertyDecorator>[1],
-        descriptor: Parameters<LegacyPropertyDecorator>[2],
+        descriptorOrInitializer: Parameters<LegacyPropertyDecorator>[2],
     ) {
         const classStash = getOrCreateClassStash(target);
         const propertyStash = getOrCreateEmptyPropertyStash(
@@ -88,7 +88,7 @@ export function property (
             classConstructor,
             propertyKey,
             options,
-            descriptor,
+            descriptorOrInitializer,
         );
     }
 
@@ -104,7 +104,7 @@ export function property (
         return normalized;
     } else {
         // @property
-        normalized(target, propertyKey, descriptor);
+        normalized(target, propertyKey, descriptorOrInitializer);
         return undefined;
     }
 }
@@ -160,7 +160,7 @@ function getOrCreateEmptyPropertyStash (
 export function getOrCreatePropertyStash (
     target: Parameters<LegacyPropertyDecorator>[0],
     propertyKey: Parameters<LegacyPropertyDecorator>[1],
-    descriptorOrInitializer?: BabelPropertyDecoratorDescriptor | Initializer,
+    descriptorOrInitializer?: Parameters<LegacyPropertyDecorator>[2],
 ): PropertyStash {
     const classStash = getClassCache(target.constructor) as ClassStash;
     const ccclassProto = getSubDict(classStash, 'proto');

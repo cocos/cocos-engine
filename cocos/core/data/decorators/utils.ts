@@ -35,10 +35,11 @@ export type BabelPropertyDecoratorDescriptor = PropertyDescriptor & { initialize
 /**
  * @en
  * The signature compatible with both TypeScript legacy decorator and Babel legacy decorator.
- * The `descriptor` argument will only appear in Babel case.
+ * The third argument is `descriptor` in Babel case.
+ * For some engine internal optimized deocorators, the third argument is initializer.
  * @zh
  * 该签名同时兼容 TypeScript legacy 装饰器以及 Babel legacy 装饰器。
- * `descriptor` 参数只会在 Babel 情况下出现。
+ * 第三个参数在 Babel 情况下，会传入 descriptor。对于一些被优化的引擎内部装饰器，会传入 initializer。
  */
 export type LegacyPropertyDecorator = (target: Object, propertyKey: string | symbol, descriptorOrInitializer?: BabelPropertyDecoratorDescriptor | Initializer) => void;
 
