@@ -88,36 +88,6 @@ export class ReflectionProbeManager {
     }
 
     /**
-     * @en
-     * Render objects to the probe.
-     * @zh
-     * 渲染至probe的物体。
-     */
-    public addRenderObject (camera: Camera, obj: IRenderObject, bSkybox?: boolean) {
-        const probe = this.getProbeByCamera(camera);
-        if (!probe) return;
-        if ((obj.model.worldBounds && intersect.aabbWithAABB(obj.model.worldBounds, probe.boundingBox)) || bSkybox) {
-            probe.renderObjects.push(obj);
-        }
-    }
-
-    public clearRenderObject (camera: Camera) {
-        const probe = this.getProbeByCamera(camera);
-        if (probe) {
-            probe.renderObjects = [];
-        }
-    }
-
-    public getRenderObjects (camera: Camera): readonly IRenderObject[] {
-        const probe = this.getProbeByCamera(camera);
-        if (probe) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-            return probe.renderObjects;
-        }
-        return [];
-    }
-
-    /**
      * @en Update the cubemap captured by the reflection probe.
      * @zh 更新反射探针捕获的cubemap
      * @param probe update the texture for this probe
@@ -179,6 +149,7 @@ export class ReflectionProbeManager {
      * @param probe update the object for this probe
      */
     public updateModes (probe: ReflectionProbe) {
+        if (!probe.node || !probe.node.scene) return;
         const scene = probe.node.scene.renderScene;
         if (!scene) return;
         const models = scene.models;

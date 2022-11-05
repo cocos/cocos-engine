@@ -43,16 +43,16 @@ export enum ProbeType {
     CUBE= 0,
     PLANAR= 1,
 }
-// left right up down front back
+// right left up down front back
 const cameraDir: Vec3[] = [
-    new Vec3(0, 90, 0),
     new Vec3(0, -90, 0),
+    new Vec3(0, 90, 0),
 
-    new Vec3(90, 180, 0),
-    new Vec3(-90, 180, 0),
+    new Vec3(90, 0, 0),
+    new Vec3(-90, 0, 0),
 
-    new Vec3(0, 180, 0),
     new Vec3(0, 0, 0),
+    new Vec3(0, 180, 0),
 ];
 
 export class ReflectionProbe {
@@ -67,11 +67,6 @@ export class ReflectionProbe {
     protected _probeType = ProbeType.CUBE;
     protected _cubemap: TextureCube | null = null;
     protected _size = new Vec3(1, 1, 1);
-    /**
-     * @en Objects inside bouding box.
-     * @zh 包围盒范围内的物体
-     */
-    private _renderObjects: IRenderObject[] = [];
 
     /**
      * @en Render cubemap's camera
@@ -207,18 +202,6 @@ export class ReflectionProbe {
     }
 
     /**
-     * @en Object to be render by probe
-     * @zh probe需要渲染的物体。
-     */
-    set renderObjects (val) {
-        this._renderObjects = val;
-    }
-
-    get renderObjects () {
-        return this._renderObjects;
-    }
-
-    /**
      * @en The node of the probe.
      * @zh probe绑定的节点
      */
@@ -242,6 +225,9 @@ export class ReflectionProbe {
         return this._needRefresh;
     }
 
+    set needRender (value: boolean) {
+        this._needRender = value;
+    }
     get needRender () {
         return this._needRender;
     }
@@ -280,14 +266,8 @@ export class ReflectionProbe {
     }
 
     public captureCubemap () {
-        this._renderObjects = [];
         this._resetCameraParams();
-        this._attachCameraToScene();
         this._needRender = true;
-        legacyCC.director.once(legacyCC.Director.EVENT_END_FRAME, () => {
-            this._needRender = false;
-            this._detachCameraFromScene();
-        });
     }
 
     /**
@@ -303,14 +283,13 @@ export class ReflectionProbe {
         }
         this._syncCameraParams(sourceCamera);
         this._transformReflectionCamera(sourceCamera);
-        this._attachCameraToScene();
+        this.setTargetTexture();
         this._needRender = true;
     }
 
     public switchProbeType (type: number, sourceCamera?: Camera) {
         if (type === ProbeType.CUBE) {
             this._needRender = false;
-            this._detachCameraFromScene();
         } else if (sourceCamera !== undefined) {
             this.renderPlanarReflection(sourceCamera);
         }
@@ -401,7 +380,7 @@ export class ReflectionProbe {
                 window: EDITOR ? legacyCC.director.root && legacyCC.director.root.mainWindow
                     : legacyCC.director.root && legacyCC.director.root.tempWindow,
                 priority: 0,
-                cameraType: CameraType.REFLECTION_PROBE,
+                cameraType: CameraType.DEFAULT,
                 trackingType: TrackingType.NO_TRACKING,
             });
         }
@@ -443,20 +422,6 @@ export class ReflectionProbe {
         const rt = new RenderTexture();
         rt.reset({ width, height });
         return rt;
-    }
-
-    private _attachCameraToScene () {
-        if (!this.node.scene || !this.camera) {
-            return;
-        }
-        const rs = this.node.scene.renderScene;
-        rs!.addCamera(this.camera);
-    }
-
-    private _detachCameraFromScene () {
-        if (this.camera && this.camera.scene) {
-            this.camera.scene.removeCamera(this.camera);
-        }
     }
 
     private _transformReflectionCamera (sourceCamera: Camera) {
