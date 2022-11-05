@@ -285,11 +285,11 @@ void XRInterface::dispatchHandleEventInternal(const xr::XRControllerEvent &xrCon
                         jsPose->setProperty("quaternionY", se::Value(xrPose->qy));
                         jsPose->setProperty("quaternionZ", se::Value(xrPose->qz));
                         jsPose->setProperty("quaternionW", se::Value(xrPose->qw));
-                        if (!jsPoseEventArray) {
-                            jsPoseEventArray = se::Object::createArrayObject(0);
-                            jsPoseEventArray->root();
+                        if (!_jsPoseEventArray) {
+                            _jsPoseEventArray = se::Object::createArrayObject(0);
+                            _jsPoseEventArray->root();
                         }
-                        jsPoseEventArray->setArrayElement(poseIndex, se::Value(jsPose));
+                        _jsPoseEventArray->setArrayElement(poseIndex, se::Value(jsPose));
                         poseIndex++;
                     } break;
                     default:
@@ -302,9 +302,9 @@ void XRInterface::dispatchHandleEventInternal(const xr::XRControllerEvent &xrCon
     }
 
     if (poseIndex > 0) {
-        jsPoseEventArray->setProperty("length", se::Value(poseIndex));
+        _jsPoseEventArray->setProperty("length", se::Value(poseIndex));
         se::ValueArray args;
-        args.emplace_back(se::Value(jsPoseEventArray));
+        args.emplace_back(se::Value(_jsPoseEventArray));
         EventDispatcher::doDispatchJsEvent("onHandlePoseInput", args);
     }
 
@@ -359,11 +359,11 @@ void XRInterface::dispatchHMDEventInternal(const xr::XRControllerEvent &xrContro
                     jsPose->setProperty("quaternionY", se::Value(xrPose->qy));
                     jsPose->setProperty("quaternionZ", se::Value(xrPose->qz));
                     jsPose->setProperty("quaternionW", se::Value(xrPose->qw));
-                    if (!jsPoseEventArray) {
-                        jsPoseEventArray = se::Object::createArrayObject(0);
-                        jsPoseEventArray->root();
+                    if (!_jsPoseEventArray) {
+                        _jsPoseEventArray = se::Object::createArrayObject(0);
+                        _jsPoseEventArray->root();
                     }
-                    jsPoseEventArray->setArrayElement(poseIndex, se::Value(jsPose));
+                    _jsPoseEventArray->setArrayElement(poseIndex, se::Value(jsPose));
                     poseIndex++;
                 } break;
                 default:
@@ -373,9 +373,9 @@ void XRInterface::dispatchHMDEventInternal(const xr::XRControllerEvent &xrContro
     }
 
     if (poseIndex > 0) {
-        jsPoseEventArray->setProperty("length", se::Value(poseIndex));
+        _jsPoseEventArray->setProperty("length", se::Value(poseIndex));
         se::ValueArray args;
-        args.emplace_back(se::Value(jsPoseEventArray));
+        args.emplace_back(se::Value(_jsPoseEventArray));
         EventDispatcher::doDispatchJsEvent("onHMDPoseInput", args);
     }
 }
@@ -435,12 +435,12 @@ void XRInterface::initialize(void *javaVM, void *activity) {
                 this->endRenderEyeFrame(key == xr::XRConfigKey::RENDER_EYE_FRAME_LEFT ? 0 : 1);
             }
         } else if(key == xr::XRConfigKey::IMAGE_TRACKING_CANDIDATEIMAGE && value.isString()) {
-            if(!gThreadPool) {
-                gThreadPool = LegacyThreadPool::newSingleThreadPool();
+            if(!_gThreadPool) {
+                _gThreadPool = LegacyThreadPool::newSingleThreadPool();
             }
 
             std::string imageInfo = value.getString();
-            gThreadPool->pushTask([imageInfo, this](int /*tid*/) {
+            _gThreadPool->pushTask([imageInfo, this](int /*tid*/) {
                 this->loadAssetsImage(imageInfo);
             });
         }
@@ -500,10 +500,10 @@ void XRInterface::onRenderDestroy() {
     CC_LOG_INFO("[XR] onRenderDestroy");
     xr::XrEntry::getInstance()->destroyXrInstance();
     xr::XrEntry::destroyInstance();
-    if (jsPoseEventArray != nullptr) {
-        jsPoseEventArray->unroot();
-        jsPoseEventArray->decRef();
-        jsPoseEventArray = nullptr;
+    if (_jsPoseEventArray != nullptr) {
+        _jsPoseEventArray->unroot();
+        _jsPoseEventArray->decRef();
+        _jsPoseEventArray = nullptr;
     }
     #if CC_USE_XR_REMOTE_PREVIEW
     if (_xrRemotePreviewManager) {
@@ -943,9 +943,9 @@ void XRInterface::loadAssetsImage(const std::string &imageInfo) {
     ccstd::vector<ccstd::string> segments = StringUtil::split(imageInfo, "|");
     std::string imageName = segments.at(0);
     std::string imagePath = segments.at(1);
-    float physicalSizeX = atof(segments.at(2).c_str());
-    float physicalSizeY = atof(segments.at(3).c_str());
-    Image *spaceTownImage = new Image();
+    auto physicalSizeX = static_cast<float>(atof(segments.at(2).c_str()));
+    auto physicalSizeY = static_cast<float>(atof(segments.at(3).c_str()));
+    auto *spaceTownImage = new Image();
     spaceTownImage->addRef();
     bool res = spaceTownImage->initWithImageFile(imagePath);
     if (!res) {
@@ -956,13 +956,13 @@ void XRInterface::loadAssetsImage(const std::string &imageInfo) {
     uint32_t imageHeight = spaceTownImage->getHeight();
     const uint32_t bufferSize = imageWidth * imageHeight * 3;
     auto *buffer = new uint8_t[bufferSize];
-    for (int j = 0; j < imageHeight; ++j) {
-        for (int i = 0; i < imageWidth; ++i) {
-            const int pixel = i + j * imageWidth;
-            const int pixelFlip = i + (imageHeight - j - 1) * imageWidth;
+    for (unsigned int j = 0; j < imageHeight; ++j) {
+        for (unsigned int i = 0; i < imageWidth; ++i) {
+            const unsigned int pixel = i + j * imageWidth;
+            const unsigned int pixelFlip = i + (imageHeight - j - 1) * imageWidth;
 
-            const uint8_t *originalPixel = &spaceTownImage->getData()[pixel * 4];
-            uint8_t *convertedPixel = &buffer[pixelFlip * 3];
+            const uint8_t *originalPixel = &spaceTownImage->getData()[static_cast<size_t>(pixel * 4)];
+            uint8_t *convertedPixel = &buffer[static_cast<size_t>(pixelFlip * 3)];
             convertedPixel[0] = originalPixel[0];
             convertedPixel[1] = originalPixel[1];
             convertedPixel[2] = originalPixel[2];

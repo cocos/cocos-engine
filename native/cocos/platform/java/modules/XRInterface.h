@@ -106,7 +106,7 @@ private:
   void dispatchHandleEventInternal(const xr::XRControllerEvent &xrControllerEvent);
   void dispatchHMDEventInternal(const xr::XRControllerEvent &xrControllerEvent);
   ControllerEvent _controllerEvent;
-  se::Object *jsPoseEventArray{nullptr};
+  se::Object *_jsPoseEventArray{nullptr};
 
 #if CC_USE_VULKAN
     PFN_vkGetInstanceProcAddr _vkGetInstanceProcAddr{nullptr};
@@ -129,7 +129,7 @@ private:
 #if CC_USE_XR_REMOTE_PREVIEW
     cc::IntrusivePtr<XRRemotePreviewManager> _xrRemotePreviewManager{nullptr};
 #endif
-    LegacyThreadPool *gThreadPool{nullptr};
+    LegacyThreadPool *_gThreadPool{nullptr};
 };
 
 } // namespace cc
