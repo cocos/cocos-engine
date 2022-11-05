@@ -31,5 +31,11 @@ module.exports = {
         },
 
         missScriptTip: "脚本编译失败，请检查报错信息并进行修正，该组件将在修正后自动还原。",
+
+        lod: {
+            applyCameraSizeTip: '应用当前场景中此节点的屏幕比例于此 LOD 层级，如果当前屏占比小于下一层 LOD 比例，将应用为可以应用的最小值（下一层级比例），如果当前屏占比大于上一层 LOD 比例，将应用为可以应用的最大值（上一层级比例）',
+            applyCameraSizeLessThanMinimum: '当前屏占比小于目前层级能使用的最小值，无法设置，设置为目前层级能使用的最小值。请更新更低 LOD 层级的屏幕尺寸之后再次尝试。',
+            applyCameraSizeGreaterThanMaximum: '当前屏占比大于目前层级能使用的最大值，无法设置，设置为目前层级能使用的最大值。请更新更高 LOD 层级的屏幕尺寸之后再次尝试。',
+        },
     },
 };

@@ -39,31 +39,33 @@ enum class EventPhaseType {
     CAPTUREING_PHASE = 1,
     AT_TARGET = 2,
     BUBBLING_PHASE = 3,
+    UNKNOWN = 4,
 };
 
 struct TgtEventInfo {
-    EventPhaseType eventPhase;
+    EventPhaseType eventPhase{EventPhaseType::UNKNOWN};
     bool bubbles{true};
-    bool cancelable;
+    bool cancelable{true};
     void stopPropagation() {
         propagationStopped = true;
     }
-    void preventDefault();
+    void preventDefault() { /* TODO: */
+    }
     bool propagationStopped{false};
 };
 
 template <typename TgtEvent>
 struct Event : TgtEventInfo {
-    using emitter_type = typename TgtEvent::emitter_type;
-    using argument_tuple_types = typename TgtEvent::argument_tuple_types;
-    using argument_temp_types = typename TgtEvent::argument_temp_types;
-    emitter_type *target;
-    emitter_type *currentTarget;
-    argument_temp_types args;
+    using EmitterType = typename TgtEvent::_emitter_type;
+    using _argument_tuple_types = typename TgtEvent::_argument_tuple_types;
+    using _argument_local_types = typename TgtEvent::_argument_local_types;
+    EmitterType *target{nullptr};
+    EmitterType *currentTarget{nullptr};
+    _argument_local_types args;
 
     Event() = default;
 
-    explicit Event(const argument_tuple_types &argsIn) : args(argsIn) {
+    explicit Event(const _argument_local_types &argsIn) : args(argsIn) {
     }
 
     template <size_t N>
@@ -92,9 +94,9 @@ struct Event : TgtEventInfo {
 template <typename EmitterType, typename... ARGS>
 class TgtEventTrait : public TgtEventTraitClass {
 public:
-    using emitter_type = EmitterType;
-    using argument_tuple_types = std::tuple<ARGS...>;
-    using argument_temp_types = std::tuple<std::remove_reference_t<std::remove_cv_t<ARGS>>...>;
+    using _emitter_type = EmitterType;
+    using _argument_tuple_types = std::tuple<ARGS...>;
+    using _argument_local_types = std::tuple<std::remove_reference_t<std::remove_cv_t<ARGS>>...>;
     constexpr static int ARG_COUNT = sizeof...(ARGS);
 };
 
@@ -147,10 +149,10 @@ protected:
 template <typename TgtEvent>
 class TargetEventListener : public TargetEventListenerBase {
 public:
-    using emitter_type = typename TgtEvent::emitter_type;
-    using event_type = typename TgtEvent::event_type;
-    using persist_function_type = typename TgtEvent::persist_function_type;
-    explicit TargetEventListener(persist_function_type func) : _func(func) {
+    using _emitter_type = typename TgtEvent::_emitter_type;
+    using EventType = typename TgtEvent::EventType;
+    using _persist_function_type = typename TgtEvent::_persist_function_type;
+    explicit TargetEventListener(_persist_function_type func) : _func(func) {
         _eventTypeID = TgtEvent::TypeID();
     }
 
@@ -171,7 +173,7 @@ public:
         return nullptr;
     }
 
-    void apply(emitter_type *self, event_type *evobj) {
+    void apply(_emitter_type *self, EventType *evobj) {
         switch (_state) {
             case RunState::ONCE_DONE:
                 return;
@@ -185,19 +187,19 @@ public:
     }
 
 protected:
-    persist_function_type _func;
+    _persist_function_type _func;
     TgtMemberFnCmp *_fnCmptor{nullptr};
 };
 
-using target_event_id_type = int32_t;
+using TargetEventIdType = int32_t;
 
 template <typename TgtEvent>
 class TargetEventID final {
 public:
-    using handle_type = TgtEvent;
-    using id_type = target_event_id_type;
+    using HandleType = TgtEvent;
+    using IdType = TargetEventIdType;
     TargetEventID() = default;
-    TargetEventID(id_type eventId) : _eventId(eventId) {} // NOLINT
+    TargetEventID(IdType eventId) : _eventId(eventId) {} // NOLINT
 
     TargetEventID(const TargetEventID &) = default;
     TargetEventID(TargetEventID &&) noexcept = default;
@@ -205,10 +207,10 @@ public:
     TargetEventID &operator=(const TargetEventID &) = default;
     TargetEventID &operator=(TargetEventID &&) noexcept = default;
 
-    id_type value() { return _eventId; }
+    IdType value() { return _eventId; }
 
 private:
-    id_type _eventId{};
+    IdType _eventId{};
 };
 
 class EventTarget {
@@ -273,7 +275,7 @@ public:
 
     template <typename TgtEvent>
     bool off(TargetEventID<TgtEvent> eventId) {
-        CC_ASSERT(!_emittingEvent);
+        CC_ASSERT(!_emittingEvent[TgtEvent::TypeID()]);
 
         TargetEventListenerBase *&bubblingHandlers = _bubblingHandlersMap[TgtEvent::TypeID()];
 
@@ -298,7 +300,11 @@ public:
     }
 
     void offAll() {
-        CC_ASSERT(!_emittingEvent);
+#if CC_DEBUG
+        for (auto &itr : _emittingEvent) {
+            CC_ASSERT(!itr.second);
+        }
+#endif
         for (auto &itr : _bubblingHandlersMap) {
             TargetEventListenerBase *&handlers = itr.second;
             EVENT_LIST_LOOP_REV_BEGIN(handle, handlers)
@@ -320,7 +326,7 @@ public:
     template <typename TgtEvent>
     void off() {
         static_assert(std::is_base_of_v<TgtEventTraitClass, TgtEvent>, "incorrect template argument");
-        CC_ASSERT(!_emittingEvent);
+        CC_ASSERT(!_emittingEvent[TgtEvent::TypeID()]);
         TargetEventListenerBase *&bubblingHandlers = _bubblingHandlersMap[TgtEvent::TypeID()];
 
         EVENT_LIST_LOOP_REV_BEGIN(handle, bubblingHandlers)
@@ -342,11 +348,11 @@ public:
     template <typename TgtEvent, typename Self, typename... ARGS>
     void emit(ARGS &&...args) {
         // TODO(): statistics
-        using handler_type = event::TargetEventListener<TgtEvent>;
-        using event_type = typename TgtEvent::event_type;
+        using _handler_function_type = event::TargetEventListener<TgtEvent>;
+        using EventType = typename TgtEvent::EventType;
         static_assert(sizeof...(ARGS) == TgtEvent::ARG_COUNT, "Parameter count incorrect for function EventTarget::emit");
         event::intl::validateParameters<0, TgtEvent, ARGS...>(std::forward<ARGS>(args)...);
-        event_type eventObj(std::make_tuple<ARGS...>(std::forward<ARGS>(args)...));
+        EventType eventObj(std::make_tuple<ARGS...>(std::forward<ARGS>(args)...));
         eventObj.target = static_cast<Self *>(this);
         eventObj.currentTarget = static_cast<Self *>(this);
 
@@ -354,29 +360,29 @@ public:
     }
     template <bool useCapture, typename Self, typename TgtEvent, typename EvtObj>
     void emitEvtObj(EvtObj *eventObj) {
-        using event_type = typename TgtEvent::event_type;
-        using handler_type = event::TargetEventListener<TgtEvent>;
-        static_assert(std::is_same_v<event_type, EvtObj>, "Event type mismatch");
-        _emittingEvent++;
+        using EventType = typename TgtEvent::EventType;
+        using _handler_function_type = event::TargetEventListener<TgtEvent>;
+        static_assert(std::is_same_v<EventType, EvtObj>, "Event type mismatch");
+        _emittingEvent[TgtEvent::TypeID()]++;
         if constexpr (useCapture) {
             TargetEventListenerBase *&handlers = _capturingHandlersMap[TgtEvent::TypeID()];
             EVENT_LIST_LOOP_BEGIN(handle, handlers)
-            if (handle && handle->getEventTypeID() == TgtEvent::TypeID() && handle->isEnabled()) {
-                static_cast<handler_type *>(handle)->apply(static_cast<Self *>(this), eventObj);
+            if (handle && handle->isEnabled()) {
+                static_cast<_handler_function_type *>(handle)->apply(static_cast<Self *>(this), eventObj);
             }
             EVENT_LIST_LOOP_END(handle, handlers);
         } else {
             TargetEventListenerBase *&handlers = _bubblingHandlersMap[TgtEvent::TypeID()];
             EVENT_LIST_LOOP_BEGIN(handle, handlers)
-            if (handle && handle->getEventTypeID() == TgtEvent::TypeID() && handle->isEnabled()) {
-                static_cast<handler_type *>(handle)->apply(static_cast<Self *>(this), eventObj);
+            if (handle && handle->isEnabled()) {
+                static_cast<_handler_function_type *>(handle)->apply(static_cast<Self *>(this), eventObj);
             }
             EVENT_LIST_LOOP_END(handle, handlers);
         }
-        _emittingEvent--;
+        _emittingEvent[TgtEvent::TypeID()]--;
     }
     template <typename TgtEvent, typename Self, typename EvtType>
-    std::enable_if_t<std::is_same_v<typename TgtEvent::event_type, std::decay_t<EvtType>>, void>
+    std::enable_if_t<std::is_same_v<typename TgtEvent::EventType, std::decay_t<EvtType>>, void>
     dispatchEvent(EvtType &eventObj) {
         if constexpr (Self::HAS_PARENT) {
             std::vector<Self *> parents;
@@ -427,29 +433,29 @@ public:
     }
 
     template <typename TgtEvent, typename Self, typename... ARGS>
-    std::enable_if_t<sizeof...(ARGS) != 1 || (sizeof...(ARGS) == 1 && !std::is_same_v<typename TgtEvent::event_type, std::remove_pointer_t<typename intl::HeadType<ARGS...>::head>>), void>
+    std::enable_if_t<sizeof...(ARGS) != 1 || (sizeof...(ARGS) == 1 && !std::is_same_v<typename TgtEvent::EventType, std::remove_pointer_t<typename intl::HeadType<ARGS...>::head>>), void>
     dispatchEvent(ARGS &&...args) {
-        using handler_type = event::TargetEventListener<TgtEvent>;
-        using event_type = typename TgtEvent::event_type;
+        using _handler_function_type = event::TargetEventListener<TgtEvent>;
+        using EventType = typename TgtEvent::EventType;
         static_assert(sizeof...(ARGS) == TgtEvent::ARG_COUNT, "Parameter count incorrect for function EventTarget::emit");
         event::intl::validateParameters<0, TgtEvent, ARGS...>(std::forward<ARGS>(args)...);
-        event_type eventObj(std::make_tuple<ARGS...>(std::forward<ARGS>(args)...));
+        EventType eventObj(std::make_tuple<ARGS...>(std::forward<ARGS>(args)...));
         eventObj.target = static_cast<Self *>(this);
         eventObj.currentTarget = static_cast<Self *>(this);
         eventObj.eventPhase = EventPhaseType::CAPTUREING_PHASE;
-        dispatchEvent<TgtEvent, Self, event_type>(eventObj);
+        dispatchEvent<TgtEvent, Self, EventType>(eventObj);
     }
 
     template <typename TgtEvent, typename Self>
     void dispatchEvent() {
-        using handler_type = event::TargetEventListener<TgtEvent>;
-        using event_type = typename TgtEvent::event_type;
+        using _handler_function_type = event::TargetEventListener<TgtEvent>;
+        using EventType = typename TgtEvent::EventType;
         static_assert(0 == TgtEvent::ARG_COUNT, "Parameter count incorrect for function EventTarget::emit");
-        event_type eventObj;
+        EventType eventObj;
         eventObj.target = static_cast<Self *>(this);
         eventObj.currentTarget = static_cast<Self *>(this);
         eventObj.eventPhase = EventPhaseType::CAPTUREING_PHASE;
-        dispatchEvent<TgtEvent, Self, event_type>(eventObj);
+        dispatchEvent<TgtEvent, Self, EventType>(eventObj);
     }
 
     template <typename TgtEvent>
@@ -472,20 +478,20 @@ public:
     template <typename TgtEvent, typename Fn, typename C>
     bool hasEventHandler(Fn func, C *target) {
         using wrap_type = event::intl::TgtEvtFnTrait<Fn>;
-        using handler_type = event::TargetEventListener<TgtEvent>;
+        using _handler_function_type = event::TargetEventListener<TgtEvent>;
         static_assert(std::is_same<typename wrap_type::target_type, C>::value, "member function type mismatch");
 
         TargetEventListenerBase *&bubblingHandlers = _bubblingHandlersMap[TgtEvent::TypeID()];
         EVENT_LIST_LOOP_BEGIN(handle, bubblingHandlers)
         if (handle && handle->isEnabled() && handle->getContext() == target) {
-            auto *ptr = static_cast<handler_type *>(handle);
+            auto *ptr = static_cast<_handler_function_type *>(handle);
             return ptr->getMemberFuncAddr() == func;
         }
         EVENT_LIST_LOOP_END(handle, bubblingHandlers);
         TargetEventListenerBase *&capturingHandlers = _capturingHandlersMap[TgtEvent::TypeID()];
         EVENT_LIST_LOOP_BEGIN(handle, capturingHandlers)
         if (handle && handle->isEnabled() && handle->getContext() == target) {
-            auto *ptr = static_cast<handler_type *>(handle);
+            auto *ptr = static_cast<_handler_function_type *>(handle);
             return ptr->getMemberFuncAddr() == func;
         }
         EVENT_LIST_LOOP_END(handle, capturingHandlers);
@@ -498,46 +504,47 @@ protected:
     std::unordered_map<size_t, TargetEventListenerBase *> _bubblingHandlersMap;
     std::unordered_map<size_t, TargetEventListenerBase *> _capturingHandlersMap;
 
-    target_event_id_type _handlerId{1};
-    int _emittingEvent{0};
+    TargetEventIdType _handlerId{1};
+    std::unordered_map<size_t, int> _emittingEvent;
 };
 
 } // namespace event
 } // namespace cc
 
-#define TARGET_EVENT_ARG0(EventType)                                                    \
-    class EventType final : public cc::event::TgtEventTrait<EmitterType> {              \
-    public:                                                                             \
-        using base_type = cc::event::TgtEventTrait<EmitterType>;                        \
-        using event_type = cc::event::Event<EventType>;                                 \
-        using persist_function_type = std::function<void(EmitterType *, event_type *)>; \
-        using handler_type = std::function<void(event_type *)>;                         \
-        constexpr static const char *EVENT_NAME = #EventType;                           \
-        constexpr static size_t TypeID() {                                              \
-            return cc::event::intl::hash(#EventType);                                   \
-        }                                                                               \
+#define TARGET_EVENT_ARG0(EventTypeClass)                                                 \
+    class EventTypeClass final : public cc::event::TgtEventTrait<_emitter_type> {         \
+    public:                                                                               \
+        using BaseType = cc::event::TgtEventTrait<_emitter_type>;                         \
+        using EventType = cc::event::Event<EventTypeClass>;                               \
+        using EventID = cc::event::TargetEventID<EventTypeClass>;                         \
+        using _persist_function_type = std::function<void(_emitter_type *, EventType *)>; \
+        using _handler_function_type = std::function<void(EventType *)>;                  \
+        constexpr static const char *EVENT_NAME = #EventTypeClass;                        \
+        constexpr static size_t TypeID() {                                                \
+            return cc::event::intl::hash(#EventTypeClass);                                \
+        }                                                                                 \
     };
 
 // NOLINTNEXTLINE
-#define _DECLARE_TARGET_EVENT_INTER(EventType, ...)                                     \
-    class EventType final : public cc::event::TgtEventTrait<EmitterType, __VA_ARGS__> { \
-    public:                                                                             \
-        using base_type = cc::event::TgtEventTrait<EmitterType, __VA_ARGS__>;           \
-        using event_type = cc::event::Event<EventType>;                                 \
-        using EventID = cc::event::TargetEventID<EventType>;                            \
-        using persist_function_type = std::function<void(EmitterType *, event_type *)>; \
-        using handler_type = std::function<void(event_type *)>;                         \
-        constexpr static const char *EVENT_NAME = #EventType;                           \
-        constexpr static size_t TypeID() {                                              \
-            return cc::event::intl::hash(#EventType);                                   \
-        }                                                                               \
+#define _DECLARE_TARGET_EVENT_INTER(EventTypeClass, ...)                                       \
+    class EventTypeClass final : public cc::event::TgtEventTrait<_emitter_type, __VA_ARGS__> { \
+    public:                                                                                    \
+        using BaseType = cc::event::TgtEventTrait<_emitter_type, __VA_ARGS__>;                 \
+        using EventType = cc::event::Event<EventTypeClass>;                                    \
+        using EventID = cc::event::TargetEventID<EventTypeClass>;                              \
+        using _persist_function_type = std::function<void(_emitter_type *, EventType *)>;      \
+        using _handler_function_type = std::function<void(EventType *)>;                       \
+        constexpr static const char *EVENT_NAME = #EventTypeClass;                             \
+        constexpr static size_t TypeID() {                                                     \
+            return cc::event::intl::hash(#EventTypeClass);                                     \
+        }                                                                                      \
     };
 
 // NOLINTNEXTLINE
 #define _IMPL_EVENT_TARGET_(TargetClass)                                                                                \
     template <typename TgtEvent, typename Fn>                                                                           \
     cc::event::TargetEventID<TgtEvent> on(Fn &&func, bool useCapture = false) {                                         \
-        static_assert(std::is_base_of<typename TgtEvent::emitter_type, TargetClass>::value, "mismatch target type");    \
+        static_assert(std::is_base_of<typename TgtEvent::_emitter_type, TargetClass>::value, "mismatch target type");   \
         return EventTarget::template addEventListener<TgtEvent, Fn>(std::forward<Fn>(func), useCapture, false);         \
     }                                                                                                                   \
     template <typename TgtEvent, typename Fn, typename O>                                                               \
@@ -546,7 +553,7 @@ protected:
     }                                                                                                                   \
     template <typename TgtEvent, typename Fn>                                                                           \
     cc::event::TargetEventID<TgtEvent> once(Fn &&func, bool useCapture = false) {                                       \
-        static_assert(std::is_base_of<typename TgtEvent::emitter_type, TargetClass>::value, "mismatch target type");    \
+        static_assert(std::is_base_of<typename TgtEvent::_emitter_type, TargetClass>::value, "mismatch target type");   \
         return EventTarget::template addEventListener<TgtEvent, Fn>(std::forward<Fn>(func), useCapture, true);          \
     }                                                                                                                   \
     template <typename TgtEvent, typename Fn, typename O>                                                               \
@@ -555,7 +562,7 @@ protected:
     }                                                                                                                   \
     template <typename TgtEvent>                                                                                        \
     void off() {                                                                                                        \
-        static_assert(std::is_base_of<typename TgtEvent::emitter_type, TargetClass>::value, "mismatch target type");    \
+        static_assert(std::is_base_of<typename TgtEvent::_emitter_type, TargetClass>::value, "mismatch target type");   \
         EventTarget::template off<TgtEvent>();                                                                          \
     }                                                                                                                   \
                                                                                                                         \
@@ -566,7 +573,7 @@ protected:
                                                                                                                         \
     template <typename TgtEvent, typename... ARGS>                                                                      \
     void emit(ARGS &&...args) {                                                                                         \
-        static_assert(std::is_base_of<typename TgtEvent::emitter_type, TargetClass>::value, "mismatch target type");    \
+        static_assert(std::is_base_of<typename TgtEvent::_emitter_type, TargetClass>::value, "mismatch target type");   \
         EventTarget::template emit<TgtEvent, TargetClass, ARGS...>(std::forward<ARGS>(args)...);                        \
     }                                                                                                                   \
     template <typename TgtEvent, typename... ARGS>                                                                      \
@@ -592,7 +599,7 @@ public:                                                             \
     _IMPL_EVENT_TARGET_(TargetClass)
 
 #define DECLARE_TARGET_EVENT_BEGIN(TargetClass) \
-    using EmitterType = TargetClass;
+    using _emitter_type = TargetClass;
 
 #define DECLARE_TARGET_EVENT_END()
 

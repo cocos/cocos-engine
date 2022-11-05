@@ -646,6 +646,9 @@ using namespace cc;
 #define cc_scene_RenderScene_models_get(self_) self_->getModels()
   
 
+#define cc_scene_RenderScene_lodGroups_get(self_) self_->getLODGroups()
+  
+
 #define cc_scene_Skybox_model_get(self_) self_->getModel()
   
 
@@ -20322,6 +20325,25 @@ static bool js_cc_scene_RenderScene_models_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_scene_RenderScene_models_get) 
 
+static bool js_cc_scene_RenderScene_lodGroups_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::scene::RenderScene *arg1 = (cc::scene::RenderScene *) NULL ;
+    ccstd::vector< cc::IntrusivePtr< cc::scene::LODGroup > > *result = 0 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::RenderScene>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (ccstd::vector< cc::IntrusivePtr< cc::scene::LODGroup > > *) &cc_scene_RenderScene_lodGroups_get(arg1);
+    // %typemap(out) SWIGTYPE&
+    ok &= nativevalue_to_se(*result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "RenderScene_lodGroups_get, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(*result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_scene_RenderScene_lodGroups_get) 
+
 bool js_register_cc_scene_RenderScene(se::Object* obj) {
     auto* cls = se::Class::create("RenderScene", obj, nullptr, _SE(js_new_cc_scene_RenderScene)); 
     
@@ -20330,6 +20352,7 @@ bool js_register_cc_scene_RenderScene(se::Object* obj) {
     cls->defineProperty("sphereLights", _SE(js_cc_scene_RenderScene_sphereLights_get), nullptr); 
     cls->defineProperty("spotLights", _SE(js_cc_scene_RenderScene_spotLights_get), nullptr); 
     cls->defineProperty("models", _SE(js_cc_scene_RenderScene_models_get), nullptr); 
+    cls->defineProperty("lodGroups", _SE(js_cc_scene_RenderScene_lodGroups_get), nullptr); 
     
     cls->defineFunction("initialize", _SE(js_cc_scene_RenderScene_initialize)); 
     cls->defineFunction("update", _SE(js_cc_scene_RenderScene_update)); 

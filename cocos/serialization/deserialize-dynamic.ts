@@ -25,21 +25,13 @@
 */
 
 import { EDITOR, TEST, DEV, DEBUG, JSB, PREVIEW, SUPPORT_JIT } from 'internal:constants';
-import { legacyCC } from '../global-exports';
-import * as js from '../utils/js';
-import * as misc from '../utils/misc';
-import { CCClass, ENUM_TAG, BITMASK_TAG } from './class';
-import * as Attr from './utils/attribute';
-import { MissingScript } from '../../misc/missing-script';
+import { cclegacy, js, misc, CCClass, ENUM_TAG, BITMASK_TAG, sys, error, assertIsTrue, CustomSerializable, DeserializationContext, deserializeTag, SerializationInput } from '../core';
+import { MissingScript } from '../misc/missing-script';
 import { Details } from './deserialize';
-import { Platform } from '../../../pal/system-info/enum-type';
-import { sys } from '../platform/sys';
-import { error } from '../platform/debug';
-import { CustomSerializable, DeserializationContext, deserializeTag, SerializationInput } from './custom-serializable';
+import { Platform } from '../../pal/system-info/enum-type';
 import type { deserialize, CCClassConstructor } from './deserialize';
 import { CCON } from './ccon';
-import { assertIsTrue } from './utils/asserts';
-import { Asset } from '../../asset/assets';
+import { Asset } from '../asset/assets';
 
 function compileObjectTypeJit (
     sources: string[],
@@ -48,7 +40,7 @@ function compileObjectTypeJit (
     propNameLiteralToSet: string,
     assumeHavePropIfIsValue: boolean,
 ) {
-    if (defaultValue instanceof legacyCC.ValueType) {
+    if (defaultValue instanceof cclegacy.ValueType) {
         // fast case
         if (!assumeHavePropIfIsValue) {
             sources.push('if(prop){');
@@ -84,7 +76,7 @@ export type CompiledDeserializeFn = (
 
 const compileDeserialize = SUPPORT_JIT ? compileDeserializeJIT : compileDeserializeNative;
 
-const DELIMITER = Attr.DELIMETER;
+const DELIMITER = CCClass.Attr.DELIMETER;
 const POSTFIX_TYPE: `${typeof DELIMITER}type` = `${DELIMITER}type`;
 const POSTFIX_EDITOR_ONLY: `${typeof DELIMITER}editorOnly` = `${DELIMITER}editorOnly`;
 const POSTFIX_DEFAULT: `${typeof DELIMITER}default` = `${DELIMITER}default`;
@@ -102,7 +94,7 @@ type AttrResult = {
 };
 
 function compileDeserializeJIT (self: _Deserializer, klass: CCClassConstructor<unknown>): CompiledDeserializeFn {
-    const attrs: AttrResult = Attr.getClassAttrs(klass);
+    const attrs: AttrResult = CCClass.Attr.getClassAttrs(klass);
 
     const props = klass.__values__;
     // self, obj, serializedData, klass
@@ -148,7 +140,7 @@ function compileDeserializeJIT (self: _Deserializer, klass: CCClassConstructor<u
         if (fastMode && (defaultValue !== undefined || userType)) {
             let isPrimitiveType;
             if (defaultValue === undefined) {
-                isPrimitiveType = userType instanceof Attr.PrimitiveType || userType === ENUM_TAG || userType === BITMASK_TAG;
+                isPrimitiveType = userType instanceof CCClass.Attr.PrimitiveType || userType === ENUM_TAG || userType === BITMASK_TAG;
             } else {
                 const defaultType = typeof defaultValue;
                 isPrimitiveType = defaultType === 'string'
@@ -170,10 +162,10 @@ function compileDeserializeJIT (self: _Deserializer, klass: CCClassConstructor<u
         }
         sources.push('}');
     }
-    if (legacyCC.js.isChildClassOf(klass, legacyCC.Node) || legacyCC.js.isChildClassOf(klass, legacyCC.Component)) {
+    if (js.isChildClassOf(klass, cclegacy.Node) || js.isChildClassOf(klass, cclegacy.Component)) {
         // @ts-expect-error 2341
         if (PREVIEW || (EDITOR && self._ignoreEditorOnly)) {
-            const mayUsedInPersistRoot = js.isChildClassOf(klass, legacyCC.Node);
+            const mayUsedInPersistRoot = js.isChildClassOf(klass, cclegacy.Node);
             if (mayUsedInPersistRoot) {
                 sources.push('d._id&&(o._id=d._id);');
             }
@@ -193,7 +185,7 @@ function compileDeserializeJIT (self: _Deserializer, klass: CCClassConstructor<u
 
 function compileDeserializeNative (_self: _Deserializer, klass: CCClassConstructor<unknown>): CompiledDeserializeFn {
     const fastMode = misc.BUILTIN_CLASSID_RE.test(js.getClassId(klass));
-    const shouldCopyId = js.isChildClassOf(klass, legacyCC.Node) || js.isChildClassOf(klass, legacyCC.Component);
+    const shouldCopyId = js.isChildClassOf(klass, cclegacy.Node) || js.isChildClassOf(klass, cclegacy.Component);
     let shouldCopyRawData = false;
 
     const simpleProps: string[] = [];
@@ -206,7 +198,7 @@ function compileDeserializeNative (_self: _Deserializer, klass: CCClassConstruct
         const props: string[] = klass.__values__;
         shouldCopyRawData = props[props.length - 1] === '_$erialized';
 
-        const attrs = Attr.getClassAttrs(klass);
+        const attrs = CCClass.Attr.getClassAttrs(klass);
 
         for (let p = 0; p < props.length; p++) {
             const propName = props[p];
@@ -220,7 +212,7 @@ function compileDeserializeNative (_self: _Deserializer, klass: CCClassConstruct
             let isPrimitiveType = false;
             if (fastMode && (defaultValue !== undefined || userType)) {
                 if (defaultValue === undefined) {
-                    isPrimitiveType = userType instanceof Attr.PrimitiveType || userType === ENUM_TAG || userType === BITMASK_TAG;
+                    isPrimitiveType = userType instanceof CCClass.Attr.PrimitiveType || userType === ENUM_TAG || userType === BITMASK_TAG;
                 } else {
                     const defaultType = typeof defaultValue;
                     isPrimitiveType = defaultType === 'string'
@@ -244,7 +236,7 @@ function compileDeserializeNative (_self: _Deserializer, klass: CCClassConstruct
                 if (advancedPropsToRead !== advancedProps) {
                     advancedPropsToRead.push(propNameToRead);
                 }
-                advancedPropsValueType.push((defaultValue instanceof legacyCC.ValueType) && defaultValue.constructor);
+                advancedPropsValueType.push((defaultValue instanceof cclegacy.ValueType) && defaultValue.constructor);
             }
         }
     })();
@@ -560,7 +552,7 @@ class _Deserializer {
             return obj;
         };
 
-        if (!(EDITOR && legacyCC.js.isChildClassOf(klass, legacyCC.Component))) {
+        if (!(EDITOR && js.isChildClassOf(klass, cclegacy.Component))) {
             const obj = createObject(klass);
             this._deserializeInto(value, obj, klass);
             return obj;
@@ -604,7 +596,7 @@ class _Deserializer {
             return;
         }
 
-        if (legacyCC.Class._isCCClass(constructor)) {
+        if (cclegacy.Class._isCCClass(constructor)) {
             this._deserializeFireClass(object, value, constructor as CCClassConstructor<unknown>);
         } else {
             this._deserializeFastDefinedObject(object, value, constructor);
@@ -764,18 +756,18 @@ class _Deserializer {
         serialized: SerializedGeneralTypedObject,
         klass: SerializableClassConstructor,
     ) {
-        if (klass === legacyCC.Vec2) {
+        if (klass === cclegacy.Vec2) {
             type SerializedVec2 = { x?: number; y?: number; };
             instance.x = (serialized as SerializedVec2).x || 0;
             instance.y = (serialized as SerializedVec2).y || 0;
             return;
-        } else if (klass === legacyCC.Vec3) {
+        } else if (klass === cclegacy.Vec3) {
             type SerializedVec3 = { x?: number; y?: number; z?: number; };
             instance.x = (serialized as SerializedVec3).x || 0;
             instance.y = (serialized as SerializedVec3).y || 0;
             instance.z = (serialized as SerializedVec3).z || 0;
             return;
-        } else if (klass === legacyCC.Color) {
+        } else if (klass === cclegacy.Color) {
             type SerializedColor = { r?: number; g?: number; b?: number; a?: number; };
             instance.r = (serialized as SerializedColor).r || 0;
             instance.g = (serialized as SerializedColor).g || 0;
@@ -783,14 +775,14 @@ class _Deserializer {
             const a = (serialized as SerializedColor).a;
             instance.a = (a === undefined ? 255 : a);
             return;
-        } else if (klass === legacyCC.Size) {
+        } else if (klass === cclegacy.Size) {
             type SerializedSize = { width?: number; height?: number; };
             instance.width = (serialized as SerializedSize).width || 0;
             instance.height = (serialized as SerializedSize).height || 0;
             return;
         }
 
-        const attrs = Attr.getClassAttrs(klass);
+        const attrs = CCClass.Attr.getClassAttrs(klass);
         // @ts-expect-error 2339
         const props: string[] = klass.__values__;
         if (DEBUG && !props) {
@@ -833,7 +825,7 @@ export function deserializeDynamic (data: SerializedData | CCON, details: Detail
     const createAssetRefs = options.createAssetRefs || sys.platform === Platform.EDITOR_CORE;
     const customEnv = options.customEnv;
     const ignoreEditorOnly = options.ignoreEditorOnly;
-    const reportMissingClass = options.reportMissingClass ?? legacyCC.deserialize.reportMissingClass;
+    const reportMissingClass = options.reportMissingClass ?? cclegacy.deserialize.reportMissingClass;
 
     // var oldJson = JSON.stringify(data, null, 2);
 
@@ -841,9 +833,9 @@ export function deserializeDynamic (data: SerializedData | CCON, details: Detail
 
     const deserializer = _Deserializer.pool.get(details, classFinder, reportMissingClass, customEnv, ignoreEditorOnly);
 
-    legacyCC.game._isCloning = true;
+    cclegacy.game._isCloning = true;
     const res = deserializer.deserialize(data);
-    legacyCC.game._isCloning = false;
+    cclegacy.game._isCloning = false;
 
     _Deserializer.pool.put(deserializer);
     if (createAssetRefs) {

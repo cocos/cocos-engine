@@ -97,7 +97,7 @@ int CocosApplication::init() {
     IScreen *screen = _engine->getInterface<IScreen>();
     float pixelRatio = screen->getDevicePixelRatio();
     uint32_t windowId = _systemWindow->getWindowId();
-    events::Resize::broadcast(logicSize.x * pixelRatio, logicSize.y * pixelRatio, windowId);
+    events::Resize::broadcast(logicSize.width * pixelRatio, logicSize.height * pixelRatio, windowId);
 #endif
     return 0;
 }

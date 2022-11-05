@@ -95,7 +95,7 @@ exports.methods = {
  * @param assetList
  * @param metaList
  */
-exports.update = async function(assetList, metaList) {
+exports.update = async function (assetList, metaList) {
     const panel = this;
 
     panel.assetList = assetList;
@@ -120,7 +120,7 @@ exports.update = async function(assetList, metaList) {
 /**
  * Method of initializing the panel
  */
-exports.ready = async function() {
+exports.ready = async function () {
     const panel = this;
 
     callMaterialPreviewFunction('setLightEnable', true);
@@ -179,12 +179,11 @@ exports.ready = async function() {
     Editor.Message.addBroadcastListener('material-inspector:change-dump', this.updatePreviewDataDirtyBind);
 };
 
-exports.close = function() {
+exports.close = function () {
     const panel = this;
     callMaterialPreviewFunction('hide');
     panel.resizeObserver.unobserve(panel.$.container);
     Editor.Message.removeBroadcastListener('material-inspector:change-dump', this.updatePreviewDataDirtyBind);
     // clear the canvas on close hook
-    const context = panel.$.canvas.getContext('2d');
-    context.clearRect(0, 0, panel.$.canvas.width, panel.$.canvas.height);
+    panel.glPreview.destroyGL()
 };

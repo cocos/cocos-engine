@@ -5,12 +5,12 @@
 #include <common/common-define>
 #include <common/color/gamma>
 #include <legacy/shadow-map-base>
+#include <common/data/unpack>
 
 #if CC_USE_IBL
   #include <builtin/uniforms/cc-environment>
   #include <builtin/uniforms/cc-reflection-probe>
   #include <common/texture/texture-lod>
-  #include <common/data/unpack>
 
   #if CC_USE_DIFFUSEMAP
     #include <builtin/uniforms/cc-diffusemap>
