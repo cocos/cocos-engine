@@ -1,7 +1,5 @@
-const fieldDecorators = [
+export const fieldDecorators = [
     "property",
-    "displayOrder",
-    "tooltip",
     // serializable
     "serializable",
     "formerlySerializedAs",
@@ -41,5 +39,29 @@ const fieldDecorators = [
     "ccclass",
 ];
 
-export { fieldDecorators };
+export const editorDecorators = [
+    "executeInEditMode",
+    "menu",
+    "playOnFocus",
+    "inspector",
+    "icon",
+    "help",
+    "editable",
+    "visible",
+    "readOnly",
+    "displayName",
+    "tooltip",
+    "group",
+    "range",
+    "rangeMin",
+    "rangeMax",
+    "rangeStep",
+    "slide",
+    "displayOrder",
+    "unit",
+    "radian",
+    "multiline",
+    "disallowAnimation",
+];
+
 

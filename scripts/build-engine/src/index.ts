@@ -30,7 +30,7 @@ import { assetRef as rpAssetRef, pathToAssetRefURL } from './rollup-plugins/asse
 import { codeAsset } from './rollup-plugins/code-asset';
 import { ModeType, PlatformType } from './constant-manager';
 import { assetUrl } from './rollup-plugins/asset-url';
-import { fieldDecorators } from './field-decorators';
+import { fieldDecorators, editorDecorators } from './optimize-decorators';
 
 export { ModeType, PlatformType, FlagType, ConstantOptions, BuildTimeConstants, CCEnvConstants } from './constant-manager';
 export { StatsQuery };
@@ -398,6 +398,7 @@ async function doBuild ({
                 allowDeclareFields: true,
                 ccDecoratorHelpers: 'external',
                 fieldDecorators,
+                editorDecorators,
             } as babelPresetCC.Options],
         ],
     };
