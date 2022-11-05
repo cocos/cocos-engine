@@ -249,9 +249,6 @@ export class ReflectionProbe extends Component {
     }
 
     public start () {
-        if (EDITOR) {
-            this.probe.initBakedTextures();
-        }
         if (this._sourceCamera && this.probeType === ProbeType.PLANAR) {
             this.probe.renderPlanarReflection(this.sourceCamera.camera);
         }

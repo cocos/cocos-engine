@@ -28,7 +28,7 @@ import { Vec3 } from '../core';
 import intersect from '../core/geometry/intersect';
 import { Camera, Model } from '../render-scene/scene';
 import { ReflectionProbe } from '../render-scene/scene/reflection-probe';
-import { IRenderObject } from './define';
+import { CAMERA_DEFAULT_MASK } from './define';
 
 export class ReflectionProbeManager {
     public static probeManager: ReflectionProbeManager;
@@ -93,17 +93,13 @@ export class ReflectionProbeManager {
      * @param probe update the texture for this probe
      */
     public updateBakedCubemap (probe: ReflectionProbe) {
+        const models = this._getModelsByProbe(probe);
         if (!probe.cubemap) return;
-        const scene = probe.node.scene.renderScene;
-        if (!scene) return;
-        for (let i = 0; i < scene.models.length; i++) {
-            const model = scene.models[i];
-            if (model.node && model.worldBounds && intersect.aabbWithAABB(model.worldBounds, probe.boundingBox)) {
-                this._models.set(model, probe);
-                const meshRender = model.node.getComponent(MeshRenderer);
-                if (meshRender) {
-                    meshRender.updateProbeCubemap(probe.cubemap);
-                }
+        for (let i = 0; i < models.length; i++) {
+            const model = models[i];
+            const meshRender = model.node.getComponent(MeshRenderer);
+            if (meshRender) {
+                meshRender.updateProbeCubemap(probe.cubemap);
             }
         }
         probe.needRefresh = false;
@@ -155,10 +151,16 @@ export class ReflectionProbeManager {
         const models = scene.models;
         for (let i = 0; i < models.length; i++) {
             const model = models[i];
-            if (model.node && model.worldBounds) {
+            if (model.node && model.worldBounds && (model.node.layer & CAMERA_DEFAULT_MASK)) {
                 const nearest = this._getNearestProbe(model);
-                if (!nearest) continue;
-
+                if (!nearest) {
+                    const meshRender = model.node.getComponent(MeshRenderer);
+                    if (meshRender) {
+                        meshRender.updateProbeCubemap(null);
+                    }
+                    this._models.delete(model);
+                    continue;
+                }
                 if (this._models.has(model)) {
                     const old = this._models.get(model);
                     if (old === nearest) {
@@ -187,25 +189,24 @@ export class ReflectionProbeManager {
     private _getNearestProbe (model: Model): ReflectionProbe | null {
         if (this._probes.length === 0) return null;
         if (!model.node || !model.worldBounds) return null;
-
         let distance = 0;
-        let idx = 0;
-
+        let idx = -1;
+        let find = false;
         for (let i = 0; i < this._probes.length; i++) {
             if (!this._probes[i].validate() || !intersect.aabbWithAABB(model.worldBounds, this._probes[i].boundingBox)) {
                 continue;
-            }
-            if (i === 0) {
+            } else if (!find) {
+                find = true;
                 distance = Vec3.distance(model.node.position, this._probes[i].node.position);
-            } else {
-                const d = Vec3.distance(model.node.position, this._probes[i].node.position);
-                if (d < distance) {
-                    distance = d;
-                    idx = i;
-                }
+                idx = i;
+            }
+            const d = Vec3.distance(model.node.position, this._probes[i].node.position);
+            if (d < distance) {
+                distance = d;
+                idx = i;
             }
         }
-        return this._probes[idx];
+        return find ? this._probes[idx] : null;
     }
 
     private _getModelsByProbe (probe: ReflectionProbe) {

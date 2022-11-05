@@ -256,7 +256,6 @@ export class ReflectionProbe {
     }
 
     public initBakedTextures () {
-        //wait for scene data initialize, so create rendertexture in the start function
         if (this.bakedCubeTextures.length === 0) {
             for (let i = 0; i < 6; i++) {
                 const renderTexture = this._createTargetTexture(this._resolution, this._resolution);
@@ -266,6 +265,7 @@ export class ReflectionProbe {
     }
 
     public captureCubemap () {
+        this.initBakedTextures();
         this._resetCameraParams();
         this._needRender = true;
     }
