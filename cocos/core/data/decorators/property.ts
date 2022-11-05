@@ -66,7 +66,7 @@ export function property (type: PropertyType): LegacyPropertyDecorator;
 export function property (...args: Parameters<LegacyPropertyDecorator>): void;
 
 export function property (
-    target?: Parameters<LegacyPropertyDecorator>[0],
+    target?: Parameters<LegacyPropertyDecorator>[0] | PropertyType,
     propertyKey?: Parameters<LegacyPropertyDecorator>[1],
     descriptorOrInitializer?: Parameters<LegacyPropertyDecorator>[2],
 ) {
@@ -104,7 +104,7 @@ export function property (
         return normalized;
     } else {
         // @property
-        normalized(target, propertyKey, descriptorOrInitializer);
+        normalized(target as Parameters<LegacyPropertyDecorator>[0], propertyKey, descriptorOrInitializer);
         return undefined;
     }
 }
