@@ -216,7 +216,7 @@ void NativePipeline::updateRenderWindow(const ccstd::string &name, scene::Render
             desc.height = renderWindow->getSwapchain()->getHeight();
             sc.swapchain = renderWindow->getSwapchain();
         },
-        [](const auto&) {});
+        [](const auto& /*res*/) {});
 }
 
 void NativePipeline::beginFrame() {
