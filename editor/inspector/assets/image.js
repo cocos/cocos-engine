@@ -203,15 +203,13 @@ const Elements = {
                     meta.userData.flipGreenChannel = event.target.value;
                 });
                 panel.dispatch('change');
+                panel.dispatch('snapshot');
             });
         },
         update() {
             const panel = this;
 
             panel.$.flipGreenChannel.value = panel.meta.userData.flipGreenChannel;
-
-            panel.updateInvalid(panel.$.flipGreenChannel, 'flipGreenChannel');
-            panel.updateReadonly(panel.$.flipGreenChannel);
         },
     },
 };
