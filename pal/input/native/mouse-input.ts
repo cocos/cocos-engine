@@ -68,7 +68,7 @@ export class MouseInputSource {
                 break;
             }
 
-            const eventMouse = new EventMouse(eventType, false, this._preMousePos);
+            const eventMouse = new EventMouse(eventType, false, this._preMousePos, mouseEvent.windowId);
             eventMouse.setLocation(location.x, location.y);
             eventMouse.setButton(button);
             eventMouse.movementX = location.x - this._preMousePos.x;

@@ -147,13 +147,14 @@ export class EventMouse extends Event {
      * @param eventType - The type of the event
      * @param bubbles - Indicate whether the event bubbles up through the hierarchy or not.
      */
-    constructor (eventType: SystemEventTypeUnion, bubbles?: boolean, prevLoc?: Vec2) {
+    constructor (eventType: SystemEventTypeUnion, bubbles?: boolean, prevLoc?: Vec2, windowId?: number) {
         super(eventType, bubbles);
         this._eventType = eventType;
         if (prevLoc) {
             this._prevX = prevLoc.x;
             this._prevY = prevLoc.y;
         }
+        this.windowId = windowId ?? this.windowId;
     }
 
     /**
