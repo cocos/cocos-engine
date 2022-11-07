@@ -210,6 +210,9 @@ const Elements = {
             const panel = this;
 
             panel.$.flipGreenChannel.value = panel.meta.userData.flipGreenChannel;
+            updateElementInvalid.call(panel, panel.$.flipGreenChannel, 'flipGreenChannel');
+            updateElementReadonly.call(panel, panel.$.flipGreenChannel);
+
         },
     },
 };
