@@ -21,9 +21,7 @@
 #include "bindings/auto/jsb_assets_auto.h"
 #include "renderer/pipeline/GeometryRenderer.h"
 #include "renderer/pipeline/GlobalDescriptorSetManager.h"
-#include "renderer/pipeline/custom/LayoutGraphJsb.h"
 #include "renderer/pipeline/custom/RenderCommonJsb.h"
-#include "renderer/pipeline/custom/RenderGraphJsb.h"
 
 using namespace cc;
 using namespace cc::render;
@@ -99,6 +97,7 @@ using namespace cc::render;
 %attribute(cc::render::PipelineRuntime, cc::scene::Model*, profiler, getProfiler, setProfiler);
 %attribute(cc::render::PipelineRuntime, cc::pipeline::GeometryRenderer*, geometryRenderer, getGeometryRenderer);
 %attribute(cc::render::PipelineRuntime, float, shadingScale, getShadingScale, setShadingScale);
+%attribute(cc::render::RenderNode, ccstd::string, name, getName, setName);
 %attribute(cc::render::SceneVisitor, cc::pipeline::PipelineSceneData*, pipelineSceneData, getPipelineSceneData);
 %attribute(cc::render::SceneTask, cc::render::TaskType, taskType, getTaskType);
 %attribute(cc::render::Pipeline, cc::render::LayoutGraphBuilder*, layoutGraphBuilder, getLayoutGraphBuilder);

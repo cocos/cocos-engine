@@ -14,6 +14,9 @@
 
 // Insert code at the beginning of generated source file (.cpp)
 %{
+#include "bindings/auto/jsb_2d_auto.h"
+#include "bindings/auto/jsb_assets_auto.h"
+#include "bindings/auto/jsb_cocos_auto.h"
 #include "bindings/auto/jsb_spine_auto.h"
 using namespace spine;
 %}
@@ -98,7 +101,8 @@ using namespace spine;
 %ignore spine::SkeletonRenderer::initWithData;
 %ignore spine::SkeletonRenderer::createWithSkeleton;
 %ignore spine::SkeletonRenderer::createWithFile;
-%ignore spine::SkeletonRenderer::getRenderOrder;
+%ignore spine::SkeletonRenderer::requestDrawInfo;
+%ignore spine::SkeletonRenderer::requestMaterial;
 %ignore spine::SkeletonAnimation::createWithData;
 %ignore spine::SkeletonAnimation::onTrackEntryEvent;
 %ignore spine::SkeletonAnimation::onAnimationStateEvent;
@@ -187,7 +191,8 @@ using namespace spine;
 %ignore spine::SkeletonDataMgr::retainByUUID;
 %ignore spine::SkeletonDataMgr::releaseByUUID;
 %ignore spine::SkeletonCacheAnimation::render;
-%ignore spine::SkeletonCacheAnimation::getRenderOrder;
+%ignore spine::SkeletonCacheAnimation::requestDrawInfo;
+%ignore spine::SkeletonCacheAnimation::requestMaterial;
 
 // ----- Rename Section ------
 // Brief: Classes, methods or attributes needs to be renamed

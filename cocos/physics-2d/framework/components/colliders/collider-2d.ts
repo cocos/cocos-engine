@@ -1,18 +1,17 @@
-
-
 import { EDITOR } from 'internal:constants';
 
 import { editable } from 'cc.decorator';
 import { ccclass, property, type } from '../../../../core/data/class-decorator';
-import { Component, Vec2, Rect } from '../../../../core';
+import { Vec2, Rect } from '../../../../core';
 import { PhysicsGroup } from '../../../../physics/framework/physics-enum';
 import { Eventify } from '../../../../core/event';
 
 import { RigidBody2D } from '../rigid-body-2d';
-import { createShape } from '../../instance';
+import { createShape } from '../../physics-selector';
 import { ECollider2DType } from '../../physics-types';
 import { IBaseShape } from '../../../spec/i-physics-shape';
 import { legacyCC } from '../../../../core/global-exports';
+import { Component } from '../../../../scene-graph';
 
 @ccclass('cc.Collider2D')
 export class Collider2D extends Eventify(Component) {

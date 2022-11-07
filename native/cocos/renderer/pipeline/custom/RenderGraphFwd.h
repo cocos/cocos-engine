@@ -32,7 +32,6 @@
 #pragma once
 #include "cocos/base/std/hash/hash.h"
 #include "cocos/base/std/variant.h"
-#include "cocos/renderer/pipeline/PipelineSceneData.h"
 #include "cocos/renderer/pipeline/custom/RenderCommonFwd.h"
 #include "cocos/scene/Camera.h"
 
@@ -54,14 +53,13 @@ struct PersistentBufferTag;
 struct PersistentTextureTag;
 struct FramebufferTag;
 struct SwapchainTag;
+struct SamplerTag;
 struct ResourceGraph;
 struct RasterSubpass;
 struct SubpassGraph;
 struct RasterPass;
 struct ComputePass;
-struct CopyPair;
 struct CopyPass;
-struct MovePair;
 struct MovePass;
 struct RaytracePass;
 struct QueueTag;

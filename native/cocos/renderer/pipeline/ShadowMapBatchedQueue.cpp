@@ -34,7 +34,6 @@
 #include "SceneCulling.h"
 #include "forward/ForwardPipeline.h"
 #include "gfx-base/GFXCommandBuffer.h"
-#include "gfx-base/GFXDescriptorSet.h"
 #include "gfx-base/GFXDevice.h"
 #include "scene/Camera.h"
 #include "scene/DirectionalLight.h"
@@ -84,10 +83,12 @@ void ShadowMapBatchedQueue::gatherLightPasses(const scene::Camera *camera, const
                 const auto *spotLight = static_cast<const scene::SpotLight *>(light);
                 const RenderObjectList &castShadowObjects = csmLayers->getCastShadowObjects();
                 if (spotLight->isShadowEnabled()) {
+                    const auto visibility = spotLight->getVisibility();
                     geometry::AABB ab;
                     for (const auto &ro : castShadowObjects) {
                         const auto *model = ro.model;
-                        if (!model->isEnabled() || !model->isCastShadow() || !model->getNode()) {
+                        if ((visibility & model->getNode()->getLayer()) != model->getNode()->getLayer()
+                            || !model->isEnabled() || !model->isCastShadow() || !model->getNode()) {
                             continue;
                         }
                         if (model->getWorldBounds()) {
@@ -98,15 +99,8 @@ void ShadowMapBatchedQueue::gatherLightPasses(const scene::Camera *camera, const
                     }
                 }
             } break;
-
-            case scene::LightType::SPHERE: {
-            } break;
-
-            case scene::LightType::UNKNOWN: {
-            } break;
-
-            default: {
-            } break;
+            default:
+                break;
         }
 
         _instancedQueue->uploadBuffers(cmdBuffer);
@@ -134,7 +128,7 @@ void ShadowMapBatchedQueue::add(const scene::Model *model) {
 
         if (batchingScheme == scene::BatchingSchemes::INSTANCING) {
             auto *instancedBuffer = subModel->getPass(shadowPassIdx)->getInstancedBuffer();
-            instancedBuffer->merge(model, subModel, shadowPassIdx);
+            instancedBuffer->merge(subModel, shadowPassIdx);
             _instancedQueue->add(instancedBuffer);
         } else if (batchingScheme == scene::BatchingSchemes::VB_MERGING) {
             auto *batchedBuffer = subModel->getPass(shadowPassIdx)->getBatchedBuffer();

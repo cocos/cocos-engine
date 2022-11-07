@@ -30,7 +30,7 @@
  */
 // clang-format off
 #pragma once
-#include <boost/utility/string_view.hpp>
+#include <string_view>
 #include <tuple>
 #include "cocos/renderer/pipeline/custom/GraphImpl.h"
 #include "cocos/renderer/pipeline/custom/GslUtils.h"
@@ -283,6 +283,7 @@ inline void remove_vertex(ResourceGraph::vertex_descriptor u, ResourceGraph& g) 
     g.descs.erase(g.descs.begin() + std::ptrdiff_t(u));
     g.traits.erase(g.traits.begin() + std::ptrdiff_t(u));
     g.states.erase(g.states.begin() + std::ptrdiff_t(u));
+    g.samplerInfo.erase(g.samplerInfo.begin() + std::ptrdiff_t(u));
 }
 
 // MutablePropertyGraph(Vertex)
@@ -349,9 +350,9 @@ void addVertexImpl( // NOLINT
     g.swapchains.emplace_back(std::forward<ValueT>(val));
 }
 
-template <class Component0, class Component1, class Component2, class Component3, class ValueT>
+template <class Component0, class Component1, class Component2, class Component3, class Component4, class ValueT>
 inline ResourceGraph::vertex_descriptor
-addVertex(Component0&& c0, Component1&& c1, Component2&& c2, Component3&& c3, ValueT&& val, ResourceGraph& g) {
+addVertex(Component0&& c0, Component1&& c1, Component2&& c2, Component3&& c3, Component4&& c4, ValueT&& val, ResourceGraph& g) {
     auto v = gsl::narrow_cast<ResourceGraph::vertex_descriptor>(g._vertices.size());
 
     g._vertices.emplace_back();
@@ -366,6 +367,7 @@ addVertex(Component0&& c0, Component1&& c1, Component2&& c2, Component3&& c3, Va
     g.descs.emplace_back(std::forward<Component1>(c1));
     g.traits.emplace_back(std::forward<Component2>(c2));
     g.states.emplace_back(std::forward<Component3>(c3));
+    g.samplerInfo.emplace_back(std::forward<Component4>(c4));
 
     // PolymorphicGraph
     // if no matching overloaded function is found, Type is not supported by PolymorphicGraph
@@ -451,9 +453,9 @@ void addVertexImpl(SwapchainTag /*tag*/, Tuple &&val, ResourceGraph &g, Resource
         std::forward<Tuple>(val));
 }
 
-template <class Component0, class Component1, class Component2, class Component3, class Tag, class ValueT>
+template <class Component0, class Component1, class Component2, class Component3, class Component4, class Tag, class ValueT>
 inline ResourceGraph::vertex_descriptor
-addVertex(Tag tag, Component0&& c0, Component1&& c1, Component2&& c2, Component3&& c3, ValueT&& val, ResourceGraph& g) {
+addVertex(Tag tag, Component0&& c0, Component1&& c1, Component2&& c2, Component3&& c3, Component4&& c4, ValueT&& val, ResourceGraph& g) {
     auto v = gsl::narrow_cast<ResourceGraph::vertex_descriptor>(g._vertices.size());
 
     g._vertices.emplace_back();
@@ -491,6 +493,12 @@ addVertex(Tag tag, Component0&& c0, Component1&& c1, Component2&& c2, Component3
             g.states.emplace_back(std::forward<decltype(args)>(args)...);
         },
         std::forward<Component3>(c3));
+
+    std::apply(
+        [&](auto&&... args) {
+            g.samplerInfo.emplace_back(std::forward<decltype(args)>(args)...);
+        },
+        std::forward<Component4>(c4));
 
     // PolymorphicGraph
     // if no matching overloaded function is found, Type is not supported by PolymorphicGraph
@@ -940,13 +948,13 @@ struct property_map<cc::render::ResourceGraph, cc::render::ResourceGraph::NameTa
         read_write_property_map_tag,
         const cc::render::ResourceGraph,
         const ccstd::pmr::vector<ccstd::pmr::string>,
-        boost::string_view,
+        std::string_view,
         const ccstd::pmr::string&>;
     using type = cc::render::impl::VectorVertexComponentPropertyMap<
         read_write_property_map_tag,
         cc::render::ResourceGraph,
         ccstd::pmr::vector<ccstd::pmr::string>,
-        boost::string_view,
+        std::string_view,
         ccstd::pmr::string&>;
 };
 
@@ -957,13 +965,13 @@ struct property_map<cc::render::ResourceGraph, vertex_name_t> {
         read_write_property_map_tag,
         const cc::render::ResourceGraph,
         const ccstd::pmr::vector<ccstd::pmr::string>,
-        boost::string_view,
+        std::string_view,
         const ccstd::pmr::string&>;
     using type = cc::render::impl::VectorVertexComponentPropertyMap<
         read_write_property_map_tag,
         cc::render::ResourceGraph,
         ccstd::pmr::vector<ccstd::pmr::string>,
-        boost::string_view,
+        std::string_view,
         ccstd::pmr::string&>;
 };
 
@@ -1075,6 +1083,23 @@ struct property_map<cc::render::ResourceGraph, T cc::render::ResourceStates::*> 
         T cc::render::ResourceStates::*>;
 };
 
+// Vertex Component
+template <>
+struct property_map<cc::render::ResourceGraph, cc::render::ResourceGraph::SamplerTag> {
+    using const_type = cc::render::impl::VectorVertexComponentPropertyMap<
+        lvalue_property_map_tag,
+        const cc::render::ResourceGraph,
+        const ccstd::pmr::vector<cc::gfx::SamplerInfo>,
+        cc::gfx::SamplerInfo,
+        const cc::gfx::SamplerInfo&>;
+    using type = cc::render::impl::VectorVertexComponentPropertyMap<
+        lvalue_property_map_tag,
+        cc::render::ResourceGraph,
+        ccstd::pmr::vector<cc::gfx::SamplerInfo>,
+        cc::gfx::SamplerInfo,
+        cc::gfx::SamplerInfo&>;
+};
+
 // Vertex Index
 template <>
 struct property_map<cc::render::SubpassGraph, vertex_index_t> {
@@ -1089,13 +1114,13 @@ struct property_map<cc::render::SubpassGraph, cc::render::SubpassGraph::NameTag>
         read_write_property_map_tag,
         const cc::render::SubpassGraph,
         const ccstd::pmr::vector<ccstd::pmr::string>,
-        boost::string_view,
+        std::string_view,
         const ccstd::pmr::string&>;
     using type = cc::render::impl::VectorVertexComponentPropertyMap<
         read_write_property_map_tag,
         cc::render::SubpassGraph,
         ccstd::pmr::vector<ccstd::pmr::string>,
-        boost::string_view,
+        std::string_view,
         ccstd::pmr::string&>;
 };
 
@@ -1106,13 +1131,13 @@ struct property_map<cc::render::SubpassGraph, vertex_name_t> {
         read_write_property_map_tag,
         const cc::render::SubpassGraph,
         const ccstd::pmr::vector<ccstd::pmr::string>,
-        boost::string_view,
+        std::string_view,
         const ccstd::pmr::string&>;
     using type = cc::render::impl::VectorVertexComponentPropertyMap<
         read_write_property_map_tag,
         cc::render::SubpassGraph,
         ccstd::pmr::vector<ccstd::pmr::string>,
-        boost::string_view,
+        std::string_view,
         ccstd::pmr::string&>;
 };
 
@@ -1166,13 +1191,13 @@ struct property_map<cc::render::RenderGraph, cc::render::RenderGraph::NameTag> {
         read_write_property_map_tag,
         const cc::render::RenderGraph,
         const ccstd::pmr::vector<ccstd::pmr::string>,
-        boost::string_view,
+        std::string_view,
         const ccstd::pmr::string&>;
     using type = cc::render::impl::VectorVertexComponentPropertyMap<
         read_write_property_map_tag,
         cc::render::RenderGraph,
         ccstd::pmr::vector<ccstd::pmr::string>,
-        boost::string_view,
+        std::string_view,
         ccstd::pmr::string&>;
 };
 
@@ -1183,13 +1208,13 @@ struct property_map<cc::render::RenderGraph, vertex_name_t> {
         read_write_property_map_tag,
         const cc::render::RenderGraph,
         const ccstd::pmr::vector<ccstd::pmr::string>,
-        boost::string_view,
+        std::string_view,
         const ccstd::pmr::string&>;
     using type = cc::render::impl::VectorVertexComponentPropertyMap<
         read_write_property_map_tag,
         cc::render::RenderGraph,
         ccstd::pmr::vector<ccstd::pmr::string>,
-        boost::string_view,
+        std::string_view,
         ccstd::pmr::string&>;
 };
 
@@ -1200,13 +1225,13 @@ struct property_map<cc::render::RenderGraph, cc::render::RenderGraph::LayoutTag>
         read_write_property_map_tag,
         const cc::render::RenderGraph,
         const ccstd::pmr::vector<ccstd::pmr::string>,
-        boost::string_view,
+        std::string_view,
         const ccstd::pmr::string&>;
     using type = cc::render::impl::VectorVertexComponentPropertyMap<
         read_write_property_map_tag,
         cc::render::RenderGraph,
         ccstd::pmr::vector<ccstd::pmr::string>,
-        boost::string_view,
+        std::string_view,
         ccstd::pmr::string&>;
 };
 
@@ -1372,6 +1397,17 @@ template <class T>
 inline typename boost::property_map<ResourceGraph, T ResourceStates::*>::type
 get(T ResourceStates::*memberPointer, ResourceGraph& g) noexcept {
     return {g.states, memberPointer};
+}
+
+// Vertex Component
+inline typename boost::property_map<ResourceGraph, ResourceGraph::SamplerTag>::const_type
+get(ResourceGraph::SamplerTag /*tag*/, const ResourceGraph& g) noexcept {
+    return {g.samplerInfo};
+}
+
+inline typename boost::property_map<ResourceGraph, ResourceGraph::SamplerTag>::type
+get(ResourceGraph::SamplerTag /*tag*/, ResourceGraph& g) noexcept {
+    return {g.samplerInfo};
 }
 
 // PolymorphicGraph
@@ -2177,6 +2213,7 @@ add_vertex(ResourceGraph& g, Tag t, ccstd::pmr::string&& name) { // NOLINT
         std::forward_as_tuple(),                // descs
         std::forward_as_tuple(),                // traits
         std::forward_as_tuple(),                // states
+        std::forward_as_tuple(),                // samplerInfo
         std::forward_as_tuple(),                // PolymorphicType
         g);
 }
@@ -2190,6 +2227,7 @@ add_vertex(ResourceGraph& g, Tag t, const char* name) { // NOLINT
         std::forward_as_tuple(),     // descs
         std::forward_as_tuple(),     // traits
         std::forward_as_tuple(),     // states
+        std::forward_as_tuple(),     // samplerInfo
         std::forward_as_tuple(),     // PolymorphicType
         g);
 }

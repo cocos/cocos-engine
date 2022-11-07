@@ -29,8 +29,8 @@ import * as easing from './algorithm/easing';
 import * as geometry from './geometry';
 import * as math from './math';
 import * as memop from './memop';
-import './splash-screen';
 import './deprecated';
+import './deprecated-3.7.0';
 
 legacyCC.math = math;
 legacyCC.geometry = geometry;
@@ -45,15 +45,13 @@ export * from './utils';
 export * from './data';
 export * from './event';
 export * from './platform';
-export * from './game';
-export { Root } from './root';
 export * from './scheduler';
-export * from './director';
 export * from './algorithm/murmurhash2_gc';
-export * from './scene-graph';
-export * from './components';
+export * from './algorithm/binary-search';
 export * from './curves';
 export * from './settings';
+export * from './system';
+export { legacyCC as cclegacy } from './global-exports';
 
 export * from './curves/bezier';
 export { easing };

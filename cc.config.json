@@ -133,8 +133,8 @@
         "video": {
             "modules": ["video"]
         },
-        "xr": {
-            "modules": ["xr"]
+        "light-probe": { 
+            "modules": [ "light-probe" ] 
         },
         "terrain": {
             "modules": ["terrain"],
@@ -167,6 +167,13 @@
             "intrinsicFlags": {
                 "MARIONETTE": true
             }
+        },
+        "xr": {
+            "modules": ["xr"]
+        },
+        "ar": {
+            "modules": ["ar"],
+            "dependentModules": ["xr"]
         },
         "custom-pipeline": {
             "modules": ["custom-pipeline"]
@@ -216,11 +223,11 @@
                 "cocos/spine/index.ts": "cocos/spine/index.jsb.ts",
                 "cocos/dragon-bones/index.ts": "cocos/dragon-bones/index.jsb.ts",
                 "cocos/physics/physx/instantiate.ts": "cocos/physics/physx/instantiate.jsb.ts",
-                "cocos/core/scene-graph/node.ts": "cocos/core/scene-graph/node.jsb.ts",
-                "cocos/core/scene-graph/scene.ts": "cocos/core/scene-graph/scene.jsb.ts",
-                "cocos/core/scene-graph/scene-globals.ts": "cocos/core/scene-graph/scene-globals.jsb.ts",
-                "cocos/core/scene-graph/index.ts": "cocos/core/scene-graph/index.jsb.ts",
-                "cocos/core/root.ts": "cocos/core/root.jsb.ts",
+                "cocos/scene-graph/node.ts": "cocos/scene-graph/node.jsb.ts",
+                "cocos/scene-graph/scene.ts": "cocos/scene-graph/scene.jsb.ts",
+                "cocos/scene-graph/scene-globals.ts": "cocos/scene-graph/scene-globals.jsb.ts",
+                "cocos/scene-graph/index.ts": "cocos/scene-graph/index.jsb.ts",
+                "cocos/root.ts": "cocos/root.jsb.ts",
                 "cocos/asset/asset-manager/builtin-res-mgr.ts": "cocos/asset/asset-manager/builtin-res-mgr.jsb.ts",
                 "cocos/asset/assets/index.ts": "cocos/asset/assets/index.jsb.ts",
                 "cocos/asset/assets/asset.ts": "cocos/asset/assets/asset.jsb.ts",
@@ -241,7 +248,16 @@
                 "cocos/3d/models/morph-model.ts": "cocos/3d/models/morph-model.jsb.ts",
                 "cocos/3d/models/skinning-model.ts": "cocos/3d/models/skinning-model.jsb.ts",
                 "cocos/3d/models/baked-skinning-model.ts": "cocos/3d/models/baked-skinning-model.jsb.ts",
-                "cocos/3d/misc/create-mesh.ts": "cocos/3d/misc/create-mesh.jsb.ts"
+                "cocos/3d/misc/create-mesh.ts": "cocos/3d/misc/create-mesh.jsb.ts",
+                "cocos/gi/light-probe/light-probe.ts": "cocos/gi/light-probe/light-probe.jsb.ts",
+                "cocos/gi/light-probe/delaunay.ts": "cocos/gi/light-probe/delaunay.jsb.ts"
+            }
+        },
+        {
+            "test": "context.buildTimeConstants && context.buildTimeConstants.WEBGPU",
+            "isVirtualModule": false,
+            "overrides": {
+                "cocos/gfx/index.ts": "cocos/gfx/index.ems.ts"
             }
         },
         {
@@ -507,6 +523,12 @@
             "type": "number",
             "value": 0,
             "internal": false
+        },
+        "WEBGPU": {
+            "comment": "Running with webgpu rendering backend.",
+            "type": "boolean",
+            "value": false,
+            "internal": true
         }
     }
 }

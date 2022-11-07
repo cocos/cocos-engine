@@ -32,6 +32,7 @@ import { PipelineSceneData } from '../pipeline-scene-data';
 import { SceneTask, SceneTransversal, SceneVisitor } from './pipeline';
 import { TaskType } from './types';
 import { PipelineUBO } from '../pipeline-ubo';
+import { LODModelsCachedUtils } from '../lod-models-utils';
 
 export class RenderObject implements IRenderObject {
     public model: Model;
@@ -50,9 +51,8 @@ export class RenderInfo implements IRenderPass {
     public passIdx = -1;
 }
 
-export class WebSceneTask extends SceneTask {
+export class WebSceneTask implements SceneTask {
     constructor (scneData: PipelineSceneData, ubo: PipelineUBO, camera: Camera | null, visitor: SceneVisitor) {
-        super();
         if (camera) {
             this._scene = camera.scene!;
             this._camera = camera;
@@ -110,11 +110,19 @@ export class WebSceneTask extends SceneTask {
         const models = scene!.models;
         const visibility = camera.visibility;
 
+        if (scene) {
+            LODModelsCachedUtils.updateCachedLODModels(scene, camera);
+        }
+
         for (let i = 0; i < models.length; i++) {
             const model = models[i];
 
             // filter model by view visibility
             if (model.enabled) {
+                if (LODModelsCachedUtils.isLODModelCulled(model)) {
+                    continue;
+                }
+
                 if (model.castShadow) {
                     castShadowObjects.push(this._getRenderObject(model, camera));
                     csmLayerObjects.push(this._getRenderObject(model, camera));
@@ -131,6 +139,7 @@ export class WebSceneTask extends SceneTask {
                 }
             }
         }
+        LODModelsCachedUtils.clearCachedLODModels();
     }
 
     public start (): void {
@@ -157,7 +166,7 @@ export class WebSceneTask extends SceneTask {
     protected _ubo: PipelineUBO;
 }
 
-export class WebSceneTransversal extends SceneTransversal {
+export class WebSceneTransversal implements SceneTransversal {
     public preRenderPass (visitor: SceneVisitor): SceneTask {
         return new WebSceneTask(this._sceneData, this._ubo, this._camera, visitor);
     }
@@ -165,7 +174,6 @@ export class WebSceneTransversal extends SceneTransversal {
         return new WebSceneTask(this._sceneData, this._ubo, this._camera, visitor);
     }
     constructor (camera: Camera | null, sceneData: PipelineSceneData, ubo: PipelineUBO) {
-        super();
         this._camera = camera;
         if (camera) this._scene = camera.scene!;
         this._sceneData = sceneData;

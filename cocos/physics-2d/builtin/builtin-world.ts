@@ -1,7 +1,7 @@
 import { EDITOR } from 'internal:constants';
 import { IPhysicsWorld } from '../spec/i-physics-world';
 import { Graphics } from '../../2d';
-import { Node, CCObject, find, director, Vec3, Color, IVec2Like, Vec2, Rect } from '../../core';
+import { CCObject, Vec3, Color, IVec2Like, Vec2, Rect } from '../../core';
 import { Canvas } from '../../2d/framework';
 import { BuiltinShape2D } from './shapes/shape-2d';
 import { BuiltinBoxShape } from './shapes/box-shape-2d';
@@ -11,6 +11,9 @@ import { EPhysics2DDrawFlags, Contact2DType, ERaycast2DType, RaycastResult2D } f
 import { PhysicsSystem2D, Collider2D } from '../framework';
 import { BuiltinContact } from './builtin-contact';
 import { legacyCC } from '../../core/global-exports';
+import { Node, find } from '../../scene-graph';
+import { director } from '../../game';
+import { fastRemoveAt } from '../../core/utils/array';
 
 const contactResults: BuiltinContact[] = [];
 const testIntersectResults: Collider2D[] = [];
@@ -46,6 +49,8 @@ export class BuiltinPhysicsWorld implements IPhysicsWorld {
                 if (this.shouldCollide(shape, other)) {
                     const contact = new BuiltinContact(shape, other);
                     this._contacts.push(contact);
+                    if (shape._contacts.indexOf(contact) === -1) { shape._contacts.push(contact); }
+                    if (other._contacts.indexOf(contact) === -1) { other._contacts.push(contact); }
                 }
             }
 
@@ -57,17 +62,28 @@ export class BuiltinPhysicsWorld implements IPhysicsWorld {
         const shapes = this._shapes;
         const index = shapes.indexOf(shape);
         if (index >= 0) {
-            shapes.splice(index, 1);
+            fastRemoveAt(shapes, index);
 
-            const contacts = this._contacts;
-            for (let i = contacts.length - 1; i >= 0; i--) {
-                const contact = contacts[i];
-                if (contact.shape1 === shape || contact.shape2 === shape) {
+            for (let i = 0; i < shape._contacts.length; i++) {
+                const contact = shape._contacts[i];
+                const cIndex = this._contacts.indexOf(contact);
+                if (cIndex >= 0) {
+                    //remove corresponding contact from another shape
+                    let otherShape;
+                    if (contact.shape1 === shape) {
+                        otherShape = contact.shape2;
+                    } else {
+                        otherShape = contact.shape1;
+                    }
+                    const cIndex1 = otherShape._contacts.indexOf(contact);
+                    if (cIndex1  > 0) {
+                        fastRemoveAt(otherShape._contacts, cIndex1);
+                    }
+
                     if (contact.touching) {
                         this._emitCollide(contact, Contact2DType.END_CONTACT);
                     }
-
-                    contacts.splice(i, 1);
+                    fastRemoveAt(this._contacts, cIndex);
                 }
             }
         }
@@ -172,7 +188,7 @@ export class BuiltinPhysicsWorld implements IPhysicsWorld {
         if (!this._debugGraphics || !this._debugGraphics.isValid) {
             let canvas = find('Canvas');
             if (!canvas) {
-                const scene = director.getScene() as any;
+                const scene = director.getScene();
                 if (!scene) {
                     return;
                 }

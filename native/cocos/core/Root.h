@@ -26,6 +26,8 @@
 
 #include <cstdint>
 //#include "3d/skeletal-animation/DataPoolManager.h"
+#include "bindings/event/EventDispatcher.h"
+#include "core/event/Event.h"
 #include "core/memop/Pool.h"
 #include "renderer/pipeline/RenderPipeline.h"
 #include "scene/DrawBatch2D.h"
@@ -49,7 +51,6 @@ namespace render {
 class PipelineRuntime;
 class Pipeline;
 } // namespace render
-class CallbacksInvoker;
 class Batcher2d;
 
 struct CC_DLL DebugViewConfig {
@@ -63,11 +64,16 @@ struct CC_DLL DebugViewConfig {
 struct ISystemWindowInfo;
 class ISystemWindow;
 
-class Root final {
+class Root final : public event::EventTarget {
+    IMPL_EVENT_TARGET(Root)
+    DECLARE_TARGET_EVENT_BEGIN(Root)
+    TARGET_EVENT_ARG0(BeforeCommit)
+    TARGET_EVENT_ARG0(BeforeRender)
+    DECLARE_TARGET_EVENT_END()
 public:
-    static Root *getInstance(); //cjh todo: put Root Managerment to Director class.
+    static Root *getInstance(); // cjh todo: put Root Managerment to Director class.
     explicit Root(gfx::Device *device);
-    ~Root();
+    ~Root() override;
 
     // @minggo IRootInfo seems is not use, and how to return Promise?
     void initialize(gfx::Swapchain *swapchain);
@@ -76,10 +82,11 @@ public:
     /**
      * @zh
      * 重置大小
-     * @param width 屏幕宽度
-     * @param height 屏幕高度
+     * @param width 窗口宽度
+     * @param height 窗口高度
+     * @param windowId 窗口 ID
      */
-    void resize(uint32_t windowId, uint32_t width, uint32_t height);
+    void resize(uint32_t width, uint32_t height, uint32_t windowId);
 
     bool setRenderPipeline(pipeline::RenderPipeline *rppl = nullptr);
     void onGlobalPipelineStateChanged();
@@ -155,7 +162,7 @@ public:
 #ifndef SWIGCOCOS
     template <typename T, typename = std::enable_if_t<std::is_base_of<scene::Model, T>::value>>
     T *createModel() {
-        //cjh TODO: need use model pool?
+        // cjh TODO: need use model pool?
         T *model = ccnew T();
         model->initialize();
         return model;
@@ -167,7 +174,7 @@ public:
 #ifndef SWIGCOCOS
     template <typename T, typename = std::enable_if_t<std::is_base_of<scene::Light, T>::value>>
     T *createLight() {
-        //TODO(xwx): need use model pool?
+        // TODO(xwx): need use model pool?
         T *light = ccnew T();
         light->initialize();
         return light;
@@ -286,10 +293,12 @@ public:
 
     inline bool isUsingDeferredPipeline() const { return _useDeferredPipeline; }
 
-    inline CallbacksInvoker *getEventProcessor() const { return _eventProcessor; }
-
     scene::RenderWindow *createRenderWindowFromSystemWindow(uint32_t windowId);
     scene::RenderWindow *createRenderWindowFromSystemWindow(cc::ISystemWindow *window);
+
+    const ccstd::vector<scene::Camera *> &getCameraList() const {
+        return _cameraList;
+    }
 
 private:
     void frameMoveBegin();
@@ -297,7 +306,7 @@ private:
     void frameMoveEnd();
     void doXRFrameMove(int32_t totalFrames);
     void addWindowEventListener();
-    void removeWindowEventListener() const;
+    void removeWindowEventListener();
 
     gfx::Device *_device{nullptr};
     gfx::Swapchain *_swapchain{nullptr};
@@ -318,16 +327,14 @@ private:
     uint32_t _fps{0};
     uint32_t _fixedFPS{0};
     bool _useDeferredPipeline{false};
-    bool _usesCustomPipeline{false};
-    CallbacksInvoker *_eventProcessor{nullptr};
+    bool _usesCustomPipeline{true};
     IXRInterface *_xr{nullptr};
-    uint32_t _windowDestroyEventId{0};
-    uint32_t _windowResumeEventId{0};
+    events::WindowDestroy::Listener _windowDestroyListener;
+    events::WindowRecreated::Listener _windowRecreatedListener;
 
     // Cache ccstd::vector to avoid allocate every frame in frameMove
     ccstd::vector<scene::Camera *> _cameraList;
     ccstd::vector<gfx::Swapchain *> _swapchains;
     //
 };
-
 } // namespace cc

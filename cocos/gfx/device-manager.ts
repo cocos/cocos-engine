@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 /*
  Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
 
@@ -23,15 +24,11 @@
  THE SOFTWARE.
  */
 
-import { JSB } from 'internal:constants';
-import { legacyCC } from '../core/global-exports';
-import { error, getError } from '../core/platform/debug';
-import { sys } from '../core/platform/sys';
+import { JSB, WEBGPU } from 'internal:constants';
+import { cclegacy, error, getError, sys, screen, Settings, settings } from '../core';
 import { BindingMappingInfo, DeviceInfo, SwapchainInfo } from './base/define';
 import { Device } from './base/device';
 import { Swapchain } from './base/swapchain';
-import { screen } from '../core/platform/screen';
-import { Settings, settings } from '../core/settings';
 import { BrowserType } from '../../pal/system-info/enum-type';
 
 /**
@@ -88,6 +85,7 @@ export enum RenderType {
 /**
  * @internal
  */
+
 export class DeviceManager {
     private initialized = false;
     private _gfxDevice!: Device;
@@ -127,14 +125,17 @@ export class DeviceManager {
                 }
 
                 const deviceCtors: Constructor<Device>[] = [];
-                if (useWebGL2 && legacyCC.WebGL2Device) {
-                    deviceCtors.push(legacyCC.WebGL2Device);
+                if (WEBGPU) {
+                    deviceCtors.push(cclegacy.WebGPUDevice);
                 }
-                if (legacyCC.WebGLDevice) {
-                    deviceCtors.push(legacyCC.WebGLDevice);
+                if (useWebGL2 && cclegacy.WebGL2Device) {
+                    deviceCtors.push(cclegacy.WebGL2Device);
                 }
-                if (legacyCC.EmptyDevice) {
-                    deviceCtors.push(legacyCC.EmptyDevice);
+                if (cclegacy.WebGLDevice) {
+                    deviceCtors.push(cclegacy.WebGLDevice);
+                }
+                if (cclegacy.EmptyDevice) {
+                    deviceCtors.push(cclegacy.EmptyDevice);
                 }
 
                 Device.canvas = canvas!;
@@ -144,8 +145,8 @@ export class DeviceManager {
                 }
                 this._initSwapchain();
             }
-        } else if (this._renderType === RenderType.HEADLESS && legacyCC.EmptyDevice) {
-            this._gfxDevice = new legacyCC.EmptyDevice();
+        } else if (this._renderType === RenderType.HEADLESS && cclegacy.EmptyDevice) {
+            this._gfxDevice = new cclegacy.EmptyDevice();
             this._gfxDevice.initialize(new DeviceInfo(bindingMappingInfo));
             this._initSwapchain();
         }
@@ -161,7 +162,7 @@ export class DeviceManager {
     }
 
     private _initSwapchain () {
-        const swapchainInfo = new SwapchainInfo(this._canvas!);
+        const swapchainInfo = new SwapchainInfo(1, this._canvas!);
         const windowSize = screen.windowSize;
         swapchainInfo.width = windowSize.width;
         swapchainInfo.height = windowSize.height;

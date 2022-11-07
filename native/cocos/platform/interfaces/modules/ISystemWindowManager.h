@@ -28,7 +28,6 @@
 
 namespace cc {
 class ISystemWindow;
-class OSEvent;
 
 struct ISystemWindowInfo {
     ccstd::string title;

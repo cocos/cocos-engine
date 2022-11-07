@@ -66,6 +66,7 @@ module.exports = {
             TiledMap: ``,
             Spine: ``,
             OctreeCulling: `${url}/${version}/manual/zh/advanced-topics/native-scene-culling.html`,
+            LightProbe: ``,
         },
         assets: {
             javascript: `${url}/${version}/manual/zh/concepts/scene/node-component.html`,
@@ -77,11 +78,12 @@ module.exports = {
         skyIllum: '环境光强度',
     },
     skybox: {
-        applyDiffuseMap: '勾选后，场景物体将使用更精确的漫反射图来取代默认的半球光照。',
+        EnvironmentLightingType: '选择三种环境光照类型：<br>手调半球漫反射，无环境反射；<br>自动生成半球漫反射，带环境反射；<br>更精确的漫反射图，带环境反射；',
         enabled: '勾选后即可开启天空盒，使用设置的立方体贴图进行渲染',
-        useIBL: '勾选后，场景物体将使用设置的立方体贴图来进行环境光漫反射及镜面反射计算.',
-        useHDR: '切换高/低动态范围模式，每种模式都有自己独立的光源设定。\n高动态（HDR）模式会使用光度学灯光单位，配合相机镜头属性进行曝光计算，\n低动态（LDR）模式使用无单位光源和无曝光的镜头，更便于保留原图颜色',
-        envmap: '设置一个立方体贴图作为环境光源和天空盒，贴图类型包括十字型 HDR 贴图、经纬度图、手动创建的 CubeMap 等。目前支持 HDR/TGA/PNG 等文件格式。',
+        useHDR: '切换高/低动态范围模式，每种模式都有自己独立的光源设定。<br>高动态（HDR）模式会使用光度学灯光单位，配合相机镜头属性进行曝光计算，<br>低动态（LDR）模式使用无单位光源和无曝光的镜头，更便于保留原图颜色',
+        envmap: '设置一个立方体贴图作为环境光源和天空盒，<br>贴图类型包括十字型 HDR 贴图、经纬度图、手动创建的 CubeMap 等。<br>目前支持 HDR/TGA/PNG 等文件格式。',
+        rotationAngle: '调节天空盒与环境照明绕Y轴旋转的角度.',
+        material: '可使用自定义的天空盒材质，参考 skybox.effect.',
     },
     fog: {
         enabled: '雾开关',
@@ -97,26 +99,18 @@ module.exports = {
     },
     shadow: {
         enabled: '是否开启实时阴影',
+        type: '阴影效果类型, 目前包括 ShadowMap（阴影贴图）、Planar（平面阴影）',
+        shadowColor: '平面阴影颜色',
         planeDirection: '阴影接收平面的法线，垂直于阴影，用于调整阴影的倾斜度',
         planeHeight: '阴影接收平面距离原点的高度',
-        saturation: '阴影饱和度，建议设置为 1.0。若需要减小方向光阴影的饱和程度，推荐通过增加环境光来实现，而不是调节该值。',
-        pcf: '开启软阴影，目前支持 HARD（硬采样）、SOFT（4 倍采样）、SOFT_2X（9 倍采样）类型',
-        bias: '增加深度偏移值（世界空间单位）可以有效消除阴影摩尔纹，但是过大的值可能造成漏光现象',
-        normalBias: '法线深度偏移值（世界空间单位），可以消除物体表面朝向平行于阳光方向的阴影摩尔纹，\n防止曲面出现锯齿状；但是过大的值可能会造成阴影位置偏差',
         shadowMapSize: '阴影贴图分辨率，目前支持 Low_256x256、Medium_512x512、High_1024x1024、Ultra_2048x2048 四种精度的纹理',
-        fixedArea: '切换固定区域和 CSM 模式。固定区域是一种旧模式，我们并不推荐使用。勾选该项则开启 CSM 模式，该模式下阴影会跟随方向光节点的位置，在方向光包围盒附近分布，而非跟随相机。',
-        near: '固定区域开始值',
-        far: '固定区域结束值',
-        orthoSize: '固定区域大小，该值越大则阴影精度越低',
-        invisibleOcclusionRange: '如果有背后的潜在投射物阴影丢失，请增大该值（世界空间单位）',
-        shadowDistance: '阴影有效距离（世界空间单位），该值越大则阴影精度越低',
         maxReceived: '产生阴影的有效光源数量',
     },
     animation: {
         default_clip: '在勾选自动播放或调用 play() 时默认播放的动画 clip。',
         clips: '通过脚本可以访问并播放的 AnimationClip 列表',
         play_on_load: '是否在运行游戏后自动播放默认动画 clip。',
-        use_baked_animation: '是否使用预烘焙动画，默认启用，可以大幅提高运行效时率，\n但所有动画效果会被彻底固定，不支持任何形式的编辑',
+        use_baked_animation: '是否使用预烘焙动画，默认启用，可以大幅提高运行效时率，<br>但所有动画效果会被彻底固定，不支持任何形式的编辑',
         sockets: '当前动画组件维护的挂点数组。要挂载自定义节点到受动画驱动的骨骼上，必须先在此注册挂点',
     },
     audio: {
@@ -156,23 +150,39 @@ module.exports = {
         illuminance: '光源强度',
         luminous_flux: '光通量',
         luminance: '光亮度',
+        visibility: '可见性掩码，声明在当前精确光源中可见的节点层级集合（对方向光不生效）',
         term: '当前使用的光度学计量单位',
         size: '光源大小',
         range: '光源范围',
+        shadowEnabled: '是否开启实时阴影',
+        shadowPcf: '开启软阴影，目前支持 HARD（硬采样）、SOFT（4 倍采样）、SOFT_2X（9 倍采样）、SOFT_4X（16 倍采样）类型',
+        shadowBias: '增加深度偏移值（世界空间单位）可以有效消除阴影摩尔纹，但是过大的值可能造成漏光现象',
+        shadowNormalBias: '法线深度偏移值（世界空间单位），可以消除物体表面朝向平行于阳光方向的阴影摩尔纹，<br>防止曲面出现锯齿状；但是过大的值可能会造成阴影位置偏差',
+        shadowSaturation: '阴影饱和度，建议设置为 1.0。<br>若需要减小方向光阴影的饱和程度，推荐通过增加环境光来实现，而不是调节该值。',
+        shadowDistance: '阴影有效距离（世界空间单位），该值越大则阴影精度越低',
+        shadowInvisibleOcclusionRange: '如果有背后的潜在投射物阴影丢失，请增大该值（世界空间单位）',
+        enableCSM: '开启 CSM 模式',
+        shadowFixedArea: '切换固定区域和 CSM 模式。固定区域是一种旧模式，我们并不推荐使用。<br>勾选该项则开启 CSM 模式，该模式下阴影会跟随方向光节点的位置，在方向光包围盒附近分布，而非跟随相机。',
+        shadowNear: '固定区域开始值',
+        shadowFar: '固定区域结束值',
+        shadowOrthoSize: '固定区域大小，该值越大则阴影精度越低',
     },
     model: {
+        shadow_receiving_model: '阴影接受方式',
         shadow_casting_model: '阴影投射方式',
         mesh: '模型的网格数据',
         skinning_root: '骨骼根节点的引用，对应控制此模型的动画组件所在节点',
+        shadow_bias: '模型额外增加深度偏移值（世界空间单位）可以有效消除阴影摩尔纹，但是过大的值可能造成漏光现象',
+        shadow_normal_bias: '模型额外增加法线深度偏移值（世界空间单位），可以消除物体表面朝向平行于阳光方向的阴影摩尔纹，<br>防止曲面出现锯齿状；但是过大的值可能会造成阴影位置偏差',
     },
     sprite: {
         gray_scale: '是否开启灰度渲染模式',
         atlas: '图片资源所属的 Atlas 图集资源',
         sprite_frame: '渲染 Sprite 使用的 Sprite Frame 图片资源',
         type:
-            '渲染模式：\n - 普通(Simple)：修改尺寸会整体拉伸图像，适用于序列帧动画和普通图像 \n' +
-            '- 九宫格 Sliced 修改尺寸时四个角的区域不会拉伸，适用于 UI 按钮和面板背景 \n' +
-            '- 平铺 Tiled 修改尺寸时会不断平铺原始大小的图片 \n' +
+            '渲染模式：<br> - 普通(Simple)：修改尺寸会整体拉伸图像，适用于序列帧动画和普通图像 <br>' +
+            '- 九宫格 Sliced 修改尺寸时四个角的区域不会拉伸，适用于 UI 按钮和面板背景 <br>' +
+            '- 平铺 Tiled 修改尺寸时会不断平铺原始大小的图片 <br>' +
             '- 填充 Filled 设置一定的填充起始位置和方向，能够以一定比率剪裁显示图片',
         original_size: '是否使用图片资源的原始尺寸作为 Sprite 节点的 size',
         edit_button: '编辑',
@@ -186,7 +196,7 @@ module.exports = {
         src_blend_factor: '混合显示两张图片时，源图片的取值模式',
         dst_blend_factor: '混合显示两张图片时，目标图片的取值模式',
         size_mode:
-            '指定 Sprite 所在节点的尺寸\nCUSTOM 表示自定义尺寸\nTRIMMED 表示取原始图片剪裁透明像素后的尺寸\nRAW 表示取原始图片未剪裁的尺寸',
+            '指定 Sprite 所在节点的尺寸<br>CUSTOM 表示自定义尺寸<br>TRIMMED 表示取原始图片剪裁透明像素后的尺寸<br>RAW 表示取原始图片未剪裁的尺寸',
         trim: '节点约束框内是否包括透明像素区域，勾选此项会去除节点约束框内的透明区域',
     },
     UIOpacity: {
@@ -214,7 +224,7 @@ module.exports = {
         duration: '按钮颜色变化或者缩放变化的过渡时间',
         zoom_scale: '当用户点击按钮后，按钮会缩放到一个值，这个值等于 Button 原始 scale * zoomScale, zoomScale 可以为负数',
         auto_gray_effect:
-            '如果这个标记为 true，当 button 的 interactable 属性为 false 的时候，\n会使用内置 shader 让 button 的 target 节点的 sprite 组件变灰',
+            '如果这个标记为 true，当 button 的 interactable 属性为 false 的时候，<br>会使用内置 shader 让 button 的 target 节点的 sprite 组件变灰',
         normal_sprite: '普通状态的按钮背景图资源',
         pressed_sprite: '按下状态的按钮背景图资源',
         hover_sprite: '悬停状态的按钮背景图资源',
@@ -226,7 +236,7 @@ module.exports = {
         camera: '2D 渲染相机',
         align: '自动为 camera 计算参数',
         design_resolution:
-            '设计分辨率是游戏在设计时使用的分辨率参考，以像素为单位，通过下面的适配策略，\n可以在不同分辨率的设备上按照一定的方式对 Canvas 进行整体缩放来适配。',
+            '设计分辨率是游戏在设计时使用的分辨率参考，以像素为单位，通过下面的适配策略，<br>可以在不同分辨率的设备上按照一定的方式对 Canvas 进行整体缩放来适配。',
         fit_height: '自动缩放 Canvas 使设计分辨率的高度充满设备屏幕的高度',
         fit_width: '自动缩放 Canvas 使设计分辨率的宽度充满设备屏幕的宽度',
     },
@@ -250,12 +260,12 @@ module.exports = {
         font_family: '文字字体名字',
         line_height: '文字行高，以 point 为单位',
         overflow:
-            '文字排版模式，包括以下三种：\n 1. CLAMP: 节点约束框之外的文字会被截断 \n 2. SHRINK: 自动根据节点约束框缩小文字\n 3. RESIZE: 根据文本内容自动更新节点的 height 属性.',
+            '文字排版模式，包括以下三种：<br> 1. CLAMP: 节点约束框之外的文字会被截断 <br> 2. SHRINK: 自动根据节点约束框缩小文字<br> 3. RESIZE: 根据文本内容自动更新节点的 height 属性.',
         wrap: '是否允许自动换行',
         font: 'Label 使用的字体资源',
         system_font: '是否使用系统默认字体，选中此项会将 file 属性置空',
         cache_mode:
-            '文本缓存模式，包括以下三种：\n 1. NONE: 不做任何缓存，文本内容进行一次绘制 \n 2. BITMAP: 将文本作为静态图像加入动态图集进行批次合并，但是不能频繁动态修改文本内容 \n 3. CHAR: 将文本拆分为字符并且把字符纹理缓存到一张字符图集中进行复用，适用于字符内容重复并且频繁更新的文本内容',
+            '文本缓存模式，包括以下三种：<br> 1. NONE: 不做任何缓存，文本内容进行一次绘制 <br> 2. BITMAP: 将文本作为静态图像加入动态图集进行批次合并，但是不能频繁动态修改文本内容 <br> 3. CHAR: 将文本拆分为字符并且把字符纹理缓存到一张字符图集中进行复用，适用于字符内容重复并且频繁更新的文本内容',
         font_bold: '字体加粗',
         font_italic: '字体倾斜',
         font_underline: '字体加下划线',
@@ -291,7 +301,7 @@ module.exports = {
     },
     progress: {
         bar_sprite: '进度条显示用的 Sprite 节点，可以动态改变尺寸',
-        mode: '进度条显示模式, 包括以下三种：\n 1. HORIZONTAL: 水平方向模式 \n 2. VERTICAL: 垂直方向模式 \n 3. FILLED: 扇形填充模式',
+        mode: '进度条显示模式, 包括以下三种：<br> 1. HORIZONTAL: 水平方向模式 <br> 2. VERTICAL: 垂直方向模式 <br> 3. FILLED: 扇形填充模式',
         total_length: '进度条在 progress 为 1 时的最大长度',
         progress: '当前进度指示，范围从0到1',
         reverse: '是否反向驱动进度条',
@@ -300,7 +310,7 @@ module.exports = {
         handle: '作为当前滚动区域位置显示的滑块 Sprite',
         direction: 'ScrollBar的滚动方向',
         auto_hide: '是否在没有滚动动作时自动隐藏 Scroll Bar',
-        auto_hide_time: '没有滚动动作后经过多久会自动隐藏\n注意：只有当  Enable Auto Hide 为 true 时才有效',
+        auto_hide_time: '没有滚动动作后经过多久会自动隐藏<br>注意：只有当  Enable Auto Hide 为 true 时才有效',
     },
     scrollview: {
         content: '包含可滚动展示内容的节点引用',
@@ -319,12 +329,12 @@ module.exports = {
         sizeMode: '页面视图中每个页面大小类型',
         direction: '页面视图滚动方向',
         scrollThreshold: '滚动临界值，默认单位百分比，当拖拽超出该数值时，松开会自动滚动下一页，小于时则还原',
-        pageTurningEventTiming: '设置 Page View 页面自动滚动动画结束的阈值，\n修改此值可以调整 Page View 事件的发送时机。',
+        pageTurningEventTiming: '设置 Page View 页面自动滚动动画结束的阈值，<br>修改此值可以调整 Page View 事件的发送时机。',
         indicator: '页面视图指示器组件',
         pageTurningSpeed: '每个页面翻页时所需时间。单位：秒',
         pageEvents: '页面视图的事件回调函数',
         autoPageTurningThreshold:
-            '快速滑动翻页临界值\n当用户快速滑动时，会根据滑动开始和结束的距离与时间计算出一个速度值\n该值与此临界值相比较，如果大于临界值，则进行自动翻页',
+            '快速滑动翻页临界值<br>当用户快速滑动时，会根据滑动开始和结束的距离与时间计算出一个速度值<br>该值与此临界值相比较，如果大于临界值，则进行自动翻页',
     },
     pageview_indicator: {
         spriteFrame: '每个页面标记显示的图片',
@@ -368,8 +378,8 @@ module.exports = {
         frameOverTime: '一个周期内动画播放的帧与时间变化曲线',
         startFrame: '从第几帧开始播放，时间为整个粒子系统的生命周期',
         cycleCount: '一个生命周期内播放循环的次数',
-        randomRow: '随机从动画贴图中选择一行以生成动画,\n此选项仅在动画播放方式为 Single Row 时生效',
-        rowIndex: '从动画贴图中选择特定行以生成动画,\n此选项仅在动画播放方式为 Single Row 时且禁用 Random Row 时可用',
+        randomRow: '随机从动画贴图中选择一行以生成动画,<br>此选项仅在动画播放方式为 Single Row 时生效',
+        rowIndex: '从动画贴图中选择特定行以生成动画,<br>此选项仅在动画播放方式为 Single Row 时且禁用 Random Row 时可用',
     },
     toggle: {
         interactable: 'Toggle 是否可交互，这一项未选中时，Toggle 处在禁用状态',
@@ -380,9 +390,9 @@ module.exports = {
         hover_color: '悬停状态的 Toggle 背景颜色',
         disabled_color: '禁用状态的 Toggle 背景颜色',
         duration: 'Toggle 颜色变化或者缩放变化的过渡时间',
-        zoom_scale: '当用户点击 Toggle 后，Toggle 会缩放到一个值，\n这个值等于 Toggle 原始 scale * zoomScale, zoomScale 可以为负数',
+        zoom_scale: '当用户点击 Toggle 后，Toggle 会缩放到一个值，<br>这个值等于 Toggle 原始 scale * zoomScale, zoomScale 可以为负数',
         auto_gray_effect:
-            '如果这个标记为 true，当 toggle 的 interactable 属性为 false 的时候，\n会使用内置 shader 让 toggle 的 target 节点的 sprite 组件变灰',
+            '如果这个标记为 true，当 toggle 的 interactable 属性为 false 的时候，<br>会使用内置 shader 让 toggle 的 target 节点的 sprite 组件变灰',
         normal_sprite: '普通状态的 Toggle 背景图资源',
         pressed_sprite: '按下状态的 Toggle 背景图资源',
         hover_sprite: '悬停状态的 Toggle 背景图资源',
@@ -391,7 +401,7 @@ module.exports = {
         isChecked: '如果这个设置为 true，则 check mark 组件会处于 enabled 状态，否则处于 disabled 状态。',
         checkMark: 'Toggle 处于选中状态时显示的精灵图片',
         toggleGroup:
-            'Toggle 所属的 Toggle Group，这个属性是可选的。\n如果这个属性为 null，则 Toggle 是一个 CheckBox，否则，Toggle 是一个 Radio Button。',
+            'Toggle 所属的 Toggle Group，这个属性是可选的。<br>如果这个属性为 null，则 Toggle 是一个 CheckBox，否则，Toggle 是一个 Radio Button。',
         check_events: 'Toggle 按钮的点击事件列表',
     },
     toggle_group: {
@@ -403,7 +413,7 @@ module.exports = {
         rotation: '粒子发射器旋转角度',
         scale: '粒子发射器缩放比例',
         arc: '粒子发射器在一个扇形范围内发射',
-        angle: '圆锥的轴与母线的夹角\n决定圆锥发射器的开合程度',
+        angle: '圆锥的轴与母线的夹角<br>决定圆锥发射器的开合程度',
         shapeType: '粒子发射器类型',
         emitFrom: '粒子从发射器哪个部位发射',
         alignToDirection: '根据粒子的初始方向决定粒子的移动方向',
@@ -411,11 +421,11 @@ module.exports = {
         sphericalDirectionAmount: '表示当前发射方向与当前位置到结点中心连线方向的插值',
         randomPositionAmount: '粒子生成位置随机设定（设定此值为非 0 会使粒子生成位置超出生成器大小范围）',
         radius: '粒子发射器半径',
-        radiusThickness: '粒子发射器发射位置（对 Box 类型的发射器无效）:\n - 0 表示从表面发射；\n - 1 表示从中心发射；\n - 0 ~ 1 之间表示在中心到表面之间发射。',
+        radiusThickness: '粒子发射器发射位置（对 Box 类型的发射器无效）:<br> - 0 表示从表面发射；<br> - 1 表示从中心发射；<br> - 0 ~ 1 之间表示在中心到表面之间发射。',
         arcMode: '粒子在扇形范围内的发射方式',
         arcSpread: '控制可能产生粒子的弧周围的离散间隔',
         arcSpeed: '粒子沿圆周发射的速度',
-        length: '圆锥顶部截面距离底部的轴长\n决定圆锥发射器的高度',
+        length: '圆锥顶部截面距离底部的轴长<br>决定圆锥发射器的高度',
         boxThickness: '粒子发射器发射位置（针对 Box 类型的粒子发射器）',
     },
     slider: {
@@ -428,8 +438,8 @@ module.exports = {
         mode: 'Particle在每个粒子的运动轨迹上形成拖尾效果',
         lifeTime: '拖尾的生命周期',
         minParticleDistance: '粒子每生成一个拖尾节点所运行的最短距离',
-        space: '拖尾所在的坐标系，\nWorld 在世界坐标系中运行，\nLocal 在本地坐标系中运行',
-        textureMode: '贴图在拖尾上的展开形式，\nStretch 贴图覆盖在整条拖尾上，\nRepeat 贴图覆盖在一段拖尾上',
+        space: '拖尾所在的坐标系，<br>World 在世界坐标系中运行，<br>Local 在本地坐标系中运行',
+        textureMode: '贴图在拖尾上的展开形式，<br>Stretch 贴图覆盖在整条拖尾上，<br>Repeat 贴图覆盖在一段拖尾上',
         widthFromParticle: '拖尾宽度继承自粒子大小',
         widthRatio: '拖尾宽度，如果继承自粒子则是粒子大小的比例',
         colorFromParticle: '拖尾颜色是否继承自粒子',
@@ -462,20 +472,20 @@ module.exports = {
     },
     layout: {
         layout_type:
-            '自动布局模式，包括：\n 1. NONE，不会对子节点进行自动布局 \n 2. HORIZONTAL，横向自动排布子物体 \n 3. VERTICAL，垂直自动排布子物体\n 4. GRID, 采用网格方式对子物体自动进行布局',
+            '自动布局模式，包括：<br> 1. NONE，不会对子节点进行自动布局 <br> 2. HORIZONTAL，横向自动排布子物体 <br> 3. VERTICAL，垂直自动排布子物体<br> 4. GRID, 采用网格方式对子物体自动进行布局',
         resize_mode:
-            '缩放模式，包括：\n 1. NONE，不会对子节点和容器进行大小缩放 \n 2. CONTAINER, 对容器的大小进行缩放 \n 3. CHILD, 对子节点的大小进行缩放',
+            '缩放模式，包括：<br> 1. NONE，不会对子节点和容器进行大小缩放 <br> 2. CONTAINER, 对容器的大小进行缩放 <br> 3. CHILD, 对子节点的大小进行缩放',
         padding_left: 'Layout 节点左边界和子节点的内边距',
         padding_right: 'Layout 节点右边界和子节点的内边距',
         padding_top: 'Layout 节点上边界和子节点的内边距',
         padding_bottom: 'Layout 节点下边界和子节点的内边距',
         space_x: '相邻子节点之间的水平距离',
         space_y: '相邻子节点之间的垂直距离',
-        vertical_direction: '垂直排列子节点的方向，包括：\n 1. TOP_TO_BOTTOM, 从上到下排列 \n 2. BOTTOM_TO_TOP, 从下到上排列',
-        horizontal_direction: '水平排列子节点的方向，包括：\n 1. LEFT_TO_RIGHT, 从左到右排列 \n 2. RIGHT_TO_LEFT, 从右到左排列',
+        vertical_direction: '垂直排列子节点的方向，包括：<br> 1. TOP_TO_BOTTOM, 从上到下排列 <br> 2. BOTTOM_TO_TOP, 从下到上排列',
+        horizontal_direction: '水平排列子节点的方向，包括：<br> 1. LEFT_TO_RIGHT, 从左到右排列 <br> 2. RIGHT_TO_LEFT, 从右到左排列',
         cell_size: '网格布局中，规定每一个网格的大小',
         start_axis: '网格布局中，子物体排版时的起始方向轴，支持水平和垂直两个方向。',
-        constraint: '网格布局中，内容布局约束，包括：\n 1.NONE，无约束 \n 2.FIXED_ROW，行数固定 \n 3.FIXED_COL，列数固定',
+        constraint: '网格布局中，内容布局约束，包括：<br> 1.NONE，无约束 <br> 2.FIXED_ROW，行数固定 <br> 3.FIXED_COL，列数固定',
         constraint_number: '网格布局中，内容布局约束的行或列数量',
         affected_scale: '子节点缩放比例是否影响布局',
         align_horizontal: '自动对齐。在 Type 为 Horizontal 时自动对齐纵坐标',
@@ -507,8 +517,8 @@ module.exports = {
         placeholder_label: '输入框占位符节点上挂载的 Label 组件对象',
         editing_began: '开始编辑文本输入框触发的事件回调',
         text_changed: '编辑文本输入框时触发的事件回调',
-        editing_ended: '结束编辑文本输入框时触发的事件回调\n在单行模式下面，一般是在用户按下回车或者点击屏幕输入框以外的地方调用该函数\n如果是多行输入，一般是在用户点击屏幕输入框以外的地方调用该函数',
-        editing_return: '当用户按下回车按键时的事件回调\n如果是单行输入框，按回车键还会使输入框失去焦点',
+        editing_ended: '结束编辑文本输入框时触发的事件回调<br>在单行模式下面，一般是在用户按下回车或者点击屏幕输入框以外的地方调用该函数<br>如果是多行输入，一般是在用户点击屏幕输入框以外的地方调用该函数',
+        editing_return: '当用户按下回车按键时的事件回调<br>如果是单行输入框，按回车键还会使输入框失去焦点',
     },
     videoplayer: {
         resourceType: '视频来源：REMOTE 表示远程视频 URL，LOCAL 表示本地视频地址。',
@@ -547,7 +557,7 @@ module.exports = {
         camera: '照射相机',
         use_scale: '是否是缩放映射',
         distance: '距相机多少距离为正常显示计算大小',
-        sync_events: '映射数据事件\n回调的第一个参数是映射后的本地坐标，第二个是距相机距离',
+        sync_events: '映射数据事件<br>回调的第一个参数是映射后的本地坐标，第二个是距相机距离',
     },
     subContextView: {
         design_size: '开放数据域的设计分辨率，禁止在运行时动态更新',
@@ -569,7 +579,7 @@ module.exports = {
         armature_name: '当前的 Armature 名称',
         animation_name: '当前播放的动画名称',
         time_scale: '当前骨骼中所有动画的时间缩放率',
-        play_times: '播放默认动画的循环次数\n - 1 表示使用配置文件中的默认值\n0 表示无限循环\n > 0 表示循环次数',
+        play_times: '播放默认动画的循环次数<br> - 1 表示使用配置文件中的默认值<br>0 表示无限循环<br> > 0 表示循环次数',
         debug_bones: '是否显示 bone 的 debug 信息',
     },
     motionStreak: {
@@ -658,9 +668,9 @@ module.exports = {
         textureAnimationModule: '贴图动画模块',
         trailModule: '粒子轨迹模块（只支持 CPU 粒子）',
         renderer: '粒子渲染模块',
-        renderCulling: '是否开启粒子剔除功能。\n开启该项将会生成一个粒子发射器包围盒，若包围盒不在摄像机的可见范围内，该粒子发射器便会被剔除。\n粒子发射器被剔除后的行为请参考下面的 Culling Mode。',
-        cullingMode: '粒子发射器被剔除之后的行为，可设置的选项包括 Pause, Pause and Catchup, Always Simulate。\n选择 Pause 时，若粒子发射器包围盒不在摄像机的可见范围内，粒子暂停模拟。若恢复可见，则粒子会接着上次暂停的时间继续模拟；\n选择 Pause and Catchup 时，若粒子发射器包围盒不在摄像机的可见范围内，粒子暂停模拟。若恢复可见，则粒子会以当前的时间开始模拟；\n选择 Always Simulate 时，无论粒子发射器包围盒是否在摄像机的可见范围内，粒子都会一直模拟，只是不在摄像机的可见范围内时不进行渲染。',
-        alignSpace: '粒子对齐方向空间，可设置的选项包括：视角空间、世界空间和局部空间。\n选择视角空间时，粒子网格的旋转方向将会跟随摄像机的视角方向；\n选择世界空间时，粒子网格的方向将会使用发射器节点的世界空间旋转方向；\n选择局部空间时，粒子网格使用发射器节点的局部空间旋转方向。',
+        renderCulling: '是否开启粒子剔除功能。<br>开启该项将会生成一个粒子发射器包围盒，若包围盒不在摄像机的可见范围内，该粒子发射器便会被剔除。<br>粒子发射器被剔除后的行为请参考下面的 Culling Mode。',
+        cullingMode: '粒子发射器被剔除之后的行为，可设置的选项包括 Pause, Pause and Catchup, Always Simulate。<br>选择 Pause 时，若粒子发射器包围盒不在摄像机的可见范围内，粒子暂停模拟。若恢复可见，则粒子会接着上次暂停的时间继续模拟；<br>选择 Pause and Catchup 时，若粒子发射器包围盒不在摄像机的可见范围内，粒子暂停模拟。若恢复可见，则粒子会以当前的时间开始模拟；<br>选择 Always Simulate 时，无论粒子发射器包围盒是否在摄像机的可见范围内，粒子都会一直模拟，只是不在摄像机的可见范围内时不进行渲染。',
+        alignSpace: '粒子对齐方向空间，可设置的选项包括：视角空间、世界空间和局部空间。<br>选择视角空间时，粒子网格的旋转方向将会跟随摄像机的视角方向；<br>选择世界空间时，粒子网格的方向将会使用发射器节点的世界空间旋转方向；<br>选择局部空间时，粒子网格使用发射器节点的局部空间旋转方向。',
         aabbHalfX: '设置发射器包围盒半宽',
         aabbHalfY: '设置发射器包围盒半高',
         aabbHalfZ: '设置发射器包围盒半长',
@@ -677,7 +687,7 @@ module.exports = {
         rigidbody: {
             enabledContactListener: '是否启用接触接听器。当 Collider 产生碰撞时，只有开启了接触接听器才会调用相应的回调函数',
             bullet: '这个刚体是否是一个快速移动的刚体，并且需要禁止穿过其他快速移动的刚体',
-            type: '刚体类型：\nStatic（静态）, \nKinematic（不受外力）, \nDynamic（动态）和 Animated（通过设置线性速度和角速度驱动）',
+            type: '刚体类型：<br>Static（静态）, <br>Kinematic（不受外力）, <br>Dynamic（动态）和 Animated（通过设置线性速度和角速度驱动）',
             allowSleep: '如果此刚体永远都不应该进入睡眠，那么设置这个属性为 False。需要注意这将使 CPU 占用率提高',
             gravityScale: '缩放应用在此刚体上的重力值',
             linearDamping:
@@ -755,6 +765,14 @@ module.exports = {
                 label: '动画',
                 description: '动画系统。',
             },
+            network: {
+                label: '网络',
+                description: '网络模块。',
+            },
+            xr: {
+                label: 'XR',
+                description: 'XR系统。',
+            },
         },
         core: {
             label: "核心功能",
@@ -770,7 +788,11 @@ module.exports = {
         },
         gfx_webgl2: {
             label: "WebGL 2.0",
-            description: "包含对 WebGL 2.0 图形 API 的支持。\n当 WebGL 2.0 在目标平台上不可用时会自动回退至 WebGL 1.0。",
+            description: "包含对 WebGL 2.0 图形 API 的支持。<br>当 WebGL 2.0 在目标平台上不可用时会自动回退至 WebGL 1.0。",
+        },
+        gfx_webgpu: {
+            label: "WebGPU",
+            description: "包含对 WebGPU 图形 API 的支持。",
         },
         ui: {
             label: "用户界面",
@@ -840,6 +862,10 @@ module.exports = {
             label: "地形",
             description: "地形功能支持。",
         },
+        light_probe: {
+            label: "光照探针",
+            description: "光照探针功能支持。",
+        },
         audio: {
             label: "音频",
             description: "音频播放支持。",
@@ -896,17 +922,25 @@ module.exports = {
             label: "Marionette 动画系统",
             description: "启用 Marionette 动画系统。",
         },
-        xr: {
-            label: "XR",
-            description: "启用 XR 功能系统。",
+        base_xr: {
+            label: "基础 XR 功能",
+            description: "基础 XR 功能支持。",
+        },
+        ar: {
+            label: "AR 功能",
+            description: "AR 功能支持。",
         },
         custom_pipeline: {
             label: "自定义渲染管线（实验）",
             description: "启用自定义渲染管线。",
         },
+        websocket: {
+            label: "WebSocket",
+            description: "对原生启用 WebSocket。其中iOS/macOS使用SocketRocket实现, Android使用OkHttp实现, Windows使用libwebsockets实现。",
+        },
         websocket_server: {
             label: "WebSocket Server",
-            description: "对原生启用 WebSocket Server。",
+            description: "对原生启用 WebSocket Server。注意: 必须同时启用 WebSocket。",
         },
     },
     renderable_2d: {
@@ -915,9 +949,9 @@ module.exports = {
         color: '渲染颜色，一般情况下会和贴图颜色相乘',
     },
     ui_transform: {
-        content_size:'内容尺寸',
-        anchor_point:'锚点位置',
-        priority:'渲染排序优先级',
+        content_size: '内容尺寸',
+        anchor_point: '锚点位置',
+        priority: '渲染排序优先级',
     },
     graphics: {
         lineWidth: '线条宽度',
@@ -930,7 +964,7 @@ module.exports = {
     physics3d: {
         rigidbody: {
             group: '刚体分组',
-            type: '刚体类型：\nStatic为静态, \nKinematic 为运动学（通过变换信息操控）, \nDynamic 为动力学（通过物理数值操控）',
+            type: '刚体类型：<br>Static为静态, <br>Kinematic 为运动学（通过变换信息操控）, <br>Dynamic 为动力学（通过物理数值操控）',
             mass: '刚体质量，需大于 0',
             allowSleep: '是否允许自动休眠',
             linearDamping: '线性阻尼，用于衰减线性速度，值越大，衰减越快',
@@ -966,7 +1000,7 @@ module.exports = {
             simplex_vertex2: '形状的顶点 2',
             simplex_vertex3: '形状的顶点 3',
         },
-        constant_force:{
+        constant_force: {
             force: '在世界坐标系中，对刚体施加的力',
             localForce: '在本地坐标系中，对刚体施加的力',
             torque: '在世界坐标系中，对刚体施加的扭转力',
@@ -978,5 +1012,23 @@ module.exports = {
         minPos: '世界包围盒最小顶点的坐标',
         maxPos: '世界包围盒最大顶点的坐标',
         depth: '八叉树深度',
+    },
+    light_probe: {
+        enabled: '光照探针开关',
+        giScale: 'GI乘数',
+        giSamples: 'GI采样数量',
+        bounces: '光照反弹次数',
+        reduceRinging: '减少光照探针的振铃效果',
+        showProbe: '是否显示光照探针',
+        showWireframe: '是否显示光照探针连线',
+        showConvex: '是否显示光照探针凸包',
+    },
+    light_probe_group: {
+        method: '光照探针的自动生成算法',
+        nProbesX: 'X轴生成的光照探针数量',
+        nProbesY: 'Y轴生成的光照探针数量',
+        nProbesZ: 'Z轴生成的光照探针数量',
+        minPos: '生成光照探针的包围盒最小点',
+        maxPos: '生成光照探针的包围盒最大点',
     },
 };

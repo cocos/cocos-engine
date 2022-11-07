@@ -95,18 +95,6 @@ public:
      */
     virtual WorldClock* getClock() const = 0;
     virtual void setClock(WorldClock* value) = 0;
-
-    /**
-     * - Gets render order.
-     * @version Cocos creator 2.3
-     * @language en_US
-     */
-    /**
-     * - 获得渲染顺序。
-     * @version Cocos creator 2.3
-     * @language zh_CN
-     */
-    virtual uint32_t getRenderOrder() const { return 0; }
 };
 
 DRAGONBONES_NAMESPACE_END

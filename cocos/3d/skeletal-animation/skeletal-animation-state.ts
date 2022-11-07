@@ -24,14 +24,13 @@
 */
 
 import { JSB } from 'internal:constants';
-import { Mat4, Quat, Vec3 } from '../../core/math';
+import { Mat4, Quat, Vec3, cclegacy } from '../../core';
 import { IAnimInfo, JointAnimationInfo } from './skeletal-animation-utils';
-import { Node } from '../../core/scene-graph/node';
+import { Node } from '../../scene-graph/node';
 import type { AnimationClip } from '../../animation/animation-clip';
 import { AnimationState } from '../../animation/animation-state';
 import { SkeletalAnimation, Socket } from './skeletal-animation';
 import { SkelAnimDataHub } from './skeletal-animation-data-hub';
-import { legacyCC } from '../../core/global-exports';
 
 const m4_1 = new Mat4();
 const m4_2 = new Mat4();
@@ -68,7 +67,7 @@ export class SkeletalAnimationState extends AnimationState {
 
     constructor (clip: AnimationClip, name = '') {
         super(clip, name);
-        this._animInfoMgr = legacyCC.director.root.dataPoolManager.jointAnimationInfo;
+        this._animInfoMgr = cclegacy.director.root.dataPoolManager.jointAnimationInfo;
     }
 
     public initialize (root: Node) {
@@ -97,8 +96,7 @@ export class SkeletalAnimationState extends AnimationState {
             this.duration = this.clip.duration;
             if (!this._curvesInited) {
                 this._curveLoaded = false;
-                super.initialize(this._targetNode!
-                    );
+                super.initialize(this._targetNode!);
                 this._curvesInited = true;
             }
         }

@@ -3,11 +3,10 @@
 import {
     Address, BlendFactor, BlendOp, ColorMask, ComparisonFunc, CullMode, DynamicStateFlagBit,
     Filter, Format, FormatInfos, FormatType, GetTypeSize, PolygonMode, PrimitiveMode,
-    ShadeModel, ShaderStageFlagBit, StencilOp, Type, DescriptorType, SamplerInfo, MemoryAccessBit,
-} from '../../cocos/gfx/base/define';
+    ShadeModel, ShaderStageFlagBit, StencilOp, Type, DescriptorType, SamplerInfo, MemoryAccessBit, Sampler,
+} from '../../cocos/gfx';
 import { RenderPassStage, RenderPriority, SetIndex } from '../../cocos/rendering/define';
-import { murmurhash2_32_gc } from '../../cocos/core/algorithm/murmurhash2_gc';
-import { Sampler } from '../../cocos/gfx/base/states/sampler';
+import { murmurhash2_32_gc } from '../../cocos/core';
 
 const typeMap: Record<string, Type | string> = {};
 typeMap[typeMap.bool = Type.BOOL] = 'bool';

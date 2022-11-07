@@ -27,7 +27,7 @@ import { screenAdapter } from 'pal/screen-adapter';
 import { EventType } from './web-view-enums';
 import { error, warn } from '../core/platform';
 import { WebViewImpl } from './web-view-impl';
-import { game } from '../core';
+import { game } from '../game';
 import { mat4 } from '../core/math';
 import { contains } from '../core/utils/misc';
 

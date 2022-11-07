@@ -310,7 +310,7 @@ for (const name of Object.keys(structMap)) {
 
 if (options.clear) {output = '';}
 
-const outputFile = options.debug ? `${__dirname}/define.ts` : ps.join(options.engineRoot, 'cocos/core/gfx/base/define.ts');
+const outputFile = options.debug ? `${__dirname}/define.ts` : ps.join(options.engineRoot, 'cocos/gfx/base/define.ts');
 let source = fs.readFileSync(outputFile).toString();
 
 const begGuardRE = /![A-Z ]+!\s*=+\s*\*\//;

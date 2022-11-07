@@ -41,7 +41,7 @@ void CCSurfacesGetFragmentInput(out SurfacesStandardFragmentInput fsInput)
   #define FSInput_texcoord1 vec2(0.0, 0.0)
 #endif
 
-#if CC_USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
+#if CC_USE_LIGHTMAP && !CC_FORWARD_ADD
   #define FSInput_lightMapUV v_luv
 #endif
 

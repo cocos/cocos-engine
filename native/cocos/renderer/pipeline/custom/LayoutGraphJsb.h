@@ -34,20 +34,4 @@
 #include "cocos/renderer/pipeline/custom/LayoutGraphFwd.h"
 #include "cocos/renderer/pipeline/custom/RenderCommonJsb.h"
 
-bool nativevalue_to_se(const cc::render::Descriptor &from, se::Value &to, se::Object *ctx); // NOLINT
-
-bool nativevalue_to_se(const cc::render::DescriptorBlockFlattened &from, se::Value &to, se::Object *ctx); // NOLINT
-
-bool nativevalue_to_se(const cc::render::DescriptorBlockIndex &from, se::Value &to, se::Object *ctx); // NOLINT
-
-// if function overload is used, android build fails
-template <>
-bool sevalue_to_native(const se::Value &from, cc::render::Descriptor *to, se::Object *ctx); // NOLINT
-
-template <>
-bool sevalue_to_native(const se::Value &from, cc::render::DescriptorBlockFlattened *to, se::Object *ctx); // NOLINT
-
-template <>
-bool sevalue_to_native(const se::Value &from, cc::render::DescriptorBlockIndex *to, se::Object *ctx); // NOLINT
-
 // clang-format on

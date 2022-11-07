@@ -28,17 +28,23 @@ import './deprecated-3.6.0';
 import * as js from './js';
 
 /**
- * 杂项工具函数
+ * Some useful functions.
  */
 import * as misc from './misc';
 
 /**
- * 用于处理文件与目录的路径的模块
+ * A module to handle files and directories.
  */
 import * as path from './path';
 
+import * as jsbUtils from './jsb-utils';
+
 export * from './x-deprecated';
-export { PrefabLink } from './prefab-link';
+
+/**
+ * @engineInternal
+ */
+export  { jsbUtils };
 
 export {
     js,

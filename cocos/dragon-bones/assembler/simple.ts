@@ -24,7 +24,7 @@
  */
 
 import { Armature, BlendMode } from '@cocos/dragonbones-js';
-import { Color, Mat4, Node, director } from '../../core';
+import { Color, Mat4, Vec3, cclegacy } from '../../core';
 import { BlendFactor } from '../../gfx';
 import { vfmtPosUvColor } from '../../2d/renderer/vertex-format';
 import { MaterialInstance } from '../../render-scene/core/material-instance';
@@ -33,11 +33,12 @@ import { Batcher2D } from '../../2d/renderer/batcher-2d';
 import { ArmatureFrame } from '../ArmatureCache';
 import { ArmatureDisplay } from '../ArmatureDisplay';
 import { CCSlot } from '../CCSlot';
-import { legacyCC } from '../../core/global-exports';
 import { StaticVBAccessor } from '../../2d/renderer/static-vb-accessor';
 import { RenderData } from '../../2d/renderer/render-data';
 import { Texture2D } from '../../asset/assets';
 import { TextureBase } from '../../asset/assets/texture-base';
+import { Node } from '../../scene-graph';
+import { director } from '../../game';
 
 const NEED_COLOR = 0x01;
 const NEED_BATCH = 0x10;
@@ -75,18 +76,10 @@ let _prevDrawIndexOffset = 0;
 const LOCAL_FLOAT_PER_VERTEX  = 4; //xyuv
 const PER_VERTEX_SIZE = 3 + 2 + 4; //xyz-uv-rgba;
 
-let _x: number;
-let _y: number;
 const _c = new Float32Array(4);
 let _handleVal: number;
-let _m00: number;
-let _m04: number;
-let _m12: number;
-let _m01: number;
-let _m05: number;
-let _m13: number;
+const _tempVecPos = new Vec3(0, 0, 0);
 const _slotMat = new Mat4();
-let _batcher: Batcher2D;
 
 let _currentMaterial: MaterialInstance | null = null;
 let _currentTexture: Texture2D | null = null;
@@ -159,7 +152,12 @@ export const simple: IAssembler = {
             let iCount = 0;
             for (let i = 0; i < slots.length; ++i) {
                 const slot = slots[i] as CCSlot;
-                vCount += slot._localVertices.length / LOCAL_FLOAT_PER_VERTEX;
+                const remainder = slot._localVertices.length % 4;
+                if (remainder === 0) {
+                    vCount += slot._localVertices.length / LOCAL_FLOAT_PER_VERTEX;
+                } else {
+                    vCount += (slot._localVertices.length - remainder) / LOCAL_FLOAT_PER_VERTEX + 1;
+                }
                 iCount += slot._indices.length;
             }
 
@@ -272,20 +270,17 @@ function realTimeTraverse (armature: Armature, parentOpacity: number, worldMat?:
             }
         }
 
-        _m00 = _slotMat.m00;
-        _m04 = _slotMat.m04;
-        _m12 = _slotMat.m12;
-        _m01 = _slotMat.m01;
-        _m05 = _slotMat.m05;
-        _m13 = _slotMat.m13;
         // vertext format:
         //       x y z u v r g b a
         for (let vi = 0, vl = vertices.length, v = _vertexFloatOffset; vi < vl; v += PER_VERTEX_SIZE) {
-            _x = vertices[vi++];
-            _y = vertices[vi++];
+            _tempVecPos.x = vertices[vi++];
+            _tempVecPos.y = vertices[vi++];
+            _tempVecPos.z = 0;
+            _tempVecPos.transformMat4(_slotMat);
 
-            _vbuf[v] = _x * _m00 + _y * _m04 + _m12; // x
-            _vbuf[v + 1] = _x * _m01 + _y * _m05 + _m13; // y
+            _vbuf[v] = _tempVecPos.x;
+            _vbuf[v + 1] = _tempVecPos.y;
+            _vbuf[v + 2] = _tempVecPos.z;
 
             _vbuf[v + 3] = vertices[vi++]; // u
             _vbuf[v + 4] = vertices[vi++]; // v
@@ -330,14 +325,6 @@ function cacheTraverse (frame: ArmatureFrame | null, parentMat?: Mat4) {
     let frameVFOffset = 0;
     let frameIndexOffset = 0;
     let segVFCount = 0;
-    if (parentMat) {
-        _m00 = parentMat.m00;
-        _m01 = parentMat.m01;
-        _m04 = parentMat.m04;
-        _m05 = parentMat.m05;
-        _m12 = parentMat.m12;
-        _m13 = parentMat.m13;
-    }
 
     let colorOffset = 0;
     const colors = frame.colors;
@@ -383,10 +370,13 @@ function cacheTraverse (frame: ArmatureFrame | null, parentMat?: Mat4) {
         let offset = 0;
         if (parentMat) {
             for (let ii = 0, il = _vertexCount; ii < il; ii++) {
-                _x = vbuf[offset];
-                _y = vbuf[offset + 1];
-                vbuf[offset] = _x * _m00 + _y * _m04 + _m12;
-                vbuf[offset + 1] = _x * _m01 + _y * _m05 + _m13;
+                _tempVecPos.x = vbuf[offset];
+                _tempVecPos.y = vbuf[offset + 1];
+                _tempVecPos.z = 0;
+                _tempVecPos.transformMat4(parentMat);
+                vbuf[offset] = _tempVecPos.x;
+                vbuf[offset + 1] = _tempVecPos.y;
+                vbuf[offset + 2] = _tempVecPos.z;
                 offset += PER_VERTEX_SIZE;
             }
         }
@@ -443,7 +433,7 @@ function updateComponentRenderData (comp: ArmatureDisplay, batcher: Batcher2D) {
         _handleVal |= NEED_COLOR;
     }
 
-    let worldMat: Mat4 | undefined;
+    const worldMat = comp.node.getWorldMatrix();
 
     _vertexFloatCount = 0;
     _vertexOffset = 0;
@@ -454,7 +444,6 @@ function updateComponentRenderData (comp: ArmatureDisplay, batcher: Batcher2D) {
     _actualVCount = _comp.maxVertexCount;
     _actualICount = _comp.maxIndexCount;
 
-    _batcher = batcher;
     if (comp.isAnimationCached()) {
         // Traverse input assembler.
         cacheTraverse(comp._curFrame, worldMat);
@@ -504,4 +493,4 @@ function updateComponentRenderData (comp: ArmatureDisplay, batcher: Batcher2D) {
     _comp = undefined;
 }
 
-legacyCC.internal.DragonBonesAssembler = simple;
+cclegacy.internal.DragonBonesAssembler = simple;

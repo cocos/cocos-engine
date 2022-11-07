@@ -23,7 +23,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 #include "3d/models/MorphModel.h"
-#include "core/event/EventTypesToJS.h"
 
 namespace cc {
 

@@ -27,7 +27,7 @@ import { Frustum, Ray } from '../../core/geometry';
 import { SurfaceTransform, ClearFlagBit, Device, Color, ClearFlags } from '../../gfx';
 import { lerp, Mat4, Rect, toRadian, Vec3, IVec4Like } from '../../core/math';
 import { CAMERA_DEFAULT_MASK } from '../../rendering/define';
-import { Node } from '../../core/scene-graph';
+import { Node } from '../../scene-graph';
 import { RenderScene } from '../core/render-scene';
 import { legacyCC } from '../../core/global-exports';
 import { RenderWindow } from '../core/render-window';
@@ -99,6 +99,7 @@ export enum CameraType {
     LEFT_EYE = 0,
     RIGHT_EYE = 1,
     MAIN = 2,
+    REFLECTION_PROBE = 3,
 }
 
 export enum TrackingType {
@@ -637,6 +638,8 @@ export class Camera {
     public initialize (info: ICameraInfo) {
         if (info.usage !== undefined) {
             this._usage = info.usage;
+        } else {
+            this.setDefaultUsage();
         }
         if (info.trackingType !== undefined) {
             this._trackingType = info.trackingType;
@@ -1070,5 +1073,17 @@ export class Camera {
     private updateExposure () {
         const ev100 = Math.log2((this._apertureValue * this._apertureValue) / this._shutterValue * 100.0 / this._isoValue);
         this.setExposure(ev100);
+    }
+
+    private setDefaultUsage () {
+        if (EDITOR) {
+            if (legacyCC.GAME_VIEW) {
+                this._usage = CameraUsage.GAME_VIEW;
+            } else {
+                this._usage = CameraUsage.EDITOR;
+            }
+        } else {
+            this._usage = CameraUsage.GAME;
+        }
     }
 }

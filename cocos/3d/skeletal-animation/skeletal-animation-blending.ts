@@ -24,8 +24,8 @@
  */
 
 import { DEBUG } from 'internal:constants';
-import { Vec3, Quat } from '../../core/math';
-import { Node } from '../../core/scene-graph';
+import { Vec3, Quat } from '../../core';
+import { Node } from '../../scene-graph';
 import { RuntimeBinding } from '../../animation/tracks/track';
 import { assertIsTrue } from '../../core/data/utils/asserts';
 import { MAX_ANIMATION_LAYER } from './limits';

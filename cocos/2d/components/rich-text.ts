@@ -28,20 +28,17 @@ import { ccclass, executeInEditMode, executionOrder, help, menu, tooltip, multil
 import { DEBUG, DEV, EDITOR } from 'internal:constants';
 import { Font, SpriteAtlas, TTFFont, SpriteFrame } from '../assets';
 import { EventTouch } from '../../input/types';
-import { assert, warnID } from '../../core/platform';
-import { BASELINE_RATIO, fragmentText, isUnicodeCJK, isUnicodeSpace, isEnglishWordPartAtFirst, isEnglishWordPartAtLast, getEnglishWordPartAtFirst, getEnglishWordPartAtLast } from '../utils/text-utils';
-import { HtmlTextParser, IHtmlTextParserResultObj, IHtmlTextParserStack } from '../utils/html-text-parser';
+import { assert, warnID, Color, Vec2, CCObject, cclegacy } from '../../core';
 import Pool from '../../core/utils/pool';
-import { Color, Vec2 } from '../../core/math';
-import { Node } from '../../core/scene-graph';
+import { BASELINE_RATIO, fragmentText, isUnicodeCJK, isUnicodeSpace, getEnglishWordPartAtFirst, getEnglishWordPartAtLast } from '../utils/text-utils';
+import { HtmlTextParser, IHtmlTextParserResultObj, IHtmlTextParserStack } from '../utils/html-text-parser';
+import { Node } from '../../scene-graph';
 import { CacheMode, HorizontalTextAlignment, Label, VerticalTextAlignment } from './label';
 import { LabelOutline } from './label-outline';
 import { Sprite } from './sprite';
 import { UITransform } from '../framework';
-import { legacyCC } from '../../core/global-exports';
-import { Component } from '../../core/components';
-import { CCObject } from '../../core';
-import { NodeEventType } from '../../core/scene-graph/node-event';
+import { Component } from '../../scene-graph/component';
+import { NodeEventType } from '../../scene-graph/node-event';
 
 const _htmlTextParser = new HtmlTextParser();
 const RichTextChildName = 'RICHTEXT_CHILD';
@@ -54,7 +51,7 @@ const labelPool = new Pool((seg: ISegment) => {
     if (DEV) {
         assert(!seg.node.parent, 'Recycling node\'s parent should be null!');
     }
-    if (!legacyCC.isValid(seg.node)) {
+    if (!cclegacy.isValid(seg.node)) {
         return false;
     } else {
         const outline = seg.node.getComponent(LabelOutline);
@@ -69,7 +66,7 @@ const imagePool = new Pool((seg: ISegment) => {
     if (DEV) {
         assert(!seg.node.parent, 'Recycling node\'s parent should be null!');
     }
-    return legacyCC.isValid(seg.node) as boolean;
+    return cclegacy.isValid(seg.node) as boolean;
 }, 10);
 
 //
@@ -483,6 +480,7 @@ export class RichText extends Component {
 
     public onLoad () {
         this.node.on(NodeEventType.LAYER_CHANGED, this._applyLayer, this);
+        this.node.on(NodeEventType.ANCHOR_CHANGED, this._updateRichTextPosition, this);
     }
 
     public onEnable () {
@@ -500,11 +498,6 @@ export class RichText extends Component {
         }
 
         this._activateChildren(false);
-    }
-
-    public start () {
-        this._onTTFLoaded();
-        this.node.on(NodeEventType.ANCHOR_CHANGED, this._updateRichTextPosition, this);
     }
 
     public onRestore () {
@@ -571,9 +564,17 @@ export class RichText extends Component {
     /**
     * @engineInternal
     */
-    protected SplitLongStringApproximatelyIn2048 (text: string, styleIndex: number) {
-        const labelSize = this._calculateSize(styleIndex, text);
+    protected splitLongStringApproximatelyIn2048 (text: string, styleIndex: number) {
+        const approxSize = text.length * this.fontSize;
         const partStringArr: string[] = [];
+        // avoid that many short richtext still execute _calculateSize so that performance is low
+        // we set a threshold as 2048 * 0.8, if the estimated size is less than it, we can skip _calculateSize precisely
+        if (approxSize <= 2048 * 0.8) {
+            partStringArr.push(text);
+            return partStringArr;
+        }
+
+        const labelSize = this._calculateSize(styleIndex, text);
         if (labelSize.x < 2048) {
             partStringArr.push(text);
         } else {
@@ -1040,7 +1041,7 @@ export class RichText extends Component {
                 }
             }
 
-            const splitArr: string[] = this.SplitLongStringApproximatelyIn2048(text, i);
+            const splitArr: string[] = this.splitLongStringApproximatelyIn2048(text, i);
             text = splitArr.join('\n');
 
             const multilineTexts = text.split('\n');
@@ -1263,12 +1264,6 @@ export class RichText extends Component {
         label.lineHeight = this._lineHeight;
 
         label.updateRenderData(true);
-        // Todo: need update context size after this function call
-        // @ts-expect-error update assembler renderData for richText
-        const assembler = label._assembler;
-        if (assembler) {
-            assembler.updateRenderData(label);
-        }
     }
 
     protected _applyLayer () {
@@ -1286,4 +1281,4 @@ export class RichText extends Component {
     }
 }
 
-legacyCC.RichText = RichText;
+cclegacy.RichText = RichText;

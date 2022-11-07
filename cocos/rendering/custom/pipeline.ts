@@ -34,158 +34,156 @@ import { Camera } from '../../render-scene/scene/camera';
 import { GeometryRenderer } from '../geometry-renderer';
 import { Buffer, Color, CommandBuffer, DescriptorSet, DescriptorSetLayout, Device, DrawInfo, Format, InputAssembler, PipelineState, Rect, Sampler, Swapchain, Texture, UniformBlock, Viewport } from '../../gfx';
 import { GlobalDSManager } from '../global-descriptor-set-manager';
-import { DescriptorBlockFlattened, DescriptorBlockIndex } from './layout-graph';
 import { Mat4, Quat, Vec2, Vec4 } from '../../core/math';
 import { MacroRecord } from '../../render-scene/core/pass-utils';
 import { PipelineSceneData } from '../pipeline-scene-data';
-import { ComputeView, LightInfo, QueueHint, RasterView, ResourceResidency, SceneFlags, TaskType, UpdateFrequency } from './types';
-import { CopyPair, MovePair } from './render-graph';
+import { ComputeView, CopyPair, DescriptorBlockFlattened, DescriptorBlockIndex, LightInfo, MovePair, QueueHint, RasterView, ResourceResidency, SceneFlags, TaskType, UpdateFrequency } from './types';
 import { RenderScene } from '../../render-scene/core/render-scene';
 import { RenderWindow } from '../../render-scene/core/render-window';
 import { Model } from '../../render-scene/scene';
 
-export abstract class PipelineRuntime {
-    public abstract activate(swapchain: Swapchain): boolean;
-    public abstract destroy(): boolean;
-    public abstract render(cameras: Camera[]): void;
-    public abstract get device(): Device;
-    public abstract get globalDSManager(): GlobalDSManager;
-    public abstract get descriptorSetLayout(): DescriptorSetLayout;
-    public abstract get descriptorSet(): DescriptorSet;
-    public abstract get commandBuffers(): CommandBuffer[];
-    public abstract get pipelineSceneData(): PipelineSceneData;
-    public abstract get constantMacros(): string;
-    public abstract get profiler(): Model | null;
-    public abstract set profiler(profiler: Model | null);
-    public abstract get geometryRenderer(): GeometryRenderer | null;
-    public abstract get shadingScale(): number;
-    public abstract set shadingScale(scale: number);
-    public abstract getMacroString(name: string): string;
-    public abstract getMacroInt(name: string): number;
-    public abstract getMacroBool(name: string): boolean;
-    public abstract setMacroString(name: string, value: string): void;
-    public abstract setMacroInt(name: string, value: number): void;
-    public abstract setMacroBool(name: string, value: boolean): void;
-    public abstract onGlobalPipelineStateChanged(): void;
+export interface PipelineRuntime {
+    activate (swapchain: Swapchain): boolean;
+    destroy (): boolean;
+    render (cameras: Camera[]): void;
+    readonly device: Device;
+    readonly globalDSManager: GlobalDSManager;
+    readonly descriptorSetLayout: DescriptorSetLayout;
+    readonly descriptorSet: DescriptorSet;
+    readonly commandBuffers: CommandBuffer[];
+    readonly pipelineSceneData: PipelineSceneData;
+    readonly constantMacros: string;
+    profiler: Model | null;
+    readonly geometryRenderer: GeometryRenderer | null;
+    shadingScale: number;
+    getMacroString (name: string): string;
+    getMacroInt (name: string): number;
+    getMacroBool (name: string): boolean;
+    setMacroString (name: string, value: string): void;
+    setMacroInt (name: string, value: number): void;
+    setMacroBool (name: string, value: boolean): void;
+    onGlobalPipelineStateChanged (): void;
 
-    public abstract get macros(): MacroRecord;
+    readonly macros: MacroRecord;
 }
 
-export abstract class Setter {
-    public abstract setMat4(name: string, mat: Mat4): void;
-    public abstract setQuaternion(name: string, quat: Quat): void;
-    public abstract setColor(name: string, color: Color): void;
-    public abstract setVec4(name: string, vec: Vec4): void;
-    public abstract setVec2(name: string, vec: Vec2): void;
-    public abstract setFloat(name: string, v: number): void;
-    public abstract setBuffer(name: string, buffer: Buffer): void;
-    public abstract setTexture(name: string, texture: Texture): void;
-    public abstract setReadWriteBuffer(name: string, buffer: Buffer): void;
-    public abstract setReadWriteTexture(name: string, texture: Texture): void;
-    public abstract setSampler(name: string, sampler: Sampler): void;
+export interface RenderNode {
+    name: string;
 }
 
-export abstract class RasterQueueBuilder extends Setter {
-    public abstract addSceneOfCamera(camera: Camera, light: LightInfo, sceneFlags: SceneFlags, name: string): void;
-    public abstract addSceneOfCamera(camera: Camera, light: LightInfo, sceneFlags: SceneFlags): void;
-    public abstract addScene(name: string, sceneFlags: SceneFlags): void;
-    public abstract addFullscreenQuad(material: Material, passID: number, sceneFlags: SceneFlags, name: string): void;
-    public abstract addFullscreenQuad(material: Material, passID: number, sceneFlags: SceneFlags): void;
-    public abstract addCameraQuad(camera: Camera, material: Material, passID: number, sceneFlags: SceneFlags, name: string): void;
-    public abstract addCameraQuad(camera: Camera, material: Material, passID: number, sceneFlags: SceneFlags): void;
-    public abstract clearRenderTarget(name: string, color: Color): void;
-    public abstract setViewport(viewport: Viewport): void;
+export interface Setter extends RenderNode {
+    setMat4 (name: string, mat: Mat4): void;
+    setQuaternion (name: string, quat: Quat): void;
+    setColor (name: string, color: Color): void;
+    setVec4 (name: string, vec: Vec4): void;
+    setVec2 (name: string, vec: Vec2): void;
+    setFloat (name: string, v: number): void;
+    setBuffer (name: string, buffer: Buffer): void;
+    setTexture (name: string, texture: Texture): void;
+    setReadWriteBuffer (name: string, buffer: Buffer): void;
+    setReadWriteTexture (name: string, texture: Texture): void;
+    setSampler (name: string, sampler: Sampler): void;
 }
 
-export abstract class RasterPassBuilder extends Setter {
-    public abstract addRasterView(name: string, view: RasterView): void;
-    public abstract addComputeView(name: string, view: ComputeView): void;
-    public abstract addQueue(hint: QueueHint, name: string): RasterQueueBuilder;
-    public abstract addQueue(hint: QueueHint): RasterQueueBuilder;
-    public abstract addFullscreenQuad(material: Material, passID: number, sceneFlags: SceneFlags, name: string): void;
-    public abstract addFullscreenQuad(material: Material, passID: number, sceneFlags: SceneFlags): void;
-    public abstract addCameraQuad(camera: Camera, material: Material, passID: number, sceneFlags: SceneFlags, name: string): void;
-    public abstract addCameraQuad(camera: Camera, material: Material, passID: number, sceneFlags: SceneFlags): void;
-    public abstract setViewport(viewport: Viewport): void;
+export interface RasterQueueBuilder extends Setter {
+    addSceneOfCamera (camera: Camera, light: LightInfo, sceneFlags: SceneFlags): void;
+    addSceneOfCamera (camera: Camera, light: LightInfo/*, SceneFlags.NONE*/): void;
+    addScene (name: string, sceneFlags: SceneFlags): void;
+    addScene (name: string/*, SceneFlags.NONE*/): void;
+    addFullscreenQuad (material: Material, passID: number, sceneFlags: SceneFlags): void;
+    addFullscreenQuad (material: Material, passID: number/*, SceneFlags.NONE*/): void;
+    addCameraQuad (camera: Camera, material: Material, passID: number, sceneFlags: SceneFlags): void;
+    addCameraQuad (camera: Camera, material: Material, passID: number/*, SceneFlags.NONE*/): void;
+    clearRenderTarget (name: string, color: Color): void;
+    clearRenderTarget (name: string/*, new Color()*/): void;
+    setViewport (viewport: Viewport): void;
 }
 
-export abstract class ComputeQueueBuilder extends Setter {
-    public abstract addDispatch(shader: string, threadGroupCountX: number, threadGroupCountY: number, threadGroupCountZ: number, name: string): void;
-    public abstract addDispatch(shader: string, threadGroupCountX: number, threadGroupCountY: number, threadGroupCountZ: number): void;
+export interface RasterPassBuilder extends Setter {
+    addRasterView (name: string, view: RasterView): void;
+    addComputeView (name: string, view: ComputeView): void;
+    addQueue (hint: QueueHint): RasterQueueBuilder;
+    addQueue (/*QueueHint.NONE*/): RasterQueueBuilder;
+    setViewport (viewport: Viewport): void;
 }
 
-export abstract class ComputePassBuilder extends Setter {
-    public abstract addComputeView(name: string, view: ComputeView): void;
-    public abstract addQueue(name: string): ComputeQueueBuilder;
-    public abstract addQueue(): ComputeQueueBuilder;
-    public abstract addDispatch(shader: string, threadGroupCountX: number, threadGroupCountY: number, threadGroupCountZ: number, name: string): void;
-    public abstract addDispatch(shader: string, threadGroupCountX: number, threadGroupCountY: number, threadGroupCountZ: number): void;
+export interface ComputeQueueBuilder extends Setter {
+    addDispatch (shader: string, threadGroupCountX: number, threadGroupCountY: number, threadGroupCountZ: number): void;
 }
 
-export abstract class MovePassBuilder {
-    public abstract addPair(pair: MovePair): void;
+export interface ComputePassBuilder extends Setter {
+    addComputeView (name: string, view: ComputeView): void;
+    addQueue (): ComputeQueueBuilder;
 }
 
-export abstract class CopyPassBuilder {
-    public abstract addPair(pair: CopyPair): void;
+export interface MovePassBuilder extends RenderNode {
+    addPair (pair: MovePair): void;
 }
 
-export abstract class SceneVisitor {
-    public abstract get pipelineSceneData(): PipelineSceneData;
-    public abstract setViewport(vp: Viewport): void;
-    public abstract setScissor(rect: Rect): void;
-    public abstract bindPipelineState(pso: PipelineState): void;
-    public abstract bindInputAssembler(ia: InputAssembler): void;
-    public abstract draw(info: DrawInfo): void;
-
-    public abstract bindDescriptorSet (set: number, descriptorSet: DescriptorSet, dynamicOffsets?: number[]): void;
-    public abstract updateBuffer (buffer: Buffer, data: ArrayBuffer, size?: number): void;
+export interface CopyPassBuilder extends RenderNode {
+    addPair (pair: CopyPair): void;
 }
 
-export abstract class SceneTask {
-    public abstract get taskType(): TaskType;
-    public abstract start(): void;
-    public abstract join(): void;
-    public abstract submit(): void;
+export interface SceneVisitor {
+    readonly pipelineSceneData: PipelineSceneData;
+    setViewport (vp: Viewport): void;
+    setScissor (rect: Rect): void;
+    bindPipelineState (pso: PipelineState): void;
+    bindInputAssembler (ia: InputAssembler): void;
+    draw (info: DrawInfo): void;
+
+    bindDescriptorSet (set: number, descriptorSet: DescriptorSet, dynamicOffsets?: number[]): void;
+    updateBuffer (buffer: Buffer, data: ArrayBuffer, size?: number): void;
 }
 
-export abstract class SceneTransversal {
-    public abstract transverse(visitor: SceneVisitor): SceneTask;
+export interface SceneTask {
+    readonly taskType: TaskType;
+    start (): void;
+    join (): void;
+    submit (): void;
 }
 
-export abstract class LayoutGraphBuilder {
-    public abstract clear(): void;
-    public abstract addRenderStage(name: string): number;
-    public abstract addRenderPhase(name: string, parentID: number): number;
-    public abstract addShader(name: string, parentPhaseID: number): void;
-    public abstract addDescriptorBlock(nodeID: number, index: DescriptorBlockIndex, block: DescriptorBlockFlattened): void;
-    public abstract addUniformBlock(nodeID: number, index: DescriptorBlockIndex, name: string, uniformBlock: UniformBlock): void;
-    public abstract reserveDescriptorBlock(nodeID: number, index: DescriptorBlockIndex, block: DescriptorBlockFlattened): void;
-    public abstract compile(): number;
-    public abstract print(): string;
+export interface SceneTransversal {
+    transverse (visitor: SceneVisitor): SceneTask;
 }
 
-export abstract class Pipeline extends PipelineRuntime {
-    public abstract containsResource(name: string): boolean;
-    public abstract addRenderTexture(name: string, format: Format, width: number, height: number, renderWindow: RenderWindow): number;
-    public abstract addRenderTarget(name: string, format: Format, width: number, height: number, residency: ResourceResidency): number;
-    public abstract addDepthStencil(name: string, format: Format, width: number, height: number, residency: ResourceResidency): number;
-    public abstract beginFrame(): void;
-    public abstract endFrame(): void;
-    public abstract addRasterPass(width: number, height: number, layoutName: string, name: string): RasterPassBuilder;
-    public abstract addRasterPass(width: number, height: number, layoutName: string): RasterPassBuilder;
-    public abstract addComputePass(layoutName: string, name: string): ComputePassBuilder;
-    public abstract addComputePass(layoutName: string): ComputePassBuilder;
-    public abstract addMovePass(name: string): MovePassBuilder;
-    public abstract addCopyPass(name: string): CopyPassBuilder;
-    public abstract presentAll(): void;
-    public abstract createSceneTransversal(camera: Camera, scene: RenderScene): SceneTransversal;
-    public abstract get layoutGraphBuilder(): LayoutGraphBuilder;
-    public abstract getDescriptorSetLayout(shaderName: string, freq: UpdateFrequency): DescriptorSetLayout | null;
+export interface LayoutGraphBuilder {
+    clear (): void;
+    addRenderStage (name: string): number;
+    addRenderPhase (name: string, parentID: number): number;
+    addShader (name: string, parentPhaseID: number): void;
+    addDescriptorBlock (nodeID: number, index: DescriptorBlockIndex, block: DescriptorBlockFlattened): void;
+    addUniformBlock (nodeID: number, index: DescriptorBlockIndex, name: string, uniformBlock: UniformBlock): void;
+    reserveDescriptorBlock (nodeID: number, index: DescriptorBlockIndex, block: DescriptorBlockFlattened): void;
+    compile (): number;
+    print (): string;
 }
 
-export abstract class PipelineBuilder {
-    public abstract setup(cameras: Camera[], pipeline: Pipeline): void;
+export interface Pipeline extends PipelineRuntime {
+    beginSetup (): void;
+    endSetup (): void;
+    containsResource (name: string): boolean;
+    addRenderTexture (name: string, format: Format, width: number, height: number, renderWindow: RenderWindow): number;
+    addRenderTarget (name: string, format: Format, width: number, height: number, residency: ResourceResidency): number;
+    addRenderTarget (name: string, format: Format, width: number, height: number/*, ResourceResidency.MANAGED*/): number;
+    addDepthStencil (name: string, format: Format, width: number, height: number, residency: ResourceResidency): number;
+    addDepthStencil (name: string, format: Format, width: number, height: number/*, ResourceResidency.MANAGED*/): number;
+    updateRenderWindow (name: string, renderWindow: RenderWindow): void;
+    beginFrame (): void;
+    endFrame (): void;
+    addRasterPass (width: number, height: number, layoutName: string): RasterPassBuilder;
+    addRasterPass (width: number, height: number/*, 'default'*/): RasterPassBuilder;
+    addComputePass (layoutName: string): ComputePassBuilder;
+    addMovePass (): MovePassBuilder;
+    addCopyPass (): CopyPassBuilder;
+    presentAll (): void;
+    createSceneTransversal (camera: Camera, scene: RenderScene): SceneTransversal;
+    readonly layoutGraphBuilder: LayoutGraphBuilder;
+    getDescriptorSetLayout (shaderName: string, freq: UpdateFrequency): DescriptorSetLayout | null;
+}
+
+export interface PipelineBuilder {
+    setup (cameras: Camera[], pipeline: Pipeline): void;
 }
 
 export class Factory {

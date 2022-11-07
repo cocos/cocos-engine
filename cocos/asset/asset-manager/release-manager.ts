@@ -26,7 +26,7 @@
 import { EDITOR, TEST } from 'internal:constants';
 import { Asset } from '../assets/asset';
 import { isValid } from '../../core/data/object';
-import { Node, Scene } from '../../core/scene-graph';
+import { Node, Scene } from '../../scene-graph';
 import Cache from './cache';
 import dependUtil from './depend-util';
 import { assets, references } from './shared';

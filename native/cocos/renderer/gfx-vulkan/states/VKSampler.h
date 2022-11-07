@@ -27,21 +27,20 @@
 
 #include "../VKStd.h"
 #include "gfx-base/states/GFXSampler.h"
+#include "gfx-vulkan/VKGPUObjects.h"
 
 namespace cc {
 namespace gfx {
 
-struct CCVKGPUSampler;
-
 class CC_VULKAN_API CCVKSampler final : public Sampler {
 public:
     explicit CCVKSampler(const SamplerInfo &info);
-    ~CCVKSampler() override;
+    ~CCVKSampler() override = default;
 
     inline CCVKGPUSampler *gpuSampler() const { return _gpuSampler; }
 
 protected:
-    CCVKGPUSampler *_gpuSampler = nullptr;
+    IntrusivePtr<CCVKGPUSampler> _gpuSampler;
 };
 
 } // namespace gfx

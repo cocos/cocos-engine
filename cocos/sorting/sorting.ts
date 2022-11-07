@@ -26,8 +26,8 @@
 import { ccclass, disallowMultiple, editable, executeInEditMode, menu, range, serializable, type } from 'cc.decorator';
 import { clamp } from '../core/math';
 import { SortingLayers } from './sorting-layers';
-import { Component } from '../core/components/component';
-import { ModelRenderer } from '../core/components/model-renderer';
+import { Component } from '../scene-graph/component';
+import { ModelRenderer } from '../misc/model-renderer';
 import { warnID } from '../core/platform/debug';
 
 const MAX_INT16 = (1 << 15) - 1;

@@ -26,7 +26,6 @@
 #include "core/geometry/Frustum.h"
 #include <cmath>
 #include "core/geometry/Enums.h"
-#include "scene/Camera.h"
 #include "scene/Define.h"
 
 namespace cc {
@@ -87,39 +86,6 @@ Frustum *Frustum::createFromAABB(Frustum *out, const AABB &aabb) {
 
     out->updatePlanes();
 
-    return out;
-}
-
-Frustum *Frustum::split(Frustum *out, const scene::Camera &camera, const Mat4 &m, float start, float end) {
-    // 0: cameraNear  1:cameraFar
-    auto h = static_cast<float>(::tan(camera.getFov() * 0.5));
-    float w = h * camera.getAspect();
-    Vec3 nearTemp{start * w, start * h, start};
-    Vec3 farTemp{end * w, end * h, end};
-    Vec3 v3Tmp;
-
-    auto &vertexes = out->vertices;
-    // startHalfWidth startHalfHeight
-    v3Tmp.set(nearTemp.x, nearTemp.y, nearTemp.z);
-    vertexes[0].transformMat4(v3Tmp, m);
-    v3Tmp.set(-nearTemp.x, nearTemp.y, nearTemp.z);
-    vertexes[1].transformMat4(v3Tmp, m);
-    v3Tmp.set(-nearTemp.x, -nearTemp.y, nearTemp.z);
-    vertexes[2].transformMat4(v3Tmp, m);
-    v3Tmp.set(nearTemp.x, -nearTemp.y, nearTemp.z);
-    vertexes[3].transformMat4(v3Tmp, m);
-
-    // endHalfWidth, endHalfHeight
-    v3Tmp.set(farTemp.x, farTemp.y, farTemp.z);
-    vertexes[4].transformMat4(v3Tmp, m);
-    v3Tmp.set(-farTemp.x, farTemp.y, farTemp.z);
-    vertexes[5].transformMat4(v3Tmp, m);
-    v3Tmp.set(-farTemp.x, -farTemp.y, farTemp.z);
-    vertexes[6].transformMat4(v3Tmp, m);
-    v3Tmp.set(farTemp.x, -farTemp.y, farTemp.z);
-    vertexes[7].transformMat4(v3Tmp, m);
-
-    out->updatePlanes();
     return out;
 }
 
