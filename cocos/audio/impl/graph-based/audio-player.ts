@@ -105,6 +105,7 @@ export class AudioPlayerX extends DynamicPath<AudioState, AudioAction> implement
     //     return this._sourceNode.clip;
     // }
     set playbackRate (rate: number) {
+        clamp(rate, 0.25, rate);
         this._sourceNode.playbackRate = rate;
     }
     get playbackRate (): number {

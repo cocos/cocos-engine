@@ -1,5 +1,5 @@
+#pragma once
 #include "audio/graph_based/AudioNode.h"
-#include "LabSound/core/StereoPannerNode.h"
 namespace cc {
 class AudioContext;
 struct StereoPannerOptions : public AudioNodeOptions {

@@ -33,7 +33,6 @@
 
 #include <jni.h>
 #include "JniHelper.h"
-#include "cocos/audio/include/AudioEngine.h"
 
 #ifndef JCLS_HELPER
     #define JCLS_HELPER "com/cocos/lib/CocosHelper"
@@ -159,7 +158,7 @@ float *getDeviceMotionValueJNI() {
 extern "C" {
 JNIEXPORT void JNICALL JNI_AUDIO(nativeSetAudioVolumeFactor)(JNIEnv * /*env*/, jclass /* thiz*/, jfloat volumeFactor) {
 #if CC_USE_AUDIO
-    AudioEngine::setVolumeFactor(volumeFactor);
+//    AudioEngine::setVolumeFactor(volumeFactor);
 #endif
 }
 }

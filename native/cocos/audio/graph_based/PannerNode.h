@@ -1,3 +1,4 @@
+#pragma once
 #include "audio/graph_based/AudioNode.h"
 #include "LabSound/core/PannerNode.h"
 namespace cc {

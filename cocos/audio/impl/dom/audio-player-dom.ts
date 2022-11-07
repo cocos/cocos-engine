@@ -111,6 +111,7 @@ export class AudioPlayerDom extends DynamicPath<AudioState, AudioAction> impleme
         return this._clip;
     }
     set playbackRate (rate: number) {
+        clamp(rate, 0.25, rate);
         this._domAudio.playbackRate = rate;
     }
     get playbackRate (): number {

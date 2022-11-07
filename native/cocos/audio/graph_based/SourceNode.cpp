@@ -1,5 +1,8 @@
 #include "audio/graph_based/SourceNode.h"
-#include "audio/AudioClip.h"
+#include "audio/graph_based/AudioNode.h"
+#include "audio/graph_based/AudioParam.h"
+#include "audio/graph_based/AudioBuffer.h"
+#include "audio/graph_based/BaseAudioContext.h"
 #include "base/Log.h"
 #include "LabSound/core/SampledAudioNode.h"
 #include "LabSound/extended/AudioContextLock.h"
@@ -18,6 +21,9 @@ SourceNode::SourceNode(BaseAudioContext* ctx, AudioBuffer* buffer) {
     }
     _ctx->connect(_gain, _absn);
     _playbackRate = AudioParam::createParam(_absn->playbackRate());
+    _absn->setOnEnded([&](){
+        _onEnd();
+    });
 }
 
  AudioNode* SourceNode::connect(AudioNode* node) {
@@ -37,6 +43,14 @@ void SourceNode::disconnect() {
     _connections.clear();
     _ctx->disconnect(_gain);
 }
+void SourceNode::_onEnd() {
+    _innerState = ABSNState::PAUSED;
+    _pastTime = 0;
+    if (_finishCallback) {
+        _finishCallback();
+    }
+}
+
 void SourceNode::start(float time) {
     if (!_buffer) {
         CC_LOG_ERROR("[SourceNode] No buffer is provided!! Play audio failed");
@@ -95,6 +109,7 @@ void SourceNode::_pureStart(float time) {
     _absn->schedule(0, time, _loop?-1:0);
     _startTime = _ctx->currentTime();
     _innerState = ABSNState::PLAYING;
+    _absn->playbackRate()->setValue(_cachePlaybackRate);
 }
 void SourceNode::setBuffer(AudioBuffer* buffer) {
     _buffer.reset(buffer);
@@ -106,10 +121,20 @@ AudioBuffer* SourceNode::getBuffer() {
     return _buffer.get();
 }
 void SourceNode::setPlaybackRate(float rate) {
-    _playbackRate->setValue(rate);
+    _pastTime = getCurrentTime();
+    _startTime = _ctx->currentTime();
+    _cachePlaybackRate = _absn->playbackRate()->value();
+
+    if (_innerState == ABSNState::PLAYING) {
+        _playbackRate->setValue(rate);
+    }
 }
 float SourceNode::getPlaybackRate() {
-    return _playbackRate->getValue();
+    // return cached playback rate otherwise the playback rate is not accurate.
+    return _cachePlaybackRate;
+}
+void SourceNode::setOnEnded(std::function<void()> fn) {
+    _finishCallback = fn;
 }
 void SourceNode::setLoop(bool loop) {
     if (loop != _loop) {

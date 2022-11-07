@@ -1,9 +1,9 @@
 #include "audio/graph_based/BaseAudioContext.h"
 #include "audio/graph_based/AudioBuffer.h"
-#include "audio/graph_based/AudioDestinationNode.h"
 #include "audio/graph_based/SourceNode.h"
 #include "audio/graph_based/GainNode.h"
-#include "audio/graph_based/PannerNode.h"
+#include "audio/graph_based/StereoPannerNode.h"
+#include "audio/graph_based/AudioDestinationNode.h"
 #include "LabSound/LabSound.h"
 namespace cc {
 AudioContextState BaseAudioContext::getState() {
@@ -16,7 +16,9 @@ AudioBuffer* BaseAudioContext::createBuffer(uint32_t numOfChannels, uint32_t len
     auto options = AudioBufferOptions{numOfChannels, length, sampleRate};
     return new AudioBuffer(options);
 }
-
+StereoPannerNode* BaseAudioContext::createStereoPanner() {
+    return new StereoPannerNode(this);
+}
 GainNode* BaseAudioContext::createGain() {
     return new GainNode(this);
 }
@@ -24,6 +26,9 @@ GainNode* BaseAudioContext::createGain() {
 AudioBuffer* BaseAudioContext::decodeAudioData(const ccstd::string& url) {
     return AudioBuffer::createBuffer(url);
 
+}
+AudioDestinationNode* BaseAudioContext::getDestination() {
+    return _dest;
 }
 //PannerNode* BaseAudioContext::createPanner() {
 //    return new PannerNode(this);

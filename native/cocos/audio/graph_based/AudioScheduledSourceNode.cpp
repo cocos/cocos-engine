@@ -1,5 +1,7 @@
 #include "audio/graph_based/AudioScheduledSourceNode.h"
+#include "audio/graph_based/BaseAudioContext.h"
 namespace cc {
+AudioScheduledSourceNode::AudioScheduledSourceNode(BaseAudioContext *ctx) : AudioNode(ctx){}
 AudioScheduledSourceNode::~AudioScheduledSourceNode() {
 
 }

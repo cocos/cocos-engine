@@ -1,4 +1,5 @@
 #include "audio/graph_based/StereoPannerNode.h"
+#include "audio/graph_based/BaseAudioContext.h"
 #include "LabSound/core/StereoPannerNode.h"
 namespace cc {
 StereoPannerNode::StereoPannerNode(BaseAudioContext* ctx, const StereoPannerOptions& options) : AudioNode(ctx) {

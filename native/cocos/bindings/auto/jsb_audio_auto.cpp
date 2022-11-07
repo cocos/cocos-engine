@@ -508,6 +508,33 @@ static bool js_cc_BaseAudioContext_createBuffer(se::State& s)
 }
 SE_BIND_FUNC(js_cc_BaseAudioContext_createBuffer) 
 
+static bool js_cc_BaseAudioContext_createStereoPanner(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::BaseAudioContext *arg1 = (cc::BaseAudioContext *) NULL ;
+    cc::StereoPannerNode *result = 0 ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::BaseAudioContext>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (cc::StereoPannerNode *)(arg1)->createStereoPanner();
+    // %typemap(out) SWIGTYPE*
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "BaseAudioContext_createStereoPanner, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_BaseAudioContext_createStereoPanner) 
+
 static bool js_cc_BaseAudioContext_createGain(se::State& s)
 {
     // js_function
@@ -646,6 +673,7 @@ bool js_register_cc_BaseAudioContext(se::Object* obj) {
     
     cls->defineFunction("onStateChanged", _SE(js_cc_BaseAudioContext_onStateChanged)); 
     cls->defineFunction("createBuffer", _SE(js_cc_BaseAudioContext_createBuffer)); 
+    cls->defineFunction("createStereoPanner", _SE(js_cc_BaseAudioContext_createStereoPanner)); 
     cls->defineFunction("createGain", _SE(js_cc_BaseAudioContext_createGain)); 
     cls->defineFunction("getInnerContext", _SE(js_cc_BaseAudioContext_getInnerContext)); 
     
@@ -3293,7 +3321,7 @@ static bool js_delete_cc_StereoPannerNode(se::State& s)
 SE_BIND_FINALIZE_FUNC(js_delete_cc_StereoPannerNode) 
 
 bool js_register_cc_StereoPannerNode(se::Object* obj) {
-    auto* cls = se::Class::create("StereoPannerNode", obj, nullptr, _SE(js_new_StereoPannerNode)); 
+    auto* cls = se::Class::create("StereoPannerNode", obj, __jsb_cc_AudioNode_proto, _SE(js_new_StereoPannerNode)); 
     
     cls->defineProperty("pan", _SE(js_cc_StereoPannerNode_pan_get), nullptr); 
     

@@ -1,7 +1,7 @@
+#pragma once
 #include "audio/graph_based/AudioNode.h"
-#include "LabSound/core/GainNode.h"
 namespace cc {
-class AudioContext;
+class BaseAudioContext;
 struct GainNodeOptions : public AudioNodeOptions {
     /* A-Rate range */
     float gain{1.0};

@@ -8,16 +8,19 @@ export const StereoPannerNode = jsb.StereoPannerNode;
 export const AudioDestinationNode = jsb.AudioDestinationNode;
 
 jsb.AudioContext.prototype.decodeAudioDataFromUrl = function(url: string): Promise<AudioBuffer> {
-        return new Promise<AudioBuffer>((resolve, reject) => {
-            this.decodeAudioData(url, (buffer: AudioBuffer) => {
-                if (buffer) {
-                    resolve(buffer);
-                } else {
-                    reject();
-                }
-            })
-        });
+    return new Promise<AudioBuffer>((resolve, reject) => {
+        this.decodeAudioData(url, (buffer: AudioBuffer) => {
+            if (buffer) {
+                resolve(buffer);
+            } else {
+                reject();
+            }
+        })
+    });
 }
 export const AudioContext = jsb.AudioContext;
 export const defaultContext = new AudioContext();
 
+jsb.SourceNode.prototype.onEnded = function(callback: ()=>void) {
+    this.setOnEnded(callback);
+}

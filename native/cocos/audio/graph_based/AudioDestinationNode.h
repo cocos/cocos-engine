@@ -1,5 +1,7 @@
+#pragma once
 #include "audio/graph_based/AudioNode.h"
 namespace cc {
+class BaseAudioContext;
 class AudioDestinationNode : public AudioNode {
 public:
     uint32_t getMaxChannelCount() { return _maxChannelCount; };

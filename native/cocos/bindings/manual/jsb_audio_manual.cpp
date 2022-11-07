@@ -102,8 +102,33 @@ static bool js_audio_BaseAudioContext_decodeAudioData(se::State& s) { // NOLINT
     return false;
 }
 SE_BIND_FUNC(js_audio_BaseAudioContext_decodeAudioData);
+static bool js_audio_SourceNode_onEnded(se::State&s) {
+    const auto& args = s.args();
+    size_t argc = args.size();
+    bool ok = true;
+    if (argc == 2) {
+        cc::SourceNode* sourceNode = SE_THIS_OBJECT<cc::SourceNode>(s);
+        SE_PRECONDITION2(sourceNode, false, "%s, Invalid Native Object", __FUNCTION__);
+        se::Value callbackVal = args[1];
+        se::Object* callbackObj{nullptr};
+        if (!callbackVal.isNull()) {
+            CC_ASSERT(callbackVal.isObject());
+            CC_ASSERT(callbackVal.toObject()->isFunction());
+            callbackObj = callbackVal.toObject();
+            callbackObj->root();
+            callbackObj->incRef();
+        }
+        sourceNode->setOnEnded([=](){
+            callbackObj->call({}, nullptr);
+        });
+        return true;
+    }
+    return false;
+}
+SE_BIND_FUNC(js_audio_SourceNode_onEnded);
 bool register_all_audio_manual(se::Object* obj) // NOLINT
 {
     __jsb_cc_BaseAudioContext_proto->defineFunction("decodeAudioData", _SE(js_audio_BaseAudioContext_decodeAudioData));
+    __jsb_cc_SourceNode_proto->defineFunction("onEnded", _SE(js_audio_SourceNode_onEnded));
     return true;
 }

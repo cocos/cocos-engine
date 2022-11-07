@@ -8,8 +8,17 @@ AudioBuffer* AudioBuffer::createBuffer(const ccstd::string& url) {
     if (buffer != AudioBuffer::bufferMap.end()) {
         return buffer->second;
     }
+#if CC_PLATFORM == CC_PLATFORM_ANDROID
+    auto fileData = FileUtils::getInstance()->getDataFromFile(url);
+    ccstd::vector<uint8_t> rawData;
+    auto size = fileData.getSize();
+    rawData.resize(size);
+    memcpy(rawData.data(), fileData.getBytes(), size);
+    auto bus = lab::MakeBusFromMemory(rawData, false);
+#else
     auto fullPath = FileUtils::getInstance()->fullPathForFilename(url);
     auto bus = lab::MakeBusFromFile(fullPath, false);
+#endif
     auto ret = new AudioBuffer(bus);
     AudioBuffer::bufferMap[url] = ret;
     assert(ret->getRefCount() == 1);

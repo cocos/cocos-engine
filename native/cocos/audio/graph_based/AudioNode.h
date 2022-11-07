@@ -3,10 +3,10 @@
 #include "base/RefCounted.h"
 #include "base/Ptr.h"
 #include "base/std/container/vector.h"
-#include "audio/graph_based/AudioContext.h"
 #include "audio/graph_based/AudioParam.h"
 #include "LabSound/core/AudioNode.h"
 namespace cc {
+class BaseAudioContext;
 struct AudioNodeOptions {
     ccstd::optional<unsigned> channelCount;
     ccstd::optional<lab::ChannelCountMode> channelCountMode;
@@ -54,9 +54,9 @@ protected:
     friend class AudioContext;
     friend class SourceNode;
     explicit AudioNode(BaseAudioContext* ctx);
-    IntrusivePtr<BaseAudioContext> _ctx;
+    IntrusivePtr<BaseAudioContext> _ctx{nullptr};
     // For all LabSound object, use shared ptr to set use count as so on.
-    std::shared_ptr<lab::AudioNode> _node;
+    std::shared_ptr<lab::AudioNode> _node{nullptr};
     ccstd::vector<IntrusivePtr<AudioNode>> _connections;
 };
 }

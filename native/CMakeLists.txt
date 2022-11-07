@@ -282,69 +282,28 @@ if(USE_AUDIO)
         )
     elseif(ANDROID)
         cocos_source_files(
-            cocos/audio/common/utils/include/primitives.h
-            cocos/audio/common/utils/include/format.h
-            cocos/audio/common/utils/include/minifloat.h
-            cocos/audio/common/utils/include/tinysndfile.h
-            cocos/audio/common/utils/private/private.h
-            cocos/audio/common/utils/minifloat.cpp
-            cocos/audio/common/utils/primitives.cpp
-            cocos/audio/common/utils/tinysndfile.cpp
-            cocos/audio/common/utils/format.cpp
-            cocos/audio/android/AssetFd.cpp
-            cocos/audio/android/AssetFd.h
-            cocos/audio/android/audio.h
-            cocos/audio/android/AudioBufferProvider.h
-            cocos/audio/android/AudioDecoder.cpp
-            cocos/audio/android/AudioDecoder.h
-            cocos/audio/android/AudioDecoderMp3.cpp
-            cocos/audio/android/AudioDecoderMp3.h
-            cocos/audio/android/AudioDecoderOgg.cpp
-            cocos/audio/android/AudioDecoderOgg.h
-            cocos/audio/android/AudioDecoderProvider.cpp
-            cocos/audio/android/AudioDecoderProvider.h
-            cocos/audio/android/AudioDecoderSLES.cpp
-            cocos/audio/android/AudioDecoderSLES.h
-            cocos/audio/android/AudioDecoderWav.cpp
-            cocos/audio/android/AudioDecoderWav.h
-            cocos/audio/android/AudioEngine-inl.cpp
-            cocos/audio/android/AudioEngine-inl.h
-            cocos/audio/android/AudioMixer.cpp
-            cocos/audio/android/AudioMixer.h
-            cocos/audio/android/AudioMixerController.cpp
-            cocos/audio/android/AudioMixerController.h
-            cocos/audio/android/AudioMixerOps.h
-            cocos/audio/android/AudioPlayerProvider.cpp
-            cocos/audio/android/AudioPlayerProvider.h
-            cocos/audio/android/AudioResampler.cpp
-            cocos/audio/android/AudioResampler.h
-            cocos/audio/android/AudioResamplerCubic.cpp
-            cocos/audio/android/AudioResamplerCubic.h
-            cocos/audio/android/AudioResamplerPublic.h
-            cocos/audio/android/cutils/bitops.h
-            cocos/audio/android/cutils/log.h
-            cocos/audio/android/IAudioPlayer.h
-            cocos/audio/android/ICallerThreadUtils.h
-            cocos/audio/android/IVolumeProvider.h
-            cocos/audio/android/mp3reader.cpp
-            cocos/audio/android/mp3reader.h
-            cocos/audio/android/OpenSLHelper.h
-            cocos/audio/android/PcmAudioPlayer.cpp
-            cocos/audio/android/PcmAudioPlayer.h
-            cocos/audio/android/PcmAudioService.cpp
-            cocos/audio/android/PcmAudioService.h
-            cocos/audio/android/PcmBufferProvider.cpp
-            cocos/audio/android/PcmBufferProvider.h
-            cocos/audio/android/PcmData.cpp
-            cocos/audio/android/PcmData.h
-            cocos/audio/android/Track.cpp
-            cocos/audio/android/Track.h
-            cocos/audio/android/UrlAudioPlayer.cpp
-            cocos/audio/android/UrlAudioPlayer.h
-            cocos/audio/android/utils/Compat.h
-            cocos/audio/android/utils/Errors.h
-            cocos/audio/android/utils/Utils.cpp
-            cocos/audio/android/utils/Utils.h
+            cocos/audio/graph_based/AudioBuffer.h
+            cocos/audio/graph_based/AudioBuffer.cpp
+            cocos/audio/graph_based/SourceNode.h
+            cocos/audio/graph_based/SourceNode.cpp
+            cocos/audio/graph_based/AudioContext.h
+            cocos/audio/graph_based/AudioContext.cpp
+            cocos/audio/graph_based/AudioDestinationNode.h
+            cocos/audio/graph_based/AudioDestinationNode.cpp
+            cocos/audio/graph_based/AudioNode.h
+            cocos/audio/graph_based/AudioNode.cpp
+            cocos/audio/graph_based/AudioScheduledSourceNode.cpp
+            cocos/audio/graph_based/AudioScheduledSourceNode.h
+            cocos/audio/graph_based/AudioParam.h
+            cocos/audio/graph_based/AudioParam.cpp
+            cocos/audio/graph_based/BaseAudioContext.h
+            cocos/audio/graph_based/BaseAudioContext.cpp
+            cocos/audio/graph_based/GainNode.h
+            cocos/audio/graph_based/GainNode.cpp
+            # cocos/audio/graph_based/PannerNode.cpp
+            # cocos/audio/graph_based/PannerNode.h
+            cocos/audio/graph_based/StereoPannerNode.cpp
+            cocos/audio/graph_based/StereoPannerNode.h
         )
      elseif(OHOS)
         cocos_source_files(
@@ -3055,17 +3014,17 @@ elseif(APPLE)
 elseif(ANDROID)
     target_compile_options(${ENGINE_NAME} PRIVATE -fPIC)
     target_compile_definitions(${ENGINE_NAME} PRIVATE USE_KISS_FFT=1)
-    target_link_libraries(${ENGINE_NAME} OpenSLES)
+    target_link_libraries(${ENGINE_NAME} PUBLIC OpenSLES)
     if(LABSOUND_JACK)
-        target_link_libraries(${ENGINE_NAME} jack)
+        target_link_libraries(${ENGINE_NAME} PUBLIC jack)
         target_compile_definitions(${ENGINE_NAME} PRIVATE __UNIX_JACK__=1)
     endif()
     if(LABSOUND_PULSE)
-        target_link_libraries(${ENGINE_NAME} pulse pulse-simple)
+        target_link_libraries(${ENGINE_NAME} PUBLIC pulse pulse-simple)
         target_compile_definitions(${ENGINE_NAME} PRIVATE __LINUX_PULSE__=1)
     endif()
     if(LABSOUND_ASOUND)
-        target_link_libraries(${ENGINE_NAME} asound)
+        target_link_libraries(${ENGINE_NAME} PUBLIC asound)
         target_compile_definitions(${ENGINE_NAME} PRIVATE __LINUX_ASOUND__=1)
     endif()
     # TODO: These vars are for libnyquist and should be set in the find libynquist script.
@@ -3091,7 +3050,7 @@ elseif(UNIX)
     # TODO: libnyquist's loadabc calls getenv and setenv. That's undesirable.
     target_compile_definitions(${ENGINE_NAME} PRIVATE HAVE_STDINT_H=1 HAVE_SETENV=1 HAVE_SINF=1)
 endif()
-
+target_link_libraries(${ENGINE_NAME} PUBLIC libnyquist)
 if(CC_USE_VULKAN)
 
     target_compile_definitions(${ENGINE_NAME} PUBLIC VK_NO_PROTOTYPES)
@@ -3183,7 +3142,7 @@ if(ANDROID)
     target_compile_options(${ENGINE_NAME} PRIVATE
         -Wno-comment # nested block comments are actually useful sometimes
     )
-
+    # message(FATAL "CC_EXTERNAL_LIBS ${CC_EXTERNAL_LIBS}")
     find_library(LIB_EGL NAMES EGL)
     target_link_libraries(${ENGINE_NAME} PUBLIC
         android

@@ -1,4 +1,6 @@
 #include "audio/graph_based/GainNode.h"
+#include "audio/graph_based/BaseAudioContext.h"
+#include "LabSound/core/GainNode.h"
 #include "LabSound/extended/AudioContextLock.h"
 namespace cc {
 GainNode::GainNode(BaseAudioContext* ctx, const GainNodeOptions& options) : AudioNode(ctx) {
@@ -8,7 +10,7 @@ GainNode::GainNode(BaseAudioContext* ctx, const GainNodeOptions& options) : Audi
     };
     lab::ContextGraphLock lck(_ctx->getInnerContext().get(), "initNode");
     if (options.channelCount.is_initialized()) {
-        _node->setChannelCount(lck, options.channelCount.get()); 
+        _node->setChannelCount(lck, options.channelCount.get());
     }
     _node->setChannelCountMode(lck, options.channelCountMode.value_or(lab::ChannelCountMode::Max));
     if (options.channelInterpretation.is_initialized()) {

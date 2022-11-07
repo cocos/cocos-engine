@@ -145,7 +145,7 @@ export class SourceNode {
         this._innerState = ABSNState.READY;
     }
     set playbackRate (val: number) {
-        val = clamp(val, 0, Infinity);
+        val = clamp(val, 0.25, Infinity);
 
         // Update time properties
         this._cacheProperties.pastTime += (this._ctx.currentTime - this._cacheProperties.startTime) * this._absn.playbackRate.value;

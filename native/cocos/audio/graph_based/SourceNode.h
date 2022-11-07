@@ -1,12 +1,14 @@
 #pragma once
 #include "base/RefCounted.h"
-#include "audio/graph_based/AudioNode.h"
-#include "audio/graph_based/AudioScheduledSourceNode.h"
+#include "base/std/container/vector.h"
+#include "base/Ptr.h"
 #include "LabSound/core/SampledAudioNode.h"
 #include "LabSound/core/GainNode.h"
 namespace cc {
 class AudioBuffer;
-class AudioClip;
+class BaseAudioContext;
+class AudioParam;
+class AudioNode;
 enum ABSNState {
     // Buffer is not set
     UNSET,
@@ -29,7 +31,7 @@ public:
     void start(float time = 0);
     void pause();
     void stop();
-    
+
     // Standard methods, thinking of abolish.
     /*
     * Is not virtual method, as described in labSound or WebAudio, start for scheduled time for a relative time.
@@ -45,10 +47,13 @@ public:
     void setCurrentTime(float time);
     AudioNode* connect(AudioNode* node);
     void disconnect();
-
+    void setOnEnded(std::function<void()> fn);
 private:
     void _pureStart(float time);
     void _restart(float time);
+    void _onEnd();
+    std::function<void()> _finishCallback;
+    std::function<void()> _stopCallback;
     std::shared_ptr<lab::AudioContext> _ctx;
     std::shared_ptr<lab::SampledAudioNode> _absn;
     std::shared_ptr<lab::GainNode> _gain;

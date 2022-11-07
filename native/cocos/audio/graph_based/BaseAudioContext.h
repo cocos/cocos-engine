@@ -5,15 +5,17 @@
 #include "base/std/variant.h"
 #include "base/std/optional.h"
 #include "LabSound/core/AudioContext.h"
+#include "audio/graph_based/AudioDestinationNode.h"
 namespace cc {
 
 
 class AudioBuffer;
 class SourceNode;
-class AudioDestinationNode;
+class StereoPannerNode;
+//class AudioDestinationNode;
 class GainNode;
 class PannerNode;
-//class StereoPannerNode;
+class StereoPannerNode;
 
 enum class AudioContextLatencyCategory {
     BALANCED,
@@ -44,7 +46,7 @@ public:
     explicit BaseAudioContext() = default;
     virtual ~BaseAudioContext() = default;
     double getCurrentTime() { return _ctx->currentTime(); }
-    AudioDestinationNode* getDestination() { return _dest.get(); }
+    AudioDestinationNode* getDestination();
     //AudioListener* listener();
     float getSampleRate() { return _ctx->sampleRate(); };
     AudioContextState getState();
@@ -52,10 +54,9 @@ public:
 
     // Normally inheritaged from BaseAudioContext
     AudioBuffer* createBuffer(uint32_t numOfChannels = 1, uint32_t length = 0, float sampleRate = 44100);
-
+    StereoPannerNode* createStereoPanner();
     GainNode* createGain();
     //PannerNode* createPanner();
-    //StereoPannerNode* createStereoPanner();
     //bool decodeAudioData();// Implement in TS?
     std::shared_ptr<lab::AudioContext> getInnerContext() { return _ctx; }
     AudioBuffer* decodeAudioData(const ccstd::string& url);

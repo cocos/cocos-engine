@@ -1,4 +1,6 @@
 #include "audio/graph_based/AudioDestinationNode.h"
+#include "audio/graph_based/AudioNode.h"
+#include "audio/graph_based/BaseAudioContext.h"
 namespace cc {
 void AudioDestinationNode::setMaxChannelCount(uint32_t channelCount) {
     _maxChannelCount = channelCount;

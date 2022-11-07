@@ -1,10 +1,10 @@
 #pragma once
 
 #include "base/Log.h"
+#include "base/Ptr.h"
 #include "base/RefCounted.h"
 #include "base/std/container/unordered_map.h"
 #include "base/std/container/vector.h"
-#include "audio/graph_based/AudioNode.h"
 #include "LabSound/core/AudioBus.h"
 #include "LabSound/core/AudioArray.h"
 #include "LabSound/core/AudioChannel.h"
