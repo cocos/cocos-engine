@@ -1,12 +1,10 @@
 import { ClearFlagBit, Color, Format, LoadOp, Rect, StoreOp, Viewport } from '../../gfx';
 import { Camera, CSMLevel, DirectionalLight, Light, LightType, ShadowType, SKYBOX_FLAG, SpotLight } from '../../render-scene/scene';
-import { intersect, Sphere } from '../../core/geometry';
 import { supportsR32FloatTexture } from '../define';
 import { Pipeline } from './pipeline';
 import { AccessType, AttachmentType, ComputeView, LightInfo, QueueHint, RasterView, ResourceResidency, SceneFlags } from './types';
-import { Vec4 } from '../../core/math';
+import { Vec4, macro, geometry } from '../../core';
 import { Material } from '../../asset/assets';
-import { macro } from '../../core/platform';
 import { SRGBToLinear } from '../pipeline-funcs';
 
 // Anti-aliasing type, other types will be gradually added in the future
@@ -19,7 +17,7 @@ export function validPunctualLightsCulling (pipeline: Pipeline, camera: Camera) 
     const sceneData = pipeline.pipelineSceneData;
     const validPunctualLights = sceneData.validPunctualLights;
     validPunctualLights.length = 0;
-    const _sphere = Sphere.create(0, 0, 0, 1);
+    const _sphere = geometry.Sphere.create(0, 0, 0, 1);
     const { spotLights } = camera.scene!;
     for (let i = 0; i < spotLights.length; i++) {
         const light = spotLights[i];
@@ -27,8 +25,8 @@ export function validPunctualLightsCulling (pipeline: Pipeline, camera: Camera) 
             continue;
         }
 
-        Sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
-        if (intersect.sphereFrustum(_sphere, camera.frustum)) {
+        geometry.Sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
+        if (geometry.intersect.sphereFrustum(_sphere, camera.frustum)) {
             validPunctualLights.push(light);
         }
     }
@@ -39,8 +37,8 @@ export function validPunctualLightsCulling (pipeline: Pipeline, camera: Camera) 
         if (light.baked) {
             continue;
         }
-        Sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
-        if (intersect.sphereFrustum(_sphere, camera.frustum)) {
+        geometry.Sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
+        if (geometry.intersect.sphereFrustum(_sphere, camera.frustum)) {
             validPunctualLights.push(light);
         }
     }

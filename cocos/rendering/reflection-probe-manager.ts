@@ -24,8 +24,7 @@
  */
 
 import { MeshRenderer } from '../3d/framework/mesh-renderer';
-import { Vec3 } from '../core';
-import intersect from '../core/geometry/intersect';
+import { Vec3, geometry } from '../core';
 import { Camera, Model } from '../render-scene/scene';
 import { ReflectionProbe } from '../render-scene/scene/reflection-probe';
 import { IRenderObject } from './define';
@@ -61,6 +60,7 @@ export class ReflectionProbeManager {
     }
 
     public exists (probeId: number): boolean {
+        if (this._probes.length === 0) return false;
         for (let i = 0; i < this._probes.length; i++) {
             if (this._probes[i].getProbeId() === probeId) {
                 return true;
@@ -95,7 +95,7 @@ export class ReflectionProbeManager {
     public addRenderObject (camera: Camera, obj: IRenderObject, bSkybox?: boolean) {
         const probe = this.getProbeByCamera(camera);
         if (!probe) return;
-        if ((obj.model.worldBounds && intersect.aabbWithAABB(obj.model.worldBounds, probe.boundingBox)) || bSkybox) {
+        if ((obj.model.worldBounds && geometry.intersect.aabbWithAABB(obj.model.worldBounds, probe.boundingBox)) || bSkybox) {
             probe.renderObjects.push(obj);
         }
     }
@@ -122,13 +122,17 @@ export class ReflectionProbeManager {
      * @param probe update the texture for this probe
      */
     public updateBakedCubemap (probe: ReflectionProbe) {
-        const models = this._getModelsByProbe(probe);
         if (!probe.cubemap) return;
-        for (let i = 0; i < models.length; i++) {
-            const model = models[i];
-            const meshRender = model.node.getComponent(MeshRenderer);
-            if (meshRender) {
-                meshRender.updateProbeCubemap(probe.cubemap);
+        const scene = probe.node.scene.renderScene;
+        if (!scene) return;
+        for (let i = 0; i < scene.models.length; i++) {
+            const model = scene.models[i];
+            if (model.node && model.worldBounds && geometry.intersect.aabbWithAABB(model.worldBounds, probe.boundingBox)) {
+                this._models.set(model, probe);
+                const meshRender = model.node.getComponent(MeshRenderer);
+                if (meshRender) {
+                    meshRender.updateProbeCubemap(probe.cubemap);
+                }
             }
         }
         probe.needRefresh = false;
@@ -216,7 +220,7 @@ export class ReflectionProbeManager {
         let idx = 0;
 
         for (let i = 0; i < this._probes.length; i++) {
-            if (!this._probes[i].validate() || !intersect.aabbWithAABB(model.worldBounds, this._probes[i].boundingBox)) {
+            if (!this._probes[i].validate() || !geometry.intersect.aabbWithAABB(model.worldBounds, this._probes[i].boundingBox)) {
                 continue;
             }
             if (i === 0) {

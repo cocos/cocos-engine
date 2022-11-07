@@ -23,13 +23,10 @@
  THE SOFTWARE.
  */
 import { EDITOR } from 'internal:constants';
-import { type } from 'cc.decorator';
 import { Camera, CameraAperture, CameraFOVAxis, CameraISO, CameraProjection, CameraShutter, CameraType, SKYBOX_FLAG, TrackingType } from './camera';
 import { Node } from '../../scene-graph/node';
-import { CCObject, Color, Enum, Quat, Rect, toRadian, Vec2, Vec3 } from '../../core';
+import { CCObject, Color, Enum, Quat, Rect, toRadian, Vec2, Vec3, geometry, cclegacy } from '../../core';
 import { CAMERA_DEFAULT_MASK, IRenderObject } from '../../rendering/define';
-import { AABB } from '../../core/geometry/aabb';
-import { legacyCC } from '../../core/global-exports';
 import { ClearFlagBit } from '../../gfx';
 import { TextureCube } from '../../asset/assets/texture-cube';
 import { RenderTexture } from '../../asset/assets/render-texture';
@@ -43,26 +40,19 @@ export enum ProbeType {
     CUBE= 0,
     PLANAR= 1,
 }
+// left right up down front back
 const cameraDir: Vec3[] = [
-    new Vec3(0, -90, 0),
     new Vec3(0, 90, 0),
-    new Vec3(90, 0, 0),
-    new Vec3(-90, 0, 0),
-    new Vec3(0, 0, 0),
+    new Vec3(0, -90, 0),
+
+    new Vec3(90, 180, 0),
+    new Vec3(-90, 180, 0),
+
     new Vec3(0, 180, 0),
+    new Vec3(0, 0, 0),
 ];
-enum ProbeFaceIndex {
-    right = 0,
-    left = 1,
-    top = 2,
-    bottom = 3,
-    front = 4,
-    back = 5,
-}
 
 export class ReflectionProbe {
-    public static probeFaceIndex = ProbeFaceIndex;
-
     public bakedCubeTextures: RenderTexture[] = [];
 
     public realtimePlanarTexture: RenderTexture | null = null;
@@ -104,7 +94,7 @@ export class ReflectionProbe {
      * @en The AABB bounding box and probe only render the objects inside the bounding box.
      * @zh AABB包围盒，probe只渲染包围盒内的物体
      */
-    private _boundingBox: AABB | null = null;
+    private _boundingBox: geometry.AABB | null = null;
 
     /**
      * @en The position of the camera in world space.
@@ -199,7 +189,7 @@ export class ReflectionProbe {
         this._size = value;
 
         const pos = this.node.getWorldPosition();
-        AABB.set(this._boundingBox!, pos.x, pos.y, pos.z, this._size.x, this._size.y, this._size.z);
+        geometry.AABB.set(this._boundingBox!, pos.x, pos.y, pos.z, this._size.x, this._size.y, this._size.z);
     }
     get size () {
         return this._size;
@@ -272,7 +262,7 @@ export class ReflectionProbe {
         node.scene.addChild(this._cameraNode);
 
         const pos = this.node.getWorldPosition();
-        this._boundingBox = AABB.create(pos.x, pos.y, pos.z, this._size.x, this._size.y, this._size.z);
+        this._boundingBox = geometry.AABB.create(pos.x, pos.y, pos.z, this._size.x, this._size.y, this._size.z);
         this._createCamera();
     }
 
@@ -286,10 +276,15 @@ export class ReflectionProbe {
         }
     }
 
-    public async captureCubemap () {
+    public captureCubemap () {
         this._renderObjects = [];
         this._resetCameraParams();
-        await this._renderCubemap();
+        this._attachCameraToScene();
+        this._needRender = true;
+        cclegacy.director.once(cclegacy.Director.EVENT_END_FRAME, () => {
+            this._needRender = false;
+            this._detachCameraFromScene();
+        });
     }
 
     /**
@@ -300,7 +295,7 @@ export class ReflectionProbe {
     public renderPlanarReflection (sourceCamera: Camera) {
         if (!sourceCamera) return;
         if (!this.realtimePlanarTexture) {
-            const canvasSize = legacyCC.view.getDesignResolutionSize();
+            const canvasSize = cclegacy.view.getDesignResolutionSize();
             this.realtimePlanarTexture = this._createTargetTexture(canvasSize.width, canvasSize.height);
         }
         this._syncCameraParams(sourceCamera);
@@ -326,21 +321,13 @@ export class ReflectionProbe {
             this.camera.setFixedSize(window.width, window.height);
             this.camera.update();
         } else {
-            this.camera.changeTargetWindow(EDITOR ? legacyCC.director.root.tempWindow : null);
+            this.camera.changeTargetWindow(EDITOR ? cclegacy.director.root.tempWindow : null);
             this.camera.isWindowSize = true;
         }
     }
 
     public getProbeId () {
         return this._probeId;
-    }
-
-    public async waitForNextFrame () {
-        return new Promise<void>((resolve, reject) => {
-            legacyCC.director.once(legacyCC.Director.EVENT_END_FRAME, () => {
-                resolve();
-            });
-        });
     }
 
     public renderArea (): Vec2 {
@@ -395,29 +382,21 @@ export class ReflectionProbe {
     public updateBoundingBox () {
         if (this.node) {
             const pos = this.node.getWorldPosition();
-            AABB.set(this._boundingBox!, pos.x, pos.y, pos.z, this._size.x, this._size.y, this._size.z);
+            geometry.AABB.set(this._boundingBox!, pos.x, pos.y, pos.z, this._size.x, this._size.y, this._size.z);
         }
     }
 
-    private async _renderCubemap () {
-        this._attachCameraToScene();
-        this._needRender = true;
-        await this.waitForNextFrame();
-        this._needRender = false;
-        this._detachCameraFromScene();
-    }
-
     private _createCamera () {
-        const root = legacyCC.director.root;
+        const root = cclegacy.director.root;
         if (!this._camera) {
-            this._camera = (legacyCC.director.root).createCamera();
+            this._camera = (cclegacy.director.root).createCamera();
             if (!this._camera) return null;
             this._camera.initialize({
                 name: this.cameraNode.name,
                 node: this.cameraNode,
                 projection: CameraProjection.PERSPECTIVE,
-                window: EDITOR ? legacyCC.director.root && legacyCC.director.root.mainWindow
-                    : legacyCC.director.root && legacyCC.director.root.tempWindow,
+                window: EDITOR ? cclegacy.director.root && cclegacy.director.root.mainWindow
+                    : cclegacy.director.root && cclegacy.director.root.tempWindow,
                 priority: 0,
                 cameraType: CameraType.REFLECTION_PROBE,
                 trackingType: TrackingType.NO_TRACKING,

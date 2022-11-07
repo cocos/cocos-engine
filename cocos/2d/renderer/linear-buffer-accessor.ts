@@ -26,8 +26,7 @@
 import { InputAssembler, Device, Attribute } from '../../gfx';
 import { MeshBuffer } from './mesh-buffer';
 import { BufferAccessor } from './buffer-accessor';
-import { assertID, macro } from '../../core';
-import { assertIsNonNullable } from '../../core/data/utils/asserts';
+import { assertID, macro, assertIsNonNullable } from '../../core';
 
 export class LinearBufferAccessor extends BufferAccessor {
     public static IB_SCALE = 4; // ib size scale based on vertex count

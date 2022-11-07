@@ -23,13 +23,13 @@
  THE SOFTWARE.
 */
 import { ccclass, editable, serializable } from 'cc.decorator';
-import { legacyCC } from '../../core/global-exports';
+import { cclegacy } from '../../core';
 import './asset';
 
 export const SceneAsset = jsb.SceneAsset;
 export type SceneAsset = jsb.SceneAsset;
 
-legacyCC.SceneAsset = SceneAsset;
+cclegacy.SceneAsset = SceneAsset;
 
 const sceneAssetProto: any = SceneAsset.prototype;
 

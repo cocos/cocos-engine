@@ -25,9 +25,10 @@
 
 import { BoneType, BinaryOffset, Slot } from '@cocos/dragonbones-js';
 import { Texture2D } from '../asset/assets';
-import { Color, Mat4 } from '../core';
-import { ccclass } from '../core/data/class-decorator';
+import { Color, Mat4, _decorator } from '../core';
 import { CCTextureData } from './CCTextureData';
+
+const { ccclass } = _decorator;
 
 // @skipLibCheck
 /**

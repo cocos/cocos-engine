@@ -201,7 +201,7 @@ export class LODGroup extends Component {
      * @en Object Size in local space, may be auto-calculated value from object bounding box or value from user input.
      */
     @serializable
-    protected _objectSize = 1;
+    protected _objectSize = 0;
 
     /**
      *@en The array of LODs
@@ -491,6 +491,8 @@ export class LODGroup extends Component {
 
     onLoad () {
         this._lodGroup.node = this.node;
+        // objectSize maybe initialized from deserialize
+        this._lodGroup.objectSize = this._objectSize;
         if (!this._eventRegistered) {
             this.node.on(NodeEventType.COMPONENT_REMOVED, this._onRemove, this);
             this._eventRegistered = true;
@@ -519,7 +521,9 @@ export class LODGroup extends Component {
 
     onEnable () {
         this._attachToScene();
-        //   this.recalculateBounds(this);
+        if (this.objectSize === 0) {
+            this.recalculateBounds();
+        }
 
         // cache lod for scene
         if (this.lodCount > 0 && this._lodGroup.lodCount < 1) {

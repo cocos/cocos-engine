@@ -1,17 +1,6 @@
 'use strict';
 
-exports.style = `
-:host > .section {
-    height: 200px;
-    display: flex;
-    background: var(--color-normal-fill);
-    border-bottom: 1px solid var(--color-normal-border);
- }
-:host > .section > canvas { flex: 1; min-width: 0; }
-:host > .section > .tools { display: flex; flex-direction: column; padding: 6px 4px; }
-`;
-
-exports.template = `
+exports.template = /* html */`
 <div class="section">
     <canvas></canvas>
     <div class="tools">
@@ -27,6 +16,17 @@ exports.template = `
         <ui-checkbox checked>Light</ui-checkbox>
     </div>
 </div>
+`;
+
+exports.style = /* css */`
+:host > .section {
+    height: 200px;
+    display: flex;
+    background: var(--color-normal-fill);
+    border-bottom: 1px solid var(--color-normal-border);
+ }
+:host > .section > canvas { flex: 1; min-width: 0; }
+:host > .section > .tools { display: flex; flex-direction: column; padding: 6px 4px; }
 `;
 
 exports.$ = {
@@ -90,36 +90,6 @@ exports.methods = {
     },
 };
 
-/**
- * Methods for automatic rendering of components
- * @param assetList
- * @param metaList
- */
-exports.update = async function(assetList, metaList) {
-    const panel = this;
-
-    panel.assetList = assetList;
-    panel.metaList = metaList;
-    panel.asset = assetList[0];
-    panel.meta = metaList[0];
-    const notOnlyOne = assetList.length !== 1;
-    this.hideAllContent(notOnlyOne);
-    if (notOnlyOne) {
-        return;
-    }
-    if (!panel.$.canvas) {
-        return;
-    }
-
-    await panel.glPreview.init({ width: this.$.canvas.clientWidth, height: this.$.canvas.clientHeight });
-
-    panel.isPreviewDataDirty = true;
-    panel.refreshPreview();
-};
-
-/**
- * Method of initializing the panel
- */
 exports.ready = async function() {
     const panel = this;
 
@@ -179,12 +149,33 @@ exports.ready = async function() {
     Editor.Message.addBroadcastListener('material-inspector:change-dump', this.updatePreviewDataDirtyBind);
 };
 
+exports.update = async function(assetList, metaList) {
+    const panel = this;
+
+    panel.assetList = assetList;
+    panel.metaList = metaList;
+    panel.asset = assetList[0];
+    panel.meta = metaList[0];
+    const notOnlyOne = assetList.length !== 1;
+    this.hideAllContent(notOnlyOne);
+    if (notOnlyOne) {
+        return;
+    }
+    if (!panel.$.canvas) {
+        return;
+    }
+
+    await panel.glPreview.init({ width: this.$.canvas.clientWidth, height: this.$.canvas.clientHeight });
+
+    panel.isPreviewDataDirty = true;
+    panel.refreshPreview();
+};
+
 exports.close = function() {
     const panel = this;
     callMaterialPreviewFunction('hide');
     panel.resizeObserver.unobserve(panel.$.container);
     Editor.Message.removeBroadcastListener('material-inspector:change-dump', this.updatePreviewDataDirtyBind);
     // clear the canvas on close hook
-    const context = panel.$.canvas.getContext('2d');
-    context.clearRect(0, 0, panel.$.canvas.width, panel.$.canvas.height);
+    panel.glPreview.destroyGL();
 };

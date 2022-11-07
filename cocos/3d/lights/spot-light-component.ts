@@ -22,15 +22,14 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-
-import { ccclass, range, slide, type, editable, displayOrder, help, executeInEditMode,
-    menu, tooltip, serializable, formerlySerializedAs, visible } from 'cc.decorator';
-import { toRadian, cclegacy,  CCBoolean, CCFloat } from '../../core';
+import { toRadian, cclegacy,  CCBoolean, CCFloat, _decorator } from '../../core';
 import { scene } from '../../render-scene';
 import { Light, PhotometricTerm } from './light-component';
 import { Root } from '../../root';
 import { Camera, PCFType, ShadowType } from '../../render-scene/scene';
-import { property } from '../../core/data/class-decorator';
+
+const { ccclass, range, slide, type, editable, displayOrder, help, executeInEditMode,
+    menu, tooltip, serializable, formerlySerializedAs, visible, property } = _decorator;
 
 /**
  * @en The spot light component, multiple spot lights can be added to one scene.

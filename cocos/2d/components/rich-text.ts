@@ -28,8 +28,7 @@ import { ccclass, executeInEditMode, executionOrder, help, menu, tooltip, multil
 import { DEBUG, DEV, EDITOR } from 'internal:constants';
 import { Font, SpriteAtlas, TTFFont, SpriteFrame } from '../assets';
 import { EventTouch } from '../../input/types';
-import { assert, warnID, Color, Vec2, CCObject, cclegacy } from '../../core';
-import Pool from '../../core/utils/pool';
+import { assert, warnID, Color, Vec2, CCObject, cclegacy, js } from '../../core';
 import { BASELINE_RATIO, fragmentText, isUnicodeCJK, isUnicodeSpace, getEnglishWordPartAtFirst, getEnglishWordPartAtLast } from '../utils/text-utils';
 import { HtmlTextParser, IHtmlTextParserResultObj, IHtmlTextParserStack } from '../utils/html-text-parser';
 import { Node } from '../../scene-graph';
@@ -47,7 +46,7 @@ const RichTextChildImageName = 'RICHTEXT_Image_CHILD';
 /**
  * 富文本池。<br/>
  */
-const labelPool = new Pool((seg: ISegment) => {
+const labelPool = new js.Pool((seg: ISegment) => {
     if (DEV) {
         assert(!seg.node.parent, 'Recycling node\'s parent should be null!');
     }
@@ -62,7 +61,7 @@ const labelPool = new Pool((seg: ISegment) => {
     return true;
 }, 20);
 
-const imagePool = new Pool((seg: ISegment) => {
+const imagePool = new js.Pool((seg: ISegment) => {
     if (DEV) {
         assert(!seg.node.parent, 'Recycling node\'s parent should be null!');
     }

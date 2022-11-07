@@ -40,6 +40,10 @@ function deepFlatten (strList, array) {
     }
 }
 
+/**
+ *
+ * @engineInternal
+ */
 export function flattenCodeArray (array) {
     const separator = DEV ? '\n' : '';
     const strList = [];

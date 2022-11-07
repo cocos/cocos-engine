@@ -272,7 +272,7 @@ const Elements = {
 
             panel.contentRenders = {};
         },
-        update() {
+        async update() {
             const panel = this;
 
             // 重置渲染对象
@@ -305,12 +305,8 @@ const Elements = {
                     const file = list[i];
                     if (!contentRender.__panels__[i]) {
                         contentRender.__panels__[i] = document.createElement('ui-panel');
-                        contentRender.__panels__[i].addEventListener('change', (event) => {
+                        contentRender.__panels__[i].addEventListener('change', () => {
                             Elements.header.isDirty.call(panel);
-
-                            if (!event || !event.args || !event.args[0] || event.args[0].snapshot !== false) {
-                                panel.history && panel.history.snapshot(panel);
-                            }
                         });
                         contentRender.__panels__[i].addEventListener('snapshot', () => {
                             panel.history && panel.history.snapshot(panel);
@@ -326,10 +322,16 @@ const Elements = {
                 }
 
                 contentRender.__panels__ = Array.from(contentRender.children);
-                Array.prototype.forEach.call(contentRender.__panels__, ($panel) => {
-                    $panel.injectionStyle(`ui-prop { margin-top: 5px; }`);
-                    $panel.update(panel.assetList, panel.metaList);
-                });
+                try {
+                    await Promise.all(
+                        contentRender.__panels__.map(($panel) => {
+                            $panel.injectionStyle(`ui-prop { margin-top: 5px; }`);
+                            return $panel.update(panel.assetList, panel.metaList);
+                        }),
+                    );
+                } catch (err) {
+                    console.error(err);
+                }
             }
         },
     },
@@ -577,7 +579,6 @@ exports.update = async function update(uuidList, renderMap, dropConfig) {
             await element.update.call(panel);
         }
     }
-
     panel.history && panel.history.snapshot(panel);
 };
 
