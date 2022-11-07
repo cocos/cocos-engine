@@ -76,7 +76,7 @@ protected:
      * @brief Set arguments passed to execution file
      * @note setArgumentsInternal needs to be protected since it should only be used internally.
      */
-    void setArgumentsInternal(int argc, const char* argv[]) override;
+    void setArgumentsInternal(int argc, const char *argv[]) override;
 
 public:
     /**

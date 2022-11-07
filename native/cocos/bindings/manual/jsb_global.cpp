@@ -660,7 +660,7 @@ static bool js_loadImage(se::State &s) { // NOLINT
     return false;
 }
 SE_BIND_FUNC(js_loadImage)
-//pixels(RGBA), width, height, fullFilePath(*.png/*.jpg)
+// pixels(RGBA), width, height, fullFilePath(*.png/*.jpg)
 static bool js_saveImageData(se::State &s) { // NOLINT
     const auto &args = s.args();
     size_t argc = args.size();
@@ -1364,7 +1364,7 @@ static bool jsb_register_TextDecoder(se::Object *globalObj) {
 
 static bool JSB_process_get_argv(se::State &s) // NOLINT(readability-identifier-naming)
 {
-    const auto& args = CC_CURRENT_APPLICATION()->getArguments();
+    const auto &args = CC_CURRENT_APPLICATION()->getArguments();
     nativevalue_to_se(args, s.rval());
     return true;
 }

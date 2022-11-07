@@ -82,13 +82,13 @@ private:
 /**
  * @brief Called at the user-defined main entry
  */
-#define CC_START_APPLICATION(className)                                                 \
-    do {                                                                                \
-        auto app = CC_APPLICATION_MANAGER()->createApplication<className>(argc, argv);  \
-        if (app->init()) {                                                              \
-            return -1;                                                                  \
-        }                                                                               \
-        return app->run(argc, argv);                                                    \
+#define CC_START_APPLICATION(className)                                                \
+    do {                                                                               \
+        auto app = CC_APPLICATION_MANAGER()->createApplication<className>(argc, argv); \
+        if (app->init()) {                                                             \
+            return -1;                                                                 \
+        }                                                                              \
+        return app->run(argc, argv);                                                   \
     } while (0)
 
 #define CC_REGISTER_APPLICATION(className)        \

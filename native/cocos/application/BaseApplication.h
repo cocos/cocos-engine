@@ -73,7 +73,7 @@ protected:
      * @brief Set arguments passed to execution file
      * @note setArgumentsInternal needs to be protected since it should only be used internally.
      */
-    virtual void setArgumentsInternal(int argc, const char* argv[]) = 0;
+    virtual void setArgumentsInternal(int argc, const char *argv[]) = 0;
 
     friend class ApplicationManager;
 };
