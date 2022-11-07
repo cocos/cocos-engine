@@ -36,6 +36,7 @@ import { MorphRenderingInstance } from '../assets/morph-rendering';
 import { NodeEventType } from '../../scene-graph/node-event';
 import { Texture } from '../../gfx';
 import { builtinResMgr } from '../../asset/asset-manager/builtin-res-mgr';
+import { settings, Settings } from '../../core/settings';
 
 const { property, ccclass, help, executeInEditMode, executionOrder, menu, tooltip, visible, type,
     formerlySerializedAs, serializable, editable, disallowAnimation } = _decorator;
@@ -431,6 +432,13 @@ export class MeshRenderer extends ModelRenderer {
     constructor () {
         super();
         this._modelType = scene.Model;
+
+        const highQualityMode = settings.querySettings(Settings.Category.RENDERING, 'highQualityMode');
+        if (highQualityMode) {
+            this._shadowCastingMode = ModelShadowCastingMode.ON;
+            this.lightmapSettings.castShadow = true;
+            this.lightmapSettings.receiveShadow = true;
+        }
     }
 
     public onLoad () {
