@@ -25,7 +25,7 @@
 
 import { BufferUsageBit, Format, MemoryUsageBit, Device, DescriptorSet, InputAssembler,
     InputAssemblerInfo, Attribute, Buffer, BufferInfo, Shader } from '../gfx';
-import { Mat4 } from '../core/math';
+import { Mat4 } from '../core';
 import { SubModel } from '../render-scene/scene/submodel';
 import { UBOLocalBatched } from './define';
 import { Pass } from '../render-scene';

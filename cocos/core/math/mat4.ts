@@ -32,6 +32,9 @@ import { EPSILON } from './utils';
 import { Vec3 } from './vec3';
 import { legacyCC } from '../global-exports';
 
+/**
+ * @engineInternal
+ */
 export const preTransforms = Object.freeze([
     Object.freeze([1,  0,  0,  1]), // SurfaceTransform.IDENTITY
     Object.freeze([0,  1, -1,  0]), // SurfaceTransform.ROTATE_90

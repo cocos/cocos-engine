@@ -26,11 +26,9 @@
 import { BatchingSchemes, Pass } from '../render-scene/core/pass';
 import { Model } from '../render-scene/scene/model';
 import { PipelineStateManager } from './pipeline-state-manager';
-import { Vec3, nextPow2, Mat4, Color } from '../core/math';
-import { intersect } from '../core/geometry';
+import { Vec3, nextPow2, Mat4, Color, Pool, geometry } from '../core';
 import { Device, RenderPass, Buffer, BufferUsageBit, MemoryUsageBit,
     BufferInfo, BufferViewInfo, CommandBuffer } from '../gfx';
-import { Pool } from '../core/memop';
 import { RenderBatchedQueue } from './render-batched-queue';
 import { RenderInstancedQueue } from './render-instanced-queue';
 import { SphereLight } from '../render-scene/scene/sphere-light';
@@ -61,12 +59,12 @@ const _matShadowView = new Mat4();
 const _matShadowViewProj = new Mat4();
 
 function cullSphereLight (light: SphereLight, model: Model) {
-    return !!(model.worldBounds && !intersect.aabbWithAABB(model.worldBounds, light.aabb));
+    return !!(model.worldBounds && !geometry.intersect.aabbWithAABB(model.worldBounds, light.aabb));
 }
 
 function cullSpotLight (light: SpotLight, model: Model) {
     return !!(model.worldBounds
-        && (!intersect.aabbWithAABB(model.worldBounds, light.aabb) || !intersect.aabbFrustum(model.worldBounds, light.frustum)));
+        && (!geometry.intersect.aabbWithAABB(model.worldBounds, light.aabb) || !geometry.intersect.aabbFrustum(model.worldBounds, light.frustum)));
 }
 
 const _phaseID = getPhaseID('forward-add');

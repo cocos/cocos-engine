@@ -1,6 +1,5 @@
 import { EDITOR } from 'internal:constants';
-import { System, Vec2, IVec2Like, Rect, Eventify, Enum } from '../../core';
-import { IPhysicsWorld } from '../spec/i-physics-world';
+import { System, Vec2, IVec2Like, Rect, Eventify, Enum, Settings, settings, cclegacy } from '../../core';
 import { createPhysicsWorld, selector, IPhysicsSelector } from './physics-selector';
 
 import { DelayEvent } from './physics-internal-types';
@@ -8,12 +7,10 @@ import { ICollisionMatrix } from '../../physics/framework/physics-config';
 import { CollisionMatrix } from '../../physics/framework/collision-matrix';
 import { ERaycast2DType, RaycastResult2D, PHYSICS_2D_PTM_RATIO, PhysicsGroup } from './physics-types';
 import { Collider2D } from './components/colliders/collider-2d';
-import { legacyCC } from '../../core/global-exports';
-import { Settings, settings } from '../../core/settings';
 import { director, Director } from '../../game';
 
 let instance: PhysicsSystem2D | null = null;
-legacyCC.internal.PhysicsGroup2D = PhysicsGroup;
+cclegacy.internal.PhysicsGroup2D = PhysicsGroup;
 
 export class PhysicsSystem2D extends Eventify(System) {
     /**
@@ -40,7 +37,7 @@ export class PhysicsSystem2D extends Eventify(System) {
     }
     set allowSleep (v: boolean) {
         this._allowSleep = v;
-        if (!EDITOR || legacyCC.GAME_VIEW) {
+        if (!EDITOR || cclegacy.GAME_VIEW) {
             this.physicsWorld.setAllowSleep(v);
         }
     }
@@ -56,7 +53,7 @@ export class PhysicsSystem2D extends Eventify(System) {
     }
     set gravity (gravity: Vec2) {
         this._gravity.set(gravity);
-        if (!EDITOR || legacyCC.GAME_VIEW) {
+        if (!EDITOR || cclegacy.GAME_VIEW) {
             this.physicsWorld.setGravity(new Vec2(gravity.x / PHYSICS_2D_PTM_RATIO, gravity.y / PHYSICS_2D_PTM_RATIO));
         }
     }

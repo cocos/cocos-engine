@@ -23,9 +23,7 @@
  THE SOFTWARE.
  */
 
-import { AABB, Frustum } from '../../core/geometry';
-import { legacyCC } from '../../core/global-exports';
-import { Mat4, Quat, Vec3 } from '../../core/math';
+import { Mat4, Quat, Vec3, geometry, cclegacy } from '../../core';
 import { Light, LightType, nt2lm } from './light';
 import { PCFType } from './shadows';
 
@@ -49,9 +47,9 @@ export class SpotLight extends Light {
 
     protected _pos: Vec3;
 
-    protected _aabb: AABB;
+    protected _aabb: geometry.AABB;
 
-    protected _frustum: Frustum;
+    protected _frustum: geometry.Frustum;
 
     /**
      * @en User-specified full-angle radians.
@@ -112,7 +110,7 @@ export class SpotLight extends Light {
      * @zh 光源的亮度
      */
     get luminance (): number {
-        const isHDR = (legacyCC.director.root).pipeline.pipelineSceneData.isHDR;
+        const isHDR = (cclegacy.director.root).pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
             return this._luminanceHDR;
         } else {
@@ -120,7 +118,7 @@ export class SpotLight extends Light {
         }
     }
     set luminance (value: number) {
-        const isHDR = (legacyCC.director.root).pipeline.pipelineSceneData.isHDR;
+        const isHDR = (cclegacy.director.root).pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
             this.luminanceHDR = value;
         } else {
@@ -242,8 +240,8 @@ export class SpotLight extends Light {
 
     constructor () {
         super();
-        this._aabb = AABB.create();
-        this._frustum = Frustum.create();
+        this._aabb = geometry.AABB.create();
+        this._frustum = geometry.Frustum.create();
         this._pos = new Vec3();
         this._type = LightType.SPOT;
     }
@@ -265,7 +263,7 @@ export class SpotLight extends Light {
             Vec3.transformQuat(this._dir, _forward, this._node.getWorldRotation(_qt));
             Vec3.normalize(this._dir, this._dir);
 
-            AABB.set(this._aabb, this._pos.x, this._pos.y, this._pos.z, this._range, this._range, this._range);
+            geometry.AABB.set(this._aabb, this._pos.x, this._pos.y, this._pos.z, this._range, this._range, this._range);
 
             // view matrix
             this._node.getWorldRT(_matView);

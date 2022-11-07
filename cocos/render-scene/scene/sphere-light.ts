@@ -23,9 +23,7 @@
  THE SOFTWARE.
  */
 
-import { AABB } from '../../core/geometry';
-import { legacyCC } from '../../core/global-exports';
-import { Vec3 } from '../../core/math';
+import { Vec3, cclegacy, geometry } from '../../core';
 import { Light, LightType, nt2lm } from './light';
 
 /**
@@ -73,7 +71,7 @@ export class SphereLight extends Light {
      * @zh 光源的亮度
      */
     get luminance (): number {
-        const isHDR = (legacyCC.director.root).pipeline.pipelineSceneData.isHDR;
+        const isHDR = (cclegacy.director.root).pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
             return this._luminanceHDR;
         } else {
@@ -81,7 +79,7 @@ export class SphereLight extends Light {
         }
     }
     set luminance (value: number) {
-        const isHDR = (legacyCC.director.root).pipeline.pipelineSceneData.isHDR;
+        const isHDR = (cclegacy.director.root).pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
             this.luminanceHDR = value;
         } else {
@@ -122,11 +120,11 @@ export class SphereLight extends Light {
     protected _luminanceHDR = 0;
     protected _luminanceLDR = 0;
     protected _pos: Vec3;
-    protected _aabb: AABB;
+    protected _aabb: geometry.AABB;
 
     constructor () {
         super();
-        this._aabb = AABB.create();
+        this._aabb = geometry.AABB.create();
         this._pos = new Vec3();
         this._type = LightType.SPHERE;
     }
@@ -149,7 +147,7 @@ export class SphereLight extends Light {
         if (this._node && (this._node.hasChangedFlags || this._needUpdate)) {
             this._node.getWorldPosition(this._pos);
             const range = this._range;
-            AABB.set(this._aabb, this._pos.x, this._pos.y, this._pos.z, range, range, range);
+            geometry.AABB.set(this._aabb, this._pos.x, this._pos.y, this._pos.z, range, range, range);
             this._needUpdate = false;
         }
     }

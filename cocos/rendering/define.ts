@@ -27,7 +27,7 @@ import { Pass } from '../render-scene/core/pass';
 import { Model } from '../render-scene/scene/model';
 import { SubModel } from '../render-scene/scene/submodel';
 import { Layers } from '../scene-graph/layers';
-import { legacyCC } from '../core/global-exports';
+import { cclegacy } from '../core';
 import { BindingMappingInfo, DescriptorType, Type, ShaderStageFlagBit, UniformStorageBuffer, DescriptorSetLayoutBinding,
     Uniform, UniformBlock, UniformSamplerTexture, UniformStorageImage, Device, FormatFeatureBit, Format,
 } from '../gfx';
@@ -46,7 +46,7 @@ export enum RenderPassStage {
     DEFAULT = 100,
     UI = 200,
 }
-legacyCC.RenderPassStage = RenderPassStage;
+cclegacy.RenderPassStage = RenderPassStage;
 
 /**
  * @en The predefined render priorities

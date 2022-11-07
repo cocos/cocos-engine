@@ -24,11 +24,9 @@
  */
 
 /* eslint-disable @typescript-eslint/no-unsafe-return */
-import { Ray } from '../../core/geometry';
 import { IPhysicsWorld, IRaycastOptions } from '../spec/i-physics-world';
 import { PhysicsMaterial, PhysicsRayResult, CollisionEventType, TriggerEventType } from '../framework';
-import { error, RecyclePool, js } from '../../core';
-import { IVec3Like } from '../../core/math/type-define';
+import { error, RecyclePool, js, IVec3Like, geometry } from '../../core';
 import { IBaseConstraint } from '../spec/i-physics-constraint';
 import { PhysXRigidBody } from './physx-rigid-body';
 import {
@@ -141,11 +139,11 @@ export class PhysXWorld extends PhysXInstance implements IPhysicsWorld {
 
     removeConstraint (_constraint: IBaseConstraint): void { }
 
-    raycast (worldRay: Ray, options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
+    raycast (worldRay: geometry.Ray, options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
         return raycastAll(this, worldRay, options, pool, results);
     }
 
-    raycastClosest (worldRay: Ray, options: IRaycastOptions, result: PhysicsRayResult): boolean {
+    raycastClosest (worldRay: geometry.Ray, options: IRaycastOptions, result: PhysicsRayResult): boolean {
         return raycastClosest(this, worldRay, options, result);
     }
 

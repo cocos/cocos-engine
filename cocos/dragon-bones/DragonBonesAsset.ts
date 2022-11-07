@@ -25,11 +25,12 @@
 
 import { EDITOR } from 'internal:constants';
 import { Asset } from '../asset/assets';
-import { ccclass, serializable } from '../core/data/decorators';
 import { ArmatureCache } from './ArmatureCache';
-import { Enum, cclegacy } from '../core';
+import { Enum, cclegacy, _decorator } from '../core';
 import { CCFactory } from './CCFactory';
 import { Node } from '../scene-graph';
+
+const { ccclass, serializable } = _decorator;
 
 /**
  * @en The skeleton data of dragonBones.

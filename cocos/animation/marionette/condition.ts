@@ -4,7 +4,7 @@ import {
     bindNumericOr,
     validateVariableTypeTriggerLike,
 } from './parametric';
-import { ccclass, serializable } from '../../core/data/decorators';
+import { _decorator } from '../../core';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
 import { createEval } from './create-eval';
 import { VariableTypeMismatchedError } from './errors';
@@ -22,6 +22,8 @@ export interface ConditionEval {
      */
     eval(): boolean;
 }
+
+const { ccclass, serializable } = _decorator;
 
 enum BinaryOperator {
     EQUAL_TO,

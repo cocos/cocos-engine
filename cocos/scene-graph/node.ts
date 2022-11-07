@@ -36,9 +36,7 @@ import { CustomSerializable, editorExtrasTag, SerializationContext, Serializatio
 import { errorID, warnID, error, log, getError } from '../core/platform/debug';
 import { Component } from './component';
 import { property } from '../core/data/decorators/property';
-import { CCObject } from '../core/data/object';
-import * as js from '../core/utils/js';
-import IdGenerator from '../core/utils/id-generator';
+import { CCObject, js } from '../core';
 import type { Scene } from './scene';
 import { PrefabInfo } from './prefab/prefab-info';
 import { NodeEventType } from './node-event';
@@ -50,7 +48,7 @@ const Deactivating = CCObject.Flags.Deactivating;
 
 export const TRANSFORM_ON = 1 << 0;
 
-const idGenerator = new IdGenerator('Node');
+const idGenerator = new js.IDGenerator('Node');
 
 function getConstructor<T>
 (typeOrClassName: string | Constructor<T> | AbstractedConstructor<T>): Constructor<T> | AbstractedConstructor<T> | null | undefined {
