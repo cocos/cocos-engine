@@ -56,8 +56,8 @@ export class KeyboardInputSource {
         this._registerEvent();
     }
 
-    public dispatchKeyboardDownEvent (nativeKeyboardEvent: KeyboardEvent) { this._handleKeyboardDown(nativeKeyboardEvent); }
-    public dispatchKeyboardUpEvent (nativeKeyboardEvent: KeyboardEvent) { this._handleKeyboardUp(nativeKeyboardEvent); }
+    public dispatchKeyboardDownEvent (nativeKeyboardEvent: jsb.KeyboardEvent) { this._handleKeyboardDown(nativeKeyboardEvent); }
+    public dispatchKeyboardUpEvent (nativeKeyboardEvent: jsb.KeyboardEvent) { this._handleKeyboardUp(nativeKeyboardEvent); }
 
     private _registerEvent () {
         jsb.onKeyDown = this._handleKeyboardDown;
