@@ -32,10 +32,9 @@ import { Skeleton } from '../assets/skeleton';
 import { Node } from '../../scene-graph/node';
 import { MeshRenderer } from '../framework/mesh-renderer';
 import type { SkeletalAnimation } from '../skeletal-animation';
-import { cclegacy } from '../../core';
+import { cclegacy, assertIsTrue } from '../../core';
 import { SkinningModel } from '../models/skinning-model';
 import { BakedSkinningModel } from '../models/baked-skinning-model';
-import { assertIsTrue } from '../../core/data/utils/asserts';
 
 /**
  * @en The skinned mesh renderer component.

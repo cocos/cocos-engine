@@ -23,14 +23,12 @@
  THE SOFTWARE.
  */
 
-import { ccclass, serializable } from 'cc.decorator';
+import { ccclass, serializable, type } from 'cc.decorator';
 import { Vertex, Tetrahedron, Delaunay } from './delaunay';
 import { PolynomialSolver } from './polynomial-solver';
 import { LightProbeInfo } from '../../scene-graph/scene-globals';
-import { Vec3, Vec4, cclegacy, math } from '../../core';
+import { Vec3, Vec4, cclegacy, EPSILON } from '../../core';
 import { SH } from './sh';
-import { EPSILON } from '../../core/math/utils';
-import { warnID } from '../../core/platform/debug';
 
 @ccclass('cc.LightProbesData')
 export class LightProbesData {
@@ -239,8 +237,10 @@ export class LightProbesData {
     }
 
     @serializable
+    @type([Vertex])
     private _probes: Vertex[] = [];
     @serializable
+    @type([Tetrahedron])
     private _tetrahedrons: Tetrahedron[] = [];
 }
 cclegacy.internal.LightProbesData = LightProbesData;

@@ -25,11 +25,8 @@
 import { ccclass, override } from 'cc.decorator';
 import { ALIPAY, XIAOMI, JSB, TEST, BAIDU } from 'internal:constants';
 import { Format, FormatFeatureBit, deviceManager } from '../../gfx';
-import { legacyCC } from '../../core/global-exports';
 import { PixelFormat } from './asset-enum';
-import { sys } from '../../core/platform/sys';
-import { macro } from '../../core/platform/macro';
-import { warnID } from '../../core/platform/debug';
+import { sys, macro, warnID, cclegacy } from '../../core';
 import './asset';
 
 export type ImageAsset = jsb.ImageAsset;
@@ -258,7 +255,7 @@ imageAssetProto._deserialize = function (data: any) {
     }
 };
 
-legacyCC.ImageAsset = jsb.ImageAsset;
+cclegacy.ImageAsset = jsb.ImageAsset;
 
 // handle meta data, it is generated automatically
 const ImageAssetProto = ImageAsset.prototype;

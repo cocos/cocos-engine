@@ -27,7 +27,6 @@
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 import { EDITOR, TEST } from 'internal:constants';
-import { legacyCC } from '../../core/global-exports';
 import { IBaseConstraint, IPointToPointConstraint, IHingeConstraint, IConeTwistConstraint } from '../spec/i-physics-constraint';
 import {
     IBoxShape, ISphereShape, ICapsuleShape, ITrimeshShape, ICylinderShape,
@@ -35,7 +34,7 @@ import {
 } from '../spec/i-physics-shape';
 import { IPhysicsWorld } from '../spec/i-physics-world';
 import { IRigidBody } from '../spec/i-rigid-body';
-import { errorID, IVec3Like, warn } from '../../core';
+import { errorID, IVec3Like, warn, cclegacy } from '../../core';
 import { EColliderType, EConstraintType } from './physics-enum';
 import { PhysicsMaterial } from '.';
 
@@ -115,9 +114,9 @@ interface IPhysicsSelector {
 }
 
 function updateLegacyMacro (id: string) {
-    legacyCC._global.CC_PHYSICS_BUILTIN = id === 'builtin';
-    legacyCC._global.CC_PHYSICS_CANNON = id === 'cannon.js';
-    legacyCC._global.CC_PHYSICS_AMMO = id === 'bullet';
+    cclegacy._global.CC_PHYSICS_BUILTIN = id === 'builtin';
+    cclegacy._global.CC_PHYSICS_CANNON = id === 'cannon.js';
+    cclegacy._global.CC_PHYSICS_AMMO = id === 'bullet';
 }
 
 function register (id: IPhysicsEngineId, wrapper: IPhysicsWrapperObject): void {

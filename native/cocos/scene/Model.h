@@ -41,6 +41,7 @@
 #include "renderer/gfx-base/GFXDef-common.h"
 #include "renderer/gfx-base/GFXTexture.h"
 #include "scene/SubModel.h"
+#include "core/assets/TextureCube.h"
 
 namespace cc {
 
@@ -112,6 +113,8 @@ public:
     void updateOctree();
     void updateWorldBoundUBOs();
     void updateLocalShadowBias();
+    void updateReflctionProbeCubemap(TextureCube *texture);
+    void updateReflctionProbePlanarMap(gfx::Texture *texture);
 
     inline void attachToScene(RenderScene *scene) {
         _scene = scene;
@@ -151,6 +154,14 @@ public:
     inline void setUseLightProbe(bool val) {
         _useLightProbe = val;
         onMacroPatchesStateChanged();
+    }
+    inline bool getBakeToReflectionProbe() const { return _bakeToReflectionProbe; }
+    inline void setBakeToReflectionProbe(bool val) {
+        _bakeToReflectionProbe = val;
+    }
+    inline bool getReflectionProbeType() const { return _reflectionProbeType; }
+    inline void setReflectionProbeType(int32_t val) {
+        _reflectionProbeType = val;
     }
     inline int32_t getTetrahedronIndex() const { return _tetrahedronIndex; }
     inline void setTetrahedronIndex(int32_t index) { _tetrahedronIndex = index; }
@@ -220,6 +231,9 @@ protected:
     int32_t _tetrahedronIndex{-1};
     Vec3 _lastWorldBoundCenter{INFINITY, INFINITY, INFINITY};
     bool _useLightProbe = false;
+
+    bool _bakeToReflectionProbe{true};
+    int32_t _reflectionProbeType{0};
 
     bool _enabled{false};
     bool _castShadow{false};

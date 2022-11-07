@@ -24,13 +24,13 @@
  */
 
 import { Armature, Matrix } from '@cocos/dragonbones-js';
-import { Mat4, Vec3 } from '../core';
-import { ccclass } from '../core/data/class-decorator';
+import { Mat4, Vec3, _decorator } from '../core';
 import { Node } from '../scene-graph';
 import { ArmatureFrameBoneInfo } from './ArmatureCache';
 import { ArmatureDisplay } from './ArmatureDisplay';
 
 const _tempMat4 = new Mat4();
+const { ccclass } = _decorator;
 
 /**
  * @en Attach node tool

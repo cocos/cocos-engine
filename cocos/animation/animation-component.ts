@@ -27,7 +27,6 @@ import { ccclass, executeInEditMode, executionOrder, help, menu, tooltip, type, 
 import { EDITOR, TEST } from 'internal:constants';
 import { Component } from '../scene-graph/component';
 import { Eventify, warnID, js, cclegacy } from '../core';
-import { createMap } from '../core/utils/js-typed';
 import { AnimationClip } from './animation-clip';
 import { AnimationState, EventType } from './animation-state';
 import { CrossFade } from './cross-fade';
@@ -144,7 +143,7 @@ export class Animation extends Eventify(Component) {
     /**
      * @internal
      */
-    protected _nameToState: Record<string, AnimationState> = createMap(true);
+    protected _nameToState: Record<string, AnimationState> = js.createMap(true);
 
     /**
      * @internal
@@ -191,7 +190,7 @@ export class Animation extends Eventify(Component) {
             const state = this._nameToState[name];
             state.destroy();
         }
-        this._nameToState = createMap(true);
+        this._nameToState = js.createMap(true);
     }
 
     /**

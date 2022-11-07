@@ -1,7 +1,6 @@
 import { EDITOR } from 'internal:constants';
 import { ccclass, editorOnly } from 'cc.decorator';
 import { js } from '../utils/js';
-import { CCClass } from './class';
 import { EditorExtendableObject, editorExtrasTag } from './editor-extras-tag';
 import { assertIsTrue } from './utils/asserts';
 
@@ -24,6 +23,7 @@ class Empty {}
 
 /**
  * Class which implements the `EditorExtendableObject` interface.
+ * @engineInternal
  */
 export const EditorExtendable = editorExtendableInternal();
 

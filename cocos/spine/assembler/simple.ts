@@ -766,6 +766,7 @@ function cacheTraverse (worldMat: Mat4 | null) {
     let prevDrawIndexOffset = 0;
     const rd = _renderData!;
     const vbuf = rd.chunk.vb;
+    _vUintBuf = new Uint32Array(vbuf.buffer, vbuf.byteOffset, vbuf.length);
     const ibuf = rd.indices!;
     for (let i = 0, n = segments.length; i < n; i++) {
         const segInfo = segments[i];

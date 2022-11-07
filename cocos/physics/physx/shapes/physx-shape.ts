@@ -24,8 +24,7 @@
  */
 
 /* eslint-disable @typescript-eslint/no-unsafe-return */
-import { IVec3Like, Quat, Vec3 } from '../../../core';
-import { AABB, Sphere } from '../../../core/geometry';
+import { IVec3Like, Quat, Vec3, geometry } from '../../../core';
 import { Collider, RigidBody, PhysicsMaterial, PhysicsSystem } from '../../framework';
 import { IBaseShape } from '../../spec/i-physics-shape';
 import {
@@ -170,12 +169,12 @@ export class PhysXShape implements IBaseShape {
         this._impl.setLocalPose(trans);
     }
 
-    getAABB (v: AABB): void {
+    getAABB (v: geometry.AABB): void {
         getShapeWorldBounds(this.impl, this._sharedBody.impl, 1, v);
     }
 
-    getBoundingSphere (v: Sphere): void {
-        AABB.toBoundingSphere(v, this._collider.worldBounds as AABB);
+    getBoundingSphere (v: geometry.Sphere): void {
+        geometry.AABB.toBoundingSphere(v, this._collider.worldBounds as geometry.AABB);
     }
 
     setGroup (v: number): void {
