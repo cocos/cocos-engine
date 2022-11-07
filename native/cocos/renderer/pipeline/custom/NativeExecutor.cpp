@@ -283,12 +283,12 @@ std::pair<gfx::TextureBarrierInfo, gfx::Texture*> getTextureBarrier(
     const auto& beginUsage = get<gfx::TextureUsage>(barrier.beginStatus.usage);
     const auto& endUsage = get<gfx::TextureUsage>(barrier.endStatus.usage);
 
-    auto beginAccesFlags = gfx::getDeviceAccessFlags(
+    auto beginAccesFlags = gfx::getAccessFlags(
         beginUsage,
         barrier.beginStatus.access,
         barrier.beginStatus.visibility);
 
-    auto endAccessFlags = gfx::getDeviceAccessFlags(
+    auto endAccessFlags = gfx::getAccessFlags(
         endUsage,
         barrier.endStatus.access,
         barrier.endStatus.visibility);
@@ -340,8 +340,7 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
             const auto& resource = get(ResourceGraph::DescTag{}, resg, resID);
             switch (desc.dimension) {
                 case ResourceDimension::BUFFER: {
-                    gfx::BufferBarrierInfo info = getBufferBarrier(barrier);
-                    const auto* bufferBarrier = ctx.device->getBufferBarrier(info);
+                    const auto* bufferBarrier = static_cast<gfx::BufferBarrier*>(barrier.barrier);
                     buffers.emplace_back(nullptr);
                     bufferBarriers.emplace_back(bufferBarrier);
                     break;
@@ -351,7 +350,7 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
                 case ResourceDimension::TEXTURE3D:
                 default: {
                     auto [info, texture] = getTextureBarrier(resg, resID, barrier);
-                    const auto* textureBarrier = ctx.device->getTextureBarrier(info);
+                    const auto* textureBarrier = static_cast<gfx::TextureBarrier*>(barrier.barrier);
                     textures.emplace_back(texture);
                     textureBarriers.emplace_back(textureBarrier);
                     break;

@@ -91,6 +91,7 @@ struct AccessStatus {
     gfx::ShaderStageFlagBit visibility{gfx::ShaderStageFlagBit::NONE};
     gfx::MemoryAccessBit access{gfx::MemoryAccessBit::NONE};
     gfx::PassType passType{gfx::PassType::RASTER};
+    gfx::AccessFlagBit accessFlag{gfx::AccessFlagBit::NONE};
     ResourceUsage usage;
     Range range;
 };
@@ -339,6 +340,7 @@ struct EmptyGraph {
 struct Barrier {
     RenderGraph::vertex_descriptor resourceID{0xFFFFFFFF};
     gfx::BarrierType type{gfx::BarrierType::FULL};
+    gfx::GFXObject* barrier{nullptr};
     AccessStatus beginStatus;
     AccessStatus endStatus;
 };
