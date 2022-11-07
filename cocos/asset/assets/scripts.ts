@@ -26,7 +26,7 @@
 
 import { ccclass } from 'cc.decorator';
 import { Asset } from './asset';
-import { legacyCC } from '../../core/global-exports';
+import { cclegacy } from '../../core';
 
 /**
  * @en The script asset base class
@@ -35,7 +35,7 @@ import { legacyCC } from '../../core/global-exports';
 @ccclass('cc.Script')
 export class Script extends Asset {
 }
-legacyCC._Script = Script;
+cclegacy._Script = Script;
 
 /**
  * @en JavaScript asset.
@@ -44,7 +44,7 @@ legacyCC._Script = Script;
 @ccclass('cc.JavaScript')
 export class JavaScript extends Script {
 }
-legacyCC._JavaScript = JavaScript;
+cclegacy._JavaScript = JavaScript;
 
 /**
  * @en TypeScript asset
@@ -53,4 +53,4 @@ legacyCC._JavaScript = JavaScript;
 @ccclass('cc.TypeScript')
 export class TypeScript extends Script {
 }
-legacyCC._TypeScript = TypeScript;
+cclegacy._TypeScript = TypeScript;

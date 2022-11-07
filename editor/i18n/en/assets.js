@@ -387,7 +387,7 @@ module.exports = {
             illegalFbx: 'Import Skeleton Failed: this fbx asset has not contained sub prefab asset.',
             nodeEnableTip: 'Whether to enable this joint and its descendants.;<br>Alt + Click only toggle the state of itself.',
         },
-        multipleWarning: 'Multi-select editing of this type of asset is not supported',
+        multipleWarning: 'Multi-select editing of this type of asset is not supported.',
         check_is_saved: {
             message: 'The modified data has not been saved. Do you want to save it?',
             assetMessage: "${assetName} is modified, it's data has not been saved. Do you want to save it?",

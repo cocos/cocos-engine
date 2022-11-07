@@ -30,7 +30,7 @@ import ParticleSystemRenderer from './particle-system-renderer-data';
 import { Material } from '../../asset/assets';
 import { Particle, IParticleModule } from '../particle';
 import { RenderMode } from '../enum';
-import { legacyCC } from '../../core/global-exports';
+import { cclegacy } from '../../core';
 import { Pass } from '../../render-scene';
 
 export interface IParticleSystemRenderer {
@@ -111,7 +111,7 @@ export abstract class ParticleSystemRendererBase implements IParticleSystemRende
 
     public onDestroy () {
         if (this._model) {
-            legacyCC.director.root.destroyModel(this._model);
+            cclegacy.director.root.destroyModel(this._model);
             this._model = null;
         }
     }
@@ -148,7 +148,7 @@ export abstract class ParticleSystemRendererBase implements IParticleSystemRende
 
     protected _initModel () {
         if (!this._model) {
-            this._model = legacyCC.director.root.createModel(ParticleBatchModel);
+            this._model = cclegacy.director.root.createModel(ParticleBatchModel);
             this._model!.setCapacity(this._particleSystem.capacity);
             this._model!.visFlags = this._particleSystem.visibility;
         }

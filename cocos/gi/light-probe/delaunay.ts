@@ -22,9 +22,9 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
+import { Mat3, EPSILON, Vec3, _decorator } from '../../core';
 
-import { ccclass, serializable } from 'cc.decorator';
-import { Mat3, EPSILON, Vec3, warnID } from '../../core';
+const { ccclass, serializable } = _decorator;
 
 const _mat = new Mat3();
 const _n = new Vec3(0.0, 0.0, 0.0);

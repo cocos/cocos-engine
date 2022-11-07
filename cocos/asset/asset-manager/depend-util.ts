@@ -31,7 +31,7 @@ import deserialize from './deserialize';
 import { decodeUuid } from './helper';
 import { files, parsed } from './shared';
 import { dependMap, nativeDependMap } from './depend-maps';
-import { assertIsNonNullable } from '../../core/data/utils/asserts';
+import { assertIsNonNullable } from '../../core';
 import { CCON } from '../../serialization/ccon';
 
 export interface IDependencies {

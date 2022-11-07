@@ -1,7 +1,7 @@
 import { EDITOR } from 'internal:constants';
 import { IPhysicsWorld } from '../spec/i-physics-world';
 import { Graphics } from '../../2d';
-import { CCObject, Vec3, Color, IVec2Like, Vec2, Rect } from '../../core';
+import { CCObject, Vec3, Color, IVec2Like, Vec2, Rect, cclegacy, js } from '../../core';
 import { Canvas } from '../../2d/framework';
 import { BuiltinShape2D } from './shapes/shape-2d';
 import { BuiltinBoxShape } from './shapes/box-shape-2d';
@@ -10,10 +10,8 @@ import { BuiltinPolygonShape } from './shapes/polygon-shape-2d';
 import { EPhysics2DDrawFlags, Contact2DType, ERaycast2DType, RaycastResult2D } from '../framework/physics-types';
 import { PhysicsSystem2D, Collider2D } from '../framework';
 import { BuiltinContact } from './builtin-contact';
-import { legacyCC } from '../../core/global-exports';
 import { Node, find } from '../../scene-graph';
 import { director } from '../../game';
-import { fastRemoveAt } from '../../core/utils/array';
 
 const contactResults: BuiltinContact[] = [];
 const testIntersectResults: Collider2D[] = [];
@@ -62,7 +60,7 @@ export class BuiltinPhysicsWorld implements IPhysicsWorld {
         const shapes = this._shapes;
         const index = shapes.indexOf(shape);
         if (index >= 0) {
-            fastRemoveAt(shapes, index);
+            js.array.fastRemoveAt(shapes, index);
 
             for (let i = 0; i < shape._contacts.length; i++) {
                 const contact = shape._contacts[i];
@@ -77,13 +75,13 @@ export class BuiltinPhysicsWorld implements IPhysicsWorld {
                     }
                     const cIndex1 = otherShape._contacts.indexOf(contact);
                     if (cIndex1  > 0) {
-                        fastRemoveAt(otherShape._contacts, cIndex1);
+                        js.array.fastRemoveAt(otherShape._contacts, cIndex1);
                     }
 
                     if (contact.touching) {
                         this._emitCollide(contact, Contact2DType.END_CONTACT);
                     }
-                    fastRemoveAt(this._contacts, cIndex);
+                    js.array.fastRemoveAt(this._contacts, cIndex);
                 }
             }
         }
@@ -184,7 +182,7 @@ export class BuiltinPhysicsWorld implements IPhysicsWorld {
     }
 
     private _checkDebugDrawValid () {
-        if (EDITOR && !legacyCC.GAME_VIEW) return;
+        if (EDITOR && !cclegacy.GAME_VIEW) return;
         if (!this._debugGraphics || !this._debugGraphics.isValid) {
             let canvas = find('Canvas');
             if (!canvas) {

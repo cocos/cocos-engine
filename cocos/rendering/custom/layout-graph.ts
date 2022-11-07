@@ -32,9 +32,14 @@
 import * as impl from './graph';
 import { DescriptorSet, DescriptorSetLayout, DescriptorSetLayoutInfo, ShaderStageFlagBit, Type, UniformBlock } from '../../gfx';
 import { DescriptorBlock, saveDescriptorBlock, loadDescriptorBlock, DescriptorBlockIndex, saveDescriptorBlockIndex, loadDescriptorBlockIndex, DescriptorTypeOrder, UpdateFrequency } from './types';
-import { ccclass } from '../../core/data/decorators';
 import { OutputArchive, InputArchive } from './archive';
 import { saveUniformBlock, loadUniformBlock, saveDescriptorSetLayoutInfo, loadDescriptorSetLayoutInfo } from './serialization';
+
+//-----------------------------------------------------------------
+// LayoutGraphData Implementation
+import { _decorator } from '../../core';
+
+const { ccclass } = _decorator;
 
 export class DescriptorDB {
     readonly blocks: Map<string, DescriptorBlock> = new Map<string, DescriptorBlock>();
@@ -761,8 +766,6 @@ interface LayoutGraphDataComponentPropertyMap {
     [LayoutGraphDataComponent.Layout]: LayoutGraphDataLayoutMap;
 }
 
-//-----------------------------------------------------------------
-// LayoutGraphData Implementation
 @ccclass('cc.LayoutGraphData')
 export class LayoutGraphData implements impl.BidirectionalGraph
 , impl.AdjacencyGraph

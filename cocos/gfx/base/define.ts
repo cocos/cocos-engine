@@ -34,7 +34,7 @@ import { Sampler } from './states/sampler';
 import { GeneralBarrier } from './states/general-barrier';
 import { TextureBarrier } from './states/texture-barrier';
 import { BufferBarrier } from './states/buffer-barrier';
-import { GCObject } from '../../core/data/gc-object';
+import { GCObject } from '../../core';
 
 interface ICopyable { copy (info: ICopyable): ICopyable; }
 

@@ -29,7 +29,7 @@
  THE SOFTWARE.
  */
 
-import { getError, logID } from '../core/platform/debug';
+import { getError, logID } from '../core';
 
 interface IFile {
     type: string,

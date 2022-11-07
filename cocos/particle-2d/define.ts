@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { Enum } from '../core/value-types';
+import { Enum } from '../core';
 
 /**
  * @en The Particle emitter lives forever.

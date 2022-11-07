@@ -73,7 +73,7 @@ exports.methods = {
 
         await this.updateInterface();
 
-        await this.change({ snapshot: false });
+        await this.change();
 
         return true;
     },
@@ -88,10 +88,14 @@ exports.methods = {
         this.cacheData = {};
     },
 
-    async change(state) {
+    change() {
         this.canUpdatePreview = true;
-        await this.setDirtyData();
-        this.dispatch('change', state);
+        this.setDirtyData();
+        this.dispatch('change');
+    },
+
+    snapshot() {
+        this.dispatch('snapshot');
     },
 
     async updateEffect() {
@@ -407,11 +411,7 @@ exports.methods = {
         }
     },
 
-    async setDirtyData() {
-        if (this.canUpdatePreview) {
-            await this.updatePreview(true);
-        }
-
+    setDirtyData() {
         this.dirtyData.realtime = JSON.stringify({
             effect: this.material.effect,
             technique: this.material.technique,
@@ -422,6 +422,10 @@ exports.methods = {
             this.dirtyData.origin = this.dirtyData.realtime;
 
             this.dispatch('snapshot');
+        }
+
+        if (this.canUpdatePreview) {
+            this.updatePreview(true);
         }
     },
 
@@ -467,7 +471,7 @@ exports.update = async function(assetList, metaList) {
     await this.updateEffect();
 
     await this.updateInterface();
-    await this.setDirtyData();
+    this.setDirtyData();
 };
 
 /**
@@ -495,6 +499,7 @@ exports.ready = function() {
         await this.updateInterface();
 
         this.change();
+        this.snapshot();
     });
 
     this.$.location.addEventListener('change', () => {
@@ -509,6 +514,7 @@ exports.ready = function() {
         this.material.technique = event.target.value;
         await this.updateInterface();
         this.change();
+        this.snapshot();
     });
 
     // The event is triggered when the useInstancing is modified
@@ -516,27 +522,27 @@ exports.ready = function() {
         this.changeInstancing(event.target.dump.value);
         this.storeCache(event.target.dump);
         this.change();
+        this.snapshot();
     });
 
     // The event triggered when the content of material is modified
-    this.$.materialDump.addEventListener('change-dump', async (event) => {
+    this.$.materialDump.addEventListener('change-dump', (event) => {
         const dump = event.target.dump;
-
-        // // show its children
-        // if (dump && dump.childMap && dump.children.length && event.target.$children) {
-        //     if (dump.value) {
-        //         event.target.$children.removeAttribute('hidden');
-        //     } else {
-        //         event.target.$children.setAttribute('hidden', '');
-        //     }
-        // }
 
         this.storeCache(dump);
         this.change();
     });
 
+    this.$.materialDump.addEventListener('confirm-dump', () => {
+        this.snapshot();
+    });
+
     this.$.custom.addEventListener('change', () => {
         this.change();
+    });
+
+    this.$.custom.addEventListener('snapshot', () => {
+        this.snapshot();
     });
 };
 

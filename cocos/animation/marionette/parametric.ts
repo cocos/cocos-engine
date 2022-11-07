@@ -1,4 +1,4 @@
-import { ccclass, serializable } from '../../core/data/decorators';
+import { _decorator } from '../../core';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
 import { VariableNotDefinedError, VariableTypeMismatchedError } from './errors';
 import type { VarInstance } from './graph-eval';
@@ -13,6 +13,8 @@ export interface Bindable<TValue> {
 
     clone(): Bindable<TValue>;
 }
+
+const { ccclass, serializable } = _decorator;
 
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}BindableNumber`)
 export class BindableNumber implements Bindable<number> {
