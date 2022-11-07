@@ -23,8 +23,7 @@
  THE SOFTWARE.
  */
 
-import { legacyCC } from '../../core/global-exports';
-import { Vec3 } from '../../core/math';
+import { Vec3, cclegacy } from '../../core';
 import { Ambient } from './ambient';
 import { Light, LightType } from './light';
 import { CSMLevel, CSMOptimizationMode, PCFType, Shadows } from './shadows';
@@ -80,7 +79,7 @@ export class DirectionalLight extends Light {
      * @zh 光源的辐照度，单位是 Lux(lx)
      */
     get illuminance (): number {
-        const isHDR = (legacyCC.director.root).pipeline.pipelineSceneData.isHDR;
+        const isHDR = (cclegacy.director.root).pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
             return this._illuminanceHDR;
         } else {
@@ -88,7 +87,7 @@ export class DirectionalLight extends Light {
         }
     }
     set illuminance (value: number) {
-        const isHDR = (legacyCC.director.root).pipeline.pipelineSceneData.isHDR;
+        const isHDR = (cclegacy.director.root).pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
             this.illuminanceHDR = value;
         } else {
@@ -310,7 +309,7 @@ export class DirectionalLight extends Light {
     }
 
     private _activate () {
-        const root = legacyCC.director.root;
+        const root = cclegacy.director.root;
         const pipeline = root.pipeline;
         if (this._shadowEnabled) {
             if (this._shadowFixedArea || !pipeline.pipelineSceneData.csmSupported) {

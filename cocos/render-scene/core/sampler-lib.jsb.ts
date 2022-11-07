@@ -22,9 +22,9 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-import { legacyCC } from "../../core/global-exports";
+import { cclegacy } from "../../core";
 
 const SamplerLib = nr.SamplerLib;
 
 export const samplerLib = new SamplerLib();
-legacyCC.samplerLib = samplerLib;
+cclegacy.samplerLib = samplerLib;

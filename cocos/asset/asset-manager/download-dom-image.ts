@@ -24,7 +24,7 @@
  THE SOFTWARE.
  */
 
-import { getError } from '../../core/platform/debug';
+import { getError } from '../../core';
 import { CompleteCallback, IDownloadParseOptions } from './shared';
 
 export default function downloadDomImage (

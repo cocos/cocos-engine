@@ -23,20 +23,18 @@
  THE SOFTWARE.
  */
 
-import { Vec3 } from '../../../core/math';
-import { OBB } from '../../../core/geometry';
+import { Vec3, geometry } from '../../../core';
 import { BuiltinShape } from './builtin-shape';
 import { IBoxShape } from '../../spec/i-physics-shape';
 import { BoxCollider } from '../../../../exports/physics-framework';
-import { IVec3Like } from '../../../core/math/type-define';
 
 export class BuiltinBoxShape extends BuiltinShape implements IBoxShape {
     get localObb () {
-        return this._localShape as OBB;
+        return this._localShape as geometry.OBB;
     }
 
     get worldObb () {
-        return this._worldShape as OBB;
+        return this._worldShape as geometry.OBB;
     }
 
     get collider () {
@@ -45,8 +43,8 @@ export class BuiltinBoxShape extends BuiltinShape implements IBoxShape {
 
     constructor () {
         super();
-        this._localShape = new OBB();
-        this._worldShape = new OBB();
+        this._localShape = new geometry.OBB();
+        this._worldShape = new geometry.OBB();
     }
 
     updateSize () {

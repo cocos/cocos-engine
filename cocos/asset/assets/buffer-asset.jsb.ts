@@ -23,13 +23,13 @@
  THE SOFTWARE.
 */
 import { ccclass, override } from 'cc.decorator';
-import { legacyCC } from '../../core/global-exports';
+import { cclegacy } from '../../core';
 import './asset';
 
 export type BufferAsset = jsb.BufferAsset;
 export const BufferAsset = jsb.BufferAsset;
 
-legacyCC.BufferAsset = jsb.BufferAsset;
+cclegacy.BufferAsset = jsb.BufferAsset;
 
 // handle meta data, it is generated automatically
 const BufferAssetProto = BufferAsset.prototype;

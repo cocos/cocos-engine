@@ -23,7 +23,7 @@
  THE SOFTWARE.
 ****************************************************************************/
 import { Buffer, Framebuffer, Texture, Viewport } from '../../gfx';
-import { assert } from '../../core/platform/debug';
+import { assert } from '../../core';
 import { VectorGraphColorMap } from './effect';
 import { DefaultVisitor, depthFirstSearch, ReferenceGraphView } from './graph';
 import { LayoutGraphData } from './layout-graph';

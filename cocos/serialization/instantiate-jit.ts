@@ -27,16 +27,11 @@
 // Some helper methods for compile instantiation code
 
 import { TEST } from 'internal:constants';
-import * as js from '../utils/js';
-import { CCClass, isCCClassOrFastDefined } from './class';
-import { CCObject, isCCObject } from './object';
-import * as Attr from './utils/attribute';
-import { flattenCodeArray } from './utils/compiler';
-import { legacyCC } from '../global-exports';
+import { CCClass, isCCClassOrFastDefined, js, CCObject, isCCObject, cclegacy, flattenCodeArray } from '../core';
 
 const Destroyed = CCObject.Flags.Destroyed;
 const PersistentMask = CCObject.Flags.PersistentMask;
-const DEFAULT = `${Attr.DELIMETER}default`;
+const DEFAULT = `${CCClass.Attr.DELIMETER}default`;
 const IDENTIFIER_RE = CCClass.IDENTIFIER_RE;
 
 const VAR = 'var ';
@@ -304,7 +299,7 @@ class Parser {
 
     public enumerateCCClass (codeArray, obj, klass) {
         const props = klass.__values__;
-        const attrs = Attr.getClassAttrs(klass);
+        const attrs = CCClass.Attr.getClassAttrs(klass);
         for (let p = 0; p < props.length; p++) {
             const key = props[p];
             const val = obj[key];
@@ -312,7 +307,7 @@ class Parser {
             if (equalsToDefault(defaultValue, val)) {
                 continue;
             }
-            if (typeof val === 'object' && val instanceof legacyCC.ValueType) {
+            if (typeof val === 'object' && val instanceof cclegacy.ValueType) {
                 defaultValue = CCClass.getDefault(defaultValue);
                 if (defaultValue && defaultValue.constructor === val.constructor) {
                     // fast case
@@ -444,10 +439,10 @@ class Parser {
     }
 
     public instantiateObj (obj) {
-        if (obj instanceof legacyCC.ValueType) {
+        if (obj instanceof cclegacy.ValueType) {
             return CCClass.getNewValueTypeCode(obj);
         }
-        if (obj instanceof legacyCC.Asset) {
+        if (obj instanceof cclegacy.Asset) {
             // register to asset list and just return the reference.
             return this.getObjRef(obj);
         }
@@ -460,17 +455,17 @@ class Parser {
         const ctor = obj.constructor;
         if (isCCClassOrFastDefined(ctor)) {
             if (this.parent) {
-                if (this.parent instanceof legacyCC.Component) {
-                    if (obj instanceof legacyCC.Node || obj instanceof legacyCC.Component) {
+                if (this.parent instanceof cclegacy.Component) {
+                    if (obj instanceof cclegacy.Node || obj instanceof cclegacy.Component) {
                         return this.getObjRef(obj);
                     }
-                } else if (this.parent instanceof legacyCC.Node) {
-                    if (obj instanceof legacyCC.Node) {
+                } else if (this.parent instanceof cclegacy.Node) {
+                    if (obj instanceof cclegacy.Node) {
                         if (!obj.isChildOf(this.parent)) {
                             // should not clone other nodes if not descendant
                             return this.getObjRef(obj);
                         }
-                    } else if (obj instanceof legacyCC.Component) {
+                    } else if (obj instanceof cclegacy.Component) {
                         if (!obj.node?.isChildOf(this.parent)) {
                             // should not clone other component if not descendant
                             return this.getObjRef(obj);
@@ -521,7 +516,7 @@ export function equalsToDefault (def: any, value: any) {
         && typeof def === 'object' && typeof value === 'object'
         && def.constructor === value.constructor
     ) {
-        if (def instanceof legacyCC.ValueType) {
+        if (def instanceof cclegacy.ValueType) {
             if (def.equals(value)) {
                 return true;
             }
@@ -535,13 +530,13 @@ export function equalsToDefault (def: any, value: any) {
 }
 
 export function compile (node) {
-    const root = (node instanceof legacyCC.Node) && node;
+    const root = (node instanceof cclegacy.Node) && node;
     const parser = new Parser(node, root);
     return parser.result;
 }
 
 if (TEST) {
-    legacyCC._Test.IntantiateJit = {
+    cclegacy._Test.IntantiateJit = {
         equalsToDefault,
         compile,
     };

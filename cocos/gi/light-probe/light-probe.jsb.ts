@@ -22,8 +22,9 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-import { serializable } from 'cc.decorator';
-import { ccclass } from "../../core/data/class-decorator";
+import { _decorator } from "../../core";
+
+const { ccclass, serializable } = _decorator;
 
 export const LightProbes = jsb.LightProbes;
 ccclass('cc.LightProbes')(LightProbes);

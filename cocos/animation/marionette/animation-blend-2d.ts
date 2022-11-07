@@ -1,13 +1,12 @@
-import { Vec2 } from '../../core';
-import { ccclass } from '../../core/data/class-decorator';
-import { ccenum } from '../../core/value-types/enum';
+import { Vec2, _decorator, ccenum } from '../../core';
 import { createEval } from './create-eval';
 import { AnimationBlend, AnimationBlendEval, AnimationBlendItem } from './animation-blend';
 import { MotionEvalContext } from './motion';
-import { serializable } from '../../core/data/decorators';
 import { BindableNumber, bindOr, VariableType } from './parametric';
 import { sampleFreeformCartesian, sampleFreeformDirectional, blendSimpleDirectional } from './blend-2d';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
+
+const { ccclass, serializable } = _decorator;
 
 enum Algorithm {
     SIMPLE_DIRECTIONAL,

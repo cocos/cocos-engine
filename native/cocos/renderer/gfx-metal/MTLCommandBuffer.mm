@@ -90,9 +90,15 @@ void CCMTLCommandBuffer::doDestroy() {
 
 bool CCMTLCommandBuffer::isRenderingEntireDrawable(const Rect &rect, const CCMTLFramebuffer *fbo) {
     const auto &colors = fbo->getColorTextures();
+    const auto &depthStencil = fbo->getDepthStencilTexture();
     bool res = true;
     for (size_t i = 0; i < fbo->getColorTextures().size(); ++i) {
         if (!(rect.x == 0 && rect.y == 0 && rect.width == colors[i]->getWidth() && rect.height == colors[i]->getHeight())) {
+            res = false;
+        }
+    }
+    if(depthStencil) {
+        if (!(rect.x == 0 && rect.y == 0 && rect.width == depthStencil->getWidth() && rect.height == depthStencil->getHeight())) {
             res = false;
         }
     }
@@ -177,7 +183,9 @@ void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
         }
 
         if (colorAttachments.empty()) {
-            ccMtlRenderPass->setColorAttachment(0, swapchain->colorTexture(), 0);
+            if(swapchain) {
+                ccMtlRenderPass->setColorAttachment(0, swapchain->colorTexture(), 0);
+            }
         } else {
             for (size_t i = 0; i < colorAttachments.size(); ++i) {
                 auto *ccMtlTexture = static_cast<CCMTLTexture *>(colorTextures[i]);
@@ -332,20 +340,15 @@ void CCMTLCommandBuffer::updateDepthStencilState(uint32_t index, MTLRenderPassDe
     uint32_t ds = subpass.depthStencil;
     
     if (ds != INVALID_BINDING) {
-        auto iter = std::find_if(subpass.inputs.begin(), subpass.inputs.end(), [&subpass](uint32_t index){ return index >= subpass.inputs.size(); });
-        if(iter != subpass.inputs.end()) {
-            ds = (*iter);
-        } else {
-            auto opIter = std::find_if(subpass.colors.begin(), subpass.colors.end(), [&subpass](uint32_t index){ return index >= subpass.colors.size(); });
-            if(opIter != subpass.colors.end())
-                ds = (*opIter);
-        }
+        auto *ccMTLTexture = static_cast<CCMTLTexture *>(curFBO->getDepthStencilTexture());
+        // if ds is provided explicitly in fbo->depthStencil, use it.
         const TextureList &colorTextures = curFBO->getColorTextures();
         if (ds >= colorTextures.size()) {
             auto *ccMTLTexture = static_cast<CCMTLTexture *>(curFBO->getDepthStencilTexture());
             descriptor.depthAttachment.texture = ccMTLTexture->getMTLTexture();
-            if (ccMTLTexture->getFormat() == Format::DEPTH_STENCIL)
+            if (ccMTLTexture->getFormat() == Format::DEPTH_STENCIL) {
                 descriptor.stencilAttachment.texture = ccMTLTexture->getMTLTexture();
+            }
         } else {
             auto *ccMTLTexture = static_cast<CCMTLTexture *>(colorTextures[ds]);
             descriptor.depthAttachment.texture = ccMTLTexture->getMTLTexture();

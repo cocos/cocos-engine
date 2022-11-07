@@ -1,10 +1,14 @@
+'use strict';
+
+const { updateElementReadonly, updateElementInvalid } = require('../utils/assets');
+
 const { createReadStream } = require('fs');
 const ReadLine = require('readline');
 
 const MAX_LINES = 400;
 const MAX_LENGTH = 20000;
 
-exports.template = `
+exports.template = /* html */`
 <section class="asset-javascript">
     <ui-prop>
         <ui-label slot="label"
@@ -91,22 +95,7 @@ exports.template = `
 </section>
 `;
 
-exports.$ = {
-    isPluginCheckBox: '#is-plugin',
-    detail: '.detail',
-    loadPluginInEditorCheckBox: '#load-plugin-in-editor',
-    loadPluginInWebCheckBox: '#load-plugin-in-web',
-    loadPluginInNativeCheckBox: '#load-plugin-in-native',
-    dependencies: '.dependencies',
-    dependenciesInput: '#dependencies-input',
-    dependenciesContent: '#dependencies-content',
-    executionScope: '#executionScope',
-    executionScopeEnclosedProp: '#executionScopeEnclosedProp',
-    executionScopeEnclosedInput: '#executionScopeEnclosedInput',
-    code: '#code',
-};
-
-exports.style = `
+exports.style = /* css */`
 .asset-javascript {
     flex: 1;
     display: flex;
@@ -128,17 +117,33 @@ exports.style = `
 }
 `;
 
+exports.$ = {
+    isPluginCheckBox: '#is-plugin',
+    detail: '.detail',
+    loadPluginInEditorCheckBox: '#load-plugin-in-editor',
+    loadPluginInWebCheckBox: '#load-plugin-in-web',
+    loadPluginInNativeCheckBox: '#load-plugin-in-native',
+    dependencies: '.dependencies',
+    dependenciesInput: '#dependencies-input',
+    dependenciesContent: '#dependencies-content',
+    executionScope: '#executionScope',
+    executionScopeEnclosedProp: '#executionScopeEnclosedProp',
+    executionScopeEnclosedInput: '#executionScopeEnclosedInput',
+    code: '#code',
+};
+
 const Elements = {
     isPlugin: {
         ready() {
             this.$.isPluginCheckBox.addEventListener('confirm', (event) => {
-                this.dataChange('isPlugin', event);
+                this.change('isPlugin', event);
                 Elements.detail.update.call(this);
             });
         },
         update() {
             this.$.isPluginCheckBox.value = this.meta.userData.isPlugin;
-            this.updateInvalid(this.$.isPluginCheckBox, 'isPlugin');
+            updateElementInvalid.call(this, this.$.isPluginCheckBox, 'isPlugin');
+            updateElementReadonly.call(this, this.$.isPluginCheckBox);
         },
     },
     detail: {
@@ -183,6 +188,8 @@ const Elements = {
                 this.dispatch('change');
 
                 Elements.dependencies.update.call(this);
+
+                this.dispatch('snapshot');
             });
         },
         update() {
@@ -196,11 +203,15 @@ const Elements = {
                 return;
             }
 
+            updateElementReadonly.call(this, this.$.dependenciesInput);
+
             this.$.dependenciesContent.innerText = '';
 
             if (!Array.isArray(this.meta.userData.dependencies)) {
+                this.$.dependenciesInput.value = 0;
                 return;
             }
+
 
             const length = this.meta.userData.dependencies.length;
             this.$.dependenciesInput.value = length;
@@ -211,9 +222,11 @@ const Elements = {
 
                 child.setAttribute('value', this.meta.userData.dependencies[i]);
                 child.setAttribute('droppable', 'cc.Script');
+                updateElementReadonly.call(this, child);
                 child.addEventListener('confirm', (event) => {
                     this.meta.userData.dependencies[i] = event.target.value;
                     this.dispatch('change');
+                    this.dispatch('snapshot');
                 });
             }
         },
@@ -229,13 +242,14 @@ const Elements = {
             }
 
             this.$.executionScope.addEventListener('confirm', (event) => {
-                this.dataChange('executionScope', event);
+                this.change('executionScope', event);
                 Elements.executionScopeEnclosed.update.call(this);
             });
         },
         update() {
             this.$.executionScope.value = this.meta.userData.executionScope !== 'global' ? 'enclosed' : 'global';
-            this.updateInvalid(this.$.executionScope, 'executionScope');
+            updateElementInvalid.call(this, this.$.executionScope, 'executionScope');
+            updateElementReadonly.call(this, this.$.executionScope);
         },
     },
     executionScopeEnclosed: {
@@ -252,6 +266,7 @@ const Elements = {
                     }
                     this.metaList.forEach((meta) => (meta.userData.simulateGlobals = globalNames.length === 0 ? true : globalNames));
                     this.dispatch('change');
+                    this.dispatch('snapshot');
                 }
             });
         },
@@ -267,6 +282,8 @@ const Elements = {
                 return;
             }
 
+            updateElementReadonly.call(this, this.$.executionScopeEnclosedInput);
+
             this.$.executionScopeEnclosedInput.value = Array.isArray(this.meta.userData.simulateGlobals)
                 ? this.meta.userData.simulateGlobals.join(';')
                 : '';
@@ -274,29 +291,32 @@ const Elements = {
     },
     loadPluginInWebCheckBox: {
         ready() {
-            this.$.loadPluginInWebCheckBox.addEventListener('confirm', this.dataChange.bind(this, 'loadPluginInWeb'));
+            this.$.loadPluginInWebCheckBox.addEventListener('confirm', this.change.bind(this, 'loadPluginInWeb'));
         },
         update() {
             this.$.loadPluginInWebCheckBox.value = this.meta.userData.loadPluginInWeb;
-            this.updateInvalid(this.$.loadPluginInWebCheckBox, 'loadPluginInWeb');
+            updateElementInvalid.call(this, this.$.loadPluginInWebCheckBox, 'loadPluginInWeb');
+            updateElementReadonly.call(this, this.$.loadPluginInWebCheckBox);
         },
     },
     loadPluginInNativeCheckBox: {
         ready() {
-            this.$.loadPluginInNativeCheckBox.addEventListener('confirm', this.dataChange.bind(this, 'loadPluginInNative'));
+            this.$.loadPluginInNativeCheckBox.addEventListener('confirm', this.change.bind(this, 'loadPluginInNative'));
         },
         update() {
             this.$.loadPluginInNativeCheckBox.value = this.meta.userData.loadPluginInNative;
-            this.updateInvalid(this.$.loadPluginInNativeCheckBox, 'loadPluginInNative');
+            updateElementInvalid.call(this, this.$.loadPluginInNativeCheckBox, 'loadPluginInNative');
+            updateElementReadonly.call(this, this.$.loadPluginInNativeCheckBox);
         },
     },
     loadPluginInEditorCheckBox: {
         ready() {
-            this.$.loadPluginInEditorCheckBox.addEventListener('confirm', this.dataChange.bind(this, 'loadPluginInEditor'));
+            this.$.loadPluginInEditorCheckBox.addEventListener('confirm', this.change.bind(this, 'loadPluginInEditor'));
         },
         update() {
             this.$.loadPluginInEditorCheckBox.value = this.meta.userData.loadPluginInEditor;
-            this.updateInvalid(this.$.loadPluginInEditorCheckBox, 'loadPluginInEditor');
+            updateElementInvalid.call(this, this.$.loadPluginInEditorCheckBox, 'loadPluginInEditor');
+            updateElementReadonly.call(this, this.$.loadPluginInEditorCheckBox);
         },
     },
     code: {
@@ -356,6 +376,29 @@ const Elements = {
     },
 };
 
+exports.methods = {
+    t(key) {
+        return Editor.I18n.t(`ENGINE.assets.javascript.${key}`);
+    },
+    change(key, event) {
+        this.metaList.forEach((meta) => {
+            meta.userData[key] = event.target.value;
+        });
+
+        this.dispatch('change');
+        this.dispatch('snapshot');
+    },
+};
+
+exports.ready = function() {
+    for (const key in Elements) {
+        const element = Elements[key];
+        if (element.ready) {
+            element.ready.call(this);
+        }
+    }
+};
+
 exports.update = function(assetList, metaList) {
     this.assetList = assetList;
     this.metaList = metaList;
@@ -368,32 +411,4 @@ exports.update = function(assetList, metaList) {
             element.update.call(this);
         }
     }
-};
-
-exports.ready = function() {
-    for (const key in Elements) {
-        const element = Elements[key];
-        if (element.ready) {
-            element.ready.call(this);
-        }
-    }
-};
-
-exports.methods = {
-    t(key) {
-        return Editor.I18n.t(`ENGINE.assets.javascript.${key}`);
-    },
-    updateInvalid(element, prop) {
-        const invalid = this.metaList.some((meta) => {
-            return meta.userData[prop] !== this.meta.userData[prop];
-        });
-        element.invalid = invalid;
-    },
-    dataChange(key, event) {
-        this.metaList.forEach((meta) => {
-            meta.userData[key] = event.target.value;
-        });
-
-        this.dispatch('change');
-    },
 };

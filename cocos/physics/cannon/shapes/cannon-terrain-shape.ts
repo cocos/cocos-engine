@@ -26,11 +26,10 @@
 import CANNON from '@cocos/cannon';
 import { CannonShape } from './cannon-shape';
 import { TerrainCollider } from '../../framework';
-import { Vec3, Quat } from '../../../core';
+import { Vec3, Quat, IVec3Like } from '../../../core';
 import { ITerrainShape } from '../../spec/i-physics-shape';
 import { ITerrainAsset } from '../../spec/i-external';
 import { commitShapeUpdates } from '../cannon-util';
-import { IVec3Like } from '../../../core/math/type-define';
 
 const CANNON_AABB_LOCAL = new CANNON.AABB();
 const CANNON_AABB = new CANNON.AABB();

@@ -1,11 +1,11 @@
 import { EDITOR, TEST } from 'internal:constants';
-import { binarySearchEpsilon, clamp, lerp, Quat, Vec3 } from '../../core';
-import { ccclass, serializable } from '../../core/data/decorators';
-import { assertIsTrue } from '../../core/data/utils/asserts';
+import { binarySearchEpsilon, clamp, lerp, Quat, Vec3, assertIsTrue, _decorator } from '../../core';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
 import { Binder, RuntimeBinding, TrackBinding, TrackPath } from '../tracks/track';
 
 const SPLIT_METHOD_ENABLED = TEST || EDITOR;
+
+const { ccclass, serializable } = _decorator;
 
 function throwIfSplitMethodIsNotValid (): never {
     // TODO: better handling

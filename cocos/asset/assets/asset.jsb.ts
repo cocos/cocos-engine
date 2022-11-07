@@ -24,14 +24,8 @@
 */
 import { ccclass, serializable } from 'cc.decorator';
 
-import { legacyCC } from '../../core/global-exports';
-import { CallbacksInvoker } from '../../core/event/callbacks-invoker';
-import { applyMixins } from '../../core/event/event-target-factory';
-import { createMap } from '../../core/utils/js-typed';
-import { property } from '../../core/data/class-decorator';
+import { cclegacy, js, _decorator, path, jsbUtils, CallbacksInvoker, applyMixins } from '../../core';
 import { getUrlWithUuid } from '../asset-manager/helper';
-import { extname } from '../../core/utils/path';
-import { ExtraEventMethods } from '../../core/utils/jsb-utils'
 
 declare const jsb: any;
 
@@ -41,7 +35,7 @@ declare const jsb: any;
  */
 export type CreateNodeCallback = (error: Error | null, node: Node) => void;
 
-applyMixins(jsb.Asset, [CallbacksInvoker, ExtraEventMethods]);
+applyMixins(jsb.Asset, [CallbacksInvoker, jsbUtils.ExtraEventMethods]);
 
 const assetProto: any = jsb.Asset.prototype;
 
@@ -52,7 +46,7 @@ assetProto._ctor = function () {
     this._iN$t = null;
     this.__editorExtras__ = { editorOnly: true };
 
-    this._callbackTable = createMap(true);
+    this._callbackTable = js.createMap(true);
     this._file = null;
     // for deserialization
     // _initializerDefineProperty(_this, "_native", _descriptor$1, _assertThisInitialized(_this));
@@ -82,7 +76,7 @@ Object.defineProperty (assetProto, 'nativeUrl', {
                 this._nativeUrl = getUrlWithUuid(this._uuid, { nativeExt: name, isNative: true });
             } else {
                 // imported in an independent dir
-                this._nativeUrl = getUrlWithUuid(this._uuid, { __nativeName__: name, nativeExt: extname(name), isNative: true });
+                this._nativeUrl = getUrlWithUuid(this._uuid, { __nativeName__: name, nativeExt: path.extname(name), isNative: true });
             }
         }
         return this._nativeUrl;
@@ -109,7 +103,7 @@ assetProto.decRef = function (autoRelease = true): Asset {
         this._ref--;
     }
     if (autoRelease) {
-        legacyCC.assetManager._releaseManager.tryRelease(this);
+        cclegacy.assetManager._releaseManager.tryRelease(this);
     }
     return this;
 };
@@ -124,11 +118,11 @@ assetProto.createNode = null!;
 export type Asset = jsb.Asset;
 export const Asset = jsb.Asset;
 
-legacyCC.Asset = jsb.Asset;
+cclegacy.Asset = jsb.Asset;
 
 // handle meta data, it is generated automatically
 const AssetProto = Asset.prototype;
 serializable(AssetProto, '_native');
 const _nativeAssetDescriptor = Object.getOwnPropertyDescriptor(AssetProto, '_nativeAsset');
-property(AssetProto, '_nativeAsset', _nativeAssetDescriptor);
+_decorator.property(AssetProto, '_nativeAsset', _nativeAssetDescriptor);
 ccclass('cc.Asset')(Asset);
