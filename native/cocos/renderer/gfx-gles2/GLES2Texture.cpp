@@ -112,7 +112,9 @@ uint32_t GLES2Texture::getGLTextureHandle() const noexcept {
 
     if (gpuTexture->glTexture) {
         return gpuTexture->glTexture;
-    } else if (gpuTexture->glRenderbuffer) {
+    }
+
+    if (gpuTexture->glRenderbuffer) {
         return gpuTexture->glRenderbuffer;
     }
 
