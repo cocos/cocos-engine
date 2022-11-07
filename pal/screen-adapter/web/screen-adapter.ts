@@ -119,11 +119,16 @@ class ScreenAdapter extends EventTarget {
     }
 
     public get safeAreaEdge (): SafeAreaEdge {
+        const _top = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--safe-top') || '0');
+        const _bottom = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--safe-bottom') || '0');
+        const _left = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--safe-left') || '0');
+        const _right = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--safe-right') || '0');
+
         return {
-            top: 0,
-            bottom: 0,
-            left: 0,
-            right: 0,
+            top: _top,
+            bottom: _bottom,
+            left: _left,
+            right: _right,
         };
     }
     public get isProportionalToFrame (): boolean {

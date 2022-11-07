@@ -1,8 +1,7 @@
 import { ccclass } from 'cc.decorator';
-import { QuatCurve } from '../../core/curves';
+import { QuatCurve, Quat } from '../../core';
 import { CLASS_NAME_PREFIX_ANIM, createEvalSymbol } from '../define';
 import { SingleChannelTrack } from './track';
-import { Quat } from '../../core';
 
 /**
  * @en

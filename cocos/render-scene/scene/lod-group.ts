@@ -23,12 +23,11 @@
  THE SOFTWARE.
  */
 import { Model } from './model';
-import { Vec3 } from '../../core';
+import { Vec3, assertIsTrue } from '../../core';
 import { RenderScene } from '..';
 import { Device, deviceManager } from '../../gfx';
 import { Node } from '../../scene-graph';
 import { Camera, CameraProjection } from './camera';
-import { assertIsTrue } from '../../core/data/utils/asserts';
 
 /**
  * @engineInternal

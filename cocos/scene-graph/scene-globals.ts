@@ -1103,7 +1103,7 @@ export class LightProbeInfo {
      * @zh GI 采样数量
      */
     @editable
-    @range([64, 4096, 1])
+    @range([64, 65536, 1])
     @type(CCInteger)
     @tooltip('i18n:light_probe.giSamples')
     @displayName('GISamples')
@@ -1261,6 +1261,10 @@ export class LightProbeInfo {
             const probe = probes[i];
             probe.coefficients.length = 0;
         }
+    }
+
+    public isUniqueGroup (): boolean {
+        return this._lightProbeGroups.length === 1;
     }
 
     public addGroup (group: LightProbeGroup): boolean {

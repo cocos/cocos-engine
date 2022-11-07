@@ -1,7 +1,6 @@
 import { ccclass, serializable } from 'cc.decorator';
 import { DEBUG } from 'internal:constants';
-import { js, clamp } from '../../core';
-import { assertIsNonNullable, assertIsTrue } from '../../core/data/utils/asserts';
+import { js, clamp, assertIsNonNullable, assertIsTrue, EditorExtendable, move } from '../../core';
 import { MotionEval, MotionEvalContext } from './motion';
 import type { Condition } from './condition';
 import { Asset } from '../../asset/assets';
@@ -12,8 +11,6 @@ import { createEval } from './create-eval';
 import { MotionState } from './motion-state';
 import { State, outgoingsSymbol, incomingsSymbol, InteractiveState } from './state';
 import { AnimationMask } from './animation-mask';
-import { EditorExtendable } from '../../core/data/editor-extendable';
-import { move } from '../../core/algorithm/move';
 import { onAfterDeserializedTag } from '../../serialization/deserialize-symbols';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
 

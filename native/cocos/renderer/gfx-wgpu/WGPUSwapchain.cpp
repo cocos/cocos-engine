@@ -125,7 +125,7 @@ void CCWGPUSwapchain::doDestroy() {
 
 void CCWGPUSwapchain::doResize(uint32_t width, uint32_t height, SurfaceTransform transform) {
     _colorTexture->resize(width, height);
-    _depthStencilTexture->resize(height, height);
+    _depthStencilTexture->resize(width, height);
 }
 
 void CCWGPUSwapchain::update() {

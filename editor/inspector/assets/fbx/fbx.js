@@ -1,6 +1,8 @@
 'use strict';
 
-exports.template = `
+const { updateElementReadonly } = require('../../utils/assets');
+
+exports.template = /* html */`
 <div class="container">
     <ui-prop>
         <ui-label slot="label" value="i18n:ENGINE.assets.fbx.animationBakeRate.name" tooltip="i18n:ENGINE.assets.fbx.animationBakeRate.title"></ui-label>
@@ -38,7 +40,7 @@ exports.template = `
 </div>
 `;
 
-exports.style = `
+exports.style = /* css */`
 ui-prop,
 ui-section {
     margin: 4px 0;
@@ -101,6 +103,9 @@ const Elements = {
             panel.$.animationBakeRateSelect.children[0].innerText = Editor.I18n.t('ENGINE.assets.fbx.animationBakeRate.auto');
 
             panel.$.legacyFbxImporterCheckbox.addEventListener('change', panel.setProp.bind(panel, 'legacyFbxImporter', 'boolean'));
+            panel.$.legacyFbxImporterCheckbox.addEventListener('confirm', () => {
+                panel.dispatch('snapshot');
+            });
         },
         update() {
             const panel = this;
@@ -108,7 +113,7 @@ const Elements = {
             panel.$.legacyFbxImporterCheckbox.value = panel.getDefault(panel.meta.userData.legacyFbxImporter, false);
 
             panel.updateInvalid(panel.$.legacyFbxImporterCheckbox, 'legacyFbxImporter');
-            panel.updateReadonly(panel.$.legacyFbxImporterCheckbox);
+            updateElementReadonly.call(panel, panel.$.legacyFbxImporterCheckbox);
         },
     },
     animationBakeRate: {
@@ -116,6 +121,9 @@ const Elements = {
             const panel = this;
 
             panel.$.animationBakeRateSelect.addEventListener('change', panel.setProp.bind(panel, 'fbx.animationBakeRate', 'number'));
+            panel.$.animationBakeRateSelect.addEventListener('confirm', () => {
+                panel.dispatch('snapshot');
+            });
         },
         update() {
             const panel = this;
@@ -128,7 +136,7 @@ const Elements = {
             panel.$.animationBakeRateSelect.value = defaultValue;
 
             panel.updateInvalid(panel.$.animationBakeRateSelect, 'fbx.animationBakeRate');
-            panel.updateReadonly(panel.$.animationBakeRateSelect);
+            updateElementReadonly.call(panel, panel.$.animationBakeRateSelect);
         },
     },
     preferLocalTimeSpan: {
@@ -136,6 +144,9 @@ const Elements = {
             const panel = this;
 
             panel.$.preferLocalTimeSpanCheckbox.addEventListener('change', panel.setProp.bind(panel, 'fbx.preferLocalTimeSpan', 'boolean'));
+            panel.$.preferLocalTimeSpanCheckbox.addEventListener('confirm', () => {
+                panel.dispatch('snapshot');
+            });
         },
         update() {
             const panel = this;
@@ -148,7 +159,7 @@ const Elements = {
             panel.$.preferLocalTimeSpanCheckbox.value = defaultValue;
 
             panel.updateInvalid(panel.$.preferLocalTimeSpanCheckbox, 'fbx.preferLocalTimeSpan');
-            panel.updateReadonly(panel.$.preferLocalTimeSpanCheckbox);
+            updateElementReadonly.call(panel, panel.$.preferLocalTimeSpanCheckbox);
         },
     },
     smartMaterialEnabled: {
@@ -156,6 +167,9 @@ const Elements = {
             const panel = this;
 
             panel.$.smartMaterialEnabledCheckbox.addEventListener('change', panel.setProp.bind(panel, 'fbx.smartMaterialEnabled', 'boolean'));
+            panel.$.smartMaterialEnabledCheckbox.addEventListener('confirm', () => {
+                panel.dispatch('snapshot');
+            });
         },
         async update() {
             const panel = this;
@@ -175,41 +189,9 @@ const Elements = {
             panel.$.smartMaterialEnabledCheckbox.value = defaultValue;
 
             panel.updateInvalid(panel.$.smartMaterialEnabledCheckbox, 'fbx.smartMaterialEnabled');
-            panel.updateReadonly(panel.$.smartMaterialEnabledCheckbox);
+            updateElementReadonly.call(panel, panel.$.smartMaterialEnabledCheckbox);
         },
     },
-};
-
-exports.update = async function(assetList, metaList) {
-    this.assetList = assetList;
-    this.metaList = metaList;
-    this.asset = assetList[0];
-    this.meta = metaList[0];
-
-    for (const prop in Elements) {
-        const element = Elements[prop];
-        if (element.update) {
-            await element.update.call(this);
-        }
-    }
-};
-
-exports.ready = function() {
-    for (const prop in Elements) {
-        const element = Elements[prop];
-        if (element.ready) {
-            element.ready.call(this);
-        }
-    }
-};
-
-exports.close = function() {
-    for (const prop in Elements) {
-        const element = Elements[prop];
-        if (element.close) {
-            element.close.call(this);
-        }
-    }
 };
 
 exports.methods = {
@@ -273,16 +255,6 @@ exports.methods = {
         });
         element.invalid = invalid;
     },
-    /**
-     * Update read-only status
-     */
-    updateReadonly(element) {
-        if (this.asset.readonly) {
-            element.setAttribute('disabled', true);
-        } else {
-            element.removeAttribute('disabled');
-        }
-    },
     getDefault(value, def, prop) {
         if (value === undefined) {
             return def;
@@ -297,4 +269,36 @@ exports.methods = {
         }
         return value;
     },
+};
+
+exports.ready = function() {
+    for (const prop in Elements) {
+        const element = Elements[prop];
+        if (element.ready) {
+            element.ready.call(this);
+        }
+    }
+};
+
+exports.update = async function(assetList, metaList) {
+    this.assetList = assetList;
+    this.metaList = metaList;
+    this.asset = assetList[0];
+    this.meta = metaList[0];
+
+    for (const prop in Elements) {
+        const element = Elements[prop];
+        if (element.update) {
+            await element.update.call(this);
+        }
+    }
+};
+
+exports.close = function() {
+    for (const prop in Elements) {
+        const element = Elements[prop];
+        if (element.close) {
+            element.close.call(this);
+        }
+    }
 };

@@ -29,8 +29,7 @@
 
 import { DEBUG, EDITOR, BUILD, TEST } from 'internal:constants';
 import { SceneAsset } from '../asset/assets/scene-asset';
-import { System, EventTarget, Scheduler, js, errorID, error, assertID, warnID, macro, cclegacy } from '../core';
-import { CCObject } from '../core/data/object';
+import { System, EventTarget, Scheduler, js, errorID, error, assertID, warnID, macro, cclegacy, CCObject } from '../core';
 import { input } from '../input';
 import { Root } from '../root';
 import { Node, Scene } from '../scene-graph';

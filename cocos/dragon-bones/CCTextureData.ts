@@ -26,8 +26,9 @@
 import { BaseObject, TextureAtlasData, TextureData } from '@cocos/dragonbones-js';
 import { SpriteFrame } from '../2d';
 import { TextureBase } from '../asset/assets/texture-base';
-import { ccclass } from '../core/data/decorators';
-import { Rect } from '../core';
+import { Rect, _decorator } from '../core';
+
+const { ccclass } = _decorator;
 
 /**
 * @deprecated since v3.5.1, this is an engine private interface that will be removed in the future.

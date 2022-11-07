@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { getError } from '../../core/platform/debug';
+import { getError } from '../../core';
 import { CompleteCallback, IBundleOptions } from './shared';
 
 const downloaded = {};

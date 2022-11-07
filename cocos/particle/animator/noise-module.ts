@@ -23,12 +23,11 @@
  THE SOFTWARE.
  */
 
-import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
-import { CCFloat, CCInteger } from '../../core';
-import { range, rangeStep, slide, visible } from '../../core/data/decorators/editable';
-import { Vec3 } from '../../core/math';
+import { CCFloat, CCInteger, _decorator, Vec3 } from '../../core';
 import { ParticleNoise } from '../noise';
 import { Particle, PARTICLE_MODULE_NAME, ParticleModuleBase } from '../particle';
+
+const { ccclass, serializable, displayOrder, type, range, slide, rangeStep, visible } = _decorator;
 
 @ccclass('cc.NoiseModule')
 export class NoiseModule extends ParticleModuleBase {

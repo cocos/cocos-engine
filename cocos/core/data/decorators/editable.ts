@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { DEV, EDITOR } from 'internal:constants';
+import { DEV } from 'internal:constants';
 import { IExposedAttributes } from '../utils/attribute-defines';
 import { getOrCreatePropertyStash } from './property';
 import { PropertyStash, PropertyStashInternalFlag } from '../class-stash';
@@ -148,6 +148,7 @@ export const help: (url: string) => ClassDecorator = DEV ? makeEditorClassDecora
  * Enables the editor interoperability of the property.
  * @zh
  * 允许该属性与编辑器交互。
+ * @engineInternal
  */
 export const editable: LegacyPropertyDecorator = !DEV
     ? emptyDecorator
@@ -162,6 +163,7 @@ export const editable: LegacyPropertyDecorator = !DEV
  * @zh
  * 设置在编辑器展示该属性的条件。
  * @param condition 展示条件，当返回 `true` 时展示；否则不展示。
+ * @engineInternal
  */
 export const visible: (condition: boolean | (() => boolean)) => LegacyPropertyDecorator = !DEV
     ? emptyDecoratorFn
@@ -183,6 +185,7 @@ export const readOnly: LegacyPropertyDecorator = !DEV
  * @zh
  * 设置该属性在编辑器中的显示名称。
  * @param text 显示名称。
+ * @engineInternal
  */
 export const displayName: (text: string) => LegacyPropertyDecorator = !DEV
     ? emptyDecoratorFn
@@ -194,6 +197,7 @@ export const displayName: (text: string) => LegacyPropertyDecorator = !DEV
  * @zh
  * 设置该属性在编辑器中的工具提示内容。
  * @param text 工具提示。
+ * @engineInternal
  */
 export const tooltip: (text: string) => LegacyPropertyDecorator = !DEV
     ? emptyDecoratorFn
@@ -216,6 +220,7 @@ export const group: (options: NonNullable<IExposedAttributes['group']>) => Legac
  * @zh
  * 设置该属性在编辑器中允许设置的范围。
  * @param values 范围。
+ * @engineInternal
  */
 export const range: (values: [number, number, number] | [number, number]) => LegacyPropertyDecorator = !DEV
     ? emptyDecoratorFn
@@ -249,6 +254,7 @@ export const rangeMax: (value: number) => LegacyPropertyDecorator = !DEV
  * @zh
  * 设置该属性在编辑器中的步进值。
  * @param value 步进值。
+ * @engineInternal
  */
 export const rangeStep: (value: number) => LegacyPropertyDecorator = !DEV
     ? emptyDecoratorFn
@@ -259,6 +265,7 @@ export const rangeStep: (value: number) => LegacyPropertyDecorator = !DEV
  * Enable a slider be given to coordinate the property in editor.
  * @zh
  * 允许在编辑器中提供滑动条来调节值
+ * @engineInternal
  */
 export const slide: LegacyPropertyDecorator = !DEV
     ? emptyDecorator
@@ -270,6 +277,7 @@ export const slide: LegacyPropertyDecorator = !DEV
  * @zh
  * 设置该属性在编辑器中的显示顺序。
  * @param order 显示顺序。
+ * @engineInternal
  */
 export const displayOrder: (order: number) => LegacyPropertyDecorator = !DEV
     ? emptyDecoratorFn
@@ -315,6 +323,7 @@ export const multiline: LegacyPropertyDecorator = !DEV
  * Sets the property so that it does not interop with the animation parts in editor.
  * @zh
  * 设置该属性不参与编辑器中动画相关的交互。
+ * @engineInternal
  */
 export const disallowAnimation: LegacyPropertyDecorator = !DEV
     ? emptyDecorator

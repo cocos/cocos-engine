@@ -24,13 +24,13 @@
 */
 
 import { ccclass, editable, editorOnly, serializable } from 'cc.decorator';
-import { legacyCC } from '../../core/global-exports';
+import{ cclegacy } from '../../core';
 import './asset';
 
 export type EffectAsset = jsb.EffectAsset;
 export const EffectAsset = jsb.EffectAsset;
 
-legacyCC.EffectAsset = EffectAsset;
+cclegacy.EffectAsset = EffectAsset;
 
 const effectAssetProto: any = EffectAsset.prototype;
 

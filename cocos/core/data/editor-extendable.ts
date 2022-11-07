@@ -23,6 +23,7 @@ class Empty {}
 
 /**
  * Class which implements the `EditorExtendableObject` interface.
+ * @engineInternal
  */
 export const EditorExtendable = editorExtendableInternal();
 

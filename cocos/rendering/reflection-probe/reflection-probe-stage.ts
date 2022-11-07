@@ -96,8 +96,8 @@ export class ReflectionProbeStage extends RenderStage {
     public render (camera: Camera) {
         const pipeline = this._pipeline;
         const cmdBuff = pipeline.commandBuffers[0];
-        this._probeRenderQueue.gatherRenderObjects(camera);
-        pipeline.pipelineUBO.updateCameraUBO(camera);
+        this._probeRenderQueue.gatherRenderObjects(this._probe!, camera.scene!);
+        pipeline.pipelineUBO.updateCameraUBO(this._probe!.camera);
 
         this._renderArea.x = 0;
         this._renderArea.y = 0;
@@ -106,19 +106,21 @@ export class ReflectionProbeStage extends RenderStage {
 
         const renderPass = this._frameBuffer!.renderPass;
 
-        if (camera.clearFlag & ClearFlagBit.COLOR) {
-            colors[0].x = camera.clearColor.x;
-            colors[0].y = camera.clearColor.y;
-            colors[0].z = camera.clearColor.z;
+        if (this._probe!.camera.clearFlag & ClearFlagBit.COLOR) {
+            colors[0].x = this._probe!.camera.clearColor.x;
+            colors[0].y = this._probe!.camera.clearColor.y;
+            colors[0].z = this._probe!.camera.clearColor.z;
         }
         const device = pipeline.device;
         cmdBuff.beginRenderPass(renderPass, this._frameBuffer!, this._renderArea,
-            colors, camera.clearDepth, camera.clearStencil);
+            colors, this._probe!.camera.clearDepth, this._probe!.camera.clearStencil);
         cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
 
         this._probeRenderQueue.recordCommandBuffer(device, renderPass, cmdBuff);
         cmdBuff.endRenderPass();
         this._probeRenderQueue.resetMacro();
+
+        pipeline.pipelineUBO.updateCameraUBO(camera);
     }
 
     public activate (pipeline: ForwardPipeline, flow: ReflectionProbeFlow) {

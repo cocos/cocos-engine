@@ -27,10 +27,8 @@ import { ccclass, serializable, type } from 'cc.decorator';
 import { Vertex, Tetrahedron, Delaunay } from './delaunay';
 import { PolynomialSolver } from './polynomial-solver';
 import { LightProbeInfo } from '../../scene-graph/scene-globals';
-import { Vec3, Vec4, cclegacy, math } from '../../core';
+import { Vec3, Vec4, cclegacy, EPSILON } from '../../core';
 import { SH } from './sh';
-import { EPSILON } from '../../core/math/utils';
-import { warnID } from '../../core/platform/debug';
 
 @ccclass('cc.LightProbesData')
 export class LightProbesData {
