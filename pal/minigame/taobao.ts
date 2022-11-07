@@ -52,7 +52,7 @@ Object.defineProperty(minigame, 'orientation', {
 // #endregion SystemInfo
 
 // @ts-expect-error TODO: move into minigame.d.ts
-minigame.testSupportLandscape = function () {
+minigame.isSupportLandscape = function () {
     const locSysInfo = minigame.getSystemInfoSync();
     if (typeof locSysInfo.deviceOrientation === 'string' && locSysInfo.deviceOrientation.startsWith('landscape')) {
         if (versionCompare(locSysInfo.version, '10.15.10') < 0) {
@@ -61,7 +61,7 @@ minigame.testSupportLandscape = function () {
     }
 };
 // @ts-expect-error TODO: Check whether the landscape screen is supported
-minigame.testSupportLandscape();
+minigame.isSupportLandscape();
 
 // #region Audio
 minigame.createInnerAudioContext = function (): InnerAudioContext {
