@@ -153,24 +153,24 @@ function _parseCompressedTexs (file: ArrayBuffer | ArrayBufferView, options: IDo
     let err: Error | null = null;
     try {
         const buffer = file instanceof ArrayBuffer ? file : file.buffer;
+        const bufferView = new DataView(buffer);
         // Get a view of the arrayBuffer that represents compress header.
-        const magicNumberChunks = new Int32Array(buffer, 0, COMPRESSED_HEADER_LENGTH);
+        const magicNumber = bufferView.getUint32(0, true);
         // Do some sanity checks to make sure this is a valid compress file.
-        if (magicNumberChunks[0] === COMPRESSED_MIPMAP_MAGIC) {
+        if (magicNumber === COMPRESSED_MIPMAP_MAGIC) {
         // Get a view of the arrayBuffer that represents compress document.
-            const mipmapLevelNumberChunks = new Int32Array(buffer, COMPRESSED_HEADER_LENGTH, COMPRESSED_MIPMAP_LEVEL_COUNT_LENGTH);
-            const mipmapLevelNumber = mipmapLevelNumberChunks[0];
-            const mipmapLevelDataSizeChunks = new Int32Array(buffer, COMPRESSED_HEADER_LENGTH + COMPRESSED_MIPMAP_LEVEL_COUNT_LENGTH,
-                mipmapLevelNumber * COMPRESSED_MIPMAP_LEVEL_COUNT_LENGTH);
-            const fileHeaderLength = COMPRESSED_HEADER_LENGTH + COMPRESSED_MIPMAP_LEVEL_COUNT_LENGTH
-            + mipmapLevelDataSizeChunks.length * COMPRESSED_MIPMAP_DATA_SIZE_LENGTH;
+            const mipmapLevelNumber = bufferView.getUint32(COMPRESSED_HEADER_LENGTH, true);
+            const mipmapLevelDataSize = bufferView.getUint32(COMPRESSED_HEADER_LENGTH + COMPRESSED_MIPMAP_LEVEL_COUNT_LENGTH, true);
+            const fileHeaderByteLength = COMPRESSED_HEADER_LENGTH + COMPRESSED_MIPMAP_LEVEL_COUNT_LENGTH
+            + mipmapLevelNumber * COMPRESSED_MIPMAP_DATA_SIZE_LENGTH;
 
             // Get a view of the arrayBuffer that represents compress chunks.
-            _parseCompressedTex(file, 0, fileHeaderLength, mipmapLevelDataSizeChunks[0], type, out);
-            let beginOffset = fileHeaderLength + mipmapLevelDataSizeChunks[0];
+            _parseCompressedTex(file, 0, fileHeaderByteLength, mipmapLevelDataSize, type, out);
+            let beginOffset = fileHeaderByteLength + mipmapLevelDataSize;
 
             for (let i = 1; i < mipmapLevelNumber; i++) {
-                const endOffset = mipmapLevelDataSizeChunks[i];
+                const endOffset = bufferView.getUint32(COMPRESSED_HEADER_LENGTH + COMPRESSED_MIPMAP_LEVEL_COUNT_LENGTH
+                +  i * COMPRESSED_MIPMAP_DATA_SIZE_LENGTH, true);
                 _parseCompressedTex(file, i, beginOffset, endOffset, type, out);
                 beginOffset += endOffset;
             }

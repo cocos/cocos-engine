@@ -128,7 +128,11 @@ export function mergeAllCompressedTexture (files: ArrayBuffer[] | ArrayBufferVie
         }
         fileLength += fileHeaderLength;   // add file header length
         out = new Uint8Array(fileLength);
-        const outView = new DataView(out);
+        const outView = new DataView(
+            out.buffer,
+            out.byteOffset,
+            out.byteLength,
+        );
         // Append compresssed header
         outView.setUint32(0, COMPRESSED_MIPMAP_MAGIC, true); // add magic
         outView.setUint32(COMPRESSED_HEADER_LENGTH, files.length, true); // add mipmap level number
