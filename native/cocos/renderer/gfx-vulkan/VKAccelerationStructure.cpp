@@ -43,8 +43,8 @@ void CCVKAccelerationStructure::doInit(const AccelerationStructureInfo& info) {
 
     if (!info.instances.empty()) {
         _gpuAccelerationStructure->geomtryInfos = info.instances;
-    } else if (!info.triangels.empty()) {
-        _gpuAccelerationStructure->geomtryInfos = info.triangels;
+    } else if (!info.triangleMeshes.empty()) {
+        _gpuAccelerationStructure->geomtryInfos = info.triangleMeshes;
     } else if (!info.aabbs.empty()) {
         _gpuAccelerationStructure->geomtryInfos = info.aabbs;
     }
@@ -58,8 +58,8 @@ void CCVKAccelerationStructure::doUpdate() {
 
     if (!_info.instances.empty()) {
         _gpuAccelerationStructure->geomtryInfos = _info.instances;
-    } else if (!_info.triangels.empty()) {
-        _gpuAccelerationStructure->geomtryInfos = _info.triangels;
+    } else if (!_info.triangleMeshes.empty()) {
+        _gpuAccelerationStructure->geomtryInfos = _info.triangleMeshes;
     } else if (!_info.aabbs.empty()) {
         _gpuAccelerationStructure->geomtryInfos = _info.aabbs;
     }
@@ -79,8 +79,8 @@ void CCVKAccelerationStructure::doBuild() {
 
     if (!_info.instances.empty()) {
         _gpuAccelerationStructure->geomtryInfos = _info.instances;
-    } else if (!_info.triangels.empty()) {
-        _gpuAccelerationStructure->geomtryInfos = _info.triangels;
+    } else if (!_info.triangleMeshes.empty()) {
+        _gpuAccelerationStructure->geomtryInfos = _info.triangleMeshes;
     } else if (!_info.aabbs.empty()) {
         _gpuAccelerationStructure->geomtryInfos = _info.aabbs;
     }
@@ -98,6 +98,7 @@ void CCVKAccelerationStructure::doBuild() {
 }
 
 void CCVKAccelerationStructure::doCompact() {
+    return;
     auto* device = CCVKDevice::getInstance();
 
     IntrusivePtr<CCVKAccelerationStructure> compactedAccel = ccnew CCVKAccelerationStructure;

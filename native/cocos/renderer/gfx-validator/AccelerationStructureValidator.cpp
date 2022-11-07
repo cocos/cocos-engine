@@ -22,7 +22,7 @@ void AccelerationStructureValidator::doInit(const AccelerationStructureInfo& inf
     _inited = true;
 
     CC_ASSERT(!(hasFlag(info.buildFlag, ASBuildFlagBits::PREFER_FAST_BUILD) && hasFlag(info.buildFlag, ASBuildFlagBits::PREFER_FAST_TRACE)));
-    CC_ASSERT(!(info.aabbs.empty() && info.triangels.empty() && info.instances.empty()));
+    CC_ASSERT(!(info.aabbs.empty() && info.triangleMeshes.empty() && info.instances.empty()));
 }
 
 void AccelerationStructureValidator::doDestroy() {

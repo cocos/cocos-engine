@@ -437,7 +437,7 @@ const gfx::UniformSamplerTexture DIFFUSEMAP::LAYOUT = {
 
 const ccstd::string TOPLEVELAS::NAME = "cc_toplevelAccelerationStructure";
 const gfx::DescriptorSetLayoutBinding TOPLEVELAS::DESCRIPTOR = {
-    TOPLEVELAS::BINDING,
+    BINDING,
     gfx::DescriptorType::ACCELERATION_STRUCTURE,
     1,
     gfx::ShaderStageFlagBit::FRAGMENT,
@@ -445,10 +445,41 @@ const gfx::DescriptorSetLayoutBinding TOPLEVELAS::DESCRIPTOR = {
 };
 const gfx::AccelerationStructureLayout TOPLEVELAS::LAYOUT = {
     globalSet,
-    TOPLEVELAS::BINDING,
-    TOPLEVELAS::NAME,
+    BINDING,
+    NAME,
     gfx::Type::ACCELERATION_STRUCTURE,
     1,
+};
+
+const ccstd::string SCENEGEOMETRYDESC::NAME = "cc_scene_geometry_desc";
+const gfx::DescriptorSetLayoutBinding SCENEGEOMETRYDESC::DESCRIPTOR = {
+    BINDING,
+    gfx::DescriptorType::STORAGE_BUFFER,
+    1,
+    gfx::ShaderStageFlagBit::FRAGMENT,
+    {},
+};
+const gfx::UniformStorageBuffer SCENEGEOMETRYDESC::LAYOUT = {
+    globalSet,
+    BINDING,
+    NAME,
+    1, gfx::MemoryAccess::READ_ONLY
+};
+
+const ccstd::string SCENEINSTANCEDESC::NAME = "cc_scene_instance_desc";
+const gfx::DescriptorSetLayoutBinding SCENEINSTANCEDESC::DESCRIPTOR = {
+    BINDING,
+    gfx::DescriptorType::STORAGE_BUFFER,
+    1,
+    gfx::ShaderStageFlagBit::FRAGMENT,
+    {},
+};
+const gfx::UniformStorageBuffer SCENEINSTANCEDESC::LAYOUT = {
+    globalSet,
+    BINDING,
+    NAME,
+    1,
+    gfx::MemoryAccess::READ_ONLY
 };
 
 const ccstd::string JOINTTEXTURE::NAME = "cc_jointTexture";

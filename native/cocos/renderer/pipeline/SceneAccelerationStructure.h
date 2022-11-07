@@ -26,7 +26,7 @@ namespace pipeline
         ccstd::unordered_map<uint64_t,std::pair<IntrusivePtr<gfx::AccelerationStructure>,uint64_t>> _blasMap;
         ccstd::unordered_map<ccstd::string,std::pair<bool,gfx::ASInstance>> _modelMap;
          
-        pipeline::GlobalDSManager* _globalDSManager{nullptr};
+        GlobalDSManager* _globalDSManager{nullptr};
     private:
         
         struct subMeshGeomDescriptor{
@@ -36,21 +36,22 @@ namespace pipeline
 
         struct meshShadingInstanceDescriptor{
             // The first submesh geometry position of the Mesh
-            uint subMeshGeometryOffset{0};
+            uint16_t subMeshGeometryOffset{0};
             // The first submesh material position of the Mesh
-            uint subMeshMaterialOffset{0};
-            uint subMeshCount{0};
+            uint16_t subMeshMaterialOffset{0};
+            uint16_t subMeshCount{0};
+            uint16_t padding{0};
         };
 
         //instanceDecs.geometryOffset + geometryIndex
-        ccstd::vector<subMeshGeomDescriptor> geomDesc;
-        ccstd::vector<uint64_t> materialDesc;
+        ccstd::vector<subMeshGeomDescriptor> _geomDesc;
+        ccstd::vector<uint64_t> _materialDesc;
         //instanceCustomIndex
-        ccstd::vector<meshShadingInstanceDescriptor> instanceDesc;
+        ccstd::vector<meshShadingInstanceDescriptor> _instanceDesc;
 
-        IntrusivePtr<gfx::Buffer> geomDescGPUBuffer;
-        IntrusivePtr<gfx::Buffer> materialDescGPUBuffer;
-        IntrusivePtr<gfx::Buffer> instanceDescGPUBuffer;
+        IntrusivePtr<gfx::Buffer> _geomDescGPUBuffer;
+        IntrusivePtr<gfx::Buffer> _materialDescGPUBuffer;
+        IntrusivePtr<gfx::Buffer> _instanceDescGPUBuffer;
     };
 } // namespace pipeline
 } // namespace cc

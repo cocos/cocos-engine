@@ -53,6 +53,7 @@
 #include "gfx-base/SPIRVUtils.h"
 #include "platform/interfaces/modules/IXRInterface.h"
 #include "profiler/Profiler.h"
+#include "vulkan/vulkan_core.h"
 
 #if CC_SWAPPY_ENABLED
     #include "swappy/swappyVk.h"
@@ -155,6 +156,7 @@ bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
     requestedExtensions.push_back(VK_KHR_DEFERRED_HOST_OPERATIONS_EXTENSION_NAME);
     requestedExtensions.push_back(VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME);
     requestedExtensions.push_back(VK_KHR_RAY_QUERY_EXTENSION_NAME);
+    requestedExtensions.push_back(VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME);
 
     requestedVulkan12Features.bufferDeviceAddress = true;
 

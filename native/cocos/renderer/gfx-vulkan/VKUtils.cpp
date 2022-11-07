@@ -431,10 +431,10 @@ VkAccelerationStructureGeometryTrianglesDataKHR mapVkASGeomTrianglesData(const A
     trianglesData.vertexFormat = mapVkFormat(mesh.vertexFormat, gpuDevice);
     trianglesData.indexType = mesh.indexBuffer->getStride() == 2 ? VK_INDEX_TYPE_UINT16 : VK_INDEX_TYPE_UINT32;
     trianglesData.vertexStride = mesh.vertexStride;
-    trianglesData.transformData = {};
+    trianglesData.transformData = {};//todo 
     trianglesData.maxVertex = mesh.vertexCount;
-    trianglesData.vertexData.deviceAddress = getVkBufferDeviceAddr(gpuDevice,static_cast<CCVKBuffer *const>(mesh.vertexBuffer));
-    trianglesData.indexData.deviceAddress = getVkBufferDeviceAddr(gpuDevice, static_cast<CCVKBuffer *const>(mesh.indexBuffer));
+    trianglesData.vertexData.deviceAddress = mesh.vertexBuffer->getDeviceAddress();//getVkBufferDeviceAddr(gpuDevice,static_cast<CCVKBuffer *const>(mesh.vertexBuffer));
+    trianglesData.indexData.deviceAddress = mesh.indexBuffer->getDeviceAddress();//getVkBufferDeviceAddr(gpuDevice, static_cast<CCVKBuffer *const>(mesh.indexBuffer));
     return trianglesData;
 }
 

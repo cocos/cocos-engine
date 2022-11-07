@@ -1491,10 +1491,11 @@ template <class... Ts>
 Overloaded(Ts...) -> Overloaded<Ts...>;
 
 // Acceleration Structure Helper Functions
+
 VkDeviceAddress getVkBufferDeviceAddr(VkDevice device, VkBuffer buffer) {
     VkBufferDeviceAddressInfo bufferDeviceAddrInfo{VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO};
     bufferDeviceAddrInfo.buffer = buffer;
-    return vkGetBufferDeviceAddress(device, &bufferDeviceAddrInfo);
+    return vkGetBufferDeviceAddressKHR(device, &bufferDeviceAddrInfo);
 }
 
 VkDeviceAddress getVkBufferDeviceAddr(VkDevice device, CCVKBuffer *buffer) {

@@ -233,6 +233,8 @@ enum class CC_DLL PipelineGlobalBindings {
     SAMPLER_DIFFUSEMAP,
 
     ACCEL_STRUC_TOPLEVEL,
+    STORAGE_SCENE_GEOM,
+    STORAGE_SCENE_INSTANCE,
 
     COUNT,
 };
@@ -524,6 +526,7 @@ struct CC_DLL DescriptorSetLayoutInfos {
     ccstd::unordered_map<ccstd::string, gfx::UniformBlock> blocks;
     ccstd::unordered_map<ccstd::string, gfx::UniformSamplerTexture> samplers;
     ccstd::unordered_map<ccstd::string, gfx::UniformStorageImage> storeImages;
+    ccstd::unordered_map<ccstd::string, gfx::UniformStorageBuffer> storeBuffers;
     gfx::AccelerationStructureLayout tlas;
 };
 extern CC_DLL DescriptorSetLayoutInfos globalDescriptorSetLayout;
@@ -588,6 +591,20 @@ struct CC_DLL TOPLEVELAS {
     static constexpr uint32_t BINDING = static_cast<uint32_t>(PipelineGlobalBindings::ACCEL_STRUC_TOPLEVEL);
     static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
     static const gfx::AccelerationStructureLayout LAYOUT;
+    static const ccstd::string NAME;
+};
+
+struct CC_DLL SCENEGEOMETRYDESC {
+    static constexpr uint32_t BINDING = static_cast<uint32_t>(PipelineGlobalBindings::STORAGE_SCENE_GEOM);
+    static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
+    static const gfx::UniformStorageBuffer LAYOUT;
+    static const ccstd::string NAME;
+};
+
+struct CC_DLL SCENEINSTANCEDESC {
+    static constexpr uint32_t BINDING = static_cast<uint32_t>(PipelineGlobalBindings::STORAGE_SCENE_INSTANCE);
+    static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
+    static const gfx::UniformStorageBuffer LAYOUT;
     static const ccstd::string NAME;
 };
 

@@ -47,7 +47,7 @@ namespace cc
                 for (const auto& pSubModel : pModel->getSubModels()) {
                     gfx::ASTriangleMesh blasGeomMesh{};
                     fillblasGeomMesh(blasGeomMesh, pSubModel);
-                    blasInfo.triangels.push_back(blasGeomMesh);
+                    blasInfo.triangleMeshes.push_back(blasGeomMesh);
                 }
             }
             blasInfo.buildFlag = gfx::ASBuildFlagBits::ALLOW_COMPACTION | gfx::ASBuildFlagBits::PREFER_FAST_TRACE;
@@ -74,7 +74,6 @@ namespace cc
         }
 
         void SceneAccelerationStructure::update(const scene::RenderScene* scene) {
-
             bool needRebuild = false;
             bool needUpdate = false;
             bool needRecreate = false;
@@ -116,7 +115,7 @@ namespace cc
                     auto sameMatID = [](const IntrusivePtr<scene::SubModel>& sm1, const uint64_t ID) -> bool { return false; };//todo
 
                     bool exist = false;
-                    for (const auto& descriptor: instanceDesc) {
+                    for (const auto& descriptor: _instanceDesc) {
 
                         bool march = true;
 
@@ -125,7 +124,7 @@ namespace cc
                         }else {
 
                             for (int i = 0; i < descriptor.subMeshCount; i++) {
-                                if (!sameMatID(subModels[i], materialDesc[descriptor.subMeshMaterialOffset + i])) {
+                                if (!sameMatID(subModels[i], _materialDesc[descriptor.subMeshMaterialOffset + i])) {
                                     march = false;
                                     break;
                                 }
@@ -140,13 +139,13 @@ namespace cc
                     }
 
                     if (!exist) {
-                        shadingInstanceDescriptor.subMeshMaterialOffset = materialDesc.size();
+                        shadingInstanceDescriptor.subMeshMaterialOffset = _materialDesc.size();
                         for (const auto & sm : subModels) {
                             int matId;
-                            materialDesc.emplace_back(matId);
+                            _materialDesc.emplace_back(matId);
                         }
                     }
-
+                    /*
                     {
                         if (name == "Cube-001") {
                             tlasGeom.instanceCustomIdx = 1;
@@ -163,7 +162,7 @@ namespace cc
                         } else if (name == "wall3") {
                             tlasGeom.instanceCustomIdx = 7;
                         }
-                    }
+                    }*/
 
                     tlasGeom.instanceCustomIdx = -1;
                     tlasGeom.shaderBindingTableRecordOffset = 0;
@@ -196,13 +195,13 @@ namespace cc
                         blas->compact();
                         
                         // New subMesh geometry should be added
-                        if (!blasInfo.triangels.empty()) {
-                            shadingInstanceDescriptor.subMeshGeometryOffset = geomDesc.size();
-                            for (const auto& info : blasInfo.triangels) {
+                        if (!blasInfo.triangleMeshes.empty()) {
+                            shadingInstanceDescriptor.subMeshGeometryOffset = _geomDesc.size();
+                            for (const auto& info : blasInfo.triangleMeshes) {
                                 subMeshGeomDescriptor descriptor;
-                                descriptor.vertexAddress = 0; // todo
-                                descriptor.indexAddress = 0;
-                                geomDesc.emplace_back(descriptor);
+                                descriptor.vertexAddress = info.vertexBuffer->getDeviceAddress();
+                                descriptor.indexAddress = info.indexBuffer->getDeviceAddress();
+                                _geomDesc.emplace_back(descriptor);
                             }
                         }
 
@@ -211,16 +210,16 @@ namespace cc
                         tlasGeom.accelerationStructureRef = blas;
                     }
                     int index = 0;
-                    for (const auto & desc : instanceDesc) {
-                        if (desc.subMeshGeometryOffset == shadingInstanceDescriptor.subMeshGeometryOffset && desc.subMeshMaterialOffset==desc.subMeshMaterialOffset) {
+                    for (const auto & desc : _instanceDesc) {
+                        if (desc.subMeshGeometryOffset == shadingInstanceDescriptor.subMeshGeometryOffset) {
                             tlasGeom.instanceCustomIdx = index;
                             break;
                         }
                         index++;
                     }
                     if (tlasGeom.instanceCustomIdx == -1) {
-                        tlasGeom.instanceCustomIdx = instanceDesc.size();
-                        instanceDesc.emplace_back(shadingInstanceDescriptor);
+                        tlasGeom.instanceCustomIdx = _instanceDesc.size();
+                        _instanceDesc.emplace_back(shadingInstanceDescriptor);
                     }
                     _modelMap.emplace(modelUuid, std::pair{true, tlasGeom});
                 }
@@ -259,18 +258,37 @@ namespace cc
                 }
                 if (needRecreate) {
                     _topLevelAccelerationStructure = device->createAccelerationStructure(tlasInfo);
+                    gfx::BufferInfo geomDescBufferInfo{};
+                    geomDescBufferInfo.size = _geomDesc.size() * sizeof(subMeshGeomDescriptor);
+                    geomDescBufferInfo.flags = gfx::BufferFlags::NONE;
+                    geomDescBufferInfo.usage = gfx::BufferUsage::STORAGE | gfx::BufferUsage::TRANSFER_DST;
+                    geomDescBufferInfo.memUsage = gfx::MemoryUsage::HOST;
+                    _geomDescGPUBuffer = device->createBuffer(geomDescBufferInfo);
+
+                    gfx::BufferInfo instanceDescBufferInfo{};
+                    instanceDescBufferInfo.size = _instanceDesc.size() * sizeof(meshShadingInstanceDescriptor);
+                    instanceDescBufferInfo.flags = gfx::BufferFlags::NONE;
+                    instanceDescBufferInfo.usage = gfx::BufferUsage::STORAGE | gfx::BufferUsage::TRANSFER_DST;
+                    instanceDescBufferInfo.memUsage = gfx::MemoryUsage::HOST;
+                    _instanceDescGPUBuffer = device->createBuffer(instanceDescBufferInfo);
                 } else {
                     _topLevelAccelerationStructure->setInfo(tlasInfo);
                 }
                 if (needRebuild) {
                     _topLevelAccelerationStructure->build();
+                    _geomDescGPUBuffer->update(_geomDesc.data());
+                    _instanceDescGPUBuffer->update(_instanceDesc.data());
                 } else if (needUpdate) {
                     _topLevelAccelerationStructure->update();
+                    _geomDescGPUBuffer->update(_geomDesc.data());
+                    _instanceDescGPUBuffer->update(_instanceDesc.data());
                 }
             }
 
             if (needRecreate) {
-                _globalDSManager->bindAccelerationStructure(pipeline::TOPLEVELAS::BINDING, _topLevelAccelerationStructure);
+                _globalDSManager->bindAccelerationStructure(TOPLEVELAS::BINDING, _topLevelAccelerationStructure);
+                _globalDSManager->bindBuffer(SCENEGEOMETRYDESC::BINDING, _geomDescGPUBuffer);
+                _globalDSManager->bindBuffer(SCENEINSTANCEDESC::BINDING, _instanceDescGPUBuffer);
                 _globalDSManager->update();
             }
 

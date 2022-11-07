@@ -215,6 +215,11 @@ void GlobalDSManager::setDescriptorSetLayout() {
     globalDescriptorSetLayout.tlas = TOPLEVELAS::LAYOUT;
     globalDescriptorSetLayout.bindings[TOPLEVELAS::BINDING] = TOPLEVELAS::DESCRIPTOR;
 
+    globalDescriptorSetLayout.storeBuffers[SCENEGEOMETRYDESC::NAME] = SCENEGEOMETRYDESC::LAYOUT;
+    globalDescriptorSetLayout.bindings[SCENEGEOMETRYDESC::BINDING] = SCENEGEOMETRYDESC::DESCRIPTOR;
+    globalDescriptorSetLayout.storeBuffers[SCENEINSTANCEDESC::NAME] = SCENEINSTANCEDESC::LAYOUT;
+    globalDescriptorSetLayout.bindings[SCENEINSTANCEDESC::BINDING] = SCENEINSTANCEDESC::DESCRIPTOR;
+
     localDescriptorSetLayout.bindings.resize(static_cast<size_t>(ModelLocalBindings::COUNT));
     localDescriptorSetLayout.blocks[UBOLocalBatched::NAME] = UBOLocalBatched::LAYOUT;
     localDescriptorSetLayout.bindings[UBOLocalBatched::BINDING] = UBOLocalBatched::DESCRIPTOR;
