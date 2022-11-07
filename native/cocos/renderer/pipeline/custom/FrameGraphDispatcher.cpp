@@ -458,6 +458,7 @@ struct BarrierVisitor : public boost::bfs_visitor<> {
                 srcRearBarriers.emplace_back(Barrier{
                     resourceID,
                     isAdjacent ? gfx::BarrierType::FULL : gfx::BarrierType::SPLIT_BEGIN,
+                    nullptr, // generate later
                     srcAccess,
                     dstAccess,
                 });
@@ -502,6 +503,7 @@ struct BarrierVisitor : public boost::bfs_visitor<> {
                         dstFrontBarriers.emplace_back(Barrier{
                             resourceID,
                             gfx::BarrierType::SPLIT_END,
+                            nullptr,
                             srcAccess,
                             dstAccess,
                         });
@@ -575,6 +577,7 @@ struct BarrierVisitor : public boost::bfs_visitor<> {
                             barrierMap[vert].blockBarrier.frontBarriers.emplace_back(Barrier{
                                 rescID,
                                 gfx::BarrierType::SPLIT_END,
+                                nullptr,
                                 externalMap[resName].lastStatus,
                                 externalMap[resName].currStatus,
                             });
@@ -735,6 +738,7 @@ void buildBarriers(FrameGraphDispatcher &fgDispatcher) {
             Barrier nextFrameResBarrier{
                 resID,
                 gfx::BarrierType::SPLIT_BEGIN,
+                nullptr,
                 externalResMap[externalPair.first].currStatus,
                 {}};
 
