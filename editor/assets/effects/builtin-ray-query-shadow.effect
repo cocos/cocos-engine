@@ -177,6 +177,7 @@ CCProgram ray-query-fs %{
   
   #if __VERSION__ >= 460
     #include <builtin/uniforms/cc-acceleration-structure>
+    #include <builtin/uniforms/cc-scene-shading-data>
   #endif
 
   in vec3 v_position;
@@ -258,6 +259,109 @@ CCProgram ray-query-fs %{
     return vec3(x,y,z);
   }
 
+  vec3 random_in_unit_hemisphere_cosine(float seed)
+  {
+    float u = hash1(seed);
+    float v = hash1(seed);
+    float sqrt_u = sqrt(u);
+    float x = sqrt_u*cos(2*PI*v);
+    float y = sqrt_u*sin(2*PI*v);
+    float z = sqrt(1.0-u);
+    return vec3(x,y,z);
+  }
+
+  float calculate_ao(in int frame_id,in float seed,in mat3 TBN,in vec3 point,in float kernel_size){
+    float ao = .0;
+    const int AO_SAMPLES = 1;
+    const ivec2 tile_offset[4] = {ivec2(0,0),ivec2(0,1),ivec2(1,0),ivec2(1,1)};
+    bool should_trace = mod(vec2(ivec2(gl_FragCoord.xy+tile_offset[frame_id])),2)==vec2(0,0);
+    if(should_trace){
+      rayQueryEXT rayQuery;
+      for(int i = 0;i<AO_SAMPLES;++i){
+        seed = hash1(seed);
+        vec3 direction = TBN*random_in_unit_hemisphere_cosine(seed);
+        rayQueryInitializeEXT(rayQuery, cc_topLevelAS,gl_RayFlagsTerminateOnFirstHitEXT, 0xFF, point, 0.2, direction, kernel_size);
+        while(rayQueryProceedEXT(rayQuery));
+        if(rayQueryGetIntersectionTypeEXT(rayQuery, true) != gl_RayQueryCommittedIntersectionNoneEXT)
+        {
+          ao += 1.0;
+        }
+      }
+    }
+    if(AO_SAMPLES > 0){
+      ao /= float(AO_SAMPLES);
+    }
+    return ao;
+  }
+
+  struct HitRecord{
+    vec3 position;
+    vec3 normal;
+    vec2 uv;
+    vec4 tangent;
+    vec3 barycentrics;
+    vec3 albedo;
+  };
+
+  const vec3 color_lut[10] = {vec3(0.0,1.0,0.0),vec3(1.0,0.0,0.0),vec3(0.0,0.0,1.0),vec3(0.0,1.0,0.0),vec3(1.0,0.0,0.0),vec3(0.0,0.0,1.0),vec3(0.0,1.0,0.0),vec3(1.0,0.0,0.0),vec3(0.0,0.0,1.0),vec3(0.0,1.0,0.0)};
+
+  HitRecord getHitRecordObjectSpace(rayQueryEXT rayQuery){
+    HitRecord hitRecord;
+    int hit_instance_id = rayQueryGetIntersectionInstanceCustomIndexEXT(rayQuery,true);
+    MeshDesc mesh = instanceDescs[hit_instance_id];
+    int hit_geom_id = rayQueryGetIntersectionGeometryIndexEXT(rayQuery,true);
+    GeomDesc geom = geomDescs[mesh.subMeshGeometryOffset+hit_geom_id];
+    IndicesBuffer16  indices  = IndicesBuffer16(geom.indexAddress);
+    int hit_prim_id = rayQueryGetIntersectionPrimitiveIndexEXT(rayQuery,true);
+    ivec3 index = indices.i[hit_prim_id];
+    VertexAttributesBuffer vertexAttr = VertexAttributesBuffer(geom.vertexAddress);
+    VertexAttributes va0 = vertexAttr.v[index.x];
+    VertexAttributes va1 = vertexAttr.v[index.y];
+    VertexAttributes va2 = vertexAttr.v[index.z];
+    vec2 bary = rayQueryGetIntersectionBarycentricsEXT(rayQuery,true);
+    const vec3 barycentrics = vec3(1.0 - bary.x - bary.y, bary.x, bary.y);
+    hitRecord.barycentrics = barycentrics;
+    hitRecord.position = mat3(va0.position,va1.position,va2.position)*barycentrics;
+    vec3 tmpu = hitRecord.position - va0.position;
+    vec3 tmpv = hitRecord.position - va1.position;
+    vec3 tmpw = hitRecord.position - va2.position;
+    float dotu = min(0.0, dot(tmpu, va0.normal));
+    float dotv = min(0.0, dot(tmpv, va1.normal));
+    float dotw = min(0.0, dot(tmpw, va2.normal));
+    tmpu -= dotu * va0.normal;
+    tmpv -= dotv * va1.normal;
+    tmpw -= dotw * va2.normal;
+    hitRecord.position += mat3(tmpu,tmpv,tmpw)*barycentrics;
+    hitRecord.normal = mat3(va0.normal,va1.normal,va2.normal)*barycentrics;
+    hitRecord.uv = barycentrics.x * va0.texCoord + barycentrics.y * va1.texCoord + barycentrics.z * va2.texCoord;
+    hitRecord.tangent = barycentrics.x * va0.tangent + barycentrics.y * va1.tangent + barycentrics.z * va2.tangent;
+    hitRecord.albedo = vec3(1.0);
+    if(hit_geom_id >= 54 && hit_geom_id <= 61){
+      hitRecord.albedo = color_lut[hit_geom_id - 54];
+    }else if(hit_geom_id >= 63 && hit_geom_id <= 72){
+      hitRecord.albedo = color_lut[hit_geom_id - 63];
+    }else if(hit_geom_id == 99 || hit_geom_id == 96){
+      hitRecord.albedo = vec3(0.95, 0.1,0.1);
+    }else if(hit_geom_id == 98 || hit_geom_id == 97){
+     hitRecord.albedo = vec3(1.00, 0.71, 0.29);
+    }else if(hit_geom_id == 74 || hit_geom_id == 76|| hit_geom_id == 78|| hit_geom_id == 80){
+     hitRecord.albedo = vec3(0.01, 0.01, 0.01);
+    }else if(hit_geom_id == 53){
+      hitRecord.albedo = vec3(0.2, 0.4, 0.0);
+    }
+       return hitRecord;
+  }
+
+  HitRecord getHitRecordWorldSpace(rayQueryEXT rayQuery){
+    HitRecord hitRecord = getHitRecordObjectSpace(rayQuery);
+    mat4x3 objToWorld = rayQueryGetIntersectionObjectToWorldEXT(rayQuery,true);
+    mat4x3 worldToObj = rayQueryGetIntersectionWorldToObjectEXT(rayQuery,true);
+    hitRecord.position = (objToWorld*vec4(hitRecord.position,1.0)).xyz;
+    hitRecord.normal = normalize((objToWorld*vec4(hitRecord.normal,0.0)).xyz);
+    hitRecord.tangent = vec4((objToWorld*vec4(hitRecord.tangent.xyz,0.0)),1.0);
+    return hitRecord;
+  }
+
   float sdfSphere(in vec3 p,vec3 center,float radius)
   {
     return length(p-center)-radius;
@@ -319,7 +423,6 @@ CCProgram ray-query-fs %{
     }
     return false;
   }
-
   #endif
 
   void surf (out StandardSurface s) {
@@ -371,89 +474,28 @@ CCProgram ray-query-fs %{
     HIGHP_VALUE_TO_STRUCT_DEFINED(v_position, s.position);
 
     #if __VERSION__ >= 460
+      float seed  = baseHash(uvec2(cc_time.w*gl_FragCoord.xy));
       vec3 origin = s.position;
       bool hitaabb = false;
-
-      vec3 light_points[4] = {vec3(1.995,5.443,3.199),vec3(1.179,10.125,0.022),vec3(1.726,11.071,3.873),vec3(7.3,5.89,-0.865)};
-
       float shadowFactor = .0;
-      
-      int frame_id = int(mod(int(cc_time.z),4));
+      int cc_time_int = int(cc_time.z);
+      int frame_id = int(mod(float(cc_time_int),4));
 
       rayQueryEXT rayQuery;
       rayQueryInitializeEXT(rayQuery, cc_topLevelAS, gl_RayFlagsOpaqueEXT,0xFF,cc_cameraPos.xyz,0.01,normalize(s.position-cc_cameraPos.xyz),1000.0);
 
       while(rayQueryProceedEXT(rayQuery)){
-        if(rayQueryGetIntersectionTypeEXT(rayQuery,false) == gl_RayQueryCandidateIntersectionAABBEXT){
-          vec3 hitPoint = rayQueryGetIntersectionObjectRayOriginEXT(rayQuery,false);
-          vec3 hitDir = rayQueryGetIntersectionObjectRayDirectionEXT(rayQuery,false);
-          
-          float r = 5.0*abs(sin(0.1*cc_time.w));
-          vec3 ce = vec3(0.0,0.0,0.0);
-          float t;
-          if(raymarchingSphere(hitPoint,hitDir,ce,r,0.0,100.0,t,s.normal)){
-            s.albedo = vec4(0.5,0.5,0.5,1.0);
-            //s.position = hitPoint + t*hitDir;
-            rayQueryGenerateIntersectionEXT(rayQuery,t);
-            rayQueryTerminateEXT(rayQuery);
-            hitaabb = true;
-          }
-        }
       }
 
-      if(!hitaabb){
-        for(int i = 0; i < 4; ++i)
-      {
-        vec3 light_position = light_points[i];
-        vec3 L = light_position-origin; 
-        vec3 direction = normalize(L);
-        float tMin = 0.1f;
-        float tMax = length(L);
-
-        //rayQueryEXT rayQuery;
-        rayQueryInitializeEXT(rayQuery, cc_topLevelAS,gl_RayFlagsTerminateOnFirstHitEXT, 0xFF, origin, tMin, direction, tMax);
-
-        while(rayQueryProceedEXT(rayQuery));
-      
-        if(rayQueryGetIntersectionTypeEXT(rayQuery, true) != gl_RayQueryCommittedIntersectionNoneEXT)
-        {
-            shadowFactor += 1.0;
-        }
+      if(rayQueryGetIntersectionTypeEXT(rayQuery, true) != gl_RayQueryCommittedIntersectionNoneEXT){
+        int hit_instance_id = rayQueryGetIntersectionInstanceCustomIndexEXT(rayQuery,true);
+        MeshDesc mesh = instanceDescs[hit_instance_id];
+        int hit_geom_id = rayQueryGetIntersectionGeometryIndexEXT(rayQuery,true);
+        HitRecord hitRecordWS = getHitRecordWorldSpace(rayQuery);
+        s.albedo.rgb = hitRecordWS.albedo;
       }
-      
-      shadowFactor/= 4.0;
-
-      //ao
-      float seed  = baseHash(uvec2(cc_time.w*gl_FragCoord.xy));
-      
-      //rayQueryEXT rayQuery;
-      float tMin = 0.1f;//todo How to choose adaptive tMin according to vertex normal?
-      float tMax = 0.7f;
-      vec3 direction;
-
-      float ao = .0;
-      const int AO_SAMPLE = 8;
-      const ivec2 tile_offset[4] = {ivec2(0,0),ivec2(0,1),ivec2(1,0),ivec2(1,1)};
-      
-      if(mod(ivec2(gl_FragCoord.xy+tile_offset[frame_id]),2)==ivec2(0,0)){
-        for(int i = 0;i<AO_SAMPLE;++i){
-          seed = hash1(seed);
-          direction = TBN*random_in_unit_hemisphere(seed);
-          rayQueryInitializeEXT(rayQuery, cc_topLevelAS,gl_RayFlagsTerminateOnFirstHitEXT, 0xFF, origin, tMin, direction, tMax);
-          while(rayQueryProceedEXT(rayQuery));
-          if(rayQueryGetIntersectionTypeEXT(rayQuery, true) != gl_RayQueryCommittedIntersectionNoneEXT)
-          {
-            ao += 1.0;
-          }
-        }
-      }
-      
-      ao /= float(AO_SAMPLE);
-
+      float ao = calculate_ao(frame_id,seed,TBN,origin,10.0);
       s.albedo *= (1.0 - ao);
-      s.albedo *= (1.0 - shadowFactor);
-      }
-
     #endif
 
     vec4 pbr = pbrParams;
@@ -483,5 +525,24 @@ CCProgram ray-query-fs %{
     #endif
   }
 
-  CC_STANDARD_SURFACE_ENTRY()
+  layout(location = 0) out vec4 fragColorX;
+
+  void main () {
+    StandardSurface s;
+    surf(s);
+    #if __VERSION__ >=460
+      vec4 color = CCFragOutput(CCStandardShadingBaseShadowRay(s,normalize(cc_cameraPos.xyz - s.position),cc_topLevelAS));
+    #else
+      vec4 color = CCFragOutput(CCStandardShadingBase(s,CC_SHADOW_POSITION));
+    #endif
+    #if CC_USE_FOG != 4
+      CC_APPLY_FOG(color, s.position.xyz);
+    #endif
+    #if CC_USE_RGBE_OUTPUT
+      color = packRGBE(color.rgb);
+    #endif
+    fragColorX = color;
+  }
+
+  //CC_STANDARD_SURFACE_ENTRY()
 }%

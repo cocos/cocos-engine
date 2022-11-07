@@ -245,7 +245,7 @@ vec4 CCStandardShadingBaseShadowRay (in StandardSurface s,in vec3 V,in accelerat
   float shadow = 1.0;
   
   rayQueryEXT rayQuery;
-  rayQueryInitializeEXT(rayQuery,as,gl_RayFlagsTerminateOnFirstHitEXT, 0xFF, position, 0.1f, normalize(vec3(-1.0,-1.0,-1.0)), 10000.0f);
+  rayQueryInitializeEXT(rayQuery,as,gl_RayFlagsTerminateOnFirstHitEXT, 0xFF, position, 0.1f, normalize(vec3(L.x,L.y,L.z)), 10000.0);
   while(rayQueryProceedEXT(rayQuery));
 
   if(rayQueryGetIntersectionTypeEXT(rayQuery, true) != gl_RayQueryCommittedIntersectionNoneEXT)
