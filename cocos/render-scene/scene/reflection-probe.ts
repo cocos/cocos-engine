@@ -45,8 +45,8 @@ export enum ProbeType {
 }
 // right left up down front back
 const cameraDir: Vec3[] = [
-    new Vec3(0, 90, 0),
     new Vec3(0, -90, 0),
+    new Vec3(0, 90, 0),
 
     new Vec3(90, 0, 0),
     new Vec3(-90, 0, 0),
@@ -345,6 +345,7 @@ export class ReflectionProbe {
         this.camera.clearFlag = camera.clearFlag;
         this.camera.clearColor = camera.clearColor;
         this.camera.priority = camera.priority - 1;
+        this.camera.resize(camera.width, camera.height);
     }
 
     public updateBoundingBox () {
@@ -394,6 +395,7 @@ export class ReflectionProbe {
         this.camera.farClip = 1000;
         this.camera.fov = toRadian(90);
         this.camera.priority = 0;
+        this.camera.resize(this.resolution, this.resolution);
 
         this.camera.visibility = this._visibility;
         this.camera.clearFlag = this._clearFlag;
