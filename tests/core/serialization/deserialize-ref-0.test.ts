@@ -1,7 +1,7 @@
 
 import { property } from '../../../cocos/core/data/class-decorator';
 import { deserialize } from '../../../cocos/serialization/deserialize';
-import { js } from '../../../cocos/core/utils/js';
+import { js } from '../../../cocos/core';
 import { ccclassAutoNamed } from './shared/utils';
 
 @ccclassAutoNamed(__dirname) class Foo {
