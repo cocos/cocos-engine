@@ -67,7 +67,7 @@
     "__prefab": {
       "__id__": 3
     },
-    "_resolution": 512,
+    "_resolution": 256,
     "_clearFlag": 14,
     "_backgroundColor": {
       "__type__": "cc.Color",
@@ -86,7 +86,7 @@
       "z": 1
     },
     "_sourceCamera": null,
-    "_probeId": 8,
+    "_probeId": -1,
     "_id": ""
   },
   {

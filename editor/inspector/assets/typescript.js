@@ -4,17 +4,12 @@ const ReadLine = require('readline');
 const MAX_LINES = 400;
 const MAX_LENGTH = 20000;
 
-exports.template = `
+exports.template = /* html */`
 <section class="asset-typescript">
     <ui-code language="typescript"></ui-code>
 </section>`;
 
-exports.$ = {
-    container: '.asset-typescript',
-    code: 'ui-code',
-};
-
-exports.style = `
+exports.style = /* css */`
 .asset-typescript {
     flex: 1;
     display: flex;
@@ -25,6 +20,11 @@ exports.style = `
     flex: 1;
 }
 `;
+
+exports.$ = {
+    container: '.asset-typescript',
+    code: 'ui-code',
+};
 
 exports.update = function(assetList, metaList) {
     this.assetList = assetList;

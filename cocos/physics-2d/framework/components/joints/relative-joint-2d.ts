@@ -1,13 +1,12 @@
-
-
 import { Joint2D } from './joint-2d';
-import { ccclass, property, menu, type } from '../../../../core/data/class-decorator';
 import { IRelativeJoint } from '../../../spec/i-physics-joint';
 import { EJoint2DType } from '../../physics-types';
-import { Vec3, Vec2, IVec2Like, Quat } from '../../../../core';
+import { Vec3, Vec2, IVec2Like, Quat, _decorator } from '../../../../core';
 
 const tempVec3_1 = new Vec3();
 const tempVec3_2 = new Vec3();
+
+const { ccclass, menu, property } = _decorator;
 
 @ccclass('cc.RelativeJoint2D')
 @menu('Physics2D/Joints/RelativeJoint2D')

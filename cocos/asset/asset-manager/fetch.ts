@@ -24,13 +24,12 @@
  */
 
 import { Asset } from '../assets';
-import { error } from '../../core/platform/debug';
+import { error, cclegacy } from '../../core';
 import packManager from './pack-manager';
 import RequestItem from './request-item';
 import { assets, CompleteCallbackNoData, fetchPipeline } from './shared';
 import Task from './task';
 import { clear, forEach, getDepends } from './utilities';
-import { legacyCC } from '../../core/global-exports';
 
 export default function fetch (task: Task, done: CompleteCallbackNoData) {
     let firstTask = false;
@@ -61,7 +60,7 @@ export default function fetch (task: Task, done: CompleteCallbackNoData) {
         packManager.load(item, task.options, (err, data) => {
             if (err) {
                 if (!task.isFinish) {
-                    if (!legacyCC.assetManager.force || firstTask) {
+                    if (!cclegacy.assetManager.force || firstTask) {
                         error(err.message, err.stack);
                         progress.canInvoke = false;
                         done(err);

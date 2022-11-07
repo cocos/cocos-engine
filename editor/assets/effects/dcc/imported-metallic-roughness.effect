@@ -18,8 +18,8 @@ CCEffect %{
         metallicMap:          { value: grey }
         occlusion:            { value: 0.0, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
         occlusionMap:         { value: white }
-        emissiveScale:        { value: 1.0, editor: { displayName: Emissive } }
-        emissiveScaleMap:     { value: grey, editor: { displayName: EmissiveMap } }
+        emissiveScale:        { value: 1.0 }
+        emissiveScaleMap:     { value: grey }
         emissive:             { value: [0.0, 0.0, 0.0, 1.0], linear: true, editor: { displayName: EmissiveColor, type: color} }
         emissiveMap:          { value: grey, editor: { displayName: EmissiveColorMap } }
         alphaSource:          { value: 1.0, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
@@ -154,7 +154,7 @@ CCProgram standard-vs %{
 
     #if USE_NORMAL_MAP
       v_tangent = normalize((matWorld * vec4(In.tangent.xyz, 0.0)).xyz);
-      v_bitangent = cross(v_normal, v_tangent) * In.tangent.w; // note the cross order
+      v_bitangent = cross(v_normal, v_tangent) * (In.tangent.w > 0.0 ? 1.0 : -1.0); // note the cross order
     #endif
 
     v_uv = a_texCoord * tilingOffset.xy + tilingOffset.zw;
@@ -307,14 +307,15 @@ CCProgram standard-fs %{
     s.roughness = max(0.02, roughnessValue);
 
 
-    float occlusionValue = 1.0 - occlusion;
+    float occlusionValue = 1.0;
     #if USE_OCCLUSION_MAP
        vec4 occlusionColor = texture(occlusionMap, TEXTURE_UV);
-       occlusionValue = discolor(occlusionColor.rgb);
+       float occlusionColorValue = discolor(occlusionColor.rgb);
        #if USE_OCCLUSION_CHANNEL 
            occlusionColor.rgb = SRGBToLinear(occlusionColor.rgb);
-           occlusionValue = occlusionColor.OCCLUSION_CHANNEL;
+           occlusionColorValue = occlusionColor.OCCLUSION_CHANNEL;
        #endif
+       occlusionValue = mix(1.0, occlusionColorValue, occlusion);
     #endif
     s.occlusion = occlusionValue;
 

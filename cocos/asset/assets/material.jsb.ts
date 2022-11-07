@@ -26,11 +26,8 @@
 import { EffectAsset } from './effect-asset';
 import { Texture } from '../../gfx';
 import { TextureBase } from './texture-base';
-import { legacyCC } from '../../core/global-exports';
-import { PassOverrides, MacroRecord, MaterialProperty } from '../../core/renderer';
-
-import { Color, Mat3, Mat4, Quat, Vec2, Vec3, Vec4 } from '../../core/math';
-import { ccclass, serializable, type } from '../../core/data/decorators';
+import { PassOverrides, MacroRecord, MaterialProperty } from '../../render-scene';
+import { Color, Mat3, Mat4, Quat, Vec2, Vec3, Vec4, _decorator, cclegacy } from '../../core';
 import './asset';
 
 /**
@@ -128,7 +125,7 @@ matProto.setProperty = function (name: string, val: MaterialPropertyFull | Mater
         } else if (first instanceof Texture) {
             wrapSetProperty(this.setPropertyGFXTextureArray, this, name, val, passIdx);
         } else {
-            legacyCC.error(`Material.setProperty Unknown type: ${val}`);
+            cclegacy.error(`Material.setProperty Unknown type: ${val}`);
         }
     } else if (typeof val === 'number') {
         if (Number.isInteger(val)) {
@@ -162,7 +159,7 @@ matProto.setProperty = function (name: string, val: MaterialPropertyFull | Mater
         }
     }
      else {
-        legacyCC.error(`Material.setProperty Unknown type: ${val}`);
+        cclegacy.error(`Material.setProperty Unknown type: ${val}`);
     }
 };
 
@@ -258,7 +255,7 @@ matProto.getProperty = function (name: string, passIdx?: number) {
 // @ts-ignore
 export type Material = jsb.Material;
 export const Material = jsb.Material;
-legacyCC.Material = Material;
+cclegacy.Material = Material;
 
 const materialProto: any = Material.prototype;
 
@@ -303,9 +300,9 @@ Object.defineProperty(materialProto, 'passes', {
 
 // handle meta data, it is generated automatically
 const MaterialProto = Material.prototype;
-type(EffectAsset)(MaterialProto, '_effectAsset');
-serializable(MaterialProto, '_techIdx');
-serializable(MaterialProto, '_defines');
-serializable(MaterialProto, '_states');
-serializable(MaterialProto, '_props');
-ccclass('cc.Material')(Material);
+_decorator.type(EffectAsset)(MaterialProto, '_effectAsset');
+_decorator.serializable(MaterialProto, '_techIdx');
+_decorator.serializable(MaterialProto, '_defines');
+_decorator.serializable(MaterialProto, '_states');
+_decorator.serializable(MaterialProto, '_props');
+_decorator.ccclass('cc.Material')(Material);

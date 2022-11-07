@@ -44,6 +44,7 @@
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
+    cursor: default;
 }
 
 :host > .container > .header > .name[readonly] {
@@ -102,10 +103,6 @@
 
 :host > .container > .content > section > ui-panel:only-child {
     flex: 1;
-}
-
-:host > .container > .content > .content-footer {
-    margin-top: 10px;
 }
 
 :host([sub-type="material"]) > .container > .content,

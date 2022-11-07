@@ -1,6 +1,5 @@
 import { ccclass, serializable } from 'cc.decorator';
-import { RealCurve } from '../../core/curves';
-import { Color } from '../../core';
+import { RealCurve, Color } from '../../core';
 import { CLASS_NAME_PREFIX_ANIM, createEvalSymbol } from '../define';
 import { Channel, RealChannel, RuntimeBinding, Track } from './track';
 import { maskIfEmpty } from './utils';

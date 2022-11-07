@@ -24,7 +24,6 @@
 */
 
 import * as _decorator from './class-decorator';
-import * as Attr from './utils/attribute';
 import { legacyCC } from '../global-exports';
 
 legacyCC._decorator = _decorator;
@@ -32,10 +31,6 @@ export { _decorator };
 export { CCClass, ENUM_TAG, BITMASK_TAG, isCCClassOrFastDefined } from './class';
 export { CCObject, isCCObject, isValid } from './object';
 export { CCInteger, CCFloat, CCBoolean, CCString } from './utils/attribute';
-/**
- * @engineInternal
- */
-export { Attr };
 export { CompactValueTypeArray } from './utils/compact-value-type-array';
 export { editorExtrasTag } from './editor-extras-tag';
 export * from './utils/asserts';
@@ -46,7 +41,12 @@ export type {
     SerializationOutput,
     SerializationContext,
     CustomSerializable,
-    DeserializationContext,
+    DeserializationContext, // engine internal exports
 } from './custom-serializable';
 export { getSerializationMetadata } from './serialization-metadata';
 export type { SerializationMetadata } from './serialization-metadata';
+
+// engine internal exports
+export { EditorExtendable } from './editor-extendable';
+export { garbageCollectionManager } from './garbage-collection';
+export { GCObject } from './gc-object';

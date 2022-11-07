@@ -40,7 +40,6 @@ export function createAttrsSingle (owner: Object, superAttrs?: any) {
 
 /**
  * @param subclass Should not have '__attrs__'.
- * @engineInternal
  */
 export function createAttrs (subclass: any) {
     if (typeof subclass !== 'function') {
@@ -87,7 +86,6 @@ export function attr (constructor: any, propertyName: string): { [attributeName:
 
 /**
  * Returns a readonly meta object.
- * @engineInternal
  */
 export function getClassAttrs (constructor: any) {
     return (constructor.hasOwnProperty('__attrs__') && constructor.__attrs__) || createAttrs(constructor);

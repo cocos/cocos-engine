@@ -27,7 +27,7 @@ import {
     ccclass, executeInEditMode, executionOrder, help, menu, tooltip, type, serializable, editable,
 } from 'cc.decorator';
 import { SkinnedMeshRenderer } from '../skinned-mesh-renderer';
-import { Mat4, cclegacy, js } from '../../core';
+import { Mat4, cclegacy, js, assertIsTrue } from '../../core';
 import { DataPoolManager } from './data-pool-manager';
 import { Node } from '../../scene-graph/node';
 import { AnimationClip } from '../../animation/animation-clip';
@@ -36,7 +36,6 @@ import { SkelAnimDataHub } from './skeletal-animation-data-hub';
 import { SkeletalAnimationState } from './skeletal-animation-state';
 import { getWorldTransformUntilRoot } from '../../animation/transform-utils';
 import type { AnimationState } from '../../animation/animation-state';
-import { assertIsTrue } from '../../core/data/utils/asserts';
 import { getGlobalAnimationManager } from '../../animation/global-animation-manager';
 
 /**

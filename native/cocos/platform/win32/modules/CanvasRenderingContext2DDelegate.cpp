@@ -186,7 +186,7 @@ CanvasRenderingContext2DDelegate::Size CanvasRenderingContext2DDelegate::measure
 void CanvasRenderingContext2DDelegate::updateFont(const ccstd::string &fontName,
                                                   float fontSize,
                                                   bool bold,
-                                                  bool /* italic */,
+                                                  bool italic,
                                                   bool /* oblique */,
                                                   bool /* smallCaps */) {
     do {
@@ -221,13 +221,17 @@ void CanvasRenderingContext2DDelegate::updateFont(const ccstd::string &fontName,
             strcpy_s(tFont.lfFaceName, LF_FACESIZE, _fontName.c_str());
         }
 
-        if (_fontSize)
+        if (_fontSize) {
             tFont.lfHeight = -_fontSize;
+        }
 
-        if (bold)
+        if (bold) {
             tFont.lfWeight = FW_BOLD;
-        else
+        } else {
             tFont.lfWeight = FW_NORMAL;
+        }
+
+        tFont.lfItalic = italic;
 
         // disable Cleartype
         tFont.lfQuality = ANTIALIASED_QUALITY;

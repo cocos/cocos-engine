@@ -1,5 +1,5 @@
 import { ccclass, serializable } from 'cc.decorator';
-import { EditorExtendable } from '../../core/data/editor-extendable';
+import { EditorExtendable } from '../../core';
 import type { Node } from '../../scene-graph';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
 

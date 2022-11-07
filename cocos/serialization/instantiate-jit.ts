@@ -27,10 +27,11 @@
 // Some helper methods for compile instantiation code
 
 import { TEST } from 'internal:constants';
-import { CCClass, isCCClassOrFastDefined, js, Attr, CCObject, isCCObject, cclegacy, flattenCodeArray } from '../core';
+import { CCClass, isCCClassOrFastDefined, js, CCObject, isCCObject, cclegacy, flattenCodeArray } from '../core';
+
 const Destroyed = CCObject.Flags.Destroyed;
 const PersistentMask = CCObject.Flags.PersistentMask;
-const DEFAULT = `${Attr.DELIMETER}default`;
+const DEFAULT = `${CCClass.Attr.DELIMETER}default`;
 const IDENTIFIER_RE = CCClass.IDENTIFIER_RE;
 
 const VAR = 'var ';
@@ -298,7 +299,7 @@ class Parser {
 
     public enumerateCCClass (codeArray, obj, klass) {
         const props = klass.__values__;
-        const attrs = Attr.getClassAttrs(klass);
+        const attrs = CCClass.Attr.getClassAttrs(klass);
         for (let p = 0; p < props.length; p++) {
             const key = props[p];
             const val = obj[key];

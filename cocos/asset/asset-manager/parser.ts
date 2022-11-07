@@ -24,7 +24,7 @@
  */
 
 import { IMemoryImageSource } from '../assets/image-asset';
-import { js } from '../../core/utils/js';
+import { js } from '../../core';
 import Cache from './cache';
 import deserialize from './deserialize';
 import { isScene } from './helper';

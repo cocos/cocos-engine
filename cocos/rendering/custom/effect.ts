@@ -1,4 +1,4 @@
-import { legacyCC } from '../../core/global-exports';
+import { cclegacy } from '../../core';
 import { EffectAsset } from '../../asset/assets';
 import { CollectVisitor, WebDescriptorHierarchy } from './web-descriptor-hierarchy';
 // eslint-disable-next-line max-len
@@ -58,7 +58,7 @@ export function buildLayoutGraphDataImpl (graph: LayoutGraph, lgData: LayoutGrap
 }
 
 function rebuildLayoutGraph (): void {
-    const root = legacyCC.director.root;
+    const root = cclegacy.director.root;
     if (!root.usesCustomPipeline) {
         return;
     }
