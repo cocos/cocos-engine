@@ -123,5 +123,9 @@ void GLES2Texture::doInit(const SwapchainTextureInfo & /*info*/) {
     _gpuTexture->swapchain = static_cast<GLES2Swapchain *>(_swapchain)->gpuSwapchain();
 }
 
+uint64_t GLES2Texture::GetNativeHandle() const {
+    return _gpuTexture != nullptr ? _gpuTexture->glTexture : 0;
+}
+
 } // namespace gfx
 } // namespace cc

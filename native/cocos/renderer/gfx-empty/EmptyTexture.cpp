@@ -44,5 +44,9 @@ void EmptyTexture::doDestroy() {
 void EmptyTexture::doResize(uint32_t width, uint32_t height, uint32_t size) {
 }
 
+uint64_t EmptyTexture::GetNativeHandle() const {
+    return 0;
+}
+
 } // namespace gfx
 } // namespace cc

@@ -272,5 +272,9 @@ CCWGPUSwapchain *CCWGPUTexture::swapchain() {
     return static_cast<CCWGPUSwapchain *>(_swapchain);
 }
 
+uint64_t CCWGPUTexture::GetNativeHandle() const {
+    return _gpuTextureObj != nullptr ? reinterpret_cast<uint64_t>(_gpuTextureObj->wgpuTexture) : reinterpret_cast<uint64_t>(wgpuDefaultHandle);
+}
+
 } // namespace gfx
 } // namespace cc

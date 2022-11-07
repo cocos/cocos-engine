@@ -75,6 +75,11 @@ void TextureAgent::doInit(const TextureViewInfo &info) {
         });
 }
 
+uint64_t TextureAgent::GetNativeHandle() const {
+    DeviceAgent::getInstance()->getMessageQueue()->kickAndWait();
+    return _actor->GetNativeHandle();
+}
+
 void TextureAgent::doInit(const SwapchainTextureInfo &info) {
     // the actor is already initialized
 }

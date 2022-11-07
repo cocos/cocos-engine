@@ -176,5 +176,9 @@ void TextureValidator::sanityCheck() {
     _lastUpdateFrame = cur;
 }
 
+uint64_t TextureValidator::GetNativeHandle() const {
+    return _actor->GetNativeHandle();
+}
+
 } // namespace gfx
 } // namespace cc

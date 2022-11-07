@@ -146,5 +146,9 @@ void GLES3Texture::doInit(const SwapchainTextureInfo & /*info*/) {
     createTextureView();
 }
 
+uint64_t GLES3Texture::GetNativeHandle() const {
+    return _gpuTexture != nullptr ? _gpuTexture->glTexture : 0;
+}
+
 } // namespace gfx
 } // namespace cc

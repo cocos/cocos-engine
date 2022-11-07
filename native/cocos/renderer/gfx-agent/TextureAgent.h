@@ -40,6 +40,8 @@ public:
 
     const Texture *getRaw() const override { return _actor->getRaw(); }
 
+    uint64_t GetNativeHandle() const override;
+
 protected:
     friend class SwapchainAgent;
 

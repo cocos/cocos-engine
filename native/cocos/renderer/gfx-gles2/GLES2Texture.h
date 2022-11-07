@@ -46,6 +46,7 @@ protected:
     void doDestroy() override;
     void doResize(uint32_t width, uint32_t height, uint32_t size) override;
     void doInit(const SwapchainTextureInfo &info) override;
+    uint64_t GetNativeHandle() const override;
 
     GLES2GPUTexture *_gpuTexture = nullptr;
 };

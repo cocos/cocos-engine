@@ -48,6 +48,7 @@ protected:
     void doInit(const SwapchainTextureInfo &info) override;
     void doDestroy() override;
     void doResize(uint32_t width, uint32_t height, uint32_t size) override;
+    uint64_t GetNativeHandle() const override;
 
     void createTexture(uint32_t width, uint32_t height, uint32_t size, bool initGPUTexture = true);
     void createTextureView(bool initGPUTextureView = true);

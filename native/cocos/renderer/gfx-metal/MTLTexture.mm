@@ -319,5 +319,9 @@ void CCMTLTexture::deleteDefaultTexture() {
     }
 }
 
+uint64_t CCMTLTexture::GetNativeHandle() const {
+    return reinterpret_cast<uint64_t>(_mtlTexture);
+}
+
 } // namespace gfx
 } // namespace cc

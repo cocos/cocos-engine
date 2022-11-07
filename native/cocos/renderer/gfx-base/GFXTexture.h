@@ -44,6 +44,8 @@ public:
     void resize(uint32_t width, uint32_t height);
     void destroy();
 
+    virtual uint64_t GetNativeHandle() const = 0;
+
     inline const TextureInfo &getInfo() const { return _info; }
     inline const TextureViewInfo &getViewInfo() const { return _viewInfo; }
 
