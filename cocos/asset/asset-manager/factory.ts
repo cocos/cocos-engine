@@ -29,7 +29,6 @@ import JsonAsset from '../assets/json-asset';
 import TextAsset from '../assets/text-asset';
 import { Asset } from '../assets/asset';
 import { BufferAsset } from '../assets/buffer-asset';
-import { js } from '../../core/utils/js';
 import Bundle, { resources } from './bundle';
 import Cache from './cache';
 import { IConfigOption } from './config';
@@ -37,8 +36,8 @@ import {
     assets, BuiltinBundleName, bundles, CompleteCallback, IRemoteOptions,
     IDownloadParseOptions,
 } from './shared';
-
 import { cache } from './utilities';
+import { js } from '../../core';
 
 export type CreateHandler = (id: string, data: any, options: IDownloadParseOptions, onComplete: CompleteCallback<Asset|Bundle>) => void;
 
