@@ -396,8 +396,14 @@ export class SubModel {
 
         // update draw info
         const drawInfo = this._subMesh.drawInfo;
+
+        // to invoke getter/setter function for wasm object
         if (this._inputAssembler && drawInfo) {
-            Object.assign(this._inputAssembler.drawInfo, drawInfo);
+            const dirtyDrawInfo = this._inputAssembler.drawInfo;
+            Object.keys(drawInfo).forEach((key) => {
+                dirtyDrawInfo[key] = drawInfo[key];
+            });
+            this._inputAssembler.drawInfo = dirtyDrawInfo;
         }
     }
 

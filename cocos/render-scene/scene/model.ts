@@ -817,7 +817,7 @@ export class Model {
 
         this.onMacroPatchesStateChanged();
 
-        if (texture === null) {
+        if (!texture) {
             texture = builtinResMgr.get<Texture2D>('empty-texture');
         }
 

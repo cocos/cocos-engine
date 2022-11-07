@@ -270,18 +270,18 @@ CCProgram surface-fragment %{
   #define CC_SURFACES_FRAGMENT_MODIFY_EMISSIVE
   vec3 SurfacesFragmentModifyEmissive()
   {
-    vec3 emissive = emissive.rgb * emissiveScaleParam.xyz;
+    vec3 emissive = emissive.rgb;
     #if USE_EMISSIVE_MAP
-      emissive *= SRGBToLinear(texture(emissiveMap, EMISSIVE_UV).rgb);
+      emissive = SRGBToLinear(texture(emissiveMap, EMISSIVE_UV).rgb);
     #endif
-    return emissive;
+    return emissive * emissiveScaleParam.xyz;
   }
 
   #define CC_SURFACES_FRAGMENT_MODIFY_PBRPARAMS
   vec4 SurfacesFragmentModifyPBRParams()
   {
     vec4 pbr = pbrParams;
-    pbr.x = 1.0 - pbr.x;
+    pbr.x = 1.0;
     #if USE_PBR_MAP
       vec4 res = texture(pbrMap, DEFAULT_UV);
       pbr.x *= res.OCCLUSION_CHANNEL;
@@ -290,7 +290,7 @@ CCProgram surface-fragment %{
       pbr.w *= res.SPECULAR_INTENSITY_CHANNEL;
     #endif
     #if USE_OCCLUSION_MAP
-      pbr.x *= texture(occlusionMap, DEFAULT_UV).OCCLUSION_CHANNEL;
+      pbr.x = mix(1.0, texture(occlusionMap, DEFAULT_UV).OCCLUSION_CHANNEL, pbrParams.x);
     #endif
 
     return pbr;
