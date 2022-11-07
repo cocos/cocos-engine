@@ -281,11 +281,15 @@ const Elements = {
             updateElementReadonly.call(panel, panel.$.promoteSingleRootNodeCheckbox);
         },
     },
+    // move this from ./fbx.js in v3.6.0
     generateLightmapUVNode: {
         ready() {
             const panel = this;
 
             panel.$.generateLightmapUVNodeCheckbox.addEventListener('change', panel.setProp.bind(panel, 'generateLightmapUVNode'));
+            panel.$.generateLightmapUVNodeCheckbox.addEventListener('confirm', () => {
+                panel.dispatch('snapshot');
+            });
         },
         update() {
             const panel = this;
@@ -297,10 +301,11 @@ const Elements = {
 
             panel.$.generateLightmapUVNodeCheckbox.value = defaultValue;
 
-            panel.updateInvalid(panel.$.generateLightmapUVNodeCheckbox, 'generateLightmapUVNode');
-            panel.updateReadonly(panel.$.generateLightmapUVNodeCheckbox);
+            updateElementInvalid.call(panel, panel.$.generateLightmapUVNodeCheckbox, 'generateLightmapUVNode');
+            updateElementReadonly.call(panel, panel.$.generateLightmapUVNodeCheckbox);
         },
     },
+
     meshOptimizer: {
         ready() {
             const panel = this;

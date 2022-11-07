@@ -350,7 +350,7 @@ module.exports = {
                 name: 'Generate Lightmap UV',
                 title:
                     'If enabled ,create a lightmap uv in the second UV channel, <br>' +
-                    'If the second uv already exists ,  set will be override .  <br>' +
+                    'If the second uv already exists , the set will be override .  <br>' +
                     "Otherwise, use default uvs.",
             },
             preferLocalTimeSpan: {
