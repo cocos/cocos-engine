@@ -1362,6 +1362,14 @@ static bool jsb_register_TextDecoder(se::Object *globalObj) {
     return true;
 }
 
+static bool JSB_process_get_argv(se::State &s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = CC_CURRENT_APPLICATION()->getArguments();
+    nativevalue_to_se(args, s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(JSB_process_get_argv)
+
 bool jsb_register_global_variables(se::Object *global) { // NOLINT
     gThreadPool = LegacyThreadPool::newFixedThreadPool(3);
 
@@ -1386,6 +1394,11 @@ bool jsb_register_global_variables(se::Object *global) { // NOLINT
     __jsbObj->defineFunction("setCursorEnabled", _SE(JSB_setCursorEnabled));
     __jsbObj->defineFunction("saveByteCode", _SE(JSB_saveByteCode));
     __jsbObj->defineFunction("createExternalArrayBuffer", _SE(jsb_createExternalArrayBuffer));
+
+    // Create process object
+    se::HandleObject processObj{se::Object::createPlainObject()};
+    processObj->defineProperty("argv", _SE(JSB_process_get_argv), nullptr);
+    __jsbObj->setProperty("process", se::Value(processObj));
 
     se::HandleObject zipUtils(se::Object::createPlainObject());
     zipUtils->defineFunction("inflateMemory", _SE(JSB_zipUtils_inflateMemory));

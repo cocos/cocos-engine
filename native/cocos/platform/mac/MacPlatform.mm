@@ -119,7 +119,15 @@ int32_t MacPlatform::init() {
 
 int32_t MacPlatform::loop(void) {
     [_timer start];
-    return cocos_main(0, nullptr);
+    NSArray *arguments = [[NSProcessInfo processInfo] arguments];
+    int argc = static_cast<int>(arguments.count);
+    std::vector<const char*> argv;
+    argv.reserve(argc);
+    for (id arg in arguments) {
+        argv.emplace_back([arg UTF8String]);
+    }
+
+    return cocos_main(argc, argv.data());
 }
 
 int32_t MacPlatform::run(int argc, const char **argv) {
