@@ -27,3 +27,7 @@
 export { EventTarget } from './event-target';
 export { Eventify } from './eventify';
 export { AsyncDelegate } from './async-delegate';
+
+// engine internal exports
+export { CallbacksInvoker } from './callbacks-invoker';
+export { applyMixins } from './event-target-factory';

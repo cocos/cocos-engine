@@ -46,3 +46,6 @@ export {
 } from './debug';
 
 export { screen } from './screen';
+
+// engine internal exports
+export { _resetDebugSetting } from './debug';
