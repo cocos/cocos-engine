@@ -45,8 +45,8 @@ export enum ProbeType {
 }
 // right left up down front back
 const cameraDir: Vec3[] = [
-    new Vec3(0, -90, 0),
     new Vec3(0, 90, 0),
+    new Vec3(0, -90, 0),
 
     new Vec3(90, 0, 0),
     new Vec3(-90, 0, 0),
