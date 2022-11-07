@@ -35,8 +35,8 @@ export class NativePipelineBuilder implements PipelineBuilder {
                 buildForwardPass(camera, ppl, false);
                 continue;
             }
-            // buildNativeForwardPass(camera, ppl);
-            buildNativeDeferredPipeline(camera, ppl);
+            buildNativeForwardPass(camera, ppl);
+            // buildNativeDeferredPipeline(camera, ppl);
         }
     }
 }
