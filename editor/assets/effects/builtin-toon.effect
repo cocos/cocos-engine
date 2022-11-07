@@ -227,7 +227,7 @@ CCProgram toon-fs %{
 
     #if USE_NORMAL_MAP
       vec3 nmmp = texture(normalMap, v_uv).xyz - vec3(0.5);
-      vec3 bitangent = cross(v_normal, v_tangent.xyz) * v_tangent.w; // note the cross order
+      vec3 bitangent = cross(v_normal, v_tangent.xyz) * (v_tangent.w > 0.0 ? 1.0 : -1.0); // note the cross order
       s.normal =
         (nmmp.x * emissiveScaleAndStrenth.w) * normalize(v_tangent.xyz) +
         (nmmp.y * emissiveScaleAndStrenth.w) * normalize(bitangent) +

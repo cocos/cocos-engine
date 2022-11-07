@@ -264,7 +264,7 @@ CCProgram standard-fs %{
 
     #if USE_NORMAL_MAP
       vec3 nmmp = texture(normalMap, NORMAL_UV).xyz - vec3(0.5);
-      vec3 bitangent = cross(v_normal, v_tangent.xyz) * v_tangent.w; // note the cross order
+      vec3 bitangent = cross(v_normal, v_tangent.xyz) * (v_tangent.w > 0.0 ? 1.0 : -1.0); // note the cross order
       s.normal =
         (nmmp.x * emissiveScaleParam.w) * normalize(v_tangent.xyz) +
         (nmmp.y * emissiveScaleParam.w) * normalize(bitangent) +
@@ -274,7 +274,7 @@ CCProgram standard-fs %{
     HIGHP_VALUE_TO_STRUCT_DEFINED(v_position, s.position);
 
     vec4 pbr = pbrParams;
-    pbr.x = 1.0 - pbr.x;
+    pbr.x = 1.0;
     #if USE_PBR_MAP
       vec4 res = texture(pbrMap, PBR_UV);
       pbr.x *= res.OCCLUSION_CHANNEL;
@@ -288,17 +288,18 @@ CCProgram standard-fs %{
       pbr.y *= metallicRoughness.ROUGHNESS_CHANNEL;
     #endif
     #if USE_OCCLUSION_MAP
-      pbr.x *= texture(occlusionMap, PBR_UV).OCCLUSION_CHANNEL;
+      pbr.x = mix(1.0, texture(occlusionMap, PBR_UV).OCCLUSION_CHANNEL, pbrParams.x);
     #endif
     s.occlusion = pbr.x;
     s.roughness = pbr.y;
     s.metallic = pbr.z;
     s.specularIntensity = pbr.w;
 
-    s.emissive = emissive.rgb * emissiveScaleParam.xyz;
+    s.emissive = emissive.rgb;
     #if USE_EMISSIVE_MAP
-      s.emissive *= SRGBToLinear(texture(emissiveMap, EMISSIVE_UV).rgb);
+      s.emissive = SRGBToLinear(texture(emissiveMap, EMISSIVE_UV).rgb);
     #endif
+    s.emissive *= emissiveScaleParam.xyz;
   }
 
   CC_STANDARD_SURFACE_ENTRY()
