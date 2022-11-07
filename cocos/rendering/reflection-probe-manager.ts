@@ -119,7 +119,7 @@ export class ReflectionProbeManager {
         for (let i = 0; i < models.length; i++) {
             const model = models[i];
             if (!model.node || !model.worldBounds) continue;
-            if ((model.node.layer & CAMERA_DEFAULT_MASK) && intersect.aabbWithAABB(model.worldBounds, probe.boundingBox)) {
+            if ((model.node.layer & CAMERA_DEFAULT_MASK) && intersect.aabbWithAABB(model.worldBounds, probe.boundingBox!)) {
                 const meshRender = model.node.getComponent(MeshRenderer);
                 if (meshRender) {
                     meshRender.updateProbePlanarMap(texture);
@@ -182,7 +182,7 @@ export class ReflectionProbeManager {
         let idx = -1;
         let find = false;
         for (let i = 0; i < this._probes.length; i++) {
-            if (!this._probes[i].validate() || !intersect.aabbWithAABB(model.worldBounds, this._probes[i].boundingBox)) {
+            if (!this._probes[i].validate() || !intersect.aabbWithAABB(model.worldBounds, this._probes[i].boundingBox!)) {
                 continue;
             } else if (!find) {
                 find = true;
