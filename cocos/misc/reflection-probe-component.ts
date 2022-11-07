@@ -255,7 +255,9 @@ export class ReflectionProbe extends Component {
     }
 
     public onDestroy () {
-        this.probe.destroy();
+        if (this.probe) {
+            this.probe.destroy();
+        }
     }
 
     public update (dt: number) {
