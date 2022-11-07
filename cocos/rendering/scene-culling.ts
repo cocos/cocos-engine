@@ -30,10 +30,10 @@ import { Vec3 } from '../core/math';
 import { RenderPipeline } from './render-pipeline';
 import { Pool } from '../core/memop';
 import { IRenderObject, UBOShadow } from './define';
-import { ShadowType, Shadows, CSMOptimizationMode } from '../renderer/scene/shadows';
+import { ShadowType, CSMOptimizationMode } from '../render-scene/scene/shadows';
 import { PipelineSceneData } from './pipeline-scene-data';
 import { ShadowLayerVolume } from './shadow/csm-layers';
-import { legacyCC } from '../global-exports';
+import { cclegacy } from '../core';
 import { ReflectionProbeManager } from './reflection-probe-manager';
 import { LODModelsCachedUtils } from './lod-models-utils';
 
@@ -152,7 +152,7 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
         if (skybox.enabled && skybox.model) {
             renderObjects.push(getRenderObject(skybox.model, camera));
         } else if (camera.clearFlag === SKYBOX_FLAG && !EDITOR) {
-            legacyCC.warnID(15100, camera.name);
+            cclegacy.warnID(15100, camera.name);
         }
     }
 
