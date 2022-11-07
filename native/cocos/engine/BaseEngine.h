@@ -43,7 +43,7 @@ public:
         ON_CLOSE,
         UNKNOWN,
     };
-    ~BaseEngine();
+    ~BaseEngine() = default;
     using Ptr = std::shared_ptr<BaseEngine>;
 
     IMPL_EVENT_TARGET(BaseEngine)

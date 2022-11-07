@@ -32,7 +32,6 @@
 #include "core/scene-graph/Scene.h"
 #include "core/utils/IDGenerator.h"
 #include "math/Utils.h"
-#include "base/std/container/string.h"
 
 namespace cc {
 
