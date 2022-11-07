@@ -1,6 +1,6 @@
 import { IMiniGame, SystemInfo } from 'pal/minigame';
 import { Orientation } from '../screen-adapter/enum-type';
-import { cloneObject } from '../utils';
+import { cloneObject, versionCompare } from '../utils';
 import { Language } from '../system-info/enum-type';
 
 //taobao IDE language   ("Chinese")
@@ -24,7 +24,16 @@ minigame.getSystemInfoSync = () => systemInfo;
 
 minigame.isDevTool = my.isIDE;
 
-minigame.isLandscape = systemInfo.screenWidth > systemInfo.screenHeight;
+Object.defineProperty(minigame, 'isLandscape', {
+    get () {
+        const locSystemInfo = minigame.getSystemInfoSync();
+        if (typeof locSystemInfo.deviceOrientation === 'string') {
+            return locSystemInfo.deviceOrientation.startsWith('landscape');
+        } else {
+            return locSystemInfo.screenWidth > locSystemInfo.screenHeight;
+        }
+    },
+});
 // init landscapeOrientation as LANDSCAPE_RIGHT
 const landscapeOrientation = Orientation.LANDSCAPE_RIGHT;
 // NOTE: onDeviceOrientationChange is not supported on this platform
@@ -41,6 +50,18 @@ Object.defineProperty(minigame, 'orientation', {
     },
 });
 // #endregion SystemInfo
+
+// @ts-expect-error TODO: move into minigame.d.ts
+minigame.testSupportLandscape = function () {
+    const locSysInfo = minigame.getSystemInfoSync();
+    if (typeof locSysInfo.deviceOrientation === 'string' && locSysInfo.deviceOrientation.startsWith('landscape')) {
+        if (versionCompare(locSysInfo.version, '10.15.10') < 0) {
+            console.warn('The current Taobao client version does not support Landscape, the minimum requirement is 10.15.10');
+        }
+    }
+};
+// @ts-expect-error TODO: Check whether the landscape screen is supported
+minigame.testSupportLandscape();
 
 // #region Audio
 minigame.createInnerAudioContext = function (): InnerAudioContext {
