@@ -23,7 +23,7 @@
  THE SOFTWARE.
 */
 
-import { js } from '../utils/js';
+import { array } from '../utils/js';
 
 /**
  * @zh
@@ -90,7 +90,7 @@ export class AsyncDelegate<T extends (...args: any) => (Promise<void> | void) = 
      * @param callback @en The callback to remove. @zh 要移除的某个回调。
      */
     public remove (callback: T) {
-        js.array.fastRemove(this._delegates, callback);
+        array.fastRemove(this._delegates, callback);
     }
 
     /**
