@@ -319,7 +319,7 @@ void CCMTLTexture::deleteDefaultTexture() {
     }
 }
 
-uint64_t CCMTLTexture::GetNativeHandle() const {
+uint64_t CCMTLTexture::getNativeHandleU64() const {
     return reinterpret_cast<uint64_t>(_mtlTexture);
 }
 

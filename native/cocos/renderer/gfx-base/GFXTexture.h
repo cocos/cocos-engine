@@ -26,6 +26,7 @@
 #pragma once
 
 #include "GFXObject.h"
+#include "GFXNativeHandle.h"
 #include "base/RefCounted.h"
 
 namespace cc {
@@ -44,7 +45,8 @@ public:
     void resize(uint32_t width, uint32_t height);
     void destroy();
 
-    virtual uint64_t GetNativeHandle() const = 0;
+    NativeHandle getNativeHandle() const;
+    virtual uint64_t getNativeHandleU64() const = 0;
 
     inline const TextureInfo &getInfo() const { return _info; }
     inline const TextureViewInfo &getViewInfo() const { return _viewInfo; }

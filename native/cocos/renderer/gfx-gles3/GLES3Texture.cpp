@@ -146,7 +146,7 @@ void GLES3Texture::doInit(const SwapchainTextureInfo & /*info*/) {
     createTextureView();
 }
 
-uint64_t GLES3Texture::GetNativeHandle() const {
+uint64_t GLES3Texture::getNativeHandleU64() const {
     return _gpuTexture != nullptr ? _gpuTexture->glTexture : 0;
 }
 

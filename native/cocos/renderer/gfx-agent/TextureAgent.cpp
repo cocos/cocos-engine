@@ -75,9 +75,9 @@ void TextureAgent::doInit(const TextureViewInfo &info) {
         });
 }
 
-uint64_t TextureAgent::GetNativeHandle() const {
+uint64_t TextureAgent::getNativeHandleU64() const {
     DeviceAgent::getInstance()->getMessageQueue()->kickAndWait();
-    return _actor->GetNativeHandle();
+    return _actor->getNativeHandleU64();
 }
 
 void TextureAgent::doInit(const SwapchainTextureInfo &info) {

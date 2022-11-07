@@ -32,6 +32,9 @@
 namespace cc {
 namespace gfx {
 
+#define HU64(v) static_cast<uint32_t>(((v) >> 32) & 0xFFFFFFFF)
+#define LU64(v) static_cast<uint32_t>((v) & 0xFFFFFFFF)
+
 Texture::Texture()
 : GFXObject(ObjectType::TEXTURE) {
 }
@@ -146,6 +149,11 @@ void Texture::updateTextureInfo(const SwapchainTextureInfo &info, Texture *out)
     out->_viewInfo.layerCount = out->_info.layerCount;
     out->_viewInfo.baseLevel = 0;
     out->_viewInfo.levelCount = out->_info.levelCount;
+}
+
+NativeHandle Texture::getNativeHandle() const {
+    uint64_t handle = getNativeHandleU64();
+    return {LU64(handle), HU64(handle)};
 }
 
 } // namespace gfx

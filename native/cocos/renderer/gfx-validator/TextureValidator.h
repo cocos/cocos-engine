@@ -43,7 +43,7 @@ public:
 
     const Texture *getRaw() const override { return _actor->getRaw(); }
 
-    uint64_t GetNativeHandle() const override;
+    uint64_t getNativeHandleU64() const override;
 
 protected:
     friend class SwapchainValidator;

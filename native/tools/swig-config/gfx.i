@@ -58,6 +58,8 @@ namespace cc { namespace gfx {
 %ignore Buffer::update;
 %ignore Buffer::write;
 
+%ignore Texture::getNativeHandleU64;
+
 %ignore CommandBuffer::execute;
 %ignore CommandBuffer::updateBuffer;
 %ignore CommandBuffer::copyBuffersToTexture;
@@ -251,6 +253,7 @@ namespace cc { namespace gfx {
 // Brief: Include header files in which classes and methods will be bound
 %include "renderer/gfx-base/GFXDef-common.h"
 %include "renderer/gfx-base/GFXObject.h"
+%include "renderer/gfx-base/GFXNativeHandle.h"
 %include "renderer/gfx-base/GFXBuffer.h"
 %include "renderer/gfx-base/GFXCommandBuffer.h"
 %include "renderer/gfx-base/GFXDescriptorSet.h"

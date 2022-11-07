@@ -108,7 +108,7 @@ void CCVKTexture::doResize(uint32_t width, uint32_t height, uint32_t size) {
     CCVKDevice::getInstance()->gpuDescriptorHub()->update(oldTextureView, _gpuTextureView);
 }
 
-uint64_t CCVKTexture::GetNativeHandle() const {
+uint64_t CCVKTexture::getNativeHandleU64() const {
     return _gpuTexture ? reinterpret_cast<uint64_t>(_gpuTexture->vkImage) : 0;
 }
 
