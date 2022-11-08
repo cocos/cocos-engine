@@ -43,11 +43,10 @@ using namespace cc; //NOLINT
 static void executeVideoCallback(int index, int event);
 
     #define QUIT_FULLSCREEN 1000
-    #define JNI_EXPORT __attribute__((visibility("default")))
 
 extern "C" {
 //NOLINTNEXTLINE
-JNI_EXPORT
+JNIEXPORT
 void Java_com_cocos_lib_CocosVideoHelper_nativeExecuteVideoCallback(JNIEnv *env, jobject obj, jint index, jint event) {
     executeVideoCallback(index, event);
 }
