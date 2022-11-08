@@ -87,7 +87,7 @@
   },
   "dependencies": {
     "@cocos/box2d": "1.0.1",
-    "@cocos/bullet": "1.0.2",
+    "@cocos/bullet": "1.0.4",
     "@cocos/cannon": "1.2.8",
     "@cocos/dragonbones-js": "^1.0.1",
     "@cocos/physx": "1.0.7"
