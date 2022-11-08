@@ -171,7 +171,7 @@ void processComputePass(const Graphs &graphs, uint32_t passID, const ComputePass
 void processCopyPass(const Graphs &graphs, uint32_t passID, const CopyPass &pass);
 void processRaytracePass(const Graphs &graphs, uint32_t passID, const RaytracePass &pass);
 void processPresentPass(const Graphs &graphs, uint32_t passID, const PresentPass &pass);
-auto getResourceStatus(PassType passType, const PmrString &name, gfx::MemoryAccess memAccess, gfx::ShaderStageFlags visbility, const ResourceGraph &resourceGraph);
+auto getResourceStatus(PassType passType, const PmrString &name, gfx::MemoryAccess memAccess, gfx::ShaderStageFlags visibility, const ResourceGraph &resourceGraph);
 
 // execution order BUT NOT LOGICALLY
 bool isPassExecAdjecent(uint32_t passLID, uint32_t passRID) {
@@ -693,118 +693,117 @@ struct BarrierVisitor : public boost::bfs_visitor<> {
 };
 
 void buildBarriers(FrameGraphDispatcher &fgDispatcher) {
-        auto *scratch = fgDispatcher.scratch;
-        const auto &graph = fgDispatcher.graph;
-        const auto &layoutGraph = fgDispatcher.layoutGraph;
-        const auto &resourceGraph = fgDispatcher.resourceGraph;
-        auto &relationGraph = fgDispatcher.relationGraph;
-        auto &externalResMap = fgDispatcher.externalResMap;
-        auto &rag = fgDispatcher.resourceAccessGraph;
+    auto *scratch = fgDispatcher.scratch;
+    const auto &graph = fgDispatcher.graph;
+    const auto &layoutGraph = fgDispatcher.layoutGraph;
+    const auto &resourceGraph = fgDispatcher.resourceGraph;
+    auto &relationGraph = fgDispatcher.relationGraph;
+    auto &externalResMap = fgDispatcher.externalResMap;
+    auto &rag = fgDispatcher.resourceAccessGraph;
 
-        // record resource current in-access and out-access for every single node
-        if (!fgDispatcher._accessGraphBuilt) {
-            const Graphs graphs{resourceGraph, layoutGraph, rag, relationGraph};
-            buildAccessGraph(graph, graphs);
-            fgDispatcher._accessGraphBuilt = true;
+    // record resource current in-access and out-access for every single node
+    if (!fgDispatcher._accessGraphBuilt) {
+        const Graphs graphs{resourceGraph, layoutGraph, rag, relationGraph};
+        buildAccessGraph(graph, graphs);
+        fgDispatcher._accessGraphBuilt = true;
+    }
+
+    // found pass id in this map ? barriers you should commit when run into this pass
+    // : or no extra barrier needed.
+    BarrierMap &batchedBarriers = fgDispatcher.barrierMap;
+    ResourceNames namesSet;
+    {
+        // _externalResNames records external resource between frames
+        BarrierVisitor visitor(resourceGraph, batchedBarriers, externalResMap, namesSet, rag.accessRecord, rag.resourceLifeRecord);
+        auto colors = rag.colors(scratch);
+        boost::queue<AccessVertex> q;
+
+        boost::breadth_first_visit(
+            rag,
+            EXPECT_START_ID,
+            q,
+            visitor,
+            get(colors, rag));
+    }
+
+    // external res barrier for next frame
+    for (const auto &externalPair : externalResMap) {
+        const auto &transition = externalPair.second;
+        auto resID = resourceGraph.valueIndex.at(externalPair.first);
+        auto passID = transition.currStatus.vertID;
+        if (batchedBarriers.find(passID) == batchedBarriers.end()) {
+            batchedBarriers.emplace(passID, BarrierNode{});
         }
 
-        // found pass id in this map ? barriers you should commit when run into this pass
-        // : or no extra barrier needed.
-        BarrierMap &batchedBarriers = fgDispatcher.barrierMap;
-        ResourceNames namesSet;
-        {
-            // _externalResNames records external resource between frames
-            BarrierVisitor visitor(resourceGraph, batchedBarriers, externalResMap, namesSet, rag.accessRecord, rag.resourceLifeRecord);
-            auto colors = rag.colors(scratch);
-            boost::queue<AccessVertex> q;
+        Barrier nextFrameResBarrier{
+            resID,
+            gfx::BarrierType::SPLIT_BEGIN,
+            nullptr,
+            externalResMap[externalPair.first].currStatus,
+            {}};
 
-            boost::breadth_first_visit(
-                rag,
-                EXPECT_START_ID,
-                q,
-                visitor,
-                get(colors, rag));
-        }
+        bool hasSubpass = !batchedBarriers[passID].subpassBarriers.empty();
 
-        // external res barrier for next frame
-        for (const auto &externalPair : externalResMap) {
-            const auto &transition = externalPair.second;
-            auto resID = resourceGraph.valueIndex.at(externalPair.first);
-            auto passID = transition.currStatus.vertID;
-            if (batchedBarriers.find(passID) == batchedBarriers.end()) {
-                batchedBarriers.emplace(passID, BarrierNode{});
-            }
+        if (hasSubpass) {
+            auto &subpassBarriers = batchedBarriers[passID].subpassBarriers;
+            for (int i = static_cast<int>(subpassBarriers.size()) - 1; i >= 0; --i) {
+                auto findBarrierByResID = [resID](const Barrier &barrier) {
+                    return barrier.resourceID == resID;
+                };
 
-            Barrier nextFrameResBarrier{
-                resID,
-                gfx::BarrierType::SPLIT_BEGIN,
-                nullptr,
-                externalResMap[externalPair.first].currStatus,
-                {}};
-
-            bool hasSubpass = !batchedBarriers[passID].subpassBarriers.empty();
-
-            if (hasSubpass) {
-                auto &subpassBarriers = batchedBarriers[passID].subpassBarriers;
-                for (int i = static_cast<int>(subpassBarriers.size()) - 1; i >= 0; --i) {
-                    auto findBarrierByResID = [resID](const Barrier &barrier) {
-                        return barrier.resourceID == resID;
-                    };
-
-                    const auto &frontBarriers = subpassBarriers[i].frontBarriers;
-                    auto &rearBarriers = subpassBarriers[i].rearBarriers;
-                    auto found = std::find_if(frontBarriers.begin(), frontBarriers.end(), findBarrierByResID) != frontBarriers.end() ||
-                                 std::find_if(rearBarriers.begin(), rearBarriers.end(), findBarrierByResID) != rearBarriers.end();
-                    if (found) {
-                        // put into rear barriers in order not to stuck
-                        rearBarriers.push_back({});
-                        break;
-                    }
+                const auto &frontBarriers = subpassBarriers[i].frontBarriers;
+                auto &rearBarriers = subpassBarriers[i].rearBarriers;
+                auto found = std::find_if(frontBarriers.begin(), frontBarriers.end(), findBarrierByResID) != frontBarriers.end() ||
+                             std::find_if(rearBarriers.begin(), rearBarriers.end(), findBarrierByResID) != rearBarriers.end();
+                if (found) {
+                    // put into rear barriers in order not to stuck
+                    rearBarriers.push_back({});
+                    break;
                 }
+            }
+        } else {
+            auto &rearBarriers = batchedBarriers[passID].blockBarrier.rearBarriers;
+            rearBarriers.emplace_back(nextFrameResBarrier);
+        }
+    }
+
+    const auto &resDescs = get(ResourceGraph::Desc, resourceGraph);
+    auto genGFXBarrier = [&resDescs](std::vector<Barrier> &barriers) {
+        for (auto &passBarrier : barriers) {
+            const auto &desc = get(resDescs, passBarrier.resourceID);
+            if (desc.dimension == ResourceDimension::BUFFER) {
+                gfx::BufferBarrierInfo info;
+                info.prevAccesses = passBarrier.beginStatus.accessFlag;
+                info.nextAccesses = passBarrier.endStatus.accessFlag;
+                const auto &range = ccstd::get<BufferRange>(passBarrier.beginStatus.range);
+                info.offset = range.offset;
+                info.size = range.size;
+                info.type = passBarrier.type;
+                passBarrier.barrier = gfx::Device::getInstance()->getBufferBarrier(info);
             } else {
-                auto &rearBarriers = batchedBarriers[passID].blockBarrier.rearBarriers;
-                rearBarriers.emplace_back(nextFrameResBarrier);
+                gfx::TextureBarrierInfo info;
+                info.prevAccesses = passBarrier.beginStatus.accessFlag;
+                info.nextAccesses = passBarrier.endStatus.accessFlag;
+                const auto &range = ccstd::get<TextureRange>(passBarrier.beginStatus.range);
+                info.baseMipLevel = range.mipLevel;
+                info.levelCount = range.levelCount;
+                info.baseSlice = range.firstSlice;
+                info.sliceCount = range.numSlices;
+                info.type = passBarrier.type;
+                passBarrier.barrier = gfx::Device::getInstance()->getTextureBarrier(info);
             }
         }
+    };
 
-        const auto &resDescs = get(ResourceGraph::Desc, resourceGraph);
-        auto genGFXBarrier = [&resDescs](std::vector<Barrier>& barriers) {
-            for (auto &passBarrier : barriers) {
-                const auto &desc = get(resDescs, passBarrier.resourceID);
-                if (desc.dimension == ResourceDimension::BUFFER) {
-                    gfx::BufferBarrierInfo info;
-                    info.prevAccesses = passBarrier.beginStatus.accessFlag;
-                    info.nextAccesses = passBarrier.endStatus.accessFlag;
-                    const auto &range = ccstd::get<BufferRange>(passBarrier.beginStatus.range);
-                    info.offset = range.offset;
-                    info.size = range.size;
-                    info.type = passBarrier.type;
-                    passBarrier.barrier = gfx::Device::getInstance()->getBufferBarrier(info);
-                } else {
-                    gfx::TextureBarrierInfo info;
-                    info.prevAccesses = passBarrier.beginStatus.accessFlag;
-                    info.nextAccesses = passBarrier.endStatus.accessFlag;
-                    const auto &range = ccstd::get<TextureRange>(passBarrier.beginStatus.range);
-                    info.baseMipLevel = range.mipLevel;
-                    info.levelCount = range.levelCount;
-                    info.baseSlice = range.firstSlice;
-                    info.sliceCount = range.numSlices;
-                    info.type = passBarrier.type;
-                    passBarrier.barrier = gfx::Device::getInstance()->getTextureBarrier(info);
-                }
-            }
-        };
-
-        for (auto& passBarrierInfo : batchedBarriers) {
-            auto &passBarrierNode = passBarrierInfo.second;
-            genGFXBarrier(passBarrierNode.blockBarrier.frontBarriers);
-            genGFXBarrier(passBarrierNode.blockBarrier.rearBarriers);
-            for (auto &subpassBarrier : passBarrierNode.subpassBarriers) {
-                genGFXBarrier(subpassBarrier.frontBarriers);
-                genGFXBarrier(subpassBarrier.rearBarriers);
-            }
+    for (auto &passBarrierInfo : batchedBarriers) {
+        auto &passBarrierNode = passBarrierInfo.second;
+        genGFXBarrier(passBarrierNode.blockBarrier.frontBarriers);
+        genGFXBarrier(passBarrierNode.blockBarrier.rearBarriers);
+        for (auto &subpassBarrier : passBarrierNode.subpassBarriers) {
+            genGFXBarrier(subpassBarrier.frontBarriers);
+            genGFXBarrier(subpassBarrier.rearBarriers);
         }
-    
+    }
 }
 #pragma endregion BUILD_BARRIERS
 
