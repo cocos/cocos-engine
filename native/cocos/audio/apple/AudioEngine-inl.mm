@@ -601,6 +601,9 @@ void AudioEngineImpl::update(float dt) {
         audioID = it->first;
         player = it->second;
         alSource = player->_alSource;
+        ALint sourceState;
+        alGetSourcei(alSource, AL_SOURCE_STATE, &sourceState);
+        bool isRemovable = (player->_streamingSource && player->_ready && player->_state == AudioPlayer::State::STOPPED) || ((!player->_streamingSource) && player->_ready && sourceState == AL_STOPPED);
         if (player->_removeByAudioEngine) {
             AudioEngine::remove(audioID);
             _threadMutex.lock();
