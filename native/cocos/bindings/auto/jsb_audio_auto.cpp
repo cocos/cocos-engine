@@ -3627,6 +3627,34 @@ static bool js_cc_SourceNode_disconnect(se::State& s)
 }
 SE_BIND_FUNC(js_cc_SourceNode_disconnect) 
 
+static bool js_cc_SourceNode_setOnEnded(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::SourceNode *arg1 = (cc::SourceNode *) NULL ;
+    std::function< void () > arg2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::SourceNode>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "SourceNode_setOnEnded,2,SWIGTYPE_std__functionT_void_fF_t"); 
+    
+    (arg1)->setOnEnded(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_SourceNode_setOnEnded) 
+
 static bool js_cc_SourceNode_loop_set(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -3763,6 +3791,7 @@ bool js_register_cc_SourceNode(se::Object* obj) {
     cls->defineFunction("getBuffer", _SE(js_cc_SourceNode_getBuffer)); 
     cls->defineFunction("connect", _SE(js_cc_SourceNode_connect)); 
     cls->defineFunction("disconnect", _SE(js_cc_SourceNode_disconnect)); 
+    cls->defineFunction("setOnEnded", _SE(js_cc_SourceNode_setOnEnded)); 
     
     
     

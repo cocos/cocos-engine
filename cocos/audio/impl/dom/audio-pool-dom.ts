@@ -24,6 +24,7 @@ class AudioPool {
                 this._domPool[url].push(domAudio);
                 this._infoMap[url] = {
                     duration: domAudio.duration,
+                    pcmHeader: null,
                 };
                 resolve(this._infoMap[url]);
             } catch {
@@ -40,6 +41,7 @@ class AudioPool {
             this._domPool[url] = [];
             this._infoMap[url] = {
                 duration: domAudio.duration,
+                pcmHeader: null,
             };
             return domAudio;
         }
@@ -55,6 +57,7 @@ class AudioPool {
             this._domPool[url] = [];
             this._infoMap[url] = {
                 duration: domAudio.duration,
+                pcmHeader: null,
             };
         }
         this._domPool[url].push(domAudio);

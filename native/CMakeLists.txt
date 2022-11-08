@@ -231,13 +231,38 @@ include(${EXTERNAL_ROOT}/CMakeLists.txt)
 
 ##### audio
 if(USE_AUDIO)
-    # cocos_source_files(
-    #         cocos/audio/AudioEngine.cpp
-    #         cocos/audio/AudioEngine.h
-    #         cocos/audio/AudioDef.h
-    #         cocos/audio/Export.h
-    # )
-    if(WINDOWS)
+
+    if(OHOS)
+        cocos_source_files(
+            cocos/audio/deprecated/AudioEngine.cpp
+            cocos/audio/deprecated/AudioEngine.h
+            cocos/audio/deprecated/AudioDef.h
+            cocos/audio/deprecate¬d/Export.h
+            cocos/audio/deprecated/AudioMacros.h
+            cocos/audio/deprecated/utils/tinysndfile.cpp
+            cocos/audio/deprecated/utils/primitives.cpp
+            cocos/audio/deprecated/utils/include/tinysndfile.h
+            cocos/audio/deprecated/utils/include/primitives.h
+            cocos/audio/deprecated/decoder/AudioDecoder.cpp
+            cocos/audio/deprecated/decoder/AudioDecoder.h
+            cocos/audio/deprecated/decoder/AudioDecoderManager.cpp
+            cocos/audio/deprecated/decoder/AudioDecoderManager.h
+            cocos/audio/deprecated/decoder/AudioDecoderMp3.cpp
+            cocos/audio/deprecated/decoder/AudioDecoderMp3.h
+            cocos/audio/deprecated/decoder/AudioDecoderOgg.cpp
+            cocos/audio/deprecated/decoder/AudioDecoderOgg.h
+            cocos/audio/deprecated/decoder/AudioDecoderWav.cpp
+            cocos/audio/deprecated/decoder/AudioDecoderWav.h
+            cocos/audio/deprecated/oalsoft/AudioCache.cpp
+            cocos/audio/deprecated/oalsoft/AudioCache.h
+            cocos/audio/deprecated/oalsoft/AudioEngine-soft.cpp
+            cocos/audio/deprecated/oalsoft/AudioEngine-soft.h
+            cocos/audio/deprecated/oalsoft/AudioPlayer.cpp
+            cocos/audio/deprecated/oalsoft/AudioPlayer.h
+            cocos/audio/deprecated/ohos/FsCallback.h
+            cocos/audio/deprecated/ohos/FsCallback.cpp
+        )
+    else()
         cocos_source_files(
             cocos/audio/graph_based/AudioBuffer.h
             cocos/audio/graph_based/AudioBuffer.cpp
@@ -261,87 +286,6 @@ if(USE_AUDIO)
             # cocos/audio/graph_based/PannerNode.h
             cocos/audio/graph_based/StereoPannerNode.cpp
             cocos/audio/graph_based/StereoPannerNode.h
-        )
-    elseif(LINUX OR QNX)
-        cocos_source_files(
-            cocos/audio/common/decoder/AudioDecoder.cpp
-            cocos/audio/common/decoder/AudioDecoder.h
-            cocos/audio/common/decoder/AudioDecoderManager.cpp
-            cocos/audio/common/decoder/AudioDecoderManager.h
-            cocos/audio/common/decoder/AudioDecoderMp3.cpp
-            cocos/audio/common/decoder/AudioDecoderMp3.h
-            cocos/audio/common/decoder/AudioDecoderOgg.cpp
-            cocos/audio/common/decoder/AudioDecoderOgg.h
-            cocos/audio/oalsoft/AudioCache.cpp
-            cocos/audio/oalsoft/AudioCache.h
-            cocos/audio/oalsoft/AudioEngine-soft.cpp
-            cocos/audio/oalsoft/AudioEngine-soft.h
-            cocos/audio/AudioMacros.h
-            cocos/audio/oalsoft/AudioPlayer.cpp
-            cocos/audio/oalsoft/AudioPlayer.h
-        )
-    elseif(ANDROID)
-        cocos_source_files(
-            cocos/audio/graph_based/AudioBuffer.h
-            cocos/audio/graph_based/AudioBuffer.cpp
-            cocos/audio/graph_based/SourceNode.h
-            cocos/audio/graph_based/SourceNode.cpp
-            cocos/audio/graph_based/AudioContext.h
-            cocos/audio/graph_based/AudioContext.cpp
-            cocos/audio/graph_based/AudioDestinationNode.h
-            cocos/audio/graph_based/AudioDestinationNode.cpp
-            cocos/audio/graph_based/AudioNode.h
-            cocos/audio/graph_based/AudioNode.cpp
-            cocos/audio/graph_based/AudioScheduledSourceNode.cpp
-            cocos/audio/graph_based/AudioScheduledSourceNode.h
-            cocos/audio/graph_based/AudioParam.h
-            cocos/audio/graph_based/AudioParam.cpp
-            cocos/audio/graph_based/BaseAudioContext.h
-            cocos/audio/graph_based/BaseAudioContext.cpp
-            cocos/audio/graph_based/GainNode.h
-            cocos/audio/graph_based/GainNode.cpp
-            # cocos/audio/graph_based/PannerNode.cpp
-            # cocos/audio/graph_based/PannerNode.h
-            cocos/audio/graph_based/StereoPannerNode.cpp
-            cocos/audio/graph_based/StereoPannerNode.h
-        )
-     elseif(OHOS)
-        cocos_source_files(
-            cocos/audio/common/utils/tinysndfile.cpp
-            cocos/audio/common/utils/primitives.cpp
-            cocos/audio/common/utils/include/tinysndfile.h
-            cocos/audio/common/utils/include/primitives.h
-            cocos/audio/common/decoder/AudioDecoder.cpp
-            cocos/audio/common/decoder/AudioDecoder.h
-            cocos/audio/common/decoder/AudioDecoderManager.cpp
-            cocos/audio/common/decoder/AudioDecoderManager.h
-            cocos/audio/common/decoder/AudioDecoderMp3.cpp
-            cocos/audio/common/decoder/AudioDecoderMp3.h
-            cocos/audio/common/decoder/AudioDecoderOgg.cpp
-            cocos/audio/common/decoder/AudioDecoderOgg.h
-            cocos/audio/common/decoder/AudioDecoderWav.cpp
-            cocos/audio/common/decoder/AudioDecoderWav.h
-            cocos/audio/oalsoft/AudioCache.cpp
-            cocos/audio/oalsoft/AudioCache.h
-            cocos/audio/oalsoft/AudioEngine-soft.cpp
-            cocos/audio/oalsoft/AudioEngine-soft.h
-            cocos/audio/AudioMacros.h
-            cocos/audio/oalsoft/AudioPlayer.cpp
-            cocos/audio/oalsoft/AudioPlayer.h
-            cocos/audio/ohos/FsCallback.h
-            cocos/audio/ohos/FsCallback.cpp
-        )
-    elseif(APPLE)
-        cocos_source_files(
-                            cocos/audio/apple/AudioDecoder.h
-    NO_WERROR   NO_UBUILD   cocos/audio/apple/AudioPlayer.mm
-    NO_WERROR   NO_UBUILD   cocos/audio/apple/AudioDecoder.mm
-                            cocos/audio/apple/AudioPlayer.h
-    NO_WERROR   NO_UBUILD   cocos/audio/apple/AudioEngine-inl.mm
-                            cocos/audio/apple/AudioMacros.h
-    NO_WERROR   NO_UBUILD   cocos/audio/apple/AudioCache.mm
-                            cocos/audio/apple/AudioCache.h
-                            cocos/audio/apple/AudioEngine-inl.h
         )
     endif()
 
@@ -681,7 +625,7 @@ elseif(IOS)
                             cocos/platform/ios/modules/Screen.h
                             cocos/platform/ios/modules/Network.mm
                             cocos/platform/ios/modules/Network.h
-                            cocos/platform/ios/modules/Vib·rator.mm
+                            cocos/platform/ios/modules/Vibrator.mm
                             cocos/platform/ios/modules/Vibrator.h
                             cocos/platform/ios/modules/System.mm
                             cocos/platform/ios/modules/System.h
@@ -2088,10 +2032,17 @@ cocos_source_files(
 )
 
 if(USE_AUDIO)
-    cocos_source_files(
-        NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_audio_auto.cpp
-                                cocos/bindings/auto/jsb_audio_auto.h
-    )
+    if(OHOS)
+        cocos_source_files(
+            NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_audio_deprecated_auto.cpp
+                                    cocos/bindings/auto/jsb_audio_deprecated_auto.h
+        )
+    else()
+        cocos_source_files(
+            NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_audio_auto.cpp
+                                    cocos/bindings/auto/jsb_audio_auto.h
+        )
+    endif()
 endif()
 
 if(USE_VIDEO)
@@ -2454,10 +2405,17 @@ cocos_source_files(
             cocos/bindings/manual/jsb_pipeline_manual.cpp
 )
 if(USE_AUDIO)
-    cocos_source_files(
-            cocos/bindings/manual/jsb_audio_manual.cpp
-            cocos/bindings/manual/jsb_audio_manual.h
-    )
+if (OHOS)
+cocos_source_files(
+    cocos/bindings/manual/jsb_audio_deprecated_manual.cpp
+    cocos/bindings/manual/jsb_audio_deprecated_manual.h
+)
+else()
+cocos_source_files(
+    cocos/bindings/manual/jsb_audio_manual.cpp
+    cocos/bindings/manual/jsb_audio_manual.h
+)
+endif()
 endif()
 if(USE_SOCKET)
     cocos_source_files(
@@ -3002,55 +2960,41 @@ if(MSVC)
     )
 endif()
 
-if(WIN32)
-    # Arch AVX is problematic for many users, so disable it until
-    # some reasonable strategy (a separate AVX target?) is determined
-    #target_compile_options(${proj} PRIVATE /arch:AVX /Zi)
-    target_compile_options(${ENGINE_NAME} PUBLIC /Zi)
-    target_compile_definitions(${ENGINE_NAME} PUBLIC __WINDOWS_WASAPI__=1)
-    # TODO: These vars are for libniquist and should be set in the find libynquist script.
-    target_compile_definitions(${ENGINE_NAME} PUBLIC HAVE_STDINT_H=1 HAVE_SINF=1)
-elseif(APPLE)
-elseif(ANDROID)
-    target_compile_options(${ENGINE_NAME} PRIVATE -fPIC)
-    target_compile_definitions(${ENGINE_NAME} PRIVATE USE_KISS_FFT=1)
-    target_link_libraries(${ENGINE_NAME} PUBLIC OpenSLES)
-    if(LABSOUND_JACK)
-        target_link_libraries(${ENGINE_NAME} PUBLIC jack)
-        target_compile_definitions(${ENGINE_NAME} PRIVATE __UNIX_JACK__=1)
+# Audio configuration
+if(USE_AUDIO)
+    if(WIN32)
+        # Arch AVX is problematic for many users, so disable it until
+        # some reasonable strategy (a separate AVX target?) is determined
+        #target_compile_options(${proj} PRIVATE /arch:AVX /Zi)
+        target_compile_definitions(${ENGINE_NAME} PUBLIC __WINDOWS_WASAPI__=1)
+        # TODO: These vars are for libnyquist and should be set in the find libynquist script.
+        target_compile_definitions(${ENGINE_NAME} PUBLIC HAVE_STDINT_H=1 HAVE_SINF=1)
+    elseif(APPLE)
+        target_compile_definitions(${ENGINE_NAME} PRIVATE __MACOSX_CORE__=1)
+    elseif(ANDROID)
+        target_compile_options(${ENGINE_NAME} PRIVATE -fPIC)
+        target_compile_definitions(${ENGINE_NAME} PRIVATE USE_KISS_FFT=1)
+        target_link_libraries(${ENGINE_NAME} PUBLIC OpenSLES)
+        if(LABSOUND_PULSE)
+            target_link_libraries(${ENGINE_NAME} PUBLIC pulse pulse-simple)
+            target_compile_definitions(${ENGINE_NAME} PRIVATE __LINUX_PULSE__=1)
+        endif()
+        # TODO: These vars are for libnyquist and should be set in the find libynquist script.
+        # TODO: libnyquist's loadabc calls getenv and setenv. That's undesirable.
+        target_compile_definitions(${ENGINE_NAME} PRIVATE HAVE_STDINT_H=1 HAVE_SETENV=1 HAVE_SINF=1)
+    elseif(LINUX)
+        # target_link_libraries(${proj} pthread)
+        target_compile_options(${ENGINE_NAME} PRIVATE -fPIC)
+        target_compile_definitions(${ENGINE_NAME} PRIVATE USE_KISS_FFT=1)
+        if(LABSOUND_PULSE)
+            # target_link_libraries(${proj} pulse pulse-simple)
+            target_compile_definitions(${ENGINE_NAME} PRIVATE __LINUX_PULSE__=1)
+        endif()
+        # TODO: These vars are for libnyquist and should be set in the find libynquist script.
+        # TODO: libnyquist's loadabc calls getenv and setenv. That's undesirable.
+        target_compile_definitions(${ENGINE_NAME} PRIVATE HAVE_STDINT_H=1 HAVE_SETENV=1 HAVE_SINF=1)
     endif()
-    if(LABSOUND_PULSE)
-        target_link_libraries(${ENGINE_NAME} PUBLIC pulse pulse-simple)
-        target_compile_definitions(${ENGINE_NAME} PRIVATE __LINUX_PULSE__=1)
-    endif()
-    if(LABSOUND_ASOUND)
-        target_link_libraries(${ENGINE_NAME} PUBLIC asound)
-        target_compile_definitions(${ENGINE_NAME} PRIVATE __LINUX_ASOUND__=1)
-    endif()
-    # TODO: These vars are for libnyquist and should be set in the find libynquist script.
-    # TODO: libnyquist's loadabc calls getenv and setenv. That's undesirable.
-    target_compile_definitions(${ENGINE_NAME} PRIVATE HAVE_STDINT_H=1 HAVE_SETENV=1 HAVE_SINF=1)
-elseif(UNIX)
-    # target_link_libraries(${proj} pthread)
-    target_compile_options(${ENGINE_NAME} PRIVATE -fPIC)
-    target_compile_definitions(${ENGINE_NAME} PRIVATE USE_KISS_FFT=1)
-    if(LABSOUND_JACK)
-        # target_link_libraries(${proj} jack)
-        target_compile_definitions(${ENGINE_NAME} PRIVATE __UNIX_JACK__=1)
-    endif()
-    if(LABSOUND_PULSE)
-        # target_link_libraries(${proj} pulse pulse-simple)
-        target_compile_definitions(${ENGINE_NAME} PRIVATE __LINUX_PULSE__=1)
-    endif()
-    if(LABSOUND_ASOUND)
-        target_link_libraries(${ENGINE_NAME} asound)
-        target_compile_definitions(${ENGINE_NAME} PRIVATE __LINUX_ASOUND__=1)
-    endif()
-    # TODO: These vars are for libnyquist and should be set in the find libynquist script.
-    # TODO: libnyquist's loadabc calls getenv and setenv. That's undesirable.
-    target_compile_definitions(${ENGINE_NAME} PRIVATE HAVE_STDINT_H=1 HAVE_SETENV=1 HAVE_SINF=1)
 endif()
-target_link_libraries(${ENGINE_NAME} PUBLIC libnyquist)
 if(CC_USE_VULKAN)
 
     target_compile_definitions(${ENGINE_NAME} PUBLIC VK_NO_PROTOTYPES)
@@ -3180,9 +3124,10 @@ if(APPLE)
     target_link_libraries(${ENGINE_NAME} PUBLIC
         "-liconv"
         "-framework AudioToolbox"
+        "-framework CoreAudio"
         "-framework Foundation"
-        "-framework OpenAL"
         "-framework GameController"
+        "-framework Accelerate"
         "-framework Metal"
         "-framework MetalKit"
         "-framework QuartzCore"
@@ -3202,6 +3147,7 @@ if(APPLE)
         target_link_libraries(${ENGINE_NAME} PUBLIC
             "-framework OpenGL"
             "-framework AppKit"
+            "-framework AudioUnit"
         )
         target_compile_definitions(${ENGINE_NAME} PUBLIC
             CC_KEYBOARD_SUPPORT

@@ -22,6 +22,24 @@ export class AudioPlayer implements Playable  {
             this._innerPlayer = new AudioPlayerX(clip, options);
         }
     }
+    onInterruptionBegin(cb: () => void) {
+        throw new Error('Method not implemented.');
+    }
+    offInterruptionBegin(cb?: (() => void) | undefined) {
+        throw new Error('Method not implemented.');
+    }
+    onInterruptionEnd(cb: () => void) {
+        throw new Error('Method not implemented.');
+    }
+    offInterruptionEnd(cb?: (() => void) | undefined) {
+        throw new Error('Method not implemented.');
+    }
+    onEnded(cb: () => void) {
+        throw new Error('Method not implemented.');
+    }
+    offEnded(cb?: (() => void) | undefined) {
+        throw new Error('Method not implemented.');
+    }
     get state (): AudioState { return this._innerPlayer.state; }
     set clip (clip: AudioClip) { this._innerPlayer.clip = clip; }
     get clip (): AudioClip { return this._innerPlayer.clip; }

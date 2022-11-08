@@ -7,6 +7,7 @@ const configList = [
     [ '2d.i', 'jsb_2d_auto.cpp' ],
     [ 'assets.i', 'jsb_assets_auto.cpp' ],
     [ 'audio.i', 'jsb_audio_auto.cpp' ],
+    [ 'audio.deprecated.i', 'jsb_audio_deprecated_auto.cpp' ],
     [ 'cocos.i', 'jsb_cocos_auto.cpp' ],
     [ 'editor_support.i', 'jsb_editor_support_auto.cpp' ],
     [ 'dragonbones.i', 'jsb_dragonbones_auto.cpp' ],

@@ -30,7 +30,7 @@ import { CompleteCallback, IDownloadParseOptions } from '../asset/asset-manager/
 import downloader from '../asset/asset-manager/downloader';
 import factory from '../asset/asset-manager/factory';
 import { AudioInfo } from './type';
-import { legacyCC } from '../core/global-exports';
+import { cclegacy } from '../core';
 
 export function loadAudioPlayer (url: string, options: IDownloadParseOptions, onComplete: CompleteCallback) {
     console.log(`load audio clip with ${url}`);
@@ -39,6 +39,7 @@ export function loadAudioPlayer (url: string, options: IDownloadParseOptions, on
         const audioMeta: AudioMeta = {
             url,
             duration: info.duration,
+            pcmHeader: info.pcmHeader,
         };
         onComplete(null, audioMeta);
     }).catch((err) => {
@@ -79,4 +80,4 @@ factory.register({
     '.m4a': createAudioClip,
 });
 
-legacyCC.internal.loadAudioPlayer = loadAudioPlayer;
+cclegacy.internal.loadAudioPlayer = loadAudioPlayer;

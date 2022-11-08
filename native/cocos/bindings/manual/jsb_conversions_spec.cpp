@@ -45,8 +45,6 @@
 #include "scene/Fog.h"
 #include "scene/Shadow.h"
 #include "scene/Skybox.h"
-#include <cocos/audio/graph_based/BaseAudioContext.h>
-#include <cocos/audio/AudioClip.h>
 
 ///////////////////////// utils /////////////////////////
 

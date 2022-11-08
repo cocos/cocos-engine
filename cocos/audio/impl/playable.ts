@@ -149,4 +149,10 @@ export interface Playable {
     pause();
     stop();
     destroy();
+    onInterruptionBegin (cb: () => void);
+    offInterruptionBegin (cb?: () => void);
+    onInterruptionEnd (cb: () => void);
+    offInterruptionEnd (cb?: () => void);
+    onEnded (cb: () => void);
+    offEnded (cb?: () => void);
 }

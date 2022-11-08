@@ -42,6 +42,7 @@ export interface PlayerOptions {
 }
 export interface AudioInfo {
     duration: number;
+    pcmHeader: AudioPCMHeader | null;
 }
 
 export enum AudioType {

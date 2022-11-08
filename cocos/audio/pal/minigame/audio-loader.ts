@@ -5,7 +5,7 @@ class AudioLoader {
     load (url: string): Promise<AudioInfo> {
         return new Promise((resolve, reject) => {
             audioPool.loadCtx(url).then((info) => {
-                resolve({ duration: info.duration });
+                resolve(info);
             }).catch(() => {
                 console.error(`small audio buffer load failed.`);
                 reject();

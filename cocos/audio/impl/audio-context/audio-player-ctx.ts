@@ -29,7 +29,16 @@ import { EventTarget } from '../../../core/event';
 import { AudioEvent, AudioState } from '../../type';
 import { Director, director } from '../../../game';
 import { clamp, clamp01 } from '../../../core';
+import { audioPool } from './audio-pool-ctx';
 
+export function playOneShot (clip: AudioClip, volumeScale: number) {
+    const ctx = audioPool.alloc(clip.nativeUrl);
+    ctx.volume = volumeScale;
+    ctx.onEnded(() => {
+        audioPool.dealloc(clip.nativeUrl, ctx);
+    });
+    ctx.play();
+}
 export class AudioPlayerCtx extends DynamicPath<AudioState, AudioAction> implements Playable  {
     // override properties.
     _innerOperation (action: AudioAction) {
@@ -235,4 +244,10 @@ export class AudioPlayerCtx extends DynamicPath<AudioState, AudioAction> impleme
     */
     private _isTranslating = false;
     private _cachedCurrentTime = 0;
+    onInterruptionBegin (cb: () => void) { this._eventTarget.on(AudioEvent.INTERRUPTION_BEGIN, cb); }
+    offInterruptionBegin (cb?: () => void) { this._eventTarget.off(AudioEvent.INTERRUPTION_BEGIN, cb); }
+    onInterruptionEnd (cb: () => void) { this._eventTarget.on(AudioEvent.INTERRUPTION_END, cb); }
+    offInterruptionEnd (cb?: () => void) { this._eventTarget.off(AudioEvent.INTERRUPTION_END, cb); }
+    onEnded (cb: () => void) { this._eventTarget.on(AudioEvent.ENDED, cb); }
+    offEnded (cb?: () => void) { this._eventTarget.off(AudioEvent.ENDED, cb); }
 }

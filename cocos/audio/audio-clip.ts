@@ -24,14 +24,17 @@
  */
 
 import { ccclass, serializable, override } from 'cc.decorator';
+import { HTML5, NATIVE } from 'internal:constants';
 import { Asset } from '../asset/assets/asset';
-import { legacyCC } from '../core/global-exports';
+import { cclegacy } from '../core';
+import { audioBufferManager } from './impl/graph-based/audio-buffer-manager';
+import { AudioPCMDataView, AudioPCMHeader } from './type';
 
 export interface AudioMeta {
     // player: AudioPlayer | null,
     url: string;
     duration: number;
-
+    pcmHeader: AudioPCMHeader | null
 }
 
 /**
@@ -67,7 +70,28 @@ export class AudioClip extends Asset {
     get _nativeAsset () : AudioMeta | null {
         return this._meta;
     }
-
+    get pcmHeader (): AudioPCMHeader {
+        if (this._meta?.pcmHeader) {
+            return this._meta.pcmHeader;
+        } else {
+            return {
+                totalFrames: 0,
+                sampleRate: 0,
+                bytesPerFrame: 0,
+                audioFormat: 0,
+                channelCount: 0,
+            };
+        }
+    }
+    public getPcmData (channelID: number): AudioPCMDataView | undefined {
+        if (NATIVE || HTML5) {
+            const buffer = audioBufferManager.getCache(this.nativeUrl);
+            if (buffer) {
+                return new AudioPCMDataView(buffer.getChannelData(channelID), 1);
+            }
+        }
+        return undefined;
+    }
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */

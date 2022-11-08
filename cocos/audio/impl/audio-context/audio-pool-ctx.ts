@@ -25,6 +25,7 @@ export class AudioPool {
                 this._ctxPool[url].push(ctx);
                 this._infoMap[url] = {
                     duration: ctx.duration,
+                    pcmHeader: null,
                 };
                 resolve(this._infoMap[url]);
             } catch {
@@ -42,6 +43,7 @@ export class AudioPool {
             this._ctxPool[url] = [];
             this._infoMap[url] = {
                 duration: ctx.duration,
+                pcmHeader: null,
             };
             return ctx;
         }
@@ -59,6 +61,7 @@ export class AudioPool {
             this._ctxPool[url] = [];
             this._infoMap[url] = {
                 duration: ctx.duration,
+                pcmHeader: null,
             };
         }
         this._ctxPool[url].push(ctx);
