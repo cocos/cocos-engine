@@ -35,7 +35,7 @@ namespace {
 } // namespace
 
 namespace cc {
-SystemWindow::SystemWindow(uint32_t windowId, void *externalHandle) {
+SystemWindow::SystemWindow(uint32_t windowId, void* externalHandle) {
 }
 
 SystemWindow::~SystemWindow() {
@@ -45,7 +45,7 @@ uintptr_t SystemWindow::getWindowHandle() const {
     return 0;
 }
 
-uint32_t SystemWindow::getWindowId() const  {
+uint32_t SystemWindow::getWindowId() const {
     return 0;
 }
 
@@ -53,7 +53,7 @@ void SystemWindow::setCursorEnabled(bool value) {
 }
 
 void SystemWindow::copyTextToClipboard(const ccstd::string& text) {
-    //TODO
+    // TODO
 }
 
 int SystemWindow::init() {
