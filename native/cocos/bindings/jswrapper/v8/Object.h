@@ -392,9 +392,9 @@ public:
      *  @brief Sets a pointer to private data on an object and use smart pointer to hold it.
      *
      *  If the pointer is an instance of `cc::RefCounted`, an `cc::IntrusivePtr` will be created to hold
-     *  the reference to the object, otherwise a `std::shared_ptr` object will be used. 
+     *  the reference to the object, otherwise a `std::shared_ptr` object will be used.
      *  When the JS object is freed by GC, the corresponding smart pointer `IntrusivePtr/shared_ptr` will also be destroyed.
-     * 
+     *
      *  If you do not want the pointer to be released by GC, you can call `setRawPrivateData`.
      *
      *  @param[in] data A void* to set as the object's private data.
@@ -433,8 +433,8 @@ public:
      * @brief Set pointer to the private data on an object and will not use smart pointer to hold it.
      *
      * @tparam T
-     * @param data 
-     * @param tryDestroyInGC When GCing the JS object, whether to `delete` the `data` pointer.  
+     * @param data
+     * @param tryDestroyInGC When GCing the JS object, whether to `delete` the `data` pointer.
      */
     template <typename T>
     inline void setRawPrivateData(T *data, bool tryDestroyInGC = false) {

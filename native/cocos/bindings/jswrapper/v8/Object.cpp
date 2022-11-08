@@ -43,7 +43,7 @@
 namespace se {
 
 namespace {
-v8::Isolate *__isolate = nullptr; //NOLINT
+v8::Isolate *__isolate = nullptr; // NOLINT
     #if CC_DEBUG_JS_OBJECT_ID && CC_DEBUG
 uint32_t nativeObjectId = 0;
     #endif
@@ -185,11 +185,12 @@ ccstd::vector<std::pair<std::string, Value>> MapOperation::getAll() const {
     ccstd::vector<std::pair<std::string, Value>> ret;
     ret.reserve(length / 2);
     v8::Local<v8::Context> currentContext = __isolate->GetCurrentContext();
-    for (uint32_t i = 0; i < length; i+=2) {
+    for (uint32_t i = 0; i < length; i += 2) {
         v8::MaybeLocal<v8::Value> key = keyValueArray->Get(currentContext, i);
-        v8::MaybeLocal<v8::Value> value = keyValueArray->Get(currentContext, i+1);
+        v8::MaybeLocal<v8::Value> value = keyValueArray->Get(currentContext, i + 1);
         if (key.IsEmpty() || value.IsEmpty()) {
-            continue;;
+            continue;
+            ;
         }
         Value seKey;
         Value seValue;
@@ -270,7 +271,8 @@ ValueArray SetOperation::getAll() const {
     for (uint32_t i = 0; i < length; ++i) {
         v8::MaybeLocal<v8::Value> value = keyValueArray->Get(currentContext, i);
         if (value.IsEmpty()) {
-            continue;;
+            continue;
+            ;
         }
         Value seValue;
         internal::jsToSeValue(__isolate, value.ToLocalChecked(), &seValue);
@@ -281,7 +283,7 @@ ValueArray SetOperation::getAll() const {
     return ret;
 }
 
-Object::Object() { //NOLINT
+Object::Object() { // NOLINT
     #if JSB_TRACK_OBJECT_CREATION
     _objectCreationStackFrame = se::ScriptEngine::getInstance()->getCurrentStackTrace();
     #endif
@@ -440,7 +442,7 @@ Object *Object::createTypedArray(TypedArrayType type, const void *data, size_t b
     }
 
     v8::Local<v8::ArrayBuffer> jsobj = v8::ArrayBuffer::New(__isolate, byteLength);
-    //If data has content,then will copy data into buffer,or will only clear buffer.
+    // If data has content,then will copy data into buffer,or will only clear buffer.
     if (data) {
         memcpy(jsobj->GetBackingStore()->Data(), data, byteLength);
     } else {
@@ -775,7 +777,7 @@ bool Object::getArrayBufferData(uint8_t **ptr, size_t *length) const {
 void Object::setPrivateObject(PrivateObjectBase *data) {
     CC_ASSERT(_privateObject == nullptr);
     #if CC_DEBUG
-    //CC_ASSERT(NativePtrToObjectMap::find(data->getRaw()) == NativePtrToObjectMap::end());
+    // CC_ASSERT(NativePtrToObjectMap::find(data->getRaw()) == NativePtrToObjectMap::end());
     if (data != nullptr) {
         auto it = NativePtrToObjectMap::find(data->getRaw());
         if (it != NativePtrToObjectMap::end()) {
