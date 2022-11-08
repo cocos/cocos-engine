@@ -526,10 +526,12 @@ export class PhysicsSystem extends System implements IWorldInitData {
             const hit = this.raycast(ray, mask, stepLength, queryTrigger);
             if (hit) {
                 for (let re = 0; re < this.raycastResults.length; re++) {
-                    const hitPos = this.raycastResults[re].hitPoint;
-                    //if ray starts inside shape, hit point equals to start point, and this should be ignored
-                    if (re === 0 && Vec3.equals(fromPoint, hitPos)) { continue; }
-                    this.lineSegmentsRaycastResults.push(this.raycastResults[re].clone());
+                    const result = this.raycastResults[re];
+                    //if ray starts inside shape and hit point equals to start point, this should be ignored
+                    if (re === 0 && Vec3.equals(fromPoint, result.hitPoint)) { continue; }
+                    const copiedResult = new PhysicsRayResult();
+                    copiedResult._assign(result.hitPoint, result.distance, result.collider, result.hitNormal, i - 1);
+                    this.lineSegmentsRaycastResults.push(copiedResult);
                 }
             }
         }
@@ -569,7 +571,10 @@ export class PhysicsSystem extends System implements IWorldInitData {
             ray.o = fromPoint;
             hit = this.raycastClosest(ray, mask, stepLength, queryTrigger);
             if (hit) {
-                this.lineSegmentsRaycastClosestResult = this.raycastClosestResult.clone();
+                const result = this.raycastClosestResult;
+                const copiedResult = new PhysicsRayResult();
+                copiedResult._assign(result.hitPoint, result.distance, result.collider, result.hitNormal, i - 1);
+                this.lineSegmentsRaycastClosestResult = copiedResult;
                 break;
             }
         }

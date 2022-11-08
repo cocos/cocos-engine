@@ -74,10 +74,21 @@ export class PhysicsRayResult {
         return this._hitNormal;
     }
 
+    /**
+     * @en
+     * The line id of the line segments. This is only for lineSegmentRayCast
+     * @zh
+     * id
+     */
+    get id (): number {
+        return this._id;
+    }
+
     private _hitPoint: Vec3 = new Vec3();
     private _hitNormal: Vec3 = new Vec3();
     private _distance = 0;
     private _collider: Collider | null = null;
+    private _id = 0;
 
     /**
      * @en
@@ -87,11 +98,12 @@ export class PhysicsRayResult {
      *
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _assign (hitPoint: IVec3Like, distance: number, collider: Collider, hitNormal: IVec3Like) {
+    public _assign (hitPoint: IVec3Like, distance: number, collider: Collider, hitNormal: IVec3Like, id: number) {
         Vec3.copy(this._hitPoint, hitPoint);
         Vec3.copy(this._hitNormal, hitNormal);
         this._distance = distance;
         this._collider = collider;
+        this._id = id;
     }
 
     /**
@@ -106,6 +118,7 @@ export class PhysicsRayResult {
         Vec3.copy(c._hitNormal, this._hitNormal);
         c._distance = this._distance;
         c._collider = this._collider;
+        c._id = this._id;
         return c;
     }
 }
