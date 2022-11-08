@@ -1,4 +1,5 @@
 {
+  "deviceOrientation": "portrait",
   "pages": [
     "pages/index/index"
   ],
