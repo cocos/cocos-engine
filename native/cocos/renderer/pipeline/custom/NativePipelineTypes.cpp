@@ -91,13 +91,15 @@ RenderBatchPack::RenderBatchPack(RenderBatchPack&& rhs, const allocator_type& al
   bufferOffset(std::move(rhs.bufferOffset), alloc) {}
 
 NativeRenderQueue::NativeRenderQueue(const allocator_type& alloc) noexcept
-: scenePassQueue(alloc),
+: renderObjects(alloc),
+  scenePassQueue(alloc),
   batchingQueue(alloc),
   instancingQueue(alloc),
   instancePacks(alloc) {}
 
 NativeRenderQueue::NativeRenderQueue(SceneFlags sceneFlagsIn, const allocator_type& alloc) noexcept
 : sceneFlags(sceneFlagsIn),
+  renderObjects(alloc),
   scenePassQueue(alloc),
   batchingQueue(alloc),
   instancingQueue(alloc),
@@ -105,6 +107,7 @@ NativeRenderQueue::NativeRenderQueue(SceneFlags sceneFlagsIn, const allocator_ty
 
 NativeRenderQueue::NativeRenderQueue(NativeRenderQueue&& rhs, const allocator_type& alloc)
 : sceneFlags(rhs.sceneFlags),
+  renderObjects(std::move(rhs.renderObjects), alloc),
   scenePassQueue(std::move(rhs.scenePassQueue), alloc),
   batchingQueue(std::move(rhs.batchingQueue), alloc),
   instancingQueue(std::move(rhs.instancingQueue), alloc),

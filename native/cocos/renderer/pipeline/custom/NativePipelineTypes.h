@@ -375,10 +375,20 @@ struct RenderBatchPack {
     ccstd::pmr::vector<uint32_t> bufferOffset;
 };
 
+struct alignas(16) SortingObject {
+    SortingObject() = default;
+    SortingObject(float depthIn, const scene::Model* modelIn) noexcept
+    : depth(depthIn),
+      model(modelIn) {}
+
+    float depth{0.0F};
+    const scene::Model* model{nullptr};
+};
+
 struct NativeRenderQueue {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
-        return {scenePassQueue.get_allocator().resource()};
+        return {renderObjects.get_allocator().resource()};
     }
 
     NativeRenderQueue(const allocator_type& alloc) noexcept; // NOLINT
@@ -391,6 +401,7 @@ struct NativeRenderQueue {
     NativeRenderQueue& operator=(NativeRenderQueue const& rhs) = delete;
 
     SceneFlags sceneFlags{SceneFlags::NONE};
+    ccstd::pmr::vector<SortingObject> renderObjects;
     ccstd::pmr::vector<ScenePass> scenePassQueue;
     ccstd::pmr::vector<RenderBatchPack> batchingQueue;
     ccstd::pmr::vector<uint32_t> instancingQueue;

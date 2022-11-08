@@ -700,7 +700,7 @@ bool isNodeVisible(const scene::Model* model, const uint32_t visibility) {
 }
 
 bool isInstanceVisible(const scene::Model* model, const uint32_t visibility) {
-    return isNodeVisible(model, visibility) &&
+    return isNodeVisible(model, visibility) ||
            (visibility & static_cast<uint32_t>(model->getVisFlags()));
 }
 
@@ -718,7 +718,16 @@ void addShadowCastObject() {
     // csmLayers->addLayerObject(genRenderObject(model, camera));
 }
 
-void addRenderObject(const scene::Camera* camera, const scene::Model* model) {
+void addRenderObject(const scene::Camera* camera, const scene::Model* model, NativeRenderQueue& queue) {
+    float depth = 0;
+    if (model->getNode()) {
+        const auto* node = model->getTransform();
+        cc::Vec3 position;
+        cc::Vec3::subtract(node->getWorldPosition(), camera->getPosition(), &position);
+        depth = position.dot(camera->getForward());
+    }
+
+    queue.renderObjects.emplace_back(depth, model);
 }
 
 void octreeCulling(
@@ -726,7 +735,7 @@ void octreeCulling(
     const scene::RenderScene* scene,
     const scene::Skybox* skyBox,
     const scene::Camera* camera,
-    SceneFlags mergedFlags) {
+    NativeRenderQueue& queue) {
     // add special instances
     for (const auto& model : scene->getModels()) {
         // filter model by view visibility
@@ -736,12 +745,12 @@ void octreeCulling(
         if (pipeline::LODModelsCachedUtils::isLODModelCulled(model)) {
             continue;
         }
-        if (any(mergedFlags & SceneFlags::SHADOW_CASTER) && model->isCastShadow()) {
+        if (any(queue.sceneFlags & SceneFlags::SHADOW_CASTER) && model->isCastShadow()) {
             addShadowCastObject();
         }
         const auto visibility = camera->getVisibility();
         if (isInstanceVisible(model, visibility) && isPointInstanceAndNotSkybox(model, skyBox)) {
-            addRenderObject(camera, model);
+            addRenderObject(camera, model, queue);
         }
     }
 
@@ -754,15 +763,16 @@ void octreeCulling(
         if (pipeline::LODModelsCachedUtils::isLODModelCulled(model)) {
             continue;
         }
-        addRenderObject(camera, model);
+        addRenderObject(camera, model, queue);
     }
 }
 
 void frustumCulling(
     const scene::RenderScene* scene,
     const scene::Camera* camera,
-    SceneFlags mergedFlags) {
-    for (const auto& model : scene->getModels()) {
+    NativeRenderQueue& queue) {
+    const auto& models = scene->getModels();
+    for (const auto& model : models) {
         if (!model->isEnabled()) {
             continue;
         }
@@ -774,7 +784,7 @@ void frustumCulling(
         const auto* const node = model->getNode();
 
         // cast shadow render Object
-        if (any(mergedFlags & SceneFlags::SHADOW_CASTER) && model->isCastShadow()) {
+        if (any(queue.sceneFlags & SceneFlags::SHADOW_CASTER) && model->isCastShadow()) {
             addShadowCastObject();
         }
 
@@ -782,12 +792,12 @@ void frustumCulling(
         if (isInstanceVisible(model, visibility)) {
             const auto* modelWorldBounds = model->getWorldBounds();
             if (!modelWorldBounds) {
-                addRenderObject(camera, model);
+                addRenderObject(camera, model, queue);
                 continue;
             }
             // frustum culling
             if (modelWorldBounds->aabbFrustum(camera->getFrustum())) {
-                addRenderObject(camera, model);
+                addRenderObject(camera, model, queue);
             }
         }
     }
@@ -816,15 +826,16 @@ void sceneCulling(
         const scene::RenderScene*,
         ccstd::pmr::unordered_map<scene::Camera*, NativeRenderQueue>>& sceneQueues) {
     const scene::Skybox* skyBox = nullptr;
-    for (const auto& [scene, queues] : sceneQueues) {
+    for (auto&& [scene, queues] : sceneQueues) {
         const scene::Octree* octree = scene->getOctree();
-        for (const auto& [camera, queue] : queues) {
+        for (auto&& [camera, queue] : queues) {
             pipeline::LODModelsCachedUtils::updateCachedLODModels(scene, camera);
             if (octree && octree->isEnabled()) {
-                octreeCulling(octree, scene, skyBox, camera, queue.sceneFlags);
+                octreeCulling(octree, scene, skyBox, camera, queue);
             } else {
-                frustumCulling(scene, camera, queue.sceneFlags);
+                frustumCulling(scene, camera, queue);
             }
+            pipeline::LODModelsCachedUtils::clearCachedLODModels();
         }
     }
 }
@@ -834,7 +845,7 @@ void sceneCulling(
 void NativePipeline::executeRenderGraph(const RenderGraph& rg) {
     auto& ppl = *this;
     auto* scratch = &ppl.unsyncPool;
-    CC_LOG_INFO(rg.print(scratch).c_str());
+    //CC_LOG_INFO(rg.print(scratch).c_str());
 
     RenderGraphContextCleaner contextCleaner(ppl.nativeContext);
     ResourceCleaner cleaner(ppl.resourceGraph);
@@ -868,10 +879,13 @@ void NativePipeline::executeRenderGraph(const RenderGraph& rg) {
         const scene::RenderScene*,
         ccstd::pmr::unordered_map<scene::Camera*, NativeRenderQueue>>
         sceneQueues(scratch);
-    mergeSceneFlags(rg, sceneQueues);
-    sceneCulling(sceneQueues);
+    {
+        mergeSceneFlags(rg, sceneQueues);
+        sceneCulling(sceneQueues);
+    }
 
-    { // Execute all valid passes
+    // Execute all valid passes
+    {
         boost::filtered_graph<AddressableView<RenderGraph>, boost::keep_all, RenderGraphFilter>
             fg(graphView, boost::keep_all{}, RenderGraphFilter{&validPasses});
 
