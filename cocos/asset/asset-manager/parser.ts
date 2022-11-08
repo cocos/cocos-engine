@@ -150,36 +150,36 @@ function _parseCompressedTexs (file: ArrayBuffer | ArrayBufferView, options: IDo
         mipmapLevelDataSize: [],
     };
 
-    let err: Error | null = null;
-    try {
-        const buffer = file instanceof ArrayBuffer ? file : file.buffer;
-        const bufferView = new DataView(buffer);
-        // Get a view of the arrayBuffer that represents compress header.
-        const magicNumber = bufferView.getUint32(0, true);
-        // Do some sanity checks to make sure this is a valid compress file.
-        if (magicNumber === COMPRESSED_MIPMAP_MAGIC) {
+    const err: Error | null = null;
+    // try {
+    const buffer = file instanceof ArrayBuffer ? file : file.buffer;
+    const bufferView = new DataView(buffer);
+    // Get a view of the arrayBuffer that represents compress header.
+    const magicNumber = bufferView.getUint32(0, true);
+    // Do some sanity checks to make sure this is a valid compress file.
+    if (magicNumber === COMPRESSED_MIPMAP_MAGIC) {
         // Get a view of the arrayBuffer that represents compress document.
-            const mipmapLevelNumber = bufferView.getUint32(COMPRESSED_HEADER_LENGTH, true);
-            const mipmapLevelDataSize = bufferView.getUint32(COMPRESSED_HEADER_LENGTH + COMPRESSED_MIPMAP_LEVEL_COUNT_LENGTH, true);
-            const fileHeaderByteLength = COMPRESSED_HEADER_LENGTH + COMPRESSED_MIPMAP_LEVEL_COUNT_LENGTH
+        const mipmapLevelNumber = bufferView.getUint32(COMPRESSED_HEADER_LENGTH, true);
+        const mipmapLevelDataSize = bufferView.getUint32(COMPRESSED_HEADER_LENGTH + COMPRESSED_MIPMAP_LEVEL_COUNT_LENGTH, true);
+        const fileHeaderByteLength = COMPRESSED_HEADER_LENGTH + COMPRESSED_MIPMAP_LEVEL_COUNT_LENGTH
             + mipmapLevelNumber * COMPRESSED_MIPMAP_DATA_SIZE_LENGTH;
 
-            // Get a view of the arrayBuffer that represents compress chunks.
-            _parseCompressedTex(file, 0, fileHeaderByteLength, mipmapLevelDataSize, type, out);
-            let beginOffset = fileHeaderByteLength + mipmapLevelDataSize;
+        // Get a view of the arrayBuffer that represents compress chunks.
+        _parseCompressedTex(file, 0, fileHeaderByteLength, mipmapLevelDataSize, type, out);
+        let beginOffset = fileHeaderByteLength + mipmapLevelDataSize;
 
-            for (let i = 1; i < mipmapLevelNumber; i++) {
-                const endOffset = bufferView.getUint32(COMPRESSED_HEADER_LENGTH + COMPRESSED_MIPMAP_LEVEL_COUNT_LENGTH
+        for (let i = 1; i < mipmapLevelNumber; i++) {
+            const endOffset = bufferView.getUint32(COMPRESSED_HEADER_LENGTH + COMPRESSED_MIPMAP_LEVEL_COUNT_LENGTH
                 +  i * COMPRESSED_MIPMAP_DATA_SIZE_LENGTH, true);
-                _parseCompressedTex(file, i, beginOffset, endOffset, type, out);
-                beginOffset += endOffset;
-            }
-        } else {
-            _parseCompressedTex(file, 0, 0, 0, type, out);
+            _parseCompressedTex(file, i, beginOffset, endOffset, type, out);
+            beginOffset += endOffset;
         }
-    } catch (e) {
-        err = e as Error;
+    } else {
+        _parseCompressedTex(file, 0, 0, 0, type, out);
     }
+    // } catch (e) {
+    //     err = e as Error;
+    // }
     onComplete(err, out);
 }
 
@@ -219,48 +219,48 @@ function _parseCompressedTex (file: ArrayBuffer | ArrayBufferView, levelIndex: n
  */
 function _parsePVRTex (file: ArrayBuffer | ArrayBufferView, levelIndex: number,
     beginOffset: number, endOffset: number, out: IMemoryImageSource) {
-    let err: Error | null = null;
-    try {
-        const buffer = file instanceof ArrayBuffer ? file : file.buffer;
-        // Get a view of the arrayBuffer that represents the DDS header.
-        const header = new Int32Array(buffer, beginOffset, PVR_HEADER_LENGTH);
+    // let err: Error | null = null;
+    // try {
+    const buffer = file instanceof ArrayBuffer ? file : file.buffer;
+    // Get a view of the arrayBuffer that represents the DDS header.
+    const header = new Int32Array(buffer, beginOffset, PVR_HEADER_LENGTH);
 
-        // Do some sanity checks to make sure this is a valid DDS file.
-        if (header[PVR_HEADER_MAGIC] === PVR_MAGIC) {
-            // Gather other basic metrics and a view of the raw the DXT data.
-            const dataOffset = beginOffset + header[PVR_HEADER_METADATA] + 52;
-            if (endOffset > 0) {
-                const srcView = new Uint8Array(buffer, dataOffset, endOffset - header.byteLength);
-                const dstView = new Uint8Array(out._data!.byteLength + srcView.byteLength);
-                dstView.set(out._data as Uint8Array);
-                dstView.set(srcView, out._data!.byteLength);
-                out._data  = dstView;
-                out.mipmapLevelDataSize![levelIndex] = srcView.byteLength;
-            } else {
-                out._data = new Uint8Array(buffer, dataOffset);
-            }
-            out.width = levelIndex > 0 ? out.width : header[PVR_HEADER_WIDTH];
-            out.height = levelIndex > 0 ? out.height : header[PVR_HEADER_HEIGHT];
-        } else if (header[11] === 0x21525650) {
-            const dataOffset = beginOffset + header[0];
-            if (endOffset > 0) {
-                const srcView = new Uint8Array(buffer, dataOffset, endOffset - header.byteLength);
-                const dstView = new Uint8Array(out._data!.byteLength + srcView.byteLength);
-                dstView.set(out._data as Uint8Array);
-                dstView.set(srcView, out._data!.byteLength);
-                out._data  = dstView;
-                out.mipmapLevelDataSize![levelIndex] = srcView.byteLength;
-            } else {
-                out._data  = new Uint8Array(buffer, dataOffset);
-            }
-            out.width = levelIndex > 0 ? out.width : header[1];
-            out.height = levelIndex > 0 ? out.height : header[2];
+    // Do some sanity checks to make sure this is a valid DDS file.
+    if (header[PVR_HEADER_MAGIC] === PVR_MAGIC) {
+        // Gather other basic metrics and a view of the raw the DXT data.
+        const dataOffset = beginOffset + header[PVR_HEADER_METADATA] + 52;
+        if (endOffset > 0) {
+            const srcView = new Uint8Array(buffer, dataOffset, endOffset - header.byteLength);
+            const dstView = new Uint8Array(out._data!.byteLength + srcView.byteLength);
+            dstView.set(out._data as Uint8Array);
+            dstView.set(srcView, out._data!.byteLength);
+            out._data  = dstView;
+            out.mipmapLevelDataSize![levelIndex] = srcView.byteLength;
         } else {
-            throw new Error('Invalid magic number in PVR header');
+            out._data = new Uint8Array(buffer, dataOffset);
         }
-    } catch (e) {
-        err = e as Error;
+        out.width = levelIndex > 0 ? out.width : header[PVR_HEADER_WIDTH];
+        out.height = levelIndex > 0 ? out.height : header[PVR_HEADER_HEIGHT];
+    } else if (header[11] === 0x21525650) {
+        const dataOffset = beginOffset + header[0];
+        if (endOffset > 0) {
+            const srcView = new Uint8Array(buffer, dataOffset, endOffset - header.byteLength);
+            const dstView = new Uint8Array(out._data!.byteLength + srcView.byteLength);
+            dstView.set(out._data as Uint8Array);
+            dstView.set(srcView, out._data!.byteLength);
+            out._data  = dstView;
+            out.mipmapLevelDataSize![levelIndex] = srcView.byteLength;
+        } else {
+            out._data  = new Uint8Array(buffer, dataOffset);
+        }
+        out.width = levelIndex > 0 ? out.width : header[1];
+        out.height = levelIndex > 0 ? out.height : header[2];
+    } else {
+        throw new Error('Invalid magic number in PVR header');
     }
+    // } catch (e) {
+    //     err = e as Error;
+    // }
 }
 
 /**
@@ -273,31 +273,31 @@ function _parsePVRTex (file: ArrayBuffer | ArrayBufferView, levelIndex: number,
  */
 function _parsePKMTex (file: ArrayBuffer | ArrayBufferView, levelIndex: number,
     beginOffset: number, endOffset: number, out: IMemoryImageSource) {
-    let err: Error | null = null;
-    try {
-        const buffer = file instanceof ArrayBuffer ? file : file.buffer;
-        const header = new Uint8Array(buffer, beginOffset, ETC_PKM_HEADER_LENGTH);
-        const format = readBEUint16(header, ETC_PKM_FORMAT_OFFSET);
-        if (format !== ETC1_RGB_NO_MIPMAPS && format !== ETC2_RGB_NO_MIPMAPS && format !== ETC2_RGBA_NO_MIPMAPS) {
-            throw new Error('Invalid magic number in ETC header');
-        }
-
-        const dataOffset = beginOffset + ETC_PKM_HEADER_LENGTH;
-        if (endOffset > 0) {
-            const srcView = new Uint8Array(buffer, dataOffset, endOffset - ETC_PKM_HEADER_LENGTH);
-            const dstView = new Uint8Array(out._data!.byteLength + srcView.byteLength);
-            dstView.set(out._data as Uint8Array);
-            dstView.set(srcView, out._data!.byteLength);
-            out._data  = dstView;
-            out.mipmapLevelDataSize![levelIndex] = srcView.byteLength;
-        } else {
-            out._data = new Uint8Array(buffer, dataOffset);
-        }
-        out.width = levelIndex > 0 ? out.width : readBEUint16(header, ETC_PKM_WIDTH_OFFSET);
-        out.height = levelIndex > 0 ? out.height : readBEUint16(header, ETC_PKM_HEIGHT_OFFSET);
-    } catch (e) {
-        err = e as Error;
+    // let err: Error | null = null;
+    // try {
+    const buffer = file instanceof ArrayBuffer ? file : file.buffer;
+    const header = new Uint8Array(buffer, beginOffset, ETC_PKM_HEADER_LENGTH);
+    const format = readBEUint16(header, ETC_PKM_FORMAT_OFFSET);
+    if (format !== ETC1_RGB_NO_MIPMAPS && format !== ETC2_RGB_NO_MIPMAPS && format !== ETC2_RGBA_NO_MIPMAPS) {
+        throw new Error('Invalid magic number in ETC header');
     }
+
+    const dataOffset = beginOffset + ETC_PKM_HEADER_LENGTH;
+    if (endOffset > 0) {
+        const srcView = new Uint8Array(buffer, dataOffset, endOffset - ETC_PKM_HEADER_LENGTH);
+        const dstView = new Uint8Array(out._data!.byteLength + srcView.byteLength);
+        dstView.set(out._data as Uint8Array);
+        dstView.set(srcView, out._data!.byteLength);
+        out._data  = dstView;
+        out.mipmapLevelDataSize![levelIndex] = srcView.byteLength;
+    } else {
+        out._data = new Uint8Array(buffer, dataOffset);
+    }
+    out.width = levelIndex > 0 ? out.width : readBEUint16(header, ETC_PKM_WIDTH_OFFSET);
+    out.height = levelIndex > 0 ? out.height : readBEUint16(header, ETC_PKM_HEIGHT_OFFSET);
+    // } catch (e) {
+    //     err = e as Error;
+    // }
 }
 
 /**
@@ -310,45 +310,45 @@ function _parsePKMTex (file: ArrayBuffer | ArrayBufferView, levelIndex: number,
  */
 function _parseASTCTex (file: ArrayBuffer | ArrayBufferView, levelIndex: number,
     beginOffset: number, endOffset: number, out: IMemoryImageSource) {
-    let err: Error | null = null;
-    try {
-        const buffer = file instanceof ArrayBuffer ? file : file.buffer;
-        const header = new Uint8Array(buffer, beginOffset, ASTC_HEADER_LENGTH);
+    // let err: Error | null = null;
+    // try {
+    const buffer = file instanceof ArrayBuffer ? file : file.buffer;
+    const header = new Uint8Array(buffer, beginOffset, ASTC_HEADER_LENGTH);
 
-        const magicval = header[0] + (header[1] << 8) + (header[2] << 16) + (header[3] << 24);
-        if (magicval !== ASTC_MAGIC) {
-            throw new Error('Invalid magic number in ASTC header');
-        }
+    const magicval = header[0] + (header[1] << 8) + (header[2] << 16) + (header[3] << 24);
+    if (magicval !== ASTC_MAGIC) {
+        throw new Error('Invalid magic number in ASTC header');
+    }
 
-        const xdim = header[ASTC_HEADER_MAGIC];
-        const ydim = header[ASTC_HEADER_MAGIC + 1];
-        const zdim = header[ASTC_HEADER_MAGIC + 2];
-        if ((xdim < 3 || xdim > 6 || ydim < 3 || ydim > 6 || zdim < 3 || zdim > 6)
+    const xdim = header[ASTC_HEADER_MAGIC];
+    const ydim = header[ASTC_HEADER_MAGIC + 1];
+    const zdim = header[ASTC_HEADER_MAGIC + 2];
+    if ((xdim < 3 || xdim > 6 || ydim < 3 || ydim > 6 || zdim < 3 || zdim > 6)
             && (xdim < 4 || xdim === 7 || xdim === 9 || xdim === 11 || xdim > 12
             || ydim < 4 || ydim === 7 || ydim === 9 || ydim === 11 || ydim > 12 || zdim !== 1)) {
-            throw new Error('Invalid block number in ASTC header');
-        }
-
-        const format = getASTCFormat(xdim, ydim);
-        const dataOffset = beginOffset + ASTC_HEADER_LENGTH;
-        if (endOffset > 0) {
-            const srcView = new Uint8Array(buffer, dataOffset, endOffset - ASTC_HEADER_LENGTH);
-            const dstView = new Uint8Array(out._data!.byteLength + srcView.byteLength);
-            dstView.set(out._data as Uint8Array);
-            dstView.set(srcView, out._data!.byteLength);
-            out._data  = dstView;
-            out.mipmapLevelDataSize![levelIndex] = srcView.byteLength;
-        } else {
-            out._data = new Uint8Array(buffer, dataOffset);
-        }
-        out.width = levelIndex > 0 ? out.width : header[ASTC_HEADER_SIZE_X_BEGIN] + (header[ASTC_HEADER_SIZE_X_BEGIN + 1] << 8)
-            + (header[ASTC_HEADER_SIZE_X_BEGIN + 2] << 16);
-        out.height = levelIndex > 0 ? out.height : header[ASTC_HEADER_SIZE_Y_BEGIN] + (header[ASTC_HEADER_SIZE_Y_BEGIN + 1] << 8)
-            + (header[ASTC_HEADER_SIZE_Y_BEGIN + 2] << 16);
-        out.format = format;
-    } catch (e) {
-        err = e as Error;
+        throw new Error('Invalid block number in ASTC header');
     }
+
+    const format = getASTCFormat(xdim, ydim);
+    const dataOffset = beginOffset + ASTC_HEADER_LENGTH;
+    if (endOffset > 0) {
+        const srcView = new Uint8Array(buffer, dataOffset, endOffset - ASTC_HEADER_LENGTH);
+        const dstView = new Uint8Array(out._data!.byteLength + srcView.byteLength);
+        dstView.set(out._data as Uint8Array);
+        dstView.set(srcView, out._data!.byteLength);
+        out._data  = dstView;
+        out.mipmapLevelDataSize![levelIndex] = srcView.byteLength;
+    } else {
+        out._data = new Uint8Array(buffer, dataOffset);
+    }
+    out.width = levelIndex > 0 ? out.width : header[ASTC_HEADER_SIZE_X_BEGIN] + (header[ASTC_HEADER_SIZE_X_BEGIN + 1] << 8)
+            + (header[ASTC_HEADER_SIZE_X_BEGIN + 2] << 16);
+    out.height = levelIndex > 0 ? out.height : header[ASTC_HEADER_SIZE_Y_BEGIN] + (header[ASTC_HEADER_SIZE_Y_BEGIN + 1] << 8)
+            + (header[ASTC_HEADER_SIZE_Y_BEGIN + 2] << 16);
+    out.format = format;
+    // } catch (e) {
+    //     err = e as Error;
+    // }
 }
 
 export type ParseHandler = (file: any, options: IDownloadParseOptions, onComplete: CompleteCallback) => void;

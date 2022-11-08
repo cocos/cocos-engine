@@ -116,44 +116,44 @@ export function encodeCCONBinary (ccon: CCON) {
 export function mergeAllCompressedTexture (files: ArrayBuffer[] | ArrayBufferView[]) {
     let out = new Uint8Array(0);
 
-    let err: Error | null = null;
-    try {
-        // Create compressed file
-        // file header length
-        const fileHeaderLength = COMPRESSED_HEADER_LENGTH + COMPRESSED_MIPMAP_LEVEL_COUNT_LENGTH + files.length * COMPRESSED_MIPMAP_DATA_SIZE_LENGTH;
-        let fileLength = 0;
-        for (const file of files) {
-            const buffer = file instanceof ArrayBuffer ? file : file.buffer;
-            fileLength += buffer.byteLength;
-        }
-        fileLength += fileHeaderLength;   // add file header length
-        out = new Uint8Array(fileLength);
-        const outView = new DataView(
-            out.buffer,
-            out.byteOffset,
-            out.byteLength,
-        );
-        // Append compresssed header
-        outView.setUint32(0, COMPRESSED_MIPMAP_MAGIC, true); // add magic
-        outView.setUint32(COMPRESSED_HEADER_LENGTH, files.length, true); // add mipmap level number
-        for (let i = 0; i < files.length; i++) {
-            const file = files[i];
-            const buffer = file instanceof ArrayBuffer ? file : file.buffer;
-            outView.setUint32(COMPRESSED_HEADER_LENGTH + COMPRESSED_MIPMAP_LEVEL_COUNT_LENGTH + i * COMPRESSED_MIPMAP_DATA_SIZE_LENGTH,
-                buffer.byteLength, true);
-        }
-
-        // Append compresssed file
-        let dataOffset = fileHeaderLength;
-        for (const file of files) {
-            const buffer = file instanceof ArrayBuffer ? file : file.buffer;
-            const srcArray = new Uint8Array(buffer);
-            out.set(srcArray, dataOffset);
-            dataOffset += srcArray.byteLength;
-        }
-    } catch (e) {
-        err = e as Error;
+    // let err: Error | null = null;
+    // try {
+    // Create compressed file
+    // file header length
+    const fileHeaderLength = COMPRESSED_HEADER_LENGTH + COMPRESSED_MIPMAP_LEVEL_COUNT_LENGTH + files.length * COMPRESSED_MIPMAP_DATA_SIZE_LENGTH;
+    let fileLength = 0;
+    for (const file of files) {
+        const buffer = file instanceof ArrayBuffer ? file : file.buffer;
+        fileLength += buffer.byteLength;
     }
+    fileLength += fileHeaderLength;   // add file header length
+    out = new Uint8Array(fileLength);
+    const outView = new DataView(
+        out.buffer,
+        out.byteOffset,
+        out.byteLength,
+    );
+        // Append compresssed header
+    outView.setUint32(0, COMPRESSED_MIPMAP_MAGIC, true); // add magic
+    outView.setUint32(COMPRESSED_HEADER_LENGTH, files.length, true); // add mipmap level number
+    for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const buffer = file instanceof ArrayBuffer ? file : file.buffer;
+        outView.setUint32(COMPRESSED_HEADER_LENGTH + COMPRESSED_MIPMAP_LEVEL_COUNT_LENGTH + i * COMPRESSED_MIPMAP_DATA_SIZE_LENGTH,
+            buffer.byteLength, true);
+    }
+
+    // Append compresssed file
+    let dataOffset = fileHeaderLength;
+    for (const file of files) {
+        const buffer = file instanceof ArrayBuffer ? file : file.buffer;
+        const srcArray = new Uint8Array(buffer);
+        out.set(srcArray, dataOffset);
+        dataOffset += srcArray.byteLength;
+    }
+    // } catch (e) {
+    //     err = e as Error;
+    // }
 
     return out;
 }
