@@ -190,7 +190,6 @@ ccstd::vector<std::pair<std::string, Value>> MapOperation::getAll() const {
         v8::MaybeLocal<v8::Value> value = keyValueArray->Get(currentContext, i + 1);
         if (key.IsEmpty() || value.IsEmpty()) {
             continue;
-            ;
         }
         Value seKey;
         Value seValue;
@@ -272,7 +271,6 @@ ValueArray SetOperation::getAll() const {
         v8::MaybeLocal<v8::Value> value = keyValueArray->Get(currentContext, i);
         if (value.IsEmpty()) {
             continue;
-            ;
         }
         Value seValue;
         internal::jsToSeValue(__isolate, value.ToLocalChecked(), &seValue);
