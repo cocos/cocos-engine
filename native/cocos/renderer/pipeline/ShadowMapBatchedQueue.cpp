@@ -153,14 +153,6 @@ void ShadowMapBatchedQueue::recordCommandBuffer(gfx::Device *device, gfx::Render
         auto *const ia = subModel->getInputAssembler();
         auto *const pso = PipelineStateManager::getOrCreatePipelineState(pass, shader, ia, renderPass);
 
-        auto defines = pass->getDefines();
-        const MacroValue &macroIBL = defines["CC_USE_RGBE_OUTPUT"];
-        const bool *macroIBLPtr = ccstd::get_if<bool>(&macroIBL);
-        if (macroIBLPtr != nullptr) {
-            bool b = *macroIBLPtr;
-            int a = 1;
-        }
-
         cmdBuffer->bindPipelineState(pso);
         cmdBuffer->bindDescriptorSet(materialSet, pass->getDescriptorSet());
         cmdBuffer->bindDescriptorSet(localSet, subModel->getDescriptorSet());
