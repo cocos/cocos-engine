@@ -67,11 +67,14 @@ void VKTransientPool::initMemoryRequirements(const TransientPoolInfo &info) {
     if (info.enableImage) {
         VkImageCreateInfo imageInfo = {};
         imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-        imageInfo.usage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
+        imageInfo.usage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
         imageInfo.imageType = VK_IMAGE_TYPE_2D;
         imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
         imageInfo.extent = {1, 1, 1};
         imageInfo.format = VK_FORMAT_R8G8B8A8_UNORM;
+        imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
+        imageInfo.mipLevels = 1;
+        imageInfo.arrayLayers = 1;
 
         VkImage tmpImage = VK_NULL_HANDLE;
         vkCreateImage(vkDevice, &imageInfo, nullptr, &tmpImage);
@@ -127,20 +130,22 @@ void VKTransientPool::doResetBuffer(Buffer *buffer) {
 
 void VKTransientPool::doInitTexture(Texture *texture) {
     VmaAllocator allocator = CCVKDevice::getInstance()->gpuDevice()->memoryAllocator;
-    auto *gpuTexture = static_cast<CCVKTexture *>(texture)->gpuTexture();
-    VkImage vkImage = gpuTexture->vkImage;
+    auto *vkTexture = static_cast<CCVKTexture *>(texture);
+    VkImage vkImage = vkTexture->gpuTexture()->vkImage;
 
     VmaAllocation allocation = VK_NULL_HANDLE;
     VmaAllocationInfo allocationInfo = {};
 
-    CC_ASSERT(gpuTexture->vmaAllocation == VK_NULL_HANDLE);
+    CC_ASSERT(vkTexture->gpuTexture()->vmaAllocation == VK_NULL_HANDLE);
     vmaAllocateMemoryForImage(allocator,
                               vkImage,
                               &_allocationCreateInfo,
                               &allocation,
                               &allocationInfo);
-    gpuTexture->vmaAllocation = allocation;
+    vkTexture->gpuTexture()->vmaAllocation = allocation;
     vmaBindImageMemory(allocator, allocation, vkImage);
+
+    vkTexture->createTextureView();
 }
 
 void VKTransientPool::doResetTexture(Texture *texture) {

@@ -44,7 +44,9 @@ CCVKTexture::~CCVKTexture() {
 void CCVKTexture::doInit(const TextureInfo & /*info*/) {
     createTexture(_info.width, _info.height, _size);
 
-    createTextureView();
+    if (!hasFlag(_info.flags, TextureFlagBit::TRANSIENT)) {
+        createTextureView();
+    }
 }
 
 void CCVKTexture::doInit(const TextureViewInfo &info) {
