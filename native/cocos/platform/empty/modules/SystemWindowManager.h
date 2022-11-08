@@ -37,9 +37,9 @@ class SystemWindowManager : public ISystemWindowManager {
 public:
     explicit SystemWindowManager() = default;
 
-    int init() override { return 0; }
-    void processEvent(bool *quit) override {}
-    void swapWindows() override {}
+    int init() override;
+    void processEvent(bool* quit) override;
+    void swapWindows() override;
 
     ISystemWindow *createWindow(const ISystemWindowInfo &info) override;
     ISystemWindow *getWindow(uint32_t windowId) const override;
