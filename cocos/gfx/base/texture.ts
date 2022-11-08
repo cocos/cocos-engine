@@ -168,6 +168,8 @@ export abstract class Texture extends GFXObject {
 
     public abstract destroy (): void;
 
+    public abstract getGLTextureHandle (): number;
+
     /**
      * @en Resize texture.
      * @zh 重置纹理大小。

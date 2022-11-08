@@ -26,7 +26,7 @@
  THE SOFTWARE.
  */
 
-import { getError } from '../core/platform/debug';
+import { getError } from '../core';
 import  zlib  from '../../external/compression/zlib.min';
 
 /**

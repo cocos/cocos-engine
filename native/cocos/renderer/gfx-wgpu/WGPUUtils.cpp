@@ -50,6 +50,14 @@ void createPipelineLayoutFallback(const ccstd::vector<DescriptorSet*>& descripto
 }
 
 namespace {
+struct ClearPassData {
+    WGPUShaderModule vertShader = wgpuDefaultHandle;
+    WGPUShaderModule fragShader = wgpuDefaultHandle;
+    WGPUBindGroupLayout bindGroupLayout = wgpuDefaultHandle;
+    WGPUPipelineLayout pipelineLayout = wgpuDefaultHandle;
+    WGPURenderPipeline pipeline = wgpuDefaultHandle;
+};
+
 struct MipmapPassData {
     WGPUShaderModule vertShader = wgpuDefaultHandle;
     WGPUShaderModule fragShader = wgpuDefaultHandle;
@@ -61,7 +69,197 @@ struct MipmapPassData {
 
 // no need to release
 thread_local MipmapPassData mipmapData;
+thread_local ClearPassData clearPassData;
 } // namespace
+
+#pragma region FIXED_PIPELINE
+void clearRect(CommandBuffer* cmdBuff, Texture* texture, const Rect& renderArea, const Color& color) {
+    auto wgpuDevice = CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuDevice;
+    auto* ccTexture = static_cast<CCWGPUTexture*>(texture);
+    auto format = toWGPUTextureFormat(ccTexture->getFormat());
+    auto dimension = toWGPUTextureDimension(ccTexture->getTextureType());
+    auto wgpuTextureView = ccTexture->gpuTextureObject()->selfView;
+
+    if (!clearPassData.vertShader) {
+        const char* clearQuadVert = R"(
+struct VertexOutput {
+  @builtin(position) Position : vec4<f32>,
+}
+
+@vertex
+fn vert_main(@builtin(vertex_index) VertexIndex : u32) -> VertexOutput {
+  var pos = array<vec2<f32>, 6>(
+    vec2<f32>( 1.0,  1.0),
+    vec2<f32>( 1.0, -1.0),
+    vec2<f32>(-1.0, -1.0),
+    vec2<f32>( 1.0,  1.0),
+    vec2<f32>(-1.0, -1.0),
+    vec2<f32>(-1.0,  1.0)
+  );
+
+  var output : VertexOutput;
+  output.Position = vec4<f32>(pos[VertexIndex], 0.0, 1.0);
+  return output;
+}
+        )";
+
+        const char* clearQuadFrag = R"(
+struct ClearColor {
+    color: vec4<f32>,
+}
+
+@group(0) @binding(0) var<uniform> clearColor : ClearColor;
+
+@fragment
+fn frag_main() -> @location(0) vec4<f32> {
+  return clearColor.color;
+}
+        )";
+
+        WGPUShaderModuleWGSLDescriptor wgslShaderDescVert;
+        wgslShaderDescVert.source = clearQuadVert;
+        wgslShaderDescVert.chain.sType = WGPUSType_ShaderModuleWGSLDescriptor;
+        WGPUShaderModuleDescriptor shaderDescVert;
+        shaderDescVert.nextInChain = reinterpret_cast<WGPUChainedStruct*>(&wgslShaderDescVert);
+        shaderDescVert.label = "clearQuadVert";
+        clearPassData.vertShader = wgpuDeviceCreateShaderModule(wgpuDevice, &shaderDescVert);
+
+        WGPUShaderModuleWGSLDescriptor wgslShaderDescFrag;
+        wgslShaderDescFrag.source = clearQuadFrag;
+        wgslShaderDescFrag.chain.sType = WGPUSType_ShaderModuleWGSLDescriptor;
+        WGPUShaderModuleDescriptor shaderDescFrag;
+        shaderDescFrag.nextInChain = reinterpret_cast<WGPUChainedStruct*>(&wgslShaderDescFrag);
+        shaderDescFrag.label = "clearQuadFrag";
+        clearPassData.fragShader = wgpuDeviceCreateShaderModule(wgpuDevice, &shaderDescFrag);
+
+        WGPUBindGroupLayoutEntry bufferEntry;
+        bufferEntry.binding = 0;
+        bufferEntry.visibility = WGPUShaderStage_Fragment;
+        bufferEntry.texture.sampleType = WGPUTextureSampleType_Undefined;
+        bufferEntry.buffer.type = WGPUBufferBindingType_Uniform;
+        bufferEntry.buffer.hasDynamicOffset = false;
+        bufferEntry.buffer.minBindingSize = 16;
+        bufferEntry.sampler.type = WGPUSamplerBindingType_Undefined;
+        bufferEntry.storageTexture.access = WGPUStorageTextureAccess_Undefined;
+
+        WGPUBindGroupLayoutDescriptor bgLayoutDesc;
+        bgLayoutDesc.label = "clearPassBGLayout";
+        bgLayoutDesc.entryCount = 1;
+        bgLayoutDesc.entries = &bufferEntry;
+        clearPassData.bindGroupLayout = wgpuDeviceCreateBindGroupLayout(wgpuDevice, &bgLayoutDesc);
+
+        WGPUPipelineLayoutDescriptor pipelineLayoutDesc;
+        pipelineLayoutDesc.label = "clearPassPipelineLayout";
+        pipelineLayoutDesc.bindGroupLayoutCount = 1;
+        pipelineLayoutDesc.bindGroupLayouts = &clearPassData.bindGroupLayout;
+        clearPassData.pipelineLayout = wgpuDeviceCreatePipelineLayout(wgpuDevice, &pipelineLayoutDesc);
+
+        WGPUVertexState vertexState;
+        vertexState.module = clearPassData.vertShader;
+        vertexState.entryPoint = "vert_main";
+
+        WGPUPrimitiveState primitiveState;
+        primitiveState.topology = WGPUPrimitiveTopology_TriangleList;
+        primitiveState.stripIndexFormat = WGPUIndexFormat_Undefined;
+        primitiveState.frontFace = WGPUFrontFace_CCW;
+        primitiveState.cullMode = WGPUCullMode_None;
+
+        WGPUColorTargetState colorState;
+        colorState.format = format;
+        colorState.writeMask = WGPUColorWriteMask_All;
+
+        WGPUFragmentState fragState;
+        fragState.module = clearPassData.fragShader;
+        fragState.entryPoint = "frag_main";
+        fragState.targetCount = 1;
+        fragState.targets = &colorState;
+
+        WGPUMultisampleState multisample;
+        multisample.count = 1;
+        multisample.alphaToCoverageEnabled = false;
+        multisample.mask = 0xFFFFFFFF;
+
+        WGPURenderPipelineDescriptor pipelineDesc;
+        pipelineDesc.label = "clearPassPipeline";
+        pipelineDesc.layout = clearPassData.pipelineLayout;
+        pipelineDesc.vertex = vertexState;
+        pipelineDesc.primitive = primitiveState;
+        pipelineDesc.fragment = &fragState;
+        pipelineDesc.depthStencil = nullptr;
+        pipelineDesc.multisample = multisample;
+        clearPassData.pipeline = wgpuDeviceCreateRenderPipeline(wgpuDevice, &pipelineDesc);
+    }
+
+    CC_ASSERT(i > 0);
+    auto cmdBuffCommandEncoder = static_cast<CCWGPUCommandBuffer*>(cmdBuff)->gpuCommandBufferObject()->wgpuCommandEncoder;
+    auto commandEncoder = cmdBuffCommandEncoder;
+    if (!cmdBuffCommandEncoder) {
+        commandEncoder = wgpuDeviceCreateCommandEncoder(wgpuDevice, nullptr);
+    }
+
+    auto dstView = wgpuTextureView;
+
+    WGPUBufferDescriptor bufferDesc;
+    bufferDesc.usage = WGPUBufferUsage_Uniform;
+    bufferDesc.size = 16;
+    bufferDesc.mappedAtCreation = true;
+    auto uniformBuffer = wgpuDeviceCreateBuffer(wgpuDevice, &bufferDesc);
+
+    float colorArr[4] = {color.x, color.y, color.z, color.w};
+    auto* mappedBuffer = wgpuBufferGetMappedRange(uniformBuffer, 0, 16);
+    memcpy(mappedBuffer, colorArr, 16);
+    wgpuBufferUnmap(uniformBuffer);
+
+    WGPUBindGroupEntry entry;
+    entry.nextInChain = nullptr;
+    entry.binding = 0;
+    entry.sampler = wgpuDefaultHandle;
+    entry.buffer = uniformBuffer;
+    entry.offset = 0;
+    entry.size = 16;
+    entry.textureView = wgpuDefaultHandle;
+
+    WGPUBindGroupDescriptor bindgroupDesc;
+    bindgroupDesc.layout = clearPassData.bindGroupLayout;
+    bindgroupDesc.entryCount = 1;
+    bindgroupDesc.entries = &entry;
+    auto bindGroup = wgpuDeviceCreateBindGroup(wgpuDevice, &bindgroupDesc);
+
+    WGPURenderPassColorAttachment colorAttachment;
+    colorAttachment.view = dstView;
+    colorAttachment.resolveTarget = wgpuDefaultHandle;
+    colorAttachment.loadOp = WGPULoadOp_Load;
+    colorAttachment.storeOp = WGPUStoreOp_Store;
+    colorAttachment.clearValue = {0.88, 0.88, 0.88, 1.0};
+
+    WGPURenderPassDescriptor rpDesc;
+    rpDesc.nextInChain = nullptr;
+    rpDesc.label = nullptr;
+    rpDesc.colorAttachmentCount = 1;
+    rpDesc.colorAttachments = &colorAttachment;
+    rpDesc.depthStencilAttachment = nullptr;
+    rpDesc.occlusionQuerySet = nullptr;
+    rpDesc.timestampWriteCount = 0;
+    rpDesc.timestampWrites = nullptr;
+    auto renderPassEncoder = wgpuCommandEncoderBeginRenderPass(commandEncoder, &rpDesc);
+
+    wgpuRenderPassEncoderSetPipeline(renderPassEncoder, clearPassData.pipeline);
+    wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0, bindGroup, 0, nullptr);
+    wgpuRenderPassEncoderSetViewport(renderPassEncoder, renderArea.x, renderArea.y, renderArea.width, renderArea.height, 0.0F, 1.0F);
+    wgpuRenderPassEncoderSetScissorRect(renderPassEncoder, renderArea.x, renderArea.y, renderArea.width, renderArea.height);
+    wgpuRenderPassEncoderDraw(renderPassEncoder, 6, 1, 0, 0);
+    wgpuRenderPassEncoderEnd(renderPassEncoder);
+    wgpuRenderPassEncoderRelease(renderPassEncoder);
+    wgpuBindGroupRelease(bindGroup);
+    wgpuBufferRelease(uniformBuffer);
+
+    if (!cmdBuffCommandEncoder) {
+        auto commandBuffer = wgpuCommandEncoderFinish(commandEncoder, nullptr);
+        wgpuQueueSubmit(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuQueue, 1, &commandBuffer);
+        wgpuCommandEncoderRelease(commandEncoder);
+        wgpuCommandBufferRelease(commandBuffer);
+    }
+}
 
 void genMipMap(Texture* texture, uint8_t fromLevel, uint8_t levelCount, uint32_t baseLayer, CommandBuffer* cmdBuff) {
     auto wgpuDevice = CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuDevice;
@@ -300,4 +498,6 @@ fn frag_main(@location(0) fragUV : vec2<f32>) -> @location(0) vec4<f32> {
         wgpuCommandBufferRelease(commandBuffer);
     }
 }
+#pragma endregion FIXED_PIPELINE
+
 } // namespace cc::gfx

@@ -106,8 +106,8 @@ scene::RenderWindow *Root::createRenderWindowFromSystemWindow(ISystemWindow *win
     const auto &size = window->getViewSize();
 
     gfx::SwapchainInfo info;
-    info.width = static_cast<uint32_t>(size.x);
-    info.height = static_cast<uint32_t>(size.y);
+    info.width = static_cast<uint32_t>(size.width);
+    info.height = static_cast<uint32_t>(size.height);
     info.windowHandle = reinterpret_cast<void *>(handle);
     info.windowId = window->getWindowId();
 

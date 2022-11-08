@@ -1,6 +1,6 @@
 import { DEBUG } from 'internal:constants';
 import { EffectAsset } from '../../asset/assets';
-import { ccclass } from '../../core/data/decorators';
+import { _decorator } from '../../core';
 // eslint-disable-next-line max-len
 import { DescriptorSetInfo, DescriptorSetLayout, DescriptorSetLayoutBinding, DescriptorSetLayoutInfo, DescriptorType, Device, ShaderStageFlagBit, Type, UniformBlock } from '../../gfx';
 import { VectorGraphColorMap } from './effect';
@@ -11,6 +11,8 @@ import { LayoutGraphBuilder } from './pipeline';
 import { WebLayoutExporter } from './web-layout-exporter';
 import { getUpdateFrequencyName, DescriptorBlockIndex, DescriptorTypeOrder,
     Descriptor, getDescriptorTypeOrderName, DescriptorBlockFlattened, UpdateFrequency } from './types';
+
+const { ccclass } = _decorator;
 
 function getName (type: Type): string {
     switch (type) {

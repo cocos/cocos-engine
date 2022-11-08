@@ -28,11 +28,9 @@ import { RenderPriority, UNIFORM_REFLECTION_TEXTURE_BINDING, UNIFORM_REFLECTION_
 import { BatchingSchemes, IMacroPatch, Pass } from '../core/pass';
 import { DescriptorSet, DescriptorSetInfo, Device, InputAssembler, Texture, TextureType, TextureUsageBit, TextureInfo,
     Format, Sampler, Filter, Address, Shader, SamplerInfo, deviceManager, Attribute, Feature, FormatInfos, getTypedArrayConstructor } from '../../gfx';
-import { legacyCC } from '../../core/global-exports';
-import { errorID } from '../../core/platform/debug';
+import { errorID, Mat4, cclegacy } from '../../core';
 import { getPhaseID } from '../../rendering/pass-phase';
 import { Root } from '../../root';
-import { Mat4 } from '../../core';
 
 const _dsInfo = new DescriptorSetInfo(null!);
 const MAX_PASS_COUNT = 8;
@@ -213,14 +211,14 @@ export class SubModel {
      * @param patches @en The shader's macro @zh 着色器的宏定义
      */
     public initialize (subMesh: RenderingSubMesh, passes: Pass[], patches: IMacroPatch[] | null = null): void {
-        const root = legacyCC.director.root as Root;
+        const root = cclegacy.director.root as Root;
         this._device = deviceManager.gfxDevice;
         _dsInfo.layout = passes[0].localSetLayout;
 
         this._inputAssembler = this._device.createInputAssembler(subMesh.iaInfo);
         this._descriptorSet = this._device.createDescriptorSet(_dsInfo);
 
-        const pipeline = (legacyCC.director.root as Root).pipeline;
+        const pipeline = (cclegacy.director.root as Root).pipeline;
         const occlusionPass = pipeline.pipelineSceneData.getOcclusionQueryPass();
         if (occlusionPass) {
             const occlusionDSInfo = new DescriptorSetInfo(null!);
@@ -283,7 +281,7 @@ export class SubModel {
      * 平面阴影着色器初始化
      */
     public initPlanarShadowShader () {
-        const pipeline = (legacyCC.director.root as Root).pipeline;
+        const pipeline = (cclegacy.director.root as Root).pipeline;
         const shadowInfo = pipeline.pipelineSceneData.shadows;
         this._planarShader = shadowInfo.getPlanarShader(this._patches);
     }
@@ -298,7 +296,7 @@ export class SubModel {
      * @internal
      */
     public initPlanarShadowInstanceShader () {
-        const pipeline = (legacyCC.director.root as Root).pipeline;
+        const pipeline = (cclegacy.director.root as Root).pipeline;
         const shadowInfo = pipeline.pipelineSceneData.shadows;
         this._planarInstanceShader = shadowInfo.getPlanarInstanceShader(this._patches);
     }
@@ -398,8 +396,14 @@ export class SubModel {
 
         // update draw info
         const drawInfo = this._subMesh.drawInfo;
+
+        // to invoke getter/setter function for wasm object
         if (this._inputAssembler && drawInfo) {
-            Object.assign(this._inputAssembler.drawInfo, drawInfo);
+            const dirtyDrawInfo = this._inputAssembler.drawInfo;
+            Object.keys(drawInfo).forEach((key) => {
+                dirtyDrawInfo[key] = drawInfo[key];
+            });
+            this._inputAssembler.drawInfo = dirtyDrawInfo;
         }
     }
 

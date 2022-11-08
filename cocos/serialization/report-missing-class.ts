@@ -1,6 +1,10 @@
 import { EDITOR } from 'internal:constants';
-import { errorID } from '../platform/debug';
+import { errorID } from '../core';
 
+/**
+ *
+ * @engineInternal
+ */
 export function reportMissingClass (id: string) {
     if (EDITOR && EditorExtends.UuidUtils.isUuid(id)) {
         id = EditorExtends.UuidUtils.decompressUuid(id);

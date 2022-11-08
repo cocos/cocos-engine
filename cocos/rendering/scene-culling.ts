@@ -22,22 +22,19 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-import { intersect, Sphere } from '../core/geometry';
+import { EDITOR } from 'internal:constants';
 import { Model } from '../render-scene/scene/model';
 import { Camera, SKYBOX_FLAG } from '../render-scene/scene/camera';
-import { Vec3 } from '../core/math';
+import { Vec3, Pool, warnID, geometry, cclegacy } from '../core';
 import { RenderPipeline } from './render-pipeline';
-import { Pool } from '../core/memop';
 import { IRenderObject, UBOShadow } from './define';
 import { ShadowType, CSMOptimizationMode } from '../render-scene/scene/shadows';
 import { PipelineSceneData } from './pipeline-scene-data';
 import { ShadowLayerVolume } from './shadow/csm-layers';
-import { warnID } from '../core/platform';
-import { ReflectionProbeManager } from './reflection-probe-manager';
 import { LODModelsCachedUtils } from './lod-models-utils';
 
 const _tempVec3 = new Vec3();
-const _sphere = Sphere.create(0, 0, 0, 1);
+const _sphere = geometry.Sphere.create(0, 0, 0, 1);
 
 const roPool = new Pool<IRenderObject>(() => ({ model: null!, depth: 0 }), 128);
 
@@ -65,8 +62,8 @@ export function validPunctualLightsCulling (pipeline: RenderPipeline, camera: Ca
             continue;
         }
 
-        Sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
-        if (intersect.sphereFrustum(_sphere, camera.frustum)) {
+        geometry.Sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
+        if (geometry.intersect.sphereFrustum(_sphere, camera.frustum)) {
             validPunctualLights.push(light);
         }
     }
@@ -77,8 +74,8 @@ export function validPunctualLightsCulling (pipeline: RenderPipeline, camera: Ca
         if (light.baked) {
             continue;
         }
-        Sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
-        if (intersect.sphereFrustum(_sphere, camera.frustum)) {
+        geometry.Sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
+        if (geometry.intersect.sphereFrustum(_sphere, camera.frustum)) {
             validPunctualLights.push(light);
         }
     }
@@ -104,12 +101,12 @@ export function shadowCulling (camera: Camera, sceneData: PipelineSceneData, lay
                     if (dirShadowObjects != null && model.castShadow && model.worldBounds) {
                         // frustum culling
                         // eslint-disable-next-line no-lonely-if
-                        const accurate = intersect.aabbFrustum(model.worldBounds, dirLightFrustum);
+                        const accurate = geometry.intersect.aabbFrustum(model.worldBounds, dirLightFrustum);
                         if (accurate) {
                             dirShadowObjects.push(csmLayerObject);
                             if (layer.level < mainLight.csmLevel) {
                                 if (mainLight.csmOptimizationMode === CSMOptimizationMode.RemoveDuplicates
-                                    && intersect.aabbFrustumCompletelyInside(model.worldBounds, dirLightFrustum)) {
+                                    && geometry.intersect.aabbFrustumCompletelyInside(model.worldBounds, dirLightFrustum)) {
                                     csmLayerObjects.fastRemove(i);
                                 }
                             }
@@ -150,8 +147,8 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
     if ((camera.clearFlag & SKYBOX_FLAG)) {
         if (skybox.enabled && skybox.model) {
             renderObjects.push(getRenderObject(skybox.model, camera));
-        } else {
-            warnID(15100, camera.name);
+        } else if (camera.clearFlag === SKYBOX_FLAG && !EDITOR) {
+            cclegacy.warnID(15100, camera.name);
         }
     }
 
@@ -173,7 +170,7 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
             if (model.node && ((visibility & model.node.layer) === model.node.layer)
                  || (visibility & model.visFlags)) {
                 // frustum culling
-                if (model.worldBounds && !intersect.aabbFrustum(model.worldBounds, camera.frustum)) {
+                if (model.worldBounds && !geometry.intersect.aabbFrustum(model.worldBounds, camera.frustum)) {
                     return;
                 }
 
@@ -187,31 +184,4 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
         enqueueRenderObject(models[i]);
     }
     LODModelsCachedUtils.clearCachedLODModels();
-}
-
-export function reflectionProbeCulling (sceneData: PipelineSceneData, camera: Camera) {
-    const scene = camera.scene!;
-    const skybox = sceneData.skybox;
-
-    ReflectionProbeManager.probeManager.clearRenderObject(camera);
-
-    if (skybox.enabled && skybox.model && (camera.clearFlag & SKYBOX_FLAG)) {
-        ReflectionProbeManager.probeManager.addRenderObject(camera, getRenderObject(skybox.model, camera), true);
-    }
-
-    const models = scene.models;
-    const visibility = camera.visibility;
-
-    for (let i = 0; i < models.length; i++) {
-        const model = models[i];
-        // filter model by view visibility
-        if (model.enabled) {
-            if (model.node && ((visibility & model.node.layer) === model.node.layer)
-                  || (visibility & model.visFlags)) {
-                if (model.bakeToReflectionProbe) {
-                    ReflectionProbeManager.probeManager.addRenderObject(camera, getRenderObject(model, camera));
-                }
-            }
-        }
-    }
 }

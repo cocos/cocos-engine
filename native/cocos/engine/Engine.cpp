@@ -82,8 +82,8 @@ bool setCanvasCallback(se::Object * /*global*/) {
 
     std::stringstream ss;
     {
-        ss << "window.innerWidth = " << static_cast<int>(viewSize.x / dpr) << ";";
-        ss << "window.innerHeight = " << static_cast<int>(viewSize.y / dpr) << ";";
+        ss << "window.innerWidth = " << static_cast<int>(viewSize.width / dpr) << ";";
+        ss << "window.innerHeight = " << static_cast<int>(viewSize.height / dpr) << ";";
         ss << "window.windowHandler = ";
         if (sizeof(handler) == 8) { // use bigint
             ss << static_cast<uint64_t>(handler) << "n;";

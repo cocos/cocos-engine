@@ -28,7 +28,7 @@ import { Root } from '../../root';
 import { TextureBase } from '../../asset/assets/texture-base';
 import { builtinResMgr } from '../../asset/asset-manager/builtin-res-mgr';
 import { getPhaseID } from '../../rendering/pass-phase';
-import { murmurhash2_32_gc } from '../../core';
+import { murmurhash2_32_gc, errorID } from '../../core';
 import { BufferUsageBit, DynamicStateFlagBit, DynamicStateFlags, Feature, GetTypeSize, MemoryUsageBit, PrimitiveMode, Type, Color,
     BlendState, BlendTarget, Buffer, BufferInfo, BufferViewInfo, DepthStencilState, DescriptorSet,
     DescriptorSetInfo, DescriptorSetLayout, Device, RasterizerState, Sampler, Texture, Shader, PipelineLayout, deviceManager,
@@ -39,7 +39,6 @@ import { MacroRecord, MaterialProperty, customizeType, getBindingFromHandle, get
     getOffsetFromHandle, getTypeFromHandle, type2reader, type2writer, getCountFromHandle,
 } from './pass-utils';
 import { RenderPassStage, RenderPriority } from '../../rendering/define';
-import { errorID } from '../../core/platform/debug';
 import { InstancedBuffer } from '../../rendering/instanced-buffer';
 import { BatchedBuffer } from '../../rendering/batched-buffer';
 

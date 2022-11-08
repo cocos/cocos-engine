@@ -26,51 +26,70 @@
 
 #include <cstddef>
 #include <iostream>
+#include <memory>
 #include <type_traits>
 
+#include "base/std/container/vector.h"
+#include "core/memop/Pool.h"
 #include "intl/EventIntl.h"
 #include "intl/List.h"
 
 namespace cc {
 namespace event {
+class BusEventListenerBase;
 
+template <typename EHandler>
+class BusEventListenerDB;
+
+template <typename EHandler, typename... ARGS>
+class BusEventBroadcaster;
+
+class BusEventListenerContainer;
+struct BusEventListenerEntry {
+    BusEventListenerEntry *next{nullptr};
+    BusEventListenerEntry *prev{nullptr};
+    BusEventListenerBase *listener{nullptr};
+};
 class BusEventListenerBase {
-public:
-    BusEventListenerBase *next{nullptr};
-    BusEventListenerBase *prev{nullptr};
+protected:
+    BusEventListenerEntry *entry{nullptr}; // NOLINT
+    friend class BusEventListenerContainer;
 };
 
 class BusEventListenerContainer {
 public:
-    BusEventListenerContainer() = default;
-    virtual ~BusEventListenerContainer() = default;
-    bool addListener(BusEventListenerBase *);
-    bool removeListener(BusEventListenerBase *);
-
     template <typename EHandler, typename... ARGS>
     bool broadcast(ARGS &&...args);
 
-private:
-    bool doAddListener(BusEventListenerBase *listener) {
-        return intl::listAppend(&_arr, listener);
-    }
-    bool doRemoveListener(BusEventListenerBase *listener) {
-        return intl::detachFromList(&_arr, listener);
-    }
-    bool hasPending() const {
-        return _pendingDel || _pendingNew;
-    }
-    void fixPendings();
-
 protected:
-    BusEventListenerBase *_arr{nullptr};
-    BusEventListenerBase *_pendingNew{nullptr};
-    BusEventListenerBase *_pendingDel{nullptr};
+    BusEventListenerContainer() = default;
+    virtual ~BusEventListenerContainer() = default;
+    void addListener(BusEventListenerBase *);
+    void removeListener(BusEventListenerBase *);
+
+    bool hasPendingListeners() const {
+        return !_listenersToRemove.empty() || _listenersToAdd;
+    }
+    void addOrRemovePendingListeners();
+    // fields
+    BusEventListenerEntry *_listenerList{nullptr};
+    BusEventListenerEntry *_listenersToAdd{nullptr};
+    ccstd::vector<BusEventListenerEntry *> _listenersToRemove;
     int _isBroadcasting = 0;
+
+    template <typename T>
+    friend class BusEventListenerDB;
+
+    template <typename EHandler, typename... ARGS>
+    friend class BusEventBroadcaster;
+
+    friend class BusEventListenerBase;
+    template <typename E>
+    friend class Listener;
 };
 
 template <typename EHandler, typename... ARGS>
-class BusEventBroadcaster : public BusEventListenerContainer {
+class BusEventBroadcaster final : public BusEventListenerContainer {
 public:
     bool doBroadcast(ARGS &&...args);
 };
@@ -81,8 +100,8 @@ bool BusEventListenerContainer::broadcast(ARGS &&...args) {
     _isBroadcasting++;
     auto ret = static_cast<BusType *>(this)->doBroadcast(std::forward<ARGS>(args)...);
     _isBroadcasting--;
-    if (!_isBroadcasting && hasPending()) {
-        fixPendings();
+    if (!_isBroadcasting && hasPendingListeners()) {
+        addOrRemovePendingListeners();
     }
     return false;
 }
@@ -106,9 +125,9 @@ BusEventListenerContainer *BusEventListenerDB<EHandler>::ctn = nullptr;
 
 template <typename BusType, typename R, typename... ARGS>
 struct BusEventTrait {
-    using bus_type = BusType;
-    using return_type = R;
-    using argument_tuple_types = std::tuple<ARGS...>;
+    using _bus_type = BusType;
+    using _return_type = R;
+    using _argument_tuple_types = std::tuple<ARGS...>;
     constexpr static int ARG_COUNT = sizeof...(ARGS);
 };
 /**
@@ -117,12 +136,10 @@ struct BusEventTrait {
 template <typename EHandler>
 class Listener : public BusEventListenerBase {
 public:
-    using bus_type = typename EHandler::bus_type;
-    using return_type = typename EHandler::return_type;
-    using argument_tuple_types = typename EHandler::argument_tuple_types;
-    using _argument_wrapper = typename intl::TupleExtractor<argument_tuple_types>;
+    using _agurment_tuple_types = typename EHandler::_argument_tuple_types;
+    using _argument_wrapper = typename intl::TupleExtractor<_agurment_tuple_types>;
     // using func_type = typename _argument_wrapper::func_type;
-    using std_func_type = typename _argument_wrapper::std_func_type;
+    using _std_func_type = typename _argument_wrapper::std_func_type;
 
     constexpr static const char *BUS_NAME = EHandler::BUS_NAME;
     constexpr static const char *HANDLE_CLASS = EHandler::HANDLE_CLASS;
@@ -151,15 +168,19 @@ public:
     }
 
     const char *getBusName() const { return BUS_NAME; }
-    const char *getHanlderName() const { return HANDLE_CLASS; }
+    const char *getHandlerName() const { return HANDLE_CLASS; }
 
 private:
     bool _enabled{true};
-    std_func_type _callback;
+    _std_func_type _callback;
+
+    friend class BusEventListenerContainer;
 };
 
 template <typename EHandler>
 Listener<EHandler>::Listener() {
+    entry = new BusEventListenerEntry;
+    entry->listener = this;
     BusEventListenerDB<EHandler>::container()->addListener(this);
 }
 
@@ -171,9 +192,11 @@ Listener<EHandler>::~Listener() {
 template <typename EHandler, typename... ARGS>
 bool BusEventBroadcaster<EHandler, ARGS...>::doBroadcast(ARGS &&...args) {
     // broadcast events to all listeners
-    EVENT_LIST_LOOP_BEGIN(curr, _arr)
-    static_cast<Listener<EHandler> *>(curr)->invoke(std::forward<ARGS>(args)...);
-    EVENT_LIST_LOOP_END(curr, _arr)
+    EVENT_LIST_LOOP_BEGIN(curr, _listenerList)
+    if (curr->listener) {
+        static_cast<Listener<EHandler> *>(curr->listener)->invoke(std::forward<ARGS>(args)...);
+    }
+    EVENT_LIST_LOOP_END(curr, _listenerList)
     return true;
 }
 
@@ -199,9 +222,9 @@ void broadcast(ARGS &&...args) {
 // NOLINTNEXTLINE
 #define _DECLARE_BUS_EVENT_VA(BusEventClass, EventBusClass, ...)                                             \
     struct BusEventClass final : cc::event::BusEventTrait<EventBusName_(EventBusClass), void, __VA_ARGS__> { \
-        using bus_type = EventBusName_(EventBusClass);                                                       \
+        using BusType = EventBusName_(EventBusClass);                                                        \
         using Listener = cc::event::Listener<BusEventClass>;                                                 \
-        constexpr static const char *BUS_NAME = EventBusName_(EventBusClass)::BUS_NAME;                      \
+        constexpr static const char *BUS_NAME = BusType::BUS_NAME;                                           \
         constexpr static const char *HANDLE_CLASS = #BusEventClass;                                          \
         constexpr static size_t TypeID() {                                                                   \
             return cc::event::intl::hash(#BusEventClass);                                                    \

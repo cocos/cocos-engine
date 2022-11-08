@@ -114,6 +114,1320 @@
   
 
 
+static bool js_cc_clampf(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    float arg1 ;
+    float arg2 ;
+    float arg3 ;
+    float result;
+    
+    if(argc != 3) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
+        return false;
+    }
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[0], &arg1, nullptr);
+    SE_PRECONDITION2(ok, false, "clampf,1,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[1], &arg2, nullptr);
+    SE_PRECONDITION2(ok, false, "clampf,2,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[2], &arg3, nullptr);
+    SE_PRECONDITION2(ok, false, "clampf,3,SWIGTYPE_float"); 
+    result = (float)cc::clampf(arg1,arg2,arg3);
+    
+    // out 1
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/); 
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_clampf) 
+
+se::Class* __jsb_cc_Vec2_class = nullptr;
+se::Object* __jsb_cc_Vec2_proto = nullptr;
+SE_DECLARE_FINALIZE_FUNC(js_delete_cc_Vec2) 
+
+static bool js_new_cc_Vec2__SWIG_0(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    // js_overloaded_ctor
+    const auto& args = s.args();
+    CC_UNUSED bool ok = true;
+    cc::Vec2 *result;
+    result = (cc::Vec2 *)new cc::Vec2();
+    
+    
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    s.thisObject()->setPrivateObject(ptr);
+    return true;
+}
+
+
+static bool js_new_cc_Vec2__SWIG_1(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    // js_overloaded_ctor
+    const auto& args = s.args();
+    CC_UNUSED bool ok = true;
+    float arg1 ;
+    float arg2 ;
+    cc::Vec2 *result;
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[0], &arg1, nullptr);
+    SE_PRECONDITION2(ok, false, "new_Vec2,1,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[1], &arg2, nullptr);
+    SE_PRECONDITION2(ok, false, "new_Vec2,2,SWIGTYPE_float"); 
+    result = (cc::Vec2 *)new cc::Vec2(arg1,arg2);
+    
+    
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    s.thisObject()->setPrivateObject(ptr);
+    return true;
+}
+
+
+static bool js_new_cc_Vec2__SWIG_2(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    // js_overloaded_ctor
+    const auto& args = s.args();
+    CC_UNUSED bool ok = true;
+    float *arg1 = (float *) NULL ;
+    cc::Vec2 *result;
+    // %typemap(in) SWIGTYPE*
+    ok &= sevalue_to_native(args[0], &arg1, s.thisObject());
+    SE_PRECONDITION2(ok, false, "new_Vec2,1,SWIGTYPE_p_float"); 
+    result = (cc::Vec2 *)new cc::Vec2((float const *)arg1);
+    
+    
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    s.thisObject()->setPrivateObject(ptr);
+    return true;
+}
+
+
+static bool js_new_cc_Vec2__SWIG_3(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    // js_overloaded_ctor
+    const auto& args = s.args();
+    CC_UNUSED bool ok = true;
+    cc::Vec2 *arg1 = 0 ;
+    cc::Vec2 *arg2 = 0 ;
+    cc::Vec2 temp1 ;
+    cc::Vec2 temp2 ;
+    cc::Vec2 *result;
+    // %typemap(in) SWIGTYPE&
+    ok &= sevalue_to_native(args[0], &temp1, s.thisObject());
+    SE_PRECONDITION2(ok, false, "new_Vec2,1,SWIGTYPE_p_cc__Vec2");
+    arg1 = &temp1;
+    
+    // %typemap(in) SWIGTYPE&
+    ok &= sevalue_to_native(args[1], &temp2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "new_Vec2,2,SWIGTYPE_p_cc__Vec2");
+    arg2 = &temp2;
+    
+    result = (cc::Vec2 *)new cc::Vec2((cc::Vec2 const &)*arg1,(cc::Vec2 const &)*arg2);
+    
+    
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    s.thisObject()->setPrivateObject(ptr);
+    return true;
+}
+
+
+static bool js_new_cc_Vec2__SWIG_4(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    // js_overloaded_ctor
+    const auto& args = s.args();
+    CC_UNUSED bool ok = true;
+    cc::Vec2 *arg1 = 0 ;
+    cc::Vec2 temp1 ;
+    cc::Vec2 *result;
+    // %typemap(in) SWIGTYPE&
+    ok &= sevalue_to_native(args[0], &temp1, s.thisObject());
+    SE_PRECONDITION2(ok, false, "new_Vec2,1,SWIGTYPE_p_cc__Vec2");
+    arg1 = &temp1;
+    
+    result = (cc::Vec2 *)new cc::Vec2((cc::Vec2 const &)*arg1);
+    
+    
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    s.thisObject()->setPrivateObject(ptr);
+    return true;
+}
+
+
+static bool js_new_Vec2(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    // js_ctor_dispatcher
+    size_t argc = s.args().size();
+    bool ret = false;
+    
+    // switch all cases by means of series of if-returns.
+    
+    // js_ctor_dispatch_case
+    if(argc == 0) {
+        ret = js_new_cc_Vec2__SWIG_0(s);
+        if (ret) {
+            return ret; 
+        } /* reset exception and return */
+    }
+    
+    // js_ctor_dispatch_case
+    if(argc == 2) {
+        ret = js_new_cc_Vec2__SWIG_1(s);
+        if (ret) {
+            return ret; 
+        } /* reset exception and return */
+    }
+    
+    // js_ctor_dispatch_case
+    if(argc == 1) {
+        ret = js_new_cc_Vec2__SWIG_2(s);
+        if (ret) {
+            return ret; 
+        } /* reset exception and return */
+    }
+    
+    // js_ctor_dispatch_case
+    if(argc == 2) {
+        ret = js_new_cc_Vec2__SWIG_3(s);
+        if (ret) {
+            return ret; 
+        } /* reset exception and return */
+    }
+    
+    // js_ctor_dispatch_case
+    if(argc == 1) {
+        ret = js_new_cc_Vec2__SWIG_4(s);
+        if (ret) {
+            return ret; 
+        } /* reset exception and return */
+    }
+    
+    
+    // default:
+    SE_REPORT_ERROR("Illegal arguments for construction of Vec2");
+    return false;
+}
+SE_BIND_CTOR(js_new_Vec2, __jsb_cc_Vec2_class, js_delete_cc_Vec2)
+
+static bool js_delete_cc_Vec2(se::State& s)
+{
+    // js_dtoroverride
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_delete_cc_Vec2) 
+
+bool js_register_cc_Vec2(se::Object* obj) {
+    auto* cls = se::Class::create("Vec2", obj, nullptr, _SE(js_new_Vec2)); 
+    
+    
+    
+    
+    
+    
+    cls->defineFinalizeFunction(_SE(js_delete_cc_Vec2));
+    
+    
+    cls->install();
+    JSBClassType::registerClass<cc::Vec2>(cls);
+    
+    __jsb_cc_Vec2_proto = cls->getProto();
+    __jsb_cc_Vec2_class = cls;
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
+
+se::Class* __jsb_cc_Color_class = nullptr;
+se::Object* __jsb_cc_Color_proto = nullptr;
+SE_DECLARE_FINALIZE_FUNC(js_delete_cc_Color) 
+
+bool js_register_cc_Color(se::Object* obj) {
+    auto* cls = se::Class::create("Color", obj, nullptr, nullptr); 
+    
+    
+    
+    
+    
+    
+    cls->install();
+    JSBClassType::registerClass<cc::Color>(cls);
+    
+    __jsb_cc_Color_proto = cls->getProto();
+    __jsb_cc_Color_class = cls;
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
+
+se::Class* __jsb_cc_Vec3_class = nullptr;
+se::Object* __jsb_cc_Vec3_proto = nullptr;
+SE_DECLARE_FINALIZE_FUNC(js_delete_cc_Vec3) 
+
+static bool js_new_cc_Vec3__SWIG_0(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    // js_overloaded_ctor
+    const auto& args = s.args();
+    CC_UNUSED bool ok = true;
+    cc::Vec3 *result;
+    result = (cc::Vec3 *)new cc::Vec3();
+    
+    
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    s.thisObject()->setPrivateObject(ptr);
+    return true;
+}
+
+
+static bool js_new_cc_Vec3__SWIG_1(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    // js_overloaded_ctor
+    const auto& args = s.args();
+    CC_UNUSED bool ok = true;
+    float arg1 ;
+    float arg2 ;
+    float arg3 ;
+    cc::Vec3 *result;
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[0], &arg1, nullptr);
+    SE_PRECONDITION2(ok, false, "new_Vec3,1,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[1], &arg2, nullptr);
+    SE_PRECONDITION2(ok, false, "new_Vec3,2,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[2], &arg3, nullptr);
+    SE_PRECONDITION2(ok, false, "new_Vec3,3,SWIGTYPE_float"); 
+    result = (cc::Vec3 *)new cc::Vec3(arg1,arg2,arg3);
+    
+    
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    s.thisObject()->setPrivateObject(ptr);
+    return true;
+}
+
+
+static bool js_new_cc_Vec3__SWIG_2(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    // js_overloaded_ctor
+    const auto& args = s.args();
+    CC_UNUSED bool ok = true;
+    float *arg1 = (float *) NULL ;
+    cc::Vec3 *result;
+    // %typemap(in) SWIGTYPE*
+    ok &= sevalue_to_native(args[0], &arg1, s.thisObject());
+    SE_PRECONDITION2(ok, false, "new_Vec3,1,SWIGTYPE_p_float"); 
+    result = (cc::Vec3 *)new cc::Vec3((float const *)arg1);
+    
+    
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    s.thisObject()->setPrivateObject(ptr);
+    return true;
+}
+
+
+static bool js_new_cc_Vec3__SWIG_3(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    // js_overloaded_ctor
+    const auto& args = s.args();
+    CC_UNUSED bool ok = true;
+    cc::Vec3 *arg1 = 0 ;
+    cc::Vec3 *arg2 = 0 ;
+    cc::Vec3 temp1 ;
+    cc::Vec3 temp2 ;
+    cc::Vec3 *result;
+    // %typemap(in) SWIGTYPE&
+    ok &= sevalue_to_native(args[0], &temp1, s.thisObject());
+    SE_PRECONDITION2(ok, false, "new_Vec3,1,SWIGTYPE_p_cc__Vec3");
+    arg1 = &temp1;
+    
+    // %typemap(in) SWIGTYPE&
+    ok &= sevalue_to_native(args[1], &temp2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "new_Vec3,2,SWIGTYPE_p_cc__Vec3");
+    arg2 = &temp2;
+    
+    result = (cc::Vec3 *)new cc::Vec3((cc::Vec3 const &)*arg1,(cc::Vec3 const &)*arg2);
+    
+    
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    s.thisObject()->setPrivateObject(ptr);
+    return true;
+}
+
+
+static bool js_new_cc_Vec3__SWIG_4(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    // js_overloaded_ctor
+    const auto& args = s.args();
+    CC_UNUSED bool ok = true;
+    cc::Vec3 *arg1 = 0 ;
+    cc::Vec3 temp1 ;
+    cc::Vec3 *result;
+    // %typemap(in) SWIGTYPE&
+    ok &= sevalue_to_native(args[0], &temp1, s.thisObject());
+    SE_PRECONDITION2(ok, false, "new_Vec3,1,SWIGTYPE_p_cc__Vec3");
+    arg1 = &temp1;
+    
+    result = (cc::Vec3 *)new cc::Vec3((cc::Vec3 const &)*arg1);
+    
+    
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    s.thisObject()->setPrivateObject(ptr);
+    return true;
+}
+
+
+static bool js_new_Vec3(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    // js_ctor_dispatcher
+    size_t argc = s.args().size();
+    bool ret = false;
+    
+    // switch all cases by means of series of if-returns.
+    
+    // js_ctor_dispatch_case
+    if(argc == 0) {
+        ret = js_new_cc_Vec3__SWIG_0(s);
+        if (ret) {
+            return ret; 
+        } /* reset exception and return */
+    }
+    
+    // js_ctor_dispatch_case
+    if(argc == 3) {
+        ret = js_new_cc_Vec3__SWIG_1(s);
+        if (ret) {
+            return ret; 
+        } /* reset exception and return */
+    }
+    
+    // js_ctor_dispatch_case
+    if(argc == 1) {
+        ret = js_new_cc_Vec3__SWIG_2(s);
+        if (ret) {
+            return ret; 
+        } /* reset exception and return */
+    }
+    
+    // js_ctor_dispatch_case
+    if(argc == 2) {
+        ret = js_new_cc_Vec3__SWIG_3(s);
+        if (ret) {
+            return ret; 
+        } /* reset exception and return */
+    }
+    
+    // js_ctor_dispatch_case
+    if(argc == 1) {
+        ret = js_new_cc_Vec3__SWIG_4(s);
+        if (ret) {
+            return ret; 
+        } /* reset exception and return */
+    }
+    
+    
+    // default:
+    SE_REPORT_ERROR("Illegal arguments for construction of Vec3");
+    return false;
+}
+SE_BIND_CTOR(js_new_Vec3, __jsb_cc_Vec3_class, js_delete_cc_Vec3)
+
+static bool js_delete_cc_Vec3(se::State& s)
+{
+    // js_dtoroverride
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_delete_cc_Vec3) 
+
+bool js_register_cc_Vec3(se::Object* obj) {
+    auto* cls = se::Class::create("Vec3", obj, nullptr, _SE(js_new_Vec3)); 
+    
+    
+    
+    
+    
+    
+    cls->defineFinalizeFunction(_SE(js_delete_cc_Vec3));
+    
+    
+    cls->install();
+    JSBClassType::registerClass<cc::Vec3>(cls);
+    
+    __jsb_cc_Vec3_proto = cls->getProto();
+    __jsb_cc_Vec3_class = cls;
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
+
+se::Class* __jsb_cc_Vec4_class = nullptr;
+se::Object* __jsb_cc_Vec4_proto = nullptr;
+SE_DECLARE_FINALIZE_FUNC(js_delete_cc_Vec4) 
+
+static bool js_new_cc_Vec4__SWIG_0(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    // js_overloaded_ctor
+    const auto& args = s.args();
+    CC_UNUSED bool ok = true;
+    cc::Vec4 *result;
+    result = (cc::Vec4 *)new cc::Vec4();
+    
+    
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    s.thisObject()->setPrivateObject(ptr);
+    return true;
+}
+
+
+static bool js_new_cc_Vec4__SWIG_1(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    // js_overloaded_ctor
+    const auto& args = s.args();
+    CC_UNUSED bool ok = true;
+    float arg1 ;
+    float arg2 ;
+    float arg3 ;
+    float arg4 ;
+    cc::Vec4 *result;
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[0], &arg1, nullptr);
+    SE_PRECONDITION2(ok, false, "new_Vec4,1,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[1], &arg2, nullptr);
+    SE_PRECONDITION2(ok, false, "new_Vec4,2,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[2], &arg3, nullptr);
+    SE_PRECONDITION2(ok, false, "new_Vec4,3,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[3], &arg4, nullptr);
+    SE_PRECONDITION2(ok, false, "new_Vec4,4,SWIGTYPE_float"); 
+    result = (cc::Vec4 *)new cc::Vec4(arg1,arg2,arg3,arg4);
+    
+    
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    s.thisObject()->setPrivateObject(ptr);
+    return true;
+}
+
+
+static bool js_new_cc_Vec4__SWIG_2(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    // js_overloaded_ctor
+    const auto& args = s.args();
+    CC_UNUSED bool ok = true;
+    float *arg1 = (float *) NULL ;
+    cc::Vec4 *result;
+    // %typemap(in) SWIGTYPE*
+    ok &= sevalue_to_native(args[0], &arg1, s.thisObject());
+    SE_PRECONDITION2(ok, false, "new_Vec4,1,SWIGTYPE_p_float"); 
+    result = (cc::Vec4 *)new cc::Vec4((float const *)arg1);
+    
+    
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    s.thisObject()->setPrivateObject(ptr);
+    return true;
+}
+
+
+static bool js_new_cc_Vec4__SWIG_3(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    // js_overloaded_ctor
+    const auto& args = s.args();
+    CC_UNUSED bool ok = true;
+    cc::Vec4 *arg1 = 0 ;
+    cc::Vec4 *arg2 = 0 ;
+    cc::Vec4 temp1 ;
+    cc::Vec4 temp2 ;
+    cc::Vec4 *result;
+    // %typemap(in) SWIGTYPE&
+    ok &= sevalue_to_native(args[0], &temp1, s.thisObject());
+    SE_PRECONDITION2(ok, false, "new_Vec4,1,SWIGTYPE_p_cc__Vec4");
+    arg1 = &temp1;
+    
+    // %typemap(in) SWIGTYPE&
+    ok &= sevalue_to_native(args[1], &temp2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "new_Vec4,2,SWIGTYPE_p_cc__Vec4");
+    arg2 = &temp2;
+    
+    result = (cc::Vec4 *)new cc::Vec4((cc::Vec4 const &)*arg1,(cc::Vec4 const &)*arg2);
+    
+    
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    s.thisObject()->setPrivateObject(ptr);
+    return true;
+}
+
+
+static bool js_new_cc_Vec4__SWIG_4(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    // js_overloaded_ctor
+    const auto& args = s.args();
+    CC_UNUSED bool ok = true;
+    cc::Vec4 *arg1 = 0 ;
+    cc::Vec4 temp1 ;
+    cc::Vec4 *result;
+    // %typemap(in) SWIGTYPE&
+    ok &= sevalue_to_native(args[0], &temp1, s.thisObject());
+    SE_PRECONDITION2(ok, false, "new_Vec4,1,SWIGTYPE_p_cc__Vec4");
+    arg1 = &temp1;
+    
+    result = (cc::Vec4 *)new cc::Vec4((cc::Vec4 const &)*arg1);
+    
+    
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    s.thisObject()->setPrivateObject(ptr);
+    return true;
+}
+
+
+static bool js_new_Vec4(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    // js_ctor_dispatcher
+    size_t argc = s.args().size();
+    bool ret = false;
+    
+    // switch all cases by means of series of if-returns.
+    
+    // js_ctor_dispatch_case
+    if(argc == 0) {
+        ret = js_new_cc_Vec4__SWIG_0(s);
+        if (ret) {
+            return ret; 
+        } /* reset exception and return */
+    }
+    
+    // js_ctor_dispatch_case
+    if(argc == 4) {
+        ret = js_new_cc_Vec4__SWIG_1(s);
+        if (ret) {
+            return ret; 
+        } /* reset exception and return */
+    }
+    
+    // js_ctor_dispatch_case
+    if(argc == 1) {
+        ret = js_new_cc_Vec4__SWIG_2(s);
+        if (ret) {
+            return ret; 
+        } /* reset exception and return */
+    }
+    
+    // js_ctor_dispatch_case
+    if(argc == 2) {
+        ret = js_new_cc_Vec4__SWIG_3(s);
+        if (ret) {
+            return ret; 
+        } /* reset exception and return */
+    }
+    
+    // js_ctor_dispatch_case
+    if(argc == 1) {
+        ret = js_new_cc_Vec4__SWIG_4(s);
+        if (ret) {
+            return ret; 
+        } /* reset exception and return */
+    }
+    
+    
+    // default:
+    SE_REPORT_ERROR("Illegal arguments for construction of Vec4");
+    return false;
+}
+SE_BIND_CTOR(js_new_Vec4, __jsb_cc_Vec4_class, js_delete_cc_Vec4)
+
+static bool js_delete_cc_Vec4(se::State& s)
+{
+    // js_dtoroverride
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_delete_cc_Vec4) 
+
+bool js_register_cc_Vec4(se::Object* obj) {
+    auto* cls = se::Class::create("Vec4", obj, nullptr, _SE(js_new_Vec4)); 
+    
+    
+    
+    
+    
+    
+    cls->defineFinalizeFunction(_SE(js_delete_cc_Vec4));
+    
+    
+    cls->install();
+    JSBClassType::registerClass<cc::Vec4>(cls);
+    
+    __jsb_cc_Vec4_proto = cls->getProto();
+    __jsb_cc_Vec4_class = cls;
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
+
+se::Class* __jsb_cc_Mat3_class = nullptr;
+se::Object* __jsb_cc_Mat3_proto = nullptr;
+SE_DECLARE_FINALIZE_FUNC(js_delete_cc_Mat3) 
+
+static bool js_new_cc_Mat3__SWIG_0(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    // js_overloaded_ctor
+    const auto& args = s.args();
+    CC_UNUSED bool ok = true;
+    cc::Mat3 *result;
+    result = (cc::Mat3 *)new cc::Mat3();
+    
+    
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    s.thisObject()->setPrivateObject(ptr);
+    return true;
+}
+
+
+static bool js_new_cc_Mat3__SWIG_1(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    // js_overloaded_ctor
+    const auto& args = s.args();
+    CC_UNUSED bool ok = true;
+    float arg1 ;
+    float arg2 ;
+    float arg3 ;
+    float arg4 ;
+    float arg5 ;
+    float arg6 ;
+    float arg7 ;
+    float arg8 ;
+    float arg9 ;
+    cc::Mat3 *result;
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[0], &arg1, nullptr);
+    SE_PRECONDITION2(ok, false, "new_Mat3,1,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[1], &arg2, nullptr);
+    SE_PRECONDITION2(ok, false, "new_Mat3,2,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[2], &arg3, nullptr);
+    SE_PRECONDITION2(ok, false, "new_Mat3,3,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[3], &arg4, nullptr);
+    SE_PRECONDITION2(ok, false, "new_Mat3,4,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[4], &arg5, nullptr);
+    SE_PRECONDITION2(ok, false, "new_Mat3,5,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[5], &arg6, nullptr);
+    SE_PRECONDITION2(ok, false, "new_Mat3,6,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[6], &arg7, nullptr);
+    SE_PRECONDITION2(ok, false, "new_Mat3,7,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[7], &arg8, nullptr);
+    SE_PRECONDITION2(ok, false, "new_Mat3,8,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[8], &arg9, nullptr);
+    SE_PRECONDITION2(ok, false, "new_Mat3,9,SWIGTYPE_float"); 
+    result = (cc::Mat3 *)new cc::Mat3(arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9);
+    
+    
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    s.thisObject()->setPrivateObject(ptr);
+    return true;
+}
+
+
+static bool js_new_cc_Mat3__SWIG_2(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    // js_overloaded_ctor
+    const auto& args = s.args();
+    CC_UNUSED bool ok = true;
+    float *arg1 = (float *) NULL ;
+    cc::Mat3 *result;
+    // %typemap(in) SWIGTYPE*
+    ok &= sevalue_to_native(args[0], &arg1, s.thisObject());
+    SE_PRECONDITION2(ok, false, "new_Mat3,1,SWIGTYPE_p_float"); 
+    result = (cc::Mat3 *)new cc::Mat3((float const *)arg1);
+    
+    
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    s.thisObject()->setPrivateObject(ptr);
+    return true;
+}
+
+
+static bool js_new_cc_Mat3__SWIG_3(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    // js_overloaded_ctor
+    const auto& args = s.args();
+    CC_UNUSED bool ok = true;
+    cc::Mat3 *arg1 = 0 ;
+    cc::Mat3 temp1 ;
+    cc::Mat3 *result;
+    // %typemap(in) SWIGTYPE&
+    ok &= sevalue_to_native(args[0], &temp1, s.thisObject());
+    SE_PRECONDITION2(ok, false, "new_Mat3,1,SWIGTYPE_p_cc__Mat3");
+    arg1 = &temp1;
+    
+    result = (cc::Mat3 *)new cc::Mat3((cc::Mat3 const &)*arg1);
+    
+    
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    s.thisObject()->setPrivateObject(ptr);
+    return true;
+}
+
+
+static bool js_new_cc_Mat3__SWIG_4(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    // js_overloaded_ctor
+    const auto& args = s.args();
+    CC_UNUSED bool ok = true;
+    cc::Mat4 *arg1 = 0 ;
+    cc::Mat4 temp1 ;
+    cc::Mat3 *result;
+    // %typemap(in) SWIGTYPE&
+    ok &= sevalue_to_native(args[0], &temp1, s.thisObject());
+    SE_PRECONDITION2(ok, false, "new_Mat3,1,SWIGTYPE_p_cc__Mat4");
+    arg1 = &temp1;
+    
+    result = (cc::Mat3 *)new cc::Mat3((cc::Mat4 const &)*arg1);
+    
+    
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    s.thisObject()->setPrivateObject(ptr);
+    return true;
+}
+
+
+static bool js_new_cc_Mat3__SWIG_5(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    // js_overloaded_ctor
+    const auto& args = s.args();
+    CC_UNUSED bool ok = true;
+    cc::Quaternion *arg1 = 0 ;
+    cc::Quaternion temp1 ;
+    cc::Mat3 *result;
+    // %typemap(in) SWIGTYPE&
+    ok &= sevalue_to_native(args[0], &temp1, s.thisObject());
+    SE_PRECONDITION2(ok, false, "new_Mat3,1,SWIGTYPE_p_cc__Quaternion");
+    arg1 = &temp1;
+    
+    result = (cc::Mat3 *)new cc::Mat3((cc::Quaternion const &)*arg1);
+    
+    
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    s.thisObject()->setPrivateObject(ptr);
+    return true;
+}
+
+
+static bool js_new_Mat3(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    // js_ctor_dispatcher
+    size_t argc = s.args().size();
+    bool ret = false;
+    
+    // switch all cases by means of series of if-returns.
+    
+    // js_ctor_dispatch_case
+    if(argc == 0) {
+        ret = js_new_cc_Mat3__SWIG_0(s);
+        if (ret) {
+            return ret; 
+        } /* reset exception and return */
+    }
+    
+    // js_ctor_dispatch_case
+    if(argc == 9) {
+        ret = js_new_cc_Mat3__SWIG_1(s);
+        if (ret) {
+            return ret; 
+        } /* reset exception and return */
+    }
+    
+    // js_ctor_dispatch_case
+    if(argc == 1) {
+        ret = js_new_cc_Mat3__SWIG_2(s);
+        if (ret) {
+            return ret; 
+        } /* reset exception and return */
+    }
+    
+    // js_ctor_dispatch_case
+    if(argc == 1) {
+        ret = js_new_cc_Mat3__SWIG_3(s);
+        if (ret) {
+            return ret; 
+        } /* reset exception and return */
+    }
+    
+    // js_ctor_dispatch_case
+    if(argc == 1) {
+        ret = js_new_cc_Mat3__SWIG_4(s);
+        if (ret) {
+            return ret; 
+        } /* reset exception and return */
+    }
+    
+    // js_ctor_dispatch_case
+    if(argc == 1) {
+        ret = js_new_cc_Mat3__SWIG_5(s);
+        if (ret) {
+            return ret; 
+        } /* reset exception and return */
+    }
+    
+    
+    // default:
+    SE_REPORT_ERROR("Illegal arguments for construction of Mat3");
+    return false;
+}
+SE_BIND_CTOR(js_new_Mat3, __jsb_cc_Mat3_class, js_delete_cc_Mat3)
+
+static bool js_delete_cc_Mat3(se::State& s)
+{
+    // js_dtoroverride
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_delete_cc_Mat3) 
+
+bool js_register_cc_Mat3(se::Object* obj) {
+    auto* cls = se::Class::create("Mat3", obj, nullptr, _SE(js_new_Mat3)); 
+    
+    
+    
+    
+    
+    
+    cls->defineFinalizeFunction(_SE(js_delete_cc_Mat3));
+    
+    
+    cls->install();
+    JSBClassType::registerClass<cc::Mat3>(cls);
+    
+    __jsb_cc_Mat3_proto = cls->getProto();
+    __jsb_cc_Mat3_class = cls;
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
+
+se::Class* __jsb_cc_Mat4_class = nullptr;
+se::Object* __jsb_cc_Mat4_proto = nullptr;
+SE_DECLARE_FINALIZE_FUNC(js_delete_cc_Mat4) 
+
+static bool js_new_cc_Mat4__SWIG_0(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    // js_overloaded_ctor
+    const auto& args = s.args();
+    CC_UNUSED bool ok = true;
+    cc::Mat4 *result;
+    result = (cc::Mat4 *)new cc::Mat4();
+    
+    
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    s.thisObject()->setPrivateObject(ptr);
+    return true;
+}
+
+
+static bool js_new_cc_Mat4__SWIG_1(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    // js_overloaded_ctor
+    const auto& args = s.args();
+    CC_UNUSED bool ok = true;
+    float arg1 ;
+    float arg2 ;
+    float arg3 ;
+    float arg4 ;
+    float arg5 ;
+    float arg6 ;
+    float arg7 ;
+    float arg8 ;
+    float arg9 ;
+    float arg10 ;
+    float arg11 ;
+    float arg12 ;
+    float arg13 ;
+    float arg14 ;
+    float arg15 ;
+    float arg16 ;
+    cc::Mat4 *result;
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[0], &arg1, nullptr);
+    SE_PRECONDITION2(ok, false, "new_Mat4,1,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[1], &arg2, nullptr);
+    SE_PRECONDITION2(ok, false, "new_Mat4,2,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[2], &arg3, nullptr);
+    SE_PRECONDITION2(ok, false, "new_Mat4,3,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[3], &arg4, nullptr);
+    SE_PRECONDITION2(ok, false, "new_Mat4,4,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[4], &arg5, nullptr);
+    SE_PRECONDITION2(ok, false, "new_Mat4,5,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[5], &arg6, nullptr);
+    SE_PRECONDITION2(ok, false, "new_Mat4,6,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[6], &arg7, nullptr);
+    SE_PRECONDITION2(ok, false, "new_Mat4,7,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[7], &arg8, nullptr);
+    SE_PRECONDITION2(ok, false, "new_Mat4,8,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[8], &arg9, nullptr);
+    SE_PRECONDITION2(ok, false, "new_Mat4,9,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[9], &arg10, nullptr);
+    SE_PRECONDITION2(ok, false, "new_Mat4,10,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[10], &arg11, nullptr);
+    SE_PRECONDITION2(ok, false, "new_Mat4,11,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[11], &arg12, nullptr);
+    SE_PRECONDITION2(ok, false, "new_Mat4,12,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[12], &arg13, nullptr);
+    SE_PRECONDITION2(ok, false, "new_Mat4,13,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[13], &arg14, nullptr);
+    SE_PRECONDITION2(ok, false, "new_Mat4,14,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[14], &arg15, nullptr);
+    SE_PRECONDITION2(ok, false, "new_Mat4,15,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[15], &arg16, nullptr);
+    SE_PRECONDITION2(ok, false, "new_Mat4,16,SWIGTYPE_float"); 
+    result = (cc::Mat4 *)new cc::Mat4(arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9,arg10,arg11,arg12,arg13,arg14,arg15,arg16);
+    
+    
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    s.thisObject()->setPrivateObject(ptr);
+    return true;
+}
+
+
+static bool js_new_cc_Mat4__SWIG_2(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    // js_overloaded_ctor
+    const auto& args = s.args();
+    CC_UNUSED bool ok = true;
+    float *arg1 = (float *) NULL ;
+    cc::Mat4 *result;
+    // %typemap(in) SWIGTYPE*
+    ok &= sevalue_to_native(args[0], &arg1, s.thisObject());
+    SE_PRECONDITION2(ok, false, "new_Mat4,1,SWIGTYPE_p_float"); 
+    result = (cc::Mat4 *)new cc::Mat4((float const *)arg1);
+    
+    
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    s.thisObject()->setPrivateObject(ptr);
+    return true;
+}
+
+
+static bool js_new_cc_Mat4__SWIG_3(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    // js_overloaded_ctor
+    const auto& args = s.args();
+    CC_UNUSED bool ok = true;
+    cc::Mat4 *arg1 = 0 ;
+    cc::Mat4 temp1 ;
+    cc::Mat4 *result;
+    // %typemap(in) SWIGTYPE&
+    ok &= sevalue_to_native(args[0], &temp1, s.thisObject());
+    SE_PRECONDITION2(ok, false, "new_Mat4,1,SWIGTYPE_p_cc__Mat4");
+    arg1 = &temp1;
+    
+    result = (cc::Mat4 *)new cc::Mat4((cc::Mat4 const &)*arg1);
+    
+    
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    s.thisObject()->setPrivateObject(ptr);
+    return true;
+}
+
+
+static bool js_new_Mat4(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    // js_ctor_dispatcher
+    size_t argc = s.args().size();
+    bool ret = false;
+    
+    // switch all cases by means of series of if-returns.
+    
+    // js_ctor_dispatch_case
+    if(argc == 0) {
+        ret = js_new_cc_Mat4__SWIG_0(s);
+        if (ret) {
+            return ret; 
+        } /* reset exception and return */
+    }
+    
+    // js_ctor_dispatch_case
+    if(argc == 16) {
+        ret = js_new_cc_Mat4__SWIG_1(s);
+        if (ret) {
+            return ret; 
+        } /* reset exception and return */
+    }
+    
+    // js_ctor_dispatch_case
+    if(argc == 1) {
+        ret = js_new_cc_Mat4__SWIG_2(s);
+        if (ret) {
+            return ret; 
+        } /* reset exception and return */
+    }
+    
+    // js_ctor_dispatch_case
+    if(argc == 1) {
+        ret = js_new_cc_Mat4__SWIG_3(s);
+        if (ret) {
+            return ret; 
+        } /* reset exception and return */
+    }
+    
+    
+    // default:
+    SE_REPORT_ERROR("Illegal arguments for construction of Mat4");
+    return false;
+}
+SE_BIND_CTOR(js_new_Mat4, __jsb_cc_Mat4_class, js_delete_cc_Mat4)
+
+static bool js_delete_cc_Mat4(se::State& s)
+{
+    // js_dtoroverride
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_delete_cc_Mat4) 
+
+bool js_register_cc_Mat4(se::Object* obj) {
+    auto* cls = se::Class::create("Mat4", obj, nullptr, _SE(js_new_Mat4)); 
+    
+    
+    
+    
+    
+    
+    cls->defineFinalizeFunction(_SE(js_delete_cc_Mat4));
+    
+    
+    cls->install();
+    JSBClassType::registerClass<cc::Mat4>(cls);
+    
+    __jsb_cc_Mat4_proto = cls->getProto();
+    __jsb_cc_Mat4_class = cls;
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
+
+se::Class* __jsb_cc_Quaternion_class = nullptr;
+se::Object* __jsb_cc_Quaternion_proto = nullptr;
+SE_DECLARE_FINALIZE_FUNC(js_delete_cc_Quaternion) 
+
+static bool js_new_cc_Quaternion__SWIG_0(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    // js_overloaded_ctor
+    const auto& args = s.args();
+    CC_UNUSED bool ok = true;
+    cc::Quaternion *result;
+    result = (cc::Quaternion *)new cc::Quaternion();
+    
+    
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    s.thisObject()->setPrivateObject(ptr);
+    return true;
+}
+
+
+static bool js_new_cc_Quaternion__SWIG_1(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    // js_overloaded_ctor
+    const auto& args = s.args();
+    CC_UNUSED bool ok = true;
+    float arg1 ;
+    float arg2 ;
+    float arg3 ;
+    float arg4 ;
+    cc::Quaternion *result;
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[0], &arg1, nullptr);
+    SE_PRECONDITION2(ok, false, "new_Quat,1,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[1], &arg2, nullptr);
+    SE_PRECONDITION2(ok, false, "new_Quat,2,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[2], &arg3, nullptr);
+    SE_PRECONDITION2(ok, false, "new_Quat,3,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[3], &arg4, nullptr);
+    SE_PRECONDITION2(ok, false, "new_Quat,4,SWIGTYPE_float"); 
+    result = (cc::Quaternion *)new cc::Quaternion(arg1,arg2,arg3,arg4);
+    
+    
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    s.thisObject()->setPrivateObject(ptr);
+    return true;
+}
+
+
+static bool js_new_cc_Quaternion__SWIG_2(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    // js_overloaded_ctor
+    const auto& args = s.args();
+    CC_UNUSED bool ok = true;
+    float *arg1 = (float *) NULL ;
+    cc::Quaternion *result;
+    // %typemap(in) SWIGTYPE*
+    ok &= sevalue_to_native(args[0], &arg1, s.thisObject());
+    SE_PRECONDITION2(ok, false, "new_Quat,1,SWIGTYPE_p_float"); 
+    result = (cc::Quaternion *)new cc::Quaternion(arg1);
+    
+    
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    s.thisObject()->setPrivateObject(ptr);
+    return true;
+}
+
+
+static bool js_new_cc_Quaternion__SWIG_3(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    // js_overloaded_ctor
+    const auto& args = s.args();
+    CC_UNUSED bool ok = true;
+    cc::Mat4 *arg1 = 0 ;
+    cc::Mat4 temp1 ;
+    cc::Quaternion *result;
+    // %typemap(in) SWIGTYPE&
+    ok &= sevalue_to_native(args[0], &temp1, s.thisObject());
+    SE_PRECONDITION2(ok, false, "new_Quat,1,SWIGTYPE_p_cc__Mat4");
+    arg1 = &temp1;
+    
+    result = (cc::Quaternion *)new cc::Quaternion((cc::Mat4 const &)*arg1);
+    
+    
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    s.thisObject()->setPrivateObject(ptr);
+    return true;
+}
+
+
+static bool js_new_cc_Quaternion__SWIG_4(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    // js_overloaded_ctor
+    const auto& args = s.args();
+    CC_UNUSED bool ok = true;
+    cc::Vec3 *arg1 = 0 ;
+    float arg2 ;
+    cc::Vec3 temp1 ;
+    cc::Quaternion *result;
+    // %typemap(in) SWIGTYPE&
+    ok &= sevalue_to_native(args[0], &temp1, s.thisObject());
+    SE_PRECONDITION2(ok, false, "new_Quat,1,SWIGTYPE_p_cc__Vec3");
+    arg1 = &temp1;
+    
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[1], &arg2, nullptr);
+    SE_PRECONDITION2(ok, false, "new_Quat,2,SWIGTYPE_float"); 
+    result = (cc::Quaternion *)new cc::Quaternion((cc::Vec3 const &)*arg1,arg2);
+    
+    
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    s.thisObject()->setPrivateObject(ptr);
+    return true;
+}
+
+
+static bool js_new_Quat(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    // js_ctor_dispatcher
+    size_t argc = s.args().size();
+    bool ret = false;
+    
+    // switch all cases by means of series of if-returns.
+    
+    // js_ctor_dispatch_case
+    if(argc == 0) {
+        ret = js_new_cc_Quaternion__SWIG_0(s);
+        if (ret) {
+            return ret; 
+        } /* reset exception and return */
+    }
+    
+    // js_ctor_dispatch_case
+    if(argc == 4) {
+        ret = js_new_cc_Quaternion__SWIG_1(s);
+        if (ret) {
+            return ret; 
+        } /* reset exception and return */
+    }
+    
+    // js_ctor_dispatch_case
+    if(argc == 1) {
+        ret = js_new_cc_Quaternion__SWIG_2(s);
+        if (ret) {
+            return ret; 
+        } /* reset exception and return */
+    }
+    
+    // js_ctor_dispatch_case
+    if(argc == 1) {
+        ret = js_new_cc_Quaternion__SWIG_3(s);
+        if (ret) {
+            return ret; 
+        } /* reset exception and return */
+    }
+    
+    // js_ctor_dispatch_case
+    if(argc == 2) {
+        ret = js_new_cc_Quaternion__SWIG_4(s);
+        if (ret) {
+            return ret; 
+        } /* reset exception and return */
+    }
+    
+    
+    // default:
+    SE_REPORT_ERROR("Illegal arguments for construction of Quat");
+    return false;
+}
+SE_BIND_CTOR(js_new_Quat, __jsb_cc_Quaternion_class, js_delete_cc_Quaternion)
+
+static bool js_delete_cc_Quaternion(se::State& s)
+{
+    // js_dtoroverride
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_delete_cc_Quaternion) 
+
+bool js_register_cc_Quaternion(se::Object* obj) {
+    auto* cls = se::Class::create("Quat", obj, nullptr, _SE(js_new_Quat)); 
+    
+    
+    
+    
+    
+    
+    cls->defineFinalizeFunction(_SE(js_delete_cc_Quaternion));
+    
+    
+    cls->install();
+    JSBClassType::registerClass<cc::Quaternion>(cls);
+    
+    __jsb_cc_Quaternion_proto = cls->getProto();
+    __jsb_cc_Quaternion_class = cls;
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
+
 se::Class* __jsb_cc_CCObject_class = nullptr;
 se::Object* __jsb_cc_CCObject_proto = nullptr;
 SE_DECLARE_FINALIZE_FUNC(js_delete_cc_CCObject) 
@@ -5023,3406 +6337,6 @@ bool js_register_cc_SAXParser(se::Object* obj) {
     return true;
 }
 
-
-static bool js_cc_clampf(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    float arg1 ;
-    float arg2 ;
-    float arg3 ;
-    float result;
-    
-    if(argc != 3) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
-        return false;
-    }
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[0], &arg1, nullptr);
-    SE_PRECONDITION2(ok, false, "clampf,1,SWIGTYPE_float"); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[1], &arg2, nullptr);
-    SE_PRECONDITION2(ok, false, "clampf,2,SWIGTYPE_float"); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[2], &arg3, nullptr);
-    SE_PRECONDITION2(ok, false, "clampf,3,SWIGTYPE_float"); 
-    result = (float)cc::clampf(arg1,arg2,arg3);
-    
-    // out 1
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/); 
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_clampf) 
-
-se::Class* __jsb_cc_Vec2_class = nullptr;
-se::Object* __jsb_cc_Vec2_proto = nullptr;
-SE_DECLARE_FINALIZE_FUNC(js_delete_cc_Vec2) 
-
-static bool js_cc_Vec2_x_set(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::Vec2 *arg1 = (cc::Vec2 *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::Vec2>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[0], &arg1->x, nullptr);
-    SE_PRECONDITION2(ok, false, "Vec2_x_set,2,SWIGTYPE_float"); 
-    
-    
-    return true;
-}
-SE_BIND_PROP_SET(js_cc_Vec2_x_set) 
-
-static bool js_cc_Vec2_x_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::Vec2 *arg1 = (cc::Vec2 *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::Vec2>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    
-    // out 1
-    ok &= nativevalue_to_se(arg1->x, s.rval(), s.thisObject() /*ctx*/); 
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_Vec2_x_get) 
-
-static bool js_cc_Vec2_y_set(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::Vec2 *arg1 = (cc::Vec2 *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::Vec2>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[0], &arg1->y, nullptr);
-    SE_PRECONDITION2(ok, false, "Vec2_y_set,2,SWIGTYPE_float"); 
-    
-    
-    return true;
-}
-SE_BIND_PROP_SET(js_cc_Vec2_y_set) 
-
-static bool js_cc_Vec2_y_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::Vec2 *arg1 = (cc::Vec2 *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::Vec2>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    
-    // out 1
-    ok &= nativevalue_to_se(arg1->y, s.rval(), s.thisObject() /*ctx*/); 
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_Vec2_y_get) 
-
-static bool js_new_cc_Vec2__SWIG_0(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    // js_overloaded_ctor
-    const auto& args = s.args();
-    CC_UNUSED bool ok = true;
-    cc::Vec2 *result;
-    result = (cc::Vec2 *)new cc::Vec2();
-    
-    
-    auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
-    s.thisObject()->setPrivateObject(ptr);
-    return true;
-}
-
-
-static bool js_new_cc_Vec2__SWIG_1(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    // js_overloaded_ctor
-    const auto& args = s.args();
-    CC_UNUSED bool ok = true;
-    float arg1 ;
-    float arg2 ;
-    cc::Vec2 *result;
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[0], &arg1, nullptr);
-    SE_PRECONDITION2(ok, false, "new_Vec2,1,SWIGTYPE_float"); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[1], &arg2, nullptr);
-    SE_PRECONDITION2(ok, false, "new_Vec2,2,SWIGTYPE_float"); 
-    result = (cc::Vec2 *)new cc::Vec2(arg1,arg2);
-    
-    
-    auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
-    s.thisObject()->setPrivateObject(ptr);
-    return true;
-}
-
-
-static bool js_new_cc_Vec2__SWIG_2(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    // js_overloaded_ctor
-    const auto& args = s.args();
-    CC_UNUSED bool ok = true;
-    float *arg1 = (float *) NULL ;
-    cc::Vec2 *result;
-    // %typemap(in) SWIGTYPE*
-    ok &= sevalue_to_native(args[0], &arg1, s.thisObject());
-    SE_PRECONDITION2(ok, false, "new_Vec2,1,SWIGTYPE_p_float"); 
-    result = (cc::Vec2 *)new cc::Vec2((float const *)arg1);
-    
-    
-    auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
-    s.thisObject()->setPrivateObject(ptr);
-    return true;
-}
-
-
-static bool js_new_cc_Vec2__SWIG_3(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    // js_overloaded_ctor
-    const auto& args = s.args();
-    CC_UNUSED bool ok = true;
-    cc::Vec2 *arg1 = 0 ;
-    cc::Vec2 *arg2 = 0 ;
-    cc::Vec2 temp1 ;
-    cc::Vec2 temp2 ;
-    cc::Vec2 *result;
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[0], &temp1, s.thisObject());
-    SE_PRECONDITION2(ok, false, "new_Vec2,1,SWIGTYPE_p_cc__Vec2");
-    arg1 = &temp1;
-    
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[1], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "new_Vec2,2,SWIGTYPE_p_cc__Vec2");
-    arg2 = &temp2;
-    
-    result = (cc::Vec2 *)new cc::Vec2((cc::Vec2 const &)*arg1,(cc::Vec2 const &)*arg2);
-    
-    
-    auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
-    s.thisObject()->setPrivateObject(ptr);
-    return true;
-}
-
-
-static bool js_new_cc_Vec2__SWIG_4(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    // js_overloaded_ctor
-    const auto& args = s.args();
-    CC_UNUSED bool ok = true;
-    cc::Vec2 *arg1 = 0 ;
-    cc::Vec2 temp1 ;
-    cc::Vec2 *result;
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[0], &temp1, s.thisObject());
-    SE_PRECONDITION2(ok, false, "new_Vec2,1,SWIGTYPE_p_cc__Vec2");
-    arg1 = &temp1;
-    
-    result = (cc::Vec2 *)new cc::Vec2((cc::Vec2 const &)*arg1);
-    
-    
-    auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
-    s.thisObject()->setPrivateObject(ptr);
-    return true;
-}
-
-
-static bool js_new_Vec2(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    // js_ctor_dispatcher
-    size_t argc = s.args().size();
-    bool ret = false;
-    
-    // switch all cases by means of series of if-returns.
-    
-    // js_ctor_dispatch_case
-    if(argc == 0) {
-        ret = js_new_cc_Vec2__SWIG_0(s);
-        if (ret) {
-            return ret; 
-        } /* reset exception and return */
-    }
-    
-    // js_ctor_dispatch_case
-    if(argc == 2) {
-        ret = js_new_cc_Vec2__SWIG_1(s);
-        if (ret) {
-            return ret; 
-        } /* reset exception and return */
-    }
-    
-    // js_ctor_dispatch_case
-    if(argc == 1) {
-        ret = js_new_cc_Vec2__SWIG_2(s);
-        if (ret) {
-            return ret; 
-        } /* reset exception and return */
-    }
-    
-    // js_ctor_dispatch_case
-    if(argc == 2) {
-        ret = js_new_cc_Vec2__SWIG_3(s);
-        if (ret) {
-            return ret; 
-        } /* reset exception and return */
-    }
-    
-    // js_ctor_dispatch_case
-    if(argc == 1) {
-        ret = js_new_cc_Vec2__SWIG_4(s);
-        if (ret) {
-            return ret; 
-        } /* reset exception and return */
-    }
-    
-    
-    // default:
-    SE_REPORT_ERROR("Illegal arguments for construction of Vec2");
-    return false;
-}
-SE_BIND_CTOR(js_new_Vec2, __jsb_cc_Vec2_class, js_delete_cc_Vec2)
-
-static bool js_delete_cc_Vec2(se::State& s)
-{
-    // js_dtoroverride
-    return true;
-}
-SE_BIND_FINALIZE_FUNC(js_delete_cc_Vec2) 
-
-static bool js_cc_Vec2_isZero(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::Vec2 *arg1 = (cc::Vec2 *) NULL ;
-    bool result;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::Vec2>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    result = (bool)((cc::Vec2 const *)arg1)->isZero();
-    // out 5
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_Vec2_isZero) 
-
-static bool js_cc_Vec2_isOne(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::Vec2 *arg1 = (cc::Vec2 *) NULL ;
-    bool result;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::Vec2>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    result = (bool)((cc::Vec2 const *)arg1)->isOne();
-    // out 5
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_Vec2_isOne) 
-
-static bool js_cc_Vec2_angle_static(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::Vec2 *arg1 = 0 ;
-    cc::Vec2 *arg2 = 0 ;
-    cc::Vec2 temp1 ;
-    cc::Vec2 temp2 ;
-    float result;
-    
-    if(argc != 2) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
-        return false;
-    }
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[0], &temp1, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_angle,1,SWIGTYPE_p_cc__Vec2");
-    arg1 = &temp1;
-    
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[1], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_angle,2,SWIGTYPE_p_cc__Vec2");
-    arg2 = &temp2;
-    
-    result = (float)cc::Vec2::angle((cc::Vec2 const &)*arg1,(cc::Vec2 const &)*arg2);
-    
-    // out 1
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/); 
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_Vec2_angle_static) 
-
-static bool js_cc_Vec2_add__SWIG_0(se::State& s)
-{
-    // js_overloaded_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    cc::Vec2 *arg1 = (cc::Vec2 *) NULL ;
-    cc::Vec2 *arg2 = 0 ;
-    cc::Vec2 temp2 ;
-    
-    arg1 = SE_THIS_OBJECT<cc::Vec2>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_add,2,SWIGTYPE_p_cc__Vec2");
-    arg2 = &temp2;
-    
-    (arg1)->add((cc::Vec2 const &)*arg2);
-    
-    
-    return true;
-}
-
-static bool js_cc_Vec2_add_static__SWIG_1(se::State& s)
-{
-    // js_overloaded_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    cc::Vec2 *arg1 = 0 ;
-    cc::Vec2 *arg2 = 0 ;
-    cc::Vec2 *arg3 = (cc::Vec2 *) NULL ;
-    cc::Vec2 temp1 ;
-    cc::Vec2 temp2 ;
-    
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[0], &temp1, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_add,1,SWIGTYPE_p_cc__Vec2");
-    arg1 = &temp1;
-    
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[1], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_add,2,SWIGTYPE_p_cc__Vec2");
-    arg2 = &temp2;
-    
-    // %typemap(in) SWIGTYPE*
-    ok &= sevalue_to_native(args[2], &arg3, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_add,3,SWIGTYPE_p_cc__Vec2"); 
-    cc::Vec2::add((cc::Vec2 const &)*arg1,(cc::Vec2 const &)*arg2,arg3);
-    
-    
-    return true;
-}
-
-static bool js_cc_Vec2_add_static(se::State& s)
-{
-    // js_function_dispatcher
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    
-    // js_function_dispatch_case
-    if (argc == 1) {
-        ok = js_cc_Vec2_add__SWIG_0(s);
-        if (ok) {
-            return true; 
-        }
-    } // js_function_dispatch_case
-    if (argc == 3) {
-        ok = js_cc_Vec2_add_static__SWIG_1(s);
-        if (ok) {
-            return true; 
-        }
-    } 
-    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
-    return false;
-}
-SE_BIND_FUNC(js_cc_Vec2_add_static) 
-
-static bool js_cc_Vec2_clamp__SWIG_0(se::State& s)
-{
-    // js_overloaded_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    cc::Vec2 *arg1 = (cc::Vec2 *) NULL ;
-    cc::Vec2 *arg2 = 0 ;
-    cc::Vec2 *arg3 = 0 ;
-    cc::Vec2 temp2 ;
-    cc::Vec2 temp3 ;
-    
-    arg1 = SE_THIS_OBJECT<cc::Vec2>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_clamp,2,SWIGTYPE_p_cc__Vec2");
-    arg2 = &temp2;
-    
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[1], &temp3, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_clamp,3,SWIGTYPE_p_cc__Vec2");
-    arg3 = &temp3;
-    
-    (arg1)->clamp((cc::Vec2 const &)*arg2,(cc::Vec2 const &)*arg3);
-    
-    
-    return true;
-}
-
-static bool js_cc_Vec2_clamp_static__SWIG_1(se::State& s)
-{
-    // js_overloaded_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    cc::Vec2 *arg1 = 0 ;
-    cc::Vec2 *arg2 = 0 ;
-    cc::Vec2 *arg3 = 0 ;
-    cc::Vec2 *arg4 = (cc::Vec2 *) NULL ;
-    cc::Vec2 temp1 ;
-    cc::Vec2 temp2 ;
-    cc::Vec2 temp3 ;
-    
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[0], &temp1, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_clamp,1,SWIGTYPE_p_cc__Vec2");
-    arg1 = &temp1;
-    
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[1], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_clamp,2,SWIGTYPE_p_cc__Vec2");
-    arg2 = &temp2;
-    
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[2], &temp3, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_clamp,3,SWIGTYPE_p_cc__Vec2");
-    arg3 = &temp3;
-    
-    // %typemap(in) SWIGTYPE*
-    ok &= sevalue_to_native(args[3], &arg4, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_clamp,4,SWIGTYPE_p_cc__Vec2"); 
-    cc::Vec2::clamp((cc::Vec2 const &)*arg1,(cc::Vec2 const &)*arg2,(cc::Vec2 const &)*arg3,arg4);
-    
-    
-    return true;
-}
-
-static bool js_cc_Vec2_clamp_static(se::State& s)
-{
-    // js_function_dispatcher
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    
-    // js_function_dispatch_case
-    if (argc == 2) {
-        ok = js_cc_Vec2_clamp__SWIG_0(s);
-        if (ok) {
-            return true; 
-        }
-    } // js_function_dispatch_case
-    if (argc == 4) {
-        ok = js_cc_Vec2_clamp_static__SWIG_1(s);
-        if (ok) {
-            return true; 
-        }
-    } 
-    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
-    return false;
-}
-SE_BIND_FUNC(js_cc_Vec2_clamp_static) 
-
-static bool js_cc_Vec2_distance(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::Vec2 *arg1 = (cc::Vec2 *) NULL ;
-    cc::Vec2 *arg2 = 0 ;
-    cc::Vec2 temp2 ;
-    float result;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::Vec2>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_distance,2,SWIGTYPE_p_cc__Vec2");
-    arg2 = &temp2;
-    
-    result = (float)((cc::Vec2 const *)arg1)->distance((cc::Vec2 const &)*arg2);
-    
-    // out 1
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/); 
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_Vec2_distance) 
-
-static bool js_cc_Vec2_distanceSquared(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::Vec2 *arg1 = (cc::Vec2 *) NULL ;
-    cc::Vec2 *arg2 = 0 ;
-    cc::Vec2 temp2 ;
-    float result;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::Vec2>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_distanceSquared,2,SWIGTYPE_p_cc__Vec2");
-    arg2 = &temp2;
-    
-    result = (float)((cc::Vec2 const *)arg1)->distanceSquared((cc::Vec2 const &)*arg2);
-    
-    // out 1
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/); 
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_Vec2_distanceSquared) 
-
-static bool js_cc_Vec2_dot__SWIG_0(se::State& s)
-{
-    // js_overloaded_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    cc::Vec2 *arg1 = (cc::Vec2 *) NULL ;
-    cc::Vec2 *arg2 = 0 ;
-    cc::Vec2 temp2 ;
-    float result;
-    
-    arg1 = SE_THIS_OBJECT<cc::Vec2>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_dot,2,SWIGTYPE_p_cc__Vec2");
-    arg2 = &temp2;
-    
-    result = (float)((cc::Vec2 const *)arg1)->dot((cc::Vec2 const &)*arg2);
-    
-    // out 1
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/); 
-    
-    
-    return true;
-}
-
-static bool js_cc_Vec2_dot_static__SWIG_1(se::State& s)
-{
-    // js_overloaded_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    cc::Vec2 *arg1 = 0 ;
-    cc::Vec2 *arg2 = 0 ;
-    cc::Vec2 temp1 ;
-    cc::Vec2 temp2 ;
-    float result;
-    
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[0], &temp1, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_dot,1,SWIGTYPE_p_cc__Vec2");
-    arg1 = &temp1;
-    
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[1], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_dot,2,SWIGTYPE_p_cc__Vec2");
-    arg2 = &temp2;
-    
-    result = (float)cc::Vec2::dot((cc::Vec2 const &)*arg1,(cc::Vec2 const &)*arg2);
-    
-    // out 1
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/); 
-    
-    
-    return true;
-}
-
-static bool js_cc_Vec2_dot_static(se::State& s)
-{
-    // js_function_dispatcher
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    
-    // js_function_dispatch_case
-    if (argc == 1) {
-        ok = js_cc_Vec2_dot__SWIG_0(s);
-        if (ok) {
-            return true; 
-        }
-    } // js_function_dispatch_case
-    if (argc == 2) {
-        ok = js_cc_Vec2_dot_static__SWIG_1(s);
-        if (ok) {
-            return true; 
-        }
-    } 
-    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
-    return false;
-}
-SE_BIND_FUNC(js_cc_Vec2_dot_static) 
-
-static bool js_cc_Vec2_length(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::Vec2 *arg1 = (cc::Vec2 *) NULL ;
-    float result;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::Vec2>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    result = (float)((cc::Vec2 const *)arg1)->length();
-    
-    // out 1
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/); 
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_Vec2_length) 
-
-static bool js_cc_Vec2_lengthSquared(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::Vec2 *arg1 = (cc::Vec2 *) NULL ;
-    float result;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::Vec2>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    result = (float)((cc::Vec2 const *)arg1)->lengthSquared();
-    
-    // out 1
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/); 
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_Vec2_lengthSquared) 
-
-static bool js_cc_Vec2_negate(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::Vec2 *arg1 = (cc::Vec2 *) NULL ;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::Vec2>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    (arg1)->negate();
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_Vec2_negate) 
-
-static bool js_cc_Vec2_normalize(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::Vec2 *arg1 = (cc::Vec2 *) NULL ;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::Vec2>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    (arg1)->normalize();
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_Vec2_normalize) 
-
-static bool js_cc_Vec2_getNormalized(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::Vec2 *arg1 = (cc::Vec2 *) NULL ;
-    cc::Vec2 result;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::Vec2>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    result = ((cc::Vec2 const *)arg1)->getNormalized();
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "Vec2_getNormalized, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_Vec2_getNormalized) 
-
-static bool js_cc_Vec2_scale__SWIG_0(se::State& s)
-{
-    // js_overloaded_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    cc::Vec2 *arg1 = (cc::Vec2 *) NULL ;
-    float arg2 ;
-    
-    arg1 = SE_THIS_OBJECT<cc::Vec2>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[0], &arg2, nullptr);
-    SE_PRECONDITION2(ok, false, "Vec2_scale,2,SWIGTYPE_float"); 
-    (arg1)->scale(arg2);
-    
-    
-    return true;
-}
-
-static bool js_cc_Vec2_scale__SWIG_1(se::State& s)
-{
-    // js_overloaded_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    cc::Vec2 *arg1 = (cc::Vec2 *) NULL ;
-    cc::Vec2 *arg2 = 0 ;
-    cc::Vec2 temp2 ;
-    
-    arg1 = SE_THIS_OBJECT<cc::Vec2>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_scale,2,SWIGTYPE_p_cc__Vec2");
-    arg2 = &temp2;
-    
-    (arg1)->scale((cc::Vec2 const &)*arg2);
-    
-    
-    return true;
-}
-
-static bool js_cc_Vec2_scale(se::State& s)
-{
-    // js_function_dispatcher
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    
-    // js_function_dispatch_case
-    if (argc == 1) {
-        ok = js_cc_Vec2_scale__SWIG_0(s);
-        if (ok) {
-            return true; 
-        }
-    } // js_function_dispatch_case
-    if (argc == 1) {
-        ok = js_cc_Vec2_scale__SWIG_1(s);
-        if (ok) {
-            return true; 
-        }
-    } 
-    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
-    return false;
-}
-SE_BIND_FUNC(js_cc_Vec2_scale) 
-
-static bool js_cc_Vec2_rotate__SWIG_0(se::State& s)
-{
-    // js_overloaded_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    cc::Vec2 *arg1 = (cc::Vec2 *) NULL ;
-    cc::Vec2 *arg2 = 0 ;
-    float arg3 ;
-    cc::Vec2 temp2 ;
-    
-    arg1 = SE_THIS_OBJECT<cc::Vec2>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_rotate,2,SWIGTYPE_p_cc__Vec2");
-    arg2 = &temp2;
-    
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[1], &arg3, nullptr);
-    SE_PRECONDITION2(ok, false, "Vec2_rotate,3,SWIGTYPE_float"); 
-    (arg1)->rotate((cc::Vec2 const &)*arg2,arg3);
-    
-    
-    return true;
-}
-
-static bool js_cc_Vec2_set__SWIG_0(se::State& s)
-{
-    // js_overloaded_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    cc::Vec2 *arg1 = (cc::Vec2 *) NULL ;
-    float arg2 ;
-    float arg3 ;
-    
-    arg1 = SE_THIS_OBJECT<cc::Vec2>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[0], &arg2, nullptr);
-    SE_PRECONDITION2(ok, false, "Vec2_set,2,SWIGTYPE_float"); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[1], &arg3, nullptr);
-    SE_PRECONDITION2(ok, false, "Vec2_set,3,SWIGTYPE_float"); 
-    (arg1)->set(arg2,arg3);
-    
-    
-    return true;
-}
-
-static bool js_cc_Vec2_set__SWIG_1(se::State& s)
-{
-    // js_overloaded_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    cc::Vec2 *arg1 = (cc::Vec2 *) NULL ;
-    float *arg2 = (float *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::Vec2>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) SWIGTYPE*
-    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_set,2,SWIGTYPE_p_float"); 
-    (arg1)->set((float const *)arg2);
-    
-    
-    return true;
-}
-
-static bool js_cc_Vec2_set__SWIG_2(se::State& s)
-{
-    // js_overloaded_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    cc::Vec2 *arg1 = (cc::Vec2 *) NULL ;
-    cc::Vec2 *arg2 = 0 ;
-    cc::Vec2 temp2 ;
-    
-    arg1 = SE_THIS_OBJECT<cc::Vec2>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_set,2,SWIGTYPE_p_cc__Vec2");
-    arg2 = &temp2;
-    
-    (arg1)->set((cc::Vec2 const &)*arg2);
-    
-    
-    return true;
-}
-
-static bool js_cc_Vec2_set__SWIG_3(se::State& s)
-{
-    // js_overloaded_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    cc::Vec2 *arg1 = (cc::Vec2 *) NULL ;
-    cc::Vec2 *arg2 = 0 ;
-    cc::Vec2 *arg3 = 0 ;
-    cc::Vec2 temp2 ;
-    cc::Vec2 temp3 ;
-    
-    arg1 = SE_THIS_OBJECT<cc::Vec2>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_set,2,SWIGTYPE_p_cc__Vec2");
-    arg2 = &temp2;
-    
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[1], &temp3, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_set,3,SWIGTYPE_p_cc__Vec2");
-    arg3 = &temp3;
-    
-    (arg1)->set((cc::Vec2 const &)*arg2,(cc::Vec2 const &)*arg3);
-    
-    
-    return true;
-}
-
-static bool js_cc_Vec2_set(se::State& s)
-{
-    // js_function_dispatcher
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    
-    // js_function_dispatch_case
-    if (argc == 2) {
-        ok = js_cc_Vec2_set__SWIG_0(s);
-        if (ok) {
-            return true; 
-        }
-    } // js_function_dispatch_case
-    if (argc == 1) {
-        ok = js_cc_Vec2_set__SWIG_1(s);
-        if (ok) {
-            return true; 
-        }
-    } // js_function_dispatch_case
-    if (argc == 1) {
-        ok = js_cc_Vec2_set__SWIG_2(s);
-        if (ok) {
-            return true; 
-        }
-    } // js_function_dispatch_case
-    if (argc == 2) {
-        ok = js_cc_Vec2_set__SWIG_3(s);
-        if (ok) {
-            return true; 
-        }
-    } 
-    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
-    return false;
-}
-SE_BIND_FUNC(js_cc_Vec2_set) 
-
-static bool js_cc_Vec2_setZero(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::Vec2 *arg1 = (cc::Vec2 *) NULL ;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::Vec2>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    (arg1)->setZero();
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_Vec2_setZero) 
-
-static bool js_cc_Vec2_subtract__SWIG_0(se::State& s)
-{
-    // js_overloaded_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    cc::Vec2 *arg1 = (cc::Vec2 *) NULL ;
-    cc::Vec2 *arg2 = 0 ;
-    cc::Vec2 temp2 ;
-    
-    arg1 = SE_THIS_OBJECT<cc::Vec2>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_subtract,2,SWIGTYPE_p_cc__Vec2");
-    arg2 = &temp2;
-    
-    (arg1)->subtract((cc::Vec2 const &)*arg2);
-    
-    
-    return true;
-}
-
-static bool js_cc_Vec2_subtract_static__SWIG_1(se::State& s)
-{
-    // js_overloaded_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    cc::Vec2 *arg1 = 0 ;
-    cc::Vec2 *arg2 = 0 ;
-    cc::Vec2 *arg3 = (cc::Vec2 *) NULL ;
-    cc::Vec2 temp1 ;
-    cc::Vec2 temp2 ;
-    
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[0], &temp1, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_subtract,1,SWIGTYPE_p_cc__Vec2");
-    arg1 = &temp1;
-    
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[1], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_subtract,2,SWIGTYPE_p_cc__Vec2");
-    arg2 = &temp2;
-    
-    // %typemap(in) SWIGTYPE*
-    ok &= sevalue_to_native(args[2], &arg3, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_subtract,3,SWIGTYPE_p_cc__Vec2"); 
-    cc::Vec2::subtract((cc::Vec2 const &)*arg1,(cc::Vec2 const &)*arg2,arg3);
-    
-    
-    return true;
-}
-
-static bool js_cc_Vec2_subtract_static(se::State& s)
-{
-    // js_function_dispatcher
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    
-    // js_function_dispatch_case
-    if (argc == 1) {
-        ok = js_cc_Vec2_subtract__SWIG_0(s);
-        if (ok) {
-            return true; 
-        }
-    } // js_function_dispatch_case
-    if (argc == 3) {
-        ok = js_cc_Vec2_subtract_static__SWIG_1(s);
-        if (ok) {
-            return true; 
-        }
-    } 
-    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
-    return false;
-}
-SE_BIND_FUNC(js_cc_Vec2_subtract_static) 
-
-static bool js_cc_Vec2_smooth(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::Vec2 *arg1 = (cc::Vec2 *) NULL ;
-    cc::Vec2 *arg2 = 0 ;
-    float arg3 ;
-    float arg4 ;
-    cc::Vec2 temp2 ;
-    
-    if(argc != 3) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::Vec2>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_smooth,2,SWIGTYPE_p_cc__Vec2");
-    arg2 = &temp2;
-    
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[1], &arg3, nullptr);
-    SE_PRECONDITION2(ok, false, "Vec2_smooth,3,SWIGTYPE_float"); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[2], &arg4, nullptr);
-    SE_PRECONDITION2(ok, false, "Vec2_smooth,4,SWIGTYPE_float"); 
-    (arg1)->smooth((cc::Vec2 const &)*arg2,arg3,arg4);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_Vec2_smooth) 
-
-static bool js_cc_Vec2_approxEquals__SWIG_0(se::State& s)
-{
-    // js_overloaded_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    cc::Vec2 *arg1 = (cc::Vec2 *) NULL ;
-    cc::Vec2 *arg2 = 0 ;
-    float arg3 ;
-    cc::Vec2 temp2 ;
-    bool result;
-    
-    arg1 = SE_THIS_OBJECT<cc::Vec2>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_approxEquals,2,SWIGTYPE_p_cc__Vec2");
-    arg2 = &temp2;
-    
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[1], &arg3, nullptr);
-    SE_PRECONDITION2(ok, false, "Vec2_approxEquals,3,SWIGTYPE_float"); 
-    result = (bool)((cc::Vec2 const *)arg1)->approxEquals((cc::Vec2 const &)*arg2,arg3);
-    // out 5
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    
-    
-    return true;
-}
-
-static bool js_cc_Vec2_approxEquals__SWIG_1(se::State& s)
-{
-    // js_overloaded_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    cc::Vec2 *arg1 = (cc::Vec2 *) NULL ;
-    cc::Vec2 *arg2 = 0 ;
-    cc::Vec2 temp2 ;
-    bool result;
-    
-    arg1 = SE_THIS_OBJECT<cc::Vec2>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_approxEquals,2,SWIGTYPE_p_cc__Vec2");
-    arg2 = &temp2;
-    
-    result = (bool)((cc::Vec2 const *)arg1)->approxEquals((cc::Vec2 const &)*arg2);
-    // out 5
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    
-    
-    return true;
-}
-
-static bool js_cc_Vec2_approxEquals(se::State& s)
-{
-    // js_function_dispatcher
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    
-    // js_function_dispatch_case
-    if (argc == 2) {
-        ok = js_cc_Vec2_approxEquals__SWIG_0(s);
-        if (ok) {
-            return true; 
-        }
-    } // js_function_dispatch_case
-    if (argc == 1) {
-        ok = js_cc_Vec2_approxEquals__SWIG_1(s);
-        if (ok) {
-            return true; 
-        }
-    } 
-    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
-    return false;
-}
-SE_BIND_FUNC(js_cc_Vec2_approxEquals) 
-
-static bool js_cc_Vec2_setPoint(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::Vec2 *arg1 = (cc::Vec2 *) NULL ;
-    float arg2 ;
-    float arg3 ;
-    
-    if(argc != 2) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::Vec2>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[0], &arg2, nullptr);
-    SE_PRECONDITION2(ok, false, "Vec2_setPoint,2,SWIGTYPE_float"); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[1], &arg3, nullptr);
-    SE_PRECONDITION2(ok, false, "Vec2_setPoint,3,SWIGTYPE_float"); 
-    (arg1)->setPoint(arg2,arg3);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_Vec2_setPoint) 
-
-static bool js_cc_Vec2_equals(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::Vec2 *arg1 = (cc::Vec2 *) NULL ;
-    cc::Vec2 *arg2 = 0 ;
-    cc::Vec2 temp2 ;
-    bool result;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::Vec2>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_equals,2,SWIGTYPE_p_cc__Vec2");
-    arg2 = &temp2;
-    
-    result = (bool)((cc::Vec2 const *)arg1)->equals((cc::Vec2 const &)*arg2);
-    // out 5
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_Vec2_equals) 
-
-static bool js_cc_Vec2_fuzzyEquals(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::Vec2 *arg1 = (cc::Vec2 *) NULL ;
-    cc::Vec2 *arg2 = 0 ;
-    float arg3 ;
-    cc::Vec2 temp2 ;
-    bool result;
-    
-    if(argc != 2) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::Vec2>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_fuzzyEquals,2,SWIGTYPE_p_cc__Vec2");
-    arg2 = &temp2;
-    
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[1], &arg3, nullptr);
-    SE_PRECONDITION2(ok, false, "Vec2_fuzzyEquals,3,SWIGTYPE_float"); 
-    result = (bool)((cc::Vec2 const *)arg1)->fuzzyEquals((cc::Vec2 const &)*arg2,arg3);
-    // out 5
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_Vec2_fuzzyEquals) 
-
-static bool js_cc_Vec2_getLength(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::Vec2 *arg1 = (cc::Vec2 *) NULL ;
-    float result;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::Vec2>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    result = (float)((cc::Vec2 const *)arg1)->getLength();
-    
-    // out 1
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/); 
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_Vec2_getLength) 
-
-static bool js_cc_Vec2_getLengthSq(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::Vec2 *arg1 = (cc::Vec2 *) NULL ;
-    float result;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::Vec2>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    result = (float)((cc::Vec2 const *)arg1)->getLengthSq();
-    
-    // out 1
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/); 
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_Vec2_getLengthSq) 
-
-static bool js_cc_Vec2_getDistanceSq(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::Vec2 *arg1 = (cc::Vec2 *) NULL ;
-    cc::Vec2 *arg2 = 0 ;
-    cc::Vec2 temp2 ;
-    float result;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::Vec2>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_getDistanceSq,2,SWIGTYPE_p_cc__Vec2");
-    arg2 = &temp2;
-    
-    result = (float)((cc::Vec2 const *)arg1)->getDistanceSq((cc::Vec2 const &)*arg2);
-    
-    // out 1
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/); 
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_Vec2_getDistanceSq) 
-
-static bool js_cc_Vec2_getDistance(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::Vec2 *arg1 = (cc::Vec2 *) NULL ;
-    cc::Vec2 *arg2 = 0 ;
-    cc::Vec2 temp2 ;
-    float result;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::Vec2>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_getDistance,2,SWIGTYPE_p_cc__Vec2");
-    arg2 = &temp2;
-    
-    result = (float)((cc::Vec2 const *)arg1)->getDistance((cc::Vec2 const &)*arg2);
-    
-    // out 1
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/); 
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_Vec2_getDistance) 
-
-static bool js_cc_Vec2_getAngle__SWIG_0(se::State& s)
-{
-    // js_overloaded_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    cc::Vec2 *arg1 = (cc::Vec2 *) NULL ;
-    float result;
-    
-    arg1 = SE_THIS_OBJECT<cc::Vec2>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    result = (float)((cc::Vec2 const *)arg1)->getAngle();
-    
-    // out 1
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/); 
-    
-    
-    return true;
-}
-
-static bool js_cc_Vec2_getAngle__SWIG_1(se::State& s)
-{
-    // js_overloaded_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    cc::Vec2 *arg1 = (cc::Vec2 *) NULL ;
-    cc::Vec2 *arg2 = 0 ;
-    cc::Vec2 temp2 ;
-    float result;
-    
-    arg1 = SE_THIS_OBJECT<cc::Vec2>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_getAngle,2,SWIGTYPE_p_cc__Vec2");
-    arg2 = &temp2;
-    
-    result = (float)((cc::Vec2 const *)arg1)->getAngle((cc::Vec2 const &)*arg2);
-    
-    // out 1
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/); 
-    
-    
-    return true;
-}
-
-static bool js_cc_Vec2_getAngle(se::State& s)
-{
-    // js_function_dispatcher
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    
-    // js_function_dispatch_case
-    if (argc == 0) {
-        ok = js_cc_Vec2_getAngle__SWIG_0(s);
-        if (ok) {
-            return true; 
-        }
-    } // js_function_dispatch_case
-    if (argc == 1) {
-        ok = js_cc_Vec2_getAngle__SWIG_1(s);
-        if (ok) {
-            return true; 
-        }
-    } 
-    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
-    return false;
-}
-SE_BIND_FUNC(js_cc_Vec2_getAngle) 
-
-static bool js_cc_Vec2_cross(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::Vec2 *arg1 = (cc::Vec2 *) NULL ;
-    cc::Vec2 *arg2 = 0 ;
-    cc::Vec2 temp2 ;
-    float result;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::Vec2>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_cross,2,SWIGTYPE_p_cc__Vec2");
-    arg2 = &temp2;
-    
-    result = (float)((cc::Vec2 const *)arg1)->cross((cc::Vec2 const &)*arg2);
-    
-    // out 1
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/); 
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_Vec2_cross) 
-
-static bool js_cc_Vec2_getPerp(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::Vec2 *arg1 = (cc::Vec2 *) NULL ;
-    cc::Vec2 result;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::Vec2>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    result = ((cc::Vec2 const *)arg1)->getPerp();
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "Vec2_getPerp, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_Vec2_getPerp) 
-
-static bool js_cc_Vec2_getMidpoint(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::Vec2 *arg1 = (cc::Vec2 *) NULL ;
-    cc::Vec2 *arg2 = 0 ;
-    cc::Vec2 temp2 ;
-    cc::Vec2 result;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::Vec2>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_getMidpoint,2,SWIGTYPE_p_cc__Vec2");
-    arg2 = &temp2;
-    
-    result = ((cc::Vec2 const *)arg1)->getMidpoint((cc::Vec2 const &)*arg2);
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "Vec2_getMidpoint, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_Vec2_getMidpoint) 
-
-static bool js_cc_Vec2_getClampPoint(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::Vec2 *arg1 = (cc::Vec2 *) NULL ;
-    cc::Vec2 *arg2 = 0 ;
-    cc::Vec2 *arg3 = 0 ;
-    cc::Vec2 temp2 ;
-    cc::Vec2 temp3 ;
-    cc::Vec2 result;
-    
-    if(argc != 2) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::Vec2>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_getClampPoint,2,SWIGTYPE_p_cc__Vec2");
-    arg2 = &temp2;
-    
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[1], &temp3, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_getClampPoint,3,SWIGTYPE_p_cc__Vec2");
-    arg3 = &temp3;
-    
-    result = ((cc::Vec2 const *)arg1)->getClampPoint((cc::Vec2 const &)*arg2,(cc::Vec2 const &)*arg3);
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "Vec2_getClampPoint, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_Vec2_getClampPoint) 
-
-static bool js_cc_Vec2_getRPerp(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::Vec2 *arg1 = (cc::Vec2 *) NULL ;
-    cc::Vec2 result;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::Vec2>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    result = ((cc::Vec2 const *)arg1)->getRPerp();
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "Vec2_getRPerp, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_Vec2_getRPerp) 
-
-static bool js_cc_Vec2_project(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::Vec2 *arg1 = (cc::Vec2 *) NULL ;
-    cc::Vec2 *arg2 = 0 ;
-    cc::Vec2 temp2 ;
-    cc::Vec2 result;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::Vec2>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_project,2,SWIGTYPE_p_cc__Vec2");
-    arg2 = &temp2;
-    
-    result = ((cc::Vec2 const *)arg1)->project((cc::Vec2 const &)*arg2);
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "Vec2_project, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_Vec2_project) 
-
-static bool js_cc_Vec2_rotate__SWIG_1(se::State& s)
-{
-    // js_overloaded_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    cc::Vec2 *arg1 = (cc::Vec2 *) NULL ;
-    cc::Vec2 *arg2 = 0 ;
-    cc::Vec2 temp2 ;
-    cc::Vec2 result;
-    
-    arg1 = SE_THIS_OBJECT<cc::Vec2>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_rotate,2,SWIGTYPE_p_cc__Vec2");
-    arg2 = &temp2;
-    
-    result = ((cc::Vec2 const *)arg1)->rotate((cc::Vec2 const &)*arg2);
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "Vec2_rotate, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-
-static bool js_cc_Vec2_rotate(se::State& s)
-{
-    // js_function_dispatcher
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    
-    // js_function_dispatch_case
-    if (argc == 2) {
-        ok = js_cc_Vec2_rotate__SWIG_0(s);
-        if (ok) {
-            return true; 
-        }
-    } // js_function_dispatch_case
-    if (argc == 1) {
-        ok = js_cc_Vec2_rotate__SWIG_1(s);
-        if (ok) {
-            return true; 
-        }
-    } 
-    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
-    return false;
-}
-SE_BIND_FUNC(js_cc_Vec2_rotate) 
-
-static bool js_cc_Vec2_unrotate(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::Vec2 *arg1 = (cc::Vec2 *) NULL ;
-    cc::Vec2 *arg2 = 0 ;
-    cc::Vec2 temp2 ;
-    cc::Vec2 result;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::Vec2>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_unrotate,2,SWIGTYPE_p_cc__Vec2");
-    arg2 = &temp2;
-    
-    result = ((cc::Vec2 const *)arg1)->unrotate((cc::Vec2 const &)*arg2);
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "Vec2_unrotate, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_Vec2_unrotate) 
-
-static bool js_cc_Vec2_lerp(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::Vec2 *arg1 = (cc::Vec2 *) NULL ;
-    cc::Vec2 *arg2 = 0 ;
-    float arg3 ;
-    cc::Vec2 temp2 ;
-    cc::Vec2 result;
-    
-    if(argc != 2) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::Vec2>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_lerp,2,SWIGTYPE_p_cc__Vec2");
-    arg2 = &temp2;
-    
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[1], &arg3, nullptr);
-    SE_PRECONDITION2(ok, false, "Vec2_lerp,3,SWIGTYPE_float"); 
-    result = ((cc::Vec2 const *)arg1)->lerp((cc::Vec2 const &)*arg2,arg3);
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "Vec2_lerp, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_Vec2_lerp) 
-
-static bool js_cc_Vec2_rotateByAngle(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::Vec2 *arg1 = (cc::Vec2 *) NULL ;
-    cc::Vec2 *arg2 = 0 ;
-    float arg3 ;
-    cc::Vec2 temp2 ;
-    cc::Vec2 result;
-    
-    if(argc != 2) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::Vec2>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_rotateByAngle,2,SWIGTYPE_p_cc__Vec2");
-    arg2 = &temp2;
-    
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[1], &arg3, nullptr);
-    SE_PRECONDITION2(ok, false, "Vec2_rotateByAngle,3,SWIGTYPE_float"); 
-    result = ((cc::Vec2 const *)arg1)->rotateByAngle((cc::Vec2 const &)*arg2,arg3);
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "Vec2_rotateByAngle, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_Vec2_rotateByAngle) 
-
-static bool js_cc_Vec2_forAngle_static(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    float arg1 ;
-    cc::Vec2 result;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[0], &arg1, nullptr);
-    SE_PRECONDITION2(ok, false, "Vec2_forAngle,1,SWIGTYPE_float"); 
-    result = cc::Vec2::forAngle(arg1);
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "Vec2_forAngle, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_Vec2_forAngle_static) 
-
-static bool js_cc_Vec2_isLineIntersect_static__SWIG_0(se::State& s)
-{
-    // js_overloaded_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    cc::Vec2 *arg1 = 0 ;
-    cc::Vec2 *arg2 = 0 ;
-    cc::Vec2 *arg3 = 0 ;
-    cc::Vec2 *arg4 = 0 ;
-    float *arg5 = (float *) NULL ;
-    float *arg6 = (float *) NULL ;
-    cc::Vec2 temp1 ;
-    cc::Vec2 temp2 ;
-    cc::Vec2 temp3 ;
-    cc::Vec2 temp4 ;
-    bool result;
-    
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[0], &temp1, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_isLineIntersect,1,SWIGTYPE_p_cc__Vec2");
-    arg1 = &temp1;
-    
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[1], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_isLineIntersect,2,SWIGTYPE_p_cc__Vec2");
-    arg2 = &temp2;
-    
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[2], &temp3, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_isLineIntersect,3,SWIGTYPE_p_cc__Vec2");
-    arg3 = &temp3;
-    
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[3], &temp4, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_isLineIntersect,4,SWIGTYPE_p_cc__Vec2");
-    arg4 = &temp4;
-    
-    // %typemap(in) SWIGTYPE*
-    ok &= sevalue_to_native(args[4], &arg5, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_isLineIntersect,5,SWIGTYPE_p_float"); 
-    // %typemap(in) SWIGTYPE*
-    ok &= sevalue_to_native(args[5], &arg6, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_isLineIntersect,6,SWIGTYPE_p_float"); 
-    result = (bool)cc::Vec2::isLineIntersect((cc::Vec2 const &)*arg1,(cc::Vec2 const &)*arg2,(cc::Vec2 const &)*arg3,(cc::Vec2 const &)*arg4,arg5,arg6);
-    // out 5
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    
-    
-    return true;
-}
-
-static bool js_cc_Vec2_isLineIntersect_static__SWIG_1(se::State& s)
-{
-    // js_overloaded_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    cc::Vec2 *arg1 = 0 ;
-    cc::Vec2 *arg2 = 0 ;
-    cc::Vec2 *arg3 = 0 ;
-    cc::Vec2 *arg4 = 0 ;
-    float *arg5 = (float *) NULL ;
-    cc::Vec2 temp1 ;
-    cc::Vec2 temp2 ;
-    cc::Vec2 temp3 ;
-    cc::Vec2 temp4 ;
-    bool result;
-    
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[0], &temp1, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_isLineIntersect,1,SWIGTYPE_p_cc__Vec2");
-    arg1 = &temp1;
-    
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[1], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_isLineIntersect,2,SWIGTYPE_p_cc__Vec2");
-    arg2 = &temp2;
-    
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[2], &temp3, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_isLineIntersect,3,SWIGTYPE_p_cc__Vec2");
-    arg3 = &temp3;
-    
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[3], &temp4, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_isLineIntersect,4,SWIGTYPE_p_cc__Vec2");
-    arg4 = &temp4;
-    
-    // %typemap(in) SWIGTYPE*
-    ok &= sevalue_to_native(args[4], &arg5, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_isLineIntersect,5,SWIGTYPE_p_float"); 
-    result = (bool)cc::Vec2::isLineIntersect((cc::Vec2 const &)*arg1,(cc::Vec2 const &)*arg2,(cc::Vec2 const &)*arg3,(cc::Vec2 const &)*arg4,arg5);
-    // out 5
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    
-    
-    return true;
-}
-
-static bool js_cc_Vec2_isLineIntersect_static__SWIG_2(se::State& s)
-{
-    // js_overloaded_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    cc::Vec2 *arg1 = 0 ;
-    cc::Vec2 *arg2 = 0 ;
-    cc::Vec2 *arg3 = 0 ;
-    cc::Vec2 *arg4 = 0 ;
-    cc::Vec2 temp1 ;
-    cc::Vec2 temp2 ;
-    cc::Vec2 temp3 ;
-    cc::Vec2 temp4 ;
-    bool result;
-    
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[0], &temp1, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_isLineIntersect,1,SWIGTYPE_p_cc__Vec2");
-    arg1 = &temp1;
-    
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[1], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_isLineIntersect,2,SWIGTYPE_p_cc__Vec2");
-    arg2 = &temp2;
-    
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[2], &temp3, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_isLineIntersect,3,SWIGTYPE_p_cc__Vec2");
-    arg3 = &temp3;
-    
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[3], &temp4, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_isLineIntersect,4,SWIGTYPE_p_cc__Vec2");
-    arg4 = &temp4;
-    
-    result = (bool)cc::Vec2::isLineIntersect((cc::Vec2 const &)*arg1,(cc::Vec2 const &)*arg2,(cc::Vec2 const &)*arg3,(cc::Vec2 const &)*arg4);
-    // out 5
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    
-    
-    return true;
-}
-
-static bool js_cc_Vec2_isLineIntersect_static(se::State& s)
-{
-    // js_function_dispatcher
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    
-    // js_function_dispatch_case
-    if (argc == 6) {
-        ok = js_cc_Vec2_isLineIntersect_static__SWIG_0(s);
-        if (ok) {
-            return true; 
-        }
-    } // js_function_dispatch_case
-    if (argc == 5) {
-        ok = js_cc_Vec2_isLineIntersect_static__SWIG_1(s);
-        if (ok) {
-            return true; 
-        }
-    } // js_function_dispatch_case
-    if (argc == 4) {
-        ok = js_cc_Vec2_isLineIntersect_static__SWIG_2(s);
-        if (ok) {
-            return true; 
-        }
-    } 
-    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
-    return false;
-}
-SE_BIND_FUNC(js_cc_Vec2_isLineIntersect_static) 
-
-static bool js_cc_Vec2_isLineOverlap_static(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::Vec2 *arg1 = 0 ;
-    cc::Vec2 *arg2 = 0 ;
-    cc::Vec2 *arg3 = 0 ;
-    cc::Vec2 *arg4 = 0 ;
-    cc::Vec2 temp1 ;
-    cc::Vec2 temp2 ;
-    cc::Vec2 temp3 ;
-    cc::Vec2 temp4 ;
-    bool result;
-    
-    if(argc != 4) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 4);
-        return false;
-    }
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[0], &temp1, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_isLineOverlap,1,SWIGTYPE_p_cc__Vec2");
-    arg1 = &temp1;
-    
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[1], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_isLineOverlap,2,SWIGTYPE_p_cc__Vec2");
-    arg2 = &temp2;
-    
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[2], &temp3, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_isLineOverlap,3,SWIGTYPE_p_cc__Vec2");
-    arg3 = &temp3;
-    
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[3], &temp4, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_isLineOverlap,4,SWIGTYPE_p_cc__Vec2");
-    arg4 = &temp4;
-    
-    result = (bool)cc::Vec2::isLineOverlap((cc::Vec2 const &)*arg1,(cc::Vec2 const &)*arg2,(cc::Vec2 const &)*arg3,(cc::Vec2 const &)*arg4);
-    // out 5
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_Vec2_isLineOverlap_static) 
-
-static bool js_cc_Vec2_isLineParallel_static(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::Vec2 *arg1 = 0 ;
-    cc::Vec2 *arg2 = 0 ;
-    cc::Vec2 *arg3 = 0 ;
-    cc::Vec2 *arg4 = 0 ;
-    cc::Vec2 temp1 ;
-    cc::Vec2 temp2 ;
-    cc::Vec2 temp3 ;
-    cc::Vec2 temp4 ;
-    bool result;
-    
-    if(argc != 4) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 4);
-        return false;
-    }
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[0], &temp1, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_isLineParallel,1,SWIGTYPE_p_cc__Vec2");
-    arg1 = &temp1;
-    
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[1], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_isLineParallel,2,SWIGTYPE_p_cc__Vec2");
-    arg2 = &temp2;
-    
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[2], &temp3, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_isLineParallel,3,SWIGTYPE_p_cc__Vec2");
-    arg3 = &temp3;
-    
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[3], &temp4, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_isLineParallel,4,SWIGTYPE_p_cc__Vec2");
-    arg4 = &temp4;
-    
-    result = (bool)cc::Vec2::isLineParallel((cc::Vec2 const &)*arg1,(cc::Vec2 const &)*arg2,(cc::Vec2 const &)*arg3,(cc::Vec2 const &)*arg4);
-    // out 5
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_Vec2_isLineParallel_static) 
-
-static bool js_cc_Vec2_isSegmentOverlap_static__SWIG_0(se::State& s)
-{
-    // js_overloaded_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    cc::Vec2 *arg1 = 0 ;
-    cc::Vec2 *arg2 = 0 ;
-    cc::Vec2 *arg3 = 0 ;
-    cc::Vec2 *arg4 = 0 ;
-    cc::Vec2 *arg5 = (cc::Vec2 *) NULL ;
-    cc::Vec2 *arg6 = (cc::Vec2 *) NULL ;
-    cc::Vec2 temp1 ;
-    cc::Vec2 temp2 ;
-    cc::Vec2 temp3 ;
-    cc::Vec2 temp4 ;
-    bool result;
-    
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[0], &temp1, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_isSegmentOverlap,1,SWIGTYPE_p_cc__Vec2");
-    arg1 = &temp1;
-    
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[1], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_isSegmentOverlap,2,SWIGTYPE_p_cc__Vec2");
-    arg2 = &temp2;
-    
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[2], &temp3, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_isSegmentOverlap,3,SWIGTYPE_p_cc__Vec2");
-    arg3 = &temp3;
-    
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[3], &temp4, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_isSegmentOverlap,4,SWIGTYPE_p_cc__Vec2");
-    arg4 = &temp4;
-    
-    // %typemap(in) SWIGTYPE*
-    ok &= sevalue_to_native(args[4], &arg5, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_isSegmentOverlap,5,SWIGTYPE_p_cc__Vec2"); 
-    // %typemap(in) SWIGTYPE*
-    ok &= sevalue_to_native(args[5], &arg6, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_isSegmentOverlap,6,SWIGTYPE_p_cc__Vec2"); 
-    result = (bool)cc::Vec2::isSegmentOverlap((cc::Vec2 const &)*arg1,(cc::Vec2 const &)*arg2,(cc::Vec2 const &)*arg3,(cc::Vec2 const &)*arg4,arg5,arg6);
-    // out 5
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    
-    
-    return true;
-}
-
-static bool js_cc_Vec2_isSegmentOverlap_static__SWIG_1(se::State& s)
-{
-    // js_overloaded_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    cc::Vec2 *arg1 = 0 ;
-    cc::Vec2 *arg2 = 0 ;
-    cc::Vec2 *arg3 = 0 ;
-    cc::Vec2 *arg4 = 0 ;
-    cc::Vec2 *arg5 = (cc::Vec2 *) NULL ;
-    cc::Vec2 temp1 ;
-    cc::Vec2 temp2 ;
-    cc::Vec2 temp3 ;
-    cc::Vec2 temp4 ;
-    bool result;
-    
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[0], &temp1, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_isSegmentOverlap,1,SWIGTYPE_p_cc__Vec2");
-    arg1 = &temp1;
-    
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[1], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_isSegmentOverlap,2,SWIGTYPE_p_cc__Vec2");
-    arg2 = &temp2;
-    
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[2], &temp3, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_isSegmentOverlap,3,SWIGTYPE_p_cc__Vec2");
-    arg3 = &temp3;
-    
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[3], &temp4, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_isSegmentOverlap,4,SWIGTYPE_p_cc__Vec2");
-    arg4 = &temp4;
-    
-    // %typemap(in) SWIGTYPE*
-    ok &= sevalue_to_native(args[4], &arg5, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_isSegmentOverlap,5,SWIGTYPE_p_cc__Vec2"); 
-    result = (bool)cc::Vec2::isSegmentOverlap((cc::Vec2 const &)*arg1,(cc::Vec2 const &)*arg2,(cc::Vec2 const &)*arg3,(cc::Vec2 const &)*arg4,arg5);
-    // out 5
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    
-    
-    return true;
-}
-
-static bool js_cc_Vec2_isSegmentOverlap_static__SWIG_2(se::State& s)
-{
-    // js_overloaded_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    cc::Vec2 *arg1 = 0 ;
-    cc::Vec2 *arg2 = 0 ;
-    cc::Vec2 *arg3 = 0 ;
-    cc::Vec2 *arg4 = 0 ;
-    cc::Vec2 temp1 ;
-    cc::Vec2 temp2 ;
-    cc::Vec2 temp3 ;
-    cc::Vec2 temp4 ;
-    bool result;
-    
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[0], &temp1, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_isSegmentOverlap,1,SWIGTYPE_p_cc__Vec2");
-    arg1 = &temp1;
-    
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[1], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_isSegmentOverlap,2,SWIGTYPE_p_cc__Vec2");
-    arg2 = &temp2;
-    
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[2], &temp3, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_isSegmentOverlap,3,SWIGTYPE_p_cc__Vec2");
-    arg3 = &temp3;
-    
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[3], &temp4, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_isSegmentOverlap,4,SWIGTYPE_p_cc__Vec2");
-    arg4 = &temp4;
-    
-    result = (bool)cc::Vec2::isSegmentOverlap((cc::Vec2 const &)*arg1,(cc::Vec2 const &)*arg2,(cc::Vec2 const &)*arg3,(cc::Vec2 const &)*arg4);
-    // out 5
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    
-    
-    return true;
-}
-
-static bool js_cc_Vec2_isSegmentOverlap_static(se::State& s)
-{
-    // js_function_dispatcher
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    
-    // js_function_dispatch_case
-    if (argc == 6) {
-        ok = js_cc_Vec2_isSegmentOverlap_static__SWIG_0(s);
-        if (ok) {
-            return true; 
-        }
-    } // js_function_dispatch_case
-    if (argc == 5) {
-        ok = js_cc_Vec2_isSegmentOverlap_static__SWIG_1(s);
-        if (ok) {
-            return true; 
-        }
-    } // js_function_dispatch_case
-    if (argc == 4) {
-        ok = js_cc_Vec2_isSegmentOverlap_static__SWIG_2(s);
-        if (ok) {
-            return true; 
-        }
-    } 
-    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
-    return false;
-}
-SE_BIND_FUNC(js_cc_Vec2_isSegmentOverlap_static) 
-
-static bool js_cc_Vec2_isSegmentIntersect_static(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::Vec2 *arg1 = 0 ;
-    cc::Vec2 *arg2 = 0 ;
-    cc::Vec2 *arg3 = 0 ;
-    cc::Vec2 *arg4 = 0 ;
-    cc::Vec2 temp1 ;
-    cc::Vec2 temp2 ;
-    cc::Vec2 temp3 ;
-    cc::Vec2 temp4 ;
-    bool result;
-    
-    if(argc != 4) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 4);
-        return false;
-    }
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[0], &temp1, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_isSegmentIntersect,1,SWIGTYPE_p_cc__Vec2");
-    arg1 = &temp1;
-    
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[1], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_isSegmentIntersect,2,SWIGTYPE_p_cc__Vec2");
-    arg2 = &temp2;
-    
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[2], &temp3, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_isSegmentIntersect,3,SWIGTYPE_p_cc__Vec2");
-    arg3 = &temp3;
-    
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[3], &temp4, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_isSegmentIntersect,4,SWIGTYPE_p_cc__Vec2");
-    arg4 = &temp4;
-    
-    result = (bool)cc::Vec2::isSegmentIntersect((cc::Vec2 const &)*arg1,(cc::Vec2 const &)*arg2,(cc::Vec2 const &)*arg3,(cc::Vec2 const &)*arg4);
-    // out 5
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_Vec2_isSegmentIntersect_static) 
-
-static bool js_cc_Vec2_getIntersectPoint_static(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::Vec2 *arg1 = 0 ;
-    cc::Vec2 *arg2 = 0 ;
-    cc::Vec2 *arg3 = 0 ;
-    cc::Vec2 *arg4 = 0 ;
-    cc::Vec2 temp1 ;
-    cc::Vec2 temp2 ;
-    cc::Vec2 temp3 ;
-    cc::Vec2 temp4 ;
-    cc::Vec2 result;
-    
-    if(argc != 4) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 4);
-        return false;
-    }
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[0], &temp1, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_getIntersectPoint,1,SWIGTYPE_p_cc__Vec2");
-    arg1 = &temp1;
-    
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[1], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_getIntersectPoint,2,SWIGTYPE_p_cc__Vec2");
-    arg2 = &temp2;
-    
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[2], &temp3, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_getIntersectPoint,3,SWIGTYPE_p_cc__Vec2");
-    arg3 = &temp3;
-    
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[3], &temp4, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Vec2_getIntersectPoint,4,SWIGTYPE_p_cc__Vec2");
-    arg4 = &temp4;
-    
-    result = cc::Vec2::getIntersectPoint((cc::Vec2 const &)*arg1,(cc::Vec2 const &)*arg2,(cc::Vec2 const &)*arg3,(cc::Vec2 const &)*arg4);
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "Vec2_getIntersectPoint, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_Vec2_getIntersectPoint_static) 
-
-static bool js_cc_Vec2_ZERO_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::Vec2 result;
-    
-    result = cc::Vec2::ZERO;
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "Vec2_ZERO_get, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_Vec2_ZERO_get) 
-
-static bool js_cc_Vec2_ONE_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::Vec2 result;
-    
-    result = cc::Vec2::ONE;
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "Vec2_ONE_get, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_Vec2_ONE_get) 
-
-static bool js_cc_Vec2_UNIT_X_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::Vec2 result;
-    
-    result = cc::Vec2::UNIT_X;
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "Vec2_UNIT_X_get, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_Vec2_UNIT_X_get) 
-
-static bool js_cc_Vec2_UNIT_Y_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::Vec2 result;
-    
-    result = cc::Vec2::UNIT_Y;
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "Vec2_UNIT_Y_get, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_Vec2_UNIT_Y_get) 
-
-static bool js_cc_Vec2_ANCHOR_MIDDLE_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::Vec2 result;
-    
-    result = cc::Vec2::ANCHOR_MIDDLE;
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "Vec2_ANCHOR_MIDDLE_get, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_Vec2_ANCHOR_MIDDLE_get) 
-
-static bool js_cc_Vec2_ANCHOR_BOTTOM_LEFT_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::Vec2 result;
-    
-    result = cc::Vec2::ANCHOR_BOTTOM_LEFT;
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "Vec2_ANCHOR_BOTTOM_LEFT_get, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_Vec2_ANCHOR_BOTTOM_LEFT_get) 
-
-static bool js_cc_Vec2_ANCHOR_TOP_LEFT_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::Vec2 result;
-    
-    result = cc::Vec2::ANCHOR_TOP_LEFT;
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "Vec2_ANCHOR_TOP_LEFT_get, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_Vec2_ANCHOR_TOP_LEFT_get) 
-
-static bool js_cc_Vec2_ANCHOR_BOTTOM_RIGHT_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::Vec2 result;
-    
-    result = cc::Vec2::ANCHOR_BOTTOM_RIGHT;
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "Vec2_ANCHOR_BOTTOM_RIGHT_get, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_Vec2_ANCHOR_BOTTOM_RIGHT_get) 
-
-static bool js_cc_Vec2_ANCHOR_TOP_RIGHT_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::Vec2 result;
-    
-    result = cc::Vec2::ANCHOR_TOP_RIGHT;
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "Vec2_ANCHOR_TOP_RIGHT_get, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_Vec2_ANCHOR_TOP_RIGHT_get) 
-
-static bool js_cc_Vec2_ANCHOR_MIDDLE_RIGHT_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::Vec2 result;
-    
-    result = cc::Vec2::ANCHOR_MIDDLE_RIGHT;
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "Vec2_ANCHOR_MIDDLE_RIGHT_get, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_Vec2_ANCHOR_MIDDLE_RIGHT_get) 
-
-static bool js_cc_Vec2_ANCHOR_MIDDLE_LEFT_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::Vec2 result;
-    
-    result = cc::Vec2::ANCHOR_MIDDLE_LEFT;
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "Vec2_ANCHOR_MIDDLE_LEFT_get, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_Vec2_ANCHOR_MIDDLE_LEFT_get) 
-
-static bool js_cc_Vec2_ANCHOR_MIDDLE_TOP_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::Vec2 result;
-    
-    result = cc::Vec2::ANCHOR_MIDDLE_TOP;
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "Vec2_ANCHOR_MIDDLE_TOP_get, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_Vec2_ANCHOR_MIDDLE_TOP_get) 
-
-static bool js_cc_Vec2_ANCHOR_MIDDLE_BOTTOM_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::Vec2 result;
-    
-    result = cc::Vec2::ANCHOR_MIDDLE_BOTTOM;
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "Vec2_ANCHOR_MIDDLE_BOTTOM_get, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_Vec2_ANCHOR_MIDDLE_BOTTOM_get) 
-
-bool js_register_cc_Vec2(se::Object* obj) {
-    auto* cls = se::Class::create("Vec2", obj, nullptr, _SE(js_new_Vec2)); 
-    
-    cls->defineProperty("x", _SE(js_cc_Vec2_x_get), _SE(js_cc_Vec2_x_set)); 
-    cls->defineProperty("y", _SE(js_cc_Vec2_y_get), _SE(js_cc_Vec2_y_set)); 
-    
-    cls->defineFunction("isZero", _SE(js_cc_Vec2_isZero)); 
-    cls->defineFunction("isOne", _SE(js_cc_Vec2_isOne)); 
-    cls->defineFunction("distance", _SE(js_cc_Vec2_distance)); 
-    cls->defineFunction("distanceSquared", _SE(js_cc_Vec2_distanceSquared)); 
-    cls->defineFunction("length", _SE(js_cc_Vec2_length)); 
-    cls->defineFunction("lengthSquared", _SE(js_cc_Vec2_lengthSquared)); 
-    cls->defineFunction("negate", _SE(js_cc_Vec2_negate)); 
-    cls->defineFunction("normalize", _SE(js_cc_Vec2_normalize)); 
-    cls->defineFunction("getNormalized", _SE(js_cc_Vec2_getNormalized)); 
-    cls->defineFunction("scale", _SE(js_cc_Vec2_scale)); 
-    cls->defineFunction("set", _SE(js_cc_Vec2_set)); 
-    cls->defineFunction("setZero", _SE(js_cc_Vec2_setZero)); 
-    cls->defineFunction("smooth", _SE(js_cc_Vec2_smooth)); 
-    cls->defineFunction("approxEquals", _SE(js_cc_Vec2_approxEquals)); 
-    cls->defineFunction("setPoint", _SE(js_cc_Vec2_setPoint)); 
-    cls->defineFunction("equals", _SE(js_cc_Vec2_equals)); 
-    cls->defineFunction("fuzzyEquals", _SE(js_cc_Vec2_fuzzyEquals)); 
-    cls->defineFunction("getLength", _SE(js_cc_Vec2_getLength)); 
-    cls->defineFunction("getLengthSq", _SE(js_cc_Vec2_getLengthSq)); 
-    cls->defineFunction("getDistanceSq", _SE(js_cc_Vec2_getDistanceSq)); 
-    cls->defineFunction("getDistance", _SE(js_cc_Vec2_getDistance)); 
-    cls->defineFunction("getAngle", _SE(js_cc_Vec2_getAngle)); 
-    cls->defineFunction("cross", _SE(js_cc_Vec2_cross)); 
-    cls->defineFunction("getPerp", _SE(js_cc_Vec2_getPerp)); 
-    cls->defineFunction("getMidpoint", _SE(js_cc_Vec2_getMidpoint)); 
-    cls->defineFunction("getClampPoint", _SE(js_cc_Vec2_getClampPoint)); 
-    cls->defineFunction("getRPerp", _SE(js_cc_Vec2_getRPerp)); 
-    cls->defineFunction("project", _SE(js_cc_Vec2_project)); 
-    cls->defineFunction("rotate", _SE(js_cc_Vec2_rotate)); 
-    cls->defineFunction("unrotate", _SE(js_cc_Vec2_unrotate)); 
-    cls->defineFunction("lerp", _SE(js_cc_Vec2_lerp)); 
-    cls->defineFunction("rotateByAngle", _SE(js_cc_Vec2_rotateByAngle)); 
-    
-    cls->defineStaticProperty("ZERO", _SE(js_cc_Vec2_ZERO_get), nullptr); 
-    cls->defineStaticProperty("ONE", _SE(js_cc_Vec2_ONE_get), nullptr); 
-    cls->defineStaticProperty("UNIT_X", _SE(js_cc_Vec2_UNIT_X_get), nullptr); 
-    cls->defineStaticProperty("UNIT_Y", _SE(js_cc_Vec2_UNIT_Y_get), nullptr); 
-    cls->defineStaticProperty("ANCHOR_MIDDLE", _SE(js_cc_Vec2_ANCHOR_MIDDLE_get), nullptr); 
-    cls->defineStaticProperty("ANCHOR_BOTTOM_LEFT", _SE(js_cc_Vec2_ANCHOR_BOTTOM_LEFT_get), nullptr); 
-    cls->defineStaticProperty("ANCHOR_TOP_LEFT", _SE(js_cc_Vec2_ANCHOR_TOP_LEFT_get), nullptr); 
-    cls->defineStaticProperty("ANCHOR_BOTTOM_RIGHT", _SE(js_cc_Vec2_ANCHOR_BOTTOM_RIGHT_get), nullptr); 
-    cls->defineStaticProperty("ANCHOR_TOP_RIGHT", _SE(js_cc_Vec2_ANCHOR_TOP_RIGHT_get), nullptr); 
-    cls->defineStaticProperty("ANCHOR_MIDDLE_RIGHT", _SE(js_cc_Vec2_ANCHOR_MIDDLE_RIGHT_get), nullptr); 
-    cls->defineStaticProperty("ANCHOR_MIDDLE_LEFT", _SE(js_cc_Vec2_ANCHOR_MIDDLE_LEFT_get), nullptr); 
-    cls->defineStaticProperty("ANCHOR_MIDDLE_TOP", _SE(js_cc_Vec2_ANCHOR_MIDDLE_TOP_get), nullptr); 
-    cls->defineStaticProperty("ANCHOR_MIDDLE_BOTTOM", _SE(js_cc_Vec2_ANCHOR_MIDDLE_BOTTOM_get), nullptr); 
-    
-    cls->defineStaticFunction("angle", _SE(js_cc_Vec2_angle_static)); 
-    cls->defineStaticFunction("add", _SE(js_cc_Vec2_add_static)); 
-    cls->defineStaticFunction("clamp", _SE(js_cc_Vec2_clamp_static)); 
-    cls->defineStaticFunction("dot", _SE(js_cc_Vec2_dot_static)); 
-    cls->defineStaticFunction("subtract", _SE(js_cc_Vec2_subtract_static)); 
-    cls->defineStaticFunction("forAngle", _SE(js_cc_Vec2_forAngle_static)); 
-    cls->defineStaticFunction("isLineIntersect", _SE(js_cc_Vec2_isLineIntersect_static)); 
-    cls->defineStaticFunction("isLineOverlap", _SE(js_cc_Vec2_isLineOverlap_static)); 
-    cls->defineStaticFunction("isLineParallel", _SE(js_cc_Vec2_isLineParallel_static)); 
-    cls->defineStaticFunction("isSegmentOverlap", _SE(js_cc_Vec2_isSegmentOverlap_static)); 
-    cls->defineStaticFunction("isSegmentIntersect", _SE(js_cc_Vec2_isSegmentIntersect_static)); 
-    cls->defineStaticFunction("getIntersectPoint", _SE(js_cc_Vec2_getIntersectPoint_static)); 
-    
-    
-    cls->defineFinalizeFunction(_SE(js_delete_cc_Vec2));
-    
-    
-    cls->install();
-    JSBClassType::registerClass<cc::Vec2>(cls);
-    
-    __jsb_cc_Vec2_proto = cls->getProto();
-    __jsb_cc_Vec2_class = cls;
-    se::ScriptEngine::getInstance()->clearException();
-    return true;
-}
-
-
-se::Class* __jsb_cc_Color_class = nullptr;
-se::Object* __jsb_cc_Color_proto = nullptr;
-SE_DECLARE_FINALIZE_FUNC(js_delete_cc_Color) 
-
-static bool js_cc_Color_r_set(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::Color *arg1 = (cc::Color *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::Color>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[0], &arg1->r, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Color_r_set,2,SWIGTYPE_uint8_t"); 
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_SET(js_cc_Color_r_set) 
-
-static bool js_cc_Color_r_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::Color *arg1 = (cc::Color *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::Color>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(arg1->r, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "Color_r_get, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(arg1->r, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_Color_r_get) 
-
-static bool js_cc_Color_g_set(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::Color *arg1 = (cc::Color *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::Color>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[0], &arg1->g, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Color_g_set,2,SWIGTYPE_uint8_t"); 
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_SET(js_cc_Color_g_set) 
-
-static bool js_cc_Color_g_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::Color *arg1 = (cc::Color *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::Color>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(arg1->g, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "Color_g_get, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(arg1->g, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_Color_g_get) 
-
-static bool js_cc_Color_b_set(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::Color *arg1 = (cc::Color *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::Color>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[0], &arg1->b, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Color_b_set,2,SWIGTYPE_uint8_t"); 
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_SET(js_cc_Color_b_set) 
-
-static bool js_cc_Color_b_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::Color *arg1 = (cc::Color *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::Color>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(arg1->b, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "Color_b_get, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(arg1->b, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_Color_b_get) 
-
-static bool js_cc_Color_a_set(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::Color *arg1 = (cc::Color *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::Color>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[0], &arg1->a, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Color_a_set,2,SWIGTYPE_uint8_t"); 
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_SET(js_cc_Color_a_set) 
-
-static bool js_cc_Color_a_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::Color *arg1 = (cc::Color *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::Color>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(arg1->a, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "Color_a_get, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(arg1->a, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_Color_a_get) 
-
-static bool js_new_cc_Color__SWIG_0(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    // js_overloaded_ctor
-    const auto& args = s.args();
-    CC_UNUSED bool ok = true;
-    cc::Color *result;
-    result = (cc::Color *)new cc::Color();
-    
-    
-    auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
-    s.thisObject()->setPrivateObject(ptr);
-    return true;
-}
-
-
-static bool js_new_cc_Color__SWIG_1(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    // js_overloaded_ctor
-    const auto& args = s.args();
-    CC_UNUSED bool ok = true;
-    uint8_t arg1 ;
-    uint8_t arg2 ;
-    uint8_t arg3 ;
-    uint8_t arg4 ;
-    cc::Color *result;
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[0], &arg1, s.thisObject());
-    SE_PRECONDITION2(ok, false, "new_Color,1,SWIGTYPE_uint8_t"); 
-    
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[1], &arg2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "new_Color,2,SWIGTYPE_uint8_t"); 
-    
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[2], &arg3, s.thisObject());
-    SE_PRECONDITION2(ok, false, "new_Color,3,SWIGTYPE_uint8_t"); 
-    
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[3], &arg4, s.thisObject());
-    SE_PRECONDITION2(ok, false, "new_Color,4,SWIGTYPE_uint8_t"); 
-    
-    result = (cc::Color *)new cc::Color(arg1,arg2,arg3,arg4);
-    
-    
-    auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
-    s.thisObject()->setPrivateObject(ptr);
-    return true;
-}
-
-
-static bool js_new_cc_Color__SWIG_2(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    // js_overloaded_ctor
-    const auto& args = s.args();
-    CC_UNUSED bool ok = true;
-    uint8_t *arg1 = (uint8_t *) NULL ;
-    cc::Color *result;
-    // %typemap(in) SWIGTYPE*
-    ok &= sevalue_to_native(args[0], &arg1, s.thisObject());
-    SE_PRECONDITION2(ok, false, "new_Color,1,SWIGTYPE_p_uint8_t"); 
-    result = (cc::Color *)new cc::Color((uint8_t const *)arg1);
-    
-    
-    auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
-    s.thisObject()->setPrivateObject(ptr);
-    return true;
-}
-
-
-static bool js_new_cc_Color__SWIG_3(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    // js_overloaded_ctor
-    const auto& args = s.args();
-    CC_UNUSED bool ok = true;
-    uint32_t arg1 ;
-    cc::Color *result;
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[0], &arg1, s.thisObject());
-    SE_PRECONDITION2(ok, false, "new_Color,1,SWIGTYPE_uint32_t"); 
-    
-    result = (cc::Color *)new cc::Color(arg1);
-    
-    
-    auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
-    s.thisObject()->setPrivateObject(ptr);
-    return true;
-}
-
-
-static bool js_new_cc_Color__SWIG_4(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    // js_overloaded_ctor
-    const auto& args = s.args();
-    CC_UNUSED bool ok = true;
-    cc::Color *arg1 = 0 ;
-    cc::Color *arg2 = 0 ;
-    cc::Color temp1 ;
-    cc::Color temp2 ;
-    cc::Color *result;
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[0], &temp1, s.thisObject());
-    SE_PRECONDITION2(ok, false, "new_Color,1,SWIGTYPE_p_cc__Color");
-    arg1 = &temp1;
-    
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[1], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "new_Color,2,SWIGTYPE_p_cc__Color");
-    arg2 = &temp2;
-    
-    result = (cc::Color *)new cc::Color((cc::Color const &)*arg1,(cc::Color const &)*arg2);
-    
-    
-    auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
-    s.thisObject()->setPrivateObject(ptr);
-    return true;
-}
-
-
-static bool js_new_cc_Color__SWIG_5(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    // js_overloaded_ctor
-    const auto& args = s.args();
-    CC_UNUSED bool ok = true;
-    cc::Color *arg1 = 0 ;
-    cc::Color temp1 ;
-    cc::Color *result;
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[0], &temp1, s.thisObject());
-    SE_PRECONDITION2(ok, false, "new_Color,1,SWIGTYPE_p_cc__Color");
-    arg1 = &temp1;
-    
-    result = (cc::Color *)new cc::Color((cc::Color const &)*arg1);
-    
-    
-    auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
-    s.thisObject()->setPrivateObject(ptr);
-    return true;
-}
-
-
-static bool js_new_Color(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    // js_ctor_dispatcher
-    size_t argc = s.args().size();
-    bool ret = false;
-    
-    // switch all cases by means of series of if-returns.
-    
-    // js_ctor_dispatch_case
-    if(argc == 0) {
-        ret = js_new_cc_Color__SWIG_0(s);
-        if (ret) {
-            return ret; 
-        } /* reset exception and return */
-    }
-    
-    // js_ctor_dispatch_case
-    if(argc == 4) {
-        ret = js_new_cc_Color__SWIG_1(s);
-        if (ret) {
-            return ret; 
-        } /* reset exception and return */
-    }
-    
-    // js_ctor_dispatch_case
-    if(argc == 1) {
-        ret = js_new_cc_Color__SWIG_2(s);
-        if (ret) {
-            return ret; 
-        } /* reset exception and return */
-    }
-    
-    // js_ctor_dispatch_case
-    if(argc == 1) {
-        ret = js_new_cc_Color__SWIG_3(s);
-        if (ret) {
-            return ret; 
-        } /* reset exception and return */
-    }
-    
-    // js_ctor_dispatch_case
-    if(argc == 2) {
-        ret = js_new_cc_Color__SWIG_4(s);
-        if (ret) {
-            return ret; 
-        } /* reset exception and return */
-    }
-    
-    // js_ctor_dispatch_case
-    if(argc == 1) {
-        ret = js_new_cc_Color__SWIG_5(s);
-        if (ret) {
-            return ret; 
-        } /* reset exception and return */
-    }
-    
-    
-    // default:
-    SE_REPORT_ERROR("Illegal arguments for construction of Color");
-    return false;
-}
-SE_BIND_CTOR(js_new_Color, __jsb_cc_Color_class, js_delete_cc_Color)
-
-static bool js_cc_Color_set__SWIG_0(se::State& s)
-{
-    // js_overloaded_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    cc::Color *arg1 = (cc::Color *) NULL ;
-    uint8_t arg2 ;
-    uint8_t arg3 ;
-    uint8_t arg4 ;
-    uint8_t arg5 ;
-    
-    arg1 = SE_THIS_OBJECT<cc::Color>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Color_set,2,SWIGTYPE_uint8_t"); 
-    
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[1], &arg3, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Color_set,3,SWIGTYPE_uint8_t"); 
-    
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[2], &arg4, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Color_set,4,SWIGTYPE_uint8_t"); 
-    
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[3], &arg5, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Color_set,5,SWIGTYPE_uint8_t"); 
-    
-    (arg1)->set(arg2,arg3,arg4,arg5);
-    
-    
-    return true;
-}
-
-static bool js_cc_Color_set__SWIG_1(se::State& s)
-{
-    // js_overloaded_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    cc::Color *arg1 = (cc::Color *) NULL ;
-    uint8_t *arg2 = (uint8_t *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::Color>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) SWIGTYPE*
-    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Color_set,2,SWIGTYPE_p_uint8_t"); 
-    (arg1)->set((uint8_t const *)arg2);
-    
-    
-    return true;
-}
-
-static bool js_cc_Color_set__SWIG_2(se::State& s)
-{
-    // js_overloaded_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    cc::Color *arg1 = (cc::Color *) NULL ;
-    uint32_t arg2 ;
-    
-    arg1 = SE_THIS_OBJECT<cc::Color>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Color_set,2,SWIGTYPE_uint32_t"); 
-    
-    (arg1)->set(arg2);
-    
-    
-    return true;
-}
-
-static bool js_cc_Color_set__SWIG_3(se::State& s)
-{
-    // js_overloaded_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    cc::Color *arg1 = (cc::Color *) NULL ;
-    cc::Color *arg2 = 0 ;
-    cc::Color temp2 ;
-    
-    arg1 = SE_THIS_OBJECT<cc::Color>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Color_set,2,SWIGTYPE_p_cc__Color");
-    arg2 = &temp2;
-    
-    (arg1)->set((cc::Color const &)*arg2);
-    
-    
-    return true;
-}
-
-static bool js_cc_Color_set__SWIG_4(se::State& s)
-{
-    // js_overloaded_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    cc::Color *arg1 = (cc::Color *) NULL ;
-    cc::Color *arg2 = 0 ;
-    cc::Color *arg3 = 0 ;
-    cc::Color temp2 ;
-    cc::Color temp3 ;
-    
-    arg1 = SE_THIS_OBJECT<cc::Color>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Color_set,2,SWIGTYPE_p_cc__Color");
-    arg2 = &temp2;
-    
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[1], &temp3, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Color_set,3,SWIGTYPE_p_cc__Color");
-    arg3 = &temp3;
-    
-    (arg1)->set((cc::Color const &)*arg2,(cc::Color const &)*arg3);
-    
-    
-    return true;
-}
-
-static bool js_cc_Color_set(se::State& s)
-{
-    // js_function_dispatcher
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    
-    // js_function_dispatch_case
-    if (argc == 4) {
-        ok = js_cc_Color_set__SWIG_0(s);
-        if (ok) {
-            return true; 
-        }
-    } // js_function_dispatch_case
-    if (argc == 1) {
-        ok = js_cc_Color_set__SWIG_1(s);
-        if (ok) {
-            return true; 
-        }
-    } // js_function_dispatch_case
-    if (argc == 1) {
-        ok = js_cc_Color_set__SWIG_2(s);
-        if (ok) {
-            return true; 
-        }
-    } // js_function_dispatch_case
-    if (argc == 1) {
-        ok = js_cc_Color_set__SWIG_3(s);
-        if (ok) {
-            return true; 
-        }
-    } // js_function_dispatch_case
-    if (argc == 2) {
-        ok = js_cc_Color_set__SWIG_4(s);
-        if (ok) {
-            return true; 
-        }
-    } 
-    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
-    return false;
-}
-SE_BIND_FUNC(js_cc_Color_set) 
-
-static bool js_cc_Color_toVec4(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::Color *arg1 = (cc::Color *) NULL ;
-    cc::Vec4 result;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::Color>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    result = ((cc::Color const *)arg1)->toVec4();
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "Color_toVec4, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_Color_toVec4) 
-
-static bool js_delete_cc_Color(se::State& s)
-{
-    // js_dtoroverride
-    return true;
-}
-SE_BIND_FINALIZE_FUNC(js_delete_cc_Color) 
-
-bool js_register_cc_Color(se::Object* obj) {
-    auto* cls = se::Class::create("Color", obj, nullptr, _SE(js_new_Color)); 
-    
-    cls->defineProperty("r", _SE(js_cc_Color_r_get), _SE(js_cc_Color_r_set)); 
-    cls->defineProperty("g", _SE(js_cc_Color_g_get), _SE(js_cc_Color_g_set)); 
-    cls->defineProperty("b", _SE(js_cc_Color_b_get), _SE(js_cc_Color_b_set)); 
-    cls->defineProperty("a", _SE(js_cc_Color_a_get), _SE(js_cc_Color_a_set)); 
-    
-    cls->defineFunction("set", _SE(js_cc_Color_set)); 
-    cls->defineFunction("toVec4", _SE(js_cc_Color_toVec4)); 
-    
-    
-    
-    
-    cls->defineFinalizeFunction(_SE(js_delete_cc_Color));
-    
-    
-    cls->install();
-    JSBClassType::registerClass<cc::Color>(cls);
-    
-    __jsb_cc_Color_proto = cls->getProto();
-    __jsb_cc_Color_class = cls;
-    se::ScriptEngine::getInstance()->clearException();
-    return true;
-}
-
 #if CC_USE_DEBUG_RENDERER
 
 se::Class* __jsb_cc_DebugTextInfo_class = nullptr;
@@ -8970,6 +6884,13 @@ bool register_all_engine(se::Object* obj) {
     }
     se::Object* ns = nsVal.toObject();
     /* Register classes */
+    js_register_cc_Vec2(ns); 
+    js_register_cc_Color(ns); 
+    js_register_cc_Vec3(ns); 
+    js_register_cc_Vec4(ns); 
+    js_register_cc_Mat3(ns); 
+    js_register_cc_Mat4(ns); 
+    js_register_cc_Quaternion(ns); 
     js_register_cc_CCObject(ns); 
     js_register_cc_JSBNativeDataHolder(ns); 
     js_register_cc_ICanvasGradient(ns); 
@@ -8982,8 +6903,6 @@ bool register_all_engine(se::Object* obj) {
     js_register_cc_ISystemWindowManager(ns); 
     js_register_cc_FileUtils(ns); 
     js_register_cc_SAXParser(ns); 
-    js_register_cc_Vec2(ns); 
-    js_register_cc_Color(ns); 
 #if CC_USE_DEBUG_RENDERER
     js_register_cc_DebugTextInfo(ns); 
 #endif // CC_USE_DEBUG_RENDERER

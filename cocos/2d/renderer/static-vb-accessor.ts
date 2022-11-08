@@ -27,8 +27,7 @@ import { JSB } from 'internal:constants';
 import { Device, Attribute } from '../../gfx';
 import { MeshBuffer } from './mesh-buffer';
 import { BufferAccessor } from './buffer-accessor';
-import { assertID, errorID, Pool, macro } from '../../core';
-import { assertIsTrue } from '../../core/data/utils/asserts';
+import { assertID, errorID, Pool, macro, assertIsTrue } from '../../core';
 import { director } from '../../game';
 
 interface IFreeEntry {

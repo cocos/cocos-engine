@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { removeProperty, replaceProperty } from '../../core/utils/x-deprecated';
+import { removeProperty, replaceProperty } from '../../core';
 import { TextureBase } from './texture-base';
 import { RenderTexture } from './render-texture';
 
