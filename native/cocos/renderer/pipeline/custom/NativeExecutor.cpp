@@ -17,10 +17,12 @@
 #include "cocos/renderer/gfx-base/GFXDef-common.h"
 #include "cocos/renderer/gfx-base/GFXDevice.h"
 #include "cocos/renderer/pipeline/LODModelsUtil.h"
+#include "cocos/renderer/pipeline/InstancedBuffer.h"
 #include "cocos/scene/Model.h"
 #include "cocos/scene/Octree.h"
 #include "cocos/scene/RenderScene.h"
 #include "cocos/scene/Skybox.h"
+#include "cocos/scene/Pass.h"
 
 namespace cc {
 
@@ -658,7 +660,11 @@ struct ResourceCleaner {
 
 struct RenderGraphContextCleaner {
     explicit RenderGraphContextCleaner(NativeRenderContext& contextIn) noexcept
-    : context(contextIn) {}
+    : context(contextIn),
+      prevFenceValue(context.nextFenceValue) {
+        ++context.nextFenceValue;
+        context.clearPreviousResources(prevFenceValue);
+    }
     RenderGraphContextCleaner(const RenderGraphContextCleaner&) = delete;
     RenderGraphContextCleaner& operator=(const RenderGraphContextCleaner&) = delete;
     ~RenderGraphContextCleaner() noexcept {
@@ -671,6 +677,7 @@ struct RenderGraphContextCleaner {
         }
     }
     NativeRenderContext& context;
+    uint64_t prevFenceValue = 0;
 };
 
 struct CommandSubmitter {
@@ -727,7 +734,29 @@ void addRenderObject(const scene::Camera* camera, const scene::Model* model, Nat
         depth = position.dot(camera->getForward());
     }
 
-    queue.renderObjects.emplace_back(depth, model);
+    const auto& subModels = model->getSubModels();
+    const auto subModelCount = subModels.size();
+    for (uint32_t subModelIdx = 0; subModelIdx < subModelCount; ++subModelIdx) {
+        const auto& subModel = subModels[subModelIdx];
+        const auto& passes = subModel->getPasses();
+        const auto passCount = passes.size();
+        for (uint32_t passIdx = 0; passIdx < passCount; ++passIdx) {
+            const auto& pass = passes[passIdx];
+            if (pass->getBatchingScheme() == scene::BatchingSchemes::INSTANCING) {
+                auto* instancedBuffer = pass->getInstancedBuffer();
+                instancedBuffer->merge(subModel, passIdx);
+                queue.instancingQueue.add(instancedBuffer);
+            } else if (pass->getBatchingScheme() == scene::BatchingSchemes::VB_MERGING) {
+                //auto* batchedBuffer = pass->getBatchedBuffer();
+                //batchedBuffer->merge(subModel, passIdx, model);
+                //_batchedQueue->add(batchedBuffer);
+            } else {
+                //for (auto* renderQueue : _renderQueues) {
+                //    renderQueue->insertRenderPass(ro, subModelIdx, passIdx);
+                //}
+            }
+        }
+    }
 }
 
 void octreeCulling(
@@ -821,14 +850,21 @@ void mergeSceneFlags(
     }
 }
 
-void sceneCulling(
+void buildRenderQueues(
+    NativeRenderContext& context,
     ccstd::pmr::unordered_map<
         const scene::RenderScene*,
         ccstd::pmr::unordered_map<scene::Camera*, NativeRenderQueue>>& sceneQueues) {
     const scene::Skybox* skyBox = nullptr;
+
+    auto& group = context.resourceGroups[context.nextFenceValue];
+
     for (auto&& [scene, queues] : sceneQueues) {
         const scene::Octree* octree = scene->getOctree();
         for (auto&& [camera, queue] : queues) {
+            if (!camera->isCullingEnabled()) {
+                continue;
+            }
             pipeline::LODModelsCachedUtils::updateCachedLODModels(scene, camera);
             if (octree && octree->isEnabled()) {
                 octreeCulling(octree, scene, skyBox, camera, queue);
@@ -836,6 +872,11 @@ void sceneCulling(
                 frustumCulling(scene, camera, queue);
             }
             pipeline::LODModelsCachedUtils::clearCachedLODModels();
+
+            // keep instanceBuffers
+            for (const auto& batch : queue.instancingQueue.batches) {
+                group.instancingBuffers.emplace(batch);
+            }
         }
     }
 }
@@ -845,7 +886,7 @@ void sceneCulling(
 void NativePipeline::executeRenderGraph(const RenderGraph& rg) {
     auto& ppl = *this;
     auto* scratch = &ppl.unsyncPool;
-    //CC_LOG_INFO(rg.print(scratch).c_str());
+    CC_LOG_INFO(rg.print(scratch).c_str());
 
     RenderGraphContextCleaner contextCleaner(ppl.nativeContext);
     ResourceCleaner cleaner(ppl.resourceGraph);
@@ -881,7 +922,7 @@ void NativePipeline::executeRenderGraph(const RenderGraph& rg) {
         sceneQueues(scratch);
     {
         mergeSceneFlags(rg, sceneQueues);
-        sceneCulling(sceneQueues);
+        buildRenderQueues(ppl.nativeContext, sceneQueues);
     }
 
     // Execute all valid passes

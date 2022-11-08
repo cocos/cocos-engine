@@ -68,12 +68,12 @@ using PmrFlatMultiSet = boost::container::pmr::flat_multiset<Value, std::less<>>
 // unordered_set
 template <class Value>
 using PmrUnorderedSet = std::unordered_set<
-    Value, std::hash<Value>, std::equal_to<Value>,
+    Value, ccstd::hash<Value>, std::equal_to<Value>,
     boost::container::pmr::polymorphic_allocator<Value>>;
 
 template <class Value>
 using PmrUnorderedMultiSet = std::unordered_multiset<
-    Value, std::hash<Value>, std::equal_to<Value>,
+    Value, ccstd::hash<Value>, std::equal_to<Value>,
     boost::container::pmr::polymorphic_allocator<Value>>;
 
 // transparent string unordered_set

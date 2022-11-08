@@ -29,10 +29,27 @@
 #include "cocos/renderer/gfx-base/GFXDevice.h"
 #include "gfx-base/GFXDef-common.h"
 #include "pipeline/custom/RenderCommonFwd.h"
+#include "NativePipelineTypes.h"
 
 namespace cc {
 
 namespace render {
+
+ResourceGroup::~ResourceGroup() noexcept {
+    for (const auto& buffer : instancingBuffers) {
+        buffer->clear();
+    }
+}
+
+void NativeRenderContext::clearPreviousResources(uint64_t finishedFenceValue) noexcept {
+    for (auto iter = resourceGroups.begin(); iter != resourceGroups.end();) {
+        if (iter->first <= finishedFenceValue) {
+            iter = resourceGroups.erase(iter);
+        } else {
+            break;
+        }
+    }
+}
 
 namespace {
 
