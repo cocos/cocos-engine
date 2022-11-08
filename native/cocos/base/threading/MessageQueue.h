@@ -176,7 +176,8 @@ private:
 
     WriterContext _writer;
     ReaderContext _reader;
-    EventCV _event;
+    std::mutex _mutex;
+    std::condition_variable _condVar;
     bool _immediateMode{true};
     bool _workerAttached{false};
     bool _freeChunksByUser{true}; // recycled chunks will be stashed until explicit free instruction

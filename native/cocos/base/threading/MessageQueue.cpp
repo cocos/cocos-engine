@@ -113,7 +113,9 @@ MessageQueue::MessageQueue() {
 
 void MessageQueue::kick() noexcept {
     pushMessages();
-    _event.signal();
+
+    std::lock_guard<std::mutex> lock(_mutex);
+    _condVar.notify_all();
 }
 
 void MessageQueue::kickAndWait() noexcept {
@@ -251,11 +253,11 @@ void MessageQueue::executeMessages() noexcept {
 
 Message *MessageQueue::readMessage() noexcept {
     while (!hasNewMessage()) { // if empty
-        pullMessages();        // try pulling data from consumer
-
-        if (!hasNewMessage()) { // still empty
-            _event.wait();      // wait for the producer to wake me up
-            pullMessages();     // pulling again
+        std::unique_lock<std::mutex> lock(_mutex);
+        pullMessages();            // try pulling data from consumer
+        if (!hasNewMessage()) {    // still empty
+            _condVar.wait(lock);   // wait for the producer to wake me up
+            pullMessages();        // pulling again
         }
     }
 
