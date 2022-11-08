@@ -51,6 +51,11 @@ export class EmptyTexture extends Texture {
             this.depth, this._info.levelCount) * this._info.layerCount;
     }
     public destroy () {}
+
+    public getGLTextureHandle (): number {
+        return 0;
+    }
+
     public resize (width: number, height: number) {
         this._info.width = width;
         this._info.height = height;
