@@ -99,9 +99,11 @@ module.exports = {
             flipVertical: 'Flip Vertical',
             flipVerticalTip: 'Flip Vertical',
             fixAlphaTransparencyArtifacts: 'Fix Alpha Transparency Artifacts',
-            fixAlphaTransparencyArtifactsTip: '为全透明像素填充相邻像素的颜色，防止纹理过滤引起的黑边问题。当使用 Alpha 透明通道时，请启用此功能。',
+            fixAlphaTransparencyArtifactsTip:
+                '为全透明像素填充相邻像素的颜色，防止纹理过滤引起的黑边问题。当使用 Alpha 透明通道时，请启用此功能。',
             isRGBE: 'Is RGBE',
             isRGBETip: 'Is RGBE',
+            flipGreenChannel: '翻转绿通道',
         },
         spriteFrame: {
             packable: 'Packable',
@@ -366,7 +368,7 @@ module.exports = {
         },
         material: {
             'fail-to-load-custom-inspector': 'Material: 自定义 Effect {effect} 的 Inspector 加载失败',
-            'illegal-inspector-url': "Inspector 的路径不合法",
+            'illegal-inspector-url': 'Inspector 的路径不合法',
         },
         animationGraph: {
             edit: '编辑',

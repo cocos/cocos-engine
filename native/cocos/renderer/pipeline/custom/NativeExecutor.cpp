@@ -8,6 +8,7 @@
 #include "NativePipelineFwd.h"
 #include "NativePipelineTypes.h"
 #include "Pmr.h"
+#include "Range.h"
 #include "RenderCommonFwd.h"
 #include "RenderGraphGraphs.h"
 #include "RenderGraphTypes.h"
@@ -15,6 +16,11 @@
 #include "cocos/renderer/gfx-base/GFXBarrier.h"
 #include "cocos/renderer/gfx-base/GFXDef-common.h"
 #include "cocos/renderer/gfx-base/GFXDevice.h"
+#include "cocos/renderer/pipeline/LODModelsUtil.h"
+#include "cocos/scene/Model.h"
+#include "cocos/scene/Octree.h"
+#include "cocos/scene/RenderScene.h"
+#include "cocos/scene/Skybox.h"
 
 namespace cc {
 
@@ -32,6 +38,9 @@ struct RenderGraphVisitorContext {
         const ccstd::pmr::vector<bool>& validPassesIn,
         gfx::Device* deviceIn,
         cc::gfx::CommandBuffer* cmdBuffIn,
+        ccstd::pmr::unordered_map<
+            const scene::RenderScene*,
+            ccstd::pmr::unordered_map<scene::Camera*, NativeRenderQueue>>& sceneQueuesIn,
         boost::container::pmr::memory_resource* scratchIn)
     : context(contextIn),
       g(gIn),
@@ -41,6 +50,7 @@ struct RenderGraphVisitorContext {
       validPasses(validPassesIn),
       device(deviceIn),
       cmdBuff(cmdBuffIn),
+      sceneQueues(sceneQueuesIn),
       scratch(scratchIn) {}
 
     NativeRenderContext& context;
@@ -53,6 +63,9 @@ struct RenderGraphVisitorContext {
     cc::gfx::CommandBuffer* cmdBuff = nullptr;
     boost::container::pmr::memory_resource* scratch = nullptr;
     gfx::RenderPass* currentPass = nullptr;
+    ccstd::pmr::unordered_map<
+        const scene::RenderScene*,
+        ccstd::pmr::unordered_map<scene::Camera*, NativeRenderQueue>>& sceneQueues;
 };
 
 void clear(gfx::RenderPassInfo& info) {
@@ -676,12 +689,160 @@ struct CommandSubmitter {
     gfx::CommandBuffer* primaryCommandBuffer = nullptr;
 };
 
+bool isNodeVisible(const scene::Model* model, const uint32_t visibility) {
+    CC_EXPECTS(model);
+    const auto* const node = model->getNode();
+    CC_EXPECTS(node);
+    return model->getNode() && ((visibility & node->getLayer()) == node->getLayer());
+}
+
+bool isInstanceVisible(const scene::Model* model, const uint32_t visibility) {
+    return isNodeVisible(model, visibility) ||
+           (visibility & static_cast<uint32_t>(model->getVisFlags()));
+}
+
+bool isPointInstanceAndNotSkybox(const scene::Model* model, const scene::Skybox* skyBox) {
+    const auto* modelWorldBounds = model->getWorldBounds();
+    return !modelWorldBounds && (skyBox == nullptr || skyBox->getModel() != model);
+}
+
+bool isPointInstance(const scene::Model* model) {
+    return !model->getWorldBounds();
+}
+
+void addShadowCastObject() {
+    // csmLayers->addCastShadowObject(genRenderObject(model, camera));
+    // csmLayers->addLayerObject(genRenderObject(model, camera));
+}
+
+void addRenderObject(const scene::Camera* camera, const scene::Model* model, NativeRenderQueue& queue) {
+    float depth = 0;
+    if (model->getNode()) {
+        const auto* node = model->getTransform();
+        cc::Vec3 position;
+        cc::Vec3::subtract(node->getWorldPosition(), camera->getPosition(), &position);
+        depth = position.dot(camera->getForward());
+    }
+
+    queue.renderObjects.emplace_back(depth, model);
+}
+
+void octreeCulling(
+    const scene::Octree* octree,
+    const scene::RenderScene* scene,
+    const scene::Skybox* skyBox,
+    const scene::Camera* camera,
+    NativeRenderQueue& queue) {
+    // add special instances
+    for (const auto& model : scene->getModels()) {
+        // filter model by view visibility
+        if (!model->isEnabled()) {
+            continue;
+        }
+        if (pipeline::LODModelsCachedUtils::isLODModelCulled(model)) {
+            continue;
+        }
+        if (any(queue.sceneFlags & SceneFlags::SHADOW_CASTER) && model->isCastShadow()) {
+            addShadowCastObject();
+        }
+        const auto visibility = camera->getVisibility();
+        if (isInstanceVisible(model, visibility) && isPointInstanceAndNotSkybox(model, skyBox)) {
+            addRenderObject(camera, model, queue);
+        }
+    }
+
+    // add plain instances
+    ccstd::vector<scene::Model*> models;
+    models.reserve(scene->getModels().size() / 4);
+    octree->queryVisibility(camera, camera->getFrustum(), false, models);
+    for (const auto& model : models) {
+        CC_EXPECTS(!isPointInstance(model));
+        if (pipeline::LODModelsCachedUtils::isLODModelCulled(model)) {
+            continue;
+        }
+        addRenderObject(camera, model, queue);
+    }
+}
+
+void frustumCulling(
+    const scene::RenderScene* scene,
+    const scene::Camera* camera,
+    NativeRenderQueue& queue) {
+    const auto& models = scene->getModels();
+    for (const auto& model : models) {
+        if (!model->isEnabled()) {
+            continue;
+        }
+        // filter model by view visibility
+        if (pipeline::LODModelsCachedUtils::isLODModelCulled(model)) {
+            continue;
+        }
+        const auto visibility = camera->getVisibility();
+        const auto* const node = model->getNode();
+
+        // cast shadow render Object
+        if (any(queue.sceneFlags & SceneFlags::SHADOW_CASTER) && model->isCastShadow()) {
+            addShadowCastObject();
+        }
+
+        // add render objects
+        if (isInstanceVisible(model, visibility)) {
+            const auto* modelWorldBounds = model->getWorldBounds();
+            if (!modelWorldBounds) {
+                addRenderObject(camera, model, queue);
+                continue;
+            }
+            // frustum culling
+            if (modelWorldBounds->aabbFrustum(camera->getFrustum())) {
+                addRenderObject(camera, model, queue);
+            }
+        }
+    }
+}
+
+void mergeSceneFlags(
+    const RenderGraph& rg,
+    ccstd::pmr::unordered_map<
+        const scene::RenderScene*,
+        ccstd::pmr::unordered_map<scene::Camera*, NativeRenderQueue>>&
+        sceneQueues) {
+    for (const auto vertID : makeRange(vertices(rg))) {
+        if (!holds<SceneTag>(vertID, rg)) {
+            continue;
+        }
+        const auto& sceneData = get(SceneTag{}, vertID, rg);
+        const auto* scene = sceneData.camera->getScene();
+        if (scene) {
+            sceneQueues[scene][sceneData.camera].sceneFlags |= sceneData.flags;
+        }
+    }
+}
+
+void sceneCulling(
+    ccstd::pmr::unordered_map<
+        const scene::RenderScene*,
+        ccstd::pmr::unordered_map<scene::Camera*, NativeRenderQueue>>& sceneQueues) {
+    const scene::Skybox* skyBox = nullptr;
+    for (auto&& [scene, queues] : sceneQueues) {
+        const scene::Octree* octree = scene->getOctree();
+        for (auto&& [camera, queue] : queues) {
+            pipeline::LODModelsCachedUtils::updateCachedLODModels(scene, camera);
+            if (octree && octree->isEnabled()) {
+                octreeCulling(octree, scene, skyBox, camera, queue);
+            } else {
+                frustumCulling(scene, camera, queue);
+            }
+            pipeline::LODModelsCachedUtils::clearCachedLODModels();
+        }
+    }
+}
+
 } // namespace
 
 void NativePipeline::executeRenderGraph(const RenderGraph& rg) {
     auto& ppl = *this;
     auto* scratch = &ppl.unsyncPool;
-    // CC_LOG_INFO(rg.print(scratch).c_str());
+    //CC_LOG_INFO(rg.print(scratch).c_str());
 
     RenderGraphContextCleaner contextCleaner(ppl.nativeContext);
     ResourceCleaner cleaner(ppl.resourceGraph);
@@ -710,7 +871,18 @@ void NativePipeline::executeRenderGraph(const RenderGraph& rg) {
         colors.resize(num_vertices(rg), boost::white_color);
     }
 
-    { // Execute all valid passes
+    // scene culling
+    ccstd::pmr::unordered_map<
+        const scene::RenderScene*,
+        ccstd::pmr::unordered_map<scene::Camera*, NativeRenderQueue>>
+        sceneQueues(scratch);
+    {
+        mergeSceneFlags(rg, sceneQueues);
+        sceneCulling(sceneQueues);
+    }
+
+    // Execute all valid passes
+    {
         boost::filtered_graph<AddressableView<RenderGraph>, boost::keep_all, RenderGraphFilter>
             fg(graphView, boost::keep_all{}, RenderGraphFilter{&validPasses});
 
@@ -720,6 +892,7 @@ void NativePipeline::executeRenderGraph(const RenderGraph& rg) {
             fgd, fgd.barrierMap,
             validPasses,
             ppl.device, submit.primaryCommandBuffer,
+            sceneQueues,
             scratch);
 
         RenderGraphVisitor visitor{{}, ctx};

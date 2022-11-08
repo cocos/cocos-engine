@@ -55,6 +55,7 @@ struct RenderInstance;
 struct RenderInstancePack;
 struct RenderBatch;
 struct RenderBatchPack;
+struct SortingObject;
 struct NativeRenderQueue;
 class DefaultSceneVisitor;
 class DefaultForwardLightingTransversal;

@@ -303,7 +303,7 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent, Pi
 
         if (!(clearFlags & ClearFlagBit.COLOR)) {
             if (clearFlags & SKYBOX_FLAG) {
-                colorAttachment.loadOp = LoadOp.DISCARD;
+                colorAttachment.loadOp = LoadOp.CLEAR;
             } else {
                 colorAttachment.loadOp = LoadOp.LOAD;
                 colorAttachment.barrier = device.getGeneralBarrier(new GeneralBarrierInfo(

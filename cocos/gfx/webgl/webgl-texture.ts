@@ -113,6 +113,21 @@ export class WebGLTexture extends Texture {
         }
     }
 
+    public getGLTextureHandle () : number {
+        const gpuTexture = this._gpuTexture;
+        if (!gpuTexture) {
+            return 0;
+        }
+
+        if (gpuTexture.glTexture) {
+            return gpuTexture.glTexture as number;
+        } else if (gpuTexture.glRenderbuffer) {
+            return gpuTexture.glRenderbuffer as number;
+        }
+
+        return 0;
+    }
+
     public resize (width: number, height: number) {
         if (this._info.width === width && this._info.height === height) {
             return;

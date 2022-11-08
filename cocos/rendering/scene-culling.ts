@@ -22,15 +22,15 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
+import { EDITOR } from 'internal:constants';
 import { Model } from '../render-scene/scene/model';
 import { Camera, SKYBOX_FLAG } from '../render-scene/scene/camera';
-import { Vec3, Pool, warnID, geometry } from '../core';
+import { Vec3, Pool, warnID, geometry, cclegacy } from '../core';
 import { RenderPipeline } from './render-pipeline';
 import { IRenderObject, UBOShadow } from './define';
 import { ShadowType, CSMOptimizationMode } from '../render-scene/scene/shadows';
 import { PipelineSceneData } from './pipeline-scene-data';
 import { ShadowLayerVolume } from './shadow/csm-layers';
-import { ReflectionProbeManager } from './reflection-probe-manager';
 import { LODModelsCachedUtils } from './lod-models-utils';
 
 const _tempVec3 = new Vec3();
@@ -147,8 +147,8 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
     if ((camera.clearFlag & SKYBOX_FLAG)) {
         if (skybox.enabled && skybox.model) {
             renderObjects.push(getRenderObject(skybox.model, camera));
-        } else {
-            warnID(15100, camera.name);
+        } else if (camera.clearFlag === SKYBOX_FLAG && !EDITOR) {
+            cclegacy.warnID(15100, camera.name);
         }
     }
 
@@ -184,31 +184,4 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
         enqueueRenderObject(models[i]);
     }
     LODModelsCachedUtils.clearCachedLODModels();
-}
-
-export function reflectionProbeCulling (sceneData: PipelineSceneData, camera: Camera) {
-    const scene = camera.scene!;
-    const skybox = sceneData.skybox;
-
-    ReflectionProbeManager.probeManager.clearRenderObject(camera);
-
-    if (skybox.enabled && skybox.model && (camera.clearFlag & SKYBOX_FLAG)) {
-        ReflectionProbeManager.probeManager.addRenderObject(camera, getRenderObject(skybox.model, camera), true);
-    }
-
-    const models = scene.models;
-    const visibility = camera.visibility;
-
-    for (let i = 0; i < models.length; i++) {
-        const model = models[i];
-        // filter model by view visibility
-        if (model.enabled) {
-            if (model.node && ((visibility & model.node.layer) === model.node.layer)
-                  || (visibility & model.visFlags)) {
-                if (model.bakeToReflectionProbe) {
-                    ReflectionProbeManager.probeManager.addRenderObject(camera, getRenderObject(model, camera));
-                }
-            }
-        }
-    }
 }
