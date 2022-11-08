@@ -76,7 +76,7 @@ void ReflectionProbeBatchedQueue::gatherRenderObjects(const scene::Camera *camer
             add(model);
             continue;
         }
-        auto probeBoundingBox = probe->getBoundingBox();
+        const auto *probeBoundingBox = probe->getBoundingBox();
         if (modelWorldBounds->aabbAabb(*probeBoundingBox)) {
             add(model);
         }
@@ -95,7 +95,7 @@ void ReflectionProbeBatchedQueue::clear() {
 }
 
 void ReflectionProbeBatchedQueue::add(const scene::Model *model) {
-    for (auto &subModel : model->getSubModels()) {
+    for (const auto &subModel : model->getSubModels()) {
         auto passIdx = getReflectMapPassIndex(subModel);
         bool bUseReflectPass = true;
         if (passIdx == -1) {
@@ -151,8 +151,8 @@ void ReflectionProbeBatchedQueue::recordCommandBuffer(gfx::Device *device, gfx::
 }
 void ReflectionProbeBatchedQueue::resetMacro() const {
     for (size_t i = 0; i < _subModels.size(); i++) {
-        scene::SubModel *subModel = const_cast<scene::SubModel *>(_subModels[i]);
-        auto pass = _passes[i];
+        const auto *subModel = const_cast<scene::SubModel *>(_subModels[i]);
+        auto *pass = _passes[i];
         auto &defines = pass->getDefines();
         defines["CC_USE_RGBE_OUTPUT"] = false;
         const_cast<cc::scene::SubModel *>(subModel)->onPipelineStateChanged();

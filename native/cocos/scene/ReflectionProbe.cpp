@@ -56,7 +56,7 @@ void ReflectionProbe::initialize(Node* probeNode, Node* cameraNode) {
     _camera->setViewportInOrientedSpace(Rect(0, 0, 1, 1));
     _camera->setFovAxis(CameraFOVAxis::VERTICAL);
     _camera->setFov(static_cast<float>(mathutils::toRadian(90.0)));
-    _camera->setOrthoHeight(10.0f);
+    _camera->setOrthoHeight(10.0);
 
     _camera->setNearClip(1.0);
     _camera->setFarClip(1000.0);
@@ -139,7 +139,7 @@ void ReflectionProbe::updatePlanarTexture(const scene::RenderScene* scene) {
     if (!scene) return;
     for (const auto& model : scene->getModels()) {
         // filter model by view visibility
-        uint32_t useProbeType = static_cast<uint32_t>(scene::ReflectionProbe::UseProbeType::PLANAR_REFLECTION);
+        auto useProbeType = static_cast<uint32_t>(scene::ReflectionProbe::UseProbeType::PLANAR_REFLECTION);
         if (model->isEnabled() && model->getReflectionProbeType() == useProbeType) {
             const auto visibility = _camera->getVisibility();
             const auto* const node = model->getNode();
@@ -149,7 +149,7 @@ void ReflectionProbe::updatePlanarTexture(const scene::RenderScene* scene) {
                 if (!modelWorldBounds) {
                     continue;
                 }
-                auto probeBoundingBox = getBoundingBox();
+                const auto *probeBoundingBox = getBoundingBox();
                 if (modelWorldBounds->aabbAabb(*probeBoundingBox)) {
                     model->updateReflctionProbePlanarMap(_realtimePlanarTexture->getGFXTexture());
                 }

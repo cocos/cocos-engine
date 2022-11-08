@@ -35,10 +35,9 @@
 #include "scene/Camera.h"
 namespace cc {
 namespace scene {
-struct RenderObject;
 class ReflectionProbe final {
 public:
-    ReflectionProbe(int32_t id);
+    explicit ReflectionProbe(int32_t id);
     ~ReflectionProbe() = default;
     void initialize(Node* probeNode, Node* cameraNode);
     enum class ProbeType {

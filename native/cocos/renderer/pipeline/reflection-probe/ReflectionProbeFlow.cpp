@@ -63,17 +63,16 @@ void ReflectionProbeFlow::render(scene::Camera *camera) {
     CC_PROFILE(ReflectionProbeFlowRender);
     const auto *sceneData = _pipeline->getPipelineSceneData();
     const auto probes = ReflectionProbeManager::getInstance()->getAllProbes();
-    for (size_t i = 0; i < probes.size(); i++) {
-        if (probes[i]->needRender())
-        {
-            renderStage(camera, probes[i]);
+    for (auto probe : probes) {
+        if (probe->needRender()) {
+            renderStage(camera, probe);
         }
     }
 }
 
 void ReflectionProbeFlow::renderStage(scene::Camera *camera, scene::ReflectionProbe *probe) {
     for (auto &stage : _stages) {
-        auto framebuffer = probe->getRealtimePlanarTexture()->getWindow()->getFramebuffer();
+        auto * framebuffer = probe->getRealtimePlanarTexture()->getWindow()->getFramebuffer();
         auto *reflectionProbeStage = static_cast<ReflectionProbeStage *>(stage.get());
         reflectionProbeStage->setUsage(framebuffer, probe);
         reflectionProbeStage->render(camera);
