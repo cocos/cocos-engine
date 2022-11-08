@@ -24,7 +24,7 @@
  */
 
 import CANNON from '@cocos/cannon';
-import { Quat, Vec3 } from '../../core/math';
+import { Quat, Vec3, js } from '../../core';
 import { ERigidBodyType, PhysicsGroup } from '../framework/physics-enum';
 import { getWrap, setWrap } from '../utils/util';
 import { CannonWorld } from './cannon-world';
@@ -37,7 +37,6 @@ import { CannonRigidBody } from './cannon-rigid-body';
 import { commitShapeUpdates } from './cannon-util';
 import { CannonContactEquation } from './cannon-contact-equation';
 import { CannonConstraint } from './constraints/cannon-constraint';
-import { js } from '../../core';
 
 const v3_0 = new Vec3();
 const quat_0 = new Quat();

@@ -24,21 +24,18 @@
  */
 
 import { EDITOR } from 'internal:constants';
-import { Vec3, RecyclePool, Enum, System } from '../../core';
+import { Vec3, RecyclePool, Enum, System, cclegacy, Settings, settings, geometry } from '../../core';
 import { IRaycastOptions } from '../spec/i-physics-world';
 import { director, Director, game } from '../../game';
 import { PhysicsMaterial } from './assets/physics-material';
-import { Ray } from '../../core/geometry';
 import { PhysicsRayResult } from './physics-ray-result';
 import { IPhysicsConfig, ICollisionMatrix, IPhysicsMaterial } from './physics-config';
 import { CollisionMatrix } from './collision-matrix';
 import { PhysicsGroup } from './physics-enum';
 import { constructDefaultWorld, IWorldInitData, selector } from './physics-selector';
-import { legacyCC } from '../../core/global-exports';
-import { Settings, settings } from '../../core/settings';
 import { builtinResMgr } from '../../asset/asset-manager';
 
-legacyCC.internal.PhysicsGroup = PhysicsGroup;
+cclegacy.internal.PhysicsGroup = PhysicsGroup;
 
 /**
  * @en
@@ -298,7 +295,7 @@ export class PhysicsSystem extends System implements IWorldInitData {
     }
 
     postUpdate (deltaTime: number) {
-        if (EDITOR && !legacyCC.GAME_VIEW && !this._executeInEditMode && !selector.runInEditor) return;
+        if (EDITOR && !cclegacy.GAME_VIEW && !this._executeInEditMode && !selector.runInEditor) return;
 
         if (!this.physicsWorld) return;
 
@@ -446,7 +443,7 @@ export class PhysicsSystem extends System implements IWorldInitData {
      * @param queryTrigger @zh 是否检测触发器 @en Whether to detect triggers
      * @return {boolean} @zh 表示是否有检测到碰撞 @en Indicates whether a collision has been detected
      */
-    raycast (worldRay: Ray, mask = 0xffffffff, maxDistance = 10000000, queryTrigger = true): boolean {
+    raycast (worldRay: geometry.Ray, mask = 0xffffffff, maxDistance = 10000000, queryTrigger = true): boolean {
         if (!this.physicsWorld) return false;
         this.raycastResultPool.reset();
         this.raycastResults.length = 0;
@@ -469,7 +466,7 @@ export class PhysicsSystem extends System implements IWorldInitData {
      * @param queryTrigger @zh 是否检测触发器 @en Whether to detect triggers
      * @return {boolean} @zh 表示是否有检测到碰撞 @en Indicates whether a collision has been detected
      */
-    raycastClosest (worldRay: Ray, mask = 0xffffffff, maxDistance = 10000000, queryTrigger = true): boolean {
+    raycastClosest (worldRay: geometry.Ray, mask = 0xffffffff, maxDistance = 10000000, queryTrigger = true): boolean {
         if (!this.physicsWorld) return false;
         this.raycastOptions.mask = mask >>> 0;
         this.raycastOptions.maxDistance = maxDistance;

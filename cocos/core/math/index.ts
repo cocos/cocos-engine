@@ -27,6 +27,7 @@
 import * as bits from './bits';
 
 import './deprecated';
+import './math-native-ext';
 /**
  * Export module bits.
  */
@@ -45,3 +46,6 @@ export { Color, color } from './color';
 export * from './utils';
 export * from './type-define';
 export * from './math-base';
+
+// engine internal exports
+export { preTransforms } from './mat4';

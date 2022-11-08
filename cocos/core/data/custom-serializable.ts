@@ -67,6 +67,9 @@ export type SerializationContext = {
     customArguments: Record<PropertyKey, unknown>
 };
 
+/**
+ * @engineInternal
+ */
 export type DeserializationContext = {
     /**
      * True if the deserialization procedure is deserializing from CCON.

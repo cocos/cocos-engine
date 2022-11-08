@@ -1,11 +1,12 @@
-import { serializable } from 'cc.decorator';
-import { ccclass } from '../../core/data/class-decorator';
+import { _decorator } from '../../core';
 import { createEval } from './create-eval';
 import { BindableNumber, bindOr, VariableType } from './parametric';
 import { MotionEvalContext } from './motion';
 import { AnimationBlend, AnimationBlendEval, AnimationBlendItem } from './animation-blend';
 import { blend1D } from './blend-1d';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
+
+const { ccclass, serializable } = _decorator;
 
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}AnimationBlend1DItem`)
 class AnimationBlend1DItem extends AnimationBlendItem {

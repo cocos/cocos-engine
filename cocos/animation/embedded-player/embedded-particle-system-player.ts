@@ -1,8 +1,7 @@
 import { ccclass, serializable } from 'cc.decorator';
 import type { ParticleSystem } from '../../particle';
-import { warn } from '../../core';
+import { warn, js } from '../../core';
 import type { Node } from '../../scene-graph/node';
-import { getClassByName } from '../../core/utils/js-typed';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
 import { EmbeddedPlayableState, EmbeddedPlayable } from './embedded-player';
 
@@ -30,7 +29,7 @@ export class EmbeddedParticleSystemPlayable extends EmbeddedPlayable {
             return null;
         }
         // TODO: we shouldn't wanna know the name of `ParticleSystem` indeed.
-        const ParticleSystemConstructor = getClassByName(`cc.ParticleSystem`) as Constructor<ParticleSystem> | undefined;
+        const ParticleSystemConstructor = js.getClassByName(`cc.ParticleSystem`) as Constructor<ParticleSystem> | undefined;
         if (!ParticleSystemConstructor) {
             warn(`Particle system is required for embedded particle system player.`);
             return null;

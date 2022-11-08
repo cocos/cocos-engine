@@ -1,12 +1,12 @@
 import { EDITOR } from 'internal:constants';
-import { Vec2 } from '../../../../core';
-import { property, type, ccclass } from '../../../../core/data/class-decorator';
+import { Vec2, _decorator, cclegacy } from '../../../../core';
 import { RigidBody2D } from '../rigid-body-2d';
 import { IJoint2D } from '../../../spec/i-physics-joint';
 import { EJoint2DType } from '../../physics-types';
 import { createJoint } from '../../physics-selector';
-import { legacyCC } from '../../../../core/global-exports';
 import { Component } from '../../../../scene-graph';
+
+const { ccclass, type, property } = _decorator;
 
 @ccclass('cc.Joint2D')
 export class Joint2D extends Component {
@@ -36,7 +36,7 @@ export class Joint2D extends Component {
     TYPE = EJoint2DType.None;
 
     protected onLoad () {
-        if (!EDITOR || legacyCC.GAME_VIEW) {
+        if (!EDITOR || cclegacy.GAME_VIEW) {
             this._joint = createJoint(this.TYPE);
             this._joint.initialize(this);
 

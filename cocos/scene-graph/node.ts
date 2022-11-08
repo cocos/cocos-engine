@@ -36,9 +36,7 @@ import { CustomSerializable, editorExtrasTag, SerializationContext, Serializatio
 import { errorID, warnID, error, log, getError } from '../core/platform/debug';
 import { Component } from './component';
 import { property } from '../core/data/decorators/property';
-import { CCObject } from '../core/data/object';
-import * as js from '../core/utils/js';
-import IdGenerator from '../core/utils/id-generator';
+import { CCObject, js } from '../core';
 import type { Scene } from './scene';
 import { PrefabInfo } from './prefab/prefab-info';
 import { NodeEventType } from './node-event';
@@ -50,7 +48,7 @@ const Deactivating = CCObject.Flags.Deactivating;
 
 export const TRANSFORM_ON = 1 << 0;
 
-const idGenerator = new IdGenerator('Node');
+const idGenerator = new js.IDGenerator('Node');
 
 function getConstructor<T>
 (typeOrClassName: string | Constructor<T> | AbstractedConstructor<T>): Constructor<T> | AbstractedConstructor<T> | null | undefined {
@@ -66,12 +64,14 @@ function getConstructor<T>
 }
 
 const v3_a = new Vec3();
+const v3_b = new Vec3();
 const q_a = new Quat();
 const q_b = new Quat();
 const qt_1 = new Quat();
 const m3_1 = new Mat3();
 const m3_scaling = new Mat3();
 const m4_1 = new Mat4();
+const m4_2 = new Mat4();
 const dirtyNodes: any[] = [];
 
 const reserveContentsForAllSyncablePrefabTag = Symbol('ReserveContentsForAllSyncablePrefab');
@@ -1986,14 +1986,9 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
                 if (dirtyBits & TransformBit.RS) {
                     Mat4.fromRTS(child._mat, child._lrot, child._lpos, child._lscale);
                     Mat4.multiply(child._mat, cur._mat, child._mat);
-                    if (dirtyBits & TransformBit.ROTATION) {
-                        Quat.multiply(child._rot, cur._rot, child._lrot);
-                    }
-                    Mat3.fromQuat(m3_1, Quat.conjugate(qt_1, child._rot));
-                    Mat3.multiplyMat4(m3_1, m3_1, child._mat);
-                    child._scale.x = m3_1.m00;
-                    child._scale.y = m3_1.m04;
-                    child._scale.z = m3_1.m08;
+
+                    const rotTmp = dirtyBits & TransformBit.ROTATION ? child._rot : null;
+                    Mat4.toRTS(this._mat, rotTmp, null, child._scale);
                 }
             } else {
                 if (dirtyBits & TransformBit.POSITION) {
@@ -2369,12 +2364,13 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         const parent = this._parent;
         if (parent) {
             parent.updateWorldTransform();
-            Mat3.fromQuat(m3_1, Quat.conjugate(qt_1, parent._rot));
-            Mat3.multiplyMat4(m3_1, m3_1, parent._mat);
-            m3_scaling.m00 = this._scale.x;
-            m3_scaling.m04 = this._scale.y;
-            m3_scaling.m08 = this._scale.z;
-            Mat3.multiply(m3_1, m3_scaling, Mat3.invert(m3_1, m3_1));
+            v3_a.x = this._scale.x / Vec3.set(v3_b, this._mat.m00, this._mat.m01, this._mat.m02).length();
+            v3_a.y = this._scale.y / Vec3.set(v3_b, this._mat.m04, this._mat.m05, this._mat.m06).length();
+            v3_a.z = this._scale.z / Vec3.set(v3_b, this._mat.m08, this._mat.m09, this._mat.m10).length();
+            Mat4.scale(m4_1, this._mat, v3_a);
+            Mat4.multiply(m4_2, Mat4.invert(m4_2, parent._mat), m4_1);
+            Mat3.fromQuat(m3_1, Quat.conjugate(qt_1, this._lrot));
+            Mat3.multiplyMat4(m3_1, m3_1, m4_2);
             this._lscale.x = Vec3.set(v3_a, m3_1.m00, m3_1.m01, m3_1.m02).length();
             this._lscale.y = Vec3.set(v3_a, m3_1.m03, m3_1.m04, m3_1.m05).length();
             this._lscale.z = Vec3.set(v3_a, m3_1.m06, m3_1.m07, m3_1.m08).length();

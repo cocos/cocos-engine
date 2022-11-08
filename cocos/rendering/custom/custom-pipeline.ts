@@ -1,5 +1,6 @@
 import { Camera, CameraUsage } from '../../render-scene/scene';
-import { buildBloomPass as buildBloomPasses, buildForwardPass, buildNativeForwardPass, buildPostprocessPass } from './define';
+import { buildBloomPass as buildBloomPasses, buildForwardPass,
+    buildNativeDeferredPipeline, buildNativeForwardPass, buildPostprocessPass } from './define';
 import { Pipeline, PipelineBuilder } from './pipeline';
 
 export class CustomPipelineBuilder implements PipelineBuilder {
@@ -36,6 +37,7 @@ export class NativePipelineBuilder implements PipelineBuilder {
                 continue;
             }
             buildNativeForwardPass(camera, ppl);
+            // buildNativeDeferredPipeline(camera, ppl);
         }
     }
 }

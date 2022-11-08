@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { AABB, intersect } from '../core/geometry';
+import { geometry } from '../core';
 import { SetIndex } from './define';
 import { CommandBuffer, Device, RenderPass } from '../gfx';
 import { PipelineStateManager } from './pipeline-state-manager';
@@ -35,7 +35,7 @@ import { PipelineRuntime } from './custom/pipeline';
 import { BatchingSchemes } from '../render-scene/core/pass';
 import { LODModelsCachedUtils } from './lod-models-utils';
 
-const _ab = new AABB();
+const _ab = new geometry.AABB();
 
 export class PlanarShadowQueue {
     private _pendingSubModels: SubModel[] = [];
@@ -77,8 +77,8 @@ export class PlanarShadowQueue {
         for (let i = 0; i < this._castModels.length; i++) {
             const model = this._castModels[i];
             if (model.worldBounds) {
-                AABB.transform(_ab, model.worldBounds, shadows.matLight);
-                if (!intersect.aabbFrustum(_ab, frustum)) { continue; }
+                geometry.AABB.transform(_ab, model.worldBounds, shadows.matLight);
+                if (!geometry.intersect.aabbFrustum(_ab, frustum)) { continue; }
             }
 
             const subModels = model.subModels;

@@ -21,12 +21,13 @@ exports.template = `
             <ui-label slot="label" value="Screen Size (%)"></ui-label>
             <div class="screen-size-content" slot="content">
                 <ui-num-input
+                    :ref="screenUsagePercentageRef"
+                    :min="minScreenUsagePercentage"
+                    :max="maxScreenUsagePercentage"
                     :value="data.value.screenUsagePercentage.value * 100"
-                    :min="min"
-                    :max="max"
                     @confirm="onScreenSizeConfirm($event)">
                 </ui-num-input>
-                <ui-button @confirm="applyCameraSize">Apply Current Camera Size</ui-button>
+                <ui-button @confirm="applyCameraSize" tooltip="i18n:ENGINE.components.lod.applyCameraSizeTip">Apply Current Camera Size</ui-button>
             </div>
         </ui-prop>
 
@@ -59,11 +60,16 @@ exports.template = `
 </ui-section>
 `;
 
-exports.props = ['data', 'index', 'min', 'max', 'lodGroupId'];
+exports.props = ['dump', 'index'];
 
 exports.data = function() {
+    const that = this;
     return {
         totalTriangles: 0,
+        data: that.dump.value.LODs.value[that.index],
+        minScreenUsagePercentage: null,
+        maxScreenUsagePercentage: null,
+        enableUpdateScreenUsagePercentage: false,
     };
 };
 
@@ -78,18 +84,44 @@ exports.watch = {
             that.totalTriangles = res;
         },
     },
+    dump:{
+        immediate: true,
+        deep: true,
+        handler(obj) {
+            const that = this;
+            that.enableUpdateScreenUsagePercentage = false;
+            if (obj.value.LODs.value[that.index].value.screenUsagePercentage.value) {
+                const LODs = obj.value.LODs.value;
+                const min = LODs[that.index + 1] ? LODs[that.index + 1].value.screenUsagePercentage.value : 0;
+                const max = LODs[that.index - 1] ? LODs[that.index - 1].value.screenUsagePercentage.value : null;
+                that.minScreenUsagePercentage = min * 100;
+                that.maxScreenUsagePercentage = max ? max * 100 : null;
+            }
+            that.$nextTick(() => {
+                that.data = obj.value.LODs.value[that.index];
+                that.enableUpdateScreenUsagePercentage = true;
+            });
+        },
+    },
 };
 
 exports.computed = {
     cacheExpandId() {
         const that = this;
-        return `${that.lodGroupId}-lod-${that.index}`;
+        return `${that.dump.value.uuid.value}-lod-${that.index}`;
+    },
+    screenUsagePercentageRef() {
+        const that = this;
+        return `screenUsagePercentage-${that.index}`;
     },
 };
 
 exports.methods = {
     onScreenSizeConfirm(event) {
         const that = this;
+        if (!that.enableUpdateScreenUsagePercentage) {
+            return;
+        }
         that.data.value.screenUsagePercentage.value = event.target.value / 100;
         that.updateDump(that.data.value.screenUsagePercentage);
     },
@@ -117,9 +149,22 @@ exports.methods = {
         // emit method is recommended to all lowercase, camel case may be automatically converted to lowercase resulting in failure to match
         that.$emit('update-lods', operator, that.index);
     },
-    applyCameraSize() {
+    async applyCameraSize() {
         const that = this;
-        Editor.Message.send('scene', 'lod:apply-current-camera-size', that.lodGroupId, that.index);
+        let size = await Editor.Message.request('scene', 'lod-apply-current-camera-size', that.dump.value.uuid.value);
+        if (that.$refs[that.screenUsagePercentageRef]) {
+            const min = that.$refs[that.screenUsagePercentageRef].min / 100 || 0;
+            const max = that.$refs[that.screenUsagePercentageRef].max / 100 || null;
+            if (size < min) {
+                size = min;
+                console.log(Editor.I18n.t('ENGINE.components.lod.applyCameraSizeLessThanMinimum'));
+            } else if (size > max) {
+                size = max;
+                console.log(Editor.I18n.t('ENGINE.components.lod.applyCameraSizeGreaterThanMaximum'));
+            }
+        }
+        that.data.value.screenUsagePercentage.value = size;
+        that.updateDump(that.data.value.screenUsagePercentage);
     },
     handleTriangleLabel(meshIndex) {
         const that = this;

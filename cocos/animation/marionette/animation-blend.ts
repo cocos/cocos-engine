@@ -1,14 +1,13 @@
-import { ccclass } from '../../core/data/class-decorator';
+import { _decorator, EditorExtendable, editorExtrasTag } from '../../core';
 import { MotionEvalContext, Motion, MotionEval } from './motion';
 import { createEval } from './create-eval';
 import { VariableTypeMismatchedError } from './errors';
-import { serializable } from '../../core/data/decorators';
 import { ClipStatus } from './graph-eval';
-import { EditorExtendable } from '../../core/data/editor-extendable';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
 import { getMotionRuntimeID, RUNTIME_ID_ENABLED } from './graph-debug';
-import { editorExtrasTag } from '../../core/data';
 import { cloneAnimationGraphEditorExtrasFrom } from './animation-graph-editor-extras-clone-helper';
+
+const { ccclass, serializable } = _decorator;
 
 export interface AnimationBlend extends Motion, EditorExtendable {
     [createEval] (_context: MotionEvalContext): MotionEval | null;

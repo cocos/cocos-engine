@@ -1,22 +1,40 @@
+'use strict';
+
 const { createReadStream } = require('fs');
 const ReadLine = require('readline');
 
 const MAX_LINES = 400;
 const MAX_LENGTH = 20000;
 
-exports.template = `
+exports.template = /* html */`
 <section class="asset-effect-header">
     <ui-code language="glsl"></ui-code>
+    <ui-label class="multiple-warn-tip" value="i18n:ENGINE.assets.multipleWarning"></ui-label>
 </section>
 `;
 
-exports.style = `
+exports.style = /* css */`
 .asset-effect-header {
     flex: 1;
     display: flex;
     flex-direction: column;
     height: 0px; // it is necessary
 }
+
+.asset-effect-header[multiple-invalid] > *:not(.multiple-warn-tip) {
+    display: none!important;
+ }
+
+ .asset-effect-header[multiple-invalid] > .multiple-warn-tip {
+    display: block;
+ }
+
+.asset-effect-header .multiple-warn-tip {
+    display: none;
+    text-align: center;
+    color: var(--color-focus-contrast-weakest);
+}
+
 .asset-effect-header > ui-code {
     flex: 1;
 }
@@ -37,14 +55,11 @@ exports.update = function(assetList, metaList) {
     this.meta = metaList[0];
     this.asset = assetList[0];
 
-    let display = 'none';
-    if (assetList.length === 1) {
-        display = 'flex';
-    }
-    this.$.container.style.display = display;
-
-    if (display === 'none') {
+    if (assetList.length > 1) {
+        this.$.container.setAttribute('multiple-invalid', '');
         return;
+    } else {
+        this.$.container.removeAttribute('multiple-invalid');
     }
 
     // Displays 400 lines or 20,000 characters

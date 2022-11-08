@@ -32,8 +32,7 @@ import { RenderPassStage } from '../../rendering/define';
 import { MacroRecord } from '../../render-scene/core/pass-utils';
 import { programLib } from '../../render-scene/core/program-lib';
 import { Asset } from './asset';
-import { legacyCC } from '../../core/global-exports';
-import { warnID } from '../../core/platform/debug';
+import { cclegacy, warnID } from '../../core';
 
 export declare namespace EffectAsset {
     export interface IPropertyInfo {
@@ -290,11 +289,11 @@ export class EffectAsset extends Asset {
     public onLoaded () {
         programLib.register(this);
         EffectAsset.register(this);
-        if (!EDITOR || legacyCC.GAME_VIEW) { legacyCC.game.once(legacyCC.Game.EVENT_RENDERER_INITED, this._precompile, this); }
+        if (!EDITOR || cclegacy.GAME_VIEW) { cclegacy.game.once(cclegacy.Game.EVENT_RENDERER_INITED, this._precompile, this); }
     }
 
     protected _precompile () {
-        const root = legacyCC.director.root as Root;
+        const root = cclegacy.director.root as Root;
         for (let i = 0; i < this.shaders.length; i++) {
             const shader = this.shaders[i];
             const combination = this.combinations[i];
@@ -333,4 +332,4 @@ export class EffectAsset extends Asset {
     }
 }
 
-legacyCC.EffectAsset = EffectAsset;
+cclegacy.EffectAsset = EffectAsset;

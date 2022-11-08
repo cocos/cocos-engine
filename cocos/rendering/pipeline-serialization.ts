@@ -24,9 +24,8 @@
  */
 
 import { ccclass, type, serializable, editable } from 'cc.decorator';
-import { CCString } from '../core/data/utils/attribute';
+import { CCString, ccenum } from '../core';
 import { AccessFlagBit, Format, LoadOp, StoreOp, TextureType, TextureUsageBit } from '../gfx';
-import { ccenum } from '../core/value-types/enum';
 import { RenderTexture } from '../asset/assets/render-texture';
 import { Material } from '../asset/assets/material';
 

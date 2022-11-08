@@ -24,19 +24,15 @@
  */
 
 import { BUILD, EDITOR } from 'internal:constants';
-import { sys } from '../../core/platform/sys';
-import { js } from '../../core/utils/js';
-import { callInNextTick } from '../../core/utils/misc';
-import { basename, mainFileName } from '../../core/utils/path';
+import { sys, js, misc, path, cclegacy } from '../../core';
 import Cache from './cache';
 import downloadDomImage from './download-dom-image';
 import downloadFile from './download-file';
 import downloadScript from './download-script';
 import { CompleteCallback, CompleteCallbackNoData, IBundleOptions, IDownloadParseOptions, files } from './shared';
 import { retry, RetryFunction, urlAppendTimestamp } from './utilities';
-import { legacyCC } from '../../core/global-exports';
 import { IConfigOption } from './config';
-import { CCON, parseCCONJson, decodeCCONBinary } from '../../core/data/ccon';
+import { CCON, parseCCONJson, decodeCCONBinary } from '../../serialization/ccon';
 
 export type DownloadHandler = (url: string, options: IDownloadParseOptions, onComplete: CompleteCallback) => void;
 
@@ -53,7 +49,7 @@ const REGEX = /^(?:\w+:\/\/|\.+\/).+/;
 
 const downloadImage = (url: string, options: IDownloadParseOptions, onComplete: CompleteCallback) => {
     // if createImageBitmap is valid, we can transform blob to ImageBitmap. Otherwise, just use HTMLImageElement to load
-    const func = sys.hasFeature(sys.Feature.IMAGE_BITMAP) && legacyCC.assetManager.allowImageBitmap ? downloadBlob : downloadDomImage;
+    const func = sys.hasFeature(sys.Feature.IMAGE_BITMAP) && cclegacy.assetManager.allowImageBitmap ? downloadBlob : downloadDomImage;
     func(url, options, onComplete);
 };
 
@@ -80,7 +76,7 @@ const downloadCCON = (url: string, options: IDownloadParseOptions, onComplete: C
         }
         const cconPreface = parseCCONJson(json);
         const chunkPromises = Promise.all(cconPreface.chunks.map((chunk) => new Promise<Uint8Array>((resolve, reject) => {
-            downloadArrayBuffer(`${mainFileName(url)}${chunk}`, {}, (errChunk, chunkBuffer) => {
+            downloadArrayBuffer(`${path.mainFileName(url)}${chunk}`, {}, (errChunk, chunkBuffer) => {
                 if (err) {
                     reject(err);
                 } else {
@@ -118,7 +114,7 @@ const downloadText = (url: string, options: IDownloadParseOptions, onComplete: C
 };
 
 const downloadBundle = (nameOrUrl: string, options: IBundleOptions, onComplete: CompleteCallback) => {
-    const bundleName = basename(nameOrUrl);
+    const bundleName = path.basename(nameOrUrl);
     let url = nameOrUrl;
     if (!REGEX.test(url)) {
         if (downloader.remoteBundles.indexOf(bundleName) !== -1) {
@@ -444,13 +440,13 @@ export class Downloader {
      * @deprecated loader.downloader.loadSubpackage is deprecated, please use AssetManager.loadBundle instead
      */
     public loadSubpackage (name: string, completeCallback?: CompleteCallbackNoData) {
-        legacyCC.assetManager.loadBundle(name, null, completeCallback);
+        cclegacy.assetManager.loadBundle(name, null, completeCallback);
     }
 
     private _updateTime () {
         const now = performance.now();
         // use deltaTime as interval
-        const deltaTime = legacyCC.game.deltaTime;
+        const deltaTime = cclegacy.game.deltaTime;
         const interval = deltaTime > this._maxInterval ? this._maxInterval : deltaTime;
         if (now - this._lastDate > interval * 1000) {
             this._totalNumThisPeriod = 0;
@@ -481,7 +477,7 @@ export class Downloader {
 
     private _handleQueueInNextFrame (maxConcurrency: number, maxRequestsPerFrame: number) {
         if (!this._checkNextPeriod && this._queue.length > 0) {
-            callInNextTick(this._handleQueue.bind(this), maxConcurrency, maxRequestsPerFrame);
+            misc.callInNextTick(this._handleQueue.bind(this), maxConcurrency, maxRequestsPerFrame);
             this._checkNextPeriod = true;
         }
     }

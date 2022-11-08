@@ -28,14 +28,13 @@ import { ccclass, help, executeInEditMode, menu, tooltip, displayOrder, type, se
 import { RenderTexture } from '../asset/assets/render-texture';
 import { UITransform } from '../2d/framework';
 import { Component } from '../scene-graph';
-import { Color, Rect, toRadian, Vec3, cclegacy, geometry } from '../core';
+import { Color, Rect, toRadian, Vec3, cclegacy, geometry, Enum } from '../core';
 import { CAMERA_DEFAULT_MASK } from '../rendering/define';
 import { scene } from '../render-scene';
 import { SKYBOX_FLAG, CameraProjection, CameraFOVAxis, CameraAperture, CameraISO, CameraShutter,
     CameraType, TrackingType } from '../render-scene/scene/camera';
 import { Node } from '../scene-graph/node';
 import { Layers } from '../scene-graph/layers';
-import { Enum } from '../core/value-types';
 import { TransformBit } from '../scene-graph/node-enum';
 import { RenderWindow } from '../render-scene/core/render-window';
 import { ClearFlagBit } from '../gfx';

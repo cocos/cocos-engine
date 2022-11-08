@@ -185,7 +185,7 @@ export class Toggle extends Button {
         }
     }
 
-    public OnDestroy () {
+    public onDestroy () {
         const group = this._toggleContainer;
         if (group) {
             group.ensureValidState();

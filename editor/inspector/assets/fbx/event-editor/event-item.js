@@ -6,7 +6,7 @@ const defaultParams = {
     boolean: false,
 };
 
-exports.template = `
+exports.template = /* html */`
 <div @change.stop="onConfirm" v-if="event">
     <ui-section class="config" expand>
         <div slot="header" class="header" @click.stop>

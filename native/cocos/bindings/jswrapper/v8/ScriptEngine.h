@@ -60,10 +60,8 @@ class Value;
  */
 class AutoHandleScope {
 public:
-    AutoHandleScope()
-    : _handleScope(v8::Isolate::GetCurrent()) {
-    }
-    ~AutoHandleScope() = default;
+    AutoHandleScope();
+    ~AutoHandleScope();
 
 private:
     v8::HandleScope _handleScope;

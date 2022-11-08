@@ -5,15 +5,24 @@ namespace cc {
 
 namespace gfx {
 
-AccessFlags getAccessFlags(BufferUsage usage, MemoryUsage memUsage,
+AccessFlags getAccessFlags(
+    BufferUsage usage, MemoryUsage memUsage,
     ShaderStageFlagBit visibility,
-    MemoryAccessBit access,
+    MemoryAccess access,
     PassType passType) noexcept;
 
-AccessFlags getAccessFlags(TextureUsage usage,
+AccessFlags getAccessFlags(
+    TextureUsage usage,
     ShaderStageFlagBit visibility,
-    MemoryAccessBit access,
+    MemoryAccess access,
     PassType passType) noexcept;
+
+constexpr AccessFlags INVALID_ACCESS_FLAGS = static_cast<AccessFlags>(0xFFFFFFFF);
+
+AccessFlags getDeviceAccessFlags(
+    TextureUsage usage,
+    MemoryAccess access,
+    ShaderStageFlags visibility);
 
 } // namespace gfx
 
