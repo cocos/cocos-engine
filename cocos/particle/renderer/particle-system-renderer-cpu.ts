@@ -504,7 +504,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
 
                 let allSubStop = true;
                 for (let se = 0; se < p.subemitter.length; ++se) {
-                    if (!p.subemitter[se]._trigged || p.subemitter[se].processor._particles.length > 0) {
+                    if (p.subemitter[se].processor._particles.length > 0) {
                         allSubStop = false;
                         break;
                     }
@@ -513,7 +513,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
                 if (p.subemitter.length > 0 && allSubStop) {
                     let allTrigged = true;
                     for (let se = 0; se < p.subemitter.length; ++se) {
-                        if (p.subemitter[se]._trigged) {
+                        if (p.subemitter[se]._trigged || !p.subemitter[se].actDie) {
                             p.subemitter[se].stop();
                         } else {
                             allTrigged = false;
