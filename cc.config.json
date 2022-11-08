@@ -213,6 +213,7 @@
                 "cocos/render-scene/core/render-window.ts": "cocos/render-scene/core/render-window.jsb.ts",
                 "cocos/render-scene/core/sampler-lib.ts": "cocos/render-scene/core/sampler.jsb.ts",
                 "cocos/render-scene/scene/camera.ts": "cocos/render-scene/scene/camera.jsb.ts",
+                "cocos/render-scene/scene/reflection-probe.ts": "cocos/render-scene/scene/reflection-probe.jsb.ts",
                 "cocos/render-scene/scene/model.ts": "cocos/render-scene/scene/model.jsb.ts",
                 "cocos/render-scene/core/render-scene.ts": "cocos/render-scene/core/render-scene.jsb.ts",
                 "cocos/render-scene/scene/submodel.ts": "cocos/render-scene/scene/submodel.jsb.ts",

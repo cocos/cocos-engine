@@ -28,14 +28,23 @@ import { cclegacy, CCObject, Color, Enum, Vec3 } from '../core';
 
 import { TextureCube } from '../asset/assets';
 import { scene } from '../render-scene';
-import { ProbeClearFlag, ProbeType } from '../render-scene/scene/reflection-probe';
 import { CAMERA_DEFAULT_MASK } from '../rendering/define';
 import { ReflectionProbeManager } from '../rendering/reflection-probe-manager';
 import { Component } from '../scene-graph/component';
 import { Layers } from '../scene-graph/layers';
 import { Camera } from './camera-component';
-import { Node } from '../scene-graph';
+import { Node, Scene } from '../scene-graph';
+import { SKYBOX_FLAG } from '../render-scene/scene/camera';
+import { ClearFlagBit } from '../gfx';
 
+enum ProbeType {
+    CUBE= 0,
+    PLANAR= 1,
+}
+export enum ProbeClearFlag {
+    SKYBOX= SKYBOX_FLAG | ClearFlagBit.DEPTH_STENCIL,
+    SOLID_COLOR= ClearFlagBit.ALL,
+}
 export enum ProbeResolution {
     /**
      * @zh 分辨率 128 * 128。
@@ -299,7 +308,7 @@ export class ReflectionProbe extends Component {
         if (this._probeId === -1 || ReflectionProbeManager.probeManager.exists(this._probeId)) {
             this._probeId = this.node.scene.getNewReflectionProbeId();
         }
-        this._probe = (cclegacy.director.root).createReflectionProbe(this._probeId);
+        this._probe = new scene.ReflectionProbe(this._probeId);
         if (this._probe) {
             const cameraNode = new Node('ReflectionProbeCamera');
             cameraNode.hideFlags |= CCObject.Flags.DontSave | CCObject.Flags.HideInHierarchy;
