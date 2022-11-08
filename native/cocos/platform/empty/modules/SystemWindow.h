@@ -53,6 +53,9 @@ public:
 private:
     int _width{0};
     int _height{0};
+
+    uint32_t _windowId{0};
+    uintptr_t _windowHandle{0};
 };
 
 } // namespace cc

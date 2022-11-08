@@ -35,18 +35,21 @@ namespace {
 } // namespace
 
 namespace cc {
-SystemWindow::SystemWindow(uint32_t windowId, void* externalHandle) {
+SystemWindow::SystemWindow(uint32_t windowId, void* externalHandle)
+: _windowId(windowId) {
+    if (externalHandle) {
+        _windowHandle = reinterpret_cast<uintptr_t>(externalHandle);
+    }
 }
 
-SystemWindow::~SystemWindow() {
-}
+SystemWindow::~SystemWindow() = default;
 
 uintptr_t SystemWindow::getWindowHandle() const {
-    return 0;
+    return _windowHandle;
 }
 
 uint32_t SystemWindow::getWindowId() const {
-    return 0;
+    return _windowId;
 }
 
 void SystemWindow::setCursorEnabled(bool value) {
