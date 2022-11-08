@@ -6,6 +6,16 @@ exports.template = /* html */`
         <ui-label value="Vertices:0" class="vertices"></ui-label>
         <ui-label value="Triangles:0" class="triangles"></ui-label>
         <ui-label value="" class="uvsLabel"></ui-label>
+        <div class="select-box">
+            <ui-select class="preview-channel" placeholder="choose" value="0">
+                <option value="0">channel 0</option>
+                <option value="1">channel 1</option>
+            </ui-select>
+            <ui-select class="preview-type" placeholder="choose" value="shaded">
+                <option value="shaded">shaded</option>
+                <option value="uv layout">uv layout</option>
+            </ui-select>
+        </div>
     </div>
     <div>
         <div>
@@ -42,6 +52,15 @@ exports.style = /* css */`
 .preview >.image > .canvas {
     flex: 1;
 }
+.select-box {
+    float: right;
+}
+.preview-channel {
+    visibility: hidden;
+}
+.preview-channel.show {
+    visibility: visible;
+}
 `;
 
 exports.$ = {
@@ -53,6 +72,8 @@ exports.$ = {
     uvsLabel: '.uvsLabel',
     minPosLabel: '.minPosLabel',
     maxPosLabel: '.maxPosLabel',
+    previewType: '.preview-type',
+    previewChannel: '.preview-channel',
 };
 
 async function callMeshPreviewFunction(funcName, ...args) {
@@ -168,6 +189,25 @@ const Elements = {
             callMeshPreviewFunction('hide');
         },
     },
+    previewControl: {
+        ready() {
+            const panel = this;
+            panel.$.previewType.addEventListener('confirm', (event) => {
+                const value = event.target.value;
+                if (value === 'uv layout') {
+                    panel.$.previewChannel.classList.add('show');
+                    panel.updatePreviewType(value, 0);
+                } else {
+                    panel.$.previewChannel.classList.remove('show');
+                    panel.updatePreviewType(value);
+                }
+            });
+            panel.$.previewChannel.addEventListener('confirm', (event) => {
+                const value = event.target.value;
+                panel.updatePreviewType('uv layout', value);
+            });
+        },
+    },
 };
 
 exports.methods = {
@@ -211,6 +251,14 @@ exports.methods = {
         panel.animationId = requestAnimationFrame(() => {
             panel.refreshPreview();
         });
+    },
+    updatePreviewType(type, channel) {
+        if (type === 'shaded') {
+            console.log('原来的预览模式');
+        }
+        if (type === 'uv layout') {
+            console.log(type, channel);
+        }
     },
 };
 
