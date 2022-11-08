@@ -40,7 +40,7 @@ class ReflectionProbe final {
 public:
     ReflectionProbe(int32_t id);
     ~ReflectionProbe() = default;
-    void initialize(Node* node);
+    void initialize(Node* probeNode, Node* cameraNode);
     enum class ProbeType {
         CUBE = 0,
         PLANAR = 1,
@@ -100,7 +100,9 @@ public:
     inline Camera* getCamera() { return _camera; }
     inline bool needRender() const { return _needRender; }
     inline const geometry::AABB* getBoundingBox() const { return _boundingBox; }
-    inline Node* getCameraNode() { return _cameraNode; }
+
+    inline void setCameraNode(Node* val) { _cameraNode = val; }
+    inline Node* getCameraNode()const { return _cameraNode; }
 
     inline RenderTexture* getRealtimePlanarTexture() const { return _realtimePlanarTexture; }
     void updateBoundingBox();

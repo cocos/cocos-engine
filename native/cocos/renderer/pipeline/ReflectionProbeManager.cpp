@@ -41,19 +41,14 @@ ReflectionProbeManager* ReflectionProbeManager::getInstance() {
 
 ReflectionProbeManager::ReflectionProbeManager() = default;
 void ReflectionProbeManager::registerProbe(scene::ReflectionProbe* probe) {
-    _probes.push_back(probe);
+    _probes.emplace_back(probe);
 }
-scene::ReflectionProbe* ReflectionProbeManager::createReflectionProbe(int32_t id) {
-    return ccnew scene::ReflectionProbe(id);
-}
-
-scene::ReflectionProbe* ReflectionProbeManager::getProbeByCamera(const scene::Camera* camera) {
-    for (const auto& probe : _probes) {
-        if (probe->getCamera() == camera) {
-            return probe;
-        }
+void ReflectionProbeManager::unRegisterProbe(scene::ReflectionProbe* probe) {
+    for (auto* p : _probes) {
+        const auto iter = std::find(_probes.begin(), _probes.end(), probe);
+        _probes.erase(iter);
+        break;
     }
-    return nullptr;
 }
 
 } // namespace pipeline

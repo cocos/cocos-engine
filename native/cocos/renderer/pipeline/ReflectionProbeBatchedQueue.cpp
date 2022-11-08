@@ -31,7 +31,6 @@
 #include "PipelineStateManager.h"
 #include "RenderBatchedQueue.h"
 #include "RenderInstancedQueue.h"
-#include "SceneCulling.h"
 #include "core/geometry/AABB.h"
 #include "forward/ForwardPipeline.h"
 #include "gfx-base/GFXCommandBuffer.h"

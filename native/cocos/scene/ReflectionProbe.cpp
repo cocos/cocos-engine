@@ -35,20 +35,17 @@ ReflectionProbe::ReflectionProbe(int32_t id) {
     pipeline::ReflectionProbeManager::getInstance()->registerProbe(this);
 }
 
-void ReflectionProbe::initialize(Node* node) {
-    _node = node;
-    _cameraNode = ccnew Node("ReflectionProbeCamera");
-    Scene* c = _node->getScene();
-    c->addChild(_cameraNode);
-
-    const Vec3 pos = node->getWorldPosition();
+void ReflectionProbe::initialize(Node* probeNode, Node* cameraNode) {
+    _node = probeNode;
+    _cameraNode = cameraNode;
+    const Vec3 pos = probeNode->getWorldPosition();
     _boundingBox = geometry::AABB::create(pos.x, pos.y, pos.z, _size.x, _size.y, _size.z);
 
     if (!_camera) {
         _camera = Root::getInstance()->createCamera();
         scene::ICameraInfo info;
-        info.name = _cameraNode->getName();
-        info.node = _cameraNode;
+        info.name = cameraNode->getName();
+        info.node = cameraNode;
         info.projection = CameraProjection::PERSPECTIVE;
         info.window = Root::getInstance()->getTempWindow();
         info.priority = 0;
@@ -162,18 +159,16 @@ void ReflectionProbe::updatePlanarTexture(const scene::RenderScene* scene) {
 }
 
 void ReflectionProbe::destroy() {
+    _needRender = false;
     if (_camera) {
         _camera->destroy();
         _camera = nullptr;
-    }
-    if (_cameraNode) {
-        _cameraNode->destroy();
-        _cameraNode = nullptr;
     }
     if (_realtimePlanarTexture) {
         _realtimePlanarTexture->destroy();
         _realtimePlanarTexture = nullptr;
     }
+    pipeline::ReflectionProbeManager::getInstance()->unRegisterProbe(this);
 }
 
 } // namespace scene

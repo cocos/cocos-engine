@@ -40,12 +40,8 @@ public:
     ReflectionProbeManager();
     ~ReflectionProbeManager() = default;
     void registerProbe(scene::ReflectionProbe* probe);
-    scene::ReflectionProbe* createReflectionProbe(int32_t id);
-
-    scene::ReflectionProbe* getProbeByCamera(const scene::Camera* camera);
-
+    void unRegisterProbe(scene::ReflectionProbe* probe);
     const ccstd::vector<scene::ReflectionProbe*>& getAllProbes() const{ return _probes; }
-
 private:
     ccstd::vector<scene::ReflectionProbe*> _probes;
 };

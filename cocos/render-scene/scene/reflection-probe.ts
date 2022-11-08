@@ -233,6 +233,9 @@ export class ReflectionProbe {
         return this._boundingBox;
     }
 
+    set cameraNode (node:Node) {
+        this._cameraNode = node;
+    }
     get cameraNode () {
         return this._cameraNode!;
     }
@@ -241,15 +244,12 @@ export class ReflectionProbe {
         this._probeId = id;
     }
 
-    public initialize (node: Node) {
+    public initialize (node: Node, cameraNode:Node) {
         this._node = node;
-        this._cameraNode = new Node('ReflectionProbeCamera');
-        this._cameraNode.hideFlags |= CCObject.Flags.DontSave | CCObject.Flags.HideInHierarchy;
-        node.scene.addChild(this._cameraNode);
-
+        this._cameraNode = cameraNode;
         const pos = this.node.getWorldPosition();
         this._boundingBox = geometry.AABB.create(pos.x, pos.y, pos.z, this._size.x, this._size.y, this._size.z);
-        this._createCamera();
+        this._createCamera(cameraNode);
     }
 
     public initBakedTextures () {
@@ -352,14 +352,14 @@ export class ReflectionProbe {
         }
     }
 
-    private _createCamera () {
+    private _createCamera (cameraNode:Node) {
         const root = cclegacy.director.root;
         if (!this._camera) {
             this._camera = (cclegacy.director.root).createCamera();
             if (!this._camera) return null;
             this._camera.initialize({
-                name: this.cameraNode.name,
-                node: this.cameraNode,
+                name: cameraNode.name,
+                node: cameraNode,
                 projection: CameraProjection.PERSPECTIVE,
                 window: EDITOR ? cclegacy.director.root && cclegacy.director.root.mainWindow
                     : cclegacy.director.root && cclegacy.director.root.tempWindow,

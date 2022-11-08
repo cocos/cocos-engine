@@ -34,6 +34,7 @@ import { ReflectionProbeManager } from '../rendering/reflection-probe-manager';
 import { Component } from '../scene-graph/component';
 import { Layers } from '../scene-graph/layers';
 import { Camera } from './camera-component';
+import { Node } from '../scene-graph';
 
 export enum ProbeResolution {
     /**
@@ -300,7 +301,11 @@ export class ReflectionProbe extends Component {
         }
         this._probe = (cclegacy.director.root).createReflectionProbe(this._probeId);
         if (this._probe) {
-            this._probe.initialize(this.node);
+            const cameraNode = new Node('ReflectionProbeCamera');
+            cameraNode.hideFlags |= CCObject.Flags.DontSave | CCObject.Flags.HideInHierarchy;
+            this.node.scene.addChild(cameraNode);
+
+            this._probe.initialize(this.node, cameraNode);
             if (this.enabled) {
                 ReflectionProbeManager.probeManager.register(this._probe);
             }
