@@ -35,17 +35,9 @@ ReflectionProbe::ReflectionProbe(int32_t id) {
     pipeline::ReflectionProbeManager::getInstance()->registerProbe(this);
 }
 
-const ccstd::vector<Model*>& ReflectionProbe::getRenderObjects() const {
-    return _renderObjects;
-}
-
-void ReflectionProbe::addRenderObject(Model* model) {
-    _renderObjects.push_back(model);
-}
-
 void ReflectionProbe::initialize(Node* node) {
     _node = node;
-    _cameraNode = new Node("ReflectionProbeCamera");
+    _cameraNode = ccnew Node("ReflectionProbeCamera");
     Scene* c = _node->getScene();
     c->addChild(_cameraNode);
 
@@ -115,19 +107,16 @@ void ReflectionProbe::transformReflectionCamera(const Camera* sourceCamera) {
 
     _forward = Vec3::FORWARD;
     _forward.transformQuat(sourceCamera->getNode()->getWorldRotation());
-    _forward.normalize();
     _forward = reflect(_forward, Vec3::UNIT_Y, 0);
     _forward.normalize();
     _forward *= -1;
 
     _up = Vec3::UNIT_Y;
     _up.transformQuat(sourceCamera->getNode()->getWorldRotation());
-    _up.normalize();
     _up = reflect(_up, Vec3::UNIT_Y, 0);
     _up.normalize();
 
     Quaternion::fromViewUp(_forward, _up, &_cameraWorldRotation);
-
     _cameraNode->setWorldRotation(_cameraWorldRotation);
     _camera->update(true);
 }
@@ -149,18 +138,17 @@ void ReflectionProbe::updateBoundingBox() {
     }
 }
 
-void ReflectionProbe::updatePlanarTexture(const scene::RenderScene* scene)
-{
+void ReflectionProbe::updatePlanarTexture(const scene::RenderScene* scene) {
     if (!scene) return;
-    for (const auto &model : scene->getModels()) {
+    for (const auto& model : scene->getModels()) {
         // filter model by view visibility
         uint32_t useProbeType = static_cast<uint32_t>(scene::ReflectionProbe::UseProbeType::PLANAR_REFLECTION);
         if (model->isEnabled() && model->getReflectionProbeType() == useProbeType) {
             const auto visibility = _camera->getVisibility();
-            const auto *const node = model->getNode();
+            const auto* const node = model->getNode();
             if ((model->getNode() && ((visibility & node->getLayer()) == node->getLayer())) ||
                 (visibility & static_cast<uint32_t>(model->getVisFlags()))) {
-                const auto *modelWorldBounds = model->getWorldBounds();
+                const auto* modelWorldBounds = model->getWorldBounds();
                 if (!modelWorldBounds) {
                     continue;
                 }
@@ -178,8 +166,7 @@ void ReflectionProbe::destroy() {
         _camera->destroy();
         _camera = nullptr;
     }
-    if (_cameraNode)
-    {
+    if (_cameraNode) {
         _cameraNode->destroy();
         _cameraNode = nullptr;
     }

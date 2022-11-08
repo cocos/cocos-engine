@@ -167,7 +167,6 @@ bool ReflectionProbeBatchedQueue::isUseReflectMapPass(const scene::SubModel *sub
 
 void ReflectionProbeBatchedQueue::destroy() {
     CC_SAFE_DELETE(_batchedQueue)
-
     CC_SAFE_DELETE(_instancedQueue)
 }
 

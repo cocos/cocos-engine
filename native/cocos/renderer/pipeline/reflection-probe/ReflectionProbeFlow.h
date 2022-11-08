@@ -26,8 +26,6 @@
 #pragma once
 
 #include "../RenderFlow.h"
-#include "scene/Define.h"
-
 namespace cc {
 namespace scene {
 class ReflectionProbe;
@@ -54,8 +52,6 @@ private:
     void renderStage(scene::Camera *camera, scene::ReflectionProbe *probe);
 
     static RenderFlowInfo initInfo;
-
-    static ccstd::unordered_map<ccstd::hash_t, IntrusivePtr<cc::gfx::RenderPass>> renderPassHashMap;
 };
 } // namespace pipeline
 } // namespace cc

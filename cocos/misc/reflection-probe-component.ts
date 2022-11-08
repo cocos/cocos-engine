@@ -298,7 +298,7 @@ export class ReflectionProbe extends Component {
         if (this._probeId === -1 || ReflectionProbeManager.probeManager.exists(this._probeId)) {
             this._probeId = this.node.scene.getNewReflectionProbeId();
         }
-        this._probe = cclegacy.director.root.createReflectionProbe(this._probeId);
+        this._probe = (cclegacy.director.root).createReflectionProbe(this._probeId);
         if (this._probe) {
             this._probe.initialize(this.node);
             if (this.enabled) {

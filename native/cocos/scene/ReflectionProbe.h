@@ -93,12 +93,6 @@ public:
     }
     inline const Vec3& getBoudingSize() const { return _size; }
     /**
-    * @en Object to be render by probe
-    * @zh probe需要渲染的物体。
-    */
-    const ccstd::vector<Model*>& getRenderObjects() const;
-    void addRenderObject(Model* model);
-    /**
      * @en The node of the probe.
      * @zh probe绑定的节点
      */

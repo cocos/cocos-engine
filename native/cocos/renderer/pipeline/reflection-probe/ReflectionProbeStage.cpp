@@ -25,13 +25,9 @@
 
 #include "ReflectionProbeStage.h"
 #include "../Define.h"
-#include "../PipelineSceneData.h"
 #include "../PipelineUBO.h"
 #include "../ReflectionProbeBatchedQueue.h"
 #include "../RenderPipeline.h"
-#include "gfx-base/GFXCommandBuffer.h"
-#include "gfx-base/GFXFramebuffer.h"
-#include "math/Vec2.h"
 #include "pipeline/ReflectionProbeManager.h"
 #include "profiler/Profiler.h"
 #include "scene/Camera.h"

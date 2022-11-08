@@ -419,9 +419,8 @@ export class ReflectionProbe {
         this._forward.normalize();
         this._forward.negative();
 
-        const up = new Vec3();
-        Vec3.transformQuat(up, Vec3.UP, sourceCamera.node.worldRotation);
-        this._reflect(this._up, up, Vec3.UP, 0);
+        Vec3.transformQuat(this._up, Vec3.UP, sourceCamera.node.worldRotation);
+        this._reflect(this._up, this._up, Vec3.UP, 0);
         this._up.normalize();
 
         Quat.fromViewUp(this._cameraWorldRotation, this._forward, this._up);

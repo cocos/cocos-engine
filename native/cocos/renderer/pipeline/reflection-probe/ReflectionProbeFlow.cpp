@@ -26,17 +26,12 @@
 #include "ReflectionProbeFlow.h"
 
 #include "ReflectionProbeStage.h"
-#include "gfx-base/GFXDevice.h"
-#include "pipeline//Define.h"
-#include "pipeline/GlobalDescriptorSetManager.h"
 #include "pipeline/PipelineSceneData.h"
 #include "pipeline/ReflectionProbeManager.h"
 #include "pipeline/RenderPipeline.h"
-#include "pipeline/SceneCulling.h"
 #include "profiler/Profiler.h"
 #include "scene/Camera.h"
 #include "scene/ReflectionProbe.h"
-#include "scene/RenderScene.h"
 namespace cc {
 namespace pipeline {
 RenderFlowInfo ReflectionProbeFlow::initInfo = {
