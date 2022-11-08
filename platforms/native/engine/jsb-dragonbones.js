@@ -418,6 +418,7 @@ const cacheManager = require('./jsb-cache-manager');
         if (this.isAnimationCached()) {
             const isShare = this._cacheMode === AnimationCacheMode.SHARED_CACHE;
             this._nativeDisplay = new dragonBones.CCArmatureCacheDisplay(this.armatureName, this._armatureKey, atlasUUID, isShare);
+            if (this.shouldSchedule) this._nativeDisplay.beginSchedule();
             this._armature = this._nativeDisplay.armature();
         } else {
             this._nativeDisplay = this._factory.buildArmatureDisplay(this.armatureName, this._armatureKey, '', atlasUUID);
@@ -520,8 +521,13 @@ const cacheManager = require('./jsb-cache-manager');
         if (_onEnable) {
             _onEnable.call(this);
         }
-        if (this._armature && !this.isAnimationCached()) {
-            this._factory.add(this._armature);
+        this.shouldSchedule = true;
+        if (this._armature) {
+            if (this.isAnimationCached()) {
+                this._nativeDisplay.onEnable();
+            } else {
+                this._factory.add(this._armature);
+            }
         }
         this._flushAssembler();
         armatureSystem.getInstance().add(this);

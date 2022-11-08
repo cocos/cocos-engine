@@ -58,8 +58,6 @@ CCArmatureCacheDisplay::CCArmatureCacheDisplay(const std::string &armatureName, 
 
     // store global TypedArray begin and end offset
     _sharedBufferOffset = new IOTypedArray(se::Object::TypedArrayType::UINT32, sizeof(uint32_t) * 2);
-
-    beginSchedule();
 }
 
 CCArmatureCacheDisplay::~CCArmatureCacheDisplay() {
