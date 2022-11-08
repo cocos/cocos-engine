@@ -95,7 +95,6 @@ export class Particle {
         this.startRow = 0;
         this.subemitter = [];
         this.id = -1;
-        this.delay = 0;
         this.active = false;
     }
 

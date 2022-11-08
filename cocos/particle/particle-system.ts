@@ -1000,6 +1000,8 @@ export class ParticleSystem extends ModelRenderer {
 
     private _needAttach: boolean;
 
+    private _trigged: boolean;
+
     @serializable
     private _prewarm = false;
 
@@ -1046,6 +1048,7 @@ export class ParticleSystem extends ModelRenderer {
         this._subEmitters = []; // array of { emitter: ParticleSystem, type: 'birth', 'collision' or 'death'}
         this._baseEmitters = [];
         this._parentEmitter = null;
+        this._trigged = false;
 
         this._particle = null;
     }
@@ -1527,6 +1530,7 @@ export class ParticleSystem extends ModelRenderer {
                 }
                 for (let se = 0; se < particle.subemitter.length; ++se) {
                     particle.subemitter[se]._particle = particle;
+                    particle.subemitter[se]._trigged = false;
                     particle.subemitter[se].stopEmitting();
                 }
             } else {
@@ -1618,6 +1622,7 @@ export class ParticleSystem extends ModelRenderer {
             particle.loopCount++;
 
             particle.active = true;
+            this._trigged = true;
             this.processor.setNewParticle(particle);
         } // end of particles forLoop.
     }

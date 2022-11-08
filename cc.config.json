@@ -36,7 +36,8 @@
             "modules": [ "particle" ], 
             "dependentAssets": [ 
                 "d1346436-ac96-4271-b863-1f4fdead95b0", 
-                "17debcc3-0a6b-4b8a-b00b-dc58b885581e"
+                "17debcc3-0a6b-4b8a-b00b-dc58b885581e",
+                "c0143906-9aed-447e-9436-2ae8512d1b6e"
             ]
         },
         "particle-2d": { 
