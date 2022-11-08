@@ -51,6 +51,35 @@ namespace se {
 class Class;
 class ScriptEngine;
 
+class MapOperation final {
+public:
+    MapOperation(Object *obj);
+
+    void clear();
+    bool remove(const ccstd::string &key);
+    bool get(const ccstd::string &key, Value *outValue);
+    bool set(const ccstd::string &key, const Value &value);
+    uint32_t getSize() const;
+    ccstd::vector<std::pair<std::string, Value>> getAll() const;
+
+private:
+    v8::Map *_v8Map{nullptr};
+};
+
+class SetOperation final {
+public:
+    SetOperation(Object *obj);
+
+    void clear();
+    bool remove(const Value &value);
+    bool add(const Value &value);
+    uint32_t getSize() const;
+    ValueArray getAll() const;
+
+private:
+    v8::Set *_v8Set{nullptr};
+};
+
 /**
  * se::Object represents JavaScript Object.
  */
@@ -62,6 +91,20 @@ public:
      *  @note The return value (non-null) has to be released manually.
      */
     static Object *createPlainObject();
+
+    /**
+     *  @brief Creates a ES6 Map Object like `new Map()` in JS.
+     *  @return A JavaScript Object, or nullptr if there is an error.
+     *  @note The return value (non-null) has to be released manually.
+     */
+    static Object *createMapObject();
+
+    /**
+     *  @brief Creates a ES6 Set Object like `new Set()` in JS.
+     *  @return A JavaScript Object, or nullptr if there is an error.
+     *  @note The return value (non-null) has to be released manually.
+     */
+    static Object *createSetObject();
 
     /**
      *  @brief Creates a JavaScript Array Object like `[] or new Array()`.
@@ -240,6 +283,30 @@ public:
      *  @return true if object is a function and there isn't any errors, otherwise false.
      */
     bool call(const ValueArray &args, Object *thisObject, Value *rval = nullptr);
+
+    /**
+     *  @brief Tests whether a object is a ES6 Map.
+     *  @return true if object is a Map, otherwise false.
+     */
+    bool isMap() const;
+
+    /**
+     *  @brief Tests whether a object is a ES6 Map.
+     *  @return true if object is a Map, otherwise false.
+     */
+    bool isWeakMap() const;
+
+    /**
+     *  @brief Tests whether a object is a ES6 Set.
+     *  @return true if object is a Set, otherwise false.
+     */
+    bool isSet() const;
+
+    /**
+     *  @brief Tests whether a object is a ES6 WeakSet.
+     *  @return true if object is a WeakSet, otherwise false.
+     */
+    bool isWeakSet() const;
 
     /**
      *  @brief Tests whether an object is an array.
