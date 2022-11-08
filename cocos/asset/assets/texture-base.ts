@@ -27,18 +27,14 @@
 // @ts-check
 import { EDITOR, TEST } from 'internal:constants';
 import { ccclass, serializable } from 'cc.decorator';
-import IDGenerator from '../../core/utils/id-generator';
 import { Asset } from './asset';
 import { Filter, PixelFormat, WrapMode } from './asset-enum';
 import { Sampler, Texture, Device, Format, SamplerInfo, Address, Filter as GFXFilter, deviceManager } from '../../gfx';
-import { legacyCC } from '../../core/global-exports';
-import { errorID } from '../../core/platform/debug';
-import { murmurhash2_32_gc } from '../../core';
-import { ccenum } from '../../core/value-types/enum';
+import { errorID, murmurhash2_32_gc, ccenum, cclegacy, js } from '../../core';
 
 ccenum(Format);
 
-const idGenerator = new IDGenerator('Tex');
+const idGenerator = new js.IDGenerator('Tex');
 /**
  * @en The base texture class, it defines features shared by all textures.
  * @zh 贴图资源基类。它定义了所有贴图共用的概念。
@@ -233,8 +229,8 @@ export class TextureBase extends Asset {
      */
     public destroy () {
         const destroyed = super.destroy();
-        if (destroyed && legacyCC.director.root?.batcher2D) {
-            legacyCC.director.root.batcher2D._releaseDescriptorSetCache(this._textureHash);
+        if (destroyed && cclegacy.director.root?.batcher2D) {
+            cclegacy.director.root.batcher2D._releaseDescriptorSetCache(this._textureHash);
         }
         return destroyed;
     }
@@ -336,4 +332,4 @@ export class TextureBase extends Asset {
     }
 }
 
-legacyCC.TextureBase = TextureBase;
+cclegacy.TextureBase = TextureBase;

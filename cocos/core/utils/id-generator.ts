@@ -34,7 +34,7 @@ const NonUuidMark = '.';
  * @zh
  * 运行时 ID 生成器
  */
-export default class IDGenerator {
+export class IDGenerator {
     /**
     * @en
     * The global id generator might have a conflict problem once every 365 days,

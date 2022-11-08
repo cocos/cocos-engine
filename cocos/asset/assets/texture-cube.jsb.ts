@@ -23,9 +23,8 @@
  THE SOFTWARE.
 */
 import { ccclass, serializable } from 'cc.decorator';
-import { legacyCC } from '../../core/global-exports';
 import { Filter, PixelFormat, WrapMode } from './asset-enum';
-import { js } from '../../core/utils/js';
+import { js, cclegacy } from '../../core';
 import './simple-texture';
 import { EDITOR, TEST } from 'internal:constants';
 
@@ -225,7 +224,7 @@ textureCubeProto._deserialize = function (serializedData: ITextureCubeSerializeD
     }
 }
 
-legacyCC.TextureCube = jsb.TextureCube;
+cclegacy.TextureCube = jsb.TextureCube;
 
 // handle meta data, it is generated automatically
 const TextureCubeProto = TextureCube.prototype;

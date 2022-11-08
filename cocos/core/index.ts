@@ -48,6 +48,7 @@ export * from './platform';
 export * from './scheduler';
 export * from './algorithm/murmurhash2_gc';
 export * from './algorithm/binary-search';
+export { move } from './algorithm/move';
 export * from './curves';
 export * from './settings';
 export * from './system';

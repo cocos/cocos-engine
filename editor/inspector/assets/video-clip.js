@@ -1,9 +1,11 @@
-exports.template = `
+'use strict';
+
+exports.template = /* html */`
 <section class="asset-video-clip">
 </section>
 `;
 
-exports.style = `
+exports.style = /* css */`
 .asset-video-clip .video {
     width: 100%;
     outline: none;
@@ -13,7 +15,7 @@ exports.style = `
 `;
 
 exports.$ = {
-    constainer: '.asset-video-clip',
+    container: '.asset-video-clip',
 };
 
 exports.update = function(assetList, metaList) {
@@ -33,5 +35,5 @@ exports.update = function(assetList, metaList) {
         html += `<video class="video" controls="controls" src="${asset.file}?v=${Date.now()}"></video>`;
     });
 
-    this.$.constainer.innerHTML = html;
+    this.$.container.innerHTML = html;
 };

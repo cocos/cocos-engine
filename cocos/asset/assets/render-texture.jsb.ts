@@ -24,7 +24,7 @@
 */
 import { ccclass } from 'cc.decorator';
 import { EDITOR, TEST } from 'internal:constants';
-import { legacyCC } from '../../core/global-exports';
+import { cclegacy } from '../../core';
 import { Filter, PixelFormat, WrapMode } from './asset-enum';
 import './asset';
 
@@ -74,7 +74,7 @@ renderTextureProto.readPixels = function readPixels (x: number, y: number, width
     return buffer;
 };
 
-legacyCC.RenderTexture = jsb.RenderTexture;
+cclegacy.RenderTexture = jsb.RenderTexture;
 
 // handle meta data, it is generated automatically
 ccclass('cc.RenderTexture')(RenderTexture);

@@ -29,10 +29,7 @@ import { EDITOR, ALIPAY, XIAOMI, JSB, TEST, BAIDU } from 'internal:constants';
 import { Device, Format, FormatFeatureBit, deviceManager } from '../../gfx';
 import { Asset } from './asset';
 import { PixelFormat } from './asset-enum';
-import { legacyCC } from '../../core/global-exports';
-import { warnID } from '../../core/platform/debug';
-import { macro } from '../../core/platform/macro';
-import { sys } from '../../core/platform/sys';
+import { warnID, macro, sys, cclegacy } from '../../core';
 
 /**
  * @en Image source in memory
@@ -324,4 +321,4 @@ export class ImageAsset extends Asset {
 function _getGlobalDevice (): Device | null {
     return deviceManager.gfxDevice;
 }
-legacyCC.ImageAsset = ImageAsset;
+cclegacy.ImageAsset = ImageAsset;

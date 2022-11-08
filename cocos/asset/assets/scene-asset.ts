@@ -27,7 +27,7 @@
 import { ccclass, editable, serializable } from 'cc.decorator';
 import { Scene } from '../../scene-graph/scene';
 import { Asset } from './asset';
-import { legacyCC } from '../../core/global-exports';
+import { cclegacy } from '../../core';
 
 /**
  * @en Class for scene loading.
@@ -54,4 +54,4 @@ export class SceneAsset extends Asset {
     }
 }
 
-legacyCC.SceneAsset = SceneAsset;
+cclegacy.SceneAsset = SceneAsset;

@@ -23,9 +23,7 @@
  THE SOFTWARE.
  */
 
-import { Enum } from '../../core/value-types';
-import { Color, Vec4 } from '../../core/math';
-import { legacyCC } from '../../core/global-exports';
+import { Enum, Color, Vec4, cclegacy } from '../../core';
 import { FogInfo } from '../../scene-graph/scene-globals';
 import { SRGBToLinear } from '../../rendering/pipeline-funcs';
 
@@ -252,7 +250,7 @@ export class Fog {
     }
 
     protected _updatePipeline () {
-        const root = legacyCC.director.root;
+        const root = cclegacy.director.root;
         const value = this.enabled ? this.type : FOG_TYPE_NONE;
         const accurateValue = this.accurate ? 1 : 0;
         const pipeline = root.pipeline;
@@ -267,4 +265,4 @@ export class Fog {
     }
 }
 
-legacyCC.Fog = Fog;
+cclegacy.Fog = Fog;

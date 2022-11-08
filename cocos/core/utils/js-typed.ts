@@ -25,7 +25,7 @@
 
 import { EDITOR, DEV, TEST } from 'internal:constants';
 import { warnID, error, errorID } from '../platform/debug';
-import IDGenerator from './id-generator';
+import { IDGenerator }  from './id-generator';
 
 const tempCIDGenerator = new IDGenerator('TmpCId.');
 
@@ -504,7 +504,7 @@ export function getSuper (constructor: Function) {
  */
 export function isChildClassOf<T extends Constructor>(subclass: unknown, superclass: T): subclass is T;
 export function isChildClassOf(subclass: unknown, superclass: unknown): boolean;
-export function isChildClassOf(subclass: unknown, superclass: unknown) {
+export function isChildClassOf (subclass: unknown, superclass: unknown) {
     if (subclass && superclass) {
         if (typeof subclass !== 'function') {
             return false;
