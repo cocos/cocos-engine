@@ -63,7 +63,7 @@ public:
     void destroy();
     void merge(scene::SubModel *, uint32_t);
     void merge(scene::SubModel *, uint32_t, gfx::Shader *);
-    void uploadBuffers(gfx::CommandBuffer *cmdBuff);
+    void uploadBuffers(gfx::CommandBuffer *cmdBuff) const;
     void clear();
     void setDynamicOffset(uint32_t idx, uint32_t value);
 

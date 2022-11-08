@@ -16,13 +16,13 @@
 #include "cocos/renderer/gfx-base/GFXBarrier.h"
 #include "cocos/renderer/gfx-base/GFXDef-common.h"
 #include "cocos/renderer/gfx-base/GFXDevice.h"
-#include "cocos/renderer/pipeline/LODModelsUtil.h"
 #include "cocos/renderer/pipeline/InstancedBuffer.h"
+#include "cocos/renderer/pipeline/LODModelsUtil.h"
 #include "cocos/scene/Model.h"
 #include "cocos/scene/Octree.h"
+#include "cocos/scene/Pass.h"
 #include "cocos/scene/RenderScene.h"
 #include "cocos/scene/Skybox.h"
-#include "cocos/scene/Pass.h"
 
 namespace cc {
 
@@ -747,13 +747,13 @@ void addRenderObject(const scene::Camera* camera, const scene::Model* model, Nat
                 instancedBuffer->merge(subModel, passIdx);
                 queue.instancingQueue.add(instancedBuffer);
             } else if (pass->getBatchingScheme() == scene::BatchingSchemes::VB_MERGING) {
-                //auto* batchedBuffer = pass->getBatchedBuffer();
-                //batchedBuffer->merge(subModel, passIdx, model);
+                // auto* batchedBuffer = pass->getBatchedBuffer();
+                // batchedBuffer->merge(subModel, passIdx, model);
                 //_batchedQueue->add(batchedBuffer);
             } else {
-                //for (auto* renderQueue : _renderQueues) {
-                //    renderQueue->insertRenderPass(ro, subModelIdx, passIdx);
-                //}
+                // for (auto* renderQueue : _renderQueues) {
+                //     renderQueue->insertRenderPass(ro, subModelIdx, passIdx);
+                // }
             }
         }
     }

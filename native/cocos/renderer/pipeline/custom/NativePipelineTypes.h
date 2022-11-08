@@ -284,15 +284,13 @@ struct RenderInstancingQueue {
     RenderInstancingQueue& operator=(RenderInstancingQueue&& rhs) = default;
     RenderInstancingQueue& operator=(RenderInstancingQueue const& rhs) = default;
 
+    void add(pipeline::InstancedBuffer *instancedBuffer);
+    void sort();
+    void uploadBuffers(gfx::CommandBuffer *cmdBuffer) const;
     void recordCommandBuffer(
-        gfx::Device *device, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer,
+        gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer,
         gfx::DescriptorSet *ds = nullptr, uint32_t offset = 0,
         const ccstd::vector<uint32_t> *dynamicOffsets = nullptr) const;
-    void add(pipeline::InstancedBuffer *instancedBuffer);
-    void uploadBuffers(gfx::CommandBuffer *cmdBuffer) const;
-    void sort();
-    void clear();
-    bool empty() const noexcept;
 
     PmrUnorderedSet<pipeline::InstancedBuffer*> batches;
     ccstd::pmr::vector<pipeline::InstancedBuffer*> sortedBatches;

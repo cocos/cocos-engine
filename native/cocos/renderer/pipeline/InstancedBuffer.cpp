@@ -131,8 +131,8 @@ void InstancedBuffer::merge(scene::SubModel *subModel, uint32_t passIdx, gfx::Sh
     _hasPendingModels = true;
 }
 
-void InstancedBuffer::uploadBuffers(gfx::CommandBuffer *cmdBuff) {
-    for (auto &instance : _instances) {
+void InstancedBuffer::uploadBuffers(gfx::CommandBuffer *cmdBuff) const {
+    for (const auto &instance : _instances) {
         if (!instance.count) continue;
 
         cmdBuff->updateBuffer(instance.vb, instance.data, instance.vb->getSize());
