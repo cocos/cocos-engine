@@ -615,6 +615,8 @@ if(WINDOWS)
             cocos/platform/empty/modules/Screen.h
             cocos/platform/empty/modules/SystemWindow.cpp
             cocos/platform/empty/modules/SystemWindow.h
+            cocos/platform/empty/modules/SystemWindowManager.cpp
+            cocos/platform/empty/modules/SystemWindowManager.h
         )
     else()
         cocos_source_files(
@@ -682,6 +684,8 @@ elseif(MACOSX)
             cocos/platform/empty/modules/Screen.h
             cocos/platform/empty/modules/SystemWindow.cpp
             cocos/platform/empty/modules/SystemWindow.h
+            cocos/platform/empty/modules/SystemWindowManager.cpp
+            cocos/platform/empty/modules/SystemWindowManager.h
         )
     else()
         cocos_source_files(
@@ -731,6 +735,8 @@ elseif(LINUX)
             cocos/platform/empty/modules/Screen.h
             cocos/platform/empty/modules/SystemWindow.cpp
             cocos/platform/empty/modules/SystemWindow.h
+            cocos/platform/empty/modules/SystemWindowManager.cpp
+            cocos/platform/empty/modules/SystemWindowManager.h
         )
     else()
         cocos_source_files(

@@ -28,7 +28,6 @@
 #include "base/Log.h"
 #include "base/Macros.h"
 #include "engine/EngineEvents.h"
-#include "platform/IEventDispatch.h"
 #include "platform/empty/EmptyPlatform.h"
 
 namespace {
@@ -36,13 +35,17 @@ namespace {
 } // namespace
 
 namespace cc {
-SystemWindow::SystemWindow(IEventDispatch* delegate) {
+SystemWindow::SystemWindow(uint32_t windowId, void *externalHandle) {
 }
 
 SystemWindow::~SystemWindow() {
 }
 
 uintptr_t SystemWindow::getWindowHandle() const {
+    return 0;
+}
+
+uint32_t SystemWindow::getWindowId() const  {
     return 0;
 }
 

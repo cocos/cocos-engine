@@ -33,10 +33,11 @@ namespace cc {
 
 class CC_DLL SystemWindow : public ISystemWindow {
 public:
-    explicit SystemWindow(IEventDispatch* delegate);
+    explicit SystemWindow(uint32_t windowId, void *externalHandle);
     ~SystemWindow() override;
 
     uintptr_t getWindowHandle() const override;
+    uint32_t getWindowId() const override;
 
     Size getViewSize() const override;
     /*
