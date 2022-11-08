@@ -30,7 +30,7 @@ import { ImageAsset } from './image-asset';
 import { PresumedGFXTextureInfo, PresumedGFXTextureViewInfo, SimpleTexture } from './simple-texture';
 import { ITexture2DCreateInfo, Texture2D } from './texture-2d';
 import { legacyCC } from '../../core/global-exports';
-import { js } from '../../core/utils/js';
+import { js } from '../../core';
 
 export type ITextureCubeCreateInfo = ITexture2DCreateInfo;
 /**

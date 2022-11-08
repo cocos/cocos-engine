@@ -30,13 +30,12 @@ import SkeletonCache, { AnimationCache, AnimationFrame } from './skeleton-cache'
 import { AttachUtil } from './attach-util';
 import { ccclass, executeInEditMode, help, menu } from '../core/data/class-decorator';
 import { UIRenderer } from '../2d/framework/ui-renderer';
-import { CCClass, CCObject, Color, Enum, ccenum, logID, warn, RecyclePool } from '../core';
+import { CCClass, CCObject, Color, Enum, ccenum, logID, warn, RecyclePool, js } from '../core';
 import { displayName, displayOrder, editable, override, serializable, tooltip, type, visible } from '../core/data/decorators';
 import { SkeletonData } from './skeleton-data';
 import { VertexEffectDelegate } from './vertex-effect-delegate';
 import { Graphics } from '../2d/components/graphics';
 import { MaterialInstance } from '../render-scene';
-import { js } from '../core/utils/js';
 import { BlendFactor, BlendOp } from '../gfx';
 import { legacyCC } from '../core/global-exports';
 import { SkeletonSystem } from './skeleton-system';

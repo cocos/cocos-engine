@@ -40,8 +40,10 @@ loadCC();
 function loadCC() {
     require('./web-adapter');
 
+<% if(polyfillsBundleFile) { %>
     // Polyfills bundle.
     require("<%= polyfillsBundleFile %>");
+<% } %>
 
     // SystemJS support.
     require("<%= systemJsBundleFile %>");

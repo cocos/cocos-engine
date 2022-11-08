@@ -58,6 +58,8 @@ public:
 
     virtual const Texture *getRaw() const { return this; }
 
+    virtual uint32_t getGLTextureHandle() const noexcept { return 0; }
+
 protected:
     friend class Swapchain;
 
