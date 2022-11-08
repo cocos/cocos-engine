@@ -291,8 +291,8 @@ public:
     bool isMap() const;
 
     /**
-     *  @brief Tests whether a object is a ES6 Map.
-     *  @return true if object is a Map, otherwise false.
+     *  @brief Tests whether a object is a ES6 WeakMap.
+     *  @return true if object is a WeakMap, otherwise false.
      */
     bool isWeakMap() const;
 
