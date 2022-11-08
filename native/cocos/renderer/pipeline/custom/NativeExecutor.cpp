@@ -760,7 +760,6 @@ void octreeCulling(
 
 void frustumCulling(
     const scene::RenderScene* scene,
-    const scene::Skybox* skyBox,
     const scene::Camera* camera,
     SceneFlags mergedFlags) {
     for (const auto& model : scene->getModels()) {
@@ -819,15 +818,12 @@ void sceneCulling(
     const scene::Skybox* skyBox = nullptr;
     for (const auto& [scene, queues] : sceneQueues) {
         const scene::Octree* octree = scene->getOctree();
-        if (octree && octree->isEnabled()) {
-            for (const auto& [camera, queue] : queues) {
-                pipeline::LODModelsCachedUtils::updateCachedLODModels(scene, camera);
+        for (const auto& [camera, queue] : queues) {
+            pipeline::LODModelsCachedUtils::updateCachedLODModels(scene, camera);
+            if (octree && octree->isEnabled()) {
                 octreeCulling(octree, scene, skyBox, camera, queue.sceneFlags);
-            }
-        } else {
-            for (const auto& [camera, queue] : queues) {
-                pipeline::LODModelsCachedUtils::updateCachedLODModels(scene, camera);
-                frustumCulling(scene, skyBox, camera, queue.sceneFlags);
+            } else {
+                frustumCulling(scene, camera, queue.sceneFlags);
             }
         }
     }
