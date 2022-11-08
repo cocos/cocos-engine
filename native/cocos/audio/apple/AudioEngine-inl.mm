@@ -611,7 +611,7 @@ void AudioEngineImpl::update(float dt) {
             _threadMutex.unlock();
             delete player;
             _unusedSourcesPool.push_back(alSource);
-        } else if (player->_ready && player->_state == AudioPlayer::State::STOPPED) {
+        } else if (isRemovable) {
             ccstd::string filePath;
             if (player->_finishCallbak) {
                 auto &audioInfo = AudioEngine::sAudioIDInfoMap[audioID];
