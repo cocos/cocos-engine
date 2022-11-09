@@ -29,6 +29,7 @@ import { buildDeferredLayout, buildForwardLayout } from './effect';
 import { macro } from '../../core';
 import { DeferredPipelineBuilder, ForwardPipelineBuilder } from './builtin-pipelines';
 import { CustomPipelineBuilder, NativePipelineBuilder } from './custom-pipeline';
+import { LayoutGraphData } from './layout-graph';
 
 let _pipeline: WebPipeline | null = null;
 
@@ -36,6 +37,8 @@ export * from './types';
 export * from './pipeline';
 export * from './archive';
 export * from './binary-archive';
+
+export const defaultLayoutGraph = new LayoutGraphData();
 
 export function createCustomPipeline (): Pipeline {
     const ppl = new WebPipeline();

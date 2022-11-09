@@ -30,10 +30,13 @@ import { buildDeferredLayout, buildForwardLayout } from './effect';
 import { macro } from '../../core/platform/macro';
 import { DeferredPipelineBuilder, ForwardPipelineBuilder } from './builtin-pipelines';
 import { CustomPipelineBuilder, NativePipelineBuilder } from './custom-pipeline';
+import { LayoutGraphData } from './layout-graph';
 
 export * from './types';
 export * from './pipeline';
 export * from './archive';
+
+export const defaultLayoutGraph = new LayoutGraphData();
 
 export function createCustomPipeline (): Pipeline {
     const ppl = render.Factory.createPipeline();
