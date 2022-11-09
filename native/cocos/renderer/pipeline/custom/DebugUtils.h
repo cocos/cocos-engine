@@ -69,12 +69,12 @@ inline void indent(ccstd::pmr::string& str) {
 }
 
 inline void unindent(ccstd::string& str) noexcept {
-    auto sz = std::min(str.size(), size_t(4));
+    auto sz = str.size() < size_t(4) ? str.size() : size_t(4);
     str.erase(str.size() - sz);
 }
 
 inline void unindent(ccstd::pmr::string& str) noexcept {
-    auto sz = std::min(str.size(), size_t(4));
+    auto sz = str.size() < size_t(4) ? str.size() : size_t(4);
     str.erase(str.size() - sz);
 }
 
@@ -156,7 +156,7 @@ inline void copyCppString(std::ostream& os,
 
 #define OSS oss << space
 
-#define INDENT(...) Indent<std::remove_reference_t<decltype(space)>> ind_##__VA_ARGS__(space)
+#define INDENT(...)   Indent<std::remove_reference_t<decltype(space)>> ind_##__VA_ARGS__(space)
 #define UNINDENT(...) ind_##__VA_ARGS__.reset()
 
 #define INDENT_BEG() space.append("    ")
