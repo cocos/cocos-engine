@@ -40,6 +40,21 @@ float CCGetLinearDepth(vec3 worldPos) {
   // When screenSpaceSingY and clipSpaceSignY have different signs, need to flip the uv
   #pragma define CC_HANDLE_NDC_SAMPLE_FLIP(uv) uv = cc_cameraPos.w == 1.0 ? vec2(uv.x, 1.0 - uv.y) : uv
   
+  #ifdef TEXTURE_SAMPLE_DISABLE_BRANCH
+  float GetShadowNDCPos(out vec3 shadowNDCPos, vec4 shadowPosWithDepthBias)
+  {
+  	shadowNDCPos = shadowPosWithDepthBias.xyz / shadowPosWithDepthBias.w * 0.5 + 0.5;
+    float xUpperTest = step(1.0, shadowNDCPos.x);
+    float xLowerTest = step(shadowNDCPos.x, 0.0);
+    float yUpperTest = step(1.0, shadowNDCPos.y);
+    float yLowerTest = step(shadowNDCPos.y, 0.0);
+    float zUpperTest = step(1.0, shadowNDCPos.z);
+    float zLowerTest = step(shadowNDCPos.z, 0.0);
+
+  	CC_HANDLE_NDC_SAMPLE_FLIP(shadowNDCPos.xy);
+  	return clamp(xUpperTest + xLowerTest + yUpperTest + yLowerTest + zUpperTest + zLowerTest, 0.0, 1.0);
+  }
+  #else
   bool GetShadowNDCPos(out vec3 shadowNDCPos, vec4 shadowPosWithDepthBias)
   {
   	shadowNDCPos = shadowPosWithDepthBias.xyz / shadowPosWithDepthBias.w * 0.5 + 0.5;
@@ -51,6 +66,7 @@ float CCGetLinearDepth(vec3 worldPos) {
   	CC_HANDLE_NDC_SAMPLE_FLIP(shadowNDCPos.xy);
   	return true;
   }
+  #endif
 
   vec4 ApplyShadowDepthBias_FaceNormal(vec4 shadowPos, vec3 worldNormal, float normalBias, vec3 matViewDir0, vec3 matViewDir1, vec3 matViewDir2, vec2 projScaleXY)
   {
@@ -138,68 +154,116 @@ float CCGetLinearDepth(vec3 worldPos) {
   //////////////////////////////////////////////////////////Directional Light Shadow
   float CCGetDirLightShadowFactorHard (vec4 shadowPosWithDepthBias) {
 	  vec3 shadowNDCPos;
+    #ifdef TEXTURE_SAMPLE_DISABLE_BRANCH
+    float addtion = GetShadowNDCPos(shadowNDCPos, shadowPosWithDepthBias);
+    float factor = NativePCFShadowFactorHard(shadowNDCPos, cc_shadowMap, cc_shadowWHPBInfo.xy);
+    return clamp(addtion + factor, 0.0, 1.0);
+    #else
 	  if (!GetShadowNDCPos(shadowNDCPos, shadowPosWithDepthBias)) {
 		  return 1.0;
 	  }
     return NativePCFShadowFactorHard(shadowNDCPos, cc_shadowMap, cc_shadowWHPBInfo.xy);
+    #endif
   }
   
   float CCGetDirLightShadowFactorSoft (vec4 shadowPosWithDepthBias) {
 	  vec3 shadowNDCPos;
+    #ifdef TEXTURE_SAMPLE_DISABLE_BRANCH
+    float addtion = GetShadowNDCPos(shadowNDCPos, shadowPosWithDepthBias);
+    float factor = NativePCFShadowFactorSoft(shadowNDCPos, cc_shadowMap, cc_shadowWHPBInfo.xy);
+    return clamp(addtion + factor, 0.0, 1.0);
+    #else
 	  if (!GetShadowNDCPos(shadowNDCPos, shadowPosWithDepthBias)) {
 		  return 1.0;
 	  }
     return NativePCFShadowFactorSoft(shadowNDCPos, cc_shadowMap, cc_shadowWHPBInfo.xy);
+    #endif
   }
   
   float CCGetDirLightShadowFactorSoft3X (vec4 shadowPosWithDepthBias) {
 	  vec3 shadowNDCPos;
+    #ifdef TEXTURE_SAMPLE_DISABLE_BRANCH
+    float addtion = GetShadowNDCPos(shadowNDCPos, shadowPosWithDepthBias);
+    float factor = NativePCFShadowFactorSoft3X(shadowNDCPos, cc_shadowMap, cc_shadowWHPBInfo.xy);
+    return clamp(addtion + factor, 0.0, 1.0);
+    #else
 	  if (!GetShadowNDCPos(shadowNDCPos, shadowPosWithDepthBias)) {
 		  return 1.0;
 	  }
     return NativePCFShadowFactorSoft3X(shadowNDCPos, cc_shadowMap, cc_shadowWHPBInfo.xy);
+    #endif
   }
   
   float CCGetDirLightShadowFactorSoft5X (vec4 shadowPosWithDepthBias) {
 	  vec3 shadowNDCPos;
+    #ifdef TEXTURE_SAMPLE_DISABLE_BRANCH
+    float addtion = GetShadowNDCPos(shadowNDCPos, shadowPosWithDepthBias);
+    float factor = NativePCFShadowFactorSoft5X(shadowNDCPos, cc_shadowMap, cc_shadowWHPBInfo.xy);
+    return clamp(addtion + factor, 0.0, 1.0);
+    #else
 	  if (!GetShadowNDCPos(shadowNDCPos, shadowPosWithDepthBias)) {
 		  return 1.0;
 	  }
     return NativePCFShadowFactorSoft5X(shadowNDCPos, cc_shadowMap, cc_shadowWHPBInfo.xy);
+    #endif
   }
   
   
   //////////////////////////////////////////////////////////Spot Light Shadow
   float CCGetSpotLightShadowFactorHard (vec4 shadowPosWithDepthBias, vec3 worldPos) {
 	  vec3 shadowNDCPos;
+    #ifdef TEXTURE_SAMPLE_DISABLE_BRANCH
+    float addtion = GetShadowNDCPos(shadowNDCPos, shadowPosWithDepthBias);
+    float factor = NativePCFShadowFactorHard(shadowNDCPos, cc_spotShadowMap, cc_shadowWHPBInfo.xy);
+    return clamp(addtion + factor, 0.0, 1.0);
+    #else
 	  if (!GetShadowNDCPos(shadowNDCPos, shadowPosWithDepthBias)) {
 		  return 1.0;
 	  }
     return NativePCFShadowFactorHard(shadowNDCPos, cc_spotShadowMap, cc_shadowWHPBInfo.xy);
+    #endif
   }
   
   float CCGetSpotLightShadowFactorSoft (vec4 shadowPosWithDepthBias, vec3 worldPos) {
 	  vec3 shadowNDCPos;
+    #ifdef TEXTURE_SAMPLE_DISABLE_BRANCH
+    float addtion = GetShadowNDCPos(shadowNDCPos, shadowPosWithDepthBias);
+    float factor = NativePCFShadowFactorSoft(shadowNDCPos, cc_spotShadowMap, cc_shadowWHPBInfo.xy);
+    return clamp(addtion + factor, 0.0, 1.0);
+    #else
 	  if (!GetShadowNDCPos(shadowNDCPos, shadowPosWithDepthBias)) {
 		  return 1.0;
 	  }
     return NativePCFShadowFactorSoft(shadowNDCPos, cc_spotShadowMap, cc_shadowWHPBInfo.xy);
+    #endif
   }
   
   float CCGetSpotLightShadowFactorSoft3X (vec4 shadowPosWithDepthBias, vec3 worldPos) {
 	  vec3 shadowNDCPos;
+    #ifdef TEXTURE_SAMPLE_DISABLE_BRANCH
+    float addtion = GetShadowNDCPos(shadowNDCPos, shadowPosWithDepthBias);
+    float factor = NativePCFShadowFactorSoft3X(shadowNDCPos, cc_spotShadowMap, cc_shadowWHPBInfo.xy);
+    return clamp(addtion + factor, 0.0, 1.0);
+    #else	  
 	  if (!GetShadowNDCPos(shadowNDCPos, shadowPosWithDepthBias)) {
 		  return 1.0;
 	  }
     return NativePCFShadowFactorSoft3X(shadowNDCPos, cc_spotShadowMap, cc_shadowWHPBInfo.xy);
+    #endif
   }
   
   float CCGetSpotLightShadowFactorSoft5X (vec4 shadowPosWithDepthBias, vec3 worldPos) {
 	  vec3 shadowNDCPos;
+    #ifdef TEXTURE_SAMPLE_DISABLE_BRANCH
+    float addtion = GetShadowNDCPos(shadowNDCPos, shadowPosWithDepthBias);
+    float factor = NativePCFShadowFactorSoft5X(shadowNDCPos, cc_spotShadowMap, cc_shadowWHPBInfo.xy);
+    return clamp(addtion + factor, 0.0, 1.0);
+    #else
 	  if (!GetShadowNDCPos(shadowNDCPos, shadowPosWithDepthBias)) {
 		  return 1.0;
 	  }
     return NativePCFShadowFactorSoft5X(shadowNDCPos, cc_spotShadowMap, cc_shadowWHPBInfo.xy);
+    #endif
   }
 
 
@@ -282,8 +346,9 @@ float CCGetLinearDepth(vec3 worldPos) {
       vec4 shadowProjDepthInfo, shadowProjInfo;
       vec3 shadowViewDir0, shadowViewDir1, shadowViewDir2;
       int level = CCGetCSMLevel(csmPos, shadowProjDepthInfo, shadowProjInfo, shadowViewDir0, shadowViewDir1, shadowViewDir2, worldPos);
+      #ifndef TEXTURE_SAMPLE_DISABLE_BRANCH
       if (level < 0) { return 1.0; }
-
+      #endif
       vec4 pos = ApplyShadowDepthBias_FaceNormal(csmPos, N, shadowBias.y, shadowViewDir0, shadowViewDir1, shadowViewDir2, shadowProjInfo.xy);
       pos = ApplyShadowDepthBias_Orthographic(pos, shadowBias.x, shadowProjDepthInfo.x, shadowProjDepthInfo.y);
 
@@ -302,6 +367,11 @@ float CCGetLinearDepth(vec3 worldPos) {
       #endif
 
       csmNDCPosWithBias = pos;
+
+      #ifdef TEXTURE_SAMPLE_DISABLE_BRANCH
+      if (level < 0) { realtimeShadow = 1.0; }
+      #endif
+      
       return mix(realtimeShadow, 1.0, cc_shadowNFLSInfo.w);
     }
   #else

@@ -552,10 +552,12 @@ WEBGPU && promiseForWebGPUInstantiation.then(() => {
 
         ///////////////////////////////////////////////////////////
 
+        const wgpuPredefines = `#define TEXTURE_SAMPLE_DISABLE_BRANCH 1`;
+
         let firstPrecisionIdx = code.indexOf('precision');
         firstPrecisionIdx = code.indexOf(';', firstPrecisionIdx);
         firstPrecisionIdx += 1;
-        code = `${code.slice(0, firstPrecisionIdx)}\n${forwardDecls}\n${functionDefs}\n${code.slice(firstPrecisionIdx)}`;
+        code = `${code.slice(0, firstPrecisionIdx)}\n${wgpuPredefines}\n${forwardDecls}\n${functionDefs}\n${code.slice(firstPrecisionIdx)}`;
 
         return code;
     }
