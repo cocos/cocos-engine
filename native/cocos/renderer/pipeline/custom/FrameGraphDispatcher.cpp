@@ -184,7 +184,8 @@ bool tryAddEdge(uint32_t srcVertex, uint32_t dstVertex, Graph &graph);
 
 // for transive_closure.hpp line 231
 inline RelationGraph::vertex_descriptor add_vertex(RelationGraph &g) { // NOLINT
-    return add_vertex(g, INVALID_ID);
+    thread_local uint32_t count = 0; // unused
+    return add_vertex(g, count++);
 }
 
 // status of resource access
@@ -227,7 +228,7 @@ void buildAccessGraph(const RenderGraph &renderGraph, const Graphs &graphs) {
         resourceAccessGraph.leafPasses.emplace(i, LeafStatus{false, false});
     }
 
-    auto startID = add_vertex(resourceAccessGraph, INVALID_ID);
+    auto startID = add_vertex(resourceAccessGraph, INVALID_ID - 1);
     CC_EXPECTS(startID == EXPECT_START_ID);
 
     add_vertex(relationGraph, startID);
