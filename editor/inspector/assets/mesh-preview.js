@@ -88,7 +88,7 @@ const Elements = {
             panel.previewGLType = 'shaded'
 
             panel.$.canvas.addEventListener('mousedown', async (event) => {
-                // 非模型预览不响应事件
+                // Non-model previews do not respond to events
                 if (panel.previewGLType !== 'shaded') return;
                 await callMeshPreviewFunction('onMouseDown', { x: event.x, y: event.y });
 
