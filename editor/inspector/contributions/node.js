@@ -24,12 +24,8 @@ exports.listeners = {
 
         let setChildrenLayer = false;
         if (dump.path === 'layer') {
-            dump.value = panel.$.nodeLayerSelect.value - 0;
-            if ('values' in dump) {
-                dump.values.forEach((val, index) => {
-                    dump.values[index] = dump.value;
-                });
-            }
+            const newValue = Number(panel.$.nodeLayerSelect.value);
+
             if (panel.dumps && panel.dumps.some((perdump) => perdump.children && perdump.children.length > 0)) {
                 // 只修改自身节点
                 let choose = 1;
@@ -54,7 +50,16 @@ exports.listeners = {
                     return;
                 } else {
                     setChildrenLayer = choose === 0 ? true : false;
+
+                    dump.value = newValue;
+                    if (setChildrenLayer && 'values' in dump) {
+                        dump.values.forEach((val, index) => {
+                            dump.values[index] = newValue;
+                        });
+                    }
                 }
+            } else {
+                dump.value = newValue;
             }
         }
 

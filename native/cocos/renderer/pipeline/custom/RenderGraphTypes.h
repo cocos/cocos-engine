@@ -285,7 +285,7 @@ struct ResourceGraph {
     // UuidGraph
     PmrUnorderedStringMap<ccstd::pmr::string, vertex_descriptor> valueIndex;
     // Members
-    uint64_t nextFenceValue{1};
+    uint64_t nextFenceValue{0};
     uint64_t version{0};
 };
 
@@ -831,6 +831,8 @@ struct RenderGraph {
         impl::ValueHandle<DispatchTag, vertex_descriptor>,
         impl::ValueHandle<ClearTag, vertex_descriptor>,
         impl::ValueHandle<ViewportTag, vertex_descriptor>>;
+
+    ccstd::string print(boost::container::pmr::memory_resource* scratch) const;
 
     // ContinuousContainer
     void reserve(vertices_size_type sz);

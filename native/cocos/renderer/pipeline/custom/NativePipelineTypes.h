@@ -382,6 +382,7 @@ struct NativeRenderQueue {
     }
 
     NativeRenderQueue(const allocator_type& alloc) noexcept; // NOLINT
+    NativeRenderQueue(SceneFlags sceneFlagsIn, const allocator_type& alloc) noexcept;
     NativeRenderQueue(NativeRenderQueue&& rhs, const allocator_type& alloc);
 
     NativeRenderQueue(NativeRenderQueue&& rhs) noexcept = default;
@@ -389,6 +390,7 @@ struct NativeRenderQueue {
     NativeRenderQueue& operator=(NativeRenderQueue&& rhs) = default;
     NativeRenderQueue& operator=(NativeRenderQueue const& rhs) = delete;
 
+    SceneFlags sceneFlags{SceneFlags::NONE};
     ccstd::pmr::vector<ScenePass> scenePassQueue;
     ccstd::pmr::vector<RenderBatchPack> batchingQueue;
     ccstd::pmr::vector<uint32_t> instancingQueue;
