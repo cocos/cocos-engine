@@ -45,11 +45,13 @@ jobs:
           cd ${{ github.workspace }}/native/conan/build
           conan install ${{ github.workspace }}/native/conan -pr clang --build=missing -j install_info.json
           ls ${{ github.workspace }}/native/conan/build
+          mkdir -p ${{ github.workspace }}/native/conan/build/libs
+          find ${{ github.workspace }}/native/conan/build -name '*.a' -print0 | while IFS= read -r -d '' line; do cp $line ${{ github.workspace }}/native/conan/build/libs;done
       - name: Archive production artifacts
         uses: actions/upload-artifact@v3
         with:
           name: gen files
-          path: ${{ github.workspace }}/native/conan/build
+          path: ${{ github.workspace }}/native/conan/build/libs
       - name: Archive production artifacts
         uses: actions/upload-artifact@v3
         with:
