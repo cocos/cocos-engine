@@ -51,8 +51,8 @@ namespace render {
 struct NullTag {};
 
 struct ResourceLifeRecord {
-    RenderGraph::vertex_descriptor start{0};
-    RenderGraph::vertex_descriptor end{0};
+    uint32_t start{0};
+    uint32_t end{0};
 };
 
 struct LeafStatus {
@@ -242,12 +242,12 @@ struct ResourceAccessGraph {
     // Members
     ccstd::pmr::vector<ccstd::pmr::string> resourceNames;
     PmrUnorderedStringMap<ccstd::pmr::string, uint32_t> resourceIndex;
-    RenderGraph::vertex_descriptor presentPassID{0xFFFFFFFF};
-    PmrFlatMap<RenderGraph::vertex_descriptor, LeafStatus> leafPasses;
-    PmrFlatSet<RenderGraph::vertex_descriptor> culledPasses;
+    vertex_descriptor presentPassID{0xFFFFFFFF};
+    PmrFlatMap<vertex_descriptor, LeafStatus> leafPasses;
+    PmrFlatSet<vertex_descriptor> culledPasses;
     PmrFlatMap<uint32_t, ResourceTransition> accessRecord;
     PmrFlatMap<ccstd::pmr::string, ResourceLifeRecord> resourceLifeRecord;
-    ccstd::pmr::vector<RenderGraph::vertex_descriptor> topologicalOrder;
+    ccstd::pmr::vector<vertex_descriptor> topologicalOrder;
 };
 
 struct RelationGraph {
@@ -369,7 +369,7 @@ struct RelationGraph {
 };
 
 struct Barrier {
-    RenderGraph::vertex_descriptor resourceID{0xFFFFFFFF};
+    ResourceGraph::vertex_descriptor resourceID{0xFFFFFFFF};
     gfx::BarrierType type{gfx::BarrierType::FULL};
     gfx::GFXObject* barrier{nullptr};
     AccessStatus beginStatus;

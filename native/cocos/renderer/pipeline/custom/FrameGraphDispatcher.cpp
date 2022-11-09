@@ -360,7 +360,13 @@ struct BarrierVisitor : public boost::bfs_visitor<> {
     };
 
     void processVertex(Vertex u, const Graph &g) {
+        if (in_degree(u, g) == 0 && out_degree(u, g) == 0) {
+            // culled
+            return;
+        }
+
         const ResourceAccessNode &access = get(ResourceAccessGraph::AccessNode, g, u);
+        updateResourceLifeTime(access, u);
 
         if (barrierMap.find(u) == barrierMap.end()) {
             barrierMap.emplace(u, BarrierNode{{}, {}});
