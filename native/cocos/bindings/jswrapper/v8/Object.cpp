@@ -102,7 +102,7 @@ public:
 
 // MapOperation
 MapOperation::MapOperation(Object *obj) {
-    if (obj->isMap()) {
+    if (obj != nullptr && obj->isMap()) {
         _v8Map = v8::Map::Cast(*obj->_getJSObject());
     } else {
         SE_LOGE("se::Object(%p) is not a Map object", obj);
@@ -204,7 +204,7 @@ ccstd::vector<std::pair<Value, Value>> MapOperation::getAll() const {
 
 // SetOperation
 SetOperation::SetOperation(Object *obj) {
-    if (obj->isSet()) {
+    if (obj != nullptr && obj->isSet()) {
         _v8Set = v8::Set::Cast(*obj->_getJSObject());
     } else {
         SE_LOGE("se::Object(%p) is not a Set object", obj);
