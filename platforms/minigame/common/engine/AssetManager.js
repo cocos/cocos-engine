@@ -12,6 +12,9 @@ downloader.maxRequestsPerFrame = 64;
 presets.scene.maxConcurrency = 36;
 presets.scene.maxRequestsPerFrame = 64;
 
+// 根目录路径
+let customRootURL = '';
+
 const subpackages = {};
 
 const sys = cc.sys;
@@ -229,7 +232,7 @@ function downloadBundle (nameOrUrl, options, onComplete) {
                 js = `src/bundle-scripts/${bundleName}/index.${suffix}js`;
                 cacheManager.makeBundleFolder(bundleName);
             } else {
-                url = `assets/${bundleName}`;
+                url = customRootURL + `assets/${bundleName}`;
                 js = `assets/${bundleName}/index.${suffix}js`;
             }
         require(`./${js}`);
@@ -466,6 +469,7 @@ cc.assetManager.transformPipeline.append((task) => {
 
 const originInit = cc.assetManager.init;
 cc.assetManager.init = function (options) {
+    customRootURL = cc.settings.querySettings('custom', 'rootURL') || '';
     originInit.call(cc.assetManager, options);
     const subpacks = cc.settings.querySettings('assets', 'subpackages');
     subpacks && subpacks.forEach((x) => subpackages[x] = `subpackages/${x}`);
