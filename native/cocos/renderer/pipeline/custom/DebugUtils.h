@@ -25,8 +25,8 @@
 
 #pragma once
 #include <sstream>
+#include <string_view>
 #include "base/std/container/string.h"
-#include "boost/utility/string_view.hpp"
 
 namespace cc {
 
@@ -60,16 +60,26 @@ public:
     String* mIndent = nullptr;
 };
 
-inline Indent<ccstd::string> indent(ccstd::string& str) {
-    return Indent<ccstd::string>(str);
+inline void indent(ccstd::string& str) {
+    str.append("    ");
 }
 
-inline Indent<ccstd::pmr::string> indent(ccstd::pmr::string& str) {
-    return Indent<ccstd::pmr::string>(str);
+inline void indent(ccstd::pmr::string& str) {
+    str.append("    ");
+}
+
+inline void unindent(ccstd::string& str) noexcept {
+    auto sz = std::min(str.size(), size_t(4));
+    str.erase(str.size() - sz);
+}
+
+inline void unindent(ccstd::pmr::string& str) noexcept {
+    auto sz = std::min(str.size(), size_t(4));
+    str.erase(str.size() - sz);
 }
 
 inline void copyString(std::ostream& os,
-                       boost::string_view space, boost::string_view str, // NOLINT(bugprone-easily-swappable-parameters)
+                       std::string_view space, std::string_view str, // NOLINT(bugprone-easily-swappable-parameters)
                        bool append = false) {
     std::istringstream iss{ccstd::string(str)};
     ccstd::string line;
@@ -95,7 +105,7 @@ inline void copyString(std::ostream& os,
     }
 }
 
-inline void copyString(std::ostream& os, boost::string_view str) {
+inline void copyString(std::ostream& os, std::string_view str) {
     std::istringstream iss{ccstd::string(str)};
     ccstd::string line;
     while (std::getline(iss, line)) {
@@ -108,7 +118,7 @@ inline void copyString(std::ostream& os, boost::string_view str) {
 }
 
 inline void copyCppString(std::ostream& os,
-                          boost::string_view space, boost::string_view str, // NOLINT(bugprone-easily-swappable-parameters)
+                          std::string_view space, std::string_view str, // NOLINT(bugprone-easily-swappable-parameters)
                           bool append = false) {
     std::istringstream iss{ccstd::string(str)};
     ccstd::string line;
@@ -119,7 +129,11 @@ inline void copyCppString(std::ostream& os,
         } else if (line[0] == '#') {
             os << line << '\n';
         } else if (*line.rbegin() == ':') {
+#if defined(_MSC_VER) && _MSC_VER < 1920
+            os << space << line << '\n';
+#else
             os << space.substr(0, std::max(size_t(4), space.size()) - 4) << line << "\n";
+#endif
         } else {
             if (append) {
                 if (count == 0) {
@@ -142,7 +156,7 @@ inline void copyCppString(std::ostream& os,
 
 #define OSS oss << space
 
-#define INDENT(...)   auto ind_##__VA_ARGS__ = indent(space)
+#define INDENT(...) Indent<std::remove_reference_t<decltype(space)>> ind_##__VA_ARGS__(space)
 #define UNINDENT(...) ind_##__VA_ARGS__.reset()
 
 #define INDENT_BEG() space.append("    ")

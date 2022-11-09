@@ -27,7 +27,7 @@
 #include <functional>
 #include "base/Log.h"
 #include "base/Macros.h"
-#include "bindings/event/EventDispatcher.h"
+#include "engine/EngineEvents.h"
 #include "platform/IEventDispatch.h"
 #include "platform/empty/EmptyPlatform.h"
 

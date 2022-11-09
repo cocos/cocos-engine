@@ -26,19 +26,23 @@
 #include "base/std/container/array.h"
 
 #include "Define.h"
+#include "LODModelsUtil.h"
 #include "PipelineSceneData.h"
 #include "RenderPipeline.h"
 #include "SceneCulling.h"
+#include "base/std/container/map.h"
 #include "core/geometry/AABB.h"
 #include "core/geometry/Frustum.h"
 #include "core/geometry/Intersect.h"
 #include "core/geometry/Sphere.h"
 #include "core/scene-graph/Node.h"
+#include "core/platform/Debug.h"
 #include "math/Quaternion.h"
 #include "profiler/Profiler.h"
 #include "scene/Camera.h"
 #include "scene/DirectionalLight.h"
 #include "scene/Light.h"
+#include "scene/LODGroup.h"
 #include "scene/Octree.h"
 #include "scene/RenderScene.h"
 #include "scene/Shadow.h"
@@ -146,15 +150,26 @@ void sceneCulling(const RenderPipeline *pipeline, scene::Camera *camera) {
     csmLayers->clearCastShadowObjects();
     csmLayers->clearLayerObjects();
 
-    if (skyBox != nullptr && skyBox->isEnabled() && skyBox->getModel() && (static_cast<uint32_t>(camera->getClearFlag()) & skyboxFlag)) {
-        sceneData->addRenderObject(genRenderObject(skyBox->getModel(), camera));
+    auto clearFlagValue = static_cast<uint32_t>(camera->getClearFlag());
+    if (clearFlagValue & skyboxFlag) {
+        if (skyBox != nullptr && skyBox->isEnabled() && skyBox->getModel()) {
+            sceneData->addRenderObject(genRenderObject(skyBox->getModel(), camera));
+        } else if(clearFlagValue == skyboxFlag) {
+            debug::warnID(15100, camera->getName());
+        }
     }
+
+    LODModelsCachedUtils::updateCachedLODModels(scene, camera);
 
     const scene::Octree *octree = scene->getOctree();
     if (octree && octree->isEnabled()) {
         for (const auto &model : scene->getModels()) {
             // filter model by view visibility
             if (model->isEnabled()) {
+                if (LODModelsCachedUtils::isLODModelCulled(model)) {
+                    continue;
+                }
+
                 if (model->isCastShadow()) {
                     csmLayers->addCastShadowObject(genRenderObject(model, camera));
                     csmLayers->addLayerObject(genRenderObject(model, camera));
@@ -177,13 +192,19 @@ void sceneCulling(const RenderPipeline *pipeline, scene::Camera *camera) {
         ccstd::vector<scene::Model *> models;
         models.reserve(scene->getModels().size() / 4);
         octree->queryVisibility(camera, camera->getFrustum(), false, models);
-        for (const auto *model : models) {
+        for (const auto &model : models) {
+            if (LODModelsCachedUtils::isLODModelCulled(model)) {
+                continue;
+            }
             sceneData->addRenderObject(genRenderObject(model, camera));
         }
     } else {
         for (const auto &model : scene->getModels()) {
             // filter model by view visibility
             if (model->isEnabled()) {
+                if (LODModelsCachedUtils::isLODModelCulled(model)) {
+                    continue;
+                }
                 const auto visibility = camera->getVisibility();
                 const auto *const node = model->getNode();
 
@@ -209,6 +230,7 @@ void sceneCulling(const RenderPipeline *pipeline, scene::Camera *camera) {
             }
         }
     }
+    LODModelsCachedUtils::clearCachedLODModels();
 
     csmLayers = nullptr;
 }

@@ -28,7 +28,7 @@ import {
     CommandBufferInfo, BufferInfo, BufferViewInfo, TextureInfo, TextureViewInfo, SamplerInfo, DescriptorSetInfo,
     ShaderInfo, InputAssemblerInfo, RenderPassInfo, FramebufferInfo, DescriptorSetLayoutInfo, PipelineLayoutInfo,
     QueueInfo, BufferTextureCopy, DeviceInfo, DeviceCaps, GeneralBarrierInfo, TextureBarrierInfo, BufferBarrierInfo,
-    SwapchainInfo, BindingMappingInfo, Format, FormatFeature,
+    SwapchainInfo, BindingMappingInfo, Format, FormatFeature, TextureType, TextureUsageBit, TextureFlagBit, Offset, Extent, SampleCount, TextureSubresLayers,
 } from './define';
 import { Buffer } from './buffer';
 import { CommandBuffer } from './command-buffer';
@@ -351,5 +351,106 @@ export abstract class Device {
      */
     public getFormatFeatures (format: Format): FormatFeature {
         return this._formatFeatures[format];
+    }
+}
+
+export class DefaultResource {
+    private _texture2D : Texture | null = null;
+    private _texture3D : Texture | null = null;
+    private _textureCube : Texture | null = null;
+    private _texture1DArray : Texture | null = null;
+    private _texture2DArray : Texture | null = null;
+
+    constructor (device: Device) {
+        const bufferSize = 64;
+        // create a new buffer and fill it with a white pixel
+        const buffer = new Uint8Array(bufferSize);
+        buffer.fill(255);
+        if (device.capabilities.maxTextureSize >= 2) {
+            this._texture2D = device.createTexture(new TextureInfo(
+                TextureType.TEX2D,
+                TextureUsageBit.STORAGE | TextureUsageBit.SAMPLED,
+                Format.RGBA8,
+                2, 2,
+                TextureFlagBit.NONE,
+            ));
+            const copyRegion = new BufferTextureCopy(0, 0, 0, new Offset(0, 0, 0), new Extent(2, 2, 1));
+            device.copyBuffersToTexture([buffer], this._texture2D, [copyRegion]);
+        }
+        if (device.capabilities.maxTextureSize >= 2) {
+            this._textureCube = device.createTexture(new TextureInfo(
+                TextureType.CUBE,
+                TextureUsageBit.STORAGE | TextureUsageBit.SAMPLED,
+                Format.RGBA8,
+                2, 2,
+                TextureFlagBit.NONE,
+                6,
+            ));
+            const copyRegion = new BufferTextureCopy(0, 0, 0, new Offset(0, 0, 0), new Extent(2, 2, 1));
+            device.copyBuffersToTexture([buffer], this._textureCube, [copyRegion]);
+            copyRegion.texSubres.baseArrayLayer = 1;
+            device.copyBuffersToTexture([buffer], this._textureCube, [copyRegion]);
+            copyRegion.texSubres.baseArrayLayer = 2;
+            device.copyBuffersToTexture([buffer], this._textureCube, [copyRegion]);
+            copyRegion.texSubres.baseArrayLayer = 3;
+            device.copyBuffersToTexture([buffer], this._textureCube, [copyRegion]);
+            copyRegion.texSubres.baseArrayLayer = 4;
+            device.copyBuffersToTexture([buffer], this._textureCube, [copyRegion]);
+            copyRegion.texSubres.baseArrayLayer = 5;
+            device.copyBuffersToTexture([buffer], this._textureCube, [copyRegion]);
+        }
+        if (device.capabilities.max3DTextureSize >= 2) {
+            this._texture3D = device.createTexture(new TextureInfo(
+                TextureType.TEX3D,
+                TextureUsageBit.STORAGE | TextureUsageBit.SAMPLED,
+                Format.RGBA8,
+                2, 2,
+                TextureFlagBit.NONE,
+                1, 1,
+                SampleCount.ONE,
+                2,
+            ));
+            const copyRegion = new BufferTextureCopy(0, 0, 0, new Offset(0, 0, 0), new Extent(2, 2, 2), new TextureSubresLayers(0, 0, 1));
+            device.copyBuffersToTexture([buffer], this._texture3D, [copyRegion]);
+        }
+        if (device.capabilities.maxArrayTextureLayers >= 2) {
+            this._texture1DArray = device.createTexture(new TextureInfo(
+                TextureType.TEX1D_ARRAY,
+                TextureUsageBit.STORAGE | TextureUsageBit.SAMPLED,
+                Format.RGBA8,
+                1, 1,
+                TextureFlagBit.NONE,
+                2,
+            ));
+            const copyRegion = new BufferTextureCopy(0, 0, 0, new Offset(0, 0, 0), new Extent(1, 1, 1), new TextureSubresLayers(0, 0, 1));
+            device.copyBuffersToTexture([buffer], this._texture1DArray, [copyRegion]);
+            copyRegion.texSubres.baseArrayLayer = 1;
+            device.copyBuffersToTexture([buffer], this._texture1DArray, [copyRegion]);
+        }
+        if (device.capabilities.maxArrayTextureLayers >= 2) {
+            this._texture2DArray = device.createTexture(new TextureInfo(
+                TextureType.TEX2D_ARRAY,
+                TextureUsageBit.STORAGE | TextureUsageBit.SAMPLED,
+                Format.RGBA8,
+                2, 2,
+                TextureFlagBit.NONE,
+                2,
+            ));
+            const copyRegion = new BufferTextureCopy(0, 0, 0, new Offset(0, 0, 0), new Extent(2, 2, 1), new TextureSubresLayers(0, 0, 1));
+            device.copyBuffersToTexture([buffer], this._texture2DArray, [copyRegion]);
+            copyRegion.texSubres.baseArrayLayer = 1;
+            device.copyBuffersToTexture([buffer], this._texture2DArray, [copyRegion]);
+        }
+    }
+
+    public getTexture (type : TextureType) {
+        switch (type) {
+        case TextureType.TEX2D: return this._texture2D;
+        case TextureType.TEX3D: return this._texture3D;
+        case TextureType.CUBE: return this._textureCube;
+        case TextureType.TEX1D_ARRAY: return this._texture1DArray;
+        case TextureType.TEX2D_ARRAY: return this._texture2DArray;
+        default: return null;
+        }
     }
 }

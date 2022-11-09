@@ -243,6 +243,7 @@ enum class CC_DLL ModelLocalBindings {
     UBO_SKINNING_TEXTURE,
     UBO_MORPH,
     UBO_UI_LOCAL,
+    UBO_SH,
 
     SAMPLER_JOINTS,
     SAMPLER_MORPH_POSITION,
@@ -253,6 +254,9 @@ enum class CC_DLL ModelLocalBindings {
     SAMPLER_REFLECTION,
 
     STORAGE_REFLECTION,
+
+    SAMPLER_REFLECTION_PROBE_CUBE,
+    SAMPLER_REFLECTION_PROBE_PLANAR,
 
     COUNT,
 };
@@ -371,6 +375,22 @@ struct CC_DLL UBOMorph {
 
 struct CC_DLL UBOUILocal {
     static constexpr uint32_t BINDING = static_cast<uint32_t>(ModelLocalBindings::UBO_UI_LOCAL);
+    static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
+    static const gfx::UniformBlock LAYOUT;
+    static const ccstd::string NAME;
+};
+
+struct CC_DLL UBOSH {
+    static constexpr uint32_t SH_LINEAR_CONST_R_OFFSET = 0;
+    static constexpr uint32_t SH_LINEAR_CONST_G_OFFSET = UBOSH::SH_LINEAR_CONST_R_OFFSET + 4;
+    static constexpr uint32_t SH_LINEAR_CONST_B_OFFSET = UBOSH::SH_LINEAR_CONST_G_OFFSET + 4;
+    static constexpr uint32_t SH_QUADRATIC_R_OFFSET = UBOSH::SH_LINEAR_CONST_B_OFFSET + 4;
+    static constexpr uint32_t SH_QUADRATIC_G_OFFSET = UBOSH::SH_QUADRATIC_R_OFFSET + 4;
+    static constexpr uint32_t SH_QUADRATIC_B_OFFSET = UBOSH::SH_QUADRATIC_G_OFFSET + 4;
+    static constexpr uint32_t SH_QUADRATIC_A_OFFSET = UBOSH::SH_QUADRATIC_B_OFFSET + 4;
+    static constexpr uint32_t COUNT = UBOSH::SH_QUADRATIC_A_OFFSET + 4;
+    static constexpr uint32_t SIZE = UBOSH::COUNT * 4;
+    static constexpr uint32_t BINDING = static_cast<uint32_t>(ModelLocalBindings::UBO_SH);
     static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
     static const gfx::UniformBlock LAYOUT;
     static const ccstd::string NAME;
@@ -621,6 +641,20 @@ struct CC_DLL REFLECTIONSTORAGE {
     static constexpr uint32_t BINDING = static_cast<uint32_t>(ModelLocalBindings::STORAGE_REFLECTION);
     static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
     static const gfx::UniformStorageImage LAYOUT;
+    static const ccstd::string NAME;
+};
+
+struct CC_DLL REFLECTIONPROBECUBEMAP {
+    static constexpr uint32_t BINDING = static_cast<uint32_t>(ModelLocalBindings::SAMPLER_REFLECTION_PROBE_CUBE);
+    static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
+    static const gfx::UniformSamplerTexture LAYOUT;
+    static const ccstd::string NAME;
+};
+
+struct CC_DLL REFLECTIONPROBEPLANARMAP {
+    static constexpr uint32_t BINDING = static_cast<uint32_t>(ModelLocalBindings::SAMPLER_REFLECTION_PROBE_PLANAR);
+    static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
+    static const gfx::UniformSamplerTexture LAYOUT;
     static const ccstd::string NAME;
 };
 

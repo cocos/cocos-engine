@@ -22,17 +22,14 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-
-import { ccclass, range, slide, type, editable, displayOrder, help, executeInEditMode,
-    menu, tooltip, serializable, formerlySerializedAs, visible } from 'cc.decorator';
-import { toRadian } from '../../core/math';
+import { toRadian, cclegacy,  CCBoolean, CCFloat, _decorator } from '../../core';
 import { scene } from '../../render-scene';
 import { Light, PhotometricTerm } from './light-component';
-import { legacyCC } from '../../core/global-exports';
 import { Root } from '../../root';
 import { Camera, PCFType, ShadowType } from '../../render-scene/scene';
-import { property } from '../../core/data/class-decorator';
-import { CCBoolean, CCFloat } from '../../core/data/utils/attribute';
+
+const { ccclass, range, slide, type, editable, displayOrder, help, executeInEditMode,
+    menu, tooltip, serializable, formerlySerializedAs, visible, property } = _decorator;
 
 /**
  * @en The spot light component, multiple spot lights can be added to one scene.
@@ -83,7 +80,7 @@ export class SpotLight extends Light {
     @tooltip('i18n:lights.luminous_flux')
     @displayOrder(-1)
     get luminousFlux () {
-        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        const isHDR = (cclegacy.director.root as Root).pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
             return this._luminanceHDR * scene.nt2lm(this._size);
         } else {
@@ -92,7 +89,7 @@ export class SpotLight extends Light {
     }
 
     set luminousFlux (val) {
-        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        const isHDR = (cclegacy.director.root as Root).pipeline.pipelineSceneData.isHDR;
         let result = 0;
         if (isHDR) {
             this._luminanceHDR = val / scene.nt2lm(this._size);
@@ -111,7 +108,7 @@ export class SpotLight extends Light {
     @tooltip('i18n:lights.luminance')
     @displayOrder(-1)
     get luminance () {
-        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        const isHDR = (cclegacy.director.root as Root).pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
             return this._luminanceHDR;
         } else {
@@ -120,7 +117,7 @@ export class SpotLight extends Light {
     }
 
     set luminance (val) {
-        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        const isHDR = (cclegacy.director.root as Root).pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
             this._luminanceHDR = val;
             this._light && (this._light.luminanceHDR = this._luminanceHDR);
@@ -199,7 +196,8 @@ export class SpotLight extends Light {
      * @en Whether activate shadow
      * @zh 是否启用阴影？
      */
-    @visible(() => (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap)
+    @tooltip('i18n:lights.shadowEnabled')
+    @visible(() => (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap)
     @property({ group: { name: 'DynamicShadowSettings', displayOrder: 1 } })
     @editable
     @type(CCBoolean)
@@ -217,7 +215,8 @@ export class SpotLight extends Light {
      * @en The pcf level of the shadow generation.
      * @zh 获取或者设置阴影 pcf 等级。
      */
-    @visible(() => (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap)
+    @tooltip('i18n:lights.shadowPcf')
+    @visible(() => (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap)
     @property({ group: { name: 'DynamicShadowSettings', displayOrder: 2  } })
     @editable
     @type(PCFType)
@@ -235,7 +234,8 @@ export class SpotLight extends Light {
      * @en The depth offset of shadow to avoid moire pattern artifacts
      * @zh 阴影的深度偏移, 可以减弱跨像素导致的条纹状失真
      */
-    @visible(() => (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap)
+    @tooltip('i18n:lights.shadowBias')
+    @visible(() => (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap)
     @property({ group: { name: 'DynamicShadowSettings', displayOrder: 3 } })
     @editable
     @type(CCFloat)
@@ -253,7 +253,8 @@ export class SpotLight extends Light {
      * @en The normal bias of the shadow map.
      * @zh 设置或者获取法线偏移。
      */
-    @visible(() => (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap)
+    @tooltip('i18n:lights.shadowNormalBias')
+    @visible(() => (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap)
     @property({ group: { name: 'DynamicShadowSettings', displayOrder: 4 } })
     @editable
     @type(CCFloat)

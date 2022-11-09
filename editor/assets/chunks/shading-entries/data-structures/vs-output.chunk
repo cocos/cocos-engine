@@ -26,7 +26,7 @@
   #define VSOutput_texcoord1 v_uv1
 #endif
 
-#if CC_USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
+#if CC_USE_LIGHTMAP && !CC_FORWARD_ADD
   #define VSOutput_lightMapUV v_luv
 #endif
 

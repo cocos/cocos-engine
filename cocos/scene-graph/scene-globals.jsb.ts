@@ -164,6 +164,10 @@ export const OctreeInfo = jsb.OctreeInfo;
 legacyCC.OctreeInfo = OctreeInfo;
 
 // @ts-ignore
+export const LightProbeInfo = jsb.LightProbeInfo;
+//legacyCC.LightProbeInfo = LightProbeInfo;
+
+// @ts-ignore
 export const SceneGlobals = jsb.SceneGlobals;
 legacyCC.SceneGlobals = SceneGlobals;
 
@@ -176,6 +180,7 @@ legacyCC.SceneGlobals = SceneGlobals;
         this._skyboxRef = null;
         this._fogRef = null;
         this._octreeRef = null;
+        this._lightProbeRef = null;
     };
 
     Object.defineProperty(sceneGlobalsProto, 'ambient', {
@@ -249,6 +254,18 @@ legacyCC.SceneGlobals = SceneGlobals;
             this.setOctreeInfo(v);
         },
     });
+
+    Object.defineProperty(sceneGlobalsProto, 'lightProbeInfo', {
+        enumerable: true,
+        configurable: true,
+        get () {
+            return this._lightProbeRef;
+        },
+        set (v) {
+            this._lightProbeRef = v;
+            this.setLightProbeInfo(v);
+        },
+    });
 })();
 
 // handle meta data, it is generated automatically
@@ -266,6 +283,8 @@ type(SkyboxInfo)(SceneGlobalsProto, 'skybox', skyboxDescriptor);
 editable(SceneGlobalsProto, 'skybox', skyboxDescriptor);
 serializable(SceneGlobalsProto, 'octree');
 editable(SceneGlobalsProto, 'octree');
+serializable(SceneGlobalsProto, 'lightProbeInfo');
+editable(SceneGlobalsProto, 'lightProbeInfo');
 ccclass('cc.SceneGlobals')(SceneGlobals);
 
 const OctreeInfoProto = OctreeInfo.prototype;
@@ -456,3 +475,39 @@ tooltip('i18n:ambient.groundLightingColor')(AmbientInfoProto, 'groundLightingCol
 editable(AmbientInfoProto, 'groundLightingColor', groundLightingColorDescriptor);
 visible(() => { /* Need to copy source code */ })(AmbientInfoProto, 'groundLightingColor', groundLightingColorDescriptor);
 ccclass('cc.AmbientInfo')(AmbientInfo);
+
+const LightProbeInfoProto = LightProbeInfo.prototype;
+serializable(LightProbeInfoProto, '_enabled');
+serializable(LightProbeInfoProto, '_giScale');
+serializable(LightProbeInfoProto, '_giSamples');
+serializable(LightProbeInfoProto, '_bounces');
+serializable(LightProbeInfoProto, '_reduceRinging');
+serializable(LightProbeInfoProto, '_showProbe');
+serializable(LightProbeInfoProto, '_showWireframe');
+serializable(LightProbeInfoProto, '_showConvex');
+serializable(LightProbeInfoProto, '_data');
+const lightProbeEnabledDescriptor = Object.getOwnPropertyDescriptor(LightProbeInfo, 'enabled');
+tooltip('i18n:light_probe.enabled')(LightProbeInfo, 'enabled', lightProbeEnabledDescriptor);
+editable(LightProbeInfo, 'enabled', lightProbeEnabledDescriptor);
+const lightProbeGIScaleRingingDescriptor = Object.getOwnPropertyDescriptor(LightProbeInfo, 'giScale');
+tooltip('i18n:light_probe.giScale')(LightProbeInfo, 'giScale', lightProbeGIScaleRingingDescriptor);
+editable(LightProbeInfo, 'giScale', lightProbeGIScaleRingingDescriptor);
+const lightProbeGISamplesRingingDescriptor = Object.getOwnPropertyDescriptor(LightProbeInfo, 'giSamples');
+tooltip('i18n:light_probe.giSamples')(LightProbeInfo, 'giSamples', lightProbeGISamplesRingingDescriptor);
+editable(LightProbeInfo, 'giSamples', lightProbeGISamplesRingingDescriptor);
+const lightProbeBouncesRingingDescriptor = Object.getOwnPropertyDescriptor(LightProbeInfo, 'bounces');
+tooltip('i18n:light_probe.bounces')(LightProbeInfo, 'bounces', lightProbeBouncesRingingDescriptor);
+editable(LightProbeInfo, 'bounces', lightProbeBouncesRingingDescriptor);
+const lightProbeReduceRingingDescriptor = Object.getOwnPropertyDescriptor(LightProbeInfo, 'reduceRinging');
+tooltip('i18n:light_probe.reduceRinging')(LightProbeInfo, 'reduceRinging', lightProbeReduceRingingDescriptor);
+editable(LightProbeInfo, 'reduceRinging', lightProbeReduceRingingDescriptor);
+const lightProbeShowProbeDescriptor = Object.getOwnPropertyDescriptor(LightProbeInfo, 'showProbe');
+tooltip('i18n:light_probe.showProbe')(LightProbeInfo, 'showProbe', lightProbeShowProbeDescriptor);
+editable(LightProbeInfo, 'showProbe', lightProbeShowProbeDescriptor);
+const lightProbeShowWireframeDescriptor = Object.getOwnPropertyDescriptor(LightProbeInfo, 'showWireframe');
+tooltip('i18n:light_probe.showWireframe')(LightProbeInfo, 'showWireframe', lightProbeShowWireframeDescriptor);
+editable(LightProbeInfo, 'showWireframe', lightProbeShowWireframeDescriptor);
+const lightProbeShowConvexDescriptor = Object.getOwnPropertyDescriptor(LightProbeInfo, 'showConvex');
+tooltip('i18n:light_probe.showConvex')(LightProbeInfo, 'showConvex', lightProbeShowConvexDescriptor);
+editable(LightProbeInfo, 'showConvex', lightProbeShowConvexDescriptor);
+ccclass('cc.LightProbeInfo')(LightProbeInfo);

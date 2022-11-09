@@ -30,7 +30,7 @@
  */
 // clang-format off
 #pragma once
-#include <boost/utility/string_view.hpp>
+#include <string_view>
 #include <tuple>
 #include "cocos/renderer/pipeline/custom/GraphImpl.h"
 #include "cocos/renderer/pipeline/custom/GslUtils.h"
@@ -492,13 +492,13 @@ struct property_map<cc::render::LayoutGraph, cc::render::LayoutGraph::NameTag> {
         read_write_property_map_tag,
         const cc::render::LayoutGraph,
         const ccstd::pmr::vector<ccstd::pmr::string>,
-        boost::string_view,
+        std::string_view,
         const ccstd::pmr::string&>;
     using type = cc::render::impl::VectorVertexComponentPropertyMap<
         read_write_property_map_tag,
         cc::render::LayoutGraph,
         ccstd::pmr::vector<ccstd::pmr::string>,
-        boost::string_view,
+        std::string_view,
         ccstd::pmr::string&>;
 };
 
@@ -509,13 +509,13 @@ struct property_map<cc::render::LayoutGraph, vertex_name_t> {
         read_write_property_map_tag,
         const cc::render::LayoutGraph,
         const ccstd::pmr::vector<ccstd::pmr::string>,
-        boost::string_view,
+        std::string_view,
         const ccstd::pmr::string&>;
     using type = cc::render::impl::VectorVertexComponentPropertyMap<
         read_write_property_map_tag,
         cc::render::LayoutGraph,
         ccstd::pmr::vector<ccstd::pmr::string>,
-        boost::string_view,
+        std::string_view,
         ccstd::pmr::string&>;
 };
 
@@ -569,13 +569,13 @@ struct property_map<cc::render::LayoutGraphData, cc::render::LayoutGraphData::Na
         read_write_property_map_tag,
         const cc::render::LayoutGraphData,
         const ccstd::pmr::vector<ccstd::pmr::string>,
-        boost::string_view,
+        std::string_view,
         const ccstd::pmr::string&>;
     using type = cc::render::impl::VectorVertexComponentPropertyMap<
         read_write_property_map_tag,
         cc::render::LayoutGraphData,
         ccstd::pmr::vector<ccstd::pmr::string>,
-        boost::string_view,
+        std::string_view,
         ccstd::pmr::string&>;
 };
 
@@ -586,13 +586,13 @@ struct property_map<cc::render::LayoutGraphData, vertex_name_t> {
         read_write_property_map_tag,
         const cc::render::LayoutGraphData,
         const ccstd::pmr::vector<ccstd::pmr::string>,
-        boost::string_view,
+        std::string_view,
         const ccstd::pmr::string&>;
     using type = cc::render::impl::VectorVertexComponentPropertyMap<
         read_write_property_map_tag,
         cc::render::LayoutGraphData,
         ccstd::pmr::vector<ccstd::pmr::string>,
-        boost::string_view,
+        std::string_view,
         ccstd::pmr::string&>;
 };
 
@@ -991,7 +991,7 @@ inline const std::basic_string<char, std::char_traits<char>, Allocator>&
 getPath(
     std::basic_string<char, std::char_traits<char>, Allocator>& output,
     LayoutGraph::vertex_descriptor u0, const LayoutGraph& g,
-    boost::string_view prefix = {}, LayoutGraph::vertex_descriptor parent = LayoutGraph::null_vertex()) {
+    std::string_view prefix = {}, LayoutGraph::vertex_descriptor parent = LayoutGraph::null_vertex()) {
     output.clear();
     const auto sz0 = static_cast<std::ptrdiff_t>(prefix.size());
     auto       sz  = sz0;
@@ -1013,7 +1013,7 @@ getPath(
 inline ccstd::string
 getPath(
     LayoutGraph::vertex_descriptor u0, const LayoutGraph& g,
-    boost::string_view prefix = {}, LayoutGraph::vertex_descriptor parent = LayoutGraph::null_vertex()) {
+    std::string_view prefix = {}, LayoutGraph::vertex_descriptor parent = LayoutGraph::null_vertex()) {
     ccstd::string output;
     getPath(output, u0, g, prefix, parent);
     return output;
@@ -1022,7 +1022,7 @@ getPath(
 inline ccstd::pmr::string
 getPath(
     LayoutGraph::vertex_descriptor u0, const LayoutGraph& g,
-    boost::container::pmr::memory_resource* mr, boost::string_view prefix = {}, LayoutGraph::vertex_descriptor parent = LayoutGraph::null_vertex()) {
+    boost::container::pmr::memory_resource* mr, std::string_view prefix = {}, LayoutGraph::vertex_descriptor parent = LayoutGraph::null_vertex()) {
     ccstd::pmr::string output(mr);
     getPath(output, u0, g, prefix, parent);
     return output;
@@ -1032,7 +1032,7 @@ template <class Allocator>
 inline const std::basic_string<char, std::char_traits<char>, Allocator>&
 getPath(
     std::basic_string<char, std::char_traits<char>, Allocator>& output,
-    LayoutGraph::vertex_descriptor parent, boost::string_view name, const LayoutGraph& g) {
+    LayoutGraph::vertex_descriptor parent, std::string_view name, const LayoutGraph& g) {
     output.clear();
     auto sz = impl::pathLength(parent, g);
     output.resize(sz + name.size() + 1);
@@ -1044,21 +1044,21 @@ getPath(
 }
 
 inline ccstd::string
-getPath(LayoutGraph::vertex_descriptor parent, boost::string_view name, const LayoutGraph& g) {
+getPath(LayoutGraph::vertex_descriptor parent, std::string_view name, const LayoutGraph& g) {
     ccstd::string output;
     getPath(output, parent, name, g);
     return output;
 }
 
 inline ccstd::pmr::string
-getPath(LayoutGraph::vertex_descriptor parent, boost::string_view name, const LayoutGraph& g, boost::container::pmr::memory_resource* mr) {
+getPath(LayoutGraph::vertex_descriptor parent, std::string_view name, const LayoutGraph& g, boost::container::pmr::memory_resource* mr) {
     ccstd::pmr::string output(mr);
     getPath(output, parent, name, g);
     return output;
 }
 
 inline LayoutGraph::vertex_descriptor
-locate(boost::string_view absolute, const LayoutGraph& g) noexcept {
+locate(std::string_view absolute, const LayoutGraph& g) noexcept {
     auto iter = g.pathIndex.find(absolute);
     if (iter != g.pathIndex.end()) {
         return iter->second;
@@ -1067,22 +1067,22 @@ locate(boost::string_view absolute, const LayoutGraph& g) noexcept {
 };
 
 inline LayoutGraph::vertex_descriptor
-locate(LayoutGraph::vertex_descriptor u, boost::string_view relative, const LayoutGraph& g) {
-    CC_EXPECTS(!relative.starts_with('/'));
-    CC_EXPECTS(!relative.ends_with('/'));
+locate(LayoutGraph::vertex_descriptor u, std::string_view relative, const LayoutGraph& g) {
+    CC_EXPECTS(!boost::algorithm::starts_with(relative, "/"));
+    CC_EXPECTS(!boost::algorithm::ends_with(relative, "/"));
     auto key = getPath(u, relative, g);
     impl::cleanPath(key);
     return locate(key, g);
 };
 
 inline bool
-contains(boost::string_view absolute, const LayoutGraph& g) noexcept {
+contains(std::string_view absolute, const LayoutGraph& g) noexcept {
     return locate(absolute, g) != LayoutGraph::null_vertex();
 }
 
 template <class ValueT>
 inline ValueT&
-get(boost::string_view pt, LayoutGraph& g) {
+get(std::string_view pt, LayoutGraph& g) {
     auto v = locate(pt, g);
     if (v == LayoutGraph::null_vertex()) {
         throw std::out_of_range("at LayoutGraph");
@@ -1092,7 +1092,7 @@ get(boost::string_view pt, LayoutGraph& g) {
 
 template <class ValueT>
 inline const ValueT&
-get(boost::string_view pt, const LayoutGraph& g) {
+get(std::string_view pt, const LayoutGraph& g) {
     auto v = locate(pt, g);
     if (v == LayoutGraph::null_vertex()) {
         throw std::out_of_range("at LayoutGraph");
@@ -1102,7 +1102,7 @@ get(boost::string_view pt, const LayoutGraph& g) {
 
 template <class ValueT>
 inline ValueT*
-get_if(boost::string_view pt, LayoutGraph* pGraph) noexcept { // NOLINT
+get_if(std::string_view pt, LayoutGraph* pGraph) noexcept { // NOLINT
     if (pGraph) {
         auto v = locate(pt, *pGraph);
         if (v != LayoutGraph::null_vertex()) {
@@ -1114,7 +1114,7 @@ get_if(boost::string_view pt, LayoutGraph* pGraph) noexcept { // NOLINT
 
 template <class ValueT>
 inline const ValueT*
-get_if(boost::string_view pt, const LayoutGraph* pGraph) noexcept { // NOLINT
+get_if(std::string_view pt, const LayoutGraph* pGraph) noexcept { // NOLINT
     if (pGraph) {
         auto v = locate(pt, *pGraph);
         if (v != LayoutGraph::null_vertex()) {
@@ -1145,7 +1145,7 @@ inline void removePathImpl(LayoutGraph::vertex_descriptor u, LayoutGraph& g) noe
     // notice: here we use ccstd::string, not std::pmr::string
     // we do not want to increase the memory of g
     auto pathName = getPath(u, g);
-    auto iter     = g.pathIndex.find(boost::string_view(pathName));
+    auto iter     = g.pathIndex.find(std::string_view(pathName));
     CC_EXPECTS(iter != g.pathIndex.end());
     g.pathIndex.erase(iter);
     for (auto&& nvp : g.pathIndex) {
@@ -1691,7 +1691,7 @@ inline const std::basic_string<char, std::char_traits<char>, Allocator>&
 getPath(
     std::basic_string<char, std::char_traits<char>, Allocator>& output,
     LayoutGraphData::vertex_descriptor u0, const LayoutGraphData& g,
-    boost::string_view prefix = {}, LayoutGraphData::vertex_descriptor parent = LayoutGraphData::null_vertex()) {
+    std::string_view prefix = {}, LayoutGraphData::vertex_descriptor parent = LayoutGraphData::null_vertex()) {
     output.clear();
     const auto sz0 = static_cast<std::ptrdiff_t>(prefix.size());
     auto       sz  = sz0;
@@ -1713,7 +1713,7 @@ getPath(
 inline ccstd::string
 getPath(
     LayoutGraphData::vertex_descriptor u0, const LayoutGraphData& g,
-    boost::string_view prefix = {}, LayoutGraphData::vertex_descriptor parent = LayoutGraphData::null_vertex()) {
+    std::string_view prefix = {}, LayoutGraphData::vertex_descriptor parent = LayoutGraphData::null_vertex()) {
     ccstd::string output;
     getPath(output, u0, g, prefix, parent);
     return output;
@@ -1722,7 +1722,7 @@ getPath(
 inline ccstd::pmr::string
 getPath(
     LayoutGraphData::vertex_descriptor u0, const LayoutGraphData& g,
-    boost::container::pmr::memory_resource* mr, boost::string_view prefix = {}, LayoutGraphData::vertex_descriptor parent = LayoutGraphData::null_vertex()) {
+    boost::container::pmr::memory_resource* mr, std::string_view prefix = {}, LayoutGraphData::vertex_descriptor parent = LayoutGraphData::null_vertex()) {
     ccstd::pmr::string output(mr);
     getPath(output, u0, g, prefix, parent);
     return output;
@@ -1732,7 +1732,7 @@ template <class Allocator>
 inline const std::basic_string<char, std::char_traits<char>, Allocator>&
 getPath(
     std::basic_string<char, std::char_traits<char>, Allocator>& output,
-    LayoutGraphData::vertex_descriptor parent, boost::string_view name, const LayoutGraphData& g) {
+    LayoutGraphData::vertex_descriptor parent, std::string_view name, const LayoutGraphData& g) {
     output.clear();
     auto sz = impl::pathLength(parent, g);
     output.resize(sz + name.size() + 1);
@@ -1744,21 +1744,21 @@ getPath(
 }
 
 inline ccstd::string
-getPath(LayoutGraphData::vertex_descriptor parent, boost::string_view name, const LayoutGraphData& g) {
+getPath(LayoutGraphData::vertex_descriptor parent, std::string_view name, const LayoutGraphData& g) {
     ccstd::string output;
     getPath(output, parent, name, g);
     return output;
 }
 
 inline ccstd::pmr::string
-getPath(LayoutGraphData::vertex_descriptor parent, boost::string_view name, const LayoutGraphData& g, boost::container::pmr::memory_resource* mr) {
+getPath(LayoutGraphData::vertex_descriptor parent, std::string_view name, const LayoutGraphData& g, boost::container::pmr::memory_resource* mr) {
     ccstd::pmr::string output(mr);
     getPath(output, parent, name, g);
     return output;
 }
 
 inline LayoutGraphData::vertex_descriptor
-locate(boost::string_view absolute, const LayoutGraphData& g) noexcept {
+locate(std::string_view absolute, const LayoutGraphData& g) noexcept {
     auto iter = g.pathIndex.find(absolute);
     if (iter != g.pathIndex.end()) {
         return iter->second;
@@ -1767,22 +1767,22 @@ locate(boost::string_view absolute, const LayoutGraphData& g) noexcept {
 };
 
 inline LayoutGraphData::vertex_descriptor
-locate(LayoutGraphData::vertex_descriptor u, boost::string_view relative, const LayoutGraphData& g) {
-    CC_EXPECTS(!relative.starts_with('/'));
-    CC_EXPECTS(!relative.ends_with('/'));
+locate(LayoutGraphData::vertex_descriptor u, std::string_view relative, const LayoutGraphData& g) {
+    CC_EXPECTS(!boost::algorithm::starts_with(relative, "/"));
+    CC_EXPECTS(!boost::algorithm::ends_with(relative, "/"));
     auto key = getPath(u, relative, g);
     impl::cleanPath(key);
     return locate(key, g);
 };
 
 inline bool
-contains(boost::string_view absolute, const LayoutGraphData& g) noexcept {
+contains(std::string_view absolute, const LayoutGraphData& g) noexcept {
     return locate(absolute, g) != LayoutGraphData::null_vertex();
 }
 
 template <class ValueT>
 inline ValueT&
-get(boost::string_view pt, LayoutGraphData& g) {
+get(std::string_view pt, LayoutGraphData& g) {
     auto v = locate(pt, g);
     if (v == LayoutGraphData::null_vertex()) {
         throw std::out_of_range("at LayoutGraphData");
@@ -1792,7 +1792,7 @@ get(boost::string_view pt, LayoutGraphData& g) {
 
 template <class ValueT>
 inline const ValueT&
-get(boost::string_view pt, const LayoutGraphData& g) {
+get(std::string_view pt, const LayoutGraphData& g) {
     auto v = locate(pt, g);
     if (v == LayoutGraphData::null_vertex()) {
         throw std::out_of_range("at LayoutGraphData");
@@ -1802,7 +1802,7 @@ get(boost::string_view pt, const LayoutGraphData& g) {
 
 template <class ValueT>
 inline ValueT*
-get_if(boost::string_view pt, LayoutGraphData* pGraph) noexcept { // NOLINT
+get_if(std::string_view pt, LayoutGraphData* pGraph) noexcept { // NOLINT
     if (pGraph) {
         auto v = locate(pt, *pGraph);
         if (v != LayoutGraphData::null_vertex()) {
@@ -1814,7 +1814,7 @@ get_if(boost::string_view pt, LayoutGraphData* pGraph) noexcept { // NOLINT
 
 template <class ValueT>
 inline const ValueT*
-get_if(boost::string_view pt, const LayoutGraphData* pGraph) noexcept { // NOLINT
+get_if(std::string_view pt, const LayoutGraphData* pGraph) noexcept { // NOLINT
     if (pGraph) {
         auto v = locate(pt, *pGraph);
         if (v != LayoutGraphData::null_vertex()) {
@@ -1845,7 +1845,7 @@ inline void removePathImpl(LayoutGraphData::vertex_descriptor u, LayoutGraphData
     // notice: here we use ccstd::string, not std::pmr::string
     // we do not want to increase the memory of g
     auto pathName = getPath(u, g);
-    auto iter     = g.pathIndex.find(boost::string_view(pathName));
+    auto iter     = g.pathIndex.find(std::string_view(pathName));
     CC_EXPECTS(iter != g.pathIndex.end());
     g.pathIndex.erase(iter);
     for (auto&& nvp : g.pathIndex) {

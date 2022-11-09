@@ -32,8 +32,8 @@
 import * as impl from './graph';
 import { Material } from '../../asset/assets';
 import { Camera } from '../../render-scene/scene/camera';
-import { AccessFlagBit, Buffer, ClearFlagBit, Color, Format, Framebuffer, SampleCount, Sampler, Swapchain, Texture, TextureFlagBit, Viewport } from '../../gfx';
-import { ComputeView, LightInfo, QueueHint, RasterView, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags } from './types';
+import { AccessFlagBit, Buffer, ClearFlagBit, Color, Format, Framebuffer, SampleCount, Sampler, SamplerInfo, Swapchain, Texture, TextureFlagBit, Viewport } from '../../gfx';
+import { ComputeView, CopyPair, LightInfo, MovePair, QueueHint, RasterView, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags } from './types';
 
 export class ResourceDesc {
     dimension: ResourceDimension = ResourceDimension.BUFFER;
@@ -156,7 +156,7 @@ export class ResourceGraphVertex {
     readonly _outEdges: impl.OutE[] = [];
     readonly _inEdges: impl.OutE[] = [];
     readonly _id: ResourceGraphValue;
-    readonly _object: ResourceGraphObject;
+    _object: ResourceGraphObject;
 }
 
 //-----------------------------------------------------------------
@@ -167,6 +167,9 @@ export class ResourceGraphNameMap implements impl.PropertyMap {
     }
     get (v: number): string {
         return this._names[v];
+    }
+    set (v: number, names: string): void {
+        this._names[v] = names;
     }
     readonly _names: string[];
 }
@@ -201,6 +204,16 @@ export class ResourceGraphStatesMap implements impl.PropertyMap {
     readonly _states: ResourceStates[];
 }
 
+export class ResourceGraphSamplerMap implements impl.PropertyMap {
+    constructor (readonly samplerInfo: SamplerInfo[]) {
+        this._samplerInfo = samplerInfo;
+    }
+    get (v: number): SamplerInfo {
+        return this._samplerInfo[v];
+    }
+    readonly _samplerInfo: SamplerInfo[];
+}
+
 //-----------------------------------------------------------------
 // ComponentGraph Concept
 export const enum ResourceGraphComponent {
@@ -208,6 +221,7 @@ export const enum ResourceGraphComponent {
     Desc,
     Traits,
     States,
+    Sampler,
 }
 
 interface ResourceGraphComponentType {
@@ -215,6 +229,7 @@ interface ResourceGraphComponentType {
     [ResourceGraphComponent.Desc]: ResourceDesc;
     [ResourceGraphComponent.Traits]: ResourceTraits;
     [ResourceGraphComponent.States]: ResourceStates;
+    [ResourceGraphComponent.Sampler]: SamplerInfo;
 }
 
 interface ResourceGraphComponentPropertyMap {
@@ -222,6 +237,7 @@ interface ResourceGraphComponentPropertyMap {
     [ResourceGraphComponent.Desc]: ResourceGraphDescMap;
     [ResourceGraphComponent.Traits]: ResourceGraphTraitsMap;
     [ResourceGraphComponent.States]: ResourceGraphStatesMap;
+    [ResourceGraphComponent.Sampler]: ResourceGraphSamplerMap;
 }
 
 //-----------------------------------------------------------------
@@ -297,10 +313,20 @@ export class ResourceGraph implements impl.BidirectionalGraph
         return this._vertices.length;
     }
     //-----------------------------------------------------------------
+    // EdgeListGraph
+    numEdges (): number {
+        let numEdges = 0;
+        for (const v of this.vertices()) {
+            numEdges += this.outDegree(v);
+        }
+        return numEdges;
+    }
+    //-----------------------------------------------------------------
     // MutableGraph
     clear (): void {
         // Members
-        this.nextFenceValue = 1;
+        this.nextFenceValue = 0;
+        this.version = 0;
         // UuidGraph
         this._valueIndex.clear();
         // ComponentGraph
@@ -308,6 +334,7 @@ export class ResourceGraph implements impl.BidirectionalGraph
         this._descs.length = 0;
         this._traits.length = 0;
         this._states.length = 0;
+        this._samplerInfo.length = 0;
         // Graph Vertices
         this._vertices.length = 0;
     }
@@ -318,6 +345,7 @@ export class ResourceGraph implements impl.BidirectionalGraph
         desc: ResourceDesc,
         traits: ResourceTraits,
         states: ResourceStates,
+        sampler: SamplerInfo,
     ): number {
         const vert = new ResourceGraphVertex(id, object);
         const v = this._vertices.length;
@@ -326,6 +354,7 @@ export class ResourceGraph implements impl.BidirectionalGraph
         this._descs.push(desc);
         this._traits.push(traits);
         this._states.push(states);
+        this._samplerInfo.push(sampler);
         // UuidGraph
         this._valueIndex.set(name, v);
         return v;
@@ -371,6 +400,7 @@ export class ResourceGraph implements impl.BidirectionalGraph
         this._descs.splice(u, 1);
         this._traits.splice(u, 1);
         this._states.splice(u, 1);
+        this._samplerInfo.splice(u, 1);
 
         const sz = this._vertices.length;
         if (u === sz) {
@@ -441,7 +471,7 @@ export class ResourceGraph implements impl.BidirectionalGraph
     }
     //-----------------------------------------------------------------
     // PropertyGraph
-    get (tag: string): ResourceGraphNameMap | ResourceGraphDescMap | ResourceGraphTraitsMap | ResourceGraphStatesMap {
+    get (tag: string): ResourceGraphNameMap | ResourceGraphDescMap | ResourceGraphTraitsMap | ResourceGraphStatesMap | ResourceGraphSamplerMap {
         switch (tag) {
         // Components
         case 'Name':
@@ -452,6 +482,8 @@ export class ResourceGraph implements impl.BidirectionalGraph
             return new ResourceGraphTraitsMap(this._traits);
         case 'States':
             return new ResourceGraphStatesMap(this._states);
+        case 'Sampler':
+            return new ResourceGraphSamplerMap(this._samplerInfo);
         default:
             throw Error('property map not found');
         }
@@ -468,6 +500,8 @@ export class ResourceGraph implements impl.BidirectionalGraph
             return this._traits[v] as ResourceGraphComponentType[T];
         case ResourceGraphComponent.States:
             return this._states[v] as ResourceGraphComponentType[T];
+        case ResourceGraphComponent.Sampler:
+            return this._samplerInfo[v] as ResourceGraphComponentType[T];
         default:
             throw Error('component not found');
         }
@@ -482,12 +516,17 @@ export class ResourceGraph implements impl.BidirectionalGraph
             return new ResourceGraphTraitsMap(this._traits) as ResourceGraphComponentPropertyMap[T];
         case ResourceGraphComponent.States:
             return new ResourceGraphStatesMap(this._states) as ResourceGraphComponentPropertyMap[T];
+        case ResourceGraphComponent.Sampler:
+            return new ResourceGraphSamplerMap(this._samplerInfo) as ResourceGraphComponentPropertyMap[T];
         default:
             throw Error('component map not found');
         }
     }
     getName (v: number): string {
         return this._names[v];
+    }
+    setName (v: number, value: string) {
+        this._names[v] = value;
     }
     getDesc (v: number): ResourceDesc {
         return this._descs[v];
@@ -497,6 +536,9 @@ export class ResourceGraph implements impl.BidirectionalGraph
     }
     getStates (v: number): ResourceStates {
         return this._states[v];
+    }
+    getSampler (v: number): SamplerInfo {
+        return this._samplerInfo[v];
     }
     //-----------------------------------------------------------------
     // PolymorphicGraph
@@ -656,14 +698,16 @@ export class ResourceGraph implements impl.BidirectionalGraph
         return v;
     }
 
-    readonly components: string[] = ['Name', 'Desc', 'Traits', 'States'];
+    readonly components: string[] = ['Name', 'Desc', 'Traits', 'States', 'Sampler'];
     readonly _vertices: ResourceGraphVertex[] = [];
     readonly _names: string[] = [];
     readonly _descs: ResourceDesc[] = [];
     readonly _traits: ResourceTraits[] = [];
     readonly _states: ResourceStates[] = [];
+    readonly _samplerInfo: SamplerInfo[] = [];
     readonly _valueIndex: Map<string, number> = new Map<string, number>();
-    nextFenceValue = 1;
+    nextFenceValue = 0;
+    version = 0;
 }
 
 export class RasterSubpass {
@@ -690,6 +734,9 @@ export class SubpassGraphNameMap implements impl.PropertyMap {
     }
     get (v: number): string {
         return this._names[v];
+    }
+    set (v: number, names: string): void {
+        this._names[v] = names;
     }
     readonly _names: string[];
 }
@@ -790,6 +837,15 @@ export class SubpassGraph implements impl.BidirectionalGraph
     }
     numVertices (): number {
         return this._vertices.length;
+    }
+    //-----------------------------------------------------------------
+    // EdgeListGraph
+    numEdges (): number {
+        let numEdges = 0;
+        for (const v of this.vertices()) {
+            numEdges += this.outDegree(v);
+        }
+        return numEdges;
     }
     //-----------------------------------------------------------------
     // MutableGraph
@@ -949,6 +1005,9 @@ export class SubpassGraph implements impl.BidirectionalGraph
     getName (v: number): string {
         return this._names[v];
     }
+    setName (v: number, value: string) {
+        this._names[v] = value;
+    }
     getSubpass (v: number): RasterSubpass {
         return this._subpasses[v];
     }
@@ -972,71 +1031,8 @@ export class ComputePass {
     readonly computeViews: Map<string, ComputeView[]> = new Map<string, ComputeView[]>();
 }
 
-export class CopyPair {
-    constructor (
-        source = '',
-        target = '',
-        mipLevels = 0xFFFFFFFF,
-        numSlices = 0xFFFFFFFF,
-        sourceMostDetailedMip = 0,
-        sourceFirstSlice = 0,
-        sourcePlaneSlice = 0,
-        targetMostDetailedMip = 0,
-        targetFirstSlice = 0,
-        targetPlaneSlice = 0,
-    ) {
-        this.source = source;
-        this.target = target;
-        this.mipLevels = mipLevels;
-        this.numSlices = numSlices;
-        this.sourceMostDetailedMip = sourceMostDetailedMip;
-        this.sourceFirstSlice = sourceFirstSlice;
-        this.sourcePlaneSlice = sourcePlaneSlice;
-        this.targetMostDetailedMip = targetMostDetailedMip;
-        this.targetFirstSlice = targetFirstSlice;
-        this.targetPlaneSlice = targetPlaneSlice;
-    }
-    source: string;
-    target: string;
-    mipLevels: number;
-    numSlices: number;
-    sourceMostDetailedMip: number;
-    sourceFirstSlice: number;
-    sourcePlaneSlice: number;
-    targetMostDetailedMip: number;
-    targetFirstSlice: number;
-    targetPlaneSlice: number;
-}
-
 export class CopyPass {
     readonly copyPairs: CopyPair[] = [];
-}
-
-export class MovePair {
-    constructor (
-        source = '',
-        target = '',
-        mipLevels = 0xFFFFFFFF,
-        numSlices = 0xFFFFFFFF,
-        targetMostDetailedMip = 0,
-        targetFirstSlice = 0,
-        targetPlaneSlice = 0,
-    ) {
-        this.source = source;
-        this.target = target;
-        this.mipLevels = mipLevels;
-        this.numSlices = numSlices;
-        this.targetMostDetailedMip = targetMostDetailedMip;
-        this.targetFirstSlice = targetFirstSlice;
-        this.targetPlaneSlice = targetPlaneSlice;
-    }
-    source: string;
-    target: string;
-    mipLevels: number;
-    numSlices: number;
-    targetMostDetailedMip: number;
-    targetFirstSlice: number;
-    targetPlaneSlice: number;
 }
 
 export class MovePass {
@@ -1219,7 +1215,7 @@ export class RenderGraphVertex {
     readonly _children: impl.OutE[] = [];
     readonly _parents: impl.OutE[] = [];
     readonly _id: RenderGraphValue;
-    readonly _object: RenderGraphObject;
+    _object: RenderGraphObject;
 }
 
 //-----------------------------------------------------------------
@@ -1231,6 +1227,9 @@ export class RenderGraphNameMap implements impl.PropertyMap {
     get (v: number): string {
         return this._names[v];
     }
+    set (v: number, names: string): void {
+        this._names[v] = names;
+    }
     readonly _names: string[];
 }
 
@@ -1240,6 +1239,9 @@ export class RenderGraphLayoutMap implements impl.PropertyMap {
     }
     get (v: number): string {
         return this._layoutNodes[v];
+    }
+    set (v: number, layoutNodes: string): void {
+        this._layoutNodes[v] = layoutNodes;
     }
     readonly _layoutNodes: string[];
 }
@@ -1260,6 +1262,9 @@ export class RenderGraphValidMap implements impl.PropertyMap {
     }
     get (v: number): boolean {
         return this._valid[v];
+    }
+    set (v: number, valid: boolean): void {
+        this._valid[v] = valid;
     }
     readonly _valid: boolean[];
 }
@@ -1359,6 +1364,15 @@ export class RenderGraph implements impl.BidirectionalGraph
     }
     numVertices (): number {
         return this._vertices.length;
+    }
+    //-----------------------------------------------------------------
+    // EdgeListGraph
+    numEdges (): number {
+        let numEdges = 0;
+        for (const v of this.vertices()) {
+            numEdges += this.outDegree(v);
+        }
+        return numEdges;
     }
     //-----------------------------------------------------------------
     // MutableGraph
@@ -1579,6 +1593,9 @@ export class RenderGraph implements impl.BidirectionalGraph
     }
     getName (v: number): string {
         return this._names[v];
+    }
+    setName (v: number, value: string) {
+        this._names[v] = value;
     }
     getLayout (v: number): string {
         return this._layoutNodes[v];

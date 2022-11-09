@@ -209,6 +209,10 @@
 #define cc_gfx_InputAssembler_instanceCount_set(self_, val_) self_->setInstanceCount(val_)
   
 
+#define cc_gfx_InputAssembler_firstInstance_get(self_) self_->getFirstInstance()
+#define cc_gfx_InputAssembler_firstInstance_set(self_, val_) self_->setFirstInstance(val_)
+  
+
 #define cc_gfx_CommandBuffer_type_get(self_) self_->getType()
   
 
@@ -1100,6 +1104,82 @@ static bool js_cc_gfx_DeviceCaps_maxCubeMapTextureSize_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_gfx_DeviceCaps_maxCubeMapTextureSize_get) 
 
+static bool js_cc_gfx_DeviceCaps_maxArrayTextureLayers_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::gfx::DeviceCaps *arg1 = (cc::gfx::DeviceCaps *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gfx::DeviceCaps>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg1->maxArrayTextureLayers, s.thisObject());
+    SE_PRECONDITION2(ok, false, "DeviceCaps_maxArrayTextureLayers_set,2,SWIGTYPE_uint32_t"); 
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_gfx_DeviceCaps_maxArrayTextureLayers_set) 
+
+static bool js_cc_gfx_DeviceCaps_maxArrayTextureLayers_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::gfx::DeviceCaps *arg1 = (cc::gfx::DeviceCaps *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gfx::DeviceCaps>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(arg1->maxArrayTextureLayers, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "DeviceCaps_maxArrayTextureLayers_get, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(arg1->maxArrayTextureLayers, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_gfx_DeviceCaps_maxArrayTextureLayers_get) 
+
+static bool js_cc_gfx_DeviceCaps_max3DTextureSize_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::gfx::DeviceCaps *arg1 = (cc::gfx::DeviceCaps *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gfx::DeviceCaps>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg1->max3DTextureSize, s.thisObject());
+    SE_PRECONDITION2(ok, false, "DeviceCaps_max3DTextureSize_set,2,SWIGTYPE_uint32_t"); 
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_gfx_DeviceCaps_max3DTextureSize_set) 
+
+static bool js_cc_gfx_DeviceCaps_max3DTextureSize_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::gfx::DeviceCaps *arg1 = (cc::gfx::DeviceCaps *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gfx::DeviceCaps>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(arg1->max3DTextureSize, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "DeviceCaps_max3DTextureSize_get, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(arg1->max3DTextureSize, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_gfx_DeviceCaps_max3DTextureSize_get) 
+
 static bool js_cc_gfx_DeviceCaps_uboOffsetAlignment_set(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -1574,6 +1654,18 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::DeviceCaps * to, se::Obje
     }
     
     
+    json->getProperty("maxArrayTextureLayers", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->maxArrayTextureLayers), ctx);
+    }
+    
+    
+    json->getProperty("max3DTextureSize", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->max3DTextureSize), ctx);
+    }
+    
+    
     json->getProperty("uboOffsetAlignment", &field, true);
     if (!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->uboOffsetAlignment), ctx);
@@ -1648,6 +1740,8 @@ bool js_register_cc_gfx_DeviceCaps(se::Object* obj) {
     cls->defineProperty("maxUniformBlockSize", _SE(js_cc_gfx_DeviceCaps_maxUniformBlockSize_get), _SE(js_cc_gfx_DeviceCaps_maxUniformBlockSize_set)); 
     cls->defineProperty("maxTextureSize", _SE(js_cc_gfx_DeviceCaps_maxTextureSize_get), _SE(js_cc_gfx_DeviceCaps_maxTextureSize_set)); 
     cls->defineProperty("maxCubeMapTextureSize", _SE(js_cc_gfx_DeviceCaps_maxCubeMapTextureSize_get), _SE(js_cc_gfx_DeviceCaps_maxCubeMapTextureSize_set)); 
+    cls->defineProperty("maxArrayTextureLayers", _SE(js_cc_gfx_DeviceCaps_maxArrayTextureLayers_get), _SE(js_cc_gfx_DeviceCaps_maxArrayTextureLayers_set)); 
+    cls->defineProperty("max3DTextureSize", _SE(js_cc_gfx_DeviceCaps_max3DTextureSize_get), _SE(js_cc_gfx_DeviceCaps_max3DTextureSize_set)); 
     cls->defineProperty("uboOffsetAlignment", _SE(js_cc_gfx_DeviceCaps_uboOffsetAlignment_get), _SE(js_cc_gfx_DeviceCaps_uboOffsetAlignment_set)); 
     cls->defineProperty("maxComputeSharedMemorySize", _SE(js_cc_gfx_DeviceCaps_maxComputeSharedMemorySize_get), _SE(js_cc_gfx_DeviceCaps_maxComputeSharedMemorySize_set)); 
     cls->defineProperty("maxComputeWorkGroupInvocations", _SE(js_cc_gfx_DeviceCaps_maxComputeWorkGroupInvocations_get), _SE(js_cc_gfx_DeviceCaps_maxComputeWorkGroupInvocations_set)); 
@@ -24505,62 +24599,6 @@ static bool js_cc_gfx_InputAssembler_destroy(se::State& s)
 }
 SE_BIND_FUNC(js_cc_gfx_InputAssembler_destroy) 
 
-static bool js_cc_gfx_InputAssembler_setFirstInstance(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::gfx::InputAssembler *arg1 = (cc::gfx::InputAssembler *) NULL ;
-    uint32_t arg2 ;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::gfx::InputAssembler>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "InputAssembler_setFirstInstance,2,SWIGTYPE_uint32_t"); 
-    
-    (arg1)->setFirstInstance(arg2);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_gfx_InputAssembler_setFirstInstance) 
-
-static bool js_cc_gfx_InputAssembler_getFirstInstance(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::gfx::InputAssembler *arg1 = (cc::gfx::InputAssembler *) NULL ;
-    uint32_t result;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::gfx::InputAssembler>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    result = ((cc::gfx::InputAssembler const *)arg1)->getFirstInstance();
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "InputAssembler_getFirstInstance, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_gfx_InputAssembler_getFirstInstance) 
-
 static bool js_cc_gfx_InputAssembler_vertexBuffers_get(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -24951,6 +24989,48 @@ static bool js_cc_gfx_InputAssembler_instanceCount_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_gfx_InputAssembler_instanceCount_get) 
 
+static bool js_cc_gfx_InputAssembler_firstInstance_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::gfx::InputAssembler *arg1 = (cc::gfx::InputAssembler *) NULL ;
+    uint32_t arg2 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gfx::InputAssembler>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "InputAssembler_firstInstance_set,2,SWIGTYPE_uint32_t"); 
+    
+    cc_gfx_InputAssembler_firstInstance_set(arg1,arg2);
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_gfx_InputAssembler_firstInstance_set) 
+
+static bool js_cc_gfx_InputAssembler_firstInstance_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::gfx::InputAssembler *arg1 = (cc::gfx::InputAssembler *) NULL ;
+    uint32_t result;
+    
+    arg1 = SE_THIS_OBJECT<cc::gfx::InputAssembler>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = cc_gfx_InputAssembler_firstInstance_get(arg1);
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "InputAssembler_firstInstance_get, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_gfx_InputAssembler_firstInstance_get) 
+
 bool js_register_cc_gfx_InputAssembler(se::Object* obj) {
     auto* cls = se::Class::create("InputAssembler", obj, __jsb_cc_gfx_GFXObject_proto, nullptr); 
     
@@ -24966,11 +25046,10 @@ bool js_register_cc_gfx_InputAssembler(se::Object* obj) {
     cls->defineProperty("firstIndex", _SE(js_cc_gfx_InputAssembler_firstIndex_get), _SE(js_cc_gfx_InputAssembler_firstIndex_set)); 
     cls->defineProperty("vertexOffset", _SE(js_cc_gfx_InputAssembler_vertexOffset_get), _SE(js_cc_gfx_InputAssembler_vertexOffset_set)); 
     cls->defineProperty("instanceCount", _SE(js_cc_gfx_InputAssembler_instanceCount_get), _SE(js_cc_gfx_InputAssembler_instanceCount_set)); 
+    cls->defineProperty("firstInstance", _SE(js_cc_gfx_InputAssembler_firstInstance_get), _SE(js_cc_gfx_InputAssembler_firstInstance_set)); 
     
     cls->defineFunction("initialize", _SE(js_cc_gfx_InputAssembler_initialize)); 
     cls->defineFunction("destroy", _SE(js_cc_gfx_InputAssembler_destroy)); 
-    cls->defineFunction("setFirstInstance", _SE(js_cc_gfx_InputAssembler_setFirstInstance)); 
-    cls->defineFunction("getFirstInstance", _SE(js_cc_gfx_InputAssembler_getFirstInstance)); 
     
     
     
@@ -27044,6 +27123,34 @@ static bool js_cc_gfx_Texture_getRaw(se::State& s)
 }
 SE_BIND_FUNC(js_cc_gfx_Texture_getRaw) 
 
+static bool js_cc_gfx_Texture_getGLTextureHandle(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::gfx::Texture *arg1 = (cc::gfx::Texture *) NULL ;
+    uint32_t result;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::gfx::Texture>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = ((cc::gfx::Texture const *)arg1)->getGLTextureHandle();
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "Texture_getGLTextureHandle, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_gfx_Texture_getGLTextureHandle) 
+
 static bool js_cc_gfx_Texture_info_get(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -27196,6 +27303,7 @@ bool js_register_cc_gfx_Texture(se::Object* obj) {
     cls->defineFunction("destroy", _SE(js_cc_gfx_Texture_destroy)); 
     cls->defineFunction("isTextureView", _SE(js_cc_gfx_Texture_isTextureView)); 
     cls->defineFunction("getRaw", _SE(js_cc_gfx_Texture_getRaw)); 
+    cls->defineFunction("getGLTextureHandle", _SE(js_cc_gfx_Texture_getGLTextureHandle)); 
     
     
     cls->defineStaticFunction("computeHash", _SE(js_cc_gfx_Texture_computeHash_static)); 
@@ -27806,30 +27914,6 @@ se::Class* __jsb_cc_gfx_Device_class = nullptr;
 se::Object* __jsb_cc_gfx_Device_proto = nullptr;
 SE_DECLARE_FINALIZE_FUNC(js_delete_cc_gfx_Device) 
 
-static bool js_cc_gfx_Device_getInstance_static(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::gfx::Device *result = 0 ;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    result = (cc::gfx::Device *)cc::gfx::Device::getInstance();
-    // %typemap(out) SWIGTYPE*
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "Device_getInstance, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_gfx_Device_getInstance_static) 
-
 static bool js_delete_cc_gfx_Device(se::State& s)
 {
     // js_dtoroverride
@@ -28131,172 +28215,6 @@ static bool js_cc_gfx_Device_getSwapchains(se::State& s)
     return true;
 }
 SE_BIND_FUNC(js_cc_gfx_Device_getSwapchains) 
-
-static bool js_cc_gfx_Device_createBuffer__SWIG_0(se::State& s)
-{
-    // js_overloaded_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    cc::gfx::Device *arg1 = (cc::gfx::Device *) NULL ;
-    cc::gfx::BufferInfo *arg2 = 0 ;
-    cc::gfx::BufferInfo temp2 ;
-    cc::gfx::Buffer *result = 0 ;
-    
-    arg1 = SE_THIS_OBJECT<cc::gfx::Device>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Device_createBuffer,2,SWIGTYPE_p_cc__gfx__BufferInfo");
-    arg2 = &temp2;
-    
-    result = (cc::gfx::Buffer *)(arg1)->createBuffer((cc::gfx::BufferInfo const &)*arg2);
-    // %typemap(out) SWIGTYPE*
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "Device_createBuffer, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
-    s.rval().toObject()->getPrivateObject()->tryAllowDestroyInGC();
-    
-    
-    return true;
-}
-
-static bool js_cc_gfx_Device_createBuffer__SWIG_1(se::State& s)
-{
-    // js_overloaded_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    cc::gfx::Device *arg1 = (cc::gfx::Device *) NULL ;
-    cc::gfx::BufferViewInfo *arg2 = 0 ;
-    cc::gfx::BufferViewInfo temp2 ;
-    cc::gfx::Buffer *result = 0 ;
-    
-    arg1 = SE_THIS_OBJECT<cc::gfx::Device>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Device_createBuffer,2,SWIGTYPE_p_cc__gfx__BufferViewInfo");
-    arg2 = &temp2;
-    
-    result = (cc::gfx::Buffer *)(arg1)->createBuffer((cc::gfx::BufferViewInfo const &)*arg2);
-    // %typemap(out) SWIGTYPE*
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "Device_createBuffer, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
-    s.rval().toObject()->getPrivateObject()->tryAllowDestroyInGC();
-    
-    
-    return true;
-}
-
-static bool js_cc_gfx_Device_createBuffer(se::State& s)
-{
-    // js_function_dispatcher
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    
-    // js_function_dispatch_case
-    if (argc == 1) {
-        ok = js_cc_gfx_Device_createBuffer__SWIG_0(s);
-        if (ok) {
-            return true; 
-        }
-    } // js_function_dispatch_case
-    if (argc == 1) {
-        ok = js_cc_gfx_Device_createBuffer__SWIG_1(s);
-        if (ok) {
-            return true; 
-        }
-    } 
-    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
-    return false;
-}
-SE_BIND_FUNC(js_cc_gfx_Device_createBuffer) 
-
-static bool js_cc_gfx_Device_createTexture__SWIG_0(se::State& s)
-{
-    // js_overloaded_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    cc::gfx::Device *arg1 = (cc::gfx::Device *) NULL ;
-    cc::gfx::TextureInfo *arg2 = 0 ;
-    cc::gfx::TextureInfo temp2 ;
-    cc::gfx::Texture *result = 0 ;
-    
-    arg1 = SE_THIS_OBJECT<cc::gfx::Device>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Device_createTexture,2,SWIGTYPE_p_cc__gfx__TextureInfo");
-    arg2 = &temp2;
-    
-    result = (cc::gfx::Texture *)(arg1)->createTexture((cc::gfx::TextureInfo const &)*arg2);
-    // %typemap(out) SWIGTYPE*
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "Device_createTexture, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
-    s.rval().toObject()->getPrivateObject()->tryAllowDestroyInGC();
-    
-    
-    return true;
-}
-
-static bool js_cc_gfx_Device_createTexture__SWIG_1(se::State& s)
-{
-    // js_overloaded_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    cc::gfx::Device *arg1 = (cc::gfx::Device *) NULL ;
-    cc::gfx::TextureViewInfo *arg2 = 0 ;
-    cc::gfx::TextureViewInfo temp2 ;
-    cc::gfx::Texture *result = 0 ;
-    
-    arg1 = SE_THIS_OBJECT<cc::gfx::Device>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Device_createTexture,2,SWIGTYPE_p_cc__gfx__TextureViewInfo");
-    arg2 = &temp2;
-    
-    result = (cc::gfx::Texture *)(arg1)->createTexture((cc::gfx::TextureViewInfo const &)*arg2);
-    // %typemap(out) SWIGTYPE*
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "Device_createTexture, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
-    s.rval().toObject()->getPrivateObject()->tryAllowDestroyInGC();
-    
-    
-    return true;
-}
-
-static bool js_cc_gfx_Device_createTexture(se::State& s)
-{
-    // js_function_dispatcher
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    
-    // js_function_dispatch_case
-    if (argc == 1) {
-        ok = js_cc_gfx_Device_createTexture__SWIG_0(s);
-        if (ok) {
-            return true; 
-        }
-    } // js_function_dispatch_case
-    if (argc == 1) {
-        ok = js_cc_gfx_Device_createTexture__SWIG_1(s);
-        if (ok) {
-            return true; 
-        }
-    } 
-    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
-    return false;
-}
-SE_BIND_FUNC(js_cc_gfx_Device_createTexture) 
 
 static bool js_cc_gfx_Device_createShader(se::State& s)
 {
@@ -28953,62 +28871,6 @@ static bool js_cc_gfx_Device_bindingMappingInfo(se::State& s)
 }
 SE_BIND_FUNC(js_cc_gfx_Device_bindingMappingInfo) 
 
-static bool js_cc_gfx_Device_setOptions(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::gfx::Device *arg1 = (cc::gfx::Device *) NULL ;
-    cc::gfx::DeviceOptions *arg2 = 0 ;
-    cc::gfx::DeviceOptions temp2 ;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::gfx::Device>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Device_setOptions,2,SWIGTYPE_p_cc__gfx__DeviceOptions");
-    arg2 = &temp2;
-    
-    (arg1)->setOptions((cc::gfx::DeviceOptions const &)*arg2);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_gfx_Device_setOptions) 
-
-static bool js_cc_gfx_Device_getOptions(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::gfx::Device *arg1 = (cc::gfx::Device *) NULL ;
-    cc::gfx::DeviceOptions *result = 0 ;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::gfx::Device>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    result = (cc::gfx::DeviceOptions *) &((cc::gfx::Device const *)arg1)->getOptions();
-    // %typemap(out) SWIGTYPE&
-    ok &= nativevalue_to_se(*result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "Device_getOptions, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(*result, s.thisObject(), s.rval()); 
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_gfx_Device_getOptions) 
-
 static bool js_cc_gfx_Device_gfxAPI_get(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -29243,8 +29105,6 @@ bool js_register_cc_gfx_Device(se::Object* obj) {
     cls->defineFunction("createQueryPool", _SE(js_cc_gfx_Device_createQueryPool)); 
     cls->defineFunction("createSwapchain", _SE(js_cc_gfx_Device_createSwapchain)); 
     cls->defineFunction("getSwapchains", _SE(js_cc_gfx_Device_getSwapchains)); 
-    cls->defineFunction("createBuffer", _SE(js_cc_gfx_Device_createBuffer)); 
-    cls->defineFunction("createTexture", _SE(js_cc_gfx_Device_createTexture)); 
     cls->defineFunction("createShader", _SE(js_cc_gfx_Device_createShader)); 
     cls->defineFunction("createInputAssembler", _SE(js_cc_gfx_Device_createInputAssembler)); 
     cls->defineFunction("createRenderPass", _SE(js_cc_gfx_Device_createRenderPass)); 
@@ -29264,11 +29124,8 @@ bool js_register_cc_gfx_Device(se::Object* obj) {
     cls->defineFunction("hasFeature", _SE(js_cc_gfx_Device_hasFeature)); 
     cls->defineFunction("getFormatFeatures", _SE(js_cc_gfx_Device_getFormatFeatures)); 
     cls->defineFunction("bindingMappingInfo", _SE(js_cc_gfx_Device_bindingMappingInfo)); 
-    cls->defineFunction("setOptions", _SE(js_cc_gfx_Device_setOptions)); 
-    cls->defineFunction("getOptions", _SE(js_cc_gfx_Device_getOptions)); 
     
     
-    cls->defineStaticFunction("getInstance", _SE(js_cc_gfx_Device_getInstance_static)); 
     
     
     cls->defineFinalizeFunction(_SE(js_delete_cc_gfx_Device));
@@ -29356,53 +29213,6 @@ static bool js_cc_gfx_DeviceManager_create_static(se::State& s)
 }
 SE_BIND_FUNC(js_cc_gfx_DeviceManager_create_static) 
 
-static bool js_cc_gfx_DeviceManager_isDetachDeviceThread_static(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    bool result;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    result = (bool)cc::gfx::DeviceManager::isDetachDeviceThread();
-    // out 5
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_gfx_DeviceManager_isDetachDeviceThread_static) 
-
-static bool js_cc_gfx_DeviceManager_getGFXName_static(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    ccstd::string result;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    result = cc::gfx::DeviceManager::getGFXName();
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "DeviceManager_getGFXName, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_gfx_DeviceManager_getGFXName_static) 
-
 // js_ctor
 static bool js_new_cc_gfx_DeviceManager(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -29434,8 +29244,6 @@ bool js_register_cc_gfx_DeviceManager(se::Object* obj) {
     
     
     cls->defineStaticFunction("create", _SE(js_cc_gfx_DeviceManager_create_static)); 
-    cls->defineStaticFunction("isDetachDeviceThread", _SE(js_cc_gfx_DeviceManager_isDetachDeviceThread_static)); 
-    cls->defineStaticFunction("getGFXName", _SE(js_cc_gfx_DeviceManager_getGFXName_static)); 
     
     
     cls->defineFinalizeFunction(_SE(js_delete_cc_gfx_DeviceManager));

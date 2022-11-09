@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { deprecateModuleExportedName } from '../core/utils/x-deprecated';
+import { deprecateModuleExportedName } from '../core';
 
 deprecateModuleExportedName({
     SystemEvent: {

@@ -24,30 +24,21 @@
  THE SOFTWARE.
 */
 
-import { DEBUG, EDITOR, NATIVE, PREVIEW } from 'internal:constants';
+import { DEBUG, EDITOR, NATIVE, PREVIEW, TEST } from 'internal:constants';
 import { systemInfo } from 'pal/system-info';
 import { findCanvas, loadJsFile } from 'pal/env';
 import { Pacer } from 'pal/pacer';
 import { ConfigOrientation } from 'pal/screen-adapter';
 import assetManager, { IAssetManagerOptions } from '../asset/asset-manager/asset-manager';
-import { EventTarget } from '../core/event';
-import { AsyncDelegate } from '../core/event/async-delegate';
+import { EventTarget, AsyncDelegate, sys, macro, VERSION, cclegacy, screen, Settings, settings, assert, garbageCollectionManager, DebugMode, warn, log, _resetDebugSetting } from '../core';
 import { input } from '../input';
-import * as debug from '../core/platform/debug';
 import { deviceManager } from '../gfx';
-import { sys } from '../core/platform/sys';
-import { macro } from '../core/platform/macro';
-import { legacyCC, VERSION } from '../core/global-exports';
 import { SplashScreen } from './splash-screen';
 import { RenderPipeline } from '../rendering';
 import { Layers, Node } from '../scene-graph';
-import { garbageCollectionManager } from '../core/data/garbage-collection';
-import { screen } from '../core/platform/screen';
 import { builtinResMgr } from '../asset/asset-manager/builtin-res-mgr';
-import { Settings, settings } from '../core/settings';
 import { Director, director } from './director';
 import { bindingMappingInfo } from '../rendering/define';
-import { assert } from '../core/platform/debug';
 import { IBundleOptions } from '../asset/asset-manager/shared';
 import { ICustomJointTextureLayout } from '../3d/skeletal-animation/skeletal-animation-utils';
 import { IPhysicsConfig } from '../physics/framework/physics-config';
@@ -73,7 +64,7 @@ export interface IGameConfig {
      * @en
      * Set debug mode, only valid in non-browser environment.
      */
-    debugMode?: debug.DebugMode;
+    debugMode?: DebugMode;
 
     /**
      * @zh
@@ -84,7 +75,7 @@ export interface IGameConfig {
      * You can pass in parameters in game.init or override them in the [game.onPostBaseInitDelegate] event callback.
      * Note: you need to specify this option in the application.js template or add a delegate callback.
      */
-    overrideSettings : Partial<{ [ k in Settings.Category[keyof Settings.Category] ]: Record<string, any> }>
+    overrideSettings: Partial<{ [k in Settings.Category[keyof Settings.Category]]: Record<string, any> }>
 
     /**
      * @zh
@@ -432,6 +423,7 @@ export class Game extends EventTarget {
     private _engineInited = false; // whether the engine has inited
     private _rendererInitialized = false;
     private _paused = true;
+    private _pausedByEngine = false;
     // frame control
     private _frameRate = 60;
     private _pacer: Pacer | null = null;
@@ -519,6 +511,27 @@ export class Game extends EventTarget {
     }
 
     /**
+     * @en Called by the engine to pause the game.
+     * @zh 提供给引擎调用暂停游戏接口。
+     */
+    private pauseByEngine () {
+        if (this._paused) { return; }
+        this._pausedByEngine = true;
+        this.pause();
+    }
+
+    /**
+     * @en Resume paused game by engine call.
+     * @zh 提供给引擎调用恢复暂停游戏接口。
+     */
+    private resumeByEngine () {
+        if (this._pausedByEngine) {
+            this.resume();
+            this._pausedByEngine = false;
+        }
+    }
+
+    /**
      * @en Pause the game main loop. This will pause:
      * - game logic execution
      * - rendering process
@@ -568,7 +581,7 @@ export class Game extends EventTarget {
         const endFramePromise = new Promise<void>((resolve) => { director.once(Director.EVENT_END_FRAME, () => resolve()); });
         return endFramePromise.then(() => {
             director.reset();
-            legacyCC.Object._deferredDestroy();
+            cclegacy.Object._deferredDestroy();
             this.pause();
             this.resume();
             this._shouldLoadLaunchScene = true;
@@ -602,8 +615,8 @@ export class Game extends EventTarget {
     public on (type: string, callback: () => void, target?: any, once?: boolean): any {
         // Make sure EVENT_ENGINE_INITED callbacks to be invoked
         if ((this._engineInited && type === Game.EVENT_ENGINE_INITED)
-        || (this._inited && type === Game.EVENT_GAME_INITED)
-        || (this._rendererInitialized && type === Game.EVENT_RENDERER_INITED)) {
+            || (this._inited && type === Game.EVENT_GAME_INITED)
+            || (this._rendererInitialized && type === Game.EVENT_RENDERER_INITED)) {
             callback.call(target);
         }
         return this.eventTargetOn(type, callback, target, once);
@@ -676,9 +689,11 @@ export class Game extends EventTarget {
                 if (DEBUG) {
                     console.time('Init Base');
                 }
-                const debugMode = config.debugMode || debug.DebugMode.NONE;
-                debug._resetDebugSetting(debugMode);
-                sys.init();
+                const debugMode = config.debugMode || DebugMode.NONE;
+                _resetDebugSetting(debugMode);
+            })
+            .then(() => sys.init())
+            .then(() => {
                 this._initEvents();
             })
             .then(() => settings.init(config.settingsPath, config.overrideSettings))
@@ -686,17 +701,6 @@ export class Game extends EventTarget {
                 if (DEBUG) {
                     console.timeEnd('Init Base');
                 }
-
-                if (sys.isXR) {
-                    // XrEntry must not be destroyed
-                    xr.entry = xr.XrEntry.getInstance();
-
-                    const xrMSAA = settings.querySettings(Settings.Category.RENDERING, 'msaa') ?? 1;
-                    const xrRenderingScale = settings.querySettings(Settings.Category.RENDERING, 'renderingScale') ?? 1.0;
-                    xr.entry.setMultisamplesRTT(xrMSAA);
-                    xr.entry.setRenderingScale(xrRenderingScale);
-                }
-
                 this.emit(Game.EVENT_POST_BASE_INIT);
                 return this.onPostBaseInitDelegate.dispatch();
             })
@@ -711,6 +715,7 @@ export class Game extends EventTarget {
                     console.time('Init Infrastructure');
                 }
                 macro.init();
+                this._initXR();
                 const adapter = findCanvas();
                 if (adapter) {
                     this.canvas = adapter.canvas;
@@ -753,7 +758,7 @@ export class Game extends EventTarget {
                 return this.onPostSubsystemInitDelegate.dispatch();
             })
             .then(() => {
-                debug.log(`Cocos Creator v${VERSION}`);
+                log(`Cocos Creator v${VERSION}`);
                 this.emit(Game.EVENT_ENGINE_INITED);
                 this._engineInited = true;
             })
@@ -785,6 +790,7 @@ export class Game extends EventTarget {
                 return Promise.resolve([]);
             })
             .then(() => this._loadProjectBundles())
+            .then(() => this._loadCCEScripts())
             .then(() => this._setupRenderPipeline())
             .then(() => this._loadPreloadAssets())
             .then(() => {
@@ -803,6 +809,18 @@ export class Game extends EventTarget {
                 this._inited = true;
                 this._safeEmit(Game.EVENT_GAME_INITED);
             });
+    }
+
+    private _initXR () {
+        if (sys.isXR) {
+            // XrEntry must not be destroyed
+            xr.entry = xr.XrEntry.getInstance();
+
+            const xrMSAA = settings.querySettings(Settings.Category.RENDERING, 'msaa') ?? 1;
+            const xrRenderingScale = settings.querySettings(Settings.Category.RENDERING, 'renderingScale') ?? 1.0;
+            xr.entry.setMultisamplesRTT(xrMSAA);
+            xr.entry.setRenderingScale(xrRenderingScale);
+        }
     }
 
     private _compatibleWithOldParams (config: IGameConfig) {
@@ -860,6 +878,21 @@ export class Game extends EventTarget {
     }
 
     /**
+     * @internal only for browser preview
+     */
+    private _loadCCEScripts () {
+        return new Promise<void>((resolve, reject) => {
+            // Since there is no script in the bundle during preview, we need to load the user's script in the following way
+            if (PREVIEW && !TEST && !EDITOR && !NATIVE) {
+                const bundneName = 'cce:/internal/x/prerequisite-imports';
+                import(bundneName).then(() => resolve(), (reason) => reject(reason));
+            } else {
+                resolve();
+            }
+        });
+    }
+
+    /**
      * @internal only for game-view
      */
     public _loadProjectBundles () {
@@ -887,7 +920,7 @@ export class Game extends EventTarget {
         if (onStart) {
             this.onStart = onStart;
         }
-        if (!this._inited || (EDITOR && !legacyCC.GAME_VIEW)) {
+        if (!this._inited || (EDITOR && !cclegacy.GAME_VIEW)) {
             return;
         }
         this.resume();
@@ -945,12 +978,12 @@ export class Game extends EventTarget {
 
     private _onHide () {
         this.emit(Game.EVENT_HIDE);
-        this.pause();
+        this.pauseByEngine();
     }
 
     private _onShow () {
         this.emit(Game.EVENT_SHOW);
-        this.resume();
+        this.resumeByEngine();
     }
 
     //  @ Persist root node section
@@ -1000,8 +1033,8 @@ export class Game extends EventTarget {
         }).then((asset) => {
             this._setRenderPipeline(asset);
         }).catch((reason) => {
-            debug.warn(reason);
-            debug.warn(`Failed load render pipeline: ${renderPipeline}, engine failed to initialize, will fallback to default pipeline`);
+            warn(reason);
+            warn(`Failed load render pipeline: ${renderPipeline}, engine failed to initialize, will fallback to default pipeline`);
             this._setRenderPipeline();
         });
     }
@@ -1020,7 +1053,7 @@ export class Game extends EventTarget {
             try {
                 this.emit(event);
             } catch (e) {
-                debug.warn(e);
+                warn(e);
             }
         } else {
             this.emit(event);
@@ -1032,7 +1065,7 @@ export declare namespace Game {
     export type OnStart = () => void;
 }
 
-legacyCC.Game = Game;
+cclegacy.Game = Game;
 
 /**
  * @en
@@ -1040,4 +1073,4 @@ legacyCC.Game = Game;
  * @zh
  * 这是一个 Game 类的实例，包含游戏主体信息并负责驱动游戏的游戏对象。
  */
-export const game = legacyCC.game = new Game();
+export const game = cclegacy.game = new Game();

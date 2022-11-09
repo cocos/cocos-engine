@@ -27,9 +27,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 
 import { Camera } from './camera-component';
-import { replaceProperty } from '../core/utils/x-deprecated';
-import { legacyCC } from '../core/global-exports';
-import { js } from '../core/utils/js';
+import { replaceProperty, cclegacy, js } from '../core';
 import { ModelRenderer } from './model-renderer';
 
 replaceProperty(Camera, 'Camera', [
@@ -59,7 +57,7 @@ replaceProperty(Camera.prototype, 'Camera.prototype', [
  * @deprecated Since v1.2
  */
 export { Camera as CameraComponent };
-legacyCC.CameraComponent = Camera;
+cclegacy.CameraComponent = Camera;
 js.setClassAlias(Camera, 'cc.CameraComponent');
 
 /**
@@ -67,5 +65,5 @@ js.setClassAlias(Camera, 'cc.CameraComponent');
  * @deprecated Since v3.6
  */
 export { ModelRenderer as RenderableComponent };
-legacyCC.RenderableComponent = ModelRenderer;
+cclegacy.RenderableComponent = ModelRenderer;
 js.setClassAlias(ModelRenderer, 'cc.RenderableComponent');

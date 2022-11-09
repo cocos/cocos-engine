@@ -23,11 +23,8 @@
  THE SOFTWARE.
  */
 
-import { EDITOR } from 'internal:constants';
-import { legacyCC } from '../../core/global-exports';
-import { warnID } from '../../core/platform/debug';
-import { js } from '../../core/utils/js';
-import * as path from '../../core/utils/path';
+import { EDITOR, PREVIEW } from 'internal:constants';
+import { warnID, js, path, cclegacy } from '../../core';
 import Config, { IAddressableInfo, IAssetInfo } from './config';
 import { decodeUuid } from './helper';
 import RequestItem from './request-item';
@@ -165,7 +162,7 @@ export function replaceOverrideAsset (task: Task) {
         const item = input[i] as RequestItem;
         if (assetsOverrideMap.has(item.uuid)) {
             const uuid = assetsOverrideMap.get(item.uuid)!;
-            if (EDITOR) {
+            if (EDITOR || PREVIEW) {
                 // In EDITOR, there is no bundle, so just change uuid.
                 item.overrideUuid = uuid;
                 item.ext = item.isNative ? item.ext : '.json';
@@ -201,9 +198,9 @@ export function combine (task: Task) {
         let base = '';
         const config = item.config;
         if (item.isNative) {
-            base = (config && config.nativeBase) ? (config.base + config.nativeBase) : legacyCC.assetManager.generalNativeBase;
+            base = (config && config.nativeBase) ? (config.base + config.nativeBase) : cclegacy.assetManager.generalNativeBase;
         } else {
-            base = (config && config.importBase) ? (config.base + config.importBase) : legacyCC.assetManager.generalImportBase;
+            base = (config && config.importBase) ? (config.base + config.importBase) : cclegacy.assetManager.generalImportBase;
         }
 
         const uuid = item.overrideUuid || item.uuid;

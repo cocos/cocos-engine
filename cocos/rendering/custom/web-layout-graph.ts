@@ -1,13 +1,18 @@
 import { DEBUG } from 'internal:constants';
-import { ccclass } from '../../core/data/decorators';
+import { EffectAsset } from '../../asset/assets';
+import { _decorator } from '../../core';
 // eslint-disable-next-line max-len
 import { DescriptorSetInfo, DescriptorSetLayout, DescriptorSetLayoutBinding, DescriptorSetLayoutInfo, DescriptorType, Device, ShaderStageFlagBit, Type, UniformBlock } from '../../gfx';
 import { VectorGraphColorMap } from './effect';
 import { DefaultVisitor, depthFirstSearch } from './graph';
 // eslint-disable-next-line max-len
-import { DescriptorBlockIndex, LayoutGraphData, PipelineLayoutData, LayoutGraphDataValue, RenderStageData, RenderPhaseData, DescriptorTypeOrder, DescriptorSetLayoutData, DescriptorSetData, DescriptorBlockData, Descriptor, DescriptorData, getDescriptorTypeOrderName, DescriptorBlockFlattened } from './layout-graph';
+import { LayoutGraphData, PipelineLayoutData, LayoutGraphDataValue, RenderStageData, RenderPhaseData, DescriptorSetLayoutData, DescriptorSetData, DescriptorBlockData, DescriptorData } from './layout-graph';
 import { LayoutGraphBuilder } from './pipeline';
-import { getUpdateFrequencyName, UpdateFrequency } from './types';
+import { WebLayoutExporter } from './web-layout-exporter';
+import { getUpdateFrequencyName, DescriptorBlockIndex, DescriptorTypeOrder,
+    Descriptor, getDescriptorTypeOrderName, DescriptorBlockFlattened, UpdateFrequency } from './types';
+
+const { ccclass } = _decorator;
 
 function getName (type: Type): string {
     switch (type) {
@@ -188,10 +193,12 @@ class PrintVisitor extends DefaultVisitor {
 export class WebLayoutGraphBuilder implements LayoutGraphBuilder  {
     private _data: LayoutGraphData;
     private _device: Device | null;
+    private _exporter: WebLayoutExporter;
 
     constructor (deviceIn: Device | null, dataIn: LayoutGraphData) {
         this._device = deviceIn;
         this._data = dataIn;
+        this._exporter = new WebLayoutExporter(this);
     }
 
     private getGfxType (type: DescriptorTypeOrder): DescriptorType | null {
@@ -316,6 +323,38 @@ export class WebLayoutGraphBuilder implements LayoutGraphBuilder  {
         layout.capacity += block.capacity;
     }
 
+    public reorderDescriptorBlock (nodeID: number, index: DescriptorBlockIndex, block: DescriptorBlockFlattened): void {
+        const g: LayoutGraphData = this._data;
+        const ppl: PipelineLayoutData = g.getLayout(nodeID);
+        if (block.capacity <= 0) {
+            console.error('empty block');
+            return;
+        }
+        if (block.descriptorNames.length !== block.descriptors.length) {
+            console.error('error descriptor');
+            return;
+        }
+        if (block.uniformBlockNames.length !== block.uniformBlocks.length) {
+            console.error('error uniform');
+            return;
+        }
+        let data: DescriptorSetData | undefined = ppl.descriptorSets.get(index.updateFrequency);
+        if (!data) {
+            data = new DescriptorSetData(new DescriptorSetLayoutData(), null, null);
+            ppl.descriptorSets.set(index.updateFrequency, data);
+        }
+        const layout = data.descriptorSetLayoutData;
+
+        layout.descriptorBlocks.sort((a, b) => a.type - b.type);
+
+        let cap = 0;
+        for (let i = 0; i < layout.descriptorBlocks.length; ++i) {
+            const block = layout.descriptorBlocks[i];
+            block.offset = cap;
+            cap += block.capacity;
+        }
+    }
+
     public addUniformBlock (nodeID: number, index: DescriptorBlockIndex, name: string, uniformBlock: UniformBlock): void {
         const g: LayoutGraphData = this._data;
         const ppl: PipelineLayoutData = g.getLayout(nodeID);
@@ -387,5 +426,9 @@ export class WebLayoutGraphBuilder implements LayoutGraphBuilder  {
 
     public get data () {
         return this._data;
+    }
+
+    public exportEffect (effect: EffectAsset) {
+        this._exporter.exportEffect(effect);
     }
 }

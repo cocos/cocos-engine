@@ -46,6 +46,7 @@ static void executeVideoCallback(int index, int event);
 
 extern "C" {
 //NOLINTNEXTLINE
+JNIEXPORT
 void Java_com_cocos_lib_CocosVideoHelper_nativeExecuteVideoCallback(JNIEnv *env, jobject obj, jint index, jint event) {
     executeVideoCallback(index, event);
 }

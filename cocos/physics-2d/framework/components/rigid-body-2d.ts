@@ -1,14 +1,12 @@
 import { EDITOR } from 'internal:constants';
 import { IRigidBody2D } from '../../spec/i-rigid-body';
-import { _decorator, Vec2, IVec2Like } from '../../../core';
+import { _decorator, Vec2, IVec2Like, cclegacy } from '../../../core';
 import { ERigidBody2DType } from '../physics-types';
-import { ccclass } from '../../../core/data/class-decorator';
-import { createRigidBody } from '../instance';
+import { createRigidBody } from '../physics-selector';
 import { PhysicsGroup } from '../../../physics/framework/physics-enum';
-import { legacyCC } from '../../../core/global-exports';
 import { Component } from '../../../scene-graph';
 
-const { property, type, menu } = _decorator;
+const { property, type, menu, ccclass } = _decorator;
 
 @ccclass('cc.RigidBody2D')
 @menu('Physics2D/RigidBody2D')
@@ -295,8 +293,8 @@ export class RigidBody2D extends Component {
     /**
      * @en
      * Apply a force at a world point. If the force is not
-	 * applied at the center of mass, it will generate a torque and
-	 * affect the angular velocity.
+     * applied at the center of mass, it will generate a torque and
+     * affect the angular velocity.
      * @zh
      * 施加一个力到刚体上的一个点。如果力没有施加到刚体的质心上，还会产生一个扭矩并且影响到角速度。
      * @param force - the world force vector.
@@ -340,8 +338,8 @@ export class RigidBody2D extends Component {
     /**
      * @en
      * Apply a impulse at a world point, this immediately modifies the velocity.
-	 * If the impulse is not applied at the center of mass, it will generate a torque and
-	 * affect the angular velocity.
+     * If the impulse is not applied at the center of mass, it will generate a torque and
+     * affect the angular velocity.
      * @zh
      * 施加冲量到刚体上的一个点，将立即改变刚体的线性速度。
      * 如果冲量施加到的点不是刚体的质心，那么将产生一个扭矩并影响刚体的角速度。
@@ -495,7 +493,7 @@ export class RigidBody2D extends Component {
 
     /// COMPONENT LIFECYCLE ///
     protected onLoad () {
-        if (!EDITOR || legacyCC.GAME_VIEW) {
+        if (!EDITOR || cclegacy.GAME_VIEW) {
             this._body = createRigidBody();
             this._body.initialize(this);
         }

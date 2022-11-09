@@ -24,11 +24,9 @@
  */
 
 /* eslint-disable @typescript-eslint/no-unsafe-return */
-import { Ray } from '../../core/geometry';
 import { IPhysicsWorld, IRaycastOptions } from '../spec/i-physics-world';
 import { PhysicsMaterial, PhysicsRayResult, CollisionEventType, TriggerEventType } from '../framework';
-import { error, RecyclePool } from '../../core';
-import { IVec3Like } from '../../core/math/type-define';
+import { error, RecyclePool, js, IVec3Like, geometry } from '../../core';
 import { IBaseConstraint } from '../spec/i-physics-constraint';
 import { PhysXRigidBody } from './physx-rigid-body';
 import {
@@ -36,7 +34,6 @@ import {
     gatherEvents, getWrapShape, PX, getContactDataOrByteOffset,
 } from './physx-adapter';
 import { PhysXSharedBody } from './physx-shared-body';
-import { fastRemoveAt } from '../../core/utils/array';
 import { TupleDictionary } from '../utils/tuple-dictionary';
 import { PhysXContactEquation } from './physx-contact-equation';
 import { CollisionEventObject, TriggerEventObject } from '../utils/util';
@@ -134,7 +131,7 @@ export class PhysXWorld extends PhysXInstance implements IPhysicsWorld {
         const index = this.wrappedBodies.indexOf(body);
         if (index >= 0) {
             this.scene.removeActor(body.impl, true);
-            fastRemoveAt(this.wrappedBodies, index);
+            js.array.fastRemoveAt(this.wrappedBodies, index);
         }
     }
 
@@ -142,11 +139,11 @@ export class PhysXWorld extends PhysXInstance implements IPhysicsWorld {
 
     removeConstraint (_constraint: IBaseConstraint): void { }
 
-    raycast (worldRay: Ray, options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
+    raycast (worldRay: geometry.Ray, options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
         return raycastAll(this, worldRay, options, pool, results);
     }
 
-    raycastClosest (worldRay: Ray, options: IRaycastOptions, result: PhysicsRayResult): boolean {
+    raycastClosest (worldRay: geometry.Ray, options: IRaycastOptions, result: PhysicsRayResult): boolean {
         return raycastClosest(this, worldRay, options, result);
     }
 

@@ -4,7 +4,7 @@
 # Android ndk version must be ndk-r16 or greater.
 
 
-import sys, os, shutil, subprocess, re
+import sys, os, subprocess, re
 from contextlib import contextmanager
 
 if sys.version_info.major >= 3:
@@ -13,24 +13,6 @@ else:
     import ConfigParser as configparser
 
 defaultSections = [
-    'xr',
-    'cocos',
-    'video',
-    'webview',
-    'audio' ,
-    'extension',
-    'network',
-    'gfx',
-    'pipeline',
-    'render',
-    'spine',
-    'editor_support',
-    'dragonbones',
-    'physics',
-    'scene',
-    'geometry',
-    'assets',
-    '2d'
 ]
 
 projectRoot = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))

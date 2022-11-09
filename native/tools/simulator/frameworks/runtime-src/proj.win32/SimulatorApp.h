@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "CustomAppEvent.h"
 #include "Game.h"
 #include "ProjectConfig/ProjectConfig.h"
 #include "ProjectConfig/SimulatorConfig.h"
@@ -55,11 +56,13 @@ protected:
     SimulatorApp();
 
     static SimulatorApp *_instance;
-    ProjectConfig        _project;
-    HWND                 _hwnd;
-    HWND                 _hwndConsole;
+    ProjectConfig _project;
+    HWND _hwnd;
+    HWND _hwndConsole;
 
     FILE *_writeDebugLogFile;
+
+    SimulatorAppEvent::Listener _appListener;
 
     //
     void setupUI();
@@ -76,10 +79,10 @@ protected:
     void onDrop(const std::string &path);
 
     // helper
-    std::string  convertPathFormatToUnixStyle(const std::string &path);
-    std::string  getUserDocumentPath();
-    std::string  getApplicationExePath();
-    std::string  getApplicationPath();
+    std::string convertPathFormatToUnixStyle(const std::string &path);
+    std::string getUserDocumentPath();
+    std::string getApplicationExePath();
+    std::string getApplicationPath();
     static char *convertTCharToUtf8(const TCHAR *src);
 
     static LRESULT CALLBACK windowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);

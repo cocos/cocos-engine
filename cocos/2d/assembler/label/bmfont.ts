@@ -24,8 +24,7 @@
 */
 
 import { SpriteFrame } from '../../assets/sprite-frame';
-import * as js from '../../../core/utils/js';
-import { Color, Rect } from '../../../core/math';
+import { Color, Rect, js } from '../../../core';
 import { IBatcher } from '../../renderer/i-batcher';
 import { Label } from '../../components/label';
 import { IAssembler } from '../../renderer/base';

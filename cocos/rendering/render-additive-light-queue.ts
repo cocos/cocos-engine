@@ -26,11 +26,9 @@
 import { BatchingSchemes, Pass } from '../render-scene/core/pass';
 import { Model } from '../render-scene/scene/model';
 import { PipelineStateManager } from './pipeline-state-manager';
-import { Vec3, nextPow2, Mat4, Color } from '../core/math';
-import { intersect } from '../core/geometry';
+import { Vec3, nextPow2, Mat4, Color, Pool, geometry } from '../core';
 import { Device, RenderPass, Buffer, BufferUsageBit, MemoryUsageBit,
     BufferInfo, BufferViewInfo, CommandBuffer } from '../gfx';
-import { Pool } from '../core/memop';
 import { RenderBatchedQueue } from './render-batched-queue';
 import { RenderInstancedQueue } from './render-instanced-queue';
 import { SphereLight } from '../render-scene/scene/sphere-light';
@@ -61,12 +59,12 @@ const _matShadowView = new Mat4();
 const _matShadowViewProj = new Mat4();
 
 function cullSphereLight (light: SphereLight, model: Model) {
-    return !!(model.worldBounds && !intersect.aabbWithAABB(model.worldBounds, light.aabb));
+    return !!(model.worldBounds && !geometry.intersect.aabbWithAABB(model.worldBounds, light.aabb));
 }
 
 function cullSpotLight (light: SpotLight, model: Model) {
     return !!(model.worldBounds
-        && (!intersect.aabbWithAABB(model.worldBounds, light.aabb) || !intersect.aabbFrustum(model.worldBounds, light.frustum)));
+        && (!geometry.intersect.aabbWithAABB(model.worldBounds, light.aabb) || !geometry.intersect.aabbFrustum(model.worldBounds, light.frustum)));
 }
 
 const _phaseID = getPhaseID('forward-add');
@@ -87,24 +85,6 @@ function getLightPassIndices (subModels: SubModel[], lightPassIndices: number[])
         lightPassIndices.push(lightPassIndex);
     }
     return hasValidLightPass;
-}
-
-function isInstancedOrBatched (model: Model) {
-    const subModels = model.subModels;
-    for (let m = 0; m < subModels.length; ++m) {
-        const passes = subModels[m].passes;
-        for (let p = 0; p < passes.length; ++p) {
-            const pass = passes[p];
-            const batchingScheme = pass.batchingScheme;
-            if (batchingScheme === BatchingSchemes.INSTANCING) {
-                return true;
-            }
-            if (batchingScheme === BatchingSchemes.VB_MERGING) {
-                return true;
-            }
-        }
-    }
-    return false;
 }
 
 /**
@@ -277,15 +257,14 @@ export class RenderAdditiveLightQueue {
     // light culling
     protected _lightCulling (model:Model, validPunctualLights: Light[]) {
         let isCulled = false;
-        const isNeedCulling = !isInstancedOrBatched(model);
         for (let l = 0; l < validPunctualLights.length; l++) {
             const light = validPunctualLights[l];
             switch (light.type) {
             case LightType.SPHERE:
-                if (isNeedCulling) { isCulled = cullSphereLight(light as SphereLight, model); }
+                isCulled = cullSphereLight(light as SphereLight, model);
                 break;
             case LightType.SPOT:
-                if (isNeedCulling) { isCulled = cullSpotLight(light as SpotLight, model); }
+                isCulled = cullSpotLight(light as SpotLight, model);
                 break;
             default:
             }
@@ -299,27 +278,41 @@ export class RenderAdditiveLightQueue {
     protected _addRenderQueue (pass: Pass, subModel: SubModel, model: Model, lightPassIdx: number) {
         const validPunctualLights = this._pipeline.pipelineSceneData.validPunctualLights;
         const { batchingScheme } = pass;
-        if (batchingScheme === BatchingSchemes.INSTANCING) {            // instancing
-            const buffer = pass.getInstancedBuffer();
-            buffer.merge(subModel, model.instancedAttributes, lightPassIdx);
-            buffer.dynamicOffsets[0] = this._lightBufferStride;
-            this._instancedQueue.queue.add(buffer);
-        } else if (batchingScheme === BatchingSchemes.VB_MERGING) {     // vb-merging
-            const buffer = pass.getBatchedBuffer();
-            buffer.merge(subModel, lightPassIdx, model);
-            buffer.dynamicOffsets[0] = this._lightBufferStride;
-            this._batchedQueue.queue.add(buffer);
-        } else {                                                         // standard draw
-            const lp = _lightPassPool.alloc();
+
+        let lp: IAdditiveLightPass | null = null;
+        if (batchingScheme === BatchingSchemes.NONE) {
+            lp = _lightPassPool.alloc();
             lp.subModel = subModel;
             lp.passIdx = lightPassIdx;
-            for (let l = 0; l < _lightIndices.length; l++) {
-                const lightIdx = _lightIndices[l];
-                const light = validPunctualLights[lightIdx];
-                lp.lights.push(light);
-                lp.dynamicOffsets.push(this._lightBufferStride * lightIdx);
+        }
+
+        for (let l = 0; l < _lightIndices.length; l++) {
+            const lightIdx = _lightIndices[l];
+            const light = validPunctualLights[lightIdx];
+            const visibility = light.visibility;
+            if (((visibility & model.node.layer) === model.node.layer)) {
+                switch (batchingScheme) {
+                case BatchingSchemes.INSTANCING: {
+                    const buffer = pass.getInstancedBuffer(l);
+                    buffer.merge(subModel, lightPassIdx);
+                    buffer.dynamicOffsets[0] = this._lightBufferStride;
+                    this._instancedQueue.queue.add(buffer);
+                } break;
+                case BatchingSchemes.VB_MERGING: {
+                    const buffer = pass.getBatchedBuffer(l);
+                    buffer.merge(subModel, lightPassIdx, model);
+                    buffer.dynamicOffsets[0] = this._lightBufferStride;
+                    this._batchedQueue.queue.add(buffer);
+                } break;
+                default:
+                    lp!.lights.push(light);
+                    lp!.dynamicOffsets.push(this._lightBufferStride * lightIdx);
+                }
             }
-            this._lightPasses.push(lp);
+        }
+
+        if (batchingScheme === BatchingSchemes.NONE) {
+            this._lightPasses.push(lp!);
         }
     }
 

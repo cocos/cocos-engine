@@ -26,9 +26,7 @@
 import { JSB } from 'internal:constants';
 import { Device, BufferUsageBit, MemoryUsageBit, Attribute, Buffer, BufferInfo, InputAssembler, InputAssemblerInfo } from '../../gfx';
 import { getAttributeStride } from './vertex-format';
-import { getError, warnID } from '../../core/platform/debug';
-import { sys } from '../../core';
-import { assertIsTrue } from '../../core/data/utils/asserts';
+import { sys, getError, warnID, assertIsTrue } from '../../core';
 import { NativeUIMeshBuffer } from './native-2d';
 
 interface IIARef {
@@ -124,17 +122,6 @@ export class MeshBuffer {
         }
     }
 
-    protected _useLinkedData = false;
-    get useLinkedData () {
-        return this._useLinkedData;
-    }
-    set useLinkedData (val:boolean) {
-        if (JSB && this._useLinkedData !== val) {
-            this._nativeObj.useLinkData = val;
-        }
-        this._useLinkedData = val;
-    }
-
     private _vertexFormatBytes = 0;
     private _initVDataCount = 0;
     private _initIDataCount = 0;
@@ -193,7 +180,7 @@ export class MeshBuffer {
         // Initialize the first ia
         this._iaPool.push(this.createNewIA(device));
         if (JSB) {
-            this._nativeObj.initialize(device, attrs, vFloatCount, iCount);
+            this._nativeObj.initialize(attrs);
         }
     }
 

@@ -26,7 +26,7 @@
 import { DEV } from 'internal:constants';
 import { CCClass } from '../class';
 import { error } from '../../platform/debug';
-import { js } from '../../utils/js';
+import { getClassName } from '../../utils/js-typed';
 
 export type BabelPropertyDecoratorDescriptor = PropertyDescriptor & { initializer?: any };
 
@@ -145,7 +145,7 @@ export const CACHE_KEY = '__ccclassCache__';
 
 export function getClassCache (ctor, decoratorName?) {
     if (DEV && CCClass._isCCClass(ctor)) {
-        error('`@%s` should be used after @ccclass for class "%s"', decoratorName, js.getClassName(ctor));
+        error('`@%s` should be used after @ccclass for class "%s"', decoratorName, getClassName(ctor));
         return null;
     }
     return getSubDict(ctor, CACHE_KEY);

@@ -42,6 +42,7 @@ export * from '../cocos/scene-graph';
 export * from '../cocos/misc';
 export * from '../cocos/game';
 export { Root } from '../cocos/root';
+export * from '../cocos/serialization';
 
 export { gfx };
 
@@ -52,8 +53,6 @@ export { renderer };
 legacyCC.renderer = renderer;
 
 export * from '../extensions/ccpool/node-pool';
-
-export { legacyCC as cclegacy };
 
 export * from '../cocos/input/types';
 export * from '../cocos/input';

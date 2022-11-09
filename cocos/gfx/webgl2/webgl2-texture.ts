@@ -89,9 +89,10 @@ export class WebGL2Texture extends Texture {
                 isSwapchainTexture: isSwapchainTexture || false,
             };
 
-            WebGL2CmdFuncCreateTexture(WebGL2DeviceManager.instance, this._gpuTexture);
-
-            WebGL2DeviceManager.instance.memoryStatus.textureSize += this._size;
+            if (!this._gpuTexture.isSwapchainTexture && this._gpuTexture) {
+                WebGL2CmdFuncCreateTexture(WebGL2DeviceManager.instance, this._gpuTexture);
+                WebGL2DeviceManager.instance.memoryStatus.textureSize += this._size;
+            }
 
             this._viewInfo.texture = this;
             this._viewInfo.type = info.type;
@@ -135,6 +136,21 @@ export class WebGL2Texture extends Texture {
         }
     }
 
+    public getGLTextureHandle () : number {
+        const gpuTexture = this._gpuTexture;
+        if (!gpuTexture) {
+            return 0;
+        }
+
+        if (gpuTexture.glTexture) {
+            return gpuTexture.glTexture as number;
+        } else if (gpuTexture.glRenderbuffer) {
+            return gpuTexture.glRenderbuffer as number;
+        }
+
+        return 0;
+    }
+
     public resize (width: number, height: number) {
         if (this._info.width === width && this._info.height === height) {
             return;
@@ -156,9 +172,11 @@ export class WebGL2Texture extends Texture {
             this._gpuTexture.width = width;
             this._gpuTexture.height = height;
             this._gpuTexture.size = this._size;
-            WebGL2CmdFuncResizeTexture(WebGL2DeviceManager.instance, this._gpuTexture);
-            WebGL2DeviceManager.instance.memoryStatus.textureSize -= oldSize;
-            WebGL2DeviceManager.instance.memoryStatus.textureSize += this._size;
+            if (!this._gpuTexture.isSwapchainTexture) {
+                WebGL2CmdFuncResizeTexture(WebGL2DeviceManager.instance, this._gpuTexture);
+                WebGL2DeviceManager.instance.memoryStatus.textureSize -= oldSize;
+                WebGL2DeviceManager.instance.memoryStatus.textureSize += this._size;
+            }
         }
     }
 

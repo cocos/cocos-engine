@@ -30,3 +30,8 @@ export { property } from './decorators/property';
 export { requireComponent, executionOrder, disallowMultiple, allowReplicated } from './decorators/component';
 export { executeInEditMode, menu, playOnFocus, inspector, icon, help } from './decorators/editable';
 export { type, integer, float, boolean, string } from './decorators/type';
+
+// engine internal exports
+export { editable, tooltip, visible, displayName, displayOrder, range, rangeStep, slide, disallowAnimation } from './decorators/editable';
+export { override } from './decorators/override';
+export { formerlySerializedAs, serializable } from './decorators/serializable';

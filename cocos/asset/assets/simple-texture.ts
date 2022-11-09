@@ -26,14 +26,11 @@
 import { ccclass } from 'cc.decorator';
 import { DEV } from 'internal:constants';
 import { TextureFlagBit, TextureUsageBit, API, Texture, TextureInfo, TextureViewInfo, Device, BufferTextureCopy } from '../../gfx';
-import { assertID, error } from '../../core/platform/debug';
+import { assertID, error, js, macro, cclegacy } from '../../core';
 import { Filter } from './asset-enum';
 import { ImageAsset } from './image-asset';
 import { TextureBase } from './texture-base';
-import { legacyCC } from '../../core/global-exports';
-import { macro } from '../../core/platform/macro';
 import dependUtil from '../asset-manager/depend-util';
-import { fastRemoveAt } from '../../core/utils/array';
 
 const _regions: BufferTextureCopy[] = [new BufferTextureCopy()];
 
@@ -175,7 +172,7 @@ export class SimpleTexture extends TextureBase {
             const deps = dependUtil.getDeps(this._uuid);
             const index = deps.indexOf(image._uuid);
             if (index !== -1) {
-                fastRemoveAt(deps, index);
+                js.array.fastRemoveAt(deps, index);
                 image.decRef();
             }
         }
@@ -328,4 +325,4 @@ export class SimpleTexture extends TextureBase {
     }
 }
 
-legacyCC.SimpleTexture = SimpleTexture;
+cclegacy.SimpleTexture = SimpleTexture;

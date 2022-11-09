@@ -11,9 +11,9 @@ CCEffect %{
         mainColor:            { value: [1.0, 1.0, 1.0, 1.0], target: albedo, linear: true, editor: { displayName: Albedo, type: color } }
         albedoScale:          { value: [1.0, 1.0, 1.0], target: albedoScaleAndCutoff.xyz }
         alphaThreshold:       { value: 0.5, target: albedoScaleAndCutoff.w, editor: { parent: USE_ALPHA_TEST, slide: true, range: [0, 1.0], step: 0.001 } }
-        occlusion:            { value: 1.0, target: pbrParams.x, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
-        roughness:            { value: 0.8, target: pbrParams.y, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
-        metallic:             { value: 0.6, target: pbrParams.z, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
+        occlusion:            { value: 0.0, target: pbrParams.x, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
+        roughness:            { value: 0.5, target: pbrParams.y, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
+        metallic:             { value: 0.0, target: pbrParams.z, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
         specularIntensity:    { value: 0.5, target: pbrParams.w, editor: { slide: true, range: [0.0, 1.0], step: 0.001 } }
         emissive:             { value: [0.0, 0.0, 0.0, 1.0], linear: true, editor: { type: color } }
         emissiveScale:        { value: [1.0, 1.0, 1.0], target: emissiveScaleParam.xyz }
@@ -118,7 +118,7 @@ CCProgram standard-vs %{
     in vec2 a_texCoord1;
   #endif
 
-  #if CC_USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
+  #if CC_USE_LIGHTMAP && !CC_FORWARD_ADD
     #include <legacy/lightingmap-vs>
   #endif
 
@@ -166,7 +166,7 @@ CCProgram standard-vs %{
     CC_TRANSFER_FOG(pos);
     CC_TRANSFER_SHADOW(pos);
 
-    #if CC_USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
+    #if CC_USE_LIGHTMAP && !CC_FORWARD_ADD
       CCLightingMapCaclUV();
     #endif
 
@@ -180,7 +180,7 @@ CCProgram standard-fs %{
   #include <shared-ubos>
   #include <legacy/fog-fs>
   #include <legacy/standard-surface-entry>
-  #if CC_USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
+  #if CC_USE_LIGHTMAP && !CC_FORWARD_ADD
     #include <legacy/lightingmap-fs>
   #endif
 
@@ -250,7 +250,7 @@ CCProgram standard-fs %{
       if (s.albedo.ALPHA_TEST_CHANNEL < albedoScaleAndCutoff.w) discard;
     #endif
 
-    #if CC_USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
+    #if CC_USE_LIGHTMAP && !CC_FORWARD_ADD
       vec4 lightColor = texture(cc_lightingMap, v_luv.xy);
       s.lightmap = lightColor.xyz * v_luv.z;
       s.lightmap_test = v_luv.z; /*lum*/
@@ -264,7 +264,7 @@ CCProgram standard-fs %{
 
     #if USE_NORMAL_MAP
       vec3 nmmp = texture(normalMap, NORMAL_UV).xyz - vec3(0.5);
-      vec3 bitangent = cross(v_normal, v_tangent.xyz) * v_tangent.w; // note the cross order
+      vec3 bitangent = cross(v_normal, v_tangent.xyz) * (v_tangent.w > 0.0 ? 1.0 : -1.0); // note the cross order
       s.normal =
         (nmmp.x * emissiveScaleParam.w) * normalize(v_tangent.xyz) +
         (nmmp.y * emissiveScaleParam.w) * normalize(bitangent) +
@@ -274,6 +274,7 @@ CCProgram standard-fs %{
     HIGHP_VALUE_TO_STRUCT_DEFINED(v_position, s.position);
 
     vec4 pbr = pbrParams;
+    pbr.x = 1.0;
     #if USE_PBR_MAP
       vec4 res = texture(pbrMap, PBR_UV);
       pbr.x *= res.OCCLUSION_CHANNEL;
@@ -287,17 +288,18 @@ CCProgram standard-fs %{
       pbr.y *= metallicRoughness.ROUGHNESS_CHANNEL;
     #endif
     #if USE_OCCLUSION_MAP
-      pbr.x *= texture(occlusionMap, PBR_UV).OCCLUSION_CHANNEL;
+      pbr.x = mix(1.0, texture(occlusionMap, PBR_UV).OCCLUSION_CHANNEL, pbrParams.x);
     #endif
     s.occlusion = pbr.x;
     s.roughness = pbr.y;
-    s.specularIntensity = 0.5;
     s.metallic = pbr.z;
+    s.specularIntensity = pbr.w;
 
-    s.emissive = emissive.rgb * emissiveScaleParam.xyz;
+    s.emissive = emissive.rgb;
     #if USE_EMISSIVE_MAP
-      s.emissive *= SRGBToLinear(texture(emissiveMap, EMISSIVE_UV).rgb);
+      s.emissive = SRGBToLinear(texture(emissiveMap, EMISSIVE_UV).rgb);
     #endif
+    s.emissive *= emissiveScaleParam.xyz;
   }
 
   CC_STANDARD_SURFACE_ENTRY()

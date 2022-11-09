@@ -23,13 +23,13 @@
  THE SOFTWARE.
 */
 
-import { legacyCC } from '../../core/global-exports';
 import { SpriteFrame } from '../../2d/assets/sprite-frame';
 import type { ImageSource }  from '../assets/image-asset';
 import assetManager from '../asset-manager/asset-manager';
 import { BuiltinBundleName } from '../asset-manager/shared';
-import { TEST } from 'internal:constants';
-import { Settings, settings } from '../../core/settings';
+import { TEST, EDITOR } from 'internal:constants';
+import Bundle from '../asset-manager/bundle';
+import { Settings, settings, cclegacy } from '../../core';
 import releaseManager from '../asset-manager/release-manager';
 
 declare const jsb: any;
@@ -71,8 +71,8 @@ builtinResMgrProto.init = function (): Promise<void> {
     blackTexture.image = imgAsset;
     resources[blackTexture._uuid] = blackTexture;
 
-    if (legacyCC.SpriteFrame) {
-        const spriteFrame = new legacyCC.SpriteFrame() as SpriteFrame;
+    if (cclegacy.SpriteFrame) {
+        const spriteFrame = new cclegacy.SpriteFrame() as SpriteFrame;
         const image = imgAsset;
         const texture = new Texture2D();
         texture.image = image;
@@ -80,6 +80,27 @@ builtinResMgrProto.init = function (): Promise<void> {
         spriteFrame._uuid = 'default-spriteframe';
         resources[spriteFrame._uuid] = spriteFrame;
     }
+    if (EDITOR) {
+        const builtinAssets = settings.querySettings<string[]>(Settings.Category.ENGINE, 'builtinAssets');
+        const builtinBundle = new Bundle();
+        builtinBundle.init({
+            name: BuiltinBundleName.INTERNAL,
+            uuids: builtinAssets || [],
+            deps: [],
+            importBase: '',
+            nativeBase: '',
+            base: '',
+            paths: {},
+            scenes: {},
+            packs: {},
+            versions: { import: [], native: [] },
+            redirect: [],
+            debug: false,
+            types: [],
+            extensionMap: {},
+        });
+    }
+
 
     this.initBuiltinRes();
 };
@@ -118,9 +139,10 @@ builtinResMgrProto.loadBuiltinAssets = function () {
                     assets.forEach((asset) => {
                         resources[asset.name] = asset;
                         const url = asset.nativeUrl;
-                        releaseManager.addIgnoredAsset(asset);
+                        // In Editor, no need to ignore asset destroy, we use auto gc to handle destroy
+                        if (!EDITOR || cclegacy.GAME_VIEW) releaseManager.addIgnoredAsset(asset);
                         this.addAsset(asset.name, asset);
-                        if (asset instanceof legacyCC.Material) {
+                        if (asset instanceof cclegacy.Material) {
                             this._materialsToBeCompiled.push(asset);
                         }
                     });
@@ -131,5 +153,5 @@ builtinResMgrProto.loadBuiltinAssets = function () {
    });
 }
 
-const builtinResMgr = legacyCC.builtinResMgr = BuiltinResMgr.getInstance();
+const builtinResMgr = cclegacy.builtinResMgr = BuiltinResMgr.getInstance();
 export { builtinResMgr };

@@ -23,14 +23,14 @@
  THE SOFTWARE.
  */
 
-import { replaceProperty, removeProperty } from '../core/utils/x-deprecated';
+import { replaceProperty, removeProperty } from '../core';
 import { RenderScene } from './core/render-scene';
 import { Layers } from '../scene-graph/layers';
 import { legacyCC } from '../core/global-exports';
 import { Pass } from './core/pass';
 import { Camera } from './scene/camera';
 import { Shadows } from './scene/shadows';
-import { SpotLight } from './scene';
+import { SpotLight, Model } from './scene';
 import { SubModel } from './scene/submodel';
 
 removeProperty(RenderScene.prototype, 'RenderScene.prototype', [
@@ -47,6 +47,11 @@ removeProperty(RenderScene.prototype, 'RenderScene.prototype', [
     { name: 'rayResultModels' },
     { name: 'rayResultAll' },
     { name: 'rayResultSingleModel' },
+]);
+
+removeProperty(Model.prototype, 'Model.prototype', [
+    { name: 'isInstancingEnabled' },
+    { name: 'instancedAttributes' },
 ]);
 
 const CameraVisFlags = {};

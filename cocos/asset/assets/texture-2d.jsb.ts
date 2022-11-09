@@ -23,11 +23,10 @@
  THE SOFTWARE.
 */
 import { ccclass, type } from 'cc.decorator';
-import { legacyCC } from '../../core/global-exports';
 import { ImageAsset } from './image-asset';
 import { SimpleTexture } from './simple-texture';
 import { TextureBase } from './texture-base.jsb';
-import { js } from '../../core/utils/js';
+import { js, cclegacy } from '../../core';
 import { Filter, PixelFormat, WrapMode } from './asset-enum';
 import './simple-texture';
 
@@ -120,7 +119,7 @@ Object.defineProperty(texture2DProto, 'mipmaps', {
     }
 });
 
-legacyCC.Texture2D = jsb.Texture2D;
+cclegacy.Texture2D = jsb.Texture2D;
 
 // handle meta data, it is generated automatically
 const Texture2DProto = Texture2D.prototype;

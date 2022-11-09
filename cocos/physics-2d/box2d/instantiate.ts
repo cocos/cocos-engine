@@ -1,4 +1,4 @@
-import { select } from '../framework/physics-selector';
+import { selector } from '../framework/physics-selector';
 import { b2PhysicsWorld } from './physics-world';
 import { b2RigidBody2D } from './rigid-body';
 import { b2BoxShape } from './shapes/box-shape-2d';
@@ -13,20 +13,24 @@ import { b2FixedJoint } from './joints/fixed-joint';
 import { b2WheelJoint } from './joints/wheel-joint';
 import { b2HingeJoint } from './joints/hinge-joint';
 
-select('box2d', {
-    PhysicsWorld: b2PhysicsWorld,
-    RigidBody: b2RigidBody2D,
+import { Game, game } from '../../game';
 
-    BoxShape: b2BoxShape,
-    CircleShape: b2CircleShape,
-    PolygonShape: b2PolygonShape,
+game.once(Game.EVENT_PRE_SUBSYSTEM_INIT, () => {
+    selector.register('box2d', {
+        PhysicsWorld: b2PhysicsWorld,
+        RigidBody: b2RigidBody2D,
 
-    MouseJoint: b2MouseJoint,
-    DistanceJoint: b2DistanceJoint,
-    SpringJoint: b2SpringJoint,
-    RelativeJoint: b2RelativeJoint,
-    SliderJoint: b2SliderJoint,
-    FixedJoint: b2FixedJoint,
-    WheelJoint: b2WheelJoint,
-    HingeJoint: b2HingeJoint,
+        BoxShape: b2BoxShape,
+        CircleShape: b2CircleShape,
+        PolygonShape: b2PolygonShape,
+
+        MouseJoint: b2MouseJoint,
+        DistanceJoint: b2DistanceJoint,
+        SpringJoint: b2SpringJoint,
+        RelativeJoint: b2RelativeJoint,
+        SliderJoint: b2SliderJoint,
+        FixedJoint: b2FixedJoint,
+        WheelJoint: b2WheelJoint,
+        HingeJoint: b2HingeJoint,
+    });
 });

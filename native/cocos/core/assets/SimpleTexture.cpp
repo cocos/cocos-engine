@@ -25,7 +25,6 @@
 
 #include "core/assets/SimpleTexture.h"
 #include "core/assets/ImageAsset.h"
-#include "core/event/EventTypesToJS.h"
 #include "core/platform/Debug.h"
 #include "core/platform/Macro.h"
 #include "renderer/gfx-base/GFXDevice.h"
@@ -98,7 +97,7 @@ void SimpleTexture::assignImage(ImageAsset *image, uint32_t level, uint32_t arra
     uploadData(data, level, arrayIndex);
     checkTextureLoaded();
 
-    emit(EventTypesToJS::SIMPLE_TEXTURE_AFTER_ASSIGN_IMAGE, image);
+    emit<AfterAssignImage>(image);
 }
 
 void SimpleTexture::checkTextureLoaded() {
@@ -223,7 +222,7 @@ void SimpleTexture::setMipRangeInternal(uint32_t baseLevel, uint32_t maxLevel) {
 }
 
 void SimpleTexture::notifyTextureUpdated() {
-    emit(EventTypesToJS::SIMPLE_TEXTURE_GFX_TEXTURE_UPDATED, _gfxTexture.get());
+    emit<TextureUpdated>(_gfxTexture.get());
 }
 
 } // namespace cc

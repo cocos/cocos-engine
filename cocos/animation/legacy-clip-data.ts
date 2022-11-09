@@ -1,23 +1,17 @@
 import { ComponentPath, HierarchyPath, TargetPath } from './target-path';
 import { IValueProxyFactory } from './value-proxy';
-import * as easing from '../core/algorithm/easing';
-import { BezierControlPoints } from '../core/curves/bezier';
-import { CompactValueTypeArray } from '../core/data/utils/compact-value-type-array';
+import { easing, QuatCurve, QuatInterpolationMode, RealCurve, RealInterpolationMode, RealKeyframeValue, TangentWeightMode,
+    warnID, Color, Quat, Size, Vec2, Vec3, Vec4, assertIsTrue, EasingMethod, BezierControlPoints, CompactValueTypeArray } from '../core';
 import { AnimCurve, RatioSampler } from './animation-curve';
-import { QuatCurve, QuatInterpolationMode, RealCurve, RealInterpolationMode, RealKeyframeValue, TangentWeightMode } from '../core/curves';
-import { assertIsTrue } from '../core/data/utils/asserts';
 import { Track, TrackPath } from './tracks/track';
 import { UntypedTrack } from './tracks/untyped-track';
-import { warnID } from '../core/platform';
 import { RealTrack } from './tracks/real-track';
-import { Color, Quat, Size, Vec2, Vec3, Vec4 } from '../core/math';
 import { CubicSplineNumberValue, CubicSplineQuatValue, CubicSplineVec2Value, CubicSplineVec3Value, CubicSplineVec4Value } from './cubic-spline-value';
 import { ColorTrack } from './tracks/color-track';
 import { VectorTrack } from './tracks/vector-track';
 import { QuatTrack } from './tracks/quat-track';
 import { ObjectTrack } from './tracks/object-track';
 import { SizeTrack } from './tracks/size-track';
-import { EasingMethod } from '../core/curves/curve';
 
 /**
  * 表示曲线值，曲线值可以是任意类型，但必须符合插值方式的要求。
