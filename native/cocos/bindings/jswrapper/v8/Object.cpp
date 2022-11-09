@@ -121,9 +121,8 @@ bool MapOperation::remove(const Value &key) {
     if (_v8Map == nullptr) {
         return false;
     }
-    Value keyVal{key};
     v8::Local<v8::Value> v8Key;
-    internal::seToJsValue(__isolate, keyVal, &v8Key);
+    internal::seToJsValue(__isolate, key, &v8Key);
     v8::Maybe<bool> ret = _v8Map->Delete(__isolate->GetCurrentContext(), v8Key);
     return ret.IsJust() && ret.FromJust();
 }
@@ -133,9 +132,8 @@ bool MapOperation::get(const Value &key, Value *outValue) {
         return false;
     }
 
-    Value keyVal{key};
     v8::Local<v8::Value> v8Key;
-    internal::seToJsValue(__isolate, keyVal, &v8Key);
+    internal::seToJsValue(__isolate, key, &v8Key);
     v8::MaybeLocal<v8::Value> ret = _v8Map->Get(__isolate->GetCurrentContext(), v8Key);
     if (ret.IsEmpty()) {
         return false;
@@ -150,9 +148,8 @@ bool MapOperation::set(const Value &key, const Value &value) {
         return false;
     }
 
-    Value keyVal{key};
     v8::Local<v8::Value> v8Key;
-    internal::seToJsValue(__isolate, keyVal, &v8Key);
+    internal::seToJsValue(__isolate, key, &v8Key);
 
     v8::Local<v8::Value> v8Value;
     internal::seToJsValue(__isolate, value, &v8Value);
