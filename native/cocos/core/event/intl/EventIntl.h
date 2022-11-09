@@ -465,6 +465,18 @@ struct TgtEvtFnTrait<R (C::*)(ARGS...) const> {
     }
 };
 
+template <typename T>
+constexpr T addAll(T first) {
+    return first;
+}
+template <typename T, typename... Others>
+constexpr T addAll(T first, Others... others) {
+    return first + addAll(others...);
+}
+
+template <typename... Parents>
+constexpr int TotalEvents = addAll(Parents::getEventCount()...); // NOLINT
+
 } // namespace intl
 } // namespace event
 } // namespace cc
