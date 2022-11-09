@@ -142,7 +142,7 @@ function readBEUint16 (header, offset: number) {
 function _parseCompressedTexs (file: ArrayBuffer | ArrayBufferView, options: IDownloadParseOptions,
     onComplete: CompleteCallback<IMemoryImageSource>, type: number) {
     const out: IMemoryImageSource = {
-        _data: null,
+        _data: new Uint8Array(0),
         _compressed: true,
         width: 0,
         height: 0,
@@ -228,16 +228,17 @@ function _parsePVRTex (file: ArrayBuffer | ArrayBufferView, levelIndex: number,
     // Do some sanity checks to make sure this is a valid DDS file.
     if (header[PVR_HEADER_MAGIC] === PVR_MAGIC) {
         // Gather other basic metrics and a view of the raw the DXT data.
-        const dataOffset = beginOffset + header[PVR_HEADER_METADATA] + 52;
+        const byteOffset = beginOffset + header[PVR_HEADER_METADATA] + 52;
+        const length = endOffset - header.byteLength;
         if (endOffset > 0) {
-            const srcView = new Uint8Array(buffer, dataOffset, endOffset - header.byteLength);
+            const srcView = new Uint8Array(buffer, byteOffset, length);
             const dstView = new Uint8Array(out._data!.byteLength + srcView.byteLength);
             dstView.set(out._data as Uint8Array);
             dstView.set(srcView, out._data!.byteLength);
             out._data  = dstView;
-            out.mipmapLevelDataSize![levelIndex] = srcView.byteLength;
+            out.mipmapLevelDataSize![levelIndex] = length;
         } else {
-            out._data = new Uint8Array(buffer, dataOffset);
+            out._data = new Uint8Array(buffer, byteOffset);
         }
         out.width = levelIndex > 0 ? out.width : header[PVR_HEADER_WIDTH];
         out.height = levelIndex > 0 ? out.height : header[PVR_HEADER_HEIGHT];
@@ -282,16 +283,17 @@ function _parsePKMTex (file: ArrayBuffer | ArrayBufferView, levelIndex: number,
         throw new Error('Invalid magic number in ETC header');
     }
 
-    const dataOffset = beginOffset + ETC_PKM_HEADER_LENGTH;
+    const byteOffset = beginOffset + ETC_PKM_HEADER_LENGTH;
+    const length = endOffset - ETC_PKM_HEADER_LENGTH;
     if (endOffset > 0) {
-        const srcView = new Uint8Array(buffer, dataOffset, endOffset - ETC_PKM_HEADER_LENGTH);
+        const srcView = new Uint8Array(buffer, byteOffset, length);
         const dstView = new Uint8Array(out._data!.byteLength + srcView.byteLength);
         dstView.set(out._data as Uint8Array);
         dstView.set(srcView, out._data!.byteLength);
         out._data  = dstView;
-        out.mipmapLevelDataSize![levelIndex] = srcView.byteLength;
+        out.mipmapLevelDataSize![levelIndex] = length;
     } else {
-        out._data = new Uint8Array(buffer, dataOffset);
+        out._data = new Uint8Array(buffer, byteOffset);
     }
     out.width = levelIndex > 0 ? out.width : readBEUint16(header, ETC_PKM_WIDTH_OFFSET);
     out.height = levelIndex > 0 ? out.height : readBEUint16(header, ETC_PKM_HEIGHT_OFFSET);
@@ -330,16 +332,17 @@ function _parseASTCTex (file: ArrayBuffer | ArrayBufferView, levelIndex: number,
     }
 
     const format = getASTCFormat(xdim, ydim);
-    const dataOffset = beginOffset + ASTC_HEADER_LENGTH;
+    const byteOffset = beginOffset + ASTC_HEADER_LENGTH;
+    const length = endOffset - ASTC_HEADER_LENGTH;
     if (endOffset > 0) {
-        const srcView = new Uint8Array(buffer, dataOffset, endOffset - ASTC_HEADER_LENGTH);
+        const srcView = new Uint8Array(buffer, byteOffset, length);
         const dstView = new Uint8Array(out._data!.byteLength + srcView.byteLength);
         dstView.set(out._data as Uint8Array);
         dstView.set(srcView, out._data!.byteLength);
         out._data  = dstView;
-        out.mipmapLevelDataSize![levelIndex] = srcView.byteLength;
+        out.mipmapLevelDataSize![levelIndex] = length;
     } else {
-        out._data = new Uint8Array(buffer, dataOffset);
+        out._data = new Uint8Array(buffer, byteOffset);
     }
     out.width = levelIndex > 0 ? out.width : header[ASTC_HEADER_SIZE_X_BEGIN] + (header[ASTC_HEADER_SIZE_X_BEGIN + 1] << 8)
             + (header[ASTC_HEADER_SIZE_X_BEGIN + 2] << 16);

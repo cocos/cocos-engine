@@ -33,6 +33,8 @@ import { PresumedGFXTextureInfo, PresumedGFXTextureViewInfo, SimpleTexture } fro
 import { legacyCC } from '../../core/global-exports';
 import { js } from '../../core/utils/js';
 
+//const compressedImageAsset: ImageAsset[] = [];
+
 /**
  * @en The create information for [[Texture2D]]
  * @zh 用来创建贴图的信息。
@@ -95,6 +97,34 @@ export class Texture2D extends SimpleTexture {
         return this._mipmaps;
     }
     set mipmaps (value) {
+        if (value[0].mipmapLevelDataSize && value[0].mipmapLevelDataSize.length > 0) {
+            // console.warn('************************* use compressed mipmap *************************');
+            const mipmapLevelDataSize = value[0].mipmapLevelDataSize;
+            const data: Uint8Array = value[0].data as Uint8Array;
+            let byteOffset = 0;
+            const compressedImageAsset: ImageAsset[] = [];
+            for (let i = 0; i < 1/*mipmapLevelDataSize.length*/; i++) {
+                // console.warn(i, ' -> ', 'byteOffset :', byteOffset);
+                // console.warn(i, ' -> ', 'length :', mipmapLevelDataSize[i]);
+                compressedImageAsset[i] = new ImageAsset({
+                    _data: new Uint8Array(data.buffer, byteOffset, mipmapLevelDataSize[i]),
+                    _compressed: true,
+                    width: value[0].width,
+                    height: value[0].height,
+                    format: value[0].format,
+                    mipmapLevelDataSize: [],
+                });
+                // console.warn(i, ' -> ', 'compressedImageAsset.byteLength :', (compressedImageAsset[i].data as unknown as ArrayBuffer).byteLength);
+                byteOffset += mipmapLevelDataSize[i];
+            }
+            this._setMipmapParams(compressedImageAsset);
+            // console.warn('************************* use compressed mipmap *************************');
+        } else {
+            this._setMipmapParams(value);
+        }
+    }
+
+    private _setMipmapParams (value: ImageAsset[]) {
         this._mipmaps = value;
         this._setMipmapLevel(this._mipmaps.length);
         if (this._mipmaps.length > 0) {

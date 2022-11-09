@@ -8,10 +8,9 @@ const CHUNK_ALIGN_AS = 8;
 
 // Compress mipmap constants
 // https://github.com/cocos/3d-tasks/issues/10876
-const COMPRESSED_HEADER_LENGTH = 4;
-const COMPRESSED_MIPMAP_LEVEL_COUNT_LENGTH = 4;
-const COMPRESSED_MIPMAP_DATA_SIZE_LENGTH = 4;
-const COMPRESSED_MIPMAP_MAGIC = 0x50494d43;
+const FILE_HEADER_LENGTH = 4;
+const FILE_COUNT_LENGTH = 4;
+const FILE_DATA_SIZE_LENGTH = 4;
 
 export class CCON {
     constructor (document: unknown, chunks: Uint8Array[]) {
@@ -89,42 +88,41 @@ export function encodeCCONBinary (ccon: CCON) {
 }
 
 /**
- * CompressedTexture
+ * MergeAllFile
  * ************* hearder ***************
- * COMPRESSED_MIPMAP_MAGIC: 0x50494d43 *
+ * MERGE_MAGIC: 0x000000               *
  * ************* document **************
- * mipmapLevel: n                      *
- * mipmapLevelDataSize[0]: xxx         *
+ * fileCount: n                        *
+ * fileDataSize[0]: xxx                *
  * ...                                 *
- * mipmapLevelDataSize[n - 1]: xxx     *
+ * fileDataSize[n - 1]: xxx            *
  * ************* chunks ****************
  *    ******************************   *
  *    *                            *   *
- *    *          chunk[1]          *   *
+ *    *          file[0]           *   *
  *    *                            *   *
  *    ******************************   *
  * ...
  *    ******************************   *
  *    *                            *   *
- *    *          chunk[n - 1]      *   *
+ *    *          file[n - 1]       *   *
  *    *                            *   *
  *    ******************************   *
  * *************************************
- * @param files @zh 压缩纹理数组
- * @returns out @zh 合并后的压缩纹理字节数据
+ * @param files @zh 文件数组
+ * @returns out @zh 合并后的文件数据
  */
-export function mergeAllCompressedTexture (files: ArrayBuffer[] | ArrayBufferView[]) {
+export function mergeAllFile (magicNumber: number, files: ArrayBuffer[] | ArrayBufferView[]) {
     let out = new Uint8Array(0);
 
     // let err: Error | null = null;
     // try {
     // Create compressed file
     // file header length
-    const fileHeaderLength = COMPRESSED_HEADER_LENGTH + COMPRESSED_MIPMAP_LEVEL_COUNT_LENGTH + files.length * COMPRESSED_MIPMAP_DATA_SIZE_LENGTH;
+    const fileHeaderLength = FILE_HEADER_LENGTH + FILE_COUNT_LENGTH + files.length * FILE_DATA_SIZE_LENGTH;
     let fileLength = 0;
     for (const file of files) {
-        const buffer = file instanceof ArrayBuffer ? file : file.buffer;
-        fileLength += buffer.byteLength;
+        fileLength += file.byteLength;
     }
     fileLength += fileHeaderLength;   // add file header length
     out = new Uint8Array(fileLength);
@@ -133,26 +131,29 @@ export function mergeAllCompressedTexture (files: ArrayBuffer[] | ArrayBufferVie
         out.byteOffset,
         out.byteLength,
     );
-        // Append compresssed header
-    outView.setUint32(0, COMPRESSED_MIPMAP_MAGIC, true); // add magic
-    outView.setUint32(COMPRESSED_HEADER_LENGTH, files.length, true); // add mipmap level number
+
+    // Append compresssed header
+    outView.setUint32(0, magicNumber, true); // add magic
+    outView.setUint32(FILE_HEADER_LENGTH, files.length, true); // add count number
+    let dataOffset = fileHeaderLength;
     for (let i = 0; i < files.length; i++) {
         const file = files[i];
-        const buffer = file instanceof ArrayBuffer ? file : file.buffer;
-        outView.setUint32(COMPRESSED_HEADER_LENGTH + COMPRESSED_MIPMAP_LEVEL_COUNT_LENGTH + i * COMPRESSED_MIPMAP_DATA_SIZE_LENGTH,
-            buffer.byteLength, true);
-    }
+        outView.setUint32(FILE_HEADER_LENGTH + FILE_COUNT_LENGTH + i * FILE_DATA_SIZE_LENGTH,
+            file.byteLength, true); //add file data size
 
-    // Append compresssed file
-    let dataOffset = fileHeaderLength;
-    for (const file of files) {
-        const buffer = file instanceof ArrayBuffer ? file : file.buffer;
-        const srcArray = new Uint8Array(buffer);
-        out.set(srcArray, dataOffset);
-        dataOffset += srcArray.byteLength;
+        // Append compresssed file
+        if (file instanceof ArrayBuffer) {
+            const srcArray = new Uint8Array(file);
+            out.set(srcArray, dataOffset);
+        } else {
+            const srcArray = new Uint8Array(file.buffer, file.byteOffset, file.byteLength);
+            out.set(srcArray, dataOffset);
+        }
+        dataOffset += file.byteLength;
     }
     // } catch (e) {
     //     err = e as Error;
+    //     console.warn(err);
     // }
 
     return out;

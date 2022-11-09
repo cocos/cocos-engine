@@ -3,7 +3,7 @@ export {
     CCON,
     encodeCCONJson,
     encodeCCONBinary,
-    mergeAllCompressedTexture,
+    mergeAllFile,
     BufferBuilder,
     decodeCCONBinary,
     parseCCONJson,
