@@ -117,7 +117,7 @@ void MapOperation::clear() {
     _v8Map->Clear();
 }
 
-bool MapOperation::remove(const ccstd::string &key) {
+bool MapOperation::remove(const Value &key) {
     if (_v8Map == nullptr) {
         return false;
     }
@@ -128,7 +128,7 @@ bool MapOperation::remove(const ccstd::string &key) {
     return ret.IsJust() && ret.FromJust();
 }
 
-bool MapOperation::get(const ccstd::string &key, Value *outValue) {
+bool MapOperation::get(const Value &key, Value *outValue) {
     if (_v8Map == nullptr || outValue == nullptr) {
         return false;
     }
@@ -145,7 +145,7 @@ bool MapOperation::get(const ccstd::string &key, Value *outValue) {
     return true;
 }
 
-bool MapOperation::set(const ccstd::string &key, const Value &value) {
+bool MapOperation::set(const Value &key, const Value &value) {
     if (_v8Map == nullptr) {
         return false;
     }
@@ -169,7 +169,7 @@ uint32_t MapOperation::getSize() const {
     return static_cast<uint32_t>(_v8Map->Size());
 }
 
-ccstd::unordered_map<std::string, Value> MapOperation::getAll() const {
+ccstd::vector<std::pair<Value, Value>> MapOperation::getAll() const {
     if (_v8Map == nullptr || _v8Map->Size() == 0) {
         return {};
     }
@@ -182,7 +182,8 @@ ccstd::unordered_map<std::string, Value> MapOperation::getAll() const {
 
     SE_ASSERT(length % 2 == 0, "should be multiple of 2");
 
-    ccstd::unordered_map<std::string, Value> ret;
+    ccstd::vector<std::pair<Value, Value>> ret;
+    ret.reserve(length / 2);
     v8::Local<v8::Context> currentContext = __isolate->GetCurrentContext();
     for (uint32_t i = 0; i < length; i += 2) {
         v8::MaybeLocal<v8::Value> key = keyValueArray->Get(currentContext, i);
@@ -195,7 +196,7 @@ ccstd::unordered_map<std::string, Value> MapOperation::getAll() const {
         internal::jsToSeValue(__isolate, key.ToLocalChecked(), &seKey);
         internal::jsToSeValue(__isolate, value.ToLocalChecked(), &seValue);
 
-        ret.emplace(seKey.toString(), seValue);
+        ret.emplace_back(seKey, seValue);
     }
 
     return ret;

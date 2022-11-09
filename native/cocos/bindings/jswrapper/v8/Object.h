@@ -56,11 +56,11 @@ public:
     explicit MapOperation(Object *obj);
 
     void clear();
-    bool remove(const ccstd::string &key);
-    bool get(const ccstd::string &key, Value *outValue);
-    bool set(const ccstd::string &key, const Value &value);
+    bool remove(const Value &key);
+    bool get(const Value &key, Value *outValue);
+    bool set(const Value &key, const Value &value);
     uint32_t getSize() const;
-    ccstd::unordered_map<std::string, Value> getAll() const;
+    ccstd::vector<std::pair<Value, Value>> getAll() const;
 
 private:
     v8::Map *_v8Map{nullptr};
