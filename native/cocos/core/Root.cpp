@@ -523,6 +523,7 @@ void Root::destroyLight(scene::Light *light) { // NOLINT(readability-convert-mem
 scene::Camera *Root::createCamera() const {
     return ccnew scene::Camera(_device);
 }
+
 void Root::destroyScenes() {
     for (const auto &scene : _scenes) {
         CC_SAFE_DESTROY(scene);
