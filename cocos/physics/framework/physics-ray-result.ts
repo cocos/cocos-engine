@@ -75,7 +75,7 @@ export class PhysicsRayResult {
 
     /**
      * @en
-     * The line id of the line segments. This is only for lineSegmentRayCast
+     * The line id of the line segments. This is only for lineStripCast
      * @zh
      * id
      */
