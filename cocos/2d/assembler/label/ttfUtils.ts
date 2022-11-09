@@ -112,7 +112,8 @@ export const ttfUtils =  {
             this._calDynamicAtlas(comp);
 
             comp.actualFontSize = _fontSize;
-            trans.setContentSize(_canvasSize);
+            const newSize = new Size(_canvasSize.x * 0.5, _canvasSize.y * 0.5);
+            trans.setContentSize(newSize);
 
             this.updateVertexData(comp);
             this.updateUVs(comp); // Empty
@@ -419,8 +420,8 @@ export const ttfUtils =  {
     },
 
     _updateLabelDimensions () {
-        _canvasSize.width = Math.min(_canvasSize.width, MAX_SIZE);
-        _canvasSize.height = Math.min(_canvasSize.height, MAX_SIZE);
+        _canvasSize.width = Math.min(2 * _canvasSize.width, MAX_SIZE);
+        _canvasSize.height = Math.min(2 * _canvasSize.height, MAX_SIZE);
 
         let recreate = false;
         if (_canvas!.width !== _canvasSize.width) {
