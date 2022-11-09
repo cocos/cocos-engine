@@ -31,13 +31,13 @@ you.
 
 #if defined(CC_SERVER_MODE)
 
-static bool UTF16ToUTF8(LPCWSTR wideStr, const char** outUtf8) {
+static bool UTF16ToUTF8(LPCWSTR wideStr, const char** const outUtf8) {
     if (outUtf8 == nullptr) {
         return false;
     }
     int utf8BufferBytes = ::WideCharToMultiByte(CP_UTF8, 0, wideStr, -1, NULL, 0, NULL, NULL);
     if (utf8BufferBytes < 0) {
-        outUtf8 = nullptr;
+        *outUtf8 = nullptr;
         return false;
     }
 
@@ -45,7 +45,7 @@ static bool UTF16ToUTF8(LPCWSTR wideStr, const char** outUtf8) {
     int convResult = ::WideCharToMultiByte(CP_UTF8, 0, wideStr, -1, (LPSTR)utf8Str, utf8BufferBytes, NULL, NULL);
     if (convResult != utf8BufferBytes) {
         free(utf8Str);
-        outUtf8 = nullptr;
+        *outUtf8 = nullptr;
         return false;
     }
 
