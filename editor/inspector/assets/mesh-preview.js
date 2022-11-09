@@ -1,5 +1,6 @@
 'use strict';
 
+
 exports.template = /* html */`
 <div class="preview">
     <div class="info">
@@ -84,8 +85,11 @@ const Elements = {
     preview: {
         ready() {
             const panel = this;
+            panel.previewGLType = 'shaded'
 
             panel.$.canvas.addEventListener('mousedown', async (event) => {
+                // 非模型预览不响应事件
+                if (panel.previewGLType !== 'shaded') return;
                 await callMeshPreviewFunction('onMouseDown', { x: event.x, y: event.y });
 
                 async function mousemove(event) {
@@ -135,6 +139,13 @@ const Elements = {
 
             await panel.glPreview.init({ width: panel.$.canvas.clientWidth, height: panel.$.canvas.clientHeight });
             const info = await callMeshPreviewFunction('setMesh', panel.asset.uuid);
+
+            const res = await callMeshPreviewFunction('getModelUVs', panel.asset.uuid);
+            let innerHTMLText = ''
+            res.forEach((e, i) => { innerHTMLText += `<option value="${i}">channel ${i}</option>` })
+            panel.$.previewChannel.innerHTML = innerHTMLText
+            panel.previewUVs = res
+            panel.previewUVsIndex = 0
             panel.infoUpdate(info);
             panel.refreshPreview();
         },
@@ -235,11 +246,19 @@ exports.methods = {
                     panel.glPreview.initGL(canvas, { width, height });
                     panel.glPreview.resizeGL(width, height);
                 }
+                const type = panel.previewGLType
+                let info
+                if (type === 'shaded') {
+                    info = await panel.glPreview.queryPreviewData({
+                        width: canvas.width,
+                        height: canvas.height,
+                    });
+                }
+                if (type === 'uv layout') {
+                    info = panel.glPreview.computedUV(panel.previewUVs[panel.previewUVsIndex], canvas.width, canvas.height)
+                    info.buffer = info.data
+                }
 
-                const info = await panel.glPreview.queryPreviewData({
-                    width: canvas.width,
-                    height: canvas.height,
-                });
 
                 panel.glPreview.drawGL(info.buffer, info.width, info.height);
             } catch (e) {
@@ -253,16 +272,20 @@ exports.methods = {
         });
     },
     updatePreviewType(type, channel) {
+        const panel = this;
+        panel.previewGLType = type
+        panel.isPreviewDataDirty = true;
         if (type === 'shaded') {
-            console.log('原来的预览模式');
+            panel.refreshPreview()
         }
         if (type === 'uv layout') {
-            console.log(type, channel);
+            panel.previewUVsIndex = channel
+            panel.refreshPreview()
         }
     },
 };
 
-exports.ready = function() {
+exports.ready = function () {
     for (const prop in Elements) {
         const element = Elements[prop];
         if (element.ready) {
@@ -271,7 +294,7 @@ exports.ready = function() {
     }
 };
 
-exports.update = function(assetList, metaList) {
+exports.update = function (assetList, metaList) {
     this.assetList = assetList;
     this.metaList = metaList;
     this.asset = assetList[0];
@@ -285,7 +308,7 @@ exports.update = function(assetList, metaList) {
     }
 };
 
-exports.close = function() {
+exports.close = function () {
     for (const prop in Elements) {
         const element = Elements[prop];
         if (element.close) {
