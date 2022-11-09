@@ -44,11 +44,11 @@ using gfx::TextureUsage;
 namespace {
 
 AccessFlags getAccessFlags(BufferUsage usage, MemoryUsage memUsage, const AccessStatus& status) noexcept {
-    return gfx::getAccessFlags(usage, memUsage, status.visibility, status.access, status.passType);
+    return gfx::getAccessFlags(usage, memUsage, status.access, status.visibility);
 }
 
 AccessFlags getAccessFlags(TextureUsage usage, const AccessStatus& status) noexcept {
-    return gfx::getAccessFlags(usage, status.visibility, status.access, status.passType);
+    return gfx::getAccessFlags(usage, status.access, status.visibility);
 }
 
 } // namespace
