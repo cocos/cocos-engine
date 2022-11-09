@@ -364,7 +364,7 @@ void Pass::resetTexture(const ccstd::string &name, uint32_t index) {
             info = &iter->second;
             ccstd::string *pStrVal = ccstd::get_if<ccstd::string>(&iter->second.value.value());
             if (pStrVal != nullptr) {
-                texName = (*pStrVal) + GetStringFromType(type);
+                texName = (*pStrVal) + getStringFromType(type);
             }
         }
     }

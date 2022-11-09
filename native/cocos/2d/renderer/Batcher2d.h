@@ -69,9 +69,10 @@ public:
     void handleDrawInfo(RenderEntity* entity, RenderDrawInfo* drawInfo, Node* node);
     void handleComponentDraw(RenderEntity* entity, RenderDrawInfo* drawInfo, Node* node);
     void handleModelDraw(RenderEntity* entity, RenderDrawInfo* drawInfo);
-    void handleIADraw(RenderEntity* entity, RenderDrawInfo* drawInfo, Node* node);
+    void handleMiddlewareDraw(RenderEntity* entity, RenderDrawInfo* drawInfo);
     void handleSubNode(RenderEntity* entity, RenderDrawInfo* drawInfo);
     void generateBatch(RenderEntity* entity, RenderDrawInfo* drawInfo);
+    void generateBatchForMiddleware(RenderEntity* entity, RenderDrawInfo* drawInfo);
     void resetRenderStates();
 
 private:
@@ -133,9 +134,9 @@ private:
             vbBuffer[offset++] = entity->getOpacity();
         }
     }
-    
+
     void insertMaskBatch(RenderEntity* entity);
-    void createClearModel ();
+    void createClearModel();
 
     gfx::DescriptorSet* getDescriptorSet(gfx::Texture* texture, gfx::Sampler* sampler, gfx::DescriptorSetLayout* dsLayout);
 

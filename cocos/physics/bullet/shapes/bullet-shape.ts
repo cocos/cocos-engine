@@ -23,15 +23,13 @@
  THE SOFTWARE.
  */
 
-import { Vec3 } from '../../../core/math';
+import { Vec3, IVec3Like, geometry } from '../../../core';
 import { Collider, PhysicsMaterial, PhysicsSystem } from '../../../../exports/physics-framework';
 import { BulletWorld } from '../bullet-world';
 import { EBtSharedBodyDirty } from '../bullet-enum';
 import { cocos2BulletQuat, cocos2BulletVec3 } from '../bullet-utils';
 import { IBaseShape } from '../../spec/i-physics-shape';
-import { IVec3Like } from '../../../core/math/type-define';
 import { BulletSharedBody } from '../bullet-shared-body';
-import { AABB, Sphere } from '../../../core/geometry';
 import { BulletCache, CC_V3_0 } from '../bullet-cache';
 import { bt } from '../instantiated';
 import { EColliderType } from '../../framework';
@@ -95,7 +93,7 @@ export abstract class BulletShape implements IBaseShape {
     protected _collider!: Collider;
     protected _sharedBody!: BulletSharedBody;
 
-    getAABB (v: AABB) {
+    getAABB (v: geometry.AABB) {
         const bt_transform = BulletCache.instance.BT_TRANSFORM_0;
         bt.Transform_setIdentity(bt_transform);
         bt.Transform_setRotation(bt_transform, cocos2BulletQuat(BulletCache.instance.BT_QUAT_0, this._collider.node.worldRotation));
@@ -108,7 +106,7 @@ export abstract class BulletShape implements IBaseShape {
         Vec3.add(v.center, this._collider.node.worldPosition, this._collider.center);
     }
 
-    getBoundingSphere (v: Sphere) {
+    getBoundingSphere (v: geometry.Sphere) {
         v.radius = bt.CollisionShape_getLocalBoundingSphere(this._impl);
         Vec3.add(v.center, this._collider.node.worldPosition, this._collider.center);
     }

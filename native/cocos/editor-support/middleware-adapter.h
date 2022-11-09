@@ -134,7 +134,7 @@ public:
     /**
      Extension to set the Min / Mag filter
      */
-    using TexParams = struct _TexParams { // NOLINT
+    struct TexParams { // NOLINT
         uint32_t minFilter;
         uint32_t magFilter;
         uint32_t wrapS;
@@ -181,6 +181,8 @@ public:
     /** Sets texture param callback*/
     void setTexParamCallback(const texParamCallback &callback);
 
+    void setRealTexture(void* texturePtr);
+    void *getRealTexture() const;
 private:
     /** width in pixels */
     int _pixelsWide = 0;
@@ -192,6 +194,7 @@ private:
     int _realTextureIndex = 0;
 
     texParamCallback _texParamCallback = nullptr;
+    void* _texturePtr = nullptr;
 };
 
 ///////////////////////////////////////////////////////////////////////

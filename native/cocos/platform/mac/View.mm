@@ -31,6 +31,9 @@
 #import "KeyCodeHelper.h"
 #import "cocos/bindings/event/EventDispatcher.h"
 #import "platform/mac/AppDelegate.h"
+#import "platform/mac/modules/SystemWindow.h"
+#import "platform/mac/modules/SystemWindowManager.h"
+#import "application/ApplicationManager.h"
 
 @implementation View {
     cc::MouseEvent _mouseEvent;
@@ -84,7 +87,6 @@
     ev.width = static_cast<int>(size.width);
     ev.height = static_cast<int>(size.height);
     [_delegate dispatchEvent:ev];
-    //cc::EventDispatcher::dispatchResizeEvent(, );
 }
 
 - (void)displayLayer:(CALayer *)layer {
@@ -100,7 +102,11 @@
     [self viewDidChangeBackingProperties];
 
     if (cc::EventDispatcher::initialized()) {
+        auto *windowMgr = CC_GET_PLATFORM_INTERFACE(cc::SystemWindowManager);
+        auto *window = windowMgr->getWindowFromNSWindow([self window]);
+        
         cc::WindowEvent ev;
+        ev.windowId = window->getWindowId();
         ev.type = cc::WindowEvent::Type::RESIZED;
         ev.width = static_cast<int>(nativeSize.width);
         ev.height = static_cast<int>(nativeSize.height);
@@ -121,8 +127,11 @@
         layer.drawableSize = CGSizeMake(width, height);
     }
 
-    if (cc::EventDispatcher::initialized())
-        cc::EventDispatcher::dispatchResizeEvent(static_cast<int>(width), static_cast<int>(height));
+    if (cc::EventDispatcher::initialized()) {
+        auto *windowMgr = CC_GET_PLATFORM_INTERFACE(cc::SystemWindowManager);
+        auto *window = windowMgr->getWindowFromNSWindow([self window]);
+        cc::events::Resize::broadcast(static_cast<int>(width), static_cast<int>(height), window->getWindowId());
+    }
 }
 
 - (void)keyDown:(NSEvent *)event {
@@ -262,11 +271,15 @@
     const NSRect contentRect = [self frame];
     const NSPoint pos = [event locationInWindow];
 
+    auto *windowMgr = CC_GET_PLATFORM_INTERFACE(cc::SystemWindowManager);
+    auto *window = windowMgr->getWindowFromNSWindow([self window]);
+    
+    _mouseEvent.windowId = window->getWindowId();
     _mouseEvent.type = type;
     _mouseEvent.button = button;
     _mouseEvent.x = pos.x;
     _mouseEvent.y = contentRect.size.height - pos.y;
-    [_delegate dispatchEvent:_mouseEvent];
+    cc::events::Mouse::broadcast(_mouseEvent);
 }
 
 @end

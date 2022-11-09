@@ -53,6 +53,7 @@ declare namespace jsb {
         x: number,
         y: number,
         button: number,
+        windowId: number,
     }
     type MouseEventCallback = (mouseEvent: MouseEvent) => void;
     export interface MouseWheelEvent extends MouseEvent {
@@ -65,7 +66,7 @@ declare namespace jsb {
     export let onMouseUp: MouseEventCallback | undefined;
     export let onMouseWheel: MouseWheelEventCallback | undefined;
 
-    type TouchEventCallback = (touchList: TouchList) =>  void;
+    type TouchEventCallback = (touchList: TouchList, windowId?: number) =>  void;
     export let onTouchStart: TouchEventCallback | undefined;
     export let onTouchMove: TouchEventCallback | undefined;
     export let onTouchEnd: TouchEventCallback | undefined;
@@ -112,12 +113,23 @@ declare namespace jsb {
         shiftKey: boolean;
         repeat: boolean;
         keyCode: number;
+        windowId: number;
     }
     type KeyboardEventCallback = (keyboardEvent: KeyboardEvent) => void;
     export let onKeyDown: KeyboardEventCallback | undefined;
     export let onKeyUp: KeyboardEventCallback| undefined;
 
-    export let onResize: (size: {width: number, height: number}) => void | undefined;
+    export interface WindowEvent {
+        windowId: number;
+        width: number;
+        height: number;
+    }
+
+    /**
+     * @en WindowEvent.width and WindowEvent.height have both been multiplied by DPR
+     * @zh WindowEvent.width 和 WindowEvent.height 都已乘以 DPR
+     */
+    export let onResize: (event: WindowEvent) => void | undefined;
     export let onOrientationChanged: (event: {orientation: number}) => void | undefined;  // TODO: enum orientation type
     export let onResume: () => void | undefined;
     export let onPause: () => void | undefined;
@@ -182,6 +194,27 @@ declare namespace jsb {
         export function getOriginalPCMBuffer (url: string, channelID: number): ArrayBuffer | undefined;
     }
 
+    class NativePOD {
+        underlyingData(): ArrayBuffer;
+        _data(): TypedArray;
+        __data: TypedArray;
+    }
+
+    export class Color extends NativePOD {
+    }
+    export class Quat extends NativePOD {
+    }
+    export class Vec2 extends NativePOD {
+    }
+    export class Vec3 extends NativePOD {
+    }
+    export class Vec4 extends NativePOD {
+    }
+
+    export class Mat3 extends NativePOD {
+    }
+    export class Mat4 extends NativePOD {
+    }
     export interface ManifestAsset {
         md5: string;
         path: string;

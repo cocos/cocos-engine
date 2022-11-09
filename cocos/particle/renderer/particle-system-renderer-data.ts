@@ -25,14 +25,13 @@
 
 import { ccclass, tooltip, displayOrder, type, serializable, disallowAnimation, visible } from 'cc.decorator';
 import { Mesh } from '../../3d';
-import { Material, Texture2D } from '../../core/assets';
-import { AlignmentSpace, RenderMode, Space } from '../enum';
+import { Material, Texture2D } from '../../asset/assets';
+import { AlignmentSpace, RenderMode } from '../enum';
 import ParticleSystemRendererCPU from './particle-system-renderer-cpu';
 import ParticleSystemRendererGPU from './particle-system-renderer-gpu';
-import { director } from '../../core/director';
-import { Device, Feature, Format, FormatFeatureBit } from '../../core/gfx';
-import { legacyCC } from '../../core/global-exports';
-import { errorID, warnID } from '../../core';
+import { director } from '../../game/director';
+import { Device, Format, FormatFeatureBit } from '../../gfx';
+import { errorID, warnID, cclegacy } from '../../core';
 
 function isSupportGPUParticle () {
     const device: Device = director.root!.device;
@@ -41,7 +40,7 @@ function isSupportGPUParticle () {
         return true;
     }
 
-    legacyCC.warn('Maybe the device has restrictions on vertex textures or does not support float textures.');
+    cclegacy.warn('Maybe the device has restrictions on vertex textures or does not support float textures.');
     return false;
 }
 
@@ -301,15 +300,19 @@ export default class ParticleSystemRenderer {
 
     onInit (ps) {
         this.create(ps);
+        const useGPU = this._useGPU && isSupportGPUParticle();
         if (!this._particleSystem.processor) {
-            const useGPU = this._useGPU && isSupportGPUParticle();
             this._particleSystem.processor = useGPU ? new ParticleSystemRendererGPU(this) : new ParticleSystemRendererCPU(this);
             this._particleSystem.processor.updateAlignSpace(this.alignSpace);
             this._particleSystem.processor.onInit(ps);
         } else {
             errorID(6034);
         }
-        if (!this._useGPU) {
+        if (!useGPU) {
+            if (this.particleMaterial && this.particleMaterial.effectName.indexOf('particle-gpu') !== -1) {
+                this.particleMaterial = null;
+                warnID(6035);
+            }
             this.cpuMaterial = this.particleMaterial;
         } else {
             this.gpuMaterial = this.particleMaterial;
@@ -325,13 +328,14 @@ export default class ParticleSystemRenderer {
             this._particleSystem.processor.clear();
             this._particleSystem.processor = null!;
         }
-        if (!this._useGPU && this.cpuMaterial) {
+        const useGPU = this._useGPU && isSupportGPUParticle();
+        if (!useGPU && this.cpuMaterial) {
             this.particleMaterial = this.cpuMaterial;
         }
-        if (this._useGPU && this.gpuMaterial) {
+        if (useGPU && this.gpuMaterial) {
             this.particleMaterial = this.gpuMaterial;
         }
-        this._particleSystem.processor = this._useGPU ? new ParticleSystemRendererGPU(this) : new ParticleSystemRendererCPU(this);
+        this._particleSystem.processor = useGPU ? new ParticleSystemRendererGPU(this) : new ParticleSystemRendererCPU(this);
         this._particleSystem.processor.updateAlignSpace(this.alignSpace);
         this._particleSystem.processor.onInit(this._particleSystem);
         this._particleSystem.processor.onEnable();

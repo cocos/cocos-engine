@@ -26,18 +26,15 @@
 
 import { ccclass, tooltip, displayOrder, displayName, readOnly, type, serializable } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
-import { Eventify } from '../../../../core/event';
-import { Vec3 } from '../../../../core/math';
+import { Eventify, Vec3, error, geometry } from '../../../../core';
 import { CollisionEventType, TriggerEventType } from '../../physics-interface';
 import { RigidBody } from '../rigid-body';
 import { PhysicsMaterial } from '../../assets/physics-material';
 import { PhysicsSystem } from '../../physics-system';
-import { Component, error, Node } from '../../../../core';
+import { Component, Node } from '../../../../scene-graph';
 import { IBaseShape } from '../../../spec/i-physics-shape';
-import { AABB, Sphere } from '../../../../core/geometry';
 import { EColliderType, EAxisDirection } from '../../physics-enum';
 import { selector, createShape } from '../../physics-selector';
-import { XrControlEventType } from '../../../../xr/event/xr-event-handle';
 
 /**
  * @en
@@ -190,14 +187,14 @@ export class Collider extends Eventify(Component) {
         return this._shape;
     }
 
-    public get worldBounds (): Readonly<AABB> {
-        if (this._aabb == null) this._aabb = new AABB();
+    public get worldBounds (): Readonly<geometry.AABB> {
+        if (this._aabb == null) this._aabb = new geometry.AABB();
         if (this._shape) this._shape.getAABB(this._aabb);
         return this._aabb;
     }
 
-    public get boundingSphere (): Readonly<Sphere> {
-        if (this._boundingSphere == null) this._boundingSphere = new Sphere();
+    public get boundingSphere (): Readonly<geometry.Sphere> {
+        if (this._boundingSphere == null) this._boundingSphere = new geometry.Sphere();
         if (this._shape) this._shape.getBoundingSphere(this._boundingSphere);
         return this._boundingSphere;
     }
@@ -215,8 +212,8 @@ export class Collider extends Eventify(Component) {
     /// PROTECTED PROPERTY ///
 
     protected _shape: IBaseShape | null = null;
-    protected _aabb: AABB | null = null;
-    protected _boundingSphere: Sphere | null = null;
+    protected _aabb: geometry.AABB | null = null;
+    protected _boundingSphere: geometry.Sphere | null = null;
     protected _isSharedMaterial = true;
     protected _needTriggerEvent = false;
     protected _needCollisionEvent = false;
@@ -253,7 +250,7 @@ export class Collider extends Eventify(Component) {
      * @param callback - The event callback, signature:`(event?:ICollisionEvent|ITriggerEvent)=>void`.
      * @param target - The event callback target.
      */
-    public on<TFunction extends (...any) => void>(type: TriggerEventType | CollisionEventType | XrControlEventType, callback: TFunction, target?, once?: boolean): any {
+    public on<TFunction extends (...any) => void>(type: TriggerEventType | CollisionEventType, callback: TFunction, target?, once?: boolean): any {
         const ret = super.on(type, callback, target, once);
         this._updateNeedEvent(type);
         return ret;
@@ -268,7 +265,7 @@ export class Collider extends Eventify(Component) {
      * @param callback - The event callback, signature:`(event?:ICollisionEvent|ITriggerEvent)=>void`.
      * @param target - The event callback target.
      */
-    public off (type: TriggerEventType | CollisionEventType | XrControlEventType, callback?: (...any) => void, target?) {
+    public off (type: TriggerEventType | CollisionEventType, callback?: (...any) => void, target?) {
         super.off(type, callback, target);
         this._updateNeedEvent();
     }

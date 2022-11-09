@@ -116,6 +116,7 @@ public:
     virtual AudioDataFormat getDataFormat() const;
 
     virtual PCMHeader getPCMHeader() const;
+
 protected:
     AudioDecoder();
     virtual ~AudioDecoder();

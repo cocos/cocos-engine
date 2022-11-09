@@ -52,8 +52,7 @@
 #include "audio/android/ICallerThreadUtils.h"
 #include "audio/android/UrlAudioPlayer.h"
 #include "audio/android/cutils/log.h"
-#include "bindings/event/CustomEventTypes.h"
-#include "bindings/event/EventDispatcher.h"
+#include "engine/EngineEvents.h"
 
 using namespace cc; //NOLINT
 

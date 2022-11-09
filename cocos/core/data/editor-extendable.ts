@@ -1,7 +1,6 @@
 import { EDITOR } from 'internal:constants';
 import { ccclass, editorOnly } from 'cc.decorator';
-import { js } from '../utils/js';
-import { CCClass } from './class';
+import { getClassName } from '../utils/js';
 import { EditorExtendableObject, editorExtrasTag } from './editor-extras-tag';
 import { assertIsTrue } from './utils/asserts';
 
@@ -24,6 +23,7 @@ class Empty {}
 
 /**
  * Class which implements the `EditorExtendableObject` interface.
+ * @internal DO NOT USE IT
  */
 export const EditorExtendable = editorExtendableInternal();
 
@@ -47,7 +47,7 @@ function editorExtendableInternal<T> (Base?: (new (...args: any[]) => T), classN
     } else if (!Base) {
         name = `cc.EditorExtendable`;
     } else {
-        const baseName = js.getClassName(Base);
+        const baseName = getClassName(Base);
         if (baseName) {
             name = `cc.EditorExtendable/${baseName}`;
         } else {

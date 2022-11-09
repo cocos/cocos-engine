@@ -24,14 +24,11 @@
  */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 
-import { markAsWarning, removeProperty, replaceProperty } from '../../core/utils';
+import { markAsWarning, removeProperty, replaceProperty, js, Color, cclegacy } from '../../core';
 import { UIComponent } from './ui-component';
 import { UITransform } from './ui-transform';
 import { UIRenderer } from './ui-renderer';
 import { Canvas } from './canvas';
-import { js } from '../../core/utils/js';
-import { legacyCC } from '../../core/global-exports';
-import { Color } from '../../core/math/color';
 
 removeProperty(UIComponent.prototype, 'UIComponent', [
     {
@@ -130,7 +127,7 @@ markAsWarning(UITransform.prototype, 'UITransform.prototype', [
  * @deprecated Since v1.2
  */
 export { UITransform as UITransformComponent };
-legacyCC.UITransformComponent = UITransform;
+cclegacy.UITransformComponent = UITransform;
 js.setClassAlias(UITransform, 'cc.UITransformComponent');
 
 /**
@@ -150,7 +147,7 @@ js.setClassAlias(UIRenderer, 'cc.RenderComponent');
  * @deprecated Since v1.2
  */
 export { Canvas as CanvasComponent };
-legacyCC.CanvasComponent = Canvas;
+cclegacy.CanvasComponent = Canvas;
 js.setClassAlias(Canvas, 'cc.CanvasComponent');
 
 /**
@@ -158,5 +155,5 @@ js.setClassAlias(Canvas, 'cc.CanvasComponent');
  * @deprecated Since v3.6
  */
 export { UIRenderer as Renderable2D };
-legacyCC.internal.Renderable2D = UIRenderer;
+cclegacy.internal.Renderable2D = UIRenderer;
 js.setClassAlias(UIRenderer, 'cc.Renderable2D');

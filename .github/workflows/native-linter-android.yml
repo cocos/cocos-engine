@@ -26,34 +26,20 @@ jobs:
       # Checks out a copy of your repository on the ubuntu-latest machine
       - name: Checkout code
         uses: actions/checkout@v2
-
-      - name: Install Python3
-        uses: actions/setup-python@v2
-        with:
-          python-version: "3.x"
-
-      - name: Install python deps
-        run: |
-          python -m pip install PyYAML==5.4.1 Cheetah3
       - name: Download external
         run: |
           EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`
-          git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos-creator/engine-native-external native/external
+          git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos/cocos-engine-external native/external
       - uses: nttld/setup-ndk@v1
         id: setup-ndk
         with:
           ndk-version: r21e
           add-to-path: false
       - name: Generate bindings
-        shell: bash
-        env:
-          ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
-
         run: |
-          python -V
-          cd ./native/tools/tojs
-          python ./genbindings.py
-          rm userconf.ini
+          cd ./native/tools/swig-config
+          node genbindings.js
+          git status
       - name: Get changed files
         uses: PatriceJiang/paths-filter@master
         id: listchanged

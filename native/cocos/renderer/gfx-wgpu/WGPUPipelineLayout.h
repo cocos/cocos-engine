@@ -24,26 +24,35 @@
 ****************************************************************************/
 
 #pragma once
-#include <emscripten/bind.h>
+#ifdef CC_WGPU_WASM
+    #include "WGPUDef.h"
+#endif
+#include "WGPUUtils.h"
+#include "base/std/container/map.h"
 #include "base/std/container/set.h"
 #include "gfx-base/GFXPipelineLayout.h"
-
 namespace cc {
 namespace gfx {
 
 struct CCWGPUPipelineLayoutObject;
+class DescriptorSet;
 
-class CCWGPUPipelineLayout final : public emscripten::wrapper<PipelineLayout> {
+class CCWGPUPipelineLayout final : public PipelineLayout {
 public:
     CCWGPUPipelineLayout();
-    ~CCWGPUPipelineLayout() = default;
+    ~CCWGPUPipelineLayout();
 
     inline CCWGPUPipelineLayoutObject *gpuPipelineLayoutObject() { return _gpuPipelineLayoutObj; }
 
-    //bindgroup not ready yet so delay creation
+    // bindgroup not ready yet so delay creation
     void prepare(const ccstd::set<uint8_t> &setInUse);
 
-    // const ccstd::vector<void*> & layouts()const{return _bgLayouts;}
+    const ccstd::vector<void *> &layouts() const { return _bgLayouts; }
+    const ccstd::vector<void *> &cclayouts() const { return _ccbgLayouts; }
+
+    static ccstd::map<ccstd::hash_t, void *> layoutMap;
+
+    inline ccstd::hash_t getHash() const { return _hash; }
 
 protected:
     void doInit(const PipelineLayoutInfo &info) override;
@@ -51,7 +60,12 @@ protected:
 
     CCWGPUPipelineLayoutObject *_gpuPipelineLayoutObj = nullptr;
 
-    // ccstd::vector<void*> _bgLayouts;
+    ccstd::vector<void *> _bgLayouts;
+    ccstd::vector<void *> _ccbgLayouts;
+
+    ccstd::hash_t _hash{0};
+
+    friend void createPipelineLayoutFallback(const ccstd::vector<DescriptorSet *> &descriptorSets, PipelineLayout *pipelineLayout);
 };
 
 } // namespace gfx

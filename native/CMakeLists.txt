@@ -384,6 +384,17 @@ cocos_source_files(
     cocos/plugins/bus/EventBus.cpp
 )
 
+cocos_source_files(
+    cocos/core/event/Event.h
+    cocos/core/event/EventBus.h
+    cocos/core/event/EventBus.cpp
+    cocos/core/event/EventTarget.h
+    cocos/core/event/intl/EventIntl.h
+    cocos/core/event/intl/List.h
+    cocos/core/event/intl/EventTargetMacros.h
+    cocos/core/event/intl/EventBusMacros.h
+)
+
 ##### base
 cocos_source_files(
     cocos/base/Agent.h
@@ -460,6 +471,20 @@ cocos_source_files(
     cocos/engine/Engine.h
 )
 
+############ gi
+cocos_source_files(
+    cocos/gi/light-probe/AutoPlacement.cpp
+    cocos/gi/light-probe/AutoPlacement.h
+    cocos/gi/light-probe/Delaunay.cpp
+    cocos/gi/light-probe/Delaunay.h
+    cocos/gi/light-probe/LightProbe.cpp
+    cocos/gi/light-probe/LightProbe.h
+    cocos/gi/light-probe/PolynomialSolver.cpp
+    cocos/gi/light-probe/PolynomialSolver.h
+    cocos/gi/light-probe/SH.cpp
+    cocos/gi/light-probe/SH.h
+)
+
 ############ main
 if(NOT USE_SERVER_MODE AND (WINDOWS OR LINUX))
 cocos_source_files(
@@ -470,7 +495,6 @@ endif()
 
 ############ platform
 cocos_source_files(
-    cocos/platform/IEventDispatch.h
     cocos/platform/BasePlatform.cpp
     cocos/platform/BasePlatform.h
     cocos/platform/UniversalPlatform.cpp
@@ -531,6 +555,7 @@ cocos_source_files(
     cocos/platform/interfaces/modules/ISystem.cpp
     cocos/platform/interfaces/modules/ISystem.h
     cocos/platform/interfaces/modules/ISystemWindow.h
+    cocos/platform/interfaces/modules/ISystemWindowManager.h
     cocos/platform/interfaces/modules/IVibrator.h
     cocos/platform/interfaces/modules/XRCommon.h
     cocos/platform/interfaces/modules/IXRInterface.h
@@ -597,6 +622,8 @@ if(WINDOWS)
             cocos/platform/win32/modules/Screen.h
             cocos/platform/win32/modules/SystemWindow.cpp
             cocos/platform/win32/modules/SystemWindow.h
+            cocos/platform/win32/modules/SystemWindowManager.cpp
+            cocos/platform/win32/modules/SystemWindowManager.h
         )
     endif()
 elseif(ANDROID OR OHOS)
@@ -615,6 +642,8 @@ elseif(ANDROID OR OHOS)
         cocos/platform/java/modules/CommonSystem.h
         cocos/platform/java/modules/SystemWindow.cpp
         cocos/platform/java/modules/SystemWindow.h
+        cocos/platform/java/modules/SystemWindowManager.cpp
+        cocos/platform/java/modules/SystemWindowManager.h
         cocos/platform/java/modules/XRInterface.cpp
         cocos/platform/java/modules/XRInterface.h
     )
@@ -660,6 +689,8 @@ elseif(MACOSX)
                                  cocos/platform/mac/modules/Screen.h
                                  cocos/platform/mac/modules/SystemWindow.mm
                                  cocos/platform/mac/modules/SystemWindow.h
+                                 cocos/platform/mac/modules/SystemWindowManager.mm
+                                 cocos/platform/mac/modules/SystemWindowManager.h
         )
     endif()
 elseif(IOS)
@@ -678,6 +709,8 @@ elseif(IOS)
                             cocos/platform/ios/modules/System.h
                             cocos/platform/ios/modules/SystemWindow.mm
                             cocos/platform/ios/modules/SystemWindow.h
+                            cocos/platform/ios/modules/SystemWindowManager.mm
+                            cocos/platform/ios/modules/SystemWindowManager.h
    )
 elseif(LINUX)
     cocos_source_files(
@@ -705,6 +738,8 @@ elseif(LINUX)
             cocos/platform/linux/modules/Screen.h
             cocos/platform/linux/modules/SystemWindow.cpp
             cocos/platform/linux/modules/SystemWindow.h
+            cocos/platform/linux/modules/SystemWindowManager.cpp
+            cocos/platform/linux/modules/SystemWindowManager.h
         )
     endif()
 endif()
@@ -849,7 +884,7 @@ if(USE_SOCKET)
     )
 endif()
 
-if(NOT IOS AND USE_WEBSOCKET_SERVER)
+if(USE_WEBSOCKET_SERVER)
     cocos_source_files(
                      cocos/network/WebSocketServer.h
                      cocos/network/WebSocketServer.cpp
@@ -955,6 +990,7 @@ if(WINDOWS)
     )
 elseif(ANDROID)
     set(CC_JNI_SRC_FILES
+        ${CWD}/cocos/platform/android/jni/JniCocosSurfaceView.cpp
         ${CWD}/cocos/platform/android/jni/JniCocosEntry.cpp
         ${CWD}/cocos/platform/java/jni/JniCocosOrientationHelper.cpp
         ${CWD}/cocos/platform/java/jni/JniHelper.cpp
@@ -1039,6 +1075,8 @@ cocos_source_files(
                  cocos/renderer/gfx-base/SPIRVUtils.cpp
                  cocos/renderer/gfx-base/GFXObject.h
                  cocos/renderer/gfx-base/GFXObject.cpp
+                 cocos/renderer/gfx-base/GFXBarrier.cpp
+                 cocos/renderer/gfx-base/GFXBarrier.h
                  cocos/renderer/gfx-base/GFXBuffer.cpp
                  cocos/renderer/gfx-base/GFXBuffer.h
                  cocos/renderer/gfx-base/GFXCommandBuffer.cpp
@@ -1072,6 +1110,7 @@ cocos_source_files(
                  cocos/renderer/gfx-base/GFXSwapchain.h
                  cocos/renderer/gfx-base/GFXTexture.cpp
                  cocos/renderer/gfx-base/GFXTexture.h
+                 cocos/renderer/gfx-base/GFXDeviceObject.h
                  cocos/renderer/gfx-base/states/GFXGeneralBarrier.cpp
                  cocos/renderer/gfx-base/states/GFXGeneralBarrier.h
                  cocos/renderer/gfx-base/states/GFXSampler.cpp
@@ -1184,6 +1223,8 @@ cocos_source_files(
                  cocos/renderer/pipeline/Define.cpp
                  cocos/renderer/pipeline/GlobalDescriptorSetManager.h
                  cocos/renderer/pipeline/GlobalDescriptorSetManager.cpp
+                 cocos/renderer/pipeline/LODModelsUtil.cpp
+                 cocos/renderer/pipeline/LODModelsUtil.h
                  cocos/renderer/pipeline/InstancedBuffer.cpp
                  cocos/renderer/pipeline/InstancedBuffer.h
                  cocos/renderer/pipeline/PipelineStateManager.cpp
@@ -1245,8 +1286,15 @@ cocos_source_files(
                  cocos/renderer/pipeline/UIPhase.h
                  cocos/renderer/pipeline/helper/Utils.h
                  cocos/renderer/pipeline/helper/Utils.cpp
+                 cocos/renderer/pipeline/custom/BinaryArchive.h
                  cocos/renderer/pipeline/custom/FrameGraphDispatcher.cpp
+                 cocos/renderer/pipeline/custom/SerializationUtils.h
                  cocos/renderer/pipeline/custom/test/test.h
+                 cocos/renderer/pipeline/custom/NativeDefaultScene.cpp
+                 cocos/renderer/pipeline/custom/NativeResourceGraph.cpp
+                 cocos/renderer/pipeline/custom/ArchiveFwd.h
+                 cocos/renderer/pipeline/custom/ArchiveTypes.cpp
+                 cocos/renderer/pipeline/custom/ArchiveTypes.h
                  cocos/renderer/pipeline/custom/FGDispatcherGraphs.h
                  cocos/renderer/pipeline/custom/FGDispatcherTypes.cpp
                  cocos/renderer/pipeline/custom/FGDispatcherTypes.h
@@ -1257,21 +1305,24 @@ cocos_source_files(
                  cocos/renderer/pipeline/custom/LayoutGraphNames.h
                  cocos/renderer/pipeline/custom/LayoutGraphReflection.cpp
                  cocos/renderer/pipeline/custom/LayoutGraphReflection.h
+                 cocos/renderer/pipeline/custom/LayoutGraphSerialization.h
                  cocos/renderer/pipeline/custom/LayoutGraphTypes.cpp
                  cocos/renderer/pipeline/custom/LayoutGraphTypes.h
+                 cocos/renderer/pipeline/custom/NativeExecutor.cpp
                  cocos/renderer/pipeline/custom/NativeLayoutGraphImpl.cpp
                  cocos/renderer/pipeline/custom/NativePipelineFwd.h
                  cocos/renderer/pipeline/custom/NativePipelineGraphs.h
                  cocos/renderer/pipeline/custom/NativePipelineImpl.cpp
                  cocos/renderer/pipeline/custom/NativePipelineTypes.cpp
                  cocos/renderer/pipeline/custom/NativePipelineTypes.h
-                 cocos/renderer/pipeline/custom/NativeRenderGraphSetup.cpp
+                 cocos/renderer/pipeline/custom/NativeRenderGraph.cpp
                  cocos/renderer/pipeline/custom/RenderCommonFwd.h
                  cocos/renderer/pipeline/custom/RenderCommonJsb.cpp
                  cocos/renderer/pipeline/custom/RenderCommonJsb.h
                  cocos/renderer/pipeline/custom/RenderCommonNames.h
                  cocos/renderer/pipeline/custom/RenderCommonReflection.cpp
                  cocos/renderer/pipeline/custom/RenderCommonReflection.h
+                 cocos/renderer/pipeline/custom/RenderCommonSerialization.h
                  cocos/renderer/pipeline/custom/RenderCommonTypes.cpp
                  cocos/renderer/pipeline/custom/RenderCommonTypes.h
                  cocos/renderer/pipeline/custom/RenderGraphFwd.h
@@ -1326,6 +1377,8 @@ cocos_source_files(
                  cocos/scene/Fog.cpp
                  cocos/scene/Light.h
                  cocos/scene/Light.cpp
+                 cocos/scene/LODGroup.h
+                 cocos/scene/LODGroup.cpp
                  cocos/scene/Model.h
                  cocos/scene/Model.cpp
                  cocos/scene/Pass.h
@@ -1625,6 +1678,7 @@ if(CC_USE_VULKAN)
                      cocos/renderer/gfx-vulkan/VKUtils.h
                      cocos/renderer/gfx-vulkan/volk.c
                      cocos/renderer/gfx-vulkan/volk.h
+                     cocos/renderer/gfx-vulkan/VKGPURecycleBin.cpp
                      cocos/renderer/gfx-vulkan/states/VKGeneralBarrier.cpp
                      cocos/renderer/gfx-vulkan/states/VKGeneralBarrier.h
                      cocos/renderer/gfx-vulkan/states/VKSampler.cpp
@@ -1735,8 +1789,8 @@ if(USE_PHYSICS_PHYSX)
         cocos/physics/physx/joints/PhysXDistance.cpp
     )
     cocos_source_files(
-        cocos/bindings/auto/jsb_physics_auto.cpp
-        cocos/bindings/auto/jsb_physics_auto.h
+        NO_WERROR NO_UBUILD cocos/bindings/auto/jsb_physics_auto.cpp
+                            cocos/bindings/auto/jsb_physics_auto.h
     )
 endif()
 
@@ -1915,62 +1969,14 @@ cocos_source_files(
     # builtin
     cocos/core/builtin/BuiltinResMgr.cpp
     cocos/core/builtin/BuiltinResMgr.h
-    # cocos/core/builtin/ShaderSourceAssembly.cpp
-    # cocos/core/builtin/ShaderSourceAssembly.h
-    # cocos/core/builtin/Effects.cpp # generated
-    # cocos/core/builtin/Effects.h
-    # cocos/core/builtin/shader-sources/glsl1.cpp # generated
-    # cocos/core/builtin/shader-sources/glsl1.h
-    # cocos/core/builtin/shader-sources/glsl3.cpp # generated
-    # cocos/core/builtin/shader-sources/glsl3.h
-    # cocos/core/builtin/shader-sources/glsl4.cpp # generated
-    # cocos/core/builtin/shader-sources/glsl4.h
-    #
 
     cocos/core/data/Object.cpp
     cocos/core/data/Object.h
     cocos/core/data/JSBNativeDataHolder.h
-    # cocos/core/data/deserializer/EffectAssetDeserializer.cpp
-    # cocos/core/data/deserializer/EffectAssetDeserializer.h
-    # cocos/core/data/deserializer/MeshDeserializer.cpp
-    # cocos/core/data/deserializer/MeshDeserializer.h
-    # cocos/core/data/deserializer/MaterialDeserializer.cpp
-    # cocos/core/data/deserializer/MaterialDeserializer.h
-    # cocos/core/data/deserializer/ImageAssetDeserializer.cpp
-    # cocos/core/data/deserializer/ImageAssetDeserializer.h
-    # cocos/core/data/deserializer/TextureBaseDeserializer.h
-    # cocos/core/data/deserializer/TextureBaseDeserializer.cpp
-    # cocos/core/data/deserializer/Texture2DDeserializer.cpp
-    # cocos/core/data/deserializer/Texture2DDeserializer.h
-    # cocos/core/data/deserializer/TerrainAssetDeserializer.cpp
-    # cocos/core/data/deserializer/TerrainAssetDeserializer.h
-    # cocos/core/data/deserializer/IAssetDeserializer.h
-    # cocos/core/data/deserializer/AssetDeserializerFactory.cpp
-    # cocos/core/data/deserializer/AssetDeserializerFactory.h
-
-    cocos/core/event/CallbacksInvoker.cpp
-    cocos/core/event/CallbacksInvoker.h
-    cocos/core/event/EventTypesToJS.h
-    cocos/core/event/EventTypesToJS.cpp
-    # cocos/core/event/Event.cpp
-    # cocos/core/event/Event.h
-    # cocos/core/scene-graph/Find.cpp
-    # cocos/core/scene-graph/Find.h
     cocos/core/scene-graph/Layers.h
     cocos/core/scene-graph/Node.cpp
     cocos/core/scene-graph/Node.h
-    cocos/core/scene-graph/BaseNode.h
-    # cocos/core/scene-graph/ComponentScheduler.h
-    # cocos/core/scene-graph/ComponentScheduler.cpp
-    # cocos/core/scene-graph/NodeActivator.cpp
-    # cocos/core/scene-graph/NodeActivator.h
     cocos/core/scene-graph/NodeEnum.h
-    cocos/core/scene-graph/NodeEvent.cpp
-    cocos/core/scene-graph/NodeEvent.h
-    cocos/core/scene-graph/NodeEventProcessor.cpp
-    cocos/core/scene-graph/NodeEventProcessor.h
-    # cocos/core/scene-graph/NodeUIProperties.cpp
-    # cocos/core/scene-graph/NodeUIProperties.h
     cocos/core/scene-graph/Scene.cpp
     cocos/core/scene-graph/Scene.h
     cocos/core/scene-graph/SceneGlobals.cpp
@@ -2076,6 +2082,8 @@ cocos_source_files(
                             cocos/bindings/auto/jsb_pipeline_auto.h
     NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_scene_auto.cpp
                             cocos/bindings/auto/jsb_scene_auto.h
+    NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_gi_auto.cpp
+                            cocos/bindings/auto/jsb_gi_auto.h
     NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_assets_auto.cpp
                             cocos/bindings/auto/jsb_assets_auto.h
     NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_geometry_auto.cpp
@@ -2453,7 +2461,7 @@ if(USE_SOCKET)
     )
 endif()
 
-if(NOT IOS AND USE_WEBSOCKET_SERVER)
+if(USE_WEBSOCKET_SERVER)
     cocos_source_files(
                      cocos/bindings/manual/jsb_websocket_server.cpp
                      cocos/bindings/manual/jsb_websocket_server.h
@@ -2594,7 +2602,6 @@ cocos_source_files(
 )
 
 cocos_source_files(
-                 cocos/bindings/event/CustomEventTypes.h
                  cocos/bindings/event/EventDispatcher.cpp
                  cocos/bindings/event/EventDispatcher.h
 )
@@ -2940,7 +2947,7 @@ if(MSVC)
     file(GLOB V8_DLLS
         ${CWD}/external/win64/libs/v8/Release/*.dll
     )
-    
+
     file(GLOB WINDOWS_DLLS
         ${CWD}/external/win64/libs/*.dll
         ${CWD}/external/win64/libs/msvcr/*.dll
@@ -2954,6 +2961,7 @@ if(MSVC)
         /wd4309 # truncation of constant value
         /wd4819 # file contains a character that cannot be represented in the current code page
         /wd4996 # deprecated
+        /wd4099 # PDB 'filename' was not found with 'object/library' or at 'path'; linking object as if no debug info
     )
 endif()
 

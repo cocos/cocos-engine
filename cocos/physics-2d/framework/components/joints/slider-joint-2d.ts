@@ -1,12 +1,10 @@
-
-
 import { Joint2D } from './joint-2d';
-import { ccclass, property, menu, type } from '../../../../core/data/class-decorator';
 import { ISliderJoint } from '../../../spec/i-physics-joint';
 import { EJoint2DType } from '../../physics-types';
-import { Vec3, Vec2, IVec2Like, toDegree } from '../../../../core';
+import { Vec2, IVec2Like, toDegree, _decorator } from '../../../../core';
 
 const tempVec2 = new Vec2();
+const { ccclass, menu, property } = _decorator;
 
 @ccclass('cc.SliderJoint2D')
 @menu('Physics2D/Joints/SliderJoint2D')

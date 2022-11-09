@@ -27,10 +27,9 @@
 
 #include <memory>
 #include "base/Macros.h"
-#include "bindings/event/EventDispatcher.h"
+#include "engine/EngineEvents.h"
 
 namespace cc {
-class IEventDispatch;
 
 class CC_DLL OSInterface {
 public:
@@ -38,29 +37,13 @@ public:
     /**
      @brief Constructor of OSAbstractInterface.
      */
-    explicit OSInterface();
-    /**
-     @brief Constructor of OSAbstractInterface.
-     */
-    explicit OSInterface(IEventDispatch *);
+    OSInterface() = default;
+
     /**
      @brief Destructor of OSAbstractInterface.
      */
     virtual ~OSInterface() = default;
 
-    /**
-     @brief Dispatch event.
-     @param type : Abstract event
-     */
-    void dispatchEvent(const OSEvent &ev);
-    /**
-     @brief Dispatch touch event.
-     @param type : Touch event
-     */
-    void dispatchTouchEvent(const TouchEvent &ev);
-
-protected:
-    IEventDispatch *_evDispatchInterface{nullptr};
 
 private:
     CC_DISALLOW_COPY_MOVE_ASSIGN(OSInterface);

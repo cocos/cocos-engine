@@ -24,10 +24,10 @@
 */
 
 import { JSB } from 'internal:constants';
-import { BitmapFont, IConfig, FontLetterDefinition, FontAtlas } from '../../assets/bitmap-font';
+import { IConfig, FontLetterDefinition, FontAtlas } from '../../assets/bitmap-font';
 import { SpriteFrame } from '../../assets/sprite-frame';
 import { isUnicodeCJK, isUnicodeSpace } from '../../utils/text-utils';
-import { Rect, Size, Vec2 } from '../../../core/math';
+import { Rect, Size, Vec2 } from '../../../core';
 import { HorizontalTextAlignment, VerticalTextAlignment, Label, Overflow, CacheMode } from '../../components/label';
 import { UITransform } from '../../framework/ui-transform';
 import { LetterAtlas, shareLabelInfo } from './font-utils';
@@ -632,7 +632,7 @@ export const bmfontUtils = {
                     py -= clipTop;
                 }
 
-                if ((py - letterDef.h * _bmfontScale < _tailoredBottomY) && _overflow === Overflow.CLAMP) {
+                if ((py - _tmpRect.height * _bmfontScale < _tailoredBottomY) && _overflow === Overflow.CLAMP) {
                     _tmpRect.height = (py < _tailoredBottomY) ? 0 : (py - _tailoredBottomY) / _bmfontScale;
                 }
             }

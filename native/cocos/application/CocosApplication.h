@@ -131,5 +131,9 @@ private:
 
     ISystemWindow *_systemWindow{nullptr};
     BaseEngine::Ptr _engine{nullptr};
+
+    BaseEngine::EngineStatusChange::EventID _engineEvents;
+
+
 };
 } // namespace cc

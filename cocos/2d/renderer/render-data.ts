@@ -24,23 +24,18 @@
 */
 
 import { DEBUG, JSB } from 'internal:constants';
-import { director } from '../../core/director';
-import { Material } from '../../core/assets/material';
-import { TextureBase } from '../../core/assets/texture-base';
-import { Color } from '../../core/math';
-import { Pool, RecyclePool } from '../../core/memop';
-import { murmurhash2_32_gc } from '../../core/utils/murmurhash2_gc';
+import { director } from '../../game/director';
+import { Material } from '../../asset/assets/material';
+import { TextureBase } from '../../asset/assets/texture-base';
+import { Color, Pool, RecyclePool, murmurhash2_32_gc, assert, assertIsTrue } from '../../core';
 import { SpriteFrame } from '../assets/sprite-frame';
 import { UIRenderer } from '../framework/ui-renderer';
 import { StaticVBAccessor, StaticVBChunk } from './static-vb-accessor';
-import { getAttributeStride, vfmtPosUvColor, vfmtPosUvTwoColor } from './vertex-format';
-import { Buffer, BufferInfo, BufferUsageBit, Device, Attribute, InputAssembler, InputAssemblerInfo, MemoryUsageBit } from '../../core/gfx';
-import { assertIsTrue } from '../../core/data/utils/asserts';
+import { getAttributeStride, vfmtPosUvColor } from './vertex-format';
+import { Buffer, BufferInfo, BufferUsageBit, Device, Attribute, InputAssembler, InputAssemblerInfo, MemoryUsageBit } from '../../gfx';
 import { RenderDrawInfo, RenderDrawInfoType } from './render-draw-info';
-import { StencilManager } from './stencil-manager';
 import { Batcher2D } from './batcher-2d';
 import { RenderEntity, RenderEntityType } from './render-entity';
-import { assert } from '../../core';
 
 /**
  * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.

@@ -39,8 +39,8 @@ import {
     serializable,
 } from 'cc.decorator';
 import { DEBUG } from 'internal:constants';
-import { Vec3 } from '../../../core/math';
-import { Component, error, warn } from '../../../core';
+import { Vec3, error, warn } from '../../../core';
+import { Component } from '../../../scene-graph';
 import { IRigidBody } from '../../spec/i-rigid-body';
 import { selector, createRigidBody } from '../physics-selector';
 import { ERigidBodyType } from '../physics-enum';

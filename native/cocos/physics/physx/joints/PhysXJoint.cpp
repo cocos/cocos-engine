@@ -37,10 +37,6 @@ PhysXJoint::PhysXJoint() {
     _mObjectID = PhysXWorld::getInstance().addWrapperObject(reinterpret_cast<uintptr_t>(this));
 };
 
-PhysXJoint::~PhysXJoint() {
-    PhysXWorld::getInstance().removeWrapperObject(_mObjectID);
-}
-
 void PhysXJoint::initialize(Node *node) {
     auto &ins = PhysXWorld::getInstance();
     _mSharedBody = ins.getSharedBody(node);
@@ -66,6 +62,7 @@ void PhysXJoint::onDisable() {
 
 void PhysXJoint::onDestroy() {
     _mSharedBody->reference(false);
+    PhysXWorld::getInstance().removeWrapperObject(_mObjectID);
 }
 
 void PhysXJoint::setConnectedBody(uint32_t rigidBodyID) {

@@ -1,8 +1,8 @@
-import { AssetLibrary, loader, resources } from "../../cocos/core/asset-manager";
-import { parseLoadResArgs } from "../../cocos/core/asset-manager/utilities";
-import { ImageAsset } from "../../cocos/core/assets/image-asset";
+import { AssetLibrary, loader, resources } from "../../cocos/asset/asset-manager";
+import { parseLoadResArgs } from "../../cocos/asset/asset-manager/utilities";
+import { ImageAsset } from "../../cocos/asset/assets/image-asset";
 import { path } from "../../cocos/core/utils";
-import { js } from "../../cocos/core/utils/js";
+import { js } from "../../cocos/core";
 import { TestSprite } from "./common-class";
 
 describe('asset', function () {

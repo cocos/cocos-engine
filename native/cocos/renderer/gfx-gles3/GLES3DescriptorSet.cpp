@@ -70,15 +70,15 @@ void GLES3DescriptorSet::update() {
         auto &descriptors = _gpuDescriptorSet->gpuDescriptors;
         for (size_t i = 0; i < descriptors.size(); i++) {
             if (hasAnyFlags(descriptors[i].type, DESCRIPTOR_BUFFER_TYPE)) {
-                if (_buffers[i]) {
-                    descriptors[i].gpuBuffer = static_cast<GLES3Buffer *>(_buffers[i])->gpuBuffer();
+                if (_buffers[i].ptr) {
+                    descriptors[i].gpuBuffer = static_cast<GLES3Buffer *>(_buffers[i].ptr)->gpuBuffer();
                 }
             } else if (hasAnyFlags(descriptors[i].type, DESCRIPTOR_TEXTURE_TYPE)) {
-                if (_textures[i]) {
-                    _gpuDescriptorSet->gpuDescriptors[i].gpuTextureView = static_cast<GLES3Texture *>(_textures[i])->gpuTextureView();
+                if (_textures[i].ptr) {
+                    _gpuDescriptorSet->gpuDescriptors[i].gpuTextureView = static_cast<GLES3Texture *>(_textures[i].ptr)->gpuTextureView();
                 }
-                if (_samplers[i]) {
-                    descriptors[i].gpuSampler = static_cast<GLES3Sampler *>(_samplers[i])->gpuSampler();
+                if (_samplers[i].ptr) {
+                    descriptors[i].gpuSampler = static_cast<GLES3Sampler *>(_samplers[i].ptr)->gpuSampler();
                 }
             }
         }

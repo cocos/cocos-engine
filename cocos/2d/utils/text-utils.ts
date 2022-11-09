@@ -26,7 +26,7 @@
 
 import { RUNTIME_BASED } from 'internal:constants';
 import { minigame } from 'pal/minigame';
-import Pool from '../../core/utils/pool';
+import { js } from '../../core';
 
 export const BASELINE_RATIO = 0.26;
 let _BASELINE_OFFSET = 0;
@@ -64,7 +64,7 @@ interface ICacheNode {
     next: ICacheNode | null
 }
 
-const pool = new Pool<ICacheNode>(2);
+const pool = new js.Pool<ICacheNode>(2);
 pool.get = function () {
     return this._get() || {
         key: '',

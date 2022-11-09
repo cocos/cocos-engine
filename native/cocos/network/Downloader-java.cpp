@@ -32,6 +32,7 @@
 #include "network/Downloader.h"
 #include "platform/java/jni/JniHelper.h"
 #include "platform/java/jni/JniImp.h"
+#include "base/StringUtil.h"
 
 #ifndef JCLS_DOWNLOADER
     #define JCLS_DOWNLOADER "com/cocos/lib/CocosDownloader"
@@ -147,7 +148,8 @@ IDownloadTask *DownloaderJava::createCoTask(std::shared_ptr<const DownloadTask> 
                                        "createTask",
                                        "(" JARG_DOWNLOADER "I" JARG_STR JARG_STR "[" JARG_STR ")V")) {
         jclass jclassString = methodInfo.env->FindClass("java/lang/String");
-        jstring jstrURL = methodInfo.env->NewStringUTF(task->requestURL.c_str());
+        ccstd::string url(task->requestURL);
+        jstring jstrURL = methodInfo.env->NewStringUTF(StringUtil::replaceAll(url, " ", "%20").c_str());
         jstring jstrPath = methodInfo.env->NewStringUTF(task->storagePath.c_str());
         jobjectArray jarrayHeader = methodInfo.env->NewObjectArray(task->header.size() * 2, jclassString, nullptr);
         const ccstd::unordered_map<ccstd::string, ccstd::string> &headMap = task->header;

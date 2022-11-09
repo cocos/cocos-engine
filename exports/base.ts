@@ -29,17 +29,30 @@ import '../predefine';
 
 // tslint:disable-next-line: ordered-imports
 import '../cocos/core/legacy';
-import * as renderer from '../cocos/core/renderer';
+//TODO(PP): should rename it to render-scene
+import * as renderer from '../cocos/render-scene';
+import * as gfx from '../cocos/gfx';
 
 // LOAD ENGINE CORE
 export * from '../cocos/core';
+
+export * from '../cocos/rendering';
+export * from '../cocos/rendering/custom/builtin-pipelines';
+export * from '../cocos/scene-graph';
+export * from '../cocos/misc';
+export * from '../cocos/game';
+export { Root } from '../cocos/root';
+export * from '../cocos/serialization';
+
+export { gfx };
+
+export * from '../cocos/asset/assets';
+export * from '../cocos/asset/asset-manager';
 
 export { renderer };
 legacyCC.renderer = renderer;
 
 export * from '../extensions/ccpool/node-pool';
-
-export { legacyCC as cclegacy };
 
 export * from '../cocos/input/types';
 export * from '../cocos/input';

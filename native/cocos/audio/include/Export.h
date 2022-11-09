@@ -49,4 +49,3 @@
         #define EXPORT_DLL
     #endif
 #endif
-

@@ -24,14 +24,11 @@
 */
 
 import { JSB } from 'internal:constants';
-import { Device, Attribute } from '../../core/gfx';
+import { Device, Attribute } from '../../gfx';
 import { MeshBuffer } from './mesh-buffer';
 import { BufferAccessor } from './buffer-accessor';
-import { assertID, errorID } from '../../core/platform/debug';
-import { assertIsTrue } from '../../core/data/utils/asserts';
-import { Pool } from '../../core/memop/pool';
-import { macro } from '../../core/platform/macro';
-import { director } from '../../core';
+import { assertID, errorID, Pool, macro, assertIsTrue } from '../../core';
+import { director } from '../../game';
 
 interface IFreeEntry {
     offset: number;

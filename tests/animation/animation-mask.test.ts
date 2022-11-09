@@ -1,4 +1,4 @@
-import { AnimationMask } from '../../cocos/core/animation/marionette/animation-mask';
+import { AnimationMask } from '../../cocos/animation/marionette/animation-mask';
 import 'jest-extended';
 
 test('AnimationMask', () => {

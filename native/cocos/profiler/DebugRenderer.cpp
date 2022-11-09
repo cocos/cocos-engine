@@ -35,6 +35,7 @@
 #include "math/Vec2.h"
 #include "platform/interfaces/modules/Device.h"
 #include "platform/interfaces/modules/ISystemWindow.h"
+#include "platform/interfaces/modules/ISystemWindowManager.h"
 #include "renderer/gfx-base/GFXDescriptorSet.h"
 #include "renderer/gfx-base/GFXDevice.h"
 #include "renderer/pipeline/Define.h"
@@ -229,8 +230,8 @@ void DebugRenderer::activate(gfx::Device *device, const DebugRendererInfo &info)
     _buffer = ccnew DebugVertexBuffer();
     _buffer->init(_device, info.maxCharacters * DEBUG_VERTICES_PER_CHAR, ATTRIBUTES);
 
-    const auto *window = CC_CURRENT_ENGINE()->getInterface<ISystemWindow>();
-    const auto width = window->getViewSize().x * Device::getDevicePixelRatio();
+    const auto *window = CC_GET_MAIN_SYSTEM_WINDOW();
+    const auto width = window->getViewSize().width * Device::getDevicePixelRatio();
     auto fontSize = static_cast<uint32_t>(width / 800.0F * info.fontSize);
     fontSize = fontSize < 10U ? 10U : (fontSize > 20U ? 20U : fontSize);
 

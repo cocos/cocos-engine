@@ -33,8 +33,8 @@
 #include "ForwardFlow.h"
 #include "gfx-base/GFXDevice.h"
 #include "profiler/Profiler.h"
-#include "scene/RenderScene.h"
 #include "scene/Camera.h"
+#include "scene/RenderScene.h"
 
 namespace cc {
 namespace pipeline {
@@ -106,8 +106,9 @@ void ForwardPipeline::render(const ccstd::vector<scene::Camera *> &cameras) {
         _commandBuffers[0]->resetQueryPool(_queryPools[0]);
     }
 
+    _pipelineUBO->updateMultiCameraUBO(_globalDSManager, cameras);
     _pipelineUBO->updateGlobalUBO(cameras[0]);
-    _pipelineUBO->updateMultiCameraUBO(cameras);
+
     ensureEnoughSize(cameras);
     decideProfilerCamera(cameras);
 

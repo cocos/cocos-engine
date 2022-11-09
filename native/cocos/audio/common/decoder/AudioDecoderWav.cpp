@@ -26,9 +26,8 @@ THE SOFTWARE.
 #define LOG_TAG "AudioDecoderWav"
 
 #include "audio/common/decoder/AudioDecoderWav.h"
-#include "platform/FileUtils.h"
 #include "base/Log.h"
-
+#include "platform/FileUtils.h"
 
 namespace cc {
 
@@ -60,8 +59,8 @@ bool AudioDecoderWav::open(const char *path) {
         }
         CC_LOG_DEBUG("wav info: frames: %d, samplerate: %d, channels: %d, format: %d", info.frames, info.samplerate, info.channels, info.format);
         _pcmHeader.channelCount = info.channels;
-        _pcmHeader.bytesPerFrame = 2;                       // FIXED_16
-        _pcmHeader.dataFormat = AudioDataFormat::SIGNED_16;//FIXED,
+        _pcmHeader.bytesPerFrame = 2 * info.channels;    // FIXED_16
+        _pcmHeader.dataFormat = AudioDataFormat::SIGNED_16; //FIXED,
         _pcmHeader.sampleRate = info.samplerate;
         _pcmHeader.totalFrames = info.frames;
         _isOpened = true;
@@ -79,7 +78,7 @@ uint32_t AudioDecoderWav::read(uint32_t framesToRead, char *pcmBuf) {
 
 bool AudioDecoderWav::seek(uint32_t frameOffset) {
     auto offset = sf::sf_seek(_sf_handle, frameOffset, SEEK_SET);
-    return offset >=0 && offset == frameOffset;
+    return offset >= 0 && offset == frameOffset;
 }
 uint32_t AudioDecoderWav::tell() const {
     return static_cast<uint32_t>(sf::sf_tell(_sf_handle));
@@ -91,6 +90,5 @@ void AudioDecoderWav::close() {
         }
         _isOpened = false;
     }
-    
 }
 } // namespace cc

@@ -196,51 +196,45 @@ bool RenderAdditiveLightQueue::cullSpotLight(const scene::SpotLight *light, cons
     return model->getWorldBounds() && (!model->getWorldBounds()->aabbAabb(light->getAABB()) || !model->getWorldBounds()->aabbFrustum(light->getFrustum()));
 }
 
-bool RenderAdditiveLightQueue::isInstancedOrBatched(const scene::Model *model) {
-    const auto &subModels = model->getSubModels();
-    const auto subModelCount = subModels.size();
-    for (uint32_t subModelIdx = 0; subModelIdx < subModelCount; ++subModelIdx) {
-        const auto &subModel = subModels[subModelIdx];
-        const auto &passes = subModel->getPasses();
-        const auto passCount = passes.size();
-        for (uint32_t passIdx = 0; passIdx < passCount; ++passIdx) {
-            const auto &pass = passes[passIdx];
-            if (pass->getBatchingScheme() == scene::BatchingSchemes::INSTANCING) {
-                return true;
-            }
-            if (pass->getBatchingScheme() == scene::BatchingSchemes::VB_MERGING) {
-                return true;
-            }
-        }
-    }
-    return false;
-}
-
-void RenderAdditiveLightQueue::addRenderQueue(const scene::SubModel *subModel, const scene::Model *model, scene::Pass *pass, uint32_t lightPassIdx) {
-    const auto batchingScheme = pass->getBatchingScheme();
+void RenderAdditiveLightQueue::addRenderQueue(scene::SubModel *subModel, const scene::Model *model, scene::Pass *pass, uint32_t lightPassIdx) {
     const auto lightCount = _lightIndices.size();
-    if (batchingScheme == scene::BatchingSchemes::INSTANCING) { // instancing
-        auto *buffer = pass->getInstancedBuffer();
-        buffer->merge(model, subModel, lightPassIdx);
-        buffer->setDynamicOffset(0, _lightBufferStride);
-        _instancedQueue->add(buffer);
-    } else if (batchingScheme == scene::BatchingSchemes::VB_MERGING) { // vb-merging
-        auto *buffer = pass->getBatchedBuffer();
-        buffer->merge(subModel, lightPassIdx, model);
-        buffer->setDynamicOffset(0, _lightBufferStride);
-        _batchedQueue->add(buffer);
-    } else { // standard draw
-        AdditiveLightPass lightPass;
+    const auto batchingScheme = pass->getBatchingScheme();
+
+    AdditiveLightPass lightPass;
+    if (batchingScheme == scene::BatchingSchemes::NONE) {
         lightPass.subModel = subModel;
         lightPass.pass = pass;
         lightPass.shader = subModel->getShader(lightPassIdx);
         lightPass.dynamicOffsets.resize(lightCount);
-        for (uint32_t i = 0; i < lightCount; ++i) {
-            const auto lightIdx = _lightIndices[i];
-            const auto *light = _validPunctualLights[lightIdx];
-            lightPass.lights.emplace_back(light);
-            lightPass.dynamicOffsets[i] = _lightBufferStride * lightIdx;
+    }
+
+    for (uint32_t i = 0; i < lightCount; ++i) {
+        const auto lightIdx = _lightIndices[i];
+        const auto *light = _validPunctualLights[lightIdx];
+        const auto visibility = light->getVisibility();
+        if ((visibility & model->getNode()->getLayer()) == model->getNode()->getLayer()) {
+            switch (batchingScheme) {
+                case scene::BatchingSchemes::INSTANCING: {
+                    auto *buffer = pass->getInstancedBuffer(i);
+                    buffer->merge(subModel, lightPassIdx);
+                    buffer->setDynamicOffset(0, _lightBufferStride);
+                    _instancedQueue->add(buffer);
+                } break;
+                case scene::BatchingSchemes::VB_MERGING: {
+                    auto *buffer = pass->getBatchedBuffer(i);
+                    buffer->merge(subModel, lightPassIdx, model);
+                    buffer->setDynamicOffset(0, _lightBufferStride);
+                    _batchedQueue->add(buffer);
+                } break;
+                case scene::BatchingSchemes::NONE: {
+                    lightPass.lights.emplace_back(light);
+                    lightPass.dynamicOffsets[i] = _lightBufferStride * lightIdx;
+                } break;
+            }
         }
+    }
+
+    if (batchingScheme == scene::BatchingSchemes::NONE) {
         _lightPasses.emplace_back(std::move(lightPass));
     }
 }
@@ -253,12 +247,12 @@ void RenderAdditiveLightQueue::updateUBOs(const scene::Camera *camera, gfx::Comm
 
     size_t offset = 0;
     if (validLightCount > _lightBufferCount) {
-        _firstLightBufferView->destroy();
-
         _lightBufferCount = nextPow2(static_cast<uint32_t>(validLightCount));
         _lightBuffer->resize(utils::toUint(_lightBufferStride * _lightBufferCount));
         _lightBufferData.resize(static_cast<size_t>(_lightBufferElementCount) * _lightBufferCount);
-        _firstLightBufferView->initialize({_lightBuffer, 0, UBOForwardLight::SIZE});
+
+        auto *device = gfx::Device::getInstance();
+        _firstLightBufferView = device->createBuffer({_lightBuffer, 0, UBOForwardLight::SIZE});
     }
 
     for (unsigned l = 0; l < validLightCount; l++, offset += _lightBufferElementCount) {
@@ -443,19 +437,14 @@ bool RenderAdditiveLightQueue::getLightPassIndex(const scene::Model *model, ccst
 
 void RenderAdditiveLightQueue::lightCulling(const scene::Model *model) {
     bool isCulled = false;
-    const auto isNeedCulling = !isInstancedOrBatched(model);
     for (size_t i = 0; i < _validPunctualLights.size(); i++) {
         const auto *const light = _validPunctualLights[i];
         switch (light->getType()) {
             case scene::LightType::SPHERE:
-                if (isNeedCulling) {
-                    isCulled = cullSphereLight(static_cast<const scene::SphereLight *>(light), model);
-                }
+                isCulled = cullSphereLight(static_cast<const scene::SphereLight *>(light), model);
                 break;
             case scene::LightType::SPOT:
-                if (isNeedCulling) {
-                    isCulled = cullSpotLight(static_cast<const scene::SpotLight *>(light), model);
-                }
+                isCulled = cullSpotLight(static_cast<const scene::SpotLight *>(light), model);
                 break;
             default:
                 isCulled = false;

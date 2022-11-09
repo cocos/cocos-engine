@@ -25,12 +25,15 @@
 
 #include "platform/ios/modules/SystemWindow.h"
 #import <UIKit/UIKit.h>
-
-namespace {
-
-}
+#include "platform/BasePlatform.h"
+#include "platform/interfaces/modules/IScreen.h"
 
 namespace cc {
+
+SystemWindow::SystemWindow(uint32_t windowId, void *externalHandle)
+    : _windowId(windowId)
+    , _externalHandle(externalHandle) {
+}
 
 SystemWindow::~SystemWindow() = default;
 
@@ -43,7 +46,7 @@ void SystemWindow::copyTextToClipboard(const std::string& text) {
 }
 void SystemWindow::closeWindow() {
     // Force quit as there's no API to exit UIApplication
-    cc::EventDispatcher::dispatchCloseEvent();
+    cc::events::Close::broadcast();
     exit(0);
 }
 uintptr_t SystemWindow::getWindowHandle() const {
@@ -51,8 +54,9 @@ uintptr_t SystemWindow::getWindowHandle() const {
 }
 
 SystemWindow::Size SystemWindow::getViewSize() const {
+    auto dpr = BasePlatform::getPlatform()->getInterface<IScreen>()->getDevicePixelRatio();
     CGRect bounds = [[UIScreen mainScreen] bounds];
-    return Size{static_cast<float>(bounds.size.width), static_cast<float>(bounds.size.height)};
+    return Size{static_cast<float>(bounds.size.width * dpr), static_cast<float>(bounds.size.height * dpr)};
 }
 
 } // namespace cc

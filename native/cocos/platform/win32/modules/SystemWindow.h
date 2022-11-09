@@ -26,18 +26,20 @@
 #pragma once
 
 #include <iostream>
-
 #include "platform/interfaces/modules/ISystemWindow.h"
+
+struct SDL_Window;
 
 namespace cc {
 class SDLHelper;
+
 class CC_DLL SystemWindow : public ISystemWindow {
+    friend class SystemWindowManager;
+
 public:
-    explicit SystemWindow(IEventDispatch* delegate);
+    explicit SystemWindow(uint32_t windowId, void* externalHandle);
     ~SystemWindow() override;
 
-    int init();
-    void pollEvent(bool* quit);
     void swapWindow();
 
     bool createWindow(const char* title,
@@ -46,7 +48,10 @@ public:
                       int x, int y, int w,
                       int h, int flags) override;
     void closeWindow() override;
+
+    uint32_t getWindowId() const override;
     uintptr_t getWindowHandle() const override;
+
     Size getViewSize() const override;
     void setViewSize(uint32_t width, uint32_t height) override {
         _width = width;
@@ -59,9 +64,14 @@ public:
     void copyTextToClipboard(const std::string& text) override;
 
 private:
-    int _width{0};
-    int _height{0};
-    std::unique_ptr<SDLHelper> _sdl;
+    SDL_Window* getSDLWindow() const { return _window; }
+
+    uint32_t _width{0};
+    uint32_t _height{0};
+
+    uint32_t _windowId{0};
+    uintptr_t _windowHandle{0};
+    SDL_Window* _window{nullptr};
 };
 
 } // namespace cc

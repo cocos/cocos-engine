@@ -24,12 +24,8 @@ exports.listeners = {
 
         let setChildrenLayer = false;
         if (dump.path === 'layer') {
-            dump.value = panel.$.nodeLayerSelect.value - 0;
-            if ('values' in dump) {
-                dump.values.forEach((val, index) => {
-                    dump.values[index] = dump.value;
-                });
-            }
+            const newValue = Number(panel.$.nodeLayerSelect.value);
+
             if (panel.dumps && panel.dumps.some((perdump) => perdump.children && perdump.children.length > 0)) {
                 // 只修改自身节点
                 let choose = 1;
@@ -54,7 +50,16 @@ exports.listeners = {
                     return;
                 } else {
                     setChildrenLayer = choose === 0 ? true : false;
+
+                    dump.value = newValue;
+                    if (setChildrenLayer && 'values' in dump) {
+                        dump.values.forEach((val, index) => {
+                            dump.values[index] = newValue;
+                        });
+                    }
                 }
+            } else {
+                dump.value = newValue;
             }
         }
 
@@ -89,8 +94,6 @@ exports.listeners = {
                     },
                 });
             }
-
-            Editor.Message.send('scene', 'snapshot');
         } catch (error) {
             console.error(error);
         }
@@ -99,6 +102,9 @@ exports.listeners = {
         const panel = this;
 
         panel.snapshotLock = false;
+
+        // In combination with change-dump, snapshot only generated once after ui-elements continuously changed.
+        Editor.Message.send('scene', 'snapshot');
     },
     async 'create-dump'(event) {
         const panel = this;
@@ -180,7 +186,7 @@ exports.listeners = {
          * So stop preview some properties.
          */
         const stopPreviewOnTheseTooltips = [
-            'i18n:animation.default_clip',
+            'i18n:ENGINE.animation.default_clip',
         ];
         if (stopPreviewOnTheseTooltips.includes(dump.tooltip)) {
             return;
@@ -304,6 +310,7 @@ exports.template = /* html*/`
         <ui-prop class="position" type="dump"></ui-prop>
         <ui-prop class="rotation" type="dump"></ui-prop>
         <ui-prop class="scale" type="dump"></ui-prop>
+        <ui-prop class="mobility" type="dump"></ui-prop>
         <ui-prop class="layer" type="dump" html="false">
             <ui-label slot="label" value="Layer"></ui-label>
             <div class="layer-content" slot="content">
@@ -366,6 +373,7 @@ exports.$ = {
     nodePosition: '.node > .position',
     nodeRotation: '.node > .rotation',
     nodeScale: '.node > .scale',
+    nodeMobility: '.node > .mobility',
     nodeLayer: '.node > .layer',
     nodeLayerSelect: '.node > .layer .layer-select',
     nodeLayerButton: '.node > .layer .layer-edit',
@@ -907,6 +915,7 @@ const Elements = {
             panel.$.nodePosition.render(panel.dump.position);
             panel.$.nodeRotation.render(panel.dump.rotation);
             panel.$.nodeScale.render(panel.dump.scale);
+            panel.$.nodeMobility.render(panel.dump.mobility);
             panel.$.nodeLayer.render(panel.dump.layer);
 
             // 查找需要渲染的 component 列表
@@ -1884,4 +1893,5 @@ exports.beforeClose = async function beforeClose() {
 
 exports.config = {
     section: require('../components.js'),
+    footer: require('../components-footer.js'),
 };

@@ -32,6 +32,7 @@
 #include "base/Macros.h"
 #include "bindings/jswrapper/SeApi.h"
 #include "core/builtin/BuiltinResMgr.h"
+#include "engine/EngineEvents.h"
 #include "platform/BasePlatform.h"
 #include "platform/FileUtils.h"
 #include "renderer/GFXDeviceManager.h"
@@ -57,10 +58,13 @@
 #include "application/ApplicationManager.h"
 #include "application/BaseApplication.h"
 #include "base/Scheduler.h"
+#include "bindings/event/EventDispatcher.h"
 #include "core/assets/FreeTypeFont.h"
 #include "network/HttpClient.h"
 #include "platform/UniversalPlatform.h"
+#include "platform/interfaces/modules/IScreen.h"
 #include "platform/interfaces/modules/ISystemWindow.h"
+#include "platform/interfaces/modules/ISystemWindowManager.h"
 #if CC_USE_DEBUG_RENDERER
     #include "profiler/DebugRenderer.h"
 #endif
@@ -71,14 +75,15 @@ namespace {
 bool setCanvasCallback(se::Object * /*global*/) {
     se::AutoHandleScope scope;
     se::ScriptEngine *se = se::ScriptEngine::getInstance();
-    auto *window = CC_CURRENT_ENGINE()->getInterface<cc::ISystemWindow>();
+    auto *window = CC_GET_MAIN_SYSTEM_WINDOW();
     auto handler = window->getWindowHandle();
     auto viewSize = window->getViewSize();
+    auto dpr = cc::BasePlatform::getPlatform()->getInterface<cc::IScreen>()->getDevicePixelRatio();
 
     std::stringstream ss;
     {
-        ss << "window.innerWidth = " << static_cast<int>(viewSize.x) << ";";
-        ss << "window.innerHeight = " << static_cast<int>(viewSize.y) << ";";
+        ss << "window.innerWidth = " << static_cast<int>(viewSize.width / dpr) << ";";
+        ss << "window.innerHeight = " << static_cast<int>(viewSize.height / dpr) << ";";
         ss << "window.windowHandler = ";
         if (sizeof(handler) == 8) { // use bigint
             ss << static_cast<uint64_t>(handler) << "n;";
@@ -98,6 +103,8 @@ namespace cc {
 
 Engine::Engine() {
     _scriptEngine = ccnew se::ScriptEngine();
+
+    _windowEventListener.bind([this](const cc::WindowEvent &ev) { redirectWindowEvent(ev); });
 }
 
 Engine::~Engine() {
@@ -126,14 +133,9 @@ int32_t Engine::init() {
     EventDispatcher::init();
 
     BasePlatform *platform = BasePlatform::getPlatform();
-    platform->setHandleEventCallback(
-        std::bind(&Engine::handleEvent, this, std::placeholders::_1)); // NOLINT(modernize-avoid-bind)
-
-    platform->setHandleTouchEventCallback(
-        std::bind(&Engine::handleTouchEvent, this, std::placeholders::_1)); // NOLINT(modernize-avoid-bind)
 
     se::ScriptEngine::getInstance()->addRegisterCallback(setCanvasCallback);
-    emit(static_cast<int>(ON_START));
+    emit<EngineStatusChange>(ON_START);
     _inited = true;
     return 0;
 }
@@ -229,7 +231,6 @@ void Engine::close() { // NOLINT
     cc::DeferredReleasePool::clear();
     _scheduler->removeAllFunctionsToBePerformedInCocosThread();
     _scheduler->unscheduleAll();
-    BasePlatform::getPlatform()->setHandleEventCallback(nullptr);
 }
 
 uint Engine::getTotalFrames() const {
@@ -243,21 +244,6 @@ void Engine::setPreferredFramesPerSecond(int fps) {
     BasePlatform *platform = BasePlatform::getPlatform();
     platform->setFps(fps);
     _prefererredNanosecondsPerFrame = static_cast<long>(1.0 / fps * NANOSECONDS_PER_SECOND); //NOLINT(google-runtime-int)
-}
-
-void Engine::addEventCallback(OSEventType evType, const EventCb &cb) {
-    _eventCallbacks.insert(std::make_pair(evType, cb));
-}
-
-void Engine::removeEventCallback(OSEventType evType) {
-    auto it = _eventCallbacks.find(evType);
-    if (it != _eventCallbacks.end()) {
-        _eventCallbacks.erase(it);
-        return;
-    }
-
-    // For debugging. Interface does not exist.
-    CC_ASSERT(false);
 }
 
 void Engine::tick() {
@@ -292,7 +278,7 @@ void Engine::tick() {
         _scheduler->update(dt);
 
         se::ScriptEngine::getInstance()->handlePromiseExceptions();
-        cc::EventDispatcher::dispatchTickEvent(dt);
+        events::Tick::broadcast(dt);
         se::ScriptEngine::getInstance()->mainLoopUpdate();
 
         cc::DeferredReleasePool::clear();
@@ -306,86 +292,43 @@ void Engine::tick() {
 }
 
 void Engine::doRestart() {
-    cc::EventDispatcher::dispatchRestartVM();
+    events::RestartVM::broadcast();
     destroy();
     CC_CURRENT_APPLICATION()->init();
-}
-
-bool Engine::handleEvent(const OSEvent &ev) {
-    bool isHandled = false;
-    OSEventType type = ev.eventType();
-    if (type == OSEventType::TOUCH_OSEVENT) {
-        cc::EventDispatcher::dispatchTouchEvent(OSEvent::castEvent<TouchEvent>(ev));
-        isHandled = true;
-    } else if (type == OSEventType::MOUSE_OSEVENT) {
-        cc::EventDispatcher::dispatchMouseEvent(OSEvent::castEvent<MouseEvent>(ev));
-        isHandled = true;
-    } else if (type == OSEventType::KEYBOARD_OSEVENT) {
-        cc::EventDispatcher::dispatchKeyboardEvent(OSEvent::castEvent<KeyboardEvent>(ev));
-        isHandled = true;
-    } else if (type == OSEventType::CONTROLLER_OSEVENT) {
-        cc::EventDispatcher::dispatchControllerEvent(OSEvent::castEvent<ControllerEvent>(ev));
-        isHandled = true;
-    } else if (type == OSEventType::CUSTOM_OSEVENT) {
-        cc::EventDispatcher::dispatchCustomEvent(OSEvent::castEvent<CustomEvent>(ev));
-        isHandled = true;
-    } else if (type == OSEventType::WINDOW_OSEVENT) {
-        isHandled = dispatchWindowEvent(OSEvent::castEvent<WindowEvent>(ev));
-    } else if (type == OSEventType::DEVICE_OSEVENT) {
-        isHandled = dispatchDeviceEvent(OSEvent::castEvent<DeviceEvent>(ev));
-    }
-    isHandled = dispatchEventToApp(type, ev);
-    return isHandled;
-}
-
-bool Engine::handleTouchEvent(const TouchEvent &ev) { // NOLINT(readability-convert-member-functions-to-static)
-    cc::EventDispatcher::dispatchTouchEvent(ev);
-    return dispatchEventToApp(OSEventType::TOUCH_OSEVENT, ev);
 }
 
 Engine::SchedulerPtr Engine::getScheduler() const {
     return _scheduler;
 }
 
-bool Engine::dispatchDeviceEvent(const DeviceEvent &ev) { // NOLINT(readability-convert-member-functions-to-static)
-    bool isHandled = false;
-    if (ev.type == DeviceEvent::Type::MEMORY) {
-        cc::EventDispatcher::dispatchMemoryWarningEvent();
-        isHandled = true;
-    } else if (ev.type == DeviceEvent::Type::ORIENTATION) {
-        cc::EventDispatcher::dispatchOrientationChangeEvent(ev.args[0].intVal);
-        isHandled = true;
-    }
-    return isHandled;
-}
-
-bool Engine::dispatchWindowEvent(const WindowEvent &ev) {
+bool Engine::redirectWindowEvent(const WindowEvent &ev) {
     bool isHandled = false;
     if (ev.type == WindowEvent::Type::SHOW ||
         ev.type == WindowEvent::Type::RESTORED) {
-        emit(static_cast<int>(ON_RESUME));
+        emit<EngineStatusChange>(ON_RESUME);
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS
-        cc::EventDispatcher::dispatchRecreateWindowEvent();
+        events::WindowRecreated::broadcast(ev.windowId);
 #endif
-        cc::EventDispatcher::dispatchEnterForegroundEvent();
+        events::EnterForeground::broadcast();
         isHandled = true;
     } else if (ev.type == WindowEvent::Type::SIZE_CHANGED ||
                ev.type == WindowEvent::Type::RESIZED) {
-        cc::EventDispatcher::dispatchResizeEvent(ev.width, ev.height);
-        auto *w = CC_GET_PLATFORM_INTERFACE(ISystemWindow);
+        events::Resize::broadcast(ev.width, ev.height, ev.windowId);
+        auto *w = CC_GET_SYSTEM_WINDOW(ev.windowId);
+        CC_ASSERT(w);
         w->setViewSize(ev.width, ev.height);
         isHandled = true;
     } else if (ev.type == WindowEvent::Type::HIDDEN ||
                ev.type == WindowEvent::Type::MINIMIZED) {
-        emit(static_cast<int>(ON_PAUSE));
+        emit<EngineStatusChange>(ON_PAUSE);
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS
-        cc::EventDispatcher::dispatchDestroyWindowEvent();
+        events::WindowDestroy::broadcast(ev.windowId);
 #endif
-        cc::EventDispatcher::dispatchEnterBackgroundEvent();
+        events::EnterBackground::broadcast();
+
         isHandled = true;
     } else if (ev.type == WindowEvent::Type::CLOSE) {
-        emit(static_cast<int>(ON_CLOSE));
-        cc::EventDispatcher::dispatchCloseEvent();
+        emit<EngineStatusChange>(ON_CLOSE);
         isHandled = true;
     } else if (ev.type == WindowEvent::Type::QUIT) {
         // There is no need to process the quit message,
@@ -393,15 +336,6 @@ bool Engine::dispatchWindowEvent(const WindowEvent &ev) {
         isHandled = true;
     }
     return isHandled;
-}
-
-bool Engine::dispatchEventToApp(OSEventType type, const OSEvent &ev) {
-    auto it = _eventCallbacks.find(type);
-    if (it != _eventCallbacks.end()) {
-        it->second(ev);
-        return true;
-    }
-    return false;
 }
 
 } // namespace cc

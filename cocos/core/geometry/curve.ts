@@ -24,10 +24,8 @@
  */
 
 import { CCClass } from '../data/class';
-import { clamp, inverseLerp, pingPong, repeat } from '../math/utils';
-import { WrapModeMask } from '../animation/types';
-import { ExtrapolationMode, RealCurve, RealInterpolationMode, RealKeyframeValue } from '../curves';
-import { ccclass, serializable } from '../data/decorators';
+import { clamp, pingPong, repeat } from '../math/utils';
+import { ExtrapolationMode, RealCurve, RealInterpolationMode } from '../curves';
 
 const LOOK_FORWARD = 3;
 
@@ -70,6 +68,9 @@ CCClass.fastDefine('cc.Keyframe', Keyframe, {
     outTangent: 0,
 });
 
+/**
+ * @engineInternal
+ */
 export class OptimizedKey {
     public index: number;
     public time: number;
@@ -88,6 +89,9 @@ export class OptimizedKey {
     }
 }
 
+/**
+ * @engineInternal
+ */
 export function evalOptCurve (t: number, coefs: Float32Array | number[]) {
     return (t * (t * (t * coefs[0] + coefs[1]) + coefs[2])) + coefs[3];
 }
@@ -347,6 +351,19 @@ CCClass.fastDefine('cc.AnimationCurve', AnimationCurve, {
     _curve: null,
 });
 
+/**
+ * @engineInternal
+ */
+export enum WrapModeMask {
+    Default = 0,
+    Normal = 1 << 0,
+    Loop = 1 << 1,
+    ShouldWrap = 1 << 2,
+    Clamp = 1 << 3,
+    PingPong = 1 << 4 | 1 << 1 | 1 << 2,  // Loop, ShouldWrap
+    Reverse = 1 << 5 | 1 << 2,      // ShouldWrap
+}
+
 function fromLegacyWrapMode (legacyWrapMode: WrapModeMask): ExtrapolationMode {
     switch (legacyWrapMode) {
     default:
@@ -370,6 +387,7 @@ function toLegacyWrapMode (extrapolationMode: ExtrapolationMode): WrapModeMask {
 
 /**
  * Same as but more effective than `new LegacyCurve()._internalCurve`.
+ * @engineInternal
  */
 export function constructLegacyCurveAndConvert () {
     const curve = new RealCurve();

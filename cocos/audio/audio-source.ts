@@ -26,11 +26,11 @@
 import { AudioPlayer } from 'pal/audio';
 import { ccclass, help, menu, tooltip, type, range, serializable } from 'cc.decorator';
 import { AudioPCMDataView, AudioState } from '../../pal/audio/type';
-import { Component } from '../core/components/component';
-import { clamp } from '../core/math';
+import { Component } from '../scene-graph/component';
+import { clamp } from '../core';
 import { AudioClip } from './audio-clip';
 import { audioManager } from './audio-manager';
-import { Node } from '../core';
+import { Node } from '../scene-graph';
 
 const _LOADED_EVENT = 'audiosource-loaded';
 
@@ -75,6 +75,17 @@ export class AudioSource extends Component {
     private _isLoaded = false;
 
     private _lastSetClip: AudioClip | null = null;
+
+    private _resetPlayer () {
+        if (this._player) {
+            audioManager.removePlaying(this._player);
+            this._player.offEnded();
+            this._player.offInterruptionBegin();
+            this._player.offInterruptionEnd();
+            this._player.destroy();
+            this._player = null;
+        }
+    }
     /**
      * @en
      * The default AudioClip to be played for this audio source.
@@ -101,6 +112,7 @@ export class AudioSource extends Component {
         }
         if (!clip) {
             this._lastSetClip = null;
+            this._resetPlayer();
             return;
         }
         if (!clip._nativeAsset) {
@@ -121,13 +133,7 @@ export class AudioSource extends Component {
             }
             this._isLoaded = true;
             // clear old player
-            if (this._player) {
-                audioManager.removePlaying(this._player);
-                this._player.offEnded();
-                this._player.offInterruptionBegin();
-                this._player.offInterruptionEnd();
-                this._player.destroy();
-            }
+            this._resetPlayer();
             this._player = player;
             player.onEnded(() => {
                 audioManager.removePlaying(player);

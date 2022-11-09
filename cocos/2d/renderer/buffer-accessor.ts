@@ -23,7 +23,7 @@
  THE SOFTWARE.
 */
 
-import { Attribute, Device } from '../../core/gfx';
+import { Attribute, Device } from '../../gfx';
 import type { MeshBuffer } from './mesh-buffer';
 import { getAttributeStride, getComponentPerVertex } from './vertex-format';
 

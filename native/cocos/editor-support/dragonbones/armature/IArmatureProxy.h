@@ -105,18 +105,6 @@ public:
      * @language zh_CN
      */
     virtual Animation* getAnimation() const = 0;
-
-    /**
-     * - Gets render order
-     * @version Cocos Creator 2.3
-     * @language en_US
-     */
-    /**
-     * - 获得渲染顺序。
-     * @version Cocos Creator 2.3
-     * @language zh_CN
-     */
-    virtual uint32_t getRenderOrder() const = 0;
 };
 
 DRAGONBONES_NAMESPACE_END

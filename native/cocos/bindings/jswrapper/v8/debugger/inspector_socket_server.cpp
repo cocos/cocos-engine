@@ -111,22 +111,23 @@ void PrintDebuggerReadyMessage(const std::string &host,
     {
         char buf[512];
         uv_interface_address_t *info = nullptr;
-        int count = 0, i = 0;
+        int count = 0;
+        int i = 0;
 
         uv_interface_addresses(&info, &count);
         i = count;
 
         if (errno) {
-            SE_LOGE("failed to get addresses %s\n", strerror(errno));
+            SE_LOGE("failed to get addresses %s", strerror(errno));
         }
 
-        SE_LOGD("Number of interfaces: %d\n", count);
+        SE_LOGD("Number of interfaces: %d", count);
         while (i--) {
-            auto &network_interface = info[i];
+            auto &networkInterface = info[i];
 
-            if (network_interface.address.address4.sin_family == AF_INET) {
-                uv_ip4_name(&network_interface.address.address4, buf, sizeof(buf));
-                ipList.push_back(std::make_tuple(network_interface.name, network_interface.is_internal, buf));
+            if (networkInterface.address.address4.sin_family == AF_INET) {
+                uv_ip4_name(&networkInterface.address.address4, buf, sizeof(buf));
+                ipList.emplace_back(networkInterface.name, networkInterface.is_internal, buf);
             }
         }
         uv_free_interface_addresses(info, count);
@@ -134,25 +135,25 @@ void PrintDebuggerReadyMessage(const std::string &host,
     // failed to query device interfaces,
     if (ipList.empty()) {
     #if ANDROID
-        SE_LOGD("Please query IP by running the following command in terminal: adb shell ip -4 -br addr\n");
+        SE_LOGD("Please query IP by running the following command in terminal: adb shell ip -4 -br addr");
     #endif
         ipList.emplace_back("none", false, "IP_ADDR_OF_THIS_DEVICE");
     }
 
     for (const std::string &id : ids) {
         if (host != "0.0.0.0") {
-            SE_LOGD("Debugger listening..., visit [ devtools://devtools/bundled/js_app.html?v8only=true&ws=%s ] in chrome browser to debug!\n",
+            SE_LOGD("Debugger listening..., visit [ devtools://devtools/bundled/js_app.html?v8only=true&ws=%s ] in chrome browser to debug!",
                     FormatWsAddress(host, port, id, false).c_str());
         } else {
-            SE_LOGD("Debugger listening..., visit [\n");
+            SE_LOGD("Debugger listening..., visit [");
             for (auto &nif : ipList) {
-                SE_LOGD("    devtools://devtools/bundled/js_app.html?v8only=true&ws=%s\n",
+                SE_LOGD("    devtools://devtools/bundled/js_app.html?v8only=true&ws=%s",
                         FormatWsAddress(std::get<2>(nif), port, id, false).c_str());
             }
-            SE_LOGD("  ] in chrome browser to debug!\n");
+            SE_LOGD("  ] in chrome browser to debug!");
         }
     }
-    SE_LOGD("For help see %s\n",
+    SE_LOGD("For help see %s",
             "https://nodejs.org/en/docs/inspector");
 }
 

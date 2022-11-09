@@ -920,7 +920,7 @@ public:
     /**
      * Determines if this matrix is approximately equal to the given matrix.
      */
-    bool approxEquals(const Mat4& v, float precision = CC_FLOAT_CMP_PRECISION) const;
+    bool approxEquals(const Mat4 &v, float precision = CC_FLOAT_CMP_PRECISION) const;
 
     /** equals to a matrix full of zeros */
     static const Mat4 ZERO;

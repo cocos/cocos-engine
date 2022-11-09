@@ -106,6 +106,14 @@ void Texture2D::setTexParameters(const TexParams &texParams) {
     }
 }
 
+void Texture2D::setRealTexture(void* texturePtr) {
+    _texturePtr = texturePtr;
+}
+
+void *Texture2D::getRealTexture() const {
+    return _texturePtr;
+}
+
 SpriteFrame *SpriteFrame::createWithTexture(Texture2D *texture, const cc::Rect &rect) {
     auto *spriteFrame = new (std::nothrow) SpriteFrame();
     spriteFrame->initWithTexture(texture, rect);

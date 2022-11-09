@@ -23,23 +23,23 @@
  THE SOFTWARE.
 */
 
-import { Material } from '../../core/assets/material';
-import { RenderingSubMesh } from '../../core/assets/rendering-sub-mesh';
+import { Material } from '../../asset/assets/material';
+import { RenderingSubMesh } from '../../asset/assets/rendering-sub-mesh';
 import { Mesh } from '../assets/mesh';
 import { Skeleton } from '../assets/skeleton';
-import { AABB } from '../../core/geometry';
-import { BufferUsageBit, MemoryUsageBit, DescriptorSet, Buffer, BufferInfo, Attribute, FormatFeatureBit, Format, Texture } from '../../core/gfx';
-import { Mat4, Vec3 } from '../../core/math';
-import { UBOSkinning, UNIFORM_REALTIME_JOINT_TEXTURE_BINDING } from '../../core/pipeline/define';
-import { Node } from '../../core/scene-graph/node';
-import { ModelType } from '../../core/renderer/scene/model';
+import { geometry, Mat4, Vec3, warnID } from '../../core';
+import { BufferUsageBit, MemoryUsageBit, DescriptorSet, Buffer, BufferInfo, Attribute, FormatFeatureBit, Format } from '../../gfx';
+import { UBOSkinning, UNIFORM_REALTIME_JOINT_TEXTURE_BINDING } from '../../rendering/define';
+import { Node } from '../../scene-graph/node';
+import { ModelType } from '../../render-scene/scene/model';
 import { uploadJointData } from '../skeletal-animation/skeletal-animation-utils';
 import { MorphModel } from './morph-model';
-import { deleteTransform, getTransform, getWorldMatrix, IJointTransform } from '../../core/animation/skeletal-animation-utils';
-import { IMacroPatch, BatchingSchemes, Pass } from '../../core/renderer';
-import { warnID } from '../../core/platform/debug';
-import { ImageAsset, Texture2D, director } from '../../core';
-import { PixelFormat } from '../../core/assets/asset-enum';
+import { deleteTransform, getTransform, getWorldMatrix, IJointTransform } from '../../animation/skeletal-animation-utils';
+import { IMacroPatch, BatchingSchemes, Pass } from '../../render-scene';
+import { director } from '../../game';
+import { PixelFormat } from '../../asset/assets/asset-enum';
+import { Texture2D, ImageAsset } from '../../asset/assets';
+import { SubModel } from '../../render-scene/scene';
 
 const uniformPatches: IMacroPatch[] = [
     { name: 'CC_USE_SKINNING', value: true },
@@ -65,7 +65,7 @@ function getRelevantBuffers (outIndices: number[], outBuffers: number[], jointMa
 }
 
 interface IJointInfo {
-    bound: AABB;
+    bound: geometry.AABB;
     target: Node;
     bindpose: Mat4;
     transform: IJointTransform;
@@ -78,7 +78,7 @@ const v3_max = new Vec3();
 const v3_1 = new Vec3();
 const v3_2 = new Vec3();
 const m4_1 = new Mat4();
-const ab_1 = new AABB();
+const ab_1 = new geometry.AABB();
 
 class RealTimeJointTexture {
     public static readonly WIDTH = 256;
@@ -182,7 +182,7 @@ export class SkinningModel extends MorphModel {
         for (let i = 0; i < this._joints.length; i++) {
             const { bound, transform } = this._joints[i];
             const worldMatrix = getWorldMatrix(transform, stamp);
-            AABB.transform(ab_1, bound, worldMatrix);
+            geometry.AABB.transform(ab_1, bound, worldMatrix);
             ab_1.getBoundary(v3_1, v3_2);
             Vec3.min(v3_min, v3_min, v3_1);
             Vec3.max(v3_max, v3_max, v3_2);
@@ -190,7 +190,7 @@ export class SkinningModel extends MorphModel {
 
         const worldBounds = this._worldBounds;
         if (this._modelBounds && worldBounds) {
-            AABB.fromPoints(this._modelBounds, v3_min, v3_max);
+            geometry.AABB.fromPoints(this._modelBounds, v3_min, v3_max);
             // @ts-expect-error TS2445
             this._modelBounds.transform(root._mat, root._pos, root._rot, root._scale, this._worldBounds);
         }
@@ -263,12 +263,13 @@ export class SkinningModel extends MorphModel {
         }
     }
 
-    protected _updateInstancedAttributes (attributes: Attribute[], pass: Pass) {
+    protected _updateInstancedAttributes (attributes: Attribute[], subModel: SubModel) {
+        const pass = subModel.passes[0];
         if (pass.batchingScheme !== BatchingSchemes.NONE) {
             // TODO(holycanvas): #9203 better to print the complete path instead of only the current node
             warnID(3936, this.node.getPathInHierarchy());
         }
-        super._updateInstancedAttributes(attributes, pass);
+        super._updateInstancedAttributes(attributes, subModel);
     }
 
     private _ensureEnoughBuffers (count: number) {

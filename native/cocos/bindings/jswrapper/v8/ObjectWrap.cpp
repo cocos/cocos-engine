@@ -48,12 +48,21 @@
 
 #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8
 
+namespace {
+bool gIsIsolateValid = false;
+}
+
 namespace se {
+
+/* static */
+void ObjectWrap::setIsolateValid(bool valid) {
+    gIsIsolateValid = valid;
+}
 
 ObjectWrap::ObjectWrap() = default;
 
 ObjectWrap::~ObjectWrap() {
-    if (persistent().IsEmpty()) {
+    if (!gIsIsolateValid || persistent().IsEmpty()) {
         return;
     }
     //cjh            CC_ASSERT(persistent().IsNearDeath());
@@ -132,6 +141,9 @@ void ObjectWrap::ref() {
 }
 
 void ObjectWrap::unref() {
+    if (!gIsIsolateValid) {
+        return;
+    }
     CC_ASSERT(!persistent().IsEmpty());
     CC_ASSERT(!persistent().IsWeak());
     CC_ASSERT(_refs > 0);

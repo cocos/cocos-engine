@@ -26,7 +26,7 @@
 
 import { ccclass, help, executionOrder, menu, requireComponent, tooltip, type, slide, range, serializable } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
-import { Component, EventHandler } from '../core/components';
+import { Component, EventHandler } from '../scene-graph';
 import { UITransform } from '../2d/framework';
 import { EventTouch, Touch } from '../input/types';
 import { Vec3 } from '../core/math';
@@ -34,8 +34,7 @@ import { ccenum } from '../core/value-types/enum';
 import { clamp01 } from '../core/math/utils';
 import { Sprite } from '../2d/components/sprite';
 import { legacyCC } from '../core/global-exports';
-import { NodeEventType } from '../core/scene-graph/node-event';
-import { input, Input } from '../input/input';
+import { NodeEventType } from '../scene-graph/node-event';
 import { XrUIPressEvent, XrUIPressEventType } from '../xr/event/xr-event-handle';
 
 const _tempPos = new Vec3();
@@ -325,18 +324,19 @@ export class Slider extends Component {
         }
     }
 
-    protected _xrHandleProgress(point: Vec3) {
+    protected _xrHandleProgress (point: Vec3) {
         if (!this._touchHandle) {
             const uiTrans = this.node._uiProps.uiTransformComp!;
+            uiTrans.convertToNodeSpaceAR(point, _tempPos);
             if (this.direction === Direction.Horizontal) {
-                this.progress = clamp01(0.5 + (point.x - this.node.worldPosition.x) / (uiTrans.width * this.node.worldScale.x));
+                this.progress = clamp01(0.5 + (_tempPos.x - this.node.position.x) / uiTrans.width);
             } else {
-                this.progress = clamp01(0.5 + (point.y - this.node.worldPosition.y) / (uiTrans.height * this.node.worldScale.y));
+                this.progress = clamp01(0.5 + (_tempPos.y - this.node.position.y) / uiTrans.height);
             }
         }
     }
 
-    protected _xrClick(event: XrUIPressEvent) {
+    protected _xrClick (event: XrUIPressEvent) {
         if (!this._handle) {
             return;
         }
@@ -345,12 +345,12 @@ export class Slider extends Component {
         this._emitSlideEvent();
     }
 
-    protected _xrUnClick() {
+    protected _xrUnClick () {
         this._dragging = false;
         this._touchHandle = false;
     }
 
-    protected _xrHoverStay(event: XrUIPressEvent) {
+    protected _xrHoverStay (event: XrUIPressEvent) {
         if (!this._dragging) {
             return;
         }

@@ -28,15 +28,17 @@ import spine from '../lib/spine-core.js';
 import { IAssembler } from '../../2d/renderer/base';
 import { Batcher2D } from '../../2d/renderer/batcher-2d';
 import { FrameColor } from '../skeleton-cache';
-import { MaterialInstance } from '../../core/renderer';
+import { MaterialInstance } from '../../render-scene';
 import { SkeletonTexture } from '../skeleton-texture';
 import { getAttributeStride, vfmtPosUvColor4B, vfmtPosUvTwoColor4B } from '../../2d/renderer/vertex-format';
 import { Skeleton, SpineMaterialType } from '../skeleton';
-import { Color, director, Mat4, Node, Texture2D } from '../../core';
-import { BlendFactor } from '../../core/gfx';
+import { Color, Mat4, Vec3 } from '../../core';
+import { BlendFactor } from '../../gfx';
 import { legacyCC } from '../../core/global-exports';
 import { StaticVBAccessor } from '../../2d/renderer/static-vb-accessor';
 import { RenderData } from '../../2d/renderer/render-data';
+import { Texture2D } from '../../../typedoc-index.js';
+import { director } from '../../game';
 
 const _quadTriangles = [0, 1, 2, 2, 3, 0];
 const _slotColor = new Color(0, 0, 255, 255);
@@ -79,6 +81,7 @@ let _tempg: number;
 let _tempb: number;
 let _inRange: boolean;
 let _mustFlush: boolean;
+const _tempVecPos = new Vec3(0, 0, 0);
 let _r: number;
 let _g: number;
 let _b: number;
@@ -148,6 +151,9 @@ function _handleColor (color: FrameColor) {
 
 function _spineColorToUint32 (spineColor: spine.Color) {
     return ((spineColor.a << 24) >>> 0) + (spineColor.b << 16) + (spineColor.g << 8) + spineColor.r;
+}
+function _spineRGBAToUint32 (r:number, g:number, b:number, a:number) {
+    return ((a << 24) >>> 0) + (b << 16) + (g << 8) + r;
 }
 
 function _vfmtFloatSize (useTint: boolean) {
@@ -269,13 +275,16 @@ function updateComponentRenderData (comp: Skeleton, batcher: Batcher2D) {
     if (nodeColor._val !== 0xffffffff ||  _premultipliedAlpha) {
         _needColor = true;
     }
-
+    let nodeMat: Mat4 | null = null;
+    if (comp.enableBatch) {
+        nodeMat = comp.node.worldMatrix;
+    }
     if (comp.isAnimationCached()) {
         // Traverse input assembler.
-        cacheTraverse();
+        cacheTraverse(nodeMat);
     } else {
         if (_vertexEffect) _vertexEffect.begin(comp._skeleton);
-        realTimeTraverse(batcher);
+        realTimeTraverse(nodeMat);
         if (_vertexEffect) _vertexEffect.end();
     }
     // Ensure mesh buffer update
@@ -307,7 +316,7 @@ function updateChunkForClip (clippedVertices: number[], clippedTriangles: number
     if (_actualVCount > rd.vertexCount) {
         rd.resizeAndCopy(_actualVCount, _actualICount > rd.indexCount ? _actualICount : rd.indexCount);
         _vbuf = rd.chunk.vb;
-        _vUintBuf = new Uint32Array(_vbuf.buffer);
+        _vUintBuf = new Uint32Array(_vbuf.buffer, _vbuf.byteOffset, _vbuf.length);
         updateIBuf = true;
     }
     if (_actualICount > _ibuf.length) {
@@ -339,7 +348,7 @@ function fillVertices (skeletonColor: spine.Color,
     _finalColor.b = _tempb * slotColor.b;
 
     if (slot.darkColor == null) {
-        _darkColor.set(0.0, 0.0, 0.0, 1.0);
+        _darkColor.set(0, 0, 0, 1);
     } else {
         _darkColor.r = slot.darkColor.r * _tempr;
         _darkColor.g = slot.darkColor.g * _tempg;
@@ -349,6 +358,8 @@ function fillVertices (skeletonColor: spine.Color,
 
     if (_useTint) {
         if (!clipper.isClipping()) {
+            _finalColor32 = _spineColorToUint32(_finalColor);
+            _darkColor32 = _spineColorToUint32(_darkColor);
             if (_vertexEffect) {
                 for (let v = _vertexFloatOffset, n = _vertexFloatOffset + _vertexFloatCount; v < n; v += _perVertexSize) {
                     _tempPos.x = _vbuf[v];
@@ -362,13 +373,10 @@ function fillVertices (skeletonColor: spine.Color,
                     _vbuf[v + 3] = _tempUv.x;         // u
                     _vbuf[v + 4] = _tempUv.y;         // v
 
-                    _vUintBuf[v + 5] = _spineColorToUint32(_finalColor);
-                    _vUintBuf[v + 6] = _spineColorToUint32(_darkColor);
+                    _vUintBuf[v + 5] = _finalColor32;
+                    _vUintBuf[v + 6] = _darkColor32;
                 }
             } else {
-                _finalColor32 = _spineColorToUint32(_finalColor);
-                _darkColor32 = _spineColorToUint32(_darkColor);
-
                 for (let v = _vertexFloatOffset, n = _vertexFloatOffset + _vertexFloatCount; v < n; v += _perVertexSize) {
                     _vUintBuf[v + 5] = _finalColor32;          // light color
                     _vUintBuf[v + 6] = _darkColor32;      // dark color
@@ -398,18 +406,16 @@ function fillVertices (skeletonColor: spine.Color,
                 for (let v = 0, n = clippedVertices.length, offset = _vertexFloatOffset; v < n; v += _perClipVertexSize, offset += _perVertexSize) {
                     _tempPos.x = clippedVertices[v];
                     _tempPos.y = clippedVertices[v + 1];
-                    _finalColor.set(clippedVertices[v + 2], clippedVertices[v + 3], clippedVertices[v + 4], clippedVertices[v + 5]);
                     _tempUv.x = clippedVertices[v + 6];
                     _tempUv.y = clippedVertices[v + 7];
-                    _darkColor.set(clippedVertices[v + 8], clippedVertices[v + 9], clippedVertices[v + 10], clippedVertices[v + 11]);
                     _vertexEffect.transform(_tempPos, _tempUv, _finalColor, _darkColor);
 
                     _vbuf[offset] = _tempPos.x;             // x
                     _vbuf[offset + 1] = _tempPos.y;         // y
                     _vbuf[offset + 3] = _tempUv.x;          // u
                     _vbuf[offset + 4] = _tempUv.y;          // v
-                    _vUintBuf[offset + 5] = _spineColorToUint32(_finalColor);
-                    _vUintBuf[offset + 6] = _spineColorToUint32(_darkColor);
+                    _vUintBuf[offset + 5] = _spineRGBAToUint32(clippedVertices[v + 2], clippedVertices[v + 3], clippedVertices[v + 4], clippedVertices[v + 5]);
+                    _vUintBuf[offset + 6] = _spineRGBAToUint32(clippedVertices[v + 8], clippedVertices[v + 9], clippedVertices[v + 10], clippedVertices[v + 11]);
                 }
             } else {
                 // x y r g b a u v (rr gg bb aa)
@@ -419,15 +425,13 @@ function fillVertices (skeletonColor: spine.Color,
                     _vbuf[offset + 3] = clippedVertices[v + 6];     // u
                     _vbuf[offset + 4] = clippedVertices[v + 7];     // v
 
-                    _finalColor32 = ((clippedVertices[v + 5] << 24) >>> 0) + (clippedVertices[v + 4] << 16) + (clippedVertices[v + 3] << 8) + clippedVertices[v + 2];
-                    _vUintBuf[offset + 5] = _finalColor32;
-
-                    _darkColor32 = ((clippedVertices[v + 11] << 24) >>> 0) + (clippedVertices[v + 10] << 16) + (clippedVertices[v + 9] << 8) + clippedVertices[v + 8];
-                    _vUintBuf[offset + 6] = _finalColor32;
+                    _vUintBuf[offset + 5] = _spineRGBAToUint32(clippedVertices[v + 2], clippedVertices[v + 3], clippedVertices[v + 4], clippedVertices[v + 5]);
+                    _vUintBuf[offset + 6] = _spineRGBAToUint32(clippedVertices[v + 8], clippedVertices[v + 9], clippedVertices[v + 10], clippedVertices[v + 11]);
                 }
             }
         }
     } else if (!clipper.isClipping()) {
+        _finalColor32 = _spineColorToUint32(_finalColor);
         if (_vertexEffect) {
             for (let v = _vertexFloatOffset, n = _vertexFloatOffset + _vertexFloatCount; v < n; v += _perVertexSize) {
                 _tempPos.x = _vbuf[v];
@@ -440,12 +444,9 @@ function fillVertices (skeletonColor: spine.Color,
                 _vbuf[v + 1] = _tempPos.y;        // y
                 _vbuf[v + 3] = _tempUv.x;         // u
                 _vbuf[v + 4] = _tempUv.y;         // v
-                _vUintBuf[v + 5] = _spineColorToUint32(_finalColor);
+                _vUintBuf[v + 5] = _finalColor32;
             }
         } else {
-            _finalColor32 = _spineColorToUint32(_finalColor);
-            _darkColor32 = _spineColorToUint32(_darkColor);
-
             for (let v = _vertexFloatOffset, n = _vertexFloatOffset + _vertexFloatCount; v < n; v += _perVertexSize) {
                 _vUintBuf[v + 5] = _finalColor32;
             }
@@ -474,17 +475,15 @@ function fillVertices (skeletonColor: spine.Color,
             for (let v = 0, n = clippedVertices.length, offset = _vertexFloatOffset; v < n; v += _perClipVertexSize, offset += _perVertexSize) {
                 _tempPos.x = clippedVertices[v];
                 _tempPos.y = clippedVertices[v + 1];
-                _finalColor.set(clippedVertices[v + 2], clippedVertices[v + 3], clippedVertices[v + 4], clippedVertices[v + 5]);
                 _tempUv.x = clippedVertices[v + 6];
                 _tempUv.y = clippedVertices[v + 7];
-                _darkColor.set(0, 0, 0, 0);
                 _vertexEffect.transform(_tempPos, _tempUv, _finalColor, _darkColor);
 
                 _vbuf[offset] = _tempPos.x;             // x
                 _vbuf[offset + 1] = _tempPos.y;         // y
                 _vbuf[offset + 3] = _tempUv.x;          // u
                 _vbuf[offset + 4] = _tempUv.y;          // v
-                _vUintBuf[offset + 5] = _spineColorToUint32(_finalColor);
+                _vUintBuf[offset + 5] = _spineRGBAToUint32(clippedVertices[v + 2], clippedVertices[v + 3], clippedVertices[v + 4], clippedVertices[v + 5]);
             }
         } else {
             // x y r g b a u v (rr gg bb aa)
@@ -493,17 +492,16 @@ function fillVertices (skeletonColor: spine.Color,
                 _vbuf[offset + 1] = clippedVertices[v + 1];     // y
                 _vbuf[offset + 3] = clippedVertices[v + 6];     // u
                 _vbuf[offset + 4] = clippedVertices[v + 7];     // v
-
-                _vUintBuf[offset + 5] = ((clippedVertices[v + 5] << 24) >>> 0) + (clippedVertices[v + 4] << 16) + (clippedVertices[v + 3] << 8) + clippedVertices[v + 2];
+                _vUintBuf[offset + 5] = _spineRGBAToUint32(clippedVertices[v + 2], clippedVertices[v + 3], clippedVertices[v + 4], clippedVertices[v + 5]);
             }
         }
     }
 }
 
-function realTimeTraverse (batcher: Batcher2D) {
+function realTimeTraverse (worldMat: Mat4 | null) {
     const rd = _renderData!;
     _vbuf = rd.chunk.vb;
-    _vUintBuf = new Uint32Array(_vbuf.buffer);
+    _vUintBuf = new Uint32Array(_vbuf.buffer, _vbuf.byteOffset, _vbuf.length);
     _ibuf = rd.indices!;
     _actualVCount = _comp!.maxVertexCount;
     _actualICount = _comp!.maxIndexCount;
@@ -684,6 +682,17 @@ function realTimeTraverse (batcher: Batcher2D) {
             for (let ii = _indexOffset, nn = _indexOffset + _indexCount; ii < nn; ii++) {
                 _ibuf[ii] += _vertexOffset + chunkOffset;
             }
+            if (worldMat) {
+                for (let ii = _vertexFloatOffset, nn = _vertexFloatOffset + _vertexFloatCount; ii < nn; ii += _perVertexSize) {
+                    _tempVecPos.x = _vbuf[ii];
+                    _tempVecPos.y = _vbuf[ii + 1];
+                    _tempVecPos.z = 0;
+                    _tempVecPos.transformMat4(worldMat);
+                    _vbuf[ii] = _tempVecPos.x;
+                    _vbuf[ii + 1] = _tempVecPos.y;
+                    _vbuf[ii + 2] = _tempVecPos.z;
+                }
+            }
         }
         _vertexFloatOffset += _vertexFloatCount;
         _vertexOffset += _vertexCount;
@@ -726,7 +735,7 @@ function realTimeTraverse (batcher: Batcher2D) {
     }
 }
 
-function cacheTraverse () {
+function cacheTraverse (worldMat: Mat4 | null) {
     const frame = _comp!._curFrame;
     if (!frame) return;
 
@@ -757,6 +766,7 @@ function cacheTraverse () {
     let prevDrawIndexOffset = 0;
     const rd = _renderData!;
     const vbuf = rd.chunk.vb;
+    _vUintBuf = new Uint32Array(vbuf.buffer, vbuf.byteOffset, vbuf.length);
     const ibuf = rd.indices!;
     for (let i = 0, n = segments.length; i < n; i++) {
         const segInfo = segments[i];
@@ -788,6 +798,17 @@ function cacheTraverse () {
         // Fill vertices
         segVFCount = segInfo.vfCount;
         vbuf.set(vertices.subarray(frameVFOffset, frameVFOffset + segVFCount), frameVFOffset);
+        if (worldMat) {
+            for (let ii = frameVFOffset, il = frameVFOffset + segVFCount; ii < il; ii += _perVertexSize) {
+                _tempVecPos.x = vbuf[ii];
+                _tempVecPos.y = vbuf[ii + 1];
+                _tempVecPos.z = 0;
+                _tempVecPos.transformMat4(worldMat);
+                vbuf[ii] = _tempVecPos.x;
+                vbuf[ii + 1] = _tempVecPos.y;
+                vbuf[ii + 2] = _tempVecPos.z;
+            }
+        }
 
         // Update color
         if (_needColor) {

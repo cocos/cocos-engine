@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-namespace */
 
-import type { Color } from '../core/math/color';
-import type { Vec2 } from '../core/math/vec2';
+import type { Color, Vec2 } from '../core';
 
 // @ts-expect-error this is a virtual module
 export * from 'internal:native';
@@ -28,14 +27,6 @@ export * from 'internal:native';
  * ```
  */
 export declare namespace native {
-    /**
-     * @en DownloaderTask @zh 下载任务对象
-     * @param requestURL @en Request download resource URL  @zh 请求下载资源的URL
-     * @param storagePath @en Storage path for downloaded file @zh 下载文件存储路径
-     * @param identifier  @en identifier @zh 标识符
-     */
-    export type DownloaderTask = { requestURL: string, storagePath: string, identifier: string };
-
     /**
      * @en Copy text to clipboard @zh 拷贝字符串到剪切板
      * @param text
@@ -362,6 +353,23 @@ export declare namespace native {
     }
 
     /**
+      * @en DownloadTask @zh 下载任务对象
+      * @param requestURL @en Request download resource URL  @zh 请求下载资源的URL
+      * @param storagePath @en Storage path for downloaded file @zh 下载文件存储路径
+      * @param identifier  @en identifier @zh 标识符
+      */
+    export type DownloadTask = { requestURL: string, storagePath: string, identifier: string };
+
+    /**
+     * @en DownloaderTask @zh 下载任务对象
+     * @param requestURL @en Request download resource URL  @zh 请求下载资源的URL
+     * @param storagePath @en Storage path for downloaded file @zh 下载文件存储路径
+     * @param identifier  @en identifier @zh 标识符
+     * @deprecated since v3.7.0, please use `DownloadTask` to instead.
+     */
+    export type DownloaderTask = { requestURL: string, storagePath: string, identifier: string };
+
+    /**
      * @en DownloaderHints @zh 下载任务的配置接口
      * @param countOfMaxProcessingTasks
      * @en Maximum number of download tasks processed at the same time, optional, default is 6
@@ -406,18 +414,27 @@ export declare namespace native {
         constructor(hints: DownloaderHints);
 
         /**
+         * @en abort a download task, which could be downloaded from last break point.
+         * @zh 中止一个下载任务. 被终止的任务可以在之后被续传.
+         * @param task @en DownloadTask need to abort  @zh 需要中止的下载任务
+         */
+        abort(task: DownloadTask): void;
+
+        /**
          * @en create a download task. The maximum size for a single download file is 4GB.
          * @zh 创建一个下载任务. 单个下载文件最大为4GB.
-         * @param requestURL @en Request download resource URL  @zh 请求下载资源的URL
+         * @param requestURL
+         * @en Request download resource URL. Node: Users need to encode the URL containing special characters except spaces (such as Chinese, etc.)
+         * @zh 请求下载资源的URL. 注意: 当URL中包含除空格外特殊字符(如:中文等)时需要用户自行编码后传入.
          * @param storagePath @en Storage path for downloaded file @zh 下载文件存储路径
          * @param identifier  @en identifier @zh 标识符
-         * @return @en DownloaderTask @zh 下载任务对象
+         * @return @en DownloadTask @zh 下载任务对象
          * @example
          * ```ts
          * let task = downloader.createDownloadTask('https://example.com/exampleFile.zip', native.fileUtils.getWritablePath());
          * ```
          */
-        createDownloadTask(requestURL: string, storagePath: string, identifier?: string): DownloaderTask;
+        createDownloadTask(requestURL: string, storagePath: string, identifier?: string): DownloadTask;
 
         /**
          * @en setter for the callback function after download success
@@ -431,7 +448,7 @@ export declare namespace native {
          * };
          * ```
          */
-        onSuccess: (task: DownloaderTask) => void | undefined;
+        onSuccess: (task: DownloadTask) => void | undefined;
 
         /**
          * @en setter for the callback function while download.
@@ -449,7 +466,7 @@ export declare namespace native {
          * };
          * ```
          */
-        onProgress: (task: DownloaderTask, bytesReceived: number, totalBytesReceived: number, totalBytesExpected: number) => void | undefined;
+        onProgress: (task: DownloadTask, bytesReceived: number, totalBytesReceived: number, totalBytesExpected: number) => void | undefined;
 
         /**
          * @en setter for the callback function when download error
@@ -465,22 +482,24 @@ export declare namespace native {
          *  console.log('Error:', errorStr);
          * };
          */
-        onError: (task: DownloaderTask, errorCode: number, errorCodeInternal: number, errorStr: string) => void | undefined;
+        onError: (task: DownloadTask, errorCode: number, errorCodeInternal: number, errorStr: string) => void | undefined;
 
         /**
          * @deprecated since v3.6.0, please use `createDownloadTask` to instead.
          * @en create a download task. The maximum size for a single download file is 4GB.
          * @zh 创建一个下载任务. 单个下载文件最大为4GB.
-         * @param requestURL @en Request download resource URL  @zh 请求下载资源的URL
+         * @param requestURL
+         * @en Request download resource URL. Node: Users need to encode the URL containing special characters except spaces (such as Chinese, etc.)
+         * @zh 请求下载资源的URL. 注意: 当URL中包含除空格外特殊字符(如:中文等)时需要用户自行编码后传入.
          * @param storagePath @en Storage path for downloaded file @zh 下载文件存储路径
          * @param identifier  @en identifier @zh 标识符
-         * @return @en DownloaderTask @zh 下载任务对象
+         * @return @en DownloadTask @zh 下载任务对象
          * @example
          * ```ts
          * let task = downloader.createDownloadFileTask('https://example.com/exampleFile.zip', native.fileUtils.getWritablePath());
          * ```
          */
-        createDownloadFileTask(requestURL: string, storagePath: string, identifier?: string): DownloaderTask;
+        createDownloadFileTask(requestURL: string, storagePath: string, identifier?: string): DownloadTask;
 
         /**
          * @deprecated since v3.6.0, please use setter `onSuccess` to instead.
@@ -495,7 +514,7 @@ export declare namespace native {
          * });
          * ```
          */
-        setOnFileTaskSuccess(onSucceed: (task: DownloaderTask) => void): void;
+        setOnFileTaskSuccess(onSucceed: (task: DownloadTask) => void): void;
 
         /**
          * @deprecated since v3.6.0, please use setter `onProgress` to instead.
@@ -511,7 +530,7 @@ export declare namespace native {
          * });
          * ```
          */
-        setOnTaskProgress(onProgress: (task: DownloaderTask, bytesReceived: number,
+        setOnTaskProgress(onProgress: (task: DownloadTask, bytesReceived: number,
             totalBytesReceived: number, totalBytesExpected: number) => void): void;
         /**
          * @deprecated since v3.6.0, please use setter `onError` to instead.
@@ -526,7 +545,7 @@ export declare namespace native {
          * });
          * ```
         */
-        setOnTaskError(onError: (task: DownloaderTask, errorCode: number, errorCodeInternal: number, errorStr: string) => void): void;
+        setOnTaskError(onError: (task: DownloadTask, errorCode: number, errorCodeInternal: number, errorStr: string) => void): void;
     }
 
     /**

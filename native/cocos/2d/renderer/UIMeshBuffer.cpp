@@ -27,30 +27,11 @@
 #include "renderer/gfx-base/GFXDevice.h"
 
 namespace cc {
-static const ccstd::vector<gfx::Attribute> ATTRIBUTES_V3F_T2F_C4F {
-    gfx::Attribute{gfx::ATTR_NAME_POSITION, gfx::Format::RGB32F},
-    gfx::Attribute{gfx::ATTR_NAME_TEX_COORD, gfx::Format::RG32F},
-    gfx::Attribute{gfx::ATTR_NAME_COLOR, gfx::Format::RGBA32F},
-    gfx::Attribute{gfx::ATTR_NAME_COLOR2, gfx::Format::RGBA32F},
-};
-
-static const ccstd::vector<gfx::Attribute> ATTRIBUTES_V3F_T2F_C4B {
-    gfx::Attribute{gfx::ATTR_NAME_POSITION, gfx::Format::RGB32F},
-    gfx::Attribute{gfx::ATTR_NAME_TEX_COORD, gfx::Format::RG32F},
-    gfx::Attribute{gfx::ATTR_NAME_COLOR, gfx::Format::RGBA8, true},
-};
-
-static const ccstd::vector<gfx::Attribute> ATTRIBUTES_V3F_T2F_C4B_C4B {
-    gfx::Attribute{gfx::ATTR_NAME_POSITION, gfx::Format::RGB32F},
-    gfx::Attribute{gfx::ATTR_NAME_TEX_COORD, gfx::Format::RG32F},
-    gfx::Attribute{gfx::ATTR_NAME_COLOR, gfx::Format::RGBA8, true},
-    gfx::Attribute{gfx::ATTR_NAME_COLOR, gfx::Format::RGBA8, true},
-};
 
 static uint32_t getAttributesStride(ccstd::vector<gfx::Attribute>& attrs) {
     uint32_t stride = 0;
     for (auto& attr : attrs) {
-        const auto &info = gfx::GFX_FORMAT_INFOS[static_cast<uint32_t>(attr.format)];
+        const auto& info = gfx::GFX_FORMAT_INFOS[static_cast<uint32_t>(attr.format)];
         stride += info.size;
     }
     return stride;
@@ -68,9 +49,13 @@ void UIMeshBuffer::setIData(uint16_t* iData) {
     _iData = iData;
 }
 
-void UIMeshBuffer::initialize(gfx::Device* /*device*/,ccstd::vector<gfx::Attribute> &&attrs, uint32_t /*vFloatCount*/, uint32_t /*iCount*/) {
+void UIMeshBuffer::initialize(ccstd::vector<gfx::Attribute> &&attrs, bool needCreateLayout) {
     _attributes = attrs;
     _vertexFormatBytes = getAttributesStride(attrs);
+    if (needCreateLayout) {
+        _meshBufferLayout = new MeshBufferLayout();
+    }
+    _needDeleteLayout = needCreateLayout;
 }
 
 void UIMeshBuffer::reset() {
@@ -106,6 +91,9 @@ void UIMeshBuffer::destroy() {
         delete ia;
     }
     _iaPool.clear();
+    if (_needDeleteLayout) {
+        CC_SAFE_DELETE(_meshBufferLayout);
+    }
 }
 
 void UIMeshBuffer::setDirty() {

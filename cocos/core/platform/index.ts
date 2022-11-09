@@ -29,7 +29,6 @@ import './deprecated';
 export * from './sys';
 export * from './macro';
 export * from './visible-rect';
-export * from './view';
 export {
     debug,
     log,
@@ -47,3 +46,6 @@ export {
 } from './debug';
 
 export { screen } from './screen';
+
+// engine internal exports
+export { _resetDebugSetting } from './debug';

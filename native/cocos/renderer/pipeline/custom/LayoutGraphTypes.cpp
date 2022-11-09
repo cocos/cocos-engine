@@ -54,7 +54,7 @@ RenderPhase::RenderPhase(RenderPhase const& rhs, const allocator_type& alloc)
 : shaders(rhs.shaders, alloc) {}
 
 LayoutGraph::LayoutGraph(const allocator_type& alloc) noexcept
-: vertices(alloc),
+: _vertices(alloc),
   names(alloc),
   descriptors(alloc),
   stages(alloc),
@@ -62,7 +62,7 @@ LayoutGraph::LayoutGraph(const allocator_type& alloc) noexcept
   pathIndex(alloc) {}
 
 LayoutGraph::LayoutGraph(LayoutGraph&& rhs, const allocator_type& alloc)
-: vertices(std::move(rhs.vertices), alloc),
+: _vertices(std::move(rhs._vertices), alloc),
   names(std::move(rhs.names), alloc),
   descriptors(std::move(rhs.descriptors), alloc),
   stages(std::move(rhs.stages), alloc),
@@ -70,7 +70,7 @@ LayoutGraph::LayoutGraph(LayoutGraph&& rhs, const allocator_type& alloc)
   pathIndex(std::move(rhs.pathIndex), alloc) {}
 
 LayoutGraph::LayoutGraph(LayoutGraph const& rhs, const allocator_type& alloc)
-: vertices(rhs.vertices, alloc),
+: _vertices(rhs._vertices, alloc),
   names(rhs.names, alloc),
   descriptors(rhs.descriptors, alloc),
   stages(rhs.stages, alloc),
@@ -79,7 +79,7 @@ LayoutGraph::LayoutGraph(LayoutGraph const& rhs, const allocator_type& alloc)
 
 // ContinuousContainer
 void LayoutGraph::reserve(vertices_size_type sz) {
-    vertices.reserve(sz);
+    _vertices.reserve(sz);
     names.reserve(sz);
     descriptors.reserve(sz);
 }
@@ -158,6 +158,7 @@ DescriptorSetData::DescriptorSetData(DescriptorSetLayoutData descriptorSetLayout
 
 DescriptorSetData::DescriptorSetData(DescriptorSetData&& rhs, const allocator_type& alloc)
 : descriptorSetLayoutData(std::move(rhs.descriptorSetLayoutData), alloc),
+  descriptorSetLayoutInfo(std::move(rhs.descriptorSetLayoutInfo)),
   descriptorSetLayout(std::move(rhs.descriptorSetLayout)),
   descriptorSet(std::move(rhs.descriptorSet)) {}
 
@@ -166,6 +167,32 @@ PipelineLayoutData::PipelineLayoutData(const allocator_type& alloc) noexcept
 
 PipelineLayoutData::PipelineLayoutData(PipelineLayoutData&& rhs, const allocator_type& alloc)
 : descriptorSets(std::move(rhs.descriptorSets), alloc) {}
+
+ShaderBindingData::ShaderBindingData(const allocator_type& alloc) noexcept
+: descriptorBindings(alloc) {}
+
+ShaderBindingData::ShaderBindingData(ShaderBindingData&& rhs, const allocator_type& alloc)
+: descriptorBindings(std::move(rhs.descriptorBindings), alloc) {}
+
+ShaderLayoutData::ShaderLayoutData(const allocator_type& alloc) noexcept
+: layoutData(alloc),
+  bindingData(alloc) {}
+
+ShaderLayoutData::ShaderLayoutData(ShaderLayoutData&& rhs, const allocator_type& alloc)
+: layoutData(std::move(rhs.layoutData), alloc),
+  bindingData(std::move(rhs.bindingData), alloc) {}
+
+TechniqueData::TechniqueData(const allocator_type& alloc) noexcept
+: passes(alloc) {}
+
+TechniqueData::TechniqueData(TechniqueData&& rhs, const allocator_type& alloc)
+: passes(std::move(rhs.passes), alloc) {}
+
+EffectData::EffectData(const allocator_type& alloc) noexcept
+: techniques(alloc) {}
+
+EffectData::EffectData(EffectData&& rhs, const allocator_type& alloc)
+: techniques(std::move(rhs.techniques), alloc) {}
 
 ShaderProgramData::ShaderProgramData(const allocator_type& alloc) noexcept
 : layout(alloc) {}
@@ -190,7 +217,7 @@ RenderPhaseData::RenderPhaseData(RenderPhaseData&& rhs, const allocator_type& al
   shaderIndex(std::move(rhs.shaderIndex), alloc) {}
 
 LayoutGraphData::LayoutGraphData(const allocator_type& alloc) noexcept
-: vertices(alloc),
+: _vertices(alloc),
   names(alloc),
   updateFrequencies(alloc),
   layouts(alloc),
@@ -200,10 +227,11 @@ LayoutGraphData::LayoutGraphData(const allocator_type& alloc) noexcept
   attributeIndex(alloc),
   constantIndex(alloc),
   shaderLayoutIndex(alloc),
+  effects(alloc),
   pathIndex(alloc) {}
 
 LayoutGraphData::LayoutGraphData(LayoutGraphData&& rhs, const allocator_type& alloc)
-: vertices(std::move(rhs.vertices), alloc),
+: _vertices(std::move(rhs._vertices), alloc),
   names(std::move(rhs.names), alloc),
   updateFrequencies(std::move(rhs.updateFrequencies), alloc),
   layouts(std::move(rhs.layouts), alloc),
@@ -213,11 +241,12 @@ LayoutGraphData::LayoutGraphData(LayoutGraphData&& rhs, const allocator_type& al
   attributeIndex(std::move(rhs.attributeIndex), alloc),
   constantIndex(std::move(rhs.constantIndex), alloc),
   shaderLayoutIndex(std::move(rhs.shaderLayoutIndex), alloc),
+  effects(std::move(rhs.effects), alloc),
   pathIndex(std::move(rhs.pathIndex), alloc) {}
 
 // ContinuousContainer
 void LayoutGraphData::reserve(vertices_size_type sz) {
-    vertices.reserve(sz);
+    _vertices.reserve(sz);
     names.reserve(sz);
     updateFrequencies.reserve(sz);
     layouts.reserve(sz);

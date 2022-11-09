@@ -234,7 +234,7 @@ private:
     int onClientReceivedData(void *in, ssize_t len);
     int onConnectionOpened();
     int onConnectionError();
-    int onConnectionClosed(uint16_t code, const ccstd::string& reason);
+    int onConnectionClosed(uint16_t code, const ccstd::string &reason);
 
     struct lws_vhost *createVhost(struct lws_protocols *protocols, int *sslConnection);
 
@@ -1244,7 +1244,7 @@ int WebSocketImpl::onConnectionError() {
     return 0;
 }
 
-int WebSocketImpl::onConnectionClosed(uint16_t code, const ccstd::string& reason) {
+int WebSocketImpl::onConnectionClosed(uint16_t code, const ccstd::string &reason) {
     {
         std::lock_guard<std::mutex> lk(_readyStateMutex);
         LOGD("WebSocket (%p) onConnectionClosed, state: %d ...\n", this, (int)_readyState);

@@ -1,10 +1,9 @@
-
-
 import { Joint2D } from './joint-2d';
-import { ccclass, property, menu, type } from '../../../../core/data/class-decorator';
 import { IMouseJoint } from '../../../spec/i-physics-joint';
 import { EJoint2DType } from '../../physics-types';
-import { Vec2 } from '../../../../core';
+import { Vec2, _decorator } from '../../../../core';
+
+const { ccclass, menu, property } = _decorator;
 
 @ccclass('cc.MouseJoint2D')
 @menu('Physics2D/Joints/MouseJoint2D')

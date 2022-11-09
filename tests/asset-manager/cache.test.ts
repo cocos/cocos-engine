@@ -1,5 +1,5 @@
 
-import Cache from '../../cocos/core/asset-manager/cache'
+import Cache from '../../cocos/asset/asset-manager/cache'
 test('operation', function () {
     const cache = new Cache();
     cache.add('test 1', {url: 'resources/image'});

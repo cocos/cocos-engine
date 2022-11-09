@@ -23,18 +23,17 @@
  THE SOFTWARE.
 ****************************************************************************/
 
+#include "platform/android/AndroidPlatform.h"
+#include <android/native_window_jni.h>
 #include <thread>
-
 #include "application/ApplicationManager.h"
 #include "base/Log.h"
 #include "base/memory/Memory.h"
-#include "bindings/event/CustomEventTypes.h"
 #include "game-activity/native_app_glue/android_native_app_glue.h"
 #include "java/jni/JniHelper.h"
 #include "modules/Screen.h"
 #include "modules/System.h"
 #include "platform/BasePlatform.h"
-#include "platform/android/AndroidPlatform.h"
 #include "platform/android/FileUtils-android.h"
 #include "platform/java/jni/JniImp.h"
 #include "platform/java/jni/glue/JniNativeGlue.h"
@@ -42,9 +41,12 @@
 #include "platform/java/modules/Battery.h"
 #include "platform/java/modules/Network.h"
 #include "platform/java/modules/SystemWindow.h"
+#include "platform/java/modules/SystemWindowManager.h"
 #include "platform/java/modules/Vibrator.h"
 #include "platform/java/modules/XRInterface.h"
 
+#include "base/StringUtil.h"
+#include "engine/EngineEvents.h"
 #include "paddleboat.h"
 
 #define ABORT_GAME                          \
@@ -91,6 +93,18 @@ static const InputAction PADDLEBOAT_ACTIONS[INPUT_ACTION_COUNT] = {
     {PADDLEBOAT_BUTTON_DPAD_LEFT, static_cast<int>(KeyCode::DPAD_LEFT)},
     {PADDLEBOAT_BUTTON_DPAD_DOWN, static_cast<int>(KeyCode::DPAD_DOWN)},
     {PADDLEBOAT_BUTTON_DPAD_RIGHT, static_cast<int>(KeyCode::DPAD_RIGHT)}};
+
+static const InputAction INPUT_KEY_ACTIONS[] = {
+    {AKEYCODE_BACK, static_cast<int>(KeyCode::MOBILE_BACK)},
+    {AKEYCODE_ENTER, static_cast<int>(KeyCode::ENTER)},
+    {AKEYCODE_MENU, static_cast<int>(KeyCode::ALT_LEFT)},
+    {AKEYCODE_DPAD_UP, static_cast<int>(KeyCode::DPAD_UP)},
+    {AKEYCODE_DPAD_DOWN, static_cast<int>(KeyCode::DPAD_DOWN)},
+    {AKEYCODE_DPAD_LEFT, static_cast<int>(KeyCode::DPAD_LEFT)},
+    {AKEYCODE_DPAD_RIGHT, static_cast<int>(KeyCode::DPAD_RIGHT)},
+    {AKEYCODE_DPAD_CENTER, static_cast<int>(KeyCode::DPAD_CENTER)},
+};
+
 static bool keyState[INPUT_ACTION_COUNT] = {false};
 
 extern void gameControllerStatusCallback(int32_t controllerIndex,
@@ -202,8 +216,11 @@ public:
         return (addedControllerEvent != 0);
     }
 
+    // NOLINTNEXTLINE
     bool cookGameActivityMotionEvent(GameActivityMotionEvent *motionEvent) {
         if (motionEvent->pointerCount > 0) {
+            touchEvent.windowId = ISystemWindow::mainWindowId; // must be main window here
+
             int action = motionEvent->action;
             int actionMasked = action & AMOTION_EVENT_ACTION_MASK;
             int eventChangedIndex = -1;
@@ -240,24 +257,29 @@ public:
                 }
             }
 
-            _androidPlatform->dispatchEvent(touchEvent);
+            events::Touch::broadcast(touchEvent);
             touchEvent.touches.clear();
             return true;
         }
         return false;
     }
 
+    // NOLINTNEXTLINE
     bool cookGameActivityKeyEvent(GameActivityKeyEvent *keyEvent) {
-        if (keyEvent->keyCode == AKEYCODE_BACK && 0 == keyEvent->action) {
-            // back key was pressed
-            keyboardEvent.action = cc::KeyboardEvent::Action::PRESS;
-            keyboardEvent.key = static_cast<int>(KeyCode::MOBILE_BACK);
-            _androidPlatform->dispatchEvent(keyboardEvent);
+        for (const auto &action : INPUT_KEY_ACTIONS) {
+            if (action.buttonMask != keyEvent->keyCode) {
+                continue;
+            }
+            keyboardEvent.action = 0 == keyEvent->action ? cc::KeyboardEvent::Action::PRESS
+                                                         : cc::KeyboardEvent::Action::RELEASE;
+            keyboardEvent.key = action.actionCode;
+            events::Keyboard::broadcast(keyboardEvent);
             return true;
         }
         return false;
     }
 
+    // NOLINTNEXTLINE
     void reportKeyState(int keyCode, bool state) {
         bool wentDown = !keyState[keyCode] && state;
         bool wentUp = keyState[keyCode] && !state;
@@ -266,11 +288,11 @@ public:
         if (wentUp) {
             keyboardEvent.key = keyCode;
             keyboardEvent.action = cc::KeyboardEvent::Action::RELEASE;
-            _androidPlatform->dispatchEvent(keyboardEvent);
+            events::Keyboard::broadcast(keyboardEvent);
         } else if (wentDown) {
             keyboardEvent.key = keyCode;
             keyboardEvent.action = cc::KeyboardEvent::Action::PRESS;
-            _androidPlatform->dispatchEvent(keyboardEvent);
+            events::Keyboard::broadcast(keyboardEvent);
         }
     }
 
@@ -290,12 +312,19 @@ public:
                 break;
             case APP_CMD_INIT_WINDOW: {
                 _hasWindow = true;
-                auto *systemWindow = _androidPlatform->getInterface<SystemWindow>();
-                systemWindow->setWindowHandle(_androidPlatform->_app->window);
+                ANativeWindow *nativeWindow = _androidPlatform->_app->window;
+
                 // We have a window!
                 CC_LOG_DEBUG("AndroidPlatform: APP_CMD_INIT_WINDOW");
                 if (!_launched) {
                     _launched = true;
+
+                    ISystemWindowInfo info;
+                    info.width = ANativeWindow_getWidth(nativeWindow);
+                    info.height = ANativeWindow_getHeight(nativeWindow);
+                    info.externalHandle = nativeWindow;
+                    _androidPlatform->getInterface<SystemWindowManager>()->createWindow(info);
+
                     if (cocos_main(0, nullptr) != 0) {
                         CC_LOG_ERROR("AndroidPlatform: Launch game failed!");
                     } else {
@@ -309,10 +338,11 @@ public:
                     if (xr) {
                         xr->onRenderResume();
                     }
-                    cc::CustomEvent event;
-                    event.name = EVENT_RECREATE_WINDOW;
-                    event.args->ptrVal = reinterpret_cast<void *>(_androidPlatform->_app->window);
-                    _androidPlatform->dispatchEvent(event);
+
+                    auto *windowMgr = _androidPlatform->getInterface<SystemWindowManager>();
+                    auto *window = static_cast<cc::SystemWindow *>(windowMgr->getWindow(ISystemWindow::mainWindowId));
+                    window->setWindowHandle(nativeWindow);
+                    events::WindowRecreated::broadcast(ISystemWindow::mainWindowId);
                 }
                 break;
             }
@@ -324,10 +354,8 @@ public:
                 if (xr) {
                     xr->onRenderPause();
                 }
-                cc::CustomEvent event;
-                event.name = EVENT_DESTROY_WINDOW;
-                event.args->ptrVal = reinterpret_cast<void *>(_androidPlatform->_app->window);
-                _androidPlatform->dispatchEvent(event);
+                // NOLINTNEXTLINE
+                events::WindowDestroy::broadcast(ISystemWindow::mainWindowId);
                 break;
             }
             case APP_CMD_GAINED_FOCUS:
@@ -355,7 +383,7 @@ public:
                 }
                 WindowEvent ev;
                 ev.type = WindowEvent::Type::CLOSE;
-                _androidPlatform->dispatchEvent(ev);
+                events::WindowEvent::broadcast(ev);
                 _androidPlatform->onDestroy();
                 break;
             }
@@ -365,7 +393,7 @@ public:
                 Paddleboat_onStop(_jniEnv);
                 WindowEvent ev;
                 ev.type = WindowEvent::Type::HIDDEN;
-                _androidPlatform->dispatchEvent(ev);
+                events::WindowEvent::broadcast(ev);
                 break;
             }
             case APP_CMD_START: {
@@ -374,7 +402,7 @@ public:
                 Paddleboat_onStart(_jniEnv);
                 WindowEvent ev;
                 ev.type = WindowEvent::Type::SHOW;
-                _androidPlatform->dispatchEvent(ev);
+                events::WindowEvent::broadcast(ev);
                 break;
             }
             case APP_CMD_WINDOW_RESIZED: {
@@ -383,7 +411,7 @@ public:
                 ev.type = cc::WindowEvent::Type::SIZE_CHANGED;
                 ev.width = ANativeWindow_getWidth(_androidPlatform->_app->window);
                 ev.height = ANativeWindow_getHeight(_androidPlatform->_app->window);
-                _androidPlatform->dispatchEvent(ev);
+                events::WindowEvent::broadcast(ev);
                 break;
             }
             case APP_CMD_CONFIG_CHANGED:
@@ -397,9 +425,7 @@ public:
                 // system told us we have low memory. So if we are not visible, let's
                 // cooperate by deallocating all of our graphic resources.
                 CC_LOG_INFO("AndroidPlatform: APP_CMD_LOW_MEMORY");
-                DeviceEvent ev;
-                ev.type = DeviceEvent::Type::MEMORY;
-                _androidPlatform->dispatchEvent(ev);
+                events::LowMemory::broadcast();
                 break;
             }
             case APP_CMD_CONTENT_RECT_CHANGED:
@@ -517,9 +543,8 @@ int AndroidPlatform::init() {
             _loopTimeOut = LOW_FREQUENCY_TIME_INTERVAL;
             _isLowFrequencyLoopEnabled = true;
             IXRInterface *xr = getInterface<IXRInterface>();
-            bool isXRInstanceCreated = xr && xr->getXRConfig(xr::XRConfigKey::INSTANCE_CREATED).getBool();
-            if (!isXRInstanceCreated) {
-                // xr will not sleep,  -1 we will block forever waiting for events.
+            if (xr && !xr->getXRConfig(xr::XRConfigKey::INSTANCE_CREATED).getBool()) {
+                // xr will sleep,  -1 we will block forever waiting for events.
                 _loopTimeOut = -1;
                 _isLowFrequencyLoopEnabled = false;
             }
@@ -533,7 +558,7 @@ int AndroidPlatform::init() {
     registerInterface(std::make_shared<Network>());
     registerInterface(std::make_shared<Screen>());
     registerInterface(std::make_shared<System>());
-    registerInterface(std::make_shared<SystemWindow>());
+    registerInterface(std::make_shared<SystemWindowManager>());
     registerInterface(std::make_shared<Vibrator>());
 
     return 0;
@@ -543,6 +568,10 @@ void AndroidPlatform::onDestroy() {
     UniversalPlatform::onDestroy();
     unregisterAllInterfaces();
     CC_SAFE_DELETE(_inputProxy)
+}
+
+cc::ISystemWindow *AndroidPlatform::createNativeWindow(uint32_t windowId, void *externalHandle) {
+    return ccnew SystemWindow(windowId, externalHandle);
 }
 
 int AndroidPlatform::getSdkVersion() const {

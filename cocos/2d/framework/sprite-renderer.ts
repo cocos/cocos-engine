@@ -23,14 +23,15 @@
 */
 
 import { ccclass, executeInEditMode, executionOrder, help, menu, serializable, type, visible } from 'cc.decorator';
-import { EDITOR } from 'internal:constants';
-import { builtinResMgr, Color, Material, ModelRenderer, Vec2 } from '../../core';
-import { legacyCC } from '../../core/global-exports';
-import { ModelLocalBindings } from '../../core/pipeline/define';
-import { Model } from '../../core/renderer/scene';
-import { Root } from '../../core/root';
-import { TransformBit } from '../../core/scene-graph/node-enum';
+import { builtinResMgr } from '../../asset/asset-manager';
+import { Material } from '../../asset/assets';
+import { Color, Vec2, cclegacy } from '../../core';
+import { ModelLocalBindings } from '../../rendering/define';
+import { Model } from '../../render-scene/scene';
+import { Root } from '../../root';
+import { TransformBit } from '../../scene-graph/node-enum';
 import { SpriteFrame } from '../assets/sprite-frame';
+import { ModelRenderer } from '../../misc';
 
 enum SpriteMode {
     SIMPLE = 0,
@@ -132,7 +133,7 @@ export class SpriteRenderer extends ModelRenderer {
 
     public onDestroy () {
         if (this._model) {
-            legacyCC.director.root.destroyModel(this._model);
+            cclegacy.director.root.destroyModel(this._model);
             this._model = null;
             this._models.length = 0;
         }
@@ -161,7 +162,7 @@ export class SpriteRenderer extends ModelRenderer {
     }
 
     protected _createModel () {
-        const model = this._model = (legacyCC.director.root as Root).createModel<Model>(Model);
+        const model = this._model = (cclegacy.director.root as Root).createModel<Model>(Model);
         model.visFlags = this.visibility;
         model.node = model.transform = this.node;
         this._models.length = 0;
