@@ -184,7 +184,6 @@ public:
     void destroyLight(scene::Light *light);
 
     scene::Camera *createCamera() const;
-
     /**
      * @zh
      * GFX 设备
