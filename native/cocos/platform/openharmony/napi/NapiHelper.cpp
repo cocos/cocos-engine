@@ -28,6 +28,7 @@
 #include "bindings/jswrapper/napi/HelperMacros.h"
 #include "platform/openharmony/modules/SystemWindow.h"
 #include "platform/openharmony/FileUtils-OpenHarmony.h"
+#include "ui/edit-box/EditBox.h"
 #include "bindings/jswrapper/SeApi.h"
 
 namespace cc {
@@ -41,8 +42,14 @@ enum ContextType {
     NATIVE_RENDER_API,
     WORKER_INIT,
     ENGINE_UTILS,
+    EDITBOX_UTILS,
     UV_ASYNC_SEND
 };
+
+extern napi_value napiSetShowEditBoxCallback(napi_env env, napi_callback_info info);
+extern napi_value napiSetHideEditBoxCallback(napi_env env, napi_callback_info info);
+extern napi_value napiOnTextChange(napi_env env, napi_callback_info info);
+extern napi_value napiOnComplete(napi_env env, napi_callback_info info);
 
 // NAPI Interface
 napi_value NapiHelper::getContext(napi_env env, napi_callback_info info) {
@@ -111,6 +118,15 @@ napi_value NapiHelper::getContext(napi_env env, napi_callback_info info) {
             };
             NAPI_CALL(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(desc[0]), desc));
         }
+        case EDITBOX_UTILS: {
+            napi_property_descriptor desc[] = {
+                DECLARE_NAPI_FUNCTION("setShowEditBoxCallback", napiSetShowEditBoxCallback),
+                DECLARE_NAPI_FUNCTION("setHideEditBoxCallback", napiSetHideEditBoxCallback),
+                DECLARE_NAPI_FUNCTION("onTextChange", napiOnTextChange),
+                DECLARE_NAPI_FUNCTION("onComplete", napiOnComplete),
+            };
+            NAPI_CALL(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(desc[0]), desc));
+        }
         case UV_ASYNC_SEND: {
             napi_property_descriptor desc[] = {
                 DECLARE_NAPI_FUNCTION("send", NapiHelper::napiASend),
@@ -155,7 +171,6 @@ bool NapiHelper::exportFunctions(napi_env env, napi_value exports) {
     OpenHarmonyPlatform::getInstance()->setNativeXComponent(nativeXComponent);
     return true;
 }
-
 
 napi_value NapiHelper::napiOnCreate(napi_env env, napi_callback_info info) {
     // uv_loop_t* loop = nullptr;

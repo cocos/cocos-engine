@@ -3,17 +3,53 @@ import nativerender from "libcocos.so";
 import { WorkerManager } from '../cocos/WorkerManager'
 import { ContextType } from "../common/Constants"
 import featureAbility from '@ohos.ability.featureAbility'
-
+import { IMEDialog } from '../components/IMEDialog'
 const nativePageLifecycle = nativerender.getContext(ContextType.JSPAGE_LIFECYCLE);
 const engineUtils = nativerender.getContext(ContextType.ENGINE_UTILS);
 
 @Entry
 @Component
 struct Index {
-
+  @State showMessage: string = ''
   cocosWorker = WorkerManager.getInstance().getWorker();
+  dialogController: CustomDialogController = new CustomDialogController({
+    builder: IMEDialog({
+      showMessage: this.showMessage,
+      onTextChange: (msg: string) => {
+        this.showMessage = msg;
+        this.cocosWorker.postMessage({ type: 'onTextInput', data: msg })
+      },
+      accept: (msg: string) => {
+        this.showMessage = msg;
+        this.cocosWorker.postMessage({ type: 'onComplete', data: msg })
+      },
+    }),
+
+    autoCancel: true,
+    alignment: DialogAlignment.Bottom,
+    customStyle: true,
+  })
+
   aboutToAppear(): void  {
     console.log('[LIFECYCLE-Index] cocos aboutToAppear');
+    this.cocosWorker.onmessage = (e) => {
+      let data = e['data']
+      switch (data.type) {
+        case "showEditBox": {
+          this.showMessage = data.data
+          this.dialogController.open()
+          break;
+        }
+        case "hideEditBox": {
+          this.showMessage = ''
+          this.dialogController.close()
+          break;
+        }
+        default: {
+
+        }
+      }
+    }
 //  this.cocosWorker.postMessage({type: "JSPageLifecycle", data: "aboutToAppear"});
 //  nativePageLifecycle.aboutToAppear();
   }

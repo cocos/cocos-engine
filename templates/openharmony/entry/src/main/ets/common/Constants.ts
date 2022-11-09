@@ -20,6 +20,7 @@ export enum ContextType {
     NATIVE_RENDER_API,
     WORKER_INIT,
     ENGINE_UTILS,
+    EDITBOX_UTILS,
     UV_ASYNC_SEND,
 }
 

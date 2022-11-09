@@ -23,6 +23,14 @@ nativeContext.workerInit()
 
 const parentPort = worker.parentPort;
 
+const nativeEditBox = nativerender.getContext(ContextType.EDITBOX_UTILS);
+nativeEditBox.setShowEditBoxCallback((msg: string) => {
+    parentPort.postMessage({ type: 'showEditBox', data: msg });
+});
+nativeEditBox.setHideEditBoxCallback((msg: string) => {
+    parentPort.postMessage({ type: 'hideEditBox', data: msg });
+})
+
 var renderContext: any = undefined;
 parentPort.onmessage = function(e) {
     var data = e.data;
@@ -37,7 +45,14 @@ parentPort.onmessage = function(e) {
             });
             renderContext.nativeEngineStart();
             break;
+        case "onTextInput":
+            nativeEditBox.onTextChange(data.data);
+            break;
+        case "onComplete":
+            nativeEditBox.onComplete(data.data);
+            break;
         default:
             console.error("cocos worker: message type unknown")
     }
 }
+

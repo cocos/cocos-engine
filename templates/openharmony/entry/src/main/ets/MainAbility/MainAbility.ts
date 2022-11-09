@@ -4,8 +4,8 @@ import { ContextType } from "../common/Constants"
 import resourceManager from '@ohos.resourceManager';
 
 const nativeContext = nativerender.getContext(ContextType.ENGINE_UTILS);
-
 const nativeAppLifecycle = nativerender.getContext(ContextType.APP_LIFECYCLE);
+
 export default class MainAbility extends Ability {
     onCreate(want, launchParam) {
         globalThis.abilityWant = want;
