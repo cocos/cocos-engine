@@ -310,6 +310,116 @@ static bool js_cc_xr_XrEntry_isCreatedXrInstance(se::State& s)
 }
 SE_BIND_FUNC(js_cc_xr_XrEntry_isCreatedXrInstance) 
 
+static bool js_cc_xr_XrEntry_initXrSession(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::xr::XrEntry *arg1 = (cc::xr::XrEntry *) NULL ;
+    cc::xr::PFNGLES3WLOADPROC arg2 = (cc::xr::PFNGLES3WLOADPROC) NULL ;
+    void *arg3 = (void *) NULL ;
+    void *arg4 = (void *) NULL ;
+    void *arg5 = (void *) NULL ;
+    
+    if(argc != 4) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 4);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::xr::XrEntry>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) SWIGTYPE*
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "XrEntry_initXrSession,2,SWIGTYPE_p_f_p_q_const__char__p_void"); 
+    ok &= sevalue_to_native(args[1], &arg3);
+    SE_PRECONDITION2(ok, false, "XrEntry_initXrSession,3,SWIGTYPE_p_void");
+    ok &= sevalue_to_native(args[2], &arg4);
+    SE_PRECONDITION2(ok, false, "XrEntry_initXrSession,4,SWIGTYPE_p_void");
+    ok &= sevalue_to_native(args[3], &arg5);
+    SE_PRECONDITION2(ok, false, "XrEntry_initXrSession,5,SWIGTYPE_p_void");
+    (arg1)->initXrSession(arg2,arg3,arg4,arg5);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_xr_XrEntry_initXrSession) 
+
+static bool js_cc_xr_XrEntry_setXrFrameBuffer(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::xr::XrEntry *arg1 = (cc::xr::XrEntry *) NULL ;
+    unsigned int arg2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::xr::XrEntry>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) unsigned int, unsigned short, unsigned long, unsigned char
+    ok &= sevalue_to_native(args[0], &arg2, nullptr);
+    SE_PRECONDITION2(ok, false, "XrEntry_setXrFrameBuffer,2,SWIGTYPE_unsigned_int");
+    
+    (arg1)->setXrFrameBuffer(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_xr_XrEntry_setXrFrameBuffer) 
+
+static bool js_cc_xr_XrEntry_getXrFrameBuffer(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::xr::XrEntry *arg1 = (cc::xr::XrEntry *) NULL ;
+    unsigned int result;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::xr::XrEntry>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (unsigned int)(arg1)->getXrFrameBuffer();
+    
+    // out 1
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/); 
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_xr_XrEntry_getXrFrameBuffer) 
+
+static bool js_cc_xr_XrEntry_attachXrFramebufferTexture2D(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::xr::XrEntry *arg1 = (cc::xr::XrEntry *) NULL ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::xr::XrEntry>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    (arg1)->attachXrFramebufferTexture2D();
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_xr_XrEntry_attachXrFramebufferTexture2D) 
+
 static bool js_cc_xr_XrEntry_getCocosXrSwapchains(se::State& s)
 {
     // js_function
@@ -621,6 +731,40 @@ static bool js_cc_xr_XrEntry_computeViewProjection(se::State& s)
     return true;
 }
 SE_BIND_FUNC(js_cc_xr_XrEntry_computeViewProjection) 
+
+static bool js_cc_xr_XrEntry_getEyeFov(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::xr::XrEntry *arg1 = (cc::xr::XrEntry *) NULL ;
+    uint32_t arg2 ;
+    std::vector< float > result;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::xr::XrEntry>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "XrEntry_getEyeFov,2,SWIGTYPE_uint32_t"); 
+    
+    result = (arg1)->getEyeFov(arg2);
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "XrEntry_getEyeFov, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_xr_XrEntry_getEyeFov) 
 
 static bool js_cc_xr_XrEntry_getSwapchainImageIndex(se::State& s)
 {
@@ -1167,6 +1311,56 @@ static bool js_cc_xr_XrEntry_getXRPointerConfig(se::State& s)
 }
 SE_BIND_FUNC(js_cc_xr_XrEntry_getXRPointerConfig) 
 
+static bool js_cc_xr_XrEntry_getXrPose(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::xr::XrEntry *arg1 = (cc::xr::XrEntry *) NULL ;
+    cc::xr::XRPose *arg2 = 0 ;
+    cc::xr::XRPose *arg3 = 0 ;
+    cc::xr::XRPose *arg4 = 0 ;
+    cc::xr::XRPose *arg5 = 0 ;
+    cc::xr::XRPose temp2 ;
+    cc::xr::XRPose temp3 ;
+    cc::xr::XRPose temp4 ;
+    cc::xr::XRPose temp5 ;
+    
+    if(argc != 4) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 4);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::xr::XrEntry>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) SWIGTYPE&
+    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "XrEntry_getXrPose,2,SWIGTYPE_p_cc__xr__XRPose");
+    arg2 = &temp2;
+    
+    // %typemap(in) SWIGTYPE&
+    ok &= sevalue_to_native(args[1], &temp3, s.thisObject());
+    SE_PRECONDITION2(ok, false, "XrEntry_getXrPose,3,SWIGTYPE_p_cc__xr__XRPose");
+    arg3 = &temp3;
+    
+    // %typemap(in) SWIGTYPE&
+    ok &= sevalue_to_native(args[2], &temp4, s.thisObject());
+    SE_PRECONDITION2(ok, false, "XrEntry_getXrPose,4,SWIGTYPE_p_cc__xr__XRPose");
+    arg4 = &temp4;
+    
+    // %typemap(in) SWIGTYPE&
+    ok &= sevalue_to_native(args[3], &temp5, s.thisObject());
+    SE_PRECONDITION2(ok, false, "XrEntry_getXrPose,5,SWIGTYPE_p_cc__xr__XRPose");
+    arg5 = &temp5;
+    
+    (arg1)->getXrPose(*arg2,*arg3,*arg4,*arg5);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_xr_XrEntry_getXrPose) 
+
 static bool js_delete_cc_xr_XrEntry(se::State& s)
 {
     // js_dtoroverride
@@ -1186,6 +1380,10 @@ bool js_register_cc_xr_XrEntry(se::Object* obj) {
     cls->defineFunction("getXrViewCount", _SE(js_cc_xr_XrEntry_getXrViewCount)); 
     cls->defineFunction("initXrSwapchains", _SE(js_cc_xr_XrEntry_initXrSwapchains)); 
     cls->defineFunction("isCreatedXrInstance", _SE(js_cc_xr_XrEntry_isCreatedXrInstance)); 
+    cls->defineFunction("initXrSession", _SE(js_cc_xr_XrEntry_initXrSession)); 
+    cls->defineFunction("setXrFrameBuffer", _SE(js_cc_xr_XrEntry_setXrFrameBuffer)); 
+    cls->defineFunction("getXrFrameBuffer", _SE(js_cc_xr_XrEntry_getXrFrameBuffer)); 
+    cls->defineFunction("attachXrFramebufferTexture2D", _SE(js_cc_xr_XrEntry_attachXrFramebufferTexture2D)); 
     cls->defineFunction("getCocosXrSwapchains", _SE(js_cc_xr_XrEntry_getCocosXrSwapchains)); 
     cls->defineFunction("getCurrentXrSwapchain", _SE(js_cc_xr_XrEntry_getCurrentXrSwapchain)); 
     cls->defineFunction("acquireXrSwapchain", _SE(js_cc_xr_XrEntry_acquireXrSwapchain)); 
@@ -1197,6 +1395,7 @@ bool js_register_cc_xr_XrEntry(se::Object* obj) {
     cls->defineFunction("isRenderAllowable", _SE(js_cc_xr_XrEntry_isRenderAllowable)); 
     cls->defineFunction("setXRConfigCallback", _SE(js_cc_xr_XrEntry_setXRConfigCallback)); 
     cls->defineFunction("computeViewProjection", _SE(js_cc_xr_XrEntry_computeViewProjection)); 
+    cls->defineFunction("getEyeFov", _SE(js_cc_xr_XrEntry_getEyeFov)); 
     cls->defineFunction("getSwapchainImageIndex", _SE(js_cc_xr_XrEntry_getSwapchainImageIndex)); 
     cls->defineFunction("setMultisamplesRTT", _SE(js_cc_xr_XrEntry_setMultisamplesRTT)); 
     cls->defineFunction("setRenderingScale", _SE(js_cc_xr_XrEntry_setRenderingScale)); 
@@ -1216,6 +1415,7 @@ bool js_register_cc_xr_XrEntry(se::Object* obj) {
     cls->defineFunction("getXRFloatConfig", _SE(js_cc_xr_XrEntry_getXRFloatConfig)); 
     cls->defineFunction("getXRStringConfig", _SE(js_cc_xr_XrEntry_getXRStringConfig)); 
     cls->defineFunction("getXRPointerConfig", _SE(js_cc_xr_XrEntry_getXRPointerConfig)); 
+    cls->defineFunction("getXrPose", _SE(js_cc_xr_XrEntry_getXrPose)); 
     
     
     cls->defineStaticFunction("getInstance", _SE(js_cc_xr_XrEntry_getInstance_static)); 
