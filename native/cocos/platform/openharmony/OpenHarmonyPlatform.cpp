@@ -221,9 +221,8 @@ void OpenHarmonyPlatform::requestVSync() {
      if (_workerLoop) {
     //     // Todo: Starting the timer in this way is inaccurate and will be fixed later.
          uv_timer_init(_workerLoop, &_timerHandle);
-    //     // 1s = 1000ms = 60fps;
-    //     // 1000ms / 60fps = 16 ms/fps
-         uv_timer_start(&_timerHandle, &OpenHarmonyPlatform::timerCb, 16, true);
+         // The tick function needs to be called as quickly as possible because it is controlling the frame rate inside the engine.
+         uv_timer_start(&_timerHandle, &OpenHarmonyPlatform::timerCb, 0, 1);
      }
     //CC_LOG_ERROR("OpenHarmonyPlatform::requestVSync2");
 }
@@ -245,7 +244,7 @@ void OpenHarmonyPlatform::onSurfaceDestroyed(OH_NativeXComponent* component, voi
 }
 
 void OpenHarmonyPlatform::dispatchTouchEvent(OH_NativeXComponent* component, void* window) {
-    struct OH_NativeXComponent_TouchEvent touchEvent;
+    OH_NativeXComponent_TouchEvent touchEvent;
     int32_t ret = OH_NativeXComponent_GetTouchEvent(component, window, &touchEvent);
     if (ret != OH_NATIVEXCOMPONENT_RESULT_SUCCESS) {
         return;

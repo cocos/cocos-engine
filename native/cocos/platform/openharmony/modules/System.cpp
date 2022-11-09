@@ -24,7 +24,8 @@
 ****************************************************************************/
 
 #include "platform/openharmony/modules/System.h"
-
+#include <string>
+#include "platform/openharmony/napi/NapiHelper.h"
 
 namespace cc {
 System::System() = default;
@@ -38,16 +39,64 @@ std::string System::getDeviceModel() const {
     return "";
 }
 
-ISystem::LanguageType System::getCurrentLanguage() const {
-    return LanguageType::ENGLISH;
+System::LanguageType System::getCurrentLanguage() const {
+    ccstd::string languageStr = getCurrentLanguageCode(); // NOLINT
+    if (languageStr == "en") {
+        return ISystem::LanguageType::ENGLISH;
+    } else if (languageStr == "zh") {
+        return ISystem::LanguageType::CHINESE;
+    } else if (languageStr == "fr") {
+        return ISystem::LanguageType::FRENCH;
+    } else if (languageStr == "it") {
+        return ISystem::LanguageType::ITALIAN;
+    } else if (languageStr == "de") {
+        return ISystem::LanguageType::GERMAN;
+    } else if (languageStr == "es") {
+        return ISystem::LanguageType::SPANISH;
+    } else if (languageStr == "du") {
+        return ISystem::LanguageType::DUTCH;
+    } else if (languageStr == "ru") {
+        return ISystem::LanguageType::RUSSIAN;
+    } else if (languageStr == "ko") {
+        return ISystem::LanguageType::KOREAN;
+    } else if (languageStr == "ja") {
+        return ISystem::LanguageType::JAPANESE;
+    } else if (languageStr == "hu") {
+        return ISystem::LanguageType::HUNGARIAN;
+    } else if (languageStr == "pt") {
+        return ISystem::LanguageType::PORTUGUESE;
+    } else if (languageStr == "ar") {
+        return ISystem::LanguageType::ARABIC;
+    } else if (languageStr == "no") {
+        return ISystem::LanguageType::NORWEGIAN;
+    } else if (languageStr == "pl") {
+        return ISystem::LanguageType::POLISH;
+    } else if (languageStr == "tr") {
+        return ISystem::LanguageType::TURKISH;
+    } else if (languageStr == "uk") {
+        return ISystem::LanguageType::UKRAINIAN;
+    } else if (languageStr == "ro") {
+        return ISystem::LanguageType::ROMANIAN;
+    } else if (languageStr == "bg") {
+        return ISystem::LanguageType::BULGARIAN;
+    }
+    return ISystem::LanguageType::ENGLISH;
 }
 
 std::string System::getCurrentLanguageCode() const {
-    return "";
+    std::string str;
+    NapiHelper::napiCallFunction<std::string>("getSystemLanguage", &str);
+    std::string::size_type pos = str.find('-');
+    if(pos != std::string::npos) {
+        str = str.substr(0, pos);
+    }
+    return str;
 }
 
 std::string System::getSystemVersion() const {
-    return "";
+    std::string str;
+    NapiHelper::napiCallFunction<std::string>("getOSFullName", &str);
+    return str;
 }
 
 bool System::openURL(const std::string& url) {
