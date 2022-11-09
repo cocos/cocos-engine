@@ -103,6 +103,7 @@ struct RaycastResult {
     Vec3 hitPoint;
     float distance;
     Vec3 hitNormal;
+    uint32_t id{0};
     RaycastResult() = default;
 };
 
