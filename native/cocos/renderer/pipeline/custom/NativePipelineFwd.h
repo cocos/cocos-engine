@@ -50,6 +50,8 @@ class NativeCopyPassBuilder;
 class NativeSceneTransversal;
 struct PersistentRenderPassAndFramebuffer;
 struct RenderInstancingQueue;
+struct DrawInstance;
+struct RenderDrawQueue;
 struct NativeRenderQueue;
 class DefaultSceneVisitor;
 class DefaultForwardLightingTransversal;

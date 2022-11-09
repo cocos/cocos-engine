@@ -284,7 +284,7 @@ struct RenderInstancingQueue {
     RenderInstancingQueue& operator=(RenderInstancingQueue&& rhs) = default;
     RenderInstancingQueue& operator=(RenderInstancingQueue const& rhs) = default;
 
-    void add(pipeline::InstancedBuffer *instancedBuffer);
+    void add(pipeline::InstancedBuffer &instancedBuffer);
     void sort();
     void uploadBuffers(gfx::CommandBuffer *cmdBuffer) const;
     void recordCommandBuffer(
@@ -296,10 +296,43 @@ struct RenderInstancingQueue {
     ccstd::pmr::vector<pipeline::InstancedBuffer*> sortedBatches;
 };
 
+struct alignas(32) DrawInstance {
+    const scene::SubModel* subModel{nullptr};
+    uint32_t priority{0};
+    uint32_t hash{0};
+    float depth{0};
+    uint32_t haderID{0};
+    uint32_t assIndex{0};
+};
+
+struct RenderDrawQueue {
+    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
+    allocator_type get_allocator() const noexcept { // NOLINT
+        return {instances.get_allocator().resource()};
+    }
+
+    RenderDrawQueue(const allocator_type& alloc) noexcept; // NOLINT
+    RenderDrawQueue(RenderDrawQueue&& rhs, const allocator_type& alloc);
+    RenderDrawQueue(RenderDrawQueue const& rhs, const allocator_type& alloc);
+
+    RenderDrawQueue(RenderDrawQueue&& rhs) noexcept = default;
+    RenderDrawQueue(RenderDrawQueue const& rhs) = delete;
+    RenderDrawQueue& operator=(RenderDrawQueue&& rhs) = default;
+    RenderDrawQueue& operator=(RenderDrawQueue const& rhs) = default;
+
+    void add(const scene::Model& model, float depth, uint32_t subModelIdx, uint32_t passIdx);
+    void sort();
+    void recordCommandBuffer(gfx::Device *device, const scene::Camera *camera,
+        gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer,
+        uint32_t subpassIndex) const;
+
+    ccstd::pmr::vector<DrawInstance> instances;
+};
+
 struct NativeRenderQueue {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
-        return {instancingQueue.get_allocator().resource()};
+        return {opaqueQueue.get_allocator().resource()};
     }
 
     NativeRenderQueue(const allocator_type& alloc) noexcept; // NOLINT
@@ -311,8 +344,11 @@ struct NativeRenderQueue {
     NativeRenderQueue& operator=(NativeRenderQueue&& rhs) = default;
     NativeRenderQueue& operator=(NativeRenderQueue const& rhs) = delete;
 
+    RenderDrawQueue opaqueQueue;
+    RenderDrawQueue transparentQueue;
+    RenderInstancingQueue opaqueInstancingQueue;
+    RenderInstancingQueue transparentInstancingQueue;
     SceneFlags sceneFlags{SceneFlags::NONE};
-    RenderInstancingQueue instancingQueue;
 };
 
 class DefaultSceneVisitor final : public SceneVisitor {

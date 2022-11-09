@@ -9,8 +9,22 @@ namespace cc {
 
 namespace render {
 
-void RenderInstancingQueue::add(pipeline::InstancedBuffer *instancedBuffer) {
-    batches.emplace(instancedBuffer);
+void RenderDrawQueue::add(const scene::Model &model, float depth, uint32_t subModelIdx, uint32_t passIdx) {
+
+}
+
+void RenderDrawQueue::sort() {
+
+}
+
+void RenderDrawQueue::recordCommandBuffer(
+    gfx::Device *device, const scene::Camera *camera,
+    gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer,
+    uint32_t subpassIndex) const {
+}
+
+void RenderInstancingQueue::add(pipeline::InstancedBuffer &instancedBuffer) {
+    batches.emplace(&instancedBuffer);
 }
 
 void RenderInstancingQueue::sort() {

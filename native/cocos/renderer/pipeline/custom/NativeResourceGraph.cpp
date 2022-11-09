@@ -23,13 +23,13 @@
  THE SOFTWARE.
 ****************************************************************************/
 
+#include "NativePipelineTypes.h"
 #include "Range.h"
 #include "RenderGraphGraphs.h"
 #include "RenderGraphTypes.h"
 #include "cocos/renderer/gfx-base/GFXDevice.h"
 #include "gfx-base/GFXDef-common.h"
 #include "pipeline/custom/RenderCommonFwd.h"
-#include "NativePipelineTypes.h"
 
 namespace cc {
 

@@ -66,16 +66,34 @@ RenderInstancingQueue::RenderInstancingQueue(RenderInstancingQueue const& rhs, c
 : batches(rhs.batches, alloc),
   sortedBatches(rhs.sortedBatches, alloc) {}
 
+RenderDrawQueue::RenderDrawQueue(const allocator_type& alloc) noexcept
+: instances(alloc) {}
+
+RenderDrawQueue::RenderDrawQueue(RenderDrawQueue&& rhs, const allocator_type& alloc)
+: instances(std::move(rhs.instances), alloc) {}
+
+RenderDrawQueue::RenderDrawQueue(RenderDrawQueue const& rhs, const allocator_type& alloc)
+: instances(rhs.instances, alloc) {}
+
 NativeRenderQueue::NativeRenderQueue(const allocator_type& alloc) noexcept
-: instancingQueue(alloc) {}
+: opaqueQueue(alloc),
+  transparentQueue(alloc),
+  opaqueInstancingQueue(alloc),
+  transparentInstancingQueue(alloc) {}
 
 NativeRenderQueue::NativeRenderQueue(SceneFlags sceneFlagsIn, const allocator_type& alloc) noexcept
-: sceneFlags(sceneFlagsIn),
-  instancingQueue(alloc) {}
+: opaqueQueue(alloc),
+  transparentQueue(alloc),
+  opaqueInstancingQueue(alloc),
+  transparentInstancingQueue(alloc),
+  sceneFlags(sceneFlagsIn) {}
 
 NativeRenderQueue::NativeRenderQueue(NativeRenderQueue&& rhs, const allocator_type& alloc)
-: sceneFlags(rhs.sceneFlags),
-  instancingQueue(std::move(rhs.instancingQueue), alloc) {}
+: opaqueQueue(std::move(rhs.opaqueQueue), alloc),
+  transparentQueue(std::move(rhs.transparentQueue), alloc),
+  opaqueInstancingQueue(std::move(rhs.opaqueInstancingQueue), alloc),
+  transparentInstancingQueue(std::move(rhs.transparentInstancingQueue), alloc),
+  sceneFlags(rhs.sceneFlags) {}
 
 DefaultSceneVisitor::DefaultSceneVisitor(const allocator_type& alloc) noexcept
 : name(alloc) {}

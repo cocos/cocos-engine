@@ -37,7 +37,7 @@ namespace pipeline {
 class LODModelsCachedUtils {
 public:
     static void updateCachedLODModels(const scene::RenderScene *scene, const scene::Camera *camera);
-    static bool isLODModelCulled(scene::Model *model);
+    static bool isLODModelCulled(const scene::Model *model);
     static void clearCachedLODModels();
 };
 } // namespace pipeline
