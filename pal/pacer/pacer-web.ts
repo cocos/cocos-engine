@@ -1,5 +1,7 @@
 import { assertIsTrue } from '../../cocos/core/data/utils/asserts';
 
+const maxRafFrame = 60;
+
 export class Pacer {
     private _rafHandle = 0;
     private _stHandle = 0;
@@ -10,6 +12,10 @@ export class Pacer {
     private _isPlaying = false;
     private _rAF: typeof requestAnimationFrame;
     private _cAF: typeof cancelAnimationFrame;
+
+    private _counter = 0;
+    private _counterLimit = 0;
+
     constructor () {
         this._rAF = window.requestAnimationFrame
         || window.webkitRequestAnimationFrame
@@ -56,13 +62,17 @@ export class Pacer {
 
     start (): void {
         if (this._isPlaying) return;
-        if (this._targetFrameRate === 60) {
+        if (maxRafFrame % this._targetFrameRate === 0) {
+            this._counterLimit = maxRafFrame / this._targetFrameRate;
+
             const updateCallback = () => {
+                this._counter += 1;
                 if (this._isPlaying) {
                     this._rafHandle = this._rAF.call(window, updateCallback);
                 }
-                if (this._onTick) {
+                if (this._onTick && this._counter === this._counterLimit) {
                     this._onTick();
+                    this._counter = 0;
                 }
             };
             this._rafHandle = this._rAF.call(window, updateCallback);
@@ -88,6 +98,9 @@ export class Pacer {
         this._ctTime(this._stHandle);
         this._rafHandle = this._stHandle = 0;
         this._isPlaying = false;
+
+        this._counterLimit = 0;
+        this._counter = 0;
     }
 
     private _stTime (callback: () => void) {
