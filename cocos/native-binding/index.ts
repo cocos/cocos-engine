@@ -1368,7 +1368,6 @@ export declare namespace native {
      */
     export function saveImageData(data: Uint8Array, width: number, height: number, filePath: string): Promise<void>;
 
-
     /**
      * @en Current process information
      * @zh 当前进程信息
