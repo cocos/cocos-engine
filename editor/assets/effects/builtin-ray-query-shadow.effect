@@ -270,15 +270,52 @@ CCProgram ray-query-fs %{
     return vec3(x,y,z);
   }
 
+  // from https://www.shadertoy.com/view/XtGBDW
+  #define LEVEL 15U
+  #define WIDTH ( (1U << LEVEL) )
+  #define AREA ( WIDTH * WIDTH )
+
+  uint hilbertIndex( uvec2 Position )
+  {   
+      uvec2 Regions;
+      uint Index = 0U;
+      for( uint CurLevel = WIDTH/2U; CurLevel > 0U; CurLevel /= 2U )
+      {
+          uvec2 Region = uvec2(greaterThan((Position & uvec2(CurLevel)), uvec2(0U)));
+          Index += CurLevel * CurLevel * ( (3U * Region.x) ^ Region.y);
+          if( Region.y == 0U )
+          {
+              if( Region.x == 1U )
+              {
+                  Position = uvec2(WIDTH - 1U) - Position;
+              }
+              Position.xy = Position.yx;
+          }
+      }
+      
+      return Index;
+  }
+
+  //From https://www.shadertoy.com/view/3lycDK
+  float blue_noise2(vec2 p)
+  {
+    uint y = hilbertIndex(uvec2(p));
+    y += uint(cc_time.z);
+    uint x =  y % (1u << 17u);
+    const float phi = 2.0/(sqrt(5.0)+1.0);
+	  return fract(0.5+phi*float(x));
+  }
+
   float calculate_ao(in int frame_id,in float seed,in mat3 TBN,in vec3 point,in float kernel_size){
     float ao = .0;
     const int AO_SAMPLES = 1;
     const ivec2 tile_offset[4] = {ivec2(0,0),ivec2(0,1),ivec2(1,0),ivec2(1,1)};
     bool should_trace = mod(vec2(ivec2(gl_FragCoord.xy+tile_offset[frame_id])),2)==vec2(0,0);
-    if(should_trace){
+    if(true){
       rayQueryEXT rayQuery;
       for(int i = 0;i<AO_SAMPLES;++i){
         seed = hash1(seed);
+        //seed = blue_noise2(gl_FragCoord.xy);
         vec3 direction = TBN*random_in_unit_hemisphere_cosine(seed);
         rayQueryInitializeEXT(rayQuery, cc_topLevelAS,gl_RayFlagsTerminateOnFirstHitEXT, 0xFF, point, 0.2, direction, kernel_size);
         while(rayQueryProceedEXT(rayQuery));
@@ -532,6 +569,7 @@ CCProgram ray-query-fs %{
     surf(s);
     #if __VERSION__ >=460
       vec4 color = CCFragOutput(CCStandardShadingBaseShadowRay(s,normalize(cc_cameraPos.xyz - s.position),cc_topLevelAS));
+      //vec4 color = vec4(vec3(blue_noise2(gl_FragCoord.xy)),1.0);
     #else
       vec4 color = CCFragOutput(CCStandardShadingBase(s,CC_SHADOW_POSITION));
     #endif
