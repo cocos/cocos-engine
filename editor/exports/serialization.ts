@@ -4,6 +4,7 @@ export {
     encodeCCONJson,
     encodeCCONBinary,
     mergeAllFile,
+    mergeAllCompressedTexture,
     BufferBuilder,
     decodeCCONBinary,
     parseCCONJson,

@@ -33,7 +33,7 @@ import { PresumedGFXTextureInfo, PresumedGFXTextureViewInfo, SimpleTexture } fro
 import { legacyCC } from '../../core/global-exports';
 import { js } from '../../core/utils/js';
 
-//const compressedImageAsset: ImageAsset[] = [];
+const compressedImageAsset: ImageAsset[] = [];
 
 /**
  * @en The create information for [[Texture2D]]
@@ -98,14 +98,12 @@ export class Texture2D extends SimpleTexture {
     }
     set mipmaps (value) {
         if (value[0].mipmapLevelDataSize && value[0].mipmapLevelDataSize.length > 0) {
-            // console.warn('************************* use compressed mipmap *************************');
+            compressedImageAsset.length = 0;
             const mipmapLevelDataSize = value[0].mipmapLevelDataSize;
             const data: Uint8Array = value[0].data as Uint8Array;
+
             let byteOffset = 0;
-            const compressedImageAsset: ImageAsset[] = [];
-            for (let i = 0; i < 1/*mipmapLevelDataSize.length*/; i++) {
-                // console.warn(i, ' -> ', 'byteOffset :', byteOffset);
-                // console.warn(i, ' -> ', 'length :', mipmapLevelDataSize[i]);
+            for (let i = 0; i < mipmapLevelDataSize.length; i++) {
                 compressedImageAsset[i] = new ImageAsset({
                     _data: new Uint8Array(data.buffer, byteOffset, mipmapLevelDataSize[i]),
                     _compressed: true,
@@ -114,11 +112,10 @@ export class Texture2D extends SimpleTexture {
                     format: value[0].format,
                     mipmapLevelDataSize: [],
                 });
-                // console.warn(i, ' -> ', 'compressedImageAsset.byteLength :', (compressedImageAsset[i].data as unknown as ArrayBuffer).byteLength);
+                compressedImageAsset[i]._uuid = value[0]._uuid;
                 byteOffset += mipmapLevelDataSize[i];
             }
             this._setMipmapParams(compressedImageAsset);
-            // console.warn('************************* use compressed mipmap *************************');
         } else {
             this._setMipmapParams(value);
         }
