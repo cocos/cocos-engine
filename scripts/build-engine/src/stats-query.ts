@@ -41,6 +41,13 @@ export class StatsQuery {
     get tsConfigPath () {
         return ps.join(this._engine, 'tsconfig.json');
     }
+    
+    /**
+     * Gets all optimzie decorators
+     */
+    public getOptimizeDecorators () {
+        return this._config.optimizeDecorators;
+    }
 
     /**
      * Gets all features defined.

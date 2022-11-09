@@ -5,7 +5,7 @@ export const fieldDecorators = [
     "formerlySerializedAs",
     "editorOnly",
     "uniquelyReferenced",
-    // eidtor
+    // editor
     "type",
     "override",
     "executeInEditMode",

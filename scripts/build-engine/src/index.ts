@@ -30,8 +30,8 @@ import { assetRef as rpAssetRef, pathToAssetRefURL } from './rollup-plugins/asse
 import { codeAsset } from './rollup-plugins/code-asset';
 import { ModeType, PlatformType } from './constant-manager';
 import { assetUrl } from './rollup-plugins/asset-url';
-import { fieldDecorators, editorDecorators } from './optimize-decorators';
 
+export { IOptimizeDecorators } from './config-interface';
 export { ModeType, PlatformType, FlagType, ConstantOptions, BuildTimeConstants, CCEnvConstants } from './constant-manager';
 export { StatsQuery };
 export { ModuleOption, enumerateModuleOptionReps, parseModuleOption };
@@ -374,6 +374,8 @@ async function doBuild ({
             test: RegExp | string;
         } & babel.TransformOptions>,
     }
+
+    const { fieldDecorators, editorDecorators } = statsQuery.getOptimizeDecorators();
 
     const babelOptions: RollupBabelInputPluginOptions & BabelOverrides = {
         babelHelpers: 'bundled',

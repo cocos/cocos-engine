@@ -52,12 +52,17 @@
             "type": "object"
           },
           "type": "array"
+        },
+        "optimizeDecorators": {
+          "$ref": "#/definitions/IOptimizeDecorators",
+          "description": "The decorators to be optimize when build engine."
         }
       },
       "required": [
         "features",
         "includes",
-        "constants"
+        "constants",
+        "optimizeDecorators"
       ],
       "type": "object"
     },
@@ -135,6 +140,30 @@
         "type",
         "value",
         "internal"
+      ],
+      "type": "object"
+    },
+    "IOptimizeDecorators": {
+      "additionalProperties": false,
+      "properties": {
+        "editorDecorators": {
+          "description": "The decorators which should be removed directly when they only work in Cocos Creator editor.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "fieldDecorators": {
+          "description": "The decorators which should be optimized when they only decorate class fields.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "fieldDecorators",
+        "editorDecorators"
       ],
       "type": "object"
     },
