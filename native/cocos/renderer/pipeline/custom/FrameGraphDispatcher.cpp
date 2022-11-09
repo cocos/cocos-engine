@@ -284,7 +284,7 @@ void buildAccessGraph(const RenderGraph &renderGraph, const Graphs &graphs) {
 
     // no present pass found, add a fake node to gather leaf node(s).
     if (resourceAccessGraph.presentPassID == 0xFFFFFFFF) {
-        auto ragEndNode = add_vertex(rag, 0xFFFFFFFF - 0x1);
+        auto ragEndNode = add_vertex(rag, RenderGraph::null_vertex());
         auto rlgEndNode = add_vertex(relationGraph, ragEndNode);
         // keep sync before pass reorder done.
         CC_EXPECTS(ragEndNode == rlgEndNode);
