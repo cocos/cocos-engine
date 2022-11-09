@@ -63,7 +63,7 @@ void ReflectionProbeFlow::render(scene::Camera *camera) {
     CC_PROFILE(ReflectionProbeFlowRender);
     const auto *sceneData = _pipeline->getPipelineSceneData();
     const auto probes = ReflectionProbeManager::getInstance()->getAllProbes();
-    for (auto probe : probes) {
+    for (auto * probe : probes) {
         if (probe->needRender()) {
             renderStage(camera, probe);
         }
