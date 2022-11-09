@@ -821,6 +821,7 @@ export class ParticleSystem extends ModelRenderer {
         Object.assign(sub.startRotationX, subSrc.startRotationX);
         Object.assign(sub.startRotationY, subSrc.startRotationY);
         Object.assign(sub.startRotationZ, subSrc.startRotationZ);
+        Object.assign(sub.gravityModifier, subSrc.gravityModifier);
 
         if (subSrc._colorOverLifetimeModule) {
             sub._colorOverLifetimeModule = new ColorOverLifetimeModule();
