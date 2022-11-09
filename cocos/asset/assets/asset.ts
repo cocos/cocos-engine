@@ -24,16 +24,12 @@
  THE SOFTWARE.
 */
 
-import { ccclass, serializable } from 'cc.decorator';
 import { EDITOR, PREVIEW } from 'internal:constants';
-import { property } from '../../core/data/decorators/property';
+import { _decorator, Eventify, path, debug, getError, CCObject, cclegacy } from '../../core';
 import { getUrlWithUuid } from '../asset-manager/helper';
-import { Eventify } from '../../core/event';
 import { Node } from '../../scene-graph';
-import { legacyCC } from '../../core/global-exports';
-import { extname } from '../../core/utils/path';
-import { debug, getError } from '../../core/platform/debug';
-import { CCObject } from '../../core/data/object';
+
+const { ccclass, serializable, property } = _decorator;
 
 /**
  * @en
@@ -67,7 +63,7 @@ export class Asset extends Eventify(CCObject) {
      */
     public static deserialize (data) {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-        return legacyCC.deserialize(data);
+        return cclegacy.deserialize(data);
     }
 
     /**
@@ -130,7 +126,7 @@ export class Asset extends Eventify(CCObject) {
                 this._nativeUrl = getUrlWithUuid(this._uuid, { nativeExt: name, isNative: true });
             } else {
                 // imported in an independent dir
-                this._nativeUrl = getUrlWithUuid(this._uuid, { __nativeName__: name, nativeExt: extname(name), isNative: true });
+                this._nativeUrl = getUrlWithUuid(this._uuid, { __nativeName__: name, nativeExt: path.extname(name), isNative: true });
             }
         }
         return this._nativeUrl;
@@ -289,7 +285,7 @@ export class Asset extends Eventify(CCObject) {
             this._ref--;
         }
         if (autoRelease) {
-            legacyCC.assetManager._releaseManager.tryRelease(this);
+            cclegacy.assetManager._releaseManager.tryRelease(this);
         }
         return this;
     }
@@ -319,4 +315,4 @@ type CreateNodeCallback = (error: Error | null, node: Node) => void;
 
 Asset.prototype.createNode = null!;
 
-legacyCC.Asset = Asset;
+cclegacy.Asset = Asset;

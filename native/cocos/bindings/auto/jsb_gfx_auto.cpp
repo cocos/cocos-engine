@@ -27123,6 +27123,34 @@ static bool js_cc_gfx_Texture_getRaw(se::State& s)
 }
 SE_BIND_FUNC(js_cc_gfx_Texture_getRaw) 
 
+static bool js_cc_gfx_Texture_getGLTextureHandle(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::gfx::Texture *arg1 = (cc::gfx::Texture *) NULL ;
+    uint32_t result;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::gfx::Texture>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = ((cc::gfx::Texture const *)arg1)->getGLTextureHandle();
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "Texture_getGLTextureHandle, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_gfx_Texture_getGLTextureHandle) 
+
 static bool js_cc_gfx_Texture_info_get(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -27275,6 +27303,7 @@ bool js_register_cc_gfx_Texture(se::Object* obj) {
     cls->defineFunction("destroy", _SE(js_cc_gfx_Texture_destroy)); 
     cls->defineFunction("isTextureView", _SE(js_cc_gfx_Texture_isTextureView)); 
     cls->defineFunction("getRaw", _SE(js_cc_gfx_Texture_getRaw)); 
+    cls->defineFunction("getGLTextureHandle", _SE(js_cc_gfx_Texture_getGLTextureHandle)); 
     
     
     cls->defineStaticFunction("computeHash", _SE(js_cc_gfx_Texture_computeHash_static)); 

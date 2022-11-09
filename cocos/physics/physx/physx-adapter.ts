@@ -33,22 +33,19 @@
 
 import { PhysX } from './physx.asmjs';
 import { BYTEDANCE, DEBUG, EDITOR, TEST } from 'internal:constants';
-import { IQuatLike, IVec3Like, Quat, RecyclePool, Vec3 } from '../../core';
+import { IQuatLike, IVec3Like, Quat, RecyclePool, Vec3, cclegacy, geometry, Settings, settings } from '../../core';
 import { shrinkPositions } from '../utils/util';
-import { legacyCC } from '../../core/global-exports';
-import { AABB, Ray } from '../../core/geometry';
 import { IRaycastOptions } from '../spec/i-physics-world';
 import { IPhysicsConfig, PhysicsRayResult, PhysicsSystem } from '../framework';
 import { PhysXWorld } from './physx-world';
 import { PhysXInstance } from './physx-instance';
 import { PhysXShape } from './shapes/physx-shape';
 import { PxHitFlag, PxPairFlag, PxQueryFlag, EFilterDataWord3 } from './physx-enum';
-import { Settings, settings } from '../../core/settings';
 import { Node } from '../../scene-graph';
 import { Director, director, game } from '../../game';
 
 export const PX = {} as any;
-const globalThis = legacyCC._global;
+const globalThis = cclegacy._global;
 // Use bytedance native or js physics if nativePhysX is not null.
 const USE_BYTEDANCE = BYTEDANCE && globalThis.nativePhysX;
 const USE_EXTERNAL_PHYSX = !!globalThis.PHYSX;
@@ -278,13 +275,13 @@ export function getShapeFlags (isTrigger: boolean): any {
     return new PX.PxShapeFlags(flag);
 }
 
-export function getShapeWorldBounds (shape: any, actor: any, i = 1.01, out: AABB) {
+export function getShapeWorldBounds (shape: any, actor: any, i = 1.01, out: geometry.AABB) {
     if (USE_BYTEDANCE) {
         const b3 = PX.RigidActorExt.getWorldBounds(shape, actor, i);
-        AABB.fromPoints(out, b3.minimum, b3.maximum);
+        geometry.AABB.fromPoints(out, b3.minimum, b3.maximum);
     } else {
         const b3 = shape.getWorldBounds(actor, i);
-        AABB.fromPoints(out, b3.minimum, b3.maximum);
+        geometry.AABB.fromPoints(out, b3.minimum, b3.maximum);
     }
 }
 
@@ -468,7 +465,7 @@ export function simulateScene (scene: any, deltaTime: number) {
     }
 }
 
-export function raycastAll (world: PhysXWorld, worldRay: Ray, options: IRaycastOptions,
+export function raycastAll (world: PhysXWorld, worldRay: geometry.Ray, options: IRaycastOptions,
     pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
     const maxDistance = options.maxDistance;
     const flags = PxHitFlag.ePOSITION | PxHitFlag.eNORMAL;
@@ -520,7 +517,7 @@ export function raycastAll (world: PhysXWorld, worldRay: Ray, options: IRaycastO
     return false;
 }
 
-export function raycastClosest (world: PhysXWorld, worldRay: Ray, options: IRaycastOptions, result: PhysicsRayResult): boolean {
+export function raycastClosest (world: PhysXWorld, worldRay: geometry.Ray, options: IRaycastOptions, result: PhysicsRayResult): boolean {
     const maxDistance = options.maxDistance;
     const flags = PxHitFlag.ePOSITION | PxHitFlag.eNORMAL;
     const word3 = EFilterDataWord3.QUERY_FILTER | (options.queryTrigger ? 0 : EFilterDataWord3.QUERY_CHECK_TRIGGER)
@@ -778,8 +775,8 @@ function hackForMultiThread () {
                 const yieldTime = performance.now() - sys._mutiThreadYield;
                 sys.physicsWorld.syncPhysicsToScene();
                 sys.physicsWorld.emitEvents();
-                if (legacyCC.profiler && legacyCC.profiler._stats) {
-                    legacyCC.profiler._stats.physics.counter._time += yieldTime;
+                if (cclegacy.profiler && cclegacy.profiler._stats) {
+                    cclegacy.profiler._stats.physics.counter._time += yieldTime;
                 }
                 director.emit(Director.EVENT_AFTER_PHYSICS);
             }

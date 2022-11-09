@@ -79,11 +79,14 @@ inline bool operator<(const TextureRange& lhs, const TextureRange& rhs) noexcept
 
 using Range = ccstd::variant<BufferRange, TextureRange>;
 
+using ResourceUsage = ccstd::variant<gfx::BufferUsageBit, gfx::TextureUsageBit>;
+
 struct AccessStatus {
     uint32_t vertID{0xFFFFFFFF};
     gfx::ShaderStageFlagBit visibility{gfx::ShaderStageFlagBit::NONE};
     gfx::MemoryAccessBit access{gfx::MemoryAccessBit::NONE};
     gfx::PassType passType{gfx::PassType::RASTER};
+    ResourceUsage usage;
     Range range;
 };
 
@@ -93,7 +96,7 @@ struct ResourceTransition {
 };
 
 struct ResourceAccessNode {
-    std::vector<AccessStatus> attachemntStatus;
+    std::vector<AccessStatus> attachmentStatus;
     struct ResourceAccessNode* nextSubpass{nullptr};
 };
 

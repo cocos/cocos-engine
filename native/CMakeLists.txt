@@ -213,6 +213,11 @@ cc_inspect_values(
     USE_REMOTE_LOG
 )
 
+if(USE_XR)
+    if(USE_XR_REMOTE_PREVIEW)
+        set(USE_WEBSOCKET_SERVER ON)
+    endif()
+endif()
 
 include(${EXTERNAL_ROOT}/CMakeLists.txt)
 
@@ -2122,6 +2127,13 @@ if(USE_XR)
     )
 endif()
 
+if(USE_XR_REMOTE_PREVIEW)
+    cocos_source_files(
+            NO_WERROR    cocos/xr/XRRemotePreviewManager.h
+            cocos/xr/XRRemotePreviewManager.cpp
+    )
+endif()
+
 if(USE_MIDDLEWARE)
     cocos_source_files(
                      cocos/editor-support/IOBuffer.cpp
@@ -2894,6 +2906,7 @@ function(cc_apply_definations target)
         $<IF:$<BOOL:${USE_WEBVIEW}>,CC_USE_WEBVIEW=1,CC_USE_WEBVIEW=0>
         $<IF:$<BOOL:${USE_AUDIO}>,CC_USE_AUDIO=1,CC_USE_AUDIO=0>
         $<IF:$<BOOL:${USE_XR}>,CC_USE_XR=1,CC_USE_XR=0>
+        $<IF:$<BOOL:${USE_XR_REMOTE_PREVIEW}>,CC_USE_XR_REMOTE_PREVIEW=1,CC_USE_XR_REMOTE_PREVIEW=0>
         $<IF:$<BOOL:${USE_SOCKET}>,CC_USE_SOCKET=1,CC_USE_SOCKET=0>
         $<IF:$<BOOL:${USE_WEBSOCKET_SERVER}>,CC_USE_WEBSOCKET_SERVER=1,CC_USE_WEBSOCKET_SERVER=0>
         $<IF:$<BOOL:${USE_EDIT_BOX}>,CC_USE_EDITBOX=1,CC_USE_EDITBOX=0>

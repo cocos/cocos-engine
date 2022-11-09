@@ -1,9 +1,9 @@
-
-
 import { Joint2D } from './joint-2d';
-import { ccclass, property, menu, type } from '../../../../core/data/class-decorator';
+import { _decorator } from '../../../../core';
 import { IWheelJoint } from '../../../spec/i-physics-joint';
 import { EJoint2DType } from '../../physics-types';
+
+const { ccclass, menu, property } = _decorator;
 
 @ccclass('cc.WheelJoint2D')
 @menu('Physics2D/Joints/WheelJoint2D')

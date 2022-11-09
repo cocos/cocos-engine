@@ -27,13 +27,12 @@ import { EffectAsset } from '../../asset/assets/effect-asset';
 import { SetIndex, IDescriptorSetLayoutInfo, globalDescriptorSetLayout, localDescriptorSetLayout } from '../../rendering/define';
 import { PipelineRuntime } from '../../rendering/custom/pipeline';
 import { genHandle, MacroRecord } from './pass-utils';
-import { legacyCC } from '../../core/global-exports';
 import { PipelineLayoutInfo, Device, Attribute, UniformBlock, ShaderInfo,
     Uniform, ShaderStage, DESCRIPTOR_SAMPLER_TYPE, DESCRIPTOR_BUFFER_TYPE,
     DescriptorSetLayout, DescriptorSetLayoutBinding, DescriptorSetLayoutInfo,
     DescriptorType, GetTypeSize, ShaderStageFlagBit, API, UniformSamplerTexture, PipelineLayout,
     Shader, UniformStorageBuffer, UniformStorageImage, UniformSampler, UniformTexture, UniformInputAttachment } from '../../gfx';
-import { debug } from '../../core/platform/debug';
+import { debug, cclegacy } from '../../core';
 
 const _dsLayoutInfo = new DescriptorSetLayoutInfo();
 
@@ -481,4 +480,4 @@ export function getDeviceShaderVersion (device: Device) {
 }
 
 export const programLib = new ProgramLib();
-legacyCC.programLib = programLib;
+cclegacy.programLib = programLib;

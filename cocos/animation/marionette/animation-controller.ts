@@ -1,11 +1,12 @@
 import { Component } from '../../scene-graph/component';
 import { AnimationGraph } from './animation-graph';
 import type { AnimationGraphRunTime } from './animation-graph';
-import { property, ccclass, menu } from '../../core/data/class-decorator';
+import { _decorator, assertIsNonNullable } from '../../core';
 import { AnimationGraphEval } from './graph-eval';
 import type { MotionStateStatus, TransitionStatus, ClipStatus } from './graph-eval';
 import { Value } from './variable';
-import { assertIsNonNullable } from '../../core/data/utils/asserts';
+
+const { ccclass, menu, property } = _decorator;
 
 export type {
     MotionStateStatus,

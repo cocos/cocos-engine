@@ -23,6 +23,8 @@
  THE SOFTWARE.
  */
 
+// Fix Circular dependency
+import * as bits from './bits';
 import { ValueType } from '../value-types';
 import { IVec3Like } from './type-define';
 
@@ -191,14 +193,7 @@ export function pseudoRandomRangeInt (seed: number, min: number, max: number) {
  * @return The the next power of two.
  */
 export function nextPow2 (val: number) {
-    --val;
-    val |= (val >> 1);
-    val |= (val >> 2);
-    val |= (val >> 4);
-    val |= (val >> 8);
-    val |= (val >> 16);
-    ++val;
-    return val;
+    return bits.nextPow2(val);
 }
 
 /**

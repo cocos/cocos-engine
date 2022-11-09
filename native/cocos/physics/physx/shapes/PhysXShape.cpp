@@ -36,10 +36,6 @@ PhysXShape::PhysXShape() : _mCenter(physx::PxIdentity), _mRotation(physx::PxIden
     _mObjectID = PhysXWorld::getInstance().addWrapperObject(reinterpret_cast<uintptr_t>(this));
 };
 
-PhysXShape::~PhysXShape() {
-    PhysXWorld::getInstance().removeWrapperObject(_mObjectID);
-}
-
 void PhysXShape::initialize(Node *node) {
     PhysXWorld &ins = PhysXWorld::getInstance();
     _mSharedBody = ins.getSharedBody(node);
@@ -63,6 +59,7 @@ void PhysXShape::onDisable() {
 void PhysXShape::onDestroy() {
     getSharedBody().reference(false);
     eraseFromShapeMap();
+    PhysXWorld::getInstance().removeWrapperObject(_mObjectID);
 }
 
 void PhysXShape::setMaterial(uint16_t id, float f, float df, float r,

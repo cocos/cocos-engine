@@ -46,3 +46,6 @@ export { Color, color } from './color';
 export * from './utils';
 export * from './type-define';
 export * from './math-base';
+
+// engine internal exports
+export { preTransforms } from './mat4';

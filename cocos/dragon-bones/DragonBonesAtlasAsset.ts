@@ -25,13 +25,14 @@
 
 import { JSB } from 'internal:constants';
 import { TextureAtlasData } from '@cocos/dragonbones-js';
-import { ccclass, serializable, type } from '../core/data/decorators';
 import { ArmatureCache } from './ArmatureCache';
 import { ArmatureDisplay } from './ArmatureDisplay';
 import { CCFactory } from './CCFactory';
-import { cclegacy } from '../core';
+import { cclegacy, _decorator } from '../core';
 import { Asset, Texture2D } from '../asset/assets';
 import { Node } from '../scene-graph';
+
+const { ccclass, serializable, type } = _decorator;
 
 /**
  * @en The skeleton atlas data of dragonBones.

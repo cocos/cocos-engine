@@ -1,5 +1,4 @@
-import { assertIsTrue } from '../../core/data/utils/asserts';
-import { Vec2, Vec3 } from '../../core';
+import { assertIsTrue, Vec2, Vec3 } from '../../core';
 
 /**
  * Blends given samples using simple directional algorithm.

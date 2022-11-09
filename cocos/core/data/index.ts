@@ -41,7 +41,12 @@ export type {
     SerializationOutput,
     SerializationContext,
     CustomSerializable,
-    DeserializationContext,
+    DeserializationContext, // engine internal exports
 } from './custom-serializable';
 export { getSerializationMetadata } from './serialization-metadata';
 export type { SerializationMetadata } from './serialization-metadata';
+
+// engine internal exports
+export { EditorExtendable } from './editor-extendable';
+export { garbageCollectionManager } from './garbage-collection';
+export { GCObject } from './gc-object';

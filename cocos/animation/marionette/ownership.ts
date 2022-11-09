@@ -1,5 +1,5 @@
 import { DEBUG } from 'internal:constants';
-import { assertIsTrue } from '../../core/data/utils/asserts';
+import { assertIsTrue } from '../../core';
 
 export const ownerSymbol = Symbol('[[Owner]]');
 

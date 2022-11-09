@@ -24,8 +24,7 @@
  */
 
 import { LODGroup } from "../misc/lodgroup-component";
-import { Vec3 } from '../core';
-import { assertIsTrue } from '../core/data/utils/asserts';
+import { Vec3, assertIsTrue } from '../core';
 import { Camera, CameraProjection } from '../render-scene/scene';
 import { scene } from '../render-scene';
 

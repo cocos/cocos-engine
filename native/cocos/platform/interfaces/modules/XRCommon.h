@@ -52,24 +52,42 @@ enum class XRVendor {
 };
 
 enum class XRConfigKey {
-    MULTI_SAMPLES,
-    RENDER_SCALE,
-    SESSION_RUNNING,
-    INSTANCE_CREATED,
-    VK_QUEUE_FAMILY_INDEX,
-    METRICS_STATE,
-    VIEW_COUNT,
-    SWAPCHAIN_WIDTH,
-    SWAPCHAIN_HEIGHT,
-    SWAPCHAIN_FORMAT,
-    MULTITHREAD_MODE,
-    LOGIC_THREAD_ID,
-    RENDER_THREAD_ID,
-    DEVICE_VENDOR,
-    RUNTIME_VERSION,
-    PRESENT_ENABLE,
-    RENDER_EYE_FRAME_LEFT,
-    RENDER_EYE_FRAME_RIGHT
+    MULTI_SAMPLES = 0,
+    RENDER_SCALE = 1,
+    SESSION_RUNNING = 2,
+    INSTANCE_CREATED = 3,
+    VK_QUEUE_FAMILY_INDEX = 4,
+    METRICS_STATE = 5,
+    VIEW_COUNT = 6,
+    SWAPCHAIN_WIDTH = 7,
+    SWAPCHAIN_HEIGHT = 8,
+    SWAPCHAIN_FORMAT = 9,
+    MULTITHREAD_MODE = 10,
+    LOGIC_THREAD_ID = 11,
+    RENDER_THREAD_ID = 12,
+    DEVICE_VENDOR = 13,
+    RUNTIME_VERSION = 14,
+    PRESENT_ENABLE = 15,
+    RENDER_EYE_FRAME_LEFT = 16,
+    RENDER_EYE_FRAME_RIGHT = 17,
+    FEATURE_PASSTHROUGH= 18,
+    IMAGE_TRACKING = 19,
+    IMAGE_TRACKING_CANDIDATEIMAGE = 20,
+    IMAGE_TRACKING_DATA = 21,
+    IMAGE_TRACKING_SUPPORT_STATUS = 22,
+    HIT_TESTING = 23,
+    HIT_TESTING_DATA = 24,
+    HIT_TESTING_SUPPORT_STATUS = 25,
+    PLANE_DETECTION = 26,
+    PLANE_DETECTION_DATA = 27,
+    PLANE_DETECTION_SUPPORT_STATUS = 28,
+    SPATIAL_ANCHOR = 29,
+    SPATIAL_ANCHOR_DATA = 30,
+    SPATIAL_ANCHOR_SUPPORT_STATUS = 31,
+    HAND_TRACKING = 32,
+    HAND_TRACKING_DATA = 33,
+    HAND_TRACKING_SUPPORT_STATUS = 34,
+    MAX_COUNT
 };
 
 enum class XRConfigValueType {
@@ -308,6 +326,19 @@ struct XRSwapchain {
     uint32_t glDrawFramebuffer = 0;
     uint32_t swapchainImageIndex = 0;
     uint32_t eye = 0;
+};
+
+struct XRTrackingImageData {
+  std::string friendlyName;
+  uint32_t id;
+  uint8_t *buffer;
+  uint32_t bufferSize;
+  float physicalWidth;
+  float physicalHeight;
+  uint32_t pixelSizeWidth;
+  uint32_t pixelSizeHeight;
+  float posePosition[3];
+  float poseQuaternion[4];
 };
 
 #define GraphicsApiOpenglES   "OpenGLES"

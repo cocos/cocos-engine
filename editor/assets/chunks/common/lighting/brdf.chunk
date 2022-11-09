@@ -1,3 +1,5 @@
+#include <common/math/number>
+
 float D_GGX(float roughness, float NoH)
 {
     float m = roughness * roughness;

@@ -27,8 +27,7 @@ import { ccclass, type, serializable, editable } from 'cc.decorator';
 import { createMesh } from '../3d/misc';
 import { Mesh } from '../3d/assets/mesh';
 import * as primitives from '.';
-import { ccenum } from '../core/value-types/enum';
-import { legacyCC } from '../core/global-exports';
+import { ccenum, cclegacy } from '../core';
 
 enum PrimitiveType {
     BOX = 0,
@@ -91,4 +90,4 @@ export declare namespace Primitive {
     export type PrimitiveType = EnumAlias<typeof PrimitiveType>;
 }
 
-legacyCC.Primitive = Primitive;
+cclegacy.Primitive = Primitive;

@@ -18,8 +18,8 @@ CCEffect %{
         metallicMap:          { value: grey }
         occlusion:            { value: 0.0, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
         occlusionMap:         { value: white }
-        emissiveScale:        { value: 1.0, editor: { displayName: Emissive } }
-        emissiveScaleMap:     { value: grey, editor: { displayName: EmissiveMap } }
+        emissiveScale:        { value: 1.0 }
+        emissiveScaleMap:     { value: grey }
         emissive:             { value: [0.0, 0.0, 0.0, 1.0], linear: true, editor: { displayName: EmissiveColor, type: color} }
         emissiveMap:          { value: grey, editor: { displayName: EmissiveColorMap } }
         alphaSource:          { value: 1.0, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
@@ -291,14 +291,15 @@ CCProgram surface-fragment %{
   {
     vec4 pbr = vec4(1.0,1.0,1.0,1.0);
     //ao
-    float occlusionValue = 1.0 - occlusion;
+    float occlusionValue = 1.0;
     #if USE_OCCLUSION_MAP
        vec4 occlusionColor = texture(occlusionMap, TEXTURE_UV);
-       occlusionValue = discolor(occlusionColor.rgb);
+       float occlusionColorValue = discolor(occlusionColor.rgb);
        #if USE_OCCLUSION_CHANNEL 
            occlusionColor.rgb = SRGBToLinear(occlusionColor.rgb);
-           occlusionValue = occlusionColor.OCCLUSION_CHANNEL;
+           occlusionColorValue = occlusionColor.OCCLUSION_CHANNEL;
        #endif
+       occlusionValue = mix(1.0, occlusionColorValue, occlusion);
     #endif
     pbr.x = occlusionValue;
 

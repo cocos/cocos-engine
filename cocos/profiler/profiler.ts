@@ -33,13 +33,10 @@ import { Layers } from '../scene-graph';
 import { Node } from '../scene-graph/node';
 import { ICounterOption } from './counter';
 import { PerfCounter } from './perf-counter';
-import { legacyCC } from '../core/global-exports';
 import { Pass } from '../render-scene';
-import { preTransforms } from '../core/math/mat4';
+import { preTransforms, System, sys, cclegacy, Settings, settings } from '../core';
 import { Root } from '../root';
 import { PipelineRuntime } from '../rendering/custom/pipeline';
-import { System, sys } from '../core';
-import { Settings, settings } from '../core/settings';
 import { director } from '../game';
 
 const _characters = '0123456789. ';
@@ -156,33 +153,33 @@ export class Profiler extends System {
                 this._rootNode.active = false;
             }
 
-            legacyCC.director.off(legacyCC.Director.EVENT_BEFORE_UPDATE, this.beforeUpdate, this);
-            legacyCC.director.off(legacyCC.Director.EVENT_AFTER_UPDATE, this.afterUpdate, this);
-            legacyCC.director.off(legacyCC.Director.EVENT_BEFORE_PHYSICS, this.beforePhysics, this);
-            legacyCC.director.off(legacyCC.Director.EVENT_AFTER_PHYSICS, this.afterPhysics, this);
-            legacyCC.director.off(legacyCC.Director.EVENT_BEFORE_DRAW, this.beforeDraw, this);
-            legacyCC.director.off(legacyCC.Director.EVENT_AFTER_DRAW, this.afterDraw, this);
+            cclegacy.director.off(cclegacy.Director.EVENT_BEFORE_UPDATE, this.beforeUpdate, this);
+            cclegacy.director.off(cclegacy.Director.EVENT_AFTER_UPDATE, this.afterUpdate, this);
+            cclegacy.director.off(cclegacy.Director.EVENT_BEFORE_PHYSICS, this.beforePhysics, this);
+            cclegacy.director.off(cclegacy.Director.EVENT_AFTER_PHYSICS, this.afterPhysics, this);
+            cclegacy.director.off(cclegacy.Director.EVENT_BEFORE_DRAW, this.beforeDraw, this);
+            cclegacy.director.off(cclegacy.Director.EVENT_AFTER_DRAW, this.afterDraw, this);
             this._showFPS = false;
             director.root!.pipeline.profiler = null;
-            legacyCC.game.config.showFPS = false;
+            cclegacy.game.config.showFPS = false;
         }
     }
 
     public showStats () {
         if (!this._showFPS) {
             if (!this._device) {
-                const root = legacyCC.director.root as Root;
+                const root = cclegacy.director.root as Root;
                 this._device = deviceManager.gfxDevice;
                 this._swapchain = root.mainWindow!.swapchain;
                 this._pipeline = root.pipeline;
             }
-            if (!EDITOR || legacyCC.GAME_VIEW) {
+            if (!EDITOR || cclegacy.GAME_VIEW) {
                 this.generateCanvas();
             }
             this.generateStats();
-            if (!EDITOR || legacyCC.GAME_VIEW) {
-                legacyCC.game.once(legacyCC.Game.EVENT_ENGINE_INITED, this.generateNode, this);
-                legacyCC.game.on(legacyCC.Game.EVENT_RESTART, this.generateNode, this);
+            if (!EDITOR || cclegacy.GAME_VIEW) {
+                cclegacy.game.once(cclegacy.Game.EVENT_ENGINE_INITED, this.generateNode, this);
+                cclegacy.game.on(cclegacy.Game.EVENT_RESTART, this.generateNode, this);
             } else {
                 this._inited = true;
             }
@@ -190,17 +187,17 @@ export class Profiler extends System {
                 this._rootNode.active = true;
             }
 
-            legacyCC.director.on(legacyCC.Director.EVENT_BEFORE_UPDATE, this.beforeUpdate, this);
-            legacyCC.director.on(legacyCC.Director.EVENT_AFTER_UPDATE, this.afterUpdate, this);
-            legacyCC.director.on(legacyCC.Director.EVENT_BEFORE_PHYSICS, this.beforePhysics, this);
-            legacyCC.director.on(legacyCC.Director.EVENT_AFTER_PHYSICS, this.afterPhysics, this);
-            legacyCC.director.on(legacyCC.Director.EVENT_BEFORE_DRAW, this.beforeDraw, this);
-            legacyCC.director.on(legacyCC.Director.EVENT_AFTER_DRAW, this.afterDraw, this);
+            cclegacy.director.on(cclegacy.Director.EVENT_BEFORE_UPDATE, this.beforeUpdate, this);
+            cclegacy.director.on(cclegacy.Director.EVENT_AFTER_UPDATE, this.afterUpdate, this);
+            cclegacy.director.on(cclegacy.Director.EVENT_BEFORE_PHYSICS, this.beforePhysics, this);
+            cclegacy.director.on(cclegacy.Director.EVENT_AFTER_PHYSICS, this.afterPhysics, this);
+            cclegacy.director.on(cclegacy.Director.EVENT_BEFORE_DRAW, this.beforeDraw, this);
+            cclegacy.director.on(cclegacy.Director.EVENT_AFTER_DRAW, this.afterDraw, this);
 
             this._showFPS = true;
             this._canvasDone = true;
             this._statsDone = true;
-            legacyCC.game.config.showFPS = true;
+            cclegacy.game.config.showFPS = true;
         }
     }
 
@@ -248,13 +245,13 @@ export class Profiler extends System {
         let i = 0;
         for (const id in _profileInfo) {
             const element = _profileInfo[id];
-            if (!EDITOR || legacyCC.GAME_VIEW) this._ctx.fillText(element.desc, 0, i * this._lineHeight);
+            if (!EDITOR || cclegacy.GAME_VIEW) this._ctx.fillText(element.desc, 0, i * this._lineHeight);
             element.counter = new PerfCounter(id, element, now);
             i++;
         }
         this._totalLines = i;
         this._wordHeight = this._totalLines * this._lineHeight / this._canvas.height;
-        if (!EDITOR || legacyCC.GAME_VIEW) {
+        if (!EDITOR || cclegacy.GAME_VIEW) {
             for (let j = 0; j < _characters.length; ++j) {
                 const offset = this._ctx.measureText(_characters[j]).width;
                 this._eachNumWidth = Math.max(this._eachNumWidth, offset);
@@ -267,7 +264,7 @@ export class Profiler extends System {
 
         this._stats = _profileInfo as IProfilerState;
         this._canvasArr[0] = this._canvas;
-        if (!EDITOR || legacyCC.GAME_VIEW) this._device!.copyTexImagesToTexture(this._canvasArr, this._texture!, this._regionArr);
+        if (!EDITOR || cclegacy.GAME_VIEW) this._device!.copyTexImagesToTexture(this._canvasArr, this._texture!, this._regionArr);
     }
 
     public generateNode () {
@@ -276,8 +273,8 @@ export class Profiler extends System {
         }
 
         this._rootNode = new Node('PROFILER_NODE');
-        this._rootNode._objFlags = legacyCC.Object.Flags.DontSave | legacyCC.Object.Flags.HideInHierarchy;
-        legacyCC.game.addPersistRootNode(this._rootNode);
+        this._rootNode._objFlags = cclegacy.Object.Flags.DontSave | cclegacy.Object.Flags.HideInHierarchy;
+        cclegacy.game.addPersistRootNode(this._rootNode);
 
         const managerNode = new Node('Profiler_Root');
         managerNode.parent = this._rootNode;
@@ -363,7 +360,7 @@ export class Profiler extends System {
         }
 
         const now = performance.now();
-        if (legacyCC.director.isPaused()) {
+        if (cclegacy.director.isPaused()) {
             (this._stats.frame.counter as PerfCounter).start(now);
         } else {
             (this._stats.logic.counter as PerfCounter).end(now);
@@ -393,7 +390,7 @@ export class Profiler extends System {
             return;
         }
 
-        if (!EDITOR || legacyCC.GAME_VIEW) {
+        if (!EDITOR || cclegacy.GAME_VIEW) {
             const surfaceTransform = this._swapchain!.surfaceTransform;
             const clipSpaceSignY = this._device!.capabilities.clipSpaceSignY;
             if (surfaceTransform !== this.offsetData[3]) {
@@ -445,7 +442,7 @@ export class Profiler extends System {
         (this._stats.tricount.counter as PerfCounter).value = device.numTris;
 
         let i = 0;
-        if (!EDITOR || legacyCC.GAME_VIEW) {
+        if (!EDITOR || cclegacy.GAME_VIEW) {
             const view = this.digitsData;
             for (const id in this._stats) {
                 const stat = this._stats[id] as ICounterOption;
@@ -466,4 +463,4 @@ export class Profiler extends System {
 
 export const profiler = new Profiler();
 director.registerSystem('profiler', profiler, 0);
-legacyCC.profiler = profiler;
+cclegacy.profiler = profiler;

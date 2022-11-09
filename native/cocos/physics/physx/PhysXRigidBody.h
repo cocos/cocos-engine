@@ -36,7 +36,7 @@ namespace physics {
 class PhysXRigidBody final : public IRigidBody {
 public:
     PhysXRigidBody();
-    ~PhysXRigidBody() override;
+    ~PhysXRigidBody() override = default;
     inline bool isEnabled() const { return _mEnabled; }
     inline const PhysXSharedBody &getSharedBody() const { return *_mSharedBody; }
     inline PhysXSharedBody &getSharedBody() { return *_mSharedBody; }

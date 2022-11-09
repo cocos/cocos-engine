@@ -1,3 +1,5 @@
+'use strict';
+
 const animation = require('./animation');
 const events = require('./events');
 const eventEditor = require('./event-editor');
@@ -266,12 +268,6 @@ ui-icon {
   }
 `;
 
-const PLAY_STATE = {
-    STOP: 0,
-    PLAYING: 1,
-    PAUSE: 2,
-};
-
 exports.$ = {
     noModel: '.noModel',
     multiple: '.multiple',
@@ -290,6 +286,12 @@ exports.$ = {
     duration: ".duration",
     eventEditor: ".event-editor",
     timeCtrl: "#timeCtrl",
+};
+
+const PLAY_STATE = {
+    STOP: 0,
+    PLAYING: 1,
+    PAUSE: 2,
 };
 
 async function callModelPreviewFunction(funcName, ...args) {
@@ -429,95 +431,6 @@ const Elements = {
             this.$.timeCtrl.addEventListener('click', this.onTimeCtrlClick.bind(this));
         },
     },
-};
-
-exports.update = async function(assetList, metaList) {
-    this.assetList = assetList;
-    this.metaList = metaList;
-    this.isMultiple = this.assetList.length > 1;
-    this.$.previewContainer.hidden = this.isMultiple;
-    this.$.multiple.hidden = !this.isMultiple;
-    this.$.noModel.hidden = true;
-    if (this.isMultiple) {
-        return;
-    }
-    this.asset = assetList[0];
-    this.meta = metaList[0];
-    for (const prop in Elements) {
-        const element = Elements[prop];
-        if (element.update) {
-            element.update.call(this);
-        }
-    }
-    animation.methods.initAnimationNameToUUIDMap.call(this);
-    animation.methods.initAnimationInfos.call(this);
-    if (this.animationInfos) {
-        this.rawClipIndex = 0;
-        this.splitClipIndex = 0;
-        const clipInfo = animation.methods.getCurClipInfo.call(this);
-        await this.onEditClipInfoChanged(clipInfo);
-    }
-    this.setCurPlayState(PLAY_STATE.STOP);
-    this.isPreviewDataDirty = true;
-    this.refreshPreview();
-};
-
-exports.ready = function() {
-    this.gridWidth = 0;
-    this.gridTableWith = 0;
-    this.activeTab = 'animation';
-    this.isPreviewDataDirty = true;
-    this.curEditClipInfo = null;
-    this.curPlayState = PLAY_STATE.STOP;
-    this.curTotalFrames = 0;
-    this.onTabChangedBind = this.onTabChanged.bind(this);
-    this.onModelAnimationUpdateBind = this.onModelAnimationUpdate.bind(this);
-    this.onAnimationPlayStateChangedBind = this.onAnimationPlayStateChanged.bind(this);
-
-    this.onEditClipInfoChanged = async (clipInfo) => {
-        if (clipInfo) {
-            await callModelPreviewFunction('setEditClip', clipInfo.rawClipUUID, clipInfo.rawClipIndex);
-            await this.setCurEditClipInfo(clipInfo);
-        }
-    };
-
-    Editor.Message.addBroadcastListener('scene:model-preview-animation-time-change', this.onModelAnimationUpdateBind);
-    Editor.Message.addBroadcastListener('scene:model-preview-animation-state-change', this.onAnimationPlayStateChangedBind);
-    Editor.Message.addBroadcastListener('fbx-inspector:change-tab', this.onTabChangedBind);
-    Editor.Message.addBroadcastListener('fbx-inspector:animation-change', this.onEditClipInfoChanged);
-
-    for (const prop in Elements) {
-        const element = Elements[prop];
-        if (element.ready) {
-            element.ready.call(this);
-        }
-    }
-
-    this.onAssetChangeBind = this.onAssetChange.bind(this);
-    this.addAssetChangeListener(true);
-
-    this.events = events;
-    this.events.ready.call(this);
-
-    this.eventEditor = eventEditor;
-    this.events.eventsMap = {};
-    this.eventEditor.ready.call(this);
-};
-
-exports.close = function() {
-    for (const prop in Elements) {
-        const element = Elements[prop];
-        if (element.close) {
-            element.close.call(this);
-        }
-    }
-
-    Editor.Message.removeBroadcastListener('scene:model-preview-animation-time-change', this.onModelAnimationUpdateBind);
-    Editor.Message.removeBroadcastListener('scene:model-preview-animation-state-change', this.onAnimationPlayStateChangedBind);
-    Editor.Message.removeBroadcastListener('fbx-inspector:change-tab', this.onTabChangedBind);
-    Editor.Message.removeBroadcastListener('fbx-inspector:animation-change', this.onEditClipInfoChanged);
-
-    this.addAssetChangeListener(false);
 };
 
 exports.methods = {
@@ -782,4 +695,93 @@ exports.methods = {
             await this.onEditClipInfoChanged(clipInfo);
         }
     },
+};
+
+exports.ready = function() {
+    this.gridWidth = 0;
+    this.gridTableWith = 0;
+    this.activeTab = 'animation';
+    this.isPreviewDataDirty = true;
+    this.curEditClipInfo = null;
+    this.curPlayState = PLAY_STATE.STOP;
+    this.curTotalFrames = 0;
+    this.onTabChangedBind = this.onTabChanged.bind(this);
+    this.onModelAnimationUpdateBind = this.onModelAnimationUpdate.bind(this);
+    this.onAnimationPlayStateChangedBind = this.onAnimationPlayStateChanged.bind(this);
+
+    this.onEditClipInfoChanged = async (clipInfo) => {
+        if (clipInfo) {
+            await callModelPreviewFunction('setEditClip', clipInfo.rawClipUUID, clipInfo.rawClipIndex);
+            await this.setCurEditClipInfo(clipInfo);
+        }
+    };
+
+    Editor.Message.addBroadcastListener('scene:model-preview-animation-time-change', this.onModelAnimationUpdateBind);
+    Editor.Message.addBroadcastListener('scene:model-preview-animation-state-change', this.onAnimationPlayStateChangedBind);
+    Editor.Message.addBroadcastListener('fbx-inspector:change-tab', this.onTabChangedBind);
+    Editor.Message.addBroadcastListener('fbx-inspector:animation-change', this.onEditClipInfoChanged);
+
+    for (const prop in Elements) {
+        const element = Elements[prop];
+        if (element.ready) {
+            element.ready.call(this);
+        }
+    }
+
+    this.onAssetChangeBind = this.onAssetChange.bind(this);
+    this.addAssetChangeListener(true);
+
+    this.events = events;
+    this.events.ready.call(this);
+
+    this.eventEditor = eventEditor;
+    this.events.eventsMap = {};
+    this.eventEditor.ready.call(this);
+};
+
+exports.update = async function(assetList, metaList) {
+    this.assetList = assetList;
+    this.metaList = metaList;
+    this.isMultiple = this.assetList.length > 1;
+    this.$.previewContainer.hidden = this.isMultiple;
+    this.$.multiple.hidden = !this.isMultiple;
+    this.$.noModel.hidden = true;
+    if (this.isMultiple) {
+        return;
+    }
+    this.asset = assetList[0];
+    this.meta = metaList[0];
+    for (const prop in Elements) {
+        const element = Elements[prop];
+        if (element.update) {
+            element.update.call(this);
+        }
+    }
+    animation.methods.initAnimationNameToUUIDMap.call(this);
+    animation.methods.initAnimationInfos.call(this);
+    if (this.animationInfos) {
+        this.rawClipIndex = 0;
+        this.splitClipIndex = 0;
+        const clipInfo = animation.methods.getCurClipInfo.call(this);
+        await this.onEditClipInfoChanged(clipInfo);
+    }
+    this.setCurPlayState(PLAY_STATE.STOP);
+    this.isPreviewDataDirty = true;
+    this.refreshPreview();
+};
+
+exports.close = function() {
+    for (const prop in Elements) {
+        const element = Elements[prop];
+        if (element.close) {
+            element.close.call(this);
+        }
+    }
+
+    Editor.Message.removeBroadcastListener('scene:model-preview-animation-time-change', this.onModelAnimationUpdateBind);
+    Editor.Message.removeBroadcastListener('scene:model-preview-animation-state-change', this.onAnimationPlayStateChangedBind);
+    Editor.Message.removeBroadcastListener('fbx-inspector:change-tab', this.onTabChangedBind);
+    Editor.Message.removeBroadcastListener('fbx-inspector:animation-change', this.onEditClipInfoChanged);
+
+    this.addAssetChangeListener(false);
 };
