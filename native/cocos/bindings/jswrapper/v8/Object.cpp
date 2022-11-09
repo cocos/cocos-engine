@@ -169,7 +169,7 @@ uint32_t MapOperation::getSize() const {
     return static_cast<uint32_t>(_v8Map->Size());
 }
 
-ccstd::vector<std::pair<std::string, Value>> MapOperation::getAll() const {
+ccstd::unordered_map<std::string, Value> MapOperation::getAll() const {
     if (_v8Map == nullptr || _v8Map->Size() == 0) {
         return {};
     }
@@ -182,8 +182,7 @@ ccstd::vector<std::pair<std::string, Value>> MapOperation::getAll() const {
 
     SE_ASSERT(length % 2 == 0, "should be multiple of 2");
 
-    ccstd::vector<std::pair<std::string, Value>> ret;
-    ret.reserve(length / 2);
+    ccstd::unordered_map<std::string, Value> ret;
     v8::Local<v8::Context> currentContext = __isolate->GetCurrentContext();
     for (uint32_t i = 0; i < length; i += 2) {
         v8::MaybeLocal<v8::Value> key = keyValueArray->Get(currentContext, i);
@@ -196,7 +195,7 @@ ccstd::vector<std::pair<std::string, Value>> MapOperation::getAll() const {
         internal::jsToSeValue(__isolate, key.ToLocalChecked(), &seKey);
         internal::jsToSeValue(__isolate, value.ToLocalChecked(), &seValue);
 
-        ret.emplace_back(seKey.toString(), seValue);
+        ret.emplace(seKey.toString(), seValue);
     }
 
     return ret;
@@ -238,11 +237,7 @@ bool SetOperation::add(const Value &value) {
     v8::Local<v8::Value> v8Value;
     internal::seToJsValue(__isolate, value, &v8Value);
     v8::MaybeLocal<v8::Set> ret = _v8Set->Add(__isolate->GetCurrentContext(), v8Value);
-    if (ret.IsEmpty()) {
-        return false;
-    }
-
-    return true;
+    return !ret.IsEmpty();
 }
 
 uint32_t SetOperation::getSize() const {
@@ -341,14 +336,12 @@ Object *Object::createPlainObject() {
 
 Object *Object::createMapObject() {
     v8::Local<v8::Map> jsobj = v8::Map::New(__isolate);
-    Object *obj = _createJSObject(nullptr, jsobj);
-    return obj;
+    return _createJSObject(nullptr, jsobj);
 }
 
 Object *Object::createSetObject() {
     v8::Local<v8::Set> jsobj = v8::Set::New(__isolate);
-    Object *obj = _createJSObject(nullptr, jsobj);
-    return obj;
+    return _createJSObject(nullptr, jsobj);
 }
 
 Object *Object::getObjectWithPtr(void *ptr) {
