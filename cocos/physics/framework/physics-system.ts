@@ -510,7 +510,7 @@ export class PhysicsSystem extends System implements IWorldInitData {
         if (samplePointsWorldSpace.length < 2) return false;
         this.lineSegmentsRaycastResults = [];
         let distance = 0;
-        const ray = new Ray();
+        const worldRay = new Ray();
         for (let i = 1; i < samplePointsWorldSpace.length; ++i) {
             if (distance > maxDistance) break;
 
@@ -521,9 +521,9 @@ export class PhysicsSystem extends System implements IWorldInitData {
             const stepLength = Vec3.len(direction);
             distance += stepLength;
             Vec3.multiplyScalar(direction, direction, 1.0 / stepLength);
-            ray.d = direction;
-            ray.o = fromPoint;
-            const hit = this.raycast(ray, mask, stepLength, queryTrigger);
+            worldRay.d = direction;
+            worldRay.o = fromPoint;
+            const hit = this.raycast(worldRay, mask, stepLength, queryTrigger);
             if (hit) {
                 for (let re = 0; re < this.raycastResults.length; re++) {
                     const result = this.raycastResults[re];
@@ -552,10 +552,9 @@ export class PhysicsSystem extends System implements IWorldInitData {
      * @return {boolean} @zh 表示是否有检测到碰撞 @en Indicates whether a collision has been detected
      */
     lineSegmentsRaycastClosest (samplePointsWorldSpace: Array<Vec3>, mask = 0xffffffff, maxDistance = 10000000, queryTrigger = true): boolean {
-        if (samplePointsWorldSpace.length < 2) return false;
-
+        if (samplePointsWorldSpace.length < 2) { return false; }
         let distance = 0;
-        const ray = new Ray();
+        const worldRay = new Ray();
         let hit = false;
         for (let i = 1; i < samplePointsWorldSpace.length; ++i) {
             if (distance > maxDistance) break;
@@ -567,9 +566,9 @@ export class PhysicsSystem extends System implements IWorldInitData {
             const stepLength = Vec3.len(direction);
             distance += stepLength;
             Vec3.multiplyScalar(direction, direction, 1.0 / stepLength);
-            ray.d = direction;
-            ray.o = fromPoint;
-            hit = this.raycastClosest(ray, mask, stepLength, queryTrigger);
+            worldRay.d = direction;
+            worldRay.o = fromPoint;
+            hit = this.raycastClosest(worldRay, mask, stepLength, queryTrigger);
             if (hit) {
                 const result = this.raycastClosestResult;
                 const copiedResult = new PhysicsRayResult();
