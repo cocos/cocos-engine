@@ -53,7 +53,7 @@ jobs:
       - name: Archive production artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: gen files
+          name: gen files2
           path: ${{ github.workspace }}/.conan
       #- run: conan profile new default --detect && conan profile show default && conan profile update settings.compiler.libcxx=libstdc++11 default
       - name: Download external libraries
