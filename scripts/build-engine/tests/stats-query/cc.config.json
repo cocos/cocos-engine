@@ -63,7 +63,6 @@
                 "cocos/core/renderer/core/sampler-lib.ts": "cocos/core/renderer/core/sampler.jsb.ts",
                 "cocos/core/renderer/scene/camera.ts": "cocos/core/renderer/scene/camera.jsb.ts",
                 "cocos/core/renderer/scene/reflection-probe.ts": "cocos/core/renderer/scene/reflection-probe.jsb.ts",
-
                 "cocos/core/renderer/scene/model.ts": "cocos/core/renderer/scene/model.jsb.ts",
                 "cocos/core/renderer/core/render-scene.ts": "cocos/core/renderer/core/render-scene.jsb.ts",
                 "cocos/core/renderer/scene/submodel.ts": "cocos/core/renderer/scene/submodel.jsb.ts",

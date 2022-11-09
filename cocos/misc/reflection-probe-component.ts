@@ -24,7 +24,7 @@
  */
 import { ccclass, executeInEditMode, menu, playOnFocus, serializable, tooltip, type, visible } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
-import { cclegacy, CCObject, Color, Enum, Vec3 } from '../core';
+import { CCObject, Color, Enum, Vec3 } from '../core';
 
 import { TextureCube } from '../asset/assets';
 import { scene } from '../render-scene';
@@ -33,52 +33,30 @@ import { ReflectionProbeManager } from '../rendering/reflection-probe-manager';
 import { Component } from '../scene-graph/component';
 import { Layers } from '../scene-graph/layers';
 import { Camera } from './camera-component';
-import { Node, Scene } from '../scene-graph';
-import { SKYBOX_FLAG } from '../render-scene/scene/camera';
-import { ClearFlagBit } from '../gfx';
+import { Node } from '../scene-graph';
+import { ProbeClearFlag, ProbeType } from '../render-scene/scene/reflection-probe';
 
-enum ProbeType {
-    CUBE= 0,
-    PLANAR= 1,
-}
-export enum ProbeClearFlag {
-    SKYBOX= SKYBOX_FLAG | ClearFlagBit.DEPTH_STENCIL,
-    SOLID_COLOR= ClearFlagBit.ALL,
-}
 export enum ProbeResolution {
-    /**
-     * @zh 分辨率 128 * 128。
-     * @en renderTexture resolution 128 * 128.
-     * @readonly
-     */
-    Low_128x128= 128,
     /**
      * @zh 分辨率 256 * 256。
      * @en renderTexture resolution 256 * 256.
      * @readonly
      */
-    Low_256x256= 256,
+    Low_256x256 = 256,
 
     /**
       * @zh 分辨率 512 * 512。
       * @en renderTexture resolution 512 * 512.
       * @readonly
       */
-    Medium_512x512= 512,
+    Medium_512x512 = 512,
 
     /**
-      * @zh 分辨率 1024 * 1024。
-      * @en renderTexture resolution 1024 * 1024.
+      * @zh 分辨率 768 * 768
+      * @en renderTexture resolution 768 * 768.
       * @readonly
       */
-    High_1024x1024= 1024,
-
-    /**
-      * @zh 分辨率 2048 * 2048。
-      * @en renderTexture resolution 2048 * 2048.
-      * @readonly
-      */
-    Ultra_2048x2048= 2048,
+    High_1024x1024 = 768,
 }
 @ccclass('cc.ReflectionProbe')
 @menu('Rendering/ReflectionProbe')
@@ -142,7 +120,7 @@ export class ReflectionProbe extends Component {
             if (EDITOR) {
                 this._objFlags |= CCObject.Flags.IsRotationLocked;
             }
-        }  else {
+        } else {
             if (EDITOR && this._objFlags & CCObject.Flags.IsRotationLocked) {
                 this._objFlags ^= CCObject.Flags.IsRotationLocked;
             }
@@ -280,10 +258,10 @@ export class ReflectionProbe extends Component {
             }
         } else {
             if (EDITOR) {
-                const cameraLst: scene.Camera[]|undefined = this.node.scene.renderScene?.cameras;
+                const cameraLst: scene.Camera[] | undefined = this.node.scene.renderScene?.cameras;
                 if (cameraLst !== undefined) {
                     for (let i = 0; i < cameraLst.length; ++i) {
-                        const camera:scene.Camera = cameraLst[i];
+                        const camera: scene.Camera = cameraLst[i];
                         if (camera.name === 'Editor Camera') {
                             this.probe.renderPlanarReflection(camera);
                             break;

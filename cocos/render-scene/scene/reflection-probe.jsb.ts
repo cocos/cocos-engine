@@ -22,27 +22,22 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-
- import { _decorator } from "../../core";
-
-const { ccclass, serializable } = _decorator;
-
-// export const ReflectionProbe = jsb.ReflectionProbe;
-// ccclass('cc.LightProbes')(ReflectionProbe);
-
+ import { ClearFlagBit } from '../../gfx';
+import { SKYBOX_FLAG } from './camera';
  declare const jsb: any;
+ 
+ export enum ProbeClearFlag {
+    SKYBOX = SKYBOX_FLAG | ClearFlagBit.DEPTH_STENCIL,
+    SOLID_COLOR = ClearFlagBit.ALL,
+}
 
-// export const ReflectionProbe = jsb.ReflectionProbe;
-// const reflectionProbeProto: any = ReflectionProbe.prototype;
-// reflectionProbeProto._ctor = function (id:number) {
-//     this._probeId = id;
-// };
+export enum ProbeType {
+    CUBE = 0,
+    PLANAR = 1,
+}
 
 export const ReflectionProbe = jsb.ReflectionProbe;
-
-
 const reflectionProbeProto: any = jsb.ReflectionProbe.prototype;
 reflectionProbeProto._ctor = function (id:number) {
     this._probeId = id;
 };
-

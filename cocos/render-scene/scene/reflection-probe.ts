@@ -25,20 +25,20 @@
 import { EDITOR } from 'internal:constants';
 import { Camera, CameraAperture, CameraFOVAxis, CameraISO, CameraProjection, CameraShutter, CameraType, SKYBOX_FLAG, TrackingType } from './camera';
 import { Node } from '../../scene-graph/node';
-import { CCObject, Color, Quat, Rect, toRadian, Vec2, Vec3, geometry, cclegacy } from '../../core';
+import { Color, Quat, Rect, toRadian, Vec2, Vec3, geometry, cclegacy } from '../../core';
 import { CAMERA_DEFAULT_MASK } from '../../rendering/define';
 import { ClearFlagBit } from '../../gfx';
 import { TextureCube } from '../../asset/assets/texture-cube';
 import { RenderTexture } from '../../asset/assets/render-texture';
 
 export enum ProbeClearFlag {
-    SKYBOX= SKYBOX_FLAG | ClearFlagBit.DEPTH_STENCIL,
-    SOLID_COLOR= ClearFlagBit.ALL,
+    SKYBOX = SKYBOX_FLAG | ClearFlagBit.DEPTH_STENCIL,
+    SOLID_COLOR = ClearFlagBit.ALL,
 }
 
 export enum ProbeType {
-    CUBE= 0,
-    PLANAR= 1,
+    CUBE = 0,
+    PLANAR = 1,
 }
 // right left up down front back
 const cameraDir: Vec3[] = [

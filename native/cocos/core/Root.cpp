@@ -45,7 +45,6 @@
 #include "scene/DirectionalLight.h"
 #include "scene/SpotLight.h"
 #include "engine/EngineEvents.h"
-#include "scene/ReflectionProbe.h"
 
 namespace cc {
 
@@ -524,9 +523,7 @@ void Root::destroyLight(scene::Light *light) { // NOLINT(readability-convert-mem
 scene::Camera *Root::createCamera() const {
     return ccnew scene::Camera(_device);
 }
-scene::ReflectionProbe *Root::createReflectionProbe(int32_t id) const {
-    return ccnew scene::ReflectionProbe(id);
-}
+
 void Root::destroyScenes() {
     for (const auto &scene : _scenes) {
         CC_SAFE_DESTROY(scene);

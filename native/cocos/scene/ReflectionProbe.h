@@ -108,7 +108,7 @@ public:
     void syncCameraParams(const Camera* camera);
     void transformReflectionCamera(const Camera* sourceCamera);
     void renderPlanarReflection(const Camera* camera);
-    Vec3 reflect(const Vec3& point, const Vec3& normal, int32_t offset);
+    static Vec3 reflect(const Vec3& point, const Vec3& normal, int32_t offset);
 
     void updatePlanarTexture(const scene::RenderScene* scene);
 
