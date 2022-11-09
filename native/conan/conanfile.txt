@@ -19,7 +19,7 @@ sqlite3/3.38.5
 
 [options]
 *:fPIC=True
-freetype:with_brotli: True
+freetype:with_brotli=True
 
 [generators]
 cmake
