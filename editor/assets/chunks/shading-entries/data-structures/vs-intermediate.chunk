@@ -13,7 +13,7 @@ struct SurfacesStandardVertexIntermediate
 #endif
 
   vec2 texCoord;
-#if CC_SURFACES_USE_SECOND_UV && !CC_USE_LIGHTMAP
+#if CC_SURFACES_USE_SECOND_UV
   vec2 texCoord1;
 #endif
 
