@@ -98,7 +98,7 @@ export class PhysicsRayResult {
      *
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _assign (hitPoint: IVec3Like, distance: number, collider: Collider, hitNormal: IVec3Like, id: number) {
+    public _assign (hitPoint: IVec3Like, distance: number, collider: Collider, hitNormal: IVec3Like, id = 0) {
         Vec3.copy(this._hitPoint, hitPoint);
         Vec3.copy(this._hitNormal, hitNormal);
         this._distance = distance;
