@@ -60,6 +60,8 @@ export class LightProbeGroup extends Component {
     @serializable
     protected _nProbesZ = 3;
 
+    @editable
+    @type([Vec3])
     get probes (): Vec3[] {
         return this._probes;
     }
