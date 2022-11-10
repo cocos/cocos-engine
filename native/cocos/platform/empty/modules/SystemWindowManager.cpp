@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -21,58 +21,49 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
-****************************************************************************/
+ ****************************************************************************/
 
+#include "SystemWindowManager.h"
+#include "platform/BasePlatform.h"
+#include "platform/interfaces/modules/ISystemWindowManager.h"
 #include "platform/empty/modules/SystemWindow.h"
-#include <functional>
-#include "base/Log.h"
-#include "base/Macros.h"
-#include "engine/EngineEvents.h"
-#include "platform/empty/EmptyPlatform.h"
-
-namespace {
-
-} // namespace
 
 namespace cc {
-SystemWindow::SystemWindow(uint32_t windowId, void* externalHandle)
-: _windowId(windowId) {
-    if (externalHandle) {
-        _windowHandle = reinterpret_cast<uintptr_t>(externalHandle);
-    }
-}
 
-SystemWindow::~SystemWindow() = default;
-
-uintptr_t SystemWindow::getWindowHandle() const {
-    return _windowHandle;
-}
-
-uint32_t SystemWindow::getWindowId() const {
-    return _windowId;
-}
-
-void SystemWindow::setCursorEnabled(bool value) {
-}
-
-void SystemWindow::copyTextToClipboard(const ccstd::string& text) {
-    // TODO
-}
-
-int SystemWindow::init() {
+int SystemWindowManager::init() {
     return 0;
 }
 
-void SystemWindow::pollEvent(bool* quit) {
-    return;
+void SystemWindowManager::processEvent(bool* quit) {
+
 }
 
-void SystemWindow::swapWindow() {
-    return;
+void SystemWindowManager::swapWindows() {
+
 }
 
-SystemWindow::Size SystemWindow::getViewSize() const {
-    return Size{static_cast<float>(_width), static_cast<float>(_height)};
+ISystemWindow *SystemWindowManager::getWindow(uint32_t windowId) const {
+    if (windowId == 0) {
+        return nullptr;
+    }
+
+    auto iter = _windows.find(windowId);
+    if (iter != _windows.end()) {
+        return iter->second.get();
+    }
+    return nullptr;
+}
+
+ISystemWindow *SystemWindowManager::createWindow(const cc::ISystemWindowInfo &info) {
+    ISystemWindow *window = BasePlatform::getPlatform()->createNativeWindow(_nextWindowId, info.externalHandle);
+    if (window) {
+        if (!info.externalHandle) {
+            window->createWindow(info.title.c_str(), info.x, info.y, info.width, info.height, info.flags);
+        }
+        _windows[_nextWindowId] = std::shared_ptr<ISystemWindow>(window);
+        _nextWindowId++;
+    }
+    return window;
 }
 
 } // namespace cc
