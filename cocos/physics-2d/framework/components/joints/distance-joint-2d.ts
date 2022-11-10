@@ -21,7 +21,6 @@ export class DistanceJoint2D extends Joint2D {
             if (this.connectedBody) {
                 return Vec3.distance(this.node.worldPosition, this.connectedBody.node.worldPosition);
             } else { //if connected body is not set, use scene origin as connected body
-                console.log(this, 'maxLength', Vec3.len(this.node.worldPosition));
                 return Vec3.len(this.node.worldPosition);
             }
         }

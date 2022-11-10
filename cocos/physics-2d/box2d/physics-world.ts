@@ -53,7 +53,6 @@ export class b2PhysicsWorld implements IPhysicsWorld {
         const tempBodyDef = new b2.BodyDef();
         //tempBodyDef.position.Set(480 / PHYSICS_2D_PTM_RATIO, 320 / PHYSICS_2D_PTM_RATIO);//temporary
         this._physicsGroundBody = this._world.CreateBody(tempBodyDef);
-        console.log(this._physicsGroundBody);
         const listener = new PhysicsContactListener();
         listener.setBeginContact(this._onBeginContact);
         listener.setEndContact(this._onEndContact);
