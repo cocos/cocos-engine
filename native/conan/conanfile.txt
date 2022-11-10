@@ -19,8 +19,13 @@ sqlite3/3.38.5
 
 [options]
 *:fPIC=True
+*:shared=False
 freetype:with_brotli=False
 freetype:with_bzip2=False
 
 [generators]
 cmake
+
+[imports]
+bin, *.a -> ./bin # Copies all a files from packages bin folder to my local "bin" folder
+lib, *.a -> ./lib # Copies all dylib files from packages lib folder to my local "bin" folder
