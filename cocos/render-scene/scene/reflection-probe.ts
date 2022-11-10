@@ -31,7 +31,6 @@ import { ClearFlagBit } from '../../gfx';
 import { TextureCube } from '../../asset/assets/texture-cube';
 import { RenderTexture } from '../../asset/assets/render-texture';
 
-
 export enum ProbeClearFlag {
     SKYBOX= SKYBOX_FLAG | ClearFlagBit.DEPTH_STENCIL,
     SOLID_COLOR= ClearFlagBit.ALL,
@@ -129,7 +128,6 @@ export class ReflectionProbe {
     get resolution () {
         return this._resolution;
     }
-
 
     /**
      * @en set render texture size
