@@ -104,14 +104,18 @@ export class Texture2D extends SimpleTexture {
 
             let byteOffset = 0;
             for (let i = 0; i < mipmapLevelDataSize.length; i++) {
+                const srcView = new Uint8Array(data.buffer, byteOffset, mipmapLevelDataSize[i]);
+                const dstView = new Uint8Array(mipmapLevelDataSize[i]);
+                dstView.set(srcView);
                 compressedImageAsset[i] = new ImageAsset({
-                    _data: new Uint8Array(data.buffer, byteOffset, mipmapLevelDataSize[i]),
+                    _data: dstView,
                     _compressed: true,
                     width: value[0].width,
                     height: value[0].height,
                     format: value[0].format,
                     mipmapLevelDataSize: [],
                 });
+
                 compressedImageAsset[i]._uuid = value[0]._uuid;
                 byteOffset += mipmapLevelDataSize[i];
             }
