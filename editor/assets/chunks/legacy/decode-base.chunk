@@ -42,6 +42,11 @@ layout(location = 3) in vec4 a_tangent;
   #if CC_RECEIVE_SHADOW
     in vec2 a_localShadowBias; // x:shadow bias, y:shadow normal bias.
   #endif
+  #if CC_USE_LIGHT_PROBE
+    in vec4 a_sh_linear_const_r;
+    in vec4 a_sh_linear_const_g;
+    in vec4 a_sh_linear_const_b;
+  #endif
 #endif
 
 #if CC_USE_MORPH

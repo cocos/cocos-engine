@@ -55,6 +55,14 @@ void CCSurfacesVertexOutput(in SurfacesStandardVertexIntermediate In)
 #if CC_SURFACES_TRANSFER_LOCAL_POS
   VSOutput_localPos = In.position;
 #endif
+
+#if CC_USE_LIGHT_PROBE
+  #if USE_INSTANCING
+    v_sh_linear_const_r = a_sh_linear_const_r;
+    v_sh_linear_const_g = a_sh_linear_const_g;
+    v_sh_linear_const_b = a_sh_linear_const_b;
+  #endif
+#endif
 }
 
 // Morph & Skinning

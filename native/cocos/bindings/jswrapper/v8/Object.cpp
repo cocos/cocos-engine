@@ -43,7 +43,7 @@
 namespace se {
 
 namespace {
-v8::Isolate *__isolate = nullptr; //NOLINT
+v8::Isolate *__isolate = nullptr; // NOLINT
     #if CC_DEBUG_JS_OBJECT_ID && CC_DEBUG
 uint32_t nativeObjectId = 0;
     #endif
@@ -100,7 +100,7 @@ public:
     }
 };
 
-Object::Object() { //NOLINT
+Object::Object() { // NOLINT
     #if JSB_TRACK_OBJECT_CREATION
     _objectCreationStackFrame = se::ScriptEngine::getInstance()->getCurrentStackTrace();
     #endif
@@ -156,6 +156,16 @@ Object *Object::createPlainObject() {
     v8::Local<v8::Object> jsobj = v8::Object::New(__isolate);
     Object *obj = _createJSObject(nullptr, jsobj);
     return obj;
+}
+
+Object *Object::createMapObject() {
+    v8::Local<v8::Map> jsobj = v8::Map::New(__isolate);
+    return _createJSObject(nullptr, jsobj);
+}
+
+Object *Object::createSetObject() {
+    v8::Local<v8::Set> jsobj = v8::Set::New(__isolate);
+    return _createJSObject(nullptr, jsobj);
 }
 
 Object *Object::getObjectWithPtr(void *ptr) {
@@ -247,7 +257,7 @@ Object *Object::createTypedArray(TypedArrayType type, const void *data, size_t b
     }
 
     v8::Local<v8::ArrayBuffer> jsobj = v8::ArrayBuffer::New(__isolate, byteLength);
-    //If data has content,then will copy data into buffer,or will only clear buffer.
+    // If data has content,then will copy data into buffer,or will only clear buffer.
     if (data) {
         memcpy(jsobj->GetBackingStore()->Data(), data, byteLength);
     } else {
@@ -582,7 +592,7 @@ bool Object::getArrayBufferData(uint8_t **ptr, size_t *length) const {
 void Object::setPrivateObject(PrivateObjectBase *data) {
     CC_ASSERT(_privateObject == nullptr);
     #if CC_DEBUG
-    //CC_ASSERT(NativePtrToObjectMap::find(data->getRaw()) == NativePtrToObjectMap::end());
+    // CC_ASSERT(NativePtrToObjectMap::find(data->getRaw()) == NativePtrToObjectMap::end());
     if (data != nullptr) {
         auto it = NativePtrToObjectMap::find(data->getRaw());
         if (it != NativePtrToObjectMap::end()) {
@@ -711,6 +721,22 @@ bool Object::defineFunction(const char *funcName, void (*func)(const v8::Functio
     return ret.IsJust() && ret.FromJust();
 }
 
+bool Object::isMap() const {
+    return const_cast<Object *>(this)->_obj.handle(__isolate)->IsMap();
+}
+
+bool Object::isWeakMap() const {
+    return const_cast<Object *>(this)->_obj.handle(__isolate)->IsWeakMap();
+}
+
+bool Object::isSet() const {
+    return const_cast<Object *>(this)->_obj.handle(__isolate)->IsSet();
+}
+
+bool Object::isWeakSet() const {
+    return const_cast<Object *>(this)->_obj.handle(__isolate)->IsWeakSet();
+}
+
 bool Object::isArray() const {
     return const_cast<Object *>(this)->_obj.handle(__isolate)->IsArray();
 }
@@ -778,6 +804,154 @@ bool Object::getAllKeys(ccstd::vector<ccstd::string> *allKeys) const {
         }
     }
     return true;
+}
+
+void Object::clearMap() { // NOLINT
+    CC_ASSERT(isMap());
+    v8::Map::Cast(*_getJSObject())->Clear();
+}
+
+bool Object::removeMapElement(const Value &key) { // NOLINT
+    CC_ASSERT(isMap());
+    v8::Local<v8::Value> v8Key;
+    internal::seToJsValue(__isolate, key, &v8Key);
+    v8::Maybe<bool> ret = v8::Map::Cast(*_getJSObject())->Delete(__isolate->GetCurrentContext(), v8Key);
+    return ret.IsJust() && ret.FromJust();
+}
+
+bool Object::getMapElement(const Value &key, Value *outValue) const {
+    CC_ASSERT(isMap());
+    if (outValue == nullptr) {
+        return false;
+    }
+
+    v8::Local<v8::Value> v8Key;
+    internal::seToJsValue(__isolate, key, &v8Key);
+    v8::MaybeLocal<v8::Value> ret = v8::Map::Cast(*_getJSObject())->Get(__isolate->GetCurrentContext(), v8Key);
+    if (ret.IsEmpty()) {
+        outValue->setUndefined();
+        return false;
+    }
+
+    internal::jsToSeValue(__isolate, ret.ToLocalChecked(), outValue);
+    return true;
+}
+
+bool Object::setMapElement(const Value &key, const Value &value) { // NOLINT
+    CC_ASSERT(isMap());
+
+    v8::Local<v8::Value> v8Key;
+    internal::seToJsValue(__isolate, key, &v8Key);
+
+    v8::Local<v8::Value> v8Value;
+    internal::seToJsValue(__isolate, value, &v8Value);
+
+    v8::MaybeLocal<v8::Map> ret = v8::Map::Cast(*_getJSObject())->Set(__isolate->GetCurrentContext(), v8Key, v8Value);
+    return !ret.IsEmpty();
+}
+
+uint32_t Object::getMapSize() const {
+    CC_ASSERT(isMap());
+    return static_cast<uint32_t>(v8::Map::Cast(*_getJSObject())->Size());
+}
+
+ccstd::vector<std::pair<Value, Value>> Object::getAllElementsInMap() const {
+    CC_ASSERT(isMap());
+    auto *v8Map = v8::Map::Cast(*_getJSObject());
+    if (v8Map->Size() == 0) {
+        return {};
+    }
+
+    v8::Local<v8::Array> keyValueArray = v8Map->AsArray();
+    uint32_t length = keyValueArray->Length();
+    if (length == 0) {
+        return {};
+    }
+
+    SE_ASSERT(length % 2 == 0, "should be multiple of 2");
+
+    ccstd::vector<std::pair<Value, Value>> ret;
+    ret.reserve(length / 2);
+    v8::Local<v8::Context> currentContext = __isolate->GetCurrentContext();
+    for (uint32_t i = 0; i < length; i += 2) {
+        v8::MaybeLocal<v8::Value> key = keyValueArray->Get(currentContext, i);
+        v8::MaybeLocal<v8::Value> value = keyValueArray->Get(currentContext, i + 1);
+        if (key.IsEmpty() || value.IsEmpty()) {
+            continue;
+        }
+        Value seKey;
+        Value seValue;
+        internal::jsToSeValue(__isolate, key.ToLocalChecked(), &seKey);
+        internal::jsToSeValue(__isolate, value.ToLocalChecked(), &seValue);
+
+        ret.emplace_back(seKey, seValue);
+    }
+
+    return ret;
+}
+
+void Object::clearSet() { // NOLINT
+    CC_ASSERT(isSet());
+    v8::Set::Cast(*_getJSObject())->Clear();
+}
+
+bool Object::removeSetElement(const Value &value) { // NOLINT
+    CC_ASSERT(isSet());
+    v8::Local<v8::Value> v8Value;
+    internal::seToJsValue(__isolate, value, &v8Value);
+    v8::Maybe<bool> ret = v8::Set::Cast(*_getJSObject())->Delete(__isolate->GetCurrentContext(), v8Value);
+    return ret.IsJust() && ret.FromJust();
+}
+
+bool Object::addSetElement(const Value &value) { // NOLINT
+    CC_ASSERT(isSet());
+    v8::Local<v8::Value> v8Value;
+    internal::seToJsValue(__isolate, value, &v8Value);
+    v8::MaybeLocal<v8::Set> ret = v8::Set::Cast(*_getJSObject())->Add(__isolate->GetCurrentContext(), v8Value);
+    return !ret.IsEmpty();
+}
+
+bool Object::isElementInSet(const Value &value) const {
+    CC_ASSERT(isSet());
+    v8::Local<v8::Value> v8Value;
+    internal::seToJsValue(__isolate, value, &v8Value);
+    v8::Maybe<bool> ret = v8::Set::Cast(*_getJSObject())->Has(__isolate->GetCurrentContext(), v8Value);
+    return ret.IsJust() && ret.FromJust();
+}
+
+uint32_t Object::getSetSize() const {
+    CC_ASSERT(isSet());
+    return static_cast<uint32_t>(v8::Set::Cast(*_getJSObject())->Size());
+}
+
+ValueArray Object::getAllElementsInSet() const {
+    CC_ASSERT(isSet());
+    auto *v8Set = v8::Set::Cast(*_getJSObject());
+    if (v8Set->Size() == 0) {
+        return {};
+    }
+
+    v8::Local<v8::Array> keyValueArray = v8Set->AsArray();
+    uint32_t length = keyValueArray->Length();
+    if (length == 0) {
+        return {};
+    }
+
+    ValueArray ret;
+    ret.reserve(length);
+    v8::Local<v8::Context> currentContext = __isolate->GetCurrentContext();
+    for (uint32_t i = 0; i < length; ++i) {
+        v8::MaybeLocal<v8::Value> value = keyValueArray->Get(currentContext, i);
+        if (value.IsEmpty()) {
+            continue;
+        }
+        Value seValue;
+        internal::jsToSeValue(__isolate, value.ToLocalChecked(), &seValue);
+
+        ret.emplace_back(seValue);
+    }
+
+    return ret;
 }
 
 Class *Object::_getClass() const { // NOLINT(readability-identifier-naming)
