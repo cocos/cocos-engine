@@ -511,18 +511,15 @@ export function buildReflectionProbePasss (camera: Camera,
     for (let i = 0; i < probes.length; i++) {
         const probe = probes[i];
         if (probe.needRender) {
-            for (let i = 0; i < probe.bakedCubeTextures.length; i++) {
-                buildReflectionProbePass(camera, ppl, probe, probe.bakedCubeTextures[i].window!, i);
+            for (let faceIdx = 0; faceIdx < 1; faceIdx++) {
+                buildReflectionProbePass(camera, ppl, probe, probe.bakedCubeTextures[faceIdx].window!, faceIdx);
             }
+            probe.needRender = false;
         }
-        probe.needRender = false;
     }
-    probes.forEach((probe) => {
-
-    });
 }
 export function buildReflectionProbePass (camera: Camera,
-    ppl: Pipeline, probe: ReflectionProbe, renderWindow: RenderWindow, faceIdx:number) {
+    ppl: Pipeline, probe: ReflectionProbe, renderWindow: RenderWindow, faceIdx: number) {
     const cameraName = `Camera${faceIdx}`;
     const area = probe.renderArea();
     const width = area.x;
