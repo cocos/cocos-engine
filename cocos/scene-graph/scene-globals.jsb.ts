@@ -175,12 +175,12 @@ legacyCC.SceneGlobals = SceneGlobals;
     const sceneGlobalsProto: any = SceneGlobals.prototype;
 
     sceneGlobalsProto._ctor = function () {
-        this._ambientRef = null;
-        this._shadowsRef = null;
-        this._skyboxRef = null;
-        this._fogRef = null;
-        this._octreeRef = null;
-        this._lightProbeRef = null;
+        this._ambientRef = this.getAmbientInfo();
+        this._shadowsRef = this.getShadowsInfo();
+        this._skyboxRef = this.getSkyboxInfo();
+        this._fogRef = this.getFogInfo();
+        this._octreeRef = this.getOctreeInfo();
+        this._lightProbeRef = this.getLightProbeInfo();
     };
 
     Object.defineProperty(sceneGlobalsProto, 'ambient', {
