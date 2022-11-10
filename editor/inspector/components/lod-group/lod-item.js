@@ -7,8 +7,10 @@ exports.template = `
             <span>LOD {{ index }}</span>
         </div>
         <div class="right">
-            <span> {{ totalTriangles }} Triangles - </span>
-            <span>{{ data.value.renderers.value.length }} Sub Mesh(es)</span>
+            <div class="info">
+                <span> {{ totalTriangles }} Triangles - </span>
+                <span>{{ data.value.renderers.value.length }} Sub Mesh(es)</span>
+            </div>
             <div class="operator">
                 <ui-icon value="add" @click.stop="updateLODs('insert')" tooltip="insert after this LOD"></ui-icon>
                 <ui-icon value="reduce" @click.stop="updateLODs('delete')" tooltip="delete this LOD"></ui-icon>
@@ -27,12 +29,14 @@ exports.template = `
                     :value="data.value.screenUsagePercentage.value * 100"
                     @confirm="onScreenSizeConfirm($event)">
                 </ui-num-input>
-                <ui-button @confirm="applyCameraSize" tooltip="i18n:ENGINE.components.lod.applyCameraSizeTip">Apply Current Camera Size</ui-button>
+                <ui-button @confirm="applyCameraSize" tooltip="i18n:ENGINE.components.lod.applyCameraSizeTip">
+                    <ui-label value="Apply Current Camera Size"></ui-label>
+                </ui-button>
             </div>
         </ui-prop>
 
         <ui-prop ref="lod-item-dump" type="dump"></ui-prop>
-        <ui-section whole class="mesh-list config" header="Mesh List">
+        <ui-section whole class="mesh-renderers config" header="Mesh Renderers">
             <template v-for="(mesh, meshIndex) in data.value.renderers.value">
                 <div class="mesh"
                     :key="meshIndex"
@@ -154,11 +158,11 @@ exports.methods = {
         let size = await Editor.Message.request('scene', 'lod-apply-current-camera-size', that.dump.value.uuid.value);
         if (that.$refs[that.screenUsagePercentageRef]) {
             const min = that.$refs[that.screenUsagePercentageRef].min / 100 || 0;
-            const max = that.$refs[that.screenUsagePercentageRef].max / 100 || null;
+            const max = that.$refs[that.screenUsagePercentageRef].max ? that.$refs[that.screenUsagePercentageRef].max / 100 : null;
             if (size < min) {
                 size = min;
                 console.log(Editor.I18n.t('ENGINE.components.lod.applyCameraSizeLessThanMinimum'));
-            } else if (size > max) {
+            } else if (max && size > max) {
                 size = max;
                 console.log(Editor.I18n.t('ENGINE.components.lod.applyCameraSizeGreaterThanMaximum'));
             }
