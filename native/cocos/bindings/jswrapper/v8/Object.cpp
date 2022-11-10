@@ -813,9 +813,8 @@ void Object::clearMap() {
 
 bool Object::removeMapElement(const Value &key) {
     CC_ASSERT(isMap());
-    Value keyVal{key};
     v8::Local<v8::Value> v8Key;
-    internal::seToJsValue(__isolate, keyVal, &v8Key);
+    internal::seToJsValue(__isolate, key, &v8Key);
     v8::Maybe<bool> ret = v8::Map::Cast(*_getJSObject())->Delete(__isolate->GetCurrentContext(), v8Key);
     return ret.IsJust() && ret.FromJust();
 }
@@ -826,9 +825,8 @@ bool Object::getMapElement(const Value &key, Value *outValue) {
         return false;
     }
 
-    Value keyVal{key};
     v8::Local<v8::Value> v8Key;
-    internal::seToJsValue(__isolate, keyVal, &v8Key);
+    internal::seToJsValue(__isolate, key, &v8Key);
     v8::MaybeLocal<v8::Value> ret = v8::Map::Cast(*_getJSObject())->Get(__isolate->GetCurrentContext(), v8Key);
     if (ret.IsEmpty()) {
         return false;
@@ -841,9 +839,8 @@ bool Object::getMapElement(const Value &key, Value *outValue) {
 bool Object::setMapElement(const Value &key, const Value &value) {
     CC_ASSERT(isMap());
 
-    Value keyVal{key};
     v8::Local<v8::Value> v8Key;
-    internal::seToJsValue(__isolate, keyVal, &v8Key);
+    internal::seToJsValue(__isolate, key, &v8Key);
 
     v8::Local<v8::Value> v8Value;
     internal::seToJsValue(__isolate, value, &v8Value);
