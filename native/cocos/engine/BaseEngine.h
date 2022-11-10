@@ -34,7 +34,7 @@
 
 namespace cc {
 
-class CC_DLL BaseEngine : public std::enable_shared_from_this<BaseEngine>, public event::EventTarget {
+class CC_DLL BaseEngine : public std::enable_shared_from_this<BaseEngine> {
 public:
     enum EngineStatus {
         ON_START,
@@ -43,7 +43,7 @@ public:
         ON_CLOSE,
         UNKNOWN,
     };
-    ~BaseEngine() override;
+    ~BaseEngine() = default;
     using Ptr = std::shared_ptr<BaseEngine>;
 
     IMPL_EVENT_TARGET(BaseEngine)
