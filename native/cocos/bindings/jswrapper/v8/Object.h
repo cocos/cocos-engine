@@ -51,35 +51,6 @@ namespace se {
 class Class;
 class ScriptEngine;
 
-class MapOperation final {
-public:
-    explicit MapOperation(Object *obj);
-
-    void clear();
-    bool remove(const Value &key);
-    bool get(const Value &key, Value *outValue);
-    bool set(const Value &key, const Value &value);
-    uint32_t getSize() const;
-    ccstd::vector<std::pair<Value, Value>> getAll() const;
-
-private:
-    v8::Map *_v8Map{nullptr};
-};
-
-class SetOperation final {
-public:
-    explicit SetOperation(Object *obj);
-
-    void clear();
-    bool remove(const Value &value);
-    bool add(const Value &value);
-    uint32_t getSize() const;
-    ValueArray getAll() const;
-
-private:
-    v8::Set *_v8Set{nullptr};
-};
-
 /**
  * se::Object represents JavaScript Object.
  */
@@ -376,6 +347,81 @@ public:
      *  @return true if succeed, otherwise false.
      */
     bool getAllKeys(ccstd::vector<ccstd::string> *allKeys) const;
+
+    // ES6 Map operations
+
+    /**
+     *  @brief Clear all elements in a ES6 map object.
+     */
+    void clearMap();
+
+    /**
+     *  @brief Remove an element in a ES6 map by a key.
+     *  @param[in] key The key of the element to remove, it could be any type that se::Value supports.
+     *  @return true if succeed, otherwise false.
+     */
+    bool removeMapElement(const Value &key);
+
+    /**
+     *  @brief Get an element in a ES6 map by a key.
+     *  @param[in] key Key of the element to get, it could be any type that se::Value supports.
+     *  @param[out] outValue Out parameter, On success, *outValue receives the current value of the map element, or nullptr if no such element is found
+     *  @return true if succeed, otherwise false.
+     */
+    bool getMapElement(const Value &key, Value *outValue);
+
+    /**
+     *  @brief Set an element in a ES6 map by a key.
+     *  @param[in] key Key of the element to get, it could be any type that se::Value supports.
+     *  @param[in] value The value to set the map.
+     *  @return true if succeed, otherwise false.
+     */
+    bool setMapElement(const Value &key, const Value &value);
+
+    /**
+     *  @brief Get the size of a ES6 map
+     *  @return The size of a ES6 map
+     */
+    uint32_t getMapSize() const;
+
+    /**
+     *  @brief Get all elements in a ES6 map
+     *  @return All elements in a ES6 map, they're stored in a std::vector instead of `std::map/unordered_map` since we don't know how to compare or make a hash for `se::Value`s.
+     */
+    ccstd::vector<std::pair<Value, Value>> getAllElementsInMap() const;
+
+    // ES6 Set operations
+
+    /**
+     *  @brief Clear all elements in a ES6 set object.
+     */
+    void clearSet();
+
+    /**
+     *  @brief Remove an element in a ES6 set.
+     *  @param[in] value The value to remove.
+     *  @return true if succeed, otherwise false.
+     */
+    bool removeSetElement(const Value &value);
+
+    /**
+     *  @brief Add an element to a ES6 set.
+     *  @param[in] value The value to set the set.
+     *  @return true if succeed, otherwise false.
+     */
+    bool addSetElement(const Value &value);
+
+    /**
+     *  @brief Get the size of a ES6 set.
+     *  @return The size of a ES6 set.
+     */
+    uint32_t getSetSize() const;
+
+    /**
+     *  @brief Get all elements in a ES6 set.
+     *  @return All elements in a ES6 set.
+     */
+    ValueArray getAllElementsInSet() const;
 
     void setPrivateObject(PrivateObjectBase *data);
     PrivateObjectBase *getPrivateObject() const;
