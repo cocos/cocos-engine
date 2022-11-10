@@ -6,7 +6,6 @@ exports.template = /* html */`
     <div class="info">
         <ui-label value="Vertices:0" class="vertices"></ui-label>
         <ui-label value="Triangles:0" class="triangles"></ui-label>
-        <ui-label value="" class="uvsLabel"></ui-label>
         <div class="select-box">
             <ui-select class="preview-channel">
             </ui-select>
@@ -66,7 +65,6 @@ exports.$ = {
     triangles: '.triangles',
     image: '.image',
     canvas: '.canvas',
-    uvsLabel: '.uvsLabel',
     minPosLabel: '.minPosLabel',
     maxPosLabel: '.maxPosLabel',
     previewType: '.preview-type',
@@ -148,17 +146,6 @@ const Elements = {
 
             panel.$.vertices.value = 'Vertices: ' + info.vertices;
             panel.$.triangles.value = 'Triangles: ' + info.polygons;
-
-            panel.$.uvsLabel.value = '';
-            if (info.uvs.length > 0) {
-                panel.$.uvsLabel.value = 'UV: ';
-                info.uvs.forEach((uvIndex, index) => {
-                    panel.$.uvsLabel.value += uvIndex;
-                    if (index !== info.uvs.length - 1) {
-                        panel.$.uvsLabel.value += ',';
-                    }
-                });
-            }
 
             panel.$.minPosLabel.value = '';
             if (info.minPosition) {
