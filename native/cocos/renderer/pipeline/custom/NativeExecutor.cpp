@@ -43,6 +43,7 @@ struct RenderGraphVisitorContext {
         ccstd::pmr::unordered_map<
             const scene::RenderScene*,
             ccstd::pmr::unordered_map<scene::Camera*, NativeRenderQueue>>& sceneQueuesIn,
+        PipelineRuntime* pplIn,
         boost::container::pmr::memory_resource* scratchIn)
     : context(contextIn),
       g(gIn),
@@ -53,6 +54,7 @@ struct RenderGraphVisitorContext {
       device(deviceIn),
       cmdBuff(cmdBuffIn),
       sceneQueues(sceneQueuesIn),
+      ppl(pplIn),
       scratch(scratchIn) {}
 
     NativeRenderContext& context;
@@ -68,6 +70,7 @@ struct RenderGraphVisitorContext {
     ccstd::pmr::unordered_map<
         const scene::RenderScene*,
         ccstd::pmr::unordered_map<scene::Camera*, NativeRenderQueue>>& sceneQueues;
+    PipelineRuntime* ppl = nullptr;
 };
 
 void clear(gfx::RenderPassInfo& info) {
@@ -422,6 +425,10 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
             data.clearDepth, data.clearStencil);
 
         ctx.currentPass = data.renderPass.get();
+
+        // update states
+        //auto offset = ctx.ppl->getPipelineUBO()->getCurrentCameraUBOOffset();
+        //cmdBuff->bindDescriptorSet(pipeline::globalSet, ctx.getDescriptorSet(), 1, &offset);
     }
     void begin(const ComputePass& pass) const { // NOLINT(readability-convert-member-functions-to-static)
         std::ignore = pass;
@@ -457,8 +464,40 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         CC_EXPECTS(false);
     }
     void begin(const RenderQueue& pass) const {
+        // update uniform buffers and descriptor sets
     }
-    void begin(const SceneData& pass) const {
+    void begin(const SceneData& sceneData) const {
+        return;
+        auto* camera = sceneData.camera;
+        const auto* scene = camera->getScene();
+        const auto& queues = ctx.sceneQueues.at(scene);
+        const auto& queue = queues.at(camera);
+        bool bDraw = any(sceneData.flags & SceneFlags::DRAW_NON_INSTANCING);
+        bool bDrawInstancing = any(sceneData.flags & SceneFlags::DRAW_INSTANCING);
+        if (!bDraw && !bDrawInstancing) {
+            bDraw = true;
+            bDrawInstancing = true;
+        }
+        if (any(sceneData.flags & (SceneFlags::OPAQUE_OBJECT | SceneFlags::CUTOUT_OBJECT))) {
+            if (bDraw) {
+                queue.opaqueQueue.recordCommandBuffer(
+                    ctx.device, camera, ctx.currentPass, ctx.cmdBuff, 0);
+            }
+            if (bDrawInstancing) {
+                queue.opaqueInstancingQueue.recordCommandBuffer(
+                    ctx.currentPass, ctx.cmdBuff);
+            }
+        }
+        if (any(sceneData.flags & SceneFlags::TRANSPARENT_OBJECT)) {
+            if (bDraw) {
+                queue.transparentQueue.recordCommandBuffer(
+                    ctx.device, camera, ctx.currentPass, ctx.cmdBuff, 0);
+            }
+            if (bDrawInstancing) {
+                queue.transparentInstancingQueue.recordCommandBuffer(
+                    ctx.currentPass, ctx.cmdBuff);
+            }
+        }
     }
     void begin(const Blit& pass) const {
     }
@@ -997,6 +1036,7 @@ void NativePipeline::executeRenderGraph(const RenderGraph& rg) {
             validPasses,
             ppl.device, submit.primaryCommandBuffer,
             sceneQueues,
+            &ppl,
             scratch);
 
         RenderGraphVisitor visitor{{}, ctx};

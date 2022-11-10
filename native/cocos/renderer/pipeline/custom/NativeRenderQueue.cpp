@@ -39,8 +39,23 @@ void RenderDrawQueue::sortTransparent() {
 
 void RenderDrawQueue::recordCommandBuffer(
     gfx::Device *device, const scene::Camera *camera,
-    gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer,
+    gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff,
     uint32_t subpassIndex) const {
+    for (auto &instance : instances) {
+        const auto *subModel = instance.subModel;
+
+        const auto passIdx = instance.passIndex;
+        auto *inputAssembler = subModel->getInputAssembler();
+        const auto *pass = subModel->getPass(passIdx);
+        auto *shader = subModel->getShader(passIdx);
+        auto *pso = pipeline::PipelineStateManager::getOrCreatePipelineState(pass, shader, inputAssembler, renderPass, subpassIndex);
+
+        cmdBuff->bindPipelineState(pso);
+        cmdBuff->bindDescriptorSet(pipeline::materialSet, pass->getDescriptorSet());
+        cmdBuff->bindDescriptorSet(pipeline::localSet, subModel->getDescriptorSet());
+        cmdBuff->bindInputAssembler(inputAssembler);
+        cmdBuff->draw(inputAssembler);
+    }
 }
 
 void RenderInstancingQueue::add(pipeline::InstancedBuffer &instancedBuffer) {
