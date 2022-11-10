@@ -62,7 +62,7 @@ public:
     /**
      @brief Constructor of Engine.
      */
-    ~Engine() override;
+    ~Engine();
     /**
      @brief Implement initialization engine.
      */

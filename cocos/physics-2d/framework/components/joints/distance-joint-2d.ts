@@ -18,8 +18,12 @@ export class DistanceJoint2D extends Joint2D {
      */
     @property
     get maxLength () {
-        if (this._autoCalcDistance && this.connectedBody) {
-            return Vec3.distance(this.node.worldPosition, this.connectedBody.node.worldPosition);
+        if (this._autoCalcDistance) {
+            if (this.connectedBody) {
+                return Vec3.distance(this.node.worldPosition, this.connectedBody.node.worldPosition);
+            } else { //if connected body is not set, use scene origin as connected body
+                return Vec3.len(this.node.worldPosition);
+            }
         }
         return this._maxLength;
     }
