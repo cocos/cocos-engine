@@ -23,6 +23,7 @@
  THE SOFTWARE.
 */
 import { JSB } from 'internal:constants';
+import { displayOrder, group } from 'cc.decorator';
 import { Texture2D, TextureCube } from '../../asset/assets';
 import { Material } from '../../asset/assets/material';
 import { Mesh } from '../assets/mesh';
@@ -37,7 +38,6 @@ import { NodeEventType } from '../../scene-graph/node-event';
 import { Texture } from '../../gfx';
 import { builtinResMgr } from '../../asset/asset-manager/builtin-res-mgr';
 import { settings, Settings } from '../../core/settings';
-import { displayOrder, group } from 'cc.decorator';
 
 const { property, ccclass, help, executeInEditMode, executionOrder, menu, tooltip, visible, type,
     formerlySerializedAs, serializable, editable, disallowAnimation } = _decorator;
@@ -264,7 +264,7 @@ export class MeshRenderer extends ModelRenderer {
    */
     @type(CCFloat)
     @tooltip('i18n:model.shadow_normal_bias')
-    @group({ id: 'DynamicShadow', name: 'DynamicShadowSettings'})
+    @group({ id: 'DynamicShadow', name: 'DynamicShadowSettings' })
     @disallowAnimation
     get shadowNormalBias () {
         return this._shadowNormalBias;
@@ -282,7 +282,7 @@ export class MeshRenderer extends ModelRenderer {
      */
     @type(ModelShadowCastingMode)
     @tooltip('i18n:model.shadow_casting_model')
-    @group({ id: 'DynamicShadow', name: 'DynamicShadowSettings'})
+    @group({ id: 'DynamicShadow', name: 'DynamicShadowSettings' })
     @disallowAnimation
     get shadowCastingMode () {
         return this._shadowCastingMode;
@@ -299,7 +299,7 @@ export class MeshRenderer extends ModelRenderer {
      */
     @type(ModelShadowReceivingMode)
     @tooltip('i18n:model.shadow_receiving_model')
-    @group({ id: 'DynamicShadow', name: 'DynamicShadowSettings'})
+    @group({ id: 'DynamicShadow', name: 'DynamicShadowSettings' })
     @disallowAnimation
     get receiveShadow () {
         return this._shadowReceivingMode;

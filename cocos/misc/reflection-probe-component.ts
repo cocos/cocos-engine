@@ -75,8 +75,8 @@ export enum ProbeResolution {
 @executeInEditMode
 @playOnFocus
 export class ReflectionProbe extends Component {
-    protected static readonly DEFAULT_CUBE_SIZE: Readonly<Vec3> =  new Vec3(1,1,1);
-    protected static readonly DEFAULT_PLANER_SIZE: Readonly<Vec3> =  new Vec3(5,0.5,5);
+    protected static readonly DEFAULT_CUBE_SIZE: Readonly<Vec3> =  new Vec3(1, 1, 1);
+    protected static readonly DEFAULT_PLANER_SIZE: Readonly<Vec3> =  new Vec3(5, 0.5, 5);
     @serializable
     protected _resolution = 256;
     @serializable
@@ -155,13 +155,13 @@ export class ReflectionProbe extends Component {
      * @en set render texture size
      * @zh 设置渲染纹理大小
      */
-    @visible(function(this:ReflectionProbe){return this.probeType === ProbeType.CUBE})
+    @visible(function (this:ReflectionProbe) { return this.probeType === ProbeType.CUBE; })
     @type(Enum(ProbeResolution))
     set resolution (value: number) {
         this._resolution = value;
         this.probe.resolution = value;
     }
-    
+
     get resolution () {
         return this._resolution;
     }
