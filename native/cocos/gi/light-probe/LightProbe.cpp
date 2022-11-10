@@ -189,7 +189,6 @@ void LightProbesData::getOuterCellBarycentricCoord(const Vec3 &position, const T
 }
 
 void LightProbes::initialize(LightProbeInfo *info) {
-    _enabled = info->isEnabled();
     _giScale = info->getGIScale();
     _giSamples = info->getGISamples();
     _bounces = info->getBounces();
@@ -198,16 +197,6 @@ void LightProbes::initialize(LightProbeInfo *info) {
     _showWireframe = info->isShowWireframe();
     _showConvex = info->isShowConvex();
     _data = info->getData();
-
-    updatePipeline();
-}
-
-void LightProbes::updatePipeline() const {
-    auto *root = Root::getInstance();
-    auto *pipeline = root->getPipeline();
-
-    pipeline->setValue("CC_LIGHT_PROBE_ENABLED", _enabled);
-    root->onGlobalPipelineStateChanged();
 }
 
 void LightProbeInfo::activate(LightProbes *resource) {

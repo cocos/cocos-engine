@@ -213,6 +213,11 @@ cc_inspect_values(
     USE_REMOTE_LOG
 )
 
+if(USE_XR)
+    if(USE_XR_REMOTE_PREVIEW)
+        set(USE_WEBSOCKET_SERVER ON)
+    endif()
+endif()
 
 include(${EXTERNAL_ROOT}/CMakeLists.txt)
 
@@ -615,6 +620,8 @@ if(WINDOWS)
             cocos/platform/empty/modules/Screen.h
             cocos/platform/empty/modules/SystemWindow.cpp
             cocos/platform/empty/modules/SystemWindow.h
+            cocos/platform/empty/modules/SystemWindowManager.cpp
+            cocos/platform/empty/modules/SystemWindowManager.h
         )
     else()
         cocos_source_files(
@@ -682,6 +689,8 @@ elseif(MACOSX)
             cocos/platform/empty/modules/Screen.h
             cocos/platform/empty/modules/SystemWindow.cpp
             cocos/platform/empty/modules/SystemWindow.h
+            cocos/platform/empty/modules/SystemWindowManager.cpp
+            cocos/platform/empty/modules/SystemWindowManager.h
         )
     else()
         cocos_source_files(
@@ -731,6 +740,8 @@ elseif(LINUX)
             cocos/platform/empty/modules/Screen.h
             cocos/platform/empty/modules/SystemWindow.cpp
             cocos/platform/empty/modules/SystemWindow.h
+            cocos/platform/empty/modules/SystemWindowManager.cpp
+            cocos/platform/empty/modules/SystemWindowManager.h
         )
     else()
         cocos_source_files(
@@ -1786,8 +1797,8 @@ if(USE_PHYSICS_PHYSX)
         cocos/physics/physx/joints/PhysXJoint.cpp
         cocos/physics/physx/joints/PhysXRevolute.h
         cocos/physics/physx/joints/PhysXRevolute.cpp
-        cocos/physics/physx/joints/PhysXDistance.h
-        cocos/physics/physx/joints/PhysXDistance.cpp
+        cocos/physics/physx/joints/PhysXSpherical.h
+        cocos/physics/physx/joints/PhysXSpherical.cpp
     )
     cocos_source_files(
         NO_WERROR NO_UBUILD cocos/bindings/auto/jsb_physics_auto.cpp
@@ -2120,6 +2131,13 @@ if(USE_XR)
     cocos_source_files(
         NO_WERROR    cocos/bindings/auto/jsb_xr_auto.cpp
                      cocos/bindings/auto/jsb_xr_auto.h
+    )
+endif()
+
+if(USE_XR_REMOTE_PREVIEW)
+    cocos_source_files(
+            NO_WERROR    cocos/xr/XRRemotePreviewManager.h
+            cocos/xr/XRRemotePreviewManager.cpp
     )
 endif()
 
@@ -2895,6 +2913,7 @@ function(cc_apply_definations target)
         $<IF:$<BOOL:${USE_WEBVIEW}>,CC_USE_WEBVIEW=1,CC_USE_WEBVIEW=0>
         $<IF:$<BOOL:${USE_AUDIO}>,CC_USE_AUDIO=1,CC_USE_AUDIO=0>
         $<IF:$<BOOL:${USE_XR}>,CC_USE_XR=1,CC_USE_XR=0>
+        $<IF:$<BOOL:${USE_XR_REMOTE_PREVIEW}>,CC_USE_XR_REMOTE_PREVIEW=1,CC_USE_XR_REMOTE_PREVIEW=0>
         $<IF:$<BOOL:${USE_SOCKET}>,CC_USE_SOCKET=1,CC_USE_SOCKET=0>
         $<IF:$<BOOL:${USE_WEBSOCKET_SERVER}>,CC_USE_WEBSOCKET_SERVER=1,CC_USE_WEBSOCKET_SERVER=0>
         $<IF:$<BOOL:${USE_EDIT_BOX}>,CC_USE_EDITBOX=1,CC_USE_EDITBOX=0>

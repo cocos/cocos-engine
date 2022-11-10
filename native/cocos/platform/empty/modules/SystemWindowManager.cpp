@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -21,18 +21,49 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
-****************************************************************************/
+ ****************************************************************************/
 
-#include "cocos/engine/BaseEngine.h"
-#include "cocos/engine/Engine.h"
-#include "cocos/platform/BasePlatform.h"
-#include "cocos/platform/interfaces/modules/ISystemWindow.h"
+#include "SystemWindowManager.h"
+#include "platform/BasePlatform.h"
+#include "platform/interfaces/modules/ISystemWindowManager.h"
+#include "platform/empty/modules/SystemWindow.h"
 
 namespace cc {
 
-// static
-BaseEngine::Ptr BaseEngine::createEngine() {
-    return std::make_shared<Engine>();
+int SystemWindowManager::init() {
+    return 0;
+}
+
+void SystemWindowManager::processEvent(bool* quit) {
+
+}
+
+void SystemWindowManager::swapWindows() {
+
+}
+
+ISystemWindow *SystemWindowManager::getWindow(uint32_t windowId) const {
+    if (windowId == 0) {
+        return nullptr;
+    }
+
+    auto iter = _windows.find(windowId);
+    if (iter != _windows.end()) {
+        return iter->second.get();
+    }
+    return nullptr;
+}
+
+ISystemWindow *SystemWindowManager::createWindow(const cc::ISystemWindowInfo &info) {
+    ISystemWindow *window = BasePlatform::getPlatform()->createNativeWindow(_nextWindowId, info.externalHandle);
+    if (window) {
+        if (!info.externalHandle) {
+            window->createWindow(info.title.c_str(), info.x, info.y, info.width, info.height, info.flags);
+        }
+        _windows[_nextWindowId] = std::shared_ptr<ISystemWindow>(window);
+        _nextWindowId++;
+    }
+    return window;
 }
 
 } // namespace cc

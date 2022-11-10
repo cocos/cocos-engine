@@ -308,7 +308,7 @@ export class Material extends Asset {
      * @param name The property or uniform name.
      * @param passIdx The target pass index. If not specified, return the first found value in all passes.
      */
-    public getProperty (name: string, passIdx?: number) {
+    public getProperty (name: string, passIdx?: number): Readonly<MaterialPropertyFull | MaterialPropertyFull[]> {
         if (passIdx === undefined) { // try get property in all possible passes
             const propsArray = this._props;
             const len = propsArray.length;

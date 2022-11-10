@@ -23,7 +23,19 @@
  THE SOFTWARE.
  */
 
-import { ccclass, disallowMultiple, displayName, editable, executeInEditMode, menu, range, serializable, tooltip, type } from 'cc.decorator';
+import {
+    ccclass,
+    disallowMultiple,
+    displayName,
+    editable,
+    executeInEditMode,
+    menu,
+    range,
+    serializable,
+    tooltip,
+    type,
+    visible,
+} from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { NodeEventType } from '../../scene-graph/node-event';
 import { Component } from '../../scene-graph/component';
@@ -60,6 +72,9 @@ export class LightProbeGroup extends Component {
     @serializable
     protected _nProbesZ = 3;
 
+    @editable
+    @type([Vec3])
+    @visible(false)
     get probes (): Vec3[] {
         return this._probes;
     }
