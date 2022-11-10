@@ -142,6 +142,9 @@
 #define cc_gfx_DescriptorSet_layout_get(self_) self_->getLayout()
   
 
+#define cc_gfx_DescriptorSetLayout_bindings_get(self_) self_->getBindings()
+  
+
 #define cc_gfx_PipelineState_shader_get(self_) self_->getShader()
   
 
@@ -24251,33 +24254,6 @@ static bool js_cc_gfx_DescriptorSetLayout_destroy(se::State& s)
 }
 SE_BIND_FUNC(js_cc_gfx_DescriptorSetLayout_destroy) 
 
-static bool js_cc_gfx_DescriptorSetLayout_getBindings(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::gfx::DescriptorSetLayout *arg1 = (cc::gfx::DescriptorSetLayout *) NULL ;
-    cc::gfx::DescriptorSetLayoutBindingList *result = 0 ;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::gfx::DescriptorSetLayout>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    result = (cc::gfx::DescriptorSetLayoutBindingList *) &((cc::gfx::DescriptorSetLayout const *)arg1)->getBindings();
-    // %typemap(out) SWIGTYPE&
-    ok &= nativevalue_to_se(*result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "DescriptorSetLayout_getBindings, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(*result, s.thisObject(), s.rval()); 
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_gfx_DescriptorSetLayout_getBindings) 
-
 static bool js_cc_gfx_DescriptorSetLayout_getDynamicBindings(se::State& s)
 {
     // js_function
@@ -24333,13 +24309,33 @@ static bool js_cc_gfx_DescriptorSetLayout_getDescriptorCount(se::State& s)
 }
 SE_BIND_FUNC(js_cc_gfx_DescriptorSetLayout_getDescriptorCount) 
 
+static bool js_cc_gfx_DescriptorSetLayout_bindings_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::gfx::DescriptorSetLayout *arg1 = (cc::gfx::DescriptorSetLayout *) NULL ;
+    cc::gfx::DescriptorSetLayoutBindingList result;
+    
+    arg1 = SE_THIS_OBJECT<cc::gfx::DescriptorSetLayout>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = cc_gfx_DescriptorSetLayout_bindings_get(arg1);
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "DescriptorSetLayout_bindings_get, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_gfx_DescriptorSetLayout_bindings_get) 
+
 bool js_register_cc_gfx_DescriptorSetLayout(se::Object* obj) {
     auto* cls = se::Class::create("DescriptorSetLayout", obj, __jsb_cc_gfx_GFXObject_proto, nullptr); 
     
+    cls->defineProperty("bindings", _SE(js_cc_gfx_DescriptorSetLayout_bindings_get), nullptr); 
     
     cls->defineFunction("initialize", _SE(js_cc_gfx_DescriptorSetLayout_initialize)); 
     cls->defineFunction("destroy", _SE(js_cc_gfx_DescriptorSetLayout_destroy)); 
-    cls->defineFunction("getBindings", _SE(js_cc_gfx_DescriptorSetLayout_getBindings)); 
     cls->defineFunction("getDynamicBindings", _SE(js_cc_gfx_DescriptorSetLayout_getDynamicBindings)); 
     cls->defineFunction("getDescriptorCount", _SE(js_cc_gfx_DescriptorSetLayout_getDescriptorCount)); 
     
