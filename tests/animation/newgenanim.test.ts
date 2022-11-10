@@ -1,7 +1,7 @@
 
 import { lerp, Vec3, warnID } from '../../cocos/core';
 import { AnimationBlend1D, AnimationBlend2D, Condition, InvalidTransitionError, VariableNotDefinedError, ClipMotion, AnimationBlendDirect, VariableType, AnimationMask } from '../../cocos/animation/marionette/asset-creation';
-import { AnimationGraph, StateMachine, Transition, isAnimationTransition, AnimationTransition, TransitionInterruptionSource } from '../../cocos/animation/marionette/animation-graph';
+import { AnimationGraph, StateMachine, Transition, isAnimationTransition, AnimationTransition, TransitionInterruptionSource, State } from '../../cocos/animation/marionette/animation-graph';
 import { VariableTypeMismatchedError } from '../../cocos/animation/marionette/errors';
 import { AnimationGraphEval, MotionStateStatus, ClipStatus } from '../../cocos/animation/marionette/graph-eval';
 import { createGraphFromDescription } from '../../cocos/animation/marionette/__tmp__/graph-from-description';
@@ -27,6 +27,9 @@ import { TriggerResetMode } from '../../cocos/animation/marionette/variable';
 import { MotionState } from '../../cocos/animation/marionette/motion-state';
 import { Node, Component } from '../../cocos/scene-graph';
 import * as maskTestHelper from './new-gen-anim/utils/mask-test-helper';
+import '../utils/matchers/value-type-asymmetric-matchers';
+
+const DEFAULT_AROUND_NUM_DIGITS = 5;
 
 describe('NewGen Anim', () => {
     test('Defaults', () => {
@@ -1977,7 +1980,7 @@ describe('NewGen Anim', () => {
             // Start Motion -> Empty
             updater.goto(FIRST_TIME_EMPTY_REST_TIME + MOTION_EXIT_CONDITION + 0.15);
             expectAnimationGraphEvalStatus(graphEval, [
-                { current: { clip: clipMotion!.clip, weight: 1.0 - 0.15 / MOTION_TO_EMPTY_DURATION } },
+                { current: { clip: clipMotion!.clip, weight: 1.0 - 0.15 / MOTION_TO_EMPTY_DURATION }, transition: {} },
             ]);
             expect(node.position.x).toBeCloseTo(lerp(
                 MOTION_SAMPLE_RESULT_AT(MOTION_EXIT_CONDITION + 0.15), // Layer 0 result
@@ -1988,7 +1991,7 @@ describe('NewGen Anim', () => {
             // Step for a little while
             updater.step(0.06);
             expectAnimationGraphEvalStatus(graphEval, [
-                { current: { clip: clipMotion!.clip, weight: 1.0 - 0.21 / MOTION_TO_EMPTY_DURATION } },
+                { current: { clip: clipMotion!.clip, weight: 1.0 - 0.21 / MOTION_TO_EMPTY_DURATION }, transition: {} },
             ]);
             expect(node.position.x).toBeCloseTo(lerp(
                 MOTION_SAMPLE_RESULT_AT(MOTION_EXIT_CONDITION + 0.21), // Layer 0 result
@@ -2044,7 +2047,7 @@ describe('NewGen Anim', () => {
             updater.goto(0.3 * 1.0 + 0.12);
             expectAnimationGraphEvalStatus(graphEval, [
                 { current: { clip: layer0Clip!.clip, weight: 1.0 } },
-                { current: { clip: layer1Clip.clip, weight: 1.0 - 0.12 / 0.5 } },
+                { current: { clip: layer1Clip.clip, weight: 1.0 - 0.12 / 0.5 }, transition: {} },
             ]);
             expect(node.position.x).toBeCloseTo(1.3 * (1.0 - 0.12 / 0.5) + 0.6 * (0.12 / 0.5));
         });
@@ -2751,18 +2754,218 @@ describe('NewGen Anim', () => {
         ]);
     });
 
-    test('Layer weight get/set', () => {
+    test('Layer weight get/set, layer count', () => {
         const animationGraph = new AnimationGraph();
         const layer0 = animationGraph.addLayer();
         const layer1 = animationGraph.addLayer();
         layer1.weight = 0.4;
         const { newGenAnim: animationController } = createAnimationGraphEval2(animationGraph, new Node());
+
+        expect(animationController.layerCount).toBe(2);
+
         expect(animationController.getLayerWeight(0)).toBe(1.0);
         expect(animationController.getLayerWeight(1)).toBe(0.4);
         animationController.setLayerWeight(0, 0.2);
         animationController.setLayerWeight(1, 0.3);
         expect(animationController.getLayerWeight(0)).toBe(0.2);
         expect(animationController.getLayerWeight(1)).toBe(0.3);
+    });
+
+    test('No graph is specified', () => {
+        const node = new Node();
+        const animationController = node.addComponent(AnimationController) as AnimationController;
+
+        // SPEC: if no graph is specified, the layer count would be 0.
+        expect(animationController.layerCount).toBe(0);
+    });
+
+    describe(`Status query methods`, () => {
+        describe(`If no transition is being performed`, () => {
+            /**
+             * ### SPEC
+             * 
+             * If a layer ran into an state and there is no transition is performing:
+             * 
+             * - `getCurrentTransition` returns null.
+             * - `getNextStateStatus` returns null.
+             * - `getNextClipStatuses` yields nothing.
+             * - If the state is a motion state:
+             *     - `getCurrentStateStatus` returns the status of the state, where:
+             *       - `.time` gives the transition time(absolute, in seconds).
+             *       - `.duration` gives the transition duration.
+             *     - `getCurrentClipStatuses` return the status of the clips containing in the state, where:
+             *       - `.clip` gives the clip.
+             *       - `.weight` gives the clip's contribution in whole layer.
+             *  - Otherwise:
+             *     - `getCurrentStateStatus` returns null.
+             *     - `getCurrentClipStatuses` yields nothing.
+             */
+            const _SPEC = undefined;
+
+            const commonCheck1 = (controller: AnimationController) => {
+                expect(controller.getCurrentTransition(0)).toBeNull();
+                expect(controller.getNextStateStatus(0)).toBeNull();
+                expect([...controller.getNextClipStatuses(0)]).toHaveLength(0);
+            };
+
+            test(`Motion state`, () => {
+                const fixture = {
+                    motion_duration: 2.0,
+                    state_time: 0.1,
+                };
+
+                const graph = new AnimationGraph();
+                const mainLayer = graph.addLayer();
+                const motionState = mainLayer.stateMachine.addMotion();
+                const clipMotion = motionState.motion = createEmptyClipMotion(fixture.motion_duration);
+                mainLayer.stateMachine.connect(mainLayer.stateMachine.entryState, motionState);
+
+                const { newGenAnim, graphEval } = createAnimationGraphEval2(graph, new Node());
+                const graphUpdater = new GraphUpdater(graphEval);
+
+                graphUpdater.step(fixture.state_time);
+                expect(newGenAnim.getCurrentStateStatus(0)).toMatchObject({
+                    progress: expect.toBeAround(fixture.state_time / fixture.motion_duration, DEFAULT_AROUND_NUM_DIGITS),
+                });
+                expect([...newGenAnim.getCurrentClipStatuses(0)]).toMatchObject({
+                    [0]: {
+                        clip: clipMotion.clip,
+                        weight: 1.0,
+                    },
+                });
+                commonCheck1(newGenAnim);
+            });
+
+            test(`Empty state`, () => {
+                const graph = new AnimationGraph();
+                const mainLayer = graph.addLayer();
+                const emptyState = mainLayer.stateMachine.addEmpty();
+                mainLayer.stateMachine.connect(mainLayer.stateMachine.entryState, emptyState);
+
+                const { newGenAnim, graphEval } = createAnimationGraphEval2(graph, new Node());
+                const graphUpdater = new GraphUpdater(graphEval);
+
+                graphUpdater.step(0.2);
+                expect(newGenAnim.getCurrentStateStatus(0)).toBeNull();
+                expect([...newGenAnim.getCurrentClipStatuses(0)]).toHaveLength(0);
+                commonCheck1(newGenAnim);
+            });
+
+            test(`Top level entry state`, () => {
+                const graph = new AnimationGraph();
+                const mainLayer = graph.addLayer();
+                const motionState = mainLayer.stateMachine.addMotion();
+                motionState.motion = createEmptyClipMotion(1.23 /** ANY */);
+                mainLayer.stateMachine.connect(mainLayer.stateMachine.entryState, motionState);
+    
+                const { newGenAnim: controller } = createAnimationGraphEval2(graph, new Node());
+                
+                // Before any evaluation
+
+                expect(controller.getCurrentStateStatus(0)).toBe(null);
+                expect([...controller.getCurrentClipStatuses(0)]).toHaveLength(0);
+                expect(controller.getCurrentTransition(0)).toBe(null);
+                expect(controller.getNextStateStatus(0)).toBe(null);
+                expect([...controller.getNextClipStatuses(0)]).toHaveLength(0);
+            });
+        });
+
+        describe(`If the layer is performing transition`, () => {
+            /**
+             * ### SPEC
+             * 
+             * If a layer is performing a transition:
+             * 
+             * - `getCurrentTransition` returns the status of the transition:
+             *   - `.time` gives the transition time(absolute, in seconds).
+             *   - `.duration` gives the transition duration.
+             * 
+             * - `getCurrentStateStatus`(`getNextStateStatus`) returns:
+             *   - the status of transition source(destination), if the transition source(destination) is a motion state.
+             *   - null otherwise.
+             * 
+             * - `getCurrentClipStatuses`(`getNextClipStatuses`) yields:
+             *   - the status of clips containing in transition source(destination), if the transition source(destination) is a motion state.
+             *   - nothing otherwise.
+             */
+            const _SPEC = undefined;
+
+            test('Ran into a transition(Motion -> Empty)', () => {
+                const fixture = {
+                    motion_duration: 2.0,
+                    transition_duration: 0.25,
+                    eval_time: 0.1,
+                };
+    
+                const graph = new AnimationGraph();
+                const mainLayer = graph.addLayer();
+                const motionState = mainLayer.stateMachine.addMotion();
+                const clipMotion = motionState.motion = createEmptyClipMotion(fixture.motion_duration);
+                const emptyState = mainLayer.stateMachine.addEmpty();
+                mainLayer.stateMachine.connect(mainLayer.stateMachine.entryState, motionState);
+                const m2e = mainLayer.stateMachine.connect(motionState, emptyState);
+                m2e.duration = fixture.transition_duration;
+                m2e.exitConditionEnabled = true;
+                m2e.exitCondition = 0.0; // Immediately start the transition.
+    
+                const { newGenAnim: controller, graphEval } = createAnimationGraphEval2(graph, new Node());
+                const graphUpdater = new GraphUpdater(graphEval);
+    
+                graphUpdater.step(fixture.eval_time);
+                expect(controller.getCurrentStateStatus(0)).toMatchObject({
+                    progress: expect.toBeAround(fixture.eval_time / fixture.motion_duration, DEFAULT_AROUND_NUM_DIGITS),
+                });
+                expect([...controller.getCurrentClipStatuses(0)]).toEqual(expect.arrayContaining([
+                    expect.objectContaining({
+                        clip: clipMotion.clip,
+                        weight: expect.toBeAround(1.0 - fixture.eval_time / fixture.transition_duration, DEFAULT_AROUND_NUM_DIGITS),
+                    }),
+                ]));
+                expect(controller.getCurrentTransition(0)).toMatchObject({
+                    time: expect.toBeAround(fixture.eval_time, DEFAULT_AROUND_NUM_DIGITS),
+                    duration: fixture.transition_duration,
+                });
+                expect(controller.getNextStateStatus(0)).toBeNull();
+                expect([...controller.getNextClipStatuses(0)]).toHaveLength(0);
+            });
+    
+            test('Ran into a transition(Empty -> Motion)', () => {
+                const fixture = {
+                    motion_duration: 2.0,
+                    transition_duration: 0.25,
+                    eval_time: 0.1,
+                };
+
+                const graph = new AnimationGraph();
+                const mainLayer = graph.addLayer();
+                const motionState = mainLayer.stateMachine.addMotion();
+                const clipMotion = motionState.motion = createEmptyClipMotion(fixture.motion_duration);
+                const emptyState = mainLayer.stateMachine.addEmpty();
+                mainLayer.stateMachine.connect(mainLayer.stateMachine.entryState, emptyState);
+                const transition = mainLayer.stateMachine.connect(emptyState, motionState);
+                transition.duration = fixture.transition_duration;
+                const [transitionCondition] = transition.conditions = [new UnaryCondition()];
+                transitionCondition.operator = UnaryCondition.Operator.TRUTHY;
+                transitionCondition.operand.value = true;
+    
+                const { newGenAnim: controller, graphEval } = createAnimationGraphEval2(graph, new Node());
+                const graphUpdater = new GraphUpdater(graphEval);
+    
+                graphUpdater.step(fixture.eval_time);
+                expect(controller.getCurrentStateStatus(0)).toBeNull();
+                expect([...controller.getCurrentClipStatuses(0)]).toHaveLength(0);
+                expect(controller.getCurrentTransition(0)).toMatchObject({
+                    time: expect.toBeAround(fixture.eval_time, DEFAULT_AROUND_NUM_DIGITS),
+                    duration: fixture.transition_duration,
+                });
+                expect([...controller.getNextClipStatuses(0)]).toEqual(expect.arrayContaining([
+                    expect.objectContaining({
+                        clip: clipMotion.clip,
+                        weight: expect.toBeAround(fixture.eval_time / fixture.transition_duration, DEFAULT_AROUND_NUM_DIGITS),
+                    }),
+                ]));
+            });
+        });
     });
 
     describe('Interruption', () => {
