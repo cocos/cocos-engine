@@ -4,6 +4,7 @@ import {
     Address, BlendFactor, BlendOp, ColorMask, ComparisonFunc, CullMode, DynamicStateFlagBit,
     Filter, Format, FormatInfos, FormatType, GetTypeSize, PolygonMode, PrimitiveMode,
     ShadeModel, ShaderStageFlagBit, StencilOp, Type, DescriptorType, SamplerInfo, MemoryAccessBit, Sampler,
+    ResourceUpdateRate,
 } from '../../cocos/gfx';
 import { RenderPassStage, RenderPriority, SetIndex } from '../../cocos/rendering/define';
 import { murmurhash2_32_gc } from '../../cocos/core';
@@ -150,9 +151,16 @@ const formatMap = {
     mat4x2: Format.RGBA32F,
     mat4x3: Format.RGBA32F,
 };
+const updateRateMap = {
+    per_pass : ResourceUpdateRate.PER_PASS,
+    per_phase : ResourceUpdateRate.PER_PHASE,
+    per_batch : ResourceUpdateRate.PER_BATCH,
+    per_instance : ResourceUpdateRate.PER_INSTANCE,
+};
 const getFormat = (name: string) => Format[name.toUpperCase()];
 const getShaderStage = (name: string) => ShaderStageFlagBit[name.toUpperCase()];
 const getDescriptorType = (name: string) => DescriptorType[name.toUpperCase()];
+const getResourceUpdateRate = (name : string) => ResourceUpdateRate[name.toUpperCase()];
 const isNormalized = (format: string) => {
     const type = FormatInfos[format] && FormatInfos[format].type;
     return type === FormatType.UNORM || type === FormatType.SNORM;
@@ -300,6 +308,8 @@ export {
     getFormat,
     getShaderStage,
     getDescriptorType,
+    updateRateMap,
+    getResourceUpdateRate,
     isNormalized,
     isPaddedMatrix,
     getMemoryAccessFlag,

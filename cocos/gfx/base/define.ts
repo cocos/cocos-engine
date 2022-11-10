@@ -362,6 +362,7 @@ export enum BufferUsageBit {
 
 export enum BufferFlagBit {
     NONE = 0,
+    ENABLE_STAGING_WRITE = 0x01,
 }
 
 export enum MemoryAccessBit {
@@ -688,6 +689,13 @@ export enum PassType {
     MOVE,
     RAYTRACE,
     PRESENT,
+}
+
+export enum ResourceUpdateRate {
+    PER_PASS,
+    PER_PHASE,
+    PER_BATCH,
+    PER_INSTANCE,
 }
 
 export type BufferUsage = BufferUsageBit;

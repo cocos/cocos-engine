@@ -12741,6 +12741,42 @@ static bool js_cc_IBlockInfo_stageFlags_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_IBlockInfo_stageFlags_get) 
 
+static bool js_cc_IBlockInfo_updateRate_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::IBlockInfo *arg1 = (cc::IBlockInfo *) NULL ;
+    int32_t temp2 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::IBlockInfo>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) enum SWIGTYPE (int32_t temp2)
+    ok &= sevalue_to_native(args[0], &temp2);
+    SE_PRECONDITION2(ok, false, "IBlockInfo_updateRate_set,2,SWIGTYPE_cc__gfx__ResourceUpdateRate");
+    arg1->updateRate = (cc::gfx::ResourceUpdateRate)temp2;
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_IBlockInfo_updateRate_set) 
+
+static bool js_cc_IBlockInfo_updateRate_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::IBlockInfo *arg1 = (cc::IBlockInfo *) NULL ;
+    int32_t temp ;
+    
+    arg1 = SE_THIS_OBJECT<cc::IBlockInfo>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // out 4
+    s.rval().setInt32(static_cast<int32_t>(arg1->updateRate));
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_IBlockInfo_updateRate_get) 
+
 // js_ctor
 static bool js_new_cc_IBlockInfo(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -12802,6 +12838,12 @@ bool sevalue_to_native(const se::Value &from, cc::IBlockInfo * to, se::Object *c
     }
     
     
+    json->getProperty("updateRate", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->updateRate), ctx);
+    }
+    
+    
     return ok;
 }
 
@@ -12813,6 +12855,7 @@ bool js_register_cc_IBlockInfo(se::Object* obj) {
     cls->defineProperty("name", _SE(js_cc_IBlockInfo_name_get), _SE(js_cc_IBlockInfo_name_set)); 
     cls->defineProperty("members", _SE(js_cc_IBlockInfo_members_get), _SE(js_cc_IBlockInfo_members_set)); 
     cls->defineProperty("stageFlags", _SE(js_cc_IBlockInfo_stageFlags_get), _SE(js_cc_IBlockInfo_stageFlags_set)); 
+    cls->defineProperty("updateRate", _SE(js_cc_IBlockInfo_updateRate_get), _SE(js_cc_IBlockInfo_updateRate_set)); 
     
     
     
@@ -13021,6 +13064,42 @@ static bool js_cc_ISamplerTextureInfo_stageFlags_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_ISamplerTextureInfo_stageFlags_get) 
 
+static bool js_cc_ISamplerTextureInfo_updateRate_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::ISamplerTextureInfo *arg1 = (cc::ISamplerTextureInfo *) NULL ;
+    int32_t temp2 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::ISamplerTextureInfo>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) enum SWIGTYPE (int32_t temp2)
+    ok &= sevalue_to_native(args[0], &temp2);
+    SE_PRECONDITION2(ok, false, "ISamplerTextureInfo_updateRate_set,2,SWIGTYPE_cc__gfx__ResourceUpdateRate");
+    arg1->updateRate = (cc::gfx::ResourceUpdateRate)temp2;
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_ISamplerTextureInfo_updateRate_set) 
+
+static bool js_cc_ISamplerTextureInfo_updateRate_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::ISamplerTextureInfo *arg1 = (cc::ISamplerTextureInfo *) NULL ;
+    int32_t temp ;
+    
+    arg1 = SE_THIS_OBJECT<cc::ISamplerTextureInfo>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // out 4
+    s.rval().setInt32(static_cast<int32_t>(arg1->updateRate));
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_ISamplerTextureInfo_updateRate_get) 
+
 // js_ctor
 static bool js_new_cc_ISamplerTextureInfo(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -13088,6 +13167,12 @@ bool sevalue_to_native(const se::Value &from, cc::ISamplerTextureInfo * to, se::
     }
     
     
+    json->getProperty("updateRate", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->updateRate), ctx);
+    }
+    
+    
     return ok;
 }
 
@@ -13100,6 +13185,7 @@ bool js_register_cc_ISamplerTextureInfo(se::Object* obj) {
     cls->defineProperty("type", _SE(js_cc_ISamplerTextureInfo_type_get), _SE(js_cc_ISamplerTextureInfo_type_set)); 
     cls->defineProperty("count", _SE(js_cc_ISamplerTextureInfo_count_get), _SE(js_cc_ISamplerTextureInfo_count_set)); 
     cls->defineProperty("stageFlags", _SE(js_cc_ISamplerTextureInfo_stageFlags_get), _SE(js_cc_ISamplerTextureInfo_stageFlags_set)); 
+    cls->defineProperty("updateRate", _SE(js_cc_ISamplerTextureInfo_updateRate_get), _SE(js_cc_ISamplerTextureInfo_updateRate_set)); 
     
     
     
@@ -13346,6 +13432,42 @@ static bool js_cc_ITextureInfo_stageFlags_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_ITextureInfo_stageFlags_get) 
 
+static bool js_cc_ITextureInfo_updateRate_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::ITextureInfo *arg1 = (cc::ITextureInfo *) NULL ;
+    int32_t temp2 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::ITextureInfo>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) enum SWIGTYPE (int32_t temp2)
+    ok &= sevalue_to_native(args[0], &temp2);
+    SE_PRECONDITION2(ok, false, "ITextureInfo_updateRate_set,2,SWIGTYPE_cc__gfx__ResourceUpdateRate");
+    arg1->updateRate = (cc::gfx::ResourceUpdateRate)temp2;
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_ITextureInfo_updateRate_set) 
+
+static bool js_cc_ITextureInfo_updateRate_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::ITextureInfo *arg1 = (cc::ITextureInfo *) NULL ;
+    int32_t temp ;
+    
+    arg1 = SE_THIS_OBJECT<cc::ITextureInfo>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // out 4
+    s.rval().setInt32(static_cast<int32_t>(arg1->updateRate));
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_ITextureInfo_updateRate_get) 
+
 // js_ctor
 static bool js_new_cc_ITextureInfo(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -13419,6 +13541,12 @@ bool sevalue_to_native(const se::Value &from, cc::ITextureInfo * to, se::Object 
     }
     
     
+    json->getProperty("updateRate", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->updateRate), ctx);
+    }
+    
+    
     return ok;
 }
 
@@ -13432,6 +13560,7 @@ bool js_register_cc_ITextureInfo(se::Object* obj) {
     cls->defineProperty("type", _SE(js_cc_ITextureInfo_type_get), _SE(js_cc_ITextureInfo_type_set)); 
     cls->defineProperty("count", _SE(js_cc_ITextureInfo_count_get), _SE(js_cc_ITextureInfo_count_set)); 
     cls->defineProperty("stageFlags", _SE(js_cc_ITextureInfo_stageFlags_get), _SE(js_cc_ITextureInfo_stageFlags_set)); 
+    cls->defineProperty("updateRate", _SE(js_cc_ITextureInfo_updateRate_get), _SE(js_cc_ITextureInfo_updateRate_set)); 
     
     
     
@@ -13642,6 +13771,42 @@ static bool js_cc_ISamplerInfo_stageFlags_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_ISamplerInfo_stageFlags_get) 
 
+static bool js_cc_ISamplerInfo_updateRate_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::ISamplerInfo *arg1 = (cc::ISamplerInfo *) NULL ;
+    int32_t temp2 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::ISamplerInfo>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) enum SWIGTYPE (int32_t temp2)
+    ok &= sevalue_to_native(args[0], &temp2);
+    SE_PRECONDITION2(ok, false, "ISamplerInfo_updateRate_set,2,SWIGTYPE_cc__gfx__ResourceUpdateRate");
+    arg1->updateRate = (cc::gfx::ResourceUpdateRate)temp2;
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_ISamplerInfo_updateRate_set) 
+
+static bool js_cc_ISamplerInfo_updateRate_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::ISamplerInfo *arg1 = (cc::ISamplerInfo *) NULL ;
+    int32_t temp ;
+    
+    arg1 = SE_THIS_OBJECT<cc::ISamplerInfo>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // out 4
+    s.rval().setInt32(static_cast<int32_t>(arg1->updateRate));
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_ISamplerInfo_updateRate_get) 
+
 // js_ctor
 static bool js_new_cc_ISamplerInfo(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -13709,6 +13874,12 @@ bool sevalue_to_native(const se::Value &from, cc::ISamplerInfo * to, se::Object 
     }
     
     
+    json->getProperty("updateRate", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->updateRate), ctx);
+    }
+    
+    
     return ok;
 }
 
@@ -13721,6 +13892,7 @@ bool js_register_cc_ISamplerInfo(se::Object* obj) {
     cls->defineProperty("name", _SE(js_cc_ISamplerInfo_name_get), _SE(js_cc_ISamplerInfo_name_set)); 
     cls->defineProperty("count", _SE(js_cc_ISamplerInfo_count_get), _SE(js_cc_ISamplerInfo_count_set)); 
     cls->defineProperty("stageFlags", _SE(js_cc_ISamplerInfo_stageFlags_get), _SE(js_cc_ISamplerInfo_stageFlags_set)); 
+    cls->defineProperty("updateRate", _SE(js_cc_ISamplerInfo_updateRate_get), _SE(js_cc_ISamplerInfo_updateRate_set)); 
     
     
     
@@ -13891,6 +14063,42 @@ static bool js_cc_IBufferInfo_stageFlags_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_IBufferInfo_stageFlags_get) 
 
+static bool js_cc_IBufferInfo_updateRate_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::IBufferInfo *arg1 = (cc::IBufferInfo *) NULL ;
+    int32_t temp2 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::IBufferInfo>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) enum SWIGTYPE (int32_t temp2)
+    ok &= sevalue_to_native(args[0], &temp2);
+    SE_PRECONDITION2(ok, false, "IBufferInfo_updateRate_set,2,SWIGTYPE_cc__gfx__ResourceUpdateRate");
+    arg1->updateRate = (cc::gfx::ResourceUpdateRate)temp2;
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_IBufferInfo_updateRate_set) 
+
+static bool js_cc_IBufferInfo_updateRate_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::IBufferInfo *arg1 = (cc::IBufferInfo *) NULL ;
+    int32_t temp ;
+    
+    arg1 = SE_THIS_OBJECT<cc::IBufferInfo>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // out 4
+    s.rval().setInt32(static_cast<int32_t>(arg1->updateRate));
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_IBufferInfo_updateRate_get) 
+
 // js_ctor
 static bool js_new_cc_IBufferInfo(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -13952,6 +14160,12 @@ bool sevalue_to_native(const se::Value &from, cc::IBufferInfo * to, se::Object *
     }
     
     
+    json->getProperty("updateRate", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->updateRate), ctx);
+    }
+    
+    
     return ok;
 }
 
@@ -13963,6 +14177,7 @@ bool js_register_cc_IBufferInfo(se::Object* obj) {
     cls->defineProperty("name", _SE(js_cc_IBufferInfo_name_get), _SE(js_cc_IBufferInfo_name_set)); 
     cls->defineProperty("memoryAccess", _SE(js_cc_IBufferInfo_memoryAccess_get), _SE(js_cc_IBufferInfo_memoryAccess_set)); 
     cls->defineProperty("stageFlags", _SE(js_cc_IBufferInfo_stageFlags_get), _SE(js_cc_IBufferInfo_stageFlags_set)); 
+    cls->defineProperty("updateRate", _SE(js_cc_IBufferInfo_updateRate_get), _SE(js_cc_IBufferInfo_updateRate_set)); 
     
     
     
@@ -14207,6 +14422,42 @@ static bool js_cc_IImageInfo_stageFlags_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_IImageInfo_stageFlags_get) 
 
+static bool js_cc_IImageInfo_updateRate_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::IImageInfo *arg1 = (cc::IImageInfo *) NULL ;
+    int32_t temp2 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::IImageInfo>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) enum SWIGTYPE (int32_t temp2)
+    ok &= sevalue_to_native(args[0], &temp2);
+    SE_PRECONDITION2(ok, false, "IImageInfo_updateRate_set,2,SWIGTYPE_cc__gfx__ResourceUpdateRate");
+    arg1->updateRate = (cc::gfx::ResourceUpdateRate)temp2;
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_IImageInfo_updateRate_set) 
+
+static bool js_cc_IImageInfo_updateRate_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::IImageInfo *arg1 = (cc::IImageInfo *) NULL ;
+    int32_t temp ;
+    
+    arg1 = SE_THIS_OBJECT<cc::IImageInfo>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // out 4
+    s.rval().setInt32(static_cast<int32_t>(arg1->updateRate));
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_IImageInfo_updateRate_get) 
+
 // js_ctor
 static bool js_new_cc_IImageInfo(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -14280,6 +14531,12 @@ bool sevalue_to_native(const se::Value &from, cc::IImageInfo * to, se::Object *c
     }
     
     
+    json->getProperty("updateRate", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->updateRate), ctx);
+    }
+    
+    
     return ok;
 }
 
@@ -14293,6 +14550,7 @@ bool js_register_cc_IImageInfo(se::Object* obj) {
     cls->defineProperty("count", _SE(js_cc_IImageInfo_count_get), _SE(js_cc_IImageInfo_count_set)); 
     cls->defineProperty("memoryAccess", _SE(js_cc_IImageInfo_memoryAccess_get), _SE(js_cc_IImageInfo_memoryAccess_set)); 
     cls->defineProperty("stageFlags", _SE(js_cc_IImageInfo_stageFlags_get), _SE(js_cc_IImageInfo_stageFlags_set)); 
+    cls->defineProperty("updateRate", _SE(js_cc_IImageInfo_updateRate_get), _SE(js_cc_IImageInfo_updateRate_set)); 
     
     
     
@@ -14503,6 +14761,42 @@ static bool js_cc_IInputAttachmentInfo_stageFlags_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_IInputAttachmentInfo_stageFlags_get) 
 
+static bool js_cc_IInputAttachmentInfo_updateRate_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::IInputAttachmentInfo *arg1 = (cc::IInputAttachmentInfo *) NULL ;
+    int32_t temp2 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::IInputAttachmentInfo>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) enum SWIGTYPE (int32_t temp2)
+    ok &= sevalue_to_native(args[0], &temp2);
+    SE_PRECONDITION2(ok, false, "IInputAttachmentInfo_updateRate_set,2,SWIGTYPE_cc__gfx__ResourceUpdateRate");
+    arg1->updateRate = (cc::gfx::ResourceUpdateRate)temp2;
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_IInputAttachmentInfo_updateRate_set) 
+
+static bool js_cc_IInputAttachmentInfo_updateRate_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::IInputAttachmentInfo *arg1 = (cc::IInputAttachmentInfo *) NULL ;
+    int32_t temp ;
+    
+    arg1 = SE_THIS_OBJECT<cc::IInputAttachmentInfo>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // out 4
+    s.rval().setInt32(static_cast<int32_t>(arg1->updateRate));
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_IInputAttachmentInfo_updateRate_get) 
+
 // js_ctor
 static bool js_new_cc_IInputAttachmentInfo(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -14570,6 +14864,12 @@ bool sevalue_to_native(const se::Value &from, cc::IInputAttachmentInfo * to, se:
     }
     
     
+    json->getProperty("updateRate", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->updateRate), ctx);
+    }
+    
+    
     return ok;
 }
 
@@ -14582,6 +14882,7 @@ bool js_register_cc_IInputAttachmentInfo(se::Object* obj) {
     cls->defineProperty("name", _SE(js_cc_IInputAttachmentInfo_name_get), _SE(js_cc_IInputAttachmentInfo_name_set)); 
     cls->defineProperty("count", _SE(js_cc_IInputAttachmentInfo_count_get), _SE(js_cc_IInputAttachmentInfo_count_set)); 
     cls->defineProperty("stageFlags", _SE(js_cc_IInputAttachmentInfo_stageFlags_get), _SE(js_cc_IInputAttachmentInfo_stageFlags_set)); 
+    cls->defineProperty("updateRate", _SE(js_cc_IInputAttachmentInfo_updateRate_get), _SE(js_cc_IInputAttachmentInfo_updateRate_set)); 
     
     
     

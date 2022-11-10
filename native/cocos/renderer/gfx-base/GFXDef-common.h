@@ -1329,6 +1329,14 @@ struct ALIGNAS(8) SubpassDependency {
 
 using SubpassDependencyList = ccstd::vector<SubpassDependency>;
 
+enum class ResourceUpdateRate {
+    PER_PASS,
+    PER_PHASE,
+    PER_BATCH,
+    PER_INSTANCE,
+};
+CC_ENUM_CONVERSION_OPERATOR(ResourceUpdateRate);
+
 struct RenderPassInfo {
     ColorAttachmentList colorAttachments;
     DepthStencilAttachment depthStencilAttachment;
