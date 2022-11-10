@@ -806,8 +806,6 @@ bool Object::getAllKeys(ccstd::vector<ccstd::string> *allKeys) const {
     return true;
 }
 
-// MapOperation
-
 void Object::clearMap() {
     CC_ASSERT(isMap());
     v8::Map::Cast(*_getJSObject())->Clear();
@@ -893,8 +891,6 @@ ccstd::vector<std::pair<Value, Value>> Object::getAllElementsInMap() const {
 
     return ret;
 }
-
-// SetOperation
 
 void Object::clearSet() {
     CC_ASSERT(isSet());
