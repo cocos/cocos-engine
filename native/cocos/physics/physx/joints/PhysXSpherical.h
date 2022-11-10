@@ -30,12 +30,12 @@
 namespace cc {
 namespace physics {
 
-class PhysXDistance final : public PhysXJoint, public IDistanceJoint {
+class PhysXSpherical final : public PhysXJoint, public IDistanceJoint {
 public:
-    PhysXDistance() : _mPivotA(physx::PxZero),
+    PhysXSpherical() : _mPivotA(physx::PxZero),
                       _mPivotB(physx::PxZero){};
 
-    ~PhysXDistance() override = default;
+    ~PhysXSpherical() override = default;
     void setPivotA(float x, float y, float z) override;
     void setPivotB(float x, float y, float z) override;
     void updateScale0() override;
