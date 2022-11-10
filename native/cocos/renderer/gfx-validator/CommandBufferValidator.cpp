@@ -550,5 +550,10 @@ void CommandBufferValidator::compactAccelerationStructure(AccelerationStructure 
     //todo
 }
 
+void CommandBufferValidator::traceRays(const RayTracingInfo& info) {
+    CC_ASSERT(isInited());
+}
+
+
 } // namespace gfx
 } // namespace cc

@@ -828,7 +828,6 @@ void CCVKCommandBuffer::traceRays(const RayTracingInfo &info) {
          * The number of groups
          * output buffer
         */
-        //vkGetRayTracingShaderGroupHandlesKHR(CCVKDevice::getInstance()->gpuDevice()->vkDevice, );
 
         vkCmdTraceRaysKHR(_gpuCommandBuffer->vkCommandBuffer, &rayGenSBT,&hitGroupSBT,&missSBT,&callableSBT,info.width,info.height,info.depth);
     }

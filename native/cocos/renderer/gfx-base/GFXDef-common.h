@@ -1067,10 +1067,10 @@ struct DispatchInfo {
 
 struct RayTracingInfo {
     //Shader Binding Tables
-    IntrusivePtr<Buffer> rayGenSBT;
-    IntrusivePtr<Buffer> hitGroupSBT;
-    IntrusivePtr<Buffer> missSBT;
-    IntrusivePtr<Buffer> callableSBT; 
+    Buffer* rayGenSBT;
+    Buffer* hitGroupSBT;
+    Buffer* missSBT;
+    Buffer* callableSBT; 
     // Extent
     uint32_t width{0};
     uint32_t height{0};

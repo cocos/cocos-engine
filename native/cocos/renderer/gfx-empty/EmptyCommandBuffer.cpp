@@ -122,6 +122,9 @@ void EmptyCommandBuffer::compactAccelerationStructure(AccelerationStructure *acc
     
 }
 
+void EmptyCommandBuffer::traceRays(const RayTracingInfo& info) {
+    
+}
 
 } // namespace gfx
 } // namespace cc
