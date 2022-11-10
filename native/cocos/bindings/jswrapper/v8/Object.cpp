@@ -819,7 +819,7 @@ bool Object::removeMapElement(const Value &key) { // NOLINT
     return ret.IsJust() && ret.FromJust();
 }
 
-bool Object::getMapElement(const Value &key, Value *const outValue) const {
+bool Object::getMapElement(const Value &key, Value *outValue) const {
     CC_ASSERT(isMap());
     if (outValue == nullptr) {
         return false;
@@ -837,7 +837,7 @@ bool Object::getMapElement(const Value &key, Value *const outValue) const {
     return true;
 }
 
-bool Object::setMapElement(const Value &key, const Value &value) {
+bool Object::setMapElement(const Value &key, const Value &value) { // NOLINT
     CC_ASSERT(isMap());
 
     v8::Local<v8::Value> v8Key;

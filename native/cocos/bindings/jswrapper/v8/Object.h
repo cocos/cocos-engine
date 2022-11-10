@@ -368,7 +368,7 @@ public:
      *  @param[out] outValue Out parameter, On success, *outValue receives the current value of the map element, or nullptr if no such element is found
      *  @return true if succeed, otherwise false.
      */
-    bool getMapElement(const Value &key, Value *const outValue) const;
+    bool getMapElement(const Value &key, Value *outValue) const;
 
     /**
      *  @brief Set an element in a ES6 map by a key.
