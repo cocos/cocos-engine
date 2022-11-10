@@ -52,6 +52,8 @@ public:
     void onBatchCreated(bool dontSyncChildPrefab) override;
     bool destroy() override;
 
+    int32_t getNewReflectionProbeId() { return _reflectionProbeId++; }
+
 protected:
     void updateScene() override { _scene = this; }
 
@@ -63,6 +65,8 @@ protected:
     //    @serializable
     IntrusivePtr<SceneGlobals> _globals;
     bool _inited{false};
+
+    int32_t _reflectionProbeId = 0;
 
     /**
      * @en Indicates whether all (directly or indirectly) static referenced assets of this scene are releasable by default after scene unloading.

@@ -137,4 +137,5 @@ editable(SceneProto, 'globals', globalsDescriptor);
 editable(SceneProto, 'autoReleaseAssets');
 serializable(SceneProto, 'autoReleaseAssets');
 serializable(SceneProto, '_globals');
+serializable(SceneProto, '_reflectionProbeId');
 ccclass('cc.Scene')(Scene);
