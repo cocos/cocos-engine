@@ -306,7 +306,7 @@ Object *Object::createTypedArrayWithBuffer(TypedArrayType type, const Object *ob
 Object *Object::createTypedArrayWithBuffer(TypedArrayType type, const Object *obj, size_t offset) {
     size_t byteLength{0};
     uint8_t *skip{nullptr};
-    obj->getTypedArrayData(&skip, &byteLength);
+    obj->getArrayBufferData(&skip, &byteLength);
     return Object::createTypedArrayWithBuffer(type, obj, offset, byteLength - offset);
 }
 
