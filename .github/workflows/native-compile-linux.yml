@@ -49,7 +49,7 @@ jobs:
           cd ${{ github.workspace }}/native/conan/build
           conan install ${{ github.workspace }}/native/conan -pr clang --build=missing -j install_info.json
           ls ${{ github.workspace }}/native/conan/build
-          zip -r libs.zip ./bin ./lib
+          zip -r libs.zip ./bin ./lib ./include install_info.json
           ls -l
       - name: Create Release
         id: create_release
@@ -71,11 +71,6 @@ jobs:
           asset_path: ${{ github.workspace }}/native/conan/build/libs.zip
           asset_name: libs.zip
           asset_content_type: application/zip
-      - name: Archive production artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: libs
-          path: ${{ github.workspace }}/native/conan/build/libs.zip
       - name: Archive production artifacts
         uses: actions/upload-artifact@v3
         with:
