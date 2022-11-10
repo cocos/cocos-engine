@@ -29,3 +29,4 @@ cmake
 [imports]
 bin, *.a -> ./bin # Copies all a files from packages bin folder to my local "bin" folder
 lib, *.a -> ./lib # Copies all dylib files from packages lib folder to my local "bin" folder
+include, * -> ./include
