@@ -46,13 +46,13 @@ export * from './data';
 export * from './event';
 export * from './platform';
 export * from './scheduler';
-export * from './algorithm/murmurhash2_gc';
-export * from './algorithm/binary-search';
-export { move } from './algorithm/move';
 export * from './curves';
 export * from './settings';
 export * from './system';
+export * from './algorithm';
 export { legacyCC as cclegacy } from './global-exports';
-
 export * from './curves/bezier';
 export { easing };
+
+// TODO: should not include engine internal exports when module mechanism is implemented.
+export * from './internal-index';
