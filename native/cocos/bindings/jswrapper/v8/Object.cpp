@@ -861,7 +861,7 @@ uint32_t Object::getMapSize() const {
 
 ccstd::vector<std::pair<Value, Value>> Object::getAllElementsInMap() const {
     CC_ASSERT(isMap());
-    auto* v8Map = v8::Map::Cast(*_getJSObject());
+    auto *v8Map = v8::Map::Cast(*_getJSObject());
     if (v8Map->Size() == 0) {
         return {};
     }
@@ -924,7 +924,7 @@ uint32_t Object::getSetSize() const {
 
 ValueArray Object::getAllElementsInSet() const {
     CC_ASSERT(isSet());
-    auto* v8Set = v8::Set::Cast(*_getJSObject());
+    auto *v8Set = v8::Set::Cast(*_getJSObject());
     if (v8Set->Size() == 0) {
         return {};
     }
