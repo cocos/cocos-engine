@@ -76,17 +76,35 @@ async function callMeshPreviewFunction(funcName, ...args) {
 }
 const previewSelectType = {
     shaded: 'shaded',
-    uv: 'uv layout'
-}
+    uv: 'uv layout',
+};
 const Elements = {
     preview: {
         ready() {
             const panel = this;
-            panel.previewGLType = previewSelectType.shaded
+
+            panel.$.previewType.innerHTML = Object.values(previewSelectType).map(v => `<option value="${v}">${v}</option>`).join('');
+            panel.$.previewType.value = previewSelectType.shaded;
+
+            panel.$.previewType.addEventListener('confirm', (event) => {
+                const value = event.target.value;
+                if (value === previewSelectType.uv) {
+                    panel.$.previewChannel.classList.add('show');
+                    panel.$.previewChannel.value = 0;
+                } else {
+                    panel.$.previewChannel.classList.remove('show');
+                }
+                panel.isPreviewDataDirty = true;
+                panel.refreshPreview();
+            });
+            panel.$.previewChannel.addEventListener('confirm', () => {
+                panel.isPreviewDataDirty = true;
+                panel.refreshPreview();
+            });
 
             panel.$.canvas.addEventListener('mousedown', async (event) => {
                 // Non-model previews do not respond to events
-                if (panel.previewGLType !== previewSelectType.shaded) return;
+                if (panel.$.previewType.value !== previewSelectType.shaded) { return; }
                 await callMeshPreviewFunction('onMouseDown', { x: event.x, y: event.y });
 
                 async function mousemove(event) {
@@ -127,9 +145,37 @@ const Elements = {
             panel.resizeObserver.observe(panel.$.image);
             observer();
         },
+        async update() {
+            const panel = this;
+
+            if (!panel.$.canvas) {
+                return;
+            }
+
+            await panel.glPreview.init({ width: panel.$.canvas.clientWidth, height: panel.$.canvas.clientHeight });
+
+            // reset
+            panel.$.previewType.value = previewSelectType.shaded;
+            panel.$.previewChannel.value = 0;
+            panel.$.previewChannel.classList.remove('show');
+
+            const info = await callMeshPreviewFunction('setMesh', panel.asset.uuid);
+            panel.previewUVs = await callMeshPreviewFunction('getModelUVs', panel.asset.uuid);
+
+            if (panel.previewUVs.length === 0) {
+                panel.$.previewType.innerHTML = `<option value="${previewSelectType.shaded}">${previewSelectType.shaded}</option>`;
+            } else {
+                panel.$.previewType.innerHTML = Object.values(previewSelectType).map(v => `<option value="${v}">${v}</option>`).join('');
+                panel.$.previewChannel.innerHTML = panel.previewUVs.map((_, i) => `<option value="${i}">channel ${i}</option>`).join('');
+            }
+
+            panel.infoUpdate(info);
+            panel.refreshPreview();
+        },
         close() {
             const panel = this;
             panel.resizeObserver.unobserve(panel.$.image);
+            panel.previewUVs = [];
         },
     },
     info: {
@@ -165,61 +211,6 @@ const Elements = {
             callMeshPreviewFunction('hide');
         },
     },
-    previewControl: {
-        ready() {
-            const panel = this;
-            panel.$.previewType.addEventListener('confirm', (event) => {
-                const value = event.target.value;
-                if (value === previewSelectType.uv) {
-                    panel.$.previewChannel.classList.add('show');
-                    panel.updatePreviewType(value, 0);
-                } else {
-                    panel.$.previewChannel.classList.remove('show');
-                    panel.updatePreviewType(value);
-                }
-            });
-            panel.$.previewChannel.addEventListener('confirm', (event) => {
-                const value = event.target.value;
-                panel.updatePreviewType(previewSelectType.uv, value);
-            });
-        },
-        async update() {
-            const panel = this;
-
-            if (!panel.$.canvas) {
-                return;
-            }
-
-            await panel.glPreview.init({ width: panel.$.canvas.clientWidth, height: panel.$.canvas.clientHeight });
-
-            panel.previewUVs = []
-            panel.previewUVsIndex = 0
-            panel.previewGLType = previewSelectType.shaded
-            panel.$.previewChannel.innerHTML = ''
-            panel.$.previewChannel.value = 0
-
-            const previewTypeDom = panel.$.previewType
-            previewTypeDom.value = previewSelectType.shaded
-            panel.$.previewChannel.classList.remove('show');
-
-            const info = await callMeshPreviewFunction('setMesh', panel.asset.uuid);
-            panel.previewUVs = await callMeshPreviewFunction('getModelUVs', panel.asset.uuid);
-            if (panel.previewUVs.length <= 0) {
-                panel.$.previewType.innerHTML = `<option value="${previewSelectType.shaded}">${previewSelectType.shaded}</option>`
-                panel.refreshPreview();
-                return
-            }
-
-            previewTypeDom.innerHTML = ''
-            for (const key in previewSelectType) {
-                previewTypeDom.innerHTML += `<option value="${previewSelectType[key]}">${previewSelectType[key]}</option>`
-            }
-            panel.previewUVs.forEach((e, i) => { panel.$.previewChannel.innerHTML += `<option value="${i}">channel ${i}</option>` })
-            panel.previewUVsIndex = 0
-            panel.infoUpdate(info);
-            panel.refreshPreview();
-        }
-    },
 };
 
 exports.methods = {
@@ -236,10 +227,8 @@ exports.methods = {
 
             try {
                 const canvas = panel.$.canvas;
-                const image = panel.$.image;
+                const { clientWidth: width, clientHeight: height } = panel.$.image;
 
-                const width = image.clientWidth;
-                const height = image.clientHeight;
                 if (canvas.width !== width || canvas.height !== height) {
                     canvas.width = width;
                     canvas.height = height;
@@ -247,17 +236,16 @@ exports.methods = {
                     panel.glPreview.initGL(canvas, { width, height });
                     panel.glPreview.resizeGL(width, height);
                 }
-                const type = panel.previewGLType
-                let info
-                if (type === previewSelectType.shaded) {
+                let info;
+                if (panel.$.previewType.value === previewSelectType.shaded) {
                     info = await panel.glPreview.queryPreviewData({
                         width: canvas.width,
                         height: canvas.height,
                     });
                 }
-                if (type === previewSelectType.uv) {
-                    info = panel.glPreview.computedUV(panel.previewUVs[panel.previewUVsIndex], canvas.width, canvas.height)
-                    info.buffer = info.data
+                if (panel.$.previewType.value === previewSelectType.uv) {
+                    info = panel.glPreview.computedUV(panel.previewUVs[panel.$.previewChannel.value], canvas.width, canvas.height);
+                    info.buffer = info.data;
                 }
 
                 panel.glPreview.drawGL(info.buffer, info.width, info.height);
@@ -270,22 +258,10 @@ exports.methods = {
         panel.animationId = requestAnimationFrame(() => {
             panel.refreshPreview();
         });
-    },
-    updatePreviewType(type, channel) {
-        const panel = this;
-        panel.previewGLType = type
-        panel.isPreviewDataDirty = true;
-        if (type === previewSelectType.shaded) {
-            panel.refreshPreview()
-        }
-        if (type === previewSelectType.uv) {
-            panel.previewUVsIndex = channel
-            panel.refreshPreview()
-        }
-    },
+    }
 };
 
-exports.ready = function () {
+exports.ready = function() {
     for (const prop in Elements) {
         const element = Elements[prop];
         if (element.ready) {
@@ -294,7 +270,7 @@ exports.ready = function () {
     }
 };
 
-exports.update = function (assetList, metaList) {
+exports.update = function(assetList, metaList) {
     this.assetList = assetList;
     this.metaList = metaList;
     this.asset = assetList[0];
@@ -308,7 +284,7 @@ exports.update = function (assetList, metaList) {
     }
 };
 
-exports.close = function () {
+exports.close = function() {
     for (const prop in Elements) {
         const element = Elements[prop];
         if (element.close) {
