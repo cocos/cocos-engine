@@ -22,10 +22,10 @@ vec4 SurfacesVertexModifyClipPos(in SurfacesStandardVertexIntermediate In)
 #ifndef CC_SURFACES_VERTEX_MODIFY_UV
 void SurfacesVertexModifyUV(inout SurfacesStandardVertexIntermediate In)
 {
-  In.texCoord = In.texCoord;
-#if CC_SURFACES_USE_SECOND_UV && !CC_USE_LIGHTMAP
-  In.texCoord1 = In.texCoord1;
-#endif
+//   In.texCoord = In.texCoord;
+// #if CC_SURFACES_USE_SECOND_UV
+//   In.texCoord1 = In.texCoord1;
+// #endif
 }
 #endif
 
