@@ -1,6 +1,6 @@
 
 import { lerp, Vec3, warnID } from '../../cocos/core';
-import { AnimationBlend1D, AnimationBlend2D, Condition, InvalidTransitionError, VariableNotDefinedError, ClipMotion, AnimationBlendDirect, VariableType } from '../../cocos/animation/marionette/asset-creation';
+import { AnimationBlend1D, AnimationBlend2D, Condition, InvalidTransitionError, VariableNotDefinedError, ClipMotion, AnimationBlendDirect, VariableType, AnimationMask } from '../../cocos/animation/marionette/asset-creation';
 import { AnimationGraph, StateMachine, Transition, isAnimationTransition, AnimationTransition, TransitionInterruptionSource } from '../../cocos/animation/marionette/animation-graph';
 import { VariableTypeMismatchedError } from '../../cocos/animation/marionette/errors';
 import { AnimationGraphEval, MotionStateStatus, ClipStatus } from '../../cocos/animation/marionette/graph-eval';
@@ -26,6 +26,7 @@ import { AnimationClip } from '../../cocos/animation/animation-clip';
 import { TriggerResetMode } from '../../cocos/animation/marionette/variable';
 import { MotionState } from '../../cocos/animation/marionette/motion-state';
 import { Node, Component } from '../../cocos/scene-graph';
+import * as maskTestHelper from './new-gen-anim/utils/mask-test-helper';
 
 describe('NewGen Anim', () => {
     test('Defaults', () => {
@@ -3203,6 +3204,264 @@ describe('NewGen Anim', () => {
                 ),
             );
         });
+    });
+
+    describe('Animation mask', () => {
+        const {
+            _1, _1_1, _1_1_1, _1_2,
+        } = maskTestHelper.NodeName;
+        describe(`Single layer`, () => {
+            test(`Root is masked`, () => {
+                checkMask([
+                    [_1, false],
+                    [_1_1, true], // No effect at all
+                ], _1);
+            });
+
+            test(`Middle is masked`, () => {
+                checkMask([
+                    [_1_1, false],
+                    [_1_2, true], // No effect at all
+                ], _1_1);
+            });
+            
+            test(`Leaf is masked`, () => {
+                checkMask([
+                    [_1_1_1, false],
+                    [_1_1, true], // No effect at all
+                ], _1_1_1);
+            });
+
+            test(`Root and leaf are masked`, () => {
+                checkMask([
+                    ['', false],
+                    [_1_1, true], // No effect at all
+                    [_1_1_1, false],
+                ], _1, _1_1_1);
+            });
+
+            function checkMask(inputMaskItems: maskTestHelper.MaskItem[], ...expectedFilteredNodeNames: readonly maskTestHelper.NodeName[]) {
+                const {
+                    rootNode,
+                    nodeFixtures,
+                    getActualNodeValues,
+                    layerFixtures,
+                } = maskTestHelper.generateTestData(1);
+
+                // Create the animation graph and evaluate.
+                const g = new AnimationGraph();
+                generateLayer(g, 0.8, inputMaskItems, layerFixtures[0].clip);
+                const graphEval = createAnimationGraphEval(g, rootNode);
+                graphEval.update(0.2 /* CAN BE ANY */);
+
+                // Compute the expected node values.
+                const expectedNodeValues = nodeFixtures.reduce((result, { name, defaultValue, animationValues }) => {
+                    // If a node is filtered, its value should remain default in single layer case.
+                    result[name] = (expectedFilteredNodeNames as string[]).includes(name)
+                        ? defaultValue
+                        : lerp(defaultValue, animationValues[0], 0.8);
+                    return result;
+                }, {} as Record<string, number>);
+
+                // Snapshot the node values so we can manually check.
+                expect(expectedNodeValues).toMatchSnapshot();
+
+                // Check if the result matches.
+                expect(getActualNodeValues()).toBeDeepCloseTo(expectedNodeValues);
+            }
+        });
+
+        describe(`Multiple layers`, () => {
+            test(`_`, () => {
+                checkMasks(
+                    [
+                        { weight: 0.4, maskItems: null },
+                        { weight: 0.6, maskItems: [[_1_2, false]] }, // The mask at non-last layer takes no effect
+                        { weight: 0.8, maskItems: [[_1_1, false]] },
+                    ],
+                    {
+                        [_1_1]: [false, false, true],
+                        [_1_2]: [false, true, false],
+                    },
+                );
+            });
+
+            function checkMasks(
+                inputLayerConfigs: {
+                    weight: number;
+                    maskItems: (maskTestHelper.MaskItem[] | null);
+                }[],
+                expectedMaskEffects: Record<string, boolean[]>,
+            ) {
+                for (const state of Object.values(expectedMaskEffects)) {
+                    expect(state).toHaveLength(inputLayerConfigs.length);
+                }
+
+                const {
+                    rootNode,
+                    nodeFixtures,
+                    getActualNodeValues,
+                    layerFixtures,
+                } = maskTestHelper.generateTestData(inputLayerConfigs.length);
+
+                // Create the animation graph and evaluate.
+                const g = new AnimationGraph();
+                for (let i = 0; i < inputLayerConfigs.length; ++i) {
+                    generateLayer(g, inputLayerConfigs[i].weight, inputLayerConfigs[i].maskItems, layerFixtures[i].clip);
+                }
+                const graphEval = createAnimationGraphEval(g, rootNode);
+                graphEval.update(0.2 /* CAN BE ANY */);
+
+                // Compute the expected node values.
+                const expectedNodeValues = nodeFixtures.reduce((result, { name, defaultValue, animationValues }) => {
+                    const expectedMaskEffect = expectedMaskEffects[name];
+                    let expectedValue = defaultValue;
+                    layerFixtures.forEach((_, layerIndex) => {
+                        if (!expectedMaskEffect || !expectedMaskEffect[layerIndex]) {
+                            // If the node has no mask at this layer, it will take effect.
+                            expectedValue = lerp(expectedValue, animationValues[layerIndex], inputLayerConfigs[layerIndex].weight);
+                        }
+                        // Otherwise, the value is not changed.
+                    });
+                    result[name] = expectedValue;
+                    return result;
+                }, {} as Record<string, number>);
+
+                // Snapshot the node values so we can manually check.
+                expect(expectedNodeValues).toMatchSnapshot();
+
+                // Check if the result matches.
+                expect(getActualNodeValues()).toBeDeepCloseTo(expectedNodeValues);
+            }
+        });
+
+        test('Cooperate with empty state', () => {
+            const {
+                rootNode,
+                nodeFixtures,
+                getActualNodeValues,
+                layerFixtures,
+            } = maskTestHelper.generateTestData(2);
+
+            const animationGraph = new AnimationGraph();
+            // Layer 0
+            generateLayer(animationGraph, 0.4, null, layerFixtures[0].clip);
+            // Layer 1
+            {
+                const l = animationGraph.addLayer();
+                l.weight = 0.6;
+                l.mask = maskTestHelper.createMask([[_1_1, false]]);
+
+                const motion = l.stateMachine.addMotion();
+                const clipMotion = motion.motion = new ClipMotion();
+                const clip = clipMotion.clip = layerFixtures[1].clip;
+                clip.enableTrsBlending = true; // 👀
+
+                const emptyState = l.stateMachine.addEmpty();
+
+                // Entry -> Empty
+                l.stateMachine.connect(l.stateMachine.entryState, emptyState);
+
+                // Boolean variable b. Which make Empty->Motion if true, make Motion->Empty otherwise.
+                animationGraph.addBoolean('b', false);
+
+                // Empty -> Motion
+                const tEmptyToMotion = l.stateMachine.connect(emptyState, motion);
+                {
+                    tEmptyToMotion.duration = 0.2;
+                    const [condition] = tEmptyToMotion.conditions = [new UnaryCondition()];
+                    condition.operator = UnaryCondition.Operator.TRUTHY;
+                    condition.operand.variable = 'b';
+                }
+
+                // Motion -> Empty
+                const tMotionToEmpty = l.stateMachine.connect(motion, emptyState);
+                {
+                    tMotionToEmpty.duration = 0.2;
+                    tMotionToEmpty.exitConditionEnabled = false;
+                    const [condition] = tMotionToEmpty.conditions = [new UnaryCondition()];
+                    condition.operator = UnaryCondition.Operator.FALSY;
+                    condition.operand.variable = 'b';
+                }
+            }
+
+            const graphEval = createAnimationGraphEval(animationGraph, rootNode);
+            const graphUpdater = new GraphUpdater(graphEval);
+
+            // Initially, since layer1 is in empty state, it is as if only layer 0 is running.
+            // The mask takes no effect at all.
+            graphUpdater.step(0.2);
+            {
+                const expectedNodeValues = nodeFixtures.reduce((result, { name, defaultValue, animationValues }) => {
+                    result[name] = lerp(defaultValue, animationValues[0], 0.4);
+                    return result;
+                }, {} as Record<string, number>);
+                expect(getActualNodeValues()).toBeDeepCloseTo(expectedNodeValues);
+            }
+
+            // Then we trigger Empty->Motion, during the transition, mask shall take effect.
+            graphEval.setValue('b', true);
+            graphUpdater.step(0.15);
+            {
+                const expectedNodeValues = nodeFixtures.reduce((result, { name, defaultValue, animationValues }) => {
+                    let expectedValue = result[name] = lerp(defaultValue, animationValues[0], 0.4);
+                    if (name === _1_1) { // Masked
+                        ;
+                    } else {
+                        const layer1Result = lerp(
+                            expectedValue, // Empty state
+                            animationValues[1], // Motion state
+                            0.15 / 0.2,
+                        );
+                        expectedValue = lerp(expectedValue, layer1Result, 0.6);
+                    }
+                    result[name] = expectedValue;
+                    return result;
+                }, {} as Record<string, number>);
+                expect(getActualNodeValues()).toBeDeepCloseTo(expectedNodeValues);
+            }
+
+            // Finish the transition. Skip check on this easy case.
+            graphUpdater.step(0.1);
+
+            // Trigger Motion->Empty, during the transition, mask shall take effect.
+            graphEval.setValue('b', false);
+            graphUpdater.step(0.15);
+            {
+                const expectedNodeValues = nodeFixtures.reduce((result, { name, defaultValue, animationValues }) => {
+                    let expectedValue = result[name] = lerp(defaultValue, animationValues[0], 0.4);
+                    if (name === _1_1) { // Masked
+                        ;
+                    } else {
+                        const layer1Result = lerp(
+                            animationValues[1], // Motion state
+                            expectedValue, // Empty state
+                            0.15 / 0.2,
+                        );
+                        expectedValue = lerp(expectedValue, layer1Result, 0.6);
+                    }
+                    result[name] = expectedValue;
+                    return result;
+                }, {} as Record<string, number>);
+                expect(getActualNodeValues()).toBeDeepCloseTo(expectedNodeValues);
+            }
+        });
+
+        function generateLayer(
+            graph: AnimationGraph,
+            weight: number,
+            maskItems: maskTestHelper.MaskItem[] | null,
+            clip: AnimationClip,
+        ) {
+            const l = graph.addLayer();
+            l.weight = weight;
+            l.mask = maskItems ? maskTestHelper.createMask(maskItems) : null;
+            const motion = l.stateMachine.addMotion();
+            const clipMotion = motion.motion = new ClipMotion();
+            clipMotion.clip = clip;
+            clip.enableTrsBlending = true; // 👀
+            l.stateMachine.connect(l.stateMachine.entryState, motion);
+        }
     });
 });
 

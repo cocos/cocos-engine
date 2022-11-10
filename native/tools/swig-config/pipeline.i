@@ -33,6 +33,7 @@
 #include "bindings/auto/jsb_pipeline_auto.h"
 #include "bindings/auto/jsb_scene_auto.h"
 #include "bindings/auto/jsb_gfx_auto.h"
+#include "bindings/auto/jsb_cocos_auto.h"
 #include "renderer/pipeline/PipelineUBO.h"
 
 using namespace cc;
@@ -186,6 +187,8 @@ using namespace cc;
 %import "math/Mat3.h"
 %import "math/Mat4.h"
 %import "math/Quaternion.h"
+
+%import "core/event/Event.h"
 
 %import "core/assets/Material.h"
 

@@ -42,6 +42,7 @@ export * from '../cocos/scene-graph';
 export * from '../cocos/misc';
 export * from '../cocos/game';
 export { Root } from '../cocos/root';
+export * from '../cocos/serialization';
 
 export { gfx };
 

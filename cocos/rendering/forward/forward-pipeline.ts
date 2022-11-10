@@ -36,6 +36,7 @@ import { Texture2D } from '../../asset/assets/texture-2d';
 import { Camera } from '../../render-scene/scene';
 import { errorID } from '../../core/platform/debug';
 import { PipelineSceneData } from '../pipeline-scene-data';
+import { ReflectionProbeFlow } from '../reflection-probe/reflection-probe-flow';
 
 const PIPELINE_TYPE = 0;
 
@@ -63,6 +64,10 @@ export class ForwardPipeline extends RenderPipeline {
             const shadowFlow = new ShadowFlow();
             shadowFlow.initialize(ShadowFlow.initInfo);
             this._flows.push(shadowFlow);
+
+            const reflectionFlow = new ReflectionProbeFlow();
+            reflectionFlow.initialize(ReflectionProbeFlow.initInfo);
+            this._flows.push(reflectionFlow);
 
             const forwardFlow = new ForwardFlow();
             forwardFlow.initialize(ForwardFlow.initInfo);

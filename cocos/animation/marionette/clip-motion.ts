@@ -1,13 +1,13 @@
-import { editorExtrasTag } from '../../core/data/editor-extras-tag';
-import { ccclass, type } from '../../core/data/class-decorator';
-import { EditorExtendable } from '../../core/data/editor-extendable';
+import { editorExtrasTag, _decorator, EditorExtendable } from '../../core';
 import { AnimationClip } from '../animation-clip';
 import { AnimationState } from '../animation-state';
 import { cloneAnimationGraphEditorExtrasFrom } from './animation-graph-editor-extras-clone-helper';
 import { createEval } from './create-eval';
-import { getMotionRuntimeID, GRAPH_DEBUG_ENABLED, pushWeight, RUNTIME_ID_ENABLED } from './graph-debug';
+import { getMotionRuntimeID, RUNTIME_ID_ENABLED } from './graph-debug';
 import { ClipStatus } from './graph-eval';
 import { MotionEvalContext, Motion, MotionEval } from './motion';
+
+const { ccclass, type } = _decorator;
 
 @ccclass('cc.animation.ClipMotion')
 export class ClipMotion extends EditorExtendable implements Motion {
@@ -82,9 +82,6 @@ class ClipMotionEval implements MotionEval {
     public sample (progress: number, weight: number) {
         if (weight === 0.0) {
             return;
-        }
-        if (GRAPH_DEBUG_ENABLED) {
-            pushWeight(this._state.name, weight);
         }
         const time = this._state.duration * progress;
         this._state.time = time;

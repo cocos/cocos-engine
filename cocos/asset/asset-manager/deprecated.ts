@@ -27,10 +27,7 @@ import { BUILD } from 'internal:constants';
 import { Asset } from '../assets/asset';
 import { director } from '../../game/director';
 import { game } from '../../game';
-import { legacyCC } from '../../core/global-exports';
-import { getError } from '../../core/platform/debug';
-import { macro } from '../../core/platform/macro';
-import { path, removeProperty, replaceProperty } from '../../core/utils';
+import { getError, macro, path, removeProperty, replaceProperty, cclegacy } from '../../core';
 import Cache from './cache';
 import assetManager, { AssetManager } from './asset-manager';
 import { resources } from './bundle';
@@ -951,7 +948,7 @@ removeProperty(loader, 'loader', [
     },
 ]);
 
-replaceProperty(legacyCC, 'cc', [
+replaceProperty(cclegacy, 'cc', [
     {
         name: 'loader',
         newName: 'assetManager',
@@ -977,7 +974,7 @@ replaceProperty(legacyCC, 'cc', [
     },
 ]);
 
-removeProperty(legacyCC, 'cc', [{
+removeProperty(cclegacy, 'cc', [{
     name: 'LoadingItems',
     suggest: getError(1400, 'LoadingItems', 'AssetManager.Task'),
 }]);

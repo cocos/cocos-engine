@@ -24,7 +24,7 @@
  */
 
 import { CommandBuffer, Device, Rect, RenderPass, Viewport } from '../gfx';
-import { IVec4Like } from '../core/math';
+import { IVec4Like } from '../core';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { SetIndex } from './define';
 import { Camera, Model } from '../render-scene/scene';

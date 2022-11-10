@@ -31,9 +31,6 @@
 #include "platform/linux/modules/SystemWindow.h"
 
 namespace cc {
-SystemWindowManager::SystemWindowManager(IEventDispatch *delegate)
-: _eventDispatcher(delegate) {
-}
 
 int SystemWindowManager::init() {
     return SDLHelper::init();
@@ -45,12 +42,12 @@ void SystemWindowManager::processEvent(bool *quit) {
         SDL_Window *sdlWindow = SDL_GetWindowFromID(sdlEvent.window.windowID);
         // SDL_Event like SDL_QUIT does not associate a window
         if (!sdlWindow) {
-            SDLHelper::dispatchSDLEvent(_eventDispatcher, 0, sdlEvent, quit);
+            SDLHelper::dispatchSDLEvent(0, sdlEvent, quit);
         } else {
             ISystemWindow *window = getWindowFromSDLWindow(sdlWindow);
             CC_ASSERT(window);
             uint32_t windowId = window->getWindowId();
-            SDLHelper::dispatchSDLEvent(_eventDispatcher, windowId, sdlEvent, quit);
+            SDLHelper::dispatchSDLEvent(windowId, sdlEvent, quit);
         }
         if (*quit) {
             break;

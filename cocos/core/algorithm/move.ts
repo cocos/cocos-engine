@@ -5,6 +5,7 @@ import { assertsArrayIndex } from '../data/utils/asserts';
  * @param array The array.
  * @param index Index to the array element to move.
  * @param newIndex New array index it should have.
+ * @engineInternal
  */
 export function move<T> (array: T[], index: number, newIndex: number) {
     assertsArrayIndex(array, index);

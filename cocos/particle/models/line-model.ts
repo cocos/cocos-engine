@@ -27,7 +27,7 @@ import { JSB } from 'internal:constants';
 import { RenderingSubMesh } from '../../asset/assets/rendering-sub-mesh';
 import { DRAW_INFO_SIZE, Buffer, IndirectBuffer, Attribute, BufferInfo, DrawInfo,
     AttributeName, BufferUsageBit, Format, FormatInfos, MemoryUsageBit, PrimitiveMode } from '../../gfx';
-import { Vec3 } from '../../core/math';
+import { Vec3 } from '../../core';
 import { scene } from '../../render-scene';
 import CurveRange from '../animator/curve-range';
 import GradientRange from '../animator/gradient-range';

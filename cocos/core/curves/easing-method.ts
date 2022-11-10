@@ -1,6 +1,9 @@
 import * as easing from '../algorithm/easing';
 import { assertIsTrue } from '../data/utils/asserts';
 
+/**
+ * @engineInternal
+ */
 export enum EasingMethod {
     LINEAR,
     CONSTANT,

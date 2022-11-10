@@ -77,7 +77,7 @@ type CleanUpFunction<T> = (value: T) => boolean | void;
  * ...
  * ```
  */
-export default class Pool<T> {
+export class Pool<T> {
     /**
      * @en
      * The current number of available objects, the default is 0, it will gradually increase with the recycle of the object,

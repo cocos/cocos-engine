@@ -34,6 +34,7 @@ class SystemInfo extends EventTarget {
     public readonly browserVersion: string;
     public readonly isXR: boolean;
     private _featureMap: IFeatureMap;
+    private _initPromise: Promise<void>[];
     // TODO: need to wrap the function __isObjectValid()
 
     public get networkType (): NetworkType {
@@ -93,6 +94,8 @@ class SystemInfo extends EventTarget {
             [Feature.EVENT_HMD]: this.isXR,
         };
 
+        this._initPromise = [];
+
         this._registerEvent();
     }
 
@@ -106,6 +109,14 @@ class SystemInfo extends EventTarget {
         jsb.onClose = () => {
             this.emit('close');
         };
+    }
+
+    private _setFeature (feature: Feature, value: boolean) {
+        return this._featureMap[feature] = value;
+    }
+
+    public init (): Promise<void[]> {
+        return Promise.all(this._initPromise);
     }
 
     public hasFeature (feature: Feature): boolean {

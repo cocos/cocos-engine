@@ -26,19 +26,16 @@
 /* eslint-disable max-len */
 import { systemInfo } from 'pal/system-info';
 import { Color, Buffer, DescriptorSetLayout, Device, Feature, Format, FormatFeatureBit, Sampler, Swapchain, Texture, ClearFlagBit, DescriptorSet, deviceManager, Viewport, API, CommandBuffer, Type, SamplerInfo, Filter, Address } from '../../gfx';
-import { Mat4, Quat, toRadian, Vec2, Vec3, Vec4 } from '../../core/math';
+import { Mat4, Quat, toRadian, Vec2, Vec3, Vec4, assert, macro, cclegacy } from '../../core';
 import { ComputeView, CopyPair, LightInfo, LightingMode, MovePair, QueueHint, RasterView, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UpdateFrequency } from './types';
 import { Blit, ClearView, ComputePass, CopyPass, Dispatch, ManagedResource, MovePass, RasterPass, RenderData, RenderGraph, RenderGraphComponent, RenderGraphValue, RenderQueue, RenderSwapchain, ResourceDesc, ResourceGraph, ResourceGraphValue, ResourceStates, ResourceTraits, SceneData } from './render-graph';
 import { ComputePassBuilder, ComputeQueueBuilder, CopyPassBuilder, LayoutGraphBuilder, MovePassBuilder, Pipeline, PipelineBuilder, RasterPassBuilder, RasterQueueBuilder, SceneTransversal } from './pipeline';
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { Model, Camera, ShadowType, CSMLevel, DirectionalLight, SpotLight, PCFType, Shadows } from '../../render-scene/scene';
 import { Light, LightType } from '../../render-scene/scene/light';
-import { legacyCC } from '../../core/global-exports';
 import { LayoutGraphData } from './layout-graph';
 import { Executor } from './executor';
 import { RenderWindow } from '../../render-scene/core/render-window';
-import { assert } from '../../core/platform/debug';
-import { macro } from '../../core/platform/macro';
 import { MacroRecord, RenderScene } from '../../render-scene';
 import { GlobalDSManager } from '../global-descriptor-set-manager';
 import { supportsR32FloatTexture, UBOSkinning } from '../define';
@@ -190,7 +187,7 @@ export class WebSetter {
 function setShadowUBOLightView (setter: WebSetter,
     light: Light,
     level: number) {
-    const director = legacyCC.director;
+    const director = cclegacy.director;
     const pipeline = director.root.pipeline;
     const device = pipeline.device;
     const sceneData = pipeline.pipelineSceneData;
@@ -303,7 +300,7 @@ function getPCFRadius (shadowInfo: Shadows, mainLight: DirectionalLight): number
 }
 
 function setShadowUBOView (setter: WebSetter, camera: Camera) {
-    const director = legacyCC.director;
+    const director = cclegacy.director;
     const pipeline = director.root.pipeline;
     const device = pipeline.device;
     const mainLight = camera.scene!.mainLight;
@@ -387,7 +384,7 @@ function setShadowUBOView (setter: WebSetter, camera: Camera) {
 function setCameraUBOValues (setter: WebSetter,
     camera: Readonly<Camera>, cfg: Readonly<PipelineSceneData>,
     scene: Readonly<RenderScene>) {
-    const director = legacyCC.director;
+    const director = cclegacy.director;
     const root = director.root;
     const pipeline = root.pipeline as WebPipeline;
     const layoutGraph = pipeline.layoutGraph;
@@ -450,7 +447,7 @@ function setCameraUBOValues (setter: WebSetter,
 
 function setTextureUBOView (setter: WebSetter, camera: Camera, cfg: Readonly<PipelineSceneData>) {
     const skybox = cfg.skybox;
-    const director = legacyCC.director;
+    const director = cclegacy.director;
     const root = director.root;
     if (skybox.reflectionMap) {
         const texture = skybox.reflectionMap.getGFXTexture()!;
@@ -513,14 +510,14 @@ export class WebRasterQueueBuilder extends WebSetter implements RasterQueueBuild
     set name (name: string) {
         this._renderGraph.setName(this._vertID, name);
     }
-    addSceneOfCamera (camera: Camera, light: LightInfo, sceneFlags: SceneFlags, name = 'Camera'): void {
+    addSceneOfCamera (camera: Camera, light: LightInfo, sceneFlags = SceneFlags.NONE, name = 'Camera'): void {
         const sceneData = new SceneData(name, sceneFlags, light);
         sceneData.camera = camera;
         this._renderGraph.addVertex<RenderGraphValue.Scene>(
             RenderGraphValue.Scene, sceneData, name, '', new RenderData(), false, this._vertID,
         );
         setCameraUBOValues(this, camera, this._pipeline,
-            camera.scene ? camera.scene : legacyCC.director.getScene().renderScene);
+            camera.scene ? camera.scene : cclegacy.director.getScene().renderScene);
         if (sceneFlags & SceneFlags.SHADOW_CASTER) {
             setShadowUBOLightView(this, light.light!, light.level);
         } else {
@@ -528,7 +525,7 @@ export class WebRasterQueueBuilder extends WebSetter implements RasterQueueBuild
         }
         setTextureUBOView(this, camera, this._pipeline);
     }
-    addScene (sceneName: string, sceneFlags: SceneFlags): void {
+    addScene (sceneName: string, sceneFlags = SceneFlags.NONE): void {
         const sceneData = new SceneData(sceneName, sceneFlags);
         this._renderGraph.addVertex<RenderGraphValue.Scene>(
             RenderGraphValue.Scene, sceneData, sceneName, '', new RenderData(), false, this._vertID,
@@ -540,13 +537,13 @@ export class WebRasterQueueBuilder extends WebSetter implements RasterQueueBuild
             name, '', new RenderData(), false, this._vertID,
         );
     }
-    addCameraQuad (camera: Camera, material: Material, passID: number, sceneFlags: SceneFlags) {
+    addCameraQuad (camera: Camera, material: Material, passID: number, sceneFlags = SceneFlags.NONE) {
         this._renderGraph.addVertex<RenderGraphValue.Blit>(
             RenderGraphValue.Blit, new Blit(material, passID, sceneFlags, camera),
             'CameraQuad', '', new RenderData(), false, this._vertID,
         );
         setCameraUBOValues(this, camera, this._pipeline,
-            camera.scene ? camera.scene : legacyCC.director.getScene().renderScene);
+            camera.scene ? camera.scene : cclegacy.director.getScene().renderScene);
         if (sceneFlags & SceneFlags.SHADOW_CASTER) {
             // setShadowUBOLightView(this, light.light!, light.level);
         } else {
@@ -554,7 +551,7 @@ export class WebRasterQueueBuilder extends WebSetter implements RasterQueueBuild
         }
         setTextureUBOView(this, camera, this._pipeline);
     }
-    clearRenderTarget (name: string, color: Color) {
+    clearRenderTarget (name: string, color: Color = new Color()) {
         this._renderGraph.addVertex<RenderGraphValue.Clear>(
             RenderGraphValue.Clear, [new ClearView(name, ClearFlagBit.COLOR, color)],
             'ClearRenderTarget', '', new RenderData(), false, this._vertID,
@@ -1006,7 +1003,7 @@ export class WebPipeline implements Pipeline {
             );
         }
     }
-    addRenderTarget (name: string, format: Format, width: number, height: number, residency: ResourceResidency) {
+    addRenderTarget (name: string, format: Format, width: number, height: number, residency = ResourceResidency.MANAGED) {
         const desc = new ResourceDesc();
         desc.dimension = ResourceDimension.TEXTURE2D;
         desc.width = width;
@@ -1026,7 +1023,7 @@ export class WebPipeline implements Pipeline {
             new SamplerInfo(),
         );
     }
-    addDepthStencil (name: string, format: Format, width: number, height: number, residency: ResourceResidency) {
+    addDepthStencil (name: string, format: Format, width: number, height: number, residency = ResourceResidency.MANAGED) {
         const desc = new ResourceDesc();
         desc.dimension = ResourceDimension.TEXTURE2D;
         desc.width = width;
@@ -1104,7 +1101,7 @@ export class WebPipeline implements Pipeline {
         this.endFrame();
     }
 
-    addRasterPass (width: number, height: number, layoutName: string): RasterPassBuilder {
+    addRasterPass (width: number, height: number, layoutName = 'default'): RasterPassBuilder {
         const name = 'Raster';
         const pass = new RasterPass();
         pass.viewport.width = width;
@@ -1135,7 +1132,7 @@ export class WebPipeline implements Pipeline {
         return this._layoutGraph;
     }
     protected _updateRasterPassConstants (setter: WebSetter, width: number, height: number) {
-        const director = legacyCC.director;
+        const director = cclegacy.director;
         const root = director.root;
         const shadingWidth = width;
         const shadingHeight = height;

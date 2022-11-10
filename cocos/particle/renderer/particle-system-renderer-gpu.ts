@@ -28,7 +28,7 @@ import { builtinResMgr } from '../../asset/asset-manager';
 import { Material, Texture2D } from '../../asset/assets';
 import { Component } from '../../scene-graph';
 import { AttributeName, Format, Attribute, API, deviceManager, FormatInfos } from '../../gfx';
-import { Mat4, Vec2, Vec4, Quat, Vec3 } from '../../core/math';
+import { Mat4, Vec2, Vec4, Quat, Vec3, cclegacy } from '../../core';
 import { MaterialInstance, IMaterialInstanceInfo } from '../../render-scene/core/material-instance';
 import { MacroRecord } from '../../render-scene/core/pass-utils';
 import { AlignmentSpace, RenderMode, Space } from '../enum';
@@ -38,7 +38,6 @@ import { Pass } from '../../render-scene/core/pass';
 import { packCurveRangeXYZ, packCurveRangeZ, packCurveRangeXYZW, packCurveRangeN, packCurveRangeXY } from '../animator/curve-range';
 import { ParticleSystemRendererBase } from './particle-system-renderer-base';
 import { Camera } from '../../render-scene/scene/camera';
-import { legacyCC } from '../../core/global-exports';
 
 const _tempWorldTrans = new Mat4();
 const _tempVec4 = new Vec4();
@@ -271,7 +270,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
                 for (let i = 0; i < cameraLst?.length; ++i) {
                     const camera:Camera = cameraLst[i];
                     // eslint-disable-next-line max-len
-                    const checkCamera: boolean = (!EDITOR || legacyCC.GAME_VIEW) ? (camera.visibility & this._particleSystem.node.layer) === this._particleSystem.node.layer : camera.name === 'Editor Camera';
+                    const checkCamera: boolean = (!EDITOR || cclegacy.GAME_VIEW) ? (camera.visibility & this._particleSystem.node.layer) === this._particleSystem.node.layer : camera.name === 'Editor Camera';
                     if (checkCamera) {
                         Quat.fromViewUp(_node_rot, camera.forward);
                         break;
@@ -305,7 +304,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
     }
 
     public updateParticles (dt: number) {
-        if (EDITOR && !legacyCC.GAME_VIEW) {
+        if (EDITOR && !cclegacy.GAME_VIEW) {
             const mat: Material | null = this._particleSystem.getMaterialInstance(0) || this._defaultMat;
 
             this._particleSystem.node.getWorldMatrix(_tempWorldTrans);

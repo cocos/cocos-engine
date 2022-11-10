@@ -35,7 +35,7 @@ import { AutoPlacement, PlaceMethod } from './auto-placement';
  * @zh 光照探针组组件。
  */
 @ccclass('cc.LightProbeGroup')
-@menu('GI/LightProbeGroup')
+@menu('Rendering/LightProbeGroup')
 @disallowMultiple
 @executeInEditMode
 export class LightProbeGroup extends Component {
@@ -203,7 +203,8 @@ export class LightProbeGroup extends Component {
             return;
         }
 
+        const updateTet = !this.node.scene.globals.lightProbeInfo.isUniqueGroup();
         this.node.updateWorldTransform();
-        this.onProbeChanged();
+        this.onProbeChanged(updateTet);
     }
 }

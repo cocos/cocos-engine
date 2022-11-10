@@ -65,5163 +65,6 @@
 
 
 
-se::Class* __jsb_cc_physics_ILifecycle_class = nullptr;
-se::Object* __jsb_cc_physics_ILifecycle_proto = nullptr;
-SE_DECLARE_FINALIZE_FUNC(js_delete_cc_physics_ILifecycle) 
-
-static bool js_delete_cc_physics_ILifecycle(se::State& s)
-{
-    // js_dtoroverride
-    return true;
-}
-SE_BIND_FINALIZE_FUNC(js_delete_cc_physics_ILifecycle) 
-
-static bool js_cc_physics_ILifecycle_onEnable(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::ILifecycle *arg1 = (cc::physics::ILifecycle *) NULL ;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::ILifecycle>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    (arg1)->onEnable();
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_ILifecycle_onEnable) 
-
-static bool js_cc_physics_ILifecycle_onDisable(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::ILifecycle *arg1 = (cc::physics::ILifecycle *) NULL ;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::ILifecycle>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    (arg1)->onDisable();
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_ILifecycle_onDisable) 
-
-static bool js_cc_physics_ILifecycle_onDestroy(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::ILifecycle *arg1 = (cc::physics::ILifecycle *) NULL ;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::ILifecycle>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    (arg1)->onDestroy();
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_ILifecycle_onDestroy) 
-
-bool js_register_cc_physics_ILifecycle(se::Object* obj) {
-    auto* cls = se::Class::create("ILifecycle", obj, nullptr, nullptr); 
-    
-    
-    cls->defineFunction("onEnable", _SE(js_cc_physics_ILifecycle_onEnable)); 
-    cls->defineFunction("onDisable", _SE(js_cc_physics_ILifecycle_onDisable)); 
-    cls->defineFunction("onDestroy", _SE(js_cc_physics_ILifecycle_onDestroy)); 
-    
-    
-    
-    
-    cls->defineFinalizeFunction(_SE(js_delete_cc_physics_ILifecycle));
-    
-    
-    cls->install();
-    JSBClassType::registerClass<cc::physics::ILifecycle>(cls);
-    
-    __jsb_cc_physics_ILifecycle_proto = cls->getProto();
-    __jsb_cc_physics_ILifecycle_class = cls;
-    se::ScriptEngine::getInstance()->clearException();
-    return true;
-}
-
-
-se::Class* __jsb_cc_physics_TriggerEventPair_class = nullptr;
-se::Object* __jsb_cc_physics_TriggerEventPair_proto = nullptr;
-SE_DECLARE_FINALIZE_FUNC(js_delete_cc_physics_TriggerEventPair) 
-
-static bool js_cc_physics_TriggerEventPair_shapeA_set(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::TriggerEventPair *arg1 = (cc::physics::TriggerEventPair *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::physics::TriggerEventPair>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[0], &arg1->shapeA, s.thisObject());
-    SE_PRECONDITION2(ok, false, "TriggerEventPair_shapeA_set,2,SWIGTYPE_uint32_t"); 
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_SET(js_cc_physics_TriggerEventPair_shapeA_set) 
-
-static bool js_cc_physics_TriggerEventPair_shapeA_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::physics::TriggerEventPair *arg1 = (cc::physics::TriggerEventPair *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::physics::TriggerEventPair>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(arg1->shapeA, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "TriggerEventPair_shapeA_get, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(arg1->shapeA, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_physics_TriggerEventPair_shapeA_get) 
-
-static bool js_cc_physics_TriggerEventPair_shapeB_set(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::TriggerEventPair *arg1 = (cc::physics::TriggerEventPair *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::physics::TriggerEventPair>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[0], &arg1->shapeB, s.thisObject());
-    SE_PRECONDITION2(ok, false, "TriggerEventPair_shapeB_set,2,SWIGTYPE_uint32_t"); 
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_SET(js_cc_physics_TriggerEventPair_shapeB_set) 
-
-static bool js_cc_physics_TriggerEventPair_shapeB_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::physics::TriggerEventPair *arg1 = (cc::physics::TriggerEventPair *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::physics::TriggerEventPair>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(arg1->shapeB, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "TriggerEventPair_shapeB_get, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(arg1->shapeB, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_physics_TriggerEventPair_shapeB_get) 
-
-static bool js_cc_physics_TriggerEventPair_state_set(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::TriggerEventPair *arg1 = (cc::physics::TriggerEventPair *) NULL ;
-    int32_t temp2 ;
-    
-    arg1 = SE_THIS_OBJECT<cc::physics::TriggerEventPair>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) enum SWIGTYPE (int32_t temp2)
-    ok &= sevalue_to_native(args[0], &temp2);
-    SE_PRECONDITION2(ok, false, "TriggerEventPair_state_set,2,SWIGTYPE_cc__physics__ETouchState");
-    arg1->state = (cc::physics::ETouchState)temp2;
-    
-    
-    return true;
-}
-SE_BIND_PROP_SET(js_cc_physics_TriggerEventPair_state_set) 
-
-static bool js_cc_physics_TriggerEventPair_state_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::physics::TriggerEventPair *arg1 = (cc::physics::TriggerEventPair *) NULL ;
-    int32_t temp ;
-    
-    arg1 = SE_THIS_OBJECT<cc::physics::TriggerEventPair>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // out 4
-    s.rval().setInt32(static_cast<int32_t>(arg1->state));
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_physics_TriggerEventPair_state_get) 
-
-// js_ctor
-static bool js_new_cc_physics_TriggerEventPair(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    
-    if (argc != 2) {
-        SE_REPORT_ERROR("js_new_cc_physics_TriggerEventPair: wrong number of arguments: %d, was expecting %d", (int)argc, 2);
-        return false;
-    }
-    
-    uint32_t arg1 ;
-    uint32_t arg2 ;
-    cc::physics::TriggerEventPair *result;
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[0], &arg1, s.thisObject());
-    SE_PRECONDITION2(ok, false, "new_TriggerEventPair,1,SWIGTYPE_uint32_t"); 
-    
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[1], &arg2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "new_TriggerEventPair,2,SWIGTYPE_uint32_t"); 
-    
-    result = (cc::physics::TriggerEventPair *)new cc::physics::TriggerEventPair(arg1,arg2);
-    
-    
-    auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
-    s.thisObject()->setPrivateObject(ptr);
-    return true;
-}
-SE_BIND_CTOR(js_new_cc_physics_TriggerEventPair, __jsb_cc_physics_TriggerEventPair_class, js_delete_cc_physics_TriggerEventPair)
-
-static bool js_delete_cc_physics_TriggerEventPair(se::State& s)
-{
-    // js_dtoroverride
-    return true;
-}
-SE_BIND_FINALIZE_FUNC(js_delete_cc_physics_TriggerEventPair) 
-
-template<>
-bool sevalue_to_native(const se::Value &from, cc::physics::TriggerEventPair * to, se::Object *ctx)
-{
-    assert(from.isObject());
-    se::Object *json = from.toObject();
-    auto* data = reinterpret_cast<cc::physics::TriggerEventPair*>(json->getPrivateData());
-    if (data) {
-        *to = *data;
-        return true;
-    }
-    se::Value field;
-    bool ok = true;
-    
-    json->getProperty("shapeA", &field, true);
-    if (!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->shapeA), ctx);
-    }
-    
-    
-    json->getProperty("shapeB", &field, true);
-    if (!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->shapeB), ctx);
-    }
-    
-    
-    json->getProperty("state", &field, true);
-    if (!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->state), ctx);
-    }
-    
-    
-    return ok;
-}
-
-
-bool js_register_cc_physics_TriggerEventPair(se::Object* obj) {
-    auto* cls = se::Class::create("TriggerEventPair", obj, nullptr, _SE(js_new_cc_physics_TriggerEventPair)); 
-    
-    cls->defineProperty("shapeA", _SE(js_cc_physics_TriggerEventPair_shapeA_get), _SE(js_cc_physics_TriggerEventPair_shapeA_set)); 
-    cls->defineProperty("shapeB", _SE(js_cc_physics_TriggerEventPair_shapeB_get), _SE(js_cc_physics_TriggerEventPair_shapeB_set)); 
-    cls->defineProperty("state", _SE(js_cc_physics_TriggerEventPair_state_get), _SE(js_cc_physics_TriggerEventPair_state_set)); 
-    
-    
-    cls->defineStaticProperty("COUNT", nullptr, nullptr); 
-    
-    
-    
-    cls->defineFinalizeFunction(_SE(js_delete_cc_physics_TriggerEventPair));
-    
-    
-    cls->install();
-    JSBClassType::registerClass<cc::physics::TriggerEventPair>(cls);
-    
-    __jsb_cc_physics_TriggerEventPair_proto = cls->getProto();
-    __jsb_cc_physics_TriggerEventPair_class = cls;
-    se::ScriptEngine::getInstance()->clearException();
-    return true;
-}
-
-
-se::Class* __jsb_cc_physics_ContactPoint_class = nullptr;
-se::Object* __jsb_cc_physics_ContactPoint_proto = nullptr;
-SE_DECLARE_FINALIZE_FUNC(js_delete_cc_physics_ContactPoint) 
-
-static bool js_cc_physics_ContactPoint_position_set(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::ContactPoint *arg1 = (cc::physics::ContactPoint *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::physics::ContactPoint>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[0], &arg1->position, s.thisObject());
-    SE_PRECONDITION2(ok, false, "ContactPoint_position_set,2,SWIGTYPE_Vec3"); 
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_SET(js_cc_physics_ContactPoint_position_set) 
-
-static bool js_cc_physics_ContactPoint_position_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::physics::ContactPoint *arg1 = (cc::physics::ContactPoint *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::physics::ContactPoint>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(arg1->position, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "ContactPoint_position_get, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(arg1->position, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_physics_ContactPoint_position_get) 
-
-static bool js_cc_physics_ContactPoint_separation_set(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::ContactPoint *arg1 = (cc::physics::ContactPoint *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::physics::ContactPoint>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[0], &arg1->separation, nullptr);
-    SE_PRECONDITION2(ok, false, "ContactPoint_separation_set,2,SWIGTYPE_float"); 
-    
-    
-    return true;
-}
-SE_BIND_PROP_SET(js_cc_physics_ContactPoint_separation_set) 
-
-static bool js_cc_physics_ContactPoint_separation_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::physics::ContactPoint *arg1 = (cc::physics::ContactPoint *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::physics::ContactPoint>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    
-    // out 1
-    ok &= nativevalue_to_se(arg1->separation, s.rval(), s.thisObject() /*ctx*/); 
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_physics_ContactPoint_separation_get) 
-
-static bool js_cc_physics_ContactPoint_normal_set(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::ContactPoint *arg1 = (cc::physics::ContactPoint *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::physics::ContactPoint>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[0], &arg1->normal, s.thisObject());
-    SE_PRECONDITION2(ok, false, "ContactPoint_normal_set,2,SWIGTYPE_Vec3"); 
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_SET(js_cc_physics_ContactPoint_normal_set) 
-
-static bool js_cc_physics_ContactPoint_normal_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::physics::ContactPoint *arg1 = (cc::physics::ContactPoint *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::physics::ContactPoint>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(arg1->normal, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "ContactPoint_normal_get, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(arg1->normal, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_physics_ContactPoint_normal_get) 
-
-static bool js_cc_physics_ContactPoint_internalFaceIndex0_set(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::ContactPoint *arg1 = (cc::physics::ContactPoint *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::physics::ContactPoint>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[0], &arg1->internalFaceIndex0, s.thisObject());
-    SE_PRECONDITION2(ok, false, "ContactPoint_internalFaceIndex0_set,2,SWIGTYPE_uint32_t"); 
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_SET(js_cc_physics_ContactPoint_internalFaceIndex0_set) 
-
-static bool js_cc_physics_ContactPoint_internalFaceIndex0_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::physics::ContactPoint *arg1 = (cc::physics::ContactPoint *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::physics::ContactPoint>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(arg1->internalFaceIndex0, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "ContactPoint_internalFaceIndex0_get, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(arg1->internalFaceIndex0, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_physics_ContactPoint_internalFaceIndex0_get) 
-
-static bool js_cc_physics_ContactPoint_impulse_set(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::ContactPoint *arg1 = (cc::physics::ContactPoint *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::physics::ContactPoint>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[0], &arg1->impulse, s.thisObject());
-    SE_PRECONDITION2(ok, false, "ContactPoint_impulse_set,2,SWIGTYPE_Vec3"); 
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_SET(js_cc_physics_ContactPoint_impulse_set) 
-
-static bool js_cc_physics_ContactPoint_impulse_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::physics::ContactPoint *arg1 = (cc::physics::ContactPoint *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::physics::ContactPoint>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(arg1->impulse, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "ContactPoint_impulse_get, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(arg1->impulse, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_physics_ContactPoint_impulse_get) 
-
-static bool js_cc_physics_ContactPoint_internalFaceIndex1_set(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::ContactPoint *arg1 = (cc::physics::ContactPoint *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::physics::ContactPoint>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[0], &arg1->internalFaceIndex1, s.thisObject());
-    SE_PRECONDITION2(ok, false, "ContactPoint_internalFaceIndex1_set,2,SWIGTYPE_uint32_t"); 
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_SET(js_cc_physics_ContactPoint_internalFaceIndex1_set) 
-
-static bool js_cc_physics_ContactPoint_internalFaceIndex1_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::physics::ContactPoint *arg1 = (cc::physics::ContactPoint *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::physics::ContactPoint>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(arg1->internalFaceIndex1, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "ContactPoint_internalFaceIndex1_get, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(arg1->internalFaceIndex1, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_physics_ContactPoint_internalFaceIndex1_get) 
-
-// js_ctor
-static bool js_new_cc_physics_ContactPoint(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    
-    cc::physics::ContactPoint *result;
-    result = (cc::physics::ContactPoint *)new cc::physics::ContactPoint();
-    
-    
-    auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
-    s.thisObject()->setPrivateObject(ptr);
-    return true;
-}
-SE_BIND_CTOR(js_new_cc_physics_ContactPoint, __jsb_cc_physics_ContactPoint_class, js_delete_cc_physics_ContactPoint)
-
-static bool js_delete_cc_physics_ContactPoint(se::State& s)
-{
-    // js_dtoroverride
-    return true;
-}
-SE_BIND_FINALIZE_FUNC(js_delete_cc_physics_ContactPoint) 
-
-template<>
-bool sevalue_to_native(const se::Value &from, cc::physics::ContactPoint * to, se::Object *ctx)
-{
-    assert(from.isObject());
-    se::Object *json = from.toObject();
-    auto* data = reinterpret_cast<cc::physics::ContactPoint*>(json->getPrivateData());
-    if (data) {
-        *to = *data;
-        return true;
-    }
-    se::Value field;
-    bool ok = true;
-    
-    json->getProperty("position", &field, true);
-    if (!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->position), ctx);
-    }
-    
-    
-    json->getProperty("separation", &field, true);
-    if (!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->separation), ctx);
-    }
-    
-    
-    json->getProperty("normal", &field, true);
-    if (!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->normal), ctx);
-    }
-    
-    
-    json->getProperty("internalFaceIndex0", &field, true);
-    if (!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->internalFaceIndex0), ctx);
-    }
-    
-    
-    json->getProperty("impulse", &field, true);
-    if (!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->impulse), ctx);
-    }
-    
-    
-    json->getProperty("internalFaceIndex1", &field, true);
-    if (!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->internalFaceIndex1), ctx);
-    }
-    
-    
-    return ok;
-}
-
-
-bool js_register_cc_physics_ContactPoint(se::Object* obj) {
-    auto* cls = se::Class::create("ContactPoint", obj, nullptr, _SE(js_new_cc_physics_ContactPoint)); 
-    
-    cls->defineProperty("position", _SE(js_cc_physics_ContactPoint_position_get), _SE(js_cc_physics_ContactPoint_position_set)); 
-    cls->defineProperty("separation", _SE(js_cc_physics_ContactPoint_separation_get), _SE(js_cc_physics_ContactPoint_separation_set)); 
-    cls->defineProperty("normal", _SE(js_cc_physics_ContactPoint_normal_get), _SE(js_cc_physics_ContactPoint_normal_set)); 
-    cls->defineProperty("internalFaceIndex0", _SE(js_cc_physics_ContactPoint_internalFaceIndex0_get), _SE(js_cc_physics_ContactPoint_internalFaceIndex0_set)); 
-    cls->defineProperty("impulse", _SE(js_cc_physics_ContactPoint_impulse_get), _SE(js_cc_physics_ContactPoint_impulse_set)); 
-    cls->defineProperty("internalFaceIndex1", _SE(js_cc_physics_ContactPoint_internalFaceIndex1_get), _SE(js_cc_physics_ContactPoint_internalFaceIndex1_set)); 
-    
-    
-    cls->defineStaticProperty("COUNT", nullptr, nullptr); 
-    
-    
-    
-    cls->defineFinalizeFunction(_SE(js_delete_cc_physics_ContactPoint));
-    
-    
-    cls->install();
-    JSBClassType::registerClass<cc::physics::ContactPoint>(cls);
-    
-    __jsb_cc_physics_ContactPoint_proto = cls->getProto();
-    __jsb_cc_physics_ContactPoint_class = cls;
-    se::ScriptEngine::getInstance()->clearException();
-    return true;
-}
-
-
-se::Class* __jsb_cc_physics_ContactEventPair_class = nullptr;
-se::Object* __jsb_cc_physics_ContactEventPair_proto = nullptr;
-SE_DECLARE_FINALIZE_FUNC(js_delete_cc_physics_ContactEventPair) 
-
-static bool js_cc_physics_ContactEventPair_shapeA_set(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::ContactEventPair *arg1 = (cc::physics::ContactEventPair *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::physics::ContactEventPair>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[0], &arg1->shapeA, s.thisObject());
-    SE_PRECONDITION2(ok, false, "ContactEventPair_shapeA_set,2,SWIGTYPE_uint32_t"); 
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_SET(js_cc_physics_ContactEventPair_shapeA_set) 
-
-static bool js_cc_physics_ContactEventPair_shapeA_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::physics::ContactEventPair *arg1 = (cc::physics::ContactEventPair *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::physics::ContactEventPair>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(arg1->shapeA, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "ContactEventPair_shapeA_get, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(arg1->shapeA, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_physics_ContactEventPair_shapeA_get) 
-
-static bool js_cc_physics_ContactEventPair_shapeB_set(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::ContactEventPair *arg1 = (cc::physics::ContactEventPair *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::physics::ContactEventPair>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[0], &arg1->shapeB, s.thisObject());
-    SE_PRECONDITION2(ok, false, "ContactEventPair_shapeB_set,2,SWIGTYPE_uint32_t"); 
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_SET(js_cc_physics_ContactEventPair_shapeB_set) 
-
-static bool js_cc_physics_ContactEventPair_shapeB_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::physics::ContactEventPair *arg1 = (cc::physics::ContactEventPair *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::physics::ContactEventPair>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(arg1->shapeB, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "ContactEventPair_shapeB_get, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(arg1->shapeB, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_physics_ContactEventPair_shapeB_get) 
-
-static bool js_cc_physics_ContactEventPair_state_set(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::ContactEventPair *arg1 = (cc::physics::ContactEventPair *) NULL ;
-    int32_t temp2 ;
-    
-    arg1 = SE_THIS_OBJECT<cc::physics::ContactEventPair>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) enum SWIGTYPE (int32_t temp2)
-    ok &= sevalue_to_native(args[0], &temp2);
-    SE_PRECONDITION2(ok, false, "ContactEventPair_state_set,2,SWIGTYPE_cc__physics__ETouchState");
-    arg1->state = (cc::physics::ETouchState)temp2;
-    
-    
-    return true;
-}
-SE_BIND_PROP_SET(js_cc_physics_ContactEventPair_state_set) 
-
-static bool js_cc_physics_ContactEventPair_state_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::physics::ContactEventPair *arg1 = (cc::physics::ContactEventPair *) NULL ;
-    int32_t temp ;
-    
-    arg1 = SE_THIS_OBJECT<cc::physics::ContactEventPair>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // out 4
-    s.rval().setInt32(static_cast<int32_t>(arg1->state));
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_physics_ContactEventPair_state_get) 
-
-static bool js_cc_physics_ContactEventPair_contacts_set(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::ContactEventPair *arg1 = (cc::physics::ContactEventPair *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::physics::ContactEventPair>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[0], &arg1->contacts, s.thisObject());
-    SE_PRECONDITION2(ok, false, "ContactEventPair_contacts_set,2,SWIGTYPE_ccstd__vectorT_cc__physics__ContactPoint_t"); 
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_SET(js_cc_physics_ContactEventPair_contacts_set) 
-
-static bool js_cc_physics_ContactEventPair_contacts_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::physics::ContactEventPair *arg1 = (cc::physics::ContactEventPair *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::physics::ContactEventPair>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(arg1->contacts, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "ContactEventPair_contacts_get, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(arg1->contacts, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_physics_ContactEventPair_contacts_get) 
-
-// js_ctor
-static bool js_new_cc_physics_ContactEventPair(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    
-    if (argc != 2) {
-        SE_REPORT_ERROR("js_new_cc_physics_ContactEventPair: wrong number of arguments: %d, was expecting %d", (int)argc, 2);
-        return false;
-    }
-    
-    uint32_t arg1 ;
-    uint32_t arg2 ;
-    cc::physics::ContactEventPair *result;
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[0], &arg1, s.thisObject());
-    SE_PRECONDITION2(ok, false, "new_ContactEventPair,1,SWIGTYPE_uint32_t"); 
-    
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[1], &arg2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "new_ContactEventPair,2,SWIGTYPE_uint32_t"); 
-    
-    result = (cc::physics::ContactEventPair *)new cc::physics::ContactEventPair(arg1,arg2);
-    
-    
-    auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
-    s.thisObject()->setPrivateObject(ptr);
-    return true;
-}
-SE_BIND_CTOR(js_new_cc_physics_ContactEventPair, __jsb_cc_physics_ContactEventPair_class, js_delete_cc_physics_ContactEventPair)
-
-static bool js_delete_cc_physics_ContactEventPair(se::State& s)
-{
-    // js_dtoroverride
-    return true;
-}
-SE_BIND_FINALIZE_FUNC(js_delete_cc_physics_ContactEventPair) 
-
-template<>
-bool sevalue_to_native(const se::Value &from, cc::physics::ContactEventPair * to, se::Object *ctx)
-{
-    assert(from.isObject());
-    se::Object *json = from.toObject();
-    auto* data = reinterpret_cast<cc::physics::ContactEventPair*>(json->getPrivateData());
-    if (data) {
-        *to = *data;
-        return true;
-    }
-    se::Value field;
-    bool ok = true;
-    
-    json->getProperty("shapeA", &field, true);
-    if (!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->shapeA), ctx);
-    }
-    
-    
-    json->getProperty("shapeB", &field, true);
-    if (!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->shapeB), ctx);
-    }
-    
-    
-    json->getProperty("state", &field, true);
-    if (!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->state), ctx);
-    }
-    
-    
-    json->getProperty("contacts", &field, true);
-    if (!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->contacts), ctx);
-    }
-    
-    
-    return ok;
-}
-
-
-bool js_register_cc_physics_ContactEventPair(se::Object* obj) {
-    auto* cls = se::Class::create("ContactEventPair", obj, nullptr, _SE(js_new_cc_physics_ContactEventPair)); 
-    
-    cls->defineProperty("shapeA", _SE(js_cc_physics_ContactEventPair_shapeA_get), _SE(js_cc_physics_ContactEventPair_shapeA_set)); 
-    cls->defineProperty("shapeB", _SE(js_cc_physics_ContactEventPair_shapeB_get), _SE(js_cc_physics_ContactEventPair_shapeB_set)); 
-    cls->defineProperty("state", _SE(js_cc_physics_ContactEventPair_state_get), _SE(js_cc_physics_ContactEventPair_state_set)); 
-    cls->defineProperty("contacts", _SE(js_cc_physics_ContactEventPair_contacts_get), _SE(js_cc_physics_ContactEventPair_contacts_set)); 
-    
-    
-    cls->defineStaticProperty("COUNT", nullptr, nullptr); 
-    
-    
-    
-    cls->defineFinalizeFunction(_SE(js_delete_cc_physics_ContactEventPair));
-    
-    
-    cls->install();
-    JSBClassType::registerClass<cc::physics::ContactEventPair>(cls);
-    
-    __jsb_cc_physics_ContactEventPair_proto = cls->getProto();
-    __jsb_cc_physics_ContactEventPair_class = cls;
-    se::ScriptEngine::getInstance()->clearException();
-    return true;
-}
-
-
-se::Class* __jsb_cc_physics_ConvexDesc_class = nullptr;
-se::Object* __jsb_cc_physics_ConvexDesc_proto = nullptr;
-SE_DECLARE_FINALIZE_FUNC(js_delete_cc_physics_ConvexDesc) 
-
-static bool js_cc_physics_ConvexDesc_positions_set(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::ConvexDesc *arg1 = (cc::physics::ConvexDesc *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::physics::ConvexDesc>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    ok &= sevalue_to_native(args[0], &arg1->positions);
-    SE_PRECONDITION2(ok, false, "ConvexDesc_positions_set,2,SWIGTYPE_p_void");
-    
-    
-    return true;
-}
-SE_BIND_PROP_SET(js_cc_physics_ConvexDesc_positions_set) 
-
-static bool js_cc_physics_ConvexDesc_positions_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::physics::ConvexDesc *arg1 = (cc::physics::ConvexDesc *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::physics::ConvexDesc>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(out) SWIGTYPE*
-    ok &= nativevalue_to_se(arg1->positions, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "ConvexDesc_positions_get, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(arg1->positions, s.thisObject(), s.rval()); 
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_physics_ConvexDesc_positions_get) 
-
-static bool js_cc_physics_ConvexDesc_positionLength_set(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::ConvexDesc *arg1 = (cc::physics::ConvexDesc *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::physics::ConvexDesc>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[0], &arg1->positionLength, s.thisObject());
-    SE_PRECONDITION2(ok, false, "ConvexDesc_positionLength_set,2,SWIGTYPE_uint32_t"); 
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_SET(js_cc_physics_ConvexDesc_positionLength_set) 
-
-static bool js_cc_physics_ConvexDesc_positionLength_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::physics::ConvexDesc *arg1 = (cc::physics::ConvexDesc *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::physics::ConvexDesc>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(arg1->positionLength, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "ConvexDesc_positionLength_get, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(arg1->positionLength, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_physics_ConvexDesc_positionLength_get) 
-
-// js_ctor
-static bool js_new_cc_physics_ConvexDesc(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    
-    cc::physics::ConvexDesc *result;
-    result = (cc::physics::ConvexDesc *)new cc::physics::ConvexDesc();
-    
-    
-    auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
-    s.thisObject()->setPrivateObject(ptr);
-    return true;
-}
-SE_BIND_CTOR(js_new_cc_physics_ConvexDesc, __jsb_cc_physics_ConvexDesc_class, js_delete_cc_physics_ConvexDesc)
-
-static bool js_delete_cc_physics_ConvexDesc(se::State& s)
-{
-    // js_dtoroverride
-    return true;
-}
-SE_BIND_FINALIZE_FUNC(js_delete_cc_physics_ConvexDesc) 
-
-template<>
-bool sevalue_to_native(const se::Value &from, cc::physics::ConvexDesc * to, se::Object *ctx)
-{
-    assert(from.isObject());
-    se::Object *json = from.toObject();
-    auto* data = reinterpret_cast<cc::physics::ConvexDesc*>(json->getPrivateData());
-    if (data) {
-        *to = *data;
-        return true;
-    }
-    se::Value field;
-    bool ok = true;
-    
-    json->getProperty("positions", &field, true);
-    if (!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->positions), ctx);
-    }
-    
-    
-    json->getProperty("positionLength", &field, true);
-    if (!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->positionLength), ctx);
-    }
-    
-    
-    return ok;
-}
-
-
-bool js_register_cc_physics_ConvexDesc(se::Object* obj) {
-    auto* cls = se::Class::create("ConvexDesc", obj, nullptr, _SE(js_new_cc_physics_ConvexDesc)); 
-    
-    cls->defineProperty("positions", _SE(js_cc_physics_ConvexDesc_positions_get), _SE(js_cc_physics_ConvexDesc_positions_set)); 
-    cls->defineProperty("positionLength", _SE(js_cc_physics_ConvexDesc_positionLength_get), _SE(js_cc_physics_ConvexDesc_positionLength_set)); 
-    
-    
-    
-    
-    
-    cls->defineFinalizeFunction(_SE(js_delete_cc_physics_ConvexDesc));
-    
-    
-    cls->install();
-    JSBClassType::registerClass<cc::physics::ConvexDesc>(cls);
-    
-    __jsb_cc_physics_ConvexDesc_proto = cls->getProto();
-    __jsb_cc_physics_ConvexDesc_class = cls;
-    se::ScriptEngine::getInstance()->clearException();
-    return true;
-}
-
-
-se::Class* __jsb_cc_physics_TrimeshDesc_class = nullptr;
-se::Object* __jsb_cc_physics_TrimeshDesc_proto = nullptr;
-SE_DECLARE_FINALIZE_FUNC(js_delete_cc_physics_TrimeshDesc) 
-
-static bool js_cc_physics_TrimeshDesc_triangles_set(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::TrimeshDesc *arg1 = (cc::physics::TrimeshDesc *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::physics::TrimeshDesc>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    ok &= sevalue_to_native(args[0], &arg1->triangles);
-    SE_PRECONDITION2(ok, false, "TrimeshDesc_triangles_set,2,SWIGTYPE_p_void");
-    
-    
-    return true;
-}
-SE_BIND_PROP_SET(js_cc_physics_TrimeshDesc_triangles_set) 
-
-static bool js_cc_physics_TrimeshDesc_triangles_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::physics::TrimeshDesc *arg1 = (cc::physics::TrimeshDesc *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::physics::TrimeshDesc>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(out) SWIGTYPE*
-    ok &= nativevalue_to_se(arg1->triangles, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "TrimeshDesc_triangles_get, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(arg1->triangles, s.thisObject(), s.rval()); 
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_physics_TrimeshDesc_triangles_get) 
-
-static bool js_cc_physics_TrimeshDesc_triangleLength_set(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::TrimeshDesc *arg1 = (cc::physics::TrimeshDesc *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::physics::TrimeshDesc>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[0], &arg1->triangleLength, s.thisObject());
-    SE_PRECONDITION2(ok, false, "TrimeshDesc_triangleLength_set,2,SWIGTYPE_uint32_t"); 
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_SET(js_cc_physics_TrimeshDesc_triangleLength_set) 
-
-static bool js_cc_physics_TrimeshDesc_triangleLength_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::physics::TrimeshDesc *arg1 = (cc::physics::TrimeshDesc *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::physics::TrimeshDesc>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(arg1->triangleLength, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "TrimeshDesc_triangleLength_get, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(arg1->triangleLength, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_physics_TrimeshDesc_triangleLength_get) 
-
-static bool js_cc_physics_TrimeshDesc_isU16_set(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::TrimeshDesc *arg1 = (cc::physics::TrimeshDesc *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::physics::TrimeshDesc>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) bool
-    ok &= sevalue_to_native(args[0], &arg1->isU16);
-    SE_PRECONDITION2(ok, false, "TrimeshDesc_isU16_set,2,SWIGTYPE_bool"); 
-    
-    
-    return true;
-}
-SE_BIND_PROP_SET(js_cc_physics_TrimeshDesc_isU16_set) 
-
-static bool js_cc_physics_TrimeshDesc_isU16_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::physics::TrimeshDesc *arg1 = (cc::physics::TrimeshDesc *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::physics::TrimeshDesc>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // out 5
-    ok &= nativevalue_to_se(arg1->isU16, s.rval(), s.thisObject() /*ctx*/);
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_physics_TrimeshDesc_isU16_get) 
-
-// js_ctor
-static bool js_new_cc_physics_TrimeshDesc(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    
-    cc::physics::TrimeshDesc *result;
-    result = (cc::physics::TrimeshDesc *)new cc::physics::TrimeshDesc();
-    
-    
-    auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
-    s.thisObject()->setPrivateObject(ptr);
-    return true;
-}
-SE_BIND_CTOR(js_new_cc_physics_TrimeshDesc, __jsb_cc_physics_TrimeshDesc_class, js_delete_cc_physics_TrimeshDesc)
-
-static bool js_delete_cc_physics_TrimeshDesc(se::State& s)
-{
-    // js_dtoroverride
-    return true;
-}
-SE_BIND_FINALIZE_FUNC(js_delete_cc_physics_TrimeshDesc) 
-
-template<>
-bool sevalue_to_native(const se::Value &from, cc::physics::TrimeshDesc * to, se::Object *ctx)
-{
-    assert(from.isObject());
-    se::Object *json = from.toObject();
-    auto* data = reinterpret_cast<cc::physics::TrimeshDesc*>(json->getPrivateData());
-    if (data) {
-        *to = *data;
-        return true;
-    }
-    se::Value field;
-    bool ok = true;
-    
-    json->getProperty("triangles", &field, true);
-    if (!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->triangles), ctx);
-    }
-    
-    
-    json->getProperty("triangleLength", &field, true);
-    if (!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->triangleLength), ctx);
-    }
-    
-    
-    json->getProperty("isU16", &field, true);
-    if (!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->isU16), ctx);
-    }
-    
-    
-    return ok;
-}
-
-
-bool js_register_cc_physics_TrimeshDesc(se::Object* obj) {
-    auto* cls = se::Class::create("TrimeshDesc", obj, __jsb_cc_physics_ConvexDesc_proto, _SE(js_new_cc_physics_TrimeshDesc)); 
-    
-    cls->defineProperty("triangles", _SE(js_cc_physics_TrimeshDesc_triangles_get), _SE(js_cc_physics_TrimeshDesc_triangles_set)); 
-    cls->defineProperty("triangleLength", _SE(js_cc_physics_TrimeshDesc_triangleLength_get), _SE(js_cc_physics_TrimeshDesc_triangleLength_set)); 
-    cls->defineProperty("isU16", _SE(js_cc_physics_TrimeshDesc_isU16_get), _SE(js_cc_physics_TrimeshDesc_isU16_set)); 
-    
-    
-    
-    
-    
-    cls->defineFinalizeFunction(_SE(js_delete_cc_physics_TrimeshDesc));
-    
-    
-    cls->install();
-    JSBClassType::registerClass<cc::physics::TrimeshDesc>(cls);
-    
-    __jsb_cc_physics_TrimeshDesc_proto = cls->getProto();
-    __jsb_cc_physics_TrimeshDesc_class = cls;
-    se::ScriptEngine::getInstance()->clearException();
-    return true;
-}
-
-
-se::Class* __jsb_cc_physics_HeightFieldDesc_class = nullptr;
-se::Object* __jsb_cc_physics_HeightFieldDesc_proto = nullptr;
-SE_DECLARE_FINALIZE_FUNC(js_delete_cc_physics_HeightFieldDesc) 
-
-static bool js_cc_physics_HeightFieldDesc_rows_set(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::HeightFieldDesc *arg1 = (cc::physics::HeightFieldDesc *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::physics::HeightFieldDesc>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[0], &arg1->rows, s.thisObject());
-    SE_PRECONDITION2(ok, false, "HeightFieldDesc_rows_set,2,SWIGTYPE_uint32_t"); 
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_SET(js_cc_physics_HeightFieldDesc_rows_set) 
-
-static bool js_cc_physics_HeightFieldDesc_rows_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::physics::HeightFieldDesc *arg1 = (cc::physics::HeightFieldDesc *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::physics::HeightFieldDesc>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(arg1->rows, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "HeightFieldDesc_rows_get, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(arg1->rows, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_physics_HeightFieldDesc_rows_get) 
-
-static bool js_cc_physics_HeightFieldDesc_columns_set(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::HeightFieldDesc *arg1 = (cc::physics::HeightFieldDesc *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::physics::HeightFieldDesc>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[0], &arg1->columns, s.thisObject());
-    SE_PRECONDITION2(ok, false, "HeightFieldDesc_columns_set,2,SWIGTYPE_uint32_t"); 
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_SET(js_cc_physics_HeightFieldDesc_columns_set) 
-
-static bool js_cc_physics_HeightFieldDesc_columns_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::physics::HeightFieldDesc *arg1 = (cc::physics::HeightFieldDesc *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::physics::HeightFieldDesc>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(arg1->columns, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "HeightFieldDesc_columns_get, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(arg1->columns, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_physics_HeightFieldDesc_columns_get) 
-
-static bool js_cc_physics_HeightFieldDesc_samples_set(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::HeightFieldDesc *arg1 = (cc::physics::HeightFieldDesc *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::physics::HeightFieldDesc>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    ok &= sevalue_to_native(args[0], &arg1->samples);
-    SE_PRECONDITION2(ok, false, "HeightFieldDesc_samples_set,2,SWIGTYPE_p_void");
-    
-    
-    return true;
-}
-SE_BIND_PROP_SET(js_cc_physics_HeightFieldDesc_samples_set) 
-
-static bool js_cc_physics_HeightFieldDesc_samples_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::physics::HeightFieldDesc *arg1 = (cc::physics::HeightFieldDesc *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::physics::HeightFieldDesc>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(out) SWIGTYPE*
-    ok &= nativevalue_to_se(arg1->samples, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "HeightFieldDesc_samples_get, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(arg1->samples, s.thisObject(), s.rval()); 
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_physics_HeightFieldDesc_samples_get) 
-
-// js_ctor
-static bool js_new_cc_physics_HeightFieldDesc(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    
-    cc::physics::HeightFieldDesc *result;
-    result = (cc::physics::HeightFieldDesc *)new cc::physics::HeightFieldDesc();
-    
-    
-    auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
-    s.thisObject()->setPrivateObject(ptr);
-    return true;
-}
-SE_BIND_CTOR(js_new_cc_physics_HeightFieldDesc, __jsb_cc_physics_HeightFieldDesc_class, js_delete_cc_physics_HeightFieldDesc)
-
-static bool js_delete_cc_physics_HeightFieldDesc(se::State& s)
-{
-    // js_dtoroverride
-    return true;
-}
-SE_BIND_FINALIZE_FUNC(js_delete_cc_physics_HeightFieldDesc) 
-
-template<>
-bool sevalue_to_native(const se::Value &from, cc::physics::HeightFieldDesc * to, se::Object *ctx)
-{
-    assert(from.isObject());
-    se::Object *json = from.toObject();
-    auto* data = reinterpret_cast<cc::physics::HeightFieldDesc*>(json->getPrivateData());
-    if (data) {
-        *to = *data;
-        return true;
-    }
-    se::Value field;
-    bool ok = true;
-    
-    json->getProperty("rows", &field, true);
-    if (!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->rows), ctx);
-    }
-    
-    
-    json->getProperty("columns", &field, true);
-    if (!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->columns), ctx);
-    }
-    
-    
-    json->getProperty("samples", &field, true);
-    if (!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->samples), ctx);
-    }
-    
-    
-    return ok;
-}
-
-
-bool js_register_cc_physics_HeightFieldDesc(se::Object* obj) {
-    auto* cls = se::Class::create("HeightFieldDesc", obj, nullptr, _SE(js_new_cc_physics_HeightFieldDesc)); 
-    
-    cls->defineProperty("rows", _SE(js_cc_physics_HeightFieldDesc_rows_get), _SE(js_cc_physics_HeightFieldDesc_rows_set)); 
-    cls->defineProperty("columns", _SE(js_cc_physics_HeightFieldDesc_columns_get), _SE(js_cc_physics_HeightFieldDesc_columns_set)); 
-    cls->defineProperty("samples", _SE(js_cc_physics_HeightFieldDesc_samples_get), _SE(js_cc_physics_HeightFieldDesc_samples_set)); 
-    
-    
-    
-    
-    
-    cls->defineFinalizeFunction(_SE(js_delete_cc_physics_HeightFieldDesc));
-    
-    
-    cls->install();
-    JSBClassType::registerClass<cc::physics::HeightFieldDesc>(cls);
-    
-    __jsb_cc_physics_HeightFieldDesc_proto = cls->getProto();
-    __jsb_cc_physics_HeightFieldDesc_class = cls;
-    se::ScriptEngine::getInstance()->clearException();
-    return true;
-}
-
-
-se::Class* __jsb_cc_physics_RaycastOptions_class = nullptr;
-se::Object* __jsb_cc_physics_RaycastOptions_proto = nullptr;
-SE_DECLARE_FINALIZE_FUNC(js_delete_cc_physics_RaycastOptions) 
-
-static bool js_cc_physics_RaycastOptions_origin_set(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::RaycastOptions *arg1 = (cc::physics::RaycastOptions *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::physics::RaycastOptions>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[0], &arg1->origin, s.thisObject());
-    SE_PRECONDITION2(ok, false, "RaycastOptions_origin_set,2,SWIGTYPE_Vec3"); 
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_SET(js_cc_physics_RaycastOptions_origin_set) 
-
-static bool js_cc_physics_RaycastOptions_origin_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::physics::RaycastOptions *arg1 = (cc::physics::RaycastOptions *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::physics::RaycastOptions>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(arg1->origin, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "RaycastOptions_origin_get, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(arg1->origin, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_physics_RaycastOptions_origin_get) 
-
-static bool js_cc_physics_RaycastOptions_distance_set(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::RaycastOptions *arg1 = (cc::physics::RaycastOptions *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::physics::RaycastOptions>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[0], &arg1->distance, nullptr);
-    SE_PRECONDITION2(ok, false, "RaycastOptions_distance_set,2,SWIGTYPE_float"); 
-    
-    
-    return true;
-}
-SE_BIND_PROP_SET(js_cc_physics_RaycastOptions_distance_set) 
-
-static bool js_cc_physics_RaycastOptions_distance_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::physics::RaycastOptions *arg1 = (cc::physics::RaycastOptions *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::physics::RaycastOptions>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    
-    // out 1
-    ok &= nativevalue_to_se(arg1->distance, s.rval(), s.thisObject() /*ctx*/); 
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_physics_RaycastOptions_distance_get) 
-
-static bool js_cc_physics_RaycastOptions_unitDir_set(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::RaycastOptions *arg1 = (cc::physics::RaycastOptions *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::physics::RaycastOptions>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[0], &arg1->unitDir, s.thisObject());
-    SE_PRECONDITION2(ok, false, "RaycastOptions_unitDir_set,2,SWIGTYPE_Vec3"); 
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_SET(js_cc_physics_RaycastOptions_unitDir_set) 
-
-static bool js_cc_physics_RaycastOptions_unitDir_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::physics::RaycastOptions *arg1 = (cc::physics::RaycastOptions *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::physics::RaycastOptions>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(arg1->unitDir, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "RaycastOptions_unitDir_get, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(arg1->unitDir, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_physics_RaycastOptions_unitDir_get) 
-
-static bool js_cc_physics_RaycastOptions_mask_set(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::RaycastOptions *arg1 = (cc::physics::RaycastOptions *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::physics::RaycastOptions>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[0], &arg1->mask, s.thisObject());
-    SE_PRECONDITION2(ok, false, "RaycastOptions_mask_set,2,SWIGTYPE_uint32_t"); 
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_SET(js_cc_physics_RaycastOptions_mask_set) 
-
-static bool js_cc_physics_RaycastOptions_mask_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::physics::RaycastOptions *arg1 = (cc::physics::RaycastOptions *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::physics::RaycastOptions>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(arg1->mask, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "RaycastOptions_mask_get, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(arg1->mask, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_physics_RaycastOptions_mask_get) 
-
-static bool js_cc_physics_RaycastOptions_queryTrigger_set(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::RaycastOptions *arg1 = (cc::physics::RaycastOptions *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::physics::RaycastOptions>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) bool
-    ok &= sevalue_to_native(args[0], &arg1->queryTrigger);
-    SE_PRECONDITION2(ok, false, "RaycastOptions_queryTrigger_set,2,SWIGTYPE_bool"); 
-    
-    
-    return true;
-}
-SE_BIND_PROP_SET(js_cc_physics_RaycastOptions_queryTrigger_set) 
-
-static bool js_cc_physics_RaycastOptions_queryTrigger_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::physics::RaycastOptions *arg1 = (cc::physics::RaycastOptions *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::physics::RaycastOptions>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // out 5
-    ok &= nativevalue_to_se(arg1->queryTrigger, s.rval(), s.thisObject() /*ctx*/);
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_physics_RaycastOptions_queryTrigger_get) 
-
-// js_ctor
-static bool js_new_cc_physics_RaycastOptions(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    
-    cc::physics::RaycastOptions *result;
-    result = (cc::physics::RaycastOptions *)new cc::physics::RaycastOptions();
-    
-    
-    auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
-    s.thisObject()->setPrivateObject(ptr);
-    return true;
-}
-SE_BIND_CTOR(js_new_cc_physics_RaycastOptions, __jsb_cc_physics_RaycastOptions_class, js_delete_cc_physics_RaycastOptions)
-
-static bool js_delete_cc_physics_RaycastOptions(se::State& s)
-{
-    // js_dtoroverride
-    return true;
-}
-SE_BIND_FINALIZE_FUNC(js_delete_cc_physics_RaycastOptions) 
-
-template<>
-bool sevalue_to_native(const se::Value &from, cc::physics::RaycastOptions * to, se::Object *ctx)
-{
-    assert(from.isObject());
-    se::Object *json = from.toObject();
-    auto* data = reinterpret_cast<cc::physics::RaycastOptions*>(json->getPrivateData());
-    if (data) {
-        *to = *data;
-        return true;
-    }
-    se::Value field;
-    bool ok = true;
-    
-    json->getProperty("origin", &field, true);
-    if (!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->origin), ctx);
-    }
-    
-    
-    json->getProperty("distance", &field, true);
-    if (!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->distance), ctx);
-    }
-    
-    
-    json->getProperty("unitDir", &field, true);
-    if (!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->unitDir), ctx);
-    }
-    
-    
-    json->getProperty("mask", &field, true);
-    if (!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->mask), ctx);
-    }
-    
-    
-    json->getProperty("queryTrigger", &field, true);
-    if (!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->queryTrigger), ctx);
-    }
-    
-    
-    return ok;
-}
-
-
-bool js_register_cc_physics_RaycastOptions(se::Object* obj) {
-    auto* cls = se::Class::create("RaycastOptions", obj, nullptr, _SE(js_new_cc_physics_RaycastOptions)); 
-    
-    cls->defineProperty("origin", _SE(js_cc_physics_RaycastOptions_origin_get), _SE(js_cc_physics_RaycastOptions_origin_set)); 
-    cls->defineProperty("distance", _SE(js_cc_physics_RaycastOptions_distance_get), _SE(js_cc_physics_RaycastOptions_distance_set)); 
-    cls->defineProperty("unitDir", _SE(js_cc_physics_RaycastOptions_unitDir_get), _SE(js_cc_physics_RaycastOptions_unitDir_set)); 
-    cls->defineProperty("mask", _SE(js_cc_physics_RaycastOptions_mask_get), _SE(js_cc_physics_RaycastOptions_mask_set)); 
-    cls->defineProperty("queryTrigger", _SE(js_cc_physics_RaycastOptions_queryTrigger_get), _SE(js_cc_physics_RaycastOptions_queryTrigger_set)); 
-    
-    
-    
-    
-    
-    cls->defineFinalizeFunction(_SE(js_delete_cc_physics_RaycastOptions));
-    
-    
-    cls->install();
-    JSBClassType::registerClass<cc::physics::RaycastOptions>(cls);
-    
-    __jsb_cc_physics_RaycastOptions_proto = cls->getProto();
-    __jsb_cc_physics_RaycastOptions_class = cls;
-    se::ScriptEngine::getInstance()->clearException();
-    return true;
-}
-
-
-se::Class* __jsb_cc_physics_RaycastResult_class = nullptr;
-se::Object* __jsb_cc_physics_RaycastResult_proto = nullptr;
-SE_DECLARE_FINALIZE_FUNC(js_delete_cc_physics_RaycastResult) 
-
-static bool js_cc_physics_RaycastResult_shape_set(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::RaycastResult *arg1 = (cc::physics::RaycastResult *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::physics::RaycastResult>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[0], &arg1->shape, s.thisObject());
-    SE_PRECONDITION2(ok, false, "RaycastResult_shape_set,2,SWIGTYPE_uint32_t"); 
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_SET(js_cc_physics_RaycastResult_shape_set) 
-
-static bool js_cc_physics_RaycastResult_shape_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::physics::RaycastResult *arg1 = (cc::physics::RaycastResult *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::physics::RaycastResult>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(arg1->shape, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "RaycastResult_shape_get, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(arg1->shape, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_physics_RaycastResult_shape_get) 
-
-static bool js_cc_physics_RaycastResult_hitPoint_set(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::RaycastResult *arg1 = (cc::physics::RaycastResult *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::physics::RaycastResult>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[0], &arg1->hitPoint, s.thisObject());
-    SE_PRECONDITION2(ok, false, "RaycastResult_hitPoint_set,2,SWIGTYPE_Vec3"); 
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_SET(js_cc_physics_RaycastResult_hitPoint_set) 
-
-static bool js_cc_physics_RaycastResult_hitPoint_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::physics::RaycastResult *arg1 = (cc::physics::RaycastResult *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::physics::RaycastResult>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(arg1->hitPoint, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "RaycastResult_hitPoint_get, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(arg1->hitPoint, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_physics_RaycastResult_hitPoint_get) 
-
-static bool js_cc_physics_RaycastResult_distance_set(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::RaycastResult *arg1 = (cc::physics::RaycastResult *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::physics::RaycastResult>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[0], &arg1->distance, nullptr);
-    SE_PRECONDITION2(ok, false, "RaycastResult_distance_set,2,SWIGTYPE_float"); 
-    
-    
-    return true;
-}
-SE_BIND_PROP_SET(js_cc_physics_RaycastResult_distance_set) 
-
-static bool js_cc_physics_RaycastResult_distance_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::physics::RaycastResult *arg1 = (cc::physics::RaycastResult *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::physics::RaycastResult>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    
-    // out 1
-    ok &= nativevalue_to_se(arg1->distance, s.rval(), s.thisObject() /*ctx*/); 
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_physics_RaycastResult_distance_get) 
-
-static bool js_cc_physics_RaycastResult_hitNormal_set(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::RaycastResult *arg1 = (cc::physics::RaycastResult *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::physics::RaycastResult>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[0], &arg1->hitNormal, s.thisObject());
-    SE_PRECONDITION2(ok, false, "RaycastResult_hitNormal_set,2,SWIGTYPE_Vec3"); 
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_SET(js_cc_physics_RaycastResult_hitNormal_set) 
-
-static bool js_cc_physics_RaycastResult_hitNormal_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::physics::RaycastResult *arg1 = (cc::physics::RaycastResult *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::physics::RaycastResult>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(arg1->hitNormal, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "RaycastResult_hitNormal_get, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(arg1->hitNormal, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_physics_RaycastResult_hitNormal_get) 
-
-// js_ctor
-static bool js_new_cc_physics_RaycastResult(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    
-    cc::physics::RaycastResult *result;
-    result = (cc::physics::RaycastResult *)new cc::physics::RaycastResult();
-    
-    
-    auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
-    s.thisObject()->setPrivateObject(ptr);
-    return true;
-}
-SE_BIND_CTOR(js_new_cc_physics_RaycastResult, __jsb_cc_physics_RaycastResult_class, js_delete_cc_physics_RaycastResult)
-
-static bool js_delete_cc_physics_RaycastResult(se::State& s)
-{
-    // js_dtoroverride
-    return true;
-}
-SE_BIND_FINALIZE_FUNC(js_delete_cc_physics_RaycastResult) 
-
-template<>
-bool sevalue_to_native(const se::Value &from, cc::physics::RaycastResult * to, se::Object *ctx)
-{
-    assert(from.isObject());
-    se::Object *json = from.toObject();
-    auto* data = reinterpret_cast<cc::physics::RaycastResult*>(json->getPrivateData());
-    if (data) {
-        *to = *data;
-        return true;
-    }
-    se::Value field;
-    bool ok = true;
-    
-    json->getProperty("shape", &field, true);
-    if (!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->shape), ctx);
-    }
-    
-    
-    json->getProperty("hitPoint", &field, true);
-    if (!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->hitPoint), ctx);
-    }
-    
-    
-    json->getProperty("distance", &field, true);
-    if (!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->distance), ctx);
-    }
-    
-    
-    json->getProperty("hitNormal", &field, true);
-    if (!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->hitNormal), ctx);
-    }
-    
-    
-    return ok;
-}
-
-
-bool js_register_cc_physics_RaycastResult(se::Object* obj) {
-    auto* cls = se::Class::create("RaycastResult", obj, nullptr, _SE(js_new_cc_physics_RaycastResult)); 
-    
-    cls->defineProperty("shape", _SE(js_cc_physics_RaycastResult_shape_get), _SE(js_cc_physics_RaycastResult_shape_set)); 
-    cls->defineProperty("hitPoint", _SE(js_cc_physics_RaycastResult_hitPoint_get), _SE(js_cc_physics_RaycastResult_hitPoint_set)); 
-    cls->defineProperty("distance", _SE(js_cc_physics_RaycastResult_distance_get), _SE(js_cc_physics_RaycastResult_distance_set)); 
-    cls->defineProperty("hitNormal", _SE(js_cc_physics_RaycastResult_hitNormal_get), _SE(js_cc_physics_RaycastResult_hitNormal_set)); 
-    
-    
-    
-    
-    
-    cls->defineFinalizeFunction(_SE(js_delete_cc_physics_RaycastResult));
-    
-    
-    cls->install();
-    JSBClassType::registerClass<cc::physics::RaycastResult>(cls);
-    
-    __jsb_cc_physics_RaycastResult_proto = cls->getProto();
-    __jsb_cc_physics_RaycastResult_class = cls;
-    se::ScriptEngine::getInstance()->clearException();
-    return true;
-}
-
-
-se::Class* __jsb_cc_physics_IPhysicsWorld_class = nullptr;
-se::Object* __jsb_cc_physics_IPhysicsWorld_proto = nullptr;
-SE_DECLARE_FINALIZE_FUNC(js_delete_cc_physics_IPhysicsWorld) 
-
-static bool js_delete_cc_physics_IPhysicsWorld(se::State& s)
-{
-    // js_dtoroverride
-    return true;
-}
-SE_BIND_FINALIZE_FUNC(js_delete_cc_physics_IPhysicsWorld) 
-
-static bool js_cc_physics_IPhysicsWorld_setGravity(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::IPhysicsWorld *arg1 = (cc::physics::IPhysicsWorld *) NULL ;
-    float arg2 ;
-    float arg3 ;
-    float arg4 ;
-    
-    if(argc != 3) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::IPhysicsWorld>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[0], &arg2, nullptr);
-    SE_PRECONDITION2(ok, false, "IPhysicsWorld_setGravity,2,SWIGTYPE_float"); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[1], &arg3, nullptr);
-    SE_PRECONDITION2(ok, false, "IPhysicsWorld_setGravity,3,SWIGTYPE_float"); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[2], &arg4, nullptr);
-    SE_PRECONDITION2(ok, false, "IPhysicsWorld_setGravity,4,SWIGTYPE_float"); 
-    (arg1)->setGravity(arg2,arg3,arg4);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_IPhysicsWorld_setGravity) 
-
-static bool js_cc_physics_IPhysicsWorld_setAllowSleep(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::IPhysicsWorld *arg1 = (cc::physics::IPhysicsWorld *) NULL ;
-    bool arg2 ;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::IPhysicsWorld>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) bool
-    ok &= sevalue_to_native(args[0], &arg2);
-    SE_PRECONDITION2(ok, false, "IPhysicsWorld_setAllowSleep,2,SWIGTYPE_bool"); 
-    (arg1)->setAllowSleep(arg2);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_IPhysicsWorld_setAllowSleep) 
-
-static bool js_cc_physics_IPhysicsWorld_step(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::IPhysicsWorld *arg1 = (cc::physics::IPhysicsWorld *) NULL ;
-    float arg2 ;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::IPhysicsWorld>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[0], &arg2, nullptr);
-    SE_PRECONDITION2(ok, false, "IPhysicsWorld_step,2,SWIGTYPE_float"); 
-    (arg1)->step(arg2);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_IPhysicsWorld_step) 
-
-static bool js_cc_physics_IPhysicsWorld_emitEvents(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::IPhysicsWorld *arg1 = (cc::physics::IPhysicsWorld *) NULL ;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::IPhysicsWorld>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    (arg1)->emitEvents();
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_IPhysicsWorld_emitEvents) 
-
-static bool js_cc_physics_IPhysicsWorld_syncSceneToPhysics(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::IPhysicsWorld *arg1 = (cc::physics::IPhysicsWorld *) NULL ;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::IPhysicsWorld>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    (arg1)->syncSceneToPhysics();
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_IPhysicsWorld_syncSceneToPhysics) 
-
-static bool js_cc_physics_IPhysicsWorld_syncSceneWithCheck(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::IPhysicsWorld *arg1 = (cc::physics::IPhysicsWorld *) NULL ;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::IPhysicsWorld>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    (arg1)->syncSceneWithCheck();
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_IPhysicsWorld_syncSceneWithCheck) 
-
-static bool js_cc_physics_IPhysicsWorld_destroy(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::IPhysicsWorld *arg1 = (cc::physics::IPhysicsWorld *) NULL ;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::IPhysicsWorld>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    (arg1)->destroy();
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_IPhysicsWorld_destroy) 
-
-static bool js_cc_physics_IPhysicsWorld_setCollisionMatrix(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::IPhysicsWorld *arg1 = (cc::physics::IPhysicsWorld *) NULL ;
-    uint32_t arg2 ;
-    uint32_t arg3 ;
-    
-    if(argc != 2) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::IPhysicsWorld>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "IPhysicsWorld_setCollisionMatrix,2,SWIGTYPE_uint32_t"); 
-    
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[1], &arg3, s.thisObject());
-    SE_PRECONDITION2(ok, false, "IPhysicsWorld_setCollisionMatrix,3,SWIGTYPE_uint32_t"); 
-    
-    (arg1)->setCollisionMatrix(arg2,arg3);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_IPhysicsWorld_setCollisionMatrix) 
-
-static bool js_cc_physics_IPhysicsWorld_getTriggerEventPairs(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::IPhysicsWorld *arg1 = (cc::physics::IPhysicsWorld *) NULL ;
-    ccstd::vector< std::shared_ptr< cc::physics::TriggerEventPair > > *result = 0 ;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::IPhysicsWorld>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    result = (ccstd::vector< std::shared_ptr< cc::physics::TriggerEventPair > > *) &(arg1)->getTriggerEventPairs();
-    // %typemap(out) SWIGTYPE&
-    ok &= nativevalue_to_se(*result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "IPhysicsWorld_getTriggerEventPairs, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(*result, s.thisObject(), s.rval()); 
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_IPhysicsWorld_getTriggerEventPairs) 
-
-static bool js_cc_physics_IPhysicsWorld_getContactEventPairs(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::IPhysicsWorld *arg1 = (cc::physics::IPhysicsWorld *) NULL ;
-    ccstd::vector< std::shared_ptr< cc::physics::ContactEventPair > > *result = 0 ;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::IPhysicsWorld>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    result = (ccstd::vector< std::shared_ptr< cc::physics::ContactEventPair > > *) &(arg1)->getContactEventPairs();
-    // %typemap(out) SWIGTYPE&
-    ok &= nativevalue_to_se(*result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "IPhysicsWorld_getContactEventPairs, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(*result, s.thisObject(), s.rval()); 
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_IPhysicsWorld_getContactEventPairs) 
-
-static bool js_cc_physics_IPhysicsWorld_raycast(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::IPhysicsWorld *arg1 = (cc::physics::IPhysicsWorld *) NULL ;
-    cc::physics::RaycastOptions *arg2 = 0 ;
-    cc::physics::RaycastOptions temp2 ;
-    bool result;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::IPhysicsWorld>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "IPhysicsWorld_raycast,2,SWIGTYPE_p_cc__physics__RaycastOptions");
-    arg2 = &temp2;
-    
-    result = (bool)(arg1)->raycast(*arg2);
-    // out 5
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_IPhysicsWorld_raycast) 
-
-static bool js_cc_physics_IPhysicsWorld_raycastClosest(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::IPhysicsWorld *arg1 = (cc::physics::IPhysicsWorld *) NULL ;
-    cc::physics::RaycastOptions *arg2 = 0 ;
-    cc::physics::RaycastOptions temp2 ;
-    bool result;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::IPhysicsWorld>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "IPhysicsWorld_raycastClosest,2,SWIGTYPE_p_cc__physics__RaycastOptions");
-    arg2 = &temp2;
-    
-    result = (bool)(arg1)->raycastClosest(*arg2);
-    // out 5
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_IPhysicsWorld_raycastClosest) 
-
-static bool js_cc_physics_IPhysicsWorld_raycastResult(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::IPhysicsWorld *arg1 = (cc::physics::IPhysicsWorld *) NULL ;
-    ccstd::vector< cc::physics::RaycastResult > *result = 0 ;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::IPhysicsWorld>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    result = (ccstd::vector< cc::physics::RaycastResult > *) &(arg1)->raycastResult();
-    // %typemap(out) SWIGTYPE&
-    ok &= nativevalue_to_se(*result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "IPhysicsWorld_raycastResult, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(*result, s.thisObject(), s.rval()); 
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_IPhysicsWorld_raycastResult) 
-
-static bool js_cc_physics_IPhysicsWorld_raycastClosestResult(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::IPhysicsWorld *arg1 = (cc::physics::IPhysicsWorld *) NULL ;
-    cc::physics::RaycastResult *result = 0 ;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::IPhysicsWorld>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    result = (cc::physics::RaycastResult *) &(arg1)->raycastClosestResult();
-    // %typemap(out) SWIGTYPE&
-    ok &= nativevalue_to_se(*result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "IPhysicsWorld_raycastClosestResult, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(*result, s.thisObject(), s.rval()); 
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_IPhysicsWorld_raycastClosestResult) 
-
-static bool js_cc_physics_IPhysicsWorld_createConvex(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::IPhysicsWorld *arg1 = (cc::physics::IPhysicsWorld *) NULL ;
-    cc::physics::ConvexDesc *arg2 = 0 ;
-    cc::physics::ConvexDesc temp2 ;
-    uint32_t result;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::IPhysicsWorld>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "IPhysicsWorld_createConvex,2,SWIGTYPE_p_cc__physics__ConvexDesc");
-    arg2 = &temp2;
-    
-    result = (arg1)->createConvex(*arg2);
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "IPhysicsWorld_createConvex, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_IPhysicsWorld_createConvex) 
-
-static bool js_cc_physics_IPhysicsWorld_createTrimesh(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::IPhysicsWorld *arg1 = (cc::physics::IPhysicsWorld *) NULL ;
-    cc::physics::TrimeshDesc *arg2 = 0 ;
-    cc::physics::TrimeshDesc temp2 ;
-    uint32_t result;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::IPhysicsWorld>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "IPhysicsWorld_createTrimesh,2,SWIGTYPE_p_cc__physics__TrimeshDesc");
-    arg2 = &temp2;
-    
-    result = (arg1)->createTrimesh(*arg2);
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "IPhysicsWorld_createTrimesh, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_IPhysicsWorld_createTrimesh) 
-
-static bool js_cc_physics_IPhysicsWorld_createHeightField(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::IPhysicsWorld *arg1 = (cc::physics::IPhysicsWorld *) NULL ;
-    cc::physics::HeightFieldDesc *arg2 = 0 ;
-    cc::physics::HeightFieldDesc temp2 ;
-    uint32_t result;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::IPhysicsWorld>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "IPhysicsWorld_createHeightField,2,SWIGTYPE_p_cc__physics__HeightFieldDesc");
-    arg2 = &temp2;
-    
-    result = (arg1)->createHeightField(*arg2);
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "IPhysicsWorld_createHeightField, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_IPhysicsWorld_createHeightField) 
-
-static bool js_cc_physics_IPhysicsWorld_createMaterial(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::IPhysicsWorld *arg1 = (cc::physics::IPhysicsWorld *) NULL ;
-    uint16_t arg2 ;
-    float arg3 ;
-    float arg4 ;
-    float arg5 ;
-    uint8_t arg6 ;
-    uint8_t arg7 ;
-    bool result;
-    
-    if(argc != 6) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 6);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::IPhysicsWorld>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "IPhysicsWorld_createMaterial,2,SWIGTYPE_uint16_t"); 
-    
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[1], &arg3, nullptr);
-    SE_PRECONDITION2(ok, false, "IPhysicsWorld_createMaterial,3,SWIGTYPE_float"); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[2], &arg4, nullptr);
-    SE_PRECONDITION2(ok, false, "IPhysicsWorld_createMaterial,4,SWIGTYPE_float"); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[3], &arg5, nullptr);
-    SE_PRECONDITION2(ok, false, "IPhysicsWorld_createMaterial,5,SWIGTYPE_float"); 
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[4], &arg6, s.thisObject());
-    SE_PRECONDITION2(ok, false, "IPhysicsWorld_createMaterial,6,SWIGTYPE_uint8_t"); 
-    
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[5], &arg7, s.thisObject());
-    SE_PRECONDITION2(ok, false, "IPhysicsWorld_createMaterial,7,SWIGTYPE_uint8_t"); 
-    
-    result = (bool)(arg1)->createMaterial(arg2,arg3,arg4,arg5,arg6,arg7);
-    // out 5
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_IPhysicsWorld_createMaterial) 
-
-bool js_register_cc_physics_IPhysicsWorld(se::Object* obj) {
-    auto* cls = se::Class::create("IPhysicsWorld", obj, nullptr, nullptr); 
-    
-    
-    cls->defineFunction("setGravity", _SE(js_cc_physics_IPhysicsWorld_setGravity)); 
-    cls->defineFunction("setAllowSleep", _SE(js_cc_physics_IPhysicsWorld_setAllowSleep)); 
-    cls->defineFunction("step", _SE(js_cc_physics_IPhysicsWorld_step)); 
-    cls->defineFunction("emitEvents", _SE(js_cc_physics_IPhysicsWorld_emitEvents)); 
-    cls->defineFunction("syncSceneToPhysics", _SE(js_cc_physics_IPhysicsWorld_syncSceneToPhysics)); 
-    cls->defineFunction("syncSceneWithCheck", _SE(js_cc_physics_IPhysicsWorld_syncSceneWithCheck)); 
-    cls->defineFunction("destroy", _SE(js_cc_physics_IPhysicsWorld_destroy)); 
-    cls->defineFunction("setCollisionMatrix", _SE(js_cc_physics_IPhysicsWorld_setCollisionMatrix)); 
-    cls->defineFunction("getTriggerEventPairs", _SE(js_cc_physics_IPhysicsWorld_getTriggerEventPairs)); 
-    cls->defineFunction("getContactEventPairs", _SE(js_cc_physics_IPhysicsWorld_getContactEventPairs)); 
-    cls->defineFunction("raycast", _SE(js_cc_physics_IPhysicsWorld_raycast)); 
-    cls->defineFunction("raycastClosest", _SE(js_cc_physics_IPhysicsWorld_raycastClosest)); 
-    cls->defineFunction("raycastResult", _SE(js_cc_physics_IPhysicsWorld_raycastResult)); 
-    cls->defineFunction("raycastClosestResult", _SE(js_cc_physics_IPhysicsWorld_raycastClosestResult)); 
-    cls->defineFunction("createConvex", _SE(js_cc_physics_IPhysicsWorld_createConvex)); 
-    cls->defineFunction("createTrimesh", _SE(js_cc_physics_IPhysicsWorld_createTrimesh)); 
-    cls->defineFunction("createHeightField", _SE(js_cc_physics_IPhysicsWorld_createHeightField)); 
-    cls->defineFunction("createMaterial", _SE(js_cc_physics_IPhysicsWorld_createMaterial)); 
-    
-    
-    
-    
-    cls->defineFinalizeFunction(_SE(js_delete_cc_physics_IPhysicsWorld));
-    
-    
-    cls->install();
-    JSBClassType::registerClass<cc::physics::IPhysicsWorld>(cls);
-    
-    __jsb_cc_physics_IPhysicsWorld_proto = cls->getProto();
-    __jsb_cc_physics_IPhysicsWorld_class = cls;
-    se::ScriptEngine::getInstance()->clearException();
-    return true;
-}
-
-
-se::Class* __jsb_cc_physics_IRigidBody_class = nullptr;
-se::Object* __jsb_cc_physics_IRigidBody_proto = nullptr;
-SE_DECLARE_FINALIZE_FUNC(js_delete_cc_physics_IRigidBody) 
-
-static bool js_delete_cc_physics_IRigidBody(se::State& s)
-{
-    // js_dtoroverride
-    return true;
-}
-SE_BIND_FINALIZE_FUNC(js_delete_cc_physics_IRigidBody) 
-
-static bool js_cc_physics_IRigidBody_initialize(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::IRigidBody *arg1 = (cc::physics::IRigidBody *) NULL ;
-    cc::Node *arg2 = (cc::Node *) NULL ;
-    cc::physics::ERigidBodyType arg3 ;
-    uint32_t arg4 ;
-    int32_t temp3 ;
-    
-    if(argc != 3) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::IRigidBody>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) SWIGTYPE*
-    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "IRigidBody_initialize,2,SWIGTYPE_p_cc__Node"); 
-    // %typemap(in) enum SWIGTYPE (int32_t temp3)
-    ok &= sevalue_to_native(args[1], &temp3);
-    SE_PRECONDITION2(ok, false, "IRigidBody_initialize,3,SWIGTYPE_cc__physics__ERigidBodyType");
-    arg3 = (cc::physics::ERigidBodyType)temp3;
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[2], &arg4, s.thisObject());
-    SE_PRECONDITION2(ok, false, "IRigidBody_initialize,4,SWIGTYPE_uint32_t"); 
-    
-    (arg1)->initialize(arg2,arg3,arg4);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_IRigidBody_initialize) 
-
-static bool js_cc_physics_IRigidBody_isAwake(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::IRigidBody *arg1 = (cc::physics::IRigidBody *) NULL ;
-    bool result;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::IRigidBody>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    result = (bool)(arg1)->isAwake();
-    // out 5
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_IRigidBody_isAwake) 
-
-static bool js_cc_physics_IRigidBody_isSleepy(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::IRigidBody *arg1 = (cc::physics::IRigidBody *) NULL ;
-    bool result;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::IRigidBody>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    result = (bool)(arg1)->isSleepy();
-    // out 5
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_IRigidBody_isSleepy) 
-
-static bool js_cc_physics_IRigidBody_isSleeping(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::IRigidBody *arg1 = (cc::physics::IRigidBody *) NULL ;
-    bool result;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::IRigidBody>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    result = (bool)(arg1)->isSleeping();
-    // out 5
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_IRigidBody_isSleeping) 
-
-static bool js_cc_physics_IRigidBody_setType(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::IRigidBody *arg1 = (cc::physics::IRigidBody *) NULL ;
-    cc::physics::ERigidBodyType arg2 ;
-    int32_t temp2 ;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::IRigidBody>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) enum SWIGTYPE (int32_t temp2)
-    ok &= sevalue_to_native(args[0], &temp2);
-    SE_PRECONDITION2(ok, false, "IRigidBody_setType,2,SWIGTYPE_cc__physics__ERigidBodyType");
-    arg2 = (cc::physics::ERigidBodyType)temp2;
-    (arg1)->setType(arg2);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_IRigidBody_setType) 
-
-static bool js_cc_physics_IRigidBody_setMass(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::IRigidBody *arg1 = (cc::physics::IRigidBody *) NULL ;
-    float arg2 ;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::IRigidBody>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[0], &arg2, nullptr);
-    SE_PRECONDITION2(ok, false, "IRigidBody_setMass,2,SWIGTYPE_float"); 
-    (arg1)->setMass(arg2);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_IRigidBody_setMass) 
-
-static bool js_cc_physics_IRigidBody_setLinearDamping(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::IRigidBody *arg1 = (cc::physics::IRigidBody *) NULL ;
-    float arg2 ;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::IRigidBody>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[0], &arg2, nullptr);
-    SE_PRECONDITION2(ok, false, "IRigidBody_setLinearDamping,2,SWIGTYPE_float"); 
-    (arg1)->setLinearDamping(arg2);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_IRigidBody_setLinearDamping) 
-
-static bool js_cc_physics_IRigidBody_setAngularDamping(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::IRigidBody *arg1 = (cc::physics::IRigidBody *) NULL ;
-    float arg2 ;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::IRigidBody>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[0], &arg2, nullptr);
-    SE_PRECONDITION2(ok, false, "IRigidBody_setAngularDamping,2,SWIGTYPE_float"); 
-    (arg1)->setAngularDamping(arg2);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_IRigidBody_setAngularDamping) 
-
-static bool js_cc_physics_IRigidBody_useGravity(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::IRigidBody *arg1 = (cc::physics::IRigidBody *) NULL ;
-    bool arg2 ;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::IRigidBody>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) bool
-    ok &= sevalue_to_native(args[0], &arg2);
-    SE_PRECONDITION2(ok, false, "IRigidBody_useGravity,2,SWIGTYPE_bool"); 
-    (arg1)->useGravity(arg2);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_IRigidBody_useGravity) 
-
-static bool js_cc_physics_IRigidBody_useCCD(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::IRigidBody *arg1 = (cc::physics::IRigidBody *) NULL ;
-    bool arg2 ;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::IRigidBody>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) bool
-    ok &= sevalue_to_native(args[0], &arg2);
-    SE_PRECONDITION2(ok, false, "IRigidBody_useCCD,2,SWIGTYPE_bool"); 
-    (arg1)->useCCD(arg2);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_IRigidBody_useCCD) 
-
-static bool js_cc_physics_IRigidBody_setLinearFactor(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::IRigidBody *arg1 = (cc::physics::IRigidBody *) NULL ;
-    float arg2 ;
-    float arg3 ;
-    float arg4 ;
-    
-    if(argc != 3) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::IRigidBody>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[0], &arg2, nullptr);
-    SE_PRECONDITION2(ok, false, "IRigidBody_setLinearFactor,2,SWIGTYPE_float"); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[1], &arg3, nullptr);
-    SE_PRECONDITION2(ok, false, "IRigidBody_setLinearFactor,3,SWIGTYPE_float"); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[2], &arg4, nullptr);
-    SE_PRECONDITION2(ok, false, "IRigidBody_setLinearFactor,4,SWIGTYPE_float"); 
-    (arg1)->setLinearFactor(arg2,arg3,arg4);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_IRigidBody_setLinearFactor) 
-
-static bool js_cc_physics_IRigidBody_setAngularFactor(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::IRigidBody *arg1 = (cc::physics::IRigidBody *) NULL ;
-    float arg2 ;
-    float arg3 ;
-    float arg4 ;
-    
-    if(argc != 3) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::IRigidBody>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[0], &arg2, nullptr);
-    SE_PRECONDITION2(ok, false, "IRigidBody_setAngularFactor,2,SWIGTYPE_float"); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[1], &arg3, nullptr);
-    SE_PRECONDITION2(ok, false, "IRigidBody_setAngularFactor,3,SWIGTYPE_float"); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[2], &arg4, nullptr);
-    SE_PRECONDITION2(ok, false, "IRigidBody_setAngularFactor,4,SWIGTYPE_float"); 
-    (arg1)->setAngularFactor(arg2,arg3,arg4);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_IRigidBody_setAngularFactor) 
-
-static bool js_cc_physics_IRigidBody_setAllowSleep(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::IRigidBody *arg1 = (cc::physics::IRigidBody *) NULL ;
-    bool arg2 ;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::IRigidBody>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) bool
-    ok &= sevalue_to_native(args[0], &arg2);
-    SE_PRECONDITION2(ok, false, "IRigidBody_setAllowSleep,2,SWIGTYPE_bool"); 
-    (arg1)->setAllowSleep(arg2);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_IRigidBody_setAllowSleep) 
-
-static bool js_cc_physics_IRigidBody_wakeUp(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::IRigidBody *arg1 = (cc::physics::IRigidBody *) NULL ;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::IRigidBody>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    (arg1)->wakeUp();
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_IRigidBody_wakeUp) 
-
-static bool js_cc_physics_IRigidBody_sleep(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::IRigidBody *arg1 = (cc::physics::IRigidBody *) NULL ;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::IRigidBody>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    (arg1)->sleep();
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_IRigidBody_sleep) 
-
-static bool js_cc_physics_IRigidBody_clearState(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::IRigidBody *arg1 = (cc::physics::IRigidBody *) NULL ;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::IRigidBody>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    (arg1)->clearState();
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_IRigidBody_clearState) 
-
-static bool js_cc_physics_IRigidBody_clearForces(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::IRigidBody *arg1 = (cc::physics::IRigidBody *) NULL ;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::IRigidBody>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    (arg1)->clearForces();
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_IRigidBody_clearForces) 
-
-static bool js_cc_physics_IRigidBody_clearVelocity(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::IRigidBody *arg1 = (cc::physics::IRigidBody *) NULL ;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::IRigidBody>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    (arg1)->clearVelocity();
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_IRigidBody_clearVelocity) 
-
-static bool js_cc_physics_IRigidBody_setSleepThreshold(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::IRigidBody *arg1 = (cc::physics::IRigidBody *) NULL ;
-    float arg2 ;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::IRigidBody>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[0], &arg2, nullptr);
-    SE_PRECONDITION2(ok, false, "IRigidBody_setSleepThreshold,2,SWIGTYPE_float"); 
-    (arg1)->setSleepThreshold(arg2);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_IRigidBody_setSleepThreshold) 
-
-static bool js_cc_physics_IRigidBody_getSleepThreshold(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::IRigidBody *arg1 = (cc::physics::IRigidBody *) NULL ;
-    float result;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::IRigidBody>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    result = (float)(arg1)->getSleepThreshold();
-    
-    // out 1
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/); 
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_IRigidBody_getSleepThreshold) 
-
-static bool js_cc_physics_IRigidBody_getLinearVelocity(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::IRigidBody *arg1 = (cc::physics::IRigidBody *) NULL ;
-    cc::Vec3 result;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::IRigidBody>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    result = (arg1)->getLinearVelocity();
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "IRigidBody_getLinearVelocity, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_IRigidBody_getLinearVelocity) 
-
-static bool js_cc_physics_IRigidBody_setLinearVelocity(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::IRigidBody *arg1 = (cc::physics::IRigidBody *) NULL ;
-    float arg2 ;
-    float arg3 ;
-    float arg4 ;
-    
-    if(argc != 3) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::IRigidBody>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[0], &arg2, nullptr);
-    SE_PRECONDITION2(ok, false, "IRigidBody_setLinearVelocity,2,SWIGTYPE_float"); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[1], &arg3, nullptr);
-    SE_PRECONDITION2(ok, false, "IRigidBody_setLinearVelocity,3,SWIGTYPE_float"); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[2], &arg4, nullptr);
-    SE_PRECONDITION2(ok, false, "IRigidBody_setLinearVelocity,4,SWIGTYPE_float"); 
-    (arg1)->setLinearVelocity(arg2,arg3,arg4);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_IRigidBody_setLinearVelocity) 
-
-static bool js_cc_physics_IRigidBody_getAngularVelocity(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::IRigidBody *arg1 = (cc::physics::IRigidBody *) NULL ;
-    cc::Vec3 result;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::IRigidBody>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    result = (arg1)->getAngularVelocity();
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "IRigidBody_getAngularVelocity, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_IRigidBody_getAngularVelocity) 
-
-static bool js_cc_physics_IRigidBody_setAngularVelocity(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::IRigidBody *arg1 = (cc::physics::IRigidBody *) NULL ;
-    float arg2 ;
-    float arg3 ;
-    float arg4 ;
-    
-    if(argc != 3) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::IRigidBody>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[0], &arg2, nullptr);
-    SE_PRECONDITION2(ok, false, "IRigidBody_setAngularVelocity,2,SWIGTYPE_float"); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[1], &arg3, nullptr);
-    SE_PRECONDITION2(ok, false, "IRigidBody_setAngularVelocity,3,SWIGTYPE_float"); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[2], &arg4, nullptr);
-    SE_PRECONDITION2(ok, false, "IRigidBody_setAngularVelocity,4,SWIGTYPE_float"); 
-    (arg1)->setAngularVelocity(arg2,arg3,arg4);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_IRigidBody_setAngularVelocity) 
-
-static bool js_cc_physics_IRigidBody_applyForce(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::IRigidBody *arg1 = (cc::physics::IRigidBody *) NULL ;
-    float arg2 ;
-    float arg3 ;
-    float arg4 ;
-    float arg5 ;
-    float arg6 ;
-    float arg7 ;
-    
-    if(argc != 6) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 6);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::IRigidBody>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[0], &arg2, nullptr);
-    SE_PRECONDITION2(ok, false, "IRigidBody_applyForce,2,SWIGTYPE_float"); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[1], &arg3, nullptr);
-    SE_PRECONDITION2(ok, false, "IRigidBody_applyForce,3,SWIGTYPE_float"); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[2], &arg4, nullptr);
-    SE_PRECONDITION2(ok, false, "IRigidBody_applyForce,4,SWIGTYPE_float"); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[3], &arg5, nullptr);
-    SE_PRECONDITION2(ok, false, "IRigidBody_applyForce,5,SWIGTYPE_float"); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[4], &arg6, nullptr);
-    SE_PRECONDITION2(ok, false, "IRigidBody_applyForce,6,SWIGTYPE_float"); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[5], &arg7, nullptr);
-    SE_PRECONDITION2(ok, false, "IRigidBody_applyForce,7,SWIGTYPE_float"); 
-    (arg1)->applyForce(arg2,arg3,arg4,arg5,arg6,arg7);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_IRigidBody_applyForce) 
-
-static bool js_cc_physics_IRigidBody_applyLocalForce(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::IRigidBody *arg1 = (cc::physics::IRigidBody *) NULL ;
-    float arg2 ;
-    float arg3 ;
-    float arg4 ;
-    float arg5 ;
-    float arg6 ;
-    float arg7 ;
-    
-    if(argc != 6) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 6);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::IRigidBody>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[0], &arg2, nullptr);
-    SE_PRECONDITION2(ok, false, "IRigidBody_applyLocalForce,2,SWIGTYPE_float"); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[1], &arg3, nullptr);
-    SE_PRECONDITION2(ok, false, "IRigidBody_applyLocalForce,3,SWIGTYPE_float"); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[2], &arg4, nullptr);
-    SE_PRECONDITION2(ok, false, "IRigidBody_applyLocalForce,4,SWIGTYPE_float"); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[3], &arg5, nullptr);
-    SE_PRECONDITION2(ok, false, "IRigidBody_applyLocalForce,5,SWIGTYPE_float"); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[4], &arg6, nullptr);
-    SE_PRECONDITION2(ok, false, "IRigidBody_applyLocalForce,6,SWIGTYPE_float"); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[5], &arg7, nullptr);
-    SE_PRECONDITION2(ok, false, "IRigidBody_applyLocalForce,7,SWIGTYPE_float"); 
-    (arg1)->applyLocalForce(arg2,arg3,arg4,arg5,arg6,arg7);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_IRigidBody_applyLocalForce) 
-
-static bool js_cc_physics_IRigidBody_applyImpulse(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::IRigidBody *arg1 = (cc::physics::IRigidBody *) NULL ;
-    float arg2 ;
-    float arg3 ;
-    float arg4 ;
-    float arg5 ;
-    float arg6 ;
-    float arg7 ;
-    
-    if(argc != 6) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 6);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::IRigidBody>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[0], &arg2, nullptr);
-    SE_PRECONDITION2(ok, false, "IRigidBody_applyImpulse,2,SWIGTYPE_float"); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[1], &arg3, nullptr);
-    SE_PRECONDITION2(ok, false, "IRigidBody_applyImpulse,3,SWIGTYPE_float"); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[2], &arg4, nullptr);
-    SE_PRECONDITION2(ok, false, "IRigidBody_applyImpulse,4,SWIGTYPE_float"); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[3], &arg5, nullptr);
-    SE_PRECONDITION2(ok, false, "IRigidBody_applyImpulse,5,SWIGTYPE_float"); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[4], &arg6, nullptr);
-    SE_PRECONDITION2(ok, false, "IRigidBody_applyImpulse,6,SWIGTYPE_float"); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[5], &arg7, nullptr);
-    SE_PRECONDITION2(ok, false, "IRigidBody_applyImpulse,7,SWIGTYPE_float"); 
-    (arg1)->applyImpulse(arg2,arg3,arg4,arg5,arg6,arg7);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_IRigidBody_applyImpulse) 
-
-static bool js_cc_physics_IRigidBody_applyLocalImpulse(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::IRigidBody *arg1 = (cc::physics::IRigidBody *) NULL ;
-    float arg2 ;
-    float arg3 ;
-    float arg4 ;
-    float arg5 ;
-    float arg6 ;
-    float arg7 ;
-    
-    if(argc != 6) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 6);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::IRigidBody>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[0], &arg2, nullptr);
-    SE_PRECONDITION2(ok, false, "IRigidBody_applyLocalImpulse,2,SWIGTYPE_float"); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[1], &arg3, nullptr);
-    SE_PRECONDITION2(ok, false, "IRigidBody_applyLocalImpulse,3,SWIGTYPE_float"); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[2], &arg4, nullptr);
-    SE_PRECONDITION2(ok, false, "IRigidBody_applyLocalImpulse,4,SWIGTYPE_float"); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[3], &arg5, nullptr);
-    SE_PRECONDITION2(ok, false, "IRigidBody_applyLocalImpulse,5,SWIGTYPE_float"); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[4], &arg6, nullptr);
-    SE_PRECONDITION2(ok, false, "IRigidBody_applyLocalImpulse,6,SWIGTYPE_float"); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[5], &arg7, nullptr);
-    SE_PRECONDITION2(ok, false, "IRigidBody_applyLocalImpulse,7,SWIGTYPE_float"); 
-    (arg1)->applyLocalImpulse(arg2,arg3,arg4,arg5,arg6,arg7);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_IRigidBody_applyLocalImpulse) 
-
-static bool js_cc_physics_IRigidBody_applyTorque(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::IRigidBody *arg1 = (cc::physics::IRigidBody *) NULL ;
-    float arg2 ;
-    float arg3 ;
-    float arg4 ;
-    
-    if(argc != 3) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::IRigidBody>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[0], &arg2, nullptr);
-    SE_PRECONDITION2(ok, false, "IRigidBody_applyTorque,2,SWIGTYPE_float"); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[1], &arg3, nullptr);
-    SE_PRECONDITION2(ok, false, "IRigidBody_applyTorque,3,SWIGTYPE_float"); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[2], &arg4, nullptr);
-    SE_PRECONDITION2(ok, false, "IRigidBody_applyTorque,4,SWIGTYPE_float"); 
-    (arg1)->applyTorque(arg2,arg3,arg4);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_IRigidBody_applyTorque) 
-
-static bool js_cc_physics_IRigidBody_applyLocalTorque(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::IRigidBody *arg1 = (cc::physics::IRigidBody *) NULL ;
-    float arg2 ;
-    float arg3 ;
-    float arg4 ;
-    
-    if(argc != 3) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::IRigidBody>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[0], &arg2, nullptr);
-    SE_PRECONDITION2(ok, false, "IRigidBody_applyLocalTorque,2,SWIGTYPE_float"); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[1], &arg3, nullptr);
-    SE_PRECONDITION2(ok, false, "IRigidBody_applyLocalTorque,3,SWIGTYPE_float"); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[2], &arg4, nullptr);
-    SE_PRECONDITION2(ok, false, "IRigidBody_applyLocalTorque,4,SWIGTYPE_float"); 
-    (arg1)->applyLocalTorque(arg2,arg3,arg4);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_IRigidBody_applyLocalTorque) 
-
-static bool js_cc_physics_IRigidBody_getGroup(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::IRigidBody *arg1 = (cc::physics::IRigidBody *) NULL ;
-    uint32_t result;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::IRigidBody>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    result = (arg1)->getGroup();
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "IRigidBody_getGroup, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_IRigidBody_getGroup) 
-
-static bool js_cc_physics_IRigidBody_setGroup(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::IRigidBody *arg1 = (cc::physics::IRigidBody *) NULL ;
-    uint32_t arg2 ;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::IRigidBody>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "IRigidBody_setGroup,2,SWIGTYPE_uint32_t"); 
-    
-    (arg1)->setGroup(arg2);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_IRigidBody_setGroup) 
-
-static bool js_cc_physics_IRigidBody_getMask(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::IRigidBody *arg1 = (cc::physics::IRigidBody *) NULL ;
-    uint32_t result;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::IRigidBody>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    result = (arg1)->getMask();
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "IRigidBody_getMask, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_IRigidBody_getMask) 
-
-static bool js_cc_physics_IRigidBody_setMask(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::IRigidBody *arg1 = (cc::physics::IRigidBody *) NULL ;
-    uint32_t arg2 ;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::IRigidBody>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "IRigidBody_setMask,2,SWIGTYPE_uint32_t"); 
-    
-    (arg1)->setMask(arg2);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_IRigidBody_setMask) 
-
-static bool js_cc_physics_IRigidBody_getObjectID(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::IRigidBody *arg1 = (cc::physics::IRigidBody *) NULL ;
-    uint32_t result;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::IRigidBody>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    result = ((cc::physics::IRigidBody const *)arg1)->getObjectID();
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "IRigidBody_getObjectID, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_IRigidBody_getObjectID) 
-
-bool js_register_cc_physics_IRigidBody(se::Object* obj) {
-    auto* cls = se::Class::create("IRigidBody", obj, __jsb_cc_physics_ILifecycle_proto, nullptr); 
-    
-    
-    cls->defineFunction("initialize", _SE(js_cc_physics_IRigidBody_initialize)); 
-    cls->defineFunction("isAwake", _SE(js_cc_physics_IRigidBody_isAwake)); 
-    cls->defineFunction("isSleepy", _SE(js_cc_physics_IRigidBody_isSleepy)); 
-    cls->defineFunction("isSleeping", _SE(js_cc_physics_IRigidBody_isSleeping)); 
-    cls->defineFunction("setType", _SE(js_cc_physics_IRigidBody_setType)); 
-    cls->defineFunction("setMass", _SE(js_cc_physics_IRigidBody_setMass)); 
-    cls->defineFunction("setLinearDamping", _SE(js_cc_physics_IRigidBody_setLinearDamping)); 
-    cls->defineFunction("setAngularDamping", _SE(js_cc_physics_IRigidBody_setAngularDamping)); 
-    cls->defineFunction("useGravity", _SE(js_cc_physics_IRigidBody_useGravity)); 
-    cls->defineFunction("useCCD", _SE(js_cc_physics_IRigidBody_useCCD)); 
-    cls->defineFunction("setLinearFactor", _SE(js_cc_physics_IRigidBody_setLinearFactor)); 
-    cls->defineFunction("setAngularFactor", _SE(js_cc_physics_IRigidBody_setAngularFactor)); 
-    cls->defineFunction("setAllowSleep", _SE(js_cc_physics_IRigidBody_setAllowSleep)); 
-    cls->defineFunction("wakeUp", _SE(js_cc_physics_IRigidBody_wakeUp)); 
-    cls->defineFunction("sleep", _SE(js_cc_physics_IRigidBody_sleep)); 
-    cls->defineFunction("clearState", _SE(js_cc_physics_IRigidBody_clearState)); 
-    cls->defineFunction("clearForces", _SE(js_cc_physics_IRigidBody_clearForces)); 
-    cls->defineFunction("clearVelocity", _SE(js_cc_physics_IRigidBody_clearVelocity)); 
-    cls->defineFunction("setSleepThreshold", _SE(js_cc_physics_IRigidBody_setSleepThreshold)); 
-    cls->defineFunction("getSleepThreshold", _SE(js_cc_physics_IRigidBody_getSleepThreshold)); 
-    cls->defineFunction("getLinearVelocity", _SE(js_cc_physics_IRigidBody_getLinearVelocity)); 
-    cls->defineFunction("setLinearVelocity", _SE(js_cc_physics_IRigidBody_setLinearVelocity)); 
-    cls->defineFunction("getAngularVelocity", _SE(js_cc_physics_IRigidBody_getAngularVelocity)); 
-    cls->defineFunction("setAngularVelocity", _SE(js_cc_physics_IRigidBody_setAngularVelocity)); 
-    cls->defineFunction("applyForce", _SE(js_cc_physics_IRigidBody_applyForce)); 
-    cls->defineFunction("applyLocalForce", _SE(js_cc_physics_IRigidBody_applyLocalForce)); 
-    cls->defineFunction("applyImpulse", _SE(js_cc_physics_IRigidBody_applyImpulse)); 
-    cls->defineFunction("applyLocalImpulse", _SE(js_cc_physics_IRigidBody_applyLocalImpulse)); 
-    cls->defineFunction("applyTorque", _SE(js_cc_physics_IRigidBody_applyTorque)); 
-    cls->defineFunction("applyLocalTorque", _SE(js_cc_physics_IRigidBody_applyLocalTorque)); 
-    cls->defineFunction("getGroup", _SE(js_cc_physics_IRigidBody_getGroup)); 
-    cls->defineFunction("setGroup", _SE(js_cc_physics_IRigidBody_setGroup)); 
-    cls->defineFunction("getMask", _SE(js_cc_physics_IRigidBody_getMask)); 
-    cls->defineFunction("setMask", _SE(js_cc_physics_IRigidBody_setMask)); 
-    cls->defineFunction("getObjectID", _SE(js_cc_physics_IRigidBody_getObjectID)); 
-    
-    
-    
-    
-    cls->defineFinalizeFunction(_SE(js_delete_cc_physics_IRigidBody));
-    
-    
-    cls->install();
-    JSBClassType::registerClass<cc::physics::IRigidBody>(cls);
-    
-    __jsb_cc_physics_IRigidBody_proto = cls->getProto();
-    __jsb_cc_physics_IRigidBody_class = cls;
-    se::ScriptEngine::getInstance()->clearException();
-    return true;
-}
-
-
-se::Class* __jsb_cc_physics_IBaseShape_class = nullptr;
-se::Object* __jsb_cc_physics_IBaseShape_proto = nullptr;
-SE_DECLARE_FINALIZE_FUNC(js_delete_cc_physics_IBaseShape) 
-
-static bool js_delete_cc_physics_IBaseShape(se::State& s)
-{
-    // js_dtoroverride
-    return true;
-}
-SE_BIND_FINALIZE_FUNC(js_delete_cc_physics_IBaseShape) 
-
-static bool js_cc_physics_IBaseShape_initialize(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::IBaseShape *arg1 = (cc::physics::IBaseShape *) NULL ;
-    cc::Node *arg2 = (cc::Node *) NULL ;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::IBaseShape>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) SWIGTYPE*
-    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "IBaseShape_initialize,2,SWIGTYPE_p_cc__Node"); 
-    (arg1)->initialize(arg2);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_IBaseShape_initialize) 
-
-static bool js_cc_physics_IBaseShape_setMaterial(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::IBaseShape *arg1 = (cc::physics::IBaseShape *) NULL ;
-    uint16_t arg2 ;
-    float arg3 ;
-    float arg4 ;
-    float arg5 ;
-    uint8_t arg6 ;
-    uint8_t arg7 ;
-    
-    if(argc != 6) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 6);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::IBaseShape>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "IBaseShape_setMaterial,2,SWIGTYPE_uint16_t"); 
-    
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[1], &arg3, nullptr);
-    SE_PRECONDITION2(ok, false, "IBaseShape_setMaterial,3,SWIGTYPE_float"); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[2], &arg4, nullptr);
-    SE_PRECONDITION2(ok, false, "IBaseShape_setMaterial,4,SWIGTYPE_float"); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[3], &arg5, nullptr);
-    SE_PRECONDITION2(ok, false, "IBaseShape_setMaterial,5,SWIGTYPE_float"); 
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[4], &arg6, s.thisObject());
-    SE_PRECONDITION2(ok, false, "IBaseShape_setMaterial,6,SWIGTYPE_uint8_t"); 
-    
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[5], &arg7, s.thisObject());
-    SE_PRECONDITION2(ok, false, "IBaseShape_setMaterial,7,SWIGTYPE_uint8_t"); 
-    
-    (arg1)->setMaterial(arg2,arg3,arg4,arg5,arg6,arg7);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_IBaseShape_setMaterial) 
-
-static bool js_cc_physics_IBaseShape_setAsTrigger(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::IBaseShape *arg1 = (cc::physics::IBaseShape *) NULL ;
-    bool arg2 ;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::IBaseShape>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) bool
-    ok &= sevalue_to_native(args[0], &arg2);
-    SE_PRECONDITION2(ok, false, "IBaseShape_setAsTrigger,2,SWIGTYPE_bool"); 
-    (arg1)->setAsTrigger(arg2);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_IBaseShape_setAsTrigger) 
-
-static bool js_cc_physics_IBaseShape_setCenter(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::IBaseShape *arg1 = (cc::physics::IBaseShape *) NULL ;
-    float arg2 ;
-    float arg3 ;
-    float arg4 ;
-    
-    if(argc != 3) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::IBaseShape>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[0], &arg2, nullptr);
-    SE_PRECONDITION2(ok, false, "IBaseShape_setCenter,2,SWIGTYPE_float"); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[1], &arg3, nullptr);
-    SE_PRECONDITION2(ok, false, "IBaseShape_setCenter,3,SWIGTYPE_float"); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[2], &arg4, nullptr);
-    SE_PRECONDITION2(ok, false, "IBaseShape_setCenter,4,SWIGTYPE_float"); 
-    (arg1)->setCenter(arg2,arg3,arg4);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_IBaseShape_setCenter) 
-
-static bool js_cc_physics_IBaseShape_getAABB(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::IBaseShape *arg1 = (cc::physics::IBaseShape *) NULL ;
-    cc::geometry::AABB *result = 0 ;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::IBaseShape>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    result = (cc::geometry::AABB *) &(arg1)->getAABB();
-    // %typemap(out) SWIGTYPE&
-    ok &= nativevalue_to_se(*result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "IBaseShape_getAABB, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(*result, s.thisObject(), s.rval()); 
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_IBaseShape_getAABB) 
-
-static bool js_cc_physics_IBaseShape_getBoundingSphere(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::IBaseShape *arg1 = (cc::physics::IBaseShape *) NULL ;
-    cc::geometry::Sphere *result = 0 ;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::IBaseShape>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    result = (cc::geometry::Sphere *) &(arg1)->getBoundingSphere();
-    // %typemap(out) SWIGTYPE&
-    ok &= nativevalue_to_se(*result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "IBaseShape_getBoundingSphere, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(*result, s.thisObject(), s.rval()); 
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_IBaseShape_getBoundingSphere) 
-
-static bool js_cc_physics_IBaseShape_updateEventListener(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::IBaseShape *arg1 = (cc::physics::IBaseShape *) NULL ;
-    cc::physics::EShapeFilterFlag arg2 ;
-    int32_t temp2 ;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::IBaseShape>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) enum SWIGTYPE (int32_t temp2)
-    ok &= sevalue_to_native(args[0], &temp2);
-    SE_PRECONDITION2(ok, false, "IBaseShape_updateEventListener,2,SWIGTYPE_cc__physics__EShapeFilterFlag");
-    arg2 = (cc::physics::EShapeFilterFlag)temp2;
-    (arg1)->updateEventListener(arg2);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_IBaseShape_updateEventListener) 
-
-static bool js_cc_physics_IBaseShape_getGroup(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::IBaseShape *arg1 = (cc::physics::IBaseShape *) NULL ;
-    uint32_t result;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::IBaseShape>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    result = (arg1)->getGroup();
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "IBaseShape_getGroup, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_IBaseShape_getGroup) 
-
-static bool js_cc_physics_IBaseShape_setGroup(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::IBaseShape *arg1 = (cc::physics::IBaseShape *) NULL ;
-    uint32_t arg2 ;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::IBaseShape>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "IBaseShape_setGroup,2,SWIGTYPE_uint32_t"); 
-    
-    (arg1)->setGroup(arg2);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_IBaseShape_setGroup) 
-
-static bool js_cc_physics_IBaseShape_getMask(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::IBaseShape *arg1 = (cc::physics::IBaseShape *) NULL ;
-    uint32_t result;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::IBaseShape>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    result = (arg1)->getMask();
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "IBaseShape_getMask, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_IBaseShape_getMask) 
-
-static bool js_cc_physics_IBaseShape_setMask(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::IBaseShape *arg1 = (cc::physics::IBaseShape *) NULL ;
-    uint32_t arg2 ;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::IBaseShape>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "IBaseShape_setMask,2,SWIGTYPE_uint32_t"); 
-    
-    (arg1)->setMask(arg2);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_IBaseShape_setMask) 
-
-static bool js_cc_physics_IBaseShape_getObjectID(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::IBaseShape *arg1 = (cc::physics::IBaseShape *) NULL ;
-    uint32_t result;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::IBaseShape>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    result = ((cc::physics::IBaseShape const *)arg1)->getObjectID();
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "IBaseShape_getObjectID, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_IBaseShape_getObjectID) 
-
-bool js_register_cc_physics_IBaseShape(se::Object* obj) {
-    auto* cls = se::Class::create("IBaseShape", obj, __jsb_cc_physics_ILifecycle_proto, nullptr); 
-    
-    
-    cls->defineFunction("initialize", _SE(js_cc_physics_IBaseShape_initialize)); 
-    cls->defineFunction("setMaterial", _SE(js_cc_physics_IBaseShape_setMaterial)); 
-    cls->defineFunction("setAsTrigger", _SE(js_cc_physics_IBaseShape_setAsTrigger)); 
-    cls->defineFunction("setCenter", _SE(js_cc_physics_IBaseShape_setCenter)); 
-    cls->defineFunction("getAABB", _SE(js_cc_physics_IBaseShape_getAABB)); 
-    cls->defineFunction("getBoundingSphere", _SE(js_cc_physics_IBaseShape_getBoundingSphere)); 
-    cls->defineFunction("updateEventListener", _SE(js_cc_physics_IBaseShape_updateEventListener)); 
-    cls->defineFunction("getGroup", _SE(js_cc_physics_IBaseShape_getGroup)); 
-    cls->defineFunction("setGroup", _SE(js_cc_physics_IBaseShape_setGroup)); 
-    cls->defineFunction("getMask", _SE(js_cc_physics_IBaseShape_getMask)); 
-    cls->defineFunction("setMask", _SE(js_cc_physics_IBaseShape_setMask)); 
-    cls->defineFunction("getObjectID", _SE(js_cc_physics_IBaseShape_getObjectID)); 
-    
-    
-    
-    
-    cls->defineFinalizeFunction(_SE(js_delete_cc_physics_IBaseShape));
-    
-    
-    cls->install();
-    JSBClassType::registerClass<cc::physics::IBaseShape>(cls);
-    
-    __jsb_cc_physics_IBaseShape_proto = cls->getProto();
-    __jsb_cc_physics_IBaseShape_class = cls;
-    se::ScriptEngine::getInstance()->clearException();
-    return true;
-}
-
-
-se::Class* __jsb_cc_physics_ISphereShape_class = nullptr;
-se::Object* __jsb_cc_physics_ISphereShape_proto = nullptr;
-SE_DECLARE_FINALIZE_FUNC(js_delete_cc_physics_ISphereShape) 
-
-static bool js_delete_cc_physics_ISphereShape(se::State& s)
-{
-    // js_dtoroverride
-    return true;
-}
-SE_BIND_FINALIZE_FUNC(js_delete_cc_physics_ISphereShape) 
-
-static bool js_cc_physics_ISphereShape_setRadius(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::ISphereShape *arg1 = (cc::physics::ISphereShape *) NULL ;
-    float arg2 ;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::ISphereShape>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[0], &arg2, nullptr);
-    SE_PRECONDITION2(ok, false, "ISphereShape_setRadius,2,SWIGTYPE_float"); 
-    (arg1)->setRadius(arg2);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_ISphereShape_setRadius) 
-
-bool js_register_cc_physics_ISphereShape(se::Object* obj) {
-    auto* cls = se::Class::create("ISphereShape", obj, __jsb_cc_physics_IBaseShape_proto, nullptr); 
-    
-    
-    cls->defineFunction("setRadius", _SE(js_cc_physics_ISphereShape_setRadius)); 
-    
-    
-    
-    
-    cls->defineFinalizeFunction(_SE(js_delete_cc_physics_ISphereShape));
-    
-    
-    cls->install();
-    JSBClassType::registerClass<cc::physics::ISphereShape>(cls);
-    
-    __jsb_cc_physics_ISphereShape_proto = cls->getProto();
-    __jsb_cc_physics_ISphereShape_class = cls;
-    se::ScriptEngine::getInstance()->clearException();
-    return true;
-}
-
-
-se::Class* __jsb_cc_physics_IBoxShape_class = nullptr;
-se::Object* __jsb_cc_physics_IBoxShape_proto = nullptr;
-SE_DECLARE_FINALIZE_FUNC(js_delete_cc_physics_IBoxShape) 
-
-static bool js_delete_cc_physics_IBoxShape(se::State& s)
-{
-    // js_dtoroverride
-    return true;
-}
-SE_BIND_FINALIZE_FUNC(js_delete_cc_physics_IBoxShape) 
-
-static bool js_cc_physics_IBoxShape_setSize(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::IBoxShape *arg1 = (cc::physics::IBoxShape *) NULL ;
-    float arg2 ;
-    float arg3 ;
-    float arg4 ;
-    
-    if(argc != 3) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::IBoxShape>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[0], &arg2, nullptr);
-    SE_PRECONDITION2(ok, false, "IBoxShape_setSize,2,SWIGTYPE_float"); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[1], &arg3, nullptr);
-    SE_PRECONDITION2(ok, false, "IBoxShape_setSize,3,SWIGTYPE_float"); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[2], &arg4, nullptr);
-    SE_PRECONDITION2(ok, false, "IBoxShape_setSize,4,SWIGTYPE_float"); 
-    (arg1)->setSize(arg2,arg3,arg4);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_IBoxShape_setSize) 
-
-bool js_register_cc_physics_IBoxShape(se::Object* obj) {
-    auto* cls = se::Class::create("IBoxShape", obj, __jsb_cc_physics_IBaseShape_proto, nullptr); 
-    
-    
-    cls->defineFunction("setSize", _SE(js_cc_physics_IBoxShape_setSize)); 
-    
-    
-    
-    
-    cls->defineFinalizeFunction(_SE(js_delete_cc_physics_IBoxShape));
-    
-    
-    cls->install();
-    JSBClassType::registerClass<cc::physics::IBoxShape>(cls);
-    
-    __jsb_cc_physics_IBoxShape_proto = cls->getProto();
-    __jsb_cc_physics_IBoxShape_class = cls;
-    se::ScriptEngine::getInstance()->clearException();
-    return true;
-}
-
-
-se::Class* __jsb_cc_physics_ICapsuleShape_class = nullptr;
-se::Object* __jsb_cc_physics_ICapsuleShape_proto = nullptr;
-SE_DECLARE_FINALIZE_FUNC(js_delete_cc_physics_ICapsuleShape) 
-
-static bool js_delete_cc_physics_ICapsuleShape(se::State& s)
-{
-    // js_dtoroverride
-    return true;
-}
-SE_BIND_FINALIZE_FUNC(js_delete_cc_physics_ICapsuleShape) 
-
-static bool js_cc_physics_ICapsuleShape_setRadius(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::ICapsuleShape *arg1 = (cc::physics::ICapsuleShape *) NULL ;
-    float arg2 ;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::ICapsuleShape>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[0], &arg2, nullptr);
-    SE_PRECONDITION2(ok, false, "ICapsuleShape_setRadius,2,SWIGTYPE_float"); 
-    (arg1)->setRadius(arg2);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_ICapsuleShape_setRadius) 
-
-static bool js_cc_physics_ICapsuleShape_setCylinderHeight(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::ICapsuleShape *arg1 = (cc::physics::ICapsuleShape *) NULL ;
-    float arg2 ;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::ICapsuleShape>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[0], &arg2, nullptr);
-    SE_PRECONDITION2(ok, false, "ICapsuleShape_setCylinderHeight,2,SWIGTYPE_float"); 
-    (arg1)->setCylinderHeight(arg2);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_ICapsuleShape_setCylinderHeight) 
-
-static bool js_cc_physics_ICapsuleShape_setDirection(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::ICapsuleShape *arg1 = (cc::physics::ICapsuleShape *) NULL ;
-    cc::physics::EAxisDirection arg2 ;
-    int32_t temp2 ;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::ICapsuleShape>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) enum SWIGTYPE (int32_t temp2)
-    ok &= sevalue_to_native(args[0], &temp2);
-    SE_PRECONDITION2(ok, false, "ICapsuleShape_setDirection,2,SWIGTYPE_cc__physics__EAxisDirection");
-    arg2 = (cc::physics::EAxisDirection)temp2;
-    (arg1)->setDirection(arg2);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_ICapsuleShape_setDirection) 
-
-bool js_register_cc_physics_ICapsuleShape(se::Object* obj) {
-    auto* cls = se::Class::create("ICapsuleShape", obj, __jsb_cc_physics_IBaseShape_proto, nullptr); 
-    
-    
-    cls->defineFunction("setRadius", _SE(js_cc_physics_ICapsuleShape_setRadius)); 
-    cls->defineFunction("setCylinderHeight", _SE(js_cc_physics_ICapsuleShape_setCylinderHeight)); 
-    cls->defineFunction("setDirection", _SE(js_cc_physics_ICapsuleShape_setDirection)); 
-    
-    
-    
-    
-    cls->defineFinalizeFunction(_SE(js_delete_cc_physics_ICapsuleShape));
-    
-    
-    cls->install();
-    JSBClassType::registerClass<cc::physics::ICapsuleShape>(cls);
-    
-    __jsb_cc_physics_ICapsuleShape_proto = cls->getProto();
-    __jsb_cc_physics_ICapsuleShape_class = cls;
-    se::ScriptEngine::getInstance()->clearException();
-    return true;
-}
-
-
-se::Class* __jsb_cc_physics_ICylinderShape_class = nullptr;
-se::Object* __jsb_cc_physics_ICylinderShape_proto = nullptr;
-SE_DECLARE_FINALIZE_FUNC(js_delete_cc_physics_ICylinderShape) 
-
-static bool js_delete_cc_physics_ICylinderShape(se::State& s)
-{
-    // js_dtoroverride
-    return true;
-}
-SE_BIND_FINALIZE_FUNC(js_delete_cc_physics_ICylinderShape) 
-
-static bool js_cc_physics_ICylinderShape_setConvex(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::ICylinderShape *arg1 = (cc::physics::ICylinderShape *) NULL ;
-    uint32_t arg2 ;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::ICylinderShape>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "ICylinderShape_setConvex,2,SWIGTYPE_uint32_t"); 
-    
-    (arg1)->setConvex(arg2);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_ICylinderShape_setConvex) 
-
-static bool js_cc_physics_ICylinderShape_setCylinder(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::ICylinderShape *arg1 = (cc::physics::ICylinderShape *) NULL ;
-    float arg2 ;
-    float arg3 ;
-    cc::physics::EAxisDirection arg4 ;
-    int32_t temp4 ;
-    
-    if(argc != 3) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::ICylinderShape>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[0], &arg2, nullptr);
-    SE_PRECONDITION2(ok, false, "ICylinderShape_setCylinder,2,SWIGTYPE_float"); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[1], &arg3, nullptr);
-    SE_PRECONDITION2(ok, false, "ICylinderShape_setCylinder,3,SWIGTYPE_float"); 
-    // %typemap(in) enum SWIGTYPE (int32_t temp4)
-    ok &= sevalue_to_native(args[2], &temp4);
-    SE_PRECONDITION2(ok, false, "ICylinderShape_setCylinder,4,SWIGTYPE_cc__physics__EAxisDirection");
-    arg4 = (cc::physics::EAxisDirection)temp4;
-    (arg1)->setCylinder(arg2,arg3,arg4);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_ICylinderShape_setCylinder) 
-
-bool js_register_cc_physics_ICylinderShape(se::Object* obj) {
-    auto* cls = se::Class::create("ICylinderShape", obj, __jsb_cc_physics_IBaseShape_proto, nullptr); 
-    
-    
-    cls->defineFunction("setConvex", _SE(js_cc_physics_ICylinderShape_setConvex)); 
-    cls->defineFunction("setCylinder", _SE(js_cc_physics_ICylinderShape_setCylinder)); 
-    
-    
-    
-    
-    cls->defineFinalizeFunction(_SE(js_delete_cc_physics_ICylinderShape));
-    
-    
-    cls->install();
-    JSBClassType::registerClass<cc::physics::ICylinderShape>(cls);
-    
-    __jsb_cc_physics_ICylinderShape_proto = cls->getProto();
-    __jsb_cc_physics_ICylinderShape_class = cls;
-    se::ScriptEngine::getInstance()->clearException();
-    return true;
-}
-
-
-se::Class* __jsb_cc_physics_IConeShape_class = nullptr;
-se::Object* __jsb_cc_physics_IConeShape_proto = nullptr;
-SE_DECLARE_FINALIZE_FUNC(js_delete_cc_physics_IConeShape) 
-
-static bool js_delete_cc_physics_IConeShape(se::State& s)
-{
-    // js_dtoroverride
-    return true;
-}
-SE_BIND_FINALIZE_FUNC(js_delete_cc_physics_IConeShape) 
-
-static bool js_cc_physics_IConeShape_setConvex(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::IConeShape *arg1 = (cc::physics::IConeShape *) NULL ;
-    uint32_t arg2 ;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::IConeShape>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "IConeShape_setConvex,2,SWIGTYPE_uint32_t"); 
-    
-    (arg1)->setConvex(arg2);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_IConeShape_setConvex) 
-
-static bool js_cc_physics_IConeShape_setCone(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::IConeShape *arg1 = (cc::physics::IConeShape *) NULL ;
-    float arg2 ;
-    float arg3 ;
-    cc::physics::EAxisDirection arg4 ;
-    int32_t temp4 ;
-    
-    if(argc != 3) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::IConeShape>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[0], &arg2, nullptr);
-    SE_PRECONDITION2(ok, false, "IConeShape_setCone,2,SWIGTYPE_float"); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[1], &arg3, nullptr);
-    SE_PRECONDITION2(ok, false, "IConeShape_setCone,3,SWIGTYPE_float"); 
-    // %typemap(in) enum SWIGTYPE (int32_t temp4)
-    ok &= sevalue_to_native(args[2], &temp4);
-    SE_PRECONDITION2(ok, false, "IConeShape_setCone,4,SWIGTYPE_cc__physics__EAxisDirection");
-    arg4 = (cc::physics::EAxisDirection)temp4;
-    (arg1)->setCone(arg2,arg3,arg4);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_IConeShape_setCone) 
-
-bool js_register_cc_physics_IConeShape(se::Object* obj) {
-    auto* cls = se::Class::create("IConeShape", obj, __jsb_cc_physics_IBaseShape_proto, nullptr); 
-    
-    
-    cls->defineFunction("setConvex", _SE(js_cc_physics_IConeShape_setConvex)); 
-    cls->defineFunction("setCone", _SE(js_cc_physics_IConeShape_setCone)); 
-    
-    
-    
-    
-    cls->defineFinalizeFunction(_SE(js_delete_cc_physics_IConeShape));
-    
-    
-    cls->install();
-    JSBClassType::registerClass<cc::physics::IConeShape>(cls);
-    
-    __jsb_cc_physics_IConeShape_proto = cls->getProto();
-    __jsb_cc_physics_IConeShape_class = cls;
-    se::ScriptEngine::getInstance()->clearException();
-    return true;
-}
-
-
-se::Class* __jsb_cc_physics_IPlaneShape_class = nullptr;
-se::Object* __jsb_cc_physics_IPlaneShape_proto = nullptr;
-SE_DECLARE_FINALIZE_FUNC(js_delete_cc_physics_IPlaneShape) 
-
-static bool js_delete_cc_physics_IPlaneShape(se::State& s)
-{
-    // js_dtoroverride
-    return true;
-}
-SE_BIND_FINALIZE_FUNC(js_delete_cc_physics_IPlaneShape) 
-
-static bool js_cc_physics_IPlaneShape_setConstant(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::IPlaneShape *arg1 = (cc::physics::IPlaneShape *) NULL ;
-    float arg2 ;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::IPlaneShape>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[0], &arg2, nullptr);
-    SE_PRECONDITION2(ok, false, "IPlaneShape_setConstant,2,SWIGTYPE_float"); 
-    (arg1)->setConstant(arg2);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_IPlaneShape_setConstant) 
-
-static bool js_cc_physics_IPlaneShape_setNormal(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::IPlaneShape *arg1 = (cc::physics::IPlaneShape *) NULL ;
-    float arg2 ;
-    float arg3 ;
-    float arg4 ;
-    
-    if(argc != 3) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::IPlaneShape>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[0], &arg2, nullptr);
-    SE_PRECONDITION2(ok, false, "IPlaneShape_setNormal,2,SWIGTYPE_float"); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[1], &arg3, nullptr);
-    SE_PRECONDITION2(ok, false, "IPlaneShape_setNormal,3,SWIGTYPE_float"); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[2], &arg4, nullptr);
-    SE_PRECONDITION2(ok, false, "IPlaneShape_setNormal,4,SWIGTYPE_float"); 
-    (arg1)->setNormal(arg2,arg3,arg4);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_IPlaneShape_setNormal) 
-
-bool js_register_cc_physics_IPlaneShape(se::Object* obj) {
-    auto* cls = se::Class::create("IPlaneShape", obj, __jsb_cc_physics_IBaseShape_proto, nullptr); 
-    
-    
-    cls->defineFunction("setConstant", _SE(js_cc_physics_IPlaneShape_setConstant)); 
-    cls->defineFunction("setNormal", _SE(js_cc_physics_IPlaneShape_setNormal)); 
-    
-    
-    
-    
-    cls->defineFinalizeFunction(_SE(js_delete_cc_physics_IPlaneShape));
-    
-    
-    cls->install();
-    JSBClassType::registerClass<cc::physics::IPlaneShape>(cls);
-    
-    __jsb_cc_physics_IPlaneShape_proto = cls->getProto();
-    __jsb_cc_physics_IPlaneShape_class = cls;
-    se::ScriptEngine::getInstance()->clearException();
-    return true;
-}
-
-
-se::Class* __jsb_cc_physics_ITrimeshShape_class = nullptr;
-se::Object* __jsb_cc_physics_ITrimeshShape_proto = nullptr;
-SE_DECLARE_FINALIZE_FUNC(js_delete_cc_physics_ITrimeshShape) 
-
-static bool js_delete_cc_physics_ITrimeshShape(se::State& s)
-{
-    // js_dtoroverride
-    return true;
-}
-SE_BIND_FINALIZE_FUNC(js_delete_cc_physics_ITrimeshShape) 
-
-static bool js_cc_physics_ITrimeshShape_setMesh(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::ITrimeshShape *arg1 = (cc::physics::ITrimeshShape *) NULL ;
-    uint32_t arg2 ;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::ITrimeshShape>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "ITrimeshShape_setMesh,2,SWIGTYPE_uint32_t"); 
-    
-    (arg1)->setMesh(arg2);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_ITrimeshShape_setMesh) 
-
-static bool js_cc_physics_ITrimeshShape_useConvex(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::ITrimeshShape *arg1 = (cc::physics::ITrimeshShape *) NULL ;
-    bool arg2 ;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::ITrimeshShape>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) bool
-    ok &= sevalue_to_native(args[0], &arg2);
-    SE_PRECONDITION2(ok, false, "ITrimeshShape_useConvex,2,SWIGTYPE_bool"); 
-    (arg1)->useConvex(arg2);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_ITrimeshShape_useConvex) 
-
-bool js_register_cc_physics_ITrimeshShape(se::Object* obj) {
-    auto* cls = se::Class::create("ITrimeshShape", obj, __jsb_cc_physics_IBaseShape_proto, nullptr); 
-    
-    
-    cls->defineFunction("setMesh", _SE(js_cc_physics_ITrimeshShape_setMesh)); 
-    cls->defineFunction("useConvex", _SE(js_cc_physics_ITrimeshShape_useConvex)); 
-    
-    
-    
-    
-    cls->defineFinalizeFunction(_SE(js_delete_cc_physics_ITrimeshShape));
-    
-    
-    cls->install();
-    JSBClassType::registerClass<cc::physics::ITrimeshShape>(cls);
-    
-    __jsb_cc_physics_ITrimeshShape_proto = cls->getProto();
-    __jsb_cc_physics_ITrimeshShape_class = cls;
-    se::ScriptEngine::getInstance()->clearException();
-    return true;
-}
-
-
-se::Class* __jsb_cc_physics_ITerrainShape_class = nullptr;
-se::Object* __jsb_cc_physics_ITerrainShape_proto = nullptr;
-SE_DECLARE_FINALIZE_FUNC(js_delete_cc_physics_ITerrainShape) 
-
-static bool js_cc_physics_ITerrainShape_setTerrain(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::ITerrainShape *arg1 = (cc::physics::ITerrainShape *) NULL ;
-    uint32_t arg2 ;
-    float arg3 ;
-    float arg4 ;
-    float arg5 ;
-    
-    if(argc != 4) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 4);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::ITerrainShape>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "ITerrainShape_setTerrain,2,SWIGTYPE_uint32_t"); 
-    
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[1], &arg3, nullptr);
-    SE_PRECONDITION2(ok, false, "ITerrainShape_setTerrain,3,SWIGTYPE_float"); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[2], &arg4, nullptr);
-    SE_PRECONDITION2(ok, false, "ITerrainShape_setTerrain,4,SWIGTYPE_float"); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[3], &arg5, nullptr);
-    SE_PRECONDITION2(ok, false, "ITerrainShape_setTerrain,5,SWIGTYPE_float"); 
-    (arg1)->setTerrain(arg2,arg3,arg4,arg5);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_ITerrainShape_setTerrain) 
-
-static bool js_delete_cc_physics_ITerrainShape(se::State& s)
-{
-    // js_dtoroverride
-    return true;
-}
-SE_BIND_FINALIZE_FUNC(js_delete_cc_physics_ITerrainShape) 
-
-bool js_register_cc_physics_ITerrainShape(se::Object* obj) {
-    auto* cls = se::Class::create("ITerrainShape", obj, __jsb_cc_physics_IBaseShape_proto, nullptr); 
-    
-    
-    cls->defineFunction("setTerrain", _SE(js_cc_physics_ITerrainShape_setTerrain)); 
-    
-    
-    
-    
-    cls->defineFinalizeFunction(_SE(js_delete_cc_physics_ITerrainShape));
-    
-    
-    cls->install();
-    JSBClassType::registerClass<cc::physics::ITerrainShape>(cls);
-    
-    __jsb_cc_physics_ITerrainShape_proto = cls->getProto();
-    __jsb_cc_physics_ITerrainShape_class = cls;
-    se::ScriptEngine::getInstance()->clearException();
-    return true;
-}
-
-
-se::Class* __jsb_cc_physics_IBaseJoint_class = nullptr;
-se::Object* __jsb_cc_physics_IBaseJoint_proto = nullptr;
-SE_DECLARE_FINALIZE_FUNC(js_delete_cc_physics_IBaseJoint) 
-
-static bool js_delete_cc_physics_IBaseJoint(se::State& s)
-{
-    // js_dtoroverride
-    return true;
-}
-SE_BIND_FINALIZE_FUNC(js_delete_cc_physics_IBaseJoint) 
-
-static bool js_cc_physics_IBaseJoint_initialize(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::IBaseJoint *arg1 = (cc::physics::IBaseJoint *) NULL ;
-    cc::Node *arg2 = (cc::Node *) NULL ;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::IBaseJoint>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) SWIGTYPE*
-    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "IBaseJoint_initialize,2,SWIGTYPE_p_cc__Node"); 
-    (arg1)->initialize(arg2);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_IBaseJoint_initialize) 
-
-static bool js_cc_physics_IBaseJoint_setEnableCollision(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::IBaseJoint *arg1 = (cc::physics::IBaseJoint *) NULL ;
-    bool arg2 ;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::IBaseJoint>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) bool
-    ok &= sevalue_to_native(args[0], &arg2);
-    SE_PRECONDITION2(ok, false, "IBaseJoint_setEnableCollision,2,SWIGTYPE_bool"); 
-    (arg1)->setEnableCollision(arg2);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_IBaseJoint_setEnableCollision) 
-
-static bool js_cc_physics_IBaseJoint_setConnectedBody(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::IBaseJoint *arg1 = (cc::physics::IBaseJoint *) NULL ;
-    uint32_t arg2 ;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::IBaseJoint>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "IBaseJoint_setConnectedBody,2,SWIGTYPE_uint32_t"); 
-    
-    (arg1)->setConnectedBody(arg2);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_IBaseJoint_setConnectedBody) 
-
-static bool js_cc_physics_IBaseJoint_getObjectID(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::IBaseJoint *arg1 = (cc::physics::IBaseJoint *) NULL ;
-    uint32_t result;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::IBaseJoint>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    result = ((cc::physics::IBaseJoint const *)arg1)->getObjectID();
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "IBaseJoint_getObjectID, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_IBaseJoint_getObjectID) 
-
-bool js_register_cc_physics_IBaseJoint(se::Object* obj) {
-    auto* cls = se::Class::create("IBaseJoint", obj, __jsb_cc_physics_ILifecycle_proto, nullptr); 
-    
-    
-    cls->defineFunction("initialize", _SE(js_cc_physics_IBaseJoint_initialize)); 
-    cls->defineFunction("setEnableCollision", _SE(js_cc_physics_IBaseJoint_setEnableCollision)); 
-    cls->defineFunction("setConnectedBody", _SE(js_cc_physics_IBaseJoint_setConnectedBody)); 
-    cls->defineFunction("getObjectID", _SE(js_cc_physics_IBaseJoint_getObjectID)); 
-    
-    
-    
-    
-    cls->defineFinalizeFunction(_SE(js_delete_cc_physics_IBaseJoint));
-    
-    
-    cls->install();
-    JSBClassType::registerClass<cc::physics::IBaseJoint>(cls);
-    
-    __jsb_cc_physics_IBaseJoint_proto = cls->getProto();
-    __jsb_cc_physics_IBaseJoint_class = cls;
-    se::ScriptEngine::getInstance()->clearException();
-    return true;
-}
-
-
-se::Class* __jsb_cc_physics_IDistanceJoint_class = nullptr;
-se::Object* __jsb_cc_physics_IDistanceJoint_proto = nullptr;
-SE_DECLARE_FINALIZE_FUNC(js_delete_cc_physics_IDistanceJoint) 
-
-static bool js_delete_cc_physics_IDistanceJoint(se::State& s)
-{
-    // js_dtoroverride
-    return true;
-}
-SE_BIND_FINALIZE_FUNC(js_delete_cc_physics_IDistanceJoint) 
-
-static bool js_cc_physics_IDistanceJoint_setPivotA(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::IDistanceJoint *arg1 = (cc::physics::IDistanceJoint *) NULL ;
-    float arg2 ;
-    float arg3 ;
-    float arg4 ;
-    
-    if(argc != 3) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::IDistanceJoint>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[0], &arg2, nullptr);
-    SE_PRECONDITION2(ok, false, "IDistanceJoint_setPivotA,2,SWIGTYPE_float"); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[1], &arg3, nullptr);
-    SE_PRECONDITION2(ok, false, "IDistanceJoint_setPivotA,3,SWIGTYPE_float"); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[2], &arg4, nullptr);
-    SE_PRECONDITION2(ok, false, "IDistanceJoint_setPivotA,4,SWIGTYPE_float"); 
-    (arg1)->setPivotA(arg2,arg3,arg4);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_IDistanceJoint_setPivotA) 
-
-static bool js_cc_physics_IDistanceJoint_setPivotB(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::IDistanceJoint *arg1 = (cc::physics::IDistanceJoint *) NULL ;
-    float arg2 ;
-    float arg3 ;
-    float arg4 ;
-    
-    if(argc != 3) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::IDistanceJoint>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[0], &arg2, nullptr);
-    SE_PRECONDITION2(ok, false, "IDistanceJoint_setPivotB,2,SWIGTYPE_float"); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[1], &arg3, nullptr);
-    SE_PRECONDITION2(ok, false, "IDistanceJoint_setPivotB,3,SWIGTYPE_float"); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[2], &arg4, nullptr);
-    SE_PRECONDITION2(ok, false, "IDistanceJoint_setPivotB,4,SWIGTYPE_float"); 
-    (arg1)->setPivotB(arg2,arg3,arg4);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_IDistanceJoint_setPivotB) 
-
-bool js_register_cc_physics_IDistanceJoint(se::Object* obj) {
-    auto* cls = se::Class::create("IDistanceJoint", obj, __jsb_cc_physics_IBaseJoint_proto, nullptr); 
-    
-    
-    cls->defineFunction("setPivotA", _SE(js_cc_physics_IDistanceJoint_setPivotA)); 
-    cls->defineFunction("setPivotB", _SE(js_cc_physics_IDistanceJoint_setPivotB)); 
-    
-    
-    
-    
-    cls->defineFinalizeFunction(_SE(js_delete_cc_physics_IDistanceJoint));
-    
-    
-    cls->install();
-    JSBClassType::registerClass<cc::physics::IDistanceJoint>(cls);
-    
-    __jsb_cc_physics_IDistanceJoint_proto = cls->getProto();
-    __jsb_cc_physics_IDistanceJoint_class = cls;
-    se::ScriptEngine::getInstance()->clearException();
-    return true;
-}
-
-
-se::Class* __jsb_cc_physics_IRevoluteJoint_class = nullptr;
-se::Object* __jsb_cc_physics_IRevoluteJoint_proto = nullptr;
-SE_DECLARE_FINALIZE_FUNC(js_delete_cc_physics_IRevoluteJoint) 
-
-static bool js_delete_cc_physics_IRevoluteJoint(se::State& s)
-{
-    // js_dtoroverride
-    return true;
-}
-SE_BIND_FINALIZE_FUNC(js_delete_cc_physics_IRevoluteJoint) 
-
-static bool js_cc_physics_IRevoluteJoint_setPivotA(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::IRevoluteJoint *arg1 = (cc::physics::IRevoluteJoint *) NULL ;
-    float arg2 ;
-    float arg3 ;
-    float arg4 ;
-    
-    if(argc != 3) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::IRevoluteJoint>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[0], &arg2, nullptr);
-    SE_PRECONDITION2(ok, false, "IRevoluteJoint_setPivotA,2,SWIGTYPE_float"); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[1], &arg3, nullptr);
-    SE_PRECONDITION2(ok, false, "IRevoluteJoint_setPivotA,3,SWIGTYPE_float"); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[2], &arg4, nullptr);
-    SE_PRECONDITION2(ok, false, "IRevoluteJoint_setPivotA,4,SWIGTYPE_float"); 
-    (arg1)->setPivotA(arg2,arg3,arg4);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_IRevoluteJoint_setPivotA) 
-
-static bool js_cc_physics_IRevoluteJoint_setPivotB(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::IRevoluteJoint *arg1 = (cc::physics::IRevoluteJoint *) NULL ;
-    float arg2 ;
-    float arg3 ;
-    float arg4 ;
-    
-    if(argc != 3) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::IRevoluteJoint>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[0], &arg2, nullptr);
-    SE_PRECONDITION2(ok, false, "IRevoluteJoint_setPivotB,2,SWIGTYPE_float"); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[1], &arg3, nullptr);
-    SE_PRECONDITION2(ok, false, "IRevoluteJoint_setPivotB,3,SWIGTYPE_float"); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[2], &arg4, nullptr);
-    SE_PRECONDITION2(ok, false, "IRevoluteJoint_setPivotB,4,SWIGTYPE_float"); 
-    (arg1)->setPivotB(arg2,arg3,arg4);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_IRevoluteJoint_setPivotB) 
-
-static bool js_cc_physics_IRevoluteJoint_setAxis(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::physics::IRevoluteJoint *arg1 = (cc::physics::IRevoluteJoint *) NULL ;
-    float arg2 ;
-    float arg3 ;
-    float arg4 ;
-    
-    if(argc != 3) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::physics::IRevoluteJoint>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[0], &arg2, nullptr);
-    SE_PRECONDITION2(ok, false, "IRevoluteJoint_setAxis,2,SWIGTYPE_float"); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[1], &arg3, nullptr);
-    SE_PRECONDITION2(ok, false, "IRevoluteJoint_setAxis,3,SWIGTYPE_float"); 
-    // %typemap(in) int, short, long, signed char, float, double
-    ok &= sevalue_to_native(args[2], &arg4, nullptr);
-    SE_PRECONDITION2(ok, false, "IRevoluteJoint_setAxis,4,SWIGTYPE_float"); 
-    (arg1)->setAxis(arg2,arg3,arg4);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_physics_IRevoluteJoint_setAxis) 
-
-bool js_register_cc_physics_IRevoluteJoint(se::Object* obj) {
-    auto* cls = se::Class::create("IRevoluteJoint", obj, __jsb_cc_physics_IBaseJoint_proto, nullptr); 
-    
-    
-    cls->defineFunction("setPivotA", _SE(js_cc_physics_IRevoluteJoint_setPivotA)); 
-    cls->defineFunction("setPivotB", _SE(js_cc_physics_IRevoluteJoint_setPivotB)); 
-    cls->defineFunction("setAxis", _SE(js_cc_physics_IRevoluteJoint_setAxis)); 
-    
-    
-    
-    
-    cls->defineFinalizeFunction(_SE(js_delete_cc_physics_IRevoluteJoint));
-    
-    
-    cls->install();
-    JSBClassType::registerClass<cc::physics::IRevoluteJoint>(cls);
-    
-    __jsb_cc_physics_IRevoluteJoint_proto = cls->getProto();
-    __jsb_cc_physics_IRevoluteJoint_class = cls;
-    se::ScriptEngine::getInstance()->clearException();
-    return true;
-}
-
-
 se::Class* __jsb_cc_physics_World_class = nullptr;
 se::Object* __jsb_cc_physics_World_proto = nullptr;
 SE_DECLARE_FINALIZE_FUNC(js_delete_cc_physics_World) 
@@ -5250,10 +93,568 @@ static bool js_delete_cc_physics_World(se::State& s)
 }
 SE_BIND_FINALIZE_FUNC(js_delete_cc_physics_World) 
 
+static bool js_cc_physics_World_setGravity(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::World *arg1 = (cc::physics::World *) NULL ;
+    float arg2 ;
+    float arg3 ;
+    float arg4 ;
+    
+    if(argc != 3) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::World>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[0], &arg2, nullptr);
+    SE_PRECONDITION2(ok, false, "World_setGravity,2,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[1], &arg3, nullptr);
+    SE_PRECONDITION2(ok, false, "World_setGravity,3,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[2], &arg4, nullptr);
+    SE_PRECONDITION2(ok, false, "World_setGravity,4,SWIGTYPE_float"); 
+    (arg1)->setGravity(arg2,arg3,arg4);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_World_setGravity) 
+
+static bool js_cc_physics_World_setAllowSleep(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::World *arg1 = (cc::physics::World *) NULL ;
+    bool arg2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::World>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) bool
+    ok &= sevalue_to_native(args[0], &arg2);
+    SE_PRECONDITION2(ok, false, "World_setAllowSleep,2,SWIGTYPE_bool"); 
+    (arg1)->setAllowSleep(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_World_setAllowSleep) 
+
+static bool js_cc_physics_World_step(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::World *arg1 = (cc::physics::World *) NULL ;
+    float arg2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::World>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[0], &arg2, nullptr);
+    SE_PRECONDITION2(ok, false, "World_step,2,SWIGTYPE_float"); 
+    (arg1)->step(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_World_step) 
+
+static bool js_cc_physics_World_emitEvents(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::World *arg1 = (cc::physics::World *) NULL ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::World>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    (arg1)->emitEvents();
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_World_emitEvents) 
+
+static bool js_cc_physics_World_syncSceneToPhysics(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::World *arg1 = (cc::physics::World *) NULL ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::World>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    (arg1)->syncSceneToPhysics();
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_World_syncSceneToPhysics) 
+
+static bool js_cc_physics_World_syncSceneWithCheck(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::World *arg1 = (cc::physics::World *) NULL ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::World>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    (arg1)->syncSceneWithCheck();
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_World_syncSceneWithCheck) 
+
+static bool js_cc_physics_World_setCollisionMatrix(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::World *arg1 = (cc::physics::World *) NULL ;
+    uint32_t arg2 ;
+    uint32_t arg3 ;
+    
+    if(argc != 2) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::World>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "World_setCollisionMatrix,2,SWIGTYPE_uint32_t"); 
+    
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[1], &arg3, s.thisObject());
+    SE_PRECONDITION2(ok, false, "World_setCollisionMatrix,3,SWIGTYPE_uint32_t"); 
+    
+    (arg1)->setCollisionMatrix(arg2,arg3);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_World_setCollisionMatrix) 
+
+static bool js_cc_physics_World_getTriggerEventPairs(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::World *arg1 = (cc::physics::World *) NULL ;
+    ccstd::vector< std::shared_ptr< cc::physics::TriggerEventPair > > *result = 0 ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::World>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (ccstd::vector< std::shared_ptr< cc::physics::TriggerEventPair > > *) &(arg1)->getTriggerEventPairs();
+    // %typemap(out) SWIGTYPE&
+    ok &= nativevalue_to_se(*result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "World_getTriggerEventPairs, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(*result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_World_getTriggerEventPairs) 
+
+static bool js_cc_physics_World_getContactEventPairs(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::World *arg1 = (cc::physics::World *) NULL ;
+    ccstd::vector< std::shared_ptr< cc::physics::ContactEventPair > > *result = 0 ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::World>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (ccstd::vector< std::shared_ptr< cc::physics::ContactEventPair > > *) &(arg1)->getContactEventPairs();
+    // %typemap(out) SWIGTYPE&
+    ok &= nativevalue_to_se(*result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "World_getContactEventPairs, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(*result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_World_getContactEventPairs) 
+
+static bool js_cc_physics_World_raycast(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::World *arg1 = (cc::physics::World *) NULL ;
+    cc::physics::RaycastOptions *arg2 = 0 ;
+    cc::physics::RaycastOptions temp2 ;
+    bool result;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::World>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) SWIGTYPE&
+    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "World_raycast,2,SWIGTYPE_p_cc__physics__RaycastOptions");
+    arg2 = &temp2;
+    
+    result = (bool)(arg1)->raycast(*arg2);
+    // out 5
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_World_raycast) 
+
+static bool js_cc_physics_World_raycastClosest(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::World *arg1 = (cc::physics::World *) NULL ;
+    cc::physics::RaycastOptions *arg2 = 0 ;
+    cc::physics::RaycastOptions temp2 ;
+    bool result;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::World>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) SWIGTYPE&
+    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "World_raycastClosest,2,SWIGTYPE_p_cc__physics__RaycastOptions");
+    arg2 = &temp2;
+    
+    result = (bool)(arg1)->raycastClosest(*arg2);
+    // out 5
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_World_raycastClosest) 
+
+static bool js_cc_physics_World_raycastResult(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::World *arg1 = (cc::physics::World *) NULL ;
+    ccstd::vector< cc::physics::RaycastResult > *result = 0 ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::World>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (ccstd::vector< cc::physics::RaycastResult > *) &(arg1)->raycastResult();
+    // %typemap(out) SWIGTYPE&
+    ok &= nativevalue_to_se(*result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "World_raycastResult, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(*result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_World_raycastResult) 
+
+static bool js_cc_physics_World_raycastClosestResult(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::World *arg1 = (cc::physics::World *) NULL ;
+    cc::physics::RaycastResult *result = 0 ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::World>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (cc::physics::RaycastResult *) &(arg1)->raycastClosestResult();
+    // %typemap(out) SWIGTYPE&
+    ok &= nativevalue_to_se(*result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "World_raycastClosestResult, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(*result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_World_raycastClosestResult) 
+
+static bool js_cc_physics_World_createConvex(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::World *arg1 = (cc::physics::World *) NULL ;
+    cc::physics::ConvexDesc *arg2 = 0 ;
+    cc::physics::ConvexDesc temp2 ;
+    uint32_t result;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::World>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) SWIGTYPE&
+    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "World_createConvex,2,SWIGTYPE_p_cc__physics__ConvexDesc");
+    arg2 = &temp2;
+    
+    result = (arg1)->createConvex(*arg2);
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "World_createConvex, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_World_createConvex) 
+
+static bool js_cc_physics_World_createTrimesh(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::World *arg1 = (cc::physics::World *) NULL ;
+    cc::physics::TrimeshDesc *arg2 = 0 ;
+    cc::physics::TrimeshDesc temp2 ;
+    uint32_t result;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::World>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) SWIGTYPE&
+    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "World_createTrimesh,2,SWIGTYPE_p_cc__physics__TrimeshDesc");
+    arg2 = &temp2;
+    
+    result = (arg1)->createTrimesh(*arg2);
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "World_createTrimesh, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_World_createTrimesh) 
+
+static bool js_cc_physics_World_createHeightField(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::World *arg1 = (cc::physics::World *) NULL ;
+    cc::physics::HeightFieldDesc *arg2 = 0 ;
+    cc::physics::HeightFieldDesc temp2 ;
+    uint32_t result;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::World>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) SWIGTYPE&
+    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "World_createHeightField,2,SWIGTYPE_p_cc__physics__HeightFieldDesc");
+    arg2 = &temp2;
+    
+    result = (arg1)->createHeightField(*arg2);
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "World_createHeightField, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_World_createHeightField) 
+
+static bool js_cc_physics_World_createMaterial(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::World *arg1 = (cc::physics::World *) NULL ;
+    uint16_t arg2 ;
+    float arg3 ;
+    float arg4 ;
+    float arg5 ;
+    uint8_t arg6 ;
+    uint8_t arg7 ;
+    bool result;
+    
+    if(argc != 6) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 6);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::World>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "World_createMaterial,2,SWIGTYPE_uint16_t"); 
+    
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[1], &arg3, nullptr);
+    SE_PRECONDITION2(ok, false, "World_createMaterial,3,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[2], &arg4, nullptr);
+    SE_PRECONDITION2(ok, false, "World_createMaterial,4,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[3], &arg5, nullptr);
+    SE_PRECONDITION2(ok, false, "World_createMaterial,5,SWIGTYPE_float"); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[4], &arg6, s.thisObject());
+    SE_PRECONDITION2(ok, false, "World_createMaterial,6,SWIGTYPE_uint8_t"); 
+    
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[5], &arg7, s.thisObject());
+    SE_PRECONDITION2(ok, false, "World_createMaterial,7,SWIGTYPE_uint8_t"); 
+    
+    result = (bool)(arg1)->createMaterial(arg2,arg3,arg4,arg5,arg6,arg7);
+    // out 5
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_World_createMaterial) 
+
+static bool js_cc_physics_World_destroy(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::World *arg1 = (cc::physics::World *) NULL ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::World>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    (arg1)->destroy();
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_World_destroy) 
+
 bool js_register_cc_physics_World(se::Object* obj) {
-    auto* cls = se::Class::create("World", obj, __jsb_cc_physics_IPhysicsWorld_proto, _SE(js_new_cc_physics_World)); 
+    auto* cls = se::Class::create("World", obj, nullptr, _SE(js_new_cc_physics_World)); 
     
     
+    cls->defineFunction("setGravity", _SE(js_cc_physics_World_setGravity)); 
+    cls->defineFunction("setAllowSleep", _SE(js_cc_physics_World_setAllowSleep)); 
+    cls->defineFunction("step", _SE(js_cc_physics_World_step)); 
+    cls->defineFunction("emitEvents", _SE(js_cc_physics_World_emitEvents)); 
+    cls->defineFunction("syncSceneToPhysics", _SE(js_cc_physics_World_syncSceneToPhysics)); 
+    cls->defineFunction("syncSceneWithCheck", _SE(js_cc_physics_World_syncSceneWithCheck)); 
+    cls->defineFunction("setCollisionMatrix", _SE(js_cc_physics_World_setCollisionMatrix)); 
+    cls->defineFunction("getTriggerEventPairs", _SE(js_cc_physics_World_getTriggerEventPairs)); 
+    cls->defineFunction("getContactEventPairs", _SE(js_cc_physics_World_getContactEventPairs)); 
+    cls->defineFunction("raycast", _SE(js_cc_physics_World_raycast)); 
+    cls->defineFunction("raycastClosest", _SE(js_cc_physics_World_raycastClosest)); 
+    cls->defineFunction("raycastResult", _SE(js_cc_physics_World_raycastResult)); 
+    cls->defineFunction("raycastClosestResult", _SE(js_cc_physics_World_raycastClosestResult)); 
+    cls->defineFunction("createConvex", _SE(js_cc_physics_World_createConvex)); 
+    cls->defineFunction("createTrimesh", _SE(js_cc_physics_World_createTrimesh)); 
+    cls->defineFunction("createHeightField", _SE(js_cc_physics_World_createHeightField)); 
+    cls->defineFunction("createMaterial", _SE(js_cc_physics_World_createMaterial)); 
+    cls->defineFunction("destroy", _SE(js_cc_physics_World_destroy)); 
     
     
     
@@ -5299,10 +700,1157 @@ static bool js_delete_cc_physics_RigidBody(se::State& s)
 }
 SE_BIND_FINALIZE_FUNC(js_delete_cc_physics_RigidBody) 
 
+static bool js_cc_physics_RigidBody_initialize(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::RigidBody *arg1 = (cc::physics::RigidBody *) NULL ;
+    cc::Node *arg2 = (cc::Node *) NULL ;
+    cc::physics::ERigidBodyType arg3 ;
+    uint32_t arg4 ;
+    int32_t temp3 ;
+    
+    if(argc != 3) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::RigidBody>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) SWIGTYPE*
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "RigidBody_initialize,2,SWIGTYPE_p_cc__Node"); 
+    // %typemap(in) enum SWIGTYPE (int32_t temp3)
+    ok &= sevalue_to_native(args[1], &temp3);
+    SE_PRECONDITION2(ok, false, "RigidBody_initialize,3,SWIGTYPE_cc__physics__ERigidBodyType");
+    arg3 = (cc::physics::ERigidBodyType)temp3;
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[2], &arg4, s.thisObject());
+    SE_PRECONDITION2(ok, false, "RigidBody_initialize,4,SWIGTYPE_uint32_t"); 
+    
+    (arg1)->initialize(arg2,arg3,arg4);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_RigidBody_initialize) 
+
+static bool js_cc_physics_RigidBody_onEnable(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::RigidBody *arg1 = (cc::physics::RigidBody *) NULL ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::RigidBody>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    (arg1)->onEnable();
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_RigidBody_onEnable) 
+
+static bool js_cc_physics_RigidBody_onDisable(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::RigidBody *arg1 = (cc::physics::RigidBody *) NULL ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::RigidBody>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    (arg1)->onDisable();
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_RigidBody_onDisable) 
+
+static bool js_cc_physics_RigidBody_onDestroy(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::RigidBody *arg1 = (cc::physics::RigidBody *) NULL ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::RigidBody>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    (arg1)->onDestroy();
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_RigidBody_onDestroy) 
+
+static bool js_cc_physics_RigidBody_isAwake(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::RigidBody *arg1 = (cc::physics::RigidBody *) NULL ;
+    bool result;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::RigidBody>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (bool)(arg1)->isAwake();
+    // out 5
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_RigidBody_isAwake) 
+
+static bool js_cc_physics_RigidBody_isSleepy(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::RigidBody *arg1 = (cc::physics::RigidBody *) NULL ;
+    bool result;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::RigidBody>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (bool)(arg1)->isSleepy();
+    // out 5
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_RigidBody_isSleepy) 
+
+static bool js_cc_physics_RigidBody_isSleeping(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::RigidBody *arg1 = (cc::physics::RigidBody *) NULL ;
+    bool result;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::RigidBody>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (bool)(arg1)->isSleeping();
+    // out 5
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_RigidBody_isSleeping) 
+
+static bool js_cc_physics_RigidBody_setType(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::RigidBody *arg1 = (cc::physics::RigidBody *) NULL ;
+    cc::physics::ERigidBodyType arg2 ;
+    int32_t temp2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::RigidBody>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) enum SWIGTYPE (int32_t temp2)
+    ok &= sevalue_to_native(args[0], &temp2);
+    SE_PRECONDITION2(ok, false, "RigidBody_setType,2,SWIGTYPE_cc__physics__ERigidBodyType");
+    arg2 = (cc::physics::ERigidBodyType)temp2;
+    (arg1)->setType(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_RigidBody_setType) 
+
+static bool js_cc_physics_RigidBody_setMass(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::RigidBody *arg1 = (cc::physics::RigidBody *) NULL ;
+    float arg2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::RigidBody>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[0], &arg2, nullptr);
+    SE_PRECONDITION2(ok, false, "RigidBody_setMass,2,SWIGTYPE_float"); 
+    (arg1)->setMass(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_RigidBody_setMass) 
+
+static bool js_cc_physics_RigidBody_setLinearDamping(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::RigidBody *arg1 = (cc::physics::RigidBody *) NULL ;
+    float arg2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::RigidBody>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[0], &arg2, nullptr);
+    SE_PRECONDITION2(ok, false, "RigidBody_setLinearDamping,2,SWIGTYPE_float"); 
+    (arg1)->setLinearDamping(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_RigidBody_setLinearDamping) 
+
+static bool js_cc_physics_RigidBody_setAngularDamping(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::RigidBody *arg1 = (cc::physics::RigidBody *) NULL ;
+    float arg2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::RigidBody>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[0], &arg2, nullptr);
+    SE_PRECONDITION2(ok, false, "RigidBody_setAngularDamping,2,SWIGTYPE_float"); 
+    (arg1)->setAngularDamping(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_RigidBody_setAngularDamping) 
+
+static bool js_cc_physics_RigidBody_useGravity(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::RigidBody *arg1 = (cc::physics::RigidBody *) NULL ;
+    bool arg2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::RigidBody>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) bool
+    ok &= sevalue_to_native(args[0], &arg2);
+    SE_PRECONDITION2(ok, false, "RigidBody_useGravity,2,SWIGTYPE_bool"); 
+    (arg1)->useGravity(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_RigidBody_useGravity) 
+
+static bool js_cc_physics_RigidBody_useCCD(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::RigidBody *arg1 = (cc::physics::RigidBody *) NULL ;
+    bool arg2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::RigidBody>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) bool
+    ok &= sevalue_to_native(args[0], &arg2);
+    SE_PRECONDITION2(ok, false, "RigidBody_useCCD,2,SWIGTYPE_bool"); 
+    (arg1)->useCCD(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_RigidBody_useCCD) 
+
+static bool js_cc_physics_RigidBody_setLinearFactor(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::RigidBody *arg1 = (cc::physics::RigidBody *) NULL ;
+    float arg2 ;
+    float arg3 ;
+    float arg4 ;
+    
+    if(argc != 3) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::RigidBody>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[0], &arg2, nullptr);
+    SE_PRECONDITION2(ok, false, "RigidBody_setLinearFactor,2,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[1], &arg3, nullptr);
+    SE_PRECONDITION2(ok, false, "RigidBody_setLinearFactor,3,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[2], &arg4, nullptr);
+    SE_PRECONDITION2(ok, false, "RigidBody_setLinearFactor,4,SWIGTYPE_float"); 
+    (arg1)->setLinearFactor(arg2,arg3,arg4);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_RigidBody_setLinearFactor) 
+
+static bool js_cc_physics_RigidBody_setAngularFactor(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::RigidBody *arg1 = (cc::physics::RigidBody *) NULL ;
+    float arg2 ;
+    float arg3 ;
+    float arg4 ;
+    
+    if(argc != 3) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::RigidBody>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[0], &arg2, nullptr);
+    SE_PRECONDITION2(ok, false, "RigidBody_setAngularFactor,2,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[1], &arg3, nullptr);
+    SE_PRECONDITION2(ok, false, "RigidBody_setAngularFactor,3,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[2], &arg4, nullptr);
+    SE_PRECONDITION2(ok, false, "RigidBody_setAngularFactor,4,SWIGTYPE_float"); 
+    (arg1)->setAngularFactor(arg2,arg3,arg4);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_RigidBody_setAngularFactor) 
+
+static bool js_cc_physics_RigidBody_setAllowSleep(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::RigidBody *arg1 = (cc::physics::RigidBody *) NULL ;
+    bool arg2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::RigidBody>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) bool
+    ok &= sevalue_to_native(args[0], &arg2);
+    SE_PRECONDITION2(ok, false, "RigidBody_setAllowSleep,2,SWIGTYPE_bool"); 
+    (arg1)->setAllowSleep(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_RigidBody_setAllowSleep) 
+
+static bool js_cc_physics_RigidBody_wakeUp(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::RigidBody *arg1 = (cc::physics::RigidBody *) NULL ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::RigidBody>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    (arg1)->wakeUp();
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_RigidBody_wakeUp) 
+
+static bool js_cc_physics_RigidBody_sleep(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::RigidBody *arg1 = (cc::physics::RigidBody *) NULL ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::RigidBody>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    (arg1)->sleep();
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_RigidBody_sleep) 
+
+static bool js_cc_physics_RigidBody_clearState(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::RigidBody *arg1 = (cc::physics::RigidBody *) NULL ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::RigidBody>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    (arg1)->clearState();
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_RigidBody_clearState) 
+
+static bool js_cc_physics_RigidBody_clearForces(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::RigidBody *arg1 = (cc::physics::RigidBody *) NULL ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::RigidBody>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    (arg1)->clearForces();
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_RigidBody_clearForces) 
+
+static bool js_cc_physics_RigidBody_clearVelocity(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::RigidBody *arg1 = (cc::physics::RigidBody *) NULL ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::RigidBody>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    (arg1)->clearVelocity();
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_RigidBody_clearVelocity) 
+
+static bool js_cc_physics_RigidBody_setSleepThreshold(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::RigidBody *arg1 = (cc::physics::RigidBody *) NULL ;
+    float arg2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::RigidBody>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[0], &arg2, nullptr);
+    SE_PRECONDITION2(ok, false, "RigidBody_setSleepThreshold,2,SWIGTYPE_float"); 
+    (arg1)->setSleepThreshold(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_RigidBody_setSleepThreshold) 
+
+static bool js_cc_physics_RigidBody_getSleepThreshold(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::RigidBody *arg1 = (cc::physics::RigidBody *) NULL ;
+    float result;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::RigidBody>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (float)(arg1)->getSleepThreshold();
+    
+    // out 1
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/); 
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_RigidBody_getSleepThreshold) 
+
+static bool js_cc_physics_RigidBody_getLinearVelocity(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::RigidBody *arg1 = (cc::physics::RigidBody *) NULL ;
+    cc::Vec3 result;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::RigidBody>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (arg1)->getLinearVelocity();
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "RigidBody_getLinearVelocity, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_RigidBody_getLinearVelocity) 
+
+static bool js_cc_physics_RigidBody_setLinearVelocity(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::RigidBody *arg1 = (cc::physics::RigidBody *) NULL ;
+    float arg2 ;
+    float arg3 ;
+    float arg4 ;
+    
+    if(argc != 3) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::RigidBody>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[0], &arg2, nullptr);
+    SE_PRECONDITION2(ok, false, "RigidBody_setLinearVelocity,2,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[1], &arg3, nullptr);
+    SE_PRECONDITION2(ok, false, "RigidBody_setLinearVelocity,3,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[2], &arg4, nullptr);
+    SE_PRECONDITION2(ok, false, "RigidBody_setLinearVelocity,4,SWIGTYPE_float"); 
+    (arg1)->setLinearVelocity(arg2,arg3,arg4);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_RigidBody_setLinearVelocity) 
+
+static bool js_cc_physics_RigidBody_getAngularVelocity(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::RigidBody *arg1 = (cc::physics::RigidBody *) NULL ;
+    cc::Vec3 result;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::RigidBody>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (arg1)->getAngularVelocity();
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "RigidBody_getAngularVelocity, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_RigidBody_getAngularVelocity) 
+
+static bool js_cc_physics_RigidBody_setAngularVelocity(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::RigidBody *arg1 = (cc::physics::RigidBody *) NULL ;
+    float arg2 ;
+    float arg3 ;
+    float arg4 ;
+    
+    if(argc != 3) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::RigidBody>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[0], &arg2, nullptr);
+    SE_PRECONDITION2(ok, false, "RigidBody_setAngularVelocity,2,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[1], &arg3, nullptr);
+    SE_PRECONDITION2(ok, false, "RigidBody_setAngularVelocity,3,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[2], &arg4, nullptr);
+    SE_PRECONDITION2(ok, false, "RigidBody_setAngularVelocity,4,SWIGTYPE_float"); 
+    (arg1)->setAngularVelocity(arg2,arg3,arg4);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_RigidBody_setAngularVelocity) 
+
+static bool js_cc_physics_RigidBody_applyForce(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::RigidBody *arg1 = (cc::physics::RigidBody *) NULL ;
+    float arg2 ;
+    float arg3 ;
+    float arg4 ;
+    float arg5 ;
+    float arg6 ;
+    float arg7 ;
+    
+    if(argc != 6) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 6);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::RigidBody>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[0], &arg2, nullptr);
+    SE_PRECONDITION2(ok, false, "RigidBody_applyForce,2,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[1], &arg3, nullptr);
+    SE_PRECONDITION2(ok, false, "RigidBody_applyForce,3,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[2], &arg4, nullptr);
+    SE_PRECONDITION2(ok, false, "RigidBody_applyForce,4,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[3], &arg5, nullptr);
+    SE_PRECONDITION2(ok, false, "RigidBody_applyForce,5,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[4], &arg6, nullptr);
+    SE_PRECONDITION2(ok, false, "RigidBody_applyForce,6,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[5], &arg7, nullptr);
+    SE_PRECONDITION2(ok, false, "RigidBody_applyForce,7,SWIGTYPE_float"); 
+    (arg1)->applyForce(arg2,arg3,arg4,arg5,arg6,arg7);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_RigidBody_applyForce) 
+
+static bool js_cc_physics_RigidBody_applyLocalForce(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::RigidBody *arg1 = (cc::physics::RigidBody *) NULL ;
+    float arg2 ;
+    float arg3 ;
+    float arg4 ;
+    float arg5 ;
+    float arg6 ;
+    float arg7 ;
+    
+    if(argc != 6) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 6);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::RigidBody>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[0], &arg2, nullptr);
+    SE_PRECONDITION2(ok, false, "RigidBody_applyLocalForce,2,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[1], &arg3, nullptr);
+    SE_PRECONDITION2(ok, false, "RigidBody_applyLocalForce,3,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[2], &arg4, nullptr);
+    SE_PRECONDITION2(ok, false, "RigidBody_applyLocalForce,4,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[3], &arg5, nullptr);
+    SE_PRECONDITION2(ok, false, "RigidBody_applyLocalForce,5,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[4], &arg6, nullptr);
+    SE_PRECONDITION2(ok, false, "RigidBody_applyLocalForce,6,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[5], &arg7, nullptr);
+    SE_PRECONDITION2(ok, false, "RigidBody_applyLocalForce,7,SWIGTYPE_float"); 
+    (arg1)->applyLocalForce(arg2,arg3,arg4,arg5,arg6,arg7);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_RigidBody_applyLocalForce) 
+
+static bool js_cc_physics_RigidBody_applyImpulse(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::RigidBody *arg1 = (cc::physics::RigidBody *) NULL ;
+    float arg2 ;
+    float arg3 ;
+    float arg4 ;
+    float arg5 ;
+    float arg6 ;
+    float arg7 ;
+    
+    if(argc != 6) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 6);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::RigidBody>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[0], &arg2, nullptr);
+    SE_PRECONDITION2(ok, false, "RigidBody_applyImpulse,2,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[1], &arg3, nullptr);
+    SE_PRECONDITION2(ok, false, "RigidBody_applyImpulse,3,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[2], &arg4, nullptr);
+    SE_PRECONDITION2(ok, false, "RigidBody_applyImpulse,4,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[3], &arg5, nullptr);
+    SE_PRECONDITION2(ok, false, "RigidBody_applyImpulse,5,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[4], &arg6, nullptr);
+    SE_PRECONDITION2(ok, false, "RigidBody_applyImpulse,6,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[5], &arg7, nullptr);
+    SE_PRECONDITION2(ok, false, "RigidBody_applyImpulse,7,SWIGTYPE_float"); 
+    (arg1)->applyImpulse(arg2,arg3,arg4,arg5,arg6,arg7);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_RigidBody_applyImpulse) 
+
+static bool js_cc_physics_RigidBody_applyLocalImpulse(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::RigidBody *arg1 = (cc::physics::RigidBody *) NULL ;
+    float arg2 ;
+    float arg3 ;
+    float arg4 ;
+    float arg5 ;
+    float arg6 ;
+    float arg7 ;
+    
+    if(argc != 6) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 6);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::RigidBody>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[0], &arg2, nullptr);
+    SE_PRECONDITION2(ok, false, "RigidBody_applyLocalImpulse,2,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[1], &arg3, nullptr);
+    SE_PRECONDITION2(ok, false, "RigidBody_applyLocalImpulse,3,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[2], &arg4, nullptr);
+    SE_PRECONDITION2(ok, false, "RigidBody_applyLocalImpulse,4,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[3], &arg5, nullptr);
+    SE_PRECONDITION2(ok, false, "RigidBody_applyLocalImpulse,5,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[4], &arg6, nullptr);
+    SE_PRECONDITION2(ok, false, "RigidBody_applyLocalImpulse,6,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[5], &arg7, nullptr);
+    SE_PRECONDITION2(ok, false, "RigidBody_applyLocalImpulse,7,SWIGTYPE_float"); 
+    (arg1)->applyLocalImpulse(arg2,arg3,arg4,arg5,arg6,arg7);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_RigidBody_applyLocalImpulse) 
+
+static bool js_cc_physics_RigidBody_applyTorque(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::RigidBody *arg1 = (cc::physics::RigidBody *) NULL ;
+    float arg2 ;
+    float arg3 ;
+    float arg4 ;
+    
+    if(argc != 3) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::RigidBody>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[0], &arg2, nullptr);
+    SE_PRECONDITION2(ok, false, "RigidBody_applyTorque,2,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[1], &arg3, nullptr);
+    SE_PRECONDITION2(ok, false, "RigidBody_applyTorque,3,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[2], &arg4, nullptr);
+    SE_PRECONDITION2(ok, false, "RigidBody_applyTorque,4,SWIGTYPE_float"); 
+    (arg1)->applyTorque(arg2,arg3,arg4);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_RigidBody_applyTorque) 
+
+static bool js_cc_physics_RigidBody_applyLocalTorque(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::RigidBody *arg1 = (cc::physics::RigidBody *) NULL ;
+    float arg2 ;
+    float arg3 ;
+    float arg4 ;
+    
+    if(argc != 3) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::RigidBody>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[0], &arg2, nullptr);
+    SE_PRECONDITION2(ok, false, "RigidBody_applyLocalTorque,2,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[1], &arg3, nullptr);
+    SE_PRECONDITION2(ok, false, "RigidBody_applyLocalTorque,3,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[2], &arg4, nullptr);
+    SE_PRECONDITION2(ok, false, "RigidBody_applyLocalTorque,4,SWIGTYPE_float"); 
+    (arg1)->applyLocalTorque(arg2,arg3,arg4);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_RigidBody_applyLocalTorque) 
+
+static bool js_cc_physics_RigidBody_getGroup(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::RigidBody *arg1 = (cc::physics::RigidBody *) NULL ;
+    uint32_t result;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::RigidBody>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (arg1)->getGroup();
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "RigidBody_getGroup, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_RigidBody_getGroup) 
+
+static bool js_cc_physics_RigidBody_setGroup(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::RigidBody *arg1 = (cc::physics::RigidBody *) NULL ;
+    uint32_t arg2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::RigidBody>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "RigidBody_setGroup,2,SWIGTYPE_uint32_t"); 
+    
+    (arg1)->setGroup(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_RigidBody_setGroup) 
+
+static bool js_cc_physics_RigidBody_getMask(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::RigidBody *arg1 = (cc::physics::RigidBody *) NULL ;
+    uint32_t result;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::RigidBody>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (arg1)->getMask();
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "RigidBody_getMask, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_RigidBody_getMask) 
+
+static bool js_cc_physics_RigidBody_setMask(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::RigidBody *arg1 = (cc::physics::RigidBody *) NULL ;
+    uint32_t arg2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::RigidBody>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "RigidBody_setMask,2,SWIGTYPE_uint32_t"); 
+    
+    (arg1)->setMask(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_RigidBody_setMask) 
+
+static bool js_cc_physics_RigidBody_getObjectID(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::RigidBody *arg1 = (cc::physics::RigidBody *) NULL ;
+    uint32_t result;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::RigidBody>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = ((cc::physics::RigidBody const *)arg1)->getObjectID();
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "RigidBody_getObjectID, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_RigidBody_getObjectID) 
+
 bool js_register_cc_physics_RigidBody(se::Object* obj) {
-    auto* cls = se::Class::create("RigidBody", obj, __jsb_cc_physics_IRigidBody_proto, _SE(js_new_cc_physics_RigidBody)); 
+    auto* cls = se::Class::create("RigidBody", obj, nullptr, _SE(js_new_cc_physics_RigidBody)); 
     
     
+    cls->defineFunction("initialize", _SE(js_cc_physics_RigidBody_initialize)); 
+    cls->defineFunction("onEnable", _SE(js_cc_physics_RigidBody_onEnable)); 
+    cls->defineFunction("onDisable", _SE(js_cc_physics_RigidBody_onDisable)); 
+    cls->defineFunction("onDestroy", _SE(js_cc_physics_RigidBody_onDestroy)); 
+    cls->defineFunction("isAwake", _SE(js_cc_physics_RigidBody_isAwake)); 
+    cls->defineFunction("isSleepy", _SE(js_cc_physics_RigidBody_isSleepy)); 
+    cls->defineFunction("isSleeping", _SE(js_cc_physics_RigidBody_isSleeping)); 
+    cls->defineFunction("setType", _SE(js_cc_physics_RigidBody_setType)); 
+    cls->defineFunction("setMass", _SE(js_cc_physics_RigidBody_setMass)); 
+    cls->defineFunction("setLinearDamping", _SE(js_cc_physics_RigidBody_setLinearDamping)); 
+    cls->defineFunction("setAngularDamping", _SE(js_cc_physics_RigidBody_setAngularDamping)); 
+    cls->defineFunction("useGravity", _SE(js_cc_physics_RigidBody_useGravity)); 
+    cls->defineFunction("useCCD", _SE(js_cc_physics_RigidBody_useCCD)); 
+    cls->defineFunction("setLinearFactor", _SE(js_cc_physics_RigidBody_setLinearFactor)); 
+    cls->defineFunction("setAngularFactor", _SE(js_cc_physics_RigidBody_setAngularFactor)); 
+    cls->defineFunction("setAllowSleep", _SE(js_cc_physics_RigidBody_setAllowSleep)); 
+    cls->defineFunction("wakeUp", _SE(js_cc_physics_RigidBody_wakeUp)); 
+    cls->defineFunction("sleep", _SE(js_cc_physics_RigidBody_sleep)); 
+    cls->defineFunction("clearState", _SE(js_cc_physics_RigidBody_clearState)); 
+    cls->defineFunction("clearForces", _SE(js_cc_physics_RigidBody_clearForces)); 
+    cls->defineFunction("clearVelocity", _SE(js_cc_physics_RigidBody_clearVelocity)); 
+    cls->defineFunction("setSleepThreshold", _SE(js_cc_physics_RigidBody_setSleepThreshold)); 
+    cls->defineFunction("getSleepThreshold", _SE(js_cc_physics_RigidBody_getSleepThreshold)); 
+    cls->defineFunction("getLinearVelocity", _SE(js_cc_physics_RigidBody_getLinearVelocity)); 
+    cls->defineFunction("setLinearVelocity", _SE(js_cc_physics_RigidBody_setLinearVelocity)); 
+    cls->defineFunction("getAngularVelocity", _SE(js_cc_physics_RigidBody_getAngularVelocity)); 
+    cls->defineFunction("setAngularVelocity", _SE(js_cc_physics_RigidBody_setAngularVelocity)); 
+    cls->defineFunction("applyForce", _SE(js_cc_physics_RigidBody_applyForce)); 
+    cls->defineFunction("applyLocalForce", _SE(js_cc_physics_RigidBody_applyLocalForce)); 
+    cls->defineFunction("applyImpulse", _SE(js_cc_physics_RigidBody_applyImpulse)); 
+    cls->defineFunction("applyLocalImpulse", _SE(js_cc_physics_RigidBody_applyLocalImpulse)); 
+    cls->defineFunction("applyTorque", _SE(js_cc_physics_RigidBody_applyTorque)); 
+    cls->defineFunction("applyLocalTorque", _SE(js_cc_physics_RigidBody_applyLocalTorque)); 
+    cls->defineFunction("getGroup", _SE(js_cc_physics_RigidBody_getGroup)); 
+    cls->defineFunction("setGroup", _SE(js_cc_physics_RigidBody_setGroup)); 
+    cls->defineFunction("getMask", _SE(js_cc_physics_RigidBody_getMask)); 
+    cls->defineFunction("setMask", _SE(js_cc_physics_RigidBody_setMask)); 
+    cls->defineFunction("getObjectID", _SE(js_cc_physics_RigidBody_getObjectID)); 
     
     
     
@@ -5348,10 +1896,478 @@ static bool js_delete_cc_physics_SphereShape(se::State& s)
 }
 SE_BIND_FINALIZE_FUNC(js_delete_cc_physics_SphereShape) 
 
+static bool js_cc_physics_SphereShape_initialize(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::SphereShape *arg1 = (cc::physics::SphereShape *) NULL ;
+    cc::Node *arg2 = (cc::Node *) NULL ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::SphereShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) SWIGTYPE*
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "SphereShape_initialize,2,SWIGTYPE_p_cc__Node"); 
+    (arg1)->initialize(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_SphereShape_initialize) 
+
+static bool js_cc_physics_SphereShape_onEnable(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::SphereShape *arg1 = (cc::physics::SphereShape *) NULL ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::SphereShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    (arg1)->onEnable();
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_SphereShape_onEnable) 
+
+static bool js_cc_physics_SphereShape_onDisable(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::SphereShape *arg1 = (cc::physics::SphereShape *) NULL ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::SphereShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    (arg1)->onDisable();
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_SphereShape_onDisable) 
+
+static bool js_cc_physics_SphereShape_onDestroy(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::SphereShape *arg1 = (cc::physics::SphereShape *) NULL ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::SphereShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    (arg1)->onDestroy();
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_SphereShape_onDestroy) 
+
+static bool js_cc_physics_SphereShape_setMaterial(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::SphereShape *arg1 = (cc::physics::SphereShape *) NULL ;
+    uint16_t arg2 ;
+    float arg3 ;
+    float arg4 ;
+    float arg5 ;
+    uint8_t arg6 ;
+    uint8_t arg7 ;
+    
+    if(argc != 6) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 6);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::SphereShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "SphereShape_setMaterial,2,SWIGTYPE_uint16_t"); 
+    
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[1], &arg3, nullptr);
+    SE_PRECONDITION2(ok, false, "SphereShape_setMaterial,3,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[2], &arg4, nullptr);
+    SE_PRECONDITION2(ok, false, "SphereShape_setMaterial,4,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[3], &arg5, nullptr);
+    SE_PRECONDITION2(ok, false, "SphereShape_setMaterial,5,SWIGTYPE_float"); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[4], &arg6, s.thisObject());
+    SE_PRECONDITION2(ok, false, "SphereShape_setMaterial,6,SWIGTYPE_uint8_t"); 
+    
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[5], &arg7, s.thisObject());
+    SE_PRECONDITION2(ok, false, "SphereShape_setMaterial,7,SWIGTYPE_uint8_t"); 
+    
+    (arg1)->setMaterial(arg2,arg3,arg4,arg5,arg6,arg7);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_SphereShape_setMaterial) 
+
+static bool js_cc_physics_SphereShape_setAsTrigger(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::SphereShape *arg1 = (cc::physics::SphereShape *) NULL ;
+    bool arg2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::SphereShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) bool
+    ok &= sevalue_to_native(args[0], &arg2);
+    SE_PRECONDITION2(ok, false, "SphereShape_setAsTrigger,2,SWIGTYPE_bool"); 
+    (arg1)->setAsTrigger(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_SphereShape_setAsTrigger) 
+
+static bool js_cc_physics_SphereShape_setCenter(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::SphereShape *arg1 = (cc::physics::SphereShape *) NULL ;
+    float arg2 ;
+    float arg3 ;
+    float arg4 ;
+    
+    if(argc != 3) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::SphereShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[0], &arg2, nullptr);
+    SE_PRECONDITION2(ok, false, "SphereShape_setCenter,2,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[1], &arg3, nullptr);
+    SE_PRECONDITION2(ok, false, "SphereShape_setCenter,3,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[2], &arg4, nullptr);
+    SE_PRECONDITION2(ok, false, "SphereShape_setCenter,4,SWIGTYPE_float"); 
+    (arg1)->setCenter(arg2,arg3,arg4);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_SphereShape_setCenter) 
+
+static bool js_cc_physics_SphereShape_updateEventListener(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::SphereShape *arg1 = (cc::physics::SphereShape *) NULL ;
+    cc::physics::EShapeFilterFlag arg2 ;
+    int32_t temp2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::SphereShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) enum SWIGTYPE (int32_t temp2)
+    ok &= sevalue_to_native(args[0], &temp2);
+    SE_PRECONDITION2(ok, false, "SphereShape_updateEventListener,2,SWIGTYPE_cc__physics__EShapeFilterFlag");
+    arg2 = (cc::physics::EShapeFilterFlag)temp2;
+    (arg1)->updateEventListener(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_SphereShape_updateEventListener) 
+
+static bool js_cc_physics_SphereShape_getAABB(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::SphereShape *arg1 = (cc::physics::SphereShape *) NULL ;
+    cc::geometry::AABB *result = 0 ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::SphereShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (cc::geometry::AABB *) &(arg1)->getAABB();
+    // %typemap(out) SWIGTYPE&
+    ok &= nativevalue_to_se(*result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "SphereShape_getAABB, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(*result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_SphereShape_getAABB) 
+
+static bool js_cc_physics_SphereShape_getBoundingSphere(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::SphereShape *arg1 = (cc::physics::SphereShape *) NULL ;
+    cc::geometry::Sphere *result = 0 ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::SphereShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (cc::geometry::Sphere *) &(arg1)->getBoundingSphere();
+    // %typemap(out) SWIGTYPE&
+    ok &= nativevalue_to_se(*result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "SphereShape_getBoundingSphere, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(*result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_SphereShape_getBoundingSphere) 
+
+static bool js_cc_physics_SphereShape_getGroup(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::SphereShape *arg1 = (cc::physics::SphereShape *) NULL ;
+    uint32_t result;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::SphereShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (arg1)->getGroup();
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "SphereShape_getGroup, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_SphereShape_getGroup) 
+
+static bool js_cc_physics_SphereShape_setGroup(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::SphereShape *arg1 = (cc::physics::SphereShape *) NULL ;
+    uint32_t arg2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::SphereShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "SphereShape_setGroup,2,SWIGTYPE_uint32_t"); 
+    
+    (arg1)->setGroup(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_SphereShape_setGroup) 
+
+static bool js_cc_physics_SphereShape_getMask(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::SphereShape *arg1 = (cc::physics::SphereShape *) NULL ;
+    uint32_t result;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::SphereShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (arg1)->getMask();
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "SphereShape_getMask, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_SphereShape_getMask) 
+
+static bool js_cc_physics_SphereShape_setMask(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::SphereShape *arg1 = (cc::physics::SphereShape *) NULL ;
+    uint32_t arg2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::SphereShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "SphereShape_setMask,2,SWIGTYPE_uint32_t"); 
+    
+    (arg1)->setMask(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_SphereShape_setMask) 
+
+static bool js_cc_physics_SphereShape_getObjectID(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::SphereShape *arg1 = (cc::physics::SphereShape *) NULL ;
+    uint32_t result;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::SphereShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = ((cc::physics::SphereShape const *)arg1)->getObjectID();
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "SphereShape_getObjectID, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_SphereShape_getObjectID) 
+
+static bool js_cc_physics_SphereShape_setRadius(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::SphereShape *arg1 = (cc::physics::SphereShape *) NULL ;
+    float arg2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::SphereShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[0], &arg2, nullptr);
+    SE_PRECONDITION2(ok, false, "SphereShape_setRadius,2,SWIGTYPE_float"); 
+    (arg1)->setRadius(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_SphereShape_setRadius) 
+
 bool js_register_cc_physics_SphereShape(se::Object* obj) {
-    auto* cls = se::Class::create("SphereShape", obj, __jsb_cc_physics_ISphereShape_proto, _SE(js_new_cc_physics_SphereShape)); 
+    auto* cls = se::Class::create("SphereShape", obj, nullptr, _SE(js_new_cc_physics_SphereShape)); 
     
     
+    cls->defineFunction("initialize", _SE(js_cc_physics_SphereShape_initialize)); 
+    cls->defineFunction("onEnable", _SE(js_cc_physics_SphereShape_onEnable)); 
+    cls->defineFunction("onDisable", _SE(js_cc_physics_SphereShape_onDisable)); 
+    cls->defineFunction("onDestroy", _SE(js_cc_physics_SphereShape_onDestroy)); 
+    cls->defineFunction("setMaterial", _SE(js_cc_physics_SphereShape_setMaterial)); 
+    cls->defineFunction("setAsTrigger", _SE(js_cc_physics_SphereShape_setAsTrigger)); 
+    cls->defineFunction("setCenter", _SE(js_cc_physics_SphereShape_setCenter)); 
+    cls->defineFunction("updateEventListener", _SE(js_cc_physics_SphereShape_updateEventListener)); 
+    cls->defineFunction("getAABB", _SE(js_cc_physics_SphereShape_getAABB)); 
+    cls->defineFunction("getBoundingSphere", _SE(js_cc_physics_SphereShape_getBoundingSphere)); 
+    cls->defineFunction("getGroup", _SE(js_cc_physics_SphereShape_getGroup)); 
+    cls->defineFunction("setGroup", _SE(js_cc_physics_SphereShape_setGroup)); 
+    cls->defineFunction("getMask", _SE(js_cc_physics_SphereShape_getMask)); 
+    cls->defineFunction("setMask", _SE(js_cc_physics_SphereShape_setMask)); 
+    cls->defineFunction("getObjectID", _SE(js_cc_physics_SphereShape_getObjectID)); 
+    cls->defineFunction("setRadius", _SE(js_cc_physics_SphereShape_setRadius)); 
     
     
     
@@ -5397,10 +2413,486 @@ static bool js_delete_cc_physics_BoxShape(se::State& s)
 }
 SE_BIND_FINALIZE_FUNC(js_delete_cc_physics_BoxShape) 
 
+static bool js_cc_physics_BoxShape_initialize(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::BoxShape *arg1 = (cc::physics::BoxShape *) NULL ;
+    cc::Node *arg2 = (cc::Node *) NULL ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::BoxShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) SWIGTYPE*
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "BoxShape_initialize,2,SWIGTYPE_p_cc__Node"); 
+    (arg1)->initialize(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_BoxShape_initialize) 
+
+static bool js_cc_physics_BoxShape_onEnable(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::BoxShape *arg1 = (cc::physics::BoxShape *) NULL ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::BoxShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    (arg1)->onEnable();
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_BoxShape_onEnable) 
+
+static bool js_cc_physics_BoxShape_onDisable(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::BoxShape *arg1 = (cc::physics::BoxShape *) NULL ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::BoxShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    (arg1)->onDisable();
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_BoxShape_onDisable) 
+
+static bool js_cc_physics_BoxShape_onDestroy(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::BoxShape *arg1 = (cc::physics::BoxShape *) NULL ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::BoxShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    (arg1)->onDestroy();
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_BoxShape_onDestroy) 
+
+static bool js_cc_physics_BoxShape_setMaterial(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::BoxShape *arg1 = (cc::physics::BoxShape *) NULL ;
+    uint16_t arg2 ;
+    float arg3 ;
+    float arg4 ;
+    float arg5 ;
+    uint8_t arg6 ;
+    uint8_t arg7 ;
+    
+    if(argc != 6) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 6);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::BoxShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "BoxShape_setMaterial,2,SWIGTYPE_uint16_t"); 
+    
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[1], &arg3, nullptr);
+    SE_PRECONDITION2(ok, false, "BoxShape_setMaterial,3,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[2], &arg4, nullptr);
+    SE_PRECONDITION2(ok, false, "BoxShape_setMaterial,4,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[3], &arg5, nullptr);
+    SE_PRECONDITION2(ok, false, "BoxShape_setMaterial,5,SWIGTYPE_float"); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[4], &arg6, s.thisObject());
+    SE_PRECONDITION2(ok, false, "BoxShape_setMaterial,6,SWIGTYPE_uint8_t"); 
+    
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[5], &arg7, s.thisObject());
+    SE_PRECONDITION2(ok, false, "BoxShape_setMaterial,7,SWIGTYPE_uint8_t"); 
+    
+    (arg1)->setMaterial(arg2,arg3,arg4,arg5,arg6,arg7);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_BoxShape_setMaterial) 
+
+static bool js_cc_physics_BoxShape_setAsTrigger(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::BoxShape *arg1 = (cc::physics::BoxShape *) NULL ;
+    bool arg2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::BoxShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) bool
+    ok &= sevalue_to_native(args[0], &arg2);
+    SE_PRECONDITION2(ok, false, "BoxShape_setAsTrigger,2,SWIGTYPE_bool"); 
+    (arg1)->setAsTrigger(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_BoxShape_setAsTrigger) 
+
+static bool js_cc_physics_BoxShape_setCenter(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::BoxShape *arg1 = (cc::physics::BoxShape *) NULL ;
+    float arg2 ;
+    float arg3 ;
+    float arg4 ;
+    
+    if(argc != 3) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::BoxShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[0], &arg2, nullptr);
+    SE_PRECONDITION2(ok, false, "BoxShape_setCenter,2,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[1], &arg3, nullptr);
+    SE_PRECONDITION2(ok, false, "BoxShape_setCenter,3,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[2], &arg4, nullptr);
+    SE_PRECONDITION2(ok, false, "BoxShape_setCenter,4,SWIGTYPE_float"); 
+    (arg1)->setCenter(arg2,arg3,arg4);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_BoxShape_setCenter) 
+
+static bool js_cc_physics_BoxShape_updateEventListener(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::BoxShape *arg1 = (cc::physics::BoxShape *) NULL ;
+    cc::physics::EShapeFilterFlag arg2 ;
+    int32_t temp2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::BoxShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) enum SWIGTYPE (int32_t temp2)
+    ok &= sevalue_to_native(args[0], &temp2);
+    SE_PRECONDITION2(ok, false, "BoxShape_updateEventListener,2,SWIGTYPE_cc__physics__EShapeFilterFlag");
+    arg2 = (cc::physics::EShapeFilterFlag)temp2;
+    (arg1)->updateEventListener(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_BoxShape_updateEventListener) 
+
+static bool js_cc_physics_BoxShape_getAABB(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::BoxShape *arg1 = (cc::physics::BoxShape *) NULL ;
+    cc::geometry::AABB *result = 0 ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::BoxShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (cc::geometry::AABB *) &(arg1)->getAABB();
+    // %typemap(out) SWIGTYPE&
+    ok &= nativevalue_to_se(*result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "BoxShape_getAABB, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(*result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_BoxShape_getAABB) 
+
+static bool js_cc_physics_BoxShape_getBoundingSphere(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::BoxShape *arg1 = (cc::physics::BoxShape *) NULL ;
+    cc::geometry::Sphere *result = 0 ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::BoxShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (cc::geometry::Sphere *) &(arg1)->getBoundingSphere();
+    // %typemap(out) SWIGTYPE&
+    ok &= nativevalue_to_se(*result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "BoxShape_getBoundingSphere, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(*result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_BoxShape_getBoundingSphere) 
+
+static bool js_cc_physics_BoxShape_getGroup(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::BoxShape *arg1 = (cc::physics::BoxShape *) NULL ;
+    uint32_t result;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::BoxShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (arg1)->getGroup();
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "BoxShape_getGroup, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_BoxShape_getGroup) 
+
+static bool js_cc_physics_BoxShape_setGroup(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::BoxShape *arg1 = (cc::physics::BoxShape *) NULL ;
+    uint32_t arg2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::BoxShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "BoxShape_setGroup,2,SWIGTYPE_uint32_t"); 
+    
+    (arg1)->setGroup(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_BoxShape_setGroup) 
+
+static bool js_cc_physics_BoxShape_getMask(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::BoxShape *arg1 = (cc::physics::BoxShape *) NULL ;
+    uint32_t result;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::BoxShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (arg1)->getMask();
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "BoxShape_getMask, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_BoxShape_getMask) 
+
+static bool js_cc_physics_BoxShape_setMask(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::BoxShape *arg1 = (cc::physics::BoxShape *) NULL ;
+    uint32_t arg2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::BoxShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "BoxShape_setMask,2,SWIGTYPE_uint32_t"); 
+    
+    (arg1)->setMask(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_BoxShape_setMask) 
+
+static bool js_cc_physics_BoxShape_getObjectID(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::BoxShape *arg1 = (cc::physics::BoxShape *) NULL ;
+    uint32_t result;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::BoxShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = ((cc::physics::BoxShape const *)arg1)->getObjectID();
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "BoxShape_getObjectID, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_BoxShape_getObjectID) 
+
+static bool js_cc_physics_BoxShape_setSize(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::BoxShape *arg1 = (cc::physics::BoxShape *) NULL ;
+    float arg2 ;
+    float arg3 ;
+    float arg4 ;
+    
+    if(argc != 3) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::BoxShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[0], &arg2, nullptr);
+    SE_PRECONDITION2(ok, false, "BoxShape_setSize,2,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[1], &arg3, nullptr);
+    SE_PRECONDITION2(ok, false, "BoxShape_setSize,3,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[2], &arg4, nullptr);
+    SE_PRECONDITION2(ok, false, "BoxShape_setSize,4,SWIGTYPE_float"); 
+    (arg1)->setSize(arg2,arg3,arg4);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_BoxShape_setSize) 
+
 bool js_register_cc_physics_BoxShape(se::Object* obj) {
-    auto* cls = se::Class::create("BoxShape", obj, __jsb_cc_physics_IBoxShape_proto, _SE(js_new_cc_physics_BoxShape)); 
+    auto* cls = se::Class::create("BoxShape", obj, nullptr, _SE(js_new_cc_physics_BoxShape)); 
     
     
+    cls->defineFunction("initialize", _SE(js_cc_physics_BoxShape_initialize)); 
+    cls->defineFunction("onEnable", _SE(js_cc_physics_BoxShape_onEnable)); 
+    cls->defineFunction("onDisable", _SE(js_cc_physics_BoxShape_onDisable)); 
+    cls->defineFunction("onDestroy", _SE(js_cc_physics_BoxShape_onDestroy)); 
+    cls->defineFunction("setMaterial", _SE(js_cc_physics_BoxShape_setMaterial)); 
+    cls->defineFunction("setAsTrigger", _SE(js_cc_physics_BoxShape_setAsTrigger)); 
+    cls->defineFunction("setCenter", _SE(js_cc_physics_BoxShape_setCenter)); 
+    cls->defineFunction("updateEventListener", _SE(js_cc_physics_BoxShape_updateEventListener)); 
+    cls->defineFunction("getAABB", _SE(js_cc_physics_BoxShape_getAABB)); 
+    cls->defineFunction("getBoundingSphere", _SE(js_cc_physics_BoxShape_getBoundingSphere)); 
+    cls->defineFunction("getGroup", _SE(js_cc_physics_BoxShape_getGroup)); 
+    cls->defineFunction("setGroup", _SE(js_cc_physics_BoxShape_setGroup)); 
+    cls->defineFunction("getMask", _SE(js_cc_physics_BoxShape_getMask)); 
+    cls->defineFunction("setMask", _SE(js_cc_physics_BoxShape_setMask)); 
+    cls->defineFunction("getObjectID", _SE(js_cc_physics_BoxShape_getObjectID)); 
+    cls->defineFunction("setSize", _SE(js_cc_physics_BoxShape_setSize)); 
     
     
     
@@ -5446,10 +2938,534 @@ static bool js_delete_cc_physics_CapsuleShape(se::State& s)
 }
 SE_BIND_FINALIZE_FUNC(js_delete_cc_physics_CapsuleShape) 
 
+static bool js_cc_physics_CapsuleShape_initialize(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::CapsuleShape *arg1 = (cc::physics::CapsuleShape *) NULL ;
+    cc::Node *arg2 = (cc::Node *) NULL ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::CapsuleShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) SWIGTYPE*
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "CapsuleShape_initialize,2,SWIGTYPE_p_cc__Node"); 
+    (arg1)->initialize(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_CapsuleShape_initialize) 
+
+static bool js_cc_physics_CapsuleShape_onEnable(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::CapsuleShape *arg1 = (cc::physics::CapsuleShape *) NULL ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::CapsuleShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    (arg1)->onEnable();
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_CapsuleShape_onEnable) 
+
+static bool js_cc_physics_CapsuleShape_onDisable(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::CapsuleShape *arg1 = (cc::physics::CapsuleShape *) NULL ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::CapsuleShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    (arg1)->onDisable();
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_CapsuleShape_onDisable) 
+
+static bool js_cc_physics_CapsuleShape_onDestroy(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::CapsuleShape *arg1 = (cc::physics::CapsuleShape *) NULL ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::CapsuleShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    (arg1)->onDestroy();
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_CapsuleShape_onDestroy) 
+
+static bool js_cc_physics_CapsuleShape_setMaterial(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::CapsuleShape *arg1 = (cc::physics::CapsuleShape *) NULL ;
+    uint16_t arg2 ;
+    float arg3 ;
+    float arg4 ;
+    float arg5 ;
+    uint8_t arg6 ;
+    uint8_t arg7 ;
+    
+    if(argc != 6) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 6);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::CapsuleShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "CapsuleShape_setMaterial,2,SWIGTYPE_uint16_t"); 
+    
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[1], &arg3, nullptr);
+    SE_PRECONDITION2(ok, false, "CapsuleShape_setMaterial,3,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[2], &arg4, nullptr);
+    SE_PRECONDITION2(ok, false, "CapsuleShape_setMaterial,4,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[3], &arg5, nullptr);
+    SE_PRECONDITION2(ok, false, "CapsuleShape_setMaterial,5,SWIGTYPE_float"); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[4], &arg6, s.thisObject());
+    SE_PRECONDITION2(ok, false, "CapsuleShape_setMaterial,6,SWIGTYPE_uint8_t"); 
+    
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[5], &arg7, s.thisObject());
+    SE_PRECONDITION2(ok, false, "CapsuleShape_setMaterial,7,SWIGTYPE_uint8_t"); 
+    
+    (arg1)->setMaterial(arg2,arg3,arg4,arg5,arg6,arg7);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_CapsuleShape_setMaterial) 
+
+static bool js_cc_physics_CapsuleShape_setAsTrigger(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::CapsuleShape *arg1 = (cc::physics::CapsuleShape *) NULL ;
+    bool arg2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::CapsuleShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) bool
+    ok &= sevalue_to_native(args[0], &arg2);
+    SE_PRECONDITION2(ok, false, "CapsuleShape_setAsTrigger,2,SWIGTYPE_bool"); 
+    (arg1)->setAsTrigger(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_CapsuleShape_setAsTrigger) 
+
+static bool js_cc_physics_CapsuleShape_setCenter(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::CapsuleShape *arg1 = (cc::physics::CapsuleShape *) NULL ;
+    float arg2 ;
+    float arg3 ;
+    float arg4 ;
+    
+    if(argc != 3) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::CapsuleShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[0], &arg2, nullptr);
+    SE_PRECONDITION2(ok, false, "CapsuleShape_setCenter,2,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[1], &arg3, nullptr);
+    SE_PRECONDITION2(ok, false, "CapsuleShape_setCenter,3,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[2], &arg4, nullptr);
+    SE_PRECONDITION2(ok, false, "CapsuleShape_setCenter,4,SWIGTYPE_float"); 
+    (arg1)->setCenter(arg2,arg3,arg4);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_CapsuleShape_setCenter) 
+
+static bool js_cc_physics_CapsuleShape_updateEventListener(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::CapsuleShape *arg1 = (cc::physics::CapsuleShape *) NULL ;
+    cc::physics::EShapeFilterFlag arg2 ;
+    int32_t temp2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::CapsuleShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) enum SWIGTYPE (int32_t temp2)
+    ok &= sevalue_to_native(args[0], &temp2);
+    SE_PRECONDITION2(ok, false, "CapsuleShape_updateEventListener,2,SWIGTYPE_cc__physics__EShapeFilterFlag");
+    arg2 = (cc::physics::EShapeFilterFlag)temp2;
+    (arg1)->updateEventListener(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_CapsuleShape_updateEventListener) 
+
+static bool js_cc_physics_CapsuleShape_getAABB(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::CapsuleShape *arg1 = (cc::physics::CapsuleShape *) NULL ;
+    cc::geometry::AABB *result = 0 ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::CapsuleShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (cc::geometry::AABB *) &(arg1)->getAABB();
+    // %typemap(out) SWIGTYPE&
+    ok &= nativevalue_to_se(*result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "CapsuleShape_getAABB, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(*result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_CapsuleShape_getAABB) 
+
+static bool js_cc_physics_CapsuleShape_getBoundingSphere(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::CapsuleShape *arg1 = (cc::physics::CapsuleShape *) NULL ;
+    cc::geometry::Sphere *result = 0 ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::CapsuleShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (cc::geometry::Sphere *) &(arg1)->getBoundingSphere();
+    // %typemap(out) SWIGTYPE&
+    ok &= nativevalue_to_se(*result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "CapsuleShape_getBoundingSphere, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(*result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_CapsuleShape_getBoundingSphere) 
+
+static bool js_cc_physics_CapsuleShape_getGroup(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::CapsuleShape *arg1 = (cc::physics::CapsuleShape *) NULL ;
+    uint32_t result;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::CapsuleShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (arg1)->getGroup();
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "CapsuleShape_getGroup, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_CapsuleShape_getGroup) 
+
+static bool js_cc_physics_CapsuleShape_setGroup(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::CapsuleShape *arg1 = (cc::physics::CapsuleShape *) NULL ;
+    uint32_t arg2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::CapsuleShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "CapsuleShape_setGroup,2,SWIGTYPE_uint32_t"); 
+    
+    (arg1)->setGroup(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_CapsuleShape_setGroup) 
+
+static bool js_cc_physics_CapsuleShape_getMask(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::CapsuleShape *arg1 = (cc::physics::CapsuleShape *) NULL ;
+    uint32_t result;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::CapsuleShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (arg1)->getMask();
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "CapsuleShape_getMask, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_CapsuleShape_getMask) 
+
+static bool js_cc_physics_CapsuleShape_setMask(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::CapsuleShape *arg1 = (cc::physics::CapsuleShape *) NULL ;
+    uint32_t arg2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::CapsuleShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "CapsuleShape_setMask,2,SWIGTYPE_uint32_t"); 
+    
+    (arg1)->setMask(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_CapsuleShape_setMask) 
+
+static bool js_cc_physics_CapsuleShape_getObjectID(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::CapsuleShape *arg1 = (cc::physics::CapsuleShape *) NULL ;
+    uint32_t result;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::CapsuleShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = ((cc::physics::CapsuleShape const *)arg1)->getObjectID();
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "CapsuleShape_getObjectID, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_CapsuleShape_getObjectID) 
+
+static bool js_cc_physics_CapsuleShape_setRadius(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::CapsuleShape *arg1 = (cc::physics::CapsuleShape *) NULL ;
+    float arg2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::CapsuleShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[0], &arg2, nullptr);
+    SE_PRECONDITION2(ok, false, "CapsuleShape_setRadius,2,SWIGTYPE_float"); 
+    (arg1)->setRadius(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_CapsuleShape_setRadius) 
+
+static bool js_cc_physics_CapsuleShape_setCylinderHeight(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::CapsuleShape *arg1 = (cc::physics::CapsuleShape *) NULL ;
+    float arg2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::CapsuleShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[0], &arg2, nullptr);
+    SE_PRECONDITION2(ok, false, "CapsuleShape_setCylinderHeight,2,SWIGTYPE_float"); 
+    (arg1)->setCylinderHeight(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_CapsuleShape_setCylinderHeight) 
+
+static bool js_cc_physics_CapsuleShape_setDirection(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::CapsuleShape *arg1 = (cc::physics::CapsuleShape *) NULL ;
+    cc::physics::EAxisDirection arg2 ;
+    int32_t temp2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::CapsuleShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) enum SWIGTYPE (int32_t temp2)
+    ok &= sevalue_to_native(args[0], &temp2);
+    SE_PRECONDITION2(ok, false, "CapsuleShape_setDirection,2,SWIGTYPE_cc__physics__EAxisDirection");
+    arg2 = (cc::physics::EAxisDirection)temp2;
+    (arg1)->setDirection(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_CapsuleShape_setDirection) 
+
 bool js_register_cc_physics_CapsuleShape(se::Object* obj) {
-    auto* cls = se::Class::create("CapsuleShape", obj, __jsb_cc_physics_ICapsuleShape_proto, _SE(js_new_cc_physics_CapsuleShape)); 
+    auto* cls = se::Class::create("CapsuleShape", obj, nullptr, _SE(js_new_cc_physics_CapsuleShape)); 
     
     
+    cls->defineFunction("initialize", _SE(js_cc_physics_CapsuleShape_initialize)); 
+    cls->defineFunction("onEnable", _SE(js_cc_physics_CapsuleShape_onEnable)); 
+    cls->defineFunction("onDisable", _SE(js_cc_physics_CapsuleShape_onDisable)); 
+    cls->defineFunction("onDestroy", _SE(js_cc_physics_CapsuleShape_onDestroy)); 
+    cls->defineFunction("setMaterial", _SE(js_cc_physics_CapsuleShape_setMaterial)); 
+    cls->defineFunction("setAsTrigger", _SE(js_cc_physics_CapsuleShape_setAsTrigger)); 
+    cls->defineFunction("setCenter", _SE(js_cc_physics_CapsuleShape_setCenter)); 
+    cls->defineFunction("updateEventListener", _SE(js_cc_physics_CapsuleShape_updateEventListener)); 
+    cls->defineFunction("getAABB", _SE(js_cc_physics_CapsuleShape_getAABB)); 
+    cls->defineFunction("getBoundingSphere", _SE(js_cc_physics_CapsuleShape_getBoundingSphere)); 
+    cls->defineFunction("getGroup", _SE(js_cc_physics_CapsuleShape_getGroup)); 
+    cls->defineFunction("setGroup", _SE(js_cc_physics_CapsuleShape_setGroup)); 
+    cls->defineFunction("getMask", _SE(js_cc_physics_CapsuleShape_getMask)); 
+    cls->defineFunction("setMask", _SE(js_cc_physics_CapsuleShape_setMask)); 
+    cls->defineFunction("getObjectID", _SE(js_cc_physics_CapsuleShape_getObjectID)); 
+    cls->defineFunction("setRadius", _SE(js_cc_physics_CapsuleShape_setRadius)); 
+    cls->defineFunction("setCylinderHeight", _SE(js_cc_physics_CapsuleShape_setCylinderHeight)); 
+    cls->defineFunction("setDirection", _SE(js_cc_physics_CapsuleShape_setDirection)); 
     
     
     
@@ -5495,10 +3511,513 @@ static bool js_delete_cc_physics_PlaneShape(se::State& s)
 }
 SE_BIND_FINALIZE_FUNC(js_delete_cc_physics_PlaneShape) 
 
+static bool js_cc_physics_PlaneShape_initialize(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::PlaneShape *arg1 = (cc::physics::PlaneShape *) NULL ;
+    cc::Node *arg2 = (cc::Node *) NULL ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::PlaneShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) SWIGTYPE*
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "PlaneShape_initialize,2,SWIGTYPE_p_cc__Node"); 
+    (arg1)->initialize(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_PlaneShape_initialize) 
+
+static bool js_cc_physics_PlaneShape_onEnable(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::PlaneShape *arg1 = (cc::physics::PlaneShape *) NULL ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::PlaneShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    (arg1)->onEnable();
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_PlaneShape_onEnable) 
+
+static bool js_cc_physics_PlaneShape_onDisable(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::PlaneShape *arg1 = (cc::physics::PlaneShape *) NULL ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::PlaneShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    (arg1)->onDisable();
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_PlaneShape_onDisable) 
+
+static bool js_cc_physics_PlaneShape_onDestroy(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::PlaneShape *arg1 = (cc::physics::PlaneShape *) NULL ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::PlaneShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    (arg1)->onDestroy();
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_PlaneShape_onDestroy) 
+
+static bool js_cc_physics_PlaneShape_setMaterial(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::PlaneShape *arg1 = (cc::physics::PlaneShape *) NULL ;
+    uint16_t arg2 ;
+    float arg3 ;
+    float arg4 ;
+    float arg5 ;
+    uint8_t arg6 ;
+    uint8_t arg7 ;
+    
+    if(argc != 6) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 6);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::PlaneShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "PlaneShape_setMaterial,2,SWIGTYPE_uint16_t"); 
+    
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[1], &arg3, nullptr);
+    SE_PRECONDITION2(ok, false, "PlaneShape_setMaterial,3,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[2], &arg4, nullptr);
+    SE_PRECONDITION2(ok, false, "PlaneShape_setMaterial,4,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[3], &arg5, nullptr);
+    SE_PRECONDITION2(ok, false, "PlaneShape_setMaterial,5,SWIGTYPE_float"); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[4], &arg6, s.thisObject());
+    SE_PRECONDITION2(ok, false, "PlaneShape_setMaterial,6,SWIGTYPE_uint8_t"); 
+    
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[5], &arg7, s.thisObject());
+    SE_PRECONDITION2(ok, false, "PlaneShape_setMaterial,7,SWIGTYPE_uint8_t"); 
+    
+    (arg1)->setMaterial(arg2,arg3,arg4,arg5,arg6,arg7);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_PlaneShape_setMaterial) 
+
+static bool js_cc_physics_PlaneShape_setAsTrigger(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::PlaneShape *arg1 = (cc::physics::PlaneShape *) NULL ;
+    bool arg2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::PlaneShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) bool
+    ok &= sevalue_to_native(args[0], &arg2);
+    SE_PRECONDITION2(ok, false, "PlaneShape_setAsTrigger,2,SWIGTYPE_bool"); 
+    (arg1)->setAsTrigger(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_PlaneShape_setAsTrigger) 
+
+static bool js_cc_physics_PlaneShape_setCenter(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::PlaneShape *arg1 = (cc::physics::PlaneShape *) NULL ;
+    float arg2 ;
+    float arg3 ;
+    float arg4 ;
+    
+    if(argc != 3) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::PlaneShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[0], &arg2, nullptr);
+    SE_PRECONDITION2(ok, false, "PlaneShape_setCenter,2,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[1], &arg3, nullptr);
+    SE_PRECONDITION2(ok, false, "PlaneShape_setCenter,3,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[2], &arg4, nullptr);
+    SE_PRECONDITION2(ok, false, "PlaneShape_setCenter,4,SWIGTYPE_float"); 
+    (arg1)->setCenter(arg2,arg3,arg4);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_PlaneShape_setCenter) 
+
+static bool js_cc_physics_PlaneShape_updateEventListener(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::PlaneShape *arg1 = (cc::physics::PlaneShape *) NULL ;
+    cc::physics::EShapeFilterFlag arg2 ;
+    int32_t temp2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::PlaneShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) enum SWIGTYPE (int32_t temp2)
+    ok &= sevalue_to_native(args[0], &temp2);
+    SE_PRECONDITION2(ok, false, "PlaneShape_updateEventListener,2,SWIGTYPE_cc__physics__EShapeFilterFlag");
+    arg2 = (cc::physics::EShapeFilterFlag)temp2;
+    (arg1)->updateEventListener(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_PlaneShape_updateEventListener) 
+
+static bool js_cc_physics_PlaneShape_getAABB(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::PlaneShape *arg1 = (cc::physics::PlaneShape *) NULL ;
+    cc::geometry::AABB *result = 0 ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::PlaneShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (cc::geometry::AABB *) &(arg1)->getAABB();
+    // %typemap(out) SWIGTYPE&
+    ok &= nativevalue_to_se(*result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "PlaneShape_getAABB, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(*result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_PlaneShape_getAABB) 
+
+static bool js_cc_physics_PlaneShape_getBoundingSphere(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::PlaneShape *arg1 = (cc::physics::PlaneShape *) NULL ;
+    cc::geometry::Sphere *result = 0 ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::PlaneShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (cc::geometry::Sphere *) &(arg1)->getBoundingSphere();
+    // %typemap(out) SWIGTYPE&
+    ok &= nativevalue_to_se(*result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "PlaneShape_getBoundingSphere, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(*result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_PlaneShape_getBoundingSphere) 
+
+static bool js_cc_physics_PlaneShape_getGroup(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::PlaneShape *arg1 = (cc::physics::PlaneShape *) NULL ;
+    uint32_t result;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::PlaneShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (arg1)->getGroup();
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "PlaneShape_getGroup, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_PlaneShape_getGroup) 
+
+static bool js_cc_physics_PlaneShape_setGroup(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::PlaneShape *arg1 = (cc::physics::PlaneShape *) NULL ;
+    uint32_t arg2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::PlaneShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "PlaneShape_setGroup,2,SWIGTYPE_uint32_t"); 
+    
+    (arg1)->setGroup(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_PlaneShape_setGroup) 
+
+static bool js_cc_physics_PlaneShape_getMask(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::PlaneShape *arg1 = (cc::physics::PlaneShape *) NULL ;
+    uint32_t result;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::PlaneShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (arg1)->getMask();
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "PlaneShape_getMask, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_PlaneShape_getMask) 
+
+static bool js_cc_physics_PlaneShape_setMask(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::PlaneShape *arg1 = (cc::physics::PlaneShape *) NULL ;
+    uint32_t arg2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::PlaneShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "PlaneShape_setMask,2,SWIGTYPE_uint32_t"); 
+    
+    (arg1)->setMask(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_PlaneShape_setMask) 
+
+static bool js_cc_physics_PlaneShape_getObjectID(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::PlaneShape *arg1 = (cc::physics::PlaneShape *) NULL ;
+    uint32_t result;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::PlaneShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = ((cc::physics::PlaneShape const *)arg1)->getObjectID();
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "PlaneShape_getObjectID, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_PlaneShape_getObjectID) 
+
+static bool js_cc_physics_PlaneShape_setConstant(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::PlaneShape *arg1 = (cc::physics::PlaneShape *) NULL ;
+    float arg2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::PlaneShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[0], &arg2, nullptr);
+    SE_PRECONDITION2(ok, false, "PlaneShape_setConstant,2,SWIGTYPE_float"); 
+    (arg1)->setConstant(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_PlaneShape_setConstant) 
+
+static bool js_cc_physics_PlaneShape_setNormal(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::PlaneShape *arg1 = (cc::physics::PlaneShape *) NULL ;
+    float arg2 ;
+    float arg3 ;
+    float arg4 ;
+    
+    if(argc != 3) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::PlaneShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[0], &arg2, nullptr);
+    SE_PRECONDITION2(ok, false, "PlaneShape_setNormal,2,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[1], &arg3, nullptr);
+    SE_PRECONDITION2(ok, false, "PlaneShape_setNormal,3,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[2], &arg4, nullptr);
+    SE_PRECONDITION2(ok, false, "PlaneShape_setNormal,4,SWIGTYPE_float"); 
+    (arg1)->setNormal(arg2,arg3,arg4);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_PlaneShape_setNormal) 
+
 bool js_register_cc_physics_PlaneShape(se::Object* obj) {
-    auto* cls = se::Class::create("PlaneShape", obj, __jsb_cc_physics_IPlaneShape_proto, _SE(js_new_cc_physics_PlaneShape)); 
+    auto* cls = se::Class::create("PlaneShape", obj, nullptr, _SE(js_new_cc_physics_PlaneShape)); 
     
     
+    cls->defineFunction("initialize", _SE(js_cc_physics_PlaneShape_initialize)); 
+    cls->defineFunction("onEnable", _SE(js_cc_physics_PlaneShape_onEnable)); 
+    cls->defineFunction("onDisable", _SE(js_cc_physics_PlaneShape_onDisable)); 
+    cls->defineFunction("onDestroy", _SE(js_cc_physics_PlaneShape_onDestroy)); 
+    cls->defineFunction("setMaterial", _SE(js_cc_physics_PlaneShape_setMaterial)); 
+    cls->defineFunction("setAsTrigger", _SE(js_cc_physics_PlaneShape_setAsTrigger)); 
+    cls->defineFunction("setCenter", _SE(js_cc_physics_PlaneShape_setCenter)); 
+    cls->defineFunction("updateEventListener", _SE(js_cc_physics_PlaneShape_updateEventListener)); 
+    cls->defineFunction("getAABB", _SE(js_cc_physics_PlaneShape_getAABB)); 
+    cls->defineFunction("getBoundingSphere", _SE(js_cc_physics_PlaneShape_getBoundingSphere)); 
+    cls->defineFunction("getGroup", _SE(js_cc_physics_PlaneShape_getGroup)); 
+    cls->defineFunction("setGroup", _SE(js_cc_physics_PlaneShape_setGroup)); 
+    cls->defineFunction("getMask", _SE(js_cc_physics_PlaneShape_getMask)); 
+    cls->defineFunction("setMask", _SE(js_cc_physics_PlaneShape_setMask)); 
+    cls->defineFunction("getObjectID", _SE(js_cc_physics_PlaneShape_getObjectID)); 
+    cls->defineFunction("setConstant", _SE(js_cc_physics_PlaneShape_setConstant)); 
+    cls->defineFunction("setNormal", _SE(js_cc_physics_PlaneShape_setNormal)); 
     
     
     
@@ -5544,10 +4063,507 @@ static bool js_delete_cc_physics_TrimeshShape(se::State& s)
 }
 SE_BIND_FINALIZE_FUNC(js_delete_cc_physics_TrimeshShape) 
 
+static bool js_cc_physics_TrimeshShape_initialize(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::TrimeshShape *arg1 = (cc::physics::TrimeshShape *) NULL ;
+    cc::Node *arg2 = (cc::Node *) NULL ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::TrimeshShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) SWIGTYPE*
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "TrimeshShape_initialize,2,SWIGTYPE_p_cc__Node"); 
+    (arg1)->initialize(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_TrimeshShape_initialize) 
+
+static bool js_cc_physics_TrimeshShape_onEnable(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::TrimeshShape *arg1 = (cc::physics::TrimeshShape *) NULL ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::TrimeshShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    (arg1)->onEnable();
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_TrimeshShape_onEnable) 
+
+static bool js_cc_physics_TrimeshShape_onDisable(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::TrimeshShape *arg1 = (cc::physics::TrimeshShape *) NULL ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::TrimeshShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    (arg1)->onDisable();
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_TrimeshShape_onDisable) 
+
+static bool js_cc_physics_TrimeshShape_onDestroy(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::TrimeshShape *arg1 = (cc::physics::TrimeshShape *) NULL ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::TrimeshShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    (arg1)->onDestroy();
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_TrimeshShape_onDestroy) 
+
+static bool js_cc_physics_TrimeshShape_setMaterial(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::TrimeshShape *arg1 = (cc::physics::TrimeshShape *) NULL ;
+    uint16_t arg2 ;
+    float arg3 ;
+    float arg4 ;
+    float arg5 ;
+    uint8_t arg6 ;
+    uint8_t arg7 ;
+    
+    if(argc != 6) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 6);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::TrimeshShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "TrimeshShape_setMaterial,2,SWIGTYPE_uint16_t"); 
+    
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[1], &arg3, nullptr);
+    SE_PRECONDITION2(ok, false, "TrimeshShape_setMaterial,3,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[2], &arg4, nullptr);
+    SE_PRECONDITION2(ok, false, "TrimeshShape_setMaterial,4,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[3], &arg5, nullptr);
+    SE_PRECONDITION2(ok, false, "TrimeshShape_setMaterial,5,SWIGTYPE_float"); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[4], &arg6, s.thisObject());
+    SE_PRECONDITION2(ok, false, "TrimeshShape_setMaterial,6,SWIGTYPE_uint8_t"); 
+    
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[5], &arg7, s.thisObject());
+    SE_PRECONDITION2(ok, false, "TrimeshShape_setMaterial,7,SWIGTYPE_uint8_t"); 
+    
+    (arg1)->setMaterial(arg2,arg3,arg4,arg5,arg6,arg7);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_TrimeshShape_setMaterial) 
+
+static bool js_cc_physics_TrimeshShape_setAsTrigger(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::TrimeshShape *arg1 = (cc::physics::TrimeshShape *) NULL ;
+    bool arg2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::TrimeshShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) bool
+    ok &= sevalue_to_native(args[0], &arg2);
+    SE_PRECONDITION2(ok, false, "TrimeshShape_setAsTrigger,2,SWIGTYPE_bool"); 
+    (arg1)->setAsTrigger(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_TrimeshShape_setAsTrigger) 
+
+static bool js_cc_physics_TrimeshShape_setCenter(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::TrimeshShape *arg1 = (cc::physics::TrimeshShape *) NULL ;
+    float arg2 ;
+    float arg3 ;
+    float arg4 ;
+    
+    if(argc != 3) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::TrimeshShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[0], &arg2, nullptr);
+    SE_PRECONDITION2(ok, false, "TrimeshShape_setCenter,2,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[1], &arg3, nullptr);
+    SE_PRECONDITION2(ok, false, "TrimeshShape_setCenter,3,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[2], &arg4, nullptr);
+    SE_PRECONDITION2(ok, false, "TrimeshShape_setCenter,4,SWIGTYPE_float"); 
+    (arg1)->setCenter(arg2,arg3,arg4);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_TrimeshShape_setCenter) 
+
+static bool js_cc_physics_TrimeshShape_updateEventListener(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::TrimeshShape *arg1 = (cc::physics::TrimeshShape *) NULL ;
+    cc::physics::EShapeFilterFlag arg2 ;
+    int32_t temp2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::TrimeshShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) enum SWIGTYPE (int32_t temp2)
+    ok &= sevalue_to_native(args[0], &temp2);
+    SE_PRECONDITION2(ok, false, "TrimeshShape_updateEventListener,2,SWIGTYPE_cc__physics__EShapeFilterFlag");
+    arg2 = (cc::physics::EShapeFilterFlag)temp2;
+    (arg1)->updateEventListener(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_TrimeshShape_updateEventListener) 
+
+static bool js_cc_physics_TrimeshShape_getAABB(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::TrimeshShape *arg1 = (cc::physics::TrimeshShape *) NULL ;
+    cc::geometry::AABB *result = 0 ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::TrimeshShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (cc::geometry::AABB *) &(arg1)->getAABB();
+    // %typemap(out) SWIGTYPE&
+    ok &= nativevalue_to_se(*result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "TrimeshShape_getAABB, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(*result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_TrimeshShape_getAABB) 
+
+static bool js_cc_physics_TrimeshShape_getBoundingSphere(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::TrimeshShape *arg1 = (cc::physics::TrimeshShape *) NULL ;
+    cc::geometry::Sphere *result = 0 ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::TrimeshShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (cc::geometry::Sphere *) &(arg1)->getBoundingSphere();
+    // %typemap(out) SWIGTYPE&
+    ok &= nativevalue_to_se(*result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "TrimeshShape_getBoundingSphere, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(*result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_TrimeshShape_getBoundingSphere) 
+
+static bool js_cc_physics_TrimeshShape_getGroup(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::TrimeshShape *arg1 = (cc::physics::TrimeshShape *) NULL ;
+    uint32_t result;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::TrimeshShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (arg1)->getGroup();
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "TrimeshShape_getGroup, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_TrimeshShape_getGroup) 
+
+static bool js_cc_physics_TrimeshShape_setGroup(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::TrimeshShape *arg1 = (cc::physics::TrimeshShape *) NULL ;
+    uint32_t arg2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::TrimeshShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "TrimeshShape_setGroup,2,SWIGTYPE_uint32_t"); 
+    
+    (arg1)->setGroup(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_TrimeshShape_setGroup) 
+
+static bool js_cc_physics_TrimeshShape_getMask(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::TrimeshShape *arg1 = (cc::physics::TrimeshShape *) NULL ;
+    uint32_t result;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::TrimeshShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (arg1)->getMask();
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "TrimeshShape_getMask, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_TrimeshShape_getMask) 
+
+static bool js_cc_physics_TrimeshShape_setMask(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::TrimeshShape *arg1 = (cc::physics::TrimeshShape *) NULL ;
+    uint32_t arg2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::TrimeshShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "TrimeshShape_setMask,2,SWIGTYPE_uint32_t"); 
+    
+    (arg1)->setMask(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_TrimeshShape_setMask) 
+
+static bool js_cc_physics_TrimeshShape_getObjectID(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::TrimeshShape *arg1 = (cc::physics::TrimeshShape *) NULL ;
+    uint32_t result;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::TrimeshShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = ((cc::physics::TrimeshShape const *)arg1)->getObjectID();
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "TrimeshShape_getObjectID, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_TrimeshShape_getObjectID) 
+
+static bool js_cc_physics_TrimeshShape_setMesh(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::TrimeshShape *arg1 = (cc::physics::TrimeshShape *) NULL ;
+    uint32_t arg2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::TrimeshShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "TrimeshShape_setMesh,2,SWIGTYPE_uint32_t"); 
+    
+    (arg1)->setMesh(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_TrimeshShape_setMesh) 
+
+static bool js_cc_physics_TrimeshShape_useConvex(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::TrimeshShape *arg1 = (cc::physics::TrimeshShape *) NULL ;
+    bool arg2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::TrimeshShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) bool
+    ok &= sevalue_to_native(args[0], &arg2);
+    SE_PRECONDITION2(ok, false, "TrimeshShape_useConvex,2,SWIGTYPE_bool"); 
+    (arg1)->useConvex(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_TrimeshShape_useConvex) 
+
 bool js_register_cc_physics_TrimeshShape(se::Object* obj) {
-    auto* cls = se::Class::create("TrimeshShape", obj, __jsb_cc_physics_ITrimeshShape_proto, _SE(js_new_cc_physics_TrimeshShape)); 
+    auto* cls = se::Class::create("TrimeshShape", obj, nullptr, _SE(js_new_cc_physics_TrimeshShape)); 
     
     
+    cls->defineFunction("initialize", _SE(js_cc_physics_TrimeshShape_initialize)); 
+    cls->defineFunction("onEnable", _SE(js_cc_physics_TrimeshShape_onEnable)); 
+    cls->defineFunction("onDisable", _SE(js_cc_physics_TrimeshShape_onDisable)); 
+    cls->defineFunction("onDestroy", _SE(js_cc_physics_TrimeshShape_onDestroy)); 
+    cls->defineFunction("setMaterial", _SE(js_cc_physics_TrimeshShape_setMaterial)); 
+    cls->defineFunction("setAsTrigger", _SE(js_cc_physics_TrimeshShape_setAsTrigger)); 
+    cls->defineFunction("setCenter", _SE(js_cc_physics_TrimeshShape_setCenter)); 
+    cls->defineFunction("updateEventListener", _SE(js_cc_physics_TrimeshShape_updateEventListener)); 
+    cls->defineFunction("getAABB", _SE(js_cc_physics_TrimeshShape_getAABB)); 
+    cls->defineFunction("getBoundingSphere", _SE(js_cc_physics_TrimeshShape_getBoundingSphere)); 
+    cls->defineFunction("getGroup", _SE(js_cc_physics_TrimeshShape_getGroup)); 
+    cls->defineFunction("setGroup", _SE(js_cc_physics_TrimeshShape_setGroup)); 
+    cls->defineFunction("getMask", _SE(js_cc_physics_TrimeshShape_getMask)); 
+    cls->defineFunction("setMask", _SE(js_cc_physics_TrimeshShape_setMask)); 
+    cls->defineFunction("getObjectID", _SE(js_cc_physics_TrimeshShape_getObjectID)); 
+    cls->defineFunction("setMesh", _SE(js_cc_physics_TrimeshShape_setMesh)); 
+    cls->defineFunction("useConvex", _SE(js_cc_physics_TrimeshShape_useConvex)); 
     
     
     
@@ -5593,10 +4609,517 @@ static bool js_delete_cc_physics_CylinderShape(se::State& s)
 }
 SE_BIND_FINALIZE_FUNC(js_delete_cc_physics_CylinderShape) 
 
+static bool js_cc_physics_CylinderShape_initialize(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::CylinderShape *arg1 = (cc::physics::CylinderShape *) NULL ;
+    cc::Node *arg2 = (cc::Node *) NULL ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::CylinderShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) SWIGTYPE*
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "CylinderShape_initialize,2,SWIGTYPE_p_cc__Node"); 
+    (arg1)->initialize(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_CylinderShape_initialize) 
+
+static bool js_cc_physics_CylinderShape_onEnable(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::CylinderShape *arg1 = (cc::physics::CylinderShape *) NULL ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::CylinderShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    (arg1)->onEnable();
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_CylinderShape_onEnable) 
+
+static bool js_cc_physics_CylinderShape_onDisable(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::CylinderShape *arg1 = (cc::physics::CylinderShape *) NULL ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::CylinderShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    (arg1)->onDisable();
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_CylinderShape_onDisable) 
+
+static bool js_cc_physics_CylinderShape_onDestroy(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::CylinderShape *arg1 = (cc::physics::CylinderShape *) NULL ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::CylinderShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    (arg1)->onDestroy();
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_CylinderShape_onDestroy) 
+
+static bool js_cc_physics_CylinderShape_setMaterial(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::CylinderShape *arg1 = (cc::physics::CylinderShape *) NULL ;
+    uint16_t arg2 ;
+    float arg3 ;
+    float arg4 ;
+    float arg5 ;
+    uint8_t arg6 ;
+    uint8_t arg7 ;
+    
+    if(argc != 6) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 6);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::CylinderShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "CylinderShape_setMaterial,2,SWIGTYPE_uint16_t"); 
+    
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[1], &arg3, nullptr);
+    SE_PRECONDITION2(ok, false, "CylinderShape_setMaterial,3,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[2], &arg4, nullptr);
+    SE_PRECONDITION2(ok, false, "CylinderShape_setMaterial,4,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[3], &arg5, nullptr);
+    SE_PRECONDITION2(ok, false, "CylinderShape_setMaterial,5,SWIGTYPE_float"); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[4], &arg6, s.thisObject());
+    SE_PRECONDITION2(ok, false, "CylinderShape_setMaterial,6,SWIGTYPE_uint8_t"); 
+    
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[5], &arg7, s.thisObject());
+    SE_PRECONDITION2(ok, false, "CylinderShape_setMaterial,7,SWIGTYPE_uint8_t"); 
+    
+    (arg1)->setMaterial(arg2,arg3,arg4,arg5,arg6,arg7);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_CylinderShape_setMaterial) 
+
+static bool js_cc_physics_CylinderShape_setAsTrigger(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::CylinderShape *arg1 = (cc::physics::CylinderShape *) NULL ;
+    bool arg2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::CylinderShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) bool
+    ok &= sevalue_to_native(args[0], &arg2);
+    SE_PRECONDITION2(ok, false, "CylinderShape_setAsTrigger,2,SWIGTYPE_bool"); 
+    (arg1)->setAsTrigger(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_CylinderShape_setAsTrigger) 
+
+static bool js_cc_physics_CylinderShape_setCenter(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::CylinderShape *arg1 = (cc::physics::CylinderShape *) NULL ;
+    float arg2 ;
+    float arg3 ;
+    float arg4 ;
+    
+    if(argc != 3) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::CylinderShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[0], &arg2, nullptr);
+    SE_PRECONDITION2(ok, false, "CylinderShape_setCenter,2,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[1], &arg3, nullptr);
+    SE_PRECONDITION2(ok, false, "CylinderShape_setCenter,3,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[2], &arg4, nullptr);
+    SE_PRECONDITION2(ok, false, "CylinderShape_setCenter,4,SWIGTYPE_float"); 
+    (arg1)->setCenter(arg2,arg3,arg4);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_CylinderShape_setCenter) 
+
+static bool js_cc_physics_CylinderShape_updateEventListener(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::CylinderShape *arg1 = (cc::physics::CylinderShape *) NULL ;
+    cc::physics::EShapeFilterFlag arg2 ;
+    int32_t temp2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::CylinderShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) enum SWIGTYPE (int32_t temp2)
+    ok &= sevalue_to_native(args[0], &temp2);
+    SE_PRECONDITION2(ok, false, "CylinderShape_updateEventListener,2,SWIGTYPE_cc__physics__EShapeFilterFlag");
+    arg2 = (cc::physics::EShapeFilterFlag)temp2;
+    (arg1)->updateEventListener(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_CylinderShape_updateEventListener) 
+
+static bool js_cc_physics_CylinderShape_getAABB(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::CylinderShape *arg1 = (cc::physics::CylinderShape *) NULL ;
+    cc::geometry::AABB *result = 0 ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::CylinderShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (cc::geometry::AABB *) &(arg1)->getAABB();
+    // %typemap(out) SWIGTYPE&
+    ok &= nativevalue_to_se(*result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "CylinderShape_getAABB, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(*result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_CylinderShape_getAABB) 
+
+static bool js_cc_physics_CylinderShape_getBoundingSphere(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::CylinderShape *arg1 = (cc::physics::CylinderShape *) NULL ;
+    cc::geometry::Sphere *result = 0 ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::CylinderShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (cc::geometry::Sphere *) &(arg1)->getBoundingSphere();
+    // %typemap(out) SWIGTYPE&
+    ok &= nativevalue_to_se(*result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "CylinderShape_getBoundingSphere, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(*result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_CylinderShape_getBoundingSphere) 
+
+static bool js_cc_physics_CylinderShape_getGroup(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::CylinderShape *arg1 = (cc::physics::CylinderShape *) NULL ;
+    uint32_t result;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::CylinderShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (arg1)->getGroup();
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "CylinderShape_getGroup, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_CylinderShape_getGroup) 
+
+static bool js_cc_physics_CylinderShape_setGroup(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::CylinderShape *arg1 = (cc::physics::CylinderShape *) NULL ;
+    uint32_t arg2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::CylinderShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "CylinderShape_setGroup,2,SWIGTYPE_uint32_t"); 
+    
+    (arg1)->setGroup(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_CylinderShape_setGroup) 
+
+static bool js_cc_physics_CylinderShape_getMask(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::CylinderShape *arg1 = (cc::physics::CylinderShape *) NULL ;
+    uint32_t result;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::CylinderShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (arg1)->getMask();
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "CylinderShape_getMask, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_CylinderShape_getMask) 
+
+static bool js_cc_physics_CylinderShape_setMask(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::CylinderShape *arg1 = (cc::physics::CylinderShape *) NULL ;
+    uint32_t arg2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::CylinderShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "CylinderShape_setMask,2,SWIGTYPE_uint32_t"); 
+    
+    (arg1)->setMask(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_CylinderShape_setMask) 
+
+static bool js_cc_physics_CylinderShape_getObjectID(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::CylinderShape *arg1 = (cc::physics::CylinderShape *) NULL ;
+    uint32_t result;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::CylinderShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = ((cc::physics::CylinderShape const *)arg1)->getObjectID();
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "CylinderShape_getObjectID, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_CylinderShape_getObjectID) 
+
+static bool js_cc_physics_CylinderShape_setConvex(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::CylinderShape *arg1 = (cc::physics::CylinderShape *) NULL ;
+    uint32_t arg2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::CylinderShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "CylinderShape_setConvex,2,SWIGTYPE_uint32_t"); 
+    
+    (arg1)->setConvex(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_CylinderShape_setConvex) 
+
+static bool js_cc_physics_CylinderShape_setCylinder(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::CylinderShape *arg1 = (cc::physics::CylinderShape *) NULL ;
+    float arg2 ;
+    float arg3 ;
+    cc::physics::EAxisDirection arg4 ;
+    int32_t temp4 ;
+    
+    if(argc != 3) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::CylinderShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[0], &arg2, nullptr);
+    SE_PRECONDITION2(ok, false, "CylinderShape_setCylinder,2,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[1], &arg3, nullptr);
+    SE_PRECONDITION2(ok, false, "CylinderShape_setCylinder,3,SWIGTYPE_float"); 
+    // %typemap(in) enum SWIGTYPE (int32_t temp4)
+    ok &= sevalue_to_native(args[2], &temp4);
+    SE_PRECONDITION2(ok, false, "CylinderShape_setCylinder,4,SWIGTYPE_cc__physics__EAxisDirection");
+    arg4 = (cc::physics::EAxisDirection)temp4;
+    (arg1)->setCylinder(arg2,arg3,arg4);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_CylinderShape_setCylinder) 
+
 bool js_register_cc_physics_CylinderShape(se::Object* obj) {
-    auto* cls = se::Class::create("CylinderShape", obj, __jsb_cc_physics_ICylinderShape_proto, _SE(js_new_cc_physics_CylinderShape)); 
+    auto* cls = se::Class::create("CylinderShape", obj, nullptr, _SE(js_new_cc_physics_CylinderShape)); 
     
     
+    cls->defineFunction("initialize", _SE(js_cc_physics_CylinderShape_initialize)); 
+    cls->defineFunction("onEnable", _SE(js_cc_physics_CylinderShape_onEnable)); 
+    cls->defineFunction("onDisable", _SE(js_cc_physics_CylinderShape_onDisable)); 
+    cls->defineFunction("onDestroy", _SE(js_cc_physics_CylinderShape_onDestroy)); 
+    cls->defineFunction("setMaterial", _SE(js_cc_physics_CylinderShape_setMaterial)); 
+    cls->defineFunction("setAsTrigger", _SE(js_cc_physics_CylinderShape_setAsTrigger)); 
+    cls->defineFunction("setCenter", _SE(js_cc_physics_CylinderShape_setCenter)); 
+    cls->defineFunction("updateEventListener", _SE(js_cc_physics_CylinderShape_updateEventListener)); 
+    cls->defineFunction("getAABB", _SE(js_cc_physics_CylinderShape_getAABB)); 
+    cls->defineFunction("getBoundingSphere", _SE(js_cc_physics_CylinderShape_getBoundingSphere)); 
+    cls->defineFunction("getGroup", _SE(js_cc_physics_CylinderShape_getGroup)); 
+    cls->defineFunction("setGroup", _SE(js_cc_physics_CylinderShape_setGroup)); 
+    cls->defineFunction("getMask", _SE(js_cc_physics_CylinderShape_getMask)); 
+    cls->defineFunction("setMask", _SE(js_cc_physics_CylinderShape_setMask)); 
+    cls->defineFunction("getObjectID", _SE(js_cc_physics_CylinderShape_getObjectID)); 
+    cls->defineFunction("setConvex", _SE(js_cc_physics_CylinderShape_setConvex)); 
+    cls->defineFunction("setCylinder", _SE(js_cc_physics_CylinderShape_setCylinder)); 
     
     
     
@@ -5642,10 +5165,517 @@ static bool js_delete_cc_physics_ConeShape(se::State& s)
 }
 SE_BIND_FINALIZE_FUNC(js_delete_cc_physics_ConeShape) 
 
+static bool js_cc_physics_ConeShape_initialize(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::ConeShape *arg1 = (cc::physics::ConeShape *) NULL ;
+    cc::Node *arg2 = (cc::Node *) NULL ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::ConeShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) SWIGTYPE*
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "ConeShape_initialize,2,SWIGTYPE_p_cc__Node"); 
+    (arg1)->initialize(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_ConeShape_initialize) 
+
+static bool js_cc_physics_ConeShape_onEnable(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::ConeShape *arg1 = (cc::physics::ConeShape *) NULL ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::ConeShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    (arg1)->onEnable();
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_ConeShape_onEnable) 
+
+static bool js_cc_physics_ConeShape_onDisable(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::ConeShape *arg1 = (cc::physics::ConeShape *) NULL ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::ConeShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    (arg1)->onDisable();
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_ConeShape_onDisable) 
+
+static bool js_cc_physics_ConeShape_onDestroy(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::ConeShape *arg1 = (cc::physics::ConeShape *) NULL ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::ConeShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    (arg1)->onDestroy();
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_ConeShape_onDestroy) 
+
+static bool js_cc_physics_ConeShape_setMaterial(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::ConeShape *arg1 = (cc::physics::ConeShape *) NULL ;
+    uint16_t arg2 ;
+    float arg3 ;
+    float arg4 ;
+    float arg5 ;
+    uint8_t arg6 ;
+    uint8_t arg7 ;
+    
+    if(argc != 6) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 6);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::ConeShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "ConeShape_setMaterial,2,SWIGTYPE_uint16_t"); 
+    
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[1], &arg3, nullptr);
+    SE_PRECONDITION2(ok, false, "ConeShape_setMaterial,3,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[2], &arg4, nullptr);
+    SE_PRECONDITION2(ok, false, "ConeShape_setMaterial,4,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[3], &arg5, nullptr);
+    SE_PRECONDITION2(ok, false, "ConeShape_setMaterial,5,SWIGTYPE_float"); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[4], &arg6, s.thisObject());
+    SE_PRECONDITION2(ok, false, "ConeShape_setMaterial,6,SWIGTYPE_uint8_t"); 
+    
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[5], &arg7, s.thisObject());
+    SE_PRECONDITION2(ok, false, "ConeShape_setMaterial,7,SWIGTYPE_uint8_t"); 
+    
+    (arg1)->setMaterial(arg2,arg3,arg4,arg5,arg6,arg7);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_ConeShape_setMaterial) 
+
+static bool js_cc_physics_ConeShape_setAsTrigger(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::ConeShape *arg1 = (cc::physics::ConeShape *) NULL ;
+    bool arg2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::ConeShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) bool
+    ok &= sevalue_to_native(args[0], &arg2);
+    SE_PRECONDITION2(ok, false, "ConeShape_setAsTrigger,2,SWIGTYPE_bool"); 
+    (arg1)->setAsTrigger(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_ConeShape_setAsTrigger) 
+
+static bool js_cc_physics_ConeShape_setCenter(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::ConeShape *arg1 = (cc::physics::ConeShape *) NULL ;
+    float arg2 ;
+    float arg3 ;
+    float arg4 ;
+    
+    if(argc != 3) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::ConeShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[0], &arg2, nullptr);
+    SE_PRECONDITION2(ok, false, "ConeShape_setCenter,2,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[1], &arg3, nullptr);
+    SE_PRECONDITION2(ok, false, "ConeShape_setCenter,3,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[2], &arg4, nullptr);
+    SE_PRECONDITION2(ok, false, "ConeShape_setCenter,4,SWIGTYPE_float"); 
+    (arg1)->setCenter(arg2,arg3,arg4);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_ConeShape_setCenter) 
+
+static bool js_cc_physics_ConeShape_updateEventListener(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::ConeShape *arg1 = (cc::physics::ConeShape *) NULL ;
+    cc::physics::EShapeFilterFlag arg2 ;
+    int32_t temp2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::ConeShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) enum SWIGTYPE (int32_t temp2)
+    ok &= sevalue_to_native(args[0], &temp2);
+    SE_PRECONDITION2(ok, false, "ConeShape_updateEventListener,2,SWIGTYPE_cc__physics__EShapeFilterFlag");
+    arg2 = (cc::physics::EShapeFilterFlag)temp2;
+    (arg1)->updateEventListener(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_ConeShape_updateEventListener) 
+
+static bool js_cc_physics_ConeShape_getAABB(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::ConeShape *arg1 = (cc::physics::ConeShape *) NULL ;
+    cc::geometry::AABB *result = 0 ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::ConeShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (cc::geometry::AABB *) &(arg1)->getAABB();
+    // %typemap(out) SWIGTYPE&
+    ok &= nativevalue_to_se(*result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "ConeShape_getAABB, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(*result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_ConeShape_getAABB) 
+
+static bool js_cc_physics_ConeShape_getBoundingSphere(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::ConeShape *arg1 = (cc::physics::ConeShape *) NULL ;
+    cc::geometry::Sphere *result = 0 ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::ConeShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (cc::geometry::Sphere *) &(arg1)->getBoundingSphere();
+    // %typemap(out) SWIGTYPE&
+    ok &= nativevalue_to_se(*result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "ConeShape_getBoundingSphere, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(*result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_ConeShape_getBoundingSphere) 
+
+static bool js_cc_physics_ConeShape_getGroup(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::ConeShape *arg1 = (cc::physics::ConeShape *) NULL ;
+    uint32_t result;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::ConeShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (arg1)->getGroup();
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "ConeShape_getGroup, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_ConeShape_getGroup) 
+
+static bool js_cc_physics_ConeShape_setGroup(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::ConeShape *arg1 = (cc::physics::ConeShape *) NULL ;
+    uint32_t arg2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::ConeShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "ConeShape_setGroup,2,SWIGTYPE_uint32_t"); 
+    
+    (arg1)->setGroup(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_ConeShape_setGroup) 
+
+static bool js_cc_physics_ConeShape_getMask(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::ConeShape *arg1 = (cc::physics::ConeShape *) NULL ;
+    uint32_t result;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::ConeShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (arg1)->getMask();
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "ConeShape_getMask, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_ConeShape_getMask) 
+
+static bool js_cc_physics_ConeShape_setMask(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::ConeShape *arg1 = (cc::physics::ConeShape *) NULL ;
+    uint32_t arg2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::ConeShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "ConeShape_setMask,2,SWIGTYPE_uint32_t"); 
+    
+    (arg1)->setMask(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_ConeShape_setMask) 
+
+static bool js_cc_physics_ConeShape_getObjectID(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::ConeShape *arg1 = (cc::physics::ConeShape *) NULL ;
+    uint32_t result;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::ConeShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = ((cc::physics::ConeShape const *)arg1)->getObjectID();
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "ConeShape_getObjectID, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_ConeShape_getObjectID) 
+
+static bool js_cc_physics_ConeShape_setConvex(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::ConeShape *arg1 = (cc::physics::ConeShape *) NULL ;
+    uint32_t arg2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::ConeShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "ConeShape_setConvex,2,SWIGTYPE_uint32_t"); 
+    
+    (arg1)->setConvex(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_ConeShape_setConvex) 
+
+static bool js_cc_physics_ConeShape_setCone(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::ConeShape *arg1 = (cc::physics::ConeShape *) NULL ;
+    float arg2 ;
+    float arg3 ;
+    cc::physics::EAxisDirection arg4 ;
+    int32_t temp4 ;
+    
+    if(argc != 3) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::ConeShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[0], &arg2, nullptr);
+    SE_PRECONDITION2(ok, false, "ConeShape_setCone,2,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[1], &arg3, nullptr);
+    SE_PRECONDITION2(ok, false, "ConeShape_setCone,3,SWIGTYPE_float"); 
+    // %typemap(in) enum SWIGTYPE (int32_t temp4)
+    ok &= sevalue_to_native(args[2], &temp4);
+    SE_PRECONDITION2(ok, false, "ConeShape_setCone,4,SWIGTYPE_cc__physics__EAxisDirection");
+    arg4 = (cc::physics::EAxisDirection)temp4;
+    (arg1)->setCone(arg2,arg3,arg4);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_ConeShape_setCone) 
+
 bool js_register_cc_physics_ConeShape(se::Object* obj) {
-    auto* cls = se::Class::create("ConeShape", obj, __jsb_cc_physics_IConeShape_proto, _SE(js_new_cc_physics_ConeShape)); 
+    auto* cls = se::Class::create("ConeShape", obj, nullptr, _SE(js_new_cc_physics_ConeShape)); 
     
     
+    cls->defineFunction("initialize", _SE(js_cc_physics_ConeShape_initialize)); 
+    cls->defineFunction("onEnable", _SE(js_cc_physics_ConeShape_onEnable)); 
+    cls->defineFunction("onDisable", _SE(js_cc_physics_ConeShape_onDisable)); 
+    cls->defineFunction("onDestroy", _SE(js_cc_physics_ConeShape_onDestroy)); 
+    cls->defineFunction("setMaterial", _SE(js_cc_physics_ConeShape_setMaterial)); 
+    cls->defineFunction("setAsTrigger", _SE(js_cc_physics_ConeShape_setAsTrigger)); 
+    cls->defineFunction("setCenter", _SE(js_cc_physics_ConeShape_setCenter)); 
+    cls->defineFunction("updateEventListener", _SE(js_cc_physics_ConeShape_updateEventListener)); 
+    cls->defineFunction("getAABB", _SE(js_cc_physics_ConeShape_getAABB)); 
+    cls->defineFunction("getBoundingSphere", _SE(js_cc_physics_ConeShape_getBoundingSphere)); 
+    cls->defineFunction("getGroup", _SE(js_cc_physics_ConeShape_getGroup)); 
+    cls->defineFunction("setGroup", _SE(js_cc_physics_ConeShape_setGroup)); 
+    cls->defineFunction("getMask", _SE(js_cc_physics_ConeShape_getMask)); 
+    cls->defineFunction("setMask", _SE(js_cc_physics_ConeShape_setMask)); 
+    cls->defineFunction("getObjectID", _SE(js_cc_physics_ConeShape_getObjectID)); 
+    cls->defineFunction("setConvex", _SE(js_cc_physics_ConeShape_setConvex)); 
+    cls->defineFunction("setCone", _SE(js_cc_physics_ConeShape_setCone)); 
     
     
     
@@ -5691,10 +5721,492 @@ static bool js_delete_cc_physics_TerrainShape(se::State& s)
 }
 SE_BIND_FINALIZE_FUNC(js_delete_cc_physics_TerrainShape) 
 
+static bool js_cc_physics_TerrainShape_initialize(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::TerrainShape *arg1 = (cc::physics::TerrainShape *) NULL ;
+    cc::Node *arg2 = (cc::Node *) NULL ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::TerrainShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) SWIGTYPE*
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "TerrainShape_initialize,2,SWIGTYPE_p_cc__Node"); 
+    (arg1)->initialize(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_TerrainShape_initialize) 
+
+static bool js_cc_physics_TerrainShape_onEnable(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::TerrainShape *arg1 = (cc::physics::TerrainShape *) NULL ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::TerrainShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    (arg1)->onEnable();
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_TerrainShape_onEnable) 
+
+static bool js_cc_physics_TerrainShape_onDisable(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::TerrainShape *arg1 = (cc::physics::TerrainShape *) NULL ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::TerrainShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    (arg1)->onDisable();
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_TerrainShape_onDisable) 
+
+static bool js_cc_physics_TerrainShape_onDestroy(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::TerrainShape *arg1 = (cc::physics::TerrainShape *) NULL ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::TerrainShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    (arg1)->onDestroy();
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_TerrainShape_onDestroy) 
+
+static bool js_cc_physics_TerrainShape_setMaterial(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::TerrainShape *arg1 = (cc::physics::TerrainShape *) NULL ;
+    uint16_t arg2 ;
+    float arg3 ;
+    float arg4 ;
+    float arg5 ;
+    uint8_t arg6 ;
+    uint8_t arg7 ;
+    
+    if(argc != 6) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 6);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::TerrainShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "TerrainShape_setMaterial,2,SWIGTYPE_uint16_t"); 
+    
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[1], &arg3, nullptr);
+    SE_PRECONDITION2(ok, false, "TerrainShape_setMaterial,3,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[2], &arg4, nullptr);
+    SE_PRECONDITION2(ok, false, "TerrainShape_setMaterial,4,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[3], &arg5, nullptr);
+    SE_PRECONDITION2(ok, false, "TerrainShape_setMaterial,5,SWIGTYPE_float"); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[4], &arg6, s.thisObject());
+    SE_PRECONDITION2(ok, false, "TerrainShape_setMaterial,6,SWIGTYPE_uint8_t"); 
+    
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[5], &arg7, s.thisObject());
+    SE_PRECONDITION2(ok, false, "TerrainShape_setMaterial,7,SWIGTYPE_uint8_t"); 
+    
+    (arg1)->setMaterial(arg2,arg3,arg4,arg5,arg6,arg7);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_TerrainShape_setMaterial) 
+
+static bool js_cc_physics_TerrainShape_setAsTrigger(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::TerrainShape *arg1 = (cc::physics::TerrainShape *) NULL ;
+    bool arg2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::TerrainShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) bool
+    ok &= sevalue_to_native(args[0], &arg2);
+    SE_PRECONDITION2(ok, false, "TerrainShape_setAsTrigger,2,SWIGTYPE_bool"); 
+    (arg1)->setAsTrigger(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_TerrainShape_setAsTrigger) 
+
+static bool js_cc_physics_TerrainShape_setCenter(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::TerrainShape *arg1 = (cc::physics::TerrainShape *) NULL ;
+    float arg2 ;
+    float arg3 ;
+    float arg4 ;
+    
+    if(argc != 3) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::TerrainShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[0], &arg2, nullptr);
+    SE_PRECONDITION2(ok, false, "TerrainShape_setCenter,2,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[1], &arg3, nullptr);
+    SE_PRECONDITION2(ok, false, "TerrainShape_setCenter,3,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[2], &arg4, nullptr);
+    SE_PRECONDITION2(ok, false, "TerrainShape_setCenter,4,SWIGTYPE_float"); 
+    (arg1)->setCenter(arg2,arg3,arg4);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_TerrainShape_setCenter) 
+
+static bool js_cc_physics_TerrainShape_updateEventListener(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::TerrainShape *arg1 = (cc::physics::TerrainShape *) NULL ;
+    cc::physics::EShapeFilterFlag arg2 ;
+    int32_t temp2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::TerrainShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) enum SWIGTYPE (int32_t temp2)
+    ok &= sevalue_to_native(args[0], &temp2);
+    SE_PRECONDITION2(ok, false, "TerrainShape_updateEventListener,2,SWIGTYPE_cc__physics__EShapeFilterFlag");
+    arg2 = (cc::physics::EShapeFilterFlag)temp2;
+    (arg1)->updateEventListener(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_TerrainShape_updateEventListener) 
+
+static bool js_cc_physics_TerrainShape_getAABB(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::TerrainShape *arg1 = (cc::physics::TerrainShape *) NULL ;
+    cc::geometry::AABB *result = 0 ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::TerrainShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (cc::geometry::AABB *) &(arg1)->getAABB();
+    // %typemap(out) SWIGTYPE&
+    ok &= nativevalue_to_se(*result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "TerrainShape_getAABB, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(*result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_TerrainShape_getAABB) 
+
+static bool js_cc_physics_TerrainShape_getBoundingSphere(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::TerrainShape *arg1 = (cc::physics::TerrainShape *) NULL ;
+    cc::geometry::Sphere *result = 0 ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::TerrainShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (cc::geometry::Sphere *) &(arg1)->getBoundingSphere();
+    // %typemap(out) SWIGTYPE&
+    ok &= nativevalue_to_se(*result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "TerrainShape_getBoundingSphere, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(*result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_TerrainShape_getBoundingSphere) 
+
+static bool js_cc_physics_TerrainShape_getGroup(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::TerrainShape *arg1 = (cc::physics::TerrainShape *) NULL ;
+    uint32_t result;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::TerrainShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (arg1)->getGroup();
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "TerrainShape_getGroup, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_TerrainShape_getGroup) 
+
+static bool js_cc_physics_TerrainShape_setGroup(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::TerrainShape *arg1 = (cc::physics::TerrainShape *) NULL ;
+    uint32_t arg2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::TerrainShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "TerrainShape_setGroup,2,SWIGTYPE_uint32_t"); 
+    
+    (arg1)->setGroup(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_TerrainShape_setGroup) 
+
+static bool js_cc_physics_TerrainShape_getMask(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::TerrainShape *arg1 = (cc::physics::TerrainShape *) NULL ;
+    uint32_t result;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::TerrainShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (arg1)->getMask();
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "TerrainShape_getMask, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_TerrainShape_getMask) 
+
+static bool js_cc_physics_TerrainShape_setMask(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::TerrainShape *arg1 = (cc::physics::TerrainShape *) NULL ;
+    uint32_t arg2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::TerrainShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "TerrainShape_setMask,2,SWIGTYPE_uint32_t"); 
+    
+    (arg1)->setMask(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_TerrainShape_setMask) 
+
+static bool js_cc_physics_TerrainShape_getObjectID(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::TerrainShape *arg1 = (cc::physics::TerrainShape *) NULL ;
+    uint32_t result;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::TerrainShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = ((cc::physics::TerrainShape const *)arg1)->getObjectID();
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "TerrainShape_getObjectID, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_TerrainShape_getObjectID) 
+
+static bool js_cc_physics_TerrainShape_setTerrain(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::TerrainShape *arg1 = (cc::physics::TerrainShape *) NULL ;
+    uint32_t arg2 ;
+    float arg3 ;
+    float arg4 ;
+    float arg5 ;
+    
+    if(argc != 4) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 4);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::TerrainShape>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "TerrainShape_setTerrain,2,SWIGTYPE_uint32_t"); 
+    
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[1], &arg3, nullptr);
+    SE_PRECONDITION2(ok, false, "TerrainShape_setTerrain,3,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[2], &arg4, nullptr);
+    SE_PRECONDITION2(ok, false, "TerrainShape_setTerrain,4,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[3], &arg5, nullptr);
+    SE_PRECONDITION2(ok, false, "TerrainShape_setTerrain,5,SWIGTYPE_float"); 
+    (arg1)->setTerrain(arg2,arg3,arg4,arg5);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_TerrainShape_setTerrain) 
+
 bool js_register_cc_physics_TerrainShape(se::Object* obj) {
-    auto* cls = se::Class::create("TerrainShape", obj, __jsb_cc_physics_ITerrainShape_proto, _SE(js_new_cc_physics_TerrainShape)); 
+    auto* cls = se::Class::create("TerrainShape", obj, nullptr, _SE(js_new_cc_physics_TerrainShape)); 
     
     
+    cls->defineFunction("initialize", _SE(js_cc_physics_TerrainShape_initialize)); 
+    cls->defineFunction("onEnable", _SE(js_cc_physics_TerrainShape_onEnable)); 
+    cls->defineFunction("onDisable", _SE(js_cc_physics_TerrainShape_onDisable)); 
+    cls->defineFunction("onDestroy", _SE(js_cc_physics_TerrainShape_onDestroy)); 
+    cls->defineFunction("setMaterial", _SE(js_cc_physics_TerrainShape_setMaterial)); 
+    cls->defineFunction("setAsTrigger", _SE(js_cc_physics_TerrainShape_setAsTrigger)); 
+    cls->defineFunction("setCenter", _SE(js_cc_physics_TerrainShape_setCenter)); 
+    cls->defineFunction("updateEventListener", _SE(js_cc_physics_TerrainShape_updateEventListener)); 
+    cls->defineFunction("getAABB", _SE(js_cc_physics_TerrainShape_getAABB)); 
+    cls->defineFunction("getBoundingSphere", _SE(js_cc_physics_TerrainShape_getBoundingSphere)); 
+    cls->defineFunction("getGroup", _SE(js_cc_physics_TerrainShape_getGroup)); 
+    cls->defineFunction("setGroup", _SE(js_cc_physics_TerrainShape_setGroup)); 
+    cls->defineFunction("getMask", _SE(js_cc_physics_TerrainShape_getMask)); 
+    cls->defineFunction("setMask", _SE(js_cc_physics_TerrainShape_setMask)); 
+    cls->defineFunction("getObjectID", _SE(js_cc_physics_TerrainShape_getObjectID)); 
+    cls->defineFunction("setTerrain", _SE(js_cc_physics_TerrainShape_setTerrain)); 
     
     
     
@@ -5740,10 +6252,296 @@ static bool js_delete_cc_physics_RevoluteJoint(se::State& s)
 }
 SE_BIND_FINALIZE_FUNC(js_delete_cc_physics_RevoluteJoint) 
 
+static bool js_cc_physics_RevoluteJoint_initialize(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::RevoluteJoint *arg1 = (cc::physics::RevoluteJoint *) NULL ;
+    cc::Node *arg2 = (cc::Node *) NULL ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::RevoluteJoint>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) SWIGTYPE*
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "RevoluteJoint_initialize,2,SWIGTYPE_p_cc__Node"); 
+    (arg1)->initialize(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_RevoluteJoint_initialize) 
+
+static bool js_cc_physics_RevoluteJoint_onEnable(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::RevoluteJoint *arg1 = (cc::physics::RevoluteJoint *) NULL ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::RevoluteJoint>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    (arg1)->onEnable();
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_RevoluteJoint_onEnable) 
+
+static bool js_cc_physics_RevoluteJoint_onDisable(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::RevoluteJoint *arg1 = (cc::physics::RevoluteJoint *) NULL ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::RevoluteJoint>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    (arg1)->onDisable();
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_RevoluteJoint_onDisable) 
+
+static bool js_cc_physics_RevoluteJoint_onDestroy(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::RevoluteJoint *arg1 = (cc::physics::RevoluteJoint *) NULL ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::RevoluteJoint>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    (arg1)->onDestroy();
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_RevoluteJoint_onDestroy) 
+
+static bool js_cc_physics_RevoluteJoint_setEnableCollision(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::RevoluteJoint *arg1 = (cc::physics::RevoluteJoint *) NULL ;
+    bool arg2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::RevoluteJoint>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) bool
+    ok &= sevalue_to_native(args[0], &arg2);
+    SE_PRECONDITION2(ok, false, "RevoluteJoint_setEnableCollision,2,SWIGTYPE_bool"); 
+    (arg1)->setEnableCollision(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_RevoluteJoint_setEnableCollision) 
+
+static bool js_cc_physics_RevoluteJoint_setConnectedBody(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::RevoluteJoint *arg1 = (cc::physics::RevoluteJoint *) NULL ;
+    uint32_t arg2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::RevoluteJoint>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "RevoluteJoint_setConnectedBody,2,SWIGTYPE_uint32_t"); 
+    
+    (arg1)->setConnectedBody(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_RevoluteJoint_setConnectedBody) 
+
+static bool js_cc_physics_RevoluteJoint_getObjectID(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::RevoluteJoint *arg1 = (cc::physics::RevoluteJoint *) NULL ;
+    uint32_t result;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::RevoluteJoint>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = ((cc::physics::RevoluteJoint const *)arg1)->getObjectID();
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "RevoluteJoint_getObjectID, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_RevoluteJoint_getObjectID) 
+
+static bool js_cc_physics_RevoluteJoint_setPivotA(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::RevoluteJoint *arg1 = (cc::physics::RevoluteJoint *) NULL ;
+    float arg2 ;
+    float arg3 ;
+    float arg4 ;
+    
+    if(argc != 3) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::RevoluteJoint>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[0], &arg2, nullptr);
+    SE_PRECONDITION2(ok, false, "RevoluteJoint_setPivotA,2,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[1], &arg3, nullptr);
+    SE_PRECONDITION2(ok, false, "RevoluteJoint_setPivotA,3,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[2], &arg4, nullptr);
+    SE_PRECONDITION2(ok, false, "RevoluteJoint_setPivotA,4,SWIGTYPE_float"); 
+    (arg1)->setPivotA(arg2,arg3,arg4);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_RevoluteJoint_setPivotA) 
+
+static bool js_cc_physics_RevoluteJoint_setPivotB(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::RevoluteJoint *arg1 = (cc::physics::RevoluteJoint *) NULL ;
+    float arg2 ;
+    float arg3 ;
+    float arg4 ;
+    
+    if(argc != 3) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::RevoluteJoint>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[0], &arg2, nullptr);
+    SE_PRECONDITION2(ok, false, "RevoluteJoint_setPivotB,2,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[1], &arg3, nullptr);
+    SE_PRECONDITION2(ok, false, "RevoluteJoint_setPivotB,3,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[2], &arg4, nullptr);
+    SE_PRECONDITION2(ok, false, "RevoluteJoint_setPivotB,4,SWIGTYPE_float"); 
+    (arg1)->setPivotB(arg2,arg3,arg4);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_RevoluteJoint_setPivotB) 
+
+static bool js_cc_physics_RevoluteJoint_setAxis(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::RevoluteJoint *arg1 = (cc::physics::RevoluteJoint *) NULL ;
+    float arg2 ;
+    float arg3 ;
+    float arg4 ;
+    
+    if(argc != 3) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::RevoluteJoint>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[0], &arg2, nullptr);
+    SE_PRECONDITION2(ok, false, "RevoluteJoint_setAxis,2,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[1], &arg3, nullptr);
+    SE_PRECONDITION2(ok, false, "RevoluteJoint_setAxis,3,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[2], &arg4, nullptr);
+    SE_PRECONDITION2(ok, false, "RevoluteJoint_setAxis,4,SWIGTYPE_float"); 
+    (arg1)->setAxis(arg2,arg3,arg4);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_RevoluteJoint_setAxis) 
+
 bool js_register_cc_physics_RevoluteJoint(se::Object* obj) {
-    auto* cls = se::Class::create("RevoluteJoint", obj, __jsb_cc_physics_IRevoluteJoint_proto, _SE(js_new_cc_physics_RevoluteJoint)); 
+    auto* cls = se::Class::create("RevoluteJoint", obj, nullptr, _SE(js_new_cc_physics_RevoluteJoint)); 
     
     
+    cls->defineFunction("initialize", _SE(js_cc_physics_RevoluteJoint_initialize)); 
+    cls->defineFunction("onEnable", _SE(js_cc_physics_RevoluteJoint_onEnable)); 
+    cls->defineFunction("onDisable", _SE(js_cc_physics_RevoluteJoint_onDisable)); 
+    cls->defineFunction("onDestroy", _SE(js_cc_physics_RevoluteJoint_onDestroy)); 
+    cls->defineFunction("setEnableCollision", _SE(js_cc_physics_RevoluteJoint_setEnableCollision)); 
+    cls->defineFunction("setConnectedBody", _SE(js_cc_physics_RevoluteJoint_setConnectedBody)); 
+    cls->defineFunction("getObjectID", _SE(js_cc_physics_RevoluteJoint_getObjectID)); 
+    cls->defineFunction("setPivotA", _SE(js_cc_physics_RevoluteJoint_setPivotA)); 
+    cls->defineFunction("setPivotB", _SE(js_cc_physics_RevoluteJoint_setPivotB)); 
+    cls->defineFunction("setAxis", _SE(js_cc_physics_RevoluteJoint_setAxis)); 
     
     
     
@@ -5789,10 +6587,261 @@ static bool js_delete_cc_physics_DistanceJoint(se::State& s)
 }
 SE_BIND_FINALIZE_FUNC(js_delete_cc_physics_DistanceJoint) 
 
+static bool js_cc_physics_DistanceJoint_initialize(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::DistanceJoint *arg1 = (cc::physics::DistanceJoint *) NULL ;
+    cc::Node *arg2 = (cc::Node *) NULL ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::DistanceJoint>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) SWIGTYPE*
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "DistanceJoint_initialize,2,SWIGTYPE_p_cc__Node"); 
+    (arg1)->initialize(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_DistanceJoint_initialize) 
+
+static bool js_cc_physics_DistanceJoint_onEnable(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::DistanceJoint *arg1 = (cc::physics::DistanceJoint *) NULL ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::DistanceJoint>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    (arg1)->onEnable();
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_DistanceJoint_onEnable) 
+
+static bool js_cc_physics_DistanceJoint_onDisable(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::DistanceJoint *arg1 = (cc::physics::DistanceJoint *) NULL ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::DistanceJoint>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    (arg1)->onDisable();
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_DistanceJoint_onDisable) 
+
+static bool js_cc_physics_DistanceJoint_onDestroy(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::DistanceJoint *arg1 = (cc::physics::DistanceJoint *) NULL ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::DistanceJoint>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    (arg1)->onDestroy();
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_DistanceJoint_onDestroy) 
+
+static bool js_cc_physics_DistanceJoint_setEnableCollision(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::DistanceJoint *arg1 = (cc::physics::DistanceJoint *) NULL ;
+    bool arg2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::DistanceJoint>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) bool
+    ok &= sevalue_to_native(args[0], &arg2);
+    SE_PRECONDITION2(ok, false, "DistanceJoint_setEnableCollision,2,SWIGTYPE_bool"); 
+    (arg1)->setEnableCollision(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_DistanceJoint_setEnableCollision) 
+
+static bool js_cc_physics_DistanceJoint_setConnectedBody(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::DistanceJoint *arg1 = (cc::physics::DistanceJoint *) NULL ;
+    uint32_t arg2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::DistanceJoint>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "DistanceJoint_setConnectedBody,2,SWIGTYPE_uint32_t"); 
+    
+    (arg1)->setConnectedBody(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_DistanceJoint_setConnectedBody) 
+
+static bool js_cc_physics_DistanceJoint_getObjectID(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::DistanceJoint *arg1 = (cc::physics::DistanceJoint *) NULL ;
+    uint32_t result;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::DistanceJoint>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = ((cc::physics::DistanceJoint const *)arg1)->getObjectID();
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "DistanceJoint_getObjectID, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_DistanceJoint_getObjectID) 
+
+static bool js_cc_physics_DistanceJoint_setPivotA(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::DistanceJoint *arg1 = (cc::physics::DistanceJoint *) NULL ;
+    float arg2 ;
+    float arg3 ;
+    float arg4 ;
+    
+    if(argc != 3) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::DistanceJoint>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[0], &arg2, nullptr);
+    SE_PRECONDITION2(ok, false, "DistanceJoint_setPivotA,2,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[1], &arg3, nullptr);
+    SE_PRECONDITION2(ok, false, "DistanceJoint_setPivotA,3,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[2], &arg4, nullptr);
+    SE_PRECONDITION2(ok, false, "DistanceJoint_setPivotA,4,SWIGTYPE_float"); 
+    (arg1)->setPivotA(arg2,arg3,arg4);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_DistanceJoint_setPivotA) 
+
+static bool js_cc_physics_DistanceJoint_setPivotB(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::DistanceJoint *arg1 = (cc::physics::DistanceJoint *) NULL ;
+    float arg2 ;
+    float arg3 ;
+    float arg4 ;
+    
+    if(argc != 3) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::DistanceJoint>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[0], &arg2, nullptr);
+    SE_PRECONDITION2(ok, false, "DistanceJoint_setPivotB,2,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[1], &arg3, nullptr);
+    SE_PRECONDITION2(ok, false, "DistanceJoint_setPivotB,3,SWIGTYPE_float"); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[2], &arg4, nullptr);
+    SE_PRECONDITION2(ok, false, "DistanceJoint_setPivotB,4,SWIGTYPE_float"); 
+    (arg1)->setPivotB(arg2,arg3,arg4);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_DistanceJoint_setPivotB) 
+
 bool js_register_cc_physics_DistanceJoint(se::Object* obj) {
-    auto* cls = se::Class::create("DistanceJoint", obj, __jsb_cc_physics_IDistanceJoint_proto, _SE(js_new_cc_physics_DistanceJoint)); 
+    auto* cls = se::Class::create("DistanceJoint", obj, nullptr, _SE(js_new_cc_physics_DistanceJoint)); 
     
     
+    cls->defineFunction("initialize", _SE(js_cc_physics_DistanceJoint_initialize)); 
+    cls->defineFunction("onEnable", _SE(js_cc_physics_DistanceJoint_onEnable)); 
+    cls->defineFunction("onDisable", _SE(js_cc_physics_DistanceJoint_onDisable)); 
+    cls->defineFunction("onDestroy", _SE(js_cc_physics_DistanceJoint_onDestroy)); 
+    cls->defineFunction("setEnableCollision", _SE(js_cc_physics_DistanceJoint_setEnableCollision)); 
+    cls->defineFunction("setConnectedBody", _SE(js_cc_physics_DistanceJoint_setConnectedBody)); 
+    cls->defineFunction("getObjectID", _SE(js_cc_physics_DistanceJoint_getObjectID)); 
+    cls->defineFunction("setPivotA", _SE(js_cc_physics_DistanceJoint_setPivotA)); 
+    cls->defineFunction("setPivotB", _SE(js_cc_physics_DistanceJoint_setPivotB)); 
     
     
     
@@ -5823,29 +6872,6 @@ bool register_all_physics(se::Object* obj) {
     }
     se::Object* ns = nsVal.toObject();
     /* Register classes */
-    js_register_cc_physics_ILifecycle(ns); 
-    js_register_cc_physics_TriggerEventPair(ns); 
-    js_register_cc_physics_ContactPoint(ns); 
-    js_register_cc_physics_ContactEventPair(ns); 
-    js_register_cc_physics_ConvexDesc(ns); 
-    js_register_cc_physics_TrimeshDesc(ns); 
-    js_register_cc_physics_HeightFieldDesc(ns); 
-    js_register_cc_physics_RaycastOptions(ns); 
-    js_register_cc_physics_RaycastResult(ns); 
-    js_register_cc_physics_IPhysicsWorld(ns); 
-    js_register_cc_physics_IRigidBody(ns); 
-    js_register_cc_physics_IBaseShape(ns); 
-    js_register_cc_physics_ISphereShape(ns); 
-    js_register_cc_physics_IBoxShape(ns); 
-    js_register_cc_physics_ICapsuleShape(ns); 
-    js_register_cc_physics_ICylinderShape(ns); 
-    js_register_cc_physics_IConeShape(ns); 
-    js_register_cc_physics_IPlaneShape(ns); 
-    js_register_cc_physics_ITrimeshShape(ns); 
-    js_register_cc_physics_ITerrainShape(ns); 
-    js_register_cc_physics_IBaseJoint(ns); 
-    js_register_cc_physics_IDistanceJoint(ns); 
-    js_register_cc_physics_IRevoluteJoint(ns); 
     js_register_cc_physics_World(ns); 
     js_register_cc_physics_RigidBody(ns); 
     js_register_cc_physics_SphereShape(ns); 

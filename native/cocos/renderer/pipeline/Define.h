@@ -255,6 +255,9 @@ enum class CC_DLL ModelLocalBindings {
 
     STORAGE_REFLECTION,
 
+    SAMPLER_REFLECTION_PROBE_CUBE,
+    SAMPLER_REFLECTION_PROBE_PLANAR,
+
     COUNT,
 };
 CC_ENUM_CONVERSION_OPERATOR(ModelLocalBindings)
@@ -638,6 +641,20 @@ struct CC_DLL REFLECTIONSTORAGE {
     static constexpr uint32_t BINDING = static_cast<uint32_t>(ModelLocalBindings::STORAGE_REFLECTION);
     static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
     static const gfx::UniformStorageImage LAYOUT;
+    static const ccstd::string NAME;
+};
+
+struct CC_DLL REFLECTIONPROBECUBEMAP {
+    static constexpr uint32_t BINDING = static_cast<uint32_t>(ModelLocalBindings::SAMPLER_REFLECTION_PROBE_CUBE);
+    static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
+    static const gfx::UniformSamplerTexture LAYOUT;
+    static const ccstd::string NAME;
+};
+
+struct CC_DLL REFLECTIONPROBEPLANARMAP {
+    static constexpr uint32_t BINDING = static_cast<uint32_t>(ModelLocalBindings::SAMPLER_REFLECTION_PROBE_PLANAR);
+    static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
+    static const gfx::UniformSamplerTexture LAYOUT;
     static const ccstd::string NAME;
 };
 

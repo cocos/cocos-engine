@@ -172,13 +172,14 @@ static void fillTestGraph(const ViewInfo &rasterData, const ResourceInfo &rescIn
                 dst.name = outputs.front();
                 dst.accessType = AccessType::WRITE;
 
-                computePass.computeViews.emplace(name, ccstd::pmr::vector<ComputeView>{});
-                computePass.computeViews.at(name.c_str()).emplace_back();
-                computePass.computeViews.at(name.c_str()).emplace_back();
-                computePass.computeViews.at(name.c_str()).front().name = inputs.front();
-                computePass.computeViews.at(name.c_str()).front().accessType = AccessType::READ;
-                computePass.computeViews.at(name.c_str()).back().name = outputs.front();
-                computePass.computeViews.at(name.c_str()).back().accessType = AccessType::WRITE;
+                computePass.computeViews.emplace(src.name, ccstd::pmr::vector<ComputeView>{});
+                computePass.computeViews.emplace(dst.name, ccstd::pmr::vector<ComputeView>{});
+                computePass.computeViews.at(src.name.c_str()).emplace_back();
+                computePass.computeViews.at(dst.name.c_str()).emplace_back();
+                computePass.computeViews.at(src.name.c_str()).front().name = inputs.front();
+                computePass.computeViews.at(src.name.c_str()).front().accessType = AccessType::READ;
+                computePass.computeViews.at(dst.name.c_str()).back().name = outputs.front();
+                computePass.computeViews.at(dst.name.c_str()).back().accessType = AccessType::WRITE;
 
                 break;
             }

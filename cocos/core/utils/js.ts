@@ -25,7 +25,7 @@
  THE SOFTWARE.
 */
 
-import IDGenerator from './id-generator';
+import { IDGenerator } from './id-generator';
 import {
     _idToClass,
     _nameToClass,
@@ -59,13 +59,13 @@ import {
     unregisterClass,
     value,
 } from './js-typed';
-import Pool from './pool';
+import { Pool } from './pool';
 import * as array from './array';
 import { legacyCC } from '../global-exports';
 
 export * from './js-typed';
-export { default as IDGenerator } from './id-generator';
-export { default as Pool } from './pool';
+export { IDGenerator } from './id-generator';
+export { Pool } from './pool';
 export { array };
 
 /**

@@ -190,6 +190,9 @@ void LightProbesData::getOuterCellBarycentricCoord(const Vec3 &position, const T
 
 void LightProbes::initialize(LightProbeInfo *info) {
     _enabled = info->isEnabled();
+    _giScale = info->getGIScale();
+    _giSamples = info->getGISamples();
+    _bounces = info->getBounces();
     _reduceRinging = info->getReduceRinging();
     _showProbe = info->isShowProbe();
     _showWireframe = info->isShowWireframe();
@@ -210,6 +213,13 @@ void LightProbes::updatePipeline() const {
 void LightProbeInfo::activate(LightProbes *resource) {
     _resource = resource;
     _resource->initialize(this);
+}
+
+void LightProbeInfo::clearSHCoefficients() {
+    auto &probes = _data.getProbes();
+    for (auto &probe : probes) {
+        probe.coefficients.clear();
+    }
 }
 
 } // namespace gi

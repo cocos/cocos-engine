@@ -28,7 +28,7 @@ import { IAssembler, IAssemblerManager } from '../2d/renderer/base';
 import { ParticleSystem2D } from './particle-system-2d';
 import { MeshRenderData } from '../2d/renderer/render-data';
 import { IBatcher } from '../2d/renderer/i-batcher';
-import { legacyCC } from '../core/global-exports';
+import { cclegacy } from '../core';
 
 export const ParticleAssembler: IAssembler = {
     maxParticleDeltaTime: 0,
@@ -47,7 +47,7 @@ export const ParticleAssembler: IAssembler = {
 export const ParticleSystem2DAssembler: IAssemblerManager = {
     getAssembler (comp: ParticleSystem2D) {
         if (!ParticleAssembler.maxParticleDeltaTime) {
-            ParticleAssembler.maxParticleDeltaTime = legacyCC.game.frameTime / 1000 * 2;
+            ParticleAssembler.maxParticleDeltaTime = cclegacy.game.frameTime / 1000 * 2;
         }
         return ParticleAssembler;
     },

@@ -62,6 +62,7 @@
 
 
 #include "bindings/auto/jsb_geometry_auto.h"
+#include "bindings/auto/jsb_cocos_auto.h"
 
 
 

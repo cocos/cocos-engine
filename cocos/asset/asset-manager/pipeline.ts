@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { warnID } from '../../core/platform/debug';
+import { warnID } from '../../core';
 import { CompleteCallbackNoData } from './shared';
 import Task from './task';
 

@@ -29,7 +29,6 @@
 #include "application/ApplicationManager.h"
 #include "base/Log.h"
 #include "base/memory/Memory.h"
-#include "bindings/event/CustomEventTypes.h"
 #include "game-activity/native_app_glue/android_native_app_glue.h"
 #include "java/jni/JniHelper.h"
 #include "modules/Screen.h"
@@ -47,7 +46,7 @@
 #include "platform/java/modules/XRInterface.h"
 
 #include "base/StringUtil.h"
-#include "bindings/event/EventDispatcher.h"
+#include "engine/EngineEvents.h"
 #include "paddleboat.h"
 
 #define ABORT_GAME                          \
@@ -217,6 +216,7 @@ public:
         return (addedControllerEvent != 0);
     }
 
+    // NOLINTNEXTLINE
     bool cookGameActivityMotionEvent(GameActivityMotionEvent *motionEvent) {
         if (motionEvent->pointerCount > 0) {
             touchEvent.windowId = ISystemWindow::mainWindowId; // must be main window here
@@ -257,13 +257,14 @@ public:
                 }
             }
 
-            _androidPlatform->dispatchEvent(touchEvent);
+            events::Touch::broadcast(touchEvent);
             touchEvent.touches.clear();
             return true;
         }
         return false;
     }
 
+    // NOLINTNEXTLINE
     bool cookGameActivityKeyEvent(GameActivityKeyEvent *keyEvent) {
         for (const auto &action : INPUT_KEY_ACTIONS) {
             if (action.buttonMask != keyEvent->keyCode) {
@@ -272,12 +273,13 @@ public:
             keyboardEvent.action = 0 == keyEvent->action ? cc::KeyboardEvent::Action::PRESS
                                                          : cc::KeyboardEvent::Action::RELEASE;
             keyboardEvent.key = action.actionCode;
-            _androidPlatform->dispatchEvent(keyboardEvent);
+            events::Keyboard::broadcast(keyboardEvent);
             return true;
         }
         return false;
     }
 
+    // NOLINTNEXTLINE
     void reportKeyState(int keyCode, bool state) {
         bool wentDown = !keyState[keyCode] && state;
         bool wentUp = keyState[keyCode] && !state;
@@ -286,11 +288,11 @@ public:
         if (wentUp) {
             keyboardEvent.key = keyCode;
             keyboardEvent.action = cc::KeyboardEvent::Action::RELEASE;
-            _androidPlatform->dispatchEvent(keyboardEvent);
+            events::Keyboard::broadcast(keyboardEvent);
         } else if (wentDown) {
             keyboardEvent.key = keyCode;
             keyboardEvent.action = cc::KeyboardEvent::Action::PRESS;
-            _androidPlatform->dispatchEvent(keyboardEvent);
+            events::Keyboard::broadcast(keyboardEvent);
         }
     }
 
@@ -340,11 +342,7 @@ public:
                     auto *windowMgr = _androidPlatform->getInterface<SystemWindowManager>();
                     auto *window = static_cast<cc::SystemWindow *>(windowMgr->getWindow(ISystemWindow::mainWindowId));
                     window->setWindowHandle(nativeWindow);
-
-                    cc::CustomEvent event;
-                    event.name = EVENT_RECREATE_WINDOW;
-                    event.args[0].intVal = ISystemWindow::mainWindowId;
-                    _androidPlatform->dispatchEvent(event);
+                    events::WindowRecreated::broadcast(ISystemWindow::mainWindowId);
                 }
                 break;
             }
@@ -356,10 +354,8 @@ public:
                 if (xr) {
                     xr->onRenderPause();
                 }
-                cc::CustomEvent event;
-                event.name = EVENT_DESTROY_WINDOW;
-                event.args[0].intVal = ISystemWindow::mainWindowId;
-                _androidPlatform->dispatchEvent(event);
+                // NOLINTNEXTLINE
+                events::WindowDestroy::broadcast(ISystemWindow::mainWindowId);
                 break;
             }
             case APP_CMD_GAINED_FOCUS:
@@ -387,7 +383,7 @@ public:
                 }
                 WindowEvent ev;
                 ev.type = WindowEvent::Type::CLOSE;
-                _androidPlatform->dispatchEvent(ev);
+                events::WindowEvent::broadcast(ev);
                 _androidPlatform->onDestroy();
                 break;
             }
@@ -397,7 +393,7 @@ public:
                 Paddleboat_onStop(_jniEnv);
                 WindowEvent ev;
                 ev.type = WindowEvent::Type::HIDDEN;
-                _androidPlatform->dispatchEvent(ev);
+                events::WindowEvent::broadcast(ev);
                 break;
             }
             case APP_CMD_START: {
@@ -406,7 +402,7 @@ public:
                 Paddleboat_onStart(_jniEnv);
                 WindowEvent ev;
                 ev.type = WindowEvent::Type::SHOW;
-                _androidPlatform->dispatchEvent(ev);
+                events::WindowEvent::broadcast(ev);
                 break;
             }
             case APP_CMD_WINDOW_RESIZED: {
@@ -415,7 +411,7 @@ public:
                 ev.type = cc::WindowEvent::Type::SIZE_CHANGED;
                 ev.width = ANativeWindow_getWidth(_androidPlatform->_app->window);
                 ev.height = ANativeWindow_getHeight(_androidPlatform->_app->window);
-                _androidPlatform->dispatchEvent(ev);
+                events::WindowEvent::broadcast(ev);
                 break;
             }
             case APP_CMD_CONFIG_CHANGED:
@@ -429,9 +425,7 @@ public:
                 // system told us we have low memory. So if we are not visible, let's
                 // cooperate by deallocating all of our graphic resources.
                 CC_LOG_INFO("AndroidPlatform: APP_CMD_LOW_MEMORY");
-                DeviceEvent ev;
-                ev.type = DeviceEvent::Type::MEMORY;
-                _androidPlatform->dispatchEvent(ev);
+                events::LowMemory::broadcast();
                 break;
             }
             case APP_CMD_CONTENT_RECT_CHANGED:

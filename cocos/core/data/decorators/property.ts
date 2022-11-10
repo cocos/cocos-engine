@@ -28,9 +28,9 @@ import { CCString, CCInteger, CCFloat, CCBoolean } from '../utils/attribute';
 import { IExposedAttributes } from '../utils/attribute-defines';
 import { LegacyPropertyDecorator, getSubDict, getClassCache, BabelPropertyDecoratorDescriptor } from './utils';
 import { warnID, errorID } from '../../platform/debug';
-import { js } from '../../utils/js';
 import { getFullFormOfProperty } from '../utils/preprocess-class';
 import { ClassStash, PropertyStash, PropertyStashInternalFlag } from '../class-stash';
+import { getClassName, mixin } from '../../utils/js-typed';
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 export type SimplePropertyType = Function | string | typeof CCString | typeof CCInteger | typeof CCFloat | typeof CCBoolean;
@@ -134,7 +134,7 @@ function extractActualDefaultValues (classConstructor: new () => unknown) {
         dummyObj = new classConstructor();
     } catch (e) {
         if (DEV) {
-            warnID(3652, js.getClassName(classConstructor), e);
+            warnID(3652, getClassName(classConstructor), e);
         }
         return {};
     }
@@ -200,7 +200,7 @@ function mergePropertyOptions (
         fullOptions = getFullFormOfProperty(options, isGetset);
     }
     // @ts-expect-error enum PropertyStashInternalFlag is used as number
-    const propertyRecord: PropertyStash = js.mixin(propertyStash, fullOptions || options || {});
+    const propertyRecord: PropertyStash = mixin(propertyStash, fullOptions || options || {});
 
     if (isGetset) {
         // typescript or babel
@@ -208,7 +208,7 @@ function mergePropertyOptions (
             const errorProps = getSubDict(cache, 'errorProps');
             if (!errorProps[(propertyKey as string)]) {
                 errorProps[(propertyKey as string)] = true;
-                warnID(3655, propertyKey, js.getClassName(ctor), propertyKey, propertyKey);
+                warnID(3655, propertyKey, getClassName(ctor), propertyKey, propertyKey);
             }
         }
         if (descriptor!.get) {
@@ -220,7 +220,7 @@ function mergePropertyOptions (
     } else { // Target property is non-accessor
         if (DEV && (propertyRecord.get || propertyRecord.set)) {
             // Specify "accessor options" for non-accessor property is forbidden.
-            errorID(3655, propertyKey, js.getClassName(ctor), propertyKey, propertyKey);
+            errorID(3655, propertyKey, getClassName(ctor), propertyKey, propertyKey);
             return;
         }
 
@@ -235,7 +235,7 @@ function mergePropertyOptions (
         if ((EDITOR && !window.Build) || TEST) {
             // eslint-disable-next-line no-prototype-builtins
             if (!fullOptions && options && options.hasOwnProperty('default')) {
-                warnID(3653, propertyKey, js.getClassName(ctor));
+                warnID(3653, propertyKey, getClassName(ctor));
             }
         }
     }

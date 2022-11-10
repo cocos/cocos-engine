@@ -25,7 +25,6 @@
 #include "EventDispatcher.h"
 #include <cstdarg>
 #include "cocos/application/ApplicationManager.h"
-#include "cocos/bindings/event/CustomEventTypes.h"
 #include "cocos/bindings/jswrapper/HandleObject.h"
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_global_init.h"
@@ -42,6 +41,7 @@ se::Object *jsKeyboardEventObj = nullptr;
 se::Object *jsControllerEventArray = nullptr;
 se::Object *jsResizeEventObj = nullptr;
 bool inited = false;
+bool busListenerInited = false;
 
 // attach the argument object to the function
 void accessCacheArgObj(se::Object *func, se::Value *argObj, const char *cacheKey = "__reusedArgumentObject") {
@@ -55,7 +55,20 @@ void accessCacheArgObj(se::Object *func, se::Value *argObj, const char *cacheKey
 } // namespace
 namespace cc {
 
-ccstd::unordered_map<ccstd::string, EventDispatcher::Node *> EventDispatcher::listeners;
+events::EnterForeground::Listener EventDispatcher::listenerEnterForeground;
+events::EnterBackground::Listener EventDispatcher::listenerEnterBackground;
+events::WindowChanged::Listener EventDispatcher::listenerWindowChanged;
+events::LowMemory::Listener EventDispatcher::listenerLowMemory;
+events::Touch::Listener EventDispatcher::listenerTouch;
+events::Mouse::Listener EventDispatcher::listenerMouse;
+events::Keyboard::Listener EventDispatcher::listenerKeyboard;
+events::Controller::Listener EventDispatcher::listenerConroller;
+events::Tick::Listener EventDispatcher::listenerTick;
+events::Resize::Listener EventDispatcher::listenerResize;
+events::Orientation::Listener EventDispatcher::listenerOrientation;
+events::RestartVM::Listener EventDispatcher::listenerRestartVM;
+events::Close::Listener EventDispatcher::listenerClose;
+
 uint32_t EventDispatcher::hashListenerId = 1;
 
 bool EventDispatcher::initialized() {
@@ -67,11 +80,25 @@ void EventDispatcher::init() {
     se::ScriptEngine::getInstance()->addBeforeCleanupHook([]() {
         EventDispatcher::destroy();
     });
+
+    if (!busListenerInited) {
+        listenerTouch.bind(&dispatchTouchEvent);
+        listenerMouse.bind(&dispatchMouseEvent);
+        listenerKeyboard.bind(&dispatchKeyboardEvent);
+        listenerConroller.bind(&dispatchControllerEvent);
+        listenerTick.bind(&dispatchTickEvent);
+        listenerResize.bind(&dispatchResizeEvent);
+        listenerOrientation.bind(&dispatchOrientationChangeEvent);
+        listenerEnterBackground.bind(&dispatchEnterBackgroundEvent);
+        listenerEnterForeground.bind(&dispatchEnterForegroundEvent);
+        listenerLowMemory.bind(&dispatchMemoryWarningEvent);
+        listenerClose.bind(&dispatchCloseEvent);
+        listenerRestartVM.bind(&dispatchRestartVM);
+        busListenerInited = true;
+    }
 }
 
 void EventDispatcher::destroy() {
-    removeAllEventListeners();
-
     for (auto *touchObj : jsTouchObjPool) {
         touchObj->unroot();
         touchObj->decRef();
@@ -164,7 +191,6 @@ void EventDispatcher::dispatchTouchEvent(const TouchEvent &touchEvent) {
     args.emplace_back(se::Value(jsTouchObjArray));
     args.emplace_back(se::Value(touchEvent.windowId));
     EventDispatcher::doDispatchJsEvent(eventName, args);
-    EventDispatcher::dispatchCustomEvent(eventName, 0);
 }
 
 void EventDispatcher::dispatchMouseEvent(const MouseEvent &mouseEvent) {
@@ -195,19 +221,15 @@ void EventDispatcher::dispatchMouseEvent(const MouseEvent &mouseEvent) {
     const char *jsFunctionName = nullptr;
     switch (type) {
         case MouseEvent::Type::DOWN:
-            eventName = EVENT_MOUSE_DOWN;
             jsFunctionName = "onMouseDown";
             break;
         case MouseEvent::Type::MOVE:
-            eventName = EVENT_MOUSE_MOVE;
             jsFunctionName = "onMouseMove";
             break;
         case MouseEvent::Type::UP:
-            eventName = EVENT_MOUSE_UP;
             jsFunctionName = "onMouseUp";
             break;
         case MouseEvent::Type::WHEEL:
-            eventName = EVENT_MOUSE_WHEEL;
             jsFunctionName = "onMouseWheel";
             break;
         default:
@@ -218,7 +240,6 @@ void EventDispatcher::dispatchMouseEvent(const MouseEvent &mouseEvent) {
     se::ValueArray args;
     args.emplace_back(se::Value(jsMouseEventObj));
     EventDispatcher::doDispatchJsEvent(jsFunctionName, args);
-    EventDispatcher::dispatchCustomEvent(eventName, 0);
 }
 
 void EventDispatcher::dispatchKeyboardEvent(const KeyboardEvent &keyboardEvent) {
@@ -325,38 +346,21 @@ void EventDispatcher::dispatchTickEvent(float /*dt*/) {
         tickVal.toObject()->call(tickArgsValArr, nullptr);
     }
 }
-
-void EventDispatcher::dispatchResizeEvent(int width, int height) {
+// NOLINTNEXTLINE
+void EventDispatcher::dispatchResizeEvent(int width, int height, uint32_t windowId) {
     se::AutoHandleScope scope;
     if (!jsResizeEventObj) {
         jsResizeEventObj = se::Object::createPlainObject();
         jsResizeEventObj->root();
     }
 
+    jsResizeEventObj->setProperty("windowId", se::Value(windowId));
     jsResizeEventObj->setProperty("width", se::Value(width));
     jsResizeEventObj->setProperty("height", se::Value(height));
 
     se::ValueArray args;
     args.emplace_back(se::Value(jsResizeEventObj));
     EventDispatcher::doDispatchJsEvent("onResize", args);
-    EventDispatcher::dispatchCustomEvent(EVENT_RESIZE, 0);
-}
-
-void EventDispatcher::dispatchResizeEvent(const WindowEvent &windowEvent) {
-    se::AutoHandleScope scope;
-    if (!jsResizeEventObj) {
-        jsResizeEventObj = se::Object::createPlainObject();
-        jsResizeEventObj->root();
-    }
-
-    jsResizeEventObj->setProperty("windowId", se::Value(windowEvent.windowId));
-    jsResizeEventObj->setProperty("width", se::Value(windowEvent.width));
-    jsResizeEventObj->setProperty("height", se::Value(windowEvent.height));
-
-    se::ValueArray args;
-    args.emplace_back(se::Value(jsResizeEventObj));
-    EventDispatcher::doDispatchJsEvent("onResize", args);
-    EventDispatcher::dispatchCustomEvent(EVENT_RESIZE, 0);
 }
 
 void EventDispatcher::dispatchOrientationChangeEvent(int orientation) {
@@ -382,65 +386,22 @@ void EventDispatcher::dispatchOrientationChangeEvent(int orientation) {
 
 void EventDispatcher::dispatchEnterBackgroundEvent() {
     EventDispatcher::doDispatchJsEvent("onPause", se::EmptyValueArray);
-    EventDispatcher::dispatchCustomEvent(EVENT_COME_TO_BACKGROUND, 0);
 }
 
 void EventDispatcher::dispatchEnterForegroundEvent() {
     EventDispatcher::doDispatchJsEvent("onResume", se::EmptyValueArray);
-    EventDispatcher::dispatchCustomEvent(EVENT_COME_TO_FOREGROUND, 0);
 }
 
 void EventDispatcher::dispatchMemoryWarningEvent() {
     EventDispatcher::doDispatchJsEvent("onMemoryWarning", se::EmptyValueArray);
-    EventDispatcher::dispatchCustomEvent(EVENT_MEMORY_WARNING, 0);
 }
 
 void EventDispatcher::dispatchRestartVM() {
     EventDispatcher::doDispatchJsEvent("onRestartVM", se::EmptyValueArray);
-    EventDispatcher::dispatchCustomEvent(EVENT_RESTART_VM, 0);
 }
 
 void EventDispatcher::dispatchCloseEvent() {
     EventDispatcher::doDispatchJsEvent("onClose", se::EmptyValueArray);
-    EventDispatcher::dispatchCustomEvent(EVENT_CLOSE, 0);
-}
-
-void EventDispatcher::dispatchDestroyWindowEvent() {
-#if CC_PLATFORM == CC_PLATFORM_WINDOWS
-    EventDispatcher::dispatchCustomEvent(EVENT_DESTROY_WINDOW, 1, ISystemWindow::mainWindowId);
-#else
-    EventDispatcher::dispatchCustomEvent(EVENT_DESTROY_WINDOW, 0);
-#endif
-}
-
-void EventDispatcher::dispatchDestroyWindowEvent(cc::ISystemWindow *window) {
-#if CC_PLATFORM == CC_PLATFORM_WINDOWS
-    EventDispatcher::dispatchCustomEvent(EVENT_DESTROY_WINDOW, 1, window->getWindowId());
-#else
-    CC_UNUSED_PARAM(window);
-    EventDispatcher::dispatchCustomEvent(EVENT_DESTROY_WINDOW, 0);
-#endif
-}
-
-void EventDispatcher::dispatchRecreateWindowEvent() {
-#if CC_PLATFORM == CC_PLATFORM_WINDOWS
-    EventDispatcher::dispatchCustomEvent(EVENT_RECREATE_WINDOW, 1, ISystemWindow::mainWindowId);
-#else
-    EventDispatcher::dispatchCustomEvent(EVENT_RECREATE_WINDOW, 0);
-#endif
-}
-
-void EventDispatcher::dispatchRecreateWindowEvent(cc::ISystemWindow *window) {
-#if CC_PLATFORM == CC_PLATFORM_WINDOWS
-    EventDispatcher::dispatchCustomEvent(EVENT_RECREATE_WINDOW, 1, window->getWindowId());
-#else
-    CC_UNUSED_PARAM(window);
-    EventDispatcher::dispatchCustomEvent(EVENT_RECREATE_WINDOW, 0);
-#endif
-}
-
-void EventDispatcher::dispatchSceneLoadEvent() {
-    EventDispatcher::dispatchCustomEvent(EVENT_SCENE_LOAD, 0);
 }
 
 void EventDispatcher::doDispatchJsEvent(const char *jsFunctionName, const std::vector<se::Value> &args) {
@@ -455,109 +416,6 @@ void EventDispatcher::doDispatchJsEvent(const char *jsFunctionName, const std::v
     __jsbObj->getProperty(jsFunctionName, &func);
     if (func.isObject() && func.toObject()->isFunction()) {
         func.toObject()->call(args, nullptr);
-    }
-}
-
-uint32_t EventDispatcher::addCustomEventListener(const ccstd::string &eventName, const CustomEventListener &listener) {
-    Node *newNode = ccnew Node();
-    newNode->listener = listener;
-    newNode->listenerID = hashListenerId;
-    newNode->next = nullptr;
-
-    auto iter = listeners.find(eventName);
-    if (iter == listeners.end()) {
-        listeners.emplace(eventName, newNode);
-    } else {
-        Node *node = iter->second;
-        CC_ASSERT(node != nullptr);
-        Node *prev = nullptr;
-        while (node != nullptr) {
-            prev = node;
-            node = node->next;
-        }
-        prev->next = newNode;
-    }
-    return hashListenerId++;
-}
-
-void EventDispatcher::removeCustomEventListener(const ccstd::string &eventName, uint32_t listenerID) {
-    if (eventName.empty()) {
-        return;
-    }
-
-    if (listenerID == 0) {
-        return;
-    }
-
-    auto iter = listeners.find(eventName);
-    if (iter != listeners.end()) {
-        Node *prev = nullptr;
-        Node *node = iter->second;
-        while (node != nullptr) {
-            if (node->listenerID == listenerID) {
-                if (prev != nullptr) {
-                    prev->next = node->next;
-                } else if (node->next) {
-                    listeners[eventName] = node->next;
-                } else {
-                    listeners.erase(iter);
-                }
-
-                delete node;
-                return;
-            }
-
-            prev = node;
-            node = node->next;
-        }
-    }
-}
-
-void EventDispatcher::removeAllCustomEventListeners(const ccstd::string &eventName) {
-    auto iter = listeners.find(eventName);
-    if (iter != listeners.end()) {
-        Node *node = iter->second;
-        while (node != nullptr) {
-            Node *next = node->next;
-            delete node;
-            node = next;
-        }
-        listeners.erase(iter);
-    }
-}
-
-void EventDispatcher::removeAllEventListeners() {
-    for (auto &&node : listeners) {
-        delete node.second;
-    }
-    listeners.clear();
-    // start from 1 cuz 0 represents pause and resume
-    hashListenerId = 1;
-}
-
-void EventDispatcher::dispatchCustomEvent(const char *eventName, int argNum, ...) {
-    CC_ASSERT(eventName && (strcmp(eventName, "") != 0));
-    CustomEvent event;
-    event.name = eventName;
-    va_list vl;
-    va_start(vl, argNum);
-    // Step through the list.
-    for (int i = 0; i < argNum; ++i) {
-        event.args[i] = va_arg(vl, EventParameterType);
-    }
-    va_end(vl);
-    dispatchCustomEvent(event);
-}
-void EventDispatcher::dispatchCustomEvent(const CustomEvent &event) {
-    auto iter = listeners.find(event.name);
-    if (iter != listeners.end()) {
-        Node *next = nullptr;
-        Node *node = iter->second;
-        while (node != nullptr) {
-            next = node->next;
-            node->listener(event);
-            node = next;
-        }
     }
 }
 

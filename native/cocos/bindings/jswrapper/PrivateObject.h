@@ -201,7 +201,7 @@ inline void inHeap(void *ptr) {
     auto anchor = reinterpret_cast<intptr_t>(&a);
     auto p = reinterpret_cast<intptr_t>(ptr);
     // must be in heaps
-    CC_ASSERT(abs(anchor - p) > r);
+    CC_ASSERT(std::abs(anchor - p) > r);
 }
 #endif
 

@@ -1,4 +1,4 @@
-import { BufferBuilder, CCON, decodeCCONBinary, parseCCONJson, encodeCCONBinary, encodeCCONJson, InvalidCCONError } from "../../cocos/core/data/ccon";
+import { BufferBuilder, CCON, decodeCCONBinary, parseCCONJson, encodeCCONBinary, encodeCCONJson, InvalidCCONError } from "../../cocos/serialization/ccon";
 import { TextEncoder } from 'util';
 
 describe(`CCON`, () => {

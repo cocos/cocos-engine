@@ -27,8 +27,7 @@ import { EDITOR } from 'internal:constants';
 import { builtinResMgr } from '../../asset/asset-manager';
 import { Material } from '../../asset/assets';
 import { AttributeName, Format, Attribute, FormatInfos } from '../../gfx';
-import { Mat4, Vec2, Vec3, Vec4, pseudoRandom, Quat, EPSILON, approx } from '../../core/math';
-import { RecyclePool } from '../../core/memop';
+import { Mat4, Vec2, Vec3, Vec4, pseudoRandom, Quat, EPSILON, approx, RecyclePool, cclegacy } from '../../core';
 import { MaterialInstance, IMaterialInstanceInfo } from '../../render-scene/core/material-instance';
 import { MacroRecord } from '../../render-scene/core/pass-utils';
 import { AlignmentSpace, RenderMode, Space } from '../enum';
@@ -39,7 +38,6 @@ import { Camera } from '../../render-scene/scene/camera';
 import { Pass } from '../../render-scene';
 import { ParticleNoise } from '../noise';
 import { NoiseModule } from '../animator/noise-module';
-import { legacyCC } from '../../core/global-exports';
 
 const _tempAttribUV = new Vec3();
 const _tempWorldTrans = new Mat4();
@@ -313,7 +311,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
                 for (let i = 0; i < cameraLst?.length; ++i) {
                     const camera:Camera = cameraLst[i];
                     // eslint-disable-next-line max-len
-                    const checkCamera: boolean = (!EDITOR || legacyCC.GAME_VIEW) ? (camera.visibility & this._particleSystem.node.layer) === this._particleSystem.node.layer : camera.name === 'Editor Camera';
+                    const checkCamera: boolean = (!EDITOR || cclegacy.GAME_VIEW) ? (camera.visibility & this._particleSystem.node.layer) === this._particleSystem.node.layer : camera.name === 'Editor Camera';
                     if (checkCamera) {
                         Quat.fromViewUp(_node_rot, camera.forward);
                         break;

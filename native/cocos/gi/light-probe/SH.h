@@ -48,7 +48,7 @@ public:
     /**
      *  generate ucount1 * ucount2 samples from sphere uniformly
      */
-    static ccstd::vector<Vec3> uniformSampleSphereAll(uint32_t uCount1, uint32_t uCount2);
+    static ccstd::vector<Vec3> uniformSampleSphereAll(uint32_t sampleCount);
 
     /**
      *  probability density function of uniform distribution on spherical surface

@@ -24,7 +24,7 @@
  */
 
 import { JSB } from 'internal:constants';
-import { legacyCC } from '../core/global-exports';
+import { cclegacy } from '../core';
 import { Root } from '../root';
 
 const enum RenderingDebugViewType {
@@ -235,7 +235,7 @@ export class DebugView {
     }
 
     protected _updatePipeline () {
-        const root = legacyCC.director.root as Root;
+        const root = cclegacy.director.root as Root;
         const pipeline = root.pipeline;
 
         const useDebugView = this._getType();

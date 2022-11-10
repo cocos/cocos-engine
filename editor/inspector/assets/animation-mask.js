@@ -1,4 +1,8 @@
-exports.template = `
+'use strict';
+
+const { updateElementReadonly } = require('../utils/assets');
+
+exports.template = /* html */`
 <section class="asset-animation-mask">
     <div class="header">
         <ui-button class="import">
@@ -13,8 +17,65 @@ exports.template = `
     <div class="content">
         <ui-tree class="tree"></ui-tree>
     </div>
+    <ui-label class="multiple-warn-tip" value="i18n:ENGINE.assets.multipleWarning"></ui-label>
 </section>
 `;
+
+exports.style = /* css */`
+.asset-animation-mask {
+    display: flex;
+    height: 100%;
+    flex-direction: column;
+}
+
+.asset-animation-mask[multiple-invalid] > *:not(.multiple-warn-tip) {
+    display: none!important;
+ }
+
+ .asset-animation-mask[multiple-invalid] > .multiple-warn-tip {
+    display: block;
+ }
+
+.asset-animation-mask .multiple-warn-tip {
+    display: none;
+    text-align: center;
+    color: var(--color-focus-contrast-weakest);
+}
+
+.asset-animation-mask > .header {
+    margin-top: 10px;
+    display: flex;
+}
+
+.asset-animation-mask > .header ui-button {
+    text-align: center;
+}
+
+.asset-animation-mask > .header .import {
+    flex: 1;
+    margin-left: 10px;
+}
+
+.asset-animation-mask > .header .clear {
+    margin-left: 10px;
+}
+
+.asset-animation-mask > .content {
+    flex: 1;
+    margin-top: 10px;
+}
+
+.asset-animation-mask > .content .tree {
+    height: 100%;
+}
+`;
+
+exports.$ = {
+    container: '.asset-animation-mask',
+    import: '.import',
+    clear: '.clear',
+    tree: '.tree',
+};
 
 exports.methods = {
     record() {
@@ -27,29 +88,60 @@ exports.methods = {
             return false;
         }
 
-        this.queryData = await Editor.Message.request('scene', 'change-animation-mask', {
-            method: 'change-dump',
-            dump: record,
-        });
-        await this.changed({ snapshot: false });
+        await this.change(record);
         return true;
     },
 
     async query(uuid) {
         return await Editor.Message.request('scene', 'query-animation-mask', uuid);
     },
+
     async apply() {
         this.reset();
         await Editor.Message.request('scene', 'apply-animation-mask', this.asset.uuid);
     },
+
     reset() {
         this.dirtyData.uuid = '';
     },
-    async changed(state) {
+
+    async clear() {
+        this.queryData = await Editor.Message.request('scene', 'change-animation-mask', {
+            method: 'clear-nodes',
+            uuid: this.asset.uuid,
+        });
+
+        this.changed();
+    },
+    async import(info) {
+        this.queryData = await Editor.Message.request('scene', 'change-animation-mask', {
+            method: 'import-skeleton',
+            uuid: info.redirect.uuid,
+        });
+
+        this.changed();
+    },
+
+    async change(dump) {
+        this.queryData = await Editor.Message.request('scene', 'change-animation-mask', {
+            method: 'change-dump',
+            dump,
+        });
+
+        this.changed();
+    },
+
+    changed() {
         this.updateInterface();
         this.setDirtyData();
 
-        this.dispatch('change', state);
+        this.dispatch('change');
+
+        /**
+         * 由于编辑项中不需要区分 change 和 confirm 的情况，
+         * 所以可以在 change 后 snapshot
+         */
+        this.dispatch('snapshot');
     },
 
     updateInterface() {
@@ -57,30 +149,16 @@ exports.methods = {
         this.flatData = convertData.flatData;
         this.$.tree.tree = convertData.treeData;
 
-
-        this.updateReadonly(this.$.import);
-        this.updateReadonly(this.$.clear);
-        this.updateReadonly(this.$.tree);
+        updateElementReadonly.call(this, this.$.import);
+        updateElementReadonly.call(this, this.$.clear);
+        updateElementReadonly.call(this, this.$.tree);
     },
 
-    updateReadonly(element) {
-        if (this.asset.readonly) {
-            element.setAttribute('disabled', true);
-        } else {
-            element.removeAttribute('disabled');
-        }
-    },
-
-    /**
-     * Detection of data changes only determines the currently selected technique
-     */
     setDirtyData() {
         this.dirtyData.realtime = JSON.stringify(this.queryData);
 
         if (!this.dirtyData.origin) {
             this.dirtyData.origin = this.dirtyData.realtime;
-
-            this.dispatch('snapshot');
         }
     },
 
@@ -187,44 +265,6 @@ exports.methods = {
     },
 };
 
-exports.$ = {
-    container: '.asset-animation-mask',
-    import: '.import',
-    clear: '.clear',
-    tree: '.tree',
-};
-
-exports.style = `
-.asset-animation-mask {
-    display: flex;
-    height: 100%;
-    flex-direction: column;
-}
-
-.header {
-    margin-top: 10px;
-    display: flex;
-}
-
-.header ui-button {
-    flex: 1;
-    text-align: center;
-}
-
-.header .clear {
-    margin-left: 10px;
-}
-
-.content {
-    flex: 1;
-    margin-top: 10px;
-}
-
-.content .tree {
-    height: 100%;
-}
-`;
-
 exports.ready = function() {
     const panel = this;
 
@@ -245,12 +285,8 @@ exports.ready = function() {
                         console.error(Editor.I18n.t('ENGINE.assets.animationMask.illegalFbx') + ` {asset(${uuid})}`);
                         return;
                     }
-                    panel.queryData = await Editor.Message.request('scene', 'change-animation-mask', {
-                        method: 'import-skeleton',
-                        uuid: info.redirect.uuid,
-                    });
 
-                    panel.changed();
+                    await panel.import(info);
                 },
             },
         });
@@ -265,12 +301,7 @@ exports.ready = function() {
         });
 
         if (result.response === 0) {
-            panel.queryData = await Editor.Message.request('scene', 'change-animation-mask', {
-                method: 'clear-nodes',
-                uuid: this.asset.uuid,
-            });
-
-            this.changed();
+            await this.clear();
         }
     });
 
@@ -289,12 +320,7 @@ exports.ready = function() {
             const origin = panel.flatData[key].origin;
             panel.jointEnableChange(key, !origin.value.enabled.value, !event.altKey);
 
-            panel.queryData = await Editor.Message.request('scene', 'change-animation-mask', {
-                method: 'change-dump',
-                dump: panel.queryData,
-            });
-
-            panel.changed();
+            await panel.change(this.queryData);
         });
     });
     panel.$.tree.setRender('left', ($left) => {
@@ -328,9 +354,11 @@ exports.update = async function(assetList, metaList) {
     this.asset = assetList[0];
     this.meta = metaList[0];
 
-    if (assetList.length !== 1) {
-        this.$.container.innerText = Editor.I18n.t('ENGINE.assets.multipleWarning');
+    if (assetList.length > 1) {
+        this.$.container.setAttribute('multiple-invalid', '');
         return;
+    } else {
+        this.$.container.removeAttribute('multiple-invalid');
     }
 
     if (this.dirtyData.uuid !== this.asset.uuid) {

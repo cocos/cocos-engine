@@ -23,7 +23,7 @@
  THE SOFTWARE.
 */
 import { ccclass, editable, serializable } from 'cc.decorator';
-import { legacyCC } from '../../core/global-exports';
+import { cclegacy } from '../../core';
 import './asset';
 
 const textAssetProto: any = jsb.TextAsset.prototype;
@@ -37,7 +37,7 @@ textAssetProto._ctor = function () {
     jsb.Asset.prototype._ctor.apply(this, arguments);
 };
 
-legacyCC.TextAsset = jsb.TextAsset;
+cclegacy.TextAsset = jsb.TextAsset;
 
 // handle meta data, it is generated automatically
 const TextAssetProto = TextAsset.prototype;

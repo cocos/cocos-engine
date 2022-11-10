@@ -15,14 +15,6 @@ class AssetHistoryManager extends HistoryManagerBase {
     }
 
     async snapshot(panel) {
-        // 避免连续 change 产生大量的快照
-        clearTimeout(this.timeId);
-        this.timeId = setTimeout(() => {
-            this.record(panel);
-        }, 200);
-    }
-
-    async record(panel) {
         const record = await panel.record();
 
         if (this.lastRecord.uuidListStr === record.uuidListStr) {

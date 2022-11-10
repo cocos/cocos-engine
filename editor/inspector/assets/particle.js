@@ -1,9 +1,11 @@
-exports.template = `
-<section>
+'use strict';
+
+exports.template = /* html */`
+<section class="asset-particle">
     <div class="content"
         id="content"
     >
-        <ui-prop ui="asset" readonly>
+        <ui-prop ui="asset">
             <ui-label slot="label"
                 tooltip="i18n:ENGINE.assets.particle.spriteFrameTip"
                 value="i18n:ENGINE.assets.particle.spriteFrame"
@@ -15,17 +17,30 @@ exports.template = `
             ></ui-asset>
         </ui-prop>
     </div> 
+    <ui-label class="multiple-warn-tip" value="i18n:ENGINE.assets.multipleWarning"></ui-label>
 </section>
 `;
 
+exports.style = /* css */`
+.asset-particle[multiple-invalid] > *:not(.multiple-warn-tip) {
+    display: none!important;
+ }
+
+ .asset-particle[multiple-invalid] > .multiple-warn-tip {
+    display: block;
+ }
+
+.asset-particle .multiple-warn-tip {
+    display: none;
+    text-align: center;
+    color: var(--color-focus-contrast-weakest);
+}
+`;
+
 exports.$ = {
+    container: '.asset-particle',
     content: '#content',
     asset: '#asset',
-};
-
-exports.ready = function() {
-    // Note: Currently, the material of 2d particles cannot be changed, ui-asset readonly, so the following is not valid
-    this.$.asset.addEventListener('confirm', this.onDataChanged.bind(this, 'spriteFrameUuid'));
 };
 
 exports.update = function(assetList, metaList) {
@@ -34,31 +49,12 @@ exports.update = function(assetList, metaList) {
     this.asset = assetList[0];
     this.meta = metaList[0];
 
+    if (assetList.length > 1) {
+        this.$.container.setAttribute('multiple-invalid', '');
+        return;
+    } else {
+        this.$.container.removeAttribute('multiple-invalid');
+    }
+
     this.$.asset.value = this.meta.userData.spriteFrameUuid;
-
-    this.updateInvalid(this.$.asset, 'spriteFrameUuid');
-    this.updateReadonly(this.$.asset);
-};
-exports.methods = {
-    updateInvalid(element, prop) {
-        const invalid = this.metaList.some((meta) => {
-            return meta.userData[prop] !== this.meta.userData[prop];
-        });
-        element.invalid = invalid;
-    },
-
-    updateReadonly(element) {
-        if (this.asset.readonly) {
-            element.setAttribute('disabled', true);
-        } else {
-            element.removeAttribute('disabled');
-        }
-    },
-    onDataChanged(key, event) {
-        this.metaList.forEach((meta) => {
-            meta.userData[key] = event.target.value;
-        });
-
-        this.dispatch('change');
-    },
 };

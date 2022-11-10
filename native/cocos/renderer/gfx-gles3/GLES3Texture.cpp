@@ -125,6 +125,23 @@ void GLES3Texture::doResize(uint32_t width, uint32_t height, uint32_t size) {
     }
 }
 
+uint32_t GLES3Texture::getGLTextureHandle() const noexcept {
+    const auto *gpuTexture = _gpuTexture;
+    if (!gpuTexture) {
+        return 0;
+    }
+
+    if (gpuTexture->glTexture) {
+        return gpuTexture->glTexture;
+    }
+
+    if (gpuTexture->glRenderbuffer) {
+        return gpuTexture->glRenderbuffer;
+    }
+
+    return 0;
+}
+
 ///////////////////////////// Swapchain Specific /////////////////////////////
 
 void GLES3Texture::doInit(const SwapchainTextureInfo & /*info*/) {

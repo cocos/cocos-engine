@@ -1,11 +1,34 @@
-exports.template = `
+'use strict';
+
+exports.template = /* html */`
 <section class="asset-physics-material">
+    <ui-label class="multiple-warn-tip" value="i18n:ENGINE.assets.multipleWarning"></ui-label>  
 </section>
 `;
 
+exports.style = /* css */`
+.asset-physics-material[multiple-invalid] > *:not(.multiple-warn-tip) {
+    display: none!important;
+ }
+
+ .asset-physics-material[multiple-invalid] > .multiple-warn-tip {
+    display: block;
+ }
+
+.asset-physics-material .multiple-warn-tip {
+    display: none;
+    text-align: center;
+    color: var(--color-focus-contrast-weakest);
+}
+`;
+
+exports.$ = {
+    container: '.asset-physics-material',
+};
+
 exports.methods = {
     record() {
-        return JSON.stringify(this.physicsMaterial);
+        return JSON.stringify(this.queryData);
     },
 
     async restore(record) {
@@ -14,8 +37,8 @@ exports.methods = {
             return false;
         }
 
-        this.physicsMaterial = record;
-        await this.change({ snapshot: false });
+        this.queryData = record;
+        await this.change();
         return true;
     },
 
@@ -25,7 +48,7 @@ exports.methods = {
 
     async apply() {
         this.reset();
-        await Editor.Message.request('scene', 'apply-physics-material', this.asset.uuid, this.physicsMaterial);
+        await Editor.Message.request('scene', 'apply-physics-material', this.asset.uuid, this.queryData);
     },
 
     reset() {
@@ -36,17 +59,20 @@ exports.methods = {
         this.dirtyData.uuid = '';
     },
 
-    async change(state) {
-        this.physicsMaterial = await Editor.Message.request('scene', 'change-physics-material', this.physicsMaterial);
-
+    async change() {
+        this.queryData = await Editor.Message.request('scene', 'change-physics-material', this.queryData);
         this.updateInterface();
         this.setDirtyData();
-        this.dispatch('change', state);
+        this.dispatch('change');
+    },
+
+    snapshot() {
+        this.dispatch('snapshot');
     },
 
     updateInterface() {
-        for (const key in this.physicsMaterial) {
-            const dump = this.physicsMaterial[key];
+        for (const key in this.queryData) {
+            const dump = this.queryData[key];
 
             if (!dump.visible) {
                 continue;
@@ -56,7 +82,6 @@ exports.methods = {
             if (!this.$[key]) {
                 this.$[key] = document.createElement('ui-prop');
                 this.$[key].setAttribute('type', 'dump');
-                this.$[key].addEventListener('change-dump', this.change.bind(this));
                 this.$.container.appendChild(this.$[key]);
             }
 
@@ -68,16 +93,11 @@ exports.methods = {
         }
     },
 
-    /**
-     * Detection of data changes only determines the currently selected technique
-     */
     setDirtyData() {
-        this.dirtyData.realtime = JSON.stringify(this.physicsMaterial);
+        this.dirtyData.realtime = JSON.stringify(this.queryData);
 
         if (!this.dirtyData.origin) {
             this.dirtyData.origin = this.dirtyData.realtime;
-
-            this.dispatch('snapshot');
         }
     },
 
@@ -86,11 +106,15 @@ exports.methods = {
         return isDirty;
     },
 };
-exports.$ = {
-    container: '.asset-physics-material',
-};
 
 exports.ready = function() {
+    this.$.container.addEventListener('change-dump', () => {
+        this.change();
+    });
+    this.$.container.addEventListener('confirm-dump', () => {
+        this.snapshot();
+    });
+
     // Used to determine whether the material has been modified in isDirty()
     this.dirtyData = {
         uuid: '',
@@ -105,9 +129,11 @@ exports.update = async function(assetList, metaList) {
     this.asset = assetList[0];
     this.meta = metaList[0];
 
-    if (assetList.length !== 1) {
-        this.$.container.innerText = Editor.I18n.t('ENGINE.assets.multipleWarning');
+    if (assetList.length > 1) {
+        this.$.container.setAttribute('multiple-invalid', '');
         return;
+    } else {
+        this.$.container.removeAttribute('multiple-invalid');
     }
 
     if (this.dirtyData.uuid !== this.asset.uuid) {
@@ -115,7 +141,7 @@ exports.update = async function(assetList, metaList) {
         this.dirtyData.origin = '';
     }
 
-    this.physicsMaterial = await this.query(this.asset.uuid);
+    this.queryData = await this.query(this.asset.uuid);
 
     this.updateInterface();
     this.setDirtyData();

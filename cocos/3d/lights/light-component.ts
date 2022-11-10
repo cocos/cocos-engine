@@ -28,7 +28,6 @@ import { Component } from '../../scene-graph/component';
 import { Color, Vec3, Enum, cclegacy } from '../../core';
 import { scene } from '../../render-scene';
 import { Root } from '../../root';
-import { legacyCC } from '../../core/global-exports';
 import { CAMERA_DEFAULT_MASK } from '../../rendering/define';
 import { Layers } from '../../scene-graph/layers';
 

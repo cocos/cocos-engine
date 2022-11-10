@@ -23,7 +23,7 @@ import { ccclass, editable, serializable } from 'cc.decorator';
 import { EDITOR, TEST } from "internal:constants";
 import { legacyCC } from '../core/global-exports';
 import { Node } from './node';
-import { applyTargetOverrides, expandNestedPrefabInstanceNode } from "../core/utils/prefab/utils";
+import { applyTargetOverrides, expandNestedPrefabInstanceNode } from "./prefab/utils";
 import { assert } from "../core/platform/debug";
 import { updateChildrenForDeserialize } from '../core/utils/jsb-utils';
 

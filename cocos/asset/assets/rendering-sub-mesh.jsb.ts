@@ -1,4 +1,4 @@
-import { Vec3 } from "../../core/math";
+import { Vec3 } from "../../core";
 import { Attribute, PrimitiveMode, Buffer } from "../../gfx";
 
 /**

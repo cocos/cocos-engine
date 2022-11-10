@@ -13,6 +13,8 @@ CCEffect %{
         alphaThreshold:        { value: 0.5, editor: { parent: USE_ALPHA_TEST, slide: true, range: [0, 1.0], step: 0.001 } }
         emissive:              { value: [0.0, 0.0, 0.0, 1.0], linear: true, editor: { type: color } }
         emissiveMap:           { value: grey }
+        emissiveScale:         { value: 1.0 }
+        emissiveScaleMap:      { value: grey }
         shininessExponentMap:  { value: grey, editor: { parent: '!HAS_EXPORTED_GLOSSINESS' } }
         shininessExponent:     { value: 100.0, editor: { parent: '!HAS_EXPORTED_GLOSSINESS' } }
         specularGlossinessMap: { value: grey, editor: { parent: '!HAS_EXPORTED_GLOSSINESS' } }
@@ -85,6 +87,7 @@ CCProgram shared-ubos %{
     vec4  diffuseColor;
     vec4  specularColor;
     vec4  emissive;
+    float emissiveScale;
     float alphaThreshold;
     float shininessExponent;
     float glossiness;
@@ -169,6 +172,9 @@ CCProgram surface-fragment %{
  
   #if USE_EMISSIVE_MAP
     uniform sampler2D emissiveMap;
+  #endif
+  #if USE_EMISSIVESCALE_MAP
+    uniform sampler2D emissiveScaleMap;
   #endif
 
   #if USE_NORMAL_MAP
@@ -268,8 +274,17 @@ CCProgram surface-fragment %{
   { 
     vec3 emissiveColor = emissive.rgb;
     #if USE_EMISSIVE_MAP
-      emissiveColor = texture(emissiveMap, TEXTURE_UV).xyz;
+        emissiveColor.rgb = SRGBToLinear(texture(emissiveMap, TEXTURE_UV).rgb);
     #endif
+    //emissive color scale
+    #if USE_EMISSIVESCALE_MAP
+        vec4 emissiveScaleColor = texture(emissiveScaleMap, TEXTURE_UV);
+        emissiveScaleColor.rgb = SRGBToLinear(emissiveScaleColor.rgb);
+        emissiveColor.rgb *= emissiveScaleColor.rgb;
+    #else
+        emissiveColor.rgb *= emissiveScale;
+    #endif
+    
     return emissiveColor;
   }
 

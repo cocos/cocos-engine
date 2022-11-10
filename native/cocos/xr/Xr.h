@@ -30,6 +30,10 @@
 #include <vector>
 #include "XRCommon.h"
 
+#ifndef XR_USE_GRAPHICS_API_OPENGL_ES
+#define XR_USE_GRAPHICS_API_OPENGL_ES 1
+#endif
+
 #ifdef XR_USE_GRAPHICS_API_VULKAN
     #include "vulkan/vulkan_core.h"
 #endif
@@ -75,6 +79,8 @@ public:
 #ifdef XR_USE_GRAPHICS_API_OPENGL_ES
     virtual void initXrSession(PFNGLES3WLOADPROC gles3wLoadFuncProc, void *eglDisplay, void *eglConfig, void *eglDefaultContext) = 0;
 
+    virtual void setXrFrameBuffer(unsigned int fbo) = 0;
+
     virtual unsigned int getXrFrameBuffer() = 0;
 
     virtual void attachXrFramebufferTexture2D() = 0;
@@ -107,6 +113,8 @@ public:
     virtual void setXRConfigCallback(const cc::xr::XRConfigChangeCallback &xrConfigChangeCallback) = 0;
 
     virtual std::vector<float> computeViewProjection(uint32_t index, float nearZ, float farZ, float scaleF) = 0;
+
+    virtual std::vector<float> getEyeFov(uint32_t eye) = 0;
 
     virtual uint32_t getSwapchainImageIndex() = 0;
 
@@ -149,6 +157,11 @@ public:
     virtual std::string getXRStringConfig(int key) = 0;
 
     virtual void *getXRPointerConfig(int key) = 0;
+
+    virtual void getXrPose(cc::xr::XRPose &leftEyePose,
+                         cc::xr::XRPose &rightEyePose,
+                         cc::xr::XRPose &leftControllerPose,
+                         cc::xr::XRPose &rightControllerPose) = 0;
 };
 
 } // namespace xr

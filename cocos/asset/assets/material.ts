@@ -28,12 +28,9 @@ import { Asset } from './asset';
 import { EffectAsset } from './effect-asset';
 import { Texture, Type } from '../../gfx';
 import { TextureBase } from './texture-base';
-import { legacyCC } from '../../core/global-exports';
 import { IPassInfoFull, Pass, PassOverrides } from '../../render-scene/core/pass';
 import { MacroRecord, MaterialProperty } from '../../render-scene/core/pass-utils';
-import { Color } from '../../core/math/color';
-import { warnID } from '../../core/platform/debug';
-import { Vec4 } from '../../core/math';
+import { Color, warnID, Vec4, cclegacy } from '../../core';
 import { SRGBToLinear } from '../../rendering/pipeline-funcs';
 import { Renderer } from '../../misc/renderer';
 
@@ -391,7 +388,7 @@ export class Material extends Asset {
                 Object.assign(defines, passInfo.embeddedMacros);
             }
             if (passInfo.switch && !defines[passInfo.switch]) { continue; }
-            const pass = new Pass(legacyCC.director.root);
+            const pass = new Pass(cclegacy.director.root);
             pass.initialize(passInfo);
             passes.push(pass);
         }
@@ -491,4 +488,4 @@ export class Material extends Asset {
     }
 }
 
-legacyCC.Material = Material;
+cclegacy.Material = Material;

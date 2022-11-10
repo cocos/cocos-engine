@@ -1,6 +1,6 @@
 'use strict';
 
-exports.template = `
+exports.template = /* html */`
 <div class="events" :style="'transform: translateX(' + offset + 'px)'">
     <template
         v-if="events"

@@ -26,7 +26,7 @@
 import { ccclass, displayOrder, serializable, type } from 'cc.decorator';
 import { RenderStage } from './render-stage';
 import { RenderPipeline } from './render-pipeline';
-import { legacyCC } from '../core/global-exports';
+import { cclegacy } from '../core';
 import { Camera } from '../render-scene/scene';
 
 /**
@@ -156,4 +156,4 @@ export abstract class RenderFlow {
     }
 }
 
-legacyCC.RenderFlow = RenderFlow;
+cclegacy.RenderFlow = RenderFlow;

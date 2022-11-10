@@ -43,8 +43,6 @@
 #import "MTLSwapchain.h"
 #import "MTLTexture.h"
 #import "base/Log.h"
-#import "cocos/bindings/event/CustomEventTypes.h"
-#import "cocos/bindings/event/EventDispatcher.h"
 #import "profiler/Profiler.h"
 
 
@@ -81,7 +79,15 @@ bool CCMTLDevice::doInit(const DeviceInfo &info) {
     id<MTLDevice> mtlDevice = MTLCreateSystemDefaultDevice();
     _mtlDevice = mtlDevice;
 
+    NSString *deviceName = [mtlDevice name];
+    _renderer = [deviceName UTF8String];
+    NSArray* nameArr = [deviceName componentsSeparatedByString:@" "];
+    if ([nameArr count] > 0) {
+        _vendor = [nameArr[0] UTF8String];
+    }
     _mtlFeatureSet = mu::highestSupportedFeatureSet(mtlDevice);
+    _version = std::to_string(_mtlFeatureSet);
+    
     const auto gpuFamily = mu::getGPUFamily(MTLFeatureSet(_mtlFeatureSet));
     _indirectDrawSupported = mu::isIndirectDrawSupported(gpuFamily);
     _caps.maxVertexAttributes = mu::getMaxVertexAttributes(gpuFamily);
@@ -142,8 +148,6 @@ bool CCMTLDevice::doInit(const DeviceInfo &info) {
     cmdBuffInfo.queue = _queue;
     _cmdBuff = createCommandBuffer(cmdBuffInfo);
 
-    //    _memoryAlarmListenerId = EventDispatcher::addCustomEventListener(EVENT_MEMORY_WARNING, std::bind(&CCMTLDevice::onMemoryWarning, this));
-
     CCMTLGPUGarbageCollectionPool::getInstance()->initialize(std::bind(&CCMTLDevice::currentFrameIndex, this));
 
     CC_LOG_INFO("Metal Feature Set: %s", mu::featureSetToString(MTLFeatureSet(_mtlFeatureSet)).c_str());
@@ -152,10 +156,6 @@ bool CCMTLDevice::doInit(const DeviceInfo &info) {
 }
 
 void CCMTLDevice::doDestroy() {
-    //    if (_memoryAlarmListenerId != 0) {
-    //        EventDispatcher::removeCustomEventListener(EVENT_MEMORY_WARNING, _memoryAlarmListenerId);
-    //        _memoryAlarmListenerId = 0;
-    //    }
 
     CC_SAFE_DELETE(_gpuDeviceObj);
 

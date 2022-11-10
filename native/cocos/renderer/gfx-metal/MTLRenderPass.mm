@@ -111,6 +111,10 @@ void CCMTLRenderPass::setDepthStencilAttachment(CCMTLTexture* cctex, int level) 
         _mtlRenderPassDescriptor.stencilAttachment.texture = texture;
         _mtlRenderPassDescriptor.stencilAttachment.level = level;
     }
+
+    if(_renderTargetSizes.empty()) {
+        _renderTargetSizes.emplace_back(static_cast<float>(texture.width), static_cast<float>(texture.height));
+    }
 }
 
 } // namespace gfx

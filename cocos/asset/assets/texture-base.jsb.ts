@@ -24,7 +24,7 @@
 */
 import { ccclass, serializable } from 'cc.decorator';
 import { deviceManager } from '../../gfx';
-import { legacyCC } from '../../core/global-exports';
+import { cclegacy } from '../../core';
 import { Filter, PixelFormat, WrapMode } from './asset-enum';
 import './asset';
 
@@ -120,9 +120,9 @@ textureBaseProto.getSamplerInfo = function () {
 
 const oldDestroy = textureBaseProto.destroy;
 textureBaseProto.destroy = function () {
-    if (legacyCC.director.root?.batcher2D) {
+    if (cclegacy.director.root?.batcher2D) {
         // legacyCC.director.root.batcher2D._releaseDescriptorSetCache(this.getHash());
-        legacyCC.director.root.batcher2D._releaseDescriptorSetCache(this.getGFXTexture(), this.getGFXSampler());
+        cclegacy.director.root.batcher2D._releaseDescriptorSetCache(this.getGFXTexture(), this.getGFXSampler());
     }
     // dispatch into C++ virtual function CCObject::destroy
     return oldDestroy.call(this);
@@ -133,7 +133,7 @@ textureBaseProto._onGFXSamplerUpdated = function (gfxSampler, samplerInfo) {
     this._samplerInfo = samplerInfo;
 };
 
-legacyCC.TextureBase = jsb.TextureBase;
+cclegacy.TextureBase = jsb.TextureBase;
 
 // handle meta data, it is generated automatically
 const TextureBaseProto = TextureBase.prototype;

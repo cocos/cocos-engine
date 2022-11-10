@@ -28,7 +28,7 @@ import { ccclass, tooltip, displayName, type, serializable, disallowAnimation } 
 import { EDITOR, TEST } from 'internal:constants';
 import { Script } from '../asset/assets/scripts';
 import { CCObject } from '../core/data/object';
-import IDGenerator from '../core/utils/id-generator';
+import { IDGenerator } from '../core/utils/id-generator';
 import { getClassName, value } from '../core/utils/js';
 import { RenderScene } from '../render-scene/core/render-scene';
 import { Rect } from '../core/math';

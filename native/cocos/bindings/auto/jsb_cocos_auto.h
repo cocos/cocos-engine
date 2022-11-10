@@ -47,12 +47,52 @@
 #include "platform/FileUtils.h"
 #include "platform/SAXParser.h"
 #include "math/Vec2.h"
+#include "math/Vec3.h"
+#include "math/Vec4.h"
+#include "math/Mat3.h"
+#include "math/Mat4.h"
+#include "math/Quaternion.h"
 #include "math/Color.h"
 #include "profiler/DebugRenderer.h"
 
 
 
 bool register_all_engine(se::Object* obj);
+
+
+JSB_REGISTER_OBJECT_TYPE(cc::Vec2);
+extern se::Object *__jsb_cc_Vec2_proto; // NOLINT
+extern se::Class * __jsb_cc_Vec2_class; // NOLINT
+
+
+JSB_REGISTER_OBJECT_TYPE(cc::Color);
+extern se::Object *__jsb_cc_Color_proto; // NOLINT
+extern se::Class * __jsb_cc_Color_class; // NOLINT
+
+
+JSB_REGISTER_OBJECT_TYPE(cc::Vec3);
+extern se::Object *__jsb_cc_Vec3_proto; // NOLINT
+extern se::Class * __jsb_cc_Vec3_class; // NOLINT
+
+
+JSB_REGISTER_OBJECT_TYPE(cc::Vec4);
+extern se::Object *__jsb_cc_Vec4_proto; // NOLINT
+extern se::Class * __jsb_cc_Vec4_class; // NOLINT
+
+
+JSB_REGISTER_OBJECT_TYPE(cc::Mat3);
+extern se::Object *__jsb_cc_Mat3_proto; // NOLINT
+extern se::Class * __jsb_cc_Mat3_class; // NOLINT
+
+
+JSB_REGISTER_OBJECT_TYPE(cc::Mat4);
+extern se::Object *__jsb_cc_Mat4_proto; // NOLINT
+extern se::Class * __jsb_cc_Mat4_class; // NOLINT
+
+
+JSB_REGISTER_OBJECT_TYPE(cc::Quaternion);
+extern se::Object *__jsb_cc_Quaternion_proto; // NOLINT
+extern se::Class * __jsb_cc_Quaternion_class; // NOLINT
 
 
 JSB_REGISTER_OBJECT_TYPE(cc::CCObject);
@@ -117,16 +157,6 @@ extern se::Class * __jsb_cc_FileUtils_class; // NOLINT
 JSB_REGISTER_OBJECT_TYPE(cc::SAXParser);
 extern se::Object *__jsb_cc_SAXParser_proto; // NOLINT
 extern se::Class * __jsb_cc_SAXParser_class; // NOLINT
-
-
-JSB_REGISTER_OBJECT_TYPE(cc::Vec2);
-extern se::Object *__jsb_cc_Vec2_proto; // NOLINT
-extern se::Class * __jsb_cc_Vec2_class; // NOLINT
-
-
-JSB_REGISTER_OBJECT_TYPE(cc::Color);
-extern se::Object *__jsb_cc_Color_proto; // NOLINT
-extern se::Class * __jsb_cc_Color_class; // NOLINT
 
 #if CC_USE_DEBUG_RENDERER
 

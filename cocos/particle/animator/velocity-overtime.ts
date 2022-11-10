@@ -24,7 +24,7 @@
  */
 
 import { ccclass, tooltip, displayOrder, range, type, serializable } from 'cc.decorator';
-import { Mat4, pseudoRandom, Quat, Vec3 } from '../../core/math';
+import { Mat4, pseudoRandom, Quat, Vec3 } from '../../core';
 import { Space, ModuleRandSeed } from '../enum';
 import { Particle, ParticleModuleBase, PARTICLE_MODULE_NAME } from '../particle';
 import { calculateTransform } from '../particle-general-function';

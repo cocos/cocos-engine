@@ -27,7 +27,7 @@
 import bulletModule, { bulletType } from '@cocos/bullet';
 import { WECHAT, RUNTIME_BASED } from 'internal:constants';
 import { game } from '../../game';
-import { sys } from '../../core/platform';
+import { sys } from '../../core';
 import { pageSize, pageCount, importFunc } from './bullet-env';
 
 let bulletLibs: any = bulletModule;

@@ -23,10 +23,9 @@
  THE SOFTWARE.
 */
 import { ccclass } from 'cc.decorator';
-import { legacyCC } from '../../core/global-exports';
 import { Filter, PixelFormat, WrapMode } from './asset-enum';
 import dependUtil from '../asset-manager/depend-util';
-import { js, macro } from '../../core';
+import { js, macro, cclegacy } from '../../core';
 import './texture-base';
 
 declare const jsb: any;
@@ -88,4 +87,4 @@ simpleTextureProto._onAfterAssignImage = function (image) {
 
 clsDecorator(SimpleTexture);
 
-legacyCC.SimpleTexture = jsb.SimpleTexture;
+cclegacy.SimpleTexture = jsb.SimpleTexture;
