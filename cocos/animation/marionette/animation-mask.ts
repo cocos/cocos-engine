@@ -27,7 +27,7 @@ export class AnimationMask extends Asset {
     @editable
     @type(JointMask)
     get joints (): Iterable<JointMaskInfo> {
-        // TODO: editor currently treats(and expects) this property to be an array.
+        // TODO: editor currently treats this property as (and expects it to be) an array.
         // If later refactoring is needed, changes should also be made to editor.
 
         return this._jointMasks;
