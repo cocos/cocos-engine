@@ -79,7 +79,15 @@ bool CCMTLDevice::doInit(const DeviceInfo &info) {
     id<MTLDevice> mtlDevice = MTLCreateSystemDefaultDevice();
     _mtlDevice = mtlDevice;
 
+    NSString *deviceName = [mtlDevice name];
+    _renderer = [deviceName UTF8String];
+    NSArray* nameArr = [deviceName componentsSeparatedByString:@" "];
+    if ([nameArr count] > 0) {
+        _vendor = [nameArr[0] UTF8String];
+    }
     _mtlFeatureSet = mu::highestSupportedFeatureSet(mtlDevice);
+    _version = std::to_string(_mtlFeatureSet);
+    
     const auto gpuFamily = mu::getGPUFamily(MTLFeatureSet(_mtlFeatureSet));
     _indirectDrawSupported = mu::isIndirectDrawSupported(gpuFamily);
     _caps.maxVertexAttributes = mu::getMaxVertexAttributes(gpuFamily);

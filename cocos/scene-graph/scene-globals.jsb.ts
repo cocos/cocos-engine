@@ -29,7 +29,7 @@ import {
     tooltip,
     type,
     visible
-// @ts-ignore
+    // @ts-ignore
 } from 'cc.decorator';
 import { legacyCC } from '../core/global-exports';
 import { CCFloat, CCInteger } from '../core/data';
@@ -175,21 +175,21 @@ legacyCC.SceneGlobals = SceneGlobals;
     const sceneGlobalsProto: any = SceneGlobals.prototype;
 
     sceneGlobalsProto._ctor = function () {
-        this._ambientRef = null;
-        this._shadowsRef = null;
-        this._skyboxRef = null;
-        this._fogRef = null;
-        this._octreeRef = null;
-        this._lightProbeRef = null;
+        this._ambientRef = this.getAmbientInfo();
+        this._shadowsRef = this.getShadowsInfo();
+        this._skyboxRef = this.getSkyboxInfo();
+        this._fogRef = this.getFogInfo();
+        this._octreeRef = this.getOctreeInfo();
+        this._lightProbeRef = this.getLightProbeInfo();
     };
 
     Object.defineProperty(sceneGlobalsProto, 'ambient', {
         enumerable: true,
         configurable: true,
-        get () {
+        get() {
             return this._ambientRef;
         },
-        set (v) {
+        set(v) {
             this._ambientRef = v;
             this.setAmbientInfo(v);
         },
@@ -198,10 +198,10 @@ legacyCC.SceneGlobals = SceneGlobals;
     Object.defineProperty(sceneGlobalsProto, 'shadows', {
         enumerable: true,
         configurable: true,
-        get () {
+        get() {
             return this._shadowsRef;
         },
-        set (v) {
+        set(v) {
             this._shadowsRef = v;
             this.setShadowsInfo(v);
         },
@@ -210,10 +210,10 @@ legacyCC.SceneGlobals = SceneGlobals;
     Object.defineProperty(sceneGlobalsProto, '_skybox', {
         enumerable: true,
         configurable: true,
-        get () {
+        get() {
             return this._skyboxRef;
         },
-        set (v) {
+        set(v) {
             this._skyboxRef = v;
             this.setSkyboxInfo(v);
         },
@@ -222,10 +222,10 @@ legacyCC.SceneGlobals = SceneGlobals;
     Object.defineProperty(sceneGlobalsProto, 'skybox', {
         enumerable: true,
         configurable: true,
-        get () {
+        get() {
             return this._skyboxRef;
         },
-        set (v) {
+        set(v) {
             this._skyboxRef = v;
             this.setSkyboxInfo(v);
         },
@@ -234,10 +234,10 @@ legacyCC.SceneGlobals = SceneGlobals;
     Object.defineProperty(sceneGlobalsProto, 'fog', {
         enumerable: true,
         configurable: true,
-        get () {
+        get() {
             return this._fogRef;
         },
-        set (v) {
+        set(v) {
             this._fogRef = v;
             this.setFogInfo(v);
         },
@@ -246,10 +246,10 @@ legacyCC.SceneGlobals = SceneGlobals;
     Object.defineProperty(sceneGlobalsProto, 'octree', {
         enumerable: true,
         configurable: true,
-        get () {
+        get() {
             return this._octreeRef;
         },
-        set (v) {
+        set(v) {
             this._octreeRef = v;
             this.setOctreeInfo(v);
         },
@@ -258,15 +258,37 @@ legacyCC.SceneGlobals = SceneGlobals;
     Object.defineProperty(sceneGlobalsProto, 'lightProbeInfo', {
         enumerable: true,
         configurable: true,
-        get () {
+        get() {
             return this._lightProbeRef;
         },
-        set (v) {
+        set(v) {
             this._lightProbeRef = v;
             this.setLightProbeInfo(v);
         },
     });
 })();
+
+
+function ambientSkyLightEnable() {
+    const scene = legacyCC.director.getScene();
+    const skybox = scene.globals.skybox;
+    if (skybox.useIBL && skybox.applyDiffuseMap) {
+        return false;
+    } else {
+        return true;
+    }
+}
+
+function checkFieldIs(attr: string, value: number) {
+    return function () {
+        return this[attr] === value;
+    };
+}
+function checkFieldNot(attr: string, value: number) {
+    return function () {
+        return this[attr] !== value;
+    };
+}
 
 // handle meta data, it is generated automatically
 
@@ -326,21 +348,21 @@ const typeDescriptor = Object.getOwnPropertyDescriptor(ShadowsInfoProto, 'type')
 type(ShadowType)(ShadowsInfoProto, 'type', typeDescriptor);
 editable(ShadowsInfoProto, 'type', typeDescriptor);
 const shadowColorDescriptor = Object.getOwnPropertyDescriptor(ShadowsInfoProto, 'shadowColor');
-visible(function (this) { /* Need to copy source code */ })(ShadowsInfoProto, 'shadowColor', shadowColorDescriptor);
+visible(checkFieldIs("_type", ShadowType.Planar))(ShadowsInfoProto, 'shadowColor', shadowColorDescriptor);
 const planeDirectionDescriptor = Object.getOwnPropertyDescriptor(ShadowsInfoProto, 'planeDirection');
 tooltip('i18n:shadow.planeDirection')(ShadowsInfoProto, 'planeDirection', planeDirectionDescriptor);
-visible(function (this) { /* Need to copy source code */ })(ShadowsInfoProto, 'planeDirection', planeDirectionDescriptor);
+visible(checkFieldIs("_type", ShadowType.Planar))(ShadowsInfoProto, 'planeDirection', planeDirectionDescriptor);
 const planeHeightDescriptor = Object.getOwnPropertyDescriptor(ShadowsInfoProto, 'planeHeight');
 tooltip('i18n:shadow.planeHeight')(ShadowsInfoProto, 'planeHeight', planeHeightDescriptor);
-visible(function (this) { /* Need to copy source code */ })(ShadowsInfoProto, 'planeHeight', planeHeightDescriptor);
+visible(checkFieldIs("_type", ShadowType.Planar))(ShadowsInfoProto, 'planeHeight', planeHeightDescriptor);
 type(CCFloat)(ShadowsInfoProto, 'planeHeight', planeHeightDescriptor);
 editable(ShadowsInfoProto, 'planeHeight', planeHeightDescriptor);
 const maxReceivedDescriptor = Object.getOwnPropertyDescriptor(ShadowsInfoProto, 'maxReceived');
-visible(function (this) { /* Need to copy source code */ })(ShadowsInfoProto, 'maxReceived', maxReceivedDescriptor);
+visible(checkFieldIs("_type", ShadowType.ShadowMap))(ShadowsInfoProto, 'maxReceived', maxReceivedDescriptor);
 tooltip('i18n:shadow.maxReceived')(ShadowsInfoProto, 'maxReceived', maxReceivedDescriptor);
 type(CCInteger)(ShadowsInfoProto, 'maxReceived', maxReceivedDescriptor);
 const shadowMapSizeDescriptor = Object.getOwnPropertyDescriptor(ShadowsInfoProto, 'shadowMapSize');
-visible(function (this) { /* Need to copy source code */ })(ShadowsInfoProto, 'shadowMapSize', shadowMapSizeDescriptor);
+visible(checkFieldIs("_type", ShadowType.ShadowMap))(ShadowsInfoProto, 'shadowMapSize', shadowMapSizeDescriptor);
 tooltip('i18n:shadow.shadowMapSize')(ShadowsInfoProto, 'shadowMapSize', shadowMapSizeDescriptor);
 type(ShadowSize)(ShadowsInfoProto, 'shadowMapSize', shadowMapSizeDescriptor);
 ccclass('cc.ShadowsInfo')(ShadowsInfo);
@@ -378,33 +400,33 @@ slide(FogInfoProto, 'fogDensity', fogDensityDescriptor);
 rangeStep(0.01)(FogInfoProto, 'fogDensity', fogDensityDescriptor);
 range([0, 1])(FogInfoProto, 'fogDensity', fogDensityDescriptor);
 type(CCFloat)(FogInfoProto, 'fogDensity', fogDensityDescriptor);
-visible(function (this) { /* Need to copy source code */ })(FogInfoProto, 'fogDensity', fogDensityDescriptor);
+visible(function () { this._type !== FogType.LAYERED && this._type !== FogType.LINEAR; })(FogInfoProto, 'fogDensity', fogDensityDescriptor);
 const fogStartDescriptor = Object.getOwnPropertyDescriptor(FogInfoProto, 'fogStart');
 tooltip('i18n:fog.fogStart')(FogInfoProto, 'fogStart', fogStartDescriptor);
 rangeStep(0.01)(FogInfoProto, 'fogStart', fogStartDescriptor);
 type(CCFloat)(FogInfoProto, 'fogStart', fogStartDescriptor);
-visible(function (this) { /* Need to copy source code */ })(FogInfoProto, 'fogStart', fogStartDescriptor);
+visible(checkFieldNot("_type", FogType.LAYERED))(FogInfoProto, 'fogStart', fogStartDescriptor);
 const fogEndDescriptor = Object.getOwnPropertyDescriptor(FogInfoProto, 'fogEnd');
 tooltip('i18n:fog.fogEnd')(FogInfoProto, 'fogEnd', fogEndDescriptor);
 rangeStep(0.01)(FogInfoProto, 'fogEnd', fogEndDescriptor);
 type(CCFloat)(FogInfoProto, 'fogEnd', fogEndDescriptor);
-visible(function (this) { /* Need to copy source code */ })(FogInfoProto, 'fogEnd', fogEndDescriptor);
+visible(checkFieldIs("_type", FogType.LINEAR))(FogInfoProto, 'fogEnd', fogEndDescriptor);
 const fogAttenDescriptor = Object.getOwnPropertyDescriptor(FogInfoProto, 'fogAtten');
 tooltip('i18n:fog.fogAtten')(FogInfoProto, 'fogAtten', fogAttenDescriptor);
 rangeStep(0.01)(FogInfoProto, 'fogAtten', fogAttenDescriptor);
 rangeMin(0.01)(FogInfoProto, 'fogAtten', fogAttenDescriptor);
 type(CCFloat)(FogInfoProto, 'fogAtten', fogAttenDescriptor);
-visible(function (this) { /* Need to copy source code */ })(FogInfoProto, 'fogAtten', fogAttenDescriptor);
+visible(checkFieldNot("_type", FogType.LINEAR))(FogInfoProto, 'fogAtten', fogAttenDescriptor);
 const fogTopDescriptor = Object.getOwnPropertyDescriptor(FogInfoProto, 'fogTop');
 tooltip('i18n:fog.fogTop')(FogInfoProto, 'fogTop', fogTopDescriptor);
 rangeStep(0.01)(FogInfoProto, 'fogTop', fogTopDescriptor);
 type(CCFloat)(FogInfoProto, 'fogTop', fogTopDescriptor);
-visible(function (this) { /* Need to copy source code */ })(FogInfoProto, 'fogTop', fogTopDescriptor);
+visible(checkFieldIs("_type", FogType.LAYERED))(FogInfoProto, 'fogTop', fogTopDescriptor);
 const fogRangeDescriptor = Object.getOwnPropertyDescriptor(FogInfoProto, 'fogRange');
 tooltip('i18n:fog.fogRange')(FogInfoProto, 'fogRange', fogRangeDescriptor);
 rangeStep(0.01)(FogInfoProto, 'fogRange', fogRangeDescriptor);
 type(CCFloat)(FogInfoProto, 'fogRange', fogRangeDescriptor);
-visible(function (this) { /* Need to copy source code */ })(FogInfoProto, 'fogRange', fogRangeDescriptor);
+visible(checkFieldIs("_type", FogType.LAYERED))(FogInfoProto, 'fogRange', fogRangeDescriptor);
 ccclass('cc.FogInfo')(FogInfo);
 
 const SkyboxInfoProto = SkyboxInfo.prototype;
@@ -445,7 +467,7 @@ displayOrder(100)(SkyboxInfoProto, 'diffuseMap', diffuseMapDescriptor);
 type(TextureCube)(SkyboxInfoProto, 'diffuseMap', diffuseMapDescriptor);
 readOnly(SkyboxInfoProto, 'diffuseMap', diffuseMapDescriptor);
 editable(SkyboxInfoProto, 'diffuseMap', diffuseMapDescriptor);
-visible(function (this) { /* Need to copy source code */ })(SkyboxInfoProto, 'diffuseMap', diffuseMapDescriptor);
+visible(function () { return this.useIBL && this.applyDiffuseMap; })(SkyboxInfoProto, 'diffuseMap', diffuseMapDescriptor);
 const skyboxMaterialDescriptor = Object.getOwnPropertyDescriptor(SkyboxInfoProto, 'skyboxMaterial');
 tooltip('i18n:skybox.material')(SkyboxInfoProto, 'skyboxMaterial', skyboxMaterialDescriptor);
 type(Material)(SkyboxInfoProto, 'skyboxMaterial', skyboxMaterialDescriptor);
@@ -465,7 +487,7 @@ serializable(AmbientInfoProto, '_groundAlbedoLDR');
 const skyLightingColorDescriptor = Object.getOwnPropertyDescriptor(AmbientInfoProto, 'skyLightingColor');
 tooltip('i18n:ambient.skyLightingColor')(AmbientInfoProto, 'skyLightingColor', skyLightingColorDescriptor);
 editable(AmbientInfoProto, 'skyLightingColor', skyLightingColorDescriptor);
-visible(() => { /* Need to copy source code */ })(AmbientInfoProto, 'skyLightingColor', skyLightingColorDescriptor);
+visible(ambientSkyLightEnable)(AmbientInfoProto, 'skyLightingColor', skyLightingColorDescriptor);
 const skyIllumDescriptor = Object.getOwnPropertyDescriptor(AmbientInfoProto, 'skyIllum');
 tooltip('i18n:ambient.skyIllum')(AmbientInfoProto, 'skyIllum', skyIllumDescriptor);
 type(CCFloat)(AmbientInfoProto, 'skyIllum', skyIllumDescriptor);
@@ -473,7 +495,7 @@ editable(AmbientInfoProto, 'skyIllum', skyIllumDescriptor);
 const groundLightingColorDescriptor = Object.getOwnPropertyDescriptor(AmbientInfoProto, 'groundLightingColor');
 tooltip('i18n:ambient.groundLightingColor')(AmbientInfoProto, 'groundLightingColor', groundLightingColorDescriptor);
 editable(AmbientInfoProto, 'groundLightingColor', groundLightingColorDescriptor);
-visible(() => { /* Need to copy source code */ })(AmbientInfoProto, 'groundLightingColor', groundLightingColorDescriptor);
+visible(ambientSkyLightEnable)(AmbientInfoProto, 'groundLightingColor', groundLightingColorDescriptor);
 ccclass('cc.AmbientInfo')(AmbientInfo);
 
 const LightProbeInfoProto = LightProbeInfo.prototype;

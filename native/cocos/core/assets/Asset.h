@@ -38,7 +38,7 @@ namespace cc {
 
 class Node;
 
-class Asset : public CCObject, public event::EventTarget {
+class Asset : public CCObject {
 public:
     using Super = CCObject;
 
