@@ -28,8 +28,8 @@
 #include "bindings/jswrapper/napi/HelperMacros.h"
 #include "platform/openharmony/modules/SystemWindow.h"
 #include "platform/openharmony/FileUtils-OpenHarmony.h"
-#include "ui/edit-box/EditBox.h"
 #include "bindings/jswrapper/SeApi.h"
+#include "ui/edit-box/EditBox.h"
 
 namespace cc {
 const int32_t kMaxStringLen = 512;

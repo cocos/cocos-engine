@@ -3,7 +3,7 @@ import nativerender from "libcocos.so";
 import { WorkerManager } from '../cocos/WorkerManager'
 import { ContextType } from "../common/Constants"
 import featureAbility from '@ohos.ability.featureAbility'
-import { IMEDialog } from '../components/IMEDialog'
+import { EditBoxDialog } from '../components/EditBoxDialog'
 const nativePageLifecycle = nativerender.getContext(ContextType.JSPAGE_LIFECYCLE);
 const engineUtils = nativerender.getContext(ContextType.ENGINE_UTILS);
 
@@ -13,7 +13,7 @@ struct Index {
   @State showMessage: string = ''
   cocosWorker = WorkerManager.getInstance().getWorker();
   dialogController: CustomDialogController = new CustomDialogController({
-    builder: IMEDialog({
+    builder: EditBoxDialog({
       showMessage: this.showMessage,
       onTextChange: (msg: string) => {
         this.showMessage = msg;

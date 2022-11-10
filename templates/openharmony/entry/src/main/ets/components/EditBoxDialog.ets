@@ -1,5 +1,5 @@
 @CustomDialog
-export struct IMEDialog {
+export struct EditBoxDialog {
   private showMessage: string = ''
   private inputMessage: string = ''
   onTextChange: (msg: string) => void
