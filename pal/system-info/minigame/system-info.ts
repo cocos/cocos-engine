@@ -67,7 +67,8 @@ class SystemInfo extends EventTarget {
         this.language = minigameSysInfo.language.substr(0, 2) as Language;
 
         // init os, osVersion and osMainVersion
-        const minigamePlatform = minigameSysInfo.platform.toLocaleLowerCase();
+        // FIXME: toLocaleLowerCase not implemented in wehchat, need to consider ios and etc.
+        const minigamePlatform = 'android';
         if (minigamePlatform === 'android') {
             this.os = OS.ANDROID;
         } else if (minigamePlatform === 'ios') {
@@ -138,12 +139,13 @@ class SystemInfo extends EventTarget {
     }
 
     private _registerEvent () {
-        minigame.onHide(() => {
-            this.emit('hide');
-        });
-        minigame.onShow(() => {
-            this.emit('show');
-        });
+        // onHide & onShow not implemented in wechat
+        // minigame.onHide(() => {
+        //     this.emit('hide');
+        // });
+        // minigame.onShow(() => {
+        //     this.emit('show');
+        // });
     }
 
     public hasFeature (feature: Feature): boolean {
