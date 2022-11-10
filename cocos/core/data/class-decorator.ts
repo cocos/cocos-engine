@@ -35,3 +35,4 @@ export { type, integer, float, boolean, string } from './decorators/type';
 export { editable, tooltip, visible, displayName, displayOrder, range, rangeStep, slide, disallowAnimation } from './decorators/editable';
 export { override } from './decorators/override';
 export { formerlySerializedAs, serializable } from './decorators/serializable';
+export { experimental } from './decorators/experimental';

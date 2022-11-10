@@ -4,6 +4,10 @@
 
 %s not yet implemented.
 
+### 0101
+
+%s.%s is an experimental method. Use it with caution. We're looking forward to your feedback!
+
 ### 0200
 
 You should specify a valid DOM canvas element.

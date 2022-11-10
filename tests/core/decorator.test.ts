@@ -11,6 +11,8 @@ import {
 } from '../../cocos/core/data/decorators';
 import { CCClass } from '../../cocos/core/data/class';
 import { property } from '../../cocos/core/data/decorators/property';
+import { experimental } from '../../cocos/core/data/class-decorator';
+import { captureWarnIDs } from '../utils/log-capture';
 
 describe(`Decorators`, () => {
     test('@uniquelyReferenced', () => {
@@ -232,4 +234,53 @@ describe(`Decorators`, () => {
 
         expect(CCClass.Attr.attr(Tooltip, 'boo').tooltip).toBe('i18n:ENGINE.model.shadow_normal_bias');
     });
+
+    test('@experimental', () => {
+        const warnWatcher = captureWarnIDs();
+
+        class Meow {
+            @experimental
+            public fn(...args: unknown[]) {
+                return this._mock.apply(this, args);
+            }
+
+            public callFnAndCheck(...args: Parameters<Meow['fn']>) {
+                expect(this._mock).not.toBeCalled();
+
+                this.fn(...args);
+
+                expect(this._mock).toBeCalledTimes(1);
+                expect(this._mock.mock.calls[0]).toEqual(args);
+
+                this._mock.mockClear();
+            }
+
+            private _mock = jest.fn<Meow, [number, string]>();
+        }
+
+        const meow1 = new Meow();
+
+        // The first call.
+        meow1.callFnAndCheck(1, 'a');
+        // Warn should be emitted.
+        expect(warnWatcher.captured).toHaveLength(1);
+        expect(warnWatcher.captured[0]).toEqual([101, 'Meow', 'fn']);
+        warnWatcher.clear();
+        
+        // Later calls on the same object.
+        meow1.callFnAndCheck(2, 'b');
+        // No more warns.
+        expect(warnWatcher.captured).toHaveLength(0);
+
+        // Do it again.
+        meow1.callFnAndCheck(3, 'c');
+        // No more warns.
+        expect(warnWatcher.captured).toHaveLength(0);
+
+        // Create another instance. It should not bother.
+        const meow2 = new Meow();
+        meow2.callFnAndCheck(4, 'd');
+        // No more warns.
+        expect(warnWatcher.captured).toHaveLength(0);
+    })
 });
