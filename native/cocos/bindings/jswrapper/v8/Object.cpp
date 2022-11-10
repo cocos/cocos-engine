@@ -819,7 +819,7 @@ bool Object::removeMapElement(const Value &key) { // NOLINT
     return ret.IsJust() && ret.FromJust();
 }
 
-bool Object::getMapElement(const Value &key, Value * const outValue) const {
+bool Object::getMapElement(const Value &key, Value *const outValue) const {
     CC_ASSERT(isMap());
     if (outValue == nullptr) {
         return false;
