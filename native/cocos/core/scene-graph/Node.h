@@ -51,7 +51,7 @@ class Scene;
  */
 using TransformDirtyBit = TransformBit;
 
-class Node : public CCObject, public event::EventTarget {
+class Node : public CCObject {
     IMPL_EVENT_TARGET_WITH_PARENT(Node, getParent)
     DECLARE_TARGET_EVENT_BEGIN(Node)
     TARGET_EVENT_ARG0(TouchStart)

@@ -38,5 +38,5 @@
 #include "physics/physx/shapes/PhysXTerrain.h"
 #include "physics/physx/shapes/PhysXTrimesh.h"
 
-#include "physics/physx/joints/PhysXDistance.h"
+#include "physics/physx/joints/PhysXSpherical.h"
 #include "physics/physx/joints/PhysXRevolute.h"

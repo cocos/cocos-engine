@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -25,28 +25,28 @@
 
 #pragma once
 
-#include "physics/physx/joints/PhysXJoint.h"
+#include "base/std/container/unordered_map.h"
+#include "platform/interfaces/modules/ISystemWindowManager.h"
+
 
 namespace cc {
-namespace physics {
 
-class PhysXDistance final : public PhysXJoint, public IDistanceJoint {
+class ISystemWindow;
+
+class SystemWindowManager : public ISystemWindowManager {
 public:
-    PhysXDistance() : _mPivotA(physx::PxZero),
-                      _mPivotB(physx::PxZero){};
+    explicit SystemWindowManager() = default;
 
-    ~PhysXDistance() override = default;
-    void setPivotA(float x, float y, float z) override;
-    void setPivotB(float x, float y, float z) override;
-    void updateScale0() override;
-    void updateScale1() override;
+    int init() override;
+    void processEvent(bool* quit) override;
+    void swapWindows() override;
+
+    ISystemWindow *createWindow(const ISystemWindowInfo &info) override;
+    ISystemWindow *getWindow(uint32_t windowId) const override;
+    const SystemWindowMap &getWindows() const override { return _windows; }
 
 private:
-    void onComponentSet() override;
-    void updatePose();
-    physx::PxVec3 _mPivotA;
-    physx::PxVec3 _mPivotB;
+    uint32_t _nextWindowId{1}; // start from 1, 0 means an invalid ID
+    SystemWindowMap _windows;
 };
-
-} // namespace physics
 } // namespace cc
