@@ -80,7 +80,6 @@ bool CCMTLDevice::doInit(const DeviceInfo &info) {
     _mtlDevice = mtlDevice;
 
     NSString *deviceName = [mtlDevice name];
-    _deviceName = "Metal";
     _renderer = [deviceName UTF8String];
     NSArray* nameArr = [deviceName componentsSeparatedByString:@" "];
     if ([nameArr count] > 0) {
