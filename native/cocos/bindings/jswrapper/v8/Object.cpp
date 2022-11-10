@@ -806,12 +806,12 @@ bool Object::getAllKeys(ccstd::vector<ccstd::string> *allKeys) const {
     return true;
 }
 
-void Object::clearMap() {
+void Object::clearMap() { // NOLINT
     CC_ASSERT(isMap());
     v8::Map::Cast(*_getJSObject())->Clear();
 }
 
-bool Object::removeMapElement(const Value &key) {
+bool Object::removeMapElement(const Value &key) { // NOLINT
     CC_ASSERT(isMap());
     v8::Local<v8::Value> v8Key;
     internal::seToJsValue(__isolate, key, &v8Key);
@@ -819,7 +819,7 @@ bool Object::removeMapElement(const Value &key) {
     return ret.IsJust() && ret.FromJust();
 }
 
-bool Object::getMapElement(const Value &key, Value *outValue) {
+bool Object::getMapElement(const Value &key, Value * const outValue) const {
     CC_ASSERT(isMap());
     if (outValue == nullptr) {
         return false;
@@ -829,6 +829,7 @@ bool Object::getMapElement(const Value &key, Value *outValue) {
     internal::seToJsValue(__isolate, key, &v8Key);
     v8::MaybeLocal<v8::Value> ret = v8::Map::Cast(*_getJSObject())->Get(__isolate->GetCurrentContext(), v8Key);
     if (ret.IsEmpty()) {
+        outValue->setUndefined();
         return false;
     }
 
@@ -889,12 +890,12 @@ ccstd::vector<std::pair<Value, Value>> Object::getAllElementsInMap() const {
     return ret;
 }
 
-void Object::clearSet() {
+void Object::clearSet() { // NOLINT
     CC_ASSERT(isSet());
     v8::Set::Cast(*_getJSObject())->Clear();
 }
 
-bool Object::removeSetElement(const Value &value) {
+bool Object::removeSetElement(const Value &value) { // NOLINT
     CC_ASSERT(isSet());
     v8::Local<v8::Value> v8Value;
     internal::seToJsValue(__isolate, value, &v8Value);
@@ -902,12 +903,20 @@ bool Object::removeSetElement(const Value &value) {
     return ret.IsJust() && ret.FromJust();
 }
 
-bool Object::addSetElement(const Value &value) {
+bool Object::addSetElement(const Value &value) { // NOLINT
     CC_ASSERT(isSet());
     v8::Local<v8::Value> v8Value;
     internal::seToJsValue(__isolate, value, &v8Value);
     v8::MaybeLocal<v8::Set> ret = v8::Set::Cast(*_getJSObject())->Add(__isolate->GetCurrentContext(), v8Value);
     return !ret.IsEmpty();
+}
+
+bool Object::isElementInSet(const Value &value) const {
+    CC_ASSERT(isSet());
+    v8::Local<v8::Value> v8Value;
+    internal::seToJsValue(__isolate, value, &v8Value);
+    v8::Maybe<bool> ret = v8::Set::Cast(*_getJSObject())->Has(__isolate->GetCurrentContext(), v8Value);
+    return ret.IsJust() && ret.FromJust();
 }
 
 uint32_t Object::getSetSize() const {

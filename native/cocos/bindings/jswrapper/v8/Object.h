@@ -368,7 +368,7 @@ public:
      *  @param[out] outValue Out parameter, On success, *outValue receives the current value of the map element, or nullptr if no such element is found
      *  @return true if succeed, otherwise false.
      */
-    bool getMapElement(const Value &key, Value *outValue);
+    bool getMapElement(const Value &key, Value * const outValue) const;
 
     /**
      *  @brief Set an element in a ES6 map by a key.
@@ -410,6 +410,12 @@ public:
      *  @return true if succeed, otherwise false.
      */
     bool addSetElement(const Value &value);
+
+    /**
+     *  @brief Check whether the value is in a ES6 set.
+     *  @return true if the value is in the ES6 set, otherwise false.
+     */
+    bool isElementInSet(const Value &value) const;
 
     /**
      *  @brief Get the size of a ES6 set.
