@@ -301,8 +301,8 @@ struct alignas(32) DrawInstance {
     uint32_t priority{0};
     uint32_t hash{0};
     float depth{0};
-    uint32_t haderID{0};
-    uint32_t assIndex{0};
+    uint32_t shaderID{0};
+    uint32_t passIndex{0};
 };
 
 struct RenderDrawQueue {
@@ -321,7 +321,8 @@ struct RenderDrawQueue {
     RenderDrawQueue& operator=(RenderDrawQueue const& rhs) = default;
 
     void add(const scene::Model& model, float depth, uint32_t subModelIdx, uint32_t passIdx);
-    void sort();
+    void sortOpaqueOrCutout();
+    void sortTransparent();
     void recordCommandBuffer(gfx::Device *device, const scene::Camera *camera,
         gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer,
         uint32_t subpassIndex) const;
@@ -343,6 +344,8 @@ struct NativeRenderQueue {
     NativeRenderQueue(NativeRenderQueue const& rhs) = delete;
     NativeRenderQueue& operator=(NativeRenderQueue&& rhs) = default;
     NativeRenderQueue& operator=(NativeRenderQueue const& rhs) = delete;
+
+    void sort();
 
     RenderDrawQueue opaqueQueue;
     RenderDrawQueue transparentQueue;

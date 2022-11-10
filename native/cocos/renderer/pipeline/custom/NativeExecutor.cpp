@@ -754,7 +754,7 @@ void addRenderObject(
     const auto subModelCount = subModels.size();
     for (uint32_t subModelIdx = 0; subModelIdx < subModelCount; ++subModelIdx) {
         const auto& subModel = subModels[subModelIdx];
-        auto& passes = subModel->getPasses();
+        const auto& passes = subModel->getPasses();
         const auto passCount = passes.size();
         for (uint32_t passIdx = 0; passIdx < passCount; ++passIdx) {
             auto& pass = *passes[passIdx];
@@ -780,16 +780,11 @@ void addRenderObject(
                     queue.opaqueInstancingQueue.add(instancedBuffer);
                 }
             } else {
+                const float depth = computeSortingDepth(camera, model);
                 if (bTransparent) {
-                    queue.transparentQueue.add(
-                        model,
-                        computeSortingDepth(camera, model),
-                        subModelIdx, passIdx);
+                    queue.transparentQueue.add(model, depth, subModelIdx, passIdx);
                 } else {
-                    queue.opaqueQueue.add(
-                        model,
-                        computeSortingDepth(camera, model),
-                        subModelIdx, passIdx);
+                    queue.opaqueQueue.add(model, depth, subModelIdx, passIdx);
                 }
             }
         }
@@ -862,6 +857,7 @@ void frustumCulling(
         // add render objects
         if (isInstanceVisible(model, visibility)) {
             const auto* modelWorldBounds = model.getWorldBounds();
+            // object has no volume
             if (!modelWorldBounds) {
                 addRenderObject(camera, model, queue);
                 continue;
@@ -892,6 +888,16 @@ void mergeSceneFlags(
     }
 }
 
+void extendResourceLifetime(const NativeRenderQueue& queue, ResourceGroup& group) {
+    // keep instanceBuffers
+    for (const auto& batch : queue.opaqueInstancingQueue.batches) {
+        group.instancingBuffers.emplace(batch);
+    }
+    for (const auto& batch : queue.transparentInstancingQueue.batches) {
+        group.instancingBuffers.emplace(batch);
+    }
+}
+
 void buildRenderQueues(
     NativeRenderContext& context,
     ccstd::pmr::unordered_map<
@@ -916,13 +922,9 @@ void buildRenderQueues(
             }
             pipeline::LODModelsCachedUtils::clearCachedLODModels();
 
-            // keep instanceBuffers
-            for (const auto& batch : queue.opaqueInstancingQueue.batches) {
-                group.instancingBuffers.emplace(batch);
-            }
-            for (const auto& batch : queue.transparentInstancingQueue.batches) {
-                group.instancingBuffers.emplace(batch);
-            }
+            queue.sort();
+
+            extendResourceLifetime(queue, group);
         }
     }
 }
@@ -973,10 +975,22 @@ void NativePipeline::executeRenderGraph(const RenderGraph& rg) {
 
     // Execute all valid passes
     {
-        boost::filtered_graph<AddressableView<RenderGraph>, boost::keep_all, RenderGraphFilter>
+        boost::filtered_graph<
+            AddressableView<RenderGraph>,
+            boost::keep_all, RenderGraphFilter>
             fg(graphView, boost::keep_all{}, RenderGraphFilter{&validPasses});
 
         CommandSubmitter submit(ppl.device, ppl.getCommandBuffers());
+
+        // upload buffers
+        for (const auto& [scene, queues] : sceneQueues) {
+            for (const auto& [camera, queue] : queues) {
+                queue.opaqueInstancingQueue.uploadBuffers(submit.primaryCommandBuffer);
+                queue.transparentInstancingQueue.uploadBuffers(submit.primaryCommandBuffer);
+            }
+        }
+
+        // submit commands
         RenderGraphVisitorContext ctx(
             ppl.nativeContext, rg, ppl.resourceGraph,
             fgd, fgd.barrierMap,

@@ -9,12 +9,32 @@ namespace cc {
 
 namespace render {
 
+// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 void RenderDrawQueue::add(const scene::Model &model, float depth, uint32_t subModelIdx, uint32_t passIdx) {
+    const auto *subModel = model.getSubModels()[subModelIdx].get();
+    const auto *const pass = subModel->getPass(passIdx);
 
+    auto passPriority = static_cast<uint32_t>(pass->getPriority());
+    auto modelPriority = static_cast<uint32_t>(subModel->getPriority());
+    auto shaderId = static_cast<uint32_t>(reinterpret_cast<uintptr_t>(subModel->getShader(passIdx)));
+    const auto hash = (0 << 30) | (passPriority << 16) | (modelPriority << 8) | passIdx;
+    const auto priority = model.getPriority();
+
+    instances.emplace_back(DrawInstance{subModel, priority, hash, depth, shaderId, passIdx});
 }
 
-void RenderDrawQueue::sort() {
+void RenderDrawQueue::sortOpaqueOrCutout() {
+    std::sort(instances.begin(), instances.end(), [](const DrawInstance &lhs, const DrawInstance &rhs) {
+        return std::forward_as_tuple(lhs.hash, lhs.depth, lhs.shaderID) <
+               std::forward_as_tuple(rhs.hash, rhs.depth, rhs.shaderID);
+    });
+}
 
+void RenderDrawQueue::sortTransparent() {
+    std::sort(instances.begin(), instances.end(), [](const DrawInstance &lhs, const DrawInstance &rhs) {
+        return std::forward_as_tuple(lhs.priority, lhs.hash, -lhs.depth, lhs.shaderID) <
+               std::forward_as_tuple(rhs.priority, rhs.hash, -rhs.depth, rhs.shaderID);
+    });
 }
 
 void RenderDrawQueue::recordCommandBuffer(
@@ -30,11 +50,6 @@ void RenderInstancingQueue::add(pipeline::InstancedBuffer &instancedBuffer) {
 void RenderInstancingQueue::sort() {
     sortedBatches.reserve(batches.size());
     std::copy(batches.begin(), batches.end(), std::back_inserter(sortedBatches));
-    std::stable_partition(
-        sortedBatches.begin(), sortedBatches.end(),
-        [](const pipeline::InstancedBuffer *instance) {
-            return instance->getPass()->getBlendState()->targets[0].blend == 0;
-        });
 }
 
 void RenderInstancingQueue::uploadBuffers(gfx::CommandBuffer *cmdBuffer) const {
@@ -79,6 +94,13 @@ void RenderInstancingQueue::recordCommandBuffer(
             cmdBuffer->draw(instance.ia);
         }
     }
+}
+
+void NativeRenderQueue::sort() {
+    opaqueQueue.sortOpaqueOrCutout();
+    transparentQueue.sortTransparent();
+    opaqueInstancingQueue.sort();
+    transparentInstancingQueue.sort();
 }
 
 } // namespace render
