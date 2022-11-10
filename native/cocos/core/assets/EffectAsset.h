@@ -38,6 +38,7 @@
 #include "renderer/gfx-base/GFXDef.h"
 #include "renderer/pipeline/Define.h"
 
+
 namespace cc {
 
 using IPropertyHandleInfo = std::tuple<ccstd::string, uint32_t, gfx::Type>;
@@ -401,7 +402,6 @@ struct IBlockInfo {
     ccstd::string name;
     ccstd::vector<gfx::Uniform> members;
     gfx::ShaderStageFlags stageFlags{gfx::ShaderStageFlags::NONE};
-    gfx::ResourceUpdateRate updateRate{gfx::ResourceUpdateRate::PER_BATCH};
 };
 
 struct ISamplerTextureInfo {
@@ -410,7 +410,6 @@ struct ISamplerTextureInfo {
     gfx::Type type{gfx::Type::UNKNOWN};
     uint32_t count{0};
     gfx::ShaderStageFlags stageFlags{gfx::ShaderStageFlags::NONE};
-    gfx::ResourceUpdateRate updateRate{gfx::ResourceUpdateRate::PER_BATCH};
 };
 
 struct ITextureInfo {
@@ -420,7 +419,6 @@ struct ITextureInfo {
     gfx::Type type{gfx::Type::UNKNOWN};
     uint32_t count{0};
     gfx::ShaderStageFlags stageFlags{gfx::ShaderStageFlags::NONE};
-    gfx::ResourceUpdateRate updateRate{gfx::ResourceUpdateRate::PER_BATCH};
 };
 
 struct ISamplerInfo {
@@ -429,7 +427,6 @@ struct ISamplerInfo {
     ccstd::string name;
     uint32_t count{0};
     gfx::ShaderStageFlags stageFlags{gfx::ShaderStageFlags::NONE};
-    gfx::ResourceUpdateRate updateRate{gfx::ResourceUpdateRate::PER_BATCH};
 };
 
 struct IBufferInfo {
@@ -437,7 +434,6 @@ struct IBufferInfo {
     ccstd::string name;
     gfx::MemoryAccess memoryAccess{gfx::MemoryAccess::NONE};
     gfx::ShaderStageFlags stageFlags{gfx::ShaderStageFlags::NONE};
-    gfx::ResourceUpdateRate updateRate{gfx::ResourceUpdateRate::PER_BATCH};
 };
 
 struct IImageInfo {
@@ -447,7 +443,6 @@ struct IImageInfo {
     uint32_t count{0};
     gfx::MemoryAccess memoryAccess{gfx::MemoryAccess::NONE};
     gfx::ShaderStageFlags stageFlags{gfx::ShaderStageFlags::NONE};
-    gfx::ResourceUpdateRate updateRate{gfx::ResourceUpdateRate::PER_BATCH};
 };
 
 struct IInputAttachmentInfo {
@@ -456,7 +451,6 @@ struct IInputAttachmentInfo {
     ccstd::string name;
     uint32_t count{0};
     gfx::ShaderStageFlags stageFlags{gfx::ShaderStageFlags::NONE};
-    gfx::ResourceUpdateRate updateRate{gfx::ResourceUpdateRate::PER_BATCH};
 };
 
 struct IAttributeInfo {

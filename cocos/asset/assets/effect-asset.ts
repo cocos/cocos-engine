@@ -26,10 +26,8 @@
 import { ccclass, serializable, editable, editorOnly } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { Root } from '../../root';
-import {
-    BlendState, DepthStencilState, RasterizerState,
-    DynamicStateFlags, PrimitiveMode, ShaderStageFlags, Type, Uniform, MemoryAccess, Format, deviceManager, ResourceUpdateRate,
-} from '../../gfx';
+import { BlendState, DepthStencilState, RasterizerState,
+    DynamicStateFlags, PrimitiveMode, ShaderStageFlags, Type, Uniform, MemoryAccess, Format, deviceManager, ShaderInfo } from '../../gfx';
 import { RenderPassStage } from '../../rendering/define';
 import { MacroRecord } from '../../render-scene/core/pass-utils';
 import { programLib } from '../../render-scene/core/program-lib';
@@ -73,7 +71,6 @@ export declare namespace EffectAsset {
         name: string;
         members: Uniform[];
         stageFlags: ShaderStageFlags;
-        updateRate: ResourceUpdateRate;
     }
     export interface ISamplerTextureInfo {
         binding: number;
@@ -81,7 +78,6 @@ export declare namespace EffectAsset {
         type: Type;
         count: number;
         stageFlags: ShaderStageFlags;
-        updateRate: ResourceUpdateRate;
     }
     export interface ISamplerInfo {
         set: number;
@@ -89,7 +85,6 @@ export declare namespace EffectAsset {
         name: string;
         count: number;
         stageFlags: ShaderStageFlags;
-        updateRate: ResourceUpdateRate;
     }
     export interface ITextureInfo {
         set: number;
@@ -98,14 +93,12 @@ export declare namespace EffectAsset {
         type: Type;
         count: number;
         stageFlags: ShaderStageFlags;
-        updateRate: ResourceUpdateRate;
     }
     export interface IBufferInfo {
         binding: number;
         name: string;
         memoryAccess: MemoryAccess;
         stageFlags: ShaderStageFlags;
-        updateRate: ResourceUpdateRate;
     }
     export interface IImageInfo {
         binding: number;
@@ -114,7 +107,6 @@ export declare namespace EffectAsset {
         count: number;
         memoryAccess: MemoryAccess;
         stageFlags: ShaderStageFlags;
-        updateRate: ResourceUpdateRate;
     }
 
     export interface IInputAttachmentInfo {
@@ -123,7 +115,6 @@ export declare namespace EffectAsset {
         name: string;
         count: number;
         stageFlags: ShaderStageFlags;
-        updateRate: ResourceUpdateRate;
     }
     export interface IAttributeInfo {
         name: string;
