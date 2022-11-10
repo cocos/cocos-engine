@@ -399,6 +399,36 @@ CCProgram ray-query-fs %{
     return hitRecord;
   }
 
+  vec3 calculate_diffuse(in int frame_id,in float seed,in mat3 TBN,in vec3 point,in StandardSurface s){
+    vec3 result = vec3(0.0);
+    const int SAMPLES = 1;
+    const ivec2 tile_offset[4] = {ivec2(0,0),ivec2(0,1),ivec2(1,0),ivec2(1,1)};
+    bool should_trace = mod(vec2(ivec2(gl_FragCoord.xy+tile_offset[frame_id])),2)==vec2(0,0);
+    if(true){
+      rayQueryEXT rayQuery;
+      for(int i = 0;i<SAMPLES;++i){
+        seed = hash1(seed);
+        //seed = blue_noise2(gl_FragCoord.xy);
+        vec3 direction = TBN*random_in_unit_hemisphere_cosine(seed);
+        rayQueryInitializeEXT(rayQuery, cc_topLevelAS,gl_RayFlagsOpaqueEXT, 0xFF, point, 0.2, direction, 1000.0);
+        while(rayQueryProceedEXT(rayQuery));
+        if(rayQueryGetIntersectionTypeEXT(rayQuery, true) != gl_RayQueryCommittedIntersectionNoneEXT)
+        {
+          HitRecord hit = getHitRecordWorldSpace(rayQuery);
+          vec3 bitangent = cross(hit.normal, hit.tangent.xyz) * hit.tangent.w; 
+          float ao = calculate_ao(frame_id,seed,mat3(normalize(hit.tangent.xyz),normalize(bitangent), normalize(hit.normal)),hit.position,10.0);
+          result += hit.albedo*(1.0-ao);
+        }
+      }
+    }
+
+    if(SAMPLES > 0){
+      result /= float(SAMPLES);
+    }
+
+    return result;
+  }
+
   float sdfSphere(in vec3 p,vec3 center,float radius)
   {
     return length(p-center)-radius;
@@ -509,7 +539,7 @@ CCProgram ray-query-fs %{
     #endif
 
     HIGHP_VALUE_TO_STRUCT_DEFINED(v_position, s.position);
-
+    
     #if __VERSION__ >= 460
       float seed  = baseHash(uvec2(cc_time.w*gl_FragCoord.xy));
       vec3 origin = s.position;
@@ -518,11 +548,11 @@ CCProgram ray-query-fs %{
       int cc_time_int = int(cc_time.z);
       int frame_id = int(mod(float(cc_time_int),4));
 
+      vec3 direction = normalize(s.position-cc_cameraPos.xyz);
       rayQueryEXT rayQuery;
-      rayQueryInitializeEXT(rayQuery, cc_topLevelAS, gl_RayFlagsOpaqueEXT,0xFF,cc_cameraPos.xyz,0.01,normalize(s.position-cc_cameraPos.xyz),1000.0);
+      rayQueryInitializeEXT(rayQuery, cc_topLevelAS, gl_RayFlagsOpaqueEXT,0xFF,cc_cameraPos.xyz,0.01,direction,1000.0);
 
-      while(rayQueryProceedEXT(rayQuery)){
-      }
+      while(rayQueryProceedEXT(rayQuery));
 
       if(rayQueryGetIntersectionTypeEXT(rayQuery, true) != gl_RayQueryCommittedIntersectionNoneEXT){
         int hit_instance_id = rayQueryGetIntersectionInstanceCustomIndexEXT(rayQuery,true);
@@ -530,10 +560,31 @@ CCProgram ray-query-fs %{
         int hit_geom_id = rayQueryGetIntersectionGeometryIndexEXT(rayQuery,true);
         HitRecord hitRecordWS = getHitRecordWorldSpace(rayQuery);
         s.albedo.rgb = hitRecordWS.albedo;
+        if(hit_geom_id == 46){
+          /*
+          vec3 hitNormal = hitRecordWS.normal;
+          direction = reflect(direction,hitNormal);
+          rayQueryInitializeEXT(rayQuery, cc_topLevelAS, gl_RayFlagsOpaqueEXT,0xFF,hitRecordWS.position,0.01,direction,1000.0);
+          while(rayQueryProceedEXT(rayQuery));
+          if(rayQueryGetIntersectionTypeEXT(rayQuery, true) != gl_RayQueryCommittedIntersectionNoneEXT){
+            hitRecordWS = getHitRecordWorldSpace(rayQuery);
+            hitNormal = hitRecordWS.normal;
+            vec4 hitTangent = hitRecordWS.tangent;
+            vec3 bitangent = cross(hitNormal, hitTangent.xyz) * hitTangent.w;
+            TBN = mat3(normalize(hitTangent.xyz),normalize(bitangent), normalize(hitNormal));
+            s.albedo.rgb = hitRecordWS.albedo+calculate_diffuse(frame_id,seed,TBN,origin);
+          }else{
+            s.albedo.rgb = vec3(0.0,0.0,0.0);
+          }*/
+        }else{
+          s.albedo.rgb += calculate_diffuse(frame_id,seed,TBN,origin,s);
+        }
       }
-      float ao = calculate_ao(frame_id,seed,TBN,origin,10.0);
-      s.albedo *= (1.0 - ao);
+      //float ao = calculate_ao(frame_id,seed,TBN,origin,10.0);
+     
+      //s.albedo *= (1.0 - ao);
     #endif
+  
 
     vec4 pbr = pbrParams;
     #if USE_PBR_MAP
@@ -568,7 +619,7 @@ CCProgram ray-query-fs %{
     StandardSurface s;
     surf(s);
     #if __VERSION__ >=460
-      vec4 color = CCFragOutput(CCStandardShadingBaseShadowRay(s,normalize(cc_cameraPos.xyz - s.position),cc_topLevelAS));
+    vec4 color = CCFragOutput(CCStandardShadingBaseShadowRay(s,normalize(cc_cameraPos.xyz - s.position),cc_topLevelAS));
       //vec4 color = vec4(vec3(blue_noise2(gl_FragCoord.xy)),1.0);
     #else
       vec4 color = CCFragOutput(CCStandardShadingBase(s,CC_SHADOW_POSITION));

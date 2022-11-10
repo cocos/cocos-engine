@@ -625,7 +625,13 @@ enum class ShaderStageFlagBit : uint32_t {
     GEOMETRY = 0x8,
     FRAGMENT = 0x10,
     COMPUTE = 0x20,
-    ALL = 0x3f,
+    RAYGEN = 0x40,
+    MISS = 0x80,
+    CLOSEST_HIT = 0x100,
+    ANY_HIT = 0x200,
+    INTERSECTION = 0x400, 
+    CALLABLE = 0x800,
+    ALL = VERTEX | CONTROL | EVALUATION | GEOMETRY | FRAGMENT | COMPUTE | RAYGEN | MISS | CLOSEST_HIT | ANY_HIT | INTERSECTION | CALLABLE,
 };
 using ShaderStageFlags = ShaderStageFlagBit;
 CC_ENUM_BITWISE_OPERATORS(ShaderStageFlagBit);
@@ -1059,6 +1065,23 @@ struct DispatchInfo {
     EXPOSE_COPY_FN(DispatchInfo)
 };
 
+struct RayTracingInfo {
+    //Shader Binding Tables
+    IntrusivePtr<Buffer> rayGenSBT;
+    IntrusivePtr<Buffer> hitGroupSBT;
+    IntrusivePtr<Buffer> missSBT;
+    IntrusivePtr<Buffer> callableSBT; 
+    // Extent
+    uint32_t width{0};
+    uint32_t height{0};
+    uint32_t depth{1};
+    // Indirect
+    Buffer *indirectBuffer{nullptr}; // @ts-nullable
+    uint32_t indirectOffset{0};
+
+    EXPOSE_COPY_FN(RayTracingInfo)
+};
+
 using DispatchInfoList = ccstd::vector<DispatchInfo>;
 
 struct IndirectBuffer {
@@ -1276,6 +1299,7 @@ struct ASTriangleMesh {
     uint32_t indexCount;
     Buffer* vertexBuffer;
     Buffer* indexBuffer; 
+    uint64_t materialIndex;
 };
 
 struct ASAABB {
@@ -1287,13 +1311,14 @@ struct ASAABB {
     float maxX;
     float maxY;
     float maxZ;
+    uint64_t materialIndex;
 };
 
 struct ASInstance {
     Mat4 transform{};
     uint32_t instanceCustomIdx;
     uint32_t mask;
-    uint32_t shaderBindingTableRecordOffset;
+    uint32_t shaderBindingTableRecordOffset;//The index of the first geometry of the instance in the Hit Group SBT.
     GeometryInstanceFlags flags;
     AccelerationStructure *accelerationStructureRef;
 };

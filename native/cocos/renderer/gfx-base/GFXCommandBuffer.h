@@ -72,6 +72,7 @@ public:
     virtual void buildAccelerationStructure(AccelerationStructure *accel) = 0;
     virtual void updateAccelerationStructure(AccelerationStructure *accel) = 0;
     virtual void compactAccelerationStructure(AccelerationStructure *accel, AccelerationStructure *res) = 0;
+    virtual void traceRays(const RayTracingInfo &info) = 0;
 
     // barrier: excutionBarrier
     // bufferBarriers: array of BufferBarrier*, descriptions of access of buffers

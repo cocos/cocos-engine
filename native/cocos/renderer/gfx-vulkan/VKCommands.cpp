@@ -1150,6 +1150,93 @@ void cmdFuncCCVKCreateGraphicsPipelineState(CCVKDevice *device, CCVKGPUPipelineS
                                        1, &createInfo, nullptr, &gpuPipelineState->vkPipeline));
 }
 
+void cmdFuncCCVKCreateRayTracingPipelineState(CCVKDevice* device, CCVKGPUPipelineState* gpuPipelineState) {
+    static ccstd::vector<VkPipelineShaderStageCreateInfo> stageInfos;
+    static ccstd::vector<VkRayTracingShaderGroupCreateInfoKHR> groupInfos;
+    static ccstd::vector<VkDynamicState> dynamicStates;
+
+    VkRayTracingPipelineCreateInfoKHR createInfo{VK_STRUCTURE_TYPE_RAY_TRACING_PIPELINE_CREATE_INFO_KHR};
+
+    ///////////////////// Shader Stages /////////////////////
+    const auto &stages = gpuPipelineState->gpuShader->gpuStages;
+    const size_t stageCount = stages.size();
+
+    stageInfos.resize(stageCount, {VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO});
+    for (size_t i = 0U; i < stageCount; ++i) {
+        stageInfos[i].stage = mapVkShaderStageFlagBits(stages[i].type);
+        stageInfos[i].module = stages[i].vkShader;
+        stageInfos[i].pName = "main";
+    }
+    createInfo.stageCount = utils::toUint(stageCount);
+    createInfo.pStages = stageInfos.data();
+
+    ///////////////////// Groups /////////////////////
+    VkRayTracingShaderGroupCreateInfoKHR groupInfo{VK_STRUCTURE_TYPE_RAY_TRACING_SHADER_GROUP_CREATE_INFO_KHR};
+    
+    /*
+    * The shader stages stream must come in order:
+    * [raygens] -- [intersection(optional)|anyhit(optional)|closeHit] -- [misses]
+    */
+    for(size_t i = 0U; i<stageCount; ++i){
+        switch (stages[i].type)
+        {
+        case ShaderStageFlagBit::RAYGEN:
+        case ShaderStageFlagBit::MISS:
+            groupInfo.type = VK_RAY_TRACING_SHADER_GROUP_TYPE_GENERAL_KHR;
+            groupInfo.generalShader = utils::toUint(i);
+            groupInfo.closestHitShader = VK_SHADER_UNUSED_KHR;
+            groupInfo.anyHitShader = VK_SHADER_UNUSED_KHR;
+            groupInfo.intersectionShader = VK_SHADER_UNUSED_KHR;
+            groupInfos.push_back(groupInfo);
+            break;
+        case ShaderStageFlagBit::INTERSECTION:
+            groupInfo.type = VK_RAY_TRACING_SHADER_GROUP_TYPE_PROCEDURAL_HIT_GROUP_KHR;
+            groupInfo.generalShader = VK_SHADER_UNUSED_KHR;
+            groupInfo.intersectionShader = utils::toUint(i);
+            break;
+        case ShaderStageFlagBit::ANY_HIT:
+            groupInfo.generalShader = VK_SHADER_UNUSED_KHR;
+            groupInfo.anyHitShader = utils::toUint(i);
+            break;
+        case ShaderStageFlagBit::CLOSEST_HIT:
+            groupInfo.type = VK_RAY_TRACING_SHADER_GROUP_TYPE_TRIANGLES_HIT_GROUP_KHR;
+            groupInfo.generalShader = VK_SHADER_UNUSED_KHR;
+            groupInfo.closestHitShader = utils::toUint(i);
+            groupInfos.push_back(groupInfo);
+            //set default
+            groupInfo.type = VK_RAY_TRACING_SHADER_GROUP_TYPE_TRIANGLES_HIT_GROUP_KHR;
+            groupInfo.generalShader = VK_SHADER_UNUSED_KHR;
+            groupInfo.anyHitShader = VK_SHADER_UNUSED_KHR;
+            groupInfo.closestHitShader = VK_SHADER_UNUSED_KHR;
+            groupInfo.intersectionShader = VK_SHADER_UNUSED_KHR;
+            break;
+        default:
+            break;
+        }
+    }
+
+    const size_t groupCount = groupInfos.size();
+    createInfo.groupCount = utils::toUint(groupCount);
+    createInfo.pGroups = groupInfos.data();
+
+    ///////////////////// Max Recursion Depth /////////////////////
+    createInfo.maxPipelineRayRecursionDepth = 3;
+    
+    ///////////////////// Dynamic State //////////////////////////
+    dynamicStates.assign({VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR});
+    insertVkDynamicStates(&dynamicStates, gpuPipelineState->dynamicStates);
+    VkPipelineDynamicStateCreateInfo dynamicState{VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO};
+    dynamicState.dynamicStateCount = utils::toUint(dynamicStates.size());
+    dynamicState.pDynamicStates = dynamicStates.data();
+    createInfo.pDynamicState = &dynamicState;
+
+    ///////////////////// Layout /////////////////////
+    createInfo.layout = gpuPipelineState->gpuPipelineLayout->vkPipelineLayout;
+
+    VK_CHECK(vkCreateRayTracingPipelinesKHR(device->gpuDevice()->vkDevice,VK_NULL_HANDLE,device->gpuDevice()->vkPipelineCache,1,&createInfo,nullptr,&gpuPipelineState->vkPipeline));
+}
+
+
 void cmdFuncCCVKCreateGeneralBarrier(CCVKDevice * /*device*/, CCVKGPUGeneralBarrier *gpuGeneralBarrier) {
     gpuGeneralBarrier->barrier.prevAccessCount = utils::toUint(gpuGeneralBarrier->prevAccesses.size());
     gpuGeneralBarrier->barrier.pPrevAccesses = gpuGeneralBarrier->prevAccesses.data();

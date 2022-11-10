@@ -329,6 +329,12 @@ VkShaderStageFlagBits mapVkShaderStageFlagBits(ShaderStageFlagBit stage) {
         case ShaderStageFlagBit::GEOMETRY: return VK_SHADER_STAGE_GEOMETRY_BIT;
         case ShaderStageFlagBit::FRAGMENT: return VK_SHADER_STAGE_FRAGMENT_BIT;
         case ShaderStageFlagBit::COMPUTE: return VK_SHADER_STAGE_COMPUTE_BIT;
+        case ShaderStageFlagBit::RAYGEN: return VK_SHADER_STAGE_RAYGEN_BIT_KHR;
+        case ShaderStageFlagBit::ANY_HIT: return VK_SHADER_STAGE_ANY_HIT_BIT_KHR;
+        case ShaderStageFlagBit::CLOSEST_HIT: return VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR;
+        case ShaderStageFlagBit::MISS: return VK_SHADER_STAGE_MISS_BIT_KHR;
+        case ShaderStageFlagBit::INTERSECTION: return VK_SHADER_STAGE_INTERSECTION_BIT_KHR;
+        case ShaderStageFlagBit::CALLABLE: return VK_SHADER_STAGE_CALLABLE_BIT_KHR;
         default: {
             CC_ASSERT(false);
             return VK_SHADER_STAGE_VERTEX_BIT;

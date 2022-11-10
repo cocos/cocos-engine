@@ -805,5 +805,34 @@ void CCVKCommandBuffer::compactAccelerationStructure(AccelerationStructure *acce
     cmdFuncCCVKCompactAccelerationStructure(CCVKDevice::getInstance(), gpuAccel, resAccel,_gpuCommandBuffer);
 }
 
+void CCVKCommandBuffer::traceRays(const RayTracingInfo &info) {
+    if (_firstDirtyDescriptorSet < _curGPUDescriptorSets.size()) {
+        bindDescriptorSets(VK_PIPELINE_BIND_POINT_RAY_TRACING_KHR);
+    }
+
+    if(info.indirectBuffer){
+        //todo
+    }else{
+        
+        const VkStridedDeviceAddressRegionKHR rayGenSBT = {info.rayGenSBT->getDeviceAddress(),info.rayGenSBT->getStride(),info.rayGenSBT->getSize()};
+        
+        const VkStridedDeviceAddressRegionKHR hitGroupSBT = {info.hitGroupSBT->getDeviceAddress(),info.hitGroupSBT->getStride(),info.hitGroupSBT->getSize()};
+
+        const VkStridedDeviceAddressRegionKHR missSBT = {info.missSBT->getDeviceAddress(),info.missSBT->getStride(),info.missSBT->getSize()};
+
+        const VkStridedDeviceAddressRegionKHR callableSBT = {info.callableSBT->getDeviceAddress(),info.callableSBT->getStride(),info.callableSBT->getSize()};
+
+        /*
+         * The ray tracing pipeline
+         * Index of the group to start from
+         * The number of groups
+         * output buffer
+        */
+        //vkGetRayTracingShaderGroupHandlesKHR(CCVKDevice::getInstance()->gpuDevice()->vkDevice, );
+
+        vkCmdTraceRaysKHR(_gpuCommandBuffer->vkCommandBuffer, &rayGenSBT,&hitGroupSBT,&missSBT,&callableSBT,info.width,info.height,info.depth);
+    }
+}
+
 } // namespace gfx
 } // namespace cc
