@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -25,57 +25,28 @@
 
 #pragma once
 
-#include <memory>
-#include "engine/BaseEngine.h"
+#include "base/std/container/unordered_map.h"
+#include "platform/interfaces/modules/ISystemWindowManager.h"
+
 
 namespace cc {
 
-class CC_DLL BaseApplication {
+class ISystemWindow;
+
+class SystemWindowManager : public ISystemWindowManager {
 public:
-    virtual ~BaseApplication() = default;
-    /**
-     * @brief Application initialization
-     */
-    virtual int32_t init() = 0;
-    /**
-     * @brief Application main business logic.
-     */
-    virtual int32_t run(int argc,
-                        const char **argv) = 0;
-    /**
-     * @brief Pause the application.
-     */
-    virtual void pause() = 0;
-    /**
-     * @brief Resume the application.
-     */
-    virtual void resume() = 0;
-    /**
-     * @brief Restart the application.
-     */
-    virtual void restart() = 0;
-    /**
-     * @brief Close the application.
-     */
-    virtual void close() = 0;
-    /**
-     * @brief Get engine.
-     */
-    virtual BaseEngine::Ptr getEngine() const = 0;
+    explicit SystemWindowManager() = default;
 
-    /**
-     * @brief Get arguments passed to execution file
-     */
-    virtual const std::vector<std::string> &getArguments() const = 0;
+    int init() override;
+    void processEvent(bool* quit) override;
+    void swapWindows() override;
 
-protected:
-    /**
-     * @brief Set arguments passed to execution file
-     * @note setArgumentsInternal needs to be protected since it should only be used internally.
-     */
-    virtual void setArgumentsInternal(int argc, const char *argv[]) = 0;
+    ISystemWindow *createWindow(const ISystemWindowInfo &info) override;
+    ISystemWindow *getWindow(uint32_t windowId) const override;
+    const SystemWindowMap &getWindows() const override { return _windows; }
 
-    friend class ApplicationManager;
+private:
+    uint32_t _nextWindowId{1}; // start from 1, 0 means an invalid ID
+    SystemWindowMap _windows;
 };
-
 } // namespace cc
