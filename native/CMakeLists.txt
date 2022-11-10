@@ -113,7 +113,6 @@ if(OPENHARMONY) # TODO:May be removed later
     set(USE_VIDEO OFF)
     set(USE_AUDIO ON)
     set(USE_WEBVIEW OFF)
-    set(USE_EDIT_BOX ON)
 endif()
 
 ## disable middleware when dragonbones and spine are disabled

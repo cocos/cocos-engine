@@ -23,39 +23,28 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#pragma once
-
-#include <napi/native_api.h>
+#include "EditBox.h"
+#include "cocos/application/ApplicationManager.h"
+#include "platform/openharmony/napi/NapiHelper.h"
+#include "cocos/bindings/jswrapper/SeApi.h"
 
 namespace cc {
 
-class NapiHelper {
+class OpenHarmonyEditBox : public EditBox {
 public:
+    static napi_value napiSetShowEditBoxFunction(napi_env env, napi_callback_info info);
+    static napi_value napiSetHideEditBoxFunction(napi_env env, napi_callback_info info);
+    static napi_value napiOnComplete(napi_env env, napi_callback_info info);
+    static napi_value napiOnTextChange(napi_env env, napi_callback_info info);
 
-    static napi_value getContext(napi_env env, napi_callback_info info);
+    static napi_value show(const std::string& inputMessage);
+    static napi_value hide();
+private:
+    static napi_ref showEditBoxFunction;
+    static napi_ref hideEditBoxFunction;
 
-    // APP Lifecycle
-    static napi_value napiOnCreate(napi_env env, napi_callback_info info);
-    static napi_value napiOnShow(napi_env env, napi_callback_info info);
-    static napi_value napiOnHide(napi_env env, napi_callback_info info);
-    static napi_value napiOnDestroy(napi_env env, napi_callback_info info);
-
-    // JS Page : Lifecycle
-    static napi_value napiOnPageShow(napi_env env, napi_callback_info info);
-    static napi_value napiOnPageHide(napi_env env, napi_callback_info info);
-    
-    // Worker Func
-    static napi_value napiWorkerInit(napi_env env, napi_callback_info info);
-    static napi_value napiASend(napi_env env, napi_callback_info info);
-    static napi_value napiNativeEngineInit(napi_env env, napi_callback_info info);
-    static napi_value napiNativeEngineStart(napi_env env, napi_callback_info info);
-
-    static napi_value napiWritablePathInit(napi_env env, napi_callback_info info);
-    static napi_value napiResourceManagerInit(napi_env env, napi_callback_info info);
-
-    static napi_value napiNoImplementation(napi_env env, napi_callback_info info);
-    // Napi export
-    static bool exportFunctions(napi_env env, napi_value exports);
 };
 
-}
+} // namespace cc
+
+

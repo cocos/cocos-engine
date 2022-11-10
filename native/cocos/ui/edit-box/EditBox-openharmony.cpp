@@ -24,6 +24,8 @@
 ****************************************************************************/
 
 #include "EditBox.h"
+#include "EditBox-openharmony.h"
+
 #include "cocos/application/ApplicationManager.h"
 #include "platform/openharmony/napi/NapiHelper.h"
 #include "cocos/bindings/jswrapper/SeApi.h"
@@ -37,8 +39,6 @@ namespace cc {
 namespace {
 se::Value g_textInputCallback;
 
-napi_ref showEditBoxFunction;
-napi_ref hideEditBoxFunction;
 
 void getTextInputCallback() {
     if (!g_textInputCallback.isUndefined())
@@ -67,7 +67,10 @@ void callJSFunc(const ccstd::string &type, const ccstd::string &text) {
 
 } // namespace
 
-napi_value napiSetShowEditBoxFunction(napi_env env, napi_callback_info info) {
+
+napi_ref OpenHarmonyEditBox::showEditBoxFunction;
+napi_ref OpenHarmonyEditBox::hideEditBoxFunction;
+napi_value OpenHarmonyEditBox::napiSetShowEditBoxFunction(napi_env env, napi_callback_info info) {
     size_t argc = 1;
     napi_value args[1] = {nullptr};
     auto status = napi_get_cb_info(env, info, &argc, args, nullptr, nullptr);
@@ -75,7 +78,7 @@ napi_value napiSetShowEditBoxFunction(napi_env env, napi_callback_info info) {
     return nullptr;
 }
 
-napi_value napiSetHideEditBoxFunction(napi_env env, napi_callback_info info) {
+napi_value OpenHarmonyEditBox::napiSetHideEditBoxFunction(napi_env env, napi_callback_info info) {
     size_t argc = 1;
     napi_value args[1] = {nullptr};
     auto status = napi_get_cb_info(env, info, &argc, args, nullptr, nullptr);
@@ -83,12 +86,12 @@ napi_value napiSetHideEditBoxFunction(napi_env env, napi_callback_info info) {
     return nullptr;
 }
 
-napi_value napiOnComplete(napi_env env, napi_callback_info info) {
+napi_value OpenHarmonyEditBox::napiOnComplete(napi_env env, napi_callback_info info) {
     EditBox::complete();
     return nullptr;
 }
 
-napi_value napiOnTextChange(napi_env env, napi_callback_info info) {
+napi_value OpenHarmonyEditBox::napiOnTextChange(napi_env env, napi_callback_info info) {
     size_t      argc = 1;
     napi_value  args[1];
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, nullptr, nullptr));
@@ -100,7 +103,7 @@ napi_value napiOnTextChange(napi_env env, napi_callback_info info) {
     return nullptr;
 }
 
-napi_value showEditBox(const std::string& inputMessage) {
+napi_value OpenHarmonyEditBox::show(const std::string& inputMessage) {
     napi_value argv[1];
     napi_create_string_utf8(se::ScriptEngine::getEnv(), inputMessage.c_str(), NAPI_AUTO_LENGTH, &argv[0]);
     napi_value global;
@@ -114,7 +117,7 @@ napi_value showEditBox(const std::string& inputMessage) {
     return nullptr;
 }
 
-napi_value hideEditBox() {
+napi_value OpenHarmonyEditBox::hide() {
     napi_value global;
     napi_get_global(se::ScriptEngine::getEnv(), &global);
 
@@ -133,11 +136,11 @@ napi_value hideEditBox() {
 Implementation of EditBox.
 ************************************************************************/
 void EditBox::show(const EditBox::ShowInfo &showInfo) {
-    showEditBox(showInfo.defaultValue);
+    OpenHarmonyEditBox::show(showInfo.defaultValue);
 }
 
 void EditBox::hide() {
-    hideEditBox();
+    OpenHarmonyEditBox::hide();
 }
 
 bool EditBox::complete() {
