@@ -517,7 +517,7 @@ export class WebRasterQueueBuilder extends WebSetter implements RasterQueueBuild
             RenderGraphValue.Scene, sceneData, name, '', new RenderData(), false, this._vertID,
         );
         setCameraUBOValues(this, camera, this._pipeline,
-            camera.scene ? camera.scene : cclegacy.director.getScene().renderSceneaddSceneOfReflectionProbe);
+            camera.scene ? camera.scene : cclegacy.director.getScene().renderScene);
         if (sceneFlags & SceneFlags.SHADOW_CASTER) {
             setShadowUBOLightView(this, light.light!, light.level);
         } else {
@@ -534,6 +534,11 @@ export class WebRasterQueueBuilder extends WebSetter implements RasterQueueBuild
         );
         setCameraUBOValues(this, probeCamera, this._pipeline,
             camera.scene ? camera.scene : cclegacy.director.getScene().renderScene);
+    }
+
+    updateCameraUBO (camera: Camera, renderScene: RenderScene) {
+        setCameraUBOValues(this, camera, this._pipeline,
+            renderScene || cclegacy.director.getScene().renderScene);
     }
 
     addScene (sceneName: string, sceneFlags = SceneFlags.NONE): void {
@@ -593,6 +598,9 @@ export class WebRasterPassBuilder extends WebSetter implements RasterPassBuilder
             RenderGraphComponent.Layout, this._vertID,
         );
         this._layoutID = layoutGraph.locateChild(layoutGraph.nullVertex(), layoutName);
+    }
+    updateCameraUBO (camera: Camera, renderScene: RenderScene) {
+        throw new Error('Method not implemented.');
     }
     get name () {
         return this._renderGraph.getName(this._vertID);

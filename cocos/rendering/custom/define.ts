@@ -511,9 +511,13 @@ export function buildReflectionProbePasss (camera: Camera,
     for (let i = 0; i < probes.length; i++) {
         const probe = probes[i];
         if (probe.needRender) {
-            for (let faceIdx = 0; faceIdx < 1; faceIdx++) {
+            ppl.setMacroBool('CC_USE_RGBE_OUTPUT', true);
+            ppl.onGlobalPipelineStateChanged();
+            for (let faceIdx = 0; faceIdx < probe.bakedCubeTextures.length; faceIdx++) {
                 buildReflectionProbePass(camera, ppl, probe, probe.bakedCubeTextures[faceIdx].window!, faceIdx);
             }
+            ppl.setMacroBool('CC_USE_RGBE_OUTPUT', false);
+            ppl.onGlobalPipelineStateChanged();
             probe.needRender = false;
         }
     }
@@ -526,18 +530,18 @@ export function buildReflectionProbePass (camera: Camera,
     const height = area.y;
     const probeCamera = probe.camera;
 
-    const forwardPassRTName = `dsForwardPassColor${cameraName}`;
-    const forwardPassDSName = `dsForwardPassDS${cameraName}`;
+    const probePassRTName = `reflectionProbePassColor${cameraName}`;
+    const probePassDSName = `reflectionProbePassDS${cameraName}`;
 
     probe.updateCameraDir(faceIdx);
 
-    ppl.addRenderTexture(forwardPassRTName, Format.RGBA8, width, height, renderWindow);
-    ppl.addDepthStencil(forwardPassDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
-    ppl.updateRenderWindow(forwardPassRTName, renderWindow);
+    ppl.addRenderTexture(probePassRTName, Format.RGBA8, width, height, renderWindow);
+    ppl.addDepthStencil(probePassDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
+    ppl.updateRenderWindow(probePassRTName, renderWindow);
 
-    const forwardPass = ppl.addRasterPass(width, height, 'default');
-    forwardPass.name = `CameraForwardPass${faceIdx}`;
-    forwardPass.setViewport(new Viewport(0, 0, width, height));
+    const probePass = ppl.addRasterPass(width, height, 'default');
+    probePass.name = `ReflectionProbePass${faceIdx}`;
+    probePass.setViewport(new Viewport(0, 0, width, height));
 
     const passView = new RasterView('_',
         AccessType.WRITE, AttachmentType.RENDER_TARGET,
@@ -551,9 +555,9 @@ export function buildReflectionProbePass (camera: Camera,
         StoreOp.STORE,
         probeCamera.clearFlag,
         new Color(probeCamera.clearDepth, probeCamera.clearStencil, 0, 0));
-    forwardPass.addRasterView(forwardPassRTName, passView);
-    forwardPass.addRasterView(forwardPassDSName, passDSView);
-    forwardPass
+    probePass.addRasterView(probePassRTName, passView);
+    probePass.addRasterView(probePassDSName, passDSView);
+    probePass
         .addQueue(QueueHint.RENDER_OPAQUE)
         .addSceneOfReflectionProbe(camera, probeCamera, new LightInfo(),
             SceneFlags.OPAQUE_OBJECT | SceneFlags.GEOMETRY | SceneFlags.DRAW_INSTANCING);
