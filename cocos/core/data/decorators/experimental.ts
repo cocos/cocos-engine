@@ -3,7 +3,7 @@ import { warnID } from '../../platform';
 /**
  * @en Marks a class method as experimental.
  * @zh 标记类方法为实验性质的。
- * @internal
+ * @engineInternal
  * @example
  * ```ts
  * class Meow {
