@@ -77,10 +77,6 @@ using namespace cc::gi;
 #define cc_gi_LightProbesData_tetrahedrons_set(self_, val_) self_->setTetrahedrons(val_)
   
 
-#define cc_gi_LightProbes_enabled_get(self_) self_->isEnabled()
-#define cc_gi_LightProbes_enabled_set(self_, val_) self_->setEnabled(val_)
-  
-
 #define cc_gi_LightProbes_giScale_get(self_) self_->getGIScale()
 #define cc_gi_LightProbes_giScale_set(self_, val_) self_->setGIScale(val_)
   
@@ -111,10 +107,6 @@ using namespace cc::gi;
 
 #define cc_gi_LightProbes_data_get(self_) self_->getData()
 #define cc_gi_LightProbes_data_set(self_, val_) self_->setData(val_)
-  
-
-#define cc_gi_LightProbeInfo_enabled_get(self_) self_->isEnabled()
-#define cc_gi_LightProbeInfo_enabled_set(self_, val_) self_->setEnabled(val_)
   
 
 #define cc_gi_LightProbeInfo_giScale_get(self_) self_->getGIScale()
@@ -1935,39 +1927,6 @@ static bool js_cc_gi_LightProbes_empty(se::State& s)
 }
 SE_BIND_FUNC(js_cc_gi_LightProbes_empty) 
 
-static bool js_cc_gi_LightProbes__enabled_set(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::gi::LightProbes *arg1 = (cc::gi::LightProbes *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::gi::LightProbes>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) bool
-    ok &= sevalue_to_native(args[0], &arg1->_enabled);
-    SE_PRECONDITION2(ok, false, "LightProbes__enabled_set,2,SWIGTYPE_bool"); 
-    
-    
-    return true;
-}
-SE_BIND_PROP_SET(js_cc_gi_LightProbes__enabled_set) 
-
-static bool js_cc_gi_LightProbes__enabled_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::gi::LightProbes *arg1 = (cc::gi::LightProbes *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::gi::LightProbes>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // out 5
-    ok &= nativevalue_to_se(arg1->_enabled, s.rval(), s.thisObject() /*ctx*/);
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_gi_LightProbes__enabled_get) 
-
 static bool js_cc_gi_LightProbes__giScale_set(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -2248,43 +2207,6 @@ static bool js_cc_gi_LightProbes__data_get(se::State& s)
     return true;
 }
 SE_BIND_PROP_GET(js_cc_gi_LightProbes__data_get) 
-
-static bool js_cc_gi_LightProbes_enabled_set(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::gi::LightProbes *arg1 = (cc::gi::LightProbes *) NULL ;
-    bool arg2 ;
-    
-    arg1 = SE_THIS_OBJECT<cc::gi::LightProbes>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) bool
-    ok &= sevalue_to_native(args[0], &arg2);
-    SE_PRECONDITION2(ok, false, "LightProbes_enabled_set,2,SWIGTYPE_bool"); 
-    cc_gi_LightProbes_enabled_set(arg1,arg2);
-    
-    
-    return true;
-}
-SE_BIND_PROP_SET(js_cc_gi_LightProbes_enabled_set) 
-
-static bool js_cc_gi_LightProbes_enabled_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::gi::LightProbes *arg1 = (cc::gi::LightProbes *) NULL ;
-    bool result;
-    
-    arg1 = SE_THIS_OBJECT<cc::gi::LightProbes>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    result = (bool)cc_gi_LightProbes_enabled_get(arg1);
-    // out 5
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_gi_LightProbes_enabled_get) 
 
 static bool js_cc_gi_LightProbes_giScale_set(se::State& s)
 {
@@ -2602,7 +2524,6 @@ SE_BIND_PROP_GET(js_cc_gi_LightProbes_data_get)
 bool js_register_cc_gi_LightProbes(se::Object* obj) {
     auto* cls = se::Class::create("LightProbes", obj, nullptr, _SE(js_new_cc_gi_LightProbes)); 
     
-    cls->defineProperty("_enabled", _SE(js_cc_gi_LightProbes__enabled_get), _SE(js_cc_gi_LightProbes__enabled_set)); 
     cls->defineProperty("_giScale", _SE(js_cc_gi_LightProbes__giScale_get), _SE(js_cc_gi_LightProbes__giScale_set)); 
     cls->defineProperty("_giSamples", _SE(js_cc_gi_LightProbes__giSamples_get), _SE(js_cc_gi_LightProbes__giSamples_set)); 
     cls->defineProperty("_bounces", _SE(js_cc_gi_LightProbes__bounces_get), _SE(js_cc_gi_LightProbes__bounces_set)); 
@@ -2611,7 +2532,6 @@ bool js_register_cc_gi_LightProbes(se::Object* obj) {
     cls->defineProperty("_showWireframe", _SE(js_cc_gi_LightProbes__showWireframe_get), _SE(js_cc_gi_LightProbes__showWireframe_set)); 
     cls->defineProperty("_showConvex", _SE(js_cc_gi_LightProbes__showConvex_get), _SE(js_cc_gi_LightProbes__showConvex_set)); 
     cls->defineProperty("_data", _SE(js_cc_gi_LightProbes__data_get), _SE(js_cc_gi_LightProbes__data_set)); 
-    cls->defineProperty("enabled", _SE(js_cc_gi_LightProbes_enabled_get), _SE(js_cc_gi_LightProbes_enabled_set)); 
     cls->defineProperty("giScale", _SE(js_cc_gi_LightProbes_giScale_get), _SE(js_cc_gi_LightProbes_giScale_set)); 
     cls->defineProperty("giSamples", _SE(js_cc_gi_LightProbes_giSamples_get), _SE(js_cc_gi_LightProbes_giSamples_set)); 
     cls->defineProperty("bounces", _SE(js_cc_gi_LightProbes_bounces_get), _SE(js_cc_gi_LightProbes_bounces_set)); 
@@ -2715,39 +2635,6 @@ static bool js_cc_gi_LightProbeInfo_clearSHCoefficients(se::State& s)
     return true;
 }
 SE_BIND_FUNC(js_cc_gi_LightProbeInfo_clearSHCoefficients) 
-
-static bool js_cc_gi_LightProbeInfo__enabled_set(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::gi::LightProbeInfo *arg1 = (cc::gi::LightProbeInfo *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::gi::LightProbeInfo>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) bool
-    ok &= sevalue_to_native(args[0], &arg1->_enabled);
-    SE_PRECONDITION2(ok, false, "LightProbeInfo__enabled_set,2,SWIGTYPE_bool"); 
-    
-    
-    return true;
-}
-SE_BIND_PROP_SET(js_cc_gi_LightProbeInfo__enabled_set) 
-
-static bool js_cc_gi_LightProbeInfo__enabled_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::gi::LightProbeInfo *arg1 = (cc::gi::LightProbeInfo *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::gi::LightProbeInfo>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // out 5
-    ok &= nativevalue_to_se(arg1->_enabled, s.rval(), s.thisObject() /*ctx*/);
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_gi_LightProbeInfo__enabled_get) 
 
 static bool js_cc_gi_LightProbeInfo__giScale_set(se::State& s)
 {
@@ -3029,43 +2916,6 @@ static bool js_cc_gi_LightProbeInfo__data_get(se::State& s)
     return true;
 }
 SE_BIND_PROP_GET(js_cc_gi_LightProbeInfo__data_get) 
-
-static bool js_cc_gi_LightProbeInfo_enabled_set(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::gi::LightProbeInfo *arg1 = (cc::gi::LightProbeInfo *) NULL ;
-    bool arg2 ;
-    
-    arg1 = SE_THIS_OBJECT<cc::gi::LightProbeInfo>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) bool
-    ok &= sevalue_to_native(args[0], &arg2);
-    SE_PRECONDITION2(ok, false, "LightProbeInfo_enabled_set,2,SWIGTYPE_bool"); 
-    cc_gi_LightProbeInfo_enabled_set(arg1,arg2);
-    
-    
-    return true;
-}
-SE_BIND_PROP_SET(js_cc_gi_LightProbeInfo_enabled_set) 
-
-static bool js_cc_gi_LightProbeInfo_enabled_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::gi::LightProbeInfo *arg1 = (cc::gi::LightProbeInfo *) NULL ;
-    bool result;
-    
-    arg1 = SE_THIS_OBJECT<cc::gi::LightProbeInfo>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    result = (bool)cc_gi_LightProbeInfo_enabled_get(arg1);
-    // out 5
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_gi_LightProbeInfo_enabled_get) 
 
 static bool js_cc_gi_LightProbeInfo_giScale_set(se::State& s)
 {
@@ -3383,7 +3233,6 @@ SE_BIND_PROP_GET(js_cc_gi_LightProbeInfo_data_get)
 bool js_register_cc_gi_LightProbeInfo(se::Object* obj) {
     auto* cls = se::Class::create("LightProbeInfo", obj, nullptr, _SE(js_new_cc_gi_LightProbeInfo)); 
     
-    cls->defineProperty("_enabled", _SE(js_cc_gi_LightProbeInfo__enabled_get), _SE(js_cc_gi_LightProbeInfo__enabled_set)); 
     cls->defineProperty("_giScale", _SE(js_cc_gi_LightProbeInfo__giScale_get), _SE(js_cc_gi_LightProbeInfo__giScale_set)); 
     cls->defineProperty("_giSamples", _SE(js_cc_gi_LightProbeInfo__giSamples_get), _SE(js_cc_gi_LightProbeInfo__giSamples_set)); 
     cls->defineProperty("_bounces", _SE(js_cc_gi_LightProbeInfo__bounces_get), _SE(js_cc_gi_LightProbeInfo__bounces_set)); 
@@ -3392,7 +3241,6 @@ bool js_register_cc_gi_LightProbeInfo(se::Object* obj) {
     cls->defineProperty("_showWireframe", _SE(js_cc_gi_LightProbeInfo__showWireframe_get), _SE(js_cc_gi_LightProbeInfo__showWireframe_set)); 
     cls->defineProperty("_showConvex", _SE(js_cc_gi_LightProbeInfo__showConvex_get), _SE(js_cc_gi_LightProbeInfo__showConvex_set)); 
     cls->defineProperty("_data", _SE(js_cc_gi_LightProbeInfo__data_get), _SE(js_cc_gi_LightProbeInfo__data_set)); 
-    cls->defineProperty("enabled", _SE(js_cc_gi_LightProbeInfo_enabled_get), _SE(js_cc_gi_LightProbeInfo_enabled_set)); 
     cls->defineProperty("giScale", _SE(js_cc_gi_LightProbeInfo_giScale_get), _SE(js_cc_gi_LightProbeInfo_giScale_set)); 
     cls->defineProperty("giSamples", _SE(js_cc_gi_LightProbeInfo_giSamples_get), _SE(js_cc_gi_LightProbeInfo_giSamples_set)); 
     cls->defineProperty("bounces", _SE(js_cc_gi_LightProbeInfo_bounces_get), _SE(js_cc_gi_LightProbeInfo_bounces_set)); 
