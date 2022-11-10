@@ -256,25 +256,25 @@ public:
     bool call(const ValueArray &args, Object *thisObject, Value *rval = nullptr);
 
     /**
-     *  @brief Tests whether a object is a ES6 Map.
+     *  @brief Tests whether an object is a ES6 Map.
      *  @return true if object is a Map, otherwise false.
      */
     bool isMap() const;
 
     /**
-     *  @brief Tests whether a object is a ES6 WeakMap.
+     *  @brief Tests whether an object is a ES6 WeakMap.
      *  @return true if object is a WeakMap, otherwise false.
      */
     bool isWeakMap() const;
 
     /**
-     *  @brief Tests whether a object is a ES6 Set.
+     *  @brief Tests whether an object is a ES6 Set.
      *  @return true if object is a Set, otherwise false.
      */
     bool isSet() const;
 
     /**
-     *  @brief Tests whether a object is a ES6 WeakSet.
+     *  @brief Tests whether an object is a ES6 WeakSet.
      *  @return true if object is a WeakSet, otherwise false.
      */
     bool isWeakSet() const;

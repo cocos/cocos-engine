@@ -404,7 +404,7 @@ public:
     ccstd::string toStringForce() const;
 
     /**
-         *  @brief Gets the se::Object pointer if se::Value stores an object. It will trigger an assertion if se::Value isn't a object.
+         *  @brief Gets the se::Object pointer if se::Value stores an object. It will trigger an assertion if se::Value isn't an object.
          *  @return A se::Object pointer.
          */
     Object *toObject() const;
