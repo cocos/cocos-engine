@@ -79,6 +79,11 @@ public:
     // textureBarrierCount: number of barrier, should be equal to number of textures
     virtual void pipelineBarrier(const GeneralBarrier *barrier, const BufferBarrier *const *bufferBarriers, const Buffer *const *buffers, uint32_t bufferBarrierCount, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint32_t textureBarrierCount) = 0;
 
+    virtual void queueBarrier(const GeneralBarrier *barrier) {}
+    virtual void queueBarrier(const BufferBarrier *bufferBarrier, const Buffer *buffer) {}
+    virtual void queueBarrier(const TextureBarrier *textureBarrier, const Texture *texture) {}
+    virtual void flushBarrier() {}
+
     inline void begin();
     inline void begin(RenderPass *renderPass);
     inline void begin(RenderPass *renderPass, uint32_t subpass);

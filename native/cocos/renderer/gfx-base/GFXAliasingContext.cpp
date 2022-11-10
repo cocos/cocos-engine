@@ -42,13 +42,20 @@ void AliasingContext::record(const ResourceInfo& inRes) {
             continue;
         }
 
-        // queue barrier [TODO]
-        current.scope->addBarrier(AliasingBarrier {
-            current.scope,
-            inRes.scope,
-            current.resource,
-            inRes.resource
-        });
+        if (current.tracked.last != nullptr) {
+            current.tracked.last->addAliasingPair(BarrierType::ALIASING_COMPLETE,
+                                                  AliasingPair{
+                                                      current.tracked.resource,
+                                                      inRes.tracked.resource});
+        }
+
+        if (inRes.tracked.first != nullptr) {
+            inRes.tracked.first->addAliasingPair(BarrierType::ALIASING_INIT,
+                                                 AliasingPair{
+                                                     current.tracked.resource,
+                                                     inRes.tracked.resource});
+        }
+
 
         // *****[-------------current--------------]***
         // [------------------inRes-------------------]

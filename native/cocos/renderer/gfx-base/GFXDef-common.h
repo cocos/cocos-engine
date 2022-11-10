@@ -797,6 +797,8 @@ enum class BarrierType : uint32_t {
     FULL,
     SPLIT_BEGIN,
     SPLIT_END,
+    ALIASING_COMPLETE,
+    ALIASING_INIT
 };
 CC_ENUM_BITWISE_OPERATORS(BarrierType);
 

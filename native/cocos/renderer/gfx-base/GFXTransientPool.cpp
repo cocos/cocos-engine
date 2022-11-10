@@ -32,29 +32,64 @@ namespace gfx {
 TransientPool::TransientPool() : GFXObject(ObjectType::TRANSIENT_POOL) {
 }
 
+void TransientPool::beginFrame() {
+    _context->reset();
+
+    _buffers.clear();
+    _textures.clear();
+}
+
+void TransientPool::endFrame() {
+    _resources.clear();
+}
+
 void TransientPool::initialize(const TransientPoolInfo &info) {
     _info = info;
+    _context = std::make_unique<AliasingContext>();
     doInit(info);
 }
 
-Buffer *TransientPool::requestBuffer(const BufferInfo &info) {
+Buffer *TransientPool::requestBuffer(const BufferInfo &info, IAliasingScope *scope) {
     auto *buffer = Device::getInstance()->createBuffer(info);
+
+    auto &res = _resources[buffer->getObjectID()];
+    res.resource.object = buffer;
+    res.first = scope;
+
     doInitBuffer(buffer);
+    _buffers.emplace_back(buffer);
     return buffer;
 }
 
-Texture *TransientPool::requestTexture(const TextureInfo &info) {
+Texture *TransientPool::requestTexture(const TextureInfo &info, IAliasingScope *scope) {
     auto *texture = Device::getInstance()->createTexture(info);
+
+    auto &res = _resources[texture->getObjectID()];
+    res.resource.object = texture;
+    res.first = scope;
+
     doInitTexture(texture);
+    _textures.emplace_back(texture);
     return texture;
 }
 
-void TransientPool::resetBuffer(Buffer *buffer) {
+void TransientPool::resetBuffer(Buffer *buffer, IAliasingScope *scope) {
+    recordResource(buffer->getObjectID(), scope);
     doResetBuffer(buffer);
 }
 
-void TransientPool::resetTexture(Texture *texture) {
+void TransientPool::resetTexture(Texture *texture, IAliasingScope *scope) {
+    recordResource(texture->getObjectID(), scope);
     doResetTexture(texture);
+}
+
+void TransientPool::recordResource(uint32_t id, IAliasingScope *scope) {
+    auto iter = _resources.find(id);
+    if (iter == _resources.end()) {
+        return;
+    }
+    iter->second.last = scope;
+    _context->record({iter->second, 0, 0, 0});
 }
 
 } // namespace gfx

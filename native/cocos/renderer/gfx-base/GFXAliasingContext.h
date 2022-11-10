@@ -27,26 +27,32 @@ THE SOFTWARE.
 
 #include <cstdint>
 #include "base/std/container/vector.h"
+#include "gfx-base/GFXDef-common.h"
+#include "gfx-base/GFXBuffer.h"
+#include "gfx-base/GFXTexture.h"
 #include "allocator/Allocator.h"
 
 namespace cc::gfx {
-struct AliasingBarrier;
+struct IAliasingScope;
+
+struct AliasingResource {
+    GFXObject* object = nullptr;
+};
+
+struct AliasingResourceTracked {
+    AliasingResource resource;
+    IAliasingScope *first = nullptr;
+    IAliasingScope *last = nullptr;
+};
+
+
+struct AliasingPair {
+    AliasingResource before;
+    AliasingResource after;
+};
 
 struct IAliasingScope {
-    virtual void addBarrier(const AliasingBarrier&) = 0;
-};
-
-struct IAliasingResource {
-};
-
-struct AliasingBarrier {
-    // metal
-    IAliasingScope *first;
-    IAliasingScope *second;
-
-    // dx12
-    IAliasingResource *before;
-    IAliasingResource *after;
+    virtual void addAliasingPair(BarrierType type, const AliasingPair &) = 0;
 };
 
 class AliasingContext {
@@ -55,8 +61,7 @@ public:
     ~AliasingContext() = default;
 
     struct ResourceInfo {
-        IAliasingScope *scope;
-        IAliasingResource *resource;
+        AliasingResourceTracked tracked;
         uint32_t blockIndex;
         uint64_t start;
         uint64_t end;

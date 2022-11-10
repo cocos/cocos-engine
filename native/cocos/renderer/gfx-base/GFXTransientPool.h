@@ -26,7 +26,10 @@ THE SOFTWARE.
 #pragma once
 
 #include "GFXObject.h"
+#include "GFXAliasingContext.h"
+#include "gfx-base/allocator/Allocator.h"
 #include "base/RefCounted.h"
+#include "base/Ptr.h"
 
 namespace cc {
 namespace gfx {
@@ -47,23 +50,35 @@ public:
 
     void initialize(const TransientPoolInfo &info);
 
-    Buffer *requestBuffer(const BufferInfo &info);
-    Texture *requestTexture(const TextureInfo &info);
+    void beginFrame();
+    void endFrame();
 
-    void resetBuffer(Buffer *);
-    void resetTexture(Texture *);
+    Buffer *requestBuffer(const BufferInfo &info, IAliasingScope *scope);
+    Texture *requestTexture(const TextureInfo &info, IAliasingScope *scope);
+
+    void resetBuffer(Buffer *, IAliasingScope *scope);
+    void resetTexture(Texture *, IAliasingScope *scope);
 
 protected:
     friend class TransientPoolAgent;
     friend class TransientPoolValidator;
 
-    virtual void doInit(const TransientPoolInfo &info) {};
+    // game thread
+    void recordResource(uint32_t id, IAliasingScope *scope);
+
+    // gfx thread
+    virtual void doInit(const TransientPoolInfo &info) {}
     virtual void doInitBuffer(Buffer *buffer) {}
     virtual void doResetBuffer(Buffer *buffer) {}
     virtual void doInitTexture(Texture *texture) {}
     virtual void doResetTexture(Texture *texture) {}
 
     TransientPoolInfo _info;
+    ccstd::unordered_map<uint32_t, AliasingResourceTracked> _resources;
+    std::unique_ptr<AliasingContext> _context;
+    std::vector<IntrusivePtr<Buffer>> _buffers;
+    std::vector<IntrusivePtr<Texture>> _textures;
+    std::unique_ptr<Allocator> _allocator;
 };
 
 } // namespace gfx
