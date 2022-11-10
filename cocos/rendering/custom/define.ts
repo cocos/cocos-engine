@@ -1,11 +1,14 @@
+import { EDITOR } from 'internal:constants';
 import { ClearFlagBit, Color, Format, LoadOp, Rect, StoreOp, Viewport } from '../../gfx';
-import { Camera, CSMLevel, DirectionalLight, Light, LightType, ShadowType, SKYBOX_FLAG, SpotLight } from '../../render-scene/scene';
+import { Camera, CSMLevel, DirectionalLight, Light, LightType, ProbeType, ReflectionProbe, ShadowType, SKYBOX_FLAG, SpotLight } from '../../render-scene/scene';
 import { supportsR32FloatTexture } from '../define';
 import { Pipeline } from './pipeline';
 import { AccessType, AttachmentType, ComputeView, LightInfo, QueueHint, RasterView, ResourceResidency, SceneFlags } from './types';
 import { Vec4, macro, geometry } from '../../core';
 import { Material } from '../../asset/assets';
 import { SRGBToLinear } from '../pipeline-funcs';
+import { ReflectionProbeManager } from '../reflection-probe-manager';
+import { RenderWindow } from '../../render-scene/core/render-window';
 
 // Anti-aliasing type, other types will be gradually added in the future
 export enum AntiAliasing {
@@ -495,6 +498,70 @@ export function buildShadowPass (passName: Readonly<string>,
     queue.addSceneOfCamera(camera, new LightInfo(light, level),
         SceneFlags.SHADOW_CASTER);
 }
+
+//////////////////////////////////////////
+export function buildReflectionProbePasss (camera: Camera,
+    ppl: Pipeline,
+    isOffScreen: boolean) {
+    const probes = ReflectionProbeManager.probeManager.getProbes();
+    if (probes.length === 0) {
+        return;
+    }
+
+    for (let i = 0; i < probes.length; i++) {
+        const probe = probes[i];
+        if (probe.needRender) {
+            for (let i = 0; i < probe.bakedCubeTextures.length; i++) {
+                buildReflectionProbePass(camera, ppl, probe, probe.bakedCubeTextures[i].window!, i);
+            }
+        }
+        probe.needRender = false;
+    }
+    probes.forEach((probe) => {
+
+    });
+}
+export function buildReflectionProbePass (camera: Camera,
+    ppl: Pipeline, probe: ReflectionProbe, renderWindow: RenderWindow, faceIdx:number) {
+    const cameraName = `Camera${faceIdx}`;
+    const area = probe.renderArea();
+    const width = area.x;
+    const height = area.y;
+    const probeCamera = probe.camera;
+
+    const forwardPassRTName = `dsForwardPassColor${cameraName}`;
+    const forwardPassDSName = `dsForwardPassDS${cameraName}`;
+
+    probe.updateCameraDir(faceIdx);
+
+    ppl.addRenderTexture(forwardPassRTName, Format.RGBA8, width, height, renderWindow);
+    ppl.addDepthStencil(forwardPassDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
+    ppl.updateRenderWindow(forwardPassRTName, renderWindow);
+
+    const forwardPass = ppl.addRasterPass(width, height, 'default');
+    forwardPass.name = `CameraForwardPass${faceIdx}`;
+    forwardPass.setViewport(new Viewport(0, 0, width, height));
+
+    const passView = new RasterView('_',
+        AccessType.WRITE, AttachmentType.RENDER_TARGET,
+        getLoadOpOfClearFlag(probeCamera.clearFlag, AttachmentType.RENDER_TARGET),
+        StoreOp.STORE,
+        probeCamera.clearFlag,
+        new Color(probeCamera.clearColor.x, probeCamera.clearColor.y, probeCamera.clearColor.z, probeCamera.clearColor.w));
+    const passDSView = new RasterView('_',
+        AccessType.WRITE, AttachmentType.DEPTH_STENCIL,
+        getLoadOpOfClearFlag(probeCamera.clearFlag, AttachmentType.DEPTH_STENCIL),
+        StoreOp.STORE,
+        probeCamera.clearFlag,
+        new Color(probeCamera.clearDepth, probeCamera.clearStencil, 0, 0));
+    forwardPass.addRasterView(forwardPassRTName, passView);
+    forwardPass.addRasterView(forwardPassDSName, passDSView);
+    forwardPass
+        .addQueue(QueueHint.RENDER_OPAQUE)
+        .addSceneOfReflectionProbe(camera, probeCamera, new LightInfo(),
+            SceneFlags.OPAQUE_OBJECT | SceneFlags.GEOMETRY | SceneFlags.DRAW_INSTANCING);
+}
+//////////////////////////////////////////
 
 class CameraInfo {
     shadowEnabled = false;

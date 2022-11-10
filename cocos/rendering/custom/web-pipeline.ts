@@ -517,7 +517,7 @@ export class WebRasterQueueBuilder extends WebSetter implements RasterQueueBuild
             RenderGraphValue.Scene, sceneData, name, '', new RenderData(), false, this._vertID,
         );
         setCameraUBOValues(this, camera, this._pipeline,
-            camera.scene ? camera.scene : cclegacy.director.getScene().renderScene);
+            camera.scene ? camera.scene : cclegacy.director.getScene().renderSceneaddSceneOfReflectionProbe);
         if (sceneFlags & SceneFlags.SHADOW_CASTER) {
             setShadowUBOLightView(this, light.light!, light.level);
         } else {
@@ -525,6 +525,17 @@ export class WebRasterQueueBuilder extends WebSetter implements RasterQueueBuild
         }
         setTextureUBOView(this, camera, this._pipeline);
     }
+
+    addSceneOfReflectionProbe (camera: Camera, probeCamera: Camera, light: LightInfo, sceneFlags = SceneFlags.NONE, name = 'Camera'): void {
+        const sceneData = new SceneData(name, sceneFlags, light);
+        sceneData.camera = camera;
+        this._renderGraph.addVertex<RenderGraphValue.Scene>(
+            RenderGraphValue.Scene, sceneData, name, '', new RenderData(), false, this._vertID,
+        );
+        setCameraUBOValues(this, probeCamera, this._pipeline,
+            camera.scene ? camera.scene : cclegacy.director.getScene().renderScene);
+    }
+
     addScene (sceneName: string, sceneFlags = SceneFlags.NONE): void {
         const sceneData = new SceneData(sceneName, sceneFlags);
         this._renderGraph.addVertex<RenderGraphValue.Scene>(
