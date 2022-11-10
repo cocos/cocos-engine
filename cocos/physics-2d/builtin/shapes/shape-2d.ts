@@ -2,11 +2,14 @@ import { IBaseShape } from '../../spec/i-physics-shape';
 import { Collider2D, PhysicsSystem2D } from '../../../../exports/physics-2d-framework';
 import { Rect, Vec2 } from '../../../core';
 import { BuiltinPhysicsWorld } from '../builtin-world';
+import { BuiltinContact } from '../builtin-contact';
 
 export class BuiltinShape2D implements IBaseShape {
     protected _collider: Collider2D | null = null;
 
     protected _worldAabb = new Rect();
+    //contacts contain this Shape
+    public _contacts: BuiltinContact[] = [];
 
     get impl () {
         return null;

@@ -1,6 +1,6 @@
 ## Introduction
 
-From Cocos Creator  3.7.0，we switch the approch of generating JS binding code from [bindings-generator](https://github.com/cocos/cocos-engine/tree/d08a11244d2a31da1aac7af7d2aa8f1b6152e30c/native/tools/bindings-generator) to [Swig](https://www.swig.org). Swig has many benefits in generating glue code by parsing  its custom `interface` file (IDL) which is compatible with `C++`. For more about why we switch to Swig, you could refer to [the issue](https://github.com/cocos/cocos-engine/issues/10792) .
+From Cocos Creator 3.7.0，we switch the approach of generating JS binding code from [bindings-generator](https://github.com/cocos/cocos-engine/tree/d08a11244d2a31da1aac7af7d2aa8f1b6152e30c/native/tools/bindings-generator) to [Swig](https://www.swig.org). Swig has many benefits in generating glue code by parsing  its custom `interface` file (IDL) which is compatible with `C++`. For more about why we switch to Swig, you could refer to [the issue](https://github.com/cocos/cocos-engine/issues/10792) .
 
 ## Generate JS Binding Code for Engine
 

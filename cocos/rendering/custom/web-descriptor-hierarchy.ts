@@ -30,7 +30,9 @@ import { ShaderStageFlagBit, Type, Uniform, UniformBlock } from '../../gfx';
 import { Descriptor, DescriptorBlock, DescriptorBlockIndex, DescriptorTypeOrder, ParameterType, UpdateFrequency } from './types';
 import { JOINT_UNIFORM_CAPACITY, RenderPassStage, SetIndex, UBOCamera, UBOCSM, UBOForwardLight, UBOGlobal, UBOLocal, UBOLocalBatched, UBOMorph, UBOShadow, UBOSkinning, UBOSkinningAnimation, UBOSkinningTexture, UBOUILocal, UBOWorldBound } from '../define';
 import { DefaultVisitor, edge_descriptor } from './graph';
-import { ccclass } from '../../core/data/decorators';
+import { _decorator } from '../../core';
+
+const { ccclass } = _decorator;
 
 @ccclass('cc.WebDescriptorHierarchy')
 export class WebDescriptorHierarchy {
@@ -305,6 +307,10 @@ export class WebDescriptorHierarchy {
                     this.setDescriptor(localSamplerFragTarget, 'cc_spriteTexture', Type.SAMPLER2D);
                 } else if (samplerName === 'cc_reflectionTexture') {
                     this.setDescriptor(localSamplerFragTarget, 'cc_reflectionTexture', Type.SAMPLER2D);
+                } else if (samplerName === 'cc_reflectionProbeCubemap') {
+                    this.setDescriptor(localSamplerFragTarget, 'cc_reflectionProbeCubemap', Type.SAMPLER_CUBE);
+                } else if (samplerName === 'cc_reflectionProbePlanarMap') {
+                    this.setDescriptor(localSamplerFragTarget, 'cc_reflectionProbePlanarMap', Type.SAMPLER2D);
                 }
             }
 

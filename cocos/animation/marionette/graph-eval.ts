@@ -3,8 +3,6 @@ import {
     AnimationGraph, Layer, StateMachine, State, isAnimationTransition,
     SubStateMachine, EmptyState, EmptyStateTransition, TransitionInterruptionSource,
 } from './animation-graph';
-//TODO(minggo): core should export it.
-import { assertIsTrue, assertIsNonNullable } from '../../core/data/utils/asserts';
 import { MotionEval, MotionEvalContext, OverrideClipContext } from './motion';
 import type { Node } from '../../scene-graph/node';
 import { createEval } from './create-eval';
@@ -13,10 +11,9 @@ import { BindContext, validateVariableExistence, validateVariableType, VariableT
 import { ConditionEval, TriggerCondition } from './condition';
 import { MotionState } from './motion-state';
 import { AnimationMask } from './animation-mask';
-import { warnID } from '../../core';
+import { warnID, assertIsTrue, assertIsNonNullable } from '../../core';
 import { BlendStateBuffer, LayeredBlendStateBuffer } from '../../3d/skeletal-animation/skeletal-animation-blending';
 import { MAX_ANIMATION_LAYER } from '../../3d/skeletal-animation/limits';
-import { clearWeightsStats, getWeightsStats, graphDebug, graphDebugGroup, graphDebugGroupEnd, GRAPH_DEBUG_ENABLED } from './graph-debug';
 import { AnimationClip } from '../animation-clip';
 import type { AnimationController } from './animation-controller';
 import { StateMachineComponent } from './state-machine-component';
@@ -87,10 +84,6 @@ export class AnimationGraphEval {
             _blendBuffer: blendBuffer,
             _layerEvaluations: layerEvaluations,
         } = this;
-        graphDebugGroup(`New frame started.`);
-        if (GRAPH_DEBUG_ENABLED) {
-            clearWeightsStats();
-        }
         const nLayers = layerEvaluations.length;
         for (let iLayer = 0; iLayer < nLayers; ++iLayer) {
             const layerEval = layerEvaluations[iLayer];
@@ -107,11 +100,7 @@ export class AnimationGraphEval {
                 }
             }
         }
-        if (GRAPH_DEBUG_ENABLED) {
-            graphDebug(`Weights: ${getWeightsStats()}`);
-        }
         this._blendBuffer.apply();
-        graphDebugGroupEnd();
     }
 
     public getVariables (): Iterable<Readonly<[string, Readonly<{ type: VariableType }>]>> {
@@ -608,7 +597,6 @@ class LayerEval {
      */
     private _eval (deltaTime: Readonly<number>) {
         assertIsTrue(!this.exited);
-        graphDebugGroup(`[Layer ${this.name}]: UpdateStart ${deltaTime}s`);
 
         const haltOnNonMotionState = this._continueDanglingTransition();
         if (haltOnNonMotionState) {
@@ -616,7 +604,6 @@ class LayerEval {
         }
 
         const MAX_ITERATIONS = 100;
-        let passConsumed = 0.0;
 
         let remainTimePiece = deltaTime;
         for (let continueNextIterationForce = true, // Force next iteration even remain time piece is zero
@@ -625,19 +612,9 @@ class LayerEval {
         ) {
             continueNextIterationForce = false;
 
-            if (iterations !== 0) {
-                graphDebug(`Pass end. Consumed ${passConsumed}s, remain: ${remainTimePiece}s`);
-            }
-
             if (iterations === MAX_ITERATIONS) {
                 warnID(14000, MAX_ITERATIONS);
                 break;
-            }
-
-            graphDebug(`Pass ${iterations} started.`);
-
-            if (GRAPH_DEBUG_ENABLED) {
-                passConsumed = 0.0;
             }
 
             ++iterations;
@@ -657,9 +634,6 @@ class LayerEval {
                 }
 
                 const currentUpdatingConsume = this._updateCurrentTransition(remainTimePiece);
-                if (GRAPH_DEBUG_ENABLED) {
-                    passConsumed = currentUpdatingConsume;
-                }
                 remainTimePiece -= currentUpdatingConsume;
                 if (this._currentNode.kind === NodeKind.exit) {
                     break;
@@ -682,10 +656,6 @@ class LayerEval {
                     requires: updateRequires,
                 } = transitionMatch;
 
-                graphDebug(`[SubStateMachine ${this.name}]: CurrentNodeUpdate: ${currentNode.name}`);
-                if (GRAPH_DEBUG_ENABLED) {
-                    passConsumed = updateRequires;
-                }
                 remainTimePiece -= updateRequires;
 
                 if (currentNode.kind === NodeKind.animation) {
@@ -700,7 +670,6 @@ class LayerEval {
 
                 continueNextIterationForce = true;
             } else { // If no transition matched, we update current node.
-                graphDebug(`[SubStateMachine ${this.name}]: CurrentNodeUpdate: ${currentNode.name}`);
                 if (currentNode.kind === NodeKind.animation) {
                     currentNode.updateFromPort(remainTimePiece);
                     this._fromUpdated = true;
@@ -712,15 +681,9 @@ class LayerEval {
                     // I'm sure conscious of it's redundant with above statement, just emphasize.
                     remainTimePiece = 0.0;
                 }
-                if (GRAPH_DEBUG_ENABLED) {
-                    passConsumed = remainTimePiece;
-                }
                 continue;
             }
         }
-
-        graphDebug(`[SubStateMachine ${this.name}]: UpdateEnd`);
-        graphDebugGroupEnd();
 
         if (this._fromUpdated && this._currentNode.kind === NodeKind.animation) {
             this._fromUpdated = false;
@@ -1097,24 +1060,17 @@ class LayerEval {
         const hasFinished = ratio === 1.0;
 
         if (fromNode.kind === NodeKind.animation && shouldUpdatePorts) {
-            graphDebugGroup(`Update ${fromNode.name}`);
             fromNode.updateFromPort(contrib);
             this._fromUpdated = true;
-            graphDebugGroupEnd();
         }
 
         if (toNode.kind === NodeKind.animation && shouldUpdatePorts) {
-            graphDebugGroup(`Update ${toNode.name}`);
             toNode.updateToPort(contrib);
             this._toUpdated = true;
-            graphDebugGroupEnd();
         }
-
-        graphDebugGroupEnd();
 
         if (hasFinished) {
             // Transition done.
-            graphDebug(`[SubStateMachine ${this.name}]: Transition finished:  ${fromNode.name} -> ${toNodeName}.`);
             this._finishCurrentTransition();
         }
 

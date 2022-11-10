@@ -28,7 +28,6 @@
 #include "core/Root.h"
 #include "core/TypedArray.h"
 #include "core/assets/Material.h"
-#include "core/event/EventTypesToJS.h"
 #include "gfx-base/GFXTexture.h"
 #include "gi/light-probe/LightProbe.h"
 #include "gi/light-probe/SH.h"
@@ -105,7 +104,7 @@ void Model::updateTransform(uint32_t stamp) {
     CC_PROFILE(ModelUpdateTransform);
     if (isModelImplementedInJS()) {
         if (!_isCalledFromJS) {
-            _eventProcessor.emit(EventTypesToJS::MODEL_UPDATE_TRANSFORM, stamp);
+            emit<UpdateTransform>(stamp);
             _isCalledFromJS = false;
             return;
         }
@@ -155,7 +154,7 @@ void Model::updateUBOs(uint32_t stamp) {
     CC_PROFILE(ModelUpdateUBOs);
     if (isModelImplementedInJS()) {
         if (!_isCalledFromJS) {
-            _eventProcessor.emit(EventTypesToJS::MODEL_UPDATE_UBO, stamp);
+            emit<UpdateUBO>(stamp);
             _isCalledFromJS = false;
             return;
         }
@@ -325,7 +324,7 @@ bool Model::isLightProbeAvailable() const {
 
     const auto *pipeline = Root::getInstance()->getPipeline();
     const auto *lightProbes = pipeline->getPipelineSceneData()->getLightProbes();
-    if (!lightProbes->available()) {
+    if (!lightProbes || lightProbes->empty()) {
         return false;
     }
 
@@ -349,13 +348,19 @@ void Model::updateSHUBOs() {
 #endif
 
     ccstd::vector<Vec3> coefficients;
+    Vec4 weights(0.0F, 0.0F, 0.0F, 0.0F);
     const auto *pipeline = Root::getInstance()->getPipeline();
     const auto *lightProbes = pipeline->getPipelineSceneData()->getLightProbes();
-    _tetrahedronIndex = lightProbes->getData().getInterpolationSHCoefficients(center, _tetrahedronIndex, coefficients);
-    gi::SH::reduceRinging(coefficients, lightProbes->getReduceRinging());
+
     _lastWorldBoundCenter.set(center);
+    _tetrahedronIndex = lightProbes->getData().getInterpolationWeights(center, _tetrahedronIndex, weights);
+    bool result = lightProbes->getData().getInterpolationSHCoefficients(_tetrahedronIndex, weights, coefficients);
+    if (!result) {
+        return;
+    }
 
     if (!_localSHData.empty() && _localSHBuffer) {
+        gi::SH::reduceRinging(coefficients, lightProbes->getReduceRinging());
         gi::SH::updateUBOData(_localSHData, pipeline::UBOSH::SH_LINEAR_CONST_R_OFFSET, coefficients);
         _localSHBuffer->update(_localSHData.buffer()->getData());
     }
@@ -365,7 +370,7 @@ ccstd::vector<IMacroPatch> Model::getMacroPatches(index_t subModelIndex) {
     if (isModelImplementedInJS()) {
         if (!_isCalledFromJS) {
             ccstd::vector<IMacroPatch> macroPatches;
-            _eventProcessor.emit(EventTypesToJS::MODEL_GET_MACRO_PATCHES, subModelIndex, &macroPatches);
+            emit<GetMacroPatches>(subModelIndex, &macroPatches);
             _isCalledFromJS = false;
             return macroPatches;
         }
@@ -408,7 +413,7 @@ void Model::updateAttributesAndBinding(index_t subModelIndex) {
 void Model::updateInstancedAttributes(const ccstd::vector<gfx::Attribute> &attributes, SubModel *subModel) {
     if (isModelImplementedInJS()) {
         if (!_isCalledFromJS) {
-            _eventProcessor.emit(EventTypesToJS::MODEL_UPDATE_INSTANCED_ATTRIBUTES, attributes, subModel);
+            emit<UpdateInstancedAttributes>(attributes, subModel); // FIXME
             _isCalledFromJS = false;
             return;
         }
@@ -461,7 +466,7 @@ void Model::initWorldBoundDescriptors(index_t /*subModelIndex*/) {
 void Model::updateLocalDescriptors(index_t subModelIndex, gfx::DescriptorSet *descriptorSet) {
     if (isModelImplementedInJS()) {
         if (!_isCalledFromJS) {
-            _eventProcessor.emit(EventTypesToJS::MODEL_UPDATE_LOCAL_DESCRIPTORS, subModelIndex, descriptorSet);
+            emit<UpdateLocalDescriptors>(subModelIndex, descriptorSet);
             _isCalledFromJS = false;
             return;
         }
@@ -475,7 +480,7 @@ void Model::updateLocalDescriptors(index_t subModelIndex, gfx::DescriptorSet *de
 void Model::updateLocalSHDescriptors(index_t subModelIndex, gfx::DescriptorSet *descriptorSet) {
     if (isModelImplementedInJS()) {
         if (!_isCalledFromJS) {
-            _eventProcessor.emit(EventTypesToJS::MODEL_UPDATE_LOCAL_SH_DESCRIPTORS, subModelIndex, descriptorSet);
+            emit<UpdateLocalSHDescriptor>(subModelIndex, descriptorSet);
             _isCalledFromJS = false;
             return;
         }
@@ -489,7 +494,7 @@ void Model::updateLocalSHDescriptors(index_t subModelIndex, gfx::DescriptorSet *
 void Model::updateWorldBoundDescriptors(index_t subModelIndex, gfx::DescriptorSet *descriptorSet) {
     if (isModelImplementedInJS()) {
         if (!_isCalledFromJS) {
-            _eventProcessor.emit(EventTypesToJS::MODEL_UPDATE_WORLD_BOUND_DESCRIPTORS, subModelIndex, descriptorSet);
+            emit<UpdateWorldBound>(subModelIndex, descriptorSet);
             _isCalledFromJS = false;
             return;
         }
@@ -502,6 +507,48 @@ void Model::updateWorldBoundDescriptors(index_t subModelIndex, gfx::DescriptorSe
 
 void Model::updateLocalShadowBias() {
     _localDataUpdated = true;
+}
+
+void Model::updateReflctionProbeCubemap(TextureCube *texture) {
+    _localDataUpdated = true;
+    if (texture == nullptr) {
+        texture = BuiltinResMgr::getInstance()->get<TextureCube>(ccstd::string("default-cube-texture"));
+    }
+    gfx::Texture *gfxTexture = texture->getGFXTexture();
+    if (gfxTexture) {
+        auto *sampler = _device->getSampler(texture->getSamplerInfo());
+        for (SubModel *subModel : _subModels) {
+            gfx::DescriptorSet *descriptorSet = subModel->getDescriptorSet();
+            descriptorSet->bindTexture(pipeline::REFLECTIONPROBECUBEMAP::BINDING, gfxTexture);
+            descriptorSet->bindSampler(pipeline::REFLECTIONPROBECUBEMAP::BINDING, sampler);
+            descriptorSet->update();
+        }
+    }
+}
+void Model::updateReflctionProbePlanarMap(gfx::Texture *texture) {
+    _localDataUpdated = true;
+
+    gfx::Texture *bindingTexture = texture;
+    if (!bindingTexture) {
+        bindingTexture = BuiltinResMgr::getInstance()->get<Texture2D>(ccstd::string("empty-texture"))->getGFXTexture();
+    }
+    if (bindingTexture) {
+        gfx::SamplerInfo info{
+            cc::gfx::Filter::LINEAR,
+            cc::gfx::Filter::LINEAR,
+            cc::gfx::Filter::NONE,
+            cc::gfx::Address::CLAMP,
+            cc::gfx::Address::CLAMP,
+            cc::gfx::Address::CLAMP,
+        };
+        auto *sampler = _device->getSampler(info);
+        for (SubModel *subModel : _subModels) {
+            gfx::DescriptorSet *descriptorSet = subModel->getDescriptorSet();
+            descriptorSet->bindTexture(pipeline::REFLECTIONPROBEPLANARMAP::BINDING, bindingTexture);
+            descriptorSet->bindSampler(pipeline::REFLECTIONPROBEPLANARMAP::BINDING, sampler);
+            descriptorSet->update();
+        }
+    }
 }
 
 void Model::setInstancedAttribute(const ccstd::string &name, const float *value, uint32_t byteLength) {

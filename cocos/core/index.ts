@@ -30,6 +30,7 @@ import * as geometry from './geometry';
 import * as math from './math';
 import * as memop from './memop';
 import './deprecated';
+import './deprecated-3.7.0';
 
 legacyCC.math = math;
 legacyCC.geometry = geometry;
@@ -46,6 +47,8 @@ export * from './event';
 export * from './platform';
 export * from './scheduler';
 export * from './algorithm/murmurhash2_gc';
+export * from './algorithm/binary-search';
+export { move } from './algorithm/move';
 export * from './curves';
 export * from './settings';
 export * from './system';

@@ -32,7 +32,7 @@ import { Node } from './node';
 import { legacyCC } from '../core/global-exports';
 import { Component } from './component';
 import { SceneGlobals } from './scene-globals';
-import { applyTargetOverrides, expandNestedPrefabInstanceNode } from '../core/utils/prefab/utils';
+import { applyTargetOverrides, expandNestedPrefabInstanceNode } from './prefab/utils';
 
 /**
  * @en
@@ -73,6 +73,20 @@ export class Scene extends Node {
      */
     @serializable
     public _globals = new SceneGlobals();
+
+    /**
+     * @en The id of the reflection probe is not duplicated.
+     * @zh 反射探针的id，同一个场景id不会重复
+     */
+    @serializable
+    private _reflectionProbeId = 0;
+    /**
+     * @en When a new reflection probe is added to the scene, a probe id needs to be generated.
+     * @zh 场景添加新的反射探针时，需要生成一个探针id
+     */
+    public getNewReflectionProbeId (): number {
+        return this._reflectionProbeId++;
+    }
 
     public dependAssets = null; // cache all depend assets for auto release
 

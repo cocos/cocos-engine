@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { AABB, intersect } from '../core/geometry';
+import { geometry } from '../core';
 import { SetIndex } from './define';
 import { CommandBuffer, Device, RenderPass } from '../gfx';
 import { PipelineStateManager } from './pipeline-state-manager';
@@ -33,8 +33,9 @@ import { ShadowType } from '../render-scene/scene/shadows';
 import { Layers } from '../scene-graph/layers';
 import { PipelineRuntime } from './custom/pipeline';
 import { BatchingSchemes } from '../render-scene/core/pass';
+import { LODModelsCachedUtils } from './lod-models-utils';
 
-const _ab = new AABB();
+const _ab = new geometry.AABB();
 
 export class PlanarShadowQueue {
     private _pendingSubModels: SubModel[] = [];
@@ -59,19 +60,25 @@ export class PlanarShadowQueue {
         const shadowVisible =  (camera.visibility & Layers.BitMask.DEFAULT) !== 0;
         if (!scene.mainLight || !shadowVisible) { return; }
 
+        LODModelsCachedUtils.updateCachedLODModels(scene, camera);
         const models = scene.models;
         for (let i = 0; i < models.length; i++) {
             const model = models[i];
+            if (LODModelsCachedUtils.isLODModelCulled(model)) {
+                continue;
+            }
             if (model.enabled && model.node && model.castShadow) { this._castModels.push(model); }
         }
+        LODModelsCachedUtils.clearCachedLODModels();
+
         const instancedBuffer = shadows.instancingMaterial.passes[0].getInstancedBuffer();
         this._instancedQueue.queue.add(instancedBuffer);
 
         for (let i = 0; i < this._castModels.length; i++) {
             const model = this._castModels[i];
             if (model.worldBounds) {
-                AABB.transform(_ab, model.worldBounds, shadows.matLight);
-                if (!intersect.aabbFrustum(_ab, frustum)) { continue; }
+                geometry.AABB.transform(_ab, model.worldBounds, shadows.matLight);
+                if (!geometry.intersect.aabbFrustum(_ab, frustum)) { continue; }
             }
 
             const subModels = model.subModels;

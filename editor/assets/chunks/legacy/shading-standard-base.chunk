@@ -5,11 +5,12 @@
 #include <common/common-define>
 #include <common/color/gamma>
 #include <legacy/shadow-map-base>
+#include <common/data/unpack>
 
 #if CC_USE_IBL
   #include <builtin/uniforms/cc-environment>
+  #include <builtin/uniforms/cc-reflection-probe>
   #include <common/texture/texture-lod>
-  #include <common/data/unpack>
 
   #if CC_USE_DIFFUSEMAP
     #include <builtin/uniforms/cc-diffusemap>
@@ -43,18 +44,36 @@ vec3 BRDFApprox (vec3 specular, float roughness, float NoV) {
   return specular * AB.x + AB.y;
 }
 
+vec2 getScreenUV(vec3 worldPos)
+{
+  vec4 clipPos = cc_matViewProj * vec4(worldPos, 1.0);
+  vec2 screenUV = clipPos.xy / clipPos.w * 0.5 + 0.5;
+  screenUV = vec2(1.0 - screenUV.x, 1.0 - screenUV.y);
+  screenUV = cc_cameraPos.w > 1.0 ? vec2(screenUV.x, 1.0 - screenUV.y) : screenUV;
+  return screenUV;
+}
+
 #if USE_REFLECTION_DENOISE
 #pragma extension([GL_OES_standard_derivatives, __VERSION__ < 110])
-  vec3 GetEnvReflectionWithMipFiltering(vec3 R, float roughness, float mipCount, float denoiseIntensity) {
+  vec3 GetEnvReflectionWithMipFiltering(vec3 R, float roughness, float mipCount, float denoiseIntensity, vec2 screenUV) {
     #if CC_USE_IBL
     	float mip = roughness * (mipCount - 1.0);
     	float delta = (dot(dFdx(R), dFdy(R))) * 1000.0;
     	float mipBias = mix(0.0, 5.0, clamp(delta, 0.0, 1.0));
 
-    	vec4 biased = fragTextureLod(cc_environment, R, mip + mipBias);
-     	vec4 filtered = texture(cc_environment, R);
 
-      #if CC_USE_IBL == IBL_RGBE
+      #if USE_REFLECTION_PROBE == REFLECTION_PROBE_CUBE
+        vec4 biased = fragTextureLod(cc_reflectionProbeCubemap, R, mip + mipBias);
+     	  vec4 filtered = texture(cc_reflectionProbeCubemap, R);
+      #elif USE_REFLECTION_PROBE == REFLECTION_PROBE_PLANAR
+        vec4 biased = fragTextureLod(cc_reflectionProbePlanarMap, screenUV, mip + mipBias);
+        vec4 filtered = texture(cc_reflectionProbePlanarMap, screenUV);
+      #else
+        vec4 biased = fragTextureLod(cc_environment, R, mip + mipBias);
+     	  vec4 filtered = texture(cc_environment, R);
+      #endif
+
+      #if CC_USE_IBL == IBL_RGBE || USE_REFLECTION_PROBE != REFLECTION_PROBE_NONE
       	biased.rgb = unpackRGBE(biased);
       	filtered.rgb = unpackRGBE(filtered);
       #else
@@ -165,11 +184,26 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
 
     vec3 rotationDir = RotationVecFromAxisY(R.xyz, cc_surfaceTransform.z, cc_surfaceTransform.w);
     #if USE_REFLECTION_DENOISE && !CC_IBL_CONVOLUTED
-      vec3 env = GetEnvReflectionWithMipFiltering(rotationDir, s.roughness, cc_ambientGround.w, 0.6);
+      #if USE_REFLECTION_PROBE == REFLECTION_PROBE_CUBE
+        vec3 env = GetEnvReflectionWithMipFiltering(R, s.roughness, cc_ambientGround.w, 0.6, vec2(0.0));
+      #elif USE_REFLECTION_PROBE == REFLECTION_PROBE_PLANAR
+        vec2 screenUV = getScreenUV(s.position);
+        vec3 env = GetEnvReflectionWithMipFiltering(R, s.roughness, cc_ambientGround.w, 0.6, screenUV);
+      #else
+        vec3 env = GetEnvReflectionWithMipFiltering(rotationDir, s.roughness, cc_ambientGround.w, 0.6, vec2(0.0));
+      #endif
     #else
-      vec4 envmap = fragTextureLod(cc_environment, rotationDir, s.roughness * (cc_ambientGround.w - 1.0));
+      #if USE_REFLECTION_PROBE == REFLECTION_PROBE_CUBE
+        vec4 envmap = fragTextureLod(cc_reflectionProbeCubemap, R, s.roughness * (cc_ambientGround.w - 1.0));
+      #elif USE_REFLECTION_PROBE == REFLECTION_PROBE_PLANAR
+        vec2 screenUV = getScreenUV(s.position);
+        vec4 envmap = texture(cc_reflectionProbePlanarMap, screenUV);
+      #else
+        vec4 envmap = fragTextureLod(cc_environment, rotationDir, s.roughness * (cc_ambientGround.w - 1.0));
+      #endif
 
-      #if CC_USE_IBL == IBL_RGBE
+
+      #if CC_USE_IBL == IBL_RGBE || USE_REFLECTION_PROBE != REFLECTION_PROBE_NONE
         vec3 env = unpackRGBE(envmap);
       #else
         vec3 env = SRGBToLinear(envmap.rgb);

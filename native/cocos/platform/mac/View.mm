@@ -87,7 +87,6 @@
     ev.width = static_cast<int>(size.width);
     ev.height = static_cast<int>(size.height);
     [_delegate dispatchEvent:ev];
-    //cc::EventDispatcher::dispatchResizeEvent(, );
 }
 
 - (void)displayLayer:(CALayer *)layer {
@@ -131,13 +130,7 @@
     if (cc::EventDispatcher::initialized()) {
         auto *windowMgr = CC_GET_PLATFORM_INTERFACE(cc::SystemWindowManager);
         auto *window = windowMgr->getWindowFromNSWindow([self window]);
-        
-        cc::WindowEvent ev;
-        ev.type = cc::WindowEvent::Type::RESIZED;
-        ev.width = static_cast<int>(width);
-        ev.height = static_cast<int>(height);
-        ev.windowId = window->getWindowId();
-        cc::EventDispatcher::dispatchResizeEvent(ev);
+        cc::events::Resize::broadcast(static_cast<int>(width), static_cast<int>(height), window->getWindowId());
     }
 }
 
@@ -286,7 +279,7 @@
     _mouseEvent.button = button;
     _mouseEvent.x = pos.x;
     _mouseEvent.y = contentRect.size.height - pos.y;
-    [_delegate dispatchEvent:_mouseEvent];
+    cc::events::Mouse::broadcast(_mouseEvent);
 }
 
 @end

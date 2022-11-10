@@ -38,6 +38,7 @@
 #include "scene/Camera.h"
 #include "scene/DirectionalLight.h"
 #include "scene/DrawBatch2D.h"
+#include "scene/LODGroup.h"
 #include "scene/Model.h"
 #include "scene/Octree.h"
 #include "scene/SphereLight.h"
@@ -57,6 +58,27 @@ void RenderScene::activate() {
 bool RenderScene::initialize(const IRenderSceneInfo &info) {
     _name = info.name;
     return true;
+}
+
+void RenderScene::addLODGroup(LODGroup *group) {
+    _lodGroups.emplace_back(group);
+}
+
+void RenderScene::removeLODGroup(LODGroup *group) {
+    auto iter = std::find(_lodGroups.begin(), _lodGroups.end(), group);
+    if (iter != _lodGroups.end()) {
+        group->detachFromScene();
+        _lodGroups.erase(iter);
+    } else {
+        CC_LOG_WARNING("Try to remove invalid LODGroup.");
+    }
+}
+
+void RenderScene::removeLODGroups() {
+    for (const auto &group : _lodGroups) {
+        group->detachFromScene();
+    }
+    _lodGroups.clear();
 }
 
 void RenderScene::setMainLight(DirectionalLight *dl) {
@@ -92,6 +114,7 @@ void RenderScene::destroy() {
     removeCameras();
     removeSphereLights();
     removeSpotLights();
+    removeLODGroups();
     removeModels();
 }
 

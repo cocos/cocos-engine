@@ -35,46 +35,6 @@ UniversalPlatform::OSType UniversalPlatform::getOSType() const {
     return getInterface<ISystem>()->getOSType();
 }
 
-void UniversalPlatform::dispatchEvent(const OSEvent& ev) {
-    bool isHandled = false;
-    if (_handleEventCallback) {
-        isHandled = (_handleEventCallback)(ev);
-    }
-    if (isHandled) {
-        return;
-    }
-    if (_handleDefaultEventCallback) {
-        isHandled = (_handleDefaultEventCallback)(ev);
-    }
-    if (!isHandled) {
-        handleDefaultEvent(ev);
-    }
-}
-
-void UniversalPlatform::dispatchTouchEvent(const TouchEvent& ev) {
-    if (_handleTouchEventCallback) {
-        _handleTouchEventCallback(ev);
-    } else {
-        dispatchEvent(ev);
-    }
-}
-
-void UniversalPlatform::handleDefaultEvent(const OSEvent& ev) {
-    // TODO(cc) : Follow-up support
-}
-
-void UniversalPlatform::setHandleEventCallback(HandleEventCallback cb) {
-    _handleEventCallback = cb;
-}
-
-void UniversalPlatform::setHandleTouchEventCallback(HandleTouchEventCallback cb) {
-    _handleTouchEventCallback = cb;
-}
-
-void UniversalPlatform::setHandleDefaultEventCallback(HandleEventCallback cb) {
-    _handleDefaultEventCallback = cb;
-}
-
 int32_t UniversalPlatform::run(int argc, const char** argv) {
     if (cocos_main(argc, argv) != 0) {
         return -1;

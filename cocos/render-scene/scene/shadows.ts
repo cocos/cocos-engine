@@ -25,14 +25,10 @@
 
 import { DEBUG } from 'internal:constants';
 import { Material } from '../../asset/assets/material';
-import { Sphere } from '../../core/geometry';
-import { Color, Mat4, Vec3, Vec2 } from '../../core/math';
-import { legacyCC } from '../../core/global-exports';
-import { Enum } from '../../core/value-types';
+import { Color, Mat4, Vec3, Vec2, Enum, assert, geometry, cclegacy } from '../../core';
 import type { ShadowsInfo } from '../../scene-graph/scene-globals';
 import { IMacroPatch } from '../core/pass';
 import { Shader } from '../../gfx';
-import { assert } from '../../core/platform/debug';
 
 /**
  * @zh 阴影贴图分辨率。
@@ -314,7 +310,7 @@ export class Shadows {
      * @en The bounding sphere of the shadow map.
      * @zh 用于计算固定区域阴影 Shadow map 的场景包围球.
      */
-    public fixedSphere: Sphere = new Sphere(0.0, 0.0, 0.0, 0.01);
+    public fixedSphere: geometry.Sphere = new geometry.Sphere(0.0, 0.0, 0.0, 0.01);
 
     /**
      * @en get or set shadow max received.
@@ -393,13 +389,13 @@ export class Shadows {
             if (this.type === ShadowType.Planar) {
                 this._updatePlanarInfo();
             } else {
-                const root = legacyCC.director.root;
+                const root = cclegacy.director.root;
                 const pipeline = root.pipeline;
                 pipeline.macros.CC_SHADOW_TYPE = 2;
                 root.onGlobalPipelineStateChanged();
             }
         } else {
-            const root = legacyCC.director.root;
+            const root = cclegacy.director.root;
             const pipeline = root.pipeline;
             pipeline.macros.CC_SHADOW_TYPE = 0;
             root.onGlobalPipelineStateChanged();
@@ -415,7 +411,7 @@ export class Shadows {
             this._instancingMaterial = new Material();
             this._instancingMaterial.initialize({ effectName: 'pipeline/planar-shadow', defines: { USE_INSTANCING: true } });
         }
-        const root = legacyCC.director.root;
+        const root = cclegacy.director.root;
         const pipeline = root.pipeline;
         pipeline.macros.CC_SHADOW_TYPE = 1;
         root.onGlobalPipelineStateChanged();
@@ -433,4 +429,4 @@ export class Shadows {
     }
 }
 
-legacyCC.Shadows = Shadows;
+cclegacy.Shadows = Shadows;

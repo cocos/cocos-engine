@@ -23,8 +23,7 @@
  THE SOFTWARE.
  */
 
-import { RecyclePool } from '../core/memop';
-import { CachedArray } from '../core/memop/cached-array';
+import { RecyclePool, CachedArray } from '../core';
 import { IRenderObject, IRenderPass, IRenderQueueDesc, SetIndex } from './define';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { RenderPass, Device, CommandBuffer } from '../gfx';

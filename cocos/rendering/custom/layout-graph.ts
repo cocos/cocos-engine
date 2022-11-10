@@ -32,9 +32,14 @@
 import * as impl from './graph';
 import { DescriptorSet, DescriptorSetLayout, DescriptorSetLayoutInfo, ShaderStageFlagBit, Type, UniformBlock } from '../../gfx';
 import { DescriptorBlock, saveDescriptorBlock, loadDescriptorBlock, DescriptorBlockIndex, saveDescriptorBlockIndex, loadDescriptorBlockIndex, DescriptorTypeOrder, UpdateFrequency } from './types';
-import { ccclass } from '../../core/data/decorators';
 import { OutputArchive, InputArchive } from './archive';
 import { saveUniformBlock, loadUniformBlock, saveDescriptorSetLayoutInfo, loadDescriptorSetLayoutInfo } from './serialization';
+
+//-----------------------------------------------------------------
+// LayoutGraphData Implementation
+import { _decorator } from '../../core';
+
+const { ccclass } = _decorator;
 
 export class DescriptorDB {
     readonly blocks: Map<string, DescriptorBlock> = new Map<string, DescriptorBlock>();
@@ -98,6 +103,7 @@ export class LayoutGraphNameMap implements impl.PropertyMap {
     get (v: number): string {
         return this._names[v];
     }
+    // skip set, name is constant in AddressableGraph
     readonly _names: string[];
 }
 
@@ -376,6 +382,7 @@ export class LayoutGraph implements impl.BidirectionalGraph
             throw Error('component map not found');
         }
     }
+    // skip setName, Name is constant in AddressableGraph
     getName (v: number): string {
         return this._names[v];
     }
@@ -712,6 +719,7 @@ export class LayoutGraphDataNameMap implements impl.PropertyMap {
     get (v: number): string {
         return this._names[v];
     }
+    // skip set, name is constant in AddressableGraph
     readonly _names: string[];
 }
 
@@ -721,6 +729,9 @@ export class LayoutGraphDataUpdateMap implements impl.PropertyMap {
     }
     get (v: number): UpdateFrequency {
         return this._updateFrequencies[v];
+    }
+    set (v: number, updateFrequencies: UpdateFrequency): void {
+        this._updateFrequencies[v] = updateFrequencies;
     }
     readonly _updateFrequencies: UpdateFrequency[];
 }
@@ -755,8 +766,6 @@ interface LayoutGraphDataComponentPropertyMap {
     [LayoutGraphDataComponent.Layout]: LayoutGraphDataLayoutMap;
 }
 
-//-----------------------------------------------------------------
-// LayoutGraphData Implementation
 @ccclass('cc.LayoutGraphData')
 export class LayoutGraphData implements impl.BidirectionalGraph
 , impl.AdjacencyGraph
@@ -1020,6 +1029,7 @@ export class LayoutGraphData implements impl.BidirectionalGraph
             throw Error('component map not found');
         }
     }
+    // skip setName, Name is constant in AddressableGraph
     getName (v: number): string {
         return this._names[v];
     }

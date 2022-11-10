@@ -23,8 +23,7 @@
  THE SOFTWARE.
  */
 
-import { Vec4, Vec3, cclegacy } from '../../core';
-import { assertIsTrue } from '../../core/data/utils/asserts';
+import { Vec4, Vec3, cclegacy, assertIsTrue } from '../../core';
 
 const SH_BASIS_COUNT = 9;
 
@@ -46,8 +45,11 @@ export class LightProbeSampler {
     /**
      *  generate ucount1 * ucount2 samples from sphere uniformly
      */
-    public static uniformSamplesSphereAll (uCount1: number, uCount2: number) {
-        assertIsTrue(uCount1 > 0 && uCount2 > 0);
+    public static uniformSampleSphereAll (sampleCount: number) {
+        assertIsTrue(sampleCount > 0);
+
+        const uCount1 = Math.floor(Math.sqrt(sampleCount));
+        const uCount2 = uCount1;
 
         const samples: Vec3[] = [];
         const uDelta1 = 1.0 / uCount1;

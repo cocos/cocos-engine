@@ -15,6 +15,8 @@
 
 // Insert code at the beginning of generated source file (.cpp)
 %{
+#include "bindings/auto/jsb_geometry_auto.h"
+#include "bindings/auto/jsb_cocos_auto.h"
 #include "bindings/auto/jsb_gi_auto.h"
 
 using namespace cc;
@@ -84,14 +86,20 @@ using namespace cc::gi;
 %attribute(cc::gi::LightProbesData, ccstd::vector<cc::gi::Tetrahedron>&, tetrahedrons, getTetrahedrons, setTetrahedrons);
 
 %attribute(cc::gi::LightProbes, bool, enabled, isEnabled, setEnabled);
-%attribute(cc::gi::LightProbes, bool, reduceRinging, getReduceRinging, setReduceRinging);
+%attribute(cc::gi::LightProbes, float, giScale, getGIScale, setGIScale);
+%attribute(cc::gi::LightProbes, uint32_t, giSamples, getGISamples, setGISamples);
+%attribute(cc::gi::LightProbes, uint32_t, bounces, getBounces, setBounces);
+%attribute(cc::gi::LightProbes, float, reduceRinging, getReduceRinging, setReduceRinging);
 %attribute(cc::gi::LightProbes, bool, showProbe, isShowProbe, setShowProbe);
 %attribute(cc::gi::LightProbes, bool, showWireframe, isShowWireframe, setShowWireframe);
 %attribute(cc::gi::LightProbes, bool, showConvex, isShowConvex, setShowConvex);
 %attribute(cc::gi::LightProbes, cc::gi::LightProbesData&, data, getData, setData);
 
 %attribute(cc::gi::LightProbeInfo, bool, enabled, isEnabled, setEnabled);
-%attribute(cc::gi::LightProbeInfo, bool, reduceRinging, getReduceRinging, setReduceRinging);
+%attribute(cc::gi::LightProbeInfo, float, giScale, getGIScale, setGIScale);
+%attribute(cc::gi::LightProbeInfo, uint32_t, giSamples, getGISamples, setGISamples);
+%attribute(cc::gi::LightProbeInfo, uint32_t, bounces, getBounces, setBounces);
+%attribute(cc::gi::LightProbeInfo, float, reduceRinging, getReduceRinging, setReduceRinging);
 %attribute(cc::gi::LightProbeInfo, bool, showProbe, isShowProbe, setShowProbe);
 %attribute(cc::gi::LightProbeInfo, bool, showWireframe, isShowWireframe, setShowWireframe);
 %attribute(cc::gi::LightProbeInfo, bool, showConvex, isShowConvex, setShowConvex);

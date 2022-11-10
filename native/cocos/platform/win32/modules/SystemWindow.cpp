@@ -27,8 +27,7 @@
 #include <Windows.h>
 #include <functional>
 #include "base/Log.h"
-#include "bindings/event/EventDispatcher.h"
-#include "platform/IEventDispatch.h"
+#include "engine/EngineEvents.h"
 #include "platform/SDLHelper.h"
 #include "platform/win32/WindowsPlatform.h"
 #include "sdl2/SDL_clipboard.h"

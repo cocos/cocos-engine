@@ -28,7 +28,7 @@
 #include "SDL2/SDL_main.h"
 #include "SDL2/SDL_syswm.h"
 #include "base/Log.h"
-#include "platform/IEventDispatch.h"
+#include "engine/EngineEvents.h"
 #include "platform/interfaces/modules/ISystemWindow.h"
 #include "platform/interfaces/modules/ISystemWindowManager.h"
 
@@ -160,43 +160,43 @@ int SDLHelper::init() {
     return 0;
 }
 
-void SDLHelper::dispatchWindowEvent(IEventDispatch *delegate, uint32_t windowId, const SDL_WindowEvent &wevent) {
+void SDLHelper::dispatchWindowEvent(uint32_t windowId, const SDL_WindowEvent &wevent) {
     WindowEvent ev;
     ev.windowId = windowId;
 
     switch (wevent.event) {
         case SDL_WINDOWEVENT_SHOWN: {
             ev.type = WindowEvent::Type::SHOW;
-            delegate->dispatchEvent(ev);
+            events::WindowEvent::broadcast(ev);
             break;
         }
         case SDL_WINDOWEVENT_RESTORED: {
             ev.type = WindowEvent::Type::RESTORED;
-            delegate->dispatchEvent(ev);
+            events::WindowEvent::broadcast(ev);
             break;
         }
         case SDL_WINDOWEVENT_SIZE_CHANGED: {
             ev.type = WindowEvent::Type::SIZE_CHANGED;
             ev.width = wevent.data1;
             ev.height = wevent.data2;
-            delegate->dispatchEvent(ev);
+            events::WindowEvent::broadcast(ev);
             break;
         }
         case SDL_WINDOWEVENT_RESIZED: {
             ev.type = WindowEvent::Type::RESIZED;
             ev.width = wevent.data1;
             ev.height = wevent.data2;
-            delegate->dispatchEvent(ev);
+            events::WindowEvent::broadcast(ev);
             break;
         }
         case SDL_WINDOWEVENT_HIDDEN: {
             ev.type = WindowEvent::Type::HIDDEN;
-            delegate->dispatchEvent(ev);
+            events::WindowEvent::broadcast(ev);
             break;
         }
         case SDL_WINDOWEVENT_MINIMIZED: {
             ev.type = WindowEvent::Type::MINIMIZED;
-            delegate->dispatchEvent(ev);
+            events::WindowEvent::broadcast(ev);
             break;
         }
         case SDL_WINDOWEVENT_ENTER: {
@@ -205,13 +205,13 @@ void SDLHelper::dispatchWindowEvent(IEventDispatch *delegate, uint32_t windowId,
         }
         case SDL_WINDOWEVENT_CLOSE: {
             ev.type = WindowEvent::Type::CLOSE;
-            delegate->dispatchEvent(ev);
+            events::WindowEvent::broadcast(ev);
             break;
         }
     }
 }
 
-void SDLHelper::dispatchSDLEvent(IEventDispatch *delegate, uint32_t windowId, const SDL_Event &sdlEvent, bool *quit) {
+void SDLHelper::dispatchSDLEvent(uint32_t windowId, const SDL_Event &sdlEvent, bool *quit) {
     cc::TouchEvent touch;
     cc::MouseEvent mouse;
     cc::KeyboardEvent keyboard;
@@ -229,11 +229,11 @@ void SDLHelper::dispatchSDLEvent(IEventDispatch *delegate, uint32_t windowId, co
             }
             WindowEvent ev;
             ev.type = WindowEvent::Type::QUIT;
-            delegate->dispatchEvent(ev);
+            events::WindowEvent::broadcast(ev);
             break;
         }
         case SDL_WINDOWEVENT: {
-            dispatchWindowEvent(delegate, windowId, sdlEvent.window);
+            dispatchWindowEvent(windowId, sdlEvent.window);
             break;
         }
         case SDL_MOUSEBUTTONDOWN: {
@@ -248,7 +248,7 @@ void SDLHelper::dispatchSDLEvent(IEventDispatch *delegate, uint32_t windowId, co
             mouse.x = static_cast<float>(event.x);
             mouse.y = static_cast<float>(event.y);
             mouse.button = event.button - 1;
-            delegate->dispatchEvent(mouse);
+            events::Mouse::broadcast(mouse);
             break;
         }
         case SDL_MOUSEBUTTONUP: {
@@ -257,7 +257,7 @@ void SDLHelper::dispatchSDLEvent(IEventDispatch *delegate, uint32_t windowId, co
             mouse.x = static_cast<float>(event.x);
             mouse.y = static_cast<float>(event.y);
             mouse.button = event.button - 1;
-            delegate->dispatchEvent(mouse);
+            events::Mouse::broadcast(mouse);
             break;
         }
         case SDL_MOUSEMOTION: {
@@ -266,7 +266,7 @@ void SDLHelper::dispatchSDLEvent(IEventDispatch *delegate, uint32_t windowId, co
             mouse.x = static_cast<float>(event.x);
             mouse.y = static_cast<float>(event.y);
             mouse.button = 0;
-            delegate->dispatchEvent(mouse);
+            events::Mouse::broadcast(mouse);
             break;
         }
         case SDL_MOUSEWHEEL: {
@@ -275,28 +275,28 @@ void SDLHelper::dispatchSDLEvent(IEventDispatch *delegate, uint32_t windowId, co
             mouse.x = static_cast<float>(event.x);
             mouse.y = static_cast<float>(event.y);
             mouse.button = 0; //TODO: direction
-            delegate->dispatchEvent(mouse);
+            events::Mouse::broadcast(mouse);
             break;
         }
         case SDL_FINGERUP: {
             const SDL_TouchFingerEvent &event = sdlEvent.tfinger;
             touch.type = TouchEvent::Type::ENDED;
             touch.touches = {TouchInfo(event.x, event.y, (int)event.fingerId)};
-            delegate->dispatchTouchEvent(touch);
+            events::Touch::broadcast(touch);
             break;
         }
         case SDL_FINGERDOWN: {
             const SDL_TouchFingerEvent &event = sdlEvent.tfinger;
             touch.type = TouchEvent::Type::BEGAN;
             touch.touches = {TouchInfo(event.x, event.y, (int)event.fingerId)};
-            delegate->dispatchTouchEvent(touch);
+            events::Touch::broadcast(touch);
             break;
         }
         case SDL_FINGERMOTION: {
             const SDL_TouchFingerEvent &event = sdlEvent.tfinger;
             touch.type = TouchEvent::Type::MOVED;
             touch.touches = {TouchInfo(event.x, event.y, (int)event.fingerId)};
-            delegate->dispatchTouchEvent(touch);
+            events::Touch::broadcast(touch);
             break;
         }
         case SDL_KEYDOWN: {
@@ -308,7 +308,7 @@ void SDLHelper::dispatchSDLEvent(IEventDispatch *delegate, uint32_t windowId, co
             keyboard.ctrlKeyActive = mode & KMOD_CTRL;
             keyboard.shiftKeyActive = mode & KMOD_SHIFT;
             //CC_LOG_DEBUG("==> key %d -> code %d", event.keysym.sym, keyboard.key);
-            delegate->dispatchEvent(keyboard);
+            events::Keyboard::broadcast(keyboard);
             break;
         }
         case SDL_KEYUP: {
@@ -319,7 +319,8 @@ void SDLHelper::dispatchSDLEvent(IEventDispatch *delegate, uint32_t windowId, co
             keyboard.altKeyActive = mode & KMOD_ALT;
             keyboard.ctrlKeyActive = mode & KMOD_CTRL;
             keyboard.shiftKeyActive = mode & KMOD_SHIFT;
-            delegate->dispatchEvent(keyboard);
+            events::Keyboard::broadcast(keyboard);
+            break;
             break;
         }
         default:

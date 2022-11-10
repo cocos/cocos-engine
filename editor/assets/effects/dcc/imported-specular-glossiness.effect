@@ -13,6 +13,8 @@ CCEffect %{
         alphaThreshold:        { value: 0.5, editor: { parent: USE_ALPHA_TEST, slide: true, range: [0, 1.0], step: 0.001 } }
         emissive:              { value: [0.0, 0.0, 0.0, 1.0], linear: true, editor: { type: color } }
         emissiveMap:           { value: grey }
+        emissiveScale:         { value: 1.0 }
+        emissiveScaleMap:      { value: grey }
         shininessExponentMap:  { value: grey, editor: { parent: '!HAS_EXPORTED_GLOSSINESS' } }
         shininessExponent:     { value: 100.0, editor: { parent: '!HAS_EXPORTED_GLOSSINESS' } }
         specularGlossinessMap: { value: grey, editor: { parent: '!HAS_EXPORTED_GLOSSINESS' } }
@@ -84,6 +86,7 @@ CCProgram shared-ubos %{
     vec4  diffuseColor;
     vec4  specularColor;
     vec4  emissive;
+    float emissiveScale;
     float alphaThreshold;
     float shininessExponent;
     float glossiness;
@@ -150,7 +153,7 @@ CCProgram standard-vs %{
 
     #if USE_NORMAL_MAP
       v_tangent = normalize((matWorld * vec4(In.tangent.xyz, 0.0)).xyz);
-      v_bitangent = cross(v_normal, v_tangent) * In.tangent.w; // note the cross order
+      v_bitangent = cross(v_normal, v_tangent) * (In.tangent.w > 0.0 ? 1.0 : -1.0); // note the cross order
     #endif
 
     v_uv = a_texCoord * tilingOffset.xy + tilingOffset.zw;
@@ -242,6 +245,9 @@ CCProgram standard-fs %{
  
   #if USE_EMISSIVE_MAP
     uniform sampler2D emissiveMap;
+  #endif
+  #if USE_EMISSIVESCALE_MAP
+    uniform sampler2D emissiveScaleMap;
   #endif
 
   float discolor(vec3 srcColor) {
@@ -377,10 +383,20 @@ CCProgram standard-fs %{
     s.roughness = 1.0 - inGlossiness;
     s.metallic = inMetallic;
     s.specularIntensity = inSpecularIntensity * 0.5;
-    s.emissive = emissive.rgb;
-  #if USE_EMISSIVE_MAP
-    s.emissive = texture(emissiveMap, TEXTURE_UV).xyz;
-  #endif
+
+    vec3 emissiveColor = emissive.rgb;
+    #if USE_EMISSIVE_MAP
+        emissiveColor.rgb = SRGBToLinear(texture(emissiveMap, TEXTURE_UV).rgb);
+    #endif
+    //emissive color scale
+    #if USE_EMISSIVESCALE_MAP
+        vec4 emissiveScaleColor = texture(emissiveScaleMap, TEXTURE_UV);
+        emissiveScaleColor.rgb = SRGBToLinear(emissiveScaleColor.rgb);
+        emissiveColor.rgb *= emissiveScaleColor.rgb;
+    #else
+        emissiveColor.rgb *= emissiveScale;
+    #endif
+    s.emissive = emissiveColor.rgb;
 
     #if CC_USE_LIGHTMAP && !CC_FORWARD_ADD
       vec4 lightColor = texture(cc_lightingMap, v_luv.xy);

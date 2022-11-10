@@ -23,8 +23,7 @@
  THE SOFTWARE.
  */
 
-import { Mat4, Quat, random, randomRange, randomRangeInt, Vec2, Vec3 } from '../core/math';
-import { sign } from '../core/math/bits';
+import { Mat4, Quat, random, randomRange, randomRangeInt, Vec2, Vec3, bits } from '../core/math';
 import { Space } from './enum';
 
 export const particleEmitZAxis = new Vec3(0, 0, -1);
@@ -131,5 +130,5 @@ export function randomSign () {
     if (sgn === 0) {
         sgn++;
     }
-    return sign(sgn);
+    return bits.sign(sgn);
 }

@@ -68,6 +68,7 @@ void CCVKCommandBuffer::doDestroy() {
 }
 
 void CCVKCommandBuffer::begin(RenderPass *renderPass, uint32_t subpass, Framebuffer *frameBuffer) {
+    CC_ASSERT(!_gpuCommandBuffer->began);
     if (_gpuCommandBuffer->began) return;
 
     CCVKDevice::getInstance()->gpuDevice()->getCommandBufferPool()->request(_gpuCommandBuffer);
@@ -108,6 +109,7 @@ void CCVKCommandBuffer::begin(RenderPass *renderPass, uint32_t subpass, Framebuf
 }
 
 void CCVKCommandBuffer::end() {
+    CC_ASSERT(_gpuCommandBuffer->began);
     if (!_gpuCommandBuffer->began) return;
 
     _curGPUFBO = nullptr;
@@ -122,6 +124,7 @@ void CCVKCommandBuffer::end() {
 
 void CCVKCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors,
                                         float depth, uint32_t stencil, CommandBuffer *const * /*secondaryCBs*/, uint32_t secondaryCBCount) {
+    CC_ASSERT(_gpuCommandBuffer->began);
     CCVKDevice *device = CCVKDevice::getInstance();
     if constexpr (!ENABLE_GRAPH_AUTO_BARRIER) {
 #if BARRIER_DEDUCTION_LEVEL >= BARRIER_DEDUCTION_LEVEL_BASIC
@@ -135,8 +138,11 @@ void CCVKCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo
                              0, 1, &vkBarrier, 0, nullptr, 0, nullptr);
 #endif
     } else {
-        const auto &frontBarrier = renderPass->getDependencies().front();
-        pipelineBarrier(frontBarrier.generalBarrier, frontBarrier.bufferBarriers, frontBarrier.buffers, frontBarrier.bufferBarrierCount, frontBarrier.textureBarriers, frontBarrier.textures, frontBarrier.textureBarrierCount);
+        const auto &dependencies = renderPass->getDependencies();
+        if (!dependencies.empty()) {
+            const auto &frontBarrier = dependencies.front();
+            pipelineBarrier(frontBarrier.generalBarrier, frontBarrier.bufferBarriers, frontBarrier.buffers, frontBarrier.bufferBarrierCount, frontBarrier.textureBarriers, frontBarrier.textures, frontBarrier.textureBarrierCount);
+        }
     }
 
     _curGPUFBO = static_cast<CCVKFramebuffer *>(fbo)->gpuFBO();
@@ -188,6 +194,7 @@ void CCVKCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo
 }
 
 void CCVKCommandBuffer::endRenderPass() {
+    CC_ASSERT(_gpuCommandBuffer->began);
     vkCmdEndRenderPass(_gpuCommandBuffer->vkCommandBuffer);
 
     auto *device = CCVKDevice::getInstance();
@@ -211,8 +218,11 @@ void CCVKCommandBuffer::endRenderPass() {
                              VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 0, nullptr, 0, nullptr);
 #endif
     } else {
-        const auto &rearBarrier = _curGPURenderPass->dependencies.back();
-        pipelineBarrier(rearBarrier.generalBarrier, rearBarrier.bufferBarriers, rearBarrier.buffers, rearBarrier.bufferBarrierCount, rearBarrier.textureBarriers, rearBarrier.textures, rearBarrier.textureBarrierCount);
+        const auto &dependencies = _curGPURenderPass->dependencies;
+        if (!dependencies.empty()) {
+            const auto &rearBarrier = _curGPURenderPass->dependencies.back();
+            pipelineBarrier(rearBarrier.generalBarrier, rearBarrier.bufferBarriers, rearBarrier.buffers, rearBarrier.bufferBarrierCount, rearBarrier.textureBarriers, rearBarrier.textures, rearBarrier.textureBarrierCount);
+        }
     }
 }
 

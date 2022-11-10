@@ -24,19 +24,18 @@
  */
 
 import { EDITOR } from 'internal:constants';
-import {
-    ccclass, type, displayOrder, displayName, disallowMultiple,
-} from 'cc.decorator';
 import { Material } from '../asset/assets/material';
 import { Component } from '../scene-graph';
 import { IMaterialInstanceInfo, MaterialInstance } from '../render-scene/core/material-instance';
-import { warnID } from '../core/platform/debug';
+import { warnID, _decorator } from '../core';
 
 const _matInsInfo: IMaterialInstanceInfo = {
     parent: null!,
     owner: null!,
     subModelIdx: 0,
 };
+
+const { ccclass, serializable, disallowMultiple, type, displayOrder, displayName } = _decorator;
 
 /**
  * @en Base class for all components which can submit contents for the rendering process.

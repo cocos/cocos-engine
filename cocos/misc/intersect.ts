@@ -23,12 +23,10 @@
  THE SOFTWARE.
  */
 
-import { Vec3, Mat4, IVec3Like } from '../core/math';
-import { intersect, Ray, Triangle } from '../core/geometry';
+import { Vec3, Mat4, IVec3Like, geometry } from '../core';
 import { PrimitiveMode } from '../gfx';
 import { Mesh } from '../3d/assets/mesh';
 import { IBArray, RenderingSubMesh } from '../asset/assets/rendering-sub-mesh';
-import { IRaySubMeshOptions, ERaycastMode, IRaySubMeshResult, IRayMeshOptions, IRayModelOptions } from '../core/geometry/spec';
 import { scene } from '../render-scene';
 
 // Implement some intersects functions here. As these functions depends on upper modules, so they are not
@@ -38,7 +36,7 @@ import { scene } from '../render-scene';
 
 // FIXME(minggo): rayAABB2 is also implemented in core/geometry/intersects.ts, but it is not exported.
 // And i don't think should export this function, so copy the implementation here.
-function rayAABB2 (ray: Ray, min: IVec3Like, max: IVec3Like) {
+function rayAABB2 (ray: geometry.Ray, min: IVec3Like, max: IVec3Like) {
     const o = ray.o; const d = ray.d;
     const ix = 1 / d.x; const iy = 1 / d.y; const iz = 1 / d.z;
     const t1 = (min.x - o.x) * ix;
@@ -64,12 +62,12 @@ function rayAABB2 (ray: Ray, min: IVec3Like, max: IVec3Like) {
  * @return @zh 0 或非 0 @en 0 or not 0, 0 indicates there is no intersection
  */
 const raySubMesh = (function () {
-    const tri = Triangle.create();
-    const deOpt: IRaySubMeshOptions = { distance: Infinity, doubleSided: false, mode: ERaycastMode.ANY };
+    const tri = geometry.Triangle.create();
+    const deOpt: geometry.IRaySubMeshOptions = { distance: Infinity, doubleSided: false, mode: geometry.ERaycastMode.ANY };
     let minDis = 0;
 
-    const fillResult = (m: ERaycastMode, d: number, i0: number, i1: number, i2: number, r?: IRaySubMeshResult[]) => {
-        if (m === ERaycastMode.CLOSEST) {
+    const fillResult = (m: geometry.ERaycastMode, d: number, i0: number, i1: number, i2: number, r?: geometry.IRaySubMeshResult[]) => {
+        if (m === geometry.ERaycastMode.CLOSEST) {
             if (minDis > d || minDis === 0) {
                 minDis = d;
                 if (r) {
@@ -86,7 +84,7 @@ const raySubMesh = (function () {
         }
     };
 
-    const narrowphase = (vb: Float32Array, ib: IBArray, pm: PrimitiveMode, ray: Ray, opt: IRaySubMeshOptions) => {
+    const narrowphase = (vb: Float32Array, ib: IBArray, pm: PrimitiveMode, ray: geometry.Ray, opt: geometry.IRaySubMeshOptions) => {
         if (pm === PrimitiveMode.TRIANGLE_LIST) {
             const cnt = ib.length;
             for (let j = 0; j < cnt; j += 3) {
@@ -96,10 +94,10 @@ const raySubMesh = (function () {
                 Vec3.set(tri.a, vb[i0], vb[i0 + 1], vb[i0 + 2]);
                 Vec3.set(tri.b, vb[i1], vb[i1 + 1], vb[i1 + 2]);
                 Vec3.set(tri.c, vb[i2], vb[i2 + 1], vb[i2 + 2]);
-                const dist = intersect.rayTriangle(ray, tri, opt.doubleSided);
+                const dist = geometry.intersect.rayTriangle(ray, tri, opt.doubleSided);
                 if (dist === 0 || dist > opt.distance) continue;
                 fillResult(opt.mode, dist, i0, i1, i2, opt.result);
-                if (opt.mode === ERaycastMode.ANY) return dist;
+                if (opt.mode === geometry.ERaycastMode.ANY) return dist;
             }
         } else if (pm === PrimitiveMode.TRIANGLE_STRIP) {
             const cnt = ib.length - 2;
@@ -112,10 +110,10 @@ const raySubMesh = (function () {
                 Vec3.set(tri.b, vb[i1], vb[i1 + 1], vb[i1 + 2]);
                 Vec3.set(tri.c, vb[i2], vb[i2 + 1], vb[i2 + 2]);
                 rev = ~rev;
-                const dist = intersect.rayTriangle(ray, tri, opt.doubleSided);
+                const dist = geometry.intersect.rayTriangle(ray, tri, opt.doubleSided);
                 if (dist === 0 || dist > opt.distance) continue;
                 fillResult(opt.mode, dist, i0, i1, i2, opt.result);
-                if (opt.mode === ERaycastMode.ANY) return dist;
+                if (opt.mode === geometry.ERaycastMode.ANY) return dist;
             }
         } else if (pm === PrimitiveMode.TRIANGLE_FAN) {
             const cnt = ib.length - 1;
@@ -126,15 +124,15 @@ const raySubMesh = (function () {
                 const i2 = ib[j + 1] * 3;
                 Vec3.set(tri.b, vb[i1], vb[i1 + 1], vb[i1 + 2]);
                 Vec3.set(tri.c, vb[i2], vb[i2 + 1], vb[i2 + 2]);
-                const dist = intersect.rayTriangle(ray, tri, opt.doubleSided);
+                const dist = geometry.intersect.rayTriangle(ray, tri, opt.doubleSided);
                 if (dist === 0 || dist > opt.distance) continue;
                 fillResult(opt.mode, dist, i0, i1, i2, opt.result);
-                if (opt.mode === ERaycastMode.ANY) return dist;
+                if (opt.mode === geometry.ERaycastMode.ANY) return dist;
             }
         }
         return minDis;
     };
-    return function (ray: Ray, submesh: RenderingSubMesh, options?: IRaySubMeshOptions) {
+    return function (ray: geometry.Ray, submesh: RenderingSubMesh, options?: geometry.IRaySubMeshOptions) {
         minDis = 0;
         if (submesh.geometricInfo.positions.length === 0) return minDis;
         const opt = options === undefined ? deOpt : options;
@@ -161,8 +159,8 @@ const raySubMesh = (function () {
  */
 const rayMesh = (function () {
     let minDis = 0;
-    const deOpt: IRayMeshOptions = { distance: Infinity, doubleSided: false, mode: ERaycastMode.ANY };
-    return function (ray: Ray, mesh: Mesh, options?: IRayMeshOptions) {
+    const deOpt: geometry.IRayMeshOptions = { distance: Infinity, doubleSided: false, mode: geometry.ERaycastMode.ANY };
+    return function (ray: geometry.Ray, mesh: Mesh, options?: geometry.IRayMeshOptions) {
         minDis = 0;
         const opt = options === undefined ? deOpt : options;
         const length = mesh.renderingSubMeshes.length;
@@ -173,7 +171,7 @@ const rayMesh = (function () {
             const sm = mesh.renderingSubMeshes[i];
             const dis = raySubMesh(ray, sm, opt);
             if (dis) {
-                if (opt.mode === ERaycastMode.CLOSEST) {
+                if (opt.mode === geometry.ERaycastMode.CLOSEST) {
                     if (minDis === 0 || minDis > dis) {
                         minDis = dis;
                         if (opt.subIndices) opt.subIndices[0] = i;
@@ -181,13 +179,13 @@ const rayMesh = (function () {
                 } else {
                     minDis = dis;
                     if (opt.subIndices) opt.subIndices.push(i);
-                    if (opt.mode === ERaycastMode.ANY) {
+                    if (opt.mode === geometry.ERaycastMode.ANY) {
                         return dis;
                     }
                 }
             }
         }
-        if (minDis && opt.mode === ERaycastMode.CLOSEST) {
+        if (minDis && opt.mode === geometry.ERaycastMode.CLOSEST) {
             if (opt.result) {
                 opt.result[0].distance = minDis;
                 opt.result.length = 1;
@@ -210,15 +208,15 @@ const rayMesh = (function () {
  */
 const rayModel = (function () {
     let minDis = 0;
-    const deOpt: IRayModelOptions = { distance: Infinity, doubleSided: false, mode: ERaycastMode.ANY };
-    const modelRay = new Ray();
+    const deOpt: geometry.IRayModelOptions = { distance: Infinity, doubleSided: false, mode: geometry.ERaycastMode.ANY };
+    const modelRay = new geometry.Ray();
     const m4 = new Mat4();
-    return function (r: Ray, model: scene.Model, options?: IRayModelOptions) {
+    return function (r: geometry.Ray, model: scene.Model, options?: geometry.IRayModelOptions) {
         minDis = 0;
         const opt = options === undefined ? deOpt : options;
         const wb = model.worldBounds;
-        if (wb && !intersect.rayAABB(r, wb)) return minDis;
-        Ray.copy(modelRay, r);
+        if (wb && !geometry.intersect.rayAABB(r, wb)) return minDis;
+        geometry.Ray.copy(modelRay, r);
         if (model.node) {
             Mat4.invert(m4, model.node.getWorldMatrix(m4));
             Vec3.transformMat4(modelRay.o, r.o, m4);
@@ -229,7 +227,7 @@ const rayModel = (function () {
             const subMesh = subModels[i].subMesh;
             const dis = raySubMesh(modelRay, subMesh, opt);
             if (dis) {
-                if (opt.mode === ERaycastMode.CLOSEST) {
+                if (opt.mode === geometry.ERaycastMode.CLOSEST) {
                     if (minDis === 0 || minDis > dis) {
                         minDis = dis;
                         if (opt.subIndices) opt.subIndices[0] = i;
@@ -237,13 +235,13 @@ const rayModel = (function () {
                 } else {
                     minDis = dis;
                     if (opt.subIndices) opt.subIndices.push(i);
-                    if (opt.mode === ERaycastMode.ANY) {
+                    if (opt.mode === geometry.ERaycastMode.ANY) {
                         return dis;
                     }
                 }
             }
         }
-        if (minDis && opt.mode === ERaycastMode.CLOSEST) {
+        if (minDis && opt.mode === geometry.ERaycastMode.CLOSEST) {
             if (opt.result) {
                 opt.result[0].distance = minDis;
                 opt.result.length = 1;
@@ -254,6 +252,6 @@ const rayModel = (function () {
     };
 }());
 
-intersect.rayModel = rayModel;
-intersect.raySubMesh = raySubMesh;
-intersect.rayMesh = rayMesh;
+geometry.intersect.rayModel = rayModel;
+geometry.intersect.raySubMesh = raySubMesh;
+geometry.intersect.rayMesh = rayMesh;

@@ -22,6 +22,7 @@ const configList = [
     [ 'video.i', 'jsb_video_auto.cpp' ],
     [ 'renderer.i', 'jsb_render_auto.cpp' ],
     [ 'gi.i', 'jsb_gi_auto.cpp' ],
+    [ 'xr.i', 'jsb_xr_auto.cpp' ],
 ];
 
 const cocosNativeRoot = path.resolve(path.join(__dirname, '..', '..'));

@@ -1,17 +1,16 @@
-import { ccclass, serializable } from 'cc.decorator';
 import { OwnedBy, ownerSymbol } from './ownership';
 import type { Layer, StateMachine, TransitionInternal } from './animation-graph';
-import { EditorExtendable } from '../../core/data/editor-extendable';
+import { EditorExtendable, js, editorExtrasTag, _decorator } from '../../core';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
 import { StateMachineComponent } from './state-machine-component';
-import { remove } from '../../core/utils/array';
-import { instantiate } from '../../core/data/instantiate';
-import { editorExtrasTag } from '../../core/data';
+import { instantiate } from '../../serialization/instantiate';
 import { cloneAnimationGraphEditorExtrasFrom } from './animation-graph-editor-extras-clone-helper';
 
 export const outgoingsSymbol = Symbol('[[Outgoing transitions]]');
 
 export const incomingsSymbol = Symbol('[[Incoming transitions]]');
+
+const { ccclass, serializable } = _decorator;
 
 @ccclass('cc.animation.State')
 export class State extends EditorExtendable implements OwnedBy<Layer | StateMachine> {
@@ -49,7 +48,7 @@ export class InteractiveState extends State {
     }
 
     public removeComponent (component: StateMachineComponent) {
-        remove(this._components, component);
+        js.array.remove(this._components, component);
     }
 
     public instantiateComponents (): StateMachineComponent[] {

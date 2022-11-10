@@ -64,6 +64,20 @@ public:
     static Object *createPlainObject();
 
     /**
+     *  @brief Creates a ES6 Map Object like `new Map()` in JS.
+     *  @return A JavaScript Object, or nullptr if there is an error.
+     *  @note The return value (non-null) has to be released manually.
+     */
+    static Object *createMapObject();
+
+    /**
+     *  @brief Creates a ES6 Set Object like `new Set()` in JS.
+     *  @return A JavaScript Object, or nullptr if there is an error.
+     *  @note The return value (non-null) has to be released manually.
+     */
+    static Object *createSetObject();
+
+    /**
      *  @brief Creates a JavaScript Array Object like `[] or new Array()`.
      *  @param[in] length The initical length of array.
      *  @return A JavaScript Array Object, or nullptr if there is an error.
@@ -242,6 +256,30 @@ public:
     bool call(const ValueArray &args, Object *thisObject, Value *rval = nullptr);
 
     /**
+     *  @brief Tests whether an object is a ES6 Map.
+     *  @return true if object is a Map, otherwise false.
+     */
+    bool isMap() const;
+
+    /**
+     *  @brief Tests whether an object is a ES6 WeakMap.
+     *  @return true if object is a WeakMap, otherwise false.
+     */
+    bool isWeakMap() const;
+
+    /**
+     *  @brief Tests whether an object is a ES6 Set.
+     *  @return true if object is a Set, otherwise false.
+     */
+    bool isSet() const;
+
+    /**
+     *  @brief Tests whether an object is a ES6 WeakSet.
+     *  @return true if object is a WeakSet, otherwise false.
+     */
+    bool isWeakSet() const;
+
+    /**
      *  @brief Tests whether an object is an array.
      *  @return true if object is an array, otherwise false.
      */
@@ -310,6 +348,87 @@ public:
      */
     bool getAllKeys(ccstd::vector<ccstd::string> *allKeys) const;
 
+    // ES6 Map operations
+
+    /**
+     *  @brief Clear all elements in a ES6 map object.
+     */
+    void clearMap();
+
+    /**
+     *  @brief Remove an element in a ES6 map by a key.
+     *  @param[in] key The key of the element to remove, it could be any type that se::Value supports.
+     *  @return true if succeed, otherwise false.
+     */
+    bool removeMapElement(const Value &key);
+
+    /**
+     *  @brief Get an element in a ES6 map by a key.
+     *  @param[in] key Key of the element to get, it could be any type that se::Value supports.
+     *  @param[out] outValue Out parameter, On success, *outValue receives the current value of the map element, or nullptr if no such element is found
+     *  @return true if succeed, otherwise false.
+     */
+    bool getMapElement(const Value &key, Value *outValue) const;
+
+    /**
+     *  @brief Set an element in a ES6 map by a key.
+     *  @param[in] key Key of the element to get, it could be any type that se::Value supports.
+     *  @param[in] value The value to set the map.
+     *  @return true if succeed, otherwise false.
+     */
+    bool setMapElement(const Value &key, const Value &value);
+
+    /**
+     *  @brief Get the size of a ES6 map
+     *  @return The size of a ES6 map
+     */
+    uint32_t getMapSize() const;
+
+    /**
+     *  @brief Get all elements in a ES6 map
+     *  @return All elements in a ES6 map, they're stored in a std::vector instead of `std::map/unordered_map` since we don't know how to compare or make a hash for `se::Value`s.
+     */
+    ccstd::vector<std::pair<Value, Value>> getAllElementsInMap() const;
+
+    // ES6 Set operations
+
+    /**
+     *  @brief Clear all elements in a ES6 set object.
+     */
+    void clearSet();
+
+    /**
+     *  @brief Remove an element in a ES6 set.
+     *  @param[in] value The value to remove.
+     *  @return true if succeed, otherwise false.
+     */
+    bool removeSetElement(const Value &value);
+
+    /**
+     *  @brief Add an element to a ES6 set.
+     *  @param[in] value The value to set the set.
+     *  @return true if succeed, otherwise false.
+     */
+    bool addSetElement(const Value &value);
+
+    /**
+     *  @brief Check whether the value is in a ES6 set.
+     *  @return true if the value is in the ES6 set, otherwise false.
+     */
+    bool isElementInSet(const Value &value) const;
+
+    /**
+     *  @brief Get the size of a ES6 set.
+     *  @return The size of a ES6 set.
+     */
+    uint32_t getSetSize() const;
+
+    /**
+     *  @brief Get all elements in a ES6 set.
+     *  @return All elements in a ES6 set.
+     */
+    ValueArray getAllElementsInSet() const;
+
     void setPrivateObject(PrivateObjectBase *data);
     PrivateObjectBase *getPrivateObject() const;
 
@@ -325,9 +444,9 @@ public:
      *  @brief Sets a pointer to private data on an object and use smart pointer to hold it.
      *
      *  If the pointer is an instance of `cc::RefCounted`, an `cc::IntrusivePtr` will be created to hold
-     *  the reference to the object, otherwise a `std::shared_ptr` object will be used. 
+     *  the reference to the object, otherwise a `std::shared_ptr` object will be used.
      *  When the JS object is freed by GC, the corresponding smart pointer `IntrusivePtr/shared_ptr` will also be destroyed.
-     * 
+     *
      *  If you do not want the pointer to be released by GC, you can call `setRawPrivateData`.
      *
      *  @param[in] data A void* to set as the object's private data.
@@ -366,8 +485,8 @@ public:
      * @brief Set pointer to the private data on an object and will not use smart pointer to hold it.
      *
      * @tparam T
-     * @param data 
-     * @param tryDestroyInGC When GCing the JS object, whether to `delete` the `data` pointer.  
+     * @param data
+     * @param tryDestroyInGC When GCing the JS object, whether to `delete` the `data` pointer.
      */
     template <typename T>
     inline void setRawPrivateData(T *data, bool tryDestroyInGC = false) {

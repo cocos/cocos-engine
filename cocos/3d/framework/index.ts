@@ -24,7 +24,7 @@
  THE SOFTWARE.
 */
 
-export { MeshRenderer } from './mesh-renderer';
+export { MeshRenderer, ReflectionProbeType } from './mesh-renderer';
 
 /** deprecated */
 export * from './deprecated';

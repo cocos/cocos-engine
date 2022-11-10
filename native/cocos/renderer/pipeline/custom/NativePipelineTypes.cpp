@@ -96,8 +96,16 @@ NativeRenderQueue::NativeRenderQueue(const allocator_type& alloc) noexcept
   instancingQueue(alloc),
   instancePacks(alloc) {}
 
+NativeRenderQueue::NativeRenderQueue(SceneFlags sceneFlagsIn, const allocator_type& alloc) noexcept
+: sceneFlags(sceneFlagsIn),
+  scenePassQueue(alloc),
+  batchingQueue(alloc),
+  instancingQueue(alloc),
+  instancePacks(alloc) {}
+
 NativeRenderQueue::NativeRenderQueue(NativeRenderQueue&& rhs, const allocator_type& alloc)
-: scenePassQueue(std::move(rhs.scenePassQueue), alloc),
+: sceneFlags(rhs.sceneFlags),
+  scenePassQueue(std::move(rhs.scenePassQueue), alloc),
   batchingQueue(std::move(rhs.batchingQueue), alloc),
   instancingQueue(std::move(rhs.instancingQueue), alloc),
   instancePacks(std::move(rhs.instancePacks), alloc) {}

@@ -176,9 +176,6 @@ void RenderWindow::detachCamera(Camera *camera) {
 }
 
 void RenderWindow::clearCameras() {
-    for (Camera *camera : _cameras) {
-        CC_SAFE_DESTROY(camera);
-    }
     _cameras.clear();
 }
 

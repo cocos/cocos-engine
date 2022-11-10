@@ -30,8 +30,6 @@
 
 namespace cc {
 
-BaseEngine::~BaseEngine() = default;
-
 // static
 BaseEngine::Ptr BaseEngine::createEngine() {
     return std::make_shared<Engine>();

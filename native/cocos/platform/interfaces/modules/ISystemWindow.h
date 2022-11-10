@@ -27,16 +27,16 @@
 
 #include <iostream>
 #include "base/std/container/array.h"
-#include "math/Vec2.h"
+#include "math/Geometry.h"
 #include "platform/interfaces/OSInterface.h"
 
 namespace cc {
 
 class CC_DLL ISystemWindow : public OSInterface {
 public:
-    static const uint32_t mainWindowId = 1;
+    static constexpr uint32_t mainWindowId = 1;
 
-    using Size = cc::Vec2;
+    using Size = cc::Size;
     enum WindowFlags {
         /* !!! FIXME: change this to name = (1<<x). */
         CC_WINDOW_FULLSCREEN = 0x00000001,    /**< fullscreen window */

@@ -17315,77 +17315,6 @@ se::Class* __jsb_cc_IMemoryImageSource_class = nullptr;
 se::Object* __jsb_cc_IMemoryImageSource_proto = nullptr;
 SE_DECLARE_FINALIZE_FUNC(js_delete_cc_IMemoryImageSource) 
 
-static bool js_cc_IMemoryImageSource__data_set(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::IMemoryImageSource *arg1 = (cc::IMemoryImageSource *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::IMemoryImageSource>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[0], &arg1->data, s.thisObject());
-    SE_PRECONDITION2(ok, false, "IMemoryImageSource__data_set,2,SWIGTYPE_cc__IntrusivePtrT_cc__ArrayBuffer_t"); 
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_SET(js_cc_IMemoryImageSource__data_set) 
-
-static bool js_cc_IMemoryImageSource__data_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::IMemoryImageSource *arg1 = (cc::IMemoryImageSource *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::IMemoryImageSource>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(arg1->data, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "IMemoryImageSource__data_get, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(arg1->data, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_IMemoryImageSource__data_get) 
-
-static bool js_cc_IMemoryImageSource__compressed_set(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::IMemoryImageSource *arg1 = (cc::IMemoryImageSource *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::IMemoryImageSource>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) bool
-    ok &= sevalue_to_native(args[0], &arg1->compressed);
-    SE_PRECONDITION2(ok, false, "IMemoryImageSource__compressed_set,2,SWIGTYPE_bool"); 
-    
-    
-    return true;
-}
-SE_BIND_PROP_SET(js_cc_IMemoryImageSource__compressed_set) 
-
-static bool js_cc_IMemoryImageSource__compressed_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::IMemoryImageSource *arg1 = (cc::IMemoryImageSource *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::IMemoryImageSource>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // out 5
-    ok &= nativevalue_to_se(arg1->compressed, s.rval(), s.thisObject() /*ctx*/);
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_IMemoryImageSource__compressed_get) 
-
 static bool js_cc_IMemoryImageSource_width_set(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -17535,18 +17464,6 @@ bool sevalue_to_native(const se::Value &from, cc::IMemoryImageSource * to, se::O
     se::Value field;
     bool ok = true;
     
-    json->getProperty("_data", &field, true);
-    if (!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->data), ctx);
-    }
-    
-    
-    json->getProperty("_compressed", &field, true);
-    if (!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->compressed), ctx);
-    }
-    
-    
     json->getProperty("width", &field, true);
     if (!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->width), ctx);
@@ -17572,8 +17489,6 @@ bool sevalue_to_native(const se::Value &from, cc::IMemoryImageSource * to, se::O
 bool js_register_cc_IMemoryImageSource(se::Object* obj) {
     auto* cls = se::Class::create("IMemoryImageSource", obj, nullptr, _SE(js_new_cc_IMemoryImageSource)); 
     
-    cls->defineProperty("_data", _SE(js_cc_IMemoryImageSource__data_get), _SE(js_cc_IMemoryImageSource__data_set)); 
-    cls->defineProperty("_compressed", _SE(js_cc_IMemoryImageSource__compressed_get), _SE(js_cc_IMemoryImageSource__compressed_set)); 
     cls->defineProperty("width", _SE(js_cc_IMemoryImageSource_width_get), _SE(js_cc_IMemoryImageSource_width_set)); 
     cls->defineProperty("height", _SE(js_cc_IMemoryImageSource_height_get), _SE(js_cc_IMemoryImageSource_height_set)); 
     cls->defineProperty("format", _SE(js_cc_IMemoryImageSource_format_get), _SE(js_cc_IMemoryImageSource_format_set)); 
@@ -18382,7 +18297,7 @@ se::Class* __jsb_cc_Material_class = nullptr;
 se::Object* __jsb_cc_Material_proto = nullptr;
 SE_DECLARE_FINALIZE_FUNC(js_delete_cc_Material) 
 
-static bool js_cc_Material_getHashForMaterial_static(se::State& s)
+static bool js_cc_Material_getHash_static(se::State& s)
 {
     // js_function
     
@@ -18398,18 +18313,18 @@ static bool js_cc_Material_getHashForMaterial_static(se::State& s)
     }
     // %typemap(in) SWIGTYPE*
     ok &= sevalue_to_native(args[0], &arg1, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Material_getHashForMaterial,1,SWIGTYPE_p_cc__Material"); 
+    SE_PRECONDITION2(ok, false, "Material_getHash,1,SWIGTYPE_p_cc__Material"); 
     result = cc::Material::getHashForMaterial(arg1);
     // %typemap(out) SWIGTYPE
     ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "Material_getHashForMaterial, Error processing arguments");
+    SE_PRECONDITION2(ok, false, "Material_getHash, Error processing arguments");
     SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
     
     
     
     return true;
 }
-SE_BIND_FUNC(js_cc_Material_getHashForMaterial_static) 
+SE_BIND_FUNC(js_cc_Material_getHash_static) 
 
 // js_ctor
 static bool js_new_cc_Material(se::State& s) // NOLINT(readability-identifier-naming)
@@ -21335,7 +21250,7 @@ bool js_register_cc_Material(se::Object* obj) {
     cls->defineFunction("getPasses", _SE(js_cc_Material_getPasses)); 
     
     
-    cls->defineStaticFunction("getHashForMaterial", _SE(js_cc_Material_getHashForMaterial_static)); 
+    cls->defineStaticFunction("getHash", _SE(js_cc_Material_getHash_static)); 
     
     
     cls->defineFinalizeFunction(_SE(js_delete_cc_Material));

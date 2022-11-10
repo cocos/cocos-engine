@@ -25,13 +25,12 @@
 
 import { EDITOR, SUPPORT_JIT, DEV, TEST } from 'internal:constants';
 import { CCObject } from '../core/data/object';
-import { MutableForwardIterator } from '../core/utils/array';
-import { array } from '../core/utils/js';
+import { js } from '../core';
 import { tryCatchFunctor_EDITOR } from '../core/utils/misc';
 import { legacyCC } from '../core/global-exports';
 import { error, assert } from '../core/platform/debug';
 
-const fastRemoveAt = array.fastRemoveAt;
+const fastRemoveAt = js.array.fastRemoveAt;
 
 const IsStartCalled = CCObject.Flags.IsStartCalled;
 const IsOnEnableCalled = CCObject.Flags.IsOnEnableCalled;
@@ -90,12 +89,12 @@ function stableRemoveInactive (iterator, flagToClear) {
 export class LifeCycleInvoker {
     public static stableRemoveInactive = stableRemoveInactive;
 
-    protected _zero: MutableForwardIterator<any>;
-    protected _neg: MutableForwardIterator<any>;
-    protected _pos: MutableForwardIterator<any>;
+    protected _zero: js.array.MutableForwardIterator<any>;
+    protected _neg: js.array.MutableForwardIterator<any>;
+    protected _pos: js.array.MutableForwardIterator<any>;
     protected _invoke: any;
     constructor (invokeFunc) {
-        const Iterator = MutableForwardIterator;
+        const Iterator = js.array.MutableForwardIterator;
         // components which priority === 0 (default)
         this._zero = new Iterator([]);
         // components which priority < 0

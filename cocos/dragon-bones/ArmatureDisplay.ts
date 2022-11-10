@@ -25,11 +25,9 @@
 
 import { EDITOR } from 'internal:constants';
 import { Armature, Bone, EventObject } from '@cocos/dragonbones-js';
-import { ccclass, executeInEditMode, help, menu } from '../core/data/class-decorator';
 import { UIRenderer } from '../2d/framework/ui-renderer';
-import { CCClass, Color, Enum, ccenum, errorID, RecyclePool, js, CCObject, EventTarget, cclegacy } from '../core';
+import { CCClass, Color, Enum, ccenum, errorID, RecyclePool, js, CCObject, EventTarget, cclegacy, _decorator } from '../core';
 import { BlendFactor } from '../gfx';
-import { displayName, displayOrder, editable, override, serializable, tooltip, type, visible } from '../core/data/decorators';
 import { AnimationCache, ArmatureCache, ArmatureFrame } from './ArmatureCache';
 import { AttachUtil } from './AttachUtil';
 import { CCFactory } from './CCFactory';
@@ -90,6 +88,8 @@ export enum AnimationCacheMode {
     PRIVATE_CACHE = 2
 }
 ccenum(AnimationCacheMode);
+
+const { ccclass, serializable, editable, type, help, menu, tooltip, visible, displayName, override, displayOrder, executeInEditMode } = _decorator;
 
 function setEnumAttr (obj, propName, enumDef) {
     CCClass.Attr.setClassAttr(obj, propName, 'type', 'Enum');

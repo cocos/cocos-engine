@@ -24,12 +24,11 @@
  */
 
 import CANNON from '@cocos/cannon';
-import { clamp, Vec3 } from '../../../core/math';
+import { clamp, Vec3 } from '../../../core';
 import { commitShapeUpdates } from '../cannon-util';
 import { CannonShape } from './cannon-shape';
 import { IBoxShape } from '../../spec/i-physics-shape';
-import { IVec3Like } from '../../../core/math/type-define';
-import { BoxCollider, physics, PhysicsSystem } from '../../../../exports/physics-framework';
+import { BoxCollider, PhysicsSystem } from '../../../../exports/physics-framework';
 import { absolute, VEC3_0 } from '../../utils/util';
 
 export class CannonBoxShape extends CannonShape implements IBoxShape {

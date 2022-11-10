@@ -24,10 +24,7 @@
  */
 
 import { ccclass } from 'cc.decorator';
-import { lerp } from '../../core/math';
-import { Enum } from '../../core/value-types';
-import { AnimationCurve, constructLegacyCurveAndConvert } from '../../core/geometry/curve';
-import { RealCurve, CCClass } from '../../core';
+import { lerp, RealCurve, CCClass, geometry, Enum } from '../../core';
 import { PixelFormat, Filter, WrapMode } from '../../asset/assets/asset-enum';
 import { Texture2D, ImageAsset } from '../../asset/assets';
 
@@ -59,24 +56,24 @@ export default class CurveRange  {
     /**
      * @zh 当mode为Curve时，使用的曲线。
      */
-    public spline = constructLegacyCurveAndConvert();
+    public spline = geometry.constructLegacyCurveAndConvert();
 
     /**
      * @zh 当mode为TwoCurves时，使用的曲线下限。
      */
-    public splineMin = constructLegacyCurveAndConvert();
+    public splineMin = geometry.constructLegacyCurveAndConvert();
 
     /**
      * @zh 当mode为TwoCurves时，使用的曲线上限。
      */
-    public splineMax = constructLegacyCurveAndConvert();
+    public splineMax = geometry.constructLegacyCurveAndConvert();
 
     /**
      * @zh 当mode为Curve时，使用的曲线。
      * @deprecated Since V3.3. Use `spline` instead.
      */
     get curve () {
-        return this._curve ??= new AnimationCurve(this.spline);
+        return this._curve ??= new geometry.AnimationCurve(this.spline);
     }
 
     set curve (value) {
@@ -89,7 +86,7 @@ export default class CurveRange  {
      * @deprecated Since V3.3. Use `splineMin` instead.
      */
     get curveMin () {
-        return this._curveMin ??= new AnimationCurve(this.splineMin);
+        return this._curveMin ??= new geometry.AnimationCurve(this.splineMin);
     }
 
     set curveMin (value) {
@@ -102,7 +99,7 @@ export default class CurveRange  {
      * @deprecated Since V3.3. Use `splineMax` instead.
      */
     get curveMax () {
-        return this._curveMax ??= new AnimationCurve(this.splineMax);
+        return this._curveMax ??= new geometry.AnimationCurve(this.splineMax);
     }
 
     set curveMax (value) {
@@ -170,9 +167,9 @@ export default class CurveRange  {
         return SerializableTable[this.mode];
     }
 
-    private declare _curve: AnimationCurve | undefined;
-    private declare _curveMin: AnimationCurve | undefined;
-    private declare _curveMax: AnimationCurve | undefined;
+    private declare _curve: geometry.AnimationCurve | undefined;
+    private declare _curveMin: geometry.AnimationCurve | undefined;
+    private declare _curveMax: geometry.AnimationCurve | undefined;
 }
 
 CCClass.fastDefine('cc.CurveRange', CurveRange, {
@@ -181,9 +178,9 @@ CCClass.fastDefine('cc.CurveRange', CurveRange, {
     constantMin: 0,
     constant: 0,
     mode: Mode.Constant,
-    splineMax: Object.freeze(constructLegacyCurveAndConvert()),
-    splineMin: Object.freeze(constructLegacyCurveAndConvert()),
-    spline: Object.freeze(constructLegacyCurveAndConvert()),
+    splineMax: Object.freeze(geometry.constructLegacyCurveAndConvert()),
+    splineMin: Object.freeze(geometry.constructLegacyCurveAndConvert()),
+    spline: Object.freeze(geometry.constructLegacyCurveAndConvert()),
 });
 
 setClassAttr(CurveRange, 'multiplier', 'visible', true);

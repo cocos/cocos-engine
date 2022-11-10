@@ -213,6 +213,11 @@ cc_inspect_values(
     USE_REMOTE_LOG
 )
 
+if(USE_XR)
+    if(USE_XR_REMOTE_PREVIEW)
+        set(USE_WEBSOCKET_SERVER ON)
+    endif()
+endif()
 
 include(${EXTERNAL_ROOT}/CMakeLists.txt)
 
@@ -384,6 +389,17 @@ cocos_source_files(
     cocos/plugins/bus/EventBus.cpp
 )
 
+cocos_source_files(
+    cocos/core/event/Event.h
+    cocos/core/event/EventBus.h
+    cocos/core/event/EventBus.cpp
+    cocos/core/event/EventTarget.h
+    cocos/core/event/intl/EventIntl.h
+    cocos/core/event/intl/List.h
+    cocos/core/event/intl/EventTargetMacros.h
+    cocos/core/event/intl/EventBusMacros.h
+)
+
 ##### base
 cocos_source_files(
     cocos/base/Agent.h
@@ -484,7 +500,6 @@ endif()
 
 ############ platform
 cocos_source_files(
-    cocos/platform/IEventDispatch.h
     cocos/platform/BasePlatform.cpp
     cocos/platform/BasePlatform.h
     cocos/platform/UniversalPlatform.cpp
@@ -605,6 +620,8 @@ if(WINDOWS)
             cocos/platform/empty/modules/Screen.h
             cocos/platform/empty/modules/SystemWindow.cpp
             cocos/platform/empty/modules/SystemWindow.h
+            cocos/platform/empty/modules/SystemWindowManager.cpp
+            cocos/platform/empty/modules/SystemWindowManager.h
         )
     else()
         cocos_source_files(
@@ -672,6 +689,8 @@ elseif(MACOSX)
             cocos/platform/empty/modules/Screen.h
             cocos/platform/empty/modules/SystemWindow.cpp
             cocos/platform/empty/modules/SystemWindow.h
+            cocos/platform/empty/modules/SystemWindowManager.cpp
+            cocos/platform/empty/modules/SystemWindowManager.h
         )
     else()
         cocos_source_files(
@@ -721,6 +740,8 @@ elseif(LINUX)
             cocos/platform/empty/modules/Screen.h
             cocos/platform/empty/modules/SystemWindow.cpp
             cocos/platform/empty/modules/SystemWindow.h
+            cocos/platform/empty/modules/SystemWindowManager.cpp
+            cocos/platform/empty/modules/SystemWindowManager.h
         )
     else()
         cocos_source_files(
@@ -1213,6 +1234,8 @@ cocos_source_files(
                  cocos/renderer/pipeline/Define.cpp
                  cocos/renderer/pipeline/GlobalDescriptorSetManager.h
                  cocos/renderer/pipeline/GlobalDescriptorSetManager.cpp
+                 cocos/renderer/pipeline/LODModelsUtil.cpp
+                 cocos/renderer/pipeline/LODModelsUtil.h
                  cocos/renderer/pipeline/InstancedBuffer.cpp
                  cocos/renderer/pipeline/InstancedBuffer.h
                  cocos/renderer/pipeline/PipelineStateManager.cpp
@@ -1365,6 +1388,8 @@ cocos_source_files(
                  cocos/scene/Fog.cpp
                  cocos/scene/Light.h
                  cocos/scene/Light.cpp
+                 cocos/scene/LODGroup.h
+                 cocos/scene/LODGroup.cpp
                  cocos/scene/Model.h
                  cocos/scene/Model.cpp
                  cocos/scene/Pass.h
@@ -1771,8 +1796,8 @@ if(USE_PHYSICS_PHYSX)
         cocos/physics/physx/joints/PhysXJoint.cpp
         cocos/physics/physx/joints/PhysXRevolute.h
         cocos/physics/physx/joints/PhysXRevolute.cpp
-        cocos/physics/physx/joints/PhysXDistance.h
-        cocos/physics/physx/joints/PhysXDistance.cpp
+        cocos/physics/physx/joints/PhysXSpherical.h
+        cocos/physics/physx/joints/PhysXSpherical.cpp
     )
     cocos_source_files(
         NO_WERROR NO_UBUILD cocos/bindings/auto/jsb_physics_auto.cpp
@@ -1955,61 +1980,14 @@ cocos_source_files(
     # builtin
     cocos/core/builtin/BuiltinResMgr.cpp
     cocos/core/builtin/BuiltinResMgr.h
-    # cocos/core/builtin/ShaderSourceAssembly.cpp
-    # cocos/core/builtin/ShaderSourceAssembly.h
-    # cocos/core/builtin/Effects.cpp # generated
-    # cocos/core/builtin/Effects.h
-    # cocos/core/builtin/shader-sources/glsl1.cpp # generated
-    # cocos/core/builtin/shader-sources/glsl1.h
-    # cocos/core/builtin/shader-sources/glsl3.cpp # generated
-    # cocos/core/builtin/shader-sources/glsl3.h
-    # cocos/core/builtin/shader-sources/glsl4.cpp # generated
-    # cocos/core/builtin/shader-sources/glsl4.h
-    #
 
     cocos/core/data/Object.cpp
     cocos/core/data/Object.h
     cocos/core/data/JSBNativeDataHolder.h
-    # cocos/core/data/deserializer/EffectAssetDeserializer.cpp
-    # cocos/core/data/deserializer/EffectAssetDeserializer.h
-    # cocos/core/data/deserializer/MeshDeserializer.cpp
-    # cocos/core/data/deserializer/MeshDeserializer.h
-    # cocos/core/data/deserializer/MaterialDeserializer.cpp
-    # cocos/core/data/deserializer/MaterialDeserializer.h
-    # cocos/core/data/deserializer/ImageAssetDeserializer.cpp
-    # cocos/core/data/deserializer/ImageAssetDeserializer.h
-    # cocos/core/data/deserializer/TextureBaseDeserializer.h
-    # cocos/core/data/deserializer/TextureBaseDeserializer.cpp
-    # cocos/core/data/deserializer/Texture2DDeserializer.cpp
-    # cocos/core/data/deserializer/Texture2DDeserializer.h
-    # cocos/core/data/deserializer/TerrainAssetDeserializer.cpp
-    # cocos/core/data/deserializer/TerrainAssetDeserializer.h
-    # cocos/core/data/deserializer/IAssetDeserializer.h
-    # cocos/core/data/deserializer/AssetDeserializerFactory.cpp
-    # cocos/core/data/deserializer/AssetDeserializerFactory.h
-
-    cocos/core/event/CallbacksInvoker.cpp
-    cocos/core/event/CallbacksInvoker.h
-    cocos/core/event/EventTypesToJS.h
-    cocos/core/event/EventTypesToJS.cpp
-    # cocos/core/event/Event.cpp
-    # cocos/core/event/Event.h
-    # cocos/core/scene-graph/Find.cpp
-    # cocos/core/scene-graph/Find.h
     cocos/core/scene-graph/Layers.h
     cocos/core/scene-graph/Node.cpp
     cocos/core/scene-graph/Node.h
-    # cocos/core/scene-graph/ComponentScheduler.h
-    # cocos/core/scene-graph/ComponentScheduler.cpp
-    # cocos/core/scene-graph/NodeActivator.cpp
-    # cocos/core/scene-graph/NodeActivator.h
     cocos/core/scene-graph/NodeEnum.h
-    cocos/core/scene-graph/NodeEvent.cpp
-    cocos/core/scene-graph/NodeEvent.h
-    cocos/core/scene-graph/NodeEventProcessor.cpp
-    cocos/core/scene-graph/NodeEventProcessor.h
-    # cocos/core/scene-graph/NodeUIProperties.cpp
-    # cocos/core/scene-graph/NodeUIProperties.h
     cocos/core/scene-graph/Scene.cpp
     cocos/core/scene-graph/Scene.h
     cocos/core/scene-graph/SceneGlobals.cpp
@@ -2152,6 +2130,13 @@ if(USE_XR)
     cocos_source_files(
         NO_WERROR    cocos/bindings/auto/jsb_xr_auto.cpp
                      cocos/bindings/auto/jsb_xr_auto.h
+    )
+endif()
+
+if(USE_XR_REMOTE_PREVIEW)
+    cocos_source_files(
+            NO_WERROR    cocos/xr/XRRemotePreviewManager.h
+            cocos/xr/XRRemotePreviewManager.cpp
     )
 endif()
 
@@ -2635,7 +2620,6 @@ cocos_source_files(
 )
 
 cocos_source_files(
-                 cocos/bindings/event/CustomEventTypes.h
                  cocos/bindings/event/EventDispatcher.cpp
                  cocos/bindings/event/EventDispatcher.h
 )
@@ -2928,6 +2912,7 @@ function(cc_apply_definations target)
         $<IF:$<BOOL:${USE_WEBVIEW}>,CC_USE_WEBVIEW=1,CC_USE_WEBVIEW=0>
         $<IF:$<BOOL:${USE_AUDIO}>,CC_USE_AUDIO=1,CC_USE_AUDIO=0>
         $<IF:$<BOOL:${USE_XR}>,CC_USE_XR=1,CC_USE_XR=0>
+        $<IF:$<BOOL:${USE_XR_REMOTE_PREVIEW}>,CC_USE_XR_REMOTE_PREVIEW=1,CC_USE_XR_REMOTE_PREVIEW=0>
         $<IF:$<BOOL:${USE_SOCKET}>,CC_USE_SOCKET=1,CC_USE_SOCKET=0>
         $<IF:$<BOOL:${USE_WEBSOCKET_SERVER}>,CC_USE_WEBSOCKET_SERVER=1,CC_USE_WEBSOCKET_SERVER=0>
         $<IF:$<BOOL:${USE_EDIT_BOX}>,CC_USE_EDITBOX=1,CC_USE_EDITBOX=0>

@@ -1,7 +1,12 @@
+#include <boost/graph/depth_first_search.hpp>
+#include <boost/graph/filtered_graph.hpp>
+#include "DebugUtils.h"
+#include "GraphView.h"
 #include "LayoutGraphGraphs.h"
 #include "NativePipelineGraphs.h"
 #include "NativePipelineTypes.h"
 #include "RenderGraphGraphs.h"
+#include "RenderGraphNames.h"
 #include "gfx-base/GFXDef-common.h"
 #include "pipeline/custom/RenderCommonTypes.h"
 #include "pipeline/custom/RenderGraphFwd.h"
@@ -10,6 +15,14 @@
 namespace cc {
 
 namespace render {
+
+ccstd::string NativeRasterPassBuilder::getName() const {
+    return std::string(get(RenderGraph::Name, *renderGraph, passID));
+}
+
+void NativeRasterPassBuilder::setName(const ccstd::string &name) {
+    get(RenderGraph::Name, *renderGraph, passID) = std::string_view(name);
+}
 
 void NativeRasterPassBuilder::addRasterView(const ccstd::string &name, const RasterView &view) {
     auto &pass = get(RasterTag{}, passID, *renderGraph);
@@ -33,7 +46,16 @@ void NativeRasterPassBuilder::addComputeView(const ccstd::string &name, const Co
     iter->second.emplace_back(view);
 }
 
-void NativeRasterQueueBuilder::addSceneOfCamera(scene::Camera *camera, LightInfo light, SceneFlags sceneFlags, const ccstd::string &name) {
+ccstd::string NativeRasterQueueBuilder::getName() const {
+    return std::string(get(RenderGraph::Name, *renderGraph, queueID));
+}
+
+void NativeRasterQueueBuilder::setName(const ccstd::string &name) {
+    get(RenderGraph::Name, *renderGraph, queueID) = std::string_view(name);
+}
+
+void NativeRasterQueueBuilder::addSceneOfCamera(scene::Camera *camera, LightInfo light, SceneFlags sceneFlags) {
+    std::string_view name = "Camera";
     SceneData scene(renderGraph->get_allocator());
     scene.name = name;
     scene.flags = sceneFlags;
@@ -41,17 +63,13 @@ void NativeRasterQueueBuilder::addSceneOfCamera(scene::Camera *camera, LightInfo
     scene.light = std::move(light);
     auto sceneID = addVertex(
         SceneTag{},
-        std::forward_as_tuple(name.c_str()),
+        std::forward_as_tuple(name),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
         std::forward_as_tuple(std::move(scene)),
         *renderGraph, queueID);
     CC_ENSURES(sceneID != RenderGraph::null_vertex());
-}
-
-void NativeRasterQueueBuilder::addSceneOfCamera(scene::Camera *camera, LightInfo light, SceneFlags sceneFlags) {
-    addSceneOfCamera(camera, std::move(light), sceneFlags, "Camera");
 }
 
 void NativeRasterQueueBuilder::addScene(const ccstd::string &name, SceneFlags sceneFlags) {
@@ -71,10 +89,11 @@ void NativeRasterQueueBuilder::addScene(const ccstd::string &name, SceneFlags sc
 }
 
 void NativeRasterQueueBuilder::addFullscreenQuad(
-    Material *material, uint32_t passID, SceneFlags sceneFlags, const ccstd::string &name) {
+    Material *material, uint32_t passID, SceneFlags sceneFlags) {
+    std::string_view name = "FullscreenQuad";
     auto drawID = addVertex(
         BlitTag{},
-        std::forward_as_tuple(name.c_str()),
+        std::forward_as_tuple(name),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
@@ -83,13 +102,10 @@ void NativeRasterQueueBuilder::addFullscreenQuad(
     CC_ENSURES(drawID != RenderGraph::null_vertex());
 }
 
-void NativeRasterQueueBuilder::addFullscreenQuad(Material *material, uint32_t passID, SceneFlags sceneFlags) {
-    addFullscreenQuad(material, passID, sceneFlags, "FullscreenQuad");
-}
-
 void NativeRasterQueueBuilder::addCameraQuad(
     scene::Camera *camera, cc::Material *material, uint32_t passID,
-    SceneFlags sceneFlags, const ccstd::string &name) {
+    SceneFlags sceneFlags) {
+    std::string_view name = "CameraQuad";
     auto drawID = addVertex(
         BlitTag{},
         std::forward_as_tuple(name),
@@ -99,11 +115,6 @@ void NativeRasterQueueBuilder::addCameraQuad(
         std::forward_as_tuple(material, passID, sceneFlags, camera),
         *renderGraph, queueID);
     CC_ENSURES(drawID != RenderGraph::null_vertex());
-}
-
-void NativeRasterQueueBuilder::addCameraQuad(
-    scene::Camera *camera, cc::Material *material, uint32_t passID, SceneFlags sceneFlags) {
-    addCameraQuad(camera, material, passID, sceneFlags, "CameraQuad");
 }
 
 void NativeRasterQueueBuilder::clearRenderTarget(const ccstd::string &name, const gfx::Color &color) {
@@ -273,11 +284,11 @@ void NativeRasterQueueBuilder::setSampler(const ccstd::string &name, gfx::Sample
     addSampler(*layoutGraph, name, sampler, data);
 }
 
-RasterQueueBuilder *NativeRasterPassBuilder::addQueue(
-    QueueHint hint, const ccstd::string &name) { // NOLINT(bugprone-easily-swappable-parameters)
+RasterQueueBuilder *NativeRasterPassBuilder::addQueue(QueueHint hint) {
+    std::string_view name = "Queue";
     auto queueID = addVertex(
         QueueTag{},
-        std::forward_as_tuple(name.c_str()),
+        std::forward_as_tuple(name),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
@@ -285,63 +296,6 @@ RasterQueueBuilder *NativeRasterPassBuilder::addQueue(
         *renderGraph, passID);
 
     return new NativeRasterQueueBuilder(renderGraph, queueID, layoutGraph);
-}
-
-RasterQueueBuilder *NativeRasterPassBuilder::addQueue(QueueHint hint) {
-    return addQueue(hint, "Queue");
-}
-
-void NativeRasterPassBuilder::addFullscreenQuad(
-    Material *material, uint32_t passID, SceneFlags sceneFlags, const ccstd::string &name) { // NOLINT(bugprone-easily-swappable-parameters)
-    auto queueID = addVertex(
-        QueueTag{},
-        std::forward_as_tuple("Queue"),
-        std::forward_as_tuple(),
-        std::forward_as_tuple(),
-        std::forward_as_tuple(),
-        std::forward_as_tuple(QueueHint::RENDER_TRANSPARENT),
-        *renderGraph, passID);
-
-    addVertex(
-        BlitTag{},
-        std::forward_as_tuple(name),
-        std::forward_as_tuple(),
-        std::forward_as_tuple(),
-        std::forward_as_tuple(),
-        std::forward_as_tuple(material, passID, sceneFlags, nullptr),
-        *renderGraph, queueID);
-}
-
-void NativeRasterPassBuilder::addFullscreenQuad(
-    Material *material, uint32_t passID, SceneFlags sceneFlags) {
-    return addFullscreenQuad(material, passID, sceneFlags, "FullscreenQuad");
-}
-
-void NativeRasterPassBuilder::addCameraQuad(
-    scene::Camera *camera, cc::Material *material, uint32_t passID,
-    SceneFlags sceneFlags, const ccstd::string &name) {
-    auto queueID = addVertex(
-        QueueTag{},
-        std::forward_as_tuple("Queue"),
-        std::forward_as_tuple(),
-        std::forward_as_tuple(),
-        std::forward_as_tuple(),
-        std::forward_as_tuple(QueueHint::RENDER_TRANSPARENT),
-        *renderGraph, passID);
-
-    addVertex(
-        BlitTag{},
-        std::forward_as_tuple(name),
-        std::forward_as_tuple(),
-        std::forward_as_tuple(),
-        std::forward_as_tuple(),
-        std::forward_as_tuple(material, passID, sceneFlags, camera),
-        *renderGraph, queueID);
-}
-
-void NativeRasterPassBuilder::addCameraQuad(
-    scene::Camera *camera, cc::Material *material, uint32_t passID, SceneFlags sceneFlags) {
-    return addCameraQuad(camera, material, passID, sceneFlags, "CameraQuad");
 }
 
 void NativeRasterPassBuilder::setViewport(const gfx::Viewport &viewport) {
@@ -405,10 +359,19 @@ void NativeRasterPassBuilder::setSampler(const ccstd::string &name, gfx::Sampler
 }
 
 // NativeComputeQueue
-void NativeComputeQueueBuilder::addDispatch(const ccstd::string &shader, uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ, const ccstd::string &name) {
+ccstd::string NativeComputeQueueBuilder::getName() const {
+    return std::string(get(RenderGraph::Name, *renderGraph, queueID));
+}
+
+void NativeComputeQueueBuilder::setName(const ccstd::string &name) {
+    get(RenderGraph::Name, *renderGraph, queueID) = std::string_view(name);
+}
+
+void NativeComputeQueueBuilder::addDispatch(const ccstd::string &shader, uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ) {
+    std::string_view name("Dispatch");
     addVertex(
         DispatchTag{},
-        std::forward_as_tuple(name.c_str()),
+        std::forward_as_tuple(name),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
@@ -418,10 +381,6 @@ void NativeComputeQueueBuilder::addDispatch(const ccstd::string &shader, uint32_
             threadGroupCountY,
             threadGroupCountZ),
         *renderGraph);
-}
-
-void NativeComputeQueueBuilder::addDispatch(const ccstd::string &shader, uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ) {
-    addDispatch(shader, threadGroupCountX, threadGroupCountY, threadGroupCountZ, "Dispatch");
 }
 
 void NativeComputeQueueBuilder::setMat4(const ccstd::string &name, const Mat4 &mat) {
@@ -479,6 +438,14 @@ void NativeComputeQueueBuilder::setSampler(const ccstd::string &name, gfx::Sampl
     addSampler(*layoutGraph, name, sampler, data);
 }
 
+ccstd::string NativeComputePassBuilder::getName() const {
+    return std::string(get(RenderGraph::Name, *renderGraph, passID));
+}
+
+void NativeComputePassBuilder::setName(const ccstd::string &name) {
+    get(RenderGraph::Name, *renderGraph, passID) = std::string_view(name);
+}
+
 void NativeComputePassBuilder::addComputeView(const ccstd::string &name, const ComputeView &view) {
     auto &pass = get(ComputeTag{}, passID, *renderGraph);
     auto iter = pass.computeViews.find(name.c_str());
@@ -493,10 +460,11 @@ void NativeComputePassBuilder::addComputeView(const ccstd::string &name, const C
     iter->second.emplace_back(view);
 }
 
-ComputeQueueBuilder *NativeComputePassBuilder::addQueue(const ccstd::string &name) {
+ComputeQueueBuilder *NativeComputePassBuilder::addQueue() {
+    std::string_view name("Queue");
     auto queueID = addVertex(
         QueueTag{},
-        std::forward_as_tuple(name.c_str()),
+        std::forward_as_tuple(name),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
@@ -504,39 +472,6 @@ ComputeQueueBuilder *NativeComputePassBuilder::addQueue(const ccstd::string &nam
         *renderGraph, passID);
 
     return new NativeComputeQueueBuilder(renderGraph, queueID, layoutGraph);
-}
-
-ComputeQueueBuilder *NativeComputePassBuilder::addQueue() {
-    return addQueue("Queue");
-}
-
-void NativeComputePassBuilder::addDispatch(
-    const ccstd::string &shader,
-    uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ,
-    const ccstd::string &name) {
-    auto queueID = addVertex(
-        QueueTag{},
-        std::forward_as_tuple("Queue"),
-        std::forward_as_tuple(),
-        std::forward_as_tuple(),
-        std::forward_as_tuple(),
-        std::forward_as_tuple(),
-        *renderGraph, passID);
-
-    addVertex(
-        DispatchTag{},
-        std::forward_as_tuple(name.c_str()),
-        std::forward_as_tuple(),
-        std::forward_as_tuple(),
-        std::forward_as_tuple(),
-        std::forward_as_tuple(shader.c_str(), threadGroupCountX, threadGroupCountY, threadGroupCountZ),
-        *renderGraph, queueID);
-}
-
-void NativeComputePassBuilder::addDispatch(
-    const ccstd::string &shader,
-    uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ) {
-    addDispatch(shader, threadGroupCountX, threadGroupCountY, threadGroupCountZ, "Dispatch");
 }
 
 void NativeComputePassBuilder::setMat4(const ccstd::string &name, const Mat4 &mat) {
@@ -594,14 +529,343 @@ void NativeComputePassBuilder::setSampler(const ccstd::string &name, gfx::Sample
     addSampler(*layoutGraph, name, sampler, data);
 }
 
+ccstd::string NativeMovePassBuilder::getName() const {
+    return std::string(get(RenderGraph::Name, *renderGraph, passID));
+}
+
+void NativeMovePassBuilder::setName(const ccstd::string &name) {
+    get(RenderGraph::Name, *renderGraph, passID) = std::string_view(name);
+}
+
 void NativeMovePassBuilder::addPair(const MovePair &pair) {
     auto &movePass = get(MoveTag{}, passID, *renderGraph);
     movePass.movePairs.emplace_back(pair);
 }
 
+ccstd::string NativeCopyPassBuilder::getName() const {
+    return std::string(get(RenderGraph::Name, *renderGraph, passID));
+}
+
+void NativeCopyPassBuilder::setName(const ccstd::string &name) {
+    get(RenderGraph::Name, *renderGraph, passID) = std::string_view(name);
+}
+
 void NativeCopyPassBuilder::addPair(const CopyPair &pair) {
     auto &copyPass = get(CopyTag{}, passID, *renderGraph);
     copyPass.copyPairs.emplace_back(pair);
+}
+
+namespace {
+
+const char *getName(const gfx::LoadOp &op) {
+    switch (op) {
+        case gfx::LoadOp::LOAD:
+            return "LOAD";
+        case gfx::LoadOp::CLEAR:
+            return "CLEAR";
+        case gfx::LoadOp::DISCARD:
+            return "DISCARD";
+        default:
+            return "UNKNOWN";
+    }
+    return "UNKNOWN";
+}
+
+const char *getName(const gfx::StoreOp &op) {
+    switch (op) {
+        case gfx::StoreOp::STORE:
+            return "STORE";
+        case gfx::StoreOp::DISCARD:
+            return "DISCARD";
+        default:
+            return "UNKNOWN";
+    }
+    return "UNKNOWN";
+}
+
+std::string getName(const gfx::ClearFlagBit &flags) {
+    std::ostringstream oss;
+    int count = 0;
+    if (hasAnyFlags(flags, gfx::ClearFlagBit::COLOR)) {
+        if (count++) {
+            oss << "|";
+        }
+        oss << "COLOR";
+    }
+    if (hasAnyFlags(flags, gfx::ClearFlagBit::DEPTH)) {
+        if (count++) {
+            oss << "|";
+        }
+        oss << "DEPTH";
+    }
+    if (hasAnyFlags(flags, gfx::ClearFlagBit::STENCIL)) {
+        if (count++) {
+            oss << "|";
+        }
+        oss << "STENCIL";
+    }
+    if (flags == gfx::ClearFlagBit::NONE) {
+        oss << "NONE";
+    }
+    return oss.str();
+}
+
+struct RenderGraphPrintVisitor : boost::dfs_visitor<> {
+    void discover_vertex(
+        RenderGraph::vertex_descriptor vertID,
+        const AddressableView<RenderGraph> &gv) const {
+        const auto &g = gv.mGraph;
+        const auto &name = get(RenderGraph::Name, g, vertID);
+        visitObject(
+            vertID, gv.mGraph,
+            [&](const RasterPass &pass) {
+                OSS << "RasterPass \"" << name << "\" {\n";
+                indent(space);
+                for (const auto &[name, rasterView] : pass.rasterViews) {
+                    OSS << "RasterView \"" << name << "\" {\n";
+                    {
+                        INDENT();
+                        OSS << "slotName: \"" << rasterView.slotName << "\";\n";
+                        OSS << "accessType: " << getName(rasterView.accessType) << ";\n";
+                        OSS << "attachmentType: " << getName(rasterView.attachmentType) << ";\n";
+                        OSS << "loadOp: " << getName(rasterView.loadOp) << ";\n";
+                        OSS << "storeOp: " << getName(rasterView.storeOp) << ";\n";
+                        OSS << "clearFlags: " << getName(rasterView.clearFlags) << ";\n";
+                        const auto &c = rasterView.clearColor;
+                        if (hasAnyFlags(rasterView.clearFlags, gfx::ClearFlagBit::COLOR)) {
+                            OSS << "clearColor: [" << c.x << ", " << c.y << ", " << c.z << ", " << c.z << "];\n";
+                        } else if (hasAnyFlags(rasterView.clearFlags, gfx::ClearFlagBit::DEPTH_STENCIL)) {
+                            OSS << "clearColor: [" << c.x << ", " << c.y << "];\n";
+                        }
+                    }
+                    OSS << "}\n";
+                }
+                for (const auto &[name, computeViews] : pass.computeViews) {
+                    OSS << "ComputeViews \"" << name << "\" {\n";
+                    {
+                        INDENT();
+                        for (const auto &computeView : computeViews) {
+                            OSS << "ComputeView \"" << computeView.name << "\" {\n";
+                            {
+                                INDENT();
+                                OSS << "accessType: " << getName(computeView.accessType) << ";\n";
+                                OSS << "clearFlags: " << getName(computeView.clearFlags) << ";\n";
+                                const auto &c = computeView.clearColor;
+                                if (hasAnyFlags(computeView.clearFlags, gfx::ClearFlagBit::COLOR)) {
+                                    OSS << "clearColor: [" << c.x << ", " << c.y << ", " << c.z << ", " << c.z << "];\n";
+                                } else if (hasAnyFlags(computeView.clearFlags, gfx::ClearFlagBit::DEPTH_STENCIL)) {
+                                    OSS << "clearColor: [" << c.x << ", " << c.y << "];\n";
+                                }
+                            }
+                            OSS << "}\n";
+                        }
+                    }
+                    OSS << "}\n";
+                }
+            },
+            [&](const ComputePass &pass) {
+                OSS << "ComputePass \"" << name << "\" {\n";
+                indent(space);
+                for (const auto &[name, computeViews] : pass.computeViews) {
+                    OSS << "ComputeViews \"" << name << "\" {\n";
+                    {
+                        INDENT();
+                        for (const auto &computeView : computeViews) {
+                            OSS << "ComputeView \"" << computeView.name << "\" {\n";
+                            {
+                                INDENT();
+                                OSS << "accessType: " << getName(computeView.accessType) << ";\n";
+                                OSS << "clearFlags: " << getName(computeView.clearFlags) << ";\n";
+                                const auto &c = computeView.clearColor;
+                                if (hasAnyFlags(computeView.clearFlags, gfx::ClearFlagBit::COLOR)) {
+                                    OSS << "clearColor: [" << c.x << ", " << c.y << ", " << c.z << ", " << c.z << "];\n";
+                                } else if (hasAnyFlags(computeView.clearFlags, gfx::ClearFlagBit::DEPTH_STENCIL)) {
+                                    OSS << "clearColor: [" << c.x << ", " << c.y << "];\n";
+                                }
+                            }
+                            OSS << "}\n";
+                        }
+                    }
+                    OSS << "}\n";
+                }
+            },
+            [&](const CopyPass &pass) {
+                OSS << "CopyPass \"" << name << "\" {\n";
+                for (const auto &pair : pass.copyPairs) {
+                    INDENT();
+                    OSS << "source: \"" << pair.source << "\", target: \"" << pair.target << "\"\n";
+                }
+                indent(space);
+            },
+            [&](const MovePass &pass) {
+                OSS << "MovePass \"" << name << "\" {\n";
+                for (const auto &pair : pass.movePairs) {
+                    INDENT();
+                    OSS << "source: \"" << pair.source << "\", target: \"" << pair.target << "\"\n";
+                }
+                indent(space);
+            },
+            [&](const PresentPass &pass) {
+                OSS << "PresentPass \"" << name << "\" {\n";
+                for (const auto &[name, present] : pass.presents) {
+                    INDENT();
+                    OSS << "present: \"" << name << "\", sync: " << present.syncInterval << ";\n";
+                }
+                indent(space);
+            },
+            [&](const RaytracePass &pass) {
+                std::ignore = pass;
+                OSS << "RaytracePass \"" << name << "\" {\n";
+                indent(space);
+            },
+            [&](const RenderQueue &queue) {
+                OSS << "Queue \"" << name << "\" {\n";
+                {
+                    INDENT();
+                    OSS << "hint: " << getName(queue.hint) << ";\n";
+                }
+                indent(space);
+            },
+            [&](const SceneData &scene) {
+                OSS << "Scene \"" << name << "\" {\n";
+                {
+                    INDENT();
+                    // OSS << "name: \"" << scene.name << "\";\n";
+                    OSS << "scenes: [";
+                    int count = 0;
+                    for (const auto &sceneName : scene.scenes) {
+                        if (count++) {
+                            oss << ", ";
+                        }
+                        oss << "\"" << sceneName << "\"";
+                    }
+                    oss << "];\n";
+                    // OSS << "flags: " << getName(scene.flags) << ";\n";
+                }
+                indent(space);
+            },
+            [&](const Blit &blit) {
+                std::ignore = blit;
+                OSS << "Blit \"" << name << "\";\n";
+            },
+            [&](const Dispatch &dispatch) {
+                OSS << "Dispatch \"" << name << "\", ["
+                    << dispatch.threadGroupCountX << ", "
+                    << dispatch.threadGroupCountY << ", "
+                    << dispatch.threadGroupCountZ << "];\n";
+            },
+            [&](const ccstd::pmr::vector<ClearView> &clearViews) {
+                OSS << "Clear \"" << name << "\" {\n";
+                indent(space);
+                for (const auto &view : clearViews) {
+                    INDENT();
+                    OSS << "\"" << view.slotName << "\" {\n";
+                    {
+                        INDENT();
+                        OSS << "clearFlags: " << getName(view.clearFlags) << ";\n";
+                        const auto &c = view.clearColor;
+                        if (hasAnyFlags(view.clearFlags, gfx::ClearFlagBit::COLOR)) {
+                            OSS << "clearColor: [" << c.x << ", " << c.y << ", " << c.z << ", " << c.z << "];\n";
+                        } else if (hasAnyFlags(view.clearFlags, gfx::ClearFlagBit::DEPTH_STENCIL)) {
+                            OSS << "clearColor: [" << c.x << ", " << c.y << "];\n";
+                        }
+                    }
+                    OSS << "}\n";
+                }
+            },
+            [&](const gfx::Viewport &vp) {
+                OSS << "Viewport \"" << name << "\" ["
+                    << "left: " << vp.left << ", "
+                    << "top: " << vp.top << ", "
+                    << "width: " << vp.width << ", "
+                    << "height: " << vp.height << ", "
+                    << "minDepth: " << vp.minDepth << ", "
+                    << "maxDepth: " << vp.maxDepth << "]\n";
+            });
+    }
+
+    void finish_vertex(
+        RenderGraph::vertex_descriptor vertID,
+        const AddressableView<RenderGraph> &gv) const {
+        std::ignore = gv;
+        visitObject(
+            vertID, gv.mGraph,
+            [&](const RasterPass &pass) {
+                std::ignore = pass;
+                unindent(space);
+                OSS << "}\n";
+            },
+            [&](const ComputePass &pass) {
+                std::ignore = pass;
+                unindent(space);
+                OSS << "}\n";
+            },
+            [&](const CopyPass &pass) {
+                std::ignore = pass;
+                unindent(space);
+                OSS << "}\n";
+            },
+            [&](const MovePass &pass) {
+                std::ignore = pass;
+                unindent(space);
+                OSS << "}\n";
+            },
+            [&](const PresentPass &pass) {
+                std::ignore = pass;
+                unindent(space);
+                OSS << "}\n";
+            },
+            [&](const RaytracePass &pass) {
+                std::ignore = pass;
+                unindent(space);
+                OSS << "}\n";
+            },
+            [&](const RenderQueue &queue) {
+                std::ignore = queue;
+                unindent(space);
+                OSS << "}\n";
+            },
+            [&](const SceneData &scene) {
+                std::ignore = scene;
+                unindent(space);
+                OSS << "}\n";
+            },
+            [&](const Blit &blit) {
+            },
+            [&](const Dispatch &dispatch) {
+            },
+            [&](const ccstd::pmr::vector<ClearView> &clear) {
+                std::ignore = clear;
+                unindent(space);
+                OSS << "}\n";
+            },
+            [&](const gfx::Viewport &clear) {
+            });
+    }
+
+    std::ostringstream &oss;
+    ccstd::pmr::string &space;
+};
+
+} // namespace
+
+ccstd::string RenderGraph::print(
+    boost::container::pmr::memory_resource *scratch) const {
+    const auto &rg = *this;
+    std::ostringstream oss;
+    ccstd::pmr::string space(scratch);
+    oss << "\n";
+    OSS << "RenderGraph {\n";
+    {
+        INDENT();
+        RenderGraphPrintVisitor visitor{
+            {}, oss, space};
+        AddressableView<RenderGraph> graphView(rg);
+        auto colors = rg.colors(scratch);
+        boost::depth_first_search(graphView, visitor, get(colors, rg));
+    }
+    OSS << "}\n";
+    return oss.str();
 }
 
 } // namespace render

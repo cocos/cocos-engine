@@ -636,6 +636,11 @@ class PipelineLayout;
 // descriptor set layout in descriptor set not consistent with the binding in pipeline layout.
 void createPipelineLayoutFallback(const ccstd::vector<DescriptorSet*>& descriptorSets, PipelineLayout* pipelineLayout);
 
+class Texture;
+class CommandBuffer;
+void clearRect(CommandBuffer* cmdBuffer, Texture* texture, const Rect& renderArea, const Color& color);
+void genMipMap(Texture* texture, uint8_t fromLevel, uint8_t levelCount, uint32_t baseLayer, CommandBuffer* cmdBuffer);
+
 static constexpr WGPUColor defaultClearColor{0.2, 0.2, 0.2, 1.0};
 
 static constexpr float defaultClearDepth = 1.0f;

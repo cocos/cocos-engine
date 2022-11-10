@@ -24,7 +24,7 @@
  */
 
 import { IMemoryImageSource } from '../assets/image-asset';
-import { js } from '../../core/utils/js';
+import { js } from '../../core';
 import Cache from './cache';
 import deserialize from './deserialize';
 import { isScene } from './helper';
@@ -32,7 +32,7 @@ import plistParser from './plist-parser';
 import { CompleteCallback, IDownloadParseOptions, files, parsed } from './shared';
 
 import { PixelFormat } from '../assets/asset-enum';
-import { CCON } from '../../core/data/ccon';
+import { CCON } from '../../serialization/ccon';
 import { Asset } from '../assets';
 
 // PVR constants //

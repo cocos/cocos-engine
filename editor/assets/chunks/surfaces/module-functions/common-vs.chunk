@@ -13,7 +13,7 @@ void CCSurfacesVertexInput(out SurfacesStandardVertexIntermediate In)
 #endif
 
   In.texCoord = a_texCoord;
-#if CC_SURFACES_USE_SECOND_UV && !CC_USE_LIGHTMAP
+#if CC_SURFACES_USE_SECOND_UV
   In.texCoord1 = a_texCoord1;
 #endif
 }
@@ -28,7 +28,7 @@ void CCSurfacesVertexOutput(in SurfacesStandardVertexIntermediate In)
 #if CC_SURFACES_USE_TANGENT_SPACE
   VSOutput_worldTangent = In.worldTangent.xyz;
   // VSOutput_worldBitangent = In.worldBinormal;
-  VSOutput_mirrorNormal = In.tangent.w;
+  VSOutput_mirrorNormal = In.tangent.w > 0.0 ? 1.0 : -1.0;
 #endif
 
 #if CC_SURFACES_USE_VERTEX_COLOR
@@ -36,7 +36,7 @@ void CCSurfacesVertexOutput(in SurfacesStandardVertexIntermediate In)
 #endif
 
   VSOutput_texcoord = In.texCoord;
-#if CC_SURFACES_USE_SECOND_UV && !CC_USE_LIGHTMAP
+#if CC_SURFACES_USE_SECOND_UV
   VSOutput_texcoord1 = In.texCoord1;
 #endif
 
@@ -97,7 +97,7 @@ void CCSurfacesVertexTransformUV(inout SurfacesStandardVertexIntermediate In)
 {
   #if CC_SURFACES_FLIP_UV
     CC_HANDLE_RT_SAMPLE_FLIP(In.texCoord);
-    #if CC_SURFACES_USE_SECOND_UV && !CC_USE_LIGHTMAP
+    #if CC_SURFACES_USE_SECOND_UV
       CC_HANDLE_RT_SAMPLE_FLIP(In.texCoord1);
     #endif
   #endif

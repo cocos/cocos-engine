@@ -22,8 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-import { legacyCC } from '../../core/global-exports';
-import { error } from '../../core/platform/debug';
+import { cclegacy, error } from '../../core';
 import RequestItem from './request-item';
 import { bundles, Request, IOptions, transformPipeline } from './shared';
 import Task from './task';
@@ -103,7 +102,7 @@ export function getUrlWithUuid (uuid: string, options?: { [k: string]: any, isNa
  *
  */
 export function isScene (asset) {
-    return !!asset && (asset instanceof legacyCC.SceneAsset || asset instanceof legacyCC.Scene);
+    return !!asset && (asset instanceof cclegacy.SceneAsset || asset instanceof cclegacy.Scene);
 }
 
 /**

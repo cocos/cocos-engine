@@ -23,11 +23,7 @@
  THE SOFTWARE.
  */
 
-import { binarySearchEpsilon as binarySearch } from '../core/algorithm/binary-search';
-import { lerp, Quat, errorID, cclegacy } from '../core';
-import { ValueType } from '../core/value-types';
-import { bezierByTime, BezierControlPoints } from '../core/curves/bezier';
-import * as easing from '../core/algorithm/easing';
+import { lerp, Quat, errorID, cclegacy, binarySearchEpsilon, ValueType, bezierByTime, BezierControlPoints, easing } from '../core';
 import { ILerpable, isLerpable } from './types';
 import type * as legacy from './legacy-clip-data';
 
@@ -55,7 +51,7 @@ export class RatioSampler {
                 break;
             }
         }
-        this._findRatio = canOptimize ? quickFindIndex : binarySearch;
+        this._findRatio = canOptimize ? quickFindIndex : binarySearchEpsilon;
     }
 
     public sample (ratio: number) {

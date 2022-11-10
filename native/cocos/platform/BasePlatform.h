@@ -28,7 +28,7 @@
 #include "base/Log.h"
 #include "base/Macros.h"
 
-#include "bindings/event/EventDispatcher.h"
+#include "engine/EngineEvents.h"
 #include "platform/interfaces/modules/ISystem.h"
 
 #include <algorithm>
@@ -76,27 +76,6 @@ public:
 
     virtual OSType getOSType() const = 0;
 
-    /**
-     * @brief Set event handling callback function.
-     */
-    using HandleEventCallback = std::function<bool(const OSEvent &)>;
-
-    virtual void setHandleEventCallback(HandleEventCallback cb) = 0;
-
-    /**
-     * @brief Set touch event handling callback function.
-     */
-    using HandleTouchEventCallback = std::function<bool(const TouchEvent &)>;
-    virtual void setHandleTouchEventCallback(HandleTouchEventCallback cb) = 0;
-
-    /**
-     * @brief Set default event handling callback function.
-     */
-    virtual void setHandleDefaultEventCallback(HandleEventCallback cb) = 0;
-    /**
-     * @brief Default event handling.
-     */
-    virtual void handleDefaultEvent(const OSEvent &ev) = 0;
     /**
      * @brief Get the SDK version for Android.Other systems also have sdk versions, 
               but they are not currently used.
