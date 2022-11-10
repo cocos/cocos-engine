@@ -24,11 +24,11 @@ nativeContext.workerInit()
 const parentPort = worker.parentPort;
 
 const nativeEditBox = nativerender.getContext(ContextType.EDITBOX_UTILS);
-nativeEditBox.setShowEditBoxCallback((msg: string) => {
+nativeEditBox.setShowEditBoxFunction((msg: string) => {
     parentPort.postMessage({ type: 'showEditBox', data: msg });
 });
-nativeEditBox.setHideEditBoxCallback((msg: string) => {
-    parentPort.postMessage({ type: 'hideEditBox', data: msg });
+nativeEditBox.setHideEditBoxFunction(() => {
+    parentPort.postMessage({ type: 'hideEditBox', data: '' });
 })
 
 var renderContext: any = undefined;

@@ -46,8 +46,8 @@ enum ContextType {
     UV_ASYNC_SEND
 };
 
-extern napi_value napiSetShowEditBoxCallback(napi_env env, napi_callback_info info);
-extern napi_value napiSetHideEditBoxCallback(napi_env env, napi_callback_info info);
+extern napi_value napiSetShowEditBoxFunction(napi_env env, napi_callback_info info);
+extern napi_value napiSetHideEditBoxFunction(napi_env env, napi_callback_info info);
 extern napi_value napiOnTextChange(napi_env env, napi_callback_info info);
 extern napi_value napiOnComplete(napi_env env, napi_callback_info info);
 
@@ -120,8 +120,8 @@ napi_value NapiHelper::getContext(napi_env env, napi_callback_info info) {
         }
         case EDITBOX_UTILS: {
             napi_property_descriptor desc[] = {
-                DECLARE_NAPI_FUNCTION("setShowEditBoxCallback", napiSetShowEditBoxCallback),
-                DECLARE_NAPI_FUNCTION("setHideEditBoxCallback", napiSetHideEditBoxCallback),
+                DECLARE_NAPI_FUNCTION("setShowEditBoxFunction", napiSetShowEditBoxFunction),
+                DECLARE_NAPI_FUNCTION("setHideEditBoxFunction", napiSetHideEditBoxFunction),
                 DECLARE_NAPI_FUNCTION("onTextChange", napiOnTextChange),
                 DECLARE_NAPI_FUNCTION("onComplete", napiOnComplete),
             };

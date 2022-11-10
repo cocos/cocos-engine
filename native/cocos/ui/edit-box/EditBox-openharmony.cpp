@@ -37,8 +37,8 @@ namespace cc {
 namespace {
 se::Value g_textInputCallback;
 
-napi_ref showEditBoxCallback;
-napi_ref hideEditBoxCallback;
+napi_ref showEditBoxFunction;
+napi_ref hideEditBoxFunction;
 
 void getTextInputCallback() {
     if (!g_textInputCallback.isUndefined())
@@ -67,19 +67,19 @@ void callJSFunc(const ccstd::string &type, const ccstd::string &text) {
 
 } // namespace
 
-napi_value napiSetShowEditBoxCallback(napi_env env, napi_callback_info info) {
+napi_value napiSetShowEditBoxFunction(napi_env env, napi_callback_info info) {
     size_t argc = 1;
     napi_value args[1] = {nullptr};
     auto status = napi_get_cb_info(env, info, &argc, args, nullptr, nullptr);
-    napi_create_reference(env, args[0], 1, &showEditBoxCallback);
+    napi_create_reference(env, args[0], 1, &showEditBoxFunction);
     return nullptr;
 }
 
-napi_value napiSetHideEditBoxCallback(napi_env env, napi_callback_info info) {
+napi_value napiSetHideEditBoxFunction(napi_env env, napi_callback_info info) {
     size_t argc = 1;
     napi_value args[1] = {nullptr};
     auto status = napi_get_cb_info(env, info, &argc, args, nullptr, nullptr);
-    napi_create_reference(env, args[0], 1, &hideEditBoxCallback);
+    napi_create_reference(env, args[0], 1, &hideEditBoxFunction);
     return nullptr;
 }
 
@@ -106,7 +106,7 @@ napi_value showEditBox(const std::string& inputMessage) {
     napi_value global;
     napi_get_global(se::ScriptEngine::getEnv(), &global);
     napi_value cb = nullptr;
-    napi_get_reference_value(se::ScriptEngine::getEnv(), showEditBoxCallback, &cb);
+    napi_get_reference_value(se::ScriptEngine::getEnv(), showEditBoxFunction, &cb);
     napi_valuetype type;
     napi_typeof(se::ScriptEngine::getEnv(), cb, &type);
     napi_value result = nullptr;
@@ -119,7 +119,7 @@ napi_value hideEditBox() {
     napi_get_global(se::ScriptEngine::getEnv(), &global);
 
     napi_value cb = nullptr;
-    napi_get_reference_value(se::ScriptEngine::getEnv(), hideEditBoxCallback, &cb);
+    napi_get_reference_value(se::ScriptEngine::getEnv(), hideEditBoxFunction, &cb);
 
     napi_valuetype type;
     napi_typeof(se::ScriptEngine::getEnv(), cb, &type);
