@@ -467,7 +467,7 @@ export class LODGroup extends Component {
         if (this.objectSize === 1.0) return;
 
         if (this.objectSize === 0) {
-            this.objectSize = 1;
+            this.objectSize = 1.0;
         }
 
         // 1 will be new object size
