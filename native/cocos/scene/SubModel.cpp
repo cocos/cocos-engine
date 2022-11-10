@@ -39,6 +39,7 @@ namespace cc {
 namespace scene {
 
 const ccstd::string INST_MAT_WORLD = "a_matWorld0";
+const ccstd::string INST_SH = "a_sh_linear_const_r";
 
 cc::TypedArray getTypedArrayConstructor(const cc::gfx::FormatInfo &info, cc::ArrayBuffer *buffer, uint32_t byteOffset, uint32_t length) {
     const uint32_t stride = info.size / info.count;
@@ -273,9 +274,10 @@ void SubModel::onGeometryChanged() {
     }
 }
 
-void SubModel::updateInstancedAttributes(const ccstd::vector<gfx::Attribute>& attributes) {
+void SubModel::updateInstancedAttributes(const ccstd::vector<gfx::Attribute> &attributes) {
     auto *pass = getPass(0);
     _instancedWorldMatrixIndex = -1;
+    _instancedSHIndex = -1;
     if (!pass->getDevice()->hasFeature(gfx::Feature::INSTANCED_ARRAYS)) return;
     // free old data
 
@@ -311,13 +313,14 @@ void SubModel::updateInstancedAttributes(const ccstd::vector<gfx::Attribute>& at
         pass->getInstancedBuffer()->destroy();
     }
     _instancedWorldMatrixIndex = getInstancedAttributeIndex(INST_MAT_WORLD);
+    _instancedSHIndex = getInstancedAttributeIndex(INST_SH);
 }
 
-void SubModel::updateInstancedWorldMatrix(const Mat4& mat, int32_t idx) {
+void SubModel::updateInstancedWorldMatrix(const Mat4 &mat, int32_t idx) {
     auto &attrs = _instancedAttributeBlock.views;
     auto &v1 = ccstd::get<Float32Array>(attrs[idx]);
     auto &v2 = ccstd::get<Float32Array>(attrs[idx + 1]);
-    auto &v3 = ccstd::get<Float32Array>(attrs[idx+ + 2]);
+    auto &v3 = ccstd::get<Float32Array>(attrs[idx + +2]);
     const uint32_t copyBytes = sizeof(float) * 3;
     auto *buffer = const_cast<uint8_t *>(v1.buffer()->getData());
 
@@ -332,6 +335,19 @@ void SubModel::updateInstancedWorldMatrix(const Mat4& mat, int32_t idx) {
     dst = buffer + v3.byteOffset();
     memcpy(dst, mat.m + 8, copyBytes);
     v3[3] = mat.m[14];
+}
+
+void SubModel::updateInstancedSH(const Float32Array &data, int32_t idx) {
+    auto &attrs = _instancedAttributeBlock.views;
+    const auto count = (pipeline::UBOSH::SH_QUADRATIC_R_OFFSET - pipeline::UBOSH::SH_LINEAR_CONST_R_OFFSET) / 4;
+    auto offset = 0;
+
+    for (auto i = idx; i < idx + count; i++) {
+        auto &attr = ccstd::get<Float32Array>(attrs[i]);
+        for (auto k = 0; k < 4; k++) {
+            attr[k] = data[offset++];
+        }
+    }
 }
 
 void SubModel::flushPassInfo() {
@@ -356,7 +372,7 @@ void SubModel::setSubMesh(RenderingSubMesh *subMesh) {
     _subMesh = subMesh;
 }
 
-void SubModel::setInstancedAttribute(const ccstd::string& name, const float* value, uint32_t byteLength) {
+void SubModel::setInstancedAttribute(const ccstd::string &name, const float *value, uint32_t byteLength) {
     const auto &attributes = _instancedAttributeBlock.attributes;
     auto &views = _instancedAttributeBlock.views;
     for (size_t i = 0, len = attributes.size(); i < len; ++i) {
@@ -386,7 +402,7 @@ void SubModel::setInstancedAttribute(const ccstd::string& name, const float* val
     }
 }
 
-int32_t SubModel::getInstancedAttributeIndex(const ccstd::string& name) const {
+int32_t SubModel::getInstancedAttributeIndex(const ccstd::string &name) const {
     const auto &attributes = _instancedAttributeBlock.attributes;
     for (index_t i = 0; i < static_cast<index_t>(attributes.size()); ++i) {
         if (attributes[i].name == name) {
