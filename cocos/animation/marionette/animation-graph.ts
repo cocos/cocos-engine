@@ -1,5 +1,6 @@
 import { ccclass, serializable } from 'cc.decorator';
 import { DEBUG } from 'internal:constants';
+import { js, clamp, assertIsNonNullable, assertIsTrue, EditorExtendable, move } from '../../core';
 import { MotionEval, MotionEvalContext } from './motion';
 import type { Condition } from './condition';
 import { Asset } from '../../asset/assets';
@@ -12,7 +13,6 @@ import { State, outgoingsSymbol, incomingsSymbol, InteractiveState } from './sta
 import { AnimationMask } from './animation-mask';
 import { onAfterDeserializedTag } from '../../serialization/deserialize-symbols';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
-import { js, clamp, assertIsNonNullable, assertIsTrue, EditorExtendable, move } from '../../core';
 import { AnimationGraphLike } from './animation-graph-like';
 
 export { State };
