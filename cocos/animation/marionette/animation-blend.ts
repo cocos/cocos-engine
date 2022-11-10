@@ -1,9 +1,9 @@
+import { _decorator, EditorExtendable, editorExtrasTag } from '../../core';
 import { MotionEvalContext, Motion, MotionEval, OverrideClipContext } from './motion';
-import { Value } from './variable';
 import { createEval } from './create-eval';
 import { VariableTypeMismatchedError } from './errors';
 import { ReadonlyClipOverrideMap, ClipStatus } from './graph-eval';
-import { _decorator, EditorExtendable, editorExtrasTag } from '../../core';
+
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
 import { getMotionRuntimeID, RUNTIME_ID_ENABLED } from './graph-debug';
 import { cloneAnimationGraphEditorExtrasFrom } from './animation-graph-editor-extras-clone-helper';
