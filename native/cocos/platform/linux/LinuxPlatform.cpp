@@ -39,6 +39,7 @@
 #if defined(CC_SERVER_MODE)
     #include "platform/empty/modules/Screen.h"
     #include "platform/empty/modules/SystemWindow.h"
+    #include "platform/empty/modules/SystemWindowManager.h"
 #else
     #include "modules/Screen.h"
     #include "modules/SystemWindow.h"

@@ -41,8 +41,9 @@ public:
      */
     template <class T>
     std::enable_if_t<std::is_base_of<BaseApplication, T>::value, ApplicationPtr>
-    createApplication() {
+    createApplication(int argc, const char* argv[]) {
         ApplicationPtr app = std::make_shared<T>();
+        app->setArgumentsInternal(argc, argv);
         _apps.push_back(app);
         _currentApp = app;
         return app;
@@ -81,13 +82,13 @@ private:
 /**
  * @brief Called at the user-defined main entry
  */
-#define CC_START_APPLICATION(className)                                      \
-    do {                                                                     \
-        auto app = CC_APPLICATION_MANAGER()->createApplication<className>(); \
-        if (app->init()) {                                                   \
-            return -1;                                                       \
-        }                                                                    \
-        return app->run(argc, argv);                                         \
+#define CC_START_APPLICATION(className)                                                \
+    do {                                                                               \
+        auto app = CC_APPLICATION_MANAGER()->createApplication<className>(argc, argv); \
+        if (app->init()) {                                                             \
+            return -1;                                                                 \
+        }                                                                              \
+        return app->run(argc, argv);                                                   \
     } while (0)
 
 #define CC_REGISTER_APPLICATION(className)        \

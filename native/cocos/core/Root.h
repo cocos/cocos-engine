@@ -64,7 +64,7 @@ struct CC_DLL DebugViewConfig {
 struct ISystemWindowInfo;
 class ISystemWindow;
 
-class Root final : public event::EventTarget {
+class Root final {
     IMPL_EVENT_TARGET(Root)
     DECLARE_TARGET_EVENT_BEGIN(Root)
     TARGET_EVENT_ARG0(BeforeCommit)
@@ -73,7 +73,7 @@ class Root final : public event::EventTarget {
 public:
     static Root *getInstance(); // cjh todo: put Root Managerment to Director class.
     explicit Root(gfx::Device *device);
-    ~Root() override;
+    ~Root();
 
     // @minggo IRootInfo seems is not use, and how to return Promise?
     void initialize(gfx::Swapchain *swapchain);

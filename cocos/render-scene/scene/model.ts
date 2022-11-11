@@ -34,7 +34,7 @@ import { RenderScene } from '../core/render-scene';
 import { Texture2D } from '../../asset/assets/texture-2d';
 import { SubModel } from './submodel';
 import { IMacroPatch } from '../core/pass';
-import { Mat4, Vec3, Vec4, geometry, cclegacy } from '../../core';
+import { Mat4, Vec3, Vec4, geometry, cclegacy, EPSILON } from '../../core';
 import { Attribute, DescriptorSet, Device, Buffer, BufferInfo,
     BufferUsageBit, MemoryUsageBit, Filter, Address, SamplerInfo, deviceManager, Texture } from '../../gfx';
 import { UBOLocal, UBOSH, UBOWorldBound, UNIFORM_LIGHTMAP_TEXTURE_BINDING, UNIFORM_REFLECTION_PROBE_CUBEMAP_BINDING, UNIFORM_REFLECTION_PROBE_TEXTURE_BINDING } from '../../rendering/define';
@@ -677,7 +677,7 @@ export class Model {
         }
 
         const center = this._worldBounds!.center;
-        if (!EDITOR && center.equals(this._lastWorldBoundCenter)) {
+        if (!EDITOR && center.equals(this._lastWorldBoundCenter, EPSILON)) {
             return;
         }
 
@@ -692,9 +692,26 @@ export class Model {
             return;
         }
 
-        if (this._localSHData && this._localSHBuffer) {
-            cclegacy.internal.SH.reduceRinging(coefficients, lightProbes.reduceRinging);
-            cclegacy.internal.SH.updateUBOData(this._localSHData, UBOSH.SH_LINEAR_CONST_R_OFFSET, coefficients);
+        if (!this._localSHData) {
+            return;
+        }
+
+        cclegacy.internal.SH.reduceRinging(coefficients, lightProbes.reduceRinging);
+        cclegacy.internal.SH.updateUBOData(this._localSHData, UBOSH.SH_LINEAR_CONST_R_OFFSET, coefficients);
+
+        const subModels = this._subModels;
+        let hasNonInstancingPass = false;
+        for (let i = 0; i < subModels.length; i++) {
+            const subModel = subModels[i];
+            const idx = subModel.instancedSHIndex;
+            if (idx >= 0) {
+                subModel.updateInstancedSH(this._localSHData, idx);
+            } else {
+                hasNonInstancingPass = true;
+            }
+        }
+
+        if (hasNonInstancingPass && this._localSHBuffer) {
             this._localSHBuffer.update(this._localSHData);
         }
     }

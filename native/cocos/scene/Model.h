@@ -58,7 +58,7 @@ class Octree;
 class Pass;
 struct IMacroPatch;
 
-class Model : public RefCounted, public event::EventTarget {
+class Model : public RefCounted {
     IMPL_EVENT_TARGET(Model)
 
     DECLARE_TARGET_EVENT_BEGIN(Model)

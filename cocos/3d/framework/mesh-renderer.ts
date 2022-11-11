@@ -23,6 +23,7 @@
  THE SOFTWARE.
 */
 import { JSB } from 'internal:constants';
+import { displayOrder, group } from 'cc.decorator';
 import { Texture2D, TextureCube } from '../../asset/assets';
 import { Material } from '../../asset/assets/material';
 import { Mesh } from '../assets/mesh';
@@ -204,6 +205,7 @@ export class MeshRenderer extends ModelRenderer {
     @disallowAnimation
     // eslint-disable-next-line func-names
     @visible(function (this: MeshRenderer) { return !!(this.node && this.node.mobility !== MobilityMode.Movable); })
+    @displayOrder(1)
     public lightmapSettings = new ModelLightmapSettings();
 
     @serializable
@@ -244,7 +246,7 @@ export class MeshRenderer extends ModelRenderer {
      */
     @type(CCFloat)
     @tooltip('i18n:model.shadow_bias')
-    @property({ group: { id: 'DynamicShadow', name: 'DynamicShadowSettings', displayOrder: 0 } })
+    @group({ id: 'DynamicShadow', name: 'DynamicShadowSettings', displayOrder: 0 })
     @disallowAnimation
     get shadowBias () {
         return this._shadowBias;
@@ -262,7 +264,7 @@ export class MeshRenderer extends ModelRenderer {
    */
     @type(CCFloat)
     @tooltip('i18n:model.shadow_normal_bias')
-    @property({ group: { id: 'DynamicShadow', name: 'DynamicShadowSettings', displayOrder: 1 } })
+    @group({ id: 'DynamicShadow', name: 'DynamicShadowSettings' })
     @disallowAnimation
     get shadowNormalBias () {
         return this._shadowNormalBias;
@@ -280,7 +282,7 @@ export class MeshRenderer extends ModelRenderer {
      */
     @type(ModelShadowCastingMode)
     @tooltip('i18n:model.shadow_casting_model')
-    @property({ group: { id: 'DynamicShadow', name: 'DynamicShadowSettings', displayOrder: 2 } })
+    @group({ id: 'DynamicShadow', name: 'DynamicShadowSettings' })
     @disallowAnimation
     get shadowCastingMode () {
         return this._shadowCastingMode;
@@ -297,7 +299,7 @@ export class MeshRenderer extends ModelRenderer {
      */
     @type(ModelShadowReceivingMode)
     @tooltip('i18n:model.shadow_receiving_model')
-    @property({ group: { id: 'DynamicShadow', name: 'DynamicShadowSettings', displayOrder: 3 } })
+    @group({ id: 'DynamicShadow', name: 'DynamicShadowSettings' })
     @disallowAnimation
     get receiveShadow () {
         return this._shadowReceivingMode;
@@ -356,6 +358,7 @@ export class MeshRenderer extends ModelRenderer {
      * @en Whether the model can be render by the reflection probe
      * @zh 模型是否能被反射探针渲染
      */
+    @group({ id: 'ReflectionProbe', name: 'ReflectionProbeSettings', displayOrder: 2 })
     @type(CCBoolean)
     get bakeToReflectionProbe () {
         return this._bakeToReflectionProbe;
@@ -370,6 +373,7 @@ export class MeshRenderer extends ModelRenderer {
      * @en Used to set whether to use the reflection probe or set probe's type.
      * @zh 用于设置是否使用反射探针或者设置反射探针的类型。
      */
+    @group({ id: 'ReflectionProbe', name: 'ReflectionProbeSettings' })
     @type(Enum(ReflectionProbeType))
     get reflectionProbe () {
         return this._reflectionProbeType;

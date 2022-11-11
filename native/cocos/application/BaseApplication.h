@@ -62,6 +62,20 @@ public:
      * @brief Get engine.
      */
     virtual BaseEngine::Ptr getEngine() const = 0;
+
+    /**
+     * @brief Get arguments passed to execution file
+     */
+    virtual const std::vector<std::string> &getArguments() const = 0;
+
+protected:
+    /**
+     * @brief Set arguments passed to execution file
+     * @note setArgumentsInternal needs to be protected since it should only be used internally.
+     */
+    virtual void setArgumentsInternal(int argc, const char *argv[]) = 0;
+
+    friend class ApplicationManager;
 };
 
 } // namespace cc

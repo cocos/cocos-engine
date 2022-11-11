@@ -342,7 +342,7 @@ void Model::updateSHUBOs() {
 
     const auto center = _worldBounds->getCenter();
 #if !CC_EDITOR
-    if (center == _lastWorldBoundCenter) {
+    if (center.approxEquals(_lastWorldBoundCenter, math::EPSILON)) {
         return;
     }
 #endif
@@ -359,9 +359,24 @@ void Model::updateSHUBOs() {
         return;
     }
 
-    if (!_localSHData.empty() && _localSHBuffer) {
-        gi::SH::reduceRinging(coefficients, lightProbes->getReduceRinging());
-        gi::SH::updateUBOData(_localSHData, pipeline::UBOSH::SH_LINEAR_CONST_R_OFFSET, coefficients);
+    if (_localSHData.empty()) {
+        return;
+    }
+
+    gi::SH::reduceRinging(coefficients, lightProbes->getReduceRinging());
+    gi::SH::updateUBOData(_localSHData, pipeline::UBOSH::SH_LINEAR_CONST_R_OFFSET, coefficients);
+
+    bool hasNonInstancingPass = false;
+    for (const auto &subModel : _subModels) {
+        const auto idx = subModel->getInstancedSHIndex();
+        if (idx >= 0) {
+            subModel->updateInstancedSH(_localSHData, idx);
+        } else {
+            hasNonInstancingPass = true;
+        }
+    }
+
+    if (hasNonInstancingPass && _localSHBuffer) {
         _localSHBuffer->update(_localSHData.buffer()->getData());
     }
 }

@@ -25,20 +25,28 @@
 
 #pragma once
 
-#if defined(USE_PHYSICS_BULLET)
-    #include "physics/bullet/Bullet.h"
-#else
-    #include "physics/physx/PhysX.h"
-    #define WrappedWorld         PhysXWorld
-    #define WrappedRigidBody     PhysXRigidBody
-    #define WrappedSphereShape   PhysXSphere
-    #define WrappedBoxShape      PhysXBox
-    #define WrappedPlaneShape    PhysXPlane
-    #define WrappedCapsuleShape  PhysXCapsule
-    #define WrappedTrimeshShape  PhysXTrimesh
-    #define WrappedTerrainShape  PhysXTerrain
-    #define WrappedConeShape     PhysXCone
-    #define WrappedCylinderShape PhysXCylinder
-    #define WrappedRevoluteJoint PhysXRevolute
-    #define WrappedDistanceJoint PhysXSpherical
-#endif
+#include "physics/physx/joints/PhysXJoint.h"
+
+namespace cc {
+namespace physics {
+
+class PhysXSpherical final : public PhysXJoint, public IDistanceJoint {
+public:
+    PhysXSpherical() : _mPivotA(physx::PxZero),
+                      _mPivotB(physx::PxZero){};
+
+    ~PhysXSpherical() override = default;
+    void setPivotA(float x, float y, float z) override;
+    void setPivotB(float x, float y, float z) override;
+    void updateScale0() override;
+    void updateScale1() override;
+
+private:
+    void onComponentSet() override;
+    void updatePose();
+    physx::PxVec3 _mPivotA;
+    physx::PxVec3 _mPivotB;
+};
+
+} // namespace physics
+} // namespace cc
