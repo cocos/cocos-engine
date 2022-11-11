@@ -58,6 +58,7 @@ class AnimationGraphPartialPreviewer {
             getVar: (...args) => {
                 return bindContext.getVar(...args);
             },
+            clipOverrides: null,
         });
 
         return motionEval;
