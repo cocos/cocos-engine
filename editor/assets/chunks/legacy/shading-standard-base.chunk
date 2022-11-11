@@ -9,7 +9,6 @@
 
 #if CC_USE_IBL
   #include <builtin/uniforms/cc-environment>
-  #include <builtin/uniforms/cc-reflection-probe>
   #include <common/texture/texture-lod>
 
   #if CC_USE_DIFFUSEMAP
@@ -17,6 +16,9 @@
   #endif
 #endif
 
+#if USE_REFLECTION_PROBE
+  #include <builtin/uniforms/cc-reflection-probe>
+#endif
 #if CC_USE_LIGHT_PROBE
 #include <legacy/sh-fs>
 #endif
@@ -42,15 +44,6 @@ vec3 BRDFApprox (vec3 specular, float roughness, float NoV) {
   vec2 AB = vec2(-1.04, 1.04) * a004 + r.zw;
   AB.y *= clamp(50.0 * specular.g, 0.0, 1.0);
   return specular * AB.x + AB.y;
-}
-
-vec2 getScreenUV(vec3 worldPos)
-{
-  vec4 clipPos = cc_matViewProj * vec4(worldPos, 1.0);
-  vec2 screenUV = clipPos.xy / clipPos.w * 0.5 + 0.5;
-  screenUV = vec2(1.0 - screenUV.x, 1.0 - screenUV.y);
-  screenUV = cc_cameraPos.w > 1.0 ? vec2(screenUV.x, 1.0 - screenUV.y) : screenUV;
-  return screenUV;
 }
 
 #if USE_REFLECTION_DENOISE
@@ -176,7 +169,7 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
   float fAmb = 0.5 - N.y * 0.5;
   vec3 ambDiff = mix(cc_ambientSky.rgb, cc_ambientGround.rgb, fAmb);
 
-
+  vec3 env = vec3(0.0);
   #if CC_USE_IBL
     #if CC_USE_DIFFUSEMAP && !CC_USE_LIGHT_PROBE
       // Diffuse reflection irradiance
@@ -192,34 +185,31 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
 
     vec3 rotationDir = RotationVecFromAxisY(R.xyz, cc_surfaceTransform.z, cc_surfaceTransform.w);
     #if USE_REFLECTION_DENOISE && !CC_IBL_CONVOLUTED
-      #if USE_REFLECTION_PROBE == REFLECTION_PROBE_CUBE
-        vec3 env = GetEnvReflectionWithMipFiltering(R, s.roughness, cc_ambientGround.w, 0.6, vec2(0.0));
-      #elif USE_REFLECTION_PROBE == REFLECTION_PROBE_PLANAR
-        vec2 screenUV = getScreenUV(s.position);
-        vec3 env = GetEnvReflectionWithMipFiltering(R, s.roughness, cc_ambientGround.w, 0.6, screenUV);
-      #else
-        vec3 env = GetEnvReflectionWithMipFiltering(rotationDir, s.roughness, cc_ambientGround.w, 0.6, vec2(0.0));
-      #endif
+      env = GetEnvReflectionWithMipFiltering(rotationDir, s.roughness, cc_ambientGround.w, 0.6, vec2(0.0));
     #else
-      #if USE_REFLECTION_PROBE == REFLECTION_PROBE_CUBE
-        vec4 envmap = fragTextureLod(cc_reflectionProbeCubemap, R, s.roughness * (cc_ambientGround.w - 1.0));
-      #elif USE_REFLECTION_PROBE == REFLECTION_PROBE_PLANAR
-        vec2 screenUV = getScreenUV(s.position);
-        vec4 envmap = texture(cc_reflectionProbePlanarMap, screenUV);
-      #else
-        vec4 envmap = fragTextureLod(cc_environment, rotationDir, s.roughness * (cc_ambientGround.w - 1.0));
-      #endif
-
+      vec4 envmap = fragTextureLod(cc_environment, rotationDir, s.roughness * (cc_ambientGround.w - 1.0));
 
       #if CC_USE_IBL == IBL_RGBE || USE_REFLECTION_PROBE != REFLECTION_PROBE_NONE
-        vec3 env = unpackRGBE(envmap);
+        env = unpackRGBE(envmap);
       #else
-        vec3 env = SRGBToLinear(envmap.rgb);
+        env = SRGBToLinear(envmap.rgb);
       #endif
     #endif
 
-    finalColor += env * cc_ambientSky.w * specular * s.occlusion;
   #endif
+
+  #if USE_REFLECTION_PROBE
+    #if USE_REFLECTION_PROBE == REFLECTION_PROBE_CUBE
+      vec4 envmap = fragTextureLod(cc_reflectionProbeCubemap, R, s.roughness * (cc_ambientGround.w - 1.0));
+    #elif USE_REFLECTION_PROBE == REFLECTION_PROBE_PLANAR
+      vec2 screenUV = getScreenUV(s.position, cc_matViewProj, cc_cameraPos.w);
+      vec4 envmap = texture(cc_reflectionProbePlanarMap, screenUV);
+    #endif
+    env += unpackRGBE(envmap);
+  #endif
+
+  finalColor += env * cc_ambientSky.w * specular * s.occlusion;
+
 
 #if CC_USE_LIGHT_PROBE
   finalColor += SHEvaluate(N) * diffuse * s.occlusion;
