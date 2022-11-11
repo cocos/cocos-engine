@@ -1067,15 +1067,8 @@ export class LightProbeInfo {
      */
     @editable
     @tooltip('i18n:light_probe.enabled')
-    set enabled (val: boolean) {
-        if (this._enabled === val) return;
-        this._enabled = val;
-        if (this._resource) {
-            this._resource.enabled = val;
-        }
-    }
     get enabled (): boolean {
-        return this._enabled;
+        return true;
     }
 
     /**
@@ -1224,8 +1217,6 @@ export class LightProbeInfo {
     }
 
     @serializable
-    protected _enabled = false;
-    @serializable
     protected _giScale = 1.0;
     @serializable
     protected _giSamples = 1024;
@@ -1259,7 +1250,9 @@ export class LightProbeInfo {
         const probes = this._data.probes;
         for (let i = 0; i < probes.length; i++) {
             const probe = probes[i];
-            probe.coefficients.length = 0;
+            for (let k = 0; k < probe.coefficients.length; k++) {
+                probe.coefficients[k].set(0.0, 0.0, 0.0);
+            }
         }
     }
 
@@ -1358,7 +1351,6 @@ export class LightProbeInfo {
         }
     }
 }
-legacyCC.internal.LightProbeInfo = LightProbeInfo;
 
 /**
  * @en All scene related global parameters, it affects all content in the corresponding scene
@@ -1420,7 +1412,7 @@ export class SceneGlobals {
      */
     @editable
     @serializable
-    public lightProbeInfo = legacyCC.internal.LightProbeInfo ? new legacyCC.internal.LightProbeInfo() : null;
+    public lightProbeInfo = new LightProbeInfo();
 
     /**
      * @en Activate and initialize the global configurations of the scene, no need to invoke manually.

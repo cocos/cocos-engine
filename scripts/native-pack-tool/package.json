@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "fs-extra": "^10.1.0",
-    "globby": "^8.0.2",
+    "globby": "^13.1.2",
     "iconv-lite": "^0.4.24",
     "xxtea-node": "^1.1.4",
     "yargs": "^17.5.1",

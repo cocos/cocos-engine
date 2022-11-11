@@ -25,7 +25,7 @@
 import { EDITOR } from 'internal:constants';
 import { Camera, CameraAperture, CameraFOVAxis, CameraISO, CameraProjection, CameraShutter, CameraType, SKYBOX_FLAG, TrackingType } from './camera';
 import { Node } from '../../scene-graph/node';
-import { CCObject, Color, Quat, Rect, toRadian, Vec2, Vec3, geometry, cclegacy } from '../../core';
+import { CCObject, Color, Quat, Rect, toRadian, Vec2, Vec3, geometry, cclegacy, Size } from '../../core';
 import { CAMERA_DEFAULT_MASK } from '../../rendering/define';
 import { ClearFlagBit } from '../../gfx';
 import { TextureCube } from '../../asset/assets/texture-cube';
@@ -63,7 +63,7 @@ export class ReflectionProbe {
     protected _visibility = CAMERA_DEFAULT_MASK;
     protected _probeType = ProbeType.CUBE;
     protected _cubemap: TextureCube | null = null;
-    protected _size = new Vec3(1, 1, 1);
+    protected readonly _size = new Vec3(1, 1, 1);
 
     /**
      * @en Render cubemap's camera
@@ -125,6 +125,10 @@ export class ReflectionProbe {
         return this._probeType;
     }
 
+    get resolution () {
+        return this._resolution;
+    }
+
     /**
      * @en set render texture size
      * @zh 设置渲染纹理大小
@@ -136,9 +140,6 @@ export class ReflectionProbe {
             });
         }
         this._resolution = value;
-    }
-    get resolution () {
-        return this._resolution;
     }
 
     /**
@@ -181,7 +182,7 @@ export class ReflectionProbe {
      * @zh 获取或设置盒的大小。
      */
     set size (value) {
-        this._size = value;
+        this._size.set(value);
 
         const pos = this.node.getWorldPosition();
         geometry.AABB.set(this._boundingBox!, pos.x, pos.y, pos.z, this._size.x, this._size.y, this._size.z);

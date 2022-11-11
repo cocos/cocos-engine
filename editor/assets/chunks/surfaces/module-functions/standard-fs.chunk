@@ -143,14 +143,19 @@ vec4 CCSurfacesShading(in SurfacesMaterialData surfaceData, in LightingResult li
   color.xyz += lightingResult.directSpecular * lightingResult.specularColorWithLighting;
 #else
   color.xyz +=
-    ( lightingResult.lightmapColor * lightingResult.diffuseColorWithLighting
-    + lightingResult.directDiffuse * lightingResult.diffuseColorWithLighting
+    ( lightingResult.directDiffuse * lightingResult.diffuseColorWithLighting
     + lightingResult.directSpecular * lightingResult.specularColorWithLighting
   #if CC_SURFACES_LIGHTING_TRT
     + lightingResult.directTRT * lightingResult.specularColorWithLighting
   #endif
     )
     * lightingResult.shadow;
+
+  #if CC_SURFACES_USE_LIGHT_MAP == CC_LIGHTMAP_ALL_IN_ONE
+    color.xyz += lightingResult.lightmapColor * lightingResult.diffuseColorWithLighting * lightingResult.shadow; //apply real-time shadows
+  #elif CC_SURFACES_USE_LIGHT_MAP == CC_LIGHTMAP_INDIRECT_OCCLUSION
+    color.xyz += lightingResult.lightmapColor * lightingResult.diffuseColorWithLighting;
+  #endif
 
   color.xyz +=
     ( lightingResult.environmentDiffuse * lightingResult.diffuseColorWithLighting

@@ -251,22 +251,6 @@ cclegacy.internal.LightProbesData = LightProbesData;
  */
 export class LightProbes {
     /**
-     * @en Whether activate light probe
-     * @zh 是否启用光照探针
-     */
-    set enabled (val: boolean) {
-        if (this._enabled === val) {
-            return;
-        }
-
-        this._enabled = val;
-        this._updatePipeline();
-    }
-    get enabled () {
-        return this._enabled;
-    }
-
-    /**
      * @en GI multiplier
      * @zh GI乘数
      */
@@ -354,7 +338,6 @@ export class LightProbes {
         return this._data;
     }
 
-    protected _enabled = false;
     protected _giScale = 1.0;
     protected _giSamples = 1024;
     protected _bounces = 2;
@@ -365,7 +348,6 @@ export class LightProbes {
     protected _data: LightProbesData | null = null;
 
     public initialize (info: LightProbeInfo) {
-        this._enabled = info.enabled;
         this._giScale = info.giScale;
         this._giSamples = info.giSamples;
         this._bounces = info.bounces;
@@ -374,30 +356,14 @@ export class LightProbes {
         this._showWireframe = info.showWireframe;
         this._showConvex = info.showConvex;
         this._data = info.data;
-
-        this._updatePipeline();
     }
 
     public empty () {
-        if (!this._enabled) {
-            return true;
-        }
-
         if (!this._data) {
             return true;
         }
 
         return this._data.empty();
-    }
-
-    protected _updatePipeline () {
-        const root = cclegacy.director.root;
-        const pipeline = root.pipeline;
-
-        if (pipeline.macros.CC_LIGHT_PROBE_ENABLED !== this.enabled) {
-            pipeline.macros.CC_LIGHT_PROBE_ENABLED = this.enabled;
-            root.onGlobalPipelineStateChanged();
-        }
     }
 }
 cclegacy.internal.LightProbes = LightProbes;

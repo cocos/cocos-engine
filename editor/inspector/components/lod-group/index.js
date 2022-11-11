@@ -23,7 +23,7 @@ exports.style = `
 }
 
 .lod-group ui-prop,
-.lod-group .lod-item .mesh-list {
+.lod-group .lod-item .mesh-renderers {
     margin-bottom: 6px;
 }
 
@@ -38,7 +38,15 @@ exports.style = `
 .lod-item .screen-size-content > ui-num-input {
     flex: 1;
     margin-right: 4px;
-    min-width: 44px;
+    min-width: 70px;
+}
+
+.lod-group .lod-item .screen-size-content {
+    flex-direction: column;
+}
+
+.lod-item .screen-size-content > ui-num-input {
+    margin-bottom: 4px;
 }
 
 .lod-item .header {
@@ -60,11 +68,15 @@ exports.style = `
 .lod-item .header > .right {
     flex: 1;
     text-align: right;
+    display: flex;
+}
+
+.lod-item .header > .right > .info {
+    flex: 1;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     width: 0;
-    display: flex;
     justify-content: flex-end;
     align-items: center;
 }
@@ -104,17 +116,23 @@ exports.style = `
     color: var(--color-focus-contrast-emphasis);
 }
 
-.lod-item .mesh-list > .mesh {
+.lod-group .object-size-content > ui-button > ui-label,
+.multi-lod-group .object-size-content > ui-button > ui-label,
+.lod-item .screen-size-content > ui-button > ui-label {
+    white-space: nowrap;
+}
+
+.lod-item .mesh-renderers > .mesh {
     margin-top: 12px;
 }
 
-.lod-item .mesh-list > footer {
+.lod-item .mesh-renderers > footer {
     display: flex;
     justify-content: flex-end;
     margin-top: 4px;
 }
 
-.lod-item .mesh-list > footer > ui-button + ui-button {
+.lod-item .mesh-renderers > footer > ui-button + ui-button {
     margin-left: 4px;
 }
 
@@ -143,7 +161,9 @@ exports.template = `
     <div class="lod-group" v-if="!multi">
         <div>
             <ui-prop>
-                <ui-button slot="content" @confirm="recalculateBounds">Recalculate Bounds</ui-button>
+                <ui-button slot="content" @confirm="recalculateBounds">
+                    <ui-label value="Recalculate Bounds"></ui-label>
+                </ui-button>
             </ui-prop>
             <ui-prop>
                 <ui-label slot="label" value="Object Size"></ui-label>
@@ -153,7 +173,9 @@ exports.template = `
                         @confirm="onObjectSizeConfirm($event)"
                     >
                     </ui-num-input>
-                    <ui-button @confirm="resetObjectSize">Reset Object Size</ui-button>
+                    <ui-button @confirm="resetObjectSize">
+                        <ui-label value="Reset Object Size"></ui-label>
+                    </ui-button>
                 </div>
             </ui-prop>
             <ui-prop ref="lod-dump" type="dump"></ui-prop>
