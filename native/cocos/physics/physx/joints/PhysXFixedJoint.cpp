@@ -32,14 +32,14 @@ namespace cc {
 namespace physics {
 
 void PhysXFixedJoint::onComponentSet() {
-    _transA = physx::PxTransform{physx::PxIdentity};
-    _transB = physx::PxTransform{physx::PxIdentity};
+    _transA = physx::PxTransform(physx::PxIdentity);
+    _transB = physx::PxTransform(physx::PxIdentity);
 
     physx::PxRigidActor *actor0 = _mSharedBody->getImpl().rigidActor;
     physx::PxRigidActor *actor1 = nullptr;
 
     if (_mConnectedBody) {
-        auto *actor1 = _mConnectedBody->getImpl().rigidActor;
+        actor1 = _mConnectedBody->getImpl().rigidActor;
     }
 
     _mJoint = PxFixedJointCreate(PxGetPhysics(), actor0, _transA, actor1, _transB);
@@ -66,24 +66,14 @@ void PhysXFixedJoint::updateScale1() {
 }
 
 void PhysXFixedJoint::updatePose() {
-    _transA = physx::PxTransform{};
-    _transB = physx::PxTransform{};
+    _transA = physx::PxTransform(physx::PxIdentity);
+    _transB = physx::PxTransform(physx::PxIdentity);
 
-    Vec3 pos; Quaternion rot;
-    pos = _mSharedBody->getNode()->getWorldPosition();
-    rot = _mSharedBody->getNode()->getWorldRotation();
-    pxSetVec3Ext(_transA.p, pos);
-    pxSetQuatExt(_transA.q, rot);
-
-    physx::PxRigidActor *actor0 = _mSharedBody->getImpl().rigidActor;
-    physx::PxRigidActor *actor1 = nullptr;
-
+    pxSetVec3Ext(_transA.p, _mSharedBody->getNode()->getWorldPosition());
+    pxSetQuatExt(_transA.q, _mSharedBody->getNode()->getWorldRotation());
     if (_mConnectedBody) {
-        auto *actor1 = _mConnectedBody->getImpl().rigidActor;
-        pos = _mConnectedBody->getNode()->getWorldPosition();
-        rot = _mConnectedBody->getNode()->getWorldRotation();
-        pxSetVec3Ext(_transB.p, pos);
-        pxSetQuatExt(_transB.q, rot);
+        pxSetVec3Ext(_transB.p, _mConnectedBody->getNode()->getWorldPosition());
+        pxSetQuatExt(_transB.q, _mConnectedBody->getNode()->getWorldRotation());
     }
     _mJoint->setLocalPose(physx::PxJointActorIndex::eACTOR0, _transA.getInverse());
     _mJoint->setLocalPose(physx::PxJointActorIndex::eACTOR1, _transB.getInverse());

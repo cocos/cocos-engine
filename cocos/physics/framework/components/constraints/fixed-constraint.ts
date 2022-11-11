@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
- import {
+import {
     ccclass,
     help,
     menu,

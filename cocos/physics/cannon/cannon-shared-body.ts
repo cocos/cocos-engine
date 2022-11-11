@@ -120,7 +120,7 @@ export class CannonSharedBody {
     }
 
     set reference (v: boolean) {
-        // eslint-disable-next-line no-unused-expressions
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         v ? this.ref++ : this.ref--;
         if (this.ref === 0) { this.destroy(); }
     }
