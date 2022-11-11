@@ -428,49 +428,51 @@ CCProgram ray-query-fs %{
 
     return result;
   }
-
+  /*
   float sdfSphere(in vec3 p,vec3 center,float radius)
   {
     return length(p-center)-radius;
-  }
+  }*/
 
+  /*
   float sdfPlane(in vec3 p,vec3 normal,float d)
   {
     return dot(p,normal)+d;
-  }
+  }*/
 
-  float sdfSphereDisplace(vec3 p, vec3 center,float ra)
-  {
-    float displacement = sin(5.0 * p.x) * sin(5.0 * p.y) * sin(5.0 * p.z) * 0.25;
-    return displacement + sdfSphere(p, center, ra);
-  }
+  // float sdfSphereDisplace(vec3 p, vec3 center,float ra)
+  // {
+  //   float displacement = sin(5.0 * p.x) * sin(5.0 * p.y) * sin(5.0 * p.z) * 0.25;
+  //   return displacement + sdfSphere(p, center, ra);
+  // }
 
-  float sdfSphereTwist(vec3 p, vec3 center,float ra)
-  {
-    const float k = 1.0*abs(cos(0.05*cc_time.w)); // or some other amount
-    float c = cos(k*p.y);
-    float s = sin(k*p.y);
-    mat2  m = mat2(c,-s,s,c);
-    vec3  q = vec3(m*p.xz,p.y);
-    return sdfSphereDisplace(q,center,ra);
-  }
+  // float sdfSphereTwist(vec3 p, vec3 center,float ra)
+  // {
+  //   const float k = 1.0*abs(cos(0.05*cc_time.w)); // or some other amount
+  //   float c = cos(k*p.y);
+  //   float s = sin(k*p.y);
+  //   mat2  m = mat2(c,-s,s,c);
+  //   vec3  q = vec3(m*p.xz,p.y);
+  //   return sdfSphereDisplace(q,center,ra);
+  // }
 
-  float sdfSmoothUnion(float d1, float d2, float k)
-  {
-    float h = clamp(0.5+0.5*(d2-d1)/k, 0.0, 1.0);
-    return mix(d2, d1, h) - k*h*(1.0-h);
-  }
+  // float sdfSmoothUnion(float d1, float d2, float k)
+  // {
+  //   float h = clamp(0.5+0.5*(d2-d1)/k, 0.0, 1.0);
+  //   return mix(d2, d1, h) - k*h*(1.0-h);
+  // }
 
-  vec3 calculate_normal(vec3 p, vec3 center, float r)
-  {
-    const float h = 1e-6;
-    const vec2 k = vec2(1,-1);
-    return normalize( k.xyy*sdfSphereTwist(p + k.xyy*h,center,r ) + 
-                      k.yyx*sdfSphereTwist(p + k.yyx*h,center,r ) + 
-                      k.yxy*sdfSphereTwist(p + k.yxy*h,center,r ) + 
-                      k.xxx*sdfSphereTwist(p + k.xxx*h,center,r ) );
-  }
+  // vec3 calculate_normal(vec3 p, vec3 center, float r)
+  // {
+  //   const float h = 1e-6;
+  //   const vec2 k = vec2(1,-1);
+  //   return normalize( k.xyy*sdfSphereTwist(p + k.xyy*h,center,r ) + 
+  //                     k.yyx*sdfSphereTwist(p + k.yyx*h,center,r ) + 
+  //                     k.yxy*sdfSphereTwist(p + k.yxy*h,center,r ) + 
+  //                     k.xxx*sdfSphereTwist(p + k.xxx*h,center,r ) );
+  // }
 
+  /*
   bool raymarchingSphere(vec3 ro, vec3 rd,vec3 center,float r,float tMin,float tMax,out float t,out vec3 normal){
     t = 0.001;
     float tmax = 100.0;
@@ -489,7 +491,8 @@ CCProgram ray-query-fs %{
       t+= dist;
     }
     return false;
-  }
+  }*/
+
   #endif
 
   void surf (out StandardSurface s) {
