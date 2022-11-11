@@ -523,5 +523,10 @@ void CommandBufferAgent::compactAccelerationStructure(AccelerationStructure *acc
     // todo
 }
 
+void CommandBufferAgent::traceRays(const RayTracingInfo& info) {
+    //todo
+}
+
+
 } // namespace gfx
 } // namespace cc

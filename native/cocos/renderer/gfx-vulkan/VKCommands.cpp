@@ -42,6 +42,7 @@
 #include "states/VKTextureBarrier.h"
 
 #include "gfx-base/SPIRVUtils.h"
+#include "vulkan/vulkan_core.h"
 
 namespace cc {
 namespace gfx {
@@ -1171,56 +1172,23 @@ void cmdFuncCCVKCreateRayTracingPipelineState(CCVKDevice* device, CCVKGPUPipelin
     createInfo.pStages = stageInfos.data();
 
     ///////////////////// Groups /////////////////////
-    VkRayTracingShaderGroupCreateInfoKHR groupInfo{VK_STRUCTURE_TYPE_RAY_TRACING_SHADER_GROUP_CREATE_INFO_KHR};
-    
-    /*
-    * The shader stages stream must come in order:
-    * [raygens] -- [intersection(optional)|anyhit(optional)|closeHit] -- [misses]
-    */
-    for(size_t i = 0U; i<stageCount; ++i){
-        switch (stages[i].type)
-        {
-        case ShaderStageFlagBit::RAYGEN:
-        case ShaderStageFlagBit::MISS:
-            groupInfo.type = VK_RAY_TRACING_SHADER_GROUP_TYPE_GENERAL_KHR;
-            groupInfo.generalShader = utils::toUint(i);
-            groupInfo.closestHitShader = VK_SHADER_UNUSED_KHR;
-            groupInfo.anyHitShader = VK_SHADER_UNUSED_KHR;
-            groupInfo.intersectionShader = VK_SHADER_UNUSED_KHR;
-            groupInfos.push_back(groupInfo);
-            break;
-        case ShaderStageFlagBit::INTERSECTION:
-            groupInfo.type = VK_RAY_TRACING_SHADER_GROUP_TYPE_PROCEDURAL_HIT_GROUP_KHR;
-            groupInfo.generalShader = VK_SHADER_UNUSED_KHR;
-            groupInfo.intersectionShader = utils::toUint(i);
-            break;
-        case ShaderStageFlagBit::ANY_HIT:
-            groupInfo.generalShader = VK_SHADER_UNUSED_KHR;
-            groupInfo.anyHitShader = utils::toUint(i);
-            break;
-        case ShaderStageFlagBit::CLOSEST_HIT:
-            groupInfo.type = VK_RAY_TRACING_SHADER_GROUP_TYPE_TRIANGLES_HIT_GROUP_KHR;
-            groupInfo.generalShader = VK_SHADER_UNUSED_KHR;
-            groupInfo.closestHitShader = utils::toUint(i);
-            groupInfos.push_back(groupInfo);
-            //set default
-            groupInfo.type = VK_RAY_TRACING_SHADER_GROUP_TYPE_TRIANGLES_HIT_GROUP_KHR;
-            groupInfo.generalShader = VK_SHADER_UNUSED_KHR;
-            groupInfo.anyHitShader = VK_SHADER_UNUSED_KHR;
-            groupInfo.closestHitShader = VK_SHADER_UNUSED_KHR;
-            groupInfo.intersectionShader = VK_SHADER_UNUSED_KHR;
-            break;
-        default:
-            break;
-        }
+    const auto &groups = gpuPipelineState->gpuShader->gpuGroups;
+    const size_t groupCount = groups.size();
+
+    groupInfos.resize(groupCount,{VK_STRUCTURE_TYPE_RAY_TRACING_SHADER_GROUP_CREATE_INFO_KHR});
+    for (size_t i = 0U; i < groupCount; ++i) {
+        groupInfos[i].type = mapVkRayTracingShaderGroupType(groups[i].type);
+        groupInfos[i].generalShader = groups[i].generalShader;
+        groupInfos[i].closestHitShader = groups[i].closestHitShader;
+        groupInfos[i].anyHitShader = groups[i].anyHitShader;
+        groupInfos[i].intersectionShader = groups[i].intersectionShader;
     }
 
-    const size_t groupCount = groupInfos.size();
     createInfo.groupCount = utils::toUint(groupCount);
     createInfo.pGroups = groupInfos.data();
 
     ///////////////////// Max Recursion Depth /////////////////////
-    createInfo.maxPipelineRayRecursionDepth = 3;
+    createInfo.maxPipelineRayRecursionDepth = gpuPipelineState->maxRecursionDepth;
     
     ///////////////////// Dynamic State //////////////////////////
     dynamicStates.assign({VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR});

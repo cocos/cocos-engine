@@ -68,6 +68,7 @@ VkDescriptorType mapVkDescriptorType(DescriptorType type);
 VkColorComponentFlags mapVkColorComponentFlags(ColorMask colorMask);
 VkShaderStageFlagBits mapVkShaderStageFlagBits(ShaderStageFlagBit stage);
 VkShaderStageFlags mapVkShaderStageFlags(ShaderStageFlagBit stages);
+VkRayTracingShaderGroupTypeKHR mapVkRayTracingShaderGroupType(RayTracingShaderGroupType type);
 SurfaceTransform mapSurfaceTransform(VkSurfaceTransformFlagBitsKHR transform);
 VkGeometryFlagsKHR mapVkGeometryFlags(ASGeometryFlagBit flags);
 VkBuildAccelerationStructureFlagsKHR mapVkBuildAccelerationStructureFlags(ASBuildFlags flags);

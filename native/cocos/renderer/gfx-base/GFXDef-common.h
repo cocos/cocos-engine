@@ -636,6 +636,12 @@ enum class ShaderStageFlagBit : uint32_t {
 using ShaderStageFlags = ShaderStageFlagBit;
 CC_ENUM_BITWISE_OPERATORS(ShaderStageFlagBit);
 
+enum class RayTracingShaderGroupType : uint32_t {
+    GENERAL,
+    TRIANGLES_HIT_GROUP,
+    PROCEDURAL_HIT_GROUP,
+};
+
 enum class LoadOp : uint32_t {
     LOAD,    // Load the previous content from memory
     CLEAR,   // Clear the content to a fixed value

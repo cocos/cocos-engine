@@ -313,12 +313,24 @@ struct CCVKGPUShaderStage {
     VkShaderModule vkShader = VK_NULL_HANDLE;
 };
 
+/*
+ * Use for ray tracing shaders
+ */
+struct CCVKGPUShaderGroup {
+    RayTracingShaderGroupType type{RayTracingShaderGroupType::GENERAL};
+    uint32_t generalShader{VK_SHADER_UNUSED_KHR};
+    uint32_t closestHitShader{VK_SHADER_UNUSED_KHR};
+    uint32_t anyHitShader{VK_SHADER_UNUSED_KHR};
+    uint32_t intersectionShader{VK_SHADER_UNUSED_KHR};
+};
+
 struct CCVKGPUShader : public CCVKGPUDeviceObject {
     void shutdown() override;
 
     ccstd::string name;
     AttributeList attributes;
     ccstd::vector<CCVKGPUShaderStage> gpuStages;
+    ccstd::vector<CCVKGPUShaderGroup> gpuGroups;
     bool initialized = false;
 };
 
@@ -434,6 +446,9 @@ struct CCVKGPUPipelineState : public CCVKGPUDeviceObject {
     DynamicStateList dynamicStates;
     ConstPtr<CCVKGPURenderPass> gpuRenderPass;
     uint32_t subpass = 0U;
+    //ray tracing only 
+    uint32_t maxRecursionDepth = 1U;
+    
     VkPipeline vkPipeline = VK_NULL_HANDLE;
 };
 

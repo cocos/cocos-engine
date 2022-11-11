@@ -30,6 +30,7 @@
 
 #include "VKGPUObjects.h"
 #include "gfx-base/GFXBuffer.h"
+#include "vulkan/vulkan_core.h"
 
 namespace cc {
 namespace gfx {
@@ -351,6 +352,18 @@ VkShaderStageFlags mapVkShaderStageFlags(ShaderStageFlagBit stages) {
     if (hasFlag(stages, ShaderStageFlagBit::FRAGMENT)) flags |= VK_SHADER_STAGE_FRAGMENT_BIT;
     if (hasFlag(stages, ShaderStageFlagBit::COMPUTE)) flags |= VK_SHADER_STAGE_COMPUTE_BIT;
     return static_cast<VkShaderStageFlags>(flags);
+}
+
+VkRayTracingShaderGroupTypeKHR mapVkRayTracingShaderGroupType(RayTracingShaderGroupType type) {
+    switch (type) {
+        case RayTracingShaderGroupType::GENERAL: return VK_RAY_TRACING_SHADER_GROUP_TYPE_GENERAL_KHR;
+        case RayTracingShaderGroupType::TRIANGLES_HIT_GROUP: return VK_RAY_TRACING_SHADER_GROUP_TYPE_TRIANGLES_HIT_GROUP_KHR;
+        case RayTracingShaderGroupType::PROCEDURAL_HIT_GROUP: return VK_RAY_TRACING_SHADER_GROUP_TYPE_PROCEDURAL_HIT_GROUP_KHR;
+        default: {
+            CC_ASSERT(false);
+            return VK_RAY_TRACING_SHADER_GROUP_TYPE_GENERAL_KHR;
+        }
+    }
 }
 
 SurfaceTransform mapSurfaceTransform(VkSurfaceTransformFlagBitsKHR transform) {
