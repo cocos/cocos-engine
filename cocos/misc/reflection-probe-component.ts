@@ -56,7 +56,7 @@ export enum ProbeResolution {
       * @en renderTexture resolution 768 * 768.
       * @readonly
       */
-    High_1024x1024 = 768,
+    High_768x768 = 768,
 }
 @ccclass('cc.ReflectionProbe')
 @menu('Rendering/ReflectionProbe')
