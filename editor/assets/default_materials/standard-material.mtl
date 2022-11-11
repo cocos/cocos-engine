@@ -9,6 +9,9 @@
   "_techIdx": 0,
   "_defines": [],
   "_props": [
-    {}
+    {
+      "roughness": 0.8,
+      "metallic": 0.6
+    }
   ]
 }

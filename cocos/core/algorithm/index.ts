@@ -1,8 +1,7 @@
 /*
- Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -23,26 +22,10 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
+import { legacyCC } from '../global-exports';
+import * as easing from './easing';
 
-import './deprecated-3.6.0';
-import * as js from './js';
+export * from './murmurhash2_gc';
 
-/**
- * Some useful functions.
- */
-import * as misc from './misc';
-
-/**
- * A module to handle files and directories.
- */
-import * as path from './path';
-
-export * from './x-deprecated';
-
-export {
-    js,
-    misc,
-    path,
-};
-
-export * from './coordinates-converts-utils';
+export { easing };
+legacyCC.easing = easing;
