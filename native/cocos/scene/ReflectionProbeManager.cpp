@@ -48,5 +48,5 @@ void ReflectionProbeManager::unRegisterProbe(scene::ReflectionProbe* probe) {
     _probes.erase(iter);
 }
 
-} // namespace pipeline
+} // namespace scene
 } // namespace cc
