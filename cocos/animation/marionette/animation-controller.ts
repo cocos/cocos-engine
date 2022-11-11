@@ -38,6 +38,15 @@ export class AnimationController extends Component {
 
     private _graphEval: AnimationGraphEval | null = null;
 
+    /**
+     * @zh 获取动画图的层级数量。如果控制器没有指定动画图，则返回 0。
+     * @en Gets the count of layers in the animation graph.
+     * If no animation graph is specified, 0 is returned.
+     */
+    public get layerCount () {
+        return this._graphEval?.layerCount ?? 0;
+    }
+
     public __preload () {
         if (this.graph) {
             this._graphEval = new AnimationGraphEval(this.graph as AnimationGraph, this.node, this);
@@ -99,8 +108,8 @@ export class AnimationController extends Component {
      * @zh 获取动画图实例中当前状态的运行状况。
      * @en Gets the running status of the current state in the animation graph instance.
      * @param layer @en Index of the layer. @zh 层级索引。
-     * @returns @en The running status of the current state.
-     *          @zh 当前的状态运作状态对象。
+     * @returns @en The running status of the current state. `null` is returned if current state is not a motion state.
+     *          @zh 当前的状态运作状态对象。如果当前的状态不是动作状态，则返回 `null`。
      */
     public getCurrentStateStatus (layer: number) {
         const { _graphEval: graphEval } = this;
@@ -113,7 +122,8 @@ export class AnimationController extends Component {
      * @en Gets the running status of all the animation clips added on the current state in the animation graph instance.
      * @param layer @en Index of the layer. @zh 层级索引。
      * @returns @en Iterable to the animation clip statuses on current state.
-     *          @zh 到动画剪辑运作状态的迭代器。
+     *              An empty iterable is returned if current state is not a motion state.
+     *          @zh 到动画剪辑运作状态的迭代器。若当前状态不是动画状态，则返回一个空的迭代器。
      */
     public getCurrentClipStatuses (layer: number) {
         const { _graphEval: graphEval } = this;
@@ -138,8 +148,8 @@ export class AnimationController extends Component {
      * @zh 获取动画图实例中下一个状态的运行状况。
      * @en Gets the running status of the next state in the animation graph instance.
      * @param layer @en Index of the layer. @zh 层级索引。
-     * @returns @en The running status of the next state. `null` is returned in case of no transition.
-     *          @zh 下一状态运作状态对象，若未在进行过渡，则返回 `null`。
+     * @returns @en The running status of the next state. `null` is returned in case of no transition or if next state is not a motion state.
+     *          @zh 下一状态运作状态对象，若未在进行过渡或下一状态不是动画状态，则返回 `null`。
      */
     public getNextStateStatus (layer: number) {
         const { _graphEval: graphEval } = this;
@@ -151,8 +161,9 @@ export class AnimationController extends Component {
      * @zh 获取动画图实例中下一个状态上添加的所有动画剪辑的运行状况。
      * @en Gets the running status of all the animation clips added on the next state in the animation graph instance.
      * @param layer @en Index of the layer. @zh 层级索引。
-     * @returns @en Iterable to the animation clip statuses on next state. An empty iterable is returned in case of no transition.
-     *          @zh 到下一状态上包含的动画剪辑运作状态的迭代器，若未在进行过渡，则返回一个空的迭代器。
+     * @returns @en Iterable to the animation clip statuses on next state.
+     *              An empty iterable is returned in case of no transition or next state is not a motion state.
+     *          @zh 到下一状态上包含的动画剪辑运作状态的迭代器，若未在进行过渡或下一状态不是动画状态，则返回一个空的迭代器。
      */
     public getNextClipStatuses (layer: number) {
         const { _graphEval: graphEval } = this;
