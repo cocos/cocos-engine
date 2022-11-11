@@ -3,7 +3,7 @@ import {
     AnimationGraph, Layer, StateMachine, State, isAnimationTransition,
     SubStateMachine, EmptyState, EmptyStateTransition, TransitionInterruptionSource,
 } from './animation-graph';
-import { MotionEval, MotionEvalContext } from './motion';
+import { MotionEval, MotionEvalContext, OverrideClipContext } from './motion';
 import type { Node } from '../../scene-graph/node';
 import { createEval } from './create-eval';
 import { Value, VarInstance, TriggerResetMode } from './variable';
@@ -27,7 +27,7 @@ export class AnimationGraphEval {
         time: 0.0,
     };
 
-    constructor (graph: AnimationGraph, root: Node, controller: AnimationController) {
+    constructor (graph: AnimationGraph, root: Node, controller: AnimationController, clipOverrides: ReadonlyClipOverrideMap | null) {
         if (DEBUG) {
             if (graph.layers.length >= MAX_ANIMATION_LAYER) {
                 throw new Error(
@@ -52,6 +52,7 @@ export class AnimationGraphEval {
             controller,
             blendBuffer: this._blendBuffer,
             node: root,
+            clipOverrides,
             getVar: (id: string): VarInstance | undefined => this._varInstances[id],
             triggerResetFn: (name: string) => {
                 this.setValue(name, false);
@@ -61,7 +62,6 @@ export class AnimationGraphEval {
         const layerEvaluations = this._layerEvaluations = graph.layers.map((layer) => {
             const layerEval = new LayerEval(layer, {
                 ...context,
-                mask: layer.mask ?? undefined,
             });
             return layerEval;
         });
@@ -75,6 +75,8 @@ export class AnimationGraphEval {
                 this._blendBuffer.setMask(iLayer, excludeNodes);
             }
         }
+
+        this._root = root;
     }
 
     public get layerCount () {
@@ -161,9 +163,44 @@ export class AnimationGraphEval {
         this._layerEvaluations[layerIndex].weight = weight;
     }
 
+    public overrideClips (overrides: ReadonlyClipOverrideMap) {
+        const { _layerEvaluations: layerEvaluations } = this;
+        const nLayers = layerEvaluations.length;
+        for (let iLayer = 0; iLayer < nLayers; ++iLayer) {
+            const layerEval = layerEvaluations[iLayer];
+            layerEval.overrideClips(overrides, this._root, this._blendBuffer);
+        }
+    }
+
     private _varInstances: Record<string, VarInstance> = {};
     private _hasAutoTrigger = false;
+    /**
+     * Preserved here for clip overriding.
+     */
+    private _root: Node;
 }
+
+/**
+ * @zh
+ * 描述了如何对动画图中引用的动画剪辑进行替换。
+ * @en
+ * Describes how to override animation clips in an animation graph.
+ */
+export type ReadonlyClipOverrideMap = {
+    /**
+     * @zh
+     * 获取指定原始动画剪辑应替换成的动画剪辑。
+     * @en
+     * Gets the overriding animation clip of specified original animation clip.
+     *
+     * @param animationClip @zh 原始动画剪辑。@en Original animation clip.
+     *
+     * @returns @zh 替换的动画剪辑；如果原始动画剪辑不应被替换，则应该返回 `undefined`。 @en
+     * The overriding animation clip.
+     * If the original animation clip should not be overrode, `undefined` should be returned.
+     */
+    get(animationClip: AnimationClip): AnimationClip | undefined;
+};
 
 /**
  * @en
@@ -266,6 +303,8 @@ interface LayerContext extends BindContext {
      * A function which resets specified trigger. This function can be stored.
      */
     triggerResetFn: TriggerResetFn;
+
+    clipOverrides: ReadonlyClipOverrideMap | null;
 }
 
 class LayerEval {
@@ -275,17 +314,19 @@ class LayerEval {
 
     public passthroughWeight = 1.0;
 
-    constructor (layer: Layer, context: LayerContext) {
+    constructor (layer: Layer, context: Omit<LayerContext, 'mask'>) {
         this.name = layer.name;
         this._controller = context.controller;
         this.weight = layer.weight;
         const { entry, exit } = this._addStateMachine(layer.stateMachine, null, {
+            mask: layer.mask ?? undefined,
             ...context,
         }, layer.name);
         this._topLevelEntry = entry;
         this._topLevelExit = exit;
         this._currentNode = entry;
         this._resetTrigger = context.triggerResetFn;
+        this._mask = layer.mask;
     }
 
     /**
@@ -373,8 +414,27 @@ class LayerEval {
         return to.getClipStatuses(this._toWeight) ?? emptyClipStatusesIterable;
     }
 
+    public overrideClips (overrides: ReadonlyClipOverrideMap, node: Node, blendBuffer: BlendStateBuffer) {
+        const { _motionStates: motionStates } = this;
+        const overrideClipContext: OverrideClipContext = {
+            node,
+            blendBuffer,
+            mask: this._mask ?? undefined,
+        };
+        const nMotionStates = motionStates.length;
+        for (let iMotionState = 0; iMotionState < nMotionStates; ++iMotionState) {
+            const node = motionStates[iMotionState];
+            if (node.kind === NodeKind.animation) {
+                node.overrideClips(overrides, overrideClipContext);
+            }
+        }
+    }
+
     private declare _controller: AnimationController;
-    private _nodes: NodeEval[] = [];
+    /**
+     * Preserved here for clip overriding.
+     */
+    private _motionStates: MotionStateEval[] = [];
     private _topLevelEntry: NodeEval;
     private _topLevelExit: NodeEval;
     private _currentNode: NodeEval;
@@ -390,6 +450,10 @@ class LayerEval {
      * A virtual state which represents the transition snapshot captured when a transition is interrupted.
      */
     private _transitionSnapshot = new TransitionSnapshotEval();
+    /**
+     * Preserved here for clip overriding.
+     */
+    private _mask: AnimationMask | null = null;
 
     private _addStateMachine (
         graph: StateMachine, parentStateMachineInfo: StateMachineInfo | null, context: LayerContext, __DEBUG_ID__: string,
@@ -402,7 +466,9 @@ class LayerEval {
 
         const nodeEvaluations = nodes.map((node): NodeEval | null => {
             if (node instanceof MotionState) {
-                return new MotionStateEval(node, context);
+                const motionStateEval = new MotionStateEval(node, context);
+                this._motionStates.push(motionStateEval);
+                return motionStateEval;
             } else if (node === graph.entryState) {
                 return entryEval = new SpecialStateEval(node, NodeKind.entry, node.name);
             } else if (node === graph.exitState) {
@@ -1616,6 +1682,10 @@ export class MotionStateEval extends StateEval {
                 [Symbol.iterator]: () => source.getClipStatuses(baseWeight),
             };
         }
+    }
+
+    public overrideClips (overrides: ReadonlyClipOverrideMap, context: OverrideClipContext) {
+        this._source?.overrideClips(overrides, context);
     }
 
     private _source: MotionEval | null = null;

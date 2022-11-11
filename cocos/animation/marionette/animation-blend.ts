@@ -1,8 +1,9 @@
 import { _decorator, EditorExtendable, editorExtrasTag } from '../../core';
-import { MotionEvalContext, Motion, MotionEval } from './motion';
+import { MotionEvalContext, Motion, MotionEval, OverrideClipContext } from './motion';
 import { createEval } from './create-eval';
 import { VariableTypeMismatchedError } from './errors';
-import { ClipStatus } from './graph-eval';
+import { ReadonlyClipOverrideMap, ClipStatus } from './graph-eval';
+
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
 import { getMotionRuntimeID, RUNTIME_ID_ENABLED } from './graph-debug';
 import { cloneAnimationGraphEditorExtrasFrom } from './animation-graph-editor-extras-clone-helper';
@@ -112,6 +113,12 @@ export class AnimationBlendEval implements MotionEval {
     public sample (progress: number, weight: number) {
         for (let iChild = 0; iChild < this._childEvaluators.length; ++iChild) {
             this._childEvaluators[iChild]?.sample(progress, weight * this._weights[iChild]);
+        }
+    }
+
+    public overrideClips (overrides: ReadonlyClipOverrideMap, context: OverrideClipContext): void {
+        for (let iChild = 0; iChild < this._childEvaluators.length; ++iChild) {
+            this._childEvaluators[iChild]?.overrideClips(overrides, context);
         }
     }
 

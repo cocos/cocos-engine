@@ -13,6 +13,7 @@ import { State, outgoingsSymbol, incomingsSymbol, InteractiveState } from './sta
 import { AnimationMask } from './animation-mask';
 import { onAfterDeserializedTag } from '../../serialization/deserialize-symbols';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
+import { AnimationGraphLike } from './animation-graph-like';
 
 export { State };
 
@@ -846,7 +847,7 @@ export type VariableDescription =
     | TriggerVariable;
 
 @ccclass('cc.animation.AnimationGraph')
-export class AnimationGraph extends Asset implements AnimationGraphRunTime {
+export class AnimationGraph extends AnimationGraphLike implements AnimationGraphRunTime {
     public declare readonly __brand: 'AnimationGraph';
 
     @serializable

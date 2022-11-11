@@ -1,10 +1,12 @@
 import { Component } from '../../scene-graph/component';
 import { AnimationGraph } from './animation-graph';
 import type { AnimationGraphRunTime } from './animation-graph';
-import { _decorator, assertIsNonNullable } from '../../core';
+import { _decorator, assertIsNonNullable, assertIsTrue } from '../../core';
 import { AnimationGraphEval } from './graph-eval';
-import type { MotionStateStatus, TransitionStatus, ClipStatus } from './graph-eval';
+import type { MotionStateStatus, TransitionStatus, ClipStatus, ReadonlyClipOverrideMap } from './graph-eval';
 import { Value } from './variable';
+import { AnimationGraphVariant, AnimationGraphVariantRunTime } from './animation-graph-variant';
+import { AnimationGraphLike } from './animation-graph-like';
 
 const { ccclass, menu, property } = _decorator;
 
@@ -12,6 +14,7 @@ export type {
     MotionStateStatus,
     ClipStatus,
     TransitionStatus,
+    ReadonlyClipOverrideMap,
 };
 
 /**
@@ -33,8 +36,8 @@ export class AnimationController extends Component {
      * @en
      * The animation graph associated with the animation controller.
      */
-    @property(AnimationGraph)
-    public graph: AnimationGraphRunTime | null = null;
+    @property(AnimationGraphLike)
+    public graph: AnimationGraphRunTime | AnimationGraphVariantRunTime | null = null;
 
     private _graphEval: AnimationGraphEval | null = null;
 
@@ -48,8 +51,22 @@ export class AnimationController extends Component {
     }
 
     public __preload () {
-        if (this.graph) {
-            this._graphEval = new AnimationGraphEval(this.graph as AnimationGraph, this.node, this);
+        const { graph } = this;
+        if (graph) {
+            let originalGraph: AnimationGraph;
+            let clipOverrides: ReadonlyClipOverrideMap | null = null;
+            if (graph instanceof AnimationGraphVariant) {
+                if (!graph.original) {
+                    return;
+                }
+                originalGraph = graph.original;
+                clipOverrides = graph.clipOverrides;
+            } else {
+                assertIsTrue(graph instanceof AnimationGraph);
+                originalGraph = graph;
+            }
+            const graphEval = new AnimationGraphEval(originalGraph, this.node, this, clipOverrides);
+            this._graphEval = graphEval;
         }
     }
 
@@ -191,5 +208,33 @@ export class AnimationController extends Component {
         const { _graphEval: graphEval } = this;
         assertIsNonNullable(graphEval);
         return graphEval.setLayerWeight(layer, weight);
+    }
+
+    /**
+     * @zh 覆盖动画图实例中的动画剪辑。
+     * 对于每一对源剪辑、目标剪辑，
+     * 动画图（实例）中的出现的所有源剪辑都会被替换为目标剪辑，就好像动画图中一开始就使用的是目标剪辑。
+     * 不过，动画图当前的运转状态会依然保持不变，例如：
+     *
+     * - 若动作状态涉及的动画剪辑被替换，动作状态的播放进度百分比依然保持不变。
+     *
+     * - 若过渡的周期是相对的，即使在某一刻动画过渡的源头被替换，那么过渡的进度百分比也依然保持不变。
+     *
+     * 不管进行多少次覆盖，源剪辑应该一直指定为原始动画图中的动画剪辑。例如：
+     *
+     * ```ts
+     * // `originalClip` 是原始动画图中的剪辑对象，第一次希望将原剪辑覆盖为 `newClip1`，第二次希望将原剪辑覆盖为 `newClip2`
+     * animationController.overrideClips_experimental(new Map([ [originalClip, newClip1] ])); // 第一次覆盖
+     * animationController.overrideClips_experimental(new Map([ [newClip1, newClip2] ])); // 错误：第二次覆盖
+     * animationController.overrideClips_experimental(new Map([ [originalClip, newClip2] ])); // 正确：第二次覆盖
+     * ```
+     * @en Overrides the animation clips in animation graph instance.
+     * TODO
+     * @experimental
+     */
+    public overrideClips_experimental (overrides: ReadonlyClipOverrideMap) {
+        const { _graphEval: graphEval } = this;
+        assertIsNonNullable(graphEval);
+        graphEval.overrideClips(overrides);
     }
 }

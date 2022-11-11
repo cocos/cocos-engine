@@ -1,6 +1,6 @@
 
 import { lerp, Vec3, warnID } from '../../cocos/core';
-import { AnimationBlend1D, AnimationBlend2D, Condition, InvalidTransitionError, VariableNotDefinedError, ClipMotion, AnimationBlendDirect, VariableType, AnimationMask } from '../../cocos/animation/marionette/asset-creation';
+import { AnimationBlend1D, AnimationBlend2D, Condition, InvalidTransitionError, VariableNotDefinedError, ClipMotion, AnimationBlendDirect, VariableType, AnimationMask, AnimationGraphVariant } from '../../cocos/animation/marionette/asset-creation';
 import { AnimationGraph, StateMachine, Transition, isAnimationTransition, AnimationTransition, TransitionInterruptionSource, State } from '../../cocos/animation/marionette/animation-graph';
 import { VariableTypeMismatchedError } from '../../cocos/animation/marionette/errors';
 import { AnimationGraphEval, MotionStateStatus, ClipStatus } from '../../cocos/animation/marionette/graph-eval';
@@ -3666,6 +3666,281 @@ describe('NewGen Anim', () => {
             l.stateMachine.connect(l.stateMachine.entryState, motion);
         }
     });
+
+    describe('Clip overriding', () => {
+        test('Through animation graph variant', () => {
+            const DEFAULT_VALUE = 0.9;
+
+            // -----------------------------------------------------
+            // | Layer0:
+            // |   Entry -> Motion1 -> Motion2 -> SubStateMachine
+            // |                                    Entry->Motion3
+            // | Layer1:
+            // |   Entry -> Empty -> Motion1
+            // -----------------------------------------------------
+            // Where:
+            // - Motion1 tests the relative duration, exit times as well as multiple replacements(it also occurs in layer 1)
+            // - Motion2 tests the destination start time.
+            // - Motion3 tests if the motion in sub state machine was correctly overridden.
+            //
+            const LAYER_1_WEIGHT = 0.5;
+            // Original clips. The data do not matter.
+            const MOTION1_ORIGINAL_CLIP_SHEET = createClipSheet(0.0001, 0.0, 0.0);
+            const MOTION2_ORIGINAL_CLIP_SHEET = createClipSheet(0.002, 0.0, 0.0);
+            const MOTION3_ORIGINAL_CLIP_SHEET = createClipSheet(0.03, 0.0, 0.0);
+            // Overriding clips.
+            const MOTION1_OVERRIDING_CLIP_SHEET = createClipSheet(1.2, 3, 4);
+            const MOTION2_OVERRIDING_CLIP_SHEET = createClipSheet(2.3, 5, 6);
+            const MOTION3_OVERRIDING_CLIP_SHEET = createClipSheet(3.4, 8.8, 6.666);
+            // Transition configurations.
+            const T_1_2_EXIT_TIMES = 0.8; // relative
+            const T_1_2_DURATION = 0.5; // relative
+            const T_1_2_DESTINATION_START = 0.6; // relative
+
+            const animationGraph = new AnimationGraph();
+            { // Layer 0
+                const layer = animationGraph.addLayer();
+                const { stateMachine } = layer;
+
+                const motionState1 = stateMachine.addMotion();
+                motionState1.motion = MOTION1_ORIGINAL_CLIP_SHEET.createMotion();
+
+                const motionState2 = stateMachine.addMotion();
+                motionState2.motion = MOTION2_ORIGINAL_CLIP_SHEET.createMotion();
+
+                const subStateMachine = stateMachine.addSubStateMachine();
+                const motionState3 = subStateMachine.stateMachine.addMotion();
+                motionState3.motion = MOTION3_ORIGINAL_CLIP_SHEET.createMotion();
+                subStateMachine.stateMachine.connect(subStateMachine.stateMachine.entryState, motionState3);
+
+                stateMachine.connect(stateMachine.entryState, motionState1);
+
+                const t_1_2 = stateMachine.connect(motionState1, motionState2);
+                t_1_2.exitConditionEnabled = true;
+                t_1_2.exitCondition = T_1_2_EXIT_TIMES;
+                t_1_2.relativeDuration = true;
+                t_1_2.duration = T_1_2_DURATION;
+                t_1_2.relativeDestinationStart = true;
+                t_1_2.destinationStart = T_1_2_DESTINATION_START;
+                
+                const t_2_3 = stateMachine.connect(motionState2, subStateMachine);
+                t_2_3.duration = 0.0;
+                t_2_3.exitConditionEnabled = false;
+                const [t_2_3_condition] = t_2_3.conditions = [new UnaryCondition()];
+                t_2_3_condition.operator = UnaryCondition.Operator.TRUTHY;
+                t_2_3_condition.operand.variable = '2_3';
+                animationGraph.addBoolean('2_3');
+            }
+            { // Layer 1
+                const layer = animationGraph.addLayer();
+                layer.weight = LAYER_1_WEIGHT;
+                const { stateMachine } = layer;
+
+                const motionState1 = stateMachine.addMotion();
+                motionState1.motion = MOTION1_ORIGINAL_CLIP_SHEET.createMotion();
+
+                const empty = stateMachine.addEmpty();
+
+                stateMachine.connect(stateMachine.entryState, empty);
+
+                const t_layer1 = stateMachine.connect(empty, motionState1);
+                t_layer1.duration = 0.0;
+                const [t_layer1_condition] = t_layer1.conditions = [new UnaryCondition()];
+                t_layer1_condition.operator = UnaryCondition.Operator.TRUTHY;
+                t_layer1_condition.operand.variable = 'layer1';
+                animationGraph.addBoolean('layer1');
+            }
+
+            const animationGraphVariant = new AnimationGraphVariant();
+            animationGraphVariant.original = animationGraph;
+            const clipOverrides = animationGraphVariant.clipOverrides;
+            clipOverrides.set(MOTION1_ORIGINAL_CLIP_SHEET.clip, MOTION1_OVERRIDING_CLIP_SHEET.clip);
+            clipOverrides.set(MOTION2_ORIGINAL_CLIP_SHEET.clip, MOTION2_OVERRIDING_CLIP_SHEET.clip);
+            clipOverrides.set(MOTION3_ORIGINAL_CLIP_SHEET.clip, MOTION3_OVERRIDING_CLIP_SHEET.clip);
+
+            const node = new Node();
+            node.position = new Vec3(DEFAULT_VALUE);
+            const graphEval = createAnimationGraphEval(animationGraphVariant, node);
+            const graphUpdater = new GraphUpdater(graphEval);
+
+            // Motion1 should be overridden.
+            graphUpdater.goto(0.12);
+            expect(graphEval.getCurrentTransition(0)).toBeNull();
+            expect(node.position.x).toBeCloseTo(
+                MOTION1_OVERRIDING_CLIP_SHEET.sampleAtTime(0.12),
+            );
+
+            // Go to the place where motion1 is about to start transition.
+            graphUpdater.goto(T_1_2_EXIT_TIMES * MOTION1_OVERRIDING_CLIP_SHEET.duration - 0.02);
+            expect(graphEval.getCurrentTransition(0)).toBeNull();
+            expect(node.position.x).toBeCloseTo(
+                MOTION1_OVERRIDING_CLIP_SHEET.sampleAtTime(T_1_2_EXIT_TIMES * MOTION1_OVERRIDING_CLIP_SHEET.duration - 0.02),
+            );
+
+            // Go to the place where motion1 just started transition
+            // to make sure the exit times property takes correctly effect.
+            graphUpdater.goto(T_1_2_EXIT_TIMES * MOTION1_OVERRIDING_CLIP_SHEET.duration + 0.03);
+            expect(graphEval.getCurrentTransition(0)).not.toBeNull();
+            expect(node.position.x).toBeCloseTo(
+                lerp(
+                    MOTION1_OVERRIDING_CLIP_SHEET.sampleAtTime(T_1_2_EXIT_TIMES * MOTION1_OVERRIDING_CLIP_SHEET.duration + 0.03),
+                    MOTION2_OVERRIDING_CLIP_SHEET.sampleAtTime(0.03 + (T_1_2_DESTINATION_START * MOTION2_OVERRIDING_CLIP_SHEET.duration)),
+                    0.03 / (T_1_2_DURATION * MOTION1_OVERRIDING_CLIP_SHEET.duration),
+                ),
+            );
+
+            // This time step further more...
+            // Here we're also confirming the effective of `duration` and `destination start`.
+            graphUpdater.goto(T_1_2_EXIT_TIMES * MOTION1_OVERRIDING_CLIP_SHEET.duration + 0.2);
+            expect(graphEval.getCurrentTransition(0)).not.toBeNull();
+            expect(node.position.x).toBeCloseTo(
+                lerp(
+                    MOTION1_OVERRIDING_CLIP_SHEET.sampleAtTime(T_1_2_EXIT_TIMES * MOTION1_OVERRIDING_CLIP_SHEET.duration + 0.2),
+                    MOTION2_OVERRIDING_CLIP_SHEET.sampleAtTime(0.2 + (T_1_2_DESTINATION_START * MOTION2_OVERRIDING_CLIP_SHEET.duration)),
+                    0.2 / (T_1_2_DURATION * MOTION1_OVERRIDING_CLIP_SHEET.duration),
+                ),
+            );
+
+            // Then let's go into the sub state machine
+            // to verify the overriding in sub state machine.
+            graphUpdater.goto((T_1_2_EXIT_TIMES + T_1_2_DURATION) * MOTION1_OVERRIDING_CLIP_SHEET.duration + 0.1);
+            graphEval.setValue('2_3', true);
+            graphUpdater.step(0.3);
+            expect(graphEval.getCurrentTransition(0)).toBeNull();
+            expect(node.position.x).toBeCloseTo(
+                MOTION3_OVERRIDING_CLIP_SHEET.sampleAtTime(0.3),
+            );
+
+            // Also verify in different layer!
+            graphEval.setValue('layer1', true);
+            graphUpdater.step(0.1);
+            expect(graphEval.getCurrentTransition(0)).toBeNull();
+            expect(node.position.x).toBeCloseTo(
+                lerp(
+                    MOTION3_OVERRIDING_CLIP_SHEET.sampleAtTime(0.4), // Layer 0
+                    MOTION1_OVERRIDING_CLIP_SHEET.sampleAtTime(0.1), // Layer 1
+                    LAYER_1_WEIGHT,
+                ),
+            );
+        });
+
+        test('Through API', () => {
+            const DEFAULT_VALUE = 0.9;
+            const MOTION2_FIXED_VALUE = 6.66;
+            const MOTION1_EXIT_TIME_RELATIVE = 0.8;
+            const MOTION1_TO_MOTION2_RELATIVE_DURATION = 0.2;
+            const MOTION1_ORIGINAL_CLIP_SHEET = createClipSheet(1.2, 0.3, 0.3);
+
+            const animationGraph = new AnimationGraph();
+            { // Layer 0
+                const layer = animationGraph.addLayer();
+                const { stateMachine } = layer;
+                const motionState = stateMachine.addMotion();
+                motionState.motion = MOTION1_ORIGINAL_CLIP_SHEET.createMotion();
+                const motionState2 = stateMachine.addMotion();
+                motionState2.motion = createClipMotionPositionX(2.6, MOTION2_FIXED_VALUE);
+                stateMachine.connect(stateMachine.entryState, motionState);
+                const t = stateMachine.connect(motionState, motionState2);
+                t.exitConditionEnabled = true;
+                t.exitCondition = MOTION1_EXIT_TIME_RELATIVE;
+                t.duration = MOTION1_TO_MOTION2_RELATIVE_DURATION;
+                t.relativeDuration = true;
+            }
+
+            const node = new Node();
+            node.position = new Vec3(DEFAULT_VALUE);
+            const graphEval = createAnimationGraphEval(animationGraph, node);
+            const graphUpdater = new GraphUpdater(graphEval);
+
+            graphUpdater.goto(0.1);
+            expect(node.position.x).toBeCloseTo(MOTION1_ORIGINAL_CLIP_SHEET.sample(0.1 / MOTION1_ORIGINAL_CLIP_SHEET.duration));
+
+            /**
+             * Trace the normalized time of "current from state" of layer 0.
+             */
+            let TRACE_MOTION1_NORMALIZED_TIME = 0.0;
+
+            /**
+             * Trace the normalized time of "current transition" of layer 0.
+             */
+            let TRACE_TRANSITION_NORMALIZED_TIME = 0.0;
+
+            // Overriding with same clips is easy.
+            // We only need to ensure the motion starts from previous normalized location.
+            {
+                const MOTION1_SAME_DURATION_OVERRIDE_CLIP_SHEET = createClipSheet(MOTION1_ORIGINAL_CLIP_SHEET.duration, 0.4, 0.7);
+                graphEval.overrideClips(new Map([[MOTION1_ORIGINAL_CLIP_SHEET.clip, MOTION1_SAME_DURATION_OVERRIDE_CLIP_SHEET.clip]]));
+                graphUpdater.goto(0.2);
+                expect(node.position.x).toBeCloseTo(
+                    MOTION1_SAME_DURATION_OVERRIDE_CLIP_SHEET.sample(
+                        TRACE_MOTION1_NORMALIZED_TIME += 0.2 / MOTION1_SAME_DURATION_OVERRIDE_CLIP_SHEET.duration,
+                    ),
+                );
+            }
+
+            // Different(Shorter) duration override.
+            // After overrode, the motion starts from previous normalized location.
+            const MOTION1_SHORTER_OVERRIDE_CLIP_SHEET = createClipSheet(0.5, 0.6, 0.7);
+            graphEval.overrideClips(new Map([[MOTION1_ORIGINAL_CLIP_SHEET.clip, MOTION1_SHORTER_OVERRIDE_CLIP_SHEET.clip]]));
+            graphUpdater.goto(0.35);
+            expect(node.position.x).toBeCloseTo(MOTION1_SHORTER_OVERRIDE_CLIP_SHEET.sample(
+                TRACE_MOTION1_NORMALIZED_TIME += (0.15 / MOTION1_SHORTER_OVERRIDE_CLIP_SHEET.duration)
+            ));
+
+            const EXIT_TIME =
+                graphUpdater.current +
+                (MOTION1_EXIT_TIME_RELATIVE - TRACE_MOTION1_NORMALIZED_TIME) * MOTION1_SHORTER_OVERRIDE_CLIP_SHEET.duration;
+            // The following updates ensures that
+            // the `exitCondition` respects to the new duration.
+            // -----
+            {
+                // Go ahead, util the motion state 1 is about to start transition.
+                const AHEAD_EXIT_TIME_A_LITTLE = EXIT_TIME - 0.01;
+                graphUpdater.goto(AHEAD_EXIT_TIME_A_LITTLE);
+                expect(graphEval.getCurrentTransition(0)).toBeNull();
+                expect(node.position.x).toBeCloseTo(
+                    MOTION1_SHORTER_OVERRIDE_CLIP_SHEET.sample(
+                        TRACE_MOTION1_NORMALIZED_TIME += graphUpdater.lastDeltaTime / MOTION1_SHORTER_OVERRIDE_CLIP_SHEET.duration,
+                    ),
+                );
+                // Go ahead, to the place where the motion state 1 just start the transition.
+                const AFTER_EXIT_TIME_A_LITTLE = EXIT_TIME + 0.005;
+                graphUpdater.goto(AFTER_EXIT_TIME_A_LITTLE);
+                expect(graphEval.getCurrentTransition(0)).not.toBeNull();
+                expect(node.position.x).toBeCloseTo(lerp(
+                    MOTION1_SHORTER_OVERRIDE_CLIP_SHEET.sample(
+                        TRACE_MOTION1_NORMALIZED_TIME += graphUpdater.lastDeltaTime / MOTION1_SHORTER_OVERRIDE_CLIP_SHEET.duration,
+                    ),
+                    MOTION2_FIXED_VALUE,
+                    // Note here: the transition duration also respects to the new duration.
+                    TRACE_TRANSITION_NORMALIZED_TIME =
+                        (graphUpdater.current - EXIT_TIME) / (MOTION1_SHORTER_OVERRIDE_CLIP_SHEET.duration * MOTION1_TO_MOTION2_RELATIVE_DURATION),
+                ));
+            }
+
+            // The following updates ensures that
+            // the `transition duration` respects to the new duration.
+            // However this time we test it with a longer-duration override.
+            // -----
+            {
+                // Longer duration override
+                const MOTION1_LONGER_OVERRIDE_CLIP_SHEET = createClipSheet(3.5, 1.6, 1.8);
+                graphEval.overrideClips(new Map([[MOTION1_ORIGINAL_CLIP_SHEET.clip, MOTION1_LONGER_OVERRIDE_CLIP_SHEET.clip]]));
+
+                graphUpdater.step(0.1);
+                expect(node.position.x).toBeCloseTo(
+                    lerp(
+                        MOTION1_LONGER_OVERRIDE_CLIP_SHEET.sample(
+                            TRACE_MOTION1_NORMALIZED_TIME += 0.1 / MOTION1_LONGER_OVERRIDE_CLIP_SHEET.duration),
+                        MOTION2_FIXED_VALUE,
+                        TRACE_TRANSITION_NORMALIZED_TIME += 0.1 / (MOTION1_LONGER_OVERRIDE_CLIP_SHEET.duration * MOTION1_TO_MOTION2_RELATIVE_DURATION),
+                    ),
+                );
+                expect(graphEval.getCurrentTransition(0)!.time).toBeCloseTo(
+                    TRACE_TRANSITION_NORMALIZED_TIME * (MOTION1_LONGER_OVERRIDE_CLIP_SHEET.duration * MOTION1_TO_MOTION2_RELATIVE_DURATION));
+            }
+        });
+    });
 });
 
 function assertivelyGetGraphVariable(graph: AnimationGraph, name: string) {
@@ -3717,6 +3992,58 @@ function createClipMotionPositionXLinear(duration: number, from: number, to: num
     const clipMotion = new ClipMotion();
     clipMotion.clip = clip;
     return clipMotion as NonNullableClipMotion;
+}
+
+/**
+ * A clip sheet contains a well-created animation clip object
+ * and provide utilities to verify sample result.
+ */
+function createClipSheet(duration: number, from: number, to: number, name = '') {
+    const clip = createClipMotionPositionXLinear(duration, from, to, name).clip;
+    return {
+        clip,
+
+        from,
+
+        to,
+
+        duration,
+
+        /**
+         * Creates a clip motion referencing to the created clip.
+         * @returns 
+         */
+        createMotion() {
+            const clipMotion = new ClipMotion();
+            clipMotion.clip = clip;
+            return clipMotion as NonNullableClipMotion;
+        },
+
+        /**
+         * Returns what the result would be when sample from such a clip.
+         * @param ratio Normalized time of this clip.
+         */
+        sample(ratio: number) {
+            return lerp(
+                from,
+                to,
+                ratio,
+            );
+        },
+
+        /**
+         * Returns what the result would be when sample from such a clip.
+         */
+        sampleAtTime(time: number) {
+            expect(time).toBeLessThanOrEqual(duration);
+            expect(time).toBeGreaterThan(0.0);
+            return lerp(
+                from,
+                to,
+                time / duration,
+            );
+        },
+    };
 }
 
 type MayBeArray<T> = T | T[];
@@ -3808,24 +4135,26 @@ function expectClipStatuses (clipStatuses: ClipStatus[], expected: MayBeArray<{
     }
 }
 
-function createAnimationGraphEval (animationGraph: AnimationGraph, node: Node): AnimationGraphEval {
+function createAnimationGraphEval (animationGraph: AnimationGraph | AnimationGraphVariant, node: Node): AnimationGraphEval {
     const newGenAnim = node.addComponent(AnimationController) as AnimationController;
     const graphEval = new AnimationGraphEval(
-        animationGraph,
+        (animationGraph instanceof AnimationGraph) ? animationGraph : animationGraph.original!,
         node,
         newGenAnim,
+        (animationGraph instanceof AnimationGraph) ? null : animationGraph.clipOverrides,
     );
     // @ts-expect-error HACK
     newGenAnim._graphEval = graphEval;
     return graphEval;
 }
 
-function createAnimationGraphEval2 (animationGraph: AnimationGraph, node: Node) {
+function createAnimationGraphEval2 (animationGraph: AnimationGraph | AnimationGraphVariant, node: Node) {
     const newGenAnim = node.addComponent(AnimationController) as AnimationController;
     const graphEval = new AnimationGraphEval(
-        animationGraph,
+        (animationGraph instanceof AnimationGraph) ? animationGraph : animationGraph.original!,
         node,
         newGenAnim,
+        (animationGraph instanceof AnimationGraph) ? null : animationGraph.clipOverrides,
     );
     // @ts-expect-error HACK
     newGenAnim._graphEval = graphEval;
@@ -3840,16 +4169,28 @@ class GraphUpdater {
 
     }
 
+    get current() {
+        return this._current;
+    }
+
+    get lastDeltaTime() {
+        return this._lastDeltaTime;
+    }
+
     public step(deltaTime: number) {
         this._current += deltaTime;
         this._graphEval.update(deltaTime);
+        this._lastDeltaTime = deltaTime;
     }
 
     public goto(time: number) {
         const deltaTime = time - this._current;
         this._current = time;
         this._graphEval.update(deltaTime);
+        this._lastDeltaTime = deltaTime;
     }
 
     private _current = 0.0;
+
+    private _lastDeltaTime = 0.0;
 }
