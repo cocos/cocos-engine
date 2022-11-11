@@ -52,6 +52,8 @@ public:
 
     static napi_value napiWritablePathInit(napi_env env, napi_callback_info info);
     static napi_value napiResourceManagerInit(napi_env env, napi_callback_info info);
+
+    static napi_value napiNoImplementation(napi_env env, napi_callback_info info);
     // Napi export
     static bool exportFunctions(napi_env env, napi_value exports);
 };

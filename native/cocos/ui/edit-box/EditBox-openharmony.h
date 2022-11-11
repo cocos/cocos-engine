@@ -22,46 +22,29 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 ****************************************************************************/
-import Ability from '@ohos.application.Ability'
-import nativerender from "libcocos.so";
-import { ContextType } from "../common/Constants"
-import resourceManager from '@ohos.resourceManager';
 
-const nativeContext = nativerender.getContext(ContextType.ENGINE_UTILS);
-const nativeAppLifecycle = nativerender.getContext(ContextType.APP_LIFECYCLE);
+#include "EditBox.h"
+#include "cocos/application/ApplicationManager.h"
+#include "platform/openharmony/napi/NapiHelper.h"
+#include "cocos/bindings/jswrapper/SeApi.h"
 
-export default class MainAbility extends Ability {
-    onCreate(want, launchParam) {
-        globalThis.abilityWant = want;
-        nativeAppLifecycle.onCreate();
-        nativeContext.resourceManagerInit(this.context.resourceManager);
-    }
+namespace cc {
 
-    onDestroy() {
-        nativeAppLifecycle.onDestroy();
-    }
+class OpenHarmonyEditBox : public EditBox {
+public:
+    static napi_value napiSetShowEditBoxFunction(napi_env env, napi_callback_info info);
+    static napi_value napiSetHideEditBoxFunction(napi_env env, napi_callback_info info);
+    static napi_value napiOnComplete(napi_env env, napi_callback_info info);
+    static napi_value napiOnTextChange(napi_env env, napi_callback_info info);
 
-    onWindowStageCreate(windowStage) {
-        // Main window is created, set main page for this ability
-        windowStage.loadContent("pages/index", (err, data) => {
-            if (err.code) {
-                console.error('Failed to load the content. Cause:' + JSON.stringify(err));
-                return;
-            }
-        });
-        nativeContext.writablePathInit(this.context.cacheDir);
-    }
+    static napi_value show(const std::string& inputMessage);
+    static napi_value hide();
+private:
+    static napi_ref showEditBoxFunction;
+    static napi_ref hideEditBoxFunction;
 
-    onWindowStageDestroy() {
-    }
-
-    onForeground() {
-        // Ability has brought to foreground
-        nativeAppLifecycle.onShow();
-    }
-
-    onBackground() {
-        // Ability has back to background
-        nativeAppLifecycle.onHide();
-    }
 };
+
+} // namespace cc
+
+

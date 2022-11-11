@@ -245,7 +245,7 @@ void OpenHarmonyPlatform::onSurfaceDestroyed(OH_NativeXComponent* component, voi
 }
 
 void OpenHarmonyPlatform::dispatchTouchEvent(OH_NativeXComponent* component, void* window) {
-    struct OH_NativeXComponent_TouchEvent touchEvent;
+    OH_NativeXComponent_TouchEvent touchEvent;
     int32_t ret = OH_NativeXComponent_GetTouchEvent(component, window, &touchEvent);
     if (ret != OH_NATIVEXCOMPONENT_RESULT_SUCCESS) {
         return;
