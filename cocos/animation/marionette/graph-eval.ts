@@ -77,6 +77,10 @@ export class AnimationGraphEval {
         }
     }
 
+    public get layerCount () {
+        return this._layerEvaluations.length;
+    }
+
     public update (deltaTime: number) {
         const {
             _blendBuffer: blendBuffer,
@@ -127,7 +131,6 @@ export class AnimationGraphEval {
     }
 
     public getNextClipStatuses (layer: number): Iterable<Readonly<ClipStatus>> {
-        assertIsNonNullable(this.getCurrentTransition(layer), '!!this.getCurrentTransition(layer)');
         return this._layerEvaluations[layer].getNextClipStatuses();
     }
 
@@ -149,10 +152,12 @@ export class AnimationGraphEval {
     }
 
     public getLayerWeight (layerIndex: number) {
+        assertIsTrue(layerIndex >= 0 && layerIndex < this._layerEvaluations.length, `Invalid layer index`);
         return this._layerEvaluations[layerIndex].weight;
     }
 
     public setLayerWeight (layerIndex: number, weight: number) {
+        assertIsTrue(layerIndex >= 0 && layerIndex < this._layerEvaluations.length, `Invalid layer index`);
         this._layerEvaluations[layerIndex].weight = weight;
     }
 
@@ -325,7 +330,7 @@ class LayerEval {
         const { _currentTransitionPath: currentTransitionPath } = this;
         if (currentTransitionPath.length !== 0) {
             const lastNode = currentTransitionPath[currentTransitionPath.length - 1];
-            if (lastNode.to.kind !== NodeKind.animation) {
+            if (lastNode.to.kind !== NodeKind.animation && lastNode.to.kind !== NodeKind.empty) {
                 return false;
             }
             const {
@@ -348,19 +353,23 @@ class LayerEval {
     }
 
     public getNextStateStatus (): Readonly<MotionStateStatus> | null {
-        assertIsTrue(
-            this._currentTransitionToNode && this._currentTransitionToNode.kind !== NodeKind.empty,
-            'There is no transition currently in layer.',
-        );
+        if (!this._currentTransitionToNode
+            || this._currentTransitionToNode.kind === NodeKind.empty) {
+            return null;
+        }
         return this._currentTransitionToNode.getToPortStatus();
     }
 
     public getNextClipStatuses (): Iterable<ClipStatus> {
         const { _currentTransitionPath: currentTransitionPath } = this;
         const nCurrentTransitionPath = currentTransitionPath.length;
-        assertIsTrue(nCurrentTransitionPath > 0, 'There is no transition currently in layer.');
+        if (nCurrentTransitionPath === 0) {
+            return emptyClipStatusesIterable;
+        }
         const to = currentTransitionPath[nCurrentTransitionPath - 1].to;
-        assertIsTrue(to.kind === NodeKind.animation);
+        if (to.kind !== NodeKind.animation) {
+            return emptyClipStatusesIterable;
+        }
         return to.getClipStatuses(this._toWeight) ?? emptyClipStatusesIterable;
     }
 
