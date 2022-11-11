@@ -17,8 +17,8 @@
   #endif
 #endif
 
-#if CC_LIGHT_PROBE_ENABLED && CC_USE_LIGHT_PROBE
-#include <common/lighting/sh>
+#if CC_USE_LIGHT_PROBE
+#include <legacy/sh-fs>
 #endif
 
 float GGXMobile (float roughness, float NoH, vec3 H, vec3 N) {
@@ -126,7 +126,7 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
   float NL = max(dot(N, L), 0.0);
 
   float shadow = 1.0;
-  #if CC_RECEIVE_SHADOW && CC_SHADOW_TYPE == CC_SHADOW_MAP
+  #if !CC_USE_LIGHTMAP && CC_RECEIVE_SHADOW && CC_SHADOW_TYPE == CC_SHADOW_MAP
     if (NL > 0.0 && cc_mainLitDir.w > 0.0) {
       if (cc_shadowLPNNInfo.w > 0.0) {
         #if CC_DIR_LIGHT_SHADOW_TYPE == CC_DIR_LIGHT_SHADOW_CASCADED
@@ -140,6 +140,7 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
     }
   #endif
 
+  vec3 finalColor = vec3(0.0);
   #if CC_USE_LIGHTMAP && !CC_FORWARD_ADD
     vec3 lightmap = s.lightmap.rgb;
     #if CC_USE_HDR
@@ -147,14 +148,21 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
         // baked in LDR scene still regarded as exposured with standard camera parameters
         lightmap.rgb *= cc_exposure.w * cc_exposure.x;
     #endif
-    vec3 finalColor = diffuse * lightmap.rgb * shadow;
-  #else
+    #if CC_USE_LIGHT_MAP == CC_LIGHTMAP_INDIRECT_OCCLUSION
+      shadow *= s.lightmap.a; // apply baked shadows for real-time lighting
+      finalColor += diffuse * lightmap.rgb;
+    #else
+      finalColor += diffuse * lightmap.rgb * shadow; // apply real-time shadows for baked color
+    #endif
+  #endif
+  
+  #if CC_USE_LIGHT_MAP != CC_LIGHTMAP_ALL_IN_ONE
     float NV = max(abs(dot(N, V)), 0.0);
     specular = BRDFApprox(specular, s.roughness, NV);
   
     vec3 H = normalize(L + V);
     float NH = max(dot(N, H), 0.0);
-    vec3 finalColor = NL * cc_mainLitColor.rgb * cc_mainLitColor.w;
+    vec3 lightingColor = NL * cc_mainLitColor.rgb * cc_mainLitColor.w;
     vec3 diffuseContrib = diffuse / PI;
   
     // Cook-Torrance Microfacet Specular BRDF
@@ -162,7 +170,7 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
     vec3 dirlightContrib = (diffuseContrib + specularContrib);
   
     dirlightContrib *= shadow;
-    finalColor *= dirlightContrib;
+    finalColor += lightingColor * dirlightContrib;
   #endif
 
   float fAmb = 0.5 - N.y * 0.5;
@@ -170,7 +178,7 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
 
 
   #if CC_USE_IBL
-    #if CC_USE_DIFFUSEMAP && (!CC_LIGHT_PROBE_ENABLED || !CC_USE_LIGHT_PROBE)
+    #if CC_USE_DIFFUSEMAP && !CC_USE_LIGHT_PROBE
       // Diffuse reflection irradiance
       vec4 diffuseMap = texture(cc_diffuseMap, N);
       #if CC_USE_DIFFUSEMAP == IBL_RGBE
@@ -213,12 +221,11 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
     finalColor += env * cc_ambientSky.w * specular * s.occlusion;
   #endif
 
-#if CC_LIGHT_PROBE_ENABLED && CC_USE_LIGHT_PROBE
-  ambDiff = SHEvaluate(N);
-  finalColor += ambDiff.rgb * diffuse * s.occlusion;
-#else
-  finalColor += ambDiff.rgb * cc_ambientSky.w * diffuse * s.occlusion;
+#if CC_USE_LIGHT_PROBE
+  finalColor += SHEvaluate(N) * diffuse * s.occlusion;
 #endif
+  finalColor += ambDiff.rgb * cc_ambientSky.w * diffuse * s.occlusion;
+
 
   finalColor += s.emissive;
 

@@ -85,7 +85,6 @@ using namespace cc::gi;
 %attribute(cc::gi::LightProbesData, ccstd::vector<cc::gi::Vertex>&, probes, getProbes, setProbes);
 %attribute(cc::gi::LightProbesData, ccstd::vector<cc::gi::Tetrahedron>&, tetrahedrons, getTetrahedrons, setTetrahedrons);
 
-%attribute(cc::gi::LightProbes, bool, enabled, isEnabled, setEnabled);
 %attribute(cc::gi::LightProbes, float, giScale, getGIScale, setGIScale);
 %attribute(cc::gi::LightProbes, uint32_t, giSamples, getGISamples, setGISamples);
 %attribute(cc::gi::LightProbes, uint32_t, bounces, getBounces, setBounces);
@@ -95,7 +94,6 @@ using namespace cc::gi;
 %attribute(cc::gi::LightProbes, bool, showConvex, isShowConvex, setShowConvex);
 %attribute(cc::gi::LightProbes, cc::gi::LightProbesData&, data, getData, setData);
 
-%attribute(cc::gi::LightProbeInfo, bool, enabled, isEnabled, setEnabled);
 %attribute(cc::gi::LightProbeInfo, float, giScale, getGIScale, setGIScale);
 %attribute(cc::gi::LightProbeInfo, uint32_t, giSamples, getGISamples, setGISamples);
 %attribute(cc::gi::LightProbeInfo, uint32_t, bounces, getBounces, setBounces);

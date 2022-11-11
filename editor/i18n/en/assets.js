@@ -99,9 +99,11 @@ module.exports = {
             flipVertical: 'Flip Vertical',
             flipVerticalTip: 'Flip Vertical',
             fixAlphaTransparencyArtifacts: 'Fix Alpha Transparency Artifacts',
-            fixAlphaTransparencyArtifactsTip: 'Fill transparent pixels with color of neareast solid pixel. These filled pixels would fix the dark halos at transparent borders of textures. Please turn on this option when you use the Alpha transparency channel in textures.',
+            fixAlphaTransparencyArtifactsTip:
+                'Fill transparent pixels with color of neareast solid pixel. These filled pixels would fix the dark halos at transparent borders of textures. Please turn on this option when you use the Alpha transparency channel in textures.',
             isRGBE: 'Is RGBE',
             isRGBETip: 'Is RGBE',
+            flipGreenChannel: 'Flip Green Channel',
         },
         spriteFrame: {
             packable: 'Packable',
@@ -341,7 +343,7 @@ module.exports = {
                 name: 'Promote Single Root Node',
                 title:
                     'If enabled and there is only one root node in model scene, <br>' +
-                    'the single node becomes prefab\'s root after importing.  <br>' +
+                    "the single node becomes prefab's root after importing.  <br>" +
                     "Otherwise, each root node of the scene becomes prefab's child node.",
             },
             preferLocalTimeSpan: {

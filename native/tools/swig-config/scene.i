@@ -83,10 +83,13 @@ using namespace cc;
 %ignore cc::scene::SubModel::getInstancedAttributeBlock;
 %ignore cc::scene::SubModel::getInstancedWorldMatrixIndex;
 %ignore cc::scene::SubModel::setInstancedWorldMatrixIndex;
+%ignore cc::scene::SubModel::getInstancedSHIndex;
+%ignore cc::scene::SubModel::setInstancedSHIndex;
 %ignore cc::scene::SubModel::getInstancedAttributeIndex;
 %ignore cc::scene::SubModel::setInstancedAttributeIndex;
 %ignore cc::scene::SubModel::updateInstancedAttributes;
 %ignore cc::scene::SubModel::updateInstancedWorldMatrix;
+%ignore cc::scene::SubModel::updateInstancedSH;
 
 %ignore cc::scene::Model::getLocalData;
 %ignore cc::scene::Model::getEventProcessor;

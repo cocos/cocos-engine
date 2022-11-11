@@ -17,6 +17,10 @@ exports.template = /* html */`
         <ui-label slot="label" value="i18n:ENGINE.assets.image.fixAlphaTransparencyArtifacts" tooltip="i18n:ENGINE.assets.image.fixAlphaTransparencyArtifactsTip"></ui-label>
         <ui-checkbox slot="content" class="fixAlphaTransparencyArtifacts-checkbox"></ui-checkbox>
     </ui-prop>
+    <ui-prop>
+        <ui-label slot="label" value="i18n:ENGINE.assets.image.flipGreenChannel" tooltip="i18n:ENGINE.assets.image.flipGreenChannelTip"></ui-label>
+        <ui-checkbox slot="content" class="flipGreenChannel-checkbox"></ui-checkbox>
+    </ui-prop>
     <ui-prop class="isRGBE-prop">
         <ui-label slot="label" value="i18n:ENGINE.assets.image.isRGBE" tooltip="i18n:ENGINE.assets.image.isRGBETip"></ui-label>
         <ui-checkbox slot="content" class="isRGBE-checkbox"></ui-checkbox>
@@ -48,6 +52,7 @@ exports.$ = {
     container: '.asset-image',
     typeSelect: '.type-select',
     flipVerticalCheckbox: '.flipVertical-checkbox',
+    flipGreenChannel: '.flipGreenChannel-checkbox',
     fixAlphaTransparencyArtifactsCheckbox: '.fixAlphaTransparencyArtifacts-checkbox',
     fixATAProp: '.fixATA-prop',
     isRGBEProp: '.isRGBE-prop',
@@ -187,6 +192,27 @@ const Elements = {
             } else {
                 panel.$.isRGBEProp.style.display = 'none';
             }
+        },
+    },
+    flipGreenChannel: {
+        ready() {
+            const panel = this;
+
+            panel.$.flipGreenChannel.addEventListener('change', (event) => {
+                panel.metaList.forEach((meta) => {
+                    meta.userData.flipGreenChannel = event.target.value;
+                });
+                panel.dispatch('change');
+                panel.dispatch('snapshot');
+            });
+        },
+        update() {
+            const panel = this;
+
+            panel.$.flipGreenChannel.value = panel.meta.userData.flipGreenChannel;
+            updateElementInvalid.call(panel, panel.$.flipGreenChannel, 'flipGreenChannel');
+            updateElementReadonly.call(panel, panel.$.flipGreenChannel);
+
         },
     },
 };

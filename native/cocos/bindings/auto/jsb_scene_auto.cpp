@@ -27809,7 +27809,7 @@ static bool js_cc_scene_Octree_queryVisibility(se::State& s)
     SE_PRECONDITION2(ok, false, "Octree_queryVisibility,5,SWIGTYPE_p_ccstd__vectorT_cc__scene__Model_p_t");
     arg5 = &temp5;
     
-    ((cc::scene::Octree const *)arg1)->queryVisibility(arg2,(cc::geometry::Frustum const &)*arg3,arg4,*arg5);
+    ((cc::scene::Octree const *)arg1)->queryVisibility((cc::scene::Camera const *)arg2,(cc::geometry::Frustum const &)*arg3,arg4,*arg5);
     
     
     return true;
