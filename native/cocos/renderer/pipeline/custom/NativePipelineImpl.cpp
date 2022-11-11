@@ -156,7 +156,7 @@ uint32_t NativePipeline::addRenderTarget(const ccstd::string &name, gfx::Format 
     desc.flags = ResourceFlags::COLOR_ATTACHMENT | ResourceFlags::INPUT_ATTACHMENT | ResourceFlags::SAMPLED;
 
     return addVertex(
-        ManagedTag{},
+        ManagedTextureTag{},
         std::forward_as_tuple(name.c_str()),
         std::forward_as_tuple(desc),
         std::forward_as_tuple(ResourceTraits{residency}),
@@ -186,7 +186,7 @@ uint32_t NativePipeline::addDepthStencil(const ccstd::string &name, gfx::Format 
     samplerInfo.minFilter = gfx::Filter::POINT;
     samplerInfo.mipFilter = gfx::Filter::NONE;
     return addVertex(
-        ManagedTag{},
+        ManagedTextureTag{},
         std::forward_as_tuple(name.c_str()),
         std::forward_as_tuple(desc),
         std::forward_as_tuple(ResourceTraits{residency}),
@@ -197,6 +197,26 @@ uint32_t NativePipeline::addDepthStencil(const ccstd::string &name, gfx::Format 
 }
 
 void NativePipeline::updateRenderWindow(const ccstd::string &name, scene::RenderWindow *renderWindow) {
+    auto resID = findVertex(ccstd::pmr::string(name, get_allocator()), resourceGraph);
+    if (resID == ResourceGraph::null_vertex()) {
+        return;
+    }
+    auto &desc = get(ResourceGraph::Desc, resourceGraph, resID);
+    visitObject(
+        resID, resourceGraph,
+        [&](IntrusivePtr<gfx::Framebuffer>& fb) {
+            CC_EXPECTS(!renderWindow->getSwapchain());
+            desc.width = renderWindow->getWidth();
+            desc.height = renderWindow->getHeight();
+            fb = renderWindow->getFramebuffer();
+        },
+        [&](RenderSwapchain& sc) {
+            CC_EXPECTS(renderWindow->getSwapchain());
+            desc.width = renderWindow->getSwapchain()->getWidth();
+            desc.height = renderWindow->getSwapchain()->getHeight();
+            sc.swapchain = renderWindow->getSwapchain();
+        },
+        [](const auto& /*res*/) {});
 }
 
 void NativePipeline::beginFrame() {
@@ -279,13 +299,27 @@ CopyPassBuilder *NativePipeline::addCopyPass() {
 
 // NOLINTNEXTLINE
 void NativePipeline::presentAll() {
+    PresentPass present(renderGraph.get_allocator());
+
+    for (const auto &rasterPass : renderGraph.rasterPasses) {
+        for (const auto &[name, view] : rasterPass.rasterViews) {
+            const auto &resourceID = findVertex(name, resourceGraph);
+            const auto &traits = get(ResourceGraph::Traits, resourceGraph, resourceID);
+            if (traits.residency == ResourceResidency::BACKBUFFER) {
+                present.presents.emplace(
+                    std::piecewise_construct,
+                    std::forward_as_tuple(name),
+                    std::forward_as_tuple());
+            }
+        }
+    }
     auto passID = addVertex(
         PresentTag{},
         std::forward_as_tuple("Present"),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
-        std::forward_as_tuple(),
+        std::forward_as_tuple(std::move(present)),
         renderGraph);
 }
 

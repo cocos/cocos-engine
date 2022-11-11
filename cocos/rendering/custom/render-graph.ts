@@ -325,7 +325,7 @@ export class ResourceGraph implements impl.BidirectionalGraph
     // MutableGraph
     clear (): void {
         // Members
-        this.nextFenceValue = 1;
+        this.nextFenceValue = 0;
         this.version = 0;
         // UuidGraph
         this._valueIndex.clear();
@@ -706,7 +706,7 @@ export class ResourceGraph implements impl.BidirectionalGraph
     readonly _states: ResourceStates[] = [];
     readonly _samplerInfo: SamplerInfo[] = [];
     readonly _valueIndex: Map<string, number> = new Map<string, number>();
-    nextFenceValue = 1;
+    nextFenceValue = 0;
     version = 0;
 }
 

@@ -6,7 +6,7 @@ namespace cc {
 namespace gfx {
 
 namespace {
-    
+
 enum class ResourceType : uint32_t {
     UNKNOWN,
     BUFFER,
@@ -194,8 +194,9 @@ constexpr std::array<AccessElem, 28> ACCESS_MAP = {{
 
 } // namespace
 
-AccessFlags getAccessFlags(BufferUsage usage, MemoryUsage memUsage,
-    ShaderStageFlagBit visibility,
+AccessFlags getAccessFlags(
+    BufferUsage usage, MemoryUsage memUsage,
+    ShaderStageFlags visibility,
     MemoryAccessBit access,
     PassType passType) noexcept {
     uint32_t info = 0xFFFFFFFF;
@@ -221,7 +222,7 @@ AccessFlags getAccessFlags(BufferUsage usage, MemoryUsage memUsage,
     AccessFlags flags{AccessFlags::NONE};
     for (const auto& elem : ACCESS_MAP) {
         auto testFlag = info & elem.mask;
-        //hasKey
+        // hasKey
         if ((testFlag & elem.key) == elem.key) {
             flags |= elem.access;
         }
@@ -229,8 +230,9 @@ AccessFlags getAccessFlags(BufferUsage usage, MemoryUsage memUsage,
     return flags;
 }
 
-AccessFlags getAccessFlags(TextureUsage usage,
-    ShaderStageFlagBit visibility,
+AccessFlags getAccessFlags(
+    TextureUsage usage,
+    ShaderStageFlags visibility,
     MemoryAccessBit access,
     PassType passType) noexcept {
     uint32_t info = 0xFFFFFFFF;
@@ -256,12 +258,427 @@ AccessFlags getAccessFlags(TextureUsage usage,
     AccessFlags flags{AccessFlags::NONE};
     for (const auto& elem : ACCESS_MAP) {
         auto testFlag = info & elem.mask;
-        //hasKey
+        // hasKey
         if ((testFlag & elem.key) == elem.key) {
             flags |= elem.access;
         }
     }
     return flags;
+}
+
+namespace {
+
+constexpr AccessFlags getDeviceAccessFlagsImpl(
+    TextureUsage usage,
+    MemoryAccess access,
+    ShaderStageFlags visibility) {
+    // Special Present Usage
+    if (usage == TextureUsage::NONE) {
+        return AccessFlags::PRESENT;
+    }
+
+    // not read or write access
+    if (access == MemoryAccess::NONE) {
+        return INVALID_ACCESS_FLAGS;
+    }
+
+    // input attachment requires color or depth stencil
+    if (hasAnyFlags(usage, TextureUsage::INPUT_ATTACHMENT) &&
+        !hasAnyFlags(usage, TextureUsage::COLOR_ATTACHMENT | TextureUsage::DEPTH_STENCIL_ATTACHMENT)) {
+        return INVALID_ACCESS_FLAGS;
+    }
+
+    const bool bWrite = hasAnyFlags(access, MemoryAccess::WRITE_ONLY);
+    const bool bRead = hasAnyFlags(access, MemoryAccess::READ_ONLY);
+
+    if (bWrite) { // single write
+        const auto writeMask =
+            TextureUsage::TRANSFER_DST |
+            TextureUsage::STORAGE |
+            TextureUsage::COLOR_ATTACHMENT |
+            TextureUsage::DEPTH_STENCIL_ATTACHMENT;
+
+        const auto usage1 = usage & writeMask;
+        // see https://stackoverflow.com/questions/51094594/how-to-check-if-exactly-one-bit-is-set-in-an-int
+        constexpr auto hasOnebit = [](uint32_t bits) -> bool {
+            return bits && !(bits & (bits - 1));
+        };
+        if (!hasOnebit(static_cast<uint32_t>(usage1))) {
+            return INVALID_ACCESS_FLAGS;
+        }
+
+        const auto readMask =
+            TextureUsage::SAMPLED |
+            TextureUsage::TRANSFER_SRC;
+
+        if (hasAnyFlags(usage, readMask)) {
+            return INVALID_ACCESS_FLAGS;
+        }
+    }
+
+    auto flags = AccessFlags::NONE;
+
+    if (hasAnyFlags(usage, TextureUsage::COLOR_ATTACHMENT)) {
+        if (hasAnyFlags(visibility, ShaderStageFlags::ALL & ~ShaderStageFlags::FRAGMENT)) {
+            return INVALID_ACCESS_FLAGS;
+        }
+        if (bWrite) {
+            flags |= AccessFlags::COLOR_ATTACHMENT_WRITE;
+        }
+        if (bRead) {
+            flags |= AccessFlags::COLOR_ATTACHMENT_READ;
+        }
+        if (hasAnyFlags(usage, TextureUsage::INPUT_ATTACHMENT)) {
+            if (!bRead) {
+                return INVALID_ACCESS_FLAGS;
+            }
+            flags |= AccessFlags::FRAGMENT_SHADER_READ_COLOR_INPUT_ATTACHMENT;
+        }
+        if (bWrite) {
+            return flags;
+        }
+    } else if (hasAnyFlags(usage, TextureUsage::DEPTH_STENCIL_ATTACHMENT)) {
+        if (hasAnyFlags(visibility, ShaderStageFlags::ALL & ~ShaderStageFlags::FRAGMENT)) {
+            return INVALID_ACCESS_FLAGS;
+        }
+        if (bWrite) {
+            flags |= AccessFlags::DEPTH_STENCIL_ATTACHMENT_WRITE;
+        }
+        if (bRead) {
+            flags |= AccessFlags::DEPTH_STENCIL_ATTACHMENT_READ;
+        }
+        if (hasAnyFlags(usage, TextureUsage::INPUT_ATTACHMENT)) {
+            if (!bRead) {
+                return INVALID_ACCESS_FLAGS;
+            }
+            flags |= AccessFlags::FRAGMENT_SHADER_READ_DEPTH_STENCIL_INPUT_ATTACHMENT;
+        }
+        if (bWrite) {
+            return flags;
+        }
+    } else if (bWrite) {
+        if (hasAnyFlags(usage, TextureUsage::SAMPLED)) {
+            return INVALID_ACCESS_FLAGS;
+        }
+        const bool bUnorderedAccess = hasAnyFlags(usage, TextureUsage::STORAGE);
+        const bool bCopyTarget = hasAnyFlags(usage, TextureUsage::TRANSFER_DST);
+        if (!(bUnorderedAccess ^ bCopyTarget)) {
+            return INVALID_ACCESS_FLAGS;
+        }
+        if (bCopyTarget) {
+            if (bRead || hasAnyFlags(usage, TextureUsage::TRANSFER_SRC)) {
+                return INVALID_ACCESS_FLAGS; // both copy source and target
+            }
+            flags |= AccessFlags::TRANSFER_WRITE;
+        } else {
+            if (hasAnyFlags(visibility, ShaderStageFlags::VERTEX)) {
+                flags |= AccessFlags::VERTEX_SHADER_WRITE;
+                if (bRead) {
+                    flags |= AccessFlags::VERTEX_SHADER_READ_TEXTURE;
+                }
+            } else if (hasAnyFlags(visibility, ShaderStageFlags::FRAGMENT)) {
+                flags |= AccessFlags::FRAGMENT_SHADER_WRITE;
+                if (bRead) {
+                    flags |= AccessFlags::FRAGMENT_SHADER_READ_TEXTURE;
+                }
+            } else if (hasAnyFlags(visibility, ShaderStageFlags::COMPUTE)) {
+                flags |= AccessFlags::COMPUTE_SHADER_WRITE;
+                if (bRead) {
+                    flags |= AccessFlags::COMPUTE_SHADER_READ_TEXTURE;
+                }
+            }
+        }
+        return flags;
+    }
+
+    if (bWrite) {
+        return INVALID_ACCESS_FLAGS;
+    }
+
+    // ReadOnly
+    if (hasAnyFlags(usage, TextureUsage::TRANSFER_SRC)) {
+        flags |= AccessFlags::TRANSFER_READ;
+    }
+
+    if (hasAnyFlags(usage, TextureUsage::SAMPLED | TextureUsage::STORAGE)) {
+        if (hasAnyFlags(visibility, ShaderStageFlags::VERTEX)) {
+            flags |= AccessFlags::VERTEX_SHADER_READ_TEXTURE;
+        }
+        if (hasAnyFlags(visibility, ShaderStageFlags::FRAGMENT)) {
+            flags |= AccessFlags::FRAGMENT_SHADER_READ_TEXTURE;
+        }
+        if (hasAnyFlags(visibility, ShaderStageFlags::COMPUTE)) {
+            flags |= AccessFlags::COMPUTE_SHADER_READ_TEXTURE;
+        }
+    }
+
+    return flags;
+}
+
+// VERTEX_SHADER_WRITE
+static_assert(
+    AccessFlags::VERTEX_SHADER_WRITE ==
+    getDeviceAccessFlagsImpl(
+        TextureUsage::STORAGE,
+        MemoryAccess::WRITE_ONLY,
+        ShaderStageFlags::VERTEX));
+
+static_assert(
+    (AccessFlags::VERTEX_SHADER_WRITE | AccessFlags::VERTEX_SHADER_READ_TEXTURE) ==
+    getDeviceAccessFlagsImpl(
+        TextureUsage::STORAGE,
+        MemoryAccess::READ_WRITE,
+        ShaderStageFlags::VERTEX));
+
+static_assert(
+    INVALID_ACCESS_FLAGS ==
+    getDeviceAccessFlagsImpl(
+        TextureUsage::STORAGE | TextureUsage::SAMPLED, // both storage write and sampling
+        MemoryAccess::READ_WRITE,
+        ShaderStageFlags::VERTEX));
+
+static_assert(
+    INVALID_ACCESS_FLAGS ==
+    getDeviceAccessFlagsImpl(
+        TextureUsage::SAMPLED, // Sampled cannot be write
+        MemoryAccess::READ_WRITE,
+        ShaderStageFlags::VERTEX));
+
+// FRAGMENT_SHADER_WRITE
+static_assert(
+    AccessFlags::FRAGMENT_SHADER_WRITE ==
+    getDeviceAccessFlagsImpl(
+        TextureUsage::STORAGE,
+        MemoryAccess::WRITE_ONLY,
+        ShaderStageFlags::FRAGMENT));
+
+static_assert(
+    (AccessFlags::FRAGMENT_SHADER_WRITE | AccessFlags::FRAGMENT_SHADER_READ_TEXTURE) ==
+    getDeviceAccessFlagsImpl(
+        TextureUsage::STORAGE,
+        MemoryAccess::READ_WRITE,
+        ShaderStageFlags::FRAGMENT));
+
+// COLOR_ATTACHMENT_WRITE
+static_assert(
+    AccessFlags::COLOR_ATTACHMENT_WRITE ==
+    getDeviceAccessFlagsImpl(
+        TextureUsage::COLOR_ATTACHMENT,
+        MemoryAccess::WRITE_ONLY,
+        ShaderStageFlags::FRAGMENT));
+
+static_assert(
+    INVALID_ACCESS_FLAGS ==
+    getDeviceAccessFlagsImpl(
+        TextureUsage::COLOR_ATTACHMENT,
+        MemoryAccess::WRITE_ONLY,
+        ShaderStageFlags::VERTEX)); // not fragment stage
+
+static_assert(
+    INVALID_ACCESS_FLAGS ==
+    getDeviceAccessFlagsImpl(
+        TextureUsage::COLOR_ATTACHMENT | TextureUsage::SAMPLED, // both color attachment and sampled texture
+        MemoryAccess::WRITE_ONLY,
+        ShaderStageFlags::FRAGMENT));
+
+static_assert(
+    (AccessFlags::COLOR_ATTACHMENT_WRITE | AccessFlags::COLOR_ATTACHMENT_READ) ==
+    getDeviceAccessFlagsImpl(
+        TextureUsage::COLOR_ATTACHMENT,
+        MemoryAccess::READ_WRITE,
+        ShaderStageFlags::FRAGMENT));
+
+static_assert(
+    AccessFlags::COLOR_ATTACHMENT_READ ==
+    getDeviceAccessFlagsImpl(
+        TextureUsage::COLOR_ATTACHMENT,
+        MemoryAccess::READ_ONLY,
+        ShaderStageFlags::FRAGMENT));
+
+static_assert(
+    (AccessFlags::COLOR_ATTACHMENT_READ | AccessFlags::FRAGMENT_SHADER_READ_COLOR_INPUT_ATTACHMENT) ==
+    getDeviceAccessFlagsImpl(
+        TextureUsage::COLOR_ATTACHMENT | TextureUsage::INPUT_ATTACHMENT,
+        MemoryAccess::READ_ONLY,
+        ShaderStageFlags::FRAGMENT));
+
+static_assert(
+    (AccessFlags::COLOR_ATTACHMENT_WRITE | AccessFlags::COLOR_ATTACHMENT_READ | AccessFlags::FRAGMENT_SHADER_READ_COLOR_INPUT_ATTACHMENT) ==
+    getDeviceAccessFlagsImpl(
+        TextureUsage::COLOR_ATTACHMENT | TextureUsage::INPUT_ATTACHMENT,
+        MemoryAccess::READ_WRITE,
+        ShaderStageFlags::FRAGMENT));
+
+static_assert(
+    INVALID_ACCESS_FLAGS ==
+    getDeviceAccessFlagsImpl(
+        TextureUsage::COLOR_ATTACHMENT | TextureUsage::INPUT_ATTACHMENT,
+        MemoryAccess::WRITE_ONLY, // INPUT_ATTACHMENT needs read access
+        ShaderStageFlags::FRAGMENT));
+
+// DEPTH_STENCIL_ATTACHMENT_WRITE
+static_assert(
+    AccessFlags::DEPTH_STENCIL_ATTACHMENT_WRITE ==
+    getDeviceAccessFlagsImpl(
+        TextureUsage::DEPTH_STENCIL_ATTACHMENT,
+        MemoryAccess::WRITE_ONLY,
+        ShaderStageFlags::FRAGMENT));
+
+static_assert(
+    INVALID_ACCESS_FLAGS ==
+    getDeviceAccessFlagsImpl(
+        TextureUsage::DEPTH_STENCIL_ATTACHMENT,
+        MemoryAccess::WRITE_ONLY,
+        ShaderStageFlags::VERTEX)); // not fragment stage
+
+static_assert(
+    INVALID_ACCESS_FLAGS ==
+    getDeviceAccessFlagsImpl(
+        TextureUsage::DEPTH_STENCIL_ATTACHMENT | TextureUsage::SAMPLED, // both color attachment and sampled texture
+        MemoryAccess::WRITE_ONLY,
+        ShaderStageFlags::FRAGMENT));
+
+static_assert(
+    (AccessFlags::DEPTH_STENCIL_ATTACHMENT_WRITE | AccessFlags::DEPTH_STENCIL_ATTACHMENT_READ) ==
+    getDeviceAccessFlagsImpl(
+        TextureUsage::DEPTH_STENCIL_ATTACHMENT,
+        MemoryAccess::READ_WRITE,
+        ShaderStageFlags::FRAGMENT));
+
+static_assert(
+    AccessFlags::DEPTH_STENCIL_ATTACHMENT_READ ==
+    getDeviceAccessFlagsImpl(
+        TextureUsage::DEPTH_STENCIL_ATTACHMENT,
+        MemoryAccess::READ_ONLY,
+        ShaderStageFlags::FRAGMENT));
+
+static_assert(
+    (AccessFlags::DEPTH_STENCIL_ATTACHMENT_READ | AccessFlags::FRAGMENT_SHADER_READ_DEPTH_STENCIL_INPUT_ATTACHMENT) ==
+    getDeviceAccessFlagsImpl(
+        TextureUsage::DEPTH_STENCIL_ATTACHMENT | TextureUsage::INPUT_ATTACHMENT,
+        MemoryAccess::READ_ONLY,
+        ShaderStageFlags::FRAGMENT));
+
+static_assert(
+    (AccessFlags::DEPTH_STENCIL_ATTACHMENT_WRITE | AccessFlags::DEPTH_STENCIL_ATTACHMENT_READ | AccessFlags::FRAGMENT_SHADER_READ_DEPTH_STENCIL_INPUT_ATTACHMENT) ==
+    getDeviceAccessFlagsImpl(
+        TextureUsage::DEPTH_STENCIL_ATTACHMENT | TextureUsage::INPUT_ATTACHMENT,
+        MemoryAccess::READ_WRITE,
+        ShaderStageFlags::FRAGMENT));
+
+static_assert(
+    INVALID_ACCESS_FLAGS ==
+    getDeviceAccessFlagsImpl(
+        TextureUsage::DEPTH_STENCIL_ATTACHMENT | TextureUsage::INPUT_ATTACHMENT,
+        MemoryAccess::WRITE_ONLY, // INPUT_ATTACHMENT needs read access
+        ShaderStageFlags::FRAGMENT));
+
+// COMPUTE_SHADER_WRITE
+static_assert(
+    AccessFlags::COMPUTE_SHADER_WRITE ==
+    getDeviceAccessFlagsImpl(
+        TextureUsage::STORAGE,
+        MemoryAccess::WRITE_ONLY,
+        ShaderStageFlags::COMPUTE));
+static_assert(
+    (AccessFlags::COMPUTE_SHADER_WRITE | AccessFlags::COMPUTE_SHADER_READ_TEXTURE) ==
+    getDeviceAccessFlagsImpl(
+        TextureUsage::STORAGE,
+        MemoryAccess::READ_WRITE,
+        ShaderStageFlags::COMPUTE));
+static_assert(
+    INVALID_ACCESS_FLAGS ==
+    getDeviceAccessFlagsImpl(
+        TextureUsage::STORAGE | TextureUsage::SAMPLED, // cannot be sampled
+        MemoryAccess::WRITE_ONLY,
+        ShaderStageFlags::COMPUTE));
+static_assert(
+    INVALID_ACCESS_FLAGS ==
+    getDeviceAccessFlagsImpl(
+        TextureUsage::STORAGE | TextureUsage::SAMPLED, // cannot be sampled
+        MemoryAccess::READ_WRITE,
+        ShaderStageFlags::COMPUTE));
+
+// TRANSFER_WRITE
+static_assert(
+    AccessFlags::TRANSFER_WRITE ==
+    getDeviceAccessFlagsImpl(
+        TextureUsage::TRANSFER_DST,
+        MemoryAccess::WRITE_ONLY,
+        ShaderStageFlags::ALL)); // ShaderStageFlags not used
+
+static_assert(
+    INVALID_ACCESS_FLAGS ==
+    getDeviceAccessFlagsImpl(
+        TextureUsage::TRANSFER_DST,
+        MemoryAccess::READ_WRITE,
+        ShaderStageFlags::ALL)); // ShaderStageFlags not used
+
+static_assert(
+    INVALID_ACCESS_FLAGS ==
+    getDeviceAccessFlagsImpl(
+        TextureUsage::TRANSFER_DST | TextureUsage::TRANSFER_SRC, // both source and target
+        MemoryAccess::READ_WRITE,                                // both read and write
+        ShaderStageFlags::ALL));
+
+static_assert(
+    INVALID_ACCESS_FLAGS ==
+    getDeviceAccessFlagsImpl(
+        TextureUsage::TRANSFER_DST | TextureUsage::TRANSFER_SRC, // both source and target
+        MemoryAccess::WRITE_ONLY,
+        ShaderStageFlags::ALL));
+
+static_assert(
+    INVALID_ACCESS_FLAGS ==
+    getDeviceAccessFlagsImpl(
+        TextureUsage::TRANSFER_DST | TextureUsage::COLOR_ATTACHMENT, // cannot be sampled
+        MemoryAccess::WRITE_ONLY,
+        ShaderStageFlags::ALL));
+
+// Read
+// COLOR_ATTACHMENT_READ
+static_assert(
+    INVALID_ACCESS_FLAGS ==
+    getDeviceAccessFlagsImpl(
+        TextureUsage::INPUT_ATTACHMENT, // INPUT_ATTACHMENT needs COLOR_ATTACHMENT or DEPTH_STENCIL_ATTACHMENT
+        MemoryAccess::READ_ONLY,
+        ShaderStageFlags::FRAGMENT));
+
+static_assert(
+    (AccessFlags::COLOR_ATTACHMENT_READ | AccessFlags::FRAGMENT_SHADER_READ_COLOR_INPUT_ATTACHMENT | AccessFlags::FRAGMENT_SHADER_READ_TEXTURE) ==
+    getDeviceAccessFlagsImpl(
+        TextureUsage::COLOR_ATTACHMENT | TextureUsage::INPUT_ATTACHMENT | TextureUsage::SAMPLED,
+        MemoryAccess::READ_ONLY,
+        ShaderStageFlags::FRAGMENT));
+
+static_assert(
+    (AccessFlags::COLOR_ATTACHMENT_READ | AccessFlags::FRAGMENT_SHADER_READ_COLOR_INPUT_ATTACHMENT | AccessFlags::FRAGMENT_SHADER_READ_TEXTURE) ==
+    getDeviceAccessFlagsImpl(
+        TextureUsage::COLOR_ATTACHMENT | TextureUsage::INPUT_ATTACHMENT | TextureUsage::STORAGE,
+        MemoryAccess::READ_ONLY,
+        ShaderStageFlags::FRAGMENT));
+
+static_assert(
+    (AccessFlags::COLOR_ATTACHMENT_READ | AccessFlags::FRAGMENT_SHADER_READ_COLOR_INPUT_ATTACHMENT | AccessFlags::FRAGMENT_SHADER_READ_TEXTURE) ==
+    getDeviceAccessFlagsImpl(
+        TextureUsage::COLOR_ATTACHMENT | TextureUsage::INPUT_ATTACHMENT | TextureUsage::SAMPLED | TextureUsage::STORAGE,
+        MemoryAccess::READ_ONLY,
+        ShaderStageFlags::FRAGMENT));
+
+static_assert(
+    (AccessFlags::COLOR_ATTACHMENT_READ | AccessFlags::FRAGMENT_SHADER_READ_COLOR_INPUT_ATTACHMENT | AccessFlags::TRANSFER_READ) ==
+    getDeviceAccessFlagsImpl(
+        TextureUsage::COLOR_ATTACHMENT | TextureUsage::INPUT_ATTACHMENT | TextureUsage::TRANSFER_SRC,
+        MemoryAccess::READ_ONLY,
+        ShaderStageFlags::FRAGMENT));
+
+} // namespace
+
+AccessFlags getDeviceAccessFlags(
+    TextureUsage usage,
+    MemoryAccess access,
+    ShaderStageFlags visibility) {
+    return getDeviceAccessFlagsImpl(usage, access, visibility);
 }
 
 } // namespace gfx
