@@ -25,7 +25,6 @@
 */
 
 import { legacyCC, VERSION } from './global-exports';
-import * as easing from './algorithm/easing';
 import * as geometry from './geometry';
 import * as math from './math';
 import * as memop from './memop';
@@ -34,7 +33,6 @@ import './deprecated-3.7.0';
 
 legacyCC.math = math;
 legacyCC.geometry = geometry;
-legacyCC.easing = easing;
 
 export { math, memop, geometry, VERSION };
 
@@ -52,7 +50,6 @@ export * from './system';
 export * from './algorithm';
 export { legacyCC as cclegacy } from './global-exports';
 export * from './curves/bezier';
-export { easing };
 
 // TODO: should not include engine internal exports when module mechanism is implemented.
 export * from './internal-index';
