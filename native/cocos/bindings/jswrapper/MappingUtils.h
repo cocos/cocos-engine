@@ -116,7 +116,7 @@ public:
      * @brief Iterate se::Object with specified se::Class
      */
     template <typename T, typename Fn1, typename Fn2>
-    static void forEach(T *nativeObj, se::Class *kls, Fn1 eachCallback, Fn2 emptyCallback) {
+    static void forEach(T *nativeObj, se::Class *kls, const Fn1 &eachCallback, const Fn2 &&emptyCallback) {
         int eleCount = 0;
         auto range = __nativePtrToObjectMap->equal_range(const_cast<std::remove_const_t<T> *>(nativeObj));
 
@@ -130,7 +130,7 @@ public:
                     continue;
                 }
                 eleCount++;
-                assert(eleCount < 2);
+                CC_ASSERT(eleCount < 2);
                 eachCallback(itr->second);
             }
             if (eleCount == 0) {
@@ -150,7 +150,7 @@ public:
      * @param foundCb 
      */
     template <typename T, typename Fn1>
-    static void forEach(T *nativeObj, se::Class *kls, Fn1 foundCb) {
+    static void forEach(T *nativeObj, se::Class *kls, const Fn1& foundCb) {
         forEach(nativeObj, kls, foundCb, nullptr);
     }
 
