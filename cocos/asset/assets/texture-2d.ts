@@ -33,6 +33,11 @@ import { PresumedGFXTextureInfo, PresumedGFXTextureViewInfo, SimpleTexture } fro
 import { legacyCC } from '../../core/global-exports';
 import { js } from '../../core/utils/js';
 
+// Compress mipmap constants
+const FILE_HEADER_LENGTH = 4;
+const FILE_COUNT_LENGTH = 4;
+const FILE_DATA_SIZE_LENGTH = 4;
+const COMPRESSED_MIPMAP_MAGIC = 0x50494d43;
 const compressedImageAsset: ImageAsset[] = [];
 
 /**
@@ -87,6 +92,78 @@ export interface ITexture2DCreateInfo {
  */
 @ccclass('cc.Texture2D')
 export class Texture2D extends SimpleTexture {
+    /**
+     * MergeAllCompressedTexture
+     * ************* hearder ***************
+     * COMPRESSED_MAGIC: 0x50494d43        *
+     * ************* document **************
+     * chunkCount: n                       *
+     * chunkDataSize[0]: xxx               *
+     * ...                                 *
+     * chunkDataSize[n - 1]: xxx           *
+     * ************* chunks ****************
+     *    ******************************   *
+     *    *                            *   *
+     *    *          chunk[0]          *   *
+     *    *                            *   *
+     *    ******************************   *
+     * ...
+     *    ******************************   *
+     *    *                            *   *
+     *    *          chunk[n - 1]      *   *
+     *    *                            *   *
+     *    ******************************   *
+     * *************************************
+     * @param files @zh 压缩纹理数组 @en Compressed Texture Arrays
+     * @returns out @zh 合并后的压缩纹理数据 @en Merged compressed texture data
+     */
+    public static  mergeAllCompressedTexture (files: ArrayBuffer[] | ArrayBufferView[]) {
+        let out = new Uint8Array(0);
+
+        let err: Error | null = null;
+        try {
+            // Create compressed file
+            // file header length
+            const fileHeaderLength = FILE_HEADER_LENGTH + FILE_COUNT_LENGTH + files.length * FILE_DATA_SIZE_LENGTH;
+            let fileLength = 0;
+            for (const file of files) {
+                fileLength += file.byteLength;
+            }
+            fileLength += fileHeaderLength;   // add file header length
+            out = new Uint8Array(fileLength);
+            const outView = new DataView(
+                out.buffer,
+                out.byteOffset,
+                out.byteLength,
+            );
+
+            // Append compresssed header
+            outView.setUint32(0, COMPRESSED_MIPMAP_MAGIC, true); // add magic
+            outView.setUint32(FILE_HEADER_LENGTH, files.length, true); // add count number
+            let dataOffset = fileHeaderLength;
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                outView.setUint32(FILE_HEADER_LENGTH + FILE_COUNT_LENGTH + i * FILE_DATA_SIZE_LENGTH,
+                    file.byteLength, true); //add file data size
+
+                // Append compresssed file
+                if (file instanceof ArrayBuffer) {
+                    const srcArray = new Uint8Array(file);
+                    out.set(srcArray, dataOffset);
+                } else {
+                    const srcArray = new Uint8Array(file.buffer, file.byteOffset, file.byteLength);
+                    out.set(srcArray, dataOffset);
+                }
+                dataOffset += file.byteLength;
+            }
+        } catch (e) {
+            err = e as Error;
+            console.warn(err);
+        }
+
+        return out;
+    }
+
     /**
      * @en All levels of mipmap images, be noted, automatically generated mipmaps are not included.
      * When setup mipmap, the size of the texture and pixel format could be modified.

@@ -6,13 +6,6 @@ const MAGIC = 0x4E4F4343;
 
 const CHUNK_ALIGN_AS = 8;
 
-// Compress mipmap constants
-// https://github.com/cocos/3d-tasks/issues/10876
-const FILE_HEADER_LENGTH = 4;
-const FILE_COUNT_LENGTH = 4;
-const FILE_DATA_SIZE_LENGTH = 4;
-const COMPRESSED_MIPMAP_MAGIC = 0x50494d43;
-
 export class CCON {
     constructor (document: unknown, chunks: Uint8Array[]) {
         this._document = document;
@@ -86,86 +79,6 @@ export function encodeCCONBinary (ccon: CCON) {
         view.setUint32(0, value, true);
         return view;
     }
-}
-
-/**
-* @param files @zh 文件数组
-* @returns out @zh 合并后的文件数据
-*/
-export function mergeAllCompressedTexture (files: ArrayBuffer[] | ArrayBufferView[]) {
-    return mergeAllFile(COMPRESSED_MIPMAP_MAGIC, files);
-}
-
-/**
- * MergeAllFile
- * ************* hearder ***************
- * MERGE_MAGIC: 0x000000               *
- * ************* document **************
- * fileCount: n                        *
- * fileDataSize[0]: xxx                *
- * ...                                 *
- * fileDataSize[n - 1]: xxx            *
- * ************* chunks ****************
- *    ******************************   *
- *    *                            *   *
- *    *          file[0]           *   *
- *    *                            *   *
- *    ******************************   *
- * ...
- *    ******************************   *
- *    *                            *   *
- *    *          file[n - 1]       *   *
- *    *                            *   *
- *    ******************************   *
- * *************************************
- * @param files @zh 文件数组
- * @returns out @zh 合并后的文件数据
- */
-export function mergeAllFile (magicNumber: number, files: ArrayBuffer[] | ArrayBufferView[]) {
-    let out = new Uint8Array(0);
-
-    let err: Error | null = null;
-    try {
-    // Create compressed file
-    // file header length
-        const fileHeaderLength = FILE_HEADER_LENGTH + FILE_COUNT_LENGTH + files.length * FILE_DATA_SIZE_LENGTH;
-        let fileLength = 0;
-        for (const file of files) {
-            fileLength += file.byteLength;
-        }
-        fileLength += fileHeaderLength;   // add file header length
-        out = new Uint8Array(fileLength);
-        const outView = new DataView(
-            out.buffer,
-            out.byteOffset,
-            out.byteLength,
-        );
-
-        // Append compresssed header
-        outView.setUint32(0, magicNumber, true); // add magic
-        outView.setUint32(FILE_HEADER_LENGTH, files.length, true); // add count number
-        let dataOffset = fileHeaderLength;
-        for (let i = 0; i < files.length; i++) {
-            const file = files[i];
-            outView.setUint32(FILE_HEADER_LENGTH + FILE_COUNT_LENGTH + i * FILE_DATA_SIZE_LENGTH,
-                file.byteLength, true); //add file data size
-
-            // Append compresssed file
-            if (file instanceof ArrayBuffer) {
-                const srcArray = new Uint8Array(file);
-                out.set(srcArray, dataOffset);
-            } else {
-                const srcArray = new Uint8Array(file.buffer, file.byteOffset, file.byteLength);
-                out.set(srcArray, dataOffset);
-            }
-            dataOffset += file.byteLength;
-        }
-    } catch (e) {
-        err = e as Error;
-        console.warn(err);
-    }
-
-    return out;
 }
 
 export function decodeCCONBinary (bytes: Uint8Array) {
