@@ -138,4 +138,13 @@ if (!my.isIDE && my.getSystemInfoSync().platform.toLocaleLowerCase() === 'ios') 
     }
 }
 
+// TODO: Do not use premultiplication on the phone.
+if (!my.isIDE) {
+    const locCanvas = $global.screencanvas;
+    if (locCanvas) {
+        const webglRC = locCanvas.getContext('webgl');
+        webglRC.pixelStorei(webglRC.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+    }
+}
+
 export { minigame };

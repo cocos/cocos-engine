@@ -25,8 +25,7 @@
 */
 
 import { ccclass, help, executionOrder, menu, tooltip, displayOrder, type, range, editable, serializable, visible } from 'cc.decorator';
-import { BUILD, EDITOR, TAOBAO } from 'internal:constants';
-import { minigame } from 'pal/minigame';
+import { BUILD, EDITOR } from 'internal:constants';
 import { SpriteAtlas } from '../assets/sprite-atlas';
 import { SpriteFrame } from '../assets/sprite-frame';
 import { Vec2 } from '../../core/math';
@@ -687,22 +686,6 @@ export class Sprite extends UIRenderer {
                 spriteFrame.on(SpriteFrame.EVENT_UV_UPDATED, this._updateUVs, this);
             }
         }
-    }
-
-    /**
-     * @engineInternal
-     */
-    public _updateBlendFunc () {
-        // override for TAOBAO
-        if (TAOBAO) {
-            // need to fix sprite Premultiplication
-            if (this._srcBlendFactor === BlendFactor.SRC_ALPHA && !minigame.isDevTool
-                    && !this._customMaterial) {
-                // Premultiplied alpha on runtime
-                this._srcBlendFactor = BlendFactor.ONE;
-            }
-        }
-        super._updateBlendFunc();
     }
 }
 
