@@ -44,5 +44,5 @@ export { SplineMode, Spline } from './spline';
 export * from './spec';
 export * from './deprecated-3.0.0';
 
-// exports engine internal
+// engine internal exports
 export { constructLegacyCurveAndConvert, OptimizedKey, evalOptCurve } from './curve';
