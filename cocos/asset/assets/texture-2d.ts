@@ -93,7 +93,7 @@ export interface ITexture2DCreateInfo {
 @ccclass('cc.Texture2D')
 export class Texture2D extends SimpleTexture {
     /**
-     * MergeAllCompressedTexture
+     * mergeCompressedTextureMips
      * ************* hearder ***************
      * COMPRESSED_MAGIC: 0x50494d43        *
      * ************* document **************
@@ -117,7 +117,7 @@ export class Texture2D extends SimpleTexture {
      * @param files @zh 压缩纹理数组 @en Compressed Texture Arrays
      * @returns out @zh 合并后的压缩纹理数据 @en Merged compressed texture data
      */
-    public static  mergeAllCompressedTexture (files: ArrayBuffer[] | ArrayBufferView[]) {
+    public static  mergeCompressedTextureMips (files: ArrayBuffer[] | ArrayBufferView[]) {
         let out = new Uint8Array(0);
 
         let err: Error | null = null;
