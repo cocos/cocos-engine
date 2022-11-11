@@ -38,10 +38,10 @@ void RenderDrawQueue::sortTransparent() {
 }
 
 void RenderDrawQueue::recordCommandBuffer(
-    gfx::Device *device, const scene::Camera *camera,
+    gfx::Device * /*device*/, const scene::Camera * /*camera*/,
     gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff,
     uint32_t subpassIndex) const {
-    for (auto &instance : instances) {
+    for (const auto &instance : instances) {
         const auto *subModel = instance.subModel;
 
         const auto passIdx = instance.passIndex;

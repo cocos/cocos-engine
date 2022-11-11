@@ -427,8 +427,8 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         ctx.currentPass = data.renderPass.get();
 
         // update states
-        //auto offset = ctx.ppl->getPipelineUBO()->getCurrentCameraUBOOffset();
-        //cmdBuff->bindDescriptorSet(pipeline::globalSet, ctx.getDescriptorSet(), 1, &offset);
+        // auto offset = ctx.ppl->getPipelineUBO()->getCurrentCameraUBOOffset();
+        // cmdBuff->bindDescriptorSet(pipeline::globalSet, ctx.getDescriptorSet(), 1, &offset);
     }
     void begin(const ComputePass& pass) const { // NOLINT(readability-convert-member-functions-to-static)
         std::ignore = pass;
@@ -973,7 +973,8 @@ void buildRenderQueues(
 void NativePipeline::executeRenderGraph(const RenderGraph& rg) {
     auto& ppl = *this;
     auto* scratch = &ppl.unsyncPool;
-    CC_LOG_INFO(rg.print(scratch).c_str());
+
+    //CC_LOG_INFO(rg.print(scratch).c_str());
 
     RenderGraphContextCleaner contextCleaner(ppl.nativeContext);
     ResourceCleaner cleaner(ppl.resourceGraph);
