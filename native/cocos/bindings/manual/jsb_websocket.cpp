@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "jsb_websocket.h"
+#include "MappingUtils.h"
 #include "cocos/base/DeferredReleasePool.h"
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_conversions.h"
@@ -74,12 +75,11 @@ void JsbWebSocketDelegate::onOpen(cc::network::WebSocket *ws) {
         return;
     }
 
-    auto iter = se::NativePtrToObjectMap::find(ws);
-    if (iter == se::NativePtrToObjectMap::end()) {
+    se::Object *wsObj =se::NativePtrToObjectMap::first(ws);
+    if(!wsObj) {
         return;
     }
 
-    se::Object *wsObj = iter->second;
     wsObj->setProperty("protocol", se::Value(ws->getProtocol()));
 
     se::HandleObject jsObj(se::Object::createPlainObject());
@@ -107,12 +107,10 @@ void JsbWebSocketDelegate::onMessage(cc::network::WebSocket *ws, const cc::netwo
         return;
     }
 
-    auto iter = se::NativePtrToObjectMap::find(ws);
-    if (iter == se::NativePtrToObjectMap::end()) {
+    se::Object *wsObj =se::NativePtrToObjectMap::first(ws);
+    if(!wsObj) {
         return;
     }
-
-    se::Object *wsObj = iter->second;
     se::HandleObject jsObj(se::Object::createPlainObject());
     jsObj->setProperty("type", se::Value("message"));
     se::Value target;
@@ -158,14 +156,13 @@ void JsbWebSocketDelegate::onClose(cc::network::WebSocket *ws, uint16_t code, co
         return;
     }
 
-    auto iter = se::NativePtrToObjectMap::find(ws);
+    se::Object *wsObj =se::NativePtrToObjectMap::first(ws);
     do {
-        if (iter == se::NativePtrToObjectMap::end()) {
+        if (wsObj) {
             CC_LOG_INFO("WebSocket js instance was destroyted, don't need to invoke onclose callback!");
             break;
         }
 
-        se::Object *wsObj = iter->second;
         se::HandleObject jsObj(se::Object::createPlainObject());
         jsObj->setProperty("type", se::Value("close")); // deprecated since v3.6
         se::Value target;
@@ -209,12 +206,10 @@ void JsbWebSocketDelegate::onError(cc::network::WebSocket *ws, const cc::network
         return;
     }
 
-    auto iter = se::NativePtrToObjectMap::find(ws);
-    if (iter == se::NativePtrToObjectMap::end()) {
+    se::Object *wsObj =se::NativePtrToObjectMap::first(ws);
+    if(!wsObj) {
         return;
     }
-
-    se::Object *wsObj = iter->second;
     se::HandleObject jsObj(se::Object::createPlainObject());
     jsObj->setProperty("type", se::Value("error"));
     se::Value target;
