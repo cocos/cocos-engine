@@ -150,7 +150,7 @@ public:
      * @param foundCb 
      */
     template <typename T, typename Fn1>
-    static void with(T *nativeObj, se::Class *kls, Fn1 foundCb) {
+    static void forEach(T *nativeObj, se::Class *kls, Fn1 foundCb) {
         forEach(nativeObj, kls, foundCb, nullptr);
     }
 

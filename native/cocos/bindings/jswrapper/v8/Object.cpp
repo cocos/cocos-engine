@@ -587,7 +587,7 @@ void Object::setPrivateObject(PrivateObjectBase *data) {
     #if CC_DEBUG
     // CC_ASSERT(!NativePtrToObjectMap::contains(data->getRaw()));
     if (data != nullptr) {
-        NativePtrToObjectMap::with(data->getRaw(), _getClass(), [&](se::Object *seObj) {
+        NativePtrToObjectMap::forEach(data->getRaw(), _getClass(), [&](se::Object *seObj) {
             auto *pri = seObj->getPrivateObject();
             SE_LOGE("Already exists object %s/[%s], trying to add %s/[%s]\n", pri->getName(), typeid(*pri).name(), data->getName(), typeid(*data).name());
         #if JSB_TRACK_OBJECT_CREATION
