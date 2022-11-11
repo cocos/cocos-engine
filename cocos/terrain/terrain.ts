@@ -2221,7 +2221,7 @@ export class Terrain extends Component {
 
         if (this.lodEnable && this._lod === null) {
             this._lod = new TerrainLod();
-        } 
+        }
 
         if (this._lod !== null) {
             this._sharedLodIndexBuffer = this._createSharedIndexBuffer();
