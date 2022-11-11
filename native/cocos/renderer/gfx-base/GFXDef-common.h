@@ -1305,7 +1305,7 @@ struct ASTriangleMesh {
     uint32_t indexCount;
     Buffer* vertexBuffer;
     Buffer* indexBuffer; 
-    uint64_t materialIndex;
+    uint64_t materialID;
 };
 
 struct ASAABB {
@@ -1317,7 +1317,7 @@ struct ASAABB {
     float maxX;
     float maxY;
     float maxZ;
-    uint64_t materialIndex;
+    uint64_t materialID;
 };
 
 struct ASInstance {

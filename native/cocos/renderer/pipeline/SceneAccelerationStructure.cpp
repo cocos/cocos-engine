@@ -74,45 +74,15 @@ namespace pipeline
     }
 
     void SceneAccelerationStructure::handleNewModel(const IntrusivePtr<scene::Model>& pModel) {
+
         gfx::ASInstance tlasGeom{};
         meshShadingInstanceDescriptor shadingInstanceDescriptor{};
 
         auto subModels = pModel->getSubModels();
         shadingInstanceDescriptor.subMeshCount = subModels.size();
 
-        auto sameMatID = [](const IntrusivePtr<scene::SubModel>& sm1, const uint64_t ID) -> bool { return false; }; // todo
-
-        //range search for submeshes
-        bool exist = true;
-        for (const auto& descriptor : _instanceDesc) {
-            exist = true;
-            if (shadingInstanceDescriptor.subMeshCount != descriptor.subMeshCount) {
-                exist = false;
-            } else {
-                for (int i = 0; i < descriptor.subMeshCount; i++) {
-                    if (!sameMatID(subModels[i], _materialDesc[descriptor.subMeshMaterialOffset + i])) {
-                        exist = false;
-                        break;
-                    }
-                }
-            }
-
-            if (exist) {
-                shadingInstanceDescriptor.subMeshMaterialOffset = descriptor.subMeshMaterialOffset;
-                break;
-            }
-        }
-
-        if (!exist) {
-            shadingInstanceDescriptor.subMeshMaterialOffset = static_cast<uint16_t>(_materialDesc.size());
-            for (const auto& sm : subModels) {
-                static int matId = 0;
-                _materialDesc.emplace_back(matId++);
-            }
-        }
-
         tlasGeom.instanceCustomIdx = ~0U;
-        tlasGeom.shaderBindingTableRecordOffset = 0;
+        tlasGeom.shaderBindingTableRecordOffset = ~0U;
         tlasGeom.mask = 0xFF;
         tlasGeom.transform = pModel->getTransform()->getWorldMatrix();
         tlasGeom.flags = gfx::GeometryInstanceFlagBits::TRIANGLE_FACING_CULL_DISABLE;
@@ -121,14 +91,15 @@ namespace pipeline
             tlasGeom.flags = gfx::GeometryInstanceFlagBits::FORCE_OPAQUE;
         }
 
+        //search for blas geom
         auto meshUuid = reinterpret_cast<uint64_t>(subModels[0]->getSubMesh());
 
         if (pModel->getNode()->getName() == "AABB") {
             meshUuid += 1024;
         }
 
-        auto blasIt = _blasMap.find(meshUuid);
-        if (blasIt != _blasMap.cend()) {
+        auto blasIt = _geomBlasMap.find(meshUuid);
+        if (blasIt != _geomBlasMap.cend()) {
             // BLAS could be reused.
             tlasGeom.accelerationStructureRef = blasIt->second.first;
             shadingInstanceDescriptor.subMeshGeometryOffset = blasIt->second.second;
@@ -151,31 +122,90 @@ namespace pipeline
                 }
             }
 
-            _blasMap.emplace(meshUuid, std::make_pair(blas, shadingInstanceDescriptor.subMeshGeometryOffset));
+            _geomBlasMap.emplace(meshUuid, std::make_pair(blas, shadingInstanceDescriptor.subMeshGeometryOffset));
 
             tlasGeom.accelerationStructureRef = blas;
         }
 
-        for (uint32_t index = 0;index<_instanceDesc.size();++index) {
-            if (shadingInstanceDescriptor.subMeshGeometryOffset == _instanceDesc[index].subMeshGeometryOffset &&
-                shadingInstanceDescriptor.subMeshMaterialOffset == _instanceDesc[index].subMeshMaterialOffset) {
+        auto sameMatID = [](const IntrusivePtr<scene::SubModel>& sm1, const uint64_t ID) -> bool { return false; }; // todo
+
+        // range search for submeshes material
+        bool march_existing_mesh_materials = true;
+        for (const auto& descriptor : _shadingInstanceDescs) {
+            march_existing_mesh_materials = true;
+            if (shadingInstanceDescriptor.subMeshCount != descriptor.subMeshCount) {
+                march_existing_mesh_materials = false;
+            } else {
+                for (int i = 0; i < descriptor.subMeshCount; i++) {
+                    if (!sameMatID(subModels[i], _materialDesc[descriptor.subMeshMaterialOffset + i])) {
+                        march_existing_mesh_materials = false;
+                        break;
+                    }
+                }
+            }
+
+            if (march_existing_mesh_materials) {
+                shadingInstanceDescriptor.subMeshMaterialOffset = descriptor.subMeshMaterialOffset;
+                break;
+            }
+        }
+
+        if (!march_existing_mesh_materials) {
+            shadingInstanceDescriptor.subMeshMaterialOffset = static_cast<uint16_t>(_materialDesc.size());
+            for (const auto& sm : subModels) {
+                static int matId = 0;
+                _materialDesc.emplace_back(matId++);
+            }
+        }
+
+        // If G1 = G2 and M1 = M2, then
+        // meshShadingInstanceDescriptor could be shared.
+        // hit group shader binding record could be shared.
+
+        //ray query
+        for (uint32_t index = 0;index<_shadingInstanceDescs.size();++index) {
+            if (shadingInstanceDescriptor == _shadingInstanceDescs[index]) {
                 // Reuse instance with same blas and material
                 tlasGeom.instanceCustomIdx = index;
                 break;
             }
         }
+
         if (tlasGeom.instanceCustomIdx == ~0U) {
-            //New shading instance should be added
-            tlasGeom.instanceCustomIdx = _instanceDesc.size();
-            _instanceDesc.emplace_back(shadingInstanceDescriptor);
+            //New meshShadingInstanceDescriptor should be added
+            tlasGeom.instanceCustomIdx = _shadingInstanceDescs.size();
+            _shadingInstanceDescs.emplace_back(shadingInstanceDescriptor);
         }
+
+        //ray tracing SBT
+        
+        ccstd::vector<shaderRecord> instanceShaderRecords{};
+        auto geometries = tlasGeom.accelerationStructureRef->getInfo().triangleMeshes;
+        auto transformer = [&](const auto& geom) {
+            return shaderRecord{subMeshGeomDescriptor{geom.vertexBuffer->getDeviceAddress(),
+                                      geom.indexBuffer->getDeviceAddress()},
+                geom.materialID};
+        };
+        std::transform(geometries.cbegin(), geometries.cend(), std::back_inserter(instanceShaderRecords),transformer);
+
+        auto result = std::search(_hitGroupShaderBindingTable.cbegin(), _hitGroupShaderBindingTable.cend(), instanceShaderRecords.cbegin(), instanceShaderRecords.cend());
+        if (result!=_hitGroupShaderBindingTable.cend()) {
+            uint32_t offset = static_cast<uint32_t>(std::distance(_hitGroupShaderBindingTable.cbegin(), result));
+            CC_ASSERT(offset < _hitGroupShaderBindingTable.size());
+            tlasGeom.shaderBindingTableRecordOffset = offset;
+        }
+        
+        if (tlasGeom.shaderBindingTableRecordOffset == ~0U) {
+            tlasGeom.shaderBindingTableRecordOffset = _hitGroupShaderBindingTable.size();
+            _hitGroupShaderBindingTable.insert(_hitGroupShaderBindingTable.end(), instanceShaderRecords.begin(), instanceShaderRecords.end());
+        }
+
         _modelMap.emplace(pModel->getNode()->getUuid(), std::pair{true, tlasGeom});
     }
 
     void SceneAccelerationStructure::handleModel(const IntrusivePtr<scene::Model>& pModel) {
-        const auto name = pModel->getNode()->getName();
-
-        if (!pModel->getNode()->isValid() || !pModel->getNode()->isActive() || name == "Profiler_Root") {
+        
+        if (!pModel->getNode()->isValid() || !pModel->getNode()->isActive() || pModel->getNode()->getName() == "Profiler_Root") {
             return;
         }
 
@@ -222,10 +252,10 @@ namespace pipeline
         } 
 
         //sweep deactive blas
-        auto blasIt = _blasMap.begin();
-        while (blasIt != _blasMap.end()) {
+        auto blasIt = _geomBlasMap.begin();
+        while (blasIt != _geomBlasMap.end()) {
             if (blasIt->second.first->getRefCount()==0) {
-                blasIt = _blasMap.erase(blasIt);
+                blasIt = _geomBlasMap.erase(blasIt);
                 //blasIt->second->destroy();
             }else {
                 ++blasIt;
@@ -250,7 +280,7 @@ namespace pipeline
                 _geomDescGPUBuffer = gfx::Device::getInstance()->createBuffer(geomDescBufferInfo);
 
                 gfx::BufferInfo instanceDescBufferInfo{};
-                instanceDescBufferInfo.size = _instanceDesc.size() * sizeof(meshShadingInstanceDescriptor);
+                instanceDescBufferInfo.size = _shadingInstanceDescs.size() * sizeof(meshShadingInstanceDescriptor);
                 instanceDescBufferInfo.flags = gfx::BufferFlags::NONE;
                 instanceDescBufferInfo.usage = gfx::BufferUsage::STORAGE | gfx::BufferUsage::TRANSFER_DST;
                 instanceDescBufferInfo.memUsage = gfx::MemoryUsage::HOST;
@@ -261,11 +291,11 @@ namespace pipeline
             if (needRebuild) {
                 _topLevelAccelerationStructure->build();
                 _geomDescGPUBuffer->update(_geomDesc.data());
-                _instanceDescGPUBuffer->update(_instanceDesc.data());
+                _instanceDescGPUBuffer->update(_shadingInstanceDescs.data());
             } else if (needUpdate) {
                 _topLevelAccelerationStructure->update();
                 _geomDescGPUBuffer->update(_geomDesc.data());
-                _instanceDescGPUBuffer->update(_instanceDesc.data());
+                _instanceDescGPUBuffer->update(_shadingInstanceDescs.data());
             }
         }
 
@@ -282,7 +312,7 @@ namespace pipeline
     void SceneAccelerationStructure::destroy() {
         _topLevelAccelerationStructure = nullptr;
         _bottomLevelAccelerationStructures.clear();
-        _blasMap.clear();
+        _geomBlasMap.clear();
         _modelMap.clear();
     }
 

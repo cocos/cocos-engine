@@ -31,7 +31,7 @@ namespace pipeline
          *  first: blas ref
          *  second: subMeshGeometryOffset
          */
-        ccstd::unordered_map<uint64_t,std::pair<IntrusivePtr<gfx::AccelerationStructure>,uint64_t>> _blasMap;
+        ccstd::unordered_map<uint64_t,std::pair<IntrusivePtr<gfx::AccelerationStructure>,uint64_t>> _geomBlasMap;
         /*
          * first: model's uuid
          * second:
@@ -39,6 +39,8 @@ namespace pipeline
          *  second: Acceleration Structure Instance obj
          */
         ccstd::unordered_map<ccstd::string,std::pair<bool,gfx::ASInstance>> _modelMap;
+
+        //ccstd::unordered_map<std::pair<uint64_t,std::vector<uint64_t>>, std::pair<IntrusivePtr<gfx::AccelerationStructure>, uint64_t>> _shadingBlasMap;
          
         GlobalDSManager* _globalDSManager{nullptr};
     private:
@@ -50,6 +52,10 @@ namespace pipeline
         struct subMeshGeomDescriptor{
             uint64_t indexAddress{0};
             uint64_t vertexAddress{0};
+
+            bool operator==(const subMeshGeomDescriptor& other) const {
+                return indexAddress == other.indexAddress && vertexAddress == other.vertexAddress;
+            }
         };
 
         struct meshShadingInstanceDescriptor{
@@ -59,6 +65,12 @@ namespace pipeline
             uint16_t subMeshMaterialOffset{0};
             uint16_t subMeshCount{0};
             uint16_t padding{0};
+
+            bool operator==(const meshShadingInstanceDescriptor& other) const{
+                return subMeshCount == other.subMeshCount &&
+                    subMeshGeometryOffset == other.subMeshGeometryOffset &&
+                    subMeshMaterialOffset == other.subMeshMaterialOffset;
+            }
         };
 
         /*
@@ -70,15 +82,21 @@ namespace pipeline
 
             For I1 = {G1,M1,T1} and I2 = {G2,M2,T2}
                 iff G1 = G2, then BLAS could be shared.
-                iff M1i = M2j, then shader group handle could be shared.
-                iff G1 = G2 and M1 = M2, then hit group record could be shared.
+                iff G1 = G2 and M1 = M2, then meshShadingInstanceDescriptor could be shared.
         */
 
         //instanceDecs.geometryOffset + geometryIndex
         ccstd::vector<subMeshGeomDescriptor> _geomDesc;
         ccstd::vector<uint64_t> _materialDesc;
         //instanceCustomIndex
-        ccstd::vector<meshShadingInstanceDescriptor> _instanceDesc;
+        ccstd::vector<meshShadingInstanceDescriptor> _shadingInstanceDescs;
+
+        /*
+         * first: subMesh Geometry info descriptor
+         * second: material identifier
+         */
+        using shaderRecord = std::pair<subMeshGeomDescriptor, uint32_t>;
+        std::vector<shaderRecord> _hitGroupShaderBindingTable;
 
         IntrusivePtr<gfx::Buffer> _geomDescGPUBuffer;
         IntrusivePtr<gfx::Buffer> _materialDescGPUBuffer;
