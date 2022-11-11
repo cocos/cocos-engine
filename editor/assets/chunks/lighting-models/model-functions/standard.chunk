@@ -1,8 +1,5 @@
 #include <common/lighting/brdf>
 #include <common/lighting/functions>
-#if CC_LIGHT_PROBE_ENABLED && CC_USE_LIGHT_PROBE
-  #include <common/lighting/sh>
-#endif
 
 bool CCSurfacesLightingEnableShadow(in float NoL)
 {
@@ -78,18 +75,13 @@ void CCSurfacesLightingCalculateDirect(out vec3 lightingDiffuse, out vec3 lighti
 
 vec3 CalculateEnvironmentDiffuse(in LightingIntermediateData lightingData, float lightIntensity)
 {
-  // Probe
-  #if CC_LIGHT_PROBE_ENABLED && CC_USE_LIGHT_PROBE
-    return SHEvaluate(lightingData.N);
-  #endif
-
   // Hemisphere Lighting
   float fAmb = 0.5 - lightingData.N.y * 0.5;
   vec3 ambDiff = mix(cc_ambientSky.rgb, cc_ambientGround.rgb, fAmb);
 
   // Diffuse Map
   #if CC_USE_IBL
-    #if CC_USE_DIFFUSEMAP && (!CC_LIGHT_PROBE_ENABLED || !CC_USE_LIGHT_PROBE)
+    #if CC_USE_DIFFUSEMAP && !CC_USE_LIGHT_PROBE
       // Diffuse irradiance
       vec4 diffuseMap = texture(cc_diffuseMap, lightingData.N);
       #if CC_USE_DIFFUSEMAP == IBL_RGBE
@@ -100,7 +92,14 @@ vec3 CalculateEnvironmentDiffuse(in LightingIntermediateData lightingData, float
     #endif
   #endif
 
-  return ambDiff.rgb * lightIntensity;
+  ambDiff.rgb *= lightIntensity;
+
+  // Probe
+  #if CC_USE_LIGHT_PROBE
+    ambDiff.rgb += SHEvaluate(lightingData.N);
+  #endif
+
+  return ambDiff.rgb;
 }
 
 vec3 CalculateEnvironmentSpecular(in LightingIntermediateData lightingData, float lightIntensity)

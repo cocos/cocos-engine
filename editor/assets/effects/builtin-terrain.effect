@@ -263,7 +263,8 @@ CCProgram terrain-fs %{
 
     #if CC_USE_LIGHTMAP && !CC_FORWARD_ADD
       vec4 lightColor = texture(cc_lightingMap, luv.xy);
-      s.lightmap = lightColor.xyz * luv.z;
+      s.lightmap.a = lightColor.a;
+      s.lightmap.rgb = lightColor.xyz * luv.z;
       s.lightmap_test = luv.z; /*lum*/
     #endif
   }
