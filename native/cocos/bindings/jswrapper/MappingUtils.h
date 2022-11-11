@@ -43,10 +43,19 @@ public:
     static void destroy();
     static bool isValid();
 
+    /**
+     * @deprecated Use `contains` or `forEach` to query or manipulate the elements of the map, 
+     */
     CC_DEPRECATED(3.7)
     static Map::iterator find(void *v);
+    /**
+     * @deprecated Use `contains` or `forEach` to query or manipulate the elements of the map, 
+     */
     CC_DEPRECATED(3.7)
     static Map::iterator begin();
+    /**
+     * @deprecated Use `contains` or `forEach` to query or manipulate the elements of the map, 
+     */
     CC_DEPRECATED(3.7)
     static Map::iterator end();
 
@@ -58,11 +67,18 @@ public:
 
     static const Map &instance();
 
+    /**
+     * @brief Return the first element of the specified key
+     */
     template <typename T>
     static se::Object *findFirst(T *nativeObj) {
         auto itr = __nativePtrToObjectMap->find(nativeObj);
         return itr == __nativePtrToObjectMap->end() ? nullptr : itr->second;
     }
+
+    /**
+     * @brief Check if the key exists in the map
+     */
     template <typename T>
     static bool contains(T *nativeObj) {
         if constexpr (std::is_void_v<T>) {
@@ -78,6 +94,10 @@ public:
             return false;
         }
     }
+
+    /**
+     * @brief Iterate se::Object with specified se::Class
+     */
     template <typename T, typename Fn>
     static void forEach(T *nativeObj, const Fn &func) {
         se::Class *kls = nullptr;
@@ -94,14 +114,6 @@ public:
     }
     /**
      * @brief Iterate se::Object with specified se::Class
-     *
-     * @tparam T
-     * @tparam Fn1
-     * @tparam Fn2
-     * @param nativeObj
-     * @param kls
-     * @param eachCallback callback for each Object
-     * @param emptyCallback invoke when no element found
      */
     template <typename T, typename Fn1, typename Fn2>
     static void forEach(T *nativeObj, se::Class *kls, Fn1 eachCallback, Fn2 emptyCallback) {
@@ -128,6 +140,15 @@ public:
             }
         }
     }
+    /**
+     * @brief Call `foundCb` with the filtered se::Object*
+     * 
+     * @tparam T 
+     * @tparam Fn1 
+     * @param nativeObj 
+     * @param kls 
+     * @param foundCb 
+     */
     template <typename T, typename Fn1>
     static void with(T *nativeObj, se::Class *kls, Fn1 foundCb) {
         forEach(nativeObj, kls, foundCb, nullptr);
