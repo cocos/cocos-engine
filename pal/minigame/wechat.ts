@@ -62,18 +62,19 @@ Object.defineProperty(minigame, 'isLandscape', {
     },
 });
 // init landscapeOrientation as LANDSCAPE_RIGHT
-let landscapeOrientation = Orientation.LANDSCAPE_RIGHT;
-if (systemInfo.platform.toLocaleLowerCase() !== 'android') {
-    // onDeviceOrientationChange doesn't work well on Android.
-    // see this issue: https://developers.weixin.qq.com/community/minigame/doc/000482138dc460e56cfaa5cb15bc00
-    wx.onDeviceOrientationChange((res) => {
-        if (res.value === 'landscape') {
-            landscapeOrientation = Orientation.LANDSCAPE_RIGHT;
-        } else if (res.value === 'landscapeReverse') {
-            landscapeOrientation = Orientation.LANDSCAPE_LEFT;
-        }
-    });
-}
+const landscapeOrientation = Orientation.LANDSCAPE_RIGHT;
+// TODO(): toLocaleLowerCase not implemented in wechat
+// if (systemInfo.platform.toLocaleLowerCase() !== 'android') {
+//     // onDeviceOrientationChange doesn't work well on Android.
+//     // see this issue: https://developers.weixin.qq.com/community/minigame/doc/000482138dc460e56cfaa5cb15bc00
+//     wx.onDeviceOrientationChange((res) => {
+//         if (res.value === 'landscape') {
+//             landscapeOrientation = Orientation.LANDSCAPE_RIGHT;
+//         } else if (res.value === 'landscapeReverse') {
+//             landscapeOrientation = Orientation.LANDSCAPE_LEFT;
+//         }
+//     });
+// }
 Object.defineProperty(minigame, 'orientation', {
     get () {
         return minigame.isLandscape ? landscapeOrientation : Orientation.PORTRAIT;
