@@ -1152,6 +1152,7 @@ void cmdFuncCCVKCreateGraphicsPipelineState(CCVKDevice *device, CCVKGPUPipelineS
 }
 
 void cmdFuncCCVKCreateRayTracingPipelineState(CCVKDevice* device, CCVKGPUPipelineState* gpuPipelineState) {
+    
     static ccstd::vector<VkPipelineShaderStageCreateInfo> stageInfos;
     static ccstd::vector<VkRayTracingShaderGroupCreateInfoKHR> groupInfos;
     static ccstd::vector<VkDynamicState> dynamicStates;
