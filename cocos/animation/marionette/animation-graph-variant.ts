@@ -19,8 +19,8 @@ export interface AnimationGraphVariantRunTime {
     readonly __brand: 'AnimationGraphVariant';
 }
 
-@ccclass(`${CLASS_NAME_PREFIX_ANIM}AnimationGraphOverrideEntry`)
-class AnimationGraphOverrideEntry {
+@ccclass(`${CLASS_NAME_PREFIX_ANIM}ClipOverrideEntry`)
+class ClipOverrideEntry {
     @serializable
     public original: AnimationClip = null!;
 
@@ -77,7 +77,7 @@ class ClipOverrideMap implements ReadonlyClipOverrideMap {
         if (entry) {
             entry.substitution = substitution;
         } else {
-            const newEntry = new AnimationGraphOverrideEntry();
+            const newEntry = new ClipOverrideEntry();
             newEntry.original = original;
             newEntry.substitution = substitution;
             this._entries.push(newEntry);
@@ -93,5 +93,5 @@ class ClipOverrideMap implements ReadonlyClipOverrideMap {
     }
 
     @serializable
-    private _entries: AnimationGraphOverrideEntry[] = [];
+    private _entries: ClipOverrideEntry[] = [];
 }

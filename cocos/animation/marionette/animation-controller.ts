@@ -213,15 +213,15 @@ export class AnimationController extends Component {
      *
      * ```ts
      * // `originalClip` 是原始动画图中的剪辑对象，第一次希望将原剪辑覆盖为 `newClip1`，第二次希望将原剪辑覆盖为 `newClip2`
-     * animationController.experimental_overrideClips(new Map([ [originalClip, newClip1] ])); // 第一次覆盖
-     * animationController.experimental_overrideClips(new Map([ [newClip1, newClip2] ])); // 错误：第二次覆盖
-     * animationController.experimental_overrideClips(new Map([ [originalClip, newClip2] ])); // 正确：第二次覆盖
+     * animationController.overrideClips_experimental(new Map([ [originalClip, newClip1] ])); // 第一次覆盖
+     * animationController.overrideClips_experimental(new Map([ [newClip1, newClip2] ])); // 错误：第二次覆盖
+     * animationController.overrideClips_experimental(new Map([ [originalClip, newClip2] ])); // 正确：第二次覆盖
      * ```
      * @en Overrides the animation clips in animation graph instance.
      * TODO
      * @experimental
      */
-    public experimental_overrideClips (overrides: ReadonlyClipOverrideMap) {
+    public overrideClips_experimental (overrides: ReadonlyClipOverrideMap) {
         const { _graphEval: graphEval } = this;
         assertIsNonNullable(graphEval);
         graphEval.overrideClips(overrides);
