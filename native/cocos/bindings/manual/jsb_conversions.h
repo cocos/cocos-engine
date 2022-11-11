@@ -325,7 +325,7 @@ native_ptr_to_seval(T &v_ref, se::Value *ret, bool *isReturnCachedValue = nullpt
     }
 
     se::Class *cls = JSBClassType::findClass(v);
-    se::NativePtrToObjectMap::forEachOr(
+    se::NativePtrToObjectMap::forEach(
         v, cls,
         [&](se::Object *foundObj) {
             if (isReturnCachedValue != nullptr) {
@@ -358,7 +358,7 @@ bool native_ptr_to_rooted_seval( // NOLINT(readability-identifier-naming)
     }
 
     se::Class *cls = JSBClassType::findClass(v);
-    se::NativePtrToObjectMap::forEachOr.(
+    se::NativePtrToObjectMap::forEach(
         v, cls,
         [&](se::Object *foundObj) {
             ret->setObject(foundObj);
@@ -394,7 +394,7 @@ bool native_ptr_to_seval(T *vp, se::Class *cls, se::Value *ret, bool *isReturnCa
         return true;
     }
 
-    se::NativePtrToObjectMap::forEachOr(
+    se::NativePtrToObjectMap::forEach(
         v, cls,
         [&](se::Object *foundObj) {
             if (isReturnCachedValue != nullptr) {
@@ -428,7 +428,7 @@ bool native_ptr_to_seval(T *vp, se::Value *ret, bool *isReturnCachedValue = null
     }
 
     se::Class *cls = JSBClassType::findClass(v);
-    se::NativePtrToObjectMap::forEachOr(
+    se::NativePtrToObjectMap::forEach(
         v, cls,
         [&](se::Object *foundObj) {
             // CC_LOG_DEBUG("INFO: Found Ref type: (%s, native: %p, se: %p) from cache!", typeid(*v).name(), v, obj);
@@ -1442,7 +1442,7 @@ inline bool nativevalue_to_se(const std::shared_ptr<T> &from, se::Value &to, se:
         return true;
     }
     se::Class *cls = JSBClassType::findClass(nativePtr);
-    se::NativePtrToObjectMap::forEachOr(
+    se::NativePtrToObjectMap::forEach(
         nativePtr, cls,
         [&](se::Object *foundObj) {
             to.setObject(foundObj);
@@ -1465,7 +1465,7 @@ inline bool nativevalue_to_se(const cc::IntrusivePtr<T> &from, se::Value &to, se
         return true;
     }
     se::Class *cls = JSBClassType::findClass(nativePtr);
-    se::NativePtrToObjectMap::forEachOr(
+    se::NativePtrToObjectMap::forEach(
         nativePtr, cls,
         [&](se::Object *foundObj) {
             to.setObject(foundObj);

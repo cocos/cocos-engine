@@ -37,7 +37,7 @@ class Object;
 class NativePtrToObjectMap {
 public:
     // key: native ptr, value: se::Object
-    using Map = ccstd::unordered_map<void *, Object *>;
+    using Map = ccstd::unordered_multimap<void *, Object *>;
 
     static bool init();
     static void destroy();
@@ -104,7 +104,7 @@ public:
      * @param emptyCallback invoke when no element found
      */
     template <typename T, typename Fn1, typename Fn2>
-    static void forEachOr(T *nativeObj, se::Class *kls, Fn1 eachCallback, Fn2 emptyCallback) {
+    static void forEach(T *nativeObj, se::Class *kls, Fn1 eachCallback, Fn2 emptyCallback) {
         int eleCount = 0;
         auto range = __nativePtrToObjectMap->equal_range(const_cast<std::remove_const_t<T> *>(nativeObj));
 
@@ -129,7 +129,7 @@ public:
         }
     }
     template <typename T, typename Fn1>
-    static void forEach(T *nativeObj, se::Class *kls, Fn1 foundCb) {
+    static void with(T *nativeObj, se::Class *kls, Fn1 foundCb) {
         forEach(nativeObj, kls, foundCb, nullptr);
     }
 
