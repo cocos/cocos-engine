@@ -34,7 +34,6 @@ import { warnID } from '../../core/platform/debug';
 import { macro } from '../../core/platform/macro';
 import { sys } from '../../core/platform/sys';
 import { Enum } from '../../core/value-types/enum';
-import { CompleteCallback, IDownloadParseOptions } from '../asset-manager/shared';
 
 // Compress mipmap constants
 const COMPRESSED_HEADER_LENGTH = 4;
@@ -256,8 +255,12 @@ export class ImageAsset extends Asset {
         return out;
     }
 
-    public static parseCompressedTexs (file: ArrayBuffer | ArrayBufferView, options: IDownloadParseOptions,
-        onComplete: CompleteCallback<IMemoryImageSource>, type: number) {
+    /**
+     * @param file 解析压缩纹理
+     * @param type 压缩纹理类型
+     * @engineInternal
+     */
+    public static parseCompressedTexs (file: ArrayBuffer | ArrayBufferView, type: number) {
         const out: IMemoryImageSource = {
             _data: new Uint8Array(0),
             _compressed: true,
@@ -296,8 +299,8 @@ export class ImageAsset extends Asset {
             }
         } catch (e) {
             err = e as Error;
+            console.warn(err);
         }
-        onComplete(err, out);
     }
 
     /**
@@ -308,6 +311,7 @@ export class ImageAsset extends Asset {
      * @param endOffset @zh 压缩纹理结束时的偏移
      * @param type @zh 压缩纹理类型
      * @param out @zh 压缩纹理输出
+     * @engineInternal
      */
     public static parseCompressedTex (file: ArrayBuffer | ArrayBufferView, levelIndex: number,
         beginOffset: number, endOffset: number, type: number, out: IMemoryImageSource) {
@@ -333,6 +337,7 @@ export class ImageAsset extends Asset {
      * @param beginOffset @zh 压缩纹理开始时的偏移
      * @param endOffset @zh 压缩纹理结束时的偏移
      * @param out @zh 压缩纹理输出
+     * @engineInternal
      */
     public static parsePVRTex (file: ArrayBuffer | ArrayBufferView, levelIndex: number,
         beginOffset: number, endOffset: number, out: IMemoryImageSource) {
@@ -390,6 +395,7 @@ export class ImageAsset extends Asset {
      * @param beginOffset @zh 压缩纹理开始时的偏移
      * @param endOffset @zh 压缩纹理结束时的偏移
      * @param out @zh 压缩纹理输出
+     * @engineInternal
      */
     public static parsePKMTex (file: ArrayBuffer | ArrayBufferView, levelIndex: number,
         beginOffset: number, endOffset: number, out: IMemoryImageSource) {
@@ -429,6 +435,7 @@ export class ImageAsset extends Asset {
      * @param beginOffset @zh 压缩纹理开始时的偏移
      * @param endOffset @zh 压缩纹理结束时的偏移
      * @param out @zh 压缩纹理输出
+     * @engineInternal
      */
     public static parseASTCTex (file: ArrayBuffer | ArrayBufferView, levelIndex: number,
         beginOffset: number, endOffset: number, out: IMemoryImageSource) {
