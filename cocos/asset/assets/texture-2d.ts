@@ -27,7 +27,7 @@
 import { EDITOR, TEST } from 'internal:constants';
 import { ccclass, type } from 'cc.decorator';
 import { TextureType, TextureInfo, TextureViewInfo } from '../../gfx';
-import { PixelFormat } from './asset-enum';
+import { Filter, PixelFormat } from './asset-enum';
 import { ImageAsset } from './image-asset';
 import { PresumedGFXTextureInfo, PresumedGFXTextureViewInfo, SimpleTexture } from './simple-texture';
 import { legacyCC } from '../../core/global-exports';
@@ -117,6 +117,7 @@ export class Texture2D extends SimpleTexture {
                 });
 
                 compressedImageAsset[i]._uuid = value[0]._uuid;
+                this.setMipFilter(Filter.LINEAR);
                 byteOffset += mipmapLevelDataSize[i];
             }
             this._setMipmapParams(compressedImageAsset);
