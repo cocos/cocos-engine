@@ -1146,6 +1146,12 @@ export class ScrollView extends ViewGroup {
             this._topBoundary = this._bottomBoundary + viewTrans.height;
 
             this._moveContentToTopLeft(viewTrans.contentSize);
+
+            // to avoid size changed and auto-spring-back after touching end.
+            const boundary = this._getHowMuchOutOfBoundary();
+            if (boundary.x !== 0 || boundary.y !== 0) {
+                this._moveContent(boundary);
+            }
         }
     }
 
