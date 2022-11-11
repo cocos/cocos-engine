@@ -120,7 +120,7 @@ namespace cc {
             _windowManager->processEvent(&_quit);
         }
         runTask();
-        _window->swapWindow();
+        _windowManager->swapWindows();
         return 0;
     }
 
