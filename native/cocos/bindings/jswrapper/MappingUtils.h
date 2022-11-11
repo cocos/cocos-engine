@@ -59,7 +59,7 @@ public:
     static const Map &instance();
 
     template <typename T>
-    static se::Object *first(T *nativeObj) {
+    static se::Object *findFirst(T *nativeObj) {
         auto itr = __nativePtrToObjectMap->find(nativeObj);
         return itr == __nativePtrToObjectMap->end() ? nullptr : itr->second;
     }
