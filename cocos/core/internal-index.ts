@@ -29,7 +29,7 @@ import * as jsbUtils from './utils/jsb-utils';
 
 export { editable, tooltip, visible, displayName, displayOrder, range, rangeStep, slide, disallowAnimation } from './data/decorators/editable';
 export { override } from './data/decorators/override';
-export { formerlySerializedAs, serializable, editorOnly } from './data/decorators/serializable';
+export { formerlySerializedAs, serializable } from './data/decorators/serializable';
 
 export * from './algorithm/binary-search';
 export { move } from './algorithm/move';
