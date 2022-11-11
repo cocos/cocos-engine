@@ -54,7 +54,7 @@ const lightMapPatches: IMacroPatch[] = [
 const lightProbePatches: IMacroPatch[] = [
     { name: 'CC_USE_LIGHT_PROBE', value: true },
 ];
-
+const USE_REFLECTION_PROBE = 'CC_USE_REFLECTION_PROBE';
 export enum ModelType {
     DEFAULT,
     SKINNING,
@@ -318,6 +318,7 @@ export class Model {
 
     set reflectionProbeType (val) {
         this._reflectionProbeType = val;
+        this.onMacroPatchesStateChanged();
     }
 
     /**
@@ -934,6 +935,10 @@ export class Model {
         if (this._useLightProbe) {
             patches = patches ? patches.concat(lightProbePatches) : lightProbePatches;
         }
+        const reflectionProbePatches: IMacroPatch[] = [
+            { name: USE_REFLECTION_PROBE, value: this._reflectionProbeType },
+        ];
+        patches = patches ? patches.concat(reflectionProbePatches) : reflectionProbePatches;
 
         return patches;
     }

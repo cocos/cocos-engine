@@ -25,7 +25,7 @@
 
 import { Pass } from '../render-scene';
 import { IInstancedAttributeBlock, SubModel } from '../render-scene/scene';
-import { UNIFORM_LIGHTMAP_TEXTURE_BINDING } from './define';
+import { UNIFORM_LIGHTMAP_TEXTURE_BINDING, UNIFORM_REFLECTION_PROBE_CUBEMAP_BINDING, UNIFORM_REFLECTION_PROBE_TEXTURE_BINDING } from './define';
 import { BufferUsageBit, MemoryUsageBit, Device, Texture, InputAssembler, InputAssemblerInfo,
     Attribute, Buffer, BufferInfo, CommandBuffer, Shader, DescriptorSet  } from '../gfx';
 
@@ -39,6 +39,8 @@ export interface IInstancedItem {
     shader: Shader | null;
     descriptorSet: DescriptorSet;
     lightingMap: Texture;
+    reflectionProbeCubemap: Texture;
+    reflectionProbePlanarMap: Texture;
 }
 
 const INITIAL_CAPACITY = 32;
@@ -71,6 +73,8 @@ export class InstancedBuffer {
         if (!stride) { return; } // we assume per-instance attributes are always present
         const sourceIA = subModel.inputAssembler;
         const lightingMap = subModel.descriptorSet.getTexture(UNIFORM_LIGHTMAP_TEXTURE_BINDING);
+        const reflectionProbeCubemap = subModel.descriptorSet.getTexture(UNIFORM_REFLECTION_PROBE_CUBEMAP_BINDING);
+        const reflectionProbePlanarMap = subModel.descriptorSet.getTexture(UNIFORM_REFLECTION_PROBE_TEXTURE_BINDING);
         let shader = shaderImplant;
         if (!shader) {
             shader = subModel.shaders[passIdx];
@@ -82,6 +86,14 @@ export class InstancedBuffer {
 
             // check same binding
             if (instance.lightingMap.objectID !== lightingMap.objectID) {
+                continue;
+            }
+
+            if (reflectionProbeCubemap && instance.reflectionProbeCubemap.objectID !== reflectionProbeCubemap.objectID) {
+                continue;
+            }
+
+            if (reflectionProbePlanarMap && instance.reflectionProbePlanarMap.objectID !== reflectionProbePlanarMap.objectID) {
                 continue;
             }
 
@@ -127,7 +139,7 @@ export class InstancedBuffer {
         vertexBuffers.push(vb);
         const iaInfo = new InputAssemblerInfo(attributes, vertexBuffers, indexBuffer);
         const ia = this._device.createInputAssembler(iaInfo);
-        this.instances.push({ count: 1, capacity: INITIAL_CAPACITY, vb, data, ia, stride, shader, descriptorSet, lightingMap });
+        this.instances.push({ count: 1, capacity: INITIAL_CAPACITY, vb, data, ia, stride, shader, descriptorSet, lightingMap, reflectionProbeCubemap, reflectionProbePlanarMap });
         this.hasPendingModels = true;
     }
 

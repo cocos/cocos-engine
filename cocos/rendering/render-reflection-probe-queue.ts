@@ -28,11 +28,13 @@ import { SetIndex } from './define';
 import { Device, RenderPass, Shader, CommandBuffer } from '../gfx';
 import { getPhaseID } from './pass-phase';
 import { PipelineStateManager } from './pipeline-state-manager';
-import { Pass } from '../render-scene/core/pass';
+import { Pass, BatchingSchemes } from '../render-scene/core/pass';
 import { Model } from '../render-scene/scene/model';
 import { ReflectionProbe, SKYBOX_FLAG } from '../render-scene/scene';
 import { PipelineRuntime } from './custom/pipeline';
 import { RenderScene } from '../render-scene';
+import { RenderInstancedQueue } from './render-instanced-queue';
+import { RenderBatchedQueue } from './render-batched-queue';
 
 const CC_USE_RGBE_OUTPUT = 'CC_USE_RGBE_OUTPUT';
 const _phaseID = getPhaseID('default');
@@ -66,12 +68,16 @@ export class RenderReflectionProbeQueue {
     private _subModelsArray: SubModel[] = [];
     private _passArray: Pass[] = [];
     private _shaderArray: Shader[] = [];
+    private _instancedQueue: RenderInstancedQueue;
+    private _batchedQueue: RenderBatchedQueue;
 
     public constructor (pipeline: PipelineRuntime) {
         this._pipeline = pipeline;
+        this._instancedQueue = new RenderInstancedQueue();
+        this._batchedQueue = new RenderBatchedQueue();
     }
 
-    public gatherRenderObjects (probe: ReflectionProbe, scene:RenderScene) {
+    public gatherRenderObjects (probe: ReflectionProbe, scene:RenderScene, cmdBuff: CommandBuffer) {
         this.clear();
         const sceneData = this._pipeline.pipelineSceneData;
         const skybox = sceneData.skybox;
@@ -95,12 +101,16 @@ export class RenderReflectionProbeQueue {
                 }
             }
         }
+        this._instancedQueue.uploadBuffers(cmdBuff);
+        this._batchedQueue.uploadBuffers(cmdBuff);
     }
 
     public clear () {
         this._subModelsArray.length = 0;
         this._shaderArray.length = 0;
         this._passArray.length = 0;
+        this._instancedQueue.clear();
+        this._batchedQueue.clear();
     }
 
     public add (model: Model) {
@@ -115,15 +125,29 @@ export class RenderReflectionProbeQueue {
                 bUseReflectPass = false;
             }
             if (passIdx < 0) { continue; }
+
             const pass = subModel.passes[passIdx];
+            const batchingScheme = pass.batchingScheme;
+
             if (!bUseReflectPass) {
                 pass.defines[CC_USE_RGBE_OUTPUT] = true;
                 subModel.onPipelineStateChanged();
             }
-            const shader = subModel.shaders[passIdx];
-            this._subModelsArray.push(subModel);
-            if (shader) this._shaderArray.push(shader);
-            this._passArray.push(pass);
+
+            if (batchingScheme === BatchingSchemes.INSTANCING) {            // instancing
+                const buffer = pass.getInstancedBuffer();
+                buffer.merge(subModel, passIdx);
+                this._instancedQueue.queue.add(buffer);
+            } else if (pass.batchingScheme === BatchingSchemes.VB_MERGING) { // vb-merging
+                const buffer = pass.getBatchedBuffer();
+                buffer.merge(subModel, passIdx, model);
+                this._batchedQueue.queue.add(buffer);
+            } else {
+                const shader = subModel.shaders[passIdx];
+                this._subModelsArray.push(subModel);
+                if (shader) this._shaderArray.push(shader);
+                this._passArray.push(pass);
+            }
         }
     }
 
@@ -132,6 +156,9 @@ export class RenderReflectionProbeQueue {
      * record CommandBuffer
      */
     public recordCommandBuffer (device: Device, renderPass: RenderPass, cmdBuff: CommandBuffer) {
+        this._instancedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
+        this._batchedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
+
         for (let i = 0; i < this._subModelsArray.length; ++i) {
             const subModel = this._subModelsArray[i];
             const shader = this._shaderArray[i];

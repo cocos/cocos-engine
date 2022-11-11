@@ -42,7 +42,6 @@ import { settings, Settings } from '../../core/settings';
 const { property, ccclass, help, executeInEditMode, executionOrder, menu, tooltip, visible, type,
     formerlySerializedAs, serializable, editable, disallowAnimation } = _decorator;
 
-const USE_REFLECTION_PROBE = 'USE_REFLECTION_PROBE';
 /**
  * @en Shadow projection mode.
  * @zh 阴影投射方式。
@@ -381,10 +380,6 @@ export class MeshRenderer extends ModelRenderer {
 
     set reflectionProbe (val) {
         this._reflectionProbeType = val;
-        for (let i = 0; i < this._materials.length; i++) {
-            const mat = this.getMaterialInstance(i)!;
-            mat.recompileShaders({ USE_REFLECTION_PROBE: this._reflectionProbeType });
-        }
         if (this._model) {
             this._model.reflectionProbeType = this._reflectionProbeType;
             if (this._reflectionProbeType === ReflectionProbeType.BAKED_CUBEMAP) {
@@ -853,14 +848,6 @@ export class MeshRenderer extends ModelRenderer {
 
     protected _updateReflectionProbeRenderInfo () {
         if (!this._model) { return; }
-        if (this.reflectionProbe !== ReflectionProbeType.NONE) {
-            for (let i = 0; i < this._materials.length; i++) {
-                const mat = this.getMaterialInstance(i);
-                if (mat) {
-                    mat.recompileShaders({ USE_REFLECTION_PROBE: this.reflectionProbe });
-                }
-            }
-        }
         this._model.reflectionProbeType = this._reflectionProbeType;
         this._onUpdateReflectionProbeTexture();
     }
