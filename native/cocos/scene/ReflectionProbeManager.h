@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -23,33 +23,27 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "ReflectionProbeManager.h"
-#include "scene/ReflectionProbe.h"
+#pragma once
+#include "base/Macros.h"
+#include "base/Ptr.h"
+#include "renderer/pipeline/Define.h"
+#include "scene/Camera.h"
 namespace cc {
+namespace scene {
+class ReflectionProbe;
+// namespace scene
+class ReflectionProbeManager final {
+public:
+    static ReflectionProbeManager* getInstance();
+    ReflectionProbeManager();
+    ~ReflectionProbeManager() = default;
+    void registerProbe(scene::ReflectionProbe* probe);
+    void unRegisterProbe(scene::ReflectionProbe* probe);
+    const ccstd::vector<scene::ReflectionProbe*>& getAllProbes() const { return _probes; }
 
-namespace pipeline {
-namespace {
-ReflectionProbeManager* instance = nullptr;
-}
+private:
+    ccstd::vector<scene::ReflectionProbe*> _probes;
+};
 
-ReflectionProbeManager* ReflectionProbeManager::getInstance() {
-    if (instance == nullptr) {
-        instance = new ReflectionProbeManager();
-    }
-    return instance;
-}
-
-ReflectionProbeManager::ReflectionProbeManager() = default;
-void ReflectionProbeManager::registerProbe(scene::ReflectionProbe* probe) {
-    _probes.emplace_back(probe);
-}
-void ReflectionProbeManager::unRegisterProbe(scene::ReflectionProbe* probe) {
-    for (auto* p : _probes) {
-        const auto iter = std::find(_probes.begin(), _probes.end(), probe);
-        _probes.erase(iter);
-        break;
-    }
-}
-
-} // namespace pipeline
+} // namespace scene
 } // namespace cc

@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -27,12 +27,12 @@
 #include "Define.h"
 #include "core/scene-graph/Scene.h"
 #include "math/Quaternion.h"
-#include "renderer/pipeline/ReflectionProbeManager.h"
+#include "scene/ReflectionProbeManager.h"
 namespace cc {
 namespace scene {
 ReflectionProbe::ReflectionProbe(int32_t id) {
     _probeId = id;
-    pipeline::ReflectionProbeManager::getInstance()->registerProbe(this);
+    scene::ReflectionProbeManager::getInstance()->registerProbe(this);
 }
 
 void ReflectionProbe::initialize(Node* probeNode, Node* cameraNode) {
@@ -168,7 +168,7 @@ void ReflectionProbe::destroy() {
         _realtimePlanarTexture->destroy();
         _realtimePlanarTexture = nullptr;
     }
-    pipeline::ReflectionProbeManager::getInstance()->unRegisterProbe(this);
+    scene::ReflectionProbeManager::getInstance()->unRegisterProbe(this);
 }
 
 } // namespace scene

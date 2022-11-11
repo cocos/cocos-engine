@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -45,7 +45,6 @@ class CC_DLL ReflectionProbeBatchedQueue final {
 public:
     explicit ReflectionProbeBatchedQueue(RenderPipeline *);
     ~ReflectionProbeBatchedQueue();
-    void destroy();
 
     void clear();
     void gatherRenderObjects(const scene::Camera *, gfx::CommandBuffer *, const scene::ReflectionProbe *probe);
@@ -72,8 +71,8 @@ private:
     RenderInstancedQueue *_instancedQueue{nullptr};
     // manage memory manually
     RenderBatchedQueue *_batchedQueue{nullptr};
-    uint32_t _phaseID = 0;
-    uint32_t _phaseReflectMapID = 0;
+    uint32_t _phaseID{0};
+    uint32_t _phaseReflectMapID{0};
 };
 
 } // namespace pipeline

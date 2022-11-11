@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -28,7 +28,7 @@
 #include "../PipelineUBO.h"
 #include "../ReflectionProbeBatchedQueue.h"
 #include "../RenderPipeline.h"
-#include "pipeline/ReflectionProbeManager.h"
+#include "scene/ReflectionProbeManager.h"
 #include "profiler/Profiler.h"
 #include "scene/Camera.h"
 #include "scene/ReflectionProbe.h"
@@ -92,7 +92,7 @@ void ReflectionProbeStage::render(scene::Camera *camera) {
 void ReflectionProbeStage::destroy() {
     _framebuffer = nullptr;
 
-    CC_SAFE_DESTROY_AND_DELETE(_reflectionProbeBatchedQueue);
+    CC_SAFE_DELETE(_reflectionProbeBatchedQueue);
     RenderStage::destroy();
 }
 
