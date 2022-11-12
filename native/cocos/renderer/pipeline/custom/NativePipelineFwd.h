@@ -31,6 +31,7 @@
 // clang-format off
 #pragma once
 #include "cocos/base/std/variant.h"
+#include "cocos/renderer/pipeline/InstancedBuffer.h"
 #include "cocos/renderer/pipeline/custom/LayoutGraphFwd.h"
 #include "cocos/renderer/pipeline/custom/RenderGraphFwd.h"
 #include "cocos/renderer/pipeline/custom/RenderInterfaceFwd.h"
@@ -48,16 +49,13 @@ class NativeMovePassBuilder;
 class NativeCopyPassBuilder;
 class NativeSceneTransversal;
 struct PersistentRenderPassAndFramebuffer;
-struct ScenePassHandle;
-struct ScenePass;
-struct ScenePassQueue;
-struct RenderInstance;
-struct RenderInstancePack;
-struct RenderBatch;
-struct RenderBatchPack;
+struct RenderInstancingQueue;
+struct DrawInstance;
+struct RenderDrawQueue;
 struct NativeRenderQueue;
 class DefaultSceneVisitor;
 class DefaultForwardLightingTransversal;
+struct ResourceGroup;
 struct NativeRenderContext;
 class NativePipeline;
 
