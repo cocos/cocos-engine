@@ -1146,6 +1146,7 @@ export class ScrollView extends ViewGroup {
             this._topBoundary = this._bottomBoundary + viewTrans.height;
 
             this._moveContentToTopLeft(viewTrans.contentSize);
+            this._updateScrollBarState();
 
             // to avoid size changed and auto-spring-back after touching end.
             const boundary = this._getHowMuchOutOfBoundary();
