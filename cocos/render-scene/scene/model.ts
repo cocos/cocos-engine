@@ -857,7 +857,7 @@ export class Model {
      * @zh 更新反射探针的立方体贴图
      * @param texture probe cubemap
      */
-    public updateReflctionProbeCubemap (texture: TextureCube) {
+    public updateReflctionProbeCubemap (texture: TextureCube | null) {
         this._localDataUpdated = true;
         this.onMacroPatchesStateChanged();
 
@@ -883,7 +883,7 @@ export class Model {
      * @zh 更新反射探针的平面反射贴图
      * @param texture planar relflection map
      */
-    public updateReflctionProbePlanarMap (texture: Texture) {
+    public updateReflctionProbePlanarMap (texture: Texture | null) {
         this._localDataUpdated = true;
         this.onMacroPatchesStateChanged();
 

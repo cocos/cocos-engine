@@ -335,6 +335,7 @@ export class MeshRenderer extends ModelRenderer {
         this._updateCastShadow();
         this._updateReceiveShadow();
         this._updateUseLightProbe();
+        this._updateUseReflectionProbe();
     }
 
     /**
@@ -382,11 +383,7 @@ export class MeshRenderer extends ModelRenderer {
         this._reflectionProbeType = val;
         if (this._model) {
             this._model.reflectionProbeType = this._reflectionProbeType;
-            if (this._reflectionProbeType === ReflectionProbeType.BAKED_CUBEMAP) {
-                this._model.updateReflctionProbeCubemap(this._probeCubemap!);
-            } else if (this._reflectionProbeType === ReflectionProbeType.PLANAR_REFLECTION) {
-                this._model.updateReflctionProbePlanarMap(this._probePlanarmap!);
-            }
+            this._updateReflectionProbeTexture();
         }
     }
 
@@ -453,7 +450,8 @@ export class MeshRenderer extends ModelRenderer {
         this._updateShadowNormalBias();
         this._updateUseLightProbe();
         this._updateBakeToProbe();
-        this._updateReflectionProbeRenderInfo();
+        this._updateUseReflectionProbe();
+        this._updateReflectionProbeTexture();
     }
 
     // Redo, Undo, Prefab restore, etc.
@@ -468,7 +466,8 @@ export class MeshRenderer extends ModelRenderer {
         this._updateShadowNormalBias();
         this._updateUseLightProbe();
         this._updateBakeToProbe();
-        this._updateReflectionProbeRenderInfo();
+        this._updateUseReflectionProbe();
+        this._updateReflectionProbeTexture();
     }
 
     public onEnable () {
@@ -482,7 +481,8 @@ export class MeshRenderer extends ModelRenderer {
         this._updateShadowBias();
         this._updateShadowNormalBias();
         this._updateBakeToProbe();
-        this._updateReflectionProbeRenderInfo();
+        this._updateUseReflectionProbe();
+        this._updateReflectionProbeTexture();
         this._onUpdateLocalShadowBias();
         this._updateUseLightProbe();
         this._attachToScene();
@@ -616,22 +616,34 @@ export class MeshRenderer extends ModelRenderer {
     public updateProbeCubemap (cubeMap: TextureCube | null) {
         this._probeCubemap = cubeMap;
         if (this.model !== null) {
-            this.model.updateReflctionProbeCubemap(this._probeCubemap!);
+            this.model.updateReflctionProbeCubemap(this._probeCubemap);
         }
     }
     public updateProbePlanarMap (planarMap: Texture | null) {
         this._probePlanarmap = planarMap;
         if (this.model !== null) {
-            this.model.updateReflctionProbePlanarMap(this._probePlanarmap!);
+            this.model.updateReflctionProbePlanarMap(this._probePlanarmap);
         }
     }
 
-    protected _onUpdateReflectionProbeTexture () {
+    protected _updateUseReflectionProbe () {
+        if (!this._model)  return;
+        this._model.reflectionProbeType = this._reflectionProbeType;
+    }
+
+    protected _updateReflectionProbeTexture () {
         if (this.model === null) return;
         if (this.reflectionProbe === ReflectionProbeType.BAKED_CUBEMAP) {
-            this.model.updateReflctionProbeCubemap(this._probeCubemap!);
+            console.log('updateReflctionProbeCubemap===============');
+            console.log(this._probeCubemap);
+            this.model.updateReflctionProbeCubemap(this._probeCubemap);
         } else if (this.reflectionProbe === ReflectionProbeType.PLANAR_REFLECTION) {
-            this.model.updateReflctionProbePlanarMap(this._probePlanarmap!);
+            this.model.updateReflctionProbePlanarMap(this._probePlanarmap);
+            console.log('updateReflctionProbePlanarMap===============');
+            console.log(this._probePlanarmap);
+        } else {
+            this.model.updateReflctionProbeCubemap(this._probeCubemap);
+            this.model.updateReflctionProbePlanarMap(this._probePlanarmap);
         }
     }
 
@@ -661,7 +673,8 @@ export class MeshRenderer extends ModelRenderer {
             this._updateModelParams();
             this._onUpdateLightingmap();
             this._onUpdateLocalShadowBias();
-            this._onUpdateReflectionProbeTexture();
+            this._updateUseReflectionProbe();
+            this._updateReflectionProbeTexture();
         }
     }
 
@@ -759,7 +772,8 @@ export class MeshRenderer extends ModelRenderer {
         this._model.setSubModelMaterial(idx, material);
         this._onUpdateLightingmap();
         this._onUpdateLocalShadowBias();
-        this._updateReflectionProbeRenderInfo();
+        this._updateReflectionProbeTexture();
+        this._updateUseReflectionProbe();
     }
 
     protected _onMeshChanged (old: Mesh | null) {
@@ -844,12 +858,6 @@ export class MeshRenderer extends ModelRenderer {
     protected _updateBakeToProbe () {
         if (!this._model) { return; }
         this._model.bakeToReflectionProbe = this._bakeToReflectionProbe;
-    }
-
-    protected _updateReflectionProbeRenderInfo () {
-        if (!this._model) { return; }
-        this._model.reflectionProbeType = this._reflectionProbeType;
-        this._onUpdateReflectionProbeTexture();
     }
 
     private _watchMorphInMesh () {

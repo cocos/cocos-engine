@@ -89,11 +89,11 @@ export class InstancedBuffer {
                 continue;
             }
 
-            if (reflectionProbeCubemap && instance.reflectionProbeCubemap.objectID !== reflectionProbeCubemap.objectID) {
+            if (instance.reflectionProbeCubemap && instance.reflectionProbeCubemap.objectID !== reflectionProbeCubemap.objectID) {
                 continue;
             }
 
-            if (reflectionProbePlanarMap && instance.reflectionProbePlanarMap.objectID !== reflectionProbePlanarMap.objectID) {
+            if (instance.reflectionProbePlanarMap && instance.reflectionProbePlanarMap.objectID !== reflectionProbePlanarMap.objectID) {
                 continue;
             }
 
