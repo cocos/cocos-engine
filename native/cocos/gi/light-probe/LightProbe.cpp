@@ -259,9 +259,9 @@ void LightProbeInfo::update(bool updateTet) {
     ccstd::vector<Vec3> points;
 
     for (auto &item : _nodes) {
-        auto node = item.node;
+        auto *node = item.node;
         auto &probes = item.probes;
-        auto worldPosition = node->getWorldPosition();
+        const auto &worldPosition = node->getWorldPosition();
 
         for (auto &probe : probes) {
             points.push_back(probe + worldPosition);
@@ -293,7 +293,7 @@ void LightProbeInfo::clearAllSHUBOs() {
         return;
     }
 
-    for (const auto model : renderScene->getModels()) {
+    for (const auto &model : renderScene->getModels()) {
         model->clearSHUBOs();
     }
 }
@@ -308,7 +308,7 @@ void LightProbeInfo::resetAllTetraIndices() {
         return;
     }
 
-    for (const auto model : renderScene->getModels()) {
+    for (const auto &model : renderScene->getModels()) {
         model->setTetrahedronIndex(-1);
     }
 }
