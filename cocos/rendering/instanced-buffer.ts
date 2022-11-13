@@ -41,6 +41,7 @@ export interface IInstancedItem {
     lightingMap: Texture;
     reflectionProbeCubemap: Texture;
     reflectionProbePlanarMap: Texture;
+    useReflectionProbeType:number;
 }
 
 const INITIAL_CAPACITY = 32;
@@ -75,6 +76,7 @@ export class InstancedBuffer {
         const lightingMap = subModel.descriptorSet.getTexture(UNIFORM_LIGHTMAP_TEXTURE_BINDING);
         const reflectionProbeCubemap = subModel.descriptorSet.getTexture(UNIFORM_REFLECTION_PROBE_CUBEMAP_BINDING);
         const reflectionProbePlanarMap = subModel.descriptorSet.getTexture(UNIFORM_REFLECTION_PROBE_TEXTURE_BINDING);
+        const useReflectionProbeType = subModel.useReflectionProbeType;
         let shader = shaderImplant;
         if (!shader) {
             shader = subModel.shaders[passIdx];
@@ -89,12 +91,15 @@ export class InstancedBuffer {
                 continue;
             }
 
-            if (instance.reflectionProbeCubemap.objectID !== reflectionProbeCubemap.objectID) {
+            if (instance.useReflectionProbeType !== useReflectionProbeType) {
                 continue;
-            }
-
-            if (instance.reflectionProbePlanarMap.objectID !== reflectionProbePlanarMap.objectID) {
-                continue;
+            } else {
+                if (instance.reflectionProbeCubemap.objectID !== reflectionProbeCubemap.objectID) {
+                    continue;
+                }
+                if (instance.reflectionProbePlanarMap.objectID !== reflectionProbePlanarMap.objectID) {
+                    continue;
+                }
             }
 
             if (instance.stride !== stride) {
@@ -139,7 +144,7 @@ export class InstancedBuffer {
         vertexBuffers.push(vb);
         const iaInfo = new InputAssemblerInfo(attributes, vertexBuffers, indexBuffer);
         const ia = this._device.createInputAssembler(iaInfo);
-        this.instances.push({ count: 1, capacity: INITIAL_CAPACITY, vb, data, ia, stride, shader, descriptorSet, lightingMap, reflectionProbeCubemap, reflectionProbePlanarMap });
+        this.instances.push({ count: 1, capacity: INITIAL_CAPACITY, vb, data, ia, stride, shader, descriptorSet, lightingMap, reflectionProbeCubemap, reflectionProbePlanarMap, useReflectionProbeType });
         this.hasPendingModels = true;
     }
 

@@ -318,6 +318,10 @@ export class Model {
 
     set reflectionProbeType (val) {
         this._reflectionProbeType = val;
+        const subModels = this._subModels;
+        for (let i = 0; i < subModels.length; i++) {
+            subModels[i].useReflectionProbeType = val;
+        }
         this.onMacroPatchesStateChanged();
     }
 

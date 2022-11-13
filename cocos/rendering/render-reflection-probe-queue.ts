@@ -32,7 +32,7 @@ import { Pass, BatchingSchemes } from '../render-scene/core/pass';
 import { Model } from '../render-scene/scene/model';
 import { ReflectionProbe, SKYBOX_FLAG } from '../render-scene/scene';
 import { PipelineRuntime } from './custom/pipeline';
-import { RenderScene } from '../render-scene';
+import { IMacroPatch, RenderScene } from '../render-scene';
 import { RenderInstancedQueue } from './render-instanced-queue';
 import { RenderBatchedQueue } from './render-batched-queue';
 
@@ -68,6 +68,7 @@ export class RenderReflectionProbeQueue {
     private _subModelsArray: SubModel[] = [];
     private _passArray: Pass[] = [];
     private _shaderArray: Shader[] = [];
+    private _rgbeSubModelsArray:SubModel[]=[]
     private _instancedQueue: RenderInstancedQueue;
     private _batchedQueue: RenderBatchedQueue;
 
@@ -111,6 +112,7 @@ export class RenderReflectionProbeQueue {
         this._passArray.length = 0;
         this._instancedQueue.clear();
         this._batchedQueue.clear();
+        this._rgbeSubModelsArray.length = 0;
     }
 
     public add (model: Model) {
@@ -130,8 +132,13 @@ export class RenderReflectionProbeQueue {
             const batchingScheme = pass.batchingScheme;
 
             if (!bUseReflectPass) {
-                pass.defines[CC_USE_RGBE_OUTPUT] = true;
-                subModel.onPipelineStateChanged();
+                let patches: IMacroPatch[] | null = subModel.patches;
+                const useRGBE: IMacroPatch[] = [
+                    { name: CC_USE_RGBE_OUTPUT, value: true },
+                ];
+                patches = patches ? patches.concat(useRGBE) : useRGBE;
+                subModel.onMacroPatchesStateChanged(patches);
+                this._rgbeSubModelsArray.push(subModel);
             }
 
             if (batchingScheme === BatchingSchemes.INSTANCING) {            // instancing
@@ -173,13 +180,22 @@ export class RenderReflectionProbeQueue {
             cmdBuff.bindInputAssembler(ia);
             cmdBuff.draw(ia);
         }
+        this.resetRGBEMacro();
     }
-    public resetMacro () {
-        for (let i = 0; i < this._subModelsArray.length; ++i) {
-            const subModel = this._subModelsArray[i];
-            const pass = this._passArray[i];
-            pass.defines[CC_USE_RGBE_OUTPUT] = false;
-            subModel.onPipelineStateChanged();
+    public resetRGBEMacro () {
+        for (let i = 0; i < this._rgbeSubModelsArray.length; i++) {
+            const subModel = this._rgbeSubModelsArray[i];
+            // eslint-disable-next-line prefer-const
+            let patches: IMacroPatch[] | null = subModel.patches;
+            if (!patches) continue;
+            for (let j = 0; j < patches.length; j++) {
+                const patch = patches[j];
+                if (patch.name === CC_USE_RGBE_OUTPUT) {
+                    patches.splice(j, 1);
+                    break;
+                }
+            }
+            subModel.onMacroPatchesStateChanged(patches);
         }
     }
 }
