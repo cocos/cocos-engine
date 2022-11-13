@@ -615,15 +615,11 @@ export class MeshRenderer extends ModelRenderer {
 
     public updateProbeCubemap (cubeMap: TextureCube | null) {
         this._probeCubemap = cubeMap;
-        if (this.model !== null) {
-            this.model.updateReflctionProbeCubemap(this._probeCubemap);
-        }
+        this._updateReflectionProbeTexture();
     }
     public updateProbePlanarMap (planarMap: Texture | null) {
         this._probePlanarmap = planarMap;
-        if (this.model !== null) {
-            this.model.updateReflctionProbePlanarMap(this._probePlanarmap);
-        }
+        this._updateReflectionProbeTexture();
     }
 
     protected _updateUseReflectionProbe () {
@@ -634,16 +630,14 @@ export class MeshRenderer extends ModelRenderer {
     protected _updateReflectionProbeTexture () {
         if (this.model === null) return;
         if (this.reflectionProbe === ReflectionProbeType.BAKED_CUBEMAP) {
-            console.log('updateReflctionProbeCubemap===============');
-            console.log(this._probeCubemap);
             this.model.updateReflctionProbeCubemap(this._probeCubemap);
+            this.model.updateReflctionProbePlanarMap(null);
         } else if (this.reflectionProbe === ReflectionProbeType.PLANAR_REFLECTION) {
             this.model.updateReflctionProbePlanarMap(this._probePlanarmap);
-            console.log('updateReflctionProbePlanarMap===============');
-            console.log(this._probePlanarmap);
+            this.model.updateReflctionProbeCubemap(null);
         } else {
-            this.model.updateReflctionProbeCubemap(this._probeCubemap);
-            this.model.updateReflctionProbePlanarMap(this._probePlanarmap);
+            this.model.updateReflctionProbeCubemap(null);
+            this.model.updateReflctionProbePlanarMap(null);
         }
     }
 
