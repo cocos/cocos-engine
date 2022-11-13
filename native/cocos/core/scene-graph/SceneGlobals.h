@@ -29,7 +29,7 @@
 #include "base/RefCounted.h"
 
 namespace cc {
-
+class Scene;
 namespace scene {
 class AmbientInfo;
 class ShadowsInfo;
@@ -47,7 +47,7 @@ public:
     SceneGlobals();
     ~SceneGlobals() override = default;
 
-    void activate();
+    void activate(Scene *scene);
 
     inline scene::AmbientInfo *getAmbientInfo() const { return _ambientInfo.get(); }
     inline scene::ShadowsInfo *getShadowsInfo() const { return _shadowInfo.get(); }

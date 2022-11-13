@@ -30,6 +30,23 @@ import { LightProbeInfo } from '../../scene-graph/scene-globals';
 import { Vec3, Vec4, cclegacy, EPSILON } from '../../core';
 import { SH } from './sh';
 
+const _v1 = new Vec3(0.0, 0.0, 0.0);
+const _v2 = new Vec3(0.0, 0.0, 0.0);
+const _normal = new Vec3(0.0, 0.0, 0.0);
+const _edgeP0 = new Vec3(0.0, 0.0, 0.0);
+const _edgeP1 = new Vec3(0.0, 0.0, 0.0);
+const _edgeP2 = new Vec3(0.0, 0.0, 0.0);
+const _crossP12 = new Vec3(0.0, 0.0, 0.0);
+const _crossP20 = new Vec3(0.0, 0.0, 0.0);
+
+const _normal2 = new Vec3(0.0, 0.0, 0.0);
+const _edge1 = new Vec3(0.0, 0.0, 0.0);
+const _edge2 = new Vec3(0.0, 0.0, 0.0);
+const _v = new Vec3(0.0, 0.0, 0.0);
+const _vp0 = new Vec3(0.0, 0.0, 0.0);
+const _vp1 = new Vec3(0.0, 0.0, 0.0);
+const _vp2 = new Vec3(0.0, 0.0, 0.0);
+
 @ccclass('cc.LightProbesData')
 export class LightProbesData {
     public get probes () {
@@ -139,38 +156,28 @@ export class LightProbesData {
     }
 
     private static getTriangleBarycentricCoord (p0: Vec3, p1: Vec3, p2: Vec3, position: Vec3) {
-        const v1 = new Vec3(0.0, 0.0, 0.0);
-        const v2 = new Vec3(0.0, 0.0, 0.0);
-        const normal = new Vec3(0.0, 0.0, 0.0);
+        Vec3.subtract(_v1, p1, p0);
+        Vec3.subtract(_v2, p2, p0);
+        Vec3.cross(_normal, _v1, _v2);
 
-        Vec3.subtract(v1, p1, p0);
-        Vec3.subtract(v2, p2, p0);
-        Vec3.cross(normal, v1, v2);
-
-        if (normal.lengthSqr() <= EPSILON) {
+        if (_normal.lengthSqr() <= EPSILON) {
             return new Vec3(0.0, 0.0, 0.0);
         }
 
-        const n = normal.clone();
+        const n = _normal.clone();
         n.normalize();
-        const area012Inv = 1.0 / n.dot(normal);
+        const area012Inv = 1.0 / n.dot(_normal);
 
-        const edgeP0 = new Vec3(0.0, 0.0, 0.0);
-        const edgeP1 = new Vec3(0.0, 0.0, 0.0);
-        const edgeP2 = new Vec3(0.0, 0.0, 0.0);
+        Vec3.subtract(_edgeP0, p0, position);
+        Vec3.subtract(_edgeP1, p1, position);
+        Vec3.subtract(_edgeP2, p2, position);
 
-        Vec3.subtract(edgeP0, p0, position);
-        Vec3.subtract(edgeP1, p1, position);
-        Vec3.subtract(edgeP2, p2, position);
-
-        const crossP12 = new Vec3(0.0, 0.0, 0.0);
-        Vec3.cross(crossP12, edgeP1, edgeP2);
-        const areaP12 = n.dot(crossP12);
+        Vec3.cross(_crossP12, _edgeP1, _edgeP2);
+        const areaP12 = n.dot(_crossP12);
         const alpha = areaP12 * area012Inv;
 
-        const crossP20 = new Vec3(0.0, 0.0, 0.0);
-        Vec3.cross(crossP20, edgeP2, edgeP0);
-        const areaP20 = n.dot(crossP20);
+        Vec3.cross(_crossP20, _edgeP2, _edgeP0);
+        const areaP20 = n.dot(_crossP20);
         const beta = areaP20 * area012Inv;
 
         return new Vec3(alpha, beta, 1.0 - alpha - beta);
@@ -197,17 +204,12 @@ export class LightProbesData {
         const p1 = this._probes[tetrahedron.vertex1].position;
         const p2 = this._probes[tetrahedron.vertex2].position;
 
-        const normal = new Vec3(0.0, 0.0, 0.0);
-        const edge1 = new Vec3(0.0, 0.0, 0.0);
-        const edge2 = new Vec3(0.0, 0.0, 0.0);
-        const v = new Vec3(0.0, 0.0, 0.0);
+        Vec3.subtract(_edge1, p1, p0);
+        Vec3.subtract(_edge2, p2, p0);
+        Vec3.cross(_normal2, _edge1, _edge2);
+        Vec3.subtract(_v, position, p0);
 
-        Vec3.subtract(edge1, p1, p0);
-        Vec3.subtract(edge2, p2, p0);
-        Vec3.cross(normal, edge1, edge2);
-        Vec3.subtract(v, position, p0);
-
-        let t = Vec3.dot(v, normal);
+        let t = Vec3.dot(_v, _normal2);
         if (t < 0.0) {
             // test tetrahedron in next iterator
             weights.set(0.0, 0.0, 0.0, -1.0);
@@ -224,14 +226,10 @@ export class LightProbesData {
             t = PolynomialSolver.getQuadraticUniqueRoot(coefficients.x, coefficients.y, coefficients.z);
         }
 
-        const v0 = new Vec3(0.0, 0.0, 0.0);
-        const v1 = new Vec3(0.0, 0.0, 0.0);
-        const v2 = new Vec3(0.0, 0.0, 0.0);
-
-        Vec3.scaleAndAdd(v0, p0, this._probes[tetrahedron.vertex0].normal, t);
-        Vec3.scaleAndAdd(v1, p1, this._probes[tetrahedron.vertex1].normal, t);
-        Vec3.scaleAndAdd(v2, p2, this._probes[tetrahedron.vertex2].normal, t);
-        const result = LightProbesData.getTriangleBarycentricCoord(v0, v1, v2, position);
+        Vec3.scaleAndAdd(_vp0, p0, this._probes[tetrahedron.vertex0].normal, t);
+        Vec3.scaleAndAdd(_vp1, p1, this._probes[tetrahedron.vertex1].normal, t);
+        Vec3.scaleAndAdd(_vp2, p2, this._probes[tetrahedron.vertex2].normal, t);
+        const result = LightProbesData.getTriangleBarycentricCoord(_vp0, _vp1, _vp2, position);
 
         weights.set(result.x, result.y, result.z, 0.0);
     }

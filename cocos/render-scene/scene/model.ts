@@ -646,6 +646,10 @@ export class Model {
         }
     }
 
+    public showTetrahedron () {
+        return this.isLightProbeAvailable();
+    }
+
     private isLightProbeAvailable () {
         if (!this._useLightProbe) {
             return false;
@@ -663,9 +667,43 @@ export class Model {
         return true;
     }
 
-    public showTetrahedron () {
-        return this.isLightProbeAvailable();
+    private updateSHBuffer() {
+        if (!this._localSHData) {
+            return;
+        }
+
+        const subModels = this._subModels;
+        let hasNonInstancingPass = false;
+        for (let i = 0; i < subModels.length; i++) {
+            const subModel = subModels[i];
+            const idx = subModel.instancedSHIndex;
+            if (idx >= 0) {
+                subModel.updateInstancedSH(this._localSHData, idx);
+            } else {
+                hasNonInstancingPass = true;
+            }
+        }
+
+        if (hasNonInstancingPass && this._localSHBuffer) {
+            this._localSHBuffer.update(this._localSHData);
+        }
     }
+
+    /**
+     * @en Clear the model's SH ubo
+     * @zh 清除模型的球谐 ubo
+     */
+     public clearSHUBOs () {
+        if (!this._localSHData) {
+            return;
+        }
+            
+        for (let i = 0; i < UBOSH.COUNT; i++) {
+            this._localSHData[i] = 0.0;
+        }
+
+        this.updateSHBuffer();
+     }
 
     /**
      * @en Update the model's SH ubo
@@ -698,22 +736,7 @@ export class Model {
 
         cclegacy.internal.SH.reduceRinging(coefficients, lightProbes.reduceRinging);
         cclegacy.internal.SH.updateUBOData(this._localSHData, UBOSH.SH_LINEAR_CONST_R_OFFSET, coefficients);
-
-        const subModels = this._subModels;
-        let hasNonInstancingPass = false;
-        for (let i = 0; i < subModels.length; i++) {
-            const subModel = subModels[i];
-            const idx = subModel.instancedSHIndex;
-            if (idx >= 0) {
-                subModel.updateInstancedSH(this._localSHData, idx);
-            } else {
-                hasNonInstancingPass = true;
-            }
-        }
-
-        if (hasNonInstancingPass && this._localSHBuffer) {
-            this._localSHBuffer.update(this._localSHData);
-        }
+        this.updateSHBuffer();
     }
 
     /**
