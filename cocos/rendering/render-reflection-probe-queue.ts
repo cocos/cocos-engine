@@ -69,9 +69,13 @@ export class RenderReflectionProbeQueue {
     private _passArray: Pass[] = [];
     private _shaderArray: Shader[] = [];
     private _rgbeSubModelsArray:SubModel[]=[]
+    private _instancedQueue: RenderInstancedQueue;
+    private _batchedQueue: RenderBatchedQueue;
 
     public constructor (pipeline: PipelineRuntime) {
         this._pipeline = pipeline;
+        this._instancedQueue = new RenderInstancedQueue();
+        this._batchedQueue = new RenderBatchedQueue();
     }
 
     public gatherRenderObjects (probe: ReflectionProbe, scene:RenderScene, cmdBuff: CommandBuffer) {
@@ -98,12 +102,16 @@ export class RenderReflectionProbeQueue {
                 }
             }
         }
+        this._instancedQueue.uploadBuffers(cmdBuff);
+        this._batchedQueue.uploadBuffers(cmdBuff);
     }
 
     public clear () {
         this._subModelsArray.length = 0;
         this._shaderArray.length = 0;
         this._passArray.length = 0;
+        this._instancedQueue.clear();
+        this._batchedQueue.clear();
         this._rgbeSubModelsArray.length = 0;
     }
 
@@ -133,10 +141,20 @@ export class RenderReflectionProbeQueue {
                 this._rgbeSubModelsArray.push(subModel);
             }
 
-            const shader = subModel.shaders[passIdx];
-            this._subModelsArray.push(subModel);
-            if (shader) this._shaderArray.push(shader);
-            this._passArray.push(pass);
+            if (batchingScheme === BatchingSchemes.INSTANCING) {            // instancing
+                const buffer = pass.getInstancedBuffer();
+                buffer.merge(subModel, passIdx);
+                this._instancedQueue.queue.add(buffer);
+            } else if (pass.batchingScheme === BatchingSchemes.VB_MERGING) { // vb-merging
+                const buffer = pass.getBatchedBuffer();
+                buffer.merge(subModel, passIdx, model);
+                this._batchedQueue.queue.add(buffer);
+            } else {
+                const shader = subModel.shaders[passIdx];
+                this._subModelsArray.push(subModel);
+                if (shader) this._shaderArray.push(shader);
+                this._passArray.push(pass);
+            }
         }
     }
 
@@ -145,6 +163,9 @@ export class RenderReflectionProbeQueue {
      * record CommandBuffer
      */
     public recordCommandBuffer (device: Device, renderPass: RenderPass, cmdBuff: CommandBuffer) {
+        this._instancedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
+        this._batchedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
+
         for (let i = 0; i < this._subModelsArray.length; ++i) {
             const subModel = this._subModelsArray[i];
             const shader = this._shaderArray[i];
