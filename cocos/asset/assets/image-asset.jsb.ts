@@ -41,6 +41,7 @@ export interface IMemoryImageSource {
     width: number;
     height: number;
     format: number;
+    mipmapLevelDataSize?: number[];
 }
 
 export type ImageSource = HTMLCanvasElement | HTMLImageElement | IMemoryImageSource | ImageBitmap;
@@ -75,6 +76,7 @@ imageAssetProto._ctor = function (nativeAsset?: ImageSource) {
         height: 0,
         format: 0,
         _compressed: false,
+        mipmapLevelDataSize:[],
     };
 
     if (nativeAsset !== undefined) {
@@ -159,10 +161,12 @@ imageAssetProto._syncDataToNative = function () {
     const data: any = this._nativeData;
     this._width = data.width;
     this._height = data.height;
+    this.mipmapLevelDataSize = data.mipmapLevelDataSize;
 
     this.setWidth(this._width);
     this.setHeight(this._height);
     this.url = this.nativeUrl;
+    this.setMipmapLevelDataSize(this.mipmapLevelDataSize);
 
     if (data instanceof HTMLCanvasElement) {
         this.setData(data._data.data);

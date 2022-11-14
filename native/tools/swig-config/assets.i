@@ -131,6 +131,7 @@
 %attribute(cc::TextureBase, uint32_t, width, getWidth, setWidth);
 %attribute(cc::TextureBase, uint32_t, _height, getHeight, setHeight);
 %attribute(cc::TextureBase, uint32_t, height, getHeight, setHeight);
+%attribute(cc::TextureBase, ccstd::vector<uint32_t>, mipmapLevelDataSize, getMipmapLevelDataSize, setMipmapLevelDataSize);
 
 %attribute(cc::SimpleTexture, uint32_t, mipmapLevel, mipmapLevel);
 %attribute(cc::RenderTexture, cc::scene::RenderWindow*, window, getWindow);

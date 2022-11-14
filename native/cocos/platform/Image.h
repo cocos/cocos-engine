@@ -54,6 +54,8 @@ public:
         ETC2,
         //! ASTC
         ASTC,
+        //! Compressed Data
+        COMPRESSED,
         //! Raw Data
         RAW_DATA,
         //! Unknown format
@@ -61,7 +63,7 @@ public:
     };
 
     bool initWithImageFile(const ccstd::string &path);
-    bool initWithImageData(const unsigned char *data, uint32_t dataLen);
+    bool initWithImageData(const unsigned char *data, uint32_t dataLen, uint32_t level = -1);
 
     // @warning kFmtRawData only support RGBA8888
     bool initWithRawData(const unsigned char *data, uint32_t dataLen, int width, int height, int bitsPerComponent, bool preMulti = false);
@@ -81,6 +83,7 @@ public:
     inline int getHeight() const { return _height; }
     inline ccstd::string getFilePath() const { return _filePath; }
     inline bool isCompressed() const { return _isCompressed; }
+    inline const ccstd::vector<uint32_t> &getMipmapLevelDataSize() const { return _mipmapLevelDataSize; }
 
     /**
      @brief    Save Image data to the specified file, with specified format.
@@ -95,12 +98,13 @@ protected:
 #if CC_USE_WEBP
     bool initWithWebpData(const unsigned char *data, uint32_t dataLen);
 #endif
-    bool initWithPVRData(const unsigned char *data, uint32_t dataLen);
-    bool initWithPVRv2Data(const unsigned char *data, uint32_t dataLen);
-    bool initWithPVRv3Data(const unsigned char *data, uint32_t dataLen);
+    bool initWithPVRData(const unsigned char *data, uint32_t dataLen, int32_t level = -1);
+    bool initWithPVRv2Data(const unsigned char *data, uint32_t dataLen, int32_t level = -1);
+    bool initWithPVRv3Data(const unsigned char *data, uint32_t dataLen, int32_t level = -1);
     bool initWithETCData(const unsigned char *data, uint32_t dataLen);
     bool initWithETC2Data(const unsigned char *data, uint32_t dataLen);
-    bool initWithASTCData(const unsigned char *data, uint32_t dataLen);
+    bool initWithASTCData(const unsigned char *data, uint32_t dataLen, int32_t level = -1);
+    bool initWithCompressedData(const unsigned char *data, uint32_t dataLen);
 
     bool saveImageToPNG(const std::string &filePath, bool isToRGB = true);
     bool saveImageToJPG(const std::string &filePath);
@@ -113,6 +117,7 @@ protected:
     gfx::Format _renderFormat;
     ccstd::string _filePath;
     bool _isCompressed = false;
+    ccstd::vector<uint32_t> _mipmapLevelDataSize;
 
     static Format detectFormat(const unsigned char *data, uint32_t dataLen);
     static bool isPng(const unsigned char *data, uint32_t dataLen);
@@ -122,6 +127,7 @@ protected:
     static bool isEtc(const unsigned char *data, uint32_t dataLen);
     static bool isEtc2(const unsigned char *data, uint32_t dataLen);
     static bool isASTC(const unsigned char *data, uint32_t detaLen);
+    static bool isCompressed(const unsigned char *data, uint32_t detaLen);
 
     static gfx::Format getASTCFormat(const unsigned char *pHeader);
 
