@@ -15953,7 +15953,7 @@ static bool js_cc_scene_IInstancedAttributeBlock_views_set(se::State& s)
     
     // %typemap(in) SWIGTYPE value in
     ok &= sevalue_to_native(args[0], &arg1->views, s.thisObject());
-    SE_PRECONDITION2(ok, false, "IInstancedAttributeBlock_views_set,2,SWIGTYPE_ccstd__vectorT_cc__TypedArray_t"); 
+    SE_PRECONDITION2(ok, false, "IInstancedAttributeBlock_views_set,2,SWIGTYPE_ccstd__vectorT_ccstd__variantT_ccstd__monostate_cc__TypedArrayTempT_int8_t_t_cc__TypedArrayTempT_int16_t_t_cc__TypedArrayTempT_int32_t_t_cc__TypedArrayTempT_uint8_t_t_cc__TypedArrayTempT_uint16_t_t_cc__TypedArrayTempT_uint32_t_t_cc__TypedArrayTempT_float_t_cc__TypedArrayTempT_double_t_t_t"); 
     
     
     
@@ -17852,7 +17852,7 @@ static bool js_cc_scene_Pass_setUniformArray(se::State& s)
     
     // %typemap(in) SWIGTYPE&
     ok &= sevalue_to_native(args[1], &temp3, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Pass_setUniformArray,3,SWIGTYPE_p_ccstd__vectorT_cc__MaterialProperty_t");
+    SE_PRECONDITION2(ok, false, "Pass_setUniformArray,3,SWIGTYPE_p_ccstd__vectorT_ccstd__variantT_ccstd__monostate_float_int32_t_cc__Vec2_cc__Vec3_cc__Vec4_cc__Color_cc__Mat3_cc__Mat4_cc__Quaternion_cc__IntrusivePtrT_cc__TextureBase_t_cc__IntrusivePtrT_cc__gfx__Texture_t_t_t");
     arg3 = &temp3;
     
     (arg1)->setUniformArray(arg2,(cc::MaterialPropertyList const &)*arg3);
@@ -18470,7 +18470,7 @@ static bool js_cc_scene_Pass_tryCompile__SWIG_1(se::State& s)
     SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
     // %typemap(in) SWIGTYPE&
     ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Pass_tryCompile,2,SWIGTYPE_p_ccstd__optionalT_cc__MacroRecord_t");
+    SE_PRECONDITION2(ok, false, "Pass_tryCompile,2,SWIGTYPE_p_ccstd__optionalT_ccstd__unordered_mapT_ccstd__string_ccstd__variantT_int32_t_bool_ccstd__string_t_t_t");
     arg2 = &temp2;
     
     result = (bool)(arg1)->tryCompile((ccstd::optional< cc::MacroRecord > const &)*arg2);
@@ -24749,7 +24749,7 @@ static bool js_cc_MaterialInstance_recompileShaders__SWIG_0(se::State& s)
     SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
     // %typemap(in) SWIGTYPE&
     ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "MaterialInstance_recompileShaders,2,SWIGTYPE_p_ccstd__unordered_mapT_ccstd__string_cc__MacroValue_t");
+    SE_PRECONDITION2(ok, false, "MaterialInstance_recompileShaders,2,SWIGTYPE_p_ccstd__unordered_mapT_ccstd__string_ccstd__variantT_int32_t_bool_ccstd__string_t_t");
     arg2 = &temp2;
     
     (arg1)->recompileShaders((cc::MacroRecord const &)*arg2);
@@ -24773,7 +24773,7 @@ static bool js_cc_MaterialInstance_recompileShaders__SWIG_1(se::State& s)
     SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
     // %typemap(in) SWIGTYPE&
     ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "MaterialInstance_recompileShaders,2,SWIGTYPE_p_ccstd__unordered_mapT_ccstd__string_cc__MacroValue_t");
+    SE_PRECONDITION2(ok, false, "MaterialInstance_recompileShaders,2,SWIGTYPE_p_ccstd__unordered_mapT_ccstd__string_ccstd__variantT_int32_t_bool_ccstd__string_t_t");
     arg2 = &temp2;
     
     
@@ -26386,7 +26386,7 @@ static bool js_cc_ProgramLib_getKey(se::State& s)
     
     // %typemap(in) SWIGTYPE&
     ok &= sevalue_to_native(args[1], &temp3, s.thisObject());
-    SE_PRECONDITION2(ok, false, "ProgramLib_getKey,3,SWIGTYPE_p_ccstd__unordered_mapT_ccstd__string_cc__MacroValue_t");
+    SE_PRECONDITION2(ok, false, "ProgramLib_getKey,3,SWIGTYPE_p_ccstd__unordered_mapT_ccstd__string_ccstd__variantT_int32_t_bool_ccstd__string_t_t");
     arg3 = &temp3;
     
     result = (arg1)->getKey((ccstd::string const &)*arg2,(cc::MacroRecord const &)*arg3);
@@ -26420,7 +26420,7 @@ static bool js_cc_ProgramLib_destroyShaderByDefines(se::State& s)
     SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
     // %typemap(in) SWIGTYPE&
     ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "ProgramLib_destroyShaderByDefines,2,SWIGTYPE_p_ccstd__unordered_mapT_ccstd__string_cc__MacroValue_t");
+    SE_PRECONDITION2(ok, false, "ProgramLib_destroyShaderByDefines,2,SWIGTYPE_p_ccstd__unordered_mapT_ccstd__string_ccstd__variantT_int32_t_bool_ccstd__string_t_t");
     arg2 = &temp2;
     
     (arg1)->destroyShaderByDefines((cc::MacroRecord const &)*arg2);
@@ -26458,7 +26458,7 @@ static bool js_cc_ProgramLib_getGFXShader__SWIG_0(se::State& s)
     
     // %typemap(in) SWIGTYPE&
     ok &= sevalue_to_native(args[2], &temp4, s.thisObject());
-    SE_PRECONDITION2(ok, false, "ProgramLib_getGFXShader,4,SWIGTYPE_p_ccstd__unordered_mapT_ccstd__string_cc__MacroValue_t");
+    SE_PRECONDITION2(ok, false, "ProgramLib_getGFXShader,4,SWIGTYPE_p_ccstd__unordered_mapT_ccstd__string_ccstd__variantT_int32_t_bool_ccstd__string_t_t");
     arg4 = &temp4;
     
     // %typemap(in) SWIGTYPE*
@@ -26504,7 +26504,7 @@ static bool js_cc_ProgramLib_getGFXShader__SWIG_1(se::State& s)
     
     // %typemap(in) SWIGTYPE&
     ok &= sevalue_to_native(args[2], &temp4, s.thisObject());
-    SE_PRECONDITION2(ok, false, "ProgramLib_getGFXShader,4,SWIGTYPE_p_ccstd__unordered_mapT_ccstd__string_cc__MacroValue_t");
+    SE_PRECONDITION2(ok, false, "ProgramLib_getGFXShader,4,SWIGTYPE_p_ccstd__unordered_mapT_ccstd__string_ccstd__variantT_int32_t_bool_ccstd__string_t_t");
     arg4 = &temp4;
     
     // %typemap(in) SWIGTYPE*

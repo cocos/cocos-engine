@@ -187,7 +187,9 @@ CCProgram standard-fs %{
     #endif
 
     #if CC_USE_LIGHTMAP && !CC_FORWARD_ADD
-      s.lightmap = texture(cc_lightingMap, v_luv);
+      vec4 lightColor = texture(cc_lightingMap, v_luv);
+      s.lightmap.rgb = lightColor.xyz;
+      s.lightmap.a = lightColor.a;
     #endif
 
     s.normal = v_normal;

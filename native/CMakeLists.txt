@@ -1335,6 +1335,7 @@ cocos_source_files(
                  cocos/renderer/pipeline/custom/NativePipelineTypes.cpp
                  cocos/renderer/pipeline/custom/NativePipelineTypes.h
                  cocos/renderer/pipeline/custom/NativeRenderGraph.cpp
+                 cocos/renderer/pipeline/custom/NativeRenderQueue.cpp
                  cocos/renderer/pipeline/custom/RenderCommonFwd.h
                  cocos/renderer/pipeline/custom/RenderCommonJsb.cpp
                  cocos/renderer/pipeline/custom/RenderCommonJsb.h
@@ -1812,6 +1813,8 @@ if(USE_PHYSICS_PHYSX)
         cocos/physics/physx/joints/PhysXJoint.cpp
         cocos/physics/physx/joints/PhysXRevolute.h
         cocos/physics/physx/joints/PhysXRevolute.cpp
+        cocos/physics/physx/joints/PhysXFixedJoint.h
+        cocos/physics/physx/joints/PhysXFixedJoint.cpp
         cocos/physics/physx/joints/PhysXSpherical.h
         cocos/physics/physx/joints/PhysXSpherical.cpp
     )

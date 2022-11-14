@@ -98,7 +98,7 @@ struct StandardSurface {
   // emissive
   vec3 emissive;
   // light map
-  vec3 lightmap;
+  vec4 lightmap;
   float lightmap_test;
   // PBR params
   float roughness;
