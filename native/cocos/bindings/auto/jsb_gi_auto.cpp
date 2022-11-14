@@ -63,6 +63,7 @@
 
 #include "bindings/auto/jsb_geometry_auto.h"
 #include "bindings/auto/jsb_cocos_auto.h"
+#include "bindings/auto/jsb_scene_auto.h"
 #include "bindings/auto/jsb_gi_auto.h"
 
 using namespace cc;
@@ -2596,18 +2597,22 @@ static bool js_cc_gi_LightProbeInfo_activate(se::State& s)
     const auto& args = s.args();
     size_t argc = args.size();
     cc::gi::LightProbeInfo *arg1 = (cc::gi::LightProbeInfo *) NULL ;
-    cc::gi::LightProbes *arg2 = (cc::gi::LightProbes *) NULL ;
+    cc::Scene *arg2 = (cc::Scene *) NULL ;
+    cc::gi::LightProbes *arg3 = (cc::gi::LightProbes *) NULL ;
     
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    if(argc != 2) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
         return false;
     }
     arg1 = SE_THIS_OBJECT<cc::gi::LightProbeInfo>(s);
     SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
     // %typemap(in) SWIGTYPE*
     ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "LightProbeInfo_activate,2,SWIGTYPE_p_cc__gi__LightProbes"); 
-    (arg1)->activate(arg2);
+    SE_PRECONDITION2(ok, false, "LightProbeInfo_activate,2,SWIGTYPE_p_cc__Scene"); 
+    // %typemap(in) SWIGTYPE*
+    ok &= sevalue_to_native(args[1], &arg3, s.thisObject());
+    SE_PRECONDITION2(ok, false, "LightProbeInfo_activate,3,SWIGTYPE_p_cc__gi__LightProbes"); 
+    (arg1)->activate(arg2,arg3);
     
     
     return true;
@@ -2635,6 +2640,183 @@ static bool js_cc_gi_LightProbeInfo_clearSHCoefficients(se::State& s)
     return true;
 }
 SE_BIND_FUNC(js_cc_gi_LightProbeInfo_clearSHCoefficients) 
+
+static bool js_cc_gi_LightProbeInfo_isUniqueNode(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::gi::LightProbeInfo *arg1 = (cc::gi::LightProbeInfo *) NULL ;
+    bool result;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::gi::LightProbeInfo>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (bool)((cc::gi::LightProbeInfo const *)arg1)->isUniqueNode();
+    // out 5
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_gi_LightProbeInfo_isUniqueNode) 
+
+static bool js_cc_gi_LightProbeInfo_addNode(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::gi::LightProbeInfo *arg1 = (cc::gi::LightProbeInfo *) NULL ;
+    cc::Node *arg2 = (cc::Node *) NULL ;
+    bool result;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::gi::LightProbeInfo>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) SWIGTYPE*
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "LightProbeInfo_addNode,2,SWIGTYPE_p_cc__Node"); 
+    result = (bool)(arg1)->addNode(arg2);
+    // out 5
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_gi_LightProbeInfo_addNode) 
+
+static bool js_cc_gi_LightProbeInfo_removeNode(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::gi::LightProbeInfo *arg1 = (cc::gi::LightProbeInfo *) NULL ;
+    cc::Node *arg2 = (cc::Node *) NULL ;
+    bool result;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::gi::LightProbeInfo>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) SWIGTYPE*
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "LightProbeInfo_removeNode,2,SWIGTYPE_p_cc__Node"); 
+    result = (bool)(arg1)->removeNode(arg2);
+    // out 5
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_gi_LightProbeInfo_removeNode) 
+
+static bool js_cc_gi_LightProbeInfo_syncData(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::gi::LightProbeInfo *arg1 = (cc::gi::LightProbeInfo *) NULL ;
+    cc::Node *arg2 = (cc::Node *) NULL ;
+    ccstd::vector< Vec3 > *arg3 = 0 ;
+    ccstd::vector< Vec3 > temp3 ;
+    
+    if(argc != 2) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::gi::LightProbeInfo>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) SWIGTYPE*
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "LightProbeInfo_syncData,2,SWIGTYPE_p_cc__Node"); 
+    // %typemap(in) SWIGTYPE&
+    ok &= sevalue_to_native(args[1], &temp3, s.thisObject());
+    SE_PRECONDITION2(ok, false, "LightProbeInfo_syncData,3,SWIGTYPE_p_ccstd__vectorT_Vec3_t");
+    arg3 = &temp3;
+    
+    (arg1)->syncData(arg2,(ccstd::vector< Vec3 > const &)*arg3);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_gi_LightProbeInfo_syncData) 
+
+static bool js_cc_gi_LightProbeInfo_update__SWIG_0(se::State& s)
+{
+    // js_overloaded_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    cc::gi::LightProbeInfo *arg1 = (cc::gi::LightProbeInfo *) NULL ;
+    bool arg2 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gi::LightProbeInfo>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) bool
+    ok &= sevalue_to_native(args[0], &arg2);
+    SE_PRECONDITION2(ok, false, "LightProbeInfo_update,2,SWIGTYPE_bool"); 
+    (arg1)->update(arg2);
+    
+    
+    return true;
+}
+
+static bool js_cc_gi_LightProbeInfo_update__SWIG_1(se::State& s)
+{
+    // js_overloaded_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    cc::gi::LightProbeInfo *arg1 = (cc::gi::LightProbeInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gi::LightProbeInfo>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    (arg1)->update();
+    
+    
+    return true;
+}
+
+static bool js_cc_gi_LightProbeInfo_update(se::State& s)
+{
+    // js_function_dispatcher
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    
+    // js_function_dispatch_case
+    if (argc == 1) {
+        ok = js_cc_gi_LightProbeInfo_update__SWIG_0(s);
+        if (ok) {
+            return true; 
+        }
+    } // js_function_dispatch_case
+    if (argc == 0) {
+        ok = js_cc_gi_LightProbeInfo_update__SWIG_1(s);
+        if (ok) {
+            return true; 
+        }
+    } 
+    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
+    return false;
+}
+SE_BIND_FUNC(js_cc_gi_LightProbeInfo_update) 
 
 static bool js_cc_gi_LightProbeInfo__giScale_set(se::State& s)
 {
@@ -3252,6 +3434,11 @@ bool js_register_cc_gi_LightProbeInfo(se::Object* obj) {
     
     cls->defineFunction("activate", _SE(js_cc_gi_LightProbeInfo_activate)); 
     cls->defineFunction("clearSHCoefficients", _SE(js_cc_gi_LightProbeInfo_clearSHCoefficients)); 
+    cls->defineFunction("isUniqueNode", _SE(js_cc_gi_LightProbeInfo_isUniqueNode)); 
+    cls->defineFunction("addNode", _SE(js_cc_gi_LightProbeInfo_addNode)); 
+    cls->defineFunction("removeNode", _SE(js_cc_gi_LightProbeInfo_removeNode)); 
+    cls->defineFunction("syncData", _SE(js_cc_gi_LightProbeInfo_syncData)); 
+    cls->defineFunction("update", _SE(js_cc_gi_LightProbeInfo_update)); 
     
     
     
