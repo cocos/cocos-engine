@@ -30,6 +30,7 @@ import android.content.res.Configuration;
 
 import com.cocos.service.SDKWrapper;
 import com.cocos.lib.CocosActivity;
+import com.cocos.lib.xr.CocosXRVideoManager;
 
 public class AppActivity extends CocosActivity {
 
@@ -38,19 +39,21 @@ public class AppActivity extends CocosActivity {
         super.onCreate(savedInstanceState);
         // DO OTHER INITIALIZATION BELOW
         SDKWrapper.shared().init(this);
-
+        CocosXRVideoManager.getInstance().onCreate(this);
     }
 
     @Override
     protected void onResume() {
-        super.onResume();
-        SDKWrapper.shared().onResume();
+      super.onResume();
+      CocosXRVideoManager.getInstance().onResume();
+      SDKWrapper.shared().onResume();
     }
 
     @Override
     protected void onPause() {
-        super.onPause();
-        SDKWrapper.shared().onPause();
+      super.onPause();
+      CocosXRVideoManager.getInstance().onPause();
+      SDKWrapper.shared().onPause();
     }
 
     @Override
@@ -60,6 +63,7 @@ public class AppActivity extends CocosActivity {
         if (!isTaskRoot()) {
             return;
         }
+        CocosXRVideoManager.getInstance().onDestroy();
         SDKWrapper.shared().onDestroy();
     }
 

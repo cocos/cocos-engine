@@ -32,6 +32,7 @@
 
 namespace ccstd {
 using std::unordered_map;
+using std::unordered_multimap;
 
 namespace pmr {
 template <
@@ -40,5 +41,12 @@ template <
     class Hash = ccstd::hash<Key>,
     class Pred = std::equal_to<Key>>
 using unordered_map = std::unordered_map<Key, T, Hash, Pred, boost::container::pmr::polymorphic_allocator<std::pair<const Key, T>>>;
+
+template <
+    class Key,
+    class T,
+    class Hash = ccstd::hash<Key>,
+    class Pred = std::equal_to<Key>>
+using unordered_multimap =std::unordered_multimap<Key, T, Hash, Pred, boost::container::pmr::polymorphic_allocator<std::pair<const Key, T>>>; 
 }
 } // namespace ccstd

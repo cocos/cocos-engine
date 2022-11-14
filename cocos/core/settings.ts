@@ -47,6 +47,7 @@ enum Category {
     ANIMATION = 'animation',
     PROFILING = 'profiling',
     PLUGINS = 'plugins',
+    XR = 'xr',
 }
 
 /**

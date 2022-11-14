@@ -44,3 +44,5 @@ Object {
   "1_2": 0.7200000000000001,
 }
 `;
+
+exports[`NewGen Anim Transitions Empty->Empty transition: Expected result 1`] = `0.7`;

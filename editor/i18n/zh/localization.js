@@ -1014,7 +1014,6 @@ module.exports = {
         depth: '八叉树深度',
     },
     light_probe: {
-        enabled: '光照探针开关',
         giScale: 'GI乘数',
         giSamples: 'GI采样数量',
         bounces: '光照反弹次数',

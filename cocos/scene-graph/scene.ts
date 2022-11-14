@@ -201,7 +201,7 @@ export class Scene extends Node {
         legacyCC.director._nodeActivator.activateNode(this, active);
         // The test environment does not currently support the renderer
         if (!TEST) {
-            this._globals.activate();
+            this._globals.activate(this);
         }
     }
 }

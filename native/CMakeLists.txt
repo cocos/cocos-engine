@@ -1367,6 +1367,12 @@ cocos_source_files(
                  cocos/renderer/pipeline/custom/RenderInterfaceImpl.cpp
                  cocos/renderer/pipeline/custom/RenderInterfaceTypes.cpp
                  cocos/renderer/pipeline/custom/RenderInterfaceTypes.h
+                 cocos/renderer/pipeline/reflection-probe/ReflectionProbeFlow.cpp
+                 cocos/renderer/pipeline/reflection-probe/ReflectionProbeFlow.h
+                 cocos/renderer/pipeline/reflection-probe/ReflectionProbeStage.cpp
+                 cocos/renderer/pipeline/reflection-probe/ReflectionProbeStage.h
+                 cocos/renderer/pipeline/ReflectionProbeBatchedQueue.cpp
+                 cocos/renderer/pipeline/ReflectionProbeBatchedQueue.h
 )
 
 if (USE_GEOMETRY_RENDERER)
@@ -1428,6 +1434,10 @@ cocos_source_files(
                  cocos/scene/Octree.cpp
                  cocos/scene/Shadow.h
                  cocos/scene/Shadow.cpp
+                 cocos/scene/ReflectionProbe.h
+                 cocos/scene/ReflectionProbe.cpp
+                 cocos/scene/ReflectionProbeManager.cpp
+                 cocos/scene/ReflectionProbeManager.h
 )
 
 ##### primitive
@@ -1814,6 +1824,8 @@ if(USE_PHYSICS_PHYSX)
         cocos/physics/physx/joints/PhysXJoint.cpp
         cocos/physics/physx/joints/PhysXRevolute.h
         cocos/physics/physx/joints/PhysXRevolute.cpp
+        cocos/physics/physx/joints/PhysXFixedJoint.h
+        cocos/physics/physx/joints/PhysXFixedJoint.cpp
         cocos/physics/physx/joints/PhysXSpherical.h
         cocos/physics/physx/joints/PhysXSpherical.cpp
     )

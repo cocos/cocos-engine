@@ -105,4 +105,9 @@ JSB_REGISTER_OBJECT_TYPE(cc::physics::DistanceJoint);
 extern se::Object *__jsb_cc_physics_DistanceJoint_proto; // NOLINT
 extern se::Class * __jsb_cc_physics_DistanceJoint_class; // NOLINT
 
+
+JSB_REGISTER_OBJECT_TYPE(cc::physics::FixedJoint);
+extern se::Object *__jsb_cc_physics_FixedJoint_proto; // NOLINT
+extern se::Class * __jsb_cc_physics_FixedJoint_class; // NOLINT
+
 // clang-format on
