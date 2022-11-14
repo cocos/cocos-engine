@@ -7,15 +7,13 @@ namespace gfx {
 
 AccessFlags getAccessFlags(
     BufferUsage usage, MemoryUsage memUsage,
-    ShaderStageFlagBit visibility,
     MemoryAccess access,
-    PassType passType) noexcept;
+    ShaderStageFlags visibility) noexcept;
 
 AccessFlags getAccessFlags(
     TextureUsage usage,
-    ShaderStageFlagBit visibility,
     MemoryAccess access,
-    PassType passType) noexcept;
+    ShaderStageFlags visibility) noexcept;
 
 constexpr AccessFlags INVALID_ACCESS_FLAGS = static_cast<AccessFlags>(0xFFFFFFFF);
 

@@ -815,7 +815,7 @@ export function buildNativeDeferredPipeline (camera: Camera, ppl: Pipeline) {
         ppl.addRenderTarget('Emissive', Format.RGBA16F, width, height, ResourceResidency.MANAGED);
         ppl.addDepthStencil('DepthStencil', Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
         // Lighting
-        ppl.addRenderTexture('Color', Format.RGBA8, width, height, camera.window);
+        ppl.addRenderTexture('Color', Format.BGRA8, width, height, camera.window);
     }
     if (!lightingInfo) {
         lightingInfo = new LightingInfo();

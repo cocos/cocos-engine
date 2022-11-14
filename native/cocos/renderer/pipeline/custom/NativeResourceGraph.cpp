@@ -23,6 +23,7 @@
  THE SOFTWARE.
 ****************************************************************************/
 
+#include "NativePipelineTypes.h"
 #include "Range.h"
 #include "RenderGraphGraphs.h"
 #include "RenderGraphTypes.h"
@@ -33,6 +34,22 @@
 namespace cc {
 
 namespace render {
+
+ResourceGroup::~ResourceGroup() noexcept {
+    for (const auto& buffer : instancingBuffers) {
+        buffer->clear();
+    }
+}
+
+void NativeRenderContext::clearPreviousResources(uint64_t finishedFenceValue) noexcept {
+    for (auto iter = resourceGroups.begin(); iter != resourceGroups.end();) {
+        if (iter->first <= finishedFenceValue) {
+            iter = resourceGroups.erase(iter);
+        } else {
+            break;
+        }
+    }
+}
 
 namespace {
 
