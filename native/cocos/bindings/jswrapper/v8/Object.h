@@ -183,8 +183,9 @@ public:
      *  @param[in] ptr The native object pointer associated with the se::Object
      *  @return A JavaScript Native Binding Object, or nullptr if there is an error.
      *  @note The return value (non-null) has to be released manually.
+     *  @deprecated Use NativePtrToObjectMap to query the native object.
      */
-    static Object *getObjectWithPtr(void *ptr);
+    CC_DEPRECATED(3.7) static Object *getObjectWithPtr(void *ptr);
 
     /**
      *  @brief Gets a property from an object.

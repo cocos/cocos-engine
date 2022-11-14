@@ -39,7 +39,7 @@ se::Class *__jsb_SocketIO_class = nullptr; // NOLINT
 
 class JSB_SocketIODelegate : public cc::RefCounted, public cc::network::SocketIO::SIODelegate {
 public:
-    //c++11 map to callbacks
+    // c++11 map to callbacks
     using JSB_SIOCallbackRegistry = ccstd::unordered_map<ccstd::string /* eventName */, se::ValueArray /* 0:callbackFunc, 1:target */>;
 
     JSB_SocketIODelegate() = default;
@@ -58,10 +58,9 @@ public:
         CC_LOG_DEBUG("JSB SocketIO::SIODelegate->onClose method called from native");
         this->fireEventToScript(client, "disconnect", "");
 
-        auto iter = se::NativePtrToObjectMap::find(client);
-        if (iter != se::NativePtrToObjectMap::end()) {
-            iter->second->unroot();
-        }
+        se::NativePtrToObjectMap::forEach(client, [](se::Object *obj) {
+            obj->unroot();
+        });
 
         if (getRefCount() == 1) {
             cc::DeferredReleasePool::add(this);
@@ -74,10 +73,9 @@ public:
         CC_LOG_DEBUG("JSB SocketIO::SIODelegate->onError method called from native with data: %s", data.c_str());
         this->fireEventToScript(client, "error", data);
 
-        auto iter = se::NativePtrToObjectMap::find(client);
-        if (iter != se::NativePtrToObjectMap::end()) {
-            iter->second->unroot();
-        }
+        se::NativePtrToObjectMap::forEach(client, [](se::Object *obj) {
+            obj->unroot();
+        });
     }
 
     void fireEventToScript(cc::network::SIOClient *client, const ccstd::string &eventName, const ccstd::string &data) override { // NOLINT
@@ -90,8 +88,7 @@ public:
             return;
         }
 
-        auto iter = se::NativePtrToObjectMap::find(client); //IDEA: client probably be a new value with the same address as the old one, it may cause undefined result.
-        if (iter == se::NativePtrToObjectMap::end()) {
+        if(!se::NativePtrToObjectMap::contains(client)) {// IDEA: client probably be a new value with the same address as the old one, it may cause undefined result.
             return;
         }
 
@@ -117,7 +114,7 @@ public:
         }
 
         if (eventName == "disconnect") {
-            CC_LOG_DEBUG("disconnect ... "); //IDEA:
+            CC_LOG_DEBUG("disconnect ... "); // IDEA:
         }
     }
 
