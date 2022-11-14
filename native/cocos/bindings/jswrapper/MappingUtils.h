@@ -141,15 +141,13 @@ public:
      */
     template <typename T>
     static OptionalCallback filter(T *nativeObj, se::Class *kls) {
-        se::Object *target;
+        se::Object *target{nullptr};
         findWithCallback(
             nativeObj, kls,
             [&](se::Object *seObj) {
                 target = seObj;
             },
-            [&]() {
-                target = nullptr;
-            });
+            nullptr);
         return OptionalCallback{target};
     }
 
@@ -161,9 +159,10 @@ private:
     static void findWithCallback(T *nativeObj, se::Class *kls, const Fn1 &eachCallback, const Fn2 &&emptyCallback) {
         int eleCount = 0;
         auto range = __nativePtrToObjectMap->equal_range(const_cast<std::remove_const_t<T> *>(nativeObj));
+        constexpr bool hasEmptyCallback = std::is_invocable<Fn2>::value;
 
         if (range.first == range.second) { // empty
-            if constexpr (std::is_invocable<Fn2>::value) {
+            if constexpr (hasEmptyCallback) {
                 emptyCallback();
             }
         } else {
@@ -175,8 +174,8 @@ private:
                 CC_ASSERT(eleCount < 2);
                 eachCallback(itr->second);
             }
-            if (eleCount == 0) {
-                if constexpr (std::is_invocable<Fn2>::value) {
+            if constexpr (hasEmptyCallback) {
+                if (eleCount == 0) {
                     emptyCallback();
                 }
             }
