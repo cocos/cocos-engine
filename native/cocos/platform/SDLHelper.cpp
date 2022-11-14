@@ -358,10 +358,6 @@ void SDLHelper::setCursorEnabled(bool value) {
     SDL_SetRelativeMouseMode(value ? SDL_FALSE : SDL_TRUE);
 }
 
-void SDLHelper::swapWindow(SDL_Window *window) {
-    SDL_GL_SwapWindow(window);
-}
-
 #if (CC_PLATFORM == CC_PLATFORM_LINUX)
 uintptr_t SDLHelper::getDisplay(SDL_Window *window) {
     SDL_SysWMinfo wmInfo;
