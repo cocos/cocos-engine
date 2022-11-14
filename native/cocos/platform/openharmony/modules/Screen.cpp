@@ -35,9 +35,11 @@ int Screen::getDPI() const {
 }
 
 float Screen::getDevicePixelRatio() const {
-    float value;
-    NapiHelper::napiCallFunction("getPixelRation", &value);
-    return value;
+    // float value;
+    // NapiHelper::napiCallFunction("getPixelRation", &value);
+    // return value;
+    // TODO(qgh):openharmony does support this interface, but returning a value of 1.5 will cause the entire page to zoom in.
+    return 1;
 }
 
 Screen::Orientation Screen::getDeviceOrientation() const {

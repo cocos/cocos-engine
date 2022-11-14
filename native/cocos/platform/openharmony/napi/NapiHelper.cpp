@@ -29,6 +29,7 @@
 #include "platform/openharmony/modules/SystemWindow.h"
 #include "platform/openharmony/FileUtils-OpenHarmony.h"
 #include "bindings/jswrapper/SeApi.h"
+#include "ui/edit-box/EditBox-openharmony.h"
 
 namespace cc {
 const int32_t kMaxStringLen = 512;
@@ -41,6 +42,7 @@ enum ContextType {
     NATIVE_RENDER_API,
     WORKER_INIT,
     ENGINE_UTILS,
+    EDITBOX_UTILS,
     UV_ASYNC_SEND
 };
 
@@ -111,6 +113,25 @@ napi_value NapiHelper::getContext(napi_env env, napi_callback_info info) {
             };
             NAPI_CALL(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(desc[0]), desc));
         }
+        case EDITBOX_UTILS: {
+            #if CC_USE_EDITBOX
+            napi_property_descriptor desc[] = {
+                DECLARE_NAPI_FUNCTION("setShowEditBoxFunction", OpenHarmonyEditBox::napiSetShowEditBoxFunction),
+                DECLARE_NAPI_FUNCTION("setHideEditBoxFunction", OpenHarmonyEditBox::napiSetHideEditBoxFunction),
+                DECLARE_NAPI_FUNCTION("onTextChange", OpenHarmonyEditBox::napiOnTextChange),
+                DECLARE_NAPI_FUNCTION("onComplete", OpenHarmonyEditBox::napiOnComplete),
+            };
+            #else
+            // When openharmony starts, the callback of editbox will be set. If this callback is not set, an exception will be caused.
+            napi_property_descriptor desc[] = {
+                DECLARE_NAPI_FUNCTION("setShowEditBoxFunction", NapiHelper::napiNoImplementation),
+                DECLARE_NAPI_FUNCTION("setHideEditBoxFunction", NapiHelper::napiNoImplementation),
+                DECLARE_NAPI_FUNCTION("onTextChange", NapiHelper::napiNoImplementation),
+                DECLARE_NAPI_FUNCTION("onComplete", NapiHelper::napiNoImplementation),
+            };
+            #endif
+            NAPI_CALL(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(desc[0]), desc));
+        }
         case UV_ASYNC_SEND: {
             napi_property_descriptor desc[] = {
                 DECLARE_NAPI_FUNCTION("send", NapiHelper::napiASend),
@@ -155,7 +176,6 @@ bool NapiHelper::exportFunctions(napi_env env, napi_value exports) {
     OpenHarmonyPlatform::getInstance()->setNativeXComponent(nativeXComponent);
     return true;
 }
-
 
 napi_value NapiHelper::napiOnCreate(napi_env env, napi_callback_info info) {
     // uv_loop_t* loop = nullptr;
@@ -231,6 +251,10 @@ napi_value NapiHelper::napiWritablePathInit(napi_env env, napi_callback_info inf
 
 napi_value NapiHelper::napiASend(napi_env env, napi_callback_info info) {
     OpenHarmonyPlatform::getInstance()->triggerMessageSignal();
+    return nullptr;
+}
+
+napi_value NapiHelper::napiNoImplementation(napi_env env, napi_callback_info info) {
     return nullptr;
 }
 

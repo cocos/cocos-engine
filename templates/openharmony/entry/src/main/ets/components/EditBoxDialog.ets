@@ -22,46 +22,41 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 ****************************************************************************/
-import Ability from '@ohos.application.Ability'
-import nativerender from "libcocos.so";
-import { ContextType } from "../common/Constants"
-import resourceManager from '@ohos.resourceManager';
+@CustomDialog
+export struct EditBoxDialog {
+  private showMessage: string = ''
+  private inputMessage: string = ''
+  onTextChange: (msg: string) => void
+  accept: (msg: string) => void
+  controller: CustomDialogController
+  cancel: () => void
+  confirm: () => void
 
-const nativeContext = nativerender.getContext(ContextType.ENGINE_UTILS);
-const nativeAppLifecycle = nativerender.getContext(ContextType.APP_LIFECYCLE);
-
-export default class MainAbility extends Ability {
-    onCreate(want, launchParam) {
-        globalThis.abilityWant = want;
-        nativeAppLifecycle.onCreate();
-        nativeContext.resourceManagerInit(this.context.resourceManager);
-    }
-
-    onDestroy() {
-        nativeAppLifecycle.onDestroy();
-    }
-
-    onWindowStageCreate(windowStage) {
-        // Main window is created, set main page for this ability
-        windowStage.loadContent("pages/index", (err, data) => {
-            if (err.code) {
-                console.error('Failed to load the content. Cause:' + JSON.stringify(err));
-                return;
+  build() {
+    Column() {
+      Row() {
+        TextInput({ text: this.showMessage })
+          .backgroundColor('#ffffff')
+          .layoutWeight(1)
+          .onChange((value) => {
+            if (this.onTextChange) {
+              this.onTextChange(value);
             }
-        });
-        nativeContext.writablePathInit(this.context.cacheDir);
-    }
+            this.inputMessage = value;
+          })
+        Blank(8).width(16)
+        Button('完成').onClick(() => {
+          if (this.accept) {
+            this.accept(this.inputMessage);
+          }
+          this.controller.close();
+        })
+      }.padding({ left: 8, right: 8, top: 8, bottom: 8 })
+      .backgroundColor(Color.Gray)
 
-    onWindowStageDestroy() {
     }
+    .width('100%')
 
-    onForeground() {
-        // Ability has brought to foreground
-        nativeAppLifecycle.onShow();
-    }
-
-    onBackground() {
-        // Ability has back to background
-        nativeAppLifecycle.onHide();
-    }
-};
+    .justifyContent(FlexAlign.End)
+  }
+}

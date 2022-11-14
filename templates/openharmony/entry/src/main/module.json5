@@ -18,7 +18,7 @@
         "name": "MainAbility",
         "srcEntrance": "./ets/MainAbility/MainAbility.ts",
         "description": "$string:MainAbility_desc",
-		"orientation": "portrait",
+        "orientation": "portrait",
         "icon": "$media:icon",
         "label": "$string:MainAbility_label",
         "startWindowIcon": "$media:icon",

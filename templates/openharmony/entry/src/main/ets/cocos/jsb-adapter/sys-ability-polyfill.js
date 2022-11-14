@@ -3,7 +3,6 @@ import i18n from '@ohos.i18n'
 import deviceInfo from '@ohos.deviceInfo'
 import batteryInfo from '@ohos.batteryInfo';
 import sensor from '@ohos.sensor';
-import hilog from '@ohos.hilog';
 
 window.oh = {};
 
