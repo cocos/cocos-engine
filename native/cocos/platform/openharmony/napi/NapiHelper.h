@@ -73,8 +73,9 @@ public:
         if(rval.isNullOrUndefined()) {
             return nullptr;
         }
-        CC_UNUSED bool ok = true;
+        bool ok = true;
         ok &= sevalue_to_native(rval, value, nullptr);
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
         return nullptr;
     }
     static napi_value napiNoImplementation(napi_env env, napi_callback_info info);
