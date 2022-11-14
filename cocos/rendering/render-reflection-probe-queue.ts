@@ -72,10 +72,6 @@ export class RenderReflectionProbeQueue {
     private _instancedQueue: RenderInstancedQueue;
     private _batchedQueue: RenderBatchedQueue;
 
-    private _rgbePassTest:Pass[]=[]
-
-    private _rgbeModelTest:SubModel[]=[]
-
     public constructor (pipeline: PipelineRuntime) {
         this._pipeline = pipeline;
         this._instancedQueue = new RenderInstancedQueue();
@@ -117,10 +113,6 @@ export class RenderReflectionProbeQueue {
         this._instancedQueue.clear();
         this._batchedQueue.clear();
         this._rgbeSubModelsArray.length = 0;
-
-        this._rgbePassTest = [];
-
-        this._rgbeModelTest = [];
     }
 
     public add (model: Model) {
@@ -150,11 +142,6 @@ export class RenderReflectionProbeQueue {
             }
 
             if (batchingScheme === BatchingSchemes.INSTANCING) {            // instancing
-                this._rgbePassTest.push(pass);
-                this._rgbeModelTest.push(subModel);
-                pass.defines[CC_USE_RGBE_OUTPUT] = true;
-                subModel.onPipelineStateChanged();
-
                 const buffer = pass.getInstancedBuffer();
                 buffer.merge(subModel, passIdx);
                 this._instancedQueue.queue.add(buffer);
@@ -209,13 +196,6 @@ export class RenderReflectionProbeQueue {
                 }
             }
             subModel.onMacroPatchesStateChanged(patches);
-        }
-
-        for (let i = 0; i < this._rgbeModelTest.length; ++i) {
-            const subModel = this._rgbeModelTest[i];
-            const pass = this._rgbePassTest[i];
-            pass.defines[CC_USE_RGBE_OUTPUT] = false;
-            subModel.onPipelineStateChanged();
         }
     }
 }
