@@ -297,3 +297,4 @@ cclegacy.Skybox = Skybox;
 export * from './model';
 export * from './submodel';
 export * from './camera';
+export * from './reflection-probe';

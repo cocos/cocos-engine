@@ -160,7 +160,7 @@ public:
     inline void setBakeToReflectionProbe(bool val) {
         _bakeToReflectionProbe = val;
     }
-    inline bool getReflectionProbeType() const { return _reflectionProbeType; }
+    inline int32_t getReflectionProbeType() const { return _reflectionProbeType; }
     inline void setReflectionProbeType(int32_t val) {
         _reflectionProbeType = val;
     }

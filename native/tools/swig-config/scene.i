@@ -38,6 +38,7 @@
 #include "3d/models/BakedSkinningModel.h"
 #include "renderer/core/ProgramLib.h"
 #include "scene/Octree.h"
+#include "scene/ReflectionProbe.h"
 %}
 
 // Insert code at the beginning of generated source file (.cpp)
@@ -521,6 +522,15 @@ using namespace cc;
 
 %attribute(cc::Scene, bool, autoReleaseAssets, isAutoReleaseAssets, setAutoReleaseAssets);
 
+%attribute(cc::scene::ReflectionProbe, cc::scene::ReflectionProbe::ProbeType, probeType, getProbeType, setProbeType);
+%attribute(cc::scene::ReflectionProbe, uint32_t, resolution, getResolution, setResolution);
+%attribute(cc::scene::ReflectionProbe, cc::gfx::ClearFlagBit, clearFlag, getClearFlag, setClearFlag);
+%attribute(cc::scene::ReflectionProbe, cc::gfx::Color&, backgroundColor, getBackgroundColor, setBackgroundColor);
+%attribute(cc::scene::ReflectionProbe, uint32_t, visibility, getVisibility, setVisibility);
+%attribute(cc::scene::ReflectionProbe, Vec3&, size, getBoudingSize, setBoudingSize);
+
+
+
 // ----- Import Section ------
 // Brief: Import header files which are depended by 'Include Section'
 // Note:
@@ -609,6 +619,7 @@ using namespace cc;
 %include "scene/RenderWindow.h"
 %include "scene/Camera.h"
 %include "scene/Ambient.h"
+%include "scene/ReflectionProbe.h"
 %include "renderer/core/PassInstance.h"
 %include "renderer/core/MaterialInstance.h"
 

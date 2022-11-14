@@ -217,6 +217,7 @@
                 "cocos/render-scene/core/render-scene.ts": "cocos/render-scene/core/render-scene.jsb.ts",
                 "cocos/render-scene/scene/submodel.ts": "cocos/render-scene/scene/submodel.jsb.ts",
                 "cocos/render-scene/scene/index.ts": "cocos/render-scene/scene/index.jsb.ts",
+                "cocos/render-scene/scene/reflection-probe.ts": "cocos/render-scene/scene/reflection-probe.jsb.ts",
                 "cocos/2d/renderer/native-2d.ts": "cocos/2d/renderer/native-2d.jsb.ts",
                 "cocos/gfx/base/pipeline-state.ts": "cocos/gfx/base/pipeline-state.jsb.ts",
                 "cocos/gfx/index.ts": "cocos/gfx/index.jsb.ts",
