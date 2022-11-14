@@ -41,7 +41,7 @@ class ImageAsset;
  */
 class SimpleTexture : public TextureBase {
     IMPL_EVENT_TARGET(SimpleTexture)
-    DECLARE_TARGET_EVENT_BEGIN(SimpleTexture)
+    DECLARE_TARGET_EVENT_BEGIN_WITH_PARENTS(SimpleTexture, TextureBase)
     TARGET_EVENT_ARG1(TextureUpdated, cc::gfx::Texture *)
     TARGET_EVENT_ARG1(AfterAssignImage, cc::ImageAsset *)
     DECLARE_TARGET_EVENT_END()

@@ -24,7 +24,7 @@
  */
 import { ccclass, executeInEditMode, menu, playOnFocus, serializable, tooltip, type, visible } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
-import { CCObject, Color, Enum, Vec3 } from '../core';
+import { CCObject, Color, Enum, size, Vec3 } from '../core';
 
 import { TextureCube } from '../asset/assets';
 import { scene } from '../render-scene';
@@ -75,6 +75,8 @@ export enum ProbeResolution {
 @executeInEditMode
 @playOnFocus
 export class ReflectionProbe extends Component {
+    protected static readonly DEFAULT_CUBE_SIZE: Readonly<Vec3> =  new Vec3(1, 1, 1);
+    protected static readonly DEFAULT_PLANER_SIZE: Readonly<Vec3> =  new Vec3(5, 0.5, 5);
     @serializable
     protected _resolution = 256;
     @serializable
@@ -93,7 +95,7 @@ export class ReflectionProbe extends Component {
     protected _cubemap: TextureCube | null = null;
 
     @serializable
-    protected _size = new Vec3(1, 1, 1);
+    protected readonly _size = new Vec3(1, 1, 1);
 
     @serializable
     protected _sourceCamera: Camera | null = null;
@@ -110,7 +112,7 @@ export class ReflectionProbe extends Component {
      * 获取或设置包围盒的大小。
      */
     set size (value) {
-        this._size = value;
+        this._size.set(value);
         this.probe.size = this._size;
     }
     @type(Vec3)
@@ -128,11 +130,13 @@ export class ReflectionProbe extends Component {
         this.probe.probeType = value;
 
         if (this._probeType === ProbeType.CUBE) {
+            this._size.set(ReflectionProbe.DEFAULT_CUBE_SIZE);
             this.probe.switchProbeType(value);
             if (EDITOR) {
                 this._objFlags |= CCObject.Flags.IsRotationLocked;
             }
         }  else {
+            this._size.set(ReflectionProbe.DEFAULT_PLANER_SIZE);
             if (EDITOR && this._objFlags & CCObject.Flags.IsRotationLocked) {
                 this._objFlags ^= CCObject.Flags.IsRotationLocked;
             }
@@ -151,11 +155,13 @@ export class ReflectionProbe extends Component {
      * @en set render texture size
      * @zh 设置渲染纹理大小
      */
+    @visible(function (this:ReflectionProbe) { return this.probeType === ProbeType.CUBE; })
     @type(Enum(ProbeResolution))
     set resolution (value: number) {
         this._resolution = value;
         this.probe.resolution = value;
     }
+
     get resolution () {
         return this._resolution;
     }

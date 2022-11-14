@@ -28,7 +28,6 @@
 #include "base/Log.h"
 #include "base/Macros.h"
 #include "engine/EngineEvents.h"
-#include "platform/IEventDispatch.h"
 #include "platform/empty/EmptyPlatform.h"
 
 namespace {
@@ -36,21 +35,28 @@ namespace {
 } // namespace
 
 namespace cc {
-SystemWindow::SystemWindow(IEventDispatch* delegate) {
+SystemWindow::SystemWindow(uint32_t windowId, void* externalHandle)
+: _windowId(windowId) {
+    if (externalHandle) {
+        _windowHandle = reinterpret_cast<uintptr_t>(externalHandle);
+    }
 }
 
-SystemWindow::~SystemWindow() {
-}
+SystemWindow::~SystemWindow() = default;
 
 uintptr_t SystemWindow::getWindowHandle() const {
-    return 0;
+    return _windowHandle;
+}
+
+uint32_t SystemWindow::getWindowId() const {
+    return _windowId;
 }
 
 void SystemWindow::setCursorEnabled(bool value) {
 }
 
 void SystemWindow::copyTextToClipboard(const ccstd::string& text) {
-    //TODO
+    // TODO
 }
 
 int SystemWindow::init() {

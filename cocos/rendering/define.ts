@@ -415,6 +415,7 @@ localDescriptorSetLayout.layouts[UBOWorldBound.NAME] = UBOWorldBound.LAYOUT;
 localDescriptorSetLayout.bindings[UBOWorldBound.BINDING] = UBOWorldBound.DESCRIPTOR;
 
 export const INST_MAT_WORLD = 'a_matWorld0';
+export const INST_SH = 'a_sh_linear_const_r';
 
 export class UBOLocalBatched {
     public static readonly BATCHING_COUNT = 10;

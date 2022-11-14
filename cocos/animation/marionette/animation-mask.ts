@@ -1,8 +1,23 @@
-import { ccclass, serializable, editable } from 'cc.decorator';
+import { ccclass, serializable, editable, type } from 'cc.decorator';
 import type { Node } from '../../scene-graph/node';
 import { Asset } from '../../asset/assets/asset';
 import { js } from '../../core';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
+
+interface JointMaskInfo {
+    readonly path: string;
+
+    enabled: boolean;
+}
+
+@ccclass('cc.JointMask')
+class JointMask {
+    @serializable
+    public path = '';
+
+    @serializable
+    public enabled = true;
+}
 
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}AnimationMask`)
 export class AnimationMask extends Asset {
@@ -10,7 +25,11 @@ export class AnimationMask extends Asset {
     private _jointMasks: JointMask[] = [];
 
     @editable
+    @type(JointMask)
     get joints (): Iterable<JointMaskInfo> {
+        // TODO: editor currently treats this property as (and expects it to be) an array.
+        // If later refactoring is needed, changes should also be made to editor.
+
         return this._jointMasks;
     }
 
@@ -67,19 +86,4 @@ type JointMaskInfo_ = JointMaskInfo;
 
 export declare namespace AnimationMask {
     export type JointMaskInfo = JointMaskInfo_;
-}
-
-interface JointMaskInfo {
-    readonly path: string;
-
-    enabled: boolean;
-}
-
-@ccclass('cc.JointMask')
-class JointMask {
-    @serializable
-    public path = '';
-
-    @serializable
-    public enabled = true;
 }

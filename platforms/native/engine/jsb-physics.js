@@ -608,7 +608,7 @@ class Joint {
     }
 }
 
-class DistanceJoint extends Joint {
+class SphericalJoint extends Joint {
     constructor () { super(); this._impl = new jsbPhy.DistanceJoint(); }
     setPivotA (v) { this._impl.setPivotA(v.x, v.y, v.z); }
     setPivotB (v) { this._impl.setPivotB(v.x, v.y, v.z); }
@@ -643,6 +643,6 @@ cc.physics.selector.register('physx', {
     CylinderShape,
     TrimeshShape,
     TerrainShape,
-    PointToPointConstraint: DistanceJoint,
+    PointToPointConstraint: SphericalJoint,
     HingeConstraint: RevoluteJoint,
 });

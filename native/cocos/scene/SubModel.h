@@ -64,6 +64,7 @@ public:
     inline void setOwner(Model *model) { _owner = model; }
     void setSubMesh(RenderingSubMesh *subMesh);
     inline void setInstancedWorldMatrixIndex(int32_t worldMatrixIndex) { _instancedWorldMatrixIndex = worldMatrixIndex; }
+    inline void setInstancedSHIndex(int32_t index) { _instancedSHIndex = index; }
     void setInstancedAttribute(const ccstd::string &name, const float *value, uint32_t byteLength);
 
     inline gfx::DescriptorSet *getDescriptorSet() const { return _descriptorSet; }
@@ -80,6 +81,7 @@ public:
     inline uint32_t getId() const { return _id; }
     inline InstancedAttributeBlock &getInstancedAttributeBlock() { return _instancedAttributeBlock; }
     inline int32_t getInstancedWorldMatrixIndex() const { return _instancedWorldMatrixIndex; }
+    inline int32_t getInstancedSHIndex() const { return _instancedSHIndex; }
     int32_t getInstancedAttributeIndex(const ccstd::string &name) const;
 
     void initialize(RenderingSubMesh *subMesh, const std::shared_ptr<ccstd::vector<IntrusivePtr<Pass>>> &passes, const ccstd::vector<IMacroPatch> &patches);
@@ -91,6 +93,7 @@ public:
     void onGeometryChanged();
     void updateInstancedAttributes(const ccstd::vector<gfx::Attribute> &attributes);
     void updateInstancedWorldMatrix(const Mat4 &mat, int32_t idx);
+    void updateInstancedSH(const Float32Array &data, int32_t idx);
 
 protected:
     void flushPassInfo();
@@ -99,6 +102,7 @@ protected:
 
     int32_t _id{-1};
     int32_t _instancedWorldMatrixIndex{-1};
+    int32_t _instancedSHIndex{-1};
 
     gfx::Device *_device{nullptr};
     Model *_owner{nullptr};
@@ -116,7 +120,7 @@ protected:
 
     ccstd::vector<IMacroPatch> _patches;
     ccstd::vector<IntrusivePtr<gfx::Shader>> _shaders;
-    
+
     std::shared_ptr<ccstd::vector<IntrusivePtr<Pass>>> _passes;
 
 private:

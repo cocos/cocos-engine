@@ -1366,4 +1366,16 @@ export declare namespace native {
         });
      */
     export function saveImageData(data: Uint8Array, width: number, height: number, filePath: string): Promise<void>;
+
+    /**
+     * @en Current process information
+     * @zh 当前进程信息
+     */
+    export namespace process {
+        /**
+         * @en Get argument list passed to execution file
+         * @zh 获取当前传递给执行文件的参数列表
+         */
+        export const argv: Readonly<string[]>;
+    }
 }
