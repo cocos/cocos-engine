@@ -8,6 +8,8 @@ struct LightingIntermediateData
   float NoLSat, NoVSat, NoHSat;//, VoHSat; // clamped to 0-1
   float NoVAbsSat; // abs and clamped to 1
 
+  vec3 worldPosition;
+
   // for advanced material
   vec3 T, B;
 
@@ -49,6 +51,7 @@ void CCSurfacesLightingGetIntermediateData_PerPixel(inout LightingIntermediateDa
   data.NoVSat = max(data.NoV, 0.0);
   data.NoVAbsSat = max(abs(data.NoV), 0.0);
 
+  data.worldPosition = worldPos;
   data.T = worldTangent;
   data.B = worldBinormal;
 

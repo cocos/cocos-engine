@@ -41,7 +41,6 @@ public:
 
     int init() override { return 0; }
     void processEvent(bool *quit) override {}
-    void swapWindows() override {}
 
     ISystemWindow *createWindow(const ISystemWindowInfo &info) override;
     ISystemWindow *getWindow(uint32_t windowId) const override;

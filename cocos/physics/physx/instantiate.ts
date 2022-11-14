@@ -37,7 +37,7 @@ import { PhysXTerrainShape } from './shapes/physx-terrain-shape';
 import { PhysXCylinderShape } from './shapes/physx-cylinder-shape';
 import { PhysXConeShape } from './shapes/physx-cone-shape';
 
-// import { PhysXFixedJoint } from './joints/physx-fixed-joint';
+import { PhysXFixedJoint } from './joints/physx-fixed-joint';
 import { PhysXSphericalJoint } from './joints/physx-spherical-joint';
 import { PhysXRevoluteJoint } from './joints/physx-revolute-joint';
 import { Game, game } from '../../game';
@@ -60,5 +60,6 @@ game.once(Game.EVENT_PRE_SUBSYSTEM_INIT, () => {
         PointToPointConstraint: PhysXSphericalJoint,
         // PointToPointConstraint: PhysXFixedJoint,
         HingeConstraint: PhysXRevoluteJoint,
+        FixedConstraint: PhysXFixedJoint,
     });
 });

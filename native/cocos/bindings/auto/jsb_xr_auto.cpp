@@ -61,10 +61,7 @@
 #include "bindings/manual/jsb_global.h"
 
 
-#include "cocos/bindings/manual/jsb_conversions.h"
-#include "cocos/bindings/manual/jsb_global.h"
-#include "xr/Xr.h"
-
+#include "bindings/auto/jsb_xr_auto.h"
 
 
 
@@ -114,34 +111,6 @@ static bool js_cc_xr_XrEntry_destroyInstance_static(se::State& s)
     return true;
 }
 SE_BIND_FUNC(js_cc_xr_XrEntry_destroyInstance_static) 
-
-static bool js_cc_xr_XrEntry_initPlatformData(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::xr::XrEntry *arg1 = (cc::xr::XrEntry *) NULL ;
-    void *arg2 = (void *) NULL ;
-    void *arg3 = (void *) NULL ;
-    
-    if(argc != 2) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::xr::XrEntry>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    ok &= sevalue_to_native(args[0], &arg2);
-    SE_PRECONDITION2(ok, false, "XrEntry_initPlatformData,2,SWIGTYPE_p_void");
-    ok &= sevalue_to_native(args[1], &arg3);
-    SE_PRECONDITION2(ok, false, "XrEntry_initPlatformData,3,SWIGTYPE_p_void");
-    (arg1)->initPlatformData(arg2,arg3);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_xr_XrEntry_initPlatformData) 
 
 static bool js_cc_xr_XrEntry_createXrInstance(se::State& s)
 {
@@ -310,41 +279,6 @@ static bool js_cc_xr_XrEntry_isCreatedXrInstance(se::State& s)
 }
 SE_BIND_FUNC(js_cc_xr_XrEntry_isCreatedXrInstance) 
 
-static bool js_cc_xr_XrEntry_initXrSession(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::xr::XrEntry *arg1 = (cc::xr::XrEntry *) NULL ;
-    cc::xr::PFNGLES3WLOADPROC arg2 = (cc::xr::PFNGLES3WLOADPROC) NULL ;
-    void *arg3 = (void *) NULL ;
-    void *arg4 = (void *) NULL ;
-    void *arg5 = (void *) NULL ;
-    
-    if(argc != 4) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 4);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::xr::XrEntry>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) SWIGTYPE*
-    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "XrEntry_initXrSession,2,SWIGTYPE_p_f_p_q_const__char__p_void"); 
-    ok &= sevalue_to_native(args[1], &arg3);
-    SE_PRECONDITION2(ok, false, "XrEntry_initXrSession,3,SWIGTYPE_p_void");
-    ok &= sevalue_to_native(args[2], &arg4);
-    SE_PRECONDITION2(ok, false, "XrEntry_initXrSession,4,SWIGTYPE_p_void");
-    ok &= sevalue_to_native(args[3], &arg5);
-    SE_PRECONDITION2(ok, false, "XrEntry_initXrSession,5,SWIGTYPE_p_void");
-    (arg1)->initXrSession(arg2,arg3,arg4,arg5);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_xr_XrEntry_initXrSession) 
-
 static bool js_cc_xr_XrEntry_setXrFrameBuffer(se::State& s)
 {
     // js_function
@@ -419,94 +353,6 @@ static bool js_cc_xr_XrEntry_attachXrFramebufferTexture2D(se::State& s)
     return true;
 }
 SE_BIND_FUNC(js_cc_xr_XrEntry_attachXrFramebufferTexture2D) 
-
-static bool js_cc_xr_XrEntry_getCocosXrSwapchains(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::xr::XrEntry *arg1 = (cc::xr::XrEntry *) NULL ;
-    std::vector< cc::xr::XRSwapchain > *result = 0 ;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::xr::XrEntry>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    result = (std::vector< cc::xr::XRSwapchain > *) &(arg1)->getCocosXrSwapchains();
-    // %typemap(out) SWIGTYPE&
-    ok &= nativevalue_to_se(*result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "XrEntry_getCocosXrSwapchains, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(*result, s.thisObject(), s.rval()); 
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_xr_XrEntry_getCocosXrSwapchains) 
-
-static bool js_cc_xr_XrEntry_getCurrentXrSwapchain(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::xr::XrEntry *arg1 = (cc::xr::XrEntry *) NULL ;
-    cc::xr::XRSwapchain result;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::xr::XrEntry>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    result = (arg1)->getCurrentXrSwapchain();
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "XrEntry_getCurrentXrSwapchain, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_xr_XrEntry_getCurrentXrSwapchain) 
-
-static bool js_cc_xr_XrEntry_acquireXrSwapchain(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::xr::XrEntry *arg1 = (cc::xr::XrEntry *) NULL ;
-    uint32_t arg2 ;
-    cc::xr::XRSwapchain *result = 0 ;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::xr::XrEntry>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "XrEntry_acquireXrSwapchain,2,SWIGTYPE_uint32_t"); 
-    
-    result = (cc::xr::XRSwapchain *) &(arg1)->acquireXrSwapchain(arg2);
-    // %typemap(out) SWIGTYPE&
-    ok &= nativevalue_to_se(*result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "XrEntry_acquireXrSwapchain, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(*result, s.thisObject(), s.rval()); 
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_xr_XrEntry_acquireXrSwapchain) 
 
 static bool js_cc_xr_XrEntry_isSessionRunning(se::State& s)
 {
@@ -656,35 +502,6 @@ static bool js_cc_xr_XrEntry_isRenderAllowable(se::State& s)
     return true;
 }
 SE_BIND_FUNC(js_cc_xr_XrEntry_isRenderAllowable) 
-
-static bool js_cc_xr_XrEntry_setXRConfigCallback(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::xr::XrEntry *arg1 = (cc::xr::XrEntry *) NULL ;
-    cc::xr::XRConfigChangeCallback *arg2 = 0 ;
-    cc::xr::XRConfigChangeCallback temp2 ;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::xr::XrEntry>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "XrEntry_setXRConfigCallback,2,SWIGTYPE_p_std__functionT_void_fcc__xr__XRConfigKey_cc__xr__XRConfigValueF_t");
-    arg2 = &temp2;
-    
-    (arg1)->setXRConfigCallback((cc::xr::XRConfigChangeCallback const &)*arg2);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_xr_XrEntry_setXRConfigCallback) 
 
 static bool js_cc_xr_XrEntry_computeViewProjection(se::State& s)
 {
@@ -1311,56 +1128,6 @@ static bool js_cc_xr_XrEntry_getXRPointerConfig(se::State& s)
 }
 SE_BIND_FUNC(js_cc_xr_XrEntry_getXRPointerConfig) 
 
-static bool js_cc_xr_XrEntry_getXrPose(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::xr::XrEntry *arg1 = (cc::xr::XrEntry *) NULL ;
-    cc::xr::XRPose *arg2 = 0 ;
-    cc::xr::XRPose *arg3 = 0 ;
-    cc::xr::XRPose *arg4 = 0 ;
-    cc::xr::XRPose *arg5 = 0 ;
-    cc::xr::XRPose temp2 ;
-    cc::xr::XRPose temp3 ;
-    cc::xr::XRPose temp4 ;
-    cc::xr::XRPose temp5 ;
-    
-    if(argc != 4) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 4);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::xr::XrEntry>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "XrEntry_getXrPose,2,SWIGTYPE_p_cc__xr__XRPose");
-    arg2 = &temp2;
-    
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[1], &temp3, s.thisObject());
-    SE_PRECONDITION2(ok, false, "XrEntry_getXrPose,3,SWIGTYPE_p_cc__xr__XRPose");
-    arg3 = &temp3;
-    
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[2], &temp4, s.thisObject());
-    SE_PRECONDITION2(ok, false, "XrEntry_getXrPose,4,SWIGTYPE_p_cc__xr__XRPose");
-    arg4 = &temp4;
-    
-    // %typemap(in) SWIGTYPE&
-    ok &= sevalue_to_native(args[3], &temp5, s.thisObject());
-    SE_PRECONDITION2(ok, false, "XrEntry_getXrPose,5,SWIGTYPE_p_cc__xr__XRPose");
-    arg5 = &temp5;
-    
-    (arg1)->getXrPose(*arg2,*arg3,*arg4,*arg5);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_xr_XrEntry_getXrPose) 
-
 static bool js_delete_cc_xr_XrEntry(se::State& s)
 {
     // js_dtoroverride
@@ -1372,7 +1139,6 @@ bool js_register_cc_xr_XrEntry(se::Object* obj) {
     auto* cls = se::Class::create("XrEntry", obj, nullptr, nullptr); 
     
     
-    cls->defineFunction("initPlatformData", _SE(js_cc_xr_XrEntry_initPlatformData)); 
     cls->defineFunction("createXrInstance", _SE(js_cc_xr_XrEntry_createXrInstance)); 
     cls->defineFunction("pauseXrInstance", _SE(js_cc_xr_XrEntry_pauseXrInstance)); 
     cls->defineFunction("resumeXrInstance", _SE(js_cc_xr_XrEntry_resumeXrInstance)); 
@@ -1380,20 +1146,15 @@ bool js_register_cc_xr_XrEntry(se::Object* obj) {
     cls->defineFunction("getXrViewCount", _SE(js_cc_xr_XrEntry_getXrViewCount)); 
     cls->defineFunction("initXrSwapchains", _SE(js_cc_xr_XrEntry_initXrSwapchains)); 
     cls->defineFunction("isCreatedXrInstance", _SE(js_cc_xr_XrEntry_isCreatedXrInstance)); 
-    cls->defineFunction("initXrSession", _SE(js_cc_xr_XrEntry_initXrSession)); 
     cls->defineFunction("setXrFrameBuffer", _SE(js_cc_xr_XrEntry_setXrFrameBuffer)); 
     cls->defineFunction("getXrFrameBuffer", _SE(js_cc_xr_XrEntry_getXrFrameBuffer)); 
     cls->defineFunction("attachXrFramebufferTexture2D", _SE(js_cc_xr_XrEntry_attachXrFramebufferTexture2D)); 
-    cls->defineFunction("getCocosXrSwapchains", _SE(js_cc_xr_XrEntry_getCocosXrSwapchains)); 
-    cls->defineFunction("getCurrentXrSwapchain", _SE(js_cc_xr_XrEntry_getCurrentXrSwapchain)); 
-    cls->defineFunction("acquireXrSwapchain", _SE(js_cc_xr_XrEntry_acquireXrSwapchain)); 
     cls->defineFunction("isSessionRunning", _SE(js_cc_xr_XrEntry_isSessionRunning)); 
     cls->defineFunction("frameStart", _SE(js_cc_xr_XrEntry_frameStart)); 
     cls->defineFunction("renderLoopStart", _SE(js_cc_xr_XrEntry_renderLoopStart)); 
     cls->defineFunction("renderLoopEnd", _SE(js_cc_xr_XrEntry_renderLoopEnd)); 
     cls->defineFunction("frameEnd", _SE(js_cc_xr_XrEntry_frameEnd)); 
     cls->defineFunction("isRenderAllowable", _SE(js_cc_xr_XrEntry_isRenderAllowable)); 
-    cls->defineFunction("setXRConfigCallback", _SE(js_cc_xr_XrEntry_setXRConfigCallback)); 
     cls->defineFunction("computeViewProjection", _SE(js_cc_xr_XrEntry_computeViewProjection)); 
     cls->defineFunction("getEyeFov", _SE(js_cc_xr_XrEntry_getEyeFov)); 
     cls->defineFunction("getSwapchainImageIndex", _SE(js_cc_xr_XrEntry_getSwapchainImageIndex)); 
@@ -1415,7 +1176,6 @@ bool js_register_cc_xr_XrEntry(se::Object* obj) {
     cls->defineFunction("getXRFloatConfig", _SE(js_cc_xr_XrEntry_getXRFloatConfig)); 
     cls->defineFunction("getXRStringConfig", _SE(js_cc_xr_XrEntry_getXRStringConfig)); 
     cls->defineFunction("getXRPointerConfig", _SE(js_cc_xr_XrEntry_getXRPointerConfig)); 
-    cls->defineFunction("getXrPose", _SE(js_cc_xr_XrEntry_getXrPose)); 
     
     
     cls->defineStaticFunction("getInstance", _SE(js_cc_xr_XrEntry_getInstance_static)); 
@@ -1440,11 +1200,11 @@ bool js_register_cc_xr_XrEntry(se::Object* obj) {
 bool register_all_xr(se::Object* obj) {
     // Get the ns
     se::Value nsVal;
-    if (!obj->getProperty("jsb", &nsVal, true))
+    if (!obj->getProperty("xr", &nsVal, true))
     {
         se::HandleObject jsobj(se::Object::createPlainObject());
         nsVal.setObject(jsobj);
-        obj->setProperty("jsb", nsVal);
+        obj->setProperty("xr", nsVal);
     }
     se::Object* ns = nsVal.toObject();
     /* Register classes */

@@ -4522,14 +4522,18 @@ static bool js_cc_SceneGlobals_activate(se::State& s)
     const auto& args = s.args();
     size_t argc = args.size();
     cc::SceneGlobals *arg1 = (cc::SceneGlobals *) NULL ;
+    cc::Scene *arg2 = (cc::Scene *) NULL ;
     
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
         return false;
     }
     arg1 = SE_THIS_OBJECT<cc::SceneGlobals>(s);
     SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    (arg1)->activate();
+    // %typemap(in) SWIGTYPE*
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "SceneGlobals_activate,2,SWIGTYPE_p_cc__Scene"); 
+    (arg1)->activate(arg2);
     
     
     return true;
@@ -13866,7 +13870,7 @@ static bool js_cc_scene_Model_setSubModelMaterial(se::State& s)
 }
 SE_BIND_FUNC(js_cc_scene_Model_setSubModelMaterial) 
 
-static bool js_cc_scene_Model_updateInstancedAttributes(se::State& s)
+static bool js_cc_scene_Model__updateInstancedAttributes(se::State& s)
 {
     // js_function
     
@@ -13886,18 +13890,18 @@ static bool js_cc_scene_Model_updateInstancedAttributes(se::State& s)
     SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
     // %typemap(in) SWIGTYPE&
     ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Model_updateInstancedAttributes,2,SWIGTYPE_p_ccstd__vectorT_cc__gfx__Attribute_t");
+    SE_PRECONDITION2(ok, false, "Model__updateInstancedAttributes,2,SWIGTYPE_p_ccstd__vectorT_cc__gfx__Attribute_t");
     arg2 = &temp2;
     
     // %typemap(in) SWIGTYPE*
     ok &= sevalue_to_native(args[1], &arg3, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Model_updateInstancedAttributes,3,SWIGTYPE_p_cc__scene__SubModel"); 
+    SE_PRECONDITION2(ok, false, "Model__updateInstancedAttributes,3,SWIGTYPE_p_cc__scene__SubModel"); 
     (arg1)->updateInstancedAttributes((ccstd::vector< cc::gfx::Attribute > const &)*arg2,arg3);
     
     
     return true;
 }
-SE_BIND_FUNC(js_cc_scene_Model_updateInstancedAttributes) 
+SE_BIND_FUNC(js_cc_scene_Model__updateInstancedAttributes) 
 
 static bool js_cc_scene_Model_updateTransform(se::State& s)
 {
@@ -14479,6 +14483,28 @@ static bool js_cc_scene_Model_updateLightingmap(se::State& s)
     return true;
 }
 SE_BIND_FUNC(js_cc_scene_Model_updateLightingmap) 
+
+static bool js_cc_scene_Model_clearSHUBOs(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::Model *arg1 = (cc::scene::Model *) NULL ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::scene::Model>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    (arg1)->clearSHUBOs();
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_scene_Model_clearSHUBOs) 
 
 static bool js_cc_scene_Model_updateSHUBOs(se::State& s)
 {
@@ -15845,7 +15871,7 @@ bool js_register_cc_scene_Model(se::Object* obj) {
     cls->defineFunction("initSubModel", _SE(js_cc_scene_Model_initSubModel)); 
     cls->defineFunction("getMacroPatches", _SE(js_cc_scene_Model_getMacroPatches)); 
     cls->defineFunction("setSubModelMaterial", _SE(js_cc_scene_Model_setSubModelMaterial)); 
-    cls->defineFunction("updateInstancedAttributes", _SE(js_cc_scene_Model_updateInstancedAttributes)); 
+    cls->defineFunction("_updateInstancedAttributes", _SE(js_cc_scene_Model__updateInstancedAttributes)); 
     cls->defineFunction("updateTransform", _SE(js_cc_scene_Model_updateTransform)); 
     cls->defineFunction("updateUBOs", _SE(js_cc_scene_Model_updateUBOs)); 
     cls->defineFunction("_updateLocalDescriptors", _SE(js_cc_scene_Model__updateLocalDescriptors)); 
@@ -15866,6 +15892,7 @@ bool js_register_cc_scene_Model(se::Object* obj) {
     cls->defineFunction("updateWorldBoundsForJSSkinningModel", _SE(js_cc_scene_Model_updateWorldBoundsForJSSkinningModel)); 
     cls->defineFunction("updateWorldBoundsForJSBakedSkinningModel", _SE(js_cc_scene_Model_updateWorldBoundsForJSBakedSkinningModel)); 
     cls->defineFunction("updateLightingmap", _SE(js_cc_scene_Model_updateLightingmap)); 
+    cls->defineFunction("clearSHUBOs", _SE(js_cc_scene_Model_clearSHUBOs)); 
     cls->defineFunction("updateSHUBOs", _SE(js_cc_scene_Model_updateSHUBOs)); 
     cls->defineFunction("updateWorldBoundUBOs", _SE(js_cc_scene_Model_updateWorldBoundUBOs)); 
     cls->defineFunction("updateLocalShadowBias", _SE(js_cc_scene_Model_updateLocalShadowBias)); 
