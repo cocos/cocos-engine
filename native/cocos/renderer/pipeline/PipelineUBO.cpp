@@ -89,8 +89,11 @@ void PipelineUBO::updateGlobalUBOView(const scene::Camera *camera, ccstd::array<
     }
 }
 
-void PipelineUBO::updateCameraUBOView(const RenderPipeline *pipeline, float *output, const scene::Camera *camera, const scene::RenderScene *renderScene) {
-    const auto *const scene = renderScene ? renderScene : camera->getScene();
+void PipelineUBO::updateCameraUBOView(const RenderPipeline *pipeline, float *output, const scene::Camera *camera) {
+    updateCameraUBOView(pipeline, output, camera, camera->getScene());
+}
+
+void PipelineUBO::updateCameraUBOView(const RenderPipeline *pipeline, float *output, const scene::Camera *camera, const scene::RenderScene *scene) {
     const scene::DirectionalLight *mainLight = scene->getMainLight();
     const auto *sceneData = pipeline->getPipelineSceneData();
     const scene::Shadows *const shadowInfo = sceneData->getShadows();
@@ -489,6 +492,10 @@ void PipelineUBO::updateGlobalUBO(const scene::Camera *camera) {
 
     globalDSManager->bindBuffer(UBOGlobal::BINDING, ds->getBuffer(UBOGlobal::BINDING));
     globalDSManager->update();
+}
+
+void PipelineUBO::updateCameraUBO(const scene::Camera *camera) {
+    updateCameraUBO(camera, camera->getScene());
 }
 
 void PipelineUBO::updateCameraUBO(const scene::Camera *camera, const scene::RenderScene *scene) {

@@ -1349,8 +1349,6 @@ cocos_source_files(
                  cocos/renderer/pipeline/custom/RenderInterfaceImpl.cpp
                  cocos/renderer/pipeline/custom/RenderInterfaceTypes.cpp
                  cocos/renderer/pipeline/custom/RenderInterfaceTypes.h
-                 cocos/renderer/pipeline/ReflectionProbeManager.cpp
-                 cocos/renderer/pipeline/ReflectionProbeManager.h
                  cocos/renderer/pipeline/reflection-probe/ReflectionProbeFlow.cpp
                  cocos/renderer/pipeline/reflection-probe/ReflectionProbeFlow.h
                  cocos/renderer/pipeline/reflection-probe/ReflectionProbeStage.cpp
@@ -1420,6 +1418,8 @@ cocos_source_files(
                  cocos/scene/Shadow.cpp
                  cocos/scene/ReflectionProbe.h
                  cocos/scene/ReflectionProbe.cpp
+                 cocos/scene/ReflectionProbeManager.cpp
+                 cocos/scene/ReflectionProbeManager.h
 )
 
 ##### primitive

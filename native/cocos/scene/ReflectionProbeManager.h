@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -31,9 +31,7 @@
 namespace cc {
 namespace scene {
 class ReflectionProbe;
-} // namespace scene
-namespace pipeline {
-
+// namespace scene
 class ReflectionProbeManager final {
 public:
     static ReflectionProbeManager* getInstance();
@@ -41,10 +39,11 @@ public:
     ~ReflectionProbeManager() = default;
     void registerProbe(scene::ReflectionProbe* probe);
     void unRegisterProbe(scene::ReflectionProbe* probe);
-    const ccstd::vector<scene::ReflectionProbe*>& getAllProbes() const{ return _probes; }
+    const ccstd::vector<scene::ReflectionProbe*>& getAllProbes() const { return _probes; }
+
 private:
     ccstd::vector<scene::ReflectionProbe*> _probes;
 };
 
-} // namespace pipeline
+} // namespace scene
 } // namespace cc

@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
@@ -22,11 +22,11 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
- import { ClearFlagBit } from '../../gfx';
+import { ClearFlagBit } from '../../gfx';
 import { SKYBOX_FLAG } from './camera';
- declare const jsb: any;
+declare const jsb: any;
  
- export enum ProbeClearFlag {
+export enum ProbeClearFlag {
     SKYBOX = SKYBOX_FLAG | ClearFlagBit.DEPTH_STENCIL,
     SOLID_COLOR = ClearFlagBit.ALL,
 }

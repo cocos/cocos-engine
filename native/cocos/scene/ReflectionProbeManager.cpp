@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -27,7 +27,7 @@
 #include "scene/ReflectionProbe.h"
 namespace cc {
 
-namespace pipeline {
+namespace scene {
 namespace {
 ReflectionProbeManager* instance = nullptr;
 }
@@ -44,12 +44,9 @@ void ReflectionProbeManager::registerProbe(scene::ReflectionProbe* probe) {
     _probes.emplace_back(probe);
 }
 void ReflectionProbeManager::unRegisterProbe(scene::ReflectionProbe* probe) {
-    for (auto* p : _probes) {
-        const auto iter = std::find(_probes.begin(), _probes.end(), probe);
-        _probes.erase(iter);
-        break;
-    }
+    const auto iter = std::find(_probes.begin(), _probes.end(), probe);
+    _probes.erase(iter);
 }
 
-} // namespace pipeline
+} // namespace scene
 } // namespace cc

@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -36,7 +36,7 @@
 #include "gfx-base/GFXCommandBuffer.h"
 #include "gfx-base/GFXDevice.h"
 #include "renderer/core/ProgramLib.h"
-#include "renderer/pipeline/ReflectionProbeManager.h"
+#include "scene/ReflectionProbeManager.h"
 #include "scene/Camera.h"
 #include "scene/ReflectionProbe.h"
 #include "scene/Skybox.h"
@@ -50,7 +50,14 @@ ReflectionProbeBatchedQueue::ReflectionProbeBatchedQueue(RenderPipeline *pipelin
     _batchedQueue = ccnew RenderBatchedQueue;
 }
 
-ReflectionProbeBatchedQueue::~ReflectionProbeBatchedQueue() = default;
+ReflectionProbeBatchedQueue::~ReflectionProbeBatchedQueue() {
+    destroy();
+}
+
+void ReflectionProbeBatchedQueue::destroy() {
+    CC_SAFE_DELETE(_batchedQueue)
+    CC_SAFE_DELETE(_instancedQueue)
+}
 
 void ReflectionProbeBatchedQueue::gatherRenderObjects(const scene::Camera *camera, gfx::CommandBuffer *cmdBuffer, const scene::ReflectionProbe *probe) {
     if (probe == nullptr) {
@@ -162,11 +169,6 @@ void ReflectionProbeBatchedQueue::resetMacro() const {
 bool ReflectionProbeBatchedQueue::isUseReflectMapPass(const scene::SubModel *subModel) const {
     auto passIdx = getReflectMapPassIndex(subModel);
     return passIdx != -1;
-}
-
-void ReflectionProbeBatchedQueue::destroy() {
-    CC_SAFE_DELETE(_batchedQueue)
-    CC_SAFE_DELETE(_instancedQueue)
 }
 
 int ReflectionProbeBatchedQueue::getDefaultPassIndex(const scene::SubModel *subModel) const {

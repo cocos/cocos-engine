@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -27,7 +27,7 @@
 
 #include "ReflectionProbeStage.h"
 #include "pipeline/PipelineSceneData.h"
-#include "pipeline/ReflectionProbeManager.h"
+#include "scene/ReflectionProbeManager.h"
 #include "pipeline/RenderPipeline.h"
 #include "profiler/Profiler.h"
 #include "scene/Camera.h"
@@ -62,7 +62,7 @@ void ReflectionProbeFlow::activate(RenderPipeline *pipeline) {
 void ReflectionProbeFlow::render(scene::Camera *camera) {
     CC_PROFILE(ReflectionProbeFlowRender);
     const auto *sceneData = _pipeline->getPipelineSceneData();
-    const auto probes = ReflectionProbeManager::getInstance()->getAllProbes();
+    const auto probes = scene::ReflectionProbeManager::getInstance()->getAllProbes();
     for (auto * probe : probes) {
         if (probe->needRender()) {
             renderStage(camera, probe);
