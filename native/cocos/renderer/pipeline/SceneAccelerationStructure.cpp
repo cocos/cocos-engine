@@ -28,7 +28,7 @@ namespace pipeline
         });
 
         if (posAttribute != attributes.cend()) {
-            const auto vertexBufferList = inputAssembler->getVertexBuffers();
+            const auto& vertexBufferList = inputAssembler->getVertexBuffers();
             auto* const posBuffer = vertexBufferList[posAttribute->stream];
             blasGeomMesh.vertexBuffer = posBuffer;
             blasGeomMesh.vertexStride = posBuffer->getStride();
@@ -78,7 +78,7 @@ namespace pipeline
         gfx::ASInstance tlasGeom{};
         meshShadingInstanceDescriptor shadingInstanceDescriptor{};
 
-        auto subModels = pModel->getSubModels();
+        const auto& subModels = pModel->getSubModels();
         shadingInstanceDescriptor.subMeshCount = subModels.size();
 
         tlasGeom.instanceCustomIdx = ~0U;
@@ -154,6 +154,8 @@ namespace pipeline
             shadingInstanceDescriptor.subMeshMaterialOffset = static_cast<uint16_t>(_materialDesc.size());
             for (const auto& sm : subModels) {
                 static int matId = 0;
+                const auto & passes = sm->getPasses();
+
                 _materialDesc.emplace_back(matId++);
             }
         }
@@ -162,7 +164,7 @@ namespace pipeline
         // meshShadingInstanceDescriptor could be shared.
         // hit group shader binding record could be shared.
 
-        //ray query
+        //ray query BT
         for (uint32_t index = 0;index<_shadingInstanceDescs.size();++index) {
             if (shadingInstanceDescriptor == _shadingInstanceDescs[index]) {
                 // Reuse instance with same blas and material
@@ -178,13 +180,12 @@ namespace pipeline
         }
 
         //ray tracing SBT
-        
         ccstd::vector<shaderRecord> instanceShaderRecords{};
-        auto geometries = tlasGeom.accelerationStructureRef->getInfo().triangleMeshes;
+        const auto & geometries = tlasGeom.accelerationStructureRef->getInfo().triangleMeshes;
         auto transformer = [&](const auto& geom) {
             return shaderRecord{subMeshGeomDescriptor{geom.vertexBuffer->getDeviceAddress(),
                                       geom.indexBuffer->getDeviceAddress()},
-                geom.materialID};
+                1};
         };
         std::transform(geometries.cbegin(), geometries.cend(), std::back_inserter(instanceShaderRecords),transformer);
 
@@ -273,14 +274,14 @@ namespace pipeline
             if (needRecreate) {
                 _topLevelAccelerationStructure = gfx::Device::getInstance()->createAccelerationStructure(tlasInfo);
                 gfx::BufferInfo geomDescBufferInfo{};
-                geomDescBufferInfo.size = _geomDesc.size() * sizeof(subMeshGeomDescriptor);
+                geomDescBufferInfo.size = static_cast<uint32_t>(_geomDesc.size()) * sizeof(subMeshGeomDescriptor);
                 geomDescBufferInfo.flags = gfx::BufferFlags::NONE;
                 geomDescBufferInfo.usage = gfx::BufferUsage::STORAGE | gfx::BufferUsage::TRANSFER_DST;
                 geomDescBufferInfo.memUsage = gfx::MemoryUsage::HOST;
                 _geomDescGPUBuffer = gfx::Device::getInstance()->createBuffer(geomDescBufferInfo);
 
                 gfx::BufferInfo instanceDescBufferInfo{};
-                instanceDescBufferInfo.size = _shadingInstanceDescs.size() * sizeof(meshShadingInstanceDescriptor);
+                instanceDescBufferInfo.size = static_cast<uint32_t>(_shadingInstanceDescs.size()) * sizeof(meshShadingInstanceDescriptor);
                 instanceDescBufferInfo.flags = gfx::BufferFlags::NONE;
                 instanceDescBufferInfo.usage = gfx::BufferUsage::STORAGE | gfx::BufferUsage::TRANSFER_DST;
                 instanceDescBufferInfo.memUsage = gfx::MemoryUsage::HOST;
