@@ -98,7 +98,6 @@ int32_t LinuxPlatform::loop() {
         if (actualInterval >= desiredInterval) {
             lastTime = getCurrentMillSecond();
             runTask();
-            _windowManager->swapWindows();
         } else {
             usleep((desiredInterval - curTime + lastTime) * 1000);
         }

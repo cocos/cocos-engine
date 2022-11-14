@@ -59,11 +59,6 @@ public:
     virtual void processEvent(bool *quit) = 0;
 
     /**
-     * Swap window back buffer
-     */
-    virtual void swapWindows() = 0;
-
-    /**
      * Create an ISystemWindow object
      * @param info window description
      * @return The created ISystemWindow object，if failed then return nullptr
