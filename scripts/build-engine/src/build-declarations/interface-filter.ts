@@ -63,6 +63,7 @@ export namespace interfaceFilter {
                         kind === SyntaxKind.InterfaceDeclaration ||
                         kind === SyntaxKind.PropertySignature ||
                         kind === SyntaxKind.MethodSignature ||
+                        kind === SyntaxKind.TypeAliasDeclaration ||
 
                         kind === SyntaxKind.FunctionDeclaration ||
                         kind === SyntaxKind.EnumDeclaration) {
