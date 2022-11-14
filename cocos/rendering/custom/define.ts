@@ -553,10 +553,11 @@ export function buildReflectionProbePass (camera: Camera,
         new Color(probeCamera.clearDepth, probeCamera.clearStencil, 0, 0));
     probePass.addRasterView(probePassRTName, passView);
     probePass.addRasterView(probePassDSName, passDSView);
-    probePass
-        .addQueue(QueueHint.RENDER_OPAQUE)
-        .addSceneOfReflectionProbe(camera, probeCamera, new LightInfo(),
-            SceneFlags.OPAQUE_OBJECT | SceneFlags.GEOMETRY | SceneFlags.DRAW_INSTANCING);
+    const build = probePass.addQueue(QueueHint.RENDER_OPAQUE);
+    build.gatherRenderObjects(probeCamera, true);
+    build.addSceneOfReflectionProbe(camera, probeCamera, new LightInfo(),
+        SceneFlags.OPAQUE_OBJECT | SceneFlags.GEOMETRY | SceneFlags.DRAW_INSTANCING);
+    //build.gatherRenderObjects(probeCamera, false);
 }
 //////////////////////////////////////////
 

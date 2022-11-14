@@ -86,7 +86,8 @@ export interface Setter extends RenderNode {
 }
 
 export interface RasterQueueBuilder extends Setter {
-    addSceneOfReflectionProbe(camera: Camera, probeCamera:Camera, arg1: LightInfo, arg2: number): unknown;
+    addSceneOfReflectionProbe(camera: Camera, probeCamera:Camera, arg1: LightInfo, arg2: number): void;
+    gatherRenderObjects(probeCamera: Camera, useRGBE:boolean);
     addSceneOfCamera (camera: Camera, light: LightInfo, sceneFlags: SceneFlags): void;
     addSceneOfCamera (camera: Camera, light: LightInfo/*, SceneFlags.NONE*/): void;
     addScene (name: string, sceneFlags: SceneFlags): void;

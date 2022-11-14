@@ -31,12 +31,12 @@ import { ComputeView, CopyPair, LightInfo, LightingMode, MovePair, QueueHint, Ra
 import { Blit, ClearView, ComputePass, CopyPass, Dispatch, ManagedResource, MovePass, RasterPass, RenderData, RenderGraph, RenderGraphComponent, RenderGraphValue, RenderQueue, RenderSwapchain, ResourceDesc, ResourceGraph, ResourceGraphValue, ResourceStates, ResourceTraits, SceneData } from './render-graph';
 import { ComputePassBuilder, ComputeQueueBuilder, CopyPassBuilder, LayoutGraphBuilder, MovePassBuilder, Pipeline, PipelineBuilder, RasterPassBuilder, RasterQueueBuilder, SceneTransversal } from './pipeline';
 import { PipelineSceneData } from '../pipeline-scene-data';
-import { Model, Camera, ShadowType, CSMLevel, DirectionalLight, SpotLight, PCFType, Shadows, SKYBOX_FLAG } from '../../render-scene/scene';
+import { Model, Camera, ShadowType, CSMLevel, DirectionalLight, SpotLight, PCFType, Shadows, SKYBOX_FLAG, SubModel } from '../../render-scene/scene';
 import { Light, LightType } from '../../render-scene/scene/light';
 import { LayoutGraphData } from './layout-graph';
 import { Executor } from './executor';
 import { RenderWindow } from '../../render-scene/core/render-window';
-import { MacroRecord, RenderScene } from '../../render-scene';
+import { IMacroPatch, MacroRecord, RenderScene } from '../../render-scene';
 import { GlobalDSManager } from '../global-descriptor-set-manager';
 import { supportsR32FloatTexture, UBOSkinning } from '../define';
 import { OS } from '../../../pal/system-info/enum-type';
@@ -536,11 +536,13 @@ export class WebRasterQueueBuilder extends WebSetter implements RasterQueueBuild
             camera.scene ? camera.scene : cclegacy.director.getScene().renderScene);
     }
 
-    gatherRenderObjects (probeCamera: Camera, sceneData: PipelineSceneData, scene:RenderScene) {
-        const skybox = sceneData.skybox;
+    gatherRenderObjects (probeCamera: Camera, isUseRGBE:boolean) {
+        const skybox = this._pipeline.skybox;
+        const subModelsArray: SubModel[] = [];
         if (skybox.enabled && skybox.model && (probeCamera.clearFlag & SKYBOX_FLAG)) {
-
+            subModelsArray.push(skybox.model.subModels[0]);
         }
+        const scene = cclegacy.director.getScene().renderScene;
         const models = scene.models;
         const visibility = probeCamera.visibility;
 
@@ -548,8 +550,24 @@ export class WebRasterQueueBuilder extends WebSetter implements RasterQueueBuild
             const model = models[i];
             // filter model by view visibility
             if (model.enabled) {
-
+                for (let j = 0; j < model.subModels.length; j++) {
+                    subModelsArray.push(model.subModels[j]);
+                }
             }
+        }
+
+        if (isUseRGBE) {
+            for (let i = 0; i < subModelsArray.length; i++) {
+                const subModel = subModelsArray[i];
+                let patches: IMacroPatch[] | null = subModel.patches;
+                const useRGBE: IMacroPatch[] = [
+                    { name: 'CC_USE_RGBE_OUTPUT', value: isUseRGBE },
+                ];
+                patches = patches ? patches.concat(useRGBE) : useRGBE;
+                subModel.onMacroPatchesStateChanged(patches);
+            }
+        } else {
+
         }
     }
 
