@@ -1,6 +1,6 @@
 {
   "name": "@cocos/build-engine",
-  "version": "4.4.0-webgpu.1",
+  "version": "4.4.1-alpha.6",
   "description": "",
   "repository": {
     "type": "git",
@@ -18,7 +18,7 @@
     "@babel/plugin-transform-for-of": "^7.9.0",
     "@babel/preset-env": "^7.8.7",
     "@cocos/babel-plugin-dynamic-import-vars": "^1.0.2",
-    "@cocos/babel-preset-cc": "2.2.0",
+    "@cocos/creator-programming-babel-preset-cc": "^1.0.1-alpha.2",
     "@rollup/plugin-babel": "^5.2.2",
     "@rollup/plugin-commonjs": "^11.0.2",
     "@rollup/plugin-json": "^4.0.2",
@@ -38,7 +38,7 @@
     "yargs": "^15.1.0"
   },
   "devDependencies": {
-    "@types/babel__core": "^7.1.3",
+    "@types/babel__core": "^7.1.19",
     "@types/babel__preset-env": "^7.9.1",
     "@types/dedent": "^0.7.0",
     "@types/fs-extra": "^8.0.1",

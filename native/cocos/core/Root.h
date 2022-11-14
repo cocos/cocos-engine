@@ -302,7 +302,7 @@ public:
 
 private:
     void frameMoveBegin();
-    void frameMoveProcess(bool isNeedUpdateScene, int32_t totalFrames, const ccstd::vector<IntrusivePtr<scene::RenderWindow>> &windows);
+    void frameMoveProcess(bool isNeedUpdateScene, int32_t totalFrames);
     void frameMoveEnd();
     void doXRFrameMove(int32_t totalFrames);
     void addWindowEventListener();

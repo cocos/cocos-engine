@@ -37,7 +37,8 @@ import { legacyCC } from '../core/global-exports';
 import { Root } from '../root';
 import { warnID } from '../core/platform/debug';
 import { Material } from '../asset/assets/material';
-import { LightProbeGroup } from '../gi/light-probe/light-probe-group';
+import { cclegacy } from '../core';
+import { Scene } from './scene';
 
 const _up = new Vec3(0, 1, 0);
 const _v3 = new Vec3();
@@ -1055,22 +1056,17 @@ export class OctreeInfo {
 }
 legacyCC.OctreeInfo = OctreeInfo;
 
+export interface ILightProbeNode {
+    node: Node;
+    probes: Vec3[] | null;
+}
+
 /**
  * @en light probe configuration
  * @zh 光照探针配置
  */
 @ccclass('cc.LightProbeInfo')
 export class LightProbeInfo {
-    /**
-     * @en Whether activate light probe
-     * @zh 是否启用光照探针
-     */
-    @editable
-    @tooltip('i18n:light_probe.enabled')
-    get enabled (): boolean {
-        return true;
-    }
-
     /**
      * @en GI multiplier
      * @zh GI乘数
@@ -1232,12 +1228,13 @@ export class LightProbeInfo {
     protected _showConvex = false;
     @serializable
     protected _data: LightProbesData | null = null;
-    @serializable
-    protected _lightProbeGroups: LightProbeGroup[] = [];
 
+    protected _nodes: ILightProbeNode[] = [];
+    protected _scene: Scene | null = null;
     protected _resource: LightProbes | null = null;
 
-    public activate (resource: LightProbes) {
+    public activate (scene: Scene, resource: LightProbes) {
+        this._scene = scene;
         this._resource = resource;
         this._resource.initialize(this);
     }
@@ -1249,79 +1246,88 @@ export class LightProbeInfo {
 
         const probes = this._data.probes;
         for (let i = 0; i < probes.length; i++) {
-            const probe = probes[i];
-            for (let k = 0; k < probe.coefficients.length; k++) {
-                probe.coefficients[k].set(0.0, 0.0, 0.0);
+            probes[i].coefficients.length = 0;
+        }
+
+        this.clearAllSHUBOs();
+    }
+
+    public isUniqueNode (): boolean {
+        return this._nodes.length === 1;
+    }
+
+    public addNode (node: Node): boolean {
+        if (!node) {
+            return false;
+        }
+
+        for (let i = 0; i < this._nodes.length; i++) {
+            if (this._nodes[i].node === node) {
+                return false;
             }
         }
-    }
 
-    public isUniqueGroup (): boolean {
-        return this._lightProbeGroups.length === 1;
-    }
-
-    public addGroup (group: LightProbeGroup): boolean {
-        if (!group) {
-            return false;
-        }
-
-        if (this._lightProbeGroups.includes(group)) {
-            return false;
-        }
-
-        this._lightProbeGroups.push(group);
+        this._nodes.push({node, probes: null});
 
         return true;
     }
 
-    public removeGroup (group: LightProbeGroup): boolean {
-        if (!group) {
+    public removeNode (node: Node): boolean {
+        if (!node) {
             return false;
         }
 
-        const index = this._lightProbeGroups.findIndex((element) => element === group);
+        const index = this._nodes.findIndex((element) => element.node === node);
         if (index === -1) {
             return false;
         }
 
-        this._lightProbeGroups.splice(index, 1);
+        this._nodes.splice(index, 1);
 
         return true;
     }
 
+    public syncData(node: Node, probes: Vec3[]) {
+        for (let i = 0; i < this._nodes.length; i++) {
+            if (this._nodes[i].node === node) {
+                this._nodes[i].probes = probes;
+                return;
+            }
+        }
+    }
+
     public update (updateTet = true) {
-        if (!legacyCC.internal.LightProbesData) {
+        if (!cclegacy.internal.LightProbesData) {
             return;
         }
 
         if (!this._data) {
-            this._data = new legacyCC.internal.LightProbesData();
+            this._data = new cclegacy.internal.LightProbesData();
             if (this._resource) {
                 this._resource.data = this._data;
             }
         }
 
         const points: Vec3[] = [];
-        for (let i = 0; i < this._lightProbeGroups.length; i++) {
-            const group = this._lightProbeGroups[i];
-            if (!group.node) {
+        for (let i = 0; i < this._nodes.length; i++) {
+            const node = this._nodes[i].node;
+            const probes = this._nodes[i].probes;
+            const worldPosition = node.worldPosition;
+
+            if (!probes) {
                 continue;
             }
 
-            const worldPosition = group.node.worldPosition;
-            const count = group.probes.length;
-
-            for (let j = 0; j < count; j++) {
+            for (let j = 0; j < probes.length; j++) {
                 const position = new Vec3(0, 0, 0);
-                Vec3.add(position, group.probes[j], worldPosition);
+                Vec3.add(position, probes[j], worldPosition);
                 points.push(position);
             }
         }
 
         const pointCount = points.length;
         if (pointCount < 4) {
-            warnID(17000);
-            this.resetTetraIndices();
+            this.resetAllTetraIndices();
             this._data!.reset();
             return;
         }
@@ -1329,18 +1335,33 @@ export class LightProbeInfo {
         this._data!.updateProbes(points);
 
         if (updateTet) {
-            this.resetTetraIndices();
+            this.resetAllTetraIndices();
             this._data!.updateTetrahedrons();
         }
     }
 
-    private resetTetraIndices () {
-        const scene = legacyCC.director.getScene();
-        if (!scene) {
+    private clearAllSHUBOs () {
+        if (!this._scene) {
             return;
         }
 
-        const renderScene = scene.renderScene;
+        const renderScene = this._scene.renderScene;
+        if (!renderScene) {
+            return;
+        }
+
+        const models = renderScene.models;
+        for (let i = 0; i < models.length; i++) {
+            models[i].clearSHUBOs();
+        }
+    }
+
+    private resetAllTetraIndices () {
+        if (!this._scene) {
+            return;
+        }
+
+        const renderScene = this._scene.renderScene;
         if (!renderScene) {
             return;
         }
@@ -1418,7 +1439,7 @@ export class SceneGlobals {
      * @en Activate and initialize the global configurations of the scene, no need to invoke manually.
      * @zh 启用和初始化场景全局配置，不需要手动调用
      */
-    public activate () {
+    public activate (scene: Scene) {
         const sceneData = (legacyCC.director.root as Root).pipeline.pipelineSceneData;
         this.skybox.activate(sceneData.skybox);
         this.ambient.activate(sceneData.ambient);
@@ -1427,7 +1448,7 @@ export class SceneGlobals {
         this.fog.activate(sceneData.fog);
         this.octree.activate(sceneData.octree);
         if (this.lightProbeInfo && sceneData.lightProbes) {
-            this.lightProbeInfo.activate(sceneData.lightProbes);
+            this.lightProbeInfo.activate(scene, sceneData.lightProbes);
         }
 
         const root = legacyCC.director.root as Root;

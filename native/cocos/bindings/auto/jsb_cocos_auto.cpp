@@ -4672,28 +4672,6 @@ static bool js_cc_ISystemWindowManager_processEvent(se::State& s)
 }
 SE_BIND_FUNC(js_cc_ISystemWindowManager_processEvent) 
 
-static bool js_cc_ISystemWindowManager_swapWindows(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::ISystemWindowManager *arg1 = (cc::ISystemWindowManager *) NULL ;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::ISystemWindowManager>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    (arg1)->swapWindows();
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_ISystemWindowManager_swapWindows) 
-
 static bool js_cc_ISystemWindowManager_createWindow(se::State& s)
 {
     // js_function
@@ -4801,7 +4779,6 @@ bool js_register_cc_ISystemWindowManager(se::Object* obj) {
     
     cls->defineFunction("init", _SE(js_cc_ISystemWindowManager_init)); 
     cls->defineFunction("processEvent", _SE(js_cc_ISystemWindowManager_processEvent)); 
-    cls->defineFunction("swapWindows", _SE(js_cc_ISystemWindowManager_swapWindows)); 
     cls->defineFunction("createWindow", _SE(js_cc_ISystemWindowManager_createWindow)); 
     cls->defineFunction("getWindow", _SE(js_cc_ISystemWindowManager_getWindow)); 
     cls->defineFunction("getWindows", _SE(js_cc_ISystemWindowManager_getWindows)); 

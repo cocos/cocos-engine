@@ -67,10 +67,6 @@ void SystemWindow::pollEvent(bool* quit) {
     return;
 }
 
-void SystemWindow::swapWindow() {
-    return;
-}
-
 SystemWindow::Size SystemWindow::getViewSize() const {
     return Size{static_cast<float>(_width), static_cast<float>(_height)};
 }

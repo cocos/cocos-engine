@@ -41,7 +41,6 @@ public:
     ~SDLHelper();
 
     static int init();
-    static void swapWindow(SDL_Window* window);
 
     static SDL_Window* createWindow(const char* title,
                                     int w, int h, int flags);
