@@ -770,9 +770,9 @@ export class Game extends EventTarget {
                 if (DEBUG) {
                     console.time('Init SubSystem');
                 }
-                // console.time('9.1');
+                console.time('9.1');
                 director.init();
-                // console.timeEnd('9.1');
+                console.timeEnd('9.1');
                 console.time('9.2'); // 41ms
                 return builtinResMgr.loadBuiltinAssets();
             })

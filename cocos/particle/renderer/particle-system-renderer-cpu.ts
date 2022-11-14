@@ -454,7 +454,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
                 }
 
                 if (p.subemitter.length > 0) {
-                    Vec3.normalize(_tempVelo, p.velocity);
+                    Vec3.normalize(_tempVelo, p.ultimateVelocity);
                     Vec3.set(_center, _tempVelo.x, _tempVelo.y, _tempVelo.z);
                     Mat4.lookAt(_lookMat4, _zero, _center, _up);
                     Mat3.fromMat4(_lookMat3, _lookMat4);

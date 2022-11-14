@@ -40,7 +40,7 @@ class ScreenAdapter extends EventTarget {
 
     public get devicePixelRatio () {
         const sysInfo = minigame.getSystemInfoSync();
-        return sysInfo.pixelRatio;
+        return sysInfo.pixelRatio > 2 ? 2 : sysInfo.pixelRatio;
     }
 
     public get windowSize (): Size {

@@ -302,15 +302,19 @@ export function checkCircleReference (owner: string, uuid: string, map: Record<s
 export function asyncify (cb: ((p1?: any, p2?: any) => void) | null): (p1?: any, p2?: any) => void {
     return (p1, p2) => {
         if (!cb) { return; }
-        const refs: Asset[] = [];
-        if (Array.isArray(p2)) {
-            p2.forEach((x) => x instanceof Asset && refs.push(x.addRef()));
-        } else if (p2 instanceof Asset) {
-            refs.push(p2.addRef());
-        }
-        callInNextTick(() => {
-            refs.forEach((x) => x.decRef(false));
+        if (EDITOR) {
+            const refs: Asset[] = [];
+            if (Array.isArray(p2)) {
+                p2.forEach((x) => x instanceof Asset && refs.push(x.addRef()));
+            } else if (p2 instanceof Asset) {
+                refs.push(p2.addRef());
+            }
+            callInNextTick(() => {
+                refs.forEach((x) => x.decRef(false));
+                cb(p1, p2);
+            });
+        } else {
             cb(p1, p2);
-        });
+        }
     };
 }
