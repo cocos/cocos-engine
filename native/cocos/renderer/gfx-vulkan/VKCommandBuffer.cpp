@@ -816,6 +816,7 @@ void CCVKCommandBuffer::compactAccelerationStructure(AccelerationStructure *acce
 }
 
 void CCVKCommandBuffer::traceRays(const RayTracingInfo &info) {
+
     if (_firstDirtyDescriptorSet < _curGPUDescriptorSets.size()) {
         bindDescriptorSets(VK_PIPELINE_BIND_POINT_RAY_TRACING_KHR);
     }
@@ -823,10 +824,41 @@ void CCVKCommandBuffer::traceRays(const RayTracingInfo &info) {
     if(info.indirectBuffer){
         //todo
     }else{
-        
+
+        //todo shaderGroupBaseAlignment is the required alignment in bytes for the base of the shader binding table.
+        //todo info.SBT->getDeviceAddress() must be a multiple pf shaderGroupBaseAlignment.
+
         const VkStridedDeviceAddressRegionKHR rayGenSBT = {info.rayGenSBT->getDeviceAddress(),info.rayGenSBT->getStride(),info.rayGenSBT->getSize()};
-        
+
+        /*
+            • VUID-vkCmdTraceRaysKHR-flags-03696
+            If the currently bound ray tracing pipeline was created with flags that included VK_PIPELINE_CREATE_RAY_TRACING_NO_NULL_CLOSEST_HIT_SHADERS_BIT_KHR,
+            pHitShaderBindingTable->deviceAddress must not be zero
+            
+            • VUID-vkCmdTraceRaysKHR-flags-03697
+            If the currently bound ray tracing pipeline was created with flags that included VK_PIPELINE_CREATE_RAY_TRACING_NO_NULL_INTERSECTION_SHADERS_BIT_KHR,
+            pHitShaderBindingTable->deviceAddress must not be zero
+            
+            • VUID-vkCmdTraceRaysKHR-flags-03512
+            If the currently bound ray tracing pipeline was created with flags that included VK_PIPELINE_CREATE_RAY_TRACING_NO_NULL_ANY_HIT_SHADERS_BIT_KHR,
+            entries in the table identified by pHitShaderBindingTable->deviceAddress accessed as a result of this command in order to execute an any-hit shader must not be set to zero
+            
+            • VUID-vkCmdTraceRaysKHR-flags-03513
+            If the currently bound ray tracing pipeline was created with flags that included VK_PIPELINE_CREATE_RAY_TRACING_NO_NULL_CLOSEST_HIT_SHADERS_BIT_KHR, entries in the table
+            identified by pHitShaderBindingTable->deviceAddress accessed as a result of this command in order to execute a closest hit shader must not be set to zero
+            
+            • VUID-vkCmdTraceRaysKHR-flags-03514
+            If the currently bound ray tracing pipeline was created with flags that included VK_PIPELINE_CREATE_RAY_TRACING_NO_NULL_INTERSECTION_SHADERS_BIT_KHR,
+            entries in the table identified by pHitShaderBindingTable->deviceAddress accessed as a result of this command in order to execute an intersection shader must not be set to zero
+        */
+
         const VkStridedDeviceAddressRegionKHR hitGroupSBT = {info.hitGroupSBT->getDeviceAddress(),info.hitGroupSBT->getStride(),info.hitGroupSBT->getSize()};
+
+        /*
+            • VUID-vkCmdTraceRaysKHR-flags-03511
+            If the currently bound ray tracing pipeline was created with flags that included VK_PIPELINE_CREATE_RAY_TRACING_NO_NULL_MISS_SHADERS_BIT_KHR,
+            the shader group handle identified by pMissShaderBindingTable->deviceAddress must not be set to zero
+         */
 
         const VkStridedDeviceAddressRegionKHR missSBT = {info.missSBT->getDeviceAddress(),info.missSBT->getStride(),info.missSBT->getSize()};
 
@@ -839,6 +871,7 @@ void CCVKCommandBuffer::traceRays(const RayTracingInfo &info) {
          * output buffer
         */
 
+        CC_ASSERT(info.width * info.height * info.depth <= CCVKDevice::getInstance()->gpuContext()->physicalDeviceRaytracingPipelineProperties.maxRayDispatchInvocationCount);
         vkCmdTraceRaysKHR(_gpuCommandBuffer->vkCommandBuffer, &rayGenSBT,&hitGroupSBT,&missSBT,&callableSBT,info.width,info.height,info.depth);
     }
 }

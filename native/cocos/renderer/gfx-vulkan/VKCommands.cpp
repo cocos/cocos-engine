@@ -1189,7 +1189,8 @@ void cmdFuncCCVKCreateRayTracingPipelineState(CCVKDevice* device, CCVKGPUPipelin
     createInfo.pGroups = groupInfos.data();
 
     ///////////////////// Max Recursion Depth /////////////////////
-    createInfo.maxPipelineRayRecursionDepth = gpuPipelineState->maxRecursionDepth;
+    createInfo.maxPipelineRayRecursionDepth = std::clamp(gpuPipelineState->maxRecursionDepth,
+        static_cast<uint32_t>(1),device->gpuContext()->physicalDeviceRaytracingPipelineProperties.maxRayRecursionDepth);
     
     ///////////////////// Dynamic State //////////////////////////
     dynamicStates.assign({VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR});
@@ -1204,7 +1205,6 @@ void cmdFuncCCVKCreateRayTracingPipelineState(CCVKDevice* device, CCVKGPUPipelin
 
     VK_CHECK(vkCreateRayTracingPipelinesKHR(device->gpuDevice()->vkDevice,VK_NULL_HANDLE,device->gpuDevice()->vkPipelineCache,1,&createInfo,nullptr,&gpuPipelineState->vkPipeline));
 }
-
 
 void cmdFuncCCVKCreateGeneralBarrier(CCVKDevice * /*device*/, CCVKGPUGeneralBarrier *gpuGeneralBarrier) {
     gpuGeneralBarrier->barrier.prevAccessCount = utils::toUint(gpuGeneralBarrier->prevAccesses.size());

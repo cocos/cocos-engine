@@ -89,7 +89,7 @@ namespace pipeline
         ccstd::vector<subMeshGeomDescriptor> _geomDesc;
         ccstd::vector<uint64_t> _materialDesc;
         //instanceCustomIndex
-        ccstd::vector<meshShadingInstanceDescriptor> _shadingInstanceDescs;
+        ccstd::vector<meshShadingInstanceDescriptor> _shadingInstanceDescriptors;
 
         /*
          * first: subMesh Geometry info descriptor

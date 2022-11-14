@@ -314,6 +314,7 @@ bool CCVKGPUContext::initialize() {
         physicalDeviceFeatures2.pNext = &physicalDeviceVulkan11Features;
         physicalDeviceVulkan11Features.pNext = &physicalDeviceVulkan12Features;
         physicalDeviceProperties2.pNext = &physicalDeviceDepthStencilResolveProperties;
+        physicalDeviceDepthStencilResolveProperties.pNext = &physicalDeviceRaytracingPipelineProperties;
         if (minorVersion >= 1) {
             vkGetPhysicalDeviceProperties2(physicalDevice, &physicalDeviceProperties2);
             vkGetPhysicalDeviceFeatures2(physicalDevice, &physicalDeviceFeatures2);
