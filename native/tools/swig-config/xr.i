@@ -2,24 +2,19 @@
 // target_namespace means the name exported to JS, could be same as which in other modules
 // 'your_module' at the last means the suffix of binding function name, different modules should use unique name
 // Note: doesn't support number prefix
-%module(target_namespace="jsb") xr
+%module(target_namespace="xr") xr
 
 // Insert code at the beginning of generated header file (.h)
 %insert(header_file) %{
 #pragma once
-#include <type_traits>
-#include "cocos/bindings/jswrapper/SeApi.h"
-#include "cocos/bindings/manual/jsb_conversions.h"
-#include "cocos/xr/Xr.h"
-
+#include "bindings/jswrapper/SeApi.h"
+#include "bindings/manual/jsb_conversions.h"
+#include "xr/Xr.h"
 %}
 
 // Insert code at the beginning of generated source file (.cpp)
 %{
-#include "cocos/bindings/manual/jsb_conversions.h"
-#include "cocos/bindings/manual/jsb_global.h"
-#include "xr/Xr.h"
-
+#include "bindings/auto/jsb_xr_auto.h"
 %}
 
 // ----- Ignore Section ------
@@ -35,11 +30,18 @@
 //  1. 'Ignore Section' should be placed before attribute definition and %import/%include
 //  2. namespace is needed
 //
+%ignore cc::xr::XrEntry::initPlatformData;
+%ignore cc::xr::XrEntry::initXrSession;
+%ignore cc::xr::XrEntry::getCocosXrSwapchains;
+%ignore cc::xr::XrEntry::getCurrentXrSwapchain;
+%ignore cc::xr::XrEntry::acquireXrSwapchain;
 %ignore cc::xr::XrEntry::setGamepadCallback;
 %ignore cc::xr::XrEntry::setHandleCallback;
 %ignore cc::xr::XrEntry::setHMDCallback;
+%ignore cc::xr::XrEntry::setXRConfigCallback;
 %ignore cc::xr::XrEntry::setXRConfig;
 %ignore cc::xr::XrEntry::getXRConfig;
+%ignore cc::xr::XrEntry::getXrPose;
 
 // ----- Rename Section ------
 // Brief: Classes, methods or attributes needs to be renamed
@@ -88,8 +90,8 @@
 // Brief: Import header files which are depended by 'Include Section'
 // Note: 
 //   %import "your_header_file.h" will not generate code for that header file
-%import "cocos/platform/interfaces/modules/XRCommon.h"
+%import "platform/interfaces/modules/XRCommon.h"
 
 // ----- Include Section ------
 // Brief: Include header files in which classes and methods will be bound
-%include "cocos/xr/Xr.h"
+%include "xr/Xr.h"
