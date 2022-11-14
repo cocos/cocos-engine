@@ -145,7 +145,6 @@ export class RenderReflectionProbeQueue {
                     { name: CC_USE_RGBE_OUTPUT, value: true },
                 ];
                 patches = patches ? patches.concat(useRGBE) : useRGBE;
-                pass.defines[CC_USE_RGBE_OUTPUT] = true;
                 subModel.onMacroPatchesStateChanged(patches);
                 this._rgbeSubModelsArray.push(subModel);
             }
