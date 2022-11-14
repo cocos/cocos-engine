@@ -511,13 +511,9 @@ export function buildReflectionProbePasss (camera: Camera,
     for (let i = 0; i < probes.length; i++) {
         const probe = probes[i];
         if (probe.needRender) {
-            ppl.setMacroBool('CC_USE_RGBE_OUTPUT', true);
-            ppl.onGlobalPipelineStateChanged();
             for (let faceIdx = 0; faceIdx < probe.bakedCubeTextures.length; faceIdx++) {
                 buildReflectionProbePass(camera, ppl, probe, probe.bakedCubeTextures[faceIdx].window!, faceIdx);
             }
-            ppl.setMacroBool('CC_USE_RGBE_OUTPUT', false);
-            ppl.onGlobalPipelineStateChanged();
             probe.needRender = false;
         }
     }

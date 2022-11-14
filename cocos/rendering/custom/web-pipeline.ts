@@ -31,7 +31,7 @@ import { ComputeView, CopyPair, LightInfo, LightingMode, MovePair, QueueHint, Ra
 import { Blit, ClearView, ComputePass, CopyPass, Dispatch, ManagedResource, MovePass, RasterPass, RenderData, RenderGraph, RenderGraphComponent, RenderGraphValue, RenderQueue, RenderSwapchain, ResourceDesc, ResourceGraph, ResourceGraphValue, ResourceStates, ResourceTraits, SceneData } from './render-graph';
 import { ComputePassBuilder, ComputeQueueBuilder, CopyPassBuilder, LayoutGraphBuilder, MovePassBuilder, Pipeline, PipelineBuilder, RasterPassBuilder, RasterQueueBuilder, SceneTransversal } from './pipeline';
 import { PipelineSceneData } from '../pipeline-scene-data';
-import { Model, Camera, ShadowType, CSMLevel, DirectionalLight, SpotLight, PCFType, Shadows } from '../../render-scene/scene';
+import { Model, Camera, ShadowType, CSMLevel, DirectionalLight, SpotLight, PCFType, Shadows, SKYBOX_FLAG } from '../../render-scene/scene';
 import { Light, LightType } from '../../render-scene/scene/light';
 import { LayoutGraphData } from './layout-graph';
 import { Executor } from './executor';
@@ -534,6 +534,23 @@ export class WebRasterQueueBuilder extends WebSetter implements RasterQueueBuild
         );
         setCameraUBOValues(this, probeCamera, this._pipeline,
             camera.scene ? camera.scene : cclegacy.director.getScene().renderScene);
+    }
+
+    gatherRenderObjects (probeCamera: Camera, sceneData: PipelineSceneData, scene:RenderScene) {
+        const skybox = sceneData.skybox;
+        if (skybox.enabled && skybox.model && (probeCamera.clearFlag & SKYBOX_FLAG)) {
+
+        }
+        const models = scene.models;
+        const visibility = probeCamera.visibility;
+
+        for (let i = 0; i < models.length; i++) {
+            const model = models[i];
+            // filter model by view visibility
+            if (model.enabled) {
+
+            }
+        }
     }
 
     updateCameraUBO (camera: Camera, renderScene: RenderScene) {
