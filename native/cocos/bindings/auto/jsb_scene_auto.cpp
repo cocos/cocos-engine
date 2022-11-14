@@ -13866,7 +13866,7 @@ static bool js_cc_scene_Model_setSubModelMaterial(se::State& s)
 }
 SE_BIND_FUNC(js_cc_scene_Model_setSubModelMaterial) 
 
-static bool js_cc_scene_Model_updateInstancedAttributes(se::State& s)
+static bool js_cc_scene_Model__updateInstancedAttributes(se::State& s)
 {
     // js_function
     
@@ -13886,18 +13886,18 @@ static bool js_cc_scene_Model_updateInstancedAttributes(se::State& s)
     SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
     // %typemap(in) SWIGTYPE&
     ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Model_updateInstancedAttributes,2,SWIGTYPE_p_ccstd__vectorT_cc__gfx__Attribute_t");
+    SE_PRECONDITION2(ok, false, "Model__updateInstancedAttributes,2,SWIGTYPE_p_ccstd__vectorT_cc__gfx__Attribute_t");
     arg2 = &temp2;
     
     // %typemap(in) SWIGTYPE*
     ok &= sevalue_to_native(args[1], &arg3, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Model_updateInstancedAttributes,3,SWIGTYPE_p_cc__scene__SubModel"); 
+    SE_PRECONDITION2(ok, false, "Model__updateInstancedAttributes,3,SWIGTYPE_p_cc__scene__SubModel"); 
     (arg1)->updateInstancedAttributes((ccstd::vector< cc::gfx::Attribute > const &)*arg2,arg3);
     
     
     return true;
 }
-SE_BIND_FUNC(js_cc_scene_Model_updateInstancedAttributes) 
+SE_BIND_FUNC(js_cc_scene_Model__updateInstancedAttributes) 
 
 static bool js_cc_scene_Model_updateTransform(se::State& s)
 {
@@ -15845,7 +15845,7 @@ bool js_register_cc_scene_Model(se::Object* obj) {
     cls->defineFunction("initSubModel", _SE(js_cc_scene_Model_initSubModel)); 
     cls->defineFunction("getMacroPatches", _SE(js_cc_scene_Model_getMacroPatches)); 
     cls->defineFunction("setSubModelMaterial", _SE(js_cc_scene_Model_setSubModelMaterial)); 
-    cls->defineFunction("updateInstancedAttributes", _SE(js_cc_scene_Model_updateInstancedAttributes)); 
+    cls->defineFunction("_updateInstancedAttributes", _SE(js_cc_scene_Model__updateInstancedAttributes)); 
     cls->defineFunction("updateTransform", _SE(js_cc_scene_Model_updateTransform)); 
     cls->defineFunction("updateUBOs", _SE(js_cc_scene_Model_updateUBOs)); 
     cls->defineFunction("_updateLocalDescriptors", _SE(js_cc_scene_Model__updateLocalDescriptors)); 

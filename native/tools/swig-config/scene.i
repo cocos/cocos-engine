@@ -193,6 +193,7 @@ using namespace cc;
 %rename(_updateLocalDescriptors) cc::scene::Model::updateLocalDescriptors;
 %rename(_initLocalSHDescriptors) cc::scene::Model::initLocalSHDescriptors;
 %rename(_updateLocalSHDescriptors) cc::scene::Model::updateLocalSHDescriptors;
+%rename(_updateInstancedAttributes) cc::scene::Model::updateInstancedAttributes;
 
 %rename(_load) cc::Scene::load;
 %rename(_activate) cc::Scene::activate;
