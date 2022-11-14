@@ -53,12 +53,17 @@ CC_PHYSICS_JOINT_CLASS(RevoluteJoint)
 void setPivotA(float x, float y, float z) override;
 void setPivotB(float x, float y, float z) override;
 void setAxis(float x, float y, float z) override;
-}; // namespace physics
+}; // RevoluteJoint
 
 CC_PHYSICS_JOINT_CLASS(DistanceJoint)
 void setPivotA(float x, float y, float z) override;
 void setPivotB(float x, float y, float z) override;
-}; // namespace cc
+}; // DistanceJoint
+
+CC_PHYSICS_JOINT_CLASS(FixedJoint)
+void setBreakForce(float force) override;
+void setBreakTorque(float torque) override;
+}; // FixedJoint
 
 } // namespace physics
 } // namespace cc

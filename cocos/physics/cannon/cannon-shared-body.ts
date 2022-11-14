@@ -50,9 +50,9 @@ const CollisionEventObject = {
 };
 
 /**
- * node : shared-body = 1 : 1
- * static
- */
+  * node : shared-body = 1 : 1
+  * static
+  */
 export class CannonSharedBody {
     private static readonly sharedBodesMap = new Map<string, CannonSharedBody>();
 
@@ -67,6 +67,8 @@ export class CannonSharedBody {
             const m = PhysicsSystem.instance.collisionMatrix[g];
             newSB.body.collisionFilterGroup = g;
             newSB.body.collisionFilterMask = m;
+            newSB.body.position = new CANNON.Vec3(node.worldPosition.x, node.worldPosition.y, node.worldPosition.z);
+            newSB.body.quaternion = new CANNON.Quaternion(node.worldRotation.x, node.worldRotation.y, node.worldRotation.z, node.worldRotation.w);
             CannonSharedBody.sharedBodesMap.set(node.uuid, newSB);
         }
         if (wrappedBody) {
@@ -75,6 +77,8 @@ export class CannonSharedBody {
             const m = PhysicsSystem.instance.collisionMatrix[g];
             newSB.body.collisionFilterGroup = g;
             newSB.body.collisionFilterMask = m;
+            newSB.body.position = new CANNON.Vec3(node.worldPosition.x, node.worldPosition.y, node.worldPosition.z);
+            newSB.body.quaternion = new CANNON.Quaternion(node.worldRotation.x, node.worldRotation.y, node.worldRotation.z, node.worldRotation.w);
         }
         return newSB;
     }
@@ -92,10 +96,10 @@ export class CannonSharedBody {
     private onCollidedListener = this.onCollided.bind(this);
 
     /**
-     * add or remove from world \
-     * add, if enable \
-     * remove, if disable & shapes.length == 0 & wrappedBody disable
-     */
+      * add or remove from world \
+      * add, if enable \
+      * remove, if disable & shapes.length == 0 & wrappedBody disable
+      */
     set enabled (v: boolean) {
         if (v) {
             if (this.index < 0) {
@@ -105,7 +109,7 @@ export class CannonSharedBody {
             }
         } else if (this.index >= 0) {
             const isRemove = (this.wrappedShapes.length === 0 && this.wrappedBody == null)
-                || (this.wrappedShapes.length === 0 && this.wrappedBody != null && !this.wrappedBody.isEnabled);
+                 || (this.wrappedShapes.length === 0 && this.wrappedBody != null && !this.wrappedBody.isEnabled);
 
             if (isRemove) {
                 this.body.sleep(); // clear velocity etc.
@@ -116,7 +120,7 @@ export class CannonSharedBody {
     }
 
     set reference (v: boolean) {
-        // eslint-disable-next-line no-unused-expressions
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         v ? this.ref++ : this.ref--;
         if (this.ref === 0) { this.destroy(); }
     }

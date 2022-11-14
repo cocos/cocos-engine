@@ -632,6 +632,17 @@ class RevoluteJoint extends Joint {
     }
 }
 
+class FixedJoint extends Joint {
+    constructor () { super(); this._impl = new jsbPhy.FixedJoint(); }
+    setBreakForce (v) { this._impl.setBreakForce(v); }
+    setBreakTorque (v) { this._impl.setBreakTorque(v); }
+    onLoad () {
+        super.onLoad();
+        this.setBreakForce(this._com.breakForce);
+        this.setBreakTorque(this._com.breakTorque);
+    }
+}
+
 cc.physics.selector.register('physx', {
     PhysicsWorld,
     RigidBody,
@@ -645,4 +656,5 @@ cc.physics.selector.register('physx', {
     TerrainShape,
     PointToPointConstraint: SphericalJoint,
     HingeConstraint: RevoluteJoint,
+    FixedConstraint: FixedJoint,
 });
