@@ -39,8 +39,11 @@ class ScreenAdapter extends EventTarget {
     }
 
     public get devicePixelRatio () {
+        if (this._overrideDpr !== -1) {
+            return this._overrideDpr;
+        }
         const sysInfo = minigame.getSystemInfoSync();
-        return sysInfo.pixelRatio > 2 ? 2 : sysInfo.pixelRatio;
+        return sysInfo.pixelRatio;
     }
 
     public get windowSize (): Size {
@@ -121,6 +124,7 @@ class ScreenAdapter extends EventTarget {
     private _cbToUpdateFrameBuffer?: () => void;
     private _resolutionScale = 1;
     private _isProportionalToFrame = false;
+    private _overrideDpr = -1;
 
     constructor () {
         super();
@@ -135,6 +139,7 @@ class ScreenAdapter extends EventTarget {
     public init (options: IScreenOptions, cbToRebuildFrameBuffer: () => void) {
         this._cbToUpdateFrameBuffer = cbToRebuildFrameBuffer;
         this._cbToUpdateFrameBuffer();
+        this._overrideDpr = options.overrideDpr ?? -1;
     }
 
     public requestFullScreen (): Promise<void> {
