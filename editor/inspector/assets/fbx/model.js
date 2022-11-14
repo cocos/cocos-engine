@@ -345,7 +345,7 @@ const Elements = {
 
             let defaultValue = false;
             if (panel.meta.userData) {
-                defaultValue = panel.getDefault(panel.meta.userData.generateLightmapUVNode, defaultValue);
+                defaultValue = getPropValue.call(panel, panel.meta.userData.generateLightmapUVNode, defaultValue);
             }
 
             panel.$.generateLightmapUVNodeCheckbox.value = defaultValue;
