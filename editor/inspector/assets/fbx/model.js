@@ -32,6 +32,10 @@ exports.template = /* html */`
         <ui-label slot="label" value="i18n:ENGINE.assets.fbx.promoteSingleRootNode.name" tooltip="i18n:ENGINE.assets.fbx.promoteSingleRootNode.title"></ui-label>
         <ui-checkbox slot="content" class="promoteSingleRootNode-checkbox"></ui-checkbox>
     </ui-prop>
+    <ui-prop>
+        <ui-label slot="label" value="i18n:ENGINE.assets.fbx.generateLightmapUVNode.name" tooltip="i18n:ENGINE.assets.fbx.generateLightmapUVNode.title"></ui-label>
+        <ui-checkbox slot="content" class="generateLightmapUVNode-checkbox"></ui-checkbox>
+    </ui-prop>
     <ui-section class="mesh-optimizer config" cache-expand="fbx-model-mesh-optimizer">
         <div slot="header" class="header">
             <ui-checkbox slot="content" class="meshOptimizer-checkbox"></ui-checkbox>
@@ -147,6 +151,7 @@ exports.$ = {
     disableMeshSplitCheckbox: '.disableMeshSplit-checkbox',
     allowMeshDataAccessCheckbox: '.allowMeshDataAccess-checkbox',
     promoteSingleRootNodeCheckbox: '.promoteSingleRootNode-checkbox',
+    generateLightmapUVNodeCheckbox: '.generateLightmapUVNode-checkbox',
     meshOptimizerCheckbox: '.meshOptimizer-checkbox',
     meshOptimizerAlgorithmSelect: '.meshOptimizer-algorithm-select',
     // gltfpackOptions 
@@ -325,6 +330,31 @@ const Elements = {
             updateElementReadonly.call(panel, panel.$.promoteSingleRootNodeCheckbox);
         },
     },
+    // move this from ./fbx.js in v3.6.0
+    generateLightmapUVNode: {
+        ready() {
+            const panel = this;
+
+            panel.$.generateLightmapUVNodeCheckbox.addEventListener('change', panel.setProp.bind(panel, 'generateLightmapUVNode', 'boolean'));
+            panel.$.generateLightmapUVNodeCheckbox.addEventListener('confirm', () => {
+                panel.dispatch('snapshot');
+            });
+        },
+        update() {
+            const panel = this;
+
+            let defaultValue = false;
+            if (panel.meta.userData) {
+                defaultValue = panel.getDefault(panel.meta.userData.generateLightmapUVNode, defaultValue);
+            }
+
+            panel.$.generateLightmapUVNodeCheckbox.value = defaultValue;
+
+            updateElementInvalid.call(panel, panel.$.generateLightmapUVNodeCheckbox, 'generateLightmapUVNode');
+            updateElementReadonly.call(panel, panel.$.generateLightmapUVNodeCheckbox);
+        },
+    },
+
     meshOptimizer: {
         ready() {
             const panel = this;

@@ -1737,6 +1737,60 @@ describe('NewGen Anim', () => {
                 },
             });
         });
+
+        test(`Empty->Empty transition`, () => {
+            // SPEC: if both the transition's start and destination are empty state,
+            // the state machine's animation result is as if
+            // the state machine is in a single empty state.
+
+            const fixture = {
+                initial_value: 0.3,
+                layer1_animation_value: 0.8,
+                layer1_weight: 0.8,
+                layer2_weight: 0.6,
+                transition_duration: 0.2,
+            };
+
+            const node = new Node();
+            node.setPosition(fixture.initial_value, 0.0, 0.0);
+
+            const animationGraph = new AnimationGraph();
+            {
+                const layer = animationGraph.addLayer();
+                layer.weight = fixture.layer1_weight;
+                const motionState = layer.stateMachine.addMotion();
+                motionState.motion = createClipMotionPositionX(1.0, fixture.layer1_animation_value);
+                layer.stateMachine.connect(layer.stateMachine.entryState, motionState);
+            }
+            {
+                const layer = animationGraph.addLayer();
+                layer.weight = fixture.layer2_weight;
+                const empty1 = layer.stateMachine.addEmpty();
+                const empty2 = layer.stateMachine.addEmpty();
+                layer.stateMachine.connect(layer.stateMachine.entryState, empty1);
+                const transition = layer.stateMachine.connect(empty1, empty2);
+                transition.duration = fixture.transition_duration;
+                const [condition] = transition.conditions = [new UnaryCondition()];
+                condition.operator = UnaryCondition.Operator.TRUTHY;
+                condition.operand.value = true;
+            }
+
+            const graphEval = createAnimationGraphEval(animationGraph, node);
+            const graphUpdater = new GraphUpdater(graphEval);
+
+            graphUpdater.step(fixture.transition_duration * 0.5);
+
+            let expected = fixture.initial_value;
+            expected = lerp( // Layer 1
+                expected,
+                fixture.layer1_animation_value,
+                fixture.layer1_weight,
+            );
+            // Layer 2 has no effect
+
+            expect(expected).toMatchSnapshot(`Expected result`);
+            expect(node.position.x).toBeCloseTo(expected, DEFAULT_AROUND_NUM_DIGITS);
+        })
     });
 
     describe('Wrap mode', () => {
