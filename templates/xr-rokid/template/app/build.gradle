@@ -100,5 +100,6 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar','*.aar'])
     implementation fileTree(dir: "${COCOS_ENGINE_PATH}/cocos/platform/android/java/libs", include: ['*.jar'])
     implementation project(':libservice')
+    implementation project(':libxrcommon')
     implementation project(':libcocos')
 }
