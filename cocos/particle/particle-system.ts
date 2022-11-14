@@ -1464,6 +1464,15 @@ export class ParticleSystem extends ModelRenderer {
                 }
             }
         }
+
+        if (this.getParticleCount() <= 0) { // Remove drawcall if buffer is 0
+            if (this.processor.getModel()?.scene) {
+                this.processor.detachFromScene();
+                if (this._trailModule && this._trailModule.enable) {
+                    this._trailModule._detachFromScene();
+                }
+            }
+        }
     }
 
     protected beforeRender () {
