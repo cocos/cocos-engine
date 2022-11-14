@@ -530,5 +530,21 @@
             "value": false,
             "internal": true
         }
+    },
+
+    "optimizeDecorators": {
+        "fieldDecorators": [
+            "property", "serializable", "formerlySerializedAs", "editorOnly", "uniquelyReferenced",
+            "type", "override", "executeInEditMode", "menu", "playOnFocus", "inspector", "icon", "help",
+            "editable", "visible", "readOnly", "displayName", "tooltip", "group", "range", "rangeMin",
+            "rangeMax", "rangeStep", "slide", "displayOrder", "unit", "radian", "multiline", "disallowAnimation",
+            "requireComponent", "executionOrder", "disallowMultiple", "allowReplicated", "ccclass"
+        ],
+        
+        "editorDecorators": [
+            "executeInEditMode", "menu", "playOnFocus", "inspector", "icon", "help", "editable", "visible",
+            "readOnly", "displayName", "tooltip", "group", "range", "rangeMin", "rangeMax", "rangeStep", "slide",
+            "displayOrder", "unit", "radian", "multiline", "disallowAnimation"
+        ]
     }
 }

@@ -152,8 +152,8 @@ export const help: (url: string) => ClassDecorator = DEV ? makeEditorClassDecora
  */
 export const editable: LegacyPropertyDecorator = !DEV
     ? emptyDecorator
-    : (target, propertyKey, descriptor) => {
-        const propertyStash = getOrCreatePropertyStash(target, propertyKey, descriptor);
+    : (target, propertyKey, descriptorOrInitializer) => {
+        const propertyStash = getOrCreatePropertyStash(target, propertyKey, descriptorOrInitializer);
         setImplicitVisible(propertyStash);
     };
 
@@ -327,8 +327,8 @@ export const multiline: LegacyPropertyDecorator = !DEV
  */
 export const disallowAnimation: LegacyPropertyDecorator = !DEV
     ? emptyDecorator
-    : (target, propertyKey, descriptor) => {
-        const propertyStash = getOrCreatePropertyStash(target, propertyKey, descriptor);
+    : (target, propertyKey, descriptorOrInitializer) => {
+        const propertyStash = getOrCreatePropertyStash(target, propertyKey, descriptorOrInitializer);
         propertyStash.animatable = false;
     };
 
@@ -336,8 +336,8 @@ function setPropertyStashWithImplicitVisible<TKey extends keyof PropertyStash> (
     key: TKey,
     value: NonNullable<PropertyStash[TKey]>,
 ): LegacyPropertyDecorator {
-    return (target, propertyKey, descriptor) => {
-        const propertyStash = getOrCreatePropertyStash(target, propertyKey, descriptor);
+    return (target, propertyKey, descriptorOrInitializer) => {
+        const propertyStash = getOrCreatePropertyStash(target, propertyKey, descriptorOrInitializer);
         propertyStash[key] = value;
         setImplicitVisible(propertyStash);
     };
@@ -346,8 +346,8 @@ function setPropertyStashWithImplicitVisible<TKey extends keyof PropertyStash> (
 function setPropertyStashVar1WithImplicitVisible<TKey extends keyof PropertyStash> (
     key: TKey,
 ) {
-    return (value: NonNullable<PropertyStash[TKey]>): LegacyPropertyDecorator => (target, propertyKey, descriptor) => {
-        const propertyStash = getOrCreatePropertyStash(target, propertyKey, descriptor);
+    return (value: NonNullable<PropertyStash[TKey]>): LegacyPropertyDecorator => (target, propertyKey, descriptorOrInitializer) => {
+        const propertyStash = getOrCreatePropertyStash(target, propertyKey, descriptorOrInitializer);
         propertyStash[key] = value;
         setImplicitVisible(propertyStash);
     };
@@ -360,8 +360,8 @@ function setImplicitVisible (propertyStash: PropertyStash) {
 function setPropertyStashWithImplicitI18n<TKey extends keyof PropertyStash> (
     key: TKey,
 ) {
-    return (value: NonNullable<PropertyStash[TKey]>): LegacyPropertyDecorator => (target, propertyKey, descriptor) => {
-        const propertyStash = getOrCreatePropertyStash(target, propertyKey, descriptor);
+    return (value: NonNullable<PropertyStash[TKey]>): LegacyPropertyDecorator => (target, propertyKey, descriptorOrInitializer) => {
+        const propertyStash = getOrCreatePropertyStash(target, propertyKey, descriptorOrInitializer);
         const prefix = 'i18n:';
         if (value.startsWith(prefix)) {
             const extensionPrefix = 'ENGINE.';
