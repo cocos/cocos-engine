@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 #include "jsb_dragonbones_manual.h"
-#include "MappingUtils.h"
 #include "cocos/bindings/auto/jsb_dragonbones_auto.h"
 #include "cocos/bindings/auto/jsb_editor_support_auto.h"
 #include "cocos/bindings/jswrapper/SeApi.h"

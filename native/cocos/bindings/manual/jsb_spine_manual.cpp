@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 #include "jsb_spine_manual.h"
-#include "MappingUtils.h"
 #include "base/Data.h"
 #include "base/memory/Memory.h"
 #include "bindings/auto/jsb_spine_auto.h"
