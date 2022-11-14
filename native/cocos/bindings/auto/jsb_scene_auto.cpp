@@ -7742,7 +7742,7 @@ bool js_register_scene_Model(se::Object* obj) // NOLINT(readability-identifier-n
     cls->defineFunction("setInstancedAttribute", _SE(js_scene_Model_setInstancedAttribute));
     cls->defineFunction("setSubModelMaterial", _SE(js_scene_Model_setSubModelMaterial));
     cls->defineFunction("setSubModelMesh", _SE(js_scene_Model_setSubModelMesh));
-    cls->defineFunction("updateInstancedAttributes", _SE(js_scene_Model_updateInstancedAttributes));
+    cls->defineFunction("_updateInstancedAttributes", _SE(js_scene_Model_updateInstancedAttributes));
     cls->defineFunction("updateLightingmap", _SE(js_scene_Model_updateLightingmap));
     cls->defineFunction("_updateLocalDescriptors", _SE(js_scene_Model_updateLocalDescriptors));
     cls->defineFunction("updateLocalShadowBias", _SE(js_scene_Model_updateLocalShadowBias));
