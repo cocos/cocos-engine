@@ -45,6 +45,7 @@ public:
     /**
      @brief set display stats information.
      */
-    void setDisplayStats(bool isShow) override;};
+    void setDisplayStats(bool isShow) override;
+};
 
 } // namespace cc
