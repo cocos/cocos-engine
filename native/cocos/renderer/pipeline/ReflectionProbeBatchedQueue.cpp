@@ -51,6 +51,10 @@ ReflectionProbeBatchedQueue::ReflectionProbeBatchedQueue(RenderPipeline *pipelin
 }
 
 ReflectionProbeBatchedQueue::~ReflectionProbeBatchedQueue() {
+    destroy();
+}
+
+void ReflectionProbeBatchedQueue::destroy() {
     CC_SAFE_DELETE(_batchedQueue)
     CC_SAFE_DELETE(_instancedQueue)
 }

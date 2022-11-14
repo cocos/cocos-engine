@@ -46,6 +46,7 @@ public:
     explicit ReflectionProbeBatchedQueue(RenderPipeline *);
     ~ReflectionProbeBatchedQueue();
 
+    void destroy();
     void clear();
     void gatherRenderObjects(const scene::Camera *, gfx::CommandBuffer *, const scene::ReflectionProbe *probe);
     void add(const scene::Model *);

@@ -52,7 +52,7 @@ public:
     void onBatchCreated(bool dontSyncChildPrefab) override;
     bool destroy() override;
 
-    int32_t getNewReflectionProbeId() { return _reflectionProbeId++; }
+    inline int32_t getNewReflectionProbeId() { return _reflectionProbeId++; }
 
 protected:
     void updateScene() override { _scene = this; }
