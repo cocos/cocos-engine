@@ -96,7 +96,7 @@ namespace pipeline
          * second: material identifier
          */
         using shaderRecord = std::pair<subMeshGeomDescriptor, uint32_t>;
-        std::vector<shaderRecord> _hitGroupShaderBindingTable;
+        std::vector<shaderRecord> _hitGroupShaderRecordList;
 
         IntrusivePtr<gfx::Buffer> _geomDescGPUBuffer;
         IntrusivePtr<gfx::Buffer> _materialDescGPUBuffer;

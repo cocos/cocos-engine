@@ -348,9 +348,17 @@ CCProgram ray-query-fs %{
     MeshDesc mesh = instanceDescs[hit_instance_id];
     int hit_geom_id = rayQueryGetIntersectionGeometryIndexEXT(rayQuery,true);
     GeomDesc geom = geomDescs[mesh.subMeshGeometryOffset+hit_geom_id];
-    IndicesBuffer16  indices  = IndicesBuffer16(geom.indexAddress);
     int hit_prim_id = rayQueryGetIntersectionPrimitiveIndexEXT(rayQuery,true);
-    ivec3 index = indices.i[hit_prim_id];
+    ivec3 index;
+
+    if(mesh.padding == 0){
+      //IndicesBuffer16  indices  = IndicesBuffer16(geom.indexAddress);
+      index = IndicesBuffer16(geom.indexAddress).i[hit_prim_id];
+    }else{
+      //IndicesBuffer32  indices  = IndicesBuffer32(geom.indexAddress);
+      index = IndicesBuffer32(geom.indexAddress).i[hit_prim_id];
+    }
+    
     VertexAttributesBuffer vertexAttr = VertexAttributesBuffer(geom.vertexAddress);
     VertexAttributes va0 = vertexAttr.v[index.x];
     VertexAttributes va1 = vertexAttr.v[index.y];
@@ -563,8 +571,7 @@ CCProgram ray-query-fs %{
         int hit_geom_id = rayQueryGetIntersectionGeometryIndexEXT(rayQuery,true);
         HitRecord hitRecordWS = getHitRecordWorldSpace(rayQuery);
         s.albedo.rgb = hitRecordWS.albedo;
-        if(hit_geom_id == 46){
-          /*
+        if(false){
           vec3 hitNormal = hitRecordWS.normal;
           direction = reflect(direction,hitNormal);
           rayQueryInitializeEXT(rayQuery, cc_topLevelAS, gl_RayFlagsOpaqueEXT,0xFF,hitRecordWS.position,0.01,direction,1000.0);
@@ -575,10 +582,11 @@ CCProgram ray-query-fs %{
             vec4 hitTangent = hitRecordWS.tangent;
             vec3 bitangent = cross(hitNormal, hitTangent.xyz) * hitTangent.w;
             TBN = mat3(normalize(hitTangent.xyz),normalize(bitangent), normalize(hitNormal));
-            s.albedo.rgb = hitRecordWS.albedo+calculate_diffuse(frame_id,seed,TBN,origin);
+            s.albedo.rgb = hitRecordWS.albedo+calculate_diffuse(frame_id,seed,TBN,origin,s);
           }else{
             s.albedo.rgb = vec3(0.0,0.0,0.0);
-          }*/
+          }
+          //s.albedo.rgb += calculate_diffuse(frame_id,seed,TBN,origin,s);
         }else{
           s.albedo.rgb += calculate_diffuse(frame_id,seed,TBN,origin,s);
         }

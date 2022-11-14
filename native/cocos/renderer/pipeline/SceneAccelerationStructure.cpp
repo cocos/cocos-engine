@@ -80,7 +80,8 @@ namespace pipeline
 
         const auto& subModels = pModel->getSubModels();
         shadingInstanceDescriptor.subMeshCount = subModels.size();
-
+        //todo temporal code
+        shadingInstanceDescriptor.padding = subModels[0]->getSubMesh()->getIndexBuffer()->getStride() == 2 ? VK_INDEX_TYPE_UINT16 : VK_INDEX_TYPE_UINT32;
         tlasGeom.instanceCustomIdx = ~0U;
         tlasGeom.shaderBindingTableRecordOffset = ~0U;
         tlasGeom.mask = 0xFF;
@@ -156,7 +157,6 @@ namespace pipeline
             for (const auto& sm : subModels) {
                 static int matId = 0;
                 const auto & passes = sm->getPasses();
-                
                 _materialDesc.emplace_back(matId++);
             }
         }
@@ -190,16 +190,16 @@ namespace pipeline
 
         std::transform(geometries.cbegin(), geometries.cend(), subModels.cbegin(),std::back_inserter(instanceShaderRecords),transformer);
 
-        const auto & result = std::search(_hitGroupShaderBindingTable.cbegin(), _hitGroupShaderBindingTable.cend(), instanceShaderRecords.cbegin(), instanceShaderRecords.cend());
-        if (result!=_hitGroupShaderBindingTable.cend()) {
-            const auto offset = static_cast<uint32_t>(std::distance(_hitGroupShaderBindingTable.cbegin(), result));
-            CC_ASSERT(offset < _hitGroupShaderBindingTable.size());
+        const auto & result = std::search(_hitGroupShaderRecordList.cbegin(), _hitGroupShaderRecordList.cend(), instanceShaderRecords.cbegin(), instanceShaderRecords.cend());
+        if (result!=_hitGroupShaderRecordList.cend()) {
+            const auto offset = static_cast<uint32_t>(std::distance(_hitGroupShaderRecordList.cbegin(), result));
+            CC_ASSERT(offset < _hitGroupShaderRecordList.size());
             tlasGeom.shaderBindingTableRecordOffset = offset;
         }
         
         if (tlasGeom.shaderBindingTableRecordOffset == ~0U) {
-            tlasGeom.shaderBindingTableRecordOffset = static_cast<uint32_t>(_hitGroupShaderBindingTable.size());
-            _hitGroupShaderBindingTable.insert(_hitGroupShaderBindingTable.end(), instanceShaderRecords.begin(), instanceShaderRecords.end());
+            tlasGeom.shaderBindingTableRecordOffset = static_cast<uint32_t>(_hitGroupShaderRecordList.size());
+            _hitGroupShaderRecordList.insert(_hitGroupShaderRecordList.end(), instanceShaderRecords.begin(), instanceShaderRecords.end());
         }
 
         _modelMap.emplace(pModel->getNode()->getUuid(), std::pair{true, tlasGeom});
