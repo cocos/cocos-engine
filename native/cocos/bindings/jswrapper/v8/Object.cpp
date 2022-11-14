@@ -587,14 +587,15 @@ void Object::setPrivateObject(PrivateObjectBase *data) {
     #if CC_DEBUG
     // CC_ASSERT(!NativePtrToObjectMap::contains(data->getRaw()));
     if (data != nullptr) {
-        NativePtrToObjectMap::forEach(data->getRaw(), _getClass(), [&](se::Object *seObj) {
-            auto *pri = seObj->getPrivateObject();
-            SE_LOGE("Already exists object %s/[%s], trying to add %s/[%s]\n", pri->getName(), typeid(*pri).name(), data->getName(), typeid(*data).name());
+        NativePtrToObjectMap::filter(data->getRaw(), _getClass())
+            .forEach([&](se::Object *seObj) {
+                auto *pri = seObj->getPrivateObject();
+                SE_LOGE("Already exists object %s/[%s], trying to add %s/[%s]\n", pri->getName(), typeid(*pri).name(), data->getName(), typeid(*data).name());
         #if JSB_TRACK_OBJECT_CREATION
-            SE_LOGE(" previous object created at %s\n", it->second->_objectCreationStackFrame.c_str());
+                SE_LOGE(" previous object created at %s\n", it->second->_objectCreationStackFrame.c_str());
         #endif
-            CC_ASSERT(false);
-        });
+                CC_ASSERT(false);
+            });
     }
     #endif
     internal::setPrivate(__isolate, _obj, this);

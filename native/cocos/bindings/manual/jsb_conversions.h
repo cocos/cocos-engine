@@ -325,14 +325,14 @@ native_ptr_to_seval(T &v_ref, se::Value *ret, bool *isReturnCachedValue = nullpt
     }
 
     se::Class *cls = JSBClassType::findClass(v);
-    se::NativePtrToObjectMap::forEach(
-        v, cls,
-        [&](se::Object *foundObj) {
+    se::NativePtrToObjectMap::filter(v, cls)
+        .forEach([&](se::Object *foundObj) {
             if (isReturnCachedValue != nullptr) {
                 *isReturnCachedValue = true;
             }
-            ret->setObject(foundObj); },
-        [&]() {
+            ret->setObject(foundObj);
+        })
+        .orElse([&]() {
             // If we couldn't find native object in map, then the native object is created from native code. e.g. TMXLayer::getTileAt
             // CC_LOG_DEBUGWARN("WARNING: non-Ref type: (%s) isn't catched!", typeid(*v).name());
             CC_ASSERT(cls != nullptr);
@@ -358,17 +358,17 @@ bool native_ptr_to_rooted_seval( // NOLINT(readability-identifier-naming)
     }
 
     se::Class *cls = JSBClassType::findClass(v);
-    se::NativePtrToObjectMap::forEach(
-        v, cls,
-        [&](se::Object *foundObj) {
-            ret->setObject(foundObj);
-            CC_ASSERT(foundObj->isRooted());
-            if (isReturnCachedValue != nullptr) {
-                *isReturnCachedValue = true;
-            }
-            // CC_LOG_DEBUG("return cached object: %s, se::Object:%p, native: %p", typeid(*v).name(), obj, v);
-        },
-        [&]() {
+    se::NativePtrToObjectMap::filter(v, cls)
+        .forEach(
+            [&](se::Object *foundObj) {
+                ret->setObject(foundObj);
+                CC_ASSERT(foundObj->isRooted());
+                if (isReturnCachedValue != nullptr) {
+                    *isReturnCachedValue = true;
+                }
+                // CC_LOG_DEBUG("return cached object: %s, se::Object:%p, native: %p", typeid(*v).name(), obj, v);
+            })
+        .orElse([&]() {
             // If we couldn't find native object in map, then the native object is created from native code. e.g. TMXLayer::getTileAt
             CC_ASSERT(cls != nullptr);
             auto *obj = se::Object::createObjectWithClass(cls);
@@ -394,15 +394,15 @@ bool native_ptr_to_seval(T *vp, se::Class *cls, se::Value *ret, bool *isReturnCa
         return true;
     }
 
-    se::NativePtrToObjectMap::forEach(
-        v, cls,
-        [&](se::Object *foundObj) {
-            if (isReturnCachedValue != nullptr) {
-                *isReturnCachedValue = true;
-            }
-            ret->setObject(foundObj);
-        },
-        [&]() {
+    se::NativePtrToObjectMap::filter(v, cls)
+        .forEach(
+            [&](se::Object *foundObj) {
+                if (isReturnCachedValue != nullptr) {
+                    *isReturnCachedValue = true;
+                }
+                ret->setObject(foundObj);
+            })
+        .orElse([&]() {
             // If we couldn't find native object in map, then the native object is created from native code. e.g. TMXLayer::getTileAt
             // CC_LOG_DEBUGWARN("WARNING: Ref type: (%s) isn't catched!", typeid(*v).name());
             CC_ASSERT(cls != nullptr);
@@ -428,16 +428,16 @@ bool native_ptr_to_seval(T *vp, se::Value *ret, bool *isReturnCachedValue = null
     }
 
     se::Class *cls = JSBClassType::findClass(v);
-    se::NativePtrToObjectMap::forEach(
-        v, cls,
-        [&](se::Object *foundObj) {
-            // CC_LOG_DEBUG("INFO: Found Ref type: (%s, native: %p, se: %p) from cache!", typeid(*v).name(), v, obj);
-            if (isReturnCachedValue != nullptr) {
-                *isReturnCachedValue = true;
-            }
-            ret->setObject(foundObj);
-        },
-        [&]() {
+    se::NativePtrToObjectMap::filter(v, cls)
+        .forEach(
+            [&](se::Object *foundObj) {
+                // CC_LOG_DEBUG("INFO: Found Ref type: (%s, native: %p, se: %p) from cache!", typeid(*v).name(), v, obj);
+                if (isReturnCachedValue != nullptr) {
+                    *isReturnCachedValue = true;
+                }
+                ret->setObject(foundObj);
+            })
+        .orElse([&]() {
             // If we couldn't find native object in map, then the native object is created from native code. e.g. TMXLayer::getTileAt
             // CC_LOG_DEBUGWARN("WARNING: Ref type: (%s) isn't catched!", typeid(*v).name());
             CC_ASSERT(cls != nullptr);
@@ -1442,12 +1442,11 @@ inline bool nativevalue_to_se(const std::shared_ptr<T> &from, se::Value &to, se:
         return true;
     }
     se::Class *cls = JSBClassType::findClass(nativePtr);
-    se::NativePtrToObjectMap::forEach(
-        nativePtr, cls,
-        [&](se::Object *foundObj) {
+    se::NativePtrToObjectMap::filter(nativePtr, cls)
+        .forEach([&](se::Object *foundObj) {
             to.setObject(foundObj);
-        },
-        [&]() {
+        })
+        .orElse([&]() {
             CC_ASSERT(cls);
             se::Object *obj = se::Object::createObjectWithClass(cls);
             to.setObject(obj, true);
@@ -1465,12 +1464,11 @@ inline bool nativevalue_to_se(const cc::IntrusivePtr<T> &from, se::Value &to, se
         return true;
     }
     se::Class *cls = JSBClassType::findClass(nativePtr);
-    se::NativePtrToObjectMap::forEach(
-        nativePtr, cls,
-        [&](se::Object *foundObj) {
+    se::NativePtrToObjectMap::filter(nativePtr, cls)
+        .forEach([&](se::Object *foundObj) {
             to.setObject(foundObj);
-        },
-        [&]() {
+        })
+        .orElse([&]() {
             CC_ASSERT(cls);
             se::Object *obj = se::Object::createObjectWithClass(cls);
             to.setObject(obj, true);

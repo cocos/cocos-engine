@@ -39,22 +39,46 @@ public:
     // key: native ptr, value: se::Object
     using Map = ccstd::unordered_multimap<void *, Object *>;
 
+    struct OptionalCallback {
+        se::Object *seObj{nullptr};
+        /**
+         * @brief Invoke callback function when object is empty
+         */
+        template <typename Fn>
+        OptionalCallback orElse(const Fn &fn) {
+            if (!seObj) {
+                fn();
+            }
+            return *this;
+        }
+        /**
+         * @brief Invoke callback function when object is **NOT** empty
+         */
+        template <typename Fn>
+        OptionalCallback forEach(const Fn &fn) {
+            if (seObj) {
+                fn(seObj);
+            }
+            return *this;
+        }
+    };
+
     static bool init();
     static void destroy();
     static bool isValid();
 
     /**
-     * @deprecated Use `contains` or `forEach` to query or manipulate the elements of the map, 
+     * @deprecated Use `contains` or `filter` to query or manipulate the elements of the map,
      */
     CC_DEPRECATED(3.7)
     static Map::iterator find(void *v);
     /**
-     * @deprecated Use `contains` or `forEach` to query or manipulate the elements of the map, 
+     * @deprecated Use `contains` or `filter` to query or manipulate the elements of the map,
      */
     CC_DEPRECATED(3.7)
     static Map::iterator begin();
     /**
-     * @deprecated Use `contains` or `forEach` to query or manipulate the elements of the map, 
+     * @deprecated Use `contains` or `filter` to query or manipulate the elements of the map,
      */
     CC_DEPRECATED(3.7)
     static Map::iterator end();
@@ -96,7 +120,7 @@ public:
     }
 
     /**
-     * @brief Iterate se::Object with specified se::Class
+     * @brief Iterate se::Object with specified key
      */
     template <typename T, typename Fn>
     static void forEach(T *nativeObj, const Fn &func) {
@@ -113,10 +137,28 @@ public:
         }
     }
     /**
+     * @brief Filter se::Object* with key and se::Class value
+     */
+    template <typename T>
+    static OptionalCallback filter(T *nativeObj, se::Class *kls) {
+        se::Object *target;
+        findWithCallback(
+            nativeObj, kls,
+            [&](se::Object *seObj) {
+                target = seObj;
+            },
+            [&]() {
+                target = nullptr;
+            });
+        return OptionalCallback{target};
+    }
+
+private:
+    /**
      * @brief Iterate se::Object with specified se::Class
      */
     template <typename T, typename Fn1, typename Fn2>
-    static void forEach(T *nativeObj, se::Class *kls, const Fn1 &eachCallback, const Fn2 &&emptyCallback) {
+    static void findWithCallback(T *nativeObj, se::Class *kls, const Fn1 &eachCallback, const Fn2 &&emptyCallback) {
         int eleCount = 0;
         auto range = __nativePtrToObjectMap->equal_range(const_cast<std::remove_const_t<T> *>(nativeObj));
 
@@ -140,21 +182,6 @@ public:
             }
         }
     }
-    /**
-     * @brief Call `foundCb` with the filtered se::Object*
-     * 
-     * @tparam T 
-     * @tparam Fn1 
-     * @param nativeObj 
-     * @param kls 
-     * @param foundCb 
-     */
-    template <typename T, typename Fn1>
-    static void forEach(T *nativeObj, se::Class *kls, const Fn1& foundCb) {
-        forEach(nativeObj, kls, foundCb, nullptr);
-    }
-
-private:
     static void emplace(void *nativeObj, Object *seObj);
     static Map *__nativePtrToObjectMap; // NOLINT
     static bool __isValid;              // NOLINT
