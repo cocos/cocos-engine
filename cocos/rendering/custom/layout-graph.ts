@@ -60,7 +60,7 @@ export function getLayoutGraphValueName (e: LayoutGraphValue): string {
     }
 }
 
-interface LayoutGraphValueType {
+export interface LayoutGraphValueType {
     [LayoutGraphValue.RenderStage]: number
     [LayoutGraphValue.RenderPhase]: RenderPhase
 }
@@ -70,7 +70,7 @@ export interface LayoutGraphVisitor {
     renderPhase(value: RenderPhase): unknown;
 }
 
-type LayoutGraphObject = number | RenderPhase;
+export type LayoutGraphObject = number | RenderPhase;
 
 //-----------------------------------------------------------------
 // Graph Concept
@@ -118,12 +118,12 @@ export const enum LayoutGraphComponent {
     Descriptors,
 }
 
-interface LayoutGraphComponentType {
+export interface LayoutGraphComponentType {
     [LayoutGraphComponent.Name]: string;
     [LayoutGraphComponent.Descriptors]: DescriptorDB;
 }
 
-interface LayoutGraphComponentPropertyMap {
+export interface LayoutGraphComponentPropertyMap {
     [LayoutGraphComponent.Name]: LayoutGraphNameMap;
     [LayoutGraphComponent.Descriptors]: LayoutGraphDescriptorsMap;
 }
@@ -676,7 +676,7 @@ export function getLayoutGraphDataValueName (e: LayoutGraphDataValue): string {
     }
 }
 
-interface LayoutGraphDataValueType {
+export interface LayoutGraphDataValueType {
     [LayoutGraphDataValue.RenderStage]: RenderStageData
     [LayoutGraphDataValue.RenderPhase]: RenderPhaseData
 }
@@ -686,7 +686,7 @@ export interface LayoutGraphDataVisitor {
     renderPhase(value: RenderPhaseData): unknown;
 }
 
-type LayoutGraphDataObject = RenderStageData | RenderPhaseData;
+export type LayoutGraphDataObject = RenderStageData | RenderPhaseData;
 
 //-----------------------------------------------------------------
 // Graph Concept
@@ -748,13 +748,13 @@ export const enum LayoutGraphDataComponent {
     Layout,
 }
 
-interface LayoutGraphDataComponentType {
+export interface LayoutGraphDataComponentType {
     [LayoutGraphDataComponent.Name]: string;
     [LayoutGraphDataComponent.Update]: UpdateFrequency;
     [LayoutGraphDataComponent.Layout]: PipelineLayoutData;
 }
 
-interface LayoutGraphDataComponentPropertyMap {
+export interface LayoutGraphDataComponentPropertyMap {
     [LayoutGraphDataComponent.Name]: LayoutGraphDataNameMap;
     [LayoutGraphDataComponent.Update]: LayoutGraphDataUpdateMap;
     [LayoutGraphDataComponent.Layout]: LayoutGraphDataLayoutMap;

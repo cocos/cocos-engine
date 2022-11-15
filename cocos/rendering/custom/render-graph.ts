@@ -115,7 +115,7 @@ export function getResourceGraphValueName (e: ResourceGraphValue): string {
     }
 }
 
-interface ResourceGraphValueType {
+export interface ResourceGraphValueType {
     [ResourceGraphValue.Managed]: ManagedResource
     [ResourceGraphValue.ManagedBuffer]: ManagedBuffer
     [ResourceGraphValue.ManagedTexture]: ManagedTexture
@@ -135,7 +135,7 @@ export interface ResourceGraphVisitor {
     swapchain(value: RenderSwapchain): unknown;
 }
 
-type ResourceGraphObject = ManagedResource
+export type ResourceGraphObject = ManagedResource
 | ManagedBuffer
 | ManagedTexture
 | Buffer
@@ -224,7 +224,7 @@ export const enum ResourceGraphComponent {
     Sampler,
 }
 
-interface ResourceGraphComponentType {
+export interface ResourceGraphComponentType {
     [ResourceGraphComponent.Name]: string;
     [ResourceGraphComponent.Desc]: ResourceDesc;
     [ResourceGraphComponent.Traits]: ResourceTraits;
@@ -232,7 +232,7 @@ interface ResourceGraphComponentType {
     [ResourceGraphComponent.Sampler]: SamplerInfo;
 }
 
-interface ResourceGraphComponentPropertyMap {
+export interface ResourceGraphComponentPropertyMap {
     [ResourceGraphComponent.Name]: ResourceGraphNameMap;
     [ResourceGraphComponent.Desc]: ResourceGraphDescMap;
     [ResourceGraphComponent.Traits]: ResourceGraphTraitsMap;
@@ -758,12 +758,12 @@ export const enum SubpassGraphComponent {
     Subpass,
 }
 
-interface SubpassGraphComponentType {
+export interface SubpassGraphComponentType {
     [SubpassGraphComponent.Name]: string;
     [SubpassGraphComponent.Subpass]: RasterSubpass;
 }
 
-interface SubpassGraphComponentPropertyMap {
+export interface SubpassGraphComponentPropertyMap {
     [SubpassGraphComponent.Name]: SubpassGraphNameMap;
     [SubpassGraphComponent.Subpass]: SubpassGraphSubpassMap;
 }
@@ -1157,7 +1157,7 @@ export function getRenderGraphValueName (e: RenderGraphValue): string {
     }
 }
 
-interface RenderGraphValueType {
+export interface RenderGraphValueType {
     [RenderGraphValue.Raster]: RasterPass
     [RenderGraphValue.Compute]: ComputePass
     [RenderGraphValue.Copy]: CopyPass
@@ -1187,7 +1187,7 @@ export interface RenderGraphVisitor {
     viewport(value: Viewport): unknown;
 }
 
-type RenderGraphObject = RasterPass
+export type RenderGraphObject = RasterPass
 | ComputePass
 | CopyPass
 | MovePass
@@ -1278,14 +1278,14 @@ export const enum RenderGraphComponent {
     Valid,
 }
 
-interface RenderGraphComponentType {
+export interface RenderGraphComponentType {
     [RenderGraphComponent.Name]: string;
     [RenderGraphComponent.Layout]: string;
     [RenderGraphComponent.Data]: RenderData;
     [RenderGraphComponent.Valid]: boolean;
 }
 
-interface RenderGraphComponentPropertyMap {
+export interface RenderGraphComponentPropertyMap {
     [RenderGraphComponent.Name]: RenderGraphNameMap;
     [RenderGraphComponent.Layout]: RenderGraphLayoutMap;
     [RenderGraphComponent.Data]: RenderGraphDataMap;
