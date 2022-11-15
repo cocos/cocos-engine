@@ -339,6 +339,7 @@ export default class TrailModule {
     private _iBuffer: Uint16Array | null = null;
     private _needTransform = false;
     private _material: Material | null = null;
+    private _inited: boolean;
 
     constructor () {
         this._iaInfo = new IndirectBuffer([new DrawInfo()]);
@@ -356,6 +357,8 @@ export default class TrailModule {
         }
 
         this._particleTrail = new Map<Particle, TrailSegment>();
+
+        this._inited = false;
     }
 
     public onInit (ps) {
@@ -382,6 +385,7 @@ export default class TrailModule {
         if (this._enable) {
             this.enable = this._enable;
         }
+        this._inited = true;
     }
 
     public onEnable () {
