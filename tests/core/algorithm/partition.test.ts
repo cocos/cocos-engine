@@ -1,4 +1,4 @@
-import { partition } from "../../../cocos/core";
+import { partition } from "../../../cocos/core/algorithm/partition";
 
 test(`Partition algorithm`, () => {
     type Element = { /** The value. */ v: number, /** Result of the predicate function. */ p: boolean };
