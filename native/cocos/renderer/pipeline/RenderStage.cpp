@@ -29,7 +29,7 @@
 namespace cc {
 namespace pipeline {
 RenderStage::RenderStage()
-: _device(gfx::Device::getInstance()) {
+: _device(CC_GFX_DEVICE()) {
 }
 
 RenderStage::~RenderStage() = default;

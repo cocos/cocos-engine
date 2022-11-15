@@ -72,14 +72,15 @@ events::Close::Listener EventDispatcher::listenerClose;
 uint32_t EventDispatcher::hashListenerId = 1;
 
 bool EventDispatcher::initialized() {
-    return inited && se::ScriptEngine::getInstance()->isValid();
+    return inited && CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->isValid();
 }
 
-void EventDispatcher::init() {
+bool EventDispatcher::doInit() {
     inited = true;
-    se::ScriptEngine::getInstance()->addBeforeCleanupHook([]() {
-        EventDispatcher::destroy();
-    });
+    // bool should deinit automatically
+    //CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->addBeforeCleanupHook([]() {
+    //    EventDispatcher::destroy();
+    //});
 
     if (!busListenerInited) {
         listenerTouch.bind(&dispatchTouchEvent);
@@ -96,9 +97,10 @@ void EventDispatcher::init() {
         listenerRestartVM.bind(&dispatchRestartVM);
         busListenerInited = true;
     }
+    return true;
 }
 
-void EventDispatcher::destroy() {
+bool EventDispatcher::doDeinit(){
     for (auto *touchObj : jsTouchObjPool) {
         touchObj->unroot();
         touchObj->decRef();
@@ -137,6 +139,7 @@ void EventDispatcher::destroy() {
 
     inited = false;
     tickVal.setUndefined();
+    return true;
 }
 
 void EventDispatcher::dispatchTouchEvent(const TouchEvent &touchEvent) {
@@ -327,19 +330,19 @@ void EventDispatcher::dispatchControllerEvent(const ControllerEvent &controllerE
 }
 
 void EventDispatcher::dispatchTickEvent(float /*dt*/) {
-    if (!se::ScriptEngine::getInstance()->isValid()) {
+    if (!CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->isValid()) {
         return;
     }
 
     se::AutoHandleScope scope;
     if (tickVal.isUndefined()) {
-        se::ScriptEngine::getInstance()->getGlobalObject()->getProperty("gameTick", &tickVal);
+        CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->getGlobalObject()->getProperty("gameTick", &tickVal);
     }
 
     static std::chrono::steady_clock::time_point prevTime;
     prevTime = std::chrono::steady_clock::now();
 
-    int64_t milliSeconds = std::chrono::duration_cast<std::chrono::milliseconds>(prevTime - se::ScriptEngine::getInstance()->getStartTime()).count();
+    int64_t milliSeconds = std::chrono::duration_cast<std::chrono::milliseconds>(prevTime - CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->getStartTime()).count();
     tickArgsValArr[0].setDouble(static_cast<double>(milliSeconds));
 
     if (!tickVal.isUndefined()) {
@@ -364,7 +367,7 @@ void EventDispatcher::dispatchResizeEvent(int width, int height, uint32_t window
 }
 
 void EventDispatcher::dispatchOrientationChangeEvent(int orientation) {
-    if (!se::ScriptEngine::getInstance()->isValid()) {
+    if (!CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->isValid()) {
         return;
     }
 
@@ -405,7 +408,7 @@ void EventDispatcher::dispatchCloseEvent() {
 }
 
 void EventDispatcher::doDispatchJsEvent(const char *jsFunctionName, const std::vector<se::Value> &args) {
-    if (!se::ScriptEngine::getInstance()->isValid()) {
+    if (!CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->isValid()) {
         return;
     }
 

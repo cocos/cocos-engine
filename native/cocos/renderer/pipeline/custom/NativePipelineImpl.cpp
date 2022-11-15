@@ -77,7 +77,7 @@ SceneTask *NativeSceneTransversal::transverse(SceneVisitor *visitor) const {
 }
 
 NativePipeline::NativePipeline(const allocator_type &alloc) noexcept
-: device(gfx::Device::getInstance()),
+: device(CC_GFX_DEVICE()),
   globalDSManager(std::make_unique<pipeline::GlobalDSManager>()),
   layoutGraph(alloc),
   pipelineSceneData(ccnew pipeline::PipelineSceneData()), // NOLINT
@@ -386,7 +386,7 @@ bool NativePipeline::activate(gfx::Swapchain *swapchainIn) {
     globalDSManager->activate(device);
     pipelineSceneData->activate(device);
 #if CC_USE_DEBUG_RENDERER
-    DebugRenderer::getInstance()->activate(device);
+    CC_DEBUG_RENDERER->activate(device);
 #endif
     // generate macros here rather than construct func because _clusterEnabled
     // switch may be changed in root.ts setRenderPipeline() function which is after

@@ -29,6 +29,7 @@
 #include "core/assets/TextureBase.h"
 #include "core/data/JSBNativeDataHolder.h"
 #include "jsb_scene_manual.h"
+#include "application/ApplicationManager.h"
 
 #ifndef JSB_ALLOC
     #define JSB_ALLOC(kls, ...) new (std::nothrow) kls(__VA_ARGS__)
@@ -77,14 +78,14 @@ static bool js_assets_SimpleTexture_registerListeners(se::State &s) // NOLINT(re
         se::AutoHandleScope hs;
         se::Value arg0;
         nativevalue_to_se(texture, arg0, nullptr);
-        se::ScriptEngine::getInstance()->callFunction(thisObj, "_onGFXTextureUpdated", 1, &arg0);
+        CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->callFunction(thisObj, "_onGFXTextureUpdated", 1, &arg0);
     });
 
     cobj->on<cc::SimpleTexture::AfterAssignImage>([thisObj](cc::SimpleTexture * /*emitter*/, cc::ImageAsset *image) {
         se::AutoHandleScope hs;
         se::Value arg0;
         nativevalue_to_se(image, arg0, nullptr);
-        se::ScriptEngine::getInstance()->callFunction(thisObj, "_onAfterAssignImage", 1, &arg0);
+        CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->callFunction(thisObj, "_onAfterAssignImage", 1, &arg0);
     });
 
     return true;
@@ -100,7 +101,7 @@ static bool js_assets_TextureBase_registerGFXSamplerUpdatedListener(se::State &s
         se::AutoHandleScope hs;
         se::Value arg0;
         nativevalue_to_se(sampler, arg0, nullptr);
-        se::ScriptEngine::getInstance()->callFunction(thisObj, "_onGFXSamplerUpdated", 1, &arg0);
+        CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->callFunction(thisObj, "_onGFXSamplerUpdated", 1, &arg0);
     });
 
     return true;
@@ -114,7 +115,7 @@ static bool js_assets_Material_registerPassesUpdatedListener(se::State &s) // NO
     auto *thisObj = s.thisObject();
     cobj->on<cc::Material::PassesUpdated>([thisObj](cc::Material * /*emitter*/ ){
         se::AutoHandleScope hs;
-        se::ScriptEngine::getInstance()->callFunction(thisObj, "_onPassesUpdated", 0, nullptr);
+        CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->callFunction(thisObj, "_onPassesUpdated", 0, nullptr);
     });
 
     return true;

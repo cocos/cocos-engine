@@ -80,7 +80,7 @@ Manifest::Manifest(const std::string &manifestUrl /* = ""*/)
   _loaded(false),
   _updating(false) {
     // Init variables
-    _fileUtils = FileUtils::getInstance();
+    _fileUtils = CC_CURRENT_ENGINE()->load<cc::FileUtils>();
     if (!manifestUrl.empty()) {
         parseFile(manifestUrl);
     }
@@ -91,7 +91,7 @@ Manifest::Manifest(const std::string &content, const std::string &manifestRoot)
   _loaded(false),
   _updating(false) {
     // Init variables
-    _fileUtils = FileUtils::getInstance();
+    _fileUtils = CC_CURRENT_ENGINE()->load<cc::FileUtils>();
     if (!content.empty()) {
         parseJSONString(content, manifestRoot);
     }
@@ -313,7 +313,7 @@ std::vector<std::string> Manifest::getSearchPaths() const {
 }
 
 void Manifest::prependSearchPaths() {
-    std::vector<std::string> searchPaths = FileUtils::getInstance()->getSearchPaths();
+    std::vector<std::string> searchPaths = CC_CURRENT_ENGINE()->load<cc::FileUtils>()->getSearchPaths();
     auto iter = searchPaths.begin();
     bool needChangeSearchPaths = false;
     if (std::find(searchPaths.begin(), searchPaths.end(), _manifestRoot) == searchPaths.end()) {
@@ -332,7 +332,7 @@ void Manifest::prependSearchPaths() {
         needChangeSearchPaths = true;
     }
     if (needChangeSearchPaths) {
-        FileUtils::getInstance()->setSearchPaths(searchPaths);
+        CC_CURRENT_ENGINE()->load<cc::FileUtils>()->setSearchPaths(searchPaths);
     }
 }
 
@@ -536,7 +536,7 @@ void Manifest::saveToFile(const std::string &filepath) {
     rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buffer);
     _json.Accept(writer);
 
-    std::ofstream output(FileUtils::getInstance()->getSuitableFOpen(filepath), std::ofstream::out);
+    std::ofstream output(CC_CURRENT_ENGINE()->load<cc::FileUtils>()->getSuitableFOpen(filepath), std::ofstream::out);
 
     if (!output.bad()) {
         output << buffer.GetString() << std::endl;

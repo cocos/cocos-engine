@@ -222,13 +222,13 @@ void ShadowFlow::clearShadowMap(scene::Camera *camera) {
 void ShadowFlow::resizeShadowMap(const scene::Light *light, gfx::DescriptorSet *ds) {
     const auto *sceneData = _pipeline->getPipelineSceneData();
     const auto *shadowInfo = sceneData->getShadows();
-    auto *device = gfx::Device::getInstance();
+    auto *device = CC_GFX_DEVICE();
     const auto width = static_cast<uint32_t>(shadowInfo->getSize().x);
     const auto height = static_cast<uint32_t>(shadowInfo->getSize().y);
     const auto format = supportsR32FloatTexture(device) ? gfx::Format::R32F : gfx::Format::RGBA8;
     gfx::Framebuffer *framebuffer = sceneData->getShadowFramebufferMap().at(light);
 
-    auto *colorTexture = gfx::Device::getInstance()->createTexture({
+    auto *colorTexture = CC_GFX_DEVICE()->createTexture({
         gfx::TextureType::TEX2D,
         gfx::TextureUsageBit::COLOR_ATTACHMENT | gfx::TextureUsageBit::SAMPLED,
         format,
@@ -277,7 +277,7 @@ void ShadowFlow::resizeShadowMap(const scene::Light *light, gfx::DescriptorSet *
 }
 
 void ShadowFlow::initShadowFrameBuffer(const RenderPipeline *pipeline, const scene::Light *light) {
-    auto *device = gfx::Device::getInstance();
+    auto *device = CC_GFX_DEVICE();
     const auto *sceneData = _pipeline->getPipelineSceneData();
     const auto *shadowInfo = sceneData->getShadows();
     const auto &shadowMapSize = shadowInfo->getSize();

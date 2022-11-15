@@ -478,9 +478,9 @@ bool FileUtils::writeToFile(const ValueMap &dict, const ccstd::string &fullPath)
 // Implement FileUtils
 FileUtils *FileUtils::sharedFileUtils = nullptr;
 
-FileUtils *FileUtils::getInstance() {
-    return FileUtils::sharedFileUtils;
-}
+//FileUtils *FileUtils::getInstance() {
+//    return FileUtils::sharedFileUtils;
+//}
 
 void FileUtils::destroyInstance() {
 }
@@ -516,7 +516,7 @@ bool FileUtils::writeDataToFile(const Data &data, const ccstd::string &fullPath)
 
     CC_ASSERT(!fullPath.empty() && data.getSize() != 0);
 
-    auto *fileutils = FileUtils::getInstance();
+    auto *fileutils = sharedFileUtils;
     do {
         // Read the file from hardware
         FILE *fp = fopen(fileutils->getSuitableFOpen(fullPath).c_str(), mode);
@@ -561,7 +561,7 @@ FileUtils::Status FileUtils::getContents(const ccstd::string &filename, Resizabl
         return Status::NOT_EXISTS;
     }
 
-    auto *fs = FileUtils::getInstance();
+    auto *fs = sharedFileUtils;
 
     ccstd::string fullPath = fs->fullPathForFilename(filename);
     if (fullPath.empty()) {
@@ -605,7 +605,7 @@ unsigned char *FileUtils::getFileDataFromZip(const ccstd::string &zipFilePath, c
     do {
         CC_BREAK_IF(zipFilePath.empty());
 
-        file = unzOpen(FileUtils::getInstance()->getSuitableFOpen(zipFilePath).c_str());
+        file = unzOpen(sharedFileUtils->getSuitableFOpen(zipFilePath).c_str());
         CC_BREAK_IF(!file);
 
         // minizip 1.2.0 is same with other platforms

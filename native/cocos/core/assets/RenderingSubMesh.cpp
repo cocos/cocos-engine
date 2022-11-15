@@ -251,7 +251,7 @@ const gfx::BufferList &RenderingSubMesh::getJointMappedBuffers() {
     }
     gfx::Format jointFormat = gfx::Format::UNKNOWN;
     int32_t jointOffset = 0;
-    gfx::Device *device = gfx::Device::getInstance();
+    gfx::Device *device = CC_GFX_DEVICE();
     for (size_t i = 0; i < prim.vertexBundelIndices.size(); i++) {
         const auto &bundle = structInfo.vertexBundles[prim.vertexBundelIndices[i]];
         jointOffset = 0;

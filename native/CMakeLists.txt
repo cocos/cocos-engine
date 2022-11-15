@@ -455,6 +455,8 @@ cocos_source_files(
     cocos/base/std/hash/extensions.hpp
     cocos/base/std/hash/hash_fwd.hpp
     cocos/base/std/hash/hash.h
+    cocos/base/module/Module.h
+    cocos/base/module/Module.cpp
 )
 
 ############ application
@@ -474,6 +476,9 @@ cocos_source_files(
     cocos/engine/BaseEngine.h
     cocos/engine/Engine.cpp
     cocos/engine/Engine.h
+    cocos/engine/EngineEvents.h
+    cocos/engine/EngineModules.h
+    cocos/engine/EngineModules.cpp
 )
 
 ############ gi

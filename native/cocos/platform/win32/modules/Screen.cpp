@@ -25,6 +25,7 @@
 
 #include "platform/win32/modules/Screen.h"
 #include "base/Macros.h"
+#include "application/ApplicationManager.h"
 #include "cocos/bindings/jswrapper/SeApi.h"
 
 #include <Windows.h>
@@ -63,7 +64,7 @@ bool Screen::isDisplayStats() {
     se::AutoHandleScope hs;
     se::Value ret;
     char commandBuf[100] = "cc.profiler.isShowingStats();";
-    se::ScriptEngine::getInstance()->evalString(commandBuf, 100, &ret);
+    CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->evalString(commandBuf, 100, &ret);
     return ret.toBoolean();
 }
 
@@ -71,7 +72,7 @@ void Screen::setDisplayStats(bool isShow) {
     se::AutoHandleScope hs;
     char commandBuf[100] = {0};
     sprintf(commandBuf, isShow ? "cc.profiler.showStats();" : "cc.profiler.hideStats();");
-    se::ScriptEngine::getInstance()->evalString(commandBuf);
+    CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->evalString(commandBuf);
 }
 
 } // namespace cc

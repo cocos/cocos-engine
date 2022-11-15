@@ -32,6 +32,9 @@
 #include "base/std/container/string.h"
 #include "base/std/container/unordered_map.h"
 #include "base/std/container/vector.h"
+#include "base/module/Module.h"
+#include "application/ApplicationManager.h"
+
 
 namespace cc {
 
@@ -101,12 +104,15 @@ public:
 };
 
 /** Helper class to handle file operations. */
-class CC_DLL FileUtils {
+class CC_DLL FileUtils: public Module {
 public:
+
+    IMPL_MODULE(FileUtils)
+
     /**
      *  Gets the instance of FileUtils.
      */
-    static FileUtils *getInstance();
+    //static FileUtils *getInstance();
 
     /**
      *  Destroys the instance of FileUtils.

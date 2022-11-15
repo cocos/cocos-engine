@@ -40,6 +40,7 @@
 #include "base/memory/Memory.h"
 #include "jsb_conversions.h"
 #include "xxtea/xxtea.h"
+#include "application/ApplicationManager.h"
 
 #include <chrono>
 #include <regex>
@@ -116,8 +117,8 @@ void jsb_init_file_operation_delegate() { //NOLINT
             Data fileData;
 
             ccstd::string byteCodePath = removeFileExt(path) + BYTE_CODE_FILE_EXT;
-            if (FileUtils::getInstance()->isFileExist(byteCodePath)) {
-                fileData = FileUtils::getInstance()->getDataFromFile(byteCodePath);
+            if (CC_CURRENT_ENGINE()->load<cc::FileUtils>()->isFileExist(byteCodePath)) {
+                fileData = CC_CURRENT_ENGINE()->load<cc::FileUtils>()->getDataFromFile(byteCodePath);
 
                 uint32_t dataLen = 0;
                 uint8_t *data = xxtea_decrypt(fileData.getBytes(), static_cast<uint32_t>(fileData.getSize()),
@@ -149,7 +150,7 @@ void jsb_init_file_operation_delegate() { //NOLINT
                 return;
             }
 
-            fileData = FileUtils::getInstance()->getDataFromFile(path);
+            fileData = CC_CURRENT_ENGINE()->load<cc::FileUtils>()->getDataFromFile(path);
             readCallback(fileData.getBytes(), fileData.getSize());
         };
 
@@ -157,8 +158,8 @@ void jsb_init_file_operation_delegate() { //NOLINT
             CC_ASSERT(!path.empty());
 
             ccstd::string byteCodePath = removeFileExt(path) + BYTE_CODE_FILE_EXT;
-            if (FileUtils::getInstance()->isFileExist(byteCodePath)) {
-                Data fileData = FileUtils::getInstance()->getDataFromFile(byteCodePath);
+            if (CC_CURRENT_ENGINE()->load<cc::FileUtils>()->isFileExist(byteCodePath)) {
+                Data fileData = CC_CURRENT_ENGINE()->load<cc::FileUtils>()->getDataFromFile(byteCodePath);
 
                 uint32_t dataLen;
                 uint8_t *data = xxtea_decrypt(static_cast<uint8_t *>(fileData.getBytes()), static_cast<uint32_t>(fileData.getSize()),
@@ -189,8 +190,8 @@ void jsb_init_file_operation_delegate() { //NOLINT
                 return ret;
             }
 
-            if (FileUtils::getInstance()->isFileExist(path)) {
-                return FileUtils::getInstance()->getStringFromFile(path);
+            if (CC_CURRENT_ENGINE()->load<cc::FileUtils>()->isFileExist(path)) {
+                return CC_CURRENT_ENGINE()->load<cc::FileUtils>()->getStringFromFile(path);
             }
             SE_LOGE("ScriptEngine::onGetStringFromFile %s not found, possible missing file.\n", path.c_str());
             return "";
@@ -199,23 +200,23 @@ void jsb_init_file_operation_delegate() { //NOLINT
         delegate.onGetFullPath = [](const ccstd::string &path) -> ccstd::string {
             CC_ASSERT(!path.empty());
             ccstd::string byteCodePath = removeFileExt(path) + BYTE_CODE_FILE_EXT;
-            if (FileUtils::getInstance()->isFileExist(byteCodePath)) {
-                return FileUtils::getInstance()->fullPathForFilename(byteCodePath);
+            if (CC_CURRENT_ENGINE()->load<cc::FileUtils>()->isFileExist(byteCodePath)) {
+                return CC_CURRENT_ENGINE()->load<cc::FileUtils>()->fullPathForFilename(byteCodePath);
             }
-            return FileUtils::getInstance()->fullPathForFilename(path);
+            return CC_CURRENT_ENGINE()->load<cc::FileUtils>()->fullPathForFilename(path);
         };
 
         delegate.onCheckFileExist = [](const ccstd::string &path) -> bool {
             CC_ASSERT(!path.empty());
-            return FileUtils::getInstance()->isFileExist(path);
+            return CC_CURRENT_ENGINE()->load<cc::FileUtils>()->isFileExist(path);
         };
 
         CC_ASSERT(delegate.isValid());
 
-        se::ScriptEngine::getInstance()->setFileOperationDelegate(delegate);
+        CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->setFileOperationDelegate(delegate);
     } else {
         // Games may be restarted in the same process and run in different threads. Android may restart from recent task list.
-        se::ScriptEngine::getInstance()->setFileOperationDelegate(delegate);
+        CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->setFileOperationDelegate(delegate);
     }
 }
 
@@ -226,7 +227,7 @@ bool jsb_enable_debugger(const ccstd::string &debuggerServerAddr, uint32_t port,
 
     port = static_cast<uint32_t>(selectPort(static_cast<int>(port)));
 
-    auto *se = se::ScriptEngine::getInstance();
+    auto *se = CC_CURRENT_ENGINE()->load<se::ScriptEngine>();
     if (se != nullptr) {
         se->enableDebugger(debuggerServerAddr, port, isWaitForConnect);
     } else {

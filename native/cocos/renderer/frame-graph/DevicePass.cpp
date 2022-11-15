@@ -48,7 +48,7 @@ DevicePass::DevicePass(const FrameGraph &graph, ccstd::vector<PassNode *> const 
         _subpasses.back().barrierID = index++;
     }
 
-    auto *device = gfx::Device::getInstance();
+    auto *device = CC_GFX_DEVICE();
     // _enableAutoBarrier: auto barrier in framegraph
     // barrierDeduce: deduce barrier gfx internally
     // to avoid redundant instructions, either inside or outside
@@ -56,7 +56,7 @@ DevicePass::DevicePass(const FrameGraph &graph, ccstd::vector<PassNode *> const 
     opts.enableBarrierDeduce = !gfx::ENABLE_GRAPH_AUTO_BARRIER;
     device->setOptions(opts);
 
-    CC_ASSERT(gfx::ENABLE_GRAPH_AUTO_BARRIER ^ gfx::Device::getInstance()->getOptions().enableBarrierDeduce);
+    CC_ASSERT(gfx::ENABLE_GRAPH_AUTO_BARRIER ^ CC_GFX_DEVICE()->getOptions().enableBarrierDeduce);
 
     // Important Notice:
     // here attchment index has changed.
@@ -207,7 +207,7 @@ void DevicePass::passDependency(gfx::RenderPassInfo &rpInfo) {
 }
 
 void DevicePass::execute() {
-    auto *device = gfx::Device::getInstance();
+    auto *device = CC_GFX_DEVICE();
     auto *cmdBuff = device->getCommandBuffer();
 
     begin(cmdBuff);
@@ -381,7 +381,7 @@ void DevicePass::begin(gfx::CommandBuffer *cmdBuff) {
             attachmentInfo.format = attachment->getFormat();
             attachmentInfo.loadOp = attachElem.attachment.desc.loadOp;
             attachmentInfo.storeOp = attachElem.attachment.storeOp;
-            attachmentInfo.barrier = gfx::Device::getInstance()->getGeneralBarrier({attachElem.attachment.desc.beginAccesses, attachElem.attachment.desc.endAccesses});
+            attachmentInfo.barrier = CC_GFX_DEVICE()->getGeneralBarrier({attachElem.attachment.desc.beginAccesses, attachElem.attachment.desc.endAccesses});
             attachmentInfo.isGeneralLayout = attachElem.attachment.isGeneralLayout;
             fboInfo.colorTextures.push_back(attachElem.renderTarget);
             clearColors.emplace_back(attachElem.attachment.desc.clearColor);
@@ -392,7 +392,7 @@ void DevicePass::begin(gfx::CommandBuffer *cmdBuff) {
             attachmentInfo.stencilLoadOp = attachElem.attachment.desc.loadOp;
             attachmentInfo.depthStoreOp = attachElem.attachment.storeOp;
             attachmentInfo.stencilStoreOp = attachElem.attachment.storeOp;
-            attachmentInfo.barrier = gfx::Device::getInstance()->getGeneralBarrier({attachElem.attachment.desc.beginAccesses, attachElem.attachment.desc.endAccesses});
+            attachmentInfo.barrier = CC_GFX_DEVICE()->getGeneralBarrier({attachElem.attachment.desc.beginAccesses, attachElem.attachment.desc.endAccesses});
             attachmentInfo.isGeneralLayout = attachElem.attachment.isGeneralLayout;
             fboInfo.depthStencilTexture = attachElem.renderTarget;
             clearDepth = attachElem.attachment.desc.clearDepth;

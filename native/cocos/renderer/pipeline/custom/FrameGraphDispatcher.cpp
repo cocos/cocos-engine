@@ -794,7 +794,7 @@ void buildBarriers(FrameGraphDispatcher &fgDispatcher) {
                 info.offset = range.offset;
                 info.size = range.size;
                 info.type = passBarrier.type;
-                passBarrier.barrier = gfx::Device::getInstance()->getBufferBarrier(info);
+                passBarrier.barrier = CC_GFX_DEVICE()->getBufferBarrier(info);
             } else {
                 gfx::TextureBarrierInfo info;
                 info.prevAccesses = passBarrier.beginStatus.accessFlag;
@@ -805,7 +805,7 @@ void buildBarriers(FrameGraphDispatcher &fgDispatcher) {
                 info.baseSlice = range.firstSlice;
                 info.sliceCount = range.numSlices;
                 info.type = passBarrier.type;
-                passBarrier.barrier = gfx::Device::getInstance()->getTextureBarrier(info);
+                passBarrier.barrier = CC_GFX_DEVICE()->getTextureBarrier(info);
             }
         }
     };

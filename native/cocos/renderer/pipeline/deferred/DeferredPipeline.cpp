@@ -109,7 +109,7 @@ void DeferredPipeline::render(const ccstd::vector<scene::Camera *> &cameras) {
     updateGeometryRenderer(cameras); // for capability
 #endif
 
-    auto *device = gfx::Device::getInstance();
+    auto *device = CC_GFX_DEVICE();
     bool enableOcclusionQuery = isOcclusionQueryEnabled();
     if (enableOcclusionQuery) {
         device->getQueryPoolResults(_queryPools[0]);

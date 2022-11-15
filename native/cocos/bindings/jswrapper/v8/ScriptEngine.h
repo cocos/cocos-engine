@@ -32,6 +32,7 @@
 
     #include "../Value.h"
     #include "Base.h"
+    #include "base/module/Module.h"
 
     #include <thread>
 
@@ -70,7 +71,7 @@ private:
 /**
  * ScriptEngine is a sington which represents a context of JavaScript VM.
  */
-class ScriptEngine final {
+class ScriptEngine final : public Module {
 public:
     /**
      *  @brief Gets or creates the instance of script engine.
@@ -83,6 +84,15 @@ public:
      */
     CC_DEPRECATED(3.6.0)
     static void destroyInstance();
+
+    IMPL_MODULE(ScriptEngine);
+
+    MODULE_DEPS("FileUtils")
+
+    bool doDeinit() override {
+        cleanup();
+        return true;
+    }
 
     ScriptEngine();
     ~ScriptEngine();

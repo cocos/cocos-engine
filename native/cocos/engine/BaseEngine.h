@@ -31,6 +31,7 @@
 #include "base/TypeDef.h"
 #include "core/event/EventTarget.h"
 #include "platform/BasePlatform.h"
+#include "base/module/Module.h"
 
 namespace cc {
 
@@ -98,13 +99,20 @@ public:
      */
     virtual void setPreferredFramesPerSecond(int fps) = 0;
 
-    using SchedulerPtr = std::shared_ptr<Scheduler>;
+    //using SchedulerPtr = std::shared_ptr<Scheduler>;
     /**
      @brief Get engine scheduler.
      */
-    virtual SchedulerPtr getScheduler() const = 0;
+    virtual Scheduler * getScheduler() const = 0;
 
     virtual bool isInited() const = 0;
+
+    template<typename T>
+    T* load() {
+        return dynamic_cast<T *>(_modules.load<T>());
+    }
+protected:
+    mutable ModuleGroup _modules;
 };
 
 } // namespace cc

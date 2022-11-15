@@ -114,7 +114,7 @@ void HttpClient::networkThread() {
         _responseQueueMutex.unlock();
 
         _schedulerMutex.lock();
-        if (auto sche = _scheduler.lock()) {
+        if (auto sche = lookup<Scheduler>()) {
             sche->performFunctionInCocosThread(CC_CALLBACK_0(HttpClient::dispatchResponseCallbacks, this));
         }
         _schedulerMutex.unlock();
@@ -140,7 +140,7 @@ void HttpClient::networkThreadAlone(HttpRequest *request, HttpResponse *response
     processResponse(response, responseMessage);
 
     _schedulerMutex.lock();
-    if (auto sche = _scheduler.lock()) {
+    if (auto sche = lookup<Scheduler>()) {
         sche->performFunctionInCocosThread([this, response, request] {
             const ccHttpRequestCallback &callback = request->getResponseCallback();
 
@@ -306,32 +306,32 @@ static int processDeleteTask(HttpClient *client, HttpRequest *request, write_cal
     return ok ? 0 : 1;
 }
 
-// HttpClient implementation
-HttpClient *HttpClient::getInstance() {
-    if (_httpClient == nullptr) {
-        _httpClient = ccnew HttpClient();
-    }
+//// HttpClient implementation
+//HttpClient *HttpClient::getInstance() {
+//    if (_httpClient == nullptr) {
+//        _httpClient = ccnew HttpClient();
+//    }
+//
+//    return _httpClient;
+//}
 
-    return _httpClient;
-}
-
-void HttpClient::destroyInstance() {
+bool HttpClient::doDeinit() {
     if (nullptr == _httpClient) {
         CC_LOG_DEBUG("HttpClient singleton is nullptr");
-        return;
+        return false;
     }
 
     CC_LOG_DEBUG("HttpClient::destroyInstance begin");
     auto thiz = _httpClient;
     _httpClient = nullptr;
 
-    if (auto sche = thiz->_scheduler.lock()) {
+    if (auto sche = lookup<Scheduler>()) {
         sche->unscheduleAllForTarget(thiz);
     }
 
-    thiz->_schedulerMutex.lock();
-    thiz->_scheduler.reset();
-    thiz->_schedulerMutex.unlock();
+    //thiz->_schedulerMutex.lock();
+    //thiz->_scheduler = nullptr;
+    //thiz->_schedulerMutex.unlock();
 
     thiz->_requestQueueMutex.lock();
     thiz->_requestQueue.pushBack(thiz->_requestSentinel);
@@ -341,6 +341,7 @@ void HttpClient::destroyInstance() {
     thiz->decreaseThreadCountAndMayDeleteThis();
 
     CC_LOG_DEBUG("HttpClient::destroyInstance() finished!");
+    return true;
 }
 
 void HttpClient::enableCookies(const char *cookieFile) {
@@ -348,7 +349,7 @@ void HttpClient::enableCookies(const char *cookieFile) {
     if (cookieFile) {
         _cookieFilename = ccstd::string(cookieFile);
     } else {
-        _cookieFilename = (FileUtils::getInstance()->getWritablePath() + "cookieFile.txt");
+        _cookieFilename = (CC_CURRENT_ENGINE()->load<cc::FileUtils>()->getWritablePath() + "cookieFile.txt");
     }
 }
 
@@ -370,7 +371,7 @@ HttpClient::HttpClient()
         gThreadPool = LegacyThreadPool::newFixedThreadPool(4);
     }
     memset(_responseMessage, 0, RESPONSE_BUFFER_SIZE * sizeof(char));
-    _scheduler = CC_CURRENT_ENGINE()->getScheduler();
+    //_scheduler = CC_CURRENT_ENGINE()->getScheduler();
     increaseThreadCount();
 }
 

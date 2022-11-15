@@ -270,11 +270,11 @@ void IProgramInfo::copyFrom(const IShaderInfo &o) {
 }
 
 ProgramLib::ProgramLib() {
-    ProgramLib::instance = this;
+    //ProgramLib::instance = this;
 }
 
 ProgramLib::~ProgramLib() {
-    ProgramLib::instance = nullptr;
+    //ProgramLib::instance = nullptr;
 #if CC_DEBUG
     for (const auto &cache : _cache) {
         if (cache.second->getRefCount() > 1) {
@@ -287,11 +287,11 @@ ProgramLib::~ProgramLib() {
 //
 /*static*/
 
-ProgramLib *ProgramLib::instance = nullptr;
+//ProgramLib *ProgramLib::instance = nullptr;
 
-ProgramLib *ProgramLib::getInstance() {
-    return ProgramLib::instance;
-}
+//ProgramLib *ProgramLib::getInstance() {
+//    return ProgramLib::instance;
+//}
 
 void ProgramLib::registerEffect(EffectAsset *effect) {
     for (auto &shader : effect->_shaders) {

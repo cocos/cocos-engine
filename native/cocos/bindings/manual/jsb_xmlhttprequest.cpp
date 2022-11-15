@@ -186,7 +186,7 @@ private:
     void sendRequest();
     void setHttpRequestHeader();
 
-    BaseEngine::SchedulerPtr _scheduler;
+    Scheduler* _scheduler;
     ccstd::unordered_map<ccstd::string, ccstd::string> _httpHeader;
     ccstd::unordered_map<ccstd::string, ccstd::string> _requestHeader;
 
@@ -503,7 +503,7 @@ void XMLHttpRequest::sendRequest() {
     setHttpRequestHeader();
 
     _httpRequest->setResponseCallback(CC_CALLBACK_2(XMLHttpRequest::onResponse, this)); //NOLINT
-    cc::network::HttpClient::getInstance()->sendImmediate(_httpRequest);
+    CC_CURRENT_ENGINE()->load<cc::network::HttpClient>()->sendImmediate(_httpRequest);
 
     if (onloadstart != nullptr) {
         onloadstart();
@@ -589,7 +589,7 @@ static bool XMLHttpRequest_constructor(se::State &s) { //NOLINT(readability-iden
     se::Value thiz(s.thisObject());
 
     auto cb = [thiz](const char *eventName) {
-        se::ScriptEngine::getInstance()->clearException();
+        CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->clearException();
         se::AutoHandleScope hs;
 
         se::Object *thizObj = thiz.toObject();
@@ -985,7 +985,7 @@ bool register_all_xmlhttprequest(se::Object *global) { //NOLINT(readability-iden
 
     __jsb_XMLHttpRequest_class = cls;
 
-    se::ScriptEngine::getInstance()->clearException();
+    CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->clearException();
 
     return true;
 }

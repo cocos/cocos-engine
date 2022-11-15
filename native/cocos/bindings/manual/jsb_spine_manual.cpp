@@ -104,7 +104,7 @@ static bool js_register_spine_initSkeletonData(se::State &s) {
     if (binPos == ccstd::string::npos) binPos = skeletonDataFile.find(".bin", length - 4);
 
     if (binPos != ccstd::string::npos) {
-        auto fileUtils = cc::FileUtils::getInstance();
+        auto fileUtils = CC_CURRENT_ENGINE()->load<cc::FileUtils>();
         if (fileUtils->isFileExist(skeletonDataFile)) {
             cc::Data cocos2dData;
             const auto fullpath = fileUtils->fullPathForFilename(skeletonDataFile);

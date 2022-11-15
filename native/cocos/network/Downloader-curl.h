@@ -57,7 +57,7 @@ protected:
     // scheduler for update processing and finished task in main schedule
     void onSchedule(float);
     ccstd::string _schedulerKey;
-    std::weak_ptr<Scheduler> _scheduler;
+    Scheduler* _scheduler;
 };
 
 } // namespace network

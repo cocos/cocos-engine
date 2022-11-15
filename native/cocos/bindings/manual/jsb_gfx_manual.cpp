@@ -483,7 +483,7 @@ static bool js_gfx_CommandBuffer_copyBuffersToTexture(se::State &s) { // NOLINT(
 SE_BIND_FUNC(js_gfx_CommandBuffer_copyBuffersToTexture)
 
 bool js_gfx_get_deviceInstance(se::State &s) { // NOLINT(readability-identifier-naming)
-    nativevalue_to_se(cc::gfx::Device::getInstance(), s.rval(), nullptr);
+    nativevalue_to_se(CC_GFX_DEVICE(), s.rval(), nullptr);
     return true;
 }
 SE_BIND_PROP_GET(js_gfx_get_deviceInstance)

@@ -120,7 +120,7 @@ public:
             }
 
             // ensure directory is exist
-            auto util = FileUtils::getInstance();
+            auto util = CC_CURRENT_ENGINE()->load<cc::FileUtils>();
             dir = _tempFileName.substr(0, found + 1);
             if (false == util->isDirectoryExist(dir)) {
                 if (false == util->createDirectory(dir)) {
@@ -390,7 +390,7 @@ private:
             // get current file size
             uint32_t fileSize = 0;
             if (acceptRanges && coTask._tempFileName.length()) {
-                fileSize = FileUtils::getInstance()->getFileSize(coTask._tempFileName);
+                fileSize = CC_CURRENT_ENGINE()->load<cc::FileUtils>()->getFileSize(coTask._tempFileName);
             }
 
             // set header info to coTask
@@ -650,7 +650,7 @@ DownloaderCURL::DownloaderCURL(const DownloaderHints &hints)
     sprintf(key, "DownloaderCURL(%p)", this);
     _schedulerKey = key;
 
-    if (auto sche = _scheduler.lock()) {
+    if (auto sche = _scheduler) {
         sche->schedule(std::bind(&DownloaderCURL::onSchedule, this, std::placeholders::_1),
                        this,
                        0.1f,
@@ -660,7 +660,7 @@ DownloaderCURL::DownloaderCURL(const DownloaderHints &hints)
 }
 
 DownloaderCURL::~DownloaderCURL() {
-    if (auto sche = _scheduler.lock()) {
+    if (auto sche = _scheduler) {
         sche->unschedule(_schedulerKey, this);
     }
 
@@ -677,7 +677,7 @@ IDownloadTask *DownloaderCURL::createCoTask(std::shared_ptr<const DownloadTask> 
     _impl->addTask(task, coTask);
     _impl->run();
 
-    if (auto sche = _scheduler.lock()) {
+    if (auto sche = _scheduler) {
         sche->resumeTarget(this);
     }
     return coTask;
@@ -715,7 +715,7 @@ void DownloaderCURL::onSchedule(float) {
     // update finished tasks
     _impl->getFinishedTasks(tasks);
     if (_impl->stoped()) {
-        if (auto sche = _scheduler.lock()) {
+        if (auto sche = _scheduler) {
             sche->pauseTarget(this);
         }
     }
@@ -745,7 +745,7 @@ void DownloaderCURL::onSchedule(float) {
                     break;
                 }
 
-                auto util = FileUtils::getInstance();
+                auto util = CC_CURRENT_ENGINE()->load<cc::FileUtils>();
                 // if file already exist, remove it
                 if (util->isFileExist(coTask._fileName)) {
                     if (false == util->removeFile(coTask._fileName)) {

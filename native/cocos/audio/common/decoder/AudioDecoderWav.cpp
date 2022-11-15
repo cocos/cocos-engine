@@ -41,7 +41,7 @@ AudioDecoderWav::~AudioDecoderWav() {
 
 bool AudioDecoderWav::open(const char *path) {
     bool ret{false};
-    auto fullPath = FileUtils::getInstance()->fullPathForFilename(path);
+    auto fullPath = CC_CURRENT_ENGINE()->load<cc::FileUtils>()->fullPathForFilename(path);
     if (fullPath.empty()) {
         CC_LOG_DEBUG("File does not exist %s", fullPath.c_str());
         return false;

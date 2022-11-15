@@ -80,7 +80,7 @@ AudioDecoderMp3::~AudioDecoderMp3() {
 }
 
 bool AudioDecoderMp3::open(const char *path) {
-    ccstd::string fullPath = FileUtils::getInstance()->fullPathForFilename(path);
+    ccstd::string fullPath = CC_CURRENT_ENGINE()->load<cc::FileUtils>()->fullPathForFilename(path);
 
     long rate = 0; //NOLINT(google-runtime-int)
     int error = MPG123_OK;
@@ -93,11 +93,11 @@ bool AudioDecoderMp3::open(const char *path) {
             break;
         }
 #if CC_PLATFORM_OHOS == CC_PLATFORM
-        auto *fu = static_cast<FileUtilsOHOS *>(FileUtils::getInstance());
+        auto *fu = static_cast<FileUtilsOHOS *>(CC_CURRENT_ENGINE()->load<cc::FileUtils>());
         _fdAndDeleter = fu->getFd(fullPath);
         if (mpg123_open_fd(_mpg123handle, _fdAndDeleter.first) != MPG123_OK || mpg123_getformat(_mpg123handle, &rate, &channel, &mp3Encoding) != MPG123_OK) {
 #else
-        if (mpg123_open(_mpg123handle, FileUtils::getInstance()->getSuitableFOpen(fullPath).c_str()) != MPG123_OK || mpg123_getformat(_mpg123handle, &rate, &channel, &mp3Encoding) != MPG123_OK) {
+        if (mpg123_open(_mpg123handle, CC_CURRENT_ENGINE()->load<cc::FileUtils>()->getSuitableFOpen(fullPath).c_str()) != MPG123_OK || mpg123_getformat(_mpg123handle, &rate, &channel, &mp3Encoding) != MPG123_OK) {
 #endif
             ALOGE("Trouble with mpg123: %s\n", mpg123_strerror(_mpg123handle));
             break;

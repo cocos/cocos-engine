@@ -144,7 +144,7 @@ private:
             return;
         }
     #endif
-        auto *fu = cc::FileUtils::getInstance();
+        auto *fu = CC_CURRENT_ENGINE()->load<cc::FileUtils>();
         if (!fu) {
             // engine is not ready, retry later
             return;

@@ -73,7 +73,7 @@ inline ccstd::string getFontPath(uint32_t index) {
         "OpenSans-BoldItalic", //"OpenSans-BoldItalic"
     };
 
-    auto *asset = BuiltinResMgr::getInstance()->getAsset(UUIDS[index]);
+    auto *asset = CC_CURRENT_ENGINE()->load<BuiltinResMgr>()->getAsset(UUIDS[index]);
 
     return asset->getNativeUrl();
 }
@@ -206,17 +206,17 @@ DebugRendererInfo::DebugRendererInfo()
 : fontSize(DEBUG_FONT_SIZE), maxCharacters(DEBUG_MAX_CHARACTERS) {
 }
 
-DebugRenderer *DebugRenderer::instance = nullptr;
-DebugRenderer *DebugRenderer::getInstance() {
-    return instance;
-}
+//DebugRenderer *DebugRenderer::instance = nullptr;
+//DebugRenderer *DebugRenderer::getInstance() {
+//    return instance;
+//}
 
 DebugRenderer::DebugRenderer() {
-    DebugRenderer::instance = this;
+    //DebugRenderer::instance = this;
 }
 
 DebugRenderer::~DebugRenderer() {
-    DebugRenderer::instance = nullptr;
+    //DebugRenderer::instance = nullptr;
 }
 
 void DebugRenderer::activate(gfx::Device *device, const DebugRendererInfo &info) {
@@ -388,6 +388,10 @@ void DebugRenderer::addQuad(DebugBatch &batch, const Vec4 &rect, const Vec4 &uv,
     batch.vertices.emplace_back(quad[1]);
     batch.vertices.emplace_back(quad[3]);
     batch.vertices.emplace_back(quad[2]);
+}
+bool DebugRenderer::doDeinit() {
+    FreeTypeFontFace::destroyFreeType();
+    return true;
 }
 
 } // namespace cc

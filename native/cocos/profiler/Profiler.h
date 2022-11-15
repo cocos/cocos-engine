@@ -30,6 +30,8 @@
 #include "base/Config.h"
 #include "base/Timer.h"
 #include "gfx-base/GFXDef-common.h"
+#include "base/module/Module.h"
+#include "application/ApplicationManager.h"
 
 namespace cc {
 
@@ -47,9 +49,12 @@ enum class ShowOption : uint32_t {
 /**
  * Profiler
  */
-class Profiler {
+class Profiler : public Module{
 public:
-    static Profiler *getInstance();
+    IMPL_MODULE(Profiler)
+
+    MODULE_DEPS("gfx.Device")
+    //static Profiler *getInstance();
 
     Profiler();
     ~Profiler();
@@ -79,7 +84,7 @@ private:
     void endBlock();
     void gatherBlocks(ProfilerBlock *parent, uint32_t depth, std::vector<ProfilerBlockDepth> &outBlocks);
 
-    static Profiler *instance;
+    //static Profiler *instance;
     uint32_t _options{static_cast<uint32_t>(ShowOption::ALL)};
     utils::Timer _timer;
     CoreStats _coreStats;
@@ -116,7 +121,7 @@ private:
  * Profiler is used through macros only, if CC_USE_PROFILER is 0, there is no side effects on performance.
  */
 #if CC_USE_PROFILER
-    #define CC_PROFILER cc::Profiler::getInstance()
+    #define CC_PROFILER CC_CURRENT_ENGINE()->load<cc::Profiler>()
     #define CC_PROFILER_SET_ENABLE(option, b)    \
         if (CC_PROFILER) {                       \
             CC_PROFILER->setEnable(option, (b)); \

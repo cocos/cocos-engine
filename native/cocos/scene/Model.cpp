@@ -39,6 +39,7 @@
 #include "scene/Pass.h"
 #include "scene/RenderScene.h"
 #include "scene/SubModel.h"
+#include "application/ApplicationManager.h"
 
 namespace {
 const cc::gfx::SamplerInfo LIGHTMAP_SAMPLER_HASH{
@@ -301,7 +302,7 @@ void Model::updateLightingmap(Texture2D *texture, const Vec4 &uvParam) {
     _lightmapUVParam = uvParam;
 
     if (texture == nullptr) {
-        texture = BuiltinResMgr::getInstance()->get<Texture2D>(ccstd::string("empty-texture"));
+        texture = CC_CURRENT_ENGINE()->load<BuiltinResMgr>()->get<Texture2D>(ccstd::string("empty-texture"));
     }
     gfx::Texture *gfxTexture = texture->getGFXTexture();
     if (gfxTexture) {
@@ -546,7 +547,7 @@ void Model::updateLocalShadowBias() {
 void Model::updateReflctionProbeCubemap(TextureCube *texture) {
     _localDataUpdated = true;
     if (texture == nullptr) {
-        texture = BuiltinResMgr::getInstance()->get<TextureCube>(ccstd::string("default-cube-texture"));
+        texture = CC_CURRENT_ENGINE()->load<BuiltinResMgr>()->get<TextureCube>(ccstd::string("default-cube-texture"));
     }
     gfx::Texture *gfxTexture = texture->getGFXTexture();
     if (gfxTexture) {
@@ -564,7 +565,7 @@ void Model::updateReflctionProbePlanarMap(gfx::Texture *texture) {
 
     gfx::Texture *bindingTexture = texture;
     if (!bindingTexture) {
-        bindingTexture = BuiltinResMgr::getInstance()->get<Texture2D>(ccstd::string("empty-texture"))->getGFXTexture();
+        bindingTexture = CC_CURRENT_ENGINE()->load<BuiltinResMgr>()->get<Texture2D>(ccstd::string("empty-texture"))->getGFXTexture();
     }
     if (bindingTexture) {
         gfx::SamplerInfo info{

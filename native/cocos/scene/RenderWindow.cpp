@@ -152,7 +152,7 @@ void RenderWindow::onNativeWindowResume(uint32_t windowId) {
 }
 
 void RenderWindow::generateFrameBuffer() {
-    _frameBuffer = gfx::Device::getInstance()->createFramebuffer(gfx::FramebufferInfo{
+    _frameBuffer = CC_GFX_DEVICE()->createFramebuffer(gfx::FramebufferInfo{
         _renderPass,
         _colorTextures.get(),
         _depthStencilTexture});

@@ -575,7 +575,7 @@ void Batcher2d::insertMaskBatch(RenderEntity* entity) {
 
 void Batcher2d::createClearModel() {
     if (_maskClearModel == nullptr) {
-        _maskClearMtl = BuiltinResMgr::getInstance()->get<Material>(ccstd::string("default-clear-stencil"));
+        _maskClearMtl = CC_CURRENT_ENGINE()->load<BuiltinResMgr>()->get<Material>(ccstd::string("default-clear-stencil"));
 
         _maskClearModel = Root::getInstance()->createModel<scene::Model>();
         uint32_t stride = 12; // vfmt

@@ -101,7 +101,7 @@ static void localDownloaderCreateTask(const ccstd::string &url, const std::funct
 }
 
 bool jsb_set_extend_property(const char *ns, const char *clsName) { // NOLINT
-    se::Object *globalObj = se::ScriptEngine::getInstance()->getGlobalObject();
+    se::Object *globalObj = CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->getGlobalObject();
     se::Value nsVal;
     if (globalObj->getProperty(ns, &nsVal) && nsVal.isObject()) {
         se::Value ccVal;
@@ -139,7 +139,7 @@ static bool doModuleRequire(const ccstd::string &path, se::Value *ret, const ccs
     se::AutoHandleScope hs;
     CC_ASSERT(!path.empty());
 
-    const auto &fileOperationDelegate = se::ScriptEngine::getInstance()->getFileOperationDelegate();
+    const auto &fileOperationDelegate = CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->getFileOperationDelegate();
     CC_ASSERT(fileOperationDelegate.isValid());
 
     ccstd::string fullPath;
@@ -158,7 +158,7 @@ static bool doModuleRequire(const ccstd::string &path, se::Value *ret, const ccs
 
         secondPath += path;
 
-        if (FileUtils::getInstance()->isDirectoryExist(secondPath)) {
+        if (CC_CURRENT_ENGINE()->load<cc::FileUtils>()->isDirectoryExist(secondPath)) {
             if (secondPath[secondPath.length() - 1] != '/') {
                 secondPath += "/";
             }
@@ -182,7 +182,7 @@ static bool doModuleRequire(const ccstd::string &path, se::Value *ret, const ccs
             //                printf("Found cache: %s, value: %d\n", fullPath.c_str(), (int)ret->getType());
             return true;
         }
-        ccstd::string currentScriptFileDir = FileUtils::getInstance()->getFileDir(fullPath);
+        ccstd::string currentScriptFileDir = CC_CURRENT_ENGINE()->load<cc::FileUtils>()->getFileDir(fullPath);
 
         // Add closure for evalutate the script
         char prefix[] = "(function(currentScriptDir){ window.module = window.module || {}; var exports = window.module.exports = {}; ";
@@ -212,7 +212,7 @@ static bool doModuleRequire(const ccstd::string &path, se::Value *ret, const ccs
         const ccstd::string &reletivePath = fullPath;
 #endif
 
-        auto se = se::ScriptEngine::getInstance();
+        auto se = CC_CURRENT_ENGINE()->load<se::ScriptEngine>();
         bool succeed = se->evalString(scriptBuffer.c_str(), static_cast<uint32_t>(scriptBuffer.length()), nullptr, reletivePath.c_str());
         se::Value moduleVal;
         if (succeed && se->getGlobalObject()->getProperty("module", &moduleVal) && moduleVal.isObject()) {
@@ -253,7 +253,7 @@ SE_BIND_FUNC(moduleRequire)
 
 bool jsb_run_script(const ccstd::string &filePath, se::Value *rval /* = nullptr */) { // NOLINT
     se::AutoHandleScope hs;
-    return se::ScriptEngine::getInstance()->runScript(filePath, rval);
+    return CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->runScript(filePath, rval);
 }
 
 bool jsb_run_script_module(const ccstd::string &filePath, se::Value *rval /* = nullptr */) { // NOLINT
@@ -261,7 +261,7 @@ bool jsb_run_script_module(const ccstd::string &filePath, se::Value *rval /* = n
 }
 
 static bool jsc_garbageCollect(se::State &s) { // NOLINT
-    se::ScriptEngine::getInstance()->garbageCollect();
+    CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->garbageCollect();
     return true;
 }
 SE_BIND_FUNC(jsc_garbageCollect)
@@ -428,7 +428,7 @@ static bool JSB_saveByteCode(se::State &s) { // NOLINT
     ok &= sevalue_to_native(args[0], &srcfile);
     ok &= sevalue_to_native(args[1], &dstfile);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
-    ok = se::ScriptEngine::getInstance()->saveByteCodeToFile(srcfile, dstfile);
+    ok = CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->saveByteCodeToFile(srcfile, dstfile);
     s.rval().setBoolean(ok);
     return true;
 }
@@ -452,7 +452,7 @@ static bool getOrCreatePlainObject_r(const char *name, se::Object *parent, se::O
 
 static bool js_performance_now(se::State &s) { // NOLINT
     auto now = std::chrono::steady_clock::now();
-    auto micro = std::chrono::duration_cast<std::chrono::microseconds>(now - se::ScriptEngine::getInstance()->getStartTime()).count();
+    auto micro = std::chrono::duration_cast<std::chrono::microseconds>(now - CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->getStartTime()).count();
     s.rval().setDouble(static_cast<double>(micro) * 0.001);
     return true;
 }
@@ -561,7 +561,7 @@ bool jsb_global_load_image(const ccstd::string &path, const se::Value &callbackV
         auto *img = ccnew Image();
 
         gThreadPool->pushTask([=](int /*tid*/) {
-            // NOTE: FileUtils::getInstance()->fullPathForFilename isn't a threadsafe method,
+            // NOTE: CC_CURRENT_ENGINE()->load<cc::FileUtils>()->fullPathForFilename isn't a threadsafe method,
             // Image::initWithImageFile will call fullPathForFilename internally which may
             // cause thread race issues. Therefore, we get the full path of file before
             // going into task callback.
@@ -627,9 +627,9 @@ bool jsb_global_load_image(const ccstd::string &path, const se::Value &callbackV
         }
         initImageFunc("", imageData, imageBytes);
     } else {
-        ccstd::string fullPath(FileUtils::getInstance()->fullPathForFilename(path));
+        ccstd::string fullPath(CC_CURRENT_ENGINE()->load<cc::FileUtils>()->fullPathForFilename(path));
         if (0 == path.find("file://")) {
-            fullPath = FileUtils::getInstance()->fullPathForFilename(path.substr(strlen("file://")));
+            fullPath = CC_CURRENT_ENGINE()->load<cc::FileUtils>()->fullPathForFilename(path.substr(strlen("file://")));
         }
 
         if (fullPath.empty()) {
@@ -1346,7 +1346,7 @@ static bool jsb_register_TextEncoder(se::Object *globalObj) {
 
     __jsb_TextEncoder_class = cls;
 
-    se::ScriptEngine::getInstance()->clearException();
+    CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->clearException();
     return true;
 }
 
@@ -1358,7 +1358,7 @@ static bool jsb_register_TextDecoder(se::Object *globalObj) {
 
     __jsb_TextDecoder_class = cls;
 
-    se::ScriptEngine::getInstance()->clearException();
+    CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->clearException();
     return true;
 }
 
@@ -1430,16 +1430,16 @@ bool jsb_register_global_variables(se::Object *global) { // NOLINT
     jsb_register_TextEncoder(global);
     jsb_register_TextDecoder(global);
 
-    se::ScriptEngine::getInstance()->clearException();
+    CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->clearException();
 
-    se::ScriptEngine::getInstance()->addBeforeCleanupHook([]() {
+    CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->addBeforeCleanupHook([]() {
         delete gThreadPool;
         gThreadPool = nullptr;
 
         DeferredReleasePool::clear();
     });
 
-    se::ScriptEngine::getInstance()->addAfterCleanupHook([]() {
+    CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->addAfterCleanupHook([]() {
         DeferredReleasePool::clear();
 
         gModuleCache.clear();

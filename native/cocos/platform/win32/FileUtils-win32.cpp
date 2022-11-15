@@ -138,7 +138,7 @@ FileUtils::Status FileUtilsWin32::getContents(const ccstd::string &filename, Res
         return FileUtils::Status::NOT_EXISTS;
 
     // read the file from hardware
-    ccstd::string fullPath = FileUtils::getInstance()->fullPathForFilename(filename);
+    ccstd::string fullPath = CC_CURRENT_ENGINE()->load<cc::FileUtils>()->fullPathForFilename(filename);
 
     HANDLE fileHandle = ::CreateFile(StringUtf8ToWideChar(fullPath).c_str(), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, NULL, nullptr);
     if (fileHandle == INVALID_HANDLE_VALUE)
@@ -238,7 +238,7 @@ bool FileUtilsWin32::renameFile(const ccstd::string &oldfullpath, const ccstd::s
     std::wstring _wNew = StringUtf8ToWideChar(newfullpath);
     std::wstring _wOld = StringUtf8ToWideChar(oldfullpath);
 
-    if (FileUtils::getInstance()->isFileExist(newfullpath)) {
+    if (CC_CURRENT_ENGINE()->load<cc::FileUtils>()->isFileExist(newfullpath)) {
         if (!DeleteFile(_wNew.c_str())) {
             CC_LOG_ERROR("Fail to delete file %s !Error code is 0x%x", newfullpath.c_str(), GetLastError());
         }

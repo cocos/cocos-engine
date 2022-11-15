@@ -123,23 +123,23 @@ struct ProfilerBlockDepth {
 /**
  * Profiler
  */
-Profiler *Profiler::instance = nullptr;
-Profiler *Profiler::getInstance() {
-    return instance;
-}
+//Profiler *Profiler::instance = nullptr;
+//Profiler *Profiler::getInstance() {
+//    return instance;
+//}
 
 Profiler::Profiler() {
     _mainThreadId = std::this_thread::get_id();
     _root = ccnew ProfilerBlock(nullptr, "MainThread");
     _current = _root;
 
-    Profiler::instance = this;
+    //Profiler::instance = this;
 }
 
 Profiler::~Profiler() {
     CC_SAFE_DELETE(_root);
     _current = nullptr;
-    Profiler::instance = nullptr;
+    //Profiler::instance = nullptr
 }
 
 void Profiler::setEnable(ShowOption option, bool b) {
@@ -209,7 +209,7 @@ void Profiler::doIntervalUpdate() {
 }
 
 void Profiler::doFrameUpdate() {
-    auto *device = gfx::Device::getInstance();
+    auto *device = CC_GFX_DEVICE();
 
     CC_PROFILE_RENDER_UPDATE(DrawCalls, device->getNumDrawCalls());
     CC_PROFILE_RENDER_UPDATE(Instances, device->getNumInstances());

@@ -204,7 +204,7 @@ void PipelineUBO::updateShadowUBOView(const RenderPipeline *pipeline, ccstd::arr
                                       ccstd::array<float, UBOCSM::COUNT> *csmBufferView, const scene::Camera *camera) {
     const scene::RenderScene *const scene = camera->getScene();
     const scene::DirectionalLight *mainLight = scene->getMainLight();
-    gfx::Device *device = gfx::Device::getInstance();
+    gfx::Device *device = CC_GFX_DEVICE();
     const PipelineSceneData *sceneData = pipeline->getPipelineSceneData();
     const CSMLayers *csmLayers = sceneData->getCSMLayers();
     scene::Shadows *const shadowInfo = sceneData->getShadows();
@@ -292,7 +292,7 @@ void PipelineUBO::updateShadowUBOLightView(const RenderPipeline *pipeline, ccstd
     const auto *sceneData = pipeline->getPipelineSceneData();
     const CSMLayers *csmLayers = sceneData->getCSMLayers();
     const auto *shadowInfo = sceneData->getShadows();
-    const auto *device = gfx::Device::getInstance();
+    const auto *device = CC_GFX_DEVICE();
     auto &shadowUBO = *shadowBufferView;
     const bool hFTexture = supportsR32FloatTexture(device);
     const float packing = hFTexture ? 0.0F : 1.0F;

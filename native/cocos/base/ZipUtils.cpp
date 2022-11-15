@@ -236,7 +236,7 @@ int ZipUtils::inflateGZipFile(const char *path, unsigned char **out) {
     CC_ASSERT(out);
     CC_ASSERT(&*out);
 
-    gzFile inFile = gzopen(FileUtils::getInstance()->getSuitableFOpen(path).c_str(), "rb");
+    gzFile inFile = gzopen(CC_CURRENT_ENGINE()->load<cc::FileUtils>()->getSuitableFOpen(path).c_str(), "rb");
     if (inFile == nullptr) {
         CC_LOG_DEBUG("ZipUtils: error open gzip file: %s", path);
         return -1;
@@ -294,7 +294,7 @@ int ZipUtils::inflateGZipFile(const char *path, unsigned char **out) {
 
 bool ZipUtils::isCCZFile(const char *path) {
     // load file into memory
-    Data compressedData = FileUtils::getInstance()->getDataFromFile(path);
+    Data compressedData = CC_CURRENT_ENGINE()->load<cc::FileUtils>()->getDataFromFile(path);
 
     if (compressedData.isNull()) {
         CC_LOG_DEBUG("ZipUtils: loading file failed");
@@ -315,7 +315,7 @@ bool ZipUtils::isCCZBuffer(const unsigned char *buffer, uint32_t len) {
 
 bool ZipUtils::isGZipFile(const char *path) {
     // load file into memory
-    Data compressedData = FileUtils::getInstance()->getDataFromFile(path);
+    Data compressedData = CC_CURRENT_ENGINE()->load<cc::FileUtils>()->getDataFromFile(path);
 
     if (compressedData.isNull()) {
         CC_LOG_DEBUG("ZipUtils: loading file failed");
@@ -413,7 +413,7 @@ int ZipUtils::inflateCCZFile(const char *path, unsigned char **out) {
     CC_ASSERT(out);
 
     // load file into memory
-    Data compressedData = FileUtils::getInstance()->getDataFromFile(path);
+    Data compressedData = CC_CURRENT_ENGINE()->load<cc::FileUtils>()->getDataFromFile(path);
 
     if (compressedData.isNull()) {
         CC_LOG_DEBUG("Error loading CCZ compressed file");
@@ -479,7 +479,7 @@ ZipFile::ZipFile()
 ZipFile::ZipFile(const ccstd::string &zipFile, const ccstd::string &filter)
 : _data(ccnew ZipFilePrivate) {
     auto zipFileL = _data->zipFile.lock();
-    *zipFileL = unzOpen(FileUtils::getInstance()->getSuitableFOpen(zipFile).c_str());
+    *zipFileL = unzOpen(CC_CURRENT_ENGINE()->load<cc::FileUtils>()->getSuitableFOpen(zipFile).c_str());
     setFilter(filter);
 }
 

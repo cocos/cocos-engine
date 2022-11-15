@@ -51,7 +51,7 @@ namespace pipeline {
 RenderAdditiveLightQueue::RenderAdditiveLightQueue(RenderPipeline *pipeline) : _pipeline(pipeline),
                                                                                _instancedQueue(ccnew RenderInstancedQueue),
                                                                                _batchedQueue(ccnew RenderBatchedQueue) {
-    auto *device = gfx::Device::getInstance();
+    auto *device = CC_GFX_DEVICE();
     const auto alignment = device->getCapabilities().uboOffsetAlignment;
     _lightBufferStride = ((UBOForwardLight::SIZE + alignment - 1) / alignment) * alignment;
     _lightBufferElementCount = _lightBufferStride / sizeof(float);
@@ -251,7 +251,7 @@ void RenderAdditiveLightQueue::updateUBOs(const scene::Camera *camera, gfx::Comm
         _lightBuffer->resize(utils::toUint(_lightBufferStride * _lightBufferCount));
         _lightBufferData.resize(static_cast<size_t>(_lightBufferElementCount) * _lightBufferCount);
 
-        auto *device = gfx::Device::getInstance();
+        auto *device = CC_GFX_DEVICE();
         _firstLightBufferView = device->createBuffer({_lightBuffer, 0, UBOForwardLight::SIZE});
     }
 
@@ -325,7 +325,7 @@ void RenderAdditiveLightQueue::updateLightDescriptorSet(const scene::Camera *cam
     const auto *sceneData = _pipeline->getPipelineSceneData();
     auto *shadowInfo = sceneData->getShadows();
     const auto *const scene = camera->getScene();
-    const auto *device = gfx::Device::getInstance();
+    const auto *device = CC_GFX_DEVICE();
     const bool hFTexture = supportsR32FloatTexture(device);
     const float packing = hFTexture ? 0.0F : 1.0F;
     const scene::Light *mainLight = scene->getMainLight();

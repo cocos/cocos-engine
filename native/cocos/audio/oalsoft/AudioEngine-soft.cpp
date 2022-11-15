@@ -132,7 +132,7 @@ AudioEngineImpl::AudioEngineImpl()
 }
 
 AudioEngineImpl::~AudioEngineImpl() {
-    if (auto sche = _scheduler.lock()) {
+    if (auto sche = _scheduler) {
         sche->unschedule("AudioEngine", this);
     }
 
@@ -190,7 +190,7 @@ AudioCache *AudioEngineImpl::preload(const ccstd::string &filePath, const std::f
     auto it = _audioCaches.find(filePath);
     if (it == _audioCaches.end()) {
         audioCache = &_audioCaches[filePath];
-        audioCache->_fileFullPath = FileUtils::getInstance()->fullPathForFilename(filePath);
+        audioCache->_fileFullPath = CC_CURRENT_ENGINE()->load<cc::FileUtils>()->fullPathForFilename(filePath);
         unsigned int cacheId = audioCache->_id;
         auto isCacheDestroyed = audioCache->_isDestroyed;
         AudioEngine::addTask([audioCache, cacheId, isCacheDestroyed]() {
@@ -256,7 +256,7 @@ int AudioEngineImpl::play2d(const ccstd::string &filePath, bool loop, float volu
 
     if (_lazyInitLoop) {
         _lazyInitLoop = false;
-        if (auto sche = _scheduler.lock()) {
+        if (auto sche = _scheduler) {
             sche->schedule(CC_CALLBACK_1(AudioEngineImpl::update, this), this, 0.05F, false, "AudioEngine");
         }
     }
@@ -270,7 +270,7 @@ void AudioEngineImpl::play2dImpl(AudioCache *cache, int audioID) {
         _threadMutex.lock();
         auto playerIt = _audioPlayers.find(audioID);
         if (playerIt != _audioPlayers.end() && playerIt->second->play2d()) {
-            if (auto sche = _scheduler.lock()) {
+            if (auto sche = _scheduler) {
                 sche->performFunctionInCocosThread([audioID]() {
                     if (AudioEngine::sAudioIDInfoMap.find(audioID) != AudioEngine::sAudioIDInfoMap.end()) {
                         AudioEngine::sAudioIDInfoMap[audioID].state = AudioEngine::AudioState::PLAYING;
@@ -527,7 +527,7 @@ void AudioEngineImpl::update(float /*dt*/) {
 
     if (_audioPlayers.empty()) {
         _lazyInitLoop = true;
-        if (auto sche = _scheduler.lock()) {
+        if (auto sche = _scheduler) {
             sche->unschedule("AudioEngine", this);
         }
     }
@@ -558,7 +558,7 @@ PCMHeader AudioEngineImpl::getPCMHeader(const char *url) {
         header.totalFrames = cache->_totalFrames;
         return header;
     }
-    ccstd::string fileFullPath = FileUtils::getInstance()->fullPathForFilename(url);
+    ccstd::string fileFullPath = CC_CURRENT_ENGINE()->load<cc::FileUtils>()->fullPathForFilename(url);
     if (fileFullPath.empty()) {
         CC_LOG_DEBUG("file %s does not exist or failed to load", url);
         return header;
@@ -598,7 +598,7 @@ ccstd::vector<uint8_t> AudioEngineImpl::getOriginalPCMBuffer(const char *url, ui
             return pcmData;
         }
     }
-    ccstd::string fileFullPath = FileUtils::getInstance()->fullPathForFilename(url);
+    ccstd::string fileFullPath = CC_CURRENT_ENGINE()->load<cc::FileUtils>()->fullPathForFilename(url);
 
     if (fileFullPath.empty()) {
         CC_LOG_DEBUG("file %s does not exist or failed to load", url);

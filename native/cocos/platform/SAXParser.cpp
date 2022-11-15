@@ -105,7 +105,7 @@ bool SAXParser::parse(const char *xmlData, size_t dataLength) {
 
 bool SAXParser::parse(const ccstd::string &filename) {
     bool ret = false;
-    Data data = FileUtils::getInstance()->getDataFromFile(filename);
+    Data data = CC_CURRENT_ENGINE()->load<cc::FileUtils>()->getDataFromFile(filename);
     if (!data.isNull()) {
         ret = parse((const char *)data.getBytes(), data.getSize());
     }

@@ -29,6 +29,7 @@
 #include "bindings/manual/jsb_conversions.h"
 #include "bindings/manual/jsb_global.h"
 #include "network/Downloader.h"
+#include "application/ApplicationManager.h"
 
 // deprecated since v3.6
 static bool js_network_Downloader_createDownloadFileTask(se::State &s) { // NOLINT(readability-identifier-naming)
@@ -145,7 +146,7 @@ static bool js_network_Downloader_setOnFileTaskSuccess(se::State &s) { // NOLINT
                 jsThis.toObject()->attachObject(jsFunc.toObject());
                 auto *thisObj = s.thisObject();
                 auto lambda = [=](const cc::network::DownloadTask &larg0) -> void {
-                    se::ScriptEngine::getInstance()->clearException();
+                    CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->clearException();
                     se::AutoHandleScope hs;
 
                     CC_UNUSED bool ok = true;
@@ -156,7 +157,7 @@ static bool js_network_Downloader_setOnFileTaskSuccess(se::State &s) { // NOLINT
                     se::Object *funcObj = jsFunc.toObject();
                     bool succeed = funcObj->call(args, thisObj, &rval);
                     if (!succeed) {
-                        se::ScriptEngine::getInstance()->clearException();
+                        CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->clearException();
                     }
                     if (thisObj) {
                         thisObj->unroot();
@@ -191,7 +192,7 @@ static bool js_network_Downloader_setOnSuccess(se::State &s) { // NOLINT(readabi
                 jsThis.toObject()->attachObject(jsFunc.toObject());
                 auto *thisObj = s.thisObject();
                 auto lambda = [=](const cc::network::DownloadTask &larg0) -> void {
-                    se::ScriptEngine::getInstance()->clearException();
+                    CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->clearException();
                     se::AutoHandleScope hs;
 
                     CC_UNUSED bool ok = true;
@@ -202,7 +203,7 @@ static bool js_network_Downloader_setOnSuccess(se::State &s) { // NOLINT(readabi
                     se::Object *funcObj = jsFunc.toObject();
                     bool succeed = funcObj->call(args, thisObj, &rval);
                     if (!succeed) {
-                        se::ScriptEngine::getInstance()->clearException();
+                        CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->clearException();
                     }
                     if (thisObj) {
                         thisObj->unroot();
@@ -238,7 +239,7 @@ static bool js_network_Downloader_setOnTaskError(se::State &s) { // NOLINT(reada
                 jsThis.toObject()->attachObject(jsFunc.toObject());
                 auto *thisObj = s.thisObject();
                 auto lambda = [=](const cc::network::DownloadTask &larg0, int larg1, int larg2, const ccstd::string &larg3) -> void {
-                    se::ScriptEngine::getInstance()->clearException();
+                    CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->clearException();
                     se::AutoHandleScope hs;
 
                     CC_UNUSED bool ok = true;
@@ -252,7 +253,7 @@ static bool js_network_Downloader_setOnTaskError(se::State &s) { // NOLINT(reada
                     se::Object *funcObj = jsFunc.toObject();
                     bool succeed = funcObj->call(args, thisObj, &rval);
                     if (!succeed) {
-                        se::ScriptEngine::getInstance()->clearException();
+                        CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->clearException();
                     }
                     if (thisObj) {
                         thisObj->unroot();
@@ -287,7 +288,7 @@ static bool js_network_Downloader_setOnError(se::State &s) { // NOLINT(readabili
                 jsThis.toObject()->attachObject(jsFunc.toObject());
                 auto *thisObj = s.thisObject();
                 auto lambda = [=](const cc::network::DownloadTask &larg0, int larg1, int larg2, const ccstd::string &larg3) -> void {
-                    se::ScriptEngine::getInstance()->clearException();
+                    CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->clearException();
                     se::AutoHandleScope hs;
 
                     CC_UNUSED bool ok = true;
@@ -301,7 +302,7 @@ static bool js_network_Downloader_setOnError(se::State &s) { // NOLINT(readabili
                     se::Object *funcObj = jsFunc.toObject();
                     bool succeed = funcObj->call(args, thisObj, &rval);
                     if (!succeed) {
-                        se::ScriptEngine::getInstance()->clearException();
+                        CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->clearException();
                     }
                     if (thisObj) {
                         thisObj->unroot();

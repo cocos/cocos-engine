@@ -74,7 +74,8 @@ namespace {
 
 bool setCanvasCallback(se::Object * /*global*/) {
     se::AutoHandleScope scope;
-    se::ScriptEngine *se = se::ScriptEngine::getInstance();
+    se::ScriptEngine *se = CC_CURRENT_ENGINE()->load<se::ScriptEngine>();
+
     auto *window = CC_GET_MAIN_SYSTEM_WINDOW();
     auto handler = window->getWindowHandle();
     auto viewSize = window->getViewSize();
@@ -102,39 +103,21 @@ bool setCanvasCallback(se::Object * /*global*/) {
 namespace cc {
 
 Engine::Engine() {
-    _scriptEngine = ccnew se::ScriptEngine();
-
     _windowEventListener.bind([this](const cc::WindowEvent &ev) { redirectWindowEvent(ev); });
 }
 
 Engine::~Engine() {
     destroy();
-
-    delete _scriptEngine;
-    _scriptEngine = nullptr;
+    _modules.reset();
 }
 
 int32_t Engine::init() {
-    _scheduler = std::make_shared<Scheduler>();
-    _fs = createFileUtils();
-    // May create gfx device in render subsystem in future.
-    _gfxDevice = gfx::DeviceManager::create();
-    _programLib = ccnew ProgramLib();
-    _builtinResMgr = ccnew BuiltinResMgr;
 
-#if CC_USE_DEBUG_RENDERER
-    _debugRenderer = ccnew DebugRenderer();
-#endif
-
-#if CC_USE_PROFILER
-    _profiler = ccnew Profiler();
-#endif
-
-    EventDispatcher::init();
+    _modules.autoLoad(); // EventDispatcher is not referenced anywhere, force load here.
 
     BasePlatform *platform = BasePlatform::getPlatform();
 
-    se::ScriptEngine::getInstance()->addRegisterCallback(setCanvasCallback);
+    load<se::ScriptEngine>()->addRegisterCallback(setCanvasCallback);
     emit<EngineStatusChange>(ON_START);
     _inited = true;
     return 0;
@@ -142,37 +125,13 @@ int32_t Engine::init() {
 
 void Engine::destroy() {
     cc::DeferredReleasePool::clear();
-    cc::network::HttpClient::destroyInstance();
-    _scheduler->removeAllFunctionsToBePerformedInCocosThread();
-    _scheduler->unscheduleAll();
+
     CCObject::deferredDestroy();
 
 #if CC_USE_AUDIO
     AudioEngine::end();
 #endif
 
-    EventDispatcher::destroy();
-
-    // Should delete it before deleting DeviceManager as ScriptEngine will check gpu resource usage,
-    // and ScriptEngine will hold gfx objects.
-    // Because the user registration interface needs to be added during initialization.
-    // ScriptEngine cannot be released here.
-    _scriptEngine->cleanup();
-
-#if CC_USE_PROFILER
-    delete _profiler;
-#endif
-    // Profiler depends on DebugRenderer, should delete it after deleting Profiler,
-    // and delete DebugRenderer after RenderPipeline::destroy which destroy DebugRenderer.
-#if CC_USE_DEBUG_RENDERER
-    delete _debugRenderer;
-#endif
-
-    //TODO(): Delete some global objects.
-#if CC_USE_DEBUG_RENDERER
-    // FreeTypeFontFace is only used in DebugRenderer now, so use CC_USE_DEBUG_RENDERER macro temporarily
-    FreeTypeFontFace::destroyFreeType();
-#endif
 
 #if CC_USE_DRAGONBONES
     dragonBones::ArmatureCacheMgr::destroyInstance();
@@ -188,11 +147,7 @@ void Engine::destroy() {
 
     CCObject::deferredDestroy();
 
-    delete _builtinResMgr;
-    delete _programLib;
-    CC_SAFE_DESTROY_AND_DELETE(_gfxDevice);
-    delete _fs;
-    _scheduler.reset();
+    _modules.reset();
 
     _inited = false;
 }
@@ -229,8 +184,7 @@ void Engine::close() { // NOLINT
     //#endif
 
     cc::DeferredReleasePool::clear();
-    _scheduler->removeAllFunctionsToBePerformedInCocosThread();
-    _scheduler->unscheduleAll();
+    _modules.reset();
 }
 
 uint Engine::getTotalFrames() const {
@@ -275,11 +229,12 @@ void Engine::tick() {
 
         prevTime = std::chrono::steady_clock::now();
 
-        _scheduler->update(dt);
+        //_scheduler->update(dt);
+        load<Scheduler>()->update(dt);
 
-        se::ScriptEngine::getInstance()->handlePromiseExceptions();
+        load<se::ScriptEngine>()->handlePromiseExceptions();
         events::Tick::broadcast(dt);
-        se::ScriptEngine::getInstance()->mainLoopUpdate();
+        load<se::ScriptEngine>()->mainLoopUpdate();
 
         cc::DeferredReleasePool::clear();
 
@@ -297,8 +252,8 @@ void Engine::doRestart() {
     CC_CURRENT_APPLICATION()->init();
 }
 
-Engine::SchedulerPtr Engine::getScheduler() const {
-    return _scheduler;
+Scheduler * Engine::getScheduler() const {
+    return _modules.load<Scheduler>();
 }
 
 bool Engine::redirectWindowEvent(const WindowEvent &ev) {

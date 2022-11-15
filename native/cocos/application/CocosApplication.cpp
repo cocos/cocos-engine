@@ -80,7 +80,7 @@ int CocosApplication::init() {
         }
     });
 
-    se::ScriptEngine *se = se::ScriptEngine::getInstance();
+    se::ScriptEngine *se = CC_CURRENT_ENGINE()->load<se::ScriptEngine>();
 
     jsb_init_file_operation_delegate();
 

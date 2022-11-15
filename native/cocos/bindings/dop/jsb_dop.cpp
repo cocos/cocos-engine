@@ -30,6 +30,7 @@
 #include "cocos/bindings/manual/jsb_classtype.h"
 #include "cocos/bindings/manual/jsb_conversions.h"
 #include "cocos/bindings/manual/jsb_global.h"
+#include "application/ApplicationManager.h"
 
 /********************************************************
        BufferPool binding
@@ -87,7 +88,7 @@ static bool js_register_se_BufferPool(se::Object *obj) { // NOLINT
 
     jsb_BufferPool_class = cls; // NOLINT
 
-    se::ScriptEngine::getInstance()->clearException();
+    CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->clearException();
     return true;
 }
 
@@ -166,7 +167,7 @@ static bool js_register_se_BufferAllocator(se::Object *obj) { // NOLINT
 
     jsb_BufferAllocator_class = cls; // NOLINT
 
-    se::ScriptEngine::getInstance()->clearException();
+    CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->clearException();
     return true;
 }
 

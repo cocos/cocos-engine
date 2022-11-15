@@ -37,7 +37,7 @@ Device *Device::instance = nullptr;
 bool Device::isSupportDetachDeviceThread = true;
 
 Device *Device::getInstance() {
-    return Device::instance;
+   return Device::instance;
 }
 
 Device::Device() {

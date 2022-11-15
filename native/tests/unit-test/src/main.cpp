@@ -32,6 +32,7 @@ THE SOFTWARE.
 #include "core/Root.h"
 #include "gtest/gtest.h"
 #include "renderer/GFXDeviceManager.h"
+#include "engine/EngineModules.h"
 
 using namespace cc;
 using namespace cc::gfx;
@@ -43,18 +44,22 @@ int cocos_main(int argc, const char** argv) {
 
 int main(int argc, const char* argv[]) {
     int ret = 0;
+    registerEngineModules();
     cocos_main(argc, argv);
 
-    Root* root = new Root(DeviceManager::create());
-    se::ScriptEngine* scriptEngine = new se::ScriptEngine();
+    ModuleGroup modules;
+
+    auto* scriptEngine = modules.load<se::ScriptEngine>();
     scriptEngine->start();
+
+    scriptEngine->evalString("console.log('------------------HELLO------------');");
     {
         se::AutoHandleScope hs;
         ::testing::InitGoogleTest(&argc, (char**)argv);
         ret = RUN_ALL_TESTS();
     }
     scriptEngine->cleanup();
-    delete root;
-    delete scriptEngine;
+    // delete root;
+    // delete scriptEngine;
     return ret;
 }

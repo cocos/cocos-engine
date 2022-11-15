@@ -428,7 +428,7 @@ static void runTestGraph(const RenderGraph &renderGraph, const ResourceGraph &re
 
     framegraph::FrameGraph framegraph;
 
-    auto *device = gfx::Device::getInstance();
+    auto *device = CC_GFX_DEVICE();
     if (!device) {
         device = gfx::DeviceManager::create();
     }
@@ -527,7 +527,7 @@ static void runTestGraph(const RenderGraph &renderGraph, const ResourceGraph &re
             [&](const PresentPass &pass) {
                 auto forwardSetup = [&](framegraph::PassNodeBuilder &builder, TestRenderData &data) {
                     for (const auto &pair : pass.presents) {
-                        auto *externalRes = gfx::Device::getInstance()->createTexture(gfx::TextureInfo{
+                        auto *externalRes = CC_GFX_DEVICE()->createTexture(gfx::TextureInfo{
                             gfx::TextureType::TEX2D,
                             gfx::TextureUsageBit::COLOR_ATTACHMENT,
                             gfx::Format::RGBA8,

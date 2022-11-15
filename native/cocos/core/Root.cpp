@@ -111,7 +111,7 @@ scene::RenderWindow *Root::createRenderWindowFromSystemWindow(ISystemWindow *win
     info.windowHandle = reinterpret_cast<void *>(handle);
     info.windowId = window->getWindowId();
 
-    gfx::Swapchain *swapchain = gfx::Device::getInstance()->createSwapchain(info);
+    gfx::Swapchain *swapchain = CC_GFX_DEVICE()->createSwapchain(info);
     _swapchains.emplace_back(swapchain);
 
     gfx::RenderPassInfo renderPassInfo;

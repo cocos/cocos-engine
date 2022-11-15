@@ -85,6 +85,6 @@ private:
     bool _lazyInitLoop;
 
     int _currentAudioID;
-    std::weak_ptr<Scheduler> _scheduler;
+    Scheduler *_scheduler;
 };
 } // namespace cc

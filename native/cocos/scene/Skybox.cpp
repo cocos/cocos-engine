@@ -38,6 +38,7 @@
 #include "renderer/pipeline/custom/RenderInterfaceTypes.h"
 #include "scene/Ambient.h"
 #include "scene/Model.h"
+#include "application/ApplicationManager.h"
 
 namespace cc {
 namespace scene {
@@ -293,7 +294,7 @@ void Skybox::setRotationAngle(float angle) {
 void Skybox::activate() {
     auto *pipeline = Root::getInstance()->getPipeline();
     _globalDSManager = pipeline->getGlobalDSManager();
-    _default = BuiltinResMgr::getInstance()->get<TextureCube>("default-cube-texture");
+    _default = CC_CURRENT_ENGINE()->load<BuiltinResMgr>()->get<TextureCube>("default-cube-texture");
 
     if (!_model) {
         _model = Root::getInstance()->createModel<scene::Model>();

@@ -260,7 +260,7 @@ void SkinningModel::initRealTimeJointTexture() {
     CC_SAFE_DELETE(_realTimeJointTexture);
     if (!_realTimeTextureMode) return;
     _realTimeJointTexture = ccnew RealTimeJointTexture;
-    auto *device = gfx::Device::getInstance();
+    auto *device = CC_GFX_DEVICE();
     uint32_t texWidth = REALTIME_JOINT_TEXTURE_WIDTH;
     uint32_t texHeight = REALTIME_JOINT_TEXTURE_HEIGHT;
     gfx::Format textureFormat = gfx::Format::RGBA32F;
@@ -296,7 +296,7 @@ void SkinningModel::bindRealTimeJointTexture(uint32_t idx, gfx::DescriptorSet *d
             gfx::Address::CLAMP,
             gfx::Address::CLAMP,
         };
-        auto *device = gfx::Device::getInstance();
+        auto *device = CC_GFX_DEVICE();
         auto *sampler = device->getSampler(info);
         descriptorset->bindTexture(pipeline::REALTIMEJOINTTEXTURE::BINDING, texture);
         descriptorset->bindSampler(pipeline::REALTIMEJOINTTEXTURE::BINDING, sampler);
@@ -334,7 +334,7 @@ void SkinningModel::updateRealTimeJointTextureBuffer() {
             texOffset,
             extent,
             layer};
-        auto *device = gfx::Device::getInstance();
+        auto *device = CC_GFX_DEVICE();
 
         device->copyBuffersToTexture(reinterpret_cast<const uint8_t *const *>(&buffer), texture, &region, 1);
         bIdx++;

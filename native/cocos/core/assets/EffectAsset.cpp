@@ -29,6 +29,7 @@
 #include "core/platform/Debug.h"
 #include "engine/BaseEngine.h"
 #include "renderer/core/ProgramLib.h"
+#include "application/ApplicationManager.h"
 
 namespace cc {
 
@@ -165,7 +166,7 @@ EffectAsset *EffectAsset::get(const ccstd::string &name) {
 }
 
 void EffectAsset::onLoaded() {
-    ProgramLib::getInstance()->registerEffect(this);
+    CC_CURRENT_ENGINE()->load<ProgramLib>()->registerEffect(this);
     EffectAsset::registerAsset(this);
 #if !CC_EDITOR
     if (CC_CURRENT_ENGINE()->isInited()) {
@@ -216,7 +217,7 @@ void EffectAsset::precompile() {
 
         ccstd::vector<MacroRecord> defines = EffectAsset::doCombine(ccstd::vector<MacroRecord>(), combination, combination.begin());
         for (auto &define : defines) {
-            ProgramLib::getInstance()->getGFXShader(root->getDevice(), shader.name, define, root->getPipeline());
+            CC_CURRENT_ENGINE()->load<ProgramLib>()->getGFXShader(root->getDevice(), shader.name, define, root->getPipeline());
         }
     }
 }

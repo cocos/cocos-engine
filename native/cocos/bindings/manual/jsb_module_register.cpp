@@ -48,7 +48,7 @@
 #include "cocos/bindings/manual/jsb_platform.h"
 #include "cocos/bindings/manual/jsb_scene_manual.h"
 #include "cocos/bindings/manual/jsb_xmlhttprequest.h"
-
+#include "application/ApplicationManager.h"
 #if USE_GFX_RENDERER
 #endif
 
@@ -110,7 +110,7 @@
 #endif
 
 bool jsb_register_all_modules() {
-    se::ScriptEngine *se = se::ScriptEngine::getInstance();
+    se::ScriptEngine *se = CC_CURRENT_ENGINE()->load<se::ScriptEngine>();
 
     se->addBeforeCleanupHook([se]() {
         se->garbageCollect();

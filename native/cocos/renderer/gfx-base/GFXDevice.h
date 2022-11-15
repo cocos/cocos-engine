@@ -46,12 +46,15 @@
 #include "states/GFXGeneralBarrier.h"
 #include "states/GFXSampler.h"
 #include "states/GFXTextureBarrier.h"
+#include "base/module/Module.h"
+#include "application/ApplicationManager.h"
 
 namespace cc {
 namespace gfx {
 
-class CC_DLL Device : public RefCounted {
+class CC_DLL Device : public RefCounted, public Module {
 public:
+    IMPL_MODULE_NAMED(Device, "gfx.Device")
     static Device *getInstance();
 
     ~Device() override;
@@ -330,3 +333,5 @@ void Device::registerOnAcquireCallback(ExecuteMethod &&execute) {
 
 } // namespace gfx
 } // namespace cc
+
+#define CC_GFX_DEVICE() CC_CURRENT_ENGINE()->load<cc::gfx::Device>()

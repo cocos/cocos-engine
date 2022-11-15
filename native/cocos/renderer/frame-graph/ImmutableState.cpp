@@ -73,7 +73,7 @@ std::pair<gfx::GFXObject*, gfx::GFXObject*> getBarrier(const ResourceBarrier& ba
         info.size = static_cast<uint32_t>(barrierInfo.bufferRange.len);
         info.type = barrierInfo.barrierType;
 
-        res.first = gfx::Device::getInstance()->getBufferBarrier(info);
+        res.first = CC_GFX_DEVICE()->getBufferBarrier(info);
         res.second = gfxBuffer;
     } else if (barrierInfo.resourceType == ResourceType::TEXTURE) {
         gfx::Texture* gfxTexture{nullptr};
@@ -92,7 +92,7 @@ std::pair<gfx::GFXObject*, gfx::GFXObject*> getBarrier(const ResourceBarrier& ba
         info.baseSlice = static_cast<uint32_t>(barrierInfo.layerRange.base);
         info.sliceCount = static_cast<uint32_t>(barrierInfo.layerRange.len);
 
-        res.first = gfx::Device::getInstance()->getTextureBarrier(info);
+        res.first = CC_GFX_DEVICE()->getTextureBarrier(info);
         res.second = gfxTexture;
     }
 

@@ -51,7 +51,7 @@ gfx::PipelineState *PipelineStateManager::getOrCreatePipelineState(const scene::
     if (!pso) {
         auto *pipelineLayout = pass->getPipelineLayout();
 
-        pso = gfx::Device::getInstance()->createPipelineState({shader,
+        pso = CC_GFX_DEVICE()->createPipelineState({shader,
                                                                pipelineLayout,
                                                                renderPass,
                                                                {inputAssembler->getAttributes()},

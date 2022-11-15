@@ -42,7 +42,7 @@ ShadowTransformInfo::ShadowTransformInfo(uint32_t level) : _level(level) {
 
 void ShadowTransformInfo::createMatrix(const geometry::Frustum &splitFrustum, const scene::DirectionalLight *dirLight, float shadowMapWidth, bool isOnlyCulling) {
     const float invisibleOcclusionRange = dirLight->getShadowInvisibleOcclusionRange();
-    const gfx::Device *device = gfx::Device::getInstance();
+    const gfx::Device *device = CC_GFX_DEVICE();
     const Root *root = Root::getInstance();
     geometry::Frustum::copy(&_lightViewFrustum, splitFrustum);
     const float projectionSinY = device->getCapabilities().clipSpaceSignY;
@@ -141,7 +141,7 @@ CSMLayerInfo::CSMLayerInfo(uint32_t level) : ShadowTransformInfo(level) {
 }
 
 void CSMLayerInfo::calculateAtlas(uint32_t level) {
-    const gfx::Device *device = gfx::Device::getInstance();
+    const gfx::Device *device = CC_GFX_DEVICE();
     const float clipSpaceSignY = device->getCapabilities().clipSpaceSignY;
     const float x = floorf(static_cast<float>(level % 2U)) - 0.5F;
     const float y = clipSpaceSignY * (0.5F - floorf(static_cast<float>(level) / 2U));
@@ -198,7 +198,7 @@ void CSMLayers::update(const PipelineSceneData *sceneData, const scene::Camera *
 }
 
 void CSMLayers::updateFixedArea(const scene::DirectionalLight *dirLight) const {
-    const gfx::Device *device = gfx::Device::getInstance();
+    const gfx::Device *device = CC_GFX_DEVICE();
     const float x = dirLight->getShadowOrthoSize();
     const float y = dirLight->getShadowOrthoSize();
     const float nearClamp = dirLight->getShadowNear();

@@ -26862,7 +26862,8 @@ static bool js_cc_ProgramLib_getInstance_static(se::State& s)
         SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
         return false;
     }
-    result = (cc::ProgramLib *)cc::ProgramLib::getInstance();
+    // result = (cc::ProgramLib *)cc::ProgramLib::getInstance();
+    result = (cc::ProgramLib *) CC_CURRENT_ENGINE()->load<cc::ProgramLib>();
     // %typemap(out) SWIGTYPE*
     ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
     SE_PRECONDITION2(ok, false, "ProgramLib_getInstance, Error processing arguments");

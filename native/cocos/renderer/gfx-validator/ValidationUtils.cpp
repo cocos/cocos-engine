@@ -23,6 +23,9 @@
  THE SOFTWARE.
 ****************************************************************************/
 
+#include "application/ApplicationManager.h"
+
+
 #include "ValidationUtils.h"
 
 #include "DeviceValidator.h"
@@ -41,7 +44,7 @@ namespace utils {
 ccstd::string getStacktraceJS() {
 #ifndef CC_WGPU_WASM
     if (!gfx::DeviceValidator::allowStacktraceJS) return "";
-    return se::ScriptEngine::getInstance()->getCurrentStackTrace();
+    return CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->getCurrentStackTrace();
 #else
     return "";
 #endif

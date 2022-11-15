@@ -32,6 +32,7 @@
 #include "base/std/container/string.h"
 #include "base/std/container/unordered_map.h"
 #include "base/std/optional.h"
+#include "base/module/Module.h"
 #include "core/Types.h"
 #include "core/assets/EffectAsset.h"
 #include "renderer/gfx-base/GFXDef-common.h"
@@ -81,9 +82,12 @@ const char *getDeviceShaderVersion(const gfx::Device *device);
  * @en The global maintainer of all shader resources.
  * @zh 维护 shader 资源实例的全局管理器。
  */
-class ProgramLib final {
+class ProgramLib final: public Module {
 public:
-    static ProgramLib *getInstance();
+    //static ProgramLib *getInstance();
+    IMPL_MODULE(ProgramLib)
+
+    MODULE_DEPS("FileUtils", "gfx.Device")
 
     ProgramLib();
     ~ProgramLib();
@@ -160,7 +164,7 @@ public:
 private:
     CC_DISALLOW_COPY_MOVE_ASSIGN(ProgramLib);
 
-    static ProgramLib *instance;
+    //static ProgramLib *instance;
     Record<ccstd::string, IProgramInfo> _templates; // per shader
     Record<ccstd::string, IntrusivePtr<gfx::Shader>> _cache;
     Record<uint64_t, ITemplateInfo> _templateInfos;

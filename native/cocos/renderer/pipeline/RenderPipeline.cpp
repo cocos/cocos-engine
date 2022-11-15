@@ -45,6 +45,7 @@
 #endif
 #include "scene/Camera.h"
 #include "scene/Skybox.h"
+#include "application/ApplicationManager.h"
 
 namespace cc {
 namespace pipeline {
@@ -61,7 +62,7 @@ RenderPipeline *RenderPipeline::getInstance() {
 }
 
 RenderPipeline::RenderPipeline()
-: _device(gfx::Device::getInstance()) {
+: _device(CC_GFX_DEVICE()) {
     RenderPipeline::instance = this;
 
     _globalDSManager = ccnew GlobalDSManager();
@@ -88,7 +89,7 @@ bool RenderPipeline::activate(gfx::Swapchain * /*swapchain*/) {
     _pipelineUBO->activate(_device, this);
     _pipelineSceneData->activate(_device);
 #if CC_USE_DEBUG_RENDERER
-    CC_DEBUG_RENDERER->activate(_device);
+    CC_CURRENT_ENGINE()->load<DebugRenderer>()->activate(_device);
 #endif
 
     // generate macros here rather than construct func because _clusterEnabled

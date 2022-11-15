@@ -99,7 +99,7 @@ void ShadowStage::render(scene::Camera *camera) {
                 _renderArea.width = static_cast<uint32_t>(shadowMapSize.x);
                 _renderArea.height = static_cast<uint32_t>(shadowMapSize.y);
             } else {
-                const gfx::Device *device = gfx::Device::getInstance();
+                const gfx::Device *device = CC_GFX_DEVICE();
                 const float screenSpaceSignY = device->getCapabilities().screenSpaceSignY;
                 _renderArea.x = static_cast<int>(static_cast<float>(_level % 2) * 0.5F * shadowMapSize.x);
                 if (screenSpaceSignY > 0.0F) {

@@ -29,6 +29,7 @@
 #include "core/Root.h"
 #include "core/scene-graph/Node.h"
 #include "scene/Model.h"
+#include "application/ApplicationManager.h"
 
 #ifndef JSB_ALLOC
     #define JSB_ALLOC(kls, ...) ccnew kls(__VA_ARGS__)
@@ -116,7 +117,7 @@ static bool js_root_registerListeners(se::State &s) // NOLINT(readability-identi
         bool ok = nativevalue_to_se(rootObj, rootVal);                                                             \
         SE_PRECONDITION2_FUNCNAME_VOID(ok, #jsFuncName, "js_root_registerListeners : Error processing arguments"); \
         if (rootVal.isObject()) {                                                                                  \
-            se::ScriptEngine::getInstance()->callFunction(rootVal.toObject(), #jsFuncName, 0, nullptr);            \
+            CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->callFunction(rootVal.toObject(), #jsFuncName, 0, nullptr);            \
         }                                                                                                          \
     });
 
@@ -133,7 +134,7 @@ static void registerOnTransformChanged(cc::Node *node, se::Object *jsObject) {
             se::AutoHandleScope hs;
             se::Value arg0;
             nativevalue_to_se(transformBit, arg0);
-            se::ScriptEngine::getInstance()->callFunction(jsObject, "_onTransformChanged", 1, &arg0);
+            CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->callFunction(jsObject, "_onTransformChanged", 1, &arg0);
         });
 }
 
@@ -143,7 +144,7 @@ static void registerOnParentChanged(cc::Node *node, se::Object *jsObject) {
             se::AutoHandleScope hs;
             se::Value arg0;
             nativevalue_to_se(oldParent, arg0);
-            se::ScriptEngine::getInstance()->callFunction(jsObject, "_onParentChanged", 1, &arg0);
+            CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->callFunction(jsObject, "_onParentChanged", 1, &arg0);
         });
 }
 
@@ -153,7 +154,7 @@ static void registerOnLayerChanged(cc::Node *node, se::Object *jsObject) {
             se::AutoHandleScope hs;
             se::Value arg0;
             nativevalue_to_se(layer, arg0);
-            se::ScriptEngine::getInstance()->callFunction(jsObject, "_onLayerChanged", 1, &arg0);
+            CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->callFunction(jsObject, "_onLayerChanged", 1, &arg0);
         });
 }
 
@@ -163,7 +164,7 @@ static void registerOnChildRemoved(cc::Node *node, se::Object *jsObject) {
             se::AutoHandleScope hs;
             se::Value arg0;
             nativevalue_to_se(child, arg0);
-            se::ScriptEngine::getInstance()->callFunction(jsObject, "_onChildRemoved", 1, &arg0);
+            CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->callFunction(jsObject, "_onChildRemoved", 1, &arg0);
         });
 }
 
@@ -173,7 +174,7 @@ static void registerOnChildAdded(cc::Node *node, se::Object *jsObject) {
             se::AutoHandleScope hs;
             se::Value arg0;
             nativevalue_to_se(child, arg0);
-            se::ScriptEngine::getInstance()->callFunction(jsObject, "_onChildAdded", 1, &arg0);
+            CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->callFunction(jsObject, "_onChildAdded", 1, &arg0);
         });
 }
 
@@ -181,7 +182,7 @@ static void registerOnSiblingOrderChanged(cc::Node *node, se::Object *jsObject) 
     node->on<cc::Node::SiblingOrderChanged>(
         [jsObject](cc::Node * /*emitter*/) {
             se::AutoHandleScope scope;
-            se::ScriptEngine::getInstance()->callFunction(jsObject, "_onSiblingOrderChanged", 0, nullptr);
+            CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->callFunction(jsObject, "_onSiblingOrderChanged", 0, nullptr);
         });
 }
 
@@ -191,7 +192,7 @@ static void registerOnActiveNode(cc::Node *node, se::Object *jsObject) {
             se::AutoHandleScope hs;
             se::Value arg0;
             nativevalue_to_se(shouldActiveNow, arg0);
-            se::ScriptEngine::getInstance()->callFunction(jsObject, "_onActiveNode", 1, &arg0);
+            CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->callFunction(jsObject, "_onActiveNode", 1, &arg0);
         });
 }
 
@@ -201,7 +202,7 @@ static void registerOnBatchCreated(cc::Node *node, se::Object *jsObject) {
             se::AutoHandleScope hs;
             se::Value arg0;
             nativevalue_to_se(dontChildPrefab, arg0);
-            se::ScriptEngine::getInstance()->callFunction(jsObject, "_onBatchCreated", 1, &arg0);
+            CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->callFunction(jsObject, "_onBatchCreated", 1, &arg0);
         });
 }
 
@@ -213,7 +214,7 @@ static void registerLocalPositionRotationScaleUpdated(cc::Node *node, se::Object
             nativevalue_to_se(x, args[0]);
             nativevalue_to_se(y, args[1]);
             nativevalue_to_se(z, args[2]);
-            se::ScriptEngine::getInstance()->callFunction(jsObject, "_onLocalPositionUpdated", static_cast<uint32_t>(args.size()), args.data());
+            CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->callFunction(jsObject, "_onLocalPositionUpdated", static_cast<uint32_t>(args.size()), args.data());
         });
 
     node->on<cc::Node::LocalRotationUpdated>([jsObject](cc::Node * /*emiiter*/, float x, float y, float z, float w) {
@@ -223,7 +224,7 @@ static void registerLocalPositionRotationScaleUpdated(cc::Node *node, se::Object
         nativevalue_to_se(y, args[1]);
         nativevalue_to_se(z, args[2]);
         nativevalue_to_se(w, args[3]);
-        se::ScriptEngine::getInstance()->callFunction(jsObject, "_onLocalRotationUpdated", static_cast<uint32_t>(args.size()), args.data());
+        CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->callFunction(jsObject, "_onLocalRotationUpdated", static_cast<uint32_t>(args.size()), args.data());
     });
 
     node->on<cc::Node::LocalScaleUpdated>([jsObject](cc::Node * /*emitter*/, float x, float y, float z) {
@@ -232,7 +233,7 @@ static void registerLocalPositionRotationScaleUpdated(cc::Node *node, se::Object
         nativevalue_to_se(x, args[0]);
         nativevalue_to_se(y, args[1]);
         nativevalue_to_se(z, args[2]);
-        se::ScriptEngine::getInstance()->callFunction(jsObject, "_onLocalScaleUpdated", static_cast<uint32_t>(args.size()), args.data());
+        CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->callFunction(jsObject, "_onLocalScaleUpdated", static_cast<uint32_t>(args.size()), args.data());
     });
 
     node->on<cc::Node::LocalRTSUpdated>(
@@ -252,7 +253,7 @@ static void registerLocalPositionRotationScaleUpdated(cc::Node *node, se::Object
             nativevalue_to_se(sy, args[8]);
             nativevalue_to_se(sz, args[9]);
 
-            se::ScriptEngine::getInstance()->callFunction(jsObject, "_onLocalPositionRotationScaleUpdated", static_cast<uint32_t>(args.size()), args.data());
+            CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->callFunction(jsObject, "_onLocalPositionRotationScaleUpdated", static_cast<uint32_t>(args.size()), args.data());
         });
 }
 
@@ -267,7 +268,7 @@ static bool js_scene_Node_registerListeners(se::State &s) // NOLINT(readability-
     cobj->on<eventType>(                                                                      \
         [jsThisVal](cc::Node * /*emitter*/) {                                                  \
             se::AutoHandleScope scope;                                                        \
-            se::ScriptEngine::getInstance()->callFunction(jsThisVal.toObject(), #jsFuncName, 0, nullptr); \
+            CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->callFunction(jsThisVal.toObject(), #jsFuncName, 0, nullptr); \
         });
 
     registerOnActiveNode(cobj, jsObject);
@@ -282,14 +283,14 @@ static bool js_scene_Node_registerListeners(se::State &s) // NOLINT(readability-
             se::AutoHandleScope scope;
             se::Value nodeVal;
             nativevalue_to_se(emitter, nodeVal);
-            se::ScriptEngine::getInstance()->callFunction(nodeVal.toObject(), "_onNodeDestroyed", 1, &nodeVal);
+            CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->callFunction(nodeVal.toObject(), "_onNodeDestroyed", 1, &nodeVal);
         });
 
     cobj->onSiblingIndexChanged = [jsObject](index_t newIndex) {
         se::AutoHandleScope hs;
         se::Value arg0;
         nativevalue_to_se(newIndex, arg0);
-        se::ScriptEngine::getInstance()->callFunction(jsObject, "_onSiblingIndexChanged", 1, &arg0);
+        CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->callFunction(jsObject, "_onSiblingIndexChanged", 1, &arg0);
     };
 
     cobj->on<cc::Node::SceneUpdated>(
@@ -297,7 +298,7 @@ static bool js_scene_Node_registerListeners(se::State &s) // NOLINT(readability-
             se::AutoHandleScope hs;
             se::Value arg0;
             nativevalue_to_se(scene, arg0);
-            se::ScriptEngine::getInstance()->callFunction(jsObject, "_onSceneUpdated", 1, &arg0);
+            CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->callFunction(jsObject, "_onSceneUpdated", 1, &arg0);
         });
 
     cobj->on<cc::Node::EditorAttached>(
@@ -305,7 +306,7 @@ static bool js_scene_Node_registerListeners(se::State &s) // NOLINT(readability-
             se::AutoHandleScope hs;
             se::Value arg0;
             nativevalue_to_se(attached, arg0);
-            se::ScriptEngine::getInstance()->callFunction(jsObject, "_onEditorAttached", 1, &arg0);
+            CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->callFunction(jsObject, "_onEditorAttached", 1, &arg0);
         });
 
     registerLocalPositionRotationScaleUpdated(cobj, jsObject);
@@ -689,7 +690,7 @@ static bool js_Model_registerListeners(se::State &s) // NOLINT(readability-ident
         cobj->setCalledFromJS(true);                                                    \
         se::AutoHandleScope hs;                                                         \
         se::Value stampVal{stamp};                                                      \
-        se::ScriptEngine::getInstance()->callFunction(thiz, #jsFuncName, 1, &stampVal); \
+        CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->callFunction(thiz, #jsFuncName, 1, &stampVal); \
     })
 
     MODEL_DISPATCH_EVENT_TO_JS(cc::scene::Model::UpdateTransform, updateTransform);
@@ -705,7 +706,7 @@ static bool js_Model_registerListeners(se::State &s) // NOLINT(readability-ident
             ccstd::array<se::Value, 2> args;
             nativevalue_to_se(subModelIndex, args[0]);
             nativevalue_to_se(descriptorSet, args[1]);
-            se::ScriptEngine::getInstance()->callFunction(thiz, "_updateLocalDescriptors", static_cast<uint32_t>(args.size()), args.data());
+            CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->callFunction(thiz, "_updateLocalDescriptors", static_cast<uint32_t>(args.size()), args.data());
         });
 
     cobj->on<cc::scene::Model::UpdateLocalSHDescriptor>([=](cc::scene::Model * /*emitter*/,index_t subModelIndex, cc::gfx::DescriptorSet *descriptorSet) {
@@ -715,7 +716,7 @@ static bool js_Model_registerListeners(se::State &s) // NOLINT(readability-ident
         ccstd::array<se::Value, 2> args;
         nativevalue_to_se(subModelIndex, args[0]);
         nativevalue_to_se(descriptorSet, args[1]);
-        se::ScriptEngine::getInstance()->callFunction(thiz, "_updateLocalSHDescriptors", static_cast<uint32_t>(args.size()), args.data());
+        CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->callFunction(thiz, "_updateLocalSHDescriptors", static_cast<uint32_t>(args.size()), args.data());
     });
 
     cobj->on<cc::scene::Model::UpdateWorldBound>([=](cc::scene::Model * /*emitter*/,index_t subModelIndex, cc::gfx::DescriptorSet *descriptorSet) {
@@ -725,7 +726,7 @@ static bool js_Model_registerListeners(se::State &s) // NOLINT(readability-ident
         ccstd::array<se::Value, 2> args;
         nativevalue_to_se(subModelIndex, args[0]);
         nativevalue_to_se(descriptorSet, args[1]);
-        se::ScriptEngine::getInstance()->callFunction(thiz, "_updateWorldBoundDescriptors", static_cast<uint32_t>(args.size()), args.data());
+        CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->callFunction(thiz, "_updateWorldBoundDescriptors", static_cast<uint32_t>(args.size()), args.data());
     });
 
     cobj->on<cc::scene::Model::UpdateInstancedAttributes>([=](cc::scene::Model * /*emitter*/,const ccstd::vector<cc::gfx::Attribute> &attributes, cc::scene::SubModel *subModel) {
@@ -735,7 +736,7 @@ static bool js_Model_registerListeners(se::State &s) // NOLINT(readability-ident
         ccstd::array<se::Value, 2> args;
         nativevalue_to_se(attributes, args[0]);
         nativevalue_to_se(subModel, args[1]);
-        se::ScriptEngine::getInstance()->callFunction(thiz, "_updateInstancedAttributes", static_cast<uint32_t>(args.size()), args.data());
+        CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->callFunction(thiz, "_updateInstancedAttributes", static_cast<uint32_t>(args.size()), args.data());
     });
 
     cobj->on<cc::scene::Model::GetMacroPatches>(
@@ -746,7 +747,7 @@ static bool js_Model_registerListeners(se::State &s) // NOLINT(readability-ident
             se::Value rval;
             ccstd::array<se::Value, 1> args;
             nativevalue_to_se(subModelIndex, args[0]);
-            bool ok = se::ScriptEngine::getInstance()->callFunction(thiz, "getMacroPatches", static_cast<uint32_t>(args.size()), args.data(), &rval);
+            bool ok = CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->callFunction(thiz, "getMacroPatches", static_cast<uint32_t>(args.size()), args.data(), &rval);
 
             if (ok) {
                 sevalue_to_native(rval, pPatches);
@@ -768,7 +769,7 @@ static bool js_assets_MaterialInstance_registerListeners(se::State &s) // NOLINT
         if (!ok) {
             return;
         }
-        se::ScriptEngine::getInstance()->callFunction(matVal.toObject(), "_onRebuildPSO", 0, nullptr);
+        CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->callFunction(matVal.toObject(), "_onRebuildPSO", 0, nullptr);
     });
 
     return true;

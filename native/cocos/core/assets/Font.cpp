@@ -95,7 +95,7 @@ Font::~Font() {
 }
 
 void Font::load(const ccstd::string &path) {
-    Data data = FileUtils::getInstance()->getDataFromFile(path);
+    Data data = CC_CURRENT_ENGINE()->load<cc::FileUtils>()->getDataFromFile(path);
     if (data.isNull()) {
         CC_LOG_WARNING("Font load failed, path: %s.", path.c_str());
         return;

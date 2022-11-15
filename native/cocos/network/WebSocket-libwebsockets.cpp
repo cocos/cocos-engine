@@ -860,7 +860,7 @@ cc::network::WebSocket::Delegate *WebSocketImpl::getDelegate() const {
 }
 
 struct lws_vhost *WebSocketImpl::createVhost(struct lws_protocols *protocols, int *sslConnectionOut) {
-    auto *fileUtils = cc::FileUtils::getInstance();
+    auto *fileUtils = CC_CURRENT_ENGINE()->load<cc::FileUtils>();
     bool isCAFileExist = fileUtils->isFileExist(_caFilePath);
     if (isCAFileExist) {
         _caFilePath = fileUtils->fullPathForFilename(_caFilePath);

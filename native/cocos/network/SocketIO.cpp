@@ -379,9 +379,9 @@ void SIOClientImpl::handshake() {
     CC_LOG_INFO("SIOClientImpl::handshake() waiting");
 
     if (_uri.isSecure() && !_caFilePath.empty()) {
-        HttpClient::getInstance()->setSSLVerification(_caFilePath);
+        CC_CURRENT_ENGINE()->load<cc::network::HttpClient>()->setSSLVerification(_caFilePath);
     }
-    HttpClient::getInstance()->send(request);
+    CC_CURRENT_ENGINE()->load<cc::network::HttpClient>()->send(request);
 
     request->release();
 }

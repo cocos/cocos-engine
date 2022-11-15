@@ -37,7 +37,7 @@ namespace pipeline {
 
 BatchedBuffer::BatchedBuffer(const scene::Pass *pass)
 : _pass(pass),
-  _device(gfx::Device::getInstance()) {
+  _device(CC_GFX_DEVICE()) {
 }
 
 BatchedBuffer::~BatchedBuffer() = default;

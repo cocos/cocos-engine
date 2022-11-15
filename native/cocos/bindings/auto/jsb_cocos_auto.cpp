@@ -4816,7 +4816,7 @@ static bool js_cc_FileUtils_getInstance_static(se::State& s)
         SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
         return false;
     }
-    result = (cc::FileUtils *)cc::FileUtils::getInstance();
+    result = (cc::FileUtils *)CC_CURRENT_ENGINE()->load<cc::FileUtils>();
     // %typemap(out) SWIGTYPE*
     ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
     SE_PRECONDITION2(ok, false, "FileUtils_getInstance, Error processing arguments");
@@ -6697,7 +6697,7 @@ static bool js_cc_DebugRenderer_getInstance_static(se::State& s)
         SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
         return false;
     }
-    result = (cc::DebugRenderer *)cc::DebugRenderer::getInstance();
+    result = (cc::DebugRenderer *)CC_DEBUG_RENDERER;
     // %typemap(out) SWIGTYPE*
     ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
     SE_PRECONDITION2(ok, false, "DebugRenderer_getInstance, Error processing arguments");

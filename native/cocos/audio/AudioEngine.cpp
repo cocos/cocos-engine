@@ -196,7 +196,7 @@ int AudioEngine::play2d(const ccstd::string &filePath, bool loop, float volume, 
             break;
         }
 
-        if (!FileUtils::getInstance()->isFileExist(filePath)) {
+        if (!CC_CURRENT_ENGINE()->load<cc::FileUtils>()->isFileExist(filePath)) {
             break;
         }
 
@@ -550,7 +550,7 @@ void AudioEngine::preload(const ccstd::string &filePath, const std::function<voi
     lazyInit();
 
     if (sAudioEngineImpl) {
-        if (!FileUtils::getInstance()->isFileExist(filePath)) {
+        if (!CC_CURRENT_ENGINE()->load<cc::FileUtils>()->isFileExist(filePath)) {
             if (callback) {
                 callback(false);
             }

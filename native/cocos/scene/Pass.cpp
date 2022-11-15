@@ -37,6 +37,7 @@
 #include "renderer/pipeline/Define.h"
 #include "renderer/pipeline/InstancedBuffer.h"
 #include "scene/Define.h"
+#include "application/ApplicationManager.h"
 
 namespace cc {
 namespace scene {
@@ -134,7 +135,7 @@ ccstd::hash_t Pass::getPassHash(Pass *pass) {
     ccstd::hash_combine(hashValue, serializeDepthStencilState(pass->_depthStencilState));
     ccstd::hash_combine(hashValue, serializeRasterizerState(pass->_rs));
 
-    const ccstd::string &shaderKey = ProgramLib::getInstance()->getKey(pass->getProgram(), pass->getDefines());
+    const ccstd::string &shaderKey = CC_CURRENT_ENGINE()->load<ProgramLib>()->getKey(pass->getProgram(), pass->getDefines());
     ccstd::hash_range(hashValue, shaderKey.begin(), shaderKey.end());
 
     return hashValue;
@@ -373,7 +374,7 @@ void Pass::resetTexture(const ccstd::string &name, uint32_t index) {
         texName = getDefaultStringFromType(type);
     }
 
-    auto *textureBase = BuiltinResMgr::getInstance()->get<TextureBase>(texName);
+    auto *textureBase = CC_CURRENT_ENGINE()->load<BuiltinResMgr>()->get<TextureBase>(texName);
     gfx::Texture *texture = textureBase != nullptr ? textureBase->getGFXTexture() : nullptr;
     ccstd::optional<gfx::SamplerInfo> samplerInfo;
     if (info != nullptr && info->samplerHash.has_value()) {
@@ -423,13 +424,14 @@ bool Pass::tryCompile() {
     }
 
     syncBatchingScheme();
-    auto *shader = ProgramLib::getInstance()->getGFXShader(_device, _programName, _defines, _root->getPipeline());
+    auto *programLib = CC_CURRENT_ENGINE()->load<ProgramLib>();
+    auto *shader = programLib->getGFXShader(_device, _programName, _defines, _root->getPipeline());
     if (!shader) {
         CC_LOG_WARNING("create shader %s failed", _programName.c_str());
         return false;
     }
     _shader = shader;
-    _pipelineLayout = ProgramLib::getInstance()->getTemplateInfo(_programName)->pipelineLayout;
+    _pipelineLayout = programLib->getTemplateInfo(_programName)->pipelineLayout;
     _hash = Pass::getPassHash(this);
     return true;
 }
@@ -462,7 +464,8 @@ gfx::Shader *Pass::getShaderVariant(const ccstd::vector<IMacroPatch> &patches) {
         _defines[patch.name] = patch.value;
     }
 
-    auto *shader = ProgramLib::getInstance()->getGFXShader(_device, _programName, _defines, pipeline);
+    auto *programLib = CC_CURRENT_ENGINE()->load<ProgramLib>();
+    auto *shader = programLib->getGFXShader(_device, _programName, _defines, pipeline);
 
     for (const auto &patch : patches) {
         auto iter = _defines.find(patch.name);
@@ -513,7 +516,7 @@ void Pass::setState(const gfx::BlendState &bs, const gfx::DepthStencilState &dss
 }
 
 void Pass::doInit(const IPassInfoFull &info, bool /*copyDefines*/ /* = false */) {
-    auto *programLib = ProgramLib::getInstance();
+    auto *programLib = CC_CURRENT_ENGINE()->load<ProgramLib>();
     _priority = pipeline::RenderPriority::DEFAULT;
     _stage = pipeline::RenderPassStage::DEFAULT;
     _phaseString = "default";
@@ -652,7 +655,7 @@ void Pass::initPassFromTarget(Pass *target, const gfx::DepthStencilState &dss, c
 
     _shader = target->_shader;
 
-    _pipelineLayout = ProgramLib::getInstance()->getTemplateInfo(_programName)->pipelineLayout;
+    _pipelineLayout = CC_CURRENT_ENGINE()->load<ProgramLib>()->getTemplateInfo(_programName)->pipelineLayout;
     _hash = target->_hash ^ hashFactor;
 }
 
@@ -661,7 +664,7 @@ void Pass::updatePassHash() {
 }
 
 gfx::DescriptorSetLayout *Pass::getLocalSetLayout() const {
-    return ProgramLib::getInstance()->getDescriptorSetLayout(_device, _programName, true);
+    return  CC_CURRENT_ENGINE()->load<ProgramLib>()->getDescriptorSetLayout(_device, _programName, true);
 }
 
 } // namespace scene

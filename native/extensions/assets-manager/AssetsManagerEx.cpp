@@ -72,7 +72,7 @@ void AssetsManagerEx::init(const std::string &manifestUrl, const std::string &st
     // Init variables
     std::string pointer = StringUtils::format("%p", this);
     _eventName = "__cc_assets_manager_" + pointer;
-    _fileUtils = FileUtils::getInstance();
+    _fileUtils = CC_CURRENT_ENGINE()->load<cc::FileUtils>();
 
     network::DownloaderHints hints =
         {
@@ -382,7 +382,7 @@ bool AssetsManagerEx::decompress(const std::string &filename) {
     const std::string rootPath = filename.substr(0, pos + 1);
 
     // Open the zip file
-    unzFile zipfile = unzOpen(FileUtils::getInstance()->getSuitableFOpen(filename).c_str());
+    unzFile zipfile = unzOpen(CC_CURRENT_ENGINE()->load<cc::FileUtils>()->getSuitableFOpen(filename).c_str());
     if (!zipfile) {
         CC_LOG_DEBUG("AssetsManagerEx : can not open downloaded zip file %s\n", filename.c_str());
         return false;
@@ -449,7 +449,7 @@ bool AssetsManagerEx::decompress(const std::string &filename) {
             }
 
             // Create a file to store current file.
-            FILE *out = fopen(FileUtils::getInstance()->getSuitableFOpen(fullPath).c_str(), "wb");
+            FILE *out = fopen(CC_CURRENT_ENGINE()->load<cc::FileUtils>()->getSuitableFOpen(fullPath).c_str(), "wb");
             if (!out) {
                 CC_LOG_DEBUG("AssetsManagerEx : can not create decompress destination file %s (errno: %d)\n", fullPath.c_str(), errno);
                 unzCloseCurrentFile(zipfile);

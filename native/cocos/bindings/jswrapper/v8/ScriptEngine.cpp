@@ -84,7 +84,7 @@ void seLogCallback(const v8::FunctionCallbackInfo<v8::Value> &info) {
 }
 
 void seForceGC(const v8::FunctionCallbackInfo<v8::Value> & /*info*/) {
-    ScriptEngine::getInstance()->garbageCollect();
+    //ScriptEngine::getInstance()->garbageCollect(); // TODO
 }
 
 ccstd::string stackTraceToString(v8::Local<v8::StackTrace> stack) {
@@ -904,7 +904,7 @@ const ScriptEngine::FileOperationDelegate &ScriptEngine::getFileOperationDelegat
 
 bool ScriptEngine::saveByteCodeToFile(const ccstd::string &path, const ccstd::string &pathBc) {
     bool success = false;
-    auto *fu = cc::FileUtils::getInstance();
+    auto *fu = lookup<cc::FileUtils>();
 
     if (pathBc.length() > 3 && pathBc.substr(pathBc.length() - 3) != ".bc") {
         SE_LOGE("ScriptEngine::generateByteCode bytecode file path should endwith \".bc\"\n");
@@ -973,7 +973,7 @@ bool ScriptEngine::saveByteCodeToFile(const ccstd::string &path, const ccstd::st
 }
 
 bool ScriptEngine::runByteCodeFile(const ccstd::string &pathBc, Value *ret /* = nullptr */) {
-    auto *fu = cc::FileUtils::getInstance();
+    auto *fu = lookup<cc::FileUtils>();
 
     cc::Data cachedData;
     fu->getContents(pathBc, &cachedData);
@@ -1062,7 +1062,7 @@ bool ScriptEngine::runScript(const ccstd::string &path, Value *ret /* = nullptr 
     CC_ASSERT(!path.empty());
     CC_ASSERT(_fileOperationDelegate.isValid());
 
-    if (!cc::FileUtils::getInstance()->isFileExist(path)) {
+    if (!lookup<cc::FileUtils>()->isFileExist(path)) {
         std::stringstream ss;
         ss << "throw new Error(\"Failed to require file '"
            << path << "', not found!\");";

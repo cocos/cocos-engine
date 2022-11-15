@@ -291,7 +291,7 @@ void Mesh::initialize() {
     _initialized = true;
 
     if (_struct.dynamic.has_value()) {
-        auto *device = gfx::Device::getInstance();
+        auto *device = CC_GFX_DEVICE();
         gfx::BufferList vertexBuffers;
 
         for (const auto &vertexBundle : _struct.vertexBundles) {
@@ -341,7 +341,7 @@ void Mesh::initialize() {
         }
 
         auto &buffer = _data;
-        gfx::Device *gfxDevice = gfx::Device::getInstance();
+        gfx::Device *gfxDevice = CC_GFX_DEVICE();
         RefVector<gfx::Buffer *> vertexBuffers{createVertexBuffers(gfxDevice, buffer.buffer())};
         RefVector<gfx::Buffer *> indexBuffers;
         ccstd::vector<IntrusivePtr<RenderingSubMesh>> subMeshes;
@@ -1146,7 +1146,7 @@ void Mesh::accessAttribute(index_t primitiveIndex, const char *attributeName, co
 
 void Mesh::tryConvertVertexData() {
 #if CC_OPTIMIZE_MESH_DATA
-    if (!hasFlag(gfx::Device::getInstance()->getFormatFeatures(gfx::Format::RG16F), gfx::FormatFeature::VERTEX_ATTRIBUTE)) {
+    if (!hasFlag(CC_GFX_DEVICE()->getFormatFeatures(gfx::Format::RG16F), gfx::FormatFeature::VERTEX_ATTRIBUTE)) {
         CC_LOG_DEBUG("Does not support half float vertex attribute!");
         return;
     }

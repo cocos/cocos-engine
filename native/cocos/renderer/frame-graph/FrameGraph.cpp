@@ -87,7 +87,7 @@ void FrameGraph::present(const TextureHandle &input, gfx::Texture *target, bool 
             }
         },
         [target](const PassDataPresent &data, const DevicePassResourceTable &table) {
-            auto *cmdBuff = gfx::Device::getInstance()->getCommandBuffer();
+            auto *cmdBuff = CC_GFX_DEVICE()->getCommandBuffer();
 
             gfx::Texture *input = table.getRead(data.input);
             if (input && input != target) {

@@ -26,6 +26,8 @@
 #pragma once
 #include <math/Vec2.h>
 #include <math/Vec4.h>
+#include "application/ApplicationManager.h"
+#include "base/module/Module.h"
 #include "base/std/container/array.h"
 #include "base/std/container/string.h"
 #include "renderer/gfx-base/GFXDef-common.h"
@@ -75,10 +77,12 @@ struct DebugFontInfo {
 constexpr uint32_t DEBUG_FONT_COUNT = 4U;
 using DebugFontArray = ccstd::array<DebugFontInfo, DEBUG_FONT_COUNT>;
 
-class DebugRenderer {
+class DebugRenderer : public ::Module {
 public:
-    static DebugRenderer *getInstance();
+    IMPL_MODULE(DebugRenderer)
+    MODULE_DEPS("gfx.Device")
 
+    bool doDeinit() override;
     DebugRenderer();
     DebugRenderer(const DebugRenderer &) = delete;
     DebugRenderer(DebugRenderer &&) = delete;
@@ -97,7 +101,7 @@ private:
     static void addQuad(DebugBatch &batch, const Vec4 &rect, const Vec4 &uv, gfx::Color color);
     uint32_t getLineHeight(bool bold = false, bool italic = false);
 
-    static DebugRenderer *instance;
+    //static DebugRenderer *instance;
     gfx::Device *_device{nullptr};
     DebugVertexBuffer *_buffer{nullptr};
     DebugFontArray _fonts;
@@ -107,4 +111,4 @@ private:
 
 } // namespace cc
 
-#define CC_DEBUG_RENDERER cc::DebugRenderer::getInstance()
+#define CC_DEBUG_RENDERER CC_CURRENT_ENGINE()->load<cc::DebugRenderer>()

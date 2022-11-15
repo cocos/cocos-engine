@@ -157,7 +157,7 @@ void TextureBase::deserialize(const ccstd::any &serializedData, const ccstd::any
 }
 
 gfx::Device *TextureBase::getGFXDevice() {
-    return gfx::Device::getInstance();
+    return CC_GFX_DEVICE();
 }
 
 gfx::Format TextureBase::getGFXFormat() const {

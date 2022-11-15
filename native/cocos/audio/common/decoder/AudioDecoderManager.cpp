@@ -45,7 +45,7 @@ void AudioDecoderManager::destroy() {
 }
 
 AudioDecoder *AudioDecoderManager::createDecoder(const char *path) {
-    ccstd::string suffix = FileUtils::getInstance()->getFileExtension(path);
+    ccstd::string suffix = CC_CURRENT_ENGINE()->load<cc::FileUtils>()->getFileExtension(path);
     if (suffix == ".ogg") {
         return ccnew AudioDecoderOgg();
     }

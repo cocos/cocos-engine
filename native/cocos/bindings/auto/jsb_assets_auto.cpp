@@ -22519,7 +22519,7 @@ static bool js_cc_BuiltinResMgr_getInstance_static(se::State& s)
         SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
         return false;
     }
-    result = (cc::BuiltinResMgr *)cc::BuiltinResMgr::getInstance();
+    result = (cc::BuiltinResMgr *)CC_CURRENT_ENGINE()->load<cc::BuiltinResMgr>();
     // %typemap(out) SWIGTYPE*
     ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
     SE_PRECONDITION2(ok, false, "BuiltinResMgr_getInstance, Error processing arguments");

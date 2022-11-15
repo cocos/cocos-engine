@@ -81,7 +81,7 @@ public:
     void fireEventToScript(cc::network::SIOClient *client, const ccstd::string &eventName, const ccstd::string &data) override { // NOLINT
         CC_LOG_DEBUG("JSB SocketIO::SIODelegate->fireEventToScript method called from native with name '%s' data: %s", eventName.c_str(), data.c_str());
 
-        se::ScriptEngine::getInstance()->clearException();
+        CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->clearException();
         se::AutoHandleScope hs;
 
         if (!CC_CURRENT_APPLICATION()) {
@@ -342,6 +342,6 @@ bool register_all_socketio(se::Object *obj) {
 
     __jsb_SocketIO_class = cls;
 
-    se::ScriptEngine::getInstance()->clearException();
+    CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->clearException();
     return true;
 }

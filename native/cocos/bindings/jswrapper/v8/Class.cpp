@@ -29,6 +29,7 @@
 #include "Value.h"
 #include "base/Macros.h"
 #include "v8/HelperMacros.h"
+#include "application/ApplicationManager.h"
 
 #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8
 
@@ -136,7 +137,7 @@ void Class::cleanup() {
         cls->destroy();
     }
 
-    se::ScriptEngine::getInstance()->addAfterCleanupHook([]() {
+    CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->addAfterCleanupHook([]() {
         for (auto *cls : __allClasses) {
             delete cls;
         }

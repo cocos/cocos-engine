@@ -84,17 +84,17 @@ DragonBonesData *CCFactory::loadDragonBonesData(const std::string &filePath, con
         }
     }
 
-    const auto fullpath = cc::FileUtils::getInstance()->fullPathForFilename(filePath);
-    if (cc::FileUtils::getInstance()->isFileExist(filePath)) {
+    const auto fullpath = CC_CURRENT_ENGINE()->load<cc::FileUtils>()->fullPathForFilename(filePath);
+    if (CC_CURRENT_ENGINE()->load<cc::FileUtils>()->isFileExist(filePath)) {
         const auto pos = fullpath.find(".json");
 
         if (pos != std::string::npos) {
-            const auto data = cc::FileUtils::getInstance()->getStringFromFile(filePath);
+            const auto data = CC_CURRENT_ENGINE()->load<cc::FileUtils>()->getStringFromFile(filePath);
 
             return parseDragonBonesData(data.c_str(), name, scale);
         } else {
             cc::Data cocos2dData;
-            cc::FileUtils::getInstance()->getContents(fullpath, &cocos2dData);
+            CC_CURRENT_ENGINE()->load<cc::FileUtils>()->getContents(fullpath, &cocos2dData);
             uint8_t *binary = cocos2dData.takeBuffer();
             // NOTE: binary is freed in DragonBonesData::_onClear
             return parseDragonBonesData(reinterpret_cast<char *>(binary), name, scale);
@@ -114,10 +114,10 @@ DragonBonesData *CCFactory::parseDragonBonesDataByPath(const std::string &filePa
 
     const auto dbbinPos = filePath.find(".dbbin");
     if (dbbinPos != std::string::npos) {
-        const auto fullpath = cc::FileUtils::getInstance()->fullPathForFilename(filePath);
-        if (cc::FileUtils::getInstance()->isFileExist(filePath)) {
+        const auto fullpath = CC_CURRENT_ENGINE()->load<cc::FileUtils>()->fullPathForFilename(filePath);
+        if (CC_CURRENT_ENGINE()->load<cc::FileUtils>()->isFileExist(filePath)) {
             cc::Data cocos2dData;
-            cc::FileUtils::getInstance()->getContents(fullpath, &cocos2dData);
+            CC_CURRENT_ENGINE()->load<cc::FileUtils>()->getContents(fullpath, &cocos2dData);
             uint8_t *binary = cocos2dData.takeBuffer();
             // NOTE: binary is freed in DragonBonesData::_onClear
             return parseDragonBonesData(reinterpret_cast<char *>(binary), name, scale);
@@ -143,8 +143,8 @@ void CCFactory::removeDragonBonesDataByUUID(const std::string &uuid, bool dispos
 }
 
 TextureAtlasData *CCFactory::loadTextureAtlasData(const std::string &filePath, const std::string &name, float scale) {
-    _prevPath = cc::FileUtils::getInstance()->fullPathForFilename(filePath);
-    const auto data = cc::FileUtils::getInstance()->getStringFromFile(_prevPath);
+    _prevPath = CC_CURRENT_ENGINE()->load<cc::FileUtils>()->fullPathForFilename(filePath);
+    const auto data = CC_CURRENT_ENGINE()->load<cc::FileUtils>()->getStringFromFile(_prevPath);
     if (data.empty()) {
         return nullptr;
     }

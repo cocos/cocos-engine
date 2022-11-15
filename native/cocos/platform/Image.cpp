@@ -275,10 +275,10 @@ Image::~Image() {
 bool Image::initWithImageFile(const ccstd::string &path) {
     bool ret = false;
     //NOTE: fullPathForFilename isn't threadsafe. we should make sure the parameter is a full path.
-    //    _filePath = FileUtils::getInstance()->fullPathForFilename(path);
+    //    _filePath = CC_CURRENT_ENGINE()->load<cc::FileUtils>()->fullPathForFilename(path);
     _filePath = path;
 
-    Data data = FileUtils::getInstance()->getDataFromFile(_filePath);
+    Data data = CC_CURRENT_ENGINE()->load<cc::FileUtils>()->getDataFromFile(_filePath);
 
     if (!data.isNull()) {
         ret = initWithImageData(data.getBytes(), data.getSize());
@@ -951,7 +951,7 @@ bool Image::saveToFile(const std::string &filename, bool isToRGB) {
         return false;
     }
 
-    std::string fileExtension = FileUtils::getInstance()->getFileExtension(filename);
+    std::string fileExtension = CC_CURRENT_ENGINE()->load<cc::FileUtils>()->getFileExtension(filename);
 
     if (fileExtension == ".png") {
         return saveImageToPNG(filename, isToRGB);
@@ -982,7 +982,7 @@ bool Image::saveImageToPNG(const std::string &filePath, bool isToRGB) {
         infoPtr = png_create_info_struct(pngPtr);
         CC_BREAK_IF(!infoPtr);
         // Start open file
-        fp = fopen(FileUtils::getInstance()->getSuitableFOpen(filePath).c_str(), "wb");
+        fp = fopen(CC_CURRENT_ENGINE()->load<cc::FileUtils>()->getSuitableFOpen(filePath).c_str(), "wb");
         CC_BREAK_IF(!fp);
         png_init_io(pngPtr, fp);
         auto mask = (!isToRGB && hasAlpha) ? PNG_COLOR_TYPE_RGB_ALPHA : PNG_COLOR_TYPE_RGB;
@@ -1072,7 +1072,7 @@ bool Image::saveImageToJPG(const std::string &filePath) {
         /* Now we can initialize the JPEG compression object. */
         jpeg_create_compress(&cinfo);
 
-        CC_BREAK_IF((outfile = fopen(FileUtils::getInstance()->getSuitableFOpen(filePath).c_str(), "wb")) == nullptr);
+        CC_BREAK_IF((outfile = fopen(CC_CURRENT_ENGINE()->load<cc::FileUtils>()->getSuitableFOpen(filePath).c_str(), "wb")) == nullptr);
 
         jpeg_stdio_dest(&cinfo, outfile);
 

@@ -133,7 +133,7 @@ Cocos2dExtension::~Cocos2dExtension() = default;
 
 char *Cocos2dExtension::_readFile(const spine::String &path, int *length) {
     *length = 0;
-    Data data = FileUtils::getInstance()->getDataFromFile(FileUtils::getInstance()->fullPathForFilename(path.buffer()));
+    Data data = CC_CURRENT_ENGINE()->load<cc::FileUtils>()->getDataFromFile(CC_CURRENT_ENGINE()->load<cc::FileUtils>()->fullPathForFilename(path.buffer()));
     if (data.isNull()) return nullptr;
 
     char *ret = static_cast<char *>(malloc(sizeof(unsigned char) * data.getSize()));

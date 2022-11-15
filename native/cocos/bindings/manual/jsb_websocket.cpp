@@ -68,7 +68,7 @@ JsbWebSocketDelegate::~JsbWebSocketDelegate() {
 }
 
 void JsbWebSocketDelegate::onOpen(cc::network::WebSocket *ws) {
-    se::ScriptEngine::getInstance()->clearException();
+    CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->clearException();
     se::AutoHandleScope hs;
 
     if (CC_CURRENT_APPLICATION() == nullptr) {
@@ -100,7 +100,7 @@ void JsbWebSocketDelegate::onOpen(cc::network::WebSocket *ws) {
 }
 
 void JsbWebSocketDelegate::onMessage(cc::network::WebSocket *ws, const cc::network::WebSocket::Data &data) {
-    se::ScriptEngine::getInstance()->clearException();
+    CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->clearException();
     se::AutoHandleScope hs;
 
     if (CC_CURRENT_APPLICATION() == nullptr) {
@@ -149,7 +149,7 @@ void JsbWebSocketDelegate::onMessage(cc::network::WebSocket *ws, const cc::netwo
 }
 
 void JsbWebSocketDelegate::onClose(cc::network::WebSocket *ws, uint16_t code, const ccstd::string &reason, bool wasClean) {
-    se::ScriptEngine::getInstance()->clearException();
+    CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->clearException();
     se::AutoHandleScope hs;
 
     if (CC_CURRENT_APPLICATION() == nullptr) {
@@ -190,7 +190,7 @@ void JsbWebSocketDelegate::onClose(cc::network::WebSocket *ws, uint16_t code, co
 
         // Websocket instance is attached to global object in 'WebSocket_close'
         // It's safe to detach it here since JS 'onclose' method has been already invoked.
-        se::ScriptEngine::getInstance()->getGlobalObject()->detachObject(wsObj);
+        CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->getGlobalObject()->detachObject(wsObj);
 
     } while (false);
 
@@ -199,7 +199,7 @@ void JsbWebSocketDelegate::onClose(cc::network::WebSocket *ws, uint16_t code, co
 }
 
 void JsbWebSocketDelegate::onError(cc::network::WebSocket *ws, const cc::network::WebSocket::ErrorCode & /*error*/) {
-    se::ScriptEngine::getInstance()->clearException();
+    CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->clearException();
     se::AutoHandleScope hs;
 
     if (CC_CURRENT_APPLICATION() == nullptr) {
@@ -446,7 +446,7 @@ static bool webSocketClose(se::State &s) {
     // JS instance is invalid and is going to be collected. This bug is easiler reproduced on iOS
     // because JavaScriptCore is more GC sensitive.
     // Please note that we need to detach it from global object in "JSB_WebSocketDelegate::onClose".
-    se::ScriptEngine::getInstance()->getGlobalObject()->attachObject(s.thisObject());
+    CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->getGlobalObject()->attachObject(s.thisObject());
     return true;
 }
 SE_BIND_FUNC(webSocketClose)
@@ -538,7 +538,7 @@ bool register_all_websocket(se::Object *obj) { // NOLINT (readability-identifier
 
     jsbWebSocketClass = cls;
 
-    se::ScriptEngine::getInstance()->clearException();
+    CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->clearException();
 
     return true;
 }

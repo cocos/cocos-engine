@@ -29,6 +29,7 @@
 #include "base/Macros.h"
 
 #include "engine/EngineEvents.h"
+#include "engine/EngineModules.h"
 #include "platform/interfaces/modules/ISystem.h"
 
 #include <algorithm>
@@ -168,6 +169,7 @@ private:
 
 #define START_PLATFORM(argc, argv)                                    \
     do {                                                              \
+        registerEngineModules();                                      \
         cc::BasePlatform *platform = cc::BasePlatform::getPlatform(); \
         if (platform->init()) {                                       \
             CC_LOG_FATAL("Platform initialization failed");           \

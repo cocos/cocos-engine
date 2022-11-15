@@ -59,13 +59,13 @@ AudioDecoderOgg::~AudioDecoderOgg() {
 }
 
 bool AudioDecoderOgg::open(const char *path) {
-    ccstd::string fullPath = FileUtils::getInstance()->fullPathForFilename(path);
+    ccstd::string fullPath = CC_CURRENT_ENGINE()->load<cc::FileUtils>()->fullPathForFilename(path);
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS
-    if (0 == ov_fopen(FileUtils::getInstance()->getSuitableFOpen(fullPath).c_str(), &_vf)) {
+    if (0 == ov_fopen(CC_CURRENT_ENGINE()->load<cc::FileUtils>()->getSuitableFOpen(fullPath).c_str(), &_vf)) {
 #elif CC_PLATFORM == CC_PLATFORM_LINUX || CC_PLATFORM == CC_PLATFORM_QNX
-    if (0 == ov_fopen(FileUtils::getInstance()->getSuitableFOpen(fullPath).c_str(), &_vf)) {
+    if (0 == ov_fopen(CC_CURRENT_ENGINE()->load<cc::FileUtils>()->getSuitableFOpen(fullPath).c_str(), &_vf)) {
 #elif CC_PLATFORM == CC_PLATFORM_OHOS
-    auto *fp = cc::ohosOpen(FileUtils::getInstance()->getSuitableFOpen(fullPath).c_str(), this);
+    auto *fp = cc::ohosOpen(CC_CURRENT_ENGINE()->load<cc::FileUtils>()->getSuitableFOpen(fullPath).c_str(), this);
     if (0 == ov_open_callbacks(fp, &_vf, nullptr, 0, ogg_callbacks)) {
 #endif
         // header

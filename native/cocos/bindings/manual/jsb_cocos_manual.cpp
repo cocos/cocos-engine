@@ -122,7 +122,7 @@ ccstd::string JSPlistDelegator::parse(const ccstd::string &path) {
     cc::SAXParser parser;
     if (parser.init("UTF-8")) {
         parser.setDelegator(this);
-        parser.parse(cc::FileUtils::getInstance()->fullPathForFilename(path));
+        parser.parse(CC_CURRENT_ENGINE()->load<cc::FileUtils>()->fullPathForFilename(path));
     }
 
     return _result;
@@ -197,7 +197,7 @@ static bool register_plist_parser(se::Object * /*obj*/) { // NOLINT(readability-
 
     __jsb_cc_SAXParser_proto->defineFunction("parse", _SE(js_PlistParser_parse));
 
-    se::ScriptEngine::getInstance()->clearException();
+    CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->clearException();
 
     return true;
 }
@@ -330,7 +330,7 @@ static bool register_sys_localStorage(se::Object *obj) { // NOLINT(readability-i
     localStorageObj->defineFunction("key", _SE(JSB_localStorageKey));
     localStorageObj->defineProperty("length", _SE(JSB_localStorage_getLength), nullptr);
 
-    ccstd::string strFilePath = cc::FileUtils::getInstance()->getWritablePath();
+    ccstd::string strFilePath = CC_CURRENT_ENGINE()->load<cc::FileUtils>()->getWritablePath();
 #if defined(__QNX__)
     // In the QNX environment, the execution of this statement will not take effect.
     // Not sure why
@@ -345,11 +345,11 @@ static bool register_sys_localStorage(se::Object *obj) { // NOLINT(readability-i
     localStorageInit(strFilePath);
 #endif
 
-    se::ScriptEngine::getInstance()->addBeforeCleanupHook([]() {
+    CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->addBeforeCleanupHook([]() {
         localStorageFree();
     });
 
-    se::ScriptEngine::getInstance()->clearException();
+    CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->clearException();
 
     return true;
 }
@@ -370,7 +370,7 @@ static bool js_CanvasRenderingContext2D_setCanvasBufferUpdatedCallback(se::State
                 jsThis.toObject()->attachObject(jsFunc.toObject());
                 se::Object *thisObj = s.thisObject();
                 auto lambda = [=](const cc::Data &larg0) -> void {
-                    se::ScriptEngine::getInstance()->clearException();
+                    CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->clearException();
                     se::AutoHandleScope hs;
 
                     CC_UNUSED bool ok = true;
@@ -381,7 +381,7 @@ static bool js_CanvasRenderingContext2D_setCanvasBufferUpdatedCallback(se::State
                     se::Object *funcObj = jsFunc.toObject();
                     bool succeed = funcObj->call(args, thisObj, &rval);
                     if (!succeed) {
-                        se::ScriptEngine::getInstance()->clearException();
+                        CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->clearException();
                     }
                 };
                 // Add an unroot to avoid the root of the copy constructor caused by the internal reference of Lambda.
@@ -588,7 +588,7 @@ static bool register_device(se::Object * /*obj*/) { // NOLINT(readability-identi
 
     device.toObject()->defineFunction("getDeviceMotionValue", _SE(JSB_getDeviceMotionValue));
 
-    se::ScriptEngine::getInstance()->addBeforeCleanupHook([]() {
+    CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->addBeforeCleanupHook([]() {
         if (deviceMotionObject != nullptr) {
             deviceMotionObject->unroot();
             deviceMotionObject->decRef();
@@ -596,7 +596,7 @@ static bool register_device(se::Object * /*obj*/) { // NOLINT(readability-identi
         }
     });
 
-    se::ScriptEngine::getInstance()->clearException();
+    CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->clearException();
     return true;
 }
 
@@ -607,7 +607,7 @@ static bool register_canvas_context2d(se::Object * /*obj*/) { // NOLINT(readabil
     __jsb_cc_ICanvasRenderingContext2D_proto->defineFunction("fillRect", _SE(js_engine_CanvasRenderingContext2D_fillRect));
     __jsb_cc_ICanvasRenderingContext2D_proto->defineFunction("measureText", _SE(js_engine_CanvasRenderingContext2D_measureText));
 
-    se::ScriptEngine::getInstance()->clearException();
+    CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->clearException();
 
     return true;
 }
@@ -655,7 +655,7 @@ static bool js_se_setExceptionCallback(se::State &s) { // NOLINT(readability-ide
         objFunc->root();
     }
 
-    se::ScriptEngine::getInstance()->setJSExceptionCallback([objFunc](const char *location, const char *message, const char *stack) {
+    CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->setJSExceptionCallback([objFunc](const char *location, const char *message, const char *stack) {
         se::AutoHandleScope scope;
         se::ValueArray jsArgs;
         jsArgs.resize(3);
@@ -665,7 +665,7 @@ static bool js_se_setExceptionCallback(se::State &s) { // NOLINT(readability-ide
         objFunc->call(jsArgs, nullptr);
     });
 
-    se::ScriptEngine::getInstance()->addBeforeCleanupHook([objFunc] {
+    CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->addBeforeCleanupHook([objFunc] {
         objFunc->decRef();
     });
 
@@ -729,7 +729,7 @@ SE_BIND_PROP_SET(js_engine_Color_set_val)
 static bool register_engine_Color_manual(se::Object * /*obj*/) { // NOLINT(readability-identifier-naming)
     __jsb_cc_Color_proto->defineProperty("_val", _SE(js_engine_Color_get_val), _SE(js_engine_Color_set_val));
 
-    se::ScriptEngine::getInstance()->clearException();
+    CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->clearException();
 
     return true;
 }

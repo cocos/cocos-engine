@@ -62,7 +62,7 @@ static bool jsbLoadFont(se::State &s) {
             fontFilePath = results[1].str();
         }
 
-        fontFilePath = FileUtils::getInstance()->fullPathForFilename(fontFilePath);
+        fontFilePath = CC_CURRENT_ENGINE()->load<cc::FileUtils>()->fullPathForFilename(fontFilePath);
         if (fontFilePath.empty()) {
             SE_LOGE("Font (%s) doesn't exist!", fontFilePath.c_str());
             return true;

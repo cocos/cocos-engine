@@ -112,19 +112,19 @@ const uint8_t DEFAULT_IMAGE_RGBA_DATA_16X16[16 * 16 * 4] = {
 
 } // namespace
 
-BuiltinResMgr *BuiltinResMgr::instance = nullptr;
+//BuiltinResMgr *BuiltinResMgr::instance = nullptr;
 
 /* static */
-BuiltinResMgr *BuiltinResMgr::getInstance() {
-    return BuiltinResMgr::instance;
-}
+//BuiltinResMgr *BuiltinResMgr::getInstance() {
+//    return BuiltinResMgr::instance;
+//}
 
 BuiltinResMgr::BuiltinResMgr() {
-    BuiltinResMgr::instance = this;
+    //BuiltinResMgr::instance = this;
 }
 
 BuiltinResMgr::~BuiltinResMgr() {
-    BuiltinResMgr::instance = nullptr;
+    //BuiltinResMgr::instance = nullptr;
 }
 
 void BuiltinResMgr::addAsset(const ccstd::string &uuid, Asset *asset) {

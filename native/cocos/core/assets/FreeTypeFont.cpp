@@ -262,7 +262,7 @@ const FontGlyph *FreeTypeFontFace::loadGlyph(uint32_t code) {
 }
 
 void FreeTypeFontFace::createTexture(uint32_t width, uint32_t height) {
-    auto *device = gfx::Device::getInstance();
+    auto *device = CC_GFX_DEVICE();
     auto *texture = device->createTexture({gfx::TextureType::TEX2D,
                                            gfx::TextureUsageBit::SAMPLED | gfx::TextureUsageBit::TRANSFER_DST,
                                            gfx::Format::R8,
@@ -286,7 +286,7 @@ void FreeTypeFontFace::updateTexture(uint32_t page, uint32_t x, uint32_t y, uint
                                            {width, height, 1U},
                                            {0U, 0U, 1U}}};
 
-    auto *device = gfx::Device::getInstance();
+    auto *device = CC_GFX_DEVICE();
     device->copyBuffersToTexture(buffers, texture, regions);
 }
 

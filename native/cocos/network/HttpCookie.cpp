@@ -31,7 +31,7 @@
 #include "platform/FileUtils.h"
 
 void HttpCookie::readFile() {
-    ccstd::string inString = cc::FileUtils::getInstance()->getStringFromFile(_cookieFileName);
+    ccstd::string inString = CC_CURRENT_ENGINE()->load<cc::FileUtils>()->getStringFromFile(_cookieFileName);
     if (!inString.empty()) {
         ccstd::vector<ccstd::string> cookiesVec;
         cookiesVec.clear();

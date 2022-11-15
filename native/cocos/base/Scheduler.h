@@ -33,6 +33,7 @@
 #include <mutex>
 
 #include "base/RefCounted.h"
+#include "base/module/Module.h"
 #include "base/std/container/set.h"
 #include "base/std/container/string.h"
 #include "base/std/container/unordered_map.h"
@@ -118,8 +119,10 @@ There are 2 different types of callbacks (selectors):
 The 'custom selectors' should be avoided when possible. It is faster, and consumes less memory to use the 'update selector'.
 
 */
-class CC_DLL Scheduler final {
+class CC_DLL Scheduler final : public Module {
 public:
+    IMPL_MODULE(Scheduler)
+
     /**
      * Constructor
      *
@@ -142,6 +145,12 @@ public:
     void update(float dt);
 
     /////////////////////////////////////
+
+    bool doDeinit() override {
+        removeAllFunctionsToBePerformedInCocosThread();
+        unscheduleAll();
+        return true;
+    }
 
     // schedule
 

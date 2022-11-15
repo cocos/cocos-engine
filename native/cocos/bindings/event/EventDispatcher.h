@@ -29,16 +29,20 @@
 #include <memory>
 
 #include "engine/EngineEvents.h"
+#include "base/module/Module.h"
 
 namespace se {
 class Value;
 }
 
 namespace cc {
-class EventDispatcher {
+class EventDispatcher final : public Module {
 public:
-    static void init();
-    static void destroy();
+    IMPL_MODULE(EventDispatcher)
+    MODULE_DEPS("ScriptEngine")
+
+    bool doInit() override;
+    bool doDeinit() override;
     static bool initialized();
 
     static void doDispatchJsEvent(const char *jsFunctionName, const std::vector<se::Value> &args);

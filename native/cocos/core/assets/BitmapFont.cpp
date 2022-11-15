@@ -165,7 +165,7 @@ gfx::Texture *BitmapFontFace::loadTexture(const ccstd::string &path) {
     auto width = static_cast<uint32_t>(image->getWidth());
     auto height = static_cast<uint32_t>(image->getHeight());
 
-    auto *device = gfx::Device::getInstance();
+    auto *device = CC_GFX_DEVICE();
     auto *texture = device->createTexture({gfx::TextureType::TEX2D,
                                            gfx::TextureUsageBit::SAMPLED | gfx::TextureUsageBit::TRANSFER_DST,
                                            gfx::Format::R8,

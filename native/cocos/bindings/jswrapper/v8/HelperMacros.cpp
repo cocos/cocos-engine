@@ -29,6 +29,7 @@
 #include "Utils.h"
 #include "Object.h"
 #include "../ValueArrayPool.h"
+#include "application/ApplicationManager.h"
 
 #if defined(RECORD_JSB_INVOKING)
 
@@ -104,7 +105,7 @@ SE_HOT void jsbFunctionWrapper(const v8::FunctionCallbackInfo<v8::Value> &v8args
 }
 
 SE_HOT void jsbFinalizeWrapper(se::Object *thisObject, se_function_ptr func, const char *funcName) {
-    auto *engine = se::ScriptEngine::getInstance();
+    auto *engine = CC_CURRENT_ENGINE()->load<se::ScriptEngine>();
     engine->_setGarbageCollecting(true);
     se::State state(thisObject);
     bool ret = func(state);

@@ -31,6 +31,7 @@
 #include <utility>
 #include "MappingUtils.h"
 #include "base/Macros.h"
+#include "application/ApplicationManager.h"
 #include "base/Ptr.h"
 #include "base/RefCounted.h"
 #include "base/std/any.h"
@@ -753,7 +754,7 @@ template <typename T>
 typename std::enable_if_t<!std::is_pointer<T>::value && is_jsb_object_v<T>, bool>
 sevalue_to_native(const se::Value &from, T **to, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
     if (from.isNullOrUndefined()) {
-        // const ccstd::string stack = se::ScriptEngine::getInstance()->getCurrentStackTrace();
+        // const ccstd::string stack = CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->getCurrentStackTrace();
         // SE_LOGE("[ERROR] sevalue_to_native jsval is null/undefined: %s\nstack: %s", typeid(T).name(), stack.c_str());
         *to = nullptr;
         return true;
@@ -783,7 +784,7 @@ template <typename T>
 typename std::enable_if_t<!std::is_pointer<T>::value && is_jsb_object_v<T>, bool>
 sevalue_to_native(const se::Value &from, T ***to, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
     if (from.isNullOrUndefined()) {
-        // const ccstd::string stack = se::ScriptEngine::getInstance()->getCurrentStackTrace();
+        // const ccstd::string stack = CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->getCurrentStackTrace();
         // SE_LOGE("[ERROR] sevalue_to_native jsval is null/undefined: %s\nstack: %s", typeid(T).name(), stack.c_str());
         *to = nullptr;
         return true;
@@ -847,7 +848,7 @@ inline bool sevalue_to_native(const se::Value &from, std::function<R()> *func, s
             se::Value rval;
             bool succeed = from.toObject()->call(se::EmptyValueArray, self, &rval);
             if (!succeed) {
-                se::ScriptEngine::getInstance()->clearException();
+                CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->clearException();
             }
 
             R rawRet{};
@@ -874,7 +875,7 @@ inline bool sevalue_to_native(const se::Value &from, std::function<R(Args...)> *
             se::Value rval;
             bool succeed = from.toObject()->call(args, self, &rval);
             if (!succeed) {
-                se::ScriptEngine::getInstance()->clearException();
+                CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->clearException();
             }
             if constexpr (!std::is_same<R, void>::value) {
                 R rawRet = {};
@@ -898,7 +899,7 @@ inline bool sevalue_to_native(const se::Value &from, std::function<void()> *func
             se::Value rval;
             bool succeed = from.toObject()->call(se::EmptyValueArray, self, &rval);
             if (!succeed) {
-                se::ScriptEngine::getInstance()->clearException();
+                CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->clearException();
             }
         };
     } else {
@@ -921,7 +922,7 @@ inline bool sevalue_to_native(const se::Value &from, std::function<void(Args...)
             se::Value rval;
             bool succeed = from.toObject()->call(args, self, &rval);
             if (!succeed) {
-                se::ScriptEngine::getInstance()->clearException();
+                CC_CURRENT_ENGINE()->load<se::ScriptEngine>()->clearException();
             }
         };
     } else {

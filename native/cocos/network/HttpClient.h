@@ -34,6 +34,7 @@
 #include "network/HttpCookie.h"
 #include "network/HttpRequest.h"
 #include "network/HttpResponse.h"
+#include "base/module/Module.h"
 
 /**
  * @addtogroup network
@@ -50,8 +51,12 @@ namespace network {
  *
  * @lua NA
  */
-class CC_DLL HttpClient {
+class CC_DLL HttpClient: public Module{
 public:
+    IMPL_MODULE(HttpClient)
+
+    MODULE_DEPS("Scheduler")
+
     /**
     * The buffer size of _responseMessage
     */
@@ -62,12 +67,12 @@ public:
      *
      * @return the instance of HttpClient.
      */
-    static HttpClient *getInstance();
+    //static HttpClient *getInstance();
 
     /**
      * Release the instance of HttpClient.
      */
-    static void destroyInstance();
+    //static void destroyInstance();
 
     /**
      * Enable cookie support.
@@ -119,10 +124,11 @@ public:
 
     std::mutex &getSSLCaFileMutex() { return _sslCaFileMutex; }
 
-private:
     HttpClient();
     virtual ~HttpClient();
-    bool init();
+    //bool doInit() override;
+    bool doDeinit() override;
+private:
 
     /**
      * Init pthread mutex, semaphore, and create new thread for http requests
@@ -150,7 +156,7 @@ private: // NOLINT(readability-redundant-access-specifiers)
     int _threadCount;
     std::mutex _threadCountMutex;
 
-    std::weak_ptr<Scheduler> _scheduler;
+    //Scheduler* _scheduler;
     std::mutex _schedulerMutex;
 
     RefVector<HttpRequest *> _requestQueue;

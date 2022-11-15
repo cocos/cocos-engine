@@ -34,6 +34,8 @@
 #include "renderer/gfx-base/GFXRenderPass.h"
 #include "renderer/gfx-base/GFXTexture.h"
 
+#include "application/ApplicationManager.h"
+
 namespace cc {
 namespace framegraph {
 
@@ -136,7 +138,7 @@ const DescriptorType &Resource<DeviceResourceType, DescriptorType, DeviceResourc
     template <>                                                           \
     struct DeviceResourceCreator<gfx::Type, gfx::Type##Info> final {      \
         inline gfx::Type *operator()(const gfx::Type##Info &desc) const { \
-            return gfx::Device::getInstance()->create##Type(desc);        \
+            return CC_CURRENT_ENGINE()->load<gfx::Device>()->create##Type(desc);        \
         }                                                                 \
     };                                                                    \
     using Type = Resource<gfx::Type, gfx::Type##Info>;                    \
