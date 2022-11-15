@@ -43,8 +43,8 @@ export function partition<T> (array: T[], predicate: (element: T, index: number,
     let nGroup1 = iFirstGroup2Element;
     for (let iElement = iFirstGroup2Element + 1; iElement < nElements; ++iElement) {
         const element = array[iElement];
-        const first = predicate(element, iElement, array);
-        if (first) {
+        const isFirstGroupElement = predicate(element, iElement, array);
+        if (isFirstGroupElement) {
             // Swap to front.
             const t = element;
             array[iElement] = array[nGroup1];
