@@ -114,6 +114,7 @@ int32_t MacPlatform::init() {
 
 int32_t MacPlatform::loop(void) {
     runTask();
+    return 1;
 }
 
 int32_t MacPlatform::run(int argc, const char **argv) {

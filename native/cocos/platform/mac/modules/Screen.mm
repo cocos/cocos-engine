@@ -44,7 +44,15 @@ int Screen::getDPI() const {
 }
 
 float Screen::getDevicePixelRatio() const {
+#if CC_EDITOR
+    se::AutoHandleScope hs;
+    se::Value ret;
+    char commandBuf[100] = "window.devicePixelRatio";
+    se::ScriptEngine::getInstance()->evalString(commandBuf, 100, &ret);
+    return ret.isNumber() ? ret.toFloat() : 1;
+#else
     return [[[[NSApplication sharedApplication] delegate] getWindow] backingScaleFactor];
+#endif
 }
 
 void Screen::setKeepScreenOn(bool value) {

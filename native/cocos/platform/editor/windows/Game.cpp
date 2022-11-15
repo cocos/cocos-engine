@@ -22,30 +22,21 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-#include "cocos/application/BaseGame.h"
+#include "Game.h"
 #include "cocos/application/ApplicationManager.h"
-#include "cocos/renderer/pipeline/GlobalDescriptorSetManager.h"
+#include "cocos/application/BaseGame.h"
 #include "cocos/platform/interfaces/modules/ISystemWindow.h"
 #include "cocos/platform/interfaces/modules/ISystemWindowManager.h"
+#include "cocos/renderer/pipeline/GlobalDescriptorSetManager.h"
 
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
-#include "windows.h"
+    #include "windows.h"
 #endif
 
 extern "C" void cc_load_all_plugins(); // NOLINT
 
 using namespace std;
 using namespace cc;
-
-class Game : public cc::BaseGame {
-public:
-    Game();
-    int init() override;
-    //bool init() override;
-    void onPause() override;
-    void onResume() override;
-    void onClose() override;
-};
 
 Game::Game() {
 }
@@ -62,27 +53,27 @@ int Game::init() {
     _windowInfo.width = _windowInfo.width == -1 ? 800 : _windowInfo.width;
     _windowInfo.height = _windowInfo.height == -1 ? 600 : _windowInfo.height;
     _windowInfo.flags = _windowInfo.flags == -1 ? cc::ISystemWindow::CC_WINDOW_SHOWN |
-        ISystemWindow::CC_WINDOW_RESIZABLE |
-        ISystemWindow::CC_WINDOW_INPUT_FOCUS|
-        ISystemWindow::CC_WINDOW_HIDDEN
-        : _windowInfo.flags;
+                                                      ISystemWindow::CC_WINDOW_RESIZABLE |
+                                                      ISystemWindow::CC_WINDOW_INPUT_FOCUS |
+                                                      ISystemWindow::CC_WINDOW_HIDDEN
+                                                : _windowInfo.flags;
     std::call_once(_windowCreateFlag, [&]() {
         ISystemWindowInfo info;
         info.title = _windowInfo.title;
-#if CC_PLATFORM == CC_PLATFORM_WINDOWS
+    #if CC_PLATFORM == CC_PLATFORM_WINDOWS
         info.x = _windowInfo.x == -1 ? 50 : _windowInfo.x; // 50 meams move window a little for now
         info.y = _windowInfo.y == -1 ? 50 : _windowInfo.y; // same above
-#else
+    #else
         info.x = _windowInfo.x == -1 ? 0 : _windowInfo.x;
         info.y = _windowInfo.y == -1 ? 0 : _windowInfo.y;
-#endif
+    #endif
         info.width = _windowInfo.width;
         info.height = _windowInfo.height;
         info.flags = _windowInfo.flags;
 
         ISystemWindowManager* windowMgr = CC_GET_PLATFORM_INTERFACE(ISystemWindowManager);
         windowMgr->createWindow(info);
-        });
+    });
 
 #endif
 
@@ -111,6 +102,5 @@ void Game::onResume() {
 void Game::onClose() {
     cc::CocosApplication::onClose();
 }
-
 
 CC_REGISTER_APPLICATION(Game);
