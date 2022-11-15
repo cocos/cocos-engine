@@ -157,6 +157,14 @@ Object.defineProperty(imageAssetProto, 'height', {
     }
 });
 
+Object.defineProperty(imageAssetProto, 'mipmapLevelDataSize', {
+    configurable: true,
+    enumerable: true,
+    get () {
+        return this._nativeData.mipmapLevelDataSize || this.mipmapLevelDataSize;
+    }
+});
+
 imageAssetProto._syncDataToNative = function () {
     const data: any = this._nativeData;
     this._width = data.width;

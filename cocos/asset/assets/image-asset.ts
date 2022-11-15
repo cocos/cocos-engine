@@ -544,6 +544,8 @@ export class ImageAsset extends Asset {
     }
 
     /**
+     * @en If this image resource is a mipmap, get the data size of each layer
+     * @zh 此图像资源是 mipmap 时，获取每层数据大小。
      * @engineInternal
      */
     get mipmapLevelDataSize () : number[] | undefined {

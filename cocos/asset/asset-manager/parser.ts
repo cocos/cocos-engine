@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { compressType, ImageAsset, IMemoryImageSource } from '../assets/image-asset';
+import { ImageAsset, IMemoryImageSource } from '../assets/image-asset';
 import { js } from '../../core/utils/js';
 import Cache from './cache';
 import deserialize from './deserialize';
@@ -81,15 +81,15 @@ export class Parser {
     }
 
     public parsePVRTex (file: ArrayBuffer | ArrayBufferView, options: IDownloadParseOptions, onComplete: CompleteCallback<IMemoryImageSource>) {
-        ImageAsset.parseCompressedTexs(file, compressType.PVR);
+        ImageAsset.parseCompressedTexs(file, 0);
     }
 
     public parsePKMTex (file: ArrayBuffer | ArrayBufferView, options: IDownloadParseOptions, onComplete: CompleteCallback<IMemoryImageSource>) {
-        ImageAsset.parseCompressedTexs(file, compressType.PKM);
+        ImageAsset.parseCompressedTexs(file, 1);
     }
 
     public parseASTCTex (file: ArrayBuffer | ArrayBufferView, options: IDownloadParseOptions, onComplete: CompleteCallback<IMemoryImageSource>) {
-        ImageAsset.parseCompressedTexs(file, compressType.ASTC);
+        ImageAsset.parseCompressedTexs(file, 2);
     }
 
     public parsePlist (file: string, options: IDownloadParseOptions, onComplete: CompleteCallback) {
