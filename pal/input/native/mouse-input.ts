@@ -13,10 +13,24 @@ export class MouseInputSource {
     private _isPressed = false;
     private _windowManager: any;
 
+    private _handleMouseDown: (mouseEvent: jsb.MouseEvent) => void;
+    private _handleMouseMove: (mouseEvent: jsb.MouseEvent) => void;
+    private _handleMouseUp: (mouseEvent: jsb.MouseEvent) => void;
+    private _boundedHandleMouseWheel: (mouseEvent: jsb.MouseWheelEvent) => void;
+
     constructor () {
+        this._handleMouseDown = this._createCallback(InputEventType.MOUSE_DOWN);
+        this._handleMouseMove = this._createCallback(InputEventType.MOUSE_MOVE);
+        this._handleMouseUp =  this._createCallback(InputEventType.MOUSE_UP);
+        this._boundedHandleMouseWheel = this._handleMouseWheel.bind(this);
         this._registerEvent();
         this._windowManager = jsb.ISystemWindowManager.getInstance();
     }
+
+    public dispatchMouseDownEvent (nativeMouseEvent: any) { this._handleMouseDown(nativeMouseEvent); }
+    public dispatchMouseMoveEvent (nativeMouseEvent: any) { this._handleMouseMove(nativeMouseEvent); }
+    public dispatchMouseUpEvent (nativeMouseEvent: any) { this._handleMouseUp(nativeMouseEvent); }
+    public dispatchScrollEvent (nativeMouseEvent: any) { this._boundedHandleMouseWheel(nativeMouseEvent); }
 
     private _getLocation (event: jsb.MouseEvent): Vec2 {
         const window = this._windowManager.getWindow(event.windowId);
@@ -28,10 +42,10 @@ export class MouseInputSource {
     }
 
     private _registerEvent () {
-        jsb.onMouseDown = this._createCallback(InputEventType.MOUSE_DOWN);
-        jsb.onMouseMove = this._createCallback(InputEventType.MOUSE_MOVE);
-        jsb.onMouseUp =  this._createCallback(InputEventType.MOUSE_UP);
-        jsb.onMouseWheel = this._handleMouseWheel.bind(this);
+        jsb.onMouseDown = this._handleMouseDown;
+        jsb.onMouseMove = this._handleMouseMove;
+        jsb.onMouseUp =  this._handleMouseUp;
+        jsb.onMouseWheel = this._boundedHandleMouseWheel;
     }
 
     private _createCallback (eventType: InputEventType) {
@@ -54,7 +68,7 @@ export class MouseInputSource {
                 break;
             }
 
-            const eventMouse = new EventMouse(eventType, false, this._preMousePos);
+            const eventMouse = new EventMouse(eventType, false, this._preMousePos, mouseEvent.windowId);
             eventMouse.setLocation(location.x, location.y);
             eventMouse.setButton(button);
             eventMouse.movementX = location.x - this._preMousePos.x;

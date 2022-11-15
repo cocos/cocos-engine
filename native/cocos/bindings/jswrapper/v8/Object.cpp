@@ -77,10 +77,7 @@ public:
         }
 
         // Remove mapping
-        auto iter = se::NativePtrToObjectMap::find(nativeObj);
-        if (iter != se::NativePtrToObjectMap::end()) {
-            se::NativePtrToObjectMap::erase(iter);
-        }
+        se::NativePtrToObjectMap::erase(nativeObj, obj);
 
         // Invoke finalize callback
         if (obj->_finalizeCb != nullptr) {
@@ -123,10 +120,7 @@ void Object::nativeObjectFinalizeHook(Object *seObj) {
 
     if (seObj->_clearMappingInFinalizer && seObj->_privateData != nullptr) {
         void *nativeObj = seObj->_privateData;
-        auto iter = NativePtrToObjectMap::find(nativeObj);
-        if (iter != NativePtrToObjectMap::end()) {
-            NativePtrToObjectMap::erase(iter);
-        }
+        NativePtrToObjectMap::erase(nativeObj, seObj);
     }
 
     if (seObj->_finalizeCb != nullptr) {
@@ -170,11 +164,10 @@ Object *Object::createSetObject() {
 
 Object *Object::getObjectWithPtr(void *ptr) {
     Object *obj = nullptr;
-    auto iter = NativePtrToObjectMap::find(ptr);
-    if (iter != NativePtrToObjectMap::end()) {
-        obj = iter->second;
+    NativePtrToObjectMap::forEach(ptr, [&obj](se::Object *foundObj) {
+        obj = foundObj;
         obj->incRef();
-    }
+    });
     return obj;
 }
 
@@ -592,17 +585,17 @@ bool Object::getArrayBufferData(uint8_t **ptr, size_t *length) const {
 void Object::setPrivateObject(PrivateObjectBase *data) {
     CC_ASSERT(_privateObject == nullptr);
     #if CC_DEBUG
-    // CC_ASSERT(NativePtrToObjectMap::find(data->getRaw()) == NativePtrToObjectMap::end());
+    // CC_ASSERT(!NativePtrToObjectMap::contains(data->getRaw()));
     if (data != nullptr) {
-        auto it = NativePtrToObjectMap::find(data->getRaw());
-        if (it != NativePtrToObjectMap::end()) {
-            auto *pri = it->second->getPrivateObject();
-            SE_LOGE("Already exists object %s/[%s], trying to add %s/[%s]\n", pri->getName(), typeid(*pri).name(), data->getName(), typeid(*data).name());
+        NativePtrToObjectMap::filter(data->getRaw(), _getClass())
+            .forEach([&](se::Object *seObj) {
+                auto *pri = seObj->getPrivateObject();
+                SE_LOGE("Already exists object %s/[%s], trying to add %s/[%s]\n", pri->getName(), typeid(*pri).name(), data->getName(), typeid(*data).name());
         #if JSB_TRACK_OBJECT_CREATION
-            SE_LOGE(" previous object created at %s\n", it->second->_objectCreationStackFrame.c_str());
+                SE_LOGE(" previous object created at %s\n", it->second->_objectCreationStackFrame.c_str());
         #endif
-            CC_ASSERT(false);
-        }
+                CC_ASSERT(false);
+            });
     }
     #endif
     internal::setPrivate(__isolate, _obj, this);
@@ -623,7 +616,7 @@ PrivateObjectBase *Object::getPrivateObject() const {
 void Object::clearPrivateData(bool clearMapping) {
     if (_privateObject != nullptr) {
         if (clearMapping) {
-            NativePtrToObjectMap::erase(_privateData);
+            NativePtrToObjectMap::erase(_privateData, this);
         }
         internal::clearPrivate(__isolate, _obj);
         delete _privateObject;

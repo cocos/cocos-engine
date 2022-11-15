@@ -28,17 +28,20 @@ import { CCClass } from '../class';
 import { error } from '../../platform/debug';
 import { getClassName } from '../../utils/js-typed';
 
-export type BabelPropertyDecoratorDescriptor = PropertyDescriptor & { initializer?: any };
+export type Initializer = () => unknown;
+
+export type BabelPropertyDecoratorDescriptor = PropertyDescriptor & { initializer?: Initializer };
 
 /**
  * @en
  * The signature compatible with both TypeScript legacy decorator and Babel legacy decorator.
- * The `descriptor` argument will only appear in Babel case.
+ * The third argument is `descriptor` in Babel case.
+ * For some engine internal optimized deocorators, the third argument is initializer.
  * @zh
  * 该签名同时兼容 TypeScript legacy 装饰器以及 Babel legacy 装饰器。
- * `descriptor` 参数只会在 Babel 情况下出现。
+ * 第三个参数在 Babel 情况下，会传入 descriptor。对于一些被优化的引擎内部装饰器，会传入 initializer。
  */
-export type LegacyPropertyDecorator = (target: Object, propertyKey: string | symbol, descriptor?: BabelPropertyDecoratorDescriptor) => void;
+export type LegacyPropertyDecorator = (target: Record<string, any>, propertyKey: string | symbol, descriptorOrInitializer?: BabelPropertyDecoratorDescriptor | Initializer) => void;
 
 /**
  * @en
@@ -82,7 +85,7 @@ export const emptySmartClassDecorator = makeSmartClassDecorator(() => {});
  * @param decorate
  */
 export function makeSmartClassDecorator<TArg> (
-    decorate: <TFunction extends Function>(constructor: TFunction, arg?: TArg) => ReturnType<ClassDecorator>,
+    decorate: <TFunction extends AnyFunction>(constructor: TFunction, arg?: TArg) => ReturnType<ClassDecorator>,
 ): ClassDecorator & ((arg?: TArg) => ClassDecorator) {
     return proxyFn;
     function proxyFn(...args: Parameters<ClassDecorator>): ReturnType<ClassDecorator>;
@@ -92,14 +95,14 @@ export function makeSmartClassDecorator<TArg> (
             // If no parameter specified
             return decorate(target);
         } else {
-            return function <TFunction extends Function> (constructor: TFunction) {
+            return function <TFunction extends AnyFunction> (constructor: TFunction) {
                 return decorate(constructor, target);
             };
         }
     }
 }
 
-function writeEditorClassProperty<TValue> (constructor: Function, propertyName: string, value: TValue) {
+function writeEditorClassProperty<TValue> (constructor: AnyFunction, propertyName: string, value: TValue) {
     const cache = getClassCache(constructor, propertyName);
     if (cache) {
         const proto = getSubDict(cache, 'proto');
@@ -117,7 +120,7 @@ function writeEditorClassProperty<TValue> (constructor: Function, propertyName: 
  * @param propertyName The editor property.
  */
 export function makeEditorClassDecoratorFn<TValue> (propertyName: string): (value: TValue) => ClassDecorator {
-    return (value: TValue) => <TFunction extends Function>(constructor: TFunction) => {
+    return (value: TValue) => <TFunction extends AnyFunction>(constructor: TFunction) => {
         writeEditorClassProperty(constructor, propertyName, value);
     };
 }
@@ -148,6 +151,7 @@ export function getClassCache (ctor, decoratorName?) {
         error('`@%s` should be used after @ccclass for class "%s"', decoratorName, getClassName(ctor));
         return null;
     }
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return getSubDict(ctor, CACHE_KEY);
 }
 

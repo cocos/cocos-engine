@@ -35,6 +35,9 @@
 #include "math/Vec4.h"
 
 namespace cc {
+class Scene;
+class Node;
+
 namespace gi {
 
 class LightProbeInfo;
@@ -116,14 +119,26 @@ public:
     LightProbesData _data;
 };
 
+struct ILightProbeNode {
+    Node *node{nullptr};
+    ccstd::vector<Vec3> probes;
+
+    explicit ILightProbeNode(Node* n)
+    : node(n) {}
+};
+
 class LightProbeInfo : public RefCounted {
 public:
     LightProbeInfo() = default;
     ~LightProbeInfo() override = default;
 
-    void activate(LightProbes *resource);
-
+    void activate(Scene* scene, LightProbes *resource);
     void clearSHCoefficients();
+    inline bool isUniqueNode() const { return _nodes.size() == 1;}
+    bool addNode(Node *node);
+    bool removeNode(Node *node);
+    void syncData(Node *node, const ccstd::vector<Vec3> &probes);
+    void update(bool updateTet = true);
 
     inline void setGIScale(float val) {
         if (_giScale == val) {
@@ -231,6 +246,11 @@ public:
     LightProbesData _data;
 
 private:
+    void clearAllSHUBOs();
+    void resetAllTetraIndices();
+
+    Scene *_scene{nullptr};
+    ccstd::vector<ILightProbeNode> _nodes;
     LightProbes *_resource{nullptr};
 };
 

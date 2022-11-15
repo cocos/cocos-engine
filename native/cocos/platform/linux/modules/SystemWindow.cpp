@@ -49,10 +49,6 @@ SystemWindow::~SystemWindow() {
     _windowId = 0;
 }
 
-void SystemWindow::swapWindow() {
-    SDLHelper::swapWindow(_window);
-}
-
 bool SystemWindow::createWindow(const char *title,
                                 int w, int h, int flags) {
     _window = SDLHelper::createWindow(title, w, h, flags);

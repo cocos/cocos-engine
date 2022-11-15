@@ -12,6 +12,45 @@ import {
 import { CCClass } from '../../cocos/core/data/class';
 import { property } from '../../cocos/core/data/decorators/property';
 
+describe('Decorators signature', () => {
+    class Foo {}
+
+    property(Foo, 'field1', function initializer () {
+        return 1;
+    });
+    property(Foo, 'field2', {
+        initializer() {
+            return 2;
+        },
+    });
+    property(Foo, 'property', { value: 1 });
+    property(Foo, 'getset', {
+        get() {
+            return 3;
+        },
+        set(v) {},
+    });
+    expect(Foo.constructor['__ccclassCache__']).toMatchInlineSnapshot(`
+        Object {
+          "proto": Object {
+            "properties": Object {
+              "field1": Object {
+                "default": 1,
+              },
+              "field2": Object {
+                "default": 2,
+              },
+              "getset": Object {
+                "get": [Function],
+                "set": [Function],
+              },
+              "property": Object {},
+            },
+          },
+        }
+    `);
+});
+
 describe(`Decorators`, () => {
     test('@uniquelyReferenced', () => {
         @uniquelyReferenced
