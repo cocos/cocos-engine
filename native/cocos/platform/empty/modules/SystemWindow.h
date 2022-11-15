@@ -48,7 +48,6 @@ public:
 
     int init();
     void pollEvent(bool* quit);
-    void swapWindow();
 
 private:
     int _width{0};

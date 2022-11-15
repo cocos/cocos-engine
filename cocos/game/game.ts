@@ -812,6 +812,13 @@ export class Game extends EventTarget {
     }
 
     private _initXR () {
+        globalThis.__globalXR = {};
+        const globalXR = globalThis.__globalXR;
+        // xrEnv 0 NONE 1 XR 2 WEB_XR
+        globalXR.xrEnv = settings.querySettings(Settings.Category.XR, 'xrEnv') ?? 0;
+        // xrType 0 NONE 1 VR 2 AR
+        globalXR.xrType = settings.querySettings(Settings.Category.XR, 'xrType') ?? 0;
+
         if (sys.isXR) {
             // XrEntry must not be destroyed
             xr.entry = xr.XrEntry.getInstance();

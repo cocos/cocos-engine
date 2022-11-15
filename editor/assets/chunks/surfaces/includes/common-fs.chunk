@@ -39,6 +39,9 @@
     #include <builtin/uniforms/cc-diffusemap>
   #endif
 #endif
+#if USE_REFLECTION_PROBE
+  #include <builtin/uniforms/cc-reflection-probe>
+#endif
 
 // Base
 #include <common/common-define>

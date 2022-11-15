@@ -1,3 +1,17 @@
+// When screenSpaceSingY and clipSpaceSignY have different signs, need to flip the uv
+// cc_cameraPos.w is flipNDCSign
+#pragma define CC_HANDLE_NDC_SAMPLE_FLIP(uv, flipNDCSign) uv = flipNDCSign == 1.0 ? vec2(uv.x, 1.0 - uv.y) : uv
+
+
+vec2 GetScreenUV(vec3 worldPos, mat4 matViewProj, float flipNDCSign)
+{
+  vec4 clipPos = matViewProj * vec4(worldPos, 1.0);
+  vec2 screenUV = clipPos.xy / clipPos.w * 0.5 + 0.5;
+  screenUV = vec2(1.0 - screenUV.x, 1.0 - screenUV.y);
+  CC_HANDLE_NDC_SAMPLE_FLIP(screenUV, flipNDCSign);
+  return screenUV;
+}
+
 // depthHS = ndc depth(-1 ~ +1)
 float GetCameraDepthRH(float depthHS, mat4 matProj)
 {

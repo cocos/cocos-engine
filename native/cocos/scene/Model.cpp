@@ -335,6 +335,38 @@ bool Model::isLightProbeAvailable() const {
     return true;
 }
 
+void Model::updateSHBuffer() {
+    if (_localSHData.empty()) {
+        return;
+    }
+
+    bool hasNonInstancingPass = false;
+    for (const auto &subModel : _subModels) {
+        const auto idx = subModel->getInstancedSHIndex();
+        if (idx >= 0) {
+            subModel->updateInstancedSH(_localSHData, idx);
+        } else {
+            hasNonInstancingPass = true;
+        }
+    }
+
+    if (hasNonInstancingPass && _localSHBuffer) {
+        _localSHBuffer->update(_localSHData.buffer()->getData());
+    }
+}
+
+void Model::clearSHUBOs() {
+    if (_localSHData.empty()) {
+        return;
+    }
+
+    for (auto i = 0; i < pipeline::UBOSH::COUNT; i++) {
+        _localSHData[i] = 0.0;
+    }
+
+    updateSHBuffer();
+}
+
 void Model::updateSHUBOs() {
     if (!isLightProbeAvailable()) {
         return;
@@ -365,20 +397,7 @@ void Model::updateSHUBOs() {
 
     gi::SH::reduceRinging(coefficients, lightProbes->getReduceRinging());
     gi::SH::updateUBOData(_localSHData, pipeline::UBOSH::SH_LINEAR_CONST_R_OFFSET, coefficients);
-
-    bool hasNonInstancingPass = false;
-    for (const auto &subModel : _subModels) {
-        const auto idx = subModel->getInstancedSHIndex();
-        if (idx >= 0) {
-            subModel->updateInstancedSH(_localSHData, idx);
-        } else {
-            hasNonInstancingPass = true;
-        }
-    }
-
-    if (hasNonInstancingPass && _localSHBuffer) {
-        _localSHBuffer->update(_localSHData.buffer()->getData());
-    }
+    updateSHBuffer();
 }
 
 ccstd::vector<IMacroPatch> Model::getMacroPatches(index_t subModelIndex) {

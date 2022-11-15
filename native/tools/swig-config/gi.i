@@ -17,6 +17,7 @@
 %{
 #include "bindings/auto/jsb_geometry_auto.h"
 #include "bindings/auto/jsb_cocos_auto.h"
+#include "bindings/auto/jsb_scene_auto.h"
 #include "bindings/auto/jsb_gi_auto.h"
 
 using namespace cc;
@@ -38,6 +39,7 @@ using namespace cc::gi;
 //
 %ignore cc::gi::Edge;
 %ignore cc::gi::Triangle;
+%ignore cc::gi::ILightProbeNode;
 
 
 // ----- Rename Section ------
