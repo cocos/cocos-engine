@@ -115,12 +115,8 @@ namespace cc {
     }
 
     int32_t WindowsPlatform::loop() {
-        for (size_t i = 0; i < 5; i++)
-        {
-            _windowManager->processEvent(&_quit);
-        }
+        _windowManager->processEvent(&_quit);
         runTask();
-        _windowManager->swapWindows();
         return 0;
     }
 

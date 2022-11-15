@@ -27,6 +27,10 @@
 #include "Object.h"
 #include "v8/HelperMacros.h"
 
+#if CC_EDITOR
+#include <node_buffer.h>
+#endif
+
 #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8
     #include "../MappingUtils.h"
     #include "Class.h"
@@ -217,11 +221,18 @@ Object *Object::createArrayObject(size_t length) {
 }
 
 Object *Object::createArrayBufferObject(const void *data, size_t byteLength) {
+#if CC_EDITOR
+    auto nsBuffer = node::Buffer::New(__isolate, byteLength);
+    char *srcData = node::Buffer::Data(nsBuffer.ToLocalChecked());
+    v8::Local<v8::ArrayBuffer> jsobj = nsBuffer.ToLocalChecked().As<v8::TypedArray>()->Buffer();
+#else
     v8::Local<v8::ArrayBuffer> jsobj = v8::ArrayBuffer::New(__isolate, byteLength);
+    char *srcData = jsobj->GetBackingStore()->Data();
+    #endif
     if (data) {
-        memcpy(jsobj->GetBackingStore()->Data(), data, byteLength);
+        memcpy(srcData, data, byteLength);
     } else {
-        memset(jsobj->GetBackingStore()->Data(), 0, byteLength);
+        memset(srcData, 0, byteLength);
     }
     Object *obj = Object::_createJSObject(nullptr, jsobj);
     return obj;
@@ -229,9 +240,19 @@ Object *Object::createArrayBufferObject(const void *data, size_t byteLength) {
 
 /* static */
 Object *Object::createExternalArrayBufferObject(void *contents, size_t byteLength, BufferContentsFreeFunc freeFunc, void *freeUserData /* = nullptr*/) {
-    std::shared_ptr<v8::BackingStore> backingStore = v8::ArrayBuffer::NewBackingStore(contents, byteLength, freeFunc, freeUserData);
+
     Object *obj = nullptr;
+#if CC_EDITOR
+    auto nsBuffer = node::Buffer::New(
+                        __isolate, (char *)contents, byteLength, [](char *data, void *hint) {}, nullptr)
+                        .ToLocalChecked()
+                        .As<v8::TypedArray>();
+    v8::Local<v8::ArrayBuffer> jsobj = nsBuffer.As<v8::TypedArray>()->Buffer();
+#else
+    std::shared_ptr<v8::BackingStore> backingStore = v8::ArrayBuffer::NewBackingStore(contents, byteLength, freeFunc, freeUserData);
     v8::Local<v8::ArrayBuffer> jsobj = v8::ArrayBuffer::New(__isolate, backingStore);
+#endif
+    
     if (!jsobj.IsEmpty()) {
         obj = Object::_createJSObject(nullptr, jsobj);
     }
@@ -248,13 +269,20 @@ Object *Object::createTypedArray(TypedArrayType type, const void *data, size_t b
         SE_LOGE("Doesn't support to create Uint8ClampedArray with Object::createTypedArray API!");
         return nullptr;
     }
-
+#if CC_EDITOR
+    auto nsBuffer = node::Buffer::New(__isolate, byteLength);
+    char *srcData = node::Buffer::Data(nsBuffer.ToLocalChecked());
+    v8::Local<v8::ArrayBuffer> jsobj = nsBuffer.ToLocalChecked().As<v8::TypedArray>()->Buffer();
+#else
     v8::Local<v8::ArrayBuffer> jsobj = v8::ArrayBuffer::New(__isolate, byteLength);
+    char *srcData = jsobj->GetBackingStore()->Data();
+#endif
+    
     // If data has content,then will copy data into buffer,or will only clear buffer.
     if (data) {
-        memcpy(jsobj->GetBackingStore()->Data(), data, byteLength);
+        memcpy(srcData, data, byteLength);
     } else {
-        memset(jsobj->GetBackingStore()->Data(), 0, byteLength);
+        memset(srcData, 0, byteLength);
     }
 
     v8::Local<v8::Object> arr;
@@ -555,12 +583,21 @@ Object::TypedArrayType Object::getTypedArrayType() const {
 bool Object::getTypedArrayData(uint8_t **ptr, size_t *length) const {
     CC_ASSERT(isTypedArray());
     v8::Local<v8::Object> obj = const_cast<Object *>(this)->_obj.handle(__isolate);
+#if CC_EDITOR
+    char *data = node::Buffer::Data(obj);
+    *ptr = reinterpret_cast<uint8_t *>(data);
+    if (length) {
+        *length = node::Buffer::Length(obj);
+    }
+ #else
     v8::Local<v8::TypedArray> arr = v8::Local<v8::TypedArray>::Cast(obj);
     const auto &backingStore = arr->Buffer()->GetBackingStore();
     *ptr = static_cast<uint8_t *>(backingStore->Data()) + arr->ByteOffset();
     if (length) {
         *length = arr->ByteLength();
     }
+#endif
+
     return true;
 }
 
@@ -571,6 +608,16 @@ bool Object::isArrayBuffer() const {
 
 bool Object::getArrayBufferData(uint8_t **ptr, size_t *length) const {
     CC_ASSERT(isArrayBuffer());
+#if CC_EDITOR
+    v8::Local<v8::ArrayBuffer> jsobj = _getJSObject().As<v8::ArrayBuffer>();
+    auto obj = v8::Int8Array::New(jsobj, 0, jsobj->ByteLength());
+    char *data = node::Buffer::Data(obj.As<v8::Value>());
+    *ptr = reinterpret_cast<uint8_t *>(data);
+    if (length) {
+        //*length = backingStore->ByteLength();
+        *length = node::Buffer::Length(obj.As<v8::Value>());
+    }
+#else
     v8::Local<v8::Object> obj = const_cast<Object *>(this)->_obj.handle(__isolate);
     v8::Local<v8::ArrayBuffer> arrBuf = v8::Local<v8::ArrayBuffer>::Cast(obj);
     const auto &backingStore = arrBuf->GetBackingStore();
@@ -578,7 +625,7 @@ bool Object::getArrayBufferData(uint8_t **ptr, size_t *length) const {
     if (length) {
         *length = backingStore->ByteLength();
     }
-
+#endif
     return true;
 }
 
