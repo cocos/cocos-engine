@@ -234,18 +234,14 @@ bool register_all_spine_manual(se::Object *obj) {
             return;
         }
         // Support Native Spine fo Creator V3.0
-        se::Object *seObj = nullptr;
-        auto iter = se::NativePtrToObjectMap::find(spineObj);
-        if (iter != se::NativePtrToObjectMap::end()) {
-            // Save se::Object pointer for being used in cleanup method.
-            seObj = iter->second;
+        se::NativePtrToObjectMap::forEach(spineObj, [](se::Object *seObj){
             // Unmap native and js object since native object was destroyed.
             // Otherwise, it may trigger 'assertion' in se::Object::setPrivateData later
             // since native obj is already released and the new native object may be assigned with
             // the same address.
             seObj->setClearMappingInFinalizer(false);
-            se::NativePtrToObjectMap::erase(iter);
-        }
+        });
+        se::NativePtrToObjectMap::erase(spineObj);
     });
 
     se::ScriptEngine::getInstance()->addBeforeCleanupHook([]() {

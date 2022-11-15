@@ -40,3 +40,4 @@
 
 #include "physics/physx/joints/PhysXSpherical.h"
 #include "physics/physx/joints/PhysXRevolute.h"
+#include "physics/physx/joints/PhysXFixedJoint.h"

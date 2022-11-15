@@ -30,6 +30,7 @@
 #include "math/Math.h"
 #include "math/Utils.h"
 #include "renderer/pipeline/custom/RenderInterfaceTypes.h"
+#include "core/scene-graph/Scene.h"
 
 namespace cc {
 namespace gi {
@@ -199,7 +200,8 @@ void LightProbes::initialize(LightProbeInfo *info) {
     _data = info->getData();
 }
 
-void LightProbeInfo::activate(LightProbes *resource) {
+void LightProbeInfo::activate(Scene* scene, LightProbes *resource) {
+    _scene = scene;
     _resource = resource;
     _resource->initialize(this);
 }
@@ -208,6 +210,106 @@ void LightProbeInfo::clearSHCoefficients() {
     auto &probes = _data.getProbes();
     for (auto &probe : probes) {
         probe.coefficients.clear();
+    }
+
+    clearAllSHUBOs();
+}
+
+bool LightProbeInfo::addNode(Node* node) {
+    if (!node) {
+        return false;
+    }
+
+    for (auto &item : _nodes) {
+        if (item.node == node) {
+            return false;
+        }
+    }
+
+    _nodes.emplace_back(node);
+
+    return true;
+}
+
+bool LightProbeInfo::removeNode(Node *node) {
+    if (!node) {
+        return false;
+    }
+
+    for (auto iter = _nodes.begin(); iter != _nodes.end(); ++iter) {
+        if (iter->node == node) {
+            _nodes.erase(iter);
+            return true;
+        }
+    }
+
+    return false;
+}
+
+void LightProbeInfo::syncData(Node *node, const ccstd::vector<Vec3> &probes) {
+    for (auto &item : _nodes) {
+        if (item.node == node) {
+            item.probes = probes;
+            return;
+        }
+    }
+}
+
+void LightProbeInfo::update(bool updateTet) {
+    ccstd::vector<Vec3> points;
+
+    for (auto &item : _nodes) {
+        auto *node = item.node;
+        auto &probes = item.probes;
+        const auto &worldPosition = node->getWorldPosition();
+
+        for (auto &probe : probes) {
+            points.push_back(probe + worldPosition);
+        }
+    }
+
+    auto pointCount = points.size();
+    if (pointCount < 4) {
+        resetAllTetraIndices();
+        _data.reset();
+        return;
+    }
+
+    _data.updateProbes(points);
+
+    if (updateTet) {
+        resetAllTetraIndices();
+        _data.updateTetrahedrons();
+    }
+}
+
+void LightProbeInfo::clearAllSHUBOs() {
+    if (!_scene) {
+        return;
+    }
+
+    auto *renderScene = _scene->getRenderScene();
+    if (!renderScene) {
+        return;
+    }
+
+    for (const auto &model : renderScene->getModels()) {
+        model->clearSHUBOs();
+    }
+}
+
+void LightProbeInfo::resetAllTetraIndices() {
+    if (!_scene) {
+        return;
+    }
+
+    auto *renderScene = _scene->getRenderScene();
+    if (!renderScene) {
+        return;
+    }
+
+    for (const auto &model : renderScene->getModels()) {
+        model->setTetrahedronIndex(-1);
     }
 }
 

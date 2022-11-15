@@ -45,7 +45,7 @@ SceneGlobals::SceneGlobals() {
     _lightProbeInfo = ccnew gi::LightProbeInfo();
 }
 
-void SceneGlobals::activate() {
+void SceneGlobals::activate(Scene* scene) {
     auto *sceneData = Root::getInstance()->getPipeline()->getPipelineSceneData();
     if (_ambientInfo != nullptr) {
         _ambientInfo->activate(sceneData->getAmbient());
@@ -68,7 +68,7 @@ void SceneGlobals::activate() {
     }
 
     if (_lightProbeInfo != nullptr && sceneData->getLightProbes() != nullptr) {
-        _lightProbeInfo->activate(sceneData->getLightProbes());
+        _lightProbeInfo->activate(scene, sceneData->getLightProbes());
     }
 
     Root::getInstance()->onGlobalPipelineStateChanged();

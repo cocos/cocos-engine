@@ -71,6 +71,7 @@ namespace physics {
 
 CC_PHYSICS_JOINT_DEFINITION(DistanceJoint, WrappedDistanceJoint)
 CC_PHYSICS_JOINT_DEFINITION(RevoluteJoint, WrappedRevoluteJoint)
+CC_PHYSICS_JOINT_DEFINITION(FixedJoint, WrappedFixedJoint)
 
 /// EXTRAS ///
 
@@ -92,6 +93,14 @@ void RevoluteJoint::setPivotB(float x, float y, float z) {
 
 void RevoluteJoint::setAxis(float x, float y, float z) {
     _impl->setAxis(x, y, z);
+}
+
+void FixedJoint::setBreakForce(float force) {
+    _impl->setBreakForce(force);
+}
+
+void FixedJoint::setBreakTorque(float torque) {
+    _impl->setBreakTorque(torque);
 }
 
 } // namespace physics
