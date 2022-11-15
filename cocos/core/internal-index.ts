@@ -25,7 +25,7 @@
 
 // This file only exports functions/classes that are only visible to engine internal.
 
-import * as jsbUtils from './utils/jsb-utils';
+import * as _jsbUtils from './utils/jsb-utils';
 
 export { editable, tooltip, visible, displayName, displayOrder, range, rangeStep, slide, disallowAnimation } from './data/decorators/editable';
 export { override } from './data/decorators/override';
@@ -55,4 +55,4 @@ export { _resetDebugSetting } from './platform/debug';
 /**
  * @engineInternal
  */
-export  { jsbUtils };
+export const jsbUtils = _jsbUtils;
