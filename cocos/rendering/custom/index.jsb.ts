@@ -31,7 +31,6 @@ import { macro } from '../../core/platform/macro';
 import { DeferredPipelineBuilder, ForwardPipelineBuilder } from './builtin-pipelines';
 import { CustomPipelineBuilder, NativePipelineBuilder } from './custom-pipeline';
 
-export * from './graph';
 export * from './types';
 export * from './pipeline';
 export * from './archive';
