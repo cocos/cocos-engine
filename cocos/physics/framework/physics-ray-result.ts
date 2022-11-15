@@ -133,8 +133,7 @@ export class PhysicsLineStripCastResult extends PhysicsRayResult {
      * internal methods.
      * @zh
      * 设置射线，此方法由引擎内部使用，请勿在外部脚本调用。
-     *
-     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     * @engineInternal
      */
     public _assign (hitPoint: IVec3Like, distance: number, collider: Collider, hitNormal: IVec3Like, id = 0) {
         super._assign(hitPoint, distance, collider, hitNormal);
