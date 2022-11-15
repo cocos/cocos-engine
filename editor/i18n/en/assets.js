@@ -355,7 +355,7 @@ module.exports = {
                     },
                 },
                 gltfpack: {
-                    warn: 'The current asset uses the gltfpack faceting algorithm, which has been deprecated, so please use the new simplify faceting algorithm.',
+                    warn: 'The current asset uses the gltfpack mesh optimization algorithm, which has been deprecated. Please use the new simplify face reduction algorithm.',
                 },
                 warn: 'Warning: After optimization, the number and names of mesh resources will change, which will cause the loss of resources referenced by the components, please update them manually in time. (In addition, for prefabs pre-generated in the model resources, the resource synchronization mechanism will update them automatically)',
             },

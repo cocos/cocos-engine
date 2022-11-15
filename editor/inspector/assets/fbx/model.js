@@ -86,6 +86,9 @@ exports.template = /* html */`
                     <ui-checkbox slot="content" class="meshOptimizer-v-checkbox"></ui-checkbox>
                 </ui-prop>
             </ui-section>
+            <div class="warn-words">
+                <ui-label value="i18n:ENGINE.assets.fbx.meshOptimizer.warn"></ui-label>
+            </div>
         </div>
         <div class="simplify-options">
             <ui-prop>
@@ -104,9 +107,6 @@ exports.template = /* html */`
                 <ui-label slot="label" value="i18n:ENGINE.assets.fbx.meshOptimizer.simplify.maxIterationCount.name" tooltip="i18n:ENGINE.assets.fbx.meshOptimizer.simplify.maxIterationCount.title"></ui-label>
                 <ui-slider slot="content" class="meshOptimizer-maxIterationCount-slider" min="100" max="200" step="1"></ui-slider>
             </ui-prop>
-        </div>
-        <div class="warn-words">
-            <ui-label value="i18n:ENGINE.assets.fbx.meshOptimizer.warn"></ui-label>
         </div>
     </ui-section>
 </div>
