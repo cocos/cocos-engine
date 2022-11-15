@@ -157,24 +157,14 @@ Object.defineProperty(imageAssetProto, 'height', {
     }
 });
 
-Object.defineProperty(imageAssetProto, 'mipmapLevelDataSize', {
-    configurable: true,
-    enumerable: true,
-    get () {
-        return this._nativeData.mipmapLevelDataSize || this.mipmapLevelDataSize;
-    }
-});
-
 imageAssetProto._syncDataToNative = function () {
     const data: any = this._nativeData;
     this._width = data.width;
     this._height = data.height;
-    this.mipmapLevelDataSize = data.mipmapLevelDataSize;
 
     this.setWidth(this._width);
     this.setHeight(this._height);
     this.url = this.nativeUrl;
-    this.setMipmapLevelDataSize(this.mipmapLevelDataSize);
 
     if (data instanceof HTMLCanvasElement) {
         this.setData(data._data.data);
@@ -184,6 +174,9 @@ imageAssetProto._syncDataToNative = function () {
     }
     else {
         this.setData(this._nativeData._data);
+        if (this._nativeData.mipmapLevelDataSize) {
+            this._setMipmapLevelDataSize(this._nativeData.mipmapLevelDataSize);
+        }
     }
 };
 
