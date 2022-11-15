@@ -24,6 +24,8 @@
 ****************************************************************************/
 
 #include "GLES3Wrangler.h"
+#include "base/Log.h"
+#include <string>
 
 #if defined(_WIN32) && !defined(ANDROID)
     #define WIN32_LEAN_AND_MEAN 1
@@ -34,8 +36,29 @@ static HMODULE libgles = NULL;
 static PFNGLES3WLOADPROC pfnGles3wLoad = NULL;
 
 bool gles3wOpen() {
-    libegl = LoadLibraryA("libEGL.dll");
-    libgles = LoadLibraryA("libGLESv2.dll");
+    std::string eglPath = "libEGL.dll";
+    std::string glesPath = "libGLESv2.dll";
+
+#if CC_EDITOR
+    // in editor,thers are same dlls,so we need to use abs path.
+    char dllPath[MAX_PATH];
+    HMODULE engine = NULL;
+    if (GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS |
+                              GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+                          (LPCWSTR)&gles3wOpen, &engine) != 0) {
+        GetModuleFileNameA(engine, dllPath, ARRAYSIZE(dllPath));
+        std::string dir(dllPath);
+        dir = dir.substr(0, dir.rfind("\\") + 1);
+        eglPath = dir + eglPath;
+        glesPath = dir + glesPath;
+    } else {
+        int err = GetLastError();
+        CC_LOG_WARNING("Failed to get abs path for editor,error code:%d", err);
+    }
+#endif
+
+    libegl = LoadLibraryA(eglPath.c_str());
+    libgles = LoadLibraryA(glesPath.c_str());
     return (libegl && libgles);
 }
 
