@@ -1436,6 +1436,14 @@ export class SceneGlobals {
     public lightProbeInfo = new LightProbeInfo();
 
     /**
+     * @en bake with stationary main light
+     * @zh 主光源是否以静止状态烘培
+     */
+     @editable
+     @serializable
+     public bakedWithStationaryMainLight = false;
+
+    /**
      * @en Activate and initialize the global configurations of the scene, no need to invoke manually.
      * @zh 启用和初始化场景全局配置，不需要手动调用
      */

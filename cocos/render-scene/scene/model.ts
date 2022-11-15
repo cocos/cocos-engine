@@ -47,8 +47,12 @@ const shadowMapPatches: IMacroPatch[] = [
     { name: 'CC_RECEIVE_SHADOW', value: true },
 ];
 
-const lightMapPatches: IMacroPatch[] = [
-    { name: 'CC_USE_LIGHTMAP', value: true },
+const staticLightMapPatches: IMacroPatch[] = [
+    { name: 'CC_USE_LIGHTMAP', value: 1 },
+];
+
+const stationaryLightMapPatches: IMacroPatch[] = [
+    { name: 'CC_USE_LIGHTMAP', value: 2 },
 ];
 
 const lightProbePatches: IMacroPatch[] = [
@@ -952,7 +956,13 @@ export class Model {
     public getMacroPatches (subModelIndex: number): IMacroPatch[] | null {
         let patches = this.receiveShadow ? shadowMapPatches : null;
         if (this._lightmap != null) {
-            patches = patches ? patches.concat(lightMapPatches) : lightMapPatches;
+            let stationary = false;
+            if (this.node && this.node.scene) {
+                stationary = this.node.scene.globals.bakedWithStationaryMainLight;
+            }
+
+            let lightmapPathes = stationary ? stationaryLightMapPatches : staticLightMapPatches;
+            patches = patches ? patches.concat(lightmapPathes) : lightmapPathes;
         }
         if (this._useLightProbe) {
             patches = patches ? patches.concat(lightProbePatches) : lightProbePatches;
