@@ -540,6 +540,15 @@ const cacheManager = require('./jsb-cache-manager');
         middleware.release();
     };
 
+    const _updateMaterial = armatureDisplayProto.updateMaterial;
+    armatureDisplayProto.updateMaterial = function () {
+        _updateMaterial.call(this);
+        if (this._nativeDisplay) {
+            const mat = this.getMaterialTemplate();
+            this._nativeDisplay.setMaterial(mat);
+        }
+    };
+
     armatureDisplayProto.once = function (eventType, listener, target) {
         if (this._nativeDisplay) {
             if (this.isAnimationCached()) {

@@ -559,6 +559,10 @@ void SkeletonCacheAnimation::setRenderEntity(cc::RenderEntity* entity) {
 
 void SkeletonCacheAnimation::setMaterial(cc::Material *material) {
     _material = material;
+    for (auto &item : _materialCaches) {
+        CC_SAFE_DELETE(item.second);
+    }
+    _materialCaches.clear();
 }
 
 cc::RenderDrawInfo* SkeletonCacheAnimation::requestDrawInfo(int idx) {
