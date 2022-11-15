@@ -71,6 +71,16 @@ export class SplashScreen {
     private watermarkMat!: Material;
     private watermarkTexture!: Texture;
 
+    // settings
+    private logoWidth = 140;
+    private logoHeight = 200;
+    private logoXTrans = 1 / 2;// Percent
+    private logoYTrans = 1 / 6 + 2.5 / 6;// Percent 
+
+    private textHeight = 24; // line height
+    private textXTrans = 1 / 2;// Percent
+    private textYExtraTrans = 32;// px
+
     public get isFinished () {
         return this._curTime >= this.settings.totalTime;
     }
@@ -122,7 +132,7 @@ export class SplashScreen {
         // this.setting.clearColor may not an instance of Color, so should create
         // Color manually, or will have problem on native.
         const clearColor = this.settings.clearColor;
-        this.clearColors = [new Color(clearColor.x, clearColor.y, clearColor.z, clearColor.w)];
+        this.clearColors = [new Color(0, 0, 0, 255)]; // hack to black
         const { device, swapchain } = this;
         this.renderArea = new Rect(0, 0, swapchain.width, swapchain.height);
         this.cmdBuff = device.commandBuffer;
@@ -166,24 +176,30 @@ export class SplashScreen {
         Mat4.ortho(this.projection, -1, 1, -1, 1, -1, 1, device.capabilities.clipSpaceMinZ,
             device.capabilities.clipSpaceSignY, swapchain.surfaceTransform);
         const dw = swapchain.width; const dh = swapchain.height;
-        const refW = dw < dh ? dw : dh;
+        const refW = dw < dh ? dw : dh; // 横竖屏判断 ，refW 为竖屏 // 短边
         // update logo uniform
         this._curTime += deltaTime * 1000;
         const percent = clamp01(this._curTime / settings.totalTime);
-        let u_p = easing.cubicOut(percent);
+        let u_p = easing.cubicOut(percent); // 渐变色
         if (settings.effect === 'NONE') u_p = 1.0;
-        const logoTW = this.logoTexture.width; const logoTH = this.logoTexture.height;
-        const logoW = refW * settings.displayRatio;
-        let scaleX = logoW * logoTW / logoTH;
-        let scaleY = logoW;
+        const tempW = this.logoWidth; // 要算一个几倍图的系数  
+        const tempH = this.logoHeight;
+        let scaleX = 1;
+        let scaleY = 1;
         if (swapchain.surfaceTransform === SurfaceTransform.ROTATE_90
             || swapchain.surfaceTransform === SurfaceTransform.ROTATE_270) {
-            scaleX = logoW * dw / dh;
-            scaleY = logoW * logoTH / logoTW * dh / dw;
+            // todo
+            // scaleX = logoW * dw / dh;
+            // scaleY = logoW * logoTH / logoTW * dh / dw;
         }
-        this.logoMat.setProperty('resolution', v2_0.set(dw, dh), 0);
+        // const logoW = refW * settings.displayRatio; // use less
+        scaleX = tempW;
+        scaleY = tempH;
+        const logoYTrans = dh * this.logoYTrans;
+
+        this.logoMat.setProperty('resolution', v2_0.set(dw, dh), 0); // 分辨率看下 shader
         this.logoMat.setProperty('scale', v2_0.set(scaleX, scaleY), 0);
-        this.logoMat.setProperty('translate', v2_0.set(dw * 0.5, dh * 0.5), 0);
+        this.logoMat.setProperty('translate', v2_0.set(dw * this.logoXTrans, logoYTrans), 0);
         this.logoMat.setProperty('percent', u_p);
         this.logoMat.setProperty('u_projection', this.projection);
         this.logoMat.passes[0].update();
@@ -192,16 +208,17 @@ export class SplashScreen {
         if (settings.displayWatermark && this.watermarkMat) {
             const wartermarkW = refW * 0.5;
             const wartermarkTW = this.watermarkTexture.width; const wartermarkTH = this.watermarkTexture.height;
-            let scaleX = wartermarkW;
-            let scaleY = wartermarkW * wartermarkTH / wartermarkTW;
+            let scaleX = wartermarkTW; // wartermarkW;
+            let scaleY = wartermarkTH;// wartermarkW * wartermarkTH / wartermarkTW;
             if (swapchain.surfaceTransform === SurfaceTransform.ROTATE_90
                 || swapchain.surfaceTransform === SurfaceTransform.ROTATE_270) {
                 scaleX = wartermarkW * 0.5;
                 scaleY = wartermarkW * dw / dh * 0.5;
             }
+            const textYTrans = logoYTrans - this.logoHeight * 0.5 - this.textYExtraTrans - this.textHeight * 0.5;
             this.watermarkMat.setProperty('resolution', v2_0.set(dw, dh), 0);
             this.watermarkMat.setProperty('scale', v2_0.set(scaleX, scaleY), 0);
-            this.watermarkMat.setProperty('translate', v2_0.set(dw * 0.5, dh * 0.1), 0);
+            this.watermarkMat.setProperty('translate', v2_0.set(dw * this.textXTrans, textYTrans), 0);
             this.watermarkMat.setProperty('percent', u_p);
             this.watermarkMat.setProperty('u_projection', this.projection);
             this.watermarkMat.passes[0].update();
@@ -247,14 +264,14 @@ export class SplashScreen {
     private initWarterMark () {
         // create texture from image
         const wartemarkImg = document.createElement('canvas');
-        wartemarkImg.width = 330; wartemarkImg.height = 30;
+        wartemarkImg.width = 330; wartemarkImg.height = this.textHeight;
         wartemarkImg.style.width = `${wartemarkImg.width}`;
         wartemarkImg.style.height = `${wartemarkImg.height}`;
         const ctx = wartemarkImg.getContext('2d')!;
-        ctx.font = `${18}px Arial`; ctx.textBaseline = 'top'; ctx.textAlign = 'left'; ctx.fillStyle = '`#424242`';
-        const text = 'Powered by Cocos Creator';
-        const textMetrics = ctx.measureText(text);
-        ctx.fillText(text, (330 - textMetrics.width) / 2, 6);
+        ctx.font = `${24}px Arial`; ctx.textBaseline = 'top'; ctx.textAlign = 'center'; ctx.fillStyle = '#707070';
+        const text = 'Created with Cocos';
+        // const textMetrics = ctx.measureText(text);
+        ctx.fillText(text, wartemarkImg.width / 2, 0);
         const region = new BufferTextureCopy();
         region.texExtent.width = wartemarkImg.width;
         region.texExtent.height = wartemarkImg.height;
