@@ -27,6 +27,7 @@
 #include "Object.h"
 #include "v8/HelperMacros.h"
 
+// Use node::Buffer to replace v8 api,to avoid link err in editor platform.
 #if CC_EDITOR && CC_PLATFORM == CC_PLATFORM_WINDOWS
     #include <node_buffer.h>
 #endif

@@ -552,8 +552,7 @@ elseif(MACOSX)
         cocos/platform/mac/ViewController.mm
         cocos/platform/mac/AppDelegate.h
         cocos/platform/mac/AppDelegate.mm
-    )
-    
+    )    
 elseif(IOS)
     cocos_source_files(
         cocos/platform/ios/IOSPlatform.mm
