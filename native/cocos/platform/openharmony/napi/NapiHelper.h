@@ -26,6 +26,8 @@
 #pragma once
 
 #include <napi/native_api.h>
+#include "cocos/bindings/jswrapper/SeApi.h"
+#include "cocos/bindings/manual/jsb_conversions.h"
 
 namespace cc {
 
@@ -43,7 +45,7 @@ public:
     // JS Page : Lifecycle
     static napi_value napiOnPageShow(napi_env env, napi_callback_info info);
     static napi_value napiOnPageHide(napi_env env, napi_callback_info info);
-    
+
     // Worker Func
     static napi_value napiWorkerInit(napi_env env, napi_callback_info info);
     static napi_value napiASend(napi_env env, napi_callback_info info);
@@ -53,6 +55,29 @@ public:
     static napi_value napiWritablePathInit(napi_env env, napi_callback_info info);
     static napi_value napiResourceManagerInit(napi_env env, napi_callback_info info);
 
+    template <class ReturnType>
+    static napi_value napiCallFunction(const std::string& functionName, ReturnType* value) {
+        if (!se::ScriptEngine::getInstance()->isValid()) {
+            return nullptr;
+        }
+        se::Value tickVal;
+        se::AutoHandleScope scope;
+        if (tickVal.isUndefined()) {
+            se::ScriptEngine::getInstance()->getGlobalObject()->getProperty(functionName, &tickVal);
+        }
+        se::Value rval;
+        se::ValueArray tickArgsValArr(1);
+        if (!tickVal.isUndefined()) {
+            tickVal.toObject()->call(tickArgsValArr, nullptr, &rval);
+        }
+        if(rval.isNullOrUndefined()) {
+            return nullptr;
+        }
+        bool ok = true;
+        ok &= sevalue_to_native(rval, value, nullptr);
+        SE_PRECONDITION2(ok, nullptr, "Error processing arguments");
+        return nullptr;
+    }
     static napi_value napiNoImplementation(napi_env env, napi_callback_info info);
     // Napi export
     static bool exportFunctions(napi_env env, napi_value exports);

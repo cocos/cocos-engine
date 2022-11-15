@@ -25,43 +25,27 @@
 
 #pragma once
 
-#include "platform/interfaces/modules/ISystem.h"
-
-class ANativeWindow;
+#include "platform/interfaces/modules/IScreen.h"
 
 namespace cc {
 
-class System : public ISystem {
+class Screen : public IScreen {
 public:
-    System();
-    ~System() override;
+    int getDPI() const override;
+    float getDevicePixelRatio() const override;
+    void setKeepScreenOn(bool value) override;
+    Orientation getDeviceOrientation() const override;
+    Vec4 getSafeAreaEdge() const override;
+    /**
+     @brief Get current display stats.
+     @return bool, is displaying stats or not.
+     */
+    bool isDisplayStats() override;
 
-    OSType getOSType() const override;
     /**
-     @brief Get target device model.
+     @brief set display stats information.
      */
-    std::string getDeviceModel() const override;
-    /**
-     @brief Get current language config.
-     @return Current language config.
-     */
-    LanguageType getCurrentLanguage() const override;
-    /**
-     @brief Get current language iso 639-1 code.
-     @return Current language iso 639-1 code.
-     */
-    std::string getCurrentLanguageCode() const override;
-    /**
-     @brief Get system version.
-     @return system version.
-     */
-    std::string getSystemVersion() const override;
-    /**
-     @brief Open url in default browser.
-     @param String with url to open.
-     @return True if the resource located by the URL was successfully opened; otherwise false.
-     */
-    bool openURL(const std::string& url) override;
+    void setDisplayStats(bool isShow) override;
 };
 
 } // namespace cc

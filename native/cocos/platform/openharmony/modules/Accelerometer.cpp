@@ -23,45 +23,40 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#pragma once
-
-#include "platform/interfaces/modules/ISystem.h"
-
-class ANativeWindow;
-
+#include "platform/openharmony/modules/Accelerometer.h"
+#include "platform/openharmony/napi/NapiHelper.h"
 namespace cc {
 
-class System : public ISystem {
-public:
-    System();
-    ~System() override;
+void Accelerometer::setAccelerometerEnabled(bool isEnabled) {
+    //setAccelerometerEnabledJNI(isEnabled);
+}
 
-    OSType getOSType() const override;
-    /**
-     @brief Get target device model.
-     */
-    std::string getDeviceModel() const override;
-    /**
-     @brief Get current language config.
-     @return Current language config.
-     */
-    LanguageType getCurrentLanguage() const override;
-    /**
-     @brief Get current language iso 639-1 code.
-     @return Current language iso 639-1 code.
-     */
-    std::string getCurrentLanguageCode() const override;
-    /**
-     @brief Get system version.
-     @return system version.
-     */
-    std::string getSystemVersion() const override;
-    /**
-     @brief Open url in default browser.
-     @param String with url to open.
-     @return True if the resource located by the URL was successfully opened; otherwise false.
-     */
-    bool openURL(const std::string& url) override;
-};
+void Accelerometer::setAccelerometerInterval(float interval) {
+    //setAccelerometerIntervalJNI(interval);
+}
+
+const Accelerometer::MotionValue &Accelerometer::getDeviceMotionValue() {
+
+    ccstd::vector<int32_t>  v;
+    NapiHelper::napiCallFunction<std::vector<int32_t> >("getDeviceMotionValue", &v);
+    static MotionValue motionValue;
+
+    if (!v.empty()) {
+        motionValue.accelerationIncludingGravityX = v[0];
+        motionValue.accelerationIncludingGravityY = v[1];
+        motionValue.accelerationIncludingGravityZ = v[2];
+
+        motionValue.accelerationX = v[3];
+        motionValue.accelerationY = v[4];
+        motionValue.accelerationZ = v[5];
+
+        motionValue.rotationRateAlpha = v[6];
+        motionValue.rotationRateBeta = v[7];
+        motionValue.rotationRateGamma = v[8];
+    } else {
+        memset(&motionValue, 0, sizeof(motionValue));
+    }
+    return motionValue;
+}
 
 } // namespace cc

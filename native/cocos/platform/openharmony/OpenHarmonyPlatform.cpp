@@ -221,9 +221,8 @@ void OpenHarmonyPlatform::requestVSync() {
      if (_workerLoop) {
     //     // Todo: Starting the timer in this way is inaccurate and will be fixed later.
          uv_timer_init(_workerLoop, &_timerHandle);
-    //     // 1s = 1000ms = 60fps;
-    //     // 1000ms / 60fps = 16 ms/fps
-         uv_timer_start(&_timerHandle, &OpenHarmonyPlatform::timerCb, 16, true);
+         // The tick function needs to be called as quickly as possible because it is controlling the frame rate inside the engine.
+         uv_timer_start(&_timerHandle, &OpenHarmonyPlatform::timerCb, 0, 1);
      }
     //CC_LOG_ERROR("OpenHarmonyPlatform::requestVSync2");
 }

@@ -641,12 +641,12 @@ elseif(OPENHARMONY)
         cocos/platform/openharmony/modules/System.h
         cocos/platform/openharmony/modules/SystemWindow.cpp
         cocos/platform/openharmony/modules/SystemWindow.h
-        cocos/platform/empty/modules/Screen.cpp
-        cocos/platform/empty/modules/Screen.h
-        cocos/platform/empty/modules/Accelerometer.cpp
-        cocos/platform/empty/modules/Accelerometer.h
-        cocos/platform/empty/modules/Battery.cpp
-        cocos/platform/empty/modules/Battery.h
+        cocos/platform/openharmony/modules/Screen.cpp
+        cocos/platform/openharmony/modules/Screen.h
+        cocos/platform/openharmony/modules/Accelerometer.cpp
+        cocos/platform/openharmony/modules/Accelerometer.h
+        cocos/platform/openharmony/modules/Battery.cpp
+        cocos/platform/openharmony/modules/Battery.h
         cocos/platform/empty/modules/Network.cpp
         cocos/platform/empty/modules/Network.h
         cocos/platform/empty/modules/Vibrator.cpp

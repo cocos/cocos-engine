@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -23,45 +23,15 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#pragma once
-
-#include "platform/interfaces/modules/ISystem.h"
-
-class ANativeWindow;
+#include "platform/openharmony/modules/Battery.h"
+#include "platform/openharmony/napi/NapiHelper.h"
 
 namespace cc {
 
-class System : public ISystem {
-public:
-    System();
-    ~System() override;
-
-    OSType getOSType() const override;
-    /**
-     @brief Get target device model.
-     */
-    std::string getDeviceModel() const override;
-    /**
-     @brief Get current language config.
-     @return Current language config.
-     */
-    LanguageType getCurrentLanguage() const override;
-    /**
-     @brief Get current language iso 639-1 code.
-     @return Current language iso 639-1 code.
-     */
-    std::string getCurrentLanguageCode() const override;
-    /**
-     @brief Get system version.
-     @return system version.
-     */
-    std::string getSystemVersion() const override;
-    /**
-     @brief Open url in default browser.
-     @param String with url to open.
-     @return True if the resource located by the URL was successfully opened; otherwise false.
-     */
-    bool openURL(const std::string& url) override;
-};
+float Battery::getBatteryLevel() const {
+    int32_t value;
+    NapiHelper::napiCallFunction("getBatteryLevel", &value);
+    return value;
+}
 
 } // namespace cc

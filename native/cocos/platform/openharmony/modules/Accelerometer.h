@@ -25,43 +25,26 @@
 
 #pragma once
 
-#include "platform/interfaces/modules/ISystem.h"
-
-class ANativeWindow;
+#include "platform/interfaces/modules/IAccelerometer.h"
 
 namespace cc {
 
-class System : public ISystem {
+class Accelerometer : public IAccelerometer {
 public:
-    System();
-    ~System() override;
+    /**
+     * To enable or disable accelerometer.
+     */
+    void setAccelerometerEnabled(bool isEnabled) override;
 
-    OSType getOSType() const override;
     /**
-     @brief Get target device model.
+     *  Sets the interval of accelerometer.
      */
-    std::string getDeviceModel() const override;
+    void setAccelerometerInterval(float interval) override;
+
     /**
-     @brief Get current language config.
-     @return Current language config.
+     *  Gets the motion value of current device.
      */
-    LanguageType getCurrentLanguage() const override;
-    /**
-     @brief Get current language iso 639-1 code.
-     @return Current language iso 639-1 code.
-     */
-    std::string getCurrentLanguageCode() const override;
-    /**
-     @brief Get system version.
-     @return system version.
-     */
-    std::string getSystemVersion() const override;
-    /**
-     @brief Open url in default browser.
-     @param String with url to open.
-     @return True if the resource located by the URL was successfully opened; otherwise false.
-     */
-    bool openURL(const std::string& url) override;
+    const MotionValue &getDeviceMotionValue() override;
 };
 
 } // namespace cc

@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -24,12 +24,6 @@
 ****************************************************************************/
 
 #include "platform/openharmony/modules/SystemWindow.h"
-#include <fcntl.h>
-#include <unistd.h>
-#include <cstddef>
-#include <functional>
-#include <thread>
-#include <vector>
 #include "base/Log.h"
 #include "base/Macros.h"
 #include "platform/openharmony/OpenHarmonyPlatform.h"

@@ -134,7 +134,7 @@ export class OpenHarmonyPackTool extends NativePackTool {
         const hdcExe = "hdc_std";
         const projectDir = this.paths.platformTemplateDirInPrj;
         const packageName = this.params.platformParams.packageName;
-        let configJson = this.readJSON5Sync(ps.join(projectDir, 'AppScope/app.json5'));
+        let configJson = this.readJSON5Sync(ps.join(projectDir, 'entry/src/main/module.json5'));
         //const moduleId = configJson.module.package + configJson.module.abilities[0].name;
         const ability = configJson.module.abilities[0].name;
         const moduleName = configJson.module.name;
