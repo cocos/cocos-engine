@@ -35,6 +35,9 @@ import { getOrCreateSerializationMetadata } from '../serialization-metadata';
  */
 const WITH_SERIALIZATION = EDITOR || TEST;
 
+/**
+ * @engineInternal
+ */
 export const serializable: LegacyPropertyDecorator = (target, propertyKey, descriptorOrInitializer) => {
     const propertyStash = getOrCreatePropertyStash(target, propertyKey, descriptorOrInitializer);
     setImplicitSerializable(propertyStash);
