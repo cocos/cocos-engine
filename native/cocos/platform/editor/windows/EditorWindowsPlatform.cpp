@@ -35,93 +35,93 @@
 #include "cocos/platform/win32/modules/Network.h"
 #include "cocos/platform/win32/modules/System.h"
 #if defined(CC_SERVER_MODE)
-#include "platform/empty/modules/Screen.h"
-#include "platform/empty/modules/SystemWindow.h"
+    #include "platform/empty/modules/Screen.h"
+    #include "platform/empty/modules/SystemWindow.h"
 #else
-#include "cocos/platform/win32/modules/Screen.h"
-#include "cocos/platform/win32/modules/SystemWindow.h"
+    #include "cocos/platform/win32/modules/Screen.h"
+    #include "cocos/platform/win32/modules/SystemWindow.h"
 #endif
 #include "base/memory/Memory.h"
 #include "cocos/platform/win32/modules/Vibrator.h"
 
 namespace {
-    /**
-     @brief  This function changes the PVRFrame show/hide setting in register.
-     @param  bEnable If true show the PVRFrame window, otherwise hide.
-    */
-    void PVRFrameEnableControlWindow(bool bEnable) {
-        HKEY hKey = 0;
+/**
+ @brief  This function changes the PVRFrame show/hide setting in register.
+ @param  bEnable If true show the PVRFrame window, otherwise hide.
+*/
+void PVRFrameEnableControlWindow(bool bEnable) {
+    HKEY hKey = 0;
 
-        // Open PVRFrame control key, if not exist create it.
-        if (ERROR_SUCCESS != RegCreateKeyExW(HKEY_CURRENT_USER,
-            L"Software\\Imagination Technologies\\PVRVFRame\\STARTUP\\",
-            0,
-            0,
-            REG_OPTION_NON_VOLATILE,
-            KEY_ALL_ACCESS,
-            0,
-            &hKey,
-            nullptr)) {
-            return;
-        }
-
-        const WCHAR* wszValue = L"hide_gui";
-        const WCHAR* wszNewData = (bEnable) ? L"NO" : L"YES";
-        WCHAR wszOldData[256] = { 0 };
-        DWORD dwSize = sizeof(wszOldData);
-        LSTATUS status = RegQueryValueExW(hKey, wszValue, 0, nullptr, (LPBYTE)wszOldData, &dwSize);
-        if (ERROR_FILE_NOT_FOUND == status               // the key not exist
-            || (ERROR_SUCCESS == status                  // or the hide_gui value is exist
-                && 0 != wcscmp(wszNewData, wszOldData))) // but new data and old data not equal
-        {
-            dwSize = static_cast<DWORD>(sizeof(WCHAR) * (wcslen(wszNewData) + 1));
-            RegSetValueEx(hKey, wszValue, 0, REG_SZ, (const BYTE*)wszNewData, dwSize);
-        }
-
-        RegCloseKey(hKey);
+    // Open PVRFrame control key, if not exist create it.
+    if (ERROR_SUCCESS != RegCreateKeyExW(HKEY_CURRENT_USER,
+                                         L"Software\\Imagination Technologies\\PVRVFRame\\STARTUP\\",
+                                         0,
+                                         0,
+                                         REG_OPTION_NON_VOLATILE,
+                                         KEY_ALL_ACCESS,
+                                         0,
+                                         &hKey,
+                                         nullptr)) {
+        return;
     }
+
+    const WCHAR* wszValue = L"hide_gui";
+    const WCHAR* wszNewData = (bEnable) ? L"NO" : L"YES";
+    WCHAR wszOldData[256] = {0};
+    DWORD dwSize = sizeof(wszOldData);
+    LSTATUS status = RegQueryValueExW(hKey, wszValue, 0, nullptr, (LPBYTE)wszOldData, &dwSize);
+    if (ERROR_FILE_NOT_FOUND == status               // the key not exist
+        || (ERROR_SUCCESS == status                  // or the hide_gui value is exist
+            && 0 != wcscmp(wszNewData, wszOldData))) // but new data and old data not equal
+    {
+        dwSize = static_cast<DWORD>(sizeof(WCHAR) * (wcslen(wszNewData) + 1));
+        RegSetValueEx(hKey, wszValue, 0, REG_SZ, (const BYTE*)wszNewData, dwSize);
+    }
+
+    RegCloseKey(hKey);
+}
 
 } // namespace
 
 namespace cc {
-    WindowsPlatform::WindowsPlatform() {
-    }
-    WindowsPlatform::~WindowsPlatform() {
+WindowsPlatform::WindowsPlatform() {
+}
+WindowsPlatform::~WindowsPlatform() {
 #ifdef USE_WIN32_CONSOLE
-        FreeConsole();
+    FreeConsole();
 #endif
-    }
+}
 
-    int32_t WindowsPlatform::init() {
-        registerInterface(std::make_shared<Accelerometer>());
-        registerInterface(std::make_shared<Battery>());
-        registerInterface(std::make_shared<Network>());
-        registerInterface(std::make_shared<Screen>());
-        registerInterface(std::make_shared<System>());
-        _windowManager = std::make_shared<SystemWindowManager>();
-        registerInterface(_windowManager);
-        registerInterface(std::make_shared<Vibrator>());
+int32_t WindowsPlatform::init() {
+    registerInterface(std::make_shared<Accelerometer>());
+    registerInterface(std::make_shared<Battery>());
+    registerInterface(std::make_shared<Network>());
+    registerInterface(std::make_shared<Screen>());
+    registerInterface(std::make_shared<System>());
+    _windowManager = std::make_shared<SystemWindowManager>();
+    registerInterface(_windowManager);
+    registerInterface(std::make_shared<Vibrator>());
 
 #ifdef USE_WIN32_CONSOLE
-        AllocConsole();
-        freopen("CONIN$", "r", stdin);
-        freopen("CONOUT$", "w", stdout);
-        freopen("CONOUT$", "w", stderr);
+    AllocConsole();
+    freopen("CONIN$", "r", stdin);
+    freopen("CONOUT$", "w", stdout);
+    freopen("CONOUT$", "w", stderr);
 #endif
 
-        PVRFrameEnableControlWindow(false);
+    PVRFrameEnableControlWindow(false);
 
-        return _windowManager->init();
-    }
+    return _windowManager->init();
+}
 
-    int32_t WindowsPlatform::loop() {
-        _windowManager->processEvent(&_quit);
-        runTask();
-        return 0;
-    }
+int32_t WindowsPlatform::loop() {
+    _windowManager->processEvent(&_quit);
+    runTask();
+    return 0;
+}
 
-    ISystemWindow* WindowsPlatform::createNativeWindow(uint32_t windowId, void* externalHandle) {
-        return ccnew SystemWindow(windowId, externalHandle);
-    }
+ISystemWindow* WindowsPlatform::createNativeWindow(uint32_t windowId, void* externalHandle) {
+    return ccnew SystemWindow(windowId, externalHandle);
+}
 
 } // namespace cc

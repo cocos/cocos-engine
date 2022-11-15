@@ -22,7 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-#include "Game.h"
+#include "../Game.h"
 #include "cocos/application/ApplicationManager.h"
 #include "cocos/application/BaseGame.h"
 #include "cocos/platform/interfaces/modules/ISystemWindow.h"

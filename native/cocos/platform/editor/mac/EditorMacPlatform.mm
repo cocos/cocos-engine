@@ -23,9 +23,9 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "platform/mac/MacPlatform.h"
 #include "platform/interfaces/OSInterface.h"
 #include "platform/mac/AppDelegate.h"
+#include "platform/mac/MacPlatform.h"
 
 #include "modules/Accelerometer.h"
 #include "modules/Battery.h"
@@ -49,7 +49,7 @@ extern int cocos_main(int argc, const char **argv);
 
 @interface MyTimer : NSObject {
     cc::MacPlatform *_platform;
-//    NSTimer *_timer;
+    //    NSTimer *_timer;
 }
 - (instancetype)initWithApp:(cc::MacPlatform *)platform fps:(int)fps;
 - (void)start;
@@ -72,7 +72,6 @@ extern int cocos_main(int argc, const char **argv);
 }
 
 - (void)pause {
-
 }
 
 - (void)resume {
@@ -97,11 +96,9 @@ MyTimer *_timer;
 namespace cc {
 
 MacPlatform::~MacPlatform() {
-
 }
 
 int32_t MacPlatform::init() {
-
     registerInterface(std::make_shared<Accelerometer>());
     registerInterface(std::make_shared<Battery>());
     registerInterface(std::make_shared<Network>());
@@ -132,20 +129,18 @@ int32_t MacPlatform::run(int argc, const char **argv) {
 }
 
 void MacPlatform::setFps(int32_t fps) {
-    if(fps != getFps()) {
+    if (fps != getFps()) {
         UniversalPlatform::setFps(fps);
     }
 }
 
 void MacPlatform::onPause() {
-
     cc::WindowEvent ev;
     ev.type = cc::WindowEvent::Type::HIDDEN;
     cc::events::WindowEvent::broadcast(ev);
 }
 
 void MacPlatform::onResume() {
-
     cc::WindowEvent ev;
     ev.type = cc::WindowEvent::Type::SHOW;
     cc::events::WindowEvent::broadcast(ev);

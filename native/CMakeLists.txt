@@ -511,7 +511,7 @@ if(WINDOWS)
             cocos/platform/editor/windows/EditorWindowsPlatform.cpp
             cocos/platform/win32/WindowsPlatform.h
             cocos/platform/editor/windows/Game.cpp
-            cocos/platform/editor/windows/Game.h
+            cocos/platform/editor/Game.h
         )
     else()
         cocos_source_files(
@@ -539,7 +539,7 @@ elseif(MACOSX)
         cocos_source_files(
             cocos/platform/editor/mac/EditorMacPlatform.mm
             cocos/platform/editor/mac/Game.mm
-            cocos/platform/editor/mac/Game.h
+            cocos/platform/editor/Game.h
         )
     else()
         cocos_source_files(

@@ -22,14 +22,15 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-#include "Game.h"
+#include "../Game.h"
 #include "FileUtils.h"
-#include "renderer/pipeline/GlobalDescriptorSetManager.h"
-#include "platform/interfaces/modules/ISystemWindowManager.h"
 #include "cocos/application/ApplicationManager.h"
+#include "platform/interfaces/modules/ISystemWindowManager.h"
+#include "renderer/pipeline/GlobalDescriptorSetManager.h"
+
 
 #ifndef GAME_NAME
-#define GAME_NAME "CocosGame";
+    #define GAME_NAME "CocosGame";
 #endif
 extern std::string SearchPath;
 extern "C" void cc_load_all_plugins();
@@ -38,45 +39,45 @@ Game::Game() = default;
 int Game::init() {
     cc::pipeline::GlobalDSManager::setDescriptorSetLayout();
 
-        cc_load_all_plugins();
+    cc_load_all_plugins();
 
-    #if CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_LINUX || CC_PLATFORM == CC_PLATFORM_QNX || CC_PLATFORM == CC_PLATFORM_MACOS
-        // override default value
-        //_windowInfo.x      = _windowInfo.x == -1 ? 0 : _windowInfo.x;
-        //_windowInfo.y      = _windowInfo.y == -1 ? 0 : _windowInfo.y;
-        _windowInfo.width = _windowInfo.width == -1 ? 800 : _windowInfo.width;
-        _windowInfo.height = _windowInfo.height == -1 ? 600 : _windowInfo.height;
-        _windowInfo.flags = _windowInfo.flags == -1 ? cc::ISystemWindow::CC_WINDOW_SHOWN |
-                                                          cc::ISystemWindow::CC_WINDOW_RESIZABLE |
-                                                          cc::ISystemWindow::CC_WINDOW_INPUT_FOCUS
-                                                    : _windowInfo.flags;
-        std::call_once(_windowCreateFlag, [&]() {
-            cc::ISystemWindowInfo info;
-            info.title  = _windowInfo.title;
-            info.x      = _windowInfo.x == -1 ? 50 : _windowInfo.x; // 50 meams move window a little for now
-            info.y      = _windowInfo.y == -1 ? 50 : _windowInfo.y; // same above
-            info.width  = _windowInfo.width;
-            info.height = _windowInfo.height;
-            info.flags  = _windowInfo.flags;
+#if CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_LINUX || CC_PLATFORM == CC_PLATFORM_QNX || CC_PLATFORM == CC_PLATFORM_MACOS
+    // override default value
+    //_windowInfo.x      = _windowInfo.x == -1 ? 0 : _windowInfo.x;
+    //_windowInfo.y      = _windowInfo.y == -1 ? 0 : _windowInfo.y;
+    _windowInfo.width = _windowInfo.width == -1 ? 800 : _windowInfo.width;
+    _windowInfo.height = _windowInfo.height == -1 ? 600 : _windowInfo.height;
+    _windowInfo.flags = _windowInfo.flags == -1 ? cc::ISystemWindow::CC_WINDOW_SHOWN |
+                                                      cc::ISystemWindow::CC_WINDOW_RESIZABLE |
+                                                      cc::ISystemWindow::CC_WINDOW_INPUT_FOCUS
+                                                : _windowInfo.flags;
+    std::call_once(_windowCreateFlag, [&]() {
+        cc::ISystemWindowInfo info;
+        info.title = _windowInfo.title;
+        info.x = _windowInfo.x == -1 ? 50 : _windowInfo.x; // 50 meams move window a little for now
+        info.y = _windowInfo.y == -1 ? 50 : _windowInfo.y; // same above
+        info.width = _windowInfo.width;
+        info.height = _windowInfo.height;
+        info.flags = _windowInfo.flags;
 
-            cc::ISystemWindowManager* windowMgr = CC_GET_PLATFORM_INTERFACE(cc::ISystemWindowManager);
-            windowMgr->createWindow(info);
-        });
+        cc::ISystemWindowManager* windowMgr = CC_GET_PLATFORM_INTERFACE(cc::ISystemWindowManager);
+        windowMgr->createWindow(info);
+    });
 
-    #endif
+#endif
 
-        if (_debuggerInfo.enabled) {
-            setDebugIpAndPort(_debuggerInfo.address, _debuggerInfo.port, _debuggerInfo.pauseOnStart);
-        }
+    if (_debuggerInfo.enabled) {
+        setDebugIpAndPort(_debuggerInfo.address, _debuggerInfo.port, _debuggerInfo.pauseOnStart);
+    }
 
-        int ret = cc::CocosApplication::init();
-        if (ret != 0) {
-            return ret;
-        }
+    int ret = cc::CocosApplication::init();
+    if (ret != 0) {
+        return ret;
+    }
 
-        setXXTeaKey(_xxteaKey);
-//        runScript("jsb-adapter/web-adapter.js");
-//        runScript("main.js");
+    setXXTeaKey(_xxteaKey);
+    //        runScript("jsb-adapter/web-adapter.js");
+    //        runScript("main.js");
 
     return 0;
 }
