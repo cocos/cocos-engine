@@ -128,6 +128,18 @@ BaseEngine::Ptr CocosApplication::getEngine() const {
     return _engine;
 }
 
+const std::vector<std::string> &CocosApplication::getArguments() const {
+    return _argv;
+}
+
+void CocosApplication::setArgumentsInternal(int argc, const char *argv[]) {
+    _argv.clear();
+    _argv.reserve(argc);
+    for (int i = 0; i < argc; ++i) {
+        _argv.emplace_back(argv[i]);
+    }
+}
+
 void CocosApplication::onStart() {
     // TODO(cc): Handling engine start events
 }

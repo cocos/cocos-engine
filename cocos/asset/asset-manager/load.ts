@@ -24,7 +24,7 @@
  */
 import { BUILD, EDITOR, PREVIEW } from 'internal:constants';
 import { Asset } from '../assets/asset';
-import { error } from '../../core/platform/debug';
+import { error, cclegacy } from '../../core';
 import packManager from './pack-manager';
 import parser from './parser';
 import { Pipeline } from './pipeline';
@@ -32,7 +32,6 @@ import RequestItem from './request-item';
 import { CompleteCallbackNoData, assets, files, parsed, pipeline } from './shared';
 import Task from './task';
 import { cache, checkCircleReference, clear, forEach, gatherAsset, getDepends, setProperties } from './utilities';
-import { legacyCC } from '../../core/global-exports';
 import { nativeDependMap, onLoadedInvokedMap } from './depend-maps';
 
 interface IProgress {
@@ -69,7 +68,7 @@ export default function load (task: Task, done: CompleteCallbackNoData) {
             progress,
             onComplete: (err, result) => {
                 if (err && !task.isFinish) {
-                    if (!legacyCC.assetManager.force || firstTask) {
+                    if (!cclegacy.assetManager.force || firstTask) {
                         if (BUILD) {
                             error(err.message, err.stack);
                         }
@@ -227,7 +226,7 @@ function loadDepends (task: Task, asset: Asset, done: CompleteCallbackNoData) {
                         } else {
                             // TODO: remove it.
                             // scene asset might be a json in editor or preview
-                            legacyCC.SceneAsset.prototype.initDefault.call(asset);
+                            cclegacy.SceneAsset.prototype.initDefault.call(asset);
                         }
                     }
                 }

@@ -3,9 +3,8 @@ import { EDITOR, DEBUG, TEST } from 'internal:constants';
 import { IRigidBody2D } from '../spec/i-rigid-body';
 import { IBoxShape, ICircleShape, IPolygonShape, IBaseShape } from '../spec/i-physics-shape';
 import { IPhysicsWorld } from '../spec/i-physics-world';
-import { errorID, warnID, warn } from '../../core';
+import { errorID, cclegacy } from '../../core';
 import { ECollider2DType, EJoint2DType  } from './physics-types';
-import { legacyCC } from '../../core/global-exports';
 import { IJoint2D, IDistanceJoint, ISpringJoint, IFixedJoint, IMouseJoint,
     IRelativeJoint, ISliderJoint, IWheelJoint, IHingeJoint } from '../spec/i-physics-joint';
 
@@ -144,7 +143,7 @@ const ENTIRE_WORLD: IPhysicsWorld = {
 };
 
 export function checkPhysicsModule (obj: any) {
-    if (DEBUG && !TEST && (!EDITOR || legacyCC.GAME_VIEW) && obj == null) {
+    if (DEBUG && !TEST && (!EDITOR || cclegacy.GAME_VIEW) && obj == null) {
         errorID(9600);
         return true;
     }

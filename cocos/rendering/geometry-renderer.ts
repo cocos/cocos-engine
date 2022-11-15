@@ -23,22 +23,14 @@
  THE SOFTWARE.
  */
 
-import { AABB } from '../core/geometry/aabb';
-import { Spline } from '../core/geometry/spline';
-import { Color } from '../core/math/color';
-import { Mat4 } from '../core/math/mat4';
-import { Vec3 } from '../core/math/vec3';
-import { Vec4 } from '../core/math/vec4';
+import { Color, Mat4, Vec3, Vec4, geometry, warnID, toRadian, cclegacy } from '../core';
 import { SetIndex } from './define';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { Attribute, AttributeName, Buffer, BufferInfo, BufferUsageBit,
     CommandBuffer, Device, DrawInfo, Format, InputAssembler,
     InputAssemblerInfo, MemoryUsageBit, RenderPass } from '../gfx';
-import { warnID } from '../core/platform/debug';
-import { Frustum } from '../core/geometry/frustum';
-import { toRadian } from '../core/math/utils';
+
 import { PipelineSceneData } from './pipeline-scene-data';
-import { legacyCC } from '../core/global-exports';
 
 const _min = new Vec3();
 const _max = new Vec3();
@@ -404,7 +396,7 @@ export class GeometryRenderer {
         }
     }
 
-    public addBoundingBox (aabb: AABB, color: Color,
+    public addBoundingBox (aabb: geometry.AABB, color: Color,
         wireframe = true, depthTest = true, unlit = false, useTransform = false, transform: Mat4 = new Mat4()) {
         /**
          *     2---3
@@ -480,7 +472,7 @@ export class GeometryRenderer {
         this.addLine(v0, v1, color, depthTest);
     }
 
-    public addFrustum (frustum: Frustum, color: Color, depthTest = true) {
+    public addFrustum (frustum: geometry.Frustum, color: Color, depthTest = true) {
         const vertices = frustum.vertices;
 
         this.addLine(vertices[0], vertices[1], color, depthTest);
@@ -908,7 +900,7 @@ export class GeometryRenderer {
         }
     }
 
-    public addSpline (spline: Spline, color: Color, index = 0xffffffff, knotSize = 0.5, segments = 32, depthTest = true) {
+    public addSpline (spline: geometry.Spline, color: Color, index = 0xffffffff, knotSize = 0.5, segments = 32, depthTest = true) {
         const numPoints = segments + 1;
         const points = spline.getPoints(numPoints, index);
 
@@ -965,4 +957,4 @@ export class GeometryRenderer {
     }
 }
 
-legacyCC.internal.GeometryRenderer = GeometryRenderer;
+cclegacy.internal.GeometryRenderer = GeometryRenderer;

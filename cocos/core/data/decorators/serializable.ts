@@ -31,17 +31,21 @@ import { getOrCreateSerializationMetadata } from '../serialization-metadata';
 
 /**
  * True if serialization feature is enabled in current environment.
+ * @engineInternal
  */
 const WITH_SERIALIZATION = EDITOR || TEST;
 
-export const serializable: LegacyPropertyDecorator = (target, propertyKey, descriptor) => {
-    const propertyStash = getOrCreatePropertyStash(target, propertyKey, descriptor);
+export const serializable: LegacyPropertyDecorator = (target, propertyKey, descriptorOrInitializer) => {
+    const propertyStash = getOrCreatePropertyStash(target, propertyKey, descriptorOrInitializer);
     setImplicitSerializable(propertyStash);
 };
 
+/**
+ * @engineInternal
+ */
 export function formerlySerializedAs (name: string): LegacyPropertyDecorator {
-    return (target, propertyKey, descriptor) => {
-        const propertyStash = getOrCreatePropertyStash(target, propertyKey, descriptor);
+    return (target, propertyKey, descriptorOrInitializer) => {
+        const propertyStash = getOrCreatePropertyStash(target, propertyKey, descriptorOrInitializer);
         propertyStash.formerlySerializedAs = name;
         setImplicitSerializable(propertyStash);
     };
@@ -53,8 +57,8 @@ export function formerlySerializedAs (name: string): LegacyPropertyDecorator {
  * @zh
  * 设置该属性仅在编辑器中生效。
  */
-export const editorOnly: LegacyPropertyDecorator = (target, propertyKey, descriptor) => {
-    const propertyStash = getOrCreatePropertyStash(target, propertyKey, descriptor);
+export const editorOnly: LegacyPropertyDecorator = (target, propertyKey, descriptorOrInitializer) => {
+    const propertyStash = getOrCreatePropertyStash(target, propertyKey, descriptorOrInitializer);
     propertyStash.editorOnly = true;
     setImplicitSerializable(propertyStash);
 };

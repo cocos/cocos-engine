@@ -914,7 +914,7 @@ static bool js_cc_pipeline_RenderPassDesc_colorAttachments_set(se::State& s)
     
     // %typemap(in) SWIGTYPE value in
     ok &= sevalue_to_native(args[0], &arg1->colorAttachments, s.thisObject());
-    SE_PRECONDITION2(ok, false, "RenderPassDesc_colorAttachments_set,2,SWIGTYPE_ccstd__vectorT_cc__pipeline__ColorDesc_t"); 
+    SE_PRECONDITION2(ok, false, "RenderPassDesc_colorAttachments_set,2,SWIGTYPE_ccstd__vectorT_cc__gfx__ColorAttachment_t"); 
     
     
     
@@ -12341,7 +12341,7 @@ static bool js_cc_pipeline_InstancedBuffer_uploadBuffers(se::State& s)
     // %typemap(in) SWIGTYPE*
     ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
     SE_PRECONDITION2(ok, false, "InstancedBuffer_uploadBuffers,2,SWIGTYPE_p_cc__gfx__CommandBuffer"); 
-    (arg1)->uploadBuffers(arg2);
+    ((cc::pipeline::InstancedBuffer const *)arg1)->uploadBuffers(arg2);
     
     
     return true;

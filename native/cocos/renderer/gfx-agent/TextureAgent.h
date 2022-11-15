@@ -40,6 +40,8 @@ public:
 
     const Texture *getRaw() const override { return _actor->getRaw(); }
 
+    uint32_t getGLTextureHandle() const noexcept override { return _actor->getGLTextureHandle(); }
+
 protected:
     friend class SwapchainAgent;
 

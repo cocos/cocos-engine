@@ -30,7 +30,9 @@ import { ShaderStageFlagBit, Type, Uniform, UniformBlock } from '../../gfx';
 import { Descriptor, DescriptorBlock, DescriptorBlockIndex, DescriptorTypeOrder, ParameterType, UpdateFrequency } from './types';
 import { JOINT_UNIFORM_CAPACITY, RenderPassStage, SetIndex, UBOCamera, UBOCSM, UBOForwardLight, UBOGlobal, UBOLocal, UBOLocalBatched, UBOMorph, UBOShadow, UBOSkinning, UBOSkinningAnimation, UBOSkinningTexture, UBOUILocal, UBOWorldBound } from '../define';
 import { DefaultVisitor, edge_descriptor } from './graph';
-import { ccclass } from '../../core/data/decorators';
+import { _decorator } from '../../core';
+
+const { ccclass } = _decorator;
 
 @ccclass('cc.WebDescriptorHierarchy')
 export class WebDescriptorHierarchy {

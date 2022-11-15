@@ -26,6 +26,7 @@
 #include "bindings/auto/jsb_assets_auto.h"
 #include "core/assets/Material.h"
 #include "core/assets/SimpleTexture.h"
+#include "core/assets/TextureBase.h"
 #include "core/data/JSBNativeDataHolder.h"
 #include "jsb_scene_manual.h"
 
@@ -92,7 +93,7 @@ SE_BIND_FUNC(js_assets_SimpleTexture_registerListeners) // NOLINT(readability-id
 
 static bool js_assets_TextureBase_registerGFXSamplerUpdatedListener(se::State &s) // NOLINT(readability-identifier-naming)
 {
-    auto *cobj = SE_THIS_OBJECT<cc::SimpleTexture>(s);
+    auto *cobj = SE_THIS_OBJECT<cc::TextureBase>(s);
     SE_PRECONDITION2(cobj, false, "Invalid Native Object");
     auto *thisObj = s.thisObject();
     cobj->on<cc::TextureBase::SamplerUpdated>([thisObj](cc::TextureBase * /*emitter*/, cc::gfx::Sampler *sampler) {

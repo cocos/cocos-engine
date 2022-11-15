@@ -99,9 +99,11 @@ module.exports = {
             flipVertical: 'Flip Vertical',
             flipVerticalTip: 'Flip Vertical',
             fixAlphaTransparencyArtifacts: 'Fix Alpha Transparency Artifacts',
-            fixAlphaTransparencyArtifactsTip: '为全透明像素填充相邻像素的颜色，防止纹理过滤引起的黑边问题。当使用 Alpha 透明通道时，请启用此功能。',
+            fixAlphaTransparencyArtifactsTip:
+                '为全透明像素填充相邻像素的颜色，防止纹理过滤引起的黑边问题。当使用 Alpha 透明通道时，请启用此功能。',
             isRGBE: 'Is RGBE',
             isRGBETip: 'Is RGBE',
+            flipGreenChannel: '翻转绿通道',
         },
         spriteFrame: {
             packable: 'Packable',
@@ -338,6 +340,10 @@ module.exports = {
                 name: '提升单一根节点',
                 title: '若开启并且模型场景顶部仅有一个根节点，那么该节点就作为预制体的根节点。<br>否则，场景的所有根节点作为预制体的子节点。',
             },
+            generateLightmapUVNode: {
+                name: '生成灯光贴图 UV　通道',
+                title: '若开启会为模型生成灯光贴图的 UV 通道， 若模型有第二套 UV , 该 UV 会被生成的 UV 覆盖。< br > 否则，使用原始 UV 信息。',
+            },
             preferLocalTimeSpan: {
                 name: '优先使用文件时间范围',
                 title: '在导出 FBX 动画时，是否优先使用 FBX 文件中记录的动画时间范围。<br>若不使用该时间范围或此范围不可能用，则会粗略地计算动画时间范围。有些 FBX 生产工具中可能并未导出该信息。',
@@ -366,7 +372,7 @@ module.exports = {
         },
         material: {
             'fail-to-load-custom-inspector': 'Material: 自定义 Effect {effect} 的 Inspector 加载失败',
-            'illegal-inspector-url': "Inspector 的路径不合法",
+            'illegal-inspector-url': 'Inspector 的路径不合法',
         },
         animationGraph: {
             edit: '编辑',

@@ -25,12 +25,13 @@
  */
 
 import { Armature, DisplayData, IEventDispatcher, Slot } from '@cocos/dragonbones-js';
-import { ccclass } from '../core/data/class-decorator';
-import { Vec3, EventTarget } from '../core';
+import { Vec3, EventTarget, _decorator } from '../core';
 // eslint-disable-next-line import/named
 import { CCSlot } from './CCSlot';
 import { ArmatureDisplay } from './ArmatureDisplay';
 import { Node } from '../scene-graph';
+
+const { ccclass } = _decorator;
 
 /**
 * @deprecated since v3.5.1, this is an engine private interface that will be removed in the future.

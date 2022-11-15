@@ -22,25 +22,25 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-
-import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, visible, type,
-    formerlySerializedAs, serializable, editable, disallowAnimation } from 'cc.decorator';
 import { JSB } from 'internal:constants';
+import { displayOrder, group } from 'cc.decorator';
 import { Texture2D, TextureCube } from '../../asset/assets';
 import { Material } from '../../asset/assets/material';
 import { Mesh } from '../assets/mesh';
-import { Vec4, Enum, cclegacy, CCBoolean, CCFloat } from '../../core';
+import { Vec4, Enum, cclegacy, CCBoolean, CCFloat, assertIsTrue, _decorator } from '../../core';
 import { scene } from '../../render-scene';
 import { MorphModel } from '../models/morph-model';
 import { Root } from '../../root';
 import { MobilityMode, TransformBit } from '../../scene-graph/node-enum';
 import { ModelRenderer } from '../../misc/model-renderer';
 import { MorphRenderingInstance } from '../assets/morph-rendering';
-import { assertIsTrue } from '../../core/data/utils/asserts';
-import { property } from '../../core/data/class-decorator';
 import { NodeEventType } from '../../scene-graph/node-event';
 import { Texture } from '../../gfx';
 import { builtinResMgr } from '../../asset/asset-manager/builtin-res-mgr';
+import { settings, Settings } from '../../core/settings';
+
+const { property, ccclass, help, executeInEditMode, executionOrder, menu, tooltip, visible, type,
+    formerlySerializedAs, serializable, editable, disallowAnimation } = _decorator;
 
 const USE_REFLECTION_PROBE = 'USE_REFLECTION_PROBE';
 /**
@@ -205,6 +205,7 @@ export class MeshRenderer extends ModelRenderer {
     @disallowAnimation
     // eslint-disable-next-line func-names
     @visible(function (this: MeshRenderer) { return !!(this.node && this.node.mobility !== MobilityMode.Movable); })
+    @displayOrder(1)
     public lightmapSettings = new ModelLightmapSettings();
 
     @serializable
@@ -245,7 +246,7 @@ export class MeshRenderer extends ModelRenderer {
      */
     @type(CCFloat)
     @tooltip('i18n:model.shadow_bias')
-    @property({ group: { id: 'DynamicShadow', name: 'DynamicShadowSettings', displayOrder: 0 } })
+    @group({ id: 'DynamicShadow', name: 'DynamicShadowSettings', displayOrder: 0 })
     @disallowAnimation
     get shadowBias () {
         return this._shadowBias;
@@ -263,7 +264,7 @@ export class MeshRenderer extends ModelRenderer {
    */
     @type(CCFloat)
     @tooltip('i18n:model.shadow_normal_bias')
-    @property({ group: { id: 'DynamicShadow', name: 'DynamicShadowSettings', displayOrder: 1 } })
+    @group({ id: 'DynamicShadow', name: 'DynamicShadowSettings' })
     @disallowAnimation
     get shadowNormalBias () {
         return this._shadowNormalBias;
@@ -281,7 +282,7 @@ export class MeshRenderer extends ModelRenderer {
      */
     @type(ModelShadowCastingMode)
     @tooltip('i18n:model.shadow_casting_model')
-    @property({ group: { id: 'DynamicShadow', name: 'DynamicShadowSettings', displayOrder: 2 } })
+    @group({ id: 'DynamicShadow', name: 'DynamicShadowSettings' })
     @disallowAnimation
     get shadowCastingMode () {
         return this._shadowCastingMode;
@@ -298,7 +299,7 @@ export class MeshRenderer extends ModelRenderer {
      */
     @type(ModelShadowReceivingMode)
     @tooltip('i18n:model.shadow_receiving_model')
-    @property({ group: { id: 'DynamicShadow', name: 'DynamicShadowSettings', displayOrder: 3 } })
+    @group({ id: 'DynamicShadow', name: 'DynamicShadowSettings' })
     @disallowAnimation
     get receiveShadow () {
         return this._shadowReceivingMode;
@@ -357,6 +358,7 @@ export class MeshRenderer extends ModelRenderer {
      * @en Whether the model can be render by the reflection probe
      * @zh 模型是否能被反射探针渲染
      */
+    @group({ id: 'ReflectionProbe', name: 'ReflectionProbeSettings', displayOrder: 2 })
     @type(CCBoolean)
     get bakeToReflectionProbe () {
         return this._bakeToReflectionProbe;
@@ -371,6 +373,7 @@ export class MeshRenderer extends ModelRenderer {
      * @en Used to set whether to use the reflection probe or set probe's type.
      * @zh 用于设置是否使用反射探针或者设置反射探针的类型。
      */
+    @group({ id: 'ReflectionProbe', name: 'ReflectionProbeSettings' })
     @type(Enum(ReflectionProbeType))
     get reflectionProbe () {
         return this._reflectionProbeType;
@@ -433,6 +436,13 @@ export class MeshRenderer extends ModelRenderer {
     constructor () {
         super();
         this._modelType = scene.Model;
+
+        const highQualityMode = settings.querySettings(Settings.Category.RENDERING, 'highQualityMode');
+        if (highQualityMode) {
+            this._shadowCastingMode = ModelShadowCastingMode.ON;
+            this.lightmapSettings.castShadow = true;
+            this.lightmapSettings.receiveShadow = true;
+        }
     }
 
     public onLoad () {
@@ -842,6 +852,7 @@ export class MeshRenderer extends ModelRenderer {
     }
 
     protected _updateReflectionProbeRenderInfo () {
+        if (!this._model) { return; }
         if (this.reflectionProbe !== ReflectionProbeType.NONE) {
             for (let i = 0; i < this._materials.length; i++) {
                 const mat = this.getMaterialInstance(i);
@@ -850,6 +861,7 @@ export class MeshRenderer extends ModelRenderer {
                 }
             }
         }
+        this._model.reflectionProbeType = this._reflectionProbeType;
         this._onUpdateReflectionProbeTexture();
     }
 

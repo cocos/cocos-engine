@@ -24,21 +24,18 @@
  */
 
 import { EDITOR } from 'internal:constants';
-import { Vec3, RecyclePool, Enum, System } from '../../core';
+import { Vec3, RecyclePool, Enum, System, cclegacy, Settings, settings, geometry } from '../../core';
 import { IRaycastOptions } from '../spec/i-physics-world';
 import { director, Director, game } from '../../game';
 import { PhysicsMaterial } from './assets/physics-material';
-import { Ray } from '../../core/geometry';
-import { PhysicsRayResult } from './physics-ray-result';
+import { PhysicsRayResult, PhysicsLineStripCastResult } from './physics-ray-result';
 import { IPhysicsConfig, ICollisionMatrix, IPhysicsMaterial } from './physics-config';
 import { CollisionMatrix } from './collision-matrix';
 import { PhysicsGroup } from './physics-enum';
 import { constructDefaultWorld, IWorldInitData, selector } from './physics-selector';
-import { legacyCC } from '../../core/global-exports';
-import { Settings, settings } from '../../core/settings';
 import { builtinResMgr } from '../../asset/asset-manager';
 
-legacyCC.internal.PhysicsGroup = PhysicsGroup;
+cclegacy.internal.PhysicsGroup = PhysicsGroup;
 
 /**
  * @en
@@ -255,6 +252,22 @@ export class PhysicsSystem extends System implements IWorldInitData {
     public readonly raycastResults: PhysicsRayResult[] = [];
 
     /**
+     * @en
+     * Gets the lineStripCastClosest test result.
+     * @zh
+     * 获取 lineStripCastClosest 的检测结果。
+     */
+    public lineStripCastClosestResult = new PhysicsLineStripCastResult();
+
+    /**
+    * @en
+    * Gets the lineStripCast test results.
+    * @zh
+    * 获取 lineStripCast 的检测结果。
+    */
+    public lineStripCastResults: PhysicsLineStripCastResult[] = [];
+
+    /**
     * @en
     * Gets the collision matrix that used for initialization only.
     * @zh
@@ -298,7 +311,7 @@ export class PhysicsSystem extends System implements IWorldInitData {
     }
 
     postUpdate (deltaTime: number) {
-        if (EDITOR && !legacyCC.GAME_VIEW && !this._executeInEditMode && !selector.runInEditor) return;
+        if (EDITOR && !cclegacy.GAME_VIEW && !this._executeInEditMode && !selector.runInEditor) return;
 
         if (!this.physicsWorld) return;
 
@@ -446,7 +459,7 @@ export class PhysicsSystem extends System implements IWorldInitData {
      * @param queryTrigger @zh 是否检测触发器 @en Whether to detect triggers
      * @return {boolean} @zh 表示是否有检测到碰撞 @en Indicates whether a collision has been detected
      */
-    raycast (worldRay: Ray, mask = 0xffffffff, maxDistance = 10000000, queryTrigger = true): boolean {
+    raycast (worldRay: geometry.Ray, mask = 0xffffffff, maxDistance = 10000000, queryTrigger = true): boolean {
         if (!this.physicsWorld) return false;
         this.raycastResultPool.reset();
         this.raycastResults.length = 0;
@@ -469,12 +482,99 @@ export class PhysicsSystem extends System implements IWorldInitData {
      * @param queryTrigger @zh 是否检测触发器 @en Whether to detect triggers
      * @return {boolean} @zh 表示是否有检测到碰撞 @en Indicates whether a collision has been detected
      */
-    raycastClosest (worldRay: Ray, mask = 0xffffffff, maxDistance = 10000000, queryTrigger = true): boolean {
+    raycastClosest (worldRay: geometry.Ray, mask = 0xffffffff, maxDistance = 10000000, queryTrigger = true): boolean {
         if (!this.physicsWorld) return false;
         this.raycastOptions.mask = mask >>> 0;
         this.raycastOptions.maxDistance = maxDistance;
         this.raycastOptions.queryTrigger = queryTrigger;
         return this.physicsWorld.raycastClosest(worldRay, this.raycastOptions, this.raycastClosestResult);
+    }
+
+    /**
+    * @en
+    * Collision detect all collider and record all the detected results, using
+    * PhysicsSystem.Instance.lineStripCastResults to access the results.
+    * @zh
+    * 逐线段检测所有的碰撞盒，并记录所有检测结果。通过 PhysicsSystem.instance.lineStripCastResults 访问结果。
+    * @param samplePointsWorldSpace @zh 世界空间下的采样点/直线段 @en sample points/line segments in world space
+    * @param mask @zh 掩码，默认为 0xffffffff @en Mask, default value is 0xffffffff
+    * @param maxDistance @zh 沿着直线段的最大检测距离，默认为 10000000，目前请勿传入 Infinity 或 Number.MAX_VALUE
+    *                    @en Maximum detection distance along the line segments, default value is 10000000, do not pass Infinity or Number.MAX_VALUE for now
+    * @param queryTrigger @zh 是否检测触发器 @en Whether to detect triggers
+    * @return {boolean} @zh 表示是否有检测到碰撞 @en Indicates whether a collision has been detected
+    */
+    lineStripCast (samplePointsWorldSpace: Array<Vec3>, mask = 0xffffffff, maxDistance = 10000000, queryTrigger = true): boolean {
+        if (samplePointsWorldSpace.length < 2) return false;
+        this.lineStripCastResults = [];
+        let distance = 0;
+        const worldRay = new geometry.Ray();
+        for (let i = 1; i < samplePointsWorldSpace.length; ++i) {
+            if (distance > maxDistance) break;
+
+            const fromPoint = samplePointsWorldSpace[i - 1];
+            const toPoint = samplePointsWorldSpace[i];
+            const direction = new Vec3();
+            Vec3.subtract(direction, toPoint, fromPoint);
+            const stepLength = Vec3.len(direction);
+            distance += stepLength;
+            Vec3.multiplyScalar(direction, direction, 1.0 / stepLength);
+            worldRay.d = direction;
+            worldRay.o = fromPoint;
+            const hit = this.raycast(worldRay, mask, stepLength, queryTrigger);
+            if (hit) {
+                for (let re = 0; re < this.raycastResults.length; re++) {
+                    const result = this.raycastResults[re];
+                    //if ray starts inside shape and hit point equals to start point, this should be ignored
+                    if (re === 0 && Vec3.equals(fromPoint, result.hitPoint)) { continue; }
+                    const copiedResult = new PhysicsLineStripCastResult();
+                    copiedResult._assign(result.hitPoint, result.distance, result.collider, result.hitNormal, i - 1);
+                    this.lineStripCastResults.push(copiedResult);
+                }
+            }
+        }
+        return this.lineStripCastResults.length > 0;
+    }
+
+    /**
+     * @en
+     * Collision detect all collider, and record the ray test results with the shortest distance.
+     * Using PhysicsSystem.Instance.lineStripCastClosestResult to access the result.
+     * @zh
+     * 逐线段检测所有的碰撞盒，并记录沿这些线段距离最短的检测结果，通过 PhysicsSystem.instance.lineStripCastClosestResult 访问结果。
+     * @param samplePointsWorldSpace @zh 世界空间下的采样点/直线段 @en sample points/line segments in world space
+     * @param mask @zh 掩码，默认为 0xffffffff @en Mask, default value is 0xffffffff
+     * @param maxDistance @zh 沿着直线段的最大检测距离，默认为 10000000，目前请勿传入 Infinity 或 Number.MAX_VALUE
+     *                    @en Maximum detection distance along the line segments, default value is 10000000, do not pass Infinity or Number.MAX_VALUE for now
+     * @param queryTrigger @zh 是否检测触发器 @en Whether to detect triggers
+     * @return {boolean} @zh 表示是否有检测到碰撞 @en Indicates whether a collision has been detected
+     */
+    lineStripCastClosest (samplePointsWorldSpace: Array<Vec3>, mask = 0xffffffff, maxDistance = 10000000, queryTrigger = true): boolean {
+        if (samplePointsWorldSpace.length < 2) { return false; }
+        let distance = 0;
+        const worldRay = new geometry.Ray();
+        let hit = false;
+        for (let i = 1; i < samplePointsWorldSpace.length; ++i) {
+            if (distance > maxDistance) break;
+
+            const fromPoint = samplePointsWorldSpace[i - 1];
+            const toPoint = samplePointsWorldSpace[i];
+            const direction = new Vec3();
+            Vec3.subtract(direction, toPoint, fromPoint);
+            const stepLength = Vec3.len(direction);
+            distance += stepLength;
+            Vec3.multiplyScalar(direction, direction, 1.0 / stepLength);
+            worldRay.d = direction;
+            worldRay.o = fromPoint;
+            hit = this.raycastClosest(worldRay, mask, stepLength, queryTrigger);
+            if (hit) {
+                const result = this.raycastClosestResult;
+                const copiedResult = new PhysicsLineStripCastResult();
+                copiedResult._assign(result.hitPoint, result.distance, result.collider, result.hitNormal, i - 1);
+                this.lineStripCastClosestResult = copiedResult;
+                break;
+            }
+        }
+        return hit;
     }
 
     private _updateMaterial () {

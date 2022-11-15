@@ -1,7 +1,32 @@
-exports.template = `
-<ui-prop type="dump" class="asset-render-pipeline">
-</ui-prop>
+'use strict';
+
+exports.template = /* html */`
+<section class="asset-render-pipeline">
+    <ui-prop class="dump-prop" type="dump"></ui-prop>
+    <ui-label class="multiple-warn-tip" value="i18n:ENGINE.assets.multipleWarning"></ui-label>  
+</section>
 `;
+
+exports.style = /* css */`
+.asset-render-pipeline[multiple-invalid] > *:not(.multiple-warn-tip) {
+    display: none!important;
+ }
+
+ .asset-render-pipeline[multiple-invalid] > .multiple-warn-tip {
+    display: block;
+ }
+
+.asset-render-pipeline .multiple-warn-tip {
+    display: none;
+    text-align: center;
+    color: var(--color-focus-contrast-weakest);
+}
+`;
+
+exports.$ = {
+    container: '.asset-render-pipeline',
+    prop: '.dump-prop',
+};
 
 exports.methods = {
     record() {
@@ -15,7 +40,7 @@ exports.methods = {
         }
 
         this.pipeline = record;
-        await this.change({ snapshot: false });
+        await this.change();
 
         return true;
     },
@@ -37,43 +62,42 @@ exports.methods = {
         this.dirtyData.uuid = '';
     },
 
-    async change(state) {
+    async change() {
         this.pipeline = await Editor.Message.request('scene', 'change-render-pipeline', this.pipeline);
 
         this.updateInterface();
         this.setDirtyData();
-        this.dispatch('change', state);
+        this.dispatch('change');
+    },
+
+    snapshot() {
+        this.dispatch('snapshot');
     },
 
     updateInterface() {
-        this.updateReadonly(this.pipeline);
-        this.$.container.render(this.pipeline);
+        this.LoopUpdateReadonly(this.pipeline);
+        this.$.prop.render(this.pipeline);
     },
 
-    updateReadonly(obj) {
+    LoopUpdateReadonly(obj) {
         if (this.asset.readonly) {
             if (obj && 'readonly' in obj && 'value' in obj) {
                 obj.readonly = true;
 
                 if (typeof obj.value === 'object') {
                     for (const key in obj.value) {
-                        this.updateReadonly(obj.value[key]);
+                        this.LoopUpdateReadonly(obj.value[key]);
                     }
                 }
             }
         }
     },
 
-    /**
-     * Detection of data changes only determines the currently selected technique
-     */
     setDirtyData() {
         this.dirtyData.realtime = JSON.stringify(this.pipeline);
 
         if (!this.dirtyData.origin) {
             this.dirtyData.origin = this.dirtyData.realtime;
-
-            this.dispatch('snapshot');
         }
     },
 
@@ -83,12 +107,9 @@ exports.methods = {
     },
 };
 
-exports.$ = {
-    container: '.asset-render-pipeline',
-};
-
 exports.ready = function() {
     this.$.container.addEventListener('change-dump', this.change.bind(this));
+    this.$.container.addEventListener('confirm-dump', this.snapshot.bind(this));
 
     // Used to determine whether the material has been modified in isDirty()
     this.dirtyData = {
@@ -104,9 +125,11 @@ exports.update = async function(assetList, metaList) {
     this.meta = this.metaList[0];
     this.asset = this.assetList[0];
 
-    if (assetList.length !== 1) {
-        this.$.container.innerText = Editor.I18n.t('ENGINE.assets.multipleWarning');
+    if (assetList.length > 1) {
+        this.$.container.setAttribute('multiple-invalid', '');
         return;
+    } else {
+        this.$.container.removeAttribute('multiple-invalid');
     }
 
     if (this.dirtyData.uuid !== this.asset.uuid) {
@@ -128,4 +151,3 @@ exports.close = function() {
         realtime: '',
     };
 };
-

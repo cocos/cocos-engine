@@ -26,7 +26,7 @@
 
 import { ccclass, serializable, editable } from 'cc.decorator';
 import { Asset } from './asset';
-import { legacyCC } from '../../core/global-exports';
+import { cclegacy } from '../../core';
 
 /**
  * @en Class for text file.
@@ -47,4 +47,4 @@ export default class TextAsset extends Asset {
     }
 }
 
-legacyCC.TextAsset = TextAsset;
+cclegacy.TextAsset = TextAsset;

@@ -28,19 +28,17 @@ import { EDITOR } from 'internal:constants';
 import { builtinResMgr } from '../../asset/asset-manager/builtin-res-mgr';
 import { Material } from '../../asset/assets/material';
 import { RenderingSubMesh } from '../../asset/assets/rendering-sub-mesh';
-import { AABB } from '../../core/geometry/aabb';
 import { Node } from '../../scene-graph';
 import { Layers } from '../../scene-graph/layers';
 import { RenderScene } from '../core/render-scene';
 import { Texture2D } from '../../asset/assets/texture-2d';
 import { SubModel } from './submodel';
-import { IMacroPatch, BatchingSchemes } from '../core/pass';
-import { Mat4, Vec3, Vec4 } from '../../core/math';
-import { Attribute, DescriptorSet, Device, Buffer, BufferInfo, getTypedArrayConstructor,
-    BufferUsageBit, FormatInfos, MemoryUsageBit, Filter, Address, Feature, SamplerInfo, deviceManager, Texture } from '../../gfx';
-import { INST_MAT_WORLD, UBOLocal, UBOSH, UBOWorldBound, UNIFORM_LIGHTMAP_TEXTURE_BINDING, UNIFORM_REFLECTION_PROBE_CUBEMAP_BINDING, UNIFORM_REFLECTION_PROBE_TEXTURE_BINDING } from '../../rendering/define';
+import { IMacroPatch } from '../core/pass';
+import { Mat4, Vec3, Vec4, geometry, cclegacy, EPSILON } from '../../core';
+import { Attribute, DescriptorSet, Device, Buffer, BufferInfo,
+    BufferUsageBit, MemoryUsageBit, Filter, Address, SamplerInfo, deviceManager, Texture } from '../../gfx';
+import { UBOLocal, UBOSH, UBOWorldBound, UNIFORM_LIGHTMAP_TEXTURE_BINDING, UNIFORM_REFLECTION_PROBE_CUBEMAP_BINDING, UNIFORM_REFLECTION_PROBE_TEXTURE_BINDING } from '../../rendering/define';
 import { Root } from '../../root';
-import { legacyCC } from '../../core/global-exports';
 import { TextureCube } from '../../asset/assets';
 
 const m4_1 = new Mat4();
@@ -344,13 +342,13 @@ export class Model {
      * @en The world axis-aligned bounding box
      * @zh 世界空间包围盒
      */
-    protected _worldBounds: AABB | null = null;
+    protected _worldBounds: geometry.AABB | null = null;
 
     /**
      * @en The model axis-aligned bounding box
      * @zh 模型空间包围盒
      */
-    protected _modelBounds: AABB | null = null;
+    protected _modelBounds: geometry.AABB | null = null;
 
     /**
      * @en Sub models
@@ -648,12 +646,16 @@ export class Model {
         }
     }
 
+    public showTetrahedron () {
+        return this.isLightProbeAvailable();
+    }
+
     private isLightProbeAvailable () {
         if (!this._useLightProbe) {
             return false;
         }
 
-        const lightProbes = (legacyCC.director.root as Root).pipeline.pipelineSceneData.lightProbes;
+        const lightProbes = (cclegacy.director.root as Root).pipeline.pipelineSceneData.lightProbes;
         if (!lightProbes || lightProbes.empty()) {
             return false;
         }
@@ -665,9 +667,43 @@ export class Model {
         return true;
     }
 
-    public showTetrahedron () {
-        return this.isLightProbeAvailable();
+    private updateSHBuffer() {
+        if (!this._localSHData) {
+            return;
+        }
+
+        const subModels = this._subModels;
+        let hasNonInstancingPass = false;
+        for (let i = 0; i < subModels.length; i++) {
+            const subModel = subModels[i];
+            const idx = subModel.instancedSHIndex;
+            if (idx >= 0) {
+                subModel.updateInstancedSH(this._localSHData, idx);
+            } else {
+                hasNonInstancingPass = true;
+            }
+        }
+
+        if (hasNonInstancingPass && this._localSHBuffer) {
+            this._localSHBuffer.update(this._localSHData);
+        }
     }
+
+    /**
+     * @en Clear the model's SH ubo
+     * @zh 清除模型的球谐 ubo
+     */
+     public clearSHUBOs () {
+        if (!this._localSHData) {
+            return;
+        }
+            
+        for (let i = 0; i < UBOSH.COUNT; i++) {
+            this._localSHData[i] = 0.0;
+        }
+
+        this.updateSHBuffer();
+     }
 
     /**
      * @en Update the model's SH ubo
@@ -679,13 +715,13 @@ export class Model {
         }
 
         const center = this._worldBounds!.center;
-        if (!EDITOR && center.equals(this._lastWorldBoundCenter)) {
+        if (!EDITOR && center.equals(this._lastWorldBoundCenter, EPSILON)) {
             return;
         }
 
         const coefficients: Vec3[] = [];
         const weights = new Vec4(0.0, 0.0, 0.0, 0.0);
-        const lightProbes = (legacyCC.director.root as Root).pipeline.pipelineSceneData.lightProbes;
+        const lightProbes = (cclegacy.director.root as Root).pipeline.pipelineSceneData.lightProbes;
 
         this._lastWorldBoundCenter.set(center);
         this._tetrahedronIndex = lightProbes.data!.getInterpolationWeights(center, this._tetrahedronIndex, weights);
@@ -694,11 +730,13 @@ export class Model {
             return;
         }
 
-        if (this._localSHData && this._localSHBuffer) {
-            legacyCC.internal.SH.reduceRinging(coefficients, lightProbes.reduceRinging);
-            legacyCC.internal.SH.updateUBOData(this._localSHData, UBOSH.SH_LINEAR_CONST_R_OFFSET, coefficients);
-            this._localSHBuffer.update(this._localSHData);
+        if (!this._localSHData) {
+            return;
         }
+
+        cclegacy.internal.SH.reduceRinging(coefficients, lightProbes.reduceRinging);
+        cclegacy.internal.SH.updateUBOData(this._localSHData, UBOSH.SH_LINEAR_CONST_R_OFFSET, coefficients);
+        this.updateSHBuffer();
     }
 
     /**
@@ -709,8 +747,8 @@ export class Model {
      */
     public createBoundingShape (minPos?: Vec3, maxPos?: Vec3) {
         if (!minPos || !maxPos) { return; }
-        this._modelBounds = AABB.fromPoints(AABB.create(), minPos, maxPos);
-        this._worldBounds = AABB.clone(this._modelBounds);
+        this._modelBounds = geometry.AABB.fromPoints(geometry.AABB.create(), minPos, maxPos);
+        this._worldBounds = geometry.AABB.clone(this._modelBounds);
     }
 
     private _createSubModel () {
@@ -819,7 +857,7 @@ export class Model {
 
         this.onMacroPatchesStateChanged();
 
-        if (texture === null) {
+        if (!texture) {
             texture = builtinResMgr.get<Texture2D>('empty-texture');
         }
 

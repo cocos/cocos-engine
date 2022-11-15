@@ -37,14 +37,7 @@ import * as misc from './misc';
  */
 import * as path from './path';
 
-import * as jsbUtils from './jsb-utils';
-
 export * from './x-deprecated';
-
-/**
- * @engineInternal
- */
-export  { jsbUtils };
 
 export {
     js,
@@ -53,6 +46,3 @@ export {
 };
 
 export * from './coordinates-converts-utils';
-
-// export const js = cc.js;
-// export const path = cc.path;

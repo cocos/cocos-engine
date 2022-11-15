@@ -28,7 +28,7 @@ import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { ReflectionProbeStage } from './reflection-probe-stage';
 import { RenderFlowTag } from '../pipeline-serialization';
 import { RenderPipeline } from '..';
-import { Camera, CameraType, ProbeType, ReflectionProbe } from '../../render-scene/scene';
+import { Camera, ProbeType, ReflectionProbe } from '../../render-scene/scene';
 import { ReflectionProbeManager } from '../reflection-probe-manager';
 
 /**
@@ -59,13 +59,12 @@ export class ReflectionProbeFlow extends RenderFlow {
     }
 
     public render (camera: Camera) {
-        if (camera.cameraType !== CameraType.REFLECTION_PROBE) {
-            return;
-        }
-        const probe = ReflectionProbeManager.probeManager.getProbeByCamera(camera);
-        if (probe && probe.needRender) {
-            if (EDITOR || probe.probeType === ProbeType.PLANAR) {
-                this._renderStage(probe);
+        const probes = ReflectionProbeManager.probeManager.getProbes();
+        for (let i = 0; i < probes.length; i++) {
+            if (probes[i].needRender) {
+                if (EDITOR || probes[i].probeType === ProbeType.PLANAR) {
+                    this._renderStage(camera, probes[i]);
+                }
             }
         }
     }
@@ -73,26 +72,23 @@ export class ReflectionProbeFlow extends RenderFlow {
     public destroy () {
         super.destroy();
     }
-    private _renderStage (probe: ReflectionProbe) {
+    private _renderStage (camera: Camera, probe: ReflectionProbe) {
         for (let i = 0; i < this._stages.length; i++) {
             const probeStage = this._stages[i] as ReflectionProbeStage;
             if (probe.probeType === ProbeType.PLANAR) {
-                probe.setTargetTexture(probe.realtimePlanarTexture);
-                ReflectionProbeManager.probeManager.unbindingPlanarMap(probe);
+                ReflectionProbeManager.probeManager.updatePlanarMap(probe, null);
                 probeStage.setUsageInfo(probe, probe.realtimePlanarTexture!.window!.framebuffer);
-                probeStage.render(probe.camera);
-                ReflectionProbeManager.probeManager.updatePlanarMap(probe);
-                probe.setTargetTexture(null);
+                probeStage.render(camera);
+                ReflectionProbeManager.probeManager.updatePlanarMap(probe, probe.realtimePlanarTexture!.getGFXTexture());
             } else {
                 for (let faceIdx = 0; faceIdx < 6; faceIdx++) {
                     //update camera dirction
                     probe.updateCameraDir(faceIdx);
                     const renderTexture = probe.bakedCubeTextures[faceIdx];
-                    probe.setTargetTexture(renderTexture);
                     probeStage.setUsageInfo(probe, renderTexture.window!.framebuffer);
-                    probeStage.render(probe.camera);
+                    probeStage.render(camera);
                 }
-                probe.setTargetTexture(null);
+                probe.needRender = false;
             }
         }
     }

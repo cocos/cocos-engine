@@ -25,11 +25,7 @@
 
 import { BUILD, EDITOR, PREVIEW } from 'internal:constants';
 import { Asset } from '../assets/asset';
-import { legacyCC } from '../../core/global-exports';
-import { error } from '../../core/platform/debug';
-import { sys } from '../../core/platform/sys';
-import { Settings, settings } from '../../core/settings';
-import { basename, extname } from '../../core/utils/path';
+import { error, sys, Settings, settings, path, cclegacy } from '../../core';
 import Bundle from './bundle';
 import Cache, { ICache } from './cache';
 import CacheManager from './cache-manager';
@@ -551,7 +547,7 @@ export class AssetManager {
                 error(err.message, err.stack);
                 if (onComp) { onComp(err, data); }
             } else {
-                factory.create(url, data, opts.ext || extname(url), opts, (p1, p2) => {
+                factory.create(url, data, opts.ext || path.extname(url), opts, (p1, p2) => {
                     if (onComp) { onComp(p1, p2 as T); }
                 });
             }
@@ -581,7 +577,7 @@ export class AssetManager {
     public loadBundle (nameOrUrl: string, options?: IBundleOptions | CompleteCallbackWithData<Bundle> | null, onComplete?: CompleteCallbackWithData<Bundle> | null) {
         const { options: opts, onComplete: onComp } = parseParameters<CompleteCallbackWithData<Bundle>>(options, undefined, onComplete);
 
-        const bundleName = basename(nameOrUrl);
+        const bundleName = path.basename(nameOrUrl);
 
         if (this.bundles.has(bundleName)) {
             asyncify(onComp)(null, this.getBundle(bundleName));
@@ -721,5 +717,5 @@ export declare namespace AssetManager {
     export { BuiltinBundleName };
 }
 
-export default legacyCC.assetManager = new AssetManager();
-legacyCC.AssetManager = AssetManager;
+export default cclegacy.assetManager = new AssetManager();
+cclegacy.AssetManager = AssetManager;

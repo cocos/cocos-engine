@@ -33,7 +33,7 @@ import { RenderInstancedQueue } from './render-instanced-queue';
 import { RenderBatchedQueue } from './render-batched-queue';
 import { ShadowType } from '../render-scene/scene/shadows';
 import { Light, LightType } from '../render-scene/scene/light';
-import { intersect } from '../core/geometry';
+import { geometry } from '../core';
 import { Model } from '../render-scene/scene/model';
 import { Camera, DirectionalLight, SpotLight } from '../render-scene/scene';
 import { shadowCulling } from './scene-culling';
@@ -107,7 +107,7 @@ export class RenderShadowMapBatchedQueue {
                         const model = ro.model;
                         if (model.worldBounds) {
                             if (((visibility & model.node.layer) !== model.node.layer)
-                            || !intersect.aabbFrustum(model.worldBounds, spotLight.frustum)) { continue; }
+                            || !geometry.intersect.aabbFrustum(model.worldBounds, spotLight.frustum)) { continue; }
                         }
 
                         this.add(model);

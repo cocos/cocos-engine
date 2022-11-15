@@ -23,8 +23,7 @@
  THE SOFTWARE.
  */
 
-import { Vec4, Vec3, cclegacy } from '../../core';
-import { assertIsTrue } from '../../core/data/utils/asserts';
+import { Vec4, Vec3, cclegacy, assertIsTrue } from '../../core';
 
 const SH_BASIS_COUNT = 9;
 

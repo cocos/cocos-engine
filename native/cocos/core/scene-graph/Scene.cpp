@@ -71,7 +71,7 @@ void Scene::activate(bool active /* = true */) { // NOLINT(misc-unused-parameter
     //    Director::getInstance()->getNodeActivator()->activateNode(this, active);
     //     The test environment does not currently support the renderer
     //        if (!TEST) {
-    _globals->activate();
+    _globals->activate(this);
     if (_renderScene) {
         _renderScene->activate();
     }

@@ -25,13 +25,11 @@
 
 import { ccclass } from 'cc.decorator';
 import { EDITOR, TEST } from 'internal:constants';
-import { clamp } from '../../core/math/utils';
+import { clamp, cclegacy, errorID } from '../../core';
 import { Texture, ColorAttachment, DepthStencilAttachment, GeneralBarrierInfo, AccessFlagBit, RenderPassInfo, Format, deviceManager, BufferTextureCopy } from '../../gfx';
-import { legacyCC } from '../../core/global-exports';
 import { RenderWindow, IRenderWindowInfo } from '../../render-scene/core/render-window';
 import { Root } from '../../root';
 import { TextureBase } from './texture-base';
-import { errorID } from '../../core/platform/debug';
 
 export interface IRenderTextureCreateInfo {
     name?: string;
@@ -96,7 +94,7 @@ export class RenderTexture extends TextureBase {
      */
     public destroy () {
         if (this._window) {
-            const root = legacyCC.director.root as Root;
+            const root = cclegacy.director.root as Root;
             root?.destroyWindow(this._window);
             this._window = null;
         }
@@ -163,7 +161,7 @@ export class RenderTexture extends TextureBase {
      * @param info @en The create info of render texture @zh 渲染贴图的创建信息
      */
     protected _initWindow (info?: IRenderTextureCreateInfo) {
-        const root = legacyCC.director.root as Root;
+        const root = cclegacy.director.root as Root;
 
         _windowInfo.title = this._name;
         _windowInfo.width = this._width;
@@ -244,4 +242,4 @@ export class RenderTexture extends TextureBase {
     }
 }
 
-legacyCC.RenderTexture = RenderTexture;
+cclegacy.RenderTexture = RenderTexture;

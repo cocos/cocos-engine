@@ -23,13 +23,12 @@
  THE SOFTWARE.
 */
 
-import { legacyCC } from '../../core/global-exports';
 import { mapBuffer } from '../../3d/misc/buffer';
 import {
     Attribute, Device, InputAssemblerInfo, Buffer, BufferInfo, AttributeName, BufferUsageBit,
     Format, FormatInfos, MemoryUsageBit, PrimitiveMode, DrawInfo,
 } from '../../gfx';
-import { Vec3 } from '../../core/math';
+import { Vec3, cclegacy } from '../../core';
 import { Mesh } from '../../3d/assets/mesh';
 
 /**
@@ -309,7 +308,7 @@ export class RenderingSubMesh {
         }
         let jointFormat: Format;
         let jointOffset: number;
-        const { device } = legacyCC.director.root;
+        const { device } = cclegacy.director.root;
         for (let i = 0; i < prim.vertexBundelIndices.length; i++) {
             const bundle = struct.vertexBundles[prim.vertexBundelIndices[i]];
             jointOffset = 0;

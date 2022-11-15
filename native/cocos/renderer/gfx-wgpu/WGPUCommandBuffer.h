@@ -67,6 +67,8 @@ public:
     void dispatch(const DispatchInfo &info) override;
     void pipelineBarrier(const GeneralBarrier *barrier, const BufferBarrier *const *bufferBarriers, const Buffer *const *buffers, uint32_t bufferBarrierCount, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint32_t textureBarrierCount) override;
 
+    void updateIndirectBuffer(Buffer *buff, const DrawInfoList &info);
+
     // TODO_Zeqiang: wgpu query pool
     void beginQuery(QueryPool *queryPool, uint32_t id) override{};
     void endQuery(QueryPool *queryPool, uint32_t id) override{};
@@ -74,8 +76,6 @@ public:
     void completeQueryPool(QueryPool *queryPool) override{};
 
     inline CCWGPUCommandBufferObject *gpuCommandBufferObject() const { return _gpuCommandBufferObj; }
-
-    void updateIndirectBuffer(Buffer *buffer, const DrawInfoList &list);
 
     void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const ColorList &colors, float depth, uint32_t stencil) {
         this->CommandBuffer::beginRenderPass(renderPass, fbo, renderArea, colors.data(), depth, stencil);
@@ -102,6 +102,9 @@ protected:
 
     RenderPass *_renderPass = nullptr;
     Framebuffer *_frameBuffer = nullptr;
+
+    // first meet?
+    std::set<void *> _attachmentSet;
 
     // command buffer inner impl
     // std::queue<EncodeFunc> _renderPassFuncQ;

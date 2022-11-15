@@ -38,7 +38,11 @@ PhysXTrimesh::PhysXTrimesh() : _mMeshHandle(0),
 void PhysXTrimesh::setMesh(uint32_t objectID) {
     uintptr_t handle = PhysXWorld::getInstance().getPXPtrWithPXObjectID(objectID);
     if (handle == 0) return;
-    if (_mShape) return;
+    if (_mShape) {
+        eraseFromShapeMap();
+        _mShape->release();
+        _mShape = nullptr;
+    }
     if (_mMeshHandle == handle) return;
     _mMeshHandle = handle;
     if (_mSharedBody && _mMeshHandle) {

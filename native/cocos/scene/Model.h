@@ -58,7 +58,7 @@ class Octree;
 class Pass;
 struct IMacroPatch;
 
-class Model : public RefCounted, public event::EventTarget {
+class Model : public RefCounted {
     IMPL_EVENT_TARGET(Model)
 
     DECLARE_TARGET_EVENT_BEGIN(Model)
@@ -109,6 +109,7 @@ public:
     void updateWorldBoundsForJSSkinningModel(const Vec3 &min, const Vec3 &max);
     void updateWorldBoundsForJSBakedSkinningModel(geometry::AABB *aabb);
     void updateLightingmap(Texture2D *texture, const Vec4 &uvParam);
+    void clearSHUBOs();
     void updateSHUBOs();
     void updateOctree();
     void updateWorldBoundUBOs();
@@ -159,7 +160,7 @@ public:
     inline void setBakeToReflectionProbe(bool val) {
         _bakeToReflectionProbe = val;
     }
-    inline bool getReflectionProbeType() const { return _reflectionProbeType; }
+    inline int32_t getReflectionProbeType() const { return _reflectionProbeType; }
     inline void setReflectionProbeType(int32_t val) {
         _reflectionProbeType = val;
     }
@@ -205,6 +206,7 @@ protected:
 
     void updateAttributesAndBinding(index_t subModelIndex);
     bool isLightProbeAvailable() const;
+    void updateSHBuffer();
 
     // Please declare variables in descending order of memory size occupied by variables.
     Type _type{Type::DEFAULT};

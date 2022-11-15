@@ -166,11 +166,17 @@ void CCWGPUBuffer::update(const void *buffer, uint32_t size) {
     // wgpuCommandEncoderRelease(cmdEncoder);
     // wgpuCommandBufferRelease(commandBuffer);
 
-    size_t offset = _isBufferView ? _offset : 0;
-    uint32_t alignedSize = ceil(size / 4.0) * 4;
-    size_t buffSize = alignedSize;
-    wgpuQueueWriteBuffer(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuQueue, _gpuBufferObject->wgpuBuffer, offset, buffer, buffSize);
-    // wgpuBufferUnmap(_gpuBufferObject->wgpuBuffer);
+    if (hasFlag(_usage, BufferUsageBit::INDIRECT)) {
+        size_t drawInfoCount = size / sizeof(DrawInfo);
+        const auto *drawInfo = static_cast<const DrawInfo *>(buffer);
+        size_t offset = _isBufferView ? _offset : 0;
+        update(drawInfo, drawInfoCount);
+    } else {
+        size_t offset = _isBufferView ? _offset : 0;
+        uint32_t alignedSize = ceil(size / 4.0) * 4;
+        size_t buffSize = alignedSize;
+        wgpuQueueWriteBuffer(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuQueue, _gpuBufferObject->wgpuBuffer, offset, buffer, buffSize);
+    }
 }
 
 void CCWGPUBuffer::update(const DrawInfoList &drawInfos) {
@@ -184,7 +190,7 @@ void CCWGPUBuffer::update(const DrawInfoList &drawInfos) {
             auto &indexedIndirectObjs = _gpuBufferObject->indexedIndirectObjs;
             for (size_t i = 0; i < drawInfoCount; i++) {
                 indexedIndirectObjs[i].indexCount = drawInfos[i].indexCount;
-                indexedIndirectObjs[i].instanceCount = drawInfos[i].instanceCount /*  ? drawInfos[i]->instanceCoun : 1 */;
+                indexedIndirectObjs[i].instanceCount = drawInfos[i].instanceCount ? drawInfos[i].instanceCount : 1;
                 indexedIndirectObjs[i].firstIndex = drawInfos[i].firstIndex;
                 indexedIndirectObjs[i].baseVertex = drawInfos[i].vertexOffset;
                 indexedIndirectObjs[i].firstInstance = 0; // check definition of indexedIndirectObj;
@@ -195,7 +201,7 @@ void CCWGPUBuffer::update(const DrawInfoList &drawInfos) {
             auto &indirectObjs = _gpuBufferObject->indirectObjs;
             for (size_t i = 0; i < drawInfoCount; i++) {
                 indirectObjs[i].vertexCount = drawInfos[i].vertexCount;
-                indirectObjs[i].instanceCount = drawInfos[i].instanceCount;
+                indirectObjs[i].instanceCount = drawInfos[i].instanceCount ? drawInfos[i].instanceCount : 1;
                 indirectObjs[i].firstIndex = drawInfos[i].firstIndex;
                 indirectObjs[i].firstInstance = 0; // check definition of indirectObj;
             }

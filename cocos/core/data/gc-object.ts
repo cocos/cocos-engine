@@ -20,6 +20,9 @@
 */
 import { garbageCollectionManager } from './garbage-collection';
 
+/**
+ * @engineInternal
+ */
 export class GCObject {
     constructor () {
         return garbageCollectionManager.registerGCObject(this);

@@ -24,7 +24,7 @@
  */
 
 import { ccclass, tooltip, displayOrder, range, type, serializable, visible } from 'cc.decorator';
-import { lerp, pseudoRandom, Vec3, Mat4, Quat } from '../../core/math';
+import { lerp, pseudoRandom, Vec3, Mat4, Quat } from '../../core';
 import { Space, ModuleRandSeed } from '../enum';
 import { Particle, ParticleModuleBase, PARTICLE_MODULE_NAME } from '../particle';
 import CurveRange from './curve-range';

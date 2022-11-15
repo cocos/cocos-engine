@@ -24,57 +24,47 @@
  */
 import { ccclass, executeInEditMode, menu, playOnFocus, serializable, tooltip, type, visible } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
-import { CCObject, Color, Enum, Vec3 } from '../core';
+import { CCObject, Color, Enum, size, Vec3 } from '../core';
 
 import { TextureCube } from '../asset/assets';
 import { scene } from '../render-scene';
-import { ProbeClearFlag, ProbeType } from '../render-scene/scene/reflection-probe';
 import { CAMERA_DEFAULT_MASK } from '../rendering/define';
 import { ReflectionProbeManager } from '../rendering/reflection-probe-manager';
 import { Component } from '../scene-graph/component';
 import { Layers } from '../scene-graph/layers';
 import { Camera } from './camera-component';
+import { Node } from '../scene-graph';
+import { ProbeClearFlag, ProbeType } from '../render-scene/scene/reflection-probe';
 
 export enum ProbeResolution {
-    /**
-     * @zh 分辨率 128 * 128。
-     * @en renderTexture resolution 128 * 128.
-     * @readonly
-     */
-    Low_128x128= 128,
     /**
      * @zh 分辨率 256 * 256。
      * @en renderTexture resolution 256 * 256.
      * @readonly
      */
-    Low_256x256= 256,
+    Low_256x256 = 256,
 
     /**
       * @zh 分辨率 512 * 512。
       * @en renderTexture resolution 512 * 512.
       * @readonly
       */
-    Medium_512x512= 512,
+    Medium_512x512 = 512,
 
     /**
-      * @zh 分辨率 1024 * 1024。
-      * @en renderTexture resolution 1024 * 1024.
+      * @zh 分辨率 768 * 768
+      * @en renderTexture resolution 768 * 768.
       * @readonly
       */
-    High_1024x1024= 1024,
-
-    /**
-      * @zh 分辨率 2048 * 2048。
-      * @en renderTexture resolution 2048 * 2048.
-      * @readonly
-      */
-    Ultra_2048x2048= 2048,
+    High_768x768 = 768,
 }
 @ccclass('cc.ReflectionProbe')
 @menu('Rendering/ReflectionProbe')
 @executeInEditMode
 @playOnFocus
 export class ReflectionProbe extends Component {
+    protected static readonly DEFAULT_CUBE_SIZE: Readonly<Vec3> =  new Vec3(1, 1, 1);
+    protected static readonly DEFAULT_PLANER_SIZE: Readonly<Vec3> =  new Vec3(5, 0.5, 5);
     @serializable
     protected _resolution = 256;
     @serializable
@@ -93,7 +83,7 @@ export class ReflectionProbe extends Component {
     protected _cubemap: TextureCube | null = null;
 
     @serializable
-    protected _size = new Vec3(1, 1, 1);
+    protected readonly _size = new Vec3(1, 1, 1);
 
     @serializable
     protected _sourceCamera: Camera | null = null;
@@ -110,7 +100,7 @@ export class ReflectionProbe extends Component {
      * 获取或设置包围盒的大小。
      */
     set size (value) {
-        this._size = value;
+        this._size.set(value);
         this.probe.size = this._size;
     }
     @type(Vec3)
@@ -128,16 +118,18 @@ export class ReflectionProbe extends Component {
         this.probe.probeType = value;
 
         if (this._probeType === ProbeType.CUBE) {
+            this._size.set(ReflectionProbe.DEFAULT_CUBE_SIZE);
             this.probe.switchProbeType(value);
             if (EDITOR) {
                 this._objFlags |= CCObject.Flags.IsRotationLocked;
             }
-        }  else {
+        } else {
+            this._size.set(ReflectionProbe.DEFAULT_PLANER_SIZE);
             if (EDITOR && this._objFlags & CCObject.Flags.IsRotationLocked) {
                 this._objFlags ^= CCObject.Flags.IsRotationLocked;
             }
             if (!this._sourceCamera) {
-                console.error('the reflection camera is invalid, please set the reflection camera');
+                console.warn('the reflection camera is invalid, please set the reflection camera');
                 return;
             }
             this.probe.switchProbeType(value, this._sourceCamera.camera);
@@ -151,11 +143,13 @@ export class ReflectionProbe extends Component {
      * @en set render texture size
      * @zh 设置渲染纹理大小
      */
+    @visible(function (this:ReflectionProbe) { return this.probeType === ProbeType.CUBE; })
     @type(Enum(ProbeResolution))
     set resolution (value: number) {
         this._resolution = value;
         this.probe.resolution = value;
     }
+
     get resolution () {
         return this._resolution;
     }
@@ -249,16 +243,15 @@ export class ReflectionProbe extends Component {
     }
 
     public start () {
-        if (EDITOR) {
-            this.probe.initBakedTextures();
-        }
         if (this._sourceCamera && this.probeType === ProbeType.PLANAR) {
             this.probe.renderPlanarReflection(this.sourceCamera.camera);
         }
     }
 
     public onDestroy () {
-        this.probe.destroy();
+        if (this.probe) {
+            this.probe.destroy();
+        }
     }
 
     public update (dt: number) {
@@ -271,10 +264,10 @@ export class ReflectionProbe extends Component {
             }
         } else {
             if (EDITOR) {
-                const cameraLst: scene.Camera[]|undefined = this.node.scene.renderScene?.cameras;
+                const cameraLst: scene.Camera[] | undefined = this.node.scene.renderScene?.cameras;
                 if (cameraLst !== undefined) {
                     for (let i = 0; i < cameraLst.length; ++i) {
-                        const camera:scene.Camera = cameraLst[i];
+                        const camera: scene.Camera = cameraLst[i];
                         if (camera.name === 'Editor Camera') {
                             this.probe.renderPlanarReflection(camera);
                             break;
@@ -300,16 +293,22 @@ export class ReflectionProbe extends Component {
             this._probeId = this.node.scene.getNewReflectionProbeId();
         }
         this._probe = new scene.ReflectionProbe(this._probeId);
-        this._probe.initialize(this.node);
-        if (this.enabled) {
-            ReflectionProbeManager.probeManager.register(this._probe);
+        if (this._probe) {
+            const cameraNode = new Node('ReflectionProbeCamera');
+            cameraNode.hideFlags |= CCObject.Flags.DontSave | CCObject.Flags.HideInHierarchy;
+            this.node.scene.addChild(cameraNode);
+
+            this._probe.initialize(this.node, cameraNode);
+            if (this.enabled) {
+                ReflectionProbeManager.probeManager.register(this._probe);
+            }
+            this._probe.resolution = this._resolution;
+            this._probe.clearFlag = this._clearFlag;
+            this._probe.backgroundColor = this._backgroundColor;
+            this._probe.visibility = this._visibility;
+            this._probe.probeType = this._probeType;
+            this._probe.size = this._size;
+            this._probe.cubemap = this._cubemap!;
         }
-        this._probe.resolution = this._resolution;
-        this._probe.clearFlag = this._clearFlag;
-        this._probe.backgroundColor = this._backgroundColor;
-        this._probe.visibility = this._visibility;
-        this._probe.probeType = this._probeType;
-        this._probe.size = this._size;
-        this._probe.cubemap = this._cubemap!;
     }
 }

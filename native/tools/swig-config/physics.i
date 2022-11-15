@@ -32,6 +32,8 @@
 //  2. namespace is needed
 //
 
+%rename("$ignore", regextarget=1, fullname=1) "cc::physics::I[A-Za-z0-9]*(?:Body|World|Shape|Joint|Lifecycle)$";
+
 // ----- Rename Section ------
 // Brief: Classes, methods or attributes needs to be renamed
 //
@@ -98,11 +100,11 @@
 
 // ----- Include Section ------
 // Brief: Include header files in which classes and methods will be bound
-%include "physics/spec/ILifecycle.h"
-%include "physics/spec/IWorld.h"
-%include "physics/spec/IBody.h"
-%include "physics/spec/IShape.h"
-%include "physics/spec/IJoint.h"
+%import "physics/spec/ILifecycle.h"
+%import "physics/spec/IWorld.h"
+%import "physics/spec/IBody.h"
+%import "physics/spec/IShape.h"
+%import "physics/spec/IJoint.h"
 
 %include "physics/sdk/World.h"
 %include "physics/sdk/RigidBody.h"

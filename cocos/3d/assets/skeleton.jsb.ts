@@ -24,15 +24,13 @@
 */
 
 import { ccclass, type, serializable } from 'cc.decorator';
-import { CCString } from '../../core/data/utils/attribute';
-import { Mat4 } from '../../core/math';
+import { CCString, cclegacy, Mat4 } from '../../core';
 import { DataPoolManager } from '../skeletal-animation/data-pool-manager';
 import { Asset } from '../../asset/assets/asset';
-import { legacyCC } from '../../core/global-exports';
 
 export const Skeleton = jsb.Skeleton;
 export type Skeleton = jsb.Skeleton;
-legacyCC.Skeleton = Skeleton;
+cclegacy.Skeleton = Skeleton;
 const skeletonProto: any = Skeleton.prototype;
 
 Object.defineProperty(skeletonProto, 'bindposes', {
@@ -54,7 +52,7 @@ skeletonProto._ctor = function () {
 };
 
 skeletonProto.destroy = function () {
-    (legacyCC.director.root?.dataPoolManager as DataPoolManager)?.releaseSkeleton(this);
+    (cclegacy.director.root?.dataPoolManager as DataPoolManager)?.releaseSkeleton(this);
     return Asset.prototype.destroy.call(this);
 };
 

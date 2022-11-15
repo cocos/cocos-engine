@@ -475,15 +475,9 @@ void Node::updateWorldTransformRecursive(uint32_t &dirtyBits) { // NOLINT(misc-n
         if (dirtyBits & static_cast<uint32_t>(TransformBit::RS)) {
             Mat4::fromRTS(_localRotation, _localPosition, _localScale, &_worldMatrix);
             Mat4::multiply(parent->_worldMatrix, _worldMatrix, &_worldMatrix);
-            if (dirtyBits & static_cast<uint32_t>(TransformBit::ROTATION)) {
-                Quaternion::multiply(parent->_worldRotation, _localRotation, &_worldRotation);
-            }
-            Quaternion quat = _worldRotation;
-            quat.conjugate();
-            Mat3 m3Out(quat);
-            Mat3 m32WorldMat(_worldMatrix);
-            Mat3::multiply(m3Out, m32WorldMat, &m3Out);
-            _worldScale.set(m3Out.m[0], m3Out.m[4], m3Out.m[8]);
+            const bool rotChanged = dirtyBits & static_cast<uint32_t>(TransformBit::ROTATION);
+            Quaternion *rotTmp =  rotChanged ? &_worldRotation : nullptr;
+            Mat4::toRTS(_worldMatrix, rotTmp, nullptr, &_worldScale);
         }
     } else {
         if (dirtyBits & static_cast<uint32_t>(TransformBit::POSITION)) {
@@ -591,24 +585,28 @@ const Quaternion &Node::getWorldRotation() const { // NOLINT(misc-no-recursion)
 }
 
 void Node::setWorldScale(float x, float y, float z) {
+    Vec3 oldWorldScale = _worldScale;
     _worldScale.set(x, y, z);
     if (_parent != nullptr) {
         _parent->updateWorldTransform();
-        Mat3 mat3;
-        Mat3::fromQuat(_parent->_worldRotation.getConjugated(), &mat3);
-        Mat3 b;
-        Mat3::fromMat4(_parent->_worldMatrix, &b);
-        Mat3::multiply(mat3, b, &mat3);
-        Mat3 mat3Scaling;
-        mat3Scaling.m[0] = _worldScale.x;
-        mat3Scaling.m[4] = _worldScale.y;
-        mat3Scaling.m[8] = _worldScale.z;
+        Mat3 localRS;
+        Mat3 localRotInv;
+        Mat4 worldMatrixTmp = _worldMatrix;
+        Vec3 rescaleFactor = _worldScale / oldWorldScale;
+        // apply new world scale to temp world matrix
+        worldMatrixTmp.scale(rescaleFactor); // need opt
+        // get temp local matrix
+        Mat4 tmpLocalTransform = _parent->getWorldMatrix().getInversed() * worldMatrixTmp;
+        // convert to Matrix 3 x 3
+        Mat3::fromMat4(tmpLocalTransform, &localRS);
+        Mat3::fromQuat(_localRotation.getConjugated(), &localRotInv);
+        // remove rotation part of the local matrix 
+        Mat3::multiply(localRS, localRotInv, &localRS);
 
-        mat3.inverse();
-        Mat3::multiply(mat3Scaling, mat3, &mat3);
-        _localScale.x = Vec3{mat3.m[0], mat3.m[1], mat3.m[2]}.length();
-        _localScale.y = Vec3{mat3.m[3], mat3.m[4], mat3.m[5]}.length();
-        _localScale.z = Vec3{mat3.m[6], mat3.m[7], mat3.m[8]}.length();
+        // extract scaling part from local matrix
+        _localScale.x = Vec3{localRS.m[0], localRS.m[1], localRS.m[2]}.length();
+        _localScale.y = Vec3{localRS.m[3], localRS.m[4], localRS.m[5]}.length();
+        _localScale.z = Vec3{localRS.m[6], localRS.m[7], localRS.m[8]}.length();
     } else {
         _localScale = _worldScale;
     }

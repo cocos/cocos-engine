@@ -30,8 +30,7 @@ import { TextureType, TextureInfo, TextureViewInfo } from '../../gfx';
 import { Filter, PixelFormat } from './asset-enum';
 import { ImageAsset } from './image-asset';
 import { PresumedGFXTextureInfo, PresumedGFXTextureViewInfo, SimpleTexture } from './simple-texture';
-import { legacyCC } from '../../core/global-exports';
-import { js } from '../../core/utils/js';
+import { js, cclegacy } from '../../core';
 
 const compressedImageAsset: ImageAsset[] = [];
 
@@ -352,7 +351,7 @@ export class Texture2D extends SimpleTexture {
     }
 }
 
-legacyCC.Texture2D = Texture2D;
+cclegacy.Texture2D = Texture2D;
 
 export interface ITexture2DSerializeData {
     base: string;

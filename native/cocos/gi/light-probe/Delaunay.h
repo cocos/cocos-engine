@@ -56,19 +56,31 @@ struct Edge {
 
     Edge() = default;
     Edge(int32_t tet, int32_t i, int32_t v0, int32_t v1)
-    : tetrahedron(tet), index(i), vertex0(v0), vertex1(v1) {
+    : tetrahedron(tet), index(i) {
+        if (v0 < v1) {
+            vertex0 = v0;
+            vertex1 = v1;
+        } else {
+            vertex0 = v1;
+            vertex1 = v0;
+        }
     }
 
     inline void set(int32_t tet, int32_t i, int32_t v0, int32_t v1) {
         tetrahedron = tet;
         index = i;
-        vertex0 = v0;
-        vertex1 = v1;
+
+        if (v0 < v1) {
+            vertex0 = v0;
+            vertex1 = v1;
+        } else {
+            vertex0 = v1;
+            vertex1 = v0;
+        }
     }
 
     inline bool isSame(const Edge &other) const {
-        return ((vertex0 == other.vertex0 && vertex1 == other.vertex1) ||
-                (vertex0 == other.vertex1 && vertex1 == other.vertex0));
+        return (vertex0 == other.vertex0 && vertex1 == other.vertex1);
     }
 };
 
@@ -84,34 +96,83 @@ struct Triangle {
 
     Triangle() = default;
     Triangle(int32_t tet, int32_t i, int32_t v0, int32_t v1, int32_t v2, int32_t v3)
-    : tetrahedron(tet), index(i), vertex0(v0), vertex1(v1), vertex2(v2), vertex3(v3) {
+    : tetrahedron(tet), index(i), vertex3(v3) {
+        if (v0 < v1 && v0 < v2) {
+            vertex0 = v0;
+            if (v1 < v2) {
+                vertex1 = v1;
+                vertex2 = v2;
+            } else {
+                vertex1 = v2;
+                vertex2 = v1;
+            }
+        } else if (v1 < v0 && v1 < v2) {
+            vertex0 = v1;
+            if (v0 < v2) {
+                vertex1 = v0;
+                vertex2 = v2;
+            } else {
+                vertex1 = v2;
+                vertex2 = v0;
+            }
+        } else {
+            vertex0 = v2;
+            if (v0 < v1) {
+                vertex1 = v0;
+                vertex2 = v1;
+            } else {
+                vertex1 = v1;
+                vertex2 = v0;
+            }
+        }
     }
 
     inline void set(int32_t tet, int32_t i, int32_t v0, int32_t v1, int32_t v2, int32_t v3) {
-        tetrahedron = tet;
-        index = i;
-        vertex0 = v0;
-        vertex1 = v1;
-        vertex2 = v2;
-        vertex3 = v3;
-
         invalid = false;
         isOuterFace = true;
+
+        tetrahedron = tet;
+        index = i;
+        vertex3 = v3;
+
+        if (v0 < v1 && v0 < v2) {
+            vertex0 = v0;
+            if (v1 < v2) {
+                vertex1 = v1;
+                vertex2 = v2;
+            } else {
+                vertex1 = v2;
+                vertex2 = v1;
+            }
+        } else if (v1 < v0 && v1 < v2) {
+            vertex0 = v1;
+            if (v0 < v2) {
+                vertex1 = v0;
+                vertex2 = v2;
+            } else {
+                vertex1 = v2;
+                vertex2 = v0;
+            }
+        } else {
+            vertex0 = v2;
+            if (v0 < v1) {
+                vertex1 = v0;
+                vertex2 = v1;
+            } else {
+                vertex1 = v1;
+                vertex2 = v0;
+            }
+        }
     }
 
     inline bool isSame(const Triangle &other) const {
-        return ((vertex0 == other.vertex0 && vertex1 == other.vertex1 && vertex2 == other.vertex2) ||
-                (vertex0 == other.vertex0 && vertex1 == other.vertex2 && vertex2 == other.vertex1) ||
-                (vertex0 == other.vertex1 && vertex1 == other.vertex0 && vertex2 == other.vertex2) ||
-                (vertex0 == other.vertex1 && vertex1 == other.vertex2 && vertex2 == other.vertex0) ||
-                (vertex0 == other.vertex2 && vertex1 == other.vertex0 && vertex2 == other.vertex1) ||
-                (vertex0 == other.vertex2 && vertex1 == other.vertex1 && vertex2 == other.vertex0));
+        return (vertex0 == other.vertex0 && vertex1 == other.vertex1 && vertex2 == other.vertex2);
     }
 };
 
 struct CircumSphere {
-    Vec3 center;
     float radiusSquared{0.0F};
+    Vec3 center;
 
     CircumSphere() = default;
     void init(const Vec3 &p0, const Vec3 &p1, const Vec3 &p2, const Vec3 &p3);

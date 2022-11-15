@@ -178,6 +178,7 @@ type EventType = string | number;
  * @zh CallbacksInvoker 用来根据事件名（Key）管理事件监听器列表并调用回调方法。
  * @en CallbacksInvoker is used to manager and invoke event listeners with different event keys,
  * each key is mapped to a CallbackList.
+ * @engineInternal
  */
 export class CallbacksInvoker<EventTypeClass extends EventType = EventType> {
     /**

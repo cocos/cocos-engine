@@ -28,7 +28,6 @@ import { Component } from '../../scene-graph/component';
 import { Color, Vec3, Enum, cclegacy } from '../../core';
 import { scene } from '../../render-scene';
 import { Root } from '../../root';
-import { legacyCC } from '../../core/global-exports';
 import { CAMERA_DEFAULT_MASK } from '../../rendering/define';
 import { Layers } from '../../scene-graph/layers';
 
@@ -54,8 +53,6 @@ class StaticLightSettings {
     @serializable
     protected _editorOnly = false;
     @serializable
-    protected _bakeable = false;
-    @serializable
     protected _castShadow = false;
 
     /**
@@ -80,19 +77,6 @@ class StaticLightSettings {
 
     set baked (val) {
         this._baked = val;
-    }
-
-    /**
-     * @en Whether the light is bake-able.
-     * @zh 光源是否可烘培。
-     */
-    @editable
-    get bakeable () {
-        return this._bakeable;
-    }
-
-    set bakeable (val) {
-        this._bakeable = val;
     }
 
     /**

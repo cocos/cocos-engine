@@ -27,9 +27,9 @@ import { Pass } from '../render-scene/core/pass';
 import { Model } from '../render-scene/scene/model';
 import { SubModel } from '../render-scene/scene/submodel';
 import { Layers } from '../scene-graph/layers';
-import { legacyCC } from '../core/global-exports';
+import { cclegacy } from '../core';
 import { BindingMappingInfo, DescriptorType, Type, ShaderStageFlagBit, UniformStorageBuffer, DescriptorSetLayoutBinding,
-    Uniform, UniformBlock, UniformSamplerTexture, UniformStorageImage, Device, FormatFeatureBit, Format,
+    Uniform, UniformBlock, UniformSamplerTexture, UniformStorageImage, Device, FormatFeatureBit, Format, API,
 } from '../gfx';
 
 export const PIPELINE_FLOW_MAIN = 'MainFlow';
@@ -46,7 +46,7 @@ export enum RenderPassStage {
     DEFAULT = 100,
     UI = 200,
 }
-legacyCC.RenderPassStage = RenderPassStage;
+cclegacy.RenderPassStage = RenderPassStage;
 
 /**
  * @en The predefined render priorities
@@ -415,6 +415,7 @@ localDescriptorSetLayout.layouts[UBOWorldBound.NAME] = UBOWorldBound.LAYOUT;
 localDescriptorSetLayout.bindings[UBOWorldBound.BINDING] = UBOWorldBound.DESCRIPTOR;
 
 export const INST_MAT_WORLD = 'a_matWorld0';
+export const INST_SH = 'a_sh_linear_const_r';
 
 export class UBOLocalBatched {
     public static readonly BATCHING_COUNT = 10;
@@ -750,7 +751,8 @@ export function supportsR16HalfFloatTexture (device: Device) {
  */
 export function supportsR32FloatTexture (device: Device) {
     return (device.getFormatFeatures(Format.R32F) & (FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE))
-        === (FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE);
+        === (FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE)
+        && !(device.gfxAPI === API.WEBGL); // wegl 1  Single-channel float type is not supported under webgl1, so it is excluded
 }
 
 /* eslint-enable max-len */

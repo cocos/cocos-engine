@@ -1033,7 +1033,6 @@ module.exports = {
         depth: 'The depth of octree.',
     },
     light_probe: {
-        enabled: 'The switch of light probe.',
         giScale: 'The value of GI multiplier.',
         giSamples: 'The value of GI sample counts.',
         bounces: 'The value of light bounces.',

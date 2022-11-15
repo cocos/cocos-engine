@@ -44,7 +44,9 @@ ResourceAccessGraph::ResourceAccessGraph(const allocator_type& alloc) noexcept
   resourceIndex(alloc),
   leafPasses(alloc),
   culledPasses(alloc),
-  accessRecord(alloc) {}
+  accessRecord(alloc),
+  resourceLifeRecord(alloc),
+  topologicalOrder(alloc) {}
 
 // ContinuousContainer
 void ResourceAccessGraph::reserve(vertices_size_type sz) {
@@ -65,13 +67,37 @@ ResourceAccessGraph::Vertex::Vertex(Vertex const& rhs, const allocator_type& all
 : outEdges(rhs.outEdges, alloc),
   inEdges(rhs.inEdges, alloc) {}
 
+RelationGraph::RelationGraph(const allocator_type& alloc) noexcept
+: _vertices(alloc),
+  descID(alloc),
+  vertexMap(alloc) {}
+
+// ContinuousContainer
+void RelationGraph::reserve(vertices_size_type sz) {
+    _vertices.reserve(sz);
+    descID.reserve(sz);
+}
+
+RelationGraph::Vertex::Vertex(const allocator_type& alloc) noexcept
+: outEdges(alloc),
+  inEdges(alloc) {}
+
+RelationGraph::Vertex::Vertex(Vertex&& rhs, const allocator_type& alloc)
+: outEdges(std::move(rhs.outEdges), alloc),
+  inEdges(std::move(rhs.inEdges), alloc) {}
+
+RelationGraph::Vertex::Vertex(Vertex const& rhs, const allocator_type& alloc)
+: outEdges(rhs.outEdges, alloc),
+  inEdges(rhs.inEdges, alloc) {}
+
 FrameGraphDispatcher::FrameGraphDispatcher(ResourceGraph& resourceGraphIn, const RenderGraph& graphIn, LayoutGraphData& layoutGraphIn, boost::container::pmr::memory_resource* scratchIn, const allocator_type& alloc) noexcept
 : resourceAccessGraph(alloc),
   resourceGraph(resourceGraphIn),
   graph(graphIn),
   layoutGraph(layoutGraphIn),
   scratch(scratchIn),
-  externalResMap(alloc) {}
+  externalResMap(alloc),
+  relationGraph(alloc) {}
 
 } // namespace render
 

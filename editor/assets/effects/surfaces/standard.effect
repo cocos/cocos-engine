@@ -12,8 +12,8 @@ CCEffect %{
         albedoScale:                      { value: [1.0, 1.0, 1.0], target: albedoScaleAndCutoff.xyz }
         alphaThreshold:                   { value: 0.5, target: albedoScaleAndCutoff.w, editor: { parent: USE_ALPHA_TEST, slide: true, range: [0, 1.0], step: 0.001 } }
         occlusion:                        { value: 0.0, target: pbrParams.x, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
-        roughness:                        { value: 0.8, target: pbrParams.y, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
-        metallic:                         { value: 0.6, target: pbrParams.z, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
+        roughness:                        { value: 0.5, target: pbrParams.y, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
+        metallic:                         { value: 0.0, target: pbrParams.z, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
         specularIntensity:                { value: 0.5, target: pbrParams.w, editor: { slide: true, range: [0.0, 1.0], step: 0.001 } }
         emissive:                         { value: [0.0, 0.0, 0.0, 1.0], linear: true, editor: { type: color } }
         emissiveScale:                    { value: [1.0, 1.0, 1.0], target: emissiveScaleParam.xyz }
@@ -141,7 +141,7 @@ CCProgram surface-vertex %{
   void SurfacesVertexModifyUV(inout SurfacesStandardVertexIntermediate In)
   {
     In.texCoord = In.texCoord * tilingOffset.xy + tilingOffset.zw;
-  #if CC_SURFACES_USE_SECOND_UV && !CC_USE_LIGHTMAP
+  #if CC_SURFACES_USE_SECOND_UV
     In.texCoord1 = In.texCoord1 * tilingOffset.xy + tilingOffset.zw;
   #endif
   }
@@ -270,18 +270,18 @@ CCProgram surface-fragment %{
   #define CC_SURFACES_FRAGMENT_MODIFY_EMISSIVE
   vec3 SurfacesFragmentModifyEmissive()
   {
-    vec3 emissive = emissive.rgb * emissiveScaleParam.xyz;
+    vec3 emissive = emissive.rgb;
     #if USE_EMISSIVE_MAP
-      emissive *= SRGBToLinear(texture(emissiveMap, EMISSIVE_UV).rgb);
+      emissive = SRGBToLinear(texture(emissiveMap, EMISSIVE_UV).rgb);
     #endif
-    return emissive;
+    return emissive * emissiveScaleParam.xyz;
   }
 
   #define CC_SURFACES_FRAGMENT_MODIFY_PBRPARAMS
   vec4 SurfacesFragmentModifyPBRParams()
   {
     vec4 pbr = pbrParams;
-    pbr.x = 1.0 - pbr.x;
+    pbr.x = 1.0;
     #if USE_PBR_MAP
       vec4 res = texture(pbrMap, DEFAULT_UV);
       pbr.x *= res.OCCLUSION_CHANNEL;
@@ -290,7 +290,7 @@ CCProgram surface-fragment %{
       pbr.w *= res.SPECULAR_INTENSITY_CHANNEL;
     #endif
     #if USE_OCCLUSION_MAP
-      pbr.x *= texture(occlusionMap, DEFAULT_UV).OCCLUSION_CHANNEL;
+      pbr.x = mix(1.0, texture(occlusionMap, DEFAULT_UV).OCCLUSION_CHANNEL, pbrParams.x);
     #endif
 
     return pbr;

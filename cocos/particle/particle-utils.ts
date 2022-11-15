@@ -24,9 +24,8 @@
  */
 
 import { instantiate } from '../serialization';
-import { CCObject } from '../core/data/object';
+import { CCObject, Pool } from '../core';
 import { Director, director } from '../game/director';
-import { Pool } from '../core/memop';
 import { Node } from '../scene-graph';
 import { ParticleSystem } from './particle-system';
 

@@ -55,15 +55,6 @@ void SystemWindowManager::processEvent(bool *quit) {
     }
 }
 
-void SystemWindowManager::swapWindows() {
-    for (const auto &pair : _windows) {
-        SystemWindow *window = static_cast<SystemWindow *>(pair.second.get());
-        if (window) {
-            window->swapWindow();
-        }
-    }
-}
-
 ISystemWindow *SystemWindowManager::createWindow(const ISystemWindowInfo &info) {
     ISystemWindow *window = BasePlatform::getPlatform()->createNativeWindow(_nextWindowId, info.externalHandle);
     if (window) {

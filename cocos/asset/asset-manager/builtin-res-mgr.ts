@@ -29,11 +29,10 @@ import { ImageAsset, ImageSource } from '../assets/image-asset';
 import { SpriteFrame } from '../../2d/assets/sprite-frame';
 import { Texture2D } from '../assets/texture-2d';
 import { TextureCube } from '../assets/texture-cube';
-import { legacyCC } from '../../core/global-exports';
 import assetManager from './asset-manager';
 import { BuiltinBundleName } from './shared';
 import Bundle from './bundle';
-import { Settings, settings } from '../../core/settings';
+import { Settings, settings, cclegacy } from '../../core';
 import releaseManager from './release-manager';
 import { Material } from '../assets';
 
@@ -272,8 +271,8 @@ class BuiltinResMgr {
         };
         resources[defaultCubeTexture._uuid] = defaultCubeTexture;
 
-        if (legacyCC.SpriteFrame) {
-            const spriteFrame = new legacyCC.SpriteFrame() as SpriteFrame;
+        if (cclegacy.SpriteFrame) {
+            const spriteFrame = new cclegacy.SpriteFrame() as SpriteFrame;
             const image = imgAsset;
             const texture = new Texture2D();
             texture.image = image;
@@ -332,8 +331,8 @@ class BuiltinResMgr {
                         assets.forEach((asset) => {
                             resources[asset.name] = asset;
                             // In Editor, no need to ignore asset destroy, we use auto gc to handle destroy
-                            if (!EDITOR || legacyCC.GAME_VIEW) { releaseManager.addIgnoredAsset(asset); }
-                            if (asset instanceof legacyCC.Material) {
+                            if (!EDITOR || cclegacy.GAME_VIEW) { releaseManager.addIgnoredAsset(asset); }
+                            if (asset instanceof cclegacy.Material) {
                                 this._materialsToBeCompiled.push(asset as Material);
                             }
                         });
@@ -356,5 +355,5 @@ class BuiltinResMgr {
     }
 }
 
-const builtinResMgr = legacyCC.builtinResMgr = new BuiltinResMgr();
+const builtinResMgr = cclegacy.builtinResMgr = new BuiltinResMgr();
 export { builtinResMgr };

@@ -24,8 +24,7 @@
  */
 import { EDITOR, TEST } from 'internal:constants';
 import { Asset } from '../assets';
-import { legacyCC } from '../../core/global-exports';
-import { js } from '../../core/utils/js';
+import { js, cclegacy } from '../../core';
 import Cache from './cache';
 import { decodeUuid, normalize } from './helper';
 import { AssetType } from './shared';
@@ -372,5 +371,5 @@ export default class Config {
 }
 
 if (TEST) {
-    legacyCC._Test.Config = Config;
+    cclegacy._Test.Config = Config;
 }

@@ -254,9 +254,7 @@ static bool JSB_localStorageSetItem(se::State &s) { // NOLINT(readability-identi
         ok = sevalue_to_native(args[0], &key);
         SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-        ccstd::string value;
-        ok = sevalue_to_native(args[1], &value);
-        SE_PRECONDITION2(ok, false, "Error processing arguments");
+        ccstd::string value = args[1].toStringForce();
         localStorageSetItem(key, value);
         return true;
     }

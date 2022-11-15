@@ -99,9 +99,11 @@ module.exports = {
             flipVertical: 'Flip Vertical',
             flipVerticalTip: 'Flip Vertical',
             fixAlphaTransparencyArtifacts: 'Fix Alpha Transparency Artifacts',
-            fixAlphaTransparencyArtifactsTip: 'Fill transparent pixels with color of neareast solid pixel. These filled pixels would fix the dark halos at transparent borders of textures. Please turn on this option when you use the Alpha transparency channel in textures.',
+            fixAlphaTransparencyArtifactsTip:
+                'Fill transparent pixels with color of neareast solid pixel. These filled pixels would fix the dark halos at transparent borders of textures. Please turn on this option when you use the Alpha transparency channel in textures.',
             isRGBE: 'Is RGBE',
             isRGBETip: 'Is RGBE',
+            flipGreenChannel: 'Flip Green Channel',
         },
         spriteFrame: {
             packable: 'Packable',
@@ -341,8 +343,15 @@ module.exports = {
                 name: 'Promote Single Root Node',
                 title:
                     'If enabled and there is only one root node in model scene, <br>' +
-                    'the single node becomes prefab\'s root after importing.  <br>' +
+                    "the single node becomes prefab's root after importing.  <br>" +
                     "Otherwise, each root node of the scene becomes prefab's child node.",
+            },
+            generateLightmapUVNode: {
+                name: 'Generate Lightmap UV',
+                title:
+                    'If enabled ,create a lightmap uv in the second UV channel, <br>' +
+                    'If the second uv already exists , the set will be override .  <br>' +
+                    "Otherwise, use default uvs.",
             },
             preferLocalTimeSpan: {
                 name: 'Prefer Local Time Span',
@@ -387,7 +396,7 @@ module.exports = {
             illegalFbx: 'Import Skeleton Failed: this fbx asset has not contained sub prefab asset.',
             nodeEnableTip: 'Whether to enable this joint and its descendants.;<br>Alt + Click only toggle the state of itself.',
         },
-        multipleWarning: 'Multi-select editing of this type of asset is not supported',
+        multipleWarning: 'Multi-select editing of this type of asset is not supported.',
         check_is_saved: {
             message: 'The modified data has not been saved. Do you want to save it?',
             assetMessage: "${assetName} is modified, it's data has not been saved. Do you want to save it?",

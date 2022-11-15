@@ -25,11 +25,10 @@
 
 /* eslint-disable func-names */
 import CANNON from '@cocos/cannon';
-import { Vec3 } from '../../../core/math';
+import { Vec3, IVec3Like } from '../../../core';
 import { commitShapeUpdates } from '../cannon-util';
 import { CannonShape } from './cannon-shape';
 import { ISimplexShape } from '../../spec/i-physics-shape';
-import { IVec3Like } from '../../../core/math/type-define';
 import { SimplexCollider } from '../../../../exports/physics-framework';
 
 export class CannonSimplexShape extends CannonShape implements ISimplexShape {

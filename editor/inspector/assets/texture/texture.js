@@ -1,6 +1,8 @@
 'use strict';
 
-exports.template = `
+const { updateElementReadonly } = require('../../utils/assets');
+
+exports.template = /* html */`
 <div class="asset-texture">
     <!-- dont delete, for insert -->
     <div class="content">
@@ -53,51 +55,51 @@ exports.template = `
 </div>
 `;
 
-exports.style = `
-    .asset-texture {
-        display: flex;
-        flex: 1;
-        flex-direction: column;
-     }
-    .asset-texture > .content {
-        flex: 1;
-    }
-    .asset-texture > .content ui-prop {
-        margin: 4px 0;
-    }
-    .asset-texture > .content .filter-advanced-section,
-    .asset-texture > .content .wrap-advanced-section,
-    .asset-texture > .content .generate-mipmaps-section {
-        margin-left: 1.2em;
-        display: none;
-    }
-    .asset-texture > .content ui-prop.warn {
-        color: var(--color-warn-fill);
-    }
-    .asset-texture > .content > ui-prop.warn ui-select {
-        border-color: var(--color-warn-fill);
-    }
-    .asset-texture > .content > .warn-words {
-        display: none;
-        margin-top: 20px;
-        margin-bottom: 20px;
-        line-height: 1.7;
-        color: var(--color-warn-fill);
-    }
-    .asset-texture > .preview {
-        position: relative;
-        height: 200px;
-        overflow: hidden;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 10px;
-        background: var(--color-normal-fill-emphasis);
-        border: 1px solid var(--color-normal-border-emphasis);
-    }
-    .asset-texture > .preview:hover {
-        border-color: var(--color-warn-fill);
-    }
+exports.style = /* css */`
+.asset-texture {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+}
+.asset-texture > .content {
+    flex: 1;
+}
+.asset-texture > .content ui-prop {
+    margin: 4px 0;
+}
+.asset-texture > .content .filter-advanced-section,
+.asset-texture > .content .wrap-advanced-section,
+.asset-texture > .content .generate-mipmaps-section {
+    margin-left: 1.2em;
+    display: none;
+}
+.asset-texture > .content ui-prop.warn {
+    color: var(--color-warn-fill);
+}
+.asset-texture > .content > ui-prop.warn ui-select {
+    border-color: var(--color-warn-fill);
+}
+.asset-texture > .content > .warn-words {
+    display: none;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    line-height: 1.7;
+    color: var(--color-warn-fill);
+}
+.asset-texture > .preview {
+    position: relative;
+    height: 200px;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    background: var(--color-normal-fill-emphasis);
+    border: 1px solid var(--color-normal-border-emphasis);
+}
+.asset-texture > .preview:hover {
+    border-color: var(--color-warn-fill);
+}
 `;
 
 exports.$ = {
@@ -159,9 +161,6 @@ const ModeMap = {
     },
 };
 
-/**
- * attribute corresponds to the edit element
- */
 const Elements = {
     anisotropy: {
         ready() {
@@ -173,6 +172,10 @@ const Elements = {
                 });
                 panel.dispatch('change');
             });
+
+            panel.$.anisotropyInput.addEventListener('confirm', () => {
+                panel.dispatch('snapshot');
+            });
         },
         update() {
             const panel = this;
@@ -180,7 +183,7 @@ const Elements = {
             panel.$.anisotropyInput.value = panel.userData.anisotropy;
 
             panel.updateInvalid(panel.$.anisotropyInput, 'anisotropy');
-            panel.updateReadonly(panel.$.anisotropyInput);
+            updateElementReadonly.call(panel, panel.$.anisotropyInput);
         },
     },
     filterMode: {
@@ -204,6 +207,10 @@ const Elements = {
                     panel.$.filterAdvancedSection.style.display = 'block';
                 }
                 panel.dispatch('change');
+            });
+
+            panel.$.filterModeSelect.addEventListener('confirm', () => {
+                panel.dispatch('snapshot');
             });
         },
         update() {
@@ -241,7 +248,7 @@ const Elements = {
                 : (panel.$.filterAdvancedSection.style.display = 'none');
 
             panel.updateInvalid(panel.$.filterModeSelect, 'filterMode');
-            panel.updateReadonly(panel.$.filterModeSelect);
+            updateElementReadonly.call(panel, panel.$.filterModeSelect);
         },
     },
     minfilter: {
@@ -253,6 +260,10 @@ const Elements = {
                     userData.minfilter = event.target.value;
                 });
                 panel.dispatch('change');
+            });
+
+            panel.$.minfilterSelect.addEventListener('confirm', () => {
+                panel.dispatch('snapshot');
             });
         },
         update() {
@@ -268,7 +279,7 @@ const Elements = {
             panel.$.minfilterSelect.value = panel.userData.minfilter || 'nearest';
 
             panel.updateInvalid(panel.$.minfilterSelect, 'minfilter');
-            panel.updateReadonly(panel.$.minfilterSelect);
+            updateElementReadonly.call(panel, panel.$.minfilterSelect);
         },
     },
     magfilter: {
@@ -280,6 +291,10 @@ const Elements = {
                     userData.magfilter = event.target.value;
                 });
                 panel.dispatch('change');
+            });
+
+            panel.$.magfilterSelect.addEventListener('confirm', () => {
+                panel.dispatch('snapshot');
             });
         },
         update() {
@@ -295,7 +310,7 @@ const Elements = {
             panel.$.magfilterSelect.value = panel.userData.magfilter || 'nearest';
 
             panel.updateInvalid(panel.$.magfilterSelect, 'magfilter');
-            panel.updateReadonly(panel.$.magfilterSelect);
+            updateElementReadonly.call(panel, panel.$.magfilterSelect);
         },
     },
     generateMipmaps: {
@@ -321,6 +336,10 @@ const Elements = {
                 });
                 panel.dispatch('change');
             });
+
+            panel.$.generateMipmapsCheckbox.addEventListener('confirm', () => {
+                panel.dispatch('snapshot');
+            });
         },
         update() {
             const panel = this;
@@ -333,7 +352,7 @@ const Elements = {
                 : (panel.$.generateMipmapsSection.style.display = 'none');
 
             panel.updateInvalid(panel.$.generateMipmapsCheckbox, 'generateMipmaps');
-            panel.updateReadonly(panel.$.generateMipmapsCheckbox);
+            updateElementReadonly.call(panel, panel.$.generateMipmapsCheckbox);
         },
     },
     mipfilter: {
@@ -345,6 +364,10 @@ const Elements = {
                     userData.mipfilter = event.target.value;
                 });
                 panel.dispatch('change');
+            });
+
+            panel.$.mipfilterSelect.addEventListener('confirm', () => {
+                panel.dispatch('snapshot');
             });
         },
         update() {
@@ -360,7 +383,7 @@ const Elements = {
             panel.$.mipfilterSelect.value = panel.userData.mipfilter || 'nearest';
 
             panel.updateInvalid(panel.$.mipfilterSelect, 'mipfilter');
-            panel.updateReadonly(panel.$.mipfilterSelect);
+            updateElementReadonly.call(panel, panel.$.mipfilterSelect);
         },
     },
     wrapMode: {
@@ -385,6 +408,10 @@ const Elements = {
                 // 校验是否显示警告提示
                 Elements.warnWords.update.call(panel);
                 panel.dispatch('change');
+            });
+
+            panel.$.wrapModeSelect.addEventListener('confirm', () => {
+                panel.dispatch('snapshot');
             });
         },
         update() {
@@ -423,7 +450,7 @@ const Elements = {
 
             // 校验是否显示警告提示
             panel.updateInvalid(panel.$.wrapModeSelect, 'wrapMode');
-            panel.updateReadonly(panel.$.wrapModeSelect);
+            updateElementReadonly.call(panel, panel.$.wrapModeSelect);
         },
     },
     wrapModeS: {
@@ -436,6 +463,10 @@ const Elements = {
                 });
                 Elements.warnWords.update.call(panel);
                 panel.dispatch('change');
+            });
+
+            panel.$.wrapModeSSelect.addEventListener('confirm', () => {
+                panel.dispatch('snapshot');
             });
         },
         update() {
@@ -455,7 +486,7 @@ const Elements = {
             panel.$.wrapModeSSelect.value = panel.userData.wrapModeS || 'repeat';
 
             panel.updateInvalid(panel.$.wrapModeSSelect, 'wrapModeS');
-            panel.updateReadonly(panel.$.wrapModeSSelect);
+            updateElementReadonly.call(panel, panel.$.wrapModeSSelect);
         },
     },
     wrapModeT: {
@@ -468,6 +499,10 @@ const Elements = {
                 });
                 Elements.warnWords.update.call(panel);
                 panel.dispatch('change');
+            });
+
+            panel.$.wrapModeTSelect.addEventListener('confirm', () => {
+                panel.dispatch('snapshot');
             });
         },
         update() {
@@ -487,7 +522,7 @@ const Elements = {
             panel.$.wrapModeTSelect.value = panel.userData.wrapModeT || 'repeat';
 
             panel.updateInvalid(panel.$.wrapModeTSelect, 'wrapModeT');
-            panel.updateReadonly(panel.$.wrapModeTSelect);
+            updateElementReadonly.call(panel, panel.$.wrapModeTSelect);
         },
     },
     /**
@@ -538,18 +573,6 @@ const Elements = {
 
 exports.Elements = Elements;
 
-/**
- * Method of initializing the panel
- */
-exports.ready = function() {
-    for (const prop in Elements) {
-        const element = Elements[prop];
-        if (element.ready) {
-            element.ready.call(this);
-        }
-    }
-};
-
 exports.methods = {
     /**
      * Update whether a data is editable in multi-select state
@@ -592,14 +615,13 @@ exports.methods = {
         }
         element.invalid = invalid;
     },
-    /**
-     * Update read-only status
-     */
-    updateReadonly(element) {
-        if (this.asset.readonly) {
-            element.setAttribute('disabled', true);
-        } else {
-            element.removeAttribute('disabled');
+};
+
+exports.ready = function() {
+    for (const prop in Elements) {
+        const element = Elements[prop];
+        if (element.ready) {
+            element.ready.call(this);
         }
-    },
+    }
 };

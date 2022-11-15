@@ -30,10 +30,9 @@ import { getPhaseID } from './pass-phase';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { Pass } from '../render-scene/core/pass';
 import { Model } from '../render-scene/scene/model';
-import { Camera } from '../render-scene/scene';
+import { ReflectionProbe, SKYBOX_FLAG } from '../render-scene/scene';
 import { PipelineRuntime } from './custom/pipeline';
-import { reflectionProbeCulling } from './scene-culling';
-import { ReflectionProbeManager } from './reflection-probe-manager';
+import { RenderScene } from '../render-scene';
 
 const CC_USE_RGBE_OUTPUT = 'CC_USE_RGBE_OUTPUT';
 const _phaseID = getPhaseID('default');
@@ -72,18 +71,29 @@ export class RenderReflectionProbeQueue {
         this._pipeline = pipeline;
     }
 
-    public gatherRenderObjects (camera: Camera) {
+    public gatherRenderObjects (probe: ReflectionProbe, scene:RenderScene) {
         this.clear();
         const sceneData = this._pipeline.pipelineSceneData;
-        reflectionProbeCulling(sceneData, camera);
-        const renderObjects = ReflectionProbeManager.probeManager.getRenderObjects(camera);
-        if (renderObjects === undefined) {
-            return;
+        const skybox = sceneData.skybox;
+
+        if (skybox.enabled && skybox.model && (probe.camera.clearFlag & SKYBOX_FLAG)) {
+            this.add(skybox.model);
         }
-        for (let i = 0; i < renderObjects.length; i++) {
-            const ro = renderObjects[i];
-            const model = ro.model;
-            this.add(model);
+
+        const models = scene.models;
+        const visibility = probe.camera.visibility;
+
+        for (let i = 0; i < models.length; i++) {
+            const model = models[i];
+            // filter model by view visibility
+            if (model.enabled) {
+                if (model.node && ((visibility & model.node.layer) === model.node.layer)
+                      || (visibility & model.visFlags)) {
+                    if (model.bakeToReflectionProbe) {
+                        this.add(model);
+                    }
+                }
+            }
         }
     }
 

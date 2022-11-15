@@ -22,11 +22,12 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-import { Ray } from '../../core/geometry';
+import { geometry } from '../../core';
 import { RenderWindow } from '../core/render-window';
 import { ClearFlagBit } from '../../gfx';
 import { _tempFloatArray, fillMat4WithTempFloatArray } from '../../scene-graph/utils.jsb';
-import { Mat4, Vec3 } from '../../core/math';
+import { Mat4, Vec3 } from '../../core';
+
 
 declare const jsb: any;
 
@@ -213,7 +214,7 @@ const oldWorldMatrixToScreen = cameraProto.worldMatrixToScreen;
 /**
  * transform a screen position (in oriented space) to a world space ray
  */
-cameraProto.screenPointToRay = function screenPointToRay (out: Ray, x: number, y: number): Ray {
+cameraProto.screenPointToRay = function screenPointToRay (out: geometry.Ray, x: number, y: number): geometry.Ray {
     _tempFloatArray[0] = x;
     _tempFloatArray[1] = y;
     oldScreenPointToRay.call(this);

@@ -38,6 +38,7 @@
 #include "3d/models/BakedSkinningModel.h"
 #include "renderer/core/ProgramLib.h"
 #include "scene/Octree.h"
+#include "scene/ReflectionProbe.h"
 %}
 
 // Insert code at the beginning of generated source file (.cpp)
@@ -83,10 +84,13 @@ using namespace cc;
 %ignore cc::scene::SubModel::getInstancedAttributeBlock;
 %ignore cc::scene::SubModel::getInstancedWorldMatrixIndex;
 %ignore cc::scene::SubModel::setInstancedWorldMatrixIndex;
+%ignore cc::scene::SubModel::getInstancedSHIndex;
+%ignore cc::scene::SubModel::setInstancedSHIndex;
 %ignore cc::scene::SubModel::getInstancedAttributeIndex;
 %ignore cc::scene::SubModel::setInstancedAttributeIndex;
 %ignore cc::scene::SubModel::updateInstancedAttributes;
 %ignore cc::scene::SubModel::updateInstancedWorldMatrix;
+%ignore cc::scene::SubModel::updateInstancedSH;
 
 %ignore cc::scene::Model::getLocalData;
 %ignore cc::scene::Model::getEventProcessor;
@@ -190,6 +194,7 @@ using namespace cc;
 %rename(_updateLocalDescriptors) cc::scene::Model::updateLocalDescriptors;
 %rename(_initLocalSHDescriptors) cc::scene::Model::initLocalSHDescriptors;
 %rename(_updateLocalSHDescriptors) cc::scene::Model::updateLocalSHDescriptors;
+%rename(_updateInstancedAttributes) cc::scene::Model::updateInstancedAttributes;
 
 %rename(_load) cc::Scene::load;
 %rename(_activate) cc::Scene::activate;
@@ -397,6 +402,8 @@ using namespace cc;
 %attribute(cc::scene::RenderScene, ccstd::vector<cc::IntrusivePtr<cc::scene::SphereLight>>&, sphereLights, getSphereLights);
 %attribute(cc::scene::RenderScene, ccstd::vector<cc::IntrusivePtr<cc::scene::SpotLight>>&, spotLights, getSpotLights);
 %attribute(cc::scene::RenderScene, ccstd::vector<cc::IntrusivePtr<cc::scene::Model>>&, models, getModels);
+%attribute(cc::scene::RenderScene, ccstd::vector<cc::IntrusivePtr<cc::scene::LODGroup>>&, lodGroups, getLODGroups);
+
 
 %attribute(cc::scene::Skybox, cc::scene::Model*, model, getModel);
 %attribute(cc::scene::Skybox, bool, enabled, isEnabled, setEnabled);
@@ -515,6 +522,15 @@ using namespace cc;
 
 %attribute(cc::Scene, bool, autoReleaseAssets, isAutoReleaseAssets, setAutoReleaseAssets);
 
+%attribute(cc::scene::ReflectionProbe, cc::scene::ReflectionProbe::ProbeType, probeType, getProbeType, setProbeType);
+%attribute(cc::scene::ReflectionProbe, uint32_t, resolution, getResolution, setResolution);
+%attribute(cc::scene::ReflectionProbe, cc::gfx::ClearFlagBit, clearFlag, getClearFlag, setClearFlag);
+%attribute(cc::scene::ReflectionProbe, cc::gfx::Color&, backgroundColor, getBackgroundColor, setBackgroundColor);
+%attribute(cc::scene::ReflectionProbe, uint32_t, visibility, getVisibility, setVisibility);
+%attribute(cc::scene::ReflectionProbe, Vec3&, size, getBoudingSize, setBoudingSize);
+
+
+
 // ----- Import Section ------
 // Brief: Import header files which are depended by 'Include Section'
 // Note:
@@ -603,6 +619,7 @@ using namespace cc;
 %include "scene/RenderWindow.h"
 %include "scene/Camera.h"
 %include "scene/Ambient.h"
+%include "scene/ReflectionProbe.h"
 %include "renderer/core/PassInstance.h"
 %include "renderer/core/MaterialInstance.h"
 
