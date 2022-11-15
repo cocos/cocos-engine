@@ -32,6 +32,7 @@ import { CustomPipelineBuilder, NativePipelineBuilder } from './custom-pipeline'
 
 let _pipeline: WebPipeline | null = null;
 
+export * from './graph';
 export * from './types';
 export * from './pipeline';
 export * from './archive';
