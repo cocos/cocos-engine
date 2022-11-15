@@ -1569,7 +1569,6 @@ bool nativevalue_to_se(const cc::physics::RaycastResult &from, se::Value &to, se
     se::HandleObject obj(se::Object::createPlainObject());
     obj->setProperty("shape", se::Value(from.shape));
     obj->setProperty("distance", se::Value(from.distance));
-    obj->setProperty("id", se::Value(from.id));
 
     se::Value tmp;
     if (nativevalue_to_se(from.hitPoint, tmp, ctx)) obj->setProperty("hitPoint", tmp);

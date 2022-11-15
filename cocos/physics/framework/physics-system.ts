@@ -28,7 +28,7 @@ import { Vec3, RecyclePool, Enum, System, cclegacy, Settings, settings, geometry
 import { IRaycastOptions } from '../spec/i-physics-world';
 import { director, Director, game } from '../../game';
 import { PhysicsMaterial } from './assets/physics-material';
-import { PhysicsRayResult } from './physics-ray-result';
+import { PhysicsRayResult, PhysicsLineStripCastResult } from './physics-ray-result';
 import { IPhysicsConfig, ICollisionMatrix, IPhysicsMaterial } from './physics-config';
 import { CollisionMatrix } from './collision-matrix';
 import { PhysicsGroup } from './physics-enum';
@@ -257,7 +257,7 @@ export class PhysicsSystem extends System implements IWorldInitData {
      * @zh
      * 获取 lineStripCastClosest 的检测结果。
      */
-    public lineStripCastClosestResult = new PhysicsRayResult();
+    public lineStripCastClosestResult = new PhysicsLineStripCastResult();
 
     /**
     * @en
@@ -265,7 +265,7 @@ export class PhysicsSystem extends System implements IWorldInitData {
     * @zh
     * 获取 lineStripCast 的检测结果。
     */
-    public lineStripCastResults: PhysicsRayResult[] = [];
+    public lineStripCastResults: PhysicsLineStripCastResult[] = [];
 
     /**
     * @en
@@ -526,7 +526,7 @@ export class PhysicsSystem extends System implements IWorldInitData {
                     const result = this.raycastResults[re];
                     //if ray starts inside shape and hit point equals to start point, this should be ignored
                     if (re === 0 && Vec3.equals(fromPoint, result.hitPoint)) { continue; }
-                    const copiedResult = new PhysicsRayResult();
+                    const copiedResult = new PhysicsLineStripCastResult();
                     copiedResult._assign(result.hitPoint, result.distance, result.collider, result.hitNormal, i - 1);
                     this.lineStripCastResults.push(copiedResult);
                 }
@@ -568,7 +568,7 @@ export class PhysicsSystem extends System implements IWorldInitData {
             hit = this.raycastClosest(worldRay, mask, stepLength, queryTrigger);
             if (hit) {
                 const result = this.raycastClosestResult;
-                const copiedResult = new PhysicsRayResult();
+                const copiedResult = new PhysicsLineStripCastResult();
                 copiedResult._assign(result.hitPoint, result.distance, result.collider, result.hitNormal, i - 1);
                 this.lineStripCastClosestResult = copiedResult;
                 break;
