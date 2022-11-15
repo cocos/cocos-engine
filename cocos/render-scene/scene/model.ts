@@ -701,7 +701,7 @@ export class Model {
         if (!this._localSHData) {
             return;
         }
-            
+
         for (let i = 0; i < UBOSH.COUNT; i++) {
             this._localSHData[i] = 0.0;
         }

@@ -1267,7 +1267,7 @@ export class LightProbeInfo {
             }
         }
 
-        this._nodes.push({node, probes: null});
+        this._nodes.push({ node, probes: null });
 
         return true;
     }
