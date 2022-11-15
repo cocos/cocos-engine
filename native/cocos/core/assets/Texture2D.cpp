@@ -40,7 +40,7 @@ void Texture2D::syncMipmapsForJS(const ccstd::vector<IntrusivePtr<ImageAsset>> &
 }
 
 void Texture2D::setMipmaps(const ccstd::vector<IntrusivePtr<ImageAsset>> &value) {
-    if (!value[0]->getMipmapLevelDataSize().empty()) {
+    if (!value.empty() && value[0]->getMipmapLevelDataSize().size() > 1) {
         _compressedImageAsset.clear();
         const auto mipmapLevelData = value[0]->getMipmapLevelDataSize();
         _compressedImageAsset.resize(mipmapLevelData.size());

@@ -86,6 +86,10 @@ const std::vector<uint32_t> &ImageAsset::getMipmapLevelDataSize() const {
     return _mipmapLevelDataSize;
 }
 
+void ImageAsset::setMipmapLevelDataSize(ccstd::vector<uint32_t>& mipmapLevelDataSize) {
+    _mipmapLevelDataSize = mipmapLevelDataSize;
+}
+
 bool ImageAsset::isCompressed() const {
     return (_format >= PixelFormat::RGB_ETC1 && _format <= PixelFormat::RGBA_ASTC_12X12) || (_format >= PixelFormat::RGB_A_PVRTC_2BPPV1 && _format <= PixelFormat::RGBA_ETC1);
 }

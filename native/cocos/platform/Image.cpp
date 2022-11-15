@@ -756,8 +756,7 @@ bool Image::initWithPVRv2Data(const unsigned char *data, uint32_t dataLen, int32
     _height = level > 0 ? _height : static_cast<int>(CC_SWAP_INT32_LITTLE_TO_HOST(header->height));
     _isCompressed = true;
 
-    //Move by size of header
-    if (level >= 0) {
+    if (level > 0) {
         // pending rowData
         auto *rowData = static_cast<unsigned char *>(malloc(_dataLen * sizeof(unsigned char)));
         memcpy(rowData, _data, _dataLen);
@@ -774,14 +773,16 @@ bool Image::initWithPVRv2Data(const unsigned char *data, uint32_t dataLen, int32
         _dataLen += srcDataLen;
         _mipmapLevelDataSize.resize(static_cast<size_t>(level) + 1);
         _mipmapLevelDataSize[level] = static_cast<uint32_t>(srcDataLen);
+
         free(srcData);
         free(rowData);
-
     } else {
+        //Move by size of header
         _dataLen = dataLen - sizeof(PVRv2TexHeader);
         _data = static_cast<unsigned char *>(malloc(_dataLen * sizeof(unsigned char)));
         memcpy(_data, data + sizeof(PVRv2TexHeader), _dataLen);
-        _mipmapLevelDataSize.clear();
+        _mipmapLevelDataSize.resize(1);
+        _mipmapLevelDataSize[0] = _dataLen;
     }
 
     return true;
@@ -823,7 +824,7 @@ bool Image::initWithPVRv3Data(const unsigned char *data, uint32_t dataLen, int32
     _height = level > 0 ? _height : static_cast<int>(CC_SWAP_INT32_LITTLE_TO_HOST(header->height));
     _isCompressed = true;
 
-    if (level >= 0) {
+    if (level > 0) {
         // pending rowData
         auto *rowData = static_cast<unsigned char *>(malloc(_dataLen * sizeof(unsigned char)));
         memcpy(rowData, _data, _dataLen);
@@ -840,13 +841,15 @@ bool Image::initWithPVRv3Data(const unsigned char *data, uint32_t dataLen, int32
         _dataLen += srcDataLen;
         _mipmapLevelDataSize.resize(static_cast<size_t>(level) + 1);
         _mipmapLevelDataSize[level] = static_cast<uint32_t>(srcDataLen);
+
         free(srcData);
         free(rowData);
     } else {
         _dataLen = dataLen - (sizeof(PVRv3TexHeader) + header->metadataLength);
         _data = static_cast<unsigned char *>(malloc(_dataLen * sizeof(unsigned char)));
         memcpy(_data, data + sizeof(PVRv3TexHeader) + header->metadataLength, _dataLen);
-        _mipmapLevelDataSize.clear();
+        _mipmapLevelDataSize.resize(1);
+        _mipmapLevelDataSize[0] = _dataLen;
     }
 
     return true;
@@ -922,7 +925,7 @@ bool Image::initWithASTCData(const unsigned char *data, uint32_t dataLen, int32_
 
     _renderFormat = getASTCFormat(header);
 
-    if (level >= 0) {
+    if (level > 0) {
         // pending rowData
         auto *rowData = static_cast<unsigned char *>(malloc(_dataLen * sizeof(unsigned char)));
         memcpy(rowData, _data, _dataLen);
@@ -939,13 +942,15 @@ bool Image::initWithASTCData(const unsigned char *data, uint32_t dataLen, int32_
         _dataLen += srcDataLen;
         _mipmapLevelDataSize.resize(static_cast<size_t>(level) + 1);
         _mipmapLevelDataSize[level] = static_cast<uint32_t>(srcDataLen);
+
         free(srcData);
         free(rowData);
     } else {
         _dataLen = dataLen - ASTC_HEADER_SIZE;
         _data = static_cast<unsigned char *>(malloc(_dataLen * sizeof(unsigned char)));
         memcpy(_data, static_cast<const unsigned char *>(data) + ASTC_HEADER_SIZE, _dataLen);
-        _mipmapLevelDataSize.clear();
+        _mipmapLevelDataSize.resize(1);
+        _mipmapLevelDataSize[0] = _dataLen;
     }
 
     return true;

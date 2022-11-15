@@ -111,7 +111,7 @@ public:
     inline void setFormat(PixelFormat format) { _format = format; }
     inline void setData(uint8_t *data) { _data = data; }
     inline void setUrl(const ccstd::string &url) { _url = url; }
-    inline void setMipmapLevelDataSize(ccstd::vector<uint32_t> &mipmapLevelDataSize) { _mipmapLevelDataSize = ccstd::vector(mipmapLevelDataSize);}
+    void setMipmapLevelDataSize(ccstd::vector<uint32_t> &mipmapLevelDataSize);
 
 private:
     uint8_t *_data{nullptr};
