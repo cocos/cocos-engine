@@ -68,10 +68,11 @@ class SystemInfo extends EventTarget {
 
         // init os, osVersion and osMainVersion
         // FIXME: toLocaleLowerCase not implemented in wehchat, need to consider ios and etc.
-        const minigamePlatform = 'android';
-        if (minigamePlatform === 'android') {
-            this.os = OS.ANDROID;
-        } else if (minigamePlatform === 'ios') {
+        const minigamePlatform = 'ios';
+        // if (minigamePlatform === 'android') {
+        //     this.os = OS.ANDROID;
+        // } else
+        if (minigamePlatform === 'ios') {
             this.os = OS.IOS;
         } else if (minigamePlatform === 'windows') {
             this.os = OS.WINDOWS;

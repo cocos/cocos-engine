@@ -62,7 +62,7 @@ Object.defineProperty(minigame, 'isLandscape', {
     },
 });
 // init landscapeOrientation as LANDSCAPE_RIGHT
-const landscapeOrientation = Orientation.LANDSCAPE_RIGHT;
+const landscapeOrientation = Orientation.PORTRAIT;
 // TODO(): toLocaleLowerCase not implemented in wechat
 // if (systemInfo.platform.toLocaleLowerCase() !== 'android') {
 //     // onDeviceOrientationChange doesn't work well on Android.
