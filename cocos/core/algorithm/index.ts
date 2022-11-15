@@ -29,3 +29,5 @@ export * from './murmurhash2_gc';
 
 export { easing };
 legacyCC.easing = easing;
+
+export { partition } from './partition';
