@@ -3994,6 +3994,180 @@ describe('NewGen Anim', () => {
                     TRACE_TRANSITION_NORMALIZED_TIME * (MOTION1_LONGER_OVERRIDE_CLIP_SHEET.duration * MOTION1_TO_MOTION2_RELATIVE_DURATION));
             }
         });
+
+        test(`How clip overriding affect the set of animated node`, () => {
+            /**
+             * ## Spec
+             * 
+             * For `AnimationController.overrideClips` invocation, the following can happen without surprise:
+             * 
+             * 1. The original and substitution clip have animation on same set of nodes.
+             * 
+             * 2. The substitution clip introduce new nodes to be animated
+             *   since it has animation on formerly-not-animated nodes.
+             * 
+             * 3. The original clip uniquely has animation on some nodes.
+             *   Overriding causes there's no longer animation on those nodes.
+             *   This leads to those nodes no longer to be animated by controller.
+             * 
+             * 4. The invocation can remove partial animation effect(or it decreases the number of animation reference on some nodes).
+             * 
+             * ## About the test
+             * 
+             * In the following, we're going to construct a simple animation graph which blends two clip motions.
+             * The two clip motions are (clip0, clip1) at initial and will be overridden as (clip2, clip3) in later.
+             * 
+             * The fixture is designed so that:
+             * 
+             * - All clips have animation on node1.
+             *   This simulates case 1.
+             *   This should be the commonest case in real world.
+             * 
+             * - Both (clip0, clip1) do have animation on node2, but both (clip2, clip3) have NO animation on node2.
+             *   This simulates case 2.
+             * 
+             * - Both (clip0, clip1) have NO animation on node3, but both (clip2, clip3) do have animation on node3.
+             *   This simulates case 3.
+             * 
+             * - Both (clip0, clip1) do have animation on node4, but either of  (clip2, clip3) have animation on node4. 
+             *   This simulates case 4.
+             */
+            const fixture = {
+                initialValues: [
+                    6.,
+                    5.,
+                    -2.6,
+                    10.,
+                ],
+
+                /** Each matrix element E describe the animation value of node(row) at clip(column). */
+                animations: [
+                    /* ---------------------------------------------------------------- */
+                    /*           clip0     |  clip1     |   clip2      |  clip3         */
+                    /* node0 */  [7.,          8.,           8.8,         9.0           ],
+                    /* node1 */  [3.3,         -2.3,         undefined,   undefined     ],
+                    /* node2 */  [undefined,   undefined,    -2.4,        -3.1          ],
+                    /* node3 */  [9.,          -2.,          6.6,         undefined     ],
+                ] as const,
+
+                blendRate: 0.4,
+
+                manualValue: 0.3,
+            };
+
+            // Construct the nodes. Initialize them with initial values.
+            const root = new Node();
+            const nodes = Array.from({ length: fixture.animations.length }, (_, nodeIndex) => {
+                const node = new Node(`Node${nodeIndex}`);
+                node.parent = root;
+                node.setPosition(fixture.initialValues[nodeIndex], 0.0, 0.0);
+                return node;
+            });
+            const getCurrentValue = () => nodes.reduce((result, node, nodeIndex) => {
+                result[`node${nodeIndex}`] = node.position.x;
+                return result;
+            }, {} as Record<string, number>);
+
+            // Construct the clips.
+            const clips = Array.from({ length: fixture.animations[0].length }, (_, clipIndex) => {
+                const clip = new AnimationClip();
+                clip.enableTrsBlending = true;
+                clip.duration = 1.0;
+                for (let iNodeIndex = 0; iNodeIndex < nodes.length; ++iNodeIndex) {
+                    const animationValue = fixture.animations[iNodeIndex][clipIndex];
+                    if (typeof animationValue !== 'undefined') {
+                        addConstantAnimation(clip, nodes[iNodeIndex].name, animationValue);
+                    }
+                }
+                return clip;
+            });
+
+            // Construct a simple graph which blend two clips motion at fixed rate.
+            // The two clips are initially the [clip0, clip1].
+            const animationGraph = new AnimationGraph();
+            const layer = animationGraph.addLayer();
+            const motionState = layer.stateMachine.addMotion();
+            const blend = motionState.motion = new AnimationBlend1D();
+            blend.param.variable = 't';
+            animationGraph.addFloat(blend.param.variable, fixture.blendRate);
+            blend.items = [
+                (() => {
+                    const item = new AnimationBlend1D.Item();
+                    item.threshold = 0.0;
+                    const clipMotion = new ClipMotion(); clipMotion.clip = clips[0];
+                    item.motion = clipMotion;
+                    return item;
+                })(),
+                (() => {
+                    const item = new AnimationBlend1D.Item();
+                    item.threshold = 1.0;
+                    const clipMotion = new ClipMotion(); clipMotion.clip = clips[1];
+                    item.motion = clipMotion;
+                    return item;
+                })(),
+            ];
+            layer.stateMachine.connect(layer.stateMachine.entryState, motionState);
+
+            const { graphEval, newGenAnim: animationController } = createAnimationGraphEval2(animationGraph, root);
+            const graphUpdater = new GraphUpdater(graphEval);
+
+            const toBeAround = (value: number) =>
+                expect.toBeAround(value, DEFAULT_AROUND_NUM_DIGITS);
+
+            // Before override.
+            graphUpdater.step(0.2);
+            expect(getCurrentValue()).toMatchObject({
+                node0: toBeAround(lerp(fixture.animations[0][0], fixture.animations[0][1], fixture.blendRate)),
+                node1: toBeAround(lerp(fixture.animations[1][0], fixture.animations[1][1], fixture.blendRate)),
+                node2: toBeAround(fixture.initialValues[2]),
+                node3: toBeAround(lerp(fixture.animations[3][0], fixture.animations[3][1], fixture.blendRate)),
+            });
+
+            // Apply override.
+            const node1CurrentValue = getCurrentValue().node1;
+            animationController.overrideClips_experimental(new Map([
+                [clips[0], clips[2]],
+                [clips[1], clips[3]],
+            ]));
+            graphUpdater.step(0.3);
+            expect(getCurrentValue()).toMatchObject({
+                node0: toBeAround(lerp(fixture.animations[0][2], fixture.animations[0][3], fixture.blendRate)),
+
+                // node1's animation is fully dropped.
+                // NOTICE here: node1 keeps its current value.
+                node1: node1CurrentValue,
+
+                // The override brings animation on node3.
+                node2: toBeAround(lerp(fixture.animations[2][2], fixture.animations[2][3], fixture.blendRate)),
+
+                // Node4's animation does not exists on blend src, but exists on blend target.
+                node3: toBeAround(lerp(fixture.animations[3][2], fixture.initialValues[3], fixture.blendRate)),
+            });
+
+            // To further ensure that the node1 is not animated after override, let's manually change its value and step again.
+            nodes[1].setPosition(fixture.manualValue, nodes[2].position.y, nodes[2].position.z);
+            graphUpdater.step(0.325);
+            expect(getCurrentValue()).toMatchObject({
+                node0: toBeAround(lerp(fixture.animations[0][2], fixture.animations[0][3], fixture.blendRate)),
+
+                // NOTICE here: node2 keeps the manual value.
+                node1: fixture.manualValue,
+
+                // The override brings animation on node3.
+                node2: toBeAround(lerp(fixture.animations[2][2], fixture.animations[2][3], fixture.blendRate)),
+
+                // Node4's animation does not exists on blend src, but exists on blend target.
+                node3: toBeAround(lerp(fixture.animations[3][2], fixture.initialValues[3], fixture.blendRate)),
+            });
+
+            function addConstantAnimation(clip: AnimationClip, path: string, value: number) {
+                const track = new VectorTrack();
+                track.componentsCount = 3;
+                track.path.toHierarchy(path).toProperty('position');
+                track.channels()[0].curve.assignSorted([[0.0, value]]);
+                clip.addTrack(track);
+            }
+        });
     });
 });
 
