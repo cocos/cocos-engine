@@ -1464,24 +1464,9 @@ export class ParticleSystem extends ModelRenderer {
                 }
             }
         }
-
-        if (this.getParticleCount() <= 0) { // Remove drawcall if buffer is 0
-            if (this.processor.getModel()?.scene) {
-                this.processor.detachFromScene();
-                if (this._trailModule && this._trailModule.enable) {
-                    this._trailModule._detachFromScene();
-                }
-            }
-        }
     }
 
     protected beforeRender () {
-        if (!this._isPlaying) return;
-        this.processor.beforeRender();
-        if (this._trailModule && this._trailModule.enable) {
-            this._trailModule.beforeRender();
-        }
-
         if (this.getParticleCount() <= 0) {
             if (this.processor.getModel()?.scene) {
                 this.processor.detachFromScene();
@@ -1492,6 +1477,15 @@ export class ParticleSystem extends ModelRenderer {
             }
         } else if (!this.processor.getModel()?.scene) {
             this._needAttach = true;
+        }
+
+        if (!this._isPlaying) return;
+
+        if (this.processor.getModel()?.scene) { // Just update particle system in the scene
+            this.processor.beforeRender();
+            if (this._trailModule && this._trailModule.enable) {
+                this._trailModule.beforeRender();
+            }
         }
     }
 
