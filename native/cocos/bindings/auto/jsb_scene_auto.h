@@ -67,6 +67,7 @@
 #include "3d/models/BakedSkinningModel.h"
 #include "renderer/core/ProgramLib.h"
 #include "scene/Octree.h"
+#include "scene/ReflectionProbe.h"
 
 
 
@@ -282,6 +283,11 @@ extern se::Class * __jsb_cc_scene_Ambient_class; // NOLINT
 JSB_REGISTER_OBJECT_TYPE(cc::scene::AmbientInfo);
 extern se::Object *__jsb_cc_scene_AmbientInfo_proto; // NOLINT
 extern se::Class * __jsb_cc_scene_AmbientInfo_class; // NOLINT
+
+
+JSB_REGISTER_OBJECT_TYPE(cc::scene::ReflectionProbe);
+extern se::Object *__jsb_cc_scene_ReflectionProbe_proto; // NOLINT
+extern se::Class * __jsb_cc_scene_ReflectionProbe_class; // NOLINT
 
 
 JSB_REGISTER_OBJECT_TYPE(cc::PassInstance);
