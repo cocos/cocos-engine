@@ -52,6 +52,7 @@ import { CustomPipelineBuilder } from './custom-pipeline';
 import { decideProfilerCamera } from '../pipeline-funcs';
 import { DebugViewCompositeType } from '../debug-view';
 import { getUBOTypeCount } from './utils';
+import { globalPipelineStateChanged } from './define';
 
 export class WebSetter {
     constructor (data: RenderData, lg: LayoutGraphData) {
@@ -534,41 +535,6 @@ export class WebRasterQueueBuilder extends WebSetter implements RasterQueueBuild
         );
         setCameraUBOValues(this, probeCamera, this._pipeline,
             camera.scene ? camera.scene : cclegacy.director.getScene().renderScene);
-    }
-
-    gatherRenderObjects (probeCamera: Camera, isUseRGBE:boolean) {
-        const skybox = this._pipeline.skybox;
-        const subModelsArray: SubModel[] = [];
-        if (skybox.enabled && skybox.model && (probeCamera.clearFlag & SKYBOX_FLAG)) {
-            subModelsArray.push(skybox.model.subModels[0]);
-        }
-        const scene = cclegacy.director.getScene().renderScene;
-        const models = scene.models;
-        const visibility = probeCamera.visibility;
-
-        for (let i = 0; i < models.length; i++) {
-            const model = models[i];
-            // filter model by view visibility
-            if (model.enabled) {
-                for (let j = 0; j < model.subModels.length; j++) {
-                    subModelsArray.push(model.subModels[j]);
-                }
-            }
-        }
-
-        if (isUseRGBE) {
-            for (let i = 0; i < subModelsArray.length; i++) {
-                const subModel = subModelsArray[i];
-                let patches: IMacroPatch[] | null = subModel.patches;
-                const useRGBE: IMacroPatch[] = [
-                    { name: 'CC_USE_RGBE_OUTPUT', value: isUseRGBE },
-                ];
-                patches = patches ? patches.concat(useRGBE) : useRGBE;
-                subModel.onMacroPatchesStateChanged(patches);
-            }
-        } else {
-
-        }
     }
 
     updateCameraUBO (camera: Camera, renderScene: RenderScene) {
@@ -1153,6 +1119,7 @@ export class WebPipeline implements Pipeline {
         this.beginFrame();
         this.execute();
         this.endFrame();
+        globalPipelineStateChanged(this._pipelineSceneData, false);
     }
 
     addRasterPass (width: number, height: number, layoutName = 'default'): RasterPassBuilder {

@@ -87,7 +87,6 @@ export interface Setter extends RenderNode {
 
 export interface RasterQueueBuilder extends Setter {
     addSceneOfReflectionProbe(camera: Camera, probeCamera:Camera, arg1: LightInfo, arg2: number): void;
-    gatherRenderObjects(probeCamera: Camera, useRGBE:boolean);
     addSceneOfCamera (camera: Camera, light: LightInfo, sceneFlags: SceneFlags): void;
     addSceneOfCamera (camera: Camera, light: LightInfo/*, SceneFlags.NONE*/): void;
     addScene (name: string, sceneFlags: SceneFlags): void;
@@ -99,7 +98,6 @@ export interface RasterQueueBuilder extends Setter {
     clearRenderTarget (name: string, color: Color): void;
     clearRenderTarget (name: string/*, new Color()*/): void;
     setViewport (viewport: Viewport): void;
-    updateCameraUBO(camera: Camera, renderScene:RenderScene);
 }
 
 export interface RasterPassBuilder extends Setter {
