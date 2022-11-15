@@ -30,10 +30,6 @@ import { Device, Format, FormatFeatureBit, deviceManager } from '../../gfx';
 import { Asset } from './asset';
 import { PixelFormat } from './asset-enum';
 import { warnID, macro, sys, cclegacy } from '../../core';
-import { legacyCC } from '../../core/global-exports';
-import { warnID } from '../../core/platform/debug';
-import { macro } from '../../core/platform/macro';
-import { sys } from '../../core/platform/sys';
 import { Enum } from '../../core/value-types/enum';
 
 // Compress mipmap constants
