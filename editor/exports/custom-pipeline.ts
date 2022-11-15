@@ -1,2 +1,2 @@
-import { LayoutGraphData } from '../../cocos/rendering/custom/layout-graph';
-export { LayoutGraphData };
+import * as shader from '../../cocos/rendering/custom/editor';
+export { shader };
