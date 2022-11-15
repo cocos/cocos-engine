@@ -315,7 +315,8 @@ const mat3 CubeNormals[12] = {mat3(vec3(0.0,0.0,1.0),vec3(0.0,0.0,1.0),vec3(0.0,
 
     #if CC_USE_LIGHTMAP && !CC_FORWARD_ADD
       vec4 lightColor = texture(cc_lightingMap, v_luv.xy);
-      s.lightmap = lightColor.xyz * v_luv.z;
+      s.lightmap.a = lightColor.a;
+      s.lightmap.rgb = lightColor.xyz * v_luv.z;
       s.lightmap_test = v_luv.z; /*lum*/
     #endif
 
