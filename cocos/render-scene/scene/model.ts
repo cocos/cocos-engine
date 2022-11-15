@@ -961,7 +961,7 @@ export class Model {
                 stationary = this.node.scene.globals.bakedWithStationaryMainLight;
             }
 
-            let lightmapPathes = stationary ? stationaryLightMapPatches : staticLightMapPatches;
+            const lightmapPathes = stationary ? stationaryLightMapPatches : staticLightMapPatches;
             patches = patches ? patches.concat(lightmapPathes) : lightmapPathes;
         }
         if (this._useLightProbe) {
