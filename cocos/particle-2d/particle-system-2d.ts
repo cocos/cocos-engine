@@ -1174,7 +1174,7 @@ export class ParticleSystem2D extends UIRenderer {
         if (!this._useFile) {
             if (this._customMaterial) {
                 this.setMaterial(this._customMaterial, 0);
-                let target = this.getRenderMaterial(0)!.passes[0].blendState.targets[0];
+                const target = this.getRenderMaterial(0)!.passes[0].blendState.targets[0];
                 this._dstBlendFactor = target.blendDst;
                 this._srcBlendFactor = target.blendSrc;
             }
