@@ -104,7 +104,7 @@ protected:
     bool initWithETCData(const unsigned char *data, uint32_t dataLen);
     bool initWithETC2Data(const unsigned char *data, uint32_t dataLen);
     bool initWithASTCData(const unsigned char *data, uint32_t dataLen, int32_t level = -1);
-    bool initWithCompressedData(const unsigned char *data, uint32_t dataLen);
+    bool initWithCompressedMipsData(const unsigned char *data, uint32_t dataLen);
 
     bool saveImageToPNG(const std::string &filePath, bool isToRGB = true);
     bool saveImageToJPG(const std::string &filePath);

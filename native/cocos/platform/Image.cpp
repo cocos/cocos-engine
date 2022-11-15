@@ -288,7 +288,7 @@ bool Image::initWithImageFile(const ccstd::string &path) {
     return ret;
 }
 
-bool Image::initWithImageData(const unsigned char *data, uint32_t dataLen, uint32_t level) {
+bool Image::initWithImageData(const unsigned char *data, uint32_t dataLen, uint32_t level) {    //NOLINT(misc-no-recursion)
     bool ret = false;
     do {
         CC_BREAK_IF(!data || dataLen <= 0);
@@ -333,7 +333,7 @@ bool Image::initWithImageData(const unsigned char *data, uint32_t dataLen, uint3
                 ret = initWithASTCData(unpackedData, unpackedLen, level);
                 break;
             case Format::COMPRESSED:
-                ret = initWithCompressedData(unpackedData, unpackedLen);
+                ret = initWithCompressedMipsData(unpackedData, unpackedLen);
                 break;
             default:
                 break;
@@ -956,7 +956,7 @@ bool Image::initWithASTCData(const unsigned char *data, uint32_t dataLen, int32_
     return true;
 }
 
-bool Image::initWithCompressedData(const unsigned char* data, uint32_t dataLen) {
+bool Image::initWithCompressedMipsData(const unsigned char *data, uint32_t /*dataLen*/) {   //NOLINT(misc-no-recursion)
     //check the data
     if (!compressedIsValid(data)) {
         return false;
