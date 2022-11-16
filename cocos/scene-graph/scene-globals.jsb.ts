@@ -499,7 +499,6 @@ visible(ambientSkyLightEnable)(AmbientInfoProto, 'groundLightingColor', groundLi
 ccclass('cc.AmbientInfo')(AmbientInfo);
 
 const LightProbeInfoProto = LightProbeInfo.prototype;
-serializable(LightProbeInfoProto, '_enabled');
 serializable(LightProbeInfoProto, '_giScale');
 serializable(LightProbeInfoProto, '_giSamples');
 serializable(LightProbeInfoProto, '_bounces');
@@ -508,9 +507,6 @@ serializable(LightProbeInfoProto, '_showProbe');
 serializable(LightProbeInfoProto, '_showWireframe');
 serializable(LightProbeInfoProto, '_showConvex');
 serializable(LightProbeInfoProto, '_data');
-const lightProbeEnabledDescriptor = Object.getOwnPropertyDescriptor(LightProbeInfo, 'enabled');
-tooltip('i18n:light_probe.enabled')(LightProbeInfo, 'enabled', lightProbeEnabledDescriptor);
-editable(LightProbeInfo, 'enabled', lightProbeEnabledDescriptor);
 const lightProbeGIScaleRingingDescriptor = Object.getOwnPropertyDescriptor(LightProbeInfo, 'giScale');
 tooltip('i18n:light_probe.giScale')(LightProbeInfo, 'giScale', lightProbeGIScaleRingingDescriptor);
 editable(LightProbeInfo, 'giScale', lightProbeGIScaleRingingDescriptor);

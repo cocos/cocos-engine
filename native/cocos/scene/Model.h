@@ -109,6 +109,7 @@ public:
     void updateWorldBoundsForJSSkinningModel(const Vec3 &min, const Vec3 &max);
     void updateWorldBoundsForJSBakedSkinningModel(geometry::AABB *aabb);
     void updateLightingmap(Texture2D *texture, const Vec4 &uvParam);
+    void clearSHUBOs();
     void updateSHUBOs();
     void updateOctree();
     void updateWorldBoundUBOs();
@@ -205,6 +206,7 @@ protected:
 
     void updateAttributesAndBinding(index_t subModelIndex);
     bool isLightProbeAvailable() const;
+    void updateSHBuffer();
 
     // Please declare variables in descending order of memory size occupied by variables.
     Type _type{Type::DEFAULT};

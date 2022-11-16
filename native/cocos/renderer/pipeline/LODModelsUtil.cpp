@@ -37,13 +37,13 @@ namespace pipeline {
  * @zh LOD所有级别中存储的model集合；包含多个LODGroup的所有LOD
  * @en The collection of models stored in all levels of LOD, All LODs containing multiple LODGroups.
  */
-ccstd::unordered_map<scene::Model *, bool> modelsInAnyLODGroup;
+ccstd::unordered_map<const scene::Model *, bool> modelsInAnyLODGroup;
 
 /**
  * @zh 指定相机下，某一级LOD使用的model集合；可能包含多个LODGroup的某一级LOD
  * @en Specify the model set used by a level of LOD under the camera, LOD of a level that may contain multiple LODGroups.
  */
-ccstd::unordered_map<scene::Model *, bool> visibleModelsByAnyLODGroup;
+ccstd::unordered_map<const scene::Model *, bool> visibleModelsByAnyLODGroup;
 
 void LODModelsCachedUtils::updateCachedLODModels(const scene::RenderScene *scene, const scene::Camera *camera) {
     for (const auto &lodGroup : scene->getLODGroups()) {
@@ -86,7 +86,7 @@ void LODModelsCachedUtils::updateCachedLODModels(const scene::RenderScene *scene
     }
 }
 
-bool LODModelsCachedUtils::isLODModelCulled(scene::Model *model) {
+bool LODModelsCachedUtils::isLODModelCulled(const scene::Model *model) {
     return modelsInAnyLODGroup[model] && !visibleModelsByAnyLODGroup[model];
 }
 

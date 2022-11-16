@@ -715,8 +715,16 @@ class LayerEval {
             _toWeight: toWeight,
         } = this;
         if (currentNode.kind === NodeKind.empty) {
-            this.passthroughWeight = toWeight;
+            // If current state is empty:
+            // - if there is no transition, the passthrough weight is 0.0, means this layer has no effect.
+            // - otherwise,
+            //   - if the destination is also empty state, it's as if no transition.
+            //   - otherwise, asserts the destination to be motion state;
+            //     the passthrough weight is set to the transition rate,
+            //     the motion state is sampled with full weight.
+            this.passthroughWeight = 0.0;
             if (currentTransitionToNode && currentTransitionToNode.kind === NodeKind.animation) {
+                this.passthroughWeight = toWeight;
                 currentTransitionToNode.sampleToPort(1.0);
             }
         } else if (currentTransitionToNode && currentTransitionToNode.kind === NodeKind.empty) {

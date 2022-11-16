@@ -778,10 +778,9 @@ export class ArmatureDisplay extends UIRenderer {
     }
 
     updateAnimation (dt) {
+        this.markForUpdateRenderData();
         if (!this.isAnimationCached()) return;
         if (!this._frameCache) return;
-
-        this.markForUpdateRenderData();
 
         const frameCache = this._frameCache;
         if (!frameCache.isInited()) {

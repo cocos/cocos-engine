@@ -6859,6 +6859,290 @@ bool js_register_cc_physics_DistanceJoint(se::Object* obj) {
 }
 
 
+se::Class* __jsb_cc_physics_FixedJoint_class = nullptr;
+se::Object* __jsb_cc_physics_FixedJoint_proto = nullptr;
+SE_DECLARE_FINALIZE_FUNC(js_delete_cc_physics_FixedJoint) 
+
+// js_ctor
+static bool js_new_cc_physics_FixedJoint(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    
+    cc::physics::FixedJoint *result;
+    result = (cc::physics::FixedJoint *)new cc::physics::FixedJoint();
+    
+    
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    s.thisObject()->setPrivateObject(ptr);
+    return true;
+}
+SE_BIND_CTOR(js_new_cc_physics_FixedJoint, __jsb_cc_physics_FixedJoint_class, js_delete_cc_physics_FixedJoint)
+
+static bool js_delete_cc_physics_FixedJoint(se::State& s)
+{
+    // js_dtoroverride
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_delete_cc_physics_FixedJoint) 
+
+static bool js_cc_physics_FixedJoint_initialize(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::FixedJoint *arg1 = (cc::physics::FixedJoint *) NULL ;
+    cc::Node *arg2 = (cc::Node *) NULL ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::FixedJoint>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) SWIGTYPE*
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "FixedJoint_initialize,2,SWIGTYPE_p_cc__Node"); 
+    (arg1)->initialize(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_FixedJoint_initialize) 
+
+static bool js_cc_physics_FixedJoint_onEnable(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::FixedJoint *arg1 = (cc::physics::FixedJoint *) NULL ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::FixedJoint>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    (arg1)->onEnable();
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_FixedJoint_onEnable) 
+
+static bool js_cc_physics_FixedJoint_onDisable(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::FixedJoint *arg1 = (cc::physics::FixedJoint *) NULL ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::FixedJoint>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    (arg1)->onDisable();
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_FixedJoint_onDisable) 
+
+static bool js_cc_physics_FixedJoint_onDestroy(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::FixedJoint *arg1 = (cc::physics::FixedJoint *) NULL ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::FixedJoint>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    (arg1)->onDestroy();
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_FixedJoint_onDestroy) 
+
+static bool js_cc_physics_FixedJoint_setEnableCollision(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::FixedJoint *arg1 = (cc::physics::FixedJoint *) NULL ;
+    bool arg2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::FixedJoint>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) bool
+    ok &= sevalue_to_native(args[0], &arg2);
+    SE_PRECONDITION2(ok, false, "FixedJoint_setEnableCollision,2,SWIGTYPE_bool"); 
+    (arg1)->setEnableCollision(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_FixedJoint_setEnableCollision) 
+
+static bool js_cc_physics_FixedJoint_setConnectedBody(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::FixedJoint *arg1 = (cc::physics::FixedJoint *) NULL ;
+    uint32_t arg2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::FixedJoint>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "FixedJoint_setConnectedBody,2,SWIGTYPE_uint32_t"); 
+    
+    (arg1)->setConnectedBody(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_FixedJoint_setConnectedBody) 
+
+static bool js_cc_physics_FixedJoint_getObjectID(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::FixedJoint *arg1 = (cc::physics::FixedJoint *) NULL ;
+    uint32_t result;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::FixedJoint>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = ((cc::physics::FixedJoint const *)arg1)->getObjectID();
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "FixedJoint_getObjectID, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_FixedJoint_getObjectID) 
+
+static bool js_cc_physics_FixedJoint_setBreakForce(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::FixedJoint *arg1 = (cc::physics::FixedJoint *) NULL ;
+    float arg2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::FixedJoint>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[0], &arg2, nullptr);
+    SE_PRECONDITION2(ok, false, "FixedJoint_setBreakForce,2,SWIGTYPE_float"); 
+    (arg1)->setBreakForce(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_FixedJoint_setBreakForce) 
+
+static bool js_cc_physics_FixedJoint_setBreakTorque(se::State& s)
+{
+    // js_function
+    
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::physics::FixedJoint *arg1 = (cc::physics::FixedJoint *) NULL ;
+    float arg2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::physics::FixedJoint>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) int, short, long, signed char, float, double
+    ok &= sevalue_to_native(args[0], &arg2, nullptr);
+    SE_PRECONDITION2(ok, false, "FixedJoint_setBreakTorque,2,SWIGTYPE_float"); 
+    (arg1)->setBreakTorque(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_physics_FixedJoint_setBreakTorque) 
+
+bool js_register_cc_physics_FixedJoint(se::Object* obj) {
+    auto* cls = se::Class::create("FixedJoint", obj, nullptr, _SE(js_new_cc_physics_FixedJoint)); 
+    
+    
+    cls->defineFunction("initialize", _SE(js_cc_physics_FixedJoint_initialize)); 
+    cls->defineFunction("onEnable", _SE(js_cc_physics_FixedJoint_onEnable)); 
+    cls->defineFunction("onDisable", _SE(js_cc_physics_FixedJoint_onDisable)); 
+    cls->defineFunction("onDestroy", _SE(js_cc_physics_FixedJoint_onDestroy)); 
+    cls->defineFunction("setEnableCollision", _SE(js_cc_physics_FixedJoint_setEnableCollision)); 
+    cls->defineFunction("setConnectedBody", _SE(js_cc_physics_FixedJoint_setConnectedBody)); 
+    cls->defineFunction("getObjectID", _SE(js_cc_physics_FixedJoint_getObjectID)); 
+    cls->defineFunction("setBreakForce", _SE(js_cc_physics_FixedJoint_setBreakForce)); 
+    cls->defineFunction("setBreakTorque", _SE(js_cc_physics_FixedJoint_setBreakTorque)); 
+    
+    
+    
+    
+    cls->defineFinalizeFunction(_SE(js_delete_cc_physics_FixedJoint));
+    
+    
+    cls->install();
+    JSBClassType::registerClass<cc::physics::FixedJoint>(cls);
+    
+    __jsb_cc_physics_FixedJoint_proto = cls->getProto();
+    __jsb_cc_physics_FixedJoint_class = cls;
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
+
 
 
 bool register_all_physics(se::Object* obj) {
@@ -6884,6 +7168,7 @@ bool register_all_physics(se::Object* obj) {
     js_register_cc_physics_TerrainShape(ns); 
     js_register_cc_physics_RevoluteJoint(ns); 
     js_register_cc_physics_DistanceJoint(ns); 
+    js_register_cc_physics_FixedJoint(ns); 
     
     /* Register global variables & global functions */
     

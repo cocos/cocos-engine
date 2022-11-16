@@ -36,11 +36,9 @@
 ****************************************************************************/
 
 #pragma once
-#include <type_traits>
-#include "cocos/bindings/jswrapper/SeApi.h"
-#include "cocos/bindings/manual/jsb_conversions.h"
-#include "cocos/xr/Xr.h"
-
+#include "bindings/jswrapper/SeApi.h"
+#include "bindings/manual/jsb_conversions.h"
+#include "xr/Xr.h"
 
 
 
