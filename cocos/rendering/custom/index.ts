@@ -84,7 +84,7 @@ function addCustomBuiltinPipelines (map: Map<string, PipelineBuilder>) {
 
 addCustomBuiltinPipelines(customPipelineBuilderMap);
 
-export function deserializeLayoutGraph (arrayBuffer: ArrayBuffer, lg: LayoutGraphData) {
+export function deserializeLayoutGraph (arrayBuffer: ArrayBuffer, rendering: any) {
     const readBinaryData = new BinaryInputArchive(arrayBuffer);
-    loadLayoutGraphData(readBinaryData, lg);
+    loadLayoutGraphData(readBinaryData, rendering.defaultLayoutGraph);
 }

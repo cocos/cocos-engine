@@ -104,10 +104,7 @@ export class EffectSettings {
         if (!this._data || !legacyCC.rendering || !legacyCC.rendering.enableEffectImport) {
             return;
         }
-        legacyCC.rendering.deserializeLayoutGraph(
-            this._data,
-            legacyCC.rendering.defaultLayoutGraph,
-        );
+        legacyCC.rendering.deserializeLayoutGraph(this._data, legacyCC.rendering);
     }
 
     /**
