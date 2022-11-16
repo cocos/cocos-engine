@@ -30,6 +30,7 @@ namespace cc::gfx {
 void AliasingContext::reset()
 {
     _resources.clear();
+    _aliasingInfo.clear();
 }
 
 void AliasingContext::record(const ResourceInfo& inRes) {
@@ -41,19 +42,13 @@ void AliasingContext::record(const ResourceInfo& inRes) {
             ++iter;
             continue;
         }
-
-        if (current.tracked.last != nullptr) {
-            current.tracked.last->addAliasingPair(BarrierType::ALIASING_COMPLETE,
-                                                  AliasingPair{
-                                                      current.tracked.resource,
-                                                      inRes.tracked.resource});
-        }
-
-        if (inRes.tracked.first != nullptr) {
-            inRes.tracked.first->addAliasingPair(BarrierType::ALIASING_INIT,
-                                                 AliasingPair{
-                                                     current.tracked.resource,
-                                                     inRes.tracked.resource});
+        if (current.tracked.last != UNDEFINED_PASS_SCOPE) {
+            auto &info = _aliasingInfo[current.tracked.last];
+            info.before = current.tracked.resource;
+            info.after = inRes.tracked.resource;
+            info.beforeAccess = current.tracked.lastAccess;
+            info.afterAccess = inRes.tracked.firstAccess;
+            info.nextScope = inRes.tracked.first;
         }
 
 

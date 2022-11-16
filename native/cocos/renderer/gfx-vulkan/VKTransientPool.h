@@ -45,7 +45,6 @@ private:
 
     void initMemoryRequirements(const TransientPoolInfo &info);
 
-    VkMemoryRequirements _requirements{};
     VmaAllocationCreateInfo _allocationCreateInfo{};
     VmaPool _memoryPool{VK_NULL_HANDLE};
 };

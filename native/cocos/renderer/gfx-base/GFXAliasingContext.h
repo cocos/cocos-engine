@@ -27,32 +27,34 @@ THE SOFTWARE.
 
 #include <cstdint>
 #include "base/std/container/vector.h"
+#include "base/std/container/unordered_map.h"
 #include "gfx-base/GFXDef-common.h"
 #include "gfx-base/GFXBuffer.h"
 #include "gfx-base/GFXTexture.h"
 #include "allocator/Allocator.h"
 
 namespace cc::gfx {
-struct IAliasingScope;
+using PassScope = uint32_t;
+static constexpr PassScope UNDEFINED_PASS_SCOPE = ~(0U);
 
 struct AliasingResource {
     GFXObject* object = nullptr;
 };
 
-struct AliasingResourceTracked {
-    AliasingResource resource;
-    IAliasingScope *first = nullptr;
-    IAliasingScope *last = nullptr;
-};
-
-
-struct AliasingPair {
+struct AliasingInfo {
     AliasingResource before;
     AliasingResource after;
+    AccessFlagBit beforeAccess = AccessFlagBit::NONE;
+    AccessFlagBit afterAccess  = AccessFlagBit::NONE;
+    PassScope nextScope = UNDEFINED_PASS_SCOPE;
 };
 
-struct IAliasingScope {
-    virtual void addAliasingPair(BarrierType type, const AliasingPair &) = 0;
+struct AliasingResourceTracked {
+    AliasingResource resource;
+    PassScope first = UNDEFINED_PASS_SCOPE;
+    PassScope last  = UNDEFINED_PASS_SCOPE;
+    AccessFlags firstAccess = AccessFlagBit::NONE;
+    AccessFlags lastAccess  = AccessFlagBit::NONE;
 };
 
 class AliasingContext {
@@ -73,6 +75,7 @@ public:
 
 private:
     ccstd::vector<ResourceInfo> _resources;
+    ccstd::unordered_map<PassScope, AliasingInfo> _aliasingInfo;
 };
 
 

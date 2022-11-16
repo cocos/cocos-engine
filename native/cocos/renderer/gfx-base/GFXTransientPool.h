@@ -53,18 +53,18 @@ public:
     void beginFrame();
     void endFrame();
 
-    Buffer *requestBuffer(const BufferInfo &info, IAliasingScope *scope);
-    Texture *requestTexture(const TextureInfo &info, IAliasingScope *scope);
+    Buffer *requestBuffer(const BufferInfo &info, PassScope scope, AccessFlags accessFlag = AccessFlagBit::NONE);
+    Texture *requestTexture(const TextureInfo &info, PassScope scope, AccessFlags accessFlag = AccessFlagBit::NONE);
 
-    void resetBuffer(Buffer *, IAliasingScope *scope);
-    void resetTexture(Texture *, IAliasingScope *scope);
+    void resetBuffer(Buffer *, PassScope scope, AccessFlags accessFlag = AccessFlagBit::NONE);
+    void resetTexture(Texture *, PassScope scope, AccessFlags accessFlag = AccessFlagBit::NONE);
 
 protected:
     friend class TransientPoolAgent;
     friend class TransientPoolValidator;
 
     // game thread
-    void recordResource(uint32_t id, IAliasingScope *scope);
+    void recordResource(uint32_t id, PassScope scope, AccessFlags accessFlag);
 
     // gfx thread
     virtual void doInit(const TransientPoolInfo &info) {}

@@ -117,7 +117,6 @@ void VKTransientPool::doInitBuffer(Buffer *buffer) {
                                &_allocationCreateInfo,
                                &allocation,
                                &allocationInfo);
-    gpuBuffer->vmaAllocation = allocation;
     vmaBindBufferMemory(allocator, allocation, vkBuffer);
 }
 
@@ -125,7 +124,6 @@ void VKTransientPool::doResetBuffer(Buffer *buffer) {
     VmaAllocator allocator = CCVKDevice::getInstance()->gpuDevice()->memoryAllocator;
     auto *gpuBuffer = static_cast<CCVKBuffer *>(buffer)->gpuBuffer();
     vmaFreeMemory(allocator, gpuBuffer->vmaAllocation);
-    gpuBuffer->vmaAllocation = VK_NULL_HANDLE;
 }
 
 void VKTransientPool::doInitTexture(Texture *texture) {
@@ -142,7 +140,6 @@ void VKTransientPool::doInitTexture(Texture *texture) {
                               &_allocationCreateInfo,
                               &allocation,
                               &allocationInfo);
-    vkTexture->gpuTexture()->vmaAllocation = allocation;
     vmaBindImageMemory(allocator, allocation, vkImage);
 
     vkTexture->createTextureView();
@@ -152,7 +149,6 @@ void VKTransientPool::doResetTexture(Texture *texture) {
     VmaAllocator allocator = CCVKDevice::getInstance()->gpuDevice()->memoryAllocator;
     auto *gpuTexture = static_cast<CCVKTexture *>(texture)->gpuTexture();
     vmaFreeMemory(allocator, gpuTexture->vmaAllocation);
-    gpuTexture->vmaAllocation = VK_NULL_HANDLE;
 }
 
 } // namespace gfx
