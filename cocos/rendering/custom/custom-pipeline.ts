@@ -20,7 +20,7 @@ export class CustomPipelineBuilder implements PipelineBuilder {
             // bloom passes
             const bloomInfo = buildBloomPasses(camera, ppl, forwardInfo.rtName);
             // Present Pass
-            buildPostprocessPass(camera, ppl, bloomInfo.rtName);
+            buildPostprocessPass(camera, ppl, bloomInfo.rtName, AntiAliasing.NONE);
         }
     }
 }

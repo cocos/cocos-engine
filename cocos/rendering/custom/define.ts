@@ -13,6 +13,7 @@ import { RenderWindow } from '../../render-scene/core/render-window';
 export enum AntiAliasing {
     NONE,
     FXAA,
+    FXAAHQ,
 }
 
 export function validPunctualLightsCulling (pipeline: Pipeline, camera: Camera) {
