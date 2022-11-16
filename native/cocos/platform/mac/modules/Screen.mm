@@ -45,6 +45,7 @@ int Screen::getDPI() const {
 
 float Screen::getDevicePixelRatio() const {
 #if CC_EDITOR
+    se::AutoHandleScope hs;
     auto* global = se::ScriptEngine::getInstance()->getGlobalObject();
     se::Value devicePixelRatioVal;
     global->getProperty("devicePixelRatio", &devicePixelRatioVal);
