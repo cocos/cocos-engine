@@ -231,7 +231,7 @@ void CCVKCommandBuffer::bindPipelineState(PipelineState *pso) {
     CCVKGPUPipelineState *gpuPipelineState = static_cast<CCVKPipelineState *>(pso)->gpuPipelineState();
 
     if (_curGPUPipelineState != gpuPipelineState) {
-        vkCmdBindPipeline(_gpuCommandBuffer->vkCommandBuffer, VK_PIPELINE_BIND_POINTS[toNumber(gpuPipelineState->bindPoint)], gpuPipelineState->vkPipeline);
+        vkCmdBindPipeline(_gpuCommandBuffer->vkCommandBuffer, VK_PIPELINE_BIND_POINTS[toNumber(gpuPipelineState->bindPoint)], gpuPipelineState-> vkPipeline);
         _curGPUPipelineState = gpuPipelineState;
     }
 }

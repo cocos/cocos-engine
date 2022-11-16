@@ -14,10 +14,10 @@ class Model;
 namespace pipeline
 {
     class GlobalDSManager;
-    class SceneAccelerationStructure final
+    class RayTracingScene final
     {
     public:
-        SceneAccelerationStructure();
+        RayTracingScene();
         void update(const scene::RenderScene* scene);
         inline void handleNewModel(const IntrusivePtr<scene::Model>& model);
         inline void handleModel(const IntrusivePtr<scene::Model>& model);

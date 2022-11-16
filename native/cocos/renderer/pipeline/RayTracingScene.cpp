@@ -1,4 +1,4 @@
-#include "SceneAccelerationStructure.h"
+#include "RayTracingScene.h"
 #include "GlobalDescriptorSetManager.h"
 #include "3d/assets/Mesh.h"
 #include "gfx-base/GFXDevice.h"
@@ -68,12 +68,12 @@ namespace pipeline
 
     } // anonymous namespace
 
-    SceneAccelerationStructure::SceneAccelerationStructure() {
+    RayTracingScene::RayTracingScene() {
         const auto* pipelineRuntime = Root::getInstance()->getPipeline();
         _globalDSManager = pipelineRuntime->getGlobalDSManager(); 
     }
 
-    void SceneAccelerationStructure::handleNewModel(const IntrusivePtr<scene::Model>& pModel) {
+    void RayTracingScene::handleNewModel(const IntrusivePtr<scene::Model>& pModel) {
 
         gfx::ASInstance tlasGeom{};
         meshShadingInstanceDescriptor shadingInstanceDescriptor{};
@@ -205,7 +205,7 @@ namespace pipeline
         _modelMap.emplace(pModel->getNode()->getUuid(), std::pair{true, tlasGeom});
     }
 
-    void SceneAccelerationStructure::handleModel(const IntrusivePtr<scene::Model>& pModel) {
+    void RayTracingScene::handleModel(const IntrusivePtr<scene::Model>& pModel) {
         
         if (!pModel->getNode()->isValid() || !pModel->getNode()->isActive() || pModel->getNode()->getName() == "Profiler_Root") {
             return;
@@ -234,7 +234,7 @@ namespace pipeline
         }
     }
 
-    void SceneAccelerationStructure::update(const scene::RenderScene* scene) {
+    void RayTracingScene::update(const scene::RenderScene* scene) {
         needRebuild = needUpdate = needRecreate = false;
 
         for (const auto& pModel : scene->getModels()) {
@@ -311,7 +311,7 @@ namespace pipeline
         needRecreate = needRebuild = needUpdate = false;
     }
 
-    void SceneAccelerationStructure::destroy() {
+    void RayTracingScene::destroy() {
         _topLevelAccelerationStructure = nullptr;
         _bottomLevelAccelerationStructures.clear();
         _geomBlasMap.clear();

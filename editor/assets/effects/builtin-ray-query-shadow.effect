@@ -425,7 +425,7 @@ CCProgram ray-query-fs %{
           HitRecord hit = getHitRecordWorldSpace(rayQuery);
           vec3 bitangent = cross(hit.normal, hit.tangent.xyz) * hit.tangent.w; 
           float ao = calculate_ao(frame_id,seed,mat3(normalize(hit.tangent.xyz),normalize(bitangent), normalize(hit.normal)),hit.position,10.0);
-          result += hit.albedo*(1.0-ao);
+          result += hit.albedo*(1.0-ao)/PI;
         }
       }
     }

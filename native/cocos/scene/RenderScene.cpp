@@ -32,7 +32,7 @@
 #include "base/Log.h"
 #include "core/Root.h"
 #include "core/scene-graph/Node.h"
-#include "pipeline/SceneAccelerationStructure.h"
+#include "pipeline/RayTracingScene.h"
 #include "profiler/Profiler.h"
 #include "renderer/pipeline/PipelineSceneData.h"
 #include "renderer/pipeline/custom/RenderInterfaceTypes.h"
@@ -54,7 +54,7 @@ RenderScene::~RenderScene() = default;
 void RenderScene::activate() {
     const auto *sceneData = Root::getInstance()->getPipeline()->getPipelineSceneData();
     _octree = sceneData->getOctree();
-    _sceneAccel = ccnew pipeline::SceneAccelerationStructure;
+    _sceneAccel = ccnew pipeline::RayTracingScene;
 }
 
 bool RenderScene::initialize(const IRenderSceneInfo &info) {
