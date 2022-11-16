@@ -11,6 +11,7 @@ import { SRGBToLinear } from '../pipeline-funcs';
 export enum AntiAliasing {
     NONE,
     FXAA,
+    FXAAHQ,
 }
 
 export function validPunctualLightsCulling (pipeline: Pipeline, camera: Camera) {
