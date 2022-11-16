@@ -46,11 +46,11 @@ bool gles3wOpen() {
     if (GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS |
                               GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
                           (LPCWSTR)&gles3wOpen, &engine) != 0) {
-        std::string dir("");
+        std::string dir();
         int times = 1;
         do {
             auto size = MAX_PATH * times++;
-            char *path = (char *)CC_MALLOC(size);
+            char *path = static_cast<char*>(CC_MALLOC(size));
             if (path) {
                 GetModuleFileNameA(engine, path, size);
                 dir = path;
