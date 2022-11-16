@@ -161,14 +161,14 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
                 Vec3.transformQuat(_temp_v3_1, _temp_v3_1, this.rotation);
             }
             Vec3.set(dampedVel,
-                dampenBeyondLimit(p.ultimateVelocity.x, _temp_v3_1.x, this.dampen),
-                dampenBeyondLimit(p.ultimateVelocity.y, _temp_v3_1.y, this.dampen),
-                dampenBeyondLimit(p.ultimateVelocity.z, _temp_v3_1.z, this.dampen));
+                dampenBeyondLimit(p.velocity.x, _temp_v3_1.x, this.dampen),
+                dampenBeyondLimit(p.velocity.y, _temp_v3_1.y, this.dampen),
+                dampenBeyondLimit(p.velocity.z, _temp_v3_1.z, this.dampen));
         } else {
-            Vec3.normalize(dampedVel, p.ultimateVelocity);
-            Vec3.multiplyScalar(dampedVel, dampedVel, dampenBeyondLimit(p.ultimateVelocity.length(), this.limit.evaluate(normalizedTime, pseudoRandom(p.randomSeed + LIMIT_VELOCITY_RAND_OFFSET))!, this.dampen));
+            Vec3.normalize(dampedVel, p.velocity);
+            Vec3.multiplyScalar(dampedVel, dampedVel, dampenBeyondLimit(p.velocity.length(), this.limit.evaluate(normalizedTime, pseudoRandom(p.randomSeed + LIMIT_VELOCITY_RAND_OFFSET))!, this.dampen));
         }
-        Vec3.copy(p.ultimateVelocity, dampedVel);
+        Vec3.copy(p.velocity, dampedVel);
     }
 }
 
@@ -176,7 +176,12 @@ function dampenBeyondLimit (vel: number, limit: number, dampen: number) {
     const sgn = Math.sign(vel);
     let abs = Math.abs(vel);
     if (abs > limit) {
-        abs = lerp(abs, limit, dampen);
+        const absToGive = abs - abs * dampen;
+        if (absToGive > limit) {
+            abs = absToGive;
+        } else {
+            abs = limit;
+        }
     }
     return abs * sgn;
 }
