@@ -62,8 +62,8 @@ bool gles3wOpen() {
         eglPath = dir + eglPath;
         glesPath = dir + glesPath;
     } else {
-        int err = GetLastError();
-        CC_LOG_WARNING("Failed to get abs path for editor,error code:%d", err);
+        DWORD err = GetLastError();
+        CC_LOG_WARNING("Failed to get abs path for editor,error code:%lu", err);
     }
     #endif
 
