@@ -506,12 +506,6 @@ cocos_source_files(
     cocos/platform/UniversalPlatform.h
 )
 if(WINDOWS)
-    if(CC_EDITOR) 
-        cocos_source_files(
-            cocos/platform/editor/windows/EditorApplication.cpp
-            cocos/platform/editor/EditorApplication.h
-        )
-    endif()
     cocos_source_files(
         cocos/platform/win32/WindowsPlatform.cpp
         cocos/platform/win32/WindowsPlatform.h
@@ -532,12 +526,6 @@ elseif(OHOS)
         cocos/platform/ohos/OhosPlatform.h
     )
 elseif(MACOSX)
-    if(CC_EDITOR) 
-        cocos_source_files(
-            cocos/platform/editor/mac/EditorApplication.mm
-            cocos/platform/editor/EditorApplication.h
-        )
-    endif()
     cocos_source_files(
         cocos/platform/mac/MacPlatform.mm
         cocos/platform/mac/MacPlatform.h
