@@ -71,6 +71,8 @@ exports.ready = function() {
                     args: [],
                 });
             }
+
+            Editor.Message.send('scene', 'snapshot');
         }
     });
 
