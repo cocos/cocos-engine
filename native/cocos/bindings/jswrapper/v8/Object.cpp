@@ -223,9 +223,9 @@ Object *Object::createArrayObject(size_t length) {
 
 Object *Object::createArrayBufferObject(const void *data, size_t byteLength) {
     #if CC_EDITOR && CC_PLATFORM == CC_PLATFORM_WINDOWS
-    auto nsBuffer = node::Buffer::New(__isolate, byteLength);
-    auto *srcData = node::Buffer::Data(nsBuffer.ToLocalChecked());
-    v8::Local<v8::ArrayBuffer> jsobj = nsBuffer.ToLocalChecked().As<v8::TypedArray>()->Buffer();
+    auto nodeBuffer = node::Buffer::New(__isolate, byteLength);
+    auto *srcData = node::Buffer::Data(nodeBuffer.ToLocalChecked());
+    v8::Local<v8::ArrayBuffer> jsobj = nodeBuffer.ToLocalChecked().As<v8::TypedArray>()->Buffer();
     #else
     v8::Local<v8::ArrayBuffer> jsobj = v8::ArrayBuffer::New(__isolate, byteLength);
     auto *srcData = jsobj->GetBackingStore()->Data();
@@ -243,11 +243,11 @@ Object *Object::createArrayBufferObject(const void *data, size_t byteLength) {
 Object *Object::createExternalArrayBufferObject(void *contents, size_t byteLength, BufferContentsFreeFunc freeFunc, void *freeUserData /* = nullptr*/) {
     Object *obj = nullptr;
     #if CC_EDITOR && CC_PLATFORM == CC_PLATFORM_WINDOWS
-    auto nsBuffer = node::Buffer::New(
+    auto nodeBuffer = node::Buffer::New(
                         __isolate, (char *)contents, byteLength, [](char *data, void *hint) {}, nullptr)
                         .ToLocalChecked()
                         .As<v8::TypedArray>();
-    v8::Local<v8::ArrayBuffer> jsobj = nsBuffer.As<v8::TypedArray>()->Buffer();
+    v8::Local<v8::ArrayBuffer> jsobj = nodeBuffer.As<v8::TypedArray>()->Buffer();
     #else
     std::shared_ptr<v8::BackingStore> backingStore = v8::ArrayBuffer::NewBackingStore(contents, byteLength, freeFunc, freeUserData);
     v8::Local<v8::ArrayBuffer> jsobj = v8::ArrayBuffer::New(__isolate, backingStore);
@@ -270,9 +270,9 @@ Object *Object::createTypedArray(TypedArrayType type, const void *data, size_t b
         return nullptr;
     }
     #if CC_EDITOR && CC_PLATFORM == CC_PLATFORM_WINDOWS
-    auto nsBuffer = node::Buffer::New(__isolate, byteLength);
-    auto *srcData = node::Buffer::Data(nsBuffer.ToLocalChecked());
-    v8::Local<v8::ArrayBuffer> jsobj = nsBuffer.ToLocalChecked().As<v8::TypedArray>()->Buffer();
+    auto nodeBuffer = node::Buffer::New(__isolate, byteLength);
+    auto *srcData = node::Buffer::Data(nodeBuffer.ToLocalChecked());
+    v8::Local<v8::ArrayBuffer> jsobj = nodeBuffer.ToLocalChecked().As<v8::TypedArray>()->Buffer();
     #else
     v8::Local<v8::ArrayBuffer> jsobj = v8::ArrayBuffer::New(__isolate, byteLength);
     auto *srcData = jsobj->GetBackingStore()->Data();
