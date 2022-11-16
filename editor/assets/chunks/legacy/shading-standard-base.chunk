@@ -205,7 +205,7 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
       vec2 screenUV = GetScreenUV(s.position, cc_matViewProj, cc_cameraPos.w);
       vec4 probe = texture(cc_reflectionProbePlanarMap, screenUV);
     #endif
-    env += unpackRGBE(probe);
+    env = unpackRGBE(probe);
   #endif
 
   finalColor += env * cc_ambientSky.w * specular * s.occlusion;
