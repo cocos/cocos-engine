@@ -30,7 +30,8 @@ import { findCanvas, loadJsFile } from 'pal/env';
 import { Pacer } from 'pal/pacer';
 import { ConfigOrientation } from 'pal/screen-adapter';
 import assetManager, { IAssetManagerOptions } from '../asset/asset-manager/asset-manager';
-import { EventTarget, AsyncDelegate, sys, macro, VERSION, cclegacy, screen, Settings, settings, assert, garbageCollectionManager, DebugMode, warn, log, _resetDebugSetting } from '../core';
+import { EventTarget, AsyncDelegate, sys, macro, VERSION, cclegacy, screen, Settings, settings, assert,
+    garbageCollectionManager, DebugMode, warn, log, _resetDebugSetting } from '../core';
 import { input } from '../input';
 import { deviceManager } from '../gfx';
 import { SplashScreen } from './splash-screen';
@@ -42,6 +43,7 @@ import { bindingMappingInfo } from '../rendering/define';
 import { IBundleOptions } from '../asset/asset-manager/shared';
 import { ICustomJointTextureLayout } from '../3d/skeletal-animation/skeletal-animation-utils';
 import { IPhysicsConfig } from '../physics/framework/physics-config';
+import { effectSettings } from '../core/effect-settings';
 
 /**
  * @zh
@@ -57,6 +59,14 @@ export interface IGameConfig {
      * The path of settings.json
      */
     settingsPath?: string;
+
+    /**
+     * @zh
+     * 引擎内 Effect 配置文件路径
+     * @en
+     * The path of effectSettings.json
+     */
+    effectSettingsPath?: string;
 
     /**
      * @zh
@@ -742,6 +752,10 @@ export class Game extends EventTarget {
             .then(() => {
                 this.emit(Game.EVENT_PRE_SUBSYSTEM_INIT);
                 return this.onPreSubsystemInitDelegate.dispatch();
+            })
+            .then(() => effectSettings.init(config.effectSettingsPath))
+            .then(() => {
+                effectSettings.applyBindings();
             })
             .then(() => {
                 if (DEBUG) {

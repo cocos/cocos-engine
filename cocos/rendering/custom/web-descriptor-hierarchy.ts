@@ -353,6 +353,8 @@ export class WebDescriptorHierarchy {
                     const v2add = this._layoutGraph.locate(`/${pName}/${phase}`);
                     if (v2add === 0xFFFFFFFF) {
                         const v = this.addRenderPhase(phase, parent);
+                        const renderPhase = this._layoutGraph.tryGetRenderPhase(v)!;
+                        renderPhase.shaders.add(pass.program);
                         const dbStored = this._layoutGraph.getDescriptors(v);
                         for (const ee of db2add.blocks) {
                             const blockIndex = ee[0];

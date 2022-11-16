@@ -1,10 +1,12 @@
 import { OutputArchive, InputArchive } from './archive';
+import { ccclass } from '../../core/data/decorators';
 
+@ccclass('cc.BinaryOutputArchive')
 export class BinaryOutputArchive implements OutputArchive {
     constructor () {
         this.capacity = 4096;
         this.buffer = new Uint8Array(this.capacity);
-        this.dataView = new DataView(this.buffer);
+        this.dataView = new DataView(this.buffer.buffer);
     }
     writeBool (value: boolean): void {
         const newSize = this.size + 1;
@@ -38,7 +40,7 @@ export class BinaryOutputArchive implements OutputArchive {
         const prevBuffer = this.buffer;
         this.buffer = new Uint8Array(newCapacity);
         this.buffer.set(prevBuffer);
-        this.dataView = new DataView(this.buffer);
+        this.dataView = new DataView(this.buffer.buffer);
         this.capacity = newCapacity;
     }
     get data (): ArrayBuffer {
@@ -50,6 +52,7 @@ export class BinaryOutputArchive implements OutputArchive {
     dataView: DataView;
 }
 
+@ccclass('cc.BinaryInputArchive')
 export class BinaryInputArchive implements InputArchive {
     constructor (data: ArrayBuffer) {
         this.dataView = new DataView(data);
@@ -64,9 +67,9 @@ export class BinaryInputArchive implements InputArchive {
     }
     readString (): string {
         const length = this.readNumber();
-        const value = new Uint8Array(this.dataView.buffer, this.offset, length).toString();
+        const value = new Uint8Array(this.dataView.buffer, this.offset, length);
         this.offset += length;
-        return value;
+        return new TextDecoder('utf-8').decode(value);
     }
     offset = 0;
     dataView: DataView;
