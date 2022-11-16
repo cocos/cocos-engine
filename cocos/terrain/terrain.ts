@@ -221,6 +221,11 @@ class TerrainRenderable extends ModelRenderer {
             legacyCC.director.root.destroyModel(this._model);
             this._model = null;
         }
+
+        if (this._meshData != null) {
+            this._meshData.destroy();
+            this._meshData = null;
+        }
     }
 
     /**
@@ -1667,6 +1672,9 @@ export class Terrain extends Component {
         if (this._sharedIndexBuffer != null) {
             this._sharedIndexBuffer.destroy();
         }
+        if (this._sharedLodIndexBuffer != null) {
+            this._sharedLodIndexBuffer.destroy();
+        }
     }
 
     public onRestore () {
@@ -2209,6 +2217,10 @@ export class Terrain extends Component {
 
         if (this._sharedIndexBuffer !== null) {
             return this._sharedIndexBuffer;
+        }
+
+        if (this.lodEnable && this._lod === null) {
+            this._lod = new TerrainLod();
         }
 
         if (this._lod !== null) {

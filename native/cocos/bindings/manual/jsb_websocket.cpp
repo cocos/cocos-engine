@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "jsb_websocket.h"
+#include "MappingUtils.h"
 #include "cocos/base/DeferredReleasePool.h"
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_conversions.h"
@@ -74,12 +75,11 @@ void JsbWebSocketDelegate::onOpen(cc::network::WebSocket *ws) {
         return;
     }
 
-    auto iter = se::NativePtrToObjectMap::find(ws);
-    if (iter == se::NativePtrToObjectMap::end()) {
+    se::Object *wsObj = se::NativePtrToObjectMap::findFirst(ws);
+    if (!wsObj) {
         return;
     }
 
-    se::Object *wsObj = iter->second;
     wsObj->setProperty("protocol", se::Value(ws->getProtocol()));
 
     se::HandleObject jsObj(se::Object::createPlainObject());
@@ -107,12 +107,10 @@ void JsbWebSocketDelegate::onMessage(cc::network::WebSocket *ws, const cc::netwo
         return;
     }
 
-    auto iter = se::NativePtrToObjectMap::find(ws);
-    if (iter == se::NativePtrToObjectMap::end()) {
+    se::Object *wsObj = se::NativePtrToObjectMap::findFirst(ws);
+    if (!wsObj) {
         return;
     }
-
-    se::Object *wsObj = iter->second;
     se::HandleObject jsObj(se::Object::createPlainObject());
     jsObj->setProperty("type", se::Value("message"));
     se::Value target;
@@ -158,14 +156,13 @@ void JsbWebSocketDelegate::onClose(cc::network::WebSocket *ws, uint16_t code, co
         return;
     }
 
-    auto iter = se::NativePtrToObjectMap::find(ws);
+    se::Object *wsObj = se::NativePtrToObjectMap::findFirst(ws);
     do {
-        if (iter == se::NativePtrToObjectMap::end()) {
+        if (!wsObj) {
             CC_LOG_INFO("WebSocket js instance was destroyted, don't need to invoke onclose callback!");
             break;
         }
 
-        se::Object *wsObj = iter->second;
         se::HandleObject jsObj(se::Object::createPlainObject());
         jsObj->setProperty("type", se::Value("close")); // deprecated since v3.6
         se::Value target;
@@ -187,7 +184,7 @@ void JsbWebSocketDelegate::onClose(cc::network::WebSocket *ws, uint16_t code, co
             SE_REPORT_ERROR("Can't get onclose function!");
         }
 
-        //JS Websocket object now can be GC, since the connection is closed.
+        // JS Websocket object now can be GC, since the connection is closed.
         wsObj->unroot();
         _JSDelegate.toObject()->unroot();
 
@@ -209,12 +206,10 @@ void JsbWebSocketDelegate::onError(cc::network::WebSocket *ws, const cc::network
         return;
     }
 
-    auto iter = se::NativePtrToObjectMap::find(ws);
-    if (iter == se::NativePtrToObjectMap::end()) {
+    se::Object *wsObj = se::NativePtrToObjectMap::findFirst(ws);
+    if (!wsObj) {
         return;
     }
-
-    se::Object *wsObj = iter->second;
     se::HandleObject jsObj(se::Object::createPlainObject());
     jsObj->setProperty("type", se::Value("error"));
     se::Value target;
@@ -346,7 +341,7 @@ static bool webSocketConstructor(se::State &s) {
 }
 SE_BIND_CTOR(webSocketConstructor, jsbWebSocketClass, webSocketFinalize)
 
-static bool webSocketSend(se::State& s) {
+static bool webSocketSend(se::State &s) {
     const auto &args = s.args();
     int argc = static_cast<int>(args.size());
 
@@ -357,14 +352,14 @@ static bool webSocketSend(se::State& s) {
             ccstd::string data;
             ok = sevalue_to_native(args[0], &data);
             SE_PRECONDITION2(ok, false, "Convert string failed");
-            //IDEA: We didn't find a way to get the JS string length in JSB2.0.
-            //            if (data.empty() && len > 0)
-            //            {
-            //                CC_LOG_DEBUGWARN("Text message to send is empty, but its length is greater than 0!");
-            //                //IDEA: Note that this text message contains '0x00' prefix, so its length calcuted by strlen is 0.
-            //                // we need to fix that if there is '0x00' in text message,
-            //                // since javascript language could support '0x00' inserted at the beginning or the middle of text message
-            //            }
+            // IDEA: We didn't find a way to get the JS string length in JSB2.0.
+            //             if (data.empty() && len > 0)
+            //             {
+            //                 CC_LOG_DEBUGWARN("Text message to send is empty, but its length is greater than 0!");
+            //                 //IDEA: Note that this text message contains '0x00' prefix, so its length calcuted by strlen is 0.
+            //                 // we need to fix that if there is '0x00' in text message,
+            //                 // since javascript language could support '0x00' inserted at the beginning or the middle of text message
+            //             }
 
             cobj->send(data);
         } else if (args[0].isObject()) {

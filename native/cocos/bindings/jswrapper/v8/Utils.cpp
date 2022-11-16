@@ -127,16 +127,11 @@ void jsToSeValue(v8::Isolate *isolate, v8::Local<v8::Value> jsval, Value *v) {
     } else if (jsval->IsObject()) {
         v8::MaybeLocal<v8::Object> jsObj = jsval->ToObject(isolate->GetCurrentContext());
         if (!jsObj.IsEmpty()) {
-            auto *seObj = internal::getPrivate(isolate, jsObj.ToLocalChecked());
-            PrivateObjectBase *privateObject = seObj != nullptr ? seObj->getPrivateObject() : nullptr;
-            void *nativePtr = privateObject != nullptr ? privateObject->getRaw() : nullptr;
-            Object *obj = nullptr;
-            if (nativePtr != nullptr) {
-                obj = Object::getObjectWithPtr(nativePtr);
-            }
-
+            auto *obj = internal::getPrivate(isolate, jsObj.ToLocalChecked());
             if (obj == nullptr) {
                 obj = Object::_createJSObject(nullptr, jsObj.ToLocalChecked());
+            } else {
+                obj->incRef();
             }
             v->setObject(obj, true);
             obj->decRef();
