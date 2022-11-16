@@ -504,6 +504,9 @@ export class WebRasterQueueBuilder extends WebSetter implements RasterQueueBuild
         this._queue = queue;
         this._pipeline = pipeline;
     }
+    updateCameraUBO (camera: Camera): void {
+        throw new Error('Method not implemented.');
+    }
     get name () {
         return this._renderGraph.getName(this._vertID);
     }
@@ -524,16 +527,6 @@ export class WebRasterQueueBuilder extends WebSetter implements RasterQueueBuild
             setShadowUBOView(this, camera);
         }
         setTextureUBOView(this, camera, this._pipeline);
-    }
-
-    addSceneOfReflectionProbe (camera: Camera, probeCamera: Camera, light: LightInfo, sceneFlags = SceneFlags.NONE, name = 'Camera'): void {
-        const sceneData = new SceneData(name, sceneFlags, light);
-        sceneData.camera = camera;
-        this._renderGraph.addVertex<RenderGraphValue.Scene>(
-            RenderGraphValue.Scene, sceneData, name, '', new RenderData(), false, this._vertID,
-        );
-        setCameraUBOValues(this, probeCamera, this._pipeline,
-            camera.scene ? camera.scene : cclegacy.director.getScene().renderScene);
     }
 
     addScene (sceneName: string, sceneFlags = SceneFlags.NONE): void {

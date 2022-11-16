@@ -3,7 +3,7 @@ import { Camera, CSMLevel, DirectionalLight, Light, LightType, ReflectionProbe, 
 import { supportsR32FloatTexture } from '../define';
 import { Pipeline } from './pipeline';
 import { AccessType, AttachmentType, ComputeView, LightInfo, QueueHint, RasterView, ResourceResidency, SceneFlags } from './types';
-import { Vec4, macro, geometry } from '../../core';
+import { Vec4, macro, geometry, toRadian, cclegacy } from '../../core';
 import { Material } from '../../asset/assets';
 import { SRGBToLinear } from '../pipeline-funcs';
 import { ReflectionProbeManager } from '../reflection-probe-manager';
@@ -553,8 +553,9 @@ export function buildReflectionProbePass (camera: Camera,
         new Color(probeCamera.clearDepth, probeCamera.clearStencil, 0, 0));
     probePass.addRasterView(probePassRTName, passView);
     probePass.addRasterView(probePassDSName, passDSView);
-    probePass.addQueue(QueueHint.RENDER_OPAQUE)
-        .addSceneOfReflectionProbe(camera, probeCamera, new LightInfo(), SceneFlags.REFLECTION_PROBE);
+    const passBuilder = probePass.addQueue(QueueHint.RENDER_OPAQUE);
+    passBuilder.addSceneOfCamera(camera, new LightInfo(), SceneFlags.REFLECTION_PROBE);
+    updateCameraUBO(passBuilder as unknown as any, probeCamera, ppl);
 }
 
 class CameraInfo {
@@ -937,4 +938,23 @@ export function buildNativeDeferredPipeline (camera: Camera, ppl: Pipeline) {
             new LightInfo(),
             SceneFlags.TRANSPARENT_OBJECT | SceneFlags.PLANAR_SHADOW | SceneFlags.GEOMETRY);
     }
+}
+
+export function updateCameraUBO (setter: any, camera: Readonly<Camera>, ppl: Readonly<Pipeline>) {
+    const pipeline = cclegacy.director.root.pipeline;
+    const sceneData = ppl.pipelineSceneData;
+    const skybox = sceneData.skybox;
+    setter.addConstant('CCCamera');
+    setter.setMat4('cc_matView', camera.matView);
+    setter.setMat4('cc_matViewInv', camera.node.worldMatrix);
+    setter.setMat4('cc_matProj', camera.matProj);
+    setter.setMat4('cc_matProjInv', camera.matProjInv);
+    setter.setMat4('cc_matViewProj', camera.matViewProj);
+    setter.setMat4('cc_matViewProjInv', camera.matViewProjInv);
+    setter.setVec4('cc_cameraPos', new Vec4(camera.position.x, camera.position.y, camera.position.z, pipeline.getCombineSignY()));
+    // eslint-disable-next-line max-len
+    setter.setVec4('cc_surfaceTransform', new Vec4(camera.surfaceTransform, 0.0, Math.cos(toRadian(skybox.getRotationAngle())), Math.sin(toRadian(skybox.getRotationAngle()))));
+    // eslint-disable-next-line max-len
+    setter.setVec4('cc_screenScale', new Vec4(sceneData.shadingScale, sceneData.shadingScale, 1.0 / sceneData.shadingScale, 1.0 / sceneData.shadingScale));
+    setter.setVec4('cc_exposure', new Vec4(camera.exposure, 1.0 / camera.exposure, sceneData.isHDR ? 1.0 : 0.0, 1.0 / Camera.standardExposureValue));
 }
