@@ -48,7 +48,10 @@ float Screen::getDevicePixelRatio() const {
     se::AutoHandleScope hs;
     se::Value ret;
     char commandBuf[100] = "window.devicePixelRatio";
-    se::ScriptEngine::getInstance()->evalString(commandBuf, 100, &ret);
+auto* global = se::ScriptEngine::getInstance()->getGlobalObject();
+se::Value devicePixelRatioVal;
+global->getProperty("devicePixelRatio", &devicePixelRatioVal);
+return devicePixelRatioVal.isNumber() ? devicePixelRatioVal.toFloat() : 1.F;
     return ret.isNumber() ? ret.toFloat() : 1;
 #else
     return [[[[NSApplication sharedApplication] delegate] getWindow] backingScaleFactor];
