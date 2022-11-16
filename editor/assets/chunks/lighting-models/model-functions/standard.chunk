@@ -128,14 +128,18 @@ vec3 CalculateEnvironmentDiffuse(in LightingIntermediateData lightingData, float
 vec3 CalculateEnvironmentSpecular(in LightingIntermediateData lightingData, float lightIntensity)
 {
   vec3 envSpec = vec3(0.0);
+#if CC_USE_IBL
+    envSpec = SampleEnvironmentSpecular(cc_environment, lightingData, cc_ambientGround.w);
+#endif
+
+#if USE_REFLECTION_PROBE
   #if USE_REFLECTION_PROBE == REFLECTION_PROBE_CUBE
-    envSpec += SampleEnvironmentSpecular(cc_reflectionProbeCubemap, lightingData, cc_ambientGround.w);
+    envSpec = SampleEnvironmentSpecular(cc_reflectionProbeCubemap, lightingData, cc_ambientGround.w);
   #elif USE_REFLECTION_PROBE == REFLECTION_PROBE_PLANAR
     vec2 screenUV = GetScreenUV(lightingData.worldPosition, cc_matViewProj, cc_cameraPos.w);
-    envSpec += fragTextureLod(cc_reflectionProbePlanarMap, screenUV, cc_ambientGround.w);
-  #elif CC_USE_IBL
-    envSpec += SampleEnvironmentSpecular(cc_environment, lightingData, cc_ambientGround.w);
+    envSpec = fragTextureLod(cc_reflectionProbePlanarMap, screenUV, cc_ambientGround.w).xyz;
   #endif
+#endif
 
   return envSpec * lightIntensity;
 }

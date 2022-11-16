@@ -29,7 +29,7 @@
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
  */
 /* eslint-disable max-len */
-import * as impl from './graph';
+import { AddressableGraph, AdjI, AdjacencyGraph, BidirectionalGraph, ComponentGraph, ED, InEI, MutableGraph, MutableReferenceGraph, NamedGraph, OutE, OutEI, PolymorphicGraph, PropertyGraph, PropertyMap, ReferenceGraph, VertexListGraph, directional, findRelative, getPath, parallel, reindexEdgeList, traversal } from './graph';
 import { DescriptorSet, DescriptorSetLayout, DescriptorSetLayoutInfo, ShaderStageFlagBit, Type, UniformBlock } from '../../gfx';
 import { DescriptorBlock, saveDescriptorBlock, loadDescriptorBlock, DescriptorBlockIndex, saveDescriptorBlockIndex, loadDescriptorBlockIndex, DescriptorTypeOrder, UpdateFrequency } from './types';
 import { OutputArchive, InputArchive } from './archive';
@@ -66,7 +66,7 @@ export function getLayoutGraphValueName (e: LayoutGraphValue): string {
     }
 }
 
-interface LayoutGraphValueType {
+export interface LayoutGraphValueType {
     [LayoutGraphValue.RenderStage]: number
     [LayoutGraphValue.RenderPhase]: RenderPhase
 }
@@ -76,7 +76,7 @@ export interface LayoutGraphVisitor {
     renderPhase(value: RenderPhase): unknown;
 }
 
-type LayoutGraphObject = number | RenderPhase;
+export type LayoutGraphObject = number | RenderPhase;
 
 //-----------------------------------------------------------------
 // Graph Concept
@@ -88,15 +88,15 @@ export class LayoutGraphVertex {
         this._id = id;
         this._object = object;
     }
-    readonly _outEdges: impl.OutE[] = [];
-    readonly _inEdges: impl.OutE[] = [];
+    readonly _outEdges: OutE[] = [];
+    readonly _inEdges: OutE[] = [];
     readonly _id: LayoutGraphValue;
     _object: LayoutGraphObject;
 }
 
 //-----------------------------------------------------------------
 // PropertyGraph Concept
-export class LayoutGraphNameMap implements impl.PropertyMap {
+export class LayoutGraphNameMap implements PropertyMap {
     constructor (readonly names: string[]) {
         this._names = names;
     }
@@ -107,7 +107,7 @@ export class LayoutGraphNameMap implements impl.PropertyMap {
     readonly _names: string[];
 }
 
-export class LayoutGraphDescriptorsMap implements impl.PropertyMap {
+export class LayoutGraphDescriptorsMap implements PropertyMap {
     constructor (readonly descriptors: DescriptorDB[]) {
         this._descriptors = descriptors;
     }
@@ -124,43 +124,43 @@ export const enum LayoutGraphComponent {
     Descriptors,
 }
 
-interface LayoutGraphComponentType {
+export interface LayoutGraphComponentType {
     [LayoutGraphComponent.Name]: string;
     [LayoutGraphComponent.Descriptors]: DescriptorDB;
 }
 
-interface LayoutGraphComponentPropertyMap {
+export interface LayoutGraphComponentPropertyMap {
     [LayoutGraphComponent.Name]: LayoutGraphNameMap;
     [LayoutGraphComponent.Descriptors]: LayoutGraphDescriptorsMap;
 }
 
 //-----------------------------------------------------------------
 // LayoutGraph Implementation
-export class LayoutGraph implements impl.BidirectionalGraph
-, impl.AdjacencyGraph
-, impl.VertexListGraph
-, impl.MutableGraph
-, impl.PropertyGraph
-, impl.NamedGraph
-, impl.ComponentGraph
-, impl.PolymorphicGraph
-, impl.ReferenceGraph
-, impl.MutableReferenceGraph
-, impl.AddressableGraph {
+export class LayoutGraph implements BidirectionalGraph
+, AdjacencyGraph
+, VertexListGraph
+, MutableGraph
+, PropertyGraph
+, NamedGraph
+, ComponentGraph
+, PolymorphicGraph
+, ReferenceGraph
+, MutableReferenceGraph
+, AddressableGraph {
     //-----------------------------------------------------------------
     // Graph
     // type vertex_descriptor = number;
     nullVertex (): number { return 0xFFFFFFFF; }
-    // type edge_descriptor = impl.ED;
-    readonly directed_category: impl.directional = impl.directional.bidirectional;
-    readonly edge_parallel_category: impl.parallel = impl.parallel.allow;
-    readonly traversal_category: impl.traversal = impl.traversal.incidence
-        | impl.traversal.bidirectional
-        | impl.traversal.adjacency
-        | impl.traversal.vertex_list;
+    // type edge_descriptor = ED;
+    readonly directed_category: directional = directional.bidirectional;
+    readonly edge_parallel_category: parallel = parallel.allow;
+    readonly traversal_category: traversal = traversal.incidence
+        | traversal.bidirectional
+        | traversal.adjacency
+        | traversal.vertex_list;
     //-----------------------------------------------------------------
     // IncidenceGraph
-    // type out_edge_iterator = impl.OutEI;
+    // type out_edge_iterator = OutEI;
     // type degree_size_type = number;
     edge (u: number, v: number): boolean {
         for (const oe of this._vertices[u]._outEdges) {
@@ -170,23 +170,23 @@ export class LayoutGraph implements impl.BidirectionalGraph
         }
         return false;
     }
-    source (e: impl.ED): number {
+    source (e: ED): number {
         return e.source as number;
     }
-    target (e: impl.ED): number {
+    target (e: ED): number {
         return e.target as number;
     }
-    outEdges (v: number): impl.OutEI {
-        return new impl.OutEI(this._vertices[v]._outEdges.values(), v);
+    outEdges (v: number): OutEI {
+        return new OutEI(this._vertices[v]._outEdges.values(), v);
     }
     outDegree (v: number): number {
         return this._vertices[v]._outEdges.length;
     }
     //-----------------------------------------------------------------
     // BidirectionalGraph
-    // type in_edge_iterator = impl.InEI;
-    inEdges (v: number): impl.InEI {
-        return new impl.InEI(this._vertices[v]._inEdges.values(), v);
+    // type in_edge_iterator = InEI;
+    inEdges (v: number): InEI {
+        return new InEI(this._vertices[v]._inEdges.values(), v);
     }
     inDegree (v: number): number {
         return this._vertices[v]._inEdges.length;
@@ -196,9 +196,9 @@ export class LayoutGraph implements impl.BidirectionalGraph
     }
     //-----------------------------------------------------------------
     // AdjacencyGraph
-    // type adjacency_iterator = impl.AdjI;
-    adjacentVertices (v: number): impl.AdjI {
-        return new impl.AdjI(this, this.outEdges(v));
+    // type adjacency_iterator = AdjI;
+    adjacentVertices (v: number): AdjI {
+        return new AdjI(this, this.outEdges(v));
     }
     //-----------------------------------------------------------------
     // VertexListGraph
@@ -287,15 +287,15 @@ export class LayoutGraph implements impl.BidirectionalGraph
 
         for (let v = 0; v !== sz; ++v) {
             const vert = this._vertices[v];
-            impl.reindexEdgeList(vert._outEdges, u);
-            impl.reindexEdgeList(vert._inEdges, u);
+            reindexEdgeList(vert._outEdges, u);
+            reindexEdgeList(vert._inEdges, u);
         }
     }
-    addEdge (u: number, v: number): impl.ED | null {
+    addEdge (u: number, v: number): ED | null {
         // update in/out edge list
-        this._vertices[u]._outEdges.push(new impl.OutE(v));
-        this._vertices[v]._inEdges.push(new impl.OutE(u));
-        return new impl.ED(u, v);
+        this._vertices[u]._outEdges.push(new OutE(v));
+        this._vertices[v]._inEdges.push(new OutE(u));
+        return new ED(u, v);
     }
     removeEdges (u: number, v: number): void {
         const source = this._vertices[u];
@@ -317,7 +317,7 @@ export class LayoutGraph implements impl.BidirectionalGraph
             }
         }
     }
-    removeEdge (e: impl.ED): void {
+    removeEdge (e: ED): void {
         const u = e.source as number;
         const v = e.target as number;
         const source = this._vertices[u];
@@ -455,9 +455,9 @@ export class LayoutGraph implements impl.BidirectionalGraph
     }
     //-----------------------------------------------------------------
     // ReferenceGraph
-    // type reference_descriptor = impl.ED;
-    // type child_iterator = impl.OutEI;
-    // type parent_iterator = impl.InEI;
+    // type reference_descriptor = ED;
+    // type child_iterator = OutEI;
+    // type parent_iterator = InEI;
     reference (u: number, v: number): boolean {
         for (const oe of this._vertices[u]._outEdges) {
             if (v === oe.target as number) {
@@ -466,17 +466,17 @@ export class LayoutGraph implements impl.BidirectionalGraph
         }
         return false;
     }
-    parent (e: impl.ED): number {
+    parent (e: ED): number {
         return e.source as number;
     }
-    child (e: impl.ED): number {
+    child (e: ED): number {
         return e.target as number;
     }
-    parents (v: number): impl.InEI {
-        return new impl.InEI(this._vertices[v]._inEdges.values(), v);
+    parents (v: number): InEI {
+        return new InEI(this._vertices[v]._inEdges.values(), v);
     }
-    children (v: number): impl.OutEI {
-        return new impl.OutEI(this._vertices[v]._outEdges.values(), v);
+    children (v: number): OutEI {
+        return new OutEI(this._vertices[v]._outEdges.values(), v);
     }
     numParents (v: number): number {
         return this._vertices[v]._inEdges.length;
@@ -519,10 +519,10 @@ export class LayoutGraph implements impl.BidirectionalGraph
     }
     //-----------------------------------------------------------------
     // MutableReferenceGraph
-    addReference (u: number, v: number): impl.ED | null {
+    addReference (u: number, v: number): ED | null {
         return this.addEdge(u, v);
     }
-    removeReference (e: impl.ED): void {
+    removeReference (e: ED): void {
         return this.removeEdge(e);
     }
     removeReferences (u: number, v: number): void {
@@ -551,16 +551,16 @@ export class LayoutGraph implements impl.BidirectionalGraph
     //-----------------------------------------------------------------
     // AddressableGraph
     addressable (absPath: string): boolean {
-        return impl.findRelative(this, 0xFFFFFFFF, absPath) as number !== 0xFFFFFFFF;
+        return findRelative(this, 0xFFFFFFFF, absPath) as number !== 0xFFFFFFFF;
     }
     locate (absPath: string): number {
-        return impl.findRelative(this, 0xFFFFFFFF, absPath) as number;
+        return findRelative(this, 0xFFFFFFFF, absPath) as number;
     }
     locateRelative (path: string, start = 0xFFFFFFFF): number {
-        return impl.findRelative(this, start, path) as number;
+        return findRelative(this, start, path) as number;
     }
     path (v: number): string {
-        return impl.getPath(this, v);
+        return getPath(this, v);
     }
 
     readonly components: string[] = ['Name', 'Descriptors'];
@@ -682,7 +682,7 @@ export function getLayoutGraphDataValueName (e: LayoutGraphDataValue): string {
     }
 }
 
-interface LayoutGraphDataValueType {
+export interface LayoutGraphDataValueType {
     [LayoutGraphDataValue.RenderStage]: RenderStageData
     [LayoutGraphDataValue.RenderPhase]: RenderPhaseData
 }
@@ -692,7 +692,7 @@ export interface LayoutGraphDataVisitor {
     renderPhase(value: RenderPhaseData): unknown;
 }
 
-type LayoutGraphDataObject = RenderStageData | RenderPhaseData;
+export type LayoutGraphDataObject = RenderStageData | RenderPhaseData;
 
 //-----------------------------------------------------------------
 // Graph Concept
@@ -704,15 +704,15 @@ export class LayoutGraphDataVertex {
         this._id = id;
         this._object = object;
     }
-    readonly _outEdges: impl.OutE[] = [];
-    readonly _inEdges: impl.OutE[] = [];
+    readonly _outEdges: OutE[] = [];
+    readonly _inEdges: OutE[] = [];
     readonly _id: LayoutGraphDataValue;
     _object: LayoutGraphDataObject;
 }
 
 //-----------------------------------------------------------------
 // PropertyGraph Concept
-export class LayoutGraphDataNameMap implements impl.PropertyMap {
+export class LayoutGraphDataNameMap implements PropertyMap {
     constructor (readonly names: string[]) {
         this._names = names;
     }
@@ -723,7 +723,7 @@ export class LayoutGraphDataNameMap implements impl.PropertyMap {
     readonly _names: string[];
 }
 
-export class LayoutGraphDataUpdateMap implements impl.PropertyMap {
+export class LayoutGraphDataUpdateMap implements PropertyMap {
     constructor (readonly updateFrequencies: UpdateFrequency[]) {
         this._updateFrequencies = updateFrequencies;
     }
@@ -736,7 +736,7 @@ export class LayoutGraphDataUpdateMap implements impl.PropertyMap {
     readonly _updateFrequencies: UpdateFrequency[];
 }
 
-export class LayoutGraphDataLayoutMap implements impl.PropertyMap {
+export class LayoutGraphDataLayoutMap implements PropertyMap {
     constructor (readonly layouts: PipelineLayoutData[]) {
         this._layouts = layouts;
     }
@@ -754,44 +754,44 @@ export const enum LayoutGraphDataComponent {
     Layout,
 }
 
-interface LayoutGraphDataComponentType {
+export interface LayoutGraphDataComponentType {
     [LayoutGraphDataComponent.Name]: string;
     [LayoutGraphDataComponent.Update]: UpdateFrequency;
     [LayoutGraphDataComponent.Layout]: PipelineLayoutData;
 }
 
-interface LayoutGraphDataComponentPropertyMap {
+export interface LayoutGraphDataComponentPropertyMap {
     [LayoutGraphDataComponent.Name]: LayoutGraphDataNameMap;
     [LayoutGraphDataComponent.Update]: LayoutGraphDataUpdateMap;
     [LayoutGraphDataComponent.Layout]: LayoutGraphDataLayoutMap;
 }
 
 @ccclass('cc.LayoutGraphData')
-export class LayoutGraphData implements impl.BidirectionalGraph
-, impl.AdjacencyGraph
-, impl.VertexListGraph
-, impl.MutableGraph
-, impl.PropertyGraph
-, impl.NamedGraph
-, impl.ComponentGraph
-, impl.PolymorphicGraph
-, impl.ReferenceGraph
-, impl.MutableReferenceGraph
-, impl.AddressableGraph {
+export class LayoutGraphData implements BidirectionalGraph
+, AdjacencyGraph
+, VertexListGraph
+, MutableGraph
+, PropertyGraph
+, NamedGraph
+, ComponentGraph
+, PolymorphicGraph
+, ReferenceGraph
+, MutableReferenceGraph
+, AddressableGraph {
     //-----------------------------------------------------------------
     // Graph
     // type vertex_descriptor = number;
     nullVertex (): number { return 0xFFFFFFFF; }
-    // type edge_descriptor = impl.ED;
-    readonly directed_category: impl.directional = impl.directional.bidirectional;
-    readonly edge_parallel_category: impl.parallel = impl.parallel.allow;
-    readonly traversal_category: impl.traversal = impl.traversal.incidence
-        | impl.traversal.bidirectional
-        | impl.traversal.adjacency
-        | impl.traversal.vertex_list;
+    // type edge_descriptor = ED;
+    readonly directed_category: directional = directional.bidirectional;
+    readonly edge_parallel_category: parallel = parallel.allow;
+    readonly traversal_category: traversal = traversal.incidence
+        | traversal.bidirectional
+        | traversal.adjacency
+        | traversal.vertex_list;
     //-----------------------------------------------------------------
     // IncidenceGraph
-    // type out_edge_iterator = impl.OutEI;
+    // type out_edge_iterator = OutEI;
     // type degree_size_type = number;
     edge (u: number, v: number): boolean {
         for (const oe of this._vertices[u]._outEdges) {
@@ -801,23 +801,23 @@ export class LayoutGraphData implements impl.BidirectionalGraph
         }
         return false;
     }
-    source (e: impl.ED): number {
+    source (e: ED): number {
         return e.source as number;
     }
-    target (e: impl.ED): number {
+    target (e: ED): number {
         return e.target as number;
     }
-    outEdges (v: number): impl.OutEI {
-        return new impl.OutEI(this._vertices[v]._outEdges.values(), v);
+    outEdges (v: number): OutEI {
+        return new OutEI(this._vertices[v]._outEdges.values(), v);
     }
     outDegree (v: number): number {
         return this._vertices[v]._outEdges.length;
     }
     //-----------------------------------------------------------------
     // BidirectionalGraph
-    // type in_edge_iterator = impl.InEI;
-    inEdges (v: number): impl.InEI {
-        return new impl.InEI(this._vertices[v]._inEdges.values(), v);
+    // type in_edge_iterator = InEI;
+    inEdges (v: number): InEI {
+        return new InEI(this._vertices[v]._inEdges.values(), v);
     }
     inDegree (v: number): number {
         return this._vertices[v]._inEdges.length;
@@ -827,9 +827,9 @@ export class LayoutGraphData implements impl.BidirectionalGraph
     }
     //-----------------------------------------------------------------
     // AdjacencyGraph
-    // type adjacency_iterator = impl.AdjI;
-    adjacentVertices (v: number): impl.AdjI {
-        return new impl.AdjI(this, this.outEdges(v));
+    // type adjacency_iterator = AdjI;
+    adjacentVertices (v: number): AdjI {
+        return new AdjI(this, this.outEdges(v));
     }
     //-----------------------------------------------------------------
     // VertexListGraph
@@ -928,15 +928,15 @@ export class LayoutGraphData implements impl.BidirectionalGraph
 
         for (let v = 0; v !== sz; ++v) {
             const vert = this._vertices[v];
-            impl.reindexEdgeList(vert._outEdges, u);
-            impl.reindexEdgeList(vert._inEdges, u);
+            reindexEdgeList(vert._outEdges, u);
+            reindexEdgeList(vert._inEdges, u);
         }
     }
-    addEdge (u: number, v: number): impl.ED | null {
+    addEdge (u: number, v: number): ED | null {
         // update in/out edge list
-        this._vertices[u]._outEdges.push(new impl.OutE(v));
-        this._vertices[v]._inEdges.push(new impl.OutE(u));
-        return new impl.ED(u, v);
+        this._vertices[u]._outEdges.push(new OutE(v));
+        this._vertices[v]._inEdges.push(new OutE(u));
+        return new ED(u, v);
     }
     removeEdges (u: number, v: number): void {
         const source = this._vertices[u];
@@ -958,7 +958,7 @@ export class LayoutGraphData implements impl.BidirectionalGraph
             }
         }
     }
-    removeEdge (e: impl.ED): void {
+    removeEdge (e: ED): void {
         const u = e.source as number;
         const v = e.target as number;
         const source = this._vertices[u];
@@ -1108,9 +1108,9 @@ export class LayoutGraphData implements impl.BidirectionalGraph
     }
     //-----------------------------------------------------------------
     // ReferenceGraph
-    // type reference_descriptor = impl.ED;
-    // type child_iterator = impl.OutEI;
-    // type parent_iterator = impl.InEI;
+    // type reference_descriptor = ED;
+    // type child_iterator = OutEI;
+    // type parent_iterator = InEI;
     reference (u: number, v: number): boolean {
         for (const oe of this._vertices[u]._outEdges) {
             if (v === oe.target as number) {
@@ -1119,17 +1119,17 @@ export class LayoutGraphData implements impl.BidirectionalGraph
         }
         return false;
     }
-    parent (e: impl.ED): number {
+    parent (e: ED): number {
         return e.source as number;
     }
-    child (e: impl.ED): number {
+    child (e: ED): number {
         return e.target as number;
     }
-    parents (v: number): impl.InEI {
-        return new impl.InEI(this._vertices[v]._inEdges.values(), v);
+    parents (v: number): InEI {
+        return new InEI(this._vertices[v]._inEdges.values(), v);
     }
-    children (v: number): impl.OutEI {
-        return new impl.OutEI(this._vertices[v]._outEdges.values(), v);
+    children (v: number): OutEI {
+        return new OutEI(this._vertices[v]._outEdges.values(), v);
     }
     numParents (v: number): number {
         return this._vertices[v]._inEdges.length;
@@ -1172,10 +1172,10 @@ export class LayoutGraphData implements impl.BidirectionalGraph
     }
     //-----------------------------------------------------------------
     // MutableReferenceGraph
-    addReference (u: number, v: number): impl.ED | null {
+    addReference (u: number, v: number): ED | null {
         return this.addEdge(u, v);
     }
-    removeReference (e: impl.ED): void {
+    removeReference (e: ED): void {
         return this.removeEdge(e);
     }
     removeReferences (u: number, v: number): void {
@@ -1204,16 +1204,16 @@ export class LayoutGraphData implements impl.BidirectionalGraph
     //-----------------------------------------------------------------
     // AddressableGraph
     addressable (absPath: string): boolean {
-        return impl.findRelative(this, 0xFFFFFFFF, absPath) as number !== 0xFFFFFFFF;
+        return findRelative(this, 0xFFFFFFFF, absPath) as number !== 0xFFFFFFFF;
     }
     locate (absPath: string): number {
-        return impl.findRelative(this, 0xFFFFFFFF, absPath) as number;
+        return findRelative(this, 0xFFFFFFFF, absPath) as number;
     }
     locateRelative (path: string, start = 0xFFFFFFFF): number {
-        return impl.findRelative(this, start, path) as number;
+        return findRelative(this, start, path) as number;
     }
     path (v: number): string {
-        return impl.getPath(this, v);
+        return getPath(this, v);
     }
 
     readonly components: string[] = ['Name', 'Update', 'Layout'];
