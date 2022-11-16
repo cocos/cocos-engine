@@ -130,6 +130,8 @@ void jsToSeValue(v8::Isolate *isolate, v8::Local<v8::Value> jsval, Value *v) {
             auto *obj = internal::getPrivate(isolate, jsObj.ToLocalChecked());
             if (obj == nullptr) {
                 obj = Object::_createJSObject(nullptr, jsObj.ToLocalChecked());
+            } else {
+                obj->incRef();
             }
             v->setObject(obj, true);
             obj->decRef();
@@ -197,7 +199,7 @@ void setPrivate(v8::Isolate *isolate, ObjectWrap &wrap, Object *thizObj) {
     v8::Local<v8::Object> obj = wrap.handle(isolate);
     int c = obj->InternalFieldCount();
     CC_ASSERT(c > 0);
-    if (c > 0) {
+    if (c == 1) {
         wrap.wrap(thizObj, 0);
     }
 }
@@ -211,7 +213,7 @@ Object *getPrivate(v8::Isolate *isolate, v8::Local<v8::Value> value) {
 
     v8::Local<v8::Object> objChecked = obj.ToLocalChecked();
     int c = objChecked->InternalFieldCount();
-    if (c > 0) {
+    if (c == 1) {
         return static_cast<Object *>(ObjectWrap::unwrap(objChecked, 0));
     }
 
@@ -221,7 +223,7 @@ Object *getPrivate(v8::Isolate *isolate, v8::Local<v8::Value> value) {
 void clearPrivate(v8::Isolate *isolate, ObjectWrap &wrap) {
     v8::Local<v8::Object> obj = wrap.handle(isolate);
     int c = obj->InternalFieldCount();
-    if (c > 0) {
+    if (c == 1) {
         wrap.wrap(nullptr, 0);
     }
 }
