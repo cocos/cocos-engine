@@ -2,6 +2,7 @@ const HTMLElement = require('./HTMLElement');
 const Event = require('./Event');
 
 class HTMLImageElement extends HTMLElement {
+    public _mipmapLevelDataSize?: number[] = [];
     constructor(width, height, isCalledFromImage) {
         if (!isCalledFromImage) {
             throw new TypeError("Illegal constructor, use 'new Image(w, h); instead!'");
@@ -13,6 +14,7 @@ class HTMLImageElement extends HTMLElement {
         this._src = null;
         this.complete = false;
         this.crossOrigin = null;
+        this._mipmapLevelDataSize = [];
     }
 
     destroy() {
