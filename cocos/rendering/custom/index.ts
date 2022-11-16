@@ -38,19 +38,19 @@ export * from './pipeline';
 export * from './archive';
 export * from './binary-archive';
 
-const _enableEffectImport = false;
+export const enableEffectImport = false;
 
 export function createCustomPipeline (rendering: any): Pipeline {
     const pplName = macro.CUSTOM_PIPELINE_NAME;
 
-    const layoutGraph = _enableEffectImport
+    const layoutGraph = enableEffectImport
         ? rendering.defaultLayoutGraph as LayoutGraphData
         : new LayoutGraphData();
 
     const ppl = new WebPipeline(layoutGraph);
     ppl.setCustomPipelineName(pplName);
 
-    if (!_enableEffectImport) {
+    if (!enableEffectImport) {
         if (pplName === 'Deferred') {
             buildDeferredLayout(ppl);
         } else {

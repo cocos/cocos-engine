@@ -24,7 +24,7 @@
 */
 
 import { ccclass, serializable, editable, editorOnly } from 'cc.decorator';
-import { EDITOR, PREVIEW } from 'internal:constants';
+import { EDITOR } from 'internal:constants';
 import { Root } from '../../root';
 import { BlendState, DepthStencilState, RasterizerState,
     DynamicStateFlags, PrimitiveMode, ShaderStageFlags, Type, Uniform, MemoryAccess, Format, deviceManager, ShaderInfo } from '../../gfx';
@@ -33,6 +33,7 @@ import { MacroRecord } from '../../render-scene/core/pass-utils';
 import { programLib } from '../../render-scene/core/program-lib';
 import { Asset } from './asset';
 import { cclegacy, warnID } from '../../core';
+import { DescriptorBlockData, LayoutGraphData, ShaderProgramData } from '../../rendering/custom/layout-graph';
 
 export declare namespace EffectAsset {
     export interface IPropertyInfo {
@@ -282,22 +283,59 @@ export class EffectAsset extends Asset {
     @editorOnly
     public hideInEditor = false;
 
-    protected _applyBinding (descId, srcBlock, dstBlock) {
-        if (cclegacy.rendering.defaultLayoutGraph.attributeIndex.get(srcBlock.name) === descId) {
+    protected _applyBinding (lg: Readonly<LayoutGraphData>,
+        descId: number,
+        srcBlock: EffectAsset.IBlockInfo | EffectAsset.IBufferInfo | EffectAsset.ISamplerTextureInfo | EffectAsset.ISamplerInfo,
+        dstBlock: DescriptorBlockData) {
+        if (lg.attributeIndex.get(srcBlock.name) === descId) {
             srcBlock.stageFlags = dstBlock.visibility;
             srcBlock.binding = dstBlock.offset;
         }
     }
 
-    protected _replaceStageShaderInfo (asset: EffectAsset, stageName: string) {
-        const stageID = cclegacy.rendering.defaultLayoutGraph.locateChild(cclegacy.rendering.defaultLayoutGraph.nullVertex(), stageName);
-        const stageData = cclegacy.rendering.defaultLayoutGraph.getRenderStage(stageID);
-        const stageLayout = cclegacy.rendering.defaultLayoutGraph.getLayout(stageID);
-        const layoutData = stageLayout.descriptorSets.get(cclegacy.rendering.UpdateFrequency.PER_PASS);
+    protected _updateShaderBinding (lg: Readonly<LayoutGraphData>,
+        shaderData: Readonly<ShaderProgramData>,
+        shader: EffectAsset.IShaderInfo) {
+        for (const pair of shaderData.layout.descriptorSets) {
+            const updateFrequency = pair[0];
+            if (updateFrequency === cclegacy.rendering.UpdateFrequency.PER_BATCH
+                || updateFrequency === cclegacy.rendering.UpdateFrequency.PER_INSTANCE) {
+                continue;
+            }
+            const descData = pair[1];
+            for (const descBlock of descData.descriptorSetLayoutData.descriptorBlocks) {
+                for (let j = 0; j < descBlock.descriptors.length; ++j) {
+                    const descData = descBlock.descriptors[j];
+                    const descriptorId = descData.descriptorID;
+                    for (const block of shader.blocks) {
+                        this._applyBinding(lg, descriptorId, block, descBlock);
+                    }
+                    for (const buff of shader.buffers) {
+                        this._applyBinding(lg, descriptorId, buff, descBlock);
+                    }
+                    for (const img of shader.images) {
+                        this._applyBinding(lg, descriptorId, img, descBlock);
+                    }
+                    for (const samplerTex of shader.samplerTextures) {
+                        this._applyBinding(lg, descriptorId, samplerTex, descBlock);
+                    }
+                    for (const sampler of shader.samplers) {
+                        this._applyBinding(lg, descriptorId, sampler, descBlock);
+                    }
+                    for (const tex of shader.textures) {
+                        this._applyBinding(lg, descriptorId, tex, descBlock);
+                    }
+                    for (const subpassInput of shader.subpassInputs) {
+                        this._applyBinding(lg, descriptorId, subpassInput, descBlock);
+                    }
+                }
+            }
+        }
     }
 
-    protected _replacePerBatchOrInstanceShaderInfo (asset: EffectAsset, stageName: string) {
-        const stageID = cclegacy.rendering.defaultLayoutGraph.locateChild(cclegacy.rendering.defaultLayoutGraph.nullVertex(), stageName);
+    protected _replacePerBatchOrInstanceShaderInfo (lg: LayoutGraphData,
+        asset: EffectAsset, stageName: string) {
+        const stageID = lg.locateChild(lg.nullVertex(), stageName);
         let phaseName;
         for (let i = 0; i < asset.techniques.length; ++i) {
             const tech = asset.techniques[i];
@@ -314,46 +352,14 @@ export class EffectAsset extends Asset {
                 } else {
                     phaseName = passPhase;
                 }
-                const phaseID = cclegacy.rendering.defaultLayoutGraph.locateChild(stageID, phaseName);
+                const phaseID = lg.locateChild(stageID, phaseName);
                 if (phaseID === 0xFFFFFFFF) { continue; }
-                const phaseData = cclegacy.rendering.defaultLayoutGraph.getRenderPhase(phaseID);
+                const phaseData = lg.getRenderPhase(phaseID);
                 const shaderID = phaseData.shaderIndex.get(pass.program);
                 const shader = asset.shaders.find((val) => val.name === pass.program)!;
                 if (shaderID) {
                     const shaderData = phaseData.shaderPrograms[shaderID];
-                    for (const pair of shaderData.layout.descriptorSets) {
-                        const updateFrequency = pair[0];
-                        if (updateFrequency === cclegacy.rendering.UpdateFrequency.PER_BATCH
-                            || updateFrequency === cclegacy.rendering.UpdateFrequency.PER_INSTANCE) { continue; }
-                        const descData = pair[1];
-                        for (const descBlock of descData.descriptorSetLayoutData.descriptorBlocks) {
-                            for (let j = 0; j < descBlock.descriptors.length; ++j) {
-                                const descData = descBlock.descriptors[j];
-                                const descriptorId = descData.descriptorID;
-                                for (const block of shader.blocks) {
-                                    this._applyBinding(descriptorId, block, descBlock);
-                                }
-                                for (const buff of shader.buffers) {
-                                    this._applyBinding(descriptorId, buff, descBlock);
-                                }
-                                for (const img of shader.images) {
-                                    this._applyBinding(descriptorId, img, descBlock);
-                                }
-                                for (const samplerTex of shader.samplerTextures) {
-                                    this._applyBinding(descriptorId, samplerTex, descBlock);
-                                }
-                                for (const sampler of shader.samplers) {
-                                    this._applyBinding(descriptorId, sampler, descBlock);
-                                }
-                                for (const tex of shader.textures) {
-                                    this._applyBinding(descriptorId, tex, descBlock);
-                                }
-                                for (const subpassInput of shader.subpassInputs) {
-                                    this._applyBinding(descriptorId, subpassInput, descBlock);
-                                }
-                            }
-                        }
-                    }
+                    this._updateShaderBinding(lg, shaderData, shader);
                 }
             }
         }
@@ -361,8 +367,8 @@ export class EffectAsset extends Asset {
 
     protected _replaceShaderInfo (asset: EffectAsset) {
         const stageName = 'default';
-        // this._replaceStageShaderInfo(asset, stageName);
-        this._replacePerBatchOrInstanceShaderInfo(asset, stageName);
+        const lg: LayoutGraphData = cclegacy.rendering.defaultLayoutGraph;
+        this._replacePerBatchOrInstanceShaderInfo(lg, asset, stageName);
     }
 
     /**
@@ -370,7 +376,9 @@ export class EffectAsset extends Asset {
      * @zh 通过 [[CCLoader]] 加载完成时的回调，将自动注册 effect 资源。
      */
     public onLoaded () {
-        if (cclegacy.rendering && !EDITOR && !PREVIEW) { this._replaceShaderInfo(this); }
+        if (cclegacy.rendering && cclegacy.rendering.enableEffectImport) {
+            this._replaceShaderInfo(this);
+        }
         programLib.register(this);
         EffectAsset.register(this);
         if (!EDITOR || cclegacy.GAME_VIEW) { cclegacy.game.once(cclegacy.Game.EVENT_RENDERER_INITED, this._precompile, this); }
