@@ -525,7 +525,6 @@ export class WebRasterQueueBuilder extends WebSetter implements RasterQueueBuild
         }
         setTextureUBOView(this, camera, this._pipeline);
     }
-
     addScene (sceneName: string, sceneFlags = SceneFlags.NONE): void {
         const sceneData = new SceneData(sceneName, sceneFlags);
         this._renderGraph.addVertex<RenderGraphValue.Scene>(
