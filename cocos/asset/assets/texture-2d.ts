@@ -96,7 +96,7 @@ export class Texture2D extends SimpleTexture {
         return this._mipmaps;
     }
     set mipmaps (value) {
-        if (value[0].mipmapLevelDataSize && value[0].mipmapLevelDataSize.length > 0) {
+        if (value.length > 0 && value[0].mipmapLevelDataSize && value[0].mipmapLevelDataSize.length > 0) {
             compressedImageAsset.length = 0;
             const mipmapLevelDataSize = value[0].mipmapLevelDataSize;
             const data: Uint8Array = value[0].data as Uint8Array;

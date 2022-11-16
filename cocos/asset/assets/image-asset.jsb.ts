@@ -172,7 +172,7 @@ imageAssetProto._syncDataToNative = function () {
     else {
         this.setData(this._nativeData._data);
         if (this._nativeData.mipmapLevelDataSize) {
-            this._setMipmapLevelDataSize(this._nativeData.mipmapLevelDataSize);
+            this.setMipmapLevelDataSize(this._nativeData.mipmapLevelDataSize);
         }
     }
 };
