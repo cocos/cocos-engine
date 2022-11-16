@@ -37,11 +37,15 @@ public:
     ~TransientPoolAgent() override;
 
 private:
+    void doBeginFrame() override;
+    void doEndFrame() override;
     void doInit(const TransientPoolInfo &info) override;
-    void doInitBuffer(Buffer *buffer) override;
-    void doResetBuffer(Buffer *buffer) override;
-    void doInitTexture(Texture *texture) override;
-    void doResetTexture(Texture *texture) override;
+    void doInitBuffer(Buffer *buffer, PassScope scope, AccessFlags accessFlag) override;
+    void doResetBuffer(Buffer *buffer, PassScope scope, AccessFlags accessFlag) override;
+    void doInitTexture(Texture *texture, PassScope scope, AccessFlags accessFlag) override;
+    void doResetTexture(Texture *texture, PassScope scope, AccessFlags accessFlag) override;
+    void frontBarrier(PassScope scope, CommandBuffer *) override;
+    void rearBarrier(PassScope scope, CommandBuffer *) override;
 };
 
 

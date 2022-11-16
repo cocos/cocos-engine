@@ -87,6 +87,12 @@ void CCVKGPURecycleBin::collect(const CCVKGPUBuffer *buffer) {
     }
 }
 
+void CCVKGPURecycleBin::collect(VmaPool pool) {
+    Resource &res = emplaceBack();
+    res.type = RecycledType::VMA_POOL;
+    res.vmaPool = pool;
+}
+
 void CCVKGPURecycleBin::clear() {
     for (uint32_t i = 0U; i < _count; ++i) {
         Resource &res = _resources[i];
@@ -144,6 +150,11 @@ void CCVKGPURecycleBin::clear() {
             case RecycledType::DESCRIPTOR_SET:
                 if (res.set.vkSet != VK_NULL_HANDLE) {
                     CCVKDevice::getInstance()->gpuDevice()->getDescriptorSetPool(res.set.layoutId)->yield(res.set.vkSet);
+                }
+                break;
+            case RecycledType::VMA_POOL:
+                if (res.vmaPool != VK_NULL_HANDLE) {
+                    vmaDestroyPool(CCVKDevice::getInstance()->gpuDevice()->memoryAllocator, res.vmaPool);
                 }
                 break;
             default: break;

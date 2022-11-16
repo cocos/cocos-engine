@@ -26,6 +26,7 @@ THE SOFTWARE.
 #include "gfx-agent/TransientPoolAgent.h"
 #include "gfx-agent/BufferAgent.h"
 #include "gfx-agent/DeviceAgent.h"
+#include "gfx-agent/CommandBufferAgent.h"
 #include "gfx-agent/TextureAgent.h"
 
 #define AGENT_TEST
@@ -62,60 +63,110 @@ void TransientPoolAgent::doInit(const TransientPoolInfo &info) {
         {
             actor->initialize(info);
         });
-    FLUSH_MESSAGE
 }
 
-void TransientPoolAgent::doInitBuffer(Buffer *buffer) {
+void TransientPoolAgent::doBeginFrame() {
+    ENQUEUE_MESSAGE_1(
+        DeviceAgent::getInstance()->getMessageQueue(),
+        TransientPoolAgentdoBeginFrame,
+        actor, getActor(),
+        {
+            actor->beginFrame();
+        });
+}
+
+void TransientPoolAgent::doEndFrame() {
+    ENQUEUE_MESSAGE_1(
+        DeviceAgent::getInstance()->getMessageQueue(),
+        TransientPoolAgentEndFrame,
+        actor, getActor(),
+        {
+            actor->doEndFrame();
+        });
+}
+
+void TransientPoolAgent::doInitBuffer(Buffer *buffer, PassScope scope, AccessFlags accessFlag) {
     auto *actorBuffer = static_cast<BufferAgent *>(buffer)->getActor();
-    ENQUEUE_MESSAGE_2(
+    ENQUEUE_MESSAGE_4(
         DeviceAgent::getInstance()->getMessageQueue(),
         TransientPoolAgentInitBuffer,
         actor, getActor(),
         buffer, actorBuffer,
+        scope, scope,
+        accessFlag, accessFlag,
         {
-            actor->doInitBuffer(buffer);
+            actor->doInitBuffer(buffer, scope, accessFlag);
         });
-    FLUSH_MESSAGE
 }
 
-void TransientPoolAgent::doResetBuffer(Buffer *buffer) {
+void TransientPoolAgent::doResetBuffer(Buffer *buffer, PassScope scope, AccessFlags accessFlag) {
     auto *actorBuffer = static_cast<BufferAgent *>(buffer)->getActor();
-    ENQUEUE_MESSAGE_2(
+    ENQUEUE_MESSAGE_4(
         DeviceAgent::getInstance()->getMessageQueue(),
         TransientPoolAgentResetBuffer,
         actor, getActor(),
         buffer, actorBuffer,
+        scope, scope,
+        accessFlag, accessFlag,
         {
-            actor->doResetBuffer(buffer);
+            actor->doResetBuffer(buffer, scope, accessFlag);
         });
-    FLUSH_MESSAGE
 }
 
-void TransientPoolAgent::doInitTexture(Texture *texture) {
+void TransientPoolAgent::doInitTexture(Texture *texture, PassScope scope, AccessFlags accessFlag) {
     auto *actorTexture = static_cast<TextureAgent *>(texture)->getActor();
-    ENQUEUE_MESSAGE_2(
+    ENQUEUE_MESSAGE_4(
         DeviceAgent::getInstance()->getMessageQueue(),
         TransientPoolAgentInitTexture,
         actor, getActor(),
         texture, actorTexture,
+        scope, scope,
+        accessFlag, accessFlag,
         {
-            actor->doInitTexture(texture);
+            actor->doInitTexture(texture, scope, accessFlag);
         });
-    FLUSH_MESSAGE
 }
 
-void TransientPoolAgent::doResetTexture(Texture *texture) {
+void TransientPoolAgent::doResetTexture(Texture *texture, PassScope scope, AccessFlags accessFlag) {
     auto *actorTexture = static_cast<TextureAgent *>(texture)->getActor();
-    ENQUEUE_MESSAGE_2(
+    ENQUEUE_MESSAGE_4(
         DeviceAgent::getInstance()->getMessageQueue(),
         TransientPoolAgentResetTexture,
         actor, getActor(),
         texture, actorTexture,
+        scope, scope,
+        accessFlag, accessFlag,
         {
-            actor->doResetTexture(texture);
+            actor->doResetTexture(texture, scope, accessFlag);
         });
-    FLUSH_MESSAGE
 }
+
+void TransientPoolAgent::frontBarrier(PassScope scope, CommandBuffer *cmdBuffer) {
+    auto *actorCmd = static_cast<CommandBufferAgent*>(cmdBuffer)->getActor();
+    ENQUEUE_MESSAGE_3(
+        DeviceAgent::getInstance()->getMessageQueue(),
+        TransientPoolAgentFrontBarrier,
+        actor, getActor(),
+        scope, scope,
+        cmdBuffer, actorCmd,
+        {
+            actor->frontBarrier(scope, cmdBuffer);
+        });
+}
+
+void TransientPoolAgent::rearBarrier(PassScope scope, CommandBuffer *cmdBuffer) {
+    auto *actorCmd = static_cast<CommandBufferAgent*>(cmdBuffer)->getActor();
+    ENQUEUE_MESSAGE_3(
+        DeviceAgent::getInstance()->getMessageQueue(),
+        TransientPoolAgentRearBarrier,
+        actor, getActor(),
+        scope, scope,
+        cmdBuffer, actorCmd,
+        {
+            actor->rearBarrier(scope, cmdBuffer);
+        });
+}
+
 
 } // namespace gfx
 } // namespace cc

@@ -35,12 +35,6 @@ VKTransientPool::VKTransientPool() {
     _typedID = generateObjectID<decltype(this)>();
 }
 
-VKTransientPool::~VKTransientPool() {
-    if (_memoryPool != VK_NULL_HANDLE) {
-        vmaDestroyPool(CCVKDevice::getInstance()->gpuDevice()->memoryAllocator, _memoryPool);
-    }
-}
-
 void VKTransientPool::initMemoryRequirements(const TransientPoolInfo &info) {
     uint32_t memoryTypeBits = ~(0U);
 
@@ -92,18 +86,29 @@ void VKTransientPool::initMemoryRequirements(const TransientPoolInfo &info) {
     uint32_t memTypeIndex = UINT32_MAX;
     vmaFindMemoryTypeIndex(allocator, memoryTypeBits, &_allocationCreateInfo, &memTypeIndex);
 
+
+    _memoryPool = ccnew CCVKGPUMemoryPool();
     VmaPoolCreateInfo poolInfo = {};
     poolInfo.memoryTypeIndex = memTypeIndex;
-    vmaCreatePool(allocator, &poolInfo, &_memoryPool);
-
-    _allocationCreateInfo.pool = _memoryPool;
+    vmaCreatePool(allocator, &poolInfo, &_memoryPool->vmaPool);
+    _allocationCreateInfo.pool = _memoryPool->vmaPool;
 }
 
 void VKTransientPool::doInit(const TransientPoolInfo &info) {
     initMemoryRequirements(info);
+    _context = std::make_unique<AliasingContext>();
 }
 
-void VKTransientPool::doInitBuffer(Buffer *buffer) {
+void VKTransientPool::doBeginFrame() {
+    _context->clear();
+    _resources.clear();
+}
+
+void VKTransientPool::doEndFrame() {
+
+}
+
+void VKTransientPool::doInitBuffer(Buffer *buffer, PassScope scope, AccessFlags accessFlag) {
     VmaAllocator allocator = CCVKDevice::getInstance()->gpuDevice()->memoryAllocator;
     auto *gpuBuffer = static_cast<CCVKBuffer *>(buffer)->gpuBuffer();
     VkBuffer vkBuffer = gpuBuffer->vkBuffer;
@@ -118,15 +123,36 @@ void VKTransientPool::doInitBuffer(Buffer *buffer) {
                                &allocation,
                                &allocationInfo);
     vmaBindBufferMemory(allocator, allocation, vkBuffer);
+    gpuBuffer->vmaAllocation = allocation;
+
+    // record scope and access flag
+    auto &res = _resources[buffer->getObjectID()];
+    res.resource.object = buffer;
+    res.first = scope;
+    res.firstAccess = accessFlag;
 }
 
-void VKTransientPool::doResetBuffer(Buffer *buffer) {
+void VKTransientPool::doResetBuffer(Buffer *buffer, PassScope scope, AccessFlags accessFlag) {
     VmaAllocator allocator = CCVKDevice::getInstance()->gpuDevice()->memoryAllocator;
     auto *gpuBuffer = static_cast<CCVKBuffer *>(buffer)->gpuBuffer();
+    VmaAllocationInfo allocationInfo = {};
+    vmaGetAllocationInfo(allocator, gpuBuffer->vmaAllocation, &allocationInfo);
     vmaFreeMemory(allocator, gpuBuffer->vmaAllocation);
+    gpuBuffer->vmaAllocation = VK_NULL_HANDLE;
+
+    auto iter = _resources.find(buffer->getObjectID());
+    if (iter == _resources.end()) {
+        return;
+    }
+    iter->second.last = scope;
+    iter->second.lastAccess = accessFlag;
+    _context->record({iter->second,
+                     reinterpret_cast<uint64_t>(allocationInfo.deviceMemory),
+                     allocationInfo.offset,
+                     allocationInfo.offset + allocationInfo.size - 1});
 }
 
-void VKTransientPool::doInitTexture(Texture *texture) {
+void VKTransientPool::doInitTexture(Texture *texture, PassScope scope, AccessFlags accessFlag) {
     VmaAllocator allocator = CCVKDevice::getInstance()->gpuDevice()->memoryAllocator;
     auto *vkTexture = static_cast<CCVKTexture *>(texture);
     VkImage vkImage = vkTexture->gpuTexture()->vkImage;
@@ -141,14 +167,86 @@ void VKTransientPool::doInitTexture(Texture *texture) {
                               &allocation,
                               &allocationInfo);
     vmaBindImageMemory(allocator, allocation, vkImage);
-
+    vkTexture->gpuTexture()->vmaAllocation = allocation;
     vkTexture->createTextureView();
+
+    // record scope and access flag
+    auto &res = _resources[texture->getObjectID()];
+    res.resource.object = texture;
+    res.first = scope;
+    res.firstAccess = accessFlag;
 }
 
-void VKTransientPool::doResetTexture(Texture *texture) {
+void VKTransientPool::doResetTexture(Texture *texture, PassScope scope, AccessFlags accessFlag) {
     VmaAllocator allocator = CCVKDevice::getInstance()->gpuDevice()->memoryAllocator;
     auto *gpuTexture = static_cast<CCVKTexture *>(texture)->gpuTexture();
+    VmaAllocationInfo allocationInfo = {};
+    vmaGetAllocationInfo(allocator, gpuTexture->vmaAllocation, &allocationInfo);
     vmaFreeMemory(allocator, gpuTexture->vmaAllocation);
+    gpuTexture->vmaAllocation = VK_NULL_HANDLE;
+
+    auto iter = _resources.find(texture->getObjectID());
+    if (iter == _resources.end()) {
+        return;
+    }
+    iter->second.last = scope;
+    iter->second.lastAccess = accessFlag;
+    _context->record({iter->second,
+                      reinterpret_cast<uint64_t>(allocationInfo.deviceMemory),
+                      allocationInfo.offset,
+                      allocationInfo.offset + allocationInfo.size - 1});
+}
+
+void VKTransientPool::frontBarrier(PassScope, CommandBuffer *) {
+    // do nothing
+}
+
+void VKTransientPool::rearBarrier(PassScope scope, CommandBuffer *cmdBuffer) {
+    // do Nothing
+    std::ignore = scope;
+    std::ignore = cmdBuffer;
+
+    const auto &aliasingData = _context->getAliasingData();
+    auto iter = aliasingData.find(scope);
+    if (iter == aliasingData.end()) {
+        return;
+    }
+    std::vector<BufferBarrier *> bufferBarriers;
+    std::vector<Buffer *> buffers;
+
+    std::vector<TextureBarrier*> textureBarriers;
+    std::vector<Texture *> textures;
+
+    auto *device = Device::getInstance();
+    for (const auto &aliasingInfo : iter->second) {
+        if (aliasingInfo.after.object->getObjectType() == ObjectType::BUFFER) {
+            auto *buffer = static_cast<Buffer *>(aliasingInfo.after.object);
+            BufferBarrierInfo barrierInfo = {};
+            barrierInfo.prevAccesses = aliasingInfo.beforeAccess;
+            barrierInfo.nextAccesses = aliasingInfo.afterAccess;
+            barrierInfo.offset = 0;
+            barrierInfo.size = buffer->getSize();
+            bufferBarriers.emplace_back(device->getBufferBarrier(barrierInfo));
+            buffers.emplace_back(buffer);
+        } else if (aliasingInfo.after.object->getObjectType() == ObjectType::TEXTURE) {
+            auto *texture = static_cast<Texture *>(aliasingInfo.after.object);
+            const auto& texInfo = texture->getInfo();
+            TextureBarrierInfo barrierInfo = {};
+            barrierInfo.prevAccesses = aliasingInfo.beforeAccess;
+            barrierInfo.nextAccesses = aliasingInfo.afterAccess;
+            barrierInfo.levelCount = texInfo.levelCount;
+            barrierInfo.sliceCount = texInfo.layerCount;
+            textureBarriers.emplace_back(device->getTextureBarrier(barrierInfo));
+            textures.emplace_back(texture);
+        }
+    }
+    if (!bufferBarriers.empty() || !textureBarriers.empty()) {
+        cmdBuffer->pipelineBarrier(nullptr, bufferBarriers, buffers, textureBarriers, textures);
+    }
+}
+
+void CCVKGPUMemoryPool::shutdown() {
+    CCVKDevice::getInstance()->gpuRecycleBin()->collect(vmaPool);
 }
 
 } // namespace gfx

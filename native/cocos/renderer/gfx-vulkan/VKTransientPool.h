@@ -26,6 +26,7 @@ THE SOFTWARE.
 #pragma once
 
 #include "gfx-base/GFXTransientPool.h"
+#include "VKGPUObjects.h"
 #include "vk_mem_alloc.h"
 
 namespace cc {
@@ -34,19 +35,26 @@ namespace gfx {
 class VKTransientPool : public TransientPool {
 public:
     VKTransientPool();
-    ~VKTransientPool() override;
+    ~VKTransientPool() override = default;
 
 private:
+    void doBeginFrame() override;
+    void doEndFrame() override;
     void doInit(const TransientPoolInfo &info) override;
-    void doInitBuffer(Buffer *buffer) override;
-    void doResetBuffer(Buffer *buffer) override;
-    void doInitTexture(Texture *texture) override;
-    void doResetTexture(Texture *texture) override;
+    void doInitBuffer(Buffer *buffer, PassScope scope, AccessFlags accessFlag) override;
+    void doResetBuffer(Buffer *buffer, PassScope scope, AccessFlags accessFlag) override;
+    void doInitTexture(Texture *texture, PassScope scope, AccessFlags accessFlag) override;
+    void doResetTexture(Texture *texture, PassScope scope, AccessFlags accessFlag) override;
+    void frontBarrier(PassScope scope, CommandBuffer *) override;
+    void rearBarrier(PassScope scope, CommandBuffer *) override;
 
     void initMemoryRequirements(const TransientPoolInfo &info);
 
     VmaAllocationCreateInfo _allocationCreateInfo{};
-    VmaPool _memoryPool{VK_NULL_HANDLE};
+    IntrusivePtr<CCVKGPUMemoryPool> _memoryPool{VK_NULL_HANDLE};
+
+    ccstd::unordered_map<uint32_t, AliasingResourceTracked> _resources;
+    std::unique_ptr<AliasingContext> _context;
 };
 
 } // namespace gfx

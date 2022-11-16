@@ -28,6 +28,7 @@
 #include "GFXBuffer.h"
 #include "GFXInputAssembler.h"
 #include "GFXObject.h"
+#include "GFXAliasingContext.h"
 #include "base/RefCounted.h"
 #include "base/Utils.h"
 #include "base/std/container/vector.h"
@@ -82,6 +83,7 @@ public:
     virtual void queueBarrier(const GeneralBarrier *barrier) {}
     virtual void queueBarrier(const BufferBarrier *bufferBarrier, const Buffer *buffer) {}
     virtual void queueBarrier(const TextureBarrier *textureBarrier, const Texture *texture) {}
+    virtual void queueBarrier(const AliasingInfo &aliasing) {}
     virtual void flushBarrier() {}
 
     inline void begin();

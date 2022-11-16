@@ -37,20 +37,20 @@ namespace cc::gfx {
 using PassScope = uint32_t;
 static constexpr PassScope UNDEFINED_PASS_SCOPE = ~(0U);
 
-struct AliasingResource {
+struct AliasedResource {
     GFXObject* object = nullptr;
 };
 
 struct AliasingInfo {
-    AliasingResource before;
-    AliasingResource after;
+    AliasedResource before;
+    AliasedResource after;
     AccessFlagBit beforeAccess = AccessFlagBit::NONE;
     AccessFlagBit afterAccess  = AccessFlagBit::NONE;
     PassScope nextScope = UNDEFINED_PASS_SCOPE;
 };
 
 struct AliasingResourceTracked {
-    AliasingResource resource;
+    AliasedResource resource;
     PassScope first = UNDEFINED_PASS_SCOPE;
     PassScope last  = UNDEFINED_PASS_SCOPE;
     AccessFlags firstAccess = AccessFlagBit::NONE;
@@ -64,18 +64,20 @@ public:
 
     struct ResourceInfo {
         AliasingResourceTracked tracked;
-        uint32_t blockIndex;
+        uint64_t blockIndex;
         uint64_t start;
         uint64_t end;
     };
 
-    void reset();
+    void clear();
 
     void record(const ResourceInfo &);
 
+    const ccstd::unordered_map<PassScope, ccstd::vector<AliasingInfo>> &getAliasingData() const;
+
 private:
     ccstd::vector<ResourceInfo> _resources;
-    ccstd::unordered_map<PassScope, AliasingInfo> _aliasingInfo;
+    ccstd::unordered_map<PassScope, ccstd::vector<AliasingInfo>> _aliasingInfo;
 };
 
 

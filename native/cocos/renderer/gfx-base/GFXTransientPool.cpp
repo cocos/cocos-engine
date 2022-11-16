@@ -33,66 +33,41 @@ TransientPool::TransientPool() : GFXObject(ObjectType::TRANSIENT_POOL) {
 }
 
 void TransientPool::beginFrame() {
-    _context->reset();
-
     _buffers.clear();
     _textures.clear();
+
+    doBeginFrame();
 }
 
 void TransientPool::endFrame() {
-    _resources.clear();
+    doEndFrame();
 }
 
 void TransientPool::initialize(const TransientPoolInfo &info) {
     _info = info;
-    _context = std::make_unique<AliasingContext>();
     doInit(info);
 }
 
 Buffer *TransientPool::requestBuffer(const BufferInfo &info, PassScope scope, AccessFlags accessFlag) {
     auto *buffer = Device::getInstance()->createBuffer(info);
-
-    auto &res = _resources[buffer->getObjectID()];
-    res.resource.object = buffer;
-    res.first = scope;
-    res.firstAccess = accessFlag;
-
-    doInitBuffer(buffer);
+    doInitBuffer(buffer, scope, accessFlag);
     _buffers.emplace_back(buffer);
     return buffer;
 }
 
 Texture *TransientPool::requestTexture(const TextureInfo &info, PassScope scope, AccessFlags accessFlag) {
     auto *texture = Device::getInstance()->createTexture(info);
-
-    auto &res = _resources[texture->getObjectID()];
-    res.resource.object = texture;
-    res.first = scope;
-    res.firstAccess = accessFlag;
-
-    doInitTexture(texture);
+    doInitTexture(texture, scope, accessFlag);
     _textures.emplace_back(texture);
     return texture;
 }
 
 void TransientPool::resetBuffer(Buffer *buffer, PassScope scope, AccessFlags accessFlag) {
-    recordResource(buffer->getObjectID(), scope, accessFlag);
-    doResetBuffer(buffer);
+    doResetBuffer(buffer, scope, accessFlag);
 }
 
 void TransientPool::resetTexture(Texture *texture, PassScope scope, AccessFlags accessFlag) {
-    recordResource(texture->getObjectID(), scope, accessFlag);
-    doResetTexture(texture);
-}
-
-void TransientPool::recordResource(uint32_t id, PassScope scope, AccessFlags accessFlag) {
-    auto iter = _resources.find(id);
-    if (iter == _resources.end()) {
-        return;
-    }
-    iter->second.last = scope;
-    iter->second.lastAccess = accessFlag;
-    _context->record({iter->second, 0, 0, 0});
+    doResetTexture(texture, scope, accessFlag);
 }
 
 } // namespace gfx

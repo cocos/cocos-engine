@@ -27,7 +27,7 @@ THE SOFTWARE.
 
 namespace cc::gfx {
 
-void AliasingContext::reset()
+void AliasingContext::clear()
 {
     _resources.clear();
     _aliasingInfo.clear();
@@ -43,7 +43,7 @@ void AliasingContext::record(const ResourceInfo& inRes) {
             continue;
         }
         if (current.tracked.last != UNDEFINED_PASS_SCOPE) {
-            auto &info = _aliasingInfo[current.tracked.last];
+            auto &info = _aliasingInfo[current.tracked.last].emplace_back();
             info.before = current.tracked.resource;
             info.after = inRes.tracked.resource;
             info.beforeAccess = current.tracked.lastAccess;
@@ -88,6 +88,10 @@ void AliasingContext::record(const ResourceInfo& inRes) {
     }
 
     _resources.emplace_back(inRes);
+}
+
+const ccstd::unordered_map<PassScope, ccstd::vector<AliasingInfo>> &AliasingContext::getAliasingData() const {
+    return _aliasingInfo;
 }
 
 } // namespace cc::gfx

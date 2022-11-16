@@ -27,6 +27,7 @@ THE SOFTWARE.
 
 #include "GFXObject.h"
 #include "GFXAliasingContext.h"
+#include "gfx-base/GFXCommandBuffer.h"
 #include "gfx-base/allocator/Allocator.h"
 #include "base/RefCounted.h"
 #include "base/Ptr.h"
@@ -53,6 +54,9 @@ public:
     void beginFrame();
     void endFrame();
 
+    virtual void frontBarrier(PassScope scope, CommandBuffer *) {}
+    virtual void rearBarrier(PassScope scope, CommandBuffer *) {}
+
     Buffer *requestBuffer(const BufferInfo &info, PassScope scope, AccessFlags accessFlag = AccessFlagBit::NONE);
     Texture *requestTexture(const TextureInfo &info, PassScope scope, AccessFlags accessFlag = AccessFlagBit::NONE);
 
@@ -63,22 +67,18 @@ protected:
     friend class TransientPoolAgent;
     friend class TransientPoolValidator;
 
-    // game thread
-    void recordResource(uint32_t id, PassScope scope, AccessFlags accessFlag);
-
     // gfx thread
+    virtual void doBeginFrame() {}
+    virtual void doEndFrame() {}
     virtual void doInit(const TransientPoolInfo &info) {}
-    virtual void doInitBuffer(Buffer *buffer) {}
-    virtual void doResetBuffer(Buffer *buffer) {}
-    virtual void doInitTexture(Texture *texture) {}
-    virtual void doResetTexture(Texture *texture) {}
+    virtual void doInitBuffer(Buffer *buffer, PassScope scope, AccessFlags accessFlag) {}
+    virtual void doResetBuffer(Buffer *buffer, PassScope scope, AccessFlags accessFlag) {}
+    virtual void doInitTexture(Texture *texture, PassScope scope, AccessFlags accessFlag) {}
+    virtual void doResetTexture(Texture *texture, PassScope scope, AccessFlags accessFlag) {}
 
     TransientPoolInfo _info;
-    ccstd::unordered_map<uint32_t, AliasingResourceTracked> _resources;
-    std::unique_ptr<AliasingContext> _context;
     std::vector<IntrusivePtr<Buffer>> _buffers;
     std::vector<IntrusivePtr<Texture>> _textures;
-    std::unique_ptr<Allocator> _allocator;
 };
 
 } // namespace gfx

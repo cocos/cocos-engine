@@ -113,6 +113,11 @@ void CCVKDeviceObjectDeleter::operator()(T *ptr) const {
     delete object;
 }
 
+struct CCVKGPUMemoryPool final : public CCVKGPUDeviceObject {
+    void shutdown() override;
+    VmaPool vmaPool{VK_NULL_HANDLE};
+};
+
 class CCVKGPURenderPass final : public CCVKGPUDeviceObject {
 public:
     void shutdown() override;
@@ -1069,6 +1074,7 @@ public:
     void collect(const CCVKGPUDescriptorSet *set);
     void collect(uint32_t layoutId, VkDescriptorSet set);
     void collect(const CCVKGPUBuffer *buffer);
+    void collect(VmaPool pool);
 
 #define DEFINE_RECYCLE_BIN_COLLECT_FN(_type, typeValue, expr)                           \
     void collect(const _type *gpuRes) { /* NOLINT(bugprone-macro-parentheses) N/A */ \
@@ -1097,7 +1103,8 @@ private:
         SAMPLER,
         PIPELINE_STATE,
         DESCRIPTOR_SET,
-        EVENT
+        EVENT,
+        VMA_POOL,
     };
     struct Buffer {
         VkBuffer vkBuffer;
@@ -1127,6 +1134,7 @@ private:
             VkSampler vkSampler;
             VkEvent vkEvent;
             VkPipeline vkPipeline;
+            VmaPool vmaPool;
         };
     };
 
