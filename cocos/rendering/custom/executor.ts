@@ -856,9 +856,8 @@ class DevicePreSceneTask extends WebSceneTask {
             this._submitInfo.reflectionProbe = new RenderReflectionProbeQueue(this._currentQueue.devicePass.context.pipeline);
             const probes = ReflectionProbeManager.probeManager.getProbes();
             for (let i = 0; i < probes.length; i++) {
-                const probe = probes[i];
-                if (probe.hasFrameBuffer(this._currentQueue.devicePass.framebuffer)) {
-                    this._submitInfo.reflectionProbe.gatherRenderObjects(probes[0], this.camera.scene!);
+                if (probes[i].hasFrameBuffer(this._currentQueue.devicePass.framebuffer)) {
+                    this._submitInfo.reflectionProbe.gatherRenderObjects(probes[i], this.camera.scene!, this._cmdBuff);
                     break;
                 }
             }

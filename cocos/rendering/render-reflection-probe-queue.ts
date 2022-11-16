@@ -71,7 +71,7 @@ export class RenderReflectionProbeQueue {
         this._pipeline = pipeline;
     }
 
-    public gatherRenderObjects (probe: ReflectionProbe, scene:RenderScene) {
+    public gatherRenderObjects (probe: ReflectionProbe, scene:RenderScene, cmdBuff: CommandBuffer) {
         this.clear();
         const sceneData = this._pipeline.pipelineSceneData;
         const skybox = sceneData.skybox;
