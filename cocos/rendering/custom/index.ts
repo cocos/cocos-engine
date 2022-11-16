@@ -45,8 +45,8 @@ export function createCustomPipeline (rendering: any): Pipeline {
         ? rendering.defaultLayoutGraph as LayoutGraphData
         : new LayoutGraphData();
 
-    const pplName = macro.CUSTOM_PIPELINE_NAME;
     const ppl = new WebPipeline(layoutGraph);
+    const pplName = macro.CUSTOM_PIPELINE_NAME;
     ppl.setCustomPipelineName(pplName);
 
     if (!enableEffectImport) {
