@@ -1287,7 +1287,7 @@ export class LightProbeInfo {
         return true;
     }
 
-    public syncData(node: Node, probes: Vec3[]) {
+    public syncData (node: Node, probes: Vec3[]) {
         for (let i = 0; i < this._nodes.length; i++) {
             if (this._nodes[i].node === node) {
                 this._nodes[i].probes = probes;
