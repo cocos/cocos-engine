@@ -63,7 +63,7 @@ public:
     };
 
     bool initWithImageFile(const ccstd::string &path);
-    bool initWithImageData(const unsigned char *data, uint32_t dataLen, uint32_t level = -1);
+    bool initWithImageData(const unsigned char *data, uint32_t dataLen);
 
     // @warning kFmtRawData only support RGBA8888
     bool initWithRawData(const unsigned char *data, uint32_t dataLen, int width, int height, int bitsPerComponent, bool preMulti = false);
@@ -98,12 +98,12 @@ protected:
 #if CC_USE_WEBP
     bool initWithWebpData(const unsigned char *data, uint32_t dataLen);
 #endif
-    bool initWithPVRData(const unsigned char *data, uint32_t dataLen, int32_t level = -1);
-    bool initWithPVRv2Data(const unsigned char *data, uint32_t dataLen, int32_t level = -1);
-    bool initWithPVRv3Data(const unsigned char *data, uint32_t dataLen, int32_t level = -1);
+    bool initWithPVRData(const unsigned char *data, uint32_t dataLen);
+    bool initWithPVRv2Data(const unsigned char *data, uint32_t dataLen);
+    bool initWithPVRv3Data(const unsigned char *data, uint32_t dataLen);
     bool initWithETCData(const unsigned char *data, uint32_t dataLen);
     bool initWithETC2Data(const unsigned char *data, uint32_t dataLen);
-    bool initWithASTCData(const unsigned char *data, uint32_t dataLen, int32_t level = -1);
+    bool initWithASTCData(const unsigned char *data, uint32_t dataLen);
     bool initWithCompressedMipsData(const unsigned char *data, uint32_t dataLen);
 
     bool saveImageToPNG(const std::string &filePath, bool isToRGB = true);

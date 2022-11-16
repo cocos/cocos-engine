@@ -81,15 +81,15 @@ export class Parser {
     }
 
     public parsePVRTex (file: ArrayBuffer | ArrayBufferView, options: IDownloadParseOptions, onComplete: CompleteCallback<IMemoryImageSource>) {
-        ImageAsset.parseCompressedTexs(file, 0);
+        ImageAsset.parseCompressedTexs(file, onComplete, 0);
     }
 
     public parsePKMTex (file: ArrayBuffer | ArrayBufferView, options: IDownloadParseOptions, onComplete: CompleteCallback<IMemoryImageSource>) {
-        ImageAsset.parseCompressedTexs(file, 1);
+        ImageAsset.parseCompressedTexs(file, onComplete, 1);
     }
 
     public parseASTCTex (file: ArrayBuffer | ArrayBufferView, options: IDownloadParseOptions, onComplete: CompleteCallback<IMemoryImageSource>) {
-        ImageAsset.parseCompressedTexs(file, 2);
+        ImageAsset.parseCompressedTexs(file, onComplete, 2);
     }
 
     public parsePlist (file: string, options: IDownloadParseOptions, onComplete: CompleteCallback) {

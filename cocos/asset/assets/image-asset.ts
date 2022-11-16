@@ -31,6 +31,7 @@ import { Asset } from './asset';
 import { PixelFormat } from './asset-enum';
 import { warnID, macro, sys, cclegacy } from '../../core';
 import { Enum } from '../../core/value-types/enum';
+import { CompleteCallback } from '../asset-manager/shared';
 
 // Compress mipmap constants
 const COMPRESSED_HEADER_LENGTH = 4;
@@ -257,7 +258,7 @@ export class ImageAsset extends Asset {
      * @param type 压缩纹理类型
      * @engineInternal
      */
-    public static parseCompressedTexs (file: ArrayBuffer | ArrayBufferView, type: number) {
+    public static parseCompressedTexs (file: ArrayBuffer | ArrayBufferView, onComplete: CompleteCallback<IMemoryImageSource>, type: number) {
         const out: IMemoryImageSource = {
             _data: new Uint8Array(0),
             _compressed: true,
@@ -298,6 +299,7 @@ export class ImageAsset extends Asset {
             err = e as Error;
             console.warn(err);
         }
+        onComplete(err, out);
     }
 
     /**
