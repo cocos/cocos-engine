@@ -695,8 +695,6 @@ export class ParticleSystem extends ModelRenderer {
         if (EDITOR && !legacyCC.GAME_VIEW) {
             if (!this._trailModule) {
                 this._trailModule = new TrailModule();
-                this._trailModule.onInit(this);
-                this._trailModule.onEnable();
             }
         }
         return this._trailModule;
