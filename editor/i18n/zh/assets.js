@@ -336,20 +336,20 @@ module.exports = {
                 },
                 simplify: {
                     targetRatio: {
-                        name: 'Ratio',
-                        title: 'LOD 压缩比例',
+                        name: 'LOD 压缩比例',
+                        title: 'Target Ratio',
                     },
                     enableSmartLink: {
-                        name: 'Smart Link',
-                        title: '防止破面',
+                        name: '防止破面',
+                        title: 'Smart Link',
                     },
                     agressiveness: {
-                        name: 'Agressiveness',
-                        title: '误差距离',
+                        name: '误差距离',
+                        title: 'Agressiveness',
                     },
                     maxIterationCount: {
-                        name: 'Max Iteration Count',
-                        title: '计算迭代次数',
+                        name: '计算迭代次数',
+                        title: 'Max Iteration Count',
                     },
                 },
                 gltfpack: {
