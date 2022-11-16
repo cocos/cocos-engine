@@ -1267,7 +1267,7 @@ export class LightProbeInfo {
             }
         }
 
-        this._nodes.push({node, probes: null});
+        this._nodes.push({ node, probes: null });
 
         return true;
     }
@@ -1434,6 +1434,14 @@ export class SceneGlobals {
     @editable
     @serializable
     public lightProbeInfo = new LightProbeInfo();
+
+    /**
+     * @en bake with stationary main light
+     * @zh 主光源是否以静止状态烘培
+     */
+     @editable
+     @serializable
+     public bakedWithStationaryMainLight = false;
 
     /**
      * @en Activate and initialize the global configurations of the scene, no need to invoke manually.
