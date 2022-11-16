@@ -20,9 +20,9 @@ App({
         return System.import('cc');
       })
       .then((cc) => {
-        require('./load-module-plugin.js');
         return System.import('./engine-adapter.js')
         .then(() => {
+          require('./load-module-plugin.js');
           return System.import('<%= applicationJs %>')
           .then(({ Application }) => {
             const application = new Application();
