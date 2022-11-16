@@ -45,6 +45,7 @@
 #import "MTLTransientPool.h"
 #import "base/Log.h"
 #import "profiler/Profiler.h"
+#import "gfx-base/SPIRVUtils.h"
 
 
 namespace cc {
@@ -76,6 +77,8 @@ bool CCMTLDevice::doInit(const DeviceInfo &info) {
     _gpuDeviceObj = ccnew CCMTLGPUDeviceObject;
     _inFlightSemaphore = ccnew CCMTLSemaphore(3);
     _currentFrameIndex = 0;
+
+    SPIRVUtils::getInstance()->initialize(0);
 
     id<MTLDevice> mtlDevice = MTLCreateSystemDefaultDevice();
     _mtlDevice = mtlDevice;

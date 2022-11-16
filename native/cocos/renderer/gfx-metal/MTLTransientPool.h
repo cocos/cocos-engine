@@ -27,7 +27,9 @@ THE SOFTWARE.
 
 #include "gfx-base/GFXTransientPool.h"
 #include "gfx-base/allocator/Allocator.h"
+#import <Metal/MTLFence.h>
 #import <Metal/MTLHeap.h>
+#include <memory>
 
 namespace cc {
 namespace gfx {
@@ -39,18 +41,30 @@ public:
 
 private:
     void doInit(const TransientPoolInfo &info) override;
-    void doInitBuffer(Buffer *buffer) override;
-    void doResetBuffer(Buffer *buffer) override;
-    void doInitTexture(Texture *texture) override;
-    void doResetTexture(Texture *texture) override;
+    void doInitBuffer(Buffer *buffer, PassScope scope, AccessFlags accessFlag) override;
+    void doResetBuffer(Buffer *buffer, PassScope scope, AccessFlags accessFlag) override;
+    void doInitTexture(Texture *texture, PassScope scope, AccessFlags accessFlag) override;
+    void doResetTexture(Texture *texture, PassScope scope, AccessFlags accessFlag) override;
+
+    void frontBarrier(PassScope scope, CommandBuffer *) override;
+    void rearBarrier(PassScope scope, CommandBuffer *) override;
+
+    void doBeginFrame() override;
+    void doEndFrame() override;
 
     bool allocateBlock() override;
     void freeBlock(uint32_t index) override;
 
-    void initAllocator(const TransientPoolInfo &info);
+    void init(const TransientPoolInfo &info);
 
     std::unique_ptr<Allocator> _allocator;
     ccstd::vector<id<MTLHeap>> _heaps;
+
+    ccstd::unordered_map<uint32_t, AliasingResourceTracked> _resources;
+    std::unique_ptr<AliasingContext> _context;
+
+    ccstd::vector<id<MTLFence>> _fences;
+    ccstd::unordered_map<PassScope, ccstd::vector<id<MTLFence>>> _fencesToWait;
 };
 
 } // namespace gfx

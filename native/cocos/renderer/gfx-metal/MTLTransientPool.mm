@@ -38,11 +38,13 @@ CCMTLTransientPool::~CCMTLTransientPool() {
 
 }
 
-void CCMTLTransientPool::initAllocator(const TransientPoolInfo &info) {
+void CCMTLTransientPool::init(const TransientPoolInfo &info) {
     AllocatorInfo allocatorInfo = {};
     allocatorInfo.blockSize = info.blockSize;
     _allocator = std::make_unique<Allocator>(allocatorInfo);
     _allocator->setBlockImpl(this);
+
+    _context = std::make_unique<AliasingContext>();
 }
 
 bool CCMTLTransientPool::allocateBlock() {
@@ -74,10 +76,10 @@ void CCMTLTransientPool::freeBlock(uint32_t index) {
 }
 
 void CCMTLTransientPool::doInit(const TransientPoolInfo &info) {
-    initAllocator(info);
+    init(info);
 }
 
-void CCMTLTransientPool::doInitBuffer(Buffer *buffer) {
+void CCMTLTransientPool::doInitBuffer(Buffer *buffer, PassScope scope, AccessFlags accessFlag) {
     auto *mtlBuffer = static_cast<CCMTLBuffer *>(buffer);
 
     MTLSizeAndAlign sizeAndAlign = mtlBuffer->getSizeAndAlign();
@@ -86,15 +88,31 @@ void CCMTLTransientPool::doInitBuffer(Buffer *buffer) {
 
     mtlBuffer->initFromHeap(_heaps[allocation->blockIndex], sizeAndAlign.size, allocation->offset);
     mtlBuffer->setAllocation(handle);
+
+    auto &res = _resources[buffer->getObjectID()];
+    res.resource.object = buffer;
+    res.first = scope;
+    res.firstAccess = accessFlag;
 }
 
-void CCMTLTransientPool::doResetBuffer(Buffer *buffer) {
+void CCMTLTransientPool::doResetBuffer(Buffer *buffer, PassScope scope, AccessFlags accessFlag) {
     auto *mtlBuffer = static_cast<CCMTLBuffer *>(buffer);
+    auto *allocation = _allocator->getAllocation(mtlBuffer->getAllocation());
     _allocator->free(mtlBuffer->getAllocation());
     mtlBuffer->setAllocation(Allocator::INVALID_HANDLE);
+
+    auto iter = _resources.find(buffer->getObjectID());
+    if (iter == _resources.end()) {
+        return;
+    }
+    _context->record({iter->second,
+        allocation->blockIndex,
+        allocation->offset,
+        allocation->offset + allocation->size - 1
+    });
 }
 
-void CCMTLTransientPool::doInitTexture(Texture *texture) {
+void CCMTLTransientPool::doInitTexture(Texture *texture, PassScope scope, AccessFlags accessFlag) {
     auto *mtlTexture = static_cast<CCMTLTexture *>(texture);
     
     MTLSizeAndAlign sizeAndAlign = mtlTexture->getSizeAndAlign();
@@ -103,13 +121,50 @@ void CCMTLTransientPool::doInitTexture(Texture *texture) {
     
     mtlTexture->initFromHeap(_heaps[allocation->blockIndex], allocation->offset);
     mtlTexture->setAllocation(handle);
+
+    auto &res = _resources[texture->getObjectID()];
+    res.resource.object = texture;
+    res.first = scope;
+    res.firstAccess = accessFlag;
 }
 
-void CCMTLTransientPool::doResetTexture(Texture *texture) {
+void CCMTLTransientPool::doResetTexture(Texture *texture, PassScope scope, AccessFlags accessFlag) {
     auto *mtlTexture = static_cast<CCMTLTexture *>(texture);
+    auto *allocation = _allocator->getAllocation(mtlTexture->getAllocation());
     _allocator->free(mtlTexture->getAllocation());
     mtlTexture->setAllocation(Allocator::INVALID_HANDLE);
+
+    auto iter = _resources.find(texture->getObjectID());
+    if (iter == _resources.end()) {
+        return;
+    }
+    _context->record({iter->second,
+                      allocation->blockIndex,
+                      allocation->offset,
+                      allocation->offset + allocation->size - 1
+    });
 }
+
+void CCMTLTransientPool::frontBarrier(PassScope scope, CommandBuffer *cmdBuffer) {
+    auto iter = _fencesToWait.find(scope);
+    if (iter == _fences.end()) {
+        return;
+    }
+}
+
+void CCMTLTransientPool::rearBarrier(PassScope scope, CommandBuffer *cmdBuffer) {
+
+}
+
+void CCMTLTransientPool::doBeginFrame() {
+    _context->clear();
+    _resources.clear();
+}
+
+void CCMTLTransientPool::doEndFrame() {
+
+}
+
 
 } // namespace gfx
 } // namespace cc

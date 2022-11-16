@@ -199,14 +199,11 @@ void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
                         needPartialClear = colorAttachments[i].loadOp == LoadOp::CLEAR;
                     }
                 } else {
-                    mtlRenderPassDescriptor.colorAttachments[i].loadAction = MTLLoadActionLoad;
-                    needPartialClear = colorAttachments[i].loadOp == LoadOp::CLEAR;
+                    mtlRenderPassDescriptor.colorAttachments[i].loadAction = mu::toMTLLoadAction(colorAttachments[i].loadOp);
                 }
-            } else {
-                mtlRenderPassDescriptor.colorAttachments[i].loadAction = mu::toMTLLoadAction(colorAttachments[i].loadOp);
+                _colorAppearedBefore.set(i);
+                mtlRenderPassDescriptor.colorAttachments[i].storeAction = mu::isFramebufferFetchSupported() ? mu::toMTLStoreAction(colorAttachments[i].storeOp) : MTLStoreActionStore;
             }
-            _colorAppearedBefore.set(i);
-            mtlRenderPassDescriptor.colorAttachments[i].storeAction = mu::isFramebufferFetchSupported() ? mu::toMTLStoreAction(colorAttachments[i].storeOp) : MTLStoreActionStore;
         }
     } else {
         // TODO: cache state.
