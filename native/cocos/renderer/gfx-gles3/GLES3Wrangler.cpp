@@ -26,6 +26,7 @@
 #include "GLES3Wrangler.h"
 #include <string>
 #include "base/Log.h"
+#include "base/memory/Memory.h"
 
 #if defined(_WIN32) && !defined(ANDROID)
     #define WIN32_LEAN_AND_MEAN 1
@@ -41,13 +42,22 @@ bool gles3wOpen() {
 
     #if CC_EDITOR
     // In editor,there are same library,so we need to use abs path to load them.
-    char dllPath[MAX_PATH];
     HMODULE engine = NULL;
     if (GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS |
                               GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
                           (LPCWSTR)&gles3wOpen, &engine) != 0) {
-        GetModuleFileNameA(engine, dllPath, ARRAYSIZE(dllPath));
-        std::string dir(dllPath);
+        std::string dir("");
+        int times = 1;
+        do {
+            auto size = MAX_PATH * times++;
+            char *path = (char *)CC_MALLOC(size);
+            if (path) {
+                GetModuleFileNameA(engine, path, size);
+                dir = path;
+            }
+            CC_FREE(path);
+        } while (GetLastError() == ERROR_INSUFFICIENT_BUFFER);
+        
         dir = dir.substr(0, dir.rfind("\\") + 1);
         eglPath = dir + eglPath;
         glesPath = dir + glesPath;

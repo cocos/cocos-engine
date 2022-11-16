@@ -45,14 +45,10 @@ int Screen::getDPI() const {
 
 float Screen::getDevicePixelRatio() const {
 #if CC_EDITOR
-    se::AutoHandleScope hs;
-    se::Value ret;
-    char commandBuf[100] = "window.devicePixelRatio";
-auto* global = se::ScriptEngine::getInstance()->getGlobalObject();
-se::Value devicePixelRatioVal;
-global->getProperty("devicePixelRatio", &devicePixelRatioVal);
-return devicePixelRatioVal.isNumber() ? devicePixelRatioVal.toFloat() : 1.F;
-    return ret.isNumber() ? ret.toFloat() : 1;
+    auto* global = se::ScriptEngine::getInstance()->getGlobalObject();
+    se::Value devicePixelRatioVal;
+    global->getProperty("devicePixelRatio", &devicePixelRatioVal);
+    return devicePixelRatioVal.isNumber() ? devicePixelRatioVal.toFloat() : 1.F;
 #else
     return [[[[NSApplication sharedApplication] delegate] getWindow] backingScaleFactor];
 #endif

@@ -614,7 +614,6 @@ bool Object::getArrayBufferData(uint8_t **ptr, size_t *length) const {
     char *data = node::Buffer::Data(obj.As<v8::Value>());
     *ptr = reinterpret_cast<uint8_t *>(data);
     if (length) {
-        //*length = backingStore->ByteLength();
         *length = node::Buffer::Length(obj.As<v8::Value>());
     }
     #else
