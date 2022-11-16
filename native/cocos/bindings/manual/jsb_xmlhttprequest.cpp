@@ -864,7 +864,10 @@ static bool XMLHttpRequest_getResponse(se::State &s) { //NOLINT(readability-iden
                 } else {
                     s.rval().setNull();
                 }
-            } else {
+            } else if (xhr->getResponseType() == XMLHttpRequest::ResponseType::BLOB) {
+                SE_PRECONDITION2(false, false, "Don't support blob response type");
+            } 
+            else {
                 SE_PRECONDITION2(false, false, "Invalid response type");
             }
         }

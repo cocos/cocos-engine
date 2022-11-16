@@ -2,17 +2,7 @@ var self = window;
 var support = {
   searchParams: 'URLSearchParams' in self,
   iterable: 'Symbol' in self && 'iterator' in Symbol,
-  blob:
-    'FileReader' in self &&
-    'Blob' in self &&
-    (function() {
-      try {
-        new Blob()
-        return true
-      } catch (e) {
-        return false
-      }
-    })(),
+  blob: false, // do not support blob in native
   formData: 'FormData' in self,
   arrayBuffer: 'ArrayBuffer' in self
 }
