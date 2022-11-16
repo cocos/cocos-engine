@@ -26,7 +26,7 @@
 import { Pipeline, PipelineBuilder } from './pipeline';
 import { WebPipeline } from './web-pipeline';
 import { buildDeferredLayout, buildForwardLayout } from './effect';
-import { macro } from '../../core/platform/macro';
+import { macro } from '../../core';
 import { DeferredPipelineBuilder, ForwardPipelineBuilder } from './builtin-pipelines';
 import { CustomPipelineBuilder, NativePipelineBuilder } from './custom-pipeline';
 import { LayoutGraphData, loadLayoutGraphData } from './layout-graph';
@@ -41,12 +41,11 @@ export * from './archive';
 export const enableEffectImport = false;
 
 export function createCustomPipeline (rendering: any): Pipeline {
-    const pplName = macro.CUSTOM_PIPELINE_NAME;
-
     const layoutGraph = enableEffectImport
         ? rendering.defaultLayoutGraph as LayoutGraphData
         : new LayoutGraphData();
 
+    const pplName = macro.CUSTOM_PIPELINE_NAME;
     const ppl = new WebPipeline(layoutGraph);
     ppl.setCustomPipelineName(pplName);
 
