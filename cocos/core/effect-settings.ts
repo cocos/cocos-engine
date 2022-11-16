@@ -23,8 +23,6 @@
  THE SOFTWARE.
 */
 import { HTML5 } from 'internal:constants';
-import { BinaryInputArchive } from '../rendering/custom/binary-archive';
-import { loadLayoutGraphData } from '../rendering/custom/layout-graph';
 import { legacyCC } from './global-exports';
 
 declare const fsUtils: any;
@@ -103,10 +101,13 @@ export class EffectSettings {
     }
 
     applyBindings () {
-        if (!this._data || !legacyCC.rendering) { return; }
-        const readBinaryData = new BinaryInputArchive(this._data);
-        loadLayoutGraphData(readBinaryData, legacyCC.rendering.defaultLayoutGraph);
-        console.log(legacyCC.rendering.defaultLayoutGraph);
+        if (!this._data || !legacyCC.rendering || !legacyCC.rendering.enableEffectImport) {
+            return;
+        }
+        legacyCC.rendering.deserializeLayoutGraph(
+            this._data,
+            legacyCC.rendering.defaultLayoutGraph,
+        );
     }
 
     /**

@@ -28,8 +28,9 @@ import { WebPipeline } from './web-pipeline';
 import { macro } from '../../core/platform/macro';
 import { DeferredPipelineBuilder, ForwardPipelineBuilder } from './builtin-pipelines';
 import { CustomPipelineBuilder, NativePipelineBuilder } from './custom-pipeline';
-import { LayoutGraphData } from './layout-graph';
+import { LayoutGraphData, loadLayoutGraphData } from './layout-graph';
 import { buildDeferredLayout, buildForwardLayout } from './effect';
+import { BinaryInputArchive } from './binary-archive';
 
 let _pipeline: WebPipeline | null = null;
 
@@ -84,3 +85,8 @@ function addCustomBuiltinPipelines (map: Map<string, PipelineBuilder>) {
 }
 
 addCustomBuiltinPipelines(customPipelineBuilderMap);
+
+export function deserializeLayoutGraph (arrayBuffer: ArrayBuffer, lg: LayoutGraphData) {
+    const readBinaryData = new BinaryInputArchive(arrayBuffer);
+    loadLayoutGraphData(readBinaryData, lg);
+}
