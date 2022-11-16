@@ -35,13 +35,17 @@ export * from './types';
 export * from './pipeline';
 export * from './archive';
 
-export function createCustomPipeline (): Pipeline {
+const _enableEffectImport = false;
+
+export function createCustomPipeline (rendering: any): Pipeline {
     const ppl = render.Factory.createPipeline();
     const pplName = macro.CUSTOM_PIPELINE_NAME;
-    if (pplName === 'Deferred') {
-        buildDeferredLayout(ppl);
-    } else {
-        buildForwardLayout(ppl);
+    if (!_enableEffectImport) {
+        if (pplName === 'Deferred') {
+            buildDeferredLayout(ppl);
+        } else {
+            buildForwardLayout(ppl);
+        }
     }
     return ppl;
 }

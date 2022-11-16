@@ -23,16 +23,12 @@
  THE SOFTWARE.
  */
 
-import { EDITOR, PREVIEW } from 'internal:constants';
 import { Pipeline, PipelineBuilder } from './pipeline';
 import { WebPipeline } from './web-pipeline';
 import { macro } from '../../core/platform/macro';
 import { DeferredPipelineBuilder, ForwardPipelineBuilder } from './builtin-pipelines';
 import { CustomPipelineBuilder, NativePipelineBuilder } from './custom-pipeline';
-import { effectSettings } from '../../core/effect-settings';
-import { BinaryInputArchive } from './binary-archive';
-import { loadLayoutGraphData, LayoutGraphData } from './layout-graph';
-import { WebLayoutGraphBuilder } from './web-layout-graph';
+import { LayoutGraphData } from './layout-graph';
 import { buildDeferredLayout, buildForwardLayout } from './effect';
 
 let _pipeline: WebPipeline | null = null;
@@ -41,17 +37,27 @@ export * from './types';
 export * from './pipeline';
 export * from './archive';
 export * from './binary-archive';
-export * from './layout-graph';
 
-export const defaultLayoutGraph = new LayoutGraphData();
+const _enableEffectImport = false;
 
-export function createCustomPipeline (): Pipeline {
-    const ppl = new WebPipeline();
+export function createCustomPipeline (rendering: any): Pipeline {
     const pplName = macro.CUSTOM_PIPELINE_NAME;
+
+    const layoutGraph = _enableEffectImport
+        ? rendering.defaultLayoutGraph as LayoutGraphData
+        : new LayoutGraphData();
+
+    const ppl = new WebPipeline(layoutGraph);
     ppl.setCustomPipelineName(pplName);
-    const layoutBuffer = effectSettings.queryBuffer();
-    const readBinaryData = new BinaryInputArchive(layoutBuffer!);
-    loadLayoutGraphData(readBinaryData, (ppl.layoutGraphBuilder as WebLayoutGraphBuilder).data);
+
+    if (!_enableEffectImport) {
+        if (pplName === 'Deferred') {
+            buildDeferredLayout(ppl);
+        } else {
+            buildForwardLayout(ppl);
+        }
+    }
+
     _pipeline = ppl;
     return ppl;
 }

@@ -1,2 +1,2 @@
-import * as shader from '../../cocos/rendering/custom/editor';
-export { shader };
+export * from '../../cocos/rendering/custom/graph';
+export * from '../../cocos/rendering/custom/layout-graph';
