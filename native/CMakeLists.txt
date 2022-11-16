@@ -508,17 +508,14 @@ cocos_source_files(
 if(WINDOWS)
     if(CC_EDITOR) 
         cocos_source_files(
-            cocos/platform/editor/windows/EditorWindowsPlatform.cpp
-            cocos/platform/win32/WindowsPlatform.h
-            cocos/platform/editor/windows/Game.cpp
-            cocos/platform/editor/Game.h
-        )
-    else()
-        cocos_source_files(
-            cocos/platform/win32/WindowsPlatform.cpp
-            cocos/platform/win32/WindowsPlatform.h
+            cocos/platform/editor/windows/EditorApplication.cpp
+            cocos/platform/editor/EditorApplication.h
         )
     endif()
+    cocos_source_files(
+        cocos/platform/win32/WindowsPlatform.cpp
+        cocos/platform/win32/WindowsPlatform.h
+    )
 elseif(LINUX)
     cocos_source_files(
         cocos/platform/linux/LinuxPlatform.cpp
@@ -537,16 +534,12 @@ elseif(OHOS)
 elseif(MACOSX)
     if(CC_EDITOR) 
         cocos_source_files(
-            cocos/platform/editor/mac/EditorMacPlatform.mm
-            cocos/platform/editor/mac/Game.mm
-            cocos/platform/editor/Game.h
-        )
-    else()
-        cocos_source_files(
-            cocos/platform/mac/MacPlatform.mm
+            cocos/platform/editor/mac/EditorApplication.mm
+            cocos/platform/editor/EditorApplication.h
         )
     endif()
     cocos_source_files(
+        cocos/platform/mac/MacPlatform.mm
         cocos/platform/mac/MacPlatform.h
         cocos/platform/mac/ViewController.h
         cocos/platform/mac/ViewController.mm

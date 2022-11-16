@@ -224,11 +224,11 @@ Object *Object::createArrayObject(size_t length) {
 Object *Object::createArrayBufferObject(const void *data, size_t byteLength) {
     #if CC_EDITOR && CC_PLATFORM == CC_PLATFORM_WINDOWS
     auto nsBuffer = node::Buffer::New(__isolate, byteLength);
-    auto srcData = node::Buffer::Data(nsBuffer.ToLocalChecked());
+    auto *srcData = node::Buffer::Data(nsBuffer.ToLocalChecked());
     v8::Local<v8::ArrayBuffer> jsobj = nsBuffer.ToLocalChecked().As<v8::TypedArray>()->Buffer();
     #else
     v8::Local<v8::ArrayBuffer> jsobj = v8::ArrayBuffer::New(__isolate, byteLength);
-    auto srcData = jsobj->GetBackingStore()->Data();
+    auto *srcData = jsobj->GetBackingStore()->Data();
     #endif
     if (data) {
         memcpy(srcData, data, byteLength);
@@ -271,11 +271,11 @@ Object *Object::createTypedArray(TypedArrayType type, const void *data, size_t b
     }
     #if CC_EDITOR && CC_PLATFORM == CC_PLATFORM_WINDOWS
     auto nsBuffer = node::Buffer::New(__isolate, byteLength);
-    auto srcData = node::Buffer::Data(nsBuffer.ToLocalChecked());
+    auto *srcData = node::Buffer::Data(nsBuffer.ToLocalChecked());
     v8::Local<v8::ArrayBuffer> jsobj = nsBuffer.ToLocalChecked().As<v8::TypedArray>()->Buffer();
     #else
     v8::Local<v8::ArrayBuffer> jsobj = v8::ArrayBuffer::New(__isolate, byteLength);
-    auto srcData = jsobj->GetBackingStore()->Data();
+    auto *srcData = jsobj->GetBackingStore()->Data();
     #endif
 
     // If data has content,then will copy data into buffer,or will only clear buffer.

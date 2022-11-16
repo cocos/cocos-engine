@@ -22,26 +22,21 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-#include "../Game.h"
+#include "../EditorApplication.h"
+#include "FileUtils.h"
 #include "cocos/application/ApplicationManager.h"
-#include "cocos/application/BaseGame.h"
-#include "cocos/platform/interfaces/modules/ISystemWindow.h"
-#include "cocos/platform/interfaces/modules/ISystemWindowManager.h"
-#include "cocos/renderer/pipeline/GlobalDescriptorSetManager.h"
+#include "platform/interfaces/modules/ISystemWindowManager.h"
+#include "renderer/pipeline/GlobalDescriptorSetManager.h"
 
-#if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
-    #include "windows.h"
+
+#ifndef GAME_NAME
+    #define GAME_NAME "CocosGame";
 #endif
+extern std::string SearchPath;
+extern "C" void cc_load_all_plugins();
+EditorApplication::EditorApplication() = default;
 
-extern "C" void cc_load_all_plugins(); // NOLINT
-
-using namespace std;
-using namespace cc;
-
-Game::Game() {
-}
-
-int Game::init() {
+int EditorApplication::init() {
     cc::pipeline::GlobalDSManager::setDescriptorSetLayout();
 
     cc_load_all_plugins();
@@ -53,25 +48,19 @@ int Game::init() {
     _windowInfo.width = _windowInfo.width == -1 ? 800 : _windowInfo.width;
     _windowInfo.height = _windowInfo.height == -1 ? 600 : _windowInfo.height;
     _windowInfo.flags = _windowInfo.flags == -1 ? cc::ISystemWindow::CC_WINDOW_SHOWN |
-                                                      ISystemWindow::CC_WINDOW_RESIZABLE |
-                                                      ISystemWindow::CC_WINDOW_INPUT_FOCUS |
-                                                      ISystemWindow::CC_WINDOW_HIDDEN
+                                                      cc::ISystemWindow::CC_WINDOW_RESIZABLE |
+                                                      cc::ISystemWindow::CC_WINDOW_INPUT_FOCUS
                                                 : _windowInfo.flags;
     std::call_once(_windowCreateFlag, [&]() {
-        ISystemWindowInfo info;
+        cc::ISystemWindowInfo info;
         info.title = _windowInfo.title;
-    #if CC_PLATFORM == CC_PLATFORM_WINDOWS
         info.x = _windowInfo.x == -1 ? 50 : _windowInfo.x; // 50 meams move window a little for now
         info.y = _windowInfo.y == -1 ? 50 : _windowInfo.y; // same above
-    #else
-        info.x = _windowInfo.x == -1 ? 0 : _windowInfo.x;
-        info.y = _windowInfo.y == -1 ? 0 : _windowInfo.y;
-    #endif
         info.width = _windowInfo.width;
         info.height = _windowInfo.height;
         info.flags = _windowInfo.flags;
 
-        ISystemWindowManager* windowMgr = CC_GET_PLATFORM_INTERFACE(ISystemWindowManager);
+        cc::ISystemWindowManager* windowMgr = CC_GET_PLATFORM_INTERFACE(cc::ISystemWindowManager);
         windowMgr->createWindow(info);
     });
 
@@ -87,20 +76,22 @@ int Game::init() {
     }
 
     setXXTeaKey(_xxteaKey);
+    //        runScript("jsb-adapter/web-adapter.js");
+    //        runScript("main.js");
+
     return 0;
 }
 
-// This function will be called when the app is inactive. When comes a phone call,it's be invoked too
-void Game::onPause() {
-    cc::CocosApplication::onPause();
+void EditorApplication::onPause() {
+    BaseGame::onPause();
 }
 
-void Game::onResume() {
-    cc::CocosApplication::onResume();
+void EditorApplication::onResume() {
+    BaseGame::onResume();
 }
 
-void Game::onClose() {
-    cc::CocosApplication::onClose();
+void EditorApplication::onClose() {
+    BaseGame::onClose();
 }
 
-CC_REGISTER_APPLICATION(Game);
+CC_REGISTER_APPLICATION(EditorApplication);

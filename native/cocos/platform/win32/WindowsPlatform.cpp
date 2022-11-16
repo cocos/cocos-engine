@@ -115,6 +115,10 @@ int32_t WindowsPlatform::init() {
 }
 
 int32_t WindowsPlatform::loop() {
+#if CC_EDITOR
+    _windowManager->processEvent(&_quit);
+    runTask();
+#else
     ///////////////////////////////////////////////////////////////////////////
     /////////////// changing timer resolution
     ///////////////////////////////////////////////////////////////////////////
@@ -167,6 +171,7 @@ int32_t WindowsPlatform::loop() {
         timeEndPeriod(wTimerRes);
 
     onDestroy();
+#endif
     return 0;
 }
 
