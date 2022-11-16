@@ -1,3 +1,4 @@
+import { EDITOR } from 'internal:constants';
 import { Camera, CameraUsage } from '../../render-scene/scene';
 import { Pipeline, PipelineBuilder } from './pipeline';
 import { buildForwardPass, buildGBufferPass, buildLightingPass, buildPostprocessPass, buildReflectionProbePasss } from './define';
@@ -11,7 +12,9 @@ export class ForwardPipelineBuilder implements PipelineBuilder {
             }
             // forward pass
             buildForwardPass(camera, ppl, false);
-            buildReflectionProbePasss(camera, ppl, false);
+            if (EDITOR) {
+                buildReflectionProbePasss(camera, ppl, false);
+            }
         }
     }
 }

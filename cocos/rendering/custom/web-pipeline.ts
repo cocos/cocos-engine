@@ -52,7 +52,6 @@ import { CustomPipelineBuilder } from './custom-pipeline';
 import { decideProfilerCamera } from '../pipeline-funcs';
 import { DebugViewCompositeType } from '../debug-view';
 import { getUBOTypeCount } from './utils';
-import { globalPipelineStateChanged } from './define';
 
 export class WebSetter {
     constructor (data: RenderData, lg: LayoutGraphData) {
@@ -1119,7 +1118,6 @@ export class WebPipeline implements Pipeline {
         this.beginFrame();
         this.execute();
         this.endFrame();
-        globalPipelineStateChanged(this._pipelineSceneData, false);
     }
 
     addRasterPass (width: number, height: number, layoutName = 'default'): RasterPassBuilder {

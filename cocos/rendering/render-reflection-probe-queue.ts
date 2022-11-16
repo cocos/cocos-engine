@@ -146,6 +146,7 @@ export class RenderReflectionProbeQueue {
             cmdBuff.bindInputAssembler(ia);
             cmdBuff.draw(ia);
         }
+        this.resetMacro();
     }
     public resetMacro () {
         for (let i = 0; i < this._subModelsArray.length; ++i) {

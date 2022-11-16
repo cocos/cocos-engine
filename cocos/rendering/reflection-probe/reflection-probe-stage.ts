@@ -118,7 +118,6 @@ export class ReflectionProbeStage extends RenderStage {
 
         this._probeRenderQueue.recordCommandBuffer(device, renderPass, cmdBuff);
         cmdBuff.endRenderPass();
-        this._probeRenderQueue.resetMacro();
 
         pipeline.pipelineUBO.updateCameraUBO(camera);
     }

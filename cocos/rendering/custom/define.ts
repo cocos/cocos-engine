@@ -1,17 +1,13 @@
-import { EDITOR } from 'internal:constants';
 import { ClearFlagBit, Color, Format, LoadOp, Rect, StoreOp, Viewport } from '../../gfx';
 import { Camera, CSMLevel, DirectionalLight, Light, LightType, ProbeType, ReflectionProbe, ShadowType, SKYBOX_FLAG, SpotLight, SubModel } from '../../render-scene/scene';
 import { supportsR32FloatTexture } from '../define';
 import { Pipeline } from './pipeline';
 import { AccessType, AttachmentType, ComputeView, LightInfo, QueueHint, RasterView, ResourceResidency, SceneFlags } from './types';
-import { Vec4, macro, geometry, cclegacy } from '../../core';
+import { Vec4, macro, geometry } from '../../core';
 import { Material } from '../../asset/assets';
 import { SRGBToLinear } from '../pipeline-funcs';
 import { ReflectionProbeManager } from '../reflection-probe-manager';
 import { RenderWindow } from '../../render-scene/core/render-window';
-import { PipelineSceneData } from '../pipeline-scene-data';
-import { IMacroPatch } from '../../render-scene';
-import { legacyCC } from '../../core/global-exports';
 
 // Anti-aliasing type, other types will be gradually added in the future
 export enum AntiAliasing {
@@ -502,7 +498,6 @@ export function buildShadowPass (passName: Readonly<string>,
         SceneFlags.SHADOW_CASTER);
 }
 
-//////////////////////////////////////////
 export function buildReflectionProbePasss (camera: Camera,
     ppl: Pipeline,
     isOffScreen: boolean) {
@@ -513,81 +508,14 @@ export function buildReflectionProbePasss (camera: Camera,
     for (let i = 0; i < probes.length; i++) {
         const probe = probes[i];
         if (probe.needRender) {
-            globalPipelineStateChanged(ppl.pipelineSceneData, true);
             for (let faceIdx = 0; faceIdx < probe.bakedCubeTextures.length; faceIdx++) {
                 buildReflectionProbePass(camera, ppl, probe, probe.bakedCubeTextures[faceIdx].window!, faceIdx);
             }
             probe.needRender = false;
-            // legacyCC.director.once(legacyCC.Director.EVENT_AFTER_UPDATE, () => {
-            //     globalPipelineStateChanged(ppl.pipelineSceneData, false);
-            // });
-            //gatherRenderObjects(probe.camera, ppl.pipelineSceneData, false);
         }
     }
 }
-export function globalPipelineStateChanged (pipeline: PipelineSceneData, b: boolean) {
-    const scene = cclegacy.director.getScene().renderScene;
-    const models = scene.models;
-    for (let i = 0; i < models.length; i++) {
-        models[i].useRGBE = b;
-        models[i].onMacroPatchesStateChanged();
-    }
-    const skybox = pipeline.skybox;
-    if (skybox.enabled && skybox.model) {
-        skybox.model.useRGBE = b;
-        skybox.model.onMacroPatchesStateChanged();
-    }
-}
 
-export function gatherRenderObjects (probeCamera: Camera, pipeline:PipelineSceneData, isUseRGBE:boolean) {
-    const skybox = pipeline.skybox;
-    const subModelsArray: SubModel[] = [];
-    if (skybox.enabled && skybox.model && (probeCamera.clearFlag & SKYBOX_FLAG)) {
-        subModelsArray.push(skybox.model.subModels[0]);
-    }
-    const scene = cclegacy.director.getScene().renderScene;
-    const models = scene.models;
-    const visibility = probeCamera.visibility;
-
-    for (let i = 0; i < models.length; i++) {
-        const model = models[i];
-        // filter model by view visibility
-        if (model.enabled) {
-            for (let j = 0; j < model.subModels.length; j++) {
-                subModelsArray.push(model.subModels[j]);
-            }
-        }
-    }
-
-    if (isUseRGBE) {
-        for (let i = 0; i < subModelsArray.length; i++) {
-            const subModel = subModelsArray[i];
-            let patches: IMacroPatch[] | null = subModel.patches;
-            const useRGBE: IMacroPatch[] = [
-                { name: 'CC_USE_RGBE_OUTPUT', value: isUseRGBE },
-            ];
-            patches = patches ? patches.concat(useRGBE) : useRGBE;
-            subModel.onMacroPatchesStateChanged(patches);
-            subModel.onPipelineStateChanged();
-        }
-    } else {
-        for (let i = 0; i < subModelsArray.length; i++) {
-            const subModel = subModelsArray[i];
-            // eslint-disable-next-line prefer-const
-            let patches: IMacroPatch[] | null = subModel.patches;
-            if (!patches) continue;
-            for (let j = 0; j < patches.length; j++) {
-                const patch = patches[j];
-                if (patch.name === 'CC_USE_RGBE_OUTPUT') {
-                    patches.splice(j, 1);
-                    break;
-                }
-            }
-            subModel.onMacroPatchesStateChanged(patches);
-            subModel.onPipelineStateChanged();
-        }
-    }
-}
 export function buildReflectionProbePass (camera: Camera,
     ppl: Pipeline, probe: ReflectionProbe, renderWindow: RenderWindow, faceIdx: number) {
     const cameraName = `Camera${faceIdx}`;
@@ -623,11 +551,9 @@ export function buildReflectionProbePass (camera: Camera,
         new Color(probeCamera.clearDepth, probeCamera.clearStencil, 0, 0));
     probePass.addRasterView(probePassRTName, passView);
     probePass.addRasterView(probePassDSName, passDSView);
-    const build = probePass.addQueue(QueueHint.RENDER_OPAQUE);
-    build.addSceneOfReflectionProbe(camera, probeCamera, new LightInfo(),
-        SceneFlags.OPAQUE_OBJECT | SceneFlags.GEOMETRY | SceneFlags.DRAW_INSTANCING);
+    probePass.addQueue(QueueHint.RENDER_OPAQUE)
+        .addSceneOfReflectionProbe(camera, probeCamera, new LightInfo(), SceneFlags.REFLECTION_PROBE);
 }
-//////////////////////////////////////////
 
 class CameraInfo {
     shadowEnabled = false;
