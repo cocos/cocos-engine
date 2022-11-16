@@ -24,8 +24,7 @@
 */
 
 import { EffectAsset } from '../../asset/assets/effect-asset';
-import { SetIndex, IDescriptorSetLayoutInfo, globalDescriptorSetLayout as globalDesc,
-    localDescriptorSetLayout as localDesc } from '../../rendering/define';
+import { SetIndex, IDescriptorSetLayoutInfo, globalDescriptorSetLayout, localDescriptorSetLayout } from '../../rendering/define';
 import { PipelineRuntime } from '../../rendering/custom/pipeline';
 import { genHandle, MacroRecord } from './pass-utils';
 import { PipelineLayoutInfo, Device, Attribute, UniformBlock, ShaderInfo,
@@ -36,17 +35,6 @@ import { PipelineLayoutInfo, Device, Attribute, UniformBlock, ShaderInfo,
 import { debug, cclegacy } from '../../core';
 
 const _dsLayoutInfo = new DescriptorSetLayoutInfo();
-
-let localDescriptorSetLayout = localDesc;
-let globalDescriptorSetLayout = globalDesc;
-
-export function setGlobalDescriptorSetLayoutInfo (val: IDescriptorSetLayoutInfo) {
-    globalDescriptorSetLayout = val;
-}
-
-export function setLocalDescriptorSetLayoutInfo (val: IDescriptorSetLayoutInfo) {
-    localDescriptorSetLayout = val;
-}
 
 interface IDefineRecord extends EffectAsset.IDefineInfo {
     _map: (value: any) => number;
