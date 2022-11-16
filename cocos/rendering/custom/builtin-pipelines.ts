@@ -1,5 +1,5 @@
 import { EDITOR } from 'internal:constants';
-import { Camera, CameraUsage } from '../../render-scene/scene';
+import { Camera } from '../../render-scene/scene';
 import { Pipeline, PipelineBuilder } from './pipeline';
 import { buildForwardPass, buildGBufferPass, buildLightingPass, buildPostprocessPass, buildReflectionProbePasss } from './define';
 

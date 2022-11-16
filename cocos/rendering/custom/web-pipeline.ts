@@ -31,12 +31,12 @@ import { ComputeView, CopyPair, LightInfo, LightingMode, MovePair, QueueHint, Ra
 import { Blit, ClearView, ComputePass, CopyPass, Dispatch, ManagedResource, MovePass, RasterPass, RenderData, RenderGraph, RenderGraphComponent, RenderGraphValue, RenderQueue, RenderSwapchain, ResourceDesc, ResourceGraph, ResourceGraphValue, ResourceStates, ResourceTraits, SceneData } from './render-graph';
 import { ComputePassBuilder, ComputeQueueBuilder, CopyPassBuilder, LayoutGraphBuilder, MovePassBuilder, Pipeline, PipelineBuilder, RasterPassBuilder, RasterQueueBuilder, SceneTransversal } from './pipeline';
 import { PipelineSceneData } from '../pipeline-scene-data';
-import { Model, Camera, ShadowType, CSMLevel, DirectionalLight, SpotLight, PCFType, Shadows, SKYBOX_FLAG, SubModel } from '../../render-scene/scene';
+import { Model, Camera, ShadowType, CSMLevel, DirectionalLight, SpotLight, PCFType, Shadows } from '../../render-scene/scene';
 import { Light, LightType } from '../../render-scene/scene/light';
 import { LayoutGraphData } from './layout-graph';
 import { Executor } from './executor';
 import { RenderWindow } from '../../render-scene/core/render-window';
-import { IMacroPatch, MacroRecord, RenderScene } from '../../render-scene';
+import { MacroRecord, RenderScene } from '../../render-scene';
 import { GlobalDSManager } from '../global-descriptor-set-manager';
 import { supportsR32FloatTexture, UBOSkinning } from '../define';
 import { OS } from '../../../pal/system-info/enum-type';
@@ -536,11 +536,6 @@ export class WebRasterQueueBuilder extends WebSetter implements RasterQueueBuild
             camera.scene ? camera.scene : cclegacy.director.getScene().renderScene);
     }
 
-    updateCameraUBO (camera: Camera, renderScene: RenderScene) {
-        setCameraUBOValues(this, camera, this._pipeline,
-            renderScene || cclegacy.director.getScene().renderScene);
-    }
-
     addScene (sceneName: string, sceneFlags = SceneFlags.NONE): void {
         const sceneData = new SceneData(sceneName, sceneFlags);
         this._renderGraph.addVertex<RenderGraphValue.Scene>(
@@ -598,9 +593,6 @@ export class WebRasterPassBuilder extends WebSetter implements RasterPassBuilder
             RenderGraphComponent.Layout, this._vertID,
         );
         this._layoutID = layoutGraph.locateChild(layoutGraph.nullVertex(), layoutName);
-    }
-    updateCameraUBO (camera: Camera, renderScene: RenderScene) {
-        throw new Error('Method not implemented.');
     }
     get name () {
         return this._renderGraph.getName(this._vertID);

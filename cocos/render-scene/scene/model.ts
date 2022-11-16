@@ -55,10 +55,6 @@ const lightProbePatches: IMacroPatch[] = [
     { name: 'CC_USE_LIGHT_PROBE', value: true },
 ];
 
-const useRGBEPatches: IMacroPatch[] = [
-    { name: 'CC_USE_RGBE_OUTPUT', value: true },
-];
-
 export enum ModelType {
     DEFAULT,
     SKINNING,
@@ -492,14 +488,6 @@ export class Model {
      * @zh 反射探针类型。
      */
     protected _reflectionProbeType = 0;
-    protected _useRGBE = false;
-
-    set useRGBE (b: boolean) {
-        this._useRGBE = b;
-    }
-    get useRGBE () {
-        return this._useRGBE;
-    }
 
     /**
      * @internal
@@ -968,10 +956,6 @@ export class Model {
         }
         if (this._useLightProbe) {
             patches = patches ? patches.concat(lightProbePatches) : lightProbePatches;
-        }
-
-        if (this._useRGBE) {
-            patches = patches ? patches.concat(useRGBEPatches) : useRGBEPatches;
         }
 
         return patches;
