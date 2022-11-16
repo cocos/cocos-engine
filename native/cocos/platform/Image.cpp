@@ -769,7 +769,7 @@ bool Image::initWithPVRv2Data(const unsigned char *data, uint32_t dataLen, int32
         if (_data) free(_data);
         _data = static_cast<unsigned char *>(malloc((_dataLen + srcDataLen) * sizeof(unsigned char)));
         memcpy(_data, rowData, _dataLen);
-        memcpy(_data, srcData + _dataLen, srcDataLen);
+        memcpy(_data + _dataLen, srcData, srcDataLen);
         _dataLen += srcDataLen;
         _mipmapLevelDataSize.resize(static_cast<size_t>(level) + 1);
         _mipmapLevelDataSize[level] = static_cast<uint32_t>(srcDataLen);
@@ -837,7 +837,7 @@ bool Image::initWithPVRv3Data(const unsigned char *data, uint32_t dataLen, int32
         if (_data) free(_data);
         _data = static_cast<unsigned char *>(malloc((_dataLen + srcDataLen) * sizeof(unsigned char)));
         memcpy(_data, rowData, _dataLen);
-        memcpy(_data, srcData + _dataLen, srcDataLen);
+        memcpy(_data + _dataLen, srcData, srcDataLen);
         _dataLen += srcDataLen;
         _mipmapLevelDataSize.resize(static_cast<size_t>(level) + 1);
         _mipmapLevelDataSize[level] = static_cast<uint32_t>(srcDataLen);
@@ -938,7 +938,7 @@ bool Image::initWithASTCData(const unsigned char *data, uint32_t dataLen, int32_
         if (_data) free(_data);
         _data = static_cast<unsigned char *>(malloc((_dataLen + srcDataLen) * sizeof(unsigned char)));
         memcpy(_data, rowData, _dataLen);
-        memcpy(_data, srcData + _dataLen, srcDataLen);
+        memcpy(_data + _dataLen, srcData, srcDataLen);
         _dataLen += srcDataLen;
         _mipmapLevelDataSize.resize(static_cast<size_t>(level) + 1);
         _mipmapLevelDataSize[level] = static_cast<uint32_t>(srcDataLen);
@@ -948,7 +948,7 @@ bool Image::initWithASTCData(const unsigned char *data, uint32_t dataLen, int32_
     } else {
         _dataLen = dataLen - ASTC_HEADER_SIZE;
         _data = static_cast<unsigned char *>(malloc(_dataLen * sizeof(unsigned char)));
-        memcpy(_data, static_cast<const unsigned char *>(data) + ASTC_HEADER_SIZE, _dataLen);
+        memcpy(_data, data + ASTC_HEADER_SIZE, _dataLen);
         _mipmapLevelDataSize.resize(1);
         _mipmapLevelDataSize[0] = _dataLen;
     }

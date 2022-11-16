@@ -49,7 +49,7 @@ void ImageAsset::setNativeAsset(const ccstd::any &obj) {
             _height = image->getHeight();
             _format = static_cast<PixelFormat>(image->getRenderFormat());
             _url = image->getFilePath();
-            _mipmapLevelDataSize = ccstd::vector(image->getMipmapLevelDataSize());
+            _mipmapLevelDataSize = image->getMipmapLevelDataSize();
         } else {
             const auto *imageSource = ccstd::any_cast<IMemoryImageSource>(&obj);
             if (imageSource != nullptr) {
@@ -58,7 +58,7 @@ void ImageAsset::setNativeAsset(const ccstd::any &obj) {
                 _width = imageSource->width;
                 _height = imageSource->height;
                 _format = imageSource->format;
-                _mipmapLevelDataSize = ccstd::vector(imageSource->mipmapLevelDataSize);
+                _mipmapLevelDataSize = imageSource->mipmapLevelDataSize;
             } else {
                 CC_LOG_WARNING("ImageAsset::setNativeAsset, unknown type!");
             }

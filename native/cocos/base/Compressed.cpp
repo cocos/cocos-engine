@@ -23,6 +23,8 @@
  THE SOFTWARE.
 ****************************************************************************/
 
+#include <cstring>
+
 #include "base/Utils.h"
 #include "base/Compressed.h"
 

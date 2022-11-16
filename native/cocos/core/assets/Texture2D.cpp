@@ -52,7 +52,7 @@ void Texture2D::setMipmaps(const ccstd::vector<IntrusivePtr<ImageAsset>> &value)
             memcpy(dstData, data + byteOffset, mipmapLevelData[i]);
 
             _compressedImageAsset[i] = new ImageAsset();
-            _compressedImageAsset[i]->setData(dstData);
+            _compressedImageAsset[i]->setNeedFreeData(dstData);
             _compressedImageAsset[i]->setWidth(value[0]->getWidth());
             _compressedImageAsset[i]->setHeight(value[0]->getHeight());
             _compressedImageAsset[i]->setFormat(value[0]->getFormat());
