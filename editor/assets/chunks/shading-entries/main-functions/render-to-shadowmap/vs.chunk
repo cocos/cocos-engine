@@ -22,6 +22,7 @@ void main()
 
   // Other Surfaces Function
   SurfacesVertexModifyUV(In);
+  SurfacesVertexModifySharedData(In);
 
   // Other Data
   CCSurfacesVertexTransformUV(In);  

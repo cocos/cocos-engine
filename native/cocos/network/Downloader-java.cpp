@@ -243,7 +243,7 @@ void DownloaderJava::onFinishImpl(int taskId, int errCode, const char *errStr, c
 
 extern "C" {
 
-JNIEXPORT void JNICALL JNI_DOWNLOADER(nativeOnProgress)(JNIEnv * /*env*/, jclass /*clazz*/, jint id, jint taskId, jlong dl, jlong dlnow, jlong dltotal) {
+JNIEXPORT void JNICALL JNI_DOWNLOADER(nativeOnProgress)(JNIEnv * /*env*/, jobject /*obj*/, jint id, jint taskId, jlong dl, jlong dlnow, jlong dltotal) {
     auto func = [=]() -> void {
         DLLOG("_nativeOnProgress(id: %d, taskId: %d, dl: %lld, dlnow: %lld, dltotal: %lld)", id, taskId, dl, dlnow, dltotal);
         //It's not thread-safe here, use thread-safe method instead
@@ -257,7 +257,7 @@ JNIEXPORT void JNICALL JNI_DOWNLOADER(nativeOnProgress)(JNIEnv * /*env*/, jclass
     CC_CURRENT_ENGINE()->getScheduler()->performFunctionInCocosThread(func);
 }
 
-JNIEXPORT void JNICALL JNI_DOWNLOADER(nativeOnFinish)(JNIEnv *env, jclass /*clazz*/, jint id, jint taskId, jint errCode, jstring errStr, jbyteArray data) {
+JNIEXPORT void JNICALL JNI_DOWNLOADER(nativeOnFinish)(JNIEnv *env, jobject /*obj*/, jint id, jint taskId, jint errCode, jstring errStr, jbyteArray data) {
     ccstd::string errStrTmp;
     ccstd::vector<uint8_t> dataTmp;
     if (errStr) {

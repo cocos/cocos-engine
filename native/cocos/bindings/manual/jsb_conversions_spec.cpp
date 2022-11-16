@@ -39,6 +39,8 @@
 #include "network/Downloader.h"
 
 #include "bindings/auto/jsb_assets_auto.h"
+#include "bindings/auto/jsb_cocos_auto.h"
+#include "bindings/auto/jsb_physics_auto.h"
 #include "cocos/core/geometry/Geometry.h"
 #include "scene/Fog.h"
 #include "scene/Shadow.h"
@@ -360,7 +362,7 @@ bool seval_to_DownloaderHints(const se::Value &v, cc::network::DownloaderHints *
 bool sevalue_to_native(const se::Value &from, cc::Vec4 *to, se::Object * /*ctx*/) {
     SE_PRECONDITION2(from.isObject(), false, "Convert parameter to Vec4 failed!");
     se::Object *obj = from.toObject();
-    if(obj->getPrivateData()) {
+    if (obj->getPrivateData()) {
         *to = *obj->getTypedPrivateData<cc::Vec4>();
         return true;
     }
@@ -403,7 +405,7 @@ bool sevalue_to_native(const se::Value &from, cc::Mat3 *to, se::Object * /*ctx*/
     SE_PRECONDITION2(from.isObject(), false, "Convert parameter to Matrix3 failed!");
     se::Object *obj = from.toObject();
 
-    if(obj->getPrivateData()) {
+    if (obj->getPrivateData()) {
         *to = *obj->getTypedPrivateData<cc::Mat3>();
         return true;
     }
@@ -449,7 +451,7 @@ bool sevalue_to_native(const se::Value &from, cc::Mat3 *to, se::Object * /*ctx*/
 bool sevalue_to_native(const se::Value &from, cc::Mat4 *to, se::Object * /*unused*/) {
     SE_PRECONDITION2(from.isObject(), false, "Convert parameter to Matrix4 failed!");
     se::Object *obj = from.toObject();
-    if(obj->getPrivateData()) {
+    if (obj->getPrivateData()) {
         *to = *obj->getTypedPrivateData<cc::Mat4>();
         return true;
     }
@@ -497,7 +499,7 @@ bool sevalue_to_native(const se::Value &from, cc::Vec3 *to, se::Object * /*unuse
     SE_PRECONDITION2(from.isObject(), false, "Convert parameter to Vec3 failed!");
 
     se::Object *obj = from.toObject();
-    if(obj->getPrivateData() != nullptr) {
+    if (obj->getPrivateData() != nullptr) {
         *to = *obj->getTypedPrivateData<cc::Vec3>();
         return true;
     }
@@ -513,7 +515,7 @@ bool sevalue_to_native(const se::Value &from, cc::Color *to, se::Object * /*unus
     SE_PRECONDITION2(from.isObject(), false, "Convert parameter to Color failed!");
 
     se::Object *obj = from.toObject();
-    if(obj->getPrivateObject()) {
+    if (obj->getPrivateObject()) {
         *to = *obj->getTypedPrivateData<cc::Color>();
         return true;
     }
@@ -530,7 +532,7 @@ bool sevalue_to_native(const se::Value &from, cc::Vec2 *to, se::Object * /*unuse
     SE_PRECONDITION2(from.isObject(), false, "Convert parameter to Vec2 failed!");
 
     se::Object *obj = from.toObject();
-    if(obj->getPrivateObject()) {
+    if (obj->getPrivateObject()) {
         *to = *obj->getTypedPrivateData<cc::Vec2>();
         return true;
     }
@@ -555,7 +557,7 @@ bool sevalue_to_native(const se::Value &from, cc::Size *to, se::Object * /*unuse
 bool sevalue_to_native(const se::Value &from, cc::Quaternion *to, se::Object * /*unused*/) {
     SE_PRECONDITION2(from.isObject(), false, "Convert parameter to Quaternion failed!");
     se::Object *obj = from.toObject();
-    if(obj->getPrivateObject()) {
+    if (obj->getPrivateObject()) {
         *to = *obj->getTypedPrivateData<cc::Quaternion>();
         return true;
     }
@@ -1484,7 +1486,6 @@ bool nativevalue_to_se(const cc::gfx::FormatInfo *from, se::Value &to, se::Objec
     return true;
 }
 
-
 // NOLINTNEXTLINE(readability-identifier-naming)
 bool nativevalue_to_se(const cc::ArrayBuffer &arrayBuffer, se::Value &to, se::Object * /*ctx*/) {
     to.setObject(arrayBuffer.getJSArrayBuffer());
@@ -1509,7 +1510,6 @@ bool nativevalue_to_se(const cc::NativeDep &from, se::Value &to, se::Object * /*
     to.setObject(obj);
     return true;
 }
-
 
 #if CC_USE_PHYSICS_PHYSX
 
@@ -1569,6 +1569,7 @@ bool nativevalue_to_se(const cc::physics::RaycastResult &from, se::Value &to, se
     se::HandleObject obj(se::Object::createPlainObject());
     obj->setProperty("shape", se::Value(from.shape));
     obj->setProperty("distance", se::Value(from.distance));
+
     se::Value tmp;
     if (nativevalue_to_se(from.hitPoint, tmp, ctx)) obj->setProperty("hitPoint", tmp);
     if (nativevalue_to_se(from.hitNormal, tmp, ctx)) obj->setProperty("hitNormal", tmp);
@@ -1730,4 +1731,4 @@ bool nativevalue_to_se(const cc::geometry::Sphere &from, se::Value &to, se::Obje
     return true;
 }
 
-#endif //CC_USE_PHYSICS_PHYSX
+#endif // CC_USE_PHYSICS_PHYSX
