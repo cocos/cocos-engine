@@ -1,7 +1,5 @@
 import { OutputArchive, InputArchive } from './archive';
-import { ccclass } from '../../core/data/decorators';
 
-@ccclass('cc.BinaryOutputArchive')
 export class BinaryOutputArchive implements OutputArchive {
     constructor () {
         this.capacity = 4096;
@@ -52,7 +50,6 @@ export class BinaryOutputArchive implements OutputArchive {
     dataView: DataView;
 }
 
-@ccclass('cc.BinaryInputArchive')
 export class BinaryInputArchive implements InputArchive {
     constructor (data: ArrayBuffer) {
         this.dataView = new DataView(data);
