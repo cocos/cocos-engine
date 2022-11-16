@@ -504,9 +504,6 @@ export class WebRasterQueueBuilder extends WebSetter implements RasterQueueBuild
         this._queue = queue;
         this._pipeline = pipeline;
     }
-    updateCameraUBO (camera: Camera): void {
-        throw new Error('Method not implemented.');
-    }
     get name () {
         return this._renderGraph.getName(this._vertID);
     }
