@@ -30,8 +30,7 @@ import { findCanvas, loadJsFile } from 'pal/env';
 import { Pacer } from 'pal/pacer';
 import { ConfigOrientation } from 'pal/screen-adapter';
 import assetManager, { IAssetManagerOptions } from '../asset/asset-manager/asset-manager';
-import { EventTarget, AsyncDelegate, sys, macro, VERSION, cclegacy, screen, Settings, settings, assert,
-    garbageCollectionManager, DebugMode, warn, log, _resetDebugSetting } from '../core';
+import { EventTarget, AsyncDelegate, sys, macro, VERSION, cclegacy, screen, Settings, settings, assert, garbageCollectionManager, DebugMode, warn, log, _resetDebugSetting } from '../core';
 import { input } from '../input';
 import { deviceManager } from '../gfx';
 import { SplashScreen } from './splash-screen';
