@@ -30,7 +30,7 @@ import { BuiltinShape } from './shapes/builtin-shape';
 import { Node } from '../../scene-graph';
 import { BuiltinRigidBody } from './builtin-rigid-body';
 import { PhysicsSystem } from '../framework';
-import { PhysicsGroup } from '../framework/physics-enum';
+import { ERigidBodyType, PhysicsGroup } from '../framework/physics-enum';
 
 const m4_0 = new Mat4();
 const v3_0 = new Vec3();
@@ -104,6 +104,7 @@ export class BuiltinSharedBody extends BuiltinObject {
     private index = -1;
     private ref = 0;
 
+    private _rigidBodyType: ERigidBodyType;
     readonly node: Node;
     readonly world: BuiltInWorld;
     readonly shapes: BuiltinShape[] = [];
@@ -114,9 +115,22 @@ export class BuiltinSharedBody extends BuiltinObject {
         this._id = BuiltinSharedBody.idCounter++;
         this.node = node;
         this.world = world;
+        this._rigidBodyType = ERigidBodyType.STATIC;
+    }
+
+    set rigidBodyType (v: ERigidBodyType) {
+        this._rigidBodyType = v;
+    }
+
+    get rigidBodyType () {
+        return this._rigidBodyType;
     }
 
     intersects (body: BuiltinSharedBody) {
+        if (this.rigidBodyType === ERigidBodyType.STATIC && body.rigidBodyType === ERigidBodyType.STATIC) {
+            return;
+        }
+
         for (let i = 0; i < this.shapes.length; i++) {
             const shapeA = this.shapes[i];
             for (let j = 0; j < body.shapes.length; j++) {

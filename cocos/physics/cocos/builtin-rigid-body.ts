@@ -48,6 +48,7 @@ export class BuiltinRigidBody implements IRigidBody {
     }
 
     onEnable () {
+        this.setType(this._rigidBody.type);
         this._sharedBody.enabled = true;
     }
 
@@ -61,8 +62,11 @@ export class BuiltinRigidBody implements IRigidBody {
         (this._sharedBody as any) = null;
     }
 
+    setType (v: ERigidBodyType) {
+        this._sharedBody.rigidBodyType = v;
+    }
+
     setMass (v: number) { }
-    setType (v: ERigidBodyType) { }
     setLinearDamping (v: number) { }
     setAngularDamping (v: number) { }
     useGravity (v: boolean) { }
