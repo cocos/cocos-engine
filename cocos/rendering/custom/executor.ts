@@ -852,6 +852,7 @@ class DevicePreSceneTask extends WebSceneTask {
             this.sceneData.shadowFrameBufferMap.set(this.graphScene.scene!.light.light, this._currentQueue.devicePass.framebuffer);
             return;
         }
+        // reflection probe
         if (this.graphScene.scene!.flags & SceneFlags.REFLECTION_PROBE && !this._submitInfo.reflectionProbe) {
             this._submitInfo.reflectionProbe = new RenderReflectionProbeQueue(this._currentQueue.devicePass.context.pipeline);
             const probes = ReflectionProbeManager.probeManager.getProbes();
