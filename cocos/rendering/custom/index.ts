@@ -37,7 +37,6 @@ let _pipeline: WebPipeline | null = null;
 export * from './types';
 export * from './pipeline';
 export * from './archive';
-export * from './binary-archive';
 
 export const enableEffectImport = false;
 
