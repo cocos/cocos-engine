@@ -336,7 +336,7 @@ module.exports = {
                 },
                 simplify: {
                     targetRatio: {
-                        name: 'Ratio',
+                        name: '压缩比例',
                         title: 'Target Ratio',
                     },
                     enableSmartLink: {
