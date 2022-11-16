@@ -66,8 +66,9 @@ export class BinaryInputArchive implements InputArchive {
         const length = this.readNumber();
         const value = new Uint8Array(this.dataView.buffer, this.offset, length);
         this.offset += length;
-        return new TextDecoder('utf-8').decode(value);
+        return this.textDecoder.decode(value);
     }
     offset = 0;
     dataView: DataView;
+    textDecoder = new TextDecoder('utf-8');
 }
