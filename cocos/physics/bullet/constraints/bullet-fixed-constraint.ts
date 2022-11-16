@@ -72,7 +72,7 @@ export class BulletFixedConstraint extends BulletConstraint implements IFixedCon
 
         const trans = CC_MAT4_0;
         // the local frame transform respect to bodyA
-        Mat4.fromRT(trans, bodyA.node.worldRotation, bodyA.node.position);
+        Mat4.fromRT(trans, bodyA.node.worldRotation, bodyA.node.worldPosition);
         Mat4.invert(trans, trans);
         Mat4.getRotation(rot, trans);
         Mat4.getTranslation(pos, trans);
@@ -81,7 +81,7 @@ export class BulletFixedConstraint extends BulletConstraint implements IFixedCon
         bt.Transform_setRotation(trans0, quat);
 
         // the local frame transform respect to bodyB
-        Mat4.fromRT(trans, bodyB.node.worldRotation, bodyB.node.position);
+        Mat4.fromRT(trans, bodyB.node.worldRotation, bodyB.node.worldPosition);
         Mat4.invert(trans, trans);
         Mat4.getRotation(rot, trans);
         Mat4.getTranslation(pos, trans);

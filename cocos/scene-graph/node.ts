@@ -1988,7 +1988,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
                     Mat4.multiply(child._mat, cur._mat, child._mat);
 
                     const rotTmp = dirtyBits & TransformBit.ROTATION ? child._rot : null;
-                    Mat4.toRTS(this._mat, rotTmp, null, child._scale);
+                    Mat4.toRTS(child._mat, rotTmp, null, child._scale);
                 }
             } else {
                 if (dirtyBits & TransformBit.POSITION) {
