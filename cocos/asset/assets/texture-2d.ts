@@ -106,6 +106,7 @@ export class Texture2D extends SimpleTexture {
 
             let byteOffset = 0;
             for (let i = 0; i < mipmapLevelDataSize.length; i++) {
+                // fixme: We can't use srcView, we must make an in-memory copy. The reason is unknown
                 const srcView = new Uint8Array(data.buffer, byteOffset, mipmapLevelDataSize[i]);
                 const dstView = new Uint8Array(mipmapLevelDataSize[i]);
                 dstView.set(srcView);
