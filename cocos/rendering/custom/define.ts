@@ -532,8 +532,8 @@ export function buildReflectionProbePass (camera: Camera,
     if (!ppl.containsResource(probePassRTName)) {
         ppl.addRenderTexture(probePassRTName, Format.RGBA8, width, height, renderWindow);
         ppl.addDepthStencil(probePassDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
-        ppl.updateRenderWindow(probePassRTName, renderWindow);
     }
+    ppl.updateRenderWindow(probePassRTName, renderWindow);
 
     const probePass = ppl.addRasterPass(width, height, 'default');
     probePass.name = `ReflectionProbePass${faceIdx}`;

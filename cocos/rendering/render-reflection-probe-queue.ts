@@ -70,7 +70,7 @@ export class RenderReflectionProbeQueue {
     public constructor (pipeline: PipelineRuntime) {
         this._pipeline = pipeline;
     }
-
+    //TODO The cmdBuff parameter is added to do the instance
     public gatherRenderObjects (probe: ReflectionProbe, scene:RenderScene, cmdBuff: CommandBuffer) {
         this.clear();
         const sceneData = this._pipeline.pipelineSceneData;
