@@ -2,7 +2,7 @@ exports.template = `
 <div class="light-probe-group">
     <ui-button class="box">Edit Area Box</ui-button>
     <ui-button class="generate" tooltip="i18n:ENGINE.components.lightProbeGroup.generateTip">Generate Probes</ui-button>
-    <ui-button class="blue edit" type="success" tooltip="i18n:ENGINE.components.lightProbeGroup.editTip">Enter Probe Edit Mode</ui-button>
+    <ui-button class="blue edit" tooltip="i18n:ENGINE.components.lightProbeGroup.editTip">Enter Probe Edit Mode</ui-button>
 </div>
 `;
 
@@ -71,6 +71,8 @@ exports.ready = function() {
                     args: [],
                 });
             }
+
+            Editor.Message.send('scene', 'snapshot');
         }
     });
 
@@ -104,8 +106,12 @@ exports.methods = {
 
         if (mode) {
             panel.$.edit.innerText = 'Exit Probe Edit Mode';
+            panel.$.edit.classList.remove('blue');
+            panel.$.edit.classList.add('red');
         } else {
             panel.$.edit.innerText = 'Enter Probe Edit Mode';
+            panel.$.edit.classList.add('blue');
+            panel.$.edit.classList.remove('red');
         }
     },
     changeProbeBoxMode(mode) {
@@ -115,8 +121,10 @@ exports.methods = {
 
         if (mode) {
             panel.$.box.innerText = 'Done Edit';
+            panel.$.box.classList.add('red');
         } else {
             panel.$.box.innerText = 'Edit Area Box';
+            panel.$.box.classList.remove('red');
         }
     },
 };

@@ -27,7 +27,7 @@ import { Camera, CameraAperture, CameraFOVAxis, CameraISO, CameraProjection, Cam
 import { Node } from '../../scene-graph/node';
 import { Color, Quat, Rect, toRadian, Vec2, Vec3, geometry, cclegacy } from '../../core';
 import { CAMERA_DEFAULT_MASK } from '../../rendering/define';
-import { ClearFlagBit } from '../../gfx';
+import { ClearFlagBit, Framebuffer } from '../../gfx';
 import { TextureCube } from '../../asset/assets/texture-cube';
 import { RenderTexture } from '../../asset/assets/render-texture';
 
@@ -351,6 +351,17 @@ export class ReflectionProbe {
             const pos = this.node.getWorldPosition();
             geometry.AABB.set(this._boundingBox!, pos.x, pos.y, pos.z, this._size.x, this._size.y, this._size.z);
         }
+    }
+
+    public hasFrameBuffer (framebuffer: Framebuffer) {
+        if (this.bakedCubeTextures.length === 0) return false;
+        for (let i = 0; i < this.bakedCubeTextures.length; i++) {
+            const rt = this.bakedCubeTextures[i];
+            if (rt.window?.framebuffer === framebuffer) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private _createCamera (cameraNode:Node) {

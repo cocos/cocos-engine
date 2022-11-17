@@ -1,6 +1,6 @@
 'use strict';
 
-const { updateElementReadonly } = require('../../utils/assets');
+const { updateElementReadonly, updateElementInvalid, getPropValue, setPropValue } = require('../../utils/assets');
 
 exports.template = /* html */`
 <div class="container">
@@ -110,9 +110,9 @@ const Elements = {
         update() {
             const panel = this;
 
-            panel.$.legacyFbxImporterCheckbox.value = panel.getDefault(panel.meta.userData.legacyFbxImporter, false);
+            panel.$.legacyFbxImporterCheckbox.value = getPropValue.call(panel, panel.meta.userData.legacyFbxImporter, false);
 
-            panel.updateInvalid(panel.$.legacyFbxImporterCheckbox, 'legacyFbxImporter');
+            updateElementInvalid.call(panel, panel.$.legacyFbxImporterCheckbox, 'legacyFbxImporter');
             updateElementReadonly.call(panel, panel.$.legacyFbxImporterCheckbox);
         },
     },
@@ -130,12 +130,12 @@ const Elements = {
 
             let defaultValue = 0;
             if (panel.meta.userData.fbx) {
-                defaultValue = panel.getDefault(panel.meta.userData.fbx.animationBakeRate, defaultValue);
+                defaultValue = getPropValue.call(panel, panel.meta.userData.fbx.animationBakeRate, defaultValue);
             }
 
             panel.$.animationBakeRateSelect.value = defaultValue;
 
-            panel.updateInvalid(panel.$.animationBakeRateSelect, 'fbx.animationBakeRate');
+            updateElementInvalid.call(panel, panel.$.animationBakeRateSelect, 'fbx.animationBakeRate');
             updateElementReadonly.call(panel, panel.$.animationBakeRateSelect);
         },
     },
@@ -153,12 +153,12 @@ const Elements = {
 
             let defaultValue = true;
             if (panel.meta.userData.fbx) {
-                defaultValue = panel.getDefault(panel.meta.userData.fbx.preferLocalTimeSpan, defaultValue);
+                defaultValue = getPropValue.call(panel, panel.meta.userData.fbx.preferLocalTimeSpan, defaultValue);
             }
 
             panel.$.preferLocalTimeSpanCheckbox.value = defaultValue;
 
-            panel.updateInvalid(panel.$.preferLocalTimeSpanCheckbox, 'fbx.preferLocalTimeSpan');
+            updateElementInvalid.call(panel, panel.$.preferLocalTimeSpanCheckbox, 'fbx.preferLocalTimeSpan');
             updateElementReadonly.call(panel, panel.$.preferLocalTimeSpanCheckbox);
         },
     },
@@ -183,12 +183,12 @@ const Elements = {
 
             let defaultValue = false;
             if (panel.meta.userData.fbx) {
-                defaultValue = panel.getDefault(panel.meta.userData.fbx.smartMaterialEnabled, defaultValue);
+                defaultValue = getPropValue.call(panel, panel.meta.userData.fbx.smartMaterialEnabled, defaultValue);
             }
 
             panel.$.smartMaterialEnabledCheckbox.value = defaultValue;
 
-            panel.updateInvalid(panel.$.smartMaterialEnabledCheckbox, 'fbx.smartMaterialEnabled');
+            updateElementInvalid.call(panel, panel.$.smartMaterialEnabledCheckbox, 'fbx.smartMaterialEnabled');
             updateElementReadonly.call(panel, panel.$.smartMaterialEnabledCheckbox);
         },
     },
@@ -196,78 +196,10 @@ const Elements = {
 
 exports.methods = {
     setProp(prop, type, event) {
-        const propNames = prop.split('.');
-
-        this.metaList.forEach((meta) => {
-            let target = meta.userData;
-            const lastIndex = propNames.length - 1;
-            const lastPropName = propNames[lastIndex];
-
-            if (propNames.length > 1) {
-                for (let i = 0; i < lastIndex; i++) {
-                    const propName = propNames[i];
-                    if (!target[propName]) {
-                        target[propName] = {};
-                    }
-                    target = target[propName];
-                }
-            }
-
-            let value = event.target.value;
-            if (type === 'number') {
-                value = Number(value);
-            } else if (type === 'boolean') {
-                value = Boolean(value);
-            }
-
-            target[lastPropName] = value;
-        });
+        setPropValue.call(this, prop, type, event);
 
         this.dispatch('change');
         this.dispatch('track', { tab: 'fbx', prop, value: event.target.value });
-    },
-    /**
-     * Update whether a data is editable in multi-select state
-     */
-    updateInvalid(element, prop) {
-        const propNames = prop.split('.');
-        let thisPropValue = this.meta.userData;
-
-        const invalid = this.metaList.some((meta) => {
-            let target = meta.userData;
-            const lastIndex = propNames.length - 1;
-            const lastPropName = propNames[lastIndex];
-
-            if (propNames.length > 1) {
-                for (let i = 0; i < lastIndex; i++) {
-                    const propName = propNames[i];
-                    if (target[propName] !== undefined) {
-                        target = target[propName];
-                    }
-
-                    if (thisPropValue[propName] !== undefined) {
-                        thisPropValue = thisPropValue[propName];
-                    }
-                }
-            }
-
-            return target[lastPropName] !== thisPropValue[lastPropName];
-        });
-        element.invalid = invalid;
-    },
-    getDefault(value, def, prop) {
-        if (value === undefined) {
-            return def;
-        }
-
-        if (prop) {
-            value = value[prop];
-        }
-
-        if (value === undefined) {
-            return def;
-        }
-        return value;
     },
 };
 

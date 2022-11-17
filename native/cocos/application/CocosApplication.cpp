@@ -89,8 +89,12 @@ int CocosApplication::init() {
                   std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 
     jsb_register_all_modules();
-
+#if CC_EDITOR
+    auto isolate = v8::Isolate::GetCurrent();
+    se->start(isolate);
+#else
     se->start();
+#endif
 
 #if (CC_PLATFORM == CC_PLATFORM_IOS)
     auto logicSize = _systemWindow->getViewSize();
