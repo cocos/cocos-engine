@@ -42,7 +42,6 @@ import { settings, Settings } from '../../core/settings';
 const { property, ccclass, help, executeInEditMode, executionOrder, menu, tooltip, visible, type,
     formerlySerializedAs, serializable, editable, disallowAnimation } = _decorator;
 
-const USE_REFLECTION_PROBE = 'USE_REFLECTION_PROBE';
 /**
  * @en Shadow projection mode.
  * @zh 阴影投射方式。
@@ -418,6 +417,7 @@ export class MeshRenderer extends ModelRenderer {
         this._updateCastShadow();
         this._updateReceiveShadow();
         this._updateUseLightProbe();
+        this._updateUseReflectionProbe();
     }
 
     /**
@@ -483,7 +483,7 @@ export class MeshRenderer extends ModelRenderer {
         this._updateShadowNormalBias();
         this._updateUseLightProbe();
         this._updateBakeToReflectionProbe();
-        this._updateReflectionProbeRenderInfo();
+        this._updateUseReflectionProbe();
     }
 
     // Redo, Undo, Prefab restore, etc.
@@ -498,7 +498,7 @@ export class MeshRenderer extends ModelRenderer {
         this._updateShadowNormalBias();
         this._updateUseLightProbe();
         this._updateBakeToReflectionProbe();
-        this._updateReflectionProbeRenderInfo();
+        this._updateUseReflectionProbe();
     }
 
     public onEnable () {
@@ -516,7 +516,7 @@ export class MeshRenderer extends ModelRenderer {
         this._updateShadowBias();
         this._updateShadowNormalBias();
         this._updateBakeToReflectionProbe();
-        this._updateReflectionProbeRenderInfo();
+        this._updateUseReflectionProbe();
         this._onUpdateLocalShadowBias();
         this._updateUseLightProbe();
         this._attachToScene();
@@ -653,22 +653,27 @@ export class MeshRenderer extends ModelRenderer {
     public updateProbeCubemap (cubeMap: TextureCube | null) {
         this.bakeSettings._probeCubemap = cubeMap;
         if (this.model !== null) {
-            this.model.updateReflctionProbeCubemap(this.bakeSettings._probeCubemap!);
+            this.model.updateReflctionProbeCubemap(this.bakeSettings._probeCubemap);
         }
     }
     public updateProbePlanarMap (planarMap: Texture | null) {
         this.bakeSettings._probePlanarmap = planarMap;
         if (this.model !== null) {
-            this.model.updateReflctionProbePlanarMap(this.bakeSettings._probePlanarmap!);
+            this.model.updateReflctionProbePlanarMap(this.bakeSettings._probePlanarmap);
         }
     }
 
-    protected _onUpdateReflectionProbeTexture () {
-        if (this.model === null) return;
+    protected _updateReflectionProbeTexture () {
+        if (this._model === null) return;
         if (this.bakeSettings.reflectionProbe === ReflectionProbeType.BAKED_CUBEMAP) {
-            this.model.updateReflctionProbeCubemap(this.bakeSettings._probeCubemap!);
+            this._model.updateReflctionProbeCubemap(this.bakeSettings._probeCubemap);
+            this._model.updateReflctionProbePlanarMap(null);
         } else if (this.bakeSettings.reflectionProbe === ReflectionProbeType.PLANAR_REFLECTION) {
-            this.model.updateReflctionProbePlanarMap(this.bakeSettings._probePlanarmap!);
+            this._model.updateReflctionProbePlanarMap(this.bakeSettings._probePlanarmap);
+            this._model.updateReflctionProbeCubemap(null);
+        } else {
+            this._model.updateReflctionProbeCubemap(null);
+            this._model.updateReflctionProbePlanarMap(null);
         }
     }
 
@@ -698,7 +703,7 @@ export class MeshRenderer extends ModelRenderer {
             this._updateModelParams();
             this._onUpdateLightingmap();
             this._onUpdateLocalShadowBias();
-            this._onUpdateReflectionProbeTexture();
+            this._updateUseReflectionProbe();
         }
     }
 
@@ -796,7 +801,7 @@ export class MeshRenderer extends ModelRenderer {
         this._model.setSubModelMaterial(idx, material);
         this._onUpdateLightingmap();
         this._onUpdateLocalShadowBias();
-        this._updateReflectionProbeRenderInfo();
+        this._updateReflectionProbeTexture();
     }
 
     protected _onMeshChanged (old: Mesh | null) {
@@ -861,7 +866,7 @@ export class MeshRenderer extends ModelRenderer {
     }
 
     protected onReflectionProbeChanged () {
-        this._updateReflectionProbe();
+        this._updateUseReflectionProbe();
     }
 
     protected onBakeToReflectionProbeChanged () {
@@ -890,38 +895,15 @@ export class MeshRenderer extends ModelRenderer {
         return false;
     }
 
-    protected _updateReflectionProbe () {
-        for (let i = 0; i < this._materials.length; i++) {
-            const mat = this.getMaterialInstance(i)!;
-            mat.recompileShaders({ USE_REFLECTION_PROBE: this.bakeSettings.reflectionProbe });
-        }
-        if (this._model) {
-            this._model.reflectionProbeType = this.bakeSettings.reflectionProbe;
-            if (this.bakeSettings.reflectionProbe === ReflectionProbeType.BAKED_CUBEMAP) {
-                this._model.updateReflctionProbeCubemap(this.bakeSettings._probeCubemap!);
-            } else if (this.bakeSettings.reflectionProbe === ReflectionProbeType.PLANAR_REFLECTION) {
-                this._model.updateReflctionProbePlanarMap(this.bakeSettings._probePlanarmap!);
-            }
-        }
+    protected _updateUseReflectionProbe () {
+        if (!this._model) return;
+        this._model.reflectionProbeType = this.bakeSettings.reflectionProbe;
+        this._updateReflectionProbeTexture();
     }
 
     protected _updateBakeToReflectionProbe () {
         if (!this._model) { return; }
         this._model.bakeToReflectionProbe = this.bakeSettings.bakeToReflectionProbe;
-    }
-
-    protected _updateReflectionProbeRenderInfo () {
-        if (!this._model) { return; }
-        if (this.bakeSettings.reflectionProbe !== ReflectionProbeType.NONE) {
-            for (let i = 0; i < this._materials.length; i++) {
-                const mat = this.getMaterialInstance(i);
-                if (mat) {
-                    mat.recompileShaders({ USE_REFLECTION_PROBE: this.bakeSettings.reflectionProbe });
-                }
-            }
-        }
-        this._model.reflectionProbeType = this.bakeSettings.reflectionProbe;
-        this._onUpdateReflectionProbeTexture();
     }
 
     private _watchMorphInMesh () {

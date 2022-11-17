@@ -41,7 +41,7 @@ export interface IInstancedItem {
     lightingMap: Texture;
     reflectionProbeCubemap: Texture;
     reflectionProbePlanarMap: Texture;
-    useReflectionProbeType:number;
+    useReflectionProbeType: number;
 }
 
 const INITIAL_CAPACITY = 32;

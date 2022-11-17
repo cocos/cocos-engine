@@ -255,15 +255,9 @@ export class ReflectionProbe extends Component {
     }
 
     public update (dt: number) {
-        if (this.probeType === ProbeType.CUBE) {
-            if (EDITOR) {
-                if (this.node.hasChangedFlags) {
-                    this.probe.updateBoundingBox();
-                    ReflectionProbeManager.probeManager.updateModes(this.probe);
-                }
-            }
-        } else {
-            if (EDITOR) {
+        if (!this.probe) return;
+        if (EDITOR) {
+            if (this.probeType === ProbeType.PLANAR) {
                 const cameraLst: scene.Camera[] | undefined = this.node.scene.renderScene?.cameras;
                 if (cameraLst !== undefined) {
                     for (let i = 0; i < cameraLst.length; ++i) {
@@ -275,10 +269,8 @@ export class ReflectionProbe extends Component {
                     }
                 }
             }
-            if (this.node.hasChangedFlags) {
-                this.probe.updateBoundingBox();
-                ReflectionProbeManager.probeManager.updateModes(this.probe);
-            }
+            this.probe.updateBoundingBox();
+            ReflectionProbeManager.probeManager.updateModes(this.probe);
         }
     }
 

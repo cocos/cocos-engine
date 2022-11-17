@@ -139,6 +139,7 @@ export class ReflectionProbeManager {
         const models = scene.models;
         for (let i = 0; i < models.length; i++) {
             const model = models[i];
+            model.updateWorldBound();
             if (model.node && model.worldBounds && ((model.node.layer & CAMERA_DEFAULT_MASK)) || model.node.name === SPHERE_NODE_NAME) {
                 const nearest = this._getNearestProbe(model);
                 if (!nearest) {
@@ -185,10 +186,10 @@ export class ReflectionProbeManager {
                 continue;
             } else if (!find) {
                 find = true;
-                distance = Vec3.distance(model.node.position, this._probes[i].node.position);
+                distance = Vec3.distance(model.node.worldPosition, this._probes[i].node.worldPosition);
                 idx = i;
             }
-            const d = Vec3.distance(model.node.position, this._probes[i].node.position);
+            const d = Vec3.distance(model.node.worldPosition, this._probes[i].node.worldPosition);
             if (d < distance) {
                 distance = d;
                 idx = i;

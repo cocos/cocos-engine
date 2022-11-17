@@ -133,10 +133,10 @@ export class RenderReflectionProbeQueue {
 
             if (!bUseReflectPass) {
                 let patches: IMacroPatch[] | null = subModel.patches;
-                const useRGBE: IMacroPatch[] = [
+                const useRGBEPatchs: IMacroPatch[] = [
                     { name: CC_USE_RGBE_OUTPUT, value: true },
                 ];
-                patches = patches ? patches.concat(useRGBE) : useRGBE;
+                patches = patches ? patches.concat(useRGBEPatchs) : useRGBEPatchs;
                 subModel.onMacroPatchesStateChanged(patches);
                 this._rgbeSubModelsArray.push(subModel);
             }
@@ -181,6 +181,8 @@ export class RenderReflectionProbeQueue {
             cmdBuff.draw(ia);
         }
         this.resetRGBEMacro();
+        this._instancedQueue.clear();
+        this._batchedQueue.clear();
     }
     public resetRGBEMacro () {
         for (let i = 0; i < this._rgbeSubModelsArray.length; i++) {

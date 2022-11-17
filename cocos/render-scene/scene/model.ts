@@ -58,7 +58,7 @@ const stationaryLightMapPatches: IMacroPatch[] = [
 const lightProbePatches: IMacroPatch[] = [
     { name: 'CC_USE_LIGHT_PROBE', value: true },
 ];
-const USE_REFLECTION_PROBE = 'CC_USE_REFLECTION_PROBE';
+const CC_USE_REFLECTION_PROBE = 'CC_USE_REFLECTION_PROBE';
 export enum ModelType {
     DEFAULT,
     SKINNING,
@@ -676,7 +676,7 @@ export class Model {
         return true;
     }
 
-    private updateSHBuffer() {
+    private updateSHBuffer () {
         if (!this._localSHData) {
             return;
         }
@@ -702,7 +702,7 @@ export class Model {
      * @en Clear the model's SH ubo
      * @zh 清除模型的球谐 ubo
      */
-     public clearSHUBOs () {
+    public clearSHUBOs () {
         if (!this._localSHData) {
             return;
         }
@@ -712,7 +712,7 @@ export class Model {
         }
 
         this.updateSHBuffer();
-     }
+    }
 
     /**
      * @en Update the model's SH ubo
@@ -973,7 +973,7 @@ export class Model {
             patches = patches ? patches.concat(lightProbePatches) : lightProbePatches;
         }
         const reflectionProbePatches: IMacroPatch[] = [
-            { name: USE_REFLECTION_PROBE, value: this._reflectionProbeType },
+            { name: CC_USE_REFLECTION_PROBE, value: this._reflectionProbeType },
         ];
         patches = patches ? patches.concat(reflectionProbePatches) : reflectionProbePatches;
 
