@@ -36,26 +36,27 @@ if (hostName == 'darwin') {
     exeSuffix = '.exe';
 }
 
-// Release
-const SWIG_ROOT=path.join(COCOS_NATIVE_ROOT, 'external', hostName, 'bin', 'swig');
-const SWIG_EXE=path.join(SWIG_ROOT, 'bin', 'swig') + exeSuffix;
-const SWIG_LIB_ARRAY=[
-    path.join(SWIG_ROOT, 'share', 'swig', '4.1.0', 'javascript', 'cocos'),
-    path.join(SWIG_ROOT, 'share', 'swig', '4.1.0'),
-];
+// // Release
+// const SWIG_ROOT=path.join(COCOS_NATIVE_ROOT, 'external', hostName, 'bin', 'swig');
+// const SWIG_EXE=path.join(SWIG_ROOT, 'bin', 'swig') + exeSuffix;
+// const SWIG_LIB_ARRAY=[
+//     path.join(SWIG_ROOT, 'share', 'swig', '4.1.0', 'javascript', 'cocos'),
+//     path.join(SWIG_ROOT, 'share', 'swig', '4.1.0'),
+// ];
 
 // // Debug
 // // linux
 // // const SWIG_ROOT=`/home/james/projects/swig`;
-// // mac
-// const SWIG_ROOT=`/Users/james/Project/cocos/swig`;
 
-// const SWIG_EXE=path.join(SWIG_ROOT, 'build', 'Debug', 'swig');
-// const SWIG_LIB_ARRAY=[
-//     path.join(SWIG_ROOT, 'build'),
-//     path.join(SWIG_ROOT, 'Lib', 'javascript', 'cocos'),
-//     path.join(SWIG_ROOT, 'Lib'),
-// ];
+// mac
+const SWIG_ROOT=`/Users/james/Project/cocos/swig`;
+
+const SWIG_EXE=path.join(SWIG_ROOT, 'build', 'Debug', 'swig');
+const SWIG_LIB_ARRAY=[
+    path.join(SWIG_ROOT, 'build'),
+    path.join(SWIG_ROOT, 'Lib', 'javascript', 'cocos'),
+    path.join(SWIG_ROOT, 'Lib'),
+];
 
 function ensureAbsolutePath(rootDir, filePath) {
     if (path.isAbsolute(filePath)) {
@@ -232,8 +233,13 @@ function generateBindings(swigArgs, interfaceFile, generatedCppFile) {
         const ret = spawnSync(SWIG_EXE, swigArgs, {
             stdio: ['ignore', process.stdout, process.stderr],
         });
-        if (ret.status !== 0) {
-            process.exit(ret.status);
+        let retCode = ret.status;
+        if (retCode !== 0) {
+            console.error(`==> ERROR: spawnSync returns ${retCode}`);
+            if (typeof retCode !== 'number') {
+                retCode = EXIT_CODE_SPAWN_ERROR;
+            }
+            process.exit(retCode);
         }
     } catch (error) {
         console.error('ERROR:', error);
