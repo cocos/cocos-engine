@@ -19,6 +19,9 @@
         "gfx-webgl2": {
             "modules": ["gfx-webgl2"]
         },
+        "gfx-empty": {
+            "modules": ["gfx-empty"]
+        },
         "3d": {
             "modules": ["3d"],
             "dependentAssets": [
