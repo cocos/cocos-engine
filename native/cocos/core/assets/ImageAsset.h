@@ -110,9 +110,7 @@ public:
     inline void setHeight(uint32_t height) { _height = height; }
     inline void setFormat(PixelFormat format) { _format = format; }
     inline void setData(uint8_t *data) { _data = data; }
-    inline void setNeedFreeData(bool v) {
-        _needFreeData = v;
-    }
+    inline void setNeedFreeData(bool v) { _needFreeData = v; }
     inline void setUrl(const ccstd::string &url) { _url = url; }
     inline void setMipmapLevelDataSize(const ccstd::vector<uint32_t> &mipmapLevelDataSize) { _mipmapLevelDataSize = mipmapLevelDataSize; }
 
