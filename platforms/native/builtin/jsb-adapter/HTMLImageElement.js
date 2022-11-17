@@ -38,6 +38,7 @@ class HTMLImageElement extends HTMLElement {
             this.height = this.naturalHeight = info.height;
             this._data = info.data;
             this.complete = true;
+            this._mipmapLevelDataSize = info.mipmapLevelDataSize;
 
             var event = new Event('load');
             this.dispatchEvent(event);

@@ -123,6 +123,7 @@
 
 %attribute(cc::ImageAsset, cc::PixelFormat, format, getFormat, setFormat);
 %attribute(cc::ImageAsset, ccstd::string&, url, getUrl, setUrl);
+%attribute(cc::ImageAsset, ccstd::vector<uint32_t>&, mipmapLevelDataSize, getMipmapLevelDataSize, setMipmapLevelDataSize);
 
 %attribute(cc::BufferAsset, cc::ArrayBuffer*, _nativeAsset, getNativeAssetForJS, setNativeAssetForJS);
 
