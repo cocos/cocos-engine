@@ -41,7 +41,7 @@ export * from './types';
 export * from './pipeline';
 export * from './archive';
 
-export const enableEffectImport = true;
+export const enableEffectImport = false;
 
 export function createCustomPipeline (): Pipeline {
     const layoutGraph = enableEffectImport ? defaultLayoutGraph : new LayoutGraphData();
