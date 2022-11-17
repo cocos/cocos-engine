@@ -383,7 +383,7 @@ export class Root {
         // choose pipeline
         //-----------------------------------------------
         if (macro.CUSTOM_PIPELINE_NAME !== '' && cclegacy.rendering && this.usesCustomPipeline) {
-            this._customPipeline = cclegacy.rendering.createCustomPipeline(cclegacy.rendering);
+            this._customPipeline = cclegacy.rendering.createCustomPipeline();
             isCreateDefaultPipeline = true;
             this._pipeline = this._customPipeline!;
         } else {

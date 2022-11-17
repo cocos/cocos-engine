@@ -30,6 +30,7 @@ import { buildDeferredLayout, buildForwardLayout } from './effect';
 import { macro } from '../../core/platform/macro';
 import { DeferredPipelineBuilder, ForwardPipelineBuilder } from './builtin-pipelines';
 import { CustomPipelineBuilder, NativePipelineBuilder } from './custom-pipeline';
+import { EffectAsset } from '../../asset/assets/effect-asset';
 
 export * from './types';
 export * from './pipeline';
@@ -37,7 +38,7 @@ export * from './archive';
 
 export const enableEffectImport = false;
 
-export function createCustomPipeline (rendering: any): Pipeline {
+export function createCustomPipeline (): Pipeline {
     const ppl = render.Factory.createPipeline();
     const pplName = macro.CUSTOM_PIPELINE_NAME;
     if (!enableEffectImport) {
@@ -73,6 +74,10 @@ function addCustomBuiltinPipelines (map: Map<string, PipelineBuilder>) {
 
 addCustomBuiltinPipelines(customPipelineBuilderMap);
 
-export function deserializeLayoutGraph (arrayBuffer: ArrayBuffer, rendering: any) {
+export function deserializeLayoutGraph (arrayBuffer: ArrayBuffer) {
+    // noop
+}
+
+export function replaceShaderInfo (asset: EffectAsset) {
     // noop
 }

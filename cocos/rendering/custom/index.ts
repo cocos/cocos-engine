@@ -25,14 +25,17 @@
 
 import { Pipeline, PipelineBuilder } from './pipeline';
 import { WebPipeline } from './web-pipeline';
-import { buildDeferredLayout, buildForwardLayout } from './effect';
+import { buildDeferredLayout, buildForwardLayout, replacePerBatchOrInstanceShaderInfo } from './effect';
 import { macro } from '../../core';
 import { DeferredPipelineBuilder, ForwardPipelineBuilder } from './builtin-pipelines';
 import { CustomPipelineBuilder, NativePipelineBuilder } from './custom-pipeline';
 import { LayoutGraphData, loadLayoutGraphData } from './layout-graph';
 import { BinaryInputArchive } from './binary-archive';
+import { EffectAsset } from '../../asset/assets/effect-asset';
 
 let _pipeline: WebPipeline | null = null;
+
+const defaultLayoutGraph = new LayoutGraphData();
 
 export * from './types';
 export * from './pipeline';
@@ -40,10 +43,8 @@ export * from './archive';
 
 export const enableEffectImport = false;
 
-export function createCustomPipeline (rendering: any): Pipeline {
-    const layoutGraph = enableEffectImport
-        ? rendering.defaultLayoutGraph as LayoutGraphData
-        : new LayoutGraphData();
+export function createCustomPipeline (): Pipeline {
+    const layoutGraph = enableEffectImport ? defaultLayoutGraph : new LayoutGraphData();
 
     const ppl = new WebPipeline(layoutGraph);
     const pplName = macro.CUSTOM_PIPELINE_NAME;
@@ -84,7 +85,12 @@ function addCustomBuiltinPipelines (map: Map<string, PipelineBuilder>) {
 
 addCustomBuiltinPipelines(customPipelineBuilderMap);
 
-export function deserializeLayoutGraph (arrayBuffer: ArrayBuffer, rendering: any) {
+export function deserializeLayoutGraph (arrayBuffer: ArrayBuffer) {
     const readBinaryData = new BinaryInputArchive(arrayBuffer);
-    loadLayoutGraphData(readBinaryData, rendering.defaultLayoutGraph);
+    loadLayoutGraphData(readBinaryData, defaultLayoutGraph);
+}
+
+export function replaceShaderInfo (asset: EffectAsset) {
+    const stageName = 'default';
+    replacePerBatchOrInstanceShaderInfo(defaultLayoutGraph, asset, stageName);
 }
