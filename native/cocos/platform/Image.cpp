@@ -893,45 +893,46 @@ bool Image::initWithCompressedMipsData(const unsigned char *data, uint32_t /*dat
     // unpack compressed chunks
     int width = 0;
     int height = 0;
-    bool isInit = false;
+    bool ret = false;
     const auto chunkNumbers = getChunkNumbers(data);
     ccstd::vector<unsigned char *> dataBuffers;
     dataBuffers.resize(chunkNumbers);
     _mipmapLevelDataSize.resize(chunkNumbers);
-    uint32_t totalDataLength = 0;
+    uint32_t dstDataLen = 0;
     for (uint32_t i = 0; i < chunkNumbers; ++i) {
         const auto *chunk = getChunk(data, i);
         const auto dataLength = getChunkSizes(data, i);
         if (_data) free(_data);
-        isInit = initWithImageData(chunk, dataLength);
+        ret = initWithImageData(chunk, dataLength);
 
         if (i == 0) {
             width = _width;
             height = _height;
         }
 
-        totalDataLength += _dataLen;
+        dstDataLen += _dataLen;
         _mipmapLevelDataSize[i] = _dataLen;
         dataBuffers[i] = static_cast<unsigned char *>(malloc(_dataLen * sizeof(unsigned char)));
         memcpy(dataBuffers[i], _data, _dataLen);
 
-        if (!isInit) break;
+        if (!ret) break;
     }
 
-    auto *dstData = static_cast<unsigned char *>(malloc(totalDataLength * sizeof(unsigned char)));
-    uint32_t bufferLength = 0;
+    auto *dstData = static_cast<unsigned char *>(malloc(dstDataLen * sizeof(unsigned char)));
+    uint32_t byteOffset = 0;
     for (uint32_t i = 0; i < chunkNumbers; ++i) {
-        memcpy(dstData + bufferLength, dataBuffers[i], _mipmapLevelDataSize[i]);
-        bufferLength += _mipmapLevelDataSize[i];
+        memcpy(dstData + byteOffset, dataBuffers[i], _mipmapLevelDataSize[i]);
+        byteOffset += _mipmapLevelDataSize[i];
         free(dataBuffers[i]);
     }
 
     _width = width;
     _height = height;
+    if (_data) free(_data);
     _data = dstData;
-    _dataLen = totalDataLength;
+    _dataLen = dstDataLen;
 
-    return isInit;
+    return ret;
 }
 
 bool Image::initWithPVRData(const unsigned char *data, uint32_t dataLen) {

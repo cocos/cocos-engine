@@ -14,7 +14,6 @@ class HTMLImageElement extends HTMLElement {
         this._src = null;
         this.complete = false;
         this.crossOrigin = null;
-        this._mipmapLevelDataSize = [];
     }
 
     destroy() {

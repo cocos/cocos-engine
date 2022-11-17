@@ -168,7 +168,7 @@ imageAssetProto._syncDataToNative = function () {
     }
     else if (data instanceof HTMLImageElement) {
         this.setData(data._data);
-        if (data.mipmapLevelDataSize){
+        if (data._mipmapLevelDataSize){
             this.setMipmapLevelDataSize(data._mipmapLevelDataSize);
         }
     }
