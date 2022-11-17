@@ -27,12 +27,20 @@
 import { getError } from '../platform/debug';
 import { CompleteCallback, IDownloadParseOptions } from './shared';
 
+let prefixServer;
 export default function downloadDomImage (
     url: string,
     options: IDownloadParseOptions,
     onComplete: CompleteCallback<HTMLImageElement>,
 ): HTMLImageElement {
     const img = new Image();
+
+    if (prefixServer === undefined) {
+        prefixServer = cc.settings.querySettings('custom', 'prefixServer') || '';
+    }
+    if (prefixServer) {
+        url = `${prefixServer}${url}`;
+    }
 
     if (window.location.protocol !== 'file:') {
         img.crossOrigin = 'anonymous';
