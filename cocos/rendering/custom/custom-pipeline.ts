@@ -1,6 +1,6 @@
 import { Camera, CameraUsage } from '../../render-scene/scene';
 import { buildBloomPass as buildBloomPasses, buildForwardPass,
-    buildNativeDeferredPipeline, buildNativeForwardPass, buildPostprocessPass } from './define';
+    buildNativeDeferredPipeline, buildNativeForwardPass, buildPostprocessPass, AntiAliasing } from './define';
 import { Pipeline, PipelineBuilder } from './pipeline';
 
 export class CustomPipelineBuilder implements PipelineBuilder {
