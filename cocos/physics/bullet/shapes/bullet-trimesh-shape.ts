@@ -72,7 +72,6 @@ export class BulletTrimeshShape extends BulletShape implements ITrimeshShape {
     }
 
     onDestroy () {
-
         if (this.refBtTriangleMesh) {  bt._safe_delete(this.refBtTriangleMesh, EBulletType.EBulletTypeTriangleMesh); }
         super.onDestroy();
     }
