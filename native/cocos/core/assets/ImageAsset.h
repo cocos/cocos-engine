@@ -114,7 +114,7 @@ public:
         _needFreeData = v;
     }
     inline void setUrl(const ccstd::string &url) { _url = url; }
-    inline void setMipmapLevelDataSize(ccstd::vector<uint32_t> &mipmapLevelDataSize) { _mipmapLevelDataSize = ccstd::vector(mipmapLevelDataSize); }
+    inline void setMipmapLevelDataSize(const ccstd::vector<uint32_t> &mipmapLevelDataSize) { _mipmapLevelDataSize = mipmapLevelDataSize; }
 
 private:
     uint8_t *_data{nullptr};
