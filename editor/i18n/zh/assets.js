@@ -329,6 +329,32 @@ module.exports = {
                         title: 'Verbose Output',
                     },
                 },
+                algorithm: {
+                    name: '减面算法',
+                    simplify: 'simplify',
+                    gltfpack: 'gltfpack (已废弃)',
+                },
+                simplify: {
+                    targetRatio: {
+                        name: 'LOD 压缩比例',
+                        title: 'Target Ratio',
+                    },
+                    enableSmartLink: {
+                        name: '防止破面',
+                        title: 'Smart Link',
+                    },
+                    agressiveness: {
+                        name: '误差距离',
+                        title: 'Agressiveness',
+                    },
+                    maxIterationCount: {
+                        name: '计算迭代次数',
+                        title: 'Max Iteration Count',
+                    },
+                },
+                gltfpack: {
+                    warn: '当前资源使用的减面算法 gltfpack 已被废弃，请选用新的 simplify 减面算法。',
+                },
                 warn: '警告：优化后，网格资源的数量和名称会发生改变，这将会造成组件引用的资源丢失，请及时手动更新；（另外，对于模型资源中预生成的预制体，资源同步机制会自动更新）',
             },
             animationBakeRate: {
