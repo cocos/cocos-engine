@@ -25,7 +25,7 @@
 
 import { EDITOR } from 'internal:constants';
 import { systemInfo } from 'pal/system-info';
-import { warnID, warn, debug, macro } from '../../core';
+import { warnID, warn, debug, macro, settings, Settings } from '../../core';
 import { WebGL2StateCache } from './webgl2-state-cache';
 import { WebGL2Texture } from './webgl2-texture';
 import { Format, TextureInfo, TextureFlagBit, TextureType,
@@ -120,6 +120,23 @@ export function getExtensions (gl: WebGL2RenderingContext) {
 export function getContext (canvas: HTMLCanvasElement): WebGL2RenderingContext | null {
     let context: WebGL2RenderingContext | null = null;
     try {
+        const xrCompatible = settings.querySettings(Settings.Category.XR, 'xrCompatible') ?? false;
+        if (xrCompatible) {
+            const glAttribs = {
+                alpha: macro.ENABLE_TRANSPARENT_CANVAS,
+                antialias: EDITOR || macro.ENABLE_WEBGL_ANTIALIAS,
+                depth: true,
+                stencil: true,
+                premultipliedAlpha: false,
+                preserveDrawingBuffer: false,
+                powerPreference: 'default',
+                failIfMajorPerformanceCaveat: false,
+                xrCompatible: true,
+            };
+            context = canvas.getContext('webgl2', glAttribs) as WebGL2RenderingContext;
+            return context;
+        }
+
         const webGLCtxAttribs: WebGLContextAttributes = {
             alpha: macro.ENABLE_TRANSPARENT_CANVAS,
             antialias: EDITOR || macro.ENABLE_WEBGL_ANTIALIAS,
