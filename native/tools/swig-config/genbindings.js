@@ -36,27 +36,26 @@ if (hostName == 'darwin') {
     exeSuffix = '.exe';
 }
 
-// // Release
-// const SWIG_ROOT=path.join(COCOS_NATIVE_ROOT, 'external', hostName, 'bin', 'swig');
-// const SWIG_EXE=path.join(SWIG_ROOT, 'bin', 'swig') + exeSuffix;
-// const SWIG_LIB_ARRAY=[
-//     path.join(SWIG_ROOT, 'share', 'swig', '4.1.0', 'javascript', 'cocos'),
-//     path.join(SWIG_ROOT, 'share', 'swig', '4.1.0'),
-// ];
+// Release
+const SWIG_ROOT=path.join(COCOS_NATIVE_ROOT, 'external', hostName, 'bin', 'swig');
+const SWIG_EXE=path.join(SWIG_ROOT, 'bin', 'swig') + exeSuffix;
+const SWIG_LIB_ARRAY=[
+    path.join(SWIG_ROOT, 'share', 'swig', '4.1.0', 'javascript', 'cocos'),
+    path.join(SWIG_ROOT, 'share', 'swig', '4.1.0'),
+];
 
 // // Debug
 // // linux
 // // const SWIG_ROOT=`/home/james/projects/swig`;
+// // mac
+// const SWIG_ROOT=`/Users/james/Project/cocos/swig`;
 
-// mac
-const SWIG_ROOT=`/Users/james/Project/cocos/swig`;
-
-const SWIG_EXE=path.join(SWIG_ROOT, 'build', 'Debug', 'swig');
-const SWIG_LIB_ARRAY=[
-    path.join(SWIG_ROOT, 'build'),
-    path.join(SWIG_ROOT, 'Lib', 'javascript', 'cocos'),
-    path.join(SWIG_ROOT, 'Lib'),
-];
+// const SWIG_EXE=path.join(SWIG_ROOT, 'build', 'Debug', 'swig');
+// const SWIG_LIB_ARRAY=[
+//     path.join(SWIG_ROOT, 'build'),
+//     path.join(SWIG_ROOT, 'Lib', 'javascript', 'cocos'),
+//     path.join(SWIG_ROOT, 'Lib'),
+// ];
 
 function ensureAbsolutePath(rootDir, filePath) {
     if (path.isAbsolute(filePath)) {
