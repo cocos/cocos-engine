@@ -54,6 +54,7 @@ SkeletonCacheAnimation::SkeletonCacheAnimation(const std::string &uuid, bool isS
         _skeletonCache->addRef();
     } else {
         _skeletonCache = new SkeletonCache();
+        _skeletonCache->addRef();
         _skeletonCache->initWithUUID(uuid);
     }
 
