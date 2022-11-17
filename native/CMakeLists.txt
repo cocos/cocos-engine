@@ -1268,8 +1268,9 @@ cocos_source_files(
                  cocos/renderer/pipeline/PipelineUBO.h
                  cocos/renderer/pipeline/PipelineSceneData.cpp
                  cocos/renderer/pipeline/PipelineSceneData.h
-                 cocos/renderer/pipeline/SceneAccelerationStructure.cpp
-                 cocos/renderer/pipeline/SceneAccelerationStructure.h
+                 cocos/renderer/pipeline/RayTracingSceneTypes.h
+                 cocos/renderer/pipeline/RayTracingScene.cpp
+                 cocos/renderer/pipeline/RayTracingScene.h
                  cocos/renderer/pipeline/forward/ForwardFlow.cpp
                  cocos/renderer/pipeline/forward/ForwardFlow.h
                  cocos/renderer/pipeline/forward/ForwardPipeline.cpp

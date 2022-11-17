@@ -69,8 +69,7 @@ namespace pipeline
     } // anonymous namespace
 
     RayTracingScene::RayTracingScene() {
-        const auto* pipelineRuntime = Root::getInstance()->getPipeline();
-        _globalDSManager = pipelineRuntime->getGlobalDSManager(); 
+        _globalDSManager = Root::getInstance()->getPipeline()->getGlobalDSManager(); 
     }
 
     void RayTracingScene::handleNewModel(const IntrusivePtr<scene::Model>& pModel) {
@@ -99,8 +98,8 @@ namespace pipeline
             meshUuid += 1024;
         }
 
-        auto blasIt = _geomBlasMap.find(meshUuid);
-        if (blasIt != _geomBlasMap.cend()) {
+        auto blasIt = _geomBlasCache.find(meshUuid);
+        if (blasIt != _geomBlasCache.cend()) {
             // BLAS could be reused.
             tlasGeom.accelerationStructureRef = blasIt->second.first;
             shadingInstanceDescriptor.subMeshGeometryOffset = blasIt->second.second;
@@ -123,7 +122,7 @@ namespace pipeline
                 }
             }
 
-            _geomBlasMap.emplace(meshUuid, std::make_pair(blas, shadingInstanceDescriptor.subMeshGeometryOffset));
+            _geomBlasCache.emplace(meshUuid, std::make_pair(blas, shadingInstanceDescriptor.subMeshGeometryOffset));
 
             tlasGeom.accelerationStructureRef = blas;
         }
@@ -202,7 +201,7 @@ namespace pipeline
             _hitGroupShaderRecordList.insert(_hitGroupShaderRecordList.end(), instanceShaderRecords.begin(), instanceShaderRecords.end());
         }
 
-        _modelMap.emplace(pModel->getNode()->getUuid(), std::pair{true, tlasGeom});
+        _modelCache.emplace(pModel->getNode()->getUuid(), std::pair{true, tlasGeom});
     }
 
     void RayTracingScene::handleModel(const IntrusivePtr<scene::Model>& pModel) {
@@ -211,9 +210,9 @@ namespace pipeline
             return;
         }
 
-        auto modelIt = _modelMap.find(pModel->getNode()->getUuid());
+        auto modelIt = _modelCache.find(pModel->getNode()->getUuid());
 
-        if (modelIt != _modelMap.cend()) {
+        if (modelIt != _modelCache.cend()) {
             // Find existing Instance
             // set alive flag true
             modelIt->second.first = true;
@@ -242,22 +241,22 @@ namespace pipeline
         }
 
         //sweep deactive model entries
-        auto modelIt = _modelMap.begin();
-        while (modelIt != _modelMap.end()) {
+        auto modelIt = _modelCache.begin();
+        while (modelIt != _modelCache.end()) {
             if (modelIt->second.first) {
                 modelIt->second.first = false;
                 ++modelIt;
             } else {
-                modelIt = _modelMap.erase(modelIt);
+                modelIt = _modelCache.erase(modelIt);
                 needRebuild = true;
             }
         } 
 
         //sweep deactive blas
-        auto blasIt = _geomBlasMap.begin();
-        while (blasIt != _geomBlasMap.end()) {
+        auto blasIt = _geomBlasCache.begin();
+        while (blasIt != _geomBlasCache.end()) {
             if (blasIt->second.first->getRefCount()==0) {
-                blasIt = _geomBlasMap.erase(blasIt);
+                blasIt = _geomBlasCache.erase(blasIt);
                 //blasIt->second->destroy();
             }else {
                 ++blasIt;
@@ -268,8 +267,8 @@ namespace pipeline
 
             gfx::AccelerationStructureInfo tlasInfo{};
             tlasInfo.buildFlag = gfx::ASBuildFlagBits::ALLOW_UPDATE | gfx::ASBuildFlagBits::PREFER_FAST_TRACE;
-            tlasInfo.instances.reserve(_modelMap.size());
-            for (const auto& inst : _modelMap) {
+            tlasInfo.instances.reserve(_modelCache.size());
+            for (const auto& inst : _modelCache) {
                 tlasInfo.instances.emplace_back(inst.second.second);
             }
             if (needRecreate) {
@@ -311,11 +310,45 @@ namespace pipeline
         needRecreate = needRebuild = needUpdate = false;
     }
 
+    void RayTracingScene::update(const RayTracingSceneUpdateInfo& updateInfo) {
+        auto tlasInfo = _topLevelAccelerationStructure->getInfo();
+        for (const auto& event : updateInfo.events) {
+            std::visit(Overloaded{
+                           [](auto arg) {},
+                           [&](const RayTracingSceneAddInstanceEvent& e) {
+                               gfx::ASInstance asInstanceInfo{};
+                               auto instance = e.instDescriptor;
+                               asInstanceInfo.transform = instance.transform;
+                               gfx::AccelerationStructureInfo blasInfo{};
+                               // fillBlasInfo(blasInfo, instance); todo
+                               auto result = _blasCache.contain(blasInfo);
+                               if (result) {
+                                   asInstanceInfo.accelerationStructureRef = result.value();
+                               } else {
+                                   auto blas = gfx::Device::getInstance()->createAccelerationStructure(blasInfo);
+                                   blas->build();
+                                   blas->compact();
+                                   asInstanceInfo.accelerationStructureRef = blas;
+                                   _blasCache.add(blas);
+                               }
+                               tlasInfo.instances.push_back(asInstanceInfo);
+                           },
+                           [&](const RayTracingSceneRemoveInstanceEvent& e) {
+                               tlasInfo.instances.erase(tlasInfo.instances.begin() + e.instIdx);
+                           },
+                           [&](const RayTracingSceneMoveInstanceEvent& e) { tlasInfo.instances[e.instIdx].transform = e.transform; }},
+                       event);
+        }
+
+        _topLevelAccelerationStructure->setInfo(tlasInfo);
+        _topLevelAccelerationStructure->update();
+    }
+
     void RayTracingScene::destroy() {
         _topLevelAccelerationStructure = nullptr;
-        _bottomLevelAccelerationStructures.clear();
-        _geomBlasMap.clear();
-        _modelMap.clear();
+        //_bottomLevelAccelerationStructures.clear();
+        _geomBlasCache.clear();
+        _modelCache.clear();
     }
 
 }  // namespace pipeline
