@@ -80,7 +80,7 @@ namespace pipeline
         const auto& subModels = pModel->getSubModels();
         shadingInstanceDescriptor.subMeshCount = subModels.size();
         //todo temporal code
-        shadingInstanceDescriptor.padding = subModels[0]->getSubMesh()->getIndexBuffer()->getStride() == 2 ? VK_INDEX_TYPE_UINT16 : VK_INDEX_TYPE_UINT32;
+        shadingInstanceDescriptor.padding = subModels[0]->getSubMesh()->getIndexBuffer()->getStride() == 2 ? 0 : 1;
         tlasGeom.instanceCustomIdx = ~0U;
         tlasGeom.shaderBindingTableRecordOffset = ~0U;
         tlasGeom.mask = 0xFF;
@@ -311,33 +311,22 @@ namespace pipeline
     }
 
     void RayTracingScene::update(const RayTracingSceneUpdateInfo& updateInfo) {
+
         auto tlasInfo = _topLevelAccelerationStructure->getInfo();
+
         for (const auto& event : updateInfo.events) {
             std::visit(Overloaded{
                            [](auto arg) {},
                            [&](const RayTracingSceneAddInstanceEvent& e) {
-                               gfx::ASInstance asInstanceInfo{};
-                               auto instance = e.instDescriptor;
-                               asInstanceInfo.transform = instance.transform;
-                               gfx::AccelerationStructureInfo blasInfo{};
-                               // fillBlasInfo(blasInfo, instance); todo
-                               auto result = _blasCache.contain(blasInfo);
-                               if (result) {
-                                   asInstanceInfo.accelerationStructureRef = result.value();
-                               } else {
-                                   auto blas = gfx::Device::getInstance()->createAccelerationStructure(blasInfo);
-                                   blas->build();
-                                   blas->compact();
-                                   asInstanceInfo.accelerationStructureRef = blas;
-                                   _blasCache.add(blas);
-                               }
-                               tlasInfo.instances.push_back(asInstanceInfo);
+                               tlasInfo.instances.push_back(handleInstance(e.instDescriptor));
                            },
                            [&](const RayTracingSceneRemoveInstanceEvent& e) {
                                tlasInfo.instances.erase(tlasInfo.instances.begin() + e.instIdx);
                            },
-                           [&](const RayTracingSceneMoveInstanceEvent& e) { tlasInfo.instances[e.instIdx].transform = e.transform; }},
-                       event);
+                           [&](const RayTracingSceneMoveInstanceEvent& e) {
+                               tlasInfo.instances[e.instIdx].transform = e.transform;
+                           }},event
+            );
         }
 
         _topLevelAccelerationStructure->setInfo(tlasInfo);

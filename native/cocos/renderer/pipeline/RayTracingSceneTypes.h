@@ -149,5 +149,9 @@ struct RayQueryBindingTable {
  */
 using shaderRecord = std::pair<subMeshGeomDescriptor, uint32_t>;
 
+struct RayTracingSceneAccelerationStructureManager {
+    
+};
+
 } // namespace pipeline
 } // namespace cc
