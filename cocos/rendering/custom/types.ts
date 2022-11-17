@@ -33,7 +33,6 @@ import { ClearFlagBit, Color, LoadOp, ShaderStageFlagBit, StoreOp, Type, Uniform
 import { Light } from '../../render-scene/scene';
 import { OutputArchive, InputArchive } from './archive';
 import { saveColor, loadColor, saveUniformBlock, loadUniformBlock } from './serialization';
-import { ccclass } from '../../core/data/decorators';
 
 export enum UpdateFrequency {
     PER_INSTANCE,
@@ -382,7 +381,6 @@ export class DescriptorBlock {
     count = 0;
 }
 
-@ccclass('cc.DescriptorBlockFlattened')
 export class DescriptorBlockFlattened {
     readonly descriptorNames: string[] = [];
     readonly uniformBlockNames: string[] = [];
