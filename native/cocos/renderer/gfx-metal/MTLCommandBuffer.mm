@@ -286,6 +286,7 @@ void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
         }
     } else {
         _renderEncoder.initialize(mtlCommandBuffer, mtlRenderPassDescriptor);
+        preEncode();
         //[_renderEncoder.getMTLEncoder() memoryBarrierWithScope:MTLBarrierScopeTextures afterStages:MTLRenderStageFragment beforeStages:MTLRenderStageFragment];
     }
 
@@ -314,9 +315,77 @@ void CCMTLCommandBuffer::endRenderPass() {
         [_parallelEncoder release];
         _parallelEncoder = nil;
     } else {
+        postEncode();
         _renderEncoder.endEncoding();
     }
     _gpuCommandBufferObj->renderPass->reset();
+}
+
+void CCMTLCommandBuffer::updateFence(id<MTLFence> fence, MTLRenderStages stage) {
+    _rearBarriers.emplace_back(Barrier{[fence retain], stage});
+}
+
+void CCMTLCommandBuffer::waitFence(id<MTLFence> fence, MTLRenderStages stage) {
+    _frontBarriers.emplace_back(Barrier{[fence retain], stage});
+}
+
+template <typename Func>
+static void forEachBarrier(ccstd::vector<CCMTLCommandBuffer::Barrier> &barriers, Func &&func) {
+    for (auto& barrier : barriers) {
+        func(barrier);
+        [barrier.fence release];
+    }
+    barriers.clear();
+}
+
+void CCMTLCommandBuffer::preEncode(id<MTLBlitCommandEncoder> blitEncoder) {
+    if (_frontBarriers.empty()) return;
+
+    if (blitEncoder != nil) {
+        forEachBarrier(_frontBarriers, [blitEncoder](Barrier &barrier) {
+            [blitEncoder waitForFence:barrier.fence];
+        });
+        return;
+    }
+
+    if (auto encoder = _renderEncoder.getMTLEncoder(); encoder != nil) {
+        forEachBarrier(_frontBarriers, [this](Barrier &barrier) {
+            _renderEncoder.waitFence(barrier.fence, barrier.stages);
+        });
+        return;
+    }
+
+    if (auto encoder = _computeEncoder.getMTLEncoder(); encoder != nil) {
+        forEachBarrier(_frontBarriers, [this](Barrier &barrier) {
+            _computeEncoder.waitFence(barrier.fence);
+        });
+        return;
+    }
+}
+
+void CCMTLCommandBuffer::postEncode(id<MTLBlitCommandEncoder> blitEncoder) {
+    if (_rearBarriers.empty()) return;
+
+    if (blitEncoder != nil) {
+        forEachBarrier(_rearBarriers, [blitEncoder](Barrier &barrier) {
+            [blitEncoder updateFence:barrier.fence];
+        });
+        return;
+    }
+
+    if (auto encoder = _renderEncoder.getMTLEncoder(); encoder != nil) {
+        forEachBarrier(_rearBarriers, [this](Barrier &barrier) {
+            _renderEncoder.updateFence(barrier.fence, barrier.stages);
+        });
+        return;
+    }
+
+    if (auto encoder = _computeEncoder.getMTLEncoder(); encoder != nil) {
+        forEachBarrier(_rearBarriers, [this](Barrier &barrier) {
+            _computeEncoder.updateFence(barrier.fence);
+        });
+        return;
+    }
 }
 
 void CCMTLCommandBuffer::reset() {
@@ -448,6 +517,7 @@ void CCMTLCommandBuffer::bindPipelineState(PipelineState *pso) {
     } else if (bindPoint == PipelineBindPoint::COMPUTE) {
         if (!_computeEncoder.isInitialized()) {
             _computeEncoder.initialize(getMTLCommandBuffer());
+            preEncode();
         }
         pplState = ccPipeline->getGPUPipelineState();
         _computeEncoder.setComputePipelineState(pplState->mtlComputePipelineState);
@@ -676,11 +746,13 @@ void CCMTLCommandBuffer::updateBuffer(Buffer *buff, const void *data, uint32_t s
     _mtlDevice->gpuStagingBufferPool()->alloc(&stagingBuffer);
     memcpy(stagingBuffer.mappedData, data, size);
     id<MTLBlitCommandEncoder> encoder = [getMTLCommandBuffer() blitCommandEncoder];
+    preEncode(encoder);
     [encoder copyFromBuffer:stagingBuffer.mtlBuffer
                sourceOffset:stagingBuffer.startOffset
                    toBuffer:static_cast<CCMTLBuffer *>(buff)->getMTLBuffer()
           destinationOffset:0
                        size:size];
+    postEncode(encoder);
     [encoder endEncoding];
 }
 
@@ -700,6 +772,8 @@ void CCMTLCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Tex
     auto blockSize = formatAlignment(convertedFormat);
 
     id<MTLBlitCommandEncoder> encoder = [getMTLCommandBuffer() blitCommandEncoder];
+    preEncode(encoder);
+
     id<MTLTexture> dstTexture = mtlTexture->getMTLTexture();
 
     // Macro Pixel: minimum block to descirbe pixels.
@@ -801,6 +875,7 @@ void CCMTLCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Tex
     if (hasFlag(static_cast<CCMTLTexture *>(texture)->textureInfo().flags, TextureFlags::GEN_MIPMAP) && mu::pixelFormatIsColorRenderable(convertedFormat)) {
         [encoder generateMipmapsForTexture:dstTexture];
     }
+    postEncode(encoder);
     [encoder endEncoding];
 }
 
@@ -952,6 +1027,7 @@ void CCMTLCommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, c
 
         //blit
         id<MTLBlitCommandEncoder> encoder = [cmdBuffer blitCommandEncoder];
+        preEncode(encoder);
         for (uint32_t i = 0; i < count; ++i) {
             // source region scale
             uint32_t width = (uint32_t)(regions[i].srcExtent.width * scaleFactorW);
@@ -970,6 +1046,7 @@ void CCMTLCommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, c
                     destinationLevel:regions[i].srcSubres.mipLevel
                    destinationOrigin:MTLOriginMake(regions[i].dstOffset.x, regions[i].dstOffset.y, regions[i].dstOffset.z)];
         }
+        postEncode(encoder);
         [encoder endEncoding];
         [sizeTex release];
         [descriptor release];
@@ -986,6 +1063,7 @@ void CCMTLCommandBuffer::dispatch(const DispatchInfo &info) {
     } else {
         _computeEncoder.dispatch(groupsPerGrid);
     }
+    postEncode();
     _computeEncoder.endEncoding();
 }
 
@@ -1029,6 +1107,7 @@ void CCMTLCommandBuffer::copyTextureToBuffers(Texture *src, uint8_t *const *buff
             const Extent &extent = regions[i].texExtent;
 
             id<MTLBlitCommandEncoder> encoder = [mtlCommandBuffer blitCommandEncoder];
+            preEncode(encoder);
             CCMTLGPUBuffer stagingBuffer;
             stagingBuffer.size = bytesPerImage;
             _mtlDevice->gpuStagingBufferPool()->alloc(&stagingBuffer);
@@ -1041,6 +1120,7 @@ void CCMTLCommandBuffer::copyTextureToBuffers(Texture *src, uint8_t *const *buff
                        destinationOffset:0
                   destinationBytesPerRow:bytesPerRow
                 destinationBytesPerImage:bytesPerImage];
+            postEncode();
             [encoder endEncoding];
             stagingAddrs[i] = {stagingBuffer.mappedData, bytesPerImage};
         }

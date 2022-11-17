@@ -27,6 +27,7 @@ THE SOFTWARE.
 
 #include "gfx-base/GFXTransientPool.h"
 #include "gfx-base/allocator/Allocator.h"
+#include "gfx-metal/MTLCommandBuffer.h"
 #import <Metal/MTLFence.h>
 #import <Metal/MTLHeap.h>
 #include <memory>
@@ -37,7 +38,7 @@ namespace gfx {
 class CCMTLTransientPool : public TransientPool, public Allocator::IBlock {
 public:
     CCMTLTransientPool();
-    ~CCMTLTransientPool() override;
+    ~CCMTLTransientPool() override = default;
 
 private:
     void doInit(const TransientPoolInfo &info) override;
@@ -46,14 +47,16 @@ private:
     void doInitTexture(Texture *texture, PassScope scope, AccessFlags accessFlag) override;
     void doResetTexture(Texture *texture, PassScope scope, AccessFlags accessFlag) override;
 
-    void frontBarrier(PassScope scope, CommandBuffer *) override;
-    void rearBarrier(PassScope scope, CommandBuffer *) override;
+    void barrier(PassScope scope, CommandBuffer *) override;
 
     void doBeginFrame() override;
     void doEndFrame() override;
 
     bool allocateBlock() override;
     void freeBlock(uint32_t index) override;
+
+    id<MTLFence> allocateFence();
+    void freeFence(id<MTLFence>);
 
     void init(const TransientPoolInfo &info);
 
@@ -64,6 +67,7 @@ private:
     std::unique_ptr<AliasingContext> _context;
 
     ccstd::vector<id<MTLFence>> _fences;
+    ccstd::vector<id<MTLFence>> _freeList;
     ccstd::unordered_map<PassScope, ccstd::vector<id<MTLFence>>> _fencesToWait;
 };
 

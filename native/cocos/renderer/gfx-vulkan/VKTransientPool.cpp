@@ -197,15 +197,7 @@ void VKTransientPool::doResetTexture(Texture *texture, PassScope scope, AccessFl
                       allocationInfo.offset + allocationInfo.size - 1});
 }
 
-void VKTransientPool::frontBarrier(PassScope, CommandBuffer *) {
-    // do nothing
-}
-
-void VKTransientPool::rearBarrier(PassScope scope, CommandBuffer *cmdBuffer) {
-    // do Nothing
-    std::ignore = scope;
-    std::ignore = cmdBuffer;
-
+void VKTransientPool::barrier(PassScope scope, CommandBuffer *cmdBuffer) {
     const auto &aliasingData = _context->getAliasingData();
     auto iter = aliasingData.find(scope);
     if (iter == aliasingData.end()) {

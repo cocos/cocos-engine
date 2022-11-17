@@ -54,8 +54,7 @@ public:
     void beginFrame();
     void endFrame();
 
-    virtual void frontBarrier(PassScope scope, CommandBuffer *) {}
-    virtual void rearBarrier(PassScope scope, CommandBuffer *) {}
+    virtual void barrier(PassScope scope, CommandBuffer *) {}
 
     Buffer *requestBuffer(const BufferInfo &info, PassScope scope, AccessFlags accessFlag = AccessFlagBit::NONE);
     Texture *requestTexture(const TextureInfo &info, PassScope scope, AccessFlags accessFlag = AccessFlagBit::NONE);

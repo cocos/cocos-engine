@@ -45,8 +45,7 @@ private:
     void doResetBuffer(Buffer *buffer, PassScope scope, AccessFlags accessFlag) override;
     void doInitTexture(Texture *texture, PassScope scope, AccessFlags accessFlag) override;
     void doResetTexture(Texture *texture, PassScope scope, AccessFlags accessFlag) override;
-    void frontBarrier(PassScope scope, CommandBuffer *) override;
-    void rearBarrier(PassScope scope, CommandBuffer *) override;
+    void barrier(PassScope scope, CommandBuffer *) override;
 
     void initMemoryRequirements(const TransientPoolInfo &info);
 

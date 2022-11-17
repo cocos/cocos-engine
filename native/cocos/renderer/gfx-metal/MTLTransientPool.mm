@@ -27,15 +27,12 @@ THE SOFTWARE.
 #include "gfx-metal/MTLDevice.h"
 #include "gfx-metal/MTLBuffer.h"
 #include "gfx-metal/MTLTexture.h"
+#include "gfx-metal/MTLDevice.h"
 
 namespace cc {
 namespace gfx {
 CCMTLTransientPool::CCMTLTransientPool() {
     _typedID = generateObjectID<decltype(this)>();
-}
-
-CCMTLTransientPool::~CCMTLTransientPool() {
-
 }
 
 void CCMTLTransientPool::init(const TransientPoolInfo &info) {
@@ -54,12 +51,12 @@ bool CCMTLTransientPool::allocateBlock() {
     heapDescriptor.size = _info.blockSize;
     heapDescriptor.storageMode = MTLStorageModePrivate;  // no CPU and GPU coherency
     heapDescriptor.cpuCacheMode = MTLCPUCacheModeDefaultCache;
-    
+
     if (@available(ios 13, macos 10.15, *)) {
         heapDescriptor.type = MTLHeapTypePlacement;
         heapDescriptor.hazardTrackingMode = MTLHazardTrackingModeTracked;
     }
-    
+
     id<MTLHeap> heap = [device newHeapWithDescriptor:heapDescriptor];
     [heapDescriptor release];
 
@@ -114,11 +111,11 @@ void CCMTLTransientPool::doResetBuffer(Buffer *buffer, PassScope scope, AccessFl
 
 void CCMTLTransientPool::doInitTexture(Texture *texture, PassScope scope, AccessFlags accessFlag) {
     auto *mtlTexture = static_cast<CCMTLTexture *>(texture);
-    
+
     MTLSizeAndAlign sizeAndAlign = mtlTexture->getSizeAndAlign();
     Allocator::Handle handle = _allocator->allocate(sizeAndAlign.size, sizeAndAlign.align);
     auto *allocation = _allocator->getAllocation(handle);
-    
+
     mtlTexture->initFromHeap(_heaps[allocation->blockIndex], allocation->offset);
     mtlTexture->setAllocation(handle);
 
@@ -145,15 +142,41 @@ void CCMTLTransientPool::doResetTexture(Texture *texture, PassScope scope, Acces
     });
 }
 
-void CCMTLTransientPool::frontBarrier(PassScope scope, CommandBuffer *cmdBuffer) {
-    auto iter = _fencesToWait.find(scope);
-    if (iter == _fences.end()) {
+void CCMTLTransientPool::barrier(PassScope scope, CommandBuffer *cmdBuffer) {
+    const auto &aliasingData = _context->getAliasingData();
+    auto iter = aliasingData.find(scope);
+    if (iter == aliasingData.end()) {
         return;
+    }
+
+    auto *mtlCmdBuffer = static_cast<CCMTLCommandBuffer *>(cmdBuffer);
+    for (const auto &aliasingInfo : iter->second) {
+        id<MTLFence> fence = allocateFence();
+        mtlCmdBuffer->updateFence(fence, MTLRenderStageVertex);
+        _fencesToWait[aliasingInfo.nextScope].emplace_back(fence);
+    }
+
+    auto waitFences = _fencesToWait.find(scope);
+    if (waitFences != _fencesToWait.end()) {
+        for (auto &fence : waitFences->second) {
+            mtlCmdBuffer->waitFence(fence, MTLRenderStageVertex);
+            freeFence(fence);
+        }
     }
 }
 
-void CCMTLTransientPool::rearBarrier(PassScope scope, CommandBuffer *cmdBuffer) {
+id<MTLFence> CCMTLTransientPool::allocateFence() {
+    if (!_freeList.empty()) {
+        auto back = _freeList.back();
+        _freeList.pop_back();
+        return back;
+    }
+    auto fence = [static_cast<id<MTLDevice>>(CCMTLDevice::getInstance()->getMTLDevice()) newFence];
+    return fence;
+}
 
+void CCMTLTransientPool::freeFence(id<MTLFence> fence) {
+    _freeList.emplace_back(fence);
 }
 
 void CCMTLTransientPool::doBeginFrame() {

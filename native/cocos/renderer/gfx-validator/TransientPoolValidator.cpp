@@ -76,14 +76,9 @@ void TransientPoolValidator::doResetTexture(Texture *texture, PassScope scope, A
     _actor->doResetTexture(actorTexture, scope, accessFlag);
 }
 
-void TransientPoolValidator::frontBarrier(PassScope scope, CommandBuffer *cmdBuffer) {
+void TransientPoolValidator::barrier(PassScope scope, CommandBuffer *cmdBuffer) {
     auto *actorCmd = static_cast<CommandBufferValidator*>(cmdBuffer)->getActor();
-    _actor->frontBarrier(scope, actorCmd);
-}
-
-void TransientPoolValidator::rearBarrier(PassScope scope, CommandBuffer *cmdBuffer) {
-    auto *actorCmd = static_cast<CommandBufferValidator*>(cmdBuffer)->getActor();
-    _actor->rearBarrier(scope, actorCmd);
+    _actor->barrier(scope, actorCmd);
 }
 
 } // namespace gfx

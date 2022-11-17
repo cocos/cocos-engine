@@ -263,6 +263,14 @@ public:
         _fragmentSamplerMap[index] = sampler;
         [_mtlEncoder setFragmentSamplerState:sampler atIndex:index];
     }
+    
+    void waitFence(const id<MTLFence> fence, MTLRenderStages stages) {
+        [_mtlEncoder waitForFence:fence beforeStages:stages];
+    }
+    
+    void updateFence(const id<MTLFence> fence, MTLRenderStages stages) {
+        [_mtlEncoder updateFence:fence afterStages:stages];
+    }
 
     inline void endEncoding() {
         [_mtlEncoder endEncoding];

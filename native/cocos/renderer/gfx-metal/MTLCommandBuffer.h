@@ -84,6 +84,16 @@ public:
     inline bool isCommandBufferBegan() const { return _commandBufferBegan; }
     inline CCMTLGPUCommandBufferObject *gpuCommandBufferObj() const { return _gpuCommandBufferObj; }
 
+    // Fence for Aliasing Heap Resource
+    struct Barrier {
+        id<MTLFence> fence;
+        MTLRenderStages stages;
+    };
+    void updateFence(id<MTLFence> fence, MTLRenderStages);
+    void waitFence(id<MTLFence> fence, MTLRenderStages);
+    void preEncode(id<MTLBlitCommandEncoder> blitEncoder = nil);
+    void postEncode(id<MTLBlitCommandEncoder> blitEncoder = nil);
+
     void reset();
 
 protected:
@@ -117,6 +127,8 @@ protected:
     CCMTLSemaphore *_texCopySemaphore = nullptr;
 
     std::bitset<MAX_COLORATTACHMENTS> _colorAppearedBefore;
+    ccstd::vector<Barrier> _frontBarriers;
+    ccstd::vector<Barrier> _rearBarriers;
 };
 
 } // namespace gfx

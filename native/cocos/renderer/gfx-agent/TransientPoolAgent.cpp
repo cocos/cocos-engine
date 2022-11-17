@@ -141,7 +141,7 @@ void TransientPoolAgent::doResetTexture(Texture *texture, PassScope scope, Acces
         });
 }
 
-void TransientPoolAgent::frontBarrier(PassScope scope, CommandBuffer *cmdBuffer) {
+void TransientPoolAgent::barrier(PassScope scope, CommandBuffer *cmdBuffer) {
     auto *actorCmd = static_cast<CommandBufferAgent*>(cmdBuffer)->getActor();
     ENQUEUE_MESSAGE_3(
         DeviceAgent::getInstance()->getMessageQueue(),
@@ -150,23 +150,9 @@ void TransientPoolAgent::frontBarrier(PassScope scope, CommandBuffer *cmdBuffer)
         scope, scope,
         cmdBuffer, actorCmd,
         {
-            actor->frontBarrier(scope, cmdBuffer);
+            actor->barrier(scope, cmdBuffer);
         });
 }
-
-void TransientPoolAgent::rearBarrier(PassScope scope, CommandBuffer *cmdBuffer) {
-    auto *actorCmd = static_cast<CommandBufferAgent*>(cmdBuffer)->getActor();
-    ENQUEUE_MESSAGE_3(
-        DeviceAgent::getInstance()->getMessageQueue(),
-        TransientPoolAgentRearBarrier,
-        actor, getActor(),
-        scope, scope,
-        cmdBuffer, actorCmd,
-        {
-            actor->rearBarrier(scope, cmdBuffer);
-        });
-}
-
 
 } // namespace gfx
 } // namespace cc
