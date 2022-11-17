@@ -130,8 +130,6 @@ void jsToSeValue(v8::Isolate *isolate, v8::Local<v8::Value> jsval, Value *v) {
             auto *obj = internal::getPrivate(isolate, jsObj.ToLocalChecked());
             if (obj == nullptr) {
                 obj = Object::_createJSObject(nullptr, jsObj.ToLocalChecked());
-            } else {
-                obj->incRef();
             }
             v->setObject(obj, true);
             obj->decRef();
