@@ -75,6 +75,21 @@ struct subMeshGeomDescriptor {
     }
 };
 
+struct meshShadingInstanceDescriptor {
+    // The first submesh geometry position of the Mesh
+    uint16_t subMeshGeometryOffset{0};
+    // The first submesh material position of the Mesh
+    uint16_t subMeshMaterialOffset{0};
+    uint16_t subMeshCount{0};
+    uint16_t padding{0};
+
+    bool operator==(const meshShadingInstanceDescriptor& other) const {
+        return subMeshCount == other.subMeshCount &&
+               subMeshGeometryOffset == other.subMeshGeometryOffset &&
+               subMeshMaterialOffset == other.subMeshMaterialOffset;
+    }
+};
+
 using shaderRecord = std::pair<subMeshGeomDescriptor, uint32_t>;
 
 class ShaderRecordCache final {
@@ -105,6 +120,34 @@ using RayTracingUpdateEvent = std::variant<RayTracingSceneAddInstanceEvent, RayT
 struct RayTracingSceneUpdateInfo {
     ccstd::vector<RayTracingUpdateEvent> events;
 };
+
+ /*
+            Definition:
+                G = {g1, g2, ...} as all geometries of the model
+                M = {m1, m2, ...} as all materials of the model
+                T as the transform of the model
+                I = {G,M,T} as a unique instance in the scene
+
+            For I1 = {G1,M1,T1} and I2 = {G2,M2,T2}
+                iff G1 = G2, then BLAS could be shared.
+                iff G1 = G2 and M1 = M2, then meshShadingInstanceDescriptor could be shared.
+        */
+struct RayQueryBindingTable {
+    // instanceDecs.geometryOffset + geometryIndex
+    ccstd::vector<subMeshGeomDescriptor> _geomDesc;
+    ccstd::vector<uint64_t> _materialDesc;
+    // instanceCustomIndex
+    ccstd::vector<meshShadingInstanceDescriptor> _shadingInstanceDescriptors;
+
+    IntrusivePtr<gfx::Buffer> _geomDescGPUBuffer;
+    IntrusivePtr<gfx::Buffer> _materialDescGPUBuffer;
+    IntrusivePtr<gfx::Buffer> _instanceDescGPUBuffer;
+};
+/*
+ * first: subMesh Geometry info descriptor
+ * second: material identifier
+ */
+using shaderRecord = std::pair<subMeshGeomDescriptor, uint32_t>;
 
 } // namespace pipeline
 } // namespace cc

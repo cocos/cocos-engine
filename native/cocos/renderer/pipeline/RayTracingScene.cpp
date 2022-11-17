@@ -113,12 +113,12 @@ namespace pipeline
 
             // New subMesh geometry should be added
             if (!blasInfo.triangleMeshes.empty()) {
-                shadingInstanceDescriptor.subMeshGeometryOffset = _geomDesc.size();
+                shadingInstanceDescriptor.subMeshGeometryOffset = rqBinding._geomDesc.size();
                 for (const auto& info : blasInfo.triangleMeshes) {
                     subMeshGeomDescriptor descriptor;
                     descriptor.vertexAddress = info.vertexBuffer->getDeviceAddress();
                     descriptor.indexAddress = info.indexBuffer->getDeviceAddress();
-                    _geomDesc.emplace_back(descriptor);
+                    rqBinding._geomDesc.emplace_back(descriptor);
                 }
             }
 
@@ -131,14 +131,14 @@ namespace pipeline
 
         // range search for submeshes material
         bool march_existing_mesh_materials = false;
-        for (const auto& descriptor : _shadingInstanceDescriptors) {
+        for (const auto& descriptor : rqBinding._shadingInstanceDescriptors) {
             march_existing_mesh_materials = true;
 
             if (shadingInstanceDescriptor.subMeshCount != descriptor.subMeshCount) {
                 march_existing_mesh_materials = false;
             } else {
                 for (int i = 0; i < descriptor.subMeshCount; i++) {
-                    if (!sameMatID(subModels[i], _materialDesc[descriptor.subMeshMaterialOffset + i])) {
+                    if (!sameMatID(subModels[i], rqBinding._materialDesc[descriptor.subMeshMaterialOffset + i])) {
                         march_existing_mesh_materials = false;
                         break;
                     }
@@ -152,11 +152,11 @@ namespace pipeline
         }
 
         if (!march_existing_mesh_materials) {
-            shadingInstanceDescriptor.subMeshMaterialOffset = static_cast<uint16_t>(_materialDesc.size());
+            shadingInstanceDescriptor.subMeshMaterialOffset = static_cast<uint16_t>(rqBinding._materialDesc.size());
             for (const auto& sm : subModels) {
                 static int matId = 0;
                 const auto & passes = sm->getPasses();
-                _materialDesc.emplace_back(matId++);
+                rqBinding._materialDesc.emplace_back(matId++);
             }
         }
 
@@ -165,8 +165,8 @@ namespace pipeline
         // hit group shader binding record could be shared.
 
         //ray query BT
-        for (uint32_t index = 0;index<_shadingInstanceDescriptors.size();++index) {
-            if (shadingInstanceDescriptor == _shadingInstanceDescriptors[index]) {
+        for (uint32_t index = 0; index < rqBinding._shadingInstanceDescriptors.size(); ++index) {
+            if (shadingInstanceDescriptor == rqBinding._shadingInstanceDescriptors[index]) {
                 // Reuse instance with same blas and material
                 tlasGeom.instanceCustomIdx = index;
                 break;
@@ -175,8 +175,8 @@ namespace pipeline
 
         if (tlasGeom.instanceCustomIdx == ~0U) {
             //New meshShadingInstanceDescriptor should be added
-            tlasGeom.instanceCustomIdx = _shadingInstanceDescriptors.size();
-            _shadingInstanceDescriptors.emplace_back(shadingInstanceDescriptor);
+            tlasGeom.instanceCustomIdx = rqBinding._shadingInstanceDescriptors.size();
+            rqBinding._shadingInstanceDescriptors.emplace_back(shadingInstanceDescriptor);
         }
 
         //ray tracing SBT
@@ -274,36 +274,36 @@ namespace pipeline
             if (needRecreate) {
                 _topLevelAccelerationStructure = gfx::Device::getInstance()->createAccelerationStructure(tlasInfo);
                 gfx::BufferInfo geomDescBufferInfo{};
-                geomDescBufferInfo.size = static_cast<uint32_t>(_geomDesc.size()) * sizeof(subMeshGeomDescriptor);
+                geomDescBufferInfo.size = static_cast<uint32_t>(rqBinding._geomDesc.size()) * sizeof(subMeshGeomDescriptor);
                 geomDescBufferInfo.flags = gfx::BufferFlags::NONE;
                 geomDescBufferInfo.usage = gfx::BufferUsage::STORAGE | gfx::BufferUsage::TRANSFER_DST;
                 geomDescBufferInfo.memUsage = gfx::MemoryUsage::HOST;
-                _geomDescGPUBuffer = gfx::Device::getInstance()->createBuffer(geomDescBufferInfo);
+                rqBinding._geomDescGPUBuffer = gfx::Device::getInstance()->createBuffer(geomDescBufferInfo);
 
                 gfx::BufferInfo instanceDescBufferInfo{};
-                instanceDescBufferInfo.size = static_cast<uint32_t>(_shadingInstanceDescriptors.size()) * sizeof(meshShadingInstanceDescriptor);
+                instanceDescBufferInfo.size = static_cast<uint32_t>(rqBinding._shadingInstanceDescriptors.size()) * sizeof(meshShadingInstanceDescriptor);
                 instanceDescBufferInfo.flags = gfx::BufferFlags::NONE;
                 instanceDescBufferInfo.usage = gfx::BufferUsage::STORAGE | gfx::BufferUsage::TRANSFER_DST;
                 instanceDescBufferInfo.memUsage = gfx::MemoryUsage::HOST;
-                _instanceDescGPUBuffer = gfx::Device::getInstance()->createBuffer(instanceDescBufferInfo);
+                rqBinding._instanceDescGPUBuffer = gfx::Device::getInstance()->createBuffer(instanceDescBufferInfo);
             } else {
                 _topLevelAccelerationStructure->setInfo(tlasInfo);
             }
             if (needRebuild) {
                 _topLevelAccelerationStructure->build();
-                _geomDescGPUBuffer->update(_geomDesc.data());
-                _instanceDescGPUBuffer->update(_shadingInstanceDescriptors.data());
+                rqBinding._geomDescGPUBuffer->update(rqBinding._geomDesc.data());
+                rqBinding._instanceDescGPUBuffer->update(rqBinding._shadingInstanceDescriptors.data());
             } else if (needUpdate) {
                 _topLevelAccelerationStructure->update();
-                _geomDescGPUBuffer->update(_geomDesc.data());
-                _instanceDescGPUBuffer->update(_shadingInstanceDescriptors.data());
+                rqBinding._geomDescGPUBuffer->update(rqBinding._geomDesc.data());
+                rqBinding._instanceDescGPUBuffer->update(rqBinding._shadingInstanceDescriptors.data());
             }
         }
 
         if (needRecreate) {
             _globalDSManager->bindAccelerationStructure(TOPLEVELAS::BINDING, _topLevelAccelerationStructure);
-            _globalDSManager->bindBuffer(SCENEGEOMETRYDESC::BINDING, _geomDescGPUBuffer);
-            _globalDSManager->bindBuffer(SCENEINSTANCEDESC::BINDING, _instanceDescGPUBuffer);
+            _globalDSManager->bindBuffer(SCENEGEOMETRYDESC::BINDING, rqBinding._geomDescGPUBuffer);
+            _globalDSManager->bindBuffer(SCENEINSTANCEDESC::BINDING, rqBinding._instanceDescGPUBuffer);
             _globalDSManager->update();
         }
 
