@@ -77,7 +77,6 @@ export class RenderReflectionProbeQueue {
         this._instancedQueue = new RenderInstancedQueue();
         this._batchedQueue = new RenderBatchedQueue();
     }
-
     public gatherRenderObjects (probe: ReflectionProbe, scene:RenderScene, cmdBuff: CommandBuffer) {
         this.clear();
         const sceneData = this._pipeline.pipelineSceneData;

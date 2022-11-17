@@ -199,6 +199,7 @@ export enum SceneFlags {
     PROFILER = 0x400,
     DRAW_INSTANCING = 0x800,
     DRAW_NON_INSTANCING = 0x1000,
+    REFLECTION_PROBE = 0x2000,
     ALL = 0xFFFFFFFF,
 }
 
