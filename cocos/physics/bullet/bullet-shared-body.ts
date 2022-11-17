@@ -35,7 +35,7 @@ import { CC_V3_0, CC_QUAT_0, BulletCache } from './bullet-cache';
 import { PhysicsSystem } from '../framework';
 import { ERigidBodyType, PhysicsGroup } from '../framework/physics-enum';
 import { js } from '../../core';
-import { bt } from './instantiated';
+import { bt, EBulletType } from './instantiated';
 import { BulletConstraint } from './constraints/bullet-constraint';
 
 const v3_0 = CC_V3_0;
@@ -513,16 +513,16 @@ export class BulletSharedBody {
         if (this._bodyStruct) {
             const bodyStruct = this._bodyStruct;
             BulletCache.delWrapper(bodyStruct.body, bt.BODY_CACHE_NAME);
-            bt.MotionState_del(bodyStruct.motionState);
-            bt.CollisionShape_del(bodyStruct.compound);
-            bt.CollisionObject_del(bodyStruct.body);
+            bt._safe_delete(bodyStruct.motionState, EBulletType.EBulletTypeMotionState);
+            bt._safe_delete(bodyStruct.compound, EBulletType.EBulletTypeCollisionShape);
+            bt._safe_delete(bodyStruct.body, EBulletType.EBulletTypeCollisionObject);
             (this._bodyStruct as any) = null;
         }
 
         if (this._ghostStruct) {
             const ghostStruct = this._ghostStruct;
-            bt.CollisionShape_del(ghostStruct.compound);
-            bt.CollisionObject_del(ghostStruct.ghost);
+            bt._safe_delete(ghostStruct.compound, EBulletType.EBulletTypeCollisionShape);
+            bt._safe_delete(ghostStruct.ghost, EBulletType.EBulletTypeCollisionObject);
             (this._ghostStruct as any) = null;
         }
     }
