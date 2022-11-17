@@ -161,14 +161,15 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
                 Vec3.transformQuat(_temp_v3_1, _temp_v3_1, this.rotation);
             }
             Vec3.set(dampedVel,
-                dampenBeyondLimit(p.velocity.x, _temp_v3_1.x, this.dampen),
-                dampenBeyondLimit(p.velocity.y, _temp_v3_1.y, this.dampen),
-                dampenBeyondLimit(p.velocity.z, _temp_v3_1.z, this.dampen));
+                dampenBeyondLimit(p.ultimateVelocity.x, _temp_v3_1.x, this.dampen),
+                dampenBeyondLimit(p.ultimateVelocity.y, _temp_v3_1.y, this.dampen),
+                dampenBeyondLimit(p.ultimateVelocity.z, _temp_v3_1.z, this.dampen));
         } else {
-            Vec3.normalize(dampedVel, p.velocity);
-            Vec3.multiplyScalar(dampedVel, dampedVel, dampenBeyondLimit(p.velocity.length(), this.limit.evaluate(normalizedTime, pseudoRandom(p.randomSeed + LIMIT_VELOCITY_RAND_OFFSET))!, this.dampen));
+            Vec3.normalize(dampedVel, p.ultimateVelocity);
+            Vec3.multiplyScalar(dampedVel, dampedVel, dampenBeyondLimit(p.ultimateVelocity.length(), this.limit.evaluate(normalizedTime, pseudoRandom(p.randomSeed + LIMIT_VELOCITY_RAND_OFFSET))!, this.dampen));
         }
-        Vec3.copy(p.velocity, dampedVel);
+        Vec3.copy(p.ultimateVelocity, dampedVel);
+        Vec3.copy(p.velocity, p.ultimateVelocity);
     }
 }
 
