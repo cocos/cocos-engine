@@ -52,6 +52,7 @@ export declare namespace EffectAsset {
         blendState?: BlendState;
         dynamicStates?: DynamicStateFlags;
         phase?: string | number;
+        pass?: string;
     }
     export interface IPassInfo extends IPassStates {
         program: string; // auto-generated from 'vert' and 'frag'
