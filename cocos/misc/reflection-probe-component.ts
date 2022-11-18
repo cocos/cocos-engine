@@ -216,7 +216,7 @@ export class ReflectionProbe extends Component {
         return this._sourceCamera!;
     }
 
-    set cubemap (val: TextureCube) {
+    set cubemap (val: TextureCube | null) {
         this._cubemap = val;
         this.probe.cubemap = val;
     }
@@ -244,6 +244,7 @@ export class ReflectionProbe extends Component {
 
     public start () {
         if (this._sourceCamera && this.probeType === ProbeType.PLANAR) {
+            ReflectionProbeManager.probeManager.updateUsePlanarModels(this.probe);
             this.probe.renderPlanarReflection(this.sourceCamera.camera);
         }
     }
@@ -270,14 +271,18 @@ export class ReflectionProbe extends Component {
                 }
             }
             this.probe.updateBoundingBox();
-            ReflectionProbeManager.probeManager.updateModes(this.probe);
+            ReflectionProbeManager.probeManager.updateUseCubeModels(this.probe);
+            ReflectionProbeManager.probeManager.updateUsePlanarModels(this.probe);
         }
     }
 
-    public onFocusInEditor () {
-        if (this.probeType === ProbeType.CUBE) {
-            ReflectionProbeManager.probeManager.updateModes(this.probe);
-        }
+    /**
+     * @en Clear the baked cubemap.
+     * @zh 清除烘焙的cubemap
+     */
+    public refresh () {
+        this.cubemap = null;
+        ReflectionProbeManager.probeManager.updateBakedCubemap(this.probe);
     }
 
     private _createProbe () {

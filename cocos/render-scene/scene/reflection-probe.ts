@@ -191,7 +191,7 @@ export class ReflectionProbe {
         return this._size;
     }
 
-    set cubemap (val: TextureCube) {
+    set cubemap (val: TextureCube | null) {
         this._cubemap = val;
     }
 
@@ -348,6 +348,7 @@ export class ReflectionProbe {
 
     public updateBoundingBox () {
         if (this.node) {
+            this.node.updateWorldTransform();
             const pos = this.node.getWorldPosition();
             geometry.AABB.set(this._boundingBox!, pos.x, pos.y, pos.z, this._size.x, this._size.y, this._size.z);
         }
