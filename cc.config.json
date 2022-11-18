@@ -136,6 +136,9 @@
         "video": {
             "modules": ["video"]
         },
+        "xr": {
+            "modules": ["xr"]
+        },
         "light-probe": { 
             "modules": [ "light-probe" ] 
         },
@@ -170,9 +173,6 @@
             "intrinsicFlags": {
                 "MARIONETTE": true
             }
-        },
-        "xr": {
-            "modules": ["xr"]
         },
         "custom-pipeline": {
             "modules": ["custom-pipeline"]
