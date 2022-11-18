@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 /*
  Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
@@ -23,14 +24,16 @@
  THE SOFTWARE.
  */
 
-import { MeshRenderer } from '../3d/framework/mesh-renderer';
+import { MeshRenderer, ReflectionProbeType } from '../3d/framework/mesh-renderer';
 import { Vec3, geometry } from '../core';
 import { Texture } from '../gfx';
 import { Camera, Model } from '../render-scene/scene';
 import { ReflectionProbe } from '../render-scene/scene/reflection-probe';
-import { CAMERA_DEFAULT_MASK } from './define';
+import { Layers } from '../scene-graph/layers';
 
 const SPHERE_NODE_NAME = 'Reflection Probe Sphere';
+export const REFLECTION_PROBE_DEFAULT_MASK = Layers.makeMaskExclude([Layers.BitMask.UI_2D, Layers.BitMask.UI_3D, Layers.BitMask.GIZMOS, Layers.BitMask.EDITOR,
+    Layers.BitMask.SCENE_GIZMO, Layers.BitMask.PROFILER]);
 export class ReflectionProbeManager {
     public static probeManager: ReflectionProbeManager;
     private _probes: ReflectionProbe[] = [];
@@ -117,11 +120,14 @@ export class ReflectionProbeManager {
         const models = scene!.models;
         for (let i = 0; i < models.length; i++) {
             const model = models[i];
-            if (!model.node || !model.worldBounds) continue;
-            if ((model.node.layer & CAMERA_DEFAULT_MASK) && geometry.intersect.aabbWithAABB(model.worldBounds, probe.boundingBox!)) {
-                const meshRender = model.node.getComponent(MeshRenderer);
-                if (meshRender) {
+            if (!model.node || !model.worldBounds || model.reflectionProbeType !== ReflectionProbeType.PLANAR_REFLECTION) continue;
+            model.updateWorldBound();
+            const meshRender = model.node.getComponent(MeshRenderer);
+            if ((model.node.layer & REFLECTION_PROBE_DEFAULT_MASK) && meshRender) {
+                if (geometry.intersect.aabbWithAABB(model.worldBounds, probe.boundingBox!)) {
                     meshRender.updateProbePlanarMap(texture);
+                } else {
+                    meshRender.updateProbePlanarMap(null);
                 }
             }
         }
@@ -140,7 +146,7 @@ export class ReflectionProbeManager {
         for (let i = 0; i < models.length; i++) {
             const model = models[i];
             model.updateWorldBound();
-            if (model.node && model.worldBounds && ((model.node.layer & CAMERA_DEFAULT_MASK)) || model.node.name === SPHERE_NODE_NAME) {
+            if (model.node && model.worldBounds && ((model.node.layer & REFLECTION_PROBE_DEFAULT_MASK)) || model.node.name === SPHERE_NODE_NAME) {
                 const nearest = this._getNearestProbe(model);
                 if (!nearest) {
                     const meshRender = model.node.getComponent(MeshRenderer);

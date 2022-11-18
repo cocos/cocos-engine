@@ -30,11 +30,12 @@ import { getPhaseID } from './pass-phase';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { Pass, BatchingSchemes } from '../render-scene/core/pass';
 import { Model } from '../render-scene/scene/model';
-import { ReflectionProbe, SKYBOX_FLAG } from '../render-scene/scene';
+import { ProbeType, ReflectionProbe, SKYBOX_FLAG } from '../render-scene/scene';
 import { PipelineRuntime } from './custom/pipeline';
 import { IMacroPatch, RenderScene } from '../render-scene';
 import { RenderInstancedQueue } from './render-instanced-queue';
 import { RenderBatchedQueue } from './render-batched-queue';
+import { geometry } from '../core';
 
 const CC_USE_RGBE_OUTPUT = 'CC_USE_RGBE_OUTPUT';
 const _phaseID = getPhaseID('default');
@@ -92,12 +93,15 @@ export class RenderReflectionProbeQueue {
         for (let i = 0; i < models.length; i++) {
             const model = models[i];
             // filter model by view visibility
-            if (model.enabled) {
-                if (model.node && ((visibility & model.node.layer) === model.node.layer)
-                      || (visibility & model.visFlags)) {
-                    if (model.bakeToReflectionProbe) {
+            if (model.enabled && model.node && model.bakeToReflectionProbe) {
+                if (probe.probeType === ProbeType.CUBE) {
+                    if ((((visibility & model.node.layer) === model.node.layer) || (visibility & model.visFlags))
+                        && geometry.intersect.aabbWithAABB(model.worldBounds, probe.boundingBox!)) {
                         this.add(model);
                     }
+                } else if (((visibility & model.node.layer) === model.node.layer)
+                    || (visibility & model.visFlags)) {
+                    this.add(model);
                 }
             }
         }

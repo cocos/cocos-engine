@@ -1,6 +1,4 @@
 // Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
-
-#pragma define-meta CC_USE_REFLECTION_PROBE range([0, 2])
 #pragma define REFLECTION_PROBE_NONE 0
 #pragma define REFLECTION_PROBE_CUBE 1
 #pragma define REFLECTION_PROBE_PLANAR 2
