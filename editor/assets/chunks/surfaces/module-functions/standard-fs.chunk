@@ -151,9 +151,9 @@ vec4 CCSurfacesShading(in SurfacesMaterialData surfaceData, in LightingResult li
     )
     * lightingResult.shadow;
 
-  #if CC_SURFACES_USE_LIGHT_MAP == CC_LIGHTMAP_ALL_IN_ONE
+  #if CC_SURFACES_USE_LIGHT_MAP == LIGHT_MAP_TYPE_ALL_IN_ONE
     color.xyz += lightingResult.lightmapColor * lightingResult.diffuseColorWithLighting * lightingResult.shadow; //apply real-time shadows
-  #elif CC_SURFACES_USE_LIGHT_MAP == CC_LIGHTMAP_INDIRECT_OCCLUSION
+  #elif CC_SURFACES_USE_LIGHT_MAP == LIGHT_MAP_TYPE_INDIRECT_OCCLUSION
     color.xyz += lightingResult.lightmapColor * lightingResult.diffuseColorWithLighting;
   #endif
 

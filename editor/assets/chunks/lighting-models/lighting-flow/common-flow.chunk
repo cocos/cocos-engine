@@ -106,7 +106,7 @@
 		float lightmapShadow, lightmapAO;
         GetLightMapColor(lightingResult.lightmapColor, lightmapShadow, lightmapAO, cc_lightingMap, FSInput_lightMapUV.xy, FSInput_lightMapUV.z, surfaceData.worldNormal);
       
-        #if CC_SURFACES_USE_LIGHT_MAP == CC_LIGHTMAP_INDIRECT_OCCLUSION
+        #if CC_SURFACES_USE_LIGHT_MAP == LIGHT_MAP_TYPE_INDIRECT_OCCLUSION
           lightingResult.shadow *= lightmapShadow;
           lightingResult.ao *= lightmapAO;
         #endif
@@ -114,7 +114,7 @@
 
       // dynamic & stationary dir light
       lightingResult.directDiffuse = lightingResult.directSpecular = vec3(0.0);
-      #if CC_SURFACES_USE_LIGHT_MAP != CC_LIGHTMAP_ALL_IN_ONE && !CC_FORWARD_ADD
+      #if CC_SURFACES_USE_LIGHT_MAP != LIGHT_MAP_TYPE_ALL_IN_ONE && !CC_FORWARD_ADD
         CCSurfacesLightingCalculateColorWithLighting(lightingResult.diffuseColorWithLighting, lightingResult.specularColorWithLighting, surfaceData, lightingData);
   
         CCSurfacesLightingCalculateDirect(lightingResult.directDiffuse, lightingResult.directSpecular, lightingData, cc_mainLitColor);
