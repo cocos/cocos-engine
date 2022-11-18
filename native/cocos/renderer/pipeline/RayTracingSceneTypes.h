@@ -40,6 +40,25 @@ struct RayTracingSceneDescriptor final {
     ccstd::vector<RayTracingInstanceDescriptor> instances;
 };
 
+struct RayTracingSceneAddInstanceEvent {
+    RayTracingInstanceDescriptor instDescriptor;
+};
+
+struct RayTracingSceneRemoveInstanceEvent {
+    uint32_t instIdx;
+};
+
+struct RayTracingSceneMoveInstanceEvent {
+    Mat4& transform;
+    uint32_t instIdx;
+};
+
+using RayTracingUpdateEvent = std::variant<RayTracingSceneAddInstanceEvent, RayTracingSceneRemoveInstanceEvent, RayTracingSceneMoveInstanceEvent>;
+
+struct RayTracingSceneUpdateInfo {
+    ccstd::vector<RayTracingUpdateEvent> events;
+};
+
 using AccelerationStructurePtr = IntrusivePtr<gfx::AccelerationStructure>;
 
 class BlasCache final {
@@ -88,37 +107,6 @@ struct meshShadingInstanceDescriptor {
                subMeshGeometryOffset == other.subMeshGeometryOffset &&
                subMeshMaterialOffset == other.subMeshMaterialOffset;
     }
-};
-
-using shaderRecord = std::pair<subMeshGeomDescriptor, uint32_t>;
-
-class ShaderRecordCache final {
-    std::optional<uint32_t> contain(const shaderRecord& as) const {
-        return {};
-    }
-
-    uint32_t add(const shaderRecord& as) {
-        return 0;
-    }
-};
-
-struct RayTracingSceneAddInstanceEvent {
-    RayTracingInstanceDescriptor instDescriptor;
-};
-
-struct RayTracingSceneRemoveInstanceEvent {
-    uint32_t instIdx;
-};
-
-struct RayTracingSceneMoveInstanceEvent {
-    Mat4& transform;
-    uint32_t instIdx;
-};
-
-using RayTracingUpdateEvent = std::variant<RayTracingSceneAddInstanceEvent, RayTracingSceneRemoveInstanceEvent, RayTracingSceneMoveInstanceEvent>;
-
-struct RayTracingSceneUpdateInfo {
-    ccstd::vector<RayTracingUpdateEvent> events;
 };
 
  /*
@@ -180,6 +168,28 @@ struct RayQueryBindingTable {
  */
 
 using shaderRecord = std::pair<subMeshGeomDescriptor, uint32_t>;
+
+/*
+ * IA n ：index address of the nth geometry
+ * VA n : vertex address of the nth geometry
+ * matID n : matID of the nth geometry
+ * |-----------------------------------| |-----------------| |-----------------------------------| |-----------------------------------------------------|
+ * |--------0--------|--------1--------| |--------2--------| |--------3--------|--------4--------| |--------5--------|--------6--------|--------7--------|
+ * |IA 0|VA 0|matID 0|IA 1|VA 1|matID 1| |IA 0|VA 0|matID 0| |IA 0|VA 0|matID 0|IA 1|VA 1|matID 1| |IA 0|VA 0|matID 0|IA 1|VA 1|matID 1|IA 2|VA 2|matID 2|
+ * |-----------------------------------| |-----------------| |-----------------------------------| |-----------------------------------------------------|
+ */
+
+using shaderRecordList = ccstd::vector<shaderRecord>;
+
+class ShaderRecordCache final {
+    std::optional<uint32_t> contain(const shaderRecord& as) const {
+        return {};
+    }
+
+    uint32_t add(const shaderRecord& as) {
+        return 0;
+    }
+};
 
 struct RayTracingSceneAccelerationStructureManager {
     

@@ -114,9 +114,9 @@ namespace pipeline
         bool needRecreate = false;
 
         RayQueryBindingTable rqBinding;
-        std::vector<shaderRecord> _hitGroupShaderRecordList;
+        shaderRecordList _hitGroupShaderRecordList;
 
-        std::variant<RayQueryBindingTable, std::vector<shaderRecord>> shadingInfo;
+        std::variant<RayQueryBindingTable, shaderRecordList> shadingInfo;
 
         inline void handleNewModel(const IntrusivePtr<scene::Model>& model);
         inline void handleModel(const IntrusivePtr<scene::Model>& model);
