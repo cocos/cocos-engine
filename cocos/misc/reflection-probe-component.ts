@@ -65,6 +65,7 @@ export enum ProbeResolution {
 export class ReflectionProbe extends Component {
     protected static readonly DEFAULT_CUBE_SIZE: Readonly<Vec3> =  new Vec3(1, 1, 1);
     protected static readonly DEFAULT_PLANER_SIZE: Readonly<Vec3> =  new Vec3(5, 0.5, 5);
+    protected readonly _lastSize = new Vec3();
     @serializable
     protected _resolution = 256;
     @serializable
@@ -114,25 +115,37 @@ export class ReflectionProbe extends Component {
      */
     @type(Enum(ProbeType))
     set probeType (value: number) {
-        this._probeType = value;
-        this.probe.probeType = value;
+        if (value !== this._probeType) {
+            const lastSize = this._size.clone();
+            const lastSizeIsNoExist = Vec3.equals(this._lastSize, Vec3.ZERO);
+            this._probeType = value;
+            this.probe.probeType = value;
 
-        if (this._probeType === ProbeType.CUBE) {
-            this._size.set(ReflectionProbe.DEFAULT_CUBE_SIZE);
-            this.probe.switchProbeType(value);
-            if (EDITOR) {
-                this._objFlags |= CCObject.Flags.IsRotationLocked;
+            if (this._probeType === ProbeType.CUBE) {
+                if (lastSizeIsNoExist) {
+                    this._size.set(ReflectionProbe.DEFAULT_CUBE_SIZE);
+                }
+                this.probe.switchProbeType(value);
+                if (EDITOR) {
+                    this._objFlags |= CCObject.Flags.IsRotationLocked;
+                }
+            } else {
+                if (lastSizeIsNoExist) {
+                    this._size.set(ReflectionProbe.DEFAULT_PLANER_SIZE);
+                }
+                if (EDITOR && this._objFlags & CCObject.Flags.IsRotationLocked) {
+                    this._objFlags ^= CCObject.Flags.IsRotationLocked;
+                }
+                if (!this._sourceCamera) {
+                    console.warn('the reflection camera is invalid, please set the reflection camera');
+                } else {
+                    this.probe.switchProbeType(value, this._sourceCamera.camera);
+                }
             }
-        } else {
-            this._size.set(ReflectionProbe.DEFAULT_PLANER_SIZE);
-            if (EDITOR && this._objFlags & CCObject.Flags.IsRotationLocked) {
-                this._objFlags ^= CCObject.Flags.IsRotationLocked;
+            if (!lastSizeIsNoExist) {
+                this._size.set(this._lastSize);
             }
-            if (!this._sourceCamera) {
-                console.warn('the reflection camera is invalid, please set the reflection camera');
-                return;
-            }
-            this.probe.switchProbeType(value, this._sourceCamera.camera);
+            this._lastSize.set(lastSize);
         }
     }
     get probeType () {

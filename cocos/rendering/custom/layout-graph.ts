@@ -35,12 +35,6 @@ import { DescriptorBlock, saveDescriptorBlock, loadDescriptorBlock, DescriptorBl
 import { OutputArchive, InputArchive } from './archive';
 import { saveUniformBlock, loadUniformBlock, saveDescriptorSetLayoutInfo, loadDescriptorSetLayoutInfo } from './serialization';
 
-//-----------------------------------------------------------------
-// LayoutGraphData Implementation
-import { _decorator } from '../../core';
-
-const { ccclass } = _decorator;
-
 export class DescriptorDB {
     readonly blocks: Map<string, DescriptorBlock> = new Map<string, DescriptorBlock>();
 }
@@ -766,7 +760,8 @@ export interface LayoutGraphDataComponentPropertyMap {
     [LayoutGraphDataComponent.Layout]: LayoutGraphDataLayoutMap;
 }
 
-@ccclass('cc.LayoutGraphData')
+//-----------------------------------------------------------------
+// LayoutGraphData Implementation
 export class LayoutGraphData implements BidirectionalGraph
 , AdjacencyGraph
 , VertexListGraph
