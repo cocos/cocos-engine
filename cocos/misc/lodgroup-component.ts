@@ -526,7 +526,7 @@ export class LODGroup extends Component {
     onEnable () {
         this._attachToScene();
         if (this.objectSize === 0) {
-            this.recalculateBounds();
+            this.scheduleOnce((dt) => this.recalculateBounds(), 0);
         }
 
         // cache lod for scene
