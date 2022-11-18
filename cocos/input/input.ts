@@ -392,6 +392,20 @@ export class Input {
     }
 
     private _frameDispatchEvents () {
+        const eventHMDList = this._eventHMDList;
+        // TODO: culling event queue
+        for (let i = 0, length = eventHMDList.length; i < length; ++i) {
+            const eventHMD = eventHMDList[i];
+            this._emitEvent(eventHMD);
+        }
+
+        const eventHandsetList = this._eventHandsetList;
+        // TODO: culling event queue
+        for (let i = 0, length = eventHandsetList.length; i < length; ++i) {
+            const eventHandset = eventHandsetList[i];
+            this._emitEvent(eventHandset);
+        }
+
         const eventMouseList = this._eventMouseList;
         // TODO: culling event queue
         for (let i = 0, length = eventMouseList.length; i < length; ++i) {
@@ -438,20 +452,6 @@ export class Input {
         for (let i = 0, length = eventHandleList.length; i < length; ++i) {
             const eventHandle = eventHandleList[i];
             this._emitEvent(eventHandle);
-        }
-
-        const eventHMDList = this._eventHMDList;
-        // TODO: culling event queue
-        for (let i = 0, length = eventHMDList.length; i < length; ++i) {
-            const eventHMD = eventHMDList[i];
-            this._emitEvent(eventHMD);
-        }
-
-        const eventHandsetList = this._eventHandsetList;
-        // TODO: culling event queue
-        for (let i = 0, length = eventHandsetList.length; i < length; ++i) {
-            const eventHandset = eventHandsetList[i];
-            this._emitEvent(eventHandset);
         }
 
         this._clearEvents();

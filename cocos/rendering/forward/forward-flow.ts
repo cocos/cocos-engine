@@ -30,6 +30,7 @@ import { ForwardFlowPriority } from '../enum';
 import { ForwardStage } from './forward-stage';
 import { RenderPipeline } from '../render-pipeline';
 import { Camera } from '../../render-scene/scene';
+import { ARBackgroundStage } from '../xr/ar/ar-background-stage';
 
 /**
  * @en The forward flow in forward render pipeline
@@ -50,6 +51,11 @@ export class ForwardFlow extends RenderFlow {
     public initialize (info: IRenderFlowInfo): boolean {
         super.initialize(info);
         if (this._stages.length === 0) {
+            if (globalThis.__globalXR.webxrCompatible) {
+                const arStage = new ARBackgroundStage();
+                arStage.initialize(ARBackgroundStage.initInfo);
+                this._stages.push(arStage);
+            }
             const forwardStage = new ForwardStage();
             forwardStage.initialize(ForwardStage.initInfo);
             this._stages.push(forwardStage);

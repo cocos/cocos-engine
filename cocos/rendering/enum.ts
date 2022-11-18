@@ -34,6 +34,7 @@ export enum CommonStagePriority {
  * @en The priority of stage in forward rendering
  */
 export enum ForwardStagePriority {
+    AR = 5,
     FORWARD = 10,
 }
 

@@ -174,10 +174,6 @@
         "xr": {
             "modules": ["xr"]
         },
-        "ar": {
-            "modules": ["ar"],
-            "dependentModules": ["xr"]
-        },
         "custom-pipeline": {
             "modules": ["custom-pipeline"]
         }
