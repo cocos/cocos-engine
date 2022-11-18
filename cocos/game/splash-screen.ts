@@ -35,15 +35,18 @@ import { PipelineStateManager } from '../rendering';
 import { SetIndex } from '../rendering/define';
 
 const v2_0 = new Vec2();
-type SplashEffectType = 'NONE' | 'FADE-INOUT';
+type SplashEffectType = 'default' | 'custom' | 'off';
 interface ISplashSetting {
-    enabled: boolean;
+    displayRatio: number;
     totalTime: number;
-    base64src: string;
-    effect: SplashEffectType;
-    clearColor: Color; // use less
-    displayRatio: number; // use less
     displayWatermark: boolean;
+    autoFit: boolean;
+
+    url?: string;
+    type?: SplashEffectType;
+
+    bgBase64: string;
+    base64src: string;
 }
 
 export class SplashScreen {
@@ -75,6 +78,9 @@ export class SplashScreen {
     private watermarkTexture!: Texture;
 
     // layout
+    private bgWidth = 1920;
+    private bgHeight = 1080;
+    private bgRatio = 16 / 9;
     private logoWidth = 140;
     private logoHeight = 200;
     private logoXTrans = 1 / 2;// Percent
@@ -101,17 +107,18 @@ export class SplashScreen {
 
     public init (): Promise<void> | undefined {
         this.settings = {
-            enabled: settings.querySettings<boolean>(Settings.Category.SPLASH_SCREEN, 'enabled') ?? true,
-            totalTime: settings.querySettings<number>(Settings.Category.SPLASH_SCREEN, 'totalTime') ?? 3000,
-            base64src: settings.querySettings<string>(Settings.Category.SPLASH_SCREEN, 'base64src') ?? '',
-            effect: settings.querySettings<SplashEffectType>(Settings.Category.SPLASH_SCREEN, 'effect') ?? 'FADE-INOUT',
-            clearColor: settings.querySettings<Color>(Settings.Category.SPLASH_SCREEN, 'clearColor') ?? new Color(0.88, 0.88, 0.88, 1),
             displayRatio: settings.querySettings<number>(Settings.Category.SPLASH_SCREEN, 'displayRatio') ?? 0.4,
+            totalTime: settings.querySettings<number>(Settings.Category.SPLASH_SCREEN, 'totalTime') ?? 3000,
             displayWatermark: settings.querySettings<boolean>(Settings.Category.SPLASH_SCREEN, 'displayWatermark') ?? true,
+            autoFit: settings.querySettings<boolean>(Settings.Category.SPLASH_SCREEN, 'autoFit') ?? true,
+            url: settings.querySettings<string>(Settings.Category.SPLASH_SCREEN, 'url') ?? '',
+            type: settings.querySettings<SplashEffectType>(Settings.Category.SPLASH_SCREEN, 'type') ?? 'default',
+            bgBase64: settings.querySettings<string>(Settings.Category.SPLASH_SCREEN, 'bgBase64') ?? '',
+            base64src: settings.querySettings<string>(Settings.Category.SPLASH_SCREEN, 'base64src') ?? '',
         };
         this._curTime = 0;
 
-        if (EDITOR || PREVIEW || !this.settings.enabled || this.settings.base64src === '' || this.settings.totalTime <= 0) {
+        if (EDITOR || PREVIEW || this.settings.base64src === '' || this.settings.totalTime <= 0) {
             this.settings.totalTime = 0;
         } else {
             this.device = cclegacy.director.root!.device;
@@ -130,7 +137,7 @@ export class SplashScreen {
                 this.bgImage.onerror = () => {
                     reject();
                 };
-                this.bgImage.src = this.settings.base64src; // todo change to bgBase64
+                this.bgImage.src = this.settings.bgBase64;
 
                 this.logoImage = new Image();
                 this.logoImage.onload = () => {
@@ -189,6 +196,9 @@ export class SplashScreen {
 
     private initLayout () {
         if (this.isMobile) {
+            this.bgWidth = 812;
+            this.bgHeight = 375;
+
             this.logoWidth = 70;
             this.logoHeight = 100;
             this.logoXTrans = 1 / 2;// Percent
@@ -199,6 +209,9 @@ export class SplashScreen {
             this.textXTrans = 1 / 2;// Percent
             this.textYExtraTrans = 16;// px
         } else {
+            this.bgWidth = 1920;
+            this.bgHeight = 1080;
+
             this.logoWidth = 140;
             this.logoHeight = 200;
             this.logoXTrans = 1 / 2;// Percent
@@ -249,14 +262,18 @@ export class SplashScreen {
 
         this._curTime += deltaTime * 1000;
         const percent = clamp01(this._curTime / settings.totalTime);
-        let u_p = easing.cubicOut(percent);
-        if (settings.effect === 'NONE') u_p = 1.0;
+        const u_p = easing.cubicOut(percent);
 
         // update bg uniform
         let scaleX = 1;
         let scaleY = 1;
-        scaleX = dw * this.scaleSize;
-        scaleY = dh * this.scaleSize;
+        if (dw < dh) {
+            scaleX = dh * this.bgRatio;
+            scaleY = dh;
+        } else {
+            scaleX = dw;
+            scaleY = dw * this.bgRatio;
+        }
 
         this.bgMat.setProperty('resolution', v2_0.set(dw, dh), 0);
         this.bgMat.setProperty('scale', v2_0.set(scaleX, scaleY), 0);
@@ -415,15 +432,14 @@ export class SplashScreen {
                 cmdBuff.begin();
                 cmdBuff.beginRenderPass(framebuffer.renderPass, framebuffer, renderArea, this.clearColors, 1.0, 0);
 
-                // todo draw logo
-                // const bgPass = this.bgMat.passes[0];
-                // const bgPso = PipelineStateManager.getOrCreatePipelineState(device, bgPass, this.shader, framebuffer.renderPass,
-                //     this.quadAssmebler);
+                const bgPass = this.bgMat.passes[0];
+                const bgPso = PipelineStateManager.getOrCreatePipelineState(device, bgPass, this.shader, framebuffer.renderPass,
+                    this.quadAssmebler);
 
-                // cmdBuff.bindPipelineState(bgPso);
-                // cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, bgPass.descriptorSet);
-                // cmdBuff.bindInputAssembler(this.quadAssmebler);
-                // cmdBuff.draw(this.quadAssmebler);
+                cmdBuff.bindPipelineState(bgPso);
+                cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, bgPass.descriptorSet);
+                cmdBuff.bindInputAssembler(this.quadAssmebler);
+                cmdBuff.draw(this.quadAssmebler);
 
                 const logoPass = this.logoMat.passes[0];
                 const logoPso = PipelineStateManager.getOrCreatePipelineState(device, logoPass, this.shader, framebuffer.renderPass,
