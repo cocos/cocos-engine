@@ -113,7 +113,7 @@ Engine::~Engine() {
 
 int32_t Engine::init() {
 
-    _modules.autoLoad(); // EventDispatcher is not referenced anywhere, force load here.
+    // _modules.autoLoad(); // EventDispatcher is not referenced anywhere, force load here.
 
     BasePlatform *platform = BasePlatform::getPlatform();
 

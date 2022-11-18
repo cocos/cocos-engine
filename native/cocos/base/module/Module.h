@@ -213,6 +213,11 @@ public:
         return itr->second;
     }
 
+    // TODO(PatriceJiang): remove this method ?
+    static inline bool hasConstructor(const char *moduleName) { // NOLINT(readability-identifier-naming)
+        return queryModuleClass(moduleName) != nullptr;
+    }
+
     Module *construct(const char *moduleName) {
         std::cout << _name << "!!! ModuleGroup try to construct a instance of " << moduleName << std::endl;
         ModuleFactoryBase *entry = queryModuleClass(moduleName);
@@ -226,7 +231,7 @@ public:
     explicit ModuleGroup(const char *name) {
         _name = name;
     }
-    ModuleGroup()  {
+    ModuleGroup() {
         autoLoad();
     }
 
