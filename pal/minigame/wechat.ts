@@ -23,10 +23,8 @@ let _cachedSystemInfo: SystemInfo;
 function updateCachedSystemInfo () {
     _cachedSystemInfo = wx.getSystemInfoSync();
     if (_cachedSystemInfo.system.toLowerCase().indexOf('ios') >= 0) {
-        console.log('insert ios platform');
         _cachedSystemInfo.platform = 'ios';
     } else {
-        console.log('insert android platform');
         _cachedSystemInfo.platform = 'android';
     }
 }
