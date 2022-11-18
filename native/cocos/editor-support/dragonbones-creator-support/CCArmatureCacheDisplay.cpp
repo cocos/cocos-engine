@@ -416,6 +416,10 @@ void CCArmatureCacheDisplay::setRenderEntity(cc::RenderEntity* entity) {
 
 void CCArmatureCacheDisplay::setMaterial(cc::Material *material) {
     _material = material;
+    for (auto &item : _materialCaches) {
+        CC_SAFE_DELETE(item.second);
+    }
+    _materialCaches.clear();
 }
 
 

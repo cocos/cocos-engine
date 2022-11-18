@@ -1005,6 +1005,10 @@ void SkeletonRenderer::setRenderEntity(cc::RenderEntity* entity) {
 
 void SkeletonRenderer::setMaterial(cc::Material *material) {
     _material = material;
+    for (auto &item : _materialCaches) {
+        CC_SAFE_DELETE(item.second);
+    }
+    _materialCaches.clear();
 }
 
 cc::RenderDrawInfo* SkeletonRenderer::requestDrawInfo(int idx) {
