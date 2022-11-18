@@ -36,10 +36,12 @@ import { SetIndex } from '../rendering/define';
 
 const v2_0 = new Vec2();
 type SplashEffectType = 'default' | 'custom' | 'off';
+type watermarkLocationType = 'default' | 'topLeft' | 'topRight' | 'topCenter' | 'bottomLeft' | 'bottomCenter' | 'bottomRight';
+
 interface ISplashSetting {
     displayRatio: number;
     totalTime: number;
-    displayWatermark: boolean;
+    watermarkLocation: watermarkLocationType;
     autoFit: boolean;
 
     url?: string;
@@ -109,7 +111,7 @@ export class SplashScreen {
         this.settings = {
             displayRatio: settings.querySettings<number>(Settings.Category.SPLASH_SCREEN, 'displayRatio') ?? 0.4,
             totalTime: settings.querySettings<number>(Settings.Category.SPLASH_SCREEN, 'totalTime') ?? 3000,
-            displayWatermark: settings.querySettings<boolean>(Settings.Category.SPLASH_SCREEN, 'displayWatermark') ?? true,
+            watermarkLocation: settings.querySettings<watermarkLocationType>(Settings.Category.SPLASH_SCREEN, 'watermarkLocation') ?? 'default',
             autoFit: settings.querySettings<boolean>(Settings.Category.SPLASH_SCREEN, 'autoFit') ?? true,
             url: settings.querySettings<string>(Settings.Category.SPLASH_SCREEN, 'url') ?? '',
             type: settings.querySettings<SplashEffectType>(Settings.Category.SPLASH_SCREEN, 'type') ?? 'default',
@@ -127,7 +129,7 @@ export class SplashScreen {
             this.preInit();
             this.initLayout();
 
-            if (this.settings.displayWatermark) this.initWaterMark();
+            this.initWaterMark();
             return new Promise<void>((resolve, reject) => {
                 this.bgImage = new Image();
                 this.bgImage.onload = () => {
@@ -297,7 +299,7 @@ export class SplashScreen {
         this.logoMat.passes[0].update();
 
         // update watermark uniform
-        if (settings.displayWatermark && this.watermarkMat) {
+        if (this.watermarkMat) {
             const watermarkTW = this.watermarkTexture.width; const watermarkTH = this.watermarkTexture.height;
             scaleX = watermarkTW;
             scaleY = watermarkTH;
@@ -450,7 +452,7 @@ export class SplashScreen {
                 cmdBuff.bindInputAssembler(this.quadAssmebler);
                 cmdBuff.draw(this.quadAssmebler);
 
-                if (this.settings.displayWatermark && this.watermarkMat) {
+                if (this.watermarkMat) {
                     const wartermarkPass = this.watermarkMat.passes[0];
                     const watermarkPso = PipelineStateManager.getOrCreatePipelineState(device,
                         wartermarkPass, this.shader, framebuffer.renderPass, this.quadAssmebler);
