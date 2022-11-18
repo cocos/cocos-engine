@@ -85,7 +85,6 @@ export class AudioPlayerMinigame implements OperationQueueable {
             eventTarget.emit(AudioEvent.PLAYED);
             if (this._needSeek) {
                 this._needSeek = false;
-                console.log(`try seek`);
                 this.seek(this._cacheTime).catch((e) => {});
             }
         };
