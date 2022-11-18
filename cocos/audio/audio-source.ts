@@ -106,7 +106,7 @@ export class AudioSource extends Component {
             console.error('Invalid audio clip');
             return;
         }
-        // The state of _isloaded cannot be modified if clip is the wrong argument. 
+        // The state of _isloaded cannot be modified if clip is the wrong argument.
         // Because load is an asynchronous function, if it is called multiple times with the same arguments.
         // It may cause an illegal state change
         this._isLoaded = false;
