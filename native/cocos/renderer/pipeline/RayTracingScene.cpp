@@ -74,14 +74,10 @@ namespace pipeline
 
     void RayTracingScene::handleNewModel(const IntrusivePtr<scene::Model>& pModel) {
 
-        gfx::ASInstance tlasGeom{};
-        MeshShadingDescriptor shadingInstanceDescriptor{};
+        gfx::ASInstance tlasGeom;
 
         const auto& subModels = pModel->getSubModels();
-        shadingInstanceDescriptor.subMeshCount = subModels.size();
         //todo temporal code
-        shadingInstanceDescriptor.padding = subModels[0]->getSubMesh()->getIndexBuffer()->getStride() == 2 ? 0 : 1;
-        tlasGeom.instanceCustomIdx = ~0U;
         tlasGeom.shaderBindingTableRecordOffset = ~0U;
         tlasGeom.mask = 0xFF;
         tlasGeom.transform = pModel->getTransform()->getWorldMatrix();
@@ -101,8 +97,8 @@ namespace pipeline
         auto blasIt = _geomBlasCache.find(meshUuid);
         if (blasIt != _geomBlasCache.cend()) {
             // BLAS could be reused.
-            tlasGeom.accelerationStructureRef = blasIt->second.first;
-            shadingInstanceDescriptor.subMeshGeometryOffset = blasIt->second.second;
+            tlasGeom.accelerationStructureRef = blasIt->second;
+            //shadingInstanceDescriptor.subMeshGeometryOffset = blasIt->second.second;
         } else {
             // New BLAS should be create and build.
             gfx::AccelerationStructureInfo blasInfo{};
@@ -111,24 +107,13 @@ namespace pipeline
             blas->build();
             blas->compact();
 
-            
-            // New subMesh geometry should be added
-            if (!blasInfo.triangleMeshes.empty()) {
-                shadingInstanceDescriptor.subMeshGeometryOffset = rqBinding._geomDesc.size();
-                for (const auto& info : blasInfo.triangleMeshes) {
-                    SubMeshGeomDescriptor descriptor;
-                    descriptor.vertexAddress = info.vertexBuffer->getDeviceAddress();
-                    descriptor.indexAddress = info.indexBuffer->getDeviceAddress();
-                    rqBinding._geomDesc.emplace_back(descriptor);
-                }
-            }
-
-            _geomBlasCache.emplace(meshUuid, std::make_pair(blas, shadingInstanceDescriptor.subMeshGeometryOffset));
+            _geomBlasCache.emplace(meshUuid, blas);
 
             tlasGeom.accelerationStructureRef = blas;
         }
 
         ccstd::vector<RayTracingGeometryShadingDescriptor> shadingDescriptors{};
+
         for (const auto &mesh:tlasGeom.accelerationStructureRef->getInfo().triangleMeshes) {
             RayTracingGeometryShadingDescriptor descriptor;
             RayTracingMeshDescriptor m;
@@ -139,81 +124,8 @@ namespace pipeline
             shadingDescriptors.push_back(descriptor);
         }
         
-        //tlasGeom.instanceCustomIdx = rqBinding.registry(shadingDescriptors);
-        
-        auto sameMatID = [](const IntrusivePtr<scene::SubModel>& sm1, const uint64_t ID) -> bool { return false; }; // todo
-
-        // range search for submeshes material
-        bool march_existing_mesh_materials = false;
-        for (const auto& descriptor : rqBinding._shadingInstanceDescriptors) {
-            march_existing_mesh_materials = true;
-
-            if (shadingInstanceDescriptor.subMeshCount != descriptor.subMeshCount) {
-                march_existing_mesh_materials = false;
-            } else {
-                for (int i = 0; i < descriptor.subMeshCount; i++) {
-                    if (!sameMatID(subModels[i], rqBinding._materialDesc[descriptor.subMeshMaterialOffset + i])) {
-                        march_existing_mesh_materials = false;
-                        break;
-                    }
-                }
-            }
-
-            if (march_existing_mesh_materials) {
-                shadingInstanceDescriptor.subMeshMaterialOffset = descriptor.subMeshMaterialOffset;
-                break;
-            }
-        }
-
-        if (!march_existing_mesh_materials) {
-            shadingInstanceDescriptor.subMeshMaterialOffset = static_cast<uint16_t>(rqBinding._materialDesc.size());
-            for (const auto& sm : subModels) {
-                static int matId = 0;
-                const auto & passes = sm->getPasses();
-                rqBinding._materialDesc.emplace_back(matId++);
-            }
-        }
-
-        // If G1 = G2 and M1 = M2, then
-        // MeshShadingDescriptor could be shared.
-        // hit group shader binding record could be shared.
-
-        //ray query BT
-        for (uint32_t index = 0; index < rqBinding._shadingInstanceDescriptors.size(); ++index) {
-            if (shadingInstanceDescriptor == rqBinding._shadingInstanceDescriptors[index]) {
-                // Reuse instance with same blas and material
-                tlasGeom.instanceCustomIdx = index;
-                break;
-            }
-        }
-
-        if (tlasGeom.instanceCustomIdx == ~0U) {
-            //New MeshShadingDescriptor should be added
-            tlasGeom.instanceCustomIdx = rqBinding._shadingInstanceDescriptors.size();
-            rqBinding._shadingInstanceDescriptors.emplace_back(shadingInstanceDescriptor);
-        }
-
-        //ray tracing SBT
-        ccstd::vector<ShaderRecord> instanceShaderRecords{};
-        const auto & geometries = tlasGeom.accelerationStructureRef->getInfo().triangleMeshes;
-        auto transformer = [&](const auto& geom,const auto& subModel) {
-            return ShaderRecord{SubMeshGeomDescriptor{geom.vertexBuffer->getDeviceAddress(),geom.indexBuffer->getDeviceAddress()},
-                1};//todo subModel materialID
-        };
-
-        std::transform(geometries.cbegin(), geometries.cend(), subModels.cbegin(),std::back_inserter(instanceShaderRecords),transformer);
-
-        const auto & result = std::search(_hitGroupShaderRecordList.cbegin(), _hitGroupShaderRecordList.cend(), instanceShaderRecords.cbegin(), instanceShaderRecords.cend());
-        if (result!=_hitGroupShaderRecordList.cend()) {
-            const auto offset = static_cast<uint32_t>(std::distance(_hitGroupShaderRecordList.cbegin(), result));
-            CC_ASSERT(offset < _hitGroupShaderRecordList.size());
-            tlasGeom.shaderBindingTableRecordOffset = offset;
-        }
-        
-        if (tlasGeom.shaderBindingTableRecordOffset == ~0U) {
-            tlasGeom.shaderBindingTableRecordOffset = static_cast<uint32_t>(_hitGroupShaderRecordList.size());
-            _hitGroupShaderRecordList.insert(_hitGroupShaderRecordList.end(), instanceShaderRecords.begin(), instanceShaderRecords.end());
-        }
+        tlasGeom.instanceCustomIdx = rqBinding.registry(shadingDescriptors);
+        tlasGeom.shaderBindingTableRecordOffset = rtBinding.registry(shadingDescriptors);
 
         _modelCache.emplace(pModel->getNode()->getUuid(), std::pair{true, tlasGeom});
     }
@@ -269,7 +181,7 @@ namespace pipeline
         //sweep deactive blas
         auto blasIt = _geomBlasCache.begin();
         while (blasIt != _geomBlasCache.end()) {
-            if (blasIt->second.first->getRefCount()==0) {
+            if (blasIt->second->getRefCount()==0) {
                 blasIt = _geomBlasCache.erase(blasIt);
                 //blasIt->second->destroy();
             }else {
@@ -287,7 +199,6 @@ namespace pipeline
             }
             if (needRecreate) {
                 _topLevelAccelerationStructure = gfx::Device::getInstance()->createAccelerationStructure(tlasInfo);
-                gfx::BufferInfo geomDescBufferInfo{};
                 rqBinding.recreate();
             } else {
                 _topLevelAccelerationStructure->setInfo(tlasInfo);
@@ -339,6 +250,93 @@ namespace pipeline
         //_bottomLevelAccelerationStructures.clear();
         _geomBlasCache.clear();
         _modelCache.clear();
+    }
+    uint16_t RayQueryBindingTable::registrySubmeshes(const ccstd::vector<SubMeshGeomDescriptor>& subMeshes) {
+        const auto& g = std::search(_geomDesc.cbegin(), _geomDesc.cend(), subMeshes.cbegin(), subMeshes.cend());
+
+        uint16_t offset;
+
+        if (g != _geomDesc.cend()) {
+            offset = std::distance(_geomDesc.cbegin(), g);
+        } else {
+            offset = _geomDesc.size();
+            _geomDesc.insert(_geomDesc.end(), subMeshes.cbegin(), subMeshes.cend());
+        }
+
+        return offset;
+    }
+
+    uint16_t RayQueryBindingTable::registryMaterials(const ccstd::vector<uint64_t>& materials) {
+        const auto& m = std::search(_materialDesc.cbegin(), _materialDesc.cend(), materials.cbegin(), materials.cend());
+
+        uint16_t offset;
+
+        if (m != _materialDesc.cend()) {
+            offset = static_cast<uint16_t>(std::distance(_materialDesc.cbegin(), m));
+        } else {
+            offset = _materialDesc.size();
+            _materialDesc.insert(_materialDesc.end(), materials.cbegin(), materials.cend());
+        }
+
+        return offset;
+    }
+
+    uint32_t RayQueryBindingTable::registry(const ccstd::vector<RayTracingGeometryShadingDescriptor>& shadingGeometries) {
+        MeshShadingDescriptor shadingDesciptor{};
+        shadingDesciptor.subMeshCount = shadingGeometries.size();
+        shadingDesciptor.padding = shadingGeometries[0].meshDescriptor.has_value() ? (shadingGeometries[0].meshDescriptor.value().indexBuffer->getStride() == 2 ? 0 : 1) : -1;
+
+        ccstd::vector<SubMeshGeomDescriptor> meshes;
+        // meshes.reserve(shadingGeometries.size());
+        std::transform(shadingGeometries.cbegin(), shadingGeometries.cend(), std::back_inserter(meshes), [&](const RayTracingGeometryShadingDescriptor& geom) {
+            const auto& meshDescriptor = geom.meshDescriptor;
+            if (meshDescriptor) {
+                return SubMeshGeomDescriptor{meshDescriptor.value().indexBuffer->getDeviceAddress(), meshDescriptor.value().vertexBuffer->getDeviceAddress()};
+            } else {
+                return SubMeshGeomDescriptor{~0U, ~0U};
+            }
+        });
+
+        ccstd::vector<uint64_t> materials;
+        // materials.reserve(shadingGeometries.size());
+        std::transform(shadingGeometries.cbegin(), shadingGeometries.cend(), std::back_inserter(materials), [&](const RayTracingGeometryShadingDescriptor& geom) {
+            return geom.materialID;
+        });
+
+        shadingDesciptor.subMeshGeometryOffset = registrySubmeshes(meshes);
+        shadingDesciptor.subMeshMaterialOffset = registryMaterials(materials);
+
+        // check for shadingDescriptor reuse
+        auto it = _shadingInstanceDescriptors.cbegin();
+        for (; it != _shadingInstanceDescriptors.cend(); ++it) {
+            if (*it == shadingDesciptor) {
+                break;
+            }
+        }
+
+        const auto index = static_cast<uint32_t>(std::distance(_shadingInstanceDescriptors.cbegin(), it));
+
+        if (it == _shadingInstanceDescriptors.cend()) {
+            _shadingInstanceDescriptors.push_back(shadingDesciptor);
+        }
+
+        return index;
+    }
+
+    void RayQueryBindingTable::recreate() {
+        gfx::BufferInfo geomDescBufferInfo{};
+        geomDescBufferInfo.size = static_cast<uint32_t>(_geomDesc.size()) * sizeof(SubMeshGeomDescriptor);
+        geomDescBufferInfo.flags = gfx::BufferFlags::NONE;
+        geomDescBufferInfo.usage = gfx::BufferUsage::STORAGE | gfx::BufferUsage::TRANSFER_DST;
+        geomDescBufferInfo.memUsage = gfx::MemoryUsage::HOST;
+        _geomDescGPUBuffer = gfx::Device::getInstance()->createBuffer(geomDescBufferInfo);
+
+        gfx::BufferInfo instanceDescBufferInfo{};
+        instanceDescBufferInfo.size = static_cast<uint32_t>(_shadingInstanceDescriptors.size()) * sizeof(MeshShadingDescriptor);
+        instanceDescBufferInfo.flags = gfx::BufferFlags::NONE;
+        instanceDescBufferInfo.usage = gfx::BufferUsage::STORAGE | gfx::BufferUsage::TRANSFER_DST;
+        instanceDescBufferInfo.memUsage = gfx::MemoryUsage::HOST;
+        _instanceDescGPUBuffer = gfx::Device::getInstance()->createBuffer(instanceDescBufferInfo);
     }
 
 }  // namespace pipeline

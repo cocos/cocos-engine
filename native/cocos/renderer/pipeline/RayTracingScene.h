@@ -88,11 +88,9 @@ namespace pipeline
         //ccstd::vector<AccelerationStructurePtr> _bottomLevelAccelerationStructures;
         /*
          * first: blas's uuid
-         * second:
-         *  first: blas ref
-         *  second: subMeshGeometryOffset
+         * second: blas ref
          */
-        ccstd::unordered_map<uint64_t,std::pair<AccelerationStructurePtr,uint64_t>> _geomBlasCache;
+        ccstd::unordered_map<uint64_t,AccelerationStructurePtr> _geomBlasCache;
         BlasCache _blasCache;
         /*
          * first: model's uuid
@@ -113,9 +111,7 @@ namespace pipeline
         bool needRecreate = false;
 
         RayQueryBindingTable rqBinding;
-        ShaderRecordList _hitGroupShaderRecordList;
-
-        std::variant<RayQueryBindingTable, ShaderRecordList> shadingInfo;
+        RayQueryBindingTable rtBinding;
 
         inline void handleNewModel(const IntrusivePtr<scene::Model>& model);
         inline void handleModel(const IntrusivePtr<scene::Model>& model);

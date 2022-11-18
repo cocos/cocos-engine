@@ -22,7 +22,7 @@ struct RayTracingMeshDescriptor final {
 
 struct RayTracingGeometryShadingDescriptor final {
     std::optional<RayTracingMeshDescriptor> meshDescriptor;
-    uint32_t materialID;
+    uint32_t materialID{};
 };
 
 struct RayTracingInstanceDescriptor final {
@@ -125,6 +125,7 @@ struct MeshShadingDescriptor {
 */
 
 struct RayQueryBindingTable {
+private:
     // instanceDecs.geometryOffset + geometryIndex
     /*
      * IA n ：index address of the nth geometry
@@ -159,37 +160,9 @@ struct RayQueryBindingTable {
 
     ccstd::vector<MeshShadingDescriptor> _shadingInstanceDescriptors;
 
-   
+    uint16_t registrySubmeshes(const ccstd::vector<SubMeshGeomDescriptor>& subMeshes);
 
-    uint16_t registrySubmeshes(const ccstd::vector<SubMeshGeomDescriptor>& subMeshes) {
-        const auto& g = std::search(_geomDesc.cbegin(), _geomDesc.cend(), subMeshes.cbegin(), subMeshes.cend());
-
-        uint16_t offset{};
-
-        if (g != _geomDesc.cend()) {
-            offset = std::distance(_geomDesc.cbegin(), g);
-        } else {
-            offset = _geomDesc.size();
-            _geomDesc.insert(_geomDesc.end(), subMeshes.cbegin(), subMeshes.cend());
-        }
-
-        return offset;
-    }
-
-    uint16_t registryMaterials(const ccstd::vector<uint64_t>& materials) {
-        const auto& m = std::search(_materialDesc.cbegin(), _materialDesc.cend(), materials.cbegin(), materials.cend());
-
-        uint16_t offset{};
-
-        if (m != _materialDesc.cend()) {
-            offset = static_cast<uint16_t>(std::distance(_materialDesc.cbegin(), m));
-        } else {
-            offset = _materialDesc.size();
-            _materialDesc.insert(_materialDesc.begin(), materials.begin(), materials.end());
-        }
-
-        return offset;
-    }
+    uint16_t registryMaterials(const ccstd::vector<uint64_t>& materials);
 
 public:
 
@@ -197,64 +170,9 @@ public:
     IntrusivePtr<gfx::Buffer> _materialDescGPUBuffer;
     IntrusivePtr<gfx::Buffer> _instanceDescGPUBuffer;
 
-    uint32_t registry(const ccstd::vector<RayTracingGeometryShadingDescriptor>& shadingGeometries) {
-
-        MeshShadingDescriptor shadingDesciptor{};
-        shadingDesciptor.subMeshCount = shadingGeometries.size();
-        shadingDesciptor.padding = shadingGeometries[0].meshDescriptor.has_value() ? (shadingGeometries[0].meshDescriptor.value().indexBuffer->getStride() == 2 ? 0 : 1) : -1;
-
-        ccstd::vector<SubMeshGeomDescriptor> meshes;
-        meshes.reserve(shadingGeometries.size());
-        std::transform(shadingGeometries.cbegin(), shadingGeometries.cend(), std::back_inserter(meshes), [&](const RayTracingGeometryShadingDescriptor& geom) {
-            const auto& meshDescriptor = geom.meshDescriptor;
-            if (meshDescriptor) {
-                return SubMeshGeomDescriptor{meshDescriptor.value().vertexBuffer->getDeviceAddress(), meshDescriptor.value().indexBuffer->getDeviceAddress()};
-            }else {
-                return SubMeshGeomDescriptor{~0U, ~0U};
-            }
-        });
-        
-        ccstd::vector<uint64_t> materials;
-        materials.reserve(shadingGeometries.size());
-        std::transform(shadingGeometries.cbegin(), shadingGeometries.cend(), std::back_inserter(materials), [&](const RayTracingGeometryShadingDescriptor& geom) {
-            return geom.materialID;
-        });
-
-        shadingDesciptor.subMeshGeometryOffset = registrySubmeshes(meshes);
-        shadingDesciptor.subMeshMaterialOffset = registryMaterials(materials);
-
-        // check for shadingDescriptor reuse
-        auto it = _shadingInstanceDescriptors.cbegin();
-        for (;it!=_shadingInstanceDescriptors.cend();++it) {
-            if (*it == shadingDesciptor) {
-                break;
-            }
-        }
-
-        auto index = static_cast<uint32_t>(std::distance(_shadingInstanceDescriptors.cbegin(), it));
-
-        if (it == _shadingInstanceDescriptors.cend()) {
-            _shadingInstanceDescriptors.push_back(shadingDesciptor);
-        }
-
-        return index;
-    }
-
-    void recreate(){
-        gfx::BufferInfo geomDescBufferInfo{};
-        geomDescBufferInfo.size = static_cast<uint32_t>(_geomDesc.size()) * sizeof(SubMeshGeomDescriptor);
-        geomDescBufferInfo.flags = gfx::BufferFlags::NONE;
-        geomDescBufferInfo.usage = gfx::BufferUsage::STORAGE | gfx::BufferUsage::TRANSFER_DST;
-        geomDescBufferInfo.memUsage = gfx::MemoryUsage::HOST;
-        _geomDescGPUBuffer = gfx::Device::getInstance()->createBuffer(geomDescBufferInfo);
-
-        gfx::BufferInfo instanceDescBufferInfo{};
-        instanceDescBufferInfo.size = static_cast<uint32_t>(_shadingInstanceDescriptors.size()) * sizeof(MeshShadingDescriptor);
-        instanceDescBufferInfo.flags = gfx::BufferFlags::NONE;
-        instanceDescBufferInfo.usage = gfx::BufferUsage::STORAGE | gfx::BufferUsage::TRANSFER_DST;
-        instanceDescBufferInfo.memUsage = gfx::MemoryUsage::HOST;
-        _instanceDescGPUBuffer = gfx::Device::getInstance()->createBuffer(instanceDescBufferInfo);
-    }
+    uint32_t registry(const ccstd::vector<RayTracingGeometryShadingDescriptor>& shadingGeometries);
+  
+    void recreate();
 
     void update() {
         _geomDescGPUBuffer->update(_geomDesc.data());
@@ -283,7 +201,10 @@ using ShaderRecord = std::pair<SubMeshGeomDescriptor, uint32_t>;
 using ShaderRecordList = ccstd::vector<ShaderRecord>;
 
 struct RayTracingBindingTable {
-    
+    ShaderRecordList _hitGroup;
+    uint32_t registry(const ccstd::vector<RayTracingGeometryShadingDescriptor>& shadingGeometries) {
+        return 0;
+    }
 };
 
 struct RayTracingSceneAccelerationStructureManager {
