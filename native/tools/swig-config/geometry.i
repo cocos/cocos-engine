@@ -31,6 +31,7 @@
 //  1. 'Ignore Section' should be placed before attribute definition and %import/%include
 //  2. namespace is needed
 //
+%ignore cc::RefCounted;
 %ignore cc::geometry::AABB::getBoundary;
 %ignore cc::geometry::AABB::aabbAabb;
 %ignore cc::geometry::AABB::aabbFrustum;
@@ -102,6 +103,7 @@
 //   %import "your_header_file.h" will not generate code for that header file
 //
 %import "base/Macros.h"
+%import "base/RefCounted.h"
 
 %import "math/MathBase.h"
 %import "math/Vec2.h"
