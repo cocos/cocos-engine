@@ -8,41 +8,24 @@
 #include "LabSound/extended/AudioContextLock.h"
 namespace cc {
 
-SourceNode::SourceNode(BaseAudioContext* ctx, AudioBuffer* buffer) {
-    _ctx = ctx->getInnerContext();
+SourceNode::SourceNode(BaseAudioContext* ctx, AudioBuffer* buffer): AudioNode(ctx) {
     _absn = std::make_shared<lab::SampledAudioNode>(*ctx->getInnerContext());
-    _gain = std::make_shared<lab::GainNode>(*ctx->getInnerContext());
+    _node = std::make_shared<lab::GainNode>(*ctx->getInnerContext());
     if (buffer) {
         _buffer = buffer;
-        lab::ContextRenderLock lck(_ctx.get(), "setBus");
+        lab::ContextRenderLock lck(ctx->getInnerContext().get(), "setBus");
         auto bus = _buffer->_bus;
         _absn->setBus(lck, bus);
         _innerState = ABSNState::READY;
     }
-    _ctx->connect(_gain, _absn);
+    ctx->getInnerContext()->connect(_node, _absn);
     _playbackRate = AudioParam::createParam(_absn->playbackRate());
+    _gain = AudioParam::createParam(std::reinterpret_pointer_cast<lab::GainNode>(_node)->gain());
     _absn->setOnEnded([&](){
         _onEnd();
     });
 }
 
- AudioNode* SourceNode::connect(AudioNode* node) {
-    if (std::find(_connections.begin(), _connections.end(), node) != _connections.end()) {
-        // Connection is ignored.
-        return node;
-    }
-    CC_LOG_DEBUG("=== Emplace back an audio node which will call add ref ===");
-    _connections.emplace_back(node);
-    CC_LOG_DEBUG("====");
-    _ctx->connect(node->_node, _gain);
-    return node;
-}
-void SourceNode::disconnect() {
-    // input index of destination. It calls destIndex in labsound.
-    CC_LOG_DEBUG("==== Waiting for release call ====");
-    _connections.clear();
-    _ctx->disconnect(_gain);
-}
 void SourceNode::_onEnd() {
     _innerState = ABSNState::PAUSED;
     _pastTime = 0;
@@ -50,18 +33,27 @@ void SourceNode::_onEnd() {
         _finishCallback();
     }
 }
-
-void SourceNode::start(float time) {
+float SourceNode::getVolume() {
+    return _gain->getValue();
+}
+void SourceNode::setVolume(float vol) {
+    _gain->setValue(vol);
+}
+bool SourceNode::start(float time) {
     if (!_buffer) {
         CC_LOG_ERROR("[SourceNode] No buffer is provided!! Play audio failed");
-        return;
+        return false;
+    }
+    if (!_buffer->getBus()) {
+        CC_LOG_ERROR("[SourceNode] AudioBuffer is invalid, cannot find a wave to play");
+        return false;
     }
     if (time) {
         _restart(time);
     } else {
         switch (_innerState) {
             case ABSNState::PAUSED:
-                _startTime = _ctx->currentTime();
+                _startTime = _ctx->getCurrentTime();
                 _restart(_pastTime);
                 _innerState = ABSNState::PLAYING;
                 break;
@@ -78,6 +70,7 @@ void SourceNode::start(float time) {
                 break;
         }
     }
+    return true;
 }
 
 void SourceNode::pause() {
@@ -107,22 +100,31 @@ void SourceNode::_restart(float time) {
 void SourceNode::_pureStart(float time) {
     _pastTime = time;
     _absn->schedule(0, time, _loop?-1:0);
-    _startTime = _ctx->currentTime();
+    _startTime = _ctx->getCurrentTime();
     _innerState = ABSNState::PLAYING;
     _absn->playbackRate()->setValue(_cachePlaybackRate);
 }
 void SourceNode::setBuffer(AudioBuffer* buffer) {
+    if (buffer == _buffer) {
+        // Same as original
+        return;
+    }
     _buffer.reset(buffer);
-    lab::ContextRenderLock lck(_ctx.get(), "setBus");
+    lab::ContextRenderLock lck(_ctx->getInnerContext().get(), "setBus");
     auto bus = _buffer->_bus;
+    if (!bus) {
+        CC_LOG_ERROR("[SourceNode] AudioBuffer is invalid, cannot find a wave to play");
+        return;
+    }
     _absn->setBus(lck, bus);
+    _innerState = ABSNState::READY;
 }
 AudioBuffer* SourceNode::getBuffer() {
     return _buffer.get();
 }
 void SourceNode::setPlaybackRate(float rate) {
     _pastTime = getCurrentTime();
-    _startTime = _ctx->currentTime();
+    _startTime = _ctx->getCurrentTime();
     _cachePlaybackRate = _absn->playbackRate()->value();
 
     if (_innerState == ABSNState::PLAYING) {
@@ -151,7 +153,7 @@ float SourceNode::getCurrentTime() {
     if (_innerState != ABSNState::PLAYING) {
         return _pastTime;
     }
-    return _pastTime + (_ctx->currentTime() - _startTime) * _playbackRate->getValue();
+    return _pastTime + (_ctx->getCurrentTime() - _startTime) * _playbackRate->getValue();
 }
 void SourceNode::setCurrentTime(float time) {
     if (_innerState != ABSNState::PLAYING) {

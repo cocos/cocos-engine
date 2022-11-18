@@ -1,29 +1,29 @@
 /*
- Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+Copyright (c) 2013-2016 Chukong Technologies Inc.
+Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+http://www.cocos.com
 
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated engine source code (the "Software"), a limited,
+worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+to use Cocos Creator solely to develop games on your target platforms. You shall
+not use Cocos Creator software for developing other software or tools that's
+used for developing games. You are not granted to publish, distribute,
+sublicense, and/or sell copies of Cocos Creator.
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+The software or tools in this License Agreement are licensed, not sold.
+Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- THE SOFTWARE.
- */
-
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+*/
+import { InnerAudioPlayer } from 'pal/audio';
 import { audioLoader } from './pal/web/index';
 import { AudioClip, AudioMeta } from './audio-clip';
 import { CompleteCallback, IDownloadParseOptions } from '../asset/asset-manager/shared';
@@ -48,21 +48,25 @@ export function loadAudioPlayer (url: string, options: IDownloadParseOptions, on
 }
 
 function createAudioClip (id: string,
-    data: AudioMeta,
+    meta: AudioMeta,
     options: IDownloadParseOptions,
     onComplete: CompleteCallback<AudioClip>) {
-    if (data.url === '') {
+    if (meta.url === '') {
         const err = new Error('url is empty, failed to create an audio clip with empty url');
         onComplete(err, undefined);
     }
-    const out = new AudioClip();
-    console.log(`create audio clip with ${id}`);
-    out._nativeUrl = id;
-    console.log(`out._nativeUrl with ${out._nativeUrl}`);
-    out._nativeAsset = data;
-    // @ts-expect-error assignment to private field
-    out._duration = data.duration;
-    onComplete(null, out);
+
+    InnerAudioPlayer.load(meta.url, { audioLoadMode: options.audioLoadMode }).then((player) => {
+        const out = new AudioClip();
+        out._nativeUrl = id;
+        out._nativeAsset = meta;
+        // @ts-expect-error assignment to private field
+        out._duration = meta.duration;
+        out.setPlayer(player);
+        onComplete(null, out);
+    }).catch((err) => {
+        onComplete(err);
+    });
 }
 
 downloader.register({

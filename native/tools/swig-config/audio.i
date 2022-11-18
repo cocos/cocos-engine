@@ -9,16 +9,7 @@
 #pragma once
 #include "bindings/jswrapper/SeApi.h"
 #include "bindings/manual/jsb_conversions.h"
-#include "audio/graph_based/AudioContext.h"
-#include "audio/graph_based/AudioBuffer.h"
-#include "audio/graph_based/AudioDestinationNode.h"
-#include "audio/graph_based/AudioNode.h"
-#include "audio/graph_based/AudioScheduledSourceNode.h"
-#include "audio/graph_based/GainNode.h"
-#include "audio/graph_based/StereoPannerNode.h"
-#include "audio/graph_based/SourceNode.h"
-#include "audio/graph_based/BaseAudioContext.h"
-
+#include "audio/include/AudioEngine.h"
 %}
 
 // Insert code at the beginning of generated source file (.cpp)
@@ -39,19 +30,12 @@
 //  1. 'Ignore Section' should be placed before attribute definition and %import/%include
 //  2. namespace is needed
 //
-// %ignore cc::AudioEngine::getPCMHeader;
-// %ignore cc::AudioEngine::getOriginalPCMBuffer;
-// %ignore cc::AudioEngine::getPCMBufferByFormat;
-%ignore cc::AudioContext::getInnerContext;
-// %ignore cc::BaseAudioContext;
-%ignore cc::AudioParam::createParam;
-%ignore cc::AudioDestinationNode::createDestination;
-%ignore cc::AudioBuffer::bufferMap;
-%ignore cc::AudioBuffer::createBuffer;
-%ignore cc::AudioBuffer::getBus;
-%ignore cc::BaseAudioContext::decodeAudioData;
+%ignore cc::AudioEngine::getPCMHeader;
+%ignore cc::AudioEngine::getOriginalPCMBuffer;
+%ignore cc::AudioEngine::getPCMBufferByFormat;
 
-// %ignore cc::AudioParam::createParam;
+
+
 // ----- Rename Section ------
 // Brief: Classes, methods or attributes needs to be renamed
 //
@@ -96,61 +80,20 @@
 //  3. If using reference, add '&' suffix for cpp_member_variable_type to avoid generated code using value assignment
 //  4. 'Attribute Section' should be placed before 'Import Section' and 'Include Section'
 //
-// AudioContext
-%attribute(cc::AudioContext, double, baseLatency, getBaseLatency);
-%attribute(cc::AudioContext, double, outputLatency, getOutputLatency);
 
-// AudioBuffer
-%attribute(cc::AudioBuffer, double, duration, getDuration);
-%attribute(cc::AudioBuffer, size_t, length, getLength);
-%attribute(cc::AudioBuffer, uint32_t, numberOfChannels, getNumberOfChannels);
-%attribute(cc::AudioBuffer, uint32_t, sampleRate, getSampleRate);
-// AudioNode
-%attribute(cc::AudioNode, uint32_t, numberOfInputs, getNumberOfInputs);
-%attribute(cc::AudioNode, uint32_t, numberOfOutputs, getNumberOfOutputs);
-%attribute(cc::AudioNode, uint32_t, channelCount, getChannelCount, setChannelCount);
-%attribute(cc::AudioNode, uint32_t, channelCountMode, getChannelCountMode, setChannelCountMode);
-%attribute(cc::AudioNode, uint32_t, channelInterpretation, getChannelInterpretation, setChannelInterpretation);
-// AudioDestinationNode
-%attribute(cc::AudioDestinationNode, uint32_t, maxChannelCount, getMaxChannelCount, setMaxChannelCount);
-// AudioParam
-%attribute(cc::AudioParam, float, value, getValue, setValue);
-%attribute(cc::AudioParam, float, defaultValue, defaultValue);
-%attribute(cc::AudioParam, float, maxValue, maxValue)
-%attribute(cc::AudioParam, float, minValue, minValue)
-// BaseAudioContext
-%attribute(cc::BaseAudioContext, double, currentTime, getCurrentTime);
-%attribute(cc::BaseAudioContext, cc::AudioDestinationNode*, destination, getDestination);
-%attribute(cc::BaseAudioContext, float, sampleRate, getSampleRate);
-%attribute(cc::BaseAudioContext, cc::AudioContextState, state, getState);
-// GainNode
-%attribute(cc::GainNode, cc::AudioParam*, gain, getGain);
-// StereoPannerNode
-%attribute(cc::StereoPannerNode, cc::AudioParam*, pan, getPan);
-// SourceNode
-%attribute(cc::SourceNode, bool, loop, getLoop, setLoop);
-%attribute(cc::SourceNode, float, currentTime, getCurrentTime, setCurrentTime);
-%attribute(cc::SourceNode, float, playbackRate, getPlaybackRate, setPlaybackRate);
+
 
 // ----- Import Section ------
 // Brief: Import header files which are depended by 'Include Section'
 // Note: 
 //   %import "your_header_file.h" will not generate code for that header file
 //
-// %import "audio/Export.h"
+%import "audio/include/Export.h"
 
 
 
 // ----- Include Section ------
 // Brief: Include header files in which classes and methods will be bound
-// %include "audio/include/AudioEngine.h"
-%include "audio/graph_based/BaseAudioContext.h"
-%include "audio/graph_based/AudioContext.h"
-%include "audio/graph_based/AudioBuffer.h"
-%include "audio/graph_based/AudioParam.h"
-%include "audio/graph_based/AudioDestinationNode.h"
-%include "audio/graph_based/AudioNode.h"
-%include "audio/graph_based/AudioScheduledSourceNode.h"
-%include "audio/graph_based/GainNode.h"
-%include "audio/graph_based/StereoPannerNode.h"
-%include "audio/graph_based/SourceNode.h"
+%include "audio/include/AudioEngine.h"
+
+

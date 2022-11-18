@@ -23,13 +23,29 @@ GainNode* BaseAudioContext::createGain() {
     return new GainNode(this);
 }
 
-AudioBuffer* BaseAudioContext::decodeAudioData(const ccstd::string& url) {
+AudioBuffer* BaseAudioContext::decodeAudioDataFromUrl(const ccstd::string& url) {
     return AudioBuffer::createBuffer(url);
 
 }
 AudioDestinationNode* BaseAudioContext::getDestination() {
     return _dest;
 }
+// bool BaseAudioContext::retainNode(AudioNode* node) {
+//     auto itr = std::find(_nodes.begin(), _nodes.end(), node);
+//     if (itr == _nodes.end()) {
+//         _nodes.emplace_back(node);
+//         return true;
+//     }
+//     return false;
+// }
+// bool BaseAudioContext::releaseNode(AudioNode* node) {
+//     auto itr = std::find(_nodes.begin(), _nodes.end(), node);
+//     if (itr != _nodes.end()) {
+//         _nodes.erase(itr);
+//         return true;
+//     }
+//     return false;
+// }
 //PannerNode* BaseAudioContext::createPanner() {
 //    return new PannerNode(this);
 //}

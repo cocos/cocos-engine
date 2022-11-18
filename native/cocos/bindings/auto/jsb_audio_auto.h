@@ -36,123 +36,20 @@
 #pragma once
 #include "bindings/jswrapper/SeApi.h"
 #include "bindings/manual/jsb_conversions.h"
-#include "audio/graph_based/AudioContext.h"
-#include "audio/graph_based/AudioBuffer.h"
-#include "audio/graph_based/AudioDestinationNode.h"
-#include "audio/graph_based/AudioNode.h"
-#include "audio/graph_based/AudioScheduledSourceNode.h"
-#include "audio/graph_based/GainNode.h"
-#include "audio/graph_based/StereoPannerNode.h"
-#include "audio/graph_based/SourceNode.h"
-#include "audio/graph_based/BaseAudioContext.h"
-
+#include "audio/include/AudioEngine.h"
 
 
 
 bool register_all_audio(se::Object* obj);
 
 
-JSB_REGISTER_OBJECT_TYPE(cc::AudioContextOptions);
-extern se::Object *__jsb_cc_AudioContextOptions_proto; // NOLINT
-extern se::Class * __jsb_cc_AudioContextOptions_class; // NOLINT
+JSB_REGISTER_OBJECT_TYPE(cc::AudioProfile);
+extern se::Object *__jsb_cc_AudioProfile_proto; // NOLINT
+extern se::Class * __jsb_cc_AudioProfile_class; // NOLINT
 
 
-template<>
-bool sevalue_to_native(const se::Value &from, cc::AudioContextOptions * to, se::Object *ctx);
-
-
-JSB_REGISTER_OBJECT_TYPE(cc::BaseAudioContext);
-extern se::Object *__jsb_cc_BaseAudioContext_proto; // NOLINT
-extern se::Class * __jsb_cc_BaseAudioContext_class; // NOLINT
-
-
-JSB_REGISTER_OBJECT_TYPE(cc::AudioTimestamp);
-extern se::Object *__jsb_cc_AudioTimestamp_proto; // NOLINT
-extern se::Class * __jsb_cc_AudioTimestamp_class; // NOLINT
-
-
-template<>
-bool sevalue_to_native(const se::Value &from, cc::AudioTimestamp * to, se::Object *ctx);
-
-
-JSB_REGISTER_OBJECT_TYPE(cc::AudioContext);
-extern se::Object *__jsb_cc_AudioContext_proto; // NOLINT
-extern se::Class * __jsb_cc_AudioContext_class; // NOLINT
-
-
-JSB_REGISTER_OBJECT_TYPE(cc::AudioBufferOptions);
-extern se::Object *__jsb_cc_AudioBufferOptions_proto; // NOLINT
-extern se::Class * __jsb_cc_AudioBufferOptions_class; // NOLINT
-
-
-template<>
-bool sevalue_to_native(const se::Value &from, cc::AudioBufferOptions * to, se::Object *ctx);
-
-
-JSB_REGISTER_OBJECT_TYPE(cc::AudioBuffer);
-extern se::Object *__jsb_cc_AudioBuffer_proto; // NOLINT
-extern se::Class * __jsb_cc_AudioBuffer_class; // NOLINT
-
-
-JSB_REGISTER_OBJECT_TYPE(cc::AudioParam);
-extern se::Object *__jsb_cc_AudioParam_proto; // NOLINT
-extern se::Class * __jsb_cc_AudioParam_class; // NOLINT
-
-
-JSB_REGISTER_OBJECT_TYPE(cc::AudioDestinationNode);
-extern se::Object *__jsb_cc_AudioDestinationNode_proto; // NOLINT
-extern se::Class * __jsb_cc_AudioDestinationNode_class; // NOLINT
-
-
-JSB_REGISTER_OBJECT_TYPE(cc::AudioNodeOptions);
-extern se::Object *__jsb_cc_AudioNodeOptions_proto; // NOLINT
-extern se::Class * __jsb_cc_AudioNodeOptions_class; // NOLINT
-
-
-template<>
-bool sevalue_to_native(const se::Value &from, cc::AudioNodeOptions * to, se::Object *ctx);
-
-
-JSB_REGISTER_OBJECT_TYPE(cc::AudioNode);
-extern se::Object *__jsb_cc_AudioNode_proto; // NOLINT
-extern se::Class * __jsb_cc_AudioNode_class; // NOLINT
-
-
-JSB_REGISTER_OBJECT_TYPE(cc::AudioScheduledSourceNode);
-extern se::Object *__jsb_cc_AudioScheduledSourceNode_proto; // NOLINT
-extern se::Class * __jsb_cc_AudioScheduledSourceNode_class; // NOLINT
-
-
-JSB_REGISTER_OBJECT_TYPE(cc::GainNodeOptions);
-extern se::Object *__jsb_cc_GainNodeOptions_proto; // NOLINT
-extern se::Class * __jsb_cc_GainNodeOptions_class; // NOLINT
-
-
-template<>
-bool sevalue_to_native(const se::Value &from, cc::GainNodeOptions * to, se::Object *ctx);
-
-
-JSB_REGISTER_OBJECT_TYPE(cc::GainNode);
-extern se::Object *__jsb_cc_GainNode_proto; // NOLINT
-extern se::Class * __jsb_cc_GainNode_class; // NOLINT
-
-
-JSB_REGISTER_OBJECT_TYPE(cc::StereoPannerOptions);
-extern se::Object *__jsb_cc_StereoPannerOptions_proto; // NOLINT
-extern se::Class * __jsb_cc_StereoPannerOptions_class; // NOLINT
-
-
-template<>
-bool sevalue_to_native(const se::Value &from, cc::StereoPannerOptions * to, se::Object *ctx);
-
-
-JSB_REGISTER_OBJECT_TYPE(cc::StereoPannerNode);
-extern se::Object *__jsb_cc_StereoPannerNode_proto; // NOLINT
-extern se::Class * __jsb_cc_StereoPannerNode_class; // NOLINT
-
-
-JSB_REGISTER_OBJECT_TYPE(cc::SourceNode);
-extern se::Object *__jsb_cc_SourceNode_proto; // NOLINT
-extern se::Class * __jsb_cc_SourceNode_class; // NOLINT
+JSB_REGISTER_OBJECT_TYPE(cc::AudioEngine);
+extern se::Object *__jsb_cc_AudioEngine_proto; // NOLINT
+extern se::Class * __jsb_cc_AudioEngine_class; // NOLINT
 
 // clang-format on

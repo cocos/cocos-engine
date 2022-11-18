@@ -264,8 +264,7 @@
                 "cocos/3d/misc/create-mesh.ts": "cocos/3d/misc/create-mesh.jsb.ts",
                 "cocos/gi/light-probe/light-probe.ts": "cocos/gi/light-probe/light-probe.jsb.ts",
                 "cocos/gi/light-probe/delaunay.ts": "cocos/gi/light-probe/delaunay.jsb.ts",
-                "cocos/audio/pal/web/index.ts": "cocos/audio/pal/native/index.ts",
-                "cocos/audio/impl/graph-based/audio.ts": "cocos/audio/impl/graph-based/audio.jsb.ts"
+                "cocos/audio/audio-graph.ts": "cocos/audio/audio-graph.jsb.ts"
             }
         },
         {
@@ -284,7 +283,8 @@
                 "pal/screen-adapter": "pal/screen-adapter/web/screen-adapter.ts",
                 "pal/input": "pal/input/web/index.ts",
                 "pal/env": "pal/env/web/env.ts",
-                "pal/pacer": "pal/pacer/pacer-web.ts"
+                "pal/pacer": "pal/pacer/pacer-web.ts",
+                "pal/audio": "cocos/audio/pal/index.web.ts"
             }
         },
         {
@@ -296,7 +296,8 @@
                 "pal/screen-adapter": "pal/screen-adapter/native/screen-adapter.ts",
                 "pal/input": "pal/input/native/index.ts",
                 "pal/env": "pal/env/native/env.ts",
-                "pal/pacer": "pal/pacer/pacer-native.ts"
+                "pal/pacer": "pal/pacer/pacer-native.ts",
+                "pal/audio": "cocos/audio/pal/index.native.ts"
             }
         },
         {
@@ -308,15 +309,15 @@
                 "pal/screen-adapter": "pal/screen-adapter/minigame/screen-adapter.ts",
                 "pal/input": "pal/input/minigame/index.ts",
                 "pal/env": "pal/env/minigame/env.ts",
-                "pal/pacer": "pal/pacer/pacer-minigame.ts"
+                "pal/pacer": "pal/pacer/pacer-minigame.ts",
+                "pal/audio": "cocos/audio/pal/index.minigame.ts"
             }
         },
         {
             "test": "context.buildTimeConstants && context.buildTimeConstants.MINIGAME",
             "isVirtualModule": false,
             "overrides": {
-                "cocos/audio/pal/web/index.ts": "cocos/audio/pal/minigame/index.ts",
-                "cocos/audio/impl/graph-based/audio.ts": "cocos/audio/impl/graph-based/audio.minigame.ts"
+                "cocos/audio/audio-graph.ts": "cocos/audio/audio-graph.minigame.ts"
             }
         },
         {

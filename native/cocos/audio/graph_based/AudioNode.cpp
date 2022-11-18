@@ -5,6 +5,7 @@
 #include "LabSound/extended/AudioContextLock.h"
 namespace cc {
 AudioNode::AudioNode(BaseAudioContext* ctx): _ctx(ctx) {}
+
 void AudioNode::setChannelCount(uint32_t count) {
     lab::ContextGraphLock lck(_ctx->_ctx.get(), "setChannelCount");
     _node->setChannelCount(lck, count);
@@ -30,9 +31,7 @@ AudioNode* AudioNode::connect(AudioNode* node, uint32_t outputIdx, uint32_t inpu
         // Connection is ignored.
         return node;
     }
-    CC_LOG_DEBUG("=== Emplace back an audio node which will call add ref ===");
     _connections.emplace_back(node);
-    CC_LOG_DEBUG("====");
     _ctx->_ctx->connect(node->_node, _node, inputIdx, outputIdx);
     return node;
 }
@@ -50,7 +49,6 @@ void AudioNode::disconnect(AudioNode* node, uint32_t outputIdx, uint32_t inputId
     } else {
         // input index of destination. It calls destIndex in labsound.
         _ctx->_ctx->disconnect(_node, inputIdx);
-        CC_LOG_DEBUG("==== Waiting for release call ====");
         _connections.clear();
     }
 

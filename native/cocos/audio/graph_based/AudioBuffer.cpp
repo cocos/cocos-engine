@@ -2,26 +2,20 @@
 #include "LabSound/extended/AudioFileReader.h"
 #include "FileUtils.h"
 namespace cc {
-ccstd::unordered_map<ccstd::string, IntrusivePtr<AudioBuffer>> AudioBuffer::bufferMap;
 AudioBuffer* AudioBuffer::createBuffer(const ccstd::string& url) {
-    auto buffer = AudioBuffer::bufferMap.find(url);
-    if (buffer != AudioBuffer::bufferMap.end()) {
-        return buffer->second;
+    if (url.empty()) {
+        CC_LOG_ERROR("[AudioBuffer] Trying to create a buffer with an empty file path");
+        CC_ASSERT(false);
+        return nullptr;
     }
-#if CC_PLATFORM == CC_PLATFORM_ANDROID
+    auto fileExtension = url.substr(url.find_last_of('.') + 1);
     auto fileData = FileUtils::getInstance()->getDataFromFile(url);
     ccstd::vector<uint8_t> rawData;
     auto size = fileData.getSize();
     rawData.resize(size);
     memcpy(rawData.data(), fileData.getBytes(), size);
-    auto bus = lab::MakeBusFromMemory(rawData, false);
-#else
-    auto fullPath = FileUtils::getInstance()->fullPathForFilename(url);
-    auto bus = lab::MakeBusFromFile(fullPath, false);
-#endif
+    auto bus = lab::MakeBusFromMemory(rawData, fileExtension, false);
     auto ret = new AudioBuffer(bus);
-    AudioBuffer::bufferMap[url] = ret;
-    assert(ret->getRefCount() == 1);
     return ret;
 }
 

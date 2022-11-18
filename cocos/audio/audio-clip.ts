@@ -25,10 +25,11 @@
 
 import { ccclass, serializable, override } from 'cc.decorator';
 import { HTML5, NATIVE } from 'internal:constants';
+import { InnerAudioPlayer } from 'pal/audio';
 import { Asset } from '../asset/assets/asset';
 import { cclegacy } from '../core';
-import { audioBufferManager } from './impl/graph-based/audio-buffer-manager';
-import { AudioPCMDataView, AudioPCMHeader } from './type';
+import { AudioPCMDataView, AudioPCMHeader, AudioType, AudioState } from './type';
+import { audioBufferManager } from './audio-graph';
 
 export interface AudioMeta {
     // player: AudioPlayer | null,
@@ -45,6 +46,7 @@ export interface AudioMeta {
  */
 @ccclass('cc.AudioClip')
 export class AudioClip extends Asset {
+    public static AudioType = AudioType;
     @serializable
     protected _duration = 0; // we serialize this because it's unavailable at runtime on some platforms
     constructor () {
@@ -53,11 +55,25 @@ export class AudioClip extends Asset {
     }
     protected _meta: AudioMeta | null = null;
 
+    /**
+     * @deprecated
+     */
+    protected _loadMode = AudioType.UNKNOWN_AUDIO;
+
+    private _player: InnerAudioPlayer | null = null;
+
     public destroy (): boolean {
         const destroyResult = super.destroy();
+        this._player?.destroy();
+        this._player = null;
         return destroyResult;
     }
-
+    /**
+     * @internal
+     */
+    public setPlayer (player: InnerAudioPlayer) {
+        this._player = player;
+    }
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
@@ -69,6 +85,9 @@ export class AudioClip extends Asset {
     }
     get _nativeAsset () : AudioMeta | null {
         return this._meta;
+    }
+    get loadMode () {
+        return this._loadMode;
     }
     get pcmHeader (): AudioPCMHeader {
         if (this._meta?.pcmHeader) {
@@ -84,7 +103,12 @@ export class AudioClip extends Asset {
         }
     }
     public getPcmData (channelID: number): AudioPCMDataView | undefined {
-        if (NATIVE || HTML5) {
+        if (NATIVE) {
+            const buffer = audioBufferManager.getCache(this.nativeUrl);
+            if (buffer) {
+                return new AudioPCMDataView(buffer.getChannelData(channelID), 1);
+            }
+        } else if (HTML5) {
             const buffer = audioBufferManager.getCache(this.nativeUrl);
             if (buffer) {
                 return new AudioPCMDataView(buffer.getChannelData(channelID), 1);
@@ -115,6 +139,93 @@ export class AudioClip extends Asset {
         }
         return this._meta ? this._meta.duration : 0;
     }
+
+    // #region deprecated method
+    /**
+     * @deprecated since v3.1.0, please use AudioSource.prototype.state instead.
+     */
+    public get state () {
+        return this._player ? this._player.state : AudioState.INIT;
+    }
+
+    /**
+     * @deprecated since v3.1.0, please use AudioSource.prototype.getCurrentTime() instead.
+     */
+    public getCurrentTime () {
+        return this._player ? this._player.currentTime : 0;
+    }
+
+    /**
+     * @deprecated since v3.1.0, please use AudioSource.prototype.getVolume() instead.
+     */
+    public getVolume () {
+        return this._player ? this._player.volume : 0;
+    }
+
+    /**
+     * @deprecated since v3.1.0, please use AudioSource.prototype.getLoop() instead.
+     */
+    public getLoop () {
+        return this._player ? this._player.loop : false;
+    }
+
+    /**
+     * @deprecated since v3.1.0, please use AudioSource.prototype.setCurrentTime() instead.
+     */
+    public setCurrentTime (time: number) {
+        this._player?.seek(time).catch((e) => {});
+    }
+
+    /**
+     * @deprecated since v3.1.0, please use AudioSource.prototype.setVolume() instead.
+     */
+    public setVolume (volume: number) {
+        if (this._player) {
+            this._player.volume = volume;
+        }
+    }
+
+    /**
+     * @deprecated since v3.1.0, please use AudioSource.prototype.setLoop() instead.
+     */
+    public setLoop (loop: boolean) {
+        if (this._player) {
+            this._player.loop = loop;
+        }
+    }
+
+    /**
+     * @deprecated since v3.1.0, please use AudioSource.prototype.play() instead.
+     */
+    public play () {
+        this._player?.play().catch((e) => {});
+    }
+
+    /**
+     * @deprecated since v3.1.0, please use AudioSource.prototype.pause() instead.
+     */
+    public pause () {
+        this._player?.pause().catch((e) => {});
+    }
+
+    /**
+     * @deprecated since v3.1.0, please use AudioSource.prototype.stop() instead.
+     */
+    public stop () {
+        this._player?.stop().catch((e) => {});
+    }
+
+    /**
+     * @deprecated since v3.1.0, please use AudioSource.prototype.playOneShot() instead.
+     */
+    public playOneShot (volume = 1) {
+        if (this._nativeAsset) {
+            InnerAudioPlayer.loadOneShotAudio(this._nativeAsset.url, volume).then((oneShotAudio) => {
+                oneShotAudio.play();
+            }).catch((e) => {});
+        }
+    }
+    // #endregion deprecated method
 }
 
 cclegacy.AudioClip = AudioClip;

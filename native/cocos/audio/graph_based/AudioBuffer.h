@@ -19,7 +19,6 @@ static AudioBufferOptions defaultOptions = AudioBufferOptions{1, 1, 44100};
     /* An AudioBuffer in cpp is a reference to real buffer, without translate to ts layer. The translation task is heavy. */
 class AudioBuffer : public RefCounted {
 public:
-    static ccstd::unordered_map<ccstd::string, IntrusivePtr<AudioBuffer>> bufferMap;
     static AudioBuffer* createBuffer(const ccstd::string& url);
     AudioBuffer(const AudioBufferOptions& options = defaultOptions);
     /* Duration in seconds */
@@ -35,8 +34,8 @@ public:
     std::shared_ptr<lab::AudioBus> getBus() { return _bus; };
 
 private:
-    AudioBuffer(std::shared_ptr<lab::AudioBus> bus) : _bus(bus){};
     friend class SourceNode;
+    AudioBuffer(std::shared_ptr<lab::AudioBus> bus) : _bus(bus){};
     std::shared_ptr<lab::AudioBus> _bus;
 };
 }

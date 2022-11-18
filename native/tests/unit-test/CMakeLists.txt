@@ -36,3 +36,12 @@ add_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/googletest-src
                  ${CMAKE_CURRENT_BINARY_DIR}/googletest-build
                  EXCLUDE_FROM_ALL)
 add_subdirectory(src)
+
+set(resources_dir ${CMAKE_CURRENT_SOURCE_DIR}/resources)
+set(bin_dir ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR})
+add_custom_target(copy_resource ALL
+    COMMAND ${CMAKE_COMMAND} -E echo "Copying resources to executable path"
+    COMMAND cp -r ${resources_dir}/* ${bin_dir}
+    COMMAND ${CMAKE_COMMAND} -E echo "Copying resources done!"
+)
+add_dependencies(CocosTest copy_resource)

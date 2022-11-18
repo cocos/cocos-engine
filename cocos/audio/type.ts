@@ -17,8 +17,14 @@ export interface SourceOptions {
     /* A rate */
     playbackRate: number;
 }
+export enum AudioBackend {
+    INNERCTX,
+    DOM,
+    WEBAUDIO,
+    NATIVE
+}
 export enum AudioState {
-    READY,
+    INIT,
     PLAYING,
     PAUSED,
     STOPPED,
@@ -43,6 +49,10 @@ export interface PlayerOptions {
 export interface AudioInfo {
     duration: number;
     pcmHeader: AudioPCMHeader | null;
+}
+
+export interface AudioLoadOptions {
+    audioLoadMode?: AudioType,
 }
 
 export enum AudioType {

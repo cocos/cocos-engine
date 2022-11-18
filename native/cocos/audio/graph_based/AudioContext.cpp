@@ -32,11 +32,12 @@ bool AudioContext::resume() {
     return true;
 }
 bool AudioContext::close() {
-    if (_state == AudioContextState::CLOSED) {
+if (_state == AudioContextState::CLOSED) {
         CC_LOG_DEBUG("WARNING: Cannot close a closed context.");
         return false;
     }
     _ctx->suspend();//LabSound has no close interface.
+    _dest.reset(nullptr);
     return true;
 }
 }

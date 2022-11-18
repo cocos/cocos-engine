@@ -59,7 +59,8 @@ public:
     //PannerNode* createPanner();
     //bool decodeAudioData();// Implement in TS?
     std::shared_ptr<lab::AudioContext> getInnerContext() { return _ctx; }
-    AudioBuffer* decodeAudioData(const ccstd::string& url);
+    AudioBuffer* decodeAudioDataFromUrl(const ccstd::string& url);
+    inline bool isValid() const {return _ctx&&_dest;}
 
 protected:
     friend class AudioNode;

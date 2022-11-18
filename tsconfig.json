@@ -36,6 +36,7 @@
       "./@types/pal/system-info",
       "./@types/pal/screen-adapter",
       "./@types/pal/minigame",
+      "./@types/pal/audio",
       "./@types/pal/input",
       "./@types/pal/env",
       "./@types/pal/pacer",
@@ -45,5 +46,5 @@
       "exports/**/*.ts",
       "typedoc-index.ts",
       "**/pal/**/*.ts"
-, "cocos/audio/impl/dom/player-dom.ts", "cocos/audio/impl/dom/audio-dom-manager.ts", "cocos/audio/impl/graph-based/audio-player.ts", "cocos/audio/impl/playable.ts", "cocos/audio/impl/audio-context/audio-player.ts", "cocos/audio/impl/graph-based/audio.ts", "cocos/audio/audio-buffer-manager.ts"  ]
+  ]
 }
