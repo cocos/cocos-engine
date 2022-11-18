@@ -2,7 +2,6 @@
 
 #include "renderer/gfx-base/GFXAccelerationStructure.h"
 #include "base/Ptr.h"
-#include "base/std/container/unordered_set.h"
 #include "gfx-base/GFXBuffer.h"
 #include "gfx-base/GFXDevice.h"
 #include "RayTracingSceneTypes.h"
@@ -114,9 +113,9 @@ namespace pipeline
         bool needRecreate = false;
 
         RayQueryBindingTable rqBinding;
-        shaderRecordList _hitGroupShaderRecordList;
+        ShaderRecordList _hitGroupShaderRecordList;
 
-        std::variant<RayQueryBindingTable, shaderRecordList> shadingInfo;
+        std::variant<RayQueryBindingTable, ShaderRecordList> shadingInfo;
 
         inline void handleNewModel(const IntrusivePtr<scene::Model>& model);
         inline void handleModel(const IntrusivePtr<scene::Model>& model);
@@ -148,7 +147,7 @@ namespace pipeline
                 asInstanceInfo.accelerationStructureRef = createBlas(blasInfo);
             }
 
-            //meshShadingInstanceDescriptor shadingInstanceDescriptor{};
+            //MeshShadingDescriptor shadingInstanceDescriptor{};
             
             //handleInstanceGeometries(instance, asInstanceInfo,shadingInstanceDescriptor);
             //handleInstanceMaterials(instance, asInstanceInfo,shadingInstanceDescriptor);
@@ -156,7 +155,7 @@ namespace pipeline
             return asInstanceInfo;
         }
 
-        void handleInstanceGeometries(const RayTracingInstanceDescriptor& instance, gfx::ASInstance& info, meshShadingInstanceDescriptor& shadingInstanceDescriptor) {
+        void handleInstanceGeometries(const RayTracingInstanceDescriptor& instance, gfx::ASInstance& info, MeshShadingDescriptor& shadingInstanceDescriptor) {
            
             const auto& shadingGeometries = instance.shadingGeometries;
             if (shadingGeometries[0].meshDescriptor.has_value()) {
@@ -178,17 +177,19 @@ namespace pipeline
                 info.accelerationStructureRef = createBlas(blasInfo);
                 // New subMesh geometry should be added (ray query)
                 if (!blasInfo.triangleMeshes.empty()) {
+                    /*
                     shadingInstanceDescriptor.subMeshGeometryOffset = rqBinding._geomDesc.size();
                     for (const auto& info : blasInfo.triangleMeshes) {
-                        subMeshGeomDescriptor descriptor;
+                        SubMeshGeomDescriptor descriptor;
                         descriptor.vertexAddress = info.vertexBuffer->getDeviceAddress();
                         descriptor.indexAddress = info.indexBuffer->getDeviceAddress();
                         rqBinding._geomDesc.emplace_back(descriptor);
-                    }
+                    }*/
                 }
             }
         }
-        void handleInstanceMaterials(const RayTracingInstanceDescriptor& instance, gfx::ASInstance& info, meshShadingInstanceDescriptor& shadingInstanceDescriptor) {
+        void handleInstanceMaterials(const RayTracingInstanceDescriptor& instance, gfx::ASInstance& info, MeshShadingDescriptor& shadingInstanceDescriptor) {
+            /*
             info.instanceCustomIdx = ~0U;
             info.shaderBindingTableRecordOffset = ~0U;
 
@@ -224,7 +225,7 @@ namespace pipeline
             }
 
             // If G1 = G2 and M1 = M2, then
-            // meshShadingInstanceDescriptor could be shared.
+            // MeshShadingDescriptor could be shared.
             // hit group shader binding record could be shared.
 
             // ray query BT
@@ -237,7 +238,7 @@ namespace pipeline
             }
 
             if (info.instanceCustomIdx == ~0U) {
-                // New meshShadingInstanceDescriptor should be added
+                // New MeshShadingDescriptor should be added
                 info.instanceCustomIdx = rqBinding._shadingInstanceDescriptors.size();
                 rqBinding._shadingInstanceDescriptors.emplace_back(shadingInstanceDescriptor);
             }
@@ -245,11 +246,11 @@ namespace pipeline
             // ray tracing SBT
 
             /*
-            ccstd::vector<shaderRecord> instanceShaderRecords{};
+            ccstd::vector<ShaderRecord> instanceShaderRecords{};
             const auto& geometries = info.accelerationStructureRef->getInfo().triangleMeshes;
             
             auto transformer = [&](const auto& geom, const auto& shadingGeom) {
-                return shaderRecord{subMeshGeomDescriptor{geom.vertexBuffer->getDeviceAddress(), geom.indexBuffer->getDeviceAddress()},
+                return ShaderRecord{SubMeshGeomDescriptor{geom.vertexBuffer->getDeviceAddress(), geom.indexBuffer->getDeviceAddress()},
                                     1}; // todo subModel materialID
             };
 
