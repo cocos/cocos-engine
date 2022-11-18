@@ -115,14 +115,14 @@ export class ReflectionProbe extends Component {
      */
     @type(Enum(ProbeType))
     set probeType (value: number) {
-        if(value !== this._probeType){
+        if (value !== this._probeType) {
             const lastSize = this._size.clone();
-            const lastSizeIsNoExist = Vec3.equals(this._lastSize,Vec3.ZERO);
+            const lastSizeIsNoExist = Vec3.equals(this._lastSize, Vec3.ZERO);
             this._probeType = value;
             this.probe.probeType = value;
 
             if (this._probeType === ProbeType.CUBE) {
-                if(lastSizeIsNoExist){
+                if (lastSizeIsNoExist) {
                     this._size.set(ReflectionProbe.DEFAULT_CUBE_SIZE);
                 }
                 this.probe.switchProbeType(value);
@@ -130,7 +130,7 @@ export class ReflectionProbe extends Component {
                     this._objFlags |= CCObject.Flags.IsRotationLocked;
                 }
             } else {
-                if(lastSizeIsNoExist){
+                if (lastSizeIsNoExist) {
                     this._size.set(ReflectionProbe.DEFAULT_PLANER_SIZE);
                 }
                 if (EDITOR && this._objFlags & CCObject.Flags.IsRotationLocked) {
@@ -142,8 +142,8 @@ export class ReflectionProbe extends Component {
                     this.probe.switchProbeType(value, this._sourceCamera.camera);
                 }
             }
-            if(!lastSizeIsNoExist){
-                this._size.set(this._lastSize);    
+            if (!lastSizeIsNoExist) {
+                this._size.set(this._lastSize);
             }
             this._lastSize.set(lastSize);
         }
