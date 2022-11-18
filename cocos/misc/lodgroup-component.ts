@@ -419,6 +419,7 @@ export class LODGroup extends Component {
                     if (!renderer) {
                         continue;
                     }
+                    renderer.model?.updateWorldBound();
                     let worldBounds = renderer.model?.worldBounds;
                     if (worldBounds) {
                         if (JSB) {
@@ -526,7 +527,7 @@ export class LODGroup extends Component {
     onEnable () {
         this._attachToScene();
         if (this.objectSize === 0) {
-            this.scheduleOnce((dt) => this.recalculateBounds(), 0);
+            this.recalculateBounds();
         }
 
         // cache lod for scene
