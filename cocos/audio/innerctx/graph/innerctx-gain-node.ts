@@ -1,8 +1,10 @@
 import { CCGainNode } from '../../base';
 import { InnerctxAudioContext } from './innerctx-audio-context';
-import { InnerctxAudioNode } from './innerctx-audio-node';
+import { InnerctxAudioNode, NodeType } from './innerctx-audio-node';
 
 export class InnerctxGainNode extends InnerctxAudioNode implements CCGainNode {
+    protected _type: NodeType = NodeType.GAIN;
+    innerOperation: (() => void) | undefined;
     get gain () {
         return this.gain;
     }

@@ -1,9 +1,11 @@
 import { INT_MAX } from '../../../core/math/bits';
 import { CCDestinationNode } from '../../base';
 import { InnerctxAudioContext } from './innerctx-audio-context';
-import { InnerctxAudioNode } from './innerctx-audio-node';
+import { InnerctxAudioNode, NodeType } from './innerctx-audio-node';
 
 export class InnerctxDestinationNode extends InnerctxAudioNode implements CCDestinationNode {
+    innerOperation: (() => void) | undefined;
+    protected _type: NodeType = NodeType.DESTINATION;
     get maxChannelCount () {
         console.warn('Innerctx has no caller for max channel count');
         return INT_MAX;

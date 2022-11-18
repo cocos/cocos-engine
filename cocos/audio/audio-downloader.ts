@@ -24,17 +24,17 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 import { InnerAudioPlayer } from 'pal/audio';
-import { audioLoader } from './pal/web/index';
 import { AudioClip, AudioMeta } from './audio-clip';
 import { CompleteCallback, IDownloadParseOptions } from '../asset/asset-manager/shared';
 import downloader from '../asset/asset-manager/downloader';
 import factory from '../asset/asset-manager/factory';
 import { AudioInfo } from './type';
 import { cclegacy } from '../core';
+import { audioContextManager } from './audio-graph';
 
 export function loadAudioPlayer (url: string, options: IDownloadParseOptions, onComplete: CompleteCallback) {
     console.log(`load audio clip with ${url}`);
-    audioLoader.load(url).then((info: AudioInfo) => {
+    audioContextManager.load(url).then((info: AudioInfo) => {
         // TODO(timlyeee): load native and duration with more info.
         const audioMeta: AudioMeta = {
             url,

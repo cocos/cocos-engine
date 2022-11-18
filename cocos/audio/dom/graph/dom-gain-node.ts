@@ -1,8 +1,11 @@
 import { CCGainNode } from '../../base';
 import { DomAudioContext } from './dom-audio-context';
-import { DomAudioNode } from './dom-audio-node';
+import { DomAudioNode, NodeType } from './dom-audio-node';
 
 export class DomGainNode extends DomAudioNode implements CCGainNode {
+    innerOperation: (() => void) | undefined;
+    protected _type: NodeType = NodeType.GAIN;
+
     get gain () {
         return this.gain;
     }

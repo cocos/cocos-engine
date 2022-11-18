@@ -3,7 +3,7 @@ import { clamp, clamp01 } from '../../../core/math';
 import { CCSourceNode } from '../../base';
 import { InnerctxAudioBuffer } from './innerctx-audio-buffer';
 import { InnerctxAudioContext } from './innerctx-audio-context';
-import { InnerctxAudioNode } from './innerctx-audio-node';
+import { InnerctxAudioNode, NodeType } from './innerctx-audio-node';
 import { ctxAudioPool } from './innerctx-audio-pool';
 
 function ensurePlaying (innerctxAudio: HTMLAudioElement): Promise<void> {
@@ -26,6 +26,8 @@ function ensurePlaying (innerctxAudio: HTMLAudioElement): Promise<void> {
     });
 }
 export class InnerctxSourceNode extends InnerctxAudioNode implements CCSourceNode {
+    protected _type: NodeType = NodeType.SOURCE;
+    innerOperation: (() => void) | undefined;
     private _buffer: InnerctxAudioBuffer | null = null;
     private _innerctxAudio: InnerAudioContext;
     get buffer (): InnerctxAudioBuffer {

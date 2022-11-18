@@ -5,7 +5,7 @@ import { InnerctxDestinationNode } from './innerctx-destination-node';
 import { InnerctxSourceNode } from './innerctx-source-node';
 import { InnerctxStereoPannerNode } from './innerctx-stereo-panner-node';
 
-export class InnerctxAudioContext extends CCAudioContext {
+export class InnerctxAudioContext implements CCAudioContext {
     private _dest: InnerctxDestinationNode;
     private _sources: CCSourceNode[] = []
     close () {
@@ -13,16 +13,19 @@ export class InnerctxAudioContext extends CCAudioContext {
         this._sources.forEach((source) => {
             source.stop();
         });
+        this._state = 'close';
     }
     resume () {
         this._sources.forEach((source) => {
             source.start();
         });
+        this._state = 'running';
     }
     suspend () {
         this._sources.forEach((source) => {
             source.start();
         });
+        this._state = 'suspend';
     }
     get currentTime () {
         console.warn('Current time is a meanless property');
@@ -36,6 +39,7 @@ export class InnerctxAudioContext extends CCAudioContext {
     get sampleRate () {
         return 0;
     }
+    private _state = "running";
     get state (): string {
         return this._state;
     }
@@ -64,9 +68,8 @@ export class InnerctxAudioContext extends CCAudioContext {
         });
     }
     constructor (options?: AudioContextOptions) {
-        super();
         this._dest = new InnerctxDestinationNode(this);
         this.onstatechange = (ctx: CCAudioContext, ev: Event) => {};
     }
 }
-export const defaultContext = new InnerctxAudioContext();
+export const defaultInnerContext = new InnerctxAudioContext();

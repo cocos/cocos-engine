@@ -1,14 +1,20 @@
 import { CCAudioNode } from '../../base';
 import { DomAudioContext } from './dom-audio-context';
-import { DomSourceNode } from './dom-source-node';
 
+export enum NodeType {
+    SOURCE,
+    GAIN,
+    STEREOPANNER,
+    DESTINATION
+}
 export abstract class DomAudioNode implements CCAudioNode  {
+    protected abstract _type: NodeType;
     protected _inputs: DomAudioNode[] = [];
     protected _outputs: DomAudioNode[] = [];
     protected _weight = 0;
     // For dom audio backend, only gain weight need to be updated as all other params are invalid.
     protected _gain = 1;
-
+    abstract innerOperation: (() => void) | undefined;
     update () {
         this._weight = 0;
         this._outputs.forEach((output) => {
@@ -17,8 +23,8 @@ export abstract class DomAudioNode implements CCAudioNode  {
         this._inputs.forEach((input) => {
             input.update();
         });
-        if (this instanceof DomSourceNode) {
-            this.volume = this._gain * this._weight;
+        if (this._type === NodeType.SOURCE) {
+            this.innerOperation && this.innerOperation();
         }
     }
     connect (node: DomAudioNode): DomAudioNode {
@@ -49,7 +55,7 @@ export abstract class DomAudioNode implements CCAudioNode  {
         }
         this.update();
     }
-    public ctx: DomAudioContext
+    public ctx: DomAudioContext;
 
     constructor (ctx: DomAudioContext) {
         this.ctx = ctx;

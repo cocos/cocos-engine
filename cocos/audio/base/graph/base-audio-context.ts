@@ -20,27 +20,24 @@ export interface BaseAudioContextEventMap {
 }
 export type AudioContextState = 'closed' | 'running' | 'suspended';
 
-export abstract class CCAudioContext {
+export interface CCAudioContext {
     /** Available only in secure contexts */
-    abstract readonly currentTime: number;
-    abstract readonly destination: CCDestinationNode;
+    readonly currentTime: number;
+    readonly destination: CCDestinationNode;
     // readonly listener: AudioListener;
-    abstract onstatechange: StateChangeCallback | null;
-    abstract readonly sampleRate: number;
-    abstract readonly state: string;
-    abstract createBuffer(numberOfChannels: number, length: number, sampleRate: number): CCAudioBuffer;
-    abstract createSourceNode(buffer?: CCAudioBuffer): CCSourceNode;
-    abstract createGain(): CCGainNode;
-    abstract createStereoPanner(): CCStereoPannerNode;
-    abstract decodeAudioData(
+    onstatechange: StateChangeCallback | null;
+    readonly sampleRate: number;
+    readonly state: string;
+    createBuffer(numberOfChannels: number, length: number, sampleRate: number): CCAudioBuffer;
+    createSourceNode(buffer?: CCAudioBuffer): CCSourceNode;
+    createGain(): CCGainNode;
+    createStereoPanner(): CCStereoPannerNode;
+    decodeAudioData(
         url: string,
         successCallback?: DecodeSuccessCallback | null,
         errorCallback?: DecodeErrorCallback | null): Promise<CCAudioBuffer>;
-    protected _state = 'closed';
-    abstract close();
-    abstract resume();
-    abstract suspend();
-    constructor (options?: AudioContextOptions) {
-        this._state = 'running';
-    }
+    close();
+    resume();
+    suspend();
+
 }

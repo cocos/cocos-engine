@@ -2,7 +2,7 @@ import { clamp, clamp01 } from '../../../core/math';
 import { CCSourceNode } from '../../base';
 import { DomAudioBuffer } from './dom-audio-buffer';
 import { DomAudioContext } from './dom-audio-context';
-import { DomAudioNode } from './dom-audio-node';
+import { DomAudioNode, NodeType } from './dom-audio-node';
 import { domAudioPool } from './dom-audio-pool';
 
 function ensurePlaying (domAudio: HTMLAudioElement): Promise<void> {
@@ -25,6 +25,8 @@ function ensurePlaying (domAudio: HTMLAudioElement): Promise<void> {
     });
 }
 export class DomSourceNode extends DomAudioNode implements CCSourceNode {
+    innerOperation: (() => void) | undefined;
+    protected _type: NodeType = NodeType.SOURCE;
     private _buffer: DomAudioBuffer | null = null;
     private _domAudio: HTMLAudioElement;
     get buffer (): DomAudioBuffer {

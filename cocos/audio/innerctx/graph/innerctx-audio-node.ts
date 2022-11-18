@@ -2,13 +2,20 @@ import { CCAudioNode } from '../../base';
 import { InnerctxAudioContext } from './innerctx-audio-context';
 import { InnerctxSourceNode } from './innerctx-source-node';
 
+export enum NodeType {
+    SOURCE,
+    GAIN,
+    STEREOPANNER,
+    DESTINATION
+}
 export abstract class InnerctxAudioNode implements CCAudioNode  {
+    protected abstract _type: NodeType;
     protected _inputs: InnerctxAudioNode[] = [];
     protected _outputs: InnerctxAudioNode[] = [];
     protected _weight = 0;
     // For innerctx audio backend, only gain weight need to be updated as all other params are invalid.
     protected _gain = 1;
-
+    abstract innerOperation: (() => void) | undefined;
     update () {
         this._weight = 0;
         this._outputs.forEach((output) => {
@@ -17,8 +24,8 @@ export abstract class InnerctxAudioNode implements CCAudioNode  {
         this._inputs.forEach((input) => {
             input.update();
         });
-        if (this instanceof InnerctxSourceNode) {
-            this.volume = this._gain * this._weight;
+        if (this._type === NodeType.SOURCE) {
+            this.innerOperation && this.innerOperation();
         }
     }
     connect (node: InnerctxAudioNode): InnerctxAudioNode {

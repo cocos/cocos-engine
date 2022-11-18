@@ -1,7 +1,5 @@
-import { HTML5, MINIGAME, NATIVE } from 'internal:constants';
 import { CCAudioContext, AudioContextOptions } from './base';
 import { DomAudioContext } from './dom';
-import { defaultInnerContext, InnerctxAudioContext } from './innerctx';
 import { AudioFormat, AudioInfo } from './type';
 import { WAAudioContext, waDefaultContext } from './webaudio';
 import { waAudioBufferManager } from './webaudio/graph/audio-buffer-manager';
@@ -16,22 +14,18 @@ enum AudioBackend {
 class AudioContextManager {
     public defaultContext: CCAudioContext;
     public createAudioContext (backend: AudioBackend, options?: AudioContextOptions): CCAudioContext {
-        if (MINIGAME) {
-            return new InnerctxAudioContext(options);
-        }
         switch (backend) {
         case AudioBackend.DOM:
             return new DomAudioContext(options);
-
         case AudioBackend.WEBAUDIO:
         default:
-            return new WAAudioContext(options);// return new window.AudioContext()
+            return new WAAudioContext(options);
         }
     }
-    public load (url: string):Promise<AudioInfo> {
+    public load (url: string, ctx?: CCAudioContext):Promise<AudioInfo> {
         return new Promise<AudioInfo>((resolve, reject) => {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-            audioBufferManager.loadBuffer(url).then((buffer) => {
+            audioBufferManager.loadBuffer(url, ctx || this.defaultContext).then((buffer) => {
                 resolve({
                     duration: buffer.duration,
                     pcmHeader: {

@@ -1,14 +1,16 @@
 import { AudioContextOptions, CCAudioContext, StateChangeCallback } from '../../base';
-import { waAudioBufferManager } from './audio-buffer-manager';
 import { WAGainNode } from './wa-gain-node';
 import { WASourceNode } from './wa-source-node';
 import { WAStereoPannerNode } from './wa-stereo-panner-node';
 
-export class WAAudioContext extends CCAudioContext {
+export class WAAudioContext implements CCAudioContext {
     private _ctx: AudioContext;
     get ctx () { return this._ctx; }
     get currentTime (): number {
         return this._ctx.currentTime;
+    }
+    set currentTime (time: number) {
+
     }
     get destination (): AudioDestinationNode {
         return this._ctx.destination;
@@ -47,20 +49,44 @@ export class WAAudioContext extends CCAudioContext {
         successCallback?: DecodeSuccessCallback | null | undefined,
         errorCallback?: DecodeErrorCallback | null | undefined): Promise<AudioBuffer> {
         //TODO: optimize audiobuffermanager to load buffer dynamically.
-        return waAudioBufferManager.loadBuffer(url, this);
+        return new Promise<AudioBuffer>((resolve, reject) => {
+            const xhr = new XMLHttpRequest();
+            const errInfo = `load audio failed: ${url}, status: `;
+            xhr.open('GET', url, true);
+            xhr.responseType = 'arraybuffer';
+
+            xhr.onload = () => {
+                if (xhr.status === 200 || xhr.status === 0) {
+                    const arrBuf: ArrayBuffer = xhr.response;
+                    this._ctx.decodeAudioData(arrBuf,
+                        null,
+                        () => { console.log('decode failed'); })
+                        .then((decodedAudioBuffer) => {
+                            resolve(decodedAudioBuffer);
+                        }).catch((e) => {
+                            console.error(`decode audio data failed, with error data${e.toString()}`);
+                        });
+                } else {
+                    reject(new Error(`${errInfo}${xhr.status}(no response)`));
+                }
+            };
+            xhr.onerror = () => { reject(new Error(`${errInfo}${xhr.status}(error)`)); };
+            xhr.ontimeout = () => { reject(new Error(`${errInfo}${xhr.status}(time out)`)); };
+            xhr.onabort = () => { reject(new Error(`${errInfo}${xhr.status}(abort)`)); };
+            xhr.send(null);
+        });
     }
     protected _state = 'closed';
     close () {
-        throw new Error('Method not implemented.');
+        this._ctx.close().catch(() => {});
     }
     resume () {
-        throw new Error('Method not implemented.');
+        this._ctx.resume().catch(() => {});
     }
     suspend () {
-        throw new Error('Method not implemented.');
+        this._ctx.suspend().catch(() => {});
     }
     constructor (options?: AudioContextOptions) {
-        super(options);
         this._ctx = new AudioContext(options);
         this._state = this._ctx.state;
     }

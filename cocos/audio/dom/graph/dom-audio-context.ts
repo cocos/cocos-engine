@@ -5,7 +5,7 @@ import { DomDestinationNode } from './dom-destination-node';
 import { DomSourceNode } from './dom-source-node';
 import { DomStereoPannerNode } from './dom-stereo-panner-node';
 
-export class DomAudioContext extends CCAudioContext {
+export class DomAudioContext implements CCAudioContext {
     private _dest: DomDestinationNode;
     private _sources: CCSourceNode[] = []
     close () {
@@ -13,16 +13,19 @@ export class DomAudioContext extends CCAudioContext {
         this._sources.forEach((source) => {
             source.stop();
         });
+        this._state = 'close';
     }
     resume () {
         this._sources.forEach((source) => {
             source.start();
         });
+        this._state = 'running';
     }
     suspend () {
         this._sources.forEach((source) => {
             source.start();
         });
+        this._state = 'suspend';
     }
     get currentTime () {
         console.warn('Current time is a meanless property');
@@ -33,6 +36,7 @@ export class DomAudioContext extends CCAudioContext {
     }
     // listener: AudioListener;
     public onstatechange: StateChangeCallback;
+    private _state = 'running';
     get sampleRate () {
         return 0;
     }
@@ -43,7 +47,9 @@ export class DomAudioContext extends CCAudioContext {
         return new DomAudioBuffer();
     }
     createSourceNode (buffer?: DomAudioBuffer): DomSourceNode {
-        return new DomSourceNode(this, buffer);
+        const source = new DomSourceNode(this, buffer);
+        this._sources.push(source);
+        return source;
     }
     createGain (): DomGainNode {
         return new DomGainNode(this);
@@ -64,7 +70,6 @@ export class DomAudioContext extends CCAudioContext {
         });
     }
     constructor (options?: AudioContextOptions) {
-        super();
         this._dest = new DomDestinationNode(this);
         this.onstatechange = (ctx: CCAudioContext, ev: Event) => {};
     }
