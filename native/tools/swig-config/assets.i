@@ -49,6 +49,7 @@
 //  1. 'Ignore Section' should be placed before attribute definition and %import/%include
 //  2. namespace is needed
 //
+%ignore cc::RefCounted;
 %ignore cc::Asset::createNode; //FIXME: swig needs to support std::function
 %ignore cc::IMemoryImageSource::data;
 %ignore cc::IMemoryImageSource::compressed;
@@ -180,6 +181,7 @@
 //   %import "your_header_file.h" will not generate code for that header file
 //
 %import "base/Macros.h"
+%import "base/RefCounted.h"
 %import "base/TypeDef.h"
 %import "base/Ptr.h"
 %import "base/memory/Memory.h"

@@ -180,6 +180,14 @@
         },
         "custom-pipeline": {
             "modules": ["custom-pipeline"]
+        },
+        "websocket": {
+            "modules": [],
+            "isNativeOnly": true
+        },
+        "websocket-server": {
+            "modules": [],
+            "isNativeOnly": true
         }
     },
     "moduleOverrides": [{

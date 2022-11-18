@@ -419,6 +419,7 @@ export class LODGroup extends Component {
                     if (!renderer) {
                         continue;
                     }
+                    renderer.model?.updateWorldBound();
                     let worldBounds = renderer.model?.worldBounds;
                     if (worldBounds) {
                         if (JSB) {
