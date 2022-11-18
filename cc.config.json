@@ -323,6 +323,7 @@
             "comment": "Running in the taobao creative app.",
             "type": "boolean",
             "value": false,
+            "ccGlobal": true,
             "internal": false
         },
         "BYTEDANCE": {
