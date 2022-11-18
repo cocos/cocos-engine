@@ -53,15 +53,17 @@ namespace pipeline
 
         void update(const RayTracingSceneUpdateInfo& updateInfo);
 
-        /*
-        void fillBlasInfo(gfx::AccelerationStructureInfo& blasInfo, const RayTracingInstanceDescriptor& instance) {
+        
+        void fillBlasInfo2(gfx::AccelerationStructureInfo& blasInfo, const RayTracingInstanceDescriptor& instance) {
             if (instance.shadingGeometries[0].meshDescriptor) {
+                //triangle mesh
                 for (const auto& shadingGeom : instance.shadingGeometries) {
                     gfx::ASTriangleMesh blasGeomMesh{};
                     fillblasGeomTriangleMesh(blasGeomMesh, shadingGeom.meshDescriptor.value());
                     blasInfo.triangleMeshes.push_back(blasGeomMesh);
                 }
             } else {
+                //aabb
                 gfx::ASAABB blasGeomAABB{};
                 blasGeomAABB.flag = gfx::ASGeometryFlagBit::GEOMETRY_OPAQUE;
                 blasGeomAABB.minX = blasGeomAABB.minY = blasGeomAABB.minZ = -0.5;
@@ -70,7 +72,7 @@ namespace pipeline
             }
 
             blasInfo.buildFlag = gfx::ASBuildFlagBits::ALLOW_COMPACTION | gfx::ASBuildFlagBits::PREFER_FAST_TRACE;
-        }*/
+        }
 
         void fillblasGeomTriangleMesh(gfx::ASTriangleMesh& blasGeomMesh, const RayTracingMeshDescriptor& mesh) {
             blasGeomMesh.flag = gfx::ASGeometryFlagBit::GEOMETRY_OPAQUE;
@@ -131,15 +133,25 @@ namespace pipeline
             return blas;
         }
 
-        auto handleInstance(const RayTracingInstanceDescriptor& instance) {
+        gfx::ASInstance handleInstance(const RayTracingInstanceDescriptor& instance) {
             gfx::ASInstance asInstanceInfo{};
             asInstanceInfo.mask = 0xFF;
             asInstanceInfo.flags = gfx::GeometryInstanceFlagBits::TRIANGLE_FACING_CULL_DISABLE;
+            asInstanceInfo.transform = instance.transform;
+            gfx::AccelerationStructureInfo blasInfo{};
+            fillBlasInfo2(blasInfo, instance);
+            auto result = existBlas(blasInfo);
+            if (result) {
+                asInstanceInfo.accelerationStructureRef = result.value();
+            } else {
+                // New BLAS should be create and build.
+                asInstanceInfo.accelerationStructureRef = createBlas(blasInfo);
+            }
 
-            meshShadingInstanceDescriptor shadingInstanceDescriptor{};
+            //meshShadingInstanceDescriptor shadingInstanceDescriptor{};
             
-            handleInstanceGeometries(instance, asInstanceInfo,shadingInstanceDescriptor);
-            handleInstanceMaterials(instance, asInstanceInfo,shadingInstanceDescriptor);
+            //handleInstanceGeometries(instance, asInstanceInfo,shadingInstanceDescriptor);
+            //handleInstanceMaterials(instance, asInstanceInfo,shadingInstanceDescriptor);
 
             return asInstanceInfo;
         }
@@ -147,20 +159,24 @@ namespace pipeline
         void handleInstanceGeometries(const RayTracingInstanceDescriptor& instance, gfx::ASInstance& info, meshShadingInstanceDescriptor& shadingInstanceDescriptor) {
            
             const auto& shadingGeometries = instance.shadingGeometries;
-            shadingInstanceDescriptor.subMeshCount = shadingGeometries.size();
+            if (shadingGeometries[0].meshDescriptor.has_value()) {
+                //traingle mesh
+                shadingInstanceDescriptor.subMeshCount = shadingGeometries.size();
+            }else {
+                //aabb
+            }
             // todo temporal code
             shadingInstanceDescriptor.padding = shadingGeometries[0].meshDescriptor.value().indexBuffer->getStride() == 2 ? 0 : 1;
             info.transform = instance.transform;
             gfx::AccelerationStructureInfo blasInfo{};
-            // fillBlasInfo(blasInfo, instance); todo
+            //fillBlasInfo(blasInfo, instance); 
             auto result = existBlas(blasInfo);
             if (result) {
                 info.accelerationStructureRef = result.value();
             } else {
                 // New BLAS should be create and build.
                 info.accelerationStructureRef = createBlas(blasInfo);
-
-                // New subMesh geometry should be added
+                // New subMesh geometry should be added (ray query)
                 if (!blasInfo.triangleMeshes.empty()) {
                     shadingInstanceDescriptor.subMeshGeometryOffset = rqBinding._geomDesc.size();
                     for (const auto& info : blasInfo.triangleMeshes) {
@@ -172,7 +188,6 @@ namespace pipeline
                 }
             }
         }
-
         void handleInstanceMaterials(const RayTracingInstanceDescriptor& instance, gfx::ASInstance& info, meshShadingInstanceDescriptor& shadingInstanceDescriptor) {
             info.instanceCustomIdx = ~0U;
             info.shaderBindingTableRecordOffset = ~0U;
@@ -252,6 +267,7 @@ namespace pipeline
                 _hitGroupShaderRecordList.insert(_hitGroupShaderRecordList.end(), instanceShaderRecords.begin(), instanceShaderRecords.end());
             }*/
         }
+
     };
 } // namespace pipeline
 } // namespace cc
