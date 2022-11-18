@@ -68,7 +68,7 @@ class SystemInfo extends EventTarget {
 
         // init os, osVersion and osMainVersion
         console.log(`minigameSysInfo platform:${minigameSysInfo.platform}`);
-        const minigamePlatform = minigameSysInfo.platform.toLocaleLowerCase();
+        const minigamePlatform = minigameSysInfo.platform;
         if (minigamePlatform === 'android') {
             this.os = OS.ANDROID;
         } else if (minigamePlatform === 'ios') {
