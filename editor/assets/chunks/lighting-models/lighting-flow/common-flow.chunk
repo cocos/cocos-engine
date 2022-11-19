@@ -103,11 +103,12 @@
       // CCSurfacesLightingCalculateBaked:
       lightingResult.lightmapColor = vec3(0.0);
       #if CC_SURFACES_USE_LIGHT_MAP && !CC_FORWARD_ADD
-        vec4 lightmap = GetLightMapColor(cc_lightingMap, FSInput_lightMapUV.xy, FSInput_lightMapUV.z);
-        lightingResult.lightmapColor = lightmap.rgb;
-        
+		float lightmapShadow, lightmapAO;
+        GetLightMapColor(lightingResult.lightmapColor, lightmapShadow, lightmapAO, cc_lightingMap, FSInput_lightMapUV.xy, FSInput_lightMapUV.z, surfaceData.worldNormal);
+      
         #if CC_SURFACES_USE_LIGHT_MAP == CC_LIGHTMAP_INDIRECT_OCCLUSION
-          lightingResult.shadow *= lightmap.a;
+          lightingResult.shadow *= lightmapShadow;
+          lightingResult.ao *= lightmapAO;
         #endif
       #endif
 
