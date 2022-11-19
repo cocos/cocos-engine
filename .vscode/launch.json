@@ -56,7 +56,24 @@
                 "program": "${workspaceFolder}/node_modules/jest/bin/jest.js"
             },
             "args": [
-                "${fileBasenameNoExtension}"
+                "--runTestsByPath",
+                "${relativeFileDirname}/${fileBasename}"
+            ],
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",
+            "disableOptimisticBPs": true,
+        },
+        {
+            "type": "node",
+            "name": "Unit Test Serialization",
+            "request": "launch",
+            "program": "${workspaceFolder}/node_modules/.bin/jest",
+            "windows": {
+                "program": "${workspaceFolder}/node_modules/jest/bin/jest.js"
+            },
+            "args": [
+                "--testPathPattern=shared/.*\\.test\\.ts"
             ],
             "cwd": "${workspaceFolder}",
             "console": "integratedTerminal",

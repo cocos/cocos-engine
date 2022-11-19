@@ -24,32 +24,29 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module ui
- */
-
 import { ccclass, help, executionOrder, menu, requireComponent, tooltip, displayOrder, range, type, serializable } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
-import { EventHandler as ComponentEventHandler } from '../core/components/component-event-handler';
+import { EventHandler as ComponentEventHandler } from '../scene-graph/component-event-handler';
 import { UITransform } from '../2d/framework';
-import { Event } from '../core/event';
-import { EventMouse, EventTouch, Touch, logID } from '../core/platform';
+import { Event, EventMouse, EventTouch, Touch, SystemEventType, EventHandle, EventGamepad } from '../input/types';
+import { logID } from '../core/platform/debug';
 import { Size, Vec2, Vec3 } from '../core/math';
 import { Layout } from './layout';
 import { ScrollBar } from './scroll-bar';
 import { ViewGroup } from './view-group';
-import { Node } from '../core/scene-graph/node';
-import { director, Director } from '../core/director';
-import { TransformBit } from '../core/scene-graph/node-enum';
+import { Node } from '../scene-graph/node';
+import { director, Director } from '../game/director';
+import { TransformBit } from '../scene-graph/node-enum';
 import { legacyCC } from '../core/global-exports';
+import { NodeEventType } from '../scene-graph/node-event';
+import { Input, input } from '../input/input';
+import { DeviceType, XrUIPressEvent, XrUIPressEventType } from '../xr/event/xr-event-handle';
 
 const NUMBER_OF_GATHERED_TOUCHES_FOR_MOVE_SPEED = 5;
 const OUT_OF_BOUNDARY_BREAKING_FACTOR = 0.05;
 const EPSILON = 1e-4;
 const TOLERANCE = 1e4;
 const MOVEMENT_FACTOR = 0.7;
-const ZERO = new Vec3();
 const _tempVec3 = new Vec3();
 const _tempVec3_1 = new Vec3();
 const _tempVec2 = new Vec2();
@@ -195,6 +192,12 @@ export enum EventType {
     TOUCH_UP = 'touch-up',
 }
 
+enum XrhoverType {
+    NONE = 0,
+    LEFT = 1,
+    RIGHT = 2
+}
+
 /**
  * @en
  * Layout container for a view hierarchy that can be scrolled by the user,
@@ -221,7 +224,7 @@ export class ScrollView extends ViewGroup {
      */
     @serializable
     @range([0, 10])
-    @displayOrder(0)
+    @displayOrder(5)
     @tooltip('i18n:scrollview.bounceDuration')
     public bounceDuration = 1;
 
@@ -235,7 +238,7 @@ export class ScrollView extends ViewGroup {
      */
     @serializable
     @range([0, 1, 0.1])
-    @displayOrder(1)
+    @displayOrder(3)
     @tooltip('i18n:scrollview.brake')
     public brake = 0.5;
 
@@ -247,7 +250,7 @@ export class ScrollView extends ViewGroup {
      * 是否允许滚动内容超过边界，并在停止触摸后回弹。
      */
     @serializable
-    @displayOrder(2)
+    @displayOrder(3)
     @tooltip('i18n:scrollview.elastic')
     public elastic = true;
 
@@ -259,7 +262,7 @@ export class ScrollView extends ViewGroup {
      * 是否开启滚动惯性。
      */
     @serializable
-    @displayOrder(3)
+    @displayOrder(2)
     @tooltip('i18n:scrollview.inertia')
     public inertia = true;
 
@@ -271,7 +274,7 @@ export class ScrollView extends ViewGroup {
      * 可滚动展示内容的节点。
      */
     @type(Node)
-    @displayOrder(4)
+    @displayOrder(5)
     @tooltip('i18n:scrollview.content')
     get content () {
         return this._content;
@@ -298,7 +301,7 @@ export class ScrollView extends ViewGroup {
      * 是否开启水平滚动。
      */
     @serializable
-    @displayOrder(5)
+    @displayOrder(0)
     @tooltip('i18n:scrollview.horizontal')
     public horizontal = true;
 
@@ -309,7 +312,7 @@ export class ScrollView extends ViewGroup {
      * 水平滚动的 ScrollBar。
      */
     @type(ScrollBar)
-    @displayOrder(6)
+    @displayOrder(0)
     @tooltip('i18n:scrollview.horizontal_bar')
     get horizontalScrollBar () {
         return this._horizontalScrollBar;
@@ -324,7 +327,7 @@ export class ScrollView extends ViewGroup {
 
         if (this._horizontalScrollBar) {
             this._horizontalScrollBar.setScrollView(this);
-            this._updateScrollBar(ZERO);
+            this._updateScrollBar(Vec2.ZERO);
         }
     }
 
@@ -336,7 +339,7 @@ export class ScrollView extends ViewGroup {
      * 是否开启垂直滚动。
      */
     @serializable
-    @displayOrder(7)
+    @displayOrder(1)
     @tooltip('i18n:scrollview.vertical')
     public vertical = true;
 
@@ -348,7 +351,7 @@ export class ScrollView extends ViewGroup {
      * 垂直滚动的 ScrollBar。
      */
     @type(ScrollBar)
-    @displayOrder(8)
+    @displayOrder(1)
     @tooltip('i18n:scrollview.vertical_bar')
     get verticalScrollBar () {
         return this._verticalScrollBar;
@@ -363,7 +366,7 @@ export class ScrollView extends ViewGroup {
 
         if (this._verticalScrollBar) {
             this._verticalScrollBar.setScrollView(this);
-            this._updateScrollBar(ZERO);
+            this._updateScrollBar(Vec2.ZERO);
         }
     }
 
@@ -440,6 +443,8 @@ export class ScrollView extends ViewGroup {
     protected _contentPos = new Vec3();
     protected _deltaPos = new Vec3();
 
+    protected _hoverIn: XrhoverType = XrhoverType.NONE;
+
     /**
      * @en
      * Scroll the content to the bottom boundary of ScrollView.
@@ -447,8 +452,9 @@ export class ScrollView extends ViewGroup {
      * @zh
      * 视图内容将在规定时间内滚动到视图底部。
      *
-     * @param timeInSecond - 滚动时间（s）。 如果超时，内容将立即跳到底部边界。
-     * @param attenuated - 滚动加速是否衰减，默认为 true。
+     * @param timeInSecond
+     * @en The rolling time(in seconds). If time is up, the content will slide to the bottom border. @zh 滚动时间（s）。 如果超时，内容将立即跳到底部边界。
+     * @param attenuated @en Whether the rolling acceleration is attenuated(The default is true) @zh 滚动加速是否衰减，默认为 true
      * @example
      * ```ts
      * // Scroll to the bottom of the view.
@@ -476,8 +482,9 @@ export class ScrollView extends ViewGroup {
      * @zh
      * 视图内容将在规定时间内滚动到视图顶部。
      *
-     * @param timeInSecond - 滚动时间（s）。 如果超时，内容将立即跳到顶部边界。
-     * @param attenuated - 滚动加速是否衰减，默认为 true。
+     * @param timeInSecond
+     * @en The rolling time(in seconds). If time is up, the content will slide to the bottom border. @zh 滚动时间（s）。 如果超时，内容将立即跳到底部边界。
+     * @param attenuated @en Whether the rolling acceleration is attenuated(The default is true) @zh 滚动加速是否衰减，默认为 true
      * @example
      * ```ts
      * // Scroll to the top of the view.
@@ -505,8 +512,9 @@ export class ScrollView extends ViewGroup {
      * @zh
      * 视图内容将在规定时间内滚动到视图左边。
      *
-     * @param timeInSecond - 滚动时间（s）。 如果超时，内容将立即跳到左边边界。
-     * @param attenuated - 滚动加速是否衰减，默认为 true。
+     * @param timeInSecond
+     * @en The rolling time(in seconds). If time is up, the content will slide to the bottom border. @zh 滚动时间（s）。 如果超时，内容将立即跳到底部边界。
+     * @param attenuated @en Whether the rolling acceleration is attenuated(The default is true) @zh 滚动加速是否衰减，默认为 true
      * @example
      * ```ts
      * // Scroll to the left of the view.
@@ -534,8 +542,9 @@ export class ScrollView extends ViewGroup {
      * @zh
      * 视图内容将在规定时间内滚动到视图右边。
      *
-     * @param timeInSecond - 滚动时间（s）。 如果超时，内容将立即跳到右边边界。
-     * @param attenuated - 滚动加速是否衰减，默认为 true。
+     * @param timeInSecond
+     * @en The rolling time(in seconds). If time is up, the content will slide to the bottom border. @zh 滚动时间（s）。 如果超时，内容将立即跳到底部边界。
+     * @param attenuated @en Whether the rolling acceleration is attenuated(The default is true) @zh 滚动加速是否衰减，默认为 true
      * @example
      * ```ts
      * // Scroll to the right of the view.
@@ -563,8 +572,9 @@ export class ScrollView extends ViewGroup {
      * @zh
      * 视图内容将在规定时间内滚动到视图左上角。
      *
-     * @param timeInSecond - 滚动时间（s）。 如果超时，内容将立即跳到左上边边界。
-     * @param attenuated - 滚动加速是否衰减，默认为 true。
+     * @param timeInSecond
+     * @en The rolling time(in seconds). If time is up, the content will slide to the bottom border. @zh 滚动时间（s）。 如果超时，内容将立即跳到底部边界。
+     * @param attenuated @en Whether the rolling acceleration is attenuated(The default is true) @zh 滚动加速是否衰减，默认为 true
      * @example
      * ```ts
      * // Scroll to the upper left corner of the view.
@@ -592,8 +602,9 @@ export class ScrollView extends ViewGroup {
      * @zh
      * 视图内容将在规定时间内滚动到视图右上角。
      *
-     * @param timeInSecond - 滚动时间（s）。 如果超时，内容将立即跳到右上边界。
-     * @param attenuated - 滚动加速是否衰减，默认为 true。
+     * @param timeInSecond
+     * @en The rolling time(in seconds). If time is up, the content will slide to the bottom border. @zh 滚动时间（s）。 如果超时，内容将立即跳到底部边界。
+     * @param attenuated @en Whether the rolling acceleration is attenuated(The default is true) @zh 滚动加速是否衰减，默认为 true
      * @example
      * ```ts
      * // Scroll to the top right corner of the view.
@@ -621,8 +632,9 @@ export class ScrollView extends ViewGroup {
      * @zh
      * 视图内容将在规定时间内滚动到视图左下角。
      *
-     * @param timeInSecond - 滚动时间（s）。 如果超时，内容将立即跳到左下边界。
-     * @param attenuated - 滚动加速是否衰减，默认为 true。
+     * @param timeInSecond
+     * @en The rolling time(in seconds). If time is up, the content will slide to the bottom border. @zh 滚动时间（s）。 如果超时，内容将立即跳到底部边界。
+     * @param attenuated @en Whether the rolling acceleration is attenuated(The default is true) @zh 滚动加速是否衰减，默认为 true
      * @example
      * ```ts
      * // Scroll to the lower left corner of the view.
@@ -650,8 +662,9 @@ export class ScrollView extends ViewGroup {
      * @zh
      * 视图内容将在规定时间内滚动到视图右下角。
      *
-     * @param timeInSecond - 滚动时间（s）。 如果超时，内容将立即跳到右边下边界。
-     * @param attenuated - 滚动加速是否衰减，默认为 true。
+     * @param timeInSecond
+     * @en The rolling time(in seconds). If time is up, the content will slide to the bottom border. @zh 滚动时间（s）。 如果超时，内容将立即跳到底部边界。
+     * @param attenuated @en Whether the rolling acceleration is attenuated(The default is true) @zh 滚动加速是否衰减，默认为 true
      * @example
      * ```ts
      * // Scroll to the lower right corner of the view.
@@ -674,22 +687,25 @@ export class ScrollView extends ViewGroup {
 
     /**
      * @en
-     * Scroll with an offset related to the ScrollView's top left origin, if timeInSecond is omitted, then it will jump to the specific offset immediately.
+     * Scroll with an offset related to the ScrollView's top left origin, if timeInSecond is omitted,
+     * then it will jump to the specific offset immediately.
      *
      * @zh
      * 视图内容在规定时间内将滚动到 ScrollView 相对左上角原点的偏移位置, 如果 timeInSecond 参数不传，则立即滚动到指定偏移位置。
      *
-     * @param offset - 指定移动偏移量。
-     * @param timeInSecond - 滚动时间（s）。 如果超时，内容将立即跳到指定偏移量处。
-     * @param attenuated - 滚动加速是否衰减，默认为 true。
+     * @param offset
+     * @en After scrolling the view, the position of the view content relative to the view window. @zh 滚动视图后，视图内容（content）相对于视图窗口（viewport）的位置。
+     * @param timeInSecond
+     * @en Scroll time (s). If it times out, the content immediately jumps to the specified offset. @zh 滚动时间（s）。 如果超时，内容将立即跳到指定偏移量处。
+     * @param attenuated @en Whether the rolling acceleration is attenuated(The default is true) @zh 滚动加速是否衰减，默认为 true
      * @example
      * ```ts
      * // Scroll to middle position in 0.1 second in x-axis
      * let maxScrollOffset = this.getMaxScrollOffset();
-     * scrollView.scrollToOffset(new Vec3(maxScrollOffset.x / 2, 0, 0), 0.1);
+     * scrollView.scrollToOffset(new Vec2(maxScrollOffset.x / 2, 0), 0.1);
      * ```
      */
-    public scrollToOffset (offset: Vec3, timeInSecond?: number, attenuated = true) {
+    public scrollToOffset (offset: Vec2, timeInSecond?: number, attenuated = true) {
         const maxScrollOffset = this.getMaxScrollOffset();
 
         const anchor = new Vec2(0, 0);
@@ -711,18 +727,18 @@ export class ScrollView extends ViewGroup {
 
     /**
      * @en
-     * Get the positive offset value corresponds to the content's top left boundary.
+     * Get the position of the scrolling view relative to the origin in the upper-left corner of the viewport.
      *
      * @zh
-     * 获取滚动视图相对于左上角原点的当前滚动偏移。
+     * 获取滚动视图相对于视图窗口左上角原点的位置。
      *
-     * @return - 当前滚动偏移量。
+     * @return @en Current rolling offset @zh 当前滚动偏移量
      */
     public getScrollOffset () {
         const topDelta = this._getContentTopBoundary() - this._topBoundary;
         const leftDelta = this._getContentLeftBoundary() - this._leftBoundary;
 
-        return new Vec3(leftDelta, topDelta, 0);
+        return new Vec2(leftDelta, topDelta);
     }
 
     /**
@@ -732,11 +748,11 @@ export class ScrollView extends ViewGroup {
      * @zh
      * 获取滚动视图最大可以滚动的偏移量。
      *
-     * @return - 最大可滚动偏移量。
+     * @return @en Maximum scrollable offset @zh 最大可滚动偏移量
      */
     public getMaxScrollOffset () {
         if (!this._content || !this.view) {
-            return ZERO;
+            return Vec2.ZERO;
         }
         const contentSize = this._content._uiProps.uiTransformComp!.contentSize;
         let horizontalMaximizeOffset = contentSize.width - this.view.width;
@@ -744,7 +760,7 @@ export class ScrollView extends ViewGroup {
         horizontalMaximizeOffset = horizontalMaximizeOffset >= 0 ? horizontalMaximizeOffset : 0;
         verticalMaximizeOffset = verticalMaximizeOffset >= 0 ? verticalMaximizeOffset : 0;
 
-        return new Vec3(horizontalMaximizeOffset, verticalMaximizeOffset, 0);
+        return new Vec2(horizontalMaximizeOffset, verticalMaximizeOffset);
     }
 
     /**
@@ -754,9 +770,11 @@ export class ScrollView extends ViewGroup {
      * @zh
      * 视图内容在规定时间内将滚动到 ScrollView 水平方向的百分比位置上。
      *
-     * @param percent - 0 - 之间的百分比。
-     * @param timeInSecond - 滚动时间（s）。 如果超时，内容将立即跳到指定水平百分比位置。
-     * @param attenuated - 滚动加速是否衰减，默认为 true。
+     * @param percent
+     * @en Scroll to the destination which is located at the percent interpolation from left border to the right border @zh 滚动到从左到右指定百分比插值的位置
+     * @param timeInSecond
+     * @en Scroll time (s). If it times out, the content immediately jumps to the specified offset. @zh 滚动时间（s）。 如果超时，内容将立即跳到指定偏移量处。
+     * @param attenuated @en Whether the rolling acceleration is attenuated(The default is true) @zh 滚动加速是否衰减，默认为 true
      * @example
      * ```ts
      * // Scroll to middle position.
@@ -784,9 +802,12 @@ export class ScrollView extends ViewGroup {
      * @zh
      * 视图内容在规定时间内进行垂直方向和水平方向的滚动，并且滚动到指定百分比位置上。
      *
-     * @param anchor - 在 new Vec2(0,0) and new Vec2(1,1) 上取差值的一个点。
-     * @param timeInSecond - 滚动时间（s）。 如果超时，内容将立即跳到指定水平或垂直百分比位置。
-     * @param attenuated - 滚动加速是否衰减，默认为 true。
+     * @param anchor
+     * @en Scroll to the destination which is located at the anchor interpolation from left/top border to the right/bottom border
+     * @zh 滚动到从左/上到右/下指定锚点对应分量插值的位置
+     * @param timeInSecond
+     * @en Scroll time (s). If it times out, the content immediately jumps to the specified offset. @zh 滚动时间（s）。 如果超时，内容将立即跳到指定偏移量处。
+     * @param attenuated @en Whether the rolling acceleration is attenuated(The default is true) @zh 滚动加速是否衰减，默认为 true
      * @example
      * ```ts
      * // Vertical scroll to the bottom of the view.
@@ -817,9 +838,11 @@ export class ScrollView extends ViewGroup {
      * @zh
      * 视图内容在规定时间内滚动到 ScrollView 垂直方向的百分比位置上。
      *
-     * @param percent - 0 - 1 之间的百分比。
-     * @param timeInSecond - 滚动时间（s）。 如果超时，内容将立即跳到指定垂直百分比位置。
-     * @param attenuated - 滚动加速是否衰减，默认为 true。
+     * @param percent
+     * @en Scroll to the destination which is located at the percent interpolation from top border to the bottom border @zh 滚动到从上到下指定百分比插值的位置
+     * @param timeInSecond
+     * @en Scroll time (s). If it times out, the content immediately jumps to the specified offset. @zh 滚动时间（s）。 如果超时，内容将立即跳到指定偏移量处。
+     * @param attenuated @en Whether the rolling acceleration is attenuated(The default is true) @zh 滚动加速是否衰减，默认为 true
      * @example
      * ```ts
      * scrollView.scrollToPercentVertical(0.5, 0.1);
@@ -858,13 +881,18 @@ export class ScrollView extends ViewGroup {
      * @zh
      * 设置当前视图内容的坐标点。
      *
-     * @param position - 当前视图坐标点.
+     * @param position @en Current content position @zh 希望设置内容框体的位置
+     * @deprecated Since 3.1.0, setContentPosition is deprecated, please use scrollToOffset instead.
      */
     public setContentPosition (position: Vec3) {
+        this._setContentPosition(position);
+    }
+
+    private _setContentPosition (position: Vec3) {
         if (!this._content) {
             return;
         }
-        const contentPos = this.getContentPosition();
+        const contentPos = this._getContentPosition();
         if (Math.abs(position.x - contentPos.x) < EPSILON && Math.abs(position.y - contentPos.y) < EPSILON) {
             return;
         }
@@ -880,11 +908,16 @@ export class ScrollView extends ViewGroup {
      * @zh
      * 获取当前视图内容的坐标点。
      *
-     * @returns - 当前视图内容的坐标点.
+     * @returns - current content position.
+     * @deprecated Since 3.1.0, getContentPosition is deprecated.
      */
     public getContentPosition () {
+        return this._getContentPosition();
+    }
+
+    private _getContentPosition (): Vec3 {
         if (!this._content) {
-            return ZERO;
+            return Vec3.ZERO.clone();
         }
 
         this._contentPos.set(this._content.position);
@@ -934,11 +967,11 @@ export class ScrollView extends ViewGroup {
         if (!EDITOR || legacyCC.GAME_VIEW) {
             this._registerEvent();
             if (this._content) {
-                this._content.on(Node.EventType.SIZE_CHANGED, this._calculateBoundary, this);
-                this._content.on(Node.EventType.TRANSFORM_CHANGED, this._scaleChanged, this);
+                this._content.on(NodeEventType.SIZE_CHANGED, this._calculateBoundary, this);
+                this._content.on(NodeEventType.TRANSFORM_CHANGED, this._scaleChanged, this);
                 if (this.view) {
-                    this.view.node.on(Node.EventType.TRANSFORM_CHANGED, this._scaleChanged, this);
-                    this.view.node.on(Node.EventType.SIZE_CHANGED, this._calculateBoundary, this);
+                    this.view.node.on(NodeEventType.TRANSFORM_CHANGED, this._scaleChanged, this);
+                    this.view.node.on(NodeEventType.SIZE_CHANGED, this._calculateBoundary, this);
                 }
             }
 
@@ -957,11 +990,11 @@ export class ScrollView extends ViewGroup {
         if (!EDITOR || legacyCC.GAME_VIEW) {
             this._unregisterEvent();
             if (this._content) {
-                this._content.off(Node.EventType.SIZE_CHANGED, this._calculateBoundary, this);
-                this._content.off(Node.EventType.TRANSFORM_CHANGED, this._scaleChanged, this);
+                this._content.off(NodeEventType.SIZE_CHANGED, this._calculateBoundary, this);
+                this._content.off(NodeEventType.TRANSFORM_CHANGED, this._scaleChanged, this);
                 if (this.view) {
-                    this.view.node.off(Node.EventType.TRANSFORM_CHANGED, this._scaleChanged, this);
-                    this.view.node.off(Node.EventType.SIZE_CHANGED, this._calculateBoundary, this);
+                    this.view.node.off(NodeEventType.TRANSFORM_CHANGED, this._scaleChanged, this);
+                    this.view.node.off(NodeEventType.SIZE_CHANGED, this._calculateBoundary, this);
                 }
             }
         }
@@ -971,19 +1004,30 @@ export class ScrollView extends ViewGroup {
 
     // private methods
     protected _registerEvent () {
-        this.node.on(Node.EventType.TOUCH_START, this._onTouchBegan, this, true);
-        this.node.on(Node.EventType.TOUCH_MOVE, this._onTouchMoved, this, true);
-        this.node.on(Node.EventType.TOUCH_END, this._onTouchEnded, this, true);
-        this.node.on(Node.EventType.TOUCH_CANCEL, this._onTouchCancelled, this, true);
-        this.node.on(Node.EventType.MOUSE_WHEEL, this._onMouseWheel, this, true);
+        this.node.on(NodeEventType.TOUCH_START, this._onTouchBegan, this, true);
+        this.node.on(NodeEventType.TOUCH_MOVE, this._onTouchMoved, this, true);
+        this.node.on(NodeEventType.TOUCH_END, this._onTouchEnded, this, true);
+        this.node.on(NodeEventType.TOUCH_CANCEL, this._onTouchCancelled, this, true);
+        this.node.on(NodeEventType.MOUSE_WHEEL, this._onMouseWheel, this, true);
+
+        this.node.on(XrUIPressEventType.XRUI_HOVER_ENTERED, this._xrHoverEnter, this);
+        this.node.on(XrUIPressEventType.XRUI_HOVER_EXITED, this._xrHoverExit, this);
+
+        input.on(Input.EventType.HANDLE_INPUT, this._dispatchEventHandleInput, this);
+        input.on(Input.EventType.GAMEPAD_INPUT, this._dispatchEventHandleInput, this);
     }
 
     protected _unregisterEvent () {
-        this.node.off(Node.EventType.TOUCH_START, this._onTouchBegan, this, true);
-        this.node.off(Node.EventType.TOUCH_MOVE, this._onTouchMoved, this, true);
-        this.node.off(Node.EventType.TOUCH_END, this._onTouchEnded, this, true);
-        this.node.off(Node.EventType.TOUCH_CANCEL, this._onTouchCancelled, this, true);
-        this.node.off(Node.EventType.MOUSE_WHEEL, this._onMouseWheel, this, true);
+        this.node.off(NodeEventType.TOUCH_START, this._onTouchBegan, this, true);
+        this.node.off(NodeEventType.TOUCH_MOVE, this._onTouchMoved, this, true);
+        this.node.off(NodeEventType.TOUCH_END, this._onTouchEnded, this, true);
+        this.node.off(NodeEventType.TOUCH_CANCEL, this._onTouchCancelled, this, true);
+        this.node.off(NodeEventType.MOUSE_WHEEL, this._onMouseWheel, this, true);
+
+        this.node.off(XrUIPressEventType.XRUI_HOVER_ENTERED, this._xrHoverEnter, this);
+        this.node.off(XrUIPressEventType.XRUI_HOVER_EXITED, this._xrHoverExit, this);
+        input.off(Input.EventType.HANDLE_INPUT, this._dispatchEventHandleInput, this);
+        input.off(Input.EventType.GAMEPAD_INPUT, this._dispatchEventHandleInput, this);
     }
 
     protected _onMouseWheel (event: EventMouse, captureListeners?: Node[]) {
@@ -1044,8 +1088,7 @@ export class ScrollView extends ViewGroup {
         if (deltaMove.length() > 7) {
             if (!this._touchMoved && event.target !== this.node) {
                 // Simulate touch cancel for target node
-                const cancelEvent = new EventTouch(event.getTouches(), event.bubbles);
-                cancelEvent.type = Node.EventType.TOUCH_CANCEL;
+                const cancelEvent = new EventTouch(event.getTouches(), event.bubbles, SystemEventType.TOUCH_CANCEL);
                 cancelEvent.touch = event.touch;
                 cancelEvent.simulate = true;
                 (event.target as Node).dispatchEvent(cancelEvent);
@@ -1107,7 +1150,7 @@ export class ScrollView extends ViewGroup {
 
     protected _hasNestedViewGroup (event: Event, captureListeners?: Node[]) {
         if (!event || event.eventPhase !== Event.CAPTURING_PHASE) {
-            return;
+            return false;
         }
 
         if (captureListeners) {
@@ -1146,7 +1189,7 @@ export class ScrollView extends ViewGroup {
     }
 
     protected _startAttenuatingAutoScroll (deltaMove: Vec3, initialVelocity: Vec3) {
-        const targetDelta = new Vec3(deltaMove);
+        const targetDelta = deltaMove.clone();
         targetDelta.normalize();
         if (this._content && this.view) {
             const contentSize = this._content._uiProps.uiTransformComp!.contentSize;
@@ -1169,9 +1212,9 @@ export class ScrollView extends ViewGroup {
 
         if (this.brake > 0 && factor > 7) {
             factor = Math.sqrt(factor);
-            const a = new Vec3(deltaMove);
-            a.multiplyScalar(factor);
-            targetDelta.set(a);
+            const clonedDeltaMove = deltaMove.clone();
+            clonedDeltaMove.multiplyScalar(factor);
+            targetDelta.set(clonedDeltaMove);
             targetDelta.add(deltaMove);
         }
 
@@ -1198,35 +1241,37 @@ export class ScrollView extends ViewGroup {
         this._autoScrolling = true;
         this._autoScrollTargetDelta = adjustedDeltaMove;
         this._autoScrollAttenuate = attenuated;
-        Vec3.copy(this._autoScrollStartPosition, this.getContentPosition());
+        Vec3.copy(this._autoScrollStartPosition, this._getContentPosition());
         this._autoScrollTotalTime = timeInSecond;
         this._autoScrollAccumulatedTime = 0;
         this._autoScrollBraking = false;
         this._isScrollEndedWithThresholdEventFired = false;
-        this._autoScrollBrakingStartPosition = new Vec3();
+        this._autoScrollBrakingStartPosition.set(0, 0, 0);
 
         const currentOutOfBoundary = this._getHowMuchOutOfBoundary();
-        if (!currentOutOfBoundary.equals(ZERO, EPSILON)) {
+        if (!currentOutOfBoundary.equals(Vec3.ZERO, EPSILON)) {
             this._autoScrollCurrentlyOutOfBoundary = true;
         }
     }
 
     protected _calculateTouchMoveVelocity () {
+        const out = new Vec3();
         let totalTime = 0;
         totalTime = this._touchMoveTimeDeltas.reduce((a, b) => a + b, totalTime);
 
         if (totalTime <= 0 || totalTime >= 0.5) {
-            return new Vec3();
+            out.set(Vec3.ZERO);
+        } else {
+            let totalMovement = new Vec3();
+            totalMovement = this._touchMoveDisplacements.reduce((a, b) => {
+                a.add(b);
+                return a;
+            }, totalMovement);
+
+            out.set(totalMovement.x * (1 - this.brake) / totalTime,
+                totalMovement.y * (1 - this.brake) / totalTime, totalMovement.z);
         }
-
-        let totalMovement = new Vec3();
-        totalMovement = this._touchMoveDisplacements.reduce((a, b) => {
-            a.add(b);
-            return a;
-        }, totalMovement);
-
-        return new Vec3(totalMovement.x * (1 - this.brake) / totalTime,
-            totalMovement.y * (1 - this.brake) / totalTime, 0);
+        return out;
     }
 
     protected _flattenVectorByDirection (vector: Vec3) {
@@ -1238,12 +1283,13 @@ export class ScrollView extends ViewGroup {
 
     protected _moveContent (deltaMove: Vec3, canStartBounceBack?: boolean) {
         const adjustedMove = this._flattenVectorByDirection(deltaMove);
-        _tempVec3.set(this.getContentPosition());
+        _tempVec3.set(this._getContentPosition());
         _tempVec3.add(adjustedMove);
-        _tempVec3.set(Math.floor(_tempVec3.x * TOLERANCE) * EPSILON, Math.floor(_tempVec3.y * TOLERANCE) * EPSILON, _tempVec3.z);
-        this.setContentPosition(_tempVec3);
+        _tempVec3.set(Math.round(_tempVec3.x * TOLERANCE) * EPSILON, Math.round(_tempVec3.y * TOLERANCE) * EPSILON, _tempVec3.z);
+        this._setContentPosition(_tempVec3);
         const outOfBoundary = this._getHowMuchOutOfBoundary();
-        this._updateScrollBar(outOfBoundary);
+        _tempVec2.set(outOfBoundary.x, outOfBoundary.y);
+        this._updateScrollBar(_tempVec2);
 
         if (this.elastic && canStartBounceBack) {
             this._startBounceBackIfNeeded();
@@ -1254,7 +1300,7 @@ export class ScrollView extends ViewGroup {
         if (!this._content) {
             return -1;
         }
-        const contentPos = this.getContentPosition();
+        const contentPos = this._getContentPosition();
         const uiTrans = this._content._uiProps.uiTransformComp!;
         return contentPos.x - uiTrans.anchorX * uiTrans.width;
     }
@@ -1279,40 +1325,44 @@ export class ScrollView extends ViewGroup {
         if (!this._content) {
             return -1;
         }
-        const contentPos = this.getContentPosition();
+        const contentPos = this._getContentPosition();
         const uiTrans = this._content._uiProps.uiTransformComp!;
         return contentPos.y - uiTrans.anchorY * uiTrans.height;
     }
 
     protected _getHowMuchOutOfBoundary (addition?: Vec3) {
         addition = addition || new Vec3();
-        if (addition.equals(ZERO, EPSILON) && !this._outOfBoundaryAmountDirty) {
+        if (addition.equals(Vec3.ZERO, EPSILON) && !this._outOfBoundaryAmountDirty) {
             return this._outOfBoundaryAmount;
         }
 
-        let outOfBoundaryAmount = new Vec3();
-        if (this._getContentLeftBoundary() + addition.x > this._leftBoundary) {
-            outOfBoundaryAmount.x = this._leftBoundary - (this._getContentLeftBoundary() + addition.x);
-        } else if (this._getContentRightBoundary() + addition.x < this._rightBoundary) {
-            outOfBoundaryAmount.x = this._rightBoundary - (this._getContentRightBoundary() + addition.x);
+        const outOfBoundaryAmount = new Vec3();
+        const tempLeftBoundary: number = this._getContentLeftBoundary();
+        const tempRightBoundary: number  = this._getContentRightBoundary();
+        if (tempLeftBoundary + addition.x > this._leftBoundary) {
+            outOfBoundaryAmount.x = this._leftBoundary - (tempLeftBoundary + addition.x);
+        } else if (tempRightBoundary + addition.x < this._rightBoundary) {
+            outOfBoundaryAmount.x = this._rightBoundary - (tempRightBoundary + addition.x);
         }
 
-        if (this._getContentTopBoundary() + addition.y < this._topBoundary) {
-            outOfBoundaryAmount.y = this._topBoundary - (this._getContentTopBoundary() + addition.y);
-        } else if (this._getContentBottomBoundary() + addition.y > this._bottomBoundary) {
-            outOfBoundaryAmount.y = this._bottomBoundary - (this._getContentBottomBoundary() + addition.y);
+        const tempTopBoundary: number = this._getContentTopBoundary();
+        const tempBottomBoundary: number = this._getContentBottomBoundary();
+        if (tempTopBoundary + addition.y < this._topBoundary) {
+            outOfBoundaryAmount.y = this._topBoundary - (tempTopBoundary + addition.y);
+        } else if (tempBottomBoundary + addition.y > this._bottomBoundary) {
+            outOfBoundaryAmount.y = this._bottomBoundary - (tempBottomBoundary + addition.y);
         }
 
-        if (addition.equals(ZERO, EPSILON)) {
+        if (addition.equals(Vec3.ZERO, EPSILON)) {
             this._outOfBoundaryAmount = outOfBoundaryAmount;
             this._outOfBoundaryAmountDirty = false;
         }
 
-        outOfBoundaryAmount = this._clampDelta(outOfBoundaryAmount);
+        this._clampDelta(outOfBoundaryAmount);
         return outOfBoundaryAmount;
     }
 
-    protected _updateScrollBar (outOfBoundary: Vec3) {
+    protected _updateScrollBar (outOfBoundary: Vec2 | Readonly<Vec2>) {
         if (this._horizontalScrollBar) {
             this._horizontalScrollBar.onScroll(outOfBoundary);
         }
@@ -1369,10 +1419,10 @@ export class ScrollView extends ViewGroup {
         this._outOfBoundaryAmountDirty = true;
         if (this._isOutOfBoundary()) {
             const outOfBoundary = this._getHowMuchOutOfBoundary();
-            _tempVec3.set(this.getContentPosition());
+            _tempVec3.set(this._getContentPosition());
             _tempVec3.add(outOfBoundary);
             this._content.setPosition(_tempVec3);
-            this._updateScrollBar(ZERO);
+            this._updateScrollBar(Vec2.ZERO);
         }
     }
 
@@ -1422,12 +1472,12 @@ export class ScrollView extends ViewGroup {
     }
 
     protected _handleMoveLogic (touch: Touch) {
-        this._deltaPos.set(this._getLocalAxisAlignDelta(touch));
+        this._getLocalAxisAlignDelta(this._deltaPos, touch);
         this._processDeltaMove(this._deltaPos);
     }
 
     protected _handleReleaseLogic (touch: Touch) {
-        this._deltaPos.set(this._getLocalAxisAlignDelta(touch));
+        this._getLocalAxisAlignDelta(this._deltaPos, touch);
         this._gatherTouchMove(this._deltaPos);
         this._processInertiaScroll();
 
@@ -1439,7 +1489,7 @@ export class ScrollView extends ViewGroup {
         }
     }
 
-    protected _getLocalAxisAlignDelta (touch: Touch) {
+    protected _getLocalAxisAlignDelta (out: Vec3, touch: Touch) {
         const uiTransformComp = this.node._uiProps.uiTransformComp;
         const vec = new Vec3();
 
@@ -1453,11 +1503,11 @@ export class ScrollView extends ViewGroup {
             Vec3.subtract(vec, _tempVec3, _tempVec3_1);
         }
 
-        return vec;
+        out.set(vec);
     }
 
     protected _scrollChildren (deltaMove: Vec3) {
-        deltaMove = this._clampDelta(deltaMove);
+        this._clampDelta(deltaMove);
 
         const realMove = deltaMove;
         let outOfBoundary: Vec3;
@@ -1472,39 +1522,46 @@ export class ScrollView extends ViewGroup {
             realMove.add(outOfBoundary);
         }
 
-        let scrollEventType;
+        let verticalScrollEventType = '';
+        let horizontalScrollEventType = '';
         if (this._content) {
             const { anchorX, anchorY, width, height } = this._content._uiProps.uiTransformComp!;
-            const pos = this._content.position || ZERO;
-            if (realMove.y > 0) { // up
-                const icBottomPos = pos.y - anchorY * height;
+            const pos = this._content.position || Vec3.ZERO;
 
-                if (icBottomPos + realMove.y >= this._bottomBoundary) {
-                    scrollEventType = EventType.SCROLL_TO_BOTTOM;
-                }
-            } else if (realMove.y < 0) { // down
-                const icTopPos = pos.y - anchorY * height + height;
+            if (this.vertical) {
+                if (realMove.y > 0) { // up
+                    const icBottomPos = pos.y - anchorY * height;
 
-                if (icTopPos + realMove.y <= this._topBoundary) {
-                    scrollEventType = EventType.SCROLL_TO_TOP;
+                    if (icBottomPos + realMove.y >= this._bottomBoundary) {
+                        verticalScrollEventType = EventType.SCROLL_TO_BOTTOM;
+                    }
+                } else if (realMove.y < 0) { // down
+                    const icTopPos = pos.y - anchorY * height + height;
+
+                    if (icTopPos + realMove.y <= this._topBoundary) {
+                        verticalScrollEventType = EventType.SCROLL_TO_TOP;
+                    }
                 }
             }
-            if (realMove.x < 0) { // left
-                const icRightPos = pos.x - anchorX * width + width;
-                if (icRightPos + realMove.x <= this._rightBoundary) {
-                    scrollEventType = EventType.SCROLL_TO_RIGHT;
-                }
-            } else if (realMove.x > 0) { // right
-                const icLeftPos = pos.x - anchorX * width;
-                if (icLeftPos + realMove.x >= this._leftBoundary) {
-                    scrollEventType = EventType.SCROLL_TO_LEFT;
+
+            if (this.horizontal) {
+                if (realMove.x < 0) { // left
+                    const icRightPos = pos.x - anchorX * width + width;
+                    if (icRightPos + realMove.x <= this._rightBoundary) {
+                        horizontalScrollEventType = EventType.SCROLL_TO_RIGHT;
+                    }
+                } else if (realMove.x > 0) { // right
+                    const icLeftPos = pos.x - anchorX * width;
+                    if (icLeftPos + realMove.x >= this._leftBoundary) {
+                        horizontalScrollEventType = EventType.SCROLL_TO_LEFT;
+                    }
                 }
             }
         }
 
         this._moveContent(realMove, false);
 
-        if (realMove.x !== 0 || realMove.y !== 0) {
+        if ((this.horizontal && realMove.x !== 0) || (this.vertical && realMove.y !== 0)) {
             if (!this._scrolling) {
                 this._scrolling = true;
                 this._dispatchEvent(EventType.SCROLL_BEGAN);
@@ -1512,8 +1569,11 @@ export class ScrollView extends ViewGroup {
             this._dispatchEvent(EventType.SCROLLING);
         }
 
-        if (scrollEventType && scrollEventType.length > 0) {
-            this._dispatchEvent(scrollEventType);
+        if (verticalScrollEventType !== '') {
+            this._dispatchEvent(verticalScrollEventType);
+        }
+        if (horizontalScrollEventType !== '') {
+            this._dispatchEvent(horizontalScrollEventType);
         }
     }
 
@@ -1532,19 +1592,17 @@ export class ScrollView extends ViewGroup {
         this._onScrollBarTouchBegan();
     }
 
-    protected _clampDelta (delta: Vec3) {
+    protected _clampDelta (out: Vec3) {
         if (this._content && this.view) {
             const scrollViewSize = this.view.contentSize;
             const uiTrans = this._content._uiProps.uiTransformComp!;
             if (uiTrans.width < scrollViewSize.width) {
-                delta.x = 0;
+                out.x = 0;
             }
             if (uiTrans.height < scrollViewSize.height) {
-                delta.y = 0;
+                out.y = 0;
             }
         }
-
-        return delta;
     }
 
     protected _gatherTouchMove (delta: Vec3) {
@@ -1568,10 +1626,10 @@ export class ScrollView extends ViewGroup {
             return false;
         }
 
-        let bounceBackAmount = this._getHowMuchOutOfBoundary();
-        bounceBackAmount = this._clampDelta(bounceBackAmount);
+        const bounceBackAmount = this._getHowMuchOutOfBoundary();
+        this._clampDelta(bounceBackAmount);
 
-        if (bounceBackAmount.equals(ZERO, EPSILON)) {
+        if (bounceBackAmount.equals(Vec3.ZERO, EPSILON)) {
             return false;
         }
 
@@ -1603,7 +1661,7 @@ export class ScrollView extends ViewGroup {
 
     protected _isOutOfBoundary () {
         const outOfBoundary = this._getHowMuchOutOfBoundary();
-        return !outOfBoundary.equals(ZERO, EPSILON);
+        return !outOfBoundary.equals(Vec3.ZERO, EPSILON);
     }
 
     protected _isNecessaryAutoScrollBrake () {
@@ -1615,7 +1673,7 @@ export class ScrollView extends ViewGroup {
             if (!this._autoScrollCurrentlyOutOfBoundary) {
                 this._autoScrollCurrentlyOutOfBoundary = true;
                 this._autoScrollBraking = true;
-                this._autoScrollBrakingStartPosition = this.getContentPosition();
+                Vec3.copy(this._autoScrollBrakingStartPosition, this._getContentPosition());
                 return true;
             }
         } else {
@@ -1635,10 +1693,10 @@ export class ScrollView extends ViewGroup {
             percentage = quintEaseOut(percentage);
         }
 
-        const a = new Vec3(this._autoScrollTargetDelta);
-        a.multiplyScalar(percentage);
-        const newPosition = new Vec3(this._autoScrollStartPosition);
-        newPosition.add(a);
+        const clonedAutoScrollTargetDelta = this._autoScrollTargetDelta.clone();
+        clonedAutoScrollTargetDelta.multiplyScalar(percentage);
+        const clonedAutoScrollStartPosition = this._autoScrollStartPosition.clone();
+        clonedAutoScrollStartPosition.add(clonedAutoScrollTargetDelta);
         let reachedEnd = Math.abs(percentage - 1) <= EPSILON;
 
         const fireEvent = Math.abs(percentage - 1) <= this.getScrollEndedEventTiming();
@@ -1648,19 +1706,19 @@ export class ScrollView extends ViewGroup {
         }
 
         if (this.elastic) {
-            const brakeOffsetPosition = new Vec3(newPosition);
+            const brakeOffsetPosition = clonedAutoScrollStartPosition.clone();
             brakeOffsetPosition.subtract(this._autoScrollBrakingStartPosition);
             if (isAutoScrollBrake) {
                 brakeOffsetPosition.multiplyScalar(brakingFactor);
             }
-            newPosition.set(this._autoScrollBrakingStartPosition);
-            newPosition.add(brakeOffsetPosition);
+            clonedAutoScrollStartPosition.set(this._autoScrollBrakingStartPosition);
+            clonedAutoScrollStartPosition.add(brakeOffsetPosition);
         } else {
-            const moveDelta = new Vec3(newPosition);
+            const moveDelta = clonedAutoScrollStartPosition.clone();
             moveDelta.subtract(this.getContentPosition());
             const outOfBoundary = this._getHowMuchOutOfBoundary(moveDelta);
-            if (!outOfBoundary.equals(ZERO, EPSILON)) {
-                newPosition.add(outOfBoundary);
+            if (!outOfBoundary.equals(Vec3.ZERO, EPSILON)) {
+                clonedAutoScrollStartPosition.add(outOfBoundary);
                 reachedEnd = true;
             }
         }
@@ -1669,9 +1727,10 @@ export class ScrollView extends ViewGroup {
             this._autoScrolling = false;
         }
 
-        const deltaMove = new Vec3(newPosition);
-        deltaMove.subtract(this.getContentPosition());
-        this._moveContent(this._clampDelta(deltaMove), reachedEnd);
+        const deltaMove = clonedAutoScrollStartPosition.clone();
+        deltaMove.subtract(this._getContentPosition());
+        this._clampDelta(deltaMove);
+        this._moveContent(deltaMove, reachedEnd);
         this._dispatchEvent(EventType.SCROLLING);
 
         if (!this._autoScrolling) {
@@ -1685,7 +1744,7 @@ export class ScrollView extends ViewGroup {
         const currentOutOfBoundary = this._getHowMuchOutOfBoundary();
         const maxElapsedTime = 0.1;
 
-        if (!currentOutOfBoundary.equals(ZERO, EPSILON)) {
+        if (!currentOutOfBoundary.equals(Vec3.ZERO, EPSILON)) {
             this._processInertiaScroll();
             this.unschedule(this._checkMouseWheel);
             this._dispatchEvent(EventType.SCROLL_ENDED);
@@ -1710,7 +1769,7 @@ export class ScrollView extends ViewGroup {
         const applyToVertical = options.applyToVertical;
         this._calculateBoundary();
 
-        anchor.clampf(new Vec2(0, 0), new Vec2(1, 1));
+        anchor.clampf(Vec2.ZERO, Vec2.ONE);
 
         let bottomDelta = this._getContentBottomBoundary() - this._bottomBoundary;
         bottomDelta = -bottomDelta;
@@ -1770,6 +1829,68 @@ export class ScrollView extends ViewGroup {
     protected _scaleChanged (value: TransformBit) {
         if (value === TransformBit.SCALE) {
             this._calculateBoundary();
+        }
+    }
+
+    protected _xrHoverEnter (event: XrUIPressEvent) {
+        if (event.deviceType === DeviceType.Left) {
+            this._hoverIn = XrhoverType.LEFT;
+        } else if (event.deviceType === DeviceType.Right) {
+            this._hoverIn = XrhoverType.RIGHT;
+        }
+    }
+
+    protected _xrHoverExit (event: XrUIPressEvent) {
+        this._hoverIn = XrhoverType.NONE;
+    }
+
+    private _dispatchEventHandleInput (event: EventHandle | EventGamepad) {
+        let handleInputDevice;
+        if (event instanceof EventGamepad) {
+            handleInputDevice = event.gamepad;
+        } else if (event instanceof EventHandle) {
+            handleInputDevice = event.handleInputDevice;
+        }
+        let value;
+        if (!this.enabledInHierarchy) {
+            return;
+        }
+        if (this._hoverIn === XrhoverType.NONE) {
+            return;
+        } else if (this._hoverIn === XrhoverType.LEFT) {
+            value = handleInputDevice.leftStick.getValue();
+            if (!value.equals(Vec2.ZERO)) {
+                this._xrThumbStickMove(value);
+            }
+        } else if (this._hoverIn === XrhoverType.RIGHT) {
+            value = handleInputDevice.rightStick.getValue();
+            if (!value.equals(Vec2.ZERO)) {
+                this._xrThumbStickMove(value);
+            }
+        }
+    }
+
+    protected _xrThumbStickMove (event: Vec2) {
+        if (!this.enabledInHierarchy) {
+            return;
+        }
+
+        const deltaMove = new Vec3();
+        const wheelPrecision = -62.5;
+        const scrollY = event.y;
+        if (this.vertical) {
+            deltaMove.set(0, scrollY * wheelPrecision, 0);
+        } else if (this.horizontal) {
+            deltaMove.set(scrollY * wheelPrecision, 0, 0);
+        }
+
+        this._mouseWheelEventElapsedTime = 0;
+        this._processDeltaMove(deltaMove);
+
+        if (!this._stopMouseWheel) {
+            this._handlePressLogic();
+            this.schedule(this._checkMouseWheel, 1.0 / 60, NaN, 0);
+            this._stopMouseWheel = true;
         }
     }
 }
@@ -1893,3 +2014,5 @@ export class ScrollView extends ViewGroup {
  * @param {Event.EventCustom} event
  * @param {ScrollView} scrollView - The ScrollView component.
  */
+
+legacyCC.ScrollView = ScrollView;

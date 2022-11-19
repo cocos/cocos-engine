@@ -23,26 +23,22 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
+import { JSB } from 'internal:constants';
 import { SpriteFrame } from '../../assets';
-import { Texture2D } from '../../../core/assets';
+import { Texture2D } from '../../../asset/assets';
 import { fragmentText, safeMeasureText, getBaselineOffset, BASELINE_RATIO } from '../../utils/text-utils';
-import { Color, Size, Vec2, Rect } from '../../../core/math';
+import { Color, Size, Vec2, Rect, logID, cclegacy } from '../../../core';
 import { HorizontalTextAlignment, Label, LabelOutline, VerticalTextAlignment, LabelShadow } from '../../components';
 import { ISharedLabelData, LetterRenderTexture } from './font-utils';
-import { logID } from '../../../core/platform/debug';
 import { UITransform } from '../../framework/ui-transform';
-import { legacyCC } from '../../../core/global-exports';
-import { assetManager } from '../../../core/asset-manager';
 import { dynamicAtlasManager } from '../../utils/dynamic-atlas/atlas-manager';
+import { BlendFactor } from '../../../gfx';
+import { WrapMode } from '../../../asset/assets/asset-enum';
 
 const Overflow = Label.Overflow;
 const MAX_SIZE = 2048;
 const _BASELINE_OFFSET = getBaselineOffset();
+const _invisibleAlpha = (1 / 255).toFixed(3);
 
 let _context: CanvasRenderingContext2D | null = null;
 let _canvas: HTMLCanvasElement | null = null;
@@ -58,6 +54,7 @@ let _lineHeight = 0;
 let _hAlign = 0;
 let _vAlign = 0;
 let _color = new Color();
+let _alpha = 1;
 let _fontFamily = '';
 let _overflow = Overflow.NONE;
 let _isWrapText = false;
@@ -92,6 +89,7 @@ const Alignment = [
 export const ttfUtils =  {
     getAssemblerData () {
         const sharedLabelData = Label._canvasPool.get();
+        sharedLabelData.canvas.width = sharedLabelData.canvas.height = 1;
         return sharedLabelData;
     },
 
@@ -102,49 +100,47 @@ export const ttfUtils =  {
     },
 
     updateRenderData (comp: Label) {
-        if (!comp.renderData || !comp.renderData.vertDirty) { return; }
+        if (!comp.renderData) { return; }
 
-        const trans = comp.node._uiProps.uiTransformComp!;
-        this._updateFontFamily(comp);
-        this._updateProperties(comp, trans);
-        this._calculateLabelFont();
-        this._updateLabelDimensions();
-        this._resetDynamicAtlas(comp);
-        this._updateTexture();
-        this._calDynamicAtlas(comp);
+        if (comp.renderData.vertDirty) {
+            const trans = comp.node._uiProps.uiTransformComp!;
+            this._updateFontFamily(comp);
+            this._updateProperties(comp, trans);
+            this._calculateLabelFont();
+            this._updateLabelDimensions();
+            this._updateTexture(comp);
+            this._calDynamicAtlas(comp);
 
-        comp.actualFontSize = _fontSize;
-        trans.setContentSize(_canvasSize);
+            comp.actualFontSize = _fontSize;
+            trans.setContentSize(_canvasSize);
 
-        this.updateVertexData(comp);
-        this.updateUvs(comp);
+            this.updateVertexData(comp);
+            this.updateUVs(comp); // Empty
+            comp.renderData.vertDirty = false;
+            // comp.markForUpdateRenderData(false);
+            comp.contentWidth = _nodeContentSize.width;
 
-        comp.markForUpdateRenderData(false);
+            _context = null;
+            _canvas = null;
+            _texture = null;
+        }
 
-        _context = null;
-        _canvas = null;
-        _texture = null;
+        if (comp.spriteFrame) {
+            const renderData = comp.renderData;
+            renderData.updateRenderData(comp, comp.spriteFrame);
+        }
     },
 
     updateVertexData (comp: Label) {
     },
 
-    updateUvs (comp: Label) {
+    updateUVs (comp: Label) {
     },
 
     _updateFontFamily (comp: Label) {
         if (!comp.useSystemFont) {
             if (comp.font) {
-                if (comp.font._nativeAsset) {
-                    _fontFamily = comp.font._nativeAsset;
-                } else {
-                    assetManager.postLoadNative(comp.font, (err) => {
-                        if (!comp.isValid) { return; }
-                        _fontFamily = comp.font!._nativeAsset || 'Arial';
-                        comp.updateRenderData(true);
-                    });
-                    _fontFamily = 'Arial';
-                }
+                _fontFamily = comp.font._nativeAsset || 'Arial';
             } else {
                 _fontFamily = 'Arial';
             }
@@ -174,6 +170,7 @@ export const ttfUtils =  {
         _hAlign = comp.horizontalAlign;
         _vAlign = comp.verticalAlign;
         _color = comp.color;
+        _alpha = comp.node._uiProps.opacity;
         _isBold = comp.isBold;
         _isItalic = comp.isItalic;
         _isUnderline = comp.isUnderline;
@@ -264,7 +261,7 @@ export const ttfUtils =  {
         _startPosition.set(labelX + _canvasPadding.x, firstLinelabelY + _canvasPadding.y);
     },
 
-    _updateTexture () {
+    _updateTexture (comp: Label) {
         if (!_context || !_canvas) {
             return;
         }
@@ -276,7 +273,19 @@ export const ttfUtils =  {
         const lineHeight = this._getLineHeight();
         // use round for line join to avoid sharp intersect point
         _context.lineJoin = 'round';
-        _context.fillStyle = `rgba(${_color.r}, ${_color.g}, ${_color.b}, 1)`;
+
+        if (_outlineComp) {
+            _context.fillStyle = `rgba(${_outlineColor.r}, ${_outlineColor.g}, ${_outlineColor.b}, ${_invisibleAlpha})`;
+            // Notice: fillRect twice will not effect
+            _context.fillRect(0, 0, _canvas.width, _canvas.height);
+            // to keep the one model same as before
+            // Todo: remove this protect when component remove blend function
+            // @ts-expect-error remove when component remove blend function
+        } else if (comp._srcBlendFactor === BlendFactor.SRC_ALPHA) {
+            _context.fillStyle = `rgba(${_color.r}, ${_color.g}, ${_color.b}, ${_invisibleAlpha})`;
+            _context.fillRect(0, 0, _canvas.width, _canvas.height);
+        }
+        _context.fillStyle = `rgb(${_color.r}, ${_color.g}, ${_color.b})`;
         const drawTextPosX = _startPosition.x;
         let drawTextPosY = 0;
         // draw shadow and underline
@@ -294,8 +303,18 @@ export const ttfUtils =  {
             _context.shadowColor = 'transparent';
         }
 
-        // _texture.handleLoadedTexture();
-        if (_texture) {
+        this._uploadTexture(comp);
+    },
+
+    _uploadTexture (comp: Label) {
+        // May better for JIT
+        if (comp.cacheMode === Label.CacheMode.BITMAP) {
+            const frame = comp.ttfSpriteFrame!;
+            dynamicAtlasManager.deleteAtlasSpriteFrame(frame);
+            frame._resetDynamicAtlasFrame();
+        }
+
+        if (_texture && _canvas) {
             let tex: Texture2D;
             if (_texture instanceof SpriteFrame) {
                 tex = (_texture.texture as Texture2D);
@@ -312,29 +331,30 @@ export const ttfUtils =  {
                     mipmapLevel: 1,
                 });
                 tex.uploadData(_canvas);
+                tex.setWrapMode(WrapMode.CLAMP_TO_EDGE, WrapMode.CLAMP_TO_EDGE);
                 if (_texture instanceof SpriteFrame) {
                     _texture.rect = new Rect(0, 0, _canvas.width, _canvas.height);
                     _texture._calculateUV();
                 }
-                if (legacyCC.director.root && legacyCC.director.root.batcher2D) {
-                    legacyCC.director.root.batcher2D._releaseDescriptorSetCache(tex.getHash());
+                if (comp.renderData) {
+                    comp.renderData.textureDirty = true;
+                }
+                if (cclegacy.director.root && cclegacy.director.root.batcher2D) {
+                    if (JSB) {
+                        cclegacy.director.root.batcher2D._releaseDescriptorSetCache(tex.getGFXTexture(), tex.getGFXSampler());
+                    } else {
+                        cclegacy.director.root.batcher2D._releaseDescriptorSetCache(tex.getHash());
+                    }
                 }
             }
         }
     },
 
-    _resetDynamicAtlas (comp: Label) {
-        if (comp.cacheMode !== Label.CacheMode.BITMAP) return;
-        const frame = comp.ttfSpriteFrame!;
-        dynamicAtlasManager.deleteAtlasSpriteFrame(frame);
-        frame._resetDynamicAtlasFrame();
-    },
-
     _calDynamicAtlas (comp: Label) {
-        if (comp.cacheMode !== Label.CacheMode.BITMAP) return;
+        if (comp.cacheMode !== Label.CacheMode.BITMAP || !_canvas || _canvas.width <= 0 || _canvas.height <= 0) return;
         const frame = comp.ttfSpriteFrame!;
         dynamicAtlasManager.packToDynamicAtlas(comp, frame);
-        comp.renderData!.uvDirty = true;
+        // TODO update material and uv
     },
 
     _setupOutline () {

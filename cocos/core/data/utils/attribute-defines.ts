@@ -23,6 +23,13 @@
  THE SOFTWARE.
  */
 
+type GroupOptions = { name: string; } & Partial<{
+    id: string;
+    name: string;
+    displayOrder: number;
+    style: string;
+}>;
+
 export interface IExposedAttributes {
     /**
      * 指定属性的类型。
@@ -45,9 +52,16 @@ export interface IExposedAttributes {
     displayOrder?: number;
 
     /**
-     * 该属性在编辑器中的工具提示内容。
+     * @en Editor tooltip of this property.
+     * @zh 该属性在编辑器中的工具提示内容。
      */
     tooltip?: string;
+
+    /**
+     * @en The group name where this property is organized into, on property inspector.
+     * @zh 在属性检查器上该属性所属的分类标签名。
+     */
+    group?: string | GroupOptions;
 
     /**
      *
@@ -56,8 +70,18 @@ export interface IExposedAttributes {
 
     /**
      * 指定该属性是否为可读的。
+     * 将 `readonly` 指定为 `true` 或选项对象时都将标记为该属性是可读的；
+     * 当指定为 `true` 时将应用所有默认的只读性质。
+     * @default false
      */
-    readonly?: boolean;
+    readonly?: boolean | {
+        /**
+         * 如果该属性是对象或数组，指定该对象的属性或该数组的元素是否是只读的。
+         * 若为 `true`，递归的所有属性或元素都将是只读的。
+         * @default true
+         */
+        deep?: boolean;
+    };
 
     /**
      * 当该属性为数值类型时，指定了该属性允许的最小值。
@@ -118,19 +142,6 @@ export interface IExposedAttributes {
      * 转换为弧度
      */
     radian?: boolean;
-
-    /**
-     * 注意：这是一个内部选项。
-     * 此选项是为了在 `@property` 的基础上精确实现 `@serializable`、`@editable`以及所有新增的独立装饰器的行为。
-     *
-     * 当此字段为 `true` 时。以下规则将不再生效：
-     * - 只要 `@property` 未显式指定选项 `.serializable === false`，就开启序列化；
-     * - 只要 `@property` 未显式指定选项 `.visible === false` 且目标属性的名称不以下划线开头，就开启编辑器交互。
-     * 反之，由以下规则取代：
-     * - 当且仅当 `@property` 显式指定了 `.serializable === true` 时才开启序列化；
-     * - 当且仅当 `@property` 显式指定了 `.visible === true` 时才开启编辑器交互。
-     */
-    __noImplicit?: boolean;
 }
 
 export interface IAcceptableAttributes extends IExposedAttributes {

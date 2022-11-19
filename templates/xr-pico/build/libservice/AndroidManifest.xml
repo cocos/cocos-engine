@@ -1,0 +1,12 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.cocos.service">
+    <application>
+        <meta-data android:name="pvr.app.type" android:value="vr" />
+
+        <activity
+            android:name="com.cocos.game.AppActivity">
+            <!-- Tell PicoNativeActivity the name of our .so -->
+            <meta-data android:name="android.app.lib_name"
+                android:value="cocos" />
+        </activity>
+    </application>
+</manifest>

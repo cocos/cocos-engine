@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module physics
- */
-
 import {
     ccclass,
     help,
@@ -36,7 +31,6 @@ import {
     tooltip,
     serializable,
 } from 'cc.decorator';
-import { EDITOR, TEST } from 'internal:constants';
 import { Collider } from './collider';
 import { ISphereShape } from '../../../spec/i-physics-shape';
 import { EColliderType } from '../../physics-enum';
@@ -66,9 +60,10 @@ export class SphereCollider extends Collider {
     }
 
     public set radius (value) {
-        this._radius = value;
-        if (!EDITOR && !TEST) {
-            this.shape.setRadius(this._radius);
+        if (this._radius === value) return;
+        this._radius = Math.abs(value);
+        if (this._shape) {
+            this.shape.updateRadius();
         }
     }
 

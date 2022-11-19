@@ -23,16 +23,14 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
-import { Color, Vec3, Mat4 } from '../core/math';
+import { Color, Vec3, Mat4, Quat } from '../core';
 import { ParticleSystem } from './particle-system';
 import { IParticleSystemRenderer } from './renderer/particle-system-renderer-base';
 
 export class Particle {
+    public static INDENTIFY_NEG_QUAT = 10;
+    public static R2D = 180.0 / Math.PI;
+
     public particleSystem: ParticleSystem;
     public position: Vec3;
     public velocity: Vec3;
@@ -41,12 +39,21 @@ export class Particle {
     public angularVelocity: Vec3;
     public axisOfRotation: Vec3;
     public rotation: Vec3;
+    public startEuler: Vec3;
+    public startRotation: Quat;
+    public startRotated: boolean;
+    public deltaQuat: Quat;
+    public deltaMat: Mat4;
+    public localMat: Mat4;
     public startSize: Vec3;
     public size: Vec3;
     public startColor: Color;
     public color: Color;
     public randomSeed: number; // uint
     public remainingLifetime: number;
+    public loopCount: number;
+    public lastLoop: number;
+    public trailDelay: number;
     public startLifetime: number;
     public emitAccumulator0: number;
     public emitAccumulator1: number;
@@ -62,17 +69,36 @@ export class Particle {
         this.angularVelocity = new Vec3(0, 0, 0);
         this.axisOfRotation = new Vec3(0, 0, 0);
         this.rotation = new Vec3(0, 0, 0);
+        this.startEuler = new Vec3(0, 0, 0);
+        this.startRotation = new Quat();
+        this.startRotated = false;
+        this.deltaQuat = new Quat();
+        this.deltaMat = new Mat4();
+        this.localMat = new Mat4();
         this.startSize = new Vec3(0, 0, 0);
         this.size = new Vec3(0, 0, 0);
         this.startColor = Color.WHITE.clone();
         this.color = Color.WHITE.clone();
         this.randomSeed = 0; // uint
         this.remainingLifetime = 0.0;
+        this.loopCount = 0;
+        this.lastLoop = 0;
+        this.trailDelay = 0;
         this.startLifetime = 0.0;
         this.emitAccumulator0 = 0.0;
         this.emitAccumulator1 = 0.0;
         this.frameIndex = 0.0;
         this.startRow = 0;
+    }
+
+    public reset () {
+        this.rotation.set(0, 0, 0);
+        this.startEuler.set(0, 0, 0);
+        this.startRotation.set(0, 0, 0, 1);
+        this.startRotated = false;
+        this.deltaQuat.set(0, 0, 0, 1);
+        this.deltaMat.identity();
+        this.localMat.identity();
     }
 }
 
@@ -84,6 +110,7 @@ export const PARTICLE_MODULE_NAME = {
     SIZE: 'sizeModule',
     VELOCITY: 'velocityModule',
     TEXTURE: 'textureModule',
+    NOISE: 'noiseModule',
 };
 
 export const PARTICLE_MODULE_ORDER = [
@@ -94,6 +121,7 @@ export const PARTICLE_MODULE_ORDER = [
     'limitModule',
     'rotationModule',
     'textureModule',
+    'noiseModule',
 ];
 
 export const PARTICLE_MODULE_PROPERTY = [
@@ -105,6 +133,7 @@ export const PARTICLE_MODULE_PROPERTY = [
     '_limitVelocityOvertimeModule',
     '_rotationOvertimeModule',
     '_textureAnimationModule',
+    '_noiseModule',
     '_trailModule',
 ];
 

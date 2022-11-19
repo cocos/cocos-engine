@@ -1,11 +1,31 @@
-/**
- * @packageDocumentation
- * @module spine
+/*
+ Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
  */
 
 import { TrackEntryListeners } from './track-entry-listeners';
 import spine from './lib/spine-core.js';
-import { Texture2D } from '../core';
+import { Texture2D } from '../asset/assets';
 // Permit max cache time, unit is second.
 const MaxCacheTime = 30;
 const FrameTime = 1 / 60;
@@ -18,7 +38,7 @@ const _indices: number[] = [];
 let _boneInfoOffset = 0;
 let _indexOffset = 0;
 let _vfOffset = 0;
-let _preTexUrl: string|null = null;
+let _preTexID: string|null = null;
 let _preBlendMode: spine.BlendMode | null = null;
 let _segVCount = 0;
 let _segICount = 0;
@@ -31,7 +51,7 @@ const PerVertexSize = 6;
 // x y u v r1 g1 b1 a1 r2 g2 b2 a2
 const PerClipVertexSize = 12;
 // x y z / u v / r g b a/ r g b a
-const ExportVertexSize = 13;
+const ExportVertexSize = 7;
 
 let _vfCount = 0;
 let _indexCount = 0;
@@ -96,7 +116,12 @@ export class AnimationCache {
     public frames: AnimationFrame[] = [];
     public totalTime = 0;
     public isCompleted = false;
+    public maxVertexCount = 0;
+    public maxIndexCount = 0;
 
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
     public _privateMode = false;
     protected _inited = false;
     protected _invalid = true;
@@ -328,7 +353,7 @@ export class AnimationCache {
         _vfOffset = 0;
         _boneInfoOffset = 0;
         _indexOffset = 0;
-        _preTexUrl = null;
+        _preTexID = null;
         _preBlendMode = null;
         _segVCount = 0;
         _segICount = 0;
@@ -377,17 +402,19 @@ export class AnimationCache {
 
         // Fill vertices
         let vertices = frame.vertices;
-        const copyOutVerticeSize = _vfOffset / PerVertexSize * ExportVertexSize;
+        const vertexCount = _vfOffset / PerVertexSize;
+        const copyOutVerticeSize = vertexCount * ExportVertexSize;
         if (!vertices || vertices.length < copyOutVerticeSize) {
             vertices = frame.vertices = new Float32Array(copyOutVerticeSize);
         }
+        const intVbuf = new Uint32Array(vertices.buffer);
         for (let i = 0, j = 0; i < copyOutVerticeSize;) {
             vertices[i] = _vertices[j++]; // x
             vertices[i + 1] = _vertices[j++]; // y
             vertices[i + 3] = _vertices[j++]; // u
             vertices[i + 4] = _vertices[j++]; // v
-            this._setVerticeColor(_vertices[j++], vertices, i + 5);
-            this._setVerticeColor(_vertices[j++], vertices, i + 9);
+            intVbuf[i + 5] = _vertices[j++];
+            intVbuf[i + 6] = _vertices[j++];
             i += ExportVertexSize;
         }
 
@@ -403,6 +430,8 @@ export class AnimationCache {
 
         frame.vertices = vertices;
         frame.indices = indices;
+        this.maxVertexCount = vertexCount > this.maxVertexCount ? vertexCount : this.maxVertexCount;
+        this.maxIndexCount = indices.length > this.maxIndexCount ? indices.length : this.maxIndexCount;
     }
 
     protected needToUpdate (toFrameIdx?: number) {
@@ -449,6 +478,10 @@ export class AnimationCache {
         for (let slotIdx = 0, slotCount = skeleton.drawOrder.length; slotIdx < slotCount; slotIdx++) {
             slot = skeleton.drawOrder[slotIdx];
 
+            if (!slot.bone.active) {
+                continue;
+            }
+
             _vfCount = 0;
             _indexCount = 0;
 
@@ -479,8 +512,8 @@ export class AnimationCache {
             }
 
             blendMode = slot.data.blendMode;
-            if (_preTexUrl !== texture.nativeUrl || _preBlendMode !== blendMode) {
-                _preTexUrl = texture.nativeUrl;
+            if (_preTexID !== texture.getId() || _preBlendMode !== blendMode) {
+                _preTexID = texture.getId();
                 _preBlendMode = blendMode;
                 // Handle pre segment.
                 preSegOffset = _segOffset - 1;
@@ -567,12 +600,12 @@ export class AnimationCache {
         clipper.clipEnd();
     }
 
-    private _setVerticeColor (colorI32: number, buffer: Float32Array, offset: number) {
-        buffer[offset] = (colorI32 & 0xff) / 255.0;
-        buffer[offset + 1] = ((colorI32 >> 8) & 0xff) / 255.0;
-        buffer[offset + 2] = ((colorI32 >> 16) & 0xff) / 255.0;
-        buffer[offset + 3] = ((colorI32 >> 24) & 0xff) / 255.0;
-    }
+    // private _setVerticeColor (colorI32: number, buffer: Float32Array, offset: number) {
+    //     buffer[offset] = (colorI32 & 0xff) / 255.0;
+    //     buffer[offset + 1] = ((colorI32 >> 8) & 0xff) / 255.0;
+    //     buffer[offset + 2] = ((colorI32 >> 16) & 0xff) / 255.0;
+    //     buffer[offset + 3] = ((colorI32 >> 24) & 0xff) / 255.0;
+    // }
 }
 
 class SkeletonCache {
@@ -686,10 +719,10 @@ class SkeletonCache {
         return animationCache;
     }
 
-    public updateAnimationCache (uuid: string, animationName: string): null | void {
+    public updateAnimationCache (uuid: string, animationName: string): void {
         if (animationName) {
             const animationCache = this.initAnimationCache(uuid, animationName);
-            if (!animationCache) return null;
+            if (!animationCache) return;
             animationCache.updateAllFrame();
         } else {
             const skeletonInfo = this._skeletonCache[uuid];

@@ -1,0 +1,44 @@
+// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+
+CCEffect %{
+  techniques:
+  - passes:
+    - vert: occlusion-query-vs:vert
+      frag: occlusion-query-fs:frag
+      depthStencilState:
+        depthTest: true
+        depthWrite: false
+      rasterizerState:
+        cullMode: back
+      blendState:
+        targets:
+        - blendColorMask: 0
+}%
+
+CCProgram occlusion-query-vs %{
+  precision highp float;
+  #include <builtin/uniforms/cc-global>
+  #include <builtin/uniforms/cc-world-bound>
+
+  layout(location = 0) in vec3 a_position;
+
+  vec4 vert () {
+    vec4 position;
+    position = vec4(a_position, 1.0);
+
+    position *= cc_worldBoundHalfExtents;
+    position += cc_worldBoundCenter;
+
+    position = cc_matViewProj * position;
+
+    return position;
+  }
+}%
+
+CCProgram occlusion-query-fs %{
+  precision mediump float;
+
+  vec4 frag () {
+    return vec4(1, 0, 0, 1);
+  }
+}%

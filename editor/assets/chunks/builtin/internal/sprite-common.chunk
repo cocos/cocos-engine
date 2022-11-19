@@ -1,0 +1,9 @@
+
+struct SpriteVertexData {
+  vec4 position; // world position
+  vec4 color; // vertex color
+};
+
+struct SpriteFragmentData {
+  vec2 uv; // sampling UV
+};

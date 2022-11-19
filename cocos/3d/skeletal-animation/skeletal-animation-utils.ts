@@ -23,39 +23,33 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
-import { EDITOR } from 'internal:constants';
-import { AnimationClip } from '../../core/animation/animation-clip';
+import { EDITOR, JSB } from 'internal:constants';
+import type { AnimationClip } from '../../animation/animation-clip';
 import { SkelAnimDataHub } from './skeletal-animation-data-hub';
-import { getWorldTransformUntilRoot } from '../../core/animation/transform-utils';
+import { getWorldTransformUntilRoot } from '../../animation/transform-utils';
 import { Mesh } from '../assets/mesh';
 import { Skeleton } from '../assets/skeleton';
-import { AABB } from '../../core/geometry';
-import { Address, BufferUsageBit, Filter, Format, FormatInfos,
-    MemoryUsageBit, Feature, Device, Buffer, BufferInfo } from '../../core/gfx';
-import { Mat4, Quat, Vec3 } from '../../core/math';
-import { UBOSkinningAnimation } from '../../core/pipeline/define';
-import { Node } from '../../core/scene-graph';
-import { genSamplerHash } from '../../core/renderer/core/sampler-lib';
-import { ITextureBufferHandle, TextureBufferPool } from '../../core/renderer/core/texture-buffer-pool';
+import { geometry, Mat4, Quat, Vec3 } from '../../core';
+import { BufferUsageBit, Format, FormatInfos,
+    MemoryUsageBit, Device, Buffer, BufferInfo, FormatFeatureBit } from '../../gfx';
+import { UBOSkinningAnimation } from '../../rendering/define';
+import { Node } from '../../scene-graph';
+import { ITextureBufferHandle, TextureBufferPool } from '../../render-scene/core/texture-buffer-pool';
+import { jointTextureSamplerInfo } from '../misc/joint-texture-sampler-info';
 
 // change here and cc-skinning.chunk to use other skinning algorithms
 export const uploadJointData = uploadJointDataLBS;
 export const MINIMUM_JOINT_TEXTURE_SIZE = EDITOR ? 2040 : 480; // have to be multiples of 12
 
 export function selectJointsMediumFormat (device: Device): Format {
-    if (device.hasFeature(Feature.TEXTURE_FLOAT)) {
+    if (device.getFormatFeatures(Format.RGBA32F) & FormatFeatureBit.SAMPLED_TEXTURE) {
         return Format.RGBA32F;
     }
     return Format.RGBA8;
 }
 
 // Linear Blending Skinning
-function uploadJointDataLBS (out: Float32Array, base: number, mat: Mat4, firstBone: boolean) {
+function uploadJointDataLBS (out: Float32Array, base: number, mat: Readonly<Mat4>, firstBone: boolean) {
     out[base + 0] = mat.m00;
     out[base + 1] = mat.m01;
     out[base + 2] = mat.m02;
@@ -103,14 +97,7 @@ function roundUpTextureSize (targetLength: number, formatSize: number) {
     return Math.ceil(Math.max(MINIMUM_JOINT_TEXTURE_SIZE * formatScale, targetLength) / 12) * 12;
 }
 
-export const jointTextureSamplerHash = genSamplerHash([
-    Filter.POINT,
-    Filter.POINT,
-    Filter.NONE,
-    Address.CLAMP,
-    Address.CLAMP,
-    Address.CLAMP,
-]);
+export { jointTextureSamplerInfo };
 
 interface IInternalJointAnimInfo {
     downstream?: Mat4; // downstream default pose, if present
@@ -126,7 +113,7 @@ export interface IJointTextureHandle {
     skeletonHash: number;
     readyToBeDeleted: boolean;
     handle: ITextureBufferHandle;
-    bounds: Map<number, AABB[]>;
+    bounds: Map<number, geometry.AABB[]>;
     animInfos?: IInternalJointAnimInfo[];
 }
 
@@ -136,7 +123,7 @@ const v3_min = new Vec3();
 const v3_max = new Vec3();
 const m4_1 = new Mat4();
 const m4_2 = new Mat4();
-const ab_1 = new AABB();
+const ab_1 = new geometry.AABB();
 
 export interface IChunkContent {
     skeleton: number;
@@ -151,6 +138,10 @@ export interface ICustomJointTextureLayout {
 // For (Infinity - Infinity) evaluates to NaN
 const Inf = Number.MAX_SAFE_INTEGER;
 
+/**
+ * The pool for joint textures.
+ * @internal
+ */
 export class JointTexturePool {
     private _device: Device;
 
@@ -241,7 +232,7 @@ export class JointTexturePool {
             const mat = node ? getWorldTransformUntilRoot(node, skinningRoot, m4_1) : skeleton.inverseBindposes[j];
             const bound = boneSpaceBounds[j];
             if (bound) {
-                AABB.transform(ab_1, bound, mat);
+                geometry.AABB.transform(ab_1, bound, mat);
                 ab_1.getBoundary(v3_3, v3_4);
                 Vec3.min(v3_min, v3_min, v3_3);
                 Vec3.max(v3_max, v3_max, v3_4);
@@ -251,8 +242,8 @@ export class JointTexturePool {
                 uploadJointData(textureBuffer, offset, node ? mat : Mat4.IDENTITY, j === 0);
             }
         }
-        const bounds = [new AABB()]; texture.bounds.set(mesh.hash, bounds);
-        AABB.fromPoints(bounds[0], v3_min, v3_max);
+        const bounds = [new geometry.AABB()]; texture.bounds.set(mesh.hash, bounds);
+        geometry.AABB.fromPoints(bounds[0], v3_min, v3_max);
         if (buildTexture) {
             this._pool.update(texture.handle, textureBuffer.buffer);
             this._textureBuffers.set(hash, texture);
@@ -272,7 +263,7 @@ export class JointTexturePool {
         if (texture && texture.bounds.has(mesh.hash)) { texture.refCount++; return texture; }
         const { joints, bindposes } = skeleton;
         const clipData = SkelAnimDataHub.getOrExtract(clip);
-        const { frames } = clipData.info;
+        const { frames } = clipData;
         let textureBuffer: Float32Array = null!; let buildTexture = false;
         const jointCount = joints.length;
         if (!texture) {
@@ -296,9 +287,9 @@ export class JointTexturePool {
             textureBuffer = new Float32Array(bufSize); buildTexture = true;
         } else { texture.refCount++; }
         const boneSpaceBounds = mesh.getBoneSpaceBounds(skeleton);
-        const bounds: AABB[] = []; texture.bounds.set(mesh.hash, bounds);
+        const bounds: geometry.AABB[] = []; texture.bounds.set(mesh.hash, bounds);
         for (let f = 0; f < frames; f++) {
-            bounds.push(new AABB(Inf, Inf, Inf, -Inf, -Inf, -Inf));
+            bounds.push(new geometry.AABB(Inf, Inf, Inf, -Inf, -Inf, -Inf));
         }
         for (let f = 0, offset = 0; f < frames; f++) {
             const bound = bounds[f];
@@ -320,7 +311,7 @@ export class JointTexturePool {
                 const boneSpaceBound = boneSpaceBounds[j];
                 if (boneSpaceBound) {
                     const transform = bindposeCorrection ? Mat4.multiply(m4_2, mat, bindposeCorrection) : mat;
-                    AABB.transform(ab_1, boneSpaceBound, transform);
+                    geometry.AABB.transform(ab_1, boneSpaceBound, transform);
                     ab_1.getBoundary(v3_3, v3_4);
                     Vec3.min(bound.center, bound.center, v3_3);
                     Vec3.max(bound.halfExtents, bound.halfExtents, v3_4);
@@ -330,7 +321,7 @@ export class JointTexturePool {
                     uploadJointData(textureBuffer, offset, transformValid ? m4_1 : Mat4.IDENTITY, j === 0);
                 }
             }
-            AABB.fromPoints(bound, bound.center, bound.halfExtents);
+            geometry.AABB.fromPoints(bound, bound.center, bound.halfExtents);
         }
         if (buildTexture) {
             this._pool.update(texture.handle, textureBuffer.buffer);
@@ -394,14 +385,14 @@ export class JointTexturePool {
         const clipData = SkelAnimDataHub.getOrExtract(clip);
         for (let j = 0; j < jointCount; j++) {
             let animPath = joints[j];
-            let source = clipData.data[animPath];
+            let source = clipData.joints[animPath];
             let animNode = skinningRoot.getChildByPath(animPath);
             let downstream: Mat4 | undefined;
             let correctionPath: string | undefined;
             while (!source) {
                 const idx = animPath.lastIndexOf('/');
                 animPath = animPath.substring(0, idx);
-                source = clipData.data[animPath];
+                source = clipData.joints[animPath];
                 if (animNode) {
                     if (!downstream) { downstream = new Mat4(); }
                     Mat4.fromRTS(m4_1, animNode.rotation, animNode.position, animNode.scale);
@@ -447,7 +438,7 @@ export class JointTexturePool {
                 }
             }
             animInfos.push({
-                curveData: source && source.worldMatrix.values as Mat4[], downstream, bindposeIdx, bindposeCorrection,
+                curveData: source && source.transforms, downstream, bindposeIdx, bindposeCorrection,
             });
         }
         return animInfos;
@@ -458,6 +449,8 @@ export interface IAnimInfo {
     buffer: Buffer;
     data: Float32Array;
     dirty: boolean;
+    dirtyForJSB: Uint8Array;
+    currentClip: AnimationClip | null;
 }
 
 export class JointAnimationInfo {
@@ -480,7 +473,8 @@ export class JointAnimationInfo {
         ));
         const data = new Float32Array([0, 0, 0, 0]);
         buffer.update(data);
-        const info = { buffer, data, dirty: false };
+        const info = { buffer, data, dirty: false, dirtyForJSB: new Uint8Array([0]), currentClip: null };
+
         this._pool.set(nodeID, info);
         return info;
     }
@@ -493,9 +487,13 @@ export class JointAnimationInfo {
     }
 
     public switchClip (info: IAnimInfo, clip: AnimationClip | null) {
-        info.data[0] = 0;
+        info.currentClip = clip;
+        info.data[0] = -1;
         info.buffer.update(info.data);
         info.dirty = false;
+        if (JSB) {
+            info.dirtyForJSB[0] = 0;
+        }
         return info;
     }
 

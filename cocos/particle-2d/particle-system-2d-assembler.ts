@@ -24,69 +24,30 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module particle2d
- */
-
 import { IAssembler, IAssemblerManager } from '../2d/renderer/base';
 import { ParticleSystem2D } from './particle-system-2d';
 import { MeshRenderData } from '../2d/renderer/render-data';
-import { Batcher2D } from '../2d/renderer/batcher-2d';
-import { PositionType } from './define';
-import { legacyCC } from '../core/global-exports';
+import { IBatcher } from '../2d/renderer/i-batcher';
+import { cclegacy } from '../core';
 
 export const ParticleAssembler: IAssembler = {
     maxParticleDeltaTime: 0,
     createData (comp: ParticleSystem2D) {
         return MeshRenderData.add();
     },
+    removeData (data) {
+        MeshRenderData.remove(data);
+    },
     updateRenderData () {
     },
-    fillBuffers (comp: ParticleSystem2D, renderer: Batcher2D) {
-        if (comp === null) {
-            return;
-        }
-
-        const renderData = comp._simulator.renderData;
-        if (renderData.vertexCount === 0 || renderData.indicesCount === 0) {
-            return;
-        }
-
-        let buffer = renderer.acquireBufferBatch()!;
-        let vertexOffset = buffer.byteOffset >> 2;
-        let indicesOffset = buffer.indicesOffset;
-        let vertexId = buffer.vertexOffset;
-        const isRecreate = buffer.request(renderData.vertexCount, renderData.indicesCount);
-        if (!isRecreate) {
-            buffer = renderer.currBufferBatch!;
-            indicesOffset = 0;
-            vertexId = 0;
-        }
-
-        // buffer data may be realloc, need get reference after request.
-        const vBuf = buffer.vData!;
-        const iBuf = buffer.iData!;
-
-        const vData = renderData.vData;
-        const iData = renderData.iData as number[];
-
-        const vLen = renderData.vertexCount * 9;
-        for (let i = 0; i < vLen; i++) {
-            vBuf[vertexOffset++] = vData[i];
-        }
-
-        const iLen = renderData.indicesCount;
-        for (let i = 0; i < iLen; i++) {
-            iBuf[indicesOffset++] = iData[i] + vertexId;
-        }
+    fillBuffers (comp: ParticleSystem2D, renderer: IBatcher) {
     },
 };
 
 export const ParticleSystem2DAssembler: IAssemblerManager = {
     getAssembler (comp: ParticleSystem2D) {
         if (!ParticleAssembler.maxParticleDeltaTime) {
-            ParticleAssembler.maxParticleDeltaTime = legacyCC.game.frameTime / 1000 * 2;
+            ParticleAssembler.maxParticleDeltaTime = cclegacy.game.frameTime / 1000 * 2;
         }
         return ParticleAssembler;
     },

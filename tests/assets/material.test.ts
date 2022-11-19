@@ -1,8 +1,3 @@
-import { Node } from '../../cocos/core/scene-graph/node';
-import { MeshRenderer } from '../../cocos/core/3d/framework/model-component';
-import { Material } from '../../cocos/core/assets/material';
-import { strictEqual } from 'assert';
-
 test('Material hash', () => {
 });
 

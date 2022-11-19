@@ -202,6 +202,12 @@ function Right (a: number | IVec2Like, b: IVec2Like | IVec2Like[], c?: IVec2Like
         a = At(i - 1, vertices);
         b = At(i, vertices);
         c = At(i + 1, vertices);
+        if (typeof a === 'undefined') {
+            a = b;
+        }
+        if (typeof c === 'undefined') {
+            c = b;
+        }
     }
 
     return Area(a as IVec2Like, b as IVec2Like, c) < 0;

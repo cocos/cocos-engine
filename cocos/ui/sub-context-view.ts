@@ -23,24 +23,23 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module component
- */
-
 import { ccclass, help, menu, executionOrder, requireComponent, tooltip, serializable } from 'cc.decorator';
-import { EDITOR } from 'internal:constants';
-import { Component } from '../core/components/component';
-import { view } from '../core/platform/view';
+import { EDITOR, WECHAT } from 'internal:constants';
+import { minigame } from 'pal/minigame';
+import { screenAdapter } from 'pal/screen-adapter';
+import { Component } from '../scene-graph/component';
+import { view } from './view';
 import { Sprite } from '../2d/components/sprite';
-import { Node, PrivateNode } from '../core/scene-graph';
+import { Node } from '../scene-graph';
 import { UITransform } from '../2d/framework/ui-transform';
-
 import { SpriteFrame } from '../2d/assets';
-import { ImageAsset } from '../core/assets/image-asset';
-import { Rect, Size } from '../core/math';
+import { ImageAsset } from '../asset/assets/image-asset';
+import {  Size } from '../core/math';
 
 import { legacyCC } from '../core/global-exports';
+import { NodeEventType } from '../scene-graph/node-event';
+import { CCObject } from '../core';
+import { Texture2D } from '../asset/assets';
 
 /**
  * @en SubContextView is a view component which controls open data context viewport in WeChat game platform.<br/>
@@ -70,6 +69,14 @@ import { legacyCC } from '../core/global-exports';
 @requireComponent(UITransform)
 @menu('Miscellaneous/SubContextView')
 export class SubContextView extends Component {
+    /**
+     * @en Specify a reference value of canvas size for style editing in Open Data Context.
+     * The width and height setting of CSS style should not exceed this size, otherwise the rendered content will exceed the canvas.
+     * NOTE: This property is read-only at runtime. Please configure the design resolution in the Editor.
+     *
+     * @zh 为开放数据域的样式编辑指定一个画布尺寸的参考值，CSS 样式的宽高设置不应该超过这个尺寸，否则渲染的内容会超出画布。
+     * 注意：该属性在运行时是只读的，请在编辑器环境下配置好设计分辨率。
+     */
     @tooltip('i18n:subContextView.design_size')
     get designResolutionSize () {
         return this._designResolutionSize;
@@ -81,6 +88,11 @@ export class SubContextView extends Component {
         this._designResolutionSize.set(value);
     }
 
+    /**
+     * @en Setting frame rate in Open Data Context.
+     *
+     * @zh 设置开放数据域的渲染帧率。
+     */
     @tooltip('i18n:subContextView.fps')
     get fps () {
         return this._fps;
@@ -97,29 +109,33 @@ export class SubContextView extends Component {
     private _fps = 60;
     private _sprite: Sprite | null;
     private _imageAsset: ImageAsset;
+    private _texture: Texture2D;
     private _updatedTime = 0;
     private _updateInterval = 0;
     private _openDataContext: any;
-    private _content: PrivateNode;
+    private _content: Node;
     @serializable
     private _designResolutionSize: Size = new Size(640, 960);
 
     constructor () {
         super();
-        this._content = new PrivateNode('content');
+        this._content = new Node('content');
+        this._content.hideFlags |= CCObject.Flags.DontSave | CCObject.Flags.HideInHierarchy;
         this._sprite = null;
         this._imageAsset = new ImageAsset();
         this._openDataContext = null;
         this._updatedTime = performance.now();
+        this._texture = new Texture2D();
     }
 
     public onLoad () {
-        if (window.__globalAdapter && __globalAdapter.getOpenDataContext) {
+        if (minigame.getOpenDataContext) {
             this._updateInterval = 1000 / this._fps;
-            this._openDataContext = __globalAdapter.getOpenDataContext();
+            this._openDataContext = minigame.getOpenDataContext();
             this._initSharedCanvas();
             this._initContentNode();
             this._updateSubContextView();
+            this._updateContentLayer();
         } else {
             this.enabled = false;
         }
@@ -136,8 +152,22 @@ export class SubContextView extends Component {
     private _initSharedCanvas () {
         if (this._openDataContext) {
             const sharedCanvas = this._openDataContext.canvas;
-            sharedCanvas.width = this._designResolutionSize.width;
-            sharedCanvas.height = this._designResolutionSize.height;
+            let designWidth = this._designResolutionSize.width;
+            let designHeight = this._designResolutionSize.height;
+            if (WECHAT) {
+                // HACK: on WeChat platform, at least one side of the width and height of sharedCanvas is greater than 513
+                // When the sharedCanvas is smaller than this size, the rendering doesn't work.
+                const minimumSize = 513;
+                if (designWidth <= minimumSize && designHeight <= minimumSize) {
+                    const scaleWidth = minimumSize / designWidth;
+                    const scaleHeight = minimumSize / designHeight;
+                    const targetScale = scaleWidth < scaleHeight ? scaleWidth : scaleHeight;
+                    designWidth *= targetScale;
+                    designHeight *= targetScale;
+                }
+            }
+            sharedCanvas.width = designWidth;
+            sharedCanvas.height = designHeight;
         }
     }
 
@@ -147,7 +177,8 @@ export class SubContextView extends Component {
 
             const image = this._imageAsset;
             image.reset(sharedCanvas);
-            image._texture.create(sharedCanvas.width, sharedCanvas.height);
+            this._texture.image = image;
+            this._texture.create(sharedCanvas.width, sharedCanvas.height);
 
             this._sprite = this._content.getComponent(Sprite);
             if (!this._sprite) {
@@ -155,10 +186,10 @@ export class SubContextView extends Component {
             }
 
             if (this._sprite.spriteFrame) {
-                this._sprite.spriteFrame.texture = this._imageAsset._texture;
+                this._sprite.spriteFrame.texture = this._texture;
             } else {
                 const sp = new SpriteFrame();
-                sp.texture = this._imageAsset._texture;
+                sp.texture = this._texture;
                 this._sprite.spriteFrame = sp;
             }
 
@@ -167,7 +198,7 @@ export class SubContextView extends Component {
     }
 
     private _updateSubContextView () {
-        if (!(this._openDataContext && __globalAdapter && __globalAdapter.getSystemInfoSync)) {
+        if (!this._openDataContext) {
             return;
         }
 
@@ -183,14 +214,16 @@ export class SubContextView extends Component {
         contentTrans.height *= scale;
 
         // update viewport in subContextView
-        const systemInfo = __globalAdapter.getSystemInfoSync();
+        const viewportRect = view.getViewportRect();
         const box = contentTrans.getBoundingBoxToWorld();
         const visibleSize = view.getVisibleSize();
+        const dpr = screenAdapter.devicePixelRatio;
 
-        const x = systemInfo.screenWidth * (box.x / visibleSize.width);
-        const y = systemInfo.screenHeight * (box.y / visibleSize.height);
-        const width = systemInfo.screenWidth * (box.width / visibleSize.width);
-        const height = systemInfo.screenHeight * (box.height / visibleSize.height);
+        // TODO: the visibleSize need to be the size of Canvas node where the content node is.
+        const x = (viewportRect.width * (box.x / visibleSize.width) + viewportRect.x) / dpr;
+        const y = (viewportRect.height * (box.y / visibleSize.height) + viewportRect.y) / dpr;
+        const width = viewportRect.width * (box.width / visibleSize.width) / dpr;
+        const height = viewportRect.height * (box.height / visibleSize.height) / dpr;
 
         this._openDataContext.postMessage({
             fromEngine: true,  // compatible deprecated property
@@ -216,20 +249,26 @@ export class SubContextView extends Component {
         const sharedCanvas = this._openDataContext.canvas;
         img.reset(sharedCanvas);
         if (sharedCanvas.width > img.width || sharedCanvas.height > img.height) {
-            this._imageAsset._texture.create(sharedCanvas.width, sharedCanvas.height);
+            this._texture.create(sharedCanvas.width, sharedCanvas.height);
         }
 
-        this._imageAsset._texture.uploadData(sharedCanvas);
+        this._texture.uploadData(sharedCanvas);
     }
 
     private _registerNodeEvent () {
-        this.node.on(Node.EventType.TRANSFORM_CHANGED, this._updateSubContextView, this);
-        this.node.on(Node.EventType.SIZE_CHANGED, this._updateSubContextView, this);
+        this.node.on(NodeEventType.TRANSFORM_CHANGED, this._updateSubContextView, this);
+        this.node.on(NodeEventType.SIZE_CHANGED, this._updateSubContextView, this);
+        this.node.on(NodeEventType.LAYER_CHANGED, this._updateContentLayer, this);
     }
 
     private _unregisterNodeEvent () {
-        this.node.off(Node.EventType.TRANSFORM_CHANGED, this._updateSubContextView, this);
-        this.node.off(Node.EventType.SIZE_CHANGED, this._updateSubContextView, this);
+        this.node.off(NodeEventType.TRANSFORM_CHANGED, this._updateSubContextView, this);
+        this.node.off(NodeEventType.SIZE_CHANGED, this._updateSubContextView, this);
+        this.node.off(NodeEventType.LAYER_CHANGED, this._updateContentLayer, this);
+    }
+
+    private _updateContentLayer () {
+        this._content.layer = this.node.layer;
     }
 
     public update (dt?: number) {
@@ -245,5 +284,14 @@ export class SubContextView extends Component {
             this._updateSubContextTexture();
         }
     }
+
+    public onDestroy () {
+        this._content.destroy();
+        this._texture.destroy();
+        if (this._sprite) { this._sprite.destroy(); }
+        this._imageAsset.destroy();
+        this._openDataContext = null;
+    }
 }
+
 legacyCC.SubContextView = SubContextView;

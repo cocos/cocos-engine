@@ -1,7 +1,0 @@
-// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
-
-#include <shading-standard-base>
-
-#if CC_FORWARD_ADD
-#include <shading-standard-additive>
-#endif

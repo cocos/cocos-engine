@@ -23,10 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
 export { Button } from './button';
 export { EditBox } from './editbox/edit-box';
 export { Layout } from './layout';
@@ -45,4 +41,5 @@ export { UICoordinateTracker } from './ui-coordinate-tracker';
 export { BlockInputEvents } from './block-input-events';
 export { SubContextView } from './sub-context-view';
 export { widgetManager } from './widget-manager';
+export * from './view';
 export * from './deprecated';

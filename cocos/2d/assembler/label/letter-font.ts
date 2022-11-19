@@ -23,12 +23,7 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-import { assetManager } from '../../../core/asset-manager';
-import { mixin } from '../../../core/utils/js';
+import { js } from '../../../core';
 import { Label, LabelOutline } from '../../components';
 import { bmfontUtils } from './bmfontUtils';
 import { shareLabelInfo, LetterAtlas, computeHash } from './font-utils';
@@ -39,7 +34,7 @@ const _isBold = false;
 
 let _shareAtlas: LetterAtlas | null  = null;
 
-export const letterFont = mixin(bmfontUtils, {
+export const letterFont = js.mixin(bmfontUtils, {
     getAssemblerData () {
         if (!_shareAtlas) {
             _shareAtlas = new LetterAtlas(_atlasWidth, _atlasHeight);
@@ -69,15 +64,7 @@ export const letterFont = mixin(bmfontUtils, {
         let fontFamily = 'Arial';
         if (!comp.useSystemFont) {
             if (comp.font) {
-                if (comp.font._nativeAsset) {
-                    fontFamily = comp.font._nativeAsset;
-                } else {
-                    assetManager.postLoadNative(comp.font, (err) => {
-                        if (!comp.isValid) { return; }
-                        fontFamily = comp.font!._nativeAsset || 'Arial';
-                        comp.updateRenderData(true);
-                    });
-                }
+                fontFamily = comp.font._nativeAsset || 'Arial';
             }
         } else {
             fontFamily = comp.fontFamily || 'Arial';

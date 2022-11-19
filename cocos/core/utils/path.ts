@@ -24,12 +24,8 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module core
- */
-
-import { legacyCC } from '../global-exports';
+import { systemInfo } from 'pal/system-info';
+import { OS } from '../../../pal/system-info/enum-type';
 
 const EXTNAME_RE = /(\.[^\.\/\?\\]*)(\?.*)?$/;
 const DIRNAME_RE = /((.*)(\/|\\|\\\\))?(.*?\..*$)?/;
@@ -163,5 +159,5 @@ export function stripSep (path: string) {
 }
 
 export function getSeperator () {
-    return legacyCC.sys.os === legacyCC.sys.OS_WINDOWS ? '\\' : '/';
+    return systemInfo.os === OS.WINDOWS ? '\\' : '/';
 }

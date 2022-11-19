@@ -25,11 +25,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module physics
- */
-
 import {
     ccclass,
     help,
@@ -41,12 +36,10 @@ import {
     serializable,
     tooltip,
 } from 'cc.decorator';
-import { EDITOR, TEST } from 'internal:constants';
-import { Vec3 } from '../../../../core/math';
+import { Vec3, IVec3Like } from '../../../../core';
 import { Collider } from './collider';
 import { ISimplexShape } from '../../../spec/i-physics-shape';
 import { ESimplexType, EColliderType } from '../../physics-enum';
-import { IVec3Like } from '../../../../core/math/type-define';
 
 /**
  * @en
@@ -71,7 +64,7 @@ export class SimplexCollider extends Collider {
 
     set shapeType (v) {
         this._shapeType = v;
-        if (!EDITOR && !TEST) {
+        if (this._shape) {
             this.shape.setShapeType(v);
         }
     }
@@ -152,7 +145,7 @@ export class SimplexCollider extends Collider {
     }
 
     updateVertices () {
-        if (!EDITOR && !TEST) {
+        if (this._shape) {
             this.shape.setVertices(this._vertices);
         }
     }

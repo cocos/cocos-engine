@@ -23,16 +23,11 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
-import { AnimationClip } from '../../core/animation/animation-clip';
-import { Skeleton } from '../assets';
-import { Device } from '../../core/gfx';
+import type { AnimationClip } from '../../animation/animation-clip';
+import type { Skeleton } from '../assets';
+import { Device } from '../../gfx';
 import { JointAnimationInfo, JointTexturePool } from './skeletal-animation-utils';
-import { legacyCC } from '../../core/global-exports';
+import { cclegacy } from '../../core';
 
 export class DataPoolManager {
     public jointTexturePool: JointTexturePool;
@@ -57,4 +52,4 @@ export class DataPoolManager {
     }
 }
 
-legacyCC.internal.DataPoolManager = DataPoolManager;
+cclegacy.internal.DataPoolManager = DataPoolManager;

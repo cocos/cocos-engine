@@ -23,19 +23,13 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
 import CANNON from '@cocos/cannon';
-import { Vec3 } from '../../core/math';
+import { Vec3, IVec3Like } from '../../core';
 import { IRigidBody } from '../spec/i-rigid-body';
 import { CannonSharedBody } from './cannon-shared-body';
 import { CannonWorld } from './cannon-world';
 import { PhysicsSystem } from '../framework/physics-system';
 import { ERigidBodyType, RigidBody } from '../framework';
-import { IVec3Like } from '../../core/math/type-define';
 
 const v3_cannon0 = new CANNON.Vec3();
 const v3_cannon1 = new CANNON.Vec3();
@@ -91,9 +85,11 @@ export class CannonRigidBody implements IRigidBody {
             this.impl.mass = 0;
             this.impl.allowSleep = true;
             this.impl.updateMassProperties();
+            this.clearState();
             break;
         }
     }
+
     setLinearDamping (value: number) {
         this.impl.linearDamping = value;
     }
@@ -105,6 +101,14 @@ export class CannonRigidBody implements IRigidBody {
     useGravity (value: boolean) {
         this.impl.useGravity = value;
         this._wakeUpIfSleep();
+    }
+
+    useCCD (value:boolean) {
+        this.impl.ccdSpeedThreshold = value ? 0.01 : -1;
+    }
+
+    isUsingCCD () {
+        return this.impl.ccdSpeedThreshold !== -1;
     }
 
     setLinearFactor (value: IVec3Like) {
@@ -236,28 +240,28 @@ export class CannonRigidBody implements IRigidBody {
     applyForce (force: Vec3, worldPoint?: Vec3) {
         this._sharedBody.syncSceneToPhysics();
         this._wakeUpIfSleep();
-        if (worldPoint == null) worldPoint = Vec3.ZERO;
+        if (worldPoint == null) worldPoint = Vec3.ZERO as Vec3;
         this.impl.applyForce(Vec3.copy(v3_cannon0, force), Vec3.copy(v3_cannon1, worldPoint));
     }
 
     applyImpulse (impulse: Vec3, worldPoint?: Vec3) {
         this._sharedBody.syncSceneToPhysics();
         this._wakeUpIfSleep();
-        if (worldPoint == null) worldPoint = Vec3.ZERO;
+        if (worldPoint == null) worldPoint = Vec3.ZERO as Vec3;
         this.impl.applyImpulse(Vec3.copy(v3_cannon0, impulse), Vec3.copy(v3_cannon1, worldPoint));
     }
 
     applyLocalForce (force: Vec3, localPoint?: Vec3): void {
         this._sharedBody.syncSceneToPhysics();
         this._wakeUpIfSleep();
-        if (localPoint == null) localPoint = Vec3.ZERO;
+        if (localPoint == null) localPoint = Vec3.ZERO as Vec3;
         this.impl.applyLocalForce(Vec3.copy(v3_cannon0, force), Vec3.copy(v3_cannon1, localPoint));
     }
 
     applyLocalImpulse (impulse: Vec3, localPoint?: Vec3): void {
         this._sharedBody.syncSceneToPhysics();
         this._wakeUpIfSleep();
-        if (localPoint == null) localPoint = Vec3.ZERO;
+        if (localPoint == null) localPoint = Vec3.ZERO as Vec3;
         this.impl.applyLocalImpulse(Vec3.copy(v3_cannon0, impulse), Vec3.copy(v3_cannon1, localPoint));
     }
 

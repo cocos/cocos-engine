@@ -24,13 +24,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module event
- */
-
-import * as js from '../utils/js';
-import { CallbacksInvoker } from './callbacks-invoker';
 import { legacyCC } from '../global-exports';
 import { Eventify } from './eventify';
 

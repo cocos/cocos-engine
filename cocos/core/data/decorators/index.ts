@@ -22,14 +22,15 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-/**
- * @packageDocumentation
- * @module decorator
- */
 
 export { ccclass } from './ccclass';
 export * from './component';
-export * from './serializable';
+export {
+    serializable,
+    formerlySerializedAs,
+    editorOnly,
+    uniquelyReferenced,
+} from './serializable';
 export * from './editable';
 export * from './type';
 export { override } from './override';

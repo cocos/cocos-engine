@@ -23,13 +23,10 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-import { equals, Vec3 } from '../../core';
-import { IVec3Like, IQuatLike } from '../../core/math/type-define';
+import { equals, Vec3, IVec3Like } from '../../core';
 import { Collider, CollisionEventType, IContactEquation, TriggerEventType } from '../framework';
+
+export { cylinder } from '../../primitive';
 
 interface IWrapped<T> {
     __cc_wrapper__: T;
@@ -88,4 +85,11 @@ export function shrinkPositions (buffer: Float32Array | number[]): number[] {
         }
     }
     return pos;
+}
+
+export function absolute (v: Vec3) {
+    v.x = Math.abs(v.x);
+    v.y = Math.abs(v.y);
+    v.z = Math.abs(v.z);
+    return v;
 }

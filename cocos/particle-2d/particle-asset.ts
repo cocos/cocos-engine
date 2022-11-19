@@ -24,18 +24,15 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module asset
- */
-
-import { ccclass, serializable, editable } from '../core/data/decorators';
-import { Asset } from '../core/assets/asset';
+import { Asset } from '../asset/assets/asset';
 import { SpriteFrame } from '../2d/assets/sprite-frame';
-import { legacyCC } from '../core/global-exports';
+import { cclegacy, _decorator } from '../core';
+
+const { ccclass, serializable, editable } = _decorator;
 
 /**
- * Class for particle asset handling.
+ * @en Class for 2D particle asset handling.
+ * @zh 2D 粒子资产
  * @class ParticleAsset
  * @extends Asset
  */
@@ -46,4 +43,4 @@ export class ParticleAsset extends Asset {
     public spriteFrame: SpriteFrame | null= null;
 }
 
-legacyCC.ParticleAsset = ParticleAsset;
+cclegacy.ParticleAsset = ParticleAsset;

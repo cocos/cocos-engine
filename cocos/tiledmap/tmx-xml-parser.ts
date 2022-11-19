@@ -23,15 +23,10 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module tiledmap
- */
-
 import { Label, HorizontalTextAlignment, VerticalTextAlignment } from '../2d/components/label';
 import codec from '../../external/compression/ZipUtils.js';
 import zlib from '../../external/compression/zlib.min.js';
-import { SAXParser } from '../core/asset-manager/plist-parser';
+import { SAXParser } from '../asset/asset-manager/plist-parser';
 import {
     GID, MixedGID, Orientation, PropertiesInfo, RenderOrder, StaggerAxis, StaggerIndex, TiledAnimation, TiledAnimationType,
     TileFlag, TMXImageLayerInfo, TMXLayerInfo, TMXObject, TMXObjectGroupInfo, TMXObjectType, TMXTilesetInfo,
@@ -158,7 +153,7 @@ export class TMXMapInfo {
      * Parent element.
      * @property {Object}   parentElement
      */
-    parentElement: Object | null = null;
+    parentElement: Record<string, unknown> | null = null;
 
     /**
      * Parent GID.
@@ -614,46 +609,51 @@ export class TMXMapInfo {
         }
 
         for (i = 0; i < tilesets.length; i++) {
-            const selTileset = tilesets[i];
+            const curTileset = tilesets[i];
             // If this is an external tileset then start parsing that
-            const tsxName = selTileset.getAttribute('source');
+            const tsxName = curTileset.getAttribute('source');
             if (tsxName) {
-                const currentFirstGID = parseInt(selTileset.getAttribute('firstgid')!);
+                const currentFirstGID = parseInt(curTileset.getAttribute('firstgid')!);
                 const tsxXmlString = this._tsxContentMap![tsxName];
                 if (tsxXmlString) {
                     this.parseXMLString(tsxXmlString, currentFirstGID);
                 }
             } else {
-                const images = selTileset.getElementsByTagName('image');
+                const images = curTileset.getElementsByTagName('image');
                 const collection = images.length > 1;
                 const firstImage = images[0];
                 let firstImageName: string = firstImage.getAttribute('source')!;
-                firstImageName = firstImageName.replace(/\\/g, '\/');
+                firstImageName = firstImageName.replace(/\\/g, '/');
 
-                const tiles = selTileset.getElementsByTagName('tile');
+                const tiles = curTileset.getElementsByTagName('tile');
                 const tileCount = tiles && tiles.length || 1;
                 let tile: Element | null = null;
 
-                const tilesetName = selTileset.getAttribute('name') || '';
-                const tilesetSpacing = parseInt(selTileset.getAttribute('spacing')!) || 0;
-                const tilesetMargin = parseInt(selTileset.getAttribute('margin')!) || 0;
-                const fgid = tilesetFirstGid || (parseInt(selTileset.getAttribute('firstgid')!) || 0);
+                const tilesetName = curTileset.getAttribute('name') || '';
+                const tilesetSpacing = parseInt(curTileset.getAttribute('spacing')!) || 0;
+                const tilesetMargin = parseInt(curTileset.getAttribute('margin')!) || 0;
+                const fgid = tilesetFirstGid || (parseInt(curTileset.getAttribute('firstgid')!) || 0);
 
                 const tilesetSize = new Size(0, 0);
-                tilesetSize.width = parseFloat(selTileset.getAttribute('tilewidth')!);
-                tilesetSize.height = parseFloat(selTileset.getAttribute('tileheight')!);
+                tilesetSize.width = parseFloat(curTileset.getAttribute('tilewidth')!);
+                tilesetSize.height = parseFloat(curTileset.getAttribute('tileheight')!);
 
                 // parse tile offset
-                const firstTileOffset = selTileset.getElementsByTagName('tileoffset')[0];
+                const curTileOffset = curTileset.getElementsByTagName('tileoffset')[0];
                 let tileOffsetX = 0;
                 let tileOffsetY = 0;
-                if (firstTileOffset) {
-                    tileOffsetX = parseFloat(firstTileOffset.getAttribute('x')!) || 0;
-                    tileOffsetY = parseFloat(firstTileOffset.getAttribute('y')!) || 0;
+                if (curTileOffset) {
+                    tileOffsetX = parseFloat(curTileOffset.getAttribute('x')!) || 0;
+                    tileOffsetY = parseFloat(curTileOffset.getAttribute('y')!) || 0;
                 }
 
                 let tileset: TMXTilesetInfo | null = null;
                 for (let tileIdx = 0; tileIdx < tileCount; tileIdx++) {
+                    const curImage = images[tileIdx] ? images[tileIdx] : firstImage;
+                    if (!curImage) continue;
+                    let curImageName: string = curImage.getAttribute('source')!;
+                    curImageName = curImageName.replace(/\\/g, '/');
+
                     if (!tileset || collection) {
                         tileset = new TMXTilesetInfo();
                         tileset.name = tilesetName;
@@ -663,30 +663,34 @@ export class TMXMapInfo {
 
                         tileset.collection = collection;
                         if (!collection) {
-                            tileset.imageName = firstImageName;
-                            tileset.imageSize.width = parseFloat(firstImage.getAttribute('width')!) || 0;
-                            tileset.imageSize.height = parseFloat(firstImage.getAttribute('height')!) || 0;
-                            tileset.sourceImage = this._spriteFrameMap![firstImageName];
+                            tileset.imageName = curImageName;
+                            tileset.imageSize.width = parseFloat(curImage.getAttribute('width')!) || 0;
+                            tileset.imageSize.height = parseFloat(curImage.getAttribute('height')!) || 0;
+                            tileset.sourceImage = this._spriteFrameMap![curImageName];
                             if (!tileset.sourceImage) {
-                                const shortName = TMXMapInfo.getShortName(firstImageName);
-                                tileset.imageName = shortName;
-                                tileset.sourceImage = this._spriteFrameMap![shortName];
+                                const nameWithPostfix = TMXMapInfo.getNameWithPostfix(curImageName);
+                                tileset.imageName = nameWithPostfix;
+                                tileset.sourceImage = this._spriteFrameMap![nameWithPostfix];
                                 if (!tileset.sourceImage) {
-                                    console.error(`[error]: ${shortName} not find in [${Object.keys(this._spriteFrameMap!).join(', ')}]`);
-                                    errorID(7221, firstImageName);
-                                    console.warn(`Please try asset type of ${firstImageName} to 'sprite-frame'`);
+                                    const shortName = TMXMapInfo.getShortName(curImageName);
+                                    tileset.imageName = shortName;
+                                    tileset.sourceImage = this._spriteFrameMap![shortName];
+                                    if (!tileset.sourceImage) {
+                                        console.error(`[error]: ${shortName} not find in [${Object.keys(this._spriteFrameMap!).join(', ')}]`);
+                                        errorID(7221, curImageName);
+                                        console.warn(`Please try asset type of ${curImageName} to 'sprite-frame'`);
+                                    }
                                 }
                             }
                         }
-
                         tileset.spacing = tilesetSpacing;
                         tileset.margin = tilesetMargin;
                         tileset._tileSize.width = tilesetSize.width;
                         tileset._tileSize.height = tilesetSize.height;
-
                         this.setTilesets(tileset);
                     }
 
+                    // parse tiles by tileIdx
                     tile = tiles && tiles[tileIdx];
                     if (!tile) {
                         continue;
@@ -697,7 +701,7 @@ export class TMXMapInfo {
                     if (tileImages && tileImages.length > 0) {
                         const image = tileImages[0];
                         let imageName = image.getAttribute('source')!;
-                        imageName = imageName.replace(/\\/g, '\/');
+                        imageName = imageName.replace(/\\/g, '/');
 
                         tileset.imageName = imageName;
                         tileset.imageSize.width = parseFloat(image.getAttribute('width')!) || 0;
@@ -708,12 +712,17 @@ export class TMXMapInfo {
 
                         tileset.sourceImage = this._spriteFrameMap![imageName];
                         if (!tileset.sourceImage) {
-                            const shortName = TMXMapInfo.getShortName(imageName);
-                            tileset.imageName = shortName;
-                            tileset.sourceImage = this._spriteFrameMap![shortName];
+                            const nameWithPostfix = TMXMapInfo.getNameWithPostfix(imageName);
+                            tileset.imageName = nameWithPostfix;
+                            tileset.sourceImage = this._spriteFrameMap![nameWithPostfix];
                             if (!tileset.sourceImage) {
-                                errorID(7221, imageName);
-                                console.warn(`Please try asset type of ${imageName} to 'sprite-frame'`);
+                                const shortName = TMXMapInfo.getShortName(imageName);
+                                tileset.imageName = shortName;
+                                tileset.sourceImage = this._spriteFrameMap![shortName];
+                                if (!tileset.sourceImage) {
+                                    errorID(7221, imageName);
+                                    console.warn(`Please try asset type of ${imageName} to 'sprite-frame'`);
+                                }
                             }
                         }
 
@@ -846,10 +855,11 @@ export class TMXMapInfo {
         case 'gzip':
             tiles = codec.unzipBase64AsArray(nodeValue, 4);
             break;
-        case 'zlib':
+        case 'zlib': {
             const inflator = new zlib.Inflate(codec.Base64.decodeAsArray(nodeValue, 1));
             tiles = uint8ArrayToUint32Array(inflator.decompress());
             break;
+        }
         case null:
         case '':
             // Uncompressed
@@ -1049,11 +1059,18 @@ export class TMXMapInfo {
         this.currentString = currentString;
     }
 
+    static getNameWithPostfix (name: string) {
+        name = name.replace(/\\/g, '/');
+        const slashIndex = name.lastIndexOf('/') + 1;
+        const strLen = name.length;
+        return name.substring(slashIndex, strLen);
+    }
+
     static getShortName (name: string) {
-        name = name.replace(/\\/g, '\/');
-        const splashIndex = name.lastIndexOf('/') + 1;
+        name = name.replace(/\\/g, '/');
+        const slashIndex = name.lastIndexOf('/') + 1;
         let dotIndex = name.lastIndexOf('.');
         dotIndex = dotIndex < 0 ? name.length : dotIndex;
-        return name.substring(splashIndex, dotIndex);
+        return name.substring(slashIndex, dotIndex);
     }
 }

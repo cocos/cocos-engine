@@ -1,6 +1,26 @@
-/**
- * @packageDocumentation
- * @module spine
+/*
+ Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
  */
 
 import { EDITOR } from 'internal:constants';
@@ -9,18 +29,22 @@ import spine from './lib/spine-core.js';
 import SkeletonCache, { AnimationCache, AnimationFrame } from './skeleton-cache';
 import { AttachUtil } from './attach-util';
 import { ccclass, executeInEditMode, help, menu } from '../core/data/class-decorator';
-import { Renderable2D } from '../2d/framework/renderable-2d';
-import { Node, CCClass, CCObject, Color, Enum, Material, PrivateNode, Texture2D, builtinResMgr, ccenum, errorID, logID, warn } from '../core';
+import { UIRenderer } from '../2d/framework/ui-renderer';
+import { CCClass, CCObject, Color, Enum, ccenum, logID, warn, RecyclePool, js } from '../core';
 import { displayName, displayOrder, editable, override, serializable, tooltip, type, visible } from '../core/data/decorators';
 import { SkeletonData } from './skeleton-data';
 import { VertexEffectDelegate } from './vertex-effect-delegate';
-import { MeshRenderData } from '../2d/renderer/render-data';
-import { Batcher2D } from '../2d/renderer/batcher-2d';
 import { Graphics } from '../2d/components/graphics';
-import { MaterialInstance } from '../core/renderer';
-import { js } from '../core/utils/js';
-import { BlendFactor, BlendOp } from '../core/gfx';
+import { MaterialInstance } from '../render-scene';
+import { BlendFactor, BlendOp } from '../gfx';
 import { legacyCC } from '../core/global-exports';
+import { SkeletonSystem } from './skeleton-system';
+import { Batcher2D } from '../2d/renderer/batcher-2d';
+import { RenderEntity, RenderEntityType } from '../2d/renderer/render-entity';
+import { RenderDrawInfo } from '../2d/renderer/render-draw-info';
+import { Material, Texture2D } from '../asset/assets';
+import { builtinResMgr } from '../asset/asset-manager';
+import { Node } from '../scene-graph';
 
 export const timeScale = 1.0;
 
@@ -76,9 +100,11 @@ export enum SpineMaterialType {
     TWO_COLORED = 1,
 }
 
-export interface SkeletonMeshData {
-    renderData: MeshRenderData;
-    texture?: Texture2D;
+export interface SkeletonDrawData {
+    material: Material | null;
+    texture: Texture2D | null;
+    indexOffset: number;
+    indexCount: number;
 }
 
 @ccclass('sp.Skeleton.SpineSocket')
@@ -123,17 +149,17 @@ js.setClassAlias(SpineSocket, 'sp.Skeleton.SpineSocket');
  * 多个 Skeleton 可以使用相同的骨骼数据，其中包括所有的动画，皮肤和 attachments。
  *
  * @class Skeleton
- * @extends Renderable2D
+ * @extends UIRenderer
  */
 @ccclass('sp.Skeleton')
 @help('i18n:sp.Skeleton')
 @menu('Spine/Skeleton')
 @executeInEditMode
-export class Skeleton extends Renderable2D {
+export class Skeleton extends UIRenderer {
     public static SpineSocket = SpineSocket;
 
     public static AnimationCacheMode = AnimationCacheMode;
-    get meshRenderDataArray () { return this._meshRenderDataArray; }
+    get drawList () { return this._drawList; }
 
     @override
     @type(Material)
@@ -145,6 +171,8 @@ export class Skeleton extends Renderable2D {
     set customMaterial (val) {
         this._customMaterial = val;
         this._cleanMaterialCache();
+        this.setMaterial(this._customMaterial, 0);
+        this.markForUpdateRenderData();
     }
 
     /**
@@ -152,11 +180,14 @@ export class Skeleton extends Renderable2D {
      * @zh 该骨骼动画是否暂停。
      * @property paused
      * @type {Boolean}
-     * @readOnly
      * @default false
      */
-    @visible(false)
-    public paused = false;
+    get paused () {
+        return this._paused;
+    }
+    set paused (value: boolean) {
+        this._paused = value;
+    }
 
     /** dstBlendFactor
      * @en
@@ -176,11 +207,13 @@ export class Skeleton extends Renderable2D {
     }
     set skeletonData (value: SkeletonData) {
         if (value) value.resetEnums();
-        if (this._skeletonData != value) {
+        if (this._skeletonData !== value) {
+            this.destroyRenderData();
             this._skeletonData = value as any;
+            this._needUpdateSkeltonData = true;
             this.defaultSkin = '';
             this.defaultAnimation = '';
-            if (EDITOR) {
+            if (EDITOR && !legacyCC.GAME_VIEW) {
                 this._refreshInspector();
             }
             this._updateSkeletonData();
@@ -203,7 +236,6 @@ export class Skeleton extends Renderable2D {
     set animation (value: string) {
         if (value) {
             this.setAnimation(0, value, this.loop);
-            this.destroyRenderData();
             this.markForUpdateRenderData();
         } else if (!this.isAnimationCached()) {
             this.clearTrack(0);
@@ -211,6 +243,9 @@ export class Skeleton extends Renderable2D {
         }
     }
 
+    /**
+     * @internal
+     */
     @displayName('Default Skin')
     @type(DefaultSkinsEnum)
     @tooltip('i18n:COMPONENT.skeleton.default_skin')
@@ -248,7 +283,7 @@ export class Skeleton extends Renderable2D {
         if (skinName !== undefined) {
             this.defaultSkin = skinName;
             this.setSkin(this.defaultSkin);
-            if (EDITOR /* && !cc.engine.isPlaying */) {
+            if (EDITOR && !legacyCC.GAME_VIEW /* && !cc.engine.isPlaying */) {
                 this._refreshInspector();
                 this.markForUpdateRenderData();
             }
@@ -258,12 +293,14 @@ export class Skeleton extends Renderable2D {
     }
 
     // value of 0 represents no animation
-
+    /**
+     * @internal
+     */
     @displayName('Animation')
     @type(DefaultAnimsEnum)
     @tooltip('i18n:COMPONENT.skeleton.animation')
     get _animationIndex () {
-        const animationName = EDITOR ? this.defaultAnimation : this.animation;
+        const animationName = EDITOR && !legacyCC.GAME_VIEW ? this.defaultAnimation : this.animation;
         if (this.skeletonData) {
             if (animationName) {
                 const animsEnum = this.skeletonData.getAnimsEnum();
@@ -295,7 +332,7 @@ export class Skeleton extends Renderable2D {
         const animName = animsEnum[value];
         if (animName !== undefined) {
             this.animation = animName;
-            if (EDITOR) {
+            if (EDITOR && !legacyCC.GAME_VIEW) {
                 this.defaultAnimation = animName;
                 this._refreshInspector();
             } else {
@@ -319,22 +356,12 @@ export class Skeleton extends Renderable2D {
     }
 
     /**
-     * @en TODO
+     * @en Whether play animations in loop mode
      * @zh 是否循环播放当前骨骼动画。
      */
     @serializable
     @tooltip('i18n:COMPONENT.skeleton.loop')
     public loop = true;
-
-    /**
-     * @en Indicates whether to enable premultiplied alpha.
-     * You should disable this option when image's transparent area appears to have opaque pixels,
-     * or enable this option when image's half transparent area appears to be darken.
-     * @zh 是否启用贴图预乘。
-     * 当图片的透明区域出现色块时需要关闭该选项，当图片的半透明区域颜色变黑时需要启用该选项。
-     */
-    @serializable
-    private _premultipliedAlpha = true;
 
     @editable
     @tooltip('i18n:COMPONENT.skeleton.premultipliedAlpha')
@@ -350,8 +377,6 @@ export class Skeleton extends Renderable2D {
      * @en The time scale of this skeleton.
      * @zh 当前骨骼中所有动画的时间缩放率。
      */
-    @serializable
-    private _timeScale = 1;
     @tooltip('i18n:COMPONENT.skeleton.time_scale')
     @editable
     get timeScale () { return this._timeScale; }
@@ -417,9 +442,22 @@ export class Skeleton extends Renderable2D {
         if (value !== this._useTint) {
             this._useTint = value;
             this._updateUseTint();
-            this.markForUpdateRenderData();
         }
     }
+    /*
+     * @en Enabled batch model, if skeleton is complex, do not enable batch, or will lower performance.
+     * @zh 开启合批，如果渲染大量相同纹理，且结构简单的骨骼动画，开启合批可以降低drawcall，否则请不要开启，cpu消耗会上升。
+    */
+    @editable
+    @tooltip('i18n:COMPONENT.skeleton.enabled_batch')
+    get enableBatch () { return this._enableBatch; }
+    set enableBatch (value) {
+        if (value !== this._enableBatch) {
+            this._enableBatch = value;
+            this._updateBatch();
+        }
+    }
+
     /**
      * @en
      * The bone sockets this animation component maintains.<br>
@@ -434,7 +472,7 @@ export class Skeleton extends Renderable2D {
     }
 
     set sockets (val: SpineSocket[]) {
-        if (EDITOR) {
+        if (EDITOR && !legacyCC.GAME_VIEW) {
             this._verifySockets(val);
         }
         this._sockets = val;
@@ -444,42 +482,73 @@ export class Skeleton extends Renderable2D {
 
     get socketNodes () { return this._socketNodes; }
 
-    /**
-     * @en Enabled batch model, if skeleton is complex, do not enable batch, or will lower performance.
-     * @zh 开启合批，如果渲染大量相同纹理，且结构简单的骨骼动画，开启合批可以降低drawcall，否则请不要开启，cpu消耗会上升。
-     */
-    // @tooltip('i18n:COMPONENT.skeleton.enabled_batch')
-    // get enableBatch () { return this._enableBatch; }
-    // set enableBatch (value) {
-    //     if (value != this._enableBatch) {
-    //         this._enableBatch = value;
-    //         this._updateBatch();
-    //     }
-    // }
-
-    // @serializable
-    // private _enableBatch: boolean = true;
-
-    public enableBatch = false;
     // Frame cache
+    /**
+     * @internal
+     */
     public _frameCache: AnimationCache | null = null;
     // Cur frame
+    /**
+     * @internal
+     */
     public _curFrame: AnimationFrame | null = null;
 
-    // protected _materialCache = {};
+    /**
+     * @internal
+     */
     public _effectDelegate: VertexEffectDelegate | null | undefined = null;
+    /**
+     * @internal
+     */
     public _skeleton: spine.Skeleton | null;
+    /**
+     * @internal
+     */
     public _clipper?: spine.SkeletonClipping;
+    /**
+     * @internal
+     */
     public _debugRenderer: Graphics | null;
+    /**
+     * @internal
+     */
     public _startSlotIndex;
+    /**
+     * @internal
+     */
     public _endSlotIndex;
+    /**
+     * @internal
+     */
     public _startEntry;
+    /**
+     * @internal
+     */
     public _endEntry;
+    /**
+     * @internal
+     */
     public attachUtil: AttachUtil;
+    /**
+     * @internal
+     */
+    public maxVertexCount = 0;
+    /**
+     * @internal
+     */
+    public maxIndexCount = 0;
 
     protected _materialCache: { [key: string]: MaterialInstance } = {} as any;
     protected _enumSkins: any = Enum({});
     protected _enumAnimations: any = Enum({});
+
+    // Play times
+    protected _playTimes = 0;
+    // Time scale
+    @serializable
+    protected _timeScale = 1;
+    // Paused or playing state
+    protected _paused = false;
 
     // Below properties will effect when cache mode is SHARED_CACHE or PRIVATE_CACHE.
     // accumulate time
@@ -488,17 +557,16 @@ export class Skeleton extends Renderable2D {
     protected _playCount = 0;
     // Skeleton cache
     protected _skeletonCache: SkeletonCache | null = null;
-    // Aimation name
-
+    // Animation name
     protected _animationName = '';
     // Animation queue
     protected _animationQueue: AnimationItem[] = [];
     // Head animation info of
     protected _headAniInfo: AnimationItem | null = null;
-    // Play times
-    protected _playTimes = 0;
     // Is animation complete.
     protected _isAniComplete = true;
+    // Is need update skeltonData
+    protected _needUpdateSkeltonData = true;
 
     @serializable
     protected _useTint = false;
@@ -517,10 +585,22 @@ export class Skeleton extends Renderable2D {
     @serializable
     protected _skeletonData: SkeletonData | null = null;
 
+    /**
+     * @en Indicates whether to enable premultiplied alpha.
+     * You should disable this option when image's transparent area appears to have opaque pixels,
+     * or enable this option when image's half transparent area appears to be darken.
+     * @zh 是否启用贴图预乘。
+     * 当图片的透明区域出现色块时需要关闭该选项，当图片的半透明区域颜色变黑时需要启用该选项。
+     */
+    @serializable
+    protected _premultipliedAlpha = true;
+
     // 由于 spine 的 skin 是无法二次替换的，所以只能设置默认的 skin
     /**
-     * @en The name of default skin.
-     * @zh 默认的皮肤名称。
+     * @en
+     * The name of default skin.
+     * @zh
+     * 默认的皮肤名称。
      * @property {String} defaultSkin
      */
     @serializable
@@ -528,8 +608,10 @@ export class Skeleton extends Renderable2D {
     protected defaultSkin = '';
 
     /**
-     * @en The name of default animation.
-     * @zh 默认的动画名称。
+     * @en
+     * The name of default animation.
+     * @zh
+     * 默认的动画名称。
      * @property {String} defaultAnimation
      */
     @visible(false)
@@ -537,9 +619,18 @@ export class Skeleton extends Renderable2D {
     protected defaultAnimation = '';
 
     @serializable
+    protected _enableBatch = false;
+
+    @serializable
     protected _sockets: SpineSocket[] = [];
 
-    protected _meshRenderDataArray: SkeletonMeshData[] = [];
+    protected _drawIdx = 0;
+    protected _drawList = new RecyclePool<SkeletonDrawData>(() => ({
+        material: null,
+        texture: null,
+        indexOffset: 0,
+        indexCount: 0,
+    }), 1);
     @serializable
     protected _debugMesh = false;
     protected _rootBone: spine.Bone | null;
@@ -548,7 +639,14 @@ export class Skeleton extends Renderable2D {
 
     protected _socketNodes: Map<number, Node> = new Map();
     protected _cachedSockets: Map<string, number> = new Map<string, number>();
+    private _drawInfoList : RenderDrawInfo[] = [];
 
+    private requestDrawInfo (idx: number) {
+        if (!this._drawInfoList[idx]) {
+            this._drawInfoList[idx] = new RenderDrawInfo();
+        }
+        return this._drawInfoList[idx];
+    }
     // CONSTRUCTOR
     constructor () {
         super();
@@ -556,7 +654,6 @@ export class Skeleton extends Renderable2D {
         this._skeleton = null;
         this._rootBone = null;
         this._listener = null;
-        // this._materialCache = {};
         this._debugRenderer = null;
         this._startSlotIndex = -1;
         this._endSlotIndex = -1;
@@ -565,18 +662,7 @@ export class Skeleton extends Renderable2D {
         this.attachUtil = new AttachUtil();
         setEnumAttr(this, '_defaultSkinIndex', this._enumSkins);
         setEnumAttr(this, '_animationIndex', this._enumAnimations);
-    }
-
-    // override base class disableRender to clear post render flag
-    public disableRender () {
-        // this._super();
-        // this.node._renderFlag &= ~FLAG_POST_RENDER;
-        this.destroyRenderData();
-    }
-
-    // set blendHash value to skip ui component blend
-    public setBlendHash () {
-        if (this._blendHash !== -1) this._blendHash = -1;
+        this._useVertexOpacity = true;
     }
 
     /**
@@ -596,7 +682,7 @@ export class Skeleton extends Renderable2D {
             uiTrans.setContentSize(skeletonData.width, skeletonData.height);
         }
 
-        if (!EDITOR) {
+        if (!EDITOR || legacyCC.GAME_VIEW) {
             if (this._cacheMode === AnimationCacheMode.SHARED_CACHE) {
                 this._skeletonCache = SkeletonCache.sharedCache;
             } else if (this._cacheMode === AnimationCacheMode.PRIVATE_CACHE) {
@@ -618,8 +704,8 @@ export class Skeleton extends Renderable2D {
             this._clipper = new spine.SkeletonClipping();
             this._rootBone = this._skeleton.getRootBone();
         }
-
-        this.markForUpdateRenderData();
+        // Recreate render data and mark dirty
+        this._flushAssembler();
     }
 
     /**
@@ -659,7 +745,7 @@ export class Skeleton extends Renderable2D {
     // IMPLEMENT
     public __preload () {
         super.__preload();
-        if (EDITOR) {
+        if (EDITOR && !legacyCC.GAME_VIEW) {
             const Flags = CCObject.Flags;
             this._objFlags |= (Flags.IsAnchorLocked | Flags.IsSizeLocked);
             // this._refreshInspector();
@@ -675,11 +761,10 @@ export class Skeleton extends Renderable2D {
 
         this._updateSkeletonData();
         this._updateDebugDraw();
-        this._updateUseTint();
         this._indexBoneSockets();
         this._updateSocketBindings();
-        // this._updateBatch();
-        if (EDITOR) { this._refreshInspector(); }
+
+        if (EDITOR && !legacyCC.GAME_VIEW) { this._refreshInspector(); }
     }
 
     /**
@@ -696,6 +781,7 @@ export class Skeleton extends Renderable2D {
     public setAnimationCacheMode (cacheMode: AnimationCacheMode) {
         if (this._preCacheMode !== cacheMode) {
             this._cacheMode = cacheMode;
+            this._needUpdateSkeltonData = true;
             this._updateSkeletonData();
             this._updateUseTint();
             this._updateSocketBindings();
@@ -708,12 +794,13 @@ export class Skeleton extends Renderable2D {
      * @zh 当前是否处于缓存模式。
      */
     public isAnimationCached () {
-        if (EDITOR) return false;
+        if (EDITOR && !legacyCC.GAME_VIEW) return false;
         return this._cacheMode !== AnimationCacheMode.REALTIME;
     }
 
-    public update (dt: number) {
-        if (EDITOR) return;
+    public updateAnimation (dt: number) {
+        this.markForUpdateRenderData();
+        if (EDITOR && !legacyCC.GAME_VIEW) return;
         if (this.paused) return;
 
         dt *= this._timeScale * timeScale;
@@ -999,8 +1086,8 @@ export class Skeleton extends Renderable2D {
                 return null;
             }
             const res = this._state!.setAnimationWith(trackIndex, animation, loop);
-                this._state!.apply(this._skeleton);
-                return res;
+            this._state!.apply(this._skeleton);
+            return res;
         }
         return null;
     }
@@ -1077,6 +1164,7 @@ export class Skeleton extends Renderable2D {
             warn('\'clearTracks\' interface can not be invoked in cached mode.');
         } else if (this._state) {
             this._state.clearTracks();
+            this.setToSetupPose();
         }
     }
 
@@ -1091,7 +1179,7 @@ export class Skeleton extends Renderable2D {
             warn('\'clearTrack\' interface can not be invoked in cached mode.');
         } else if (this._state) {
             this._state.clearTrack(trackIndex);
-            if (EDITOR/* && !cc.engine.isPlaying */) {
+            if (EDITOR && !legacyCC.GAME_VIEW/* && !cc.engine.isPlaying */) {
                 this._state.update(0);
             }
         }
@@ -1247,35 +1335,31 @@ export class Skeleton extends Renderable2D {
     public onEnable () {
         super.onEnable();
         this._flushAssembler();
+        SkeletonSystem.getInstance().add(this);
     }
 
     public onDisable () {
         super.onDisable();
+        SkeletonSystem.getInstance().remove(this);
     }
 
     public onDestroy () {
         this._cleanMaterialCache();
-        this.destroyRenderData();
+        this._drawList.destroy();
         super.onDestroy();
     }
 
-    public requestMeshRenderData (vertexFloatCnt: number) {
-        if (this._meshRenderDataArray.length > 0 && this._meshRenderDataArray[this._meshRenderDataArray.length - 1].renderData.vertexCount === 0) {
-            return this._meshRenderDataArray[this._meshRenderDataArray.length - 1];
-        }
-
-        const renderData = new MeshRenderData(vertexFloatCnt);
-        const comb: SkeletonMeshData = { renderData };
-        renderData.material = null;
-        this._meshRenderDataArray.push(comb);
-        return comb;
+    public destroyRenderData () {
+        this._drawList.reset();
+        super.destroyRenderData();
     }
 
-    public destroyRenderData () {
-        if (this._meshRenderDataArray.length > 0) {
-            this._meshRenderDataArray.forEach((rd) => { rd.renderData.reset(); });
-            this._meshRenderDataArray.length = 0;
+    private getMaterialTemplate () : Material {
+        let material = this.customMaterial;
+        if (material === null) {
+            material = builtinResMgr.get<Material>('default-spine-material');
         }
+        return material;
     }
 
     public getMaterialForBlendAndTint (src: BlendFactor, dst: BlendFactor, type: SpineMaterialType): MaterialInstance {
@@ -1285,20 +1369,7 @@ export class Skeleton extends Renderable2D {
             return inst;
         }
 
-        let material = this.customMaterial;
-        if (material === null) {
-            material = builtinResMgr.get<Material>('default-spine-material');
-        }
-
-        let useTwoColor = false;
-        switch (type) {
-        case SpineMaterialType.TWO_COLORED:
-            useTwoColor = true;
-            break;
-        case SpineMaterialType.COLORED_TEXTURED:
-        default:
-            break;
-        }
+        const material = this.getMaterialTemplate();
         const matInfo = {
             parent: material,
             subModelIdx: 0,
@@ -1319,8 +1390,20 @@ export class Skeleton extends Renderable2D {
                 }],
             },
         });
-        inst.recompileShaders({ TWO_COLORED: useTwoColor });
+        let useTwoColor = false;
+        if (type === SpineMaterialType.TWO_COLORED) {
+            useTwoColor = true;
+        }
+        const useLocal = !this._enableBatch;
+        inst.recompileShaders({ TWO_COLORED: useTwoColor, USE_LOCAL: useLocal });
         return inst;
+    }
+
+    // For Redo, Undo
+    // call markForUpdateRenderData to make sure renderData will be re-built.
+    public onRestore () {
+        this.updateMaterial();
+        this.markForUpdateRenderData();
     }
 
     public querySockets () {
@@ -1337,23 +1420,38 @@ export class Skeleton extends Renderable2D {
         return [];
     }
 
-    public _meshRenderDataArrayIdx = 0;
-    protected _render (ui: Batcher2D) {
-        if (this._meshRenderDataArray) {
-            for (let i = 0; i < this._meshRenderDataArray.length; i++) {
-                // HACK
-                const mat = this.material;
-                this._meshRenderDataArrayIdx = i;
-                const m = this._meshRenderDataArray[i];
-                if (m.renderData.material) {
-                    this.material = m.renderData.material;
+    /**
+     * @internal
+     */
+    public _requestDrawData (material: Material, texture: Texture2D, indexOffset: number, indexCount: number) {
+        const draw = this._drawList.add();
+        draw.material = material;
+        draw.texture = texture;
+        draw.indexOffset = indexOffset;
+        draw.indexCount = indexCount;
+        return draw;
+    }
+
+    protected _render (batcher: Batcher2D) {
+        let indicesCount = 0;
+        if (this.renderData && this._drawList) {
+            const rd = this.renderData;
+            const chunk = rd.chunk;
+            const accessor = chunk.vertexAccessor;
+            const meshBuffer = rd.getMeshBuffer()!;
+            const origin = meshBuffer.indexOffset;
+            // Fill index buffer
+            for (let i = 0; i < this._drawList.length; i++) {
+                this._drawIdx = i;
+                const dc = this._drawList.data[i];
+                if (dc.texture) {
+                    batcher.commitMiddleware(this, meshBuffer, origin + dc.indexOffset,
+                        dc.indexCount, dc.texture, dc.material!, this._enableBatch);
                 }
-                if (m.texture) {
-                    ui.commitComp(this, m.texture, this._assembler, null);
-                }
-                this.material = mat;
+                indicesCount += dc.indexCount;
             }
-            // this.node._static = true;
+            const subIndices = rd.indices!.subarray(0, indicesCount);
+            accessor.appendIndices(chunk.bufferId, subIndices);
         }
     }
 
@@ -1394,7 +1492,7 @@ export class Skeleton extends Renderable2D {
         const frames = frameCache.frames;
         const frameTime = SkeletonCache.FrameTime;
 
-        // Animation Start, the event diffrent from dragonbones inner event,
+        // Animation Start, the event different from dragonbones inner event,
         // It has no event object.
         if (this._accTime === 0 && this._playCount === 0) {
             this._startEntry.animation.name = this._animationName;
@@ -1405,6 +1503,17 @@ export class Skeleton extends Renderable2D {
         let frameIdx = Math.floor(this._accTime / frameTime);
         if (!frameCache.isCompleted) {
             frameCache.updateToFrame(frameIdx);
+            // Update render data size if needed
+            if (this.renderData
+                && (this.renderData.vertexCount < frameCache.maxVertexCount
+                || this.renderData.indexCount < frameCache.maxIndexCount)) {
+                this.maxVertexCount = frameCache.maxVertexCount > this.maxVertexCount ? frameCache.maxVertexCount : this.maxVertexCount;
+                this.maxIndexCount = frameCache.maxIndexCount > this.maxIndexCount ? frameCache.maxIndexCount : this.maxIndexCount;
+                this.renderData.resize(this.maxVertexCount, this.maxIndexCount);
+                if (!this.renderData.indices || this.maxIndexCount > this.renderData.indices.length) {
+                    this.renderData.indices = new Uint16Array(this.maxIndexCount);
+                }
+            }
         }
 
         if (frameCache.isCompleted && frameIdx >= frames.length) {
@@ -1416,7 +1525,6 @@ export class Skeleton extends Renderable2D {
                 this._playCount = 0;
                 this._isAniComplete = true;
                 this._emitCacheCompleteEvent();
-                this.markForUpdateRenderData();
                 return;
             }
             this._accTime = 0;
@@ -1424,7 +1532,6 @@ export class Skeleton extends Renderable2D {
             this._emitCacheCompleteEvent();
         }
         this._curFrame = frames[frameIdx];
-        this.markForUpdateRenderData();
     }
 
     protected _updateRealtime (dt: number) {
@@ -1436,7 +1543,6 @@ export class Skeleton extends Renderable2D {
                 state.update(dt);
                 state.apply(skeleton);
             }
-            this.markForUpdateRenderData();
         }
     }
 
@@ -1448,7 +1554,7 @@ export class Skeleton extends Renderable2D {
         const bones = this._skeleton.bones;
         const getBoneName = (bone: spine.Bone) => {
             if (bone.parent == null) return bone.data.name || '<Unamed>';
-            return `${getBoneName(bones[bone.parent.data.index])}/${bone.data.name}`;
+            return `${getBoneName(bones[bone.parent.data.index]) as string}/${bone.data.name}`;
         };
         for (let i = 0, l = bones.length; i < l; i++) {
             const bd = bones[i].data;
@@ -1459,23 +1565,17 @@ export class Skeleton extends Renderable2D {
 
     // if change use tint mode, just clear material cache
     protected _updateUseTint () {
+        this._cleanMaterialCache();
         this.destroyRenderData();
+        if (this._assembler && this._skeleton) {
+            this._renderData = this._assembler.createData(this);
+            this.markForUpdateRenderData();
+        }
     }
     // if change use batch mode, just clear material cache
     protected _updateBatch () {
-        // let baseMaterial = this.getMaterial(0);
-        // if (baseMaterial) {
-        //     baseMaterial.define('CC_USE_MODEL', !this.enableBatch);
-        // }
-        // this._materialCache = {};
+        this._cleanMaterialCache();
         this.markForUpdateRenderData();
-    }
-
-    protected _validateRender () {
-        const skeletonData = this.skeletonData;
-        if (!skeletonData || !skeletonData.isTexturesLoaded()) {
-            this.disableRender();
-        }
     }
 
     // update animation list for editor
@@ -1519,14 +1619,13 @@ export class Skeleton extends Renderable2D {
     }
 
     protected _updateSkeletonData () {
-        if (!this.skeletonData) {
-            this.disableRender();
+        if (!this.skeletonData || this._needUpdateSkeltonData === false) {
             return;
         }
 
+        this._needUpdateSkeltonData = false;
         const data = this.skeletonData.getRuntimeData();
         if (!data) {
-            this.disableRender();
             return;
         }
 
@@ -1539,7 +1638,7 @@ export class Skeleton extends Renderable2D {
         } catch (e) {
             warn(e);
         }
-
+        this._indexBoneSockets();
         this.attachUtil.init(this);
         this._preCacheMode = this._cacheMode;
         this.animation = this.defaultAnimation;
@@ -1556,7 +1655,8 @@ export class Skeleton extends Renderable2D {
     protected _updateDebugDraw () {
         if (this.debugBones || this.debugSlots || this.debugMesh) {
             if (!this._debugRenderer) {
-                const debugDrawNode = new PrivateNode('DEBUG_DRAW_NODE');
+                const debugDrawNode = new Node('DEBUG_DRAW_NODE');
+                debugDrawNode.hideFlags |= CCObject.Flags.DontSave | CCObject.Flags.HideInHierarchy;
                 const debugDraw = debugDrawNode.addComponent(Graphics);
                 debugDraw.lineWidth = 1;
                 debugDraw.strokeColor = new Color(255, 0, 0, 255);
@@ -1577,22 +1677,21 @@ export class Skeleton extends Renderable2D {
     }
 
     protected _flushAssembler () {
-        const assembler = Skeleton.Assembler!.getAssembler(this);
+        const assembler = Skeleton.Assembler.getAssembler(this);
         if (this._assembler !== assembler) {
             this._assembler = assembler;
         }
-        if (this._meshRenderDataArray.length === 0) {
-            if (this._assembler && this._assembler.createData) {
-                this._assembler.createData(this);
-                this.markForUpdateRenderData();
-                this._updateColor();
-            }
+        if (this._skeleton && this._assembler) {
+            this._renderData = this._assembler.createData(this);
+            this.markForUpdateRenderData();
+            this._updateColor();
         }
     }
 
-    protected _updateColor () {
-        // TODO
-    }
+    // run base class method
+    // protected _updateColor () {
+    //     // TODO
+    // }
 
     protected _updateSocketBindings () {
         if (!this._skeleton) return;
@@ -1614,7 +1713,7 @@ export class Skeleton extends Renderable2D {
         for (let i = 0, l = sockets.length; i < l; i++) {
             const target = sockets[i].target;
             if (target) {
-                if (!target.parent || (target.parent != this.node)) {
+                if (!target.parent || (target.parent !== this.node)) {
                     console.error(`Target node ${target.name} is expected to be a direct child of ${this.node.name}`);
                     continue;
                 }
@@ -1637,6 +1736,19 @@ export class Skeleton extends Renderable2D {
             this._materialCache[val].destroy();
         }
         this._materialCache = {};
+    }
+
+    protected createRenderEntity () {
+        const renderEntity = new RenderEntity(RenderEntityType.DYNAMIC);
+        renderEntity.setUseLocal(true);
+        return renderEntity;
+    }
+
+    public markForUpdateRenderData (enable = true) {
+        super.markForUpdateRenderData(enable);
+        if (this._debugRenderer) {
+            this._debugRenderer.markForUpdateRenderData(enable);
+        }
     }
 }
 

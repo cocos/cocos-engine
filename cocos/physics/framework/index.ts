@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
 import { PhysicsSystem } from './physics-system';
 import { PhysicsMaterial } from './assets/physics-material';
 import { PhysicsRayResult } from './physics-ray-result';
@@ -47,10 +42,13 @@ import { PlaneCollider } from './components/colliders/plane-collider';
 // constraints
 import { Constraint } from './components/constraints/constraint';
 import { HingeConstraint } from './components/constraints/hinge-constraint';
+import { FixedConstraint } from './components/constraints/fixed-constraint';
+
 import { PointToPointConstraint } from './components/constraints/point-to-point-constraint';
 
-import { legacyCC } from '../../core/global-exports';
+import { cclegacy } from '../../core';
 import { selector } from './physics-selector';
+import * as utils from '../utils/util';
 
 export {
     PhysicsSystem,
@@ -69,6 +67,7 @@ export {
 
     Constraint,
     HingeConstraint,
+    FixedConstraint,
     PointToPointConstraint,
 
     RigidBody,
@@ -76,13 +75,14 @@ export {
     ConstantForce,
 
     selector,
+    utils,
 };
 
-legacyCC.PhysicsSystem = PhysicsSystem;
+cclegacy.PhysicsSystem = PhysicsSystem;
 
-legacyCC.PhysicsMaterial = PhysicsMaterial;
-legacyCC.PhysicsRayResult = PhysicsRayResult;
-legacyCC.ConstantForce = ConstantForce;
+cclegacy.PhysicsMaterial = PhysicsMaterial;
+cclegacy.PhysicsRayResult = PhysicsRayResult;
+cclegacy.ConstantForce = ConstantForce;
 
 export * from './physics-interface';
 export * from './physics-config';

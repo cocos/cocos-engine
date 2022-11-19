@@ -48,8 +48,18 @@ function handleZip(url, options, onComplete) {
     }
 }
 
-function downloadDomAudio(url, options, onComplete) {
-    onComplete(null, url);
+function loadAudioPlayer (url, options, onComplete) {
+    cc.AudioPlayer.load(url).then(player => {
+        const audioMeta = {
+            player,
+            url,
+            duration: player.duration,
+            type: player.type,
+        };
+        onComplete(null, audioMeta);
+    }).catch(err => {
+        onComplete(err);
+    });
 }
 
 function download(url, func, options, onFileProgress, onComplete) {
@@ -153,13 +163,9 @@ function downloadBundle(nameOrUrl, options, onComplete) {
                 onComplete(err, null);
                 return;
             }
-            downloader.importBundleEntry(bundleName).then(function () {
-                downloadJson(config, options, function (err, data) {
-                    data && (data.base = `${_subpackagesPath}${bundleName}/`);
-                    onComplete(err, data);
-                });
-            }).catch(function (err) {
-                onComplete(err);
+            downloadJson(config, options, function (err, data) {
+                data && (data.base = `${_subpackagesPath}${bundleName}/`);
+                onComplete(err, data);
             });
         });
     }
@@ -187,36 +193,76 @@ function downloadBundle(nameOrUrl, options, onComplete) {
             loadedScripts[js] = true;
         }
 
-        downloader.importBundleEntry(bundleName).then(function () {
-            options.__cacheBundleRoot__ = bundleName;
-            var config = `${url}/config.${suffix}json`;
-            downloadJson(config, options, function (err, data) {
-                if (err) {
-                    onComplete && onComplete(err);
-                    return;
-                }
-                if (data.isZip) {
-                    let zipVersion = data.zipVersion;
-                    let zipUrl = `${url}/res.${zipVersion ? zipVersion + '.' : ''}zip`;
-                    handleZip(zipUrl, options, function (err, unzipPath) {
-                        if (err) {
-                            onComplete && onComplete(err);
-                            return;
-                        }
-                        data.base = unzipPath + '/res/';
-                        onComplete && onComplete(null, data);
-                    });
-                }
-                else {
-                    data.base = url + '/';
+        options.__cacheBundleRoot__ = bundleName;
+        var config = `${url}/config.${suffix}json`;
+        downloadJson(config, options, function (err, data) {
+            if (err) {
+                onComplete && onComplete(err);
+                return;
+            }
+            if (data.isZip) {
+                let zipVersion = data.zipVersion;
+                let zipUrl = `${url}/res.${zipVersion ? zipVersion + '.' : ''}zip`;
+                handleZip(zipUrl, options, function (err, unzipPath) {
+                    if (err) {
+                        onComplete && onComplete(err);
+                        return;
+                    }
+                    data.base = unzipPath + '/res/';
                     onComplete && onComplete(null, data);
-                }
-            });
-        }).catch(function (err) {
-            onComplete && onComplete(err);
+                });
+            }
+            else {
+                data.base = url + '/';
+                onComplete && onComplete(null, data);
+            }
         });
     }
 };
+
+const downloadCCON = (url, options, onComplete) => {
+    downloadJson(url, options, (err, json) => {
+        if (err) {
+            onComplete(err);
+            return;
+        }
+        const cconPreface = cc.internal.parseCCONJson(json);
+        const chunkPromises = Promise.all(cconPreface.chunks.map((chunk) => new Promise((resolve, reject) => {
+            downloadArrayBuffer(`${cc.path.mainFileName(url)}${chunk}`, {}, (errChunk, chunkBuffer) => {
+                if (errChunk) {
+                    reject(errChunk);
+                } else {
+                    resolve(new Uint8Array(chunkBuffer));
+                }
+            });
+        })));
+        chunkPromises.then((chunks) => {
+            const ccon = new cc.internal.CCON(cconPreface.document, chunks);
+            onComplete(null, ccon);
+        }).catch((err) => {
+            onComplete(err);
+        });
+    });
+};
+
+const downloadCCONB = (url, options, onComplete) => {
+    downloadArrayBuffer(url, options, (err, arrayBuffer) => {
+        if (err) {
+            onComplete(err);
+            return;
+        }
+        try {
+            const ccon = cc.internal.decodeCCONBinary(new Uint8Array(arrayBuffer));
+            onComplete(null, ccon);
+        } catch (err) {
+            onComplete(err);
+        }
+    });
+};
+
+function downloadArrayBuffer (url, options, onComplete) {
+    download(url, parseArrayBuffer, options, options.onFileProgress, onComplete);
+}
 
 const originParsePVRTex = parser.parsePVRTex;
 let parsePVRTex = function (file, options, onComplete) {
@@ -250,7 +296,6 @@ let parsePlist = function (url, options, onComplete) {
     });
 };
 
-downloader.downloadDomAudio = downloadDomAudio;
 downloader.downloadScript = downloadScript;
 parser.parsePVRTex = parsePVRTex;
 parser.parsePKMTex = parsePKMTex;
@@ -302,6 +347,9 @@ downloader.register({
     '.json': downloadJson,
     '.ExportJson': downloadAsset,
 
+    '.ccon': downloadCCON,
+    '.cconb': downloadCCONB,
+
     '.binary': downloadAsset,
     '.bin': downloadAsset,
     '.dbbin': downloadAsset,
@@ -342,10 +390,10 @@ parser.register({
     '.ttc': loadFont,
 
     // Audio
-    '.mp3': downloadDomAudio,
-    '.ogg': downloadDomAudio,
-    '.wav': downloadDomAudio,
-    '.m4a': downloadDomAudio,
+    '.mp3': loadAudioPlayer,
+    '.ogg': loadAudioPlayer,
+    '.wav': loadAudioPlayer,
+    '.m4a': loadAudioPlayer,
 
     // Txt
     '.txt': parseText,
@@ -408,12 +456,18 @@ cc.assetManager.transformPipeline.append(function (task) {
         else {
             options.__cacheBundleRoot__ = item.config.name;
         }
+        if (item.ext === '.cconb') {
+            item.url = item.url.replace(item.ext, '.bin');
+        } else if (item.ext === '.ccon') {
+            item.url = item.url.replace(item.ext, '.json');
+        }
     }
 });
 
 var originInit = cc.assetManager.init;
 cc.assetManager.init = function (options) {
     originInit.call(cc.assetManager, options);
-    options.subpackages && options.subpackages.forEach(x => subpackages[x] = `${_subpackagesPath}` + x);
+    const subpacks = cc.settings.querySettings('assets', 'subpackages');
+    subpacks && subpacks.forEach(x => subpackages[x] = `${_subpackagesPath}` + x);
     cacheManager.init();
 };

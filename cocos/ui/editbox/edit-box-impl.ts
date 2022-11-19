@@ -26,27 +26,20 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
+import { screenAdapter } from 'pal/screen-adapter';
 import { BitmapFont } from '../../2d/assets';
-import { director } from '../../core/director';
-import { game } from '../../core/game';
-import { Color, Mat4, Size, Vec3 } from '../../core/math';
-import { screen, view } from '../../core/platform';
-import { macro } from '../../core/platform/macro';
+import { director } from '../../game/director';
+import { game } from '../../game';
+import { Mat4, Vec3, visibleRect, sys } from '../../core';
+import { view } from '../view';
+import { KeyCode } from '../../input/types';
 import { contains } from '../../core/utils/misc';
 import { Label } from '../../2d/components/label';
 import { EditBox } from './edit-box';
 import { tabIndexUtil } from './tabIndexUtil';
 import { InputFlag, InputMode, KeyboardReturnType } from './types';
-import { sys } from '../../core/platform/sys';
-import visibleRect from '../../core/platform/visible-rect';
-import { Node } from '../../core/scene-graph';
 import { EditBoxImplBase } from './edit-box-impl-base';
-import { legacyCC } from '../../core/global-exports';
+import { BrowserType, OS } from '../../../pal/system-info/enum-type';
 
 // https://segmentfault.com/q/1010000002914610
 const SCROLLY = 40;
@@ -62,14 +55,37 @@ let _currentEditBoxImpl: EditBoxImpl | null = null;
 let _domCount = 0;
 
 export class EditBoxImpl extends EditBoxImplBase {
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
     public _delegate: EditBox | null = null;
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
     public _inputMode: InputMode = -1;
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
     public _inputFlag: InputFlag = -1;
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
     public _returnType: KeyboardReturnType = -1;
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
     public __eventListeners: any = {};
-    public __fullscreen = false;
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
     public __autoResize = false;
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
     public __orientationChanged: any;
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
     public _edTxt: HTMLInputElement | HTMLTextAreaElement | null = null;
     private _isTextArea = false;
 
@@ -102,9 +118,6 @@ export class EditBoxImpl extends EditBoxImplBase {
         this._initStyleSheet();
         this._registerEventListeners();
         this._addDomToGameContainer();
-
-        this.__fullscreen = view.isAutoFullScreenEnabled();
-        this.__autoResize = view._resizeWithBrowserSize;
     }
 
     public clear () {
@@ -165,33 +178,20 @@ export class EditBoxImpl extends EditBoxImplBase {
     }
 
     private _addDomToGameContainer () {
-        if (legacyCC.GAME_VIEW && this._edTxt) {
-            legacyCC.gameView.container.appendChild(this._edTxt);
-            legacyCC.gameView.head.appendChild(this._placeholderStyleSheet!);
-        } else if (game.container && this._edTxt) {
+        if (game.container && this._edTxt) {
             game.container.appendChild(this._edTxt);
             document.head.appendChild(this._placeholderStyleSheet!);
         }
     }
 
     private _removeDomFromGameContainer () {
-        const hasElem = legacyCC.GAME_VIEW ? contains(legacyCC.gameView.container, this._edTxt)
-            : contains(game.container, this._edTxt);
+        const hasElem = contains(game.container, this._edTxt);
         if (hasElem && this._edTxt) {
-            if (legacyCC.GAME_VIEW) {
-                legacyCC.gameView.container.removeChild(this._edTxt);
-            } else {
-                game.container!.removeChild(this._edTxt);
-            }
+            game.container!.removeChild(this._edTxt);
         }
-        const hasStyleSheet = legacyCC.GAME_VIEW ? contains(legacyCC.gameView.head, this._placeholderStyleSheet)
-            : contains(document.head, this._placeholderStyleSheet);
+        const hasStyleSheet = contains(document.head, this._placeholderStyleSheet);
         if (hasStyleSheet) {
-            if (legacyCC.GAME_VIEW) {
-                legacyCC.gameView.head.removeChild(this._placeholderStyleSheet);
-            } else {
-                document.head.removeChild(this._placeholderStyleSheet!);
-            }
+            document.head.removeChild(this._placeholderStyleSheet!);
         }
 
         this._edTxt = null;
@@ -223,35 +223,17 @@ export class EditBoxImpl extends EditBoxImplBase {
     }
 
     private _showDomOnMobile () {
-        if (sys.os !== sys.OS_ANDROID) {
+        if (sys.os !== OS.ANDROID && sys.os !== OS.OHOS) {
             return;
         }
 
-        if (this.__fullscreen) {
-            view.enableAutoFullScreen(false);
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            screen.exitFullScreen();
-        }
-        if (this.__autoResize) {
-            view.resizeWithBrowserSize(false);
-        }
-
+        screenAdapter.handleResizeEvent = false;
         this._adjustWindowScroll();
     }
 
     private _hideDomOnMobile () {
-        if (sys.os === sys.OS_ANDROID) {
-            if (this.__autoResize) {
-                view.resizeWithBrowserSize(true);
-            }
-            // In case enter full screen when soft keyboard still showing
-            setTimeout(() => {
-                if (!_currentEditBoxImpl) {
-                    if (this.__fullscreen) {
-                        view.enableAutoFullScreen(true);
-                    }
-                }
-            }, DELAY_TIME);
+        if (sys.os === OS.ANDROID || sys.os === OS.OHOS) {
+            screenAdapter.handleResizeEvent = true;
         }
 
         this._scrollBackWindow();
@@ -267,7 +249,7 @@ export class EditBoxImpl extends EditBoxImplBase {
 
     private _scrollBackWindow () {
         setTimeout(() => {
-            if (sys.browserType === sys.BROWSER_TYPE_WECHAT && sys.os === sys.OS_IOS) {
+            if (sys.browserType === BrowserType.WECHAT && sys.os === OS.IOS) {
                 if (window.top) {
                     window.top.scrollTo(0, 0);
                 }
@@ -287,16 +269,9 @@ export class EditBoxImpl extends EditBoxImplBase {
         const node = this._delegate!.node;
         let scaleX = view.getScaleX();
         let scaleY = view.getScaleY();
-        let widthRatio = 1;
-        let heightRatio = 1;
-        if (legacyCC.GAME_VIEW) {
-            widthRatio = legacyCC.gameView.canvas.width / legacyCC.game.canvas.width;
-            heightRatio = legacyCC.gameView.canvas.height / legacyCC.game.canvas.height;
-        }
-        scaleX *= widthRatio;
-        scaleY *= heightRatio;
         const viewport = view.getViewportRect();
-        const dpr = view.getDevicePixelRatio();
+        // TODO: implement editBox in PAL
+        const dpr = screenAdapter.devicePixelRatio;
 
         node.getWorldMatrix(_matrix);
         const transform = node._uiProps.uiTransformComp;
@@ -325,14 +300,14 @@ export class EditBoxImpl extends EditBoxImplBase {
         scaleX /= dpr;
         scaleY /= dpr;
 
-        const container = legacyCC.GAME_VIEW ? legacyCC.gameView.container : game.container;
+        const container = game.container;
         const a = _matrix_temp.m00 * scaleX;
         const b = _matrix.m01;
         const c = _matrix.m04;
         const d = _matrix_temp.m05 * scaleY;
 
         let offsetX = parseInt((container && container.style.paddingLeft) || '0');
-        offsetX += viewport.x * widthRatio / dpr;
+        offsetX += viewport.x / dpr;
         let offsetY = parseInt((container && container.style.paddingBottom) || '0');
         offsetY += viewport.y / dpr;
         const tx = _matrix_temp.m12 * scaleX + offsetX;
@@ -393,6 +368,7 @@ export class EditBoxImpl extends EditBoxImplBase {
         } else if (inputMode === InputMode.PHONE_NUMBER) {
             type = 'number';
             elem.pattern = '[0-9]*';
+            elem.addEventListener('wheel', () => false);
         } else if (inputMode === InputMode.URL) {
             type = 'url';
         } else {
@@ -460,10 +436,11 @@ export class EditBoxImpl extends EditBoxImplBase {
         const elem = this._edTxt;
         if (elem && delegate) {
             elem.value = delegate.string;
-            elem.placeholder = delegate.placeholder;
-
             this._updateTextLabel(delegate.textLabel);
-            this._updatePlaceholderLabel(delegate.placeholderLabel);
+
+            // NOTE: we don't show placeholder any more when editBox is editing
+            // elem.placeholder = delegate.placeholder;
+            // this._updatePlaceholderLabel(delegate.placeholderLabel);
         }
     }
 
@@ -513,6 +490,7 @@ export class EditBoxImpl extends EditBoxImplBase {
             elem.style.textAlign = 'right';
             break;
         default:
+            break;
         }
     }
 
@@ -560,6 +538,7 @@ export class EditBoxImpl extends EditBoxImplBase {
             horizontalAlign = 'right';
             break;
         default:
+            break;
         }
 
         styleEl!.innerHTML = `#${this._domId}::-webkit-input-placeholder{text-transform: initial;-family: ${font};font-size: ${fontSize}px;color: ${fontColor};line-height: ${lineHeight}px;text-align: ${horizontalAlign};}`
@@ -567,7 +546,7 @@ export class EditBoxImpl extends EditBoxImplBase {
                             + `#${this._domId}::-ms-input-placeholder{text-transform: initial;-family: ${font};font-size: ${fontSize}px;color: ${fontColor};line-height: ${lineHeight}px;text-align: ${horizontalAlign};}`;
         // EDGE_BUG_FIX: hide clear button, because clearing input box in Edge does not emit input event
         // issue refference: https://github.com/angular/angular/issues/26307
-        if (legacyCC.sys.browserType === legacyCC.sys.BROWSER_TYPE_EDGE) {
+        if (sys.browserType === BrowserType.EDGE) {
             styleEl!.innerHTML += `#${this._domId}::-ms-clear{display: none;}`;
         }
     }
@@ -612,14 +591,14 @@ export class EditBoxImpl extends EditBoxImplBase {
         };
 
         cbs.onKeydown = (e) => {
-            if (e.keyCode === macro.KEY.enter) {
+            if (e.keyCode === KeyCode.ENTER) {
                 e.propagationStopped = true;
                 this._delegate!._editBoxEditingReturn();
 
                 if (!this._isTextArea) {
                     elem.blur();
                 }
-            } else if (e.keyCode === macro.KEY.tab) {
+            } else if (e.keyCode === KeyCode.TAB) {
                 e.propagationStopped = true;
                 e.preventDefault();
 

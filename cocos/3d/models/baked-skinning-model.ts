@@ -23,34 +23,27 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
-import { AnimationClip } from '../../core/animation/animation-clip';
+import type { AnimationClip } from '../../animation/animation-clip';
 import { Mesh } from '../assets/mesh';
 import { Skeleton } from '../assets/skeleton';
-import { AABB } from '../../core/geometry';
-import { BufferUsageBit, MemoryUsageBit, Attribute, DescriptorSet, Buffer, BufferInfo } from '../../core/gfx';
-import { INST_JOINT_ANIM_INFO, UBOSkinningAnimation, UBOSkinningTexture, UNIFORM_JOINT_TEXTURE_BINDING } from '../../core/pipeline/define';
-import { Node } from '../../core/scene-graph';
-import { IMacroPatch, Pass } from '../../core/renderer/core/pass';
-import { samplerLib } from '../../core/renderer/core/sampler-lib';
-import { DataPoolManager } from '../skeletal-animation/data-pool-manager';
-import { ModelType } from '../../core/renderer/scene/model';
-import { IAnimInfo, IJointTextureHandle, jointTextureSamplerHash } from '../skeletal-animation/skeletal-animation-utils';
+import { geometry, cclegacy } from '../../core';
+import { BufferUsageBit, MemoryUsageBit, Attribute, DescriptorSet, Buffer, BufferInfo } from '../../gfx';
+import { INST_JOINT_ANIM_INFO, UBOSkinningAnimation, UBOSkinningTexture, UNIFORM_JOINT_TEXTURE_BINDING } from '../../rendering/define';
+import { Node } from '../../scene-graph';
+import { IMacroPatch, Pass } from '../../render-scene/core/pass';
+import type { DataPoolManager } from '../skeletal-animation/data-pool-manager';
+import { ModelType } from '../../render-scene/scene/model';
+import { IAnimInfo, IJointTextureHandle } from '../skeletal-animation/skeletal-animation-utils';
 import { MorphModel } from './morph-model';
-import { legacyCC } from '../../core/global-exports';
-
-import { AABBPool, AABBView } from '../../core/renderer/core/memory-pools';
+import { jointTextureSamplerInfo } from '../misc/joint-texture-sampler-info';
+import { SubModel } from '../../render-scene/scene';
 
 interface IJointsInfo {
     buffer: Buffer | null;
     jointTextureInfo: Float32Array;
     texture: IJointTextureHandle | null;
     animInfo: IAnimInfo;
-    boundsInfo: AABB[] | null;
+    boundsInfo: geometry.AABB[] | null;
 }
 
 const myPatches = [
@@ -60,11 +53,15 @@ const myPatches = [
 
 /**
  * @en
- * The skinning model that is using baked animation.
+ * The skinning model that is using GPU baked animation.
  * @zh
- * 预烘焙动画的蒙皮模型。
+ * GPU 预烘焙动画的蒙皮模型。
  */
 export class BakedSkinningModel extends MorphModel {
+    /**
+     * @en The animation clip that have been uploaded
+     * @zh 已被上传的动画片段
+     */
     public uploadedAnim: AnimationClip | null | undefined = undefined; // uninitialized
 
     private _jointsMedium: IJointsInfo;
@@ -77,7 +74,7 @@ export class BakedSkinningModel extends MorphModel {
     constructor () {
         super();
         this.type = ModelType.BAKED_SKINNING;
-        this._dataPoolManager = legacyCC.director.root.dataPoolManager;
+        this._dataPoolManager = cclegacy.director.root.dataPoolManager;
         const jointTextureInfo = new Float32Array(4);
         const animInfo = this._dataPoolManager.jointAnimationInfo.getData();
         this._jointsMedium = { buffer: null, jointTextureInfo, animInfo, texture: null, boundsInfo: null };
@@ -94,6 +91,7 @@ export class BakedSkinningModel extends MorphModel {
         super.destroy();
     }
 
+    // Override
     public bindSkeleton (skeleton: Skeleton | null = null, skinningRoot: Node | null = null, mesh: Mesh | null = null) {
         this._skeleton = skeleton;
         this._mesh = mesh;
@@ -104,15 +102,17 @@ export class BakedSkinningModel extends MorphModel {
         if (!this._jointsMedium.buffer) {
             this._jointsMedium.buffer = this._device.createBuffer(new BufferInfo(
                 BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
-                MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
+                MemoryUsageBit.DEVICE,
                 UBOSkinningTexture.SIZE,
                 UBOSkinningTexture.SIZE,
             ));
         }
     }
 
+    // Override
     public updateTransform (stamp: number) {
         super.updateTransform(stamp);
+
         if (!this.uploadedAnim) { return; }
         const { animInfo, boundsInfo } = this._jointsMedium;
         const skelBound = boundsInfo![animInfo.data[0]];
@@ -121,26 +121,48 @@ export class BakedSkinningModel extends MorphModel {
             const node = this.transform;
             // @ts-expect-error TS2339
             skelBound.transform(node._mat, node._pos, node._rot, node._scale, worldBounds);
-            AABBPool.setVec3(this._hWorldBounds, AABBView.CENTER, worldBounds.center);
-            AABBPool.setVec3(this._hWorldBounds, AABBView.HALF_EXTENSION, worldBounds.halfExtents);
         }
     }
 
-    // update fid buffer only when visible
+    // Override, update fid buffer only when visible
     public updateUBOs (stamp: number) {
         super.updateUBOs(stamp);
+
         const info = this._jointsMedium.animInfo;
+
+        let hasNonInstancingPass = false;
         const idx = this._instAnimInfoIdx;
-        if (idx >= 0) {
-            const view = this.instancedAttributes.views[idx];
-            view[0] = info.data[0];
-        } else if (info.dirty) {
+        for (let i = 0; i < this._subModels.length; i++) {
+            const subModel = this._subModels[i];
+            if (idx >= 0) {
+                const view = subModel.instancedAttributeBlock.views[idx];
+                view[0] = info.data[0];
+            } else {
+                hasNonInstancingPass = true;
+            }
+        }
+        if (hasNonInstancingPass && info.dirty) {
             info.buffer.update(info.data);
             info.dirty = false;
         }
         return true;
     }
 
+    // Override
+    public getMacroPatches (subModelIndex: number): IMacroPatch[] | null {
+        const patches = super.getMacroPatches(subModelIndex);
+        return patches ? patches.concat(myPatches) : myPatches;
+    }
+
+    /**
+     * @en Pre-simulate and store the frames data of the given animation clip to a joint texture and upload it to GPU.
+     * Normally, it's automatically managed by [[SkeletalAnimationState]].
+     * But user can also use Joint Texture Layout Settings in the editor to manually organize the joint textures.
+     * @zh 预计算并存储一个指定动画片段的完整帧数据到一张骨骼贴图上，并将其上传到 GPU。
+     * 一般情况下 [[SkeletalAnimationState]] 会自动管理所有骨骼贴图，但用户也可以使用编辑器的骨骼贴图布局设置面板来手动管理所有骨骼贴图。
+     * @param anim @en The animation clip to be uploaded to the joint texture. @zh 需要上传到骨骼贴图上的动画片段。
+     * @returns void
+     */
     public uploadAnimation (anim: AnimationClip | null) {
         if (!this._skeleton || !this._mesh || this.uploadedAnim === anim) { return; }
         this.uploadedAnim = anim;
@@ -178,37 +200,36 @@ export class BakedSkinningModel extends MorphModel {
         }
     }
 
-    public getMacroPatches (subModelIndex: number): IMacroPatch[] | null {
-        const patches = super.getMacroPatches(subModelIndex);
-        return patches ? patches.concat(myPatches) : myPatches;
-    }
-
     protected _updateLocalDescriptors (submodelIdx: number, descriptorSet: DescriptorSet) {
         super._updateLocalDescriptors(submodelIdx, descriptorSet);
         const { buffer, texture, animInfo } = this._jointsMedium;
         descriptorSet.bindBuffer(UBOSkinningTexture.BINDING, buffer!);
         descriptorSet.bindBuffer(UBOSkinningAnimation.BINDING, animInfo.buffer);
         if (texture) {
-            const sampler = samplerLib.getSampler(this._device, jointTextureSamplerHash);
+            const sampler = this._device.getSampler(jointTextureSamplerInfo);
             descriptorSet.bindTexture(UNIFORM_JOINT_TEXTURE_BINDING, texture.handle.texture);
             descriptorSet.bindSampler(UNIFORM_JOINT_TEXTURE_BINDING, sampler);
         }
     }
 
-    protected _updateInstancedAttributes (attributes: Attribute[], pass: Pass) {
-        super._updateInstancedAttributes(attributes, pass);
-        this._instAnimInfoIdx = this._getInstancedAttributeIndex(INST_JOINT_ANIM_INFO);
+    protected _updateInstancedAttributes (attributes: Attribute[], subModel: SubModel) {
+        super._updateInstancedAttributes(attributes, subModel);
+        this._instAnimInfoIdx = subModel.getInstancedAttributeIndex(INST_JOINT_ANIM_INFO);
         this.updateInstancedJointTextureInfo();
     }
 
     private updateInstancedJointTextureInfo () {
         const { jointTextureInfo, animInfo } = this._jointsMedium;
         const idx = this._instAnimInfoIdx;
-        if (idx >= 0) { // update instancing data too
-            const view = this.instancedAttributes.views[idx];
-            view[0] = animInfo.data[0];
-            view[1] = jointTextureInfo[1];
-            view[2] = jointTextureInfo[2];
+        for (let i = 0; i < this._subModels.length; i++) {
+            const subModel = this._subModels[i];
+            const views = subModel.instancedAttributeBlock.views;
+            if (idx >= 0 && views.length > 0) { // update instancing data too
+                const view = views[idx];
+                view[0] = animInfo.data[0];
+                view[1] = jointTextureInfo[1];
+                view[2] = jointTextureInfo[2];
+            }
         }
     }
 }

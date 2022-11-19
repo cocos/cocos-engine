@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
 import { IRigidBody } from '../spec/i-rigid-body';
 import { IVec3Like } from '../../core';
 import { RigidBody, PhysicsSystem, ERigidBodyType } from '../framework';
@@ -71,6 +66,8 @@ export class BuiltinRigidBody implements IRigidBody {
     setLinearDamping (v: number) { }
     setAngularDamping (v: number) { }
     useGravity (v: boolean) { }
+    useCCD (v: boolean) { }
+    isUsingCCD () { return false; }
     setLinearFactor (v: IVec3Like) { }
     setAngularFactor (v: IVec3Like) { }
     setAllowSleep (v: boolean) { }

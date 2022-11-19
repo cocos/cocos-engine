@@ -24,14 +24,9 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module asset
- */
-
 import { ccclass } from 'cc.decorator';
 import { BitmapFont } from './bitmap-font';
-import { legacyCC } from '../../core/global-exports';
+import { cclegacy } from '../../core';
 /**
  * @en Class for LabelAtlas handling.
  * @zh 艺术数字字体资源类。
@@ -41,4 +36,4 @@ import { legacyCC } from '../../core/global-exports';
 export class LabelAtlas extends BitmapFont {
 }
 
-legacyCC.LabelAtlas = LabelAtlas;
+cclegacy.LabelAtlas = LabelAtlas;

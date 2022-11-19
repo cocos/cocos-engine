@@ -2102,6 +2102,7 @@ Object.defineProperty(exports, "__esModule", {
 var location = {
   href: 'game.js',
   hostname: "alipay.com",
+  protocol: '',
 
   reload: function reload() {},
   replace: function replace() {}
@@ -2537,3 +2538,6 @@ function blur() {}
 
 /******/ });
 //# sourceMappingURL=my-adapter.js.map
+
+require('../../../common/xmldom/dom-parser');
+require('./unify');

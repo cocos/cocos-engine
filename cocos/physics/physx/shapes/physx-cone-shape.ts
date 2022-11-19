@@ -23,16 +23,12 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
 import { Quat, Vec3 } from '../../../core';
 import cylinder from '../../../primitive/cylinder';
 import { ConeCollider, EAxisDirection } from '../../framework';
 import { IConeShape } from '../../spec/i-physics-shape';
-import { createConvexMesh, createMeshGeometryFlags, PX, _trans } from '../export-physx';
+import { createConvexMesh, createMeshGeometryFlags, PX, _trans } from '../physx-adapter';
+import { PhysXInstance } from '../physx-instance';
 import { EPhysXShapeType, PhysXShape } from './physx-shape';
 
 export class PhysXConeShape extends PhysXShape implements IConeShape {
@@ -61,9 +57,9 @@ export class PhysXConeShape extends PhysXShape implements IConeShape {
 
     onComponentSet (): void {
         const collider = this.collider;
-        const physics = this._sharedBody.wrappedWorld.physics;
+        const physics = PhysXInstance.physics;
         if (!PhysXConeShape.CONVEX_MESH) {
-            const cooking = this._sharedBody.wrappedWorld.cooking;
+            const cooking = PhysXInstance.cooking;
             const primitive = cylinder(0, 0.5, 1, { radialSegments: 32, heightSegments: 1 });
             PhysXConeShape.CONVEX_MESH = createConvexMesh(primitive.positions, cooking, physics);
         }
@@ -90,8 +86,9 @@ export class PhysXConeShape extends PhysXShape implements IConeShape {
         const scale = _trans.translation;
         Vec3.copy(scale, collider.node.worldScale);
         scale.y *= Math.max(0.0001, h / 1);
-        const xz = Math.max(0.0001, r / 0.5);
-        scale.x *= xz; scale.z *= xz;
+        const radius = Math.max(0.0001, r / 0.5);
+        const xzMaxNorm = Math.max(scale.x, scale.z);
+        scale.x = scale.z = xzMaxNorm * radius;
         const quat = _trans.rotation;
         switch (a) {
         case EAxisDirection.X_AXIS:
@@ -109,5 +106,6 @@ export class PhysXConeShape extends PhysXShape implements IConeShape {
         meshScale.setScale(scale);
         meshScale.setRotation(quat);
         this.geometry.setScale(meshScale);
+        Quat.copy(this._rotation, quat);
     }
 }

@@ -23,12 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module 3d/primitive
- */
-
-import { PrimitiveMode } from '../core/gfx';
+import { PrimitiveMode } from '../gfx';
 import { IGeometry } from './define';
 
 /**
@@ -36,8 +31,8 @@ import { IGeometry } from './define';
  * Translate the geometry.
  * @zh
  * 平移几何体。
- * @param geometry 几何体信息。
- * @param offset 偏移量。
+ * @param geometry @zh 几何体信息。@en The geometry to be translated
+ * @param offset @zh 偏移量。@en The translation
  */
 export function translate (geometry: IGeometry, offset: { x?: number; y?: number; z?: number; }) {
     const x = offset.x || 0;
@@ -70,13 +65,13 @@ export function translate (geometry: IGeometry, offset: { x?: number; y?: number
  * Scale the geometry.
  * @zh
  * 缩放几何体。
- * @param geometry 几何体信息。
- * @param value 缩放量。
+ * @param geometry @zh 几何体信息。 @en The geometry to be scaled
+ * @param value @zh 缩放量。@en The scaling size
  */
 export function scale (geometry: IGeometry, value: { x?: number; y?: number; z?: number }) {
-    const x = value.x || 0;
-    const y = value.y || 0;
-    const z = value.z || 0;
+    const x = value.x ?? 1.0;
+    const y = value.y ?? 1.0;
+    const z = value.z ?? 1.0;
     const nVertex = Math.floor(geometry.positions.length / 3);
     for (let iVertex = 0; iVertex < nVertex; ++iVertex) {
         const iX = iVertex * 3;
@@ -86,17 +81,35 @@ export function scale (geometry: IGeometry, value: { x?: number; y?: number; z?:
         geometry.positions[iY] *= y;
         geometry.positions[iZ] *= z;
     }
-    if (geometry.minPos) {
-        geometry.minPos.x *= x;
-        geometry.minPos.y *= y;
-        geometry.minPos.z *= z;
+    const {
+        minPos,
+        maxPos,
+    } = geometry;
+    if (minPos) {
+        minPos.x *= x;
+        minPos.y *= y;
+        minPos.z *= z;
     }
-    if (geometry.maxPos) {
-        geometry.maxPos.x *= x;
-        geometry.maxPos.y *= y;
-        geometry.maxPos.z *= z;
+    if (maxPos) {
+        maxPos.x *= x;
+        maxPos.y *= y;
+        maxPos.z *= z;
     }
-    geometry.boundingRadius = Math.max(Math.max(x, y), z);
+    if (minPos && maxPos) {
+        // Negative scaling causes min-max to be swapped.
+        if (x < 0) {
+            const tmp = minPos.x; minPos.x = maxPos.x; maxPos.x = tmp;
+        }
+        if (y < 0) {
+            const tmp = minPos.y; minPos.y = maxPos.y; maxPos.y = tmp;
+        }
+        if (z < 0) {
+            const tmp = minPos.z; minPos.z = maxPos.z; maxPos.z = tmp;
+        }
+    }
+    if (typeof geometry.boundingRadius !== 'undefined') {
+        geometry.boundingRadius *= Math.max(Math.max(Math.abs(x), Math.abs(y)), Math.abs(z));
+    }
     return geometry;
 }
 
@@ -105,7 +118,7 @@ export function scale (geometry: IGeometry, value: { x?: number; y?: number; z?:
  * Converts geometry to wireframe mode. Only geometry with triangle topology is supported.
  * @zh
  * 将几何体转换为线框模式，仅支持三角形拓扑的几何体。
- * @param geometry 几何体信息。
+ * @param geometry @zh 几何体信息。@en The geometry to be converted to wireframe
  */
 export function wireframed (geometry: IGeometry) {
     const { indices } = geometry;

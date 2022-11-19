@@ -1,4 +1,4 @@
-const cacheManager = require('../cache-manager');
+const cacheManager = require('./cache-manager');
 const { fs, downloadFile, readText, readArrayBuffer, readJson, loadSubpackage, getUserDataPath, exists } = window.fsUtils;
 
 const REGEX = /^https?:\/\/.*/;
@@ -12,6 +12,11 @@ presets['scene'].maxConcurrency = 10;
 presets['scene'].maxRequestsPerFrame = 64;
 
 let subpackages = {};
+
+const sys = cc.sys;
+if (sys.platform === sys.Platform.BAIDU_MINI_GAME) {
+    require = __baiduRequire;
+}
 
 function downloadScript (url, options, onComplete) {
     if (REGEX.test(url)) {
@@ -71,11 +76,17 @@ function loadInnerAudioContext (url) {
     });
 }
 
-function downloadDomAudio (url, options, onComplete) {
-    loadInnerAudioContext(url).then(nativeAudio => {
-        onComplete(null, nativeAudio);
-    }, err => {
-        onComplete(new Error(err));
+function loadAudioPlayer (url, options, onComplete) {
+    cc.AudioPlayer.load(url).then(player => {
+        const audioMeta = {
+            player,
+            url,
+            duration: player.duration,
+            type: player.type,
+        };
+        onComplete(null, audioMeta);
+    }).catch(err => {
+        onComplete(err);
     });
 }
 
@@ -130,6 +141,10 @@ function downloadJson (url, options, onComplete) {
     download(url, parseJson, options, options.onFileProgress, onComplete);
 }
 
+function downloadArrayBuffer (url, options, onComplete) {
+    download(url, parseArrayBuffer, options, options.onFileProgress, onComplete);
+}
+
 function loadFont (url, options, onComplete) {
     var fontFamily = __globalAdapter.loadFont(url);
     onComplete(null, fontFamily || 'Arial');
@@ -149,6 +164,46 @@ function downloadAsset (url, options, onComplete) {
     download(url, doNothing, options, options.onFileProgress, onComplete);
 }
 
+const downloadCCON = (url, options, onComplete) => {
+    downloadJson(url, options, (err, json) => {
+        if (err) {
+            onComplete(err);
+            return;
+        }
+        const cconPreface = cc.internal.parseCCONJson(json);
+        const chunkPromises = Promise.all(cconPreface.chunks.map((chunk) => new Promise((resolve, reject) => {
+            downloadArrayBuffer(`${cc.path.mainFileName(url)}${chunk}`, {}, (errChunk, chunkBuffer) => {
+                if (errChunk) {
+                    reject(errChunk);
+                } else {
+                    resolve(new Uint8Array(chunkBuffer));
+                }
+            });
+        })));
+        chunkPromises.then((chunks) => {
+            const ccon = new cc.internal.CCON(cconPreface.document, chunks);
+            onComplete(null, ccon);
+        }).catch((err) => {
+            onComplete(err);
+        });
+    });
+};
+
+const downloadCCONB = (url, options, onComplete) => {
+    downloadArrayBuffer(url, options, (err, arrayBuffer) => {
+        if (err) {
+            onComplete(err);
+            return;
+        }
+        try {
+            const ccon = cc.internal.decodeCCONBinary(new Uint8Array(arrayBuffer));
+            onComplete(null, ccon);
+        } catch (err) {
+            onComplete(err);
+        }
+    });
+};
+
 function downloadBundle (nameOrUrl, options, onComplete) {
     let bundleName = cc.path.basename(nameOrUrl);
     let version = options.version || cc.assetManager.downloader.bundleVers[bundleName];
@@ -161,13 +216,9 @@ function downloadBundle (nameOrUrl, options, onComplete) {
                 onComplete(err, null);
                 return;
             }
-            downloader.importBundleEntry(bundleName).then(function() {
-                downloadJson(config, options, function (err, data) {
-                    data && (data.base = `subpackages/${bundleName}/`);
-                    onComplete(err, data);
-                });
-            }).catch(function(err) {
-                onComplete(err);
+            downloadJson(config, options, function (err, data) {
+                data && (data.base = `subpackages/${bundleName}/`);
+                onComplete(err, data);
             });
         });
     }
@@ -189,45 +240,40 @@ function downloadBundle (nameOrUrl, options, onComplete) {
                 js = `assets/${bundleName}/index.${suffix}js`;
             }
         }
-        require('../../../' + js);
-        downloader.importBundleEntry(bundleName).then(function() {
-            options.__cacheBundleRoot__ = bundleName;
-            var config = `${url}/config.${suffix}json`;
-            downloadJson(config, options, function (err, data) {
-                if (err) {
-                    onComplete && onComplete(err);
-                    return;
-                }
-                if (data.isZip) {
-                    let zipVersion = data.zipVersion;
-                    let zipUrl = `${url}/res.${zipVersion ? zipVersion + '.' : ''}zip`;
-                    handleZip(zipUrl, options, function (err, unzipPath) {
-                        if (err) {
-                            onComplete && onComplete(err);
-                            return;
+        require('./' + js);
+        options.__cacheBundleRoot__ = bundleName;
+        var config = `${url}/config.${suffix}json`;
+        downloadJson(config, options, function (err, data) {
+            if (err) {
+                onComplete && onComplete(err);
+                return;
+            }
+            if (data.isZip) {
+                let zipVersion = data.zipVersion;
+                let zipUrl = `${url}/res.${zipVersion ? zipVersion + '.' : ''}zip`;
+                handleZip(zipUrl, options, function (err, unzipPath) {
+                    if (err) {
+                        onComplete && onComplete(err);
+                        return;
+                    }
+                    data.base = unzipPath + '/res/';
+                    // PATCH: for android alipay version before v10.1.95 (v10.1.95 included)
+                    // to remove in the future
+                    let sys = cc.sys;
+                    if (sys.platform === sys.Platform.ALIPAY_MINI_GAME && sys.os === sys.OS.ANDROID) {
+                        let resPath = unzipPath + 'res/';
+                        if (fs.accessSync({path: resPath})) {
+                            data.base = resPath;
                         }
-                        data.base = unzipPath + '/res/';
-                        // PATCH: for android alipay version before v10.1.95 (v10.1.95 included)
-                        // to remove in the future
-                        let sys = cc.sys;
-                        if (sys.platform === sys.ALIPAY_MINI_GAME && sys.os === sys.OS_ANDROID) {
-                            let resPath = unzipPath + 'res/';
-                            if (fs.accessSync({path: resPath})) {
-                                data.base = resPath;
-                            }
-                        }
-                        onComplete && onComplete(null, data);
-                    });
-                }
-                else {
-                    data.base = url + '/';
+                    }
                     onComplete && onComplete(null, data);
-                }
-            });
-        }).catch(function(err) {
-            onComplete && onComplete(err);
+                });
+            }
+            else {
+                data.base = url + '/';
+                onComplete && onComplete(null, data);
+            }
         });
-        
     }
 };
 
@@ -263,7 +309,6 @@ let parsePlist = function (url, options, onComplete) {
     });
 };
 
-downloader.downloadDomAudio = downloadDomAudio;
 downloader.downloadScript = downloadScript;
 parser.parsePVRTex = parsePVRTex;
 parser.parsePKMTex = parsePKMTex;
@@ -299,6 +344,9 @@ downloader.register({
     '.woff': downloadAsset,
     '.svg': downloadAsset,
     '.ttc': downloadAsset,
+
+    '.ccon': downloadCCON,
+    '.cconb': downloadCCONB,
 
     // Txt
     '.txt' : downloadAsset,
@@ -355,10 +403,10 @@ parser.register({
     '.ttc': loadFont,
 
     // Audio
-    '.mp3' : downloadDomAudio,
-    '.ogg' : downloadDomAudio,
-    '.wav' : downloadDomAudio,
-    '.m4a' : downloadDomAudio,
+    '.mp3' : loadAudioPlayer,
+    '.ogg' : loadAudioPlayer,
+    '.wav' : loadAudioPlayer,
+    '.m4a' : loadAudioPlayer,
 
     // Txt
     '.txt' : parseText,
@@ -421,13 +469,19 @@ cc.assetManager.transformPipeline.append(function (task) {
         else {
             options.__cacheBundleRoot__ = item.config.name;
         }
+        if (item.ext === '.cconb') {
+            item.url = item.url.replace(item.ext, '.bin');
+        } else if (item.ext === '.ccon') {
+            item.url = item.url.replace(item.ext, '.json');
+        }
     }
 });
 
 var originInit = cc.assetManager.init;
 cc.assetManager.init = function (options) {
     originInit.call(cc.assetManager, options);
-    options.subpackages && options.subpackages.forEach(x => subpackages[x] = 'subpackages/' + x);
+    const subpacks = cc.settings.querySettings('assets', 'subpackages');
+    subpacks && subpacks.forEach(x => subpackages[x] = 'subpackages/' + x);
     cacheManager.init();
 };
 

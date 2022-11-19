@@ -1,0 +1,14 @@
+// https://github.com/actions/toolkit/blob/master/docs/problem-matchers.md
+{
+    "problemMatcher": [
+        {
+            "owner": "<Web> build",
+            "pattern": [
+                {
+                    "regexp": "^Circular dependency: (.*)$",
+                    "message": 0
+                }
+            ]
+        }
+    ]
+}

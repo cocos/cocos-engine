@@ -23,13 +23,9 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module tiledmap
- */
-
 import { SpriteFrame } from '../2d/assets';
-import { Rect, Texture2D } from '../core';
+import { Texture2D } from '../asset/assets';
+import { Rect } from '../core';
 import { GID, TiledGrid, TiledTextureGrids, TMXTilesetInfo } from './tiled-types';
 
 export function fillTextureGrids (tileset: TMXTilesetInfo, texGrids: TiledTextureGrids, spFrame?: SpriteFrame) {
@@ -137,32 +133,5 @@ export function fillTextureGrids (tileset: TMXTilesetInfo, texGrids: TiledTextur
         grid.cy = (grid.t + grid.b) / 2;
 
         texGrids.set(gid as unknown as GID, grid);
-    }
-}
-
-export function loadAllTextures (textures: SpriteFrame[], loadedCallback: any) {
-    const totalNum = textures.length;
-    if (totalNum === 0) {
-        loadedCallback();
-        return;
-    }
-
-    let curNum = 0;
-    const itemCallback = () => {
-        curNum++;
-        if (curNum >= totalNum) {
-            loadedCallback();
-        }
-    };
-
-    for (let i = 0; i < totalNum; i++) {
-        const tex = textures[i];
-        if (!tex.loaded) {
-            tex.once('load', () => {
-                itemCallback();
-            });
-        } else {
-            itemCallback();
-        }
     }
 }

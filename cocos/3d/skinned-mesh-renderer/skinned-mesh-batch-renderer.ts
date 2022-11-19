@@ -22,27 +22,20 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module model
- */
-
 import { EDITOR } from 'internal:constants';
 import {
     ccclass, help, executeInEditMode, executionOrder, menu, tooltip, type, visible, override, serializable, editable,
 } from 'cc.decorator';
-import { getWorldTransformUntilRoot } from '../../core/animation/transform-utils';
-import { Filter, PixelFormat } from '../../core/assets/asset-enum';
-import { Material } from '../../core/assets/material';
+import { getWorldTransformUntilRoot } from '../../animation/transform-utils';
+import { Filter, PixelFormat } from '../../asset/assets/asset-enum';
+import { Material } from '../../asset/assets/material';
 import { Mesh } from '../assets/mesh';
 import { Skeleton } from '../assets/skeleton';
-import { Texture2D } from '../../core/assets/texture-2d';
-import { CCString } from '../../core/data/utils/attribute';
-import { AttributeName, FormatInfos, Format, Type, Attribute, BufferTextureCopy } from '../../core/gfx';
-import { Mat4, Vec2, Vec3 } from '../../core/math';
+import { Texture2D } from '../../asset/assets/texture-2d';
+import { CCString, Mat4, Vec2, Vec3, cclegacy } from '../../core';
+import { AttributeName, FormatInfos, Format, Type, Attribute, BufferTextureCopy } from '../../gfx';
 import { mapBuffer, readBuffer, writeBuffer } from '../misc/buffer';
 import { SkinnedMeshRenderer } from './skinned-mesh-renderer';
-import { legacyCC } from '../../core/global-exports';
 
 const repeat = (n: number) => n - Math.floor(n);
 const batch_id: Attribute = new Attribute(AttributeName.ATTR_BATCH_ID, Format.R32F);
@@ -72,6 +65,11 @@ export class SkinnedMeshUnit {
     @type(Material)
     public material: Material | null = null;
 
+    /**
+     * @en Local transform matrix
+     * @zh 本地变换矩阵
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
     @serializable
     public _localTransform = new Mat4();
 
@@ -209,6 +207,9 @@ export class SkinnedMeshBatchRenderer extends SkinnedMeshRenderer {
         super.onDestroy();
     }
 
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
     public _onMaterialModified (idx: number, material: Material | null) {
         this.cookMaterials();
         super._onMaterialModified(idx, this.getMaterialInstance(idx));
@@ -474,7 +475,7 @@ export class SkinnedMeshBatchRenderer extends SkinnedMeshRenderer {
             }
         }
         const gfxTex = target.getGFXTexture()!;
-        const { device } = legacyCC.director.root!;
+        const { device } = cclegacy.director.root!;
         if (texBuffers.length > 0) { device.copyBuffersToTexture(texBuffers, gfxTex, texBufferRegions); }
         if (texImages.length > 0) { device.copyTexImagesToTexture(texImages, gfxTex, texImageRegions); }
     }
@@ -488,7 +489,6 @@ export class SkinnedMeshBatchRenderer extends SkinnedMeshRenderer {
             height: this.atlasSize,
             format: PixelFormat.RGBA8888,
         });
-        tex.loaded = true;
         this._textures[prop] = tex;
         return tex;
     }
@@ -553,7 +553,7 @@ export class SkinnedMeshBatchRenderer extends SkinnedMeshRenderer {
         const oldMeshData = mesh.data;
         const newDataView = new DataView(newMeshData.buffer);
         const oldDataView = new DataView(oldMeshData.buffer);
-        const { isLittleEndian } = legacyCC.sys;
+        const { isLittleEndian } = cclegacy.sys;
         for (const b in modifiedBundles) {
             const newBundle = newMeshStruct.vertexBundles[b];
             const oldBundle = mesh.struct.vertexBundles[b];

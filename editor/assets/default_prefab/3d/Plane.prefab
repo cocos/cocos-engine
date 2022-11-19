@@ -1,14 +1,15 @@
 [
   {
     "__type__": "cc.Prefab",
-    "_name": "",
+    "_name": "Plane",
     "_objFlags": 0,
     "_native": "",
     "data": {
       "__id__": 1
     },
     "optimizationPolicy": 0,
-    "asyncLoadAssets": false
+    "asyncLoadAssets": false,
+    "persistent": false
   },
   {
     "__type__": "cc.Node",
@@ -24,7 +25,7 @@
       }
     ],
     "_prefab": {
-      "__id__": 3
+      "__id__": 4
     },
     "_lpos": {
       "__type__": "cc.Vec3",
@@ -74,8 +75,12 @@
     "_receiveShadows": false,
     "_id": "",
     "__prefab": {
-      "__id__": 4
+      "__id__": 3
     }
+  },
+  {
+    "__type__": "cc.CompPrefabInfo",
+    "fileId": "e0uHCYkZ1D1I9glcT6oLf2"
   },
   {
     "__type__": "cc.PrefabInfo",
@@ -86,9 +91,5 @@
       "__id__": 0
     },
     "fileId": "a4McGKwcFCoYngMEkhGE/8"
-  },
-  {
-    "__type__": "cc.CompPrefabInfo",
-    "fileId": "e0uHCYkZ1D1I9glcT6oLf2"
   }
 ]

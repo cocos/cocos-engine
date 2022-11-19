@@ -23,18 +23,13 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
 import CANNON from '@cocos/cannon';
-import { Vec3 } from '../../../core/math';
+import { clamp, Vec3 } from '../../../core';
 import { commitShapeUpdates } from '../cannon-util';
 import { CannonShape } from './cannon-shape';
 import { IBoxShape } from '../../spec/i-physics-shape';
-import { IVec3Like } from '../../../core/math/type-define';
-import { BoxCollider } from '../../../../exports/physics-framework';
+import { BoxCollider, PhysicsSystem } from '../../../../exports/physics-framework';
+import { absolute, VEC3_0 } from '../../utils/util';
 
 export class CannonBoxShape extends CannonShape implements IBoxShape {
     public get collider () {
@@ -45,19 +40,23 @@ export class CannonBoxShape extends CannonShape implements IBoxShape {
         return this._shape as CANNON.Box;
     }
 
-    readonly HALF_EXTENT: CANNON.Vec3;
+    readonly halfExtent: CANNON.Vec3;
     constructor () {
         super();
-        this.HALF_EXTENT = new CANNON.Vec3(0.5, 0.5, 0.5);
-        this._shape = new CANNON.Box(this.HALF_EXTENT.clone());
+        this.halfExtent = new CANNON.Vec3(0.5, 0.5, 0.5);
+        this._shape = new CANNON.Box(this.halfExtent.clone());
     }
 
-    setSize (v: IVec3Like) {
-        Vec3.multiplyScalar(this.HALF_EXTENT, v, 0.5);
-        const ws = this.collider.node.worldScale;
-        this.impl.halfExtents.x = this.HALF_EXTENT.x * Math.abs(ws.x);
-        this.impl.halfExtents.y = this.HALF_EXTENT.y * Math.abs(ws.y);
-        this.impl.halfExtents.z = this.HALF_EXTENT.z * Math.abs(ws.z);
+    updateSize () {
+        Vec3.multiplyScalar(this.halfExtent, this.collider.size, 0.5);
+        const ws = absolute(VEC3_0.set(this.collider.node.worldScale));
+        const x = this.halfExtent.x * ws.x;
+        const y = this.halfExtent.y * ws.y;
+        const z = this.halfExtent.z * ws.z;
+        const minVolumeSize = PhysicsSystem.instance.minVolumeSize;
+        this.impl.halfExtents.x = clamp(x, minVolumeSize, Number.MAX_VALUE);
+        this.impl.halfExtents.y = clamp(y, minVolumeSize, Number.MAX_VALUE);
+        this.impl.halfExtents.z = clamp(z, minVolumeSize, Number.MAX_VALUE);
         this.impl.updateConvexPolyhedronRepresentation();
         if (this._index !== -1) {
             commitShapeUpdates(this._body);
@@ -66,11 +65,11 @@ export class CannonBoxShape extends CannonShape implements IBoxShape {
 
     onLoad () {
         super.onLoad();
-        this.setSize(this.collider.size);
+        this.updateSize();
     }
 
     setScale (scale: Vec3): void {
         super.setScale(scale);
-        this.setSize(this.collider.size);
+        this.updateSize();
     }
 }

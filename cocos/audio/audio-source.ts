@@ -23,15 +23,21 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module component/audio
- */
-
+import { AudioPlayer } from 'pal/audio';
 import { ccclass, help, menu, tooltip, type, range, serializable } from 'cc.decorator';
-import { Component } from '../core/components/component';
-import { clamp } from '../core/math';
-import { AudioClip } from './assets/clip';
+import { AudioPCMDataView, AudioState } from '../../pal/audio/type';
+import { Component } from '../scene-graph/component';
+import { clamp } from '../core';
+import { AudioClip } from './audio-clip';
+import { audioManager } from './audio-manager';
+import { Node } from '../scene-graph';
+
+const _LOADED_EVENT = 'audiosource-loaded';
+
+enum AudioSourceEventType {
+    STARTED = 'started',
+    ENDED = 'ended',
+}
 
 /**
  * @en
@@ -44,8 +50,17 @@ import { AudioClip } from './assets/clip';
 @help('i18n:cc.AudioSource')
 @menu('Audio/AudioSource')
 export class AudioSource extends Component {
+    static get maxAudioChannel () {
+        return AudioPlayer.maxAudioChannel;
+    }
+    public static AudioState = AudioState;
+
+    public static EventType = AudioSourceEventType;
+
     @type(AudioClip)
     protected _clip: AudioClip | null = null;
+    protected _player: AudioPlayer | null = null;
+
     @serializable
     protected _loop = false;
     @serializable
@@ -55,6 +70,22 @@ export class AudioSource extends Component {
 
     private _cachedCurrentTime = 0;
 
+    // An operation queue to store the operations before loading the AudioPlayer.
+    private _operationsBeforeLoading: string[] = [];
+    private _isLoaded = false;
+
+    private _lastSetClip: AudioClip | null = null;
+
+    private _resetPlayer () {
+        if (this._player) {
+            audioManager.removePlaying(this._player);
+            this._player.offEnded();
+            this._player.offInterruptionBegin();
+            this._player.offInterruptionEnd();
+            this._player.destroy();
+            this._player = null;
+        }
+    }
     /**
      * @en
      * The default AudioClip to be played for this audio source.
@@ -64,11 +95,59 @@ export class AudioSource extends Component {
     @type(AudioClip)
     @tooltip('i18n:audio.clip')
     set clip (val) {
+        if (val === this._clip) {
+            return;
+        }
         this._clip = val;
-        this._syncStates();
+        this._syncPlayer();
     }
     get clip () {
         return this._clip;
+    }
+    private _syncPlayer () {
+        const clip = this._clip;
+        this._isLoaded = false;
+        if (this._lastSetClip === clip) {
+            return;
+        }
+        if (!clip) {
+            this._lastSetClip = null;
+            this._resetPlayer();
+            return;
+        }
+        if (!clip._nativeAsset) {
+            console.error('Invalid audio clip');
+            return;
+        }
+        this._lastSetClip = clip;
+        this._operationsBeforeLoading.length = 0;
+        AudioPlayer.load(clip._nativeAsset.url, {
+            audioLoadMode: clip.loadMode,
+        }).then((player) => {
+            if (this._lastSetClip !== clip) {
+                // In case the developers set AudioSource.clip concurrently,
+                // we should choose the last one player of AudioClip set to AudioSource.clip
+                // instead of the last loaded one.
+                player.destroy();
+                return;
+            }
+            this._isLoaded = true;
+            // clear old player
+            this._resetPlayer();
+            this._player = player;
+            player.onEnded(() => {
+                audioManager.removePlaying(player);
+                this.node?.emit(AudioSourceEventType.ENDED, this);
+            });
+            player.onInterruptionBegin(() => {
+                audioManager.removePlaying(player);
+            });
+            player.onInterruptionEnd(() => {
+                audioManager.addPlaying(player);
+            });
+            this._syncStates();
+            this.node?.emit(_LOADED_EVENT);
+        }).catch((e) => {});
     }
 
     /**
@@ -80,7 +159,7 @@ export class AudioSource extends Component {
     @tooltip('i18n:audio.loop')
     set loop (val) {
         this._loop = val;
-        if (this._clip) { this._clip.setLoop(val); }
+        this._player && (this._player.loop = val);
     }
     get loop () {
         return this._loop;
@@ -118,10 +197,9 @@ export class AudioSource extends Component {
     set volume (val) {
         if (Number.isNaN(val)) { console.warn('illegal audio volume!'); return; }
         val = clamp(val, 0, 1);
-        if (this._clip) {
-            this._clip.setVolume(val);
-            // on some platform volume control may not be available
-            this._volume = this._clip.getVolume();
+        if (this._player) {
+            this._player.volume = val;
+            this._volume = this._player.volume;
         } else {
             this._volume = val;
         }
@@ -131,7 +209,7 @@ export class AudioSource extends Component {
     }
 
     public onLoad () {
-        this._syncStates();
+        this._syncPlayer();
     }
 
     public onEnable () {
@@ -142,11 +220,88 @@ export class AudioSource extends Component {
     }
 
     public onDisable () {
+        const rootNode = this._getRootNode();
+        if (rootNode?._persistNode) {
+            return;
+        }
         this.pause();
     }
 
     public onDestroy () {
         this.stop();
+        this._player?.destroy();
+        this._player = null;
+    }
+    /**
+     * @en
+     * Get PCM data from specified channel.
+     * Currently it is only available in Native platform and Web Audio (including Web and ByteDance platforms).
+     *
+     * @zh
+     * 通过指定的通道获取音频的 PCM data。
+     * 目前仅在原生平台和 Web Audio（包括 Web 和 字节平台）中可用。
+     *
+     * @param channelIndex The channel index. 0 is left channel, 1 is right channel.
+     * @returns A Promise to get the PCM data after audio is loaded.
+     *
+     * @example
+     * ```ts
+     * audioSource.getPCMData(0).then(dataView => {
+     *   if (!dataView)  return;
+     *   for (let i = 0; i < dataView.length; ++i) {
+     *     console.log('data: ' + dataView.getData(i));
+     *   }
+     * });
+     * ```
+     */
+    public getPCMData (channelIndex: number): Promise<AudioPCMDataView | undefined> {
+        return new Promise((resolve) => {
+            if (channelIndex !== 0 && channelIndex !== 1) {
+                console.warn('Only support channel index 0 or 1 to get buffer');
+                resolve(undefined);
+                return;
+            }
+            if (this._player) {
+                resolve(this._player.getPCMData(channelIndex));
+            } else {
+                this.node?.once(_LOADED_EVENT, () => {
+                    resolve(this._player?.getPCMData(channelIndex));
+                });
+            }
+        });
+    }
+
+    /**
+     * @en
+     * Get the sample rate of audio.
+     * Currently it is only available in Native platform and Web Audio (including Web and ByteDance platforms).
+     *
+     * @zh
+     * 获取音频的采样率。
+     * 目前仅在原生平台和 Web Audio（包括 Web 和 字节平台）中可用。
+     *
+     * @returns A Promise to get the sample rate after audio is loaded.
+     */
+    public getSampleRate (): Promise<number> {
+        return new Promise((resolve) => {
+            if (this._player) {
+                resolve(this._player.sampleRate);
+            } else {
+                this.node?.once(_LOADED_EVENT, () => {
+                    resolve(this._player!.sampleRate);
+                });
+            }
+        });
+    }
+
+    private _getRootNode (): Node | null | undefined {
+        let currentNode = this.node as Node | undefined | null;
+        let currentGrandparentNode = currentNode?.parent?.parent;
+        while (currentGrandparentNode) {
+            currentNode = currentNode?.parent;
+            currentGrandparentNode = currentNode?.parent?.parent;
+        }
+        return currentNode;
     }
 
     /**
@@ -154,14 +309,37 @@ export class AudioSource extends Component {
      * Play the clip.<br>
      * Restart if already playing.<br>
      * Resume if paused.
+     *
+     * NOTE: On Web platforms, the Auto Play Policy bans auto playing audios at the first time, because the user gesture is required.
+     * there are 2 ways to play audios at the first time:
+     * - play audios in the callback of TOUCH_END or MOUSE_UP event
+     * - play audios straightly, the engine will auto play audios at the next user gesture.
+     *
      * @zh
      * 开始播放。<br>
      * 如果音频处于正在播放状态，将会重新开始播放音频。<br>
      * 如果音频处于暂停状态，则会继续播放音频。
+     *
+     * 注意:在 Web 平台，Auto Play Policy 禁止首次自动播放音频，因为需要发生用户交互之后才能播放音频。
+     * 有两种方式实现音频首次自动播放：
+     * - 在 TOUCH_END 或者 MOUSE_UP 的事件回调里播放音频。
+     * - 直接播放音频，引擎会在下一次发生用户交互时自动播放。
      */
     public play () {
-        if (!this._clip) { return; }
-        this._clip.play();
+        if (!this._isLoaded && this.clip) {
+            this._operationsBeforeLoading.push('play');
+            return;
+        }
+        audioManager.discardOnePlayingIfNeeded();
+        // Replay if the audio is playing
+        if (this.state === AudioState.PLAYING) {
+            this._player?.stop().catch((e) => {});
+        }
+        const player = this._player;
+        this._player?.play().then(() => {
+            audioManager.addPlaying(player!);
+            this.node?.emit(AudioSourceEventType.STARTED, this);
+        }).catch((e) => {});
     }
 
     /**
@@ -171,8 +349,14 @@ export class AudioSource extends Component {
      * 暂停播放。
      */
     public pause () {
-        if (!this._clip) { return; }
-        this._clip.pause();
+        if (!this._isLoaded && this.clip) {
+            this._operationsBeforeLoading.push('pause');
+            return;
+        }
+        const player = this._player;
+        this._player?.pause().then(() => {
+            audioManager.removePlaying(player!);
+        }).catch((e) => {});
     }
 
     /**
@@ -182,32 +366,53 @@ export class AudioSource extends Component {
      * 停止播放。
      */
     public stop () {
-        if (!this._clip) { return; }
-        this._clip.stop();
+        if (!this._isLoaded && this.clip) {
+            this._operationsBeforeLoading.push('stop');
+            return;
+        }
+        const player = this._player;
+        this._player?.stop().then(() => {
+            audioManager.removePlaying(player!);
+        }).catch((e) => {});
     }
 
     /**
      * @en
-     * Plays an AudioClip, and scales volume by volumeScale.<br>
-     * Note: for multiple playback on the same clip, the actual behavior is platform-specific.<br>
-     * Re-start style fallback will be used if the underlying platform doesn't support it.
+     * Plays an AudioClip, and scales volume by volumeScale. The result volume is `audioSource.volume * volumeScale`. <br>
      * @zh
-     * 以指定音量播放一个音频一次。<br>
-     * 注意，对同一个音频片段，不同平台多重播放效果存在差异。<br>
-     * 对不支持的平台，如前一次尚未播完，则会立即重新播放。
+     * 以指定音量倍数播放一个音频一次。最终播放的音量为 `audioSource.volume * volumeScale`。 <br>
      * @param clip The audio clip to be played.
      * @param volumeScale volume scaling factor wrt. current value.
      */
     public playOneShot (clip: AudioClip, volumeScale = 1) {
-        clip.playOneShot(this._volume * volumeScale);
+        if (!clip._nativeAsset) {
+            console.error('Invalid audio clip');
+            return;
+        }
+        AudioPlayer.loadOneShotAudio(clip._nativeAsset.url, this._volume * volumeScale, {
+            audioLoadMode: clip.loadMode,
+        }).then((oneShotAudio) => {
+            audioManager.discardOnePlayingIfNeeded();
+            oneShotAudio.onPlay = () => {
+                audioManager.addPlaying(oneShotAudio);
+            };
+            oneShotAudio.onEnd = () => {
+                audioManager.removePlaying(oneShotAudio);
+            };
+            oneShotAudio.play();
+        }).catch((e) => {});
     }
 
     protected _syncStates () {
-        if (!this._clip) { return; }
-        this._clip.setCurrentTime(this._cachedCurrentTime);
-        this._clip.setLoop(this._loop);
-        this._clip.setVolume(this._volume, true);
-        this._volume = this._clip.getVolume();
+        if (!this._player) { return; }
+        this._player.seek(this._cachedCurrentTime).then(() => {
+            if (this._player) {
+                this._player.loop = this._loop;
+                this._player.volume = this._volume;
+                this._operationsBeforeLoading.forEach((opName) => { this[opName]?.(); });
+                this._operationsBeforeLoading.length = 0;
+            }
+        }).catch((e) => {});
     }
 
     /**
@@ -221,8 +426,7 @@ export class AudioSource extends Component {
         if (Number.isNaN(num)) { console.warn('illegal audio time!'); return; }
         num = clamp(num, 0, this.duration);
         this._cachedCurrentTime = num;
-        if (!this._clip) { return; }
-        this._clip.setCurrentTime(this._cachedCurrentTime);
+        this._player?.seek(this._cachedCurrentTime).catch((e) => {});
     }
 
     /**
@@ -232,8 +436,7 @@ export class AudioSource extends Component {
      * 以秒为单位获取当前播放时间。
      */
     get currentTime () {
-        if (!this._clip) { return this._cachedCurrentTime; }
-        return this._clip.getCurrentTime();
+        return this._player ? this._player.currentTime : this._cachedCurrentTime;
     }
 
     /**
@@ -243,8 +446,7 @@ export class AudioSource extends Component {
      * 获取以秒为单位的音频总时长。
      */
     get duration () {
-        if (!this._clip) { return 0; }
-        return this._clip.getDuration();
+        return this._clip?.getDuration() ?? (this._player ? this._player.duration : 0);
     }
 
     /**
@@ -253,9 +455,8 @@ export class AudioSource extends Component {
      * @zh
      * 获取当前音频状态。
      */
-    get state () {
-        if (!this._clip) { return AudioClip.PlayingState.INITIALIZING; }
-        return this._clip.state;
+    get state (): AudioState {
+        return this._player ? this._player.state : AudioState.INIT;
     }
 
     /**
@@ -265,6 +466,6 @@ export class AudioSource extends Component {
      * 当前音频是否正在播放？
      */
     get playing () {
-        return this.state === AudioClip.PlayingState.PLAYING;
+        return this.state === AudioSource.AudioState.PLAYING;
     }
 }

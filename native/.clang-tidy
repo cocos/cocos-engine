@@ -1,0 +1,68 @@
+---
+# Here are the reasons for disabled checks:
+#
+# -google-runtime-references
+# -misc-non-private-member-variables-in-classes
+# -modernize-avoid-c-arrays
+#       Legacy reasons
+#
+# -bugprone-macro-parentheses: This conflicts with our usages
+# -modernize-concat-nested-namespaces: More flexible not concated
+# -modernize-use-nodiscard: No C++17 specific rules for now
+# -modernize-use-trailing-return-type: It is acceptable to return a function call at the end of a function
+# -readability-braces-around-statements: Simple single statement can be without braces
+# -readability-function-cognitive-complexity: This will limit function size
+# -readability-implicit-bool-conversion: We omit explicit bool conversion for brevity
+# -readability-implicit-bool-cast: We omit explicit bool conversion for brevity
+# -readability-magic-numbers: There will be lots of constants
+# -bugprone-branch-clone: two branches may only print debug message, then will be treat as the same logic.
+
+Checks: >
+    -*,
+    bugprone-*,
+    google-*,
+    misc-*,
+    modernize-*,
+    performance-*,
+    portability-*,
+    readability-*,
+
+    -google-runtime-references,
+    -misc-non-private-member-variables-in-classes,
+    -modernize-avoid-c-arrays,
+
+    -bugprone-macro-parentheses,
+    -modernize-concat-nested-namespaces,
+    -modernize-use-nodiscard,
+    -modernize-use-trailing-return-type,
+    -readability-braces-around-statements,
+    -readability-function-cognitive-complexity,
+    -readability-implicit-bool-conversion,
+    -readability-implicit-bool-cast,
+    -readability-magic-numbers,
+    -readability-identifier-length,
+    -bugprone-branch-clone,
+    -misc-static-assert,
+
+CheckOptions:
+    - { key: readability-identifier-naming.NamespaceCase,          value: lower_case }
+    - { key: readability-identifier-naming.StructCase,             value: CamelCase  }
+    - { key: readability-identifier-naming.ClassCase,              value: CamelCase  }
+    - { key: readability-identifier-naming.ClassMethodCase,        value: camelBack  }
+    - { key: readability-identifier-naming.ClassConstantCase,      value: UPPER_CASE }
+    - { key: readability-identifier-naming.ClassMemberCase,        value: camelBack  }
+    - { key: readability-identifier-naming.ProtectedMemberPrefix,  value: _          }
+    - { key: readability-identifier-naming.PrivateMemberPrefix,    value: _          }
+
+    - { key: readability-identifier-naming.EnumCase,               value: CamelCase  }
+    - { key: readability-identifier-naming.ScopedEnumConstantCase, value: UPPER_CASE }
+    - { key: readability-identifier-naming.EnumConstantCase,       value: UPPER_CASE }
+
+    - { key: readability-identifier-naming.FunctionCase,           value: camelBack  }
+    - { key: readability-identifier-naming.GlobalConstantCase,     value: UPPER_CASE }
+    - { key: readability-identifier-naming.LocalConstantCase,      value: camelBack  }
+    - { key: readability-identifier-naming.LocalVariableCase,      value: camelBack  }
+    - { key: readability-identifier-naming.MacroDefinitionCase,    value: UPPER_CASE }
+    - { key: readability-identifier-naming.ParameterCase,          value: camelBack  }
+    - { key: readability-identifier-naming.StaticConstantCase,     value: UPPER_CASE }
+    - { key: readability-identifier-naming.VariableCase,           value: camelBack  }

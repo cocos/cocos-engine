@@ -1,9 +1,9 @@
-
 // tslint:disable:interface-name
 
 export type EngineFeature =
     | 'gfx-webgl'
     | 'gfx-webgl2'
+    | 'gfx-webgpu'
     | 'base'
     | 'graphcis'
     | '3d'
@@ -29,7 +29,12 @@ export type EngineFeature =
     | 'spine'
     | 'dragon-bones'
     | 'primitive'
-    | 'profiler';
+    | 'profiler'
+    | 'marionette'
+    | 'animation'
+    | 'skeletal-animation'
+    | 'xr'
+    | 'ar';
 export interface ModuleRenderConfig {
     $schema?: string;
 
@@ -38,13 +43,31 @@ export interface ModuleRenderConfig {
      */
     features: Features;
 
-     /**
+    /**
      * The categories info
      */
-    categories: {[category: string]: CategoryInfo};
+    categories: { [category: string]: CategoryInfo };
 }
 
-export type Features  = Record<EngineFeature, Item>;
+export type Features = Record<EngineFeature, Item>;
+
+export interface FlagBaseItem {
+    /**
+     * Display text.
+     */
+    label: string;
+
+    /**
+     * Description.
+     */
+    description?: string;
+
+    native?: string;
+
+    wechatPlugin?: boolean;
+
+    default?: string[];
+}
 
 export interface BaseItem {
     /**
@@ -66,6 +89,8 @@ export interface BaseItem {
     default?: string[];
 
     category?: string;
+
+    flags?: Record<string, FlagBaseItem>;
 }
 
 export interface Item extends BaseItem {

@@ -1,5 +1,6 @@
 CCEffect %{
-  hideInEditor: true
+  editor:
+    hide: true
   techniques:
   - passes:
     - vert: light-vs:vert
@@ -19,9 +20,9 @@ CCEffect %{
 
 CCProgram light-vs %{
   precision mediump float;
-  #include <cc-local>
-  #include <cc-global>
-  #include <common>
+  #include <builtin/uniforms/cc-local>
+  #include <builtin/uniforms/cc-global>
+  #include <common/common-define>
 
   in vec3 a_position;
   in vec2 a_texCoord;
@@ -35,10 +36,10 @@ CCProgram light-vs %{
 
 CCProgram light-fs %{
   precision mediump float;
-  #include <output>
-  
+  #include <legacy/output>
+
   uniform Constant {
-    vec4 color;
+    vec4 mainColor;
     vec4 intensitySize; // x: intensity, y: glow
   };
 
@@ -52,7 +53,7 @@ CCProgram light-fs %{
     vec2 uv = v_uv - 0.5;
     vec3 R = normalize(vec3(1.0, uv));
     // if (any(greaterThan(abs(uv), vec2(0.48)))) return vec4(0.0, 0.0, 0.0, 1.0);
-    return CCFragOutput(vec4(color.rgb, mix(sphere(R, vec3(5.0, 0.0, 0.0)), 1.0, dot(uv, uv) < 0.0625 ? 1.0 : 0.0)));
+    return CCFragOutput(vec4(mainColor.rgb, mix(sphere(R, vec3(5.0, 0.0, 0.0)), 1.0, dot(uv, uv) < 0.0625 ? 1.0 : 0.0)));
     // return vec4(color, sphere(R, vec3(4.5, 0.0, 0.0)));
   }
 }%

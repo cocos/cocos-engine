@@ -25,13 +25,8 @@
 
 // @ts-check
 
-/**
- * @packageDocumentation
- * @module physics
- */
-
 import { ccclass, editable, serializable } from 'cc.decorator';
-import { Asset } from '../../../core/assets/asset';
+import { Asset } from '../../../asset/assets/asset';
 import { math } from '../../../core';
 
 /**
@@ -52,6 +47,15 @@ export class PhysicsMaterial extends Asset {
 
     /**
      * @en
+     * The event which will be triggered when the entity of physics material update.
+     * @zh
+     * 物理材质实例更新时触发的事件。
+     * @event PhysicsMaterial.EVENT_UPDATE
+     */
+    static readonly EVENT_UPDATE = 'event_update';
+
+    /**
+     * @en
      * Friction for this material.
      * @zh
      * 此材质的摩擦系数。
@@ -64,7 +68,7 @@ export class PhysicsMaterial extends Asset {
     set friction (value) {
         if (!math.equals(this._friction, value)) {
             this._friction = value;
-            this.emit('physics_material_update');
+            this.emit(PhysicsMaterial.EVENT_UPDATE);
         }
     }
 
@@ -82,7 +86,7 @@ export class PhysicsMaterial extends Asset {
     set rollingFriction (value) {
         if (!math.equals(this._rollingFriction, value)) {
             this._rollingFriction = value;
-            this.emit('physics_material_update');
+            this.emit(PhysicsMaterial.EVENT_UPDATE);
         }
     }
 
@@ -100,7 +104,7 @@ export class PhysicsMaterial extends Asset {
     set spinningFriction (value) {
         if (!math.equals(this._spinningFriction, value)) {
             this._spinningFriction = value;
-            this.emit('physics_material_update');
+            this.emit(PhysicsMaterial.EVENT_UPDATE);
         }
     }
 
@@ -118,20 +122,21 @@ export class PhysicsMaterial extends Asset {
     set restitution (value) {
         if (!math.equals(this._restitution, value)) {
             this._restitution = value;
-            this.emit('physics_material_update');
+            this.emit(PhysicsMaterial.EVENT_UPDATE);
         }
     }
 
+    readonly id: number;
     private static _idCounter = 0;
 
     @serializable
     private _friction = 0.6;
 
     @serializable
-    private _rollingFriction = 0.1;
+    private _rollingFriction = 0.0;
 
     @serializable
-    private _spinningFriction = 0.1;
+    private _spinningFriction = 0.0;
 
     @serializable
     private _restitution = 0.0;
@@ -139,9 +144,8 @@ export class PhysicsMaterial extends Asset {
     constructor () {
         super();
         PhysicsMaterial.allMaterials.push(this);
-        if (!this._uuid) {
-            this._uuid = `pm_${PhysicsMaterial._idCounter++}`;
-        }
+        this.id = PhysicsMaterial._idCounter++;
+        if (!this._uuid) this._uuid = `pm_${this.id}`;
     }
 
     /**
@@ -175,5 +179,25 @@ export class PhysicsMaterial extends Asset {
             return true;
         }
         return false;
+    }
+
+    /**
+     * @en
+     * Sets the coefficients values.
+     * @zh
+     * 设置材质相关的系数。
+     * @param friction
+     * @param rollingFriction
+     * @param spinningFriction
+     * @param restitution
+     */
+    public setValues (friction: number, rollingFriction: number, spinningFriction: number, restitution: number) {
+        const emitUpdate = this._friction !== friction || this._rollingFriction !== rollingFriction
+            || this._spinningFriction !== spinningFriction || this._restitution !== restitution;
+        this._friction = friction;
+        this._rollingFriction = rollingFriction;
+        this._spinningFriction = spinningFriction;
+        this._restitution = restitution;
+        if (emitUpdate) this.emit(PhysicsMaterial.EVENT_UPDATE);
     }
 }

@@ -1,0 +1,66 @@
+// Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
+
+CCEffect %{
+  techniques:
+  - name: opaque
+    passes:
+    - vert: sky-vs
+      frag: sky-fs
+      properties: &props
+        environmentMap:     { value: grey }
+      priority : max - 10
+      rasterizerState :
+        cullMode : none
+      depthStencilState :
+        depthTest: true
+        depthWrite : false
+}%
+
+
+CCProgram surface-vertex %{
+  #define CC_SURFACES_VERTEX_MODIFY_WORLD_POS
+  vec3 SurfacesVertexModifyWorldPos(in SurfacesStandardVertexIntermediate In)
+  {
+    // Apply uniform scaling for atmosphere effects
+    return In.worldPos;
+  }
+}%
+
+CCProgram surface-fragment %{
+
+  uniform samplerCube environmentMap;
+  #define CC_SURFACES_FRAGMENT_MODIFY_BASECOLOR_AND_TRANSPARENCY
+  vec4 SurfacesFragmentModifyBaseColorAndTransparency()
+  {
+    vec3 c = vec3(1.0);
+    #if CC_USE_IBL
+      vec3 normal = normalize(FSInput_worldNormal);
+      vec3 rotationDir = RotationVecFromAxisY(normal.xyz, cc_surfaceTransform.z, cc_surfaceTransform.w);
+      #if USE_RGBE_CUBEMAP
+        c *= unpackRGBE(fragTextureLod(environmentMap, rotationDir.xyz, 0.0));
+      #else
+        c *= SRGBToLinear(fragTextureLod(environmentMap, rotationDir.xyz, 0.0).rgb);
+      #endif
+    #endif
+    return vec4(c * cc_ambientSky.w, 1.0);
+  }
+}%
+
+CCProgram sky-vs %{
+  precision highp float;
+
+  #include <surfaces/effect-macros/sky>
+  #include <surfaces/includes/common-vs>
+  #include <surface-vertex>
+  #include <shading-entries/main-functions/misc/sky-vs>
+}%
+
+
+CCProgram sky-fs %{
+  precision highp float;
+
+  #include <surfaces/effect-macros/sky>
+  #include <surfaces/includes/common-fs>
+  #include <surface-fragment>
+  #include <shading-entries/main-functions/misc/sky-fs>
+}%

@@ -4,6 +4,7 @@ CCEffect %{
   - passes:
     - vert: profiler-vs:vert
       frag: profiler-fs:frag
+      priority: max
       depthStencilState:
         depthTest: false
         depthWrite: false
@@ -19,11 +20,11 @@ CCEffect %{
 
 CCProgram profiler-vs %{
   precision mediump float;
-  #include <cc-global>
+  #include <builtin/uniforms/cc-global>
 
-  #define ROWS 8 // multiple of 4
-  #define COLS 10
-  #define VECTOR_COUNT ROWS * COLS / 4
+  #pragma define ROWS 8 // multiple of 4
+  #pragma define COLS 10
+  #pragma define VECTOR_COUNT ROWS * COLS / 4
 
   in vec3 a_position;
   in vec4 a_color;
@@ -45,8 +46,9 @@ CCProgram profiler-vs %{
   }
 
   vec4 vert () {
-    vec4 position = cc_matViewProj * vec4(a_position, 1.0);
-    position.xy += offset.xy;
+    mat2 proj = mat2(cc_matProj[0].xy, cc_matProj[1].xy);
+    proj /= abs(proj[1].x + proj[1].y);
+    vec2 position = proj * a_position.xy + offset.xy;
 
     v_uv = a_color.xy;
 
@@ -55,13 +57,13 @@ CCProgram profiler-vs %{
       v_uv += vec2(offset.z * n, 0.0);
     }
 
-    return position;
+    return vec4(position, 0.0, 1.0);
   }
 }%
 
 CCProgram profiler-fs %{
   precision mediump float;
-  #include <output>
+  #include <legacy/output>
 
   in vec2 v_uv;
   uniform sampler2D mainTexture;

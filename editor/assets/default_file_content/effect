@@ -1,10 +1,10 @@
-// Effect Syntax Guide: https://github.com/cocos-creator/docs-3d/blob/master/zh/material-system/effect-syntax.md
+// Effect Syntax Guide: https://docs.cocos.com/creator/manual/zh/shader/index.html
 
 CCEffect %{
   techniques:
   - name: opaque
     passes:
-    - vert: general-vs:vert # builtin header
+    - vert: legacy/main-functions/general-vs:vert # builtin header
       frag: unlit-fs:frag
       properties: &props
         mainTexture:    { value: white }
@@ -25,12 +25,13 @@ CCEffect %{
 
 CCProgram unlit-fs %{
   precision highp float;
-  #include <output>
-  #include <cc-fog>
+  #include <legacy/output>
+  #include <legacy/fog-fs>
 
   in vec2 v_uv;
+  in vec3 v_position;
+
   uniform sampler2D mainTexture;
-  in float factor_fog;
 
   uniform Constant {
     vec4 mainColor;
@@ -38,7 +39,7 @@ CCProgram unlit-fs %{
 
   vec4 frag () {
     vec4 col = mainColor * texture(mainTexture, v_uv);
-    col = CC_APPLY_FOG(col, factor_fog);
+    CC_APPLY_FOG(col, v_position);
     return CCFragOutput(col);
   }
 }%

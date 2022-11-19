@@ -1,18 +1,14 @@
-/**
- * @packageDocumentation
- * @hidden
- */
-
 import b2 from '@cocos/box2d';
 import { IRigidBody2D } from '../spec/i-rigid-body';
 import { RigidBody2D } from '../framework/components/rigid-body-2d';
 import { PhysicsSystem2D } from '../framework/physics-system';
 import { b2PhysicsWorld } from './physics-world';
-import { Vec2, toRadian, Vec3, Quat, IVec2Like, toDegree, game } from '../../core';
+import { Vec2, toRadian, Vec3, IVec2Like, toDegree } from '../../core';
 import { PHYSICS_2D_PTM_RATIO, ERigidBody2DType } from '../framework/physics-types';
 
-import { Node } from '../../core/scene-graph/node';
+import { Node } from '../../scene-graph/node';
 import { Collider2D } from '../framework';
+import { NodeEventType } from '../../scene-graph/node-event';
 
 const tempVec3 = new Vec3();
 
@@ -64,12 +60,12 @@ export class b2RigidBody2D implements IRigidBody2D {
 
     _registerNodeEvents () {
         const node = this.rigidBody.node;
-        node.on(Node.EventType.TRANSFORM_CHANGED, this._onNodeTransformChanged, this);
+        node.on(NodeEventType.TRANSFORM_CHANGED, this._onNodeTransformChanged, this);
     }
 
     _unregisterNodeEvents () {
         const node = this.rigidBody.node;
-        node.off(Node.EventType.TRANSFORM_CHANGED, this._onNodeTransformChanged, this);
+        node.off(NodeEventType.TRANSFORM_CHANGED, this._onNodeTransformChanged, this);
     }
 
     _onNodeTransformChanged (type) {
@@ -82,13 +78,12 @@ export class b2RigidBody2D implements IRigidBody2D {
             for (let i = 0; i < colliders.length; i++) {
                 colliders[i].apply();
             }
-        } else {
-            if (type & Node.TransformBit.POSITION) {
-                this.syncPositionToPhysics(true);
-            }
-            if (type & Node.TransformBit.ROTATION) {
-                this.syncRotationToPhysics(true);
-            }
+        }
+        if (type & Node.TransformBit.POSITION) {
+            this.syncPositionToPhysics(true);
+        }
+        if (type & Node.TransformBit.ROTATION) {
+            this.syncRotationToPhysics(true);
         }
     }
 

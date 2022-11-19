@@ -26,14 +26,14 @@ if ($env:GITHUB_BASE_REF) {
 
 Write-Host "Diff files: $diffFiles"
 if (-not $diffFiles) {
-    Write-Error "Seems like we got zero diffs?"
+    #Write-Error "Seems like we got zero diffs?"
     return
 }
 
 foreach ($file in $diffFiles.Split('\n')) {
     $extension = Split-Path -Extension -Path $file
     $cont = ($extension -eq ".ts" )
-    if (-not $cont -or -not ($file -match "^(cocos|exports)")) {
+    if (-not $cont -or -not ($file -match "^(cocos|exports|pal)")) {
         Write-Host "Skip $file"
         continue
     }

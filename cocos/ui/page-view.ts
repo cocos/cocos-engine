@@ -23,15 +23,11 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-/**
- * @packageDocumentation
- * @module ui
- */
 
 import { ccclass, help, executionOrder, menu, tooltip, type, slide, range, visible, override, serializable, editable } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
-import { EventHandler as ComponentEventHandler } from '../core/components';
-import { EventTouch, SystemEventType } from '../core/platform';
+import { EventHandler as ComponentEventHandler, Node } from '../scene-graph';
+import { EventTouch } from '../input/types';
 import { Vec2, Vec3 } from '../core/math';
 import { ccenum } from '../core/value-types/enum';
 import { Layout } from './layout';
@@ -40,10 +36,10 @@ import { ScrollView, EventType as ScrollEventType } from './scroll-view';
 import { ScrollBar } from './scroll-bar';
 import { warnID, logID } from '../core/platform/debug';
 import { extendsEnum } from '../core/data/utils/extends-enum';
-import { Node } from '../core/scene-graph';
 import { legacyCC } from '../core/global-exports';
+import { NodeEventType } from '../scene-graph/node-event';
 
-const _temp_vec2 = new Vec2();
+const _tempVec2 = new Vec2();
 
 /**
  * @en Enum for Page View Size Mode.
@@ -291,6 +287,7 @@ export class PageView extends ScrollView {
      */
     @serializable
     @editable
+    @tooltip('i18n:pageview.pageTurningSpeed')
     public pageTurningSpeed = 0.3;
 
     /**
@@ -319,12 +316,12 @@ export class PageView extends ScrollView {
     protected _initContentPos = new Vec3();
     protected _scrollCenterOffsetX: number[] = []; // 每一个页面居中时需要的偏移量（X）
     protected _scrollCenterOffsetY: number[] = []; // 每一个页面居中时需要的偏移量（Y）
-    protected _touchBeganPosition = new Vec3();
-    protected _touchEndPosition = new Vec3();
+    protected _touchBeganPosition = new Vec2();
+    protected _touchEndPosition = new Vec2();
 
     public onEnable () {
         super.onEnable();
-        this.node.on(SystemEventType.SIZE_CHANGED, this._updateAllPagesSize, this);
+        this.node.on(NodeEventType.SIZE_CHANGED, this._updateAllPagesSize, this);
         if (!EDITOR || legacyCC.GAME_VIEW) {
             this.node.on(PageView.EventType.SCROLL_ENG_WITH_THRESHOLD, this._dispatchPageTurningEvent, this);
         }
@@ -332,7 +329,7 @@ export class PageView extends ScrollView {
 
     public onDisable () {
         super.onDisable();
-        this.node.off(SystemEventType.SIZE_CHANGED, this._updateAllPagesSize, this);
+        this.node.off(NodeEventType.SIZE_CHANGED, this._updateAllPagesSize, this);
         if (!EDITOR || legacyCC.GAME_VIEW) {
             this.node.off(PageView.EventType.SCROLL_ENG_WITH_THRESHOLD, this._dispatchPageTurningEvent, this);
         }
@@ -352,7 +349,7 @@ export class PageView extends ScrollView {
      * @zh
      * 返回当前页面索引。
      *
-     * @returns 当前页面索引。
+     * @returns @en Current page index of this page view @zh 当前页面索引。
      */
     public getCurrentPageIndex () {
         return this._curPageIdx;
@@ -364,7 +361,7 @@ export class PageView extends ScrollView {
      *
      * @zh
      * 设置当前页面索引。
-     * @param index 索引。
+     * @param index @en The page index to scroll to @zh 需要滚动到的页面索引
      */
     public setCurrentPageIndex (index: number) {
         this.scrollToPage(index, 1);
@@ -377,7 +374,7 @@ export class PageView extends ScrollView {
      * @zh
      * 返回视图中的所有页面。
      *
-     * @returns 输=视图所有页面。
+     * @returns @en return all pages of this page view @zh 返回当前视图所有页面
      */
     public getPages () {
         return this._pages;
@@ -390,7 +387,7 @@ export class PageView extends ScrollView {
      * @zh
      * 在当前页面视图的尾部插入一个新视图。
      *
-     * @param page 新视图。
+     * @param page @en New page to add to this page view @zh 新加入的视图
      */
     public addPage (page: Node) {
         if (!page || this._pages.indexOf(page) !== -1 || !this.content) {
@@ -412,8 +409,8 @@ export class PageView extends ScrollView {
      * @zh
      * 将页面插入指定位置中。
      *
-     * @param page 新视图。
-     * @param index 指定位置。
+     * @param page @en New page to insert to this page view @zh 新插入的视图
+     * @param index @en The index of new page to be inserted @zh 新插入视图的索引
      */
     public insertPage (page: Node, index: number) {
         if (index < 0 || !page || this._pages.indexOf(page) !== -1 || !this.content) {
@@ -440,7 +437,7 @@ export class PageView extends ScrollView {
      * @zh
      * 移除指定页面。
      *
-     * @param page 指定页面。
+     * @param page @en The page to be removed @zh 将被移除的页面
      */
     public removePage (page: Node) {
         if (!page || !this.content) { return; }
@@ -459,7 +456,7 @@ export class PageView extends ScrollView {
      * @zh
      * 移除指定下标的页面。
      *
-     * @param index 页面下标。
+     * @param index @en The index of the page to be removed @zh 将被移除界面的页面下标
      */
     public removePageAtIndex (index: number) {
         const pageList = this._pages;
@@ -495,8 +492,8 @@ export class PageView extends ScrollView {
      * @zh
      * 滚动到指定页面
      *
-     * @param idx index of page.
-     * @param timeInSecond scrolling time.
+     * @param idx @en The index of page to be scroll to @zh 希望滚动到的页面下标
+     * @param timeInSecond @en How long time to scroll to the page, in seconds @zh 滚动到指定页面所需时间，单位：秒
      */
     public scrollToPage (idx: number, timeInSecond = 0.3) {
         if (idx < 0 || idx >= this._pages.length) {
@@ -578,8 +575,8 @@ export class PageView extends ScrollView {
     }
 
     protected _onTouchBegan (event: EventTouch, captureListeners: any) {
-        event.touch!.getUILocation(_temp_vec2);
-        Vec3.set(this._touchBeganPosition, _temp_vec2.x, _temp_vec2.y, 0);
+        event.touch!.getUILocation(_tempVec2);
+        Vec2.set(this._touchBeganPosition, _tempVec2.x, _tempVec2.y);
         super._onTouchBegan(event, captureListeners);
     }
 
@@ -588,14 +585,14 @@ export class PageView extends ScrollView {
     }
 
     protected _onTouchEnded (event: EventTouch, captureListeners: any) {
-        event.touch!.getUILocation(_temp_vec2);
-        Vec3.set(this._touchEndPosition, _temp_vec2.x, _temp_vec2.y, 0);
+        event.touch!.getUILocation(_tempVec2);
+        Vec2.set(this._touchEndPosition, _tempVec2.x, _tempVec2.y);
         super._onTouchEnded(event, captureListeners);
     }
 
     protected _onTouchCancelled (event: EventTouch, captureListeners: any) {
-        event.touch!.getUILocation(_temp_vec2);
-        Vec3.set(this._touchEndPosition, _temp_vec2.x, _temp_vec2.y, 0);
+        event.touch!.getUILocation(_tempVec2);
+        Vec2.set(this._touchEndPosition, _tempVec2.x, _tempVec2.y);
         super._onTouchCancelled(event, captureListeners);
     }
 
@@ -629,7 +626,7 @@ export class PageView extends ScrollView {
     // 初始化页面
     protected _initPages () {
         if (!this.content) { return; }
-        this._initContentPos = this.content.position;
+        this._initContentPos = this.content.position as Vec3;
         const children = this.content.children;
         for (let i = 0; i < children.length; ++i) {
             const page = children[i];
@@ -664,7 +661,7 @@ export class PageView extends ScrollView {
 
     // 通过 idx 获取偏移值数值
     protected _moveOffsetValue (idx: number) {
-        const offset = new Vec3();
+        const offset = new Vec2();
         if (this._sizeMode === SizeMode.Free) {
             if (this.direction === Direction.Horizontal) {
                 offset.x = this._scrollCenterOffsetX[idx];
@@ -685,7 +682,7 @@ export class PageView extends ScrollView {
         return offset;
     }
 
-    protected _getDragDirection (moveOffset: Vec3) {
+    protected _getDragDirection (moveOffset: Vec2) {
         if (this._direction === Direction.Horizontal) {
             if (moveOffset.x === 0) {
                 return 0;
@@ -703,7 +700,7 @@ export class PageView extends ScrollView {
     }
 
     // 是否超过自动滚动临界值
-    protected _isScrollable (offset: Vec3, index: number, nextIndex: number) {
+    protected _isScrollable (offset: Vec2, index: number, nextIndex: number) {
         if (this._sizeMode === SizeMode.Free) {
             let curPageCenter = 0;
             let nextPageCenter = 0;
@@ -719,7 +716,7 @@ export class PageView extends ScrollView {
         } else {
             const viewTrans = this.view;
             if (!viewTrans) {
-                return;
+                return false;
             }
             if (this.direction === Direction.Horizontal) {
                 return Math.abs(offset.x) >= viewTrans.width * this.scrollThreshold;
@@ -727,13 +724,14 @@ export class PageView extends ScrollView {
                 return Math.abs(offset.y) >= viewTrans.height * this.scrollThreshold;
             }
         }
+        return false;
     }
 
     protected _autoScrollToPage () {
         const bounceBackStarted = this._startBounceBackIfNeeded();
         if (bounceBackStarted) {
-            let bounceBackAmount = this._getHowMuchOutOfBoundary();
-            bounceBackAmount = this._clampDelta(bounceBackAmount);
+            const bounceBackAmount = this._getHowMuchOutOfBoundary();
+            this._clampDelta(bounceBackAmount);
             if (bounceBackAmount.x > 0 || bounceBackAmount.y < 0) {
                 this._curPageIdx = this._pages.length === 0 ? 0 : this._pages.length - 1;
             }
@@ -745,8 +743,8 @@ export class PageView extends ScrollView {
                 this.indicator._changedState();
             }
         } else {
-            const moveOffset = new Vec3();
-            Vec3.subtract(moveOffset, this._touchBeganPosition, this._touchEndPosition);
+            const moveOffset = new Vec2();
+            Vec2.subtract(moveOffset, this._touchBeganPosition, this._touchEndPosition);
             const index = this._curPageIdx;
             const nextIndex = index + this._getDragDirection(moveOffset);
             const timeInSecond = this.pageTurningSpeed * Math.abs(index - nextIndex);
@@ -773,6 +771,8 @@ export class PageView extends ScrollView {
  * @zh
  * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
  * @event page-turning
- * @param {Event.EventCustom} event
- * @param {PageView} pageView - The PageView component.
+ * @param event
+ * @param pageView - The PageView component.
  */
+
+legacyCC.PageView = PageView;

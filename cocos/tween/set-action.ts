@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
 import { ActionInstant } from './actions/action-instant';
 
 export class SetAction extends ActionInstant {

@@ -23,19 +23,15 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module component/video
- */
-
-import { mat4 } from '../core/math';
-import { sys, view, screen, warn } from '../core/platform';
-import { game } from '../core';
+import { screenAdapter } from 'pal/screen-adapter';
+import { mat4, visibleRect } from '../core';
+import { sys, screen, warn } from '../core/platform';
+import { game } from '../game';
 import { contains } from '../core/utils/misc';
 import { EventType, READY_STATE } from './video-player-enums';
 import { VideoPlayerImpl } from './video-player-impl';
-import { ClearFlagBit } from '../core/gfx';
-import visibleRect from '../core/platform/visible-rect';
+import { ClearFlagBit } from '../gfx';
+import { BrowserType, OS } from '../../pal/system-info/enum-type';
 
 const MIN_ZINDEX = -(2 ** 15);
 
@@ -123,7 +119,7 @@ export class VideoPlayerImplWeb extends VideoPlayerImpl {
     }
 
     public syncPlaybackRate (val: number) {
-        if (sys.browserType === sys.BROWSER_TYPE_UC) {
+        if (sys.browserType === BrowserType.UC) {
             warn('playbackRate is not supported by the uc mobile browser.');
             return;
         }
@@ -176,7 +172,7 @@ export class VideoPlayerImplWeb extends VideoPlayerImpl {
             return;
         }
 
-        if (sys.os === sys.OS_IOS && sys.isBrowser) {
+        if (sys.os === OS.IOS && sys.isBrowser) {
             if (enabled) {
                 // @ts-expect-error only ios support
                 if (video.webkitEnterFullscreen) {
@@ -204,14 +200,14 @@ export class VideoPlayerImplWeb extends VideoPlayerImpl {
 
         if (enabled) {
             // fix IE full screen content is not centered
-            if (sys.browserType === sys.BROWSER_TYPE_IE) {
+            if (sys.browserType === BrowserType.IE) {
                 video.style.transform = '';
             }
             // Monitor video entry and exit full-screen events
             video.setAttribute('x5-video-player-fullscreen', 'true');
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
             screen.requestFullScreen(video, (document) => {
-                const fullscreenElement = sys.browserType === sys.BROWSER_TYPE_IE ? document.msFullscreenElement : document.fullscreenElement;
+                const fullscreenElement = sys.browserType === BrowserType.IE ? document.msFullscreenElement : document.fullscreenElement;
                 this._fullScreenOnAwake = (fullscreenElement === video);
             }, () => {
                 this._fullScreenOnAwake = false;
@@ -385,7 +381,8 @@ export class VideoPlayerImplWeb extends VideoPlayerImpl {
         this._w = width;
         this._h = height;
 
-        const dpr = view.getDevicePixelRatio();
+        // TODO: implement videoPlayer in PAL
+        const dpr = screenAdapter.devicePixelRatio;
         const scaleX = 1 / dpr;
         const scaleY = 1 / dpr;
 
@@ -395,7 +392,7 @@ export class VideoPlayerImplWeb extends VideoPlayerImpl {
         this._video.style.width = `${this._w}px`;
         this._video.style.height = `${this._h}px`;
 
-        if (sys.browserType !== sys.BROWSER_TYPE_MOBILE_QQ) {
+        if (sys.browserType !== BrowserType.MOBILE_QQ) {
             this._video.style.objectFit = this._keepAspectRatio ? 'none' : 'fill';
         } else {
             warn('keepAspectRatio is not supported by the qq mobile browser.');
@@ -417,7 +414,7 @@ export class VideoPlayerImplWeb extends VideoPlayerImpl {
         this._video.style['-webkit-transform'] = matrix;
         // video style would change when enter fullscreen on IE
         // there is no way to add fullscreenchange event listeners on IE so that we can restore the cached video style
-        if (sys.browserType !== sys.BROWSER_TYPE_IE) {
+        if (sys.browserType !== BrowserType.IE) {
             this._forceUpdate = false;
         }
     }

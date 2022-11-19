@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module physics
- */
-
 import {
     ccclass,
     help,
@@ -38,7 +33,6 @@ import {
     serializable,
     tooltip,
 } from 'cc.decorator';
-import { EDITOR, TEST } from 'internal:constants';
 import { Collider } from './collider';
 import { Mesh } from '../../../../3d/assets';
 import { ITrimeshShape } from '../../../spec/i-physics-shape';
@@ -70,8 +64,9 @@ export class MeshCollider extends Collider {
     }
 
     set mesh (value) {
+        if (this._mesh === value) return;
         this._mesh = value;
-        if (!EDITOR && !TEST) this.shape.setMesh(this._mesh);
+        if (this._shape) this.shape.setMesh(this._mesh);
     }
 
     /**
@@ -87,7 +82,10 @@ export class MeshCollider extends Collider {
     }
 
     set convex (value) {
+        if (this._convex === value) return;
         this._convex = value;
+
+        if (this._shape && this._mesh) this.shape.setMesh(this._mesh);
     }
 
     /**

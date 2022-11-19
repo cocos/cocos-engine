@@ -1,20 +1,16 @@
-/**
- * @packageDocumentation
- * @module physics2d
- */
+import { EDITOR } from 'internal:constants';
+import { System, Vec2, IVec2Like, Rect, Eventify, Enum, Settings, settings, cclegacy } from '../../core';
+import { createPhysicsWorld, selector, IPhysicsSelector } from './physics-selector';
 
-import { EDITOR, DEBUG } from 'internal:constants';
-import { System, Vec2, director, Director, game, error, IVec2Like, Rect, Eventify } from '../../core';
-import { IPhysicsWorld } from '../spec/i-physics-world';
-import { createPhysicsWorld } from './instance';
-import { physicsEngineId } from './physics-selector';
 import { DelayEvent } from './physics-internal-types';
-import { IPhysicsConfig, ICollisionMatrix } from '../../physics/framework/physics-config';
+import { ICollisionMatrix } from '../../physics/framework/physics-config';
 import { CollisionMatrix } from '../../physics/framework/collision-matrix';
-import { ERaycast2DType, RaycastResult2D, PHYSICS_2D_PTM_RATIO } from './physics-types';
+import { ERaycast2DType, RaycastResult2D, PHYSICS_2D_PTM_RATIO, PhysicsGroup } from './physics-types';
 import { Collider2D } from './components/colliders/collider-2d';
+import { director, Director } from '../../game';
 
 let instance: PhysicsSystem2D | null = null;
+cclegacy.internal.PhysicsGroup2D = PhysicsGroup;
 
 export class PhysicsSystem2D extends Eventify(System) {
     /**
@@ -41,7 +37,7 @@ export class PhysicsSystem2D extends Eventify(System) {
     }
     set allowSleep (v: boolean) {
         this._allowSleep = v;
-        if (!EDITOR) {
+        if (!EDITOR || cclegacy.GAME_VIEW) {
             this.physicsWorld.setAllowSleep(v);
         }
     }
@@ -57,7 +53,7 @@ export class PhysicsSystem2D extends Eventify(System) {
     }
     set gravity (gravity: Vec2) {
         this._gravity.set(gravity);
-        if (!EDITOR) {
+        if (!EDITOR || cclegacy.GAME_VIEW) {
             this.physicsWorld.setGravity(new Vec2(gravity.x / PHYSICS_2D_PTM_RATIO, gravity.y / PHYSICS_2D_PTM_RATIO));
         }
     }
@@ -132,7 +128,9 @@ export class PhysicsSystem2D extends Eventify(System) {
      * @zh
      * 获取物理世界的封装对象，通过它你可以访问到实际的底层对象。
      */
-    readonly physicsWorld: IPhysicsWorld;
+    public get physicsWorld () {
+        return selector.physicsWorld!;
+    }
 
     /**
      * @en
@@ -143,15 +141,25 @@ export class PhysicsSystem2D extends Eventify(System) {
     static readonly ID = 'PHYSICS_2D';
 
     static get PHYSICS_NONE () {
-        return !physicsEngineId;
+        return !selector.id;
     }
 
     static get PHYSICS_BUILTIN () {
-        return physicsEngineId === 'builtin';
+        return selector.id === 'builtin';
     }
 
     static get PHYSICS_BOX2D () {
-        return physicsEngineId === 'box2d';
+        return selector.id === 'box2d';
+    }
+
+    /**
+     * @en
+     * Gets the predefined physics groups.
+     * @zh
+     * 获取预定义的物理分组。
+     */
+    public static get PhysicsGroup () {
+        return PhysicsGroup;
     }
 
     /**
@@ -193,26 +201,36 @@ export class PhysicsSystem2D extends Eventify(System) {
     private constructor () {
         super();
 
-        const config = game.config ? game.config.physics as IPhysicsConfig : null;
-        if (config) {
-            Vec2.copy(this._gravity, config.gravity as IVec2Like);
+        const gravity = settings.querySettings(Settings.Category.PHYSICS, 'gravity');
+        if (gravity) {
+            Vec2.copy(this._gravity, gravity as IVec2Like);
             this._gravity.multiplyScalar(PHYSICS_2D_PTM_RATIO);
-
-            this._allowSleep = config.allowSleep;
-            this._fixedTimeStep = config.fixedTimeStep;
-            this._maxSubSteps = config.maxSubSteps;
-            this._autoSimulation = config.autoSimulation;
-
-            if (config.collisionMatrix) {
-                for (const i in config.collisionMatrix) {
-                    const bit = parseInt(i);
-                    const value = 1 << parseInt(i);
-                    this.collisionMatrix[`${value}`] = config.collisionMatrix[bit];
-                }
+        }
+        this._allowSleep = settings.querySettings<boolean>(Settings.Category.PHYSICS, 'allowSleep') ?? this._allowSleep;
+        this._fixedTimeStep = settings.querySettings<number>(Settings.Category.PHYSICS, 'fixedTimeStep') ?? this._fixedTimeStep;
+        this._maxSubSteps = settings.querySettings<number>(Settings.Category.PHYSICS, 'maxSubSteps') ?? this._maxSubSteps;
+        this._autoSimulation = settings.querySettings<boolean>(Settings.Category.PHYSICS, 'autoSimulation') ?? this._autoSimulation;
+        const collisionMatrix = settings.querySettings(Settings.Category.PHYSICS, 'collisionMatrix');
+        if (collisionMatrix) {
+            for (const i in collisionMatrix) {
+                const bit = parseInt(i);
+                const value = 1 << parseInt(i);
+                this.collisionMatrix[`${value}`] = collisionMatrix[bit];
             }
         }
 
-        this.physicsWorld = createPhysicsWorld();
+        const collisionGroups = settings.querySettings<Array<{ name: string, index: number }>>(Settings.Category.PHYSICS, 'collisionGroups');
+        if (collisionGroups) {
+            const cg = collisionGroups;
+            if (cg instanceof Array) {
+                cg.forEach((v) => { PhysicsGroup[v.name] = 1 << v.index; });
+                Enum.update(PhysicsGroup);
+            }
+        }
+
+        const mutableSelector = selector as Mutable<IPhysicsSelector>;
+        mutableSelector.physicsWorld = createPhysicsWorld();
+
         this.gravity = this._gravity;
         this.allowSleep = this._allowSleep;
     }
@@ -264,6 +282,7 @@ export class PhysicsSystem2D extends Eventify(System) {
         director.emit(Director.EVENT_AFTER_PHYSICS);
     }
 
+    // eslint-disable-next-line @typescript-eslint/ban-types
     _callAfterStep (target: object, func: Function) {
         if (this._steping) {
             this._delayEvents.push({
@@ -330,12 +349,8 @@ export class PhysicsSystem2D extends Eventify(System) {
     }
 }
 
-director.once(Director.EVENT_INIT, () => {
-    initPhysicsSystem();
-});
-
 function initPhysicsSystem () {
-    if (!PhysicsSystem2D.PHYSICS_NONE && !EDITOR) {
-        director.registerSystem(PhysicsSystem2D.ID, PhysicsSystem2D.instance, 0);
-    }
+    director.registerSystem(PhysicsSystem2D.ID, PhysicsSystem2D.instance, System.Priority.LOW);
 }
+
+director.once(Director.EVENT_INIT, () => { initPhysicsSystem(); });

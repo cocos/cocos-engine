@@ -23,8 +23,8 @@
  THE SOFTWARE.
  */
 
-import { Format, FormatInfos, FormatType, FormatInfo } from '../../core/gfx';
-import { sys } from '../../core/platform/sys';
+import { Format, FormatInfos, FormatType, FormatInfo } from '../../gfx';
+import { sys } from '../../core';
 
 const _typeMap: Record<string, string> = {
     [FormatType.UNORM]: 'Uint',

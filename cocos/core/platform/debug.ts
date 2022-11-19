@@ -22,18 +22,13 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-/**
- * @packageDocumentation
- * @module core
- */
 
 /* eslint-disable no-console */
-
 import { EDITOR, JSB, DEV, DEBUG } from 'internal:constants';
 import debugInfos from '../../../DebugInfos';
 import { legacyCC } from '../global-exports';
 
-const ERROR_MAP_URL = 'https://github.com/cocos-creator/engine/blob/3d/EngineErrorMap.md';
+const ERROR_MAP_URL = 'https://github.com/cocos-creator/engine/blob/develop/EngineErrorMap.md';
 
 // The html element displays log in web page (DebugMode.INFO_FOR_WEB_PAGE)
 let logList: HTMLTextAreaElement | null = null;
@@ -50,7 +45,10 @@ let ccAssert = (condition: any, message?: any, ...optionalParams: any[]) => {
     }
 };
 
+let ccDebug = ccLog;
+
 function formatString (message?: any, ...optionalParams: any[]) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return legacyCC.js.formatStr.apply(null, [message].concat(optionalParams));
 }
 
@@ -113,9 +111,20 @@ export function assert (value: any, message?: string, ...optionalParams: any[]):
     return ccAssert(value, message, ...optionalParams);
 }
 
+/**
+ * @en Outputs a message at the "debug" log level.
+ * @zh 输出一条“调试”日志等级的消息。
+ */
+export function debug (...data: any[]) {
+    return ccDebug(...data);
+}
+
+/**
+ * @engineInternal
+ */
 export function _resetDebugSetting (mode: DebugMode) {
     // reset
-    ccLog = ccWarn = ccError = ccAssert = () => {
+    ccLog = ccWarn = ccError = ccAssert = ccDebug = () => {
     };
 
     if (mode === DebugMode.NONE) {
@@ -177,7 +186,7 @@ export function _resetDebugSetting (mode: DebugMode) {
                 logToWebPage(formatString(message, ...optionalParams));
             };
         }
-    } else if (console && console.log.apply) { // console is null when user doesn't open dev tool on IE9
+    } else if (console) {
         // Log to console.
 
         // For JSB
@@ -198,6 +207,7 @@ export function _resetDebugSetting (mode: DebugMode) {
             if (!condition) {
                 const errorText = formatString(message, ...optionalParams);
                 if (DEV) {
+                    // eslint-disable-next-line no-debugger
                     debugger;
                 } else {
                     throw new Error(errorText);
@@ -219,9 +229,9 @@ export function _resetDebugSetting (mode: DebugMode) {
 
     if (EDITOR) {
         ccLog = console.log.bind(console);
-    } else if (mode === DebugMode.INFO) {
+    } else if (mode <= DebugMode.INFO) {
         if (JSB) {
-            // @ts-expect-error
+            // @ts-expect-error We have no typing for this
             if (scriptEngineType === 'JavaScriptCore') {
                 // console.log has to use `console` as its context for iOS 8~9. Therefore, apply it.
                 ccLog = (message?: any, ...optionalParams: any[]) => console.log.apply(console, [message, ...optionalParams]);
@@ -233,6 +243,13 @@ export function _resetDebugSetting (mode: DebugMode) {
             ccLog = console.log.bind(console);
         } else {
             ccLog = (message?: any, ...optionalParams: any[]) => console.log.apply(console, [message, ...optionalParams]);
+        }
+    }
+
+    if (mode <= DebugMode.VERBOSE) {
+        if (typeof console.debug === 'function') {
+            const vendorDebug = console.debug.bind(console);
+            ccDebug = (...data: any[]) => vendorDebug(...data);
         }
     }
 }
@@ -247,6 +264,7 @@ export function _throw (error_: any) {
         } else {
             error(error_);
         }
+        return undefined;
     }
 }
 
@@ -256,6 +274,7 @@ function getTypedFormatter (type: 'Log' | 'Warning' | 'Error' | 'Assert') {
         if (args.length === 0) {
             return msg;
         }
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return DEBUG ? formatString(msg, ...args) : `${msg} Arguments: ${args.join(', ')}`;
     };
 }
@@ -285,50 +304,56 @@ export function assertID (condition: any, id: number, ...optionalParams: any[]) 
 
 /**
  * @en Enum for debug modes.
- * @zh 调试模式
+ * @zh 调试模式。
  */
 export enum DebugMode {
     /**
      * @en The debug mode none.
-     * @zh 禁止模式，禁止显示任何日志信息。
+     * @zh 禁止模式，禁止显示任何日志消息。
      */
     NONE = 0,
 
     /**
-     * @en The debug mode info.
-     * @zh 信息模式，在 console 中显示所有日志。
+     * @en The debug mode none.
+     * @zh 调试模式，显示所有日志消息。
      */
-    INFO = 1,
+    VERBOSE = 1,
 
     /**
-     * @en The debug mode warn.
-     * @zh 警告模式，在 console 中只显示 warn 级别以上的（包含 error）日志。
+     * @en Information mode, which display messages with level higher than "information" level.
+     * @zh 信息模式，显示“信息”级别以上的日志消息。
      */
-    WARN = 2,
+    INFO = 2,
 
     /**
-     * @en The debug mode error.
-     * @zh 错误模式，在 console 中只显示 error 日志。
+     * @en Information mode, which display messages with level higher than "warning" level.
+     * @zh 警告模式，显示“警告”级别以上的日志消息。
      */
-    ERROR = 3,
+    WARN = 3,
+
+    /**
+     * @en Information mode, which display only messages with "error" level.
+     * @zh 错误模式，仅显示“错误”级别的日志消息。
+     */
+    ERROR = 4,
 
     /**
      * @en The debug mode info for web page.
      * @zh 信息模式（仅 WEB 端有效），在画面上输出所有信息。
      */
-    INFO_FOR_WEB_PAGE = 4,
+    INFO_FOR_WEB_PAGE = 5,
 
     /**
      * @en The debug mode warn for web page.
      * @zh 警告模式（仅 WEB 端有效），在画面上输出 warn 级别以上的（包含 error）信息。
      */
-    WARN_FOR_WEB_PAGE = 5,
+    WARN_FOR_WEB_PAGE = 6,
 
     /**
      * @en The debug mode error for web page.
      * @zh 错误模式（仅 WEB 端有效），在画面上输出 error 信息。
      */
-    ERROR_FOR_WEB_PAGE = 6,
+    ERROR_FOR_WEB_PAGE = 7,
 }
 
 /**
@@ -336,24 +361,27 @@ export enum DebugMode {
  * @zh 通过 error id 和必要的参数来获取错误信息。
  */
 export function getError (errorId: number, ...param: any[]): string {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return errorFormatter(errorId, ...param);
 }
 
 /**
  * @en Returns whether or not to display the FPS and debug information.
  * @zh 是否显示 FPS 信息和部分调试信息。
+ * @deprecated Since v3.6, Please use profiler.isShowingStates instead
  */
 export function isDisplayStats (): boolean {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return legacyCC.profiler ? legacyCC.profiler.isShowingStats() : false;
 }
 
 /**
  * @en Sets whether display the FPS and debug informations on the bottom-left corner.
  * @zh 设置是否在左下角显示 FPS 和部分调试。
+ * @deprecated Since v3.6, Please use profiler.showStats instead
  */
 export function setDisplayStats (displayStats: boolean) {
     if (legacyCC.profiler) {
         displayStats ? legacyCC.profiler.showStats() : legacyCC.profiler.hideStats();
-        legacyCC.game.config.showFPS = !!displayStats;
     }
 }

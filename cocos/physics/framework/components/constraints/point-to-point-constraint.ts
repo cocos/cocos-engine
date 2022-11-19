@@ -23,22 +23,16 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module physics
- */
-
 import {
     ccclass,
     help,
-    executeInEditMode,
     menu,
     type,
     serializable,
 } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { Constraint } from './constraint';
-import { Vec3, IVec3Like } from '../../../../core';
+import { Vec3, IVec3Like, cclegacy } from '../../../../core';
 import { EConstraintType } from '../../physics-enum';
 import { IPointToPointConstraint } from '../../../spec/i-physics-constraint';
 
@@ -59,7 +53,7 @@ export class PointToPointConstraint extends Constraint {
 
     set pivotA (v: IVec3Like) {
         Vec3.copy(this._pivotA, v);
-        if (!EDITOR) {
+        if (!EDITOR || cclegacy.GAME_VIEW) {
             this.constraint.setPivotA(this._pivotA);
         }
     }
@@ -77,7 +71,7 @@ export class PointToPointConstraint extends Constraint {
 
     set pivotB (v: IVec3Like) {
         Vec3.copy(this._pivotB, v);
-        if (!EDITOR) {
+        if (!EDITOR || cclegacy.GAME_VIEW) {
             this.constraint.setPivotB(this._pivotB);
         }
     }

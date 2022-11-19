@@ -22,10 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-/**
- * @packageDocumentation
- * @hidden
- */
+
 import b2 from '@cocos/box2d';
 import { Vec2 } from '../../core';
 import { PHYSICS_2D_PTM_RATIO } from '../framework/physics-types';
@@ -246,7 +243,7 @@ export class PhysicsContact implements IPhysics2DContact {
         }
 
         if (bodyA!.enabledContactListener || bodyB!.enabledContactListener) {
-            PhysicsSystem2D.instance.emit(contactType, colliderA, colliderB);
+            PhysicsSystem2D.instance.emit(contactType, colliderA, colliderB, this);
         }
 
         if (this.disabled || this.disabledOnce) {

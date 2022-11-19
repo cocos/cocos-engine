@@ -3,7 +3,7 @@ const location = {
   href: 'game.js',
   search: '',
   hash: '',
-
+  protocol: '',
   reload() {
   },
 

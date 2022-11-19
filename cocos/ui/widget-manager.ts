@@ -24,28 +24,23 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
 import { EDITOR, DEV } from 'internal:constants';
-import { Director, director } from '../core/director';
-import { Vec2, Vec3 } from '../core/math';
-import { View } from '../core/platform/view';
-import visibleRect from '../core/platform/visible-rect';
-import { Scene } from '../core/scene-graph';
-import { Node } from '../core/scene-graph/node';
-import { array } from '../core/utils/js';
+import { screenAdapter } from 'pal/screen-adapter';
+import { Director, director } from '../game/director';
+import { Vec2, Vec3, visibleRect, js, cclegacy } from '../core';
+import { View } from './view';
+import { Scene } from '../scene-graph';
+import { Node } from '../scene-graph/node';
 import { AlignFlags, AlignMode, computeInverseTransForTarget, getReadonlyNodeSize, Widget } from './widget';
 import { UITransform } from '../2d/framework';
-import { legacyCC } from '../core/global-exports';
 
 const _tempPos = new Vec3();
 const _defaultAnchor = new Vec2();
 
-const tInverseTranslate = new Vec3();
-const tInverseScale = new Vec3(1, 1, 1);
+const tInverseTranslate = new Vec2();
+const tInverseScale = new Vec2(1, 1);
+const _tempVec2_1 = new Vec2();
+const _tempVec2_2 = new Vec2();
 
 // align to borders by adjusting node's position and size (ignore rotation)
 function align (node: Node, widget: Widget) {
@@ -70,7 +65,7 @@ function align (node: Node, widget: Widget) {
     const useGlobal = target instanceof Scene || !target.getComponent(UITransform);
     const targetAnchor = useGlobal ? _defaultAnchor : target.getComponent(UITransform)!.anchorPoint;
 
-    const isRoot = !EDITOR && useGlobal;
+    const isRoot = useGlobal;
     node.getPosition(_tempPos);
     const uiTrans = node._uiProps.uiTransformComp!;
     let x = _tempPos.x;
@@ -209,7 +204,7 @@ function visitNode (node: any) {
         // if ((!EDITOR || widgetManager.animationState!.animatedSinceLastFrame) && widget.alignMode === AlignMode.ONCE) {
         //     widget.enabled = false;
         // } else {
-        if (!legacyCC.isValid(node, true)) {
+        if (!cclegacy.isValid(node, true)) {
             return;
         }
         activeWidgets.push(widget);
@@ -222,48 +217,8 @@ function visitNode (node: any) {
     }
 }
 
-// if (EDITOR) {
-//     const animationState = {
-//         previewing: false,
-//         time: 0,
-//         animatedSinceLastFrame: false,
-//     };
-// }
-
+// This function will be called on AFTER_SCENE_LAUNCH and AFTER_UPDATE
 function refreshScene () {
-    // check animation editor
-    // if (EDITOR && !Editor.isBuilder) {
-    // var AnimUtils = Editor.require('scene://utils/animation');
-    // var EditMode = Editor.require('scene://edit-mode');
-    // if (AnimUtils && EditMode) {
-    //     var nowPreviewing = (EditMode.curMode().name === 'animation' && !!AnimUtils.Cache.animation);
-    //     if (nowPreviewing !== animationState.previewing) {
-    //         animationState.previewing = nowPreviewing;
-    //         if (nowPreviewing) {
-    //             animationState.animatedSinceLastFrame = true;
-    //             let component = cc.engine.getInstanceById(AnimUtils.Cache.component);
-    //             if (component) {
-    //                 let animation = component.getAnimationState(AnimUtils.Cache.animation);
-    //                 animationState.time = animation.time;
-    //             }
-    //         }
-    //         else {
-    //             animationState.animatedSinceLastFrame = false;
-    //         }
-    //     }
-    //     else if (nowPreviewing) {
-    //         let component = cc.engine.getInstanceById(AnimUtils.Cache.component);
-    //         if (component) {
-    //             let animation = component.getAnimationState(AnimUtils.Cache.animation);
-    //             if (animationState.time !== animation.time) {
-    //                 animationState.animatedSinceLastFrame = true;
-    //                 animationState.time = AnimUtils.Cache.animation.time;
-    //             }
-    //         }
-    //     }
-    // }
-    // }
-
     const scene = director.getScene();
     if (scene) {
         widgetManager.isAligning = true;
@@ -275,31 +230,6 @@ function refreshScene () {
         const i = 0;
         let widget: Widget | null = null;
         const iterator = widgetManager._activeWidgetsIterator;
-        // var AnimUtils;
-        // if (EDITOR &&
-        //     (AnimUtils = Editor.require('scene://utils/animation')) &&
-        //     AnimUtils.Cache.animation) {
-        //     var editingNode = cc.engine.getInstanceById(AnimUtils.Cache.rNode);
-        //     if (editingNode) {
-        //         for (i = activeWidgets.length - 1; i >= 0; i--) {
-        //             widget = activeWidgets[i];
-        //             var node = widget.node;
-        //             if (widget.alignMode !== AlignMode.ALWAYS &&
-        //                 animationState.animatedSinceLastFrame &&
-        //                 node.isChildOf(editingNode)
-        //             ) {
-        //                 // widget contains in activeWidgets should aligned at least once
-        //                 widget.enabled = false;
-        //             }
-        //             else {
-        //                 align(node, widget);
-        //             }
-        //         }
-        //     }
-        // }
-        // else {
-        // loop reversely will not help to prevent out of sync
-        // because user may remove more than one item during a step.
         for (iterator.i = 0; iterator.i < activeWidgets.length; ++iterator.i) {
             widget = activeWidgets[iterator.i];
             if (widget._dirty) {
@@ -307,7 +237,6 @@ function refreshScene () {
                 widget._dirty = false;
             }
         }
-        // }
         widgetManager.isAligning = false;
     }
 
@@ -333,10 +262,10 @@ function updateAlignment (node: Node) {
     }
 }
 
-export const widgetManager = legacyCC._widgetManager = {
+export const widgetManager = cclegacy._widgetManager = {
     isAligning: false,
     _nodesOrderDirty: false,
-    _activeWidgetsIterator: new array.MutableForwardIterator(activeWidgets),
+    _activeWidgetsIterator: new js.array.MutableForwardIterator(activeWidgets),
     // hack
     animationState: EDITOR ? {
         previewing: false,
@@ -345,13 +274,14 @@ export const widgetManager = legacyCC._widgetManager = {
     } : null,
 
     init () {
+        director.on(Director.EVENT_AFTER_SCENE_LAUNCH, refreshScene);
         director.on(Director.EVENT_AFTER_UPDATE, refreshScene);
 
         View.instance.on('design-resolution-changed', this.onResized, this);
         if (!EDITOR) {
             const thisOnResized = this.onResized.bind(this);
             View.instance.on('canvas-resize', thisOnResized);
-            window.addEventListener('orientationchange', thisOnResized);
+            screenAdapter.on('orientation-change', thisOnResized);
         }
     },
     add (widget: Widget) {
@@ -386,8 +316,10 @@ export const widgetManager = legacyCC._widgetManager = {
         const widgetNode = widget.node;
         let widgetParent = widgetNode.parent;
         if (widgetParent) {
-            const zero = new Vec3();
-            const one = new Vec3(1, 1, 1);
+            const zero = _tempVec2_1;
+            zero.set(0, 0);
+            const one = _tempVec2_2;
+            one.set(1, 1);
             if (widget.target) {
                 widgetParent = widget.target;
                 computeInverseTransForTarget(widgetNode, widgetParent, zero, one);
@@ -412,7 +344,7 @@ export const widgetManager = legacyCC._widgetManager = {
                 let l = -parentAP.x * matchSize.width;
                 l += zero.x;
                 l *= one.x;
-                temp = pos.x - myAP.x * trans.width * widgetNodeScale.x - l;
+                temp = pos.x - myAP.x * trans.width * Math.abs(widgetNodeScale.x) - l;
                 if (!widget.isAbsoluteLeft) {
                     temp /= matchSize.width;
                 }
@@ -424,7 +356,7 @@ export const widgetManager = legacyCC._widgetManager = {
             if (e & alignFlags.RIGHT) {
                 let r = (1 - parentAP.x) * matchSize.width;
                 r += zero.x;
-                temp = (r *= one.x) - (pos.x + (1 - myAP.x) * trans.width * widgetNodeScale.x);
+                temp = (r *= one.x) - (pos.x + (1 - myAP.x) * trans.width * Math.abs(widgetNodeScale.x));
                 if (!widget.isAbsoluteRight) {
                     temp /= matchSize.width;
                 }
@@ -436,7 +368,7 @@ export const widgetManager = legacyCC._widgetManager = {
             if (e & alignFlags.TOP) {
                 let t = (1 - parentAP.y) * matchSize.height;
                 t += zero.y;
-                temp = (t *= one.y) - (pos.y + (1 - myAP.y) * trans.height * widgetNodeScale.y);
+                temp = (t *= one.y) - (pos.y + (1 - myAP.y) * trans.height * Math.abs(widgetNodeScale.y));
                 if (!widget.isAbsoluteTop) {
                     temp /= matchSize.height;
                 }
@@ -449,7 +381,7 @@ export const widgetManager = legacyCC._widgetManager = {
                 let b = -parentAP.y * matchSize.height;
                 b += zero.y;
                 b *= one.y;
-                temp = pos.y - myAP.y * trans.height * widgetNodeScale.y - b;
+                temp = pos.y - myAP.y * trans.height * Math.abs(widgetNodeScale.y) - b;
                 if (!widget.isAbsoluteBottom) {
                     temp /= matchSize.height;
                 }

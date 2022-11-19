@@ -1,0 +1,21 @@
+{
+    "name": "xiaomi-adapter",
+    "version": "1.0.0",
+    "build-template": "xiaomigame",
+    "scripts": {
+        "build": "quickgame build --cocos-wx-game --include-file-ext .pem,.pkm,.webp,.astc",
+		"build-ignore-res": "quickgame build --cocos-wx-game --include-file-ext .pem,.pkm,.webp,.astc --ignore remote,res",
+        "release": "quickgame release --cocos-wx-game --include-file-ext .pem,.pkm,.webp,.astc",
+		"release-ignore-res": "quickgame release --cocos-wx-game --include-file-ext .pem,.pkm,.webp,.astc --ignore remote,res",
+        "server": "quickgame server",
+        "debug": "quickgame debug"
+    },
+    "babel": {
+        "plugins": [
+            "babel-plugin-transform-remove-strict-mode"
+        ]
+    },
+    "dependencies": {
+        "quickgame-cli": "^0.1.19"
+    }
+}

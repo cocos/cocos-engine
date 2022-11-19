@@ -24,16 +24,13 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module core/math
- */
-
 import { CCClass } from '../data/class';
 import { ValueType } from '../value-types/value-type';
 import { IColorLike } from './type-define';
 import { clamp, EPSILON } from './utils';
 import { legacyCC } from '../global-exports';
+import { assertIsTrue } from '../data/utils/asserts';
+import { Vec4 } from './vec4';
 
 const toFloat = 1 / 255;
 
@@ -92,7 +89,41 @@ export class Color extends ValueType {
         out.a = a;
         return out;
     }
-
+    /**
+     * @en Convert 8bit color to Vec4
+     * @zh 将当前颜色转换为到 Vec4
+     * @returns Vec4 as float color value
+     * @example
+     * ```
+     * const color = Color.YELLOW;
+     * color.toVec4();
+     * ```
+     */
+    public static toVec4 (color:Color, out?: Vec4): Vec4 {
+        out = out !== undefined ?  out : new Vec4();
+        out.x = srgb8BitToLinear(color.r);
+        out.y = srgb8BitToLinear(color.g);
+        out.z = srgb8BitToLinear(color.b);
+        out.w = srgb8BitToLinear(color.a);
+        return out;
+    }
+    /**
+     * @en Set 8bit Color from Vec4
+     * @zh 使用 Vec4 设置 8 bit 颜色
+     * @returns 8 Bit srgb value
+     * @example
+     * ```
+     * color.fromVec4(new Vec4(1,1,1,1));
+     * ```
+     */
+    public static fromVec4 (value: Vec4, out?: Color): Color {
+        out = out === undefined ? new Color() : out;
+        out.r = linearToSrgb8Bit(value.x);
+        out.g = linearToSrgb8Bit(value.y);
+        out.b = linearToSrgb8Bit(value.z);
+        out.a = linearToSrgb8Bit(value.w);
+        return out;
+    }
     /**
      * @en Converts the hexadecimal formal color into rgb formal and save the results to out color.
      * @zh 从十六进制颜色字符串中读入颜色到 out 中
@@ -102,7 +133,8 @@ export class Color extends ValueType {
         out.r = parseInt(hexString.substr(0, 2), 16) || 0;
         out.g = parseInt(hexString.substr(2, 2), 16) || 0;
         out.b = parseInt(hexString.substr(4, 2), 16) || 0;
-        out.a = parseInt(hexString.substr(6, 2), 16) || 255;
+        const a = parseInt(hexString.substr(6, 2), 16);
+        out.a = !Number.isNaN(a) ? a : 255;
         out._val = ((out.a << 24) >>> 0) + (out.b << 16) + (out.g << 8) + out.r;
         return out;
     }
@@ -299,6 +331,9 @@ export class Color extends ValueType {
     get w () { return this.a * toFloat; }
     set w (value) { this.a = value * 255; }
 
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
     public _val = 0;
 
     /**
@@ -382,11 +417,7 @@ export class Color extends ValueType {
      * @returns A string representation of the current color.
      */
     public toString () {
-        return `rgba(${
-            this.r.toFixed()}, ${
-            this.g.toFixed()}, ${
-            this.b.toFixed()}, ${
-            this.a.toFixed()})`;
+        return `rgba(${this.r.toFixed()}, ${this.g.toFixed()}, ${this.b.toFixed()}, ${this.a.toFixed()})`;
     }
 
     /**
@@ -406,16 +437,9 @@ export class Color extends ValueType {
      */
     public toCSS (opt: ('rgba' | 'rgb' | '#rrggbb' | '#rrggbbaa') = 'rgba') {
         if (opt === 'rgba') {
-            return `rgba(${
-                this.r},${
-                this.g},${
-                this.b},${
-                (this.a * toFloat).toFixed(2)})`;
+            return `rgba(${this.r},${this.g},${this.b},${(this.a * toFloat).toFixed(2)})`;
         } else if (opt === 'rgb') {
-            return `rgb(${
-                this.r},${
-                this.g},${
-                this.b})`;
+            return `rgb(${this.r},${this.g},${this.b})`;
         } else {
             return `#${this.toHEX(opt)}`;
         }
@@ -435,7 +459,8 @@ export class Color extends ValueType {
         const r = parseInt(hexString.substr(0, 2), 16) || 0;
         const g = parseInt(hexString.substr(2, 2), 16) || 0;
         const b = parseInt(hexString.substr(4, 2), 16) || 0;
-        const a = parseInt(hexString.substr(6, 2), 16) || 255;
+        let a = parseInt(hexString.substr(6, 2), 16);
+        a = !Number.isNaN(a) ? a : 255;
         this._val = ((a << 24) >>> 0) + (b << 16) + (g << 8) + (r | 0);
         return this;
     }
@@ -451,8 +476,8 @@ export class Color extends ValueType {
      * ```
      * const color = new Color(255, 14, 0, 255);
      * color.toHEX("#rgb");      // "f00";
-     * color.toHEX("#rrggbbaa"); // "ff0e00"
-     * color.toHEX("#rrggbb");   // "ff0e00ff"
+     * color.toHEX("#rrggbbaa"); // "ff0e00ff"
+     * color.toHEX("#rrggbb");   // "ff0e00"
      * ```
      */
     public toHEX (fmt: '#rgb' | '#rrggbb' | '#rrggbbaa' = '#rrggbb') {
@@ -518,6 +543,9 @@ export class Color extends ValueType {
             const q = v * (1 - (s * f));
             const t = v * (1 - (s * (1 - f)));
             switch (i) {
+            default:
+                assertIsTrue(false);
+                // eslint-disable-next-line no-fallthrough
             case 0:
                 r = v;
                 g = t;
@@ -646,21 +674,33 @@ export class Color extends ValueType {
         return this;
     }
 
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
     public _set_r_unsafe (red) {
         this._val = ((this._val & 0xffffff00) | red) >>> 0;
         return this;
     }
 
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
     public _set_g_unsafe (green) {
         this._val = ((this._val & 0xffff00ff) | (green << 8)) >>> 0;
         return this;
     }
 
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
     public _set_b_unsafe (blue) {
         this._val = ((this._val & 0xff00ffff) | (blue << 16)) >>> 0;
         return this;
     }
 
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
     public _set_a_unsafe (alpha) {
         this._val = ((this._val & 0x00ffffff) | (alpha << 24)) >>> 0;
         return this;
@@ -678,3 +718,37 @@ export function color (r?: number | Color | string, g?: number, b?: number, a?: 
 }
 
 legacyCC.color = color;
+
+export function srgbToLinear (x: number): number {
+    if (x <= 0) return 0;
+    else if (x >= 1) return 1;
+    else if (x < 0.04045) return x / 12.92;
+    else return ((x + 0.055) / 1.055) ** 2.4;
+}
+
+export function srgb8BitToLinear (x: number): number {
+    if ((x | 0) !== x || (x >>> 8) !== 0) { throw new RangeError('Value out of 8-bit range'); }
+    return SRGB_8BIT_TO_LINEAR[x];
+}
+
+export function linearToSrgb (x: number): number {
+    if (x <= 0) return 0;
+    else if (x >= 1) return 1;
+    else if (x < 0.0031308) return x * 12.92;
+    else return x ** (1 / 2.4) * 1.055 - 0.055;
+}
+
+export function linearToSrgb8Bit (x: number): number {
+    if (x <= 0) { return 0; }
+    const TABLE: Array<number> = SRGB_8BIT_TO_LINEAR;
+    if (x >= 1) { return TABLE.length - 1; }
+    let y = 0;
+    for (let i = TABLE.length >>> 1; i !== 0; i >>>= 1) {
+        if (TABLE[y | i] <= x) { y |= i; }
+    }
+    if (x - TABLE[y] <= TABLE[y + 1] - x) { return y; } else { return y + 1; }
+}
+
+// use table for more consistent conversion between uint8 and float, offline processes only.
+let SRGB_8BIT_TO_LINEAR: Array<number> = [];
+for (let i = 0; i < 256; i++) { SRGB_8BIT_TO_LINEAR.push(srgbToLinear(i / 255.0)); }

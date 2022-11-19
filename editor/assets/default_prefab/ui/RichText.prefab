@@ -1,14 +1,15 @@
 [
   {
     "__type__": "cc.Prefab",
-    "_name": "",
+    "_name": "RichText",
     "_objFlags": 0,
     "_native": "",
     "data": {
       "__id__": 1
     },
     "optimizationPolicy": 0,
-    "asyncLoadAssets": false
+    "asyncLoadAssets": false,
+    "persistent": false
   },
   {
     "__type__": "cc.Node",
@@ -64,7 +65,7 @@
     "_id": ""
   },
   {
-    "__type__": "cc.PrivateNode",
+    "__type__": "cc.Node",
     "_name": "RICHTEXT_CHILD",
     "_objFlags": 1024,
     "_parent": {
@@ -194,7 +195,7 @@
     "fileId": "65qTwtkgJOrInNSCqrNs+f"
   },
   {
-    "__type__": "cc.PrivateNode",
+    "__type__": "cc.Node",
     "_name": "RICHTEXT_CHILD",
     "_objFlags": 1024,
     "_parent": {

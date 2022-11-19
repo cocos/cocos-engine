@@ -2,58 +2,9 @@ import ps from 'path';
 import fs from 'fs-extra';
 import JSON5 from 'json5';
 import dedent from 'dedent';
+import { Config, Context, Feature, IndexConfig, Test } from './config-interface';
+import { ConstantManager } from './constant-manager';
 
-interface Config {
-    /**
-     * Engine features. Keys are feature IDs.
-     */
-    features: Record<string, Feature>;
-
-    /**
-     * Describe how to generate the index module `'cc'`.
-     * Currently not used.
-     */
-    index?: IndexConfig;
-
-    moduleOverrides?: Array<{
-        test: Test;
-        overrides: Record<string, string>;
-    }>;
-}
-
-interface IndexConfig {
-    modules?: Record<string, {
-        /**
-         * If specified, export contents of the module into a namespace specified by `ns`
-         * and then export that namespace into `'cc'`.
-         * If not specified, contents of the module will be directly exported into `'cc'`.
-         */
-        ns?: string;
-
-        /**
-         * If `true`, accesses the exports of this module from `'cc'` will be marked as deprecated.
-         */
-        deprecated?: boolean;
-    }>;
-}
-
-type Test = string;
-
-/**
- * An engine feature.
- */
-interface Feature {
-    /**
-     * Modules to be included in this feature in their IDs.
-     * The ID of a module is its relative path(no extension) under /exports/.
-     */
-    modules: string[];
-}
-
-interface Context {
-    mode?: string;
-    platform?: string;
-}
 
 /**
  * Query any any stats of the engine.
@@ -65,10 +16,17 @@ export class StatsQuery {
     public static async create (engine: string) {
         const configFile = ps.join(engine, 'cc.config.json');
         const config: Config = JSON5.parse(await fs.readFile(configFile, 'utf8'));
+        // @ts-ignore
+        delete config['$schema'];
         const query = new StatsQuery(engine, config);
         await query._initialize();
         return query;
     }
+
+    /**
+     * Constant manager for engine and user.
+     */
+    public constantManager: ConstantManager;
 
     /**
      * Gets the path to the engine root.
@@ -82,6 +40,13 @@ export class StatsQuery {
      */
     get tsConfigPath () {
         return ps.join(this._engine, 'tsconfig.json');
+    }
+    
+    /**
+     * Gets all optimzie decorators
+     */
+    public getOptimizeDecorators () {
+        return this._config.optimizeDecorators;
     }
 
     /**
@@ -99,6 +64,11 @@ export class StatsQuery {
         return !!this._features[feature];
     }
 
+    // TODO: it seems we don't need this interface for now.
+    // public isNativeOnlyFeature (feature: string) {
+    //     return !!this._features[feature].isNativeOnly;
+    // }
+
     /**
      * Gets all feature units included in specified features.
      * @param featureIds Feature ID.
@@ -109,6 +79,17 @@ export class StatsQuery {
             this._features[featureId]?.modules.forEach((entry) => units.add(entry));
         }
         return Array.from(units);
+    }
+
+    public getIntrinsicFlagsOfFeatures (featureIds: string[]) {
+        const flags: Record<string, unknown> = {};
+        for (const featureId of featureIds) {
+            const featureFlags = this._features[featureId]?.intrinsicFlags;
+            if (featureFlags) {
+                Object.assign(flags, featureFlags);
+            }
+        }
+        return flags as Record<string, number | boolean | string>;
     }
 
     /**
@@ -175,17 +156,18 @@ export class StatsQuery {
     public evaluateModuleOverrides (context: Context) {
         const overrides: Record<string, string> = {};
 
-        const addModuleOverrides = (moduleOverrides: Record<string, string>) => {
-            for (const [source, override] of Object.entries(moduleOverrides)) {
-                const normalizedSource = ps.resolve(this._engine, source);
+        const addModuleOverrides = (moduleOverrides: Record<string, string>, isVirtualModule: boolean) => {
+            for (let [source, override] of Object.entries(moduleOverrides)) {
+                const normalizedSource = isVirtualModule ? source : ps.resolve(this._engine, source);
+                override = this._evalPathTemplate(override, context);
                 const normalizedOverride = ps.resolve(this._engine, override);
                 overrides[normalizedSource] = normalizedOverride;
             }
         };
 
-        this._config.moduleOverrides?.forEach(({ test, overrides }) => {
+        this._config.moduleOverrides?.forEach(({ test, overrides, isVirtualModule }) => {
             if (this._evalTest(test, context)) {
-                addModuleOverrides(overrides);
+                addModuleOverrides(overrides, isVirtualModule);
             }
         });
 
@@ -212,19 +194,33 @@ export class StatsQuery {
     }
 
     private static _editorBaseNameToModuleName (baseName: string) {
-        return `cc/editor/exports/${baseName}`;
+        return `cc/editor/${baseName}`;
     }
 
     private constructor (engine: string, config: Config) {
         this._config = config;
         this._engine = engine;
+        this.constantManager = new ConstantManager(engine);
     }
 
     private _evalTest<T> (test: Test, context: Context) {
         // eslint-disable-next-line @typescript-eslint/no-implied-eval,no-new-func
         const result = new Function('context', `return ${test}`)(context) as T;
-        console.debug(`Eval "${test}" to ${result}`);
+        // console.debug(`Eval "${test}" to ${result}`);
         return result;
+    }
+
+    private _evalPathTemplate (pathTemplate: string, context: Context): string {
+        let resultPath = pathTemplate;
+        const regExp = /\{\{(.*?)\}\}/g;
+        let exeResult;
+        while (exeResult = regExp.exec(pathTemplate)) {
+            const templateItem = exeResult[0];
+            const exp = exeResult[1];
+            const evalResult = (new Function('context', `return ${exp}`)(context)) as string;
+            resultPath = pathTemplate.replace(templateItem, evalResult);
+        }
+        return resultPath;
     }
 
     private async _initialize () {
@@ -243,6 +239,7 @@ export class StatsQuery {
                 }
                 parsedFeature.modules.push(featureUnitName);
             }
+            parsedFeature.intrinsicFlags = feature.intrinsicFlags;
         }
 
         if (config.index) {

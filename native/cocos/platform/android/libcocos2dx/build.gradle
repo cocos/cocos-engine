@@ -1,0 +1,37 @@
+apply plugin: 'com.android.library'
+
+android {
+    ndkPath PROP_NDK_PATH
+    compileSdkVersion PROP_COMPILE_SDK_VERSION.toInteger()
+    ndkPath PROP_NDK_PATH
+    defaultConfig {
+        minSdkVersion PROP_MIN_SDK_VERSION
+        targetSdkVersion PROP_TARGET_SDK_VERSION
+        versionCode 1
+        versionName "1.0"
+        consumerProguardFiles 'proguard-rules.pro'
+    }
+
+    sourceSets.main {
+        aidl.srcDir "../java/src"
+        java.srcDir "../java/src"
+        manifest.srcFile "AndroidManifest.xml"
+    }
+
+    buildDir = new File(rootProject.buildDir, project.name)
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+    api fileTree(include: ['*.jar'], dir: '../java/libs')
+}

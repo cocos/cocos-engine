@@ -23,9 +23,4 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
- export * from '../cocos/terrain';
+export * from '../cocos/terrain';

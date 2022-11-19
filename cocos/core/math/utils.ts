@@ -23,11 +23,9 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module core/math
- */
-
+// Fix Circular dependency
+import * as bits from './bits';
+import { ValueType } from '../value-types';
 import { IVec3Like } from './type-define';
 
 const _d2r = Math.PI / 180.0;
@@ -145,7 +143,10 @@ export function randomRangeInt (min: number, max: number) {
 }
 
 /**
- * Linear congruential generator using Hull-Dobell Theorem.
+ * @en
+ * Linear congruence generator using Hull-Dobell Theorem.
+ * @zh
+ * 使用 Hull-Dobell 算法的线性同余生成器构造伪随机数
  *
  * @param seed The random seed.
  * @return The pseudo random.
@@ -156,7 +157,10 @@ export function pseudoRandom (seed: number) {
 }
 
 /**
+ * @en
  * Returns a floating-point pseudo-random number between min (inclusive) and max (exclusive).
+ * @zh
+ * 返回一个在范围内的浮点伪随机数，注意，不包含边界值
  *
  * @param seed
  * @param min
@@ -180,20 +184,16 @@ export function pseudoRandomRangeInt (seed: number, min: number, max: number) {
 }
 
 /**
+ * @en
  * Returns the next power of two for the value.<br/>
+ * @zh
+ * 返回下一个最接近的 2 的幂
  *
  * @param val
  * @return The the next power of two.
  */
 export function nextPow2 (val: number) {
-    --val;
-    val = (val >> 1) | val;
-    val = (val >> 2) | val;
-    val = (val >> 4) | val;
-    val = (val >> 8) | val;
-    val = (val >> 16) | val;
-    ++val;
-    return val;
+    return bits.nextPow2(val);
 }
 
 /**
@@ -208,7 +208,10 @@ export function repeat (t: number, length: number) {
 }
 
 /**
+ * @en
  * Returns time wrapped in ping-pong mode.
+ * @zh
+ * 返回乒乓模式下的相对时间
  *
  * @param t Time start at 0.
  * @param length Time of one cycle.
@@ -233,9 +236,10 @@ export function inverseLerp (from: number, to: number, value: number) {
 }
 
 /**
+ * @en Compare the absolute values of all components and the component with the largest absolute value will be returned.
  * @zh 对所有分量的绝对值进行比较大小，返回绝对值最大的分量。
- * @param v 类 Vec3 结构
- * @returns 绝对值最大的分量
+ * @param v vec3 like value
+ * @returns max absolute component
  */
 export function absMaxComponent (v: IVec3Like) {
     if (Math.abs(v.x) > Math.abs(v.y)) {
@@ -252,6 +256,7 @@ export function absMaxComponent (v: IVec3Like) {
 }
 
 /**
+ * @en Compare the absolute value of two values and return the value with the largest absolute value
  * @zh 对 a b 的绝对值进行比较大小，返回绝对值最大的值。
  * @param a number
  * @param b number
@@ -262,4 +267,18 @@ export function absMax (a: number, b: number) {
     } else {
         return b;
     }
+}
+
+/**
+ * @en
+ * Make the attributes of the specified class available to be enumerated
+ * @zh
+ * 使指定类的特定属性可被枚举
+ * @param prototype Inherit the prototype chain of the ValueType class
+ * @param attrs List of attributes that need to be enumerated
+ */
+export function enumerableProps (prototype: ValueType, attrs: string[]) {
+    attrs.forEach((key) => {
+        Object.defineProperty(prototype, key, { enumerable: true });
+    });
 }

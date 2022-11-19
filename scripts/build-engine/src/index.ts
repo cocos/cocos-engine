@@ -9,13 +9,12 @@ import commonjs from '@rollup/plugin-commonjs';
 import { terser as rpTerser } from 'rollup-plugin-terser';
 import babelPresetEnv from '@babel/preset-env';
 import type { Options as babelPresetEnvOptions } from '@babel/preset-env';
-import babelPresetCc from '@cocos/babel-preset-cc';
+import { babelPresetCC, helpers } from '@cocos/creator-programming-babel-preset-cc'
 // @ts-expect-error: No typing
 import babelPluginTransformForOf from '@babel/plugin-transform-for-of';
 import * as rollup from 'rollup';
 // @ts-expect-error: No typing
 import rpProgress from 'rollup-plugin-progress';
-// @ts-expect-error: No typing
 import rpVirtual from '@rollup/plugin-virtual';
 import nodeResolve from 'resolve';
 import babelPluginDynamicImportVars from '@cocos/babel-plugin-dynamic-import-vars';
@@ -28,7 +27,13 @@ import removeDeprecatedFeatures from './remove-deprecated-features';
 import { StatsQuery } from './stats-query';
 import { filePathToModuleRequest } from './utils';
 import { assetRef as rpAssetRef, pathToAssetRefURL } from './rollup-plugins/asset-ref';
+import { codeAsset } from './rollup-plugins/code-asset';
+import { ModeType, PlatformType } from './constant-manager';
+import { assetUrl } from './rollup-plugins/asset-url';
 
+export { IOptimizeDecorators } from './config-interface';
+export { ModeType, PlatformType, FlagType, ConstantOptions, BuildTimeConstants, CCEnvConstants } from './constant-manager';
+export { StatsQuery };
 export { ModuleOption, enumerateModuleOptionReps, parseModuleOption };
 
 function equalPathIgnoreDriverLetterCase (lhs: string, rhs: string) {
@@ -172,7 +177,14 @@ namespace build {
          */
         exports: Record<string, string>;
 
+        /**
+         * The compulsory import mappings that should be applied.
+         */
+        chunkAliases: Record<string, string>;
+
         dependencyGraph?: Record<string, string[]>;
+
+        hasCriticalWarns: boolean;
     }
 
     export async function transform (code: string, moduleOption: ModuleOption, loose?: boolean) {
@@ -245,9 +257,17 @@ async function doBuild ({
         }
     }
 
+    const intrinsicFlags = statsQuery.getIntrinsicFlagsOfFeatures(features);
+
+    const buildTimeConstants = {
+        ...intrinsicFlags,
+        ...options.buildTimeConstants,
+    };
+
     const moduleOverrides = Object.entries(statsQuery.evaluateModuleOverrides({
         mode: options.mode,
         platform: options.platform,
+        buildTimeConstants,
     })).reduce((result, [k, v]) => {
         result[makePathEqualityKey(k)] = v;
         return result;
@@ -255,13 +275,44 @@ async function doBuild ({
 
     const featureUnits = statsQuery.getUnitsOfFeatures(features);
 
+    // HACK: get platform, mode, flags from build time constants
+    const flags: Record<string, any> = {};
+    ['SERVER_MODE', 'NOT_PACK_PHYSX_LIBS', 'DEBUG', 'NET_MODE', 'WEBGPU'].forEach((key) => {
+        flags[key] = buildTimeConstants[key];
+    });
+    // Wether use webgpu
+    const useWebGPU = flags['WEBGPU'];
+    let platform = options.platform as PlatformType;
+    if (!platform) {
+        ["HTML5", "NATIVE", "WECHAT", "BAIDU", "XIAOMI", "ALIPAY", "BYTEDANCE", "OPPO", "VIVO", "HUAWEI", "COCOSPLAY", "QTT", "LINKSURE"].some(key => {
+            if (buildTimeConstants[key]) {
+                platform = key as PlatformType;
+                return true;
+            }
+            return false;
+        });
+    }
+    let mode = options.mode as ModeType;
+    if (!mode) {
+        ["EDITOR", "PREVIEW", "BUILD", "TEST"].some((key) => {
+            if (buildTimeConstants[key]) {
+                mode = key as ModeType;
+                return true;
+            }
+            return false;
+        });
+    }
+
     const rpVirtualOptions: Record<string, string> = {};
-    const vmInternalConstants = statsQuery.evaluateEnvModuleSourceFromRecord({
-        EXPORT_TO_GLOBAL: true,
-        ...options.buildTimeConstants,
+    
+    const vmInternalConstants = statsQuery.constantManager.exportStaticConstants({
+        platform,
+        mode,
+        flags,
     });
     console.debug(`Module source "internal-constants":\n${vmInternalConstants}`);
     rpVirtualOptions['internal:constants'] = vmInternalConstants;
+    rpVirtualOptions[helpers.CC_HELPER_MODULE] = helpers.generateHelperModuleSource();
 
     const forceStandaloneModules = ['wait-for-ammo-instantiation', 'decorator'];
 
@@ -324,12 +375,15 @@ async function doBuild ({
         } & babel.TransformOptions>,
     }
 
+    const { fieldDecorators, editorDecorators } = statsQuery.getOptimizeDecorators();
+
     const babelOptions: RollupBabelInputPluginOptions & BabelOverrides = {
         babelHelpers: 'bundled',
         extensions: ['.js', '.ts'],
         exclude: [
             /node_modules[/\\]@cocos[/\\]ammo/,
             /node_modules[/\\]@cocos[/\\]cannon/,
+            /node_modules[/\\]@cocos[/\\]physx/,
         ],
         comments: false, // Do not preserve comments, even in debug build since we have source map
         overrides: [{
@@ -342,13 +396,29 @@ async function doBuild ({
         plugins: babelPlugins,
         presets: [
             [babelPresetEnv, presetEnvOptions],
-            [babelPresetCc, {
+            [babelPresetCC, {
                 allowDeclareFields: true,
-            } as babelPresetCc.Options],
+                ccDecoratorHelpers: 'external',
+                fieldDecorators,
+                editorDecorators,
+            } as babelPresetCC.Options],
         ],
     };
 
     const rollupPlugins: rollup.Plugin[] = [];
+
+    const codeAssetMapping: Record<string, string> = {};
+    if (rollupFormat === 'system' || rollupFormat === 'systemjs') {
+        // `@cocos/physx` is too big(~6Mb) and cause memory crash.
+        // Our temporary solution: exclude @cocos/physx from bundling and connect it with source map.
+        rollupPlugins.push(codeAsset({
+            resultMapping: codeAssetMapping,
+            include: [
+                /node_modules[/\\]@cocos[/\\]physx/,
+            ],
+        }));
+    }
+
     if (options.noDeprecatedFeatures) {
         rollupPlugins.push(removeDeprecatedFeatures(
             typeof options.noDeprecatedFeatures === 'string' ? options.noDeprecatedFeatures : undefined,
@@ -362,6 +432,13 @@ async function doBuild ({
 
         {
             name: '@cocos/build-engine|module-overrides',
+            resolveId (source, importer) {
+                if (moduleOverrides[source]) {
+                    return source;
+                } else {
+                    return null;
+                }
+            },
             load (this, id: string) {
                 const key = makePathEqualityKey(id);
                 if (!(key in moduleOverrides)) {
@@ -396,7 +473,10 @@ async function doBuild ({
             sourceMap: false,
         }),
 
-        rpBabel(babelOptions),
+        rpBabel({
+            skipPreflightCheck: true,
+            ...babelOptions,
+        }),
     );
 
     if (options.progress) {
@@ -419,7 +499,6 @@ async function doBuild ({
             output: {
                 beautify: !doUglify,
             },
-            sourcemap: !!options.sourceMap,
 
             // https://github.com/rollup/rollup/issues/3315
             // We only do this for CommonJS.
@@ -449,40 +528,81 @@ async function doBuild ({
         }
     }
 
+    let hasCriticalWarns = false;
+
+    const rollupWarningHandler: rollup.WarningHandlerWithDefault = (warning, defaultHandler) => {
+        if (typeof warning !== 'string') {
+            if (warning.code === 'CIRCULAR_DEPENDENCY') {
+                hasCriticalWarns = true;
+            } else if (warning.code === 'THIS_IS_UNDEFINED') {
+                // TODO: It's really inappropriate to do this...
+                // Let's fix these files instead of suppressing rollup.
+                if (warning.id?.match(/(?:spine-core\.js$)|(?:dragonBones\.js$)/)) {
+                    console.debug(`Rollup warning 'THIS_IS_UNDEFINED' is omitted for ${warning.id}`);
+                    return;
+                }
+            }
+        }
+
+        defaultHandler(warning);
+    };
+
+    rollupPlugins.unshift(assetUrl({
+        engineRoot,
+        useWebGPU,
+    }));
+
     const rollupOptions: rollup.InputOptions = {
         input: rollupEntries,
         plugins: rollupPlugins,
         cache: false,
+        onwarn: rollupWarningHandler,
     };
 
-    const ammoJsAsmJsModule = await nodeResolveAsync('@cocos/ammo/builds/ammo.js');
-    const ammoJsWasmModule = await nodeResolveAsync('@cocos/ammo/builds/ammo.wasm.js');
-    const wasmBinaryPath = ps.join(ammoJsWasmModule, '..', 'ammo.wasm.wasm');
-    if (ammoJsWasm === 'fallback') {
-        rpVirtualOptions['@cocos/ammo'] = `
+    const perf = true;
+
+    if (perf) {
+        rollupOptions.perf = true;
+    }
+
+    const bulletAsmJsModule = await nodeResolveAsync('@cocos/bullet/bullet.cocos.js');
+    const wasmBinaryPath = ps.join(bulletAsmJsModule, '..', 'bullet.wasm.wasm');
+    if (ammoJsWasm === true) {
+        rpVirtualOptions['@cocos/bullet'] = `
 import wasmBinaryURL from '${pathToAssetRefURL(wasmBinaryPath)}';
-let ammo;
-let isWasm = false;
-if (typeof WebAssembly === 'undefined') {
-    ammo = await import('${filePathToModuleRequest(ammoJsAsmJsModule)}');
-} else {
-    ammo = await import('${filePathToModuleRequest(ammoJsWasmModule)}');
-    isWasm = true;
-}
-export default ammo.default;
-export { isWasm, wasmBinaryURL };
+export const bulletType = 'wasm';
+export default wasmBinaryURL;
 `;
-    } else if (ammoJsWasm === true) {
-        rpVirtualOptions['@cocos/ammo'] = `
-import wasmBinaryURL from '${pathToAssetRefURL(wasmBinaryPath)}';
-import Ammo from '${filePathToModuleRequest(ammoJsWasmModule)}';
-export default Ammo;
-const isWasm = true;
-export { isWasm, wasmBinaryURL };
+    } else if (ammoJsWasm === 'fallback') {
+        rpVirtualOptions['@cocos/bullet'] = `
+export async function initialize(isWasm) {
+    let ammo;
+    if (isWasm) {
+        ammo = await import('${pathToAssetRefURL(wasmBinaryPath)}');
+    } else {
+        ammo = await import('${filePathToModuleRequest(bulletAsmJsModule)}');
+    }
+    return ammo.default;
+}
+export const bulletType = 'fallback';
+export default initialize;
+        `;
+    } else {
+        rpVirtualOptions['@cocos/bullet'] = `
+import Bullet from '${filePathToModuleRequest(bulletAsmJsModule)}';
+export const bulletType = 'asmjs';
+export default Bullet;
 `;
     }
 
     const rollupBuild = await rollup.rollup(rollupOptions);
+
+    const timing = rollupBuild.getTimings?.();
+    if (timing) {
+        console.debug(`==== Performance ====`);
+        console.debug(JSON.stringify(timing));
+        console.debug(`====             ====`);
+    }
 
     const { incremental: incrementalFile } = options;
     if (incrementalFile) {
@@ -501,7 +621,9 @@ export { isWasm, wasmBinaryURL };
     }
 
     const result: build.Result = {
+        chunkAliases: {},
         exports: {},
+        hasCriticalWarns: false,
     };
 
     const rollupOutputOptions: rollup.OutputOptions = {
@@ -530,12 +652,16 @@ export { isWasm, wasmBinaryURL };
 
     Object.assign(result.exports, validEntryChunks);
 
+    Object.assign(result.chunkAliases, codeAssetMapping);
+
     result.dependencyGraph = {};
     for (const output of rollupOutput.output) {
         if (output.type === 'chunk') {
             result.dependencyGraph[output.fileName] = output.imports.concat(output.dynamicImports);
         }
     }
+
+    result.hasCriticalWarns = hasCriticalWarns;
 
     return result;
 

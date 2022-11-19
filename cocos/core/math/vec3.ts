@@ -24,11 +24,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module core/math
- */
-
 import { CCClass } from '../data/class';
 import { ValueType } from '../value-types/value-type';
 import { Mat4 } from './mat4';
@@ -434,7 +429,7 @@ export class Vec3 extends ValueType {
         const z = v.z;
         out.x = m.m00 * x + m.m04 * y + m.m08 * z + m.m12;
         out.y = m.m01 * x + m.m05 * y + m.m09 * z + m.m13;
-        out.x = m.m02 * x + m.m06 * y + m.m10 * z + m.m14;
+        out.z = m.m02 * x + m.m06 * y + m.m10 * z + m.m14;
         return out;
     }
 
@@ -719,7 +714,7 @@ export class Vec3 extends ValueType {
      * @param other Specified vector
      * @returns `this`
      */
-    public set (other: Vec3);
+    public set (other: Vec3): Vec3;
 
     /**
      * @en Set the value of each component of the current vector.
@@ -729,7 +724,7 @@ export class Vec3 extends ValueType {
      * @param z z value
      * @returns `this`
      */
-    public set (x?: number, y?: number, z?: number);
+    public set (x?: number, y?: number, z?: number): Vec3;
 
     public set (x?: number | Vec3, y?: number, z?: number) {
         if (x && typeof x === 'object') {
@@ -753,12 +748,9 @@ export class Vec3 extends ValueType {
      */
     public equals (other: Vec3, epsilon = EPSILON) {
         return (
-            Math.abs(this.x - other.x)
-            <= epsilon * Math.max(1.0, Math.abs(this.x), Math.abs(other.x))
-            && Math.abs(this.y - other.y)
-            <= epsilon * Math.max(1.0, Math.abs(this.y), Math.abs(other.y))
-            && Math.abs(this.z - other.z)
-            <= epsilon * Math.max(1.0, Math.abs(this.z), Math.abs(other.z))
+            Math.abs(this.x - other.x) <= epsilon
+            && Math.abs(this.y - other.y) <= epsilon
+            && Math.abs(this.z - other.z) <= epsilon
         );
     }
 
@@ -773,12 +765,9 @@ export class Vec3 extends ValueType {
      */
     public equals3f (x: number, y: number, z: number, epsilon = EPSILON) {
         return (
-            Math.abs(this.x - x)
-            <= epsilon * Math.max(1.0, Math.abs(this.x), Math.abs(x))
-            && Math.abs(this.y - y)
-            <= epsilon * Math.max(1.0, Math.abs(this.y), Math.abs(y))
-            && Math.abs(this.z - z)
-            <= epsilon * Math.max(1.0, Math.abs(this.z), Math.abs(z))
+            Math.abs(this.x - x) <= epsilon
+            && Math.abs(this.y - y) <= epsilon
+            && Math.abs(this.z - z) <= epsilon
         );
     }
 

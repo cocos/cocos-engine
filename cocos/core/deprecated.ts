@@ -23,18 +23,12 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
 import { replaceProperty, removeProperty } from './utils/x-deprecated';
 import * as math from './math';
 import { Scheduler } from './scheduler';
-import { EventTouch } from './platform/event-manager/events';
 import { legacyCC } from './global-exports';
-import { SubModel } from './renderer/scene/submodel';
-import { Root } from './root';
+
+import { System } from './system';
 
 // VMATH
 
@@ -206,42 +200,21 @@ replaceProperty(Scheduler.prototype, 'Scheduler.prototype', [
     },
 ]);
 
-// Events
-
-replaceProperty(EventTouch.prototype, 'EventTouch.prototype', [
+// replace Scheduler static property
+replaceProperty(Scheduler, 'Scheduler', [
     {
-        name: 'getUILocationInView',
-        newName: 'getLocationInView',
-        target: EventTouch,
-        targetName: 'EventTouch',
+        name: 'PRIORITY_SYSTEM',
+        newName: 'System.Priority.SCHEDULER',
+        customGetter () {
+            return System.Priority.SCHEDULER;
+        },
     },
 ]);
 
-// Render scene
-
-replaceProperty(SubModel.prototype, 'SubModel.prototype', [
+// remove Scheduler static property
+removeProperty(Scheduler, 'Scheduler', [
     {
-        name: 'subMeshData',
-        newName: 'subMesh',
-    },
-]);
-
-removeProperty(SubModel.prototype, 'SubModel.prototype', [
-    {
-        name: 'getSubModel',
-        suggest: 'Use `subModels[i]` instead',
-    },
-    {
-        name: 'subModelNum',
-        suggest: 'Use `subModels.length` instead',
-    },
-]);
-
-// Root
-
-replaceProperty(Root.prototype, 'Root.prototype', [
-    {
-        name: 'ui',
-        newName: 'batcher2D',
+        name: 'PRIORITY_NON_SYSTEM',
+        suggest: 'Use enum` System.Priority` instead',
     },
 ]);

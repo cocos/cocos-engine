@@ -23,18 +23,12 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
 /* eslint-disable func-names */
 import CANNON from '@cocos/cannon';
-import { Vec3 } from '../../../core/math';
+import { Vec3, IVec3Like } from '../../../core';
 import { commitShapeUpdates } from '../cannon-util';
 import { CannonShape } from './cannon-shape';
 import { ISimplexShape } from '../../spec/i-physics-shape';
-import { IVec3Like } from '../../../core/math/type-define';
 import { SimplexCollider } from '../../../../exports/physics-framework';
 
 export class CannonSimplexShape extends CannonShape implements ISimplexShape {
@@ -45,11 +39,11 @@ export class CannonSimplexShape extends CannonShape implements ISimplexShape {
     }
 
     setVertices (v: IVec3Like[]) {
-        const length = this.VERTICES.length;
+        const length = this.vertices.length;
         if (length === 4) {
             const ws = this._collider.node.worldScale;
             for (let i = 0; i < length; i++) {
-                Vec3.multiply(this.VERTICES[i], ws, v[i]);
+                Vec3.multiply(this.vertices[i], ws, v[i]);
             }
             const impl = this.impl as CANNON.ConvexPolyhedron;
             impl.computeNormals();
@@ -72,15 +66,15 @@ export class CannonSimplexShape extends CannonShape implements ISimplexShape {
         return this._shape as CANNON.Particle | CANNON.ConvexPolyhedron;
     }
 
-    readonly VERTICES: CANNON.Vec3[] = [];
+    readonly vertices: CANNON.Vec3[] = [];
 
     protected onComponentSet () {
         const type = this.collider.shapeType;
         if (type === SimplexCollider.ESimplexType.TETRAHEDRON) {
             for (let i = 0; i < 4; i++) {
-                this.VERTICES[i] = new CANNON.Vec3(0, 0, 0);
+                this.vertices[i] = new CANNON.Vec3(0, 0, 0);
             }
-            this._shape = createTetra(this.VERTICES);
+            this._shape = createTetra(this.vertices);
         } else {
             if (type !== SimplexCollider.ESimplexType.VERTEX) {
                 // WARN

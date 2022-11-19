@@ -24,16 +24,16 @@
  ****************************************************************************/
 
 (function () {
-    if (!(cc && cc.EditBoxComponent)) {
+    if (!(cc && cc.internal && cc.internal.EditBox)) {
         return;
     }
 
-    const EditBox = cc.EditBoxComponent;
+    const EditBox = cc.internal.EditBox;
     const KeyboardReturnType = EditBox.KeyboardReturnType;
     const InputMode = EditBox.InputMode;
     const InputFlag = EditBox.InputFlag;
 
-    let worldMat = cc.mat4();
+    const worldMat = cc.mat4();
 
     function getInputType (type) {
         switch (type) {
@@ -81,10 +81,10 @@
         }
 
         beginEditing () {
-            let self = this;
-            let delegate = this._delegate;
-            let multiline = (delegate.inputMode === InputMode.ANY);
-            let rect = this._getRect();
+            const self = this;
+            const delegate = this._delegate;
+            const multiline = (delegate.inputMode === InputMode.ANY);
+            const rect = this._getRect();
             this.setMaxLength(delegate.maxLength);
 
             let inputTypeString = getInputType(delegate.inputMode);
@@ -118,6 +118,7 @@
                 delegate._hideLabels();
             }
 
+            const editLabel = delegate.textLabel;
             jsb.inputBox.show({
                 defaultValue: delegate.string,
                 maxLength: self._maxLength,
@@ -128,7 +129,16 @@
                 originX: rect.x,
                 originY: rect.y,
                 width: rect.width,
-                height: rect.height
+                height: rect.height,
+                isBold: editLabel.isBold,
+                isItalic: editLabel.isItalic,
+                isUnderline: editLabel.isUnderline,
+                underlineColor: 0x00000000/* Black */,
+                fontSize: /**number */editLabel.fontSize,
+                fontColor: /**number */editLabel.color.toRGBValue(),
+                backColor: 0x00ffffff/*White*/,
+                backgroundColor: delegate.placeholderLabel.color.toRGBValue(),
+                textAlignment: /*left = 0, center = 1, right = 2*/editLabel.horizontalAlign,
             });
             this._editing = true;
             delegate._editBoxEditingDidBegan();
@@ -158,14 +168,14 @@
         }
 
         _getRect () {
-            let node = this._delegate.node;
+            const node = this._delegate.node;
             let viewScaleX = cc.view._scaleX;
             let viewScaleY = cc.view._scaleY;
-            let dpr = cc.view._devicePixelRatio;
+            const dpr = jsb.device.getDevicePixelRatio() || 1;
             node.getWorldMatrix(worldMat);
 
-            let transform = node._uiProps.uiTransformComp;
-            let vec3 = cc.v3();
+            const transform = node._uiProps.uiTransformComp;
+            const vec3 = cc.v3();
             let width = 0;
             let height = 0;
             if (transform) {
@@ -182,17 +192,17 @@
             viewScaleX /= dpr;
             viewScaleY /= dpr;
 
-            let finalScaleX = worldMat.m00 * viewScaleX;
-            let finaleScaleY = worldMat.m05 * viewScaleY;
+            const finalScaleX = worldMat.m00 * viewScaleX;
+            const finaleScaleY = worldMat.m05 * viewScaleY;
 
-            let viewportRect = cc.view._viewportRect;
-            let offsetX = viewportRect.x / dpr,
-                offsetY = viewportRect.y / dpr;
+            const viewportRect = cc.view._viewportRect;
+            const offsetX = viewportRect.x / dpr;
+                const offsetY = viewportRect.y / dpr;
             return {
                 x: worldMat.m12 * viewScaleX + offsetX,
                 y: worldMat.m13 * viewScaleY + offsetY,
                 width: width * finalScaleX,
-                height: height * finaleScaleY
+                height: height * finaleScaleY,
             };
         }
     }

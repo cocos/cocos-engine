@@ -1,0 +1,363 @@
+{
+    "$schema": "./cc.config.schema.json",
+    
+    "features": {
+        "base": { "modules": [ "base" ], "dependentAssets": ["0835f102-5471-47a3-9a76-01c07ac9cdb2", "b5475517-23b9-4873-bc1a-968d96616081", "0ed97c56-390e-4dd1-96b7-e7f2d93a98ed", "b23391b6-52eb-46a6-8da1-6244d9d315fb"] },
+        "gfx-webgl": { "modules": [ "gfx-webgl" ] },
+        "gfx-webgl2": { "modules": [ "gfx-webgl2" ] },
+        "gfx-webgpu": { "modules": [ "gfx-webgpu" ] },
+        "3d": { "modules": [ "3d" ] },
+        "animation": { "modules": ["animation"] },
+        "skeletal-animation": { "modules": ["animation", "skeletal-animation"] },
+        "2d": { "modules": [ "2d" ] },
+        "ui": { "modules": [ "ui", "2d" ] },
+        "particle": { "modules": [ "particle" ] },
+        "particle-2d": { "modules": [ "particle-2d" ] },
+        "physics-framework": { "modules": [ "physics-framework" ] },
+        "physics-cannon": { "modules": [ "physics-cannon", "physics-framework" ] },
+        "physics-physx": { "modules": [ "physics-physx", "physics-framework" ] },
+        "physics-ammo": { "modules": [ "physics-ammo", "physics-framework", "wait-for-ammo-instantiation" ] },
+        "physics-builtin": { "modules": [ "physics-builtin", "physics-framework" ] },
+        "physics-2d-framework": { "modules": [ "physics-2d-framework" ] },
+        "physics-2d-box2d": { "modules": [ "physics-2d-box2d", "physics-2d-framework" ] },
+        "physics-2d-builtin": { "modules": [ "physics-2d-builtin", "physics-2d-framework" ] },
+        "intersection-2d": { "modules": [ "intersection-2d" ] },
+        "primitive": { "modules": [ "primitive" ] },
+        "profiler": { "modules": [ "profiler" ] },
+        "geometry-renderer": { "modules": [ "geometry-renderer" ] },
+        "audio": { "modules": [ "audio" ] },
+        "video": { "modules": [ "video" ] },
+        "terrain": { "modules": [ "terrain" ] },
+        "webview": { "modules": [ "webview" ] },
+        "tween": { "modules": [ "tween" ] },
+        "tiled-map": { "modules": [ "tiled-map" ] },
+        "spine": { "modules": [ "spine" ] },
+        "dragon-bones": { "modules": [ "dragon-bones" ] },
+        "marionette": {
+            "modules": [],
+            "intrinsicFlags": {
+                "MARIONETTE": true
+            }
+        }
+    },
+    "moduleOverrides": [
+        {
+            "test": "context.mode === 'BUILD'",
+            "isVirtualModule": false,
+            "overrides": {
+            }
+        },
+        {
+            "test": "context.platform === 'NATIVE'",
+            "isVirtualModule": false,
+            "overrides": {
+                "cocos/core/pipeline/index.ts": "cocos/core/pipeline/index.jsb.ts",
+                "cocos/core/pipeline/render-pipeline.ts": "cocos/core/pipeline/render-pipeline.jsb.ts",
+                "cocos/core/pipeline/geometry-renderer.ts": "cocos/core/pipeline/geometry-renderer.jsb.ts",
+                "cocos/core/pipeline/custom/index.ts": "cocos/core/pipeline/custom/index.jsb.ts",
+                "cocos/core/renderer/core/native-pools.ts": "cocos/core/renderer/core/native-pools.jsb.ts",
+                "cocos/core/renderer/core/material-instance.ts": "cocos/core/renderer/core/material-instance.jsb.ts",
+                "cocos/core/renderer/core/pass.ts": "cocos/core/renderer/core/pass.jsb.ts",
+                "cocos/core/renderer/core/program-lib.ts": "cocos/core/renderer/core/program-lib.jsb.ts",
+                "cocos/core/renderer/core/render-window.ts": "cocos/core/renderer/core/render-window.jsb.ts",
+                "cocos/core/renderer/core/sampler-lib.ts": "cocos/core/renderer/core/sampler.jsb.ts",
+                "cocos/core/renderer/scene/camera.ts": "cocos/core/renderer/scene/camera.jsb.ts",
+                "cocos/core/renderer/scene/model.ts": "cocos/core/renderer/scene/model.jsb.ts",
+                "cocos/core/renderer/core/render-scene.ts": "cocos/core/renderer/core/render-scene.jsb.ts",
+                "cocos/core/renderer/scene/submodel.ts": "cocos/core/renderer/scene/submodel.jsb.ts",
+                "cocos/core/renderer/scene/index.ts": "cocos/core/renderer/scene/index.jsb.ts",
+                "cocos/core/renderer/scene/reflection-probe.ts": "cocos/core/renderer/scene/reflection-probe.jsb.ts",
+                "cocos/core/gfx/index.ts": "cocos/core/gfx/index.jsb.ts",
+                "cocos/core/gfx/pipeline-state.ts": "cocos/core/gfx/pipeline-state.jsb.ts",
+                "cocos/spine/index.ts": "cocos/spine/index.jsb.ts",
+                "cocos/dragon-bones/index.ts": "cocos/dragon-bones/index.jsb.ts",
+                "cocos/physics/physx/instantiate.ts": "cocos/physics/physx/instantiate.jsb.ts",
+                "cocos/core/scene-graph/node.ts": "cocos/core/scene-graph/node.jsb.ts",
+                "cocos/core/scene-graph/scene.ts": "cocos/core/scene-graph/scene.jsb.ts",
+                "cocos/core/scene-graph/scene-globals.ts": "cocos/core/scene-graph/scene-globals.jsb.ts",
+                "cocos/core/scene-graph/index.ts": "cocos/core/scene-graph/index.jsb.ts",
+                "cocos/core/root.ts": "cocos/core/root.jsb.ts",
+                "cocos/core/builtin/builtin-res-mgr.ts": "cocos/core/builtin/builtin-res-mgr.jsb.ts",
+                "cocos/core/assets/index.ts": "cocos/core/assets/index.jsb.ts",
+                "cocos/core/assets/asset.ts": "cocos/core/assets/asset.jsb.ts",
+                "cocos/core/assets/buffer-asset.ts": "cocos/core/assets/buffer-asset.jsb.ts",
+                "cocos/core/assets/render-texture.ts": "cocos/core/assets/render-texture.jsb.ts",
+                "cocos/core/assets/simple-texture.ts": "cocos/core/assets/simple-texture.jsb.ts",
+                "cocos/core/assets/scene-asset.ts": "cocos/core/assets/scene-asset.jsb.ts",
+                "cocos/core/assets/effect-asset.ts": "cocos/core/assets/effect-asset.jsb.ts",
+                "cocos/core/assets/image-asset.ts": "cocos/core/assets/image-asset.jsb.ts",
+                "cocos/core/assets/texture-base.ts": "cocos/core/assets/texture-base.jsb.ts",
+                "cocos/core/assets/texture-asset.ts": "cocos/core/assets/texture-asset.jsb.ts",
+                "cocos/core/assets/texture-2d.ts": "cocos/core/assets/texture-2d.jsb.ts",
+                "cocos/core/assets/texture-cube.ts": "cocos/core/assets/texture-cube.jsb.ts",
+                "cocos/core/assets/material.ts": "cocos/core/assets/material.jsb.ts",
+                "cocos/core/assets/rendering-sub-mesh.ts": "cocos/core/assets/rendering-sub-mesh.jsb.ts",
+                "cocos/3d/assets/mesh.ts":"cocos/3d/assets/mesh.jsb.ts",
+                "cocos/3d/assets/skeleton.ts":"cocos/3d/assets/skeleton.jsb.ts",
+                "cocos/3d/models/morph-model.ts":"cocos/3d/models/morph-model.jsb.ts",
+                "cocos/3d/models/skinning-model.ts":"cocos/3d/models/skinning-model.jsb.ts",
+                "cocos/3d/models/baked-skinning-model.ts":"cocos/3d/models/baked-skinning-model.jsb.ts",
+                "cocos/3d/misc/create-mesh.ts":"cocos/3d/misc/create-mesh.jsb.ts",
+                "cocos/gi/light-probe/light-probe.ts":"cocos/gi/light-probe/light-probe.jsb.ts",
+                "cocos/gi/light-probe/delaunay.ts":"cocos/gi/light-probe/delaunay.jsb.ts"
+            }
+        },
+        {
+            "test": "context.buildTimeConstants && context.buildTimeConstants.HTML5",
+            "isVirtualModule": true,
+            "overrides": {
+                "pal/minigame": "pal/minigame/non-minigame.ts",
+                "pal/audio": "pal/audio/web/player.ts",
+                "pal/system-info": "pal/system-info/web/system-info.ts",
+                "pal/screen-adapter": "pal/screen-adapter/web/screen-adapter.ts",
+                "pal/input": "pal/input/web/index.ts"
+            }
+        },
+        {
+            "test": "context.buildTimeConstants && context.buildTimeConstants.NATIVE",
+            "isVirtualModule": true,
+            "overrides": {
+                "pal/minigame": "pal/minigame/non-minigame.ts",
+                "pal/audio": "pal/audio/native/player.ts",
+                "pal/system-info": "pal/system-info/native/system-info.ts",
+                "pal/screen-adapter": "pal/screen-adapter/native/screen-adapter.ts",
+                "pal/input": "pal/input/native/index.ts"
+            }
+        },
+        {
+            "test": "context.buildTimeConstants && context.buildTimeConstants.MINIGAME",
+            "isVirtualModule": true,
+            "overrides": {
+                "pal/minigame": "pal/minigame/{{context.platform.toLowerCase()}}.ts",
+                "pal/audio": "pal/audio/minigame/player.ts",
+                "pal/system-info": "pal/system-info/minigame/system-info.ts",
+                "pal/screen-adapter": "pal/screen-adapter/minigame/screen-adapter.ts",
+                "pal/input": "pal/input/minigame/index.ts"
+            }
+        },
+        {
+            "test": "context.buildTimeConstants && context.buildTimeConstants.RUNTIME_BASED",
+            "isVirtualModule": true,
+            "overrides": {
+                "pal/minigame": "pal/minigame/runtime.ts",
+                "pal/audio": "pal/audio/minigame/player.ts",
+                "pal/system-info": "pal/system-info/minigame/system-info.ts",
+                "pal/screen-adapter": "pal/screen-adapter/minigame/screen-adapter.ts",
+                "pal/input": "pal/input/minigame/index.ts"
+            }
+        },
+        {
+            "test": "context.buildTimeConstants && context.buildTimeConstants.NOT_PACK_PHYSX_LIBS",
+            "isVirtualModule": false,
+            "overrides": {
+                "cocos/physics/physx/physx.asmjs.ts": "cocos/physics/physx/physx.null.ts"
+            }
+        },
+        {
+            "test": "!context.buildTimeConstants.MARIONETTE",
+            "isVirtualModule": false,
+            "overrides": {
+                "cocos/core/animation/marionette/runtime-exports.ts": "cocos/core/animation/marionette/index-empty.ts"
+            }
+        }
+    ],
+    "includes": [
+        "./exports/**/*.{ts,js,json}",
+        "./editor/exports/**/*.{ts,js,json}",
+        "./cocos/**/*.{ts,js,json}",
+        "./pal/**/*.{ts,js,json}"
+    ],
+
+    "constants": {
+        "HTML5": {
+            "comment": "Running in Web platform",
+            "type": "boolean",
+            "value": false,
+            "internal": false,
+            "dynamic": true
+        },
+        "NATIVE": {
+            "comment": "Running in native platform (mobile app, desktop app, or simulator).",
+            "type": "boolean",
+            "value": false,
+            "internal": false,
+            "dynamic": true
+        },
+        "WECHAT": {
+            "comment": "Running in the Wechat's mini game.",
+            "type": "boolean",
+            "value": false,
+            "ccGlobal": true,
+            "internal": false
+        },
+        "BAIDU": {
+            "comment": "Running in the baidu's mini game.",
+            "type": "boolean",
+            "value": false,
+            "ccGlobal": true,
+            "internal": false
+        },
+        "XIAOMI": {
+            "comment": "Running in the xiaomi's quick game.",
+            "type": "boolean",
+            "value": false,
+            "ccGlobal": true,
+            "internal": false
+        },
+        "ALIPAY": {
+            "comment": "Running in the alipay's mini game.",
+            "type": "boolean",
+            "value": false,
+            "ccGlobal": true,
+            "internal": false
+        },
+        "BYTEDANCE": {
+            "comment": "Running in the ByteDance's mini game.",
+            "type": "boolean",
+            "value": false,
+            "ccGlobal": true,
+            "internal": false
+        },
+        "OPPO": {
+            "comment": "Running in the oppo's quick game.",
+            "type": "boolean",
+            "value": false,
+            "ccGlobal": true,
+            "internal": false
+        },
+        "VIVO": {
+            "comment": "Running in the vivo's quick game.",
+            "type": "boolean",
+            "value": false,
+            "ccGlobal": true,
+            "internal": false
+        },
+        "HUAWEI": {
+            "comment": "Running in the huawei's quick game.",
+            "type": "boolean",
+            "value": false,
+            "ccGlobal": true,
+            "internal": false
+        },
+        "COCOSPLAY": {
+            "comment": "Running in the cocosplay.",
+            "type": "boolean",
+            "value": false,
+            "ccGlobal": true,
+            "internal": false
+        },
+        "QTT": {
+            "comment": "Running in the qtt's quick game.",
+            "type": "boolean",
+            "value": false,
+            "ccGlobal": true,
+            "internal": false
+        },
+        "LINKSURE": {
+            "comment": "Running in the linksure's quick game.",
+            "type": "boolean",
+            "value": false,
+            "ccGlobal": true,
+            "internal": false
+        },
+
+        "EDITOR": {
+            "comment": "Running in the editor.",
+            "type": "boolean",
+            "value": false,
+            "ccGlobal": true,
+            "internal": false,
+            "dynamic": true
+        },
+        "PREVIEW": {
+            "comment": "Preview in browser or simulator.",
+            "type": "boolean",
+            "value": false,
+            "ccGlobal": true,
+            "internal": false,
+            "dynamic": true
+        },
+        "BUILD": {
+            "comment": "Running in published project.",
+            "type": "boolean",
+            "value": false,
+            "ccGlobal": true,
+            "internal": false
+        },
+        "TEST": {
+            "comment": "Running in the engine's unit test.",
+            "type": "boolean",
+            "value": false,
+            "ccGlobal": true,
+            "internal": false,
+            "dynamic": true
+        },
+
+
+        "DEBUG": {
+            "comment": "Running debug mode.",
+            "type": "boolean",
+            "value": true,
+            "ccGlobal": true,
+            "internal": false
+        },
+        "SERVER_MODE": {
+            "comment": "Running in the server mode.",
+            "type": "boolean",
+            "value": false,
+            "internal": true
+        },
+
+
+        "DEV": {
+            "comment": "Running in the editor or preview.",
+            "type": "boolean",
+            "value": "$EDITOR || $PREVIEW || $TEST",
+            "ccGlobal": true,
+            "internal": false,
+            "dynamic": true
+        },
+        "MINIGAME": {
+            "comment": "Running in mini game.",
+            "type": "boolean",
+            "value": "$WECHAT || $BAIDU || $XIAOMI || $ALIPAY || $BYTEDANCE",
+            "ccGlobal": true,
+            "internal": false
+        },
+        "RUNTIME_BASED": {
+            "comment": "Running in runtime based environment.",
+            "type": "boolean",
+            "value": "$OPPO || $VIVO || $HUAWEI || $COCOSPLAY || $QTT || $LINKSURE",
+            "ccGlobal": true,
+            "internal": false
+        },
+        "SUPPORT_JIT": {
+            "comment": "Support JIT.",
+            "type": "boolean",
+            "value": "!($MINIGAME || $RUNTIME_BASED)",
+            "ccGlobal": true,
+            "internal": false,
+            "dynamic": true
+        },
+        "JSB": {
+            "comment": "Running in environment where using JSB as the JavaScript interface binding scheme.",
+            "type": "boolean",
+            "value": "$NATIVE",
+            "ccGlobal": true,
+            "internal": false,
+            "dynamic": true
+        },
+        "NOT_PACK_PHYSX_LIBS": {
+            "comment": "This is an internal constant to determine whether pack physx libs.",
+            "type": "boolean",
+            "value": false,
+            "internal": true
+        },
+        "NET_MODE": {
+            "comment": "The network access mode.\n- 0 Client\n- 1 ListenServer\n- 2 HostServer",
+            "type": "number",
+            "value": 0,
+            "internal": false
+        }
+    }
+}

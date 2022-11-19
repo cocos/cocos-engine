@@ -1,18 +1,15 @@
 import { _decorator, Component, Node, RenderFlow } from "cc";
 const { ccclass, property } = _decorator;
 
-@ccclass("<%Name%>")
-export class <%Name%> extends RenderFlow {
+@ccclass("<%UnderscoreCaseClassName%>")
+export class <%UnderscoreCaseClassName%> extends RenderFlow {
 
-    /* use `property` decorator if your want the member to be serializable */
-    // @property
-    // serializableDummy = 0;
-
-    rebuild () {
-        
-    }
-
-    destroy () {
+    rebuild() {
 
     }
+
+    destroy() {
+
+    }
+    
 }

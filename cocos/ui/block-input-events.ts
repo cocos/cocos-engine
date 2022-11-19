@@ -24,19 +24,14 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module event
- */
-
 import { ccclass, help, menu } from 'cc.decorator';
-import { Component } from '../core/components/component';
-import { Event } from '../core/event';
-import { SystemEventType } from '../core/platform/event-manager/event-enum';
+import { Component } from '../scene-graph/component';
+import { Event } from '../input/types';
+import { NodeEventType } from '../scene-graph/node-event';
 
-const BlockEvents = [SystemEventType.TOUCH_START, SystemEventType.TOUCH_END, SystemEventType.TOUCH_MOVE,
-    SystemEventType.MOUSE_DOWN, SystemEventType.MOUSE_MOVE, SystemEventType.MOUSE_UP,
-    SystemEventType.MOUSE_ENTER, SystemEventType.MOUSE_LEAVE, SystemEventType.MOUSE_WHEEL];
+const BlockEvents = [NodeEventType.TOUCH_START, NodeEventType.TOUCH_END, NodeEventType.TOUCH_MOVE,
+    NodeEventType.MOUSE_DOWN, NodeEventType.MOUSE_MOVE, NodeEventType.MOUSE_UP,
+    NodeEventType.MOUSE_ENTER, NodeEventType.MOUSE_LEAVE, NodeEventType.MOUSE_WHEEL];
 
 function stopPropagation (event: Event) {
     event.propagationStopped = true;

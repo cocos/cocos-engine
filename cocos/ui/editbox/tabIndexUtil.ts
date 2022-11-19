@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
 import { EditBoxImpl } from './edit-box-impl';
 
 export class tabIndexUtil {

@@ -23,18 +23,16 @@
  THE SOFTWARE.
  */
 
-import { Mat4, Quat, Vec3 } from '../../../core/math';
+import { Mat4, Quat, Vec3, IVec3Like, geometry } from '../../../core';
 import { BuiltinSharedBody } from '../builtin-shared-body';
 import { IBuiltinShape } from '../builtin-interface';
 import { Collider, RigidBody, PhysicsMaterial, PhysicsSystem } from '../../../../exports/physics-framework';
 import { IBaseShape } from '../../spec/i-physics-shape';
-import { IVec3Like } from '../../../core/math/type-define';
 import { BuiltInWorld } from '../builtin-world';
-import { AABB, Sphere } from '../../../core/geometry';
 
 export class BuiltinShape implements IBaseShape {
-    getAABB (v: AABB) { }
-    getBoundingSphere (v: Sphere) { }
+    getAABB (v: geometry.AABB) { }
+    getBoundingSphere (v: geometry.Sphere) { }
     updateEventListener (): void { }
     setMaterial (v: PhysicsMaterial | null) { }
     setAsTrigger (v: boolean) { }
@@ -100,7 +98,7 @@ export class BuiltinShape implements IBaseShape {
         (this._worldShape as any) = null;
     }
 
-    transform (m: Mat4, pos: Vec3, rot: Quat, scale: Vec3) {
+    transform (m: Mat4 | Readonly<Mat4>, pos: Vec3 | Readonly<Vec3>, rot: Quat | Readonly<Quat>, scale: Vec3 | Readonly<Vec3>) {
         this._localShape.transform(m, pos, rot, scale, this._worldShape);
     }
 

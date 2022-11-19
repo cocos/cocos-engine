@@ -23,15 +23,10 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module tween
- */
-
 import { EDITOR } from 'internal:constants';
-import { System, Director, director } from '../core';
+import { System, cclegacy } from '../core';
 import { ActionManager } from './actions/action-manager';
-import { legacyCC } from '../core/global-exports';
+import { Director, director } from '../game';
 
 /**
  * @en
@@ -70,13 +65,13 @@ export class TweenSystem extends System {
 
     /**
      * @en
-     * The update will auto execute after all compnents update.
+     * The update will auto execute after all components update.
      * @zh
      * 此方法会在组件 update 之后自动执行。
-     * @param dt 间隔时间
+     * @param dt @en The delta time @zh 间隔时间
      */
     update (dt: number) {
-        if (!EDITOR || legacyCC.GAME_VIEW || this._executeInEditMode) {
+        if (!EDITOR || cclegacy.GAME_VIEW || this._executeInEditMode) {
             this.actionMgr.update(dt);
         }
     }
@@ -85,5 +80,5 @@ export class TweenSystem extends System {
 director.on(Director.EVENT_INIT, () => {
     const sys = new TweenSystem();
     (TweenSystem.instance as any) = sys;
-    director.registerSystem(TweenSystem.ID, sys, 100);
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
 });

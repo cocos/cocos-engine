@@ -25,11 +25,6 @@
 */
 
 /**
- * @packageDocumentation
- * @module core
- */
-
-/**
  * @example
  * ```
  * import { js } from 'cc';
@@ -40,6 +35,7 @@
  *     ...
  * }
  * ```
+ * @engineInternal
  */
 export default class MutableForwardIterator<T> {
     public i = 0;

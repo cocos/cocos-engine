@@ -23,24 +23,17 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
 import CANNON from '@cocos/cannon';
-import { Vec3, Quat } from '../../../core/math';
+import { Vec3, Quat, IVec3Like, geometry } from '../../../core';
 import { getWrap, setWrap } from '../../utils/util';
 import { commitShapeUpdates } from '../cannon-util';
 import { PhysicsMaterial } from '../../framework/assets/physics-material';
 import { IBaseShape } from '../../spec/i-physics-shape';
-import { IVec3Like } from '../../../core/math/type-define';
 import { CannonSharedBody } from '../cannon-shared-body';
 import { CannonWorld } from '../cannon-world';
 import { TriggerEventType } from '../../framework/physics-interface';
 import { PhysicsSystem } from '../../framework/physics-system';
 import { Collider, RigidBody } from '../../framework';
-import { AABB, Sphere } from '../../../core/geometry';
 
 const TriggerEventObject = {
     type: 'onTriggerEnter' as TriggerEventType,
@@ -68,15 +61,14 @@ export class CannonShape implements IBaseShape {
     get sharedBody (): CannonSharedBody { return this._sharedBody; }
 
     setMaterial (mat: PhysicsMaterial | null) {
-        if (!this._shape) return;
         if (mat == null) {
             (this._shape.material as unknown) = null;
         } else {
-            if (CannonShape.idToMaterial[mat._uuid] == null) {
-                CannonShape.idToMaterial[mat._uuid] = new CANNON.Material(mat._uuid);
+            if (CannonShape.idToMaterial[mat.id] == null) {
+                CannonShape.idToMaterial[mat.id] = new CANNON.Material(mat.id as any);
             }
 
-            this._shape.material = CannonShape.idToMaterial[mat._uuid];
+            this._shape.material = CannonShape.idToMaterial[mat.id];
             const smat = this._shape.material;
             smat.friction = mat.friction;
             smat.restitution = mat.restitution;
@@ -118,7 +110,7 @@ export class CannonShape implements IBaseShape {
         }
     }
 
-    getAABB (v: AABB) {
+    getAABB (v: geometry.AABB) {
         Quat.copy(cannonQuat_0, this._collider.node.worldRotation);
         (this._shape as any).calculateWorldAABB(CANNON.Vec3.ZERO, cannonQuat_0, cannonVec3_0, cannonVec3_1);
         Vec3.subtract(v.halfExtents, cannonVec3_1, cannonVec3_0);
@@ -126,7 +118,7 @@ export class CannonShape implements IBaseShape {
         Vec3.add(v.center, this._collider.node.worldPosition, this._collider.center);
     }
 
-    getBoundingSphere (v: Sphere) {
+    getBoundingSphere (v: geometry.Sphere) {
         v.radius = this._shape.boundingSphereRadius;
         Vec3.add(v.center, this._collider.node.worldPosition, this._collider.center);
     }

@@ -26,19 +26,22 @@
 
 import { TEST, EDITOR } from 'internal:constants';
 import { MeshRenderer } from '../3d/framework/mesh-renderer';
-import { Camera } from '../core/components/camera-component';
 import { createMesh } from '../3d/misc';
-import { Material } from '../core/assets/material';
-import { ClearFlagBit, Format, TextureType, TextureUsageBit, Texture, TextureInfo, Device, BufferTextureCopy } from '../core/gfx';
-import { Layers } from '../core/scene-graph';
-import { Node } from '../core/scene-graph/node';
+import { Material } from '../asset/assets/material';
+import { Format, TextureType, TextureUsageBit, Texture, TextureInfo, Device, BufferTextureCopy, Swapchain, deviceManager } from '../gfx';
+import { Layers } from '../scene-graph';
+import { Node } from '../scene-graph/node';
 import { ICounterOption } from './counter';
 import { PerfCounter } from './perf-counter';
-import { legacyCC } from '../core/global-exports';
-import { Pass } from '../core/renderer';
-import { preTransforms } from '../core/math/mat4';
+import { Pass } from '../render-scene';
+import { preTransforms, System, sys, cclegacy, Settings, settings } from '../core';
+import { Root } from '../root';
+import { PipelineRuntime } from '../rendering/custom/pipeline';
+import { director } from '../game';
 
 const _characters = '0123456789. ';
+
+const _average = 500;
 
 const _string2offset = {
     0: 0,
@@ -68,14 +71,14 @@ interface IProfilerState {
 }
 
 const _profileInfo = {
-    fps: { desc: 'Framerate (FPS)', below: 30, average: 500, isInteger: true },
+    fps: { desc: `Framerate (FPS)`, below: 30, average: _average, isInteger: true },
     draws: { desc: 'Draw call', isInteger: true },
-    frame: { desc: 'Frame time (ms)', min: 0, max: 50, average: 500 },
+    frame: { desc: 'Frame time (ms)', min: 0, max: 50, average: _average },
     instances: { desc: 'Instance Count', isInteger: true },
     tricount: { desc: 'Triangle', isInteger: true },
-    logic: { desc: 'Game Logic (ms)', min: 0, max: 50, average: 500, color: '#080' },
-    physics: { desc: 'Physics (ms)', min: 0, max: 50, average: 500 },
-    render: { desc: 'Renderer (ms)', min: 0, max: 50, average: 500, color: '#f90' },
+    logic: { desc: 'Game Logic (ms)', min: 0, max: 50, average: _average, color: '#080' },
+    physics: { desc: 'Physics (ms)', min: 0, max: 50, average: _average },
+    render: { desc: 'Renderer (ms)', min: 0, max: 50, average: _average, color: '#f90' },
     textureMemory: { desc: 'GFX Texture Mem(M)' },
     bufferMemory: { desc: 'GFX Buffer Mem(M)' },
 };
@@ -88,14 +91,19 @@ const _constants = {
     textureHeight: 256,
 };
 
-export class Profiler {
+export class Profiler extends System {
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
     public _stats: IProfilerState | null = null;
-    public id = '__Profiler__';
 
     private _showFPS = false;
 
     private _rootNode: Node | null = null;
     private _device: Device | null = null;
+    private _swapchain: Swapchain | null = null;
+    private _pipeline: PipelineRuntime = null!;
+    private _meshRenderer: MeshRenderer = null!;
     private readonly _canvas: HTMLCanvasElement | null = null;
     private readonly _ctx: CanvasRenderingContext2D | null = null;
     private _texture: Texture | null = null;
@@ -110,7 +118,7 @@ export class Profiler {
     private _statsDone = false;
     private _inited = false;
 
-    private readonly _lineHeight = _constants.textureHeight / (Object.keys(_profileInfo).length + 1);
+    private _lineHeight = _constants.textureHeight / (Object.keys(_profileInfo).length + 1);
     private _wordHeight = 0;
     private _eachNumWidth = 0;
     private _totalLines = 0; // total lines to display
@@ -118,10 +126,20 @@ export class Profiler {
     private lastTime = 0;   // update use time
 
     constructor () {
+        super();
         if (!TEST) {
             this._canvas = document.createElement('canvas');
             this._ctx = this._canvas.getContext('2d')!;
             this._canvasArr.push(this._canvas);
+        }
+    }
+
+    init () {
+        const showFPS = !!settings.querySettings(Settings.Category.PROFILING, 'showFPS');
+        if (showFPS) {
+            this.showStats();
+        } else {
+            this.hideStats();
         }
     }
 
@@ -135,27 +153,33 @@ export class Profiler {
                 this._rootNode.active = false;
             }
 
-            legacyCC.game.off(legacyCC.Game.EVENT_RESTART, this.generateNode, this);
-            legacyCC.director.off(legacyCC.Director.EVENT_BEFORE_UPDATE, this.beforeUpdate, this);
-            legacyCC.director.off(legacyCC.Director.EVENT_AFTER_UPDATE, this.afterUpdate, this);
-            legacyCC.director.off(legacyCC.Director.EVENT_BEFORE_PHYSICS, this.beforePhysics, this);
-            legacyCC.director.off(legacyCC.Director.EVENT_AFTER_PHYSICS, this.afterPhysics, this);
-            legacyCC.director.off(legacyCC.Director.EVENT_BEFORE_DRAW, this.beforeDraw, this);
-            legacyCC.director.off(legacyCC.Director.EVENT_AFTER_DRAW, this.afterDraw, this);
+            cclegacy.director.off(cclegacy.Director.EVENT_BEFORE_UPDATE, this.beforeUpdate, this);
+            cclegacy.director.off(cclegacy.Director.EVENT_AFTER_UPDATE, this.afterUpdate, this);
+            cclegacy.director.off(cclegacy.Director.EVENT_BEFORE_PHYSICS, this.beforePhysics, this);
+            cclegacy.director.off(cclegacy.Director.EVENT_AFTER_PHYSICS, this.afterPhysics, this);
+            cclegacy.director.off(cclegacy.Director.EVENT_BEFORE_DRAW, this.beforeDraw, this);
+            cclegacy.director.off(cclegacy.Director.EVENT_AFTER_DRAW, this.afterDraw, this);
             this._showFPS = false;
+            director.root!.pipeline.profiler = null;
+            cclegacy.game.config.showFPS = false;
         }
     }
 
     public showStats () {
         if (!this._showFPS) {
-            if (!this._device) { this._device = legacyCC.director.root.device; }
-            if (!EDITOR) {
+            if (!this._device) {
+                const root = cclegacy.director.root as Root;
+                this._device = deviceManager.gfxDevice;
+                this._swapchain = root.mainWindow!.swapchain;
+                this._pipeline = root.pipeline;
+            }
+            if (!EDITOR || cclegacy.GAME_VIEW) {
                 this.generateCanvas();
             }
             this.generateStats();
-            if (!EDITOR) {
-                legacyCC.game.once(legacyCC.Game.EVENT_ENGINE_INITED, this.generateNode, this);
-                legacyCC.game.on(legacyCC.Game.EVENT_RESTART, this.generateNode, this);
+            if (!EDITOR || cclegacy.GAME_VIEW) {
+                cclegacy.game.once(cclegacy.Game.EVENT_ENGINE_INITED, this.generateNode, this);
+                cclegacy.game.on(cclegacy.Game.EVENT_RESTART, this.generateNode, this);
             } else {
                 this._inited = true;
             }
@@ -163,16 +187,17 @@ export class Profiler {
                 this._rootNode.active = true;
             }
 
-            legacyCC.director.on(legacyCC.Director.EVENT_BEFORE_UPDATE, this.beforeUpdate, this);
-            legacyCC.director.on(legacyCC.Director.EVENT_AFTER_UPDATE, this.afterUpdate, this);
-            legacyCC.director.on(legacyCC.Director.EVENT_BEFORE_PHYSICS, this.beforePhysics, this);
-            legacyCC.director.on(legacyCC.Director.EVENT_AFTER_PHYSICS, this.afterPhysics, this);
-            legacyCC.director.on(legacyCC.Director.EVENT_BEFORE_DRAW, this.beforeDraw, this);
-            legacyCC.director.on(legacyCC.Director.EVENT_AFTER_DRAW, this.afterDraw, this);
+            cclegacy.director.on(cclegacy.Director.EVENT_BEFORE_UPDATE, this.beforeUpdate, this);
+            cclegacy.director.on(cclegacy.Director.EVENT_AFTER_UPDATE, this.afterUpdate, this);
+            cclegacy.director.on(cclegacy.Director.EVENT_BEFORE_PHYSICS, this.beforePhysics, this);
+            cclegacy.director.on(cclegacy.Director.EVENT_AFTER_PHYSICS, this.afterPhysics, this);
+            cclegacy.director.on(cclegacy.Director.EVENT_BEFORE_DRAW, this.beforeDraw, this);
+            cclegacy.director.on(cclegacy.Director.EVENT_AFTER_DRAW, this.afterDraw, this);
 
             this._showFPS = true;
             this._canvasDone = true;
             this._statsDone = true;
+            cclegacy.game.config.showFPS = true;
         }
     }
 
@@ -220,13 +245,13 @@ export class Profiler {
         let i = 0;
         for (const id in _profileInfo) {
             const element = _profileInfo[id];
-            if (!EDITOR) this._ctx.fillText(element.desc, 0, i * this._lineHeight);
+            if (!EDITOR || cclegacy.GAME_VIEW) this._ctx.fillText(element.desc, 0, i * this._lineHeight);
             element.counter = new PerfCounter(id, element, now);
             i++;
         }
         this._totalLines = i;
         this._wordHeight = this._totalLines * this._lineHeight / this._canvas.height;
-        if (!EDITOR) {
+        if (!EDITOR || cclegacy.GAME_VIEW) {
             for (let j = 0; j < _characters.length; ++j) {
                 const offset = this._ctx.measureText(_characters[j]).width;
                 this._eachNumWidth = Math.max(this._eachNumWidth, offset);
@@ -239,7 +264,7 @@ export class Profiler {
 
         this._stats = _profileInfo as IProfilerState;
         this._canvasArr[0] = this._canvas;
-        if (!EDITOR) this._device!.copyTexImagesToTexture(this._canvasArr, this._texture!, this._regionArr);
+        if (!EDITOR || cclegacy.GAME_VIEW) this._device!.copyTexImagesToTexture(this._canvasArr, this._texture!, this._regionArr);
     }
 
     public generateNode () {
@@ -248,19 +273,8 @@ export class Profiler {
         }
 
         this._rootNode = new Node('PROFILER_NODE');
-        legacyCC.game.addPersistRootNode(this._rootNode);
-
-        const cameraNode = new Node('Profiler_Camera');
-        cameraNode.setPosition(0, 0, 1.5);
-        cameraNode.parent = this._rootNode;
-        const camera = cameraNode.addComponent('cc.Camera') as Camera;
-        camera.projection = Camera.ProjectionType.ORTHO;
-        camera.orthoHeight = 1;
-        camera.near = 1;
-        camera.far = 2;
-        camera.visibility = Layers.BitMask.PROFILER;
-        camera.clearFlags = ClearFlagBit.NONE;
-        camera.priority = 0xffffffff; // after everything else
+        this._rootNode._objFlags = cclegacy.Object.Flags.DontSave | cclegacy.Object.Flags.HideInHierarchy;
+        cclegacy.game.addPersistRootNode(this._rootNode);
 
         const managerNode = new Node('Profiler_Root');
         managerNode.parent = this._rootNode;
@@ -271,10 +285,10 @@ export class Profiler {
         const scale = rowHeight / _constants.fontSize;
         const columnWidth = this._eachNumWidth * this._canvas!.width * scale;
         const vertexPos: number[] = [
-            0, height, 0, // top-left
+            0,      height, 0, // top-left
             lWidth, height, 0, // top-right
             lWidth,      0, 0, // bottom-right
-            0,      0, 0, // bottom-left
+            0,           0, 0, // bottom-left
         ];
         const vertexindices: number[] = [
             0, 2, 1,
@@ -305,15 +319,15 @@ export class Profiler {
             }
         }
 
-        const modelCom = managerNode.addComponent(MeshRenderer);
-        modelCom.mesh = createMesh({
+        this._meshRenderer = managerNode.addComponent(MeshRenderer);
+        this._meshRenderer.mesh = createMesh({
             positions: vertexPos,
             indices: vertexindices,
             colors: vertexUV, // pack all the necessary info in a_color: { x: u, y: v, z: id.x, w: id.y }
         });
 
         const _material = new Material();
-        _material.initialize({ effectName: 'profiler' });
+        _material.initialize({ effectName: 'util/profiler' });
 
         const pass = this.pass = _material.passes[0];
         const hTexture = pass.getBinding('mainTexture');
@@ -324,8 +338,9 @@ export class Profiler {
         this.offsetData = pass.blocks[bOffset];
         this.offsetData[3] = -1; // ensure init on the first frame
 
-        modelCom.material = _material;
-        modelCom.node.layer = Layers.Enum.PROFILER;
+        this._meshRenderer.material = _material;
+        this._meshRenderer.node.layer = Layers.Enum.PROFILER;
+
         this._inited = true;
     }
 
@@ -335,7 +350,6 @@ export class Profiler {
         }
 
         const now = performance.now();
-        (this._stats.frame.counter as PerfCounter).end(now);
         (this._stats.frame.counter as PerfCounter).start(now);
         (this._stats.logic.counter as PerfCounter).start(now);
     }
@@ -346,7 +360,7 @@ export class Profiler {
         }
 
         const now = performance.now();
-        if (legacyCC.director.isPaused()) {
+        if (cclegacy.director.isPaused()) {
             (this._stats.frame.counter as PerfCounter).start(now);
         } else {
             (this._stats.logic.counter as PerfCounter).end(now);
@@ -372,24 +386,33 @@ export class Profiler {
     }
 
     public beforeDraw () {
-        if (!this._stats) {
+        if (!this._stats || !this._inited) {
             return;
         }
 
-        if (!EDITOR) {
-            const surfaceTransform = this._device!.surfaceTransform;
-            const screenSpaceSignY = this._device!.capabilities.screenSpaceSignY;
+        if (!EDITOR || cclegacy.GAME_VIEW) {
+            const surfaceTransform = this._swapchain!.surfaceTransform;
+            const clipSpaceSignY = this._device!.capabilities.clipSpaceSignY;
             if (surfaceTransform !== this.offsetData[3]) {
                 const preTransform = preTransforms[surfaceTransform];
-                const x = -0.9; const y = -0.9 * screenSpaceSignY;
+                let x = -0.9; let y = -0.9 * clipSpaceSignY;
+                if (sys.isXR) {
+                    x = -0.5; y = -0.5 * clipSpaceSignY;
+                }
                 this.offsetData[0] = x * preTransform[0] + y * preTransform[2];
                 this.offsetData[1] = x * preTransform[1] + y * preTransform[3];
                 this.offsetData[2] = this._eachNumWidth;
                 this.offsetData[3] = surfaceTransform;
             }
 
-            // @ts-expect-error using private members for efficiency
+            // @ts-expect-error using private members for efficiency.
             this.pass._rootBufferDirty = true;
+        }
+
+        if (this._meshRenderer.model) {
+            director.root!.pipeline.profiler = this._meshRenderer.model;
+        } else {
+            director.root!.pipeline.profiler = null;
         }
 
         const now = performance.now();
@@ -402,10 +425,11 @@ export class Profiler {
         }
         const now = performance.now();
 
+        (this._stats.frame.counter as PerfCounter).end(now);
         (this._stats.fps.counter as PerfCounter).frame(now);
         (this._stats.render.counter as PerfCounter).end(now);
 
-        if (now - this.lastTime < 500) {
+        if (now - this.lastTime < _average) {
             return;
         }
         this.lastTime = now;
@@ -418,7 +442,7 @@ export class Profiler {
         (this._stats.tricount.counter as PerfCounter).value = device.numTris;
 
         let i = 0;
-        if (!EDITOR) {
+        if (!EDITOR || cclegacy.GAME_VIEW) {
             const view = this.digitsData;
             for (const id in this._stats) {
                 const stat = this._stats[id] as ICounterOption;
@@ -438,4 +462,5 @@ export class Profiler {
 }
 
 export const profiler = new Profiler();
-legacyCC.profiler = profiler;
+director.registerSystem('profiler', profiler, 0);
+cclegacy.profiler = profiler;
