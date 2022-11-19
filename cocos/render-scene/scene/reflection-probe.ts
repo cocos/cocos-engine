@@ -333,19 +333,6 @@ export class ReflectionProbe {
         this.camera.update(true);
     }
 
-    public _syncCameraParams (camera: Camera) {
-        this.camera.projectionType = camera.projectionType;
-        this.camera.orthoHeight = camera.orthoHeight;
-        this.camera.nearClip = camera.nearClip;
-        this.camera.farClip = camera.farClip;
-        this.camera.fov = camera.fov;
-        this.camera.visibility = camera.visibility;
-        this.camera.clearFlag = camera.clearFlag;
-        this.camera.clearColor = camera.clearColor;
-        this.camera.priority = camera.priority - 1;
-        this.camera.resize(camera.width, camera.height);
-    }
-
     public updateBoundingBox () {
         if (this.node) {
             this.node.updateWorldTransform();
@@ -363,6 +350,19 @@ export class ReflectionProbe {
             }
         }
         return false;
+    }
+
+    private _syncCameraParams (camera: Camera) {
+        this.camera.projectionType = camera.projectionType;
+        this.camera.orthoHeight = camera.orthoHeight;
+        this.camera.nearClip = camera.nearClip;
+        this.camera.farClip = camera.farClip;
+        this.camera.fov = camera.fov;
+        this.camera.visibility = camera.visibility;
+        this.camera.clearFlag = camera.clearFlag;
+        this.camera.clearColor = camera.clearColor;
+        this.camera.priority = camera.priority - 1;
+        this.camera.resize(camera.width, camera.height);
     }
 
     private _createCamera (cameraNode:Node) {

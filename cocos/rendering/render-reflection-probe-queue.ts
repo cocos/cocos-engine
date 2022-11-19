@@ -36,6 +36,11 @@ import { IMacroPatch, RenderScene } from '../render-scene';
 import { RenderInstancedQueue } from './render-instanced-queue';
 import { RenderBatchedQueue } from './render-batched-queue';
 import { geometry } from '../core';
+import { Layers } from '../scene-graph/layers';
+
+// eslint-disable-next-line max-len
+const REFLECTION_PROBE_DEFAULT_MASK = Layers.makeMaskExclude([Layers.BitMask.UI_2D, Layers.BitMask.UI_3D, Layers.BitMask.GIZMOS, Layers.BitMask.EDITOR,
+    Layers.BitMask.SCENE_GIZMO, Layers.BitMask.PROFILER]);
 
 const CC_USE_RGBE_OUTPUT = 'CC_USE_RGBE_OUTPUT';
 const _phaseID = getPhaseID('default');
@@ -99,8 +104,8 @@ export class RenderReflectionProbeQueue {
                         && geometry.intersect.aabbWithAABB(model.worldBounds, probe.boundingBox!)) {
                         this.add(model);
                     }
-                } else if (((visibility & model.node.layer) === model.node.layer)
-                    || (visibility & model.visFlags)) {
+                } else if ((((model.node.layer & REFLECTION_PROBE_DEFAULT_MASK) & model.node.layer) === model.node.layer)
+                    || (REFLECTION_PROBE_DEFAULT_MASK & model.visFlags)) {
                     this.add(model);
                 }
             }

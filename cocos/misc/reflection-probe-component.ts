@@ -35,6 +35,7 @@ import { Layers } from '../scene-graph/layers';
 import { Camera } from './camera-component';
 import { Node } from '../scene-graph';
 import { ProbeClearFlag, ProbeType } from '../render-scene/scene/reflection-probe';
+import { MeshRenderer } from '../3d/framework/mesh-renderer';
 
 export enum ProbeResolution {
     /**
@@ -94,6 +95,9 @@ export class ReflectionProbe extends Component {
 
     protected _probe: scene.ReflectionProbe | null = null;
 
+    protected _previewSphere: Node | null = null;
+    protected _previewPlane: Node | null = null;
+
     /**
      * @en
      * Gets or sets the size of the box
@@ -129,6 +133,7 @@ export class ReflectionProbe extends Component {
                 if (EDITOR) {
                     this._objFlags |= CCObject.Flags.IsRotationLocked;
                 }
+                ReflectionProbeManager.probeManager.updatePlanarMap(this.probe, null);
             } else {
                 if (lastSizeIsNoExist) {
                     this._size.set(ReflectionProbe.DEFAULT_PLANER_SIZE);
@@ -146,6 +151,7 @@ export class ReflectionProbe extends Component {
                 this._size.set(this._lastSize);
             }
             this._lastSize.set(lastSize);
+            this.size = this._size;
         }
     }
     get probeType () {
@@ -238,6 +244,22 @@ export class ReflectionProbe extends Component {
         return this._probe!;
     }
 
+    set previewSphere (val: Node) {
+        this._previewSphere = val;
+    }
+
+    get previewSphere () {
+        return this._previewSphere!;
+    }
+
+    set previewPlane (val: Node) {
+        this._previewPlane = val;
+    }
+
+    get previewPlane () {
+        return this._previewPlane!;
+    }
+
     public onLoad () {
         if (EDITOR || this.probeType === ProbeType.PLANAR) {
             this._createProbe();
@@ -283,6 +305,12 @@ export class ReflectionProbe extends Component {
                     }
                 }
             }
+            if (this._previewSphere) {
+                const meshRender = this._previewSphere.getComponent(MeshRenderer);
+                if (meshRender) {
+                    meshRender.updateProbeCubemap(this._cubemap);
+                }
+            }
             this.probe.updateBoundingBox();
             ReflectionProbeManager.probeManager.updateUseCubeModels(this.probe);
             ReflectionProbeManager.probeManager.updateUsePlanarModels(this.probe);
@@ -300,7 +328,7 @@ export class ReflectionProbe extends Component {
 
     private _createProbe () {
         if (this._probeId === -1 || ReflectionProbeManager.probeManager.exists(this._probeId)) {
-            this._probeId = this.node.scene.getNewReflectionProbeId();
+            this._probeId = ReflectionProbeManager.probeManager.getNewReflectionProbeId();
         }
         this._probe = new scene.ReflectionProbe(this._probeId);
         if (this._probe) {

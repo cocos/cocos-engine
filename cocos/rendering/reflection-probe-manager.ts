@@ -32,7 +32,7 @@ import { ProbeType, ReflectionProbe } from '../render-scene/scene/reflection-pro
 import { Layers } from '../scene-graph/layers';
 
 const SPHERE_NODE_NAME = 'Reflection Probe Sphere';
-export const REFLECTION_PROBE_DEFAULT_MASK = Layers.makeMaskExclude([Layers.BitMask.UI_2D, Layers.BitMask.UI_3D, Layers.BitMask.GIZMOS, Layers.BitMask.EDITOR,
+const REFLECTION_PROBE_DEFAULT_MASK = Layers.makeMaskExclude([Layers.BitMask.UI_2D, Layers.BitMask.UI_3D, Layers.BitMask.GIZMOS, Layers.BitMask.EDITOR,
     Layers.BitMask.SCENE_GIZMO, Layers.BitMask.PROFILER]);
 export class ReflectionProbeManager {
     public static probeManager: ReflectionProbeManager;
@@ -80,6 +80,18 @@ export class ReflectionProbeManager {
             }
         }
         return false;
+    }
+
+    public getNewReflectionProbeId () {
+        let probeId = 0;
+        // eslint-disable-next-line no-constant-condition
+        while (true) {
+            if (this.exists(probeId)) {
+                probeId++;
+            } else {
+                return probeId;
+            }
+        }
     }
 
     public getProbes (): ReflectionProbe[] {
@@ -134,6 +146,11 @@ export class ReflectionProbeManager {
         }
     }
 
+    /**
+     * @en Update objects using reflection probe for planar reflection.
+     * @zh 更新使用反射探针进行平面反射的物体。
+     * @param probe update the object for this probe
+     */
     public updateUsePlanarModels (probe: ReflectionProbe) {
         if (!probe.node || !probe.node.scene) return;
         const scene = probe.node.scene.renderScene;
@@ -163,8 +180,8 @@ export class ReflectionProbeManager {
     }
 
     /**
-     * @en This function is called when the transform of the reflection probe changes, to update the object using this reflection probe.
-     * @zh 反射探针的transform变化时,会调用此函数来更新使用此反射探针的物体。
+     * @en Update objects using reflection probe for bake cubemap.
+     * @zh 更新使用反射探针烘焙cubemap的物体。
      * @param probe update the object for this probe
      */
     public updateUseCubeModels (probe: ReflectionProbe) {
