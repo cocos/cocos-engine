@@ -4,58 +4,6 @@ const { materialTechniquePolyfill } = require('../utils/material');
 const { setDisabled, setReadonly, setHidden, loopSetAssetDumpDataReadonly } = require('../utils/prop');
 const { join, sep, normalize } = require('path');
 
-const effectGroupNameRE = /^(\w+)\//; // root DB name
-const effectDirRE = /^effects\//i;
-
-/**
- * 
- * @param {{name: string; uuid: string}[]} sortedEffects 
- * @returns html template
- */
-function renderGroupEffectOptions(sortedEffects) {
-    const groupNames = new Set();
-
-    let htmlTemplate = '';
-    let currGroup = '';
-
-    for (const effect of sortedEffects) {
-        const groupName = effectGroupNameRE.exec(effect.name)?.[1] ?? '';
-        let optionLabel = effect.name;
-
-        // complete prev group
-        if (currGroup !== '' && currGroup !== groupName) {
-            htmlTemplate += '</optgroup>';
-        }
-
-        if (groupName !== '') {
-            if (!groupNames.has(groupName)) {
-                groupNames.add(groupName);
-
-                currGroup = groupName;
-
-                htmlTemplate += `<optgroup label="${groupName}">`;
-            }
-
-            // for option label, remove group name if matched
-            optionLabel = optionLabel.replace(effectGroupNameRE, '');
-        }
-
-        // remove prefix 'effects'
-        if (effectDirRE.test(optionLabel)) {
-            optionLabel = optionLabel.replace(effectDirRE, '');
-        }
-
-        // use full name as option value
-        htmlTemplate += `<option value="${effect.name}" data-uuid="${effect.uuid}">${optionLabel}</option>`;
-    }
-
-    if (currGroup !== '') {
-        htmlTemplate += '</optgroup>';
-    }
-
-    return htmlTemplate;
-}
-
 exports.style = `
 .invalid { display: none; }
 .invalid[active] { display: block; }
@@ -163,7 +111,10 @@ exports.methods = {
             };
         });
 
-        let effectOption = renderGroupEffectOptions(this.effects);
+        let effectOption = '';
+        for (let effect of this.effects) {
+            effectOption += `<option>${effect.name}</option>`;
+        }
         this.$.effect.innerHTML = effectOption;
 
         this.$.effect.value = this.material.effect;
