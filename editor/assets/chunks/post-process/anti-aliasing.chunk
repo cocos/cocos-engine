@@ -5,5 +5,5 @@
 #endif
 #if ANTIALIAS_TYPE == 2
     // #define FXAA_PRESET 5
-    #include <post-process/fxaaHQ>
+    #include <post-process/fxaa-hq>
 #endif
