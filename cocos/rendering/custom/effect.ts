@@ -186,34 +186,33 @@ export function buildForwardLayout (ppl: Pipeline) {
         ShaderStageFlagBit.FRAGMENT,
         postDescriptors);
 
-        lg.setDescriptor(postPassBlock, 'outputResultMap', Type.SAMPLER2D);
-        lg.merge(postDescriptors);
-        lg.mergeDescriptors(postPassID);
+    lg.setDescriptor(postPassBlock, 'outputResultMap', Type.SAMPLER2D);
+    lg.merge(postDescriptors);
+    lg.mergeDescriptors(postPassID);
 
-        // 6.=== FxaaHQ ===
-        const fxaaID = lg.addRenderStage('fxaa', 1);
-        lg.addRenderPhase('Queue', fxaaID);
-        const fxaaDescriptors = lg.layoutGraph.getDescriptors(fxaaID);
-        // unifom
-        const fxaaUniformBlock = lg.getLayoutBlock(UpdateFrequency.PER_PASS,
-            ParameterType.TABLE,
-            DescriptorTypeOrder.UNIFORM_BUFFER,
-            ShaderStageFlagBit.ALL,
-            fxaaDescriptors);
-        const fxaaUBO: UniformBlock = lg.getUniformBlock(SetIndex.MATERIAL,
-            0, 'fxaaUBO', fxaaUniformBlock);
-        lg.setUniform(fxaaUBO, 'texSize', Type.FLOAT4, 1);
-        lg.setDescriptor(fxaaUniformBlock, 'fxaaUBO', Type.UNKNOWN);
-        // texture
-        const fxaaPassBlock = lg.getLayoutBlock(UpdateFrequency.PER_PASS,
-            ParameterType.TABLE,
-            DescriptorTypeOrder.SAMPLER_TEXTURE,
-            ShaderStageFlagBit.FRAGMENT,
-            fxaaDescriptors);
-        lg.setDescriptor(fxaaPassBlock, 'sceneColorMap', Type.SAMPLER2D);
-        lg.merge(fxaaDescriptors);
-        lg.mergeDescriptors(fxaaID);
-    }
+    // 6.=== FxaaHQ ===
+    const fxaaID = lg.addRenderStage('fxaa', 1);
+    lg.addRenderPhase('Queue', fxaaID);
+    const fxaaDescriptors = lg.layoutGraph.getDescriptors(fxaaID);
+    // unifom
+    const fxaaUniformBlock = lg.getLayoutBlock(UpdateFrequency.PER_PASS,
+        ParameterType.TABLE,
+        DescriptorTypeOrder.UNIFORM_BUFFER,
+        ShaderStageFlagBit.ALL,
+        fxaaDescriptors);
+    const fxaaUBO: UniformBlock = lg.getUniformBlock(SetIndex.MATERIAL,
+        0, 'fxaaUBO', fxaaUniformBlock);
+    lg.setUniform(fxaaUBO, 'texSize', Type.FLOAT4, 1);
+    lg.setDescriptor(fxaaUniformBlock, 'fxaaUBO', Type.UNKNOWN);
+    // texture
+    const fxaaPassBlock = lg.getLayoutBlock(UpdateFrequency.PER_PASS,
+        ParameterType.TABLE,
+        DescriptorTypeOrder.SAMPLER_TEXTURE,
+        ShaderStageFlagBit.FRAGMENT,
+        fxaaDescriptors);
+    lg.setDescriptor(fxaaPassBlock, 'sceneColorMap', Type.SAMPLER2D);
+    lg.merge(fxaaDescriptors);
+    lg.mergeDescriptors(fxaaID);
 
     const builder = ppl.layoutGraphBuilder;
     builder.clear();
