@@ -14,7 +14,7 @@ namespace pipeline
 
     namespace{
 
-    void fillblasGeomTriangleMesh(gfx::ASTriangleMesh& blasGeomMesh, const IntrusivePtr<scene::SubModel>& pSubModel) {
+    void fillBlasGeomTriangleMesh(gfx::ASTriangleMesh& blasGeomMesh, const IntrusivePtr<scene::SubModel>& pSubModel) {
         blasGeomMesh.flag = gfx::ASGeometryFlagBit::GEOMETRY_OPAQUE;
         const auto* inputAssembler = pSubModel->getInputAssembler();
         blasGeomMesh.vertexCount = inputAssembler->getVertexCount();
@@ -46,7 +46,7 @@ namespace pipeline
         } else {
             for (const auto& pSubModel : pModel->getSubModels()) {
                 gfx::ASTriangleMesh blasGeomMesh{};
-                fillblasGeomTriangleMesh(blasGeomMesh, pSubModel);
+                fillBlasGeomTriangleMesh(blasGeomMesh, pSubModel);
                 blasInfo.triangleMeshes.push_back(blasGeomMesh);
             }
         }
@@ -78,7 +78,6 @@ namespace pipeline
 
         const auto& subModels = pModel->getSubModels();
         //todo temporal code
-        tlasGeom.shaderBindingTableRecordOffset = ~0U;
         tlasGeom.mask = 0xFF;
         tlasGeom.transform = pModel->getTransform()->getWorldMatrix();
         tlasGeom.flags = gfx::GeometryInstanceFlagBits::TRIANGLE_FACING_CULL_DISABLE;
@@ -251,34 +250,15 @@ namespace pipeline
         _geomBlasCache.clear();
         _modelCache.clear();
     }
+
     uint16_t RayQueryBindingTable::registrySubmeshes(const ccstd::vector<SubMeshGeomDescriptor>& subMeshes) {
-        const auto& g = std::search(_geomDesc.cbegin(), _geomDesc.cend(), subMeshes.cbegin(), subMeshes.cend());
 
-        uint16_t offset;
-
-        if (g != _geomDesc.cend()) {
-            offset = std::distance(_geomDesc.cbegin(), g);
-        } else {
-            offset = _geomDesc.size();
-            _geomDesc.insert(_geomDesc.end(), subMeshes.cbegin(), subMeshes.cend());
-        }
-
-        return offset;
+        return static_cast<uint16_t>(_geomDesc.allocate(subMeshes));
     }
 
     uint16_t RayQueryBindingTable::registryMaterials(const ccstd::vector<uint64_t>& materials) {
-        const auto& m = std::search(_materialDesc.cbegin(), _materialDesc.cend(), materials.cbegin(), materials.cend());
 
-        uint16_t offset;
-
-        if (m != _materialDesc.cend()) {
-            offset = static_cast<uint16_t>(std::distance(_materialDesc.cbegin(), m));
-        } else {
-            offset = _materialDesc.size();
-            _materialDesc.insert(_materialDesc.end(), materials.cbegin(), materials.cend());
-        }
-
-        return offset;
+        return static_cast<uint16_t>(_materialDesc.allocate(materials));
     }
 
     uint32_t RayQueryBindingTable::registry(const ccstd::vector<RayTracingGeometryShadingDescriptor>& shadingGeometries) {
@@ -287,18 +267,17 @@ namespace pipeline
         shadingDesciptor.padding = shadingGeometries[0].meshDescriptor.has_value() ? (shadingGeometries[0].meshDescriptor.value().indexBuffer->getStride() == 2 ? 0 : 1) : -1;
 
         ccstd::vector<SubMeshGeomDescriptor> meshes;
-        // meshes.reserve(shadingGeometries.size());
+        meshes.reserve(shadingGeometries.size());
         std::transform(shadingGeometries.cbegin(), shadingGeometries.cend(), std::back_inserter(meshes), [&](const RayTracingGeometryShadingDescriptor& geom) {
             const auto& meshDescriptor = geom.meshDescriptor;
             if (meshDescriptor) {
                 return SubMeshGeomDescriptor{meshDescriptor.value().indexBuffer->getDeviceAddress(), meshDescriptor.value().vertexBuffer->getDeviceAddress()};
-            } else {
-                return SubMeshGeomDescriptor{~0U, ~0U};
             }
+            return SubMeshGeomDescriptor{~0U, ~0U};
         });
 
         ccstd::vector<uint64_t> materials;
-        // materials.reserve(shadingGeometries.size());
+        materials.reserve(shadingGeometries.size());
         std::transform(shadingGeometries.cbegin(), shadingGeometries.cend(), std::back_inserter(materials), [&](const RayTracingGeometryShadingDescriptor& geom) {
             return geom.materialID;
         });
@@ -306,21 +285,7 @@ namespace pipeline
         shadingDesciptor.subMeshGeometryOffset = registrySubmeshes(meshes);
         shadingDesciptor.subMeshMaterialOffset = registryMaterials(materials);
 
-        // check for shadingDescriptor reuse
-        auto it = _shadingInstanceDescriptors.cbegin();
-        for (; it != _shadingInstanceDescriptors.cend(); ++it) {
-            if (*it == shadingDesciptor) {
-                break;
-            }
-        }
-
-        const auto index = static_cast<uint32_t>(std::distance(_shadingInstanceDescriptors.cbegin(), it));
-
-        if (it == _shadingInstanceDescriptors.cend()) {
-            _shadingInstanceDescriptors.push_back(shadingDesciptor);
-        }
-
-        return index;
+        return static_cast<uint32_t>(_shadingInstanceDescriptors.allocate({shadingDesciptor}));
     }
 
     void RayQueryBindingTable::recreate() {

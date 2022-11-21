@@ -60,6 +60,10 @@ struct RayTracingSceneUpdateInfo {
 
 using AccelerationStructurePtr = IntrusivePtr<gfx::AccelerationStructure>;
 
+struct RayTracingSceneAccelerationStructureManager final {
+
+};
+
 class BlasCache final {
 public:
     std::optional<AccelerationStructurePtr> contain(const AccelerationStructurePtr& as) const {
@@ -84,6 +88,184 @@ public:
     }
 };
 
+template <typename BlockType,bool allow_reuse = false>
+struct MonotonicPool{
+
+    static_assert(std::is_trivially_copyable<BlockType>::value);
+    static_assert(!std::is_abstract<BlockType>::value);
+    using PoolIndexType = uint32_t;
+    using ConsecutiveBlocks = ccstd::vector<BlockType>;
+
+public:
+
+    PoolIndexType allocate(const ConsecutiveBlocks& consecutive_blocks) {
+        if (allow_reuse) {
+            auto offset = check_exist(consecutive_blocks);
+            if (offset) return offset.value();
+        }
+
+        return handle_new_blocks(consecutive_blocks);
+    }
+
+    ccstd::vector<PoolIndexType> allocate(const ccstd::vector<ConsecutiveBlocks>& consecutive_blocks_group) {
+        return {};
+    }
+
+    void free(int first, int last) {
+        CC_ASSERT(first <= last);
+        CC_ASSERT(last < _blocks.size());
+
+        _blockRefView.dec_ref(first, last);
+    }
+
+    size_t size() const noexcept {
+        return _blocks.size();
+    }
+
+    auto data() const noexcept {
+        return _blocks.data();
+    }
+
+private:
+
+    std::optional<PoolIndexType> check_exist(const ConsecutiveBlocks& consecutive_blocks) {
+        const auto& it = std::search(_blocks.cbegin(), _blocks.cend(), consecutive_blocks.cbegin(), consecutive_blocks.cend());
+        if (it != _blocks.cend()) {
+            auto offset = std::distance(_blocks.cbegin(), it);
+            _blockRefView.inc_ref(offset, consecutive_blocks.size());
+            return offset;
+        }
+        return {};
+    }
+
+    PoolIndexType push_back_new_blocks(const ConsecutiveBlocks& consecutive_blocks) {
+        auto offset = _blocks.size();
+        _blocks.insert(_blocks.end(), consecutive_blocks.cbegin(), consecutive_blocks.cend());
+        _blockRefView.push_back_new_blocks(consecutive_blocks.size());
+        return offset;
+    }
+
+    PoolIndexType use_consecutive_free_block(const PoolIndexType free_block_id, const ConsecutiveBlocks& consecutive_blocks) {
+        const auto offset = _blockRefView.use_consecutive_free_block(free_block_id, consecutive_blocks.size());
+        std::copy(consecutive_blocks.cbegin(), consecutive_blocks.cend(), _blocks.begin() + offset);
+        return offset;
+    }
+
+    PoolIndexType handle_new_blocks(const ConsecutiveBlocks& consecutive_blocks) {
+        auto block_id = _blockRefView.check_consecutive_free_block(consecutive_blocks.size());
+        if (block_id) {
+            return use_consecutive_free_block(block_id.value(), consecutive_blocks);
+        }else {
+            return push_back_new_blocks(consecutive_blocks);
+        }
+    }
+
+    struct BlockRefView {
+
+        void inc_ref(const PoolIndexType offset, const size_t size) noexcept {
+            auto it = block_ref_count.begin() + offset;
+            std::for_each(it, it + size, [](auto& i) { ++i; });
+        }
+
+        void dec_ref(const PoolIndexType start, const PoolIndexType end) noexcept {
+            ccstd::vector<PoolIndexType> stack;
+            for (auto i = start;i<=end;++i) {
+                if (block_ref_count[i]>0) {
+                    if (stack.empty()) {
+                        stack.push_back(i);
+                    }
+                }else {
+                    if (!stack.empty()) {
+                        dec_ref_impl(stack.back(), i - 1);
+                        stack.pop_back();
+                    }
+                }
+            }
+
+            if (!stack.empty()) {
+                dec_ref_impl(stack.back(), end);
+            }
+        }
+
+        void push_back_new_blocks(size_t size) {
+            block_ref_count.insert(block_ref_count.end(), size, 1);
+        }
+
+        PoolIndexType use_consecutive_free_block(const PoolIndexType free_block_id, const size_t size) noexcept {
+            auto& free_block = free_blocks[free_block_id];
+            inc_ref(free_block.first, size);
+            free_block.first += size;
+            if (free_block.first>free_block.second) {
+                free_blocks.erase(free_blocks.begin() + free_block_id);
+            }
+            return free_blocks[free_block_id].first;
+        }
+
+        std::optional<PoolIndexType> check_consecutive_free_block(const size_t size) const noexcept {
+            int free_block_id = 0;
+            for (const auto & free_block : free_blocks) {
+                assert(free_block.second >= free_block.first);
+                if (free_block.second - free_block.first + 1 >= size) {
+                    return free_block_id;
+                }
+                free_block_id++;
+            }
+            return {};
+        }
+
+        uint32_t get_ref_count(PoolIndexType idx) {
+            return block_ref_count[idx];
+        }
+
+    private:
+
+        bool merge_free_blocks(PoolIndexType start, PoolIndexType end) {
+            auto  front_merge_target = free_blocks.end();
+            auto rear_merge_target = free_blocks.end();
+
+            for (auto fb = free_blocks.begin(); fg != free_blocks.end();++fb) {
+                if (fb->second == start - 1) {
+                    fb->second = end;
+                    front_merge_target = fb;
+                }
+
+                if (fb->first == end + 1) {
+                    fb->first = start;
+                    rear_merge_target = fb;
+                }
+            }
+
+            if (front_merge_target == free_blocks.end() && rear_merge_target == free_blocks.end()) {
+                return false;
+            }
+
+            if (front_merge_target != free_blocks.end() && rear_merge_target != free_blocks.end()) {
+                front_merge_target->second = rear_merge_target->second;
+                free_blocks.erase(rear_merge_target);
+            }
+
+            return true;
+
+        }
+
+        void dec_ref_impl(PoolIndexType start, PoolIndexType end) noexcept {
+
+            for (auto i = start; i < end; ++i) {
+                block_ref_count[i]--;
+            }
+
+            if (!merge_free_blocks(start,end)) {
+                free_blocks.emplace_back(start, end);
+            }
+        }
+
+        ccstd::vector<std::pair<PoolIndexType, PoolIndexType>> free_blocks;
+        ccstd::vector<uint32_t> block_ref_count;
+    }_blockRefView;
+
+    ccstd::vector<BlockType> _blocks;
+};
+
 struct SubMeshGeomDescriptor final {
     uint64_t indexAddress{0};
     uint64_t vertexAddress{0};
@@ -97,7 +279,7 @@ using MeshGeometriesDescriptor = ccstd::vector<SubMeshGeomDescriptor>;
 
 using MeshMaterialsDescriptor = ccstd::vector<uint32_t>;
 
-struct MeshShadingDescriptor {
+struct MeshShadingDescriptor final {
     // The first submesh geometry position of the Mesh
     uint16_t subMeshGeometryOffset{0};
     // The first submesh material position of the Mesh
@@ -124,7 +306,7 @@ struct MeshShadingDescriptor {
         iff G1 = G2 and M1 = M2, then MeshShadingDescriptor could be shared.
 */
 
-struct RayQueryBindingTable {
+struct RayQueryBindingTable final{
 private:
     // instanceDecs.geometryOffset + geometryIndex
     /*
@@ -137,8 +319,8 @@ private:
      * |-------------------||---------||-------------------||-----------------------------||-----------------------------||---------||-------------------|
      */
 
-    ccstd::vector<SubMeshGeomDescriptor> _geomDesc;
-    //ccstd::vector<MeshGeometriesDescriptor> _geomDesc2;
+    //ccstd::vector<SubMeshGeomDescriptor> _geomDesc;
+    MonotonicPool<SubMeshGeomDescriptor, true> _geomDesc;
 
     /*
      * matID n : matID of the nth geometry
@@ -149,8 +331,8 @@ private:
      * |---------------||-------||---------------||-----------------------||-----------------------||-------||---------------|
       */
 
-    ccstd::vector<uint64_t> _materialDesc;
-    //ccstd::vector<MeshMaterialsDescriptor> _materialDesc2;
+    //ccstd::vector<uint64_t> _materialDesc;
+    MonotonicPool<uint64_t, true> _materialDesc;
 
     /* |----------------------------------------------||----------------------------------------------||----------------------------------------------|
      * |-------------------descriptor 0---------------||-------------------descriptor 1---------------||-------------------descriptor 2---------------| instanceCustomIndex
@@ -158,7 +340,8 @@ private:
      * |----------------------------------------------||----------------------------------------------||----------------------------------------------|                                     
      */
 
-    ccstd::vector<MeshShadingDescriptor> _shadingInstanceDescriptors;
+    //ccstd::vector<MeshShadingDescriptor> _shadingInstanceDescriptors;
+    MonotonicPool<MeshShadingDescriptor> _shadingInstanceDescriptors;
 
     uint16_t registrySubmeshes(const ccstd::vector<SubMeshGeomDescriptor>& subMeshes);
 
@@ -198,17 +381,24 @@ using ShaderRecord = std::pair<SubMeshGeomDescriptor, uint32_t>;
  * |-----------------------------------||-----------------||-----------------------------------||-----------------------------------------------------|
  */
 
-using ShaderRecordList = ccstd::vector<ShaderRecord>;
+struct RayTracingBindingTable final{
 
-struct RayTracingBindingTable {
+    //using ShaderRecordList = ccstd::vector<ShaderRecord>;
+    using ShaderRecordList = MonotonicPool<ShaderRecord,true>;
+
     ShaderRecordList _hitGroup;
     uint32_t registry(const ccstd::vector<RayTracingGeometryShadingDescriptor>& shadingGeometries) {
-        return 0;
+        ccstd::vector<ShaderRecord> shaderRecords;
+        shaderRecords.reserve(shadingGeometries.size());
+        std::transform(shadingGeometries.cbegin(), shadingGeometries.cend(), std::back_inserter(shaderRecords), [&](const RayTracingGeometryShadingDescriptor& geom) {
+            const auto& meshDescriptor = geom.meshDescriptor;
+            if (meshDescriptor) {
+                return ShaderRecord{SubMeshGeomDescriptor{meshDescriptor.value().indexBuffer->getDeviceAddress(), meshDescriptor.value().vertexBuffer->getDeviceAddress()},geom.materialID};
+            }
+            return ShaderRecord{SubMeshGeomDescriptor{~0U, ~0U}, geom.materialID};
+        });
+        return _hitGroup.allocate(shaderRecords);
     }
-};
-
-struct RayTracingSceneAccelerationStructureManager {
-    
 };
 
 } // namespace pipeline
