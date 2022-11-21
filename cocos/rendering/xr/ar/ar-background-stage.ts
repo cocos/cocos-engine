@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { Color, ColorAttachment, DepthStencilAttachment, deviceManager, Rect, RenderPassInfo, StoreOp } from '../../../gfx';
+import { ColorAttachment, DepthStencilAttachment, deviceManager, Rect, RenderPassInfo, StoreOp } from '../../../gfx';
 import { IRenderStageInfo, RenderStage } from '../../render-stage';
 import { ForwardStagePriority } from '../../enum';
 import { ForwardFlow } from '../../forward/forward-flow';
