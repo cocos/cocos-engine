@@ -38,6 +38,7 @@ export interface IMemoryImageSource {
     width: number;
     height: number;
     format: number;
+    mipmapLevelDataSize?: number[];
 }
 
 export type ImageSource = HTMLCanvasElement | HTMLImageElement | IMemoryImageSource | ImageBitmap;
@@ -72,6 +73,7 @@ imageAssetProto._ctor = function (nativeAsset?: ImageSource) {
         height: 0,
         format: 0,
         _compressed: false,
+        mipmapLevelDataSize:[],
     };
 
     if (nativeAsset !== undefined) {
@@ -166,9 +168,15 @@ imageAssetProto._syncDataToNative = function () {
     }
     else if (data instanceof HTMLImageElement) {
         this.setData(data._data);
+        if (data._mipmapLevelDataSize){
+            this.setMipmapLevelDataSize(data._mipmapLevelDataSize);
+        }
     }
     else {
         this.setData(this._nativeData._data);
+        if (this._nativeData.mipmapLevelDataSize) {
+            this.setMipmapLevelDataSize(this._nativeData.mipmapLevelDataSize);
+        }
     }
 };
 
