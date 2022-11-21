@@ -785,6 +785,12 @@ export class WebPipeline implements Pipeline {
             this.resourceGraph._vertices[resId]._object = renderWindow.framebuffer;
         }
     }
+    updateRenderTarget (name: string, width: number, height: number, format: Format = Format.UNKNOWN): void {
+
+    }
+    updateDepthStencil (name: unknown, width: unknown, height: unknown, format: Format = Format.UNKNOWN): void {
+
+    }
     public containsResource (name: string): boolean {
         return this._resourceGraph.contains(name);
     }
