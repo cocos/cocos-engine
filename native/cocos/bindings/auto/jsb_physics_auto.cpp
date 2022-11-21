@@ -1191,6 +1191,7 @@ static bool js_cc_physics_RigidBody_getLinearVelocity(se::State& s)
     size_t argc = args.size();
     cc::physics::RigidBody *arg1 = (cc::physics::RigidBody *) NULL ;
     cc::Vec3 result;
+    cc::Vec3 *temp ;
     
     if(argc != 0) {
         SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -1200,9 +1201,10 @@ static bool js_cc_physics_RigidBody_getLinearVelocity(se::State& s)
     if (nullptr == arg1) return true;
     result = (arg1)->getLinearVelocity();
     
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    temp = ccnew cc::Vec3(result);
+    ok &= nativevalue_to_se(temp, s.rval(), s.thisObject());
     SE_PRECONDITION2(ok, false, "Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    s.rval().toObject()->getPrivateObject()->tryAllowDestroyInGC();
     
     
     
@@ -1249,6 +1251,7 @@ static bool js_cc_physics_RigidBody_getAngularVelocity(se::State& s)
     size_t argc = args.size();
     cc::physics::RigidBody *arg1 = (cc::physics::RigidBody *) NULL ;
     cc::Vec3 result;
+    cc::Vec3 *temp ;
     
     if(argc != 0) {
         SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -1258,9 +1261,10 @@ static bool js_cc_physics_RigidBody_getAngularVelocity(se::State& s)
     if (nullptr == arg1) return true;
     result = (arg1)->getAngularVelocity();
     
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    temp = ccnew cc::Vec3(result);
+    ok &= nativevalue_to_se(temp, s.rval(), s.thisObject());
     SE_PRECONDITION2(ok, false, "Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    s.rval().toObject()->getPrivateObject()->tryAllowDestroyInGC();
     
     
     

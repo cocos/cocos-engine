@@ -1903,7 +1903,7 @@ static bool js_cc_DynamicCustomAttribute_values_get(se::State& s)
     arg1 = SE_THIS_OBJECT<cc::DynamicCustomAttribute>(s);
     if (nullptr == arg1) return true;
     
-    ok &= nativevalue_to_se(arg1->values, s.rval(), s.thisObject() /*ctx*/);
+    ok &= nativevalue_to_se(arg1->values, s.rval(), s.thisObject());
     SE_PRECONDITION2(ok, false, "Error processing arguments");
     SE_HOLD_RETURN_VALUE(arg1->values, s.thisObject(), s.rval());
     
@@ -2018,7 +2018,7 @@ static bool js_cc_IDynamicGeometry_positions_get(se::State& s)
     arg1 = SE_THIS_OBJECT<cc::IDynamicGeometry>(s);
     if (nullptr == arg1) return true;
     
-    ok &= nativevalue_to_se(arg1->positions, s.rval(), s.thisObject() /*ctx*/);
+    ok &= nativevalue_to_se(arg1->positions, s.rval(), s.thisObject());
     SE_PRECONDITION2(ok, false, "Error processing arguments");
     SE_HOLD_RETURN_VALUE(arg1->positions, s.thisObject(), s.rval());
     
@@ -20349,7 +20349,7 @@ static bool js_cc_IGeometricInfo_positions_get(se::State& s)
     arg1 = SE_THIS_OBJECT<cc::IGeometricInfo>(s);
     if (nullptr == arg1) return true;
     
-    ok &= nativevalue_to_se(arg1->positions, s.rval(), s.thisObject() /*ctx*/);
+    ok &= nativevalue_to_se(arg1->positions, s.rval(), s.thisObject());
     SE_PRECONDITION2(ok, false, "Error processing arguments");
     SE_HOLD_RETURN_VALUE(arg1->positions, s.thisObject(), s.rval());
     

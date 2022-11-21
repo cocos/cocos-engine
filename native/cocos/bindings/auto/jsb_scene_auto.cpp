@@ -2997,6 +2997,7 @@ static bool js_cc_Node_inverseTransformPoint(se::State& s)
     cc::Vec3 *arg2 = 0 ;
     cc::Vec3 temp2 ;
     cc::Vec3 result;
+    cc::Vec3 *temp ;
     
     if(argc != 1) {
         SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -3011,9 +3012,10 @@ static bool js_cc_Node_inverseTransformPoint(se::State& s)
     
     result = (arg1)->inverseTransformPoint((cc::Vec3 const &)*arg2);
     
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    temp = ccnew cc::Vec3(result);
+    ok &= nativevalue_to_se(temp, s.rval(), s.thisObject());
     SE_PRECONDITION2(ok, false, "Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    s.rval().toObject()->getPrivateObject()->tryAllowDestroyInGC();
     
     
     
@@ -6465,6 +6467,7 @@ static bool js_cc_scene_Light_colorTemperatureToRGB_static(se::State& s)
     size_t argc = args.size();
     float arg1 ;
     cc::Vec3 result;
+    cc::Vec3 *temp ;
     
     if(argc != 1) {
         SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -6475,9 +6478,10 @@ static bool js_cc_scene_Light_colorTemperatureToRGB_static(se::State& s)
     SE_PRECONDITION2(ok, false, "Error processing arguments"); 
     result = cc::scene::Light::colorTemperatureToRGB(arg1);
     
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    temp = ccnew cc::Vec3(result);
+    ok &= nativevalue_to_se(temp, s.rval(), s.thisObject());
     SE_PRECONDITION2(ok, false, "Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    s.rval().toObject()->getPrivateObject()->tryAllowDestroyInGC();
     
     
     
@@ -14242,7 +14246,7 @@ static bool js_cc_scene_Model_getLocalSHData(se::State& s)
     if (nullptr == arg1) return true;
     result = ((cc::scene::Model const *)arg1)->getLocalSHData();
     
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
     SE_PRECONDITION2(ok, false, "Error processing arguments");
     SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
     
@@ -23799,6 +23803,7 @@ static bool js_cc_scene_ReflectionProbe_reflect_static(se::State& s)
     cc::Vec3 temp1 ;
     cc::Vec3 temp2 ;
     cc::Vec3 result;
+    cc::Vec3 *temp ;
     
     if(argc != 3) {
         SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
@@ -23819,9 +23824,10 @@ static bool js_cc_scene_ReflectionProbe_reflect_static(se::State& s)
     SE_PRECONDITION2(ok, false, "Error processing arguments"); 
     result = cc::scene::ReflectionProbe::reflect((cc::Vec3 const &)*arg1,(cc::Vec3 const &)*arg2,SWIG_STD_MOVE(arg3));
     
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    temp = ccnew cc::Vec3(result);
+    ok &= nativevalue_to_se(temp, s.rval(), s.thisObject());
     SE_PRECONDITION2(ok, false, "Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    s.rval().toObject()->getPrivateObject()->tryAllowDestroyInGC();
     
     
     
@@ -26724,6 +26730,7 @@ static bool js_cc_scene_BBox_getCenter(se::State& s)
     size_t argc = args.size();
     cc::scene::BBox *arg1 = (cc::scene::BBox *) NULL ;
     cc::Vec3 result;
+    cc::Vec3 *temp ;
     
     if(argc != 0) {
         SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -26733,9 +26740,10 @@ static bool js_cc_scene_BBox_getCenter(se::State& s)
     if (nullptr == arg1) return true;
     result = ((cc::scene::BBox const *)arg1)->getCenter();
     
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    temp = ccnew cc::Vec3(result);
+    ok &= nativevalue_to_se(temp, s.rval(), s.thisObject());
     SE_PRECONDITION2(ok, false, "Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    s.rval().toObject()->getPrivateObject()->tryAllowDestroyInGC();
     
     
     
