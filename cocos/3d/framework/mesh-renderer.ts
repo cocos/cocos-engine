@@ -664,16 +664,16 @@ export class MeshRenderer extends ModelRenderer {
     }
 
     protected _updateReflectionProbeTexture () {
-        if (this._model === null) return;
+        if (this.model === null) return;
         if (this.bakeSettings.reflectionProbe === ReflectionProbeType.BAKED_CUBEMAP) {
-            this._model.updateReflctionProbeCubemap(this.bakeSettings._probeCubemap);
-            this._model.updateReflctionProbePlanarMap(null);
+            this.model.updateReflctionProbeCubemap(this.bakeSettings._probeCubemap);
+            this.model.updateReflctionProbePlanarMap(null);
         } else if (this.bakeSettings.reflectionProbe === ReflectionProbeType.PLANAR_REFLECTION) {
-            this._model.updateReflctionProbePlanarMap(this.bakeSettings._probePlanarmap);
-            this._model.updateReflctionProbeCubemap(null);
+            this.model.updateReflctionProbePlanarMap(this.bakeSettings._probePlanarmap);
+            this.model.updateReflctionProbeCubemap(null);
         } else {
-            this._model.updateReflctionProbeCubemap(null);
-            this._model.updateReflctionProbePlanarMap(null);
+            this.model.updateReflctionProbeCubemap(null);
+            this.model.updateReflctionProbePlanarMap(null);
         }
     }
 
