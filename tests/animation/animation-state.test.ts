@@ -1,5 +1,5 @@
 import { LegacyBlendStateBuffer } from "../../cocos/3d/skeletal-animation/skeletal-animation-blending";
-import { Vec3 } from "../../cocos/core";
+import { lerp, Vec3 } from "../../cocos/core";
 import { AnimationClip, AnimationState } from "../../cocos/animation";
 import { VectorTrack } from "../../cocos/animation/animation";
 import { WrappedInfo } from "../../cocos/animation/types";
@@ -89,5 +89,46 @@ describe('Animation state', () => {
 
         // Won't stop
         expect(state.isPlaying && !state.isPaused);
+    });
+
+    test('Zero extent playback range', () => {
+        /**
+         * ### Spec
+         * 
+         * The playback range of animation state can be "zero-extent", i.e `.min === .max`.
+         * In this case, the animation state acts if the duration is 0 and always samples at `min`(or `max`).
+         */
+        const fixture = {
+            clip_duration: 0.3,
+            playback_range_start: 0.1,
+        };
+
+        const animationClip = new AnimationClip();
+        animationClip.wrapMode = AnimationClip.WrapMode.Loop;
+        animationClip.duration = fixture.clip_duration;
+        const track = new VectorTrack();
+        track.componentsCount = 3;
+        track.path.toProperty('position');
+        track.channels()[0].curve.assignSorted([[0.0, 2.0], [1.0, 5.0]]);
+        animationClip.addTrack(track);
+
+        const state = new AnimationState(animationClip);
+        const blendStateBuffer = new LegacyBlendStateBuffer();
+        const node = new Node();
+        state.initialize(node, blendStateBuffer);
+
+        expect(state.duration).toBe(fixture.clip_duration);
+
+        state.playbackRange = { min: fixture.playback_range_start, max: fixture.playback_range_start };
+        expect(state.duration).toBe(fixture.clip_duration);
+
+        for (let j = 0; j < 2; ++j) {
+            for (let i = 0; i < 3; ++i) {
+                state.update((j + i / 3) * animationClip.duration);
+                blendStateBuffer.apply();
+                expect(node.position.x).toBeCloseTo(lerp(2.0, 5.0, fixture.playback_range_start));
+                node.position = new Vec3(1.0);
+            }
+        }
     });
 });

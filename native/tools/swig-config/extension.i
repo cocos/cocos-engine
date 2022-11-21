@@ -31,6 +31,8 @@
 //  2. namespace is needed
 //
 
+%ignore cc::RefCounted;
+
 // ----- Rename Section ------
 // Brief: Classes, methods or attributes needs to be renamed
 //
@@ -81,6 +83,9 @@
 // Note: 
 //   %import "your_header_file.h" will not generate code for that header file
 //
+
+%import "base/Macros.h"
+%import "base/RefCounted.h"
 %import "extensions/ExtensionExport.h"
 %import "extensions/ExtensionMacros.h"
 

@@ -63,6 +63,22 @@ export interface Feature {
      * Flags to set when this feature is enabled.
      */
     intrinsicFlags?: Record<string, unknown>;
+
+    /**
+     * List of uuid that the feature depend on.
+     */
+    dependentAssets?: string[];
+
+    /**
+     * List of module that the feature depend on.
+     */
+    dependentModules?: string[];
+
+    /**
+     * Whether it is a native only feature, default is false.
+     * @default false
+     */
+    isNativeOnly?: boolean;
 }
 
 export interface Context {

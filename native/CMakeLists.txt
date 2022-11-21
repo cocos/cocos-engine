@@ -405,6 +405,8 @@ cocos_source_files(
     cocos/base/Agent.h
     cocos/base/astc.cpp
     cocos/base/astc.h
+    cocos/base/Compressed.h
+    cocos/base/Compressed.cpp
     cocos/base/base64.cpp
     cocos/base/base64.h
     cocos/base/Config.h

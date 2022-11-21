@@ -590,6 +590,8 @@ export class PhysicsSystem extends System implements IWorldInitData {
      * 预先加载模块的情况下，会自动执行。
      */
     static constructAndRegister () {
+        const enabled = settings.querySettings(Settings.Category.PHYSICS, 'enabled') ?? true;
+        if (!enabled) { return; }
         if (!PhysicsSystem._instance) {
             // Construct physics world and physics system only once
             const sys = new PhysicsSystem();

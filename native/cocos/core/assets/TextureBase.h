@@ -244,10 +244,9 @@ public:
     /*@serializable*/
     uint32_t _anisotropy{0};
 
+protected:
     uint32_t _width{1};
     uint32_t _height{1};
-
-protected:
     ccstd::string _id;
     gfx::SamplerInfo _samplerInfo;
     gfx::Sampler *_gfxSampler{nullptr};

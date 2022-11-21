@@ -135,7 +135,7 @@ void SimpleTexture::createTexture(gfx::Device *device) {
     auto flags = gfx::TextureFlagBit::NONE;
     if (_mipFilter != Filter::NONE && canGenerateMipmap(_width, _height)) {
         _mipmapLevel = getMipLevel(_width, _height);
-        if (!isUsingOfflineMipmaps()) {
+        if (!isUsingOfflineMipmaps() && !isCompressed()) {
             flags = gfx::TextureFlagBit::GEN_MIPMAP;
         }
     }

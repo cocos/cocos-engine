@@ -6,7 +6,7 @@ import { DescriptorSetInfo, DescriptorSetLayout, DescriptorSetLayoutBinding, Des
 import { VectorGraphColorMap } from './effect';
 import { DefaultVisitor, depthFirstSearch } from './graph';
 // eslint-disable-next-line max-len
-import { LayoutGraphData, PipelineLayoutData, LayoutGraphDataValue, RenderStageData, RenderPhaseData, DescriptorSetLayoutData, DescriptorSetData, DescriptorBlockData, DescriptorData } from './layout-graph';
+import { LayoutGraphData, PipelineLayoutData, LayoutGraphDataValue, RenderStageData, RenderPhaseData, DescriptorSetLayoutData, DescriptorSetData, DescriptorBlockData, DescriptorData, ShaderProgramData } from './layout-graph';
 import { LayoutGraphBuilder } from './pipeline';
 import { WebLayoutExporter } from './web-layout-exporter';
 import { getUpdateFrequencyName, DescriptorBlockIndex, DescriptorTypeOrder,
@@ -276,6 +276,14 @@ export class WebLayoutGraphBuilder implements LayoutGraphBuilder  {
     }
 
     public addShader (name: string, parentPhaseID: number): void {
+        const phaseData = this._data.getRenderPhase(parentPhaseID);
+        const id = phaseData.shaderPrograms.length;
+        const shaderData = new ShaderProgramData();
+        // 填充shaderData数据
+        phaseData.shaderPrograms.push(shaderData);
+        phaseData.shaderIndex.set(name, id);
+
+        // 注册shader所在的phase的ID
         this._data.shaderLayoutIndex.set(name, parentPhaseID);
     }
 

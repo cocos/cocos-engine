@@ -261,6 +261,7 @@
         "cc.deserialize",
         "cc.director",
         "cc.easing",
+        "cc.effectSettings",
         "cc.error",
         "cc.errorID",
         "cc.find",

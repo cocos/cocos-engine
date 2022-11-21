@@ -1,6 +1,6 @@
 {
   "name": "cocos-creator",
-  "version": "3.6.2",
+  "version": "3.7.0",
   "description": "Cocos Creator is a cross-platform 2D & 3D game engine written in TypeScript, licensed under MIT.",
   "homepage": "http://www.cocos.com",
   "license": "MIT",
@@ -87,7 +87,7 @@
   },
   "dependencies": {
     "@cocos/box2d": "1.0.1",
-    "@cocos/bullet": "1.0.4",
+    "@cocos/bullet": "1.0.6",
     "@cocos/cannon": "1.2.8",
     "@cocos/dragonbones-js": "^1.0.1",
     "@cocos/physx": "1.0.7"
