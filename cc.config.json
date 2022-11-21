@@ -19,6 +19,9 @@
         "gfx-webgl2": {
             "modules": ["gfx-webgl2"]
         },
+        "gfx-empty": {
+            "modules": ["gfx-empty"]
+        },
         "3d": {
             "modules": ["3d"],
             "dependentAssets": [
@@ -177,6 +180,14 @@
         },
         "custom-pipeline": {
             "modules": ["custom-pipeline"]
+        },
+        "websocket": {
+            "modules": [],
+            "isNativeOnly": true
+        },
+        "websocket-server": {
+            "modules": [],
+            "isNativeOnly": true
         }
     },
     "moduleOverrides": [{
@@ -217,6 +228,7 @@
                 "cocos/render-scene/core/render-scene.ts": "cocos/render-scene/core/render-scene.jsb.ts",
                 "cocos/render-scene/scene/submodel.ts": "cocos/render-scene/scene/submodel.jsb.ts",
                 "cocos/render-scene/scene/index.ts": "cocos/render-scene/scene/index.jsb.ts",
+                "cocos/render-scene/scene/reflection-probe.ts": "cocos/render-scene/scene/reflection-probe.jsb.ts",
                 "cocos/2d/renderer/native-2d.ts": "cocos/2d/renderer/native-2d.jsb.ts",
                 "cocos/gfx/base/pipeline-state.ts": "cocos/gfx/base/pipeline-state.jsb.ts",
                 "cocos/gfx/index.ts": "cocos/gfx/index.jsb.ts",

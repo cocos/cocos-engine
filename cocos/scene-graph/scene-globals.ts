@@ -1267,7 +1267,7 @@ export class LightProbeInfo {
             }
         }
 
-        this._nodes.push({node, probes: null});
+        this._nodes.push({ node, probes: null });
 
         return true;
     }
@@ -1287,7 +1287,7 @@ export class LightProbeInfo {
         return true;
     }
 
-    public syncData(node: Node, probes: Vec3[]) {
+    public syncData (node: Node, probes: Vec3[]) {
         for (let i = 0; i < this._nodes.length; i++) {
             if (this._nodes[i].node === node) {
                 this._nodes[i].probes = probes;
@@ -1434,6 +1434,14 @@ export class SceneGlobals {
     @editable
     @serializable
     public lightProbeInfo = new LightProbeInfo();
+
+    /**
+     * @en bake with stationary main light
+     * @zh 主光源是否以静止状态烘培
+     */
+    @editable
+    @serializable
+    public bakedWithStationaryMainLight = false;
 
     /**
      * @en Activate and initialize the global configurations of the scene, no need to invoke manually.

@@ -67,13 +67,13 @@ export class PhysXFixedJoint extends PhysXJoint implements IFixedConstraint {
         const rot : Quat = new Quat();
 
         const trans = new Mat4();
-        Mat4.fromRT(trans, bodyA.node.worldRotation, bodyA.node.position);
+        Mat4.fromRT(trans, bodyA.node.worldRotation, bodyA.node.worldPosition);
         Mat4.invert(trans, trans);
         Mat4.getRotation(rot, trans);
         Mat4.getTranslation(pos, trans);
         this._impl.setLocalPose(0, getTempTransform(pos, rot));
 
-        Mat4.fromRT(trans, bodyB.node.worldRotation, bodyB.node.position);
+        Mat4.fromRT(trans, bodyB.node.worldRotation, bodyB.node.worldPosition);
         Mat4.invert(trans, trans);
         Mat4.getRotation(rot, trans);
         Mat4.getTranslation(pos, trans);

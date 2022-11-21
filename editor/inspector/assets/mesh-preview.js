@@ -1,11 +1,17 @@
 'use strict';
 
+
 exports.template = /* html */`
 <div class="preview">
     <div class="info">
         <ui-label value="Vertices:0" class="vertices"></ui-label>
         <ui-label value="Triangles:0" class="triangles"></ui-label>
-        <ui-label value="" class="uvsLabel"></ui-label>
+        <div class="select-box">
+            <ui-select class="preview-channel">
+            </ui-select>
+            <ui-select class="preview-type">
+            </ui-select>
+        </div>
     </div>
     <div>
         <div>
@@ -42,6 +48,15 @@ exports.style = /* css */`
 .preview >.image > .canvas {
     flex: 1;
 }
+.select-box {
+    float: right;
+}
+.preview-channel {
+    visibility: hidden;
+}
+.preview-channel.show {
+    visibility: visible;
+}
 `;
 
 exports.$ = {
@@ -50,21 +65,46 @@ exports.$ = {
     triangles: '.triangles',
     image: '.image',
     canvas: '.canvas',
-    uvsLabel: '.uvsLabel',
     minPosLabel: '.minPosLabel',
     maxPosLabel: '.maxPosLabel',
+    previewType: '.preview-type',
+    previewChannel: '.preview-channel',
 };
 
 async function callMeshPreviewFunction(funcName, ...args) {
     return await Editor.Message.request('scene', 'call-preview-function', 'scene:mesh-preview', funcName, ...args);
 }
-
+const previewSelectType = {
+    shaded: 'shaded',
+    uv: 'uv layout',
+};
 const Elements = {
     preview: {
         ready() {
             const panel = this;
 
+            panel.$.previewType.innerHTML = Object.values(previewSelectType).map(v => `<option value="${v}">${v}</option>`).join('');
+            panel.$.previewType.value = previewSelectType.shaded;
+
+            panel.$.previewType.addEventListener('confirm', (event) => {
+                const value = event.target.value;
+                if (value === previewSelectType.uv) {
+                    panel.$.previewChannel.classList.add('show');
+                    panel.$.previewChannel.value = 0;
+                } else {
+                    panel.$.previewChannel.classList.remove('show');
+                }
+                panel.isPreviewDataDirty = true;
+                panel.refreshPreview();
+            });
+            panel.$.previewChannel.addEventListener('confirm', () => {
+                panel.isPreviewDataDirty = true;
+                panel.refreshPreview();
+            });
+
             panel.$.canvas.addEventListener('mousedown', async (event) => {
+                // Non-model previews do not respond to events
+                if (panel.$.previewType.value !== previewSelectType.shaded) { return; }
                 await callMeshPreviewFunction('onMouseDown', { x: event.x, y: event.y });
 
                 async function mousemove(event) {
@@ -113,20 +153,34 @@ const Elements = {
             }
 
             await panel.glPreview.init({ width: panel.$.canvas.clientWidth, height: panel.$.canvas.clientHeight });
+
+            // reset
+            panel.$.previewType.value = previewSelectType.shaded;
+            panel.$.previewChannel.value = 0;
+            panel.$.previewChannel.classList.remove('show');
+
             const info = await callMeshPreviewFunction('setMesh', panel.asset.uuid);
+            panel.previewUVs = await callMeshPreviewFunction('getModelUVs', panel.asset.uuid);
+
+            if (panel.previewUVs.length === 0) {
+                panel.$.previewType.innerHTML = `<option value="${previewSelectType.shaded}">${previewSelectType.shaded}</option>`;
+            } else {
+                panel.$.previewType.innerHTML = Object.values(previewSelectType).map(v => `<option value="${v}">${v}</option>`).join('');
+                panel.$.previewChannel.innerHTML = panel.previewUVs.map((_, i) => `<option value="${i}">channel ${i}</option>`).join('');
+            }
+
             panel.infoUpdate(info);
             panel.refreshPreview();
         },
         close() {
             const panel = this;
-
             panel.resizeObserver.unobserve(panel.$.image);
+            panel.previewUVs = [];
         },
     },
     info: {
         ready() {
             const panel = this;
-
             panel.infoUpdate = Elements.info.update.bind(panel);
         },
         update(info) {
@@ -138,17 +192,6 @@ const Elements = {
 
             panel.$.vertices.value = 'Vertices: ' + info.vertices;
             panel.$.triangles.value = 'Triangles: ' + info.polygons;
-
-            panel.$.uvsLabel.value = '';
-            if (info.uvs.length > 0) {
-                panel.$.uvsLabel.value = 'UV: ';
-                info.uvs.forEach((uvIndex, index) => {
-                    panel.$.uvsLabel.value += uvIndex;
-                    if (index !== info.uvs.length - 1) {
-                        panel.$.uvsLabel.value += ',';
-                    }
-                });
-            }
 
             panel.$.minPosLabel.value = '';
             if (info.minPosition) {
@@ -184,10 +227,8 @@ exports.methods = {
 
             try {
                 const canvas = panel.$.canvas;
-                const image = panel.$.image;
+                const { clientWidth: width, clientHeight: height } = panel.$.image;
 
-                const width = image.clientWidth;
-                const height = image.clientHeight;
                 if (canvas.width !== width || canvas.height !== height) {
                     canvas.width = width;
                     canvas.height = height;
@@ -195,11 +236,17 @@ exports.methods = {
                     panel.glPreview.initGL(canvas, { width, height });
                     panel.glPreview.resizeGL(width, height);
                 }
-
-                const info = await panel.glPreview.queryPreviewData({
-                    width: canvas.width,
-                    height: canvas.height,
-                });
+                let info;
+                if (panel.$.previewType.value === previewSelectType.shaded) {
+                    info = await panel.glPreview.queryPreviewData({
+                        width: canvas.width,
+                        height: canvas.height,
+                    });
+                }
+                if (panel.$.previewType.value === previewSelectType.uv) {
+                    info = panel.glPreview.computedUV(panel.previewUVs[panel.$.previewChannel.value], canvas.width, canvas.height);
+                    info.buffer = info.data;
+                }
 
                 panel.glPreview.drawGL(info.buffer, info.width, info.height);
             } catch (e) {
@@ -211,7 +258,7 @@ exports.methods = {
         panel.animationId = requestAnimationFrame(() => {
             panel.refreshPreview();
         });
-    },
+    }
 };
 
 exports.ready = function() {

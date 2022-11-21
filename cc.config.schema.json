@@ -77,10 +77,29 @@
       "additionalProperties": false,
       "description": "An engine feature.",
       "properties": {
+        "dependentAssets": {
+          "description": "List of uuid that the feature depend on.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "dependentModules": {
+          "description": "List of module that the feature depend on.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
         "intrinsicFlags": {
           "additionalProperties": {},
           "description": "Flags to set when this feature is enabled.",
           "type": "object"
+        },
+        "isNativeOnly": {
+          "default": false,
+          "description": "Whether it is a native only feature, default is false.",
+          "type": "boolean"
         },
         "modules": {
           "description": "Modules to be included in this feature in their IDs. The ID of a module is its relative path(no extension) under /exports/.",

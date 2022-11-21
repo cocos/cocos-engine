@@ -66,6 +66,8 @@ import { PlanarShadowQueue } from '../planar-shadow-queue';
 import { DefaultVisitor, depthFirstSearch, ReferenceGraphView } from './graph';
 import { VectorGraphColorMap } from './effect';
 import { getRenderArea } from './define';
+import { RenderReflectionProbeQueue } from '../render-reflection-probe-queue';
+import { ReflectionProbeManager } from '../reflection-probe-manager';
 
 class DeviceResource {
     protected _context: ExecutorContext;
@@ -460,6 +462,7 @@ class SubmitInfo {
     public planarQueue: PlanarShadowQueue | null = null;
     public shadowMap: RenderShadowMapBatchedQueue | null = null;
     public additiveLight: RenderAdditiveLightQueue | null = null;
+    public reflectionProbe: RenderReflectionProbeQueue | null = null;
 }
 
 class RenderPassLayoutInfo {
@@ -849,6 +852,18 @@ class DevicePreSceneTask extends WebSceneTask {
             this.sceneData.shadowFrameBufferMap.set(this.graphScene.scene!.light.light, this._currentQueue.devicePass.framebuffer);
             return;
         }
+        // reflection probe
+        if (this.graphScene.scene!.flags & SceneFlags.REFLECTION_PROBE && !this._submitInfo.reflectionProbe) {
+            this._submitInfo.reflectionProbe = new RenderReflectionProbeQueue(this._currentQueue.devicePass.context.pipeline);
+            const probes = ReflectionProbeManager.probeManager.getProbes();
+            for (let i = 0; i < probes.length; i++) {
+                if (probes[i].hasFrameBuffer(this._currentQueue.devicePass.framebuffer)) {
+                    this._submitInfo.reflectionProbe.gatherRenderObjects(probes[i], this.camera.scene!, this._cmdBuff);
+                    break;
+                }
+            }
+            return;
+        }
         const sceneFlag = this._graphScene.scene!.flags;
         // If it is not empty, it means that it has been added and will not be traversed.
         const isEmpty = !this._submitInfo.opaqueList.length
@@ -1220,6 +1235,12 @@ class DeviceSceneTask extends WebSceneTask {
         submitMap.get(this.camera!)?.shadowMap?.recordCommandBuffer(context.device,
             this._renderPass, context.commandBuffer);
     }
+    protected _recordReflectionProbe () {
+        const context = this._currentQueue.devicePass.context;
+        const submitMap = this._currentQueue.devicePass.submitMap;
+        submitMap.get(this.camera!)?.reflectionProbe?.recordCommandBuffer(context.device,
+            this._renderPass, context.commandBuffer);
+    }
     private _isShadowMap () {
         return this.sceneData.shadows.enabled
             && this.sceneData.shadows.type === ShadowType.ShadowMap
@@ -1376,6 +1397,9 @@ class DeviceSceneTask extends WebSceneTask {
         if (graphSceneData.flags & SceneFlags.PROFILER) {
             renderProfiler(context.device, devicePass.renderPass,
                 context.commandBuffer, context.pipeline.profiler, this.camera!);
+        }
+        if (graphSceneData.flags & SceneFlags.REFLECTION_PROBE) {
+            this._recordReflectionProbe();
         }
     }
 }

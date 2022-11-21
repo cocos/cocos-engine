@@ -94,6 +94,11 @@ exports.methods = {
  */
 async function update(dump) {
     const $panel = this;
+
+    if (!$panel.$this.isConnected) {
+        return;
+    }
+
     const $section = $panel.$.section;
     const oldPropList = Object.keys($panel.$propList);
     const newPropList = [];

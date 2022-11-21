@@ -310,6 +310,9 @@ export class EffectAsset extends Asset {
      * @zh 通过 [[CCLoader]] 加载完成时的回调，将自动注册 effect 资源。
      */
     public onLoaded () {
+        if (cclegacy.rendering && cclegacy.rendering.enableEffectImport) {
+            cclegacy.rendering.replaceShaderInfo(this);
+        }
         programLib.register(this);
         EffectAsset.register(this);
         if (!EDITOR || cclegacy.GAME_VIEW) { cclegacy.game.once(cclegacy.Game.EVENT_RENDERER_INITED, this._precompile, this); }

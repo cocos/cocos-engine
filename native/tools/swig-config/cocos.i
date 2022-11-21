@@ -46,6 +46,7 @@
 //  1. 'Ignore Section' should be placed before attribute definition and %import/%include
 //  2. namespace is needed
 //
+%ignore cc::RefCounted;
 
 %rename("$ignore", regextarget=1, fullname=1) "cc::Vec2::.*[^2]$";
 %rename("$ignore", regextarget=1, fullname=1) "cc::Vec3::.*[^3]$";
@@ -54,7 +55,8 @@
 %rename("$ignore", regextarget=1, fullname=1) "cc::Mat3::.*[^3]$";
 %rename("$ignore", regextarget=1, fullname=1) "cc::Mat4::.*[^4]$";
 %rename("$ignore", regextarget=1, fullname=1) "cc::Quaternion::.*[^n]$";
-%rename("$ignore", regextarget=1, fullname=1) "cc::Color::.*[^n]$";
+%rename("$ignore", regextarget=1, fullname=1) "cc::Color::.*[^r]$";
+%rename("$ignore", regextarget=1, fullname=1) "cc::Color::r$";
 
 namespace cc {
 //%ignore ISystemWindowManager;
@@ -175,6 +177,7 @@ namespace cc {
 //   %import "your_header_file.h" will not generate code for that header file
 //
 %import "base/Macros.h"
+%import "base/RefCounted.h"
 %import "base/memory/Memory.h"
 %import "base/Data.h"
 %import "base/Value.h"

@@ -444,7 +444,6 @@ export class ScrollView extends ViewGroup {
     protected _deltaPos = new Vec3();
 
     protected _hoverIn: XrhoverType = XrhoverType.NONE;
-    protected _scrollState = new Vec2(0, 0);
 
     /**
      * @en
@@ -1839,14 +1838,10 @@ export class ScrollView extends ViewGroup {
         } else if (event.deviceType === DeviceType.Right) {
             this._hoverIn = XrhoverType.RIGHT;
         }
-        this._autoScrolling = false;
-        this._dispatchEvent(EventType.SCROLL_BEGAN);
     }
 
-    protected _xrHoverExit () {
+    protected _xrHoverExit (event: XrUIPressEvent) {
         this._hoverIn = XrhoverType.NONE;
-        this._autoScrolling = true;
-        this._dispatchEvent(EventType.SCROLL_ENDED);
     }
 
     private _dispatchEventHandleInput (event: EventHandle | EventGamepad) {
@@ -1873,14 +1868,13 @@ export class ScrollView extends ViewGroup {
                 this._xrThumbStickMove(value);
             }
         }
-
-        if (!value && this._scrollState.equals(Vec2.ZERO)) {
-            this._xrThumbStickMoveEnd();
-            this._scrollState.set(value);
-        }
     }
 
     protected _xrThumbStickMove (event: Vec2) {
+        if (!this.enabledInHierarchy) {
+            return;
+        }
+
         const deltaMove = new Vec3();
         const wheelPrecision = -62.5;
         const scrollY = event.y;
@@ -1892,12 +1886,12 @@ export class ScrollView extends ViewGroup {
 
         this._mouseWheelEventElapsedTime = 0;
         this._processDeltaMove(deltaMove);
-        this._dispatchEvent(EventType.SCROLLING);
-    }
 
-    protected _xrThumbStickMoveEnd () {
-        this._autoScrolling = true;
-        this._dispatchEvent(EventType.TOUCH_UP);
+        if (!this._stopMouseWheel) {
+            this._handlePressLogic();
+            this.schedule(this._checkMouseWheel, 1.0 / 60, NaN, 0);
+            this._stopMouseWheel = true;
+        }
     }
 }
 

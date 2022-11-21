@@ -331,7 +331,32 @@ module.exports = {
                         title: 'Verbose Output',
                     },
                 },
-                // eslint-disable-next-line max-len
+                algorithm: {
+                    name: 'Algorithm',
+                    simplify: 'simplify',
+                    gltfpack: 'gltfpack (deprecated)',
+                },
+                simplify:{
+                    targetRatio: {
+                        name: 'Ratio',
+                        title: 'Target Ratio',
+                    },
+                    enableSmartLink: {
+                        name: 'Smart Link',
+                        title: 'Enable Smart Link',
+                    },
+                    agressiveness: {
+                        name: 'Agressiveness',
+                        title: 'Agressiveness',
+                    },
+                    maxIterationCount: {
+                        name: 'Max Iteration Count',
+                        title: 'Max Iteration Count',
+                    },
+                },
+                gltfpack: {
+                    warn: 'The current asset uses the gltfpack mesh optimization algorithm, which has been deprecated. Please use the new simplify face reduction algorithm.',
+                },
                 warn: 'Warning: After optimization, the number and names of mesh resources will change, which will cause the loss of resources referenced by the components, please update them manually in time. (In addition, for prefabs pre-generated in the model resources, the resource synchronization mechanism will update them automatically)',
             },
             animationBakeRate: {
@@ -345,6 +370,13 @@ module.exports = {
                     'If enabled and there is only one root node in model scene, <br>' +
                     "the single node becomes prefab's root after importing.  <br>" +
                     "Otherwise, each root node of the scene becomes prefab's child node.",
+            },
+            generateLightmapUVNode: {
+                name: 'Generate Lightmap UV',
+                title:
+                    'If enabled ,create a lightmap uv in the second UV channel, <br>' +
+                    'If the second uv already exists , the set will be override .  <br>' +
+                    "Otherwise, use default uvs.",
             },
             preferLocalTimeSpan: {
                 name: 'Prefer Local Time Span',
