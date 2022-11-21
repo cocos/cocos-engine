@@ -170,7 +170,7 @@ export class SortingLayers {
         for (const [key, value] of Object.entries(SortingLayer)) {
             const layer = { id: i, name: key, value };
             sortingLayers.push(layer);
-            i++;
+            i--;
         }
         return sortingLayers;
     }
