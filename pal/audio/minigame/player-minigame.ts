@@ -91,9 +91,13 @@ export class AudioPlayerMinigame implements OperationQueueable {
         innerAudioContext.onPlay(this._onPlay);
         this._onPause = () => {
             this._state = AudioState.PAUSED;
-            // NOTE: On Wechat, the current time of inner audio context might be null as it's not fully initilized.
-            if (this._innerAudioContext && this._innerAudioContext.currentTime !== null) {
-                this._cacheTime = this._innerAudioContext.currentTime;
+            try {
+                const currentTime = this._innerAudioContext.currentTime;
+                if (currentTime !== null && currentTime !== undefined) {
+                    this._cacheTime = currentTime;
+                }
+            } catch {
+                // Do nothing, cacheTime is not updated.
             }
             eventTarget.emit(AudioEvent.PAUSED);
         };
