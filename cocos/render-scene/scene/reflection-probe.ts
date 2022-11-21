@@ -385,6 +385,7 @@ export class ReflectionProbe {
         this.camera.clearFlag = camera.clearFlag;
         this.camera.clearColor = camera.clearColor;
         this.camera.priority = camera.priority - 1;
+        this.camera.fovAxis = camera.fovAxis;
         this.camera.resize(camera.width, camera.height);
     }
 
@@ -492,7 +493,7 @@ export class ReflectionProbe {
         const projectionMatrix = camera.matProj;
 
         const clipSpaceFarPanelBoundPoint = new Vec4(Math.sign(viewSpacePlane.x), Math.sign(viewSpacePlane.y), 1, 1);
-        const viewSpaceFarPanelBoundPoint =  clipSpaceFarPanelBoundPoint.transformMat4(camera.matProj.invert());
+        const viewSpaceFarPanelBoundPoint =  clipSpaceFarPanelBoundPoint.transformMat4(camera.matProjInv);
 
         const m4 = new Vec4(projectionMatrix.m03, projectionMatrix.m07, projectionMatrix.m11, projectionMatrix.m15);
 
@@ -501,6 +502,13 @@ export class ReflectionProbe {
 
         //M3' = P - M4
         const m3 = newViewSpaceNearPlane.subtract(m4);
+
+        /*
+        1    1    1    1
+        1    1    1    1
+        11    11    12    1
+        11    11    12    1
+        */
 
         projectionMatrix.m02 = m3.x;
         projectionMatrix.m06 = m3.y;
