@@ -89,31 +89,31 @@ export class Parser {
             err = e as Error;
             console.warn(err);
         }
-        onComplete(null, out);
+        onComplete(err, out);
     }
 
     public parsePKMTex (file: ArrayBuffer | ArrayBufferView, options: IDownloadParseOptions, onComplete: CompleteCallback<IMemoryImageSource>) {
         let err: Error | null = null;
-        const out: IMemoryImageSource | null = null;
+        let out: IMemoryImageSource | null = null;
         try {
-            ImageAsset.parseCompressedTextures(file, 1);
+            out = ImageAsset.parseCompressedTextures(file, 1);
         } catch (e) {
             err = e as Error;
             console.warn(err);
         }
-        onComplete(null, out);
+        onComplete(err, out);
     }
 
     public parseASTCTex (file: ArrayBuffer | ArrayBufferView, options: IDownloadParseOptions, onComplete: CompleteCallback<IMemoryImageSource>) {
         let err: Error | null = null;
-        const out: IMemoryImageSource | null = null;
+        let out: IMemoryImageSource | null = null;
         try {
-            ImageAsset.parseCompressedTextures(file, 2);
+            out = ImageAsset.parseCompressedTextures(file, 2);
         } catch (e) {
             err = e as Error;
             console.warn(err);
         }
-        onComplete(null, out);
+        onComplete(err, out);
     }
 
     public parsePlist (file: string, options: IDownloadParseOptions, onComplete: CompleteCallback) {
