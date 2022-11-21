@@ -271,7 +271,7 @@ export class SimpleTexture extends TextureBase {
         let flags = TextureFlagBit.NONE;
         if (this._mipFilter !== Filter.NONE && canGenerateMipmap(device, this._width, this._height)) {
             this._mipmapLevel = getMipLevel(this._width, this._height);
-            if (!this.isUsingOfflineMipmaps()) {
+            if (!this.isUsingOfflineMipmaps() && !this.isCompressed) {
                 flags = TextureFlagBit.GEN_MIPMAP;
             }
         }

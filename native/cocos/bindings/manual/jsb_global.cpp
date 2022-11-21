@@ -467,6 +467,7 @@ struct ImageInfo {
     cc::gfx::Format format = cc::gfx::Format::UNKNOWN;
     bool hasAlpha = false;
     bool compressed = false;
+    ccstd::vector<uint32_t> mipmapLevelDataSize;
 };
 
 uint8_t *convertRGB2RGBA(uint32_t length, uint8_t *src) {
@@ -510,6 +511,7 @@ struct ImageInfo *createImageInfo(Image *img) {
     img->takeData(&imgInfo->data);
     imgInfo->format = img->getRenderFormat();
     imgInfo->compressed = img->isCompressed();
+    imgInfo->mipmapLevelDataSize = img->getMipmapLevelDataSize();
 
     // Convert to RGBA888 because standard web api will return only RGBA888.
     // If not, then it may have issue in glTexSubImage. For example, engine
@@ -598,6 +600,10 @@ bool jsb_global_load_image(const ccstd::string &path, const se::Value &callbackV
                     retObj->setProperty("data", se::Value(obj));
                     retObj->setProperty("width", se::Value(imgInfo->width));
                     retObj->setProperty("height", se::Value(imgInfo->height));
+                    
+                    se::Value mipmapLevelDataSizeArr;
+                    nativevalue_to_se(imgInfo->mipmapLevelDataSize, mipmapLevelDataSizeArr, nullptr);
+                    retObj->setProperty("mipmapLevelDataSize", mipmapLevelDataSizeArr);
 
                     seArgs.push_back(se::Value(retObj));
 
