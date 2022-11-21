@@ -72,7 +72,6 @@ export declare namespace EffectAsset {
         name: string;
         members: Uniform[];
         stageFlags: ShaderStageFlags;
-        rate?: number;
     }
     export interface ISamplerTextureInfo {
         binding: number;
@@ -80,7 +79,6 @@ export declare namespace EffectAsset {
         type: Type;
         count: number;
         stageFlags: ShaderStageFlags;
-        rate?: number;
     }
     export interface ISamplerInfo {
         set: number;
@@ -88,7 +86,6 @@ export declare namespace EffectAsset {
         name: string;
         count: number;
         stageFlags: ShaderStageFlags;
-        rate?: number;
     }
     export interface ITextureInfo {
         set: number;
@@ -97,14 +94,12 @@ export declare namespace EffectAsset {
         type: Type;
         count: number;
         stageFlags: ShaderStageFlags;
-        rate?: number;
     }
     export interface IBufferInfo {
         binding: number;
         name: string;
         memoryAccess: MemoryAccess;
         stageFlags: ShaderStageFlags;
-        rate?: number;
     }
     export interface IImageInfo {
         binding: number;
@@ -113,7 +108,6 @@ export declare namespace EffectAsset {
         count: number;
         memoryAccess: MemoryAccess;
         stageFlags: ShaderStageFlags;
-        rate?: number;
     }
 
     export interface IInputAttachmentInfo {
@@ -150,6 +144,16 @@ export declare namespace EffectAsset {
         samplerTextures: IBuiltin[];
         images: IBuiltin[];
     }
+    export interface IDescriptorInfo {
+        rate: number;
+        blocks: IBlockInfo[];
+        samplerTextures: ISamplerTextureInfo[];
+        samplers: ISamplerInfo[];
+        textures: ITextureInfo[];
+        buffers: IBufferInfo[];
+        images: IImageInfo[];
+        subpassInputs: IInputAttachmentInfo[];
+    }
     export interface IShaderInfo {
         name: string;
         hash: number;
@@ -166,6 +170,7 @@ export declare namespace EffectAsset {
         buffers: IBufferInfo[];
         images: IImageInfo[];
         subpassInputs: IInputAttachmentInfo[];
+        descriptors: IDescriptorInfo[];
     }
     export interface IPreCompileInfo {
         [name: string]: boolean[] | number[] | string[];
