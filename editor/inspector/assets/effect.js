@@ -1,8 +1,9 @@
 'use strict';
 
 const { readFileSync, existsSync } = require('fs');
+const { updateElementReadonly } = require('../utils/assets');
 
-exports.template = `
+exports.template = /* html */`
 <div class="asset-effect">
     <ui-prop>
         <ui-label slot="label" value="i18n:ENGINE.assets.effect.shader" tooltip="i18n:ENGINE.assets.effect.shaderTip"></ui-label>
@@ -19,11 +20,28 @@ exports.template = `
     </ui-section>
 
     <div class="codes"></div>
+
+    <ui-label class="multiple-warn-tip" value="i18n:ENGINE.assets.multipleWarning"></ui-label>
 </div>
 `;
 
-exports.style = `
+exports.style = /* css */`
     .asset-effect {  }
+
+    .asset-effect[multiple-invalid] > *:not(.multiple-warn-tip) {
+        display: none!important;
+     }
+    
+     .asset-effect[multiple-invalid] > .multiple-warn-tip {
+        display: block;
+     }
+    
+    .asset-effect .multiple-warn-tip {
+        display: none;
+        text-align: center;
+        color: var(--color-focus-contrast-weakest);
+    }
+
     .asset-effect > * {
         margin-bottom: 8px;
     }
@@ -98,12 +116,18 @@ const Elements = {
         ready() {
             const panel = this;
 
+            panel.shadersIndex = 0;
+
             panel.$.shaderSelect.addEventListener('change', (event) => {
-                this.shadersIndex = event.target.value;
+                panel.shadersIndex = event.target.value;
 
                 // There are other properties that are updated depending on its change
                 Elements.combinations.update.call(panel);
                 Elements.codes.update.call(panel);
+            });
+
+            panel.$.shaderSelect.addEventListener('confirm', () => {
+                panel.dispatch('snapshot');
             });
         },
         update() {
@@ -115,13 +139,17 @@ const Elements = {
             });
             panel.$.shaderSelect.innerHTML = optionsHtml;
 
+            if (panel.shadersIndex > panel.shaders.length - 1) {
+                panel.shadersIndex = 0;
+            }
+
             panel.$.shaderSelect.value = panel.shadersIndex;
 
             if (panel.shaders[panel.shadersIndex]) {
                 panel.$.shaderSelect.setAttribute('tooltip', panel.shaders[panel.shadersIndex].name);
             }
 
-            panel.updateReadonly(panel.$.shaderSelect);
+            updateElementReadonly.call(this, panel.$.shaderSelect);
         },
     },
     combinations: {
@@ -153,11 +181,9 @@ const Elements = {
                     const name = typeof value === 'boolean' ? (value ? 'on' : 'off') : value.toString();
 
                     const button = document.createElement('ui-button');
-                    content.appendChild(button);
-
+                    updateElementReadonly.call(panel, button);
                     button.setAttribute('class', 'tab');
                     button.setAttribute('checked', checked);
-                    panel.updateReadonly(button);
                     button.innerText = name;
                     button.addEventListener('click', () => {
                         if (!panel.combinations[panel.shadersIndex][define.name]) {
@@ -175,9 +201,10 @@ const Elements = {
                             button.setAttribute('checked', 'true');
                         }
 
-                        panel.dataChange();
-                        panel.dispatch('change');
+                        panel.change();
                     });
+
+                    content.appendChild(button);
                 });
             });
 
@@ -189,6 +216,28 @@ const Elements = {
         },
     },
     codes: {
+        ready() {
+            const panel = this;
+
+            panel.glslNames = {
+                glsl3: 'GLSL 300 ES Output',
+                glsl1: 'GLSL 100 Output',
+            };
+            panel.shaderNames = {
+                vert: 'Vertex Shader',
+                frag: 'Fragment Shader',
+                comp: 'Compute Shader',
+                tesc: 'Control Shader',
+                tese: 'Evaluation Shader',
+            };
+            panel.shaderStages = {
+                vert: 1,
+                frag: 16,
+                comp: 32,
+                tesc: 2,
+                tese: 4,
+            };
+        },
         update() {
             const panel = this;
 
@@ -202,6 +251,7 @@ const Elements = {
                 section.setAttribute('cache-expand', `effect-${glslKey}`);
 
                 const glslName = panel.glslNames[glslKey];
+                const shader = panel.shaders[panel.shadersIndex];
 
                 const header = document.createElement('div');
                 section.appendChild(header);
@@ -215,11 +265,23 @@ const Elements = {
                 const code = document.createElement('ui-code');
                 section.appendChild(code);
                 code.setAttribute('language', 'glsl');
-                code.innerHTML = panel.shaders[panel.shadersIndex][glslKey][panel.shaders[panel.shadersIndex][glslKey].activeKey];
+
+                const glslStage = panel.shaderStages[shader.activeKey];
+                const stage = shader.stages.find((stage) => stage.stage === glslStage);
+                if (!stage) {
+                    console.error(`Shader stage ${panel.shaderNames[shader.activeKey]} not found in shader ${shader.name}`);
+                }
+                code.innerHTML = stage.source[glslKey];
 
                 for (const shaderKey in panel.shaderNames) {
+                    const glslStage = panel.shaderStages[shaderKey];
                     const shaderName = panel.shaderNames[shaderKey];
-                    const active = panel.shaders[panel.shadersIndex][glslKey].activeKey === shaderKey;
+                    const active = shader.activeKey === shaderKey;
+                    const stage = shader.stages.find((stage) => stage.stage === glslStage);
+
+                    if (!stage) {
+                        continue;
+                    }
 
                     const tab = document.createElement('div');
                     tabs.appendChild(tab);
@@ -240,8 +302,8 @@ const Elements = {
                             }
                         }
 
-                        panel.shaders[panel.shadersIndex][glslKey].activeKey = shaderKey;
-                        code.innerHTML = panel.shaders[panel.shadersIndex][glslKey][panel.shaders[panel.shadersIndex][glslKey].activeKey];
+                        shader.activeKey = shaderKey;
+                        code.innerHTML = stage.source[glslKey];
                     });
                 }
             }
@@ -249,50 +311,17 @@ const Elements = {
     },
 };
 
-/**
- * A method to initialize the panel
- */
-exports.ready = function() {
-    for (const prop in Elements) {
-        const element = Elements[prop];
-        if (element.ready) {
-            element.ready.call(this);
-        }
-    }
-};
-
-/**
- * Methods to automatically render components
- * @param assetList
- * @param metaList
- */
-exports.update = function(assetList, metaList) {
-    this.assetList = assetList;
-    this.metaList = metaList;
-    this.asset = assetList[0];
-    this.meta = metaList[0];
-
-    if (this.assetList.length !== 1) {
-        this.$.container.style.display = 'none';
-        return;
-    } else {
-        this.$.container.style.display = 'block';
-    }
-
-    const isLegal = this.refresh();
-    if (!isLegal) {
-        return;
-    }
-
-    for (const prop in Elements) {
-        const element = Elements[prop];
-        if (element.update) {
-            element.update.call(this);
-        }
-    }
-};
-
 exports.methods = {
+    record() {
+        return JSON.stringify({ shadersIndex: this.shadersIndex });
+    },
+    restore(record) {
+        record = JSON.parse(record);
+
+        this.$.shaderSelect.value = record.shadersIndex;
+        this.$.shaderSelect.dispatch('change');
+        return true;
+    },
     refresh() {
         const panel = this;
 
@@ -317,16 +346,6 @@ exports.methods = {
 
         panel.shaders = dataSource.shaders;
 
-        panel.shadersIndex = 0;
-        panel.glslNames = {
-            glsl3: 'GLSL 300 ES Output',
-            glsl1: 'GLSL 100 Output',
-        };
-        panel.shaderNames = {
-            vert: 'Vertex Shader',
-            frag: 'Fragment Shader',
-        };
-
         // The edited value of defines in each shader
         panel.combinations = [];
         if (Array.isArray(panel.meta.userData.combinations)) {
@@ -335,8 +354,14 @@ exports.methods = {
 
         // Adjusting some data for display
         panel.shaders.forEach((shader, index) => {
-            for (const glslKey in panel.glslNames) {
-                shader[glslKey].activeKey = 'vert';
+            // find the first stage appear in the shader program
+            for (const key in panel.shaderStages) {
+                const glslStage = panel.shaderStages[key];
+                const shaderStage = shader.stages.find((stage) => stage.stage === glslStage);
+                if (shaderStage) {
+                    shader.activeKey = key;
+                    break;
+                }
             }
 
             if (!panel.combinations[index]) {
@@ -376,17 +401,7 @@ exports.methods = {
 
         return true;
     },
-    /**
-     * Update read-only status
-     */
-    updateReadonly(element) {
-        if (this.asset.readonly) {
-            element.setAttribute('disabled', true);
-        } else {
-            element.removeAttribute('disabled');
-        }
-    },
-    dataChange() {
+    change() {
         const panel = this;
 
         // Need to exclude empty arrays, otherwise scene will report an error
@@ -402,5 +417,43 @@ exports.methods = {
         });
 
         panel.meta.userData.combinations = submitData;
+
+        panel.dispatch('change');
+        panel.dispatch('snapshot');
     },
+};
+
+exports.ready = function() {
+    for (const prop in Elements) {
+        const element = Elements[prop];
+        if (element.ready) {
+            element.ready.call(this);
+        }
+    }
+};
+
+exports.update = function(assetList, metaList) {
+    this.assetList = assetList;
+    this.metaList = metaList;
+    this.asset = assetList[0];
+    this.meta = metaList[0];
+
+    if (assetList.length > 1) {
+        this.$.container.setAttribute('multiple-invalid', '');
+        return;
+    } else {
+        this.$.container.removeAttribute('multiple-invalid');
+    }
+
+    const isLegal = this.refresh();
+    if (!isLegal) {
+        return;
+    }
+
+    for (const prop in Elements) {
+        const element = Elements[prop];
+        if (element.update) {
+            element.update.call(this);
+        }
+    }
 };
