@@ -115,6 +115,12 @@ export class ReflectionProbe {
     private _up = new Vec3();
 
     /**
+     * @en Reflection probe cube pattern preview sphere
+     * @zh 反射探针cube模式的预览小球
+     */
+    protected _previewSphere: Node | null = null;
+
+    /**
      * @en Set probe type,cube or planar.
      * @zh 设置探针类型，cube或者planar
      */
@@ -239,6 +245,18 @@ export class ReflectionProbe {
     }
     get cameraNode () {
         return this._cameraNode!;
+    }
+
+    /**
+     * @en Reflection probe cube mode preview sphere
+     * @zh 反射探针cube模式的预览小球
+     */
+    set previewSphere (val: Node) {
+        this._previewSphere = val;
+    }
+
+    get previewSphere () {
+        return this._previewSphere!;
     }
 
     constructor (id: number) {

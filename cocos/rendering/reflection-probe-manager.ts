@@ -220,6 +220,18 @@ export class ReflectionProbeManager {
     }
 
     /**
+     * @en Update the preview sphere of the Reflection Probe cube mode.
+     * @zh 更新反射探针cube模式的预览球
+     */
+    public updatePreviewSphere (probe: ReflectionProbe) {
+        if (!probe || !probe.previewSphere) return;
+        const meshRender = probe.previewSphere.getComponent(MeshRenderer);
+        if (meshRender) {
+            meshRender.updateProbeCubemap(probe.cubemap);
+        }
+    }
+
+    /**
      * @en
      * select the probe with the nearest distance.
      * @zh

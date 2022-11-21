@@ -35,7 +35,6 @@ import { Layers } from '../scene-graph/layers';
 import { Camera } from './camera-component';
 import { Node } from '../scene-graph';
 import { ProbeClearFlag, ProbeType } from '../render-scene/scene/reflection-probe';
-import { MeshRenderer } from '../3d/framework/mesh-renderer';
 
 export enum ProbeResolution {
     /**
@@ -246,11 +245,9 @@ export class ReflectionProbe extends Component {
 
     set previewSphere (val: Node) {
         this._previewSphere = val;
+        this.probe.previewSphere = val;
         if (this._previewSphere) {
-            const meshRender = this._previewSphere.getComponent(MeshRenderer);
-            if (meshRender) {
-                meshRender.updateProbeCubemap(this._cubemap);
-            }
+            ReflectionProbeManager.probeManager.updatePreviewSphere(this.probe);
         }
     }
 
