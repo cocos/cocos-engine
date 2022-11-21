@@ -205,6 +205,7 @@ export class ImageAsset extends Asset {
      * *************************************
      * @param files @zh 压缩纹理数组 @en Compressed Texture Arrays
      * @returns out @zh 合并后的压缩纹理数据 @en Merged compressed texture data
+     * @engineInternal
      */
     public static mergeCompressedTextureMips (files: ArrayBuffer[] | ArrayBufferView[]) {
         let out = new Uint8Array(0);
