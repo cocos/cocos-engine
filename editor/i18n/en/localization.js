@@ -788,10 +788,6 @@ module.exports = {
                 label: 'Network',
                 description: 'Network Module.',
             },
-            xr: {
-                label: 'XR',
-                description: 'XR System.',
-            },
         },
         core: {
             label: "Core",
@@ -941,13 +937,9 @@ module.exports = {
             label: "Marionette Animation System",
             description: "Enable the Marionette animation system",
         },
-        base_xr: {
-            label: "Basic XR",
-            description: "Basic XR support.",
-        },
-        ar: {
-            label: "AR",
-            description: "AR support.",
+        xr: {
+            label: "XR",
+            description: "Enable the XR function system",
         },
         custom_pipeline: {
             label: "Custom Render Pipeline (Experimental)",
