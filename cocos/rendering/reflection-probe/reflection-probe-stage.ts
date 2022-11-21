@@ -32,8 +32,8 @@ import { SetIndex } from '../define';
 import { ReflectionProbeFlow } from './reflection-probe-flow';
 import { Camera, ProbeType, ReflectionProbe } from '../../render-scene/scene';
 import { RenderReflectionProbeQueue } from '../render-reflection-probe-queue';
-import { packRGBE } from '../../core/math/utils';
 import { Vec3 } from '../../core';
+import { packRGBE } from '../../core/math/color';
 
 const colors: Color[] = [new Color(1, 1, 1, 1)];
 

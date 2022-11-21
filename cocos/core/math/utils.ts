@@ -27,8 +27,6 @@
 import * as bits from './bits';
 import { ValueType } from '../value-types';
 import { IVec3Like } from './type-define';
-import { Vec3 } from './vec3';
-import { Vec4 } from './vec4';
 
 const _d2r = Math.PI / 180.0;
 
@@ -283,51 +281,4 @@ export function enumerableProps (prototype: ValueType, attrs: string[]) {
     attrs.forEach((key) => {
         Object.defineProperty(prototype, key, { enumerable: true });
     });
-}
-
-export function clampVec3 (val: Vec3, min: Vec3, max: Vec3) {
-    if (min > max) {
-        const temp = min;
-        min = max;
-        max = temp;
-    }
-
-    return val < min ? min : val > max ? max : val;
-}
-
-export function floorVec3 (val: Vec3) {
-    const temp = val.clone();
-    temp.x = Math.floor(val.x);
-    temp.y = Math.floor(val.y);
-    temp.z = Math.floor(val.z);
-    return temp;
-}
-
-export function stepVec3 (a: Vec3, b: Vec3) {
-    if (a < b) {
-        return b;
-    } else {
-        return a;
-    }
-}
-
-/**
- * @en Three channel rgb color pack into four channel rbge format.
- * @zh 三通道rgb颜色pack成四通道rbge格式
- * @param rgb Vec3
- */
-export function packRGBE (rgb: Vec3) {
-    const maxComp = Math.max(Math.max(rgb.x, rgb.y), rgb.z);
-    let e = 128.0;
-    if (maxComp > 0.0001) {
-        e = Math.log(maxComp) / Math.log(1.1);
-        e = Math.ceil(e);
-        e = clamp(e + 128.0, 0.0, 255.0);
-    }
-    // eslint-disable-next-line no-restricted-properties
-    const sc = 1.0 / Math.pow(1.1, e - 128.0);
-    const encode = clampVec3(rgb.multiplyScalar(sc), new Vec3(0.0, 0.0, 0.0), new Vec3(1.0, 1.0, 1.0));
-    encode.multiplyScalar(255.0);
-    const encode_rounded = floorVec3(encode).add(stepVec3(encode.subtract(floorVec3(encode)), new Vec3(0.5, 0.5, 0.5)));
-    return new Vec4(encode_rounded.x / 255.0, encode_rounded.y / 255.0, encode_rounded.z / 255.0, e / 255.0);
 }
