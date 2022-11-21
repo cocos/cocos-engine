@@ -1,9 +1,19 @@
-#include <builtin/uniforms/cc-sh>
+#pragma define-meta CC_USE_LIGHT_PROBE default(false)
 
+#if CC_USE_LIGHT_PROBE
 vec3 SHEvaluate(vec3 normal)
 {
+#if USE_INSTANCING
     vec3 result;    
+    // calculate linear and const terms
+    vec4 normal4 = vec4(normal, 1.0);
+    result.r = dot(v_sh_linear_const_r, normal4);
+    result.g = dot(v_sh_linear_const_g, normal4);
+    result.b = dot(v_sh_linear_const_b, normal4);
 
+    return result;
+#else
+    vec3 result;    
     // calculate linear and const terms
     vec4 normal4 = vec4(normal, 1.0);
     result.r = dot(cc_sh_linear_const_r, normal4);
@@ -20,4 +30,6 @@ vec3 SHEvaluate(vec3 normal)
     result += (cc_sh_quadratic_a.rgb * n5);
 
     return result;
+#endif
 }
+#endif

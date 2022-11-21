@@ -27,7 +27,7 @@
 import { IBaseConstraint } from '../../spec/i-physics-constraint';
 import { Constraint, RigidBody } from '../../framework';
 import { BulletRigidBody } from '../bullet-rigid-body';
-import { bt } from '../instantiated';
+import { bt, EBulletType } from '../instantiated';
 
 export abstract class BulletConstraint implements IBaseConstraint {
     setConnectedBody (v: RigidBody | null): void {
@@ -101,7 +101,7 @@ export abstract class BulletConstraint implements IBaseConstraint {
     }
 
     onDestroy (): void {
-        bt.TypedConstraint_del(this._impl);
+        bt._safe_delete(this._impl, EBulletType.EBulletTypeTypedConstraint);
         (this._com as any) = null;
         (this._rigidBody as any) = null;
     }

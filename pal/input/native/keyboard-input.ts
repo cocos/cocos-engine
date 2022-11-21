@@ -32,12 +32,11 @@ export class KeyboardInputSource {
     // On native platform, KeyboardEvent.repeat is always false, so we need a map to manage the key state.
     private _keyStateMap: Record<number, boolean> = {};
 
-    constructor () {
-        this._registerEvent();
-    }
+    private _handleKeyboardDown: (event: jsb.KeyboardEvent) => void;
+    private _handleKeyboardUp: (event: jsb.KeyboardEvent) => void;
 
-    private _registerEvent () {
-        jsb.onKeyDown = (event: jsb.KeyboardEvent) => {
+    constructor () {
+        this._handleKeyboardDown = (event: jsb.KeyboardEvent) => {
             const keyCode = getKeyCode(event.keyCode);
             if (!this._keyStateMap[keyCode]) {
                 const eventKeyDown = this._getInputEvent(event, InputEventType.KEY_DOWN);
@@ -48,12 +47,21 @@ export class KeyboardInputSource {
             }
             this._keyStateMap[keyCode] = true;
         };
-        jsb.onKeyUp = (event: jsb.KeyboardEvent) => {
+        this._handleKeyboardUp = (event: jsb.KeyboardEvent) => {
             const keyCode = getKeyCode(event.keyCode);
             const eventKeyUp = this._getInputEvent(event, InputEventType.KEY_UP);
             this._keyStateMap[keyCode] = false;
             this._eventTarget.emit(InputEventType.KEY_UP, eventKeyUp);
         };
+        this._registerEvent();
+    }
+
+    public dispatchKeyboardDownEvent (nativeKeyboardEvent: jsb.KeyboardEvent) { this._handleKeyboardDown(nativeKeyboardEvent); }
+    public dispatchKeyboardUpEvent (nativeKeyboardEvent: jsb.KeyboardEvent) { this._handleKeyboardUp(nativeKeyboardEvent); }
+
+    private _registerEvent () {
+        jsb.onKeyDown = this._handleKeyboardDown;
+        jsb.onKeyUp = this._handleKeyboardUp;
     }
 
     private _getInputEvent (event: jsb.KeyboardEvent, eventType: InputEventType) {

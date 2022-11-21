@@ -17,6 +17,7 @@
 %{
 #include "bindings/auto/jsb_geometry_auto.h"
 #include "bindings/auto/jsb_cocos_auto.h"
+#include "bindings/auto/jsb_scene_auto.h"
 #include "bindings/auto/jsb_gi_auto.h"
 
 using namespace cc;
@@ -38,6 +39,7 @@ using namespace cc::gi;
 //
 %ignore cc::gi::Edge;
 %ignore cc::gi::Triangle;
+%ignore cc::gi::ILightProbeNode;
 
 
 // ----- Rename Section ------
@@ -85,7 +87,6 @@ using namespace cc::gi;
 %attribute(cc::gi::LightProbesData, ccstd::vector<cc::gi::Vertex>&, probes, getProbes, setProbes);
 %attribute(cc::gi::LightProbesData, ccstd::vector<cc::gi::Tetrahedron>&, tetrahedrons, getTetrahedrons, setTetrahedrons);
 
-%attribute(cc::gi::LightProbes, bool, enabled, isEnabled, setEnabled);
 %attribute(cc::gi::LightProbes, float, giScale, getGIScale, setGIScale);
 %attribute(cc::gi::LightProbes, uint32_t, giSamples, getGISamples, setGISamples);
 %attribute(cc::gi::LightProbes, uint32_t, bounces, getBounces, setBounces);
@@ -95,7 +96,6 @@ using namespace cc::gi;
 %attribute(cc::gi::LightProbes, bool, showConvex, isShowConvex, setShowConvex);
 %attribute(cc::gi::LightProbes, cc::gi::LightProbesData&, data, getData, setData);
 
-%attribute(cc::gi::LightProbeInfo, bool, enabled, isEnabled, setEnabled);
 %attribute(cc::gi::LightProbeInfo, float, giScale, getGIScale, setGIScale);
 %attribute(cc::gi::LightProbeInfo, uint32_t, giSamples, getGISamples, setGISamples);
 %attribute(cc::gi::LightProbeInfo, uint32_t, bounces, getBounces, setBounces);

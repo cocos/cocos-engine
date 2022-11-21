@@ -38,10 +38,6 @@ void SystemWindowManager::processEvent(bool* quit) {
 
 }
 
-void SystemWindowManager::swapWindows() {
-
-}
-
 ISystemWindow *SystemWindowManager::getWindow(uint32_t windowId) const {
     if (windowId == 0) {
         return nullptr;

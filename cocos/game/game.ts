@@ -42,6 +42,7 @@ import { bindingMappingInfo } from '../rendering/define';
 import { IBundleOptions } from '../asset/asset-manager/shared';
 import { ICustomJointTextureLayout } from '../3d/skeletal-animation/skeletal-animation-utils';
 import { IPhysicsConfig } from '../physics/framework/physics-config';
+import { effectSettings } from '../core/effect-settings';
 
 /**
  * @zh
@@ -57,6 +58,14 @@ export interface IGameConfig {
      * The path of settings.json
      */
     settingsPath?: string;
+
+    /**
+     * @zh
+     * 引擎内 Effect 配置文件路径
+     * @en
+     * The path of effectSettings.json
+     */
+    effectSettingsPath?: string;
 
     /**
      * @zh
@@ -743,6 +752,10 @@ export class Game extends EventTarget {
                 this.emit(Game.EVENT_PRE_SUBSYSTEM_INIT);
                 return this.onPreSubsystemInitDelegate.dispatch();
             })
+            .then(() => effectSettings.init(config.effectSettingsPath))
+            .then(() => {
+                effectSettings.applyBindings();
+            })
             .then(() => {
                 if (DEBUG) {
                     console.time('Init SubSystem');
@@ -812,6 +825,13 @@ export class Game extends EventTarget {
     }
 
     private _initXR () {
+        globalThis.__globalXR = {};
+        const globalXR = globalThis.__globalXR;
+        // xrEnv 0 NONE 1 XR 2 WEB_XR
+        globalXR.xrEnv = settings.querySettings(Settings.Category.XR, 'xrEnv') ?? 0;
+        // xrType 0 NONE 1 VR 2 AR
+        globalXR.xrType = settings.querySettings(Settings.Category.XR, 'xrType') ?? 0;
+
         if (sys.isXR) {
             // XrEntry must not be destroyed
             xr.entry = xr.XrEntry.getInstance();

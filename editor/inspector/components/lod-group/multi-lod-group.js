@@ -11,7 +11,9 @@ exports.template = `
                 :value="multiObjectSizeInvalid && dump.value && dump.value.objectSize ? null : dump.value.objectSize.values[0]"
                 @confirm="onMultiObjectSizeConfirm($event)"
             ></ui-num-input>
-            <ui-button @confirm="resetMultiObjectSize">Reset Object Size</ui-button>
+            <ui-button @confirm="resetMultiObjectSize">
+                <ui-label value="Reset Object Size"></ui-label>
+            </ui-button>
         </div>
     </ui-prop>
     <template v-for="(screenSize, index) in multiLODs">
@@ -117,14 +119,16 @@ exports.methods = {
             }
             return min * 100;
         } else if (range === 'max') {
-            let max = that.dump.value.LODs.values[0][index - 1] ? that.dump.value.LODs.values[0][index - 1].value.screenUsagePercentage.value : 1;
-            for (let i = 1; i < that.dump.value.LODs.values.length; i++) {
-                const multiLods = that.dump.value.LODs.values[i];
-                if (multiLods[index - 1] && multiLods[index - 1].value.screenUsagePercentage.value < max) {
-                    max = multiLods[index - 1].value.screenUsagePercentage.value;
+            let max = that.dump.value.LODs.values[0][index - 1] ? that.dump.value.LODs.values[0][index - 1].value.screenUsagePercentage.value : null;
+            if (max) {
+                for (let i = 1; i < that.dump.value.LODs.values.length; i++) {
+                    const multiLods = that.dump.value.LODs.values[i];
+                    if (multiLods[index - 1] && multiLods[index - 1].value.screenUsagePercentage.value < max) {
+                        max = multiLods[index - 1].value.screenUsagePercentage.value;
+                    }
                 }
+                return max * 100;
             }
-            return max * 100;
         }
         return null;
     },

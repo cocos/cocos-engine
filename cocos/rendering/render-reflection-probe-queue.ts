@@ -70,8 +70,8 @@ export class RenderReflectionProbeQueue {
     public constructor (pipeline: PipelineRuntime) {
         this._pipeline = pipeline;
     }
-
-    public gatherRenderObjects (probe: ReflectionProbe, scene:RenderScene) {
+    //TODO The cmdBuff parameter is added to do the instance
+    public gatherRenderObjects (probe: ReflectionProbe, scene:RenderScene, cmdBuff: CommandBuffer) {
         this.clear();
         const sceneData = this._pipeline.pipelineSceneData;
         const skybox = sceneData.skybox;
@@ -146,6 +146,7 @@ export class RenderReflectionProbeQueue {
             cmdBuff.bindInputAssembler(ia);
             cmdBuff.draw(ia);
         }
+        this.resetMacro();
     }
     public resetMacro () {
         for (let i = 0; i < this._subModelsArray.length; ++i) {

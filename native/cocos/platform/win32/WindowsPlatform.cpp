@@ -115,6 +115,10 @@ int32_t WindowsPlatform::init() {
 }
 
 int32_t WindowsPlatform::loop() {
+#if CC_EDITOR
+    _windowManager->processEvent(&_quit);
+    runTask();
+#else
     ///////////////////////////////////////////////////////////////////////////
     /////////////// changing timer resolution
     ///////////////////////////////////////////////////////////////////////////
@@ -151,7 +155,6 @@ int32_t WindowsPlatform::loop() {
         if (actualInterval >= desiredInterval) {
             nLast.QuadPart = nNow.QuadPart;
             runTask();
-            _windowManager->swapWindows();
         } else {
             // The precision of timer on Windows is set to highest (1ms) by 'timeBeginPeriod' from above code,
             // but it's still not precise enough. For example, if the precision of timer is 1ms,
@@ -168,6 +171,7 @@ int32_t WindowsPlatform::loop() {
         timeEndPeriod(wTimerRes);
 
     onDestroy();
+#endif
     return 0;
 }
 

@@ -93,6 +93,7 @@ CCProgram standard-vs %{
   #include <shared-ubos>
   #include <legacy/fog-vs>
   #include <legacy/shadow-map-vs>
+  #include <legacy/sh-vs>
 
   #if USE_VERTEX_COLOR
     in vec4 a_color;
@@ -165,6 +166,7 @@ CCProgram standard-vs %{
 
     CC_TRANSFER_FOG(pos);
     CC_TRANSFER_SHADOW(pos);
+    CC_TRANSFER_SH();
 
     #if CC_USE_LIGHTMAP && !CC_FORWARD_ADD
       CCLightingMapCaclUV();
@@ -252,7 +254,8 @@ CCProgram standard-fs %{
 
     #if CC_USE_LIGHTMAP && !CC_FORWARD_ADD
       vec4 lightColor = texture(cc_lightingMap, v_luv.xy);
-      s.lightmap = lightColor.xyz * v_luv.z;
+      s.lightmap.a = lightColor.a;
+      s.lightmap.rgb = lightColor.xyz * v_luv.z;
       s.lightmap_test = v_luv.z; /*lum*/
     #endif
 

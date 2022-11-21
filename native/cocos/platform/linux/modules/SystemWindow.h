@@ -39,8 +39,6 @@ public:
     explicit SystemWindow(uint32_t windowId, void* externalHandle);
     ~SystemWindow() override;
 
-    void swapWindow();
-
     bool createWindow(const char* title,
                       int w, int h, int flags) override;
     bool createWindow(const char* title,

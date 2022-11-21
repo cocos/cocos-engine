@@ -30,7 +30,7 @@ import { MeshCollider } from '../../../../exports/physics-framework';
 import { cocos2BulletVec3, cocos2BulletTriMesh } from '../bullet-utils';
 import { ITrimeshShape } from '../../spec/i-physics-shape';
 import { BulletCache } from '../bullet-cache';
-import { bt } from '../instantiated';
+import { bt, EBulletType } from '../instantiated';
 
 export class BulletTrimeshShape extends BulletShape implements ITrimeshShape {
     public get collider () {
@@ -72,7 +72,7 @@ export class BulletTrimeshShape extends BulletShape implements ITrimeshShape {
     }
 
     onDestroy () {
-        if (this.refBtTriangleMesh) { bt.TriangleMesh_del(this.refBtTriangleMesh); }
+        if (this.refBtTriangleMesh) {  bt._safe_delete(this.refBtTriangleMesh, EBulletType.EBulletTypeTriangleMesh); }
         super.onDestroy();
     }
 

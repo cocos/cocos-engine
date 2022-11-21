@@ -419,6 +419,7 @@ export class LODGroup extends Component {
                     if (!renderer) {
                         continue;
                     }
+                    renderer.model?.updateWorldBound();
                     let worldBounds = renderer.model?.worldBounds;
                     if (worldBounds) {
                         if (JSB) {
@@ -465,6 +466,10 @@ export class LODGroup extends Component {
      */
     public resetObjectSize () {
         if (this.objectSize === 1.0) return;
+
+        if (this.objectSize === 0) {
+            this.objectSize = 1.0;
+        }
 
         // 1 will be new object size
         const scale = 1.0 / this.objectSize;

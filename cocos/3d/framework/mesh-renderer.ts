@@ -23,10 +23,11 @@
  THE SOFTWARE.
 */
 import { JSB } from 'internal:constants';
+import { displayOrder, group, range } from 'cc.decorator';
 import { Texture2D, TextureCube } from '../../asset/assets';
 import { Material } from '../../asset/assets/material';
 import { Mesh } from '../assets/mesh';
-import { Vec4, Enum, cclegacy, CCBoolean, CCFloat, assertIsTrue, _decorator } from '../../core';
+import { Vec4, Enum, cclegacy, CCBoolean, CCFloat, assertIsTrue, _decorator, CCInteger, EventTarget } from '../../core';
 import { scene } from '../../render-scene';
 import { MorphModel } from '../models/morph-model';
 import { Root } from '../../root';
@@ -99,11 +100,29 @@ export enum ReflectionProbeType {
 }
 
 /**
- * @en Model's light map settings.
- * @zh 模型光照图设置
+ * @en Model's bake settings.
+ * @zh 模型烘焙设置
  */
-@ccclass('cc.ModelLightmapSettings')
-class ModelLightmapSettings {
+@ccclass('cc.ModelBakeSettings')
+class ModelBakeSettings extends EventTarget {
+    /**
+     * @en The event which will be triggered when the useLightProbe is changed.
+     * @zh useLightProbe属性修改时触发的事件
+     */
+    public static readonly USE_LIGHT_PROBE_CHANGED = 'use_light_probe_changed';
+
+    /**
+     * @en The event which will be triggered when the reflectionProbe is changed.
+     * @zh reflectionProbe 属性修改时触发的事件
+     */
+    public static readonly REFLECTION_PROBE_CHANGED = 'reflection_probe_changed';
+
+    /**
+     * @en The event which will be triggered when the bakeToReflectionProbe is changed.
+     * @zh bakeToReflectionProbe 属性修改时触发的事件
+     */
+    public static readonly BAKE_TO_REFLECTION_PROBE_CHANGED = 'bake_to_reflection_probe_changed';
+
     @serializable
     public texture: Texture2D|null = null;
     @serializable
@@ -117,12 +136,26 @@ class ModelLightmapSettings {
     @serializable
     protected _lightmapSize = 64;
 
+    @serializable
+    protected _useLightProbe = false;
+    @serializable
+    protected _bakeToLightProbe = true;
+
+    @serializable
+    protected _reflectionProbeType = ReflectionProbeType.NONE;
+    @serializable
+    protected _bakeToReflectionProbe = true;
+    @serializable
+    public _probeCubemap: TextureCube | null = null;
+    public _probePlanarmap: Texture | null = null;
+
     /**
      * @en Whether the model is static and bake-able with light map.
      * Notice: the model's vertex data must have the second UV attribute to enable light map baking.
      * @zh 模型是否是静态的并可以烘培光照贴图。
      * 注意：模型顶点数据必须包含第二套 UV 属性来支持光照贴图烘焙。
      */
+    @group({ id: 'LightMap', name: 'LightMapSettings', displayOrder: 0 })
     @editable
     get bakeable () {
         return this._bakeable;
@@ -136,6 +169,7 @@ class ModelLightmapSettings {
      * @en Whether to cast shadow in light map baking.
      * @zh 在光照贴图烘焙中是否投射阴影。
      */
+    @group({ id: 'LightMap', name: 'LightMapSettings' })
     @editable
     get castShadow () {
         return this._castShadow;
@@ -149,6 +183,7 @@ class ModelLightmapSettings {
      * @en Whether to receive shadow in light map baking.
      * @zh 在光照贴图烘焙中是否接受阴影。
      */
+    @group({ id: 'LightMap', name: 'LightMapSettings' })
     @editable
     get receiveShadow () {
         return this._receiveShadow;
@@ -162,13 +197,77 @@ class ModelLightmapSettings {
      * @en The lightmap size.
      * @zh 光照图大小。
      */
+    @group({ id: 'LightMap', name: 'LightMapSettings' })
     @editable
+    @type(CCInteger)
+    @range([0, 1024])
     get lightmapSize () {
         return this._lightmapSize;
     }
 
     set lightmapSize (val) {
         this._lightmapSize = val;
+    }
+
+    /**
+     * @en Whether to use light probe which provides indirect light to dynamic objects.
+     * @zh 模型是否使用光照探针，光照探针为动态物体提供间接光。
+     */
+    @group({ id: 'LightProbe', name: 'LightProbeSettings', displayOrder: 1 })
+    @editable
+    @type(CCBoolean)
+    get useLightProbe () {
+        return this._useLightProbe;
+    }
+
+    set useLightProbe (val) {
+        this._useLightProbe = val;
+        this.emit(ModelBakeSettings.USE_LIGHT_PROBE_CHANGED);
+    }
+
+    /**
+     * @en Whether the model is used to calculate light probe
+     * @zh 模型是否用于计算光照探针
+     */
+    @group({ id: 'LightProbe', name: 'LightProbeSettings' })
+    @editable
+    @type(CCBoolean)
+    get bakeToLightProbe () {
+        return this._bakeToLightProbe;
+    }
+
+    set bakeToLightProbe (val) {
+        this._bakeToLightProbe = val;
+    }
+
+    /**
+     * @en Used to set whether to use the reflection probe or set probe's type.
+     * @zh 用于设置是否使用反射探针或者设置反射探针的类型。
+     */
+    @group({ id: 'ReflectionProbe', name: 'ReflectionProbeSettings', displayOrder: 2 })
+    @type(Enum(ReflectionProbeType))
+    get reflectionProbe () {
+        return this._reflectionProbeType;
+    }
+
+    set reflectionProbe (val) {
+        this._reflectionProbeType = val;
+        this.emit(ModelBakeSettings.REFLECTION_PROBE_CHANGED);
+    }
+
+    /**
+     * @en Whether the model can be render by the reflection probe
+     * @zh 模型是否能被反射探针渲染
+     */
+    @group({ id: 'ReflectionProbe', name: 'ReflectionProbeSettings' })
+    @type(CCBoolean)
+    get bakeToReflectionProbe () {
+        return this._bakeToReflectionProbe;
+    }
+
+    set bakeToReflectionProbe (val) {
+        this._bakeToReflectionProbe = val;
+        this.emit(ModelBakeSettings.BAKE_TO_REFLECTION_PROBE_CHANGED);
     }
 }
 
@@ -202,9 +301,8 @@ export class MeshRenderer extends ModelRenderer {
     @serializable
     @editable
     @disallowAnimation
-    // eslint-disable-next-line func-names
-    @visible(function (this: MeshRenderer) { return !!(this.node && this.node.mobility !== MobilityMode.Movable); })
-    public lightmapSettings = new ModelLightmapSettings();
+    @displayOrder(1)
+    public bakeSettings = new ModelBakeSettings(this);
 
     @serializable
     protected _mesh: Mesh | null = null;
@@ -221,20 +319,6 @@ export class MeshRenderer extends ModelRenderer {
     @serializable
     protected _shadowNormalBias = 0;
 
-    @serializable
-    protected _useLightProbe = false;
-
-    @serializable
-    protected _bakeToReflectionProbe = true;
-
-    @serializable
-    protected _reflectionProbeType = ReflectionProbeType.NONE;
-
-    @serializable
-    public _probeCubemap: TextureCube | null = null;
-
-    protected _probePlanarmap: Texture | null = null;
-
     // @serializable
     private _subMeshShapesWeights: number[][] = [];
 
@@ -244,7 +328,7 @@ export class MeshRenderer extends ModelRenderer {
      */
     @type(CCFloat)
     @tooltip('i18n:model.shadow_bias')
-    @property({ group: { id: 'DynamicShadow', name: 'DynamicShadowSettings', displayOrder: 0 } })
+    @group({ id: 'DynamicShadow', name: 'DynamicShadowSettings', displayOrder: 0 })
     @disallowAnimation
     get shadowBias () {
         return this._shadowBias;
@@ -262,7 +346,7 @@ export class MeshRenderer extends ModelRenderer {
    */
     @type(CCFloat)
     @tooltip('i18n:model.shadow_normal_bias')
-    @property({ group: { id: 'DynamicShadow', name: 'DynamicShadowSettings', displayOrder: 1 } })
+    @group({ id: 'DynamicShadow', name: 'DynamicShadowSettings' })
     @disallowAnimation
     get shadowNormalBias () {
         return this._shadowNormalBias;
@@ -280,7 +364,7 @@ export class MeshRenderer extends ModelRenderer {
      */
     @type(ModelShadowCastingMode)
     @tooltip('i18n:model.shadow_casting_model')
-    @property({ group: { id: 'DynamicShadow', name: 'DynamicShadowSettings', displayOrder: 2 } })
+    @group({ id: 'DynamicShadow', name: 'DynamicShadowSettings' })
     @disallowAnimation
     get shadowCastingMode () {
         return this._shadowCastingMode;
@@ -297,7 +381,7 @@ export class MeshRenderer extends ModelRenderer {
      */
     @type(ModelShadowReceivingMode)
     @tooltip('i18n:model.shadow_receiving_model')
-    @property({ group: { id: 'DynamicShadow', name: 'DynamicShadowSettings', displayOrder: 3 } })
+    @group({ id: 'DynamicShadow', name: 'DynamicShadowSettings' })
     @disallowAnimation
     get receiveShadow () {
         return this._shadowReceivingMode;
@@ -334,61 +418,6 @@ export class MeshRenderer extends ModelRenderer {
         this._updateCastShadow();
         this._updateReceiveShadow();
         this._updateUseLightProbe();
-    }
-
-    /**
-     * @en Whether to use light probe which provides indirect light to dynamic objects.
-     * @zh 模型是否使用光照探针，光照探针为动态物体提供间接光。
-     */
-    @type(CCBoolean)
-    // eslint-disable-next-line func-names
-    @visible(function (this: MeshRenderer) { return !!(this.node && this.node.mobility === MobilityMode.Movable); })
-    get useLightProbe () {
-        return this._useLightProbe;
-    }
-
-    set useLightProbe (val) {
-        this._useLightProbe = val;
-        this._updateUseLightProbe();
-    }
-
-    /**
-     * @en Whether the model can be render by the reflection probe
-     * @zh 模型是否能被反射探针渲染
-     */
-    @type(CCBoolean)
-    get bakeToReflectionProbe () {
-        return this._bakeToReflectionProbe;
-    }
-
-    set bakeToReflectionProbe (val) {
-        this._bakeToReflectionProbe = val;
-        this._updateBakeToProbe();
-    }
-
-    /**
-     * @en Used to set whether to use the reflection probe or set probe's type.
-     * @zh 用于设置是否使用反射探针或者设置反射探针的类型。
-     */
-    @type(Enum(ReflectionProbeType))
-    get reflectionProbe () {
-        return this._reflectionProbeType;
-    }
-
-    set reflectionProbe (val) {
-        this._reflectionProbeType = val;
-        for (let i = 0; i < this._materials.length; i++) {
-            const mat = this.getMaterialInstance(i)!;
-            mat.recompileShaders({ USE_REFLECTION_PROBE: this._reflectionProbeType });
-        }
-        if (this._model) {
-            this._model.reflectionProbeType = this._reflectionProbeType;
-            if (this._reflectionProbeType === ReflectionProbeType.BAKED_CUBEMAP) {
-                this._model.updateReflctionProbeCubemap(this._probeCubemap!);
-            } else if (this._reflectionProbeType === ReflectionProbeType.PLANAR_REFLECTION) {
-                this._model.updateReflctionProbePlanarMap(this._probePlanarmap!);
-            }
-        }
     }
 
     /**
@@ -436,8 +465,8 @@ export class MeshRenderer extends ModelRenderer {
         const highQualityMode = settings.querySettings(Settings.Category.RENDERING, 'highQualityMode');
         if (highQualityMode) {
             this._shadowCastingMode = ModelShadowCastingMode.ON;
-            this.lightmapSettings.castShadow = true;
-            this.lightmapSettings.receiveShadow = true;
+            this.bakeSettings.castShadow = true;
+            this.bakeSettings.receiveShadow = true;
         }
     }
 
@@ -453,7 +482,7 @@ export class MeshRenderer extends ModelRenderer {
         this._updateShadowBias();
         this._updateShadowNormalBias();
         this._updateUseLightProbe();
-        this._updateBakeToProbe();
+        this._updateBakeToReflectionProbe();
         this._updateReflectionProbeRenderInfo();
     }
 
@@ -468,13 +497,17 @@ export class MeshRenderer extends ModelRenderer {
         this._updateShadowBias();
         this._updateShadowNormalBias();
         this._updateUseLightProbe();
-        this._updateBakeToProbe();
+        this._updateBakeToReflectionProbe();
         this._updateReflectionProbeRenderInfo();
     }
 
     public onEnable () {
         super.onEnable();
         this.node.on(NodeEventType.MOBILITY_CHANGED, this.onMobilityChanged, this);
+        this.bakeSettings.on(ModelBakeSettings.USE_LIGHT_PROBE_CHANGED, this.onUseLightProbeChanged, this);
+        this.bakeSettings.on(ModelBakeSettings.REFLECTION_PROBE_CHANGED, this.onReflectionProbeChanged, this);
+        this.bakeSettings.on(ModelBakeSettings.BAKE_TO_REFLECTION_PROBE_CHANGED, this.onBakeToReflectionProbeChanged, this);
+
         if (!this._model) {
             this._updateModels();
         }
@@ -482,7 +515,7 @@ export class MeshRenderer extends ModelRenderer {
         this._updateReceiveShadow();
         this._updateShadowBias();
         this._updateShadowNormalBias();
-        this._updateBakeToProbe();
+        this._updateBakeToReflectionProbe();
         this._updateReflectionProbeRenderInfo();
         this._onUpdateLocalShadowBias();
         this._updateUseLightProbe();
@@ -494,6 +527,9 @@ export class MeshRenderer extends ModelRenderer {
             this._detachFromScene();
         }
         this.node.off(NodeEventType.MOBILITY_CHANGED, this.onMobilityChanged, this);
+        this.bakeSettings.off(ModelBakeSettings.USE_LIGHT_PROBE_CHANGED, this.onUseLightProbeChanged, this);
+        this.bakeSettings.off(ModelBakeSettings.REFLECTION_PROBE_CHANGED, this.onReflectionProbeChanged, this);
+        this.bakeSettings.off(ModelBakeSettings.BAKE_TO_REFLECTION_PROBE_CHANGED, this.onBakeToReflectionProbeChanged, this);
     }
 
     public onDestroy () {
@@ -605,34 +641,34 @@ export class MeshRenderer extends ModelRenderer {
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _updateLightmap (lightmap: Texture2D|null, uOff: number, vOff: number, scale: number, lum: number) {
-        this.lightmapSettings.texture = lightmap;
-        this.lightmapSettings.uvParam.x = uOff;
-        this.lightmapSettings.uvParam.y = vOff;
-        this.lightmapSettings.uvParam.z = scale;
-        this.lightmapSettings.uvParam.w = lum;
+        this.bakeSettings.texture = lightmap;
+        this.bakeSettings.uvParam.x = uOff;
+        this.bakeSettings.uvParam.y = vOff;
+        this.bakeSettings.uvParam.z = scale;
+        this.bakeSettings.uvParam.w = lum;
 
         this._onUpdateLightingmap();
     }
 
     public updateProbeCubemap (cubeMap: TextureCube | null) {
-        this._probeCubemap = cubeMap;
+        this.bakeSettings._probeCubemap = cubeMap;
         if (this.model !== null) {
-            this.model.updateReflctionProbeCubemap(this._probeCubemap!);
+            this.model.updateReflctionProbeCubemap(this.bakeSettings._probeCubemap!);
         }
     }
     public updateProbePlanarMap (planarMap: Texture | null) {
-        this._probePlanarmap = planarMap;
+        this.bakeSettings._probePlanarmap = planarMap;
         if (this.model !== null) {
-            this.model.updateReflctionProbePlanarMap(this._probePlanarmap!);
+            this.model.updateReflctionProbePlanarMap(this.bakeSettings._probePlanarmap!);
         }
     }
 
     protected _onUpdateReflectionProbeTexture () {
         if (this.model === null) return;
-        if (this.reflectionProbe === ReflectionProbeType.BAKED_CUBEMAP) {
-            this.model.updateReflctionProbeCubemap(this._probeCubemap!);
-        } else if (this.reflectionProbe === ReflectionProbeType.PLANAR_REFLECTION) {
-            this.model.updateReflctionProbePlanarMap(this._probePlanarmap!);
+        if (this.bakeSettings.reflectionProbe === ReflectionProbeType.BAKED_CUBEMAP) {
+            this.model.updateReflctionProbeCubemap(this.bakeSettings._probeCubemap!);
+        } else if (this.bakeSettings.reflectionProbe === ReflectionProbeType.PLANAR_REFLECTION) {
+            this.model.updateReflctionProbePlanarMap(this.bakeSettings._probePlanarmap!);
         }
     }
 
@@ -657,7 +693,7 @@ export class MeshRenderer extends ModelRenderer {
             }
             // Initialize lighting map before model initializing
             // because the lighting map will influence the model's shader
-            this._model.initLightingmap(this.lightmapSettings.texture, this.lightmapSettings.uvParam);
+            this._model.initLightingmap(this.bakeSettings.texture, this.bakeSettings.uvParam);
             this._updateUseLightProbe();
             this._updateModelParams();
             this._onUpdateLightingmap();
@@ -727,14 +763,14 @@ export class MeshRenderer extends ModelRenderer {
 
     protected _onUpdateLightingmap () {
         if (this.model !== null) {
-            this.model.updateLightingmap(this.lightmapSettings.texture, this.lightmapSettings.uvParam);
+            this.model.updateLightingmap(this.bakeSettings.texture, this.bakeSettings.uvParam);
         }
 
         this.setInstancedAttribute('a_lightingMapUVParam', [
-            this.lightmapSettings.uvParam.x,
-            this.lightmapSettings.uvParam.y,
-            this.lightmapSettings.uvParam.z,
-            this.lightmapSettings.uvParam.w,
+            this.bakeSettings.uvParam.x,
+            this.bakeSettings.uvParam.y,
+            this.bakeSettings.uvParam.z,
+            this.bakeSettings.uvParam.w,
         ]);
     }
 
@@ -820,10 +856,22 @@ export class MeshRenderer extends ModelRenderer {
         this._updateUseLightProbe();
     }
 
+    protected onUseLightProbeChanged () {
+        this._updateUseLightProbe();
+    }
+
+    protected onReflectionProbeChanged () {
+        this._updateReflectionProbe();
+    }
+
+    protected onBakeToReflectionProbeChanged () {
+        this._updateBakeToReflectionProbe();
+    }
+
     protected _updateUseLightProbe () {
         if (!this._model) { return; }
         const node = this.node;
-        if (this._mesh && node && node.mobility === MobilityMode.Movable && this.useLightProbe) {
+        if (this._mesh && node && node.mobility === MobilityMode.Movable && this.bakeSettings.useLightProbe) {
             this._model.useLightProbe = true;
         } else {
             this._model.useLightProbe = false;
@@ -842,20 +890,37 @@ export class MeshRenderer extends ModelRenderer {
         return false;
     }
 
-    protected _updateBakeToProbe () {
+    protected _updateReflectionProbe () {
+        for (let i = 0; i < this._materials.length; i++) {
+            const mat = this.getMaterialInstance(i)!;
+            mat.recompileShaders({ USE_REFLECTION_PROBE: this.bakeSettings.reflectionProbe });
+        }
+        if (this._model) {
+            this._model.reflectionProbeType = this.bakeSettings.reflectionProbe;
+            if (this.bakeSettings.reflectionProbe === ReflectionProbeType.BAKED_CUBEMAP) {
+                this._model.updateReflctionProbeCubemap(this.bakeSettings._probeCubemap!);
+            } else if (this.bakeSettings.reflectionProbe === ReflectionProbeType.PLANAR_REFLECTION) {
+                this._model.updateReflctionProbePlanarMap(this.bakeSettings._probePlanarmap!);
+            }
+        }
+    }
+
+    protected _updateBakeToReflectionProbe () {
         if (!this._model) { return; }
-        this._model.bakeToReflectionProbe = this._bakeToReflectionProbe;
+        this._model.bakeToReflectionProbe = this.bakeSettings.bakeToReflectionProbe;
     }
 
     protected _updateReflectionProbeRenderInfo () {
-        if (this.reflectionProbe !== ReflectionProbeType.NONE) {
+        if (!this._model) { return; }
+        if (this.bakeSettings.reflectionProbe !== ReflectionProbeType.NONE) {
             for (let i = 0; i < this._materials.length; i++) {
                 const mat = this.getMaterialInstance(i);
                 if (mat) {
-                    mat.recompileShaders({ USE_REFLECTION_PROBE: this.reflectionProbe });
+                    mat.recompileShaders({ USE_REFLECTION_PROBE: this.bakeSettings.reflectionProbe });
                 }
             }
         }
+        this._model.reflectionProbeType = this.bakeSettings.reflectionProbe;
         this._onUpdateReflectionProbeTexture();
     }
 

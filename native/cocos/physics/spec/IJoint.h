@@ -56,5 +56,12 @@ public:
     virtual void setAxis(float x, float y, float z) = 0;
 };
 
+class IFixedJoint : virtual public IBaseJoint {
+public:
+    ~IFixedJoint() override = default;
+    virtual void setBreakForce(float force) = 0;
+    virtual void setBreakTorque(float torque) = 0;
+};
+
 } // namespace physics
 } // namespace cc

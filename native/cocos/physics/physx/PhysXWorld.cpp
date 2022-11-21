@@ -35,7 +35,7 @@ namespace cc {
 namespace physics {
 
 PhysXWorld *PhysXWorld::instance = nullptr;
-uint32_t PhysXWorld::_msWrapperObjectID = 0;
+uint32_t PhysXWorld::_msWrapperObjectID = 1; // starts from 1 because 0 means null
 uint32_t PhysXWorld::_msPXObjectID = 0;
 
 PhysXWorld &PhysXWorld::getInstance() {
@@ -366,6 +366,9 @@ void PhysXWorld::removeWrapperObject(uint32_t wrapperObjectID) {
 }
 
 uintptr_t PhysXWorld::getWrapperPtrWithObjectID(uint32_t wrapperObjectID) {
+    if (wrapperObjectID == 0) {
+        return 0;
+    }
     auto const &iter = _mWrapperObjects.find(wrapperObjectID);
     if (iter == _mWrapperObjects.end())
         return 0;

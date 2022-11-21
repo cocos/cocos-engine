@@ -775,6 +775,9 @@ function isManaged (residency: ResourceResidency): boolean {
 }
 
 export class WebPipeline implements Pipeline {
+    constructor (layoutGraph: LayoutGraphData) {
+        this._layoutGraph = layoutGraph;
+    }
     updateRenderWindow (name: string, renderWindow: RenderWindow): void {
         const resId = this.resourceGraph.vertex(name);
         const currFbo = this.resourceGraph._vertices[resId]._object;
@@ -1188,7 +1191,7 @@ export class WebPipeline implements Pipeline {
     private _pipelineUBO: PipelineUBO = new PipelineUBO();
     private _cameras: Camera[] = [];
 
-    private _layoutGraph: LayoutGraphData = new LayoutGraphData();
+    private _layoutGraph: LayoutGraphData;
     private readonly _resourceGraph: ResourceGraph = new ResourceGraph();
     private _renderGraph: RenderGraph | null = null;
     private _compiler: Compiler | null = null;
