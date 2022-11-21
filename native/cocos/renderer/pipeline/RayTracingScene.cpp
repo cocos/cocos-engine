@@ -124,7 +124,7 @@ namespace pipeline
         }
         
         tlasGeom.instanceCustomIdx = rqBinding.registry(shadingDescriptors);
-        tlasGeom.shaderBindingTableRecordOffset = rtBinding.registry(shadingDescriptors);
+        //tlasGeom.shaderBindingTableRecordOffset = rtBinding.registry(shadingDescriptors);
 
         _modelCache.emplace(pModel->getNode()->getUuid(), std::pair{true, tlasGeom});
     }
