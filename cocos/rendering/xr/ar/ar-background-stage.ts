@@ -124,13 +124,14 @@ export class ARBackgroundStage extends RenderStage {
                     webGL2FBO.gpuFramebuffer.glFramebuffer = xrgpuframebuffer;
                 }
 
-                if (!this._xrWindowSetFlag && (armodule.CameraId == camera.node.uuid)) {
+                if (!this._xrWindowSetFlag && (armodule.CameraId === camera.node.uuid)) {
                     camera.changeTargetWindow(this._xrWindow);
                     this._xrWindowSetFlag = true;
                 }
 
                 // ui camera process
-                if (!this._uiWindowSetFlag && camera.projectionType == CameraProjection.ORTHO && (camera.visibility & layerList.UI_2D || camera.visibility & layerList.UI_3D)) {
+                if (!this._uiWindowSetFlag && camera.projectionType === CameraProjection.ORTHO
+                    && (camera.visibility & layerList.UI_2D || camera.visibility & layerList.UI_3D)) {
                     camera.changeTargetWindow(this._xrWindow);
                     this._uiWindowSetFlag = true;
                 }
