@@ -37,7 +37,7 @@ namespace pipeline
         void build(const RayTracingSceneDescriptor& rtScene) {
             
             for (const auto& instance : rtScene.instances) {
-                handleInstance(instance);
+                addInstance(instance);
             }
             gfx::AccelerationStructureInfo tlasInfo{};
             tlasInfo.buildFlag = gfx::ASBuildFlagBits::ALLOW_UPDATE | gfx::ASBuildFlagBits::PREFER_FAST_TRACE;
@@ -51,7 +51,6 @@ namespace pipeline
         }
 
         void update(const RayTracingSceneUpdateInfo& updateInfo);
-
         
         void fillBlasInfo2(gfx::AccelerationStructureInfo& blasInfo, const RayTracingInstanceDescriptor& instance) {
             if (instance.shadingGeometries[0].meshDescriptor) {
@@ -85,13 +84,11 @@ namespace pipeline
 
     protected:
         AccelerationStructurePtr _topLevelAccelerationStructure;
-        //ccstd::vector<AccelerationStructurePtr> _bottomLevelAccelerationStructures;
         /*
          * first: blas's uuid
          * second: blas ref
          */
         ccstd::unordered_map<uint64_t,AccelerationStructurePtr> _geomBlasCache;
-        BlasCache _blasCache;
         /*
          * first: model's uuid
          * second:
@@ -99,7 +96,6 @@ namespace pipeline
          *  second: Acceleration Structure Instance obj
          */
         ccstd::unordered_map<ccstd::string,std::pair<bool,gfx::ASInstance>> _modelCache;
-        RayTracingInstanceCache _instanceCache;
 
         //ccstd::unordered_map<std::pair<uint64_t,std::vector<uint64_t>>, std::pair<IntrusivePtr<gfx::AccelerationStructure>, uint64_t>> _shadingBlasMap;
          
@@ -110,39 +106,23 @@ namespace pipeline
         bool needUpdate = false;
         bool needRecreate = false;
 
+        RayTracingSceneAccelerationStructureManager asManager;
+
         RayQueryBindingTable rqBinding;
         RayQueryBindingTable rtBinding;
 
         inline void handleNewModel(const IntrusivePtr<scene::Model>& model);
         inline void handleModel(const IntrusivePtr<scene::Model>& model);
 
-        std::optional<AccelerationStructurePtr> existBlas(const gfx::AccelerationStructureInfo& info) {
-            return _blasCache.contain(info);
-        }
-
-        auto createBlas(gfx::AccelerationStructureInfo &info) {
-            auto blas = gfx::Device::getInstance()->createAccelerationStructure(info);
-            blas->build();
-            blas->compact();
-            _blasCache.add(blas);
-            return blas;
-        }
-
-        gfx::ASInstance handleInstance(const RayTracingInstanceDescriptor& instance) {
+        gfx::ASInstance addInstance(const RayTracingInstanceDescriptor& instance) {
             gfx::ASInstance asInstanceInfo{};
             asInstanceInfo.mask = 0xFF;
             asInstanceInfo.flags = gfx::GeometryInstanceFlagBits::TRIANGLE_FACING_CULL_DISABLE;
             asInstanceInfo.transform = instance.transform;
             gfx::AccelerationStructureInfo blasInfo{};
             fillBlasInfo2(blasInfo, instance);
-            auto result = existBlas(blasInfo);
-            if (result) {
-                asInstanceInfo.accelerationStructureRef = result.value();
-            } else {
-                // New BLAS should be create and build.
-                asInstanceInfo.accelerationStructureRef = createBlas(blasInfo);
-            }
 
+            asInstanceInfo.accelerationStructureRef = asManager.registry(blasInfo);
             asInstanceInfo.instanceCustomIdx = rqBinding.registry(instance.shadingGeometries);
             asInstanceInfo.shaderBindingTableRecordOffset = rtBinding.registry(instance.shadingGeometries);
 

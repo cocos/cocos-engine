@@ -62,30 +62,31 @@ using AccelerationStructurePtr = IntrusivePtr<gfx::AccelerationStructure>;
 
 struct RayTracingSceneAccelerationStructureManager final {
 
-};
-
-class BlasCache final {
-public:
-    std::optional<AccelerationStructurePtr> contain(const AccelerationStructurePtr& as) const {
+    std::optional<AccelerationStructurePtr> checkExistingBlas(const gfx::AccelerationStructureInfo& info) {
         return {};
     }
 
-    std::optional<AccelerationStructurePtr> contain(const gfx::AccelerationStructureInfo& info) const {
-        return {};
+    auto createBlas(const gfx::AccelerationStructureInfo& info) {
+        auto blas = gfx::Device::getInstance()->createAccelerationStructure(info);
+        blas->build();
+        blas->compact();
+        _geomBlasCache.emplace();
+        return blas;
     }
 
-    void add(const AccelerationStructurePtr& as) {
+    AccelerationStructurePtr registry(const gfx::AccelerationStructureInfo& info) {
+        auto result = checkExistingBlas(info);
+        if (result) {
+            return result.value();
+        }
+        return createBlas(info);
     }
-};
-
-class RayTracingInstanceCache final {
-public:
-    std::optional<RayTracingInstanceDescriptor> contain(const ccstd::string& uuid) noexcept {
-        return {};
-    }
-
-    void add(const RayTracingInstanceDescriptor& instance) {
-    }
+private:
+    /*
+     * first: blas's uuid
+     * second: blas ref
+     */
+    ccstd::unordered_map<uint64_t, AccelerationStructurePtr> _geomBlasCache;
 };
 
 template <typename BlockType,bool allow_reuse = false>
@@ -169,7 +170,7 @@ private:
 
         void dec_ref(const PoolIndexType start, const PoolIndexType end) noexcept {
             ccstd::vector<PoolIndexType> stack;
-            for (auto i = start;i<=end;++i) {
+            for (auto i = start;i<end;++i) {
                 if (block_ref_count[i]>0) {
                     if (stack.empty()) {
                         stack.push_back(i);
@@ -223,7 +224,7 @@ private:
             auto  front_merge_target = free_blocks.end();
             auto rear_merge_target = free_blocks.end();
 
-            for (auto fb = free_blocks.begin(); fg != free_blocks.end();++fb) {
+            for (auto fb = free_blocks.begin(); fb != free_blocks.end();++fb) {
                 if (fb->second == start - 1) {
                     fb->second = end;
                     front_merge_target = fb;
@@ -262,6 +263,13 @@ private:
         ccstd::vector<std::pair<PoolIndexType, PoolIndexType>> free_blocks;
         ccstd::vector<uint32_t> block_ref_count;
     }_blockRefView;
+
+    /*
+     *  Key : Consecutive Blocks
+     *  Value :
+     *      First : offset
+     *      Second : ref count
+     */
 
     ccstd::vector<BlockType> _blocks;
 };
@@ -319,7 +327,6 @@ private:
      * |-------------------||---------||-------------------||-----------------------------||-----------------------------||---------||-------------------|
      */
 
-    //ccstd::vector<SubMeshGeomDescriptor> _geomDesc;
     MonotonicPool<SubMeshGeomDescriptor, true> _geomDesc;
 
     /*
@@ -331,8 +338,7 @@ private:
      * |---------------||-------||---------------||-----------------------||-----------------------||-------||---------------|
       */
 
-    //ccstd::vector<uint64_t> _materialDesc;
-    MonotonicPool<uint64_t, true> _materialDesc;
+    MonotonicPool<uint64_t,true> _materialDesc;
 
     /* |----------------------------------------------||----------------------------------------------||----------------------------------------------|
      * |-------------------descriptor 0---------------||-------------------descriptor 1---------------||-------------------descriptor 2---------------| instanceCustomIndex
@@ -340,12 +346,19 @@ private:
      * |----------------------------------------------||----------------------------------------------||----------------------------------------------|                                     
      */
 
-    //ccstd::vector<MeshShadingDescriptor> _shadingInstanceDescriptors;
     MonotonicPool<MeshShadingDescriptor> _shadingInstanceDescriptors;
 
     uint16_t registrySubmeshes(const ccstd::vector<SubMeshGeomDescriptor>& subMeshes);
 
     uint16_t registryMaterials(const ccstd::vector<uint64_t>& materials);
+
+    void unregistrySubmeshes(const int offset, const int size) noexcept{
+        _geomDesc.free(offset, offset + size);
+    }
+
+    void unregistryMaterials(const int offset, const int size) noexcept{
+        _materialDesc.free(offset, offset + size);
+    }
 
 public:
 
@@ -354,6 +367,13 @@ public:
     IntrusivePtr<gfx::Buffer> _instanceDescGPUBuffer;
 
     uint32_t registry(const ccstd::vector<RayTracingGeometryShadingDescriptor>& shadingGeometries);
+
+    void unregistry(const gfx::ASInstance & a) {
+        const auto offset = a.instanceCustomIdx;
+        const auto size = a.accelerationStructureRef->getInfo().triangleMeshes.size();
+        unregistrySubmeshes(offset,size);
+        unregistryMaterials(offset,size);
+    }
   
     void recreate();
 
@@ -368,7 +388,7 @@ public:
  * second: material identifier
  */
 
-using ShaderRecord = std::pair<SubMeshGeomDescriptor, uint32_t>;
+using ShaderRecord = std::pair<SubMeshGeomDescriptor,uint64_t>;
 
 /*
  * IA n ：index address of the nth geometry
@@ -383,7 +403,6 @@ using ShaderRecord = std::pair<SubMeshGeomDescriptor, uint32_t>;
 
 struct RayTracingBindingTable final{
 
-    //using ShaderRecordList = ccstd::vector<ShaderRecord>;
     using ShaderRecordList = MonotonicPool<ShaderRecord,true>;
 
     ShaderRecordList _hitGroup;
@@ -398,6 +417,12 @@ struct RayTracingBindingTable final{
             return ShaderRecord{SubMeshGeomDescriptor{~0U, ~0U}, geom.materialID};
         });
         return _hitGroup.allocate(shaderRecords);
+    }
+
+    void unregistry(const gfx::ASInstance& a) {
+        const auto offset = a.shaderBindingTableRecordOffset;
+        const auto size = a.accelerationStructureRef->getInfo().triangleMeshes.size();
+        _hitGroup.free(offset, offset+size);
     }
 };
 

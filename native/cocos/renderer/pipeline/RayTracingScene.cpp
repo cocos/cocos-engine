@@ -229,9 +229,11 @@ namespace pipeline
             std::visit(Overloaded{
                            [](auto arg) {},
                            [&](const RayTracingSceneAddInstanceEvent& e) {
-                               tlasInfo.instances.push_back(handleInstance(e.instDescriptor));
+                               tlasInfo.instances.push_back(addInstance(e.instDescriptor));
                            },
                            [&](const RayTracingSceneRemoveInstanceEvent& e) {
+                               rqBinding.unregistry(tlasInfo.instances[e.instIdx]);
+                               rtBinding.unregistry(tlasInfo.instances[e.instIdx]);
                                tlasInfo.instances.erase(tlasInfo.instances.begin() + e.instIdx);
                            },
                            [&](const RayTracingSceneMoveInstanceEvent& e) {
