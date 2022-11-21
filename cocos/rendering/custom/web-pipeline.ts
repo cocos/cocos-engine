@@ -788,7 +788,7 @@ export class WebPipeline implements Pipeline {
     updateRenderTarget (name: string, width: number, height: number, format: Format = Format.UNKNOWN): void {
 
     }
-    updateDepthStencil (name: unknown, width: unknown, height: unknown, format: Format = Format.UNKNOWN): void {
+    updateDepthStencil (name: string, width: number, height: number, format: Format = Format.UNKNOWN): void {
 
     }
     public containsResource (name: string): boolean {
