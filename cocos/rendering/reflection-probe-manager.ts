@@ -31,7 +31,6 @@ import { Camera, Model } from '../render-scene/scene';
 import { ProbeType, ReflectionProbe } from '../render-scene/scene/reflection-probe';
 import { Layers } from '../scene-graph/layers';
 
-const SPHERE_NODE_NAME = 'Reflection Probe Sphere';
 const REFLECTION_PROBE_DEFAULT_MASK = Layers.makeMaskExclude([Layers.BitMask.UI_2D, Layers.BitMask.UI_3D, Layers.BitMask.GIZMOS, Layers.BitMask.EDITOR,
     Layers.BitMask.SCENE_GIZMO, Layers.BitMask.PROFILER]);
 export class ReflectionProbeManager {
@@ -192,7 +191,7 @@ export class ReflectionProbeManager {
         for (let i = 0; i < models.length; i++) {
             const model = models[i];
             model.updateWorldBound();
-            if (model.node && model.worldBounds && ((model.node.layer & REFLECTION_PROBE_DEFAULT_MASK)) || model.node.name === SPHERE_NODE_NAME) {
+            if (model.node && model.worldBounds && ((model.node.layer & REFLECTION_PROBE_DEFAULT_MASK))) {
                 const nearest = this._getNearestProbe(model);
                 if (!nearest) {
                     const meshRender = model.node.getComponent(MeshRenderer);

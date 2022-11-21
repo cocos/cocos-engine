@@ -246,6 +246,12 @@ export class ReflectionProbe extends Component {
 
     set previewSphere (val: Node) {
         this._previewSphere = val;
+        if (this._previewSphere) {
+            const meshRender = this._previewSphere.getComponent(MeshRenderer);
+            if (meshRender) {
+                meshRender.updateProbeCubemap(this._cubemap);
+            }
+        }
     }
 
     get previewSphere () {
@@ -305,12 +311,14 @@ export class ReflectionProbe extends Component {
                     }
                 }
             }
-            if (this._previewSphere) {
-                const meshRender = this._previewSphere.getComponent(MeshRenderer);
-                if (meshRender) {
-                    meshRender.updateProbeCubemap(this._cubemap);
-                }
-            }
+            // if (this._previewSphere) {
+            //     const meshRender = this._previewSphere.getComponent(MeshRenderer);
+            //     if (meshRender) {
+            //         meshRender.updateProbeCubemap(this._cubemap);
+            //         console.log(this.node.uuid);
+            //         console.log('update preview sphere================');
+            //     }
+            // }
             this.probe.updateBoundingBox();
             ReflectionProbeManager.probeManager.updateUseCubeModels(this.probe);
             ReflectionProbeManager.probeManager.updateUsePlanarModels(this.probe);
