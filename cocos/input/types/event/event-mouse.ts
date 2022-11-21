@@ -103,7 +103,7 @@ export class EventMouse extends Event {
      * @en The unique ID of SystemWindow, which triggerd the event
      * @zh 触发此事件的系统窗口 ID
      */
-    public windowId = 0;
+    public windowId = 1;
 
     /**
      * @en Set whether to prevent events from being swallowed by nodes, which is false by default.
