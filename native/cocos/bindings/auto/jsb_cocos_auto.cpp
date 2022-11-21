@@ -3812,6 +3812,7 @@ static bool js_cc_Device_getSafeAreaEdge_static(se::State& s)
     const auto& args = s.args();
     size_t argc = args.size();
     cc::Vec4 result;
+    cc::Vec4 *temp ;
     
     if(argc != 0) {
         SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -3819,9 +3820,10 @@ static bool js_cc_Device_getSafeAreaEdge_static(se::State& s)
     }
     result = cc::Device::getSafeAreaEdge();
     
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    temp = ccnew cc::Vec4(result);
+    ok &= nativevalue_to_se(temp, s.rval(), s.thisObject());
     SE_PRECONDITION2(ok, false, "Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    s.rval().toObject()->getPrivateObject()->tryAllowDestroyInGC();
     
     
     
