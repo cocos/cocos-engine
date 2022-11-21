@@ -28,7 +28,7 @@
  * @module gfx
  */
 
-import { legacyCC } from '../core/global-exports';
+import { cclegacy } from '../core';
 import { gfx, webgpuAdapter } from '../webgpu/instantiated';
 
 import './deprecated-3.0.0';
@@ -54,7 +54,7 @@ polyfillCC.PipelineLayout = gfx.CCWGPUPipelineLayout;
 polyfillCC.PipelineState = gfx.CCWGPUPipelineState;
 polyfillCC.CommandBuffer = gfx.CCWGPUCommandBuffer;
 polyfillCC.Queue = gfx.CCWGPUQueue;
-legacyCC.gfx = polyfillCC;
+cclegacy.gfx = polyfillCC;
 
 export * from './webgpu/override';
 export * from './webgpu/webgpu-define'

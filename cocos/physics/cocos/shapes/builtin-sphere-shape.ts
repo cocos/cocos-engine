@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { Sphere } from '../../../core/geometry';
+import { geometry } from '../../../core';
 import { BuiltinShape } from './builtin-shape';
 import { ISphereShape } from '../../spec/i-physics-shape';
 import { maxComponent } from '../../utils/util';
@@ -37,11 +37,11 @@ export class BuiltinSphereShape extends BuiltinShape implements ISphereShape {
     }
 
     get localSphere () {
-        return this._localShape as Sphere;
+        return this._localShape as geometry.Sphere;
     }
 
     get worldSphere () {
-        return this._worldShape as Sphere;
+        return this._worldShape as geometry.Sphere;
     }
 
     get collider () {
@@ -50,8 +50,8 @@ export class BuiltinSphereShape extends BuiltinShape implements ISphereShape {
 
     constructor (radius = 0.5) {
         super();
-        this._localShape = new Sphere(0, 0, 0, radius);
-        this._worldShape = new Sphere(0, 0, 0, radius);
+        this._localShape = new geometry.Sphere(0, 0, 0, radius);
+        this._worldShape = new geometry.Sphere(0, 0, 0, radius);
     }
 
     onLoad () {

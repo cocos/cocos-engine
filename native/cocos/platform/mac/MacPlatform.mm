@@ -36,6 +36,7 @@
 #if defined(CC_SERVER_MODE)
     #include "platform/empty/modules/Screen.h"
     #include "platform/empty/modules/SystemWindow.h"
+    #include "platform/empty/modules/SystemWindowManager.h"
 #else
     #include "modules/Screen.h"
     #include "modules/SystemWindow.h"
@@ -119,7 +120,15 @@ int32_t MacPlatform::init() {
 
 int32_t MacPlatform::loop(void) {
     [_timer start];
-    return cocos_main(0, nullptr);
+    NSArray *arguments = [[NSProcessInfo processInfo] arguments];
+    int argc = static_cast<int>(arguments.count);
+    std::vector<const char*> argv;
+    argv.reserve(argc);
+    for (id arg in arguments) {
+        argv.emplace_back([arg UTF8String]);
+    }
+
+    return cocos_main(argc, argv.data());
 }
 
 int32_t MacPlatform::run(int argc, const char **argv) {
@@ -148,7 +157,7 @@ void MacPlatform::onPause() {
 
     cc::WindowEvent ev;
     ev.type = cc::WindowEvent::Type::HIDDEN;
-    dispatchEvent(ev);
+    cc::events::WindowEvent::broadcast(ev);
 }
 
 void MacPlatform::onResume() {
@@ -156,13 +165,13 @@ void MacPlatform::onResume() {
 
     cc::WindowEvent ev;
     ev.type = cc::WindowEvent::Type::SHOW;
-    dispatchEvent(ev);
+    cc::events::WindowEvent::broadcast(ev);
 }
 
 void MacPlatform::onClose() {
     cc::WindowEvent ev;
     ev.type = cc::WindowEvent::Type::CLOSE;
-    dispatchEvent(ev);
+    cc::events::WindowEvent::broadcast(ev);
 }
 
 cc::ISystemWindow *MacPlatform::createNativeWindow(uint32_t windowId, void *externalHandle) { 

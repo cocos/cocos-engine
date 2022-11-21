@@ -38,11 +38,13 @@
 #pragma once
 #include "bindings/jswrapper/SeApi.h"
 #include "bindings/manual/jsb_conversions.h"
+#include "bindings/auto/jsb_gi_auto.h"
 #include "core/Root.h"
 #include "core/scene-graph/Node.h"
 #include "core/scene-graph/Scene.h"
 #include "core/scene-graph/SceneGlobals.h"
 #include "scene/Light.h"
+#include "scene/LODGroup.h"
 #include "scene/Fog.h"
 #include "scene/Shadow.h"
 #include "scene/Skybox.h"
@@ -122,6 +124,16 @@ bool sevalue_to_native(const se::Value &from, cc::scene::IMacroPatch * to, se::O
 JSB_REGISTER_OBJECT_TYPE(cc::scene::Light);
 extern se::Object *__jsb_cc_scene_Light_proto; // NOLINT
 extern se::Class * __jsb_cc_scene_Light_class; // NOLINT
+
+
+JSB_REGISTER_OBJECT_TYPE(cc::scene::LODData);
+extern se::Object *__jsb_cc_scene_LODData_proto; // NOLINT
+extern se::Class * __jsb_cc_scene_LODData_class; // NOLINT
+
+
+JSB_REGISTER_OBJECT_TYPE(cc::scene::LODGroup);
+extern se::Object *__jsb_cc_scene_LODGroup_proto; // NOLINT
+extern se::Class * __jsb_cc_scene_LODGroup_class; // NOLINT
 
 
 JSB_REGISTER_OBJECT_TYPE(cc::scene::Fog);

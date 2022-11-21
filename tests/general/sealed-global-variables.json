@@ -1,14 +1,14 @@
 {
     "thisFile": {
-        "stamp": "2022-02-14T08:48:35.364Z"
+        "stamp": "2022-10-19T14:04:52.759Z"
     },
     "variables": [
         "cc.AffineTransform",
         "cc.Ambient",
         "cc.AmbientInfo",
         "cc.AnimCurve",
-        "cc.AnimationClip",
         "cc.Animation",
+        "cc.AnimationClip",
         "cc.AnimationComponent",
         "cc.AnimationManager",
         "cc.AnimationState",
@@ -124,8 +124,8 @@
         "cc.ImageAsset",
         "cc.Integer",
         "cc.JsonAsset",
-        "cc.LabelAtlas",
         "cc.Label",
+        "cc.LabelAtlas",
         "cc.LabelComponent",
         "cc.LabelOutline",
         "cc.LabelOutlineComponent",
@@ -146,6 +146,7 @@
         "cc.NodeEventProcessor",
         "cc.NodePool",
         "cc.Object",
+        "cc.OctreeInfo",
         "cc.PageView",
         "cc.PageViewComponent",
         "cc.PageViewIndicator",
@@ -202,8 +203,8 @@
         "cc.SphereColliderComponent",
         "cc.SphereLightComponent",
         "cc.SpotLightComponent",
-        "cc.SpriteAtlas",
         "cc.Sprite",
+        "cc.SpriteAtlas",
         "cc.SpriteComponent",
         "cc.SpriteFrame",
         "cc.String",
@@ -267,7 +268,6 @@
         "cc.geometry",
         "cc.getTypedArrayConstructor",
         "cc.gfx",
-        "cc.rendering",
         "cc.instantiate",
         "cc.internal",
         "cc.isValid",
@@ -288,9 +288,11 @@
         "cc.quat",
         "cc.rect",
         "cc.renderer",
+        "cc.rendering",
         "cc.resources",
         "cc.sampleAnimationCurve",
         "cc.screen",
+        "cc.settings",
         "cc.size",
         "cc.sys",
         "cc.systemEvent",
@@ -306,7 +308,6 @@
         "cc.vmath",
         "cc.warn",
         "cc.warnID",
-        "cc.winSize",
-        "cc.settings"
+        "cc.winSize"
     ]
 }

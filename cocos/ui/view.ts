@@ -30,14 +30,9 @@ import { MINIGAME, JSB, RUNTIME_BASED, EDITOR } from 'internal:constants';
 import { screenAdapter } from 'pal/screen-adapter';
 import { Eventify } from '../core/event';
 import { Rect, Size, Vec2 } from '../core/math';
-import visibleRect from '../core/platform/visible-rect';
-import { legacyCC } from '../core/global-exports';
-import { errorID } from '../core/platform/debug';
-import { screen } from '../core/platform/screen';
-import { macro } from '../core/platform/macro';
+import { visibleRect, cclegacy, errorID, screen, macro, System } from '../core';
 import { Orientation } from '../../pal/screen-adapter/enum-type';
 import { director } from '../game/director';
-import System  from '../core/system';
 import { Settings, settings } from '../core/settings';
 
 /**
@@ -593,7 +588,7 @@ export class View extends Eventify(System) {
     }
 
     private _updateAdaptResult (width: number, height: number, windowId?: number) {
-        legacyCC.director.root.resize(width, height, windowId === undefined ? 1 : windowId);
+        cclegacy.director.root.resize(width, height, windowId === undefined ? 1 : windowId);
         // Frame size changed, do resize works
         const w = this._designResolutionSize.width;
         const h = this._designResolutionSize.height;
@@ -659,7 +654,7 @@ class ContainerStrategy {
 
     protected _setupCanvas () {
         // TODO: need to figure out why set width and height of canvas
-        const locCanvas = legacyCC.game.canvas;
+        const locCanvas = cclegacy.game.canvas;
         if (locCanvas) {
             const windowSize = screen.windowSize;
             locCanvas.width = windowSize.width;
@@ -1025,13 +1020,13 @@ export class ResolutionPolicy {
         }
     }
 }
-legacyCC.ResolutionPolicy = ResolutionPolicy;
+cclegacy.ResolutionPolicy = ResolutionPolicy;
 
 /**
  * @en view is the singleton view object.
  * @zh view 是全局的视图单例对象。
  */
-export const view = View.instance = legacyCC.view = new View();
+export const view = View.instance = cclegacy.view = new View();
 director.registerSystem('view', view, 0);
 
 /**
@@ -1040,4 +1035,4 @@ director.registerSystem('view', view, 0);
  *
  * @deprecated since v3.3, please use view.getVisibleSize() instead.
  */
-legacyCC.winSize = localWinSize;
+cclegacy.winSize = localWinSize;

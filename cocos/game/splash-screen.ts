@@ -24,20 +24,15 @@
  */
 
 import { EDITOR, PREVIEW } from 'internal:constants';
-import * as easing from '../core/algorithm/easing';
 import { Material } from '../asset/assets/material';
-import { clamp01 } from '../core/math/utils';
+import { clamp01, Mat4, Vec2, Settings, settings, sys, cclegacy, easing } from '../core';
 import {
     Sampler, SamplerInfo, Shader, Texture, TextureInfo, Device, InputAssembler, InputAssemblerInfo, Attribute, Buffer,
     BufferInfo, Rect, Color, BufferTextureCopy, CommandBuffer, BufferUsageBit, Format,
     MemoryUsageBit, TextureType, TextureUsageBit, Address, SurfaceTransform, Swapchain,
 } from '../gfx';
 import { PipelineStateManager } from '../rendering';
-import { legacyCC } from '../core/global-exports';
 import { SetIndex } from '../rendering/define';
-import { Mat4, Vec2 } from '../core/math';
-import { Settings, settings } from '../core/settings';
-import { sys } from '../core/platform/sys';
 
 const v2_0 = new Vec2();
 type SplashEffectType = 'NONE' | 'FADE-INOUT';
@@ -103,8 +98,8 @@ export class SplashScreen {
         if (EDITOR || PREVIEW || !this.settings.enabled || this.settings.base64src === '' || this.settings.totalTime <= 0) {
             this.settings.totalTime = 0;
         } else {
-            this.device = legacyCC.director.root!.device;
-            this.swapchain = legacyCC.director.root!.mainWindow!.swapchain;
+            this.device = cclegacy.director.root!.device;
+            this.swapchain = cclegacy.director.root!.mainWindow!.swapchain;
 
             this.preInit();
             if (this.settings.displayWatermark) this.initWarterMark();
@@ -291,7 +286,7 @@ export class SplashScreen {
                 device.acquire([swapchain]);
                 // record command
                 const cmdBuff = this.cmdBuff;
-                const framebuffer = legacyCC.director.root!.mainWindow!.framebuffer;
+                const framebuffer = cclegacy.director.root!.mainWindow!.framebuffer;
                 const renderArea = this.renderArea;
 
                 renderArea.width = swapchain.width;
@@ -376,4 +371,4 @@ export class SplashScreen {
     private constructor () { }
 }
 
-legacyCC.internal.SplashScreen = SplashScreen;
+cclegacy.internal.SplashScreen = SplashScreen;

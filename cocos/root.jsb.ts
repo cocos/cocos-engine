@@ -1,11 +1,9 @@
-import { Pool } from './core/memop';
-import { warnID } from './core/platform/debug';
 import legacyCC from '../predefine';
 import { DataPoolManager } from './3d/skeletal-animation/data-pool-manager';
 import { Device, deviceManager } from './gfx';
 import { DebugView } from './rendering/debug-view';
 import { buildDeferredLayout, buildForwardLayout } from './rendering/custom/effect';
-import { settings, Settings } from './core/settings';
+import { settings, Settings, warnID, Pool, macro } from './core';
 import { ForwardPipeline } from './rendering';
 
 declare const nr: any;
@@ -195,7 +193,7 @@ rootProto.frameMove = function (deltaTime: number) {
 const oldSetPipeline = rootProto.setRenderPipeline;
 rootProto.setRenderPipeline = function (pipeline) {
     let ppl;
-    if (this.usesCustomPipeline) {
+    if (macro.CUSTOM_PIPELINE_NAME !== '' && legacyCC.rendering && this.usesCustomPipeline) {
         const result = oldSetPipeline.call(this, null);
         const ppl = this.customPipeline;
         if (this.useDeferredPipeline) {
@@ -211,7 +209,7 @@ rootProto.setRenderPipeline = function (pipeline) {
             pipeline = new ForwardPipeline();
             pipeline.init();
         }
-        ppl =  oldSetPipeline.call(this, pipeline);
+        ppl = oldSetPipeline.call(this, pipeline);
     }
 
     this._createBatcher2D();

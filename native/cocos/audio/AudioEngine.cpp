@@ -70,8 +70,9 @@ ccstd::unordered_map<int, AudioEngine::AudioInfo> AudioEngine::sAudioIDInfoMap;
 AudioEngineImpl *AudioEngine::sAudioEngineImpl = nullptr;
 
 float AudioEngine::sVolumeFactor = 1.0F;
-uint32_t AudioEngine::sOnPauseListenerID = 0;
-uint32_t AudioEngine::sOnResumeListenerID = 0;
+events::EnterBackground::Listener AudioEngine::sOnPauseListenerID;
+events::EnterForeground::Listener AudioEngine::sOnResumeListenerID;
+
 ccstd::vector<int> AudioEngine::sBreakAudioID;
 
 AudioEngine::AudioEngineThreadPool *AudioEngine::sThreadPool = nullptr;
@@ -158,15 +159,8 @@ void AudioEngine::end() {
     delete sDefaultProfileHelper;
     sDefaultProfileHelper = nullptr;
 
-    if (sOnPauseListenerID != 0) {
-        EventDispatcher::removeCustomEventListener(EVENT_COME_TO_BACKGROUND, sOnPauseListenerID);
-        sOnPauseListenerID = 0;
-    }
-
-    if (sOnResumeListenerID != 0) {
-        EventDispatcher::removeCustomEventListener(EVENT_COME_TO_FOREGROUND, sOnResumeListenerID);
-        sOnResumeListenerID = 0;
-    }
+    sOnPauseListenerID.reset();
+    sOnResumeListenerID.reset();
 }
 
 bool AudioEngine::lazyInit() {
@@ -177,8 +171,8 @@ bool AudioEngine::lazyInit() {
             sAudioEngineImpl = nullptr;
             return false;
         }
-        sOnPauseListenerID = EventDispatcher::addCustomEventListener(EVENT_COME_TO_BACKGROUND, AudioEngine::onEnterBackground);
-        sOnResumeListenerID = EventDispatcher::addCustomEventListener(EVENT_COME_TO_FOREGROUND, AudioEngine::onEnterForeground);
+        sOnPauseListenerID.bind(&onEnterBackground);
+        sOnResumeListenerID.bind(&onEnterForeground);
     }
 
 #if (CC_PLATFORM != CC_PLATFORM_ANDROID)
@@ -333,7 +327,7 @@ void AudioEngine::resumeAll() {
     }
 }
 
-void AudioEngine::onEnterBackground(const CustomEvent & /*event*/) {
+void AudioEngine::onEnterBackground() {
     auto itEnd = sAudioIDInfoMap.end();
     for (auto it = sAudioIDInfoMap.begin(); it != itEnd; ++it) {
         if (it->second.state == AudioState::PLAYING) {
@@ -350,7 +344,7 @@ void AudioEngine::onEnterBackground(const CustomEvent & /*event*/) {
 #endif
 }
 
-void AudioEngine::onEnterForeground(const CustomEvent & /*event*/) {
+void AudioEngine::onEnterForeground() {
     auto itEnd = sBreakAudioID.end();
     for (auto it = sBreakAudioID.begin(); it != itEnd; ++it) {
         auto iter = sAudioIDInfoMap.find(*it);

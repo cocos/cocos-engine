@@ -1,11 +1,10 @@
 import { assertIsTrue } from '../data/utils/asserts';
 import { approx, lerp, pingPong, repeat } from '../math';
 import { KeyframeCurve } from './keyframe-curve';
-import { ccclass, serializable, uniquelyReferenced } from '../data/decorators';
 import { RealInterpolationMode, ExtrapolationMode, TangentWeightMode } from './real-curve-param';
 import { binarySearchEpsilon } from '../algorithm/binary-search';
 import { solveCubic } from './solve-cubic';
-import { EditorExtendable, EditorExtendableMixin } from '../data/editor-extendable';
+import { EditorExtendable } from '../data/editor-extendable';
 import { CCClass, deserializeTag, editorExtrasTag, SerializationContext, SerializationInput, SerializationOutput, serializeTag } from '../data';
 import { DeserializationContext } from '../data/custom-serializable';
 import { EasingMethod, getEasingFn } from './easing-method';

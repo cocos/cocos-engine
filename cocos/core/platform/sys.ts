@@ -285,36 +285,51 @@ export const sys = {
     },
 
     /**
-     * @internal
+     * @engineInternal
      */
-    init () {
-        try {
-            let localStorage: Storage | null = sys.localStorage = window.localStorage;
-            localStorage.setItem('storage', '');
-            localStorage.removeItem('storage');
-            localStorage = null;
-        } catch (e) {
-            const warn = function () {
-                warnID(5200);
-            };
-            this.localStorage = {
-                // @ts-expect-error Type '() => void' is not assignable to type '(key: string) => string | null'
-                getItem: warn,
-                setItem: warn,
-                clear: warn,
-                removeItem: warn,
-            };
-        }
+    init (): Promise<void> {
+        return Promise.resolve()
+            .then(() => systemInfo.init())
+            .then(() => {
+                try {
+                    let localStorage: Storage | null = sys.localStorage = window.localStorage;
+                    localStorage.setItem('storage', '');
+                    localStorage.removeItem('storage');
+                    localStorage = null;
+                } catch (e) {
+                    const warn = function () {
+                        warnID(5200);
+                    };
+                    this.localStorage = {
+                        // @ts-expect-error Type '() => void' is not assignable to type '(key: string) => string | null'
+                        getItem: warn,
+                        setItem: warn,
+                        clear: warn,
+                        removeItem: warn,
+                    };
+                }
 
-        if (WECHAT) {
-            // @ts-expect-error HACK: this private property only needed on web & wechat JIT
-            this.__isWebIOS14OrIPadOS14Env = (sys.os === OS.IOS || sys.os === OS.OSX) && GameGlobal?.isIOSHighPerformanceMode
+                if (WECHAT) {
+                    // @ts-expect-error HACK: this private property only needed on web & wechat JIT
+                    this.__isWebIOS14OrIPadOS14Env = (sys.os === OS.IOS || sys.os === OS.OSX) && GameGlobal?.isIOSHighPerformanceMode
             && /(OS 1((4\.[0-9])|(5\.[0-3])))|(Version\/1((4\.[0-9])|(5\.[0-3])))/.test(window.navigator.userAgent);
-        } else {
-            // @ts-expect-error HACK: this private property only needed on web & wechat JIT
-            this.__isWebIOS14OrIPadOS14Env = (sys.os === OS.IOS || sys.os === OS.OSX) && systemInfo.isBrowser
+                } else {
+                    // @ts-expect-error HACK: this private property only needed on web & wechat JIT
+                    this.__isWebIOS14OrIPadOS14Env = (sys.os === OS.IOS || sys.os === OS.OSX) && systemInfo.isBrowser
             && /(OS 14)|(Version\/14)/.test(window.navigator.userAgent);
-        }
+                }
+
+                this.capabilities = {
+                    canvas: true,
+                    opengl: true,
+                    webp: systemInfo.hasFeature(Feature.WEBP),
+                    imageBitmap: systemInfo.hasFeature(Feature.IMAGE_BITMAP),
+                    touches: systemInfo.hasFeature(Feature.INPUT_TOUCH),
+                    mouse: systemInfo.hasFeature(Feature.EVENT_MOUSE),
+                    keyboard: systemInfo.hasFeature(Feature.EVENT_KEYBOARD),
+                    accelerometer: systemInfo.hasFeature(Feature.EVENT_ACCELEROMETER),
+                };
+            });
     },
 
     /**

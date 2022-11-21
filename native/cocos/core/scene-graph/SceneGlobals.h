@@ -29,7 +29,7 @@
 #include "base/RefCounted.h"
 
 namespace cc {
-
+class Scene;
 namespace scene {
 class AmbientInfo;
 class ShadowsInfo;
@@ -38,24 +38,30 @@ class FogInfo;
 class OctreeInfo;
 } // namespace scene
 
+namespace gi {
+class LightProbeInfo;
+}
+
 class SceneGlobals : public RefCounted {
 public:
     SceneGlobals();
     ~SceneGlobals() override = default;
 
-    void activate();
+    void activate(Scene *scene);
 
     inline scene::AmbientInfo *getAmbientInfo() const { return _ambientInfo.get(); }
     inline scene::ShadowsInfo *getShadowsInfo() const { return _shadowInfo.get(); }
     inline scene::SkyboxInfo *getSkyboxInfo() const { return _skyboxInfo.get(); }
     inline scene::FogInfo *getFogInfo() const { return _fogInfo.get(); }
     inline scene::OctreeInfo *getOctreeInfo() const { return _octreeInfo.get(); }
+    inline gi::LightProbeInfo *getLightProbeInfo() const { return _lightProbeInfo.get(); }
 
     void setAmbientInfo(scene::AmbientInfo *info);
     void setShadowsInfo(scene::ShadowsInfo *info);
     void setSkyboxInfo(scene::SkyboxInfo *info);
     void setFogInfo(scene::FogInfo *info);
     void setOctreeInfo(scene::OctreeInfo *info);
+    void setLightProbeInfo(gi::LightProbeInfo *info);
 
 private:
     IntrusivePtr<scene::AmbientInfo> _ambientInfo;
@@ -63,6 +69,7 @@ private:
     IntrusivePtr<scene::SkyboxInfo> _skyboxInfo;
     IntrusivePtr<scene::FogInfo> _fogInfo;
     IntrusivePtr<scene::OctreeInfo> _octreeInfo;
+    IntrusivePtr<gi::LightProbeInfo> _lightProbeInfo;
 };
 
 } // namespace cc

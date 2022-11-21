@@ -26,13 +26,9 @@
 import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displayOrder, serializable, disallowMultiple } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { Component, Node } from '../../scene-graph';
-import { Mat4, Rect, Size, Vec2, Vec3 } from '../../core/math';
-import { AABB } from '../../core/geometry';
+import { Mat4, Rect, Size, Vec2, Vec3, geometry, warnID, visibleRect, approx, EPSILON } from '../../core';
 import { Director, director } from '../../game/director';
-import { warnID } from '../../core/platform/debug';
 import { NodeEventType } from '../../scene-graph/node-event';
-import visibleRect from '../../core/platform/visible-rect';
-import { approx, EPSILON } from '../../core/math/utils';
 import { IMask } from '../../scene-graph/node-event-processor';
 import { Mask } from '../components/mask';
 
@@ -681,7 +677,7 @@ export class UITransform extends Component {
      * @zh
      * 计算出此 UI_2D 节点在世界空间下的 aabb 包围盒
      */
-    public getComputeAABB (out?: AABB) {
+    public getComputeAABB (out?: geometry.AABB) {
         const width = this._contentSize.width;
         const height = this._contentSize.height;
         _rect.set(
@@ -698,10 +694,10 @@ export class UITransform extends Component {
         const h = _rect.height / 2;
         const l = 0.001;
         if (out != null) {
-            AABB.set(out, px, py, pz, w, h, l);
+            geometry.AABB.set(out, px, py, pz, w, h, l);
             return out;
         } else {
-            return new AABB(px, py, pz, w, h, l);
+            return new geometry.AABB(px, py, pz, w, h, l);
         }
     }
 

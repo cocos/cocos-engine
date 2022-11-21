@@ -12,6 +12,45 @@ import {
 import { ClipMotion } from "../../../cocos/animation/marionette/clip-motion";
 import { Motion } from "../../../cocos/animation/marionette/motion";
 import { MotionState } from "../../../cocos/animation/marionette/motion-state";
+import { EditorExtendableObject } from "../../../cocos/core/data/editor-extras-tag";
+
+export function* visitAnimationGraphEditorExtras(animationGraph: AnimationGraph): Generator<EditorExtendableObject> {
+    for (const layer of animationGraph.layers) {
+        yield* visitStateMachine(layer.stateMachine);
+    }
+
+    function* visitStateMachine(stateMachine: StateMachine): Generator<EditorExtendableObject> {
+        yield stateMachine;
+        for (const state of stateMachine.states()) {
+            yield state;
+            if (state instanceof MotionState) {
+                const motion = state.motion;
+                if (!motion) {
+                    continue;
+                }
+                yield* visitMotion(motion);
+            } else if (state instanceof SubStateMachine) {
+                yield* visitStateMachine(state.stateMachine);
+            }
+        }
+        for (const transition of stateMachine.transitions()) {
+            yield transition;
+        }
+    }
+
+    function* visitMotion(motion: Motion) {
+        yield motion;
+        if (motion instanceof AnimationBlend1D ||
+            motion instanceof AnimationBlend2D ||
+            motion instanceof AnimationBlendDirect) {
+            for (const { motion: childMotion } of motion.items) {
+                if (childMotion) {
+                    yield* visitMotion(childMotion);
+                }
+            }
+        }
+    }
+}
 
 export function* visitAnimationClips(animationGraph: AnimationGraph): Generator<AnimationClip> {
     for (const layer of animationGraph.layers) {

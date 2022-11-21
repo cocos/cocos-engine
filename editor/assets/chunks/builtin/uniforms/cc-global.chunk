@@ -4,7 +4,7 @@
 // if shared among stages with different precisions
 #pragma builtin(global)
 layout(set = 0, binding = 0) uniform CCGlobal {
-  highp   vec4 cc_time; // x: global time since started in seconds, y: delta time for current frame, z: total frames since started
+  highp   vec4 cc_time; // x: global time since started in seconds, y: delta time for current frame, z: total frames since started, w: fractinal part of x, better precious, should be used with uv animation
   mediump vec4 cc_screenSize; // xy: screen size, zw: inverse screen size
   mediump vec4 cc_nativeSize; // xy: shading size, zw: inverse shading size
 

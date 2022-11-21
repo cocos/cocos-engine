@@ -5,6 +5,15 @@
 #pragma define CC_SHADOW_PCF_SOFT_3X 2
 #pragma define CC_SHADOW_PCF_SOFT_5X 3
 
+float SampleShadowMap (vec3 shadowNDCPos, sampler2D shadowMap)
+{
+  #if CC_SHADOWMAP_FORMAT == SHADOWMAP_FORMAT_RGBA8
+    return unpackRGBAToDepth(texture(shadowMap, shadowNDCPos.xy));
+  #else
+    return texture(shadowMap, shadowNDCPos.xy).x;
+  #endif
+}
+
 float NativePCFShadowFactorHard (vec3 shadowNDCPos, sampler2D shadowMap, vec2 shadowMapResolution)
 {
   #if CC_SHADOWMAP_FORMAT == SHADOWMAP_FORMAT_RGBA8

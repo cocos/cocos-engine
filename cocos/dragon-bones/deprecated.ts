@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { removeProperty } from '../core/utils/x-deprecated';
+import { removeProperty } from '../core';
 import { ArmatureDisplay } from './ArmatureDisplay';
 
 removeProperty(ArmatureDisplay.prototype, 'ArmatureDisplay', [

@@ -66,6 +66,7 @@ module.exports = {
             TiledMap: ``,
             Spine: ``,
             OctreeCulling: `${url}/${version}/manual/en/advanced-topics/native-scene-culling.html`,
+            LightProbe: ``,
         },
         assets: {
             javascript: `${url}/${version}/manual/en/concepts/scene/node-component.html`,
@@ -152,6 +153,7 @@ module.exports = {
         illuminance: 'Illuminance of the light',
         luminous_power: 'Luminous power of the light',
         luminance: 'Luminance of the light',
+        visibility: 'Visibility mask, declaring a set of node layers that will be visible to this valid punctual Light(Does not work with directional light)',
         term: 'The photometric term currently being used',
         size: 'Size of the light',
         range: 'Range of the light',
@@ -879,6 +881,10 @@ module.exports = {
             label: "Terrain",
             description: "Terrain support.",
         },
+        light_probe: {
+            label: "Light Probe",
+            description: "Light Probe support.",
+        },
         audio: {
             label: "Audio",
             description: "Audio playing support.",
@@ -1025,5 +1031,22 @@ module.exports = {
         minPos: 'The minimum position of the world bounding box.',
         maxPos: 'The maximum position of the world bounding box.',
         depth: 'The depth of octree.',
+    },
+    light_probe: {
+        giScale: 'The value of GI multiplier.',
+        giSamples: 'The value of GI sample counts.',
+        bounces: 'The value of light bounces.',
+        reduceRinging: 'The value to reduce ringing of light probe.',
+        showProbe: 'The switch of showing light probe.',
+        showWireframe: 'The switch of showing connection of light probe.',
+        showConvex: 'The switch of showing convex of light probe.',
+    },
+    light_probe_group: {
+        method: 'The automatic generation algorithm of light probe.',
+        nProbesX: 'The number of probes generated in X axis.',
+        nProbesY: 'The number of probes generated in Y axis.',
+        nProbesZ: 'The number of probes generated in Z axis.',
+        minPos: 'The minimum point of the bounding box of the generated probes.',
+        maxPos: 'The maximum point of the bounding box of the generated probes.',
     },
 };

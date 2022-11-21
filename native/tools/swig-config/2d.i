@@ -59,9 +59,8 @@
 %ignore cc::RenderDrawInfo::setBatcher;
 %ignore cc::RenderDrawInfo::parseAttrLayout;
 %ignore cc::RenderDrawInfo::getRender2dLayout;
-%ignore cc::RenderDrawInfo::getStride;
-%ignore cc::RenderDrawInfo::getSize;
 %ignore cc::RenderDrawInfo::getEnumDrawInfoType;
+%ignore cc::RenderDrawInfo::resetDrawInfo;
 
 %ignore cc::Batcher2d::addVertDirtyRenderer;
 %ignore cc::Batcher2d::getMeshBuffer;
@@ -134,6 +133,15 @@
 %attribute(cc::UIMeshBuffer, float*, vData, getVData, setVData);
 %attribute(cc::UIMeshBuffer, uint16_t*, iData, getIData, setIData);
 
+%attribute(cc::RenderDrawInfo, uint16_t, bufferId, getBufferId, setBufferId);
+%attribute(cc::RenderDrawInfo, uint16_t, accId, getAccId, setAccId);
+%attribute(cc::RenderDrawInfo, uint32_t, vertexOffset, getVertexOffset, setVertexOffset);
+%attribute(cc::RenderDrawInfo, uint32_t, indexOffset, getIndexOffset, setIndexOffset);
+%attribute(cc::RenderDrawInfo, uint32_t, vbCount, getVbCount, setVbCount);
+%attribute(cc::RenderDrawInfo, uint32_t, ibCount, getIbCount, setIbCount);
+%attribute(cc::RenderDrawInfo, bool, vertDirty, getVertDirty, setVertDirty);
+%attribute(cc::RenderDrawInfo, ccstd::hash_t, dataHash, getDataHash, setDataHash);
+%attribute(cc::RenderDrawInfo, bool, isMeshBuffer, getIsMeshBuffer, setIsMeshBuffer);
 %attribute(cc::RenderDrawInfo, float*, vbBuffer, getVbBuffer, setVbBuffer);
 %attribute(cc::RenderDrawInfo, uint16_t*, ibBuffer, getIbBuffer, setIbBuffer);
 %attribute(cc::RenderDrawInfo, float*, vDataBuffer, getVDataBuffer, setVDataBuffer);
@@ -142,7 +150,9 @@
 %attribute(cc::RenderDrawInfo, cc::gfx::Texture*, texture, getTexture, setTexture);
 %attribute(cc::RenderDrawInfo, cc::gfx::Sampler*, sampler, getSampler, setSampler);
 %attribute(cc::RenderDrawInfo, cc::scene::Model*, model, getModel, setModel);
+%attribute(cc::RenderDrawInfo, uint32_t, drawInfoType, getDrawInfoType, setDrawInfoType);
 %attribute(cc::RenderDrawInfo, cc::Node*, subNode, getSubNode, setSubNode);
+%attribute(cc::RenderDrawInfo, uint8_t, stride, getStride, setStride);
 
 %attribute(cc::RenderEntity, cc::Node*, node, getNode, setNode);
 %attribute(cc::RenderEntity, uint32_t, staticDrawInfoSize, getStaticDrawInfoSize, setStaticDrawInfoSize);
@@ -158,6 +168,8 @@
 %import "base/Ptr.h"
 %import "base/memory/Memory.h"
 %import "base/RefCounted.h"
+
+%import "core/event/Event.h"
 
 %import "renderer/gfx-base/GFXObject.h"
 %import "renderer/gfx-base/GFXDef-common.h"

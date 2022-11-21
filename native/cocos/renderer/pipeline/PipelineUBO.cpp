@@ -67,6 +67,7 @@ void PipelineUBO::updateGlobalUBOView(const scene::Camera *camera, ccstd::array<
     uboGlobalView[UBOGlobal::TIME_OFFSET + 0] = root->getCumulativeTime();
     uboGlobalView[UBOGlobal::TIME_OFFSET + 1] = root->getFrameTime();
     uboGlobalView[UBOGlobal::TIME_OFFSET + 2] = static_cast<float>(CC_CURRENT_ENGINE()->getTotalFrames());
+    uboGlobalView[UBOGlobal::TIME_OFFSET + 3] = root->getCumulativeTime() - floorf(root->getFrameTime());
 
     uboGlobalView[UBOGlobal::SCREEN_SIZE_OFFSET + 0] = static_cast<float>(shadingWidth);
     uboGlobalView[UBOGlobal::SCREEN_SIZE_OFFSET + 1] = static_cast<float>(shadingHeight);

@@ -28,7 +28,6 @@
 
 namespace cc {
 class ISystemWindow;
-class OSEvent;
 
 struct ISystemWindowInfo {
     ccstd::string title;
@@ -58,11 +57,6 @@ public:
      * Process messages at the PAL layer
      */
     virtual void processEvent(bool *quit) = 0;
-
-    /**
-     * Swap window back buffer
-     */
-    virtual void swapWindows() = 0;
 
     /**
      * Create an ISystemWindow object

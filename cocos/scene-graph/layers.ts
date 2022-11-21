@@ -26,7 +26,7 @@
 import { BitMask, Enum } from '../core/value-types';
 import { legacyCC } from '../core/global-exports';
 import { log2 } from '../core/math/bits';
-import { js } from '../core/utils/js';
+import { js } from '../core';
 import { assertIsTrue } from '../core/data/utils/asserts';
 import { getError } from '../core/platform/debug';
 import { Settings, settings } from '../core/settings';

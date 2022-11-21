@@ -2,7 +2,7 @@ import { PixelFormat } from '../../../asset/assets/asset-enum';
 import { ImageAsset } from '../../../asset/assets/image-asset';
 import { Texture2D } from '../../../asset/assets/texture-2d';
 import { BufferTextureCopy } from '../../../gfx';
-import { legacyCC } from '../../../core/global-exports';
+import { cclegacy } from '../../../core';
 import { SpriteFrame } from '../../assets/sprite-frame';
 
 const space = 2;
@@ -75,7 +75,7 @@ export class Atlas {
                 return null;
             }
 
-            if (legacyCC.internal.dynamicAtlasManager.textureBleeding) {
+            if (cclegacy.internal.dynamicAtlasManager.textureBleeding) {
                 // Smaller frame is more likely to be affected by linear filter
                 if (width <= 8 || height <= 8) {
                     this._texture.drawTextureAt(texture.image!, this._x - 1, this._y - 1);

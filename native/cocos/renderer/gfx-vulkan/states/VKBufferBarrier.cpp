@@ -35,7 +35,7 @@ namespace gfx {
 CCVKBufferBarrier::CCVKBufferBarrier(const BufferBarrierInfo &info) : BufferBarrier(info) {
     _typedID = generateObjectID<decltype(this)>();
 
-    _gpuBarrier = ccnew CCVKGPUBufferBarrier;
+    _gpuBarrier = std::make_unique<CCVKGPUBufferBarrier>();
     getAccessTypes(info.prevAccesses, _gpuBarrier->prevAccesses);
     getAccessTypes(info.nextAccesses, _gpuBarrier->nextAccesses);
 
@@ -54,10 +54,6 @@ CCVKBufferBarrier::CCVKBufferBarrier(const BufferBarrierInfo &info) : BufferBarr
                                                    : VK_QUEUE_FAMILY_IGNORED;
 
     thsvsGetVulkanBufferMemoryBarrier(_gpuBarrier->barrier, &_gpuBarrier->srcStageMask, &_gpuBarrier->dstStageMask, &_gpuBarrier->vkBarrier);
-}
-
-CCVKBufferBarrier::~CCVKBufferBarrier() {
-    CC_SAFE_DELETE(_gpuBarrier);
 }
 
 } // namespace gfx

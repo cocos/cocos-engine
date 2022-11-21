@@ -53,7 +53,8 @@ public:
         TURKISH,
         UKRAINIAN,
         ROMANIAN,
-        BULGARIAN
+        BULGARIAN,
+        HINDI
     };
     enum class OSType {
         WINDOWS,   /**< Windows */

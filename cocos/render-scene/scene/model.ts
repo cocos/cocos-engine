@@ -24,20 +24,22 @@
  */
 
 // Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+import { EDITOR } from 'internal:constants';
 import { builtinResMgr } from '../../asset/asset-manager/builtin-res-mgr';
 import { Material } from '../../asset/assets/material';
 import { RenderingSubMesh } from '../../asset/assets/rendering-sub-mesh';
-import { AABB } from '../../core/geometry/aabb';
 import { Node } from '../../scene-graph';
 import { Layers } from '../../scene-graph/layers';
 import { RenderScene } from '../core/render-scene';
 import { Texture2D } from '../../asset/assets/texture-2d';
 import { SubModel } from './submodel';
-import { IMacroPatch, BatchingSchemes } from '../core/pass';
-import { Mat4, Vec3, Vec4 } from '../../core/math';
-import { Attribute, DescriptorSet, Device, Buffer, BufferInfo, getTypedArrayConstructor,
-    BufferUsageBit, FormatInfos, MemoryUsageBit, Filter, Address, Feature, SamplerInfo, deviceManager } from '../../gfx';
-import { INST_MAT_WORLD, UBOLocal, UBOWorldBound, UNIFORM_LIGHTMAP_TEXTURE_BINDING } from '../../rendering/define';
+import { IMacroPatch } from '../core/pass';
+import { Mat4, Vec3, Vec4, geometry, cclegacy, EPSILON } from '../../core';
+import { Attribute, DescriptorSet, Device, Buffer, BufferInfo,
+    BufferUsageBit, MemoryUsageBit, Filter, Address, SamplerInfo, deviceManager, Texture } from '../../gfx';
+import { UBOLocal, UBOSH, UBOWorldBound, UNIFORM_LIGHTMAP_TEXTURE_BINDING, UNIFORM_REFLECTION_PROBE_CUBEMAP_BINDING, UNIFORM_REFLECTION_PROBE_TEXTURE_BINDING } from '../../rendering/define';
+import { Root } from '../../root';
+import { TextureCube } from '../../asset/assets';
 
 const m4_1 = new Mat4();
 
@@ -47,6 +49,10 @@ const shadowMapPatches: IMacroPatch[] = [
 
 const lightMapPatches: IMacroPatch[] = [
     { name: 'CC_USE_LIGHTMAP', value: true },
+];
+
+const lightProbePatches: IMacroPatch[] = [
+    { name: 'CC_USE_LIGHT_PROBE', value: true },
 ];
 
 export enum ModelType {
@@ -130,6 +136,14 @@ export class Model {
     }
 
     /**
+     * @en The SH ubo buffer of the model
+     * @zh 获取模型的球谐 ubo 缓冲
+     */
+    get localSHBuffer () {
+        return this._localSHBuffer;
+    }
+
+    /**
      * @en The world bound ubo buffer
      * @zh 获取世界包围盒 ubo 缓冲
      */
@@ -143,6 +157,31 @@ export class Model {
      */
     get updateStamp () {
         return this._updateStamp;
+    }
+
+    /**
+     * @en Use LightProbe or not
+     * @zh 光照探针开关
+     */
+    get useLightProbe () {
+        return this._useLightProbe;
+    }
+
+    set useLightProbe (val) {
+        this._useLightProbe = val;
+        this.onMacroPatchesStateChanged();
+    }
+
+    /**
+     * @en located tetrahedron index
+     * @zh 模型所处的四面体索引
+     */
+    get tetrahedronIndex () {
+        return this._tetrahedronIndex;
+    }
+
+    set tetrahedronIndex (index: number) {
+        this._tetrahedronIndex = index;
     }
 
     /**
@@ -258,6 +297,30 @@ export class Model {
     }
 
     /**
+     * @en Whether the model can be render by the reflection probe
+     * @zh 模型是否能被反射探针渲染
+     */
+    get bakeToReflectionProbe () {
+        return this._bakeToReflectionProbe;
+    }
+
+    set bakeToReflectionProbe (val) {
+        this._bakeToReflectionProbe = val;
+    }
+
+    /**
+     * @en Reflection probe type
+     * @zh 反射探针类型。
+     */
+    get reflectionProbeType () {
+        return this._reflectionProbeType;
+    }
+
+    set reflectionProbeType (val) {
+        this._reflectionProbeType = val;
+    }
+
+    /**
      * @en The type of the model
      * @zh 模型类型
      */
@@ -279,13 +342,13 @@ export class Model {
      * @en The world axis-aligned bounding box
      * @zh 世界空间包围盒
      */
-    protected _worldBounds: AABB | null = null;
+    protected _worldBounds: geometry.AABB | null = null;
 
     /**
      * @en The model axis-aligned bounding box
      * @zh 模型空间包围盒
      */
-    protected _modelBounds: AABB | null = null;
+    protected _modelBounds: geometry.AABB | null = null;
 
     /**
      * @en Sub models
@@ -347,8 +410,28 @@ export class Model {
      */
     protected _localBuffer: Buffer | null = null;
 
+    /**
+     * @en Local SH ubo data
+     * @zh 本地球谐 ubo 数据
+     */
+    protected _localSHData: Float32Array | null = null;
+
+    /**
+     * @en Local SH ubo buffer
+     * @zh 本地球谐 ubo 缓冲
+     */
+    protected _localSHBuffer: Buffer | null = null;
+
     private _lightmap: Texture2D | null = null;
     private _lightmapUVParam: Vec4 = new Vec4();
+
+    /**
+     * @en located tetrahedron index
+     * @zh 所处的四面体索引
+     */
+    private _tetrahedronIndex = -1;
+    private _lastWorldBoundCenter = new Vec3(Infinity, Infinity, Infinity);
+    private _useLightProbe = false;
 
     /**
      * @en World AABB buffer
@@ -393,6 +476,18 @@ export class Model {
     protected _visFlags = Layers.Enum.NONE;
 
     protected _priority = 0;
+
+    /**
+     * @en Whether the model can be render by the reflection probe
+     * @zh 模型是否能被反射探针渲染
+     */
+    protected _bakeToReflectionProbe = true;
+
+    /**
+     * @en Reflection probe type.
+     * @zh 反射探针类型。
+     */
+    protected _reflectionProbeType = 0;
 
     /**
      * @internal
@@ -440,6 +535,10 @@ export class Model {
         if (this._localBuffer) {
             this._localBuffer.destroy();
             this._localBuffer = null;
+        }
+        if (this._localSHBuffer) {
+            this._localSHBuffer.destroy();
+            this._localSHBuffer = null;
         }
         if (this._worldBoundBuffer) {
             this._worldBoundBuffer.destroy();
@@ -521,6 +620,8 @@ export class Model {
         }
         this._updateStamp = stamp;
 
+        this.updateSHUBOs();
+
         if (!this._localDataUpdated) { return; }
         this._localDataUpdated = false;
 
@@ -545,6 +646,99 @@ export class Model {
         }
     }
 
+    public showTetrahedron () {
+        return this.isLightProbeAvailable();
+    }
+
+    private isLightProbeAvailable () {
+        if (!this._useLightProbe) {
+            return false;
+        }
+
+        const lightProbes = (cclegacy.director.root as Root).pipeline.pipelineSceneData.lightProbes;
+        if (!lightProbes || lightProbes.empty()) {
+            return false;
+        }
+
+        if (!this._worldBounds) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private updateSHBuffer() {
+        if (!this._localSHData) {
+            return;
+        }
+
+        const subModels = this._subModels;
+        let hasNonInstancingPass = false;
+        for (let i = 0; i < subModels.length; i++) {
+            const subModel = subModels[i];
+            const idx = subModel.instancedSHIndex;
+            if (idx >= 0) {
+                subModel.updateInstancedSH(this._localSHData, idx);
+            } else {
+                hasNonInstancingPass = true;
+            }
+        }
+
+        if (hasNonInstancingPass && this._localSHBuffer) {
+            this._localSHBuffer.update(this._localSHData);
+        }
+    }
+
+    /**
+     * @en Clear the model's SH ubo
+     * @zh 清除模型的球谐 ubo
+     */
+     public clearSHUBOs () {
+        if (!this._localSHData) {
+            return;
+        }
+            
+        for (let i = 0; i < UBOSH.COUNT; i++) {
+            this._localSHData[i] = 0.0;
+        }
+
+        this.updateSHBuffer();
+     }
+
+    /**
+     * @en Update the model's SH ubo
+     * @zh 更新模型的球谐 ubo
+     */
+    public updateSHUBOs () {
+        if (!this.isLightProbeAvailable()) {
+            return;
+        }
+
+        const center = this._worldBounds!.center;
+        if (!EDITOR && center.equals(this._lastWorldBoundCenter, EPSILON)) {
+            return;
+        }
+
+        const coefficients: Vec3[] = [];
+        const weights = new Vec4(0.0, 0.0, 0.0, 0.0);
+        const lightProbes = (cclegacy.director.root as Root).pipeline.pipelineSceneData.lightProbes;
+
+        this._lastWorldBoundCenter.set(center);
+        this._tetrahedronIndex = lightProbes.data!.getInterpolationWeights(center, this._tetrahedronIndex, weights);
+        const result = lightProbes.data!.getInterpolationSHCoefficients(this._tetrahedronIndex, weights, coefficients);
+        if (!result) {
+            return;
+        }
+
+        if (!this._localSHData) {
+            return;
+        }
+
+        cclegacy.internal.SH.reduceRinging(coefficients, lightProbes.reduceRinging);
+        cclegacy.internal.SH.updateUBOData(this._localSHData, UBOSH.SH_LINEAR_CONST_R_OFFSET, coefficients);
+        this.updateSHBuffer();
+    }
+
     /**
      * @en Create the model's AABB
      * @zh 创建模型的包围盒
@@ -553,8 +747,8 @@ export class Model {
      */
     public createBoundingShape (minPos?: Vec3, maxPos?: Vec3) {
         if (!minPos || !maxPos) { return; }
-        this._modelBounds = AABB.fromPoints(AABB.create(), minPos, maxPos);
-        this._worldBounds = AABB.clone(this._modelBounds);
+        this._modelBounds = geometry.AABB.fromPoints(geometry.AABB.create(), minPos, maxPos);
+        this._worldBounds = geometry.AABB.clone(this._modelBounds);
     }
 
     private _createSubModel () {
@@ -663,7 +857,7 @@ export class Model {
 
         this.onMacroPatchesStateChanged();
 
-        if (texture === null) {
+        if (!texture) {
             texture = builtinResMgr.get<Texture2D>('empty-texture');
         }
 
@@ -675,6 +869,63 @@ export class Model {
                 const { descriptorSet } = subModels[i];
                 descriptorSet.bindTexture(UNIFORM_LIGHTMAP_TEXTURE_BINDING, gfxTexture);
                 descriptorSet.bindSampler(UNIFORM_LIGHTMAP_TEXTURE_BINDING, sampler);
+                descriptorSet.update();
+            }
+        }
+    }
+
+    /**
+     * @en Update the cube map of the reflection probe
+     * @zh 更新反射探针的立方体贴图
+     * @param texture probe cubemap
+     */
+    public updateReflctionProbeCubemap (texture: TextureCube) {
+        this._localDataUpdated = true;
+        this.onMacroPatchesStateChanged();
+
+        if (!texture) {
+            texture = builtinResMgr.get<TextureCube>('default-cube-texture');
+        }
+
+        const gfxTexture = texture.getGFXTexture();
+        if (gfxTexture) {
+            const reflectionSampler = this._device.getSampler(texture.getSamplerInfo());
+            const subModels = this._subModels;
+            for (let i = 0; i < subModels.length; i++) {
+                const { descriptorSet } = subModels[i];
+                descriptorSet.bindSampler(UNIFORM_REFLECTION_PROBE_CUBEMAP_BINDING, reflectionSampler);
+                descriptorSet.bindTexture(UNIFORM_REFLECTION_PROBE_CUBEMAP_BINDING, gfxTexture);
+                descriptorSet.update();
+            }
+        }
+    }
+
+    /**
+     * @en Update the planar relflection map of the reflection probe
+     * @zh 更新反射探针的平面反射贴图
+     * @param texture planar relflection map
+     */
+    public updateReflctionProbePlanarMap (texture: Texture) {
+        this._localDataUpdated = true;
+        this.onMacroPatchesStateChanged();
+
+        const sampler = this._device.getSampler(new SamplerInfo(
+            Filter.LINEAR,
+            Filter.LINEAR,
+            Filter.NONE,
+            Address.CLAMP,
+            Address.CLAMP,
+            Address.CLAMP,
+        ));
+        if (!texture) {
+            texture = builtinResMgr.get<Texture2D>('empty-texture').getGFXTexture()!;
+        }
+        if (texture) {
+            const subModels = this._subModels;
+            for (let i = 0; i < subModels.length; i++) {
+                const { descriptorSet } = subModels[i];
+                descriptorSet.bindTexture(UNIFORM_REFLECTION_PROBE_TEXTURE_BINDING, texture);
+                descriptorSet.bindSampler(UNIFORM_REFLECTION_PROBE_TEXTURE_BINDING, sampler);
                 descriptorSet.update();
             }
         }
@@ -703,6 +954,10 @@ export class Model {
         if (this._lightmap != null) {
             patches = patches ? patches.concat(lightMapPatches) : lightMapPatches;
         }
+        if (this._useLightProbe) {
+            patches = patches ? patches.concat(lightProbePatches) : lightProbePatches;
+        }
+
         return patches;
     }
 
@@ -712,6 +967,9 @@ export class Model {
 
         this._initLocalDescriptors(subModelIndex);
         this._updateLocalDescriptors(subModelIndex, subModel.descriptorSet);
+
+        this._initLocalSHDescriptors(subModelIndex);
+        this._updateLocalSHDescriptors(subModelIndex, subModel.descriptorSet);
 
         this._initWorldBoundDescriptors(subModelIndex);
 
@@ -742,6 +1000,25 @@ export class Model {
         }
     }
 
+    protected _initLocalSHDescriptors (subModelIndex: number) {
+        if (!EDITOR && !this._useLightProbe) {
+            return;
+        }
+
+        if (!this._localSHData) {
+            this._localSHData = new Float32Array(UBOSH.COUNT);
+        }
+
+        if (!this._localSHBuffer) {
+            this._localSHBuffer = this._device.createBuffer(new BufferInfo(
+                BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
+                MemoryUsageBit.DEVICE,
+                UBOSH.SIZE,
+                UBOSH.SIZE,
+            ));
+        }
+    }
+
     protected _initWorldBoundDescriptors (subModelIndex: number) {
         if (!this._worldBoundBuffer) {
             this._worldBoundBuffer = this._device.createBuffer(new BufferInfo(
@@ -755,6 +1032,10 @@ export class Model {
 
     protected _updateLocalDescriptors (subModelIndex: number, descriptorSet: DescriptorSet) {
         if (this._localBuffer) descriptorSet.bindBuffer(UBOLocal.BINDING, this._localBuffer);
+    }
+
+    protected _updateLocalSHDescriptors (subModelIndex: number, descriptorSet: DescriptorSet) {
+        if (this._localSHBuffer) descriptorSet.bindBuffer(UBOSH.BINDING, this._localSHBuffer);
     }
 
     protected _updateWorldBoundDescriptors (subModelIndex: number, descriptorSet: DescriptorSet) {

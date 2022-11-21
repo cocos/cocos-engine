@@ -25,13 +25,11 @@
 
 import { EDITOR, TEST } from 'internal:constants';
 import { Asset } from '../assets/asset';
-import { isValid } from '../../core/data/object';
+import { isValid, js, misc } from '../../core';
 import { Node, Scene } from '../../scene-graph';
 import Cache from './cache';
 import dependUtil from './depend-util';
 import { assets, references } from './shared';
-import { callInNextTick } from '../../core/utils/misc';
-import { js } from '../../core/utils/js';
 
 function visitAsset (asset: Asset, deps: string[]) {
     // Skip assets generated programmatically or by user (e.g. label texture)
@@ -219,7 +217,7 @@ class ReleaseManager {
         if (TEST) return;
         if (!this._eventListener) {
             this._eventListener = true;
-            callInNextTick(this._freeAssets.bind(this));
+            misc.callInNextTick(this._freeAssets.bind(this));
         }
     }
 

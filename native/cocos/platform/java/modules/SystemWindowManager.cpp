@@ -29,16 +29,12 @@
 
 namespace cc {
 
-SystemWindowManager::SystemWindowManager() = default;
 
 int SystemWindowManager::init() {
     return 0;
 }
 
 void SystemWindowManager::processEvent(bool *quit) {
-}
-
-void SystemWindowManager::swapWindows() {
 }
 
 ISystemWindow *SystemWindowManager::createWindow(const ISystemWindowInfo &info) {

@@ -1,6 +1,5 @@
 import { DEBUG } from 'internal:constants';
-import { assert } from '../../core/platform/debug';
-import { js } from '../../core/utils/js';
+import { assert, js } from '../../core';
 import { UIMeshRenderer } from '../components';
 import { UIRenderer } from './ui-renderer';
 

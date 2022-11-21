@@ -234,7 +234,7 @@ void CCVKSwapchain::doInit(const SwapchainInfo &info) {
 #if CC_PLATFORM == CC_PLATFORM_ANDROID
     auto *window = CC_GET_SYSTEM_WINDOW(_windowId);
     auto viewSize = window->getViewSize();
-    checkSwapchainStatus(viewSize.x, viewSize.y);
+    checkSwapchainStatus(viewSize.width, viewSize.height);
 
     // Android Game Frame Pacing:swappy
     #if CC_SWAPPY_ENABLED
@@ -261,8 +261,8 @@ void CCVKSwapchain::doDestroy() {
 
     CCVKDevice::getInstance()->waitAllFences();
 
-    CC_SAFE_DESTROY(_depthStencilTexture)
-    CC_SAFE_DESTROY(_colorTexture)
+    _depthStencilTexture = nullptr;
+    _colorTexture = nullptr;
 
     auto *gpuDevice = CCVKDevice::getInstance()->gpuDevice();
     const auto *gpuContext = CCVKDevice::getInstance()->gpuContext();
@@ -275,7 +275,7 @@ void CCVKSwapchain::doDestroy() {
     }
 
     gpuDevice->swapchains.erase(_gpuSwapchain);
-    CC_SAFE_DELETE(_gpuSwapchain)
+    _gpuSwapchain = nullptr;
 }
 
 void CCVKSwapchain::doResize(uint32_t width, uint32_t height, SurfaceTransform /*transform*/) {
@@ -451,7 +451,7 @@ void CCVKSwapchain::doCreateSurface(void *windowHandle) { // NOLINT
 #if CC_PLATFORM == CC_PLATFORM_ANDROID
     auto *window = CC_GET_SYSTEM_WINDOW(_windowId);
     auto viewSize = window->getViewSize();
-    checkSwapchainStatus(viewSize.x, viewSize.y);
+    checkSwapchainStatus(viewSize.width, viewSize.height);
 #else
     checkSwapchainStatus();
 #endif

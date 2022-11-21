@@ -41,10 +41,6 @@ PhysXRigidBody::PhysXRigidBody() {
     _mObjectID = PhysXWorld::getInstance().addWrapperObject(reinterpret_cast<uintptr_t>(this));
 }
 
-PhysXRigidBody::~PhysXRigidBody() {
-    PhysXWorld::getInstance().removeWrapperObject(_mObjectID);
-}
-
 void PhysXRigidBody::initialize(Node *node, ERigidBodyType t, uint32_t g) {
     _mGroup = g;
     PhysXWorld &ins = PhysXWorld::getInstance();
@@ -65,6 +61,7 @@ void PhysXRigidBody::onDisable() {
 
 void PhysXRigidBody::onDestroy() {
     getSharedBody().reference(false);
+    PhysXWorld::getInstance().removeWrapperObject(_mObjectID);
 }
 
 bool PhysXRigidBody::isAwake() {

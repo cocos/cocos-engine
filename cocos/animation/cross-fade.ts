@@ -23,8 +23,7 @@
  THE SOFTWARE.
  */
 
-import { clamp01 } from '../core/math/utils';
-import { remove } from '../core/utils/array';
+import { clamp01, js } from '../core';
 import { AnimationState } from './animation-state';
 import { Playable } from './playable';
 import { getGlobalAnimationManager } from './global-animation-manager';
@@ -212,7 +211,7 @@ export class CrossFade extends Playable {
                     if (deadFading.target.state) {
                         deadFading.target.state.stop();
                     }
-                    remove(this._managedStates, deadFading.target);
+                    js.array.remove(this._managedStates, deadFading.target);
                 }
             }
             fadings.splice(deadFadingBegin);

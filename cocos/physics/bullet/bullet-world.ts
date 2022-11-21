@@ -31,14 +31,11 @@ import { ArrayCollisionMatrix } from '../utils/array-collision-matrix';
 import { TupleDictionary } from '../utils/tuple-dictionary';
 import { TriggerEventObject, CollisionEventObject, CC_V3_0, CC_V3_1, BulletCache } from './bullet-cache';
 import { bullet2CocosVec3, cocos2BulletVec3 } from './bullet-utils';
-import { Ray } from '../../core/geometry';
 import { IRaycastOptions, IPhysicsWorld } from '../spec/i-physics-world';
 import { PhysicsRayResult, PhysicsMaterial } from '../framework';
-import { error, RecyclePool, Vec3 } from '../../core';
-import { IVec3Like } from '../../core/math/type-define';
+import { error, RecyclePool, Vec3, js, IVec3Like, geometry } from '../../core';
 import { BulletContactData } from './bullet-contact-data';
 import { BulletConstraint } from './constraints/bullet-constraint';
-import { fastRemoveAt } from '../../core/utils/array';
 import { bt } from './instantiated';
 import { Node } from '../../scene-graph';
 
@@ -158,7 +155,7 @@ export class BulletWorld implements IPhysicsWorld {
         this.syncSceneToPhysics();
     }
 
-    raycast (worldRay: Ray, options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
+    raycast (worldRay: geometry.Ray, options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
         worldRay.computeHit(v3_0, options.maxDistance);
         const to = cocos2BulletVec3(BulletCache.instance.BT_V3_0, v3_0);
         const from = cocos2BulletVec3(BulletCache.instance.BT_V3_1, worldRay.o);
@@ -181,7 +178,7 @@ export class BulletWorld implements IPhysicsWorld {
         return false;
     }
 
-    raycastClosest (worldRay: Ray, options: IRaycastOptions, result: PhysicsRayResult): boolean {
+    raycastClosest (worldRay: geometry.Ray, options: IRaycastOptions, result: PhysicsRayResult): boolean {
         worldRay.computeHit(v3_0, options.maxDistance);
         const to = cocos2BulletVec3(BulletCache.instance.BT_V3_0, v3_0);
         const from = cocos2BulletVec3(BulletCache.instance.BT_V3_1, worldRay.o);
@@ -213,7 +210,7 @@ export class BulletWorld implements IPhysicsWorld {
     removeSharedBody (sharedBody: BulletSharedBody) {
         const i = this.bodies.indexOf(sharedBody);
         if (i >= 0) {
-            fastRemoveAt(this.bodies, i);
+            js.array.fastRemoveAt(this.bodies, i);
             bt.DynamicsWorld_removeRigidBody(this._world, sharedBody.body);
         }
     }
@@ -229,7 +226,7 @@ export class BulletWorld implements IPhysicsWorld {
     removeGhostObject (sharedBody: BulletSharedBody) {
         const i = this.ghosts.indexOf(sharedBody);
         if (i >= 0) {
-            fastRemoveAt(this.ghosts, i);
+            js.array.fastRemoveAt(this.ghosts, i);
             bt.CollisionWorld_removeCollisionObject(this._world, sharedBody.ghost);
         }
     }

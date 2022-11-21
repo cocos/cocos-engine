@@ -1,8 +1,7 @@
 import { ILifecycle } from '../../physics/spec/i-lifecycle';
-import { IVec2Like } from '../../core/math/type-define';
+import { IVec2Like, Vec2 } from '../../core';
 import { RigidBody2D } from '../framework/components/rigid-body-2d';
 import { ERigidBody2DType } from '../framework/physics-types';
-import { Vec2 } from '../../core';
 
 export interface IRigidBody2D extends ILifecycle {
     readonly impl: any;

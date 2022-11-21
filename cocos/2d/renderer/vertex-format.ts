@@ -24,7 +24,7 @@
 */
 
 import { AttributeName, Format, FormatInfos, Attribute } from '../../gfx';
-import { legacyCC } from '../../core/global-exports';
+import { cclegacy } from '../../core';
 
 /**
  * @en Vertex format with vector 3 position attribute
@@ -129,7 +129,7 @@ export function getAttributeStride (attrs: Attribute[]) {
     return count;
 }
 
-legacyCC.internal.vfmtPosUvColor = vfmtPosUvColor;
-legacyCC.internal.vfmtPosUvTwoColor = vfmtPosUvTwoColor;
-legacyCC.internal.vfmtPosUvColor4B = vfmtPosUvColor4B;
-legacyCC.internal.vfmtPosUvTwoColor4B = vfmtPosUvTwoColor4B;
+cclegacy.internal.vfmtPosUvColor = vfmtPosUvColor;
+cclegacy.internal.vfmtPosUvTwoColor = vfmtPosUvTwoColor;
+cclegacy.internal.vfmtPosUvColor4B = vfmtPosUvColor4B;
+cclegacy.internal.vfmtPosUvTwoColor4B = vfmtPosUvTwoColor4B;

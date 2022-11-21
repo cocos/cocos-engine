@@ -694,11 +694,6 @@ extern se::Object *__jsb_cc_gfx_Device_proto; // NOLINT
 extern se::Class * __jsb_cc_gfx_Device_class; // NOLINT
 
 
-JSB_REGISTER_OBJECT_TYPE(cc::gfx::DefaultResource);
-extern se::Object *__jsb_cc_gfx_DefaultResource_proto; // NOLINT
-extern se::Class * __jsb_cc_gfx_DefaultResource_class; // NOLINT
-
-
 JSB_REGISTER_OBJECT_TYPE(cc::gfx::DeviceManager);
 extern se::Object *__jsb_cc_gfx_DeviceManager_proto; // NOLINT
 extern se::Class * __jsb_cc_gfx_DeviceManager_class; // NOLINT

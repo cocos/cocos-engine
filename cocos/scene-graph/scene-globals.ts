@@ -31,11 +31,14 @@ import { Shadows, ShadowType, ShadowSize } from '../render-scene/scene/shadows';
 import { Skybox, EnvironmentLightingType } from '../render-scene/scene/skybox';
 import { Octree } from '../render-scene/scene/octree';
 import { Fog, FogType } from '../render-scene/scene/fog';
+import { LightProbesData, LightProbes } from '../gi/light-probe/light-probe';
 import { Node } from './node';
 import { legacyCC } from '../core/global-exports';
 import { Root } from '../root';
 import { warnID } from '../core/platform/debug';
 import { Material } from '../asset/assets/material';
+import { cclegacy } from '../core';
+import { Scene } from './scene';
 
 const _up = new Vec3(0, 1, 0);
 const _v3 = new Vec3();
@@ -1051,6 +1054,324 @@ export class OctreeInfo {
         this._resource.initialize(this);
     }
 }
+legacyCC.OctreeInfo = OctreeInfo;
+
+export interface ILightProbeNode {
+    node: Node;
+    probes: Vec3[] | null;
+}
+
+/**
+ * @en light probe configuration
+ * @zh 光照探针配置
+ */
+@ccclass('cc.LightProbeInfo')
+export class LightProbeInfo {
+    /**
+     * @en GI multiplier
+     * @zh GI乘数
+     */
+    @editable
+    @range([0.1, 10, 0.1])
+    @type(CCFloat)
+    @tooltip('i18n:light_probe.giScale')
+    @displayName('GIScale')
+    set giScale (val: number) {
+        if (this._giScale === val) return;
+        this._giScale = val;
+        if (this._resource) {
+            this._resource.giScale = val;
+        }
+    }
+    get giScale (): number {
+        return this._giScale;
+    }
+
+    /**
+     * @en GI sample counts
+     * @zh GI 采样数量
+     */
+    @editable
+    @range([64, 65536, 1])
+    @type(CCInteger)
+    @tooltip('i18n:light_probe.giSamples')
+    @displayName('GISamples')
+    set giSamples (val: number) {
+        if (this._giSamples === val) return;
+        this._giSamples = val;
+        if (this._resource) {
+            this._resource.giSamples = val;
+        }
+    }
+    get giSamples (): number {
+        return this._giSamples;
+    }
+
+    /**
+     * @en light bounces
+     * @zh 光照反弹次数
+     */
+    @editable
+    @range([1, 4, 1])
+    @type(CCInteger)
+    @tooltip('i18n:light_probe.bounces')
+    set bounces (val: number) {
+        if (this._bounces === val) return;
+        this._bounces = val;
+        if (this._resource) {
+            this._resource.bounces = val;
+        }
+    }
+    get bounces (): number {
+        return this._bounces;
+    }
+
+    /**
+     * @en Reduce ringing of light probe
+     * @zh 减少光照探针的振铃效果
+     */
+    @editable
+    @range([0.0, 0.05, 0.001])
+    @slide
+    @type(CCFloat)
+    @tooltip('i18n:light_probe.reduceRinging')
+    set reduceRinging (val: number) {
+        if (this._reduceRinging === val) return;
+        this._reduceRinging = val;
+        if (this._resource) {
+            this._resource.reduceRinging = val;
+        }
+    }
+    get reduceRinging (): number {
+        return this._reduceRinging;
+    }
+
+    /**
+     * @en Whether to show light probe
+     * @zh 是否显示光照探针
+     */
+    @editable
+    @tooltip('i18n:light_probe.showProbe')
+    set showProbe (val: boolean) {
+        if (this._showProbe === val) return;
+        this._showProbe = val;
+        if (this._resource) {
+            this._resource.showProbe = val;
+        }
+    }
+    get showProbe (): boolean {
+        return this._showProbe;
+    }
+
+    /**
+     * @en Whether to show light probe's connection
+     * @zh 是否显示光照探针连线
+     */
+    @editable
+    @tooltip('i18n:light_probe.showWireframe')
+    set showWireframe (val: boolean) {
+        if (this._showWireframe === val) return;
+        this._showWireframe = val;
+        if (this._resource) {
+            this._resource.showWireframe = val;
+        }
+    }
+    get showWireframe (): boolean {
+        return this._showWireframe;
+    }
+
+    /**
+     * @en Whether to show light probe's convex
+     * @zh 是否显示光照探针凸包
+     */
+    @editable
+    @tooltip('i18n:light_probe.showConvex')
+    set showConvex (val: boolean) {
+        if (this._showConvex === val) return;
+        this._showConvex = val;
+        if (this._resource) {
+            this._resource.showConvex = val;
+        }
+    }
+    get showConvex (): boolean {
+        return this._showConvex;
+    }
+
+    /**
+     * @en light probe's vertex and tetrahedron data
+     * @zh 光照探针顶点及四面体数据
+     */
+    set data (val: LightProbesData | null) {
+        if (this._data === val) return;
+        this._data = val;
+        if (this._resource) {
+            this._resource.data = val;
+        }
+    }
+    get data (): LightProbesData | null {
+        return this._data;
+    }
+
+    @serializable
+    protected _giScale = 1.0;
+    @serializable
+    protected _giSamples = 1024;
+    @serializable
+    protected _bounces = 2;
+    @serializable
+    protected _reduceRinging = 0.0;
+    @serializable
+    protected _showProbe = true;
+    @serializable
+    protected _showWireframe = true;
+    @serializable
+    protected _showConvex = false;
+    @serializable
+    protected _data: LightProbesData | null = null;
+
+    protected _nodes: ILightProbeNode[] = [];
+    protected _scene: Scene | null = null;
+    protected _resource: LightProbes | null = null;
+
+    public activate (scene: Scene, resource: LightProbes) {
+        this._scene = scene;
+        this._resource = resource;
+        this._resource.initialize(this);
+    }
+
+    public clearSHCoefficients () {
+        if (!this._data) {
+            return;
+        }
+
+        const probes = this._data.probes;
+        for (let i = 0; i < probes.length; i++) {
+            probes[i].coefficients.length = 0;
+        }
+
+        this.clearAllSHUBOs();
+    }
+
+    public isUniqueNode (): boolean {
+        return this._nodes.length === 1;
+    }
+
+    public addNode (node: Node): boolean {
+        if (!node) {
+            return false;
+        }
+
+        for (let i = 0; i < this._nodes.length; i++) {
+            if (this._nodes[i].node === node) {
+                return false;
+            }
+        }
+
+        this._nodes.push({node, probes: null});
+
+        return true;
+    }
+
+    public removeNode (node: Node): boolean {
+        if (!node) {
+            return false;
+        }
+
+        const index = this._nodes.findIndex((element) => element.node === node);
+        if (index === -1) {
+            return false;
+        }
+
+        this._nodes.splice(index, 1);
+
+        return true;
+    }
+
+    public syncData(node: Node, probes: Vec3[]) {
+        for (let i = 0; i < this._nodes.length; i++) {
+            if (this._nodes[i].node === node) {
+                this._nodes[i].probes = probes;
+                return;
+            }
+        }
+    }
+
+    public update (updateTet = true) {
+        if (!cclegacy.internal.LightProbesData) {
+            return;
+        }
+
+        if (!this._data) {
+            this._data = new cclegacy.internal.LightProbesData();
+            if (this._resource) {
+                this._resource.data = this._data;
+            }
+        }
+
+        const points: Vec3[] = [];
+        for (let i = 0; i < this._nodes.length; i++) {
+            const node = this._nodes[i].node;
+            const probes = this._nodes[i].probes;
+            const worldPosition = node.worldPosition;
+
+            if (!probes) {
+                continue;
+            }
+
+            for (let j = 0; j < probes.length; j++) {
+                const position = new Vec3(0, 0, 0);
+                Vec3.add(position, probes[j], worldPosition);
+                points.push(position);
+            }
+        }
+
+        const pointCount = points.length;
+        if (pointCount < 4) {
+            this.resetAllTetraIndices();
+            this._data!.reset();
+            return;
+        }
+
+        this._data!.updateProbes(points);
+
+        if (updateTet) {
+            this.resetAllTetraIndices();
+            this._data!.updateTetrahedrons();
+        }
+    }
+
+    private clearAllSHUBOs () {
+        if (!this._scene) {
+            return;
+        }
+
+        const renderScene = this._scene.renderScene;
+        if (!renderScene) {
+            return;
+        }
+
+        const models = renderScene.models;
+        for (let i = 0; i < models.length; i++) {
+            models[i].clearSHUBOs();
+        }
+    }
+
+    private resetAllTetraIndices () {
+        if (!this._scene) {
+            return;
+        }
+
+        const renderScene = this._scene.renderScene;
+        if (!renderScene) {
+            return;
+        }
+
+        const models = renderScene.models;
+        for (let i = 0; i < models.length; i++) {
+            models[i].tetrahedronIndex = -1;
+        }
+    }
+}
 
 /**
  * @en All scene related global parameters, it affects all content in the corresponding scene
@@ -1107,10 +1428,18 @@ export class SceneGlobals {
     public octree = new OctreeInfo();
 
     /**
+     * @en Light probe related configuration
+     * @zh 光照探针相关配置
+     */
+    @editable
+    @serializable
+    public lightProbeInfo = new LightProbeInfo();
+
+    /**
      * @en Activate and initialize the global configurations of the scene, no need to invoke manually.
      * @zh 启用和初始化场景全局配置，不需要手动调用
      */
-    public activate () {
+    public activate (scene: Scene) {
         const sceneData = (legacyCC.director.root as Root).pipeline.pipelineSceneData;
         this.skybox.activate(sceneData.skybox);
         this.ambient.activate(sceneData.ambient);
@@ -1118,6 +1447,9 @@ export class SceneGlobals {
         this.shadows.activate(sceneData.shadows);
         this.fog.activate(sceneData.fog);
         this.octree.activate(sceneData.octree);
+        if (this.lightProbeInfo && sceneData.lightProbes) {
+            this.lightProbeInfo.activate(scene, sceneData.lightProbes);
+        }
 
         const root = legacyCC.director.root as Root;
         root.onGlobalPipelineStateChanged();

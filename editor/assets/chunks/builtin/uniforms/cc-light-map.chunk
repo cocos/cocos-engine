@@ -1,2 +1,2 @@
 #pragma builtin(local)
-layout(set = 2, binding = 10) uniform sampler2D cc_lightingMap;
+layout(set = 2, binding = 11) uniform sampler2D cc_lightingMap;

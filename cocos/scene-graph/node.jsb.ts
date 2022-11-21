@@ -1025,6 +1025,17 @@ Object.defineProperty(nodeProto, '_static', {
     },
 });
 
+Object.defineProperty(nodeProto, 'mobility', {
+    configurable: true,
+    enumerable: true,
+    get () {
+        return this._mobility;
+    },
+    set (v) {
+        this._mobility = v;
+    },
+});
+
 Object.defineProperty(nodeProto, 'forward', {
     configurable: true,
     enumerable: true,
@@ -1359,12 +1370,15 @@ serializable(NodeProto, '_prefab');
 serializable(NodeProto, '_lpos');
 serializable(NodeProto, '_lrot');
 serializable(NodeProto, '_lscale');
+serializable(NodeProto, '_mobility');
 serializable(NodeProto, '_layer');
 serializable(NodeProto, '_euler');
 const eulerAnglesDescriptor = Object.getOwnPropertyDescriptor(NodeProto, 'eulerAngles');
 type(Vec3)(NodeProto, 'eulerAngles', eulerAnglesDescriptor);
 const angleDescriptor = Object.getOwnPropertyDescriptor(NodeProto, 'angle');
 editable(NodeProto, 'angle', angleDescriptor);
+const mobilityDescriptor = Object.getOwnPropertyDescriptor(NodeProto, 'mobility');
+editable(NodeProto, 'mobility', mobilityDescriptor);
 const layerDescriptor = Object.getOwnPropertyDescriptor(NodeProto, 'layer');
 editable(NodeProto, 'layer', layerDescriptor);
 

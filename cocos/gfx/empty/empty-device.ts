@@ -60,8 +60,7 @@ import { EmptyRenderPass } from './empty-render-pass';
 import { EmptyShader } from './empty-shader';
 import { EmptySwapchain } from './empty-swapchain';
 import { EmptyTexture } from './empty-texture';
-import { debug } from '../../core';
-import { legacyCC } from '../../core/global-exports';
+import { debug, cclegacy } from '../../core';
 
 export class EmptyDevice extends Device {
     private _swapchain: EmptySwapchain | null = null;
@@ -217,4 +216,4 @@ export class EmptyDevice extends Device {
     public copyTexImagesToTexture (texImages: Readonly<TexImageSource[]>, texture: Texture, regions: Readonly<BufferTextureCopy[]>) {}
 }
 
-legacyCC.EmptyDevice = EmptyDevice;
+cclegacy.EmptyDevice = EmptyDevice;

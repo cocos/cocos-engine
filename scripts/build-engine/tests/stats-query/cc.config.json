@@ -96,7 +96,9 @@
                 "cocos/3d/models/morph-model.ts":"cocos/3d/models/morph-model.jsb.ts",
                 "cocos/3d/models/skinning-model.ts":"cocos/3d/models/skinning-model.jsb.ts",
                 "cocos/3d/models/baked-skinning-model.ts":"cocos/3d/models/baked-skinning-model.jsb.ts",
-                "cocos/3d/misc/create-mesh.ts":"cocos/3d/misc/create-mesh.jsb.ts"
+                "cocos/3d/misc/create-mesh.ts":"cocos/3d/misc/create-mesh.jsb.ts",
+                "cocos/gi/light-probe/light-probe.ts":"cocos/gi/light-probe/light-probe.jsb.ts",
+                "cocos/gi/light-probe/delaunay.ts":"cocos/gi/light-probe/delaunay.jsb.ts"
             }
         },
         {

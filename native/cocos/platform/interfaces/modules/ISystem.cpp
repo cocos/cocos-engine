@@ -89,6 +89,9 @@ ccstd::string ISystem::getCurrentLanguageToString() {
         case ISystem::LanguageType::BULGARIAN:
             languageStr = "bg";
             break;
+        case ISystem::LanguageType::HINDI:
+            languageStr = "hi";
+            break;
         default:
             languageStr = "unknown";
             break;

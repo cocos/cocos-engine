@@ -27,12 +27,10 @@ import { JSB } from 'internal:constants';
 import { SpriteFrame } from '../../assets';
 import { Texture2D } from '../../../asset/assets';
 import { fragmentText, safeMeasureText, getBaselineOffset, BASELINE_RATIO } from '../../utils/text-utils';
-import { Color, Size, Vec2, Rect } from '../../../core/math';
+import { Color, Size, Vec2, Rect, logID, cclegacy } from '../../../core';
 import { HorizontalTextAlignment, Label, LabelOutline, VerticalTextAlignment, LabelShadow } from '../../components';
 import { ISharedLabelData, LetterRenderTexture } from './font-utils';
-import { logID } from '../../../core/platform/debug';
 import { UITransform } from '../../framework/ui-transform';
-import { legacyCC } from '../../../core/global-exports';
 import { dynamicAtlasManager } from '../../utils/dynamic-atlas/atlas-manager';
 import { BlendFactor } from '../../../gfx';
 import { WrapMode } from '../../../asset/assets/asset-enum';
@@ -341,11 +339,11 @@ export const ttfUtils =  {
                 if (comp.renderData) {
                     comp.renderData.textureDirty = true;
                 }
-                if (legacyCC.director.root && legacyCC.director.root.batcher2D) {
+                if (cclegacy.director.root && cclegacy.director.root.batcher2D) {
                     if (JSB) {
-                        legacyCC.director.root.batcher2D._releaseDescriptorSetCache(tex.getGFXTexture(), tex.getGFXSampler());
+                        cclegacy.director.root.batcher2D._releaseDescriptorSetCache(tex.getGFXTexture(), tex.getGFXSampler());
                     } else {
-                        legacyCC.director.root.batcher2D._releaseDescriptorSetCache(tex.getHash());
+                        cclegacy.director.root.batcher2D._releaseDescriptorSetCache(tex.getHash());
                     }
                 }
             }

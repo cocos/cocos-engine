@@ -50,7 +50,8 @@
 //  2. namespace is needed
 //
 %ignore cc::Asset::createNode; //FIXME: swig needs to support std::function
-// %ignore cc::IMemoryImageSource::data;
+%ignore cc::IMemoryImageSource::data;
+%ignore cc::IMemoryImageSource::compressed;
 %ignore cc::SimpleTexture::uploadDataWithArrayBuffer;
 %ignore cc::TextureCube::_mipmaps;
 // %ignore cc::Mesh::copyAttribute;
@@ -77,12 +78,10 @@
 
 %rename(_getProperty) cc::Material::getProperty;
 %rename(_propsInternal) cc::Material::_props;
+%rename(getHash) cc::Material::getHashForMaterial;
 
 %rename(_getBindposes) cc::Skeleton::getBindposes;
 %rename(_setBindposes) cc::Skeleton::setBindposes;
-
-%rename(_data) cc::IMemoryImageSource::data;
-%rename(_compressed) cc::IMemoryImageSource::compressed;
 
 %rename(buffer) cc::BufferAsset::getBuffer;
 
@@ -184,6 +183,8 @@
 %import "base/TypeDef.h"
 %import "base/Ptr.h"
 %import "base/memory/Memory.h"
+
+%import "core/event/Event.h"
 
 %include "core/Types.h"
 

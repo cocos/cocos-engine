@@ -26,7 +26,7 @@
 declare const nr: any;
 
 import { getPhaseID } from './pass-phase';
-import { setClassName } from '../core/utils/js';
+import { js } from '../core';
 import * as pipeline from './define';
 export { pipeline };
 
@@ -266,15 +266,15 @@ postProcessStageProto.init = function(pipeline) {
     this.initialize(info);
 }
 
-setClassName('DeferredPipeline', DeferredPipeline);
-setClassName('MainFlow', MainFlow);
-setClassName('GbufferStage', GbufferStage);
-setClassName('LightingStage', LightingStage);
-setClassName('BloomStage', BloomStage);
-setClassName('PostProcessStage',PostProcessStage);
-setClassName('ForwardPipeline', ForwardPipeline);
-setClassName('ForwardFlow', ForwardFlow);
-setClassName('ShadowFlow', ShadowFlow);
-setClassName('ForwardStage', ForwardStage);
-setClassName('ShadowStage', ShadowStage);
-setClassName('RenderQueueDesc', RenderQueueDesc);
+js.setClassName('DeferredPipeline', DeferredPipeline);
+js.setClassName('MainFlow', MainFlow);
+js.setClassName('GbufferStage', GbufferStage);
+js.setClassName('LightingStage', LightingStage);
+js.setClassName('BloomStage', BloomStage);
+js.setClassName('PostProcessStage',PostProcessStage);
+js.setClassName('ForwardPipeline', ForwardPipeline);
+js.setClassName('ForwardFlow', ForwardFlow);
+js.setClassName('ShadowFlow', ShadowFlow);
+js.setClassName('ForwardStage', ForwardStage);
+js.setClassName('ShadowStage', ShadowStage);
+js.setClassName('RenderQueueDesc', RenderQueueDesc);

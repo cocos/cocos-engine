@@ -27,11 +27,9 @@
 import { EDITOR, NATIVE } from 'internal:constants';
 import { TouchInputSource, MouseInputSource, KeyboardInputSource, AccelerometerInputSource, GamepadInputDevice, HandleInputDevice, HMDInputDevice } from 'pal/input';
 import { touchManager } from '../../pal/input/touch-manager';
-import { sys } from '../core/platform/sys';
-import { EventTarget } from '../core/event/event-target';
+import { sys, EventTarget, cclegacy } from '../core';
 import { Event, EventAcceleration, EventGamepad, EventHandle, EventHMD, EventKeyboard, EventMouse, EventTouch, Touch } from './types';
 import { InputEventType } from './types/event-enum';
-import { legacyCC } from '../core/global-exports';
 
 export enum EventDispatcherPriority {
     GLOBAL = 0,
@@ -223,7 +221,7 @@ export class Input {
      * @param target - The event listener's target and callee
      */
     public off<K extends keyof InputEventMap> (eventType: K, callback?: InputEventMap[K], target?: any) {
-        if (EDITOR && !legacyCC.GAME_VIEW) {
+        if (EDITOR && !cclegacy.GAME_VIEW) {
             return;
         }
         this._eventTarget.off(eventType, callback, target);
@@ -236,7 +234,7 @@ export class Input {
      * 是否启用加速度计事件。
      */
     public setAccelerometerEnabled (isEnable: boolean) {
-        if (EDITOR && !legacyCC.GAME_VIEW) {
+        if (EDITOR && !cclegacy.GAME_VIEW) {
             return;
         }
         if (isEnable) {
@@ -254,7 +252,7 @@ export class Input {
      * 设置加速度计间隔值。
      */
     public setAccelerometerInterval (intervalInMileSeconds: number): void {
-        if (EDITOR && !legacyCC.GAME_VIEW) {
+        if (EDITOR && !cclegacy.GAME_VIEW) {
             return;
         }
         this._accelerometerInput.setInterval(intervalInMileSeconds);
@@ -270,7 +268,7 @@ export class Input {
         const changedTouches = [touch];
         const eventTouch = new EventTouch(changedTouches, false, eventType, (eventType === InputEventType.TOUCH_END ? [] : changedTouches));
         eventTouch.windowId = eventMouse.windowId;
-        
+
         if (eventType === InputEventType.TOUCH_END) {
             touchManager.releaseTouch(touchID);
         }

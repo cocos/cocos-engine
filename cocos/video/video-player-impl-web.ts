@@ -24,14 +24,13 @@
  */
 
 import { screenAdapter } from 'pal/screen-adapter';
-import { mat4 } from '../core/math';
+import { mat4, visibleRect } from '../core';
 import { sys, screen, warn } from '../core/platform';
 import { game } from '../game';
 import { contains } from '../core/utils/misc';
 import { EventType, READY_STATE } from './video-player-enums';
 import { VideoPlayerImpl } from './video-player-impl';
 import { ClearFlagBit } from '../gfx';
-import visibleRect from '../core/platform/visible-rect';
 import { BrowserType, OS } from '../../pal/system-info/enum-type';
 
 const MIN_ZINDEX = -(2 ** 15);

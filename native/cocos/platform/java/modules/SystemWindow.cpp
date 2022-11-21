@@ -42,7 +42,7 @@
 
 namespace {
 #ifndef JCLS_COCOSACTIVITY
-#define JCLS_COCOSACTIVITY "com/cocos/lib/CocosActivity"
+    #define JCLS_COCOSACTIVITY "com/cocos/lib/CocosActivity"
 #endif
 } // namespace
 
@@ -73,9 +73,9 @@ void SystemWindow::setWindowHandle(void *handle) {
 
 uintptr_t SystemWindow::getWindowHandle() const {
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID)
-    std::lock_guard lock(const_cast<std::mutex&>(_handleMutex));
+    std::lock_guard lock(const_cast<std::mutex &>(_handleMutex));
     if (!_windowHandle) {
-        auto& future = const_cast<std::promise<void>&>(_windowHandlePromise);
+        auto &future = const_cast<std::promise<void> &>(_windowHandlePromise);
         future.get_future().get();
     }
     CC_ASSERT(_windowHandle);
@@ -101,7 +101,7 @@ void SystemWindow::closeWindow() {
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID)
     finishActivity();
 #else
-    cc::EventDispatcher::dispatchCloseEvent();
+    events::Close::broadcast();
     exit(0); //TODO(cc): better exit for ohos
 #endif
 }

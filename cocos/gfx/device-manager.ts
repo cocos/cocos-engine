@@ -25,14 +25,10 @@
  */
 
 import { JSB, WEBGPU } from 'internal:constants';
-import { legacyCC } from '../core/global-exports';
-import { error, getError } from '../core/platform/debug';
-import { sys } from '../core/platform/sys';
+import { cclegacy, error, getError, sys, screen, Settings, settings } from '../core';
 import { BindingMappingInfo, DeviceInfo, SwapchainInfo } from './base/define';
 import { Device } from './base/device';
 import { Swapchain } from './base/swapchain';
-import { screen } from '../core/platform/screen';
-import { Settings, settings } from '../core/settings';
 import { BrowserType } from '../../pal/system-info/enum-type';
 
 /**
@@ -130,16 +126,16 @@ export class DeviceManager {
 
                 const deviceCtors: Constructor<Device>[] = [];
                 if (WEBGPU) {
-                    deviceCtors.push(legacyCC.WebGPUDevice);
+                    deviceCtors.push(cclegacy.WebGPUDevice);
                 }
-                if (useWebGL2 && legacyCC.WebGL2Device) {
-                    deviceCtors.push(legacyCC.WebGL2Device);
+                if (useWebGL2 && cclegacy.WebGL2Device) {
+                    deviceCtors.push(cclegacy.WebGL2Device);
                 }
-                if (legacyCC.WebGLDevice) {
-                    deviceCtors.push(legacyCC.WebGLDevice);
+                if (cclegacy.WebGLDevice) {
+                    deviceCtors.push(cclegacy.WebGLDevice);
                 }
-                if (legacyCC.EmptyDevice) {
-                    deviceCtors.push(legacyCC.EmptyDevice);
+                if (cclegacy.EmptyDevice) {
+                    deviceCtors.push(cclegacy.EmptyDevice);
                 }
 
                 Device.canvas = canvas!;
@@ -149,8 +145,8 @@ export class DeviceManager {
                 }
                 this._initSwapchain();
             }
-        } else if (this._renderType === RenderType.HEADLESS && legacyCC.EmptyDevice) {
-            this._gfxDevice = new legacyCC.EmptyDevice();
+        } else if (this._renderType === RenderType.HEADLESS && cclegacy.EmptyDevice) {
+            this._gfxDevice = new cclegacy.EmptyDevice();
             this._gfxDevice.initialize(new DeviceInfo(bindingMappingInfo));
             this._initSwapchain();
         }

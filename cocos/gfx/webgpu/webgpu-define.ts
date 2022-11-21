@@ -33,7 +33,7 @@ import {
     Texture, CommandBuffer, DescriptorSet, Device, InputAssembler, Buffer, Shader
 } from './override';
 import {
-    DeviceInfo, BufferTextureCopy, ShaderInfo, ShaderStageFlagBit, TextureViewInfo, TextureInfo, DrawInfo, BufferViewInfo, BufferInfo,
+    DeviceInfo, BufferTextureCopy, ShaderInfo, ShaderStageFlagBit, TextureViewInfo, TextureInfo, DrawInfo, BufferViewInfo, BufferInfo, BufferUsageBit, IndirectBuffer,
 } from '../base/define';
 
 WEBGPU && promiseForWebGPUInstantiation.then(() => {
@@ -85,22 +85,30 @@ WEBGPU && promiseForWebGPUInstantiation.then(() => {
 
     const oldUpdateBuffer = Buffer.prototype.update;
     Buffer.prototype.update = function (data: BufferSource, size?: number) {
-        const updateSize = size === undefined ? data.byteLength : size;
-        if ('buffer' in data) {
-            oldUpdateBuffer.call(this, new Uint8Array(data.buffer, data.byteOffset, data.byteLength), updateSize);
+        if (this.usage & BufferUsageBit.INDIRECT) {
+            this.updateIndirect(((data as unknown) as IndirectBuffer).drawInfos);
         } else {
-            oldUpdateBuffer.call(this, new Uint8Array(data), updateSize);
+            const updateSize = size === undefined ? data.byteLength : size;
+            if ('buffer' in data) {
+                oldUpdateBuffer.call(this, new Uint8Array(data.buffer, data.byteOffset, data.byteLength), updateSize);
+            } else {
+                oldUpdateBuffer.call(this, new Uint8Array(data), updateSize);
+            }
         }
+
     };
 
     const oldCmdUpdateBuffer = CommandBuffer.prototype.updateBuffer;
     CommandBuffer.prototype.updateBuffer = function (buffer: typeof Buffer, data: BufferSource, size?: number) {
-        const updateSize = size === undefined ? data.byteLength : size;
-
-        if ('buffer' in data) {
-            oldCmdUpdateBuffer.call(this, buffer, new Uint8Array(data.buffer, data.byteOffset, data.byteLength), updateSize);
+        if (this.usage & BufferUsageBit.INDIRECT) {
+            this.updateIndirect(buffer, ((data as unknown) as IndirectBuffer).drawInfos);
         } else {
-            oldCmdUpdateBuffer.call(this, buffer, new Uint8Array(data), updateSize);
+            const updateSize = size === undefined ? data.byteLength : size;
+            if ('buffer' in data) {
+                oldCmdUpdateBuffer.call(this, buffer, new Uint8Array(data.buffer, data.byteOffset, data.byteLength), updateSize);
+            } else {
+                oldCmdUpdateBuffer.call(this, buffer, new Uint8Array(data), updateSize);
+            }
         }
     };
 
@@ -160,13 +168,13 @@ WEBGPU && promiseForWebGPUInstantiation.then(() => {
                     data = new Uint8Array(rawBuffer);
                 }
                 buffers[i] = data;
-            } else if (texImages[i] instanceof HTMLImageElement) {
-                const img = texImages[i] as HTMLImageElement;
+            } else if (texImages[i] instanceof HTMLImageElement || texImages[i] instanceof ImageBitmap) {
+                const img = texImages[i];
                 const canvas = document.createElement('canvas');
                 canvas.width = img.width;
                 canvas.height = img.height;
                 const ctx = canvas.getContext('2d');
-                ctx?.drawImage(img, 0, 0);
+                ctx?.drawImage(img as any, 0, 0);
                 const imageData = ctx?.getImageData(0, 0, img.width, img.height);
                 const buff = imageData!.data.buffer;
                 let data;
@@ -196,25 +204,34 @@ WEBGPU && promiseForWebGPUInstantiation.then(() => {
         const referredFuncMap = new Map<string, [fnName: string, samplerType: string, samplerName: string]>();
         const samplerSet = new Set<string>();
         samplerTexturArr?.every((str) => {
-            let textureName = str.match(/(?<=uniform(.*?)sampler\w* )(\w+)(?=;)/g)!.toString();
+            // `(?<=)` not compatible with str.match on safari.
+            // let textureName = str.match(/(?<=uniform(.*?)sampler\w* )(\w+)(?=;)/g)!.toString();
+            const textureNameRegExpStr = '(?<=uniform(.*?)sampler\\w* )(\\w+)(?=;)';
+            let textureName = (new RegExp(textureNameRegExpStr, 'g')).exec(str)![0];
+
             let samplerStr = str.replace(textureName, `${textureName}Sampler`);
-            let samplerFunc = samplerStr.match(/(?<=uniform(.*?))sampler(\w*)/g)!.toString();
+
+            // let samplerFunc = samplerStr.match(/(?<=uniform(.*?))sampler(\w*)/g)!.toString();
+            const samplerRegExpStr = '(?<=uniform(.*?))sampler(\\w*)';
+            let samplerFunc = (new RegExp(samplerRegExpStr, 'g')).exec(str)![0];
             samplerFunc = samplerFunc.replace('sampler', '');
             if (samplerFunc === '') {
                 textureName = textureName.replace('Sampler', '');
             } else {
-                samplerStr = samplerStr.replace(/(?<=uniform(.*?))(sampler\w*)/g, 'sampler');
+                const samplerReplaceReg = new RegExp('(?<=uniform(.*?))(sampler\\w*)', 'g');
+                samplerStr = samplerStr.replace(samplerReplaceReg, 'sampler');
 
                 // layout (set = a, binding = b) uniform sampler2D cctex;
                 // to:
                 // layout (set = a, binding = b) uniform sampler cctexSampler;
                 // layout (set = a, binding = b + maxTextureNum) uniform texture2D cctex;
-                const samplerReg = /(?<=binding = )(\d+)(?=\))/g;
-                const samplerBindingStr = str.match(samplerReg)!.toString();
+                const samplerReg = new RegExp('(?<=binding = )(\\d+)(?=\\))', 'g');
+                const samplerBindingStr = samplerReg.exec(str)![0];
                 const samplerBinding = Number(samplerBindingStr) + 16;
                 samplerStr = samplerStr.replace(samplerReg, samplerBinding.toString());
 
-                const textureStr = str.replace(/(?<=uniform(.*?))(sampler)(?=\w*)/g, 'texture');
+                const textureReg = new RegExp('(?<=uniform(.*?))(sampler)(?=\\w*)', 'g');
+                const textureStr = str.replace(textureReg, 'texture');
                 code = code.replace(str, `${textureStr}\n${samplerStr}`);
             }
 

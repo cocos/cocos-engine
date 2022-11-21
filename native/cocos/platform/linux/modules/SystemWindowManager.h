@@ -36,11 +36,10 @@ class ISystemWindow;
 
 class SystemWindowManager : public ISystemWindowManager {
 public:
-    SystemWindowManager(IEventDispatch *delegate);
+    SystemWindowManager() = default;
 
     int init() override;
     void processEvent(bool *quit) override;
-    void swapWindows() override;
 
     ISystemWindow *createWindow(const ISystemWindowInfo &info) override;
     ISystemWindow *getWindow(uint32_t windowId) const override;
@@ -52,6 +51,5 @@ private:
     uint32_t _nextWindowId{1}; // start from 1, 0 means an invalid ID
 
     SystemWindowMap _windows;
-    IEventDispatch *_eventDispatcher{nullptr};
 };
 } // namespace cc

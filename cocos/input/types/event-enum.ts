@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { legacyCC } from '../../core/global-exports';
+import { cclegacy } from '../../core';
 import { NodeEventType } from '../../scene-graph/node-event';
 
 /**
@@ -406,4 +406,4 @@ export enum InputEventType {
 
 export type SystemEventTypeUnion = SystemEventType | NodeEventType | InputEventType | string;
 
-legacyCC.SystemEventType = SystemEventType;
+cclegacy.SystemEventType = SystemEventType;

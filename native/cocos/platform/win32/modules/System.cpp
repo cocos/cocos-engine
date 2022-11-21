@@ -102,6 +102,9 @@ System::LanguageType System::getCurrentLanguage() const {
         case LANG_BULGARIAN:
             ret = LanguageType::BULGARIAN;
             break;
+        case LANG_HINDI:
+            ret = LanguageType::HINDI;
+            break;
     }
 
     return ret;

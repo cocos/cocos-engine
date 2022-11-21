@@ -27,7 +27,7 @@ import { AudioPlayer } from 'pal/audio';
 import { ccclass, help, menu, tooltip, type, range, serializable } from 'cc.decorator';
 import { AudioPCMDataView, AudioState } from '../../pal/audio/type';
 import { Component } from '../scene-graph/component';
-import { clamp } from '../core/math';
+import { clamp } from '../core';
 import { AudioClip } from './audio-clip';
 import { audioManager } from './audio-manager';
 import { Node } from '../scene-graph';

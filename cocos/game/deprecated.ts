@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { removeProperty, markAsWarning } from '../core/utils/x-deprecated';
+import { removeProperty, markAsWarning } from '../core';
 import { Director } from './director';
 import { game } from './game';
 

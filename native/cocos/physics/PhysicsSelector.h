@@ -40,5 +40,6 @@
     #define WrappedConeShape     PhysXCone
     #define WrappedCylinderShape PhysXCylinder
     #define WrappedRevoluteJoint PhysXRevolute
-    #define WrappedDistanceJoint PhysXDistance
+    #define WrappedFixedJoint    PhysXFixedJoint
+    #define WrappedDistanceJoint PhysXSpherical
 #endif

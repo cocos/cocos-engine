@@ -1,6 +1,8 @@
 'use strict';
 
-exports.template = `
+const { updateElementReadonly, updateElementInvalid } = require('../../utils/assets');
+
+exports.template = /* html */`
 <div class="container">
     <ui-prop>
         <ui-label slot="label" value="i18n:ENGINE.assets.fbx.GlTFUserData.normals.name" tooltip="i18n:ENGINE.assets.fbx.GlTFUserData.normals.title"></ui-label>
@@ -77,7 +79,7 @@ exports.template = `
 </div>
 `;
 
-exports.style = `
+exports.style = /* css */`
 ui-prop,
 ui-section {
     margin: 4px 0;
@@ -114,15 +116,15 @@ exports.$ = {
     meshOptimizerVCheckbox: '.meshOptimizer-v-checkbox',
 };
 
-/**
- * attribute corresponds to the edit element
- */
 const Elements = {
     normals: {
         ready() {
             const panel = this;
 
             panel.$.normalsSelect.addEventListener('change', panel.setProp.bind(panel, 'normals'));
+            panel.$.normalsSelect.addEventListener('confirm', () => {
+                panel.dispatch('snapshot');
+            });
         },
         update() {
             const panel = this;
@@ -138,8 +140,8 @@ const Elements = {
 
             panel.$.normalsSelect.value = panel.getDefault(panel.meta.userData.normals, 2);
 
-            panel.updateInvalid(panel.$.normalsSelect, 'normals');
-            panel.updateReadonly(panel.$.normalsSelect);
+            updateElementInvalid.call(panel, panel.$.normalsSelect, 'normals');
+            updateElementReadonly.call(panel, panel.$.normalsSelect);
         },
     },
     tangents: {
@@ -147,6 +149,9 @@ const Elements = {
             const panel = this;
 
             panel.$.tangentsSelect.addEventListener('change', panel.setProp.bind(panel, 'tangents'));
+            panel.$.tangentsSelect.addEventListener('confirm', () => {
+                panel.dispatch('snapshot');
+            });
         },
         update() {
             const panel = this;
@@ -162,8 +167,8 @@ const Elements = {
 
             panel.$.tangentsSelect.value = panel.getDefault(panel.meta.userData.tangents, 2);
 
-            panel.updateInvalid(panel.$.tangentsSelect, 'tangents');
-            panel.updateReadonly(panel.$.tangentsSelect);
+            updateElementInvalid.call(panel, panel.$.tangentsSelect, 'tangents');
+            updateElementReadonly.call(panel, panel.$.tangentsSelect);
         },
     },
     morphNormals: {
@@ -171,6 +176,9 @@ const Elements = {
             const panel = this;
 
             panel.$.morphNormalsSelect.addEventListener('change', panel.setProp.bind(panel, 'morphNormals'));
+            panel.$.morphNormalsSelect.addEventListener('confirm', () => {
+                panel.dispatch('snapshot');
+            });
         },
         update() {
             const panel = this;
@@ -186,8 +194,8 @@ const Elements = {
 
             panel.$.morphNormalsSelect.value = panel.getDefault(panel.meta.userData.morphNormals, 1);
 
-            panel.updateInvalid(panel.$.morphNormalsSelect, 'morphNormals');
-            panel.updateReadonly(panel.$.morphNormalsSelect);
+            updateElementInvalid.call(panel, panel.$.morphNormalsSelect, 'morphNormals');
+            updateElementReadonly.call(panel, panel.$.morphNormalsSelect);
         },
     },
     skipValidation: {
@@ -195,14 +203,17 @@ const Elements = {
             const panel = this;
 
             panel.$.skipValidationCheckbox.addEventListener('change', panel.setProp.bind(panel, 'skipValidation'));
+            panel.$.skipValidationCheckbox.addEventListener('confirm', () => {
+                panel.dispatch('snapshot');
+            });
         },
         update() {
             const panel = this;
 
             panel.$.skipValidationCheckbox.value = panel.getDefault(panel.meta.userData.skipValidation, true);
 
-            panel.updateInvalid(panel.$.skipValidationCheckbox, 'skipValidation');
-            panel.updateReadonly(panel.$.skipValidationCheckbox);
+            updateElementInvalid.call(panel, panel.$.skipValidationCheckbox, 'skipValidation');
+            updateElementReadonly.call(panel, panel.$.skipValidationCheckbox);
         },
     },
     disableMeshSplit: {
@@ -210,14 +221,17 @@ const Elements = {
             const panel = this;
 
             panel.$.disableMeshSplitCheckbox.addEventListener('change', panel.setProp.bind(panel, 'disableMeshSplit'));
+            panel.$.disableMeshSplitCheckbox.addEventListener('confirm', () => {
+                panel.dispatch('snapshot');
+            });
         },
         update() {
             const panel = this;
 
             panel.$.disableMeshSplitCheckbox.value = panel.getDefault(panel.meta.userData.disableMeshSplit, true);
 
-            panel.updateInvalid(panel.$.disableMeshSplitCheckbox, 'disableMeshSplit');
-            panel.updateReadonly(panel.$.disableMeshSplitCheckbox);
+            updateElementInvalid.call(panel, panel.$.disableMeshSplitCheckbox, 'disableMeshSplit');
+            updateElementReadonly.call(panel, panel.$.disableMeshSplitCheckbox);
         },
     },
     allowMeshDataAccess: {
@@ -225,14 +239,17 @@ const Elements = {
             const panel = this;
 
             panel.$.allowMeshDataAccessCheckbox.addEventListener('change', panel.setProp.bind(panel, 'allowMeshDataAccess'));
+            panel.$.allowMeshDataAccessCheckbox.addEventListener('confirm', () => {
+                panel.dispatch('snapshot');
+            });
         },
         update() {
             const panel = this;
 
             panel.$.allowMeshDataAccessCheckbox.value = panel.getDefault(panel.meta.userData.allowMeshDataAccess, true);
 
-            panel.updateInvalid(panel.$.allowMeshDataAccessCheckbox, 'allowMeshDataAccess');
-            panel.updateReadonly(panel.$.allowMeshDataAccessCheckbox);
+            updateElementInvalid.call(panel, panel.$.allowMeshDataAccessCheckbox, 'allowMeshDataAccess');
+            updateElementReadonly.call(panel, panel.$.allowMeshDataAccessCheckbox);
         },
     },
     // move this from ./fbx.js in v3.6.0
@@ -241,6 +258,9 @@ const Elements = {
             const panel = this;
 
             panel.$.promoteSingleRootNodeCheckbox.addEventListener('change', panel.setProp.bind(panel, 'promoteSingleRootNode'));
+            panel.$.promoteSingleRootNodeCheckbox.addEventListener('confirm', () => {
+                panel.dispatch('snapshot');
+            });
         },
         update() {
             const panel = this;
@@ -252,8 +272,8 @@ const Elements = {
 
             panel.$.promoteSingleRootNodeCheckbox.value = defaultValue;
 
-            panel.updateInvalid(panel.$.promoteSingleRootNodeCheckbox, 'promoteSingleRootNode');
-            panel.updateReadonly(panel.$.promoteSingleRootNodeCheckbox);
+            updateElementInvalid.call(panel, panel.$.promoteSingleRootNodeCheckbox, 'promoteSingleRootNode');
+            updateElementReadonly.call(panel, panel.$.promoteSingleRootNodeCheckbox);
         },
     },
     meshOptimizer: {
@@ -261,20 +281,26 @@ const Elements = {
             const panel = this;
 
             panel.$.meshOptimizerCheckbox.addEventListener('change', panel.setProp.bind(panel, 'meshOptimizer'));
+            panel.$.meshOptimizerCheckbox.addEventListener('confirm', () => {
+                panel.dispatch('snapshot');
+            });
         },
         update() {
             const panel = this;
 
             panel.$.meshOptimizerCheckbox.value = panel.getDefault(panel.meta.userData.meshOptimizer, false);
 
-            panel.updateInvalid(panel.$.meshOptimizerCheckbox, 'meshOptimizer');
-            panel.updateReadonly(panel.$.meshOptimizerCheckbox);
+            updateElementInvalid.call(panel, panel.$.meshOptimizerCheckbox, 'meshOptimizer');
+            updateElementReadonly.call(panel, panel.$.meshOptimizerCheckbox);
         },
     },
     si: {
         ready() {
             const panel = this;
             panel.$.meshOptimizerSISlider.addEventListener('change', panel.setMeshOptimizerOptions.bind(panel, 'si'));
+            panel.$.meshOptimizerSISlider.addEventListener('confirm', () => {
+                panel.dispatch('snapshot');
+            });
         },
         update() {
             const panel = this;
@@ -282,13 +308,16 @@ const Elements = {
             panel.$.meshOptimizerSISlider.value = panel.getDefault(panel.meta.userData.meshOptimizerOptions, 1, 'si');
 
             panel.updateMeshOptimizerInvalid(panel.$.meshOptimizerSISlider, 'si');
-            panel.updateReadonly(panel.$.meshOptimizerSISlider);
+            updateElementReadonly.call(panel, panel.$.meshOptimizerSISlider);
         },
     },
     sa: {
         ready() {
             const panel = this;
             panel.$.meshOptimizerSACheckbox.addEventListener('change', panel.setMeshOptimizerOptions.bind(panel, 'sa'));
+            panel.$.meshOptimizerSACheckbox.addEventListener('confirm', () => {
+                panel.dispatch('snapshot');
+            });
         },
         update() {
             const panel = this;
@@ -296,18 +325,15 @@ const Elements = {
             panel.$.meshOptimizerSACheckbox.value = panel.getDefault(panel.meta.userData.meshOptimizerOptions, false, 'sa');
 
             panel.updateMeshOptimizerInvalid(panel.$.meshOptimizerSACheckbox, 'sa');
-            panel.updateReadonly(panel.$.meshOptimizerSACheckbox);
+            updateElementReadonly.call(panel, panel.$.meshOptimizerSACheckbox);
         },
     },
     kn: {
         ready() {
             const panel = this;
             panel.$.meshOptimizerKNCheckbox.addEventListener('change', panel.setMeshOptimizerOptions.bind(panel, 'kn'));
-            panel.$.meshOptimizerKNCheckbox.addEventListener('change', (event) => {
-                panel.metaList.forEach((meta) => {
-                    meta.userData.meshOptimizerOptions.kn = event.target.value;
-                });
-                panel.dispatch('change');
+            panel.$.meshOptimizerKNCheckbox.addEventListener('confirm', () => {
+                panel.dispatch('snapshot');
             });
         },
         update() {
@@ -316,13 +342,16 @@ const Elements = {
             panel.$.meshOptimizerKNCheckbox.value = panel.getDefault(panel.meta.userData.meshOptimizerOptions, false, 'kn');
 
             panel.updateMeshOptimizerInvalid(panel.$.meshOptimizerKNCheckbox, 'kn');
-            panel.updateReadonly(panel.$.meshOptimizerKNCheckbox);
+            updateElementReadonly.call(panel, panel.$.meshOptimizerKNCheckbox);
         },
     },
     ke: {
         ready() {
             const panel = this;
             panel.$.meshOptimizerKECheckbox.addEventListener('change', panel.setMeshOptimizerOptions.bind(panel, 'ke'));
+            panel.$.meshOptimizerKECheckbox.addEventListener('confirm', () => {
+                panel.dispatch('snapshot');
+            });
         },
         update() {
             const panel = this;
@@ -330,13 +359,16 @@ const Elements = {
             panel.$.meshOptimizerKECheckbox.value = panel.getDefault(panel.meta.userData.meshOptimizerOptions, false, 'ke');
 
             panel.updateMeshOptimizerInvalid(panel.$.meshOptimizerKECheckbox, 'ke');
-            panel.updateReadonly(panel.$.meshOptimizerKECheckbox);
+            updateElementReadonly.call(panel, panel.$.meshOptimizerKECheckbox);
         },
     },
     noq: {
         ready() {
             const panel = this;
             panel.$.meshOptimizerNOQCheckbox.addEventListener('change', panel.setMeshOptimizerOptions.bind(panel, 'noq'));
+            panel.$.meshOptimizerNOQCheckbox.addEventListener('confirm', () => {
+                panel.dispatch('snapshot');
+            });
         },
         update() {
             const panel = this;
@@ -344,13 +376,16 @@ const Elements = {
             panel.$.meshOptimizerNOQCheckbox.value = panel.getDefault(panel.meta.userData.meshOptimizerOptions, true, 'noq');
 
             panel.updateMeshOptimizerInvalid(panel.$.meshOptimizerNOQCheckbox, 'noq');
-            panel.updateReadonly(panel.$.meshOptimizerNOQCheckbox);
+            updateElementReadonly.call(panel, panel.$.meshOptimizerNOQCheckbox);
         },
     },
     v: {
         ready() {
             const panel = this;
             panel.$.meshOptimizerVCheckbox.addEventListener('change', panel.setMeshOptimizerOptions.bind(panel, 'v'));
+            panel.$.meshOptimizerVCheckbox.addEventListener('confirm', () => {
+                panel.dispatch('snapshot');
+            });
         },
         update() {
             const panel = this;
@@ -358,44 +393,15 @@ const Elements = {
             panel.$.meshOptimizerVCheckbox.value = panel.getDefault(panel.meta.userData.meshOptimizerOptions, true, 'v');
 
             panel.updateMeshOptimizerInvalid(panel.$.meshOptimizerVCheckbox, 'v');
-            panel.updateReadonly(panel.$.meshOptimizerVCheckbox);
+            updateElementReadonly.call(panel, panel.$.meshOptimizerVCheckbox);
         },
     },
 };
 
-exports.update = function(assetList, metaList) {
-    this.assetList = assetList;
-    this.metaList = metaList;
-    this.asset = assetList[0];
-    this.meta = metaList[0];
-
-    for (const prop in Elements) {
-        const element = Elements[prop];
-        if (element.update) {
-            element.update.call(this);
-        }
-    }
-};
-
-exports.ready = function() {
-    for (const prop in Elements) {
-        const element = Elements[prop];
-        if (element.ready) {
-            element.ready.call(this);
-        }
-    }
-};
-
-exports.close = function() {
-    for (const prop in Elements) {
-        const element = Elements[prop];
-        if (element.close) {
-            element.close.call(this);
-        }
-    }
-};
-
 exports.methods = {
+    t(key) {
+        return Editor.I18n.t(`ENGINE.assets.fbx.${key}`);
+    },
     setProp(prop, event) {
         this.metaList.forEach((meta) => {
             let value = event.target.value;
@@ -436,28 +442,6 @@ exports.methods = {
         });
         element.invalid = invalid;
     },
-    /**
-     * Update whether a data is editable in multi-select state
-     */
-    updateInvalid(element, prop) {
-        const invalid = this.metaList.some((meta) => {
-            return meta.userData[prop] !== this.meta.userData[prop];
-        });
-        element.invalid = invalid;
-    },
-    /**
-     * Update read-only status
-     */
-    updateReadonly(element) {
-        if (this.asset.readonly) {
-            element.setAttribute('disabled', true);
-        } else {
-            element.removeAttribute('disabled');
-        }
-    },
-    t(key) {
-        return Editor.I18n.t(`ENGINE.assets.fbx.${key}`);
-    },
     getDefault(value, def, prop) {
         if (value === undefined) {
             return def;
@@ -472,4 +456,36 @@ exports.methods = {
         }
         return value;
     },
+};
+
+exports.ready = function() {
+    for (const prop in Elements) {
+        const element = Elements[prop];
+        if (element.ready) {
+            element.ready.call(this);
+        }
+    }
+};
+
+exports.update = function(assetList, metaList) {
+    this.assetList = assetList;
+    this.metaList = metaList;
+    this.asset = assetList[0];
+    this.meta = metaList[0];
+
+    for (const prop in Elements) {
+        const element = Elements[prop];
+        if (element.update) {
+            element.update.call(this);
+        }
+    }
+};
+
+exports.close = function() {
+    for (const prop in Elements) {
+        const element = Elements[prop];
+        if (element.close) {
+            element.close.call(this);
+        }
+    }
 };

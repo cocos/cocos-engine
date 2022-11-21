@@ -24,15 +24,13 @@
  */
 
 import { RenderingSubMesh } from '../../asset/assets/rendering-sub-mesh';
-import { RenderPriority, UNIFORM_REFLECTION_TEXTURE_BINDING, UNIFORM_REFLECTION_STORAGE_BINDING, INST_MAT_WORLD } from '../../rendering/define';
+import { RenderPriority, UNIFORM_REFLECTION_TEXTURE_BINDING, UNIFORM_REFLECTION_STORAGE_BINDING, INST_MAT_WORLD, INST_SH, UBOSH } from '../../rendering/define';
 import { BatchingSchemes, IMacroPatch, Pass } from '../core/pass';
 import { DescriptorSet, DescriptorSetInfo, Device, InputAssembler, Texture, TextureType, TextureUsageBit, TextureInfo,
     Format, Sampler, Filter, Address, Shader, SamplerInfo, deviceManager, Attribute, Feature, FormatInfos, getTypedArrayConstructor } from '../../gfx';
-import { legacyCC } from '../../core/global-exports';
-import { errorID } from '../../core/platform/debug';
+import { errorID, Mat4, cclegacy } from '../../core';
 import { getPhaseID } from '../../rendering/pass-phase';
 import { Root } from '../../root';
-import { Mat4 } from '../../core';
 
 const _dsInfo = new DescriptorSetInfo(null!);
 const MAX_PASS_COUNT = 8;
@@ -65,6 +63,7 @@ export class SubModel {
     protected _reflectionSampler: Sampler | null = null;
     protected _instancedAttributeBlock: IInstancedAttributeBlock = { buffer: null!, views: [], attributes: [] };
     protected _instancedWorldMatrixIndex = -1;
+    protected _instancedSHIndex = -1;
 
     /**
      * @en
@@ -204,6 +203,17 @@ export class SubModel {
     }
 
     /**
+     * @en Get or set instance SH id, access by sub model
+     * @zh 获取或者设置硬件实例化中的球谐索引，通过子模型访问
+     */
+    set instancedSHIndex (val : number) {
+        this._instancedSHIndex = val;
+    }
+    get instancedSHIndex () {
+        return this._instancedSHIndex;
+    }
+
+    /**
      * @en
      * init sub model
      * @zh
@@ -213,14 +223,14 @@ export class SubModel {
      * @param patches @en The shader's macro @zh 着色器的宏定义
      */
     public initialize (subMesh: RenderingSubMesh, passes: Pass[], patches: IMacroPatch[] | null = null): void {
-        const root = legacyCC.director.root as Root;
+        const root = cclegacy.director.root as Root;
         this._device = deviceManager.gfxDevice;
         _dsInfo.layout = passes[0].localSetLayout;
 
         this._inputAssembler = this._device.createInputAssembler(subMesh.iaInfo);
         this._descriptorSet = this._device.createDescriptorSet(_dsInfo);
 
-        const pipeline = (legacyCC.director.root as Root).pipeline;
+        const pipeline = (cclegacy.director.root as Root).pipeline;
         const occlusionPass = pipeline.pipelineSceneData.getOcclusionQueryPass();
         if (occlusionPass) {
             const occlusionDSInfo = new DescriptorSetInfo(null!);
@@ -283,7 +293,7 @@ export class SubModel {
      * 平面阴影着色器初始化
      */
     public initPlanarShadowShader () {
-        const pipeline = (legacyCC.director.root as Root).pipeline;
+        const pipeline = (cclegacy.director.root as Root).pipeline;
         const shadowInfo = pipeline.pipelineSceneData.shadows;
         this._planarShader = shadowInfo.getPlanarShader(this._patches);
     }
@@ -298,7 +308,7 @@ export class SubModel {
      * @internal
      */
     public initPlanarShadowInstanceShader () {
-        const pipeline = (legacyCC.director.root as Root).pipeline;
+        const pipeline = (cclegacy.director.root as Root).pipeline;
         const shadowInfo = pipeline.pipelineSceneData.shadows;
         this._planarInstanceShader = shadowInfo.getPlanarInstanceShader(this._patches);
     }
@@ -398,8 +408,14 @@ export class SubModel {
 
         // update draw info
         const drawInfo = this._subMesh.drawInfo;
+
+        // to invoke getter/setter function for wasm object
         if (this._inputAssembler && drawInfo) {
-            Object.assign(this._inputAssembler.drawInfo, drawInfo);
+            const dirtyDrawInfo = this._inputAssembler.drawInfo;
+            Object.keys(drawInfo).forEach((key) => {
+                dirtyDrawInfo[key] = drawInfo[key];
+            });
+            this._inputAssembler.drawInfo = dirtyDrawInfo;
         }
     }
 
@@ -438,6 +454,28 @@ export class SubModel {
         v2[0] = mat.m04; v2[1] = mat.m05; v2[2] = mat.m06; v2[3] = mat.m13;
         v3[0] = mat.m08; v3[1] = mat.m09; v3[2] = mat.m10; v3[3] = mat.m14;
     }
+
+    /**
+     * @en
+     * update instancing SH data, invoked by model
+     * @zh
+     * 更新硬件实例化球谐数据，一般由model调用
+     */
+    /**
+     * @internal
+     */
+    public updateInstancedSH (data: Float32Array, idx: number) {
+        const attrs = this.instancedAttributeBlock.views;
+        const count = (UBOSH.SH_QUADRATIC_R_OFFSET - UBOSH.SH_LINEAR_CONST_R_OFFSET) / 4;
+        let offset = 0;
+
+        for (let i = idx; i < idx + count; i++) {
+            for (let k = 0; k < 4; k++) {
+                attrs[i][k] = data[offset++];
+            }
+        }
+    }
+
     /**
      * @en
      * update instancing related data, invoked by model
@@ -450,6 +488,7 @@ export class SubModel {
     public UpdateInstancedAttributes (attributes: Attribute[]) {
         // initialize subModelWorldMatrixIndex
         this.instancedWorldMatrixIndex = -1;
+        this.instancedSHIndex = -1;
 
         const pass = this.passes[0];
         if (!pass.device.hasFeature(Feature.INSTANCED_ARRAYS)) { return; }
@@ -484,6 +523,7 @@ export class SubModel {
         }
         if (pass.batchingScheme === BatchingSchemes.INSTANCING) { pass.getInstancedBuffer().destroy(); } // instancing IA changed
         this.instancedWorldMatrixIndex = this.getInstancedAttributeIndex(INST_MAT_WORLD);
+        this.instancedSHIndex = this.getInstancedAttributeIndex(INST_SH);
     }
 
     protected _flushPassInfo (): void {

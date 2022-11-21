@@ -2,9 +2,8 @@ import b2 from '@cocos/box2d';
 import { EDITOR } from 'internal:constants';
 
 import { IPhysicsWorld } from '../spec/i-physics-world';
-import { IVec2Like, Vec3, Quat, toRadian, Vec2, toDegree, Rect, CCObject } from '../../core';
+import { IVec2Like, Vec3, Quat, toRadian, Vec2, toDegree, Rect, CCObject, js, cclegacy } from '../../core';
 import { PHYSICS_2D_PTM_RATIO, ERaycast2DType, ERigidBody2DType } from '../framework/physics-types';
-import { array } from '../../core/utils/js';
 import { Canvas } from '../../2d/framework';
 import { Graphics } from '../../2d/components';
 
@@ -16,7 +15,6 @@ import { PhysicsContact, b2ContactExtends } from './physics-contact';
 import { Contact2DType, Collider2D, RaycastResult2D } from '../framework';
 import { b2Shape2D } from './shapes/shape-2d';
 import { PhysicsDebugDraw } from './platform/physics-debug-draw';
-import { legacyCC } from '../../core/global-exports';
 import { Node, find, Layers } from '../../scene-graph';
 import { director } from '../../game';
 
@@ -34,6 +32,7 @@ export class b2PhysicsWorld implements IPhysicsWorld {
     protected _bodies: b2RigidBody2D[] = [];
     protected _animatedBodies: b2RigidBody2D[] = [];
     protected _rotationAxis: Vec3 = new Vec3();
+    protected _physicsGroundBody: b2.Body;
 
     protected _contactListener: PhysicsContactListener;
     protected _aabbQueryCallback: PhysicsAABBQueryCallback;
@@ -43,9 +42,15 @@ export class b2PhysicsWorld implements IPhysicsWorld {
         return this._world;
     }
 
+    get groundBodyImpl () {
+        return this._physicsGroundBody;
+    }
+
     constructor () {
         this._world = new b2.World(new b2.Vec2(0, -10));
-
+        const tempBodyDef = new b2.BodyDef();
+        //tempBodyDef.position.Set(480 / PHYSICS_2D_PTM_RATIO, 320 / PHYSICS_2D_PTM_RATIO);//temporary
+        this._physicsGroundBody = this._world.CreateBody(tempBodyDef);
         const listener = new PhysicsContactListener();
         listener.setBeginContact(this._onBeginContact);
         listener.setEndContact(this._onEndContact);
@@ -67,7 +72,7 @@ export class b2PhysicsWorld implements IPhysicsWorld {
         return this._debugDrawFlags;
     }
     set debugDrawFlags (v) {
-        if (EDITOR && !legacyCC.GAME_VIEW) return;
+        if (EDITOR && !cclegacy.GAME_VIEW) return;
 
         if (!v) {
             if (this._debugGraphics) {
@@ -79,7 +84,7 @@ export class b2PhysicsWorld implements IPhysicsWorld {
     }
 
     _checkDebugDrawValid () {
-        if (EDITOR && !legacyCC.GAME_VIEW) return;
+        if (EDITOR && !cclegacy.GAME_VIEW) return;
         if (!this._debugGraphics || !this._debugGraphics.isValid) {
             let canvas = find('Canvas');
             if (!canvas) {
@@ -292,11 +297,11 @@ export class b2PhysicsWorld implements IPhysicsWorld {
             this._world.DestroyBody(body.impl);
             body._imp = null;
         }
-        array.remove(this._bodies, body);
+        js.array.remove(this._bodies, body);
 
         const comp = body.rigidBody;
         if (comp.type === ERigidBody2DType.Animated) {
-            array.remove(this._animatedBodies, body);
+            js.array.remove(this._animatedBodies, body);
         }
     }
 

@@ -39,6 +39,7 @@
 #if defined(CC_SERVER_MODE)
     #include "platform/empty/modules/Screen.h"
     #include "platform/empty/modules/SystemWindow.h"
+    #include "platform/empty/modules/SystemWindowManager.h"
 #else
     #include "modules/Screen.h"
     #include "modules/SystemWindow.h"
@@ -64,7 +65,7 @@ int32_t LinuxPlatform::init() {
     registerInterface(std::make_shared<Network>());
     registerInterface(std::make_shared<Screen>());
     registerInterface(std::make_shared<System>());
-    _windowManager = std::make_shared<SystemWindowManager>(this);
+    _windowManager = std::make_shared<SystemWindowManager>();
     registerInterface(_windowManager);
     registerInterface(std::make_shared<Vibrator>());
     return _windowManager->init();
@@ -97,7 +98,6 @@ int32_t LinuxPlatform::loop() {
         if (actualInterval >= desiredInterval) {
             lastTime = getCurrentMillSecond();
             runTask();
-            _windowManager->swapWindows();
         } else {
             usleep((desiredInterval - curTime + lastTime) * 1000);
         }

@@ -24,13 +24,12 @@
 ****************************************************************************/
 
 #include "View.h"
-#include "cocos/bindings/event/CustomEventTypes.h"
-#include "cocos/bindings/event/EventDispatcher.h"
+#include "engine/EngineEvents.h"
 #include "platform/Application.h"
 #include "platform/ohos//jni/JniCocosAbility.h"
 #include "platform/ohos/jni/AbilityConsts.h"
 
-//NOLINTNEXTLINE
+// NOLINTNEXTLINE
 using namespace cc::ohos;
 
 namespace cc {
@@ -44,17 +43,13 @@ void View::engineHandleCmd(int cmd) {
                 isWindowInitialized = true;
                 return;
             } else {
-                cc::CustomEvent event;
-                event.name = EVENT_RECREATE_WINDOW;
-                event.args->ptrVal = cocosApp.pendingWindow;
-                cc::EventDispatcher::dispatchCustomEvent(event);
+                // FIXME: getWindowId
+                events::WindowRecreated::broadcast((uint32_t)(uintptr_t)cocosApp.pendingWindow);
             }
             break;
         case ABILITY_CMD_TERM_WINDOW: {
-            cc::CustomEvent event;
-            event.name = EVENT_DESTROY_WINDOW;
-            event.args->ptrVal = cocosApp.pendingWindow;
-            cc::EventDispatcher::dispatchCustomEvent(event);
+            // FIXME: getWindowId
+            events::WindowDestroy::broadcast((uint32_t)(uintptr_t)cocosApp.pendingWindow);
         } break;
         case ABILITY_CMD_RESUME:
             if (Application::getInstance()) {
@@ -67,7 +62,7 @@ void View::engineHandleCmd(int cmd) {
             }
             break;
         case ABILITY_CMD_LOW_MEMORY:
-            cc::EventDispatcher::dispatchMemoryWarningEvent();
+            events::LowMemory::broadcast();
             break;
         default:
             break;

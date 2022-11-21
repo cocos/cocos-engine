@@ -27,15 +27,12 @@
 import { EDITOR, DEV } from 'internal:constants';
 import { screenAdapter } from 'pal/screen-adapter';
 import { Director, director } from '../game/director';
-import { Vec2, Vec3 } from '../core/math';
+import { Vec2, Vec3, visibleRect, js, cclegacy } from '../core';
 import { View } from './view';
-import visibleRect from '../core/platform/visible-rect';
 import { Scene } from '../scene-graph';
 import { Node } from '../scene-graph/node';
-import { array } from '../core/utils/js';
 import { AlignFlags, AlignMode, computeInverseTransForTarget, getReadonlyNodeSize, Widget } from './widget';
 import { UITransform } from '../2d/framework';
-import { legacyCC } from '../core/global-exports';
 
 const _tempPos = new Vec3();
 const _defaultAnchor = new Vec2();
@@ -207,7 +204,7 @@ function visitNode (node: any) {
         // if ((!EDITOR || widgetManager.animationState!.animatedSinceLastFrame) && widget.alignMode === AlignMode.ONCE) {
         //     widget.enabled = false;
         // } else {
-        if (!legacyCC.isValid(node, true)) {
+        if (!cclegacy.isValid(node, true)) {
             return;
         }
         activeWidgets.push(widget);
@@ -265,10 +262,10 @@ function updateAlignment (node: Node) {
     }
 }
 
-export const widgetManager = legacyCC._widgetManager = {
+export const widgetManager = cclegacy._widgetManager = {
     isAligning: false,
     _nodesOrderDirty: false,
-    _activeWidgetsIterator: new array.MutableForwardIterator(activeWidgets),
+    _activeWidgetsIterator: new js.array.MutableForwardIterator(activeWidgets),
     // hack
     animationState: EDITOR ? {
         previewing: false,

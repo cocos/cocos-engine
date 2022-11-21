@@ -52,6 +52,12 @@
 #ifndef CC_SURFACES_USE_LEGACY_COMPATIBLE_LIGHTING
   #define CC_SURFACES_USE_LEGACY_COMPATIBLE_LIGHTING 0
 #endif
+#ifndef CC_SURFACES_LIGHTING_TRANSMITTENCE
+  #define CC_SURFACES_LIGHTING_TRANSMITTENCE 0
+#endif
+#ifndef CC_SURFACES_LIGHTING_TRT
+  #define CC_SURFACES_LIGHTING_TRT 0
+#endif
 
 // render-to-color-map can disable functionality to avoid error data map
 #ifndef CC_SURFACES_ENABLE_DEBUG_VIEW

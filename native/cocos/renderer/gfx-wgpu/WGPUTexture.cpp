@@ -65,6 +65,10 @@ void CCWGPUTexture::doInit(const TextureInfo &info) {
         .sampleCount = toWGPUSampleCount(info.samples),
     };
 
+    if (hasFlag(info.flags, TextureFlags::GEN_MIPMAP)) {
+        descriptor.usage |= WGPUTextureUsage_RenderAttachment;
+    }
+
     _gpuTextureObj->wgpuTexture = wgpuDeviceCreateTexture(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuDevice, &descriptor);
     CCWGPUDevice::getInstance()->getMemoryStatus().textureSize += _size;
 

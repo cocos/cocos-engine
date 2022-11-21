@@ -98,7 +98,7 @@ int32_t WindowsPlatform::init() {
     registerInterface(std::make_shared<Network>());
     registerInterface(std::make_shared<Screen>());
     registerInterface(std::make_shared<System>());
-    _windowManager = std::make_shared<SystemWindowManager>(this);
+    _windowManager = std::make_shared<SystemWindowManager>();
     registerInterface(_windowManager);
     registerInterface(std::make_shared<Vibrator>());
 
@@ -151,7 +151,6 @@ int32_t WindowsPlatform::loop() {
         if (actualInterval >= desiredInterval) {
             nLast.QuadPart = nNow.QuadPart;
             runTask();
-            _windowManager->swapWindows();
         } else {
             // The precision of timer on Windows is set to highest (1ms) by 'timeBeginPeriod' from above code,
             // but it's still not precise enough. For example, if the precision of timer is 1ms,

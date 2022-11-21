@@ -28,7 +28,7 @@ import { Texture, Sampler, InputAssembler, DescriptorSet, Shader } from '../../g
 import { Node } from '../../scene-graph';
 import { Model } from '../../render-scene/scene/model';
 import { Layers } from '../../scene-graph/layers';
-import { legacyCC } from '../../core/global-exports';
+import { cclegacy } from '../../core';
 import { Pass } from '../../render-scene/core/pass';
 import { IBatcher } from './i-batcher';
 
@@ -115,7 +115,7 @@ export class DrawBatch2D {
 
             for (let i = 0; i < passes.length; i++) {
                 if (!this._passes[i]) {
-                    this._passes[i] = new Pass(legacyCC.director.root);
+                    this._passes[i] = new Pass(cclegacy.director.root);
                 }
                 const mtlPass = passes[i];
                 const passInUse = this._passes[i];

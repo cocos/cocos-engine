@@ -6,7 +6,7 @@ import {
     ShadeModel, ShaderStageFlagBit, StencilOp, Type, DescriptorType, SamplerInfo, MemoryAccessBit, Sampler,
 } from '../../cocos/gfx';
 import { RenderPassStage, RenderPriority, SetIndex } from '../../cocos/rendering/define';
-import { murmurhash2_32_gc } from '../../cocos/core/algorithm/murmurhash2_gc';
+import { murmurhash2_32_gc } from '../../cocos/core';
 
 const typeMap: Record<string, Type | string> = {};
 typeMap[typeMap.bool = Type.BOOL] = 'bool';

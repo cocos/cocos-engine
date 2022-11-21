@@ -25,7 +25,7 @@
 */
 
 import { Event } from './event';
-import { Vec2 } from '../../../core/math/vec2';
+import { Vec2 } from '../../../core';
 import { Touch } from '../touch';
 import { SystemEventTypeUnion } from '../event-enum';
 

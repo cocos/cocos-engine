@@ -1,4 +1,4 @@
-import { Vec2 } from '../../../core/math/vec2';
+import { Vec2 } from '../../../core';
 import { AnimationGraph, State, StateMachine, AnimationTransition } from '../animation-graph';
 import { Condition, BinaryCondition, TriggerCondition, UnaryCondition } from '../condition';
 import { ClipMotion } from '../clip-motion';

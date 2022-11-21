@@ -21,6 +21,12 @@
   #endif
 #endif
 
+#if CC_USE_LIGHT_PROBE
+  #if !USE_INSTANCING
+    #include <builtin/uniforms/cc-sh>
+  #endif
+#endif
+
 // Uniforms--Tex
 #include <builtin/uniforms/cc-shadow>
 #if CC_SUPPORT_CASCADED_SHADOW_MAP
@@ -28,6 +34,7 @@
 #endif
 #if CC_USE_IBL
   #include <builtin/uniforms/cc-environment>
+  #include <builtin/uniforms/cc-reflection-probe>
   #if CC_USE_DIFFUSEMAP
     #include <builtin/uniforms/cc-diffusemap>
   #endif
@@ -49,6 +56,9 @@
 // Functional
 #include <builtin/functionalities/shadow-map>
 #include <builtin/functionalities/fog>
+#if CC_USE_LIGHT_PROBE
+  #include <builtin/functionalities/sh>
+#endif
 
 // Uniform should depend on system macro, not surface macro
 #if CC_USE_LIGHTMAP && !CC_FORWARD_ADD

@@ -39,6 +39,7 @@ import { CannonPlaneShape } from './shapes/cannon-plane-shape';
 
 import { CannonPointToPointConstraint } from './constraints/cannon-point-to-point-constraint';
 import { CannonHingeConstraint } from './constraints/cannon-hinge-constraint';
+import { CannonLockConstraint } from './constraints/cannon-lock-constraint';
 import { Game, game } from '../../game';
 
 game.once(Game.EVENT_PRE_SUBSYSTEM_INIT, () => {
@@ -57,5 +58,6 @@ game.once(Game.EVENT_PRE_SUBSYSTEM_INIT, () => {
 
         PointToPointConstraint: CannonPointToPointConstraint,
         HingeConstraint: CannonHingeConstraint,
+        FixedConstraint: CannonLockConstraint,
     });
 });

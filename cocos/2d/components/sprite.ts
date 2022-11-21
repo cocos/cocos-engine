@@ -28,16 +28,13 @@ import { ccclass, help, executionOrder, menu, tooltip, displayOrder, type, range
 import { BUILD, EDITOR } from 'internal:constants';
 import { SpriteAtlas } from '../assets/sprite-atlas';
 import { SpriteFrame } from '../assets/sprite-frame';
-import { Vec2 } from '../../core/math';
-import { ccenum } from '../../core/value-types/enum';
-import { clamp } from '../../core/math/utils';
+import { Vec2, cclegacy, ccenum, clamp } from '../../core';
 import { IBatcher } from '../renderer/i-batcher';
 import { UIRenderer, InstanceMaterialType } from '../framework/ui-renderer';
 import { PixelFormat } from '../../asset/assets/asset-enum';
 import { TextureBase } from '../../asset/assets/texture-base';
 import { Material, RenderTexture } from '../../asset/assets';
 import { NodeEventType } from '../../scene-graph/node-event';
-import { legacyCC } from '../../core/global-exports';
 
 /**
  * @en
@@ -688,4 +685,4 @@ export class Sprite extends UIRenderer {
     }
 }
 
-legacyCC.Sprite = Sprite;
+cclegacy.Sprite = Sprite;

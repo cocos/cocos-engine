@@ -58,7 +58,7 @@ export class TouchInputSource {
     private _getLocation (touch: globalThis.Touch, windowSize: Size): Vec2 {
         const dpr = screenAdapter.devicePixelRatio;
         const x = touch.clientX * dpr;
-        const y = windowSize.y - touch.clientY * dpr;
+        const y = windowSize.height - touch.clientY * dpr;
         return new Vec2(x, y);
     }
 

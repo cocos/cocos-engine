@@ -27,12 +27,10 @@ import { IParticleModule, Particle, PARTICLE_MODULE_ORDER } from './particle';
 import { Node } from '../scene-graph/node';
 import { TransformBit } from '../scene-graph/node-enum';
 import { RenderMode, Space } from './enum';
-import { approx, EPSILON, Mat4, pseudoRandom, Quat, randomRangeInt, Vec3, Vec4 } from '../core';
-import { INT_MAX } from '../core/math/bits';
+import { approx, EPSILON, Mat4, pseudoRandom, Quat, randomRangeInt, Vec3, Vec4, geometry, bits } from '../core';
 import { particleEmitZAxis } from './particle-general-function';
 import { IParticleSystemRenderer } from './renderer/particle-system-renderer-base';
 import { Mesh } from '../3d';
-import { AABB } from '../core/geometry';
 import type { ParticleSystem } from './particle-system';
 
 const _node_mat = new Mat4();
@@ -140,7 +138,7 @@ export class ParticleCuller {
             particle.particleSystem = ps;
             particle.reset();
 
-            const rand = pseudoRandom(randomRangeInt(0, INT_MAX));
+            const rand = pseudoRandom(randomRangeInt(0, bits.INT_MAX));
 
             if (ps._shapeModule && ps._shapeModule.enable) {
                 ps._shapeModule.emit(particle);
@@ -261,8 +259,8 @@ export class ParticleCuller {
         if (this._processor.getInfo()!.renderMode === RenderMode.Mesh) {
             const mesh: Mesh | null = this._processor.getInfo().mesh;
             if (mesh && mesh.struct.minPosition && mesh.struct.maxPosition) {
-                const meshAABB: AABB = new AABB();
-                AABB.fromPoints(meshAABB, mesh.struct.minPosition, mesh.struct.maxPosition);
+                const meshAABB: geometry.AABB = new geometry.AABB();
+                geometry.AABB.fromPoints(meshAABB, mesh.struct.minPosition, mesh.struct.maxPosition);
                 const meshMax = Math.max(meshAABB.halfExtents.x, meshAABB.halfExtents.y, meshAABB.halfExtents.z);
                 meshSize.set(meshMax, meshMax, meshMax);
             }
@@ -291,7 +289,7 @@ export class ParticleCuller {
 
     public calculatePositions () {
         this._emit(this._particleSystem.capacity, 0, this._particlesAll);
-        const rand = pseudoRandom(randomRangeInt(0, INT_MAX));
+        const rand = pseudoRandom(randomRangeInt(0, bits.INT_MAX));
         this._updateParticles(0, this._particlesAll);
         this._calculateBounding(true);
         this._updateParticles(this._particleSystem.startLifetime.evaluate(0, rand), this._particlesAll);

@@ -40,6 +40,8 @@ public:
 
     inline GLES2GPUTexture *gpuTexture() const { return _gpuTexture; }
 
+    uint32_t getGLTextureHandle() const noexcept override;
+
 protected:
     void doInit(const TextureInfo &info) override;
     void doInit(const TextureViewInfo &info) override;

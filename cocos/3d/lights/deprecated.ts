@@ -27,37 +27,35 @@ import { Light } from './light-component';
 import { SpotLight } from './spot-light-component';
 import { SphereLight } from './sphere-light-component';
 import { DirectionalLight } from './directional-light-component';
-import { legacyCC } from '../../core/global-exports';
-import { js } from '../../core/utils/js';
-import { replaceProperty } from '../../core/utils/x-deprecated';
+import { cclegacy, js, replaceProperty } from '../../core';
 
 /**
  * Alias of [[Light]]
  * @deprecated Since v1.2
  */
 export { Light as LightComponent };
-legacyCC.LightComponent = Light;
+cclegacy.LightComponent = Light;
 js.setClassAlias(Light, 'cc.LightComponent');
 /**
  * Alias of [[DirectionalLight]]
  * @deprecated Since v1.2
  */
 export { DirectionalLight as DirectionalLightComponent };
-legacyCC.DirectionalLightComponent = DirectionalLight;
+cclegacy.DirectionalLightComponent = DirectionalLight;
 js.setClassAlias(DirectionalLight, 'cc.DirectionalLightComponent');
 /**
  * Alias of [[SphereLight]]
  * @deprecated Since v1.2
  */
 export { SphereLight as SphereLightComponent };
-legacyCC.SphereLightComponent = SphereLight;
+cclegacy.SphereLightComponent = SphereLight;
 js.setClassAlias(SphereLight, 'cc.SphereLightComponent');
 /**
  * Alias of [[SpotLight]]
  * @deprecated Since v1.2
  */
 export { SpotLight as SpotLightComponent };
-legacyCC.SpotLightComponent = SpotLight;
+cclegacy.SpotLightComponent = SpotLight;
 js.setClassAlias(SpotLight, 'cc.SpotLightComponent');
 
 replaceProperty(SpotLight.prototype, 'SpotLight.prototype', [

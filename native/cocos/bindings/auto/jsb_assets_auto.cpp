@@ -1449,7 +1449,7 @@ static bool js_cc_IGeometry_attributes_set(se::State& s)
     
     // %typemap(in) SWIGTYPE value in
     ok &= sevalue_to_native(args[0], &arg1->attributes, s.thisObject());
-    SE_PRECONDITION2(ok, false, "IGeometry_attributes_set,2,SWIGTYPE_ccstd__optionalT_cc__gfx__AttributeList_t"); 
+    SE_PRECONDITION2(ok, false, "IGeometry_attributes_set,2,SWIGTYPE_ccstd__optionalT_ccstd__vectorT_cc__gfx__Attribute_t_t"); 
     
     
     
@@ -2106,7 +2106,7 @@ static bool js_cc_IDynamicGeometry_normals_set(se::State& s)
     
     // %typemap(in) SWIGTYPE value in
     ok &= sevalue_to_native(args[0], &arg1->normals, s.thisObject());
-    SE_PRECONDITION2(ok, false, "IDynamicGeometry_normals_set,2,SWIGTYPE_ccstd__optionalT_cc__Float32Array_t"); 
+    SE_PRECONDITION2(ok, false, "IDynamicGeometry_normals_set,2,SWIGTYPE_ccstd__optionalT_cc__TypedArrayTempT_float_t_t"); 
     
     
     
@@ -2144,7 +2144,7 @@ static bool js_cc_IDynamicGeometry_uvs_set(se::State& s)
     
     // %typemap(in) SWIGTYPE value in
     ok &= sevalue_to_native(args[0], &arg1->uvs, s.thisObject());
-    SE_PRECONDITION2(ok, false, "IDynamicGeometry_uvs_set,2,SWIGTYPE_ccstd__optionalT_cc__Float32Array_t"); 
+    SE_PRECONDITION2(ok, false, "IDynamicGeometry_uvs_set,2,SWIGTYPE_ccstd__optionalT_cc__TypedArrayTempT_float_t_t"); 
     
     
     
@@ -2182,7 +2182,7 @@ static bool js_cc_IDynamicGeometry_tangents_set(se::State& s)
     
     // %typemap(in) SWIGTYPE value in
     ok &= sevalue_to_native(args[0], &arg1->tangents, s.thisObject());
-    SE_PRECONDITION2(ok, false, "IDynamicGeometry_tangents_set,2,SWIGTYPE_ccstd__optionalT_cc__Float32Array_t"); 
+    SE_PRECONDITION2(ok, false, "IDynamicGeometry_tangents_set,2,SWIGTYPE_ccstd__optionalT_cc__TypedArrayTempT_float_t_t"); 
     
     
     
@@ -2220,7 +2220,7 @@ static bool js_cc_IDynamicGeometry_colors_set(se::State& s)
     
     // %typemap(in) SWIGTYPE value in
     ok &= sevalue_to_native(args[0], &arg1->colors, s.thisObject());
-    SE_PRECONDITION2(ok, false, "IDynamicGeometry_colors_set,2,SWIGTYPE_ccstd__optionalT_cc__Float32Array_t"); 
+    SE_PRECONDITION2(ok, false, "IDynamicGeometry_colors_set,2,SWIGTYPE_ccstd__optionalT_cc__TypedArrayTempT_float_t_t"); 
     
     
     
@@ -2372,7 +2372,7 @@ static bool js_cc_IDynamicGeometry_indices16_set(se::State& s)
     
     // %typemap(in) SWIGTYPE value in
     ok &= sevalue_to_native(args[0], &arg1->indices16, s.thisObject());
-    SE_PRECONDITION2(ok, false, "IDynamicGeometry_indices16_set,2,SWIGTYPE_ccstd__optionalT_cc__Uint16Array_t"); 
+    SE_PRECONDITION2(ok, false, "IDynamicGeometry_indices16_set,2,SWIGTYPE_ccstd__optionalT_cc__TypedArrayTempT_uint16_t_t_t"); 
     
     
     
@@ -2410,7 +2410,7 @@ static bool js_cc_IDynamicGeometry_indices32_set(se::State& s)
     
     // %typemap(in) SWIGTYPE value in
     ok &= sevalue_to_native(args[0], &arg1->indices32, s.thisObject());
-    SE_PRECONDITION2(ok, false, "IDynamicGeometry_indices32_set,2,SWIGTYPE_ccstd__optionalT_cc__Uint32Array_t"); 
+    SE_PRECONDITION2(ok, false, "IDynamicGeometry_indices32_set,2,SWIGTYPE_ccstd__optionalT_cc__TypedArrayTempT_uint32_t_t_t"); 
     
     
     
@@ -8411,7 +8411,7 @@ static bool js_cc_IPropertyInfo_handleInfo_set(se::State& s)
     
     // %typemap(in) SWIGTYPE value in
     ok &= sevalue_to_native(args[0], &arg1->handleInfo, s.thisObject());
-    SE_PRECONDITION2(ok, false, "IPropertyInfo_handleInfo_set,2,SWIGTYPE_ccstd__optionalT_cc__IPropertyHandleInfo_t"); 
+    SE_PRECONDITION2(ok, false, "IPropertyInfo_handleInfo_set,2,SWIGTYPE_ccstd__optionalT_std__tupleT_ccstd__string_uint32_t_cc__gfx__Type_t_t"); 
     
     
     
@@ -10911,7 +10911,7 @@ static bool js_cc_BlendStateInfo_targets_set(se::State& s)
     
     // %typemap(in) SWIGTYPE value in
     ok &= sevalue_to_native(args[0], &arg1->targets, s.thisObject());
-    SE_PRECONDITION2(ok, false, "BlendStateInfo_targets_set,2,SWIGTYPE_ccstd__optionalT_cc__BlendTargetInfoList_t"); 
+    SE_PRECONDITION2(ok, false, "BlendStateInfo_targets_set,2,SWIGTYPE_ccstd__optionalT_ccstd__vectorT_cc__BlendTargetInfo_t_t"); 
     
     
     
@@ -11331,7 +11331,7 @@ static bool js_cc_IPassStates_dynamicStates_set(se::State& s)
     
     // %typemap(in) SWIGTYPE value in
     ok &= sevalue_to_native(args[0], &arg1->dynamicStates, s.thisObject());
-    SE_PRECONDITION2(ok, false, "IPassStates_dynamicStates_set,2,SWIGTYPE_ccstd__optionalT_cc__gfx__DynamicStateFlags_t"); 
+    SE_PRECONDITION2(ok, false, "IPassStates_dynamicStates_set,2,SWIGTYPE_ccstd__optionalT_cc__gfx__DynamicStateFlagBit_t"); 
     
     
     
@@ -11838,7 +11838,7 @@ static bool js_cc_IPassInfoFull_dynamicStates_set(se::State& s)
     
     // %typemap(in) SWIGTYPE value in
     ok &= sevalue_to_native(args[0], &arg1->dynamicStates, s.thisObject());
-    SE_PRECONDITION2(ok, false, "IPassInfoFull_dynamicStates_set,2,SWIGTYPE_ccstd__optionalT_cc__gfx__DynamicStateFlags_t"); 
+    SE_PRECONDITION2(ok, false, "IPassInfoFull_dynamicStates_set,2,SWIGTYPE_ccstd__optionalT_cc__gfx__DynamicStateFlagBit_t"); 
     
     
     
@@ -11952,7 +11952,7 @@ static bool js_cc_IPassInfoFull_embeddedMacros_set(se::State& s)
     
     // %typemap(in) SWIGTYPE value in
     ok &= sevalue_to_native(args[0], &arg1->embeddedMacros, s.thisObject());
-    SE_PRECONDITION2(ok, false, "IPassInfoFull_embeddedMacros_set,2,SWIGTYPE_ccstd__optionalT_cc__MacroRecord_t"); 
+    SE_PRECONDITION2(ok, false, "IPassInfoFull_embeddedMacros_set,2,SWIGTYPE_ccstd__optionalT_ccstd__unordered_mapT_ccstd__string_ccstd__variantT_int32_t_bool_ccstd__string_t_t_t"); 
     
     
     
@@ -12066,7 +12066,7 @@ static bool js_cc_IPassInfoFull_properties_set(se::State& s)
     
     // %typemap(in) SWIGTYPE value in
     ok &= sevalue_to_native(args[0], &arg1->properties, s.thisObject());
-    SE_PRECONDITION2(ok, false, "IPassInfoFull_properties_set,2,SWIGTYPE_ccstd__optionalT_cc__PassPropertyInfoMap_t"); 
+    SE_PRECONDITION2(ok, false, "IPassInfoFull_properties_set,2,SWIGTYPE_ccstd__optionalT_ccstd__unordered_mapT_ccstd__string_cc__IPropertyInfo_t_t"); 
     
     
     
@@ -12142,7 +12142,7 @@ static bool js_cc_IPassInfoFull_defines_set(se::State& s)
     
     // %typemap(in) SWIGTYPE value in
     ok &= sevalue_to_native(args[0], &arg1->defines, s.thisObject());
-    SE_PRECONDITION2(ok, false, "IPassInfoFull_defines_set,2,SWIGTYPE_ccstd__unordered_mapT_ccstd__string_cc__MacroValue_t"); 
+    SE_PRECONDITION2(ok, false, "IPassInfoFull_defines_set,2,SWIGTYPE_ccstd__unordered_mapT_ccstd__string_ccstd__variantT_int32_t_bool_ccstd__string_t_t"); 
     
     
     
@@ -12180,7 +12180,7 @@ static bool js_cc_IPassInfoFull_stateOverrides_set(se::State& s)
     
     // %typemap(in) SWIGTYPE value in
     ok &= sevalue_to_native(args[0], &arg1->stateOverrides, s.thisObject());
-    SE_PRECONDITION2(ok, false, "IPassInfoFull_stateOverrides_set,2,SWIGTYPE_ccstd__optionalT_cc__PassOverrides_t"); 
+    SE_PRECONDITION2(ok, false, "IPassInfoFull_stateOverrides_set,2,SWIGTYPE_ccstd__optionalT_cc__IPassStates_t"); 
     
     
     
@@ -17125,7 +17125,7 @@ static bool js_cc_EffectAsset__combinations_set(se::State& s)
     
     // %typemap(in) SWIGTYPE value in
     ok &= sevalue_to_native(args[0], &arg1->_combinations, s.thisObject());
-    SE_PRECONDITION2(ok, false, "EffectAsset__combinations_set,2,SWIGTYPE_ccstd__vectorT_cc__IPreCompileInfo_t"); 
+    SE_PRECONDITION2(ok, false, "EffectAsset__combinations_set,2,SWIGTYPE_ccstd__vectorT_ccstd__unordered_mapT_ccstd__string_ccstd__variantT_ccstd__vectorT_bool_t_ccstd__vectorT_int32_t_t_ccstd__vectorT_ccstd__string_t_t_t_t"); 
     
     
     
@@ -17248,7 +17248,7 @@ static bool js_cc_EffectAsset_combinations_set(se::State& s)
     SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
     // %typemap(in) SWIGTYPE&
     ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "EffectAsset_combinations_set,2,SWIGTYPE_p_ccstd__vectorT_cc__IPreCompileInfo_t");
+    SE_PRECONDITION2(ok, false, "EffectAsset_combinations_set,2,SWIGTYPE_p_ccstd__vectorT_ccstd__unordered_mapT_ccstd__string_ccstd__variantT_ccstd__vectorT_bool_t_ccstd__vectorT_int32_t_t_ccstd__vectorT_ccstd__string_t_t_t_t");
     arg2 = &temp2;
     
     cc_EffectAsset_combinations_set(arg1,*arg2);
@@ -17314,77 +17314,6 @@ bool js_register_cc_EffectAsset(se::Object* obj) {
 se::Class* __jsb_cc_IMemoryImageSource_class = nullptr;
 se::Object* __jsb_cc_IMemoryImageSource_proto = nullptr;
 SE_DECLARE_FINALIZE_FUNC(js_delete_cc_IMemoryImageSource) 
-
-static bool js_cc_IMemoryImageSource__data_set(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::IMemoryImageSource *arg1 = (cc::IMemoryImageSource *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::IMemoryImageSource>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[0], &arg1->data, s.thisObject());
-    SE_PRECONDITION2(ok, false, "IMemoryImageSource__data_set,2,SWIGTYPE_cc__IntrusivePtrT_cc__ArrayBuffer_t"); 
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_SET(js_cc_IMemoryImageSource__data_set) 
-
-static bool js_cc_IMemoryImageSource__data_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::IMemoryImageSource *arg1 = (cc::IMemoryImageSource *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::IMemoryImageSource>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(arg1->data, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "IMemoryImageSource__data_get, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(arg1->data, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_IMemoryImageSource__data_get) 
-
-static bool js_cc_IMemoryImageSource__compressed_set(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::IMemoryImageSource *arg1 = (cc::IMemoryImageSource *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::IMemoryImageSource>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) bool
-    ok &= sevalue_to_native(args[0], &arg1->compressed);
-    SE_PRECONDITION2(ok, false, "IMemoryImageSource__compressed_set,2,SWIGTYPE_bool"); 
-    
-    
-    return true;
-}
-SE_BIND_PROP_SET(js_cc_IMemoryImageSource__compressed_set) 
-
-static bool js_cc_IMemoryImageSource__compressed_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::IMemoryImageSource *arg1 = (cc::IMemoryImageSource *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::IMemoryImageSource>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // out 5
-    ok &= nativevalue_to_se(arg1->compressed, s.rval(), s.thisObject() /*ctx*/);
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_IMemoryImageSource__compressed_get) 
 
 static bool js_cc_IMemoryImageSource_width_set(se::State& s)
 {
@@ -17535,18 +17464,6 @@ bool sevalue_to_native(const se::Value &from, cc::IMemoryImageSource * to, se::O
     se::Value field;
     bool ok = true;
     
-    json->getProperty("_data", &field, true);
-    if (!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->data), ctx);
-    }
-    
-    
-    json->getProperty("_compressed", &field, true);
-    if (!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->compressed), ctx);
-    }
-    
-    
     json->getProperty("width", &field, true);
     if (!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->width), ctx);
@@ -17572,8 +17489,6 @@ bool sevalue_to_native(const se::Value &from, cc::IMemoryImageSource * to, se::O
 bool js_register_cc_IMemoryImageSource(se::Object* obj) {
     auto* cls = se::Class::create("IMemoryImageSource", obj, nullptr, _SE(js_new_cc_IMemoryImageSource)); 
     
-    cls->defineProperty("_data", _SE(js_cc_IMemoryImageSource__data_get), _SE(js_cc_IMemoryImageSource__data_set)); 
-    cls->defineProperty("_compressed", _SE(js_cc_IMemoryImageSource__compressed_get), _SE(js_cc_IMemoryImageSource__compressed_set)); 
     cls->defineProperty("width", _SE(js_cc_IMemoryImageSource_width_get), _SE(js_cc_IMemoryImageSource_width_set)); 
     cls->defineProperty("height", _SE(js_cc_IMemoryImageSource_height_get), _SE(js_cc_IMemoryImageSource_height_set)); 
     cls->defineProperty("format", _SE(js_cc_IMemoryImageSource_format_get), _SE(js_cc_IMemoryImageSource_format_set)); 
@@ -18217,7 +18132,7 @@ static bool js_cc_IMaterialInfo_defines_set(se::State& s)
     
     // %typemap(in) SWIGTYPE value in
     ok &= sevalue_to_native(args[0], &arg1->defines, s.thisObject());
-    SE_PRECONDITION2(ok, false, "IMaterialInfo_defines_set,2,SWIGTYPE_ccstd__optionalT_cc__IMaterialInfo__DefinesType_t"); 
+    SE_PRECONDITION2(ok, false, "IMaterialInfo_defines_set,2,SWIGTYPE_ccstd__optionalT_ccstd__variantT_ccstd__unordered_mapT_ccstd__string_ccstd__variantT_int32_t_bool_ccstd__string_t_t_ccstd__vectorT_ccstd__unordered_mapT_ccstd__string_ccstd__variantT_int32_t_bool_ccstd__string_t_t_t_t_t"); 
     
     
     
@@ -18255,7 +18170,7 @@ static bool js_cc_IMaterialInfo_states_set(se::State& s)
     
     // %typemap(in) SWIGTYPE value in
     ok &= sevalue_to_native(args[0], &arg1->states, s.thisObject());
-    SE_PRECONDITION2(ok, false, "IMaterialInfo_states_set,2,SWIGTYPE_ccstd__optionalT_cc__IMaterialInfo__PassOverridesType_t"); 
+    SE_PRECONDITION2(ok, false, "IMaterialInfo_states_set,2,SWIGTYPE_ccstd__optionalT_ccstd__variantT_cc__IPassStates_ccstd__vectorT_cc__IPassStates_t_t_t"); 
     
     
     
@@ -18382,7 +18297,7 @@ se::Class* __jsb_cc_Material_class = nullptr;
 se::Object* __jsb_cc_Material_proto = nullptr;
 SE_DECLARE_FINALIZE_FUNC(js_delete_cc_Material) 
 
-static bool js_cc_Material_getHashForMaterial_static(se::State& s)
+static bool js_cc_Material_getHash_static(se::State& s)
 {
     // js_function
     
@@ -18398,18 +18313,18 @@ static bool js_cc_Material_getHashForMaterial_static(se::State& s)
     }
     // %typemap(in) SWIGTYPE*
     ok &= sevalue_to_native(args[0], &arg1, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Material_getHashForMaterial,1,SWIGTYPE_p_cc__Material"); 
+    SE_PRECONDITION2(ok, false, "Material_getHash,1,SWIGTYPE_p_cc__Material"); 
     result = cc::Material::getHashForMaterial(arg1);
     // %typemap(out) SWIGTYPE
     ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "Material_getHashForMaterial, Error processing arguments");
+    SE_PRECONDITION2(ok, false, "Material_getHash, Error processing arguments");
     SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
     
     
     
     return true;
 }
-SE_BIND_FUNC(js_cc_Material_getHashForMaterial_static) 
+SE_BIND_FUNC(js_cc_Material_getHash_static) 
 
 // js_ctor
 static bool js_new_cc_Material(se::State& s) // NOLINT(readability-identifier-naming)
@@ -18507,7 +18422,7 @@ static bool js_cc_Material_recompileShaders__SWIG_0(se::State& s)
     SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
     // %typemap(in) SWIGTYPE&
     ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Material_recompileShaders,2,SWIGTYPE_p_ccstd__unordered_mapT_ccstd__string_cc__MacroValue_t");
+    SE_PRECONDITION2(ok, false, "Material_recompileShaders,2,SWIGTYPE_p_ccstd__unordered_mapT_ccstd__string_ccstd__variantT_int32_t_bool_ccstd__string_t_t");
     arg2 = &temp2;
     
     (arg1)->recompileShaders((cc::MacroRecord const &)*arg2);
@@ -18531,7 +18446,7 @@ static bool js_cc_Material_recompileShaders__SWIG_1(se::State& s)
     SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
     // %typemap(in) SWIGTYPE&
     ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Material_recompileShaders,2,SWIGTYPE_p_ccstd__unordered_mapT_ccstd__string_cc__MacroValue_t");
+    SE_PRECONDITION2(ok, false, "Material_recompileShaders,2,SWIGTYPE_p_ccstd__unordered_mapT_ccstd__string_ccstd__variantT_int32_t_bool_ccstd__string_t_t");
     arg2 = &temp2;
     
     
@@ -21040,7 +20955,7 @@ static bool js_cc_Material__defines_set(se::State& s)
     
     // %typemap(in) SWIGTYPE value in
     ok &= sevalue_to_native(args[0], &arg1->_defines, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Material__defines_set,2,SWIGTYPE_ccstd__vectorT_cc__MacroRecord_t"); 
+    SE_PRECONDITION2(ok, false, "Material__defines_set,2,SWIGTYPE_ccstd__vectorT_ccstd__unordered_mapT_ccstd__string_ccstd__variantT_int32_t_bool_ccstd__string_t_t_t"); 
     
     
     
@@ -21078,7 +20993,7 @@ static bool js_cc_Material__states_set(se::State& s)
     
     // %typemap(in) SWIGTYPE value in
     ok &= sevalue_to_native(args[0], &arg1->_states, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Material__states_set,2,SWIGTYPE_ccstd__vectorT_cc__PassOverrides_t"); 
+    SE_PRECONDITION2(ok, false, "Material__states_set,2,SWIGTYPE_ccstd__vectorT_cc__IPassStates_t"); 
     
     
     
@@ -21116,7 +21031,7 @@ static bool js_cc_Material__propsInternal_set(se::State& s)
     
     // %typemap(in) SWIGTYPE value in
     ok &= sevalue_to_native(args[0], &arg1->_props, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Material__propsInternal_set,2,SWIGTYPE_ccstd__vectorT_ccstd__unordered_mapT_ccstd__string_cc__MaterialPropertyVariant_t_t"); 
+    SE_PRECONDITION2(ok, false, "Material__propsInternal_set,2,SWIGTYPE_ccstd__vectorT_ccstd__unordered_mapT_ccstd__string_ccstd__variantT_ccstd__monostate_ccstd__variantT_ccstd__monostate_float_int32_t_Vec2_Vec3_Vec4_Color_Mat3_Mat4_Quaternion_cc__IntrusivePtrT_cc__TextureBase_t_cc__IntrusivePtrT_cc__gfx__Texture_t_t_ccstd__vectorT_ccstd__variantT_ccstd__monostate_float_int32_t_Vec2_Vec3_Vec4_Color_Mat3_Mat4_Quaternion_cc__IntrusivePtrT_cc__TextureBase_t_cc__IntrusivePtrT_cc__gfx__Texture_t_t_t_t_t_t"); 
     
     
     
@@ -21335,7 +21250,7 @@ bool js_register_cc_Material(se::Object* obj) {
     cls->defineFunction("getPasses", _SE(js_cc_Material_getPasses)); 
     
     
-    cls->defineStaticFunction("getHashForMaterial", _SE(js_cc_Material_getHashForMaterial_static)); 
+    cls->defineStaticFunction("getHash", _SE(js_cc_Material_getHash_static)); 
     
     
     cls->defineFinalizeFunction(_SE(js_delete_cc_Material));
@@ -21406,7 +21321,7 @@ static bool js_cc_IGeometricInfo_indices_set(se::State& s)
     
     // %typemap(in) SWIGTYPE value in
     ok &= sevalue_to_native(args[0], &arg1->indices, s.thisObject());
-    SE_PRECONDITION2(ok, false, "IGeometricInfo_indices_set,2,SWIGTYPE_ccstd__optionalT_cc__IBArray_t"); 
+    SE_PRECONDITION2(ok, false, "IGeometricInfo_indices_set,2,SWIGTYPE_ccstd__optionalT_ccstd__variantT_cc__TypedArrayTempT_uint8_t_t_cc__TypedArrayTempT_uint16_t_t_cc__TypedArrayTempT_uint32_t_t_t_t"); 
     
     
     
@@ -23231,7 +23146,7 @@ static bool js_cc_SubMeshMorph_weights_set(se::State& s)
     
     // %typemap(in) SWIGTYPE value in
     ok &= sevalue_to_native(args[0], &arg1->weights, s.thisObject());
-    SE_PRECONDITION2(ok, false, "SubMeshMorph_weights_set,2,SWIGTYPE_ccstd__optionalT_cc__MeshWeightsType_t"); 
+    SE_PRECONDITION2(ok, false, "SubMeshMorph_weights_set,2,SWIGTYPE_ccstd__optionalT_ccstd__vectorT_float_t_t"); 
     
     
     
@@ -23394,7 +23309,7 @@ static bool js_cc_Morph_weights_set(se::State& s)
     
     // %typemap(in) SWIGTYPE value in
     ok &= sevalue_to_native(args[0], &arg1->weights, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Morph_weights_set,2,SWIGTYPE_ccstd__optionalT_cc__MeshWeightsType_t"); 
+    SE_PRECONDITION2(ok, false, "Morph_weights_set,2,SWIGTYPE_ccstd__optionalT_ccstd__vectorT_float_t_t"); 
     
     
     
@@ -24149,7 +24064,7 @@ static bool js_cc_Mesh_ISubMesh_indexView_set(se::State& s)
     
     // %typemap(in) SWIGTYPE value in
     ok &= sevalue_to_native(args[0], &arg1->indexView, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Mesh_ISubMesh_indexView_set,2,SWIGTYPE_ccstd__optionalT_cc__Mesh__IBufferView_t"); 
+    SE_PRECONDITION2(ok, false, "Mesh_ISubMesh_indexView_set,2,SWIGTYPE_ccstd__optionalT_cc__IMeshBufferView_t"); 
     
     
     
@@ -24940,7 +24855,7 @@ static bool js_cc_Mesh_IStruct_jointMaps_set(se::State& s)
     
     // %typemap(in) SWIGTYPE value in
     ok &= sevalue_to_native(args[0], &arg1->jointMaps, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Mesh_IStruct_jointMaps_set,2,SWIGTYPE_ccstd__optionalT_ccstd__vectorT_ccstd__vectorT_index_t_t_t_t"); 
+    SE_PRECONDITION2(ok, false, "Mesh_IStruct_jointMaps_set,2,SWIGTYPE_ccstd__optionalT_ccstd__vectorT_ccstd__vectorT_int32_t_t_t_t"); 
     
     
     
@@ -25947,7 +25862,7 @@ static bool js_cc_Mesh_copyIndices(se::State& s)
     
     // %typemap(in) SWIGTYPE&
     ok &= sevalue_to_native(args[1], &temp3, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Mesh_copyIndices,3,SWIGTYPE_p_ccstd__variantT_ccstd__monostate_cc__Int8Array_cc__Int16Array_cc__Int32Array_cc__Uint8Array_cc__Uint16Array_cc__Uint32Array_cc__Float32Array_cc__Float64Array_t");
+    SE_PRECONDITION2(ok, false, "Mesh_copyIndices,3,SWIGTYPE_p_ccstd__variantT_ccstd__monostate_cc__TypedArrayTempT_int8_t_t_cc__TypedArrayTempT_int16_t_t_cc__TypedArrayTempT_int32_t_t_cc__TypedArrayTempT_uint8_t_t_cc__TypedArrayTempT_uint16_t_t_cc__TypedArrayTempT_uint32_t_t_cc__TypedArrayTempT_float_t_cc__TypedArrayTempT_double_t_t");
     arg3 = &temp3;
     
     result = (bool)(arg1)->copyIndices(arg2,*arg3);

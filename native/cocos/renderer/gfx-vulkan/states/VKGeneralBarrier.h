@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include <memory>
 #include "../VKStd.h"
 #include "gfx-base/states/GFXGeneralBarrier.h"
 
@@ -36,12 +37,12 @@ struct CCVKGPUGeneralBarrier;
 class CC_VULKAN_API CCVKGeneralBarrier : public GeneralBarrier {
 public:
     explicit CCVKGeneralBarrier(const GeneralBarrierInfo &info);
-    ~CCVKGeneralBarrier() override;
+    ~CCVKGeneralBarrier() override = default;
 
-    inline const CCVKGPUGeneralBarrier *gpuBarrier() const { return _gpuBarrier; }
+    inline const CCVKGPUGeneralBarrier *gpuBarrier() const { return _gpuBarrier.get(); }
 
 protected:
-    CCVKGPUGeneralBarrier *_gpuBarrier = nullptr;
+    std::unique_ptr<CCVKGPUGeneralBarrier> _gpuBarrier;
 };
 
 } // namespace gfx

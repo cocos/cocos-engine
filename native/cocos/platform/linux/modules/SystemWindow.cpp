@@ -33,8 +33,7 @@
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_main.h"
 #include "SDL2/SDL_syswm.h"
-#include "bindings/event/EventDispatcher.h"
-#include "platform/IEventDispatch.h"
+#include "engine/EngineEvents.h"
 #include "platform/SDLHelper.h"
 
 namespace cc {
@@ -48,10 +47,6 @@ SystemWindow::SystemWindow(uint32_t windowId, void *externalHandle)
 SystemWindow::~SystemWindow() {
     _windowHandle = 0;
     _windowId = 0;
-}
-
-void SystemWindow::swapWindow() {
-    SDLHelper::swapWindow(_window);
 }
 
 bool SystemWindow::createWindow(const char *title,

@@ -26,6 +26,7 @@
 #pragma once
 
 #include <cstring>
+#include <memory>
 #include "VKStd.h"
 #include "gfx-base/GFXDevice.h"
 
@@ -84,16 +85,16 @@ public:
         });
     }
 
-    inline CCVKGPUDevice *gpuDevice() const { return _gpuDevice; }
-    inline CCVKGPUContext *gpuContext() { return _gpuContext; }
+    inline CCVKGPUDevice *gpuDevice() const { return _gpuDevice.get(); }
+    inline CCVKGPUContext *gpuContext() { return _gpuContext.get(); }
 
-    inline CCVKGPUBufferHub *gpuBufferHub() const { return _gpuBufferHub; }
-    inline CCVKGPUTransportHub *gpuTransportHub() const { return _gpuTransportHub; }
-    inline CCVKGPUDescriptorHub *gpuDescriptorHub() const { return _gpuDescriptorHub; }
-    inline CCVKGPUSemaphorePool *gpuSemaphorePool() const { return _gpuSemaphorePool; }
-    inline CCVKGPUBarrierManager *gpuBarrierManager() const { return _gpuBarrierManager; }
-    inline CCVKGPUDescriptorSetHub *gpuDescriptorSetHub() const { return _gpuDescriptorSetHub; }
-    inline CCVKGPUInputAssemblerHub *gpuIAHub() const { return _gpuIAHub; }
+    inline CCVKGPUBufferHub *gpuBufferHub() const { return _gpuBufferHub.get(); }
+    inline CCVKGPUTransportHub *gpuTransportHub() const { return _gpuTransportHub.get(); }
+    inline CCVKGPUDescriptorHub *gpuDescriptorHub() const { return _gpuDescriptorHub.get(); }
+    inline CCVKGPUSemaphorePool *gpuSemaphorePool() const { return _gpuSemaphorePool.get(); }
+    inline CCVKGPUBarrierManager *gpuBarrierManager() const { return _gpuBarrierManager.get(); }
+    inline CCVKGPUDescriptorSetHub *gpuDescriptorSetHub() const { return _gpuDescriptorSetHub.get(); }
+    inline CCVKGPUInputAssemblerHub *gpuIAHub() const { return _gpuIAHub.get(); }
 
     CCVKGPUFencePool *gpuFencePool();
     CCVKGPURecycleBin *gpuRecycleBin();
@@ -136,21 +137,20 @@ protected:
 
     void initFormatFeature();
 
-    CCVKGPUDevice *_gpuDevice = nullptr;
-    CCVKGPUContext *_gpuContext = nullptr;
-    ccstd::vector<CCVKTexture *> _depthStencilTextures;
+    std::unique_ptr<CCVKGPUDevice> _gpuDevice;
+    std::unique_ptr<CCVKGPUContext> _gpuContext;
 
-    ccstd::vector<CCVKGPUFencePool *> _gpuFencePools;
-    ccstd::vector<CCVKGPURecycleBin *> _gpuRecycleBins;
-    ccstd::vector<CCVKGPUStagingBufferPool *> _gpuStagingBufferPools;
+    ccstd::vector<std::unique_ptr<CCVKGPUFencePool>> _gpuFencePools;
+    ccstd::vector<std::unique_ptr<CCVKGPURecycleBin>> _gpuRecycleBins;
+    ccstd::vector<std::unique_ptr<CCVKGPUStagingBufferPool>> _gpuStagingBufferPools;
 
-    CCVKGPUBufferHub *_gpuBufferHub{nullptr};
-    CCVKGPUTransportHub *_gpuTransportHub{nullptr};
-    CCVKGPUDescriptorHub *_gpuDescriptorHub{nullptr};
-    CCVKGPUSemaphorePool *_gpuSemaphorePool{nullptr};
-    CCVKGPUBarrierManager *_gpuBarrierManager{nullptr};
-    CCVKGPUDescriptorSetHub *_gpuDescriptorSetHub{nullptr};
-    CCVKGPUInputAssemblerHub *_gpuIAHub{nullptr};
+    std::unique_ptr<CCVKGPUBufferHub> _gpuBufferHub;
+    std::unique_ptr<CCVKGPUTransportHub> _gpuTransportHub;
+    std::unique_ptr<CCVKGPUDescriptorHub> _gpuDescriptorHub;
+    std::unique_ptr<CCVKGPUSemaphorePool> _gpuSemaphorePool;
+    std::unique_ptr<CCVKGPUBarrierManager> _gpuBarrierManager;
+    std::unique_ptr<CCVKGPUDescriptorSetHub> _gpuDescriptorSetHub;
+    std::unique_ptr<CCVKGPUInputAssemblerHub> _gpuIAHub;
 
     ccstd::vector<const char *> _layers;
     ccstd::vector<const char *> _extensions;

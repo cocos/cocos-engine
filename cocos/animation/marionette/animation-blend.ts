@@ -1,12 +1,14 @@
-import { ccclass } from '../../core/data/class-decorator';
-import { MotionEvalContext, Motion, MotionEval } from './motion';
+import { _decorator, EditorExtendable, editorExtrasTag } from '../../core';
+import { MotionEvalContext, Motion, MotionEval, OverrideClipContext } from './motion';
 import { createEval } from './create-eval';
 import { VariableTypeMismatchedError } from './errors';
-import { serializable } from '../../core/data/decorators';
-import { ClipStatus } from './graph-eval';
-import { EditorExtendable } from '../../core/data/editor-extendable';
+import { ReadonlyClipOverrideMap, ClipStatus } from './graph-eval';
+
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
 import { getMotionRuntimeID, RUNTIME_ID_ENABLED } from './graph-debug';
+import { cloneAnimationGraphEditorExtrasFrom } from './animation-graph-editor-extras-clone-helper';
+
+const { ccclass, serializable } = _decorator;
 
 export interface AnimationBlend extends Motion, EditorExtendable {
     [createEval] (_context: MotionEvalContext): MotionEval | null;
@@ -19,11 +21,11 @@ export class AnimationBlendItem {
 
     public clone () {
         const that = new AnimationBlendItem();
-        this._assign(that);
+        this._copyTo(that);
         return that;
     }
 
-    protected _assign (that: AnimationBlendItem) {
+    protected _copyTo (that: AnimationBlendItem) {
         that.motion = this.motion?.clone() ?? null;
         return that;
     }
@@ -33,6 +35,11 @@ export class AnimationBlendItem {
 export class AnimationBlend extends EditorExtendable implements Motion {
     @serializable
     name = '';
+
+    public copyTo (that: AnimationBlend) {
+        that.name = this.name;
+        that[editorExtrasTag] = cloneAnimationGraphEditorExtrasFrom(this);
+    }
 }
 
 export class AnimationBlendEval implements MotionEval {
@@ -106,6 +113,12 @@ export class AnimationBlendEval implements MotionEval {
     public sample (progress: number, weight: number) {
         for (let iChild = 0; iChild < this._childEvaluators.length; ++iChild) {
             this._childEvaluators[iChild]?.sample(progress, weight * this._weights[iChild]);
+        }
+    }
+
+    public overrideClips (overrides: ReadonlyClipOverrideMap, context: OverrideClipContext): void {
+        for (let iChild = 0; iChild < this._childEvaluators.length; ++iChild) {
+            this._childEvaluators[iChild]?.overrideClips(overrides, context);
         }
     }
 

@@ -26,10 +26,9 @@
 #pragma once
 
 #include "platform/BasePlatform.h"
-#include "platform/IEventDispatch.h"
 
 namespace cc {
-class CC_DLL UniversalPlatform : public BasePlatform, public IEventDispatch {
+class CC_DLL UniversalPlatform : public BasePlatform {
 public:
     /**
      * @brief Start base platform initialization.
@@ -40,32 +39,6 @@ public:
      * @brief Get targe platform type.
      */
     OSType getOSType() const override;
-    /**
-     * @brief Set the event handling callback.
-     */
-    void setHandleEventCallback(HandleEventCallback cb) override;
-
-    /**
-      * @brief Set the touch event handling callback.
-      */
-    void setHandleTouchEventCallback(HandleTouchEventCallback cb) override;
-
-    /**
-     * @brief Set the event to handle callbacks by default.
-     */
-    void setHandleDefaultEventCallback(HandleEventCallback cb) override;
-    /**
-     * @brief Implement dispatch event interface.
-     */
-    void dispatchEvent(const OSEvent &ev) override;
-    /**
-     * @brief Implement dispatch touch event interface.
-     */
-    void dispatchTouchEvent(const TouchEvent &ev) override;
-    /**
-     * @brief Implement handle default event interface.
-     */
-    void handleDefaultEvent(const OSEvent &ev) override;
     /**
      * @brief Get the SDK version for Android.Other systems also have sdk versions,
             but they are not currently used.
@@ -112,10 +85,6 @@ private:
     ThreadCallback _mainTask{nullptr};
 
     int32_t _fps{60};
-
-    HandleEventCallback _handleEventCallback{nullptr};
-    HandleTouchEventCallback _handleTouchEventCallback{nullptr};
-    HandleEventCallback _handleDefaultEventCallback{nullptr};
 };
 
 } // namespace cc

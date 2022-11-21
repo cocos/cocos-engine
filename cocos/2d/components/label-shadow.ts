@@ -26,7 +26,7 @@
 
 import { ccclass, help, executionOrder, menu, tooltip, requireComponent, executeInEditMode, serializable } from 'cc.decorator';
 import { Component } from '../../scene-graph/component';
-import { Color, Vec2 } from '../../core/math';
+import { Color, Vec2 } from '../../core';
 import { Label } from './label';
 
 /**

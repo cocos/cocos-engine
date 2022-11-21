@@ -40,6 +40,7 @@ namespace cc {
 namespace render {
 
 class PipelineRuntime;
+class RenderNode;
 class Setter;
 class RasterQueueBuilder;
 class RasterPassBuilder;

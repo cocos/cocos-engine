@@ -283,6 +283,7 @@ public:
      * @return
      */
     virtual ccstd::vector<float> getHMDViewPosition(uint32_t eye, int trackingType) = 0;
+
     /**
      * @en get xr view projection data
      * @zh 获取xr双眼投影矩阵数据
@@ -292,6 +293,14 @@ public:
      * @return
      */
     virtual ccstd::vector<float> getXRViewProjectionData(uint32_t eye, float near, float far) = 0;
+
+    /**
+     * @en get xr eye's fov
+     * @zh 获取xr双眼视场角
+     * @param eye
+     * @return
+     */
+    virtual ccstd::vector<float> getXREyeFov(uint32_t eye) = 0;
 
     // renderwindow
     /**

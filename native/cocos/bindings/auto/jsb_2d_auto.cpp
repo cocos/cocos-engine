@@ -75,6 +75,42 @@
 #define cc_UIMeshBuffer_iData_set(self_, val_) self_->setIData(val_)
   
 
+#define cc_RenderDrawInfo_bufferId_get(self_) self_->getBufferId()
+#define cc_RenderDrawInfo_bufferId_set(self_, val_) self_->setBufferId(val_)
+  
+
+#define cc_RenderDrawInfo_accId_get(self_) self_->getAccId()
+#define cc_RenderDrawInfo_accId_set(self_, val_) self_->setAccId(val_)
+  
+
+#define cc_RenderDrawInfo_vertexOffset_get(self_) self_->getVertexOffset()
+#define cc_RenderDrawInfo_vertexOffset_set(self_, val_) self_->setVertexOffset(val_)
+  
+
+#define cc_RenderDrawInfo_indexOffset_get(self_) self_->getIndexOffset()
+#define cc_RenderDrawInfo_indexOffset_set(self_, val_) self_->setIndexOffset(val_)
+  
+
+#define cc_RenderDrawInfo_vbCount_get(self_) self_->getVbCount()
+#define cc_RenderDrawInfo_vbCount_set(self_, val_) self_->setVbCount(val_)
+  
+
+#define cc_RenderDrawInfo_ibCount_get(self_) self_->getIbCount()
+#define cc_RenderDrawInfo_ibCount_set(self_, val_) self_->setIbCount(val_)
+  
+
+#define cc_RenderDrawInfo_vertDirty_get(self_) self_->getVertDirty()
+#define cc_RenderDrawInfo_vertDirty_set(self_, val_) self_->setVertDirty(val_)
+  
+
+#define cc_RenderDrawInfo_dataHash_get(self_) self_->getDataHash()
+#define cc_RenderDrawInfo_dataHash_set(self_, val_) self_->setDataHash(val_)
+  
+
+#define cc_RenderDrawInfo_isMeshBuffer_get(self_) self_->getIsMeshBuffer()
+#define cc_RenderDrawInfo_isMeshBuffer_set(self_, val_) self_->setIsMeshBuffer(val_)
+  
+
 #define cc_RenderDrawInfo_vbBuffer_get(self_) self_->getVbBuffer()
 #define cc_RenderDrawInfo_vbBuffer_set(self_, val_) self_->setVbBuffer(val_)
   
@@ -107,8 +143,16 @@
 #define cc_RenderDrawInfo_model_set(self_, val_) self_->setModel(val_)
   
 
+#define cc_RenderDrawInfo_drawInfoType_get(self_) self_->getDrawInfoType()
+#define cc_RenderDrawInfo_drawInfoType_set(self_, val_) self_->setDrawInfoType(val_)
+  
+
 #define cc_RenderDrawInfo_subNode_get(self_) self_->getSubNode()
 #define cc_RenderDrawInfo_subNode_set(self_, val_) self_->setSubNode(val_)
+  
+
+#define cc_RenderDrawInfo_stride_get(self_) self_->getStride()
+#define cc_RenderDrawInfo_stride_set(self_, val_) self_->setStride(val_)
   
 
 #define cc_RenderEntity_node_get(self_) self_->getNode()
@@ -1050,584 +1094,6 @@ static bool js_delete_cc_RenderDrawInfo(se::State& s)
 }
 SE_BIND_FINALIZE_FUNC(js_delete_cc_RenderDrawInfo) 
 
-static bool js_cc_RenderDrawInfo_getDrawInfoType(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::RenderDrawInfo *arg1 = (cc::RenderDrawInfo *) NULL ;
-    uint32_t result;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    result = ((cc::RenderDrawInfo const *)arg1)->getDrawInfoType();
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "RenderDrawInfo_getDrawInfoType, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_RenderDrawInfo_getDrawInfoType) 
-
-static bool js_cc_RenderDrawInfo_setDrawInfoType(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::RenderDrawInfo *arg1 = (cc::RenderDrawInfo *) NULL ;
-    uint32_t arg2 ;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "RenderDrawInfo_setDrawInfoType,2,SWIGTYPE_uint32_t"); 
-    
-    (arg1)->setDrawInfoType(arg2);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_RenderDrawInfo_setDrawInfoType) 
-
-static bool js_cc_RenderDrawInfo_getAccId(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::RenderDrawInfo *arg1 = (cc::RenderDrawInfo *) NULL ;
-    uint16_t result;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    result = ((cc::RenderDrawInfo const *)arg1)->getAccId();
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "RenderDrawInfo_getAccId, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_RenderDrawInfo_getAccId) 
-
-static bool js_cc_RenderDrawInfo_setAccId(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::RenderDrawInfo *arg1 = (cc::RenderDrawInfo *) NULL ;
-    uint16_t arg2 ;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "RenderDrawInfo_setAccId,2,SWIGTYPE_uint16_t"); 
-    
-    (arg1)->setAccId(arg2);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_RenderDrawInfo_setAccId) 
-
-static bool js_cc_RenderDrawInfo_getBufferId(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::RenderDrawInfo *arg1 = (cc::RenderDrawInfo *) NULL ;
-    uint16_t result;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    result = ((cc::RenderDrawInfo const *)arg1)->getBufferId();
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "RenderDrawInfo_getBufferId, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_RenderDrawInfo_getBufferId) 
-
-static bool js_cc_RenderDrawInfo_setBufferId(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::RenderDrawInfo *arg1 = (cc::RenderDrawInfo *) NULL ;
-    uint16_t arg2 ;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "RenderDrawInfo_setBufferId,2,SWIGTYPE_uint16_t"); 
-    
-    (arg1)->setBufferId(arg2);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_RenderDrawInfo_setBufferId) 
-
-static bool js_cc_RenderDrawInfo_getVertexOffset(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::RenderDrawInfo *arg1 = (cc::RenderDrawInfo *) NULL ;
-    uint32_t result;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    result = ((cc::RenderDrawInfo const *)arg1)->getVertexOffset();
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "RenderDrawInfo_getVertexOffset, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_RenderDrawInfo_getVertexOffset) 
-
-static bool js_cc_RenderDrawInfo_setVertexOffset(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::RenderDrawInfo *arg1 = (cc::RenderDrawInfo *) NULL ;
-    uint32_t arg2 ;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "RenderDrawInfo_setVertexOffset,2,SWIGTYPE_uint32_t"); 
-    
-    (arg1)->setVertexOffset(arg2);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_RenderDrawInfo_setVertexOffset) 
-
-static bool js_cc_RenderDrawInfo_getIndexOffset(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::RenderDrawInfo *arg1 = (cc::RenderDrawInfo *) NULL ;
-    uint32_t result;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    result = ((cc::RenderDrawInfo const *)arg1)->getIndexOffset();
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "RenderDrawInfo_getIndexOffset, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_RenderDrawInfo_getIndexOffset) 
-
-static bool js_cc_RenderDrawInfo_setIndexOffset(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::RenderDrawInfo *arg1 = (cc::RenderDrawInfo *) NULL ;
-    uint32_t arg2 ;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "RenderDrawInfo_setIndexOffset,2,SWIGTYPE_uint32_t"); 
-    
-    (arg1)->setIndexOffset(arg2);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_RenderDrawInfo_setIndexOffset) 
-
-static bool js_cc_RenderDrawInfo_getVbCount(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::RenderDrawInfo *arg1 = (cc::RenderDrawInfo *) NULL ;
-    uint32_t result;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    result = ((cc::RenderDrawInfo const *)arg1)->getVbCount();
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "RenderDrawInfo_getVbCount, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_RenderDrawInfo_getVbCount) 
-
-static bool js_cc_RenderDrawInfo_setVbCount(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::RenderDrawInfo *arg1 = (cc::RenderDrawInfo *) NULL ;
-    uint32_t arg2 ;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "RenderDrawInfo_setVbCount,2,SWIGTYPE_uint32_t"); 
-    
-    (arg1)->setVbCount(arg2);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_RenderDrawInfo_setVbCount) 
-
-static bool js_cc_RenderDrawInfo_getIbCount(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::RenderDrawInfo *arg1 = (cc::RenderDrawInfo *) NULL ;
-    uint32_t result;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    result = ((cc::RenderDrawInfo const *)arg1)->getIbCount();
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "RenderDrawInfo_getIbCount, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_RenderDrawInfo_getIbCount) 
-
-static bool js_cc_RenderDrawInfo_setIbCount(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::RenderDrawInfo *arg1 = (cc::RenderDrawInfo *) NULL ;
-    uint32_t arg2 ;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "RenderDrawInfo_setIbCount,2,SWIGTYPE_uint32_t"); 
-    
-    (arg1)->setIbCount(arg2);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_RenderDrawInfo_setIbCount) 
-
-static bool js_cc_RenderDrawInfo_getVertDirty(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::RenderDrawInfo *arg1 = (cc::RenderDrawInfo *) NULL ;
-    bool result;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    result = (bool)((cc::RenderDrawInfo const *)arg1)->getVertDirty();
-    // out 5
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_RenderDrawInfo_getVertDirty) 
-
-static bool js_cc_RenderDrawInfo_setVertDirty(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::RenderDrawInfo *arg1 = (cc::RenderDrawInfo *) NULL ;
-    bool arg2 ;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) bool
-    ok &= sevalue_to_native(args[0], &arg2);
-    SE_PRECONDITION2(ok, false, "RenderDrawInfo_setVertDirty,2,SWIGTYPE_bool"); 
-    (arg1)->setVertDirty(arg2);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_RenderDrawInfo_setVertDirty) 
-
-static bool js_cc_RenderDrawInfo_getDataHash(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::RenderDrawInfo *arg1 = (cc::RenderDrawInfo *) NULL ;
-    ccstd::hash_t result;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    result = ((cc::RenderDrawInfo const *)arg1)->getDataHash();
-    // %typemap(out) SWIGTYPE
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "RenderDrawInfo_getDataHash, Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_RenderDrawInfo_getDataHash) 
-
-static bool js_cc_RenderDrawInfo_setDataHash(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::RenderDrawInfo *arg1 = (cc::RenderDrawInfo *) NULL ;
-    ccstd::hash_t arg2 ;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "RenderDrawInfo_setDataHash,2,SWIGTYPE_ccstd__hash_t"); 
-    
-    (arg1)->setDataHash(arg2);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_RenderDrawInfo_setDataHash) 
-
-static bool js_cc_RenderDrawInfo_getIsMeshBuffer(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::RenderDrawInfo *arg1 = (cc::RenderDrawInfo *) NULL ;
-    bool result;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    result = (bool)((cc::RenderDrawInfo const *)arg1)->getIsMeshBuffer();
-    // out 5
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_RenderDrawInfo_getIsMeshBuffer) 
-
-static bool js_cc_RenderDrawInfo_setIsMeshBuffer(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::RenderDrawInfo *arg1 = (cc::RenderDrawInfo *) NULL ;
-    bool arg2 ;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    // %typemap(in) bool
-    ok &= sevalue_to_native(args[0], &arg2);
-    SE_PRECONDITION2(ok, false, "RenderDrawInfo_setIsMeshBuffer,2,SWIGTYPE_bool"); 
-    (arg1)->setIsMeshBuffer(arg2);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_RenderDrawInfo_setIsMeshBuffer) 
-
-static bool js_cc_RenderDrawInfo_setStride(se::State& s)
-{
-    // js_function
-    
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::RenderDrawInfo *arg1 = (cc::RenderDrawInfo *) NULL ;
-    uint8_t arg2 ;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
-    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    
-    // %typemap(in) SWIGTYPE value in
-    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "RenderDrawInfo_setStride,2,SWIGTYPE_uint8_t"); 
-    
-    (arg1)->setStride(arg2);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_RenderDrawInfo_setStride) 
-
 static bool js_cc_RenderDrawInfo_setMeshBuffer(se::State& s)
 {
     // js_function
@@ -1888,27 +1354,373 @@ static bool js_cc_RenderDrawInfo_updateLocalDescriptorSet(se::State& s)
 }
 SE_BIND_FUNC(js_cc_RenderDrawInfo_updateLocalDescriptorSet) 
 
-static bool js_cc_RenderDrawInfo_resetDrawInfo(se::State& s)
+static bool js_cc_RenderDrawInfo_bufferId_set(se::State& s)
 {
-    // js_function
-    
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
     cc::RenderDrawInfo *arg1 = (cc::RenderDrawInfo *) NULL ;
+    uint16_t arg2 ;
     
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
     arg1 = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
     SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
-    (arg1)->resetDrawInfo();
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "RenderDrawInfo_bufferId_set,2,SWIGTYPE_uint16_t"); 
+    
+    cc_RenderDrawInfo_bufferId_set(arg1,arg2);
     
     
     return true;
 }
-SE_BIND_FUNC(js_cc_RenderDrawInfo_resetDrawInfo) 
+SE_BIND_PROP_SET(js_cc_RenderDrawInfo_bufferId_set) 
+
+static bool js_cc_RenderDrawInfo_bufferId_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::RenderDrawInfo *arg1 = (cc::RenderDrawInfo *) NULL ;
+    uint16_t result;
+    
+    arg1 = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = cc_RenderDrawInfo_bufferId_get(arg1);
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "RenderDrawInfo_bufferId_get, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_RenderDrawInfo_bufferId_get) 
+
+static bool js_cc_RenderDrawInfo_accId_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::RenderDrawInfo *arg1 = (cc::RenderDrawInfo *) NULL ;
+    uint16_t arg2 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "RenderDrawInfo_accId_set,2,SWIGTYPE_uint16_t"); 
+    
+    cc_RenderDrawInfo_accId_set(arg1,arg2);
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_RenderDrawInfo_accId_set) 
+
+static bool js_cc_RenderDrawInfo_accId_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::RenderDrawInfo *arg1 = (cc::RenderDrawInfo *) NULL ;
+    uint16_t result;
+    
+    arg1 = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = cc_RenderDrawInfo_accId_get(arg1);
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "RenderDrawInfo_accId_get, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_RenderDrawInfo_accId_get) 
+
+static bool js_cc_RenderDrawInfo_vertexOffset_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::RenderDrawInfo *arg1 = (cc::RenderDrawInfo *) NULL ;
+    uint32_t arg2 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "RenderDrawInfo_vertexOffset_set,2,SWIGTYPE_uint32_t"); 
+    
+    cc_RenderDrawInfo_vertexOffset_set(arg1,arg2);
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_RenderDrawInfo_vertexOffset_set) 
+
+static bool js_cc_RenderDrawInfo_vertexOffset_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::RenderDrawInfo *arg1 = (cc::RenderDrawInfo *) NULL ;
+    uint32_t result;
+    
+    arg1 = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = cc_RenderDrawInfo_vertexOffset_get(arg1);
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "RenderDrawInfo_vertexOffset_get, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_RenderDrawInfo_vertexOffset_get) 
+
+static bool js_cc_RenderDrawInfo_indexOffset_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::RenderDrawInfo *arg1 = (cc::RenderDrawInfo *) NULL ;
+    uint32_t arg2 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "RenderDrawInfo_indexOffset_set,2,SWIGTYPE_uint32_t"); 
+    
+    cc_RenderDrawInfo_indexOffset_set(arg1,arg2);
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_RenderDrawInfo_indexOffset_set) 
+
+static bool js_cc_RenderDrawInfo_indexOffset_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::RenderDrawInfo *arg1 = (cc::RenderDrawInfo *) NULL ;
+    uint32_t result;
+    
+    arg1 = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = cc_RenderDrawInfo_indexOffset_get(arg1);
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "RenderDrawInfo_indexOffset_get, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_RenderDrawInfo_indexOffset_get) 
+
+static bool js_cc_RenderDrawInfo_vbCount_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::RenderDrawInfo *arg1 = (cc::RenderDrawInfo *) NULL ;
+    uint32_t arg2 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "RenderDrawInfo_vbCount_set,2,SWIGTYPE_uint32_t"); 
+    
+    cc_RenderDrawInfo_vbCount_set(arg1,arg2);
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_RenderDrawInfo_vbCount_set) 
+
+static bool js_cc_RenderDrawInfo_vbCount_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::RenderDrawInfo *arg1 = (cc::RenderDrawInfo *) NULL ;
+    uint32_t result;
+    
+    arg1 = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = cc_RenderDrawInfo_vbCount_get(arg1);
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "RenderDrawInfo_vbCount_get, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_RenderDrawInfo_vbCount_get) 
+
+static bool js_cc_RenderDrawInfo_ibCount_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::RenderDrawInfo *arg1 = (cc::RenderDrawInfo *) NULL ;
+    uint32_t arg2 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "RenderDrawInfo_ibCount_set,2,SWIGTYPE_uint32_t"); 
+    
+    cc_RenderDrawInfo_ibCount_set(arg1,arg2);
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_RenderDrawInfo_ibCount_set) 
+
+static bool js_cc_RenderDrawInfo_ibCount_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::RenderDrawInfo *arg1 = (cc::RenderDrawInfo *) NULL ;
+    uint32_t result;
+    
+    arg1 = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = cc_RenderDrawInfo_ibCount_get(arg1);
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "RenderDrawInfo_ibCount_get, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_RenderDrawInfo_ibCount_get) 
+
+static bool js_cc_RenderDrawInfo_vertDirty_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::RenderDrawInfo *arg1 = (cc::RenderDrawInfo *) NULL ;
+    bool arg2 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) bool
+    ok &= sevalue_to_native(args[0], &arg2);
+    SE_PRECONDITION2(ok, false, "RenderDrawInfo_vertDirty_set,2,SWIGTYPE_bool"); 
+    cc_RenderDrawInfo_vertDirty_set(arg1,arg2);
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_RenderDrawInfo_vertDirty_set) 
+
+static bool js_cc_RenderDrawInfo_vertDirty_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::RenderDrawInfo *arg1 = (cc::RenderDrawInfo *) NULL ;
+    bool result;
+    
+    arg1 = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (bool)cc_RenderDrawInfo_vertDirty_get(arg1);
+    // out 5
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_RenderDrawInfo_vertDirty_get) 
+
+static bool js_cc_RenderDrawInfo_dataHash_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::RenderDrawInfo *arg1 = (cc::RenderDrawInfo *) NULL ;
+    ccstd::hash_t arg2 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "RenderDrawInfo_dataHash_set,2,SWIGTYPE_ccstd__hash_t"); 
+    
+    cc_RenderDrawInfo_dataHash_set(arg1,arg2);
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_RenderDrawInfo_dataHash_set) 
+
+static bool js_cc_RenderDrawInfo_dataHash_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::RenderDrawInfo *arg1 = (cc::RenderDrawInfo *) NULL ;
+    ccstd::hash_t result;
+    
+    arg1 = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = cc_RenderDrawInfo_dataHash_get(arg1);
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "RenderDrawInfo_dataHash_get, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_RenderDrawInfo_dataHash_get) 
+
+static bool js_cc_RenderDrawInfo_isMeshBuffer_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::RenderDrawInfo *arg1 = (cc::RenderDrawInfo *) NULL ;
+    bool arg2 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    // %typemap(in) bool
+    ok &= sevalue_to_native(args[0], &arg2);
+    SE_PRECONDITION2(ok, false, "RenderDrawInfo_isMeshBuffer_set,2,SWIGTYPE_bool"); 
+    cc_RenderDrawInfo_isMeshBuffer_set(arg1,arg2);
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_RenderDrawInfo_isMeshBuffer_set) 
+
+static bool js_cc_RenderDrawInfo_isMeshBuffer_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::RenderDrawInfo *arg1 = (cc::RenderDrawInfo *) NULL ;
+    bool result;
+    
+    arg1 = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = (bool)cc_RenderDrawInfo_isMeshBuffer_get(arg1);
+    // out 5
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_RenderDrawInfo_isMeshBuffer_get) 
 
 static bool js_cc_RenderDrawInfo_vbBuffer_set(se::State& s)
 {
@@ -2222,6 +2034,48 @@ static bool js_cc_RenderDrawInfo_model_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_RenderDrawInfo_model_get) 
 
+static bool js_cc_RenderDrawInfo_drawInfoType_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::RenderDrawInfo *arg1 = (cc::RenderDrawInfo *) NULL ;
+    uint32_t arg2 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "RenderDrawInfo_drawInfoType_set,2,SWIGTYPE_uint32_t"); 
+    
+    cc_RenderDrawInfo_drawInfoType_set(arg1,arg2);
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_RenderDrawInfo_drawInfoType_set) 
+
+static bool js_cc_RenderDrawInfo_drawInfoType_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::RenderDrawInfo *arg1 = (cc::RenderDrawInfo *) NULL ;
+    uint32_t result;
+    
+    arg1 = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = cc_RenderDrawInfo_drawInfoType_get(arg1);
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "RenderDrawInfo_drawInfoType_get, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_RenderDrawInfo_drawInfoType_get) 
+
 static bool js_cc_RenderDrawInfo_subNode_set(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -2261,9 +2115,60 @@ static bool js_cc_RenderDrawInfo_subNode_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_RenderDrawInfo_subNode_get) 
 
+static bool js_cc_RenderDrawInfo_stride_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::RenderDrawInfo *arg1 = (cc::RenderDrawInfo *) NULL ;
+    uint8_t arg2 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    
+    // %typemap(in) SWIGTYPE value in
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "RenderDrawInfo_stride_set,2,SWIGTYPE_uint8_t"); 
+    
+    cc_RenderDrawInfo_stride_set(arg1,arg2);
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_RenderDrawInfo_stride_set) 
+
+static bool js_cc_RenderDrawInfo_stride_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::RenderDrawInfo *arg1 = (cc::RenderDrawInfo *) NULL ;
+    uint8_t result;
+    
+    arg1 = SE_THIS_OBJECT<cc::RenderDrawInfo>(s);
+    SE_PRECONDITION2(arg1, false, "%s: Invalid Native Object", __FUNCTION__); 
+    result = cc_RenderDrawInfo_stride_get(arg1);
+    // %typemap(out) SWIGTYPE
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "RenderDrawInfo_stride_get, Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_RenderDrawInfo_stride_get) 
+
 bool js_register_cc_RenderDrawInfo(se::Object* obj) {
     auto* cls = se::Class::create("RenderDrawInfo", obj, nullptr, _SE(js_new_cc_RenderDrawInfo)); 
     
+    cls->defineProperty("bufferId", _SE(js_cc_RenderDrawInfo_bufferId_get), _SE(js_cc_RenderDrawInfo_bufferId_set)); 
+    cls->defineProperty("accId", _SE(js_cc_RenderDrawInfo_accId_get), _SE(js_cc_RenderDrawInfo_accId_set)); 
+    cls->defineProperty("vertexOffset", _SE(js_cc_RenderDrawInfo_vertexOffset_get), _SE(js_cc_RenderDrawInfo_vertexOffset_set)); 
+    cls->defineProperty("indexOffset", _SE(js_cc_RenderDrawInfo_indexOffset_get), _SE(js_cc_RenderDrawInfo_indexOffset_set)); 
+    cls->defineProperty("vbCount", _SE(js_cc_RenderDrawInfo_vbCount_get), _SE(js_cc_RenderDrawInfo_vbCount_set)); 
+    cls->defineProperty("ibCount", _SE(js_cc_RenderDrawInfo_ibCount_get), _SE(js_cc_RenderDrawInfo_ibCount_set)); 
+    cls->defineProperty("vertDirty", _SE(js_cc_RenderDrawInfo_vertDirty_get), _SE(js_cc_RenderDrawInfo_vertDirty_set)); 
+    cls->defineProperty("dataHash", _SE(js_cc_RenderDrawInfo_dataHash_get), _SE(js_cc_RenderDrawInfo_dataHash_set)); 
+    cls->defineProperty("isMeshBuffer", _SE(js_cc_RenderDrawInfo_isMeshBuffer_get), _SE(js_cc_RenderDrawInfo_isMeshBuffer_set)); 
     cls->defineProperty("vbBuffer", _SE(js_cc_RenderDrawInfo_vbBuffer_get), _SE(js_cc_RenderDrawInfo_vbBuffer_set)); 
     cls->defineProperty("ibBuffer", _SE(js_cc_RenderDrawInfo_ibBuffer_get), _SE(js_cc_RenderDrawInfo_ibBuffer_set)); 
     cls->defineProperty("vDataBuffer", _SE(js_cc_RenderDrawInfo_vDataBuffer_get), _SE(js_cc_RenderDrawInfo_vDataBuffer_set)); 
@@ -2272,29 +2177,10 @@ bool js_register_cc_RenderDrawInfo(se::Object* obj) {
     cls->defineProperty("texture", _SE(js_cc_RenderDrawInfo_texture_get), _SE(js_cc_RenderDrawInfo_texture_set)); 
     cls->defineProperty("sampler", _SE(js_cc_RenderDrawInfo_sampler_get), _SE(js_cc_RenderDrawInfo_sampler_set)); 
     cls->defineProperty("model", _SE(js_cc_RenderDrawInfo_model_get), _SE(js_cc_RenderDrawInfo_model_set)); 
+    cls->defineProperty("drawInfoType", _SE(js_cc_RenderDrawInfo_drawInfoType_get), _SE(js_cc_RenderDrawInfo_drawInfoType_set)); 
     cls->defineProperty("subNode", _SE(js_cc_RenderDrawInfo_subNode_get), _SE(js_cc_RenderDrawInfo_subNode_set)); 
+    cls->defineProperty("stride", _SE(js_cc_RenderDrawInfo_stride_get), _SE(js_cc_RenderDrawInfo_stride_set)); 
     
-    cls->defineFunction("getDrawInfoType", _SE(js_cc_RenderDrawInfo_getDrawInfoType)); 
-    cls->defineFunction("setDrawInfoType", _SE(js_cc_RenderDrawInfo_setDrawInfoType)); 
-    cls->defineFunction("getAccId", _SE(js_cc_RenderDrawInfo_getAccId)); 
-    cls->defineFunction("setAccId", _SE(js_cc_RenderDrawInfo_setAccId)); 
-    cls->defineFunction("getBufferId", _SE(js_cc_RenderDrawInfo_getBufferId)); 
-    cls->defineFunction("setBufferId", _SE(js_cc_RenderDrawInfo_setBufferId)); 
-    cls->defineFunction("getVertexOffset", _SE(js_cc_RenderDrawInfo_getVertexOffset)); 
-    cls->defineFunction("setVertexOffset", _SE(js_cc_RenderDrawInfo_setVertexOffset)); 
-    cls->defineFunction("getIndexOffset", _SE(js_cc_RenderDrawInfo_getIndexOffset)); 
-    cls->defineFunction("setIndexOffset", _SE(js_cc_RenderDrawInfo_setIndexOffset)); 
-    cls->defineFunction("getVbCount", _SE(js_cc_RenderDrawInfo_getVbCount)); 
-    cls->defineFunction("setVbCount", _SE(js_cc_RenderDrawInfo_setVbCount)); 
-    cls->defineFunction("getIbCount", _SE(js_cc_RenderDrawInfo_getIbCount)); 
-    cls->defineFunction("setIbCount", _SE(js_cc_RenderDrawInfo_setIbCount)); 
-    cls->defineFunction("getVertDirty", _SE(js_cc_RenderDrawInfo_getVertDirty)); 
-    cls->defineFunction("setVertDirty", _SE(js_cc_RenderDrawInfo_setVertDirty)); 
-    cls->defineFunction("getDataHash", _SE(js_cc_RenderDrawInfo_getDataHash)); 
-    cls->defineFunction("setDataHash", _SE(js_cc_RenderDrawInfo_setDataHash)); 
-    cls->defineFunction("getIsMeshBuffer", _SE(js_cc_RenderDrawInfo_getIsMeshBuffer)); 
-    cls->defineFunction("setIsMeshBuffer", _SE(js_cc_RenderDrawInfo_setIsMeshBuffer)); 
-    cls->defineFunction("setStride", _SE(js_cc_RenderDrawInfo_setStride)); 
     cls->defineFunction("setMeshBuffer", _SE(js_cc_RenderDrawInfo_setMeshBuffer)); 
     cls->defineFunction("getMeshBuffer", _SE(js_cc_RenderDrawInfo_getMeshBuffer)); 
     cls->defineFunction("changeMeshBuffer", _SE(js_cc_RenderDrawInfo_changeMeshBuffer)); 
@@ -2305,7 +2191,6 @@ bool js_register_cc_RenderDrawInfo(se::Object* obj) {
     cls->defineFunction("resetMeshIA", _SE(js_cc_RenderDrawInfo_resetMeshIA)); 
     cls->defineFunction("getLocalDes", _SE(js_cc_RenderDrawInfo_getLocalDes)); 
     cls->defineFunction("updateLocalDescriptorSet", _SE(js_cc_RenderDrawInfo_updateLocalDescriptorSet)); 
-    cls->defineFunction("resetDrawInfo", _SE(js_cc_RenderDrawInfo_resetDrawInfo)); 
     
     
     

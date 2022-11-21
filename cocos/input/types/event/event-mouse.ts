@@ -25,8 +25,7 @@
 */
 
 import { Event } from './event';
-import { Vec2 } from '../../../core/math/vec2';
-import { legacyCC } from '../../../core/global-exports';
+import { Vec2, cclegacy } from '../../../core';
 import { SystemEventTypeUnion } from '../event-enum';
 
 /**
@@ -148,13 +147,14 @@ export class EventMouse extends Event {
      * @param eventType - The type of the event
      * @param bubbles - Indicate whether the event bubbles up through the hierarchy or not.
      */
-    constructor (eventType: SystemEventTypeUnion, bubbles?: boolean, prevLoc?: Vec2) {
+    constructor (eventType: SystemEventTypeUnion, bubbles?: boolean, prevLoc?: Vec2, windowId?: number) {
         super(eventType, bubbles);
         this._eventType = eventType;
         if (prevLoc) {
             this._prevX = prevLoc.x;
             this._prevY = prevLoc.y;
         }
+        this.windowId = windowId ?? this.windowId;
     }
 
     /**
@@ -219,7 +219,7 @@ export class EventMouse extends Event {
             out = new Vec2();
         }
 
-        Vec2.set(out, this._x, legacyCC.view._designResolutionSize.height - this._y);
+        Vec2.set(out, this._x, cclegacy.view._designResolutionSize.height - this._y);
         return out;
     }
 
@@ -234,7 +234,7 @@ export class EventMouse extends Event {
         }
 
         Vec2.set(out, this._x, this._y);
-        legacyCC.view._convertToUISpace(out);
+        cclegacy.view._convertToUISpace(out);
         return out;
     }
 
@@ -263,7 +263,7 @@ export class EventMouse extends Event {
         }
 
         Vec2.set(out, this._prevX, this._prevY);
-        legacyCC.view._convertToUISpace(out);
+        cclegacy.view._convertToUISpace(out);
         return out;
     }
 
@@ -307,7 +307,7 @@ export class EventMouse extends Event {
             out = new Vec2();
         }
 
-        Vec2.set(out, (this._x - this._prevX) / legacyCC.view.getScaleX(), (this._y - this._prevY) / legacyCC.view.getScaleY());
+        Vec2.set(out, (this._x - this._prevX) / cclegacy.view.getScaleX(), (this._y - this._prevY) / cclegacy.view.getScaleY());
         return out;
     }
 
@@ -316,7 +316,7 @@ export class EventMouse extends Event {
      * @zh 获取鼠标距离上一次事件移动在 UI 坐标系下的 X 轴距离。
      */
     public getUIDeltaX () {
-        return (this._x - this._prevX) / legacyCC.view.getScaleX();
+        return (this._x - this._prevX) / cclegacy.view.getScaleX();
     }
 
     /**
@@ -324,7 +324,7 @@ export class EventMouse extends Event {
      * @zh 获取鼠标距离上一次事件移动在 UI 坐标系下的 Y 轴距离。
      */
     public getUIDeltaY () {
-        return (this._y - this._prevY) / legacyCC.view.getScaleY();
+        return (this._y - this._prevY) / cclegacy.view.getScaleY();
     }
 
     /**
@@ -365,8 +365,8 @@ export class EventMouse extends Event {
      * @zh 获取鼠标当前 X 轴位置。
      */
     public getUILocationX () {
-        const viewport = legacyCC.view.getViewportRect();
-        return (this._x - viewport.x) / legacyCC.view.getScaleX();
+        const viewport = cclegacy.view.getViewportRect();
+        return (this._x - viewport.x) / cclegacy.view.getScaleX();
     }
 
     /**
@@ -374,8 +374,8 @@ export class EventMouse extends Event {
      * @zh 获取鼠标当前 Y 轴位置。
      */
     public getUILocationY () {
-        const viewport = legacyCC.view.getViewportRect();
-        return (this._y - viewport.y) / legacyCC.view.getScaleY();
+        const viewport = cclegacy.view.getViewportRect();
+        return (this._y - viewport.y) / cclegacy.view.getScaleY();
     }
 }
 

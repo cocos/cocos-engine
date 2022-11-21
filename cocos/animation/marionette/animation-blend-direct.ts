@@ -1,9 +1,10 @@
-import { serializable } from 'cc.decorator';
-import { ccclass } from '../../core/data/class-decorator';
+import { _decorator } from '../../core';
 import { createEval } from './create-eval';
 import { MotionEvalContext } from './motion';
 import { AnimationBlend, AnimationBlendEval, AnimationBlendItem } from './animation-blend';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
+
+const { ccclass, serializable } = _decorator;
 
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}AnimationBlendDirectItem`)
 class AnimationBlendDirectItem extends AnimationBlendItem {
@@ -12,12 +13,12 @@ class AnimationBlendDirectItem extends AnimationBlendItem {
 
     public clone () {
         const that = new AnimationBlendDirectItem();
-        this._assign(that);
+        this._copyTo(that);
         return that;
     }
 
-    protected _assign (that: AnimationBlendDirectItem) {
-        super._assign(that);
+    protected _copyTo (that: AnimationBlendDirectItem) {
+        super._copyTo(that);
         that.weight = this.weight;
         return that;
     }
@@ -40,6 +41,7 @@ export class AnimationBlendDirect extends AnimationBlend {
 
     public clone () {
         const that = new AnimationBlendDirect();
+        this.copyTo(that);
         that._items = this._items.map((item) => item?.clone() ?? null);
         return that;
     }

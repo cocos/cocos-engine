@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { warnID } from '../../core/platform/debug';
+import { warnID } from '../../core';
 import { safeMeasureText } from './text-utils';
 import { CompleteCallback, IDownloadParseOptions } from '../../asset/asset-manager/shared';
 import downloader from '../../asset/asset-manager/downloader';

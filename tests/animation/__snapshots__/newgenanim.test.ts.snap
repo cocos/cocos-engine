@@ -1,0 +1,48 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`NewGen Anim Animation mask Multiple layers _ 1`] = `
+Object {
+  "1": 1.1688000000000003,
+  "1_1": 0.7440000000000001,
+  "1_1_1": 1.3688000000000002,
+  "1_2": 1.3920000000000001,
+}
+`;
+
+exports[`NewGen Anim Animation mask Single layer Leaf is masked 1`] = `
+Object {
+  "1": 0.42000000000000004,
+  "1_1": 0.52,
+  "1_1_1": 0.30000000000000004,
+  "1_2": 0.7200000000000001,
+}
+`;
+
+exports[`NewGen Anim Animation mask Single layer Middle is masked 1`] = `
+Object {
+  "1": 0.42000000000000004,
+  "1_1": 0.2,
+  "1_1_1": 0.62,
+  "1_2": 0.7200000000000001,
+}
+`;
+
+exports[`NewGen Anim Animation mask Single layer Root and leaf are masked 1`] = `
+Object {
+  "1": 0.1,
+  "1_1": 0.52,
+  "1_1_1": 0.30000000000000004,
+  "1_2": 0.7200000000000001,
+}
+`;
+
+exports[`NewGen Anim Animation mask Single layer Root is masked 1`] = `
+Object {
+  "1": 0.1,
+  "1_1": 0.52,
+  "1_1_1": 0.62,
+  "1_2": 0.7200000000000001,
+}
+`;
+
+exports[`NewGen Anim Transitions Empty->Empty transition: Expected result 1`] = `0.7`;
