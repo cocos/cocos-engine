@@ -18,9 +18,9 @@ export class CustomPipelineBuilder implements PipelineBuilder {
                 continue;
             }
             // fxaa pass
-            // const fxaaInfo = buildFxaaPass(camera, ppl, forwardInfo.rtName);
+            const fxaaInfo = buildFxaaPass(camera, ppl, forwardInfo.rtName);
             // bloom passes
-            const bloomInfo = buildBloomPasses(camera, ppl, forwardInfo.rtName);
+            const bloomInfo = buildBloomPasses(camera, ppl, fxaaInfo.rtName);
             // Present Pass
             buildPostprocessPass(camera, ppl, bloomInfo.rtName, AntiAliasing.NONE);
         }

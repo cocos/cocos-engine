@@ -160,7 +160,7 @@ export function buildFxaaPass (camera: Camera,
         clearColor.z = camera.clearColor.z;
     }
     clearColor.w = camera.clearColor.w;
-    
+
     const fxaaPassRTName = `dsFxaaPassColor${cameraName}`;
     const fxaaPassDSName = `dsFxaaPassDS${cameraName}`;
 
@@ -169,7 +169,7 @@ export function buildFxaaPass (camera: Camera,
         ppl.addRenderTarget(fxaaPassRTName, Format.RGBA8, width, height, ResourceResidency.MANAGED);
         ppl.addDepthStencil(fxaaPassDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
     }
-    const fxaaPassIdx = 1;
+    const fxaaPassIdx = 0;
     const fxaaPass = ppl.addRasterPass(width, height, 'fxaa', `CameraFxaaPass${cameraID}`);
     fxaaPass.setViewport(new Viewport(area.x, area.y, width, height));
     if (ppl.containsResource(inputRT)) {
