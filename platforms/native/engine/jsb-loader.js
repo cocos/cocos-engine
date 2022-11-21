@@ -206,7 +206,8 @@ function downloadBundle (nameOrUrl, options, onComplete) {
         let out = response;
         out && (out.base = url + '/');
 
-        if (out.hasPreloadScript) {
+        const hasPreloadScript = out.hasPreloadScript;
+        if (typeof hasPreloadScript === 'undefined' || hasPreloadScript) {
             var js = `${url}/index.${version ? version + '.' : ''}${out.encrypted ? 'jsc' : `js`}`;
             downloadScript(js, options, function (err) {
                 if (err) {
