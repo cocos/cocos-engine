@@ -40,6 +40,7 @@ import { Attribute, DescriptorSet, Device, Buffer, BufferInfo,
 import { UBOLocal, UBOSH, UBOWorldBound, UNIFORM_LIGHTMAP_TEXTURE_BINDING, UNIFORM_REFLECTION_PROBE_CUBEMAP_BINDING, UNIFORM_REFLECTION_PROBE_TEXTURE_BINDING } from '../../rendering/define';
 import { Root } from '../../root';
 import { TextureCube } from '../../asset/assets';
+import { ShadowType } from '.';
 
 const m4_1 = new Mat4();
 
@@ -625,6 +626,7 @@ export class Model {
         this._updateStamp = stamp;
 
         this.updateSHUBOs();
+        const forceUpdateUBO = this.node.scene.globals.shadows.enabled && this.node.scene.globals.shadows.type === ShadowType.Planar;
 
         if (!this._localDataUpdated) { return; }
         this._localDataUpdated = false;
@@ -641,7 +643,7 @@ export class Model {
                 hasNonInstancingPass = true;
             }
         }
-        if (hasNonInstancingPass && this._localBuffer) {
+        if ((hasNonInstancingPass || forceUpdateUBO) && this._localBuffer) {
             Mat4.toArray(this._localData, worldMatrix, UBOLocal.MAT_WORLD_OFFSET);
             Mat4.inverseTranspose(m4_1, worldMatrix);
 
@@ -671,7 +673,7 @@ export class Model {
         return true;
     }
 
-    private updateSHBuffer() {
+    private updateSHBuffer () {
         if (!this._localSHData) {
             return;
         }
@@ -697,7 +699,7 @@ export class Model {
      * @en Clear the model's SH ubo
      * @zh 清除模型的球谐 ubo
      */
-     public clearSHUBOs () {
+    public clearSHUBOs () {
         if (!this._localSHData) {
             return;
         }
@@ -707,7 +709,7 @@ export class Model {
         }
 
         this.updateSHBuffer();
-     }
+    }
 
     /**
      * @en Update the model's SH ubo
