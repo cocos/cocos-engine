@@ -81,15 +81,39 @@ export class Parser {
     }
 
     public parsePVRTex (file: ArrayBuffer | ArrayBufferView, options: IDownloadParseOptions, onComplete: CompleteCallback<IMemoryImageSource>) {
-        ImageAsset.parseCompressedTexs(file, onComplete, 0);
+        let err: Error | null = null;
+        let out: IMemoryImageSource | null = null;
+        try {
+            out = ImageAsset.parseCompressedTextures(file, 0);
+        } catch (e) {
+            err = e as Error;
+            console.warn(err);
+        }
+        onComplete(null, out);
     }
 
     public parsePKMTex (file: ArrayBuffer | ArrayBufferView, options: IDownloadParseOptions, onComplete: CompleteCallback<IMemoryImageSource>) {
-        ImageAsset.parseCompressedTexs(file, onComplete, 1);
+        let err: Error | null = null;
+        const out: IMemoryImageSource | null = null;
+        try {
+            ImageAsset.parseCompressedTextures(file, 1);
+        } catch (e) {
+            err = e as Error;
+            console.warn(err);
+        }
+        onComplete(null, out);
     }
 
     public parseASTCTex (file: ArrayBuffer | ArrayBufferView, options: IDownloadParseOptions, onComplete: CompleteCallback<IMemoryImageSource>) {
-        ImageAsset.parseCompressedTexs(file, onComplete, 2);
+        let err: Error | null = null;
+        const out: IMemoryImageSource | null = null;
+        try {
+            ImageAsset.parseCompressedTextures(file, 2);
+        } catch (e) {
+            err = e as Error;
+            console.warn(err);
+        }
+        onComplete(null, out);
     }
 
     public parsePlist (file: string, options: IDownloadParseOptions, onComplete: CompleteCallback) {
