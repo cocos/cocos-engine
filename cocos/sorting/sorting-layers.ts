@@ -164,7 +164,7 @@ export class SortingLayers {
     /**
      * @engineInternal
      */
-    public static getBuiltinLayer () {
+    public static getBuiltinLayers () {
         const sortingLayers: SortingItem[] = [];
         let i = 0;
         for (const [key, value] of Object.entries(SortingLayer)) {
