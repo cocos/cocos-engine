@@ -104,7 +104,7 @@ export class RenderReflectionProbeQueue {
                         && geometry.intersect.aabbWithAABB(model.worldBounds, probe.boundingBox!)) {
                         this.add(model);
                     }
-                } else if ((((model.node.layer & REFLECTION_PROBE_DEFAULT_MASK) & model.node.layer) === model.node.layer)
+                } else if (((model.node.layer & REFLECTION_PROBE_DEFAULT_MASK) === model.node.layer)
                     || (REFLECTION_PROBE_DEFAULT_MASK & model.visFlags)) {
                     this.add(model);
                 }

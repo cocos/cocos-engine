@@ -113,10 +113,7 @@ export class ReflectionProbeStage extends RenderStage {
             this._rgbeColor.x = this._probe!.camera.clearColor.x;
             this._rgbeColor.y = this._probe!.camera.clearColor.y;
             this._rgbeColor.z = this._probe!.camera.clearColor.z;
-            let rgbe = this._probe!.camera.clearColor;
-            if (this._probe!.probeType === ProbeType.CUBE) {
-                rgbe = packRGBE(this._rgbeColor);
-            }
+            const rgbe = packRGBE(this._rgbeColor);
             colors[0].x = rgbe.x;
             colors[0].y = rgbe.y;
             colors[0].z = rgbe.z;
