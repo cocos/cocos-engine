@@ -164,6 +164,7 @@ if (!my.isIDE && my.getSystemInfoSync().platform.toLocaleLowerCase() === 'ios') 
 
 // TODO: Do not use premultiplication on the phone.
 if (!my.isIDE) {
+    // @ts-expect-error canvas defined in global
     const locCanvas = $global.screencanvas;
     if (locCanvas) {
         const webglRC = locCanvas.getContext('webgl');
