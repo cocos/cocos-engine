@@ -39,7 +39,7 @@ export class EventHandset extends Event {
      * @en The handset device which trigger the current handset event
      * @zh 触发当前手持设备事件的手持设备
      */
-     public handsetInputDevice: HandsetInputDevice;
+    public handsetInputDevice: HandsetInputDevice;
 
     /**
      * @param eventType - The type of the event

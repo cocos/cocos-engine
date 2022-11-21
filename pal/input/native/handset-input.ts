@@ -65,7 +65,7 @@ export class HandsetInputDevice {
     private _initInputSource () {
         this._handsetPosition = new InputSourcePosition();
         this._handsetPosition.getValue = () => this._nativePoseState[Pose.AR_MOBILE].position;
-        
+
         this._handsetOrientation = new InputSourceOrientation();
         this._handsetOrientation.getValue = () => this._nativePoseState[Pose.AR_MOBILE].orientation;
     }

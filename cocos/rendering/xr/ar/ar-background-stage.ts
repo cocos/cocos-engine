@@ -80,28 +80,28 @@ export class ARBackgroundStage extends RenderStage {
 
     public render (camera: Camera) {
         const armodule = globalThis.__globalXR.ar;
-        if(!armodule) return;
+        if (!armodule) return;
 
         const state = armodule.getAPIState();
-        if(state < 0) return;
-        
+        if (state < 0) return;
+
         const pipeline = this._pipeline as ForwardPipeline;
 
-        if(state === 3) { // webxr need add ui camera process, TODO: Need move to ar-module
+        if (state === 3) { // webxr need add ui camera process, TODO: Need move to ar-module
             const device = pipeline.device;
-            if(!this._updateStateFlag) {
+            if (!this._updateStateFlag) {
                 const { gl } = device as WebGL2Device;
 
                 armodule.updateRenderState(gl as any);
                 this._updateStateFlag = true;
             }
 
-            if(this._updateStateFlag) {
+            if (this._updateStateFlag) {
                 const xrgpuframebuffer = armodule.getXRLayerFrameBuffer();
                 const viewport = armodule.getViewport();
-                if(!xrgpuframebuffer || !viewport) return;
+                if (!xrgpuframebuffer || !viewport) return;
 
-                if(!this._xrWindow) {
+                if (!this._xrWindow) {
                     const root = legacyCC.director.root as Root;
                     const swapchain = deviceManager.swapchain;
 
@@ -118,21 +118,21 @@ export class ARBackgroundStage extends RenderStage {
                         width: viewport.width,
                         height: viewport.height,
                         renderPassInfo,
-                        swapchain
+                        swapchain,
                     });
                     const webGL2FBO = this._xrWindow?.framebuffer as WebGL2Framebuffer;
                     webGL2FBO.gpuFramebuffer.glFramebuffer = xrgpuframebuffer;
                 }
 
-                if(!this._xrWindowSetFlag && (armodule.CameraId == camera.node.uuid)) { 
-                    camera.changeTargetWindow(this._xrWindow!);
+                if (!this._xrWindowSetFlag && (armodule.CameraId == camera.node.uuid)) {
+                    camera.changeTargetWindow(this._xrWindow);
                     this._xrWindowSetFlag = true;
                 }
 
                 // ui camera process
                 if (!this._uiWindowSetFlag && camera.projectionType == CameraProjection.ORTHO && (camera.visibility & layerList.UI_2D || camera.visibility & layerList.UI_3D)) {
-                    camera.changeTargetWindow(this._xrWindow!);
-                    this._uiWindowSetFlag = true;     
+                    camera.changeTargetWindow(this._xrWindow);
+                    this._uiWindowSetFlag = true;
                 }
             }
         }
