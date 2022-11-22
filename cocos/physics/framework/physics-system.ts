@@ -218,7 +218,7 @@ export class PhysicsSystem extends System implements IWorldInitData {
         this._material.on(PhysicsMaterial.EVENT_UPDATE, this._updateMaterial, this);
     }
 
-    initDefaultMaterial () : void {
+    private initDefaultMaterial () : void {
         if (this._material != null) {
             return;
         }
@@ -317,7 +317,6 @@ export class PhysicsSystem extends System implements IWorldInitData {
     private _sleepThreshold = 0.1;
     private readonly _gravity = new Vec3(0, -10, 0);
     private _material!: PhysicsMaterial; //default physics material
-    // private _materialConfig: IPhysicsMaterial = new PhysicsMaterial();
     private static readonly _instance: PhysicsSystem | null = null;
     private readonly raycastOptions: IRaycastOptions = {
         group: -1,
