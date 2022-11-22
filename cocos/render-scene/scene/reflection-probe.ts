@@ -250,6 +250,7 @@ export class ReflectionProbe {
     /**
      * @en Reflection probe cube mode preview sphere
      * @zh 反射探针cube模式的预览小球
+     * @engineInternal
      */
     set previewSphere (val: Node) {
         this._previewSphere = val;
