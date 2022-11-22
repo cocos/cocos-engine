@@ -201,46 +201,46 @@ const ccstd::unordered_map<gfx::Type, GFXTypeValidatorCallback> type2validator =
          return false;
      }},
     {gfx::Type::INT, [](const MaterialProperty &v) -> bool {
-         auto *p = ccstd::get_if<int32_t>(&v);
-         return p != nullptr ? true : false;
+         const auto *p = ccstd::get_if<int32_t>(&v);
+         return p != nullptr;
      }},
     {gfx::Type::INT2, [](const MaterialProperty &v) -> bool {
-         auto *p = ccstd::get_if<Vec2>(&v);
-         return p != nullptr ? true : false;
+         const auto *p = ccstd::get_if<Vec2>(&v);
+         return p != nullptr;
      }},
     {gfx::Type::INT3, [](const MaterialProperty &v) -> bool {
-         auto *p = ccstd::get_if<Vec3>(&v);
-         return p != nullptr ? true : false;
+         const auto *p = ccstd::get_if<Vec3>(&v);
+         return p != nullptr;
      }},
     {gfx::Type::INT4, [](const MaterialProperty &v) -> bool {
-         auto *p = ccstd::get_if<Vec4>(&v);
-         return p != nullptr ? true : false;
+         const auto *p = ccstd::get_if<Vec4>(&v);
+         return p != nullptr;
      }},
     {gfx::Type::FLOAT, [](const MaterialProperty &v) -> bool {
-         auto *p = ccstd::get_if<float>(&v);
-         auto *pInt = ccstd::get_if<int32_t>(&v);
-         return (p != nullptr || pInt != nullptr) ? true : false;
+         const auto *p = ccstd::get_if<float>(&v);
+         const auto *pInt = ccstd::get_if<int32_t>(&v);
+         return p != nullptr || pInt != nullptr;
      }},
     {gfx::Type::FLOAT2, [](const MaterialProperty &v) -> bool {
-         auto *p = ccstd::get_if<Vec2>(&v);
-         return p != nullptr ? true : false;
+         const auto *p = ccstd::get_if<Vec2>(&v);
+         return p != nullptr;
      }},
     {gfx::Type::FLOAT3, [](const MaterialProperty &v) -> bool {
-         auto *p = ccstd::get_if<Vec3>(&v);
-         return p != nullptr ? true : false;
+         const auto *p = ccstd::get_if<Vec3>(&v);
+         return p != nullptr;
      }},
     {gfx::Type::FLOAT4, [](const MaterialProperty &v) -> bool {
-         auto *p = ccstd::get_if<Vec4>(&v);
-         auto *pColor = ccstd::get_if<Color>(&v);
-         return (p != nullptr || pColor != nullptr) ? true : false;
+         const auto *p = ccstd::get_if<Vec4>(&v);
+         const auto *pColor = ccstd::get_if<Color>(&v);
+         return p != nullptr || pColor != nullptr;
      }},
     {gfx::Type::MAT3, [](const MaterialProperty &v) -> bool {
-         auto *p = ccstd::get_if<Mat3>(&v);
-         return p != nullptr ? true : false;
+         const auto *p = ccstd::get_if<Mat3>(&v);
+         return p != nullptr;
      }},
     {gfx::Type::MAT4, [](const MaterialProperty &v) -> bool {
-         auto *p = ccstd::get_if<Mat4>(&v);
-         return p != nullptr ? true : false;
+         const auto *p = ccstd::get_if<Mat4>(&v);
+         return p != nullptr;
      }},
 };
 
