@@ -113,6 +113,12 @@ inline T alignTo(T size, T alignment) {
     return ((size - 1) / alignment + 1) * alignment;
 }
 
+// align to power of 2
+template <typename T, typename = typename std::enable_if<std::is_integral<T>::value>>
+inline T align(T size, T alignment) {
+    return ((size + alignment - 1) & (~(alignment - 1)));
+}
+
 template <uint size, uint alignment>
 constexpr uint ALIGN_TO = ((size - 1) / alignment + 1) * alignment;
 
@@ -161,14 +167,14 @@ CC_FORCE_INLINE Tgt bit_cast(const Src &src) { // NOLINT(readability-identifier-
 
 // Code from https://gitlab.com/libeigen/eigen/-/blob/master/Eigen/src/Core/arch/Default/Half.h#L586
 struct HalfRaw {
-    constexpr HalfRaw() : x(0) {}
+    constexpr HalfRaw() = default;
 #if defined(CC_HAS_ARM64_FP16_SCALAR_ARITHMETIC)
     explicit HalfRaw(uint16_t raw) : x(numext::bit_cast<__fp16>(raw)) {
     }
-    __fp16 x;
+    __fp16 x{0};
 #else
     explicit constexpr HalfRaw(uint16_t raw) : x(raw) {}
-    uint16_t x; // NOLINT(modernize-use-default-member-init)
+    uint16_t x{0}; // NOLINT(modernize-use-default-member-init)
 #endif
 };
 

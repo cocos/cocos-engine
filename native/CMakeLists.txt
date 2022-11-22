@@ -438,6 +438,8 @@ cocos_source_files(
     cocos/base/ThreadPool.cpp
     cocos/base/ThreadPool.h
     cocos/base/TypeDef.h
+    cocos/base/BitScan.h
+    cocos/base/BitScan.cpp
     cocos/base/std/any.h
     cocos/base/std/optional.h
     cocos/base/std/variant.h
@@ -1132,7 +1134,11 @@ cocos_source_files(
                  cocos/renderer/gfx-base/states/GFXTextureBarrier.h
                  cocos/renderer/gfx-base/states/GFXBufferBarrier.h
                  cocos/renderer/gfx-base/states/GFXBufferBarrier.cpp
-
+                 cocos/renderer/gfx-base/memory/ObjectChunkPool.h
+                 cocos/renderer/gfx-base/memory/TLSFPool.h
+                 cocos/renderer/gfx-base/memory/TLSFPool.cpp
+                 cocos/renderer/gfx-base/memory/Allocator.h
+                 cocos/renderer/gfx-base/memory/Allocator.cpp
                  cocos/renderer/gfx-agent/BufferAgent.h
                  cocos/renderer/gfx-agent/BufferAgent.cpp
                  cocos/renderer/gfx-agent/CommandBufferAgent.h
