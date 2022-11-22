@@ -29,7 +29,7 @@ import { IRaycastOptions } from '../spec/i-physics-world';
 import { director, Director, game } from '../../game';
 import { PhysicsMaterial } from './assets/physics-material';
 import { PhysicsRayResult, PhysicsLineStripCastResult } from './physics-ray-result';
-import { IPhysicsConfig, ICollisionMatrix, IPhysicsMaterial } from './physics-config';
+import { IPhysicsConfig, ICollisionMatrix } from './physics-config';
 import { CollisionMatrix } from './collision-matrix';
 import { PhysicsGroup } from './physics-enum';
 import { constructDefaultWorld, IWorldInitData, selector } from './physics-selector';
@@ -223,20 +223,26 @@ export class PhysicsSystem extends System implements IWorldInitData {
             return;
         }
 
-        const material = settings.querySettings(Settings.Category.PHYSICS, 'physicsMaterial');
-        if (!material) { //use built-in default physics material
-            this.setDefaultPhysicsMaterial(builtinResMgr.get<PhysicsMaterial>('default-physics-material'));
+        const builtinMaterial = builtinResMgr.get<PhysicsMaterial>('default-physics-material');
+        if (!builtinMaterial) {
+            console.error('PhysicsSystem initDefaultMaterial() Failed to load builtinMaterial');
+            return;
+        }
+
+        const userMaterial = settings.querySettings(Settings.Category.PHYSICS, 'defaultMaterial');
+        if (!userMaterial) { //use built-in default physics material
+            this.setDefaultPhysicsMaterial(builtinMaterial);
         } else { //use user customized default physics material
             new Promise<PhysicsMaterial>((resolve, reject) => {
-                assetManager.loadAny(material, (err, asset) => ((err || !(asset instanceof PhysicsMaterial))
+                assetManager.loadAny(userMaterial, (err, asset) => ((err || !(asset instanceof PhysicsMaterial))
                     ? reject(err)
                     : resolve(asset)));
             }).then((asset) => {
                 this.setDefaultPhysicsMaterial(asset);
             }).catch((reason) => {
                 warn(reason);
-                warn(`Failed load user customized default physics material: ${material}, will fallback to built-in default physics material`);
-                this.setDefaultPhysicsMaterial(builtinResMgr.get<PhysicsMaterial>('default-physics-material'));
+                warn(`Failed to load user customized default physics material: ${userMaterial}, will fallback to built-in default physics material`);
+                this.setDefaultPhysicsMaterial(builtinMaterial);
             });
         }
     }
