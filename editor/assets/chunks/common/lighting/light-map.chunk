@@ -1,7 +1,9 @@
 // for legacy effects
 void SampleAndDecodeLightMapColor(out vec3 lightmapColor, out float dirShadow, out float ao, sampler2D lightingMap, vec2 luv, float lum, vec3 worldNormal)
 {
+	// has radiant basis
 #if CC_LIGHT_MAP_VERSION > 2
+	// has high precision data
 #elif CC_LIGHT_MAP_VERSION > 1
 	luv.x *= 0.5;
 	vec4 dataLow = texture(lightingMap, luv);

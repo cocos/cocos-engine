@@ -119,7 +119,7 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
   float NL = max(dot(N, L), 0.0);
 
   float shadow = 1.0;
-  #if !CC_USE_LIGHTMAP && CC_RECEIVE_SHADOW && CC_SHADOW_TYPE == CC_SHADOW_MAP
+  #if CC_USE_LIGHTMAP != LIGHT_MAP_TYPE_ALL_IN_ONE && CC_RECEIVE_SHADOW && CC_SHADOW_TYPE == CC_SHADOW_MAP
     if (NL > 0.0 && cc_mainLitDir.w > 0.0) {
       if (cc_shadowLPNNInfo.w > 0.0) {
         #if CC_DIR_LIGHT_SHADOW_TYPE == CC_DIR_LIGHT_SHADOW_CASCADED
@@ -141,8 +141,9 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
         // baked in LDR scene still regarded as exposured with standard camera parameters
         lightmap.rgb *= cc_exposure.w * cc_exposure.x;
     #endif
-    #if CC_USE_LIGHT_MAP == LIGHT_MAP_TYPE_INDIRECT_OCCLUSION
+    #if CC_USE_LIGHTMAP == LIGHT_MAP_TYPE_INDIRECT_OCCLUSION
       shadow *= s.lightmap.a; // apply baked shadows for real-time lighting
+      s.occlusion *= s.lightmap_test;
       finalColor += diffuse * lightmap.rgb;
     #else
       finalColor += diffuse * lightmap.rgb * shadow; // apply real-time shadows for baked color
