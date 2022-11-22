@@ -218,22 +218,22 @@ export class PhysicsSystem extends System implements IWorldInitData {
         this._material.on(PhysicsMaterial.EVENT_UPDATE, this._updateMaterial, this);
     }
 
-    private initDefaultMaterial () : void {
-        if (this._material != null) {
-            return;
-        }
+    // eslint-disable-next-line consistent-return
+    private initDefaultMaterial (): Promise<void> {
+        if (this._material != null) return Promise.resolve();
 
         const builtinMaterial = builtinResMgr.get<PhysicsMaterial>('default-physics-material');
         if (!builtinMaterial) {
             console.error('PhysicsSystem initDefaultMaterial() Failed to load builtinMaterial');
-            return;
+            return Promise.resolve();
         }
 
         const userMaterial = settings.querySettings(Settings.Category.PHYSICS, 'defaultMaterial');
         if (!userMaterial) { //use built-in default physics material
             this.setDefaultPhysicsMaterial(builtinMaterial);
+            return Promise.resolve();
         } else { //use user customized default physics material
-            new Promise<PhysicsMaterial>((resolve, reject) => {
+            return new Promise<PhysicsMaterial>((resolve, reject) => {
                 assetManager.loadAny(userMaterial, (err, asset) => ((err || !(asset instanceof PhysicsMaterial))
                     ? reject(err)
                     : resolve(asset)));
@@ -598,11 +598,7 @@ export class PhysicsSystem extends System implements IWorldInitData {
             (PhysicsSystem._instance as unknown as PhysicsSystem) = sys;
             director.registerSystem(PhysicsSystem.ID, sys, sys.priority);
 
-            if (!builtinResMgr.get<PhysicsMaterial>('default-physics-material')) {
-                game.onPostProjectInitDelegate.add(sys.initDefaultMaterial.bind(sys));
-            } else {
-                sys.initDefaultMaterial();
-            }
+            game.onPostProjectInitDelegate.add(sys.initDefaultMaterial.bind(sys));
         }
     }
 }
