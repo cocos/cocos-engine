@@ -89,9 +89,10 @@ export class LightProbeGroup extends Component {
     get method () {
         return this._method;
     }
-    set method (val) {
-        this._method = val;
-    }
+    // Support this feature later.
+    // set method (val) {
+    //     this._method = val;
+    // }
 
     /**
      * @en Minimum position of the light probe group
