@@ -22,13 +22,11 @@
   #define CC_SURFACES_TRANSFER_LOCAL_POS 0
 #endif
 
-// Can force CC_SURFACES_USE_LIGHT_MAP to 0, can not force to 1
-#if CC_USE_LIGHTMAP
-  #ifndef CC_SURFACES_USE_LIGHT_MAP
-    #define CC_SURFACES_USE_LIGHT_MAP 1
-  #endif
-#else
-  #ifndef CC_SURFACES_USE_LIGHT_MAP
+// force CC_SURFACES_USE_LIGHT_MAP to 0 is valid, force to 1 is invalid
+#ifndef CC_SURFACES_USE_LIGHT_MAP
+  #ifdef CC_USE_LIGHTMAP
+    #define CC_SURFACES_USE_LIGHT_MAP CC_USE_LIGHTMAP
+  #else
     #define CC_SURFACES_USE_LIGHT_MAP 0
   #endif
 #endif
