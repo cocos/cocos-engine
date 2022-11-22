@@ -176,6 +176,11 @@ void Model::updateUBOs(uint32_t stamp) {
         subModel->update();
     }
     _updateStamp = stamp;
+
+    const auto *pipeline = Root::getInstance()->getPipeline();
+    const auto *shadowInfo = pipeline->getPipelineSceneData()->getShadows();
+    const auto forceUpdateUBO = shadowInfo->isEnabled() && shadowInfo->getType() == ShadowType::PLANAR;
+
     if (!_localDataUpdated) {
         return;
     }
@@ -193,7 +198,7 @@ void Model::updateUBOs(uint32_t stamp) {
         }
     }
 
-    if (hasNonInstancingPass && _localBuffer) {
+    if ((hasNonInstancingPass || forceUpdateUBO) && _localBuffer) {
         Mat4 mat4;
         mat4ToFloat32Array(worldMatrix, _localData, pipeline::UBOLocal::MAT_WORLD_OFFSET);
         Mat4::inverseTranspose(worldMatrix, &mat4);
