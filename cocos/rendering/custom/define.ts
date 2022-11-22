@@ -1,16 +1,19 @@
 import { ClearFlagBit, Color, Format, LoadOp, Rect, StoreOp, Viewport } from '../../gfx';
-import { Camera, CSMLevel, DirectionalLight, Light, LightType, ShadowType, SKYBOX_FLAG, SpotLight } from '../../render-scene/scene';
+import { Camera, CSMLevel, DirectionalLight, Light, LightType, ReflectionProbe, ShadowType, SKYBOX_FLAG, SpotLight } from '../../render-scene/scene';
 import { supportsR32FloatTexture } from '../define';
 import { Pipeline } from './pipeline';
 import { AccessType, AttachmentType, ComputeView, LightInfo, QueueHint, RasterView, ResourceResidency, SceneFlags } from './types';
-import { Vec4, macro, geometry } from '../../core';
+import { Vec4, macro, geometry, toRadian, cclegacy } from '../../core';
 import { Material } from '../../asset/assets';
 import { SRGBToLinear } from '../pipeline-funcs';
+import { ReflectionProbeManager } from '../reflection-probe-manager';
+import { RenderWindow } from '../../render-scene/core/render-window';
 
 // Anti-aliasing type, other types will be gradually added in the future
 export enum AntiAliasing {
     NONE,
     FXAA,
+    FXAAHQ,
 }
 
 export function validPunctualLightsCulling (pipeline: Pipeline, camera: Camera) {
@@ -108,6 +111,85 @@ export function getRenderArea (camera: Camera, width: number, height: number, li
         }
     }
     return out;
+}
+
+class FxaaData {
+    declare fxaaMaterial: Material;
+    private _updateFxaaPass () {
+        if (!this.fxaaMaterial) return;
+
+        const combinePass = this.fxaaMaterial.passes[0];
+        combinePass.beginChangeStatesSilently();
+        combinePass.tryCompile();
+        combinePass.endChangeStatesSilently();
+    }
+    private _init () {
+        if (this.fxaaMaterial) return;
+        this.fxaaMaterial = new Material();
+        this.fxaaMaterial._uuid = 'builtin-fxaa-material';
+        this.fxaaMaterial.initialize({ effectName: 'pipeline/fxaa-hq' });
+        for (let i = 0; i < this.fxaaMaterial.passes.length; ++i) {
+            this.fxaaMaterial.passes[i].tryCompile();
+        }
+        this._updateFxaaPass();
+    }
+    constructor () {
+        this._init();
+    }
+}
+
+let fxaaData: FxaaData | null = null;
+export function buildFxaaPass (camera: Camera,
+    ppl: Pipeline,
+    inputRT: string) {
+    if (!fxaaData) {
+        fxaaData = new FxaaData();
+    }
+    const cameraID = getCameraUniqueID(camera);
+    const cameraName = `Camera${cameraID}`;
+    let width = camera.window.width;
+    let height = camera.window.height;
+    const area = getRenderArea(camera, width, height);
+    width = area.width;
+    height = area.height;
+    // Start
+    const clearColor = new Color(0, 0, 0, 1);
+    if (camera.clearFlag & ClearFlagBit.COLOR) {
+        clearColor.x = camera.clearColor.x;
+        clearColor.y = camera.clearColor.y;
+        clearColor.z = camera.clearColor.z;
+    }
+    clearColor.w = camera.clearColor.w;
+
+    const fxaaPassRTName = `dsFxaaPassColor${cameraName}`;
+    const fxaaPassDSName = `dsFxaaPassDS${cameraName}`;
+
+    // ppl.updateRenderWindow(inputRT, camera.window);
+    if (!ppl.containsResource(fxaaPassRTName)) {
+        ppl.addRenderTarget(fxaaPassRTName, Format.RGBA8, width, height, ResourceResidency.MANAGED);
+        ppl.addDepthStencil(fxaaPassDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
+    }
+    const fxaaPassIdx = 0;
+    const fxaaPass = ppl.addRasterPass(width, height, 'fxaa');
+    fxaaPass.name = `CameraFxaaPass${cameraID}`;
+    fxaaPass.setViewport(new Viewport(area.x, area.y, width, height));
+    if (ppl.containsResource(inputRT)) {
+        const computeView = new ComputeView();
+        computeView.name = 'sceneColorMap';
+        fxaaPass.addComputeView(inputRT, computeView);
+    }
+    const fxaaPassView = new RasterView('_',
+        AccessType.WRITE, AttachmentType.RENDER_TARGET,
+        LoadOp.CLEAR, StoreOp.STORE,
+        camera.clearFlag,
+        clearColor);
+    fxaaPass.addRasterView(fxaaPassRTName, fxaaPassView);
+    fxaaData.fxaaMaterial.setProperty('texSize', new Vec4(width, height, 1.0 / width, 1.0 / height), fxaaPassIdx);
+    fxaaPass.addQueue(QueueHint.RENDER_TRANSPARENT).addCameraQuad(
+        camera, fxaaData.fxaaMaterial, fxaaPassIdx,
+        SceneFlags.NONE,
+    );
+    return { rtName: fxaaPassRTName, dsName: fxaaPassDSName };
 }
 
 export const MAX_BLOOM_FILTER_PASS_NUM = 6;
@@ -496,6 +578,66 @@ export function buildShadowPass (passName: Readonly<string>,
         SceneFlags.SHADOW_CASTER);
 }
 
+export function buildReflectionProbePasss (camera: Camera,
+    ppl: Pipeline,
+    isOffScreen: boolean) {
+    const probes = ReflectionProbeManager.probeManager.getProbes();
+    if (probes.length === 0) {
+        return;
+    }
+    for (let i = 0; i < probes.length; i++) {
+        const probe = probes[i];
+        if (probe.needRender) {
+            for (let faceIdx = 0; faceIdx < probe.bakedCubeTextures.length; faceIdx++) {
+                buildReflectionProbePass(camera, ppl, probe, probe.bakedCubeTextures[faceIdx].window!, faceIdx);
+            }
+            probe.needRender = false;
+        }
+    }
+}
+
+export function buildReflectionProbePass (camera: Camera,
+    ppl: Pipeline, probe: ReflectionProbe, renderWindow: RenderWindow, faceIdx: number) {
+    const cameraName = `Camera${faceIdx}`;
+    const area = probe.renderArea();
+    const width = area.x;
+    const height = area.y;
+    const probeCamera = probe.camera;
+
+    const probePassRTName = `reflectionProbePassColor${cameraName}`;
+    const probePassDSName = `reflectionProbePassDS${cameraName}`;
+
+    probe.updateCameraDir(faceIdx);
+
+    if (!ppl.containsResource(probePassRTName)) {
+        ppl.addRenderTexture(probePassRTName, Format.RGBA8, width, height, renderWindow);
+        ppl.addDepthStencil(probePassDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
+    }
+    ppl.updateRenderWindow(probePassRTName, renderWindow);
+
+    const probePass = ppl.addRasterPass(width, height, 'default');
+    probePass.name = `ReflectionProbePass${faceIdx}`;
+    probePass.setViewport(new Viewport(0, 0, width, height));
+
+    const passView = new RasterView('_',
+        AccessType.WRITE, AttachmentType.RENDER_TARGET,
+        getLoadOpOfClearFlag(probeCamera.clearFlag, AttachmentType.RENDER_TARGET),
+        StoreOp.STORE,
+        probeCamera.clearFlag,
+        new Color(probeCamera.clearColor.x, probeCamera.clearColor.y, probeCamera.clearColor.z, probeCamera.clearColor.w));
+    const passDSView = new RasterView('_',
+        AccessType.WRITE, AttachmentType.DEPTH_STENCIL,
+        getLoadOpOfClearFlag(probeCamera.clearFlag, AttachmentType.DEPTH_STENCIL),
+        StoreOp.STORE,
+        probeCamera.clearFlag,
+        new Color(probeCamera.clearDepth, probeCamera.clearStencil, 0, 0));
+    probePass.addRasterView(probePassRTName, passView);
+    probePass.addRasterView(probePassDSName, passDSView);
+    const passBuilder = probePass.addQueue(QueueHint.RENDER_OPAQUE);
+    passBuilder.addSceneOfCamera(camera, new LightInfo(), SceneFlags.REFLECTION_PROBE);
+    updateCameraUBO(passBuilder as unknown as any, probeCamera, ppl);
+}
+
 class CameraInfo {
     shadowEnabled = false;
     mainLightShadowNames = new Array<string>();
@@ -876,4 +1018,23 @@ export function buildNativeDeferredPipeline (camera: Camera, ppl: Pipeline) {
             new LightInfo(),
             SceneFlags.TRANSPARENT_OBJECT | SceneFlags.PLANAR_SHADOW | SceneFlags.GEOMETRY);
     }
+}
+
+export function updateCameraUBO (setter: any, camera: Readonly<Camera>, ppl: Readonly<Pipeline>) {
+    const pipeline = cclegacy.director.root.pipeline;
+    const sceneData = ppl.pipelineSceneData;
+    const skybox = sceneData.skybox;
+    setter.addConstant('CCCamera');
+    setter.setMat4('cc_matView', camera.matView);
+    setter.setMat4('cc_matViewInv', camera.node.worldMatrix);
+    setter.setMat4('cc_matProj', camera.matProj);
+    setter.setMat4('cc_matProjInv', camera.matProjInv);
+    setter.setMat4('cc_matViewProj', camera.matViewProj);
+    setter.setMat4('cc_matViewProjInv', camera.matViewProjInv);
+    setter.setVec4('cc_cameraPos', new Vec4(camera.position.x, camera.position.y, camera.position.z, pipeline.getCombineSignY()));
+    // eslint-disable-next-line max-len
+    setter.setVec4('cc_surfaceTransform', new Vec4(camera.surfaceTransform, 0.0, Math.cos(toRadian(skybox.getRotationAngle())), Math.sin(toRadian(skybox.getRotationAngle()))));
+    // eslint-disable-next-line max-len
+    setter.setVec4('cc_screenScale', new Vec4(sceneData.shadingScale, sceneData.shadingScale, 1.0 / sceneData.shadingScale, 1.0 / sceneData.shadingScale));
+    setter.setVec4('cc_exposure', new Vec4(camera.exposure, 1.0 / camera.exposure, sceneData.isHDR ? 1.0 : 0.0, 1.0 / Camera.standardExposureValue));
 }

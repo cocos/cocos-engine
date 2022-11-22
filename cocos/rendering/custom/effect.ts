@@ -2,9 +2,9 @@ import { cclegacy } from '../../core';
 import { EffectAsset } from '../../asset/assets';
 import { CollectVisitor, WebDescriptorHierarchy } from './web-descriptor-hierarchy';
 // eslint-disable-next-line max-len
-import { DescriptorDB, LayoutGraph, LayoutGraphValue } from './layout-graph';
+import { DescriptorBlockData, DescriptorDB, LayoutGraph, LayoutGraphData, LayoutGraphValue, ShaderProgramData } from './layout-graph';
 import { LayoutGraphBuilder, Pipeline } from './pipeline';
-import { DescriptorType, ShaderStageFlagBit, Type, UniformBlock } from '../../gfx';
+import { ShaderStageFlagBit, Type, UniformBlock } from '../../gfx';
 import { Descriptor, DescriptorBlock, DescriptorBlockFlattened, DescriptorBlockIndex, DescriptorTypeOrder,
     ParameterType, UpdateFrequency } from './types';
 import { depthFirstSearch, GraphColor, MutableVertexPropertyMap } from './graph';
@@ -55,147 +55,6 @@ export function buildLayoutGraphDataImpl (graph: LayoutGraph, lgData: LayoutGrap
             }
         });
     }
-}
-
-function rebuildLayoutGraph (): void {
-    const root = cclegacy.director.root;
-    if (!root.usesCustomPipeline) {
-        return;
-    }
-    if (EffectAsset.isLayoutValid()) {
-        return;
-    }
-    console.log('rebuildLayoutGraph begin');
-    const ppl: Pipeline = root.customPipeline;
-    const effects = EffectAsset.getAll();
-    const lg: WebDescriptorHierarchy = new WebDescriptorHierarchy();
-    const lgData = ppl.layoutGraphBuilder;
-    lgData.clear();
-
-    const defaultStage: number = lg.addGlobal('default', true, true, true, true, true, true, true, true);
-
-    for (const n in effects) {
-        const e: EffectAsset = effects[n];
-        lg.addEffect(e, defaultStage);
-    }
-
-    lg.mergeDescriptors(defaultStage);
-
-    buildLayoutGraphDataImpl(lg.layoutGraph, lgData);
-
-    EffectAsset.setLayoutValid();
-    console.log('rebuildLayoutGraph end');
-}
-
-function buildForwardLayoutFromGlobal (ppl: Pipeline, lg: WebDescriptorHierarchy) {
-    const src = ppl.globalDSManager.descriptorSetLayout;
-    const passDB: DescriptorDB = new DescriptorDB();
-    let count = 0;
-    for (const b of src.bindings) {
-        switch (b.descriptorType) {
-        case DescriptorType.UNIFORM_BUFFER: {
-            const block = lg.getLayoutBlock(UpdateFrequency.PER_PASS,
-                ParameterType.TABLE,
-                DescriptorTypeOrder.UNIFORM_BUFFER,
-                b.stageFlags, passDB);
-            block.descriptors.set(`Descriptor${count}`, new Descriptor(Type.UNKNOWN));
-            ++block.count;
-            ++block.capacity;
-            break;
-        }
-        case DescriptorType.DYNAMIC_UNIFORM_BUFFER: {
-            const block = lg.getLayoutBlock(UpdateFrequency.PER_PASS,
-                ParameterType.TABLE,
-                DescriptorTypeOrder.DYNAMIC_UNIFORM_BUFFER,
-                b.stageFlags, passDB);
-            block.descriptors.set(`Descriptor${count}`, new Descriptor(Type.UNKNOWN));
-            ++block.count;
-            ++block.capacity;
-            break;
-        }
-        case DescriptorType.STORAGE_BUFFER: {
-            const block = lg.getLayoutBlock(UpdateFrequency.PER_PASS,
-                ParameterType.TABLE,
-                DescriptorTypeOrder.STORAGE_BUFFER,
-                b.stageFlags, passDB);
-            block.descriptors.set(`Descriptor${count}`, new Descriptor(Type.UNKNOWN));
-            ++block.count;
-            ++block.capacity;
-            break;
-        }
-        case DescriptorType.DYNAMIC_STORAGE_BUFFER: {
-            const block = lg.getLayoutBlock(UpdateFrequency.PER_PASS,
-                ParameterType.TABLE,
-                DescriptorTypeOrder.DYNAMIC_STORAGE_BUFFER,
-                b.stageFlags, passDB);
-            block.descriptors.set(`Descriptor${count}`, new Descriptor(Type.UNKNOWN));
-            ++block.count;
-            ++block.capacity;
-            break;
-        }
-        case DescriptorType.SAMPLER_TEXTURE: {
-            const block = lg.getLayoutBlock(UpdateFrequency.PER_PASS,
-                ParameterType.TABLE,
-                DescriptorTypeOrder.SAMPLER_TEXTURE,
-                b.stageFlags, passDB);
-            block.descriptors.set(`Descriptor${count}`, new Descriptor(Type.UNKNOWN));
-            ++block.count;
-            ++block.capacity;
-            break;
-        }
-        case DescriptorType.SAMPLER: {
-            const block = lg.getLayoutBlock(UpdateFrequency.PER_PASS,
-                ParameterType.TABLE,
-                DescriptorTypeOrder.SAMPLER,
-                b.stageFlags, passDB);
-            block.descriptors.set(`Descriptor${count}`, new Descriptor(Type.UNKNOWN));
-            ++block.count;
-            ++block.capacity;
-            break;
-        }
-        case DescriptorType.TEXTURE: {
-            const block = lg.getLayoutBlock(UpdateFrequency.PER_PASS,
-                ParameterType.TABLE,
-                DescriptorTypeOrder.TEXTURE,
-                b.stageFlags, passDB);
-            block.descriptors.set(`Descriptor${count}`, new Descriptor(Type.UNKNOWN));
-            ++block.count;
-            ++block.capacity;
-            break;
-        }
-        case DescriptorType.STORAGE_IMAGE: {
-            const block = lg.getLayoutBlock(UpdateFrequency.PER_PASS,
-                ParameterType.TABLE,
-                DescriptorTypeOrder.STORAGE_IMAGE,
-                b.stageFlags, passDB);
-            block.descriptors.set(`Descriptor${count}`, new Descriptor(Type.UNKNOWN));
-            ++block.count;
-            ++block.capacity;
-            break;
-        }
-        case DescriptorType.INPUT_ATTACHMENT: {
-            const block = lg.getLayoutBlock(UpdateFrequency.PER_PASS,
-                ParameterType.TABLE,
-                DescriptorTypeOrder.INPUT_ATTACHMENT,
-                b.stageFlags, passDB);
-            block.descriptors.set(`Descriptor${count}`, new Descriptor(Type.UNKNOWN));
-            ++block.count;
-            ++block.capacity;
-            break;
-        }
-        case DescriptorType.UNKNOWN:
-        default:
-            break;
-        }
-        ++count;
-    }
-    const defaultID = lg._layoutGraph.addVertex<LayoutGraphValue.RenderStage>(
-        LayoutGraphValue.RenderStage,
-        LayoutGraphValue.RenderStage,
-        'default', passDB,
-    );
-
-    lg.mergeDescriptors(defaultID);
 }
 
 enum BloomStage {
@@ -257,84 +116,103 @@ function buildBloomUpSample (lg, idx: number) {
 
 export function buildForwardLayout (ppl: Pipeline) {
     const lg = new WebDescriptorHierarchy();
-    const bFromGlobalDescriptorSet = false;
 
-    if (bFromGlobalDescriptorSet) {
-        buildForwardLayoutFromGlobal(ppl, lg);
-    } else {
-        const defaultID = lg.addGlobal('default', true, true, true, true, true, true, true, true);
-        lg.mergeDescriptors(defaultID);
-        // 1.=== Bloom prefilter ===
-        const bloomPrefilterID = lg.addRenderStage('Bloom_Prefilter', BloomStage.PREFILTER);
-        lg.addRenderPhase('Queue', bloomPrefilterID);
-        const bloomPrefilterDescriptors = lg.layoutGraph.getDescriptors(bloomPrefilterID);
-        // unifom
-        const bloomPrefilterUniformBlock = lg.getLayoutBlock(UpdateFrequency.PER_PASS,
-            ParameterType.TABLE,
-            DescriptorTypeOrder.UNIFORM_BUFFER,
-            ShaderStageFlagBit.ALL,
-            bloomPrefilterDescriptors);
-        const bloomPrefilterUBO: UniformBlock = lg.getUniformBlock(SetIndex.MATERIAL,
-            0, 'BloomUBO', bloomPrefilterUniformBlock);
-        lg.setUniform(bloomPrefilterUBO, 'texSize', Type.FLOAT4, 1);
-        lg.setDescriptor(bloomPrefilterUniformBlock, 'BloomUBO', Type.UNKNOWN);
-        // texture
-        const bloomPrefilterPassBlock = lg.getLayoutBlock(UpdateFrequency.PER_PASS,
-            ParameterType.TABLE,
-            DescriptorTypeOrder.SAMPLER_TEXTURE,
-            ShaderStageFlagBit.FRAGMENT,
-            bloomPrefilterDescriptors);
-        lg.setDescriptor(bloomPrefilterPassBlock, 'outputResultMap', Type.SAMPLER2D);
-        lg.merge(bloomPrefilterDescriptors);
-        lg.mergeDescriptors(bloomPrefilterID);
-        // 2.=== Bloom downsample ===
-        buildBloomDownSample(lg, 0);
-        buildBloomDownSample(lg, 1);
-        // 3.=== Bloom upsample ===
-        buildBloomUpSample(lg, 0);
-        buildBloomUpSample(lg, 1);
-        // 4.=== Bloom combine ===
-        const bloomCombineSampleID = lg.addRenderStage('Bloom_Combine', BloomStage.COMBINE);
-        lg.addRenderPhase('Queue', bloomCombineSampleID);
-        const bloomCombineSampleDescriptors = lg.layoutGraph.getDescriptors(bloomCombineSampleID);
+    const defaultID = lg.addGlobal('default', true, true, true, true, true, true, true, true);
+    lg.mergeDescriptors(defaultID);
+    // 1.=== Bloom prefilter ===
+    const bloomPrefilterID = lg.addRenderStage('Bloom_Prefilter', BloomStage.PREFILTER);
+    lg.addRenderPhase('Queue', bloomPrefilterID);
+    const bloomPrefilterDescriptors = lg.layoutGraph.getDescriptors(bloomPrefilterID);
+    // unifom
+    const bloomPrefilterUniformBlock = lg.getLayoutBlock(UpdateFrequency.PER_PASS,
+        ParameterType.TABLE,
+        DescriptorTypeOrder.UNIFORM_BUFFER,
+        ShaderStageFlagBit.ALL,
+        bloomPrefilterDescriptors);
+    const bloomPrefilterUBO: UniformBlock = lg.getUniformBlock(SetIndex.MATERIAL,
+        0, 'BloomUBO', bloomPrefilterUniformBlock);
+    lg.setUniform(bloomPrefilterUBO, 'texSize', Type.FLOAT4, 1);
+    lg.setDescriptor(bloomPrefilterUniformBlock, 'BloomUBO', Type.UNKNOWN);
+    // texture
+    const bloomPrefilterPassBlock = lg.getLayoutBlock(UpdateFrequency.PER_PASS,
+        ParameterType.TABLE,
+        DescriptorTypeOrder.SAMPLER_TEXTURE,
+        ShaderStageFlagBit.FRAGMENT,
+        bloomPrefilterDescriptors);
+    lg.setDescriptor(bloomPrefilterPassBlock, 'outputResultMap', Type.SAMPLER2D);
+    lg.merge(bloomPrefilterDescriptors);
+    lg.mergeDescriptors(bloomPrefilterID);
+    // 2.=== Bloom downsample ===
+    buildBloomDownSample(lg, 0);
+    buildBloomDownSample(lg, 1);
+    // 3.=== Bloom upsample ===
+    buildBloomUpSample(lg, 0);
+    buildBloomUpSample(lg, 1);
+    // 4.=== Bloom combine ===
+    const bloomCombineSampleID = lg.addRenderStage('Bloom_Combine', BloomStage.COMBINE);
+    lg.addRenderPhase('Queue', bloomCombineSampleID);
+    const bloomCombineSampleDescriptors = lg.layoutGraph.getDescriptors(bloomCombineSampleID);
 
-        const bloomCombinesampleUniformBlock = lg.getLayoutBlock(UpdateFrequency.PER_PASS,
-            ParameterType.TABLE,
-            DescriptorTypeOrder.UNIFORM_BUFFER,
-            ShaderStageFlagBit.ALL,
-            bloomCombineSampleDescriptors);
-        const bloomCombinesampleUBO: UniformBlock = lg.getUniformBlock(SetIndex.MATERIAL,
-            0, 'BloomUBO', bloomCombinesampleUniformBlock);
-        lg.setUniform(bloomCombinesampleUBO, 'texSize', Type.FLOAT4, 1);
-        lg.setDescriptor(bloomCombinesampleUniformBlock, 'BloomUBO', Type.UNKNOWN);
+    const bloomCombinesampleUniformBlock = lg.getLayoutBlock(UpdateFrequency.PER_PASS,
+        ParameterType.TABLE,
+        DescriptorTypeOrder.UNIFORM_BUFFER,
+        ShaderStageFlagBit.ALL,
+        bloomCombineSampleDescriptors);
+    const bloomCombinesampleUBO: UniformBlock = lg.getUniformBlock(SetIndex.MATERIAL,
+        0, 'BloomUBO', bloomCombinesampleUniformBlock);
+    lg.setUniform(bloomCombinesampleUBO, 'texSize', Type.FLOAT4, 1);
+    lg.setDescriptor(bloomCombinesampleUniformBlock, 'BloomUBO', Type.UNKNOWN);
 
-        const bloomCombineSamplePassBlock = lg.getLayoutBlock(UpdateFrequency.PER_PASS,
-            ParameterType.TABLE,
-            DescriptorTypeOrder.SAMPLER_TEXTURE,
-            ShaderStageFlagBit.FRAGMENT,
-            bloomCombineSampleDescriptors);
-        lg.setDescriptor(bloomCombineSamplePassBlock, 'outputResultMap', Type.SAMPLER2D);
-        const bloomCombineSamplePassBlock2 = lg.getLayoutBlock(UpdateFrequency.PER_PASS,
-            ParameterType.TABLE,
-            DescriptorTypeOrder.SAMPLER_TEXTURE,
-            ShaderStageFlagBit.FRAGMENT,
-            bloomCombineSampleDescriptors);
-        lg.setDescriptor(bloomCombineSamplePassBlock2, 'bloomTexture', Type.SAMPLER2D);
-        lg.merge(bloomCombineSampleDescriptors);
-        lg.mergeDescriptors(bloomCombineSampleID);
-        // 5.=== Postprocess ===
-        const postPassID = lg.addRenderStage('Postprocess', DeferredStage.POST);
-        const postDescriptors = lg.layoutGraph.getDescriptors(postPassID);
-        const postPassBlock = lg.getLayoutBlock(UpdateFrequency.PER_PASS,
-            ParameterType.TABLE,
-            DescriptorTypeOrder.SAMPLER_TEXTURE,
-            ShaderStageFlagBit.FRAGMENT,
-            postDescriptors);
+    const bloomCombineSamplePassBlock = lg.getLayoutBlock(UpdateFrequency.PER_PASS,
+        ParameterType.TABLE,
+        DescriptorTypeOrder.SAMPLER_TEXTURE,
+        ShaderStageFlagBit.FRAGMENT,
+        bloomCombineSampleDescriptors);
+    lg.setDescriptor(bloomCombineSamplePassBlock, 'outputResultMap', Type.SAMPLER2D);
+    const bloomCombineSamplePassBlock2 = lg.getLayoutBlock(UpdateFrequency.PER_PASS,
+        ParameterType.TABLE,
+        DescriptorTypeOrder.SAMPLER_TEXTURE,
+        ShaderStageFlagBit.FRAGMENT,
+        bloomCombineSampleDescriptors);
+    lg.setDescriptor(bloomCombineSamplePassBlock2, 'bloomTexture', Type.SAMPLER2D);
+    lg.merge(bloomCombineSampleDescriptors);
+    lg.mergeDescriptors(bloomCombineSampleID);
+    // 5.=== Postprocess ===
+    const postPassID = lg.addRenderStage('Postprocess', DeferredStage.POST);
+    const postDescriptors = lg.layoutGraph.getDescriptors(postPassID);
+    const postPassBlock = lg.getLayoutBlock(UpdateFrequency.PER_PASS,
+        ParameterType.TABLE,
+        DescriptorTypeOrder.SAMPLER_TEXTURE,
+        ShaderStageFlagBit.FRAGMENT,
+        postDescriptors);
 
-        lg.setDescriptor(postPassBlock, 'outputResultMap', Type.SAMPLER2D);
-        lg.merge(postDescriptors);
-        lg.mergeDescriptors(postPassID);
-    }
+    lg.setDescriptor(postPassBlock, 'outputResultMap', Type.SAMPLER2D);
+    lg.merge(postDescriptors);
+    lg.mergeDescriptors(postPassID);
+
+    // 6.=== FxaaHQ ===
+    const fxaaID = lg.addRenderStage('fxaa', 1);
+    lg.addRenderPhase('Queue', fxaaID);
+    const fxaaDescriptors = lg.layoutGraph.getDescriptors(fxaaID);
+    // unifom
+    const fxaaUniformBlock = lg.getLayoutBlock(UpdateFrequency.PER_PASS,
+        ParameterType.TABLE,
+        DescriptorTypeOrder.UNIFORM_BUFFER,
+        ShaderStageFlagBit.ALL,
+        fxaaDescriptors);
+    const fxaaUBO: UniformBlock = lg.getUniformBlock(SetIndex.MATERIAL,
+        0, 'fxaaUBO', fxaaUniformBlock);
+    lg.setUniform(fxaaUBO, 'texSize', Type.FLOAT4, 1);
+    lg.setDescriptor(fxaaUniformBlock, 'fxaaUBO', Type.UNKNOWN);
+    // texture
+    const fxaaPassBlock = lg.getLayoutBlock(UpdateFrequency.PER_PASS,
+        ParameterType.TABLE,
+        DescriptorTypeOrder.SAMPLER_TEXTURE,
+        ShaderStageFlagBit.FRAGMENT,
+        fxaaDescriptors);
+    lg.setDescriptor(fxaaPassBlock, 'sceneColorMap', Type.SAMPLER2D);
+    lg.merge(fxaaDescriptors);
+    lg.mergeDescriptors(fxaaID);
 
     const builder = ppl.layoutGraphBuilder;
     builder.clear();
@@ -410,4 +288,86 @@ export function buildDeferredLayout (ppl: Pipeline) {
     const builder = ppl.layoutGraphBuilder;
     builder.clear();
     buildLayoutGraphDataImpl(lg.layoutGraph, builder);
+}
+
+function applyBinding (lg: Readonly<LayoutGraphData>,
+    descId: number,
+    srcBlock: EffectAsset.IBlockInfo | EffectAsset.IBufferInfo | EffectAsset.ISamplerTextureInfo | EffectAsset.ISamplerInfo,
+    dstBlock: DescriptorBlockData) {
+    if (lg.attributeIndex.get(srcBlock.name) === descId) {
+        srcBlock.stageFlags = dstBlock.visibility;
+        srcBlock.binding = dstBlock.offset;
+    }
+}
+
+function updateShaderBinding (lg: Readonly<LayoutGraphData>,
+    shaderData: Readonly<ShaderProgramData>,
+    shader: EffectAsset.IShaderInfo) {
+    for (const pair of shaderData.layout.descriptorSets) {
+        const updateFrequency = pair[0];
+        if (updateFrequency === UpdateFrequency.PER_BATCH
+            || updateFrequency === UpdateFrequency.PER_INSTANCE) {
+            continue;
+        }
+        const descData = pair[1];
+        for (const descBlock of descData.descriptorSetLayoutData.descriptorBlocks) {
+            for (let j = 0; j < descBlock.descriptors.length; ++j) {
+                const descData = descBlock.descriptors[j];
+                const descriptorId = descData.descriptorID;
+                for (const block of shader.blocks) {
+                    applyBinding(lg, descriptorId, block, descBlock);
+                }
+                for (const buff of shader.buffers) {
+                    applyBinding(lg, descriptorId, buff, descBlock);
+                }
+                for (const img of shader.images) {
+                    applyBinding(lg, descriptorId, img, descBlock);
+                }
+                for (const samplerTex of shader.samplerTextures) {
+                    applyBinding(lg, descriptorId, samplerTex, descBlock);
+                }
+                for (const sampler of shader.samplers) {
+                    applyBinding(lg, descriptorId, sampler, descBlock);
+                }
+                for (const tex of shader.textures) {
+                    applyBinding(lg, descriptorId, tex, descBlock);
+                }
+                for (const subpassInput of shader.subpassInputs) {
+                    applyBinding(lg, descriptorId, subpassInput, descBlock);
+                }
+            }
+        }
+    }
+}
+
+export function replacePerBatchOrInstanceShaderInfo (lg: LayoutGraphData,
+    asset: EffectAsset, stageName: string) {
+    const stageID = lg.locateChild(lg.nullVertex(), stageName);
+    let phaseName;
+    for (let i = 0; i < asset.techniques.length; ++i) {
+        const tech = asset.techniques[i];
+        for (let j = 0; j < tech.passes.length; ++j) {
+            const pass = tech.passes[j];
+            const passPhase = pass.phase;
+            if (phaseName && phaseName === `${stageName}_` && !passPhase) {
+                continue;
+            }
+            if (passPhase === undefined) {
+                phaseName = `${stageName}_`;
+            } else if (typeof passPhase === 'number') {
+                phaseName = passPhase.toString();
+            } else {
+                phaseName = passPhase;
+            }
+            const phaseID = lg.locateChild(stageID, phaseName);
+            if (phaseID === 0xFFFFFFFF) { continue; }
+            const phaseData = lg.getRenderPhase(phaseID);
+            const shaderID = phaseData.shaderIndex.get(pass.program);
+            const shader = asset.shaders.find((val) => val.name === pass.program)!;
+            if (shaderID) {
+                const shaderData = phaseData.shaderPrograms[shaderID];
+                updateShaderBinding(lg, shaderData, shader);
+            }
+        }
+    }
 }

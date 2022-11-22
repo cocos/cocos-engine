@@ -57,7 +57,7 @@ export class BufferAsset extends Asset {
     }
 
     public validate () {
-        return !!this.buffer;
+        return !!this._buffer;
     }
 }
 

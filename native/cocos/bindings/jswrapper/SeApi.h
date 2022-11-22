@@ -45,7 +45,6 @@
 #endif
 
 #include "HandleObject.h"
-#include "MappingUtils.h"
 #include "Object.h"
 #include "State.h"
 #include "Value.h"

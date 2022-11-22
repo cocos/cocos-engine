@@ -38,6 +38,7 @@
 #include "3d/models/BakedSkinningModel.h"
 #include "renderer/core/ProgramLib.h"
 #include "scene/Octree.h"
+#include "scene/ReflectionProbe.h"
 %}
 
 // Insert code at the beginning of generated source file (.cpp)
@@ -67,6 +68,7 @@ using namespace cc;
 //  1. 'Ignore Section' should be placed before attribute definition and %import/%include
 //  2. namespace is needed
 //
+%ignore cc::RefCounted;
 %ignore cc::scene::LODGroup::getVisibleLODLevel;
 %ignore cc::scene::LODGroup::getLockedLODLevels;
 
@@ -283,7 +285,7 @@ using namespace cc;
 %attribute_writeonly(cc::Node, Mat4&, matrix, setMatrix);
 %attribute(cc::Node, uint32_t, hasChangedFlags, getChangedFlags, setChangedFlags);
 %attribute(cc::Node, bool, _persistNode, isPersistNode, setPersistNode);
-%attribute(cc::Node, cc::MobilityMode, _mobility, getMobility, setMobility);
+%attribute(cc::Node, cc::MobilityMode, mobility, getMobility, setMobility);
 
 %attribute(cc::scene::Ambient, cc::Vec4&, skyColor, getSkyColor, setSkyColor);
 %attribute(cc::scene::Ambient, float, skyIllum, getSkyIllum, setSkyIllum);
@@ -331,6 +333,7 @@ using namespace cc;
 %attribute(cc::scene::DirectionalLight, bool, csmNeedUpdate, isCSMNeedUpdate, setCSMNeedUpdate);
 %attribute(cc::scene::DirectionalLight, float, csmLayerLambda, getCSMLayerLambda, setCSMLayerLambda);
 %attribute(cc::scene::DirectionalLight, cc::scene::CSMOptimizationMode, csmOptimizationMode, getCSMOptimizationMode, setCSMOptimizationMode);
+%attribute(cc::scene::DirectionalLight, bool, csmLayersTransition, getCSMLayersTransition, setCSMLayersTransition);
 
 %attribute(cc::scene::SpotLight, cc::Vec3&, position, getPosition);
 %attribute(cc::scene::SpotLight, float, range, getRange, setRange);
@@ -521,12 +524,22 @@ using namespace cc;
 
 %attribute(cc::Scene, bool, autoReleaseAssets, isAutoReleaseAssets, setAutoReleaseAssets);
 
+%attribute(cc::scene::ReflectionProbe, cc::scene::ReflectionProbe::ProbeType, probeType, getProbeType, setProbeType);
+%attribute(cc::scene::ReflectionProbe, uint32_t, resolution, getResolution, setResolution);
+%attribute(cc::scene::ReflectionProbe, cc::gfx::ClearFlagBit, clearFlag, getClearFlag, setClearFlag);
+%attribute(cc::scene::ReflectionProbe, cc::gfx::Color&, backgroundColor, getBackgroundColor, setBackgroundColor);
+%attribute(cc::scene::ReflectionProbe, uint32_t, visibility, getVisibility, setVisibility);
+%attribute(cc::scene::ReflectionProbe, Vec3&, size, getBoudingSize, setBoudingSize);
+
+
+
 // ----- Import Section ------
 // Brief: Import header files which are depended by 'Include Section'
 // Note:
 //   %import "your_header_file.h" will not generate code for that header file
 //
 %import "base/Macros.h"
+%import "base/RefCounted.h"
 %import "base/TypeDef.h"
 %import "base/memory/Memory.h"
 %import "base/Ptr.h"
@@ -609,6 +622,7 @@ using namespace cc;
 %include "scene/RenderWindow.h"
 %include "scene/Camera.h"
 %include "scene/Ambient.h"
+%include "scene/ReflectionProbe.h"
 %include "renderer/core/PassInstance.h"
 %include "renderer/core/MaterialInstance.h"
 

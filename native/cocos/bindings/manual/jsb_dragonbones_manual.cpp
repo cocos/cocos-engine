@@ -434,18 +434,14 @@ bool register_all_dragonbones_manual(se::Object *obj) {
         if (!se::NativePtrToObjectMap::isValid()) {
             return;
         }
-        se::Object *seObj = nullptr;
-        auto iter = se::NativePtrToObjectMap::find(obj);
-        if (iter != se::NativePtrToObjectMap::end()) {
-            // Save se::Object pointer for being used in cleanup method.
-            seObj = iter->second;
+        se::NativePtrToObjectMap::forEach(obj, [](se::Object *seObj){
             seObj->setClearMappingInFinalizer(false);
             // Unmap native and js object since native object was destroyed.
             // Otherwise, it may trigger 'assertion' in se::Object::setPrivateData later
             // since native obj is already released and the new native object may be assigned with
             // the same address.
-            se::NativePtrToObjectMap::erase(iter);
-        }
+        });
+        se::NativePtrToObjectMap::erase(obj);
     });
 
     se::ScriptEngine::getInstance()->addAfterCleanupHook([]() {

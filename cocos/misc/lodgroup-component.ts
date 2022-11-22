@@ -32,7 +32,7 @@ import { scene } from '../render-scene';
 import { NodeEventType } from '../scene-graph/node-event';
 
 // Ratio of objects occupying the screen
-const DEFAULT_SCREEN_OCCUPATION: number[] = [0.5, 0.25, 0.125];
+const DEFAULT_SCREEN_OCCUPATION: number[] = [0.25, 0.125, 0.0625];
 @ccclass('cc.LOD')
 export class LOD {
     // Minimum percentage of screen usage for the current lod in effect, range in [0, 1]
@@ -419,6 +419,7 @@ export class LODGroup extends Component {
                     if (!renderer) {
                         continue;
                     }
+                    renderer.model?.updateWorldBound();
                     let worldBounds = renderer.model?.worldBounds;
                     if (worldBounds) {
                         if (JSB) {

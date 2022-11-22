@@ -35,6 +35,7 @@
 #include "profiler/Profiler.h"
 #include "scene/Camera.h"
 #include "scene/RenderScene.h"
+#include "../reflection-probe/ReflectionProbeFlow.h"
 
 namespace cc {
 namespace pipeline {
@@ -63,6 +64,10 @@ bool ForwardPipeline::initialize(const RenderPipelineInfo &info) {
         auto *shadowFlow = ccnew ShadowFlow;
         shadowFlow->initialize(ShadowFlow::getInitializeInfo());
         _flows.emplace_back(shadowFlow);
+
+        auto *reflectionProbeFlow = ccnew ReflectionProbeFlow();
+        reflectionProbeFlow->initialize(ReflectionProbeFlow::getInitializeInfo());
+        _flows.emplace_back(reflectionProbeFlow);
 
         auto *forwardFlow = ccnew ForwardFlow;
         forwardFlow->initialize(ForwardFlow::getInitializeInfo());
