@@ -165,16 +165,7 @@ export class SortingLayers {
      * @engineInternal
      */
     public static getBuiltinLayers () {
-        const sortingLayers: SortingItem[] = [];
-        let i = 0;
-        for (const [key, value] of Object.entries(SortingLayer)) {
-            const layer = { id: i, name: key, value };
-            sortingLayers.push(layer);
-            i--;
-            // builtin id is smaller than 0,custom id is bigger than 0
-            // default id is 0
-        }
-        return sortingLayers;
+        return [{ id: 0, name: 'default', value: 0 }];
     }
 
     /**
