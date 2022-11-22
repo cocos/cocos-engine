@@ -93,8 +93,13 @@ export function getRenderArea (camera: Camera, width: number, height: number, li
                 out.width = w;
                 out.height = h;
             } else {
+                const screenSpaceSignY = cclegacy.director.root.device.capabilities.screenSpaceSignY;
                 out.x = level % 2 * 0.5 * w;
-                out.y = (1 - Math.floor(level / 2)) * 0.5 * h;
+                if (screenSpaceSignY) {
+                    out.y = (1 - Math.floor(level / 2)) * 0.5 * h;
+                } else {
+                    out.y = Math.floor(level / 2) * 0.5 * h;
+                }
                 out.width = 0.5 * w;
                 out.height = 0.5 * h;
             }
@@ -169,8 +174,10 @@ export function buildFxaaPass (camera: Camera,
         ppl.addRenderTarget(fxaaPassRTName, Format.RGBA8, width, height, ResourceResidency.MANAGED);
         ppl.addDepthStencil(fxaaPassDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
     }
+    ppl.updateRenderTarget(fxaaPassRTName, width, height);
+    ppl.updateDepthStencil(fxaaPassDSName, width, height);
     const fxaaPassIdx = 0;
-    const fxaaPass = ppl.addRasterPass(width, height, 'fxaa', `CameraFxaaPass${cameraID}`);
+    const fxaaPass = ppl.addRasterPass(width, height, 'fxaa');
     fxaaPass.setViewport(new Viewport(area.x, area.y, width, height));
     if (ppl.containsResource(inputRT)) {
         const computeView = new ComputeView();
@@ -561,6 +568,8 @@ export function buildShadowPass (passName: Readonly<string>,
     ppl: Pipeline,
     camera: Camera, light: Light, level: number,
     width: Readonly<number>, height: Readonly<number>) {
+    const fboW = width;
+    const fboH = height;
     const area = getRenderArea(camera, width, height, light, level);
     width = area.width;
     height = area.height;
@@ -568,11 +577,11 @@ export function buildShadowPass (passName: Readonly<string>,
     const shadowMapName = passName;
     if (!ppl.containsResource(shadowMapName)) {
         const format = supportsR32FloatTexture(device) ? Format.R32F : Format.RGBA8;
-        ppl.addRenderTarget(shadowMapName, format, width, height, ResourceResidency.MANAGED);
-        ppl.addDepthStencil(`${shadowMapName}Depth`, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
+        ppl.addRenderTarget(shadowMapName, format, fboW, fboH, ResourceResidency.MANAGED);
+        ppl.addDepthStencil(`${shadowMapName}Depth`, Format.DEPTH_STENCIL, fboW, fboH, ResourceResidency.MANAGED);
     }
-    ppl.updateRenderTarget(shadowMapName, width, height);
-    ppl.updateDepthStencil(`${shadowMapName}Depth`, width, height);
+    ppl.updateRenderTarget(shadowMapName, fboW, fboH);
+    ppl.updateDepthStencil(`${shadowMapName}Depth`, fboW, fboH);
     const pass = ppl.addRasterPass(width, height, 'default');
     pass.name = passName;
     pass.setViewport(new Viewport(area.x, area.y, area.width, area.height));
