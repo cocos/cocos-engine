@@ -69,7 +69,7 @@ export { Pool } from './pool';
 export { array };
 
 /**
- * @deprecated since 3.7.0, all functions expect deprecated function are exported by core.js
+ * @deprecated since v3.7.0, `js.js` is deprecated, please access `js` directly instead.
  */
 export const js = {
     IDGenerator,

@@ -30,8 +30,10 @@ import { ForwardStagePriority } from '../enum';
 import { ForwardPipeline } from '../forward/forward-pipeline';
 import { SetIndex } from '../define';
 import { ReflectionProbeFlow } from './reflection-probe-flow';
-import { Camera, ReflectionProbe } from '../../render-scene/scene';
+import { Camera, ProbeType, ReflectionProbe } from '../../render-scene/scene';
 import { RenderReflectionProbeQueue } from '../render-reflection-probe-queue';
+import { Vec3 } from '../../core';
+import { packRGBE } from '../../core/math/color';
 
 const colors: Color[] = [new Color(1, 1, 1, 1)];
 
@@ -55,6 +57,7 @@ export class ReflectionProbeStage extends RenderStage {
     private _renderArea = new Rect();
     private _probe: ReflectionProbe | null = null;
     private _probeRenderQueue!: RenderReflectionProbeQueue;
+    private _rgbeColor = new Vec3();
 
     /**
      * @en Sets the probe info
@@ -96,7 +99,7 @@ export class ReflectionProbeStage extends RenderStage {
     public render (camera: Camera) {
         const pipeline = this._pipeline;
         const cmdBuff = pipeline.commandBuffers[0];
-        this._probeRenderQueue.gatherRenderObjects(this._probe!, camera.scene!);
+        this._probeRenderQueue.gatherRenderObjects(this._probe!, camera.scene!, cmdBuff);
         pipeline.pipelineUBO.updateCameraUBO(this._probe!.camera);
 
         this._renderArea.x = 0;
@@ -107,9 +110,14 @@ export class ReflectionProbeStage extends RenderStage {
         const renderPass = this._frameBuffer!.renderPass;
 
         if (this._probe!.camera.clearFlag & ClearFlagBit.COLOR) {
-            colors[0].x = this._probe!.camera.clearColor.x;
-            colors[0].y = this._probe!.camera.clearColor.y;
-            colors[0].z = this._probe!.camera.clearColor.z;
+            this._rgbeColor.x = this._probe!.camera.clearColor.x;
+            this._rgbeColor.y = this._probe!.camera.clearColor.y;
+            this._rgbeColor.z = this._probe!.camera.clearColor.z;
+            const rgbe = packRGBE(this._rgbeColor);
+            colors[0].x = rgbe.x;
+            colors[0].y = rgbe.y;
+            colors[0].z = rgbe.z;
+            colors[0].w = rgbe.w;
         }
         const device = pipeline.device;
         cmdBuff.beginRenderPass(renderPass, this._frameBuffer!, this._renderArea,
@@ -118,7 +126,6 @@ export class ReflectionProbeStage extends RenderStage {
 
         this._probeRenderQueue.recordCommandBuffer(device, renderPass, cmdBuff);
         cmdBuff.endRenderPass();
-        this._probeRenderQueue.resetMacro();
 
         pipeline.pipelineUBO.updateCameraUBO(camera);
     }

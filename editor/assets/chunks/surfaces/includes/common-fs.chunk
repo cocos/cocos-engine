@@ -34,12 +34,11 @@
 #endif
 #if CC_USE_IBL
   #include <builtin/uniforms/cc-environment>
-  #include <builtin/uniforms/cc-reflection-probe>
   #if CC_USE_DIFFUSEMAP
     #include <builtin/uniforms/cc-diffusemap>
   #endif
 #endif
-#if USE_REFLECTION_PROBE
+#if CC_USE_REFLECTION_PROBE
   #include <builtin/uniforms/cc-reflection-probe>
 #endif
 

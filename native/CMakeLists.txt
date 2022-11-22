@@ -405,6 +405,8 @@ cocos_source_files(
     cocos/base/Agent.h
     cocos/base/astc.cpp
     cocos/base/astc.h
+    cocos/base/Compressed.h
+    cocos/base/Compressed.cpp
     cocos/base/base64.cpp
     cocos/base/base64.h
     cocos/base/Config.h
@@ -1312,6 +1314,12 @@ cocos_source_files(
                  cocos/renderer/pipeline/custom/test/test.h
                  cocos/renderer/pipeline/custom/NativeDefaultScene.cpp
                  cocos/renderer/pipeline/custom/NativeResourceGraph.cpp
+                 cocos/renderer/pipeline/reflection-probe/ReflectionProbeFlow.cpp
+                 cocos/renderer/pipeline/reflection-probe/ReflectionProbeFlow.h
+                 cocos/renderer/pipeline/reflection-probe/ReflectionProbeStage.cpp
+                 cocos/renderer/pipeline/reflection-probe/ReflectionProbeStage.h
+                 cocos/renderer/pipeline/ReflectionProbeBatchedQueue.cpp
+                 cocos/renderer/pipeline/ReflectionProbeBatchedQueue.h
                  cocos/renderer/pipeline/custom/ArchiveFwd.h
                  cocos/renderer/pipeline/custom/ArchiveTypes.cpp
                  cocos/renderer/pipeline/custom/ArchiveTypes.h
@@ -1359,12 +1367,6 @@ cocos_source_files(
                  cocos/renderer/pipeline/custom/RenderInterfaceImpl.cpp
                  cocos/renderer/pipeline/custom/RenderInterfaceTypes.cpp
                  cocos/renderer/pipeline/custom/RenderInterfaceTypes.h
-                 cocos/renderer/pipeline/reflection-probe/ReflectionProbeFlow.cpp
-                 cocos/renderer/pipeline/reflection-probe/ReflectionProbeFlow.h
-                 cocos/renderer/pipeline/reflection-probe/ReflectionProbeStage.cpp
-                 cocos/renderer/pipeline/reflection-probe/ReflectionProbeStage.h
-                 cocos/renderer/pipeline/ReflectionProbeBatchedQueue.cpp
-                 cocos/renderer/pipeline/ReflectionProbeBatchedQueue.h
 )
 
 if (USE_GEOMETRY_RENDERER)

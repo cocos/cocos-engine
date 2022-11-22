@@ -232,8 +232,13 @@ function generateBindings(swigArgs, interfaceFile, generatedCppFile) {
         const ret = spawnSync(SWIG_EXE, swigArgs, {
             stdio: ['ignore', process.stdout, process.stderr],
         });
-        if (ret.status !== 0) {
-            process.exit(ret.status);
+        let retCode = ret.status;
+        if (retCode !== 0) {
+            console.error(`==> ERROR: spawnSync returns ${retCode}`);
+            if (typeof retCode !== 'number') {
+                retCode = EXIT_CODE_SPAWN_ERROR;
+            }
+            process.exit(retCode);
         }
     } catch (error) {
         console.error('ERROR:', error);

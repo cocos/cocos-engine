@@ -39,6 +39,7 @@
 //
 
 %ignore UserData;
+%ignore cc::RefCounted;
 
 %ignore cc::UIMeshBuffer::requireFreeIA;
 %ignore cc::UIMeshBuffer::createNewIA;
@@ -164,6 +165,7 @@
 //   %import "your_header_file.h" will not generate code for that header file
 //
 %import "base/Macros.h"
+%import "base/RefCounted.h"
 %import "base/TypeDef.h"
 %import "base/Ptr.h"
 %import "base/memory/Memory.h"

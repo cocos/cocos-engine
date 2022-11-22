@@ -58,10 +58,10 @@ export class LightProbeGroup extends Component {
     protected _method = PlaceMethod.UNIFORM;
 
     @serializable
-    protected _minPos = new Vec3(-10, -10, -10);
+    protected _minPos = new Vec3(-5, -5, -5);
 
     @serializable
-    protected _maxPos = new Vec3(10, 10, 10);
+    protected _maxPos = new Vec3(5, 5, 5);
 
     @serializable
     protected _nProbesX = 3;
@@ -89,9 +89,10 @@ export class LightProbeGroup extends Component {
     get method () {
         return this._method;
     }
-    set method (val) {
-        this._method = val;
-    }
+    // Support this feature later.
+    // set method (val) {
+    //     this._method = val;
+    // }
 
     /**
      * @en Minimum position of the light probe group

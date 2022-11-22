@@ -167,6 +167,10 @@ void Model::updateUBOs(uint32_t stamp) {
 
     updateSHUBOs();
 
+    const auto *pipeline = Root::getInstance()->getPipeline();
+    const auto *shadowInfo = pipeline->getPipelineSceneData()->getShadows();
+    const auto forceUpdateUBO = shadowInfo->isEnabled() && shadowInfo->getType() == ShadowType::PLANAR;
+
     if (!_localDataUpdated) {
         return;
     }
@@ -184,7 +188,7 @@ void Model::updateUBOs(uint32_t stamp) {
         }
     }
 
-    if (hasNonInstancingPass && _localBuffer) {
+    if ((hasNonInstancingPass || forceUpdateUBO) && _localBuffer) {
         Mat4 mat4;
         Mat4::inverseTranspose(worldMatrix, &mat4);
 
@@ -385,8 +389,8 @@ void Model::updateSHUBOs() {
     const auto *lightProbes = pipeline->getPipelineSceneData()->getLightProbes();
 
     _lastWorldBoundCenter.set(center);
-    _tetrahedronIndex = lightProbes->getData().getInterpolationWeights(center, _tetrahedronIndex, weights);
-    bool result = lightProbes->getData().getInterpolationSHCoefficients(_tetrahedronIndex, weights, coefficients);
+    _tetrahedronIndex = lightProbes->getData()->getInterpolationWeights(center, _tetrahedronIndex, weights);
+    bool result = lightProbes->getData()->getInterpolationSHCoefficients(_tetrahedronIndex, weights, coefficients);
     if (!result) {
         return;
     }

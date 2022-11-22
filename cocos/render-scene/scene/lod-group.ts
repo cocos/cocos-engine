@@ -165,7 +165,7 @@ export class LODGroup {
 
         let distance: number | undefined;
         if (camera.projectionType === CameraProjection.PERSPECTIVE) {
-            distance =  Vec3.len(this.localBoundaryCenter.transformMat4(this.node.worldMatrix).subtract(camera.node.position));
+            distance =  Vec3.len(this.localBoundaryCenter.transformMat4(this.node.worldMatrix).subtract(camera.node.worldPosition));
         }
 
         return this.distanceToScreenUsagePercentage(camera, distance, this.getWorldSpaceSize());
