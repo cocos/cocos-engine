@@ -6,10 +6,9 @@
 #include <common/color/gamma>
 #include <legacy/shadow-map-base>
 #include <common/data/unpack>
-
+#include <common/texture/texture-lod>
 #if CC_USE_IBL
   #include <builtin/uniforms/cc-environment>
-  #include <common/texture/texture-lod>
 
   #if CC_USE_DIFFUSEMAP
     #include <builtin/uniforms/cc-diffusemap>
@@ -200,6 +199,9 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
 
   #if CC_USE_REFLECTION_PROBE
     #if CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_CUBE
+      #if !CC_USE_IBL
+        vec3 R = normalize(reflect(-V, N));
+      #endif
       vec4 probe = fragTextureLod(cc_reflectionProbeCubemap, R, s.roughness * (cc_ambientGround.w - 1.0));
     #elif CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_PLANAR
       vec2 screenUV = GetScreenUV(s.position, cc_matViewProj, cc_cameraPos.w);
