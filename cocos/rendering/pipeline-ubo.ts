@@ -36,7 +36,6 @@ import { RenderWindow } from '../render-scene/core/render-window';
 import { builtinResMgr } from '../asset/asset-manager/builtin-res-mgr';
 import { Texture2D } from '../asset/assets';
 import { DebugViewCompositeType } from './debug-view';
-import { cclegacy } from '../core';
 
 const _matShadowView = new Mat4();
 const _matShadowProj = new Mat4();
