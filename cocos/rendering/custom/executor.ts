@@ -738,12 +738,8 @@ class DeviceRenderPass {
             :  new Rect(0, 0, tex.width, tex.height);
         cmdBuff.beginRenderPass(this.renderPass, this.framebuffer, renderArea,
             this.clearColor, this.clearDepth, this.clearStencil);
-        const stageId = this.context.layoutGraph.locateChild(this.context.layoutGraph.nullVertex(), 'default');
-        assert(stageId !== 0xFFFFFFFF);
-        const layout = this.context.layoutGraph.getLayout(stageId);
-        const layoutData = layout.descriptorSets.get(UpdateFrequency.PER_PASS);
         cmdBuff.bindDescriptorSet(SetIndex.GLOBAL,
-            layoutData!.descriptorSet!);
+            this._context.pipeline.descriptorSet);
         for (const queue of this._deviceQueues) {
             queue.record();
         }
@@ -773,14 +769,38 @@ class DeviceRenderPass {
     resetResource (id: number, pass: RasterPass) {
         this._rasterInfo.applyInfo(id, pass);
         this._deviceQueues.length = 0;
+        let framebuffer: Framebuffer | null = null;
+        const colTextures: Texture[] = [];
+        let depTexture = this._framebuffer.depthStencilTexture;
         for (const [resName, rasterV] of this._rasterInfo.pass.rasterViews) {
-            const deviceTex = this.context.deviceTextures.get(resName);
+            const deviceTex = this.context.deviceTextures.get(resName)!;
             const resGraph = this.context.resourceGraph;
             const resId = resGraph.vertex(resName);
             const resFbo = resGraph._vertices[resId]._object;
-            if (deviceTex!.framebuffer && resFbo instanceof Framebuffer && deviceTex!.framebuffer !== resFbo) {
-                this._framebuffer = deviceTex!.framebuffer = resFbo;
+            const resDesc = resGraph.getDesc(resId);
+            if (deviceTex.framebuffer && resFbo instanceof Framebuffer && deviceTex.framebuffer !== resFbo) {
+                framebuffer = this._framebuffer = deviceTex.framebuffer = resFbo;
+            } else if (deviceTex.texture
+                && (deviceTex.texture.width !== resDesc.width || deviceTex.texture.height !== resDesc.height)) {
+                deviceTex.texture.resize(resDesc.width, resDesc.height);
+                switch (rasterV.attachmentType) {
+                case AttachmentType.RENDER_TARGET:
+                    colTextures.push(deviceTex.texture);
+                    break;
+                case AttachmentType.DEPTH_STENCIL:
+                    depTexture = deviceTex.texture;
+                    break;
+                default:
+                }
             }
+        }
+        if (!framebuffer && colTextures.length) {
+            this._framebuffer.destroy();
+            this._framebuffer = this.context.device.createFramebuffer(new FramebufferInfo(
+                this._renderPass,
+                colTextures,
+                depTexture,
+            ));
         }
     }
 }

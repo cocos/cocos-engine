@@ -786,10 +786,18 @@ export class WebPipeline implements Pipeline {
         }
     }
     updateRenderTarget (name: string, width: number, height: number, format: Format = Format.UNKNOWN): void {
-
+        const resId = this.resourceGraph.vertex(name);
+        const desc = this.resourceGraph.getDesc(resId);
+        desc.width = width;
+        desc.height = height;
+        if (format !== Format.UNKNOWN) desc.format = format;
     }
     updateDepthStencil (name: string, width: number, height: number, format: Format = Format.UNKNOWN): void {
-
+        const resId = this.resourceGraph.vertex(name);
+        const desc = this.resourceGraph.getDesc(resId);
+        desc.width = width;
+        desc.height = height;
+        if (format !== Format.UNKNOWN) desc.format = format;
     }
     public containsResource (name: string): boolean {
         return this._resourceGraph.contains(name);
