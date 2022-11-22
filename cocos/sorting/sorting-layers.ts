@@ -164,7 +164,7 @@ export class SortingLayers {
     /**
      * @engineInternal
      */
-    public static getBuiltinLayers () {
+    public static getBuiltinLayers (): ReadonlyArray<SortingItem> {
         return [{ id: 0, name: 'default', value: 0 }];
     }
 
