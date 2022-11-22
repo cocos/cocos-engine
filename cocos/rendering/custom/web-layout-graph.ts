@@ -119,7 +119,7 @@ function getVisibilityName (stage: ShaderStageFlagBit): string {
     return str;
 }
 
-class PrintVisitor extends DefaultVisitor {
+export class PrintVisitor extends DefaultVisitor {
     discoverVertex (u: number, g: LayoutGraphData) {
         const ppl: PipelineLayoutData = g.getLayout(u);
         const name: string = g._names[u];
