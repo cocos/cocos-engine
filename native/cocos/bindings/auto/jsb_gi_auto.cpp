@@ -2344,17 +2344,14 @@ static bool js_cc_gi_LightProbes_data_set(se::State& s)
     const auto& args = s.args();
     size_t argc = args.size();
     cc::gi::LightProbes *arg1 = (cc::gi::LightProbes *) NULL ;
-    cc::gi::LightProbesData *arg2 = 0 ;
-    cc::gi::LightProbesData temp2 ;
+    cc::gi::LightProbesData *arg2 = (cc::gi::LightProbesData *) NULL ;
     
     arg1 = SE_THIS_OBJECT<cc::gi::LightProbes>(s);
     if (nullptr == arg1) return true;
     
-    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments");
-    arg2 = &temp2;
-    
-    cc_gi_LightProbes_data_set(arg1,*arg2);
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    cc_gi_LightProbes_data_set(arg1,arg2);
     
     
     return true;
@@ -2369,11 +2366,11 @@ static bool js_cc_gi_LightProbes_data_get(se::State& s)
     
     arg1 = SE_THIS_OBJECT<cc::gi::LightProbes>(s);
     if (nullptr == arg1) return true;
-    result = (cc::gi::LightProbesData *) &cc_gi_LightProbes_data_get(arg1);
+    result = (cc::gi::LightProbesData *)cc_gi_LightProbes_data_get(arg1);
     
-    ok &= nativevalue_to_se(*result, s.rval(), s.thisObject());
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
     SE_PRECONDITION2(ok, false, "Error processing arguments");
-    SE_HOLD_RETURN_VALUE(*result, s.thisObject(), s.rval()); 
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
     
     
     return true;
@@ -3194,17 +3191,14 @@ static bool js_cc_gi_LightProbeInfo_data_set(se::State& s)
     const auto& args = s.args();
     size_t argc = args.size();
     cc::gi::LightProbeInfo *arg1 = (cc::gi::LightProbeInfo *) NULL ;
-    cc::gi::LightProbesData *arg2 = 0 ;
-    cc::gi::LightProbesData temp2 ;
+    cc::gi::LightProbesData *arg2 = (cc::gi::LightProbesData *) NULL ;
     
     arg1 = SE_THIS_OBJECT<cc::gi::LightProbeInfo>(s);
     if (nullptr == arg1) return true;
     
-    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments");
-    arg2 = &temp2;
-    
-    cc_gi_LightProbeInfo_data_set(arg1,*arg2);
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    cc_gi_LightProbeInfo_data_set(arg1,arg2);
     
     
     return true;
@@ -3219,11 +3213,11 @@ static bool js_cc_gi_LightProbeInfo_data_get(se::State& s)
     
     arg1 = SE_THIS_OBJECT<cc::gi::LightProbeInfo>(s);
     if (nullptr == arg1) return true;
-    result = (cc::gi::LightProbesData *) &cc_gi_LightProbeInfo_data_get(arg1);
+    result = (cc::gi::LightProbesData *)cc_gi_LightProbeInfo_data_get(arg1);
     
-    ok &= nativevalue_to_se(*result, s.rval(), s.thisObject());
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
     SE_PRECONDITION2(ok, false, "Error processing arguments");
-    SE_HOLD_RETURN_VALUE(*result, s.thisObject(), s.rval()); 
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
     
     
     return true;
