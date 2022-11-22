@@ -38,6 +38,7 @@ import { Mat4, Vec3, Vec4 } from '../../math';
 import { Attribute, DescriptorSet, Device, Buffer, BufferInfo, getTypedArrayConstructor,
     BufferUsageBit, FormatInfos, MemoryUsageBit, Filter, Address, Feature, SamplerInfo, deviceManager } from '../../gfx';
 import { INST_MAT_WORLD, UBOLocal, UBOWorldBound, UNIFORM_LIGHTMAP_TEXTURE_BINDING } from '../../pipeline/define';
+import { ShadowType } from './shadows';
 
 const m4_1 = new Mat4();
 
@@ -521,6 +522,8 @@ export class Model {
         }
         this._updateStamp = stamp;
 
+        const forceUpdateUBO = this.node.scene.globals.shadows.enabled && this.node.scene.globals.shadows.type === ShadowType.Planar;
+
         if (!this._localDataUpdated) { return; }
         this._localDataUpdated = false;
 
@@ -536,7 +539,7 @@ export class Model {
                 hasNonInstancingPass = true;
             }
         }
-        if (hasNonInstancingPass && this._localBuffer) {
+        if ((hasNonInstancingPass || forceUpdateUBO) && this._localBuffer) {
             Mat4.toArray(this._localData, worldMatrix, UBOLocal.MAT_WORLD_OFFSET);
             Mat4.inverseTranspose(m4_1, worldMatrix);
 
