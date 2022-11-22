@@ -71,8 +71,6 @@
     "_mesh": {
       "__uuid__": "1263d74c-8167-4928-91a6-4e2672411f47@2e76e"
     },
-    "_shadowCastingMode": 0,
-    "_receiveShadows": false,
     "_id": "",
     "__prefab": {
       "__id__": 3

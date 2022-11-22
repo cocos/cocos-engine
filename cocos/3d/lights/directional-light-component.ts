@@ -71,6 +71,11 @@ export class DirectionalLight extends Light {
     @serializable
     protected _csmOptimizationMode = CSMOptimizationMode.RemoveDuplicates;
 
+    @serializable
+    protected _csmAdvancedOptions = false;
+    @serializable
+    protected _csmLayersTransition = false;
+
     // fixed area properties
     @serializable
     protected _shadowFixedArea = false;
@@ -456,6 +461,48 @@ export class DirectionalLight extends Light {
         }
     }
 
+    /**
+     * @en Enabled shadow advanced options
+     * @zh 是否启用高级选项？
+     */
+    @tooltip('i18n:lights.shadowAdvancedOptions')
+    @visible(function (this: DirectionalLight) {
+        return (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.enabled
+         && (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap
+         && this._csmLevel > CSMLevel.LEVEL_1;
+    })
+    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 19 } })
+    @editable
+    @type(CCBoolean)
+    get csmAdvancedOptions () {
+        return this._csmAdvancedOptions;
+    }
+    set csmAdvancedOptions (val) {
+        this._csmAdvancedOptions = val;
+    }
+
+    /**
+     * @en Enabled csm layers transition
+     * @zh 是否启用级联阴影层级过渡？
+     */
+    @tooltip('i18n:lights.csmLayersTransition')
+    @visible(function (this: DirectionalLight) {
+        return (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.enabled
+         && (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap
+         && this._csmLevel > CSMLevel.LEVEL_1
+         && this._csmAdvancedOptions;
+    })
+    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 20 } })
+    @editable
+    @type(CCBoolean)
+    get csmLayersTransition () {
+        return this._csmLayersTransition;
+    }
+    set csmLayersTransition (val) {
+        this._csmLayersTransition = val;
+        if (this._light) { this._light.csmLayersTransition = val; }
+    }
+
     constructor () {
         super();
         this._lightType = scene.DirectionalLight;
@@ -490,6 +537,7 @@ export class DirectionalLight extends Light {
             this._light.csmLevel = this._csmLevel;
             this._light.csmLayerLambda = this._csmLayerLambda;
             this._light.csmOptimizationMode = this._csmOptimizationMode;
+            this._light.csmLayersTransition = this._csmLayersTransition;
         }
     }
 }

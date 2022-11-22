@@ -262,10 +262,7 @@ CCProgram terrain-fs %{
     s.emissive = vec3(0.0, 0.0, 0.0);
 
     #if CC_USE_LIGHTMAP && !CC_FORWARD_ADD
-      vec4 lightColor = texture(cc_lightingMap, luv.xy);
-      s.lightmap.a = lightColor.a;
-      s.lightmap.rgb = lightColor.xyz * luv.z;
-      s.lightmap_test = luv.z; /*lum*/
+      SampleAndDecodeLightMapColor(s.lightmap.rgb, s.lightmap.a, s.lightmap_test, cc_lightingMap, v_luv.xy, v_luv.z, s.normal);
     #endif
   }
 
