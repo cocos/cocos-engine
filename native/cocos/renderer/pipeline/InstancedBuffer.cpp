@@ -83,13 +83,12 @@ void InstancedBuffer::merge(scene::SubModel *subModel, uint32_t passIdx, gfx::Sh
 
         if (instance.reflectionProbeType != reflectionProbeType) {
             continue;
-        } else {
-            if (instance.reflectionProbeCubemap != reflectionProbeCubemap) {
-                continue;
-            }
-            if (instance.reflectionProbePlanarMap != reflectionProbePlanarMap) {
-                continue;
-            }
+        }
+        if (instance.reflectionProbeCubemap != reflectionProbeCubemap) {
+            continue;
+        }
+        if (instance.reflectionProbePlanarMap != reflectionProbePlanarMap) {
+            continue;
         }
 
         if (instance.stride != stride) {
