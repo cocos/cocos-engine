@@ -23,8 +23,6 @@
  ****************************************************************************/
 
 #include "pipeline/xr/ar/ARBackground.h"
-#include <stdint.h>
-#include "GLES2/gl2.h"
 #include "ar/ARModule.h"
 #include "gfx-base/GFXCommandBuffer.h"
 #include "gfx-base/GFXDef-common.h"
@@ -39,25 +37,6 @@
 
 namespace cc {
 namespace pipeline {
-
-ARBackground::~ARBackground() {
-    CC_SAFE_DESTROY(_shader)
-    CC_SAFE_DESTROY(_vertexBuffer)
-
-#if CC_PLATFORM == CC_PLATFORM_ANDROID
-    CC_SAFE_DESTROY(_uniformBuffer)
-#elif CC_PLATFORM == CC_PLATFORM_MAC_IOS
-    CC_SAFE_DESTROY(_ycbcrTransferBuffer)
-#endif
-
-    CC_SAFE_DESTROY(_inputAssembler)
-    CC_SAFE_DESTROY(_descriptorSetLayout)
-    CC_SAFE_DESTROY(_descriptorSet)
-    CC_SAFE_DESTROY(_pipelineLayout)
-    CC_SAFE_DESTROY(_pipelineState)
-    CC_SAFE_DESTROY(_pipeline)
-    CC_SAFE_DESTROY(_device)
-}
 
 void ARBackground::activate(RenderPipeline *pipeline, gfx::Device *dev) {
     _pipeline = pipeline;
@@ -77,7 +56,6 @@ void ARBackground::activate(RenderPipeline *pipeline, gfx::Device *dev) {
             layout(location = 0) out vec2 v_texCoord;
             void main() {
                 gl_Position = vec4(a_position, 0, 1);
-                //v_texCoord = vec2(a_texCoord.x, 1 - a_texCoord.y);
                 v_texCoord = a_texCoord;
             }
         )",
@@ -307,7 +285,6 @@ void ARBackground::render(cc::scene::Camera *camera, gfx::RenderPass *renderPass
 
         gfx::TextureInfo textureInfo;
         textureInfo.usage = gfx::TextureUsage::SAMPLED | gfx::TextureUsage::TRANSFER_SRC;
-        //textureInfo.format          = gfx::Format::RGBA16F;
         textureInfo.format = gfx::Format::RGBA8;
         textureInfo.width = camera->getWidth();
         textureInfo.height = camera->getHeight();

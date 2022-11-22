@@ -34,11 +34,9 @@ using namespace cc::ar;
 //  2. namespace is needed
 //
 %ignore cc::ar::ARModule::getInfoLength;
-%ignore cc::ar::ARModule::getAnchorPose;
-%ignore cc::ar::ARModule::getHitResult;
 %ignore cc::ar::ARModule::getAddedPlanesInfo;
-%ignore cc::ar::ARModule::getRemovedPlanesInfo;
 %ignore cc::ar::ARModule::getUpdatedPlanesInfo;
+%ignore cc::ar::ARModule::getRemovedPlanesInfo;
 %ignore cc::ar::ARModule::getAddedSceneMesh;
 %ignore cc::ar::ARModule::getUpdatedSceneMesh;
 %ignore cc::ar::ARModule::getRemovedSceneMesh;
