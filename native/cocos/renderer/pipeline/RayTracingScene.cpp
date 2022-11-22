@@ -127,6 +127,7 @@ namespace pipeline
         //tlasGeom.shaderBindingTableRecordOffset = rtBinding.registry(shadingDescriptors);
 
         _modelCache.emplace(pModel->getNode()->getUuid(), std::pair{true, tlasGeom});
+
     }
 
     void RayTracingScene::handleModel(const IntrusivePtr<scene::Model>& pModel) {

@@ -260,6 +260,12 @@ void cmdFuncCCVKCreateBuffer(CCVKDevice *device, CCVKGPUBuffer *gpuBuffer) {
 
     VkBufferCreateInfo bufferInfo{VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO};
     bufferInfo.size = gpuBuffer->size;
+
+    /*
+     * VUID-VkBufferDeviceAddressInfo-buffer-02600
+     * If buffer is non-sparse and was not created with the VK_BUFFER_CREATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT flag, 
+     * then it must be bound completely and contiguously to a single VkDeviceMemory object
+    */
     bufferInfo.usage = mapVkBufferUsageFlagBits(gpuBuffer->usage) | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT;
 
     if (hasAnyFlags(gpuBuffer->usage,BufferUsageBit::VERTEX|BufferUsageBit::INDEX)) {

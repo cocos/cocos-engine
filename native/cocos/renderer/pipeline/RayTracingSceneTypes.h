@@ -4,6 +4,7 @@
 #include "base/Ptr.h"
 #include "gfx-base/GFXBuffer.h"
 #include "RayTracingSceneTypes.h"
+#include <queue>
 
 namespace cc {
 namespace scene {
@@ -89,6 +90,189 @@ private:
     ccstd::unordered_map<uint64_t, AccelerationStructurePtr> _geomBlasCache;
 };
 
+enum class AllocationPolicy {
+    BEST_FIT,
+    WORST_FIT,
+    FIRST_FIT,
+    NEXT_FIT
+};
+
+template <typename BlockType, typename Derived>
+struct ArenaAllocatorBase {
+    static_assert(std::is_trivially_copyable<BlockType>::value);
+    static_assert(!std::is_abstract<BlockType>::value);
+    using ConsecutiveBlocks = std::vector<BlockType>;
+
+    int allocate(const ConsecutiveBlocks& blocks) {
+        int offset = -1;
+        if (static_cast<Derived*>(this)->use_avaiable_free_blocks(blocks.size(), offset)) {
+            std::copy(blocks.cbegin(), blocks.cend(), _blocks.begin() + offset);
+            return offset;
+        }
+        offset = this->_blocks.size();
+        this->_blocks.insert(this->_blocks.end(), blocks.cbegin(), blocks.cend());
+        return offset;
+    }
+
+    void deallocate(const int offset, const size_t size) {
+        static_cast<Derived*>(this)->add_free_blocks(offset, size);
+    }
+
+    auto data() const {
+        return _blocks.data();
+    }
+
+    auto size() const {
+        return _blocks.size();
+    }
+
+protected:
+    ConsecutiveBlocks _blocks;
+};
+
+template <typename BlockType, AllocationPolicy policy = AllocationPolicy::FIRST_FIT>
+struct ArenaAllocator {};
+
+#define ARENA_ALLOCATOR_DEFINITION_START(policy) template <typename BlockType> \
+                                                 struct ArenaAllocator<BlockType, policy> : ArenaAllocatorBase<BlockType, ArenaAllocator<BlockType, (policy)>> {
+
+#define ARENA_ALLOCATOR_DEFINITION_END(policy) };
+
+/***********************************************************
+ *  Best Fit Policy
+ ***********************************************************/
+
+ARENA_ALLOCATOR_DEFINITION_START(AllocationPolicy::BEST_FIT)
+
+struct customLess {
+    bool operator()(const std::pair<int, int>& l, const std::pair<int, int>& r) const {
+        return l.second - l.first > r.second - r.first;
+    }
+};
+
+bool use_avaiable_free_blocks(const int size, int& offset) {
+    std::priority_queue<std::pair<int, int>, std::vector<std::pair<int, int>>, customLess> new_map;
+    bool find = false;
+    for (; !free_blocks_max_heap.empty(); free_blocks_max_heap.pop()) {
+        std::pair<int,int> fb = free_blocks_max_heap.top();
+        if (fb.second-fb.first>size) {
+            find = true;
+            offset = fb.first;
+            fb.first += size;
+            if (fb.first<fb.second) {
+                new_map.push(fb);   
+            }
+        }else {
+            new_map.push(fb);
+        }
+    }
+    free_blocks_max_heap = new_map;
+    return find;
+}
+
+void add_free_blocks(const int offset, const int size) {
+
+}
+
+private:
+std::priority_queue<std::pair<int, int>, std::vector<std::pair<int, int>> ,customLess> free_blocks_max_heap{};
+ARENA_ALLOCATOR_DEFINITION_END(AllocationPolicy::BEST_FIT)
+
+/***********************************************************
+ *  Worst Fit Policy
+ ***********************************************************/
+
+ARENA_ALLOCATOR_DEFINITION_START(AllocationPolicy::WORST_FIT)
+
+bool use_avaiable_free_blocks(const int size, int& offset) {
+    std::cout << "use worst fit policy\n";
+    return false;
+}
+
+void add_free_blocks(const int offset, const int size) {
+
+}
+
+struct customGreater {
+    bool operator()(const std::pair<int, int>& l, const std::pair<int, int>& r) const {
+        return l.second - l.first < r.second - r.first;
+    }
+};
+
+private:
+std::priority_queue<std::pair<int, int>, std::vector<std::pair<int, int>>, customGreater> free_blocks_min_heap;
+
+ARENA_ALLOCATOR_DEFINITION_END(AllocationPolicy::WORST_FIT)
+
+/***********************************************************
+ *  First Fit Policy
+ ***********************************************************/
+
+ARENA_ALLOCATOR_DEFINITION_START(AllocationPolicy::FIRST_FIT)
+
+bool use_avaiable_free_blocks(const int size, int& offset) {
+    for (auto free_block_it = free_blocks_list.begin(); free_block_it != free_blocks_list.end(); ++free_block_it) {
+        assert(free_block_it->second >= free_block_it->first);
+        if (free_block_it->second - free_block_it->first + 1 >= size) {
+            free_block_it->first += size;
+            if (free_block_it->first >= free_block_it->second) {
+                free_blocks_list.erase(free_block_it);
+            }
+            return true;
+        }
+    }
+    return false;
+}
+
+void add_free_blocks(const int offset, const int size) {
+    if (!merge_free_blocks(offset, offset + size)) {
+        free_blocks_list.emplace_back(offset, offset + size);
+    }
+}
+
+private:
+bool merge_free_blocks(int start, int end) {
+    auto front_merge_target = free_blocks_list.end();
+    auto rear_merge_target = free_blocks_list.end();
+
+    for (auto fb = free_blocks_list.begin(); fb != free_blocks_list.end(); ++fb) {
+        if (fb->second == start - 1) {
+            fb->second = end;
+            front_merge_target = fb;
+        }
+
+        if (fb->first == end + 1) {
+            fb->first = start;
+            rear_merge_target = fb;
+        }
+    }
+
+    if (front_merge_target == free_blocks_list.end() && rear_merge_target == free_blocks_list.end()) {
+        return false;
+    }
+
+    if (front_merge_target != free_blocks_list.end() && rear_merge_target != free_blocks_list.end()) {
+        front_merge_target->second = rear_merge_target->second;
+        free_blocks_list.erase(rear_merge_target);
+    }
+
+    return true;
+}
+
+std::list<std::pair<int, int>> free_blocks_list;
+ARENA_ALLOCATOR_DEFINITION_END(AllocationPolicy::FIRST_FIT)
+
+/***********************************************************
+ *  Next Fit Policy
+ ***********************************************************/
+
+ARENA_ALLOCATOR_DEFINITION_START(AllocationPolicy::NEXT_FIT)
+
+//todo may need a circle list
+
+ARENA_ALLOCATOR_DEFINITION_END(AllocationPolicy::NEXT_FIT)
+
+/*
 template <typename BlockType,bool allow_reuse = false>
 struct MonotonicPool{
 
@@ -264,15 +448,8 @@ private:
         ccstd::vector<uint32_t> block_ref_count;
     }_blockRefView;
 
-    /*
-     *  Key : Consecutive Blocks
-     *  Value :
-     *      First : offset
-     *      Second : ref count
-     */
-
     ccstd::vector<BlockType> _blocks;
-};
+};*/
 
 struct SubMeshGeomDescriptor final {
     uint64_t indexAddress{0};
@@ -327,7 +504,8 @@ private:
      * |-------------------||---------||-------------------||-----------------------------||-----------------------------||---------||-------------------|
      */
 
-    MonotonicPool<SubMeshGeomDescriptor, true> _geomDesc;
+    //MonotonicPool<SubMeshGeomDescriptor, true> _geomDesc;
+    ArenaAllocator<SubMeshGeomDescriptor> _geomDesc;
 
     /*
      * matID n : matID of the nth geometry
@@ -338,7 +516,8 @@ private:
      * |---------------||-------||---------------||-----------------------||-----------------------||-------||---------------|
       */
 
-    MonotonicPool<uint64_t,true> _materialDesc;
+    //MonotonicPool<uint64_t,true> _materialDesc;
+    ArenaAllocator<uint64_t> _materialDesc;
 
     /* |----------------------------------------------||----------------------------------------------||----------------------------------------------|
      * |-------------------descriptor 0---------------||-------------------descriptor 1---------------||-------------------descriptor 2---------------| instanceCustomIndex
@@ -346,18 +525,19 @@ private:
      * |----------------------------------------------||----------------------------------------------||----------------------------------------------|                                     
      */
 
-    MonotonicPool<MeshShadingDescriptor> _shadingInstanceDescriptors;
+    //MonotonicPool<MeshShadingDescriptor> _shadingInstanceDescriptors;
+    ArenaAllocator<MeshShadingDescriptor> _shadingInstanceDescriptors;
 
     uint16_t registrySubmeshes(const ccstd::vector<SubMeshGeomDescriptor>& subMeshes);
 
     uint16_t registryMaterials(const ccstd::vector<uint64_t>& materials);
 
     void unregistrySubmeshes(const int offset, const int size) noexcept{
-        _geomDesc.free(offset, offset + size);
+        _geomDesc.deallocate(offset, size);
     }
 
     void unregistryMaterials(const int offset, const int size) noexcept{
-        _materialDesc.free(offset, offset + size);
+        _materialDesc.deallocate(offset, size);
     }
 
 public:
@@ -403,7 +583,8 @@ using ShaderRecord = std::pair<SubMeshGeomDescriptor,uint64_t>;
 
 struct RayTracingBindingTable final{
 
-    using ShaderRecordList = MonotonicPool<ShaderRecord,true>;
+    //using ShaderRecordList = MonotonicPool<ShaderRecord,true>;
+    using ShaderRecordList = ArenaAllocator<ShaderRecord>;
 
     ShaderRecordList _hitGroup;
     uint32_t registry(const ccstd::vector<RayTracingGeometryShadingDescriptor>& shadingGeometries) {
@@ -422,7 +603,7 @@ struct RayTracingBindingTable final{
     void unregistry(const gfx::ASInstance& a) {
         const auto offset = a.shaderBindingTableRecordOffset;
         const auto size = a.accelerationStructureRef->getInfo().triangleMeshes.size();
-        _hitGroup.free(offset, offset+size);
+        _hitGroup.deallocate(offset, size);
     }
 };
 
