@@ -154,6 +154,7 @@ export class PrintVisitor extends DefaultVisitor {
             for (let j = 0; j < blocks.length; ++j) {
                 const block = blocks[j];
                 this.oss += `${this.space}Block<${getDescriptorTypeOrderName(block.type)}, ${getVisibilityName(block.visibility)}> {\n`;
+                this.oss += `${this.space}    offset: ${block.offset}\n`;
                 this.oss += `${this.space}    capacity: ${block.capacity}\n`;
                 this.oss += `${this.space}    count: ${block.descriptors.length}\n`;
                 if (block.descriptors.length > 0) {
