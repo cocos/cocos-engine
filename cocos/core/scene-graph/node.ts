@@ -603,18 +603,16 @@ export class Node extends BaseNode implements CustomSerializable {
 
         while (i >= 0) {
             cur = dirtyNodes[i--];
-            if (cur._flagChangeVersion !== globalFlagChangeVersion || (cur._dirtyFlags & cur._hasChangedFlags & dirtyBit) !== dirtyBit) {
-                if (cur.isValid) {
-                    cur._dirtyFlags |= dirtyBit;
+            if ((cur._flagChangeVersion !== globalFlagChangeVersion || (cur._dirtyFlags & cur._hasChangedFlags & dirtyBit) !== dirtyBit) && cur.isValid) {
+                cur._dirtyFlags |= dirtyBit;
 
-                    cur._flagChangeVersion = globalFlagChangeVersion;
-                    cur._hasChangedFlags |= dirtyBit;
+                cur._flagChangeVersion = globalFlagChangeVersion;
+                cur._hasChangedFlags |= dirtyBit;
 
-                    children = cur._children;
-                    l = children.length;
-                    for (j = 0; j < l; ++j) {
-                        dirtyNodes[++i] = children[j];
-                    }
+                children = cur._children;
+                l = children.length;
+                for (j = 0; j < l; ++j) {
+                    dirtyNodes[++i] = children[j];
                 }
             }
             dirtyBit = childDirtyBit;
