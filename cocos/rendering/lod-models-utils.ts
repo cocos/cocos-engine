@@ -40,9 +40,6 @@ const modelsInAnyLODGroup = new Map<Model, boolean>();
  */
 const visibleModelsByAnyLODGroup = new Map<Model, boolean>();
 
-/**
- * @engineInternal
- */
 export class LODModelsCachedUtils {
     /**
      * @en Insert visible LOD models into visibleModelsByAnyLODGroup, Add all models on lodGroups to modelsInAnyLODGroup
@@ -61,7 +58,7 @@ export class LODModelsCachedUtils {
                             for (let i = 0; i < count; i++) {
                                 // The LOD level to use.
                                 if (LODLevels[i] === index) {
-                                    if (model && model.node.active) {
+                                    if (model && model.node && model.node.active) {
                                         visibleModelsByAnyLODGroup.set(model, true);
                                         break;
                                     }
@@ -77,7 +74,7 @@ export class LODModelsCachedUtils {
                 for (let index = 0; index < lodGroup.lodCount; index++) {
                     const lod = lodGroup.lodDataArray[index];
                     for (const model of lod.models) {
-                        if (visIndex === index && model && model.node.active) {
+                        if (visIndex === index && model && model.node && model.node.active) {
                             visibleModelsByAnyLODGroup.set(model, true);
                         }
                         modelsInAnyLODGroup.set(model, true);

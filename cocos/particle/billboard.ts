@@ -30,9 +30,8 @@ import { Mesh } from '../3d/assets';
 import { Material, Texture2D } from '../asset/assets';
 import { Component } from '../scene-graph/component';
 import { Attribute, AttributeName, Format, PrimitiveMode } from '../gfx';
-import { Color, toDegree, toRadian, Vec4 } from '../core/math';
+import { Color, toDegree, toRadian, Vec4, cclegacy } from '../core';
 import { scene } from '../render-scene';
-import { legacyCC } from '../core/global-exports';
 
 @ccclass('cc.Billboard')
 @help('i18n:cc.Billboard')
@@ -182,7 +181,7 @@ export class Billboard extends Component {
             ],
             indices: [0, 1, 2, 1, 2, 3],
         }, undefined, { calculateBounds: false });
-        const model = this._model = legacyCC.director.root.createModel(scene.Model, this.node);
+        const model = this._model = cclegacy.director.root.createModel(scene.Model, this.node);
         model.node = model.transform = this.node;
         if (this._material == null) {
             this._material = new Material();

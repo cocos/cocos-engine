@@ -60,12 +60,22 @@ public:
     String* mIndent = nullptr;
 };
 
-inline Indent<ccstd::string> indent(ccstd::string& str) {
-    return Indent<ccstd::string>(str);
+inline void indent(ccstd::string& str) {
+    str.append("    ");
 }
 
-inline Indent<ccstd::pmr::string> indent(ccstd::pmr::string& str) {
-    return Indent<ccstd::pmr::string>(str);
+inline void indent(ccstd::pmr::string& str) {
+    str.append("    ");
+}
+
+inline void unindent(ccstd::string& str) noexcept {
+    auto sz = str.size() < size_t(4) ? str.size() : size_t(4);
+    str.erase(str.size() - sz);
+}
+
+inline void unindent(ccstd::pmr::string& str) noexcept {
+    auto sz = str.size() < size_t(4) ? str.size() : size_t(4);
+    str.erase(str.size() - sz);
 }
 
 inline void copyString(std::ostream& os,
@@ -146,7 +156,7 @@ inline void copyCppString(std::ostream& os,
 
 #define OSS oss << space
 
-#define INDENT(...)   auto ind_##__VA_ARGS__ = indent(space)
+#define INDENT(...)   Indent<std::remove_reference_t<decltype(space)>> ind_##__VA_ARGS__(space)
 #define UNINDENT(...) ind_##__VA_ARGS__.reset()
 
 #define INDENT_BEG() space.append("    ")

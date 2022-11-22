@@ -23,10 +23,9 @@
  THE SOFTWARE.
  */
 
-import { instantiate } from '../core/data';
-import { CCObject } from '../core/data/object';
+import { instantiate } from '../serialization';
+import { CCObject, Pool } from '../core';
 import { Director, director } from '../game/director';
-import { Pool } from '../core/memop';
 import { Node } from '../scene-graph';
 import { ParticleSystem } from './particle-system';
 

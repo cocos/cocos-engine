@@ -23,10 +23,8 @@
  THE SOFTWARE.
  */
 
-import { IVec3Like } from '../../core/math/type-define';
+import { IVec3Like, RecyclePool, geometry } from '../../core';
 import { PhysicsRayResult } from '../framework/physics-ray-result';
-import { Ray } from '../../core/geometry';
-import { RecyclePool } from '../../core';
 import { PhysicsMaterial } from '../framework';
 
 export interface IRaycastOptions {
@@ -42,8 +40,8 @@ export interface IPhysicsWorld {
     setAllowSleep: (v: boolean) => void;
     setDefaultMaterial: (v: PhysicsMaterial) => void;
     step (fixedTimeStep: number, timeSinceLastCalled?: number, maxSubSteps?: number): void;
-    raycast (worldRay: Ray, options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean
-    raycastClosest (worldRay: Ray, options: IRaycastOptions, out: PhysicsRayResult): boolean;
+    raycast (worldRay: geometry.Ray, options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean
+    raycastClosest (worldRay: geometry.Ray, options: IRaycastOptions, out: PhysicsRayResult): boolean;
     emitEvents (): void;
     syncSceneToPhysics (): void;
     syncAfterEvents (): void;

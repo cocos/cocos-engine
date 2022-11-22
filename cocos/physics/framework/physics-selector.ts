@@ -27,15 +27,14 @@
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 import { EDITOR, TEST } from 'internal:constants';
-import { legacyCC } from '../../core/global-exports';
-import { IBaseConstraint, IPointToPointConstraint, IHingeConstraint, IConeTwistConstraint } from '../spec/i-physics-constraint';
+import { IBaseConstraint, IPointToPointConstraint, IHingeConstraint, IConeTwistConstraint, IFixedConstraint } from '../spec/i-physics-constraint';
 import {
     IBoxShape, ISphereShape, ICapsuleShape, ITrimeshShape, ICylinderShape,
     IConeShape, ITerrainShape, ISimplexShape, IPlaneShape, IBaseShape,
 } from '../spec/i-physics-shape';
 import { IPhysicsWorld } from '../spec/i-physics-world';
 import { IRigidBody } from '../spec/i-rigid-body';
-import { errorID, IVec3Like, warn } from '../../core';
+import { errorID, IVec3Like, warn, cclegacy } from '../../core';
 import { EColliderType, EConstraintType } from './physics-enum';
 import { PhysicsMaterial } from '.';
 
@@ -56,6 +55,7 @@ interface IPhysicsWrapperObject {
     PointToPointConstraint?: Constructor<IPointToPointConstraint>,
     HingeConstraint?: Constructor<IHingeConstraint>,
     ConeTwistConstraint?: Constructor<IConeTwistConstraint>,
+    FixedConstraint?: Constructor<IFixedConstraint>,
 }
 
 type IPhysicsBackend = { [key: string]: IPhysicsWrapperObject; }
@@ -115,9 +115,9 @@ interface IPhysicsSelector {
 }
 
 function updateLegacyMacro (id: string) {
-    legacyCC._global.CC_PHYSICS_BUILTIN = id === 'builtin';
-    legacyCC._global.CC_PHYSICS_CANNON = id === 'cannon.js';
-    legacyCC._global.CC_PHYSICS_AMMO = id === 'bullet';
+    cclegacy._global.CC_PHYSICS_BUILTIN = id === 'builtin';
+    cclegacy._global.CC_PHYSICS_CANNON = id === 'cannon.js';
+    cclegacy._global.CC_PHYSICS_AMMO = id === 'bullet';
 }
 
 function register (id: IPhysicsEngineId, wrapper: IPhysicsWrapperObject): void {
@@ -223,6 +223,7 @@ enum ECheckType {
     PointToPointConstraint,
     HingeConstraint,
     ConeTwistConstraint,
+    FixedConstraint,
 }
 
 function check (obj: any, type: ECheckType) {
@@ -400,7 +401,7 @@ function initColliderProxy () {
 
 const CREATE_CONSTRAINT_PROXY = { INITED: false };
 
-interface IEntireConstraint extends IPointToPointConstraint, IHingeConstraint, IConeTwistConstraint { }
+interface IEntireConstraint extends IPointToPointConstraint, IHingeConstraint, IConeTwistConstraint, IFixedConstraint { }
 const ENTIRE_CONSTRAINT: IEntireConstraint = {
     impl: null,
     initialize: FUNC,
@@ -413,6 +414,8 @@ const ENTIRE_CONSTRAINT: IEntireConstraint = {
     setPivotA: FUNC,
     setPivotB: FUNC,
     setAxis: FUNC,
+    setBreakForce: FUNC,
+    setBreakTorque: FUNC,
 };
 
 export function createConstraint (type: EConstraintType): IBaseConstraint {
@@ -437,5 +440,10 @@ function initConstraintProxy () {
     CREATE_CONSTRAINT_PROXY[EConstraintType.CONE_TWIST] = function createConeTwistConstraint (): IConeTwistConstraint {
         if (check(selector.wrapper.ConeTwistConstraint, ECheckType.ConeTwistConstraint)) { return ENTIRE_CONSTRAINT; }
         return new selector.wrapper.ConeTwistConstraint!();
+    };
+
+    CREATE_CONSTRAINT_PROXY[EConstraintType.FIXED] = function createFixedConstraint (): IFixedConstraint {
+        if (check(selector.wrapper.FixedConstraint, ECheckType.FixedConstraint)) { return ENTIRE_CONSTRAINT; }
+        return new selector.wrapper.FixedConstraint!();
     };
 }

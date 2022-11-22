@@ -33,7 +33,6 @@ import { ClearFlagBit, Color, LoadOp, ShaderStageFlagBit, StoreOp, Type, Uniform
 import { Light } from '../../render-scene/scene';
 import { OutputArchive, InputArchive } from './archive';
 import { saveColor, loadColor, saveUniformBlock, loadUniformBlock } from './serialization';
-import { ccclass } from '../../core/data/decorators';
 
 export enum UpdateFrequency {
     PER_INSTANCE,
@@ -199,6 +198,7 @@ export enum SceneFlags {
     PROFILER = 0x400,
     DRAW_INSTANCING = 0x800,
     DRAW_NON_INSTANCING = 0x1000,
+    REFLECTION_PROBE = 0x2000,
     ALL = 0xFFFFFFFF,
 }
 
@@ -300,11 +300,24 @@ export function getClearValueTypeName (e: ClearValueType): string {
 }
 
 export class ComputeView {
-    name = '';
-    accessType: AccessType = AccessType.READ;
-    clearFlags: ClearFlagBit = ClearFlagBit.NONE;
-    readonly clearColor: Color = new Color();
-    clearValueType: ClearValueType = ClearValueType.FLOAT_TYPE;
+    constructor (
+        name = '',
+        accessType: AccessType = AccessType.READ,
+        clearFlags: ClearFlagBit = ClearFlagBit.NONE,
+        clearColor: Color = new Color(),
+        clearValueType: ClearValueType = ClearValueType.FLOAT_TYPE,
+    ) {
+        this.name = name;
+        this.accessType = accessType;
+        this.clearFlags = clearFlags;
+        this.clearColor = clearColor;
+        this.clearValueType = clearValueType;
+    }
+    name: string;
+    accessType: AccessType;
+    clearFlags: ClearFlagBit;
+    readonly clearColor: Color;
+    clearValueType: ClearValueType;
 }
 
 export class LightInfo {
@@ -368,7 +381,6 @@ export class DescriptorBlock {
     count = 0;
 }
 
-@ccclass('cc.DescriptorBlockFlattened')
 export class DescriptorBlockFlattened {
     readonly descriptorNames: string[] = [];
     readonly uniformBlockNames: string[] = [];

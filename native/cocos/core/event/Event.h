@@ -27,6 +27,7 @@
     #define IMPL_EVENT_TARGET_WITH_PARENT(...)
     #define IMPL_EVENT_TARGET(...)
     #define DECLARE_TARGET_EVENT_BEGIN(...)
+    #define DECLARE_TARGET_EVENT_BEGIN_WITH_PARENTS(...)
     #define DECLARE_TARGET_EVENT_END(...)
     #define TARGET_EVENT_ARG0(...)
     #define TARGET_EVENT_ARG1(...)

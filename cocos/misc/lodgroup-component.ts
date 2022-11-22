@@ -32,7 +32,7 @@ import { scene } from '../render-scene';
 import { NodeEventType } from '../scene-graph/node-event';
 
 // Ratio of objects occupying the screen
-const DEFAULT_SCREEN_OCCUPATION: number[] = [0.5, 0.25, 0.125];
+const DEFAULT_SCREEN_OCCUPATION: number[] = [0.25, 0.125, 0.0625];
 @ccclass('cc.LOD')
 export class LOD {
     // Minimum percentage of screen usage for the current lod in effect, range in [0, 1]
@@ -201,7 +201,7 @@ export class LODGroup extends Component {
      * @en Object Size in local space, may be auto-calculated value from object bounding box or value from user input.
      */
     @serializable
-    protected _objectSize = 1;
+    protected _objectSize = 0;
 
     /**
      *@en The array of LODs
@@ -419,6 +419,7 @@ export class LODGroup extends Component {
                     if (!renderer) {
                         continue;
                     }
+                    renderer.model?.updateWorldBound();
                     let worldBounds = renderer.model?.worldBounds;
                     if (worldBounds) {
                         if (JSB) {
@@ -466,6 +467,10 @@ export class LODGroup extends Component {
     public resetObjectSize () {
         if (this.objectSize === 1.0) return;
 
+        if (this.objectSize === 0) {
+            this.objectSize = 1.0;
+        }
+
         // 1 will be new object size
         const scale = 1.0 / this.objectSize;
         // reset object size to 1
@@ -491,6 +496,8 @@ export class LODGroup extends Component {
 
     onLoad () {
         this._lodGroup.node = this.node;
+        // objectSize maybe initialized from deserialize
+        this._lodGroup.objectSize = this._objectSize;
         if (!this._eventRegistered) {
             this.node.on(NodeEventType.COMPONENT_REMOVED, this._onRemove, this);
             this._eventRegistered = true;
@@ -519,7 +526,9 @@ export class LODGroup extends Component {
 
     onEnable () {
         this._attachToScene();
-        //   this.recalculateBounds(this);
+        if (this.objectSize === 0) {
+            this.recalculateBounds();
+        }
 
         // cache lod for scene
         if (this.lodCount > 0 && this._lodGroup.lodCount < 1) {

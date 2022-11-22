@@ -19,6 +19,9 @@
         "gfx-webgl2": {
             "modules": ["gfx-webgl2"]
         },
+        "gfx-empty": {
+            "modules": ["gfx-empty"]
+        },
         "3d": {
             "modules": ["3d"],
             "dependentAssets": [
@@ -27,7 +30,8 @@
                 "5d45aa00-e064-4938-b314-4265f0c2258c",
                 "28d6d6b8-3f66-4a73-9795-17a0852ba2d4",
                 "ec8106fe-05bf-4e94-943c-e0d3b7bb5e45",
-                "620b6bf3-0369-4560-837f-2a2c00b73c26"
+                "620b6bf3-0369-4560-837f-2a2c00b73c26",
+                "2df0a40b-26c2-47ce-be0d-4d3cd4164737"
             ]
         },
         "animation": {
@@ -177,6 +181,14 @@
         },
         "custom-pipeline": {
             "modules": ["custom-pipeline"]
+        },
+        "websocket": {
+            "modules": [],
+            "isNativeOnly": true
+        },
+        "websocket-server": {
+            "modules": [],
+            "isNativeOnly": true
         }
     },
     "moduleOverrides": [{
@@ -217,6 +229,7 @@
                 "cocos/render-scene/core/render-scene.ts": "cocos/render-scene/core/render-scene.jsb.ts",
                 "cocos/render-scene/scene/submodel.ts": "cocos/render-scene/scene/submodel.jsb.ts",
                 "cocos/render-scene/scene/index.ts": "cocos/render-scene/scene/index.jsb.ts",
+                "cocos/render-scene/scene/reflection-probe.ts": "cocos/render-scene/scene/reflection-probe.jsb.ts",
                 "cocos/2d/renderer/native-2d.ts": "cocos/2d/renderer/native-2d.jsb.ts",
                 "cocos/gfx/base/pipeline-state.ts": "cocos/gfx/base/pipeline-state.jsb.ts",
                 "cocos/gfx/index.ts": "cocos/gfx/index.jsb.ts",
@@ -530,5 +543,21 @@
             "value": false,
             "internal": true
         }
+    },
+
+    "optimizeDecorators": {
+        "fieldDecorators": [
+            "property", "serializable", "formerlySerializedAs", "editorOnly", "uniquelyReferenced",
+            "type", "override", "executeInEditMode", "menu", "playOnFocus", "inspector", "icon", "help",
+            "editable", "visible", "readOnly", "displayName", "tooltip", "group", "range", "rangeMin",
+            "rangeMax", "rangeStep", "slide", "displayOrder", "unit", "radian", "multiline", "disallowAnimation",
+            "requireComponent", "executionOrder", "disallowMultiple", "allowReplicated", "ccclass"
+        ],
+        
+        "editorDecorators": [
+            "executeInEditMode", "menu", "playOnFocus", "inspector", "icon", "help", "editable", "visible",
+            "readOnly", "displayName", "tooltip", "group", "range", "rangeMin", "rangeMax", "rangeStep", "slide",
+            "displayOrder", "unit", "radian", "multiline", "disallowAnimation"
+        ]
     }
 }

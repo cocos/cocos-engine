@@ -23,8 +23,7 @@
  THE SOFTWARE.
  */
 import { EDITOR, NATIVE, PREVIEW, TEST } from 'internal:constants';
-import { assert } from '../../core/platform/debug';
-import { Settings, settings } from '../../core/settings';
+import { assert, Settings, settings } from '../../core';
 import { fetchPipeline, pipeline } from './shared';
 import Task, { TaskCompleteCallback } from './task';
 

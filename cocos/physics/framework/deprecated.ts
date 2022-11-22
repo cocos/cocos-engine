@@ -24,7 +24,7 @@
  */
 
 import { PhysicsSystem } from './physics-system';
-import { replaceProperty, removeProperty } from '../../core/utils/x-deprecated';
+import { replaceProperty, removeProperty, js, cclegacy } from '../../core';
 import { BoxCollider } from './components/colliders/box-collider';
 import { SphereCollider } from './components/colliders/sphere-collider';
 import { CapsuleCollider } from './components/colliders/capsule-collider';
@@ -32,8 +32,6 @@ import { CylinderCollider } from './components/colliders/cylinder-collider';
 import { MeshCollider } from './components/colliders/mesh-collider';
 import { RigidBody } from './components/rigid-body';
 import { Collider } from './components/colliders/collider';
-import { js } from '../../core/utils/js';
-import { legacyCC } from '../../core/global-exports';
 import { PhysicsMaterial } from './assets/physics-material';
 import { Constraint } from './components/constraints/constraint';
 
@@ -155,28 +153,28 @@ removeProperty(RigidBody.prototype, 'RigidBody.prototype', [
  * @deprecated Since v1.2
  */
 export { RigidBody as RigidBodyComponent };
-legacyCC.RigidBodyComponent = RigidBody;
+cclegacy.RigidBodyComponent = RigidBody;
 js.setClassAlias(RigidBody, 'cc.RigidBodyComponent');
 /**
  * Alias of [[Collider]]
  * @deprecated Since v1.2
  */
 export { Collider as ColliderComponent };
-legacyCC.ColliderComponent = Collider;
+cclegacy.ColliderComponent = Collider;
 js.setClassAlias(Collider, 'cc.ColliderComponent');
 /**
  * Alias of [[BoxCollider]]
  * @deprecated Since v1.2
  */
 export { BoxCollider as BoxColliderComponent };
-legacyCC.BoxColliderComponent = BoxCollider;
+cclegacy.BoxColliderComponent = BoxCollider;
 js.setClassAlias(BoxCollider, 'cc.BoxColliderComponent');
 /**
  * Alias of [[SphereCollider]]
  * @deprecated Since v1.2
  */
 export { SphereCollider as SphereColliderComponent };
-legacyCC.SphereColliderComponent = SphereCollider;
+cclegacy.SphereColliderComponent = SphereCollider;
 js.setClassAlias(SphereCollider, 'cc.SphereColliderComponent');
 /**
  * Alias of [[CapsuleCollider]]
@@ -201,5 +199,5 @@ js.setClassAlias(CylinderCollider, 'cc.CylinderColliderComponent');
  * @deprecated Since v1.2
  */
 export { PhysicsMaterial as PhysicMaterial };
-legacyCC.PhysicMaterial = PhysicsMaterial;
+cclegacy.PhysicMaterial = PhysicsMaterial;
 js.setClassAlias(PhysicsMaterial, 'cc.PhysicMaterial');

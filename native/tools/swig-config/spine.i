@@ -16,6 +16,7 @@
 %{
 #include "bindings/auto/jsb_2d_auto.h"
 #include "bindings/auto/jsb_assets_auto.h"
+#include "bindings/auto/jsb_cocos_auto.h"
 #include "bindings/auto/jsb_spine_auto.h"
 using namespace spine;
 %}
@@ -33,6 +34,7 @@ using namespace spine;
 //  1. 'Ignore Section' should be placed before attribute definition and %import/%include
 //  2. namespace is needed
 //
+%ignore cc::RefCounted;
 %ignore *::rtti;
 %ignore spine::SkeletonCache::SegmentData;
 %ignore spine::SkeletonCache::BoneData;
@@ -244,6 +246,8 @@ using namespace spine;
 // Note: 
 //   %import "your_header_file.h" will not generate code for that header file
 //
+%import "base/Macros.h"
+%import "base/RefCounted.h"
 %import "editor-support/spine/dll.h"
 %import "editor-support/spine/RTTI.h"
 %import "editor-support/spine/SpineString.h"

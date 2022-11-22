@@ -27,13 +27,39 @@
 import bulletModule, { bulletType } from '@cocos/bullet';
 import { WECHAT, RUNTIME_BASED } from 'internal:constants';
 import { game } from '../../game';
-import { sys } from '../../core/platform';
+import { sys } from '../../core';
 import { pageSize, pageCount, importFunc } from './bullet-env';
 
 let bulletLibs: any = bulletModule;
 if (globalThis.BULLET) {
     console.log('[Physics][Bullet]: Using the external Bullet libs.');
     bulletLibs = globalThis.BULLET;
+}
+
+//corresponds to bulletType in bullet-compile
+export enum EBulletType{
+    EBulletTypeVec3 = 0,
+    EBulletTypeQuat,
+    EBulletTypeTransform,
+    EBulletTypeMotionState,
+    EBulletTypeCollisionObject,
+    EBulletTypeCollisionShape,
+    EBulletTypeStridingMeshInterface,
+    EBulletTypeTriangleMesh,
+    EBulletTypeCollisionDispatcher,
+    EBulletTypeDbvtBroadPhase,
+    EBulletTypeSequentialImpulseConstraintSolver,
+    EBulletTypeCollisionWorld,
+    EBulletTypeTypedConstraint
+}
+
+//corresponds to btTriangleRaycastCallback::EFlags
+export enum EBulletTriangleRaycastFlag {
+    NONE                            = 0,
+    FilterBackfaces                 = 1 << 0,
+    KeepUnflippedNormal             = 1 << 1, //Prevents returned face normal getting flipped when a ray hits a back-facing triangle
+    UseSubSimplexConvexCastRaytest  = 1 << 2, //default, uses an approximate but faster ray versus convex intersection algorithm
+    UseGjkConvexCastRaytest         = 1 << 3
 }
 
 interface instanceExt extends Bullet.instance {

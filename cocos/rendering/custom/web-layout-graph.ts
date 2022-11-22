@@ -1,16 +1,18 @@
 import { DEBUG } from 'internal:constants';
 import { EffectAsset } from '../../asset/assets';
-import { ccclass } from '../../core/data/decorators';
+import { _decorator } from '../../core';
 // eslint-disable-next-line max-len
 import { DescriptorSetInfo, DescriptorSetLayout, DescriptorSetLayoutBinding, DescriptorSetLayoutInfo, DescriptorType, Device, ShaderStageFlagBit, Type, UniformBlock } from '../../gfx';
 import { VectorGraphColorMap } from './effect';
 import { DefaultVisitor, depthFirstSearch } from './graph';
 // eslint-disable-next-line max-len
-import { LayoutGraphData, PipelineLayoutData, LayoutGraphDataValue, RenderStageData, RenderPhaseData, DescriptorSetLayoutData, DescriptorSetData, DescriptorBlockData, DescriptorData } from './layout-graph';
+import { LayoutGraphData, PipelineLayoutData, LayoutGraphDataValue, RenderStageData, RenderPhaseData, DescriptorSetLayoutData, DescriptorSetData, DescriptorBlockData, DescriptorData, ShaderProgramData } from './layout-graph';
 import { LayoutGraphBuilder } from './pipeline';
 import { WebLayoutExporter } from './web-layout-exporter';
 import { getUpdateFrequencyName, DescriptorBlockIndex, DescriptorTypeOrder,
     Descriptor, getDescriptorTypeOrderName, DescriptorBlockFlattened, UpdateFrequency } from './types';
+
+const { ccclass } = _decorator;
 
 function getName (type: Type): string {
     switch (type) {
@@ -274,6 +276,14 @@ export class WebLayoutGraphBuilder implements LayoutGraphBuilder  {
     }
 
     public addShader (name: string, parentPhaseID: number): void {
+        const phaseData = this._data.getRenderPhase(parentPhaseID);
+        const id = phaseData.shaderPrograms.length;
+        const shaderData = new ShaderProgramData();
+        // 填充shaderData数据
+        phaseData.shaderPrograms.push(shaderData);
+        phaseData.shaderIndex.set(name, id);
+
+        // 注册shader所在的phase的ID
         this._data.shaderLayoutIndex.set(name, parentPhaseID);
     }
 

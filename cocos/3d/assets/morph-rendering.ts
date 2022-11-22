@@ -31,12 +31,9 @@ import { Texture2D } from '../../asset/assets/texture-2d';
 import { ImageAsset } from '../../asset/assets/image-asset';
 import { UBOMorph, UNIFORM_NORMAL_MORPH_TEXTURE_BINDING,
     UNIFORM_POSITION_MORPH_TEXTURE_BINDING, UNIFORM_TANGENT_MORPH_TEXTURE_BINDING } from '../../rendering/define';
-import { warn } from '../../core/platform/debug';
 import { Morph, SubMeshMorph } from './morph';
-import { assertIsNonNullable, assertIsTrue } from '../../core/data/utils/asserts';
-import { log2, nextPow2 } from '../../core/math/bits';
+import { assertIsNonNullable, assertIsTrue, warn, bits, nextPow2, cclegacy } from '../../core';
 import { IMacroPatch } from '../../render-scene';
-import { legacyCC } from '../../core/global-exports';
 import { PixelFormat } from '../../asset/assets/asset-enum';
 
 /**
@@ -503,17 +500,17 @@ class MorphUniforms {
     public setWeights (weights: number[]) {
         assertIsTrue(weights.length === this._targetCount);
         for (let iWeight = 0; iWeight < weights.length; ++iWeight) {
-            this._localBuffer.setFloat32(UBOMorph.OFFSET_OF_WEIGHTS + 4 * iWeight, weights[iWeight], legacyCC.sys.isLittleEndian);
+            this._localBuffer.setFloat32(UBOMorph.OFFSET_OF_WEIGHTS + 4 * iWeight, weights[iWeight], cclegacy.sys.isLittleEndian);
         }
     }
 
     public setMorphTextureInfo (width: number, height: number) {
-        this._localBuffer.setFloat32(UBOMorph.OFFSET_OF_DISPLACEMENT_TEXTURE_WIDTH, width, legacyCC.sys.isLittleEndian);
-        this._localBuffer.setFloat32(UBOMorph.OFFSET_OF_DISPLACEMENT_TEXTURE_HEIGHT, height, legacyCC.sys.isLittleEndian);
+        this._localBuffer.setFloat32(UBOMorph.OFFSET_OF_DISPLACEMENT_TEXTURE_WIDTH, width, cclegacy.sys.isLittleEndian);
+        this._localBuffer.setFloat32(UBOMorph.OFFSET_OF_DISPLACEMENT_TEXTURE_HEIGHT, height, cclegacy.sys.isLittleEndian);
     }
 
     public setVerticesCount (count: number) {
-        this._localBuffer.setFloat32(UBOMorph.OFFSET_OF_VERTICES_COUNT, count, legacyCC.sys.isLittleEndian);
+        this._localBuffer.setFloat32(UBOMorph.OFFSET_OF_VERTICES_COUNT, count, cclegacy.sys.isLittleEndian);
     }
 
     public commit () {
@@ -632,7 +629,7 @@ function bestSizeToHavePixels (nPixels: number) {
         nPixels = 5;
     }
     const aligned = nextPow2(nPixels);
-    const epxSum = log2(aligned);
+    const epxSum = bits.log2(aligned);
     const h = epxSum >> 1;
     const w = (epxSum & 1) ? (h + 1) : h;
     return {

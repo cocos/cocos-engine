@@ -164,11 +164,12 @@ void Delaunay::addEdge(uint32_t index, int32_t tet, int32_t i, int32_t v0, int32
 
 void Delaunay::addProbe(int32_t vertexIndex) {
     const auto &probe = _probes[vertexIndex];
+    const auto position = probe.position;
 
     auto triangleIndex = 0;
     for (auto i = 0; i < static_cast<int32_t>(_tetrahedrons.size()); i++) {
         auto &tetrahedron = _tetrahedrons[i];
-        if (tetrahedron.isInCircumSphere(probe.position)) {
+        if (tetrahedron.isInCircumSphere(position)) {
             tetrahedron.invalid = true;
 
             addTriangle(triangleIndex, i, 0, tetrahedron.vertex1, tetrahedron.vertex3, tetrahedron.vertex2, tetrahedron.vertex0);
@@ -180,10 +181,15 @@ void Delaunay::addProbe(int32_t vertexIndex) {
     }
 
     for (auto i = 0; i < triangleIndex; i++) {
+        if (_triangles[i].invalid) {
+            continue;
+        }
+
         for (auto k = i + 1; k < triangleIndex; k++) {
             if (_triangles[i].isSame(_triangles[k])) {
                 _triangles[i].invalid = true;
                 _triangles[k].invalid = true;
+                break;
             }
         }
     }
@@ -225,6 +231,10 @@ void Delaunay::computeAdjacency() {
     }
 
     for (auto i = 0; i < triangleIndex; i++) {
+        if (!_triangles[i].isOuterFace) {
+            continue;
+        }
+
         for (auto k = i + 1; k < triangleIndex; k++) {
             if (_triangles[i].isSame(_triangles[k])) {
                 // update adjacency between tetrahedrons

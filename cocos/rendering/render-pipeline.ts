@@ -32,7 +32,6 @@ import { AccessFlagBit, Attribute, Buffer, BufferInfo, BufferUsageBit, ClearFlag
     InputAssemblerInfo, LoadOp, MemoryUsageBit, Rect, RenderPass, RenderPassInfo, Sampler, StoreOp, SurfaceTransform, Swapchain,
     Texture, TextureInfo, TextureType, TextureUsageBit, Viewport, GeneralBarrierInfo, deviceManager,
 } from '../gfx';
-import { legacyCC } from '../core/global-exports';
 import { MacroRecord } from '../render-scene/core/pass-utils';
 import { RenderWindow } from '../render-scene/core/render-window';
 import { Camera, SKYBOX_FLAG } from '../render-scene/scene/camera';
@@ -45,10 +44,9 @@ import { RenderFlow } from './render-flow';
 import { IPipelineEvent, PipelineEventProcessor, PipelineEventType } from './pipeline-event';
 import { decideProfilerCamera } from './pipeline-funcs';
 import { OS } from '../../pal/system-info/enum-type';
-import { macro } from '../core/platform/macro';
+import { macro, murmurhash2_32_gc, cclegacy } from '../core';
 import { UBOSkinning } from './define';
 import { PipelineRuntime } from './custom/pipeline';
-import { murmurhash2_32_gc } from '../core';
 
 /**
  * @en Render pipeline information descriptor
@@ -305,7 +303,7 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent, Pi
 
         if (!(clearFlags & ClearFlagBit.COLOR)) {
             if (clearFlags & SKYBOX_FLAG) {
-                colorAttachment.loadOp = LoadOp.DISCARD;
+                colorAttachment.loadOp = LoadOp.CLEAR;
             } else {
                 colorAttachment.loadOp = LoadOp.LOAD;
                 colorAttachment.barrier = device.getGeneralBarrier(new GeneralBarrierInfo(
@@ -916,4 +914,4 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent, Pi
 }
 
 // Do not delete, for the class detection of editor
-legacyCC.RenderPipeline = RenderPipeline;
+cclegacy.RenderPipeline = RenderPipeline;

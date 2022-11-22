@@ -25,10 +25,7 @@
 
 import { EDITOR } from 'internal:constants';
 import { Asset } from '../assets/asset';
-import { legacyCC } from '../../core/global-exports';
-import { error } from '../../core/platform/debug';
-import { js } from '../../core/utils/js';
-import { callInNextTick } from '../../core/utils/misc';
+import { cclegacy, error, js, misc } from '../../core';
 import Config from './config';
 import { dependMap, nativeDependMap } from './depend-maps';
 import dependUtil from './depend-util';
@@ -112,7 +109,7 @@ export function getDepends (uuid: string, data: Asset | Record<string, any>, exc
 
 export function cache (id: string, asset: Asset, cacheAsset?: boolean) {
     if (!asset) { return; }
-    cacheAsset = cacheAsset !== undefined ? cacheAsset : legacyCC.assetManager.cacheAsset;
+    cacheAsset = cacheAsset !== undefined ? cacheAsset : cclegacy.assetManager.cacheAsset;
     if (!isScene(asset) && cacheAsset && !asset.isDefault) {
         assets.add(id, asset);
     }
@@ -308,7 +305,7 @@ export function asyncify (cb: ((p1?: any, p2?: any) => void) | null): (p1?: any,
         } else if (p2 instanceof Asset) {
             refs.push(p2.addRef());
         }
-        callInNextTick(() => {
+        misc.callInNextTick(() => {
             refs.forEach((x) => x.decRef(false));
             cb(p1, p2);
         });

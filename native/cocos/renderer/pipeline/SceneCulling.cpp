@@ -150,10 +150,11 @@ void sceneCulling(const RenderPipeline *pipeline, scene::Camera *camera) {
     csmLayers->clearCastShadowObjects();
     csmLayers->clearLayerObjects();
 
-    if (static_cast<uint32_t>(camera->getClearFlag()) & skyboxFlag) {
+    auto clearFlagValue = static_cast<uint32_t>(camera->getClearFlag());
+    if (clearFlagValue & skyboxFlag) {
         if (skyBox != nullptr && skyBox->isEnabled() && skyBox->getModel()) {
             sceneData->addRenderObject(genRenderObject(skyBox->getModel(), camera));
-        } else {
+        } else if(clearFlagValue == skyboxFlag) {
             debug::warnID(15100, camera->getName());
         }
     }

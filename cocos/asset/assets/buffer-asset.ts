@@ -24,8 +24,7 @@
 */
 
 import { ccclass, override } from 'cc.decorator';
-import { assertIsNonNullable } from '../../core/data/utils/asserts';
-import { legacyCC } from '../../core/global-exports';
+import { assertIsNonNullable, cclegacy } from '../../core';
 import { Asset } from './asset';
 
 @ccclass('cc.BufferAsset')
@@ -58,8 +57,8 @@ export class BufferAsset extends Asset {
     }
 
     public validate () {
-        return !!this.buffer;
+        return !!this._buffer;
     }
 }
 
-legacyCC.BufferAsset = BufferAsset;
+cclegacy.BufferAsset = BufferAsset;

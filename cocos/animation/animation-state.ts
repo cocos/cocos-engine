@@ -28,9 +28,7 @@ import { Node } from '../scene-graph/node';
 import { AnimationClip } from './animation-clip';
 import { Playable } from './playable';
 import { WrapMode, WrappedInfo } from './types';
-import { cclegacy, debug, geometry } from '../core';
-import { ccenum } from '../core/value-types/enum';
-import { assertIsTrue } from '../core/data/utils/asserts';
+import { cclegacy, debug, geometry, ccenum, assertIsTrue } from '../core';
 import { AnimationMask } from './marionette/animation-mask';
 import { PoseOutput } from './pose-output';
 import { BlendStateBuffer } from '../3d/skeletal-animation/skeletal-animation-blending';
@@ -192,18 +190,21 @@ export class AnimationState extends Playable {
      * The `min` and `max` field of the range are measured in seconds.
      * While setting, the range object should be a valid range.
      * The actual playback range would be the inclusion of this field and [0, duration].
+     * Set this field would reset the accumulated play time.
+     * If `min === max`, the animation always play at `min`.
      * @zh
      * 获取或设置播放范围。
      * 范围的 `min`、`max` 字段都是以秒为单位的。
      * 设置时，应当指定一个有效的范围；实际的播放范围是该字段和 [0, 周期] 之间的交集。
      * 设置播放范围时将重置累计播放时间。
+     * 如果 `min === max`，该动画将一直在 `min` 处播放。
      */
     get playbackRange (): Readonly<{ min: number; max: number; }> {
         return this._playbackRange;
     }
 
     set playbackRange (value) {
-        assertIsTrue(value.max > value.min);
+        assertIsTrue(value.max >= value.min);
         this._playbackRange.min = Math.max(value.min, 0);
         this._playbackRange.max = Math.min(value.max, this.duration);
         this._playbackDuration = this._playbackRange.max - this._playbackRange.min;

@@ -44,6 +44,8 @@
 //  1. 'Rename Section' should be placed before attribute definition and %import/%include
 //  2. namespace is needed
 
+%ignore cc::RefCounted;
+
 namespace cc { namespace gfx {
 
 // TODO(cjh): use regex to ignore
@@ -159,6 +161,9 @@ namespace cc { namespace gfx {
 // DescriptorSet
 %attribute(cc::gfx::DescriptorSet, cc::gfx::DescriptorSetLayout*, layout, getLayout);
 
+
+%attribute(cc::gfx::DescriptorSetLayout, cc::gfx::DescriptorSetLayoutBindingList, bindings, getBindings);
+
 // PipelineState
 %attribute(cc::gfx::PipelineState, cc::gfx::Shader*, shader, getShader);
 %attribute(cc::gfx::PipelineState, cc::gfx::PrimitiveMode, primitive, getPrimitive);
@@ -245,6 +250,7 @@ namespace cc { namespace gfx {
 //   %import "your_header_file.h" will not generate code for that header file
 //
 %import "base/Macros.h"
+%import "base/RefCounted.h"
 %import "base/memory/Memory.h"
 
 // ----- Include Section ------

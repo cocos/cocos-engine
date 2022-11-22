@@ -24,10 +24,9 @@
  */
 
 import { DEBUG } from 'internal:constants';
-import { Vec3, Quat } from '../../core';
+import { Vec3, Quat, assertIsTrue } from '../../core';
 import { Node } from '../../scene-graph';
 import { RuntimeBinding } from '../../animation/tracks/track';
-import { assertIsTrue } from '../../core/data/utils/asserts';
 import { MAX_ANIMATION_LAYER } from './limits';
 
 export abstract class BlendStateBuffer<

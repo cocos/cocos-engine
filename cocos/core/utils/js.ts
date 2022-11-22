@@ -25,7 +25,7 @@
  THE SOFTWARE.
 */
 
-import IDGenerator from './id-generator';
+import { IDGenerator } from './id-generator';
 import {
     _idToClass,
     _nameToClass,
@@ -59,17 +59,17 @@ import {
     unregisterClass,
     value,
 } from './js-typed';
-import Pool from './pool';
+import { Pool } from './pool';
 import * as array from './array';
 import { legacyCC } from '../global-exports';
 
 export * from './js-typed';
-export { default as IDGenerator } from './id-generator';
-export { default as Pool } from './pool';
+export { IDGenerator } from './id-generator';
+export { Pool } from './pool';
 export { array };
 
 /**
- * @deprecated since 3.7.0, all functions expect deprecated function are exported by core.js
+ * @deprecated since v3.7.0, `js.js` is deprecated, please access `js` directly instead.
  */
 export const js = {
     IDGenerator,

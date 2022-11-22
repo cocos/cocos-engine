@@ -23,15 +23,14 @@
  THE SOFTWARE.
  */
 
-import { Vec3 } from '../../core';
+import { Vec3, IVec3Like } from '../../core';
 import { BulletWorld } from './bullet-world';
 import { cocos2BulletVec3, bullet2CocosVec3 } from './bullet-utils';
 import { RigidBody, PhysicsSystem } from '../../../exports/physics-framework';
-import { btCollisionFlags, btRigidBodyFlags, btCollisionObjectStates, EBtSharedBodyDirty } from './bullet-enum';
+import { btRigidBodyFlags, btCollisionObjectStates, EBtSharedBodyDirty } from './bullet-enum';
 import { IRigidBody } from '../spec/i-rigid-body';
 import { ERigidBodyType } from '../framework/physics-enum';
 import { BulletSharedBody } from './bullet-shared-body';
-import { IVec3Like } from '../../core/math/type-define';
 import { BulletCache, CC_V3_0, CC_V3_1 } from './bullet-cache';
 import { bt } from './instantiated';
 

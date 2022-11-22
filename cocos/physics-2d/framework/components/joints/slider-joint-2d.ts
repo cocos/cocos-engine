@@ -1,12 +1,10 @@
-
-
 import { Joint2D } from './joint-2d';
-import { ccclass, property, menu, type } from '../../../../core/data/class-decorator';
 import { ISliderJoint } from '../../../spec/i-physics-joint';
 import { EJoint2DType } from '../../physics-types';
-import { Vec3, Vec2, IVec2Like, toDegree } from '../../../../core';
+import { Vec2, IVec2Like, toDegree, _decorator } from '../../../../core';
 
 const tempVec2 = new Vec2();
+const { ccclass, menu, property } = _decorator;
 
 @ccclass('cc.SliderJoint2D')
 @menu('Physics2D/Joints/SliderJoint2D')
@@ -19,8 +17,12 @@ export class SliderJoint2D extends Joint2D {
      */
     @property
     get angle (): number {
-        if (this._autoCalcAngle && this.connectedBody) {
-            Vec2.subtract(tempVec2, this.connectedBody.node.worldPosition as IVec2Like, this.node.worldPosition as IVec2Like);
+        if (this._autoCalcAngle) {
+            if (this.connectedBody) {
+                Vec2.subtract(tempVec2, this.connectedBody.node.worldPosition as IVec2Like, this.node.worldPosition as IVec2Like);
+            } else {
+                Vec2.subtract(tempVec2, new Vec2(0, 0), this.node.worldPosition as IVec2Like);
+            }
             this._angle = toDegree(Math.atan2(tempVec2.y, tempVec2.x));
         }
         return this._angle;

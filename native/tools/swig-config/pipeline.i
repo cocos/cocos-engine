@@ -33,6 +33,7 @@
 #include "bindings/auto/jsb_pipeline_auto.h"
 #include "bindings/auto/jsb_scene_auto.h"
 #include "bindings/auto/jsb_gfx_auto.h"
+#include "bindings/auto/jsb_cocos_auto.h"
 #include "renderer/pipeline/PipelineUBO.h"
 
 using namespace cc;
@@ -51,6 +52,8 @@ using namespace cc;
 //  1. 'Ignore Section' should be placed before attribute definition and %import/%include
 //  2. namespace is needed
 //
+%ignore cc::RefCounted;
+
 %ignore cc::pipeline::convertQueueSortFunc;
 %ignore cc::pipeline::RenderPipeline::getFrameGraph;
 %ignore cc::pipeline::RenderPipeline::setPipelineRuntime;
@@ -174,6 +177,7 @@ using namespace cc;
 //
 
 %import "base/Macros.h"
+%import "base/RefCounted.h"
 %import "base/TypeDef.h"
 %import "base/memory/Memory.h"
 %import "base/Ptr.h"

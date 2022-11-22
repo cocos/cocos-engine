@@ -167,6 +167,10 @@ void Model::updateUBOs(uint32_t stamp) {
 
     updateSHUBOs();
 
+    const auto *pipeline = Root::getInstance()->getPipeline();
+    const auto *shadowInfo = pipeline->getPipelineSceneData()->getShadows();
+    const auto forceUpdateUBO = shadowInfo->isEnabled() && shadowInfo->getType() == ShadowType::PLANAR;
+
     if (!_localDataUpdated) {
         return;
     }
@@ -184,7 +188,7 @@ void Model::updateUBOs(uint32_t stamp) {
         }
     }
 
-    if (hasNonInstancingPass && _localBuffer) {
+    if ((hasNonInstancingPass || forceUpdateUBO) && _localBuffer) {
         Mat4 mat4;
         Mat4::inverseTranspose(worldMatrix, &mat4);
 
@@ -335,6 +339,38 @@ bool Model::isLightProbeAvailable() const {
     return true;
 }
 
+void Model::updateSHBuffer() {
+    if (_localSHData.empty()) {
+        return;
+    }
+
+    bool hasNonInstancingPass = false;
+    for (const auto &subModel : _subModels) {
+        const auto idx = subModel->getInstancedSHIndex();
+        if (idx >= 0) {
+            subModel->updateInstancedSH(_localSHData, idx);
+        } else {
+            hasNonInstancingPass = true;
+        }
+    }
+
+    if (hasNonInstancingPass && _localSHBuffer) {
+        _localSHBuffer->update(_localSHData.buffer()->getData());
+    }
+}
+
+void Model::clearSHUBOs() {
+    if (_localSHData.empty()) {
+        return;
+    }
+
+    for (auto i = 0; i < pipeline::UBOSH::COUNT; i++) {
+        _localSHData[i] = 0.0;
+    }
+
+    updateSHBuffer();
+}
+
 void Model::updateSHUBOs() {
     if (!isLightProbeAvailable()) {
         return;
@@ -342,7 +378,7 @@ void Model::updateSHUBOs() {
 
     const auto center = _worldBounds->getCenter();
 #if !CC_EDITOR
-    if (center == _lastWorldBoundCenter) {
+    if (center.approxEquals(_lastWorldBoundCenter, math::EPSILON)) {
         return;
     }
 #endif
@@ -353,17 +389,19 @@ void Model::updateSHUBOs() {
     const auto *lightProbes = pipeline->getPipelineSceneData()->getLightProbes();
 
     _lastWorldBoundCenter.set(center);
-    _tetrahedronIndex = lightProbes->getData().getInterpolationWeights(center, _tetrahedronIndex, weights);
-    bool result = lightProbes->getData().getInterpolationSHCoefficients(_tetrahedronIndex, weights, coefficients);
+    _tetrahedronIndex = lightProbes->getData()->getInterpolationWeights(center, _tetrahedronIndex, weights);
+    bool result = lightProbes->getData()->getInterpolationSHCoefficients(_tetrahedronIndex, weights, coefficients);
     if (!result) {
         return;
     }
 
-    if (!_localSHData.empty() && _localSHBuffer) {
-        gi::SH::reduceRinging(coefficients, lightProbes->getReduceRinging());
-        gi::SH::updateUBOData(_localSHData, pipeline::UBOSH::SH_LINEAR_CONST_R_OFFSET, coefficients);
-        _localSHBuffer->update(_localSHData.buffer()->getData());
+    if (_localSHData.empty()) {
+        return;
     }
+
+    gi::SH::reduceRinging(coefficients, lightProbes->getReduceRinging());
+    gi::SH::updateUBOData(_localSHData, pipeline::UBOSH::SH_LINEAR_CONST_R_OFFSET, coefficients);
+    updateSHBuffer();
 }
 
 ccstd::vector<IMacroPatch> Model::getMacroPatches(index_t subModelIndex) {

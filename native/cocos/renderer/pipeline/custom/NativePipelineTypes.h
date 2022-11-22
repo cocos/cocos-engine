@@ -30,16 +30,18 @@
  */
 // clang-format off
 #pragma once
+#include "base/std/container/map.h"
 #include "cocos/base/Ptr.h"
 #include "cocos/base/std/container/string.h"
 #include "cocos/renderer/gfx-base/GFXFramebuffer.h"
 #include "cocos/renderer/gfx-base/GFXRenderPass.h"
 #include "cocos/renderer/pipeline/GlobalDescriptorSetManager.h"
+#include "cocos/renderer/pipeline/InstancedBuffer.h"
 #include "cocos/renderer/pipeline/custom/LayoutGraphTypes.h"
-#include "cocos/renderer/pipeline/custom/Map.h"
 #include "cocos/renderer/pipeline/custom/NativePipelineFwd.h"
 #include "cocos/renderer/pipeline/custom/RenderGraphTypes.h"
 #include "cocos/renderer/pipeline/custom/RenderInterfaceTypes.h"
+#include "cocos/renderer/pipeline/custom/Set.h"
 
 namespace cc {
 
@@ -267,121 +269,75 @@ struct PersistentRenderPassAndFramebuffer {
     int32_t refCount{1};
 };
 
-struct ScenePassHandle {
-    const scene::Pass* handle{nullptr};
-};
-
-inline bool operator<(const ScenePassHandle& lhs, const ScenePassHandle& rhs) noexcept {
-    return std::forward_as_tuple(lhs.handle) <
-           std::forward_as_tuple(rhs.handle);
-}
-
-struct ScenePass {
-    uint32_t priority{0};
-    float depth{0};
-    uint32_t haderID{0};
-    uint32_t assIndex{0};
-    const scene::SubModel* subModel{nullptr};
-};
-
-struct ScenePassQueue {
-    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
-    allocator_type get_allocator() const noexcept { // NOLINT
-        return {queue.get_allocator().resource()};
-    }
-
-    ScenePassQueue(const allocator_type& alloc) noexcept; // NOLINT
-    ScenePassQueue(ScenePassQueue&& rhs) = delete;
-    ScenePassQueue(ScenePassQueue const& rhs) = delete;
-    ScenePassQueue& operator=(ScenePassQueue&& rhs) = delete;
-    ScenePassQueue& operator=(ScenePassQueue const& rhs) = delete;
-
-    ccstd::pmr::vector<ScenePass> queue;
-};
-
-struct alignas(64) RenderInstance {
-    uint32_t count{0};
-    uint32_t capacity{0};
-    gfx::Buffer* vertexBuffer{nullptr};
-    uint8_t* data{nullptr};
-    gfx::InputAssembler* inputAssembler{nullptr};
-    uint32_t stride{0};
-    uint32_t bufferOffset{0};
-    gfx::Shader* shader{nullptr};
-    gfx::DescriptorSet* descriptorSet{nullptr};
-    gfx::Texture* lightmap{nullptr};
-};
-
-struct RenderInstancePack {
-    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
-    allocator_type get_allocator() const noexcept { // NOLINT
-        return {instances.get_allocator().resource()};
-    }
-
-    RenderInstancePack(const allocator_type& alloc) noexcept; // NOLINT
-    RenderInstancePack(RenderInstancePack&& rhs, const allocator_type& alloc);
-
-    RenderInstancePack(RenderInstancePack&& rhs) noexcept = default;
-    RenderInstancePack(RenderInstancePack const& rhs) = delete;
-    RenderInstancePack& operator=(RenderInstancePack&& rhs) = default;
-    RenderInstancePack& operator=(RenderInstancePack const& rhs) = delete;
-
-    ccstd::pmr::vector<RenderInstance> instances;
-};
-
-struct RenderBatch {
-    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
-    allocator_type get_allocator() const noexcept { // NOLINT
-        return {vertexBuffers.get_allocator().resource()};
-    }
-
-    RenderBatch(const allocator_type& alloc) noexcept; // NOLINT
-    RenderBatch(RenderBatch&& rhs, const allocator_type& alloc);
-
-    RenderBatch(RenderBatch&& rhs) noexcept = default;
-    RenderBatch(RenderBatch const& rhs) = delete;
-    RenderBatch& operator=(RenderBatch&& rhs) = default;
-    RenderBatch& operator=(RenderBatch const& rhs) = delete;
-
-    ccstd::pmr::vector<gfx::Buffer*> vertexBuffers;
-    ccstd::pmr::vector<uint8_t*> vertexBufferData;
-    gfx::Buffer* indexBuffer{nullptr};
-    float* indexBufferData{nullptr};
-    uint32_t vertexBufferCount{0};
-    uint32_t mergeCount{0};
-    gfx::InputAssembler* inputAssembler{nullptr};
-    ccstd::pmr::vector<uint8_t> uniformBufferData;
-    gfx::Buffer* uniformBuffer{nullptr};
-    gfx::DescriptorSet* descriptorSet{nullptr};
-    const scene::Pass* scenePass{nullptr};
-    gfx::Shader* shader{nullptr};
-};
-
-struct RenderBatchPack {
+struct RenderInstancingQueue {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
         return {batches.get_allocator().resource()};
     }
 
-    RenderBatchPack(const allocator_type& alloc) noexcept; // NOLINT
-    RenderBatchPack(RenderBatchPack&& rhs, const allocator_type& alloc);
+    RenderInstancingQueue(const allocator_type& alloc) noexcept; // NOLINT
+    RenderInstancingQueue(RenderInstancingQueue&& rhs, const allocator_type& alloc);
+    RenderInstancingQueue(RenderInstancingQueue const& rhs, const allocator_type& alloc);
 
-    RenderBatchPack(RenderBatchPack&& rhs) noexcept = default;
-    RenderBatchPack(RenderBatchPack const& rhs) = delete;
-    RenderBatchPack& operator=(RenderBatchPack&& rhs) = default;
-    RenderBatchPack& operator=(RenderBatchPack const& rhs) = delete;
+    RenderInstancingQueue(RenderInstancingQueue&& rhs) noexcept = default;
+    RenderInstancingQueue(RenderInstancingQueue const& rhs) = delete;
+    RenderInstancingQueue& operator=(RenderInstancingQueue&& rhs) = default;
+    RenderInstancingQueue& operator=(RenderInstancingQueue const& rhs) = default;
 
-    ccstd::pmr::vector<PmrUniquePtr<RenderBatch>> batches;
-    ccstd::pmr::vector<uint32_t> bufferOffset;
+    void add(pipeline::InstancedBuffer &instancedBuffer);
+    void sort();
+    void uploadBuffers(gfx::CommandBuffer *cmdBuffer) const;
+    void recordCommandBuffer(
+        gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer,
+        gfx::DescriptorSet *ds = nullptr, uint32_t offset = 0,
+        const ccstd::vector<uint32_t> *dynamicOffsets = nullptr) const;
+
+    PmrUnorderedSet<pipeline::InstancedBuffer*> batches;
+    ccstd::pmr::vector<pipeline::InstancedBuffer*> sortedBatches;
+};
+
+struct alignas(32) DrawInstance {
+    const scene::SubModel* subModel{nullptr};
+    uint32_t priority{0};
+    uint32_t hash{0};
+    float depth{0};
+    uint32_t shaderID{0};
+    uint32_t passIndex{0};
+};
+
+struct RenderDrawQueue {
+    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
+    allocator_type get_allocator() const noexcept { // NOLINT
+        return {instances.get_allocator().resource()};
+    }
+
+    RenderDrawQueue(const allocator_type& alloc) noexcept; // NOLINT
+    RenderDrawQueue(RenderDrawQueue&& rhs, const allocator_type& alloc);
+    RenderDrawQueue(RenderDrawQueue const& rhs, const allocator_type& alloc);
+
+    RenderDrawQueue(RenderDrawQueue&& rhs) noexcept = default;
+    RenderDrawQueue(RenderDrawQueue const& rhs) = delete;
+    RenderDrawQueue& operator=(RenderDrawQueue&& rhs) = default;
+    RenderDrawQueue& operator=(RenderDrawQueue const& rhs) = default;
+
+    void add(const scene::Model& model, float depth, uint32_t subModelIdx, uint32_t passIdx);
+    void sortOpaqueOrCutout();
+    void sortTransparent();
+    void recordCommandBuffer(gfx::Device *device, const scene::Camera *camera,
+        gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer,
+        uint32_t subpassIndex) const;
+
+    ccstd::pmr::vector<DrawInstance> instances;
 };
 
 struct NativeRenderQueue {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
-        return {scenePassQueue.get_allocator().resource()};
+        return {opaqueQueue.get_allocator().resource()};
     }
 
     NativeRenderQueue(const allocator_type& alloc) noexcept; // NOLINT
+    NativeRenderQueue(SceneFlags sceneFlagsIn, const allocator_type& alloc) noexcept;
     NativeRenderQueue(NativeRenderQueue&& rhs, const allocator_type& alloc);
 
     NativeRenderQueue(NativeRenderQueue&& rhs) noexcept = default;
@@ -389,10 +345,13 @@ struct NativeRenderQueue {
     NativeRenderQueue& operator=(NativeRenderQueue&& rhs) = default;
     NativeRenderQueue& operator=(NativeRenderQueue const& rhs) = delete;
 
-    ccstd::pmr::vector<ScenePass> scenePassQueue;
-    ccstd::pmr::vector<RenderBatchPack> batchingQueue;
-    ccstd::pmr::vector<uint32_t> instancingQueue;
-    PmrFlatMap<ScenePassHandle, PmrUniquePtr<RenderInstancePack>> instancePacks;
+    void sort();
+
+    RenderDrawQueue opaqueQueue;
+    RenderDrawQueue transparentQueue;
+    RenderInstancingQueue opaqueInstancingQueue;
+    RenderInstancingQueue transparentInstancingQueue;
+    SceneFlags sceneFlags{SceneFlags::NONE};
 };
 
 class DefaultSceneVisitor final : public SceneVisitor {
@@ -430,6 +389,22 @@ public:
     ccstd::pmr::string name;
 };
 
+struct ResourceGroup {
+    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
+    allocator_type get_allocator() const noexcept { // NOLINT
+        return {instancingBuffers.get_allocator().resource()};
+    }
+
+    ResourceGroup(const allocator_type& alloc) noexcept; // NOLINT
+    ResourceGroup(ResourceGroup&& rhs) = delete;
+    ResourceGroup(ResourceGroup const& rhs) = delete;
+    ResourceGroup& operator=(ResourceGroup&& rhs) = delete;
+    ResourceGroup& operator=(ResourceGroup const& rhs) = delete;
+    ~ResourceGroup() noexcept;
+
+    PmrUnorderedSet<IntrusivePtr<pipeline::InstancedBuffer>> instancingBuffers;
+};
+
 struct NativeRenderContext {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
@@ -442,9 +417,11 @@ struct NativeRenderContext {
     NativeRenderContext& operator=(NativeRenderContext&& rhs) = delete;
     NativeRenderContext& operator=(NativeRenderContext const& rhs) = delete;
 
+    void clearPreviousResources(uint64_t finishedFenceValue) noexcept;
+
     ccstd::pmr::unordered_map<RasterPass, PersistentRenderPassAndFramebuffer> renderPasses;
-    ccstd::pmr::vector<PmrUniquePtr<NativeRenderQueue>> freeRenderQueues;
-    ccstd::pmr::vector<PmrUniquePtr<RenderInstancePack>> freeInstancePacks;
+    ccstd::pmr::map<uint64_t, ResourceGroup> resourceGroups;
+    uint64_t nextFenceValue{0};
 };
 
 class NativePipeline final : public Pipeline {

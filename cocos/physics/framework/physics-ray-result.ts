@@ -23,9 +23,8 @@
  THE SOFTWARE.
  */
 
-import { Vec3 } from '../../core/math';
+import { Vec3, IVec3Like } from '../../core';
 import { Collider } from '../../../exports/physics-framework';
-import { IVec3Like } from '../../core/math/type-define';
 
 /**
  * @en
@@ -74,10 +73,10 @@ export class PhysicsRayResult {
         return this._hitNormal;
     }
 
-    private _hitPoint: Vec3 = new Vec3();
-    private _hitNormal: Vec3 = new Vec3();
-    private _distance = 0;
-    private _collider: Collider | null = null;
+    protected _hitPoint: Vec3 = new Vec3();
+    protected _hitNormal: Vec3 = new Vec3();
+    protected _distance = 0;
+    protected _collider: Collider | null = null;
 
     /**
      * @en
@@ -106,6 +105,54 @@ export class PhysicsRayResult {
         Vec3.copy(c._hitNormal, this._hitNormal);
         c._distance = this._distance;
         c._collider = this._collider;
+        return c;
+    }
+}
+
+/**
+ * @en
+ * Used to store physics line strip cast test results.
+ * @zh
+ * 用于保存物理逐线段检测结果。
+ */
+export class PhysicsLineStripCastResult extends PhysicsRayResult {
+    private _id = 0;
+
+    /**
+     * @en
+     * The line id of the line segments. This is only for lineStripCast
+     * @zh
+     * id
+     */
+    get id (): number {
+        return this._id;
+    }
+
+    /**
+     * @en
+     * internal methods.
+     * @zh
+     * 设置射线，此方法由引擎内部使用，请勿在外部脚本调用。
+     * @engineInternal
+     */
+    public _assign (hitPoint: IVec3Like, distance: number, collider: Collider, hitNormal: IVec3Like, id = 0) {
+        super._assign(hitPoint, distance, collider, hitNormal);
+        this._id = id;
+    }
+
+    /**
+     * @en
+     * clone.
+     * @zh
+     * 克隆。
+     */
+    public clone () {
+        const c = new PhysicsLineStripCastResult();
+        Vec3.copy(c._hitPoint, this._hitPoint);
+        Vec3.copy(c._hitNormal, this._hitNormal);
+        c._distance = this._distance;
+        c._collider = this._collider;
+        c._id = this._id;
         return c;
     }
 }

@@ -23,7 +23,19 @@
  THE SOFTWARE.
  */
 
-import { ccclass, disallowMultiple, displayName, editable, executeInEditMode, menu, range, serializable, tooltip, type } from 'cc.decorator';
+import {
+    ccclass,
+    disallowMultiple,
+    displayName,
+    editable,
+    executeInEditMode,
+    menu,
+    range,
+    serializable,
+    tooltip,
+    type,
+    visible,
+} from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { NodeEventType } from '../../scene-graph/node-event';
 import { Component } from '../../scene-graph/component';
@@ -46,10 +58,10 @@ export class LightProbeGroup extends Component {
     protected _method = PlaceMethod.UNIFORM;
 
     @serializable
-    protected _minPos = new Vec3(-10, -10, -10);
+    protected _minPos = new Vec3(-5, -5, -5);
 
     @serializable
-    protected _maxPos = new Vec3(10, 10, 10);
+    protected _maxPos = new Vec3(5, 5, 5);
 
     @serializable
     protected _nProbesX = 3;
@@ -60,6 +72,9 @@ export class LightProbeGroup extends Component {
     @serializable
     protected _nProbesZ = 3;
 
+    @editable
+    @type([Vec3])
+    @visible(false)
     get probes (): Vec3[] {
         return this._probes;
     }
@@ -74,9 +89,10 @@ export class LightProbeGroup extends Component {
     get method () {
         return this._method;
     }
-    set method (val) {
-        this._method = val;
-    }
+    // Support this feature later.
+    // set method (val) {
+    //     this._method = val;
+    // }
 
     /**
      * @en Minimum position of the light probe group
@@ -142,6 +158,18 @@ export class LightProbeGroup extends Component {
         this._nProbesZ = val;
     }
 
+    public onLoad () {
+        if (!EDITOR) {
+            return;
+        }
+
+        if (!this.node) {
+            return;
+        }
+
+        this.node.scene.globals.lightProbeInfo.addNode(this.node);
+    }
+
     public onEnable () {
         if (!EDITOR) {
             return;
@@ -152,7 +180,7 @@ export class LightProbeGroup extends Component {
         }
 
         this.node.on(NodeEventType.ANCESTOR_TRANSFORM_CHANGED, this.onAncestorTransformChanged, this);
-        const changed = this.node.scene.globals.lightProbeInfo.addGroup(this);
+        const changed = this.node.scene.globals.lightProbeInfo.addNode(this.node);
         if (changed) {
             this.onProbeChanged();
         }
@@ -167,7 +195,7 @@ export class LightProbeGroup extends Component {
             return;
         }
 
-        const changed = this.node.scene.globals.lightProbeInfo.removeGroup(this);
+        const changed = this.node.scene.globals.lightProbeInfo.removeNode(this.node);
         if (changed) {
             this.onProbeChanged();
         }
@@ -192,7 +220,9 @@ export class LightProbeGroup extends Component {
     }
 
     public onProbeChanged (updateTet = true, emitEvent = true) {
+        this.node.scene.globals.lightProbeInfo.syncData(this.node, this.probes);
         this.node.scene.globals.lightProbeInfo.update(updateTet);
+
         if (emitEvent) {
             this.node.emit(NodeEventType.LIGHT_PROBE_CHANGED);
         }
@@ -203,7 +233,8 @@ export class LightProbeGroup extends Component {
             return;
         }
 
+        const updateTet = !this.node.scene.globals.lightProbeInfo.isUniqueNode();
         this.node.updateWorldTransform();
-        this.onProbeChanged();
+        this.onProbeChanged(updateTet);
     }
 }

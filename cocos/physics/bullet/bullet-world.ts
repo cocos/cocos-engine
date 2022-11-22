@@ -31,14 +31,12 @@ import { ArrayCollisionMatrix } from '../utils/array-collision-matrix';
 import { TupleDictionary } from '../utils/tuple-dictionary';
 import { TriggerEventObject, CollisionEventObject, CC_V3_0, CC_V3_1, BulletCache } from './bullet-cache';
 import { bullet2CocosVec3, cocos2BulletVec3 } from './bullet-utils';
-import { Ray } from '../../core/geometry';
 import { IRaycastOptions, IPhysicsWorld } from '../spec/i-physics-world';
 import { PhysicsRayResult, PhysicsMaterial } from '../framework';
-import { error, RecyclePool, Vec3, js } from '../../core';
-import { IVec3Like } from '../../core/math/type-define';
+import { error, RecyclePool, Vec3, js, IVec3Like, geometry } from '../../core';
 import { BulletContactData } from './bullet-contact-data';
 import { BulletConstraint } from './constraints/bullet-constraint';
-import { bt } from './instantiated';
+import { bt, EBulletType, EBulletTriangleRaycastFlag } from './instantiated';
 import { Node } from '../../scene-graph';
 
 const contactsPool: BulletContactData[] = [];
@@ -117,10 +115,10 @@ export class BulletWorld implements IPhysicsWorld {
 
     destroy (): void {
         if (this.constraints.length || this.bodies.length) error('You should destroy all physics component first.');
-        bt.CollisionWorld_del(this._world);
-        bt.DbvtBroadphase_del(this._broadphase);
-        bt.CollisionDispatcher_del(this._dispatcher);
-        bt.SequentialImpulseConstraintSolver_del(this._solver);
+        bt._safe_delete(this._world, EBulletType.EBulletTypeCollisionWorld);
+        bt._safe_delete(this._broadphase, EBulletType.EBulletTypeDbvtBroadPhase);
+        bt._safe_delete(this._dispatcher, EBulletType.EBulletTypeCollisionDispatcher);
+        bt._safe_delete(this._solver, EBulletType.EBulletTypeSequentialImpulseConstraintSolver);
         (this as any).bodies = null;
         (this as any).ghosts = null;
         (this as any).constraints = null;
@@ -157,12 +155,13 @@ export class BulletWorld implements IPhysicsWorld {
         this.syncSceneToPhysics();
     }
 
-    raycast (worldRay: Ray, options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
+    raycast (worldRay: geometry.Ray, options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
         worldRay.computeHit(v3_0, options.maxDistance);
         const to = cocos2BulletVec3(BulletCache.instance.BT_V3_0, v3_0);
         const from = cocos2BulletVec3(BulletCache.instance.BT_V3_1, worldRay.o);
         const allHitsCB = bt.ccAllRayCallback_static();
         bt.ccAllRayCallback_reset(allHitsCB, from, to, options.mask, options.queryTrigger);
+        bt.ccAllRayCallback_setFlags(allHitsCB, EBulletTriangleRaycastFlag.UseGjkConvexCastRaytest);
         bt.CollisionWorld_rayTest(this._world, from, to, allHitsCB);
         if (bt.RayCallback_hasHit(allHitsCB)) {
             const posArray = bt.ccAllRayCallback_getHitPointWorld(allHitsCB);
@@ -180,12 +179,13 @@ export class BulletWorld implements IPhysicsWorld {
         return false;
     }
 
-    raycastClosest (worldRay: Ray, options: IRaycastOptions, result: PhysicsRayResult): boolean {
+    raycastClosest (worldRay: geometry.Ray, options: IRaycastOptions, result: PhysicsRayResult): boolean {
         worldRay.computeHit(v3_0, options.maxDistance);
         const to = cocos2BulletVec3(BulletCache.instance.BT_V3_0, v3_0);
         const from = cocos2BulletVec3(BulletCache.instance.BT_V3_1, worldRay.o);
         const closeHitCB = bt.ccClosestRayCallback_static();
         bt.ccClosestRayCallback_reset(closeHitCB, from, to, options.mask, options.queryTrigger);
+        bt.ccClosestRayCallback_setFlags(closeHitCB, EBulletTriangleRaycastFlag.UseGjkConvexCastRaytest);
         bt.CollisionWorld_rayTest(this._world, from, to, closeHitCB);
         if (bt.RayCallback_hasHit(closeHitCB)) {
             bullet2CocosVec3(v3_0, bt.ccClosestRayCallback_getHitPointWorld(closeHitCB));

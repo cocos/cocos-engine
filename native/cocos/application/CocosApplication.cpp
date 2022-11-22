@@ -89,8 +89,12 @@ int CocosApplication::init() {
                   std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 
     jsb_register_all_modules();
-
+#if CC_EDITOR
+    auto isolate = v8::Isolate::GetCurrent();
+    se->start(isolate);
+#else
     se->start();
+#endif
 
 #if (CC_PLATFORM == CC_PLATFORM_IOS)
     auto logicSize = _systemWindow->getViewSize();
@@ -126,6 +130,18 @@ void CocosApplication::close() {
 
 BaseEngine::Ptr CocosApplication::getEngine() const {
     return _engine;
+}
+
+const std::vector<std::string> &CocosApplication::getArguments() const {
+    return _argv;
+}
+
+void CocosApplication::setArgumentsInternal(int argc, const char *argv[]) {
+    _argv.clear();
+    _argv.reserve(argc);
+    for (int i = 0; i < argc; ++i) {
+        _argv.emplace_back(argv[i]);
+    }
 }
 
 void CocosApplication::onStart() {

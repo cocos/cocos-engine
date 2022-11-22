@@ -45,7 +45,7 @@ class PhysXShape : virtual public IBaseShape {
     PhysXShape();
 
 public:
-    ~PhysXShape() override;
+    ~PhysXShape() override = default;
     void initialize(Node *node) override;
     void onEnable() override;
     void onDisable() override;

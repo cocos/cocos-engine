@@ -23,8 +23,7 @@
  THE SOFTWARE.
  */
 
-import { equals, Vec3 } from '../../core';
-import { IVec3Like, IQuatLike } from '../../core/math/type-define';
+import { equals, Vec3, IVec3Like } from '../../core';
 import { Collider, CollisionEventType, IContactEquation, TriggerEventType } from '../framework';
 
 export { cylinder } from '../../primitive';

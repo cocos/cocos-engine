@@ -5,6 +5,13 @@ vec3 SurfacesVertexModifyLocalPos(in SurfacesStandardVertexIntermediate In)
 }
 #endif
 
+#ifndef CC_SURFACES_VERTEX_MODIFY_LOCAL_NORMAL
+vec3 SurfacesVertexModifyLocalNormal(in SurfacesStandardVertexIntermediate In)
+{
+  return In.normal.xyz;
+}
+#endif
+
 #ifndef CC_SURFACES_VERTEX_MODIFY_WORLD_POS
 vec3 SurfacesVertexModifyWorldPos(in SurfacesStandardVertexIntermediate In)
 {
@@ -22,10 +29,10 @@ vec4 SurfacesVertexModifyClipPos(in SurfacesStandardVertexIntermediate In)
 #ifndef CC_SURFACES_VERTEX_MODIFY_UV
 void SurfacesVertexModifyUV(inout SurfacesStandardVertexIntermediate In)
 {
-  In.texCoord = In.texCoord;
-#if CC_SURFACES_USE_SECOND_UV && !CC_USE_LIGHTMAP
-  In.texCoord1 = In.texCoord1;
-#endif
+//   In.texCoord = In.texCoord;
+// #if CC_SURFACES_USE_SECOND_UV
+//   In.texCoord1 = In.texCoord1;
+// #endif
 }
 #endif
 
@@ -37,5 +44,13 @@ vec3 SurfacesVertexModifyWorldNormal(in SurfacesStandardVertexIntermediate In)
       worldNormal.xyz *= In.worldNormal.w;
   #endif
   return worldNormal;
+}
+#endif
+
+// some vertex datas use shared raw data, avoid sample / calculate same raw data multiply times, use this function for better performance
+// this function invokes at last
+#ifndef CC_SURFACES_VERTEX_MODIFY_SHARED_DATA
+void SurfacesVertexModifySharedData(inout SurfacesStandardVertexIntermediate In)
+{
 }
 #endif

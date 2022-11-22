@@ -29,17 +29,21 @@
 #include "Delaunay.h"
 #include "SH.h"
 #include "base/Macros.h"
+#include "base/Ptr.h"
 #include "base/RefCounted.h"
 #include "base/std/container/vector.h"
 #include "math/Vec3.h"
 #include "math/Vec4.h"
 
 namespace cc {
+class Scene;
+class Node;
+
 namespace gi {
 
 class LightProbeInfo;
 
-class LightProbesData {
+class LightProbesData : public RefCounted {
 public:
     LightProbesData() = default;
 
@@ -79,22 +83,12 @@ public:
     void initialize(LightProbeInfo *info);
 
     inline bool empty() const {
-        if (!_enabled) {
+        if (!_data) {
             return true;
         }
 
-        return _data.empty();
+        return _data->empty();
     }
-
-    inline void setEnabled(bool val) {
-        if (_enabled == val) {
-            return;
-        }
-
-        _enabled = val;
-        updatePipeline();
-    }
-    inline bool isEnabled() const { return _enabled; }
 
     inline void setGIScale(float val) { _giScale = val; }
     inline float getGIScale() const { return _giScale; }
@@ -117,10 +111,9 @@ public:
     inline void setShowConvex(bool val) { _showConvex = val; }
     inline bool isShowConvex() const { return _showConvex; }
 
-    inline void setData(const LightProbesData &data) { _data = data; }
-    inline const LightProbesData &getData() const { return _data; }
+    inline void setData(LightProbesData *data) { _data = data; }
+    inline LightProbesData *getData() const { return _data.get(); }
 
-    bool _enabled{true};
     float _giScale{1.0F};
     uint32_t _giSamples{1024U};
     uint32_t _bounces{2U};
@@ -128,10 +121,15 @@ public:
     bool _showProbe{true};
     bool _showWireframe{true};
     bool _showConvex{false};
-    LightProbesData _data;
+    IntrusivePtr<LightProbesData> _data;
+};
 
-private:
-    void updatePipeline() const;
+struct ILightProbeNode {
+    Node *node{nullptr};
+    ccstd::vector<Vec3> probes;
+
+    explicit ILightProbeNode(Node *n)
+    : node(n) {}
 };
 
 class LightProbeInfo : public RefCounted {
@@ -139,19 +137,13 @@ public:
     LightProbeInfo() = default;
     ~LightProbeInfo() override = default;
 
-    void activate(LightProbes *resource);
-
-    inline void setEnabled(bool val) {
-        if (_enabled == val) {
-            return;
-        }
-
-        _enabled = val;
-        if (_resource) {
-            _resource->setEnabled(val);
-        }
-    }
-    inline bool isEnabled() const { return _enabled; }
+    void activate(Scene *scene, LightProbes *resource);
+    void clearSHCoefficients();
+    inline bool isUniqueNode() const { return _nodes.size() == 1; }
+    bool addNode(Node *node);
+    bool removeNode(Node *node);
+    void syncData(Node *node, const ccstd::vector<Vec3> &probes);
+    void update(bool updateTet = true);
 
     inline void setGIScale(float val) {
         if (_giScale == val) {
@@ -237,19 +229,16 @@ public:
     }
     inline bool isShowConvex() const { return _showConvex; }
 
-    inline void setData(const LightProbesData &data) {
+    inline void setData(LightProbesData *data) {
         _data = data;
         if (_resource) {
             _resource->setData(data);
         }
     }
 
-    inline const LightProbesData &getData() const { return _data; }
-
-    // add addGroup, removeGroup, update after the component module is ported to cpp
+    inline LightProbesData *getData() const { return _data.get(); }
 
     //cjh JSB need to bind the property, so need to make it public
-    bool _enabled{false};
     float _giScale{1.0F};
     uint32_t _giSamples{1024U};
     uint32_t _bounces{2U};
@@ -257,9 +246,14 @@ public:
     bool _showProbe{true};
     bool _showWireframe{true};
     bool _showConvex{false};
-    LightProbesData _data;
+    IntrusivePtr<LightProbesData> _data;
 
 private:
+    void clearAllSHUBOs();
+    void resetAllTetraIndices();
+
+    Scene *_scene{nullptr};
+    ccstd::vector<ILightProbeNode> _nodes;
     LightProbes *_resource{nullptr};
 };
 

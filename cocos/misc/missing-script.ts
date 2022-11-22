@@ -25,10 +25,8 @@
 */
 
 import { ccclass, inspector, editorOnly, serializable } from 'cc.decorator';
-import { getClassById } from '../core/utils/js';
 import { Component } from '../scene-graph/component';
-import { legacyCC } from '../core/global-exports';
-import { warnID, error } from '../core/platform/debug';
+import { warnID, error, js, cclegacy  } from '../core';
 
 /**
  * @en
@@ -54,11 +52,11 @@ export class MissingScript extends Component {
      * @return {function} constructor
      */
     public static safeFindClass (id: string) {
-        const cls = getClassById(id);
+        const cls = js.getClassById(id);
         if (cls) {
             return cls;
         }
-        legacyCC.deserialize.reportMissingClass(id);
+        cclegacy.deserialize.reportMissingClass(id);
 
         return undefined;
     }
@@ -80,7 +78,7 @@ export class MissingScript extends Component {
     }
 }
 
-legacyCC._MissingScript = MissingScript;
+cclegacy._MissingScript = MissingScript;
 
 // DEBUG: Check MissingScript class for issue 9878
 // import { error } from '../platform/debug';

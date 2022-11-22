@@ -25,7 +25,7 @@
 
 import { ccclass, serializable, editable } from 'cc.decorator';
 import { Asset } from './asset';
-import { legacyCC } from '../../core/global-exports';
+import { cclegacy } from '../../core';
 
 /**
  * @en Json asset, it will automatically parse the json to a JS object.
@@ -43,4 +43,4 @@ export default class JsonAsset extends Asset {
     public json: object | null = null;
 }
 
-legacyCC.JsonAsset = JsonAsset;
+cclegacy.JsonAsset = JsonAsset;

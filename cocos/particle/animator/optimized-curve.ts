@@ -23,8 +23,7 @@
  THE SOFTWARE.
  */
 
-import { repeat } from '../../core/math';
-import { AnimationCurve, evalOptCurve, OptimizedKey } from '../../core/geometry/curve';
+import { repeat, geometry } from '../../core';
 
 const CURVE_MODE_CONSTANT = 0;
 const CURVE_MODE_RANDOM_CONSTANT = 1;
@@ -52,7 +51,7 @@ function integrateKeyframeTwice (coef: Float32Array | number[]) {
 }
 
 export class OptimizedCurve {
-    private optimizedKeys: OptimizedKey[];
+    private optimizedKeys: geometry.OptimizedKey[];
     private integral: number[];
     private constructUniform: boolean;
     public coefUniform: Float32Array | null;
@@ -60,7 +59,7 @@ export class OptimizedCurve {
     public integralUniform: Float32Array | null;
 
     constructor (constructUniform = false) {
-        this.optimizedKeys = new Array<OptimizedKey>(); // the i-th optimezed key stores coefficients of [i,i+1] segment in the original curve,so if the time of last key of the original key is 1,the last key won't be kept in the opt curve.
+        this.optimizedKeys = new Array<geometry.OptimizedKey>(); // the i-th optimezed key stores coefficients of [i,i+1] segment in the original curve,so if the time of last key of the original key is 1,the last key won't be kept in the opt curve.
         this.integral = new Array<number>();      // the integral of the curve between 0 and corresponding key,the i-th integral corresponds to the i+1-th key in optimizedKeys (because the integral of the first key is always zero,the first key won't be stored)
         this.constructUniform = constructUniform;
         this.coefUniform = null;
@@ -68,13 +67,13 @@ export class OptimizedCurve {
         this.integralUniform = null;
     }
 
-    public buildCurve (animationCurve: AnimationCurve, multiplier: number = 1) {
+    public buildCurve (animationCurve: geometry.AnimationCurve, multiplier: number = 1) {
         const keyNum = animationCurve.keyFrames!.length - 1;
         let i = 0;
         if (this.optimizedKeys.length < keyNum) {
             const keyToAdd = keyNum - this.optimizedKeys.length;
             for (i = 0; i < keyToAdd; i++) {
-                const optKey = new OptimizedKey();
+                const optKey = new geometry.OptimizedKey();
                 this.optimizedKeys.push(optKey);
             }
         } else {
@@ -87,7 +86,7 @@ export class OptimizedCurve {
         } else {
             let keyOffset = 0;
             if (animationCurve.keyFrames![0].time !== 0) {
-                this.optimizedKeys.unshift(new OptimizedKey());
+                this.optimizedKeys.unshift(new geometry.OptimizedKey());
                 this.optimizedKeys[0].time = 0;
                 this.optimizedKeys[0].endTime = animationCurve.keyFrames![0].time;
                 this.optimizedKeys[0].coefficient[3] = animationCurve.keyFrames![0].value;
@@ -98,7 +97,7 @@ export class OptimizedCurve {
                 this.optimizedKeys[i + keyOffset].index += keyOffset;
             }
             if (animationCurve.keyFrames![animationCurve.keyFrames!.length - 1].time !== 1) {
-                this.optimizedKeys.push(new OptimizedKey());
+                this.optimizedKeys.push(new geometry.OptimizedKey());
                 this.optimizedKeys[this.optimizedKeys.length - 1].time = animationCurve.keyFrames![animationCurve.keyFrames!.length - 1].time;
                 this.optimizedKeys[this.optimizedKeys.length - 1].endTime = 1;
                 this.optimizedKeys[this.optimizedKeys.length - 1].coefficient[3] = animationCurve.keyFrames![animationCurve.keyFrames!.length - 1].value;
@@ -141,7 +140,7 @@ export class OptimizedCurve {
             integrateKeyframe(this.optimizedKeys[i].coefficient);
             const deltaT = this.optimizedKeys[i + 1].time - this.optimizedKeys[i].time;
             const prevIntegral = i === 0 ? 0 : this.integral[i - 1];
-            this.integral[i] = prevIntegral + (deltaT * evalOptCurve(deltaT, this.optimizedKeys[i].coefficient));
+            this.integral[i] = prevIntegral + (deltaT * geometry.evalOptCurve(deltaT, this.optimizedKeys[i].coefficient));
         }
         integrateKeyframe(this.optimizedKeys[this.optimizedKeys.length - 1].coefficient);
         if (this.constructUniform) {
@@ -157,11 +156,11 @@ export class OptimizedCurve {
             if (t < this.optimizedKeys[i].time) {
                 const prevInt = i === 1 ? 0 : this.integral[i - 2];
                 const dt = t - this.optimizedKeys[i - 1].time;
-                return ts * (prevInt + (dt * evalOptCurve(dt, this.optimizedKeys[i - 1].coefficient)));
+                return ts * (prevInt + (dt * geometry.evalOptCurve(dt, this.optimizedKeys[i - 1].coefficient)));
             }
         }
         const dt = t - this.optimizedKeys[this.optimizedKeys.length - 1].time;
-        return ts * (this.integral[this.integral.length - 1] + (dt * evalOptCurve(dt, this.optimizedKeys[this.optimizedKeys.length - 1].coefficient)));
+        return ts * (this.integral[this.integral.length - 1] + (dt * geometry.evalOptCurve(dt, this.optimizedKeys[this.optimizedKeys.length - 1].coefficient)));
     }
 
     // calculate second order integral coefficients of all keys
@@ -178,7 +177,7 @@ export class OptimizedCurve {
             integrateKeyframeTwice(this.optimizedKeys[i].coefficient);
             const deltaT = this.optimizedKeys[i + 1].time - this.optimizedKeys[i].time;
             const prevIntegral = i === 0 ? 0 : this.integral[i - 1];
-            this.integral[i] = prevIntegral + (deltaT * deltaT * evalOptCurve(deltaT, this.optimizedKeys[i].coefficient));
+            this.integral[i] = prevIntegral + (deltaT * deltaT * geometry.evalOptCurve(deltaT, this.optimizedKeys[i].coefficient));
         }
         integrateKeyframeTwice(this.optimizedKeys[this.optimizedKeys.length - 1].coefficient);
         if (this.constructUniform) {
@@ -194,11 +193,11 @@ export class OptimizedCurve {
             if (t < this.optimizedKeys[i].time) {
                 const prevInt = i === 1 ? 0 : this.integral[i - 2];
                 const dt = t - this.optimizedKeys[i - 1].time;
-                return ts * ts * (prevInt + (dt * dt * evalOptCurve(dt, this.optimizedKeys[i - 1].coefficient)));
+                return ts * ts * (prevInt + (dt * dt * geometry.evalOptCurve(dt, this.optimizedKeys[i - 1].coefficient)));
             }
         }
         const dt = t - this.optimizedKeys[this.optimizedKeys.length - 1].time;
-        return ts * ts * (this.integral[this.integral.length - 1] + (dt * dt * evalOptCurve(dt, this.optimizedKeys[this.optimizedKeys.length - 1].coefficient)));
+        return ts * ts * (this.integral[this.integral.length - 1] + (dt * dt * geometry.evalOptCurve(dt, this.optimizedKeys[this.optimizedKeys.length - 1].coefficient)));
     }
 
     public updateKeyUniform () {

@@ -68,6 +68,13 @@ RasterView::RasterView(RasterView const& rhs, const allocator_type& alloc)
 ComputeView::ComputeView(const allocator_type& alloc) noexcept
 : name(alloc) {}
 
+ComputeView::ComputeView(ccstd::pmr::string nameIn, AccessType accessTypeIn, gfx::ClearFlagBit clearFlagsIn, gfx::Color clearColorIn, ClearValueType clearValueTypeIn, const allocator_type& alloc) noexcept
+: name(std::move(nameIn), alloc),
+  accessType(accessTypeIn),
+  clearFlags(clearFlagsIn),
+  clearColor(clearColorIn),
+  clearValueType(clearValueTypeIn) {}
+
 ComputeView::ComputeView(ComputeView&& rhs, const allocator_type& alloc)
 : name(std::move(rhs.name), alloc),
   accessType(rhs.accessType),

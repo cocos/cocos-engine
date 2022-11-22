@@ -25,11 +25,8 @@
 import { ccclass, override } from 'cc.decorator';
 import { ALIPAY, XIAOMI, JSB, TEST, BAIDU } from 'internal:constants';
 import { Format, FormatFeatureBit, deviceManager } from '../../gfx';
-import { legacyCC } from '../../core/global-exports';
 import { PixelFormat } from './asset-enum';
-import { sys } from '../../core/platform/sys';
-import { macro } from '../../core/platform/macro';
-import { warnID } from '../../core/platform/debug';
+import { sys, macro, warnID, cclegacy } from '../../core';
 import './asset';
 
 export type ImageAsset = jsb.ImageAsset;
@@ -41,6 +38,7 @@ export interface IMemoryImageSource {
     width: number;
     height: number;
     format: number;
+    mipmapLevelDataSize?: number[];
 }
 
 export type ImageSource = HTMLCanvasElement | HTMLImageElement | IMemoryImageSource | ImageBitmap;
@@ -75,6 +73,7 @@ imageAssetProto._ctor = function (nativeAsset?: ImageSource) {
         height: 0,
         format: 0,
         _compressed: false,
+        mipmapLevelDataSize:[],
     };
 
     if (nativeAsset !== undefined) {
@@ -169,9 +168,15 @@ imageAssetProto._syncDataToNative = function () {
     }
     else if (data instanceof HTMLImageElement) {
         this.setData(data._data);
+        if (data._mipmapLevelDataSize){
+            this.setMipmapLevelDataSize(data._mipmapLevelDataSize);
+        }
     }
     else {
         this.setData(this._nativeData._data);
+        if (this._nativeData.mipmapLevelDataSize) {
+            this.setMipmapLevelDataSize(this._nativeData.mipmapLevelDataSize);
+        }
     }
 };
 
@@ -258,7 +263,7 @@ imageAssetProto._deserialize = function (data: any) {
     }
 };
 
-legacyCC.ImageAsset = jsb.ImageAsset;
+cclegacy.ImageAsset = jsb.ImageAsset;
 
 // handle meta data, it is generated automatically
 const ImageAssetProto = ImageAsset.prototype;

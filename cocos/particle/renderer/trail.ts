@@ -29,16 +29,13 @@ import { RenderingSubMesh } from '../../asset/assets/rendering-sub-mesh';
 import { director } from '../../game/director';
 import { AttributeName, BufferUsageBit, Format, FormatInfos, MemoryUsageBit, PrimitiveMode,
     Device, Attribute, Buffer, IndirectBuffer, BufferInfo, DrawInfo, DRAW_INFO_SIZE } from '../../gfx';
-import { Color, Mat4, Quat, toRadian, Vec3 } from '../../core/math';
-import { Pool } from '../../core/memop';
+import { Color, Mat4, Quat, toRadian, Vec3, Pool, warnID, cclegacy } from '../../core';
 import { scene } from '../../render-scene';
 import CurveRange from '../animator/curve-range';
 import GradientRange from '../animator/gradient-range';
 import { Space, TextureMode, TrailMode } from '../enum';
 import { Particle } from '../particle';
-import { legacyCC } from '../../core/global-exports';
 import { TransformBit } from '../../scene-graph/node-enum';
-import { warnID } from '../../core';
 
 const PRE_TRIANGLE_INDEX = 1;
 const NEXT_TRIANGLE_INDEX = 1 << 2;
@@ -643,7 +640,7 @@ export default class TrailModule {
             return;
         }
 
-        this._trailModel = legacyCC.director.root.createModel(scene.Model);
+        this._trailModel = cclegacy.director.root.createModel(scene.Model);
     }
 
     private rebuild () {

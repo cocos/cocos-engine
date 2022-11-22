@@ -145,6 +145,7 @@ enum class SceneFlags : uint32_t {
     PROFILER = 0x400,
     DRAW_INSTANCING = 0x800,
     DRAW_NON_INSTANCING = 0x1000,
+    REFLECTION_PROBE = 0x2000,
     ALL = 0xFFFFFFFF,
 };
 
@@ -235,6 +236,7 @@ struct ComputeView {
     }
 
     ComputeView(const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept; // NOLINT
+    ComputeView(ccstd::pmr::string nameIn, AccessType accessTypeIn, gfx::ClearFlagBit clearFlagsIn, gfx::Color clearColorIn, ClearValueType clearValueTypeIn, const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept;
     ComputeView(ComputeView&& rhs, const allocator_type& alloc);
     ComputeView(ComputeView const& rhs, const allocator_type& alloc);
 

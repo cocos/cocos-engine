@@ -36,6 +36,7 @@
 #if defined(CC_SERVER_MODE)
     #include "platform/empty/modules/Screen.h"
     #include "platform/empty/modules/SystemWindow.h"
+    #include "platform/empty/modules/SystemWindowManager.h"
 #else
     #include "modules/Screen.h"
     #include "modules/SystemWindow.h"
@@ -66,7 +67,12 @@ extern int cocos_main(int argc, const char **argv);
     }
     return self;
 }
-
+#if CC_EDITOR
+    - (void)start { }
+    - (void)changeFPS { }
+    - (void)pause { }
+    - (void)resume { }
+#else
 - (void)start {
     int32_t fps = _platform->getFps();
     _timer = [NSTimer scheduledTimerWithTimeInterval:1.0f / fps
@@ -92,7 +98,7 @@ extern int cocos_main(int argc, const char **argv);
 - (void)renderScene {
     _platform->runTask();
 }
-
+#endif
 @end
 
 namespace {
@@ -118,8 +124,21 @@ int32_t MacPlatform::init() {
 }
 
 int32_t MacPlatform::loop(void) {
+#if CC_EDITOR
+    runTask();
+    return 1;
+#else
     [_timer start];
-    return cocos_main(0, nullptr);
+    NSArray *arguments = [[NSProcessInfo processInfo] arguments];
+    int argc = static_cast<int>(arguments.count);
+    std::vector<const char*> argv;
+    argv.reserve(argc);
+    for (id arg in arguments) {
+        argv.emplace_back([arg UTF8String]);
+    }
+
+    return cocos_main(argc, argv.data());
+#endif
 }
 
 int32_t MacPlatform::run(int argc, const char **argv) {

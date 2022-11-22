@@ -1,13 +1,12 @@
-
-
 import { Joint2D } from './joint-2d';
-import { ccclass, property, menu, type } from '../../../../core/data/class-decorator';
 import { IRelativeJoint } from '../../../spec/i-physics-joint';
 import { EJoint2DType } from '../../physics-types';
-import { Vec3, Vec2, IVec2Like, Quat } from '../../../../core';
+import { Vec3, Vec2, IVec2Like, Quat, _decorator } from '../../../../core';
 
 const tempVec3_1 = new Vec3();
 const tempVec3_2 = new Vec3();
+
+const { ccclass, menu, property } = _decorator;
 
 @ccclass('cc.RelativeJoint2D')
 @menu('Physics2D/Joints/RelativeJoint2D')
@@ -73,8 +72,14 @@ export class RelativeJoint2D extends Joint2D {
      */
     @property
     get linearOffset (): Vec2 {
-        if (this._autoCalcOffset && this.connectedBody) {
-            return Vec2.subtract(this._linearOffset, this.connectedBody.node.worldPosition as IVec2Like, this.node.worldPosition as IVec2Like) as Vec2;
+        if (this._autoCalcOffset) {
+            if (this.connectedBody) {
+                return Vec2.subtract(this._linearOffset, this.connectedBody.node.worldPosition as IVec2Like,
+                    this.node.worldPosition as IVec2Like) as Vec2;
+            } else { //if connected body is not set, use scene origin as connected body
+                return Vec2.subtract(this._linearOffset, new Vec2(0, 0),
+                    this.node.worldPosition as IVec2Like) as Vec2;
+            }
         }
         return this._linearOffset;
     }
@@ -93,9 +98,13 @@ export class RelativeJoint2D extends Joint2D {
      */
     @property
     get angularOffset (): number {
-        if (this._autoCalcOffset && this.connectedBody) {
+        if (this._autoCalcOffset) {
             Quat.toEuler(tempVec3_1, this.node.worldRotation);
-            Quat.toEuler(tempVec3_2, this.connectedBody.node.worldRotation);
+            if (this.connectedBody) {
+                Quat.toEuler(tempVec3_2, this.connectedBody.node.worldRotation);
+            } else { //if connected body is not set, use scene origin as connected body
+                Quat.toEuler(tempVec3_2, new Quat());//?
+            }
             this._angularOffset = tempVec3_2.z - tempVec3_1.z;
         }
         return this._angularOffset;

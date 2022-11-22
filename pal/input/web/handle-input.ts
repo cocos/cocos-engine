@@ -1,8 +1,56 @@
 import { HandleCallback } from 'pal/input';
 import { InputEventType } from '../../../cocos/input/types/event-enum';
 import { EventTarget } from '../../../cocos/core/event';
+import { EventHandle } from '../../../cocos/input/types';
 import { InputSourceButton, InputSourceStick, InputSourcePosition, InputSourceOrientation } from '../input-source';
 import { Vec3, Quat } from '../../../cocos/core/math';
+
+enum Button {
+    BUTTON_EAST,
+    BUTTON_SOUTH,
+    BUTTON_WEST,
+    BUTTON_NORTH,
+    BUTTON_TRIGGER_LEFT,
+    BUTTON_TRIGGER_RIGHT,
+    TRIGGER_LEFT,
+    TRIGGER_RIGHT,
+    GRIP_LEFT,
+    GRIP_RIGHT,
+    BUTTON_LEFT_STICK,
+    LEFT_STICK_UP,
+    LEFT_STICK_DOWN,
+    LEFT_STICK_LEFT,
+    LEFT_STICK_RIGHT,
+    BUTTON_RIGHT_STICK,
+    RIGHT_STICK_UP,
+    RIGHT_STICK_DOWN,
+    RIGHT_STICK_LEFT,
+    RIGHT_STICK_RIGHT,
+}
+
+export enum KeyEventType {
+    KET_CLICK,
+    KET_STICK,
+    KET_GRAB
+}
+
+const _nativeButtonMap = {
+    1: Button.BUTTON_EAST,
+    2: Button.BUTTON_SOUTH,
+    3: Button.BUTTON_NORTH,
+    4: Button.BUTTON_WEST,
+    9: Button.BUTTON_LEFT_STICK,
+    10: Button.BUTTON_RIGHT_STICK,
+    13: Button.BUTTON_TRIGGER_LEFT,
+    14: Button.BUTTON_TRIGGER_RIGHT,
+};
+
+interface IAxisValue {
+    negative: number;
+    positive: number;
+}
+
+type NativeButtonState = Record<Button, number>
 
 export class HandleInputDevice {
     public get buttonNorth () { return this._buttonNorth; }
@@ -53,8 +101,101 @@ export class HandleInputDevice {
     private _aimRightPosition!: InputSourcePosition;
     private _aimRightOrientation!: InputSourceOrientation;
 
+    private _nativeButtonState: NativeButtonState = {
+        [Button.BUTTON_SOUTH]: 0,
+        [Button.BUTTON_EAST]: 0,
+        [Button.BUTTON_WEST]: 0,
+        [Button.BUTTON_NORTH]: 0,
+        [Button.BUTTON_TRIGGER_LEFT]: 0,
+        [Button.BUTTON_TRIGGER_RIGHT]: 0,
+        [Button.TRIGGER_LEFT]: 0,
+        [Button.TRIGGER_RIGHT]: 0,
+        [Button.GRIP_LEFT]: 0,
+        [Button.GRIP_RIGHT]: 0,
+        [Button.LEFT_STICK_UP]: 0,
+        [Button.LEFT_STICK_DOWN]: 0,
+        [Button.LEFT_STICK_LEFT]: 0,
+        [Button.LEFT_STICK_RIGHT]: 0,
+        [Button.RIGHT_STICK_UP]: 0,
+        [Button.RIGHT_STICK_DOWN]: 0,
+        [Button.RIGHT_STICK_LEFT]: 0,
+        [Button.RIGHT_STICK_RIGHT]: 0,
+        [Button.BUTTON_LEFT_STICK]: 0,
+        [Button.BUTTON_RIGHT_STICK]: 0,
+    };
+
     constructor () {
         this._initInputSource();
+        window.addEventListener('xr-remote-input', (evt: Event): void => {
+            const remoteInputEvent: CustomEvent = evt as CustomEvent;
+            const keyEventType: KeyEventType = remoteInputEvent.detail.keyEventType;
+            const stickAxisCode = remoteInputEvent.detail.stickAxisCode;
+            const stickAxisValue = remoteInputEvent.detail.stickAxisValue;
+            const stickKeyCode = remoteInputEvent.detail.stickKeyCode;
+            const isButtonPressed = remoteInputEvent.detail.isButtonPressed;
+
+            if (keyEventType === KeyEventType.KET_CLICK) {
+                const button = _nativeButtonMap[stickKeyCode];
+                this._nativeButtonState[button] = isButtonPressed ? 1 : 0;
+            } else if (keyEventType === KeyEventType.KET_STICK) {
+                //
+            } else if (keyEventType === KeyEventType.KET_GRAB) {
+                //
+                let negativeButton: Button | undefined;
+                let positiveButton: Button | undefined;
+                let axisValue: IAxisValue | undefined;
+                switch (stickAxisCode) {
+                case 3:
+                    negativeButton = Button.LEFT_STICK_LEFT;
+                    positiveButton = Button.LEFT_STICK_RIGHT;
+                    axisValue = this._axisToButtons(stickAxisValue);
+                    break;
+                case 4:
+                    negativeButton = Button.LEFT_STICK_DOWN;
+                    positiveButton = Button.LEFT_STICK_UP;
+                    axisValue = this._axisToButtons(stickAxisValue);
+                    break;
+                case 5:
+                    negativeButton = Button.RIGHT_STICK_LEFT;
+                    positiveButton = Button.RIGHT_STICK_RIGHT;
+                    axisValue = this._axisToButtons(stickAxisValue);
+                    break;
+                case 6:
+                    negativeButton = Button.RIGHT_STICK_DOWN;
+                    positiveButton = Button.RIGHT_STICK_UP;
+                    axisValue = this._axisToButtons(stickAxisValue);
+                    break;
+                default:
+                    if (stickAxisCode === 7) {
+                        this._nativeButtonState[Button.TRIGGER_LEFT] = stickAxisValue;
+                    } else if (stickAxisCode === 8) {
+                        this._nativeButtonState[Button.TRIGGER_RIGHT] = stickAxisValue;
+                    } else if (stickAxisCode === 9) {
+                        this._nativeButtonState[Button.GRIP_LEFT] = stickAxisValue;
+                    } else if (stickAxisCode === 10) {
+                        this._nativeButtonState[Button.GRIP_RIGHT] = stickAxisValue;
+                    }
+                    break;
+                }
+                if (negativeButton && positiveButton && axisValue) {
+                    this._nativeButtonState[negativeButton] = axisValue.negative;
+                    this._nativeButtonState[positiveButton] = axisValue.positive;
+                }
+            }
+
+            this._eventTarget.emit(InputEventType.HANDLE_INPUT, new EventHandle(InputEventType.HANDLE_INPUT, this));
+        });
+    }
+
+    private _axisToButtons (axisValue: number): IAxisValue {
+        const value = Math.abs(axisValue);
+        if (axisValue > 0) {
+            return { negative: 0, positive: value };
+        } else if (axisValue < 0) {
+            return { negative: value, positive: 0 };
+        } else {
+            return { negative: 0, positive: 0 };
+        }
     }
 
     /**
@@ -66,50 +207,60 @@ export class HandleInputDevice {
 
     private _initInputSource () {
         this._buttonNorth = new InputSourceButton();
-        this._buttonNorth.getValue = () => 0;
+        this._buttonNorth.getValue = () => this._nativeButtonState[Button.BUTTON_NORTH];
         this._buttonEast = new InputSourceButton();
-        this._buttonEast.getValue = () => 0;
+        this._buttonEast.getValue = () => this._nativeButtonState[Button.BUTTON_EAST];
         this._buttonWest = new InputSourceButton();
-        this._buttonWest.getValue = () => 0;
+        this._buttonWest.getValue = () => this._nativeButtonState[Button.BUTTON_WEST];
         this._buttonSouth = new InputSourceButton();
-        this._buttonSouth.getValue = () => 0;
+        this._buttonSouth.getValue = () => this._nativeButtonState[Button.BUTTON_SOUTH];
 
         this._buttonTriggerLeft = new InputSourceButton();
-        this._buttonTriggerLeft.getValue = () => 0;
+        this._buttonTriggerLeft.getValue = () => this._nativeButtonState[Button.BUTTON_TRIGGER_LEFT];
         this._buttonTriggerRight = new InputSourceButton();
-        this._buttonTriggerRight.getValue = () => 0;
+        this._buttonTriggerRight.getValue = () => this._nativeButtonState[Button.BUTTON_TRIGGER_RIGHT];
         this._triggerLeft = new InputSourceButton();
-        this._triggerLeft.getValue = () => 0;
+        this._triggerLeft.getValue = () => this._nativeButtonState[Button.TRIGGER_LEFT];
         this._triggerRight = new InputSourceButton();
-        this._triggerRight.getValue = () => 0;
+        this._triggerRight.getValue = () => this._nativeButtonState[Button.TRIGGER_RIGHT];
         this._gripLeft = new InputSourceButton();
-        this._gripLeft.getValue = () => 0;
+        this._gripLeft.getValue = () => this._nativeButtonState[Button.GRIP_LEFT];
         this._gripRight = new InputSourceButton();
-        this._gripRight.getValue = () => 0;
+        this._gripRight.getValue = () => this._nativeButtonState[Button.GRIP_RIGHT];
 
         this._buttonLeftStick = new InputSourceButton();
-        this._buttonLeftStick.getValue = () => 0;
+        this._buttonLeftStick.getValue = () => this._nativeButtonState[Button.BUTTON_LEFT_STICK];
         const leftStickUp = new InputSourceButton();
-        leftStickUp.getValue = () => 0;
+        leftStickUp.getValue = () => this._nativeButtonState[Button.LEFT_STICK_UP];
         const leftStickDown = new InputSourceButton();
-        leftStickDown.getValue = () => 0;
+        leftStickDown.getValue = () => this._nativeButtonState[Button.LEFT_STICK_DOWN];
         const leftStickLeft = new InputSourceButton();
-        leftStickLeft.getValue = () => 0;
+        leftStickLeft.getValue = () => this._nativeButtonState[Button.LEFT_STICK_LEFT];
         const leftStickRight = new InputSourceButton();
-        leftStickRight.getValue = () => 0;
-        this._leftStick = new InputSourceStick({ up: leftStickUp, down: leftStickDown, left: leftStickLeft, right: leftStickRight });
+        leftStickRight.getValue = () => this._nativeButtonState[Button.LEFT_STICK_RIGHT];
+        this._leftStick = new InputSourceStick({
+            up: leftStickUp,
+            down: leftStickDown,
+            left: leftStickLeft,
+            right: leftStickRight,
+        });
 
         this._buttonRightStick = new InputSourceButton();
-        this._buttonRightStick.getValue = () => 0;
+        this._buttonRightStick.getValue = () => this._nativeButtonState[Button.BUTTON_RIGHT_STICK];
         const rightStickUp = new InputSourceButton();
-        rightStickUp.getValue = () => 0;
+        rightStickUp.getValue = () => this._nativeButtonState[Button.RIGHT_STICK_UP];
         const rightStickDown = new InputSourceButton();
-        rightStickDown.getValue = () => 0;
+        rightStickDown.getValue = () => this._nativeButtonState[Button.RIGHT_STICK_DOWN];
         const rightStickLeft = new InputSourceButton();
-        rightStickLeft.getValue = () => 0;
+        rightStickLeft.getValue = () => this._nativeButtonState[Button.RIGHT_STICK_LEFT];
         const rightStickRight = new InputSourceButton();
-        rightStickRight.getValue = () => 0;
-        this._rightStick = new InputSourceStick({ up: rightStickUp, down: rightStickDown, left: rightStickLeft, right: rightStickRight });
+        rightStickRight.getValue = () => this._nativeButtonState[Button.RIGHT_STICK_RIGHT];
+        this._rightStick = new InputSourceStick({
+            up: rightStickUp,
+            down: rightStickDown,
+            left: rightStickLeft,
+            right: rightStickRight,
+        });
 
         this._handLeftPosition = new InputSourcePosition();
         this._handLeftPosition.getValue = () => Vec3.ZERO;

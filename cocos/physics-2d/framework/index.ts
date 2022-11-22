@@ -1,4 +1,4 @@
-import { legacyCC } from '../../core/global-exports';
+import { cclegacy } from '../../core';
 
 import * as PolygonSeparator from './utils/polygon-separator';
 
@@ -34,6 +34,6 @@ export const Physics2DUtils = {
     PolygonSeparator,
 };
 
-legacyCC.internal.physics2d = {
+cclegacy.internal.physics2d = {
     selector,
 };
