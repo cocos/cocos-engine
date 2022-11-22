@@ -1095,8 +1095,8 @@ class DevicePreSceneTask extends WebSceneTask {
         // CCCamera, CCShadow, CCCSM
         const queueId = this._currentQueue.queueId;
         const queueRenderData = context.renderGraph.getData(queueId)!;
-        this._updateGlobal(context, queueRenderData);
         this._setMainLightShadowTex(context, queueRenderData);
+        this._updateGlobal(context, queueRenderData);
     }
 
     public submit () {
