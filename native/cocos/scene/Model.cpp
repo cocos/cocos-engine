@@ -593,6 +593,13 @@ void Model::setInstancedAttribute(const ccstd::string &name, const float *value,
         subModel->setInstancedAttribute(name, value, byteLength);
     }
 }
+void Model::setReflectionProbeType(int32_t val) {
+    _reflectionProbeType = val;
+    for (const auto &subModel : _subModels) {
+        subModel->setReflectionProbeType(val);
+    }
+    onMacroPatchesStateChanged();
+}
 
 } // namespace scene
 } // namespace cc
