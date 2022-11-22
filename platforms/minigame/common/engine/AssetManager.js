@@ -232,7 +232,7 @@ function downloadBundle (nameOrUrl, options, onComplete) {
                 js = `src/bundle-scripts/${bundleName}/index.${suffix}js`;
                 cacheManager.makeBundleFolder(bundleName);
             } else {
-                url = customRootURL + `assets/${bundleName}`;
+                url = `${customRootURL}assets/${bundleName}`;
                 js = `assets/${bundleName}/index.${suffix}js`;
             }
         require(`./${js}`);
@@ -387,8 +387,8 @@ function loadImage (url, options, onComplete)  {
         image.onload = function () {
             image.onload = null;
             image.onerror = null;
-            onComplete && onComplete(null, image);
             URL.revokeObjectULR(url);
+            onComplete && onComplete(null, image);
           };
 
         image.onerror = function (e) {
