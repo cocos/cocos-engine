@@ -170,7 +170,8 @@ export function buildFxaaPass (camera: Camera,
         ppl.addDepthStencil(fxaaPassDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
     }
     const fxaaPassIdx = 0;
-    const fxaaPass = ppl.addRasterPass(width, height, 'fxaa', `CameraFxaaPass${cameraID}`);
+    const fxaaPass = ppl.addRasterPass(width, height, 'fxaa');
+    fxaaPass.name = `CameraFxaaPass${cameraID}`;
     fxaaPass.setViewport(new Viewport(area.x, area.y, width, height));
     if (ppl.containsResource(inputRT)) {
         const computeView = new ComputeView();

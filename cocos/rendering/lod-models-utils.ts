@@ -40,9 +40,6 @@ const modelsInAnyLODGroup = new Map<Model, boolean>();
  */
 const visibleModelsByAnyLODGroup = new Map<Model, boolean>();
 
-/**
- * @engineInternal
- */
 export class LODModelsCachedUtils {
     /**
      * @en Insert visible LOD models into visibleModelsByAnyLODGroup, Add all models on lodGroups to modelsInAnyLODGroup

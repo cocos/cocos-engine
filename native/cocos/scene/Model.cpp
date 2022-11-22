@@ -389,8 +389,8 @@ void Model::updateSHUBOs() {
     const auto *lightProbes = pipeline->getPipelineSceneData()->getLightProbes();
 
     _lastWorldBoundCenter.set(center);
-    _tetrahedronIndex = lightProbes->getData().getInterpolationWeights(center, _tetrahedronIndex, weights);
-    bool result = lightProbes->getData().getInterpolationSHCoefficients(_tetrahedronIndex, weights, coefficients);
+    _tetrahedronIndex = lightProbes->getData()->getInterpolationWeights(center, _tetrahedronIndex, weights);
+    bool result = lightProbes->getData()->getInterpolationSHCoefficients(_tetrahedronIndex, weights, coefficients);
     if (!result) {
         return;
     }
