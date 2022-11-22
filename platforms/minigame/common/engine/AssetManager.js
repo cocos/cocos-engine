@@ -375,52 +375,126 @@ downloader.register({
     default: downloadText,
 });
 
-parser.register({
-    '.png': downloader.downloadDomImage,
-    '.jpg': downloader.downloadDomImage,
-    '.bmp': downloader.downloadDomImage,
-    '.jpeg': downloader.downloadDomImage,
-    '.gif': downloader.downloadDomImage,
-    '.ico': downloader.downloadDomImage,
-    '.tiff': downloader.downloadDomImage,
-    '.image': downloader.downloadDomImage,
-    '.webp': downloader.downloadDomImage,
-    '.pvr': parsePVRTex,
-    '.pkm': parsePKMTex,
-    '.astc': parseASTCTex,
+function loadImage (url, options, onComplete)  {
+    readArrayBuffer(url, (err, data) => {
+        if (err) {
+            onComplete && onComplete(err);
+            return;
+        }
+        const blob = new Blob([data]);
+        const blobUrl = URL.createObjectURL(blob);
+        const image = document.createElement('img');
+        image.onload = function () {
+            image.onload = null;
+            image.onerror = null;
+            onComplete && onComplete(null, image);
+            URL.revokeObjectULR(url);
+          };
 
-    '.font': loadFont,
-    '.eot': loadFont,
-    '.ttf': loadFont,
-    '.woff': loadFont,
-    '.svg': loadFont,
-    '.ttc': loadFont,
+        image.onerror = function (e) {
+            image.onload = null;
+            image.onerror = null;
+            onComplete && onComplete(e, null);
+          };
+        image.src = blobUrl;
+    });
+}
 
-    // Audio
-    '.mp3': loadAudioPlayer,
-    '.ogg': loadAudioPlayer,
-    '.wav': loadAudioPlayer,
-    '.m4a': loadAudioPlayer,
+if (sys.os === sys.OS.IOS) {
+    parser.register({
+        '.png': loadImage, // if systemInfo.ios loadImage, if android downloader.downloadDomImage
+        '.jpg': loadImage,
+        '.bmp': loadImage,
+        '.jpeg': loadImage,
+        '.gif': loadImage,
+        '.ico': loadImage,
+        '.tiff': loadImage,
+        '.image': loadImage,
+        '.webp': loadImage,
+        '.pvr': parsePVRTex,
+        '.pkm': parsePKMTex,
+        '.astc': parseASTCTex,
 
-    // Txt
-    '.txt': parseText,
-    '.xml': parseText,
-    '.vsh': parseText,
-    '.fsh': parseText,
-    '.atlas': parseText,
+        '.font': loadFont,
+        '.eot': loadFont,
+        '.ttf': loadFont,
+        '.woff': loadFont,
+        '.svg': loadFont,
+        '.ttc': loadFont,
 
-    '.tmx': parseText,
-    '.tsx': parseText,
-    '.fnt': parseText,
-    '.plist': parsePlist,
+        // Audio
+        '.mp3': loadAudioPlayer,
+        '.ogg': loadAudioPlayer,
+        '.wav': loadAudioPlayer,
+        '.m4a': loadAudioPlayer,
 
-    '.binary': parseArrayBuffer,
-    '.bin': parseArrayBuffer,
-    '.dbbin': parseArrayBuffer,
-    '.skel': parseArrayBuffer,
+        // Txt
+        '.txt': parseText,
+        '.xml': parseText,
+        '.vsh': parseText,
+        '.fsh': parseText,
+        '.atlas': parseText,
 
-    '.ExportJson': parseJson,
-});
+        '.tmx': parseText,
+        '.tsx': parseText,
+        '.fnt': parseText,
+        '.plist': parsePlist,
+
+        '.binary': parseArrayBuffer,
+        '.bin': parseArrayBuffer,
+        '.dbbin': parseArrayBuffer,
+        '.skel': parseArrayBuffer,
+
+        '.ExportJson': parseJson,
+    });
+} else {
+    parser.register({
+        '.png': downloader.downloadDomImage,
+        '.jpg': downloader.downloadDomImage,
+        '.bmp': downloader.downloadDomImage,
+        '.jpeg': downloader.downloadDomImage,
+        '.gif': downloader.downloadDomImage,
+        '.ico': downloader.downloadDomImage,
+        '.tiff': downloader.downloadDomImage,
+        '.image': downloader.downloadDomImage,
+        '.webp': downloader.downloadDomImage,
+        '.pvr': parsePVRTex,
+        '.pkm': parsePKMTex,
+        '.astc': parseASTCTex,
+
+        '.font': loadFont,
+        '.eot': loadFont,
+        '.ttf': loadFont,
+        '.woff': loadFont,
+        '.svg': loadFont,
+        '.ttc': loadFont,
+
+        // Audio
+        '.mp3': loadAudioPlayer,
+        '.ogg': loadAudioPlayer,
+        '.wav': loadAudioPlayer,
+        '.m4a': loadAudioPlayer,
+
+        // Txt
+        '.txt': parseText,
+        '.xml': parseText,
+        '.vsh': parseText,
+        '.fsh': parseText,
+        '.atlas': parseText,
+
+        '.tmx': parseText,
+        '.tsx': parseText,
+        '.fnt': parseText,
+        '.plist': parsePlist,
+
+        '.binary': parseArrayBuffer,
+        '.bin': parseArrayBuffer,
+        '.dbbin': parseArrayBuffer,
+        '.skel': parseArrayBuffer,
+
+        '.ExportJson': parseJson,
+    });
+}
 
 function transformUrl (url, options) {
     let inLocal = false;
