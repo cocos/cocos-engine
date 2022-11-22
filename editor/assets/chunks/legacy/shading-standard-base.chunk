@@ -198,11 +198,13 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
 
   #endif
 
+  #if CC_USE_REFLECTION_PROBE
+    vec4 probe = vec4(0.0);
     #if CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_CUBE
-      vec4 probe = fragTextureLod(cc_reflectionProbeCubemap, R, s.roughness * (cc_ambientGround.w - 1.0));
+      probe = fragTextureLod(cc_reflectionProbeCubemap, R, s.roughness * (cc_ambientGround.w - 1.0));
     #elif CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_PLANAR
       vec2 screenUV = GetPlanarReflectScreenUV(s.position, cc_matViewProj, cc_cameraPos.w, V, R);
-      vec4 probe = texture(cc_reflectionProbePlanarMap, screenUV);
+      probe = texture(cc_reflectionProbePlanarMap, screenUV);
     #endif
     env = unpackRGBE(probe);
   #endif
