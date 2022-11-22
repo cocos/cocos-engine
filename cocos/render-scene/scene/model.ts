@@ -40,6 +40,7 @@ import { Attribute, DescriptorSet, Device, Buffer, BufferInfo,
 import { UBOLocal, UBOSH, UBOWorldBound, UNIFORM_LIGHTMAP_TEXTURE_BINDING, UNIFORM_REFLECTION_PROBE_CUBEMAP_BINDING, UNIFORM_REFLECTION_PROBE_TEXTURE_BINDING } from '../../rendering/define';
 import { Root } from '../../root';
 import { TextureCube } from '../../asset/assets';
+import { ShadowType } from '.';
 
 const m4_1 = new Mat4();
 
@@ -58,7 +59,7 @@ const stationaryLightMapPatches: IMacroPatch[] = [
 const lightProbePatches: IMacroPatch[] = [
     { name: 'CC_USE_LIGHT_PROBE', value: true },
 ];
-
+const CC_USE_REFLECTION_PROBE = 'CC_USE_REFLECTION_PROBE';
 export enum ModelType {
     DEFAULT,
     SKINNING,
@@ -322,6 +323,11 @@ export class Model {
 
     set reflectionProbeType (val) {
         this._reflectionProbeType = val;
+        const subModels = this._subModels;
+        for (let i = 0; i < subModels.length; i++) {
+            subModels[i].useReflectionProbeType = val;
+        }
+        this.onMacroPatchesStateChanged();
     }
 
     /**
@@ -625,6 +631,7 @@ export class Model {
         this._updateStamp = stamp;
 
         this.updateSHUBOs();
+        const forceUpdateUBO = this.node.scene.globals.shadows.enabled && this.node.scene.globals.shadows.type === ShadowType.Planar;
 
         if (!this._localDataUpdated) { return; }
         this._localDataUpdated = false;
@@ -641,7 +648,7 @@ export class Model {
                 hasNonInstancingPass = true;
             }
         }
-        if (hasNonInstancingPass && this._localBuffer) {
+        if ((hasNonInstancingPass || forceUpdateUBO) && this._localBuffer) {
             Mat4.toArray(this._localData, worldMatrix, UBOLocal.MAT_WORLD_OFFSET);
             Mat4.inverseTranspose(m4_1, worldMatrix);
 
@@ -671,7 +678,7 @@ export class Model {
         return true;
     }
 
-    private updateSHBuffer() {
+    private updateSHBuffer () {
         if (!this._localSHData) {
             return;
         }
@@ -697,7 +704,7 @@ export class Model {
      * @en Clear the model's SH ubo
      * @zh 清除模型的球谐 ubo
      */
-     public clearSHUBOs () {
+    public clearSHUBOs () {
         if (!this._localSHData) {
             return;
         }
@@ -707,7 +714,7 @@ export class Model {
         }
 
         this.updateSHBuffer();
-     }
+    }
 
     /**
      * @en Update the model's SH ubo
@@ -883,7 +890,7 @@ export class Model {
      * @zh 更新反射探针的立方体贴图
      * @param texture probe cubemap
      */
-    public updateReflctionProbeCubemap (texture: TextureCube) {
+    public updateReflctionProbeCubemap (texture: TextureCube | null) {
         this._localDataUpdated = true;
         this.onMacroPatchesStateChanged();
 
@@ -909,7 +916,7 @@ export class Model {
      * @zh 更新反射探针的平面反射贴图
      * @param texture planar relflection map
      */
-    public updateReflctionProbePlanarMap (texture: Texture) {
+    public updateReflctionProbePlanarMap (texture: Texture | null) {
         this._localDataUpdated = true;
         this.onMacroPatchesStateChanged();
 
@@ -967,6 +974,10 @@ export class Model {
         if (this._useLightProbe) {
             patches = patches ? patches.concat(lightProbePatches) : lightProbePatches;
         }
+        const reflectionProbePatches: IMacroPatch[] = [
+            { name: CC_USE_REFLECTION_PROBE, value: this._reflectionProbeType },
+        ];
+        patches = patches ? patches.concat(reflectionProbePatches) : reflectionProbePatches;
 
         return patches;
     }
