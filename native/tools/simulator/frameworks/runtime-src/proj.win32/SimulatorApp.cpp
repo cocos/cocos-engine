@@ -51,7 +51,6 @@
 #include "runtime/Runtime.h"
 
 #include "application/ApplicationManager.h"
-
 #include "platform/FileUtils.h"
 #include "platform/interfaces/modules/IScreen.h"
 #include "platform/interfaces/modules/ISystemWindow.h"
@@ -256,7 +255,6 @@ int SimulatorApp::run() {
     }
 
     // create the application instance
-    
     RuntimeEngine::getInstance()->setProjectConfig(_project);
 
     // create console window
