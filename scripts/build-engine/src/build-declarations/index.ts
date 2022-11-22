@@ -3,7 +3,6 @@ import fs from 'fs-extra';
 import ts from 'typescript';
 import * as gift from 'tfig';
 import { StatsQuery } from '../stats-query';
-import { interfaceFilter } from './interface-filter';
 
 const DEBUG = false;
 const REMOVE_OLD = !DEBUG;
@@ -214,6 +213,7 @@ export async function build (options: {
             priority: [
                 ...(ccDtsFile ? [ccDtsFile] : []), // Things should be exported to 'cc' as far as possible.
             ],
+            privateJsDocTag: 'engineInternal',
             groups: [
                 { test: /^cc\/editor.*$/, path: ps.join(outDir, 'cc.editor.d.ts') },
                 { test: /^cc\/.*$/, path: ps.join(outDir, 'index.d.ts') },
@@ -239,13 +239,6 @@ export async function build (options: {
                 { encoding: 'utf8' },
             );
         }
-
-        interfaceFilter.cullInterface({
-            inputDts: indexOutputPath,
-            privateTag: 'engineInternal',
-            deprecateTag: 'legacyPublic',
-            deprecateTip: 'since v3.5.0, this is an engine private interface that will be removed in the future.',
-        });
     } catch (error) {
         console.error(error);
         return false;

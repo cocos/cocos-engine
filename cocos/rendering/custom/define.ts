@@ -13,6 +13,7 @@ import { RenderWindow } from '../../render-scene/core/render-window';
 export enum AntiAliasing {
     NONE,
     FXAA,
+    FXAAHQ,
 }
 
 export function validPunctualLightsCulling (pipeline: Pipeline, camera: Camera) {
@@ -110,6 +111,84 @@ export function getRenderArea (camera: Camera, width: number, height: number, li
         }
     }
     return out;
+}
+
+class FxaaData {
+    declare fxaaMaterial: Material;
+    private _updateFxaaPass () {
+        if (!this.fxaaMaterial) return;
+
+        const combinePass = this.fxaaMaterial.passes[0];
+        combinePass.beginChangeStatesSilently();
+        combinePass.tryCompile();
+        combinePass.endChangeStatesSilently();
+    }
+    private _init () {
+        if (this.fxaaMaterial) return;
+        this.fxaaMaterial = new Material();
+        this.fxaaMaterial._uuid = 'builtin-fxaa-material';
+        this.fxaaMaterial.initialize({ effectName: 'pipeline/fxaa-hq' });
+        for (let i = 0; i < this.fxaaMaterial.passes.length; ++i) {
+            this.fxaaMaterial.passes[i].tryCompile();
+        }
+        this._updateFxaaPass();
+    }
+    constructor () {
+        this._init();
+    }
+}
+
+let fxaaData: FxaaData | null = null;
+export function buildFxaaPass (camera: Camera,
+    ppl: Pipeline,
+    inputRT: string) {
+    if (!fxaaData) {
+        fxaaData = new FxaaData();
+    }
+    const cameraID = getCameraUniqueID(camera);
+    const cameraName = `Camera${cameraID}`;
+    let width = camera.window.width;
+    let height = camera.window.height;
+    const area = getRenderArea(camera, width, height);
+    width = area.width;
+    height = area.height;
+    // Start
+    const clearColor = new Color(0, 0, 0, 1);
+    if (camera.clearFlag & ClearFlagBit.COLOR) {
+        clearColor.x = camera.clearColor.x;
+        clearColor.y = camera.clearColor.y;
+        clearColor.z = camera.clearColor.z;
+    }
+    clearColor.w = camera.clearColor.w;
+
+    const fxaaPassRTName = `dsFxaaPassColor${cameraName}`;
+    const fxaaPassDSName = `dsFxaaPassDS${cameraName}`;
+
+    // ppl.updateRenderWindow(inputRT, camera.window);
+    if (!ppl.containsResource(fxaaPassRTName)) {
+        ppl.addRenderTarget(fxaaPassRTName, Format.RGBA8, width, height, ResourceResidency.MANAGED);
+        ppl.addDepthStencil(fxaaPassDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
+    }
+    const fxaaPassIdx = 0;
+    const fxaaPass = ppl.addRasterPass(width, height, 'fxaa', `CameraFxaaPass${cameraID}`);
+    fxaaPass.setViewport(new Viewport(area.x, area.y, width, height));
+    if (ppl.containsResource(inputRT)) {
+        const computeView = new ComputeView();
+        computeView.name = 'sceneColorMap';
+        fxaaPass.addComputeView(inputRT, computeView);
+    }
+    const fxaaPassView = new RasterView('_',
+        AccessType.WRITE, AttachmentType.RENDER_TARGET,
+        LoadOp.CLEAR, StoreOp.STORE,
+        camera.clearFlag,
+        clearColor);
+    fxaaPass.addRasterView(fxaaPassRTName, fxaaPassView);
+    fxaaData.fxaaMaterial.setProperty('texSize', new Vec4(width, height, 1.0 / width, 1.0 / height), fxaaPassIdx);
+    fxaaPass.addQueue(QueueHint.RENDER_TRANSPARENT).addCameraQuad(
+        camera, fxaaData.fxaaMaterial, fxaaPassIdx,
+        SceneFlags.NONE,
+    );
+    return { rtName: fxaaPassRTName, dsName: fxaaPassDSName };
 }
 
 export const MAX_BLOOM_FILTER_PASS_NUM = 6;
