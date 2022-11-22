@@ -59,7 +59,7 @@ const stationaryLightMapPatches: IMacroPatch[] = [
 const lightProbePatches: IMacroPatch[] = [
     { name: 'CC_USE_LIGHT_PROBE', value: true },
 ];
-
+const CC_USE_REFLECTION_PROBE = 'CC_USE_REFLECTION_PROBE';
 export enum ModelType {
     DEFAULT,
     SKINNING,
@@ -323,6 +323,11 @@ export class Model {
 
     set reflectionProbeType (val) {
         this._reflectionProbeType = val;
+        const subModels = this._subModels;
+        for (let i = 0; i < subModels.length; i++) {
+            subModels[i].useReflectionProbeType = val;
+        }
+        this.onMacroPatchesStateChanged();
     }
 
     /**
@@ -885,7 +890,7 @@ export class Model {
      * @zh 更新反射探针的立方体贴图
      * @param texture probe cubemap
      */
-    public updateReflctionProbeCubemap (texture: TextureCube) {
+    public updateReflctionProbeCubemap (texture: TextureCube | null) {
         this._localDataUpdated = true;
         this.onMacroPatchesStateChanged();
 
@@ -911,7 +916,7 @@ export class Model {
      * @zh 更新反射探针的平面反射贴图
      * @param texture planar relflection map
      */
-    public updateReflctionProbePlanarMap (texture: Texture) {
+    public updateReflctionProbePlanarMap (texture: Texture | null) {
         this._localDataUpdated = true;
         this.onMacroPatchesStateChanged();
 
@@ -969,6 +974,10 @@ export class Model {
         if (this._useLightProbe) {
             patches = patches ? patches.concat(lightProbePatches) : lightProbePatches;
         }
+        const reflectionProbePatches: IMacroPatch[] = [
+            { name: CC_USE_REFLECTION_PROBE, value: this._reflectionProbeType },
+        ];
+        patches = patches ? patches.concat(reflectionProbePatches) : reflectionProbePatches;
 
         return patches;
     }
