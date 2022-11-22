@@ -402,7 +402,7 @@ function loadImage (url, options, onComplete)  {
 
 if (sys.os === sys.OS.IOS) {
     parser.register({
-        '.png': loadImage, // if systemInfo.ios loadImage, if android downloader.downloadDomImage
+        '.png': loadImage,
         '.jpg': loadImage,
         '.bmp': loadImage,
         '.jpeg': loadImage,
