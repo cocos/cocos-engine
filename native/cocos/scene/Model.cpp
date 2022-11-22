@@ -61,6 +61,7 @@ const cc::gfx::SamplerInfo LIGHTMAP_SAMPLER_WITH_MIP_HASH{
 
 const ccstd::vector<cc::scene::IMacroPatch> SHADOW_MAP_PATCHES{{"CC_RECEIVE_SHADOW", true}};
 const ccstd::vector<cc::scene::IMacroPatch> LIGHT_PROBE_PATCHES{{"CC_USE_LIGHT_PROBE", true}};
+const ccstd::string CC_USE_REFLECTION_PROBE = "CC_USE_REFLECTION_PROBE";
 } // namespace
 
 namespace cc {
@@ -427,6 +428,8 @@ ccstd::vector<IMacroPatch> Model::getMacroPatches(index_t subModelIndex) {
         }
     }
 
+    patches.push_back({CC_USE_REFLECTION_PROBE, _reflectionProbeType});
+
     return patches;
 }
 
@@ -593,6 +596,13 @@ void Model::setInstancedAttribute(const ccstd::string &name, const float *value,
     for (const auto &subModel : _subModels) {
         subModel->setInstancedAttribute(name, value, byteLength);
     }
+}
+void Model::setReflectionProbeType(int32_t val) {
+    _reflectionProbeType = val;
+    for (const auto &subModel : _subModels) {
+        subModel->setReflectionProbeType(val);
+    }
+    onMacroPatchesStateChanged();
 }
 
 } // namespace scene
