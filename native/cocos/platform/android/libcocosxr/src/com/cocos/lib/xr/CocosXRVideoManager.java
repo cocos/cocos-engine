@@ -164,7 +164,6 @@ public class CocosXRVideoManager {
                 @Override
                 public void onScriptEvent(String eventData) {
                     if(isPaused) {
-                        Log.e(TAG, "onScriptEvent failed, because is paused !!!");
                         return;
                     }
                     processVideoEvent(eventData);
@@ -390,6 +389,7 @@ public class CocosXRVideoManager {
             lastTickTime = System.nanoTime();
             Set<Map.Entry<String, CocosXRVideoPlayer>> entrySets = xrVideoPlayerHashMap.entrySet();
             for (Map.Entry<String, CocosXRVideoPlayer> entrySet : entrySets) {
+                entrySet.getValue().onBeforeGLDrawFrame();
                 if(entrySet.getValue().isStopped() || entrySet.getValue().getVideoTextureWidth() == 0 || entrySet.getValue().getVideoTextureHeight() == 0) {
                     continue;
                 }

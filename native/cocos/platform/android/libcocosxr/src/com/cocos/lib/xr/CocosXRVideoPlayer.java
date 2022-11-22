@@ -230,12 +230,14 @@ public class CocosXRVideoPlayer {
         });
     }
 
-    public void onGLDrawFrame() {
+    public void onBeforeGLDrawFrame() {
         if (!isGLInitialized) {
             onGLReady();
             return;
         }
+    }
 
+    public void onGLDrawFrame() {
         if (videoTextureId == 0 || videoTextureWidth == 0 || videoTextureHeight == 0) {
             return;
         }
