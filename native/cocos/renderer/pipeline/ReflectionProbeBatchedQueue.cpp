@@ -42,7 +42,7 @@
 #include "scene/Skybox.h"
 namespace cc {
 namespace pipeline {
-
+const static uint32_t REFLECTION_PROBE_DEFAULT_MASK = ~static_cast<uint32_t>(LayerList::UI_2D) & ~static_cast<uint32_t>(LayerList::PROFILER) & ~static_cast<uint32_t>(LayerList::UI_3D);
 ReflectionProbeBatchedQueue::ReflectionProbeBatchedQueue(RenderPipeline *pipeline)
 : _phaseID(getPhaseID("default")), _phaseReflectMapID(getPhaseID("reflect-map")) {
     _pipeline = pipeline;
@@ -74,20 +74,14 @@ void ReflectionProbeBatchedQueue::gatherRenderObjects(const scene::Camera *camer
             add(skyBox->getModel());
         }
     }
-
-    const auto &renderObjects = sceneData->getRenderObjects();
-    for (const auto &ro : renderObjects) {
-        const auto *const model = ro.model;
-        const auto *modelWorldBounds = model->getWorldBounds();
-        if (!modelWorldBounds) {
-            add(model);
-            continue;
-        }
-        const auto *probeBoundingBox = probe->getBoundingBox();
-        if (modelWorldBounds->aabbAabb(*probeBoundingBox)) {
+    for (const auto &model : scene->getModels()) {
+        const auto *node = model->getNode();
+        if (!node) continue;
+        if (((node->getLayer() & REFLECTION_PROBE_DEFAULT_MASK) == node->getLayer())
+            || (REFLECTION_PROBE_DEFAULT_MASK & static_cast<uint32_t>(model->getVisFlags()))) {
             add(model);
         }
-     }
+    }
 
     _instancedQueue->uploadBuffers(cmdBuffer);
     _batchedQueue->uploadBuffers(cmdBuffer);
@@ -155,6 +149,8 @@ void ReflectionProbeBatchedQueue::recordCommandBuffer(gfx::Device *device, gfx::
         cmdBuffer->draw(ia);
     }
     resetMacro();
+    if (_instancedQueue) _instancedQueue->clear();
+    if (_batchedQueue) _batchedQueue->clear();
 }
 void ReflectionProbeBatchedQueue::resetMacro() const {
     for (size_t i = 0; i < _subModels.size(); i++) {

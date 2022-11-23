@@ -11521,6 +11521,110 @@ static bool js_cc_pipeline_InstancedItem_lightingMap_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_pipeline_InstancedItem_lightingMap_get) 
 
+static bool js_cc_pipeline_InstancedItem_reflectionProbeCubemap_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::pipeline::InstancedItem *arg1 = (cc::pipeline::InstancedItem *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::pipeline::InstancedItem>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg1->reflectionProbeCubemap, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_pipeline_InstancedItem_reflectionProbeCubemap_set) 
+
+static bool js_cc_pipeline_InstancedItem_reflectionProbeCubemap_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::pipeline::InstancedItem *arg1 = (cc::pipeline::InstancedItem *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::pipeline::InstancedItem>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= nativevalue_to_se(arg1->reflectionProbeCubemap, s.rval(), s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(arg1->reflectionProbeCubemap, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_pipeline_InstancedItem_reflectionProbeCubemap_get) 
+
+static bool js_cc_pipeline_InstancedItem_reflectionProbePlanarMap_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::pipeline::InstancedItem *arg1 = (cc::pipeline::InstancedItem *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::pipeline::InstancedItem>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg1->reflectionProbePlanarMap, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_pipeline_InstancedItem_reflectionProbePlanarMap_set) 
+
+static bool js_cc_pipeline_InstancedItem_reflectionProbePlanarMap_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::pipeline::InstancedItem *arg1 = (cc::pipeline::InstancedItem *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::pipeline::InstancedItem>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= nativevalue_to_se(arg1->reflectionProbePlanarMap, s.rval(), s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(arg1->reflectionProbePlanarMap, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_pipeline_InstancedItem_reflectionProbePlanarMap_get) 
+
+static bool js_cc_pipeline_InstancedItem_reflectionProbeType_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::pipeline::InstancedItem *arg1 = (cc::pipeline::InstancedItem *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::pipeline::InstancedItem>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg1->reflectionProbeType, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_pipeline_InstancedItem_reflectionProbeType_set) 
+
+static bool js_cc_pipeline_InstancedItem_reflectionProbeType_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::pipeline::InstancedItem *arg1 = (cc::pipeline::InstancedItem *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::pipeline::InstancedItem>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= nativevalue_to_se(arg1->reflectionProbeType, s.rval(), s.thisObject()); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_pipeline_InstancedItem_reflectionProbeType_get) 
+
 static bool js_new_cc_pipeline_InstancedItem(se::State& s) // NOLINT(readability-identifier-naming)
 {
     CC_UNUSED bool ok = true;
@@ -11610,6 +11714,24 @@ bool sevalue_to_native(const se::Value &from, cc::pipeline::InstancedItem * to, 
     }
     
     
+    json->getProperty("reflectionProbeCubemap", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->reflectionProbeCubemap), ctx);
+    }
+    
+    
+    json->getProperty("reflectionProbePlanarMap", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->reflectionProbePlanarMap), ctx);
+    }
+    
+    
+    json->getProperty("reflectionProbeType", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->reflectionProbeType), ctx);
+    }
+    
+    
     return ok;
 }
 
@@ -11626,6 +11748,9 @@ bool js_register_cc_pipeline_InstancedItem(se::Object* obj) {
     cls->defineProperty("shader", _SE(js_cc_pipeline_InstancedItem_shader_get), _SE(js_cc_pipeline_InstancedItem_shader_set)); 
     cls->defineProperty("descriptorSet", _SE(js_cc_pipeline_InstancedItem_descriptorSet_get), _SE(js_cc_pipeline_InstancedItem_descriptorSet_set)); 
     cls->defineProperty("lightingMap", _SE(js_cc_pipeline_InstancedItem_lightingMap_get), _SE(js_cc_pipeline_InstancedItem_lightingMap_set)); 
+    cls->defineProperty("reflectionProbeCubemap", _SE(js_cc_pipeline_InstancedItem_reflectionProbeCubemap_get), _SE(js_cc_pipeline_InstancedItem_reflectionProbeCubemap_set)); 
+    cls->defineProperty("reflectionProbePlanarMap", _SE(js_cc_pipeline_InstancedItem_reflectionProbePlanarMap_get), _SE(js_cc_pipeline_InstancedItem_reflectionProbePlanarMap_set)); 
+    cls->defineProperty("reflectionProbeType", _SE(js_cc_pipeline_InstancedItem_reflectionProbeType_get), _SE(js_cc_pipeline_InstancedItem_reflectionProbeType_set)); 
     
     
     
