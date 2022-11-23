@@ -3007,6 +3007,78 @@ static bool js_cc_render_Pipeline_updateRenderWindow(se::State& s)
 }
 SE_BIND_FUNC(js_cc_render_Pipeline_updateRenderWindow) 
 
+static bool js_cc_render_Pipeline_updateRenderTarget__SWIG_0(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    cc::render::Pipeline *arg1 = (cc::render::Pipeline *) NULL ;
+    ccstd::string *arg2 = 0 ;
+    uint32_t arg3 ;
+    uint32_t arg4 ;
+    gfx::Format arg5 ;
+    ccstd::string temp2 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::render::Pipeline>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    arg2 = &temp2;
+    
+    
+    ok &= sevalue_to_native(args[1], &arg3, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    
+    
+    ok &= sevalue_to_native(args[2], &arg4, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    
+    
+    ok &= sevalue_to_native(args[3], &arg5, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    (arg1)->updateRenderTarget((ccstd::string const &)*arg2,arg3,arg4,arg5);
+    
+    
+    return true;
+}
+
+static bool js_cc_render_Pipeline_updateDepthStencil__SWIG_0(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    cc::render::Pipeline *arg1 = (cc::render::Pipeline *) NULL ;
+    ccstd::string *arg2 = 0 ;
+    uint32_t arg3 ;
+    uint32_t arg4 ;
+    gfx::Format arg5 ;
+    ccstd::string temp2 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::render::Pipeline>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    arg2 = &temp2;
+    
+    
+    ok &= sevalue_to_native(args[1], &arg3, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    
+    
+    ok &= sevalue_to_native(args[2], &arg4, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    
+    
+    ok &= sevalue_to_native(args[3], &arg5, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    (arg1)->updateDepthStencil((ccstd::string const &)*arg2,arg3,arg4,arg5);
+    
+    
+    return true;
+}
+
 static bool js_cc_render_Pipeline_beginFrame(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -3381,6 +3453,116 @@ static bool js_cc_render_Pipeline_addDepthStencil(se::State& s)
 }
 SE_BIND_FUNC(js_cc_render_Pipeline_addDepthStencil) 
 
+static bool js_cc_render_Pipeline_updateRenderTarget__SWIG_1(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    cc::render::Pipeline *arg1 = (cc::render::Pipeline *) NULL ;
+    ccstd::string *arg2 = 0 ;
+    uint32_t arg3 ;
+    uint32_t arg4 ;
+    ccstd::string temp2 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::render::Pipeline>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    arg2 = &temp2;
+    
+    
+    ok &= sevalue_to_native(args[1], &arg3, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    
+    
+    ok &= sevalue_to_native(args[2], &arg4, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    
+    (arg1)->updateRenderTarget((ccstd::string const &)*arg2,arg3,arg4);
+    
+    
+    return true;
+}
+
+static bool js_cc_render_Pipeline_updateRenderTarget(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    
+    
+    if (argc == 4) {
+        ok = js_cc_render_Pipeline_updateRenderTarget__SWIG_0(s);
+        if (ok) {
+            return true; 
+        }
+    } 
+    if (argc == 3) {
+        ok = js_cc_render_Pipeline_updateRenderTarget__SWIG_1(s);
+        if (ok) {
+            return true; 
+        }
+    } 
+    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
+    return false;
+}
+SE_BIND_FUNC(js_cc_render_Pipeline_updateRenderTarget) 
+
+static bool js_cc_render_Pipeline_updateDepthStencil__SWIG_1(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    cc::render::Pipeline *arg1 = (cc::render::Pipeline *) NULL ;
+    ccstd::string *arg2 = 0 ;
+    uint32_t arg3 ;
+    uint32_t arg4 ;
+    ccstd::string temp2 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::render::Pipeline>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    arg2 = &temp2;
+    
+    
+    ok &= sevalue_to_native(args[1], &arg3, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    
+    
+    ok &= sevalue_to_native(args[2], &arg4, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    
+    (arg1)->updateDepthStencil((ccstd::string const &)*arg2,arg3,arg4);
+    
+    
+    return true;
+}
+
+static bool js_cc_render_Pipeline_updateDepthStencil(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    
+    
+    if (argc == 4) {
+        ok = js_cc_render_Pipeline_updateDepthStencil__SWIG_0(s);
+        if (ok) {
+            return true; 
+        }
+    } 
+    if (argc == 3) {
+        ok = js_cc_render_Pipeline_updateDepthStencil__SWIG_1(s);
+        if (ok) {
+            return true; 
+        }
+    } 
+    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
+    return false;
+}
+SE_BIND_FUNC(js_cc_render_Pipeline_updateDepthStencil) 
+
 static bool js_cc_render_Pipeline_addRasterPass__SWIG_1(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -3479,6 +3661,8 @@ bool js_register_cc_render_Pipeline(se::Object* obj) {
     cls->defineFunction("getDescriptorSetLayout", _SE(js_cc_render_Pipeline_getDescriptorSetLayout)); 
     cls->defineFunction("addRenderTarget", _SE(js_cc_render_Pipeline_addRenderTarget)); 
     cls->defineFunction("addDepthStencil", _SE(js_cc_render_Pipeline_addDepthStencil)); 
+    cls->defineFunction("updateRenderTarget", _SE(js_cc_render_Pipeline_updateRenderTarget)); 
+    cls->defineFunction("updateDepthStencil", _SE(js_cc_render_Pipeline_updateDepthStencil)); 
     cls->defineFunction("addRasterPass", _SE(js_cc_render_Pipeline_addRasterPass)); 
     
     
