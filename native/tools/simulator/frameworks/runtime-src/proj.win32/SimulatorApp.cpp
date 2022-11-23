@@ -778,7 +778,7 @@ int SimulatorApp::getWidth() const {
     return (int)(frameScale * frameSize.width);
 }
 
-int SimulatorApp::getHegith() const {
+int SimulatorApp::getHeight() const {
     cc::Size frameSize = _project.getFrameSize();
     float frameScale = _project.getFrameScale();
     return (int)(frameScale * frameSize.height);
