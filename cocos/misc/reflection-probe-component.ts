@@ -24,7 +24,7 @@
  */
 import { ccclass, executeInEditMode, menu, playOnFocus, serializable, tooltip, type, visible } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
-import { CCObject, Color, Enum, size, Vec3 } from '../core';
+import { CCObject, Color, Enum, size, Vec3, Vec4 } from '../core';
 
 import { TextureCube } from '../asset/assets';
 import { scene } from '../render-scene';
@@ -35,6 +35,7 @@ import { Layers } from '../scene-graph/layers';
 import { Camera } from './camera-component';
 import { Node } from '../scene-graph';
 import { ProbeClearFlag, ProbeType } from '../render-scene/scene/reflection-probe';
+import { property } from '../core/data/class-decorator';
 
 export enum ProbeResolution {
     /**
@@ -96,6 +97,19 @@ export class ReflectionProbe extends Component {
 
     protected _previewSphere: Node | null = null;
     protected _previewPlane: Node | null = null;
+
+    @serializable
+    protected _offset = new Vec4();
+
+    @type(Vec4)
+    set offset (value) {
+        this._offset = value;
+        this.probe.offset = value;
+    }
+
+    get offset () {
+        return this._offset;
+    }
 
     /**
      * @en
@@ -265,6 +279,10 @@ export class ReflectionProbe extends Component {
      */
     set previewPlane (val: Node) {
         this._previewPlane = val;
+        this.probe.previewPlane = val;
+        if (this.previewPlane) {
+            ReflectionProbeManager.probeManager.updatePreviewPlane(this.probe);
+        }
     }
 
     get previewPlane () {
@@ -275,6 +293,7 @@ export class ReflectionProbe extends Component {
         if (EDITOR || this.probeType === ProbeType.PLANAR) {
             this._createProbe();
         }
+        this.probe.offset = this._offset;
     }
 
     onEnable () {

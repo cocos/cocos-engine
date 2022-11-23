@@ -121,6 +121,8 @@ export class ReflectionProbe {
      */
     protected _previewSphere: Node | null = null;
 
+    protected _previewPlane: Node | null = null;
+
     protected _probeFrustum: Frustum = new Frustum();
 
     get probeFrustum () {
@@ -265,6 +267,18 @@ export class ReflectionProbe {
 
     get previewSphere () {
         return this._previewSphere!;
+    }
+
+    /**
+     * @en Reflection probe planar mode preview plane
+     * @zh 反射探针Planar模式的预览平面
+     */
+    set previewPlane (val: Node) {
+        this._previewPlane = val;
+    }
+
+    get previewPlane () {
+        return this._previewPlane!;
     }
 
     constructor (id: number) {
@@ -421,6 +435,7 @@ export class ReflectionProbe {
         this._camera.aperture = CameraAperture.F16_0;
         this._camera.shutter = CameraShutter.D125;
         this._camera.iso = CameraISO.ISO100;
+        this._camera.attachToScene(this.node.scene.renderScene!);
         return this._camera;
     }
 
@@ -467,44 +482,58 @@ export class ReflectionProbe {
         this.cameraNode.worldRotation = this._cameraWorldRotation;
 
         this.camera.update(true);
+
+        this._calculateObliqueMatrix(this.camera);
     }
+    public offset = new Vec4();
     private _calculateObliqueMatrix (camera: Camera) {
-        const viewSpacePlane = new Vec4();
+        //世界空间的平面先变换到相机空间
+        const viewPos = new Vec4();
+        const temp = new Vec3();
+        temp.x = this.offset.x;
+        temp.y = this.offset.y;
+        temp.z = this.offset.z;
+        Vec3.transformMat4(viewPos, this.node.worldPosition, camera.matView);
 
-        Vec3.transformMat4(viewSpacePlane, this.node.worldPosition, camera.matView);
+        // viewPos.x = this.offset.x;
+        // viewPos.y = this.offset.y;
+        // viewPos.z = this.offset.z;
+        // viewPos.w = this.offset.w;
 
-        const projectionMatrix = camera.matProj;
+        const proj = camera.matProj.clone();
 
-        const clipSpaceFarPanelBoundPoint = new Vec4(Math.sign(viewSpacePlane.x), Math.sign(viewSpacePlane.y), 1, 1);
-        const viewSpaceFarPanelBoundPoint =  clipSpaceFarPanelBoundPoint.transformMat4(camera.matProjInv);
+        //计算近裁面的最远角点Q
+        const q = new Vec4();
+        q.x = (Math.sign(viewPos.x) + proj.m08) / proj.m00;
+        q.y = (Math.sign(viewPos.y) + proj.m09) / proj.m05;
+        q.z = -1.0;
+        q.w = (1.0 + proj.m10) / proj.m14;
 
-        const m4 = new Vec4(projectionMatrix.m03, projectionMatrix.m07, projectionMatrix.m11, projectionMatrix.m15);
+        const c = viewPos.multiplyScalar(2.0 / Vec4.dot(viewPos, q));
 
-        const u = 2.0 / Vec4.dot(viewSpaceFarPanelBoundPoint, viewSpacePlane);
-        const newViewSpaceNearPlane = viewSpacePlane.multiplyScalar(u);
-
-        //M3' = P - M4
-        const m3 = newViewSpaceNearPlane.subtract(m4);
-
-        /*
-        1    1    1    1
-        1    1    1    1
-        11    11    12    1
-        11    11    12    1
-        */
-
-        projectionMatrix.m02 = m3.x;
-        projectionMatrix.m06 = m3.y;
-        projectionMatrix.m10 = m3.z;
-        projectionMatrix.m14 = m3.w;
-
+        //计算M3'
+        proj.m02 = this.offset.x;
+        proj.m06 = this.offset.y;
+        proj.m10 = this.offset.z;
+        proj.m14 = this.offset.w;
         // eslint-disable-next-line prefer-const
-        let matViewProj = camera.matViewProj;
+        let matViewProj = new Mat4();
         // eslint-disable-next-line prefer-const
-        let matViewProjInv = camera.matViewProjInv;
-        Mat4.multiply(matViewProj, projectionMatrix, camera.matView);
+        let matViewProjInv = new Mat4();
+        Mat4.multiply(matViewProj, proj, camera.matView);
         Mat4.invert(matViewProjInv, matViewProj);
-        this._probeFrustum.update(matViewProj, matViewProjInv);
+
+        const matProjInv = new Mat4();
+        Mat4.invert(matProjInv, proj);
+
+        camera.matProj = proj;
+        // camera.matProjInv = matProjInv;
+        // camera.matViewProj = matViewProj;
+        // camera.matViewProjInv = matViewProjInv;
+
+        //camera.frustum.update(matViewProj, matViewProjInv);
+        // this._probeFrustum.update(matViewProj, matViewProjInv);
+        // camera.update(true);
     }
     private _reflect (out: Vec3, point: Vec3, normal: Vec3, offset: number) {
         const n = Vec3.clone(normal);
