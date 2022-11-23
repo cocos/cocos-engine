@@ -752,11 +752,10 @@ export class Game extends EventTarget {
                 this.emit(Game.EVENT_PRE_SUBSYSTEM_INIT);
                 return this.onPreSubsystemInitDelegate.dispatch();
             })
-            // TODO(zhouzhenglong):  enable effectSettings after editor pr merged.
-            // .then(() => effectSettings.init(config.effectSettingsPath))
-            // .then(() => {
-            //     effectSettings.applyBindings();
-            // })
+            .then(() => effectSettings.init(config.effectSettingsPath))
+            .then(() => {
+                effectSettings.applyBindings();
+            })
             .then(() => {
                 if (DEBUG) {
                     console.time('Init SubSystem');
