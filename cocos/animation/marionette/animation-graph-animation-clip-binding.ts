@@ -39,13 +39,9 @@ export interface AnimationClipGraphBindingContext {
 
 /**
  * The context in which animation clips can evaluate during animation graph evaluation.
+ * Currently, the context is just the output pose.
  */
-export interface AnimationClipGraphEvaluationContext {
-    /**
-     * The output pose.
-     */
-    readonly pose: Pose;
-}
+export type AnimationClipGraphEvaluationContext = Pose;
 
 /**
  * A pose binding describes how to get/set part of a bound transform in animation graph.
@@ -238,7 +234,7 @@ export class AGAnimationClipEvaluation {
             _exoticAnimationEvaluation: exoticAnimationEvaluation,
         } = this;
 
-        const { pose } = context;
+        const pose = context;
 
         for (const trackEvaluation of trackEvaluations) {
             trackEvaluation.evaluate(time, pose);

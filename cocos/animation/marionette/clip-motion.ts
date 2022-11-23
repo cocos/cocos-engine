@@ -112,13 +112,12 @@ class ClipMotionEval implements MotionEval {
 
         // Evaluate this clip.
         const pose = context.createDefaultedPose();
-        // TODO: allocation here!!!
-        clipEval.evaluate(clipTime, { pose });
+        clipEval.evaluate(clipTime, pose);
 
         if (baseClipEval) {
             const basePose = context.createDefaultedPose();
             const baseEvalTime = 0.0; // TODO: base clip may specify a time?
-            baseClipEval.evaluate(baseEvalTime, { pose: basePose });
+            baseClipEval.evaluate(baseEvalTime, basePose);
             calculateDeltaPose(pose, basePose);
             context.deletePose(basePose);
         }
