@@ -494,7 +494,7 @@ exports.ready = function() {
         this.material.effect = event.target.value;
         this.material.data = await Editor.Message.request('scene', 'query-effect', this.material.effect);
 
-        // 此处讨论过：切换 effect 后 technique 返回默认值 0，因为选中项的 name 一致才有保持的意义，而 name 是一致是小概率
+        // change effect then make technique back to 0
         this.$.technique.value = this.material.technique = 0;
 
         await this.updateInterface();
