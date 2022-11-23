@@ -95,7 +95,6 @@ export class AudioSource extends Component {
     }
     private _syncPlayer () {
         const clip = this._clip;
-        this._isLoaded = false;
         if (this._lastSetClip === clip) {
             return;
         }
@@ -107,6 +106,10 @@ export class AudioSource extends Component {
             console.error('Invalid audio clip');
             return;
         }
+        // The state of _isloaded cannot be modified if clip is the wrong argument.
+        // Because load is an asynchronous function, if it is called multiple times with the same arguments.
+        // It may cause an illegal state change
+        this._isLoaded = false;
         this._lastSetClip = clip;
         this._operationsBeforeLoading.length = 0;
         AudioPlayer.load(clip._nativeAsset.url, {
