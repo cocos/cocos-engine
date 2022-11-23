@@ -132,11 +132,21 @@ export class SortingLayers {
     }
 
     /**
+     * @zh 获取内置 Sorting Layer 数组
+     * @en Get Builtin Layer array
+     */
+    public static getBuiltinLayers (): ReadonlyArray<SortingItem> {
+        return [{ id: 0, name: 'default', value: 0 }];
+    }
+
+    /**
      * @engineInternal
      */
     public static init () {
-        const sortingLayers = settings.querySettings<SortingItem[]>(Settings.Category.ENGINE, 'sortingLayers');
-        if (!sortingLayers || sortingLayers.length === 0) return;
+        let sortingLayers = settings.querySettings<ReadonlyArray<SortingItem>>(Settings.Category.ENGINE, 'sortingLayers');
+        if (!sortingLayers || sortingLayers.length === 0) {
+            sortingLayers = this.getBuiltinLayers();
+        }
         SortingLayers.resetState();
         for (let i = 0; i < sortingLayers.length; i++) {
             const layer = sortingLayers[i];
@@ -159,13 +169,6 @@ export class SortingLayers {
                 }
             });
         }
-    }
-
-    /**
-     * @engineInternal
-     */
-    public static getBuiltinLayers (): ReadonlyArray<SortingItem> {
-        return [{ id: 0, name: 'default', value: 0 }];
     }
 
     /**
