@@ -8,6 +8,16 @@ import { TrackEval } from '../tracks/track';
 
 /**
  * This module contains utilities to marry animation clip with animation graph.
+ *
+ * A typical workflow is:
+ *
+ * At initial, an animation clip is bound to animation graph in `AnimationClipGraphBindingContext`,
+ * an `AGAnimationClipEvaluation` is created after this phase to track the evaluation.
+ *
+ * Then at each frame, `AGAnimationClipEvaluation.evaluate()` is called,
+ * passed with the current `AnimationClipGraphEvaluationContext`.
+ * The evaluation context gives the pose that need to be filled,
+ * then animation clip emplaces sampled animation data into the pose.
  */
 
 /**
