@@ -65,6 +65,9 @@ export class EffectSettings {
      * @internal
      */
     init (path = '', overrides: Record<string, any> = {}): Promise<void> {
+        if (!legacyCC.rendering || !legacyCC.rendering.enableEffectImport) {
+            return Promise.resolve();
+        }
         for (const categoryName in overrides) {
             const category = overrides[categoryName];
             if (category) {
