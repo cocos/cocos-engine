@@ -214,6 +214,8 @@ export class ScrollBar extends Component {
      */
     public show () {
         this._autoHideRemainingTime = this._autoHideTime;
+        // because scrollbar's onEnable is later than scrollView, its _opacity is be modified in onEnable. we should reset it.
+        this._opacity = 255;
         this._setOpacity(this._opacity);
     }
 
