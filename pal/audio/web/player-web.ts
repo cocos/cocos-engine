@@ -77,6 +77,7 @@ export class AudioContextAgent {
             }
             // Force running audio context if state is not 'running', may be 'suspended' or 'interrupted'.
             const canvas = document.getElementById('GameCanvas') as HTMLCanvasElement;
+            // HACK NOTE: if the user slide after touch start, the context cannot be resumed correctly.
             const onGesture = () => {
                 context.resume().then(() => {
                     canvas?.removeEventListener('touchend', onGesture, { capture: true });
