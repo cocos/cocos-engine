@@ -689,8 +689,6 @@ export class ParticleSystem extends ModelRenderer {
         if (EDITOR && !cclegacy.GAME_VIEW) {
             if (!this._trailModule) {
                 this._trailModule = new TrailModule();
-                this._trailModule.onInit(this);
-                this._trailModule.onEnable();
             }
         }
         return this._trailModule;
@@ -791,7 +789,7 @@ export class ParticleSystem extends ModelRenderer {
         // HACK, TODO
         this.renderer.onInit(this);
         if (this._shapeModule) this._shapeModule.onInit(this);
-        if (this._trailModule && !this.renderer.useGPU) {
+        if (this._trailModule && !this.renderer.useGPU && this._trailModule.enable) {
             this._trailModule.onInit(this);
         }
         this.bindModule();
@@ -1191,15 +1189,21 @@ export class ParticleSystem extends ModelRenderer {
                 }
             }
         }
+
+        if (!this.renderer.useGPU && this._trailModule && this._trailModule.enable) {
+            // @ts-expect-error private property access
+            if (!this._trailModule._inited) {
+                this._trailModule.clear();
+                this._trailModule.destroy();
+                this._trailModule.onInit(this);
+                // Rebuild trail buffer
+                this._trailModule.enable = false;
+                this._trailModule.enable = true;
+            }
+        }
     }
 
     protected beforeRender () {
-        if (!this._isPlaying) return;
-        this.processor.beforeRender();
-        if (this._trailModule && this._trailModule.enable) {
-            this._trailModule.beforeRender();
-        }
-
         if (this.getParticleCount() <= 0) {
             if (this.processor.getModel()?.scene) {
                 this.processor.detachFromScene();
@@ -1210,6 +1214,15 @@ export class ParticleSystem extends ModelRenderer {
             }
         } else if (!this.processor.getModel()?.scene) {
             this._needAttach = true;
+        }
+
+        if (!this._isPlaying) return;
+
+        if (this.processor.getModel()?.scene) { // Just update particle system in the scene
+            this.processor.beforeRender();
+            if (this._trailModule && this._trailModule.enable) {
+                this._trailModule.beforeRender();
+            }
         }
     }
 
