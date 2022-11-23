@@ -289,6 +289,8 @@ exports.updatePropByDump = function(panel, dump) {
             element.update.call(panel, panel.$[key], dump.value);
         }
     }
+
+    exports.toggleGroups(panel.$groups);
 };
 
 /**
@@ -388,7 +390,17 @@ exports.createTabGroup = function(dump, panel) {
 
     return $group;
 };
-
+exports.toggleGroups = function($groups) {
+    for (const key in $groups) {
+        const $props = Array.from($groups[key].querySelectorAll('.tab-content > ui-prop'));
+        const show = $props.some($prop => getComputedStyle($prop).display !== 'none');
+        if (show) {
+            $groups[key].removeAttribute('hidden');
+        } else {
+            $groups[key].setAttribute('hidden', '');
+        }
+    }
+},
 exports.appendToTabGroup = function($group, tabName) {
     if ($group.tabs[tabName]) {
         return;
