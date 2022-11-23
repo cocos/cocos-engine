@@ -82,7 +82,7 @@ export class TouchInputSource {
 
     private _getLocation (touch: globalThis.Touch, canvasRect: Rect): Vec2 {
         // webxr has been converted to screen coordinates via camera
-        if (globalThis.__globalXR.ar && globalThis.__globalXR.ar.getAPIState() === 3) {
+        if (globalThis.__globalXR.ar && globalThis.__globalXR.ar.isWebXR()) {
             return new Vec2(touch.clientX, touch.clientY);
         }
 
