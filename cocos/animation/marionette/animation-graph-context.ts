@@ -11,6 +11,24 @@ import { AnimationMask } from './animation-mask';
 import { error } from '../../core';
 import { partition } from '../../core/algorithm/partition';
 
+/**
+ * This module contains stuffs related to animation graph's evaluation.
+ *
+ * The typical workflow to setup a animation graph evaluation is:
+ *
+ * At binding phase:
+ * - Creates a `PoseLayoutMaintainer`.
+ * - Creates a `AnimationGraphBindingContext`, which collects animation bindings and report them to the `PoseLayoutMaintainer`.
+ * - Binding all portion of the animation graph under such a context.
+ *
+ * At each evaluation phase:
+ * - Creates a (or reuse a) `AnimationGraphEvaluationContext`.
+ * - Do the evaluation, generate a pose.
+ * - Call `PoseLayoutMaintainer.apply()` to apply the pose into scene graph.
+ *
+ * When an override-clip request is fired, the binding phase is performed again.
+ */
+
 function findBoneByNameRecurse (from: Node, name: string): Node | null {
     if (from.name === name) {
         return from;
@@ -25,18 +43,26 @@ function findBoneByNameRecurse (from: Node, name: string): Node | null {
     return null;
 }
 
+/**
+ * The binding context of an animation graph in layer-wide.
+ */
 export interface AnimationGraphLayerWideBindingContext {
+    /**
+     * Indicates if the current layer is an additive layer.
+     */
     additive: boolean;
 
+    /**
+     * The upper binding context.
+     */
     up: AnimationGraphBindingContext;
-}
-
-export interface AnimationGraphOverrideContext {
-    up: AnimationGraphLayerWideBindingContext;
 }
 
 export type VarRegistry = Record<string, VarInstance>;
 
+/**
+ * The binding context of an animation graph.
+ */
 export class AnimationGraphBindingContext {
     constructor (origin: Node, poseLayoutMaintainer: AnimationGraphPoseLayoutMaintainer, varRegistry: VarRegistry) {
         this._origin = origin;
