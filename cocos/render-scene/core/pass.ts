@@ -23,12 +23,12 @@
  THE SOFTWARE.
 */
 
-import { EDITOR } from 'internal:constants';
+import { DEBUG, EDITOR } from 'internal:constants';
 import { Root } from '../../root';
 import { TextureBase } from '../../asset/assets/texture-base';
 import { builtinResMgr } from '../../asset/asset-manager/builtin-res-mgr';
 import { getPhaseID } from '../../rendering/pass-phase';
-import { murmurhash2_32_gc, errorID } from '../../core';
+import { murmurhash2_32_gc, errorID, assertID } from '../../core';
 import { BufferUsageBit, DynamicStateFlagBit, DynamicStateFlags, Feature, GetTypeSize, MemoryUsageBit, PrimitiveMode, Type, Color,
     BlendState, BlendTarget, Buffer, BufferInfo, BufferViewInfo, DepthStencilState, DescriptorSet,
     DescriptorSetInfo, DescriptorSetLayout, Device, RasterizerState, Sampler, Texture, Shader, PipelineLayout, deviceManager,
@@ -36,7 +36,7 @@ import { BufferUsageBit, DynamicStateFlagBit, DynamicStateFlags, Feature, GetTyp
 import { EffectAsset } from '../../asset/assets/effect-asset';
 import { IProgramInfo, programLib } from './program-lib';
 import { MacroRecord, MaterialProperty, customizeType, getBindingFromHandle, getDefaultFromType, getStringFromType,
-    getOffsetFromHandle, getTypeFromHandle, type2reader, type2writer, getCountFromHandle,
+    getOffsetFromHandle, getTypeFromHandle, type2reader, type2writer, getCountFromHandle, type2validator,
 } from './pass-utils';
 import { RenderPassStage, RenderPriority } from '../../rendering/define';
 import { InstancedBuffer } from '../../rendering/instanced-buffer';
@@ -258,6 +258,10 @@ export class Pass {
         const type = Pass.getTypeFromHandle(handle);
         const ofs = Pass.getOffsetFromHandle(handle);
         const block = this._getBlockView(type, binding);
+        if (DEBUG) {
+            const validator = type2validator[type];
+            assertID(validator && validator(value), 12011, binding, Type[type]);
+        }
         type2writer[type](block, value, ofs);
         this._rootBufferDirty = true;
     }
