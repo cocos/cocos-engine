@@ -36,12 +36,12 @@ import { SetIndex } from '../rendering/define';
 
 const v2_0 = new Vec2();
 type SplashEffectType = 'default' | 'custom' | 'off';
-type watermarkLocationType = 'default' | 'topLeft' | 'topRight' | 'topCenter' | 'bottomLeft' | 'bottomCenter' | 'bottomRight';
+type WatermarkLocationType = 'default' | 'topLeft' | 'topRight' | 'topCenter' | 'bottomLeft' | 'bottomCenter' | 'bottomRight';
 
 interface ISplashSetting {
     displayRatio: number;
     totalTime: number;
-    watermarkLocation: watermarkLocationType;
+    watermarkLocation: WatermarkLocationType;
     autoFit: boolean;
 
     url?: string;
@@ -111,7 +111,7 @@ export class SplashScreen {
         this.settings = {
             displayRatio: settings.querySettings<number>(Settings.Category.SPLASH_SCREEN, 'displayRatio') ?? 0.4,
             totalTime: settings.querySettings<number>(Settings.Category.SPLASH_SCREEN, 'totalTime') ?? 3000,
-            watermarkLocation: settings.querySettings<watermarkLocationType>(Settings.Category.SPLASH_SCREEN, 'watermarkLocation') ?? 'default',
+            watermarkLocation: settings.querySettings<WatermarkLocationType>(Settings.Category.SPLASH_SCREEN, 'watermarkLocation') ?? 'default',
             autoFit: settings.querySettings<boolean>(Settings.Category.SPLASH_SCREEN, 'autoFit') ?? true,
             url: settings.querySettings<string>(Settings.Category.SPLASH_SCREEN, 'url') ?? '',
             type: settings.querySettings<SplashEffectType>(Settings.Category.SPLASH_SCREEN, 'type') ?? 'default',
@@ -229,28 +229,17 @@ export class SplashScreen {
 
     private initScale () {
         const dw = this.swapchain.width; const dh = this.swapchain.height;
-        if (this.isMobile) {
-            if (dw < dh) {
-                if (dw / dh > 16 / 9) {
-                    this.scaleSize = dh / 812;
-                } else {
-                    this.scaleSize = dw / 375;
-                }
-            } else if (dw / dh > 16 / 9) {
-                this.scaleSize = dh / 375;
-            } else {
-                this.scaleSize = dw / 812;
-            }
-        } else if (dw < dh) {
-            if (dw / dh > 16 / 9) {
-                this.scaleSize = dh / 1920;
-            } else {
-                this.scaleSize = dw / 1080;
-            }
-        } else if (dw / dh > 16 / 9) {
-            this.scaleSize = dh / 1080;
+        let desiredWidth = this.isMobile ? 375 : 1080;
+        let desiredHeight = this.isMobile ? 812 : 1920;
+        if (dw > dh) {
+            const temp = desiredHeight;
+            desiredHeight = desiredWidth;
+            desiredWidth = temp;
+        }
+        if (dw / dh > 16 / 9) {
+            this.scaleSize = dh / desiredHeight;
         } else {
-            this.scaleSize = dw / 1920;
+            this.scaleSize = dw / desiredWidth;
         }
     }
 
