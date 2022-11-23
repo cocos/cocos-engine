@@ -15987,6 +15987,53 @@ static bool js_cc_scene_SubModel_onGeometryChanged(se::State& s)
 }
 SE_BIND_FUNC(js_cc_scene_SubModel_onGeometryChanged) 
 
+static bool js_cc_scene_SubModel_getReflectionProbeType(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::SubModel *arg1 = (cc::scene::SubModel *) NULL ;
+    int32_t result;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::scene::SubModel>(s);
+    if (nullptr == arg1) return true;
+    result = ((cc::scene::SubModel const *)arg1)->getReflectionProbeType();
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject()); 
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_scene_SubModel_getReflectionProbeType) 
+
+static bool js_cc_scene_SubModel_setReflectionProbeType(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::SubModel *arg1 = (cc::scene::SubModel *) NULL ;
+    int32_t arg2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::scene::SubModel>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    (arg1)->setReflectionProbeType(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_scene_SubModel_setReflectionProbeType) 
+
 static bool js_cc_scene_SubModel_passes_set(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -16355,6 +16402,8 @@ bool js_register_cc_scene_SubModel(se::Object* obj) {
     cls->defineFunction("onPipelineStateChanged", _SE(js_cc_scene_SubModel_onPipelineStateChanged)); 
     cls->defineFunction("onMacroPatchesStateChanged", _SE(js_cc_scene_SubModel_onMacroPatchesStateChanged)); 
     cls->defineFunction("onGeometryChanged", _SE(js_cc_scene_SubModel_onGeometryChanged)); 
+    cls->defineFunction("getReflectionProbeType", _SE(js_cc_scene_SubModel_getReflectionProbeType)); 
+    cls->defineFunction("setReflectionProbeType", _SE(js_cc_scene_SubModel_setReflectionProbeType)); 
     
     
     
@@ -23585,6 +23634,29 @@ static bool js_cc_scene_ReflectionProbe_initialize(se::State& s)
 }
 SE_BIND_FUNC(js_cc_scene_ReflectionProbe_initialize) 
 
+static bool js_cc_scene_ReflectionProbe_getProbeId(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::ReflectionProbe *arg1 = (cc::scene::ReflectionProbe *) NULL ;
+    int32_t result;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::scene::ReflectionProbe>(s);
+    if (nullptr == arg1) return true;
+    result = ((cc::scene::ReflectionProbe const *)arg1)->getProbeId();
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject()); 
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_scene_ReflectionProbe_getProbeId) 
+
 static bool js_cc_scene_ReflectionProbe_getNode(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -24189,6 +24261,7 @@ bool js_register_cc_scene_ReflectionProbe(se::Object* obj) {
     cls->defineProperty("size", _SE(js_cc_scene_ReflectionProbe_size_get), _SE(js_cc_scene_ReflectionProbe_size_set)); 
     
     cls->defineFunction("initialize", _SE(js_cc_scene_ReflectionProbe_initialize)); 
+    cls->defineFunction("getProbeId", _SE(js_cc_scene_ReflectionProbe_getProbeId)); 
     cls->defineFunction("getNode", _SE(js_cc_scene_ReflectionProbe_getNode)); 
     cls->defineFunction("getCamera", _SE(js_cc_scene_ReflectionProbe_getCamera)); 
     cls->defineFunction("needRender", _SE(js_cc_scene_ReflectionProbe_needRender)); 
