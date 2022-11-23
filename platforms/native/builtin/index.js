@@ -8,6 +8,7 @@ window.Blob = Blob;
 window.URL = URL;
 window.DOMParser = require('./xmldom/dom-parser').DOMParser;
 
+window.__EDITOR__ = window.process && ('electron' in window.process.versions);
 require('./jsb_prepare');
 require('./jsb-adapter');
 require('./jsb_audioengine');
