@@ -61,6 +61,7 @@ const cc::gfx::SamplerInfo LIGHTMAP_SAMPLER_WITH_MIP_HASH{
 
 const ccstd::vector<cc::scene::IMacroPatch> SHADOW_MAP_PATCHES{{"CC_RECEIVE_SHADOW", true}};
 const ccstd::vector<cc::scene::IMacroPatch> LIGHT_PROBE_PATCHES{{"CC_USE_LIGHT_PROBE", true}};
+const ccstd::string CC_USE_REFLECTION_PROBE = "CC_USE_REFLECTION_PROBE";
 } // namespace
 
 namespace cc {
@@ -167,6 +168,10 @@ void Model::updateUBOs(uint32_t stamp) {
 
     updateSHUBOs();
 
+    const auto *pipeline = Root::getInstance()->getPipeline();
+    const auto *shadowInfo = pipeline->getPipelineSceneData()->getShadows();
+    const auto forceUpdateUBO = shadowInfo->isEnabled() && shadowInfo->getType() == ShadowType::PLANAR;
+
     if (!_localDataUpdated) {
         return;
     }
@@ -184,7 +189,7 @@ void Model::updateUBOs(uint32_t stamp) {
         }
     }
 
-    if (hasNonInstancingPass && _localBuffer) {
+    if ((hasNonInstancingPass || forceUpdateUBO) && _localBuffer) {
         Mat4 mat4;
         Mat4::inverseTranspose(worldMatrix, &mat4);
 
@@ -385,8 +390,8 @@ void Model::updateSHUBOs() {
     const auto *lightProbes = pipeline->getPipelineSceneData()->getLightProbes();
 
     _lastWorldBoundCenter.set(center);
-    _tetrahedronIndex = lightProbes->getData().getInterpolationWeights(center, _tetrahedronIndex, weights);
-    bool result = lightProbes->getData().getInterpolationSHCoefficients(_tetrahedronIndex, weights, coefficients);
+    _tetrahedronIndex = lightProbes->getData()->getInterpolationWeights(center, _tetrahedronIndex, weights);
+    bool result = lightProbes->getData()->getInterpolationSHCoefficients(_tetrahedronIndex, weights, coefficients);
     if (!result) {
         return;
     }
@@ -422,6 +427,8 @@ ccstd::vector<IMacroPatch> Model::getMacroPatches(index_t subModelIndex) {
             patches.push_back(patch);
         }
     }
+
+    patches.push_back({CC_USE_REFLECTION_PROBE, _reflectionProbeType});
 
     return patches;
 }
@@ -589,6 +596,13 @@ void Model::setInstancedAttribute(const ccstd::string &name, const float *value,
     for (const auto &subModel : _subModels) {
         subModel->setInstancedAttribute(name, value, byteLength);
     }
+}
+void Model::setReflectionProbeType(int32_t val) {
+    _reflectionProbeType = val;
+    for (const auto &subModel : _subModels) {
+        subModel->setReflectionProbeType(val);
+    }
+    onMacroPatchesStateChanged();
 }
 
 } // namespace scene

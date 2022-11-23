@@ -56,12 +56,12 @@ const Elements = {
     panel: {
         ready() {
             const panel = this;
-            let animationId;
+            panel.__assetChangedHandle__ = undefined;
 
             panel.__assetChanged__ = (uuid) => {
                 if (Array.isArray(panel.uuidList) && panel.uuidList.includes(uuid)) {
-                    window.cancelAnimationFrame(animationId);
-                    animationId = window.requestAnimationFrame(async () => {
+                    window.cancelAnimationFrame(panel.__assetChangedHandle__);
+                    panel.__assetChangedHandle__ = window.requestAnimationFrame(async () => {
                         await panel.reset();
                     });
                 }
@@ -149,6 +149,11 @@ const Elements = {
         },
         close() {
             const panel = this;
+
+            if (panel.__assetChangedHandle__) {
+                window.cancelAnimationFrame(panel.__assetChangedHandle__);
+                panel.__assetChangedHandle__ = undefined;
+            }
 
             Editor.Message.removeBroadcastListener('asset-db:asset-change', panel.__assetChanged__);
 
@@ -543,6 +548,10 @@ exports.methods = {
             }
         }
 
+        if (panel.ready !== true) {
+            return;
+        }
+
         panel.$this.update(panel.uuidList, panel.renderMap);
     },
     getHelpUrl(url) {
@@ -584,6 +593,7 @@ exports.update = async function update(uuidList, renderMap, dropConfig) {
 
 exports.ready = function ready() {
     const panel = this;
+    panel.ready = true;
 
     for (const prop in Elements) {
         const element = Elements[prop];
@@ -652,6 +662,7 @@ exports.beforeClose = async function beforeClose() {
 
 exports.close = async function close() {
     const panel = this;
+    panel.ready = false;
 
     for (const prop in Elements) {
         const element = Elements[prop];

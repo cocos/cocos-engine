@@ -1903,7 +1903,7 @@ static bool js_cc_DynamicCustomAttribute_values_get(se::State& s)
     arg1 = SE_THIS_OBJECT<cc::DynamicCustomAttribute>(s);
     if (nullptr == arg1) return true;
     
-    ok &= nativevalue_to_se(arg1->values, s.rval(), s.thisObject() /*ctx*/);
+    ok &= nativevalue_to_se(arg1->values, s.rval(), s.thisObject());
     SE_PRECONDITION2(ok, false, "Error processing arguments");
     SE_HOLD_RETURN_VALUE(arg1->values, s.thisObject(), s.rval());
     
@@ -2018,7 +2018,7 @@ static bool js_cc_IDynamicGeometry_positions_get(se::State& s)
     arg1 = SE_THIS_OBJECT<cc::IDynamicGeometry>(s);
     if (nullptr == arg1) return true;
     
-    ok &= nativevalue_to_se(arg1->positions, s.rval(), s.thisObject() /*ctx*/);
+    ok &= nativevalue_to_se(arg1->positions, s.rval(), s.thisObject());
     SE_PRECONDITION2(ok, false, "Error processing arguments");
     SE_HOLD_RETURN_VALUE(arg1->positions, s.thisObject(), s.rval());
     
@@ -16736,6 +16736,43 @@ static bool js_cc_IMemoryImageSource_format_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_IMemoryImageSource_format_get) 
 
+static bool js_cc_IMemoryImageSource_mipmapLevelDataSize_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::IMemoryImageSource *arg1 = (cc::IMemoryImageSource *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::IMemoryImageSource>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg1->mipmapLevelDataSize, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_IMemoryImageSource_mipmapLevelDataSize_set) 
+
+static bool js_cc_IMemoryImageSource_mipmapLevelDataSize_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::IMemoryImageSource *arg1 = (cc::IMemoryImageSource *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::IMemoryImageSource>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= nativevalue_to_se(arg1->mipmapLevelDataSize, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(arg1->mipmapLevelDataSize, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_IMemoryImageSource_mipmapLevelDataSize_get) 
+
 static bool js_new_cc_IMemoryImageSource(se::State& s) // NOLINT(readability-identifier-naming)
 {
     CC_UNUSED bool ok = true;
@@ -16789,6 +16826,12 @@ bool sevalue_to_native(const se::Value &from, cc::IMemoryImageSource * to, se::O
     }
     
     
+    json->getProperty("mipmapLevelDataSize", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->mipmapLevelDataSize), ctx);
+    }
+    
+    
     return ok;
 }
 
@@ -16799,6 +16842,7 @@ bool js_register_cc_IMemoryImageSource(se::Object* obj) {
     cls->defineProperty("width", _SE(js_cc_IMemoryImageSource_width_get), _SE(js_cc_IMemoryImageSource_width_set)); 
     cls->defineProperty("height", _SE(js_cc_IMemoryImageSource_height_get), _SE(js_cc_IMemoryImageSource_height_set)); 
     cls->defineProperty("format", _SE(js_cc_IMemoryImageSource_format_get), _SE(js_cc_IMemoryImageSource_format_set)); 
+    cls->defineProperty("mipmapLevelDataSize", _SE(js_cc_IMemoryImageSource_mipmapLevelDataSize_get), _SE(js_cc_IMemoryImageSource_mipmapLevelDataSize_set)); 
     
     
     
@@ -16914,6 +16958,31 @@ static bool js_cc_ImageAsset_getHeight(se::State& s)
 }
 SE_BIND_FUNC(js_cc_ImageAsset_getHeight) 
 
+static bool js_cc_ImageAsset_getMipmapLevelDataSize(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::ImageAsset *arg1 = (cc::ImageAsset *) NULL ;
+    ccstd::vector< uint32_t > *result = 0 ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::ImageAsset>(s);
+    if (nullptr == arg1) return true;
+    result = (ccstd::vector< uint32_t > *) &((cc::ImageAsset const *)arg1)->getMipmapLevelDataSize();
+    
+    ok &= nativevalue_to_se(*result, s.rval(), s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(*result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_ImageAsset_getMipmapLevelDataSize) 
+
 static bool js_cc_ImageAsset_isCompressed(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -16986,6 +17055,57 @@ static bool js_cc_ImageAsset_setHeight(se::State& s)
     return true;
 }
 SE_BIND_FUNC(js_cc_ImageAsset_setHeight) 
+
+static bool js_cc_ImageAsset_setNeedFreeData(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::ImageAsset *arg1 = (cc::ImageAsset *) NULL ;
+    bool arg2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::ImageAsset>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2);
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    (arg1)->setNeedFreeData(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_ImageAsset_setNeedFreeData) 
+
+static bool js_cc_ImageAsset_setMipmapLevelDataSize(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::ImageAsset *arg1 = (cc::ImageAsset *) NULL ;
+    ccstd::vector< uint32_t > *arg2 = 0 ;
+    ccstd::vector< uint32_t > temp2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::ImageAsset>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    arg2 = &temp2;
+    
+    (arg1)->setMipmapLevelDataSize((ccstd::vector< uint32_t > const &)*arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_ImageAsset_setMipmapLevelDataSize) 
 
 static bool js_cc_ImageAsset_format_set(se::State& s)
 {
@@ -17079,9 +17199,12 @@ bool js_register_cc_ImageAsset(se::Object* obj) {
     cls->defineFunction("getData", _SE(js_cc_ImageAsset_getData)); 
     cls->defineFunction("getWidth", _SE(js_cc_ImageAsset_getWidth)); 
     cls->defineFunction("getHeight", _SE(js_cc_ImageAsset_getHeight)); 
+    cls->defineFunction("getMipmapLevelDataSize", _SE(js_cc_ImageAsset_getMipmapLevelDataSize)); 
     cls->defineFunction("isCompressed", _SE(js_cc_ImageAsset_isCompressed)); 
     cls->defineFunction("setWidth", _SE(js_cc_ImageAsset_setWidth)); 
     cls->defineFunction("setHeight", _SE(js_cc_ImageAsset_setHeight)); 
+    cls->defineFunction("setNeedFreeData", _SE(js_cc_ImageAsset_setNeedFreeData)); 
+    cls->defineFunction("setMipmapLevelDataSize", _SE(js_cc_ImageAsset_setMipmapLevelDataSize)); 
     
     
     
@@ -20349,7 +20472,7 @@ static bool js_cc_IGeometricInfo_positions_get(se::State& s)
     arg1 = SE_THIS_OBJECT<cc::IGeometricInfo>(s);
     if (nullptr == arg1) return true;
     
-    ok &= nativevalue_to_se(arg1->positions, s.rval(), s.thisObject() /*ctx*/);
+    ok &= nativevalue_to_se(arg1->positions, s.rval(), s.thisObject());
     SE_PRECONDITION2(ok, false, "Error processing arguments");
     SE_HOLD_RETURN_VALUE(arg1->positions, s.thisObject(), s.rval());
     

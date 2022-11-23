@@ -260,7 +260,7 @@ export class Tetrahedron {
     }
 
     public isInCircumSphere (point: Vec3) {
-        return Vec3.squaredDistance(point, this.sphere.center) < this.sphere.radiusSquared - 0.01; // EPSILON
+        return Vec3.squaredDistance(point, this.sphere.center) < this.sphere.radiusSquared - EPSILON;
     }
 
     public contain (vertexIndex: number) {

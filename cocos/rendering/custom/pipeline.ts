@@ -169,6 +169,10 @@ export interface Pipeline extends PipelineRuntime {
     addDepthStencil (name: string, format: Format, width: number, height: number, residency: ResourceResidency): number;
     addDepthStencil (name: string, format: Format, width: number, height: number/*, ResourceResidency.MANAGED*/): number;
     updateRenderWindow (name: string, renderWindow: RenderWindow): void;
+    updateRenderTarget (name: string, width: number, height: number, format: Format): void;
+    updateRenderTarget (name: string, width: number, height: number/*, gfx.Format.UNKNOWN*/): void;
+    updateDepthStencil (name: string, width: number, height: number, format: Format): void;
+    updateDepthStencil (name: string, width: number, height: number/*, gfx.Format.UNKNOWN*/): void;
     beginFrame (): void;
     endFrame (): void;
     addRasterPass (width: number, height: number, layoutName: string): RasterPassBuilder;

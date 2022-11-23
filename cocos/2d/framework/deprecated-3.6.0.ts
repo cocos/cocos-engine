@@ -29,6 +29,6 @@ deprecateModuleExportedName({
     Renderable2D: {
         newName: 'UIRenderer',
         since: '3.6.0',
-        removed: true,
+        removed: false,
     },
 });

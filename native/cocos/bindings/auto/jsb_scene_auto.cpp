@@ -400,6 +400,10 @@ using namespace cc;
 #define cc_scene_DirectionalLight_csmOptimizationMode_set(self_, val_) self_->setCSMOptimizationMode(val_)
   
 
+#define cc_scene_DirectionalLight_csmLayersTransition_get(self_) self_->getCSMLayersTransition()
+#define cc_scene_DirectionalLight_csmLayersTransition_set(self_, val_) self_->setCSMLayersTransition(val_)
+  
+
 #define cc_scene_SpotLight_position_get(self_) self_->getPosition()
   
 
@@ -2997,6 +3001,7 @@ static bool js_cc_Node_inverseTransformPoint(se::State& s)
     cc::Vec3 *arg2 = 0 ;
     cc::Vec3 temp2 ;
     cc::Vec3 result;
+    cc::Vec3 *temp ;
     
     if(argc != 1) {
         SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -3011,9 +3016,10 @@ static bool js_cc_Node_inverseTransformPoint(se::State& s)
     
     result = (arg1)->inverseTransformPoint((cc::Vec3 const &)*arg2);
     
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    temp = ccnew cc::Vec3(result);
+    ok &= nativevalue_to_se(temp, s.rval(), s.thisObject());
     SE_PRECONDITION2(ok, false, "Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    s.rval().toObject()->getPrivateObject()->tryAllowDestroyInGC();
     
     
     
@@ -6465,6 +6471,7 @@ static bool js_cc_scene_Light_colorTemperatureToRGB_static(se::State& s)
     size_t argc = args.size();
     float arg1 ;
     cc::Vec3 result;
+    cc::Vec3 *temp ;
     
     if(argc != 1) {
         SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -6475,9 +6482,10 @@ static bool js_cc_scene_Light_colorTemperatureToRGB_static(se::State& s)
     SE_PRECONDITION2(ok, false, "Error processing arguments"); 
     result = cc::scene::Light::colorTemperatureToRGB(arg1);
     
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    temp = ccnew cc::Vec3(result);
+    ok &= nativevalue_to_se(temp, s.rval(), s.thisObject());
     SE_PRECONDITION2(ok, false, "Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    s.rval().toObject()->getPrivateObject()->tryAllowDestroyInGC();
     
     
     
@@ -11612,6 +11620,20 @@ static bool js_delete_cc_scene_DirectionalLight(se::State& s)
 }
 SE_BIND_FINALIZE_FUNC(js_delete_cc_scene_DirectionalLight) 
 
+static bool js_cc_scene_DirectionalLight_CSM_TRANSITION_RANGE_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    float result;
+    
+    result = (float)(float)cc::scene::DirectionalLight::CSM_TRANSITION_RANGE;
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject()); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_scene_DirectionalLight_CSM_TRANSITION_RANGE_get) 
+
 static bool js_cc_scene_DirectionalLight_direction_set(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -12332,6 +12354,43 @@ static bool js_cc_scene_DirectionalLight_csmOptimizationMode_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_scene_DirectionalLight_csmOptimizationMode_get) 
 
+static bool js_cc_scene_DirectionalLight_csmLayersTransition_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::DirectionalLight *arg1 = (cc::scene::DirectionalLight *) NULL ;
+    bool arg2 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::DirectionalLight>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2);
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    cc_scene_DirectionalLight_csmLayersTransition_set(arg1,arg2);
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_scene_DirectionalLight_csmLayersTransition_set) 
+
+static bool js_cc_scene_DirectionalLight_csmLayersTransition_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::scene::DirectionalLight *arg1 = (cc::scene::DirectionalLight *) NULL ;
+    bool result;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::DirectionalLight>(s);
+    if (nullptr == arg1) return true;
+    result = (bool)cc_scene_DirectionalLight_csmLayersTransition_get(arg1);
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_scene_DirectionalLight_csmLayersTransition_get) 
+
 bool js_register_cc_scene_DirectionalLight(se::Object* obj) {
     auto* cls = se::Class::create("DirectionalLight", obj, __jsb_cc_scene_Light_proto, _SE(js_new_cc_scene_DirectionalLight)); 
     
@@ -12354,8 +12413,10 @@ bool js_register_cc_scene_DirectionalLight(se::Object* obj) {
     cls->defineProperty("csmNeedUpdate", _SE(js_cc_scene_DirectionalLight_csmNeedUpdate_get), _SE(js_cc_scene_DirectionalLight_csmNeedUpdate_set)); 
     cls->defineProperty("csmLayerLambda", _SE(js_cc_scene_DirectionalLight_csmLayerLambda_get), _SE(js_cc_scene_DirectionalLight_csmLayerLambda_set)); 
     cls->defineProperty("csmOptimizationMode", _SE(js_cc_scene_DirectionalLight_csmOptimizationMode_get), _SE(js_cc_scene_DirectionalLight_csmOptimizationMode_set)); 
+    cls->defineProperty("csmLayersTransition", _SE(js_cc_scene_DirectionalLight_csmLayersTransition_get), _SE(js_cc_scene_DirectionalLight_csmLayersTransition_set)); 
     
     
+    cls->defineStaticProperty("CSM_TRANSITION_RANGE", _SE(js_cc_scene_DirectionalLight_CSM_TRANSITION_RANGE_get), nullptr); 
     
     
     
@@ -14242,7 +14303,7 @@ static bool js_cc_scene_Model_getLocalSHData(se::State& s)
     if (nullptr == arg1) return true;
     result = ((cc::scene::Model const *)arg1)->getLocalSHData();
     
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
     SE_PRECONDITION2(ok, false, "Error processing arguments");
     SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
     
@@ -15926,6 +15987,53 @@ static bool js_cc_scene_SubModel_onGeometryChanged(se::State& s)
 }
 SE_BIND_FUNC(js_cc_scene_SubModel_onGeometryChanged) 
 
+static bool js_cc_scene_SubModel_getReflectionProbeType(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::SubModel *arg1 = (cc::scene::SubModel *) NULL ;
+    int32_t result;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::scene::SubModel>(s);
+    if (nullptr == arg1) return true;
+    result = ((cc::scene::SubModel const *)arg1)->getReflectionProbeType();
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject()); 
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_scene_SubModel_getReflectionProbeType) 
+
+static bool js_cc_scene_SubModel_setReflectionProbeType(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::SubModel *arg1 = (cc::scene::SubModel *) NULL ;
+    int32_t arg2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::scene::SubModel>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    (arg1)->setReflectionProbeType(arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_scene_SubModel_setReflectionProbeType) 
+
 static bool js_cc_scene_SubModel_passes_set(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -16294,6 +16402,8 @@ bool js_register_cc_scene_SubModel(se::Object* obj) {
     cls->defineFunction("onPipelineStateChanged", _SE(js_cc_scene_SubModel_onPipelineStateChanged)); 
     cls->defineFunction("onMacroPatchesStateChanged", _SE(js_cc_scene_SubModel_onMacroPatchesStateChanged)); 
     cls->defineFunction("onGeometryChanged", _SE(js_cc_scene_SubModel_onGeometryChanged)); 
+    cls->defineFunction("getReflectionProbeType", _SE(js_cc_scene_SubModel_getReflectionProbeType)); 
+    cls->defineFunction("setReflectionProbeType", _SE(js_cc_scene_SubModel_setReflectionProbeType)); 
     
     
     
@@ -23524,6 +23634,29 @@ static bool js_cc_scene_ReflectionProbe_initialize(se::State& s)
 }
 SE_BIND_FUNC(js_cc_scene_ReflectionProbe_initialize) 
 
+static bool js_cc_scene_ReflectionProbe_getProbeId(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::ReflectionProbe *arg1 = (cc::scene::ReflectionProbe *) NULL ;
+    int32_t result;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::scene::ReflectionProbe>(s);
+    if (nullptr == arg1) return true;
+    result = ((cc::scene::ReflectionProbe const *)arg1)->getProbeId();
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject()); 
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_scene_ReflectionProbe_getProbeId) 
+
 static bool js_cc_scene_ReflectionProbe_getNode(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -23799,6 +23932,7 @@ static bool js_cc_scene_ReflectionProbe_reflect_static(se::State& s)
     cc::Vec3 temp1 ;
     cc::Vec3 temp2 ;
     cc::Vec3 result;
+    cc::Vec3 *temp ;
     
     if(argc != 3) {
         SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
@@ -23819,9 +23953,10 @@ static bool js_cc_scene_ReflectionProbe_reflect_static(se::State& s)
     SE_PRECONDITION2(ok, false, "Error processing arguments"); 
     result = cc::scene::ReflectionProbe::reflect((cc::Vec3 const &)*arg1,(cc::Vec3 const &)*arg2,SWIG_STD_MOVE(arg3));
     
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    temp = ccnew cc::Vec3(result);
+    ok &= nativevalue_to_se(temp, s.rval(), s.thisObject());
     SE_PRECONDITION2(ok, false, "Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    s.rval().toObject()->getPrivateObject()->tryAllowDestroyInGC();
     
     
     
@@ -24126,6 +24261,7 @@ bool js_register_cc_scene_ReflectionProbe(se::Object* obj) {
     cls->defineProperty("size", _SE(js_cc_scene_ReflectionProbe_size_get), _SE(js_cc_scene_ReflectionProbe_size_set)); 
     
     cls->defineFunction("initialize", _SE(js_cc_scene_ReflectionProbe_initialize)); 
+    cls->defineFunction("getProbeId", _SE(js_cc_scene_ReflectionProbe_getProbeId)); 
     cls->defineFunction("getNode", _SE(js_cc_scene_ReflectionProbe_getNode)); 
     cls->defineFunction("getCamera", _SE(js_cc_scene_ReflectionProbe_getCamera)); 
     cls->defineFunction("needRender", _SE(js_cc_scene_ReflectionProbe_needRender)); 
@@ -26724,6 +26860,7 @@ static bool js_cc_scene_BBox_getCenter(se::State& s)
     size_t argc = args.size();
     cc::scene::BBox *arg1 = (cc::scene::BBox *) NULL ;
     cc::Vec3 result;
+    cc::Vec3 *temp ;
     
     if(argc != 0) {
         SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -26733,9 +26870,10 @@ static bool js_cc_scene_BBox_getCenter(se::State& s)
     if (nullptr == arg1) return true;
     result = ((cc::scene::BBox const *)arg1)->getCenter();
     
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    temp = ccnew cc::Vec3(result);
+    ok &= nativevalue_to_se(temp, s.rval(), s.thisObject());
     SE_PRECONDITION2(ok, false, "Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    s.rval().toObject()->getPrivateObject()->tryAllowDestroyInGC();
     
     
     

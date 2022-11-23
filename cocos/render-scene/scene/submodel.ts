@@ -64,6 +64,7 @@ export class SubModel {
     protected _instancedAttributeBlock: IInstancedAttributeBlock = { buffer: null!, views: [], attributes: [] };
     protected _instancedWorldMatrixIndex = -1;
     protected _instancedSHIndex = -1;
+    protected _useReflectionProbeType = 0;
 
     /**
      * @en
@@ -211,6 +212,17 @@ export class SubModel {
     }
     get instancedSHIndex () {
         return this._instancedSHIndex;
+    }
+
+    /**
+     * @en Gets or sets the type of reflection probe, Used to process instance
+     * @zh 获取或设置使用反射探针的类型，用于处理instance
+     */
+    set useReflectionProbeType (val) {
+        this._useReflectionProbeType = val;
+    }
+    get useReflectionProbeType () {
+        return this._useReflectionProbeType;
     }
 
     /**

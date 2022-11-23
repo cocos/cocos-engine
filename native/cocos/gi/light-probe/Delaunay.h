@@ -198,7 +198,7 @@ struct Tetrahedron {
     Tetrahedron() = default;
 
     inline bool isInCircumSphere(const Vec3 &point) const {
-        return point.distanceSquared(sphere.center) < sphere.radiusSquared - 0.01F; // mathutils::EPSILON
+        return point.distanceSquared(sphere.center) < sphere.radiusSquared - mathutils::EPSILON;
     }
 
     inline bool contain(int32_t vertexIndex) const {

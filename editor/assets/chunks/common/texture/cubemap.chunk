@@ -39,7 +39,7 @@
     vec3 rotationDir = RotationVecFromAxisY(R.xyz, cc_surfaceTransform.z, cc_surfaceTransform.w);
     vec4 envmap = fragTextureLod(tex, rotationDir, roughness * (mipCount - 1.0));
     
-    #if CC_USE_IBL == IBL_RGBE || USE_REFLECTION_PROBE != REFLECTION_PROBE_NONE
+    #if CC_USE_IBL == IBL_RGBE || CC_USE_REFLECTION_PROBE != REFLECTION_PROBE_TYPE_NONE
       return unpackRGBE(envmap);
     #else
       return SRGBToLinear(envmap.rgb);

@@ -1,5 +1,5 @@
-/*
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+/****************************************************************************
+ Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -21,17 +21,19 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
-*/
+****************************************************************************/
+#pragma once
 
-import { CCObject, IsClientLoad } from "../data/object";
+#include <cstdint>
 
-export function isClientLoad (obj: CCObject) {
-    return !!(obj._objFlags & IsClientLoad);
-}
-export function setClientLoad (obj: CCObject, value: boolean) {
-    if (value) {
-        obj._objFlags |= IsClientLoad;
-    } else {
-        obj._objFlags &= ~IsClientLoad;
-    }
-}
+// Check if a compressed file header is correctly formatted
+bool compressedIsValid(const unsigned char *pFile);
+
+// Read the chunks count from compressed header
+uint32_t getChunkNumbers(const unsigned char *pFile);
+
+// Read the chunk size from compressed header
+uint32_t getChunkSizes(const unsigned char *pFile, uint32_t level);
+
+// Read the chunk from compressed header
+unsigned char *getChunk(const unsigned char *pFile, uint32_t level);
