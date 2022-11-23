@@ -494,7 +494,10 @@ exports.ready = function() {
         this.material.effect = event.target.value;
         this.material.data = await Editor.Message.request('scene', 'query-effect', this.material.effect);
 
-        this.$.technique.value = this.material.technique = 0;
+        // 新数据里不存在对应 technique 的数据时重置到 0 ，有数据时保持不变
+        if (!this.material.data[this.material.technique]) {
+            this.$.technique.value = this.material.technique = 0;
+        }
 
         await this.updateInterface();
 
@@ -511,7 +514,7 @@ exports.ready = function() {
 
     // Event triggered when the technique being used is changed
     this.$.technique.addEventListener('change', async (event) => {
-        this.material.technique = event.target.value;
+        this.material.technique = Number(event.target.value);
         await this.updateInterface();
         this.change();
         this.snapshot();
