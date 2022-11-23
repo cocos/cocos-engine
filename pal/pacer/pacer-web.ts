@@ -6,7 +6,8 @@ export class Pacer {
     private _onTick: (() => void) | null = null;
     private _targetFrameRate = 60;
     private _frameTime = 0;
-    private _startTime = 0;
+    private _timeToCall = 0;
+    private _lastTime = 0;
     private _isPlaying = false;
     private _rAF: typeof requestAnimationFrame;
     private _cAF: typeof cancelAnimationFrame;
@@ -15,7 +16,8 @@ export class Pacer {
         || window.webkitRequestAnimationFrame
         || window.mozRequestAnimationFrame
         || window.oRequestAnimationFrame
-        || window.msRequestAnimationFrame;
+        || window.msRequestAnimationFrame
+        || this._stTime.bind(this);
         this._cAF = window.cancelAnimationFrame
         || window.cancelRequestAnimationFrame
         || window.msCancelRequestAnimationFrame
@@ -55,27 +57,33 @@ export class Pacer {
 
     start (): void {
         if (this._isPlaying) return;
-
-        const updateCallback = () => {
-            const currTime = performance.now();
-            const elapseTime = Math.max(0, (currTime - this._startTime));
-            const timeToCall = Math.max(0, this._frameTime - elapseTime);
-
-            this._stHandle = setTimeout(() => {
-                this._startTime = performance.now();
-
+        if (this._targetFrameRate === 60) {
+            const updateCallback = () => {
                 if (this._isPlaying) {
                     this._rafHandle = this._rAF.call(window, updateCallback);
                 }
-
                 if (this._onTick) {
                     this._onTick();
                 }
-            }, timeToCall);
-        };
+            };
+            this._rafHandle = this._rAF.call(window, updateCallback);
+        } else {
+            const updateCallback = () => {
+                if (this._isPlaying) {
+                    this._stHandle = this._stTime(updateCallback);
+                }
 
-        this._startTime = performance.now();
-        updateCallback();
+                this._rafHandle = this._rAF.call(window, () => {
+                    if (this._onTick) {
+                        this._onTick();
+                    }
+                });
+            };
+
+            this._timeToCall = this._frameTime;
+            this._lastTime = performance.now();
+            this._stHandle = this._stTime(updateCallback);
+        }
         this._isPlaying = true;
     }
 
@@ -85,6 +93,16 @@ export class Pacer {
         this._ctTime(this._stHandle);
         this._rafHandle = this._stHandle = 0;
         this._isPlaying = false;
+    }
+
+    private _stTime (callback: () => void) {
+        const currTime = performance.now();
+        const elapseTime = Math.max(0, (currTime - this._lastTime));
+        this._timeToCall = elapseTime > this._timeToCall ? this._frameTime - (elapseTime - this._timeToCall) : this._timeToCall - elapseTime;
+        this._timeToCall = Math.max(0, this._timeToCall);
+        const id = setTimeout(callback, this._timeToCall);
+        this._lastTime = currTime;
+        return id;
     }
 
     private _ctTime (id: number | undefined) {
