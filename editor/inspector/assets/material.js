@@ -494,10 +494,8 @@ exports.ready = function() {
         this.material.effect = event.target.value;
         this.material.data = await Editor.Message.request('scene', 'query-effect', this.material.effect);
 
-        // 新数据里不存在对应 technique 的数据时重置到 0 ，有数据时保持不变
-        if (!this.material.data[this.material.technique]) {
-            this.$.technique.value = this.material.technique = 0;
-        }
+        // 此处讨论过：切换 effect 后 technique 返回默认值 0，因为选中项的 name 一致才有保持的意义，而 name 是一致是小概率
+        this.$.technique.value = this.material.technique = 0;
 
         await this.updateInterface();
 
