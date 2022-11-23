@@ -258,6 +258,15 @@ const cacheManager = require('./jsb-cache-manager');
         },
     });
 
+    const _updateMaterial = skeleton.updateMaterial;
+    skeleton.updateMaterial = function () {
+        _updateMaterial.call(this);
+        if (this._nativeSkeleton) {
+            const mat = this.getMaterialTemplate();
+            this._nativeSkeleton.setMaterial(mat);
+        }
+    };
+
     const _updateDebugDraw = skeleton._updateDebugDraw;
     skeleton._updateDebugDraw = function () {
         _updateDebugDraw.call(this);

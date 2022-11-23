@@ -37,6 +37,7 @@
 #include "renderer/pipeline/Define.h"
 #include "renderer/pipeline/InstancedBuffer.h"
 #include "scene/Define.h"
+#include "cocos/bindings/jswrapper/SeApi.h"
 
 namespace cc {
 namespace scene {
@@ -190,9 +191,19 @@ void Pass::setUniform(uint32_t handle, const MaterialProperty &value) {
     const gfx::Type type = Pass::getTypeFromHandle(handle);
     const uint32_t ofs = Pass::getOffsetFromHandle(handle);
     auto &block = _blocks[binding];
-    auto iter = type2writer.find(type);
-    if (iter != type2writer.end()) {
-        iter->second(block.data, value, static_cast<int>(ofs));
+#if CC_DEBUG
+    auto validatorIt = type2validator.find(type);
+    if (validatorIt != type2validator.end()) {
+        if (!validatorIt->second(value)) {
+            const ccstd::string stack = se::ScriptEngine::getInstance()->getCurrentStackTrace();
+            debug::errorID(12011, binding, stack.c_str());
+        }
+    }
+#endif
+
+    auto writerIt = type2writer.find(type);
+    if (writerIt != type2writer.end()) {
+        writerIt->second(block.data, value, static_cast<int>(ofs));
     }
 
     _rootBufferDirty = true;

@@ -38,7 +38,7 @@ public:
     virtual ~SimulatorApp();
     int run();
     virtual int getWidth() const;
-    virtual int getHegith() const;
+    virtual int getHeight() const;
 
 protected:
     SimulatorApp();
