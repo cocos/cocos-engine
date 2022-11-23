@@ -404,8 +404,7 @@ class LayerEval {
         controller: AnimationController,
         triggerResetFn: TriggerResetFn,
     ) {
-        // TODO
-        const isAdditiveLayer = layer.additive || layer.name.endsWith('+');
+        const isAdditiveLayer = layer.additive;
 
         this.name = layer.name;
         this._controller = controller;
