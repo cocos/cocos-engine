@@ -25,11 +25,6 @@
  */
 
 /**
- * @packageDocumentation
- * @module tween
- */
-
-/**
   * @en
   * Built-in string value definition for the cache function.
   * @zh
@@ -66,7 +61,7 @@ export interface ITweenOption {
 
     /**
      * @en
-     * Interpolation functin, you can pass in a custom function.
+     * Interpolation function, you can pass in a custom function.
      * @zh
      * 插值函数，参数的意义 start:起始值，end:目标值，current:当前值，ratio:当前进度
      */

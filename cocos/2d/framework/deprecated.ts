@@ -24,19 +24,11 @@
  */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 
-/**
- * @packageDocumentation
- * @module ui
- */
-
-import { markAsWarning, removeProperty, replaceProperty } from '../../core/utils';
+import { markAsWarning, removeProperty, replaceProperty, js, Color, cclegacy } from '../../core';
 import { UIComponent } from './ui-component';
 import { UITransform } from './ui-transform';
-import { Renderable2D } from './renderable-2d';
+import { UIRenderer } from './ui-renderer';
 import { Canvas } from './canvas';
-import { js } from '../../core/utils/js';
-import { legacyCC } from '../../core/global-exports';
-import { Color } from '../../core/math/color';
 
 removeProperty(UIComponent.prototype, 'UIComponent', [
     {
@@ -44,6 +36,15 @@ removeProperty(UIComponent.prototype, 'UIComponent', [
     },
     {
         name: 'setVisibility',
+    },
+]);
+
+removeProperty(UIRenderer.prototype, 'Renderable2D.prototype', [
+    {
+        name: 'srcBlendFactor',
+    },
+    {
+        name: 'dstBlendFactor',
     },
 ]);
 
@@ -114,17 +115,6 @@ replaceProperty(Canvas.prototype, 'Canvas.prototype', [
     },
 ]);
 
-markAsWarning(Renderable2D.prototype, 'Renderable2D.prototype', [
-    {
-        name: 'srcBlendFactor',
-        suggest: 'Please use a custom material to specify blending options instead.',
-    },
-    {
-        name: 'dstBlendFactor',
-        suggest: 'Please use a custom material to specify blending options instead.',
-    },
-]);
-
 markAsWarning(UITransform.prototype, 'UITransform.prototype', [
     {
         name: 'priority',
@@ -137,25 +127,33 @@ markAsWarning(UITransform.prototype, 'UITransform.prototype', [
  * @deprecated Since v1.2
  */
 export { UITransform as UITransformComponent };
-legacyCC.UITransformComponent = UITransform;
+cclegacy.UITransformComponent = UITransform;
 js.setClassAlias(UITransform, 'cc.UITransformComponent');
 
 /**
  * Alias of [[Renderable2D]]
  * @deprecated Since v1.2
  */
-export { Renderable2D as RenderComponent };
+export { UIRenderer as RenderComponent };
 /**
  * Alias of [[Renderable2D]]
  * @deprecated Since v3.0
  */
-export { Renderable2D as UIRenderable };
-js.setClassAlias(Renderable2D, 'cc.RenderComponent');
+export { UIRenderer as UIRenderable };
+js.setClassAlias(UIRenderer, 'cc.RenderComponent');
 
 /**
  * Alias of [[Canvas]]
  * @deprecated Since v1.2
  */
 export { Canvas as CanvasComponent };
-legacyCC.CanvasComponent = Canvas;
+cclegacy.CanvasComponent = Canvas;
 js.setClassAlias(Canvas, 'cc.CanvasComponent');
+
+/**
+ * Alias of [[Renderable2D]]
+ * @deprecated Since v3.6
+ */
+export { UIRenderer as Renderable2D };
+cclegacy.internal.Renderable2D = UIRenderer;
+js.setClassAlias(UIRenderer, 'cc.Renderable2D');

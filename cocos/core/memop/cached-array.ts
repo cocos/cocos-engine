@@ -23,10 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module memop
- */
+import { ScalableContainer } from './scalable-container';
 
 /**
  * @en
@@ -36,7 +33,7 @@
  * 适用于对象缓存的数组类型封装，一般用于不易被移除的常驻数据。
  * 它的内部数组长度会持续增长，不会减少。
  */
-export class CachedArray<T> {
+export class CachedArray<T> extends ScalableContainer {
     /**
      * @en
      * The array which stores actual content
@@ -53,21 +50,19 @@ export class CachedArray<T> {
      */
     public length = 0;
 
-    private _compareFn;
+    private _compareFn?: (a: T, b: T) => number;
+    private _initSize = 0;
 
     /**
      * @param length Initial length
      * @param compareFn Comparison function for sorting
      */
     constructor (length: number, compareFn?: (a: T, b: T) => number) {
+        super();
         this.array = new Array(length);
+        this._initSize = length;
         this.length = 0;
-
-        if (compareFn !== undefined) {
-            this._compareFn = compareFn;
-        } else {
-            this._compareFn = (a: number, b: number) => a - b;
-        }
+        this._compareFn = compareFn;
     }
 
     /**
@@ -123,6 +118,13 @@ export class CachedArray<T> {
     public destroy () {
         this.length = 0;
         this.array.length = 0;
+        super.destroy();
+    }
+
+    public tryShrink () {
+        if (this.array.length >> 2 > this.length) {
+            this.array.length = Math.max(this._initSize, this.array.length >> 1);
+        }
     }
 
     /**

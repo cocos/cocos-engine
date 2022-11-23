@@ -1,0 +1,12 @@
+out vec3 v_luv;
+
+void CCLightingMapCaclUV()
+{
+#if !USE_INSTANCING
+  v_luv.xy = cc_lightingMapUVParam.xy + a_texCoord1 * cc_lightingMapUVParam.z;
+  v_luv.z = cc_lightingMapUVParam.w;
+#else
+  v_luv.xy = a_lightingMapUVParam.xy + a_texCoord1 * a_lightingMapUVParam.z;
+  v_luv.z = a_lightingMapUVParam.w;
+#endif
+}

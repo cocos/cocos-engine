@@ -19,25 +19,27 @@ exports.ready = function() {
     $button.innerText = 'Cook';
     $prop.appendChild($button);
 
-    $button.addEventListener('confirm', () => {
+    $button.addEventListener('confirm', async () => {
         Editor.Message.send('scene', 'snapshot');
 
         const uuids = this.dump.value.uuid.values || [this.dump.value.uuid.value];
 
-        uuids.forEach((uuid) => {
-            Editor.Message.send('scene', 'execute-component-method', {
+        for (const uuid of uuids) {
+            await Editor.Message.request('scene', 'execute-component-method', {
                 uuid: uuid,
                 name: 'cook',
                 args: [],
             });
-        });
+        }
 
-        uuids.forEach((uuid) => {
-            Editor.Message.send('scene', 'execute-component-method', {
+        for (const uuid of uuids) {
+            await Editor.Message.request('scene', 'execute-component-method', {
                 uuid: uuid,
                 name: 'combine',
                 args: [],
             });
-        });
+        }
+
+        Editor.Message.send('scene', 'snapshot');
     });
 };

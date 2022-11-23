@@ -25,7 +25,7 @@
 */
 
 import { Event } from './event';
-import { Vec2 } from '../../../core/math/vec2';
+import { Vec2 } from '../../../core';
 import { Touch } from '../touch';
 import { SystemEventTypeUnion } from '../event-enum';
 
@@ -38,7 +38,7 @@ const _vec2 = new Vec2();
  * @zh
  * 触摸事件。
  */
- export class EventTouch extends Event {
+export class EventTouch extends Event {
     /**
      * @en The maximum touch point numbers simultaneously
      * @zh 同时存在的最大触点数量。
@@ -55,6 +55,25 @@ const _vec2 = new Vec2();
      * @zh 表示触摸事件是真实触点触发的还是模拟的
      */
     public simulate = false;
+
+    /**
+     * @en The unique ID of SystemWindow, which triggerd the event
+     * @zh 触发此事件的系统窗口 ID
+     */
+    public windowId = 0;
+
+    /**
+     * @en Set whether to prevent events from being swallowed by nodes, which is false by default.
+     * If set to true, the event is allowed to be dispatched to nodes at the bottom layer.
+     * NOTE: Setting to true will reduce the efficiency of event dispatching.
+     *
+     * @zh 设置是否阻止事件被节点吞噬, 默认为 false 。
+     * 如果设置为 true，则事件允许派发给渲染在下一层级的节点。
+     * 注意：设置为 true 会降低事件派发的效率。
+     *
+     * @experimental May be optimized in the future.
+     */
+    public preventSwallow = false;
 
     private _eventCode: SystemEventTypeUnion;  // deprecated since v3.3
 

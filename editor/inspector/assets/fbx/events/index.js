@@ -1,10 +1,11 @@
 'use strict';
 
 const { join } = require('path');
+const events = require('./events');
+
 module.paths.push(join(Editor.App.path, 'node_modules'));
 const Vue = require('vue/dist/vue.min.js');
 
-const events = require('./events');
 exports.ready = function() {
     this.eventVm = new Vue({
         el: this.$.events,
@@ -39,13 +40,13 @@ exports.update = function(eventInfo) {
 
 exports.apply = async function() {
     const clips = Object.keys(this.events.eventsMap);
+    const meta = this.meta;
     for (let i = 0; i < clips.length; i++) {
         const uuid = clips[i];
-        const metaData = await Editor.Message.request('asset-db', 'query-asset-meta', uuid);
+        const metaData = meta.subMetas[uuid];
         if (metaData && metaData.userData) {
             const eventData = this.events.eventsMap[uuid];
             metaData.userData.events = eventData;
-            await Editor.Message.send('asset-db', 'save-asset-meta', uuid, JSON.stringify(metaData));
         }
     }
     this.events.eventsMap = {};
@@ -67,6 +68,7 @@ exports.addNewEvent = function(time) {
     this.events.eventsMap[this.curEditClipInfo.clipUUID] = userData.events;
     this.updateEventInfo();
     this.dispatch('change');
+    this.dispatch('snapshot');
 };
 
 exports.delEvent = function(time) {
@@ -75,11 +77,16 @@ exports.delEvent = function(time) {
     this.events.eventsMap[this.curEditClipInfo.clipUUID] = userData.events;
     this.updateEventInfo();
     this.dispatch('change');
+    this.dispatch('snapshot');
 };
 
 exports.updateEventInfo = function(time, eventInfos) {
     const userData = this.curEditClipInfo.userData;
-    const newEvents = userData.events.filter((item) => item.frame !== time);
+    let newEvents = [];
+    if (userData.events) {
+        newEvents = userData.events.filter((item) => item.frame !== time);
+    }
+
     newEvents.push(...eventInfos);
     userData.events = newEvents;
     this.events.eventsMap[this.curEditClipInfo.clipUUID] = newEvents;

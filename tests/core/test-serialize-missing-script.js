@@ -11,7 +11,7 @@
             },
             statics: {
                 safeFindClass: function (id) {
-                    return cc.js._getClassById(id) || MissingScript;
+                    return cc.js.getClassById(id) || MissingScript;
                 }
             }
         });

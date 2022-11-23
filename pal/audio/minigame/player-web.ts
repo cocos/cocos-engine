@@ -5,7 +5,7 @@ import { EventTarget } from '../../../cocos/core/event';
 import { audioBufferManager } from '../audio-buffer-manager';
 import AudioTimer from '../audio-timer';
 import { enqueueOperation, OperationInfo, OperationQueueable } from '../operation-queue';
-import { AudioEvent, AudioState, AudioType } from '../type';
+import { AudioEvent, AudioPCMDataView, AudioState, AudioType } from '../type';
 
 declare const fsUtils: any;
 const audioContext = minigame.tt?.getAudioContext?.();
@@ -56,6 +56,7 @@ export class OneShotAudioWeb {
         this._bufferSourceNode.onended = null;  // stop will call ended callback
         audioBufferManager.tryReleasingCache(this._url);
         this._bufferSourceNode.stop();
+        this._bufferSourceNode.buffer = null;
     }
 }
 
@@ -70,8 +71,13 @@ export class AudioPlayerWeb implements OperationQueueable {
     private _audioTimer: AudioTimer;
     private _readyToHandleOnShow = false;
 
-    // NOTE: the implemented interface properties need to be public access
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
     public _eventTarget: EventTarget = new EventTarget();
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
     public _operationQueue: OperationInfo[] = [];
 
     constructor (audioBuffer: AudioBuffer, url: string) {
@@ -191,6 +197,14 @@ export class AudioPlayerWeb implements OperationQueueable {
         return this._audioTimer.currentTime;
     }
 
+    get sampleRate (): number {
+        return this._audioBuffer.sampleRate;
+    }
+
+    public getPCMData (channelIndex: number): AudioPCMDataView | undefined {
+        return new AudioPCMDataView(this._audioBuffer.getChannelData(channelIndex), 1);
+    }
+
     @enqueueOperation
     seek (time: number): Promise<void> {
         return new Promise((resolve) => {
@@ -239,6 +253,7 @@ export class AudioPlayerWeb implements OperationQueueable {
             if (this._sourceNode) {
                 this._sourceNode.onended = null;  // stop will call ended callback
                 this._sourceNode.stop();
+                this._sourceNode.buffer = null;
             }
         } catch (e) {
             // sourceNode can't be stopped twice, especially on Safari.

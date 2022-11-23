@@ -23,15 +23,14 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module decorator
- */
-
 import { LegacyPropertyDecorator } from './utils';
-import { property } from './property';
+import { getOrCreatePropertyStash } from './property';
 
-export const override: LegacyPropertyDecorator = (target, propertyKey, descriptor) => property({
-    __noImplicit: true,
-    override: true,
-})(target, propertyKey, descriptor);
+/**
+ *
+ * @engineInternal
+ */
+export const override: LegacyPropertyDecorator = (target, propertyKey, descriptorOrInitializer) => {
+    const propertyStash = getOrCreatePropertyStash(target, propertyKey, descriptorOrInitializer);
+    propertyStash.override = true;
+};

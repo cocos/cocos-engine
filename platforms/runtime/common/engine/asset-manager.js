@@ -467,6 +467,7 @@ cc.assetManager.transformPipeline.append(function (task) {
 var originInit = cc.assetManager.init;
 cc.assetManager.init = function (options) {
     originInit.call(cc.assetManager, options);
-    options.subpackages && options.subpackages.forEach(x => subpackages[x] = `${_subpackagesPath}` + x);
+    const subpacks = cc.settings.querySettings('assets', 'subpackages');
+    subpacks && subpacks.forEach(x => subpackages[x] = `${_subpackagesPath}` + x);
     cacheManager.init();
 };

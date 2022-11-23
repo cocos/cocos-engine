@@ -1,0 +1,131 @@
+name: <Native> Run Unit Tests
+
+on:
+  pull_request:
+    paths:
+    - 'templates/**'
+    - 'native/**'
+
+# github.head_ref is only defined on pull_request events
+concurrency:
+  group: ${{ github.workflow }}-${{ github.actor }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  unit-test-with-cmake:
+    name: "Run on windows"
+    if: 
+      (! contains(github.event.pull_request.body, '[X] does not change any runtime related code or build configuration'))
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: ${{github.workspace}}/native
+    steps:
+      - uses: actions/checkout@v2
+      - name: Download external libraries
+        shell: bash
+        run: |
+          EXT_VERSION=`node ../.github/workflows/get-native-external-version.js`
+          git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos/cocos-engine-external external
+      - name: Generate bindings
+        run: |
+          cd ./tools/swig-config
+          echo "Create auto-generated jsbinding glue codes."
+          node genbindings.js &&
+          git status
+
+      - name: Run Unit Tests
+        shell: bash
+        run: |
+          cmake -B tests/unit-test/build -S tests/unit-test
+          cmake --build tests/unit-test/build --config Release
+          ./tests/unit-test/build/src/Release/CocosTest.exe
+
+      #### TODO(PatriceJiang): model split
+      # - name: Run Module Tests
+      #   shell: bash
+      #   run: |
+      #     cd tests/module-tests 
+      #     bash run-test-windows.sh
+  sebind-with-windows:
+    name: "sebind tests"
+    if: 
+      (! contains(github.event.pull_request.body, '[X] does not change any runtime related code or build configuration'))
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: ${{github.workspace}}/native
+    steps:
+      - uses: actions/checkout@v2
+      - name: Download external libraries
+        shell: bash
+        run: |
+          EXT_VERSION=`node ../.github/workflows/get-native-external-version.js`
+          git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos/cocos-engine-external external
+
+      - name: Generate bindings
+        run: |
+          cd ./tools/swig-config
+          echo "Create auto-generated jsbinding glue codes."
+          node genbindings.js
+          git status
+      - name: Run Sebind Tests
+        shell: bash
+        run: |
+          cd ${GITHUB_WORKSPACE}/native
+          cp -r ../templates/windows tests/sebind-tests/win64
+          cd tests/sebind-tests
+          mkdir -p proj
+          cp cfg.cmake proj/
+          GW="${GITHUB_WORKSPACE//\\/\/}"
+          cmake -B proj -S win64 -DRES_DIR="${GW}/native/tests/sebind-tests" -DCOCOS_X_PATH="${GW}/native" -DAPP_NAME=sebind
+          cmake --build proj
+          # cd proj/Debug
+          ## can not boot on this machine
+          # ./sebind.exe || true
+          # if [[ -f "result.txt" ]]; 
+          # then
+          #   echo "success!"
+          # else
+          #   echo "Run sebind-tests fail!"
+          #   exit 1
+          # fi
+
+  # sebind-run-on-linux:
+  #   name: "Test sebind on Ubuntu"
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #     - name: Download external libraries
+  #       shell: bash
+  #       run: |
+  #         EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`
+  #         git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos/cocos-engine-external native/external
+  #     - name: Generate bindings
+  #       run: |
+          # cd ./native/tools/swig-config
+          # node genbindings.js
+          # git status
+  #     - name: Install dependencies
+  #       run: |
+  #         sudo apt install libx11-dev -y
+  #         sudo apt install libsndio-dev -y
+  #         sudo apt install ninja-build -y
+  #     - name: Run Sebind Tests
+  #       shell: bash
+  #       run: |
+  #         cd ${GITHUB_WORKSPACE}/native
+  #         cp -r ../templates/linux tests/sebind-tests/linux
+  #         cd tests/sebind-tests
+  #         mkdir -p proj
+  #         cp cfg.cmake proj
+  #         cmake -G Ninja -B proj -S linux -DRES_DIR=${GITHUB_WORKSPACE}/native/tests/sebind-tests/ -DCOCOS_X_PATH=${GITHUB_WORKSPACE}/native -DAPP_NAME=sebind
+  #         cmake --build proj
+  #         cd proj
+  #         ./sebind || true
+  #         if [[ -f "result.txt" ]]; 
+  #         then
+  #           echo "success!"
+  #         else
+  #           echo "Run sebind-tests fail!" > /dev/stderr
+  #         fi

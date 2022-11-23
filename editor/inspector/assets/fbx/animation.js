@@ -1,4 +1,8 @@
-exports.template = `
+'use strict';
+
+const { updateElementReadonly, updateElementInvalid } = require('../../utils/assets');
+
+exports.template = /* html */`
 <div class="container">
     <div class="show-type-wrap">
         <ui-tab class="show-type" value="0">
@@ -68,13 +72,27 @@ exports.template = `
             <ui-num-input slot="content" class="speed"></ui-num-input>
         </ui-prop>
     </div>
+    <ui-label class="multiple-warn-tip" value="i18n:ENGINE.assets.multipleWarning"></ui-label>
 </div>
 `;
 
-exports.style = `
+exports.style = /* css */`
 ui-prop,
 ui-section {
     margin: 4px 0;
+}
+.container[multiple-invalid] > *:not(.multiple-warn-tip) {
+    display: none!important;
+ }
+
+ .container[multiple-invalid] > .multiple-warn-tip {
+    display: block;
+ }
+
+.container .multiple-warn-tip {
+    display: none;
+    text-align: center;
+    color: var(--color-focus-contrast-weakest);
 }
 .container > .show-type-wrap {
     text-align: center;
@@ -104,6 +122,7 @@ ui-section {
     display: flex;
     line-height: 1.6em;
     padding: 2px 5px;
+    cursor: pointer;
 }
 .container > .clips > .clip > .table > .line[active] {
     background: var(--color-focus-fill);
@@ -132,6 +151,16 @@ ui-section {
 }
 .container > .clips > .clip > .add-clip > .button > ui-icon:hover {
     background: var(--color-normal-fill);
+}
+
+.container > .clips > .clip > .add-clip > .button > ui-icon[disabled] {
+    opacity: 0.55;
+    pointer-events: none;
+}
+
+.container > .editor[disabled] {
+    opacity: 0.55;
+    pointer-events: none;
 }
 
 .container > .editor > .anim-name {
@@ -427,11 +456,11 @@ const Elements = {
                     line.appendChild(name);
                     const time = document.createElement('div');
                     time.setAttribute('class', 'time');
-                    time.innerHTML = panel.animationTimeShowType === 'time' ? subAnim.from.toFixed(2) : Math.round(subAnim.from * panel.rawClipInfo.fps);
+                    time.innerHTML = panel.animationTimeShowType === 'time' ? subAnim.from.toFixed(2) : Math.round(subAnim.from * (subAnim.fps || panel.rawClipInfo.fps));
                     line.appendChild(time);
                     const timeEnd = document.createElement('div');
                     timeEnd.setAttribute('class', 'time end');
-                    timeEnd.innerHTML = panel.animationTimeShowType === 'time' ? subAnim.to.toFixed(2) : Math.round(subAnim.to * panel.rawClipInfo.fps);
+                    timeEnd.innerHTML = panel.animationTimeShowType === 'time' ? subAnim.to.toFixed(2) : Math.round(subAnim.to * (subAnim.fps || panel.rawClipInfo.fps));
                     line.appendChild(timeEnd);
                 });
 
@@ -446,6 +475,7 @@ const Elements = {
                 const addIcon = document.createElement('ui-icon');
                 addIcon.setAttribute('value', 'add');
                 addIcon.setAttribute('tooltip', 'Duplicate Selected');
+                updateElementReadonly.call(panel, addIcon);
                 button.appendChild(addIcon);
                 addIcon.addEventListener('click', () => {
                     const newInfo = panel.newClipTemplate();
@@ -455,11 +485,13 @@ const Elements = {
                     Elements.clips.update.call(panel);
                     Elements.editor.update.call(panel);
                     panel.dispatch('change');
+                    panel.dispatch('snapshot');
                 });
 
                 const miniIcon = document.createElement('ui-icon');
                 miniIcon.setAttribute('value', 'mini');
                 miniIcon.setAttribute('tooltip', 'Remove Selected');
+                updateElementReadonly.call(panel, miniIcon);
                 button.appendChild(miniIcon);
                 miniIcon.addEventListener('click', () => {
                     panel.updateCurrentClipInfo();
@@ -476,6 +508,7 @@ const Elements = {
                     Elements.clips.update.call(panel);
                     Elements.editor.update.call(panel);
                     panel.dispatch('change');
+                    panel.dispatch('snapshot');
                 });
             });
         },
@@ -557,21 +590,25 @@ const Elements = {
                 panel.$.editor.style.display = 'block';
             }
 
+            updateElementReadonly.call(panel, panel.$.editor);
+
             panel.$.clipName.value = panel.currentClipInfo.name;
 
             // ruler making
             panel.$.rulerMaking.innerText = '';
             const maxNum = panel.gridConfig.mod + 1;
             for (let minNum = 1; minNum <= maxNum; minNum++) {
-                const label = document.createElement('div');
-                label.setAttribute('class', 'label-item');
-                label.style.left = `${panel.gridConfig.spacing * 5 * (minNum - 1) - 6}px`;
-                panel.$.rulerMaking.appendChild(label);
-
-                const span = document.createElement('span');
-                span.setAttribute('class', 'mid-label');
-                span.innerText = (panel.gridConfig.labelStep * (minNum - 1)).toFixed(2);
-                label.appendChild(span);
+                // If the remaining cells are less than 1.5, hide the label
+                if (((panel.gridConfig.width / panel.gridConfig.spacing) % 5) >= 1.5 || minNum !== maxNum) {
+                    const label = document.createElement('div');
+                    label.setAttribute('class', 'label-item');
+                    label.style.left = `${panel.gridConfig.spacing * 5 * (minNum - 1) - 6}px`;
+                    panel.$.rulerMaking.appendChild(label);
+                    const span = document.createElement('span');
+                    span.setAttribute('class', 'mid-label');
+                    span.innerText = (panel.gridConfig.labelStep * (minNum - 1)).toFixed(2);
+                    label.appendChild(span);
+                }
             }
             const lastMakingLabel = document.createElement('div');
             lastMakingLabel.setAttribute('class', 'label-item');
@@ -615,42 +652,9 @@ const Elements = {
     },
 };
 
-exports.update = function(assetList, metaList) {
-    this.assetList = assetList;
-    this.metaList = metaList;
-    this.asset = assetList[0];
-    this.meta = metaList[0];
-
-    for (const prop in Elements) {
-        const element = Elements[prop];
-        if (element.update) {
-            element.update.call(this);
-        }
-    }
-    this.initAnimationNameToUUIDMap();
-    this.initAnimationInfos();
-    if (this.animationInfos) {
-        this.onSelect(this.rawClipIndex, this.splitClipIndex);
-    }
-};
-
-exports.ready = function() {
-    for (const prop in Elements) {
-        const element = Elements[prop];
-        if (element.ready) {
-            element.ready.call(this);
-        }
-    }
-};
-
-exports.close = function() {
-    for (const prop in Elements) {
-        const element = Elements[prop];
-        if (element.close) {
-            element.close.call(this);
-        }
-    }
-};
+async function callModelPreviewFunction(funcName, ...args) {
+    return await Editor.Message.request('scene', 'call-preview-function', 'scene:model-preview', funcName, ...args);
+}
 
 exports.methods = {
     /** animation name -> uuid */
@@ -741,6 +745,8 @@ exports.methods = {
             fps,
             from,
             to,
+            wrapMode: splitInfo.wrapMode,
+            speed: splitInfo.speed || 1,
         };
     },
     getRightName(name) {
@@ -817,6 +823,11 @@ exports.methods = {
 
         panel.$.clipFrames.innerText = maxFrames;
         panel.$.clipFPS.value = fps;
+
+        // TODO: hack for bug at 3d-tasks#10113. Because the new value would be limited in min and max, should firstly remove min and max.
+        panel.$.clipFrom.max = null;
+        panel.$.clipTo.min = null;
+        panel.$.clipTo.max = null;
 
         panel.$.clipFrom.value = startFrames;
         panel.$.clipFrom.setAttribute('max', endFrames);
@@ -987,6 +998,7 @@ exports.methods = {
         const curClipInfo = panel.getCurClipInfo();
         Editor.Message.broadcast('fbx-inspector:animation-change', curClipInfo);
         panel.dispatch('change');
+        panel.dispatch('snapshot');
     },
     updateVirtualControl() {
         const panel = this;
@@ -1025,6 +1037,7 @@ exports.methods = {
         panel.clipNames.add(name);
 
         panel.dispatch('change');
+        panel.dispatch('snapshot');
         Elements.clips.update.call(panel);
     },
     onCutClip(event) {
@@ -1037,6 +1050,7 @@ exports.methods = {
         Elements.editor.update.call(panel);
 
         panel.dispatch('change');
+        panel.dispatch('snapshot');
     },
     onFpsChange(event) {
         const panel = this;
@@ -1045,21 +1059,81 @@ exports.methods = {
 
         Elements.editor.update.call(panel);
         panel.dispatch('change');
+        panel.dispatch('snapshot');
     },
     onWrapModeChange(event) {
         const panel = this;
 
-        panel.animationInfos[panel.rawClipIndex].splits[panel.splitClipIndex].wrapMode = Number(event.target.value);
-
+        const wrapMode = Number(event.target.value);
+        panel.animationInfos[panel.rawClipIndex].splits[panel.splitClipIndex].wrapMode = wrapMode;
+        callModelPreviewFunction(
+            'setClipConfig',
+            {
+                wrapMode,
+            }
+        );
         Elements.editor.update.call(panel);
         panel.dispatch('change');
+        panel.dispatch('snapshot');
     },
     onSpeedChange(event) {
         const panel = this;
 
-        panel.animationInfos[panel.rawClipIndex].splits[panel.splitClipIndex].speed = Number(event.target.value);
+        const speed = Number(event.target.value);
+        panel.animationInfos[panel.rawClipIndex].splits[panel.splitClipIndex].speed = speed;
+        callModelPreviewFunction(
+            'setClipConfig',
+            {
+                speed,
+            }
+        );
 
         Elements.editor.update.call(panel);
         panel.dispatch('change');
+        panel.dispatch('snapshot');
     },
+};
+
+exports.ready = function() {
+    for (const prop in Elements) {
+        const element = Elements[prop];
+        if (element.ready) {
+            element.ready.call(this);
+        }
+    }
+};
+
+exports.update = function(assetList, metaList) {
+    this.assetList = assetList;
+    this.metaList = metaList;
+    this.asset = assetList[0];
+    this.meta = metaList[0];
+
+    if (assetList.length > 1) {
+        this.$.container.setAttribute('multiple-invalid', '');
+        return;
+    } else {
+        this.$.container.removeAttribute('multiple-invalid');
+    }
+
+    for (const prop in Elements) {
+        const element = Elements[prop];
+        if (element.update) {
+            element.update.call(this);
+        }
+    }
+    this.initAnimationNameToUUIDMap();
+    this.initAnimationInfos();
+    if (this.animationInfos) {
+        this.onSelect(this.rawClipIndex, this.splitClipIndex);
+    }
+};
+
+exports.close = function() {
+    for (const prop in Elements) {
+        const element = Elements[prop];
+        if (element.close) {
+            element.close.call(this);
+        }
+    }
 };

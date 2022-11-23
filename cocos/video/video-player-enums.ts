@@ -24,11 +24,6 @@
  */
 
 /**
- * @packageDocumentation
- * @module component/video
- */
-
-/**
  * @en Enum for video resource type.
  * @zh 视频来源
  */

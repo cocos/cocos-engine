@@ -22,14 +22,11 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-/**
- * @packageDocumentation
- * @hidden
- */
 
-import { ComparisonFunc, StencilOp, DepthStencilState } from '../../core/gfx';
-import { Mask } from '../components/mask';
-import { Material } from '../../core';
+import { ComparisonFunc, StencilOp, DepthStencilState } from '../../gfx';
+import { Material } from '../../asset/assets';
+import { UIRenderer } from '../framework/ui-renderer';
+import { UIMeshRenderer } from '../components/ui-mesh-renderer';
 
 // Stage types
 export enum Stage {
@@ -49,9 +46,20 @@ export enum Stage {
     ENTER_LEVEL_INVERTED = 6,
 }
 
+export enum StencilSharedBufferView {
+    stencilTest,
+    func,
+    stencilMask,
+    writeMask,
+    failOp,
+    zFailOp,
+    passOp,
+    ref,
+    count,
+}
+
 export class StencilManager {
     public static sharedManager: StencilManager | null = null;
-    public stage = Stage.DISABLED;
     private _maskStack: any[] = [];
     private _stencilPattern = {
         stencilTest: true,
@@ -64,6 +72,14 @@ export class StencilManager {
         ref: 1,
     };
 
+    private _stage:Stage = Stage.DISABLED;
+    get stage () {
+        return this._stage;
+    }
+    set stage (val:Stage) {
+        this._stage = val;
+    }
+
     get pattern () {
         return this._stencilPattern;
     }
@@ -72,14 +88,9 @@ export class StencilManager {
         this._maskStack.push(mask);
     }
 
-    public clear (comp: Mask) {
-        comp.stencilStage = comp.inverted ? Stage.CLEAR_INVERTED : Stage.CLEAR;
-        // this.stage = Stage.CLEAR;
-    }
-
-    public enterLevel (comp: Mask) {
-        comp.graphics!.stencilStage = comp.inverted ? Stage.ENTER_LEVEL_INVERTED : Stage.ENTER_LEVEL;
-        // this.stage = Stage.ENTER_LEVEL;
+    public clear (comp: UIRenderer | UIMeshRenderer) {
+        const isInverted = (comp.stencilStage !== Stage.ENTER_LEVEL);
+        return isInverted ? Stage.CLEAR_INVERTED : Stage.CLEAR;
     }
 
     public enableMask () {
@@ -113,6 +124,10 @@ export class StencilManager {
             result += (0x00000001 << i);
         }
         return result;
+    }
+
+    public getMaskStackSize () {
+        return this._maskStack.length;
     }
 
     public reset () {

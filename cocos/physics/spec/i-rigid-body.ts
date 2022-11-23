@@ -23,14 +23,9 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
 import { ILifecycle } from './i-lifecycle';
 import { IGroupMask } from './i-group-mask';
-import { IVec3Like } from '../../core/math/type-define';
+import { IVec3Like } from '../../core';
 import { RigidBody } from '../framework/components/rigid-body';
 import { ERigidBodyType } from '../framework';
 

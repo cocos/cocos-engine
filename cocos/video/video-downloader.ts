@@ -23,16 +23,11 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-/**
- * @packageDocumentation
- * @module asset-manager
- */
 
-import downloader from '../core/asset-manager/downloader';
-import factory from '../core/asset-manager/factory';
-import { CompleteCallback, IDownloadParseOptions } from '../core/asset-manager/shared';
-import { getError, log } from '../core/platform/debug';
-import { sys } from '../core/platform/sys';
+import downloader from '../asset/asset-manager/downloader';
+import factory from '../asset/asset-manager/factory';
+import { CompleteCallback, IDownloadParseOptions } from '../asset/asset-manager/shared';
+import { log } from '../core/platform/debug';
 import { VideoClip } from './assets/video-clip';
 
 // eslint-disable-next-line consistent-return

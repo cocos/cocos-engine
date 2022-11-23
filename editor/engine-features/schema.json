@@ -58,6 +58,12 @@
                 "3d": {
                     "$ref": "#/definitions/Item"
                 },
+                "animation": {
+                    "$ref": "#/definitions/Item"
+                },
+                "ar": {
+                    "$ref": "#/definitions/Item"
+                },
                 "audio": {
                     "$ref": "#/definitions/Item"
                 },
@@ -71,6 +77,9 @@
                     "$ref": "#/definitions/Item"
                 },
                 "gfx-webgl2": {
+                    "$ref": "#/definitions/Item"
+                },
+                "gfx-webgpu": {
                     "$ref": "#/definitions/Item"
                 },
                 "graphcis": {
@@ -118,6 +127,9 @@
                 "profiler": {
                     "$ref": "#/definitions/Item"
                 },
+                "skeletal-animation": {
+                    "$ref": "#/definitions/Item"
+                },
                 "spine": {
                     "$ref": "#/definitions/Item"
                 },
@@ -137,6 +149,9 @@
                     "$ref": "#/definitions/Item"
                 },
                 "webview": {
+                    "$ref": "#/definitions/Item"
+                },
+                "xr": {
                     "$ref": "#/definitions/Item"
                 }
             },
@@ -193,6 +208,12 @@
                 "3d": {
                     "$ref": "#/definitions/BaseItem"
                 },
+                "animation": {
+                    "$ref": "#/definitions/BaseItem"
+                },
+                "ar": {
+                    "$ref": "#/definitions/BaseItem"
+                },
                 "audio": {
                     "$ref": "#/definitions/BaseItem"
                 },
@@ -206,6 +227,9 @@
                     "$ref": "#/definitions/BaseItem"
                 },
                 "gfx-webgl2": {
+                    "$ref": "#/definitions/BaseItem"
+                },
+                "gfx-webgpu": {
                     "$ref": "#/definitions/BaseItem"
                 },
                 "graphcis": {
@@ -253,6 +277,9 @@
                 "profiler": {
                     "$ref": "#/definitions/BaseItem"
                 },
+                "skeletal-animation": {
+                    "$ref": "#/definitions/BaseItem"
+                },
                 "spine": {
                     "$ref": "#/definitions/BaseItem"
                 },
@@ -272,6 +299,9 @@
                     "$ref": "#/definitions/BaseItem"
                 },
                 "webview": {
+                    "$ref": "#/definitions/BaseItem"
+                },
+                "xr": {
                     "$ref": "#/definitions/BaseItem"
                 }
             },
@@ -300,4 +330,3 @@
     },
     "type": "object"
 }
-

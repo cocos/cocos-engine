@@ -1,18 +1,23 @@
 import { TouchCallback } from 'pal/input';
 import { minigame } from 'pal/minigame';
 import { screenAdapter } from 'pal/screen-adapter';
+import { systemInfo } from 'pal/system-info';
+import { ALIPAY, VIVO } from 'internal:constants';
 import { Size, Vec2 } from '../../../cocos/core/math';
 import { EventTarget } from '../../../cocos/core/event';
 import { EventTouch, Touch } from '../../../cocos/input/types';
 import { touchManager } from '../touch-manager';
 import { macro } from '../../../cocos/core/platform/macro';
 import { InputEventType } from '../../../cocos/input/types/event-enum';
+import { Feature } from '../../system-info/enum-type';
 
 export class TouchInputSource {
     private _eventTarget: EventTarget = new EventTarget();
 
     constructor () {
-        this._registerEvent();
+        if (systemInfo.hasFeature(Feature.INPUT_TOUCH)) {
+            this._registerEvent();
+        }
     }
 
     private _registerEvent () {
@@ -26,6 +31,7 @@ export class TouchInputSource {
         return (event: any) => {
             const handleTouches: Touch[] = [];
             const windowSize = screenAdapter.windowSize;
+            const dpr = screenAdapter.devicePixelRatio;
             const length = event.changedTouches.length;
             for (let i = 0; i < length; ++i) {
                 const changedTouch = event.changedTouches[i];
@@ -33,7 +39,7 @@ export class TouchInputSource {
                 if (touchID === null) {
                     continue;
                 }
-                const location = this._getLocation(changedTouch, windowSize);
+                const location = this._getLocation(changedTouch, windowSize, dpr);
                 const touch = touchManager.getTouch(touchID, location.x, location.y);
                 if (!touch) {
                     continue;
@@ -42,9 +48,6 @@ export class TouchInputSource {
                     touchManager.releaseTouch(touchID);
                 }
                 handleTouches.push(touch);
-                if (!macro.ENABLE_MULTI_TOUCH) {
-                    break;
-                }
             }
             if (handleTouches.length > 0) {
                 const eventTouch = new EventTouch(handleTouches, false, eventType,
@@ -54,8 +57,15 @@ export class TouchInputSource {
         };
     }
 
-    private _getLocation (touch: globalThis.Touch, windowSize: Size): Vec2 {
-        const dpr = screenAdapter.devicePixelRatio;
+    private _getLocation (touch: globalThis.Touch, windowSize: Size, dpr: number): Vec2 {
+        if (ALIPAY) {
+            // HACK: on Alipay platform,
+            // the physical screen size = systemInfo.screenSize * dpr = systemInfo.windowSize * dpr * dpr
+            // the location of touch event is in systemInfo.windowSize space
+            const x = touch.clientX * dpr * dpr;
+            const y = windowSize.height - touch.clientY * dpr * dpr;
+            return new Vec2(x, y);
+        }
         const x = touch.clientX * dpr;
         const y = windowSize.height - touch.clientY * dpr;
         return new Vec2(x, y);

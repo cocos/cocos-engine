@@ -21,9 +21,9 @@ lightNode.addComponent(cc.DirectionalLightComponent);
 const material = new cc.Material();
 material.initialize({
   /* *
-  effectName: 'standard',
+  effectName: 'builtin-standard',
   /* */
-  effectName: 'unlit',
+  effectName: 'builtin-unlit',
   defines: { USE_COLOR: true },
   /* */
 });
@@ -80,7 +80,7 @@ img.onload = () => {
 };
 
 const material2 = new cc.Material();
-material2.initialize({ effectName: 'standard' });
+material2.initialize({ effectName: 'builtin-standard' });
 const modelNode2 = new cc.Node('test2');
 modelNode2.parent = scene;
 const modelCom2 = modelNode2.addComponent('cc.MeshRenderer');

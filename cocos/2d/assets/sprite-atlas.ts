@@ -24,17 +24,11 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module asset
- */
-
 import { EDITOR, TEST } from 'internal:constants';
 import { ccclass, serializable, editable } from 'cc.decorator';
-import * as js from '../../core/utils/js';
-import { Asset } from '../../core/assets';
+import { Asset } from '../../asset/assets';
 import { SpriteFrame } from './sprite-frame';
-import { legacyCC } from '../../core/global-exports';
+import { cclegacy, js } from '../../core';
 
 interface ISpriteAtlasSerializeData{
     name: string;
@@ -106,6 +100,9 @@ export class SpriteAtlas extends Asset {
         return frames;
     }
 
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
     public _serialize (ctxForExporting: any): any {
         if (EDITOR || TEST) {
             const frames: string[] = [];
@@ -126,15 +123,18 @@ export class SpriteAtlas extends Asset {
         }
     }
 
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
     public _deserialize (serializeData: any, handle: any) {
         const data = serializeData as ISpriteAtlasSerializeData;
         this._name = data.name;
         const frames = data.spriteFrames;
         this.spriteFrames = js.createMap();
         for (let i = 0; i < frames.length; i += 2) {
-            handle.result.push(this.spriteFrames, frames[i], frames[i + 1], js._getClassId(SpriteFrame));
+            handle.result.push(this.spriteFrames, frames[i], frames[i + 1], js.getClassId(SpriteFrame));
         }
     }
 }
 
-legacyCC.SpriteAtlas = SpriteAtlas;
+cclegacy.SpriteAtlas = SpriteAtlas;

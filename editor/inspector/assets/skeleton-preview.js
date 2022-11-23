@@ -1,6 +1,6 @@
 'use strict';
 
-exports.template = `
+exports.template = /* html */`
 <div class="preview">
     <div class="info">
         <ui-label value="JointCount:0" class="joint-count"></ui-label>
@@ -11,7 +11,7 @@ exports.template = `
 </div>
 `;
 
-exports.style = `
+exports.style = /* css */`
 .preview {
     margin-top: 10px;
     border-top: 1px solid var(--color-normal-border);
@@ -41,16 +41,20 @@ exports.$ = {
     canvas: '.canvas',
 };
 
+async function callSkeletonPreviewFunction(funcName, ...args) {
+    return await Editor.Message.request('scene', 'call-preview-function', 'scene:skeleton-preview', funcName, ...args);
+}
+
 const Elements = {
     preview: {
         ready() {
             const panel = this;
 
             panel.$.canvas.addEventListener('mousedown', async (event) => {
-                await Editor.Message.request('scene', 'on-skeleton-preview-mouse-down', { x: event.x, y: event.y });
+                await callSkeletonPreviewFunction('onMouseDown', { x: event.x, y: event.y });
 
                 async function mousemove(event) {
-                    await Editor.Message.request('scene', 'on-skeleton-preview-mouse-move', {
+                    await callSkeletonPreviewFunction('onMouseMove', {
                         movementX: event.movementX,
                         movementY: event.movementY,
                     });
@@ -59,7 +63,7 @@ const Elements = {
                 }
 
                 async function mouseup(event) {
-                    await Editor.Message.request('scene', 'on-skeleton-preview-mouse-up', {
+                    await callSkeletonPreviewFunction('onMouseUp', {
                         x: event.x,
                         y: event.y,
                     });
@@ -96,7 +100,7 @@ const Elements = {
             }
 
             await panel.glPreview.init({ width: panel.$.canvas.clientWidth, height: panel.$.canvas.clientHeight });
-            const info = await Editor.Message.request('scene', 'set-skeleton-preview-skeleton', panel.asset.uuid);
+            const info = await callSkeletonPreviewFunction('setSkeleton', panel.asset.uuid);
             panel.infoUpdate(info);
             panel.refreshPreview();
         },
@@ -124,41 +128,9 @@ const Elements = {
             panel.isPreviewDataDirty = true;
         },
         close() {
-            Editor.Message.request('scene', 'hide-skeleton-preview');
+            callSkeletonPreviewFunction('hide');
         },
     },
-};
-
-exports.update = function(assetList, metaList) {
-    this.assetList = assetList;
-    this.metaList = metaList;
-    this.asset = assetList[0];
-    this.meta = metaList[0];
-
-    for (const prop in Elements) {
-        const element = Elements[prop];
-        if (element.update) {
-            element.update.call(this);
-        }
-    }
-};
-
-exports.ready = function() {
-    for (const prop in Elements) {
-        const element = Elements[prop];
-        if (element.ready) {
-            element.ready.call(this);
-        }
-    }
-};
-
-exports.close = function() {
-    for (const prop in Elements) {
-        const element = Elements[prop];
-        if (element.close) {
-            element.close.call(this);
-        }
-    }
 };
 
 exports.methods = {
@@ -203,4 +175,36 @@ exports.methods = {
             panel.refreshPreview();
         });
     },
+};
+
+exports.ready = function() {
+    for (const prop in Elements) {
+        const element = Elements[prop];
+        if (element.ready) {
+            element.ready.call(this);
+        }
+    }
+};
+
+exports.update = function(assetList, metaList) {
+    this.assetList = assetList;
+    this.metaList = metaList;
+    this.asset = assetList[0];
+    this.meta = metaList[0];
+
+    for (const prop in Elements) {
+        const element = Elements[prop];
+        if (element.update) {
+            element.update.call(this);
+        }
+    }
+};
+
+exports.close = function() {
+    for (const prop in Elements) {
+        const element = Elements[prop];
+        if (element.close) {
+            element.close.call(this);
+        }
+    }
 };

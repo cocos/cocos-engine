@@ -1,0 +1,485 @@
+// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+
+CCEffect %{
+  techniques:
+  - name: opaque
+    passes:
+    - vert: standard-vs
+      frag: standard-fs
+      properties: &props
+        tilingOffset:         { value: [1.0, 1.0, 0.0, 0.0] }
+        mainColor:            { value: [1.0, 1.0, 1.0, 1.0], target: albedo, linear: true, editor: { displayName: BaseColor, type: color } }
+        mainTexture:          { value: grey, target: albedoMap, editor: { displayName: BaseColorMap } }
+        baseWeightMap:        { value: grey }
+        albedoScale:          { value: 1.0, editor: { displayName: BaseWeight } }
+        roughness:            { value: 1.0, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
+        roughnessMap:         { value: grey }
+        metallic:             { value: 1.0, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
+        metallicMap:          { value: grey }
+        occlusion:            { value: 0.0, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
+        occlusionMap:         { value: white }
+        emissiveScale:        { value: 1.0 }
+        emissiveScaleMap:     { value: grey }
+        emissive:             { value: [0.0, 0.0, 0.0, 1.0], linear: true, editor: { displayName: EmissiveColor, type: color} }
+        emissiveMap:          { value: grey, editor: { displayName: EmissiveColorMap } }
+        alphaSource:          { value: 1.0, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
+        alphaSourceMap:       { value: grey, editor: { parent: USE_OPACITY_MAP } }
+        alphaThreshold:       { value: 0.5, target: albedoScaleAndCutoff.w, editor: { parent: USE_ALPHA_TEST, slide: true, range: [0, 1.0], step: 0.001 } }
+        normalStrength:       { value: 1.0, editor: { parent: USE_NORMAL_MAP, slide: true, range: [0, 1.0], step: 0.001 } }
+        normalMap:            { value: normal }
+    - &forward-add
+      vert: standard-vs
+      frag: standard-fs
+      phase: forward-add
+      propertyIndex: 0
+      embeddedMacros: { CC_FORWARD_ADD: true }
+      depthStencilState:
+        depthFunc: equal
+        depthTest: true
+        depthWrite: false
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: one
+          blendDst: one
+          blendSrcAlpha: zero
+          blendDstAlpha: one
+    - &shadow-caster
+      vert: shadow-caster-vs:vert
+      frag: shadow-caster-fs:frag
+      phase: shadow-caster
+      propertyIndex: 0
+      rasterizerState:
+        cullMode: front
+      properties:
+        tilingOffset:   { value: [1.0, 1.0, 0.0, 0.0] }
+        mainColor:      { value: [1.0, 1.0, 1.0, 1.0], target: albedo, editor: { displayName: Albedo, type: color } }
+        albedoScale:    { value: [1.0, 1.0, 1.0], target: albedoScaleAndCutoff.xyz }
+        alphaThreshold: { value: 0.5, target: albedoScaleAndCutoff.w, editor: { parent: USE_ALPHA_TEST } }
+        mainTexture:    { value: grey, target: albedoMap, editor: { displayName: AlbedoMap } }
+        alphaSource:    { value: 1.0, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
+        alphaSourceMap: { value: grey, editor: { parent: USE_OPACITY_MAP } }
+  - name: transparent
+    passes:
+    - vert: standard-vs
+      frag: standard-fs
+      embeddedMacros: { CC_FORCE_FORWARD_SHADING: true }
+      depthStencilState:
+        depthTest: true
+        depthWrite: false
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: src_alpha
+          blendDst: one_minus_src_alpha
+          blendDstAlpha: one_minus_src_alpha
+      properties: *props
+    - *forward-add
+    - *shadow-caster
+}%
+
+CCProgram shared-ubos %{
+  uniform Constants {
+    vec4 tilingOffset;
+    vec4 albedo;
+    vec4 albedoScaleAndCutoff;
+    vec4 emissive;
+    float emissiveScale;
+    float occlusion;
+    float roughness;
+    float metallic;
+    float normalStrength;
+    float alphaSource;
+    float albedoScale;
+  };
+}%
+
+CCProgram standard-vs %{
+  precision highp float;
+  #include <legacy/input-standard>
+  #include <builtin/uniforms/cc-global>
+  #include <legacy/decode-base>
+  #include <legacy/local-batch>
+  #include <shared-ubos>
+  #include <legacy/fog-vs>
+  #include <legacy/shadow-map-vs>
+  #include <legacy/sh-vs>
+
+  #if USE_VERTEX_COLOR
+    in vec4 a_color;
+    out vec4 v_color;
+  #endif
+
+  out vec3 v_position;
+  out vec3 v_normal;
+  out vec2 v_uv;
+  out vec2 v_uv1;
+
+  #if CC_RECEIVE_SHADOW
+    out vec2 v_shadowBias;
+  #endif
+
+  #if USE_NORMAL_MAP
+    out vec3 v_tangent;
+    out vec3 v_bitangent;
+  #endif
+
+  #if HAS_SECOND_UV || CC_USE_LIGHTMAP
+    in vec2 a_texCoord1;
+  #endif
+
+  #if CC_USE_LIGHTMAP && !CC_FORWARD_ADD
+    #include <legacy/lightingmap-vs>
+  #endif
+
+  void main () {
+    StandardVertInput In;
+    CCVertInput(In);
+
+    mat4 matWorld, matWorldIT;
+    CCGetWorldMatrixFull(matWorld, matWorldIT);
+
+    vec4 pos = matWorld * In.position;
+
+    v_position = pos.xyz;
+    v_normal = normalize((matWorldIT * vec4(In.normal, 0.0)).xyz);
+
+    #if CC_RECEIVE_SHADOW
+      v_shadowBias = CCGetShadowBias();
+    #endif
+
+    #if USE_TWOSIDE
+      vec3 viewDirect = normalize(cc_cameraPos.xyz - v_position);
+      v_normal *= dot(v_normal, viewDirect) < 0.0 ? -1.0 : 1.0;
+    #endif
+
+    #if USE_NORMAL_MAP
+      v_tangent = normalize((matWorld * vec4(In.tangent.xyz, 0.0)).xyz);
+      v_bitangent = cross(v_normal, v_tangent) * (In.tangent.w > 0.0 ? 1.0 : -1.0); // note the cross order
+    #endif
+
+    v_uv = a_texCoord * tilingOffset.xy + tilingOffset.zw;
+    #if SAMPLE_FROM_RT
+      CC_HANDLE_RT_SAMPLE_FLIP(v_uv);
+    #endif
+    #if HAS_SECOND_UV
+      v_uv1 = a_texCoord1 * tilingOffset.xy + tilingOffset.zw;
+      #if SAMPLE_FROM_RT
+        CC_HANDLE_RT_SAMPLE_FLIP(v_uv1);
+      #endif
+    #endif
+
+    #if USE_VERTEX_COLOR
+      v_color = a_color;
+    #endif
+
+    CC_TRANSFER_FOG(pos);
+    CC_TRANSFER_SHADOW(pos);
+    CC_TRANSFER_SH();
+
+    #if CC_USE_LIGHTMAP && !CC_FORWARD_ADD
+      CCLightingMapCaclUV();
+    #endif
+
+    gl_Position = cc_matProj * (cc_matView * matWorld) * In.position;
+  }
+}%
+
+CCProgram standard-fs %{
+  precision highp float;
+  #include <builtin/uniforms/cc-global>
+  #include <shared-ubos>
+  #include <legacy/fog-fs>
+  #include <legacy/standard-surface-entry>
+  #if CC_USE_LIGHTMAP && !CC_FORWARD_ADD
+    #include <legacy/lightingmap-fs>
+  #endif
+
+  in vec3 v_position;
+  in vec2 v_uv;
+  in vec2 v_uv1;
+  in vec3 v_normal;
+
+  #if CC_RECEIVE_SHADOW
+    in vec2 v_shadowBias;
+  #endif
+
+  #if USE_VERTEX_COLOR
+    in vec4 v_color;
+  #endif
+
+  #pragma define-meta TEXTURE_UV options([v_uv, v_uv1])
+
+  #if USE_ALBEDO_MAP
+    uniform sampler2D albedoMap;
+  #endif
+
+  #if USE_WEIGHT_MAP
+    uniform sampler2D baseWeightMap;
+  #endif
+  
+  #if USE_NORMAL_MAP
+    in vec3 v_tangent;
+    in vec3 v_bitangent;
+    uniform sampler2D normalMap;
+    #pragma define-meta NORMAL_UV options([v_uv, v_uv1])
+  #endif
+
+  #if USE_METALLIC_MAP
+    #pragma define-meta METALLIC_CHANNEL options([r, g, b, a])
+    uniform sampler2D metallicMap;
+  #endif
+
+  #if USE_ROUGHNESS_MAP
+    #pragma define-meta ROUGHNESS_CHANNEL options([r, g, b, a])
+    uniform sampler2D roughnessMap;
+  #endif
+
+  #if USE_OCCLUSION_MAP
+    #pragma define-meta OCCLUSION_CHANNEL options([r, g, b, a])
+    uniform sampler2D occlusionMap;
+  #endif
+
+  #if USE_TRANSPARENCY_MAP
+    uniform sampler2D transparencyMap;
+  #endif
+
+  #if USE_TRANSPARENCYCOLOR_MAP
+    uniform sampler2D transparencyColorMap;
+  #endif
+
+  #if USE_EMISSIVE_MAP
+    uniform sampler2D emissiveMap;
+  #endif
+  #if USE_EMISSIVESCALE_MAP
+    uniform sampler2D emissiveScaleMap;
+  #endif
+
+  #if USE_OPACITY_MAP
+    #pragma define-meta ALPHA_SOURCE_CHANNEL options([r, g, b, a])
+    uniform sampler2D alphaSourceMap;
+  #endif
+
+  float discolor(vec3 srcColor) {
+    return dot(GRAY_VECTOR, srcColor);
+  }
+
+  void surf (out StandardSurface s) {
+    vec4 baseColor = albedo;
+    #if USE_VERTEX_COLOR
+      baseColor.rgb *= SRGBToLinear(v_color.rgb); // use linear
+      baseColor.a *= v_color.a;
+    #endif
+
+    #if USE_ALBEDO_MAP
+      vec4 texColor = texture(albedoMap, TEXTURE_UV);
+      texColor.rgb = SRGBToLinear(texColor.rgb);
+      baseColor = texColor;
+    #endif
+
+    #if USE_WEIGHT_MAP
+        vec4 weightColor = texture(baseWeightMap, TEXTURE_UV);
+        weightColor.rgb = SRGBToLinear(weightColor.rgb);
+        baseColor.rgb *= weightColor.rgb;
+    #else
+        baseColor.rgb *= albedoScale;
+    #endif
+    ////////////////////////
+    float metallicValue = metallic;
+    #if USE_METALLIC_MAP
+       vec4 metallicColor = texture(metallicMap, TEXTURE_UV);
+       metallicValue = discolor(metallicColor.rgb);
+       #if USE_METALLIC_CHANNEL 
+           metallicColor.rgb = SRGBToLinear(metallicColor.rgb);
+           metallicValue = metallicColor.METALLIC_CHANNEL;
+       #endif
+    #endif
+    s.metallic = metallicValue;
+
+    float roughnessValue = roughness;
+    #if USE_ROUGHNESS_MAP
+       vec4 roughnessColor = texture(roughnessMap, TEXTURE_UV);
+       roughnessValue = discolor(roughnessColor.rgb);
+       #if USE_ROUGHNESS_CHANNEL 
+           roughnessColor.rgb = SRGBToLinear(roughnessColor.rgb);
+           roughnessValue = roughnessColor.ROUGHNESS_CHANNEL;
+       #endif
+    #endif
+    //fit specular ior=1.5
+    s.roughness = max(0.02, roughnessValue);
+
+
+    float occlusionValue = 1.0;
+    #if USE_OCCLUSION_MAP
+       vec4 occlusionColor = texture(occlusionMap, TEXTURE_UV);
+       float occlusionColorValue = discolor(occlusionColor.rgb);
+       #if USE_OCCLUSION_CHANNEL 
+           occlusionColor.rgb = SRGBToLinear(occlusionColor.rgb);
+           occlusionColorValue = occlusionColor.OCCLUSION_CHANNEL;
+       #endif
+       occlusionValue = mix(1.0, occlusionColorValue, occlusion);
+    #endif
+    s.occlusion = occlusionValue;
+
+    #if ALPHA_SOURCE_IS_OPACITY
+      #if USE_OPACITY_MAP
+        baseColor.a = 1.0 - texture(alphaSourceMap, TEXTURE_UV).ALPHA_SOURCE_CHANNEL;
+      #else
+        baseColor.a = 1.0 - alphaSource;
+      #endif
+    #else
+      #if USE_OPACITY_MAP
+        baseColor.a = texture(alphaSourceMap, TEXTURE_UV).ALPHA_SOURCE_CHANNEL;
+      #else
+        baseColor.a = alphaSource;
+      #endif
+    #endif
+    #if USE_ALPHA_TEST
+      if (baseColor.a < albedoScaleAndCutoff.w) discard;
+    #endif
+  ///////////////////////////// 
+    s.albedo = baseColor;
+
+    s.normal = v_normal;
+
+    #if CC_RECEIVE_SHADOW
+      s.shadowBias = v_shadowBias;
+    #endif
+
+    #if USE_NORMAL_MAP
+      vec3 nmmp = texture(normalMap, NORMAL_UV).xyz - vec3(0.5);
+      s.normal =
+        (nmmp.x * normalStrength) * normalize(v_tangent) +
+        (nmmp.y * normalStrength) * normalize(v_bitangent) +
+        nmmp.z * normalize(s.normal);
+    #endif
+
+    #if CC_USE_LIGHTMAP && !CC_FORWARD_ADD
+      SampleAndDecodeLightMapColor(s.lightmap.rgb, s.lightmap.a, s.lightmap_test, cc_lightingMap, v_luv.xy, v_luv.z, s.normal);
+    #endif
+
+    HIGHP_VALUE_TO_STRUCT_DEFINED(v_position, s.position);
+
+    s.specularIntensity = 0.5;
+
+    //emissive color
+    vec3 emissiveColor = emissive.rgb;
+    #if USE_EMISSIVE_MAP
+        emissiveColor.rgb = SRGBToLinear(texture(emissiveMap, TEXTURE_UV).rgb);
+    #endif
+    //emissive color scale
+    #if USE_EMISSIVESCALE_MAP
+        vec4 emissiveScaleColor = texture(emissiveScaleMap, TEXTURE_UV);
+        emissiveScaleColor.rgb = SRGBToLinear(emissiveScaleColor.rgb);
+        emissiveColor.rgb *= emissiveScaleColor.rgb;
+    #else
+        emissiveColor.rgb *= emissiveScale;
+    #endif
+    
+    s.emissive = emissiveColor.rgb;
+  }
+
+  CC_STANDARD_SURFACE_ENTRY()
+}%
+
+CCProgram shadow-caster-vs %{
+  precision highp float;
+  #include <legacy/input-standard>
+  #include <legacy/decode-base>
+  #include <legacy/decode-base>
+  #include <legacy/local-batch>
+  #include <shared-ubos>
+  #include <builtin/uniforms/cc-shadow>
+
+  #if HAS_SECOND_UV || CC_USE_LIGHTMAP
+    in vec2 a_texCoord1;
+  #endif
+
+  out vec2 v_uv;
+  out vec2 v_uv1;
+  out vec4 v_worldPos;
+
+  out highp vec2 v_clip_depth;
+
+  vec4 vert () {
+    StandardVertInput In;
+    CCVertInput(In);
+
+    mat4 matWorld, matWorldIT;
+    CCGetWorldMatrixFull(matWorld, matWorldIT);
+
+    v_worldPos = matWorld * In.position;
+    vec4 clipPos = cc_matLightViewProj * v_worldPos;
+
+    v_uv = a_texCoord * tilingOffset.xy + tilingOffset.zw;
+    #if HAS_SECOND_UV
+      v_uv1 = a_texCoord1 * tilingOffset.xy + tilingOffset.zw;
+    #endif
+
+    v_clip_depth = clipPos.zw;
+
+    return clipPos;
+  }
+}%
+
+CCProgram shadow-caster-fs %{
+  precision highp float;
+  #include <shared-ubos>
+  #include <common/data/packing>
+  #include <legacy/shadow-map-base>
+
+  in vec2 v_uv;
+  in vec2 v_uv1;
+  in vec4 v_worldPos;
+  in highp vec2 v_clip_depth;
+
+  #if USE_ALBEDO_MAP
+    uniform sampler2D albedoMap;
+    #pragma define-meta ALBEDO_UV options([v_uv, v_uv1])
+  #endif
+
+  #pragma define-meta TEXTURE_UV options([v_uv, v_uv1])
+
+  #if USE_OPACITY_MAP
+    #pragma define-meta ALPHA_SOURCE_CHANNEL options([r, g, b, a])
+    uniform sampler2D alphaSourceMap;
+  #endif
+
+  vec4 frag () {
+    #if USE_ALPHA_TEST
+      float alpha = albedo.a;
+      #if USE_ALBEDO_MAP
+        alpha = texture(albedoMap, TEXTURE_UV).a;
+      #endif
+      #if ALPHA_SOURCE_IS_OPACITY
+        #if USE_OPACITY_MAP
+          alpha = 1.0 - texture(alphaSourceMap, TEXTURE_UV).ALPHA_SOURCE_CHANNEL;
+        #else
+          alpha = 1.0 - alphaSource;
+        #endif
+      #else
+        #if USE_OPACITY_MAP
+          alpha = texture(alphaSourceMap, TEXTURE_UV).ALPHA_SOURCE_CHANNEL;
+        #else
+          alpha = alphaSource;
+        #endif
+      #endif
+      if (alpha < albedoScaleAndCutoff.w) discard;
+    #endif
+
+    highp float clipDepth = v_clip_depth.x / v_clip_depth.y * 0.5 + 0.5;
+    // spot use linear
+    if(cc_shadowLPNNInfo.x > 0.000001 && cc_shadowLPNNInfo.x < 1.999999) {
+      // enabled linear depth
+      #if CC_SHADOWMAP_USE_LINEAR_DEPTH
+        clipDepth = CCGetLinearDepth(v_worldPos.xyz);
+      #endif
+    }
+
+    #if CC_SHADOWMAP_FORMAT == SHADOWMAP_FORMAT_RGBA8
+      return packDepthToRGBA(clipDepth);
+    #else
+      return vec4(clipDepth, 1.0, 1.0, 1.0);
+    #endif
+  }
+}%

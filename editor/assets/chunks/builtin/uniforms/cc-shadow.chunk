@@ -1,0 +1,16 @@
+// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+
+#pragma define NUMCASCADES 4
+#pragma builtin(global)
+layout(set = 0, binding = 2) uniform CCShadow {
+  highp mat4 cc_matLightView;
+  highp mat4 cc_matLightViewProj;
+  highp vec4 cc_shadowInvProjDepthInfo; // x -> cc_matLightInvProj[10]([2][2]); y -> cc_matLightInvProj[14]([2][3]); z -> cc_matLightInvProj[11]([3][2]); w -> cc_matLightInvProj[15]([3][3]);
+  highp vec4 cc_shadowProjDepthInfo;    // x -> cc_matLightProj[10]([2][2]);    y -> cc_matLightProj[14]([2][3]);    z -> cc_matLightProj[11]([3][2]);    w -> cc_matLightProj[15]([3][3]);
+  highp vec4 cc_shadowProjInfo;         // x -> cc_matLightProj[0];             y -> cc_matLightProj[5];             z -> 1.0 / cc_matLightProj[0];        w -> 1.0 / cc_matLightProj[5];
+  mediump vec4 cc_shadowNFLSInfo;       // x -> near(N);      y -> far(F);       z -> reserved 0;   w -> shadow saturation(S);
+  mediump vec4 cc_shadowWHPBInfo;       // x -> width(W);     y -> height(H);    z -> pcf(P);        w -> bias(B);
+  mediump vec4 cc_shadowLPNNInfo;       // x -> lightType(L); y -> isPacking(P); z -> normalBias(N); w -> CSM level(N);
+  lowp vec4 cc_shadowColor;
+  mediump vec4 cc_planarNDInfo;         // xyz -> normalized plane (N);  w -> plane (D);
+};

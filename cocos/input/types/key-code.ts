@@ -10,6 +10,12 @@ export enum KeyCode {
     NONE = 0,
 
     /**
+     * @en The back key on mobile phone
+     * @zh 移动端返回键
+     */
+    MOBILE_BACK = 6,
+
+    /**
     * @en The backspace key
     * @zh 退格键
     */

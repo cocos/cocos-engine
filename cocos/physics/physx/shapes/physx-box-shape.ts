@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
 import { BoxCollider } from '../../framework';
 import { absolute, VEC3_0 } from '../../utils/util';
 import { IBoxShape } from '../../spec/i-physics-shape';

@@ -22,18 +22,18 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-/**
- * @packageDocumentation
- * @module component/light
- */
 
-import { ccclass, help, executeInEditMode, menu, tooltip, type, unit, serializable, formerlySerializedAs } from 'cc.decorator';
-import { scene } from '../../core/renderer';
+import { ccclass, help, executeInEditMode, menu, tooltip, type, displayOrder, serializable, formerlySerializedAs } from 'cc.decorator';
+import { scene } from '../../render-scene';
 import { Light, PhotometricTerm } from './light-component';
-import { legacyCC } from '../../core/global-exports';
-import { Camera } from '../../core/renderer/scene';
-import { Root } from '../../core/root';
+import { cclegacy } from '../../core';
+import { Camera } from '../../render-scene/scene';
+import { Root } from '../../root';
 
+/**
+ * @en The sphere light component, multiple sphere lights can be added to one scene.
+ * @zh 球面光源组件，场景中可以添加多个球面光源。
+ */
 @ccclass('cc.SphereLight')
 @help('i18n:cc.SphereLight')
 @menu('Light/SphereLight')
@@ -45,7 +45,7 @@ export class SphereLight extends Light {
     @formerlySerializedAs('_luminance')
     protected _luminanceHDR = 1700 / scene.nt2lm(0.15);
     @serializable
-    protected _luminanceLDR = 1.0;
+    protected _luminanceLDR = 1700 / scene.nt2lm(0.15) * Camera.standardExposureValue * Camera.standardLightMeterScale;
     @serializable
     protected _term = PhotometricTerm.LUMINOUS_FLUX;
     @serializable
@@ -58,9 +58,10 @@ export class SphereLight extends Light {
      * @en Luminous flux of the light.
      * @zh 光通量。
      */
+    @displayOrder(-1)
     @tooltip('i18n:lights.luminous_flux')
     get luminousFlux () {
-        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        const isHDR = (cclegacy.director.root as Root).pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
             return this._luminanceHDR * scene.nt2lm(this._size);
         } else {
@@ -68,7 +69,7 @@ export class SphereLight extends Light {
         }
     }
     set luminousFlux (val) {
-        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        const isHDR = (cclegacy.director.root as Root).pipeline.pipelineSceneData.isHDR;
         let result = 0;
         if (isHDR) {
             this._luminanceHDR = val / scene.nt2lm(this._size);
@@ -84,9 +85,10 @@ export class SphereLight extends Light {
      * @en Luminance of the light.
      * @zh 光亮度。
      */
+    @displayOrder(-1)
     @tooltip('i18n:lights.luminance')
     get luminance () {
-        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        const isHDR = (cclegacy.director.root as Root).pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
             return this._luminanceHDR;
         } else {
@@ -94,7 +96,7 @@ export class SphereLight extends Light {
         }
     }
     set luminance (val) {
-        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        const isHDR = (cclegacy.director.root as Root).pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
             this._luminanceHDR = val;
             this._light && (this._light.luminanceHDR = this._luminanceHDR);
@@ -109,6 +111,7 @@ export class SphereLight extends Light {
      * @zh 当前使用的光度学计量单位。
      */
     @type(PhotometricTerm)
+    @displayOrder(-2)
     @tooltip('i18n:lights.term')
     get term (): number {
         return this._term;
@@ -156,11 +159,6 @@ export class SphereLight extends Light {
         super._createLight();
         this.size = this._size;
         this.range = this._range;
-        if ((legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR) {
-            this._luminanceLDR = this._luminanceHDR * Camera.standardExposureValue * Camera.standardLightMeterScale;
-        } else {
-            this._luminanceHDR = this._luminanceLDR / Camera.standardExposureValue / Camera.standardLightMeterScale;
-        }
 
         if (this._light) {
             this._light.luminanceHDR = this._luminanceHDR;

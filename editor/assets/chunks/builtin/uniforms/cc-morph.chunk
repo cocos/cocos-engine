@@ -1,0 +1,24 @@
+// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+
+#pragma define-meta CC_MORPH_TARGET_COUNT range([2, 8])
+
+#pragma builtin(local)
+layout(set = 2, binding = 4) uniform CCMorph {
+  vec4 cc_displacementWeights[15];
+  vec4 cc_displacementTextureInfo;
+};
+
+#if CC_MORPH_TARGET_HAS_POSITION
+  #pragma builtin(local)
+  layout(set = 2, binding = 8) uniform sampler2D cc_PositionDisplacements;
+#endif
+
+#if CC_MORPH_TARGET_HAS_NORMAL
+  #pragma builtin(local)
+  layout(set = 2, binding = 9) uniform sampler2D cc_NormalDisplacements;
+#endif
+
+#if CC_MORPH_TARGET_HAS_TANGENT
+  #pragma builtin(local)
+  layout(set = 2, binding = 10) uniform sampler2D cc_TangentDisplacements;
+#endif

@@ -1,0 +1,22 @@
+{
+  "name": "native-pack-tool",
+  "version": "0.0.1",
+  "description": "pack native project",
+  "main": "./dist/index",
+  "author": "CocosCreator",
+  "license": "ISC",
+  "scripts": {
+    "preinstall": "cd ./xcode && npm install --production",
+    "pack": "node ./scripts/task",
+    "build": "tsc --build",
+    "clean": "tsc --clean"
+  },
+  "dependencies": {
+    "fs-extra": "^10.1.0",
+    "globby": "^8.0.2",
+    "iconv-lite": "^0.4.24",
+    "xxtea-node": "^1.1.4",
+    "yargs": "^17.5.1",
+    "zlib": "^1.0.5"
+  }
+}

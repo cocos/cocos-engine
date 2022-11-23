@@ -10,5 +10,10 @@
   "_defines": [
     {}
   ],
-  "_props": []
+  "_props": [
+    {
+      "roughness": 0.8,
+      "metallic": 0.6
+    }
+  ]
 }

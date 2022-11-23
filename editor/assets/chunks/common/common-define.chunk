@@ -1,0 +1,61 @@
+// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+
+// common module
+
+// constant value
+#define QUATER_PI         0.78539816340
+#define HALF_PI           1.57079632679
+#define PI                3.14159265359
+#define PI2               6.28318530718
+#define PI4               12.5663706144
+     
+#define INV_QUATER_PI     1.27323954474
+#define INV_HALF_PI       0.63661977237
+#define INV_PI            0.31830988618
+#define INV_PI2           0.15915494309
+#define INV_PI4           0.07957747155
+     
+#define EPSILON           1e-6
+#define EPSILON_LOWP      1e-4
+#define LOG2              1.442695
+#define EXP_VALUE         2.71828183f
+#define FP_MAX            65504.0
+#define FP_SCALE          0.0009765625
+#define FP_SCALE_INV      1024.0
+#define GRAY_VECTOR       vec3(0.299, 0.587, 0.114)
+
+// common function
+#pragma define equalf(data1, data2) (abs(float(data1) - float(data2)) < EPSILON)
+
+// runtime constants
+#pragma define-meta CC_DEVICE_SUPPORT_FLOAT_TEXTURE default(1)
+#pragma define-meta CC_DEVICE_MAX_FRAGMENT_UNIFORM_VECTORS default(1024)
+#pragma define-meta CC_DEVICE_MAX_VERTEX_UNIFORM_VECTORS default(1024)
+#pragma define-meta CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS default(128)
+#pragma define-meta CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS default(128)
+#pragma define-meta CC_DEVICE_CAN_BENEFIT_FROM_INPUT_ATTACHMENT default(0)
+#pragma define-meta CC_PLATFORM_ANDROID_AND_WEBGL default(0)
+#pragma define-meta CC_ENABLE_WEBGL_HIGHP_STRUCT_VALUES default(0)
+#pragma define-meta CC_ENABLE_CLUSTERED_LIGHT_CULLING default(0)
+
+// When sampling RTs, Y-flip is needed if the screen space sign Y is positive (pointing upwards)
+#pragma define CC_HANDLE_RT_SAMPLE_FLIP(uv) uv = cc_cameraPos.w > 1.0 ? vec2(uv.x, 1.0 - uv.y) : uv
+#pragma define CC_HANDLE_GET_CLIP_FLIP(uv) uv = cc_cameraPos.w == 0.0 ? vec2(uv.x, -uv.y) : uv
+
+// CC_USE_LIGHTMAP Values
+#define LIGHT_MAP_TYPE_DISABLED 0
+#define LIGHT_MAP_TYPE_ALL_IN_ONE 1
+#define LIGHT_MAP_TYPE_INDIRECT_OCCLUSION 2
+
+// CC_USE_REFLECTION_PROBE Values
+#define REFLECTION_PROBE_TYPE_NONE 0
+#define REFLECTION_PROBE_TYPE_CUBE 1
+#define REFLECTION_PROBE_TYPE_PLANAR 2
+
+// Light Type
+#define LIGHT_TYPE_DIRECTIONAL 0.0
+#define LIGHT_TYPE_SPHERE 1.0
+#define LIGHT_TYPE_SPOT 2.0
+#define IS_DIRECTIONAL_LIGHT(light_type) equalf(light_type, LIGHT_TYPE_DIRECTIONAL)
+#define IS_SPHERE_LIGHT(light_type) equalf(light_type, LIGHT_TYPE_SPHERE)
+#define IS_SPOT_LIGHT(light_type) equalf(light_type, LIGHT_TYPE_SPOT)

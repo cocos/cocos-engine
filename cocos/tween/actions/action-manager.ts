@@ -25,16 +25,11 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
-import * as js from '../../core/utils/js';
-import { errorID, logID, assertID } from '../../core/platform/debug';
+import { errorID, logID } from '../../core/platform/debug';
 import { Action } from './action';
-import { Node, CCObject } from '../../core';
+import { Node } from '../../scene-graph';
 import { legacyCC } from '../../core/global-exports';
+import { isCCObject } from '../../core/data/object';
 
 let ID_COUNTER = 0;
 
@@ -205,6 +200,9 @@ export class ActionManager {
         }
     }
 
+    /**
+     * @internal
+     */
     _removeActionByTag (tag: number, element: any, target?: Node) {
         for (let i = 0, l = element.actions.length; i < l; ++i) {
             const action = element.actions[i];
@@ -214,6 +212,21 @@ export class ActionManager {
                 }
                 this._removeActionAtIndex(i, element);
                 break;
+            }
+        }
+    }
+
+    /**
+     * @internal
+     */
+    _removeAllActionsByTag (tag: number, element: any, target?: Node) {
+        for (let i = element.actions.length - 1; i >= 0; --i) {
+            const action = element.actions[i];
+            if (action && action.getTag() === tag) {
+                if (target && action.getOriginalTarget() !== target) {
+                    continue;
+                }
+                this._removeActionAtIndex(i, element);
             }
         }
     }
@@ -237,6 +250,29 @@ export class ActionManager {
         } else {
             hashTargets.forEach((element) => {
                 this._removeActionByTag(tag, element);
+            });
+        }
+    }
+
+    /**
+     * @en Removes all actions given the tag and the target.
+     * @zh 删除指定对象下特定标签的所有动作。
+     * @method removeAllActionsByTag
+     * @param {Number} tag
+     * @param {Node} target
+     */
+    removeAllActionsByTag (tag: number, target?: Node) {
+        if (tag === Action.TAG_INVALID) logID(1002);
+
+        const hashTargets = this._hashTargets;
+        if (target) {
+            const element = hashTargets.get(target);
+            if (element) {
+                this._removeAllActionsByTag(tag, element, target);
+            }
+        } else {
+            hashTargets.forEach((element) => {
+                this._removeAllActionsByTag(tag, element);
             });
         }
     }
@@ -421,8 +457,8 @@ export class ActionManager {
             locCurrTarget = this._currentTarget;
 
             const target = locCurrTarget.target;
-            if (target instanceof CCObject && !target.isValid) {
-                this.removeAllActionsFromTarget(target as any);
+            if (isCCObject(target) && !target.isValid) {
+                this.removeAllActionsFromTarget(target);
                 elt--;
                 continue;
             }

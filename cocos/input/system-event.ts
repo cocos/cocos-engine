@@ -24,26 +24,10 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module event
- */
-
-import { EventTarget } from '../core/event';
+import { EventTarget, cclegacy } from '../core';
 import { EventAcceleration, EventKeyboard, EventMouse, EventTouch, SystemEventType, Touch } from './types';
-import { input, Input } from './input';
-import { legacyCC } from '../core/global-exports';
+import { input } from './input';
 import { InputEventType } from './types/event-enum';
-
-export const pointerEvent2SystemEvent = {
-    [InputEventType.TOUCH_START]: `system-event-${InputEventType.TOUCH_START}`,
-    [InputEventType.TOUCH_MOVE]: `system-event-${InputEventType.TOUCH_MOVE}`,
-    [InputEventType.TOUCH_END]: `system-event-${InputEventType.TOUCH_END}`,
-    [InputEventType.TOUCH_CANCEL]: `system-event-${InputEventType.TOUCH_CANCEL}`,
-    [InputEventType.MOUSE_DOWN]: `system-event-${InputEventType.MOUSE_DOWN}`,
-    [InputEventType.MOUSE_MOVE]: `system-event-${InputEventType.MOUSE_MOVE}`,
-    [InputEventType.MOUSE_UP]: `system-event-${InputEventType.MOUSE_UP}`,
-};
 
 export declare namespace SystemEvent {
     /**
@@ -88,6 +72,25 @@ interface SystemEventMap {
 export class SystemEvent extends EventTarget {
     public static EventType = SystemEventType;
 
+    constructor () {
+        super();
+
+        input.on(InputEventType.MOUSE_DOWN, (e) => { this.emit(SystemEventType.MOUSE_DOWN, e);  });
+        input.on(InputEventType.MOUSE_MOVE, (e) => { this.emit(SystemEventType.MOUSE_MOVE, e);  });
+        input.on(InputEventType.MOUSE_UP, (e) => { this.emit(SystemEventType.MOUSE_UP, e);  });
+        input.on(InputEventType.MOUSE_WHEEL, (e) => { this.emit(SystemEventType.MOUSE_WHEEL, e);  });
+
+        input.on(InputEventType.TOUCH_START, (e) => { this.emit(SystemEventType.TOUCH_START, e.touch, e);  });
+        input.on(InputEventType.TOUCH_MOVE, (e) => { this.emit(SystemEventType.TOUCH_MOVE, e.touch, e);  });
+        input.on(InputEventType.TOUCH_END, (e) => { this.emit(SystemEventType.TOUCH_END, e.touch, e);  });
+        input.on(InputEventType.TOUCH_CANCEL, (e) => { this.emit(SystemEventType.TOUCH_CANCEL, e.touch, e);  });
+
+        input.on(InputEventType.KEY_DOWN, (e) => { this.emit(SystemEventType.KEY_DOWN, e);  });
+        input.on(InputEventType.KEY_PRESSING, (e) => { this.emit(SystemEventType.KEY_DOWN, e);  });
+        input.on(InputEventType.KEY_UP, (e) => { this.emit(SystemEventType.KEY_UP, e);  });
+
+        input.on(InputEventType.DEVICEMOTION, (e) => { this.emit(SystemEventType.DEVICEMOTION, e);  });
+    }
     /**
      * @en
      * Sets whether to enable the accelerometer event listener or not.
@@ -123,18 +126,7 @@ export class SystemEvent extends EventTarget {
      */
     // @ts-expect-error Property 'on' in type 'SystemEvent' is not assignable to the same property in base type
     public on<K extends keyof SystemEventMap> (type: K, callback: SystemEventMap[K], target?: any, once?: boolean) {
-        const registerMethod = once ? input.once : input.on;
-        if (type === SystemEventType.KEY_DOWN) {
-            // @ts-expect-error wrong mapped type
-            registerMethod.call(input, InputEventType.KEY_DOWN, callback, target);
-            // @ts-expect-error wrong mapped type
-            registerMethod.call(input, InputEventType.KEY_PRESSING, callback, target, once);
-        } else {
-            // @ts-expect-error wrong type mapping
-            type = pointerEvent2SystemEvent[type] || type;
-            // @ts-expect-error wrong mapped type
-            registerMethod.call(input, type, callback, target, once);
-        }
+        super.on(type, callback, target, once);
         return callback;
     }
 
@@ -150,21 +142,11 @@ export class SystemEvent extends EventTarget {
      * @param target - The target (this object) to invoke the callback, if it's not given, only callback without target will be removed
      */
     public off<K extends keyof SystemEventMap> (type: K, callback?: SystemEventMap[K], target?: any) {
-        if (type === SystemEventType.KEY_DOWN) {
-            // @ts-expect-error wrong mapped type
-            input.off(InputEventType.KEY_DOWN, callback, target);
-            // @ts-expect-error wrong mapped type
-            input.off(InputEventType.KEY_PRESSING, callback, target);
-        } else {
-            // @ts-expect-error wrong type mapping
-            type = pointerEvent2SystemEvent[type] || type;
-            // @ts-expect-error wrong mapped type
-            input.off(type, callback, target);
-        }
+        super.off(type, callback, target);
     }
 }
 
-legacyCC.SystemEvent = SystemEvent;
+cclegacy.SystemEvent = SystemEvent;
 /**
  * @module cc
  */
@@ -176,4 +158,4 @@ legacyCC.SystemEvent = SystemEvent;
  * @deprecated since v3.4.0, please use input instead.
  */
 export const systemEvent = new SystemEvent();
-legacyCC.systemEvent = systemEvent;
+cclegacy.systemEvent = systemEvent;

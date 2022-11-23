@@ -23,13 +23,8 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module particle
- */
-
 import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
-import { pseudoRandom } from '../../core/math';
+import { pseudoRandom } from '../../core';
 import { Particle, PARTICLE_MODULE_NAME, ParticleModuleBase } from '../particle';
 import GradientRange from './gradient-range';
 import { ModuleRandSeed } from '../enum';

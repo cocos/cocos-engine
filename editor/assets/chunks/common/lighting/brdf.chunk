@@ -1,0 +1,71 @@
+#include <common/math/number>
+
+float D_GGX(float roughness, float NoH)
+{
+    float m = roughness * roughness;
+    float m2 = m * m;
+    float d = (NoH * m2 - NoH) * NoH + 1.0;
+    return m2 / max(EPSILON, d * d);
+}
+
+float D_GGXMobile(float roughness, float NoH) {
+  float OneMinusNoHSqr = 1.0 - NoH * NoH;
+  float a = roughness * roughness;
+  float n = NoH * a;
+  float p = a / (OneMinusNoHSqr + n * n);
+  return p * p;
+}
+
+void GetAnisotropicRoughness(float roughness, float anisotropyShape, out float roughnessX, out float roughnessY)
+{
+    float shapeSign = sign(anisotropyShape);
+    anisotropyShape *= anisotropyShape;
+
+    float r1 = roughness, r2 = roughness;
+    float lerpedRoughness = mix(1.0, 10.0, anisotropyShape);
+    r2 *= shapeSign < 0.0 ? lerpedRoughness : 1.0;
+    r1 *= shapeSign > 0.0 ? lerpedRoughness : 1.0;
+    roughnessX = saturate(r1);
+    roughnessY = saturate(r2);
+}
+
+float D_GGXAniso(float RoughnessX, float RoughnessY, float NoH, vec3 H, vec3 X, vec3 Y)
+{
+    float mx = max(EPSILON_LOWP, RoughnessX * RoughnessX);
+    float my = max(EPSILON_LOWP, RoughnessY * RoughnessY);
+    float XoH = dot(X, H);
+    float YoH = dot(Y, H);
+    float d = XoH * XoH / (mx * mx) + YoH * YoH / (my * my) + NoH * NoH;
+    return 1.0 / max(EPSILON_LOWP, mx * my * d * d);
+}
+
+vec3 GetAnisotropicReflect(float roughness, float anisotropyShape, vec3 V, vec3 N, vec3 X, vec3 Y)
+{
+    float shapeSign = sign(anisotropyShape);
+    anisotropyShape *= anisotropyShape;
+
+    //clamp to shape=0.6x for invert reflection artifact
+    anisotropyShape = min(anisotropyShape, 0.4);
+
+    // roughness->0 means optical smooth surface (back to isotropic)
+    anisotropyShape *= smoothstep(0.0, 0.03, roughness);
+
+    // use view co-planar vector instead of XoH->0 plane convolution, but not accuracy
+    vec3 reflectTarget = shapeSign < 0.0 ? mix(N, -Y, anisotropyShape) :
+                         shapeSign > 0.0 ? mix(N, -X, anisotropyShape) : N;
+    return reflect(-V, reflectTarget);
+}
+
+// EnvBRDFApprox
+vec3 IntegratedGFApprox (vec3 specular, float roughness, float NoV) {
+  const vec4 c0 = vec4(-1.0, -0.0275, -0.572, 0.022);
+  const vec4 c1 = vec4(1.0, 0.0425, 1.04, -0.04);
+  vec4 r = roughness * c0 + c1;
+  float a004 = min(r.x * r.x, exp2(-9.28 * NoV)) * r.x + r.y;
+  vec2 AB = vec2(-1.04, 1.04) * a004 + r.zw;
+  AB.y *= clamp(50.0 * specular.g, 0.0, 1.0);
+  return specular * AB.x + AB.y;
+}
+
+//Diffuse_Lambert
+#define DiffuseCoefficient_EnergyConservation INV_PI

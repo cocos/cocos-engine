@@ -27,6 +27,18 @@
                 }
             }
         },
+        "animation": {
+            "label": "i18n:ENGINE.features.animation.label",
+            "description": "i18n:ENGINE.features.animation.description",
+            "default": ["animation"],
+            "category": "animation"
+        },
+        "skeletal-animation": {
+            "label": "i18n:ENGINE.features.skeletal_animation.label",
+            "description": "i18n:ENGINE.features.skeletal_animation.description",
+            "default": ["skeletal-animation"],
+            "category": "animation"
+        },
         "3d": {
             "default": ["3d"],
             "label": "i18n:ENGINE.features.base_3d.label",
@@ -39,14 +51,7 @@
             "label": "i18n:ENGINE.features.base_2d.label",
             "description": "i18n:ENGINE.features.base_2d.description",
             "category": "2d",
-            "wechatPlugin": true,
-            "flags": {
-                "UI_GPU_DRIVEN": {
-                    "default": true,
-                    "label": "i18n:ENGINE.features.gpu_driven.label",
-                    "description": "i18n:ENGINE.features.gpu_driven.description"
-                }
-            }
+            "wechatPlugin": true
         },
         "ui": {
             "default": ["ui"],
@@ -123,6 +128,30 @@
             "description": "i18n:ENGINE.features.profiler.description",
             "wechatPlugin": true
         },
+        "occlusion-query": {
+            "default": [],
+            "label": "i18n:ENGINE.features.occlusion_query.label",
+            "description": "i18n:ENGINE.features.occlusion_query.description",
+            "native": "USE_OCCLUSION_QUERY",
+            "wechatPlugin": false,
+            "category": "3d"
+        },
+        "geometry-renderer": {
+            "default": [],
+            "label": "i18n:ENGINE.features.geometry_renderer.label",
+            "description": "i18n:ENGINE.features.geometry_renderer.description",
+            "native": "USE_GEOMETRY_RENDERER",
+            "wechatPlugin": true,
+            "category": "3d"
+        },
+        "debug-renderer": {
+            "default": [],
+            "label": "i18n:ENGINE.features.debug_renderer.label",
+            "description": "i18n:ENGINE.features.debug_renderer.description",
+            "native": "USE_DEBUG_RENDERER",
+            "wechatPlugin": false,
+            "category": "3d"
+        },
         "particle-2d": {
             "default": ["particle-2d"],
             "label": "i18n:ENGINE.features.particle_2d.label",
@@ -157,10 +186,33 @@
             "description": "i18n:ENGINE.features.tween.description",
             "wechatPlugin": true
         },
+        "websocket": {
+            "default": ["websocket"],
+            "label": "i18n:ENGINE.features.websocket.label",
+            "description": "i18n:ENGINE.features.websocket.description",
+            "native": "USE_SOCKET",
+            "wechatPlugin": false,
+            "category": "network"
+        },
+        "websocket-server": {
+            "default": [],
+            "label": "i18n:ENGINE.features.websocket_server.label",
+            "description": "i18n:ENGINE.features.websocket_server.description",
+            "native": "USE_WEBSOCKET_SERVER",
+            "wechatPlugin": false,
+            "category": "network"
+        },
         "terrain": {
             "default": ["terrain"],
             "label": "i18n:ENGINE.features.terrain.label",
             "description": "i18n:ENGINE.features.terrain.description",
+            "wechatPlugin": true,
+            "category": "3d"
+        },
+        "light-probe": {
+            "default": ["light-probe"],
+            "label": "i18n:ENGINE.features.light_probe.label",
+            "description": "i18n:ENGINE.features.light_probe.description",
             "wechatPlugin": true,
             "category": "3d"
         },
@@ -189,8 +241,29 @@
         },
         "marionette": {
             "default": ["marionette"],
-            "label": "Marionette 动画系统",
-            "description": "启用 Marionette 动画系统。",
+            "label": "i18n:ENGINE.features.marionette.label",
+            "description": "i18n:ENGINE.features.marionette.description",
+            "wechatPlugin": false,
+            "category": "animation"
+        },
+        "xr": {
+            "default": [],
+            "label": "i18n:ENGINE.features.base_xr.label",
+            "description": "i18n:ENGINE.features.base_xr.description",
+            "wechatPlugin": false,
+            "category": "xr"
+        },
+        "ar": {
+            "default": [],
+            "label": "i18n:ENGINE.features.ar.label",
+            "description": "i18n:ENGINE.features.ar.description",
+            "wechatPlugin": false,
+            "category": "xr"
+        },
+        "custom-pipeline": {
+            "default": [],
+            "label": "i18n:ENGINE.features.custom_pipeline.label",
+            "description": "i18n:ENGINE.features.custom_pipeline.description",
             "wechatPlugin": false
         }
     },
@@ -202,6 +275,18 @@
         "3d": {
             "label": "i18n:ENGINE.features.categories.3d.label",
             "description": "i18n:ENGINE.features.categories.3d.description"
+        },
+        "animation": {
+            "label": "i18n:ENGINE.features.categories.animation.label",
+            "description": "i18n:ENGINE.features.categories.animation.description"
+        },
+        "network": {
+            "label": "i18n:ENGINE.features.categories.network.label",
+            "description": "i18n:ENGINE.features.categories.network.description"
+        },
+        "xr": {
+            "label": "i18n:ENGINE.features.categories.xr.label",
+            "description": "i18n:ENGINE.features.categories.xr.description"
         }
     }
 }

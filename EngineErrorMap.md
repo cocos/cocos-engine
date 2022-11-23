@@ -40,18 +40,15 @@ cocos2d : getActionByTag(tag = %s): Action not found
 
 ### 1006
 
-<!-- DEPRECATED -->
 [Action step]. override me
 
 ### 1007
 
-<!-- DEPRECATED -->
 [Action update]. override me
 
 ### 1008
 
-<!-- DEPRECATED -->
-cocos2d: FiniteTimeAction#reverse: Implement me
+[Action reverse]. override me
 
 ### 1009
 
@@ -619,6 +616,10 @@ Invalid index in MultiplexLayer switchTo message
 
 <!-- DEPRECATED -->
 cc.Layer.addLayer(): layer should be non-null
+
+### 2104
+
+Layer collision. The name of layer (%s) is collided with the name or value of some layer
 
 ### 2200
 
@@ -1192,6 +1193,18 @@ Loading texture with unsupported type: '%s'. Add '%s' into 'cc.macro.SUPPORT_TEX
 
 Can't find a texture format supported by the current platform! Please add a fallback format in the editor.
 
+### 3122
+
+Error Texture in %s.
+
+### 3123
+
+Set same texture %s.
+
+### 3124
+
+Texture: setMipRange failed because base level is larger than max level
+
 ### 3200
 
 <!-- DEPRECATED -->
@@ -1700,6 +1713,10 @@ Cannot change hierarchy while activating or deactivating the parent.
 
 addComponent: Cannot add any component to the scene.
 
+### 3823
+
+The enabled component (id: %s, name: %s) doesn't have a valid node
+
 ### 3900
 
 Invalid clip to add
@@ -1730,7 +1747,7 @@ Can't find easing type [%s]
 
 ### 3907
 
-animator not added or already removed
+Animation state is not playing or already removed
 
 ### 3908
 
@@ -1819,6 +1836,14 @@ We don't currently support conversion of \`CubicSplineQuatValue\`.
 ### 3936
 
 Instancing/Batching enabled for non-baked skinning model '%s', this may result in unexpected rendering artifacts. Consider turning it off in the material if you do not intend to do this.
+
+### 3937
+
+Previous error occurred when instantiating animation clip %s on node %s.
+
+### 3938
+
+'%s' is not found from '%s'. It's specified as the root node to play animation clip '%s'.
 
 ### 4000
 
@@ -2443,6 +2468,14 @@ cc.ParticleSystem: not allowing create to be invoked twice with different partic
 
 cc.ParticleSystem: shouldn't be initialized repetitively, otherwise there will be potential leak
 
+### 6035
+
+cc.ParticleSystem: change material failed, please use proper particle material
+
+### 6036
+
+cc.ParticleSystem: life time should bigger than 1 or buffer will be insufficient
+
 ### 6100
 
 <!-- DEPRECATED -->
@@ -2874,6 +2907,14 @@ saveToFile isn't supported on Cocos2d-Html5
 
 newCCImage isn't supported on Cocos2d-Html5
 
+### 7606
+
+GFXTexture is null
+
+### 7607
+
+readPixels buffer size smaller than %d
+
 ### 7700
 
 On the web is always keep the aspect ratio
@@ -3023,6 +3064,10 @@ Should only one camera exists, please check your project.
 
 Camera does not support Canvas Mode.
 
+### 8302
+
+Camera.viewport is deprecated, please use setViewportInOrientedSpace instead.
+
 ### 8400
 
 Wrong type arguments, 'filePath' must be a String.
@@ -3040,6 +3085,30 @@ Stencil manager does not support level bigger than %d in this device.
 
 Stencil manager is already empty, cannot pop any mask
 
+### 9002
+
+Failed to request any buffer from a mesh buffer without accessor
+
+### 9003
+
+The internal state of LinearBufferAccessor have severe issue and irreversible, please check the reason
+
+### 9004
+
+Failed to allocate chunk in StaticVBAccessor, the requested buffer might be too large: %d bytes
+
+### 9005
+
+BATCHER2D_MEM_INCREMENT is too large, the Max value for BATCHER2D_MEM_INCREMENT is 2303KB (smaller than 65536 *9* 4 / 1024 = 2304KB)
+
+### 9006
+
+QuadRenderData is removed, please use MeshRenderData instead.
+
+### 9007
+
+Since v3.6, Because mask changes the inheritance relationship, you can directly manipulate the rendering components under the same node to complete the operation.
+
 ### 9100
 
 texture size exceeds current device limits %d/%d
@@ -3048,6 +3117,14 @@ texture size exceeds current device limits %d/%d
 
 <!-- DEPRECATED -->
 cc.view.enableAntiAlias is deprecated, please use cc.Texture2D.setFilters instead
+
+### 9201
+
+Cannot access game frame or container.
+
+### 9202
+
+Setting window size is not supported.
 
 ### 9300
 
@@ -3122,6 +3199,22 @@ Pass already destroyed.
 
 This is old usage, please swap the parameters.
 
+### 12008
+
+GeometryRenderer: too many lines.
+
+### 12009
+
+GeometryRenderer: too many triangles.
+
+### 12010
+
+PassUtils: illegal uniform handle, accessing uniform at offset %d
+
+### 12011
+
+Pass: setUniform is invoked with incompatible uniform data type for binding %d, expected type is %s
+
 ### 12100
 
 The font size is too big to be fitted into texture atlas. Please switch to other label cache modes or choose a smaller font size.
@@ -3153,3 +3246,81 @@ Can not decode CCON binary: lack of text decoder.
 ### 14000
 
 Graph update has been interrupted since too many transitions(greater than %s) occurred during one frame.
+
+### 14100
+
+Pool.destroy no longer take a function as parameter, Please specify destruct function in the construction of Pool instead
+
+### 14200
+
+Can not update a static mesh.
+
+### 14201
+
+The primitiveIndex is out of range.
+
+### 14300
+
+Can not keep world transform due to the zero scaling of parent node
+
+### 14400
+
+Spline error: less than 2 knots.
+
+### 14401
+
+Spline error: less than 4 knots or not a multiple of 4.
+
+<!-- Rendering algorithm reserved: 15000 - 16000 -->
+
+### 15000
+
+Can not find corresponding diffuse map for environment lighting, use hemisphere diffuse instead, change environment lighting type to regenerate diffuse map
+
+### 15001
+
+Can not find environment map, disable IBL lighting
+
+### 15002
+
+Diffuse map resource is missing, please change environment lighting type to regenerate resource
+
+### 15003
+
+The shadow visible distance is so small that CSM stratification is not effective, Please change the value of shadowDistance so that it is 10 times greater than 0.1
+
+### 15004
+
+The native folder may be generated from older versions, please refer https://docs.cocos.com/creator/manual/en/release-notes/ to upgrade.
+
+### 15100
+
+Camera '%s' clear flag is skybox, but skybox is disabled,  may cause strange background effect, please set camera clear flag to solid color.
+
+### 16000
+
+'%s' is deprecated since v%s.
+
+### 16001
+
+'%s' is deprecated since v%s, please use '%s' instead.
+
+### 16002
+
+'%s' is removed since v%s.
+
+### 16003
+
+'%s' is removed since v%s, please use '%s' instead.
+
+### 16101
+
+The effect('%s') you are looking for does not exist, please confirm the effect name in the editor. NOTE: Since 3.6, the name of the built-in effect has been changed to its name in the editor, please check it out. More information please refer to https://docs.cocos.com/creator/manual/en/shader/effect-inspector.html
+
+### 16201
+
+The asset replacing failed, can not found override asset('%s') for '%s' 
+
+### 16301
+
+node '%s' doesn't have any ModelRenderer component, this component will not work. please add ModelRenderer component first

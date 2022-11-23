@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module physics
- */
-
 import {
     ccclass,
     help,
@@ -38,7 +33,7 @@ import {
 } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { Constraint } from './constraint';
-import { IVec3Like, Vec3 } from '../../../../core';
+import { Vec3, cclegacy } from '../../../../core';
 import { EConstraintType } from '../../physics-enum';
 import { IHingeConstraint } from '../../../spec/i-physics-constraint';
 
@@ -59,7 +54,7 @@ export class HingeConstraint extends Constraint {
 
     set pivotA (v: Vec3) {
         Vec3.copy(this._pivotA, v);
-        if (!EDITOR) {
+        if (!EDITOR || cclegacy.GAME_VIEW) {
             this.constraint.setPivotA(this._pivotA);
         }
     }
@@ -77,7 +72,7 @@ export class HingeConstraint extends Constraint {
 
     set pivotB (v: Vec3) {
         Vec3.copy(this._pivotB, v);
-        if (!EDITOR) {
+        if (!EDITOR || cclegacy.GAME_VIEW) {
             this.constraint.setPivotB(this._pivotB);
         }
     }
@@ -95,7 +90,7 @@ export class HingeConstraint extends Constraint {
 
     set axis (v: Vec3) {
         Vec3.copy(this._axis, v);
-        if (!EDITOR) {
+        if (!EDITOR || cclegacy.GAME_VIEW) {
             this.constraint.setAxis(this._axis);
         }
     }

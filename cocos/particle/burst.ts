@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
 import { ccclass, type, serializable, editable, range } from 'cc.decorator';
 import { repeat } from '../core/math';
 import CurveRange from './animator/curve-range';
@@ -104,6 +99,11 @@ export default class Burst {
                 --this._remainingCount;
             }
         }
+    }
+
+    public reset () {
+        this._remainingCount = 0;
+        this._curTime = 0.0;
     }
 
     public getMaxCount (psys) {

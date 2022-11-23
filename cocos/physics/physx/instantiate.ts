@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
 import { selector } from '../framework/physics-selector';
 
 import { PhysXWorld } from './physx-world';
@@ -42,12 +37,12 @@ import { PhysXTerrainShape } from './shapes/physx-terrain-shape';
 import { PhysXCylinderShape } from './shapes/physx-cylinder-shape';
 import { PhysXConeShape } from './shapes/physx-cone-shape';
 
-// import { PhysXFixedJoint } from './joints/physx-fixed-joint';
-import { PhysXDistanceJoint } from './joints/physx-distance-joint';
+import { PhysXFixedJoint } from './joints/physx-fixed-joint';
+import { PhysXSphericalJoint } from './joints/physx-spherical-joint';
 import { PhysXRevoluteJoint } from './joints/physx-revolute-joint';
-import { Game, game } from '../../core';
+import { Game, game } from '../../game';
 
-game.once(Game.EVENT_ENGINE_INITED, () => {
+game.once(Game.EVENT_PRE_SUBSYSTEM_INIT, () => {
     selector.register('physx', {
         PhysicsWorld: PhysXWorld,
         RigidBody: PhysXRigidBody,
@@ -62,8 +57,9 @@ game.once(Game.EVENT_ENGINE_INITED, () => {
         // SimplexShape: PhysXSimplexShape,
         PlaneShape: PhysXPlaneShape,
 
-        PointToPointConstraint: PhysXDistanceJoint,
+        PointToPointConstraint: PhysXSphericalJoint,
         // PointToPointConstraint: PhysXFixedJoint,
         HingeConstraint: PhysXRevoluteJoint,
+        FixedConstraint: PhysXFixedJoint,
     });
 });

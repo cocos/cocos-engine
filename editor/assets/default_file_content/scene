@@ -53,10 +53,10 @@
     },
     "_lrot": {
       "__type__": "cc.Quat",
-      "x": -0.24999999999999997,
-      "y": -0.24999999999999997,
-      "z": -0.06698729810778066,
-      "w": 0.9330127018922194
+      "x": -0.06397656665577071,
+      "y": -0.44608233363525845,
+      "z": -0.8239028751062036,
+      "w": -0.3436591377065261
     },
     "_lscale": {
       "__type__": "cc.Vec3",
@@ -67,9 +67,9 @@
     "_layer": 1073741824,
     "_euler": {
       "__type__": "cc.Vec3",
-      "x": -30,
-      "y": -30,
-      "z": 0
+      "x": -117.894,
+      "y": -194.909,
+      "z": 38.562
     },
     "_id": "c0y6F5f+pAvI805TdmxIjx"
   },
@@ -85,8 +85,8 @@
     "_color": {
       "__type__": "cc.Color",
       "r": 255,
-      "g": 255,
-      "b": 255,
+      "g": 250,
+      "b": 240,
       "a": 255
     },
     "_useColorTemperature": false,
@@ -174,7 +174,7 @@
     },
     "_depth": 1,
     "_stencil": 0,
-    "_clearFlags": 7,
+    "_clearFlags": 14,
     "_rect": {
       "__type__": "cc.Rect",
       "x": 0,
@@ -209,48 +209,34 @@
     "__type__": "cc.AmbientInfo",
     "_skyColorHDR": {
       "__type__": "cc.Vec4",
-      "x": 0.2,
-      "y": 0.5,
-      "z": 0.8,
-      "w": 0.520833125
-    },
-    "_skyColor": {
-      "__type__": "cc.Vec4",
-      "x": 0.2,
-      "y": 0.5,
-      "z": 0.8,
-      "w": 0.520833125
+        "x": 0.365754,
+        "y": 0.568107,
+        "z": 0.9080791,
+        "w": 0
     },
     "_skyIllumHDR": 20000,
     "_skyIllum": 20000,
     "_groundAlbedoHDR": {
       "__type__": "cc.Vec4",
-      "x": 0.2,
-      "y": 0.2,
-      "z": 0.2,
-      "w": 1
-    },
-    "_groundAlbedo": {
-      "__type__": "cc.Vec4",
-      "x": 0.2,
-      "y": 0.2,
-      "z": 0.2,
-      "w": 1
+        "x": 0.455624,
+        "y": 0.403274,
+        "z": 0.370948,
+      "w": 0
     },
     "_skyColorLDR": {
       "__type__": "cc.Vec4",
-      "x": 0.2,
-      "y": 0.5,
-      "z": 0.8,
-      "w": 1
+        "x": 0.452588,
+        "y": 0.607642,
+        "z": 0.755699,
+        "w": 0
     },
-    "_skyIllumLDR": 0.5208,
+    "_skyIllumLDR": 0.8,
     "_groundAlbedoLDR": {
       "__type__": "cc.Vec4",
-      "x": 0.2,
-      "y": 0.2,
-      "z": 0.2,
-      "w": 1
+        "x": 0.618555,
+        "y": 0.577848,
+        "z": 0.544564,
+      "w": 0
     }
   },
   {
@@ -273,31 +259,40 @@
     },
     "_firstSetCSM": false,
     "_fixedArea": false,
-    "_pcf": 0,
+    "_pcf": 1,
     "_bias": 0.00001,
     "_normalBias": 0,
     "_near": 0.1,
     "_far": 10,
-    "_shadowDistance": 100,
+    "_shadowDistance": 10,
     "_invisibleOcclusionRange": 200,
     "_orthoSize": 5,
     "_maxReceived": 4,
     "_size": {
       "__type__": "cc.Vec2",
-      "x": 512,
-      "y": 512
+      "x": 1024,
+      "y": 1024
     },
     "_saturation": 0.75
   },
   {
     "__type__": "cc.SkyboxInfo",
     "_applyDiffuseMap": false,
-    "_envmapHDR": null,
-    "_envmap": null,
-    "_envmapLDR": null,
+    "_envmapHDR": {
+      "__uuid__": "d032ac98-05e1-4090-88bb-eb640dcb5fc1@b47c0",
+      "__expectedType__": "cc.TextureCube"
+    },
+    "_envmap": {
+      "__uuid__": "d032ac98-05e1-4090-88bb-eb640dcb5fc1@b47c0",
+      "__expectedType__": "cc.TextureCube"
+    },
+    "_envmapLDR": {
+      "__uuid__": "6f01cf7f-81bf-4a7e-bd5d-0afc19696480@b47c0",
+      "__expectedType__": "cc.TextureCube"
+    },
     "_diffuseMapHDR": null,
     "_diffuseMapLDR": null,
-    "_enabled": false,
+    "_enabled": true,
     "_useIBL": false,
     "_useHDR": true
   },

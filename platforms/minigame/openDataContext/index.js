@@ -1,6 +1,6 @@
-import style from './render/style'
-import template from './render/template'
-import Layout from './engine'
+const style = require('./render/style')
+const template = require('./render/template')
+const Layout = require('./engine').default;
 
 let __env = GameGlobal.wx || GameGlobal.tt || GameGlobal.swan;
 let sharedCanvas  = __env.getSharedCanvas();

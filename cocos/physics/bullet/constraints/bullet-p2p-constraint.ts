@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
 /* eslint-disable new-cap */
 import { BulletConstraint } from './bullet-constraint';
 import { IPointToPointConstraint } from '../../spec/i-physics-constraint';

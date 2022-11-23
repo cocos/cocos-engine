@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module physics
- */
-
 import {
     ccclass,
     help,
@@ -38,7 +33,7 @@ import {
     editable,
     serializable,
 } from 'cc.decorator';
-import { Vec3 } from '../../../../core/math';
+import { Vec3 } from '../../../../core';
 import { Collider } from './collider';
 import { IPlaneShape } from '../../../spec/i-physics-shape';
 import { EColliderType } from '../../physics-enum';

@@ -56,4 +56,6 @@ and the importing module:
 export * from './select-deprecated-1.2.0';
 ```
 
+### More Reference
+[How to deprecate an API](./deprecated-api.md)
 

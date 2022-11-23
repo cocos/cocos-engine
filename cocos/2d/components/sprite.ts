@@ -24,25 +24,17 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module ui
- */
-
-import { ccclass, help, executionOrder, menu, tooltip, displayOrder, type, range, editable, serializable, visible, override, displayName } from 'cc.decorator';
-import { EDITOR, UI_GPU_DRIVEN } from 'internal:constants';
+import { ccclass, help, executionOrder, menu, tooltip, displayOrder, type, range, editable, serializable, visible } from 'cc.decorator';
+import { BUILD, EDITOR } from 'internal:constants';
 import { SpriteAtlas } from '../assets/sprite-atlas';
 import { SpriteFrame } from '../assets/sprite-frame';
-import { Vec2, Vec4 } from '../../core/math';
-import { ccenum } from '../../core/value-types/enum';
-import { clamp } from '../../core/math/utils';
+import { Vec2, cclegacy, ccenum, clamp } from '../../core';
 import { IBatcher } from '../renderer/i-batcher';
-import { Renderable2D, InstanceMaterialType } from '../framework/renderable-2d';
-import { legacyCC } from '../../core/global-exports';
-import { PixelFormat } from '../../core/assets/asset-enum';
-import { TextureBase } from '../../core/assets/texture-base';
-import { director, Material, RenderTexture } from '../../core';
-import { NodeEventType } from '../../core/scene-graph/node-event';
+import { UIRenderer, InstanceMaterialType } from '../framework/ui-renderer';
+import { PixelFormat } from '../../asset/assets/asset-enum';
+import { TextureBase } from '../../asset/assets/texture-base';
+import { Material, RenderTexture } from '../../asset/assets';
+import { NodeEventType } from '../../scene-graph/node-event';
 
 /**
  * @en
@@ -89,7 +81,6 @@ export enum SpriteType {
     //  */
     // MESH: 4
 }
-
 ccenum(SpriteType);
 
 /**
@@ -124,7 +115,6 @@ enum FillType {
      */
     RADIAL = 2,
 }
-
 ccenum(FillType);
 
 /**
@@ -160,7 +150,6 @@ enum SizeMode {
      */
     RAW = 2,
 }
-
 ccenum(SizeMode);
 
 enum EventType {
@@ -178,26 +167,7 @@ enum EventType {
 @help('i18n:cc.Sprite')
 @executionOrder(110)
 @menu('2D/Sprite')
-export class Sprite extends Renderable2D {
-    /**
-     * @en The customMaterial
-     * @zh 用户自定材质
-     */
-    @type(Material)
-    @displayOrder(0)
-    @displayName('CustomMaterial')
-    @override
-    get customMaterial () {
-        return this._customMaterial;
-    }
-
-    set customMaterial (val) {
-        this._customMaterial = val;
-        this.updateMaterial();
-        if (UI_GPU_DRIVEN && !val) {
-            this._canDrawByFourVertex = true;
-        }
-    }
+export class Sprite extends UIRenderer {
     /**
      * @en
      * The sprite atlas where the sprite is.
@@ -211,14 +181,11 @@ export class Sprite extends Renderable2D {
     get spriteAtlas () {
         return this._atlas;
     }
-
     set spriteAtlas (value) {
         if (this._atlas === value) {
             return;
         }
-
         this._atlas = value;
-        //        this.spriteFrame = null;
     }
 
     /**
@@ -234,7 +201,6 @@ export class Sprite extends Renderable2D {
     get spriteFrame () {
         return this._spriteFrame;
     }
-
     set spriteFrame (value) {
         if (this._spriteFrame === value) {
             return;
@@ -242,8 +208,7 @@ export class Sprite extends Renderable2D {
 
         const lastSprite = this._spriteFrame;
         this._spriteFrame = value;
-        // render & update render data flag will be triggered while applying new sprite frame
-        this.markForUpdateRenderData(false);
+        this.markForUpdateRenderData();
         this._applySpriteFrame(lastSprite);
         if (EDITOR) {
             this.node.emit(EventType.SPRITE_FRAME_CHANGED, this);
@@ -290,6 +255,7 @@ export class Sprite extends Renderable2D {
      * ```
      */
     @type(FillType)
+    @displayOrder(6)
     @tooltip('i18n:sprite.fill_type')
     get fillType () {
         return this._fillType;
@@ -298,8 +264,7 @@ export class Sprite extends Renderable2D {
         if (this._fillType !== value) {
             if (value === FillType.RADIAL || this._fillType === FillType.RADIAL) {
                 this.destroyRenderData();
-                this._renderData = null;
-            } else if (this._renderData) {
+            } else if (this.renderData) {
                 this.markForUpdateRenderData(true);
             }
         }
@@ -321,6 +286,7 @@ export class Sprite extends Renderable2D {
      * sprite.fillCenter = new Vec2(0, 0);
      * ```
      */
+    @displayOrder(6)
     @tooltip('i18n:sprite.fill_center')
     get fillCenter () {
         return this._fillCenter;
@@ -328,7 +294,7 @@ export class Sprite extends Renderable2D {
     set fillCenter (value) {
         this._fillCenter.x = value.x;
         this._fillCenter.y = value.y;
-        if (this._type === SpriteType.FILLED && this._renderData) {
+        if (this._type === SpriteType.FILLED && this.renderData) {
             this.markForUpdateRenderData();
         }
     }
@@ -347,6 +313,7 @@ export class Sprite extends Renderable2D {
      * ```
      */
     @range([0, 1, 0.1])
+    @displayOrder(6)
     @tooltip('i18n:sprite.fill_start')
     get fillStart () {
         return this._fillStart;
@@ -354,9 +321,9 @@ export class Sprite extends Renderable2D {
 
     set fillStart (value) {
         this._fillStart = clamp(value, 0, 1);
-        if (this._type === SpriteType.FILLED && this._renderData) {
+        if (this._type === SpriteType.FILLED && this.renderData) {
             this.markForUpdateRenderData();
-            this._renderData.uvDirty = true;
+            this._updateUVs();
         }
     }
 
@@ -374,6 +341,7 @@ export class Sprite extends Renderable2D {
      * ```
      */
     @range([-1, 1, 0.1])
+    @displayOrder(6)
     @tooltip('i18n:sprite.fill_range')
     get fillRange () {
         return this._fillRange;
@@ -381,9 +349,9 @@ export class Sprite extends Renderable2D {
     set fillRange (value) {
         // positive: counterclockwise, negative: clockwise
         this._fillRange = clamp(value, -1, 1);
-        if (this._type === SpriteType.FILLED && this._renderData) {
+        if (this._type === SpriteType.FILLED && this.renderData) {
             this.markForUpdateRenderData();
-            this._renderData.uvDirty = true;
+            this._updateUVs();
         }
     }
     /**
@@ -414,13 +382,13 @@ export class Sprite extends Renderable2D {
 
         this._isTrimmedMode = value;
         if ((this._type === SpriteType.SIMPLE /* || this._type === SpriteType.MESH */)
-            && this._renderData) {
+            && this.renderData) {
             this.markForUpdateRenderData(true);
         }
-        this._updateUVWithTrim();
     }
 
     @editable
+    @displayOrder(5)
     @tooltip('i18n:sprite.gray_scale')
     get grayscale () {
         return this._useGrayscale;
@@ -430,11 +398,7 @@ export class Sprite extends Renderable2D {
             return;
         }
         this._useGrayscale = value;
-        if (value === true) {
-            this._instanceMaterialType = InstanceMaterialType.GRAYSCALE;
-        } else {
-            this._instanceMaterialType = InstanceMaterialType.ADD_COLOR_AND_TEXTURE;
-        }
+        this.changeMaterialForDefine();
         this.updateMaterial();
     }
 
@@ -452,7 +416,7 @@ export class Sprite extends Renderable2D {
      * ```
      */
     @type(SizeMode)
-    @displayOrder(7)
+    @displayOrder(5)
     @tooltip('i18n:sprite.size_mode')
     get sizeMode () {
         return this._sizeMode;
@@ -491,24 +455,11 @@ export class Sprite extends Renderable2D {
     protected _isTrimmedMode = true;
     @serializable
     protected _useGrayscale = false;
-    // _state = 0;
     @serializable
     protected _atlas: SpriteAtlas | null = null;
-    // static State = State;
-
-    // macro.UI_GPU_DRIVEN
-    public declare tillingOffsetWithTrim: number[];
-
-    constructor () {
-        super();
-        if (UI_GPU_DRIVEN) {
-            this._canDrawByFourVertex = true;
-        }
-    }
 
     public __preload () {
         this.changeMaterialForDefine();
-
         super.__preload();
 
         if (EDITOR) {
@@ -517,37 +468,28 @@ export class Sprite extends Renderable2D {
         }
     }
 
-    // /**
-    //  * Change the state of sprite.
-    //  * @method setState
-    //  * @see `Sprite.State`
-    //  * @param state {Sprite.State} NORMAL or GRAY State.
-    //  */
-    // getState() {
-    //     return this._state;
-    // }
-
-    // setState(state) {
-    //     if (this._state === state) return;
-    //     this._state = state;
-    //     this._activateMaterial();
-    // }
-
-    // onLoad() {}
-
     public onEnable () {
         super.onEnable();
 
-        // this._flushAssembler();
+        // Force update uv, material define, active material, etc
         this._activateMaterial();
-        this._markForUpdateUvDirty();
-        if (UI_GPU_DRIVEN) {
-            this.tillingOffsetWithTrim = [];
+        const spriteFrame = this._spriteFrame;
+        if (spriteFrame) {
+            this._updateUVs();
+            if (this._type === SpriteType.SLICED) {
+                spriteFrame.on(SpriteFrame.EVENT_UV_UPDATED, this._updateUVs, this);
+            }
+        }
+    }
+
+    public onDisable () {
+        super.onDisable();
+        if (this._spriteFrame && this._type === SpriteType.SLICED) {
+            this._spriteFrame.off(SpriteFrame.EVENT_UV_UPDATED, this._updateUVs, this);
         }
     }
 
     public onDestroy () {
-        this.destroyRenderData();
         if (EDITOR) {
             this.node.off(NodeEventType.SIZE_CHANGED, this._resized, this);
         }
@@ -614,7 +556,7 @@ export class Sprite extends Renderable2D {
     }
 
     protected _render (render: IBatcher) {
-        render.commitComp(this, this._spriteFrame, this._assembler!, null);
+        render.commitComp(this, this.renderData, this._spriteFrame, this._assembler, null);
     }
 
     protected _canRender () {
@@ -631,38 +573,46 @@ export class Sprite extends Renderable2D {
     }
 
     protected _flushAssembler () {
-        // macro.UI_GPU_DRIVEN
-        const assembler = Sprite.Assembler!.getAssembler(this);
+        const assembler = Sprite.Assembler.getAssembler(this);
 
         if (this._assembler !== assembler) {
             this.destroyRenderData();
             this._assembler = assembler;
         }
 
-        if (!this._renderData) {
+        if (!this.renderData) {
             if (this._assembler && this._assembler.createData) {
                 this._renderData = this._assembler.createData(this);
-                this._renderData!.material = this.getRenderMaterial(0);
+                this.renderData!.material = this.getRenderMaterial(0);
                 this.markForUpdateRenderData();
-                this._colorDirty = true;
+                if (this.spriteFrame) {
+                    this._assembler.updateUVs(this);
+                }
                 this._updateColor();
+            }
+        }
+
+        // Only Sliced type need update uv when sprite frame insets changed
+        if (this._spriteFrame) {
+            if (this._type === SpriteType.SLICED) {
+                this._spriteFrame.on(SpriteFrame.EVENT_UV_UPDATED, this._updateUVs, this);
+            } else {
+                this._spriteFrame.off(SpriteFrame.EVENT_UV_UPDATED, this._updateUVs, this);
             }
         }
     }
 
     private _applySpriteSize () {
         if (this._spriteFrame) {
-            if (!this._spriteFrame.isDefault) {
+            if (BUILD || !this._spriteFrame.isDefault) {
                 if (SizeMode.RAW === this._sizeMode) {
                     const size = this._spriteFrame.originalSize;
                     this.node._uiProps.uiTransformComp!.setContentSize(size);
                 } else if (SizeMode.TRIMMED === this._sizeMode) {
-                    const rect = this._spriteFrame.getRect();
+                    const rect = this._spriteFrame.rect;
                     this.node._uiProps.uiTransformComp!.setContentSize(rect.width, rect.height);
                 }
             }
-
-            this._activateMaterial();
         }
     }
 
@@ -676,11 +626,11 @@ export class Sprite extends Renderable2D {
             let expectedW = actualSize.width;
             let expectedH = actualSize.height;
             if (this._sizeMode === SizeMode.RAW) {
-                const size = this._spriteFrame.getOriginalSize();
+                const size = this._spriteFrame.originalSize;
                 expectedW = size.width;
                 expectedH = size.height;
             } else if (this._sizeMode === SizeMode.TRIMMED) {
-                const rect = this._spriteFrame.getRect();
+                const rect = this._spriteFrame.rect;
                 expectedW = rect.width;
                 expectedH = rect.height;
             }
@@ -700,24 +650,22 @@ export class Sprite extends Renderable2D {
             }
         }
 
-        if (this._renderData) {
-            this._renderData.material = material;
+        if (this.renderData) {
+            this.renderData.material = material;
+        }
+    }
+
+    private _updateUVs () {
+        if (this._assembler) {
+            this._assembler.updateUVs(this);
         }
     }
 
     private _applySpriteFrame (oldFrame: SpriteFrame | null) {
         const spriteFrame = this._spriteFrame;
 
-        if (this._renderData) {
-            if (!this._renderData.uvDirty) {
-                if (oldFrame && spriteFrame) {
-                    this._renderData.uvDirty = oldFrame.uvHash !== spriteFrame.uvHash;
-                } else {
-                    this._renderData.uvDirty = true;
-                }
-            }
-
-            this._renderDataFlag = this._renderData.uvDirty;
+        if (oldFrame && this._type === SpriteType.SLICED) {
+            oldFrame.off(SpriteFrame.EVENT_UV_UPDATED, this._updateUVs, this);
         }
 
         let textureChanged = false;
@@ -726,89 +674,15 @@ export class Sprite extends Renderable2D {
                 textureChanged = true;
             }
             if (textureChanged) {
+                if (this.renderData) this.renderData.textureDirty = true;
                 this.changeMaterialForDefine();
             }
             this._applySpriteSize();
-        }
-        /*
-        if (EDITOR) {
-            // Set atlas
-            this._applyAtlas(spriteFrame);
-        }
-*/
-    }
-
-    /**
-     * 强制刷新 uv。
-     */
-    private _markForUpdateUvDirty () {
-        if (this._renderData) {
-            this._renderData.uvDirty = true;
-            this._renderDataFlag = true;
-        }
-    }
-
-    // macro.UI_GPU_DRIVEN
-    public _calculateSlicedData (out: number[]) {
-        const content = this.node._uiProps.uiTransformComp!.contentSize;
-
-        const spriteWidth = content.width;
-        const spriteHeight = content.height;
-        const leftWidth = this.spriteFrame!.insetLeft;
-        const rightWidth = this.spriteFrame!.insetRight;
-        const centerWidth = spriteWidth - leftWidth - rightWidth;
-        const topHeight = this.spriteFrame!.insetTop;
-        const bottomHeight = this.spriteFrame!.insetBottom;
-        const centerHeight = spriteHeight - topHeight - bottomHeight;
-
-        out.length = 0;
-        out[0] = (leftWidth) / spriteWidth;
-        out[1] = (topHeight) / spriteHeight;
-        out[2] = (leftWidth + centerWidth) / spriteWidth;
-        out[3] = (topHeight + centerHeight) / spriteHeight;
-        return out;
-    }
-
-    // macro.UI_GPU_DRIVEN
-    public calculateTiledData (out: Vec4) {
-        const content = this.node._uiProps.uiTransformComp!.contentSize;
-        const rect = this.spriteFrame!.rect;
-
-        out.x = content.width / rect.width;
-        out.y = content.height / rect.height;
-    }
-
-    // macro.UI_GPU_DRIVEN
-    public _updateUVWithTrim () {
-        this.tillingOffsetWithTrim.length = 0;
-        const frame = this.spriteFrame!;
-        const originSize = frame.originalSize;
-        const rect = frame.rect;
-        const tex = frame.texture;
-        const texw = tex.width;
-        const texh = tex.height;
-        let x = 0;
-        let y = 0;
-        if (frame.original) {
-            x = rect.x - frame.original._x;
-            y = rect.y - frame.original._y;
-        }
-        let l = texw === 0 ? 0 : x / texw;
-        let r = texw === 0 ? 1 : (x + originSize.width) / texw;
-        let b = texh === 0 ? 1 : (y + originSize.height) / texh;
-        let t = texh === 0 ? 0 : y / texh;
-        if (frame.rotated) {
-            l = texw === 0 ? 0 : x / texw;
-            r = texw === 0 ? 1 : (x + originSize.height) / texw;
-            t = texh === 0 ? 0 : y / texh;
-            b = texh === 0 ? 1 : (y + originSize.width) / texh;
-        }
-        this.tillingOffsetWithTrim[0] = r - l;//r-l
-        this.tillingOffsetWithTrim[1] = b - t;//b-t
-        this.tillingOffsetWithTrim[2] = l;//l
-        this.tillingOffsetWithTrim[3] = t;//t
-        if (frame.rotated) {
-            this.tillingOffsetWithTrim[0] = -this.tillingOffsetWithTrim[0];
+            if (this._type === SpriteType.SLICED) {
+                spriteFrame.on(SpriteFrame.EVENT_UV_UPDATED, this._updateUVs, this);
+            }
         }
     }
 }
+
+cclegacy.Sprite = Sprite;

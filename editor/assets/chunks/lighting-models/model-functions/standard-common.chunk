@@ -1,0 +1,133 @@
+#include <common/lighting/brdf>
+#include <common/lighting/functions>
+
+void LightingCalculateDirect(out vec3 lightingDiffuse, out vec3 lightingSpecular, in LightingIntermediateData lightingData, in vec4 lightSourceColorAndIntensity)
+{
+    vec3 irradiance = vec3(lightingData.NoLSat) * lightSourceColorAndIntensity.rgb * lightSourceColorAndIntensity.w;
+    
+    lightingDiffuse = irradiance * DiffuseCoefficient_EnergyConservation;
+
+    float roughness = lightingData.specularParam;
+#if CC_SURFACES_LIGHTING_ANISOTROPIC
+    float rT, rB;
+    GetAnisotropicRoughness(roughness, lightingData.anisotropyShape, rT, rB);
+    float calcSpec = D_GGXAniso(rT, rB, lightingData.NoHSat, lightingData.H, lightingData.T, lightingData.B);
+#else
+  #if CC_SURFACES_USE_LEGACY_COMPATIBLE_LIGHTING
+    float calcSpec = (roughness * 0.25 + 0.25) * D_GGXMobile(roughness, lightingData.NoHSat);
+  #else
+    float calcSpec = D_GGX(roughness, lightingData.NoHSat);
+  #endif
+#endif
+    lightingSpecular = irradiance * calcSpec;
+}
+
+
+#if CC_SURFACES_LIGHTING_ANISOTROPIC && CC_SURFACES_LIGHTING_ANISOTROPIC_ENVCONVOLUTION_COUNT
+  vec3 EnvAnisotropicReflection(samplerCube tex, vec3 R, float roughness, float mipCount, float anisotropyShape, vec3 V, vec3 N, vec3 T, vec3 B) {
+      R = normalize(R);
+      float integratedBRDF = 0.0;
+      vec3 envSpec = vec3(0.0);
+      // One direction sample count
+      const int SAMPLE_STEP_COUNT = CC_SURFACES_LIGHTING_ANISOTROPIC_ENVCONVOLUTION_COUNT;
+      float sampleAngleRange = PI * abs(anisotropyShape);
+      vec3 anisoDirection = anisotropyShape < 0.0 ? T : B;
+      vec3 ROnNormalPlane = normalize(R - anisoDirection * dot(R, anisoDirection));
+      //ROnTangentPlane = R; //for example: cross-style
+      vec3 stepOffset = normalize(ROnNormalPlane - N) * (sampleAngleRange / float(SAMPLE_STEP_COUNT * 2));
+
+      for (int i = -SAMPLE_STEP_COUNT; i <= SAMPLE_STEP_COUNT; ++i)
+      {
+          float rT, rB;
+          GetAnisotropicRoughness(roughness, anisotropyShape, rT, rB);
+          #if CC_IBL_CONVOLUTED
+            float coef = abs(float(i)) / float(SAMPLE_STEP_COUNT) * float(SAMPLE_STEP_COUNT);
+          #else
+            float coef = pow(abs(float(i)) / float(SAMPLE_STEP_COUNT), 1.3) * float(SAMPLE_STEP_COUNT);
+          #endif
+          vec3 H = normalize(N + stepOffset * sign(float(i)) * coef);
+          vec3 L = reflect(-V, H);
+          float NoHSat = saturate(dot(N, H));
+          float calcSpec = D_GGXAniso(rT, rB, NoHSat, H, T, B);
+
+          envSpec += calcSpec * EnvReflection(tex, L, roughness, mipCount);
+          integratedBRDF += calcSpec;
+      }
+      envSpec /= integratedBRDF;
+      return envSpec;
+  }
+#endif
+
+vec3 SampleEnvironmentSpecular(samplerCube tex, in LightingIntermediateData lightingData, float mipCount)
+{
+    vec3 envSpec = vec3(0.0);
+    float roughness = lightingData.specularParam;
+    #if CC_SURFACES_LIGHTING_ANISOTROPIC && !CC_SURFACES_LIGHTING_ANISOTROPIC_ENVCONVOLUTION_COUNT
+      vec3 R = GetAnisotropicReflect(roughness, lightingData.anisotropyShape, lightingData.V, lightingData.N, lightingData.T, lightingData.B);
+    #else
+      vec3 R = reflect(-lightingData.V, lightingData.N);
+    #endif
+
+    #if CC_SURFACES_LIGHTING_ANISOTROPIC && CC_SURFACES_LIGHTING_ANISOTROPIC_ENVCONVOLUTION_COUNT
+      envSpec = EnvAnisotropicReflection(tex, R, roughness, mipCount, lightingData.anisotropyShape, lightingData.V, lightingData.N, lightingData.T, lightingData.B);
+    #else
+      #if CC_SURFACES_USE_REFLECTION_DENOISE && !CC_IBL_CONVOLUTED
+        envSpec = EnvReflectionWithMipFiltering(normalize(R), roughness, mipCount, 0.6);
+      #else
+        envSpec = EnvReflection(tex, R, roughness, mipCount);
+      #endif
+    #endif
+    return envSpec;
+}
+
+
+vec3 CalculateEnvironmentDiffuse(in LightingIntermediateData lightingData, float lightIntensity)
+{
+  // Hemisphere Lighting
+  float fAmb = 0.5 - lightingData.N.y * 0.5;
+  vec3 ambDiff = mix(cc_ambientSky.rgb, cc_ambientGround.rgb, fAmb);
+
+  // Diffuse Map
+  #if CC_USE_IBL
+    #if CC_USE_DIFFUSEMAP && !CC_USE_LIGHT_PROBE
+      // Diffuse irradiance
+      vec4 diffuseMap = texture(cc_diffuseMap, lightingData.N);
+      #if CC_USE_DIFFUSEMAP == IBL_RGBE
+        ambDiff = unpackRGBE(diffuseMap);
+      #else
+        ambDiff = SRGBToLinear(diffuseMap.rgb);
+      #endif
+    #endif
+  #endif
+
+  ambDiff.rgb *= lightIntensity;
+
+  // Probe
+  #if CC_USE_LIGHT_PROBE
+    ambDiff.rgb += SHEvaluate(lightingData.N);
+  #endif
+
+  return ambDiff.rgb;
+}
+
+vec3 CalculateEnvironmentSpecular(in LightingIntermediateData lightingData, float lightIntensity)
+{
+  vec3 envSpec = vec3(0.0);
+#if CC_USE_IBL
+    envSpec = SampleEnvironmentSpecular(cc_environment, lightingData, cc_ambientGround.w);
+#endif
+
+#if CC_USE_REFLECTION_PROBE
+  #if CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_CUBE
+    envSpec = SampleEnvironmentSpecular(cc_reflectionProbeCubemap, lightingData, cc_ambientGround.w);
+  #elif CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_PLANAR
+    vec3 R = normalize(reflect(-lightingData.V, lightingData.N));
+    vec3 worldPos;
+    HIGHP_VALUE_FROM_STRUCT_DEFINED(worldPos, lightingData.worldPosition);
+    vec2 screenUV = GetPlanarReflectScreenUV(worldPos, cc_matViewProj, cc_cameraPos.w, lightintData.V, R);
+    envSpec = fragTextureLod(cc_reflectionProbePlanarMap, screenUV, cc_ambientGround.w).xyz;
+  #endif
+#endif
+
+  return envSpec * lightIntensity;
+}

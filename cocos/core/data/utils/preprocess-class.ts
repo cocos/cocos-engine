@@ -137,7 +137,7 @@ function parseType (val, type, className, propName) {
     }
 
     if (EDITOR && typeof type === 'function') {
-        if (legacyCC.Class._isCCClass(type) && val.serializable !== false && !js._getClassId(type, false)) {
+        if (legacyCC.Class._isCCClass(type) && val.serializable !== false && !js.getClassId(type, false)) {
             warnID(5512, className, propName, className, propName);
         }
     }

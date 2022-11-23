@@ -1,10 +1,9 @@
 import { minigame } from 'pal/minigame';
 import { systemInfo } from 'pal/system-info';
 import { EventTarget } from '../../../cocos/core/event';
-import { AudioEvent, AudioState, AudioType } from '../type';
+import { AudioEvent, AudioPCMDataView, AudioState, AudioType } from '../type';
 import { clamp, clamp01 } from '../../../cocos/core';
 import { enqueueOperation, OperationInfo, OperationQueueable } from '../operation-queue';
-import AudioTimer from '../audio-timer';
 
 export class OneShotAudioMinigame {
     private _innerAudioContext: InnerAudioContext;
@@ -33,6 +32,8 @@ export class OneShotAudioMinigame {
         nativeAudio.onEnded(() => {
             this._onEndCb?.();
             nativeAudio.destroy();
+            // @ts-expect-error Type 'null' is not assignable to type 'InnerAudioContext'.
+            this._innerAudioContext = null;
         });
     }
     public play (): void {
@@ -46,22 +47,33 @@ export class OneShotAudioMinigame {
 export class AudioPlayerMinigame implements OperationQueueable {
     private _innerAudioContext: InnerAudioContext;
     private _state: AudioState = AudioState.INIT;
+    private _cacheTime = 0;
+    private _needSeek = false;
+    private _seeking = false;
 
     private _onPlay: () => void;
     private _onPause: () => void;
     private _onStop: () => void;
     private _onSeeked: () => void;
     private _onEnded: () => void;
-    private _audioTimer: AudioTimer;
     private _readyToHandleOnShow = false;
 
-    // NOTE: the implemented interface properties need to be public access
+    private _resetSeekCache () {
+        this._cacheTime = 0;
+        this._needSeek = false;
+        this._seeking = false;
+    }
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
     public _eventTarget: EventTarget = new EventTarget();
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
     public _operationQueue: OperationInfo[] = [];
 
     constructor (innerAudioContext: InnerAudioContext) {
         this._innerAudioContext = innerAudioContext;
-        this._audioTimer = new AudioTimer(innerAudioContext);
         this._eventTarget = new EventTarget();
 
         // event
@@ -71,35 +83,57 @@ export class AudioPlayerMinigame implements OperationQueueable {
         this._onPlay = () => {
             this._state = AudioState.PLAYING;
             eventTarget.emit(AudioEvent.PLAYED);
+            if (this._needSeek) {
+                this._needSeek = false;
+                this.seek(this._cacheTime).catch((e) => {});
+            }
         };
         innerAudioContext.onPlay(this._onPlay);
         this._onPause = () => {
             this._state = AudioState.PAUSED;
+            try {
+                const currentTime = this._innerAudioContext.currentTime;
+                if (currentTime !== null && currentTime !== undefined) {
+                    this._cacheTime = currentTime;
+                }
+            } catch {
+                // Do nothing, cacheTime is not updated.
+            }
             eventTarget.emit(AudioEvent.PAUSED);
         };
         innerAudioContext.onPause(this._onPause);
         this._onStop = () => {
             this._state = AudioState.STOPPED;
+            // Reset all properties
+            this._resetSeekCache();
             eventTarget.emit(AudioEvent.STOPPED);
         };
         innerAudioContext.onStop(this._onStop);
-        this._onSeeked = () => { eventTarget.emit(AudioEvent.SEEKED); };
+        this._onSeeked = () => {
+            eventTarget.emit(AudioEvent.SEEKED);
+            this._seeking = false;
+            if (this._needSeek) {
+                this._needSeek = false;
+                this.seek(this._cacheTime).catch((e) => {});
+            }
+        };
         innerAudioContext.onSeeked(this._onSeeked);
         this._onEnded = () => {
-            this._audioTimer.stop();
             this._state = AudioState.INIT;
+            this._resetSeekCache();
             eventTarget.emit(AudioEvent.ENDED);
         };
         innerAudioContext.onEnded(this._onEnded);
     }
     destroy () {
-        this._audioTimer.destroy();
         systemInfo.off('hide', this._onHide, this);
         systemInfo.off('show', this._onShow, this);
         if (this._innerAudioContext) {
             ['Play', 'Pause', 'Stop', 'Seeked', 'Ended'].forEach((event) => {
                 this._offEvent(event);
             });
+            // NOTE: innewAudioContext might not stop the audio playing, have to call it explicitly.
+            this._innerAudioContext.stop();
             this._innerAudioContext.destroy();
             // @ts-expect-error Type 'null' is not assignable to type 'InnerAudioContext'
             this._innerAudioContext = null;
@@ -200,23 +234,38 @@ export class AudioPlayerMinigame implements OperationQueueable {
         this._innerAudioContext.volume = val;
     }
     get duration (): number {
+        // KNOWN ISSUES: duration doesn't work well
+        // On WeChat platform, duration is 0 at the time audio is loaded.
         return this._innerAudioContext.duration;
     }
     get currentTime (): number {
-        // return this._innerAudioContext.currentTime;
-        // currentTime doesn't work well
-        // on Baidu: currentTime returns without numbers on decimal places
-        // on WeChat iOS: we can't reset currentTime to 0 when stop audio
-        return this._audioTimer ? this._audioTimer.currentTime : 0;
+        if (this._state !== AudioState.PLAYING) {
+            return this._cacheTime;
+        }
+        return this._innerAudioContext.currentTime;
+    }
+
+    get sampleRate (): number {
+        return 0;
+    }
+
+    public getPCMData (channelIndex: number): AudioPCMDataView | undefined {
+        return undefined;
     }
 
     @enqueueOperation
     seek (time: number): Promise<void> {
         return new Promise((resolve) => {
-            time = clamp(time, 0, this.duration);
-            this._eventTarget.once(AudioEvent.SEEKED, resolve);
-            this._innerAudioContext.seek(time);
-            this._audioTimer.seek(time);
+            // KNOWN ISSUES: on Baidu: currentTime returns without numbers on decimal places
+            if (this._state === AudioState.PLAYING && !this._seeking) {
+                time = clamp(time, 0, this.duration);
+                this._seeking = true;
+                this._innerAudioContext.seek(time);
+            } else if (this._cacheTime !== time) { // Skip the invalid seek
+                this._cacheTime = time;
+                this._needSeek = true;
+            }
+            resolve();
         });
     }
 
@@ -225,19 +274,18 @@ export class AudioPlayerMinigame implements OperationQueueable {
         return new Promise((resolve) => {
             this._eventTarget.once(AudioEvent.PLAYED, resolve);
             this._innerAudioContext.play();
-            // NOTE: we can't initiate audio duration on constructor.
-            // On WeChat platform, duration is 0 at the time audio is loaded.
-            // On Native or Runtime platform, duration is 0 before playing.
-            this._audioTimer.start();
         });
     }
 
     @enqueueOperation
     pause (): Promise<void> {
         return new Promise((resolve) => {
-            this._eventTarget.once(AudioEvent.PAUSED, resolve);
-            this._innerAudioContext.pause();
-            this._audioTimer.pause();
+            if (this.state !== AudioState.PLAYING) {
+                resolve();
+            } else {
+                this._eventTarget.once(AudioEvent.PAUSED, resolve);
+                this._innerAudioContext.pause();
+            }
         });
     }
 
@@ -246,7 +294,6 @@ export class AudioPlayerMinigame implements OperationQueueable {
         return new Promise((resolve) => {
             this._eventTarget.once(AudioEvent.STOPPED, resolve);
             this._innerAudioContext.stop();
-            this._audioTimer.stop();
         });
     }
 

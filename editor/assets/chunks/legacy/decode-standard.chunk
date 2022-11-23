@@ -1,0 +1,7 @@
+// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+#include <legacy/decode-base>
+
+#pragma define CCDecode(attr)                   \
+  attr.position = vec4(a_position, 1.0); \
+  attr.normal = a_normal;                \
+  attr.tangent = a_tangent

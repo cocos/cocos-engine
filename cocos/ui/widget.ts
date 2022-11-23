@@ -24,25 +24,16 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module ui
- */
-
 import { ccclass, help, executeInEditMode, executionOrder, menu, requireComponent, tooltip, type, editorOnly, editable, serializable, visible } from 'cc.decorator';
 import { EDITOR, DEV } from 'internal:constants';
-import { Component } from '../core/components';
+import { Component } from '../scene-graph/component';
 import { UITransform } from '../2d/framework/ui-transform';
-import { Size, Vec2, Vec3 } from '../core/math';
-import { errorID, warnID } from '../core/platform/debug';
-import { View } from '../core/platform/view';
-import visibleRect from '../core/platform/visible-rect';
-import { Scene } from '../core/scene-graph';
-import { Node } from '../core/scene-graph/node';
-import { ccenum } from '../core/value-types/enum';
-import { TransformBit } from '../core/scene-graph/node-enum';
-import { legacyCC } from '../core/global-exports';
-import { NodeEventType } from '../core/scene-graph/node-event';
+import { Size, Vec2, Vec3, visibleRect, ccenum, errorID, cclegacy } from '../core';
+import { View } from './view';
+import { Scene } from '../scene-graph';
+import { Node } from '../scene-graph/node';
+import { TransformBit } from '../scene-graph/node-enum';
+import { NodeEventType } from '../scene-graph/node-event';
 
 const _tempScale = new Vec2();
 
@@ -245,7 +236,7 @@ export class Widget extends Component {
         this._registerTargetEvents();
         if (EDITOR /* && !cc.engine._isPlaying */ && this.node.parent) {
             // adjust the offsets to keep the size and position unchanged after target changed
-            legacyCC._widgetManager.updateOffsetsToStayPut(this);
+            cclegacy._widgetManager.updateOffsetsToStayPut(this);
         }
 
         this._validateTargetInDEV();
@@ -726,9 +717,21 @@ export class Widget extends Component {
 
     public static AlignMode = AlignMode;
 
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
     public _lastPos = new Vec3();
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
     public _lastSize = new Size();
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
     public _dirty = true;
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
     public _hadAlignOnce = false;
 
     @serializable
@@ -789,9 +792,12 @@ export class Widget extends Component {
      * ```
      */
     public updateAlignment () {
-        legacyCC._widgetManager.updateAlignment(this.node);
+        cclegacy._widgetManager.updateAlignment(this.node);
     }
 
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
     public _validateTargetInDEV () {
         if (!DEV) {
             return;
@@ -814,14 +820,14 @@ export class Widget extends Component {
     public onEnable () {
         this.node.getPosition(this._lastPos);
         this._lastSize.set(this.node._uiProps.uiTransformComp!.contentSize);
-        legacyCC._widgetManager.add(this);
+        cclegacy._widgetManager.add(this);
         this._hadAlignOnce = false;
         this._registerEvent();
         this._registerTargetEvents();
     }
 
     public onDisable () {
-        legacyCC._widgetManager.remove(this);
+        cclegacy._widgetManager.remove(this);
         this._unregisterEvent();
         this._unregisterTargetEvents();
     }
@@ -830,13 +836,25 @@ export class Widget extends Component {
         this._removeParentEvent();
     }
 
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
     public _adjustWidgetToAllowMovingInEditor (eventType: TransformBit) {}
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
     public _adjustWidgetToAllowResizingInEditor () {}
 
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
     public _adjustWidgetToAnchorChanged () {
         this.setDirty();
     }
 
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
     public _adjustTargetToParentChanged (oldParent: Node) {
         if (oldParent) {
             this._unregisterOldParentEvents(oldParent);
@@ -848,7 +866,7 @@ export class Widget extends Component {
     }
 
     protected _registerEvent () {
-        if (EDITOR && !legacyCC.GAME_VIEW) {
+        if (EDITOR && !cclegacy.GAME_VIEW) {
             this.node.on(NodeEventType.TRANSFORM_CHANGED, this._adjustWidgetToAllowMovingInEditor, this);
             this.node.on(NodeEventType.SIZE_CHANGED, this._adjustWidgetToAllowResizingInEditor, this);
         } else {
@@ -860,7 +878,7 @@ export class Widget extends Component {
     }
 
     protected _unregisterEvent () {
-        if (EDITOR && !legacyCC.GAME_VIEW) {
+        if (EDITOR && !cclegacy.GAME_VIEW) {
             this.node.off(NodeEventType.TRANSFORM_CHANGED, this._adjustWidgetToAllowMovingInEditor, this);
             this.node.off(NodeEventType.SIZE_CHANGED, this._adjustWidgetToAllowResizingInEditor, this);
         } else {
@@ -929,7 +947,7 @@ export class Widget extends Component {
     }
 
     protected _setDirtyByMode () {
-        if (this.alignMode === AlignMode.ALWAYS || EDITOR) {
+        if (this.alignMode === AlignMode.ALWAYS || (EDITOR && !cclegacy.GAME_VIEW)) {
             this._recursiveDirty();
         }
     }
@@ -970,7 +988,7 @@ export class Widget extends Component {
 
             if (EDITOR && this.node.parent) {
                 // adjust the offsets to keep the size and position unchanged after alignment changed
-                legacyCC._widgetManager.updateOffsetsToStayPut(this, flag);
+                cclegacy._widgetManager.updateOffsetsToStayPut(this, flag);
             }
         } else {
             if (isHorizontal) {
@@ -1001,5 +1019,7 @@ export declare namespace Widget {
 }
 
 // cc.Widget = module.exports = Widget;
-legacyCC.internal.computeInverseTransForTarget = computeInverseTransForTarget;
-legacyCC.internal.getReadonlyNodeSize = getReadonlyNodeSize;
+cclegacy.internal.computeInverseTransForTarget = computeInverseTransForTarget;
+cclegacy.internal.getReadonlyNodeSize = getReadonlyNodeSize;
+
+cclegacy.Widget = Widget;

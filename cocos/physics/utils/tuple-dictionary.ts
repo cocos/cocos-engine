@@ -24,11 +24,6 @@
  */
 
 /**
- * @packageDocumentation
- * @hidden
- */
-
-/**
  * @class TupleDictionary
  * @constructor
  */

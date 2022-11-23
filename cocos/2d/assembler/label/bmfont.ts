@@ -23,14 +23,8 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module ui-assembler
- */
-
 import { SpriteFrame } from '../../assets/sprite-frame';
-import * as js from '../../../core/utils/js';
-import { Color, Rect } from '../../../core/math';
+import { Color, Rect, js } from '../../../core';
 import { IBatcher } from '../../renderer/i-batcher';
 import { Label } from '../../components/label';
 import { IAssembler } from '../../renderer/base';
@@ -50,9 +44,9 @@ export const bmfont: IAssembler = {
 
     fillBuffers (comp: Label, renderer: IBatcher) {
         const node = comp.node;
-        comp._setCacheAlpha(node._uiProps.opacity);
         tempColor.set(comp.color);
         tempColor.a = node._uiProps.opacity * 255;
+        // Fill All
         fillMeshVertices3D(node, renderer, comp.renderData!, tempColor);
     },
 
@@ -65,8 +59,7 @@ export const bmfont: IAssembler = {
         const dataOffset = renderData.dataLength;
 
         renderData.dataLength += 4;
-        renderData.vertexCount = renderData.dataLength;
-        renderData.indicesCount = renderData.dataLength / 2 * 3;
+        renderData.resize(renderData.dataLength, renderData.dataLength / 2 * 3);
 
         const dataList = renderData.data;
         const texW = spriteFrame.width;

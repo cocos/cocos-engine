@@ -1,18 +1,14 @@
-/**
- * @packageDocumentation
- * @module physics2d
- */
-
-import { ccclass, property, menu } from '../../../../core/data/class-decorator';
-import { Component, Vec2, Size } from '../../../../core';
+import { Vec2, _decorator } from '../../../../core';
 import { Collider2D } from './collider-2d';
 import { ECollider2DType } from '../../physics-types';
 import { IPolygonShape } from '../../../spec/i-physics-shape';
 
+const { ccclass, menu, property } = _decorator;
+
 @ccclass('cc.PolygonCollider2D')
 @menu('Physics2D/Colliders/PolygonCollider2D')
 export class PolygonCollider2D extends Collider2D {
-    @property({ serializable: false })
+    @property({ serializable: false, displayOrder: 0 })
     threshold = 1;
 
     @property

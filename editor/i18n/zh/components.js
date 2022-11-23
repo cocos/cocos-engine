@@ -1,5 +1,6 @@
 module.exports = {
     components: {
+        add_component: '添加组件',
         safe_area: {
             brief_help:
                 '该组件会将所在节点的布局适配到 iPhone X 等异形屏手机的安全区域内，通常用于 UI 交互区域的顶层节点。该组件将在真机上将自动生效，在编辑器下没有效果。',
@@ -17,6 +18,24 @@ module.exports = {
         },
         label: {
             font_style_tooltip: "文本的样式，分别对应引擎的 isBold,isItalic,isUnderline",
+        },
+        layer: {
+            confirm_message: '是否连同修改子节点的 Layer？',
+            change_children: '连同修改子节点',
+            change_self: '只修改节点自身',
+        },
+        lightProbeGroup:{
+            generateTip: '重新生成场景里的探针数据',
+            generateWarnTip: '继续自动生成新探针会覆盖已有探针，该节点的已有探针数据会全部丢失，请问是否仍要继续？',
+            editTip: '切换场景中的探针编辑模式',
+        },
+
+        missScriptTip: "脚本编译失败，请检查报错信息并进行修正，该组件将在修正后自动还原。",
+
+        lod: {
+            applyCameraSizeTip: '应用当前场景中此节点的屏幕比例于此 LOD 层级，如果当前屏占比小于下一层 LOD 比例，将应用为可以应用的最小值（下一层级比例），<br/>如果当前屏占比大于上一层 LOD 比例，将应用为可以应用的最大值（上一层级比例）',
+            applyCameraSizeLessThanMinimum: '当前屏占比小于目前层级能使用的最小值，无法设置，设置为目前层级能使用的最小值。请更新更低 LOD 层级的屏幕尺寸之后再次尝试。',
+            applyCameraSizeGreaterThanMaximum: '当前屏占比大于目前层级能使用的最大值，无法设置，设置为目前层级能使用的最大值。请更新更高 LOD 层级的屏幕尺寸之后再次尝试。',
         },
     },
 };

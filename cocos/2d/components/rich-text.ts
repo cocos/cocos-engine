@@ -24,30 +24,20 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module ui
- */
-
-import { ccclass, executeInEditMode, executionOrder, help, menu, tooltip, multiline, type, serializable } from 'cc.decorator';
-import { DEV, EDITOR } from 'internal:constants';
+import { ccclass, executeInEditMode, executionOrder, help, menu, tooltip, multiline, type, displayOrder, serializable } from 'cc.decorator';
+import { DEBUG, DEV, EDITOR } from 'internal:constants';
 import { Font, SpriteAtlas, TTFFont, SpriteFrame } from '../assets';
 import { EventTouch } from '../../input/types';
-import { assert, warnID } from '../../core/platform';
-import { BASELINE_RATIO, fragmentText, isUnicodeCJK, isUnicodeSpace } from '../utils/text-utils';
+import { assert, warnID, Color, Vec2, CCObject, cclegacy, js } from '../../core';
+import { BASELINE_RATIO, fragmentText, isUnicodeCJK, isUnicodeSpace, getEnglishWordPartAtFirst, getEnglishWordPartAtLast } from '../utils/text-utils';
 import { HtmlTextParser, IHtmlTextParserResultObj, IHtmlTextParserStack } from '../utils/html-text-parser';
-import Pool from '../../core/utils/pool';
-import { Color, Vec2 } from '../../core/math';
-import { Node } from '../../core/scene-graph';
+import { Node } from '../../scene-graph';
 import { CacheMode, HorizontalTextAlignment, Label, VerticalTextAlignment } from './label';
 import { LabelOutline } from './label-outline';
 import { Sprite } from './sprite';
-import { UIComponent, UITransform } from '../framework';
-import { legacyCC } from '../../core/global-exports';
-import { Component } from '../../core/components';
-import assetManager from '../../core/asset-manager/asset-manager';
-import { CCObject } from '../../core';
-import { NodeEventType } from '../../core/scene-graph/node-event';
+import { UITransform } from '../framework';
+import { Component } from '../../scene-graph/component';
+import { NodeEventType } from '../../scene-graph/node-event';
 
 const _htmlTextParser = new HtmlTextParser();
 const RichTextChildName = 'RICHTEXT_CHILD';
@@ -56,11 +46,11 @@ const RichTextChildImageName = 'RICHTEXT_Image_CHILD';
 /**
  * 富文本池。<br/>
  */
-const labelPool = new Pool((seg: ISegment) => {
+const labelPool = new js.Pool((seg: ISegment) => {
     if (DEV) {
         assert(!seg.node.parent, 'Recycling node\'s parent should be null!');
     }
-    if (!legacyCC.isValid(seg.node)) {
+    if (!cclegacy.isValid(seg.node)) {
         return false;
     } else {
         const outline = seg.node.getComponent(LabelOutline);
@@ -71,11 +61,11 @@ const labelPool = new Pool((seg: ISegment) => {
     return true;
 }, 20);
 
-const imagePool = new Pool((seg: ISegment) => {
+const imagePool = new js.Pool((seg: ISegment) => {
     if (DEV) {
         assert(!seg.node.parent, 'Recycling node\'s parent should be null!');
     }
-    return legacyCC.isValid(seg.node) as boolean;
+    return cclegacy.isValid(seg.node) as boolean;
 }, 10);
 
 //
@@ -115,6 +105,7 @@ function getSegmentByPool (type: string, content: string | SpriteFrame) {
         seg.comp.string = content as string;
         seg.comp.horizontalAlign = HorizontalTextAlignment.LEFT;
         seg.comp.verticalAlign = VerticalTextAlignment.TOP;
+        seg.comp.underlineHeight = 2;
     }
     node.setPosition(0, 0, 0);
     const trans = node._uiProps.uiTransformComp!;
@@ -152,7 +143,7 @@ interface ISegment {
 @executionOrder(110)
 @menu('2D/RichText')
 @executeInEditMode
-export class RichText extends UIComponent {
+export class RichText extends Component {
     /**
      * @en
      * Content string of RichText.
@@ -193,6 +184,29 @@ export class RichText extends UIComponent {
         }
 
         this._horizontalAlign = value;
+        this._layoutDirty = true;
+        this._updateRichTextStatus();
+    }
+
+    /**
+     * @en
+     * Vertical Alignment of each line in RichText.
+     *
+     * @zh
+     * 文本内容的竖直对齐方式。
+     */
+    @type(VerticalTextAlignment)
+    @tooltip('i18n:richtext.vertical_align')
+    get verticalAlign () {
+        return this._verticalAlign;
+    }
+
+    set verticalAlign (value) {
+        if (this._verticalAlign === value) {
+            return;
+        }
+
+        this._verticalAlign = value;
         this._layoutDirty = true;
         this._updateRichTextStatus();
     }
@@ -275,6 +289,7 @@ export class RichText extends UIComponent {
      * 是否使用系统字体。
      */
     @tooltip('i18n:richtext.use_system_font')
+    @displayOrder(12)
     get useSystemFont () {
         return this._isSystemFontUsed;
     }
@@ -422,6 +437,8 @@ export class RichText extends UIComponent {
     @serializable
     protected _horizontalAlign = HorizontalTextAlignment.LEFT;
     @serializable
+    protected _verticalAlign = VerticalTextAlignment.TOP;
+    @serializable
     protected _fontSize = 40;
     @serializable
     protected _maxWidth = 0;
@@ -450,6 +467,7 @@ export class RichText extends UIComponent {
     protected _layoutDirty = true;
     protected _lineOffsetX = 0;
     protected _updateRichTextStatus: () => void;
+    protected _labelChildrenNum = 0; // only ISegment
 
     constructor () {
         super();
@@ -461,6 +479,7 @@ export class RichText extends UIComponent {
 
     public onLoad () {
         this.node.on(NodeEventType.LAYER_CHANGED, this._applyLayer, this);
+        this.node.on(NodeEventType.ANCHOR_CHANGED, this._updateRichTextPosition, this);
     }
 
     public onEnable () {
@@ -478,11 +497,6 @@ export class RichText extends UIComponent {
         }
 
         this._activateChildren(false);
-    }
-
-    public start () {
-        this._onTTFLoaded();
-        this.node.on(NodeEventType.ANCHOR_CHANGED, this._updateRichTextPosition, this);
     }
 
     public onRestore () {
@@ -546,19 +560,143 @@ export class RichText extends UIComponent {
         }
     }
 
+    /**
+    * @engineInternal
+    */
+    protected splitLongStringApproximatelyIn2048 (text: string, styleIndex: number) {
+        const approxSize = text.length * this.fontSize;
+        const partStringArr: string[] = [];
+        // avoid that many short richtext still execute _calculateSize so that performance is low
+        // we set a threshold as 2048 * 0.8, if the estimated size is less than it, we can skip _calculateSize precisely
+        if (approxSize <= 2048 * 0.8) {
+            partStringArr.push(text);
+            return partStringArr;
+        }
+
+        const labelSize = this._calculateSize(styleIndex, text);
+        if (labelSize.x < 2048) {
+            partStringArr.push(text);
+        } else {
+            const multilineTexts = text.split('\n');
+            for (let i = 0; i < multilineTexts.length; i++) {
+                const thisPartSize = this._calculateSize(styleIndex, multilineTexts[i]);
+                if (thisPartSize.x < 2048) {
+                    partStringArr.push(multilineTexts[i]);
+                } else {
+                    const thisPartSplitResultArr =  this.splitLongStringOver2048(multilineTexts[i], styleIndex);
+                    partStringArr.push(...thisPartSplitResultArr);
+                }
+            }
+        }
+        return partStringArr;
+    }
+
+    /**
+    * @engineInternal
+    */
+    protected splitLongStringOver2048 (text: string, styleIndex: number) {
+        const partStringArr: string[] = [];
+        const longStr = text;
+
+        let curStart = 0;
+        let curEnd = longStr.length / 2;
+        let curString = longStr.substring(curStart, curEnd);
+        let leftString = longStr.substring(curEnd);
+        let curStringSize = this._calculateSize(styleIndex, curString);
+        let leftStringSize = this._calculateSize(styleIndex, leftString);
+
+        // a line should be an unit to split long string
+        const lineCountForOnePart = 1;
+        const sizeForOnePart = lineCountForOnePart * this.maxWidth;
+
+        // divide text into some pieces of which the size is less than sizeForOnePart
+        while (curStringSize.x > sizeForOnePart) {
+            curEnd /= 2;
+            // at least one char can be an entity, step back.
+            if (curEnd < 1) {
+                curEnd *= 2;
+                break;
+            }
+
+            curString = curString.substring(curStart, curEnd);
+            leftString = longStr.substring(curEnd);
+            curStringSize = this._calculateSize(styleIndex, curString);
+        }
+
+        // avoid too many loops
+        let leftTryTimes = 1000;
+        // the minimum step of expansion or reduction
+        let curWordStep = 1;
+        while (leftTryTimes && curStart < text.length) {
+            while (leftTryTimes && curStringSize.x < sizeForOnePart) {
+                const nextPartExec = getEnglishWordPartAtFirst(leftString);
+                // add a character, unless there is a complete word at the beginning of the next line
+                if (nextPartExec && nextPartExec.length > 0) {
+                    curWordStep = nextPartExec[0].length;
+                }
+                curEnd += curWordStep;
+
+                curString = longStr.substring(curStart, curEnd);
+                leftString = longStr.substring(curEnd);
+                curStringSize = this._calculateSize(styleIndex, curString);
+
+                leftTryTimes--;
+            }
+
+            // reduce condition：size > maxwidth && curString.length >= 2
+            while (leftTryTimes && curString.length >= 2 && curStringSize.x > sizeForOnePart) {
+                curEnd -= curWordStep;
+                curString = longStr.substring(curStart, curEnd);
+                curStringSize = this._calculateSize(styleIndex, curString);
+                // after the first reduction, the step should be 1.
+                curWordStep = 1;
+
+                leftTryTimes--;
+            }
+
+            // consider there is a part of a word at the end of this line, it should be moved to the next line
+            if (curString.length >= 2) {
+                const lastWordExec = getEnglishWordPartAtLast(curString);
+                if (lastWordExec && lastWordExec.length > 0
+                    // to avoid endless loop when there is only one word in this line
+                    && curString !== lastWordExec[0]) {
+                    curEnd -= lastWordExec[0].length;
+                    curString = longStr.substring(curStart, curEnd);
+                }
+            }
+
+            // curStart and curEnd can be float since they are like positions of pointer,
+            // but step must be integer because we split the complete characters of which the unit is integer.
+            // it is reasonable that using the length of this result to estimate the next result.
+            partStringArr.push(curString);
+            const partStep = curString.length;
+            curStart = curEnd;
+            curEnd += partStep;
+
+            curString = longStr.substring(curStart, curEnd);
+            leftString = longStr.substring(curEnd);
+            leftStringSize = this._calculateSize(styleIndex, leftString);
+
+            leftTryTimes--;
+
+            // Exit: If the left part string size is less than 2048, the method will finish.
+            if (leftStringSize.x < 2048) {
+                curStart = text.length;
+                curEnd = text.length;
+                curString = leftString;
+                partStringArr.push(curString);
+                break;
+            } else {
+                curStringSize = this._calculateSize(styleIndex, curString);
+            }
+        }
+
+        return partStringArr;
+    }
+
     protected _measureText (styleIndex: number, string?: string) {
         const func = (s: string) => {
-            let label: ISegment;
-            if (this._labelSegmentsCache.length === 0) {
-                label = this._createFontLabel(s);
-                this._labelSegmentsCache.push(label);
-            } else {
-                label = this._labelSegmentsCache[0];
-                label.node.getComponent(Label)!.string = s;
-            }
-            label.styleIndex = styleIndex;
-            this._applyTextAttribute(label);
-            const labelSize = label.node._uiProps.uiTransformComp!.contentSize;
+            const labelSize = this._calculateSize(styleIndex, s);
             return labelSize.width;
         };
         if (string) {
@@ -566,6 +704,24 @@ export class RichText extends UIComponent {
         } else {
             return func;
         }
+    }
+
+    /**
+    * @engineInternal
+    */
+    protected _calculateSize (styleIndex: number, s: string) {
+        let label: ISegment;
+        if (this._labelSegmentsCache.length === 0) {
+            label = this._createFontLabel(s);
+            this._labelSegmentsCache.push(label);
+        } else {
+            label = this._labelSegmentsCache[0];
+            label.node.getComponent(Label)!.string = s;
+        }
+        label.styleIndex = styleIndex;
+        this._applyTextAttribute(label);
+        const labelSize = label.node._uiProps.uiTransformComp!.contentSize;
+        return labelSize;
     }
 
     protected _onTouchEnded (event: EventTouch) {
@@ -602,13 +758,10 @@ export class RichText extends UIComponent {
         for (let i = children.length - 1; i >= 0; i--) {
             const child = children[i];
             if (child.name === RichTextChildName || child.name === RichTextChildImageName) {
-                if (child.parent === this.node) {
-                    child.parent = null;
-                } else {
-                    // In case child.parent !== this.node, child cannot be removed from children
-
-                    children.splice(i, 1);
+                if (DEBUG) {
+                    assert(child.parent === this.node);
                 }
+                child.parent = null;
 
                 const segment = createSegment(child.name);
                 segment.node = child;
@@ -619,10 +772,9 @@ export class RichText extends UIComponent {
                     segment.comp = child.getComponent(Sprite);
                     imagePool.put(segment);
                 }
+                this._labelChildrenNum--;
             }
         }
-        // Tolerate null parent child (upgrade issue may cause this special case)
-        children.length = 0;
 
         this._segments.length = 0;
         this._labelSegmentsCache.length = 0;
@@ -655,12 +807,19 @@ export class RichText extends UIComponent {
             }
         }
 
+        // set vertical alignments
+        // because horizontal alignment is applied with line offsets in method "_updateRichTextPosition"
+        const labelComp: Label = labelSegment.comp as Label;
+        if (labelComp.verticalAlign !== this._verticalAlign) {
+            labelComp.verticalAlign = this._verticalAlign;
+        }
+
         labelSegment.styleIndex = styleIndex;
         labelSegment.lineCount = this._lineCount;
         labelSegment.node._uiProps.uiTransformComp!.setAnchorPoint(0, 0);
         labelSegment.node.layer = this.node.layer;
+        this.node.insertChild(labelSegment.node, this._labelChildrenNum++);
         this._applyTextAttribute(labelSegment);
-        this.node.addChild(labelSegment.node);
         this._segments.push(labelSegment);
 
         return labelSegment;
@@ -694,7 +853,8 @@ export class RichText extends UIComponent {
             }
         }
         if (fragmentWidth > this._maxWidth) {
-            const fragments = fragmentText(labelString, fragmentWidth, this._maxWidth, this._measureText(styleIndex) as (s: string) => number);
+            const fragments = fragmentText(labelString, fragmentWidth, this._maxWidth,
+                this._measureText(styleIndex) as unknown as (s: string) => number);
             for (let k = 0; k < fragments.length; ++k) {
                 const splitString = fragments[k];
                 labelSegment = this._addLabelSegment(splitString, styleIndex);
@@ -781,18 +941,21 @@ export class RichText extends UIComponent {
             const sprite = segment.comp;
             switch (style.imageAlign) {
             case 'top':
-                    segment.node._uiProps.uiTransformComp!.setAnchorPoint(0, 1);
+                segment.node._uiProps.uiTransformComp!.setAnchorPoint(0, 1);
                 break;
             case 'center':
-                    segment.node._uiProps.uiTransformComp!.setAnchorPoint(0, 0.5);
+                segment.node._uiProps.uiTransformComp!.setAnchorPoint(0, 0.5);
                 break;
             default:
-                    segment.node._uiProps.uiTransformComp!.setAnchorPoint(0, 0);
+                segment.node._uiProps.uiTransformComp!.setAnchorPoint(0, 0);
                 break;
             }
 
+            if (style.imageOffset) {
+                segment.imageOffset = style.imageOffset;
+            }
             segment.node.layer = this.node.layer;
-            this.node.addChild(segment.node);
+            this.node.insertChild(segment.node, this._labelChildrenNum++);
             this._segments.push(segment);
 
             const spriteRect = spriteFrame.rect.clone();
@@ -860,7 +1023,7 @@ export class RichText extends UIComponent {
 
         for (let i = 0; i < this._textArray.length; ++i) {
             const richTextElement = this._textArray[i];
-            const text = richTextElement.text;
+            let text = richTextElement.text;
             if (text === undefined) {
                 continue;
             }
@@ -876,6 +1039,10 @@ export class RichText extends UIComponent {
                     continue;
                 }
             }
+
+            const splitArr: string[] = this.splitLongStringApproximatelyIn2048(text, i);
+            text = splitArr.join('\n');
+
             const multilineTexts = text.split('\n');
 
             for (let j = 0; j < multilineTexts.length; ++j) {
@@ -1096,12 +1263,6 @@ export class RichText extends UIComponent {
         label.lineHeight = this._lineHeight;
 
         label.updateRenderData(true);
-        // Todo: need update context size after this function call
-        // @ts-expect-error update assembler renderData for richText
-        const assembler = label._assembler;
-        if (assembler) {
-            assembler.updateRenderData(label);
-        }
     }
 
     protected _applyLayer () {
@@ -1118,3 +1279,5 @@ export class RichText extends UIComponent {
         label.isUnderline = false;
     }
 }
+
+cclegacy.RichText = RichText;

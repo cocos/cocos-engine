@@ -24,16 +24,10 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module ui
- */
-
 import { ccclass, help, executionOrder, menu, tooltip, requireComponent, executeInEditMode, serializable } from 'cc.decorator';
-import { Component } from '../../core/components/component';
-import { Color } from '../../core/math';
+import { Component } from '../../scene-graph/component';
+import { Color, cclegacy } from '../../core';
 import { Label } from './label';
-import { legacyCC } from '../../core/global-exports';
 
 /**
  * @en
@@ -133,3 +127,5 @@ export class LabelOutline extends Component {
         }
     }
 }
+
+cclegacy.LabelOutline = LabelOutline;

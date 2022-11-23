@@ -1,4 +1,4 @@
-const { getName, setHidden, isMultipleInvalid, setTooltip, setLabel } = require('../utils/prop');
+const { getName, setHidden, isMultipleInvalid } = require('../utils/prop');
 const { template, $, update } = require('./base');
 const fontStyles = ['isBold', 'isItalic', 'isUnderline'];
 exports.template = template;
@@ -57,7 +57,7 @@ exports.ready = function() {
                 prop.dump = dump;
                 const label = document.createElement('ui-label');
                 label.setAttribute('slot', 'label');
-                setLabel(label, dump);
+                label.value = getName(dump);
                 const content = document.createElement('ui-tab');
                 content.setAttribute('slot', 'content');
                 content.addEventListener('change', (event) => {
@@ -72,21 +72,18 @@ exports.ready = function() {
 
                 for (let index = 0; index < dump.enumList.length; index++) {
                     const element = dump.enumList[index];
-                    const image = document.createElement('ui-image');
+                    const image = document.createElement('ui-icon');
                     const button = document.createElement('ui-button');
                     const iconName = element.name.toLocaleLowerCase();
                     if (iconName === 'center') {
-                        image.setAttribute('value', `packages://scene/static/icons/align-h-${iconName}.png`);
+                        image.setAttribute('value', `align-h-${iconName}`);
                     } else {
-                        image.setAttribute('value', `packages://scene/static/icons/align-${iconName}.png`);
+                        image.setAttribute('value', `align-${iconName}`);
                     }
-                    image.style.height = '20px';
-                    image.style.width = '22px';
-                    image.style.verticalAlign = 'middle';
-                    image.setAttribute('fill', true);
-                    setTooltip(image, dump);
-                    image.setAttribute('readonly', true);
+
                     button.appendChild(image);
+                    button.setAttribute('tooltip', `${dump.tooltip}_${iconName}`);
+
                     content.appendChild(button);
                 }
                 prop.appendChild(label);
@@ -108,7 +105,7 @@ exports.ready = function() {
                 prop.dump = dump;
                 const label = document.createElement('ui-label');
                 label.setAttribute('slot', 'label');
-                setLabel(label, dump);
+                label.value = getName(dump);
                 const content = document.createElement('ui-tab');
                 content.setAttribute('slot', 'content');
                 content.addEventListener('change', (event) => {
@@ -123,21 +120,18 @@ exports.ready = function() {
 
                 for (let index = 0; index < dump.enumList.length; index++) {
                     const element = dump.enumList[index];
-                    const image = document.createElement('ui-image');
+                    const image = document.createElement('ui-icon');
                     const button = document.createElement('ui-button');
                     const iconName = element.name.toLocaleLowerCase();
                     if (iconName === 'center') {
-                        image.setAttribute('value', `packages://scene/static/icons/align-v-${iconName}.png`);
+                        image.setAttribute('value', `align-v-${iconName}`);
                     } else {
-                        image.setAttribute('value', `packages://scene/static/icons/align-${iconName}.png`);
+                        image.setAttribute('value', `align-${iconName}`);
                     }
-                    image.style.height = '20px';
-                    image.style.width = '22px';
-                    image.style.verticalAlign = 'middle';
-                    image.setAttribute('fill', true);
-                    image.setAttribute('tooltip', dump.tooltip);
-                    image.setAttribute('readonly', true);
+
                     button.appendChild(image);
+                    button.setAttribute('tooltip', `${dump.tooltip}_${iconName}`);
+
                     content.appendChild(button);
                 }
                 prop.appendChild(label);
@@ -159,7 +153,7 @@ exports.ready = function() {
                 const label = document.createElement('ui-label');
                 label.setAttribute('slot', 'label');
                 label.value = 'FontStyle';
-                label.setAttribute('tooltip', Editor.I18n.t('ENGINE.components.label.font_style_tooltip'));
+                label.setAttribute('tooltip', 'i18n:ENGINE.components.label.font_style_tooltip');
                 prop.appendChild(label);
                 const content = document.createElement('div');
                 content.setAttribute('slot', 'content');
@@ -170,8 +164,8 @@ exports.ready = function() {
                     const style = fontStyles[index];
                     const label = document.createElement('ui-label');
                     label.innerHTML = styleDisplayNames[index];
-                    setTooltip(label, this.dump.value[style]);
                     label.setAttribute('key', style);
+                    label.setAttribute('tooltip', this.dump.value[style].tooltip);
                     label.classList.add('fontStyle', styleClassNames[index]);
                     label.addEventListener('mouseup', () => {
                         prop.dump = this.dump.value[style];

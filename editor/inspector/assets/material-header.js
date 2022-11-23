@@ -1,17 +1,6 @@
 'use strict';
 
-exports.style = `
-:host > .section {
-    height: 200px;
-    display: flex;
-    background: var(--color-normal-fill);
-    border-bottom: 1px solid var(--color-normal-border);
- }
-:host > .section > canvas { flex: 1; min-width: 0; }
-:host > .section > .tools { display: flex; flex-direction: column; padding: 6px 4px; }
-`;
-
-exports.template = `
+exports.template = /* html */`
 <div class="section">
     <canvas></canvas>
     <div class="tools">
@@ -29,12 +18,27 @@ exports.template = `
 </div>
 `;
 
+exports.style = /* css */`
+:host > .section {
+    height: 200px;
+    display: flex;
+    background: var(--color-normal-fill);
+    border-bottom: 1px solid var(--color-normal-border);
+ }
+:host > .section > canvas { flex: 1; min-width: 0; }
+:host > .section > .tools { display: flex; flex-direction: column; padding: 6px 4px; }
+`;
+
 exports.$ = {
     container: '.section',
     canvas: 'canvas',
     primitive: 'ui-select',
     light: 'ui-checkbox',
 };
+
+async function callMaterialPreviewFunction(funcName, ...args) {
+    return await Editor.Message.request('scene', 'call-preview-function', 'scene:material-preview', funcName, ...args);
+}
 
 exports.methods = {
     hideAllContent(hide) {
@@ -86,57 +90,26 @@ exports.methods = {
     },
 };
 
-/**
- * Methods for automatic rendering of components
- * @param assetList
- * @param metaList
- */
-exports.update = async function(assetList, metaList) {
-    const panel = this;
-
-    panel.assetList = assetList;
-    panel.metaList = metaList;
-    panel.asset = assetList[0];
-    panel.meta = metaList[0];
-    const notOnlyOne = assetList.length !== 1;
-    this.hideAllContent(notOnlyOne);
-    if (notOnlyOne) {
-        return;
-    }
-    if (!panel.$.canvas) {
-        return;
-    }
-
-    await panel.glPreview.init({ width: this.$.canvas.clientWidth, height: this.$.canvas.clientHeight });
-    await Editor.Message.request('scene', 'preview-material', this.asset.uuid);
-
-    panel.isPreviewDataDirty = true;
-    panel.refreshPreview();
-};
-
-/**
- * Method of initializing the panel
- */
 exports.ready = async function() {
     const panel = this;
 
-    Editor.Message.request('scene', 'set-material-preview-light-enable', true);
+    callMaterialPreviewFunction('setLightEnable', true);
     panel.$.light.addEventListener('confirm', async () => {
-        await Editor.Message.request('scene', 'set-material-preview-light-enable', this.$.light.checked);
+        await callMaterialPreviewFunction('setLightEnable', this.$.light.checked);
         panel.isPreviewDataDirty = true;
     });
 
-    Editor.Message.request('scene', 'set-material-preview-primitive', 'box');
+    callMaterialPreviewFunction('setPrimitive', 'box');
     panel.$.primitive.addEventListener('confirm', async () => {
-        await Editor.Message.request('scene', 'set-material-preview-primitive', this.$.primitive.value);
+        await callMaterialPreviewFunction('setPrimitive', this.$.primitive.value);
         panel.isPreviewDataDirty = true;
     });
 
     panel.$.canvas.addEventListener('mousedown', async (event) => {
-        await Editor.Message.request('scene', 'on-material-preview-mouse-down', { x: event.x, y: event.y });
+        await callMaterialPreviewFunction('onMouseDown', { x: event.x, y: event.y });
 
         async function mousemove(event) {
-            await Editor.Message.request('scene', 'on-material-preview-mouse-move', {
+            await callMaterialPreviewFunction('onMouseMove', {
                 movementX: event.movementX,
                 movementY: event.movementY,
             });
@@ -145,7 +118,7 @@ exports.ready = async function() {
         }
 
         async function mouseup(event) {
-            await Editor.Message.request('scene', 'on-material-preview-mouse-up', {
+            await callMaterialPreviewFunction('onMouseUp', {
                 x: event.x,
                 y: event.y,
             });
@@ -176,9 +149,33 @@ exports.ready = async function() {
     Editor.Message.addBroadcastListener('material-inspector:change-dump', this.updatePreviewDataDirtyBind);
 };
 
-exports.close = function() {
+exports.update = async function(assetList, metaList) {
     const panel = this;
 
+    panel.assetList = assetList;
+    panel.metaList = metaList;
+    panel.asset = assetList[0];
+    panel.meta = metaList[0];
+    const notOnlyOne = assetList.length !== 1;
+    this.hideAllContent(notOnlyOne);
+    if (notOnlyOne) {
+        return;
+    }
+    if (!panel.$.canvas) {
+        return;
+    }
+
+    await panel.glPreview.init({ width: this.$.canvas.clientWidth, height: this.$.canvas.clientHeight });
+
+    panel.isPreviewDataDirty = true;
+    panel.refreshPreview();
+};
+
+exports.close = function() {
+    const panel = this;
+    callMaterialPreviewFunction('hide');
     panel.resizeObserver.unobserve(panel.$.container);
     Editor.Message.removeBroadcastListener('material-inspector:change-dump', this.updatePreviewDataDirtyBind);
+    // clear the canvas on close hook
+    panel.glPreview.destroyGL();
 };

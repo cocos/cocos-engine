@@ -1,7 +1,3 @@
-/**
- * @packageDocumentation
- * @hidden
- */
 import { BuiltinShape2D } from './shape-2d';
 import { Vec2, Rect } from '../../../core';
 import { PolygonCollider2D } from '../../framework';

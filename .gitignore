@@ -20,6 +20,8 @@ playground/library
 3d-api-docs
 scripts/build-engine/node_modules
 scripts/build-engine/dist
+scripts/native-pack-tool/dist
+scripts/native-pack-tool/node_modules
 
 tests/core/serialization/ccob-serialized-gallery
 
@@ -39,3 +41,10 @@ platforms/runtime/platforms/qtt/ral.min.js
 platforms/runtime/platforms/vivo-mini-game/ral.js
 platforms/runtime/platforms/vivo-mini-game/ral.min.js
 scripts/runtime-web-adapter
+
+native/external/
+
+scripts/typedoc-plugin/lib/
+!templates/**/*
+
+@types/consts.d.ts

@@ -23,12 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
-import { WebGL2Device } from '../cocos/core/gfx/webgl2/webgl2-device';
+import { WebGL2Device } from '../cocos/gfx/webgl2/webgl2-device';
 import { legacyCC } from '../cocos/core/global-exports';
 
 export { WebGL2Device };

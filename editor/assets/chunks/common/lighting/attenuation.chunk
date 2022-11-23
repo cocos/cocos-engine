@@ -1,0 +1,26 @@
+
+float SmoothDistAtt2 (float distSqr, float invSqrAttRadius) {
+  float factor = distSqr * invSqrAttRadius; // ^2
+  float factor2 = factor * factor; // ^4
+  float factor3 = factor2 * factor2; // ^8
+  float smoothFactor = clamp(1.0 - factor3 * factor3, 0.0, 1.0);
+  return smoothFactor * smoothFactor;
+}
+
+float SmoothDistAtt (float distSqr, float invSqrAttRadius) {
+  float factor = distSqr * invSqrAttRadius;
+  float smoothFactor = clamp(1.0 - factor * factor, 0.0, 1.0);
+  return smoothFactor * smoothFactor;
+}
+
+float GetDistAtt (float distSqr, float invSqrAttRadius) {
+  float attenuation = 1.0 / max(distSqr, 0.01*0.01);
+  attenuation *= SmoothDistAtt(distSqr , invSqrAttRadius);
+  return attenuation;
+}
+
+float GetAngleAtt (vec3 L, vec3 litDir, float litAngleScale, float litAngleOffset) {
+  float cd = dot(litDir, L);
+  float attenuation = clamp(cd * litAngleScale + litAngleOffset, 0.0, 1.0);
+  return (attenuation * attenuation);
+}

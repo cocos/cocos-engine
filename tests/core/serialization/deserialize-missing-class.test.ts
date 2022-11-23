@@ -1,7 +1,7 @@
 
-import { MissingScript } from '../../../cocos/core';
-import { deserialize } from '../../../cocos/core/data/deserialize';
-import { js } from '../../../cocos/core/utils/js';
+import { MissingScript } from '../../../cocos/misc';
+import { deserialize } from '../../../cocos/serialization/deserialize';
+import { js } from '../../../cocos/core';
 
 describe(`Missing class deserialization`, () => {
     const serialized = {
@@ -33,7 +33,7 @@ describe(`Missing class deserialization`, () => {
 
     test(`Class finder returns MissingScript`, () => {
         function classFinder(type: any) {
-            const result = js._getClassById(type);
+            const result = js.getClassById(type);
             if (result) {
                 return result;
             } else {

@@ -1,9 +1,3 @@
-/**
- * @packageDocumentation
- * @hidden
- */
-
-import { IVec3Like } from '../../core/math/type-define';
 import { Rect, Vec2 } from '../../core';
 import { ILifecycle } from '../../physics/spec/i-lifecycle';
 import { Collider2D, RigidBody2D } from '../../../exports/physics-2d-framework';

@@ -52,24 +52,39 @@ gulp.task('build-source', async () => {
     });
 });
 
-gulp.task('build-h5-source', gulp.series('build-debug-infos', () => {
+gulp.task('build-h5-source', gulp.series('build-debug-infos', async () => {
+    const outDir = ps.join('bin', 'dev', 'cc');
+    await fs.ensureDir(outDir);
+    await fs.emptyDir(outDir);
     const cli = require.resolve('@cocos/build-engine/dist/cli');
-    return cp.spawn('node', [
-        cli,
-        `--engine=${__dirname}`,
-        '--module=system',
-        '--build-mode=BUILD',
-        '--platform=HTML5',
-        '--physics=cannon',
-        '--out=./bin/dev/cc',
-    ], {
-        shell: true,
-        stdio: 'inherit',
-        cwd: __dirname,
+    const exitCode = await new Promise((resolve, reject) => {
+        cp.spawn('node', [
+            cli,
+            `--engine=${__dirname}`,
+            '--module=system',
+            '--build-mode=BUILD',
+            '--platform=HTML5',
+            '--physics=cannon',
+            `--out=${outDir}`,
+        ], {
+            shell: true,
+            stdio: 'inherit',
+            cwd: __dirname,
+        }).on('exit', (code) => {
+            resolve(code);
+        }).on('error', (err) => {
+            reject(err);
+        });
     });
+    if (exitCode) {
+        throw new Error(`Build process exit with ${exitCode}`);
+    }
 }));
 
-gulp.task('build-h5-minified', gulp.series('build-debug-infos', () => {
+gulp.task('build-h5-minified', gulp.series('build-debug-infos', async () => {
+    const outDir = ps.join('bin', 'dev', 'cc-min');
+    await fs.ensureDir(outDir);
+    await fs.emptyDir(outDir);
     const cli = require.resolve('@cocos/build-engine/dist/cli');
     return cp.spawn('node', [
         cli,
@@ -80,7 +95,7 @@ gulp.task('build-h5-minified', gulp.series('build-debug-infos', () => {
         '--build-mode=BUILD',
         '--platform=HTML5',
         '--physics=cannon',
-        '--out=./bin/dev/cc-min',
+        `--out=${outDir}`,
     ], {
         shell: true,
         stdio: 'inherit',

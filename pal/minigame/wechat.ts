@@ -40,6 +40,10 @@ minigame.testAndUpdateSystemInfoCache = function (testAmount: number, testInterv
 };
 // @ts-expect-error TODO: update when view resize
 minigame.testAndUpdateSystemInfoCache(10, 500);
+minigame.onWindowResize?.(() => {
+    // update cached system info
+    _cachedSystemInfo = wx.getSystemInfoSync() as SystemInfo;
+});
 minigame.getSystemInfoSync = function () {
     return _cachedSystemInfo;
 };

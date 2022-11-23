@@ -135,7 +135,6 @@
     // init engine
     window.cc.game.init({
       adapter: { canvas, container: canvas.parentNode, frame: canvas.parentNode.parentNode },
-      customJointTextureLayouts: [],
     });
     window.cc.game.run(() => {
       _load(exampleList.value);

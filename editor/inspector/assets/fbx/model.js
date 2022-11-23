@@ -1,6 +1,8 @@
 'use strict';
 
-exports.template = `
+const { updateElementReadonly, updateElementInvalid, getPropValue, setPropValue } = require('../../utils/assets');
+
+exports.template = /* html */`
 <div class="container">
     <ui-prop>
         <ui-label slot="label" value="i18n:ENGINE.assets.fbx.GlTFUserData.normals.name" tooltip="i18n:ENGINE.assets.fbx.GlTFUserData.normals.title"></ui-label>
@@ -22,12 +24,35 @@ exports.template = `
         <ui-label slot="label" value="i18n:ENGINE.assets.fbx.disableMeshSplit.name" tooltip="i18n:ENGINE.assets.fbx.disableMeshSplit.title"></ui-label>
         <ui-checkbox slot="content" class="disableMeshSplit-checkbox"></ui-checkbox>
     </ui-prop>
-    <ui-section class="ins-object config" expand cache-expand="fbx-model-mesh-optimizer">
+    <ui-prop>
+        <ui-label slot="label" value="i18n:ENGINE.assets.fbx.allowMeshDataAccess.name" tooltip="i18n:ENGINE.assets.fbx.allowMeshDataAccess.title"></ui-label>
+        <ui-checkbox slot="content" class="allowMeshDataAccess-checkbox"></ui-checkbox>
+    </ui-prop>
+    <ui-prop>
+        <ui-label slot="label" value="i18n:ENGINE.assets.fbx.promoteSingleRootNode.name" tooltip="i18n:ENGINE.assets.fbx.promoteSingleRootNode.title"></ui-label>
+        <ui-checkbox slot="content" class="promoteSingleRootNode-checkbox"></ui-checkbox>
+    </ui-prop>
+    <ui-prop>
+        <ui-label slot="label" value="i18n:ENGINE.assets.fbx.generateLightmapUVNode.name" tooltip="i18n:ENGINE.assets.fbx.generateLightmapUVNode.title"></ui-label>
+        <ui-checkbox slot="content" class="generateLightmapUVNode-checkbox"></ui-checkbox>
+    </ui-prop>
+    <ui-section class="mesh-optimizer config" cache-expand="fbx-model-mesh-optimizer">
         <div slot="header" class="header">
             <ui-checkbox slot="content" class="meshOptimizer-checkbox"></ui-checkbox>
             <ui-label value="i18n:ENGINE.assets.fbx.meshOptimizer.name" tooltip="i18n:ENGINE.assets.fbx.meshOptimizer.title"></ui-label>
         </div>
-        <div class="object mesh-optimizer">
+        <div>
+            <ui-prop class="algorithm">
+                <ui-label slot="label" value="i18n:ENGINE.assets.fbx.meshOptimizer.algorithm.name"></ui-label>
+                <ui-select slot="content" class="meshOptimizer-algorithm-select"></ui-select>
+            </ui-prop>
+        </div>
+        <div class="gltfpack-options">
+            <ui-prop>
+                <div class="warn-words" slot="content">
+                    <ui-label value="i18n:ENGINE.assets.fbx.meshOptimizer.gltfpack.warn"></ui-label>
+                </div>
+            </ui-prop>
             <ui-section expand cache-expand="fbx-model-mesh-optimizer-simplification">
                 <ui-label slot="header" value="i18n:ENGINE.assets.fbx.meshOptimizer.simplification.name" tooltip="i18n:ENGINE.assets.fbx.meshOptimizer.simplification.title"></ui-label>
                 <ui-prop>
@@ -62,14 +87,32 @@ exports.template = `
                 </ui-prop>
             </ui-section>
             <div class="warn-words">
-                <ui-label value="i18n:inspector.asset.fbx.meshOptimizer.warn"></ui-label>
+                <ui-label value="i18n:ENGINE.assets.fbx.meshOptimizer.warn"></ui-label>
             </div>
+        </div>
+        <div class="simplify-options">
+            <ui-prop>
+                <ui-label slot="label" value="i18n:ENGINE.assets.fbx.meshOptimizer.simplify.targetRatio.name" tooltip="i18n:ENGINE.assets.fbx.meshOptimizer.simplify.targetRatio.title"></ui-label>
+                <ui-slider slot="content" class="meshOptimizer-targetRatio-slider" min="0" max="1" step="0.01"></ui-slider>
+            </ui-prop>
+            <ui-prop>
+                <ui-label slot="label" value="i18n:ENGINE.assets.fbx.meshOptimizer.simplify.enableSmartLink.name" tooltip="i18n:ENGINE.assets.fbx.meshOptimizer.simplify.enableSmartLink.title"></ui-label>
+                <ui-checkbox slot="content" class="meshOptimizer-enableSmartLink-checkbox"></ui-checkbox>
+            </ui-prop>
+            <ui-prop>
+                <ui-label slot="label" value="i18n:ENGINE.assets.fbx.meshOptimizer.simplify.agressiveness.name" tooltip="i18n:ENGINE.assets.fbx.meshOptimizer.simplify.agressiveness.title"></ui-label>
+                <ui-slider slot="content" class="meshOptimizer-agressiveness-slider" min="5" max="20" step="1"></ui-slider>
+            </ui-prop>
+            <ui-prop>
+                <ui-label slot="label" value="i18n:ENGINE.assets.fbx.meshOptimizer.simplify.maxIterationCount.name" tooltip="i18n:ENGINE.assets.fbx.meshOptimizer.simplify.maxIterationCount.title"></ui-label>
+                <ui-slider slot="content" class="meshOptimizer-maxIterationCount-slider" min="100" max="200" step="1"></ui-slider>
+            </ui-prop>
         </div>
     </ui-section>
 </div>
 `;
 
-exports.style = `
+exports.style = /* css */`
 ui-prop,
 ui-section {
     margin: 4px 0;
@@ -80,11 +123,22 @@ ui-section {
     line-height: 1.7;
     color: var(--color-warn-fill);
 }
-.mesh-optimizer ui-section {
+.mesh-optimizer .algorithm {
     margin-top: 10px;
+    padding-left: 20px;
+}
+.mesh-optimizer .simplify-options > ui-prop {
+    padding-left: 20px;
 }
 .mesh-optimizer ui-section > ui-prop {
     padding-left: 10px;
+}
+.mesh-optimizer .warn-words {
+    padding-left: 20px;
+}
+.mesh-optimizer .gltfpack-options .warn-words {
+    padding-left: 10px;
+    margin-top: 0;
 }
 `;
 
@@ -95,24 +149,36 @@ exports.$ = {
     morphNormalsSelect: '.morphNormals-select',
     skipValidationCheckbox: '.skipValidation-checkbox',
     disableMeshSplitCheckbox: '.disableMeshSplit-checkbox',
+    allowMeshDataAccessCheckbox: '.allowMeshDataAccess-checkbox',
+    promoteSingleRootNodeCheckbox: '.promoteSingleRootNode-checkbox',
+    generateLightmapUVNodeCheckbox: '.generateLightmapUVNode-checkbox',
     meshOptimizerCheckbox: '.meshOptimizer-checkbox',
+    meshOptimizerAlgorithmSelect: '.meshOptimizer-algorithm-select',
+    // gltfpackOptions 
+    meshOptimizerGltfpackOptions: '.gltfpack-options',
     meshOptimizerSISlider: '.meshOptimizer-si-slider',
     meshOptimizerSACheckbox: '.meshOptimizer-sa-checkbox',
     meshOptimizerKNCheckbox: '.meshOptimizer-kn-checkbox',
     meshOptimizerKECheckbox: '.meshOptimizer-ke-checkbox',
     meshOptimizerNOQCheckbox: '.meshOptimizer-noq-checkbox',
     meshOptimizerVCheckbox: '.meshOptimizer-v-checkbox',
+    // simplifyOptions
+    meshOptimizerSimplifyOptions: '.simplify-options',
+    meshOptimizerTargetRatioSlider: '.meshOptimizer-targetRatio-slider',
+    meshOptimizerEnableSmartLinkCheckbox: '.meshOptimizer-enableSmartLink-checkbox',
+    meshOptimizerAgressivenessSlider: '.meshOptimizer-agressiveness-slider',
+    meshOptimizerMaxIterationCountSlider: '.meshOptimizer-maxIterationCount-slider',
 };
 
-/**
- * attribute corresponds to the edit element
- */
 const Elements = {
     normals: {
         ready() {
             const panel = this;
 
-            panel.$.normalsSelect.addEventListener('change', panel.setProp.bind(panel, 'normals'));
+            panel.$.normalsSelect.addEventListener('change', panel.setProp.bind(panel, 'normals', 'number'));
+            panel.$.normalsSelect.addEventListener('confirm', () => {
+                panel.dispatch('snapshot');
+            });
         },
         update() {
             const panel = this;
@@ -121,22 +187,25 @@ const Elements = {
             const types = ['optional', 'exclude', 'require', 'recalculate'];
             types.forEach((type, index) => {
                 optionsHtml += `<option value="${index}"
-                    title="${panel.t(`GlTFUserData.normals.${type}.title`)}" 
+                    title="${panel.t(`GlTFUserData.normals.${type}.title`)}"
                 >${panel.t(`GlTFUserData.normals.${type}.name`)}</option>`;
             });
             panel.$.normalsSelect.innerHTML = optionsHtml;
 
-            panel.$.normalsSelect.value = panel.getDefault(panel.meta.userData.normals, 2);
+            panel.$.normalsSelect.value = getPropValue.call(panel, panel.meta.userData.normals, 2);
 
-            panel.updateInvalid(panel.$.normalsSelect, 'normals');
-            panel.updateReadonly(panel.$.normalsSelect);
+            updateElementInvalid.call(panel, panel.$.normalsSelect, 'normals');
+            updateElementReadonly.call(panel, panel.$.normalsSelect);
         },
     },
     tangents: {
         ready() {
             const panel = this;
 
-            panel.$.tangentsSelect.addEventListener('change', panel.setProp.bind(panel, 'tangents'));
+            panel.$.tangentsSelect.addEventListener('change', panel.setProp.bind(panel, 'tangents', 'number'));
+            panel.$.tangentsSelect.addEventListener('confirm', () => {
+                panel.dispatch('snapshot');
+            });
         },
         update() {
             const panel = this;
@@ -150,17 +219,20 @@ const Elements = {
             });
             panel.$.tangentsSelect.innerHTML = optionsHtml;
 
-            panel.$.tangentsSelect.value = panel.getDefault(panel.meta.userData.tangents, 2);
+            panel.$.tangentsSelect.value = getPropValue.call(panel, panel.meta.userData.tangents, 2);
 
-            panel.updateInvalid(panel.$.tangentsSelect, 'tangents');
-            panel.updateReadonly(panel.$.tangentsSelect);
+            updateElementInvalid.call(panel, panel.$.tangentsSelect, 'tangents');
+            updateElementReadonly.call(panel, panel.$.tangentsSelect);
         },
     },
     morphNormals: {
         ready() {
             const panel = this;
 
-            panel.$.morphNormalsSelect.addEventListener('change', panel.setProp.bind(panel, 'morphNormals'));
+            panel.$.morphNormalsSelect.addEventListener('change', panel.setProp.bind(panel, 'morphNormals', 'number'));
+            panel.$.morphNormalsSelect.addEventListener('confirm', () => {
+                panel.dispatch('snapshot');
+            });
         },
         update() {
             const panel = this;
@@ -169,152 +241,377 @@ const Elements = {
             const types = ['optional', 'exclude'];
             types.forEach((type, index) => {
                 optionsHtml += `<option value="${index}"
-                    title="${panel.t(`GlTFUserData.morphNormals.${type}.title`)}" 
+                    title="${panel.t(`GlTFUserData.morphNormals.${type}.title`)}"
                 >${panel.t(`GlTFUserData.morphNormals.${type}.name`)}</option>`;
             });
             panel.$.morphNormalsSelect.innerHTML = optionsHtml;
 
-            panel.$.morphNormalsSelect.value = panel.getDefault(panel.meta.userData.morphNormals, 1);
+            panel.$.morphNormalsSelect.value = getPropValue.call(panel, panel.meta.userData.morphNormals, 1);
 
-            panel.updateInvalid(panel.$.morphNormalsSelect, 'morphNormals');
-            panel.updateReadonly(panel.$.morphNormalsSelect);
+            updateElementInvalid.call(panel, panel.$.morphNormalsSelect, 'morphNormals');
+            updateElementReadonly.call(panel, panel.$.morphNormalsSelect);
         },
     },
     skipValidation: {
         ready() {
             const panel = this;
 
-            panel.$.skipValidationCheckbox.addEventListener('change', panel.setProp.bind(panel, 'skipValidation'));
+            panel.$.skipValidationCheckbox.addEventListener('change', panel.setProp.bind(panel, 'skipValidation', 'boolean'));
+            panel.$.skipValidationCheckbox.addEventListener('confirm', () => {
+                panel.dispatch('snapshot');
+            });
         },
         update() {
             const panel = this;
 
-            panel.$.skipValidationCheckbox.value = panel.getDefault(panel.meta.userData.skipValidation, true);
+            panel.$.skipValidationCheckbox.value = getPropValue.call(panel, panel.meta.userData.skipValidation, true);
 
-            panel.updateInvalid(panel.$.skipValidationCheckbox, 'skipValidation');
-            panel.updateReadonly(panel.$.skipValidationCheckbox);
+            updateElementInvalid.call(panel, panel.$.skipValidationCheckbox, 'skipValidation');
+            updateElementReadonly.call(panel, panel.$.skipValidationCheckbox);
         },
     },
     disableMeshSplit: {
         ready() {
             const panel = this;
 
-            panel.$.disableMeshSplitCheckbox.addEventListener('change', panel.setProp.bind(panel, 'disableMeshSplit'));
-        },
-        update() {
-            const panel = this;
-
-            panel.$.disableMeshSplitCheckbox.value = panel.getDefault(panel.meta.userData.disableMeshSplit, false);
-
-            panel.updateInvalid(panel.$.disableMeshSplitCheckbox, 'disableMeshSplit');
-            panel.updateReadonly(panel.$.disableMeshSplitCheckbox);
-        },
-    },
-    meshOptimizer: {
-        ready() {
-            const panel = this;
-
-            panel.$.meshOptimizerCheckbox.addEventListener('change', panel.setProp.bind(panel, 'meshOptimizer'));
-        },
-        update() {
-            const panel = this;
-
-            panel.$.meshOptimizerCheckbox.value = panel.getDefault(panel.meta.userData.meshOptimizer, false);
-
-            panel.updateInvalid(panel.$.meshOptimizerCheckbox, 'meshOptimizer');
-            panel.updateReadonly(panel.$.meshOptimizerCheckbox);
-        },
-    },
-    si: {
-        ready() {
-            const panel = this;
-            panel.$.meshOptimizerSISlider.addEventListener('change', panel.setMeshOptimizerOptions.bind(panel, 'si'));
-        },
-        update() {
-            const panel = this;
-
-            panel.$.meshOptimizerSISlider.value = panel.getDefault(panel.meta.userData.meshOptimizerOptions, 1, 'si');
-
-            panel.updateMeshOptimizerInvalid(panel.$.meshOptimizerSISlider, 'si');
-            panel.updateReadonly(panel.$.meshOptimizerSISlider);
-        },
-    },
-    sa: {
-        ready() {
-            const panel = this;
-            panel.$.meshOptimizerSACheckbox.addEventListener('change', panel.setMeshOptimizerOptions.bind(panel, 'sa'));
-        },
-        update() {
-            const panel = this;
-
-            panel.$.meshOptimizerSACheckbox.value = panel.getDefault(panel.meta.userData.meshOptimizerOptions, false, 'sa');
-
-            panel.updateMeshOptimizerInvalid(panel.$.meshOptimizerSACheckbox, 'sa');
-            panel.updateReadonly(panel.$.meshOptimizerSACheckbox);
-        },
-    },
-    kn: {
-        ready() {
-            const panel = this;
-            panel.$.meshOptimizerKNCheckbox.addEventListener('change', panel.setMeshOptimizerOptions.bind(panel, 'kn'));
-            panel.$.meshOptimizerKNCheckbox.addEventListener('change', (event) => {
-                panel.metaList.forEach((meta) => {
-                    meta.userData.meshOptimizerOptions.kn = event.target.value;
-                });
-                panel.dispatch('change');
+            panel.$.disableMeshSplitCheckbox.addEventListener('change', panel.setProp.bind(panel, 'disableMeshSplit', 'boolean'));
+            panel.$.disableMeshSplitCheckbox.addEventListener('confirm', () => {
+                panel.dispatch('snapshot');
             });
         },
         update() {
             const panel = this;
 
-            panel.$.meshOptimizerKNCheckbox.value = panel.getDefault(panel.meta.userData.meshOptimizerOptions, false, 'kn');
+            panel.$.disableMeshSplitCheckbox.value = getPropValue.call(panel, panel.meta.userData.disableMeshSplit, true);
 
-            panel.updateMeshOptimizerInvalid(panel.$.meshOptimizerKNCheckbox, 'kn');
-            panel.updateReadonly(panel.$.meshOptimizerKNCheckbox);
+            updateElementInvalid.call(panel, panel.$.disableMeshSplitCheckbox, 'disableMeshSplit');
+            updateElementReadonly.call(panel, panel.$.disableMeshSplitCheckbox);
+        },
+    },
+    allowMeshDataAccess: {
+        ready() {
+            const panel = this;
+
+            panel.$.allowMeshDataAccessCheckbox.addEventListener('change', panel.setProp.bind(panel, 'allowMeshDataAccess', 'boolean'));
+            panel.$.allowMeshDataAccessCheckbox.addEventListener('confirm', () => {
+                panel.dispatch('snapshot');
+            });
+        },
+        update() {
+            const panel = this;
+
+            panel.$.allowMeshDataAccessCheckbox.value = getPropValue.call(panel, panel.meta.userData.allowMeshDataAccess, true);
+
+            updateElementInvalid.call(panel, panel.$.allowMeshDataAccessCheckbox, 'allowMeshDataAccess');
+            updateElementReadonly.call(panel, panel.$.allowMeshDataAccessCheckbox);
+        },
+    },
+    // move this from ./fbx.js in v3.6.0
+    promoteSingleRootNode: {
+        ready() {
+            const panel = this;
+
+            panel.$.promoteSingleRootNodeCheckbox.addEventListener('change', panel.setProp.bind(panel, 'promoteSingleRootNode', 'boolean'));
+            panel.$.promoteSingleRootNodeCheckbox.addEventListener('confirm', () => {
+                panel.dispatch('snapshot');
+            });
+        },
+        update() {
+            const panel = this;
+
+            let defaultValue = false;
+            if (panel.meta.userData) {
+                defaultValue = getPropValue.call(panel, panel.meta.userData.promoteSingleRootNode, defaultValue);
+            }
+
+            panel.$.promoteSingleRootNodeCheckbox.value = defaultValue;
+
+            updateElementInvalid.call(panel, panel.$.promoteSingleRootNodeCheckbox, 'promoteSingleRootNode');
+            updateElementReadonly.call(panel, panel.$.promoteSingleRootNodeCheckbox);
+        },
+    },
+    // move this from ./fbx.js in v3.6.0
+    generateLightmapUVNode: {
+        ready() {
+            const panel = this;
+
+            panel.$.generateLightmapUVNodeCheckbox.addEventListener('change', panel.setProp.bind(panel, 'generateLightmapUVNode', 'boolean'));
+            panel.$.generateLightmapUVNodeCheckbox.addEventListener('confirm', () => {
+                panel.dispatch('snapshot');
+            });
+        },
+        update() {
+            const panel = this;
+
+            let defaultValue = false;
+            if (panel.meta.userData) {
+                defaultValue = getPropValue.call(panel, panel.meta.userData.generateLightmapUVNode, defaultValue);
+            }
+
+            panel.$.generateLightmapUVNodeCheckbox.value = defaultValue;
+
+            updateElementInvalid.call(panel, panel.$.generateLightmapUVNodeCheckbox, 'generateLightmapUVNode');
+            updateElementReadonly.call(panel, panel.$.generateLightmapUVNodeCheckbox);
+        },
+    },
+
+    meshOptimizer: {
+        ready() {
+            const panel = this;
+
+            panel.$.meshOptimizerCheckbox.addEventListener('change', panel.setProp.bind(panel, 'meshOptimizer.enable', 'boolean'));
+            panel.$.meshOptimizerCheckbox.addEventListener('confirm', () => {
+                panel.dispatch('snapshot');
+            });
+        },
+        update() {
+            const panel = this;
+
+            panel.$.meshOptimizerCheckbox.value = getPropValue.call(panel, panel.meta.userData.meshOptimizer, false, 'enable');
+
+            updateElementInvalid.call(panel, panel.$.meshOptimizerCheckbox, 'meshOptimizer.enable');
+            updateElementReadonly.call(panel, panel.$.meshOptimizerCheckbox);
+        },
+    },
+    meshOptimizerAlgorithm: {
+        ready() {
+            const panel = this;
+
+            panel.$.meshOptimizerAlgorithmSelect.addEventListener('change', (event) => {
+                panel.setProp.call(panel, 'meshOptimizer.algorithm', 'string', event);
+                Elements.meshOptimizerAlgorithm.update.call(panel);
+            });
+            panel.$.meshOptimizerAlgorithmSelect.addEventListener('confirm', () => {
+                panel.dispatch('snapshot');
+            });
+        },
+        update() {
+            const panel = this;
+
+            let optionsHtml = '';
+            const types = ['simplify', 'gltfpack'];
+            types.forEach((type) => {
+                optionsHtml += `<option value="${type}">${panel.t(`meshOptimizer.algorithm.${type}`)}</option>`;
+            });
+            panel.$.meshOptimizerAlgorithmSelect.innerHTML = optionsHtml;
+
+            const defaultValue = 'simplify';
+            panel.$.meshOptimizerAlgorithmSelect.value = getPropValue.call(panel, panel.meta.userData.meshOptimizer, defaultValue, 'algorithm');
+
+            updateElementInvalid.call(panel, panel.$.meshOptimizerAlgorithmSelect, 'meshOptimizer.algorithm');
+            updateElementReadonly.call(panel, panel.$.meshOptimizerAlgorithmSelect);
+
+            if (panel.$.meshOptimizerAlgorithmSelect.value === defaultValue) {
+                panel.$.meshOptimizerGltfpackOptions.setAttribute('hidden', '');
+                panel.$.meshOptimizerSimplifyOptions.removeAttribute('hidden');
+            } else {
+                panel.$.meshOptimizerGltfpackOptions.removeAttribute('hidden');
+                panel.$.meshOptimizerSimplifyOptions.setAttribute('hidden', '');
+            }
+
+            if (panel.$.meshOptimizerAlgorithmSelect.hasAttribute('invalid')) {
+                panel.$.meshOptimizerGltfpackOptions.setAttribute('hidden', '');
+                panel.$.meshOptimizerSimplifyOptions.setAttribute('hidden', '');
+            }
+        },
+    },
+    // gltfpackOptions start
+    si: {
+        ready() {
+            const panel = this;
+            panel.$.meshOptimizerSISlider.addEventListener('change', panel.setProp.bind(panel, 'meshOptimizer.gltfpackOptions.si', 'number'));
+            panel.$.meshOptimizerSISlider.addEventListener('confirm', () => {
+                panel.dispatch('snapshot');
+            });
+        },
+        update() {
+            const panel = this;
+
+            panel.$.meshOptimizerSISlider.value = getPropValue.call(panel, panel.meta.userData, 1, 'meshOptimizer.gltfpackOptions.si');
+
+            updateElementInvalid.call(panel, panel.$.meshOptimizerSISlider, 'meshOptimizer.gltfpackOptions.si');
+            updateElementReadonly.call(panel, panel.$.meshOptimizerSISlider, true);
+        },
+    },
+    sa: {
+        ready() {
+            const panel = this;
+            panel.$.meshOptimizerSACheckbox.addEventListener('change', panel.setProp.bind(panel, 'meshOptimizer.gltfpackOptions.sa', 'boolean'));
+            panel.$.meshOptimizerSACheckbox.addEventListener('confirm', () => {
+                panel.dispatch('snapshot');
+            });
+        },
+        update() {
+            const panel = this;
+
+            panel.$.meshOptimizerSACheckbox.value = getPropValue.call(panel, panel.meta.userData, false, 'meshOptimizer.gltfpackOptions.sa');
+
+            updateElementInvalid.call(panel, panel.$.meshOptimizerSACheckbox, 'meshOptimizer.gltfpackOptions.sa');
+            updateElementReadonly.call(panel, panel.$.meshOptimizerSACheckbox, true);
+        },
+    },
+    kn: {
+        ready() {
+            const panel = this;
+            panel.$.meshOptimizerKNCheckbox.addEventListener('change', panel.setProp.bind(panel, 'meshOptimizer.gltfpackOptions.kn', 'boolean'));
+            panel.$.meshOptimizerKNCheckbox.addEventListener('confirm', () => {
+                panel.dispatch('snapshot');
+            });
+        },
+        update() {
+            const panel = this;
+
+            panel.$.meshOptimizerKNCheckbox.value = getPropValue.call(panel, panel.meta.userData, false, 'meshOptimizer.gltfpackOptions.kn');
+
+            updateElementInvalid.call(panel, panel.$.meshOptimizerKNCheckbox, 'meshOptimizer.gltfpackOptions.kn');
+            updateElementReadonly.call(panel, panel.$.meshOptimizerKNCheckbox, true);
         },
     },
     ke: {
         ready() {
             const panel = this;
-            panel.$.meshOptimizerKECheckbox.addEventListener('change', panel.setMeshOptimizerOptions.bind(panel, 'ke'));
+            panel.$.meshOptimizerKECheckbox.addEventListener('change', panel.setProp.bind(panel, 'meshOptimizer.gltfpackOptions.ke', 'boolean'));
+            panel.$.meshOptimizerKECheckbox.addEventListener('confirm', () => {
+                panel.dispatch('snapshot');
+            });
         },
         update() {
             const panel = this;
 
-            panel.$.meshOptimizerKECheckbox.value = panel.getDefault(panel.meta.userData.meshOptimizerOptions, false, 'ke');
+            panel.$.meshOptimizerKECheckbox.value = getPropValue.call(panel, panel.meta.userData, false, 'meshOptimizer.gltfpackOptions.ke');
 
-            panel.updateMeshOptimizerInvalid(panel.$.meshOptimizerKECheckbox, 'ke');
-            panel.updateReadonly(panel.$.meshOptimizerKECheckbox);
+            updateElementInvalid.call(panel, panel.$.meshOptimizerKECheckbox, 'meshOptimizer.gltfpackOptions.ke');
+            updateElementReadonly.call(panel, panel.$.meshOptimizerKECheckbox, true);
         },
     },
     noq: {
         ready() {
             const panel = this;
-            panel.$.meshOptimizerNOQCheckbox.addEventListener('change', panel.setMeshOptimizerOptions.bind(panel, 'noq'));
+
+            panel.$.meshOptimizerNOQCheckbox.addEventListener('change', panel.setProp.bind(panel, 'meshOptimizer.gltfpackOptions.noq', 'boolean'));
+            panel.$.meshOptimizerNOQCheckbox.addEventListener('confirm', () => {
+                panel.dispatch('snapshot');
+            });
         },
         update() {
             const panel = this;
 
-            panel.$.meshOptimizerNOQCheckbox.value = panel.getDefault(panel.meta.userData.meshOptimizerOptions, true, 'noq');
+            panel.$.meshOptimizerNOQCheckbox.value = getPropValue.call(panel, panel.meta.userData, true, 'meshOptimizer.gltfpackOptions.noq');
 
-            panel.updateMeshOptimizerInvalid(panel.$.meshOptimizerNOQCheckbox, 'noq');
-            panel.updateReadonly(panel.$.meshOptimizerNOQCheckbox);
+            updateElementInvalid.call(panel, panel.$.meshOptimizerNOQCheckbox, 'meshOptimizer.gltfpackOptions.noq');
+            updateElementReadonly.call(panel, panel.$.meshOptimizerNOQCheckbox, true);
         },
     },
     v: {
         ready() {
             const panel = this;
-            panel.$.meshOptimizerVCheckbox.addEventListener('change', panel.setMeshOptimizerOptions.bind(panel, 'v'));
+            panel.$.meshOptimizerVCheckbox.addEventListener('change', panel.setProp.bind(panel, 'meshOptimizer.gltfpackOptions.v', 'boolean'));
+            panel.$.meshOptimizerVCheckbox.addEventListener('confirm', () => {
+                panel.dispatch('snapshot');
+            });
         },
         update() {
             const panel = this;
 
-            panel.$.meshOptimizerVCheckbox.value = panel.getDefault(panel.meta.userData.meshOptimizerOptions, true, 'v');
+            panel.$.meshOptimizerVCheckbox.value = getPropValue.call(panel, panel.meta.userData, true, 'meshOptimizer.gltfpackOptions.v');
 
-            panel.updateMeshOptimizerInvalid(panel.$.meshOptimizerVCheckbox, 'v');
-            panel.updateReadonly(panel.$.meshOptimizerVCheckbox);
+            updateElementInvalid.call(panel, panel.$.meshOptimizerVCheckbox, 'meshOptimizer.gltfpackOptions.v');
+            updateElementReadonly.call(panel, panel.$.meshOptimizerVCheckbox, true);
         },
     },
+    // gltfpackOptions end
+    // simplifyOptions start
+    targetRatio: {
+        ready() {
+            const panel = this;
+            panel.$.meshOptimizerTargetRatioSlider.addEventListener('change', panel.setProp.bind(panel, 'meshOptimizer.simplifyOptions.targetRatio', 'number'));
+            panel.$.meshOptimizerTargetRatioSlider.addEventListener('confirm', () => {
+                panel.dispatch('snapshot');
+            });
+        },
+        update() {
+            const panel = this;
+
+            panel.$.meshOptimizerTargetRatioSlider.value = getPropValue.call(panel, panel.meta.userData, 1, 'meshOptimizer.simplifyOptions.targetRatio');
+
+            updateElementInvalid.call(panel, panel.$.meshOptimizerTargetRatioSlider, 'meshOptimizer.simplifyOptions.targetRatio');
+            updateElementReadonly.call(panel, panel.$.meshOptimizerTargetRatioSlider);
+        },
+    },
+    enableSmartLink: {
+        ready() {
+            const panel = this;
+            panel.$.meshOptimizerEnableSmartLinkCheckbox.addEventListener('change', panel.setProp.bind(panel, 'meshOptimizer.simplifyOptions.enableSmartLink', 'boolean'));
+            panel.$.meshOptimizerEnableSmartLinkCheckbox.addEventListener('confirm', () => {
+                panel.dispatch('snapshot');
+            });
+        },
+        update() {
+            const panel = this;
+
+            panel.$.meshOptimizerEnableSmartLinkCheckbox.value = getPropValue.call(panel, panel.meta.userData, true, 'meshOptimizer.simplifyOptions.enableSmartLink');
+
+            updateElementInvalid.call(panel, panel.$.meshOptimizerEnableSmartLinkCheckbox, 'meshOptimizer.simplifyOptions.enableSmartLink');
+            updateElementReadonly.call(panel, panel.$.meshOptimizerEnableSmartLinkCheckbox);
+        },
+    },
+    agressiveness: {
+        ready() {
+            const panel = this;
+            panel.$.meshOptimizerAgressivenessSlider.addEventListener('change', panel.setProp.bind(panel, 'meshOptimizer.simplifyOptions.agressiveness', 'number'));
+            panel.$.meshOptimizerAgressivenessSlider.addEventListener('confirm', () => {
+                panel.dispatch('snapshot');
+            });
+        },
+        update() {
+            const panel = this;
+
+            panel.$.meshOptimizerAgressivenessSlider.value = getPropValue.call(panel, panel.meta.userData, 1, 'meshOptimizer.simplifyOptions.agressiveness');
+
+            updateElementInvalid.call(panel, panel.$.meshOptimizerAgressivenessSlider, 'meshOptimizer.simplifyOptions.agressiveness');
+            updateElementReadonly.call(panel, panel.$.meshOptimizerAgressivenessSlider);
+        },
+    },
+    maxIterationCount: {
+        ready() {
+            const panel = this;
+            panel.$.meshOptimizerMaxIterationCountSlider.addEventListener('change', panel.setProp.bind(panel, 'meshOptimizer.simplifyOptions.maxIterationCount', 'number'));
+            panel.$.meshOptimizerMaxIterationCountSlider.addEventListener('confirm', () => {
+                panel.dispatch('snapshot');
+            });
+        },
+        update() {
+            const panel = this;
+
+            panel.$.meshOptimizerMaxIterationCountSlider.value = getPropValue.call(panel, panel.meta.userData, 1, 'meshOptimizer.simplifyOptions.maxIterationCount');
+
+            updateElementInvalid.call(panel, panel.$.meshOptimizerMaxIterationCountSlider, 'meshOptimizer.simplifyOptions.maxIterationCount');
+            updateElementReadonly.call(panel, panel.$.meshOptimizerMaxIterationCountSlider);
+        },
+    },
+    // simplifyOptions end
+
+};
+
+exports.methods = {
+    t(key) {
+        return Editor.I18n.t(`ENGINE.assets.fbx.${key}`);
+    },
+    setProp(prop, type, event) {
+        setPropValue.call(this, prop, type, event);
+
+        this.dispatch('change');
+        this.dispatch('track', { tab: 'model', prop, value: event.target.value });
+    },
+};
+
+exports.ready = function() {
+    for (const prop in Elements) {
+        const element = Elements[prop];
+        if (element.ready) {
+            element.ready.call(this);
+        }
+    }
 };
 
 exports.update = function(assetList, metaList) {
@@ -331,15 +628,6 @@ exports.update = function(assetList, metaList) {
     }
 };
 
-exports.ready = function() {
-    for (const prop in Elements) {
-        const element = Elements[prop];
-        if (element.ready) {
-            element.ready.call(this);
-        }
-    }
-};
-
 exports.close = function() {
     for (const prop in Elements) {
         const element = Elements[prop];
@@ -347,80 +635,4 @@ exports.close = function() {
             element.close.call(this);
         }
     }
-};
-
-exports.methods = {
-    setProp(prop, event) {
-        this.metaList.forEach((meta) => {
-            let value = event.target.value;
-            switch (prop) {
-                case 'normals': case 'tangents': case 'morphNormals':
-                    value = Number(value);
-                    break;
-            }
-
-            meta.userData[prop] = value;
-        });
-
-        this.dispatch('change');
-    },
-    setMeshOptimizerOptions(prop, event) {
-        this.metaList.forEach((meta) => {
-            if (!meta.userData.meshOptimizerOptions) {
-                meta.userData.meshOptimizerOptions = {};
-            }
-
-            meta.userData.meshOptimizerOptions[prop] = event.target.value;
-        });
-
-        this.dispatch('change');
-    },
-    updateMeshOptimizerInvalid(element, prop) {
-        const invalid = this.metaList.some((meta) => {
-            if (meta.userData.meshOptimizerOptions === undefined && this.meta.userData.meshOptimizerOptions === undefined) {
-                return false;
-            }
-            if (meta.userData.meshOptimizerOptions && this.meta.userData.meshOptimizerOptions) {
-                return meta.userData.meshOptimizerOptions[prop] !== this.meta.userData.meshOptimizerOptions[prop];
-            }
-            return true;
-        });
-        element.invalid = invalid;
-    },
-    /**
-     * Update whether a data is editable in multi-select state
-     */
-    updateInvalid(element, prop) {
-        const invalid = this.metaList.some((meta) => {
-            return meta.userData[prop] !== this.meta.userData[prop];
-        });
-        element.invalid = invalid;
-    },
-    /**
-     * Update read-only status
-     */
-    updateReadonly(element) {
-        if (this.asset.readonly) {
-            element.setAttribute('disabled', true);
-        } else {
-            element.removeAttribute('disabled');
-        }
-    },
-    t(key) {
-        return Editor.I18n.t(`ENGINE.assets.fbx.${key}`);
-    },
-    getDefault(value, def, prop) {
-        if (value === undefined) {
-            return def;
-        }
-
-        if (prop) {
-            value = value[prop];
-        }
-
-        if (value === undefined) {
-            return def;
-        }
-        return value;
-    },
 };

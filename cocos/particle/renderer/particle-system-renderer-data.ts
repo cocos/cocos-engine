@@ -23,24 +23,24 @@
  THE SOFTWARE.
  */
 
-import { ccclass, tooltip, displayOrder, type, serializable } from 'cc.decorator';
+import { ccclass, tooltip, displayOrder, type, serializable, disallowAnimation, visible } from 'cc.decorator';
 import { Mesh } from '../../3d';
-import { Material, Texture2D } from '../../core/assets';
-import { AlignmentSpace, RenderMode, Space } from '../enum';
+import { Material, Texture2D } from '../../asset/assets';
+import { AlignmentSpace, RenderMode } from '../enum';
 import ParticleSystemRendererCPU from './particle-system-renderer-cpu';
 import ParticleSystemRendererGPU from './particle-system-renderer-gpu';
-import { director } from '../../core/director';
-import { Device, Feature } from '../../core/gfx';
-import { legacyCC } from '../../core/global-exports';
-import { errorID } from '../../core';
+import { director } from '../../game/director';
+import { Device, Format, FormatFeatureBit } from '../../gfx';
+import { errorID, warnID, cclegacy } from '../../core';
 
 function isSupportGPUParticle () {
     const device: Device = director.root!.device;
-    if (device.capabilities.maxVertexTextureUnits >= 8 && device.hasFeature(Feature.TEXTURE_FLOAT)) {
+    if (device.capabilities.maxVertexTextureUnits >= 8 && (device.getFormatFeatures(Format.RGBA32F)
+        & (FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE))) {
         return true;
     }
 
-    legacyCC.warn('Maybe the device has restrictions on vertex textures or does not support float textures.');
+    cclegacy.warn('Maybe the device has restrictions on vertex textures or does not support float textures.');
     return false;
 }
 
@@ -135,6 +135,8 @@ export default class ParticleSystemRenderer {
      */
     @type(Material)
     @displayOrder(8)
+    @disallowAnimation
+    @visible(false)
     @tooltip('i18n:particleSystemRenderer.particleMaterial')
     public get particleMaterial () {
         if (!this._particleSystem) {
@@ -150,10 +152,71 @@ export default class ParticleSystemRenderer {
     }
 
     /**
+     * @en particle cpu material
+     * @zh 粒子使用的cpu材质。
+     */
+    @type(Material)
+    @displayOrder(8)
+    @disallowAnimation
+    @visible(function (this: ParticleSystemRenderer): boolean { return !this._useGPU; })
+    public get cpuMaterial () {
+        return this._cpuMaterial;
+    }
+
+    public set cpuMaterial (val: Material | null) {
+        if (val === null) {
+            return;
+        } else {
+            const effectName = val.effectName;
+            if (effectName.indexOf('particle') === -1 || effectName.indexOf('particle-gpu') !== -1) {
+                warnID(6035);
+                return;
+            }
+        }
+        this._cpuMaterial = val;
+        this.particleMaterial = this._cpuMaterial;
+    }
+
+    @serializable
+    private _cpuMaterial: Material | null = null;
+
+    /**
+     * @en particle gpu material
+     * @zh 粒子使用的gpu材质。
+     */
+    @type(Material)
+    @displayOrder(8)
+    @disallowAnimation
+    @visible(function (this: ParticleSystemRenderer): boolean { return this._useGPU; })
+    public get gpuMaterial () {
+        return this._gpuMaterial;
+    }
+
+    public set gpuMaterial (val: Material | null) {
+        if (val === null) {
+            return;
+        } else {
+            const effectName = val.effectName;
+            if (effectName.indexOf('particle-gpu') === -1) {
+                warnID(6035);
+                return;
+            }
+        }
+        this._gpuMaterial = val;
+        this.particleMaterial = this._gpuMaterial;
+    }
+
+    @serializable
+    private _gpuMaterial: Material | null = null;
+
+    /**
+     * @en particle trail material
      * @zh 拖尾使用的材质。
      */
     @type(Material)
     @displayOrder(9)
+    @disallowAnimation
+    @visible(function (this: ParticleSystemRenderer): boolean { return !this._useGPU; })
     @tooltip('i18n:particleSystemRenderer.trailMaterial')
     public get trailMaterial () {
         if (!this._particleSystem) {
@@ -208,6 +271,7 @@ export default class ParticleSystemRenderer {
      */
     @type(AlignmentSpace)
     @displayOrder(10)
+    @tooltip('i18n:particle_system.alignSpace')
     public get alignSpace () {
         return this._alignSpace;
     }
@@ -236,13 +300,22 @@ export default class ParticleSystemRenderer {
 
     onInit (ps) {
         this.create(ps);
+        const useGPU = this._useGPU && isSupportGPUParticle();
         if (!this._particleSystem.processor) {
-            const useGPU = this._useGPU && isSupportGPUParticle();
             this._particleSystem.processor = useGPU ? new ParticleSystemRendererGPU(this) : new ParticleSystemRendererCPU(this);
             this._particleSystem.processor.updateAlignSpace(this.alignSpace);
             this._particleSystem.processor.onInit(ps);
         } else {
             errorID(6034);
+        }
+        if (!useGPU) {
+            if (this.particleMaterial && this.particleMaterial.effectName.indexOf('particle-gpu') !== -1) {
+                this.particleMaterial = null;
+                warnID(6035);
+            }
+            this.cpuMaterial = this.particleMaterial;
+        } else {
+            this.gpuMaterial = this.particleMaterial;
         }
     }
 
@@ -255,7 +328,15 @@ export default class ParticleSystemRenderer {
             this._particleSystem.processor.clear();
             this._particleSystem.processor = null!;
         }
-        this._particleSystem.processor = this._useGPU ? new ParticleSystemRendererGPU(this) : new ParticleSystemRendererCPU(this);
+        const useGPU = this._useGPU && isSupportGPUParticle();
+        if (!useGPU && this.cpuMaterial) {
+            this.particleMaterial = this.cpuMaterial;
+        }
+        if (useGPU && this.gpuMaterial) {
+            this.particleMaterial = this.gpuMaterial;
+        }
+        this._particleSystem.processor = useGPU ? new ParticleSystemRendererGPU(this) : new ParticleSystemRendererCPU(this);
+        this._particleSystem.processor.updateAlignSpace(this.alignSpace);
         this._particleSystem.processor.onInit(this._particleSystem);
         this._particleSystem.processor.onEnable();
         this._particleSystem.bindModule();

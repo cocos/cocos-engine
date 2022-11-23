@@ -22,33 +22,33 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-/**
- * @packageDocumentation
- * @hidden
- */
+
 import { JSB } from 'internal:constants';
-import { Camera, Model } from 'cocos/core/renderer/scene';
-import { UIStaticBatch } from '../components';
-import { Material } from '../../core/assets/material';
-import { RenderRoot2D, Renderable2D, UIComponent } from '../framework';
+import { Camera, Model } from '../../render-scene/scene';
+import type { UIStaticBatch } from '../components/ui-static-batch';
+import { Material } from '../../asset/assets/material';
+import { RenderRoot2D, UIRenderer } from '../framework';
 import { Texture, Device, Attribute, Sampler, DescriptorSetInfo, Buffer,
-    BufferInfo, BufferUsageBit, MemoryUsageBit, DescriptorSet } from '../../core/gfx';
-import { Pool, RecyclePool } from '../../core/memop';
-import { CachedArray } from '../../core/memop/cached-array';
-import { RenderScene } from '../../core/renderer/scene/render-scene';
-import { Root } from '../../core/root';
-import { Node } from '../../core/scene-graph';
-import { MeshBuffer } from './mesh-buffer';
+    BufferInfo, BufferUsageBit, MemoryUsageBit, DescriptorSet, InputAssembler, deviceManager, PrimitiveMode } from '../../gfx';
+import { CachedArray, Pool, Mat4, cclegacy, assertIsTrue } from '../../core';
+import { Root } from '../../root';
+import { Node } from '../../scene-graph';
 import { Stage, StencilManager } from './stencil-manager';
-import { DrawBatch2D, DrawCall } from './draw-batch';
-import * as VertexFormat from './vertex-format';
-import { legacyCC } from '../../core/global-exports';
-import { ModelLocalBindings, UBOLocal } from '../../core/pipeline/define';
+import { DrawBatch2D } from './draw-batch';
+import { ModelLocalBindings, UBOLocal } from '../../rendering/define';
 import { SpriteFrame } from '../assets';
-import { TextureBase } from '../../core/assets/texture-base';
-import { sys } from '../../core/platform/sys';
-import { Mat4 } from '../../core/math';
+import { TextureBase } from '../../asset/assets/texture-base';
 import { IBatcher } from './i-batcher';
+import { StaticVBAccessor } from './static-vb-accessor';
+import { getAttributeStride, vfmt, vfmtPosUvColor } from './vertex-format';
+import { updateOpacity } from '../assembler/utils';
+import { BaseRenderData, MeshRenderData } from './render-data';
+import { UIMeshRenderer } from '../components/ui-mesh-renderer';
+import { NativeBatcher2d, NativeUIMeshBuffer } from './native-2d';
+import { MeshBuffer } from './mesh-buffer';
+import { scene } from '../../render-scene';
+import { builtinResMgr } from '../../asset/asset-manager';
+import { RenderingSubMesh } from '../../asset/assets';
 
 const _dsInfo = new DescriptorSetInfo(null!);
 const m4_1 = new Mat4();
@@ -58,69 +58,20 @@ const m4_1 = new Mat4();
  * UI 渲染流程
  */
 export class Batcher2D implements IBatcher {
-    get currBufferBatch () {
-        if (this._currMeshBuffer) return this._currMeshBuffer;
-        // create if not set
-        this._currMeshBuffer = this.acquireBufferBatch();
-        return this._currMeshBuffer;
+    protected declare _nativeObj: NativeBatcher2d;
+    public get nativeObj (): NativeBatcher2d  {
+        return this._nativeObj;
     }
 
-    set currBufferBatch (buffer: MeshBuffer | null) {
-        if (buffer) {
-            this._currMeshBuffer = buffer;
-        }
+    get currBufferAccessor () {
+        if (this._staticVBBuffer) return this._staticVBBuffer;
+        // create if not set
+        this._staticVBBuffer = this.switchBufferAccessor();
+        return this._staticVBBuffer;
     }
 
     get batches () {
         return this._batches;
-    }
-
-    /**
-     * Acquire a new mesh buffer if the vertex layout differs from the current one.
-     * @param attributes
-     */
-    public acquireBufferBatch (attributes: Attribute[] = VertexFormat.vfmtPosUvColor) {
-        const strideBytes = attributes === VertexFormat.vfmtPosUvColor ? 36 /* 9x4 */ : VertexFormat.getAttributeStride(attributes);
-        if (!this._currMeshBuffer || (this._currMeshBuffer.vertexFormatBytes) !== strideBytes) {
-            this._requireBufferBatch(attributes);
-            return this._currMeshBuffer;
-        }
-        return this._currMeshBuffer;
-    }
-
-    public registerCustomBuffer (attributes: MeshBuffer | Attribute[], callback: ((...args: number[]) => void) | null) {
-        let batch: MeshBuffer;
-        if (attributes instanceof MeshBuffer) {
-            batch = attributes;
-        } else {
-            batch = this._bufferBatchPool.add();
-            batch.initialize(attributes, callback || this._recreateMeshBuffer.bind(this, attributes));
-        }
-        const strideBytes = batch.vertexFormatBytes;
-        let buffers = this._customMeshBuffers.get(strideBytes);
-        if (!buffers) { buffers = []; this._customMeshBuffers.set(strideBytes, buffers); }
-        buffers.push(batch);
-        return batch;
-    }
-
-    public unRegisterCustomBuffer (buffer: MeshBuffer) {
-        const buffers = this._customMeshBuffers.get(buffer.vertexFormatBytes);
-        if (buffers) {
-            for (let i = 0; i < buffers.length; i++) {
-                if (buffers[i] === buffer) {
-                    buffers.splice(i, 1);
-                    break;
-                }
-            }
-        }
-
-        // release the buffer to recycle pool --
-        const idx = this._bufferBatchPool.data.indexOf(buffer);
-        if (idx !== -1) {
-            buffer.reset();
-            this._bufferBatchPool.removeAt(idx);
-        }
-        // ---
     }
 
     set currStaticRoot (value: UIStaticBatch | null) {
@@ -133,41 +84,53 @@ export class Batcher2D implements IBatcher {
 
     public device: Device;
     private _screens: RenderRoot2D[] = [];
+    private _staticVBBuffer: StaticVBAccessor | null = null;
+    private _bufferAccessors: Map<number, StaticVBAccessor> = new Map();
+
     private _drawBatchPool: Pool<DrawBatch2D>;
-
-    private _bufferBatchPool: RecyclePool<MeshBuffer> = new RecyclePool(() => new MeshBuffer(this), 128);
-    private _meshBuffers: Map<number, MeshBuffer[]> = new Map();
-    private _customMeshBuffers: Map<number, MeshBuffer[]> = new Map();
-    private _meshBufferUseCount: Map<number, number> = new Map();
-
     private _batches: CachedArray<DrawBatch2D>;
+    private _currBID = -1;
+    private _indexStart = 0;
+
     private _emptyMaterial = new Material();
-    private _currScene: RenderScene | null = null;
+    private _currRenderData: BaseRenderData | null = null;
     private _currMaterial: Material = this._emptyMaterial;
     private _currTexture: Texture | null = null;
     private _currSampler: Sampler | null = null;
-    private _currMeshBuffer: MeshBuffer | null = null;
     private _currStaticRoot: UIStaticBatch | null = null;
-    private _currComponent: Renderable2D | null = null;
+    private _currComponent: UIRenderer | null = null;
     private _currTransform: Node | null = null;
     private _currTextureHash = 0;
     private _currSamplerHash = 0;
-    private _currBlendTargetHash = 0;
     private _currLayer = 0;
     private _currDepthStencilStateStage: any | null = null;
     private _currIsStatic = false;
-    private _currOpacity = 1;
+    private _currHash = 0;
 
-    private _currBatch!: DrawBatch2D;
+    //for middleware
+    private _currIsMiddleware = false;
+    private _middlewareEnableBatch = false;
+    private _middlewareBuffer: MeshBuffer | null = null;
+    private _middlewareIndexStart = 0;
+    private _middlewareIndexCount = 0;
+
+    private _pOpacity = 1;
+    private _opacityDirty = 0;
 
     // DescriptorSet Cache Map
     private _descriptorSetCache = new DescriptorSetCache();
 
+    private _meshDataArray :MeshRenderData[] = [];
+
+    // mask use
+    private _maskClearModel :Model | null = null;
+    private _maskClearMtl :Material | null = null;
+    private _maskModelMesh :RenderingSubMesh | null = null;
+
     constructor (private _root: Root) {
         this.device = _root.device;
         this._batches = new CachedArray(64);
-        this._drawBatchPool = new Pool(() => new DrawBatch2D(), 128);
-        this._currBatch = this._drawBatchPool.alloc();
+        this._drawBatchPool = new Pool(() => new DrawBatch2D(), 128, (obj) => obj.destroy(this));
     }
 
     public initialize () {
@@ -182,24 +145,36 @@ export class Batcher2D implements IBatcher {
         }
         this._batches.destroy();
 
-        for (const size of this._meshBuffers.keys()) {
-            const buffers = this._meshBuffers.get(size);
-            if (buffers) {
-                buffers.forEach((buffer) => buffer.destroy());
-            }
-        }
+        this._bufferAccessors.forEach((accessor: StaticVBAccessor) => {
+            accessor.destroy();
+        });
+        this._bufferAccessors.clear();
 
         if (this._drawBatchPool) {
-            this._drawBatchPool.destroy((obj) => {
-                obj.destroy(this);
-            });
+            this._drawBatchPool.destroy();
         }
 
         this._descriptorSetCache.destroy();
 
-        this._meshBuffers.clear();
-
         StencilManager.sharedManager!.destroy();
+
+        if (this._maskClearModel && this._maskModelMesh) {
+            cclegacy.director.root.destroyModel(this._maskClearModel);
+            this._maskModelMesh.destroy();
+        }
+        if (this._maskClearMtl) {
+            this._maskClearMtl.destroy();
+        }
+    }
+
+    private syncRootNodesToNative () {
+        if (JSB) {
+            const rootNodes: Node[] = [];
+            for (const screen of this._screens) {
+                rootNodes.push(screen.node);
+            }
+            this._nativeObj.syncRootNodesToNative(rootNodes);
+        }
     }
 
     /**
@@ -209,11 +184,40 @@ export class Batcher2D implements IBatcher {
      * @zh
      * 添加屏幕组件管理。
      *
-     * @param comp - 屏幕组件。
+     * @param comp @en The render root of 2d.
+     *             @zh 2d 渲染入口组件。
      */
     public addScreen (comp: RenderRoot2D) {
         this._screens.push(comp);
         this._screens.sort(this._screenSort);
+        if (JSB) {
+            this.syncRootNodesToNative();
+        }
+    }
+
+    /**
+     * @zh
+     * Removes the Canvas from the list.
+     *
+     * @param comp @en The target to removed.
+     *             @zh 被移除的屏幕。
+     */
+    public removeScreen (comp: RenderRoot2D) {
+        const idx = this._screens.indexOf(comp);
+        if (idx === -1) {
+            return;
+        }
+        this._screens.splice(idx, 1);
+        if (JSB) {
+            this.syncRootNodesToNative();
+        }
+    }
+
+    public sortScreens () {
+        this._screens.sort(this._screenSort);
+        if (JSB) {
+            this.syncRootNodesToNative();
+        }
     }
 
     public getFirstRenderCamera (node: Node): Camera | null {
@@ -229,73 +233,57 @@ export class Batcher2D implements IBatcher {
         return null;
     }
 
-    /**
-     * @zh
-     * Removes the Canvas from the list.
-     *
-     * @param comp - 被移除的屏幕。
-     */
-    public removeScreen (comp: RenderRoot2D) {
-        const idx = this._screens.indexOf(comp);
-        if (idx === -1) {
+    public update () {
+        if (JSB) {
             return;
         }
-
-        this._screens.splice(idx, 1);
-    }
-
-    public sortScreens () {
-        this._screens.sort(this._screenSort);
-    }
-
-    public update () {
         const screens = this._screens;
+        let offset = 0;
         for (let i = 0; i < screens.length; ++i) {
             const screen = screens[i];
-            if (!screen.enabledInHierarchy) {
+            const scene = screen._getRenderScene();
+            if (!screen.enabledInHierarchy || !scene) {
                 continue;
             }
-            this._currOpacity = 1;
-            this._recursiveScreenNode(screen.node);
-        }
+            // Reset state and walk
+            this._opacityDirty = 0;
+            this._pOpacity = 1;
 
-        let batchPriority = 0;
-        if (this._batches.length) {
-            for (let i = 0; i < this._batches.length; ++i) {
-                const batch = this._batches.array[i];
-                if (!batch.renderScene) continue;
+            this.walk(screen.node);
 
-                if (batch.model) {
-                    const subModels = batch.model.subModels;
-                    for (let j = 0; j < subModels.length; j++) {
-                        subModels[j].priority = batchPriority++;
+            this.autoMergeBatches(this._currComponent!);
+            this.resetRenderStates();
+
+            let batchPriority = 0;
+            if (this._batches.length > offset) {
+                for (; offset < this._batches.length; ++offset) {
+                    const batch = this._batches.array[offset];
+
+                    if (batch.model) {
+                        const subModels = batch.model.subModels;
+                        for (let j = 0; j < subModels.length; j++) {
+                            subModels[j].priority = batchPriority++;
+                        }
+                    } else {
+                        batch.descriptorSet = this._descriptorSetCache.getDescriptorSet(batch);
                     }
-                } else {
-                    for (let i = 0; i < batch.drawCalls.length; i++) {
-                        batch.drawCalls[i].descriptorSet = this._descriptorSetCache.getDescriptorSet(batch, batch.drawCalls[i]);
-                    }
+                    scene.addBatch(batch);
                 }
-                batch.renderScene.addBatch(batch);
             }
         }
     }
 
     public uploadBuffers () {
-        if (this._batches.length > 0) {
-            const buffers = this._meshBuffers;
-            buffers.forEach((value, key) => {
-                value.forEach((bb) => {
-                    bb.uploadBuffers();
-                    bb.reset();
-                });
+        if (JSB) {
+            this._nativeObj.uploadBuffers();
+        } else if (this._batches.length > 0) {
+            this._meshDataArray.forEach((rd) => {
+                rd.uploadBuffers();
             });
 
-            const customs = this._customMeshBuffers;
-            customs.forEach((value, key) => {
-                value.forEach((bb) => {
-                    bb.uploadBuffers();
-                    bb.reset();
-                });
+            this._bufferAccessors.forEach((accessor: StaticVBAccessor) => {
+                accessor.uploadBuffers();
+                accessor.reset();
             });
 
             this._descriptorSetCache.update();
@@ -303,30 +291,75 @@ export class Batcher2D implements IBatcher {
     }
 
     public reset () {
-        for (let i = 0; i < this._batches.length; ++i) {
-            const batch = this._batches.array[i];
-            if (batch.isStatic) {
-                continue;
+        if (JSB) {
+            this._nativeObj.reset();
+        } else {
+            for (let i = 0; i < this._batches.length; ++i) {
+                const batch = this._batches.array[i];
+                if (batch.isStatic) {
+                    continue;
+                }
+
+                batch.clear();
+                this._drawBatchPool.free(batch);
+            }
+            // Reset buffer accessors
+            this._bufferAccessors.forEach((accessor: StaticVBAccessor) => {
+                accessor.reset();
+            });
+            this._meshDataArray.forEach((rd) => {
+                rd.freeIAPool();
+            });
+            this._meshDataArray.length = 0;
+            this._staticVBBuffer = null;
+
+            this._currBID = -1;
+            this._indexStart = 0;
+            this._currHash = 0;
+            this._currLayer = 0;
+            this._currRenderData = null;
+            this._currMaterial = this._emptyMaterial;
+            this._currTexture = null;
+            this._currSampler = null;
+            this._currComponent = null;
+            this._currTransform = null;
+            this._batches.clear();
+            StencilManager.sharedManager!.reset();
+        }
+    }
+
+    /**
+     * @zh 如果有必要，为相应的顶点布局切换网格缓冲区。
+     * @en Switch the mesh buffer for corresponding vertex layout if necessary.
+     * @param attributes use VertexFormat.vfmtPosUvColor by default
+     */
+    public switchBufferAccessor (attributes: Attribute[] = vfmtPosUvColor) {
+        const strideBytes = attributes === vfmtPosUvColor ? 36 /* 9x4 */ : getAttributeStride(attributes);
+        // If current accessor not compatible with the requested attributes
+        if (!this._staticVBBuffer || (this._staticVBBuffer.vertexFormatBytes) !== strideBytes) {
+            let accessor = this._bufferAccessors.get(strideBytes);
+            if (!accessor) {
+                accessor = new StaticVBAccessor(this.device, attributes);
+                this._bufferAccessors.set(strideBytes, accessor);
             }
 
-            batch.clear();
-            this._drawBatchPool.free(batch);
+            this._staticVBBuffer = accessor;
+            this._currBID = -1;
         }
-        DrawBatch2D.drawcallPool.reset();
+        return this._staticVBBuffer;
+    }
 
-        this._currLayer = 0;
-        this._currMaterial = this._emptyMaterial;
-        this._currTexture = null;
-        this._currSampler = null;
-        this._currComponent = null;
-        this._currTransform = null;
-        this._currScene = null;
-        this._currMeshBuffer = null;
-        this._currOpacity = 1;
-        this._meshBufferUseCount.clear();
-        this._batches.clear();
-        StencilManager.sharedManager!.reset();
-        this._descriptorSetCache.reset();
+    public registerBufferAccessor (key: number, accessor: StaticVBAccessor) {
+        this._bufferAccessors.set(key, accessor);
+    }
+
+    public updateBuffer (attributes: Attribute[], bid: number) {
+        const accessor = this.switchBufferAccessor(attributes);
+        // If accessor changed, then current bid will be reset to -1, this check will pass too
+        if (this._currBID !== bid) {
+            this._currBID = bid;
+            this._indexStart = accessor.getMeshBuffer(bid).indexOffset;
+        }
     }
 
     /**
@@ -339,55 +372,151 @@ export class Batcher2D implements IBatcher {
      * UI 渲染组件数据提交流程（针对提交的顶点数据是世界坐标的提交流程，例如：除 Graphics 和 UIModel 的大部分 ui 组件）。
      * 此处的数据最终会生成需要提交渲染的 model 数据。
      *
-     * @param comp - 当前执行组件。
-     * @param frame - 当前执行组件贴图。
-     * @param assembler - 当前组件渲染数据组装器。
+     * @param comp - The committed renderable component
+     * @param renderData - The render data being committed
+     * @param frame - Texture or sprite frame related to the draw batch, could be null
+     * @param assembler - The assembler for the current component, could be null
+     * @param transform - Node type transform, if passed, then batcher will consider it's using model matrix, could be null
      */
-    public commitComp (comp: Renderable2D, frame: TextureBase | SpriteFrame | null, assembler: any, transform: Node | null) {
-        const renderComp = comp;
-        let texture;
-        let samp;
-        let textureHash = 0;
-        let samplerHash = 0;
-        if (frame) {
-            texture = frame.getGFXTexture();
-            samp = frame.getGFXSampler();
-            textureHash = frame.getHash();
-            samplerHash = samp.hash;
-        } else {
-            texture = null;
-            samp = null;
+    public commitComp (comp: UIRenderer, renderData: BaseRenderData|null, frame: TextureBase|SpriteFrame|null, assembler, transform: Node|null) {
+        let dataHash = 0;
+        let mat;
+        let bufferID = -1;
+        if (renderData && renderData.chunk) {
+            if (!renderData.isValid()) return;
+            dataHash = renderData.dataHash;
+            mat = renderData.material;
+            bufferID = renderData.chunk.bufferId;
         }
+        // Notice: A little hack, if it is for mask, not need update here, while control by stencilManger
+        if (comp.stencilStage === Stage.ENTER_LEVEL || comp.stencilStage === Stage.ENTER_LEVEL_INVERTED) {
+            this._insertMaskBatch(comp);
+        } else {
+            comp.stencilStage = StencilManager.sharedManager!.stage;
+        }
+        const depthStencilStateStage = comp.stencilStage;
 
-        const renderScene = renderComp._getRenderScene();
-        const mat = renderComp.getRenderMaterial(0);
-        renderComp.stencilStage = StencilManager.sharedManager!.stage;
-
-        const blendTargetHash = renderComp.blendHash;
-        const depthStencilStateStage = renderComp.stencilStage;
-
-        if (this._currScene !== renderScene || this._currLayer !== comp.node.layer || this._currMaterial !== mat
-            || this._currBlendTargetHash !== blendTargetHash || this._currDepthStencilStateStage !== depthStencilStateStage
-            || this._currTextureHash !== textureHash || this._currSamplerHash !== samplerHash || this._currTransform !== transform) {
+        if (this._currHash !== dataHash || dataHash === 0 || this._currMaterial !== mat
+            || this._currDepthStencilStateStage !== depthStencilStateStage) {
+            // Merge all previous data to a render batch, and update buffer for next render data
             this.autoMergeBatches(this._currComponent!);
-            this._currBatch = this._drawBatchPool.alloc();
+            if (renderData && !renderData._isMeshBuffer) {
+                this.updateBuffer(renderData.vertexFormat, bufferID);
+            }
 
-            this._currScene = renderScene;
-            this._currComponent = renderComp;
+            this._currRenderData = renderData;
+            this._currHash = renderData ? renderData.dataHash : 0;
+            this._currComponent = comp;
             this._currTransform = transform;
-            this._currMaterial = mat!;
-            this._currTexture = texture;
-            this._currSampler = samp;
-            this._currTextureHash = textureHash;
-            this._currSamplerHash = samplerHash;
-            this._currBlendTargetHash = blendTargetHash;
+            this._currMaterial = comp.getRenderMaterial(0)!;
             this._currDepthStencilStateStage = depthStencilStateStage;
             this._currLayer = comp.node.layer;
+            if (frame) {
+                this._currTexture = frame.getGFXTexture();
+                this._currSampler = frame.getGFXSampler();
+                this._currTextureHash = frame.getHash();
+                this._currSamplerHash = this._currSampler.hash;
+            } else {
+                this._currTexture = null;
+                this._currSampler = null;
+                this._currTextureHash = 0;
+                this._currSamplerHash = 0;
+            }
         }
 
-        if (assembler) {
-            assembler.fillBuffers(renderComp, this);
+        assembler.fillBuffers(comp, this);
+    }
+
+    /**
+     * @en
+     * Render component data submission process for individual [[gfx.InputAssembler]]
+     * @zh
+     * 渲染组件中针对独立 [[gfx.InputAssembler]] 的提交流程
+     * 例如：Spine 和 DragonBones 等包含动态数据和材质的组件在内部管理 IA 并提交批次
+     * @param comp - The committed renderable component
+     * @param ia - The committed [[gfx.InputAssembler]]
+     * @param tex - The texture used
+     * @param mat - The material used
+     * @param [transform] - The related node transform if the render data is based on node's local coordinates
+     * @deprecated since v3.6.2, please use [[commitMiddleware]] instead
+     */
+    public commitIA (renderComp: UIRenderer, ia: InputAssembler, tex?: TextureBase, mat?: Material, transform?: Node) {
+        // if the last comp is spriteComp, previous comps should be batched.
+        if (this._currMaterial !== this._emptyMaterial) {
+            this.autoMergeBatches(this._currComponent!);
+            this.resetRenderStates();
         }
+        let depthStencil;
+        let dssHash = 0;
+        if (renderComp) {
+            renderComp.stencilStage = StencilManager.sharedManager!.stage;
+            if (renderComp.customMaterial !== null) {
+                depthStencil = StencilManager.sharedManager!.getStencilStage(renderComp.stencilStage, mat);
+            } else {
+                depthStencil = StencilManager.sharedManager!.getStencilStage(renderComp.stencilStage);
+            }
+            dssHash = StencilManager.sharedManager!.getStencilHash(renderComp.stencilStage);
+        }
+
+        const curDrawBatch = this._currStaticRoot ? this._currStaticRoot._requireDrawBatch() : this._drawBatchPool.alloc();
+        curDrawBatch.visFlags = renderComp.node.layer;
+        curDrawBatch.inputAssembler = ia;
+        curDrawBatch.useLocalData = transform || null;
+        if (tex) {
+            curDrawBatch.texture = tex.getGFXTexture();
+            curDrawBatch.sampler = tex.getGFXSampler();
+            curDrawBatch.textureHash = tex.getHash();
+            curDrawBatch.samplerHash = curDrawBatch.sampler.hash;
+        }
+        curDrawBatch.fillPasses(mat || null, depthStencil, dssHash, null);
+        this._batches.push(curDrawBatch);
+    }
+
+    /**
+     * @en
+     * Render component data submission process for middleware2d components
+     * @zh
+     * 渲染组件中针对2D中间件组件渲染数据的提交流程
+     * 例如：Spine 和 DragonBones 包含动态数据和材质的组件
+     * @param comp - The committed renderable component
+     * @param meshBuffer - The MeshBuffer used
+     * @param indexOffset - indices offset
+     * @param indexCount - indices count
+     * @param tex - The texture used
+     * @param mat - The material used
+     * @param enableBatch - component support multi draw batch or not
+     */
+    public commitMiddleware (comp: UIRenderer, meshBuffer: MeshBuffer, indexOffset: number,
+        indexCount: number, tex: TextureBase, mat: Material, enableBatch: boolean) {
+        // check if need merge draw batch
+        const texture = tex.getGFXTexture();
+        if (enableBatch && this._middlewareEnableBatch && this._middlewareBuffer === meshBuffer
+            && this._currTexture === texture
+            && this._currMaterial.hash === mat.hash
+            && this._middlewareIndexStart + this._middlewareIndexCount === indexOffset
+            && this._currLayer === comp.node.layer) {
+            this._middlewareIndexCount += indexCount;
+        } else {
+            this.autoMergeBatches(this._currComponent!);
+            this.resetRenderStates();
+
+            this._currComponent = comp;
+            this._currTexture = texture;
+            this._currSampler = tex.getGFXSampler();
+            this._currTextureHash = tex.getHash();
+            this._currLayer = comp.node.layer;
+            this._currSamplerHash = this._currSampler.hash;
+            this._currHash = 0;
+            this._currTransform = enableBatch ? null : comp.node;
+
+            this._middlewareEnableBatch = enableBatch;
+            this._middlewareBuffer = meshBuffer;
+            this._currMaterial = mat;
+            this._middlewareIndexStart = indexOffset;
+            this._middlewareIndexCount = indexCount;
+        }
+
+        this._currIsMiddleware = true;
     }
 
     /**
@@ -399,28 +528,31 @@ export class Batcher2D implements IBatcher {
      * @zh
      * UI 渲染组件数据提交流程（针对例如： Graphics 和 UIModel 等数据量较为庞大的 ui 组件）。
      *
-     * @param comp - 当前执行组件。
-     * @param model - 提交渲染的 model 数据。
-     * @param mat - 提交渲染的材质。
+     * @param comp - The committed renderable component
+     * @param model - The committed model
+     * @param mat - The material used, could be null
      */
-    public commitModel (comp: UIComponent | Renderable2D, model: Model | null, mat: Material | null) {
+    public commitModel (comp: UIMeshRenderer | UIRenderer, model: Model | null, mat: Material | null) {
         // if the last comp is spriteComp, previous comps should be batched.
         if (this._currMaterial !== this._emptyMaterial) {
             this.autoMergeBatches(this._currComponent!);
+            this.resetRenderStates();
         }
 
         let depthStencil;
         let dssHash = 0;
         if (mat) {
-            // Notice: A little hack, if not this two stage, not need update here, while control by stencilManger
-            if (comp.stencilStage === Stage.ENABLED || comp.stencilStage === Stage.DISABLED) {
+            // Notice: A little hack, if it is for mask, not need update here, while control by stencilManger
+            if (comp.stencilStage === Stage.ENTER_LEVEL || comp.stencilStage === Stage.ENTER_LEVEL_INVERTED) {
+                this._insertMaskBatch(comp);
+            } else {
                 comp.stencilStage = StencilManager.sharedManager!.stage;
             }
             depthStencil = StencilManager.sharedManager!.getStencilStage(comp.stencilStage, mat);
             dssHash = StencilManager.sharedManager!.getStencilHash(comp.stencilStage);
         }
 
-        const stamp = legacyCC.director.getTotalFrames();
+        const stamp = cclegacy.director.getTotalFrames();
         if (model) {
             model.updateTransform(stamp);
             model.updateUBOs(stamp);
@@ -429,31 +561,32 @@ export class Batcher2D implements IBatcher {
         for (let i = 0; i < model!.subModels.length; i++) {
             const curDrawBatch = this._drawBatchPool.alloc();
             const subModel = model!.subModels[i];
-            curDrawBatch.renderScene = comp._getRenderScene();
             curDrawBatch.visFlags = comp.node.layer;
             curDrawBatch.model = model;
-            curDrawBatch.bufferBatch = null;
             curDrawBatch.texture = null;
             curDrawBatch.sampler = null;
             curDrawBatch.useLocalData = null;
             if (!depthStencil) { depthStencil = null; }
-            curDrawBatch.fillPasses(mat, depthStencil, dssHash, null, 0, subModel.patches, this);
+            curDrawBatch.fillPasses(mat, depthStencil, dssHash, subModel.patches);
             curDrawBatch.inputAssembler = subModel.inputAssembler;
             curDrawBatch.model!.visFlags = curDrawBatch.visFlags;
-            curDrawBatch.fillDrawCallAssembler();
-            curDrawBatch.drawCalls[0].descriptorSet = subModel.descriptorSet;
+            curDrawBatch.descriptorSet = subModel.descriptorSet;
             this._batches.push(curDrawBatch);
         }
+    }
 
-        // reset current render state to null
-        this._currMaterial = this._emptyMaterial;
-        this._currScene = null;
-        this._currComponent = null;
-        this._currTransform = null;
-        this._currTexture = null;
-        this._currSampler = null;
-        this._currTextureHash = 0;
-        this._currLayer = 0;
+    public setupStaticBatch (staticComp: UIStaticBatch, bufferAccessor: StaticVBAccessor) {
+        this.finishMergeBatches();
+        this._staticVBBuffer = bufferAccessor;
+        this.currStaticRoot = staticComp;
+    }
+
+    public endStaticBatch () {
+        this.finishMergeBatches();
+        this.currStaticRoot = null;
+        // Clear linear buffer to switch to the correct internal accessor
+        this._staticVBBuffer = null;
+        this.switchBufferAccessor();
     }
 
     /**
@@ -463,7 +596,8 @@ export class Batcher2D implements IBatcher {
      *
      * @zh
      * 提交独立渲染数据.
-     * @param comp 静态组件
+     * @param comp @en The UIStaticBatch component.
+     *             @zh 静态组件
      */
     public commitStaticBatch (comp: UIStaticBatch) {
         this._batches.concat(comp.drawBatchList);
@@ -477,20 +611,52 @@ export class Batcher2D implements IBatcher {
      * @zh
      * 根据合批条件，结束一段渲染数据并提交。
      */
-    public autoMergeBatches (renderComp?: Renderable2D) {
-        const buffer = this.currBufferBatch;
-        const ia = buffer?.recordBatch();
-        const mat = this._currMaterial;
-        if (!ia || !mat || !buffer) {
+    public autoMergeBatches (renderComp?: UIRenderer) {
+        if (this._currIsMiddleware) {
+            this.mergeBatchesForMiddleware(renderComp!);
             return;
         }
-        let blendState;
+        const mat = this._currMaterial;
+        if (!mat) {
+            return;
+        }
+        let ia;
+        const rd = this._currRenderData as MeshRenderData;
+        const accessor = this._staticVBBuffer;
+        // Previous batch using mesh buffer
+        if (rd && rd._isMeshBuffer) {
+            ia = rd.requestIA(this.device);
+            if (this._meshDataArray.indexOf(rd) === -1) {
+                this._meshDataArray.push(rd);
+            }
+        } else if (accessor) {
+        // Previous batch using static vb buffer
+            const bid = this._currBID;
+            const buf = accessor.getMeshBuffer(bid);
+            if (!buf) {
+                return;
+            }
+            const indexCount = buf.indexOffset - this._indexStart;
+            if (indexCount <= 0) return;
+            assertIsTrue(this._indexStart < buf.indexOffset);
+            buf.setDirty();
+            // Request ia
+            ia = buf.requireFreeIA(this.device);
+            ia.firstIndex = this._indexStart;
+            ia.indexCount = indexCount;
+            // Update index tracker and bid
+            this._indexStart = buf.indexOffset;
+        }
+        this._currBID = -1;
+
+        // Request ia failed
+        if (!ia) {
+            return;
+        }
+
         let depthStencil;
         let dssHash = 0;
-        let bsHash = 0;
         if (renderComp) {
-            blendState = renderComp.blendHash === -1 ? null : renderComp.getBlendState();
-            bsHash = renderComp.blendHash;
             if (renderComp.customMaterial !== null) {
                 depthStencil = StencilManager.sharedManager!.getStencilStage(renderComp.stencilStage, mat);
             } else {
@@ -499,31 +665,47 @@ export class Batcher2D implements IBatcher {
             dssHash = StencilManager.sharedManager!.getStencilHash(renderComp.stencilStage);
         }
 
-        const curDrawBatch = this._currStaticRoot ? this._currStaticRoot._requireDrawBatch() : this._currBatch;
-        curDrawBatch.renderScene = this._currScene;
+        const curDrawBatch = this._currStaticRoot ? this._currStaticRoot._requireDrawBatch() : this._drawBatchPool.alloc();
         curDrawBatch.visFlags = this._currLayer;
-        curDrawBatch.bufferBatch = buffer;
         curDrawBatch.texture = this._currTexture!;
         curDrawBatch.sampler = this._currSampler;
         curDrawBatch.inputAssembler = ia;
         curDrawBatch.useLocalData = this._currTransform;
         curDrawBatch.textureHash = this._currTextureHash;
         curDrawBatch.samplerHash = this._currSamplerHash;
-        curDrawBatch.fillPasses(this._currMaterial, depthStencil, dssHash, blendState, bsHash, null, this);
-        curDrawBatch.fillDrawCallAssembler();
+        curDrawBatch.fillPasses(mat, depthStencil, dssHash, null);
 
         this._batches.push(curDrawBatch);
+    }
 
-        buffer.vertexStart = buffer.vertexOffset;
-        buffer.indicesStart = buffer.indicesOffset;
-        buffer.byteStart = buffer.byteOffset;
-
-        // HACK: After sharing buffer between drawcalls, the performance degradation a lots on iOS 14 or iPad OS 14 device
-        // TODO: Maybe it can be removed after Apple fixes it?
-        // @ts-expect-error Property '__isWebIOS14OrIPadOS14Env' does not exist on 'sys'
-        if (sys.__isWebIOS14OrIPadOS14Env && !this._currIsStatic) {
-            this._currMeshBuffer = null;
+    private mergeBatchesForMiddleware (renderComp: UIRenderer) {
+        let depthStencil;
+        let dssHash = 0;
+        renderComp.stencilStage = StencilManager.sharedManager!.stage;
+        if (renderComp.customMaterial !== null) {
+            depthStencil = StencilManager.sharedManager!.getStencilStage(renderComp.stencilStage, this._currMaterial);
+        } else {
+            depthStencil = StencilManager.sharedManager!.getStencilStage(renderComp.stencilStage);
         }
+        dssHash = StencilManager.sharedManager!.getStencilHash(renderComp.stencilStage);
+
+        const curDrawBatch = this._currStaticRoot ? this._currStaticRoot._requireDrawBatch() : this._drawBatchPool.alloc();
+        curDrawBatch.visFlags = renderComp.node.layer;
+        const ia = this._middlewareBuffer!.requireFreeIA(this.device);
+        ia.firstIndex = this._middlewareIndexStart;
+        ia.indexCount = this._middlewareIndexCount;
+
+        curDrawBatch.inputAssembler = ia;
+        curDrawBatch.useLocalData = this._currTransform;
+        curDrawBatch.texture = this._currTexture;
+        curDrawBatch.sampler = this._currSampler;
+        curDrawBatch.textureHash = this._currTextureHash;
+        curDrawBatch.samplerHash = this._currSamplerHash;
+        curDrawBatch.fillPasses(this._currMaterial || null, depthStencil, dssHash, null);
+        this._batches.push(curDrawBatch);
+
+        this._currIsMiddleware = false;
+        this._middlewareBuffer = null;
     }
 
     /**
@@ -533,10 +715,12 @@ export class Batcher2D implements IBatcher {
      * @zh
      * 强行修改当前批次数据并合并。
      *
-     * @param material - 当前批次的材质。
-     * @param sprite - 当前批次的精灵帧。
+     * @param material @en The material of the current batch.
+     *                 @zh 当前批次的材质。
+     * @param sprite @en Sprite frame of current batch.
+     *               @zh 当前批次的精灵帧。
      */
-    public forceMergeBatches (material: Material, frame: TextureBase | SpriteFrame | null, renderComp: Renderable2D) {
+    public forceMergeBatches (material: Material, frame: TextureBase | SpriteFrame | null, renderComp: UIRenderer) {
         this._currMaterial = material;
 
         if (frame) {
@@ -549,9 +733,19 @@ export class Batcher2D implements IBatcher {
             this._currTextureHash = this._currSamplerHash = 0;
         }
         this._currLayer = renderComp.node.layer;
-        this._currScene = renderComp._getRenderScene();
 
         this.autoMergeBatches(renderComp);
+    }
+
+    public resetRenderStates () {
+        this._currMaterial = this._emptyMaterial;
+        this._currRenderData = null;
+        this._currTexture = null;
+        this._currComponent = null;
+        this._currTransform = null;
+        this._currTextureHash = 0;
+        this._currSamplerHash = 0;
+        this._currLayer = 0;
     }
 
     /**
@@ -563,13 +757,7 @@ export class Batcher2D implements IBatcher {
      */
     public finishMergeBatches () {
         this.autoMergeBatches();
-        this._currMaterial = this._emptyMaterial;
-        this._currTexture = null;
-        this._currComponent = null;
-        this._currTransform = null;
-        this._currTextureHash = 0;
-        this._currSamplerHash = 0;
-        this._currLayer = 0;
+        this.resetRenderStates();
     }
 
     /**
@@ -584,89 +772,169 @@ export class Batcher2D implements IBatcher {
     }
 
     public walk (node: Node, level = 0) {
-        const len = node.children.length;
+        if (!node.activeInHierarchy) {
+            return;
+        }
+        const children = node.children;
+        const uiProps = node._uiProps;
+        const render = uiProps.uiComp as UIRenderer;
 
-        this._preProcess(node);
-        if (len > 0 && !node._static) {
-            const children = node.children;
+        // Save opacity
+        const parentOpacity = this._pOpacity;
+        let opacity = parentOpacity;
+        // TODO Always cascade ui property's local opacity before remove it
+        const selfOpacity = render && render.color ? render.color.a / 255 : 1;
+        this._pOpacity = opacity *= selfOpacity * uiProps.localOpacity;
+        // TODO Set opacity to ui property's opacity before remove it
+        // @ts-expect-error temporary force set, will be removed with ui property's opacity
+        uiProps._opacity = opacity;
+        if (uiProps.colorDirty) {
+            // Cascade color dirty state
+            this._opacityDirty++;
+        }
+
+        // Render assembler update logic
+        if (render && render.enabledInHierarchy) {
+            render.fillBuffers(this);// for rendering
+        }
+
+        // Update cascaded opacity to vertex buffer
+        if (this._opacityDirty && render && !render.useVertexOpacity && render.renderData && render.renderData.vertexCount > 0) {
+            // HARD COUPLING
+            updateOpacity(render.renderData, opacity);
+            const buffer = render.renderData.getMeshBuffer();
+            if (buffer) {
+                buffer.setDirty();
+            }
+        }
+
+        if (children.length > 0 && !node._static) {
             for (let i = 0; i < children.length; ++i) {
-                this._currOpacity = node._uiProps.opacity;
                 const child = children[i];
                 this.walk(child, level);
             }
         }
 
-        this._postProcess(node);
-
-        level += 1;
-    }
-
-    private _preProcess (node: Node) {
-        const render = node._uiProps.uiComp;
-        const localAlpha = node._uiProps.localOpacity;
-        node._uiProps.opacity = this._currOpacity * localAlpha;
-        if (!node._uiProps.uiTransformComp) {
-            return;
+        if (uiProps.colorDirty) {
+            // Reduce cascaded color dirty state
+            this._opacityDirty--;
+            // Reset color dirty
+            uiProps.colorDirty = false;
         }
-        if (render && render.enabledInHierarchy) {
-            render.updateAssembler(this);
-        }
-    }
-
-    private _postProcess (node: Node) {
-        const render = node._uiProps.uiComp;
+        // Restore opacity
+        this._pOpacity = parentOpacity;
+        // Post render assembler update logic
+        // ATTENTION: Will also reset colorDirty inside postUpdateAssembler
         if (render && render.enabledInHierarchy) {
             render.postUpdateAssembler(this);
-        }
-    }
-
-    private _recursiveScreenNode (screen: Node) {
-        this.walk(screen);
-        this.autoMergeBatches(this._currComponent!);
-    }
-
-    private _createMeshBuffer (attributes: Attribute[]): MeshBuffer {
-        const batch = this._bufferBatchPool.add();
-        batch.initialize(attributes, this._recreateMeshBuffer.bind(this, attributes));
-        const strideBytes = VertexFormat.getAttributeStride(attributes);
-        let buffers = this._meshBuffers.get(strideBytes);
-        if (!buffers) { buffers = []; this._meshBuffers.set(strideBytes, buffers); }
-        buffers.push(batch);
-        return batch;
-    }
-
-    private _recreateMeshBuffer (attributes, vertexCount, indexCount) {
-        this.autoMergeBatches();
-        this._requireBufferBatch(attributes, vertexCount, indexCount);
-    }
-
-    private _requireBufferBatch (attributes: Attribute[], vertexCount?: number, indexCount?: number) {
-        const strideBytes = VertexFormat.getAttributeStride(attributes);
-        let buffers = this._meshBuffers.get(strideBytes);
-        if (!buffers) { buffers = []; this._meshBuffers.set(strideBytes, buffers); }
-        let meshBufferUseCount = this._meshBufferUseCount.get(strideBytes) || 0;
-        // @ts-expect-error Property '__isWebIOS14OrIPadOS14Env' does not exist on 'sys'
-        if (vertexCount && indexCount || sys.__isWebIOS14OrIPadOS14Env) {
-            // useCount++ when _recreateMeshBuffer
-            meshBufferUseCount++;
+            if ((render.stencilStage === Stage.ENTER_LEVEL || render.stencilStage === Stage.ENTER_LEVEL_INVERTED)
+            && (StencilManager.sharedManager!.getMaskStackSize() > 0)) {
+                this.autoMergeBatches(this._currComponent!);
+                this.resetRenderStates();
+                StencilManager.sharedManager!.exitMask();
+            }
         }
 
-        this._currMeshBuffer = buffers[meshBufferUseCount];
-        if (!this._currMeshBuffer) {
-            this._currMeshBuffer = this._createMeshBuffer(attributes);
-        }
-        this._meshBufferUseCount.set(strideBytes, meshBufferUseCount);
-        if (vertexCount && indexCount) {
-            this._currMeshBuffer.request(vertexCount, indexCount);
-        }
+        level += 1;
     }
 
     private _screenSort (a: RenderRoot2D, b: RenderRoot2D) {
         return a.node.getSiblingIndex() - b.node.getSiblingIndex();
     }
 
-    private _releaseDescriptorSetCache (textureHash: number) {
-        this._descriptorSetCache.releaseDescriptorSetCache(textureHash);
+    // TODO: Not a good way to do the job
+    private _releaseDescriptorSetCache (textureHash, sampler = null!) {
+        if (JSB) {
+            this._nativeObj.releaseDescriptorSetCache(textureHash, sampler);
+        } else {
+            this._descriptorSetCache.releaseDescriptorSetCache(textureHash);
+        }
+    }
+
+    // Mask use
+    private _createClearModel () {
+        if (!this._maskClearModel) {
+            this._maskClearMtl = builtinResMgr.get<Material>('default-clear-stencil');
+
+            this._maskClearModel = cclegacy.director.root.createModel(scene.Model);
+            const stride = getAttributeStride(vfmt);
+            const gfxDevice: Device = deviceManager.gfxDevice;
+            const vertexBuffer = gfxDevice.createBuffer(new BufferInfo(
+                BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
+                MemoryUsageBit.DEVICE,
+                4 * stride,
+                stride,
+            ));
+
+            const vb = new Float32Array([-1, -1, 0, 1, -1, 0, -1, 1, 0, 1, 1, 0]);
+            vertexBuffer.update(vb);
+            const indexBuffer = gfxDevice.createBuffer(new BufferInfo(
+                BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
+                MemoryUsageBit.DEVICE,
+                6 * Uint16Array.BYTES_PER_ELEMENT,
+                Uint16Array.BYTES_PER_ELEMENT,
+            ));
+
+            const ib = new Uint16Array([0, 1, 2, 2, 1, 3]);
+            indexBuffer.update(ib);
+            this._maskModelMesh = new RenderingSubMesh([vertexBuffer], vfmt, PrimitiveMode.TRIANGLE_LIST, indexBuffer);
+            this._maskModelMesh.subMeshIdx = 0;
+
+            this._maskClearModel!.initSubModel(0, this._maskModelMesh, this._maskClearMtl);
+        }
+    }
+
+    private _insertMaskBatch (comp: UIRenderer | UIMeshRenderer) {
+        this.autoMergeBatches(this._currComponent!);
+        this.resetRenderStates();
+        this._createClearModel();
+        this._maskClearModel!.node = this._maskClearModel!.transform = comp.node;
+        const _stencilManager = StencilManager.sharedManager!;
+        _stencilManager.pushMask(1);//not need object，only use length
+        const stage =  _stencilManager.clear(comp); //invert
+
+        let depthStencil;
+        let dssHash = 0;
+        const mat = this._maskClearMtl;
+        if (mat) {
+            depthStencil = _stencilManager.getStencilStage(stage, mat);
+            dssHash = _stencilManager.getStencilHash(stage);
+        }
+
+        const model = this._maskClearModel!;
+        const stamp = cclegacy.director.getTotalFrames();
+        if (model) {
+            model.updateTransform(stamp);
+            model.updateUBOs(stamp);
+        }
+
+        for (let i = 0; i < model.subModels.length; i++) {
+            const curDrawBatch = this._drawBatchPool.alloc();
+            const subModel = model.subModels[i];
+            curDrawBatch.visFlags = comp.node.layer;
+            curDrawBatch.model = model;
+            curDrawBatch.texture = null;
+            curDrawBatch.sampler = null;
+            curDrawBatch.useLocalData = null;
+            if (!depthStencil) { depthStencil = null; }
+            curDrawBatch.fillPasses(mat, depthStencil, dssHash, subModel.patches);
+            curDrawBatch.inputAssembler = subModel.inputAssembler;
+            curDrawBatch.model.visFlags = curDrawBatch.visFlags;
+            curDrawBatch.descriptorSet = subModel.descriptorSet;
+            this._batches.push(curDrawBatch);
+        }
+        _stencilManager.enableMask();
+    }
+
+    //sync mesh buffer to naive
+    public syncMeshBuffersToNative (accId: number, buffers: MeshBuffer[]) {
+        if (JSB) {
+            const nativeBuffers:NativeUIMeshBuffer[] = [];
+            buffers.forEach((x) => {
+                nativeBuffers.push(x.nativeObj);
+            });
+            this._nativeObj.syncMeshBuffersToNative(accId, nativeBuffers);
+        }
     }
 }
 
@@ -684,7 +952,7 @@ class LocalDescriptorSet  {
     }
 
     constructor () {
-        const device = legacyCC.director.root.device;
+        const device = deviceManager.gfxDevice;
         this._localData = new Float32Array(UBOLocal.COUNT);
         this._localBuffer = device.createBuffer(new BufferInfo(
             BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
@@ -695,17 +963,17 @@ class LocalDescriptorSet  {
     }
 
     public initialize (batch) {
-        const device = legacyCC.director.root.device;
+        const device = deviceManager.gfxDevice;
         this._transform = batch.useLocalData;
         this._textureHash = batch.textureHash;
         this._samplerHash = batch.samplerHash;
         _dsInfo.layout = batch.passes[0].localSetLayout;
-        this._descriptorSet =  device.createDescriptorSet(_dsInfo);
-        this._descriptorSet!.bindBuffer(UBOLocal.BINDING, this._localBuffer!);
+        this._descriptorSet = device.createDescriptorSet(_dsInfo);
+        this._descriptorSet.bindBuffer(UBOLocal.BINDING, this._localBuffer!);
         const binding = ModelLocalBindings.SAMPLER_SPRITE;
-        this._descriptorSet!.bindTexture(binding, batch.texture!);
-        this._descriptorSet!.bindSampler(binding, batch.sampler!);
-        this._descriptorSet!.update();
+        this._descriptorSet.bindTexture(binding, batch.texture!);
+        this._descriptorSet.bindSampler(binding, batch.sampler!);
+        this._descriptorSet.update();
         this._transformUpdate = true;
     }
 
@@ -713,11 +981,6 @@ class LocalDescriptorSet  {
         if (transform === this._transform) return;
         this._transform = transform;
         this._transformUpdate = true;
-        this.uploadLocalData();
-    }
-
-    public updateLocal () {
-        if (!this._transform) return;
         this.uploadLocalData();
     }
 
@@ -745,15 +1008,19 @@ class LocalDescriptorSet  {
         this._localData = null;
     }
 
-    private uploadLocalData () {
+    public isValid () {
+        return this._transform && this._transform.isValid;
+    }
+
+    public uploadLocalData () {
         const node = this._transform!;
         // @ts-expect-error TS2445
         if (node.hasChangedFlags || node._dirtyFlags) {
             node.updateWorldTransform();
+            this._transformUpdate = true;
         }
         if (this._transformUpdate) {
-            // @ts-expect-error TS2445
-            const worldMatrix = node._mat;
+            const worldMatrix = node.worldMatrix;
             Mat4.toArray(this._localData, worldMatrix, UBOLocal.MAT_WORLD_OFFSET);
             Mat4.inverseTranspose(m4_1, worldMatrix);
             if (!JSB) {
@@ -777,11 +1044,11 @@ class DescriptorSetCache {
     private _localCachePool: Pool<LocalDescriptorSet>;
 
     constructor () {
-        this._localCachePool = new Pool(() => new LocalDescriptorSet(), 16);
+        this._localCachePool = new Pool(() => new LocalDescriptorSet(), 16, (obj) => obj.destroy());
     }
 
-    public getDescriptorSet (batch: DrawBatch2D, drawCall: DrawCall): DescriptorSet {
-        const root = legacyCC.director.root;
+    public getDescriptorSet (batch: DrawBatch2D): DescriptorSet {
+        const root = cclegacy.director.root;
         let hash;
         if (batch.useLocalData) {
             const caches = this._localDescriptorSetCache;
@@ -796,13 +1063,12 @@ class DescriptorSetCache {
             this._localDescriptorSetCache.push(localDs);
             return localDs.descriptorSet!;
         } else {
-            hash = batch.textureHash ^ batch.samplerHash ^ drawCall.bufferHash;
+            hash = batch.textureHash ^ batch.samplerHash;
             if (this._descriptorSetCache.has(hash)) {
                 return this._descriptorSetCache.get(hash)!;
             } else {
-                const device = legacyCC.director.root.device;
                 _dsInfo.layout = batch.passes[0].localSetLayout;
-                const descriptorSet = root.device.createDescriptorSet(_dsInfo) as DescriptorSet;
+                const descriptorSet = deviceManager.gfxDevice.createDescriptorSet(_dsInfo);
                 const binding = ModelLocalBindings.SAMPLER_SPRITE;
                 descriptorSet.bindTexture(binding, batch.texture!);
                 descriptorSet.bindSampler(binding, batch.sampler!);
@@ -818,9 +1084,19 @@ class DescriptorSetCache {
 
     public update () {
         const caches = this._localDescriptorSetCache;
+        const uselessArray: number[] = [];
         caches.forEach((value) => {
-            value.updateLocal();
+            if (value.isValid()) {
+                value.uploadLocalData();
+            } else {
+                value.reset();
+                const pos = caches.indexOf(value);
+                uselessArray.push(pos);
+            }
         });
+        for (let i = uselessArray.length - 1; i >= 0; i--) {
+            caches.splice(uselessArray[i], 1);
+        }
     }
 
     public reset () {
@@ -847,6 +1123,8 @@ class DescriptorSetCache {
         this._descriptorSetCache.clear();
         this._dsCacheHashByTexture.clear();
         this._localDescriptorSetCache.length = 0;
-        this._localCachePool.destroy((obj) => { obj.destroy(); });
+        this._localCachePool.destroy();
     }
 }
+
+cclegacy.internal.Batcher2D = Batcher2D;

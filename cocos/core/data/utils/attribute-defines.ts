@@ -142,19 +142,6 @@ export interface IExposedAttributes {
      * 转换为弧度
      */
     radian?: boolean;
-
-    /**
-     * 注意：这是一个内部选项。
-     * 此选项是为了在 `@property` 的基础上精确实现 `@serializable`、`@editable`以及所有新增的独立装饰器的行为。
-     *
-     * 当此字段为 `true` 时。以下规则将不再生效：
-     * - 只要 `@property` 未显式指定选项 `.serializable === false`，就开启序列化；
-     * - 只要 `@property` 未显式指定选项 `.visible === false` 且目标属性的名称不以下划线开头，就开启编辑器交互。
-     * 反之，由以下规则取代：
-     * - 当且仅当 `@property` 显式指定了 `.serializable === true` 时才开启序列化；
-     * - 当且仅当 `@property` 显式指定了 `.visible === true` 时才开启编辑器交互。
-     */
-    __noImplicit?: boolean;
 }
 
 export interface IAcceptableAttributes extends IExposedAttributes {

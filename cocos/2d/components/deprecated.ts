@@ -23,11 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module ui
- */
-import { Mask } from './mask';
+import { Mask, MaskType } from './mask';
 import { Label } from './label';
 import { LabelOutline } from './label-outline';
 import { RichText } from './rich-text';
@@ -36,29 +32,28 @@ import { UIMeshRenderer } from './ui-mesh-renderer';
 import { Graphics } from './graphics';
 import { UIStaticBatch } from './ui-static-batch';
 import { UIOpacity } from './ui-opacity';
-import { js } from '../../core/utils/js';
-import { legacyCC } from '../../core/global-exports';
+import { js, cclegacy, replaceProperty } from '../../core';
 
 /**
  * Alias of [[Mask]]
  * @deprecated Since v1.2
  */
 export { Mask as MaskComponent };
-legacyCC.MaskComponent = Mask;
+cclegacy.MaskComponent = Mask;
 js.setClassAlias(Mask, 'cc.MaskComponent');
 /**
  * Alias of [[Label]]
  * @deprecated Since v1.2
  */
 export { Label as LabelComponent };
-legacyCC.LabelComponent = Label;
+cclegacy.LabelComponent = Label;
 js.setClassAlias(Label, 'cc.LabelComponent');
 /**
  * Alias of [[LabelOutline]]
  * @deprecated Since v1.2
  */
 export { LabelOutline as LabelOutlineComponent };
-legacyCC.LabelOutlineComponent = LabelOutline;
+cclegacy.LabelOutlineComponent = LabelOutline;
 js.setClassAlias(LabelOutline, 'cc.LabelOutlineComponent');
 
 /**
@@ -66,28 +61,28 @@ js.setClassAlias(LabelOutline, 'cc.LabelOutlineComponent');
  * @deprecated Since v1.2
  */
 export { RichText as RichTextComponent };
-legacyCC.RichTextComponent = RichText;
+cclegacy.RichTextComponent = RichText;
 js.setClassAlias(RichText, 'cc.RichTextComponent');
 /**
  * Alias of [[Sprite]]
  * @deprecated Since v1.2
  */
 export { Sprite as SpriteComponent };
-legacyCC.SpriteComponent = Sprite;
+cclegacy.SpriteComponent = Sprite;
 js.setClassAlias(Sprite, 'cc.SpriteComponent');
 /**
  * Alias of [[UIMeshRenderer]]
  * @deprecated Since v1.2
  */
 export { UIMeshRenderer as UIModelComponent };
-legacyCC.UIModelComponent = UIMeshRenderer;
+cclegacy.UIModelComponent = UIMeshRenderer;
 js.setClassAlias(UIMeshRenderer, 'cc.UIModelComponent');
 /**
  * Alias of [[Graphics]]
  * @deprecated Since v1.2
  */
 export { Graphics as GraphicsComponent };
-legacyCC.GraphicsComponent = Graphics;
+cclegacy.GraphicsComponent = Graphics;
 js.setClassAlias(Graphics, 'cc.GraphicsComponent');
 /**
  * Alias of [[UIStaticBatch]]
@@ -101,3 +96,33 @@ js.setClassAlias(UIStaticBatch, 'cc.UIStaticBatchComponent');
  */
 export { UIOpacity as UIOpacityComponent };
 js.setClassAlias(UIOpacity, 'cc.UIOpacityComponent');
+
+replaceProperty(Mask.prototype, 'Mask', [
+    {
+        name: 'graphics',
+        newName: 'subComp',
+        target: Mask.prototype,
+        targetName: 'Mask',
+    },
+]);
+
+replaceProperty(MaskType, 'MaskType', [
+    {
+        name: 'RECT',
+        newName: 'GRAPHICS_RECT',
+        target: MaskType,
+        targetName: 'MaskType',
+    },
+    {
+        name: 'ELLIPSE',
+        newName: 'GRAPHICS_ELLIPSE',
+        target: MaskType,
+        targetName: 'MaskType',
+    },
+    {
+        name: 'IMAGE_STENCIL',
+        newName: 'SPRITE_STENCIL',
+        target: MaskType,
+        targetName: 'MaskType',
+    },
+]);

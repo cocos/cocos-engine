@@ -1,0 +1,7 @@
+#ifndef CC_SURFACES_LIGHTING_MODIFY_SKIN_DIFFUSE_LIGHTING
+  vec3 SurfacesLightingModifySkinDiffuseLighting(in LightingIntermediateData lightingData, in float ssssCurvature)
+  {
+	// if user do not sample PreIntegratedSSS tex, fallback to default light model
+    return vec3(lightingData.NoL);
+  }
+#endif

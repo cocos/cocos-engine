@@ -32,7 +32,9 @@ class SystemInfo extends EventTarget {
     public readonly osMainVersion: number;
     public readonly browserType: BrowserType;
     public readonly browserVersion: string;
+    public readonly isXR: boolean;
     private _featureMap: IFeatureMap;
+    private _initPromise: Promise<void>[];
     // TODO: need to wrap the function __isObjectValid()
 
     public get networkType (): NetworkType {
@@ -73,6 +75,8 @@ class SystemInfo extends EventTarget {
         this.browserType = BrowserType.UNKNOWN;
         this.browserVersion = '';
 
+        this.isXR = typeof xr !== 'undefined';
+
         this._featureMap = {
             [Feature.WEBP]: true,
             [Feature.IMAGE_BITMAP]: false,
@@ -81,11 +85,16 @@ class SystemInfo extends EventTarget {
             [Feature.SAFE_AREA]: this.isMobile,
 
             [Feature.INPUT_TOUCH]: this.isMobile,
-            [Feature.EVENT_KEYBOARD]: !this.isMobile,
+            [Feature.EVENT_KEYBOARD]: true,
             [Feature.EVENT_MOUSE]: !this.isMobile,
             [Feature.EVENT_TOUCH]: true,
             [Feature.EVENT_ACCELEROMETER]: this.isMobile,
+            [Feature.EVENT_GAMEPAD]: true,
+            [Feature.EVENT_HANDLE]: this.isXR,
+            [Feature.EVENT_HMD]: this.isXR,
         };
+
+        this._initPromise = [];
 
         this._registerEvent();
     }
@@ -100,6 +109,14 @@ class SystemInfo extends EventTarget {
         jsb.onClose = () => {
             this.emit('close');
         };
+    }
+
+    private _setFeature (feature: Feature, value: boolean) {
+        return this._featureMap[feature] = value;
+    }
+
+    public init (): Promise<void[]> {
+        return Promise.all(this._initPromise);
     }
 
     public hasFeature (feature: Feature): boolean {

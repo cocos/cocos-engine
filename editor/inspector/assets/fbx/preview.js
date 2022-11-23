@@ -1,3 +1,5 @@
+'use strict';
+
 const animation = require('./animation');
 const events = require('./events');
 const eventEditor = require('./event-editor');
@@ -266,12 +268,6 @@ ui-icon {
   }
 `;
 
-const PLAY_STATE = {
-    STOP: 0,
-    PLAYING: 1,
-    PAUSE: 2,
-};
-
 exports.$ = {
     noModel: '.noModel',
     multiple: '.multiple',
@@ -291,6 +287,16 @@ exports.$ = {
     eventEditor: ".event-editor",
     timeCtrl: "#timeCtrl",
 };
+
+const PLAY_STATE = {
+    STOP: 0,
+    PLAYING: 1,
+    PAUSE: 2,
+};
+
+async function callModelPreviewFunction(funcName, ...args) {
+    return await Editor.Message.request('scene', 'call-preview-function', 'scene:model-preview', funcName, ...args);
+}
 
 const Elements = {
     container: {
@@ -326,7 +332,7 @@ const Elements = {
                 if (!values.length) {
                     return;
                 }
-                const info = await Editor.Message.request('scene', 'set-model-preview-model', values[0]);
+                const info = await callModelPreviewFunction('setModel', values[0]);
                 panel.infoUpdate(info);
             });
 
@@ -340,10 +346,10 @@ const Elements = {
         ready() {
             const panel = this;
             panel.$.canvas.addEventListener('mousedown', async (event) => {
-                await Editor.Message.request('scene', 'on-model-preview-mouse-down', { x: event.x, y: event.y });
+                await callModelPreviewFunction('onMouseDown', { x: event.x, y: event.y });
 
                 async function mousemove(event) {
-                    await Editor.Message.request('scene', 'on-model-preview-mouse-move', {
+                    await callModelPreviewFunction('onMouseMove', {
                         movementX: event.movementX,
                         movementY: event.movementY,
                     });
@@ -352,7 +358,7 @@ const Elements = {
                 }
 
                 async function mouseup(event) {
-                    await Editor.Message.request('scene', 'on-model-preview-mouse-up', {
+                    await callModelPreviewFunction('onMouseUp', {
                         x: event.x,
                         y: event.y,
                     });
@@ -381,7 +387,7 @@ const Elements = {
 
             await panel.glPreview.init({ width: panel.$.canvas.clientWidth, height: panel.$.canvas.clientHeight });
             if (panel.asset.redirect) {
-                const info = await Editor.Message.request('scene', 'set-model-preview-model', panel.asset.redirect.uuid);
+                const info = await callModelPreviewFunction('setModel', panel.asset.redirect.uuid);
                 panel.infoUpdate(info);
             } else {
                 this.updatePanelHidden(false);
@@ -404,7 +410,7 @@ const Elements = {
             this.updatePanelHidden(true);
         },
         close() {
-            Editor.Message.send('scene', 'hide-model-preview');
+            callModelPreviewFunction('hide');
         },
     },
     animationTime: {
@@ -425,95 +431,6 @@ const Elements = {
             this.$.timeCtrl.addEventListener('click', this.onTimeCtrlClick.bind(this));
         },
     },
-};
-
-exports.update = async function(assetList, metaList) {
-    this.assetList = assetList;
-    this.metaList = metaList;
-    this.isMultiple = this.assetList.length > 1;
-    this.$.previewContainer.hidden = this.isMultiple;
-    this.$.multiple.hidden = !this.isMultiple;
-    this.$.noModel.hidden = true;
-    if (this.isMultiple) {
-        return;
-    }
-    this.asset = assetList[0];
-    this.meta = metaList[0];
-    for (const prop in Elements) {
-        const element = Elements[prop];
-        if (element.update) {
-            element.update.call(this);
-        }
-    }
-    animation.methods.initAnimationNameToUUIDMap.call(this);
-    animation.methods.initAnimationInfos.call(this);
-    if (this.animationInfos) {
-        this.rawClipIndex = 0;
-        this.splitClipIndex = 0;
-        const clipInfo = animation.methods.getCurClipInfo.call(this);
-        await this.onEditClipInfoChanged(clipInfo);
-    }
-    this.setCurPlayState(PLAY_STATE.STOP);
-    this.isPreviewDataDirty = true;
-    this.refreshPreview();
-};
-
-exports.ready = function() {
-    this.gridWidth = 0;
-    this.gridTableWith = 0;
-    this.activeTab = 'animation';
-    this.isPreviewDataDirty = true;
-    this.curEditClipInfo = null;
-    this.curPlayState = PLAY_STATE.STOP;
-    this.curTotalFrames = 0;
-    this.onTabChangedBind = this.onTabChanged.bind(this);
-    this.onModelAnimationUpdateBind = this.onModelAnimationUpdate.bind(this);
-    this.onAnimationPlayStateChangedBind = this.onAnimationPlayStateChanged.bind(this);
-
-    this.onEditClipInfoChanged = async (clipInfo) => {
-        if (clipInfo) {
-            await Editor.Message.request('scene', 'execute-model-preview-animation-operation', 'setEditClip', clipInfo.rawClipUUID, clipInfo.rawClipIndex);
-            await this.setCurEditClipInfo(clipInfo);
-        }
-    };
-
-    Editor.Message.addBroadcastListener('scene:model-preview-animation-time-change', this.onModelAnimationUpdateBind);
-    Editor.Message.addBroadcastListener('scene:model-preview-animation-state-change', this.onAnimationPlayStateChangedBind);
-    Editor.Message.addBroadcastListener('fbx-inspector:change-tab', this.onTabChangedBind);
-    Editor.Message.addBroadcastListener('fbx-inspector:animation-change', this.onEditClipInfoChanged);
-
-    for (const prop in Elements) {
-        const element = Elements[prop];
-        if (element.ready) {
-            element.ready.call(this);
-        }
-    }
-
-    this.onAssetChangeBind = this.onAssetChange.bind(this);
-    this.addAssetChangeListener(true);
-
-    this.events = events;
-    this.events.ready.call(this);
-
-    this.eventEditor = eventEditor;
-    this.events.eventsMap = {};
-    this.eventEditor.ready.call(this);
-};
-
-exports.close = function() {
-    for (const prop in Elements) {
-        const element = Elements[prop];
-        if (element.close) {
-            element.close.call(this);
-        }
-    }
-
-    Editor.Message.removeBroadcastListener('scene:model-preview-animation-time-change', this.onModelAnimationUpdateBind);
-    Editor.Message.removeBroadcastListener('scene:model-preview-animation-state-change', this.onAnimationPlayStateChangedBind);
-    Editor.Message.removeBroadcastListener('fbx-inspector:change-tab', this.onTabChangedBind);
-    Editor.Message.removeBroadcastListener('fbx-inspector:animation-change', this.onEditClipInfoChanged);
-
-    this.addAssetChangeListener(false);
 };
 
 exports.methods = {
@@ -628,13 +545,17 @@ exports.methods = {
     },
 
     updateEventInfo() {
+        let eventInfos = [];
         const events = this.curEditClipInfo.userData.events;
-        const eventInfos = events.map((info) => {
-            return {
-                ...info,
-                x: this.$.animationTime.valueToPixel(info.frame * this.curEditClipInfo.fps),
-            };
-        });
+        if (Array.isArray(events)) {
+            eventInfos = events.map((info) => {
+                return {
+                    ...info,
+                    x: this.$.animationTime.valueToPixel(info.frame * this.curEditClipInfo.fps),
+                };
+            });
+        }
+
         this.events.update.call(this, eventInfos);
     },
 
@@ -643,7 +564,7 @@ exports.methods = {
             return;
         }
 
-        await Editor.Message.request('scene', 'execute-model-preview-animation-operation', 'stop');
+        await callModelPreviewFunction('stop');
     },
     async onPlayButtonClick() {
         if (!this.curEditClipInfo) {
@@ -651,13 +572,13 @@ exports.methods = {
         }
         switch (this.curPlayState) {
             case PLAY_STATE.PAUSE:
-                await Editor.Message.request('scene', 'execute-model-preview-animation-operation', 'resume');
+                await callModelPreviewFunction('resume');
                 break;
             case PLAY_STATE.PLAYING:
-                await Editor.Message.request('scene', 'execute-model-preview-animation-operation', 'pause');
+                await callModelPreviewFunction('pause');
                 break;
             case PLAY_STATE.STOP:
-                await Editor.Message.request('scene', 'execute-model-preview-animation-operation', 'play', this.curEditClipInfo.rawClipUUID);
+                await callModelPreviewFunction('play', this.curEditClipInfo.rawClipUUID);
                 break;
             default:
                 break;
@@ -680,7 +601,7 @@ exports.methods = {
         frame = Editor.Utils.Math.clamp(frame, 0, this.curTotalFrames);
 
         const curTime = frame / this.curEditClipInfo.fps + this.curEditClipInfo.from;
-        await Editor.Message.request('scene', 'execute-model-preview-animation-operation', 'setCurEditTime', curTime);
+        await callModelPreviewFunction('setCurEditTime', curTime);
     },
 
     onModelAnimationUpdate(time) {
@@ -735,13 +656,20 @@ exports.methods = {
             if (this.$.animationTimeSlider) {
                 this.$.animationTimeSlider.max = this.curTotalFrames;
             }
-            await Editor.Message.request(
-                'scene',
-                'execute-model-preview-animation-operation',
+            await callModelPreviewFunction(
                 'setPlaybackRange',
                 clipInfo.from,
                 clipInfo.to,
             );
+
+            await callModelPreviewFunction(
+                'setClipConfig',
+                {
+                    wrapMode: clipInfo.wrapMode,
+                    speed: clipInfo.speed,
+                }
+            );
+
             await this.stopAnimation();
         }
     },
@@ -767,4 +695,93 @@ exports.methods = {
             await this.onEditClipInfoChanged(clipInfo);
         }
     },
+};
+
+exports.ready = function() {
+    this.gridWidth = 0;
+    this.gridTableWith = 0;
+    this.activeTab = 'animation';
+    this.isPreviewDataDirty = true;
+    this.curEditClipInfo = null;
+    this.curPlayState = PLAY_STATE.STOP;
+    this.curTotalFrames = 0;
+    this.onTabChangedBind = this.onTabChanged.bind(this);
+    this.onModelAnimationUpdateBind = this.onModelAnimationUpdate.bind(this);
+    this.onAnimationPlayStateChangedBind = this.onAnimationPlayStateChanged.bind(this);
+
+    this.onEditClipInfoChanged = async (clipInfo) => {
+        if (clipInfo) {
+            await callModelPreviewFunction('setEditClip', clipInfo.rawClipUUID, clipInfo.rawClipIndex);
+            await this.setCurEditClipInfo(clipInfo);
+        }
+    };
+
+    Editor.Message.addBroadcastListener('scene:model-preview-animation-time-change', this.onModelAnimationUpdateBind);
+    Editor.Message.addBroadcastListener('scene:model-preview-animation-state-change', this.onAnimationPlayStateChangedBind);
+    Editor.Message.addBroadcastListener('fbx-inspector:change-tab', this.onTabChangedBind);
+    Editor.Message.addBroadcastListener('fbx-inspector:animation-change', this.onEditClipInfoChanged);
+
+    for (const prop in Elements) {
+        const element = Elements[prop];
+        if (element.ready) {
+            element.ready.call(this);
+        }
+    }
+
+    this.onAssetChangeBind = this.onAssetChange.bind(this);
+    this.addAssetChangeListener(true);
+
+    this.events = events;
+    this.events.ready.call(this);
+
+    this.eventEditor = eventEditor;
+    this.events.eventsMap = {};
+    this.eventEditor.ready.call(this);
+};
+
+exports.update = async function(assetList, metaList) {
+    this.assetList = assetList;
+    this.metaList = metaList;
+    this.isMultiple = this.assetList.length > 1;
+    this.$.previewContainer.hidden = this.isMultiple;
+    this.$.multiple.hidden = !this.isMultiple;
+    this.$.noModel.hidden = true;
+    if (this.isMultiple) {
+        return;
+    }
+    this.asset = assetList[0];
+    this.meta = metaList[0];
+    for (const prop in Elements) {
+        const element = Elements[prop];
+        if (element.update) {
+            element.update.call(this);
+        }
+    }
+    animation.methods.initAnimationNameToUUIDMap.call(this);
+    animation.methods.initAnimationInfos.call(this);
+    if (this.animationInfos) {
+        this.rawClipIndex = 0;
+        this.splitClipIndex = 0;
+        const clipInfo = animation.methods.getCurClipInfo.call(this);
+        await this.onEditClipInfoChanged(clipInfo);
+    }
+    this.setCurPlayState(PLAY_STATE.STOP);
+    this.isPreviewDataDirty = true;
+    this.refreshPreview();
+};
+
+exports.close = function() {
+    for (const prop in Elements) {
+        const element = Elements[prop];
+        if (element.close) {
+            element.close.call(this);
+        }
+    }
+
+    Editor.Message.removeBroadcastListener('scene:model-preview-animation-time-change', this.onModelAnimationUpdateBind);
+    Editor.Message.removeBroadcastListener('scene:model-preview-animation-state-change', this.onAnimationPlayStateChangedBind);
+    Editor.Message.removeBroadcastListener('fbx-inspector:change-tab', this.onTabChangedBind);
+    Editor.Message.removeBroadcastListener('fbx-inspector:animation-change', this.onEditClipInfoChanged);
+
+    this.addAssetChangeListener(false);
 };

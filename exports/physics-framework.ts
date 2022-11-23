@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
 /// physics namespace ///
 
 import * as physics from '../cocos/physics/framework';

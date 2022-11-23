@@ -1,8 +1,14 @@
 
 export type IBuildTimeConstantValue = string | number | boolean;
 
+/**
+ * @deprecated since 4.3.5, use `BuildTimeConstants` instead.
+ */
 export type IBuildTimeConstants = Record<string, IBuildTimeConstantValue>;
 
+/**
+ * @deprecated since v4.3.0, use `StatsQuery.prototype.constantManager` instead.
+ */
 export function setupBuildTimeConstants ({
     mode,
     platform,
@@ -14,9 +20,6 @@ export function setupBuildTimeConstants ({
 }) {
     const buildModeConstantNames = getBuildModeConstantNames();
     const platformConstantNames = getPlatformConstantNames();
-
-    // setup default value
-    flags.UI_GPU_DRIVEN ??= false;
 
     const result: Record<string, string | number | boolean> = {};
     platformConstantNames.forEach(name => result[name] = false);

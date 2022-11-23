@@ -1,0 +1,216 @@
+{
+  "$ref": "#/definitions/Config",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "Config": {
+      "additionalProperties": false,
+      "properties": {
+        "constants": {
+          "$ref": "#/definitions/IConstantConfig",
+          "description": "The constants config for engine and user."
+        },
+        "features": {
+          "additionalProperties": {
+            "$ref": "#/definitions/Feature"
+          },
+          "description": "Engine features. Keys are feature IDs.",
+          "type": "object"
+        },
+        "includes": {
+          "description": "Included files for quick-compiler.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "index": {
+          "$ref": "#/definitions/IndexConfig",
+          "description": "Describe how to generate the index module `'cc'`. Currently not used."
+        },
+        "moduleOverrides": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "isVirtualModule": {
+                "type": "boolean"
+              },
+              "overrides": {
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "type": "object"
+              },
+              "test": {
+                "$ref": "#/definitions/Test"
+              }
+            },
+            "required": [
+              "test",
+              "overrides",
+              "isVirtualModule"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "optimizeDecorators": {
+          "$ref": "#/definitions/IOptimizeDecorators",
+          "description": "The decorators to be optimize when build engine."
+        }
+      },
+      "required": [
+        "features",
+        "includes",
+        "constants",
+        "optimizeDecorators"
+      ],
+      "type": "object"
+    },
+    "ConstantTypeName": {
+      "enum": [
+        "boolean",
+        "number"
+      ],
+      "type": "string"
+    },
+    "Feature": {
+      "additionalProperties": false,
+      "description": "An engine feature.",
+      "properties": {
+        "dependentAssets": {
+          "description": "List of uuid that the feature depend on.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "dependentModules": {
+          "description": "List of module that the feature depend on.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "intrinsicFlags": {
+          "additionalProperties": {},
+          "description": "Flags to set when this feature is enabled.",
+          "type": "object"
+        },
+        "isNativeOnly": {
+          "default": false,
+          "description": "Whether it is a native only feature, default is false.",
+          "type": "boolean"
+        },
+        "modules": {
+          "description": "Modules to be included in this feature in their IDs. The ID of a module is its relative path(no extension) under /exports/.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "modules"
+      ],
+      "type": "object"
+    },
+    "IConstantConfig": {
+      "additionalProperties": {
+        "$ref": "#/definitions/IConstantInfo"
+      },
+      "type": "object"
+    },
+    "IConstantInfo": {
+      "additionalProperties": false,
+      "properties": {
+        "ccGlobal": {
+          "default": false,
+          "description": "Whether exported to global as a `CC_XXXX` constant. eg. WECHAT is exported to global.CC_WECHAT NOTE: this is a feature of compatibility with Cocos 2.x engine. Default is false.",
+          "type": "boolean"
+        },
+        "comment": {
+          "description": "The comment of the constant. Which is used to generate the consts.d.ts file.",
+          "type": "string"
+        },
+        "dynamic": {
+          "default": false,
+          "description": "Some constant can't specify the value in the Editor, Preview or Test environment, so we need to dynamically judge them in runtime. These values are specified in a helper called `helper-dynamic-constants.ts`. Default is false.",
+          "type": "boolean"
+        },
+        "internal": {
+          "description": "Whether exported to developer. If true, it's only exported to engine.",
+          "type": "boolean"
+        },
+        "type": {
+          "$ref": "#/definitions/ConstantTypeName",
+          "description": "The type of the constant for generating consts.d.ts file."
+        },
+        "value": {
+          "description": "The default value of the constant. It can be a boolean, number or string. When it's a string type, the value is the result of eval().",
+          "type": [
+            "boolean",
+            "string",
+            "number"
+          ]
+        }
+      },
+      "required": [
+        "comment",
+        "type",
+        "value",
+        "internal"
+      ],
+      "type": "object"
+    },
+    "IOptimizeDecorators": {
+      "additionalProperties": false,
+      "properties": {
+        "editorDecorators": {
+          "description": "The decorators which should be removed directly when they only work in Cocos Creator editor.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "fieldDecorators": {
+          "description": "The decorators which should be optimized when they only decorate class fields.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "fieldDecorators",
+        "editorDecorators"
+      ],
+      "type": "object"
+    },
+    "IndexConfig": {
+      "additionalProperties": false,
+      "properties": {
+        "modules": {
+          "additionalProperties": {
+            "additionalProperties": false,
+            "properties": {
+              "deprecated": {
+                "description": "If `true`, accesses the exports of this module from `'cc'` will be marked as deprecated.",
+                "type": "boolean"
+              },
+              "ns": {
+                "description": "If specified, export contents of the module into a namespace specified by `ns` and then export that namespace into `'cc'`. If not specified, contents of the module will be directly exported into `'cc'`.",
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "type": "object"
+        }
+      },
+      "type": "object"
+    },
+    "Test": {
+      "type": "string"
+    }
+  }
+}

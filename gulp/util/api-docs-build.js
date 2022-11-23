@@ -11,7 +11,7 @@ program
 
 const mode = 'commonjs';
 const docsName = 'Cocos-Creator-API';
-const exclude = '"**/cocos/**/+(webgl|webgl2|utils|builtin|renderer|scene|models|misc|ammo|shapes|constraint|cannon|graphics|profiler|shader-sources|physx|spec|box2d)/*.ts"';
+const exclude = '"**/cocos/**/+(webgl|webgl2|webgpu|utils|builtin|renderer|scene|models|misc|ammo|shapes|constraint|cannon|graphics|profiler|shader-sources|physx|spec|box2d)/*.ts"';
 const readme = 'none';
 //const exclude = '"**/cocos/**/index.ts"';
 
@@ -108,7 +108,7 @@ exports.generateHTMLWithLocalization = function () {
     removeLanguage != "en" && this.generateAPIEN(index, jsonFiles, `${output}/en`);
 }
 
-function checkJsonFileExists (jsonFils) {
+function checkJsonFileExists(jsonFils) {
     let existsSync = fs.accessSync || fs.existsSync;
     try {
         existsSync(jsonFils)
@@ -120,7 +120,7 @@ function checkJsonFileExists (jsonFils) {
     return true;
 }
 
-function outputDebug (child) {
+function outputDebug(child) {
     // spawnSync
     if (child.output && child.output.length > 0) {
         for (let i = 0; i < child.output.length; i++) {

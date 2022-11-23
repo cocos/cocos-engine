@@ -24,15 +24,9 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module asset
- */
-
 import { ccclass, string, override, serializable } from 'cc.decorator';
-import { extname } from '../../core/utils/path';
+import { path, cclegacy } from '../../core';
 import { Font } from './font';
-import { legacyCC } from '../../core/global-exports';
 
 /**
  * @en Class for TTFFont asset.
@@ -40,9 +34,15 @@ import { legacyCC } from '../../core/global-exports';
  */
 @ccclass('cc.TTFFont')
 export class TTFFont extends Font {
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
     @serializable
     public _fontFamily: string | null = null;
 
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
     @override
     @string
     get _nativeAsset () {
@@ -52,9 +52,12 @@ export class TTFFont extends Font {
         this._fontFamily = value || 'Arial';
     }
 
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
     @override
     get _nativeDep () {
-        return { uuid: this._uuid, __nativeName__: this._native, ext: extname(this._native), __isNative__: true };
+        return { uuid: this._uuid, __nativeName__: this._native, ext: path.extname(this._native), __isNative__: true };
     }
 
     public initDefault (uuid?: string) {
@@ -63,4 +66,4 @@ export class TTFFont extends Font {
     }
 }
 
-legacyCC.TTFFont = TTFFont;
+cclegacy.TTFFont = TTFFont;

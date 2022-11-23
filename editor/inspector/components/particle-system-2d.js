@@ -1,4 +1,6 @@
 const { template, $, update } = require('./base');
+// 排列时，相邻元素的间隔间距
+const MARGIN = '4PX';
 
 exports.template = template;
 exports.$ = $;
@@ -26,33 +28,17 @@ exports.ready = function() {
     ];
 
     this.elements = {
-        customMaterial: {
-            displayOrder: 0,
-        },
-        color: {
-            displayOrder: 1,
-        },
-        preview: {
-            displayOrder: 2,
-        },
-        playOnLoad: {
-            displayOrder: 3,
-        },
-        autoRemoveOnFinish: {
-            displayOrder: 4,
-        },
         file: {
-            displayOrder: 5,
             update(element, dump) {
                 setDisabled(!dump.file.value.uuid, this.$.syncButton);
             },
         },
         custom: {
-            displayOrder: 6,
             ready(element) {
                 const $checkbox = element.querySelector('ui-checkbox[slot="content"]');
 
                 const $sync = document.createElement('ui-button');
+                $sync.setAttribute('style', `margin-right: ${MARGIN}`);
                 $sync.setAttribute('slot', 'content');
                 $sync.setAttribute('class', 'blue');
                 $sync.setAttribute('tooltip', 'i18n:ENGINE.components.particle_system_2d.sync_tips');
@@ -105,6 +91,8 @@ exports.ready = function() {
 
                         this.$this.dispatch('change-dump');
                     }
+
+                    Editor.Message.send('scene', 'snapshot');
                 });
 
                 const $export = document.createElement('ui-button');
@@ -142,6 +130,8 @@ exports.ready = function() {
 
                         this.$this.dispatch('change-dump');
                     }
+
+                    Editor.Message.send('scene', 'snapshot');
                 });
 
                 this.$.syncButton = $sync;
@@ -178,7 +168,7 @@ exports.ready = function() {
 
                     $right.setAttribute('no-label', '');
                     $right.setAttribute('slot', 'content');
-                    $right.setAttribute('style', 'margin: 0');
+                    $right.setAttribute('style', `margin-left: ${MARGIN}`);
                     $left.appendChild($right);
                 });
 

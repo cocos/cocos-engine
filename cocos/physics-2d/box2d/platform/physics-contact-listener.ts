@@ -22,12 +22,9 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-/**
- * @packageDocumentation
- * @hidden
- */
+
 import b2 from '@cocos/box2d';
-import { remove } from '../../../core/utils/array';
+import { js } from '../../../core';
 
 export class PhysicsContactListener extends b2.ContactListener {
     _contactFixtures: b2.Fixture[] = [];
@@ -92,6 +89,6 @@ export class PhysicsContactListener extends b2.ContactListener {
     }
 
     unregisterContactFixture (fixture) {
-        remove(this._contactFixtures, fixture);
+        js.array.remove(this._contactFixtures, fixture);
     }
 }

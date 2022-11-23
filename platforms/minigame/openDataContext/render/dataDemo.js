@@ -20,4 +20,4 @@ for (let i = 0; i < maxCount; ++i) {
 }
 dataDemo.data.sort((a, b) => b.rankScore - a.rankScore);
 
-export default dataDemo;
+module.exports = dataDemo;

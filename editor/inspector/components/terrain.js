@@ -9,7 +9,6 @@ const { setHidden } = require('../utils/prop');
 exports.ready = function() {
     this.elements = {
         _asset: {
-            displayOrder: 0,
             ready(element) {
                 element.addEventListener('change-dump', (event) => {
                     Editor.Message.send('scene', 'snapshot');

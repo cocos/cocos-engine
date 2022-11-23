@@ -23,16 +23,10 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
 import { BulletShape } from './bullet-shape';
 import { ConeCollider } from '../../../../exports/physics-framework';
 import { ICylinderShape } from '../../spec/i-physics-shape';
-import { IVec3Like } from '../../../core/math/type-define';
-import { absMax } from '../../../core';
+import { IVec3Like, absMax } from '../../../core';
 import { bt } from '../instantiated';
 import { BulletCache } from '../bullet-cache';
 

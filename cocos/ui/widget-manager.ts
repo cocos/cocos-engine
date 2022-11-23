@@ -24,23 +24,15 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
 import { EDITOR, DEV } from 'internal:constants';
 import { screenAdapter } from 'pal/screen-adapter';
-import { Director, director } from '../core/director';
-import { Vec2, Vec3 } from '../core/math';
-import { View } from '../core/platform/view';
-import visibleRect from '../core/platform/visible-rect';
-import { Scene } from '../core/scene-graph';
-import { Node } from '../core/scene-graph/node';
-import { array } from '../core/utils/js';
+import { Director, director } from '../game/director';
+import { Vec2, Vec3, visibleRect, js, cclegacy } from '../core';
+import { View } from './view';
+import { Scene } from '../scene-graph';
+import { Node } from '../scene-graph/node';
 import { AlignFlags, AlignMode, computeInverseTransForTarget, getReadonlyNodeSize, Widget } from './widget';
 import { UITransform } from '../2d/framework';
-import { legacyCC } from '../core/global-exports';
 
 const _tempPos = new Vec3();
 const _defaultAnchor = new Vec2();
@@ -73,7 +65,7 @@ function align (node: Node, widget: Widget) {
     const useGlobal = target instanceof Scene || !target.getComponent(UITransform);
     const targetAnchor = useGlobal ? _defaultAnchor : target.getComponent(UITransform)!.anchorPoint;
 
-    const isRoot = !EDITOR && useGlobal;
+    const isRoot = useGlobal;
     node.getPosition(_tempPos);
     const uiTrans = node._uiProps.uiTransformComp!;
     let x = _tempPos.x;
@@ -212,7 +204,7 @@ function visitNode (node: any) {
         // if ((!EDITOR || widgetManager.animationState!.animatedSinceLastFrame) && widget.alignMode === AlignMode.ONCE) {
         //     widget.enabled = false;
         // } else {
-        if (!legacyCC.isValid(node, true)) {
+        if (!cclegacy.isValid(node, true)) {
             return;
         }
         activeWidgets.push(widget);
@@ -270,10 +262,10 @@ function updateAlignment (node: Node) {
     }
 }
 
-export const widgetManager = legacyCC._widgetManager = {
+export const widgetManager = cclegacy._widgetManager = {
     isAligning: false,
     _nodesOrderDirty: false,
-    _activeWidgetsIterator: new array.MutableForwardIterator(activeWidgets),
+    _activeWidgetsIterator: new js.array.MutableForwardIterator(activeWidgets),
     // hack
     animationState: EDITOR ? {
         previewing: false,
@@ -352,7 +344,7 @@ export const widgetManager = legacyCC._widgetManager = {
                 let l = -parentAP.x * matchSize.width;
                 l += zero.x;
                 l *= one.x;
-                temp = pos.x - myAP.x * trans.width * widgetNodeScale.x - l;
+                temp = pos.x - myAP.x * trans.width * Math.abs(widgetNodeScale.x) - l;
                 if (!widget.isAbsoluteLeft) {
                     temp /= matchSize.width;
                 }
@@ -364,7 +356,7 @@ export const widgetManager = legacyCC._widgetManager = {
             if (e & alignFlags.RIGHT) {
                 let r = (1 - parentAP.x) * matchSize.width;
                 r += zero.x;
-                temp = (r *= one.x) - (pos.x + (1 - myAP.x) * trans.width * widgetNodeScale.x);
+                temp = (r *= one.x) - (pos.x + (1 - myAP.x) * trans.width * Math.abs(widgetNodeScale.x));
                 if (!widget.isAbsoluteRight) {
                     temp /= matchSize.width;
                 }
@@ -376,7 +368,7 @@ export const widgetManager = legacyCC._widgetManager = {
             if (e & alignFlags.TOP) {
                 let t = (1 - parentAP.y) * matchSize.height;
                 t += zero.y;
-                temp = (t *= one.y) - (pos.y + (1 - myAP.y) * trans.height * widgetNodeScale.y);
+                temp = (t *= one.y) - (pos.y + (1 - myAP.y) * trans.height * Math.abs(widgetNodeScale.y));
                 if (!widget.isAbsoluteTop) {
                     temp /= matchSize.height;
                 }
@@ -389,7 +381,7 @@ export const widgetManager = legacyCC._widgetManager = {
                 let b = -parentAP.y * matchSize.height;
                 b += zero.y;
                 b *= one.y;
-                temp = pos.y - myAP.y * trans.height * widgetNodeScale.y - b;
+                temp = pos.y - myAP.y * trans.height * Math.abs(widgetNodeScale.y) - b;
                 if (!widget.isAbsoluteBottom) {
                     temp /= matchSize.height;
                 }

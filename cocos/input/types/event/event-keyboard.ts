@@ -24,11 +24,6 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module event
- */
-
 import { Event } from './event';
 import { SystemEventTypeUnion, SystemEventType } from '../event-enum';
 import { KeyCode } from '../key-code';
@@ -40,6 +35,12 @@ import { KeyCode } from '../key-code';
  * 键盘事件。
  */
 export class EventKeyboard extends Event {
+    /**
+     * @en The unique ID of window which triggered the event.
+     * @zh 触发键盘事件的窗口 ID
+     */
+    public windowId: number;
+
     /**
      * @en The KeyCode enum value of current keyboard event.
      * @zh 当前键盘事件的 KeyCode 枚举值
@@ -89,6 +90,7 @@ export class EventKeyboard extends Event {
             this.keyCode = keyCode.keyCode;
             this.rawEvent = keyCode;
         }
+        this.windowId = 0;
     }
 }
 

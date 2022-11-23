@@ -22,13 +22,8 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-
-/**
- * @packageDocumentation
- * @module ui-assembler
- */
-
-import { Color, Vec3 } from '../../../../core/math';
+import { JSB } from 'internal:constants';
+import { Color, Vec3 } from '../../../../core';
 import { IAssembler } from '../../../renderer/base';
 import { MeshRenderData } from '../../../renderer/render-data';
 import { IBatcher } from '../../../renderer/i-batcher';
@@ -82,7 +77,11 @@ export const graphicsAssembler: IAssembler = {
     useModel: true,
 
     updateRenderData (graphics: Graphics) {
-
+        if (JSB) {
+            if (graphics.renderData) {
+                graphics.renderData.material = graphics.getMaterialInstance(0);
+            }
+        }
     },
 
     fillBuffers (graphics: Graphics, renderer: IBatcher) {
@@ -287,14 +286,14 @@ export const graphicsAssembler: IAssembler = {
             }
 
             // stroke indices
-            let indicesOffset = meshBuffer.indicesStart;
+            let indicesOffset = meshBuffer.indexStart;
             for (let begin = offset + 2, over = meshBuffer.vertexStart; begin < over; begin++) {
                 iData[indicesOffset++] = begin - 2;
                 iData[indicesOffset++] = begin - 1;
                 iData[indicesOffset++] = begin;
             }
 
-            meshBuffer.indicesStart = indicesOffset;
+            meshBuffer.indexStart = indicesOffset;
         }
         _renderData = null;
         _impl = null;
@@ -342,7 +341,7 @@ export const graphicsAssembler: IAssembler = {
                 this._vSet!(pts[j].x, pts[j].y);
             }
 
-            let indicesOffset = renderData.indicesStart;
+            let indicesOffset = renderData.indexStart;
 
             if (path.complex) {
                 const earcutData: number[] = [];
@@ -371,7 +370,7 @@ export const graphicsAssembler: IAssembler = {
                 }
             }
 
-            meshBuffer.indicesStart = indicesOffset;
+            meshBuffer.indexStart = indicesOffset;
         }
 
         _renderData = null;

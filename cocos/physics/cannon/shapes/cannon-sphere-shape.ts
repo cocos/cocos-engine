@@ -23,13 +23,8 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
 import CANNON from '@cocos/cannon';
-import { absMaxComponent, clamp, Vec3 } from '../../../core/math';
+import { absMaxComponent, clamp, Vec3 } from '../../../core';
 import { commitShapeUpdates } from '../cannon-util';
 import { CannonShape } from './cannon-shape';
 import { ISphereShape } from '../../spec/i-physics-shape';

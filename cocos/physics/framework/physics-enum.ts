@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module physics
- */
-
 import { Enum } from '../../core';
 
 export enum ERigidBodyType {
@@ -68,7 +63,8 @@ Enum(EColliderType);
 export enum EConstraintType {
     POINT_TO_POINT,
     HINGE,
-    CONE_TWIST
+    CONE_TWIST,
+    FIXED,
 }
 Enum(EConstraintType);
 

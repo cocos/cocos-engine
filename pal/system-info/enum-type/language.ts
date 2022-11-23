@@ -118,4 +118,10 @@ export enum Language {
      * @zh 语言代码 - 保加利亚语
      */
     BULGARIAN = 'bg',
+
+    /**
+     * @en Hindi language code
+     * @zh 语言代码 - 印度语
+     */
+    HINDI = 'hi',
 }

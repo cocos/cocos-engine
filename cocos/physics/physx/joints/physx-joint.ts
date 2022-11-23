@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 import { Constraint, RigidBody } from '../../framework';
 import { IBaseConstraint } from '../../spec/i-physics-constraint';
