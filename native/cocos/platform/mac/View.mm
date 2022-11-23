@@ -29,11 +29,11 @@
 #import <AppKit/NSTouch.h>
 #import <QuartzCore/QuartzCore.h>
 #import "KeyCodeHelper.h"
+#import "application/ApplicationManager.h"
 #import "cocos/bindings/event/EventDispatcher.h"
 #import "platform/mac/AppDelegate.h"
 #import "platform/mac/modules/SystemWindow.h"
 #import "platform/mac/modules/SystemWindowManager.h"
-#import "application/ApplicationManager.h"
 
 @implementation View {
     cc::MouseEvent _mouseEvent;
@@ -83,10 +83,11 @@
 
 - (void)mtkView:(nonnull MTKView *)view drawableSizeWillChange:(CGSize)size {
     cc::WindowEvent ev;
+    ev.windowId = [self getWindowId];
     ev.type = cc::WindowEvent::Type::RESIZED;
     ev.width = static_cast<int>(size.width);
     ev.height = static_cast<int>(size.height);
-    [_delegate dispatchEvent:ev];
+    cc::events::WindowEvent::broadcast(ev);
 }
 
 - (void)displayLayer:(CALayer *)layer {
@@ -102,15 +103,12 @@
     [self viewDidChangeBackingProperties];
 
     if (cc::EventDispatcher::initialized()) {
-        auto *windowMgr = CC_GET_PLATFORM_INTERFACE(cc::SystemWindowManager);
-        auto *window = windowMgr->getWindowFromNSWindow([self window]);
-        
         cc::WindowEvent ev;
-        ev.windowId = window->getWindowId();
+        ev.windowId = [self getWindowId];
         ev.type = cc::WindowEvent::Type::RESIZED;
         ev.width = static_cast<int>(nativeSize.width);
         ev.height = static_cast<int>(nativeSize.height);
-        [_delegate dispatchEvent:ev];
+        cc::events::WindowEvent::broadcast(ev);
     }
 }
 
@@ -122,31 +120,31 @@
     auto width = size.width * self.window.backingScaleFactor;
     auto height = size.height * self.window.backingScaleFactor;
 
-    if(width > 0 && height > 0) {
+    if (width > 0 && height > 0) {
         [super setFrameSize:size];
         layer.drawableSize = CGSizeMake(width, height);
     }
 
     if (cc::EventDispatcher::initialized()) {
-        auto *windowMgr = CC_GET_PLATFORM_INTERFACE(cc::SystemWindowManager);
-        auto *window = windowMgr->getWindowFromNSWindow([self window]);
-        cc::events::Resize::broadcast(static_cast<int>(width), static_cast<int>(height), window->getWindowId());
+        cc::events::Resize::broadcast(static_cast<int>(width), static_cast<int>(height), [self getWindowId]);
     }
 }
 
 - (void)keyDown:(NSEvent *)event {
+    _keyboardEvent.windowId = [self getWindowId];
     _keyboardEvent.key = translateKeycode(event.keyCode);
     _keyboardEvent.action = [event isARepeat] ? cc::KeyboardEvent::Action::REPEAT
                                               : cc::KeyboardEvent::Action::PRESS;
     [self setModifierFlags:event];
-    [_delegate dispatchEvent:_keyboardEvent];
+    cc::events::Keyboard::broadcast(_keyboardEvent);
 }
 
 - (void)keyUp:(NSEvent *)event {
+    _keyboardEvent.windowId = [self getWindowId];
     _keyboardEvent.key = translateKeycode(event.keyCode);
     _keyboardEvent.action = cc::KeyboardEvent::Action::RELEASE;
     [self setModifierFlags:event];
-    [_delegate dispatchEvent:_keyboardEvent];
+    cc::events::Keyboard::broadcast(_keyboardEvent);
 }
 
 - (void)flagsChanged:(NSEvent *)event {
@@ -161,10 +159,11 @@
     if (action == cc::KeyboardEvent::Action::UNKNOWN) {
         return;
     }
+    _keyboardEvent.windowId = [self getWindowId];
     _keyboardEvent.key = keyCode;
     _keyboardEvent.action = action;
     [self setModifierFlags:event];
-    [_delegate dispatchEvent:_keyboardEvent];
+    cc::events::Keyboard::broadcast(_keyboardEvent);
 }
 
 - (void)setModifierFlags:(NSEvent *)event {
@@ -247,7 +246,8 @@
         _mouseEvent.button = 0;
         _mouseEvent.x = deltaX;
         _mouseEvent.y = deltaY;
-        [_delegate dispatchEvent:_mouseEvent];
+        _mouseEvent.windowId = [self getWindowId];
+        cc::events::Mouse::broadcast(_mouseEvent);
     }
 }
 
@@ -271,15 +271,16 @@
     const NSRect contentRect = [self frame];
     const NSPoint pos = [event locationInWindow];
 
-    auto *windowMgr = CC_GET_PLATFORM_INTERFACE(cc::SystemWindowManager);
-    auto *window = windowMgr->getWindowFromNSWindow([self window]);
-    
-    _mouseEvent.windowId = window->getWindowId();
+    _mouseEvent.windowId = [self getWindowId];
     _mouseEvent.type = type;
     _mouseEvent.button = button;
     _mouseEvent.x = pos.x;
     _mouseEvent.y = contentRect.size.height - pos.y;
     cc::events::Mouse::broadcast(_mouseEvent);
 }
-
+- (int)getWindowId {
+    auto *windowMgr = CC_GET_PLATFORM_INTERFACE(cc::SystemWindowManager);
+    auto *window = windowMgr->getWindowFromNSWindow([self window]);
+    return window->getWindowId();
+}
 @end

@@ -1,6 +1,6 @@
 import { Camera, CameraUsage } from '../../render-scene/scene';
-import { buildBloomPass as buildBloomPasses, buildForwardPass,
-    buildNativeDeferredPipeline, buildNativeForwardPass, buildPostprocessPass } from './define';
+import { buildFxaaPass, buildBloomPass as buildBloomPasses, buildForwardPass,
+    buildNativeDeferredPipeline, buildNativeForwardPass, buildPostprocessPass, AntiAliasing } from './define';
 import { Pipeline, PipelineBuilder } from './pipeline';
 
 export class CustomPipelineBuilder implements PipelineBuilder {
@@ -17,10 +17,12 @@ export class CustomPipelineBuilder implements PipelineBuilder {
             if (!isGameView) {
                 continue;
             }
+            // fxaa pass
+            const fxaaInfo = buildFxaaPass(camera, ppl, forwardInfo.rtName);
             // bloom passes
-            const bloomInfo = buildBloomPasses(camera, ppl, forwardInfo.rtName);
+            const bloomInfo = buildBloomPasses(camera, ppl, fxaaInfo.rtName);
             // Present Pass
-            buildPostprocessPass(camera, ppl, bloomInfo.rtName);
+            buildPostprocessPass(camera, ppl, bloomInfo.rtName, AntiAliasing.NONE);
         }
     }
 }

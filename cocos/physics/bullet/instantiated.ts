@@ -36,6 +36,32 @@ if (globalThis.BULLET) {
     bulletLibs = globalThis.BULLET;
 }
 
+//corresponds to bulletType in bullet-compile
+export enum EBulletType{
+    EBulletTypeVec3 = 0,
+    EBulletTypeQuat,
+    EBulletTypeTransform,
+    EBulletTypeMotionState,
+    EBulletTypeCollisionObject,
+    EBulletTypeCollisionShape,
+    EBulletTypeStridingMeshInterface,
+    EBulletTypeTriangleMesh,
+    EBulletTypeCollisionDispatcher,
+    EBulletTypeDbvtBroadPhase,
+    EBulletTypeSequentialImpulseConstraintSolver,
+    EBulletTypeCollisionWorld,
+    EBulletTypeTypedConstraint
+}
+
+//corresponds to btTriangleRaycastCallback::EFlags
+export enum EBulletTriangleRaycastFlag {
+    NONE                            = 0,
+    FilterBackfaces                 = 1 << 0,
+    KeepUnflippedNormal             = 1 << 1, //Prevents returned face normal getting flipped when a ray hits a back-facing triangle
+    UseSubSimplexConvexCastRaytest  = 1 << 2, //default, uses an approximate but faster ray versus convex intersection algorithm
+    UseGjkConvexCastRaytest         = 1 << 3
+}
+
 interface instanceExt extends Bullet.instance {
     CACHE: any,
     BODY_CACHE_NAME: string,

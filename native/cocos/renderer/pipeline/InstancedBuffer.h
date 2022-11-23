@@ -48,6 +48,9 @@ struct CC_DLL InstancedItem {
     gfx::Shader *shader = nullptr;
     gfx::DescriptorSet *descriptorSet = nullptr;
     gfx::Texture *lightingMap = nullptr;
+    gfx::Texture *reflectionProbeCubemap = nullptr;
+    gfx::Texture *reflectionProbePlanarMap = nullptr;
+    uint32_t reflectionProbeType = 0;
 };
 using InstancedItemList = ccstd::vector<InstancedItem>;
 using DynamicOffsetList = ccstd::vector<uint32_t>;

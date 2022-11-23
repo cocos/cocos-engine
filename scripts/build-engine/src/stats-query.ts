@@ -64,6 +64,11 @@ export class StatsQuery {
         return !!this._features[feature];
     }
 
+    // TODO: it seems we don't need this interface for now.
+    // public isNativeOnlyFeature (feature: string) {
+    //     return !!this._features[feature].isNativeOnly;
+    // }
+
     /**
      * Gets all feature units included in specified features.
      * @param featureIds Feature ID.

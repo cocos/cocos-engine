@@ -65,6 +65,7 @@ export enum ProbeResolution {
 export class ReflectionProbe extends Component {
     protected static readonly DEFAULT_CUBE_SIZE: Readonly<Vec3> =  new Vec3(1, 1, 1);
     protected static readonly DEFAULT_PLANER_SIZE: Readonly<Vec3> =  new Vec3(5, 0.5, 5);
+    protected readonly _lastSize = new Vec3();
     @serializable
     protected _resolution = 256;
     @serializable
@@ -93,6 +94,9 @@ export class ReflectionProbe extends Component {
 
     protected _probe: scene.ReflectionProbe | null = null;
 
+    protected _previewSphere: Node | null = null;
+    protected _previewPlane: Node | null = null;
+
     /**
      * @en
      * Gets or sets the size of the box
@@ -114,25 +118,39 @@ export class ReflectionProbe extends Component {
      */
     @type(Enum(ProbeType))
     set probeType (value: number) {
-        this._probeType = value;
-        this.probe.probeType = value;
+        if (value !== this._probeType) {
+            const lastSize = this._size.clone();
+            const lastSizeIsNoExist = Vec3.equals(this._lastSize, Vec3.ZERO);
+            this._probeType = value;
+            this.probe.probeType = value;
 
-        if (this._probeType === ProbeType.CUBE) {
-            this._size.set(ReflectionProbe.DEFAULT_CUBE_SIZE);
-            this.probe.switchProbeType(value);
-            if (EDITOR) {
-                this._objFlags |= CCObject.Flags.IsRotationLocked;
+            if (this._probeType === ProbeType.CUBE) {
+                if (lastSizeIsNoExist) {
+                    this._size.set(ReflectionProbe.DEFAULT_CUBE_SIZE);
+                }
+                this.probe.switchProbeType(value);
+                if (EDITOR) {
+                    this._objFlags |= CCObject.Flags.IsRotationLocked;
+                }
+                ReflectionProbeManager.probeManager.updatePlanarMap(this.probe, null);
+            } else {
+                if (lastSizeIsNoExist) {
+                    this._size.set(ReflectionProbe.DEFAULT_PLANER_SIZE);
+                }
+                if (EDITOR && this._objFlags & CCObject.Flags.IsRotationLocked) {
+                    this._objFlags ^= CCObject.Flags.IsRotationLocked;
+                }
+                if (!this._sourceCamera) {
+                    console.warn('the reflection camera is invalid, please set the reflection camera');
+                } else {
+                    this.probe.switchProbeType(value, this._sourceCamera.camera);
+                }
             }
-        } else {
-            this._size.set(ReflectionProbe.DEFAULT_PLANER_SIZE);
-            if (EDITOR && this._objFlags & CCObject.Flags.IsRotationLocked) {
-                this._objFlags ^= CCObject.Flags.IsRotationLocked;
+            if (!lastSizeIsNoExist) {
+                this._size.set(this._lastSize);
             }
-            if (!this._sourceCamera) {
-                console.warn('the reflection camera is invalid, please set the reflection camera');
-                return;
-            }
-            this.probe.switchProbeType(value, this._sourceCamera.camera);
+            this._lastSize.set(lastSize);
+            this.size = this._size;
         }
     }
     get probeType () {
@@ -216,13 +234,41 @@ export class ReflectionProbe extends Component {
         return this._sourceCamera!;
     }
 
-    set cubemap (val: TextureCube) {
+    set cubemap (val: TextureCube | null) {
         this._cubemap = val;
         this.probe.cubemap = val;
     }
 
     get probe () {
         return this._probe!;
+    }
+
+    /**
+     * @en Reflection probe cube mode preview sphere
+     * @zh 反射探针cube模式的预览小球
+     */
+    set previewSphere (val: Node) {
+        this._previewSphere = val;
+        this.probe.previewSphere = val;
+        if (this._previewSphere) {
+            ReflectionProbeManager.probeManager.updatePreviewSphere(this.probe);
+        }
+    }
+
+    get previewSphere () {
+        return this._previewSphere!;
+    }
+
+    /**
+     * @en Reflection probe planar mode preview plane
+     * @zh 反射探针Planar模式的预览平面
+     */
+    set previewPlane (val: Node) {
+        this._previewPlane = val;
+    }
+
+    get previewPlane () {
+        return this._previewPlane!;
     }
 
     public onLoad () {
@@ -244,6 +290,7 @@ export class ReflectionProbe extends Component {
 
     public start () {
         if (this._sourceCamera && this.probeType === ProbeType.PLANAR) {
+            ReflectionProbeManager.probeManager.updateUsePlanarModels(this.probe);
             this.probe.renderPlanarReflection(this.sourceCamera.camera);
         }
     }
@@ -255,15 +302,9 @@ export class ReflectionProbe extends Component {
     }
 
     public update (dt: number) {
-        if (this.probeType === ProbeType.CUBE) {
-            if (EDITOR) {
-                if (this.node.hasChangedFlags) {
-                    this.probe.updateBoundingBox();
-                    ReflectionProbeManager.probeManager.updateModes(this.probe);
-                }
-            }
-        } else {
-            if (EDITOR) {
+        if (!this.probe) return;
+        if (EDITOR) {
+            if (this.probeType === ProbeType.PLANAR) {
                 const cameraLst: scene.Camera[] | undefined = this.node.scene.renderScene?.cameras;
                 if (cameraLst !== undefined) {
                     for (let i = 0; i < cameraLst.length; ++i) {
@@ -275,22 +316,25 @@ export class ReflectionProbe extends Component {
                     }
                 }
             }
-            if (this.node.hasChangedFlags) {
-                this.probe.updateBoundingBox();
-                ReflectionProbeManager.probeManager.updateModes(this.probe);
-            }
+            this.probe.updateBoundingBox();
+            ReflectionProbeManager.probeManager.updateUseCubeModels(this.probe);
+            ReflectionProbeManager.probeManager.updateUsePlanarModels(this.probe);
         }
     }
 
-    public onFocusInEditor () {
-        if (this.probeType === ProbeType.CUBE) {
-            ReflectionProbeManager.probeManager.updateModes(this.probe);
-        }
+    /**
+     * @en Clear the baked cubemap.
+     * @zh 清除烘焙的cubemap
+     */
+    public clearBakedCubemap () {
+        this.cubemap = null;
+        ReflectionProbeManager.probeManager.updateBakedCubemap(this.probe);
+        ReflectionProbeManager.probeManager.updatePreviewSphere(this.probe);
     }
 
     private _createProbe () {
         if (this._probeId === -1 || ReflectionProbeManager.probeManager.exists(this._probeId)) {
-            this._probeId = this.node.scene.getNewReflectionProbeId();
+            this._probeId = ReflectionProbeManager.probeManager.getNewReflectionProbeId();
         }
         this._probe = new scene.ReflectionProbe(this._probeId);
         if (this._probe) {

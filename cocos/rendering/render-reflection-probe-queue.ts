@@ -28,11 +28,19 @@ import { SetIndex } from './define';
 import { Device, RenderPass, Shader, CommandBuffer } from '../gfx';
 import { getPhaseID } from './pass-phase';
 import { PipelineStateManager } from './pipeline-state-manager';
-import { Pass } from '../render-scene/core/pass';
+import { Pass, BatchingSchemes } from '../render-scene/core/pass';
 import { Model } from '../render-scene/scene/model';
-import { ReflectionProbe, SKYBOX_FLAG } from '../render-scene/scene';
+import { ProbeType, ReflectionProbe, SKYBOX_FLAG } from '../render-scene/scene';
 import { PipelineRuntime } from './custom/pipeline';
-import { RenderScene } from '../render-scene';
+import { IMacroPatch, RenderScene } from '../render-scene';
+import { RenderInstancedQueue } from './render-instanced-queue';
+import { RenderBatchedQueue } from './render-batched-queue';
+import { geometry } from '../core';
+import { Layers } from '../scene-graph/layers';
+
+// eslint-disable-next-line max-len
+const REFLECTION_PROBE_DEFAULT_MASK = Layers.makeMaskExclude([Layers.BitMask.UI_2D, Layers.BitMask.UI_3D, Layers.BitMask.GIZMOS, Layers.BitMask.EDITOR,
+    Layers.BitMask.SCENE_GIZMO, Layers.BitMask.PROFILER]);
 
 const CC_USE_RGBE_OUTPUT = 'CC_USE_RGBE_OUTPUT';
 const _phaseID = getPhaseID('default');
@@ -66,12 +74,16 @@ export class RenderReflectionProbeQueue {
     private _subModelsArray: SubModel[] = [];
     private _passArray: Pass[] = [];
     private _shaderArray: Shader[] = [];
+    private _rgbeSubModelsArray:SubModel[]=[]
+    private _instancedQueue: RenderInstancedQueue;
+    private _batchedQueue: RenderBatchedQueue;
 
     public constructor (pipeline: PipelineRuntime) {
         this._pipeline = pipeline;
+        this._instancedQueue = new RenderInstancedQueue();
+        this._batchedQueue = new RenderBatchedQueue();
     }
-
-    public gatherRenderObjects (probe: ReflectionProbe, scene:RenderScene) {
+    public gatherRenderObjects (probe: ReflectionProbe, scene:RenderScene, cmdBuff: CommandBuffer) {
         this.clear();
         const sceneData = this._pipeline.pipelineSceneData;
         const skybox = sceneData.skybox;
@@ -86,21 +98,29 @@ export class RenderReflectionProbeQueue {
         for (let i = 0; i < models.length; i++) {
             const model = models[i];
             // filter model by view visibility
-            if (model.enabled) {
-                if (model.node && ((visibility & model.node.layer) === model.node.layer)
-                      || (visibility & model.visFlags)) {
-                    if (model.bakeToReflectionProbe) {
+            if (model.enabled && model.node && model.bakeToReflectionProbe) {
+                if (probe.probeType === ProbeType.CUBE) {
+                    if ((((visibility & model.node.layer) === model.node.layer) || (visibility & model.visFlags))
+                        && geometry.intersect.aabbWithAABB(model.worldBounds, probe.boundingBox!)) {
                         this.add(model);
                     }
+                } else if (((model.node.layer & REFLECTION_PROBE_DEFAULT_MASK) === model.node.layer)
+                    || (REFLECTION_PROBE_DEFAULT_MASK & model.visFlags)) {
+                    this.add(model);
                 }
             }
         }
+        this._instancedQueue.uploadBuffers(cmdBuff);
+        this._batchedQueue.uploadBuffers(cmdBuff);
     }
 
     public clear () {
         this._subModelsArray.length = 0;
         this._shaderArray.length = 0;
         this._passArray.length = 0;
+        this._instancedQueue.clear();
+        this._batchedQueue.clear();
+        this._rgbeSubModelsArray.length = 0;
     }
 
     public add (model: Model) {
@@ -115,15 +135,34 @@ export class RenderReflectionProbeQueue {
                 bUseReflectPass = false;
             }
             if (passIdx < 0) { continue; }
+
             const pass = subModel.passes[passIdx];
+            const batchingScheme = pass.batchingScheme;
+
             if (!bUseReflectPass) {
-                pass.defines[CC_USE_RGBE_OUTPUT] = true;
-                subModel.onPipelineStateChanged();
+                let patches: IMacroPatch[] | null = subModel.patches;
+                const useRGBEPatchs: IMacroPatch[] = [
+                    { name: CC_USE_RGBE_OUTPUT, value: true },
+                ];
+                patches = patches ? patches.concat(useRGBEPatchs) : useRGBEPatchs;
+                subModel.onMacroPatchesStateChanged(patches);
+                this._rgbeSubModelsArray.push(subModel);
             }
-            const shader = subModel.shaders[passIdx];
-            this._subModelsArray.push(subModel);
-            if (shader) this._shaderArray.push(shader);
-            this._passArray.push(pass);
+
+            if (batchingScheme === BatchingSchemes.INSTANCING) {            // instancing
+                const buffer = pass.getInstancedBuffer();
+                buffer.merge(subModel, passIdx);
+                this._instancedQueue.queue.add(buffer);
+            } else if (pass.batchingScheme === BatchingSchemes.VB_MERGING) { // vb-merging
+                const buffer = pass.getBatchedBuffer();
+                buffer.merge(subModel, passIdx, model);
+                this._batchedQueue.queue.add(buffer);
+            } else {
+                const shader = subModel.shaders[passIdx];
+                this._subModelsArray.push(subModel);
+                if (shader) this._shaderArray.push(shader);
+                this._passArray.push(pass);
+            }
         }
     }
 
@@ -132,6 +171,9 @@ export class RenderReflectionProbeQueue {
      * record CommandBuffer
      */
     public recordCommandBuffer (device: Device, renderPass: RenderPass, cmdBuff: CommandBuffer) {
+        this._instancedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
+        this._batchedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
+
         for (let i = 0; i < this._subModelsArray.length; ++i) {
             const subModel = this._subModelsArray[i];
             const shader = this._shaderArray[i];
@@ -146,13 +188,24 @@ export class RenderReflectionProbeQueue {
             cmdBuff.bindInputAssembler(ia);
             cmdBuff.draw(ia);
         }
+        this.resetRGBEMacro();
+        this._instancedQueue.clear();
+        this._batchedQueue.clear();
     }
-    public resetMacro () {
-        for (let i = 0; i < this._subModelsArray.length; ++i) {
-            const subModel = this._subModelsArray[i];
-            const pass = this._passArray[i];
-            pass.defines[CC_USE_RGBE_OUTPUT] = false;
-            subModel.onPipelineStateChanged();
+    public resetRGBEMacro () {
+        for (let i = 0; i < this._rgbeSubModelsArray.length; i++) {
+            const subModel = this._rgbeSubModelsArray[i];
+            // eslint-disable-next-line prefer-const
+            let patches: IMacroPatch[] | null = subModel.patches;
+            if (!patches) continue;
+            for (let j = 0; j < patches.length; j++) {
+                const patch = patches[j];
+                if (patch.name === CC_USE_RGBE_OUTPUT) {
+                    patches.splice(j, 1);
+                    break;
+                }
+            }
+            subModel.onMacroPatchesStateChanged(patches);
         }
     }
 }

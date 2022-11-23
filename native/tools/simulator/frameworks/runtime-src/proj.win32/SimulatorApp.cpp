@@ -54,6 +54,7 @@
 #include "platform/FileUtils.h"
 #include "platform/interfaces/modules/IScreen.h"
 #include "platform/interfaces/modules/ISystemWindow.h"
+#include "platform/interfaces/modules/ISystemWindowManager.h"
 #include "platform/win32/PlayerMenuServiceWin.h"
 #include "platform/win32/PlayerWin.h"
 
@@ -356,7 +357,7 @@ int SimulatorApp::run() {
 
     // path for looking Lang file, Studio Default images
     FileUtils::getInstance()->addSearchPath(getApplicationPath().c_str());
-    ISystemWindow* systemWindowIntf = CC_GET_PLATFORM_INTERFACE(ISystemWindow);
+    ISystemWindow* systemWindowIntf = CC_GET_MAIN_SYSTEM_WINDOW();
     _hwnd = reinterpret_cast<HWND>(systemWindowIntf->getWindowHandle());
     player::PlayerWin::createWithHwnd(_hwnd);
     DragAcceptFiles(_hwnd, TRUE);
@@ -777,7 +778,7 @@ int SimulatorApp::getWidth() const {
     return (int)(frameScale * frameSize.width);
 }
 
-int SimulatorApp::getHegith() const {
+int SimulatorApp::getHeight() const {
     cc::Size frameSize = _project.getFrameSize();
     float frameScale = _project.getFrameScale();
     return (int)(frameScale * frameSize.height);
