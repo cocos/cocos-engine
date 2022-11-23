@@ -23,6 +23,7 @@ function downloadScript (url, options, onComplete) {
         onComplete && onComplete(new Error('Can not load remote scripts'));
     }
     else {
+        //TODO: Can't load scripts dynamically on Taobao platform
         if (sys.platform !== sys.Platform.TAOBAO_CREATIVE_APP) {
             require('../../../' + url);
         }
@@ -242,6 +243,7 @@ function downloadBundle (nameOrUrl, options, onComplete) {
                 js = `assets/${bundleName}/index.${suffix}js`;
             }
         }
+        //TODO: Can't load scripts dynamically on Taobao platform
         if (sys.platform !== sys.Platform.TAOBAO_CREATIVE_APP) {
             require('./' + js);
         }

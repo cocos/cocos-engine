@@ -1,6 +1,6 @@
 import { noop } from './util/index.js'
 
-// TODO 需要 my.getSystemInfo 获取更详细信息
+// TODO: Need my.getSystemInfo for more details
 const systemInfo = my.getSystemInfoSync()
 console.log(systemInfo)
 
@@ -19,9 +19,9 @@ const navigator = {
   language: language,
   appVersion: `5.0 (${uaDesc}) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1`,
   userAgent: ua,
-  onLine: true, // TODO 用 my.getNetworkStateChange 和 my.onNetworkStateChange 来返回真实的状态
+  onLine: true, // TODO: Use my.getNetworkStateChange and my.onNetworkStateChange to return the real state
 
-  // TODO 用 my.getLocation 来封装 geolocation
+  // TODO: Wrap the geolocation with my.getLocation
   geolocation: {
     getCurrentPosition: noop,
     watchPosition: noop,

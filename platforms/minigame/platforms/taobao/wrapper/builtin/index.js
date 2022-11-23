@@ -4,7 +4,7 @@ import { document } from './document'
 var global = $global;
 
 function inject () {
-  // 暴露全局的 canvas
+  // Expose the global canvas
   _window.canvas = $global.screencanvas;
   _window.document = document;
 
@@ -18,7 +18,7 @@ function inject () {
 
   const { platform } = my.getSystemInfoSync()
 
-  // 开发者工具无法重定义 window
+  // Developer tools cannot redefine window
   if (typeof __devtoolssubcontext === 'undefined' && platform === 'devtools') {
     for (const key in _window) {
       const descriptor = Object.getOwnPropertyDescriptor(global, key)

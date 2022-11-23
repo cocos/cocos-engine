@@ -1,5 +1,5 @@
 export default class ImageBitmap {
-    constructor() {
-        // TODO
+    constructor () {
+
     }
 }

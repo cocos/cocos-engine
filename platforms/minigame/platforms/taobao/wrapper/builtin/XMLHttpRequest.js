@@ -18,7 +18,7 @@ function _changeReadyState(readyState) {
 }
 
 export default class XMLHttpRequest extends EventTarget {
-  // TODO 没法模拟 HEADERS_RECEIVED 和 LOADING 两个状态
+  // TODO: No way to simulate HEADERS_RECEIVED and LOADING states
   static UNSEND = 0
   static OPENED = 1
   static HEADERS_RECEIVED = 2
@@ -27,7 +27,7 @@ export default class XMLHttpRequest extends EventTarget {
 
   timeout = 0;
   /*
-   * TODO 这一批事件应该是在 XMLHttpRequestEventTarget.prototype 上面的
+   * TODO: This batch of events should be on top of the XMLHttpRequestEventTarget.prototype
    */
   onabort = null
   onerror = null
@@ -77,7 +77,7 @@ export default class XMLHttpRequest extends EventTarget {
     return _responseHeader.get(this)[header]
   }
 
-  open(method, url/* async, user, password 这几个参数在小程序内不支持*/) {
+  open(method, url/* async, user, password. These parameters are not supported within the applet*/) {
     _method.set(this, method)
     _url.set(this, url)
     _changeReadyState.call(this, XMLHttpRequest.OPENED)
