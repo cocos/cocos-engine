@@ -82,8 +82,6 @@ export class AudioContextAgent {
                 context.resume().then(() => {
                     canvas?.removeEventListener('touchend', onGesture, { capture: true });
                     canvas?.removeEventListener('mouseup', onGesture, { capture: true });
-                    console.log('done');
-
                     resolve();
                 }).catch((e) => {});
             };
