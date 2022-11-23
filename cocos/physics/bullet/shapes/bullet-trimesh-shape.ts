@@ -24,7 +24,7 @@
  */
 
 import { BulletShape } from './bullet-shape';
-import { warnID } from '../../../core';
+import { Vec3, warnID } from '../../../core';
 import { Mesh } from '../../../3d/assets';
 import { MeshCollider } from '../../../../exports/physics-framework';
 import { cocos2BulletVec3, cocos2BulletTriMesh } from '../bullet-utils';
@@ -34,7 +34,7 @@ import { bt, EBulletType } from '../instantiated';
 import { BulletTriangleMesh } from '../bullet-triangle-mesh';
 
 export class BulletTrimeshShape extends BulletShape implements ITrimeshShape {
-    private static mapTrimesh2BVH = {};
+    private static mapTrimesh2btBVHMeshShape = {};
 
     public get collider () {
         return this._collider as MeshCollider;
@@ -52,17 +52,20 @@ export class BulletTrimeshShape extends BulletShape implements ITrimeshShape {
                 const btTriangleMesh = this._getBtTriangleMesh(mesh);
                 if (this.collider.convex) {
                     this._impl = bt.ConvexTriangleMeshShape_new(btTriangleMesh);
-                } else if (BulletTrimeshShape.mapTrimesh2BVH[mesh.hash] == null) { // triangle mesh and bvh is not built
-                    this._impl = bt.BvhTriangleMeshShape_new(btTriangleMesh, true, true);
-                    BulletTrimeshShape.mapTrimesh2BVH[mesh.hash] = bt.BvhTriangleMeshShape_getOptimizedBvh(this._impl);
-                } else if (BulletTrimeshShape.mapTrimesh2BVH[mesh.hash]) { // triangle mesh and bvh is already built
-                    this._impl = bt.BvhTriangleMeshShape_new(btTriangleMesh, true, false);
-                    bt.BvhTriangleMeshShape_setOptimizedBvh(this._impl, BulletTrimeshShape.mapTrimesh2BVH[mesh.hash]);
+                } else if (BulletTrimeshShape.mapTrimesh2btBVHMeshShape[mesh.hash] == null) { // triangle mesh and bvh is not built
+                    const bvhTrimesh = bt.BvhTriangleMeshShape_new(btTriangleMesh, true, true);
+                    BulletTrimeshShape.mapTrimesh2btBVHMeshShape[mesh.hash] = bvhTrimesh;
+                    const scale = new Vec3(1);
+                    this._impl = bt.ScaledBvhTriangleMeshShape_new(bvhTrimesh, scale.x, scale.y, scale.z);
+                } else if (BulletTrimeshShape.mapTrimesh2btBVHMeshShape[mesh.hash]) { // triangle mesh and bvh is already built
+                    const bvhMeshShapePtr = BulletTrimeshShape.mapTrimesh2btBVHMeshShape[mesh.hash];
+                    const scale = new Vec3(1);
+                    this._impl = bt.ScaledBvhTriangleMeshShape_new(bvhMeshShapePtr, scale.x, scale.y, scale.z);
                 }
                 const bt_v3 = BulletCache.instance.BT_V3_0;
                 cocos2BulletVec3(bt_v3, this._collider.node.worldScale);
-                bt.CollisionShape_setMargin(this._impl, 0.01);
                 bt.CollisionShape_setLocalScaling(this._impl, bt_v3);
+                bt.CollisionShape_setMargin(this._impl, 0.01);
                 this.setCompound(this._compound);
                 this.updateByReAdd();
                 this.setWrapper();
