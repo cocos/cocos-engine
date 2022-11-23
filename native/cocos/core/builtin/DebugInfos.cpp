@@ -431,6 +431,8 @@ ccstd::unordered_map<int, ccstd::string> debugInfos = {
 { 12007, "This is old usage, please swap the parameters." },
 { 12008, "GeometryRenderer: too many lines." },
 { 12009, "GeometryRenderer: too many triangles." },
+{ 12010, "PassUtils: illegal uniform handle, accessing uniform at offset %d" },
+{ 12011, "Pass: setUniform is invoked with incompatible uniform data type for binding %d, expected type is %s" },
 { 12100, "The font size is too big to be fitted into texture atlas. Please switch to other label cache modes or choose a smaller font size." },
 { 12101, "The asset %s has been destroyed!" },
 { 13100, "Incorrect CCON magic." },
