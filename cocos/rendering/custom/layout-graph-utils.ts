@@ -147,12 +147,12 @@ export class PrintVisitor extends DefaultVisitor {
         } else {
             this.oss += `RenderPhase {\n`;
         }
-        this.space += '    ';
+        this.space = indent(this.space);
 
         // eslint-disable-next-line no-loop-func
         ppl.descriptorSets.forEach((value, key) => {
             this.oss += `${this.space}DescriptorSet<${getUpdateFrequencyName(key)}> {\n`;
-            this.space += '    ';
+            this.space = indent(this.space);
             const uniformBlocks = value.descriptorSetLayoutData.uniformBlocks;
             uniformBlocks.forEach((uniformBlock, attrNameID) => {
                 const name = g.valueNames[attrNameID];
@@ -195,12 +195,12 @@ export class PrintVisitor extends DefaultVisitor {
                 }
                 this.oss += `${this.space}}\n`;
             }
-            this.space = this.space.substring(0, this.space.length - 4);
+            this.space = unindent(this.space);
             this.oss += `${this.space}}\n`;
         });
     }
     finishVertex (v: number, g: LayoutGraphData) {
-        this.space = this.space.substring(0, this.space.length - 4);
+        this.space = unindent(this.space);
         this.oss += `${this.space}}\n`;
     }
     space = '';
@@ -952,6 +952,7 @@ class LayoutGraphBuilder2 implements LayoutGraphBuilder {
             LayoutGraphDataValue.RenderPhase,
             new RenderPhaseData(), name,
             UpdateFrequency.PER_PHASE, new PipelineLayoutData(),
+            parentID,
         );
     }
     addShader (name: string, parentPhaseID: number): void {
