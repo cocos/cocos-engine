@@ -218,7 +218,6 @@ export class LODGroup extends Component {
 
     constructor () {
         super();
-        this._lodGroup.objectSize = this._objectSize;
     }
 
     /**
@@ -498,6 +497,7 @@ export class LODGroup extends Component {
         this._lodGroup.node = this.node;
         // objectSize maybe initialized from deserialize
         this._lodGroup.objectSize = this._objectSize;
+        this._lodGroup.localBoundaryCenter = this._localBoundaryCenter;
         if (!this._eventRegistered) {
             this.node.on(NodeEventType.COMPONENT_REMOVED, this._onRemove, this);
             this._eventRegistered = true;
