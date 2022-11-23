@@ -10907,6 +10907,43 @@ static bool js_cc_IPassStates_phase_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_IPassStates_phase_get) 
 
+static bool js_cc_IPassStates_pass_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::IPassStates *arg1 = (cc::IPassStates *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::IPassStates>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg1->pass, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_IPassStates_pass_set) 
+
+static bool js_cc_IPassStates_pass_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::IPassStates *arg1 = (cc::IPassStates *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::IPassStates>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= nativevalue_to_se(arg1->pass, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(arg1->pass, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_IPassStates_pass_get) 
+
 static bool js_new_cc_IPassStates__SWIG_0(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
@@ -11060,6 +11097,12 @@ bool sevalue_to_native(const se::Value &from, cc::IPassStates * to, se::Object *
     }
     
     
+    json->getProperty("pass", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->pass), ctx);
+    }
+    
+    
     return ok;
 }
 
@@ -11075,6 +11118,7 @@ bool js_register_cc_IPassStates(se::Object* obj) {
     cls->defineProperty("blendState", _SE(js_cc_IPassStates_blendState_get), _SE(js_cc_IPassStates_blendState_set)); 
     cls->defineProperty("dynamicStates", _SE(js_cc_IPassStates_dynamicStates_get), _SE(js_cc_IPassStates_dynamicStates_set)); 
     cls->defineProperty("phase", _SE(js_cc_IPassStates_phase_get), _SE(js_cc_IPassStates_phase_set)); 
+    cls->defineProperty("pass", _SE(js_cc_IPassStates_pass_get), _SE(js_cc_IPassStates_pass_set)); 
     
     cls->defineFunction("overrides", _SE(js_cc_IPassStates_overrides)); 
     
@@ -15222,6 +15266,419 @@ bool js_register_cc_IBuiltins(se::Object* obj) {
 }
 
 
+se::Class* __jsb_cc_IDescriptorInfo_class = nullptr;
+se::Object* __jsb_cc_IDescriptorInfo_proto = nullptr;
+SE_DECLARE_FINALIZE_FUNC(js_delete_cc_IDescriptorInfo) 
+
+static bool js_cc_IDescriptorInfo_rate_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::IDescriptorInfo *arg1 = (cc::IDescriptorInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::IDescriptorInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg1->rate, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_IDescriptorInfo_rate_set) 
+
+static bool js_cc_IDescriptorInfo_rate_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::IDescriptorInfo *arg1 = (cc::IDescriptorInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::IDescriptorInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= nativevalue_to_se(arg1->rate, s.rval(), s.thisObject()); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_IDescriptorInfo_rate_get) 
+
+static bool js_cc_IDescriptorInfo_blocks_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::IDescriptorInfo *arg1 = (cc::IDescriptorInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::IDescriptorInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg1->blocks, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_IDescriptorInfo_blocks_set) 
+
+static bool js_cc_IDescriptorInfo_blocks_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::IDescriptorInfo *arg1 = (cc::IDescriptorInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::IDescriptorInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= nativevalue_to_se(arg1->blocks, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(arg1->blocks, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_IDescriptorInfo_blocks_get) 
+
+static bool js_cc_IDescriptorInfo_samplerTextures_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::IDescriptorInfo *arg1 = (cc::IDescriptorInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::IDescriptorInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg1->samplerTextures, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_IDescriptorInfo_samplerTextures_set) 
+
+static bool js_cc_IDescriptorInfo_samplerTextures_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::IDescriptorInfo *arg1 = (cc::IDescriptorInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::IDescriptorInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= nativevalue_to_se(arg1->samplerTextures, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(arg1->samplerTextures, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_IDescriptorInfo_samplerTextures_get) 
+
+static bool js_cc_IDescriptorInfo_samplers_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::IDescriptorInfo *arg1 = (cc::IDescriptorInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::IDescriptorInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg1->samplers, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_IDescriptorInfo_samplers_set) 
+
+static bool js_cc_IDescriptorInfo_samplers_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::IDescriptorInfo *arg1 = (cc::IDescriptorInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::IDescriptorInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= nativevalue_to_se(arg1->samplers, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(arg1->samplers, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_IDescriptorInfo_samplers_get) 
+
+static bool js_cc_IDescriptorInfo_textures_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::IDescriptorInfo *arg1 = (cc::IDescriptorInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::IDescriptorInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg1->textures, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_IDescriptorInfo_textures_set) 
+
+static bool js_cc_IDescriptorInfo_textures_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::IDescriptorInfo *arg1 = (cc::IDescriptorInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::IDescriptorInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= nativevalue_to_se(arg1->textures, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(arg1->textures, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_IDescriptorInfo_textures_get) 
+
+static bool js_cc_IDescriptorInfo_buffers_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::IDescriptorInfo *arg1 = (cc::IDescriptorInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::IDescriptorInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg1->buffers, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_IDescriptorInfo_buffers_set) 
+
+static bool js_cc_IDescriptorInfo_buffers_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::IDescriptorInfo *arg1 = (cc::IDescriptorInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::IDescriptorInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= nativevalue_to_se(arg1->buffers, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(arg1->buffers, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_IDescriptorInfo_buffers_get) 
+
+static bool js_cc_IDescriptorInfo_images_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::IDescriptorInfo *arg1 = (cc::IDescriptorInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::IDescriptorInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg1->images, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_IDescriptorInfo_images_set) 
+
+static bool js_cc_IDescriptorInfo_images_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::IDescriptorInfo *arg1 = (cc::IDescriptorInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::IDescriptorInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= nativevalue_to_se(arg1->images, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(arg1->images, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_IDescriptorInfo_images_get) 
+
+static bool js_cc_IDescriptorInfo_subpassInputs_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::IDescriptorInfo *arg1 = (cc::IDescriptorInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::IDescriptorInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg1->subpassInputs, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_IDescriptorInfo_subpassInputs_set) 
+
+static bool js_cc_IDescriptorInfo_subpassInputs_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::IDescriptorInfo *arg1 = (cc::IDescriptorInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::IDescriptorInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= nativevalue_to_se(arg1->subpassInputs, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(arg1->subpassInputs, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_IDescriptorInfo_subpassInputs_get) 
+
+static bool js_new_cc_IDescriptorInfo(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    
+    cc::IDescriptorInfo *result;
+    result = (cc::IDescriptorInfo *)new cc::IDescriptorInfo();
+    
+    
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    s.thisObject()->setPrivateObject(ptr);
+    return true;
+}
+SE_BIND_CTOR(js_new_cc_IDescriptorInfo, __jsb_cc_IDescriptorInfo_class, js_delete_cc_IDescriptorInfo)
+
+static bool js_delete_cc_IDescriptorInfo(se::State& s)
+{
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_delete_cc_IDescriptorInfo) 
+
+template<>
+bool sevalue_to_native(const se::Value &from, cc::IDescriptorInfo * to, se::Object *ctx)
+{
+    assert(from.isObject());
+    se::Object *json = from.toObject();
+    auto* data = reinterpret_cast<cc::IDescriptorInfo*>(json->getPrivateData());
+    if (data) {
+        *to = *data;
+        return true;
+    }
+    se::Value field;
+    bool ok = true;
+    
+    json->getProperty("rate", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->rate), ctx);
+    }
+    
+    
+    json->getProperty("blocks", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->blocks), ctx);
+    }
+    
+    
+    json->getProperty("samplerTextures", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->samplerTextures), ctx);
+    }
+    
+    
+    json->getProperty("samplers", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->samplers), ctx);
+    }
+    
+    
+    json->getProperty("textures", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->textures), ctx);
+    }
+    
+    
+    json->getProperty("buffers", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->buffers), ctx);
+    }
+    
+    
+    json->getProperty("images", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->images), ctx);
+    }
+    
+    
+    json->getProperty("subpassInputs", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->subpassInputs), ctx);
+    }
+    
+    
+    return ok;
+}
+
+
+bool js_register_cc_IDescriptorInfo(se::Object* obj) {
+    auto* cls = se::Class::create("IDescriptorInfo", obj, nullptr, _SE(js_new_cc_IDescriptorInfo)); 
+    
+    cls->defineProperty("rate", _SE(js_cc_IDescriptorInfo_rate_get), _SE(js_cc_IDescriptorInfo_rate_set)); 
+    cls->defineProperty("blocks", _SE(js_cc_IDescriptorInfo_blocks_get), _SE(js_cc_IDescriptorInfo_blocks_set)); 
+    cls->defineProperty("samplerTextures", _SE(js_cc_IDescriptorInfo_samplerTextures_get), _SE(js_cc_IDescriptorInfo_samplerTextures_set)); 
+    cls->defineProperty("samplers", _SE(js_cc_IDescriptorInfo_samplers_get), _SE(js_cc_IDescriptorInfo_samplers_set)); 
+    cls->defineProperty("textures", _SE(js_cc_IDescriptorInfo_textures_get), _SE(js_cc_IDescriptorInfo_textures_set)); 
+    cls->defineProperty("buffers", _SE(js_cc_IDescriptorInfo_buffers_get), _SE(js_cc_IDescriptorInfo_buffers_set)); 
+    cls->defineProperty("images", _SE(js_cc_IDescriptorInfo_images_get), _SE(js_cc_IDescriptorInfo_images_set)); 
+    cls->defineProperty("subpassInputs", _SE(js_cc_IDescriptorInfo_subpassInputs_get), _SE(js_cc_IDescriptorInfo_subpassInputs_set)); 
+    
+    
+    
+    
+    
+    cls->defineFinalizeFunction(_SE(js_delete_cc_IDescriptorInfo));
+    
+    
+    cls->install();
+    JSBClassType::registerClass<cc::IDescriptorInfo>(cls);
+    
+    __jsb_cc_IDescriptorInfo_proto = cls->getProto();
+    __jsb_cc_IDescriptorInfo_class = cls;
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
+
 se::Class* __jsb_cc_IShaderSource_class = nullptr;
 se::Object* __jsb_cc_IShaderSource_proto = nullptr;
 SE_DECLARE_FINALIZE_FUNC(js_delete_cc_IShaderSource) 
@@ -15933,6 +16390,43 @@ static bool js_cc_IShaderInfo_subpassInputs_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_IShaderInfo_subpassInputs_get) 
 
+static bool js_cc_IShaderInfo_descriptors_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::IShaderInfo *arg1 = (cc::IShaderInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::IShaderInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg1->descriptors, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_IShaderInfo_descriptors_set) 
+
+static bool js_cc_IShaderInfo_descriptors_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::IShaderInfo *arg1 = (cc::IShaderInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::IShaderInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= nativevalue_to_se(arg1->descriptors, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(arg1->descriptors, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_IShaderInfo_descriptors_get) 
+
 static bool js_cc_IShaderInfo_getSource(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -16090,6 +16584,12 @@ bool sevalue_to_native(const se::Value &from, cc::IShaderInfo * to, se::Object *
     }
     
     
+    json->getProperty("descriptors", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->descriptors), ctx);
+    }
+    
+    
     return ok;
 }
 
@@ -16112,6 +16612,7 @@ bool js_register_cc_IShaderInfo(se::Object* obj) {
     cls->defineProperty("buffers", _SE(js_cc_IShaderInfo_buffers_get), _SE(js_cc_IShaderInfo_buffers_set)); 
     cls->defineProperty("images", _SE(js_cc_IShaderInfo_images_get), _SE(js_cc_IShaderInfo_images_set)); 
     cls->defineProperty("subpassInputs", _SE(js_cc_IShaderInfo_subpassInputs_get), _SE(js_cc_IShaderInfo_subpassInputs_set)); 
+    cls->defineProperty("descriptors", _SE(js_cc_IShaderInfo_descriptors_get), _SE(js_cc_IShaderInfo_descriptors_set)); 
     
     cls->defineFunction("getSource", _SE(js_cc_IShaderInfo_getSource)); 
     
@@ -26338,6 +26839,7 @@ bool register_all_assets(se::Object* obj) {
     js_register_cc_IBuiltin(ns); 
     js_register_cc_IBuiltinInfo(ns); 
     js_register_cc_IBuiltins(ns); 
+    js_register_cc_IDescriptorInfo(ns); 
     js_register_cc_IShaderSource(ns); 
     js_register_cc_IShaderInfo(ns); 
     js_register_cc_EffectAsset(ns); 
