@@ -3,6 +3,8 @@ import { createEval } from './create-eval';
 import { MotionEvalContext } from './motion';
 import { AnimationBlend, AnimationBlendEval, AnimationBlendItem } from './animation-blend';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
+import { AnimationGraphLayerWideBindingContext } from './animation-graph-context';
+import { ReadonlyClipOverrideMap } from './graph-eval';
 
 const { ccclass, serializable } = _decorator;
 
@@ -46,9 +48,10 @@ export class AnimationBlendDirect extends AnimationBlend {
         return that;
     }
 
-    public [createEval] (context: MotionEvalContext) {
+    public [createEval] (context: AnimationGraphLayerWideBindingContext, clipOverrides: ReadonlyClipOverrideMap | null) {
         const myEval = new AnimationBlendDirectEval(
             context,
+            clipOverrides,
             this,
             this._items,
             this._items.map(({ weight }) => weight),

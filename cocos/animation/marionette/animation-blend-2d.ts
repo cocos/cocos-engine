@@ -5,6 +5,8 @@ import { MotionEvalContext } from './motion';
 import { BindableNumber, bindOr, VariableType } from './parametric';
 import { sampleFreeformCartesian, sampleFreeformDirectional, blendSimpleDirectional } from './blend-2d';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
+import { AnimationGraphLayerWideBindingContext } from './animation-graph-context';
+import { ReadonlyClipOverrideMap } from './graph-eval';
 
 const { ccclass, serializable } = _decorator;
 
@@ -69,9 +71,10 @@ export class AnimationBlend2D extends AnimationBlend {
         return that;
     }
 
-    public [createEval] (context: MotionEvalContext) {
+    public [createEval] (context: AnimationGraphLayerWideBindingContext, clipOverrides: ReadonlyClipOverrideMap | null) {
         const evaluation = new AnimationBlend2DEval(
             context,
+            clipOverrides,
             this,
             this._items,
             this._items.map(({ threshold }) => threshold),
@@ -79,7 +82,7 @@ export class AnimationBlend2D extends AnimationBlend {
             [0.0, 0.0],
         );
         const initialValueX = bindOr(
-            context,
+            context.up,
             this.paramX,
             VariableType.FLOAT,
             evaluation.setInput,
@@ -87,7 +90,7 @@ export class AnimationBlend2D extends AnimationBlend {
             0,
         );
         const initialValueY = bindOr(
-            context,
+            context.up,
             this.paramY,
             VariableType.FLOAT,
             evaluation.setInput,
@@ -112,14 +115,15 @@ class AnimationBlend2DEval extends AnimationBlendEval {
     private _value = new Vec2();
 
     constructor (
-        context: MotionEvalContext,
+        context: AnimationGraphLayerWideBindingContext,
+        clipOverrides: ReadonlyClipOverrideMap | null,
         base: AnimationBlend,
         items: AnimationBlendItem[],
         thresholds: readonly Vec2[],
         algorithm: Algorithm,
         inputs: [number, number],
     ) {
-        super(context, base, items, inputs);
+        super(context, clipOverrides, base, items, inputs);
         this._thresholds = thresholds;
         this._algorithm = algorithm;
         this.doEval();

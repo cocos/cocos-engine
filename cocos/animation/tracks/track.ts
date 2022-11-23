@@ -1,8 +1,9 @@
 import { ccclass, serializable, uniquelyReferenced } from 'cc.decorator';
 import { SUPPORT_JIT } from 'internal:constants';
 import type { Component } from '../../scene-graph/component';
-import type { ObjectCurve, QuatCurve, RealCurve } from '../../core';
-import { assertIsTrue, errorID, warnID, js } from '../../core';
+import { error, ObjectCurve, QuatCurve, RealCurve, errorID, warnID, js } from '../../core';
+import { assertIsTrue } from '../../core/data/utils/asserts';
+
 import { Node } from '../../scene-graph';
 import { CLASS_NAME_PREFIX_ANIM, createEvalSymbol } from '../define';
 import type { AnimationMask } from '../marionette/animation-mask';
@@ -10,6 +11,7 @@ import { PoseOutput } from '../pose-output';
 import { ComponentPath, HierarchyPath, isPropertyPath, TargetPath } from '../target-path';
 import { IValueProxyFactory } from '../value-proxy';
 import { Range } from './utils';
+import { AnimationClipGraphBindingContext, bindPoseTransform } from '../marionette/animation-graph-animation-clip-binding';
 
 const normalizedFollowTag = Symbol('NormalizedFollow');
 
@@ -17,10 +19,10 @@ const parseTrsPathTag = Symbol('ConvertAsTrsPath');
 
 export const trackBindingTag = Symbol('TrackBinding');
 
-export type RuntimeBinding = {
-    setValue(value: unknown): void;
+export type RuntimeBinding<T = unknown> = {
+    setValue(value: T): void;
 
-    getValue?(): unknown;
+    getValue?(): T;
 };
 
 export type Binder = (binding: TrackBinding) => undefined | RuntimeBinding;
@@ -379,6 +381,52 @@ export class TrackBinding {
         }
     }
 
+    public createRuntimeBindingAG (bindContext: AnimationClipGraphBindingContext) {
+        const {
+            origin,
+        } = bindContext;
+        const { path, proxy } = this;
+        const nPaths = path.length;
+        const iLastPath = nPaths - 1;
+
+        if (nPaths !== 0 && (path.isPropertyAt(iLastPath) || path.isElementAt(iLastPath)) && !proxy) {
+            const lastPropertyKey = path.isPropertyAt(iLastPath)
+                ? path.parsePropertyAt(iLastPath)
+                : path.parseElementAt(iLastPath);
+            const resultTarget = path[normalizedFollowTag](origin, 0, nPaths - 1) as any;
+            if (resultTarget === null) {
+                return null;
+            }
+
+            if (resultTarget instanceof Node && isTrsPropertyName(lastPropertyKey)) {
+                const transformPath = (() => {
+                    const segments = [] as string[];
+                    let node: Node | null = resultTarget;
+                    for (; node && node !== origin; node = node.parent) {
+                        segments.unshift(node.name);
+                    }
+                    if (node === origin) {
+                        return segments.join('/');
+                    } else {
+                        return undefined;
+                    }
+                })();
+                if (typeof transformPath === 'string') {
+                    const transformHandle = bindContext.bindTransform(transformPath);
+                    if (!transformHandle) {
+                        return undefined;
+                    }
+                    return bindPoseTransform(transformHandle, lastPropertyKey);
+                }
+            }
+        }
+
+        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        // TODO: here should be resolved before this can be landed.
+        error(`Animation graph currently only supports (bone) transform animations.`);
+        return undefined;
+    }
+
     public isMaskedOff (mask: AnimationMask) {
         const trsPath = this.parseTrsPath();
         if (!trsPath) {
@@ -474,18 +522,26 @@ export abstract class Track {
     /**
      * @internal
      */
-    public abstract [createEvalSymbol] (runtimeBinding: RuntimeBinding): TrackEval;
+    public abstract [createEvalSymbol] (): TrackEval<any>;
 
     @serializable
     private _binding = new TrackBinding();
 }
 
-export interface TrackEval {
+export interface TrackEval<TValue> {
     /**
-      * Evaluates the track.
-      * @param time The time.
-      */
-    evaluate(time: number, runtimeBinding: RuntimeBinding): unknown;
+     * A flag indicating if the track requires a default value to be passed to `this.evaluate`.
+     */
+    readonly requiresDefault: boolean;
+
+    /**
+     * Evaluates the track.
+     * @param time The time.
+     * @param defaultValue A default value.
+     * This param will be passed if `this.requiresDefault === true` and
+     * the caller is able to provide such a default value.
+     */
+    evaluate(time: number, defaultValue?: TValue extends unknown ? unknown : Readonly<TValue>): TValue;
 }
 
 export type Curve = RealCurve | QuatCurve | ObjectCurve<unknown>;
@@ -556,7 +612,7 @@ export abstract class SingleChannelTrack<TCurve extends Curve> extends Track {
     /**
      * @internal
      */
-    public [createEvalSymbol] (_runtimeBinding: RuntimeBinding): TrackEval {
+    public [createEvalSymbol] (): TrackEval<unknown> {
         const { curve } = this._channel;
         return new SingleChannelTrackEval(curve);
     }
@@ -565,8 +621,12 @@ export abstract class SingleChannelTrack<TCurve extends Curve> extends Track {
     private _channel: Channel<TCurve>;
 }
 
-class SingleChannelTrackEval<TCurve extends Curve> implements TrackEval {
+class SingleChannelTrackEval<TCurve extends Curve> implements TrackEval<unknown> {
     constructor (private _curve: TCurve) {
+    }
+
+    public get requiresDefault () {
+        return false;
     }
 
     public evaluate (time: number) {

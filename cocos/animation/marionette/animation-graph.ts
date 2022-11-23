@@ -689,6 +689,9 @@ export class Layer implements OwnedBy<AnimationGraph> {
     @serializable
     public mask: AnimationMask | null = null;
 
+    @serializable
+    public additive = false;
+
     /**
      * @marked_as_engine_private
      */

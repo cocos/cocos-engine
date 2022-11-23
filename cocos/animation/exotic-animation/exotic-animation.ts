@@ -1,5 +1,9 @@
 import { EDITOR, TEST } from 'internal:constants';
-import { binarySearchEpsilon, clamp, lerp, Quat, Vec3, assertIsTrue, _decorator } from '../../core';
+import { binarySearchEpsilon, clamp, lerp, Quat, Vec3, _decorator } from '../../core';
+import { assertIsTrue } from '../../core/data/utils/asserts';
+import { AnimationClipGraphBindingContext } from '../marionette/animation-graph-animation-clip-binding';
+import { TransformHandle } from '../core/animation-handle';
+import { Pose } from '../core/pose';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
 import { Binder, RuntimeBinding, TrackBinding, TrackPath } from '../tracks/track';
 
@@ -23,6 +27,10 @@ function throwIfSplitMethodIsNotValid (): never {
 export class ExoticAnimation {
     public createEvaluator (binder: Binder) {
         return new ExoticTrsAnimationEvaluator(this._nodeAnimations, binder);
+    }
+
+    public createEvaluatorForAnimationGraph (context: AnimationClipGraphBindingContext) {
+        return new ExoticTrsAGEvaluation(this._nodeAnimations, context);
     }
 
     public addNodeAnimation (path: string) {
@@ -83,6 +91,19 @@ class ExoticNodeAnimation {
             this._rotation,
             this._scale,
             binder,
+        );
+    }
+
+    public createEvaluatorForAnimationGraph (context: AnimationClipGraphBindingContext) {
+        const transformHandle = context.bindTransform(this._path);
+        if (!transformHandle) {
+            return null;
+        }
+        return new ExoticNodeAnimationEvaluatorX(
+            transformHandle,
+            this._position,
+            this._rotation,
+            this._scale,
         );
     }
 
@@ -678,6 +699,84 @@ class ExoticTrackEvaluator<TValue> {
 interface ExoticTrackEvaluationRecord<TValue> {
     runtimeBinding: RuntimeBinding;
     evaluator: ExoticTrackEvaluator<TValue>;
+}
+
+/**
+ * Exotic TRS animation graph evaluator.
+ */
+export class ExoticTrsAGEvaluation {
+    constructor (nodeAnimations: ExoticNodeAnimation[], context: AnimationClipGraphBindingContext) {
+        this._nodeEvaluations = nodeAnimations.map(
+            (nodeAnimation) => nodeAnimation.createEvaluatorForAnimationGraph(context),
+        ).filter((x) => !!x) as ExoticNodeAnimationEvaluatorX[];
+    }
+
+    public destroy () {
+        this._nodeEvaluations.forEach((nodeEvaluation) => {
+            nodeEvaluation.destroy();
+        });
+    }
+
+    public evaluate (time: number, pose: Pose) {
+        this._nodeEvaluations.forEach((nodeEvaluator) => {
+            nodeEvaluator.evaluate(time, pose);
+        });
+    }
+
+    private _nodeEvaluations: ExoticNodeAnimationEvaluatorX[];
+}
+
+class ExoticNodeAnimationEvaluatorX {
+    constructor (
+        transformHandle: TransformHandle,
+        position: ExoticVec3Track | null,
+        rotation: ExoticQuatTrack | null,
+        scale: ExoticVec3Track | null,
+    ) {
+        this._transformHandle = transformHandle;
+        if (position) {
+            this._position = new ExoticTrackEvaluator(position.times, position.values, Vec3);
+        }
+        if (rotation) {
+            this._rotation = new ExoticTrackEvaluator(rotation.times, rotation.values, Quat);
+        }
+        if (scale) {
+            this._scale = new ExoticTrackEvaluator(scale.times, scale.values, Vec3);
+        }
+    }
+
+    public destroy () {
+        this._transformHandle.destroy();
+    }
+
+    public evaluate (time: number, pose: Pose) {
+        const {
+            _transformHandle: transformHandle,
+            _position: position,
+            _rotation: rotation,
+            _scale: scale,
+        } = this;
+        const {
+            transforms: poseTransforms,
+        } = pose;
+        if (position) {
+            const value = position.evaluate(time);
+            poseTransforms.setPosition(transformHandle.index, value);
+        }
+        if (rotation) {
+            const rotationAbs = rotation.evaluate(time);
+            poseTransforms.setRotation(transformHandle.index, rotationAbs);
+        }
+        if (scale) {
+            const value = scale.evaluate(time);
+            poseTransforms.setScale(transformHandle.index, value);
+        }
+    }
+
+    private _position: ExoticTrackEvaluator<Vec3> | null = null;
+    private _rotation: ExoticTrackEvaluator<Quat> | null = null;
+    private _scale: ExoticTrackEvaluator<Vec3> | null = null;
+    private _transformHandle: TransformHandle;
 }
 
 interface InputSampleResult {
