@@ -36,7 +36,7 @@ export * from './types';
 export * from './pipeline';
 export * from './archive';
 
-export const enableEffectImport = false;
+export const enableEffectImport = true;
 
 export function createCustomPipeline (): Pipeline {
     const ppl = render.Factory.createPipeline();
