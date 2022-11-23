@@ -67,7 +67,7 @@ exports.template = /* html */`
                 <option value="38">LoopReverse</option>
             </ui-select>
         </ui-prop>
-        <ui-prop>
+        <ui-prop ui="asset">
             <span slot="label">Speed</span>
             <ui-num-input slot="content" class="speed"></ui-num-input>
         </ui-prop>
