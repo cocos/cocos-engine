@@ -13,12 +13,16 @@ function ensurePlaying (domAudio: HTMLAudioElement): Promise<void> {
         }
         promise.then(resolve).catch(() => {
             const onGesture = () => {
-                domAudio.play().catch((e) => {});
+                domAudio.play().then(() => {
+                    // HACK NOTE: if the user slide after touch start, the context cannot be resumed correctly.
+                    canvas?.removeEventListener('touchend', onGesture, { capture: true });
+                    canvas?.removeEventListener('mouseup', onGesture, { capture: true });
+                }).catch((e) => {});
                 resolve();
             };
             const canvas = document.getElementById('GameCanvas') as HTMLCanvasElement;
-            canvas?.addEventListener('touchend', onGesture, { once: true });
-            canvas?.addEventListener('mousedown', onGesture, { once: true });
+            canvas?.addEventListener('touchend', onGesture, { capture: true });
+            canvas?.addEventListener('mouseup', onGesture, { capture: true });
         });
         return null;
     });
