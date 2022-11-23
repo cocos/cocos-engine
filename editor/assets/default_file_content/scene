@@ -225,12 +225,12 @@
     },
     "_skyColorLDR": {
       "__type__": "cc.Vec4",
-        "x": 0.452588
+        "x": 0.452588,
         "y": 0.607642,
         "z": 0.755699,
         "w": 0
     },
-      "_skyIllumLDR": 0.8,
+    "_skyIllumLDR": 0.8,
     "_groundAlbedoLDR": {
       "__type__": "cc.Vec4",
         "x": 0.618555,
