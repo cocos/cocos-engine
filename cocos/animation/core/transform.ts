@@ -208,7 +208,6 @@ export const __applyDeltaTransform = (() => {
     return (out: Transform, base: Readonly<Transform>, delta: Readonly<Transform>, alpha: number) => {
         Vec3.scaleAndAdd(out.position, base.position, delta.position, alpha);
         const weightedDeltaRotation = Quat.slerp(cacheQuat, Quat.IDENTITY, delta.rotation, alpha);
-        // TODO: order??
         Quat.multiply(out.rotation, weightedDeltaRotation, base.rotation);
         Vec3.scaleAndAdd(out.scale, base.scale, delta.scale, alpha);
     };
