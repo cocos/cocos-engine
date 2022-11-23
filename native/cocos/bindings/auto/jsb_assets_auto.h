@@ -420,6 +420,15 @@ template<>
 bool sevalue_to_native(const se::Value &from, cc::IBuiltins * to, se::Object *ctx);
 
 
+JSB_REGISTER_OBJECT_TYPE(cc::IDescriptorInfo);
+extern se::Object *__jsb_cc_IDescriptorInfo_proto; // NOLINT
+extern se::Class * __jsb_cc_IDescriptorInfo_class; // NOLINT
+
+
+template<>
+bool sevalue_to_native(const se::Value &from, cc::IDescriptorInfo * to, se::Object *ctx);
+
+
 JSB_REGISTER_OBJECT_TYPE(cc::IShaderSource);
 extern se::Object *__jsb_cc_IShaderSource_proto; // NOLINT
 extern se::Class * __jsb_cc_IShaderSource_class; // NOLINT
