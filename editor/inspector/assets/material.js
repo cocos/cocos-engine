@@ -494,6 +494,7 @@ exports.ready = function() {
         this.material.effect = event.target.value;
         this.material.data = await Editor.Message.request('scene', 'query-effect', this.material.effect);
 
+        // change effect then make technique back to 0
         this.$.technique.value = this.material.technique = 0;
 
         await this.updateInterface();
@@ -511,7 +512,7 @@ exports.ready = function() {
 
     // Event triggered when the technique being used is changed
     this.$.technique.addEventListener('change', async (event) => {
-        this.material.technique = event.target.value;
+        this.material.technique = Number(event.target.value);
         await this.updateInterface();
         this.change();
         this.snapshot();
