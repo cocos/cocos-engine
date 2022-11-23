@@ -50,6 +50,26 @@ static bool js_ar_ARModule_getAddedPlanesInfo(se::State& s)
 
 SE_BIND_FUNC(js_ar_ARModule_getAddedPlanesInfo)
 
+static bool js_ar_ARModule_getUpdatedPlanesInfo(se::State& s)
+{
+    cc::ar::ARModule* cobj = (cc::ar::ARModule*)s.nativeThisObject();
+    if (nullptr == cobj) return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        float* result = cobj->getUpdatedPlanesInfo();
+        int len = cobj->getInfoLength();
+        se::Object* planesInfo = se::Object::createTypedArray(se::Object::TypedArrayType::FLOAT32, result, sizeof(float) * len);
+        s.rval().setObject(planesInfo);
+        return true;
+    }
+
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_ar_ARModule_getUpdatedPlanesInfo)
+
 static bool js_ar_ARModule_getRemovedPlanesInfo(se::State& s)
 {
     auto* cobj = SE_THIS_OBJECT<cc::ar::ARModule>(s);
@@ -70,25 +90,30 @@ static bool js_ar_ARModule_getRemovedPlanesInfo(se::State& s)
 }
 SE_BIND_FUNC(js_ar_ARModule_getRemovedPlanesInfo)
 
-static bool js_ar_ARModule_getUpdatedPlanesInfo(se::State& s)
+static bool js_ar_ARModule_getPlanePolygon(se::State& s)
 {
     cc::ar::ARModule* cobj = (cc::ar::ARModule*)s.nativeThisObject();
-    if (nullptr == cobj) return true;
+    SE_PRECONDITION2(cobj, false, "js_ar_ARModule_getPlanePolygon : Invalid Native Object");
+
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        float* result = cobj->getUpdatedPlanesInfo();
+    if (argc == 1) {
+        HolderType<int, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_ar_ARModule_getPlanePolygon : Error processing arguments");
+
+        float* buffer = cobj->getPlanePolygon(arg0.value());
         int len = cobj->getInfoLength();
-        se::Object* planesInfo = se::Object::createTypedArray(se::Object::TypedArrayType::FLOAT32, result, sizeof(float) * len);
-        s.rval().setObject(planesInfo);
+        se::Object* verticesInfo = se::Object::createTypedArray(se::Object::TypedArrayType::FLOAT32, buffer, sizeof(float) * len);
+        s.rval().setObject(verticesInfo);
         return true;
     }
 
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_ar_ARModule_getUpdatedPlanesInfo)
+SE_BIND_FUNC(js_ar_ARModule_getPlanePolygon)
 
 static bool js_ar_ARModule_getAddedSceneMesh(se::State& s)
 {
@@ -400,10 +425,10 @@ static bool js_ar_ARModule_getRemovedFacesInfo(se::State& s)
 }
 SE_BIND_FUNC(js_ar_ARModule_getRemovedFacesInfo)
 
-static bool js_ar_ARModule_getFaceBlendShapesOf(se::State& s)
+static bool js_ar_ARModule_getFaceBlendShapes(se::State& s)
 {
     cc::ar::ARModule* cobj = (cc::ar::ARModule*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_ar_ARModule_getFaceBlendShapesOf : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_ar_ARModule_getFaceBlendShapes : Invalid Native Object");
 
     const auto& args = s.args();
     size_t argc = args.size();
@@ -411,9 +436,9 @@ static bool js_ar_ARModule_getFaceBlendShapesOf(se::State& s)
     if (argc == 1) {
         HolderType<int, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_ar_ARModule_getFaceBlendShapesOf : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_ar_ARModule_getFaceBlendShapes : Error processing arguments");
 
-        float* buffer = cobj->getFaceBlendShapesOf(arg0.value());
+        float* buffer = cobj->getFaceBlendShapes(arg0.value());
         int len = cobj->getInfoLength();
         se::Object* verticesInfo = se::Object::createTypedArray(se::Object::TypedArrayType::FLOAT32, buffer, sizeof(float) * len);
         s.rval().setObject(verticesInfo);
@@ -423,12 +448,13 @@ static bool js_ar_ARModule_getFaceBlendShapesOf(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_ar_ARModule_getFaceBlendShapesOf)
+SE_BIND_FUNC(js_ar_ARModule_getFaceBlendShapes)
 
 bool register_all_ar_manual(se::Object *obj) {
     __jsb_cc_ar_ARModule_proto->defineFunction("getAddedPlanesInfo", _SE(js_ar_ARModule_getAddedPlanesInfo));
-    __jsb_cc_ar_ARModule_proto->defineFunction("getRemovedPlanesInfo", _SE(js_ar_ARModule_getRemovedPlanesInfo));
     __jsb_cc_ar_ARModule_proto->defineFunction("getUpdatedPlanesInfo", _SE(js_ar_ARModule_getUpdatedPlanesInfo));
+    __jsb_cc_ar_ARModule_proto->defineFunction("getRemovedPlanesInfo", _SE(js_ar_ARModule_getRemovedPlanesInfo));
+    __jsb_cc_ar_ARModule_proto->defineFunction("getPlanePolygon", _SE(js_ar_ARModule_getPlanePolygon));
 
     __jsb_cc_ar_ARModule_proto->defineFunction("getAddedSceneMesh", _SE(js_ar_ARModule_getAddedSceneMesh));
     __jsb_cc_ar_ARModule_proto->defineFunction("getUpdatedSceneMesh", _SE(js_ar_ARModule_getUpdatedSceneMesh));
@@ -448,7 +474,7 @@ bool register_all_ar_manual(se::Object *obj) {
     __jsb_cc_ar_ARModule_proto->defineFunction("getAddedFacesInfo", _SE(js_ar_ARModule_getAddedFacesInfo));
     __jsb_cc_ar_ARModule_proto->defineFunction("getUpdatedFacesInfo", _SE(js_ar_ARModule_getUpdatedFacesInfo));
     __jsb_cc_ar_ARModule_proto->defineFunction("getRemovedFacesInfo", _SE(js_ar_ARModule_getRemovedFacesInfo));
-    __jsb_cc_ar_ARModule_proto->defineFunction("getFaceBlendShapesOf", _SE(js_ar_ARModule_getFaceBlendShapesOf));
+    __jsb_cc_ar_ARModule_proto->defineFunction("getFaceBlendShapes", _SE(js_ar_ARModule_getFaceBlendShapes));
 
     return true;
 }

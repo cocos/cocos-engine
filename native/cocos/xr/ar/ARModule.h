@@ -30,7 +30,6 @@
 #include "ar/IARAPI.h"
 #include "base/Macros.h"
 
-
 namespace cc {
 namespace ar {
 
@@ -57,15 +56,21 @@ public:
     TexCoords getCameraTexCoords() const;
 
     void setDisplayGeometry(uint32_t rotation, uint32_t width, uint32_t height) const;
-    void setCameraTextureName(int id);
+    void setCameraClip(float near, float far) const;
+    void setCameraTextureName(int id) const;
     void* getCameraTextureRef() const;
     uint8_t* getCameraDepthBuffer() const;
 
+    LightVal getMainLightDirection() const;
+    LightVal getMainLightIntensity() const;
+
     int tryHitAttachAnchor(int trackableId) const;
-    float* getAnchorPose(int anchorId) const;
-    bool tryHitTest(float xPx, float yPx) const;
-    float* getHitResult() const;
+    Pose getAnchorPose(int anchorId) const;
+
+    bool tryHitTest(float xPx, float yPx, uint32_t trackableTypeMask) const;
+    Pose getHitResult() const;
     int getHitId() const;
+    int getHitType() const;
 
     // for jsb array
     int getInfoLength() const;
@@ -77,6 +82,7 @@ public:
     float* getAddedPlanesInfo() const;
     float* getUpdatedPlanesInfo() const;
     float* getRemovedPlanesInfo() const;
+    float* getPlanePolygon(int id) const;
 
     // scene mesh reconstruction
     void enableSceneMesh(bool enable) const;
@@ -91,6 +97,7 @@ public:
     // image recognition & tracking
     void enableImageTracking(bool enable) const;
     void addImageToLib(const std::string& name) const;
+    void addImageToLibWithSize(const std::string& name, float withInMeters) const;
     void setImageMaxTrackingNumber(int number) const;
     float* getAddedImagesInfo() const;
     float* getUpdatedImagesInfo() const;
@@ -108,7 +115,7 @@ public:
     float* getAddedFacesInfo() const;
     float* getUpdatedFacesInfo() const;
     float* getRemovedFacesInfo() const;
-    float* getFaceBlendShapesOf(int faceRef) const;
+    float* getFaceBlendShapes(int faceRef) const;
 
 private:
     std::unique_ptr<IARAPI> _impl;

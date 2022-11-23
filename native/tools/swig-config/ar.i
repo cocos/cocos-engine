@@ -37,6 +37,7 @@ using namespace cc::ar;
 %ignore cc::ar::ARModule::getAddedPlanesInfo;
 %ignore cc::ar::ARModule::getUpdatedPlanesInfo;
 %ignore cc::ar::ARModule::getRemovedPlanesInfo;
+%ignore cc::ar::ARModule::getPlanePolygon;
 %ignore cc::ar::ARModule::getAddedSceneMesh;
 %ignore cc::ar::ARModule::getUpdatedSceneMesh;
 %ignore cc::ar::ARModule::getRemovedSceneMesh;
@@ -52,7 +53,7 @@ using namespace cc::ar;
 %ignore cc::ar::ARModule::getAddedFacesInfo;
 %ignore cc::ar::ARModule::getUpdatedFacesInfo;
 %ignore cc::ar::ARModule::getRemovedFacesInfo;
-%ignore cc::ar::ARModule::getFaceBlendShapesOf;
+%ignore cc::ar::ARModule::getFaceBlendShapes;
 
 // ----- Rename Section ------
 // Brief: Classes, methods or attributes needs to be renamed

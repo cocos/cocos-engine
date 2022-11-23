@@ -33,6 +33,7 @@ namespace ar {
 using Pose = std::array<float, 7>;
 using Matrix = std::array<float, 16>;
 using TexCoords = std::array<float, 8>;
+using LightVal = std::array<float, 3>;
 
 class IARAPI {
 public:
@@ -51,16 +52,21 @@ public:
     virtual Matrix getCameraViewMatrix() = 0;
     virtual Matrix getCameraProjectionMatrix() = 0;
     virtual TexCoords getCameraTexCoords() = 0;
+
     virtual void setDisplayGeometry(uint32_t rotation, uint32_t width, uint32_t height) = 0;
+    virtual void setCameraClip(float near, float far) = 0;
     virtual void setCameraTextureName(int id) = 0;
     virtual void* getCameraTextureRef() = 0;
     virtual uint8_t* getCameraDepthBuffer() = 0;
 
-    virtual int tryHitAttachAnchor(int planeIndex) = 0;
-    virtual float* getAnchorPose(int index) = 0;
+    virtual LightVal getMainLightDirection() = 0;
+    virtual LightVal getMainLightIntensity() = 0;
 
-    virtual bool raycast(float xPx, float yPx) = 0;
-    virtual float* getRaycastPose() = 0;
+    virtual int tryHitAttachAnchor(int id) = 0;
+    virtual Pose getAnchorPose(int id) = 0;
+
+    virtual bool raycast(float xPx, float yPx, uint32_t trackableTypeMask) = 0;
+    virtual Pose getRaycastPose() = 0;
     virtual int getRaycastTrackableId() = 0;
     virtual int getRaycastTrackableType() = 0;
 
@@ -74,6 +80,7 @@ public:
     virtual float* getAddedPlanesInfo() = 0;
     virtual float* getUpdatedPlanesInfo() = 0;
     virtual float* getRemovedPlanesInfo() = 0;
+    virtual float* getPlanePolygon(int id) = 0;
 
     // scene mesh reconstruction
     virtual void enableSceneMesh(bool enable) = 0;
@@ -81,13 +88,14 @@ public:
     virtual float* getUpdatedSceneMesh() = 0;
     virtual int* getRemovedSceneMesh() = 0;
     virtual int* requireSceneMesh() = 0;
-    virtual float* getSceneMeshVertices(int meshRef) = 0;
-    virtual int* getSceneMeshTriangleIndices(int meshRef) = 0;
+    virtual float* getSceneMeshVertices(int id) = 0;
+    virtual int* getSceneMeshTriangleIndices(int id) = 0;
     virtual void endRequireSceneMesh() = 0;
 
     // image recognition & tracking
     virtual void enableImageTracking(bool enable) = 0;
     virtual void addImageToLib(const std::string& name) = 0;
+    virtual void addImageToLibWithSize(const std::string& name, float withInMeters) = 0;
     virtual void setImageMaxTrackingNumber(int number) = 0;
     virtual float* getAddedImagesInfo() = 0;
     virtual float* getUpdatedImagesInfo() = 0;
@@ -105,7 +113,7 @@ public:
     virtual float* getAddedFacesInfo() = 0;
     virtual float* getUpdatedFacesInfo() = 0;
     virtual float* getRemovedFacesInfo() = 0;
-    virtual float* getFaceBlendShapesOf(int faceRef) = 0;
+    virtual float* getFaceBlendShapes(int id) = 0;
 };
 
 } // namespace ar
