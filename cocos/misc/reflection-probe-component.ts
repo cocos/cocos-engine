@@ -329,6 +329,7 @@ export class ReflectionProbe extends Component {
     public clearBakedCubemap () {
         this.cubemap = null;
         ReflectionProbeManager.probeManager.updateBakedCubemap(this.probe);
+        ReflectionProbeManager.probeManager.updatePreviewSphere(this.probe);
     }
 
     private _createProbe () {
