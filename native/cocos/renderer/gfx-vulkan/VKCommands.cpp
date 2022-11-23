@@ -1736,6 +1736,7 @@ void checkScratchBufferRequirement(CCVKDevice *device, CCVKGPUAccelerationStruct
         accel->scratchBuffer->init();
     }
 }
+
 }
 
 void cmdFuncCCVKBuildAccelerationStructure(CCVKDevice *device,CCVKGPUAccelerationStructure *accel, const CCVKGPUCommandBuffer *gpuCommandBuffer) {
