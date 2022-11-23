@@ -86,7 +86,6 @@ export const clearEmbeddedPlayersTag = Symbol('[[ClearEmbeddedPlayers]]');
 
 /**
  * Tag to access the additive settings associated on animation clip.
- * @engineInternal
  */
 export const additiveSettingsTag = Symbol('[[Additive Settings]]');
 
@@ -241,7 +240,6 @@ export class AnimationClip extends Asset {
 
     /**
      * Accesses the additive animation settings.
-     * @engineInternal
      */
     get [additiveSettingsTag] () {
         return this._additiveSettings;
