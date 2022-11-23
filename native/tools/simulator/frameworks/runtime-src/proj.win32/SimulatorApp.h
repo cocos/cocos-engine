@@ -50,7 +50,7 @@ public:
     virtual int getPositionY();
 
     virtual int getWidth() const;
-    virtual int getHegith() const;
+    virtual int getHeight() const;
 
 protected:
     SimulatorApp();
