@@ -131,10 +131,11 @@ TLSFPool::Block *TLSFPool::searchFreeBlock(uint32_t &fl, uint32_t &sl) {
 }
 
 TLSFPool::Block *TLSFPool::allocate(uint64_t size, uint64_t alignment) {
-    uint64_t allocSize = utils::align(size, std::max(alignment, static_cast<uint64_t>(SMALL_BUFFER_STEP)));
+    uint64_t realAlignment = std::max(alignment, static_cast<uint64_t>(SMALL_BUFFER_STEP));
+    uint64_t allocSize = utils::align(size, realAlignment);
 
     uint64_t alignOffset = 0;
-    Block *block = searchDefault(allocSize, alignment, alignOffset);
+    Block *block = searchDefault(allocSize, realAlignment, alignOffset);
     if (block != nullptr) {
         allocateFromBlock(*block, allocSize, alignOffset);
     }
@@ -154,7 +155,7 @@ void TLSFPool::free(Block *block) {
     } else if (block->nextPhy == _nullBlock) {
         mergeBlock(*block->nextPhy, *block);
     } else {
-        Block *next = block->prevPhy;
+        Block *next = block->nextPhy;
         removeFreeBlock(*next);
         mergeBlock(*next, *block);
         insertFreeBlock(*next);

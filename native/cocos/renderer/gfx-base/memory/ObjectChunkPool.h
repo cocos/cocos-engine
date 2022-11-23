@@ -31,6 +31,12 @@ THE SOFTWARE.
 
 namespace cc::gfx {
 
+template <typename U>
+struct LinkedData {
+    U data;
+    LinkedData *next = nullptr;
+};
+
 template <typename T>
 class ObjectChunkPool {
 public:
@@ -45,12 +51,14 @@ public:
     ObjectChunkPool(ObjectChunkPool&&) noexcept = default;
     ObjectChunkPool &operator=(ObjectChunkPool&&) noexcept = default;
 
+    using Data = LinkedData<T>;
+
     template <typename ...Args>
     T* allocate(Args && ...args) {
         T* ptr = nullptr;
-        if (!_freeList.empty()) {
-            ptr = _freeList.back();
-            _freeList.pop_back();
+        if (freeList != nullptr) {
+            ptr = &freeList->data;
+            freeList = freeList->next;
         } else {
             if (_currentObjectNum == _capacity) {
                 allocateChunk();
@@ -59,7 +67,7 @@ public:
             uint32_t offset = _currentObjectNum % _numberPerChunk;
             ++_currentObjectNum;
 
-            ptr = reinterpret_cast<T*>(&_storages[index].data[offset * sizeof(T)]);
+            ptr = reinterpret_cast<T*>(&_storages[index].data[offset * sizeof(Data)]);
         }
         new (ptr) T(std::forward<T>(args)...);
         return ptr;
@@ -68,7 +76,9 @@ public:
     void free(T *data) {
         if (data != nullptr) {
             data->~T();
-            _freeList.emplace_back(data);
+            Data* ptr = reinterpret_cast<Data*>(data);
+            ptr->next = freeList;
+            freeList = ptr;
         }
     }
 
@@ -79,7 +89,7 @@ private:
 
     void allocateChunk() {
         auto &back = _storages.emplace_back();
-        back.data.resize(_numberPerChunk * sizeof(T));
+        back.data.resize(_numberPerChunk * sizeof(Data));
         _capacity = static_cast<uint32_t>(_storages.size() * _numberPerChunk);
     }
 
@@ -87,7 +97,7 @@ private:
     uint32_t _currentObjectNum;
     uint32_t _capacity;
     ccstd::vector<Chunk> _storages;
-    ccstd::vector<T*> _freeList;
+    Data *freeList = nullptr;
 };
 
 } // namespace cc::gfx
