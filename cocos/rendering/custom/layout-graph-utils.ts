@@ -329,7 +329,7 @@ function getPhaseName (pass: EffectAsset.IPassInfo): string {
     return pass.phase;
 }
 
-class VisibilityIndex {
+export class VisibilityIndex {
     constructor (
         updateFrequency = UpdateFrequency.PER_INSTANCE,
         parameterType = ParameterType.TABLE,
@@ -344,7 +344,7 @@ class VisibilityIndex {
     descriptorType: DescriptorTypeOrder;
 }
 
-class VisibilityBlock {
+export class VisibilityBlock {
     public mergeVisibility (name: string, vis: ShaderStageFlagBit) {
         const v0 = this.descriptors.get(name);
         if (v0 === undefined) {
@@ -364,7 +364,7 @@ class VisibilityBlock {
     descriptors = new Map<string, ShaderStageFlagBit>();
 }
 
-class VisibilityDB {
+export class VisibilityDB {
     public getBlock (index: VisibilityIndex): VisibilityBlock {
         const key = JSON.stringify(index);
         let block = this.blocks.get(key);
@@ -377,7 +377,7 @@ class VisibilityDB {
     blocks = new Map<string, VisibilityBlock>();
 }
 
-class VisibilityPass {
+export class VisibilityPass {
     public getPhase (phaseName: string): VisibilityDB {
         const phase = this.phases.get(phaseName);
         if (phase === undefined) {
