@@ -1734,7 +1734,6 @@ void checkScratchBufferRequirement(CCVKDevice *device, CCVKGPUAccelerationStruct
         accel->scratchBuffer->usage = BufferUsageBit::SHADER_DEVICE_ADDRESS | BufferUsageBit::STORAGE;
         accel->scratchBuffer->memUsage = MemoryUsageBit::DEVICE;
         accel->scratchBuffer->init();
-        //cmdFuncCCVKCreateBuffer(device, accel->scratchBuffer);
     }
 }
 }
@@ -1762,7 +1761,27 @@ void cmdFuncCCVKBuildAccelerationStructure(CCVKDevice *device,CCVKGPUAcceleratio
         buildRangeInfoPtrs[i] = &accelRangeInfosConRef[i];
     }
 
+    {
+        VkMemoryBarrier barrier{VK_STRUCTURE_TYPE_MEMORY_BARRIER};
+        barrier.srcAccessMask = VK_ACCESS_ACCELERATION_STRUCTURE_WRITE_BIT_KHR;
+        barrier.dstAccessMask = VK_ACCESS_ACCELERATION_STRUCTURE_READ_BIT_KHR | VK_ACCESS_ACCELERATION_STRUCTURE_WRITE_BIT_KHR;
+        vkCmdPipelineBarrier(gpuCommandBuffer->vkCommandBuffer,
+                             VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_KHR,
+                             VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_KHR,
+                             0, 1, &barrier, 0, nullptr, 0, nullptr);
+    }
+
     vkCmdBuildAccelerationStructuresKHR(gpuCommandBuffer->vkCommandBuffer, 1, &buildGeomInfo, buildRangeInfoPtrs.data());
+
+     {
+        VkMemoryBarrier barrier{VK_STRUCTURE_TYPE_MEMORY_BARRIER};
+        barrier.srcAccessMask = VK_ACCESS_ACCELERATION_STRUCTURE_WRITE_BIT_KHR;
+        barrier.dstAccessMask = VK_ACCESS_ACCELERATION_STRUCTURE_READ_BIT_KHR | VK_ACCESS_ACCELERATION_STRUCTURE_WRITE_BIT_KHR;
+        vkCmdPipelineBarrier(gpuCommandBuffer->vkCommandBuffer,
+                             VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_KHR,
+                             VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_KHR,
+                             0, 1, &barrier, 0, nullptr, 0, nullptr);
+    }
 
     if (hasFlag(accel->buildFlags, ASBuildFlagBits::ALLOW_COMPACTION)) {
         const auto &vkdevice = device->gpuDevice()->vkDevice;
@@ -1774,14 +1793,6 @@ void cmdFuncCCVKBuildAccelerationStructure(CCVKDevice *device,CCVKGPUAcceleratio
             VK_CHECK(vkCreateQueryPool(vkdevice, &queryPoolCreateInfo, nullptr, &accel->vkCompactedSizeQueryPool));
             vkCmdResetQueryPool(gpuCommandBuffer->vkCommandBuffer, accel->vkCompactedSizeQueryPool, 0, 1);
         }
-
-        VkMemoryBarrier barrier{VK_STRUCTURE_TYPE_MEMORY_BARRIER};
-        barrier.srcAccessMask = VK_ACCESS_ACCELERATION_STRUCTURE_WRITE_BIT_KHR;
-        barrier.dstAccessMask = VK_ACCESS_ACCELERATION_STRUCTURE_READ_BIT_KHR;
-        vkCmdPipelineBarrier(gpuCommandBuffer->vkCommandBuffer,
-                             VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_KHR,
-                             VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_KHR,
-                             0, 1, &barrier, 0, nullptr, 0, nullptr);
 
         vkCmdWriteAccelerationStructuresPropertiesKHR(gpuCommandBuffer->vkCommandBuffer, 1, &accel->vkAccelerationStructure,
                                                       VK_QUERY_TYPE_ACCELERATION_STRUCTURE_COMPACTED_SIZE_KHR, accel->vkCompactedSizeQueryPool, 0);
@@ -1815,7 +1826,27 @@ void cmdFuncCCVKUpdateAccelerationStructure(CCVKDevice *device, CCVKGPUAccelerat
         buildRangeInfoPtrs[i] = &accelRangeInfosConRef[i];
     }
 
+     {
+        VkMemoryBarrier barrier{VK_STRUCTURE_TYPE_MEMORY_BARRIER};
+        barrier.srcAccessMask = VK_ACCESS_ACCELERATION_STRUCTURE_WRITE_BIT_KHR;
+        barrier.dstAccessMask = VK_ACCESS_ACCELERATION_STRUCTURE_READ_BIT_KHR | VK_ACCESS_ACCELERATION_STRUCTURE_WRITE_BIT_KHR;
+        vkCmdPipelineBarrier(gpuCommandBuffer->vkCommandBuffer,
+                             VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_KHR,
+                             VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_KHR,
+                             0, 1, &barrier, 0, nullptr, 0, nullptr);
+    }
+
     vkCmdBuildAccelerationStructuresKHR(gpuCommandBuffer->vkCommandBuffer, 1, &buildGeomInfo, buildRangeInfoPtrs.data());
+
+     {
+        VkMemoryBarrier barrier{VK_STRUCTURE_TYPE_MEMORY_BARRIER};
+        barrier.srcAccessMask = VK_ACCESS_ACCELERATION_STRUCTURE_WRITE_BIT_KHR;
+        barrier.dstAccessMask = VK_ACCESS_ACCELERATION_STRUCTURE_READ_BIT_KHR | VK_ACCESS_ACCELERATION_STRUCTURE_WRITE_BIT_KHR;
+        vkCmdPipelineBarrier(gpuCommandBuffer->vkCommandBuffer,
+                             VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_KHR,
+                             VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_KHR,
+                             0, 1, &barrier, 0, nullptr, 0, nullptr);
+    }
 }
 
 void cmdFuncCCVKCompactAccelerationStructure(CCVKDevice *device, CCVKGPUAccelerationStructure *accel, CCVKGPUAccelerationStructure *res, const CCVKGPUCommandBuffer *gpuCommandBuffer) {
