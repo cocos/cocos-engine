@@ -258,6 +258,15 @@ const cacheManager = require('./jsb-cache-manager');
         },
     });
 
+    const _updateMaterial = skeleton.updateMaterial;
+    skeleton.updateMaterial = function () {
+        _updateMaterial.call(this);
+        if (this._nativeSkeleton) {
+            const mat = this.getMaterialTemplate();
+            this._nativeSkeleton.setMaterial(mat);
+        }
+    };
+
     const _updateDebugDraw = skeleton._updateDebugDraw;
     skeleton._updateDebugDraw = function () {
         _updateDebugDraw.call(this);
@@ -327,6 +336,7 @@ const cacheManager = require('./jsb-cache-manager');
 
         this._nativeSkeleton = nativeSkeleton;
         nativeSkeleton._comp = this;
+        if (this.shouldSchedule) nativeSkeleton.beginSchedule();
 
         nativeSkeleton.setUseTint(this.useTint);
         nativeSkeleton.setOpacityModifyRGB(this.premultipliedAlpha);
@@ -374,7 +384,7 @@ const cacheManager = require('./jsb-cache-manager');
         if (_onEnable) {
             _onEnable.call(this);
         }
-
+        this.shouldSchedule = true;
         if (this._nativeSkeleton) {
             this._nativeSkeleton.onEnable();
         }

@@ -294,8 +294,8 @@ export class MeshRenderer extends ModelRenderer {
     public static ShadowReceivingMode = ModelShadowReceivingMode;
 
     /**
-     * @en The settings for light map baking
-     * @zh 光照贴图烘焙的配置
+     * @en The settings for GI baking, it was called lightmapSettings before
+     * @zh 全局光照烘焙的配置，以前名称为lightmapSettings
      */
     @serializable
     @editable

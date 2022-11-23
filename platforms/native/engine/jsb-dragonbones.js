@@ -371,7 +371,7 @@ const cacheManager = require('./jsb-cache-manager');
                 oldArmature.dispose();
             }
 
-            if (this._armature && !this.isAnimationCached()) {
+            if (this._armature && !this.isAnimationCached() && this.shouldSchedule) {
                 this._factory.add(this._armature);
             }
         },
@@ -418,6 +418,7 @@ const cacheManager = require('./jsb-cache-manager');
         if (this.isAnimationCached()) {
             const isShare = this._cacheMode === AnimationCacheMode.SHARED_CACHE;
             this._nativeDisplay = new dragonBones.CCArmatureCacheDisplay(this.armatureName, this._armatureKey, atlasUUID, isShare);
+            if (this.shouldSchedule) this._nativeDisplay.beginSchedule();
             this._armature = this._nativeDisplay.armature();
         } else {
             this._nativeDisplay = this._factory.buildArmatureDisplay(this.armatureName, this._armatureKey, '', atlasUUID);
@@ -428,7 +429,7 @@ const cacheManager = require('./jsb-cache-manager');
             this._nativeDisplay.setDebugBonesEnabled(this.debugBones);
             this._armature = this._nativeDisplay.armature();
             this._armature.animation.timeScale = this.timeScale;
-            this._factory.add(this._armature);
+            if (this.shouldSchedule) this._factory.add(this._armature);
         }
 
         // add all event into native display
@@ -520,8 +521,13 @@ const cacheManager = require('./jsb-cache-manager');
         if (_onEnable) {
             _onEnable.call(this);
         }
-        if (this._armature && !this.isAnimationCached()) {
-            this._factory.add(this._armature);
+        this.shouldSchedule = true;
+        if (this._armature) {
+            if (this.isAnimationCached()) {
+                this._nativeDisplay.onEnable();
+            } else {
+                this._factory.add(this._armature);
+            }
         }
         this._flushAssembler();
         armatureSystem.getInstance().add(this);
@@ -538,6 +544,15 @@ const cacheManager = require('./jsb-cache-manager');
         }
         armatureSystem.getInstance().remove(this);
         middleware.release();
+    };
+
+    const _updateMaterial = armatureDisplayProto.updateMaterial;
+    armatureDisplayProto.updateMaterial = function () {
+        _updateMaterial.call(this);
+        if (this._nativeDisplay) {
+            const mat = this.getMaterialTemplate();
+            this._nativeDisplay.setMaterial(mat);
+        }
     };
 
     armatureDisplayProto.once = function (eventType, listener, target) {
@@ -587,7 +602,7 @@ const cacheManager = require('./jsb-cache-manager');
         if (this._preCacheMode !== cacheMode) {
             this._cacheMode = cacheMode;
             this._buildArmature();
-        if (this._armature && !this.isAnimationCached()) {
+        if (this._armature && !this.isAnimationCached() && this.shouldSchedule) {
             this._factory.add(this._armature);
         }
             this._updateSocketBindings();
