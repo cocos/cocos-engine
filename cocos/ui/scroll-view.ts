@@ -1150,6 +1150,8 @@ export class ScrollView extends ViewGroup {
 
             // to avoid size changed and auto-spring-back after touching end.
             const boundary = this._getHowMuchOutOfBoundary();
+            // if the _outOfBoundaryAmount !== Vec3.zero, the content will roll after touching end
+            // we should release this rolling event in advance in order to avoid  the weird rolling after touching end
             if (boundary.x !== 0 || boundary.y !== 0) {
                 this._moveContent(boundary);
             }
