@@ -115,7 +115,7 @@ void CCVKAccelerationStructure::doCompact() {
     
     device->gpuRecycleBin()->collect(_gpuAccelerationStructure);
     _gpuAccelerationStructure->vkAccelerationStructure = compactedAccel->_gpuAccelerationStructure->vkAccelerationStructure;
-    _gpuAccelerationStructure->accelStructBackingBuffer = compactedAccel->_gpuAccelerationStructure->accelStructBackingBuffer;
+    _gpuAccelerationStructure->backingBuffer = compactedAccel->_gpuAccelerationStructure->backingBuffer;
     compactedAccel->_gpuAccelerationStructure->vkAccelerationStructure = VK_NULL_HANDLE;
 }
 
@@ -129,7 +129,7 @@ void CCVKGPUAccelerationStructure::shutdown() {
     }
     vkCompactedSizeQueryPool = VK_NULL_HANDLE;
     CCVKDevice::getInstance()->gpuRecycleBin()->collect(this);
-    accelStructBackingBuffer = nullptr;
+    backingBuffer = nullptr;
     instancesBuffer = nullptr;
     scratchBuffer = nullptr;
     aabbsBuffer = nullptr;

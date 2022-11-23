@@ -1686,14 +1686,13 @@ void cmdFuncCCVKCreateAcclerationStructure(CCVKDevice *device, CCVKGPUAccelerati
     accelerationStructureCreateInfo.size = gpuAccelerationStructure->buildSizesInfo.accelerationStructureSize;
 
     // Create Backing buffer
-    gpuAccelerationStructure->accelStructBackingBuffer = ccnew CCVKGPUBuffer;
-    gpuAccelerationStructure->accelStructBackingBuffer->size = accelerationStructureCreateInfo.size;
-    gpuAccelerationStructure->accelStructBackingBuffer->usage = BufferUsageBit::ACCELERATION_STRUCTURE_STORAGE | BufferUsageBit::TRANSFER_DST;
-    gpuAccelerationStructure->accelStructBackingBuffer->memUsage = MemoryUsageBit::DEVICE;
-    gpuAccelerationStructure->accelStructBackingBuffer->init();
-    //cmdFuncCCVKCreateBuffer(device, gpuAccelerationStructure->accelStructBackingBuffer);
+    gpuAccelerationStructure->backingBuffer = ccnew CCVKGPUBuffer;
+    gpuAccelerationStructure->backingBuffer->size = accelerationStructureCreateInfo.size;
+    gpuAccelerationStructure->backingBuffer->usage = BufferUsageBit::ACCELERATION_STRUCTURE_STORAGE | BufferUsageBit::TRANSFER_DST;
+    gpuAccelerationStructure->backingBuffer->memUsage = MemoryUsageBit::DEVICE;
+    gpuAccelerationStructure->backingBuffer->init();
 
-    accelerationStructureCreateInfo.buffer = gpuAccelerationStructure->accelStructBackingBuffer->vkBuffer;
+    accelerationStructureCreateInfo.buffer = gpuAccelerationStructure->backingBuffer->vkBuffer;
     accelerationStructureCreateInfo.type = gpuAccelerationStructure->buildGeometryInfo.type;
     accelerationStructureCreateInfo.offset = 0;
 
@@ -1703,6 +1702,7 @@ void cmdFuncCCVKCreateAcclerationStructure(CCVKDevice *device, CCVKGPUAccelerati
 namespace {
 
 void updateInstanceDataGPUBuffer(CCVKDevice *device, CCVKGPUAccelerationStructure *accel, const CCVKGPUCommandBuffer *gpuCommandBuffer) {
+
     static ccstd::vector<VkAccelerationStructureInstanceKHR> instances{};
     instances.clear();
     const auto &asInstances = std::get<ccstd::vector<ASInstance>>(accel->geomtryInfos);
@@ -1722,13 +1722,15 @@ void updateInstanceDataGPUBuffer(CCVKDevice *device, CCVKGPUAccelerationStructur
 void checkScratchBufferRequirement(CCVKDevice *device, CCVKGPUAccelerationStructure *accel) {
     // Create Scratch Buffer (if needed)
     if (!accel->scratchBuffer || accel->scratchBuffer->size < accel->buildSizesInfo.buildScratchSize) {
+        /*
         if (accel->scratchBuffer) {
             // clean old scrath Buffer
             accel->scratchBuffer = nullptr;
         }
         else {
             accel->scratchBuffer = ccnew CCVKGPUBuffer;
-        }
+        }*/
+        accel->scratchBuffer = ccnew CCVKGPUBuffer;
 
         accel->scratchBuffer->size = accel->buildSizesInfo.buildScratchSize;
         accel->scratchBuffer->usage = BufferUsageBit::SHADER_DEVICE_ADDRESS | BufferUsageBit::STORAGE;
@@ -1740,9 +1742,11 @@ void checkScratchBufferRequirement(CCVKDevice *device, CCVKGPUAccelerationStruct
 }
 
 void cmdFuncCCVKBuildAccelerationStructure(CCVKDevice *device,CCVKGPUAccelerationStructure *accel, const CCVKGPUCommandBuffer *gpuCommandBuffer) {
+
     if (!accel->vkAccelerationStructure) {
         return;
     }
+
     if (accel->buildGeometryInfo.type == VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR) {
         updateInstanceDataGPUBuffer(device, accel,gpuCommandBuffer);
     }
@@ -1862,17 +1866,17 @@ void cmdFuncCCVKCompactAccelerationStructure(CCVKDevice *device, CCVKGPUAccelera
     uint32_t compactedSize{0};
     vkGetQueryPoolResults(vkdevice, accel->vkCompactedSizeQueryPool, 0, 1, sizeof(uint32_t), &compactedSize, sizeof(uint32_t), VK_QUERY_RESULT_WAIT_BIT);
 
-    res->accelStructBackingBuffer = ccnew CCVKGPUBuffer;
-    res->accelStructBackingBuffer->size = compactedSize;
-    res->accelStructBackingBuffer->usage = BufferUsageBit::ACCELERATION_STRUCTURE_STORAGE | BufferUsageBit::TRANSFER_DST;
-    res->accelStructBackingBuffer->memUsage = MemoryUsageBit::DEVICE;
-    res->accelStructBackingBuffer->init();
+    res->backingBuffer = ccnew CCVKGPUBuffer;
+    res->backingBuffer->size = compactedSize;
+    res->backingBuffer->usage = BufferUsageBit::ACCELERATION_STRUCTURE_STORAGE | BufferUsageBit::TRANSFER_DST;
+    res->backingBuffer->memUsage = MemoryUsageBit::DEVICE;
+    res->backingBuffer->init();
 
     VkAccelerationStructureCreateInfoKHR compactedAccelCreateInfo = {VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_CREATE_INFO_KHR};
     compactedAccelCreateInfo.size = compactedSize;
     compactedAccelCreateInfo.type = accel->buildGeometryInfo.type;
     compactedAccelCreateInfo.offset = 0;
-    compactedAccelCreateInfo.buffer = res->accelStructBackingBuffer->vkBuffer;
+    compactedAccelCreateInfo.buffer = res->backingBuffer->vkBuffer;
 
     VK_CHECK(vkCreateAccelerationStructureKHR(vkdevice, &compactedAccelCreateInfo, nullptr, &res->vkAccelerationStructure));
 
