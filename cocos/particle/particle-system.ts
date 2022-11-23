@@ -89,7 +89,7 @@ export class ParticleSystem extends ModelRenderer {
     }
 
     /**
-     * @en Color of particle when start emit
+     * @en The initial color of the particle
      * @zh 粒子初始颜色。
      */
     @type(GradientRange)
@@ -110,7 +110,7 @@ export class ParticleSystem extends ModelRenderer {
     public startSize3D = false;
 
     /**
-     * @en X size of particle when start emit
+     * @en The initial X size of the particle
      * @zh 粒子初始x轴方向大小。
      */
     @formerlySerializedAs('startSize')
@@ -121,7 +121,7 @@ export class ParticleSystem extends ModelRenderer {
     public startSizeX = new CurveRange();
 
     /**
-     * @en Y size of particle when start emit
+     * @en The initial Y size of the particle
      * @zh 粒子初始y轴方向大小。
      */
     @type(CurveRange)
@@ -133,7 +133,7 @@ export class ParticleSystem extends ModelRenderer {
     public startSizeY = new CurveRange();
 
     /**
-     * @en Z size of particle when start emit
+     * @en The initial Z size of the particle
      * @zh 粒子初始z轴方向大小。
      */
     @type(CurveRange)
@@ -145,7 +145,7 @@ export class ParticleSystem extends ModelRenderer {
     public startSizeZ = new CurveRange();
 
     /**
-     * @en Velocity of particle when start emit
+     * @en The initial velocity of the particle
      * @zh 粒子初始速度。
      */
     @type(CurveRange)
@@ -161,7 +161,7 @@ export class ParticleSystem extends ModelRenderer {
     public startRotation3D = false;
 
     /**
-     * @en X axis angle of particle when start emit
+     * @en The initial rotation angle of the particle on X axis
      * @zh 粒子初始x轴旋转角度。
      */
     @type(CurveRange)
@@ -174,7 +174,7 @@ export class ParticleSystem extends ModelRenderer {
     public startRotationX = new CurveRange();
 
     /**
-     * @en Y axis angle of particle when start emit
+     * @en The initial rotation angle of the particle on Y axis
      * @zh 粒子初始y轴旋转角度。
      */
     @type(CurveRange)
@@ -187,7 +187,7 @@ export class ParticleSystem extends ModelRenderer {
     public startRotationY = new CurveRange();
 
     /**
-     * @en Z axis angle of paritlce when start emit
+     * @en The initial rotation angle of the particle on Z axis
      * @zh 粒子初始z轴旋转角度。
      */
     @type(CurveRange)
@@ -200,7 +200,7 @@ export class ParticleSystem extends ModelRenderer {
     public startRotationZ = new CurveRange();
 
     /**
-     * @en Delay time to emit when start play
+     * @en The time delay to start emission after the particle system starts running
      * @zh 粒子系统开始运行后，延迟粒子发射的时间。
      */
     @type(CurveRange)
@@ -231,7 +231,7 @@ export class ParticleSystem extends ModelRenderer {
     public duration = 5.0;
 
     /**
-     * @en Loop play
+     * @en Whether the particle system is looping.
      * @zh 粒子系统是否循环播放。
      */
     @serializable
@@ -257,7 +257,7 @@ export class ParticleSystem extends ModelRenderer {
     }
 
     /**
-     * @en Particle system simulation space
+     * @en The simulation space of the particle system, it could be world, local or custom
      * @zh 选择粒子系统所在的坐标系[[Space]]。<br>
      */
     @type(Space)
@@ -279,7 +279,7 @@ export class ParticleSystem extends ModelRenderer {
     }
 
     /**
-     * @en Paricle system simulation speed
+     * @en The simulation speed of the particle system
      * @zh 控制整个粒子系统的更新速度。
      */
     @serializable
@@ -288,7 +288,7 @@ export class ParticleSystem extends ModelRenderer {
     public simulationSpeed = 1.0;
 
     /**
-     * @en Start play when particle system initialized
+     * @en Automatically start playing after particle system initialized
      * @zh 粒子系统加载后是否自动开始播放。
      */
     @serializable
@@ -297,7 +297,7 @@ export class ParticleSystem extends ModelRenderer {
     public playOnAwake = true;
 
     /**
-     * @en Gravity of particle system
+     * @en The gravity of the particle system
      * @zh 粒子受重力影响的重力系数。
      */
     @type(CurveRange)
@@ -309,8 +309,8 @@ export class ParticleSystem extends ModelRenderer {
 
     // emission module
     /**
-     * @en Emit rate over time
-     * @zh 每秒发射的粒子数。
+     * @en The value curve of emission rate over time
+     * @zh 随时间推移发射的粒子数的变化曲线。
      */
     @type(CurveRange)
     @serializable
@@ -320,8 +320,8 @@ export class ParticleSystem extends ModelRenderer {
     public rateOverTime = new CurveRange();
 
     /**
-     * @en Emit rate over distance
-     * @zh 每移动单位距离发射的粒子数。
+     * @en The value curve of emission rate over distance
+     * @zh 每移动单位距离发射的粒子数的变化曲线。
      */
     @type(CurveRange)
     @serializable
@@ -331,7 +331,7 @@ export class ParticleSystem extends ModelRenderer {
     public rateOverDistance = new CurveRange();
 
     /**
-     * @en Burst triggers of particle system
+     * @en Burst triggers of the particle system
      * @zh 设定在指定时间发射指定数量的粒子的 burst 的数量。
      */
     @type([Burst])
@@ -491,7 +491,7 @@ export class ParticleSystem extends ModelRenderer {
     @type(ColorOverLifetimeModule)
     _colorOverLifetimeModule: ColorOverLifetimeModule | null = null;
     /**
-     * @en Color over life time module
+     * @en The module controlling particles' color over life time
      * @zh 颜色控制模块。
      */
     @type(ColorOverLifetimeModule)
@@ -516,7 +516,7 @@ export class ParticleSystem extends ModelRenderer {
     @type(ShapeModule)
     _shapeModule: ShapeModule | null = null;
     /**
-     * @en Emit shape module
+     * @en The module controlling emitter's shape
      * @zh 粒子发射器模块。
      */
     @type(ShapeModule)
@@ -541,7 +541,7 @@ export class ParticleSystem extends ModelRenderer {
     @type(SizeOvertimeModule)
     _sizeOvertimeModule: SizeOvertimeModule | null = null;
     /**
-     * @en Size over time module
+     * @en The module controlling particles' size over time
      * @zh 粒子大小模块。
      */
     @type(SizeOvertimeModule)
@@ -566,7 +566,7 @@ export class ParticleSystem extends ModelRenderer {
     @type(VelocityOvertimeModule)
     _velocityOvertimeModule: VelocityOvertimeModule | null = null;
     /**
-     * @en Velocity over time module
+     * @en The module controlling particles' velocity over time
      * @zh 粒子速度模块。
      */
     @type(VelocityOvertimeModule)
@@ -591,7 +591,7 @@ export class ParticleSystem extends ModelRenderer {
     @type(ForceOvertimeModule)
     _forceOvertimeModule: ForceOvertimeModule | null = null;
     /**
-     * @en Force over time module
+     * @en The module controlling the force applied to particles over time
      * @zh 粒子加速度模块。
      */
     @type(ForceOvertimeModule)
@@ -617,7 +617,7 @@ export class ParticleSystem extends ModelRenderer {
     _limitVelocityOvertimeModule: LimitVelocityOvertimeModule | null = null;
 
     /**
-     * @en Limit velocity over time module (CPU particle system)
+     * @en The module which limits the velocity applied to particles over time, only supported in CPU particle system
      * @zh 粒子限制速度模块（只支持 CPU 粒子）。
      */
     @type(LimitVelocityOvertimeModule)
@@ -642,7 +642,7 @@ export class ParticleSystem extends ModelRenderer {
     @type(RotationOvertimeModule)
     _rotationOvertimeModule: RotationOvertimeModule | null = null;
     /**
-     * @en Rotation over time module
+     * @en The module controlling the rotation of particles over time
      * @zh 粒子旋转模块。
      */
     @type(RotationOvertimeModule)
@@ -667,7 +667,7 @@ export class ParticleSystem extends ModelRenderer {
     @type(TextureAnimationModule)
     _textureAnimationModule: TextureAnimationModule | null = null;
     /**
-     * @en Texture Animation module
+     * @en The module controlling the texture animation of particles
      * @zh 贴图动画模块。
      */
     @type(TextureAnimationModule)
@@ -692,7 +692,7 @@ export class ParticleSystem extends ModelRenderer {
     @type(NoiseModule)
     private _noiseModule: NoiseModule | null = null;
     /**
-     * @en Noise module (CPU particle system)
+     * @en The module controlling noise map applied to the particles, only supported in CPU particle system
      * @zh 噪声动画模块。
      */
     @type(NoiseModule)
@@ -717,7 +717,7 @@ export class ParticleSystem extends ModelRenderer {
     @type(TrailModule)
     _trailModule: TrailModule | null = null;
     /**
-     * @en Trail module
+     * @en The module controlling the trail module
      * @zh 粒子轨迹模块。
      */
     @type(TrailModule)
