@@ -10,7 +10,12 @@ export class PoseAllocator {
         this._metaValueCount = metaValueCount;
     }
 
+    public get allocatedCount () {
+        return this._allocatedCount;
+    }
+
     public allocatePose (): Pose {
+        ++this._allocatedCount;
         const { _pages: pages } = this;
         const nPages = pages.length;
         for (let iPage = 0; iPage < nPages; ++iPage) {
@@ -32,6 +37,7 @@ export class PoseAllocator {
         assertIsTrue(pageIndex >= 0 && pageIndex < nPages);
         const page = pages[pageIndex];
         page.deallocate(pose);
+        --this._allocatedCount;
     }
 
     private _transformCount = 0;
@@ -39,6 +45,8 @@ export class PoseAllocator {
     private _metaValueCount = 0;
 
     private _pages: PosePage[] = [];
+
+    private _allocatedCount = 0;
 
     private _allocatePoseInNewPage (): PagedPose {
         const page = new PosePage(this._transformCount, this._metaValueCount, 4);

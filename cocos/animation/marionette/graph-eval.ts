@@ -116,6 +116,11 @@ export class AnimationGraphEval {
         }
 
         poseLayoutMaintainer.apply(finalPose);
+        evaluationContext.deletePose(finalPose);
+
+        if (DEBUG) {
+            assertIsTrue(evaluationContext.allocatedPoseCount === 0, `Pose leaked.`);
+        }
     }
 
     public getVariables (): Iterable<Readonly<[string, Readonly<{ type: VariableType }>]>> {

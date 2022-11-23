@@ -477,6 +477,10 @@ export class AnimationGraphEvaluationContext {
      */
     public readonly [defaultTransformsTag]: TransformArray;
 
+    public get allocatedPoseCount () {
+        return this._poseAllocator.allocatedCount;
+    }
+
     public createDefaultedPose () {
         const pose = this._poseAllocator.allocatePose();
         pose.transforms.set(this[defaultTransformsTag]);
