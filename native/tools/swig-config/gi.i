@@ -94,7 +94,7 @@ using namespace cc::gi;
 %attribute(cc::gi::LightProbes, bool, showProbe, isShowProbe, setShowProbe);
 %attribute(cc::gi::LightProbes, bool, showWireframe, isShowWireframe, setShowWireframe);
 %attribute(cc::gi::LightProbes, bool, showConvex, isShowConvex, setShowConvex);
-%attribute(cc::gi::LightProbes, cc::gi::LightProbesData&, data, getData, setData);
+%attribute(cc::gi::LightProbes, cc::gi::LightProbesData*, data, getData, setData);
 
 %attribute(cc::gi::LightProbeInfo, float, giScale, getGIScale, setGIScale);
 %attribute(cc::gi::LightProbeInfo, uint32_t, giSamples, getGISamples, setGISamples);
@@ -103,7 +103,7 @@ using namespace cc::gi;
 %attribute(cc::gi::LightProbeInfo, bool, showProbe, isShowProbe, setShowProbe);
 %attribute(cc::gi::LightProbeInfo, bool, showWireframe, isShowWireframe, setShowWireframe);
 %attribute(cc::gi::LightProbeInfo, bool, showConvex, isShowConvex, setShowConvex);
-%attribute(cc::gi::LightProbeInfo, cc::gi::LightProbesData&, data, getData, setData);
+%attribute(cc::gi::LightProbeInfo, cc::gi::LightProbesData*, data, getData, setData);
 
 // ----- Import Section ------
 // Brief: Import header files which are depended by 'Include Section'

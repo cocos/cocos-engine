@@ -136,7 +136,7 @@ export class SortingLayers {
      */
     public static init () {
         const sortingLayers = settings.querySettings<SortingItem[]>(Settings.Category.ENGINE, 'sortingLayers');
-        if (!sortingLayers) return;
+        if (!sortingLayers || sortingLayers.length === 0) return;
         SortingLayers.resetState();
         for (let i = 0; i < sortingLayers.length; i++) {
             const layer = sortingLayers[i];
@@ -159,6 +159,13 @@ export class SortingLayers {
                 }
             });
         }
+    }
+
+    /**
+     * @engineInternal
+     */
+    public static getBuiltinLayers (): ReadonlyArray<SortingItem> {
+        return [{ id: 0, name: 'default', value: 0 }];
     }
 
     /**

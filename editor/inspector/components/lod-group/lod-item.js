@@ -20,7 +20,7 @@ exports.template = `
 
     <div class="content">
         <ui-prop>
-            <ui-label slot="label" value="Screen Size (%)"></ui-label>
+            <ui-label slot="label" value="Screen Ratio (%)"></ui-label>
             <div class="screen-size-content" slot="content">
                 <ui-num-input
                     :ref="screenUsagePercentageRef"
@@ -30,7 +30,7 @@ exports.template = `
                     @confirm="onScreenSizeConfirm($event)">
                 </ui-num-input>
                 <ui-button @confirm="applyCameraSize" tooltip="i18n:ENGINE.components.lod.applyCameraSizeTip">
-                    <ui-label value="Apply Current Camera Size"></ui-label>
+                    <ui-label value="Apply Current Screen Ratio"></ui-label>
                 </ui-button>
             </div>
         </ui-prop>

@@ -25,12 +25,11 @@
 import { EDITOR } from 'internal:constants';
 import { Camera, CameraAperture, CameraFOVAxis, CameraISO, CameraProjection, CameraShutter, CameraType, SKYBOX_FLAG, TrackingType } from './camera';
 import { Node } from '../../scene-graph/node';
-import { Color, Quat, Rect, toRadian, Vec2, Vec3, geometry, cclegacy, Vec4, Mat4 } from '../../core';
+import { Color, Quat, Rect, toRadian, Vec2, Vec3, geometry, cclegacy } from '../../core';
 import { CAMERA_DEFAULT_MASK } from '../../rendering/define';
 import { ClearFlagBit, Framebuffer } from '../../gfx';
 import { TextureCube } from '../../asset/assets/texture-cube';
 import { RenderTexture } from '../../asset/assets/render-texture';
-import { Frustum } from '../../core/geometry/frustum';
 
 export enum ProbeClearFlag {
     SKYBOX = SKYBOX_FLAG | ClearFlagBit.DEPTH_STENCIL,
@@ -120,8 +119,6 @@ export class ReflectionProbe {
      * @zh 反射探针cube模式的预览小球
      */
     protected _previewSphere: Node | null = null;
-
-    public _probeFrustum: Frustum = new Frustum();
 
     /**
      * @en Set probe type,cube or planar.
@@ -253,6 +250,7 @@ export class ReflectionProbe {
     /**
      * @en Reflection probe cube mode preview sphere
      * @zh 反射探针cube模式的预览小球
+     * @engineInternal
      */
     set previewSphere (val: Node) {
         this._previewSphere = val;
@@ -272,8 +270,6 @@ export class ReflectionProbe {
         const pos = this.node.getWorldPosition();
         this._boundingBox = geometry.AABB.create(pos.x, pos.y, pos.z, this._size.x, this._size.y, this._size.z);
         this._createCamera(cameraNode);
-
-        this._probeFrustum.accurate = true;
     }
 
     public initBakedTextures () {
@@ -385,7 +381,6 @@ export class ReflectionProbe {
         this.camera.clearFlag = camera.clearFlag;
         this.camera.clearColor = camera.clearColor;
         this.camera.priority = camera.priority - 1;
-        this.camera.fovAxis = camera.fovAxis;
         this.camera.resize(camera.width, camera.height);
     }
 
@@ -463,67 +458,9 @@ export class ReflectionProbe {
         Quat.fromViewUp(this._cameraWorldRotation, this._forward, this._up);
 
         this.cameraNode.worldRotation = this._cameraWorldRotation;
+
         this.camera.update(true);
-
-        // const planeNormal = this.node.up;
-        // const planePos = this.node.worldPosition.add(planeNormal);
-        // const clipPlane = this.cameraSpacePlane(this.camera, planePos.subtract(Vec3.multiplyScalar(new Vec3(), Vec3.UP, 0.1)), planeNormal, 1.0);
-
-        this._calculateObliqueMatrix(this.camera);
     }
-
-    private cameraSpacePlane (cam:Camera,  pos:Vec3, normal:Vec3, sideSign:number) {
-        const offsetPos = pos.add(normal);
-        const m = cam.matView.clone();
-        const cameraPosition = new Vec3();
-        Vec3.transformMat4(cameraPosition, cameraPosition, m);
-        const cameraNormal = Vec3.transformMat4(normal, normal, m);
-        return new Vec4(cameraNormal.x, cameraNormal.y, cameraNormal.z, -Vec3.dot(cameraPosition, cameraNormal));
-    }
-
-    private _calculateObliqueMatrix (camera: Camera) {
-        const viewSpacePlane = new Vec4();
-        viewSpacePlane.x = this.node.worldPosition.x;
-        viewSpacePlane.y = this.node.worldPosition.y;
-        viewSpacePlane.z = this.node.worldPosition.z;
-        viewSpacePlane.w = 1.0;
-
-        Vec3.transformMat4(viewSpacePlane, this.node.worldPosition, camera.matView);
-
-        const projectionMatrix = camera.matProj;
-
-        const clipSpaceFarPanelBoundPoint = new Vec4(Math.sign(viewSpacePlane.x), Math.sign(viewSpacePlane.y), 1, 1);
-        const viewSpaceFarPanelBoundPoint =  clipSpaceFarPanelBoundPoint.transformMat4(camera.matProjInv);
-
-        const m4 = new Vec4(projectionMatrix.m03, projectionMatrix.m07, projectionMatrix.m11, projectionMatrix.m15);
-
-        const u = 2.0 / Vec4.dot(viewSpaceFarPanelBoundPoint, viewSpacePlane);
-        const newViewSpaceNearPlane = viewSpacePlane.multiplyScalar(u);
-
-        //M3' = P - M4
-        const m3 = newViewSpaceNearPlane.subtract(m4);
-
-        /*
-        1    1    1    1
-        1    1    1    1
-        11    11    12    1
-        11    11    12    1
-        */
-
-        projectionMatrix.m02 = m3.x;
-        projectionMatrix.m06 = m3.y;
-        projectionMatrix.m10 = m3.z;
-        projectionMatrix.m14 = m3.w;
-
-        // eslint-disable-next-line prefer-const
-        let matViewProj = camera.matViewProj;
-        // eslint-disable-next-line prefer-const
-        let matViewProjInv = camera.matViewProjInv;
-        Mat4.multiply(matViewProj, projectionMatrix, camera.matView);
-        Mat4.invert(matViewProjInv, matViewProj);
-        this._probeFrustum.update(matViewProj, matViewProjInv);
-    }
-
     private _reflect (out: Vec3, point: Vec3, normal: Vec3, offset: number) {
         const n = Vec3.clone(normal);
         n.normalize();

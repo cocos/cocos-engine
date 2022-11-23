@@ -44,6 +44,7 @@ struct IMemoryImageSource {
     uint32_t width{0};
     uint32_t height{0};
     PixelFormat format{PixelFormat::RGBA8888};
+    ccstd::vector<uint32_t> mipmapLevelDataSize;
 };
 
 /**
@@ -86,6 +87,12 @@ public:
     PixelFormat getFormat() const;
 
     /**
+     * @en The pixel mipmap level data size of the image.
+     * @zh 此图像资源的mipmap层级大小。
+     */
+    const ccstd::vector<uint32_t> &getMipmapLevelDataSize() const;
+
+    /**
      * @en Whether the image is in compressed texture format.
      * @zh 此图像资源是否为压缩像素格式。
      */
@@ -103,16 +110,24 @@ public:
     inline void setHeight(uint32_t height) { _height = height; }
     inline void setFormat(PixelFormat format) { _format = format; }
     inline void setData(uint8_t *data) { _data = data; }
+    inline void setNeedFreeData(bool v) { _needFreeData = v; }
     inline void setUrl(const ccstd::string &url) { _url = url; }
+    inline void setMipmapLevelDataSize(const ccstd::vector<uint32_t> &mipmapLevelDataSize) { _mipmapLevelDataSize = mipmapLevelDataSize; }
 
 private:
+    uint8_t *_data{nullptr};
+
+    PixelFormat _format{PixelFormat::RGBA8888};
     uint32_t _width{0};
     uint32_t _height{0};
-    PixelFormat _format{PixelFormat::RGBA8888};
-    uint8_t *_data{nullptr};
+
     bool _needFreeData{false};     // Should free data if the data is assigned in C++.
+
     ArrayBuffer::Ptr _arrayBuffer; //minggo: hold the data from ImageSource.
+
     ccstd::string _url;
+
+    ccstd::vector<uint32_t> _mipmapLevelDataSize;
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(ImageAsset);
 };

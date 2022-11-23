@@ -100,16 +100,13 @@ export class RenderReflectionProbeQueue {
             // filter model by view visibility
             if (model.enabled && model.node && model.bakeToReflectionProbe) {
                 if (probe.probeType === ProbeType.CUBE) {
-                    if (((visibility & model.node.layer) === model.node.layer) || (visibility & model.visFlags)) {
-                        if (geometry.intersect.aabbWithAABB(model.worldBounds, probe.boundingBox!)) {
-                            this.add(model);
-                        }
-                    }
-                } else if (((model.node.layer & REFLECTION_PROBE_DEFAULT_MASK) === model.node.layer)
-                || (REFLECTION_PROBE_DEFAULT_MASK & model.visFlags)) {
-                    if (model.worldBounds && geometry.intersect.aabbFrustum(model.worldBounds, probe._probeFrustum)) {
+                    if ((((visibility & model.node.layer) === model.node.layer) || (visibility & model.visFlags))
+                        && geometry.intersect.aabbWithAABB(model.worldBounds, probe.boundingBox!)) {
                         this.add(model);
                     }
+                } else if (((model.node.layer & REFLECTION_PROBE_DEFAULT_MASK) === model.node.layer)
+                    || (REFLECTION_PROBE_DEFAULT_MASK & model.visFlags)) {
+                    this.add(model);
                 }
             }
         }

@@ -161,9 +161,7 @@ public:
         _bakeToReflectionProbe = val;
     }
     inline int32_t getReflectionProbeType() const { return _reflectionProbeType; }
-    inline void setReflectionProbeType(int32_t val) {
-        _reflectionProbeType = val;
-    }
+    void setReflectionProbeType(int32_t val);
     inline int32_t getTetrahedronIndex() const { return _tetrahedronIndex; }
     inline void setTetrahedronIndex(int32_t index) { _tetrahedronIndex = index; }
     inline bool showTetrahedron() const { return isLightProbeAvailable(); }
