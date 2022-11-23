@@ -84,6 +84,18 @@ export class SkeletalAnimationState extends AnimationState {
         this.setUseBaked(baked);
     }
 
+    protected onPlay () {
+        super.onPlay();
+        const baked = this._parent!.useBakedAnimation;
+        if (baked) {
+            this._animInfoMgr.switchClip(this._animInfo!, this.clip);
+            const users = this._parent!.getUsers();
+            users.forEach((user) => {
+                user.uploadAnimation(this.clip);
+            });
+        }
+    }
+
     /**
      * @internal This method only friends to `SkeletalAnimation`.
      */
