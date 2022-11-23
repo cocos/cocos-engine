@@ -114,7 +114,6 @@ export class ReflectionProbeManager {
      * @en Update the cubemap captured by the reflection probe.
      * @zh 更新反射探针捕获的cubemap
      * @param probe update the texture for this probe
-     * @engineInternal
      */
     public updateBakedCubemap (probe: ReflectionProbe) {
         const models = this._getModelsByProbe(probe);
@@ -133,7 +132,6 @@ export class ReflectionProbeManager {
      * @en Update the plane reflection map for reflection probe render.
      * @zh 更新反射探针渲染的平面反射贴图
      * @param probe update the texture for this probe
-     * @engineInternal
      */
     public updatePlanarMap (probe: ReflectionProbe, texture: Texture | null) {
         if (!probe.node || !probe.node.scene) return;
@@ -151,7 +149,6 @@ export class ReflectionProbeManager {
      * @en Update objects using reflection probe for planar reflection.
      * @zh 更新使用反射探针进行平面反射的物体。
      * @param probe update the object for this probe
-     * @engineInternal
      */
     public updateUsePlanarModels (probe: ReflectionProbe) {
         if (!probe.node || !probe.node.scene) return;
@@ -185,7 +182,6 @@ export class ReflectionProbeManager {
      * @en Update objects using reflection probe for bake cubemap.
      * @zh 更新使用反射探针烘焙cubemap的物体。
      * @param probe update the object for this probe
-     * @engineInternal
      */
     public updateUseCubeModels (probe: ReflectionProbe) {
         if (!probe.node || !probe.node.scene) return;
@@ -226,7 +222,6 @@ export class ReflectionProbeManager {
     /**
      * @en Update the preview sphere of the Reflection Probe cube mode.
      * @zh 更新反射探针cube模式的预览球
-     * @engineInternal
      */
     public updatePreviewSphere (probe: ReflectionProbe) {
         if (!probe || !probe.previewSphere) return;
