@@ -25,11 +25,12 @@
 import { EDITOR } from 'internal:constants';
 import { Camera, CameraAperture, CameraFOVAxis, CameraISO, CameraProjection, CameraShutter, CameraType, SKYBOX_FLAG, TrackingType } from './camera';
 import { Node } from '../../scene-graph/node';
-import { Color, Quat, Rect, toRadian, Vec2, Vec3, geometry, cclegacy } from '../../core';
+import { Color, Quat, Rect, toRadian, Vec2, Vec3, geometry, cclegacy, Vec4, Mat4 } from '../../core';
 import { CAMERA_DEFAULT_MASK } from '../../rendering/define';
 import { ClearFlagBit, Framebuffer } from '../../gfx';
 import { TextureCube } from '../../asset/assets/texture-cube';
 import { RenderTexture } from '../../asset/assets/render-texture';
+import { Frustum } from '../../core/geometry';
 
 export enum ProbeClearFlag {
     SKYBOX = SKYBOX_FLAG | ClearFlagBit.DEPTH_STENCIL,
@@ -119,6 +120,12 @@ export class ReflectionProbe {
      * @zh 反射探针cube模式的预览小球
      */
     protected _previewSphere: Node | null = null;
+
+    protected _probeFrustum: Frustum = new Frustum();
+
+    get probeFrustum () {
+        return this._probeFrustum;
+    }
 
     /**
      * @en Set probe type,cube or planar.
@@ -460,6 +467,44 @@ export class ReflectionProbe {
         this.cameraNode.worldRotation = this._cameraWorldRotation;
 
         this.camera.update(true);
+    }
+    private _calculateObliqueMatrix (camera: Camera) {
+        const viewSpacePlane = new Vec4();
+
+        Vec3.transformMat4(viewSpacePlane, this.node.worldPosition, camera.matView);
+
+        const projectionMatrix = camera.matProj;
+
+        const clipSpaceFarPanelBoundPoint = new Vec4(Math.sign(viewSpacePlane.x), Math.sign(viewSpacePlane.y), 1, 1);
+        const viewSpaceFarPanelBoundPoint =  clipSpaceFarPanelBoundPoint.transformMat4(camera.matProjInv);
+
+        const m4 = new Vec4(projectionMatrix.m03, projectionMatrix.m07, projectionMatrix.m11, projectionMatrix.m15);
+
+        const u = 2.0 / Vec4.dot(viewSpaceFarPanelBoundPoint, viewSpacePlane);
+        const newViewSpaceNearPlane = viewSpacePlane.multiplyScalar(u);
+
+        //M3' = P - M4
+        const m3 = newViewSpaceNearPlane.subtract(m4);
+
+        /*
+        1    1    1    1
+        1    1    1    1
+        11    11    12    1
+        11    11    12    1
+        */
+
+        projectionMatrix.m02 = m3.x;
+        projectionMatrix.m06 = m3.y;
+        projectionMatrix.m10 = m3.z;
+        projectionMatrix.m14 = m3.w;
+
+        // eslint-disable-next-line prefer-const
+        let matViewProj = camera.matViewProj;
+        // eslint-disable-next-line prefer-const
+        let matViewProjInv = camera.matViewProjInv;
+        Mat4.multiply(matViewProj, projectionMatrix, camera.matView);
+        Mat4.invert(matViewProjInv, matViewProj);
+        this._probeFrustum.update(matViewProj, matViewProjInv);
     }
     private _reflect (out: Vec3, point: Vec3, normal: Vec3, offset: number) {
         const n = Vec3.clone(normal);

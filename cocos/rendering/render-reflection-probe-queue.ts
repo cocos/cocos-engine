@@ -106,7 +106,9 @@ export class RenderReflectionProbeQueue {
                     }
                 } else if (((model.node.layer & REFLECTION_PROBE_DEFAULT_MASK) === model.node.layer)
                     || (REFLECTION_PROBE_DEFAULT_MASK & model.visFlags)) {
-                    this.add(model);
+                    if (geometry.intersect.aabbFrustum(model.worldBounds, probe.probeFrustum)) {
+                        this.add(model);
+                    }
                 }
             }
         }
