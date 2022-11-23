@@ -37,11 +37,11 @@ public:
     explicit CCMTLQueue();
     ~CCMTLQueue();
     CCMTLQueue(const CCMTLQueue &) = delete;
-    CCMTLQueue(CCMTLQueue &&)      = delete;
+    CCMTLQueue(CCMTLQueue &&) = delete;
     CCMTLQueue &operator=(const CCMTLQueue &) = delete;
     CCMTLQueue &operator=(CCMTLQueue &&) = delete;
 
-    void submit(CommandBuffer *const *cmdBuffs, uint count) override;
+    void submit(CommandBuffer *const *cmdBuffs, uint32_t count) override;
 
     inline CCMTLGPUQueueObject *gpuQueueObj() { return _gpuQueueObj; }
 

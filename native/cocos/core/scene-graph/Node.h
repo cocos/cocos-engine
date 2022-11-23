@@ -26,17 +26,14 @@
 #pragma once
 
 #include "base/Ptr.h"
-#include "base/TypeDef.h"
-#include "cocos/base/Any.h"
+#include "base/std/any.h"
+#include "bindings/utils/BindingUtils.h"
 //#include "core/components/Component.h"
 //#include "core/event/Event.h"
-#include "core/event/EventTypesToJS.h"
-#include "core/scene-graph/BaseNode.h"
+#include "core/data/Object.h"
+#include "core/event/EventTarget.h"
 #include "core/scene-graph/Layers.h"
 #include "core/scene-graph/NodeEnum.h"
-#include "core/scene-graph/NodeEvent.h"
-#include "core/scene-graph/NodeEventProcessor.h"
-
 #include "math/Mat3.h"
 #include "math/Mat4.h"
 #include "math/Quaternion.h"
@@ -46,19 +43,57 @@
 namespace cc {
 
 class Scene;
-class NodeEventProcessor;
-//class NodeUiProperties;
-
 /**
  * Event types emitted by Node
  */
-using EventType = NodeEventType;
 /**
  * Bit masks for Node transformation parts
  */
 using TransformDirtyBit = TransformBit;
 
-class Node : public BaseNode {
+class Node : public CCObject {
+    IMPL_EVENT_TARGET_WITH_PARENT(Node, getParent)
+    DECLARE_TARGET_EVENT_BEGIN(Node)
+    TARGET_EVENT_ARG0(TouchStart)
+    TARGET_EVENT_ARG0(TouchMove)
+    TARGET_EVENT_ARG0(TouchEnd)
+    TARGET_EVENT_ARG0(TouchCancel)
+    TARGET_EVENT_ARG0(MouseDown)
+    TARGET_EVENT_ARG0(MouseMove)
+    TARGET_EVENT_ARG0(MouseUp)
+    TARGET_EVENT_ARG0(MouseWheel)
+    TARGET_EVENT_ARG0(MouseEnter)
+    TARGET_EVENT_ARG0(MouseLeave)
+    TARGET_EVENT_ARG0(KeyDown)
+    TARGET_EVENT_ARG0(KeyUp)
+    TARGET_EVENT_ARG0(DeviceMotion)
+    TARGET_EVENT_ARG1(TransformChanged, TransformBit)
+    TARGET_EVENT_ARG0(SceneChangedForPersist)
+    TARGET_EVENT_ARG0(SizeChanged)
+    TARGET_EVENT_ARG0(AnchorChanged)
+    TARGET_EVENT_ARG0(ColorChanged)
+    TARGET_EVENT_ARG1(ChildAdded, Node *)
+    TARGET_EVENT_ARG1(ChildRemoved, Node *)
+    TARGET_EVENT_ARG1(ParentChanged, Node *)
+    TARGET_EVENT_ARG0(NodeDestroyed)
+    TARGET_EVENT_ARG1(LayerChanged, uint32_t)
+    TARGET_EVENT_ARG0(SiblingOrderChanged)
+    TARGET_EVENT_ARG0(ActiveInHierarchyChanged)
+    TARGET_EVENT_ARG0(MobilityChanged)
+    TARGET_EVENT_ARG1(AncestorTransformChanged, TransformBit)
+    TARGET_EVENT_ARG0(Reattach)
+    TARGET_EVENT_ARG0(RemovePersistRootNode)
+    TARGET_EVENT_ARG0(DestroyComponents)
+    TARGET_EVENT_ARG0(UITransformDirty)
+    TARGET_EVENT_ARG1(ActiveNode, bool)
+    TARGET_EVENT_ARG1(BatchCreated, bool)
+    TARGET_EVENT_ARG1(SceneUpdated, cc::Scene *)
+    TARGET_EVENT_ARG3(LocalPositionUpdated, float, float, float)
+    TARGET_EVENT_ARG4(LocalRotationUpdated, float, float, float, float)
+    TARGET_EVENT_ARG3(LocalScaleUpdated, float, float, float)
+    TARGET_EVENT_ARG10(LocalRTSUpdated, float, float, float, float, float, float, float, float, float, float)
+    TARGET_EVENT_ARG1(EditorAttached, bool)
+    DECLARE_TARGET_EVENT_END()
 public:
     class UserData : public RefCounted {
     public:
@@ -68,22 +103,12 @@ public:
         UserData() = default;
     };
 
-    using Super = BaseNode;
+    using Super = CCObject;
 
     static const uint32_t TRANSFORM_ON;
-    static const uint32_t DESTROYING;
-    static const uint32_t DEACTIVATING;
-    static const uint32_t DONT_DESTROY;
 
     static Node *instantiate(Node *cloned, bool isSyncedNode);
-    // for walk
-    static ccstd::vector<ccstd::vector<Node *>> stacks;
-    static index_t                              stackId;
-
-    static void    setScene(Node *);
-    static index_t getIdxOfChild(const ccstd::vector<IntrusivePtr<Node>> &, Node *);
-
-    static bool isStatic; // cjh TODO: add getter / setter
+    static void setScene(Node *);
 
     /**
      * @en Finds a node by hierarchy path, the path is case-sensitive.
@@ -111,97 +136,15 @@ public:
     explicit Node(const ccstd::string &name);
     ~Node() override;
 
+    virtual void onPostActivated(bool active) {}
+
     void setParent(Node *parent, bool isKeepWorld = false);
 
-    Scene *getScene() const;
+    inline Scene *getScene() const { return _scene; };
 
-    void walk(const std::function<void(Node *)> &preFunc);
-    void walk(const std::function<void(Node *)> &preFunc, const std::function<void(Node *)> &postFunc);
-
-    template <typename Target, typename... Args>
-    void on(const CallbacksInvoker::KeyType &type, void (Target::*memberFn)(Args...), Target *target, bool useCapture = false);
-
-    template <typename... Args>
-    void on(const CallbacksInvoker::KeyType &type, std::function<void(Args...)> &&callback, CallbackInfoBase::ID &cbID, bool useCapture = false);
-
-    template <typename Target, typename... Args>
-    void on(const CallbacksInvoker::KeyType &type, std::function<void(Args...)> &&callback, Target *target, CallbackInfoBase::ID &cbID, bool useCapture = false);
-
-    template <typename Target, typename LambdaType>
-    std::enable_if_t<!std::is_member_function_pointer<LambdaType>::value, void>
-    on(const CallbacksInvoker::KeyType &type, LambdaType &&callback, Target *target, CallbackInfoBase::ID &cbID, bool useCapture = false);
-
-    template <typename LambdaType>
-    std::enable_if_t<!std::is_member_function_pointer<LambdaType>::value, void>
-    on(const CallbacksInvoker::KeyType &type, LambdaType &&callback, CallbackInfoBase::ID &cbID, bool useCapture = false);
-
-    template <typename... Args>
-    void on(const CallbacksInvoker::KeyType &type, std::function<void(Args...)> &&callback, bool useCapture = false);
-
-    template <typename Target, typename... Args>
-    void on(const CallbacksInvoker::KeyType &type, std::function<void(Args...)> &&callback, Target *target, bool useCapture = false);
-
-    template <typename Target, typename LambdaType>
-    std::enable_if_t<!std::is_member_function_pointer<LambdaType>::value, void>
-    on(const CallbacksInvoker::KeyType &type, LambdaType &&callback, Target *target, bool useCapture = false);
-
-    template <typename LambdaType>
-    std::enable_if_t<!std::is_member_function_pointer<LambdaType>::value, void>
-    on(const CallbacksInvoker::KeyType &type, LambdaType &&callback, bool useCapture = false);
-
-    template <typename Target, typename... Args>
-    void once(const CallbacksInvoker::KeyType &type, void (Target::*memberFn)(Args...), Target *target, bool useCapture = false);
-
-    template <typename... Args>
-    void once(const CallbacksInvoker::KeyType &type, std::function<void(Args...)> &&callback, CallbackInfoBase::ID &cbID, bool useCapture = false);
-
-    template <typename Target, typename... Args>
-    void once(const CallbacksInvoker::KeyType &type, std::function<void(Args...)> &&callback, Target *target, CallbackInfoBase::ID &cbID, bool useCapture = false);
-
-    template <typename LambdaType>
-    std::enable_if_t<!std::is_member_function_pointer<LambdaType>::value, void>
-    once(const CallbacksInvoker::KeyType &type, LambdaType &&callback, CallbackInfoBase::ID &cbID, bool useCapture = false);
-
-    template <typename Target, typename LambdaType>
-    std::enable_if_t<!std::is_member_function_pointer<LambdaType>::value, void>
-    once(const CallbacksInvoker::KeyType &type, LambdaType &&callback, Target *target, CallbackInfoBase::ID &cbID, bool useCapture = false);
-
-    template <typename... Args>
-    void once(const CallbacksInvoker::KeyType &type, std::function<void(Args...)> &&callback, bool useCapture = false);
-
-    template <typename Target, typename... Args>
-    void once(const CallbacksInvoker::KeyType &type, std::function<void(Args...)> &&callback, Target *target, bool useCapture = false);
-
-    template <typename LambdaType>
-    std::enable_if_t<!std::is_member_function_pointer<LambdaType>::value, void>
-    once(const CallbacksInvoker::KeyType &type, LambdaType &&callback, bool useCapture = false);
-
-    template <typename Target, typename LambdaType>
-    std::enable_if_t<!std::is_member_function_pointer<LambdaType>::value, void>
-    once(const CallbacksInvoker::KeyType &type, LambdaType &&callback, Target *target, bool useCapture = false);
-
-    void off(const CallbacksInvoker::KeyType &type, bool useCapture = false);
-
-    void off(const CallbacksInvoker::KeyType &type, CallbackInfoBase::ID cbID, bool useCapture = false);
-
-    void off(const CallbacksInvoker::KeyType &type, void *target, bool useCapture = false);
-
-    template <typename Target, typename... Args>
-    void off(const CallbacksInvoker::KeyType &type, void (Target::*memberFn)(Args...), Target *target, bool useCapture = false);
-
-    template <typename... Args>
-    void emit(const CallbacksInvoker::KeyType &type, Args &&...args);
-
-    //    void dispatchEvent(event::Event *event);
-    bool hasEventListener(const CallbacksInvoker::KeyType &type) const;
-    bool hasEventListener(const CallbacksInvoker::KeyType &type, CallbackInfoBase::ID cbID) const;
-    bool hasEventListener(const CallbacksInvoker::KeyType &type, void *target) const;
-    bool hasEventListener(const CallbacksInvoker::KeyType &type, void *target, CallbackInfoBase::ID cbID) const;
-
-    template <typename Target, typename... Args>
-    bool hasEventListener(const CallbacksInvoker::KeyType &type, void (Target::*memberFn)(Args...), Target *target) const;
-
-    void targetOff(const CallbacksInvoker::KeyType &type);
+    using WalkCallback = std::function<void(Node *)>;
+    void walk(const WalkCallback &preFunc);
+    void walk(const WalkCallback &preFunc, const WalkCallback &postFunc);
 
     bool destroy() override {
         if (CCObject::destroy()) {
@@ -210,20 +153,23 @@ public:
         }
         return false;
     }
+
     inline void destroyAllChildren() {
         for (const auto &child : _children) {
             child->destroy();
         }
     }
+
     inline void updateSiblingIndex() {
         index_t i = 0;
         for (const auto &child : _children) {
             child->_siblingIndex = i++;
         }
-        emit(NodeEventType::SIBLING_ORDER_CHANGED);
+        emit<SiblingOrderChanged>();
     }
 
     inline void addChild(Node *node) { node->setParent(this); }
+
     inline void removeChild(Node *node) const {
         auto idx = getIdxOfChild(_children, node);
         if (idx != -1) {
@@ -236,7 +182,8 @@ public:
         }
     }
     void removeAllChildren();
-    bool isChildOf(Node *parent);
+
+    bool isChildOf(Node *parent) const;
 
     void setActive(bool isActive);
 
@@ -254,32 +201,32 @@ public:
         return _id;
     }
 
-    inline bool isActive() const { return _active; }
+    inline bool isActive() const { return _active != 0; }
 
-    inline bool isActiveInHierarchy() const { return _activeInHierarchyArr[0] != 0; }
-    inline void setActiveInHierarchy(bool v) { _activeInHierarchyArr[0] = (v ? 1 : 0); }
-    inline void setActiveInHierarchyPtr(uint8_t *ptr) { _activeInHierarchyArr = ptr; }
+    inline bool isActiveInHierarchy() const { return _activeInHierarchy != 0; }
+    inline void setActiveInHierarchy(bool v) {
+        _activeInHierarchy = (v ? 1 : 0);
+    }
 
-    virtual void                                    onPostActivated(bool active) {}
     inline const ccstd::vector<IntrusivePtr<Node>> &getChildren() const { return _children; }
-    inline Node *                                   getParent() const { return _parent; }
-    inline NodeEventProcessor *                     getEventProcessor() const { return _eventProcessor; }
+    inline Node *getParent() const { return _parent; }
+    // inline NodeEventProcessor *getEventProcessor() const { return _eventProcessor; }
 
-    Node *           getChildByUuid(const ccstd::string &) const;
-    Node *           getChildByName(const ccstd::string &) const;
-    Node *           getChildByPath(const ccstd::string &) const;
-    inline index_t   getSiblingIndex() const { return _siblingIndex; }
+    Node *getChildByUuid(const ccstd::string &uuid) const;
+    Node *getChildByName(const ccstd::string &name) const;
+    Node *getChildByPath(const ccstd::string &path) const;
+    inline index_t getSiblingIndex() const { return _siblingIndex; }
     inline UserData *getUserData() { return _userData.get(); }
-    inline void      setUserData(UserData *data) { _userData = data; }
-    inline void      insertChild(Node *child, index_t siblingIndex) {
+    inline void setUserData(UserData *data) { _userData = data; }
+    inline void insertChild(Node *child, index_t siblingIndex) {
         child->setParent(this);
         child->setSiblingIndex(siblingIndex);
     }
 
     void invalidateChildren(TransformBit dirtyBit);
 
-    void        translate(const Vec3 &, NodeSpace ns = NodeSpace::LOCAL);
-    void        rotate(const Quaternion &rot, NodeSpace ns = NodeSpace::LOCAL, bool calledFromJS = false);
+    void translate(const Vec3 &, NodeSpace ns = NodeSpace::LOCAL);
+    void rotate(const Quaternion &rot, NodeSpace ns = NodeSpace::LOCAL, bool calledFromJS = false);
     inline void rotateForJS(float x, float y, float z, float w, NodeSpace ns = NodeSpace::LOCAL) {
         rotate(Quaternion(x, y, z, w), ns, true);
     }
@@ -288,6 +235,7 @@ public:
     void pauseSystemEvents(bool recursive) {}  // cjh TODO:
     void resumeSystemEvents(bool recursive) {} // cjh TODO:
 
+    ccstd::string getPathInHierarchy() const;
     // ===============================
     // transform
     // ===============================
@@ -301,7 +249,8 @@ public:
     inline void setPosition(float x, float y) { setPosition(x, y, _localPosition.z); }
     inline void setPosition(float x, float y, float z) { setPositionInternal(x, y, z, false); }
     inline void setPositionInternal(float x, float y, bool calledFromJS) { setPositionInternal(x, y, _localPosition.z, calledFromJS); }
-    void        setPositionInternal(float x, float y, float z, bool calledFromJS);
+    void setPositionInternal(float x, float y, float z, bool calledFromJS);
+    // It is invoked after deserialization. It only sets position value, not triggers other logic.
     inline void setPositionForJS(float x, float y, float z) { _localPosition.set(x, y, z); }
     /**
      * @en Get position in local coordinate system, please try to pass `out` vector and reuse it to avoid garbage.
@@ -309,7 +258,7 @@ public:
      * @param out Set the result to out vector
      * @return If `out` given, the return value equals to `out`, otherwise a new vector will be generated and return
      */
-    const Vec3 &getPosition() const { return _localPosition; }
+    inline const Vec3 &getPosition() const { return _localPosition; }
 
     /**
      * @en Set rotation in local coordinate system with a quaternion representing the rotation
@@ -318,13 +267,13 @@ public:
      */
     inline void setRotation(const Quaternion &rotation) { setRotation(rotation.x, rotation.y, rotation.z, rotation.w); }
     inline void setRotation(float x, float y, float z, float w) { setRotationInternal(x, y, z, w, false); }
-    void        setRotationInternal(float x, float y, float z, float w, bool calledFromJS);
+    void setRotationInternal(float x, float y, float z, float w, bool calledFromJS);
     inline void setRotationForJS(float x, float y, float z, float w) { _localRotation.set(x, y, z, w); }
 
     inline void setEulerAngles(const Vec3 &val) { setRotationFromEuler(val.x, val.y, val.z); }
     inline void setRotationFromEuler(const Vec3 &val) { setRotationFromEuler(val.x, val.y, val.z); }
     inline void setRotationFromEuler(float x, float y) { setRotationFromEuler(x, y, _euler.z); }
-    void        setRotationFromEuler(float x, float y, float z);
+    void setRotationFromEuler(float x, float y, float z);
     inline void setRotationFromEulerForJS(float x, float y, float z) { _euler.set(x, y, z); }
     /**
      * @en Get rotation as quaternion in local coordinate system, please try to pass `out` quaternion and reuse it to avoid garbage.
@@ -332,7 +281,7 @@ public:
      * @param out Set the result to out quaternion
      * @return If `out` given, the return value equals to `out`, otherwise a new quaternion will be generated and return
      */
-    const Quaternion &getRotation() const { return _localRotation; }
+    inline const Quaternion &getRotation() const { return _localRotation; }
 
     /**
      * @en Set scale in local coordinate system
@@ -343,7 +292,7 @@ public:
     inline void setScale(float x, float y) { setScale(x, y, _localScale.z); }
     inline void setScale(float x, float y, float z) { setScaleInternal(x, y, z, false); }
     inline void setScaleInternal(float x, float y, bool calledFromJS) { setScaleInternal(x, y, _localScale.z, calledFromJS); }
-    void        setScaleInternal(float x, float y, float z, bool calledFromJS);
+    void setScaleInternal(float x, float y, float z, bool calledFromJS);
     inline void setScaleForJS(float x, float y, float z) { _localScale.set(x, y, z); }
     /**
      * @en Get scale in local coordinate system, please try to pass `out` vector and reuse it to avoid garbage.
@@ -351,15 +300,15 @@ public:
      * @param out Set the result to out vector
      * @return If `out` given, the return value equals to `out`, otherwise a new vector will be generated and return
      */
-    const Vec3 &getScale() const { return _localScale; }
+    inline const Vec3 &getScale() const { return _localScale; }
 
     /**
      * @en Inversely transform a point from world coordinate system to local coordinate system.
      * @zh 逆向变换一个空间点，一般用于将世界坐标转换到本地坐标系中。
-     * @param out The result point in local coordinate system will be stored in this vector
      * @param p A position in world coordinate system
+     * @return The result point in local coordinate system will be stored in this vector
      */
-    void inverseTransformPoint(Vec3 &out, const Vec3 &p);
+    Vec3 inverseTransformPoint(const Vec3 &p);
 
     /**
      * @en Set position in world coordinate system
@@ -367,7 +316,7 @@ public:
      * @param position Target position
      */
     inline void setWorldPosition(const Vec3 &pos) { setWorldPosition(pos.x, pos.y, pos.z); }
-    void        setWorldPosition(float x, float y, float z);
+    void setWorldPosition(float x, float y, float z);
 
     /**
      * @en Get position in world coordinate system, please try to pass `out` vector and reuse it to avoid garbage.
@@ -383,7 +332,7 @@ public:
      * @param rotation Rotation in quaternion
      */
     inline void setWorldRotation(const Quaternion &rotation) { setWorldRotation(rotation.x, rotation.y, rotation.z, rotation.w); }
-    void        setWorldRotation(float x, float y, float z, float w);
+    void setWorldRotation(float x, float y, float z, float w);
     /**
      * @en Get rotation as quaternion in world coordinate system, please try to pass `out` quaternion and reuse it to avoid garbage.
      * @zh 获取世界坐标系下的旋转，注意，尽可能传递复用的 [[Quat]] 以避免产生垃圾。
@@ -400,7 +349,7 @@ public:
      * @param z Z axis rotation
      */
     inline void setWorldScale(const Vec3 &scale) { setWorldScale(scale.x, scale.y, scale.z); }
-    void        setWorldScale(float x, float y, float z);
+    void setWorldScale(float x, float y, float z);
 
     /**
      * @en Get scale in world coordinate system, please try to pass `out` vector and reuse it to avoid garbage.
@@ -455,16 +404,11 @@ public:
      * @param pos The position
      * @param scale The scale
      */
-    void        setRTSInternal(Quaternion *rot, Vec3 *pos, Vec3 *scale, bool calledFromJS);
+    void setRTSInternal(Quaternion *rot, Vec3 *pos, Vec3 *scale, bool calledFromJS);
     inline void setRTS(Quaternion *rot, Vec3 *pos, Vec3 *scale) { setRTSInternal(rot, pos, scale, false); }
 
-    inline void setForward(const Vec3 &dir) {
-        const float len    = dir.length();
-        Vec3        v3Temp = dir * (-1.F / len);
-        Quaternion  qTemp{Quaternion::identity()};
-        Quaternion::fromViewUp(v3Temp, &qTemp);
-        setWorldRotation(qTemp);
-    }
+    void setForward(const Vec3 &dir);
+
     void setAngle(float);
 
     inline const Vec3 &getEulerAngles() {
@@ -479,43 +423,62 @@ public:
         return _euler.z;
     }
 
-    inline Vec3 getForward() {
+    inline Vec3 getForward() const {
         Vec3 forward{0, 0, -1};
-        forward.transformQuat(_worldRotation);
+        forward.transformQuat(getWorldRotation());
         return forward;
     }
 
-    inline Vec3 getUp() {
+    inline Vec3 getUp() const {
         Vec3 up{0, 1, 0};
-        up.transformQuat(_worldRotation);
+        up.transformQuat(getWorldRotation());
         return up;
     }
 
-    inline Vec3 getRight() {
+    inline Vec3 getRight() const {
         Vec3 right{1, 0, 0};
-        right.transformQuat(_worldRotation);
+        right.transformQuat(getWorldRotation());
         return right;
+    }
+
+    inline bool isStatic() const {
+        return _isStatic != 0;
+    }
+
+    inline void setStatic(bool v) {
+        _isStatic = v ? 1 : 0;
+    }
+
+    inline MobilityMode getMobility() const {
+        return _mobility;
+    }
+
+    inline void setMobility(MobilityMode m) {
+        _mobility = m;
+        emit<MobilityChanged>();
     }
 
     /**
      * @en Whether the node's transformation have changed during the current frame.
      * @zh 这个节点的空间变换信息在当前帧内是否有变过？
      */
-    inline uint32_t getChangedFlags() const { return _flagChange; }
-    inline void     setChangedFlags(uint32_t value) { _flagChange = value; }
-
-    inline void     setDirtyFlag(uint32_t value) { _dirtyFlag = value; }
-    inline uint32_t getDirtyFlag() const { return _dirtyFlag; }
-    inline void     setLayer(uint32_t layer) {
-        _layerArr[0] = layer;
-        emit(NodeEventType::LAYER_CHANGED, layer);
+    inline uint32_t getChangedFlags() const {
+        return _hasChangedFlagsVersion == globalFlagChangeVersion ? _hasChangedFlags : 0;
     }
-    inline uint32_t getLayer() const { return _layerArr[0]; }
-    inline void     setLayerPtr(uint32_t *ptr) { _layerArr = ptr; }
+    inline void setChangedFlags(uint32_t value) {
+        _hasChangedFlagsVersion = globalFlagChangeVersion;
+        _hasChangedFlags = value;
+    }
+
+    inline void setDirtyFlag(uint32_t value) { _dirtyFlag = value; }
+    inline uint32_t getDirtyFlag() const { return _dirtyFlag; }
+    inline void setLayer(uint32_t layer) {
+        _layer = layer;
+        emit<LayerChanged>(layer);
+    }
+    inline uint32_t getLayer() const { return _layer; }
 
     //    inline NodeUiProperties *getUIProps() const { return _uiProps.get(); }
-
-    inline void setUIPropsTransformDirtyPtr(uint32_t *pDirty) { _uiTransformDirty = pDirty; }
 
     //    // ------------------  Component code start -----------------------------
     //    // TODO(Lenovo):
@@ -611,101 +574,99 @@ public:
     //    void     _setChildrenSize(uint32_t size);
     //    uint32_t _getChildrenSize();
     void _setChildren(ccstd::vector<IntrusivePtr<Node>> &&children); // NOLINT
-    // For JS wrapper.
-    inline uint32_t getEventMask() const { return _eventMask; }
-    inline void     setEventMask(uint32_t mask) { _eventMask = mask; }
 
-protected:
+    inline se::Object *_getSharedArrayBufferObject() const { return _sharedMemoryActor.getSharedArrayBufferObject(); } // NOLINT
+
     bool onPreDestroy() override;
+    bool onPreDestroyBase();
 
-    void onSetParent(Node *oldParent, bool keepWorldTransform);
+    std::function<void(index_t)> onSiblingIndexChanged{nullptr};
+    // For deserialization
+    ccstd::string _id;
+    Node *_parent{nullptr};
+    MobilityMode _mobility = MobilityMode::Static;
 
+private:
+    static index_t getIdxOfChild(const ccstd::vector<IntrusivePtr<Node>> &, Node *);
+
+    virtual void onBatchCreated(bool dontChildPrefab);
     virtual void updateScene();
 
+    void onSetParent(Node *oldParent, bool keepWorldTransform);
     void onHierarchyChanged(Node *);
     void onHierarchyChangedBase(Node *oldParent);
 
-    virtual void onBatchCreated(bool dontChildPrefab);
+    void inverseTransformPointRecursive(Vec3 &out) const;
+    void updateWorldTransformRecursive(uint32_t &superDirtyBits);
 
-    bool onPreDestroyBase();
+    inline void notifyLocalPositionUpdated() {
+        emit<LocalPositionUpdated>(_localPosition.x, _localPosition.y, _localPosition.z);
+    }
 
-#ifdef CC_EDITOR
+    inline void notifyLocalRotationUpdated() {
+        emit<LocalRotationUpdated>(_localRotation.x, _localRotation.y, _localRotation.z, _localRotation.w);
+    }
+
+    inline void notifyLocalScaleUpdated() {
+        emit<LocalScaleUpdated>(_localScale.x, _localScale.y, _localScale.z);
+    }
+
+    inline void notifyLocalPositionRotationScaleUpdated() {
+        emit<LocalRTSUpdated>(
+            _localPosition.x, _localPosition.y, _localPosition.z,
+            _localRotation.x, _localRotation.y, _localRotation.z, _localRotation.w,
+            _localScale.x, _localScale.y, _localScale.z);
+    }
+
+#if CC_EDITOR
     inline void notifyEditorAttached(bool attached) {
-        emit(EventTypesToJS::NODE_EDITOR_ATTACHED, attached);
+        emit<EditorAttached>(attached);
     }
 #endif
+
+    // increase on every frame, used to identify the frame
+    static uint32_t globalFlagChangeVersion;
 
     static uint32_t clearFrame;
     static uint32_t clearRound;
 
-private:
-    inline void notifyLocalPositionUpdated() {
-        emit(EventTypesToJS::NODE_LOCAL_POSITION_UPDATED, _localPosition.x, _localPosition.y, _localPosition.z);
-    }
+    Scene *_scene{nullptr};
+    IntrusivePtr<UserData> _userData;
 
-    inline void notifyLocalRotationUpdated() {
-        emit(EventTypesToJS::NODE_LOCAL_ROTATION_UPDATED, _localRotation.x, _localRotation.y, _localRotation.z, _localRotation.w);
-    }
+    ccstd::vector<IntrusivePtr<Node>> _children;
+    bindings::NativeMemorySharedToScriptActor _sharedMemoryActor;
+    // local transform
+    Vec3 _localPosition{Vec3::ZERO};
+    Vec3 _localScale{Vec3::ONE};
+    Quaternion _localRotation{Quaternion::identity()};
+    // world transform
+    Vec3 _worldPosition{Vec3::ZERO};
+    Vec3 _worldScale{Vec3::ONE};
+    Vec3 _euler{0, 0, 0};
+    Quaternion _worldRotation{Quaternion::identity()};
+    Mat4 _worldMatrix{Mat4::IDENTITY};
 
-    inline void notifyLocalScaleUpdated() {
-        emit(EventTypesToJS::NODE_LOCAL_SCALE_UPDATED, _localScale.x, _localScale.y, _localScale.z);
-    }
+    // Shared memory with JS
+    // NOTE: TypeArray created in node.jsb.ts _ctor should have the same memory layout
+    uint32_t _eventMask{0};                                             // Uint32: 0
+    uint32_t _layer{static_cast<uint32_t>(Layers::LayerList::DEFAULT)}; // Uint32: 1
+    uint32_t _dirtyFlag{0};                                             // Uint32: 2
+    index_t _siblingIndex{0};                                           // Int32: 0
+    uint8_t _activeInHierarchy{0};                                      // Uint8: 0
+    uint8_t _active{1};                                                 // Uint8: 1
+    uint8_t _isStatic{0};                                               // Uint8: 2
+    uint8_t _padding{0};                                                // Uint8: 3
 
-    inline void notifyLocalPositionRotationScaleUpdated() {
-        emit(EventTypesToJS::NODE_LOCAL_POSITION_ROTATION_SCALE_UPDATED,
-             _localPosition.x, _localPosition.y, _localPosition.z,
-             _localRotation.x, _localRotation.y, _localRotation.z, _localRotation.w,
-             _localScale.x, _localScale.y, _localScale.z);
-    }
-
-protected:
-    Scene *             _scene{nullptr};
-    NodeEventProcessor *_eventProcessor{nullptr};
-
-    uint32_t _eventMask{0};
-
-    Mat4     _rtMat{Mat4::IDENTITY};
-    cc::Mat4 _worldMatrix{Mat4::IDENTITY};
-
-    uint32_t _flagChange{0};
-    uint32_t _dirtyFlag{0};
+    /* set _hasChangedFlagsVersion to globalFlagChangeVersion when `_hasChangedFlags` updated.
+     * `globalFlagChangeVersion == _hasChangedFlagsVersion` means that "_hasChangedFlags is dirty in current frametime".
+     */
+    uint32_t _hasChangedFlagsVersion{0};
+    uint32_t _hasChangedFlags{0};
 
     bool _eulerDirty{false};
-    //    IntrusivePtr<NodeUiProperties> _uiProps;
-    //    bool _activeInHierarchy{false};
-    // Shared memory with JS.
-    uint8_t * _activeInHierarchyArr{nullptr};
-    uint32_t *_layerArr{nullptr};
 
-public:
-    std::function<void(index_t)> onSiblingIndexChanged{nullptr};
-    index_t                      _siblingIndex{0};
-    // For deserialization
-    ccstd::string                     _id;
-    ccstd::vector<IntrusivePtr<Node>> _children;
-    Node *                            _parent{nullptr};
-    bool                              _active{true};
-
-private:
-    // local transform
-    cc::Vec3       _localPosition{Vec3::ZERO};
-    cc::Quaternion _localRotation{Quaternion::identity()};
-    cc::Vec3       _localScale{Vec3::ONE};
-    // world transform
-    cc::Vec3       _worldPosition{Vec3::ZERO};
-    cc::Quaternion _worldRotation{Quaternion::identity()};
-    cc::Vec3       _worldScale{Vec3::ONE};
-    //
-    Vec3 _euler{0, 0, 0};
-
-    //
-
-    IntrusivePtr<UserData> _userData;
     friend class NodeActivator;
     friend class Scene;
-
-    // Used to shared memory of Node._uiProps._uiTransformDirty.
-    uint32_t *_uiTransformDirty{nullptr};
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(Node);
 };
@@ -714,145 +675,4 @@ template <typename T>
 bool Node::isNode(T *obj) {
     return dynamic_cast<Node *>(obj) != nullptr && dynamic_cast<Scene *>(obj) == nullptr;
 }
-
-template <typename... Args>
-void Node::emit(const CallbacksInvoker::KeyType &type, Args &&...args) {
-    _eventProcessor->emit(type, std::forward<Args>(args)...);
-}
-
-template <typename Target, typename... Args>
-void Node::on(const CallbacksInvoker::KeyType &type, void (Target::*memberFn)(Args...), Target *target, bool useCapture) {
-    if (type == NodeEventType::TRANSFORM_CHANGED) {
-        _eventMask |= TRANSFORM_ON;
-    }
-    _eventProcessor->on(type, memberFn, target, useCapture);
-}
-
-template <typename... Args>
-void Node::on(const CallbacksInvoker::KeyType &type, std::function<void(Args...)> &&callback, CallbackInfoBase::ID &cbID, bool useCapture) {
-    if (type == NodeEventType::TRANSFORM_CHANGED) {
-        _eventMask |= TRANSFORM_ON;
-    }
-    _eventProcessor->on(type, std::forward<std::function<void(Args...)>>(callback), cbID, useCapture);
-}
-
-template <typename Target, typename... Args>
-void Node::on(const CallbacksInvoker::KeyType &type, std::function<void(Args...)> &&callback, Target *target, CallbackInfoBase::ID &cbID, bool useCapture) {
-    if (type == NodeEventType::TRANSFORM_CHANGED) {
-        _eventMask |= TRANSFORM_ON;
-    }
-    _eventProcessor->on(type, std::forward<std::function<void(Args...)>>(callback), target, cbID, useCapture);
-}
-
-template <typename Target, typename LambdaType>
-std::enable_if_t<!std::is_member_function_pointer<LambdaType>::value, void>
-Node::on(const CallbacksInvoker::KeyType &type, LambdaType &&callback, Target *target, CallbackInfoBase::ID &cbID, bool useCapture) {
-    if (type == NodeEventType::TRANSFORM_CHANGED) {
-        _eventMask |= TRANSFORM_ON;
-    }
-    _eventProcessor->on(type, callback, target, cbID, useCapture);
-}
-
-template <typename LambdaType>
-std::enable_if_t<!std::is_member_function_pointer<LambdaType>::value, void>
-Node::on(const CallbacksInvoker::KeyType &type, LambdaType &&callback, CallbackInfoBase::ID &cbID, bool useCapture) {
-    if (type == NodeEventType::TRANSFORM_CHANGED) {
-        _eventMask |= TRANSFORM_ON;
-    }
-    _eventProcessor->on(type, callback, cbID, useCapture);
-}
-
-template <typename... Args>
-void Node::on(const CallbacksInvoker::KeyType &type, std::function<void(Args...)> &&callback, bool useCapture) {
-    CallbackInfoBase::ID unusedID{0};
-    on(type, callback, unusedID, useCapture);
-}
-
-template <typename Target, typename... Args>
-void Node::on(const CallbacksInvoker::KeyType &type, std::function<void(Args...)> &&callback, Target *target, bool useCapture) {
-    CallbackInfoBase::ID unusedID{0};
-    on(type, callback, target, unusedID, useCapture);
-}
-
-template <typename Target, typename LambdaType>
-std::enable_if_t<!std::is_member_function_pointer<LambdaType>::value, void>
-Node::on(const CallbacksInvoker::KeyType &type, LambdaType &&callback, Target *target, bool useCapture) {
-    CallbackInfoBase::ID unusedID{0};
-    on(type, callback, target, unusedID, useCapture);
-}
-
-template <typename LambdaType>
-std::enable_if_t<!std::is_member_function_pointer<LambdaType>::value, void>
-Node::on(const CallbacksInvoker::KeyType &type, LambdaType &&callback, bool useCapture) {
-    CallbackInfoBase::ID unusedID{0};
-    on(type, callback, unusedID, useCapture);
-}
-template <typename Target, typename... Args>
-void Node::once(const CallbacksInvoker::KeyType &type, void (Target::*memberFn)(Args...), Target *target, bool useCapture) {
-    _eventProcessor->once(type, memberFn, target, useCapture);
-}
-template <typename... Args>
-void Node::once(const CallbacksInvoker::KeyType &type, std::function<void(Args...)> &&callback, CallbackInfoBase::ID &cbID, bool useCapture) {
-    _eventProcessor->once(type, callback, cbID, useCapture);
-}
-
-template <typename Target, typename... Args>
-void Node::once(const CallbacksInvoker::KeyType &type, std::function<void(Args...)> &&callback, Target *target, CallbackInfoBase::ID &cbID, bool useCapture) {
-    _eventProcessor->once(type, std::forward<std::function<void(Args...)>>(callback), target, cbID, useCapture);
-}
-
-template <typename LambdaType>
-std::enable_if_t<!std::is_member_function_pointer<LambdaType>::value, void>
-Node::once(const CallbacksInvoker::KeyType &type, LambdaType &&callback, CallbackInfoBase::ID &cbID, bool useCapture) {
-    _eventProcessor->once(type, callback, cbID, useCapture);
-}
-
-template <typename Target, typename LambdaType>
-std::enable_if_t<!std::is_member_function_pointer<LambdaType>::value, void>
-Node::once(const CallbacksInvoker::KeyType &type, LambdaType &&callback, Target *target, CallbackInfoBase::ID &cbID, bool useCapture) {
-    _eventProcessor->once(type, callback, target, cbID, useCapture);
-}
-
-template <typename... Args>
-void Node::once(const CallbacksInvoker::KeyType &type, std::function<void(Args...)> &&callback, bool useCapture) {
-    CallbackInfoBase::ID unusedID{0};
-    once(type, callback, unusedID, useCapture);
-}
-
-template <typename Target, typename... Args>
-void Node::once(const CallbacksInvoker::KeyType &type, std::function<void(Args...)> &&callback, Target *target, bool useCapture) {
-    CallbackInfoBase::ID unusedID{0};
-    once(type, callback, target, unusedID, useCapture);
-}
-
-template <typename LambdaType>
-std::enable_if_t<!std::is_member_function_pointer<LambdaType>::value, void>
-Node::once(const CallbacksInvoker::KeyType &type, LambdaType &&callback, bool useCapture) {
-    CallbackInfoBase::ID unusedID{0};
-    once(type, callback, unusedID, useCapture);
-}
-
-template <typename Target, typename LambdaType>
-std::enable_if_t<!std::is_member_function_pointer<LambdaType>::value, void>
-Node::once(const CallbacksInvoker::KeyType &type, LambdaType &&callback, Target *target, bool useCapture) {
-    CallbackInfoBase::ID unusedID{0};
-    once(type, callback, target, unusedID, useCapture);
-}
-
-template <typename Target, typename... Args>
-void Node::off(const CallbacksInvoker::KeyType &type, void (Target::*memberFn)(Args...), Target *target, bool useCapture) {
-    _eventProcessor->off(type, memberFn, target, useCapture);
-    bool hasListeners = _eventProcessor->hasEventListener(type);
-    if (!hasListeners) {
-        if (type == NodeEventType::TRANSFORM_CHANGED) {
-            _eventMask &= ~TRANSFORM_ON;
-        }
-    }
-}
-
-template <typename Target, typename... Args>
-bool Node::hasEventListener(const CallbacksInvoker::KeyType &type, void (Target::*memberFn)(Args...), Target *target) const {
-    return _eventProcessor->hasEventListener(type, memberFn, target);
-}
-
 } // namespace cc

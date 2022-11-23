@@ -23,12 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module geometry
- */
-
-import { EPSILON, Mat3, Vec3, Mat4 } from '../math';
+import { EPSILON, Mat3, Vec3 } from '../math';
 import { AABB } from './aabb';
 import { Capsule } from './capsule';
 import * as distance from './distance';
@@ -40,21 +35,20 @@ import { Plane } from './plane';
 import { Ray } from './ray';
 import { Sphere } from './sphere';
 import { Triangle } from './triangle';
-import { PrimitiveMode } from '../gfx';
-import { Mesh } from '../../3d/assets/mesh';
-import { IBArray, RenderingSubMesh } from '../assets/rendering-sub-mesh';
-import { IRaySubMeshOptions, ERaycastMode, IRaySubMeshResult, IRayMeshOptions, IRayModelOptions } from './spec';
 import { IVec3Like } from '../math/type-define';
-import { scene } from '../renderer';
+import type { RenderingSubMesh }  from '../../asset/assets';
+import type { IRaySubMeshOptions, IRayModelOptions, IRayMeshOptions } from './spec';
+import type { Model } from '../../render-scene/scene';
+import type { Mesh } from '../../3d';
 
 /**
  * @en
  * ray-plane intersect detect.
  * @zh
  * 射线与平面的相交性检测。
- * @param {Ray} ray 射线
- * @param {Plane} plane 平面
- * @return {number} 0 或 非0
+ * @param ray @zh 射线 @en The ray to test
+ * @param plane @zh 平面 @en The plane to test
+ * @return @zh 0 或 非0 @en 0 or not 0, 0 indicates there is no intersection
  */
 const rayPlane = (function () {
     const pt = new Vec3(0, 0, 0);
@@ -75,10 +69,10 @@ const rayPlane = (function () {
  * ray-triangle intersect detect.
  * @zh
  * 射线与三角形的相交性检测。
- * @param {Ray} ray 射线
- * @param {Triangle} triangle 三角形
- * @param {boolean} doubleSided 三角形是否为双面
- * @return {number} 0 或 非0
+ * @param ray @zh 射线 @en The ray to test
+ * @param triangle @zh 三角形 @en The triangle to test
+ * @param doubleSided @zh 三角形是否为双面 @en Indicates whether it is double sided
+ * @return @zh 0 或 非0 @en 0 or not 0, 0 indicates there is no intersection
  */
 const rayTriangle = (function () {
     const ab = new Vec3(0, 0, 0);
@@ -115,9 +109,9 @@ const rayTriangle = (function () {
  * ray-sphere intersect detect.
  * @zh
  * 射线和球的相交性检测。
- * @param {Ray} ray 射线
- * @param {Sphere} sphere 球
- * @return {number} 0 或 非0
+ * @param ray @zh 射线 @en The ray to test
+ * @param sphere @zh 球 @en The sphere to test
+ * @return @zh 0 或 非0 @en 0 or not 0, 0 indicates there is no intersection
  */
 const raySphere = (function () {
     const e = new Vec3(0, 0, 0);
@@ -146,9 +140,9 @@ const raySphere = (function () {
  * ray-aabb intersect detect.
  * @zh
  * 射线和轴对齐包围盒的相交性检测。
- * @param {Ray} ray 射线
- * @param {AABB} aabb 轴对齐包围盒
- * @return {number} 0 或 非0
+ * @param ray @zh 射线 @en The ray to test
+ * @param aabb @zh 轴对齐包围盒 @en The aabb to test
+ * @return @zh 0 或 非0 @en 0 or not 0, 0 indicates there is no intersection
  */
 const rayAABB = (function () {
     const min = new Vec3();
@@ -180,9 +174,9 @@ function rayAABB2 (ray: Ray, min: IVec3Like, max: IVec3Like) {
  * ray-obb intersect detect.
  * @zh
  * 射线和方向包围盒的相交性检测。
- * @param {Ray} ray 射线
- * @param {OBB} obb 方向包围盒
- * @return {number} 0 或 非0
+ * @param ray @zh 射线 @en The ray
+ * @param obb @zh 方向包围盒 @en The obb to test
+ * @return @zh 0 或非 0 @en 0 or not 0, 0 indicates there is no intersection
  */
 const rayOBB = (function () {
     let center = new Vec3();
@@ -260,9 +254,9 @@ const rayOBB = (function () {
  * ray-capsule intersect detect.
  * @zh
  * 射线和胶囊体的相交性检测。
- * @param {Ray} ray 射线
- * @param {Capsule} capsule 胶囊体
- * @return {number} 0 或 非0
+ * @param ray @zh 射线 @en The ray to test
+ * @param capsule @zh 胶囊体 @en The capsule to test
+ * @return @zh 0 或非 0 @en 0 or not 0, 0 indicates there is no intersection
  */
 const rayCapsule = (function () {
     const v3_0 = new Vec3();
@@ -343,213 +337,12 @@ const rayCapsule = (function () {
 
 /**
  * @en
- * ray-subMesh intersect detect, in model space.
- * @zh
- * 在模型空间中，射线和子三角网格的相交性检测。
- * @param {Ray} ray
- * @param {RenderingSubMesh} subMesh
- * @param {IRaySubMeshOptions} options
- * @return {number} 0 or !0
- */
-const raySubMesh = (function () {
-    const tri = Triangle.create();
-    const deOpt: IRaySubMeshOptions = { distance: Infinity, doubleSided: false, mode: ERaycastMode.ANY };
-    let minDis = 0;
-
-    const fillResult = (m: ERaycastMode, d: number, i0: number, i1: number, i2: number, r?: IRaySubMeshResult[]) => {
-        if (m === ERaycastMode.CLOSEST) {
-            if (minDis > d || minDis === 0) {
-                minDis = d;
-                if (r) {
-                    if (r.length === 0) {
-                        r.push({ distance: d, vertexIndex0: i0 / 3, vertexIndex1: i1 / 3, vertexIndex2: i2 / 3 });
-                    } else {
-                        r[0].distance = d; r[0].vertexIndex0 = i0 / 3; r[0].vertexIndex1 = i1 / 3; r[0].vertexIndex2 = i2 / 3;
-                    }
-                }
-            }
-        } else {
-            minDis = d;
-            if (r) r.push({ distance: d, vertexIndex0: i0 / 3, vertexIndex1: i1 / 3, vertexIndex2: i2 / 3 });
-        }
-    };
-
-    const narrowphase = (vb: Float32Array, ib: IBArray, pm: PrimitiveMode, ray: Ray, opt: IRaySubMeshOptions) => {
-        if (pm === PrimitiveMode.TRIANGLE_LIST) {
-            const cnt = ib.length;
-            for (let j = 0; j < cnt; j += 3) {
-                const i0 = ib[j] * 3;
-                const i1 = ib[j + 1] * 3;
-                const i2 = ib[j + 2] * 3;
-                Vec3.set(tri.a, vb[i0], vb[i0 + 1], vb[i0 + 2]);
-                Vec3.set(tri.b, vb[i1], vb[i1 + 1], vb[i1 + 2]);
-                Vec3.set(tri.c, vb[i2], vb[i2 + 1], vb[i2 + 2]);
-                const dist = intersect.rayTriangle(ray, tri, opt.doubleSided);
-                if (dist === 0 || dist > opt.distance) continue;
-                fillResult(opt.mode, dist, i0, i1, i2, opt.result);
-                if (opt.mode === ERaycastMode.ANY) return dist;
-            }
-        } else if (pm === PrimitiveMode.TRIANGLE_STRIP) {
-            const cnt = ib.length - 2;
-            let rev = 0;
-            for (let j = 0; j < cnt; j += 1) {
-                const i0 = ib[j - rev] * 3;
-                const i1 = ib[j + rev + 1] * 3;
-                const i2 = ib[j + 2] * 3;
-                Vec3.set(tri.a, vb[i0], vb[i0 + 1], vb[i0 + 2]);
-                Vec3.set(tri.b, vb[i1], vb[i1 + 1], vb[i1 + 2]);
-                Vec3.set(tri.c, vb[i2], vb[i2 + 1], vb[i2 + 2]);
-                rev = ~rev;
-                const dist = intersect.rayTriangle(ray, tri, opt.doubleSided);
-                if (dist === 0 || dist > opt.distance) continue;
-                fillResult(opt.mode, dist, i0, i1, i2, opt.result);
-                if (opt.mode === ERaycastMode.ANY) return dist;
-            }
-        } else if (pm === PrimitiveMode.TRIANGLE_FAN) {
-            const cnt = ib.length - 1;
-            const i0 = ib[0] * 3;
-            Vec3.set(tri.a, vb[i0], vb[i0 + 1], vb[i0 + 2]);
-            for (let j = 1; j < cnt; j += 1) {
-                const i1 = ib[j] * 3;
-                const i2 = ib[j + 1] * 3;
-                Vec3.set(tri.b, vb[i1], vb[i1 + 1], vb[i1 + 2]);
-                Vec3.set(tri.c, vb[i2], vb[i2 + 1], vb[i2 + 2]);
-                const dist = intersect.rayTriangle(ray, tri, opt.doubleSided);
-                if (dist === 0 || dist > opt.distance) continue;
-                fillResult(opt.mode, dist, i0, i1, i2, opt.result);
-                if (opt.mode === ERaycastMode.ANY) return dist;
-            }
-        }
-        return minDis;
-    };
-    return function (ray: Ray, submesh: RenderingSubMesh, options?: IRaySubMeshOptions) {
-        minDis = 0;
-        if (submesh.geometricInfo.positions.length === 0) return minDis;
-        const opt = options === undefined ? deOpt : options;
-        const min = submesh.geometricInfo.boundingBox.min;
-        const max = submesh.geometricInfo.boundingBox.max;
-        if (rayAABB2(ray, min, max)) {
-            const pm = submesh.primitiveMode;
-            const { positions: vb, indices: ib } = submesh.geometricInfo;
-            narrowphase(vb, ib!, pm, ray, opt);
-        }
-        return minDis;
-    };
-}());
-
-/**
- * @en
- * ray-mesh intersect detect, in model space.
- * @zh
- * 在模型空间中，射线和三角网格资源的相交性检测。
- * @param {Ray} ray
- * @param {Mesh} mesh
- * @param {IRayMeshOptions} options
- * @return {number} 0 or !0
- */
-const rayMesh = (function () {
-    let minDis = 0;
-    const deOpt: IRayMeshOptions = { distance: Infinity, doubleSided: false, mode: ERaycastMode.ANY };
-    return function (ray: Ray, mesh: Mesh, options?: IRayMeshOptions) {
-        minDis = 0;
-        const opt = options === undefined ? deOpt : options;
-        const length = mesh.renderingSubMeshes.length;
-        const min = mesh.struct.minPosition;
-        const max = mesh.struct.maxPosition;
-        if (min && max && !rayAABB2(ray, min, max)) return minDis;
-        for (let i = 0; i < length; i++) {
-            const sm = mesh.renderingSubMeshes[i];
-            const dis = raySubMesh(ray, sm, opt);
-            if (dis) {
-                if (opt.mode === ERaycastMode.CLOSEST) {
-                    if (minDis === 0 || minDis > dis) {
-                        minDis = dis;
-                        if (opt.subIndices) opt.subIndices[0] = i;
-                    }
-                } else {
-                    minDis = dis;
-                    if (opt.subIndices) opt.subIndices.push(i);
-                    if (opt.mode === ERaycastMode.ANY) {
-                        return dis;
-                    }
-                }
-            }
-        }
-        if (minDis && opt.mode === ERaycastMode.CLOSEST) {
-            if (opt.result) {
-                opt.result[0].distance = minDis;
-                opt.result.length = 1;
-            }
-            if (opt.subIndices) opt.subIndices.length = 1;
-        }
-        return minDis;
-    };
-}());
-
-/**
- * @en
- * ray-model intersect detect, in world space.
- * @zh
- * 在世界空间中，射线和渲染模型的相交性检测。
- * @param ray
- * @param model
- * @param options
- * @return 0 or !0
- */
-const rayModel = (function () {
-    let minDis = 0;
-    const deOpt: IRayModelOptions = { distance: Infinity, doubleSided: false, mode: ERaycastMode.ANY };
-    const modelRay = new Ray();
-    const m4 = new Mat4();
-    return function (r: Ray, model: scene.Model, options?: IRayModelOptions) {
-        minDis = 0;
-        const opt = options === undefined ? deOpt : options;
-        const wb = model.worldBounds;
-        if (wb && !rayAABB(r, wb)) return minDis;
-        Ray.copy(modelRay, r);
-        if (model.node) {
-            Mat4.invert(m4, model.node.getWorldMatrix(m4));
-            Vec3.transformMat4(modelRay.o, r.o, m4);
-            Vec3.transformMat4Normal(modelRay.d, r.d, m4);
-        }
-        const subModels = model.subModels;
-        for (let i = 0; i < subModels.length; i++) {
-            const subMesh = subModels[i].subMesh;
-            const dis = raySubMesh(modelRay, subMesh, opt);
-            if (dis) {
-                if (opt.mode === ERaycastMode.CLOSEST) {
-                    if (minDis === 0 || minDis > dis) {
-                        minDis = dis;
-                        if (opt.subIndices) opt.subIndices[0] = i;
-                    }
-                } else {
-                    minDis = dis;
-                    if (opt.subIndices) opt.subIndices.push(i);
-                    if (opt.mode === ERaycastMode.ANY) {
-                        return dis;
-                    }
-                }
-            }
-        }
-        if (minDis && opt.mode === ERaycastMode.CLOSEST) {
-            if (opt.result) {
-                opt.result[0].distance = minDis;
-                opt.result.length = 1;
-            }
-            if (opt.subIndices) opt.subIndices.length = 1;
-        }
-        return minDis;
-    };
-}());
-
-/**
- * @en
  * line-plane intersect detect.
  * @zh
  * 线段与平面的相交性检测。
- * @param {line} line 线段
- * @param {Plane} plane 平面
- * @return {number} 0 或 非0
+ * @param line @zh 线段 @en The line to test
+ * @param plane @zh 平面 @en The plane to test
+ * @return @zh 0 或非 0 @en 0 or not 0, 0 indicates there is no intersection
  */
 const linePlane = (function () {
     const ab = new Vec3(0, 0, 0);
@@ -567,10 +360,10 @@ const linePlane = (function () {
  * line-triangle intersect detect.
  * @zh
  * 线段与三角形的相交性检测。
- * @param {line} line 线段
- * @param {Triangle} triangle 三角形
- * @param {Vec3} outPt 可选，相交点
- * @return {number} 0 或 非0
+ * @param line @zh 线段 @en The line to test
+ * @param triangle @zh 三角形 @en The triangle to test
+ * @param outPt @zh 可选，相交点 @en Optional out param, indicates the intersection point
+ * @return @zh 0 或非 0 @en 0 or not 0, 0 indicates there is no intersection
  */
 const lineTriangle = (function () {
     const ab = new Vec3(0, 0, 0);
@@ -632,9 +425,9 @@ const r_t = new Ray();
  * line-aabb intersect detect.
  * @zh
  * 线段与轴对齐包围盒的相交性检测
- * @param line 线段
- * @param aabb 轴对齐包围盒
- * @return {number} 0 或 非0
+ * @param line @zh 线段 @en The line to test
+ * @param aabb @zh 轴对齐包围盒 @en The aabb to test
+ * @return @zh 0 或非 0 @en 0 or not 0, 0 indicates there is no intersection
  */
 function lineAABB (line: Line, aabb: AABB): number {
     r_t.o.set(line.s);
@@ -654,9 +447,9 @@ function lineAABB (line: Line, aabb: AABB): number {
  * line-obb intersect detect.
  * @zh
  * 线段与方向包围盒的相交性检测
- * @param line 线段
- * @param obb 方向包围盒
- * @return {number} 0 或 非0
+ * @param line @zh 线段 @en The line to test
+ * @param obb @zh 方向包围盒 @en The obb
+ * @return @zh 0 或非 0 @en 0 or not 0, 0 indicates there is no intersection
  */
 function lineOBB (line: Line, obb: OBB): number {
     r_t.o.set(line.s);
@@ -676,9 +469,9 @@ function lineOBB (line: Line, obb: OBB): number {
  * line-sphere intersect detect.
  * @zh
  * 线段与球的相交性检测
- * @param line 线段
- * @param sphere 球
- * @return {number} 0 或 非0
+ * @param line @zh 线段 @en The line to test
+ * @param sphere @zh 球 @en The sphere to test
+ * @return @zh 0 或非 0 @en 0 or not 0, 0 indicates there is no intersection
  */
 function lineSphere (line: Line, sphere: Sphere): number {
     r_t.o.set(line.s);
@@ -698,9 +491,9 @@ function lineSphere (line: Line, sphere: Sphere): number {
  * aabb-aabb intersect detect.
  * @zh
  * 轴对齐包围盒和轴对齐包围盒的相交性检测。
- * @param {AABB} aabb1 轴对齐包围盒1
- * @param {AABB} aabb2 轴对齐包围盒2
- * @return {number} 0 或 非0
+ * @param aabb1 @zh 轴对齐包围盒1 @en aabb 1 to test
+ * @param aabb2 @zh 轴对齐包围盒2 @en aabb 2 to test
+ * @return @zh 0 或非 0 @en 0 or not 0, 0 indicates there is no intersection
  */
 const aabbWithAABB = (function () {
     const aMin = new Vec3();
@@ -779,9 +572,9 @@ function getInterval (vertices: any[] | Vec3[], axis: Vec3) {
  * aabb-obb intersect detect.
  * @zh
  * 轴对齐包围盒和方向包围盒的相交性检测。
- * @param {AABB} aabb 轴对齐包围盒
- * @param {OBB} obb 方向包围盒
- * @return {number} 0 或 非0
+ * @param aabb @zh 轴对齐包围盒 @en The aabb to test
+ * @param obb @zh 方向包围盒 @en The obb to test
+ * @return @zh 0 或非 0 @en 0 or not 0, 0 indicates there is no intersection
  */
 const aabbWithOBB = (function () {
     const test = new Array(15);
@@ -832,9 +625,9 @@ const aabbWithOBB = (function () {
  * aabb-plane intersect detect.
  * @zh
  * 轴对齐包围盒和平面的相交性检测。
- * @param {AABB} aabb 轴对齐包围盒
- * @param {Plane} plane 平面
- * @return {number} inside(back) = -1, outside(front) = 0, intersect = 1
+ * @param aabb @zh 轴对齐包围盒 @en The aabb to test
+ * @param plane @zh 平面 @en The plane to test
+ * @return @zh 检测结果, 包含为 -1, 不包含为 0, 相交为 1 @en Test result, inside(back) = -1, outside(front) = 0, intersect = 1
  */
 const aabbPlane = function (aabb: AABB, plane: Plane): number {
     const r = aabb.halfExtents.x * Math.abs(plane.n.x)
@@ -850,11 +643,11 @@ const aabbPlane = function (aabb: AABB, plane: Plane): number {
  * aabb-frustum intersect detect, faster but has false positive corner cases.
  * @zh
  * 轴对齐包围盒和锥台相交性检测，速度快，但有错误情况。
- * @param {AABB} aabb 轴对齐包围盒
- * @param {Frustum} frustum 锥台
- * @return {number} 0 或 非0
+ * @param aabb @zh 轴对齐包围盒 @en The aabb to test
+ * @param frustum @zh 锥台 @en The frustum to test
+ * @return @zh 0 或非 0 @en 0 or not 0, 0 indicates there is no intersection
  */
-const aabbFrustum = function (aabb: AABB, frustum: Frustum): number {
+const aabbFrustum = function (aabb: AABB, frustum: Readonly<Frustum>): number {
     for (let i = 0; i < frustum.planes.length; i++) {
         // frustum plane normal points to the inside
         if (aabbPlane(aabb, frustum.planes[i]) === -1) {
@@ -864,15 +657,34 @@ const aabbFrustum = function (aabb: AABB, frustum: Frustum): number {
     return 1;
 };
 
+/**
+ * @en
+ * aabb-frustum intersect detect, faster but false while frustum is completely inside the aabb.
+ * @zh
+ * 轴对齐包围盒和锥台的相交性检测。速度快，但是当锥台完全在aabb中时就会判断出错。
+ * @param {AABB} aabb 轴对齐包围盒
+ * @param {Frustum} frustum 锥台
+ * @return {number} aabb completely inside the frustum = 1, otherwise = 0
+ */
+const aabbFrustumCompletelyInside = function (aabb: AABB, frustum: Readonly<Frustum>): number {
+    for (let i = 0; i < frustum.planes.length; i++) {
+        // frustum plane normal points to the inside
+        if (aabbPlane(aabb, frustum.planes[i]) !== 0) {
+            return 0;
+        }
+    } // completely inside
+    return 1;
+};
+
 // https://cesium.com/blog/2017/02/02/tighter-frustum-culling-and-why-you-may-want-to-disregard-it/
 /**
  * @en
  * aabb-frustum intersect, handles most of the false positives correctly.
  * @zh
  * 轴对齐包围盒和锥台相交性检测，正确处理大多数错误情况。
- * @param {AABB} aabb 轴对齐包围盒
- * @param {Frustum} frustum 锥台
- * @return {number}
+ * @param aabb @zh 轴对齐包围盒 @en The aabb to test
+ * @param frustum @zh 锥台 @en The frustum to test
+ * @return @zh 0 或非 0 @en 0 or not 0, 0 indicates there is no intersection
  */
 const aabbFrustumAccurate = (function () {
     const tmp = new Array(8);
@@ -919,9 +731,9 @@ const aabbFrustumAccurate = (function () {
  * obb contains the point.
  * @zh
  * 方向包围盒和点的相交性检测。
- * @param {OBB} obb 方向包围盒
- * @param {Vec3} point 点
- * @return {boolean} true or false
+ * @param obb @zh 方向包围盒 @en The obb to test
+ * @param point @zh 点 @en The point to test
+ * @return @zh 布尔值 @en The value indicates if there is a intersection
  */
 const obbPoint = (function () {
     const tmp = new Vec3(0, 0, 0); const m3 = new Mat3();
@@ -938,9 +750,9 @@ const obbPoint = (function () {
  * obb-plane intersect detect.
  * @zh
  * 方向包围盒和平面的相交性检测。
- * @param {OBB} obb 方向包围盒
- * @param {Plane} plane 平面
- * @return {number} inside(back) = -1, outside(front) = 0, intersect = 1
+ * @param obb @zh 方向包围盒 @en The obb to test
+ * @param plane @zh 平面 @en The plane to test
+ * @return @zh 检测结果, 包含为 -1, 不包含为 0, 相交为 1 @en Test result, inside(back) = -1, outside(front) = 0, intersect = 1
  */
 const obbPlane = (function () {
     const absDot = function (n: Vec3, x: number, y: number, z: number) {
@@ -963,9 +775,9 @@ const obbPlane = (function () {
  * obb-frustum intersect, faster but has false positive corner cases.
  * @zh
  * 方向包围盒和锥台相交性检测，速度快，但有错误情况。
- * @param {OBB} obb 方向包围盒
- * @param {Frustum} frustum 锥台
- * @return {number} 0 或 非0
+ * @param obb @zh 方向包围盒 @en The obb to test
+ * @param frustum @zh 锥台 @en The frustum to test
+ * @return @zh 0 或非 0 @en 0 or not 0, 0 indicates there is no intersection
  */
 const obbFrustum = function (obb: OBB, frustum: Frustum): number {
     for (let i = 0; i < frustum.planes.length; i++) {
@@ -983,9 +795,9 @@ const obbFrustum = function (obb: OBB, frustum: Frustum): number {
  * obb-frustum intersect, handles most of the false positives correctly.
  * @zh
  * 方向包围盒和锥台相交性检测，正确处理大多数错误情况。
- * @param {OBB} obb 方向包围盒
- * @param {Frustum} frustum 锥台
- * @return {number} 0 或 非0
+ * @param obb @zh 方向包围盒 @en The obb to test
+ * @param frustum @zh 锥台 @en The frustum to test
+ * @return @zh 0 或非 0 @en 0 or not 0, 0 indicates there is no intersection
  */
 const obbFrustumAccurate = (function () {
     const tmp = new Array(8);
@@ -1038,9 +850,9 @@ const obbFrustumAccurate = (function () {
  * obb-obb intersect detect.
  * @zh
  * 方向包围盒和方向包围盒的相交性检测。
- * @param {OBB} obb1 方向包围盒1
- * @param {OBB} obb2 方向包围盒2
- * @return {number} 0 或 非0
+ * @param obb1 @zh 方向包围盒1 @en Obb 1 to test
+ * @param obb2 @zh 方向包围盒2 @en Obb 2 to test
+ * @return @zh 0 或非 0 @en 0 or not 0, 0 indicates there is no intersection
  */
 const obbWithOBB = (function () {
     const test = new Array(15);
@@ -1090,8 +902,9 @@ const obbWithOBB = (function () {
  * obb-capsule intersect detect.
  * @zh
  * 方向包围盒和胶囊体的相交性检测。
- * @param obb 方向包围盒
- * @param capsule 胶囊体
+ * @param obb @zh 方向包围盒 @en The obb to test
+ * @param capsule @zh 胶囊体 @en The capsule to test
+ * @return @zh 0 或非 0 @en 0 or not 0, 0 indicates there is no intersection
  */
 const obbCapsule = (function () {
     const sphere_0 = new Sphere();
@@ -1155,9 +968,9 @@ const obbCapsule = (function () {
  * plane normal to factor out the unnomalized plane distance.
  * @zh
  * 球与平面的相交性检测。
- * @param {Sphere} sphere 球
- * @param {Plane} plane 平面
- * @return {number} inside(back) = -1, outside(front) = 0, intersect = 1
+ * @param sphere @zh 球 @en The sphere to test
+ * @param plane @zh 平面 @en The plane to test
+ * @return @zh 检测结果, 包含为 -1, 不包含为 0, 相交为 1 @en Test result, inside(back) = -1, outside(front) = 0, intersect = 1
  */
 const spherePlane = function (sphere: Sphere, plane: Plane): number {
     const dot = Vec3.dot(plane.n, sphere.center);
@@ -1171,9 +984,9 @@ const spherePlane = function (sphere: Sphere, plane: Plane): number {
  * sphere-frustum intersect, faster but has false positive corner cases.
  * @zh
  * 球和锥台的相交性检测，速度快，但有错误情况。
- * @param {Sphere} sphere 球
- * @param {Frustum} frustum 锥台
- * @return {number} 0 或 非0
+ * @param sphere @zh 球 @en The sphere to test
+ * @param frustum @zh 锥台 @en The frustum to test
+ * @return @zh 0 或非 0 @en 0 or not 0, 0 indicates there is no intersection
  */
 const sphereFrustum = function (sphere: Sphere, frustum: Frustum): number {
     for (let i = 0; i < frustum.planes.length; i++) {
@@ -1191,9 +1004,9 @@ const sphereFrustum = function (sphere: Sphere, frustum: Frustum): number {
  * sphere-frustum intersect, handles the false positives correctly.
  * @zh
  * 球和锥台的相交性检测，正确处理大多数错误情况。
- * @param {Sphere} sphere 球
- * @param {Frustum} frustum 锥台
- * @return {number} 0 或 非0
+ * @param sphere @zh 球 @en The sphere to test
+ * @param frustum @zh 锥台 @en The frustum to test
+ * @return @zh 0 或非 0 @en 0 or not 0, 0 indicates there is no intersection
  */
 const sphereFrustumAccurate = (function () {
     const pt = new Vec3(0, 0, 0); const map = [1, -1, 1, -1, 1, -1];
@@ -1224,9 +1037,9 @@ const sphereFrustumAccurate = (function () {
  * sphere-sphere intersect detect.
  * @zh
  * 球和球的相交性检测。
- * @param {Sphere} sphere0 球0
- * @param {Sphere} sphere1 球1
- * @return {boolean} true or false
+ * @param sphere0 @zh 球 0 @en The sphere A to test
+ * @param sphere1 @zh 球 1 @en The sphere B to test
+ * @return @zh 是否发生碰撞 @en true or false which indicates if there is a intersection
  */
 const sphereWithSphere = function (sphere0: Sphere, sphere1: Sphere): boolean {
     const r = sphere0.radius + sphere1.radius;
@@ -1238,9 +1051,9 @@ const sphereWithSphere = function (sphere0: Sphere, sphere1: Sphere): boolean {
  * sphere-aabb intersect detect.
  * @zh
  * 球和轴对齐包围盒的相交性检测。
- * @param {Sphere} sphere 球
- * @param {AABB} aabb 轴对齐包围盒
- * @return {boolean} true or false
+ * @param sphere @zh 球 @en The sphere to test
+ * @param aabb @zh 轴对齐包围盒 @en The aabb to test
+ * @return @zh 是否发生碰撞 @en true or false which indicates if there is a intersection
  */
 const sphereAABB = (function () {
     const pt = new Vec3();
@@ -1255,9 +1068,9 @@ const sphereAABB = (function () {
  * sphere-obb intersect detect.
  * @zh
  * 球和方向包围盒的相交性检测。
- * @param {Sphere} sphere 球
- * @param {OBB} obb 方向包围盒
- * @return {boolean} true or false
+ * @param sphere @zh 球 @en The sphere to test
+ * @param obb @zh 方向包围盒 @en The obb to test
+ * @return @zh 是否发生碰撞 @en true or false which indicates if there is a intersection
  */
 const sphereOBB = (function () {
     const pt = new Vec3();
@@ -1272,6 +1085,9 @@ const sphereOBB = (function () {
  * sphere-capsule intersect detect.
  * @zh
  * 球和胶囊体的相交性检测。
+ * @param sphere @zh 球 @en The sphere to test
+ * @param capsule @zh 胶囊体 @en The capsule to test
+ * @return @zh 是否发生碰撞 @en true or false which indicates if there is a intersection
  */
 const sphereCapsule = (function () {
     const v3_0 = new Vec3();
@@ -1304,6 +1120,9 @@ const sphereCapsule = (function () {
  * capsule-capsule intersect detect.
  * @zh
  * 胶囊体和胶囊体的相交性检测。
+ * @param capsuleA @zh 胶囊体 A @en The capsule A to test
+ * @param capsuleB @zh 胶囊体 B @en The capsule B to test
+ * @return @zh 是否发生碰撞 @en true or false which indicates if there is a intersection
  */
 const capsuleWithCapsule = (function () {
     const v3_0 = new Vec3();
@@ -1398,9 +1217,11 @@ const intersect = {
     rayTriangle,
     rayCapsule,
 
-    raySubMesh,
-    rayMesh,
-    rayModel,
+    // As these functions depends on upper modules, so move the implementation to misc/intersect.ts.
+    // These functions are defined here to keep compatibility, they will be override in misc/intersect.ts.
+    raySubMesh: null as unknown as (ray: Ray, submesh: RenderingSubMesh, options?: IRaySubMeshOptions) => number,
+    rayMesh: null as unknown as (ray: Ray, mesh: Mesh, options?: IRayMeshOptions) => number,
+    rayModel: null as unknown as (r: Ray, model: Model, options?: IRayModelOptions) => number,
 
     lineSphere,
     lineAABB,
@@ -1428,15 +1249,17 @@ const intersect = {
     obbFrustumAccurate,
     obbPoint,
     obbCapsule,
+    aabbFrustumCompletelyInside,
 
     capsuleWithCapsule,
 
     /**
-     * @zh
-     * g1 和 g2 的相交性检测，可填入基础几何中的形状。
-     * @param g1 几何1
-     * @param g2 几何2
-     * @param outPt 可选，相交点。（注：仅部分形状的检测带有这个返回值）
+     * @en Check intersection between two geometries, it accept all basic geometry types in [[geometry]] module.
+     * @zh 两个几何体的相交性检测，可填入 [[geometry]] 模块中的基础几何形状。
+     * @param g1 @en The first geometry. @zh 第一个几何体。
+     * @param g2 @en The second geometry. @zh 第二个几何体。
+     * @param outPt @en A 3d point to store the intersection point result, only part of the geometries support this.
+     *              @zh 可选，用于保存相交点的输出对象。（注：仅部分形状的检测带有这个返回值）
      */
     resolve (g1: any, g2: any, outPt = null) {
         const type1 = g1._type; const type2 = g2._type;

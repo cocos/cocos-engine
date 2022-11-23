@@ -1,0 +1,6 @@
+// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+
+#pragma define-meta CC_USE_DIFFUSEMAP range([0, 2])
+
+#pragma builtin(global)
+layout(set = 0, binding = 7) uniform samplerCube cc_diffuseMap;

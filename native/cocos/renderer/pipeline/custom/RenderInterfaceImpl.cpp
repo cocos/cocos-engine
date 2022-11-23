@@ -23,19 +23,16 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "RenderInterfaceTypes.h"
 #include "NativePipelineTypes.h"
+#include "RenderInterfaceTypes.h"
+#include "boost/container/pmr/global_resource.hpp"
 
 namespace cc {
 
 namespace render {
 
 Pipeline* Factory::createPipeline() {
-    return new NativePipeline();
-}
-
-DescriptorHierarchy* Factory::createDescriptorHierarchy() {
-    return nullptr;
+    return ccnew NativePipeline(boost::container::pmr::get_default_resource());
 }
 
 } // namespace render

@@ -28,15 +28,15 @@
 
 #define LOG_TAG "mp3reader"
 
-#include <stdlib.h>
 #include <assert.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <string.h> // Resolves that memset, memcpy aren't found while APP_PLATFORM >= 22 on Android
 #include <vector>
 #include "audio/android/cutils/log.h"
 
-#include "pvmp3decoder_api.h"
 #include "audio/android/mp3reader.h"
+#include "pvmp3decoder_api.h"
 
 static uint32_t U32_AT(const uint8_t *ptr) {
     return ptr[0] << 24 | ptr[1] << 16 | ptr[2] << 8 | ptr[3];
@@ -204,7 +204,6 @@ static ssize_t sourceReadAt(mp3_callbacks *callback, void *source, off64_t offse
 static bool resync(
     mp3_callbacks *callback, void *source, uint32_t match_header,
     off64_t *inout_pos, uint32_t *out_header) {
-
     if (*inout_pos == 0) {
         // Skip an optional ID3 header if syncing at the very beginning
         // of the datasource.
@@ -359,7 +358,6 @@ Mp3Reader::Mp3Reader() : mSource(NULL), mCallback(NULL) {
 
 // Initialize the MP3 reader.
 bool Mp3Reader::init(mp3_callbacks *callback, void *source) {
-
     mSource = source;
     mCallback = callback;
     // Open the file.
@@ -385,7 +383,6 @@ bool Mp3Reader::init(mp3_callbacks *callback, void *source) {
 
 // Get the next valid MP3 frame.
 bool Mp3Reader::getFrame(void *buffer, uint32_t *size) {
-
     size_t frame_size;
     uint32_t bitrate;
     uint32_t num_samples;

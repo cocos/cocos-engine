@@ -46,8 +46,6 @@ public:
 
 private:
     static RenderFlowInfo initInfo;
-
-    ForwardStage *_forwardStage = nullptr;
 };
 
 } // namespace pipeline

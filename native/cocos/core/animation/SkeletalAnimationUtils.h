@@ -25,18 +25,32 @@
 
 #pragma once
 
+#include "base/Ptr.h"
+#include "base/RefCounted.h"
 #include "math/Mat4.h"
+#include "renderer/gfx-base/GFXTexture.h"
 
 namespace cc {
 
 class Node;
 
-struct IJointTransform {
-    Node *                  node{nullptr};
-    Mat4                    local;
-    Mat4                    world;
-    int                     stamp{-1};
-    struct IJointTransform *parent{nullptr};
+struct IJointTransform : RefCounted {
+    Node *node{nullptr};
+    Mat4 local;
+    Mat4 world;
+    int stamp{-1};
+    IntrusivePtr<IJointTransform> parent;
+};
+
+struct RealTimeJointTexture {
+    ~RealTimeJointTexture() {
+        CC_SAFE_DELETE_ARRAY(buffer);
+        for (auto &texture : textures) {
+            texture->destroy();
+        }
+    }
+    std::vector<IntrusivePtr<gfx::Texture>> textures;
+    float *buffer = nullptr;
 };
 
 Mat4 getWorldMatrix(IJointTransform *transform, int32_t stamp);

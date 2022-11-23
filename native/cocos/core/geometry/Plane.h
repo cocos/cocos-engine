@@ -61,7 +61,7 @@ public:
      * @param c 点 c。
      * @return out 接受操作的对象。
      */
-    static Plane *fromPoints(Plane *     out,
+    static Plane *fromPoints(Plane *out,
                              const Vec3 &a,
                              const Vec3 &b,
                              const Vec3 &c);
@@ -104,13 +104,13 @@ public:
     static Plane *normalize(Plane *out, const Plane &a);
 
     // compatibility with vector interfaces
-    inline void  setX(float val) { n.x = val; }
+    inline void setX(float val) { n.x = val; }
     inline float getX() const { return n.x; }
-    inline void  setY(float val) { n.y = val; }
+    inline void setY(float val) { n.y = val; }
     inline float getY() const { return n.y; }
-    inline void  setZ(float val) { n.z = val; }
+    inline void setZ(float val) { n.z = val; }
     inline float getZ() const { return n.z; }
-    inline void  setW(float val) { d = val; }
+    inline void setW(float val) { d = val; }
     inline float getW() const { return d; }
 
     /**
@@ -157,8 +157,8 @@ public:
      */
     float d{0.0F};
 
-    void  define(const Vec3 &v0, const Vec3 &v1, const Vec3 &v2);
-    void  define(const Vec3 &normal, const Vec3 &point);
+    void define(const Vec3 &v0, const Vec3 &v1, const Vec3 &v2);
+    void define(const Vec3 &normal, const Vec3 &point);
     float distance(const Vec3 &point) const;
     Plane clone() const;
 };

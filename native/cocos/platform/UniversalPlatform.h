@@ -26,10 +26,9 @@
 #pragma once
 
 #include "platform/BasePlatform.h"
-#include "platform/IEventDispatch.h"
 
 namespace cc {
-class CC_DLL UniversalPlatform : public BasePlatform, public IEventDispatch {
+class CC_DLL UniversalPlatform : public BasePlatform {
 public:
     /**
      * @brief Start base platform initialization.
@@ -41,27 +40,7 @@ public:
      */
     OSType getOSType() const override;
     /**
-     * @brief Set the event handling callback.
-     */
-    void setHandleEventCallback(HandleEventCallback cb) override;
-    /**
-     * @brief Set the event to handle callbacks by default.
-     */
-    void setHandleDefaultEventCallback(HandleEventCallback cb) override;
-    /**
-     * @brief Implement dispatch event interface.
-     */
-    void dispatchEvent(const OSEvent &ev) override;
-    /**
-     * @brief Implement dispatch touch event interface.
-     */
-    void dispatchTouchEvent(const OSEvent &ev) override;
-    /**
-     * @brief Implement handle default event interface.
-     */
-    void handleDefaultEvent(const OSEvent &ev) override;
-    /**
-     * @brief Get the SDK version for Android.Other systems also have sdk versions, 
+     * @brief Get the SDK version for Android.Other systems also have sdk versions,
             but they are not currently used.
      */
     int getSdkVersion() const override;
@@ -70,7 +49,7 @@ public:
      */
     void pollEvent() override;
     /**
-     * @brief Run the task in the platform thread, 
+     * @brief Run the task in the platform thread,
      * @brief most platforms are the main thread, android is the non-main thread
      * @param task : Tasks running in platform threads
      */
@@ -100,15 +79,12 @@ public:
     /**
      * @brief Processing destroy message
      */
-    virtual void onDestory();
+    virtual void onDestroy();
 
 private:
     ThreadCallback _mainTask{nullptr};
 
     int32_t _fps{60};
-
-    HandleEventCallback _handleEventCallback{nullptr};
-    HandleEventCallback _handleDefaultEventCallback{nullptr};
 };
 
 } // namespace cc

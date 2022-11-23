@@ -1,4 +1,4 @@
-import { DEBUG, EDITOR, TEST } from 'internal:constants';
+import { DEBUG, EDITOR, PREVIEW, TEST } from 'internal:constants';
 import { IFeatureMap } from 'pal/system-info';
 import { EventTarget } from '../../../cocos/core/event';
 import { BrowserType, NetworkType, OS, Platform, Language, Feature } from '../enum-type';
@@ -17,8 +17,10 @@ class SystemInfo extends EventTarget {
     public readonly osMainVersion: number;
     public readonly browserType: BrowserType;
     public readonly browserVersion: string;
+    public readonly isXR: boolean;
     private _battery?: any;
     private _featureMap: IFeatureMap;
+    private _initPromise: Promise<void>[];
 
     constructor () {
         super();
@@ -141,6 +143,8 @@ class SystemInfo extends EventTarget {
         }
         this.browserVersion = tmp ? tmp[4] : '';
 
+        this.isXR = false;
+
         // init capability
         const _tmpCanvas1 = document.createElement('canvas');
         const supportCanvas = TEST ? false : !!_tmpCanvas1.getContext('2d');
@@ -156,32 +160,57 @@ class SystemInfo extends EventTarget {
         } catch (e) {
             supportWebp  = false;
         }
-        let supportImageBitmap = false;
-        if (!TEST && typeof createImageBitmap !== 'undefined' && typeof Blob !== 'undefined') {
-            _tmpCanvas1.width = _tmpCanvas1.height = 2;
-            createImageBitmap(_tmpCanvas1, {}).then((imageBitmap) => {
-                supportImageBitmap = true;
-                imageBitmap?.close();
-            }).catch((err) => {});
+        if (this.browserType === BrowserType.SAFARI) {
+            const result = / version\/(\d+)/.exec(ua)?.[1];
+            if (typeof result === 'string') {
+                if (Number.parseInt(result) >= 14) {
+                    // safari 14+ support webp, but canvas.toDataURL is not supported by default
+                    supportWebp = true;
+                }
+            }
         }
 
-        const supportTouch = (document.documentElement.ontouchstart !== undefined || document.ontouchstart !== undefined);
-        const supportMouse = !EDITOR && document.documentElement.onmouseup !== undefined;
+        const supportTouch = (document.documentElement.ontouchstart !== undefined || document.ontouchstart !== undefined || EDITOR);
+        const supportMouse = document.documentElement.onmouseup !== undefined || EDITOR;
         this._featureMap = {
             [Feature.WEBP]: supportWebp,
-            [Feature.IMAGE_BITMAP]: supportImageBitmap,
+            [Feature.IMAGE_BITMAP]: false,      // Initialize in Promise
             [Feature.WEB_VIEW]: true,
             [Feature.VIDEO_PLAYER]: true,
             [Feature.SAFE_AREA]: false,
 
             [Feature.INPUT_TOUCH]: supportTouch,
-            [Feature.EVENT_KEYBOARD]: document.documentElement.onkeyup !== undefined,
+            [Feature.EVENT_KEYBOARD]: document.documentElement.onkeyup !== undefined || EDITOR,
             [Feature.EVENT_MOUSE]: supportMouse,
             [Feature.EVENT_TOUCH]: supportTouch || supportMouse,
             [Feature.EVENT_ACCELEROMETER]: (window.DeviceMotionEvent !== undefined || window.DeviceOrientationEvent !== undefined),
+            // @ts-expect-error undefined webkitGetGamepads
+            [Feature.EVENT_GAMEPAD]: (navigator.getGamepads !== undefined || navigator.webkitGetGamepads !== undefined),
+            [Feature.EVENT_HANDLE]: EDITOR || PREVIEW,
+            [Feature.EVENT_HMD]: this.isXR,
         };
 
+        this._initPromise = [];
+        this._initPromise.push(this._supportsImageBitmapPromise());
+
         this._registerEvent();
+    }
+
+    private _supportsImageBitmapPromise (): Promise<void> {
+        if (!TEST && typeof createImageBitmap !== 'undefined' && typeof Blob !== 'undefined') {
+            const canvas = document.createElement('canvas');
+            canvas.width = canvas.height = 2;
+            const promise = createImageBitmap(canvas, {});
+            if (promise instanceof Promise) {
+                return promise.then((imageBitmap) => {
+                    this._setFeature(Feature.IMAGE_BITMAP, true);
+                    imageBitmap?.close();
+                });
+            } else if (DEBUG) {
+                console.warn('The return value of createImageBitmap is not Promise.');
+            }
+        }
+        return Promise.resolve();
     }
 
     private _registerEvent () {
@@ -250,6 +279,14 @@ class SystemInfo extends EventTarget {
             document.addEventListener('pagehide', onHidden);
             document.addEventListener('pageshow', onShown);
         }
+    }
+
+    private _setFeature (feature: Feature, value: boolean) {
+        return this._featureMap[feature] = value;
+    }
+
+    public init (): Promise<void[]> {
+        return Promise.all(this._initPromise);
     }
 
     public hasFeature (feature: Feature): boolean {

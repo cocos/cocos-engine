@@ -36,39 +36,56 @@ public:
     Buffer();
     ~Buffer() override;
 
-    static size_t computeHash(const BufferInfo &info);
+    static ccstd::hash_t computeHash(const BufferInfo &info);
 
     void initialize(const BufferInfo &info);
     void initialize(const BufferViewInfo &info);
     void resize(uint32_t size);
     void destroy();
 
+    template <typename T>
+    void write(const T& value, uint32_t offset) const {
+        write(reinterpret_cast<const uint8_t*>(&value), offset, sizeof(T));
+    }
+
+    void write(const uint8_t *value, uint32_t offset, uint32_t size) const;
+
     virtual void update(const void *buffer, uint32_t size) = 0;
 
     inline void update(const void *buffer) { update(buffer, _size); }
 
+    void update();
+
     inline BufferUsage getUsage() const { return _usage; }
     inline MemoryUsage getMemUsage() const { return _memUsage; }
-    inline uint32_t    getStride() const { return _stride; }
-    inline uint32_t    getCount() const { return _count; }
-    inline uint32_t    getSize() const { return _size; }
+    inline uint32_t getStride() const { return _stride; }
+    inline uint32_t getCount() const { return _count; }
+    inline uint32_t getSize() const { return _size; }
     inline BufferFlags getFlags() const { return _flags; }
-    inline bool        isBufferView() const { return _isBufferView; }
+    inline bool isBufferView() const { return _isBufferView; }
 
 protected:
-    virtual void doInit(const BufferInfo &info)          = 0;
-    virtual void doInit(const BufferViewInfo &info)      = 0;
+    virtual void doInit(const BufferInfo &info) = 0;
+    virtual void doInit(const BufferViewInfo &info) = 0;
     virtual void doResize(uint32_t size, uint32_t count) = 0;
-    virtual void doDestroy()                             = 0;
+    virtual void doDestroy() = 0;
 
-    BufferUsage _usage        = BufferUsageBit::NONE;
-    MemoryUsage _memUsage     = MemoryUsageBit::NONE;
-    uint32_t    _stride       = 0U;
-    uint32_t    _count        = 0U;
-    uint32_t    _size         = 0U;
-    uint32_t    _offset       = 0U;
-    BufferFlags _flags        = BufferFlagBit::NONE;
-    bool        _isBufferView = false;
+    static uint8_t *getBufferStagingAddress(Buffer *buffer);
+    static void flushBuffer(Buffer *buffer, const uint8_t *data);
+
+    virtual void flush(const uint8_t *data) { update(reinterpret_cast<const void*>(data), _size); }
+    virtual uint8_t *getStagingAddress() const { return _data.get(); }
+
+    BufferUsage _usage = BufferUsageBit::NONE;
+    MemoryUsage _memUsage = MemoryUsageBit::NONE;
+    uint32_t _stride = 0U;
+    uint32_t _count = 0U;
+    uint32_t _size = 0U;
+    uint32_t _offset = 0U;
+    BufferFlags _flags = BufferFlagBit::NONE;
+    bool _isBufferView = false;
+    uint8_t _rsv[3] = {0};
+    std::unique_ptr<uint8_t[]> _data;
 };
 
 } // namespace gfx

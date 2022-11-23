@@ -36,8 +36,7 @@ DRAGONBONES_NAMESPACE_BEGIN
  * @version DragonBones 3.0
  * @language zh_CN
  */
-class SkinData : public BaseObject
-{
+class SkinData : public BaseObject {
     BIND_CLASS_TYPE_A(SkinData);
 
 public:
@@ -76,8 +75,7 @@ public:
     /**
      * @private
      */
-    std::vector<DisplayData*>* getDisplays(const std::string& slotName)
-    {
+    std::vector<DisplayData*>* getDisplays(const std::string& slotName) {
         return mapFindB(displays, slotName);
     }
 

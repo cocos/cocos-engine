@@ -1,22 +1,21 @@
 
-#include "cocos/bindings/jswrapper/SeApi.h"
-#include "cocos/platform/FileUtils.h"
-#include <string>
-#include <sstream>
 #include <cstdlib>
+#include <sstream>
+#include <string>
+#include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_global_init.h"
+#include "cocos/platform/FileUtils.h"
 
 int main(int argc, char **argv) {
-    
     std::string scriptPath = "index.js";
 
-    if(argc > 1) {
+    if (argc > 1) {
         scriptPath = argv[1];
     }
 
     auto *engine = se::ScriptEngine::getInstance();
     auto *fu = cc::FileUtils::getInstance();
-    
+
     // TODO: replace search path
     auto *currentDir = getenv("PWD");
     fu->addSearchPath(currentDir);
@@ -28,9 +27,8 @@ int main(int argc, char **argv) {
     engine->evalString("console.log('begin execute')");
     auto ret = engine->runScript(scriptPath);
     engine->evalString("console.log('end')");
-    if(!ret) return EXIT_FAILURE;
+    if (!ret) return EXIT_FAILURE;
 
-    
     se::ScriptEngine::destroyInstance();
     cc::FileUtils::destroyInstance();
     return 0;

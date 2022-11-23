@@ -1,6 +1,6 @@
 import { Mesh } from '../../../cocos/3d/assets';
 import { MeshRenderer } from '../../../cocos/3d/framework/mesh-renderer';
-import { Node } from '../../../cocos/core/scene-graph/node';
+import { Node } from '../../../cocos/scene-graph/node';
 
 describe('Mesh Renderer', () => {
     // At least one test should be present.

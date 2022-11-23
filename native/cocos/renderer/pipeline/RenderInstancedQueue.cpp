@@ -27,6 +27,9 @@
 #include "InstancedBuffer.h"
 #include "PipelineStateManager.h"
 #include "gfx-base/GFXCommandBuffer.h"
+#include "gfx-base/GFXDescriptorSet.h"
+#include "gfx-base/GFXDevice.h"
+#include "gfx-base/GFXRenderPass.h"
 
 namespace cc {
 namespace pipeline {
@@ -35,7 +38,16 @@ void RenderInstancedQueue::clear() {
     for (auto *it : _queues) {
         it->clear();
     }
+    _renderQueues.clear();
     _queues.clear();
+}
+
+void RenderInstancedQueue::sort() {
+    std::copy(_queues.cbegin(), _queues.cend(), std::back_inserter(_renderQueues));
+    auto isOpaque = [](const InstancedBuffer *instance) {
+        return instance->getPass()->getBlendState()->targets[0].blend == 0;
+    };
+    std::stable_partition(_renderQueues.begin(), _renderQueues.end(), isOpaque);
 }
 
 void RenderInstancedQueue::uploadBuffers(gfx::CommandBuffer *cmdBuffer) {
@@ -46,27 +58,41 @@ void RenderInstancedQueue::uploadBuffers(gfx::CommandBuffer *cmdBuffer) {
     }
 }
 
-void RenderInstancedQueue::recordCommandBuffer(gfx::Device * /*device*/, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer) {
-    for (auto *instanceBuffer : _queues) {
-        if (!instanceBuffer->hasPendingModels()) continue;
+void RenderInstancedQueue::recordCommandBuffer(gfx::Device * /*device*/, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer,
+                                               gfx::DescriptorSet *ds, uint32_t offset, const ccstd::vector<uint32_t> *dynamicOffsets) {
+    auto recordCommands = [&](const auto &renderQueue) {
+        for (const auto *instanceBuffer : renderQueue) {
+            if (!instanceBuffer->hasPendingModels()) continue;
 
-        const auto &instances = instanceBuffer->getInstances();
-        const auto *pass      = instanceBuffer->getPass();
-        cmdBuffer->bindDescriptorSet(materialSet, pass->getDescriptorSet());
-        gfx::PipelineState *lastPSO = nullptr;
-        for (const auto &instance : instances) {
-            if (!instance.count) {
-                continue;
+            const auto &instances = instanceBuffer->getInstances();
+            const auto *pass = instanceBuffer->getPass();
+            cmdBuffer->bindDescriptorSet(materialSet, pass->getDescriptorSet());
+            gfx::PipelineState *lastPSO = nullptr;
+            for (const auto &instance : instances) {
+                if (!instance.count) {
+                    continue;
+                }
+                auto *pso = PipelineStateManager::getOrCreatePipelineState(pass, instance.shader, instance.ia, renderPass);
+                if (lastPSO != pso) {
+                    cmdBuffer->bindPipelineState(pso);
+                    lastPSO = pso;
+                }
+                if (ds) cmdBuffer->bindDescriptorSet(globalSet, ds, 1, &offset);
+                if (dynamicOffsets) {
+                    cmdBuffer->bindDescriptorSet(localSet, instance.descriptorSet, *dynamicOffsets);
+                } else {
+                    cmdBuffer->bindDescriptorSet(localSet, instance.descriptorSet, instanceBuffer->dynamicOffsets());
+                }
+                cmdBuffer->bindInputAssembler(instance.ia);
+                cmdBuffer->draw(instance.ia);
             }
-            auto *pso = PipelineStateManager::getOrCreatePipelineState(pass, instance.shader, instance.ia, renderPass);
-            if (lastPSO != pso) {
-                cmdBuffer->bindPipelineState(pso);
-                lastPSO = pso;
-            }
-            cmdBuffer->bindDescriptorSet(localSet, instance.descriptorSet, instanceBuffer->dynamicOffsets());
-            cmdBuffer->bindInputAssembler(instance.ia);
-            cmdBuffer->draw(instance.ia);
         }
+    };
+
+    if (_renderQueues.empty()) {
+        recordCommands(_queues);
+    } else {
+        recordCommands(_renderQueues);
     }
 }
 

@@ -35,12 +35,16 @@ namespace gfx {
 
 using namespace emscripten;
 
-CCWGPUQueue::CCWGPUQueue() : wrapper<Queue>(val::object()) {
+CCWGPUQueue::CCWGPUQueue() : Queue() {
+}
+
+CCWGPUQueue::~CCWGPUQueue() {
+    doDestroy();
 }
 
 void CCWGPUQueue::doInit(const QueueInfo &info) {
-    _gpuQueueObject            = CC_NEW(CCWGPUQueueObject);
-    _gpuQueueObject->type      = info.type;
+    _gpuQueueObject = ccnew CCWGPUQueueObject;
+    _gpuQueueObject->type = info.type;
     _gpuQueueObject->wgpuQueue = wgpuDeviceGetQueue(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuDevice);
 }
 
@@ -49,11 +53,22 @@ void CCWGPUQueue::doDestroy() {
         if (_gpuQueueObject->wgpuQueue) {
             wgpuQueueRelease(_gpuQueueObject->wgpuQueue);
         }
-        CC_DELETE(_gpuQueueObject);
+        delete _gpuQueueObject;
+        _gpuQueueObject = nullptr;
     }
 }
 
-void CCWGPUQueue::submit(CommandBuffer *const *cmdBuffs, uint count) {
+namespace {
+
+void wgpuQueueSubmitCallback(WGPUQueueWorkDoneStatus status, void *userdata) {
+    auto *recycleBin = static_cast<CCWGPURecycleBin *>(userdata);
+    recycleBin->bufferBin.purge();
+    recycleBin->textureBin.purge();
+    recycleBin->queryBin.purge();
+}
+} // namespace
+
+void CCWGPUQueue::submit(CommandBuffer *const *cmdBuffs, uint32_t count) {
     // ccstd::vector<WGPUCommandBuffer> commandBuffs(count);
     // for (size_t i = 0; i < count; i++) {
     //     auto* commandBuff = static_cast<CCWGPUCommandBuffer*>(cmdBuffs[i]);
@@ -64,6 +79,24 @@ void CCWGPUQueue::submit(CommandBuffer *const *cmdBuffs, uint count) {
     //     auto* commandBuff = static_cast<CCWGPUCommandBuffer*>(cmdBuffs[i]);
     //     wgpuCommandBufferRelease(commandBuff->gpuCommandBufferObject()->wgpuCommandBuffer);
     // }
+
+    // CCWGPUDevice::getInstance()->stagingBuffer()->unmap();
+
+    ccstd::vector<WGPUCommandBuffer> wgpuCmdBuffs(count);
+    for (size_t i = 0; i < count; ++i) {
+        const auto *cmdBuff = static_cast<CCWGPUCommandBuffer *>(cmdBuffs[i]);
+        wgpuCmdBuffs[i] = cmdBuff->gpuCommandBufferObject()->wgpuCommandBuffer;
+
+        _numDrawCalls += cmdBuff->getNumDrawCalls();
+        _numInstances += cmdBuff->getNumInstances();
+        _numTriangles += cmdBuff->getNumTris();
+    }
+
+    wgpuQueueSubmit(_gpuQueueObject->wgpuQueue, count, wgpuCmdBuffs.data());
+    std::for_each(wgpuCmdBuffs.begin(), wgpuCmdBuffs.end(), [](auto wgpuCmdBuffer) { wgpuCommandBufferRelease(wgpuCmdBuffer); });
+
+    auto *recycleBin = CCWGPUDevice::getInstance()->recycleBin();
+    wgpuQueueOnSubmittedWorkDone(_gpuQueueObject->wgpuQueue, 0, wgpuQueueSubmitCallback, recycleBin);
 }
 
 } // namespace gfx

@@ -39,21 +39,21 @@ public:
     VertexEffectDelegate();
     ~VertexEffectDelegate() override;
     JitterVertexEffect *initJitter(float jitterX, float jitterY);
-    SwirlVertexEffect * initSwirlWithPow(float radius, int power);
-    SwirlVertexEffect * initSwirlWithPowOut(float radius, int power);
-    VertexEffect *      getVertexEffect() {
+    SwirlVertexEffect *initSwirlWithPow(float radius, int power);
+    SwirlVertexEffect *initSwirlWithPowOut(float radius, int power);
+    VertexEffect *getVertexEffect() {
         return _vertexEffect;
     }
     JitterVertexEffect *getJitterVertexEffect();
-    SwirlVertexEffect * getSwirlVertexEffect();
-    const std::string & getEffectType() const {
+    SwirlVertexEffect *getSwirlVertexEffect();
+    const std::string &getEffectType() const {
         return _effectType;
     }
     void clear();
 
 private:
-    VertexEffect * _vertexEffect  = nullptr;
+    VertexEffect *_vertexEffect = nullptr;
     Interpolation *_interpolation = nullptr;
-    std::string    _effectType    = "none";
+    std::string _effectType = "none";
 };
 } // namespace spine

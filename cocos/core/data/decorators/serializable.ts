@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module decorator
- */
-
 import { EDITOR, TEST } from 'internal:constants';
 import { emptyDecorator, LegacyPropertyDecorator } from './utils';
 import { getOrCreatePropertyStash } from './property';
@@ -36,17 +31,24 @@ import { getOrCreateSerializationMetadata } from '../serialization-metadata';
 
 /**
  * True if serialization feature is enabled in current environment.
+ * @engineInternal
  */
 const WITH_SERIALIZATION = EDITOR || TEST;
 
-export const serializable: LegacyPropertyDecorator = (target, propertyKey, descriptor) => {
-    const propertyStash = getOrCreatePropertyStash(target, propertyKey, descriptor);
+/**
+ * @engineInternal
+ */
+export const serializable: LegacyPropertyDecorator = (target, propertyKey, descriptorOrInitializer) => {
+    const propertyStash = getOrCreatePropertyStash(target, propertyKey, descriptorOrInitializer);
     setImplicitSerializable(propertyStash);
 };
 
+/**
+ * @engineInternal
+ */
 export function formerlySerializedAs (name: string): LegacyPropertyDecorator {
-    return (target, propertyKey, descriptor) => {
-        const propertyStash = getOrCreatePropertyStash(target, propertyKey, descriptor);
+    return (target, propertyKey, descriptorOrInitializer) => {
+        const propertyStash = getOrCreatePropertyStash(target, propertyKey, descriptorOrInitializer);
         propertyStash.formerlySerializedAs = name;
         setImplicitSerializable(propertyStash);
     };
@@ -58,8 +60,8 @@ export function formerlySerializedAs (name: string): LegacyPropertyDecorator {
  * @zh
  * 设置该属性仅在编辑器中生效。
  */
-export const editorOnly: LegacyPropertyDecorator = (target, propertyKey, descriptor) => {
-    const propertyStash = getOrCreatePropertyStash(target, propertyKey, descriptor);
+export const editorOnly: LegacyPropertyDecorator = (target, propertyKey, descriptorOrInitializer) => {
+    const propertyStash = getOrCreatePropertyStash(target, propertyKey, descriptorOrInitializer);
     propertyStash.editorOnly = true;
     setImplicitSerializable(propertyStash);
 };
@@ -78,13 +80,13 @@ function setImplicitSerializable (propertyStash: PropertyStash) {
  * For example:
  * ```ts
  * import { _decorator } from 'cc';
- * \@_decorator.ccclass
- * \@_decorator.uniquelyReferenced
+ * @_decorator.ccclass
+ * @_decorator.uniquelyReferenced
  * class Foo { }
  *
- * \@_decorator.ccclass
+ * @_decorator.ccclass
  * class Bar {
- *   \@_decorator.property
+ *   @_decorator.property
  *   public foo = new Foo();
  * }
  *
@@ -101,13 +103,13 @@ function setImplicitSerializable (propertyStash: PropertyStash) {
  * 例如：
  * ```ts
  * import { _decorator } from 'cc';
- * \@_decorator.ccclass
- * \@_decorator.uniquelyReferenced
+ * @_decorator.ccclass
+ * @_decorator.uniquelyReferenced
  * class Foo { }
  *
- * \@_decorator.ccclass
+ * @_decorator.ccclass
  * class Bar {
- *   \@_decorator.property
+ *   @_decorator.property
  *   public foo = new Foo();
  * }
  *

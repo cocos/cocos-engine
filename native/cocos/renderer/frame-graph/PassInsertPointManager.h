@@ -35,7 +35,7 @@ using PassInsertPoint = uint16_t;
 
 class PassInsertPointManager final {
 public:
-    PassInsertPointManager(const PassInsertPointManager &)     = delete;
+    PassInsertPointManager(const PassInsertPointManager &) = delete;
     PassInsertPointManager(PassInsertPointManager &&) noexcept = delete;
     PassInsertPointManager &operator=(const PassInsertPointManager &) = delete;
     PassInsertPointManager &operator=(PassInsertPointManager &&) noexcept = delete;
@@ -46,12 +46,12 @@ public:
     PassInsertPoint get(const char *name) const;
 
 private:
-    PassInsertPointManager()  = default;
+    PassInsertPointManager() = default;
     ~PassInsertPointManager() = default;
 
     inline PassInsertPoint get(StringHandle name) const;
 
-    StringPool                     _stringPool;
+    StringPool _stringPool;
     ccstd::vector<PassInsertPoint> _insertPoints{};
 };
 

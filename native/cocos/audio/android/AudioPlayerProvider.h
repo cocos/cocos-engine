@@ -25,13 +25,13 @@ THE SOFTWARE.
 
 #pragma once
 
+#include <condition_variable>
+#include <memory>
 #include "audio/android/IAudioPlayer.h"
 #include "audio/android/OpenSLHelper.h"
 #include "audio/android/PcmData.h"
+#include "audio/include/AudioDef.h"
 #include "base/std/container/unordered_map.h"
-
-#include <condition_variable>
-#include <memory>
 
 namespace cc {
 // Manage PcmAudioPlayer& UrlAudioPlayer
@@ -51,14 +51,15 @@ public:
                         ICallerThreadUtils *callerThreadUtils);
 
     virtual ~AudioPlayerProvider();
-
+    bool isFileCached(const ccstd::string &audioFilePath);
     IAudioPlayer *getAudioPlayer(const ccstd::string &audioFilePath);
-
+    bool getPcmHeader(const ccstd::string &audioFilePath, PCMHeader &header);
+    bool getPcmData(const ccstd::string &audioFilePath, PcmData &data);
     using PreloadCallback = std::function<void(bool, PcmData)>;
-    void preloadEffect(const ccstd::string &audioFilePath, const PreloadCallback &cb);
-
+    void preloadEffect(const ccstd::string &audioFilePath, const PreloadCallback &callback);
+    void registerPcmData(const ccstd::string &audioFilePath, PcmData &data);
     float getDurationFromFile(const ccstd::string &filePath);
-    void  clearPcmCache(const ccstd::string &audioFilePath);
+    void clearPcmCache(const ccstd::string &audioFilePath);
 
     void clearAllPcmCaches();
 
@@ -68,10 +69,10 @@ public:
 
 private:
     struct AudioFileInfo {
-        ccstd::string            url;
+        ccstd::string url;
         std::shared_ptr<AssetFd> assetFd;
-        off_t                    start{};
-        off_t                    length;
+        off_t start{};
+        off_t length;
 
         AudioFileInfo()
         : assetFd(nullptr) {}
@@ -85,35 +86,34 @@ private:
 
     UrlAudioPlayer *createUrlAudioPlayer(const AudioFileInfo &info);
 
-    void preloadEffect(const AudioFileInfo &info, const PreloadCallback &cb, bool isPreloadInPlay2d);
+    void preloadEffect(const AudioFileInfo &info, const PreloadCallback &callback, bool isPreloadInPlay2d);
 
     AudioFileInfo getFileInfo(const ccstd::string &audioFilePath);
 
     bool isSmallFile(const AudioFileInfo &info);
 
-private:
-    SLEngineItf         _engineItf;
-    SLObjectItf         _outputMixObject;
-    int                 _deviceSampleRate;
-    int                 _bufferSizeInFrames;
-    FdGetterCallback    _fdGetterCallback;
+    SLEngineItf _engineItf;
+    SLObjectItf _outputMixObject;
+    int _deviceSampleRate;
+    int _bufferSizeInFrames;
+    FdGetterCallback _fdGetterCallback;
     ICallerThreadUtils *_callerThreadUtils;
 
     ccstd::unordered_map<ccstd::string, PcmData> _pcmCache;
-    std::mutex                                   _pcmCacheMutex;
+    std::mutex _pcmCacheMutex;
 
     struct PreloadCallbackParam {
         PreloadCallback callback;
-        bool            isPreloadInPlay2d;
+        bool isPreloadInPlay2d;
     };
 
     ccstd::unordered_map<ccstd::string, ccstd::vector<PreloadCallbackParam>> _preloadCallbackMap;
-    std::mutex                                                               _preloadCallbackMutex;
+    std::mutex _preloadCallbackMutex;
 
-    std::mutex              _preloadWaitMutex;
+    std::mutex _preloadWaitMutex;
     std::condition_variable _preloadWaitCond;
 
-    PcmAudioService *     _pcmAudioService;
+    PcmAudioService *_pcmAudioService;
     AudioMixerController *_mixController;
 
     LegacyThreadPool *_threadPool;

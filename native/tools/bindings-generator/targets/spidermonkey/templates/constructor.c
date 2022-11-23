@@ -51,7 +51,7 @@ static bool ${signature_name}(se::State& s) // NOLINT(readability-identifier-nam
         #set $count = $count + 1
     #end while
     #if $arg_idx > 0
-    SE_PRECONDITION2(ok, false, "${signature_name} : Error processing arguments");
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
     #end if
     #if len($arg_array) == 0
     #set $arg_list=""

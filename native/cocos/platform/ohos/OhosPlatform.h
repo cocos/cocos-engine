@@ -33,9 +33,9 @@ class CC_DLL OhosPlatform : public UniversalPlatform {
 public:
     OhosPlatform();
     int init() override;
-    void    pollEvent() override;
+    void pollEvent() override;
     int32_t run(int argc, const char **argv) override;
-    int     getSdkVersion() const override;
+    int getSdkVersion() const override;
     int32_t loop() override;
 
 private:

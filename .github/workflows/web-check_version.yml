@@ -3,10 +3,16 @@ name: <Web> Check version
 #on: push
 on: [create, pull_request]
 
+# github.head_ref is only defined on pull_request events
+concurrency:
+  group: ${{ github.workflow }}-${{ github.actor }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
 jobs:
-  Check_pull_request_version:
+  Check_package_version:
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
+    if: 
+      (! contains(github.event.pull_request.body, '[X] does not change any runtime related code or build configuration'))
     steps:
       - uses: actions/checkout@v2
 
@@ -15,25 +21,16 @@ jobs:
           node -v
           npm install || exit 0
           
-      - name: check version
+      - name: check version pull_request
+        if: github.event_name == 'pull_request'
         run: |
           branch=`echo ${{ github.base_ref }} | awk -F'/' '{print $NF}'`
           echo "Branch： ${branch}"
           npm run varify-engine-version -- ${branch}
-          
-  Check_create_version:
-    runs-on: ubuntu-latest
-    if: github.event_name == 'create'
-    steps:
-      - uses: actions/checkout@v2
-  
-      - name: npm install
-        run: |
-          node -v
-          npm install || exit 0
-      - name: check version
+
+      - name: check version create
+        if: github.event_name == 'create'
         run: |
           branch=`echo ${{ github.ref }} | awk -F'/' '{print $NF}'`
             echo "Branch： ${branch}"
             npm run varify-engine-version -- ${branch}
-            

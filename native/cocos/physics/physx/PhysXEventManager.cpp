@@ -27,8 +27,8 @@
 #include <algorithm>
 #include "physics/physx/PhysXInc.h"
 #include "physics/physx/PhysXUtils.h"
+#include "physics/physx/PhysXWorld.h"
 #include "physics/physx/shapes/PhysXShape.h"
-#include "physics/spec/IWorld.h"
 
 namespace cc {
 namespace physics {
@@ -40,20 +40,20 @@ void PhysXEventManager::SimulationEventCallback::onTrigger(physx::PxTriggerPair 
             continue;
         }
 
-        const auto &selfIter  = getPxShapeMap().find(reinterpret_cast<uintptr_t>(tp.triggerShape));
+        const auto &selfIter = getPxShapeMap().find(reinterpret_cast<uintptr_t>(tp.triggerShape));
         const auto &otherIter = getPxShapeMap().find(reinterpret_cast<uintptr_t>(tp.otherShape));
         if (selfIter == getPxShapeMap().end() || otherIter == getPxShapeMap().end()) {
             continue;
         }
 
-        const auto &self  = selfIter->second;
+        const auto &self = selfIter->second;
         const auto &other = otherIter->second;
-        auto &      pairs = mManager->getTriggerPairs();
-        const auto &iter  = std::find_if(pairs.begin(), pairs.end(), [self, other](std::shared_ptr<TriggerEventPair> &pair) {
+        auto &pairs = mManager->getTriggerPairs();
+        const auto &iter = std::find_if(pairs.begin(), pairs.end(), [self, other](std::shared_ptr<TriggerEventPair> &pair) {
             return (pair->shapeA == self || pair->shapeA == other) && (pair->shapeB == self || pair->shapeB == other);
         });
         if (tp.status & physx::PxPairFlag::eNOTIFY_TOUCH_FOUND) {
-            if (iter == pairs.end()) pairs.push_back(std::shared_ptr<TriggerEventPair>(new TriggerEventPair{self, other}));
+            if (iter == pairs.end()) pairs.push_back(std::shared_ptr<TriggerEventPair>(ccnew TriggerEventPair{self, other}));
         } else if (tp.status & physx::PxPairFlag::eNOTIFY_TOUCH_LOST) {
             if (iter != pairs.end()) iter->get()->state = ETouchState::EXIT;
         }
@@ -67,21 +67,21 @@ void PhysXEventManager::SimulationEventCallback::onContact(const physx::PxContac
             continue;
         }
 
-        const auto &selfIter  = getPxShapeMap().find(reinterpret_cast<uintptr_t>(cp.shapes[0]));
+        const auto &selfIter = getPxShapeMap().find(reinterpret_cast<uintptr_t>(cp.shapes[0]));
         const auto &otherIter = getPxShapeMap().find(reinterpret_cast<uintptr_t>(cp.shapes[1]));
         if (selfIter == getPxShapeMap().end() || otherIter == getPxShapeMap().end()) {
             continue;
         }
 
-        const auto &self  = selfIter->second;
+        const auto &self = selfIter->second;
         const auto &other = otherIter->second;
-        auto &      pairs = mManager->getConatctPairs();
-        auto        iter  = std::find_if(pairs.begin(), pairs.end(), [self, other](std::shared_ptr<ContactEventPair> &pair) {
+        auto &pairs = mManager->getConatctPairs();
+        auto iter = std::find_if(pairs.begin(), pairs.end(), [self, other](std::shared_ptr<ContactEventPair> &pair) {
             return (pair->shapeA == self || pair->shapeA == other) && (pair->shapeB == self || pair->shapeB == other);
         });
 
         if (iter == pairs.end()) {
-            pairs.push_back(std::shared_ptr<ContactEventPair>(new ContactEventPair{self, other}));
+            pairs.push_back(std::shared_ptr<ContactEventPair>(ccnew ContactEventPair{self, other}));
             iter = pairs.end() - 1;
         }
 
@@ -103,8 +103,13 @@ void PhysXEventManager::SimulationEventCallback::onContact(const physx::PxContac
 
 void PhysXEventManager::refreshPairs() {
     for (auto iter = getTriggerPairs().begin(); iter != getTriggerPairs().end();) {
-        const auto &selfIter  = getPxShapeMap().find(reinterpret_cast<uintptr_t>(&(reinterpret_cast<PhysXShape *>(iter->get()->shapeA)->getShape())));
-        const auto &otherIter = getPxShapeMap().find(reinterpret_cast<uintptr_t>(&(reinterpret_cast<PhysXShape *>(iter->get()->shapeB)->getShape())));
+        uintptr_t wrapperPtrShapeA = PhysXWorld::getInstance().getWrapperPtrWithObjectID(iter->get()->shapeA);
+        uintptr_t wrapperPtrShapeB = PhysXWorld::getInstance().getWrapperPtrWithObjectID(iter->get()->shapeB);
+        if (wrapperPtrShapeA == 0 || wrapperPtrShapeB == 0)
+            return;
+
+        const auto &selfIter = getPxShapeMap().find(reinterpret_cast<uintptr_t>(&(reinterpret_cast<PhysXShape *>(wrapperPtrShapeA)->getShape())));
+        const auto &otherIter = getPxShapeMap().find(reinterpret_cast<uintptr_t>(&(reinterpret_cast<PhysXShape *>(wrapperPtrShapeB)->getShape())));
         if (selfIter == getPxShapeMap().end() || otherIter == getPxShapeMap().end()) {
             iter = getTriggerPairs().erase(iter);
         } else if (iter->get()->state == ETouchState::EXIT) {

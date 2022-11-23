@@ -12,8 +12,7 @@ Matrix Constraint::_helpMatrix;
 Transform Constraint::_helpTransform;
 Point Constraint::_helpPoint;
 
-void Constraint::_onClear()
-{
+void Constraint::_onClear() {
     _constraintData = nullptr;
     _armature = nullptr;
     _target = nullptr;
@@ -21,8 +20,7 @@ void Constraint::_onClear()
     _bone = nullptr;
 }
 
-void IKConstraint::_onClear()
-{
+void IKConstraint::_onClear() {
     Constraint::_onClear();
 
     _scaleEnabled = false;
@@ -30,15 +28,13 @@ void IKConstraint::_onClear()
     _weight = 1.0f;
 }
 
-void IKConstraint::_computeA()
-{
+void IKConstraint::_computeA() {
     const auto& ikGlobal = _target->global;
     auto& global = _root->global;
     auto& globalTransformMatrix = _root->globalTransformMatrix;
 
     auto radian = std::atan2(ikGlobal.y - global.y, ikGlobal.x - global.x);
-    if (global.scaleX < 0.0f)
-    {
+    if (global.scaleX < 0.0f) {
         radian += Transform::PI;
     }
 
@@ -46,8 +42,7 @@ void IKConstraint::_computeA()
     global.toMatrix(globalTransformMatrix);
 }
 
-void IKConstraint::_computeB()
-{
+void IKConstraint::_computeB() {
     const auto boneLength = _bone->_boneData->length;
     const auto parent = _root;
     const auto& ikGlobal = _target->global;
@@ -73,19 +68,13 @@ void IKConstraint::_computeB()
     const auto lT = sqrt(lTT);
 
     auto radianA = 0.0f;
-    if (lL + lP <= lT || lT + lL <= lP || lT + lP <= lL) 
-    {
+    if (lL + lP <= lT || lT + lL <= lP || lT + lP <= lL) {
         radianA = std::atan2(ikGlobal.y - parentGlobal.y, ikGlobal.x - parentGlobal.x);
-        if (lL + lP <= lT) 
-        {
-        }
-        else if (lP < lL) 
-        {
+        if (lL + lP <= lT) {
+        } else if (lP < lL) {
             radianA += Transform::PI;
         }
-    }
-    else 
-    {
+    } else {
         const auto h = (lPP - lLL + lTT) / (2.0f * lTT);
         const auto r = sqrt(lPP - h * h * lTT) / lT;
         const auto hX = parentGlobal.x + (dX * h);
@@ -95,19 +84,15 @@ void IKConstraint::_computeB()
 
         auto isPPR = false;
         const auto parentParent = parent->getParent();
-        if (parentParent != nullptr)
-        {
+        if (parentParent != nullptr) {
             auto parentParentMatrix = parentParent->globalTransformMatrix;
             isPPR = parentParentMatrix.a * parentParentMatrix.d - parentParentMatrix.b * parentParentMatrix.c < 0.0f;
         }
 
-        if (isPPR != _bendPositive) 
-        {
+        if (isPPR != _bendPositive) {
             global.x = hX - rX;
             global.y = hY - rY;
-        }
-        else 
-        {
+        } else {
             global.x = hX + rX;
             global.y = hY + rY;
         }
@@ -132,10 +117,8 @@ void IKConstraint::_computeB()
     global.toMatrix(globalTransformMatrix);
 }
 
-void IKConstraint::init(ConstraintData* constraintData, Armature* armature)
-{
-    if (_constraintData != nullptr)
-    {
+void IKConstraint::init(ConstraintData* constraintData, Armature* armature) {
+    if (_constraintData != nullptr) {
         return;
     }
 
@@ -155,27 +138,21 @@ void IKConstraint::init(ConstraintData* constraintData, Armature* armature)
     _root->_hasConstraint = true;
 }
 
-void IKConstraint::update()
-{
+void IKConstraint::update() {
     _root->updateByConstraint();
 
-    if (_bone != nullptr)
-    {
+    if (_bone != nullptr) {
         _bone->updateByConstraint();
         _computeB();
-    }
-    else
-    {
+    } else {
         _computeA();
     }
 }
 
-void IKConstraint::invalidUpdate()
-{
+void IKConstraint::invalidUpdate() {
     _root->invalidUpdate();
 
-    if (_bone != nullptr)
-    {
+    if (_bone != nullptr) {
         _bone->invalidUpdate();
     }
 }

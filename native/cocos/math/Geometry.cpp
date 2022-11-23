@@ -35,17 +35,13 @@ namespace cc {
 
 // implementation of Size
 
-Size::Size(void) : width(0),
-                   height(0) {
-}
+Size::Size() = default;
 
 Size::Size(float w, float h) : width(w),
                                height(h) {
 }
 
-Size::Size(const Size &other) : width(other.width),
-                                height(other.height) {
-}
+Size::Size(const Size &other) = default;
 
 Size::Size(const Vec2 &point) : width(point.x),
                                 height(point.y) {
@@ -74,7 +70,7 @@ Size Size::operator*(float a) const {
 }
 
 Size Size::operator/(float a) const {
-    CCASSERT(a != 0, "CCSize division by 0.");
+    CC_ASSERT(a != 0);
     return Size(this->width / a, this->height / a);
 }
 
@@ -91,8 +87,8 @@ const Size Size::ZERO = Size(0, 0);
 
 // implementation of Rect
 
-Rect::Rect(void) {
-    setRect(0.0f, 0.0f, 0.0f, 0.0f);
+Rect::Rect() {
+    setRect(0.0F, 0.0F, 0.0F, 0.0F);
 }
 
 Rect::Rect(float x, float y, float width, float height) {
@@ -103,52 +99,50 @@ Rect::Rect(const Vec2 &pos, const Size &dimension) {
 }
 
 Rect::Rect(const Rect &other) {
-    setRect(other.origin.x, other.origin.y, other.size.width, other.size.height);
+    setRect(other.x, other.y, other.width, other.height);
 }
 
 Rect &Rect::operator=(const Rect &other) {
-    setRect(other.origin.x, other.origin.y, other.size.width, other.size.height);
+    setRect(other.x, other.y, other.width, other.height);
     return *this;
 }
 
 void Rect::setRect(float x, float y, float width, float height) {
     // CGRect can support width<0 or height<0
-    // CCASSERT(width >= 0.0f && height >= 0.0f, "width and height of Rect must not less than 0.");
+    // CC_ASSERT(width >= 0.0f && height >= 0.0f);
 
-    origin.x = x;
-    origin.y = y;
-
-    size.width = width;
-    size.height = height;
+    this->x = x;
+    this->y = y;
+    this->width = width;
+    this->height = height;
 }
 
 bool Rect::equals(const Rect &rect) const {
-    return (origin.equals(rect.origin) &&
-            size.equals(rect.size));
+    return (std::abs(this->x - rect.x) < FLT_EPSILON) && (std::abs(this->y - rect.y) < FLT_EPSILON) && (std::abs(this->width - rect.width) < FLT_EPSILON) && (std::abs(this->height - rect.height) < FLT_EPSILON);
 }
 
 float Rect::getMaxX() const {
-    return origin.x + size.width;
+    return this->x + this->width;
 }
 
 float Rect::getMidX() const {
-    return origin.x + size.width / 2.0f;
+    return this->x + this->width / 2.0F;
 }
 
 float Rect::getMinX() const {
-    return origin.x;
+    return this->x;
 }
 
 float Rect::getMaxY() const {
-    return origin.y + size.height;
+    return this->y + this->height;
 }
 
 float Rect::getMidY() const {
-    return origin.y + size.height / 2.0f;
+    return this->y + this->height / 2.0F;
 }
 
 float Rect::getMinY() const {
-    return origin.y;
+    return this->y;
 }
 
 bool Rect::containsPoint(const Vec2 &point) const {
@@ -169,11 +163,11 @@ bool Rect::intersectsRect(const Rect &rect) const {
 }
 
 bool Rect::intersectsCircle(const Vec2 &center, float radius) const {
-    Vec2 rectangleCenter((origin.x + size.width / 2),
-                         (origin.y + size.height / 2));
+    Vec2 rectangleCenter((this->x + this->width / 2),
+                         (this->y + this->height / 2));
 
-    float w = size.width / 2;
-    float h = size.height / 2;
+    float w = this->width / 2;
+    float h = this->height / 2;
 
     float dx = std::abs(center.x - rectangleCenter.x);
     float dy = std::abs(center.y - rectangleCenter.y);
@@ -182,8 +176,8 @@ bool Rect::intersectsCircle(const Vec2 &center, float radius) const {
         return false;
     }
 
-    Vec2 circleDistance(std::abs(center.x - origin.x - w),
-                        std::abs(center.y - origin.y - h));
+    Vec2 circleDistance(std::abs(center.x - this->x - w),
+                        std::abs(center.y - this->y - h));
 
     if (circleDistance.x <= (w)) {
         return true;
@@ -207,10 +201,10 @@ void Rect::merge(const Rect &rect) {
 }
 
 Rect Rect::unionWithRect(const Rect &rect) const {
-    float thisLeftX = origin.x;
-    float thisRightX = origin.x + size.width;
-    float thisTopY = origin.y + size.height;
-    float thisBottomY = origin.y;
+    float thisLeftX = this->x;
+    float thisRightX = this->x + this->width;
+    float thisTopY = this->y + this->height;
+    float thisBottomY = this->y;
 
     if (thisRightX < thisLeftX) {
         std::swap(thisRightX, thisLeftX); // This rect has negative width
@@ -220,10 +214,10 @@ Rect Rect::unionWithRect(const Rect &rect) const {
         std::swap(thisTopY, thisBottomY); // This rect has negative height
     }
 
-    float otherLeftX = rect.origin.x;
-    float otherRightX = rect.origin.x + rect.size.width;
-    float otherTopY = rect.origin.y + rect.size.height;
-    float otherBottomY = rect.origin.y;
+    float otherLeftX = rect.x;
+    float otherRightX = rect.x + rect.width;
+    float otherTopY = rect.y + rect.height;
+    float otherBottomY = rect.y;
 
     if (otherRightX < otherLeftX) {
         std::swap(otherRightX, otherLeftX); // Other rect has negative width

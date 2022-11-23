@@ -37,6 +37,7 @@ public:
     ~DescriptorSetValidator() override;
 
     void update() override;
+    void forceUpdate() override;
 
     void bindBuffer(uint32_t binding, Buffer *buffer, uint32_t index) override;
     void bindTexture(uint32_t binding, Texture *texture, uint32_t index) override;

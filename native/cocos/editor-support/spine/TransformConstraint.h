@@ -35,63 +35,63 @@
 #include <spine/Vector.h>
 
 namespace spine {
-	class TransformConstraintData;
-	class Skeleton;
-	class Bone;
+class TransformConstraintData;
+class Skeleton;
+class Bone;
 
-	class SP_API TransformConstraint : public Updatable {
-		friend class Skeleton;
-		friend class TransformConstraintTimeline;
+class SP_API TransformConstraint : public Updatable {
+    friend class Skeleton;
+    friend class TransformConstraintTimeline;
 
-		RTTI_DECL
+    RTTI_DECL
 
-	public:
-		TransformConstraint(TransformConstraintData& data, Skeleton& skeleton);
+public:
+    TransformConstraint(TransformConstraintData& data, Skeleton& skeleton);
 
-		void apply();
+    void apply();
 
-		virtual void update();
+    virtual void update();
 
-		virtual int getOrder();
+    virtual int getOrder();
 
-		TransformConstraintData& getData();
+    TransformConstraintData& getData();
 
-		Vector<Bone*>& getBones();
+    Vector<Bone*>& getBones();
 
-		Bone* getTarget();
-		void setTarget(Bone* inValue);
+    Bone* getTarget();
+    void setTarget(Bone* inValue);
 
-		float getRotateMix();
-		void setRotateMix(float inValue);
+    float getRotateMix();
+    void setRotateMix(float inValue);
 
-		float getTranslateMix();
-		void setTranslateMix(float inValue);
+    float getTranslateMix();
+    void setTranslateMix(float inValue);
 
-		float getScaleMix();
-		void setScaleMix(float inValue);
+    float getScaleMix();
+    void setScaleMix(float inValue);
 
-		float getShearMix();
-		void setShearMix(float inValue);
+    float getShearMix();
+    void setShearMix(float inValue);
 
-		bool isActive();
+    bool isActive();
 
-		void setActive(bool inValue);
+    void setActive(bool inValue);
 
-	private:
-		TransformConstraintData& _data;
-		Vector<Bone*> _bones;
-		Bone* _target;
-		float _rotateMix, _translateMix, _scaleMix, _shearMix;
-		bool _active;
+private:
+    TransformConstraintData& _data;
+    Vector<Bone*> _bones;
+    Bone* _target;
+    float _rotateMix, _translateMix, _scaleMix, _shearMix;
+    bool _active;
 
-		void applyAbsoluteWorld();
+    void applyAbsoluteWorld();
 
-		void applyRelativeWorld();
+    void applyRelativeWorld();
 
-		void applyAbsoluteLocal();
+    void applyAbsoluteLocal();
 
-		void applyRelativeLocal();
-	};
-}
+    void applyRelativeLocal();
+};
+} // namespace spine
 
 #endif /* Spine_TransformConstraint_h */

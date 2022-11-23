@@ -27,19 +27,28 @@
 
 #include <functional>
 #include "GFXDef-common.h"
+#include "base/std/hash/hash.h"
 
 namespace cc {
 namespace gfx {
 
 template <typename T, typename Enable = std::enable_if_t<std::is_class<T>::value>>
-struct Hasher final { size_t operator()(const T &info) const; };
+struct Hasher final {
+    // NOTE: ccstd::hash_t is a typedef of uint32_t now, sizeof(ccstd::hash_t) == sizeof(size_t) on 32 bits architecture device,
+    // sizeof(ccstd::hash_t) < sizeof(size_t) on 64 bits architecture device.
+    // STL containers like ccstd::unordered_map<K, V, Hasher> expects the custom Hasher function to return size_t.
+    // So it's safe to return ccstd::hash_t for operator() function now.
+    // If we need to define ccstd::hash_t to uint64_t someday, we must take care of the return value of operator(),
+    // it should be size_t and we need to convert hash value from uint64_t to uint32_t for 32 bit architecture device.
+    ccstd::hash_t operator()(const T &info) const;
+};
 
-// make this boost::hash compatible
+// make this ccstd::hash compatible
 template <typename T, typename Enable = std::enable_if_t<std::is_class<T>::value>>
-size_t hash_value(const T &info) { return Hasher<T>()(info); } // NOLINT(readability-identifier-naming)
+ccstd::hash_t hash_value(const T &info) { return Hasher<T>()(info); } // NOLINT(readability-identifier-naming)
 
-#define DEFINE_CMP_OP(type)                                   \
-    bool        operator==(const type &lhs, const type &rhs); \
+#define DEFINE_CMP_OP(type)                            \
+    bool operator==(const type &lhs, const type &rhs); \
     inline bool operator!=(const type &lhs, const type &rhs) { return !(lhs == rhs); }
 
 DEFINE_CMP_OP(DepthStencilAttachment)
@@ -59,12 +68,13 @@ DEFINE_CMP_OP(BufferInfo)
 DEFINE_CMP_OP(SamplerInfo)
 DEFINE_CMP_OP(GeneralBarrierInfo)
 DEFINE_CMP_OP(TextureBarrierInfo)
+DEFINE_CMP_OP(BufferBarrierInfo)
 
 #undef DEFINE_CMP_OP
 
 class Executable {
 public:
-    virtual ~Executable()  = default;
+    virtual ~Executable() = default;
     virtual void execute() = 0;
 };
 
@@ -84,9 +94,9 @@ private:
 
 struct SwapchainTextureInfo final {
     Swapchain *swapchain{nullptr};
-    Format     format{Format::UNKNOWN};
-    uint32_t   width{0};
-    uint32_t   height{0};
+    Format format{Format::UNKNOWN};
+    uint32_t width{0};
+    uint32_t height{0};
 };
 
 constexpr TextureUsage TEXTURE_USAGE_TRANSIENT = static_cast<TextureUsage>(
@@ -132,6 +142,10 @@ uint32_t formatSurfaceSize(Format format, uint32_t width, uint32_t height, uint3
  * @param type The target type.
  */
 uint32_t getTypeSize(gfx::Type type);
+
+uint32_t gcd(uint32_t a, uint32_t b);
+
+uint32_t lcm(uint32_t a, uint32_t b);
 
 } // namespace gfx
 } // namespace cc

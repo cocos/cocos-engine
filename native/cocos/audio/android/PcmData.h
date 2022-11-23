@@ -34,14 +34,14 @@ namespace cc {
 
 struct PcmData {
     std::shared_ptr<ccstd::vector<char>> pcmBuffer;
-    int                                  numChannels;
-    int                                  sampleRate;
-    int                                  bitsPerSample;
-    int                                  containerSize;
-    int                                  channelMask;
-    int                                  endianness;
-    int                                  numFrames;
-    float                                duration; // in seconds
+    int numChannels;
+    int sampleRate;
+    int bitsPerSample;
+    int containerSize;
+    int channelMask;
+    int endianness;
+    int numFrames;
+    float duration; // in seconds
 
     PcmData();
 

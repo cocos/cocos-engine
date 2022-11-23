@@ -1,8 +1,8 @@
 /****************************************************************************
  Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
- 
+
  http://www.cocos.com
- 
+
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
@@ -10,10 +10,10 @@
  not use Cocos Creator software for developing other software or tools that's
  used for developing games. You are not granted to publish, distribute,
  sublicense, and/or sell copies of Cocos Creator.
- 
+
  The software or tools in this License Agreement are licensed, not sold.
  Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -37,13 +37,13 @@
 //   };
 //
 //   void some_function() {
-//     IntrusivePtr<MyFoo> foo = new MyFoo();
+//     IntrusivePtr<MyFoo> foo = ccnew MyFoo();
 //     foo->Method(param);
 //     // `foo` is released when this function returns
 //   }
 //
 //   void some_other_function() {
-//     IntrusivePtr<MyFoo> foo = new MyFoo();
+//     IntrusivePtr<MyFoo> foo = ccnew MyFoo();
 //     ...
 //     foo = nullptr;  // explicitly releases `foo`
 //     ...
@@ -56,7 +56,7 @@
 // references between the two objects, like so:
 //
 //   {
-//     IntrusivePtr<MyFoo> a = new MyFoo();
+//     IntrusivePtr<MyFoo> a = ccnew MyFoo();
 //     IntrusivePtr<MyFoo> b;
 //
 //     b.swap(a);
@@ -67,7 +67,7 @@
 // object, simply use the assignment operator:
 //
 //   {
-//     IntrusivePtr<MyFoo> a = new MyFoo();
+//     IntrusivePtr<MyFoo> a = ccnew MyFoo();
 //     IntrusivePtr<MyFoo> b;
 //
 //     b = a;
@@ -78,6 +78,7 @@
 #pragma once
 
 #include <utility>
+#include "cocos/base/std/hash/hash_fwd.hpp"
 
 namespace cc {
 
@@ -123,21 +124,14 @@ public:
     }
 
     T *get() const { return _ptr; }
-       operator T *() const { return _ptr; } // NOLINT
+    operator T *() const { return _ptr; } // NOLINT
     T &operator*() const { return *_ptr; }
     T *operator->() const { return _ptr; }
 
     // As reference count is 1 after creating a RefCounted object, so do not have to
     // invoke p->addRef();
     IntrusivePtr<T> &operator=(T *p) {
-        // AddRef first so that self assignment should work
-        if (p) {
-            p->addRef();
-        }
-        if (_ptr) {
-            _ptr->release();
-        }
-        _ptr = p;
+        reset(p);
         return *this;
     }
 
@@ -177,10 +171,28 @@ public:
         return _ptr != r;
     }
 
+    void reset() noexcept {
+        if (_ptr) {
+            _ptr->release();
+        }
+        _ptr = nullptr;
+    }
+
+    void reset(T *p) {
+        // AddRef first so that self assignment should work
+        if (p) {
+            p->addRef();
+        }
+        if (_ptr) {
+            _ptr->release();
+        }
+        _ptr = p;
+    }
+
     void swap(T **pp) noexcept {
         T *p = _ptr;
         _ptr = *pp;
-        *pp  = p;
+        *pp = p;
     }
 
     void swap(IntrusivePtr<T> &r) noexcept { swap(&r._ptr); }
@@ -193,7 +205,7 @@ private:
     // calling Release() once on the object when no longer using it.
     T *release() {
         T *retVal = _ptr;
-        _ptr      = nullptr;
+        _ptr = nullptr;
         return retVal;
     }
 
@@ -202,3 +214,14 @@ protected:
 };
 
 } // namespace cc
+
+namespace ccstd {
+
+template <class T>
+struct hash<cc::IntrusivePtr<T>> {
+    hash_t operator()(const cc::IntrusivePtr<T> &val) const noexcept {
+        return hash<T *>{}(val.get());
+    }
+};
+
+} // namespace ccstd

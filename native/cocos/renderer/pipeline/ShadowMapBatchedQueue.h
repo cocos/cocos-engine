@@ -38,7 +38,7 @@ class RenderInstancedQueue;
 class RenderBatchedQueue;
 class RenderPipeline;
 
-//const uint phaseID(PassPhase::getPhaseID("shadow-caster"));
+//const uint32_t phaseID(PassPhase::getPhaseID("shadow-caster"));
 
 class CC_DLL ShadowMapBatchedQueue final {
 public:
@@ -47,21 +47,26 @@ public:
     void destroy();
 
     void clear();
-    void gatherLightPasses(const scene::Camera *, const scene::Light *, gfx::CommandBuffer *);
+    void gatherLightPasses(const scene::Camera *, const scene::Light *, gfx::CommandBuffer *, uint32_t level = 0);
     void add(const scene::Model *);
     void recordCommandBuffer(gfx::Device *, gfx::RenderPass *, gfx::CommandBuffer *) const;
 
 private:
-    int getShadowPassIndex(const scene::Model *model) const;
+    int getShadowPassIndex(const scene::SubModel *subModel) const;
 
-    RenderPipeline *                       _pipeline = nullptr;
+    // weak reference
+    RenderPipeline *_pipeline{nullptr};
+    // weak reference
     ccstd::vector<const scene::SubModel *> _subModels;
-    ccstd::vector<const scene::Pass *>     _passes;
-    ccstd::vector<gfx::Shader *>           _shaders;
-    RenderInstancedQueue *                 _instancedQueue = nullptr;
-    RenderBatchedQueue *                   _batchedQueue   = nullptr;
-    gfx::Buffer *                          _buffer         = nullptr;
-    uint                                   _phaseID        = 0;
+    // weak reference
+    ccstd::vector<const scene::Pass *> _passes;
+    // weak reference
+    ccstd::vector<gfx::Shader *> _shaders;
+    // manage memory manually
+    RenderInstancedQueue *_instancedQueue{nullptr};
+    // manage memory manually
+    RenderBatchedQueue *_batchedQueue{nullptr};
+    uint32_t _phaseID = 0;
 };
 
 } // namespace pipeline

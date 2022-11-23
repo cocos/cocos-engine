@@ -23,5 +23,4 @@
  THE SOFTWARE.
  */
 
-
 export * from '../cocos/tiledmap';

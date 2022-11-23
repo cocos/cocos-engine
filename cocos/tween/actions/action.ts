@@ -25,7 +25,8 @@
  THE SOFTWARE.
 */
 
-import { logID, errorID, Node } from '../../core';
+import { logID, errorID } from '../../core';
+import { Node } from '../../scene-graph';
 
 /**
  * @en Base classAction for action classes.

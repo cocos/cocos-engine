@@ -27,7 +27,7 @@
 
 #include "base/Macros.h"
 
-#include "cocos/bindings/event/CustomEventTypes.h"
+#include "ApplicationManager.h"
 #include "cocos/bindings/event/EventDispatcher.h"
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_classtype.h"
@@ -35,34 +35,49 @@
 #include "cocos/bindings/manual/jsb_module_register.h"
 #include "cocos/engine/BaseEngine.h"
 #include "cocos/platform/interfaces/modules/IScreen.h"
+#include "cocos/platform/interfaces/modules/ISystemWindowManager.h"
 
 namespace cc {
 
 CocosApplication::CocosApplication() {
-    _engine      = BaseEngine::createEngine();
-    _systemWidow = _engine->getInterface<ISystemWindow>();
-    CCASSERT(_systemWidow != nullptr, "Invalid interface pointer");
+    _engine = BaseEngine::createEngine();
 }
 
 CocosApplication::~CocosApplication() {
-    _engine->off(BaseEngine::ON_RESUME);
-    _engine->off(BaseEngine::ON_PAUSE);
-    _engine->off(BaseEngine::ON_CLOSE);
+    unregisterAllEngineEvents();
+}
+
+void CocosApplication::unregisterAllEngineEvents() {
+    if (_engine != nullptr) {
+        _engine->off(_engineEvents);
+    }
 }
 
 int CocosApplication::init() {
     if (_engine->init()) {
         return -1;
     }
+    unregisterAllEngineEvents();
 
-    _engine->on(BaseEngine::ON_RESUME, [this]() {
-        this->onResume();
-    });
-    _engine->on(BaseEngine::ON_PAUSE, [this]() {
-        this->onPause();
-    });
-    _engine->on(BaseEngine::ON_CLOSE, [this]() {
-        this->onClose();
+    _systemWindow = CC_GET_MAIN_SYSTEM_WINDOW();
+
+    _engineEvents = _engine->on<BaseEngine::EngineStatusChange>([this](BaseEngine * /*emitter*/, BaseEngine::EngineStatus status) {
+        switch (status) {
+            case BaseEngine::ON_START:
+                this->onStart();
+                break;
+            case BaseEngine::ON_RESUME:
+                this->onResume();
+                break;
+            case BaseEngine::ON_PAUSE:
+                this->onPause();
+                break;
+            case BaseEngine::ON_CLOSE:
+                this->onClose();
+                break;
+            default:
+                CC_ASSERT(false);
+        }
     });
 
     se::ScriptEngine *se = se::ScriptEngine::getInstance();
@@ -74,14 +89,19 @@ int CocosApplication::init() {
                   std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 
     jsb_register_all_modules();
-
+#if CC_EDITOR
+    auto isolate = v8::Isolate::GetCurrent();
+    se->start(isolate);
+#else
     se->start();
+#endif
 
-#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
-    auto     logicSize  = _systemWidow->getViewSize();
-    IScreen *screen     = _engine->getInterface<IScreen>();
-    float    pixelRatio = screen->getDevicePixelRatio();
-    cc::EventDispatcher::dispatchResizeEvent(logicSize.x * pixelRatio, logicSize.y * pixelRatio);
+#if (CC_PLATFORM == CC_PLATFORM_IOS)
+    auto logicSize = _systemWindow->getViewSize();
+    IScreen *screen = _engine->getInterface<IScreen>();
+    float pixelRatio = screen->getDevicePixelRatio();
+    uint32_t windowId = _systemWindow->getWindowId();
+    events::Resize::broadcast(logicSize.width * pixelRatio, logicSize.height * pixelRatio, windowId);
 #endif
     return 0;
 }
@@ -103,13 +123,29 @@ void CocosApplication::resume() {
 void CocosApplication::restart() {
     _engine->restart();
 }
-
+// IMPORTANT!!The method `onClose` is a function to be listen close event, while `close` is a jsb binding method mean to close the whole application.
 void CocosApplication::close() {
-    _engine->close();
+    _systemWindow->closeWindow();
 }
 
 BaseEngine::Ptr CocosApplication::getEngine() const {
     return _engine;
+}
+
+const std::vector<std::string> &CocosApplication::getArguments() const {
+    return _argv;
+}
+
+void CocosApplication::setArgumentsInternal(int argc, const char *argv[]) {
+    _argv.clear();
+    _argv.reserve(argc);
+    for (int i = 0; i < argc; ++i) {
+        _argv.emplace_back(argv[i]);
+    }
+}
+
+void CocosApplication::onStart() {
+    // TODO(cc): Handling engine start events
 }
 
 void CocosApplication::onPause() {
@@ -121,14 +157,12 @@ void CocosApplication::onResume() {
 }
 
 void CocosApplication::onClose() {
-    // TODO(cc): Handling close events
+    _engine->close();
 }
 
 void CocosApplication::setDebugIpAndPort(const ccstd::string &serverAddr, uint32_t port, bool isWaitForConnect) {
-#if defined(CC_DEBUG) && (CC_DEBUG > 0)
     // Enable debugger here
     jsb_enable_debugger(serverAddr, port, isWaitForConnect);
-#endif
 }
 
 void CocosApplication::runScript(const ccstd::string &filePath) {
@@ -143,16 +177,16 @@ void CocosApplication::handleException(const char *location, const char *message
 void CocosApplication::setXXTeaKey(const ccstd::string &key) {
     jsb_set_xxtea_key(key);
 }
-#if CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_LINUX || CC_PLATFORM == CC_PLATFORM_QNX || CC_PLATFORM == CC_PLATFORM_MAC_OSX
+#if CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_LINUX || CC_PLATFORM == CC_PLATFORM_QNX || CC_PLATFORM == CC_PLATFORM_MACOS
 void CocosApplication::createWindow(const char *title, int32_t w,
                                     int32_t h, int32_t flags) {
-    _systemWidow->createWindow(title, w, h, flags);
+    _systemWindow->createWindow(title, w, h, flags);
 }
 
 void CocosApplication::createWindow(const char *title,
                                     int32_t x, int32_t y, int32_t w,
                                     int32_t h, int32_t flags) {
-    _systemWidow->createWindow(title, x, y, w, h, flags);
+    _systemWindow->createWindow(title, x, y, w, h, flags);
 }
 #endif
 

@@ -26,20 +26,39 @@
 #pragma once
 
 #include <iostream>
-
+#include <future>
 #include "platform/interfaces/modules/ISystemWindow.h"
 
 namespace cc {
 
 class SystemWindow : public ISystemWindow {
 public:
+    SystemWindow(uint32_t windowId, void *externalHandle);
+
+    bool createWindow(const char *title, int x, int y, int w, int h, int flags) override;
+
+    bool createWindow(const char *title, int w, int h, int flags) override;
+
     /**
      @brief enable/disable(lock) the cursor, default is enabled
      */
-    void      setCursorEnabled(bool value) override;
-    void      copyTextToClipboard(const std::string& text) override;
-    uintptr_t getWindowHandler() const override;
-    Size      getViewSize() const override;
+    void setCursorEnabled(bool value) override;
+
+    void copyTextToClipboard(const std::string &text) override;
+
+    void setWindowHandle(void *handle);
+    uintptr_t getWindowHandle() const override;
+    uint32_t getWindowId() const override { return _windowId; }
+
+    Size getViewSize() const override;
+
+    void closeWindow() override;
+
+private:
+    std::mutex _handleMutex;
+    std::promise<void> _windowHandlePromise;
+    uint32_t _windowId{0};
+    void *_windowHandle{nullptr};
 };
 
 } // namespace cc

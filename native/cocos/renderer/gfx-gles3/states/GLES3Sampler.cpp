@@ -33,23 +33,20 @@ namespace gfx {
 GLES3Sampler::GLES3Sampler(const SamplerInfo &info) : Sampler(info) {
     _typedID = generateObjectID<decltype(this)>();
 
-    _gpuSampler            = CC_NEW(GLES3GPUSampler);
+    _gpuSampler = ccnew GLES3GPUSampler;
     _gpuSampler->minFilter = _info.minFilter;
     _gpuSampler->magFilter = _info.magFilter;
     _gpuSampler->mipFilter = _info.mipFilter;
-    _gpuSampler->addressU  = _info.addressU;
-    _gpuSampler->addressV  = _info.addressV;
-    _gpuSampler->addressW  = _info.addressW;
+    _gpuSampler->addressU = _info.addressU;
+    _gpuSampler->addressV = _info.addressV;
+    _gpuSampler->addressW = _info.addressW;
 
     // GL is not thread-safe, so any actual gl invocations need to be deferred to device thread
     cmdFuncGLES3PrepareSamplerInfo(GLES3Device::getInstance(), _gpuSampler);
 }
 
 GLES3Sampler::~GLES3Sampler() {
-    if (_gpuSampler) {
-        CC_DELETE(_gpuSampler);
-        _gpuSampler = nullptr;
-    }
+    CC_SAFE_DELETE(_gpuSampler);
 }
 
 } // namespace gfx

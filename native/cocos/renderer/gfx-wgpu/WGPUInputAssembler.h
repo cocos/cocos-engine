@@ -24,23 +24,25 @@
 ****************************************************************************/
 
 #pragma once
-#include <emscripten/bind.h>
+#ifdef CC_WGPU_WASM
+    #include "WGPUDef.h"
+#endif
 #include "gfx-base/GFXInputAssembler.h"
 
 namespace cc {
 namespace gfx {
 
 class CCWGPUInputAssemblerObject;
-
-class CCWGPUInputAssembler final : public emscripten::wrapper<InputAssembler> {
+class CCWGPUBuffer;
+class CCWGPUInputAssembler final : public InputAssembler {
 public:
     CCWGPUInputAssembler();
-    ~CCWGPUInputAssembler() = default;
+    ~CCWGPUInputAssembler();
+
+    using InputAssembler::destroy;
+    using InputAssembler::initialize;
 
     inline CCWGPUInputAssemblerObject *gpuInputAssemblerObject() { return _gpuInputAssemblerObj; }
-
-    // ems export
-    void update(const DrawInfo &info);
 
 protected:
     void doInit(const InputAssemblerInfo &info) override;

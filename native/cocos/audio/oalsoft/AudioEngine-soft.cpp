@@ -24,6 +24,15 @@
  THE SOFTWARE.
 ****************************************************************************/
 
+#include <algorithm>
+#include <cstdint>
+#include <cstdlib>
+#include <cstring>
+#include <mutex>
+#include "audio/common/decoder/AudioDecoder.h"
+#include "base/Log.h"
+#include "base/Utils.h"
+#include "base/std/container/vector.h"
 #define LOG_TAG "AudioEngine-OALSOFT"
 
 #include "audio/oalsoft/AudioEngine-soft.h"
@@ -42,9 +51,10 @@
     #include "AL/alext.h"
 #endif
 #include "application/ApplicationManager.h"
+#include "audio/common/decoder/AudioDecoderManager.h"
 #include "audio/include/AudioEngine.h"
-#include "audio/oalsoft/AudioDecoderManager.h"
 #include "base/Scheduler.h"
+#include "base/memory/Memory.h"
 #include "platform/FileUtils.h"
 
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS
@@ -56,11 +66,11 @@
 //IDEA: Move _winLog, winLog to a separated file
 static void _winLog(const char *format, va_list args) {
     static const int MAX_LOG_LENGTH = 16 * 1024;
-    int              bufferSize     = MAX_LOG_LENGTH;
-    char *           buf            = nullptr;
+    int bufferSize = MAX_LOG_LENGTH;
+    char *buf = nullptr;
 
     do {
-        buf = new (std::nothrow) char[bufferSize];
+        buf = ccnew char[bufferSize];
         if (buf == nullptr)
             return; // not enough memory
 
@@ -76,10 +86,10 @@ static void _winLog(const char *format, va_list args) {
 
     strcat(buf, "\n");
 
-    int   pos                         = 0;
-    auto  len                         = static_cast<int>(strlen(buf));
-    char  tempBuf[MAX_LOG_LENGTH + 1] = {0};
-    WCHAR wszBuf[MAX_LOG_LENGTH + 1]  = {0};
+    int pos = 0;
+    auto len = static_cast<int>(strlen(buf));
+    char tempBuf[MAX_LOG_LENGTH + 1] = {0};
+    WCHAR wszBuf[MAX_LOG_LENGTH + 1] = {0};
 
     do {
         std::copy(buf + pos, buf + pos + MAX_LOG_LENGTH, tempBuf);
@@ -113,7 +123,7 @@ void audioLog(const char *format, ...) {
 
 using namespace cc; //NOLINT
 
-static ALCdevice * sALDevice  = nullptr;
+static ALCdevice *sALDevice = nullptr;
 static ALCcontext *sALContext = nullptr;
 
 AudioEngineImpl::AudioEngineImpl()
@@ -166,7 +176,7 @@ bool AudioEngineImpl::init() {
             }
 
             _scheduler = CC_CURRENT_ENGINE()->getScheduler();
-            ret        = AudioDecoderManager::init();
+            ret = AudioDecoderManager::init();
             CC_LOG_DEBUG("OpenAL was initialized successfully!");
         }
     } while (false);
@@ -179,10 +189,10 @@ AudioCache *AudioEngineImpl::preload(const ccstd::string &filePath, const std::f
 
     auto it = _audioCaches.find(filePath);
     if (it == _audioCaches.end()) {
-        audioCache                    = &_audioCaches[filePath];
-        audioCache->_fileFullPath     = FileUtils::getInstance()->fullPathForFilename(filePath);
-        unsigned int cacheId          = audioCache->_id;
-        auto         isCacheDestroyed = audioCache->_isDestroyed;
+        audioCache = &_audioCaches[filePath];
+        audioCache->_fileFullPath = FileUtils::getInstance()->fullPathForFilename(filePath);
+        unsigned int cacheId = audioCache->_id;
+        auto isCacheDestroyed = audioCache->_isDestroyed;
         AudioEngine::addTask([audioCache, cacheId, isCacheDestroyed]() {
             if (*isCacheDestroyed) {
                 ALOGV("AudioCache (id=%u) was destroyed, no need to launch readDataTask.", cacheId);
@@ -206,8 +216,8 @@ int AudioEngineImpl::play2d(const ccstd::string &filePath, bool loop, float volu
         return AudioEngine::INVALID_AUDIO_ID;
     }
 
-    bool   sourceFlag = false;
-    ALuint alSource   = 0;
+    bool sourceFlag = false;
+    ALuint alSource = 0;
     for (unsigned int src : _alSources) {
         alSource = src;
 
@@ -220,14 +230,14 @@ int AudioEngineImpl::play2d(const ccstd::string &filePath, bool loop, float volu
         return AudioEngine::INVALID_AUDIO_ID;
     }
 
-    auto player = new (std::nothrow) AudioPlayer;
+    auto player = ccnew AudioPlayer;
     if (player == nullptr) {
         return AudioEngine::INVALID_AUDIO_ID;
     }
 
     player->_alSource = alSource;
-    player->_loop     = loop;
-    player->_volume   = volume;
+    player->_loop = loop;
+    player->_volume = volume;
 
     auto audioCache = preload(filePath, nullptr);
     if (audioCache == nullptr) {
@@ -282,7 +292,7 @@ void AudioEngineImpl::setVolume(int audioID, float volume) {
     if (!checkAudioIdValid(audioID)) {
         return;
     }
-    auto player     = _audioPlayers[audioID];
+    auto player = _audioPlayers[audioID];
     player->_volume = volume;
 
     if (player->_ready) {
@@ -407,8 +417,8 @@ float AudioEngineImpl::getCurrentTime(int audioID) {
     if (!checkAudioIdValid(audioID)) {
         return 0.0F;
     }
-    float ret    = 0.0F;
-    auto  player = _audioPlayers[audioID];
+    float ret = 0.0F;
+    auto player = _audioPlayers[audioID];
     if (player->_ready) {
         if (player->_streamingSource) {
             ret = player->getTime();
@@ -429,11 +439,14 @@ bool AudioEngineImpl::setCurrentTime(int audioID, float time) {
     if (!checkAudioIdValid(audioID)) {
         return false;
     }
-    bool ret    = false;
+    bool ret = false;
     auto player = _audioPlayers[audioID];
 
     do {
         if (!player->_ready) {
+            std::lock_guard<std::mutex> lck(player->_play2dMutex); // To prevent the race condition
+            player->_timeDirty = true;
+            player->_currTime = time;
             break;
         }
 
@@ -469,16 +482,16 @@ void AudioEngineImpl::setFinishCallback(int audioID, const std::function<void(in
 }
 
 void AudioEngineImpl::update(float /*dt*/) {
-    ALint        sourceState;
-    int          audioID;
+    ALint sourceState;
+    int audioID;
     AudioPlayer *player;
-    ALuint       alSource;
+    ALuint alSource;
 
     //    ALOGV("AudioPlayer count: %d", (int)_audioPlayers.size());
 
     for (auto it = _audioPlayers.begin(); it != _audioPlayers.end();) {
-        audioID  = it->first;
-        player   = it->second;
+        audioID = it->first;
+        player = it->second;
         alSource = player->_alSource;
         alGetSourcei(alSource, AL_SOURCE_STATE, &sourceState);
 
@@ -493,7 +506,7 @@ void AudioEngineImpl::update(float /*dt*/) {
             ccstd::string filePath;
             if (player->_finishCallbak) {
                 auto &audioInfo = AudioEngine::sAudioIDInfoMap[audioID];
-                filePath        = *audioInfo.filePath;
+                filePath = *audioInfo.filePath;
             }
 
             AudioEngine::remove(audioID);
@@ -530,4 +543,104 @@ void AudioEngineImpl::uncacheAll() {
 
 bool AudioEngineImpl::checkAudioIdValid(int audioID) {
     return _audioPlayers.find(audioID) != _audioPlayers.end();
+}
+
+PCMHeader AudioEngineImpl::getPCMHeader(const char *url) {
+    PCMHeader header{};
+    auto itr = _audioCaches.find(url);
+    if (itr != _audioCaches.end() && itr->second._state == AudioCache::State::READY) {
+        CC_LOG_DEBUG("file %s found in cache, load header directly", url);
+        auto cache = &itr->second;
+        header.bytesPerFrame = cache->_bytesPerFrame;
+        header.channelCount = cache->_channelCount;
+        header.dataFormat = AudioDataFormat::SIGNED_16;
+        header.sampleRate = cache->_sampleRate;
+        header.totalFrames = cache->_totalFrames;
+        return header;
+    }
+    ccstd::string fileFullPath = FileUtils::getInstance()->fullPathForFilename(url);
+    if (fileFullPath.empty()) {
+        CC_LOG_DEBUG("file %s does not exist or failed to load", url);
+        return header;
+    }
+
+    AudioDecoder *decoder = AudioDecoderManager::createDecoder(fileFullPath.c_str());
+    if (decoder == nullptr) {
+        CC_LOG_DEBUG("decode %s failed, the file formate might not support", url);
+        return header;
+    }
+    // Ready to decode
+    do {
+        if (!decoder->open(fileFullPath.c_str())) {
+            CC_LOG_ERROR("[Audio Decoder] File open failed %s", url);
+            break;
+        }
+        header = decoder->getPCMHeader();
+    } while (false);
+
+    AudioDecoderManager::destroyDecoder(decoder);
+    return header;
+}
+
+ccstd::vector<uint8_t> AudioEngineImpl::getOriginalPCMBuffer(const char *url, uint32_t channelID) {
+    ccstd::vector<uint8_t> pcmData;
+    auto itr = _audioCaches.find(url);
+    if (itr != _audioCaches.end() && itr->second._state == AudioCache::State::READY) {
+        auto cache = &itr->second;
+        auto bytesPerChannelInFrame = cache->_bytesPerFrame / cache->_channelCount;
+        pcmData.resize(bytesPerChannelInFrame * cache->_totalFrames);
+        auto p = pcmData.data();
+        if (!cache->isStreaming()) { // Cache contains a fully prepared buffer.
+            for (int itr = 0; itr < cache->_totalFrames; itr++) {
+                memcpy(p, cache->_pcmData + itr * cache->_bytesPerFrame + channelID * bytesPerChannelInFrame, bytesPerChannelInFrame);
+                p += bytesPerChannelInFrame;
+            }
+            return pcmData;
+        }
+    }
+    ccstd::string fileFullPath = FileUtils::getInstance()->fullPathForFilename(url);
+
+    if (fileFullPath.empty()) {
+        CC_LOG_DEBUG("file %s does not exist or failed to load", url);
+        return pcmData;
+    }
+
+    AudioDecoder *decoder = AudioDecoderManager::createDecoder(fileFullPath.c_str());
+    if (decoder == nullptr) {
+        CC_LOG_DEBUG("decode %s failed, the file formate might not support", url);
+        return pcmData;
+    }
+    do {
+        if (!decoder->open(fileFullPath.c_str())) {
+            CC_LOG_ERROR("[Audio Decoder] File open failed %s", url);
+            break;
+        }
+        auto audioInfo = decoder->getPCMHeader();
+        const uint32_t bytesPerChannelInFrame = audioInfo.bytesPerFrame / audioInfo.channelCount;
+        if (channelID >= audioInfo.channelCount) {
+            CC_LOG_ERROR("channelID invalid, total channel count is %d but %d is required", audioInfo.channelCount, channelID);
+            break;
+        }
+        uint32_t totalFrames = decoder->getTotalFrames();
+        uint32_t remainingFrames = totalFrames;
+        uint32_t framesRead = 0;
+        uint32_t framesToReadOnce = std::min(remainingFrames, static_cast<uint32_t>(decoder->getSampleRate() * QUEUEBUFFER_TIME_STEP * QUEUEBUFFER_NUM));
+        AudioDataFormat type = audioInfo.dataFormat;
+        char *tmpBuf = static_cast<char *>(malloc(framesToReadOnce * audioInfo.bytesPerFrame));
+        pcmData.resize(bytesPerChannelInFrame * audioInfo.totalFrames);
+        uint8_t *p = pcmData.data();
+        while (remainingFrames > 0) {
+            framesToReadOnce = std::min(framesToReadOnce, remainingFrames);
+            framesRead = decoder->read(framesToReadOnce, tmpBuf);
+            for (int itr = 0; itr < framesToReadOnce; itr++) {
+                memcpy(p, tmpBuf + itr * audioInfo.bytesPerFrame + channelID * bytesPerChannelInFrame, bytesPerChannelInFrame);
+
+                p += bytesPerChannelInFrame;
+            }
+            remainingFrames -= framesToReadOnce;
+        };
+        free(tmpBuf);
+    } while (false);
+    AudioDecoderManager::destroyDecoder(decoder);
+    return pcmData;
 }

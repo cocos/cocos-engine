@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #pragma once
+#include "base/std/container/map.h"
 #include "base/std/container/string.h"
 #include "base/std/container/vector.h"
 #include "bindings/manual/jsb_conversions.h"
@@ -34,13 +35,29 @@ inline bool nativevalue_to_se( // NOLINT(readability-identifier-naming)
     const ccstd::vector<T, allocator> &from,
     se::Value &to, se::Object *ctx) {
     se::Object *array = se::Object::createArrayObject(from.size());
-    se::Value   tmp;
+    se::Value tmp;
     for (size_t i = 0; i < from.size(); i++) {
         nativevalue_to_se(from[i], tmp, ctx);
         array->setArrayElement(static_cast<uint32_t>(i), tmp);
     }
     to.setObject(array);
     array->decRef();
+    return true;
+}
+
+template <typename Value, typename Less, typename Allocator>
+inline bool nativevalue_to_se( // NOLINT(readability-identifier-naming)
+    const ccstd::map<ccstd::string, Value, Less, Allocator> &from,
+    se::Value &to, se::Object *ctx) {
+    se::Object *ret = se::Object::createPlainObject();
+    se::Value value;
+    bool ok = true;
+    for (auto &it : from) {
+        ok &= nativevalue_to_se(it.second, value, ctx);
+        cc_tmp_set_property(ret, it.first, value);
+    }
+    to.setObject(ret);
+    ret->decRef();
     return true;
 }
 
@@ -57,7 +74,7 @@ bool sevalue_to_native(const se::Value &from, ccstd::vector<T, allocator> *to, s
         return true;
     }
 
-    assert(from.toObject());
+    CC_ASSERT(from.toObject());
     se::Object *array = from.toObject();
 
     if (array->isArray()) {
@@ -75,9 +92,9 @@ bool sevalue_to_native(const se::Value &from, ccstd::vector<T, allocator> *to, s
     }
 
     if (array->isTypedArray()) {
-        assert(std::is_arithmetic<T>::value);
-        uint8_t *data    = nullptr;
-        size_t   dataLen = 0;
+        CC_ASSERT(std::is_arithmetic<T>::value);
+        uint8_t *data = nullptr;
+        size_t dataLen = 0;
         array->getTypedArrayData(&data, &dataLen);
         to->assign(reinterpret_cast<T *>(data), reinterpret_cast<T *>(data + dataLen));
         return true;
@@ -85,6 +102,22 @@ bool sevalue_to_native(const se::Value &from, ccstd::vector<T, allocator> *to, s
 
     SE_LOGE("[warn] failed to convert to ccstd::vector\n");
     return false;
+}
+
+template <typename Value, typename Less, typename Allocator>
+bool sevalue_to_native(const se::Value &from, ccstd::map<ccstd::string, Value, Less, Allocator> *to, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
+    se::Object *jsmap = from.toObject();
+    ccstd::vector<ccstd::string> allKeys;
+    jsmap->getAllKeys(&allKeys);
+    bool ret = true;
+    se::Value property;
+    for (auto &it : allKeys) {
+        if (jsmap->getProperty(it.c_str(), &property)) {
+            auto &output = (*to)[it];
+            ret &= sevalue_to_native(property, &output, jsmap);
+        }
+    }
+    return true;
 }
 
 inline bool sevalue_to_native(const se::Value &from, ccstd::pmr::string *to, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)

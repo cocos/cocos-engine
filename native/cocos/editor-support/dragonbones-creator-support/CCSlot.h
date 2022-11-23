@@ -52,7 +52,7 @@ public:
     // Slot triangles
     cc::middleware::Triangles triangles;
     // Slot vertex transform to World vertex
-    cc::middleware::V2F_T2F_C4F *worldVerts = nullptr;
+    cc::middleware::V3F_T2F_C4B *worldVerts = nullptr;
     cc::middleware::Color4B color;
     cc::Rect boundsRect;
 

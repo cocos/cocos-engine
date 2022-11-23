@@ -24,16 +24,17 @@
  ****************************************************************************/
 #include "Game.h"
 #include "cocos/application/ApplicationManager.h"
-#include "cocos/bindings/event/CustomEventTypes.h"
-#include "cocos/bindings/event/EventDispatcher.h"
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_classtype.h"
 #include "cocos/bindings/manual/jsb_global.h"
 #include "cocos/bindings/manual/jsb_module_register.h"
-
+#include "cocos/renderer/pipeline/GlobalDescriptorSetManager.h"
+#include "cocos/platform/interfaces/modules/ISystemWindowManager.h"
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
     #include "SimulatorApp.h"
-#elif (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
+    #include "windows.h"
+#elif (CC_PLATFORM == CC_PLATFORM_MACOS)
+    #include <CoreGraphics/CGDisplayConfiguration.h>
     #include "../proj.ios_mac/mac/SimulatorApp.h"
 #endif
 
@@ -41,6 +42,7 @@
 #include "ide-support/RuntimeJsImpl.h"
 #include "runtime/ConfigParser.h"
 #include "runtime/Runtime.h"
+
 
 using namespace std;
 Game::Game() {
@@ -52,13 +54,28 @@ Game::~Game() {
 }
 
 int Game::init() {
-    SimulatorApp::getInstance()->run();
-    createWindow("My game", 0, 0, SimulatorApp::getInstance()->getWidth(),
-                 SimulatorApp::getInstance()->getHegith(),
-                 cc::ISystemWindow::CC_WINDOW_SHOWN |
-                     cc::ISystemWindow::CC_WINDOW_RESIZABLE |
-                     cc::ISystemWindow::CC_WINDOW_INPUT_FOCUS);
+    
+    cc::pipeline::GlobalDSManager::setDescriptorSetLayout();
+    cc::ISystemWindowInfo info;
+    info.width= SimulatorApp::getInstance()->getWidth();
+    info.height = SimulatorApp::getInstance()->getHeight();
+#if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
+    info.x = (GetSystemMetrics(SM_CXSCREEN) - info.width) / 2;
+    info.y = (GetSystemMetrics(SM_CYSCREEN) - info.height) / 2;
+#elif (CC_PLATFORM == CC_PLATFORM_MACOS)
+    auto mainDisplayId = CGMainDisplayID();
+    info.x = (CGDisplayPixelsWide(mainDisplayId) - info.width) / 2;
+    info.y = (CGDisplayPixelsHigh(mainDisplayId) - info.height) / 2;
+#endif
+    info.title = "My Game";
+    info.flags = cc::ISystemWindow::CC_WINDOW_SHOWN |
+                 cc::ISystemWindow::CC_WINDOW_RESIZABLE |
+                 cc::ISystemWindow::CC_WINDOW_INPUT_FOCUS;
+    
+    cc::ISystemWindowManager* windowMgr = CC_GET_PLATFORM_INTERFACE(cc::ISystemWindowManager);
+    windowMgr->createWindow(info);
 
+    SimulatorApp::getInstance()->run();
     auto parser = ConfigParser::getInstance();
     setDebugIpAndPort("0.0.0.0", 5086, parser->isWaitForConnect());
 
@@ -75,7 +92,7 @@ int Game::init() {
 
     setXXTeaKey("");
 
-    runScript("jsb-adapter/jsb-builtin.js");
+    runScript("jsb-adapter/web-adapter.js");
     runScript("main.js");
 
     // Runtime end

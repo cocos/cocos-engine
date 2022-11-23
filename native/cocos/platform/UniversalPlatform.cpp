@@ -27,43 +27,12 @@
 
 #include "platform/interfaces/OSInterface.h"
 
-extern int  cocos_main(int argc, const char** argv); // NOLINT(readability-identifier-naming)
-extern void cocos_destory();                         // NOLINT(readability-identifier-naming)
+extern int cocos_main(int argc, const char** argv); // NOLINT(readability-identifier-naming)
+extern void cocos_destory();                        // NOLINT(readability-identifier-naming)
 
 namespace cc {
 UniversalPlatform::OSType UniversalPlatform::getOSType() const {
     return getInterface<ISystem>()->getOSType();
-}
-
-void UniversalPlatform::dispatchEvent(const OSEvent& ev) {
-    bool isHandled = false;
-    if (_handleEventCallback) {
-        isHandled = (_handleEventCallback)(ev);
-    }
-    if (isHandled) {
-        return;
-    }
-    if (_handleDefaultEventCallback) {
-        isHandled = (_handleDefaultEventCallback)(ev);
-    }
-    if (!isHandled) {
-        handleDefaultEvent(ev);
-    }
-}
-
-void UniversalPlatform::dispatchTouchEvent(const OSEvent& ev) {
-}
-
-void UniversalPlatform::handleDefaultEvent(const OSEvent& ev) {
-    // TODO(cc) : Follow-up support
-}
-
-void UniversalPlatform::setHandleEventCallback(HandleEventCallback cb) {
-    _handleEventCallback = cb;
-}
-
-void UniversalPlatform::setHandleDefaultEventCallback(HandleEventCallback cb) {
-    _handleDefaultEventCallback = cb;
 }
 
 int32_t UniversalPlatform::run(int argc, const char** argv) {
@@ -107,7 +76,7 @@ void UniversalPlatform::onResume() {
 void UniversalPlatform::onClose() {
 }
 
-void UniversalPlatform::onDestory() {
+void UniversalPlatform::onDestroy() {
     cocos_destory();
 }
 

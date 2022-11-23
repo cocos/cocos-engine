@@ -24,12 +24,10 @@
  THE SOFTWARE.
 */
 
-
-
 import { TEST } from 'internal:constants';
 import { Pool } from '../memop';
 import { array, createMap } from '../utils/js';
-import { CCObject, isValid } from '../data/object';
+import { isCCObject, isValid } from '../data/object';
 import { legacyCC } from '../global-exports';
 
 const fastRemoveAt = array.fastRemoveAt;
@@ -55,7 +53,7 @@ class CallbackInfo {
 
     public check () {
         // Validation
-        if (this.target instanceof CCObject && !isValid(this.target, true)) {
+        if (isCCObject(this.target) && !isValid(this.target, true)) {
             return false;
         } else {
             return true;
@@ -180,10 +178,11 @@ type EventType = string | number;
  * @zh CallbacksInvoker 用来根据事件名（Key）管理事件监听器列表并调用回调方法。
  * @en CallbacksInvoker is used to manager and invoke event listeners with different event keys,
  * each key is mapped to a CallbackList.
+ * @engineInternal
  */
 export class CallbacksInvoker<EventTypeClass extends EventType = EventType> {
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _callbackTable: ICallbackTable = createMap(true);
     private _offCallback?: () => void;

@@ -23,16 +23,22 @@
  THE SOFTWARE.
  ****************************************************************************/
 #include "3d/models/MorphModel.h"
-#include "core/event/EventTypesToJS.h"
 
 namespace cc {
 
-ccstd::vector<scene::IMacroPatch> &MorphModel::getMacroPatches(index_t subModelIndex) {
+ccstd::vector<scene::IMacroPatch> MorphModel::getMacroPatches(index_t subModelIndex) {
+    ccstd::vector<scene::IMacroPatch> superMacroPatches = Super::getMacroPatches(subModelIndex);
     if (_morphRenderingInstance) {
-        _macroPatches = _morphRenderingInstance->requiredPatches(subModelIndex);
-        return _macroPatches;
+        ccstd::vector<scene::IMacroPatch> morphInstanceMacroPatches = _morphRenderingInstance->requiredPatches(subModelIndex);
+        if (!morphInstanceMacroPatches.empty()) {
+            if (!superMacroPatches.empty()) {
+                morphInstanceMacroPatches.reserve(morphInstanceMacroPatches.size() + superMacroPatches.size());
+                morphInstanceMacroPatches.insert(morphInstanceMacroPatches.end(), superMacroPatches.begin(), superMacroPatches.end());
+            }
+            return morphInstanceMacroPatches;
+        }
     }
-    return Super::getMacroPatches(subModelIndex);
+    return superMacroPatches;
 }
 
 void MorphModel::initSubModel(index_t idx, RenderingSubMesh *subMeshData, Material *mat) {

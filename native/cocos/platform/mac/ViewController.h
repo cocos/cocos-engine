@@ -23,6 +23,8 @@
  THE SOFTWARE.
 ****************************************************************************/
 
+#pragma once
+
 #import <AppKit/NSViewController.h>
 #import <MetalKit/MetalKit.h>
 

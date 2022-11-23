@@ -66,6 +66,14 @@ public:
 
 SkeletonDataMgr *SkeletonDataMgr::instance = nullptr;
 
+SkeletonDataMgr::~SkeletonDataMgr() {
+    _destroyCallback = nullptr;
+    for (auto &e : _dataMap) {
+        delete e.second;
+    }
+    _dataMap.clear();
+}
+
 bool SkeletonDataMgr::hasSkeletonData(const std::string &uuid) {
     auto it = _dataMap.find(uuid);
     return it != _dataMap.end();

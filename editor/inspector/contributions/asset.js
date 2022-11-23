@@ -1,15 +1,15 @@
 'use strict';
 const fs = require('fs');
 const path = require('path');
+const History = require('./asset-history/index');
 
-const showImage = ['cc.ImageAsset', 'cc.SpriteFrame', 'cc.Texture2D'];
-
+const showImage = ['image', 'texture', 'sprite-frame', 'gltf-mesh'];
 exports.listeners = {};
 
 exports.style = fs.readFileSync(path.join(__dirname, './asset.css'), 'utf8');
 
 exports.template = `
-<ui-section whole class="container">
+<ui-section whole scrollable="false" class="container">
     <header class="header" slot="header">
         <ui-icon class="icon" color tooltip="i18n:ENGINE.assets.locate_asset"></ui-icon>
         <ui-image class="image" tooltip="i18n:ENGINE.assets.locate_asset"></ui-image>
@@ -23,7 +23,9 @@ exports.template = `
         <ui-button class="reset tiny red transparent" tooltip="i18n:ENGINE.assets.reset">
             <ui-icon value="reset"></ui-icon>
         </ui-button>
-        <ui-icon class="copy" value="copy" tooltip="i18n:ENGINE.inspector.cloneToEdit"></ui-icon>
+        <ui-button type="icon" class="copy transparent" tooltip="i18n:ENGINE.inspector.cloneToEdit">
+            <ui-icon value="copy"></ui-icon>
+        </ui-button>
     </header>
     <section class="content">
         <section class="content-header"></section>
@@ -32,6 +34,7 @@ exports.template = `
     </section>
 </ui-section>
 `;
+
 exports.$ = {
     container: '.container',
     header: '.header',
@@ -48,22 +51,25 @@ exports.$ = {
     contentSection: '.content-section',
     contentFooter: '.content-footer',
 };
+
 const Elements = {
     panel: {
         ready() {
             const panel = this;
-            let animationId;
+            panel.__assetChangedHandle__ = undefined;
 
             panel.__assetChanged__ = (uuid) => {
                 if (Array.isArray(panel.uuidList) && panel.uuidList.includes(uuid)) {
-                    window.cancelAnimationFrame(animationId);
-                    animationId = window.requestAnimationFrame(async () => {
+                    window.cancelAnimationFrame(panel.__assetChangedHandle__);
+                    panel.__assetChangedHandle__ = window.requestAnimationFrame(async () => {
                         await panel.reset();
                     });
                 }
             };
 
             Editor.Message.addBroadcastListener('asset-db:asset-change', panel.__assetChanged__);
+
+            panel.history = new History();
         },
         async update() {
             const panel = this;
@@ -144,7 +150,14 @@ const Elements = {
         close() {
             const panel = this;
 
+            if (panel.__assetChangedHandle__) {
+                window.cancelAnimationFrame(panel.__assetChangedHandle__);
+                panel.__assetChangedHandle__ = undefined;
+            }
+
             Editor.Message.removeBroadcastListener('asset-db:asset-change', panel.__assetChanged__);
+
+            delete panel.history;
         },
     },
     header: {
@@ -221,14 +234,19 @@ const Elements = {
             if (panel.asset.readonly) {
                 panel.$.name.setAttribute('tooltip', 'i18n:inspector.asset.prohibitEditInternalAsset');
                 panel.$.name.setAttribute('readonly', '');
-                panel.$.copy.style.display = 'inline-block';
+
+                if (panel.asset.source) {
+                    panel.$.copy.style.display = 'inline-block';
+                } else {
+                    panel.$.copy.style.display = 'none';
+                }
             } else {
                 panel.$.name.removeAttribute('tooltip');
                 panel.$.name.removeAttribute('readonly');
                 panel.$.copy.style.display = 'none';
             }
 
-            const isImage = showImage.includes(panel.asset.type);
+            const isImage = showImage.includes(panel.asset.importer);
 
             if (isImage) {
                 panel.$.image.value = panel.asset.uuid;
@@ -259,7 +277,7 @@ const Elements = {
 
             panel.contentRenders = {};
         },
-        update() {
+        async update() {
             const panel = this;
 
             // 重置渲染对象
@@ -295,6 +313,9 @@ const Elements = {
                         contentRender.__panels__[i].addEventListener('change', () => {
                             Elements.header.isDirty.call(panel);
                         });
+                        contentRender.__panels__[i].addEventListener('snapshot', () => {
+                            panel.history && panel.history.snapshot(panel);
+                        });
                         contentRender.appendChild(contentRender.__panels__[i]);
                     }
                     contentRender.__panels__[i].setAttribute('src', file);
@@ -306,15 +327,118 @@ const Elements = {
                 }
 
                 contentRender.__panels__ = Array.from(contentRender.children);
-                Array.prototype.forEach.call(contentRender.__panels__, ($panel) => {
-                    $panel.injectionStyle(`ui-prop { margin-top: 5px; }`);
-                    $panel.update(panel.assetList, panel.metaList);
-                });
+                try {
+                    await Promise.all(
+                        contentRender.__panels__.map(($panel) => {
+                            $panel.injectionStyle(`ui-prop { margin-top: 5px; }`);
+                            return $panel.update(panel.assetList, panel.metaList);
+                        }),
+                    );
+                } catch (err) {
+                    console.error(err);
+                }
             }
         },
     },
 };
+
 exports.methods = {
+    undo() {
+        const panel = this;
+        panel.history && panel.history.undo();
+    },
+    redo() {
+        const panel = this;
+        panel.history && panel.history.redo();
+    },
+    async record() {
+        const panel = this;
+
+        const renderData = {};
+        for (const renderName in panel.contentRenders) {
+            const { contentRender } = panel.contentRenders[renderName];
+
+            if (!Array.isArray(contentRender.__panels__)) {
+                continue;
+            }
+
+            renderData[renderName] = [];
+
+            for (let i = 0; i < contentRender.__panels__.length; i++) {
+                if (contentRender.__panels__[i].panelObject.record) {
+                    const data = await contentRender.__panels__[i].callMethod('record');
+                    renderData[renderName].push(data);
+                } else {
+                    renderData[renderName].push(null);
+                }
+            }
+        }
+
+        return {
+            uuidListStr:JSON.stringify(panel.uuidList),
+            metaListStr:JSON.stringify(panel.metaList),
+            renderDataStr:JSON.stringify(renderData),
+        };
+    },
+    restore(record) {
+        const panel = this;
+
+        try {
+            const { uuidListStr, metaListStr, renderDataStr } = record;
+
+            // uuid 数据不匹配表明不是同一个编辑对象了
+            if (JSON.stringify(panel.uuidList) !== uuidListStr) {
+                return false;
+            }
+
+            // metaList 数据不一样的对 metaList 进行更新
+            if (JSON.stringify(panel.metaList) !== metaListStr) {
+                panel.metaList = JSON.parse(metaListStr);
+
+                for (const renderName in panel.contentRenders) {
+                    const { contentRender } = panel.contentRenders[renderName];
+
+                    if (!Array.isArray(contentRender.__panels__)) {
+                        continue;
+                    }
+
+                    for (let i = 0; i < contentRender.__panels__.length; i++) {
+                        contentRender.__panels__[i].update(panel.assetList, panel.metaList);
+                    }
+                }
+            }
+
+            const renderData = JSON.parse(renderDataStr);
+            for (const renderName in panel.contentRenders) {
+                const { contentRender } = panel.contentRenders[renderName];
+
+                if (!Array.isArray(contentRender.__panels__)) {
+                    continue;
+                }
+
+                if (!Array.isArray(renderData[renderName])) {
+                    continue;
+                }
+
+                if (!renderData[renderName].length) {
+                    continue;
+                }
+
+                for (let i = 0; i < contentRender.__panels__.length; i++) {
+                    if (renderData[renderName][i] && contentRender.__panels__[i].panelObject.restore) {
+                        contentRender.__panels__[i].callMethod('restore', renderData[renderName][i]);
+                    }
+                }
+            }
+
+            Elements.header.isDirty.call(panel);
+            return true;
+        } catch (error) {
+            console.error(error);
+            return false;
+        }
+    },
+
     async isDirty() {
         const panel = this;
 
@@ -424,6 +548,10 @@ exports.methods = {
             }
         }
 
+        if (panel.ready !== true) {
+            return;
+        }
+
         panel.$this.update(panel.uuidList, panel.renderMap);
     },
     getHelpUrl(url) {
@@ -437,8 +565,18 @@ exports.methods = {
         }
     },
 };
+
 exports.update = async function update(uuidList, renderMap, dropConfig) {
     const panel = this;
+
+    const enginePath = path.join('editor', 'inspector', 'assets');
+    Object.values(renderMap).forEach(config => {
+        Object.values(config).forEach(renders => {
+            renders.sort((a, b) => {
+                return b.indexOf(enginePath) - a.indexOf(enginePath);
+            });
+        });
+    });
 
     panel.uuidList = uuidList || [];
     panel.renderMap = renderMap;
@@ -450,9 +588,12 @@ exports.update = async function update(uuidList, renderMap, dropConfig) {
             await element.update.call(panel);
         }
     }
+    panel.history && panel.history.snapshot(panel);
 };
+
 exports.ready = function ready() {
     const panel = this;
+    panel.ready = true;
 
     for (const prop in Elements) {
         const element = Elements[prop];
@@ -521,6 +662,7 @@ exports.beforeClose = async function beforeClose() {
 
 exports.close = async function close() {
     const panel = this;
+    panel.ready = false;
 
     for (const prop in Elements) {
         const element = Elements[prop];

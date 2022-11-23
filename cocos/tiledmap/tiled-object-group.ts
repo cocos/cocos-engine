@@ -24,22 +24,18 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module tiledmap
- */
-
 import { ccclass, help, type, requireComponent } from 'cc.decorator';
-import { Component } from '../core/components';
+import { Component } from '../scene-graph/component';
 import { Sprite } from '../2d/components/sprite';
 import { Label } from '../2d/components/label';
-import { BlendFactor } from '../core/gfx';
+import { BlendFactor } from '../gfx';
 
 import { TMXMapInfo } from './tmx-xml-parser';
 import { TiledTextureGrids, GID, TileFlag, Orientation, StaggerAxis, TMXObjectType, PropertiesInfo, TiledAnimationType, TMXObject, TMXObjectGroupInfo } from './tiled-types';
 import { UITransform } from '../2d/framework/ui-transform';
-import { CCBoolean, Node, Vec2, Color, CCObject } from '../core';
+import { CCBoolean, Vec2, Color, CCObject } from '../core';
 import { SpriteFrame } from '../2d/assets';
+import { Node } from '../scene-graph/node';
 
 /**
  * @en Renders the TMX object group.
@@ -160,7 +156,7 @@ export class TiledObjectGroup extends Component {
     protected _objects: TMXObject[] = [];
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _init (groupInfo: TMXObjectGroupInfo, mapInfo: TMXMapInfo, texGrids: TiledTextureGrids) {
         const FLIPPED_MASK = TileFlag.FLIPPED_MASK;
@@ -347,11 +343,16 @@ export class TiledObjectGroup extends Component {
 
                 sprite.sizeMode = Sprite.SizeMode.CUSTOM;
 
-                // @ts-expect-error remove when component remove blend function
-                sprite._srcBlendFactor = this._premultiplyAlpha ? BlendFactor.ONE : BlendFactor.SRC_ALPHA;
-                // @ts-expect-error remove when component remove blend function
-                sprite._dstBlendFactor = BlendFactor.ONE_MINUS_SRC_ALPHA;
-                sprite._updateBlendFunc();
+                // HACK: we should support _premultiplyAlpha when group had material
+                const srcBlendFactor = this._premultiplyAlpha ? BlendFactor.ONE : BlendFactor.SRC_ALPHA;
+                // @ts-expect-error remove when ui-render remove blend
+                if (sprite._srcBlendFactor !== srcBlendFactor) {
+                    // @ts-expect-error remove when ui-render remove blend
+                    sprite._srcBlendFactor = srcBlendFactor;
+                    if (sprite.material) {
+                        sprite._updateBlendFunc();
+                    }
+                }
 
                 let spf = grid.spriteFrame;
                 if (!spf) {

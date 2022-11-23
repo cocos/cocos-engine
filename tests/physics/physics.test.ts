@@ -1,12 +1,14 @@
-import { director, Node, Scene } from "../../cocos/core";
-import { physics, PhysicsSystem } from "../../exports/physics-framework";
+import { director, game, Game } from "../../cocos/game";
+import { physics, PhysicsMaterial, PhysicsSystem } from "../../exports/physics-framework";
+
 import "../../exports/physics-physx";
 import "../../exports/physics-builtin";
 import waitForAmmoInstantiation from "../../exports/wait-for-ammo-instantiation";
 waitForAmmoInstantiation(null);
 import "../../exports/physics-ammo";
 import "../../exports/physics-cannon";
-
+import { InitPhysXLibs } from '../../cocos/physics/physx/physx-adapter';
+InitPhysXLibs();
 import EventTest from "./event";
 import RaycastTest from "./raycast";
 import SleepTest from "./sleep";
@@ -14,9 +16,15 @@ import StableTest from "./stability";
 import VolumeTest from "./volume";
 import FilterTest from "./filtering";
 import DynamicTest from "./dynamic";
+import { Node, Scene } from "../../cocos/scene-graph";
+import { builtinResMgr } from "../../exports/base";
 
+game.emit(Game.EVENT_PRE_SUBSYSTEM_INIT);
 // Manually construct and register the system
 PhysicsSystem.constructAndRegister();
+//Manual load default builtin physics material
+const builtinMaterial = builtinResMgr.get<PhysicsMaterial>('default-physics-material');
+PhysicsSystem.instance.setDefaultPhysicsMaterial(builtinMaterial);
 
 test(`physics test | selector`, done => {
     physics.selector.switchTo('builtin');

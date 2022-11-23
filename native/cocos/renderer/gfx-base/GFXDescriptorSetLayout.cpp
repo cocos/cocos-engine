@@ -38,12 +38,12 @@ DescriptorSetLayout::DescriptorSetLayout()
 DescriptorSetLayout::~DescriptorSetLayout() = default;
 
 void DescriptorSetLayout::initialize(const DescriptorSetLayoutInfo &info) {
-    _bindings         = info.bindings;
+    _bindings = info.bindings;
     auto bindingCount = utils::toUint(_bindings.size());
-    _descriptorCount  = 0U;
+    _descriptorCount = 0U;
 
     if (bindingCount) {
-        uint32_t                maxBinding = 0U;
+        uint32_t maxBinding = 0U;
         ccstd::vector<uint32_t> flattenedIndices(bindingCount);
         for (uint32_t i = 0U; i < bindingCount; i++) {
             const DescriptorSetLayoutBinding &binding = _bindings[i];
@@ -56,8 +56,8 @@ void DescriptorSetLayout::initialize(const DescriptorSetLayoutInfo &info) {
         _descriptorIndices.resize(maxBinding + 1, INVALID_BINDING);
         for (uint32_t i = 0U; i < bindingCount; i++) {
             const DescriptorSetLayoutBinding &binding = _bindings[i];
-            _bindingIndices[binding.binding]          = i;
-            _descriptorIndices[binding.binding]       = flattenedIndices[i];
+            _bindingIndices[binding.binding] = i;
+            _descriptorIndices[binding.binding] = flattenedIndices[i];
             if (hasFlag(DESCRIPTOR_DYNAMIC_TYPE, binding.descriptorType)) {
                 for (uint32_t j = 0U; j < binding.count; ++j) {
                     _dynamicBindings.push_back(binding.binding);

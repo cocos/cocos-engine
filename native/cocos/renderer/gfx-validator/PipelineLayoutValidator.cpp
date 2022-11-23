@@ -45,23 +45,24 @@ PipelineLayoutValidator::~PipelineLayoutValidator() {
 }
 
 void PipelineLayoutValidator::doInit(const PipelineLayoutInfo &info) {
-    CCASSERT(!isInited(), "initializing twice?");
+    CC_ASSERT(!isInited());
     _inited = true;
 
     const auto &bindingMappings{DeviceValidator::getInstance()->bindingMappingInfo()};
-    for (uint32_t i = 0; i < info.setLayouts.size(); ++i) {
-        auto *layout{static_cast<DescriptorSetLayoutValidator *>(info.setLayouts[i])};
-        CCASSERT(layout && layout->isInited(), "already destroyed?");
-        // check against limits specified in BindingMappingInfo
-        if (bindingMappings.setIndices.back() == i) continue; // flexible set
-        CCASSERT(layout->_typeCounts[0] <= bindingMappings.maxBlockCounts[i], "Exceeds descriptor type limit");
-        CCASSERT(layout->_typeCounts[1] <= bindingMappings.maxSamplerTextureCounts[i], "Exceeds descriptor type limit");
-        CCASSERT(layout->_typeCounts[2] <= bindingMappings.maxSamplerCounts[i], "Exceeds descriptor type limit");
-        CCASSERT(layout->_typeCounts[3] <= bindingMappings.maxTextureCounts[i], "Exceeds descriptor type limit");
-        CCASSERT(layout->_typeCounts[4] <= bindingMappings.maxBufferCounts[i], "Exceeds descriptor type limit");
-        CCASSERT(layout->_typeCounts[5] <= bindingMappings.maxImageCounts[i], "Exceeds descriptor type limit");
-        CCASSERT(layout->_typeCounts[6] <= bindingMappings.maxSubpassInputCounts[i], "Exceeds descriptor type limit");
-    }
+    // deffered pipeline issue: https://github.com/cocos/cocos-engine/pull/10701
+    // for (uint32_t i = 0; i < info.setLayouts.size(); ++i) {
+    //     auto *layout{static_cast<DescriptorSetLayoutValidator *>(info.setLayouts[i])};
+    //     CC_ASSERT(layout && layout->isInited());
+    //     // check against limits specified in BindingMappingInfo
+    //     if (bindingMappings.setIndices.back() == i) continue; // flexible set
+    //     CC_ASSERT(layout->_typeCounts[0] <= bindingMappings.maxBlockCounts[i]);
+    //     CC_ASSERT(layout->_typeCounts[1] <= bindingMappings.maxSamplerTextureCounts[i]);
+    //     CC_ASSERT(layout->_typeCounts[2] <= bindingMappings.maxSamplerCounts[i]);
+    //     CC_ASSERT(layout->_typeCounts[3] <= bindingMappings.maxTextureCounts[i]);
+    //     CC_ASSERT(layout->_typeCounts[4] <= bindingMappings.maxBufferCounts[i]);
+    //     CC_ASSERT(layout->_typeCounts[5] <= bindingMappings.maxImageCounts[i]);
+    //     CC_ASSERT(layout->_typeCounts[6] <= bindingMappings.maxSubpassInputCounts[i]);
+    // }
 
     /////////// execute ///////////
 
@@ -75,7 +76,7 @@ void PipelineLayoutValidator::doInit(const PipelineLayoutInfo &info) {
 }
 
 void PipelineLayoutValidator::doDestroy() {
-    CCASSERT(isInited(), "destroying twice?");
+    CC_ASSERT(isInited());
     _inited = false;
 
     /////////// execute ///////////

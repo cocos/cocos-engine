@@ -23,12 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module particle
- */
-
-import { Enum } from '../core/value-types';
+import { Enum } from '../core';
 
 export const Space = Enum({
     World: 0,

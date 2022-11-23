@@ -20,7 +20,7 @@
  This file was modified to fit the cocos2d-x project
  */
 
-#include <boost/functional/hash.hpp>
+#include "base/std/hash/hash.h"
 
 #include "math/Vec4.h"
 
@@ -58,7 +58,7 @@ Vec4::Vec4(const Vec4 &copy) {
 
 Vec4 Vec4::fromColor(unsigned int color) {
     float components[4];
-    int   componentIndex = 0;
+    int componentIndex = 0;
     for (int i = 3; i >= 0; --i) {
         uint32_t component = (color >> i * 8) & 0x000000ff;
 
@@ -93,7 +93,7 @@ void Vec4::add(const Vec4 &v) {
 }
 
 void Vec4::add(const Vec4 &v1, const Vec4 &v2, Vec4 *dst) {
-    GP_ASSERT(dst);
+    CC_ASSERT(dst);
 
     dst->x = v1.x + v2.x;
     dst->y = v1.y + v2.y;
@@ -102,7 +102,7 @@ void Vec4::add(const Vec4 &v1, const Vec4 &v2, Vec4 *dst) {
 }
 
 void Vec4::clamp(const Vec4 &min, const Vec4 &max) {
-    GP_ASSERT(!(min.x > max.x || min.y > max.y || min.z > max.z || min.w > max.w));
+    CC_ASSERT(!(min.x > max.x || min.y > max.y || min.z > max.z || min.w > max.w));
 
     // Clamp the x value.
     if (x < min.x) {
@@ -138,8 +138,8 @@ void Vec4::clamp(const Vec4 &min, const Vec4 &max) {
 }
 
 void Vec4::clamp(const Vec4 &v, const Vec4 &min, const Vec4 &max, Vec4 *dst) {
-    GP_ASSERT(dst);
-    GP_ASSERT(!(min.x > max.x || min.y > max.y || min.z > max.z || min.w > max.w));
+    CC_ASSERT(dst);
+    CC_ASSERT(!(min.x > max.x || min.y > max.y || min.z > max.z || min.w > max.w));
 
     // Clamp the x value.
     dst->x = v.x;
@@ -260,7 +260,7 @@ void Vec4::set(float xx, float yy, float zz, float ww) {
 }
 
 void Vec4::set(const float *array) {
-    GP_ASSERT(array);
+    CC_ASSERT(array);
 
     x = array[0];
     y = array[1];
@@ -290,7 +290,7 @@ void Vec4::subtract(const Vec4 &v) {
 }
 
 void Vec4::subtract(const Vec4 &v1, const Vec4 &v2, Vec4 *dst) {
-    GP_ASSERT(dst);
+    CC_ASSERT(dst);
 
     dst->x = v1.x - v2.x;
     dst->y = v1.y - v2.y;
@@ -299,23 +299,23 @@ void Vec4::subtract(const Vec4 &v1, const Vec4 &v2, Vec4 *dst) {
 }
 
 void Vec4::lerp(const Vec4 &a, const Vec4 &b, float t, Vec4 *dst) {
-    GP_ASSERT(dst);
+    CC_ASSERT(dst);
     dst->x = a.x + t * (b.x - a.x);
     dst->y = a.y + t * (b.y - a.y);
     dst->z = a.z + t * (b.z - a.z);
     dst->w = a.w + t * (b.w - a.w);
 }
 
-const Vec4 Vec4::ZERO   = Vec4(0.0F, 0.0F, 0.0F, 0.0F);
-const Vec4 Vec4::ONE    = Vec4(1.0F, 1.0F, 1.0F, 1.0F);
+const Vec4 Vec4::ZERO = Vec4(0.0F, 0.0F, 0.0F, 0.0F);
+const Vec4 Vec4::ONE = Vec4(1.0F, 1.0F, 1.0F, 1.0F);
 const Vec4 Vec4::UNIT_X = Vec4(1.0F, 0.0F, 0.0F, 0.0F);
 const Vec4 Vec4::UNIT_Y = Vec4(0.0F, 1.0F, 0.0F, 0.0F);
 const Vec4 Vec4::UNIT_Z = Vec4(0.0F, 0.0F, 1.0F, 0.0F);
 const Vec4 Vec4::UNIT_W = Vec4(0.0F, 0.0F, 0.0F, 1.0F);
 
 template <>
-size_t Hasher<Vec4>::operator()(const Vec4 &v) const {
-    return boost::hash_range(reinterpret_cast<const uint64_t *>(&v.x),
+ccstd::hash_t Hasher<Vec4>::operator()(const Vec4 &v) const {
+    return ccstd::hash_range(reinterpret_cast<const uint64_t *>(&v.x),
                              reinterpret_cast<const uint64_t *>(&v.x + 4));
 }
 

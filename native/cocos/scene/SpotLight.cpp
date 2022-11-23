@@ -36,9 +36,9 @@ namespace cc {
 namespace scene {
 SpotLight::SpotLight() {
     _type = LightType::SPOT;
-    _aabb = new geometry::AABB();
+    _aabb = ccnew geometry::AABB();
     _aabb->addRef();
-    _frustum = new geometry::Frustum();
+    _frustum = ccnew geometry::Frustum();
     _frustum->addRef();
 }
 
@@ -50,8 +50,7 @@ SpotLight::~SpotLight() {
 void SpotLight::initialize() {
     Light::initialize();
 
-    _size   = 0.15F;
-    _aspect = 1.0F;
+    _size = 0.15F;
     setLuminance(1700 / Light::nt2lm(_size));
     setLuminanceLDR(1.F);
     _range = cos(math::PI / 6);

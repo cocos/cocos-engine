@@ -4,39 +4,30 @@
 
 DRAGONBONES_NAMESPACE_BEGIN
 
-void AnimationData::_onClear()
-{
-    for (const auto& pair : boneTimelines)
-    {
-        for (const auto timeline : pair.second)
-        {
+void AnimationData::_onClear() {
+    for (const auto& pair : boneTimelines) {
+        for (const auto timeline : pair.second) {
             timeline->returnToPool();
         }
     }
 
-    for (const auto& pair : slotTimelines)
-    {
-        for (const auto timeline : pair.second)
-        {
+    for (const auto& pair : slotTimelines) {
+        for (const auto timeline : pair.second) {
             timeline->returnToPool();
         }
     }
 
-    for (const auto& pair : constraintTimelines)
-    {
-        for (const auto timeline : pair.second)
-        {
+    for (const auto& pair : constraintTimelines) {
+        for (const auto timeline : pair.second) {
             timeline->returnToPool();
         }
     }
 
-    if (actionTimeline != nullptr)
-    {
+    if (actionTimeline != nullptr) {
         actionTimeline->returnToPool();
     }
 
-    if (zOrderTimeline != nullptr)
-    {
+    if (zOrderTimeline != nullptr) {
         zOrderTimeline->returnToPool();
     }
 
@@ -61,8 +52,7 @@ void AnimationData::_onClear()
     zOrderTimeline = nullptr;
 }
 
-void AnimationData::cacheFrames(unsigned frameRate)
-{
+void AnimationData::cacheFrames(unsigned frameRate) {
     if (cacheFrameRate > 0.0f) // TODO clear cache.
     {
         return;
@@ -73,46 +63,37 @@ void AnimationData::cacheFrames(unsigned frameRate)
 
     cachedFrames.resize(cacheFrameCount, false);
 
-    for (const auto bone : parent->sortedBones)
-    {
+    for (const auto bone : parent->sortedBones) {
         boneCachedFrameIndices[bone->name].resize(cacheFrameCount, -1);
     }
 
-    for (const auto slot : parent->sortedSlots)
-    {
+    for (const auto slot : parent->sortedSlots) {
         slotCachedFrameIndices[slot->name].resize(cacheFrameCount, -1);
     }
 }
 
-void AnimationData::addBoneTimeline(BoneData* bone, TimelineData* value)
-{
+void AnimationData::addBoneTimeline(BoneData* bone, TimelineData* value) {
     auto& timelines = boneTimelines[bone->name];
-    if(std::find(timelines.cbegin(), timelines.cend(), value) == timelines.cend())
-    {
+    if (std::find(timelines.cbegin(), timelines.cend(), value) == timelines.cend()) {
         timelines.push_back(value);
     }
 }
 
-void AnimationData::addSlotTimeline(SlotData* slot, TimelineData* value)
-{
+void AnimationData::addSlotTimeline(SlotData* slot, TimelineData* value) {
     auto& timelines = slotTimelines[slot->name];
-    if (std::find(timelines.cbegin(), timelines.cend(), value) == timelines.cend())
-    {
+    if (std::find(timelines.cbegin(), timelines.cend(), value) == timelines.cend()) {
         timelines.push_back(value);
     }
 }
 
-void AnimationData::addConstraintTimeline(ConstraintData* constraint, TimelineData* value)
-{
+void AnimationData::addConstraintTimeline(ConstraintData* constraint, TimelineData* value) {
     auto& timelines = constraintTimelines[constraint->name];
-    if (std::find(timelines.cbegin(), timelines.cend(), value) == timelines.cend())
-    {
+    if (std::find(timelines.cbegin(), timelines.cend(), value) == timelines.cend()) {
         timelines.push_back(value);
     }
 }
 
-void TimelineData::_onClear()
-{
+void TimelineData::_onClear() {
     type = TimelineType::BoneAll;
     offset = 0;
     frameIndicesOffset = -1;

@@ -28,7 +28,9 @@
 #include <algorithm>
 #include <cctype>
 #include <cstdarg>
-#include "base/ZipUtils.h"
+#ifndef CC_WGPU_WASM
+    #include "base/ZipUtils.h"
+#endif
 #include "base/base64.h"
 #include "base/std/container/string.h"
 #include "memory/Memory.h"
@@ -47,7 +49,7 @@ int StringUtil::vprintf(char *buf, const char *last, const char *fmt, va_list ar
     if (last <= buf) return 0;
 
     int count = (int)(last - buf);
-    int ret   = _vsnprintf_s(buf, count, _TRUNCATE, fmt, args);
+    int ret = _vsnprintf_s(buf, count, _TRUNCATE, fmt, args);
     if (ret < 0) {
         if (errno == 0) {
             return count - 1;
@@ -65,7 +67,7 @@ int StringUtil::vprintf(char *buf, const char *last, const char *fmt, va_list ar
     }
 
     auto count = static_cast<int>(last - buf);
-    int  ret   = vsnprintf(buf, count, fmt, args);
+    int ret = vsnprintf(buf, count, fmt, args);
     if (ret >= count - 1) {
         return count - 1;
     }
@@ -85,7 +87,7 @@ int StringUtil::printf(char *buf, const char *last, const char *fmt, ...) {
 }
 
 ccstd::string StringUtil::format(const char *fmt, ...) {
-    char    sz[4096];
+    char sz[4096];
     va_list args;
     va_start(args, fmt);
     vprintf(sz, sz + sizeof(sz) - 1, fmt, args);
@@ -93,7 +95,7 @@ ccstd::string StringUtil::format(const char *fmt, ...) {
     return sz;
 }
 
-ccstd::vector<ccstd::string> StringUtil::split(const ccstd::string &str, const ccstd::string &delims, uint maxSplits) {
+ccstd::vector<ccstd::string> StringUtil::split(const ccstd::string &str, const ccstd::string &delims, uint32_t maxSplits) {
     ccstd::vector<ccstd::string> strs;
     if (str.empty()) {
         return strs;
@@ -102,12 +104,11 @@ ccstd::vector<ccstd::string> StringUtil::split(const ccstd::string &str, const c
     // Pre-allocate some space for performance
     strs.reserve(maxSplits ? maxSplits + 1 : 16); // 16 is guessed capacity for most case
 
-    uint numSplits = 0;
+    uint32_t numSplits{0};
 
     // Use STL methods
-    size_t start;
-    size_t pos;
-    start = 0;
+    size_t start{0};
+    size_t pos{0};
     do {
         pos = str.find_first_of(delims, start);
         if (pos == start) {
@@ -164,15 +165,19 @@ ccstd::string &StringUtil::toupper(ccstd::string &str) {
 }
 
 ccstd::string GzipedString::value() const { // NOLINT(readability-convert-member-functions-to-static)
-    uint8_t *     outGzip{nullptr};
-    uint8_t *     outBase64{nullptr};
-    auto *        input       = reinterpret_cast<unsigned char *>(const_cast<char *>(_str.c_str()));
-    auto          lenOfBase64 = base64Decode(input, static_cast<unsigned int>(_str.size()), &outBase64);
-    auto          lenofUnzip  = ZipUtils::inflateMemory(outBase64, static_cast<ssize_t>(lenOfBase64), &outGzip);
+#ifndef CC_WGPU_WASM
+    uint8_t *outGzip{nullptr};
+    uint8_t *outBase64{nullptr};
+    auto *input = reinterpret_cast<unsigned char *>(const_cast<char *>(_str.c_str()));
+    auto lenOfBase64 = base64Decode(input, static_cast<unsigned int>(_str.size()), &outBase64);
+    auto lenofUnzip = ZipUtils::inflateMemory(outBase64, static_cast<uint32_t>(lenOfBase64), &outGzip);
     ccstd::string ret(outGzip, outGzip + lenofUnzip);
     free(outGzip);
     free(outBase64);
     return ret;
+#else
+    return "";
+#endif
 }
 
 } // namespace cc

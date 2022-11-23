@@ -40,8 +40,7 @@ DRAGONBONES_NAMESPACE_BEGIN
  * @version DragonBones 5.0
  * @language zh_CN
  */
-class IArmatureProxy : public IEventDispatcher
-{
+class IArmatureProxy : public IEventDispatcher {
     ABSTRACT_CLASS(IArmatureProxy);
 
 public:
@@ -106,18 +105,6 @@ public:
      * @language zh_CN
      */
     virtual Animation* getAnimation() const = 0;
-    
-    /**
-     * - Gets render order
-     * @version Cocos Creator 2.3
-     * @language en_US
-     */
-    /**
-     * - 获得渲染顺序。
-     * @version Cocos Creator 2.3
-     * @language zh_CN
-     */
-    virtual uint32_t getRenderOrder() const = 0;
 };
 
 DRAGONBONES_NAMESPACE_END

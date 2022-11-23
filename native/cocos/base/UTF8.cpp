@@ -174,7 +174,7 @@ bool utfConvert(
     constexpr int mostBytesPerCharacter = 4;
 
     const size_t maxNumberOfChars = from.length(); // all UTFs at most one element represents one character.
-    const size_t numberOfOut      = maxNumberOfChars * mostBytesPerCharacter / sizeof(To);
+    const size_t numberOfOut = maxNumberOfChars * mostBytesPerCharacter / sizeof(To);
 
     std::basic_string<To> working(numberOfOut, 0);
 
@@ -183,7 +183,7 @@ bool utfConvert(
 
     auto outbeg = reinterpret_cast<typename ToTrait::ArgType *>(&working[0]);
     auto outend = outbeg + working.length();
-    auto r      = cvtfunc(&inbeg, inend, &outbeg, outend, strictConversion);
+    auto r = cvtfunc(&inbeg, inend, &outbeg, outend, strictConversion);
     if (r != conversionOK) {
         return false;
     }
@@ -195,9 +195,9 @@ bool utfConvert(
 };
 
 CC_DLL void UTF8LooseFix(const ccstd::string &in, ccstd::string &out) { //NOLINT
-    const auto *p        = reinterpret_cast<const UTF8 *>(in.c_str());
-    const auto *end      = reinterpret_cast<const UTF8 *>(in.c_str() + in.size());
-    unsigned    ucharLen = 0;
+    const auto *p = reinterpret_cast<const UTF8 *>(in.c_str());
+    const auto *end = reinterpret_cast<const UTF8 *>(in.c_str() + in.size());
+    unsigned ucharLen = 0;
     while (p < end) {
         ucharLen = getNumBytesForUTF8(*p);
         if (isLegalUTF8Sequence(p, p + ucharLen)) {
@@ -237,11 +237,11 @@ bool UTF32ToUTF16(const std::u32string &utf32, std::u16string &outUtf16) { //NOL
 
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS)
 ccstd::string getStringUTFCharsJNI(JNIEnv *env, jstring srcjStr, bool *ret) {
-    ccstd::string        utf8Str;
-    auto *               unicodeChar       = static_cast<const uint16_t *>(env->GetStringChars(srcjStr, nullptr));
-    size_t               unicodeCharLength = env->GetStringLength(srcjStr);
+    ccstd::string utf8Str;
+    auto *unicodeChar = static_cast<const uint16_t *>(env->GetStringChars(srcjStr, nullptr));
+    size_t unicodeCharLength = env->GetStringLength(srcjStr);
     const std::u16string unicodeStr(reinterpret_cast<const char16_t *>(unicodeChar), unicodeCharLength);
-    bool                 flag = UTF16ToUTF8(unicodeStr, utf8Str);
+    bool flag = UTF16ToUTF8(unicodeStr, utf8Str);
 
     if (ret) {
         *ret = flag;
@@ -256,7 +256,7 @@ ccstd::string getStringUTFCharsJNI(JNIEnv *env, jstring srcjStr, bool *ret) {
 
 jstring newStringUTFJNI(JNIEnv *env, const ccstd::string &utf8Str, bool *ret) {
     std::u16string utf16Str;
-    bool           flag = cc::StringUtils::UTF8ToUTF16(utf8Str, utf16Str);
+    bool flag = cc::StringUtils::UTF8ToUTF16(utf8Str, utf16Str);
 
     if (ret) {
         *ret = flag;

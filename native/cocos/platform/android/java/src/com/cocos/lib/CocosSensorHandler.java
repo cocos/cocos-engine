@@ -38,6 +38,7 @@ public class CocosSensorHandler implements SensorEventListener {
 
     private static final String TAG = "CocosSensorHandler";
     private static CocosSensorHandler mSensorHandler;
+    private static boolean mEnableSensor = false;
 
     private final Context mContext;
     private final SensorManager mSensorManager;
@@ -67,13 +68,17 @@ public class CocosSensorHandler implements SensorEventListener {
     // Getter & Setter
     // ===========================================================
     public void enable() {
-        mSensorManager.registerListener(this, mAcceleration, mSamplingPeriodUs);
-        mSensorManager.registerListener(this, mAccelerationIncludingGravity, mSamplingPeriodUs);
-        mSensorManager.registerListener(this, mGyroscope, mSamplingPeriodUs);
+        if (mEnableSensor) {
+            mSensorManager.registerListener(this, mAcceleration, mSamplingPeriodUs);
+            mSensorManager.registerListener(this, mAccelerationIncludingGravity, mSamplingPeriodUs);
+            mSensorManager.registerListener(this, mGyroscope, mSamplingPeriodUs);
+        }
     }
 
     public void disable() {
-        this.mSensorManager.unregisterListener(this);
+        if (mEnableSensor) {
+            this.mSensorManager.unregisterListener(this);
+        }
     }
 
     public void setInterval(float interval) {
@@ -125,12 +130,12 @@ public class CocosSensorHandler implements SensorEventListener {
     }
 
     public static void setAccelerometerEnabled(boolean enabled) {
+        mEnableSensor = enabled;
         if (enabled) {
             mSensorHandler.enable();
         } else {
             mSensorHandler.disable();
         }
-        mSensorHandler.enable();
     }
 
     public static float[] getDeviceMotionValue() {

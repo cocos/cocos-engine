@@ -35,7 +35,9 @@ namespace physics {
 
 PhysXCone::PhysXCone() : _mMesh(nullptr){};
 
-void PhysXCone::setConvex(uintptr_t handle) {
+void PhysXCone::setConvex(uint32_t objectID) {
+    uintptr_t handle = PhysXWorld::getInstance().getPXPtrWithPXObjectID(objectID);
+    if (handle == 0) return;
     if (reinterpret_cast<uintptr_t>(_mMesh) == handle) return;
     _mMesh = reinterpret_cast<physx::PxConvexMesh *>(handle);
     if (_mShape) {
@@ -53,8 +55,8 @@ void PhysXCone::onComponentSet() {
 }
 
 void PhysXCone::setCone(float r, float h, EAxisDirection d) {
-    _mData.radius    = r;
-    _mData.height    = h;
+    _mData.radius = r;
+    _mData.height = h;
     _mData.direction = d;
     updateGeometry();
 }
@@ -62,13 +64,13 @@ void PhysXCone::setCone(float r, float h, EAxisDirection d) {
 void PhysXCone::updateGeometry() {
     if (!_mShape) return;
     static physx::PxMeshScale scale;
-    auto *                    node = getSharedBody().getNode();
+    auto *node = getSharedBody().getNode();
     node->updateWorldTransform();
     pxSetVec3Ext(scale.scale, node->getWorldScale());
     scale.scale.y *= std::max(0.0001F, _mData.height / 2);
-    const auto xz = std::max(0.0001F, _mData.radius * 2);
-    scale.scale.x *= xz;
-    scale.scale.z *= xz;
+    const auto radius = std::max(0.0001F, _mData.radius * 2);
+    const auto xzMaxNorm = std::max(scale.scale.x, scale.scale.z);
+    scale.scale.x = scale.scale.z = radius * xzMaxNorm;
     Quaternion quat;
     switch (_mData.direction) {
         case EAxisDirection::X_AXIS:

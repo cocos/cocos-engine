@@ -41,35 +41,35 @@ public:
     void update() override;
 
     inline const Vec3 &getPosition() const { return _pos; }
-    inline void        setPosition(const Vec3 &pos) { _pos = pos; }
+    inline void setPosition(const Vec3 &pos) { _pos = pos; }
 
     inline float getSize() const { return _size; }
-    inline void  setSize(float size) { _size = size; }
+    inline void setSize(float size) { _size = size; }
 
     inline float getRange() const { return _range; }
-    inline void  setRange(float range) {
-        _range      = range;
+    inline void setRange(float range) {
+        _range = range;
         _needUpdate = true;
     }
 
     float getLuminance() const;
-    void  setLuminance(float);
+    void setLuminance(float);
 
-    inline void  setLuminanceHDR(float illum) { _luminanceHDR = illum; }
+    inline void setLuminanceHDR(float illum) { _luminanceHDR = illum; }
     inline float getLuminanceHDR() const { return _luminanceHDR; }
 
-    inline void  setLuminanceLDR(float illum) { _luminanceLDR = illum; }
+    inline void setLuminanceLDR(float illum) { _luminanceLDR = illum; }
     inline float getLuminanceLDR() const { return _luminanceLDR; }
 
     inline const geometry::AABB &getAABB() const { return _aabb; }
 
 private:
-    bool           _needUpdate{false};
-    float          _luminanceHDR{0.F};
-    float          _luminanceLDR{0.F};
-    float          _range{0.F};
-    float          _size{0.F};
-    Vec3           _pos;
+    bool _needUpdate{false};
+    float _luminanceHDR{0.F};
+    float _luminanceLDR{0.F};
+    float _range{0.F};
+    float _size{0.F};
+    Vec3 _pos;
     geometry::AABB _aabb;
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(SphereLight);

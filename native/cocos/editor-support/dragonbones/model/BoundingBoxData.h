@@ -43,8 +43,7 @@ DRAGONBONES_NAMESPACE_BEGIN
  * @version DragonBones 5.0
  * @language zh_CN
  */
-class BoundingBoxData : public BaseObject 
-{
+class BoundingBoxData : public BaseObject {
     ABSTRACT_CLASS(BoundingBoxData);
 
 public:
@@ -101,8 +100,7 @@ public:
         float xA, float yA, float xB, float yB,
         Point* intersectionPointA = nullptr,
         Point* intersectionPointB = nullptr,
-        Point* normalRadians = nullptr
-    ) = 0;
+        Point* normalRadians = nullptr) = 0;
 
 public: // For WebAssembly.
     int getType() const { return (int)type; }
@@ -118,8 +116,7 @@ public: // For WebAssembly.
  * @version DragonBones 5.1
  * @language zh_CN
  */
-class RectangleBoundingBoxData : public BoundingBoxData
-{
+class RectangleBoundingBoxData : public BoundingBoxData {
     BIND_CLASS_TYPE_A(RectangleBoundingBoxData);
 
 private:
@@ -144,8 +141,7 @@ public:
         float xMin, float yMin, float xMax, float yMax,
         Point* intersectionPointA = nullptr,
         Point* intersectionPointB = nullptr,
-        Point* normalRadians = nullptr
-    );
+        Point* normalRadians = nullptr);
     /**
      * @inheritDoc
      */
@@ -157,8 +153,7 @@ public:
         float xA, float yA, float xB, float yB,
         Point* intersectionPointA = nullptr,
         Point* intersectionPointB = nullptr,
-        Point* normalRadians = nullptr
-    ) override;
+        Point* normalRadians = nullptr) override;
 
 protected:
     virtual void _onClear() override;
@@ -173,8 +168,7 @@ protected:
  * @version DragonBones 5.1
  * @language zh_CN
  */
-class EllipseBoundingBoxData : public BoundingBoxData
-{
+class EllipseBoundingBoxData : public BoundingBoxData {
     BIND_CLASS_TYPE_A(EllipseBoundingBoxData);
 
 public:
@@ -186,8 +180,7 @@ public:
         float xC, float yC, float widthH, float heightH,
         Point* intersectionPointA = nullptr,
         Point* intersectionPointB = nullptr,
-        Point* normalRadians = nullptr
-    );
+        Point* normalRadians = nullptr);
     /**
      * @inheritDoc
      */
@@ -199,8 +192,7 @@ public:
         float xA, float yA, float xB, float yB,
         Point* intersectionPointA = nullptr,
         Point* intersectionPointB = nullptr,
-        Point* normalRadians = nullptr
-    ) override;
+        Point* normalRadians = nullptr) override;
 
 protected:
     virtual void _onClear() override;
@@ -215,8 +207,7 @@ protected:
  * @version DragonBones 5.1
  * @language zh_CN
  */
-class PolygonBoundingBoxData : public BoundingBoxData
-{
+class PolygonBoundingBoxData : public BoundingBoxData {
     BIND_CLASS_TYPE_B(PolygonBoundingBoxData);
 
 public:
@@ -228,8 +219,7 @@ public:
         const std::vector<float>& vertices,
         Point* intersectionPointA = nullptr,
         Point* intersectionPointB = nullptr,
-        Point* normalRadians = nullptr
-    );
+        Point* normalRadians = nullptr);
     /**
      * @private
      */
@@ -261,16 +251,12 @@ public:
         float xA, float yA, float xB, float yB,
         Point* intersectionPointA = nullptr,
         Point* intersectionPointB = nullptr,
-        Point* normalRadians = nullptr
-    ) override;
+        Point* normalRadians = nullptr) override;
 
-    PolygonBoundingBoxData() :
-        weight(nullptr)
-    {
+    PolygonBoundingBoxData() : weight(nullptr) {
         _onClear();
     }
-    ~PolygonBoundingBoxData()
-    {
+    ~PolygonBoundingBoxData() {
         _onClear();
     }
 

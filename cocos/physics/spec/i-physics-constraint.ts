@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { ILifecycle } from './i-lifecycle';
 import { Constraint, RigidBody } from '../framework';
 import { IVec3Like } from '../../core';
@@ -45,6 +43,11 @@ export interface IHingeConstraint extends IBaseConstraint {
     setPivotA (v: IVec3Like): void;
     setPivotB (v: IVec3Like): void;
     setAxis (v: IVec3Like): void;
+}
+
+export interface IFixedConstraint extends IBaseConstraint {
+    setBreakForce(v: number): void;
+    setBreakTorque(v: number): void;
 }
 
 export type IConeTwistConstraint = IBaseConstraint

@@ -63,19 +63,19 @@ export class TerrainLod {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _bodyIndexPool: TerrainIndexPool[];
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _connecterIndexPool: TerrainIndexPool[];
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _indexMap: TerrainIndexData[] = [];
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _indexBuffer: Uint16Array = new Uint16Array();
 

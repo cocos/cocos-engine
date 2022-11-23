@@ -46,10 +46,10 @@ GLES3DescriptorSet::~GLES3DescriptorSet() {
 
 void GLES3DescriptorSet::doInit(const DescriptorSetInfo & /*info*/) {
     const GLES3GPUDescriptorSetLayout *gpuDescriptorSetLayout = static_cast<GLES3DescriptorSetLayout *>(_layout)->gpuDescriptorSetLayout();
-    const size_t                       descriptorCount        = gpuDescriptorSetLayout->descriptorCount;
-    const size_t                       bindingCount           = gpuDescriptorSetLayout->bindings.size();
+    const size_t descriptorCount = gpuDescriptorSetLayout->descriptorCount;
+    const size_t bindingCount = gpuDescriptorSetLayout->bindings.size();
 
-    _gpuDescriptorSet = CC_NEW(GLES3GPUDescriptorSet);
+    _gpuDescriptorSet = ccnew GLES3GPUDescriptorSet;
     _gpuDescriptorSet->gpuDescriptors.resize(descriptorCount);
     for (size_t i = 0U, k = 0U; i < bindingCount; i++) {
         const DescriptorSetLayoutBinding &binding = gpuDescriptorSetLayout->bindings[i];
@@ -62,10 +62,7 @@ void GLES3DescriptorSet::doInit(const DescriptorSetInfo & /*info*/) {
 }
 
 void GLES3DescriptorSet::doDestroy() {
-    if (_gpuDescriptorSet) {
-        CC_DELETE(_gpuDescriptorSet);
-        _gpuDescriptorSet = nullptr;
-    }
+    CC_SAFE_DELETE(_gpuDescriptorSet);
 }
 
 void GLES3DescriptorSet::update() {
@@ -73,20 +70,25 @@ void GLES3DescriptorSet::update() {
         auto &descriptors = _gpuDescriptorSet->gpuDescriptors;
         for (size_t i = 0; i < descriptors.size(); i++) {
             if (hasAnyFlags(descriptors[i].type, DESCRIPTOR_BUFFER_TYPE)) {
-                if (_buffers[i]) {
-                    descriptors[i].gpuBuffer = static_cast<GLES3Buffer *>(_buffers[i])->gpuBuffer();
+                if (_buffers[i].ptr) {
+                    descriptors[i].gpuBuffer = static_cast<GLES3Buffer *>(_buffers[i].ptr)->gpuBuffer();
                 }
             } else if (hasAnyFlags(descriptors[i].type, DESCRIPTOR_TEXTURE_TYPE)) {
-                if (_textures[i]) {
-                    _gpuDescriptorSet->gpuDescriptors[i].gpuTextureView = static_cast<GLES3Texture *>(_textures[i])->gpuTextureView();
+                if (_textures[i].ptr) {
+                    _gpuDescriptorSet->gpuDescriptors[i].gpuTextureView = static_cast<GLES3Texture *>(_textures[i].ptr)->gpuTextureView();
                 }
-                if (_samplers[i]) {
-                    descriptors[i].gpuSampler = static_cast<GLES3Sampler *>(_samplers[i])->gpuSampler();
+                if (_samplers[i].ptr) {
+                    descriptors[i].gpuSampler = static_cast<GLES3Sampler *>(_samplers[i].ptr)->gpuSampler();
                 }
             }
         }
         _isDirty = false;
     }
+}
+
+void GLES3DescriptorSet::forceUpdate() {
+    _isDirty = true;
+    update();
 }
 
 } // namespace gfx

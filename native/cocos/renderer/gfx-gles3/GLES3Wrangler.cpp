@@ -24,18 +24,67 @@
 ****************************************************************************/
 
 #include "GLES3Wrangler.h"
+#include <string>
+#include "base/Log.h"
+#include "base/memory/Memory.h"
 
 #if defined(_WIN32) && !defined(ANDROID)
     #define WIN32_LEAN_AND_MEAN 1
     #include <windows.h>
 
-static HMODULE libegl  = NULL;
+static HMODULE libegl = NULL;
 static HMODULE libgles = NULL;
+static PFNGLES3WLOADPROC pfnGles3wLoad = NULL;
 
 bool gles3wOpen() {
-    libegl  = LoadLibraryA("libEGL.dll");
-    libgles = LoadLibraryA("libGLESv2.dll");
+    std::string eglPath = "libEGL.dll";
+    std::string glesPath = "libGLESv2.dll";
+
+    #if CC_EDITOR
+    // In editor,there are same library,so we need to use abs path to load them.
+    HMODULE engine = NULL;
+    if (GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS |
+                              GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+                          (LPCWSTR)&gles3wOpen, &engine) != 0) {
+        std::string dir;
+        int times = 1;
+        do {
+            auto size = MAX_PATH * times++;
+            char *path = static_cast<char*>(CC_MALLOC(size));
+            if (path) {
+                GetModuleFileNameA(engine, path, size);
+                dir = path;
+            }
+            CC_FREE(path);
+        } while (GetLastError() == ERROR_INSUFFICIENT_BUFFER);
+        
+        dir = dir.substr(0, dir.rfind("\\") + 1);
+        eglPath = dir + eglPath;
+        glesPath = dir + glesPath;
+    } else {
+        DWORD err = GetLastError();
+        CC_LOG_WARNING("Failed to get abs path for editor,error code:%lu", err);
+    }
+    #endif
+
+    libegl = LoadLibraryA(eglPath.c_str());
+    libgles = LoadLibraryA(glesPath.c_str());
     return (libegl && libgles);
+}
+
+bool gles3wClose() {
+    bool ret = true;
+    if (libegl) {
+        ret &= FreeLibrary(libegl) ? true : false;
+        libegl = NULL;
+    }
+
+    if (libgles) {
+        ret &= FreeLibrary(libgles) ? true : false;
+        libgles = NULL;
+    }
+
+    return ret;
 }
 
 void *gles3wLoad(const char *proc) {
@@ -45,24 +94,37 @@ void *gles3wLoad(const char *proc) {
     return res;
 }
 #elif defined(__EMSCRIPTEN__)
-bool  gles3wOpen() { return true; }
+bool gles3wOpen() { return true; }
+bool gles3wClose() { return true; }
 void *gles3wLoad(const char *proc) {
     return (void *)eglGetProcAddress(proc);
 }
 #else
     #include <dlfcn.h>
 
-static void *libegl  = nullptr;
+static void *libegl = nullptr;
 static void *libgles = nullptr;
+static PFNGLES3WLOADPROC pfnGles3wLoad = nullptr;
 
 bool gles3wOpen() {
-    libegl  = dlopen("libEGL.so", RTLD_LAZY | RTLD_GLOBAL);
-    #if __OHOS__
+    libegl = dlopen("libEGL.so", RTLD_LAZY | RTLD_GLOBAL);
     libgles = dlopen("libGLESv3.so", RTLD_LAZY | RTLD_GLOBAL);
-    #else
-    libgles = dlopen("libGLESv2.so", RTLD_LAZY | RTLD_GLOBAL);
-    #endif
     return (libegl && libgles);
+}
+
+bool gles3wClose() {
+    bool ret = true;
+    if (libegl) {
+        ret &= dlclose(libegl) == 0;
+        libegl = nullptr;
+    }
+
+    if (libgles) {
+        ret &= dlclose(libgles) == 0;
+        libgles = nullptr;
+    }
+
+    return ret;
 }
 
 void *gles3wLoad(const char *proc) {
@@ -73,14 +135,22 @@ void *gles3wLoad(const char *proc) {
 }
 #endif
 
+PFNGLES3WLOADPROC pfnGLES3wLoadProc() {
+    return pfnGles3wLoad;
+}
+
 bool gles3wInit() {
     if (!gles3wOpen()) {
         return false;
     }
-
     eglwLoadProcs(gles3wLoad);
     gles2wLoadProcs(gles3wLoad);
     gles3wLoadProcs(gles3wLoad);
 
+    pfnGles3wLoad = gles3wLoad;
     return true;
+}
+
+bool gles3wExit() {
+    return gles3wClose();
 }

@@ -40,24 +40,50 @@ GLES2Shader::~GLES2Shader() {
     destroy();
 }
 
+namespace {
+
+void initGpuShader(GLES2GPUShader *gpuShader) {
+    cmdFuncGLES2CreateShader(GLES2Device::getInstance(), gpuShader);
+    CC_ASSERT(gpuShader->glProgram);
+
+    // Clear shader source after they're uploaded to GPU
+    for (auto &stage : gpuShader->gpuStages) {
+        stage.source.clear();
+        stage.source.shrink_to_fit();
+    }
+}
+
+} // namespace
+
+GLES2GPUShader *GLES2Shader::gpuShader() const {
+    if (!_gpuShader->glProgram) {
+        initGpuShader(_gpuShader);
+    }
+    return _gpuShader;
+}
+
 void GLES2Shader::doInit(const ShaderInfo & /*info*/) {
-    _gpuShader                  = CC_NEW(GLES2GPUShader);
-    _gpuShader->name            = _name;
-    _gpuShader->blocks          = _blocks;
+    _gpuShader = ccnew GLES2GPUShader;
+    CC_ASSERT(!_gpuShader->glProgram);
+    _gpuShader->name = _name;
+    _gpuShader->blocks = _blocks;
     _gpuShader->samplerTextures = _samplerTextures;
-    _gpuShader->subpassInputs   = _subpassInputs;
+    _gpuShader->subpassInputs = _subpassInputs;
 
     for (const auto &stage : _stages) {
         _gpuShader->gpuStages.push_back({stage.stage, stage.source});
     }
 
-    cmdFuncGLES2CreateShader(GLES2Device::getInstance(), _gpuShader);
+    for (auto &stage : _stages) {
+        stage.source.clear();
+        stage.source.shrink_to_fit();
+    }
 }
 
 void GLES2Shader::doDestroy() {
     if (_gpuShader) {
         cmdFuncGLES2DestroyShader(GLES2Device::getInstance(), _gpuShader);
-        CC_DELETE(_gpuShader);
+        delete _gpuShader;
         _gpuShader = nullptr;
     }
 }

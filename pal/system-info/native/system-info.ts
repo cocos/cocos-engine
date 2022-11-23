@@ -1,7 +1,5 @@
 import { IFeatureMap } from 'pal/system-info';
 import { EventTarget } from '../../../cocos/core/event';
-import { SplashScreen } from '../../../cocos/core/splash-screen';
-import legacyCC from '../../../predefine';
 import { BrowserType, NetworkType, OS, Platform, Language, Feature } from '../enum-type';
 
 const networkTypeMap: Record<string, NetworkType> = {
@@ -34,7 +32,9 @@ class SystemInfo extends EventTarget {
     public readonly osMainVersion: number;
     public readonly browserType: BrowserType;
     public readonly browserVersion: string;
+    public readonly isXR: boolean;
     private _featureMap: IFeatureMap;
+    private _initPromise: Promise<void>[];
     // TODO: need to wrap the function __isObjectValid()
 
     public get networkType (): NetworkType {
@@ -75,6 +75,8 @@ class SystemInfo extends EventTarget {
         this.browserType = BrowserType.UNKNOWN;
         this.browserVersion = '';
 
+        this.isXR = typeof xr !== 'undefined';
+
         this._featureMap = {
             [Feature.WEBP]: true,
             [Feature.IMAGE_BITMAP]: false,
@@ -87,7 +89,12 @@ class SystemInfo extends EventTarget {
             [Feature.EVENT_MOUSE]: !this.isMobile,
             [Feature.EVENT_TOUCH]: true,
             [Feature.EVENT_ACCELEROMETER]: this.isMobile,
+            [Feature.EVENT_GAMEPAD]: true,
+            [Feature.EVENT_HANDLE]: this.isXR,
+            [Feature.EVENT_HMD]: this.isXR,
         };
+
+        this._initPromise = [];
 
         this._registerEvent();
     }
@@ -95,15 +102,21 @@ class SystemInfo extends EventTarget {
     private _registerEvent () {
         jsb.onPause = () => {
             this.emit('hide');
-            legacyCC.internal.SplashScreen.instance.pauseRendering();
         };
         jsb.onResume = () => {
             this.emit('show');
-            legacyCC.internal.SplashScreen.instance.resumeRendering();
         };
         jsb.onClose = () => {
             this.emit('close');
         };
+    }
+
+    private _setFeature (feature: Feature, value: boolean) {
+        return this._featureMap[feature] = value;
+    }
+
+    public init (): Promise<void[]> {
+        return Promise.all(this._initPromise);
     }
 
     public hasFeature (feature: Feature): boolean {

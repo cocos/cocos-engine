@@ -40,8 +40,7 @@ DRAGONBONES_NAMESPACE_BEGIN
  * @version DragonBones 4.5
  * @language zh_CN
  */
-class TransformObject : public BaseObject
-{
+class TransformObject : public BaseObject {
     ABSTRACT_CLASS(TransformObject);
 
 protected:
@@ -145,8 +144,7 @@ public:
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    inline Armature* getArmature() const
-    {
+    inline Armature* getArmature() const {
         return _armature;
     }
 

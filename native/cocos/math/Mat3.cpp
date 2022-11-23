@@ -25,11 +25,11 @@
 #include "math/Mat3.h"
 
 #include <cmath>
+#include <cstring>
 #include "base/Macros.h"
 #include "math/Math.h"
 #include "math/MathUtil.h"
 #include "math/Quaternion.h"
-#include <cstring>
 
 NS_CC_MATH_BEGIN
 
@@ -63,7 +63,7 @@ void Mat3::set(float m11, float m12, float m13, float m21, float m22, float m23,
 }
 
 void Mat3::set(const float *mat) {
-    GP_ASSERT(mat);
+    CC_ASSERT(mat);
     memcpy(this->m, mat, MATRIX3_SIZE);
 }
 
@@ -84,11 +84,11 @@ void Mat3::identity(Mat3 &mat) {
 }
 
 void Mat3::fromViewUp(const Vec3 &view, Mat3 *out) {
-    GP_ASSERT(out);
+    CC_ASSERT(out);
     fromViewUp(view, Vec3(0, 1, 0), out);
 }
 void Mat3::fromViewUp(const Vec3 &view, const Vec3 &up, Mat3 *out) {
-    GP_ASSERT(out);
+    CC_ASSERT(out);
     if (view.lengthSquared() < math::EPSILON * math::EPSILON) {
         Mat3::identity(*out);
         return;
@@ -112,16 +112,16 @@ void Mat3::transpose() {
     float a01 = m[1];
     float a02 = m[2];
     float a12 = m[5];
-    m[1]      = m[3];
-    m[2]      = m[6];
-    m[3]      = a01;
-    m[5]      = m[7];
-    m[6]      = a02;
-    m[7]      = a12;
+    m[1] = m[3];
+    m[2] = m[6];
+    m[3] = a01;
+    m[5] = m[7];
+    m[6] = a02;
+    m[7] = a12;
 }
 
 void Mat3::transpose(const Mat3 &mat, Mat3 *out) {
-    GP_ASSERT(out);
+    CC_ASSERT(out);
     out->m[0] = mat.m[0];
     out->m[1] = mat.m[3];
     out->m[2] = mat.m[6];
@@ -151,7 +151,7 @@ void Mat3::inverse() {
     // Calculate the determinant
     float det = a00 * b01 + a01 * b11 + a02 * b21;
 
-    det  = 1.0F / det;
+    det = 1.0F / det;
     m[0] = b01 * det;
     m[1] = (-a22 * a01 + a02 * a21) * det;
     m[2] = (a12 * a01 - a02 * a11) * det;
@@ -164,7 +164,7 @@ void Mat3::inverse() {
 }
 
 void Mat3::adjoint(const Mat3 &mat, Mat3 *out) {
-    GP_ASSERT(out);
+    CC_ASSERT(out);
     float a00 = mat.m[0];
     float a01 = mat.m[1];
     float a02 = mat.m[2];
@@ -191,7 +191,7 @@ float Mat3::determinant() {
 }
 
 void Mat3::multiply(const Mat3 &a, const Mat3 &b, Mat3 *out) {
-    GP_ASSERT(out);
+    CC_ASSERT(out);
     float a00 = a.m[0];
     float a01 = a.m[1];
     float a02 = a.m[2];
@@ -226,7 +226,7 @@ void Mat3::multiply(const Mat3 &a, const Mat3 &b, Mat3 *out) {
 }
 
 void Mat3::translate(const Mat3 &mat, const Vec2 &vec, Mat3 *out) {
-    GP_ASSERT(out);
+    CC_ASSERT(out);
     float a00 = mat.m[0];
     float a01 = mat.m[1];
     float a02 = mat.m[2];
@@ -236,8 +236,8 @@ void Mat3::translate(const Mat3 &mat, const Vec2 &vec, Mat3 *out) {
     float a20 = mat.m[6];
     float a21 = mat.m[7];
     float a22 = mat.m[8];
-    float x   = vec.x;
-    float y   = vec.y;
+    float x = vec.x;
+    float y = vec.y;
 
     out->m[0] = a00;
     out->m[1] = a01;
@@ -253,7 +253,7 @@ void Mat3::translate(const Mat3 &mat, const Vec2 &vec, Mat3 *out) {
 }
 
 void Mat3::rotate(const Mat3 &mat, float rad, Mat3 *out) {
-    GP_ASSERT(out);
+    CC_ASSERT(out);
     float a00 = mat.m[0];
     float a01 = mat.m[1];
     float a02 = mat.m[2];
@@ -281,7 +281,7 @@ void Mat3::rotate(const Mat3 &mat, float rad, Mat3 *out) {
 }
 
 void Mat3::scale(const Mat3 &mat, const Vec2 &vec, Mat3 *out) {
-    GP_ASSERT(out);
+    CC_ASSERT(out);
     float x = vec.x;
     float y = vec.y;
 
@@ -299,7 +299,7 @@ void Mat3::scale(const Mat3 &mat, const Vec2 &vec, Mat3 *out) {
 }
 
 void Mat3::fromMat4(const Mat4 &mat, Mat3 *out) {
-    GP_ASSERT(out);
+    CC_ASSERT(out);
     out->m[0] = mat.m[0];
     out->m[1] = mat.m[1];
     out->m[2] = mat.m[2];
@@ -312,7 +312,7 @@ void Mat3::fromMat4(const Mat4 &mat, Mat3 *out) {
 }
 
 void Mat3::fromTranslation(const Vec2 &vec, Mat3 *out) {
-    GP_ASSERT(out);
+    CC_ASSERT(out);
     out->m[0] = 1;
     out->m[1] = 0;
     out->m[2] = 0;
@@ -325,7 +325,7 @@ void Mat3::fromTranslation(const Vec2 &vec, Mat3 *out) {
 }
 
 void Mat3::fromRotation(float rad, Mat3 *out) {
-    GP_ASSERT(out);
+    CC_ASSERT(out);
     float s = sin(rad);
     float c = cos(rad);
 
@@ -343,7 +343,7 @@ void Mat3::fromRotation(float rad, Mat3 *out) {
 }
 
 void Mat3::fromScaling(const Vec2 &vec, Mat3 *out) {
-    GP_ASSERT(out);
+    CC_ASSERT(out);
     out->m[0] = vec.x;
     out->m[1] = 0;
     out->m[2] = 0;
@@ -358,11 +358,11 @@ void Mat3::fromScaling(const Vec2 &vec, Mat3 *out) {
 }
 
 void Mat3::fromQuat(const Quaternion &quat, Mat3 *out) {
-    GP_ASSERT(out);
-    float x  = quat.x;
-    float y  = quat.y;
-    float z  = quat.z;
-    float w  = quat.w;
+    CC_ASSERT(out);
+    float x = quat.x;
+    float y = quat.y;
+    float z = quat.z;
+    float w = quat.w;
     float x2 = x + x;
     float y2 = y + y;
     float z2 = z + z;
@@ -391,7 +391,7 @@ void Mat3::fromQuat(const Quaternion &quat, Mat3 *out) {
 }
 
 void Mat3::add(const Mat3 &a, const Mat3 &b, Mat3 *out) {
-    GP_ASSERT(out);
+    CC_ASSERT(out);
     out->m[0] = a.m[0] + b.m[0];
     out->m[1] = a.m[1] + b.m[1];
     out->m[2] = a.m[2] + b.m[2];
@@ -404,7 +404,7 @@ void Mat3::add(const Mat3 &a, const Mat3 &b, Mat3 *out) {
 }
 
 void Mat3::subtract(const Mat3 &a, const Mat3 &b, Mat3 *out) {
-    GP_ASSERT(out);
+    CC_ASSERT(out);
     out->m[0] = a.m[0] - b.m[0];
     out->m[1] = a.m[1] - b.m[1];
     out->m[2] = a.m[2] - b.m[2];
@@ -414,6 +414,10 @@ void Mat3::subtract(const Mat3 &a, const Mat3 &b, Mat3 *out) {
     out->m[6] = a.m[6] - b.m[6];
     out->m[7] = a.m[7] - b.m[7];
     out->m[8] = a.m[8] - b.m[8];
+}
+
+bool Mat3::approxEquals(const Mat3 &v, float precision /* = CC_FLOAT_CMP_PRECISION */) const {
+    return math::isEqualF(m[0], v.m[0], precision) && math::isEqualF(m[1], v.m[1], precision) && math::isEqualF(m[2], v.m[2], precision) && math::isEqualF(m[3], v.m[3], precision) && math::isEqualF(m[4], v.m[4], precision) && math::isEqualF(m[5], v.m[5], precision) && math::isEqualF(m[6], v.m[6], precision) && math::isEqualF(m[7], v.m[7], precision) && math::isEqualF(m[8], v.m[8], precision);
 }
 
 const Mat3 Mat3::IDENTITY = Mat3(

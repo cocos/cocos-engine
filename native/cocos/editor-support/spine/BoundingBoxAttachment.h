@@ -30,18 +30,18 @@
 #ifndef Spine_BoundingBoxAttachment_h
 #define Spine_BoundingBoxAttachment_h
 
-#include <spine/VertexAttachment.h>
 #include <spine/SpineObject.h>
+#include <spine/VertexAttachment.h>
 
 namespace spine {
-	/// Attachment that has a polygon for bounds checking.
-	class SP_API BoundingBoxAttachment : public VertexAttachment {
-		RTTI_DECL
+/// Attachment that has a polygon for bounds checking.
+class SP_API BoundingBoxAttachment : public VertexAttachment {
+    RTTI_DECL
 
-		explicit BoundingBoxAttachment(const String& name);
+    explicit BoundingBoxAttachment(const String& name);
 
-		virtual Attachment* copy();
-	};
-}
+    virtual Attachment* copy();
+};
+} // namespace spine
 
 #endif /* Spine_BoundingBoxAttachment_h */

@@ -23,26 +23,26 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module animation
- */
 import { DataPoolManager } from './data-pool-manager';
-import type { AnimationClip } from '../../core/animation/animation-clip';
-import { legacyCC } from '../../core/global-exports';
-import { BAKE_SKELETON_CURVE_SYMBOL } from '../../core/animation/internal-symbols';
+import type { AnimationClip } from '../../animation/animation-clip';
+import { cclegacy } from '../../core';
+import { BAKE_SKELETON_CURVE_SYMBOL } from '../../animation/internal-symbols';
 
 type BakeData = ReturnType<AnimationClip[typeof BAKE_SKELETON_CURVE_SYMBOL]>;
 
 /**
+ * @en
+ * The data conversion tool for skeleton animation
+ * @zh
  * 骨骼动画数据转换中心。
+ * @internal
  */
 export class SkelAnimDataHub {
     public static getOrExtract (clip: AnimationClip): BakeData {
         let data = SkelAnimDataHub.pool.get(clip);
         if (!data || data.samples !== clip.sample) {
             // release outdated render data
-            if (data) { (legacyCC.director.root.dataPoolManager as DataPoolManager).releaseAnimationClip(clip); }
+            if (data) { (cclegacy.director.root.dataPoolManager as DataPoolManager).releaseAnimationClip(clip); }
             const frames = Math.ceil(clip.sample * clip.duration) + 1;
             const step = clip.sample;
             data = clip[BAKE_SKELETON_CURVE_SYMBOL](0, step, frames);

@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { selector } from '../framework/physics-selector';
 
 import { CannonRigidBody } from './cannon-rigid-body';
@@ -41,9 +39,10 @@ import { CannonPlaneShape } from './shapes/cannon-plane-shape';
 
 import { CannonPointToPointConstraint } from './constraints/cannon-point-to-point-constraint';
 import { CannonHingeConstraint } from './constraints/cannon-hinge-constraint';
-import { Game, game } from '../../core';
+import { CannonLockConstraint } from './constraints/cannon-lock-constraint';
+import { Game, game } from '../../game';
 
-game.once(Game.EVENT_ENGINE_INITED, () => {
+game.once(Game.EVENT_PRE_SUBSYSTEM_INIT, () => {
     selector.register('cannon.js', {
         PhysicsWorld: CannonWorld,
         RigidBody: CannonRigidBody,
@@ -59,5 +58,6 @@ game.once(Game.EVENT_ENGINE_INITED, () => {
 
         PointToPointConstraint: CannonPointToPointConstraint,
         HingeConstraint: CannonHingeConstraint,
+        FixedConstraint: CannonLockConstraint,
     });
 });

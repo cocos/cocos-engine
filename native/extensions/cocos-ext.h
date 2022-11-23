@@ -27,7 +27,7 @@
 #define __COCOS2D_EXT_H__
 
 #ifdef _MSC_VER
-#pragma warning(disable:4996)
+    #pragma warning(disable : 4996)
 #endif
 
 #include "ExtensionMacros.h"

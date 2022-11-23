@@ -23,15 +23,10 @@
  THE SOFTWARE.
  */
 
-
-
-import { ccclass, type, serializable, editable, formerlySerializedAs } from 'cc.decorator';
-import { EDITOR } from 'internal:constants';
-import { lerp } from '../../core/math';
-import { Enum } from '../../core/value-types';
-import { AnimationCurve, constructLegacyCurveAndConvert } from '../../core/geometry/curve';
-import { Texture2D, ImageAsset, RealCurve, CCClass } from '../../core';
-import { PixelFormat, Filter, WrapMode } from '../../core/assets/asset-enum';
+import { ccclass } from 'cc.decorator';
+import { lerp, RealCurve, CCClass, geometry, Enum } from '../../core';
+import { PixelFormat, Filter, WrapMode } from '../../asset/assets/asset-enum';
+import { Texture2D, ImageAsset } from '../../asset/assets';
 
 const setClassAttr = CCClass.Attr.setClassAttr;
 
@@ -61,24 +56,24 @@ export default class CurveRange  {
     /**
      * @zh 当mode为Curve时，使用的曲线。
      */
-    public spline = constructLegacyCurveAndConvert();
+    public spline = geometry.constructLegacyCurveAndConvert();
 
     /**
      * @zh 当mode为TwoCurves时，使用的曲线下限。
      */
-    public splineMin = constructLegacyCurveAndConvert();
+    public splineMin = geometry.constructLegacyCurveAndConvert();
 
     /**
      * @zh 当mode为TwoCurves时，使用的曲线上限。
      */
-    public splineMax = constructLegacyCurveAndConvert();
+    public splineMax = geometry.constructLegacyCurveAndConvert();
 
     /**
      * @zh 当mode为Curve时，使用的曲线。
      * @deprecated Since V3.3. Use `spline` instead.
      */
     get curve () {
-        return this._curve ??= new AnimationCurve(this.spline);
+        return this._curve ??= new geometry.AnimationCurve(this.spline);
     }
 
     set curve (value) {
@@ -91,7 +86,7 @@ export default class CurveRange  {
      * @deprecated Since V3.3. Use `splineMin` instead.
      */
     get curveMin () {
-        return this._curveMin ??= new AnimationCurve(this.splineMin);
+        return this._curveMin ??= new geometry.AnimationCurve(this.splineMin);
     }
 
     set curveMin (value) {
@@ -104,7 +99,7 @@ export default class CurveRange  {
      * @deprecated Since V3.3. Use `splineMax` instead.
      */
     get curveMax () {
-        return this._curveMax ??= new AnimationCurve(this.splineMax);
+        return this._curveMax ??= new geometry.AnimationCurve(this.splineMax);
     }
 
     set curveMax (value) {
@@ -165,16 +160,16 @@ export default class CurveRange  {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _onBeforeSerialize (props) {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return SerializableTable[this.mode];
     }
 
-    private declare _curve: AnimationCurve | undefined;
-    private declare _curveMin: AnimationCurve | undefined;
-    private declare _curveMax: AnimationCurve | undefined;
+    private declare _curve: geometry.AnimationCurve | undefined;
+    private declare _curveMin: geometry.AnimationCurve | undefined;
+    private declare _curveMax: geometry.AnimationCurve | undefined;
 }
 
 CCClass.fastDefine('cc.CurveRange', CurveRange, {
@@ -183,9 +178,9 @@ CCClass.fastDefine('cc.CurveRange', CurveRange, {
     constantMin: 0,
     constant: 0,
     mode: Mode.Constant,
-    splineMax: Object.freeze(constructLegacyCurveAndConvert()),
-    splineMin: Object.freeze(constructLegacyCurveAndConvert()),
-    spline: Object.freeze(constructLegacyCurveAndConvert()),
+    splineMax: Object.freeze(geometry.constructLegacyCurveAndConvert()),
+    splineMin: Object.freeze(geometry.constructLegacyCurveAndConvert()),
+    spline: Object.freeze(geometry.constructLegacyCurveAndConvert()),
 });
 
 setClassAttr(CurveRange, 'multiplier', 'visible', true);
@@ -249,9 +244,24 @@ function packTexture (data, width, height) {
     return texture;
 }
 
-export function packCurveRangeZ (samples:number, cr: CurveRange, discrete?: boolean) {
+function updateTexture (tex: Texture2D | null, data, width, height): Texture2D {
+    if (tex === null || width !== tex.width || height !== tex.height) {
+        if (tex) {
+            tex.destroy();
+        }
+        tex = packTexture(data, width, height);
+    } else {
+        tex.uploadData(data);
+    }
+    return tex;
+}
+
+export function packCurveRangeZ (tex: Texture2D | null, data: Float32Array | null, samples:number, cr: CurveRange, discrete?: boolean) {
     const height = evaluateHeight(cr);
-    const data = new Float32Array(samples * height * 4);
+    const len = samples * height * 4;
+    if (data === null || data.length !== len) {
+        data = new Float32Array(samples * height * 4);
+    }
     const interval = 1.0 / (samples - 1);
     let sum = 0;
     let average = 0;
@@ -271,11 +281,14 @@ export function packCurveRangeZ (samples:number, cr: CurveRange, discrete?: bool
             offset += 4;
         }
     }
-    return packTexture(data, samples, height);
+    return { texture: updateTexture(tex, data, samples, height), texdata: data };
 }
-export function packCurveRangeN (samples:number, cr: CurveRange, discrete?: boolean) {
+export function packCurveRangeN (tex: Texture2D | null, data: Float32Array | null, samples:number, cr: CurveRange, discrete?: boolean) {
     const height = evaluateHeight(cr);
-    const data = new Float32Array(samples * height * 4);
+    const len = samples * height * 4;
+    if (data === null || data.length !== len) {
+        data = new Float32Array(samples * height * 4);
+    }
     const interval = 1.0 / (samples - 1);
     let sum = 0;
     let average = 0;
@@ -296,12 +309,16 @@ export function packCurveRangeN (samples:number, cr: CurveRange, discrete?: bool
             offset += 4;
         }
     }
-    return packTexture(data, samples, height);
+    return { texture: updateTexture(tex, data, samples, height), texdata: data };
 }
 
-export function packCurveRangeXY (samples: number, x: CurveRange, y: CurveRange, discrete?: boolean) {
+// eslint-disable-next-line max-len
+export function packCurveRangeXY (tex: Texture2D | null, data: Float32Array | null, samples: number, x: CurveRange, y: CurveRange, discrete?: boolean) {
     const height = Math.max(evaluateHeight(x), evaluateHeight(y));
-    const data = new Float32Array(samples * height * 4);
+    const len = samples * height * 4;
+    if (data === null || data.length !== len) {
+        data = new Float32Array(samples * height * 4);
+    }
     const curves: CurveRange[] = [x, y];
     const interval = 1.0 / (samples - 1);
 
@@ -318,16 +335,20 @@ export function packCurveRangeXY (samples: number, x: CurveRange, y: CurveRange,
                     sum += value;
                     average = sum / (j + 1);
                 }
-                data[j * 4 + i] = average;
+                data[((h * samples) + j) * 4 + i] = average;
             }
         }
     }
-    return packTexture(data, samples, height);
+    return { texture: updateTexture(tex, data, samples, height), texdata: data };
 }
 
-export function packCurveRangeXYZ (samples: number, x: CurveRange, y: CurveRange, z: CurveRange, discrete?: boolean) {
+// eslint-disable-next-line max-len
+export function packCurveRangeXYZ (tex: Texture2D | null, data: Float32Array | null, samples: number, x: CurveRange, y: CurveRange, z: CurveRange, discrete?: boolean) {
     const height = Math.max(evaluateHeight(x), evaluateHeight(y), evaluateHeight(z));
-    const data = new Float32Array(samples * height * 4);
+    const len = samples * height * 4;
+    if (data === null || data.length !== len) {
+        data = new Float32Array(samples * height * 4);
+    }
     const curves: CurveRange[] = [x, y, z];
     const interval = 1.0 / (samples - 1);
 
@@ -344,16 +365,20 @@ export function packCurveRangeXYZ (samples: number, x: CurveRange, y: CurveRange
                     sum += value;
                     average = sum / (j + 1);
                 }
-                data[j * 4 + i] = average;
+                data[((h * samples) + j) * 4 + i] = average;
             }
         }
     }
-    return packTexture(data, samples, height);
+    return { texture: updateTexture(tex, data, samples, height), texdata: data };
 }
 
-export function packCurveRangeXYZW (samples: number, x: CurveRange, y: CurveRange, z: CurveRange, w: CurveRange, discrete?: boolean) {
+// eslint-disable-next-line max-len
+export function packCurveRangeXYZW (tex: Texture2D | null, data: Float32Array | null, samples: number, x: CurveRange, y: CurveRange, z: CurveRange, w: CurveRange, discrete?: boolean) {
     const height = Math.max(evaluateHeight(x), evaluateHeight(y), evaluateHeight(z), evaluateHeight(w));
-    const data = new Float32Array(samples * height * 4);
+    const len = samples * height * 4;
+    if (data === null || data.length !== len) {
+        data = new Float32Array(samples * height * 4);
+    }
     const curves: CurveRange[] = [x, y, z, w];
     const interval = 1.0 / (samples - 1);
 
@@ -370,9 +395,9 @@ export function packCurveRangeXYZW (samples: number, x: CurveRange, y: CurveRang
                     sum += value;
                     average = sum / (j + 1);
                 }
-                data[j * 4 + i] = average;
+                data[((h * samples) + j) * 4 + i] = average;
             }
         }
     }
-    return packTexture(data, samples, height);
+    return { texture: updateTexture(tex, data, samples, height), texdata: data };
 }

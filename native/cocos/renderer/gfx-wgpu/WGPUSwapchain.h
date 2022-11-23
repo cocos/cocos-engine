@@ -42,9 +42,8 @@ public:
 
     inline CCWGPUSwapchainObject *gpuSwapchainObject() { return _gpuSwapchainObj; }
 
-    CCWGPUTexture *getColorTexture();
-
-    CCWGPUTexture *getDepthStencilTexture();
+    inline void setColorTexture(Texture *tex) { _colorTexture = tex; }
+    inline void setDepthStencilTexture(Texture *tex) { _depthStencilTexture = tex; }
 
     void update();
 
@@ -58,7 +57,7 @@ protected:
     void doCreateSurface(void *windowHandle) override;
 
     CCWGPUSwapchainObject *_gpuSwapchainObj = nullptr;
-    CCWGPUDevice *         _device          = nullptr;
+    CCWGPUDevice *_device = nullptr;
 };
 
 } // namespace gfx

@@ -3,10 +3,21 @@ name: <Web> Interface check
 #on: push
 on: [pull_request_target]
 
+# github.head_ref is only defined on pull_request events
+concurrency:
+  group: ${{ github.workflow }}-${{ github.actor }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
 jobs:
   interface_check:
+    if: 
+      (! contains(github.event.pull_request.body, '[X] does not change any runtime related code or build configuration'))
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '14.19'
+
       - name: clone REPO
         run: |
           git config --global user.name "test"
@@ -36,6 +47,7 @@ jobs:
         run: |
           git checkout .
           git clean -xfd
+          npm cache clean --force
           ls -la
 
       - name: merge HEAD branch

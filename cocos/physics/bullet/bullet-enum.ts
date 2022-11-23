@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 export enum EBtSharedBodyDirty {
     BODY_RE_ADD = 1,
     GHOST_RE_ADD = 2,

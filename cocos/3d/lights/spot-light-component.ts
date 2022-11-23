@@ -22,23 +22,19 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
+import { toRadian, cclegacy,  CCBoolean, CCFloat, _decorator } from '../../core';
+import { scene } from '../../render-scene';
+import { Light, PhotometricTerm } from './light-component';
+import { Root } from '../../root';
+import { Camera, PCFType, ShadowType } from '../../render-scene/scene';
+
+const { ccclass, range, slide, type, editable, displayOrder, help, executeInEditMode,
+    menu, tooltip, serializable, formerlySerializedAs, visible, property } = _decorator;
 
 /**
- * @packageDocumentation
- * @module component/light
+ * @en The spot light component, multiple spot lights can be added to one scene.
+ * @zh 聚光灯光源组件，场景中可以添加多个聚光灯光源。
  */
-
-import { ccclass, range, slide, type, editable, displayOrder, help, executeInEditMode,
-    menu, tooltip, serializable, formerlySerializedAs, visible } from 'cc.decorator';
-import { toRadian } from '../../core/math';
-import { scene } from '../../core/renderer';
-import { Light, PhotometricTerm } from './light-component';
-import { legacyCC } from '../../core/global-exports';
-import { Root } from '../../core/root';
-import { Camera, PCFType, ShadowType } from '../../core/renderer/scene';
-import { property } from '../../core/data/class-decorator';
-import { CCBoolean, CCFloat } from '../../core/data/utils/attribute';
-
 @ccclass('cc.SpotLight')
 @help('i18n:cc.SpotLight')
 @menu('Light/SpotLight')
@@ -52,7 +48,7 @@ export class SpotLight extends Light {
     protected _luminanceHDR = 1700 / scene.nt2lm(0.15);
 
     @serializable
-    protected _luminanceLDR = 1.0;
+    protected _luminanceLDR = 1700 / scene.nt2lm(0.15) * Camera.standardExposureValue * Camera.standardLightMeterScale;
 
     @serializable
     protected _term = PhotometricTerm.LUMINOUS_FLUX;
@@ -84,7 +80,7 @@ export class SpotLight extends Light {
     @tooltip('i18n:lights.luminous_flux')
     @displayOrder(-1)
     get luminousFlux () {
-        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        const isHDR = (cclegacy.director.root as Root).pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
             return this._luminanceHDR * scene.nt2lm(this._size);
         } else {
@@ -93,7 +89,7 @@ export class SpotLight extends Light {
     }
 
     set luminousFlux (val) {
-        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        const isHDR = (cclegacy.director.root as Root).pipeline.pipelineSceneData.isHDR;
         let result = 0;
         if (isHDR) {
             this._luminanceHDR = val / scene.nt2lm(this._size);
@@ -112,7 +108,7 @@ export class SpotLight extends Light {
     @tooltip('i18n:lights.luminance')
     @displayOrder(-1)
     get luminance () {
-        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        const isHDR = (cclegacy.director.root as Root).pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
             return this._luminanceHDR;
         } else {
@@ -121,7 +117,7 @@ export class SpotLight extends Light {
     }
 
     set luminance (val) {
-        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        const isHDR = (cclegacy.director.root as Root).pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
             this._luminanceHDR = val;
             this._light && (this._light.luminanceHDR = this._luminanceHDR);
@@ -200,7 +196,8 @@ export class SpotLight extends Light {
      * @en Whether activate shadow
      * @zh 是否启用阴影？
      */
-    @visible(() => (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap)
+    @tooltip('i18n:lights.shadowEnabled')
+    @visible(() => (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap)
     @property({ group: { name: 'DynamicShadowSettings', displayOrder: 1 } })
     @editable
     @type(CCBoolean)
@@ -215,10 +212,11 @@ export class SpotLight extends Light {
     }
 
     /**
-     * @en get or set shadow pcf.
-     * @zh 获取或者设置阴影pcf等级。
+     * @en The pcf level of the shadow generation.
+     * @zh 获取或者设置阴影 pcf 等级。
      */
-    @visible(() => (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap)
+    @tooltip('i18n:lights.shadowPcf')
+    @visible(() => (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap)
     @property({ group: { name: 'DynamicShadowSettings', displayOrder: 2  } })
     @editable
     @type(PCFType)
@@ -233,10 +231,11 @@ export class SpotLight extends Light {
     }
 
     /**
-     * @en get or set shadow map sampler offset
-     * @zh 获取或者设置阴影纹理偏移值
+     * @en The depth offset of shadow to avoid moire pattern artifacts
+     * @zh 阴影的深度偏移, 可以减弱跨像素导致的条纹状失真
      */
-    @visible(() => (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap)
+    @tooltip('i18n:lights.shadowBias')
+    @visible(() => (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap)
     @property({ group: { name: 'DynamicShadowSettings', displayOrder: 3 } })
     @editable
     @type(CCFloat)
@@ -251,10 +250,11 @@ export class SpotLight extends Light {
     }
 
     /**
-     * @en get or set normal bias.
+     * @en The normal bias of the shadow map.
      * @zh 设置或者获取法线偏移。
      */
-    @visible(() => (legacyCC.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap)
+    @tooltip('i18n:lights.shadowNormalBias')
+    @visible(() => (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.type === ShadowType.ShadowMap)
     @property({ group: { name: 'DynamicShadowSettings', displayOrder: 4 } })
     @editable
     @type(CCFloat)
@@ -278,11 +278,6 @@ export class SpotLight extends Light {
         this.size = this._size;
         this.range = this._range;
         this.spotAngle = this._spotAngle;
-        if ((legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR) {
-            this._luminanceLDR = this._luminanceHDR * Camera.standardExposureValue * Camera.standardLightMeterScale;
-        } else {
-            this._luminanceHDR = this._luminanceLDR / Camera.standardExposureValue / Camera.standardLightMeterScale;
-        }
 
         if (this._light) {
             this._light.luminanceHDR = this._luminanceHDR;

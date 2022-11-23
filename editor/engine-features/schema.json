@@ -61,6 +61,9 @@
                 "animation": {
                     "$ref": "#/definitions/Item"
                 },
+                "ar": {
+                    "$ref": "#/definitions/Item"
+                },
                 "audio": {
                     "$ref": "#/definitions/Item"
                 },
@@ -74,6 +77,9 @@
                     "$ref": "#/definitions/Item"
                 },
                 "gfx-webgl2": {
+                    "$ref": "#/definitions/Item"
+                },
+                "gfx-webgpu": {
                     "$ref": "#/definitions/Item"
                 },
                 "graphcis": {
@@ -143,6 +149,9 @@
                     "$ref": "#/definitions/Item"
                 },
                 "webview": {
+                    "$ref": "#/definitions/Item"
+                },
+                "xr": {
                     "$ref": "#/definitions/Item"
                 }
             },
@@ -202,6 +211,9 @@
                 "animation": {
                     "$ref": "#/definitions/BaseItem"
                 },
+                "ar": {
+                    "$ref": "#/definitions/BaseItem"
+                },
                 "audio": {
                     "$ref": "#/definitions/BaseItem"
                 },
@@ -215,6 +227,9 @@
                     "$ref": "#/definitions/BaseItem"
                 },
                 "gfx-webgl2": {
+                    "$ref": "#/definitions/BaseItem"
+                },
+                "gfx-webgpu": {
                     "$ref": "#/definitions/BaseItem"
                 },
                 "graphcis": {
@@ -285,6 +300,9 @@
                 },
                 "webview": {
                     "$ref": "#/definitions/BaseItem"
+                },
+                "xr": {
+                    "$ref": "#/definitions/BaseItem"
                 }
             },
             "type": "object"
@@ -312,4 +330,3 @@
     },
     "type": "object"
 }
-

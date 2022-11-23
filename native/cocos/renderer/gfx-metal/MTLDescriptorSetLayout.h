@@ -36,7 +36,7 @@ public:
     explicit CCMTLDescriptorSetLayout();
     ~CCMTLDescriptorSetLayout();
     CCMTLDescriptorSetLayout(const CCMTLDescriptorSetLayout &) = delete;
-    CCMTLDescriptorSetLayout(CCMTLDescriptorSetLayout &&)      = delete;
+    CCMTLDescriptorSetLayout(CCMTLDescriptorSetLayout &&) = delete;
     CCMTLDescriptorSetLayout &operator=(const CCMTLDescriptorSetLayout &) = delete;
     CCMTLDescriptorSetLayout &operator=(CCMTLDescriptorSetLayout &&) = delete;
 

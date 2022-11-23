@@ -32,7 +32,7 @@ using namespace cc; // NOLINT(google-build-using-namespace)
 
 DRAGONBONES_NAMESPACE_BEGIN
 
-float ArmatureCache::FrameTime    = 1.0F / 60.0F;
+float ArmatureCache::FrameTime = 1.0F / 60.0F;
 float ArmatureCache::MaxCacheTime = 120.0F;
 
 ArmatureCache::SegmentData::SegmentData() = default;
@@ -121,7 +121,7 @@ void ArmatureCache::AnimationData::reset() {
     }
     _frames.clear();
     _isComplete = false;
-    _totalTime  = 0.0F;
+    _totalTime = 0.0F;
 }
 
 bool ArmatureCache::AnimationData::needUpdate(int toFrameIdx) const {
@@ -173,15 +173,15 @@ ArmatureCache::AnimationData *ArmatureCache::buildAnimationData(const std::strin
     if (!_armatureDisplay) return nullptr;
 
     AnimationData *aniData = nullptr;
-    auto           it      = _animationCaches.find(animationName);
+    auto it = _animationCaches.find(animationName);
     if (it == _animationCaches.end()) {
-        auto *armature  = _armatureDisplay->getArmature();
+        auto *armature = _armatureDisplay->getArmature();
         auto *animation = armature->getAnimation();
-        auto  hasAni    = animation->hasAnimation(animationName);
+        auto hasAni = animation->hasAnimation(animationName);
         if (!hasAni) return nullptr;
 
-        aniData                         = new AnimationData();
-        aniData->_animationName         = animationName;
+        aniData = new AnimationData();
+        aniData->_animationName = animationName;
         _animationCaches[animationName] = aniData;
     } else {
         aniData = it->second;
@@ -213,7 +213,7 @@ void ArmatureCache::updateToFrame(const std::string &animationName, int toFrameI
         _curAnimationName = animationName;
     }
 
-    auto *armature  = _armatureDisplay->getArmature();
+    auto *armature = _armatureDisplay->getArmature();
     auto *animation = armature->getAnimation();
 
     // init animation
@@ -233,31 +233,31 @@ void ArmatureCache::updateToFrame(const std::string &animationName, int toFrameI
 
 void ArmatureCache::renderAnimationFrame(AnimationData *animationData) {
     std::size_t frameIndex = animationData->getFrameCount();
-    _frameData             = animationData->buildFrameData(frameIndex);
+    _frameData = animationData->buildFrameData(frameIndex);
 
-    _preColor = Color4F(-1.0F, -1.0F, -1.0F, -1.0F);
-    _color    = Color4F(1.0F, 1.0F, 1.0F, 1.0F);
+    _preColor = Color4B(0, 0, 0, 0);
+    _color = Color4B(255, 255, 255, 255);
 
-    _preBlendMode    = -1;
+    _preBlendMode = -1;
     _preTextureIndex = -1;
     _curTextureIndex = -1;
     _preISegWritePos = -1;
-    _curISegLen      = 0;
-    _curVSegLen      = 0;
-    _materialLen     = 0;
+    _curISegLen = 0;
+    _curVSegLen = 0;
+    _materialLen = 0;
 
     auto *armature = _armatureDisplay->getArmature();
     traverseArmature(armature);
 
     if (_preISegWritePos != -1) {
-        SegmentData *preSegmentData      = _frameData->buildSegmentData(_materialLen - 1);
-        preSegmentData->indexCount       = _curISegLen;
+        SegmentData *preSegmentData = _frameData->buildSegmentData(_materialLen - 1);
+        preSegmentData->indexCount = _curISegLen;
         preSegmentData->vertexFloatCount = _curVSegLen;
     }
 
     auto colorCount = _frameData->getColorCount();
     if (colorCount > 0) {
-        ColorData *preColorData         = _frameData->buildColorData(colorCount - 1);
+        ColorData *preColorData = _frameData->buildColorData(colorCount - 1);
         preColorData->vertexFloatOffset = static_cast<int>(_frameData->vb.getCurPos()) / sizeof(float);
     }
 
@@ -269,19 +269,19 @@ void ArmatureCache::traverseArmature(Armature *armature, float parentOpacity /*=
     middleware::IOBuffer &ib = _frameData->ib;
 
     const auto &bones = armature->getBones();
-    Bone *      bone  = nullptr;
+    Bone *bone = nullptr;
     const auto &slots = armature->getSlots();
-    CCSlot *    slot  = nullptr;
+    CCSlot *slot = nullptr;
     // range [0.0, 1.0]
-    Color4F                preColor(-1.0F, -1.0F, -1.0F, -1.0F);
-    Color4F                color;
+    Color4B preColor(0, 0, 0, 0);
+    Color4B color;
     middleware::Texture2D *texture = nullptr;
 
     auto flush = [&]() {
         // fill pre segment count field
         if (_preISegWritePos != -1) {
-            SegmentData *preSegmentData      = _frameData->buildSegmentData(_materialLen - 1);
-            preSegmentData->indexCount       = _curISegLen;
+            SegmentData *preSegmentData = _frameData->buildSegmentData(_materialLen - 1);
+            preSegmentData->indexCount = _curISegLen;
             preSegmentData->vertexFloatCount = _curVSegLen;
         }
 
@@ -304,17 +304,17 @@ void ArmatureCache::traverseArmature(Armature *armature, float parentOpacity /*=
     };
 
     for (auto *i : bones) {
-        bone                    = i;
-        auto      boneCount     = _frameData->getBoneCount();
-        BoneData *boneData      = _frameData->buildBoneData(boneCount);
-        auto &    boneOriginMat = bone->globalTransformMatrix;
-        auto &    matm          = boneData->globalTransformMatrix.m;
-        matm[0]                 = boneOriginMat.a;
-        matm[1]                 = boneOriginMat.b;
-        matm[4]                 = -boneOriginMat.c;
-        matm[5]                 = -boneOriginMat.d;
-        matm[12]                = boneOriginMat.tx;
-        matm[13]                = boneOriginMat.ty;
+        bone = i;
+        auto boneCount = _frameData->getBoneCount();
+        BoneData *boneData = _frameData->buildBoneData(boneCount);
+        auto &boneOriginMat = bone->globalTransformMatrix;
+        auto &matm = boneData->globalTransformMatrix.m;
+        matm[0] = boneOriginMat.a;
+        matm[1] = boneOriginMat.b;
+        matm[4] = -boneOriginMat.c;
+        matm[5] = -boneOriginMat.d;
+        matm[12] = boneOriginMat.tx;
+        matm[13] = boneOriginMat.ty;
     }
 
     for (auto *i : slots) {
@@ -340,7 +340,7 @@ void ArmatureCache::traverseArmature(Armature *armature, float parentOpacity /*=
         if (!texture) continue;
         _curTextureIndex = texture->getRealTextureIndex();
 
-        auto vbSize = slot->triangles.vertCount * sizeof(middleware::V2F_T2F_C4F);
+        auto vbSize = slot->triangles.vertCount * sizeof(middleware::V3F_T2F_C4B);
         vb.checkSpace(vbSize, true);
 
         // If texture or blendMode change,will change material.
@@ -349,31 +349,32 @@ void ArmatureCache::traverseArmature(Armature *armature, float parentOpacity /*=
         }
 
         // Calculation vertex color.
-        color.a = static_cast<float>(slot->color.a) * parentOpacity / 255.0F;
-        color.r = static_cast<float>(slot->color.r) / 255.0F;
-        color.g = static_cast<float>(slot->color.g) / 255.0F;
-        color.b = static_cast<float>(slot->color.b) / 255.0F;
+        color.a = static_cast<uint8_t>(slot->color.a * parentOpacity);
+        color.r = static_cast<uint8_t>(slot->color.r);
+        color.g = static_cast<uint8_t>(slot->color.g);
+        color.b = static_cast<uint8_t>(slot->color.b);
 
         if (preColor != color) {
-            preColor        = color;
+            preColor = color;
             auto colorCount = _frameData->getColorCount();
             if (colorCount > 0) {
-                ColorData *preColorData         = _frameData->buildColorData(colorCount - 1);
+                ColorData *preColorData = _frameData->buildColorData(colorCount - 1);
                 preColorData->vertexFloatOffset = vb.getCurPos() / sizeof(float);
             }
             ColorData *colorData = _frameData->buildColorData(colorCount);
-            colorData->color     = color;
+            colorData->color = color;
         }
 
         // Transform component matrix to global matrix
-        middleware::Triangles &  triangles      = slot->triangles;
-        middleware::V2F_T2F_C4F *worldTriangles = slot->worldVerts;
+        middleware::Triangles &triangles = slot->triangles;
+        middleware::V3F_T2F_C4B *worldTriangles = slot->worldVerts;
 
         for (int v = 0, w = 0, vn = triangles.vertCount; v < vn; ++v, w += 2) {
-            middleware::V2F_T2F_C4F *vertex      = triangles.verts + v;
-            middleware::V2F_T2F_C4F *worldVertex = worldTriangles + v;
-            worldVertex->vertex.x                = vertex->vertex.x * worldMatrix->m[0] + vertex->vertex.y * worldMatrix->m[4] + worldMatrix->m[12];
-            worldVertex->vertex.y                = vertex->vertex.x * worldMatrix->m[1] + vertex->vertex.y * worldMatrix->m[5] + worldMatrix->m[13];
+            middleware::V3F_T2F_C4B *vertex = triangles.verts + v;
+            middleware::V3F_T2F_C4B *worldVertex = worldTriangles + v;
+
+            vertex->vertex.z = 0; //reset for z value
+            worldVertex->vertex.transformMat4(vertex->vertex, *worldMatrix);
 
             worldVertex->color.r = color.r;
             worldVertex->color.g = color.g;

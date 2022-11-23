@@ -1,8 +1,8 @@
 /****************************************************************************
  Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
- 
+
  http://www.cocos.com
- 
+
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
@@ -10,10 +10,10 @@
  not use Cocos Creator software for developing other software or tools that's
  used for developing games. You are not granted to publish, distribute,
  sublicense, and/or sell copies of Cocos Creator.
- 
+
  The software or tools in this License Agreement are licensed, not sold.
  Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -26,8 +26,11 @@
 
 #include <cstdint>
 //#include "3d/skeletal-animation/DataPoolManager.h"
+#include "bindings/event/EventDispatcher.h"
+#include "core/event/Event.h"
 #include "core/memop/Pool.h"
 #include "renderer/pipeline/RenderPipeline.h"
+#include "scene/DrawBatch2D.h"
 #include "scene/Light.h"
 #include "scene/Model.h"
 #include "scene/RenderScene.h"
@@ -35,9 +38,10 @@
 #include "scene/SphereLight.h"
 
 namespace cc {
+class IXRInterface;
 namespace scene {
 class Camera;
-struct DrawBatch2D;
+class DrawBatch2D;
 } // namespace scene
 namespace gfx {
 class SwapChain;
@@ -45,12 +49,29 @@ class Device;
 } // namespace gfx
 namespace render {
 class PipelineRuntime;
+class Pipeline;
 } // namespace render
-class CallbacksInvoker;
+class Batcher2d;
+
+struct CC_DLL DebugViewConfig {
+    uint8_t singleMode;
+    uint8_t compositeModeBitCount;
+    uint32_t compositeModeValue;
+    bool lightingWithAlbedo;
+    bool csmLayerColoration;
+};
+
+struct ISystemWindowInfo;
+class ISystemWindow;
 
 class Root final {
+    IMPL_EVENT_TARGET(Root)
+    DECLARE_TARGET_EVENT_BEGIN(Root)
+    TARGET_EVENT_ARG0(BeforeCommit)
+    TARGET_EVENT_ARG0(BeforeRender)
+    DECLARE_TARGET_EVENT_END()
 public:
-    static Root *getInstance(); //cjh todo: put Root Managerment to Director class.
+    static Root *getInstance(); // cjh todo: put Root Managerment to Director class.
     explicit Root(gfx::Device *device);
     ~Root();
 
@@ -61,10 +82,11 @@ public:
     /**
      * @zh
      * 重置大小
-     * @param width 屏幕宽度
-     * @param height 屏幕高度
+     * @param width 窗口宽度
+     * @param height 窗口高度
+     * @param windowId 窗口 ID
      */
-    void resize(uint32_t width, uint32_t height);
+    void resize(uint32_t width, uint32_t height, uint32_t windowId);
 
     bool setRenderPipeline(pipeline::RenderPipeline *rppl = nullptr);
     void onGlobalPipelineStateChanged();
@@ -111,6 +133,14 @@ public:
 
     /**
      * @zh
+     * 创建一个系统窗口
+     * @param info 系统窗口描述信息
+     * @return 新创建的系统窗口 ID
+     */
+    static uint32_t createSystemWindow(const cc::ISystemWindowInfo &info);
+
+    /**
+     * @zh
      * 创建渲染场景
      * @param info 渲染场景描述信息
      */
@@ -129,23 +159,27 @@ public:
      */
     void destroyScenes();
 
+#ifndef SWIGCOCOS
     template <typename T, typename = std::enable_if_t<std::is_base_of<scene::Model, T>::value>>
     T *createModel() {
-        //cjh TODO: need use model pool?
-        T *model = new T();
+        // cjh TODO: need use model pool?
+        T *model = ccnew T();
         model->initialize();
         return model;
     }
+#endif
 
     void destroyModel(scene::Model *model);
 
+#ifndef SWIGCOCOS
     template <typename T, typename = std::enable_if_t<std::is_base_of<scene::Light, T>::value>>
     T *createLight() {
-        //TODO(xwx): need use model pool?
-        T *light = new T();
+        // TODO(xwx): need use model pool?
+        T *light = ccnew T();
         light->initialize();
         return light;
     }
+#endif
 
     void destroyLight(scene::Light *light);
 
@@ -155,21 +189,21 @@ public:
      * GFX 设备
      */
     inline gfx::Device *getDevice() const { return _device; }
-    inline void         setDevice(gfx::Device *device) { _device = device; }
+    inline void setDevice(gfx::Device *device) { _device = device; }
 
     /**
      * @zh
      * 主窗口
      */
-    inline scene::RenderWindow *getMainWindow() const { return _mainWindow.get(); }
+    inline scene::RenderWindow *getMainWindow() const { return _mainRenderWindow.get(); }
 
     /**
      * @zh
      * 当前窗口
      */
-    inline void setCurWindow(scene::RenderWindow *window) { _curWindow = window; }
+    inline void setCurWindow(scene::RenderWindow *window) { _curRenderWindow = window; }
 
-    inline scene::RenderWindow *getCurWindow() const { return _curWindow.get(); }
+    inline scene::RenderWindow *getCurWindow() const { return _curRenderWindow.get(); }
 
     /**
      * @zh
@@ -183,7 +217,7 @@ public:
      * @zh
      * 窗口列表
      */
-    inline const ccstd::vector<IntrusivePtr<scene::RenderWindow>> &getWindows() const { return _windows; }
+    inline const ccstd::vector<IntrusivePtr<scene::RenderWindow>> &getWindows() const { return _renderWindows; }
 
     /**
      * @zh
@@ -199,16 +233,29 @@ public:
 
     /**
      * @zh
+     * 自定义渲染管线
+     */
+    render::Pipeline *getCustomPipeline() const;
+
+    /**
+     * @zh
      * UI实例
      * 引擎内部使用，用户无需调用此接口
      */
-    inline scene::DrawBatch2D *getBatcher2D() const { return _batcher2D; }
+    inline Batcher2d *getBatcher2D() const { return _batcher; }
 
     /**
      * @zh
      * 场景列表
      */
     inline const ccstd::vector<IntrusivePtr<scene::RenderScene>> &getScenes() const { return _scenes; }
+
+    /**
+     * @zh
+     * 渲染调试数据
+     */
+    inline void setDebugViewConfig(const DebugViewConfig &config) { _debugViewConfig = config; }
+    inline const DebugViewConfig &getDebugViewConfig() const { return _debugViewConfig; }
 
     /**
      * @zh
@@ -246,35 +293,48 @@ public:
 
     inline bool isUsingDeferredPipeline() const { return _useDeferredPipeline; }
 
-    inline CallbacksInvoker *getEventProcessor() const { return _eventProcessor; }
+    scene::RenderWindow *createRenderWindowFromSystemWindow(uint32_t windowId);
+    scene::RenderWindow *createRenderWindowFromSystemWindow(cc::ISystemWindow *window);
+
+    const ccstd::vector<scene::Camera *> &getCameraList() const {
+        return _cameraList;
+    }
 
 private:
-    gfx::Device *                                    _device{nullptr};
-    gfx::Swapchain *                                 _swapchain{nullptr};
-    IntrusivePtr<scene::RenderWindow>                _mainWindow;
-    IntrusivePtr<scene::RenderWindow>                _curWindow;
-    IntrusivePtr<scene::RenderWindow>                _tempWindow;
-    ccstd::vector<IntrusivePtr<scene::RenderWindow>> _windows;
-    IntrusivePtr<pipeline::RenderPipeline>           _pipeline{nullptr};
-    std::unique_ptr<render::PipelineRuntime>         _pipelineRuntime;
-    scene::DrawBatch2D *                             _batcher2D{nullptr};
+    void frameMoveBegin();
+    void frameMoveProcess(bool isNeedUpdateScene, int32_t totalFrames);
+    void frameMoveEnd();
+    void doXRFrameMove(int32_t totalFrames);
+    void addWindowEventListener();
+    void removeWindowEventListener();
+
+    gfx::Device *_device{nullptr};
+    gfx::Swapchain *_swapchain{nullptr};
+    Batcher2d *_batcher{nullptr};
+    IntrusivePtr<scene::RenderWindow> _mainRenderWindow;
+    IntrusivePtr<scene::RenderWindow> _curRenderWindow;
+    IntrusivePtr<scene::RenderWindow> _tempWindow;
+    ccstd::vector<IntrusivePtr<scene::RenderWindow>> _renderWindows;
+    IntrusivePtr<pipeline::RenderPipeline> _pipeline{nullptr};
+    std::unique_ptr<render::PipelineRuntime> _pipelineRuntime;
     //    IntrusivePtr<DataPoolManager>                  _dataPoolMgr;
     ccstd::vector<IntrusivePtr<scene::RenderScene>> _scenes;
-    memop::Pool<scene::Camera> *                    _cameraPool{nullptr};
-    float                                           _cumulativeTime{0.F};
-    float                                           _frameTime{0.F};
-    float                                           _fpsTime{0.F};
-    uint32_t                                        _frameCount{0};
-    uint32_t                                        _fps{0};
-    uint32_t                                        _fixedFPS{0};
-    bool                                            _useDeferredPipeline{false};
-    bool                                            _usesCustomPipeline{false};
-    CallbacksInvoker *                              _eventProcessor{nullptr};
+    DebugViewConfig _debugViewConfig;
+    float _cumulativeTime{0.F};
+    float _frameTime{0.F};
+    float _fpsTime{0.F};
+    uint32_t _frameCount{0};
+    uint32_t _fps{0};
+    uint32_t _fixedFPS{0};
+    bool _useDeferredPipeline{false};
+    bool _usesCustomPipeline{true};
+    IXRInterface *_xr{nullptr};
+    events::WindowDestroy::Listener _windowDestroyListener;
+    events::WindowRecreated::Listener _windowRecreatedListener;
 
     // Cache ccstd::vector to avoid allocate every frame in frameMove
-    ccstd::vector<scene::Camera *>  _cameraList;
+    ccstd::vector<scene::Camera *> _cameraList;
     ccstd::vector<gfx::Swapchain *> _swapchains;
     //
 };
-
 } // namespace cc

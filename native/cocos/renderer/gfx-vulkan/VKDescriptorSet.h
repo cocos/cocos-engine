@@ -27,6 +27,7 @@
 
 #include "VKStd.h"
 #include "gfx-base/GFXDescriptorSet.h"
+#include "gfx-vulkan/VKGPUObjects.h"
 
 namespace cc {
 namespace gfx {
@@ -39,6 +40,7 @@ public:
     ~CCVKDescriptorSet() override;
 
     void update() override;
+    void forceUpdate() override;
 
     inline CCVKGPUDescriptorSet *gpuDescriptorSet() const { return _gpuDescriptorSet; }
 
@@ -46,7 +48,7 @@ protected:
     void doInit(const DescriptorSetInfo &info) override;
     void doDestroy() override;
 
-    CCVKGPUDescriptorSet *_gpuDescriptorSet = nullptr;
+    IntrusivePtr<CCVKGPUDescriptorSet> _gpuDescriptorSet;
 };
 
 } // namespace gfx

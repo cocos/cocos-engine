@@ -1,6 +1,4 @@
 function inject () {
-    window.top = window.parent = window
-
     window.ontouchstart = null;
     window.ontouchmove = null;
     window.ontouchend = null;
@@ -11,9 +9,13 @@ function inject () {
     window.outerHeight = window.innerHeight;
     window.clientWidth = window.innerWidth;
     window.clientHeight = window.innerHeight;
+    if (!__EDITOR__) {
+        window.top = window.parent = window;
+        window.location = require('./location');
+        window.document = require('./document');
+        window.navigator = require('./navigator');
+    }
 
-    window.location = require('./location');
-    window.document = require('./document');
     window.CanvasRenderingContext2D = require('./CanvasRenderingContext2D');
     window.Element = require('./Element');
     window.HTMLElement = require('./HTMLElement');
@@ -25,7 +27,7 @@ function inject () {
     window.__canvas = new HTMLCanvasElement();
     window.__canvas._width = window.innerWidth;
     window.__canvas._height = window.innerHeight;
-    window.navigator = require('./navigator');
+
     window.Image = require('./Image');
     window.FileReader = require('./FileReader');
     window.FontFace = require('./FontFace');
@@ -51,14 +53,16 @@ function inject () {
     window.orientation = jsb.device.getDeviceOrientation();
 
     // window.devicePixelRatio is readonly
-    Object.defineProperty(window, "devicePixelRatio", {
-        get: function() {
-            return jsb.device.getDevicePixelRatio ? jsb.device.getDevicePixelRatio() : 1;
-        },
-        set: function(_dpr) {/* ignore */},
-        enumerable: true,
-        configurable: true
-    });
+    if (!__EDITOR__) {
+        Object.defineProperty(window, 'devicePixelRatio', {
+            get () {
+                return jsb.device.getDevicePixelRatio ? jsb.device.getDevicePixelRatio() : 1;
+            },
+            set (_dpr) { /* ignore */ },
+            enumerable: true,
+            configurable: true,
+        });
+    }
 
     window.screen = {
         availTop: 0,
@@ -126,6 +130,6 @@ function inject () {
 if (!window._isInjected) {
     inject();
 }
-
-
-window.localStorage = sys.localStorage;
+if (!__EDITOR__) {
+    window.localStorage = sys.localStorage;
+}

@@ -37,9 +37,9 @@ int Screen::getDPI() const {
     static int dpi = -1;
     if (dpi == -1) {
         Display *dpy;
-        char *   displayname = NULL;
-        int      scr         = 0; /* Screen number */
-        dpy                  = XOpenDisplay(displayname);
+        char *displayname = NULL;
+        int scr = 0; /* Screen number */
+        dpy = XOpenDisplay(displayname);
         /*
          * there are 2.54 centimeters to an inch; so there are 25.4 millimeters.
          *
@@ -49,7 +49,7 @@ int Screen::getDPI() const {
          */
         double xres = ((((double)DisplayWidth(dpy, scr)) * 25.4) /
                        ((double)DisplayWidthMM(dpy, scr)));
-        dpi         = (int)(xres + 0.5);
+        dpi = (int)(xres + 0.5);
         //printf("dpi = %d\n", dpi);
         XCloseDisplay(dpy);
     }
@@ -74,15 +74,15 @@ Vec4 Screen::getSafeAreaEdge() const {
 
 bool Screen::isDisplayStats() {
     se::AutoHandleScope hs;
-    se::Value           ret;
-    char                commandBuf[100] = "cc.profiler.isShowingStats();";
+    se::Value ret;
+    char commandBuf[100] = "cc.profiler.isShowingStats();";
     se::ScriptEngine::getInstance()->evalString(commandBuf, 100, &ret);
     return ret.toBoolean();
 }
 
 void Screen::setDisplayStats(bool isShow) {
     se::AutoHandleScope hs;
-    char                commandBuf[100] = {0};
+    char commandBuf[100] = {0};
     sprintf(commandBuf, isShow ? "cc.profiler.showStats();" : "cc.profiler.hideStats();");
     se::ScriptEngine::getInstance()->evalString(commandBuf);
 }

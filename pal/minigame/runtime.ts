@@ -9,6 +9,7 @@ declare let ral: any;
 // @ts-expect-error can't init minigame when it's declared
 const minigame: IMiniGame = {};
 cloneObject(minigame, ral);
+minigame.ral = ral;
 
 // #region SystemInfo
 const systemInfo = minigame.getSystemInfoSync();
@@ -41,16 +42,7 @@ Object.defineProperty(minigame, 'orientation', {
     },
 });
 
-if (VIVO) {
-    // TODO: need to be handled in ral lib.
-    minigame.getSystemInfoSync = function () {
-        const sys = ral.getSystemInfoSync() as SystemInfo;
-        // on VIVO, windowWidth should be windowHeight when it is landscape
-        sys.windowWidth = sys.screenWidth;
-        sys.windowHeight = sys.screenHeight;
-        return sys;
-    };
-} else if (LINKSURE || COCOSPLAY) {
+if (LINKSURE || COCOSPLAY) {
     // TODO: update system info when view resized, currently the resize callback is not supported.
     let cachedSystemInfo = ral.getSystemInfoSync() as SystemInfo;
     minigame.onWindowResize?.(() => {

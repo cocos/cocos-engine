@@ -36,8 +36,7 @@ class Aim {
     public next: Aim | null = null;
 
     // z-order curve value
-    // public z = null;
-    public z = 0;
+    public z: number = null as any;
 
     // previous and next nodes in z-order
     public prevZ: Aim | null = null;

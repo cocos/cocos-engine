@@ -42,8 +42,8 @@ NS_CC_EXTRA_BEGIN
 unsigned int HTTPRequest::s_id = 0;
 
 HTTPRequest *HTTPRequest::createWithUrl(HTTPRequestDelegate *delegate,
-                                        const char *         url,
-                                        int                  method) {
+                                        const char *url,
+                                        int method) {
     HTTPRequest *request = new HTTPRequest();
     request->initWithDelegate(delegate, url, method);
     request->addRef();
@@ -53,8 +53,8 @@ HTTPRequest *HTTPRequest::createWithUrl(HTTPRequestDelegate *delegate,
 
 #if CC_LUA_ENGINE_ENABLED > 0
 HTTPRequest *HTTPRequest::createWithUrlLua(LUA_FUNCTION listener,
-                                           const char * url,
-                                           int          method) {
+                                           const char *url,
+                                           int method) {
     HTTPRequest *request = new HTTPRequest();
     request->initWithListener(listener, url, method);
     request->autorelease();
@@ -75,7 +75,7 @@ bool HTTPRequest::initWithListener(LUA_FUNCTION listener, const char *url, int m
 #endif
 
 bool HTTPRequest::initWithUrl(const char *url, int method) {
-    CCASSERT(url, "HTTPRequest::initWithUrl() - invalid url");
+    CC_ASSERT(url);
     _curl = curl_easy_init();
     curl_easy_setopt(_curl, CURLOPT_URL, url);
     curl_easy_setopt(_curl, CURLOPT_USERAGENT, "libcurl");
@@ -104,7 +104,7 @@ HTTPRequest::~HTTPRequest(void) {
 }
 
 void HTTPRequest::setRequestUrl(const char *url) {
-    CCASSERT(url, "HTTPRequest::setRequestUrl() - invalid url");
+    CC_ASSERT(url);
     _url = url;
     curl_easy_setopt(_curl, CURLOPT_URL, _url.c_str());
 }
@@ -114,20 +114,20 @@ const string HTTPRequest::getRequestUrl(void) {
 }
 
 void HTTPRequest::addRequestHeader(const char *header) {
-    CCASSERT(_state == kCCHTTPRequestStateIdle, "HTTPRequest::addRequestHeader() - request not idle");
-    CCASSERT(header, "HTTPRequest::addRequestHeader() - invalid header");
+    CC_ASSERT(_state == kCCHTTPRequestStateIdle);
+    CC_ASSERT(header);
     _headers.push_back(string(header));
 }
 
 void HTTPRequest::addPOSTValue(const char *key, const char *value) {
-    CCASSERT(_state == kCCHTTPRequestStateIdle, "HTTPRequest::addPOSTValue() - request not idle");
-    CCASSERT(key, "HTTPRequest::addPOSTValue() - invalid key");
+    CC_ASSERT(_state == kCCHTTPRequestStateIdle);
+    CC_ASSERT(key);
     _postFields[string(key)] = string(value ? value : "");
 }
 
 void HTTPRequest::setPOSTData(const char *data) {
-    CCASSERT(_state == kCCHTTPRequestStateIdle, "HTTPRequest::setPOSTData() - request not idle");
-    CCASSERT(data, "HTTPRequest::setPOSTData() - invalid post data");
+    CC_ASSERT(_state == kCCHTTPRequestStateIdle);
+    CC_ASSERT(data);
     _postFields.clear();
     curl_easy_setopt(_curl, CURLOPT_POST, 1L);
     curl_easy_setopt(_curl, CURLOPT_COPYPOSTFIELDS, data);
@@ -151,17 +151,17 @@ void HTTPRequest::addFormContents(const char *name, const char *value) {
 }
 
 void HTTPRequest::setCookieString(const char *cookie) {
-    CCASSERT(_state == kCCHTTPRequestStateIdle, "HTTPRequest::setAcceptEncoding() - request not idle");
+    CC_ASSERT(_state == kCCHTTPRequestStateIdle);
     curl_easy_setopt(_curl, CURLOPT_COOKIE, cookie ? cookie : "");
 }
 
 const string HTTPRequest::getCookieString(void) {
-    CCASSERT(_state == kCCHTTPRequestStateCompleted, "HTTPRequest::getResponseData() - request not completed");
+    CC_ASSERT(_state == kCCHTTPRequestStateCompleted);
     return _responseCookies;
 }
 
 void HTTPRequest::setAcceptEncoding(int acceptEncoding) {
-    CCASSERT(_state == kCCHTTPRequestStateIdle, "HTTPRequest::setAcceptEncoding() - request not idle");
+    CC_ASSERT(_state == kCCHTTPRequestStateIdle);
     switch (acceptEncoding) {
         case kCCHTTPRequestAcceptEncodingGzip:
             curl_easy_setopt(_curl, CURLOPT_ACCEPT_ENCODING, "gzip");
@@ -177,15 +177,15 @@ void HTTPRequest::setAcceptEncoding(int acceptEncoding) {
 }
 
 void HTTPRequest::setTimeout(int timeout) {
-    CCASSERT(_state == kCCHTTPRequestStateIdle, "HTTPRequest::setTimeout() - request not idle");
+    CC_ASSERT(_state == kCCHTTPRequestStateIdle);
     curl_easy_setopt(_curl, CURLOPT_CONNECTTIMEOUT, timeout);
     curl_easy_setopt(_curl, CURLOPT_TIMEOUT, timeout);
 }
 
 bool HTTPRequest::start(void) {
-    CCASSERT(_state == kCCHTTPRequestStateIdle, "HTTPRequest::start() - request not idle");
+    CC_ASSERT(_state == kCCHTTPRequestStateIdle);
 
-    _state     = kCCHTTPRequestStateInProgress;
+    _state = kCCHTTPRequestStateInProgress;
     _curlState = kCCHTTPRequestCURLStateBusy;
     addRef();
 
@@ -236,12 +236,12 @@ int HTTPRequest::getState(void) {
 }
 
 int HTTPRequest::getResponseStatusCode(void) {
-    CCASSERT(_state == kCCHTTPRequestStateCompleted, "Request not completed");
+    CC_ASSERT(_state == kCCHTTPRequestStateCompleted);
     return _responseCode;
 }
 
 const HTTPRequestHeaders &HTTPRequest::getResponseHeaders(void) {
-    CCASSERT(_state == kCCHTTPRequestStateCompleted, "HTTPRequest::getResponseHeaders() - request not completed");
+    CC_ASSERT(_state == kCCHTTPRequestStateCompleted);
     return _responseHeaders;
 }
 
@@ -254,12 +254,12 @@ const string HTTPRequest::getResponseHeadersString() {
 }
 
 const string HTTPRequest::getResponseString(void) {
-    CCASSERT(_state == kCCHTTPRequestStateCompleted, "HTTPRequest::getResponseString() - request not completed");
+    CC_ASSERT(_state == kCCHTTPRequestStateCompleted);
     return string(_responseBuffer ? static_cast<char *>(_responseBuffer) : "");
 }
 
 void *HTTPRequest::getResponseData(void) {
-    CCASSERT(_state == kCCHTTPRequestStateCompleted, "HTTPRequest::getResponseData() - request not completed");
+    CC_ASSERT(_state == kCCHTTPRequestStateCompleted);
     void *buff = malloc(_responseDataLength);
     memcpy(buff, _responseBuffer, _responseDataLength);
     return buff;
@@ -267,7 +267,7 @@ void *HTTPRequest::getResponseData(void) {
 
 #if CC_LUA_ENGINE_ENABLED > 0
 LUA_STRING HTTPRequest::getResponseDataLua(void) {
-    CCASSERT(_state == kCCHTTPRequestStateCompleted, "HTTPRequest::getResponseDataLua() - request not completed");
+    CC_ASSERT(_state == kCCHTTPRequestStateCompleted);
     LuaStack *stack = LuaEngine::getInstance()->getLuaStack();
     stack->clean();
     stack->pushString(static_cast<char *>(_responseBuffer), (int)_responseDataLength);
@@ -276,15 +276,15 @@ LUA_STRING HTTPRequest::getResponseDataLua(void) {
 #endif
 
 int HTTPRequest::getResponseDataLength(void) {
-    CCASSERT(_state == kCCHTTPRequestStateCompleted, "Request not completed");
+    CC_ASSERT(_state == kCCHTTPRequestStateCompleted);
     return (int)_responseDataLength;
 }
 
 size_t HTTPRequest::saveResponseData(const char *filename) {
-    CCASSERT(_state == kCCHTTPRequestStateCompleted, "HTTPRequest::saveResponseData() - request not completed");
+    CC_ASSERT(_state == kCCHTTPRequestStateCompleted);
 
     FILE *fp = fopen(filename, "wb");
-    CCASSERT(fp, "HTTPRequest::saveResponseData() - open file failure");
+    CC_ASSERT(fp);
 
     size_t writedBytes = _responseDataLength;
     if (writedBytes > 0) {
@@ -320,8 +320,8 @@ void HTTPRequest::update(float dt) {
         if (_listener) {
             LuaValueDict dict;
 
-            dict["name"]    = LuaValue::stringValue("progress");
-            dict["total"]   = LuaValue::intValue((int)_dltotal);
+            dict["name"] = LuaValue::stringValue("progress");
+            dict["total"] = LuaValue::intValue((int)_dltotal);
             dict["dltotal"] = LuaValue::intValue((int)_dlnow);
             dict["request"] = LuaValue::ccobjectValue(this, "HTTPRequest");
 
@@ -414,7 +414,7 @@ void HTTPRequest::onRequest(void) {
 
     if (cookies) {
         struct curl_slist *nc = cookies;
-        stringbuf          buf;
+        stringbuf buf;
         while (nc) {
             buf.sputn(nc->data, strlen(nc->data));
             buf.sputc('\n');
@@ -433,10 +433,10 @@ void HTTPRequest::onRequest(void) {
     }
     curl_slist_free_all(chunk);
 
-    _errorCode    = code;
+    _errorCode = code;
     _errorMessage = (code == CURLE_OK) ? "" : curl_easy_strerror(code);
-    _state        = (code == CURLE_OK) ? kCCHTTPRequestStateCompleted : kCCHTTPRequestStateFailed;
-    _curlState    = kCCHTTPRequestCURLStateClosed;
+    _state = (code == CURLE_OK) ? kCCHTTPRequestStateCompleted : kCCHTTPRequestStateFailed;
+    _curlState = kCCHTTPRequestCURLStateClosed;
 }
 
 size_t HTTPRequest::onWriteData(void *buffer, size_t bytes) {
@@ -452,7 +452,7 @@ size_t HTTPRequest::onWriteData(void *buffer, size_t bytes) {
 }
 
 size_t HTTPRequest::onWriteHeader(void *buffer, size_t bytes) {
-    char *headerBuffer  = new char[bytes + 1];
+    char *headerBuffer = new char[bytes + 1];
     headerBuffer[bytes] = 0;
     memcpy(headerBuffer, buffer, bytes);
     _responseHeaders.push_back(string(headerBuffer));
@@ -462,17 +462,17 @@ size_t HTTPRequest::onWriteHeader(void *buffer, size_t bytes) {
 
 int HTTPRequest::onProgress(double dltotal, double dlnow, double ultotal, double ulnow) {
     _dltotal = dltotal;
-    _dlnow   = dlnow;
+    _dlnow = dlnow;
     _ultotal = ultotal;
-    _ulnow   = ulnow;
+    _ulnow = ulnow;
 
     return _state == kCCHTTPRequestStateCancelled ? 1 : 0;
 }
 
 void HTTPRequest::cleanup(void) {
-    _state                = kCCHTTPRequestStateCleared;
+    _state = kCCHTTPRequestStateCleared;
     _responseBufferLength = 0;
-    _responseDataLength   = 0;
+    _responseDataLength = 0;
     if (_responseBuffer) {
         free(_responseBuffer);
         _responseBuffer = NULL;

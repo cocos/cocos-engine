@@ -47,7 +47,7 @@ class CCFactory : public BaseFactory, public cc::middleware::IMiddleware {
 
 private:
     static DragonBones *_dragonBonesInstance;
-    static CCFactory *  _factory;
+    static CCFactory *_factory;
 
 public:
     static bool isInit() {
@@ -112,8 +112,6 @@ public:
         _dragonBonesInstance->render();
     }
 
-    virtual uint32_t getRenderOrder() const override { return 0; }
-
     /**
      * @note When script engine clean up is trigger,will stop dragonbones timer.
      */
@@ -130,8 +128,8 @@ public:
 
 protected:
     virtual TextureAtlasData *_buildTextureAtlasData(TextureAtlasData *textureAtlasData, void *textureAtlas) const override;
-    virtual Armature *        _buildArmature(const BuildArmaturePackage &dataPackage) const override;
-    virtual Slot *            _buildSlot(const BuildArmaturePackage &dataPackage, const SlotData *slotData, Armature *armature) const override;
+    virtual Armature *_buildArmature(const BuildArmaturePackage &dataPackage) const override;
+    virtual Slot *_buildSlot(const BuildArmaturePackage &dataPackage, const SlotData *slotData, Armature *armature) const override;
 
 public:
     virtual DragonBonesData *loadDragonBonesData(const std::string &filePath, const std::string &name = "", float scale = 1.0f);
@@ -245,7 +243,7 @@ public:
     void removeDragonBonesDataByUUID(const std::string &uuid, bool disposeData = true);
 
     CCTextureAtlasData *getTextureAtlasDataByIndex(const std::string &name, int textureIndex) const;
-    DragonBonesData *   parseDragonBonesDataByPath(const std::string &filePath, const std::string &name = "", float scale = 1.0f);
+    DragonBonesData *parseDragonBonesDataByPath(const std::string &filePath, const std::string &name = "", float scale = 1.0f);
 };
 
 DRAGONBONES_NAMESPACE_END

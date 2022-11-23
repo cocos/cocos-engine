@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import CANNON from '@cocos/cannon';
 import { getWrap } from '../utils/util';
 import { IBaseShape } from '../spec/i-physics-shape';

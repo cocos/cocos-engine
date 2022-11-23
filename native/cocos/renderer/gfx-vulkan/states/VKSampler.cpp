@@ -33,25 +33,25 @@ namespace gfx {
 CCVKSampler::CCVKSampler(const SamplerInfo &info) : Sampler(info) {
     _typedID = generateObjectID<decltype(this)>();
 
-    _gpuSampler                = CC_NEW(CCVKGPUSampler);
-    _gpuSampler->minFilter     = _info.minFilter;
-    _gpuSampler->magFilter     = _info.magFilter;
-    _gpuSampler->mipFilter     = _info.mipFilter;
-    _gpuSampler->addressU      = _info.addressU;
-    _gpuSampler->addressV      = _info.addressV;
-    _gpuSampler->addressW      = _info.addressW;
+    _gpuSampler = ccnew CCVKGPUSampler;
+    _gpuSampler->minFilter = _info.minFilter;
+    _gpuSampler->magFilter = _info.magFilter;
+    _gpuSampler->mipFilter = _info.mipFilter;
+    _gpuSampler->addressU = _info.addressU;
+    _gpuSampler->addressV = _info.addressV;
+    _gpuSampler->addressW = _info.addressW;
     _gpuSampler->maxAnisotropy = _info.maxAnisotropy;
-    _gpuSampler->cmpFunc       = _info.cmpFunc;
-
-    cmdFuncCCVKCreateSampler(CCVKDevice::getInstance(), _gpuSampler);
+    _gpuSampler->cmpFunc = _info.cmpFunc;
+    _gpuSampler->init();
 }
 
-CCVKSampler::~CCVKSampler() { // NOLINT(bugprone-exception-escape) garbage collect may throw
-    if (_gpuSampler) {
-        CCVKDevice::getInstance()->gpuDescriptorHub()->disengage(_gpuSampler);
-        CCVKDevice::getInstance()->gpuRecycleBin()->collect(_gpuSampler);
-        _gpuSampler = nullptr;
-    }
+void CCVKGPUSampler::init() {
+    cmdFuncCCVKCreateSampler(CCVKDevice::getInstance(), this);
+}
+
+void CCVKGPUSampler::shutdown() {
+    CCVKDevice::getInstance()->gpuDescriptorHub()->disengage(this);
+    CCVKDevice::getInstance()->gpuRecycleBin()->collect(this);
 }
 
 } // namespace gfx

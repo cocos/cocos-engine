@@ -53,8 +53,8 @@ System::LanguageType System::getCurrentLanguage() const {
 }
 
 ccstd::string System::getCurrentLanguageCode() const {
-    static char code[3]       = {0};
-    char *      pLanguageName = getenv("LANG");
+    static char code[3] = {0};
+    char *pLanguageName = getenv("LANG");
     if (!pLanguageName) {
         return "en";
     }
@@ -120,6 +120,8 @@ System::LanguageType System::getLanguageTypeByISO2(const char *code) const {
         ret = LanguageType::ROMANIAN;
     } else if (strncmp(code, "bg", 2) == 0) {
         ret = LanguageType::BULGARIAN;
+    } else if (strncmp(code, "hi", 2) == 0) {
+        ret = LanguageType::HINDI;
     }
     return ret;
 }

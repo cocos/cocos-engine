@@ -42,8 +42,7 @@ DRAGONBONES_NAMESPACE_BEGIN
  * @version DragonBones 3.0
  * @language zh_CN
  */
-class IAnimatable
-{
+class IAnimatable {
     ABSTRACT_CLASS(IAnimatable)
 
 public:
@@ -60,7 +59,7 @@ public:
      * @language zh_CN
      */
     virtual void advanceTime(float passedTime) = 0;
-    
+
     /**
      * - Render.
      * @version Cocos creator 2.3
@@ -96,18 +95,6 @@ public:
      */
     virtual WorldClock* getClock() const = 0;
     virtual void setClock(WorldClock* value) = 0;
-    
-    /**
-     * - Gets render order.
-     * @version Cocos creator 2.3
-     * @language en_US
-     */
-    /**
-     * - 获得渲染顺序。
-     * @version Cocos creator 2.3
-     * @language zh_CN
-     */
-    virtual uint32_t getRenderOrder() const { return 0; }
 };
 
 DRAGONBONES_NAMESPACE_END

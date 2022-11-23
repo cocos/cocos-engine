@@ -23,19 +23,14 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module decorator
- */
-
 import { DEV } from 'internal:constants';
-import { js } from '../../utils/js';
+import { getSuper, mixin, getClassName } from '../../utils/js-typed';
 import { CCClass } from '../class';
 import { doValidateMethodWithProps_DEV } from '../utils/preprocess-class';
 import { CACHE_KEY, makeSmartClassDecorator } from './utils';
 
 /**
- * @en Declare a standard class as a CCClass, please refer to the [document](https://docs.cocos.com/creator3d/manual/zh/scripting/ccclass.html)
+ * @en Declare a standard class as a CCClass, please refer to the [document](https://docs.cocos.com/creator3d/manual/en/scripting/ccclass.html)
  * @zh 将标准写法的类声明为 CC 类，具体用法请参阅[类型定义](https://docs.cocos.com/creator3d/manual/zh/scripting/ccclass.html)。
  * @param name - The class name used for serialization.
  * @example
@@ -57,7 +52,7 @@ import { CACHE_KEY, makeSmartClassDecorator } from './utils';
  * ```
  */
 export const ccclass: ((name?: string) => ClassDecorator) & ClassDecorator = makeSmartClassDecorator<string>((constructor, name) => {
-    let base = js.getSuper(constructor);
+    let base = getSuper(constructor);
     if (base === Object) {
         base = null;
     }
@@ -72,7 +67,7 @@ export const ccclass: ((name?: string) => ClassDecorator) & ClassDecorator = mak
         const decoratedProto = cache.proto;
         if (decoratedProto) {
             // decoratedProto.properties = createProperties(ctor, decoratedProto.properties);
-            js.mixin(proto, decoratedProto);
+            mixin(proto, decoratedProto);
         }
         constructor[CACHE_KEY] = undefined;
     }
@@ -88,7 +83,7 @@ export const ccclass: ((name?: string) => ClassDecorator) & ClassDecorator = mak
                 const desc = Object.getOwnPropertyDescriptor(constructor.prototype, prop);
                 const func = desc && desc.value;
                 if (typeof func === 'function') {
-                    doValidateMethodWithProps_DEV(func, prop, js.getClassName(constructor), constructor, base);
+                    doValidateMethodWithProps_DEV(func, prop, getClassName(constructor), constructor, base);
                 }
             }
         }

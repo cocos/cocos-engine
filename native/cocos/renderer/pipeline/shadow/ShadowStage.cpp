@@ -34,18 +34,21 @@
 #include "math/Vec2.h"
 #include "profiler/Profiler.h"
 #include "scene/Camera.h"
+#include "scene/DirectionalLight.h"
+#include "scene/Light.h"
 #include "scene/Shadow.h"
+#include "scene/SpotLight.h"
 
 namespace cc {
 namespace pipeline {
 
-ShadowStage::ShadowStage()  = default;
+ShadowStage::ShadowStage() = default;
 ShadowStage::~ShadowStage() = default;
 
 RenderStageInfo ShadowStage::initInfo = {
     "ShadowStage",
-    static_cast<uint>(ForwardStagePriority::FORWARD),
-    static_cast<uint>(RenderFlowTag::SCENE),
+    static_cast<uint32_t>(ForwardStagePriority::FORWARD),
+    static_cast<uint32_t>(RenderFlowTag::SCENE),
     {}};
 const RenderStageInfo &ShadowStage::getInitializeInfo() { return ShadowStage::initInfo; }
 
@@ -60,36 +63,78 @@ bool ShadowStage::initialize(const RenderStageInfo &info) {
 void ShadowStage::activate(RenderPipeline *pipeline, RenderFlow *flow) {
     RenderStage::activate(pipeline, flow);
 
-    _additiveShadowQueue = CC_NEW(ShadowMapBatchedQueue(pipeline));
+    _additiveShadowQueue = ccnew ShadowMapBatchedQueue(pipeline);
 }
 
 void ShadowStage::render(scene::Camera *camera) {
     CC_PROFILE(ShadowStageRender);
-    const auto *sceneData  = _pipeline->getPipelineSceneData();
+    const auto *sceneData = _pipeline->getPipelineSceneData();
     const auto *shadowInfo = sceneData->getShadows();
 
     if (!_light || !_framebuffer) {
         return;
     }
 
+    if (_light->getType() == scene::LightType::DIRECTIONAL) {
+        const auto *dirLight = static_cast<const scene::DirectionalLight *>(_light);
+        if (!dirLight->isShadowEnabled()) return;
+    }
+
+    if (_light->getType() == scene::LightType::SPOT) {
+        const auto *spotLight = static_cast<const scene::SpotLight *>(_light);
+        if (!spotLight->isShadowEnabled()) return;
+    }
+
     auto *cmdBuffer = _pipeline->getCommandBuffers()[0];
-    _pipeline->getPipelineUBO()->updateShadowUBOLight(_globalDS, _light);
-    _additiveShadowQueue->gatherLightPasses(camera, _light, cmdBuffer);
+    _pipeline->getPipelineUBO()->updateShadowUBOLight(_globalDS, _light, _level);
+    _additiveShadowQueue->gatherLightPasses(camera, _light, cmdBuffer, _level);
 
-    const auto &shadowMapSize = shadowInfo->getSize();
-    const auto &viewport      = camera->getViewport();
-    _renderArea.x             = static_cast<int>(viewport.x * shadowMapSize.x);
-    _renderArea.y             = static_cast<int>(viewport.y * shadowMapSize.y);
-    _renderArea.width         = static_cast<uint>(viewport.z * shadowMapSize.x * sceneData->getShadingScale());
-    _renderArea.height        = static_cast<uint>(viewport.w * shadowMapSize.y * sceneData->getShadingScale());
+    const Vec2 &shadowMapSize = shadowInfo->getSize();
+    switch (_light->getType()) {
+        case scene::LightType::DIRECTIONAL: {
+            const auto *mainLight = static_cast<const scene::DirectionalLight *>(_light);
+            if (mainLight->isShadowFixedArea() || mainLight->getCSMLevel() == scene::CSMLevel::LEVEL_1 || !sceneData->getCSMSupported()) {
+                _renderArea.x = 0;
+                _renderArea.y = 0;
+                _renderArea.width = static_cast<uint32_t>(shadowMapSize.x);
+                _renderArea.height = static_cast<uint32_t>(shadowMapSize.y);
+            } else {
+                const gfx::Device *device = gfx::Device::getInstance();
+                const float screenSpaceSignY = device->getCapabilities().screenSpaceSignY;
+                _renderArea.x = static_cast<int>(static_cast<float>(_level % 2) * 0.5F * shadowMapSize.x);
+                if (screenSpaceSignY > 0.0F) {
+                    _renderArea.y = static_cast<int>((1 - floorf(static_cast<float>(_level) / 2)) * 0.5F * shadowMapSize.y);
+                } else {
+                    _renderArea.y = static_cast<int>((floorf(static_cast<float>(_level) / 2)) * 0.5F * shadowMapSize.y);
+                }
+                _renderArea.width = static_cast<int>(0.5F * shadowMapSize.x);
+                _renderArea.height = static_cast<int>(0.5F * shadowMapSize.y);
+            }
+            break;
+        }
+        case scene::LightType::SPOT: {
+            _renderArea.x = 0;
+            _renderArea.y = 0;
+            _renderArea.width = static_cast<uint32_t>(shadowMapSize.x);
+            _renderArea.height = static_cast<uint32_t>(shadowMapSize.y);
+            break;
+        }
+        case scene::LightType::SPHERE: {
+            break;
+        }
+        case scene::LightType::UNKNOWN:
+            break;
+        default:
+            break;
+    }
 
-    _clearColors[0]  = {1.0F, 1.0F, 1.0F, 1.0F};
+    _clearColors[0] = {1.0F, 1.0F, 1.0F, 1.0F};
     auto *renderPass = _framebuffer->getRenderPass();
 
     cmdBuffer->beginRenderPass(renderPass, _framebuffer, _renderArea,
                                _clearColors, camera->getClearDepth(), camera->getClearStencil());
 
-    const ccstd::array<uint, 1> globalOffsets = {_pipeline->getPipelineUBO()->getCurrentCameraUBOOffset()};
+    const ccstd::array<uint32_t, 1> globalOffsets = {_pipeline->getPipelineUBO()->getCurrentCameraUBOOffset()};
     cmdBuffer->bindDescriptorSet(globalSet, _globalDS, utils::toUint(globalOffsets.size()), globalOffsets.data());
     _additiveShadowQueue->recordCommandBuffer(_device, renderPass, cmdBuffer);
 
@@ -98,22 +143,32 @@ void ShadowStage::render(scene::Camera *camera) {
 
 void ShadowStage::destroy() {
     _framebuffer = nullptr;
-    _globalDS    = nullptr;
-    _light       = nullptr;
+    _globalDS = nullptr;
+    _light = nullptr;
 
     CC_SAFE_DESTROY_AND_DELETE(_additiveShadowQueue);
 
     RenderStage::destroy();
 }
 
-void ShadowStage::clearFramebuffer(scene::Camera *camera) {
+void ShadowStage::clearFramebuffer(const scene::Camera *camera) {
     if (!_light || !_framebuffer) {
         return;
     }
 
+    const auto *sceneData = _pipeline->getPipelineSceneData();
+    const auto *shadowInfo = sceneData->getShadows();
+    const Vec4 &viewport = camera->getViewport();
+    const Vec2 &shadowMapSize = shadowInfo->getSize();
+
     auto *cmdBuffer = _pipeline->getCommandBuffers()[0];
 
-    _clearColors[0]  = {1.0F, 1.0F, 1.0F, 1.0F};
+    _renderArea.x = static_cast<int>(viewport.x * shadowMapSize.x);
+    _renderArea.y = static_cast<int>(viewport.y * shadowMapSize.y);
+    _renderArea.width = static_cast<uint32_t>(viewport.z * shadowMapSize.x * sceneData->getShadingScale());
+    _renderArea.height = static_cast<uint32_t>(viewport.w * shadowMapSize.y * sceneData->getShadingScale());
+
+    _clearColors[0] = {1.0F, 1.0F, 1.0F, 1.0F};
     auto *renderPass = _framebuffer->getRenderPass();
 
     cmdBuffer->beginRenderPass(renderPass, _framebuffer, _renderArea,

@@ -36,17 +36,17 @@ public:
         _mtx->lock();
     }
     UniqueLockedRef(UniqueLockedRef &&t) noexcept {
-        _data   = t._data;
-        _mtx    = t._mtx;
+        _data = t._data;
+        _mtx = t._mtx;
         t._data = nullptr;
-        t._mtx  = nullptr;
+        t._mtx = nullptr;
     }
 
     UniqueLockedRef &operator=(UniqueLockedRef &&t) noexcept {
-        _data   = t._data;
-        _mtx    = t._mtx;
+        _data = t._data;
+        _mtx = t._mtx;
         t._data = nullptr;
-        t._mtx  = nullptr;
+        t._mtx = nullptr;
         return *this;
     }
 
@@ -67,18 +67,18 @@ public:
     }
 
 private:
-    T * _data{};
+    T *_data{};
     LK *_mtx{};
 };
 
 template <class T, class LK>
 class Locked {
 public:
-    Locked()                       = default;
-    Locked(const Locked &)         = delete;
-    Locked(Locked &&)              = delete;
-    Locked &               operator=(const Locked &) = delete;
-    Locked &               operator=(Locked &&) = delete;
+    Locked() = default;
+    Locked(const Locked &) = delete;
+    Locked(Locked &&) = delete;
+    Locked &operator=(const Locked &) = delete;
+    Locked &operator=(Locked &&) = delete;
     UniqueLockedRef<T, LK> lock() {
         UniqueLockedRef<T, LK> ref(&_data, &_mutex);
         return std::move(ref);
@@ -86,7 +86,7 @@ public:
 
 private:
     LK _mutex{};
-    T  _data{};
+    T _data{};
 };
 
 } // namespace cc

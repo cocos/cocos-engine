@@ -1,4 +1,4 @@
-import { legacyCC } from "../../core/global-exports";
+import { cclegacy } from "../../core";
 
 export const MorphModel = jsb.MorphModel;
-legacyCC.MorphModel = jsb.MorphModel;
+cclegacy.MorphModel = jsb.MorphModel;

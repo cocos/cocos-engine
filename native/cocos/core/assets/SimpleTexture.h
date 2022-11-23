@@ -40,6 +40,11 @@ class ImageAsset;
  * 简单贴图允许指定不同的 Mipmap 层级。
  */
 class SimpleTexture : public TextureBase {
+    IMPL_EVENT_TARGET(SimpleTexture)
+    DECLARE_TARGET_EVENT_BEGIN_WITH_PARENTS(SimpleTexture, TextureBase)
+    TARGET_EVENT_ARG1(TextureUpdated, cc::gfx::Texture *)
+    TARGET_EVENT_ARG1(AfterAssignImage, cc::ImageAsset *)
+    DECLARE_TARGET_EVENT_END()
 public:
     ~SimpleTexture() override;
 
@@ -108,13 +113,19 @@ public:
      * @warn As it is invoked by subclass(TextureCube) in TS, so should make it as public.
      */
     void setMipmapLevel(uint32_t value);
-    
+
     /**
      * Set mipmap level range for this texture.
      * @param baseLevel The base mipmap level.
      * @param maxLevel The maximum mipmap level.
      */
     void setMipRange(uint32_t baseLevel, uint32_t maxLevel);
+
+    /**
+     * @en Whether mipmaps are baked convolutional maps.
+     * @zh mipmaps是否为烘焙出来的卷积图。
+     */
+    virtual bool isUsingOfflineMipmaps();
 
 protected:
     SimpleTexture();
@@ -126,7 +137,7 @@ protected:
      * @param presumed The presumed GFX texture info.
      */
     virtual gfx::TextureInfo getGfxTextureCreateInfo(gfx::TextureUsageBit usage, gfx::Format format, uint32_t levelCount, gfx::TextureFlagBit flags) = 0;
-    
+
     /**
      * @en This method is overrided by derived classes to provide GFX TextureViewInfo.
      * @zh 这个方法被派生类重写以提供 GFX 纹理视图信息。
@@ -137,13 +148,12 @@ protected:
     void tryReset();
 
     void createTexture(gfx::Device *device);
-    void createTextureView(gfx::Device *device);
+    gfx::Texture *createTextureView(gfx::Device *device);
 
     void tryDestroyTexture();
     void tryDestroyTextureView();
     void notifyTextureUpdated();
     void setMipRangeInternal(uint32_t baseLevel, uint32_t maxLevel);
-
 
     IntrusivePtr<gfx::Texture> _gfxTexture;
     IntrusivePtr<gfx::Texture> _gfxTextureView;
@@ -152,9 +162,9 @@ protected:
     // Cache these data to reduce JSB invoking.
     uint32_t _textureWidth{0};
     uint32_t _textureHeight{0};
-    
+
     uint32_t _baseLevel{0};
-    uint32_t _maxLevel{0};
+    uint32_t _maxLevel{1000};
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(SimpleTexture);
 };

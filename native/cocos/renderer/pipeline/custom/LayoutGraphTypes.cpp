@@ -35,36 +35,6 @@ namespace cc {
 
 namespace render {
 
-UniformBlockDB::UniformBlockDB(const allocator_type& alloc) noexcept
-: values(alloc) {}
-
-UniformBlockDB::UniformBlockDB(UniformBlockDB&& rhs, const allocator_type& alloc)
-: values(std::move(rhs.values), alloc) {}
-
-UniformBlockDB::UniformBlockDB(UniformBlockDB const& rhs, const allocator_type& alloc)
-: values(rhs.values, alloc) {}
-
-DescriptorBlock::DescriptorBlock(const allocator_type& alloc) noexcept
-: descriptors(alloc),
-  uniformBlocks(alloc),
-  merged(alloc) {}
-
-DescriptorBlock::DescriptorBlock(DescriptorBlock&& rhs, const allocator_type& alloc)
-: descriptors(std::move(rhs.descriptors), alloc),
-  uniformBlocks(std::move(rhs.uniformBlocks), alloc),
-  merged(std::move(rhs.merged), alloc),
-  capacity(rhs.capacity),
-  start(rhs.start),
-  count(rhs.count) {}
-
-DescriptorBlock::DescriptorBlock(DescriptorBlock const& rhs, const allocator_type& alloc)
-: descriptors(rhs.descriptors, alloc),
-  uniformBlocks(rhs.uniformBlocks, alloc),
-  merged(rhs.merged, alloc),
-  capacity(rhs.capacity),
-  start(rhs.start),
-  count(rhs.count) {}
-
 DescriptorDB::DescriptorDB(const allocator_type& alloc) noexcept
 : blocks(alloc) {}
 
@@ -84,7 +54,7 @@ RenderPhase::RenderPhase(RenderPhase const& rhs, const allocator_type& alloc)
 : shaders(rhs.shaders, alloc) {}
 
 LayoutGraph::LayoutGraph(const allocator_type& alloc) noexcept
-: vertices(alloc),
+: _vertices(alloc),
   names(alloc),
   descriptors(alloc),
   stages(alloc),
@@ -92,7 +62,7 @@ LayoutGraph::LayoutGraph(const allocator_type& alloc) noexcept
   pathIndex(alloc) {}
 
 LayoutGraph::LayoutGraph(LayoutGraph&& rhs, const allocator_type& alloc)
-: vertices(std::move(rhs.vertices), alloc),
+: _vertices(std::move(rhs._vertices), alloc),
   names(std::move(rhs.names), alloc),
   descriptors(std::move(rhs.descriptors), alloc),
   stages(std::move(rhs.stages), alloc),
@@ -100,7 +70,7 @@ LayoutGraph::LayoutGraph(LayoutGraph&& rhs, const allocator_type& alloc)
   pathIndex(std::move(rhs.pathIndex), alloc) {}
 
 LayoutGraph::LayoutGraph(LayoutGraph const& rhs, const allocator_type& alloc)
-: vertices(rhs.vertices, alloc),
+: _vertices(rhs._vertices, alloc),
   names(rhs.names, alloc),
   descriptors(rhs.descriptors, alloc),
   stages(rhs.stages, alloc),
@@ -109,7 +79,7 @@ LayoutGraph::LayoutGraph(LayoutGraph const& rhs, const allocator_type& alloc)
 
 // ContinuousContainer
 void LayoutGraph::reserve(vertices_size_type sz) {
-    vertices.reserve(sz);
+    _vertices.reserve(sz);
     names.reserve(sz);
     descriptors.reserve(sz);
 }
@@ -140,53 +110,57 @@ UniformBlockData::UniformBlockData(UniformBlockData const& rhs, const allocator_
   uniforms(rhs.uniforms, alloc) {}
 
 DescriptorBlockData::DescriptorBlockData(const allocator_type& alloc) noexcept
-: descriptors(alloc),
-  uniformBlocks(alloc) {}
+: descriptors(alloc) {}
 
-DescriptorBlockData::DescriptorBlockData(DescriptorIndex typeIn, uint32_t capacityIn, const allocator_type& alloc) noexcept
+DescriptorBlockData::DescriptorBlockData(DescriptorTypeOrder typeIn, gfx::ShaderStageFlagBit visibilityIn, uint32_t capacityIn, const allocator_type& alloc) noexcept // NOLINT
 : type(typeIn),
+  visibility(visibilityIn),
   capacity(capacityIn),
-  descriptors(alloc),
-  uniformBlocks(alloc) {}
+  descriptors(alloc) {}
 
 DescriptorBlockData::DescriptorBlockData(DescriptorBlockData&& rhs, const allocator_type& alloc)
 : type(rhs.type),
+  visibility(rhs.visibility),
+  offset(rhs.offset),
   capacity(rhs.capacity),
-  descriptors(std::move(rhs.descriptors), alloc),
-  uniformBlocks(std::move(rhs.uniformBlocks), alloc) {}
+  descriptors(std::move(rhs.descriptors), alloc) {}
 
 DescriptorBlockData::DescriptorBlockData(DescriptorBlockData const& rhs, const allocator_type& alloc)
 : type(rhs.type),
+  visibility(rhs.visibility),
+  offset(rhs.offset),
   capacity(rhs.capacity),
-  descriptors(rhs.descriptors, alloc),
-  uniformBlocks(rhs.uniformBlocks, alloc) {}
+  descriptors(rhs.descriptors, alloc) {}
 
-DescriptorTableData::DescriptorTableData(const allocator_type& alloc) noexcept
-: descriptorBlocks(alloc) {}
+DescriptorSetLayoutData::DescriptorSetLayoutData(const allocator_type& alloc) noexcept
+: descriptorBlocks(alloc),
+  uniformBlocks(alloc) {}
 
-DescriptorTableData::DescriptorTableData(uint32_t tableIDIn, uint32_t capacityIn, const allocator_type& alloc) noexcept // NOLINT
-: tableID(tableIDIn),
+DescriptorSetLayoutData::DescriptorSetLayoutData(uint32_t slotIn, uint32_t capacityIn, const allocator_type& alloc) noexcept // NOLINT
+: slot(slotIn),
   capacity(capacityIn),
-  descriptorBlocks(alloc) {}
+  descriptorBlocks(alloc),
+  uniformBlocks(alloc) {}
 
-DescriptorTableData::DescriptorTableData(DescriptorTableData&& rhs, const allocator_type& alloc)
-: tableID(rhs.tableID),
+DescriptorSetLayoutData::DescriptorSetLayoutData(DescriptorSetLayoutData&& rhs, const allocator_type& alloc)
+: slot(rhs.slot),
   capacity(rhs.capacity),
-  descriptorBlocks(std::move(rhs.descriptorBlocks), alloc) {}
-
-DescriptorTableData::DescriptorTableData(DescriptorTableData const& rhs, const allocator_type& alloc)
-: tableID(rhs.tableID),
-  capacity(rhs.capacity),
-  descriptorBlocks(rhs.descriptorBlocks, alloc) {}
+  descriptorBlocks(std::move(rhs.descriptorBlocks), alloc),
+  uniformBlocks(std::move(rhs.uniformBlocks), alloc) {}
 
 DescriptorSetData::DescriptorSetData(const allocator_type& alloc) noexcept
-: tables(alloc) {}
+: descriptorSetLayoutData(alloc) {}
+
+DescriptorSetData::DescriptorSetData(DescriptorSetLayoutData descriptorSetLayoutDataIn, IntrusivePtr<gfx::DescriptorSetLayout> descriptorSetLayoutIn, IntrusivePtr<gfx::DescriptorSet> descriptorSetIn, const allocator_type& alloc) noexcept
+: descriptorSetLayoutData(std::move(descriptorSetLayoutDataIn), alloc),
+  descriptorSetLayout(std::move(descriptorSetLayoutIn)),
+  descriptorSet(std::move(descriptorSetIn)) {}
 
 DescriptorSetData::DescriptorSetData(DescriptorSetData&& rhs, const allocator_type& alloc)
-: tables(std::move(rhs.tables), alloc) {}
-
-DescriptorSetData::DescriptorSetData(DescriptorSetData const& rhs, const allocator_type& alloc)
-: tables(rhs.tables, alloc) {}
+: descriptorSetLayoutData(std::move(rhs.descriptorSetLayoutData), alloc),
+  descriptorSetLayoutInfo(std::move(rhs.descriptorSetLayoutInfo)),
+  descriptorSetLayout(std::move(rhs.descriptorSetLayout)),
+  descriptorSet(std::move(rhs.descriptorSet)) {}
 
 PipelineLayoutData::PipelineLayoutData(const allocator_type& alloc) noexcept
 : descriptorSets(alloc) {}
@@ -194,8 +168,31 @@ PipelineLayoutData::PipelineLayoutData(const allocator_type& alloc) noexcept
 PipelineLayoutData::PipelineLayoutData(PipelineLayoutData&& rhs, const allocator_type& alloc)
 : descriptorSets(std::move(rhs.descriptorSets), alloc) {}
 
-PipelineLayoutData::PipelineLayoutData(PipelineLayoutData const& rhs, const allocator_type& alloc)
-: descriptorSets(rhs.descriptorSets, alloc) {}
+ShaderBindingData::ShaderBindingData(const allocator_type& alloc) noexcept
+: descriptorBindings(alloc) {}
+
+ShaderBindingData::ShaderBindingData(ShaderBindingData&& rhs, const allocator_type& alloc)
+: descriptorBindings(std::move(rhs.descriptorBindings), alloc) {}
+
+ShaderLayoutData::ShaderLayoutData(const allocator_type& alloc) noexcept
+: layoutData(alloc),
+  bindingData(alloc) {}
+
+ShaderLayoutData::ShaderLayoutData(ShaderLayoutData&& rhs, const allocator_type& alloc)
+: layoutData(std::move(rhs.layoutData), alloc),
+  bindingData(std::move(rhs.bindingData), alloc) {}
+
+TechniqueData::TechniqueData(const allocator_type& alloc) noexcept
+: passes(alloc) {}
+
+TechniqueData::TechniqueData(TechniqueData&& rhs, const allocator_type& alloc)
+: passes(std::move(rhs.passes), alloc) {}
+
+EffectData::EffectData(const allocator_type& alloc) noexcept
+: techniques(alloc) {}
+
+EffectData::EffectData(EffectData&& rhs, const allocator_type& alloc)
+: techniques(std::move(rhs.techniques), alloc) {}
 
 ShaderProgramData::ShaderProgramData(const allocator_type& alloc) noexcept
 : layout(alloc) {}
@@ -203,8 +200,11 @@ ShaderProgramData::ShaderProgramData(const allocator_type& alloc) noexcept
 ShaderProgramData::ShaderProgramData(ShaderProgramData&& rhs, const allocator_type& alloc)
 : layout(std::move(rhs.layout), alloc) {}
 
-ShaderProgramData::ShaderProgramData(ShaderProgramData const& rhs, const allocator_type& alloc)
-: layout(rhs.layout, alloc) {}
+RenderStageData::RenderStageData(const allocator_type& alloc) noexcept
+: descriptorVisibility(alloc) {}
+
+RenderStageData::RenderStageData(RenderStageData&& rhs, const allocator_type& alloc)
+: descriptorVisibility(std::move(rhs.descriptorVisibility), alloc) {}
 
 RenderPhaseData::RenderPhaseData(const allocator_type& alloc) noexcept
 : rootSignature(alloc),
@@ -216,41 +216,37 @@ RenderPhaseData::RenderPhaseData(RenderPhaseData&& rhs, const allocator_type& al
   shaderPrograms(std::move(rhs.shaderPrograms), alloc),
   shaderIndex(std::move(rhs.shaderIndex), alloc) {}
 
-RenderPhaseData::RenderPhaseData(RenderPhaseData const& rhs, const allocator_type& alloc)
-: rootSignature(rhs.rootSignature, alloc),
-  shaderPrograms(rhs.shaderPrograms, alloc),
-  shaderIndex(rhs.shaderIndex, alloc) {}
-
 LayoutGraphData::LayoutGraphData(const allocator_type& alloc) noexcept
-: vertices(alloc),
+: _vertices(alloc),
   names(alloc),
   updateFrequencies(alloc),
   layouts(alloc),
   stages(alloc),
   phases(alloc),
+  valueNames(alloc),
+  attributeIndex(alloc),
+  constantIndex(alloc),
+  shaderLayoutIndex(alloc),
+  effects(alloc),
   pathIndex(alloc) {}
 
 LayoutGraphData::LayoutGraphData(LayoutGraphData&& rhs, const allocator_type& alloc)
-: vertices(std::move(rhs.vertices), alloc),
+: _vertices(std::move(rhs._vertices), alloc),
   names(std::move(rhs.names), alloc),
   updateFrequencies(std::move(rhs.updateFrequencies), alloc),
   layouts(std::move(rhs.layouts), alloc),
   stages(std::move(rhs.stages), alloc),
   phases(std::move(rhs.phases), alloc),
+  valueNames(std::move(rhs.valueNames), alloc),
+  attributeIndex(std::move(rhs.attributeIndex), alloc),
+  constantIndex(std::move(rhs.constantIndex), alloc),
+  shaderLayoutIndex(std::move(rhs.shaderLayoutIndex), alloc),
+  effects(std::move(rhs.effects), alloc),
   pathIndex(std::move(rhs.pathIndex), alloc) {}
-
-LayoutGraphData::LayoutGraphData(LayoutGraphData const& rhs, const allocator_type& alloc)
-: vertices(rhs.vertices, alloc),
-  names(rhs.names, alloc),
-  updateFrequencies(rhs.updateFrequencies, alloc),
-  layouts(rhs.layouts, alloc),
-  stages(rhs.stages, alloc),
-  phases(rhs.phases, alloc),
-  pathIndex(rhs.pathIndex, alloc) {}
 
 // ContinuousContainer
 void LayoutGraphData::reserve(vertices_size_type sz) {
-    vertices.reserve(sz);
+    _vertices.reserve(sz);
     names.reserve(sz);
     updateFrequencies.reserve(sz);
     layouts.reserve(sz);

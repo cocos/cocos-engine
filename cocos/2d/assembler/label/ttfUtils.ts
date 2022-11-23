@@ -23,18 +23,17 @@
  THE SOFTWARE.
 */
 
+import { JSB } from 'internal:constants';
 import { SpriteFrame } from '../../assets';
-import { Texture2D } from '../../../core/assets';
+import { Texture2D } from '../../../asset/assets';
 import { fragmentText, safeMeasureText, getBaselineOffset, BASELINE_RATIO } from '../../utils/text-utils';
-import { Color, Size, Vec2, Rect } from '../../../core/math';
+import { Color, Size, Vec2, Rect, logID, cclegacy } from '../../../core';
 import { HorizontalTextAlignment, Label, LabelOutline, VerticalTextAlignment, LabelShadow } from '../../components';
 import { ISharedLabelData, LetterRenderTexture } from './font-utils';
-import { logID } from '../../../core/platform/debug';
 import { UITransform } from '../../framework/ui-transform';
-import { legacyCC } from '../../../core/global-exports';
-import { assetManager } from '../../../core/asset-manager';
 import { dynamicAtlasManager } from '../../utils/dynamic-atlas/atlas-manager';
-import { BlendFactor } from '../../../core/gfx';
+import { BlendFactor } from '../../../gfx';
+import { WrapMode } from '../../../asset/assets/asset-enum';
 
 const Overflow = Label.Overflow;
 const MAX_SIZE = 2048;
@@ -90,6 +89,7 @@ const Alignment = [
 export const ttfUtils =  {
     getAssemblerData () {
         const sharedLabelData = Label._canvasPool.get();
+        sharedLabelData.canvas.width = sharedLabelData.canvas.height = 1;
         return sharedLabelData;
     },
 
@@ -115,9 +115,10 @@ export const ttfUtils =  {
             trans.setContentSize(_canvasSize);
 
             this.updateVertexData(comp);
-            this.updateUVs(comp);
-
-            comp.markForUpdateRenderData(false);
+            this.updateUVs(comp); // Empty
+            comp.renderData.vertDirty = false;
+            // comp.markForUpdateRenderData(false);
+            comp.contentWidth = _nodeContentSize.width;
 
             _context = null;
             _canvas = null;
@@ -330,6 +331,7 @@ export const ttfUtils =  {
                     mipmapLevel: 1,
                 });
                 tex.uploadData(_canvas);
+                tex.setWrapMode(WrapMode.CLAMP_TO_EDGE, WrapMode.CLAMP_TO_EDGE);
                 if (_texture instanceof SpriteFrame) {
                     _texture.rect = new Rect(0, 0, _canvas.width, _canvas.height);
                     _texture._calculateUV();
@@ -337,8 +339,12 @@ export const ttfUtils =  {
                 if (comp.renderData) {
                     comp.renderData.textureDirty = true;
                 }
-                if (legacyCC.director.root && legacyCC.director.root.batcher2D) {
-                    legacyCC.director.root.batcher2D._releaseDescriptorSetCache(tex.getHash());
+                if (cclegacy.director.root && cclegacy.director.root.batcher2D) {
+                    if (JSB) {
+                        cclegacy.director.root.batcher2D._releaseDescriptorSetCache(tex.getGFXTexture(), tex.getGFXSampler());
+                    } else {
+                        cclegacy.director.root.batcher2D._releaseDescriptorSetCache(tex.getHash());
+                    }
                 }
             }
         }

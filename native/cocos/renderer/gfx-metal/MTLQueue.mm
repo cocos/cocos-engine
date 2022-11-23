@@ -42,30 +42,30 @@ CCMTLQueue::~CCMTLQueue() {
 }
 
 void CCMTLQueue::doInit(const QueueInfo &info) {
-    _gpuQueueObj = CC_NEW(CCMTLGPUQueueObject);
+    _gpuQueueObj = ccnew CCMTLGPUQueueObject;
     auto device = static_cast<id<MTLDevice>>(CCMTLDevice::getInstance()->getMTLDevice());
     _gpuQueueObj->mtlCommandQueue = [device newCommandQueue];
 }
 
 void CCMTLQueue::doDestroy() {
-    if(_gpuQueueObj) {
+    if (_gpuQueueObj) {
         id<MTLCommandQueue> mtlCmdQueue = _gpuQueueObj->mtlCommandQueue;
         _gpuQueueObj->mtlCommandQueue = nil;
-        
+
         auto destroyFunc = [mtlCmdQueue]() {
-            if(mtlCmdQueue) {
+            if (mtlCmdQueue) {
                 [mtlCmdQueue release];
             }
         };
         CCMTLGPUGarbageCollectionPool::getInstance()->collect(destroyFunc);
-        
+
         CC_SAFE_DELETE(_gpuQueueObj);
     }
 }
 
-void CCMTLQueue::submit(CommandBuffer *const *cmdBuffs, uint count) {
-    for (uint i = 0u; i < count; ++i) {
-        CCMTLCommandBuffer *cmdBuffer = static_cast<CCMTLCommandBuffer*>(cmdBuffs[i]);
+void CCMTLQueue::submit(CommandBuffer *const *cmdBuffs, uint32_t count) {
+    for (uint32_t i = 0u; i < count; ++i) {
+        CCMTLCommandBuffer *cmdBuffer = static_cast<CCMTLCommandBuffer *>(cmdBuffs[i]);
         _gpuQueueObj->numDrawCalls += cmdBuffer->getNumDrawCalls();
         _gpuQueueObj->numInstances += cmdBuffer->getNumInstances();
         _gpuQueueObj->numTriangles += cmdBuffer->getNumTris();

@@ -59,37 +59,37 @@ public:
     void acquire(Swapchain *const *swapchains, uint32_t count) override;
     void present() override;
 
-    CommandBuffer *      createCommandBuffer(const CommandBufferInfo &info, bool hasAgent) override;
-    Queue *              createQueue() override;
-    QueryPool *          createQueryPool() override;
-    Swapchain *          createSwapchain() override;
-    Buffer *             createBuffer() override;
-    Texture *            createTexture() override;
-    Shader *             createShader() override;
-    InputAssembler *     createInputAssembler() override;
-    RenderPass *         createRenderPass() override;
-    Framebuffer *        createFramebuffer() override;
-    DescriptorSet *      createDescriptorSet() override;
+    CommandBuffer *createCommandBuffer(const CommandBufferInfo &info, bool hasAgent) override;
+    Queue *createQueue() override;
+    QueryPool *createQueryPool() override;
+    Swapchain *createSwapchain() override;
+    Buffer *createBuffer() override;
+    Texture *createTexture() override;
+    Shader *createShader() override;
+    InputAssembler *createInputAssembler() override;
+    RenderPass *createRenderPass() override;
+    Framebuffer *createFramebuffer() override;
+    DescriptorSet *createDescriptorSet() override;
     DescriptorSetLayout *createDescriptorSetLayout() override;
-    PipelineLayout *     createPipelineLayout() override;
-    PipelineState *      createPipelineState() override;
+    PipelineLayout *createPipelineLayout() override;
+    PipelineState *createPipelineState() override;
 
-    Sampler *       getSampler(const SamplerInfo &info) override;
-    GeneralBarrier * getGeneralBarrier(const GeneralBarrierInfo &info) override;
+    Sampler *getSampler(const SamplerInfo &info) override;
+    GeneralBarrier *getGeneralBarrier(const GeneralBarrierInfo &info) override;
     TextureBarrier *getTextureBarrier(const TextureBarrierInfo &info) override;
 
     void copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint32_t count) override;
     void copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *region, uint32_t count) override;
     void getQueryPoolResults(QueryPool *queryPool) override;
 
-    void          flushCommands(CommandBuffer *const *cmdBuffs, uint32_t count) override;
+    void flushCommands(CommandBuffer *const *cmdBuffs, uint32_t count) override;
     MemoryStatus &getMemoryStatus() override { return _actor->getMemoryStatus(); }
-    uint32_t      getNumDrawCalls() const override { return _actor->getNumDrawCalls(); }
-    uint32_t      getNumInstances() const override { return _actor->getNumInstances(); }
-    uint32_t      getNumTris() const override { return _actor->getNumTris(); }
+    uint32_t getNumDrawCalls() const override { return _actor->getNumDrawCalls(); }
+    uint32_t getNumInstances() const override { return _actor->getNumInstances(); }
+    uint32_t getNumTris() const override { return _actor->getNumTris(); }
 
-    inline void     enableRecording(bool recording) { _recording = recording; }
-    inline bool     isRecording() const { return _recording; }
+    inline void enableRecording(bool recording) { _recording = recording; }
+    inline bool isRecording() const { return _recording; }
     inline uint64_t currentFrame() const { return _currentFrame; }
 
 protected:
@@ -104,7 +104,7 @@ protected:
 
     void bindContext(bool bound) override { _actor->bindContext(bound); }
 
-    bool     _recording{false};
+    bool _recording{false};
     uint64_t _currentFrame{1U};
 };
 

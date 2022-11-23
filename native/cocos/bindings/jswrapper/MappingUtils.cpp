@@ -25,16 +25,19 @@
 ****************************************************************************/
 
 #include "MappingUtils.h"
+#include "base/memory/Memory.h"
 
 namespace se {
 
 // NativePtrToObjectMap
-NativePtrToObjectMap::Map *NativePtrToObjectMap::__nativePtrToObjectMap = nullptr;
+NativePtrToObjectMap::Map *NativePtrToObjectMap::__nativePtrToObjectMap = nullptr; // NOLINT
+bool NativePtrToObjectMap::__isValid = false;                                      // NOLINT
 
 bool NativePtrToObjectMap::init() {
-    if (__nativePtrToObjectMap == nullptr)
-        __nativePtrToObjectMap = new (std::nothrow) NativePtrToObjectMap::Map();
-
+    if (__nativePtrToObjectMap == nullptr) {
+        __nativePtrToObjectMap = ccnew NativePtrToObjectMap::Map();
+    }
+    __isValid = true;
     return __nativePtrToObjectMap != nullptr;
 }
 
@@ -43,14 +46,27 @@ void NativePtrToObjectMap::destroy() {
         delete __nativePtrToObjectMap;
         __nativePtrToObjectMap = nullptr;
     }
+    __isValid = false;
+}
+
+bool NativePtrToObjectMap::isValid() {
+    return __isValid;
+}
+
+CC_DEPRECATED(3.7) NativePtrToObjectMap::Map::iterator NativePtrToObjectMap::find(void *v) {
+    return __nativePtrToObjectMap->find(v);
+}
+
+CC_DEPRECATED(3.7) NativePtrToObjectMap::Map::iterator NativePtrToObjectMap::begin() {
+    return __nativePtrToObjectMap->begin();
+}
+
+CC_DEPRECATED(3.7) NativePtrToObjectMap::Map::iterator NativePtrToObjectMap::end() {
+    return __nativePtrToObjectMap->end();
 }
 
 void NativePtrToObjectMap::emplace(void *nativeObj, Object *seObj) {
     __nativePtrToObjectMap->emplace(nativeObj, seObj);
-}
-
-NativePtrToObjectMap::Map::iterator NativePtrToObjectMap::find(void *nativeObj) {
-    return __nativePtrToObjectMap->find(nativeObj);
 }
 
 NativePtrToObjectMap::Map::iterator NativePtrToObjectMap::erase(Map::iterator iter) {
@@ -59,6 +75,16 @@ NativePtrToObjectMap::Map::iterator NativePtrToObjectMap::erase(Map::iterator it
 
 void NativePtrToObjectMap::erase(void *nativeObj) {
     __nativePtrToObjectMap->erase(nativeObj);
+}
+
+void NativePtrToObjectMap::erase(void *nativeObj, se::Object *obj) {
+    auto range = __nativePtrToObjectMap->equal_range(nativeObj);
+    for (auto itr = range.first; itr != range.second; itr++) {
+        if (itr->second == obj) {
+            __nativePtrToObjectMap->erase(itr);
+            break;
+        }
+    }
 }
 
 void NativePtrToObjectMap::clear() {
@@ -73,11 +99,4 @@ const NativePtrToObjectMap::Map &NativePtrToObjectMap::instance() {
     return *__nativePtrToObjectMap;
 }
 
-NativePtrToObjectMap::Map::iterator NativePtrToObjectMap::begin() {
-    return __nativePtrToObjectMap->begin();
-}
-
-NativePtrToObjectMap::Map::iterator NativePtrToObjectMap::end() {
-    return __nativePtrToObjectMap->end();
-}
 } // namespace se

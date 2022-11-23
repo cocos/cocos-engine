@@ -1,4 +1,8 @@
-exports.template = `
+'use strict';
+
+const { updateElementReadonly } = require('../utils/assets');
+
+exports.template = /* html */`
 <section class="asset-animation-mask">
     <div class="header">
         <ui-button class="import">
@@ -13,53 +17,143 @@ exports.template = `
     <div class="content">
         <ui-tree class="tree"></ui-tree>
     </div>
+    <ui-label class="multiple-warn-tip" value="i18n:ENGINE.assets.multipleWarning"></ui-label>
 </section>
 `;
 
+exports.style = /* css */`
+.asset-animation-mask {
+    display: flex;
+    height: 100%;
+    flex-direction: column;
+}
+
+.asset-animation-mask[multiple-invalid] > *:not(.multiple-warn-tip) {
+    display: none!important;
+ }
+
+ .asset-animation-mask[multiple-invalid] > .multiple-warn-tip {
+    display: block;
+ }
+
+.asset-animation-mask .multiple-warn-tip {
+    display: none;
+    text-align: center;
+    color: var(--color-focus-contrast-weakest);
+}
+
+.asset-animation-mask > .header {
+    margin-top: 10px;
+    display: flex;
+}
+
+.asset-animation-mask > .header ui-button {
+    text-align: center;
+}
+
+.asset-animation-mask > .header .import {
+    flex: 1;
+    margin-left: 10px;
+}
+
+.asset-animation-mask > .header .clear {
+    margin-left: 10px;
+}
+
+.asset-animation-mask > .content {
+    flex: 1;
+    margin-top: 10px;
+}
+
+.asset-animation-mask > .content .tree {
+    height: 100%;
+}
+`;
+
+exports.$ = {
+    container: '.asset-animation-mask',
+    import: '.import',
+    clear: '.clear',
+    tree: '.tree',
+};
+
 exports.methods = {
-    updateReadonly(element) {
-        if (this.asset.readonly) {
-            element.setAttribute('disabled', true);
-        } else {
-            element.removeAttribute('disabled');
+    record() {
+        return JSON.stringify(this.queryData);
+    },
+
+    async restore(record) {
+        record = JSON.parse(record);
+        if (!record || typeof record !== 'object') {
+            return false;
         }
+
+        await this.change(record);
+        return true;
     },
+
     async query(uuid) {
-        this.queryData = await Editor.Message.request('scene', 'query-animation-mask', uuid);
-        this.updateTree();
+        return await Editor.Message.request('scene', 'query-animation-mask', uuid);
     },
+
     async apply() {
         this.reset();
         await Editor.Message.request('scene', 'apply-animation-mask', this.asset.uuid);
     },
+
     reset() {
-        this.dirtyData.origin = this.dirtyData.realtime;
         this.dirtyData.uuid = '';
     },
-    async dataChange() {
-        await Editor.Message.request('scene', 'change-animation-mask', {
-            method: 'change-dump',
-            dump: this.queryData,
+
+    async clear() {
+        this.queryData = await Editor.Message.request('scene', 'change-animation-mask', {
+            method: 'clear-nodes',
+            uuid: this.asset.uuid,
         });
 
+        this.changed();
+    },
+    async import(info) {
+        this.queryData = await Editor.Message.request('scene', 'change-animation-mask', {
+            method: 'import-skeleton',
+            uuid: info.redirect.uuid,
+        });
+
+        this.changed();
+    },
+
+    async change(dump) {
+        this.queryData = await Editor.Message.request('scene', 'change-animation-mask', {
+            method: 'change-dump',
+            dump,
+        });
+
+        this.changed();
+    },
+
+    changed() {
+        this.updateInterface();
         this.setDirtyData();
+
         this.dispatch('change');
+
+        /**
+         * 由于编辑项中不需要区分 change 和 confirm 的情况，
+         * 所以可以在 change 后 snapshot
+         */
+        this.dispatch('snapshot');
     },
 
-    jointEnableChange(key, checked, loop) {
-        const { children, origin } = this.flatData[key];
-        origin.value.enabled.value = checked;
+    updateInterface() {
+        const convertData = this.convertData(this.queryData.joints.value);
+        this.flatData = convertData.flatData;
+        this.$.tree.tree = convertData.treeData;
 
-        if (loop) {
-            children.forEach((childKey) => {
-                this.jointEnableChange(childKey, checked, loop);
-            });
-        }
+        updateElementReadonly.call(this, this.$.import);
+        updateElementReadonly.call(this, this.$.clear);
+        updateElementReadonly.call(this, this.$.tree);
     },
 
-    /**
-     * Detection of data changes only determines the currently selected technique
-     */
     setDirtyData() {
         this.dirtyData.realtime = JSON.stringify(this.queryData);
 
@@ -159,50 +253,17 @@ exports.methods = {
         return { flatData, treeData };
     },
 
-    updateTree() {
-        const convertData = this.convertData(this.queryData._jointMasks.value);
-        this.flatData = convertData.flatData;
-        this.$.tree.tree = convertData.treeData;
+    jointEnableChange(key, checked, loop) {
+        const { children, origin } = this.flatData[key];
+        origin.value.enabled.value = checked;
+
+        if (loop) {
+            children.forEach((childKey) => {
+                this.jointEnableChange(childKey, checked, loop);
+            });
+        }
     },
 };
-
-exports.$ = {
-    container: '.asset-animation-mask',
-    import: '.import',
-    clear: '.clear',
-    tree: '.tree',
-};
-
-exports.style = `
-.asset-animation-mask {
-    display: flex;
-    height: 100%;
-    flex-direction: column;
-}
-
-.header {
-    margin-top: 10px;
-    display: flex;
-}
-
-.header ui-button {
-    flex: 1;
-    text-align: center;
-}
-
-.header .clear {
-    margin-left: 10px;
-}
-
-.content {
-    flex: 1;
-    margin-top: 10px;
-}
-
-.content .tree {
-    height: 100%;
-}
-`;
 
 exports.ready = function() {
     const panel = this;
@@ -215,7 +276,7 @@ exports.ready = function() {
             timestamp: rawTimestamp,
             type: 'asset',
             assetFilter: {
-                importer: 'fbx',
+                importer: ['fbx', 'gltf'],
             },
             events: {
                 async confirm(uuid) {
@@ -224,14 +285,8 @@ exports.ready = function() {
                         console.error(Editor.I18n.t('ENGINE.assets.animationMask.illegalFbx') + ` {asset(${uuid})}`);
                         return;
                     }
-                    panel.queryData = await Editor.Message.request('scene', 'change-animation-mask', {
-                        method: 'import-skeleton',
-                        uuid: info.redirect.uuid,
-                    });
 
-                    panel.updateTree();
-                    panel.setDirtyData();
-                    panel.dispatch('change');
+                    await panel.import(info);
                 },
             },
         });
@@ -246,14 +301,7 @@ exports.ready = function() {
         });
 
         if (result.response === 0) {
-            panel.queryData = await Editor.Message.request('scene', 'change-animation-mask', {
-                method: 'clear-nodes',
-                uuid: this.asset.uuid,
-            });
-
-            panel.updateTree();
-            panel.setDirtyData();
-            panel.dispatch('change');
+            await this.clear();
         }
     });
 
@@ -267,12 +315,12 @@ exports.ready = function() {
     panel.$.tree.setTemplate('left', '<ui-checkbox tooltip="i18n:ENGINE.assets.animationMask.nodeEnableTip"></ui-checkbox>');
     panel.$.tree.setTemplateInit('left', ($left) => {
         $left.$checkbox = $left.querySelector('ui-checkbox');
-        $left.$checkbox.addEventListener('click', (event) => {
+        $left.$checkbox.addEventListener('click', async (event) => {
             const key = $left.data.detail.key;
             const origin = panel.flatData[key].origin;
-            panel.jointEnableChange(key, !origin.value.enabled.value, event.altKey);
-            panel.dataChange();
-            panel.$.tree.render();
+            panel.jointEnableChange(key, !origin.value.enabled.value, !event.altKey);
+
+            await panel.change(this.queryData);
         });
     });
     panel.$.tree.setRender('left', ($left) => {
@@ -306,9 +354,11 @@ exports.update = async function(assetList, metaList) {
     this.asset = assetList[0];
     this.meta = metaList[0];
 
-    if (assetList.length !== 1) {
-        this.$.container.innerText = '';
+    if (assetList.length > 1) {
+        this.$.container.setAttribute('multiple-invalid', '');
         return;
+    } else {
+        this.$.container.removeAttribute('multiple-invalid');
     }
 
     if (this.dirtyData.uuid !== this.asset.uuid) {
@@ -316,8 +366,9 @@ exports.update = async function(assetList, metaList) {
         this.dirtyData.origin = '';
     }
 
-    await this.query(this.asset.uuid);
+    this.queryData = await this.query(this.asset.uuid);
 
+    this.updateInterface();
     this.setDirtyData();
 };
 

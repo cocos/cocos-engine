@@ -38,10 +38,11 @@ BufferAgent::BufferAgent(Buffer *actor)
 }
 
 BufferAgent::~BufferAgent() {
-    ENQUEUE_MESSAGE_1(
+    ENQUEUE_MESSAGE_2(
         DeviceAgent::getInstance()->getMessageQueue(),
         BufferDestruct,
         actor, _actor,
+        stagingBuffer, std::move(_stagingBuffer),
         {
             CC_SAFE_DELETE(actor);
         });
@@ -49,10 +50,8 @@ BufferAgent::~BufferAgent() {
 
 void BufferAgent::doInit(const BufferInfo &info) {
     uint32_t size = getSize();
-    if (size > STAGING_BUFFER_THRESHOLD && hasFlag(_memUsage, MemoryUsageBit::HOST)) {
-        for (size_t i = 0; i < DeviceAgent::MAX_FRAME_INDEX; ++i) {
-            _stagingBuffers.push_back(reinterpret_cast<uint8_t *>(malloc(size)));
-        }
+    if (hasFlag(info.flags, BufferFlagBit::ENABLE_STAGING_WRITE) || (size > STAGING_BUFFER_THRESHOLD && hasFlag(_memUsage, MemoryUsageBit::HOST))) {
+        _stagingBuffer = std::make_unique<uint8_t[]>(size * DeviceAgent::MAX_FRAME_INDEX);
     }
 
     ENQUEUE_MESSAGE_2(
@@ -67,7 +66,7 @@ void BufferAgent::doInit(const BufferInfo &info) {
 
 void BufferAgent::doInit(const BufferViewInfo &info) {
     BufferViewInfo actorInfo = info;
-    actorInfo.buffer         = static_cast<BufferAgent *>(info.buffer)->getActor();
+    actorInfo.buffer = static_cast<BufferAgent *>(info.buffer)->getActor();
 
     // buffer views don't need staging buffers
 
@@ -84,26 +83,16 @@ void BufferAgent::doInit(const BufferViewInfo &info) {
 void BufferAgent::doResize(uint32_t size, uint32_t /*count*/) {
     auto *mq = DeviceAgent::getInstance()->getMessageQueue();
 
-    if (!_stagingBuffers.empty()) {
-        auto *oldStagingBuffers = mq->allocate<uint8_t *>(DeviceAgent::MAX_FRAME_INDEX);
-        for (size_t i = 0; i < DeviceAgent::MAX_FRAME_INDEX; ++i) {
-            oldStagingBuffers[i] = _stagingBuffers[i];
-        }
-        _stagingBuffers.clear();
+    if (_stagingBuffer) {
         ENQUEUE_MESSAGE_1(
             mq, BufferFreeStagingBuffer,
-            stagingBuffers, oldStagingBuffers,
+            stagingBuffer, std::move(_stagingBuffer),
             {
-                for (size_t i = 0; i < DeviceAgent::MAX_FRAME_INDEX; ++i) {
-                    free(stagingBuffers[i]);
-                }
             });
     }
 
-    if (size > STAGING_BUFFER_THRESHOLD && hasFlag(_memUsage, MemoryUsageBit::HOST)) {
-        for (size_t i = 0; i < DeviceAgent::MAX_FRAME_INDEX; ++i) {
-            _stagingBuffers.push_back(reinterpret_cast<uint8_t *>(malloc(size)));
-        }
+    if (hasFlag(_flags, BufferFlagBit::ENABLE_STAGING_WRITE) || (size > STAGING_BUFFER_THRESHOLD && hasFlag(_memUsage, MemoryUsageBit::HOST))) {
+        _stagingBuffer = std::make_unique<uint8_t[]>(size * DeviceAgent::MAX_FRAME_INDEX);
     }
 
     ENQUEUE_MESSAGE_2(
@@ -116,34 +105,21 @@ void BufferAgent::doResize(uint32_t size, uint32_t /*count*/) {
 }
 
 void BufferAgent::doDestroy() {
-    auto *    mq = DeviceAgent::getInstance()->getMessageQueue();
-    uint8_t **oldStagingBuffers{nullptr};
-    if (!_stagingBuffers.empty()) {
-        oldStagingBuffers = mq->allocate<uint8_t *>(DeviceAgent::MAX_FRAME_INDEX);
-        for (size_t i = 0; i < DeviceAgent::MAX_FRAME_INDEX; ++i) {
-            oldStagingBuffers[i] = _stagingBuffers[i];
-        }
-        _stagingBuffers.clear();
-    }
+    auto *mq = DeviceAgent::getInstance()->getMessageQueue();
 
     ENQUEUE_MESSAGE_2(
         mq, BufferDestroy,
         actor, getActor(),
-        stagingBuffers, oldStagingBuffers,
+        stagingBuffer, std::move(_stagingBuffer),
         {
             actor->destroy();
-            if (stagingBuffers) {
-                for (size_t i = 0; i < DeviceAgent::MAX_FRAME_INDEX; ++i) {
-                    free(stagingBuffers[i]);
-                }
-            }
         });
 }
 
 void BufferAgent::update(const void *buffer, uint32_t size) {
     uint8_t *actorBuffer{nullptr};
-    bool     needFreeing{false};
-    auto *   mq{DeviceAgent::getInstance()->getMessageQueue()};
+    bool needFreeing{false};
+    auto *mq{DeviceAgent::getInstance()->getMessageQueue()};
 
     getActorBuffer(this, mq, size, &actorBuffer, &needFreeing);
     memcpy(actorBuffer, buffer, size);
@@ -160,16 +136,36 @@ void BufferAgent::update(const void *buffer, uint32_t size) {
         });
 }
 
+void BufferAgent::flush(const uint8_t *buffer) {
+    auto *mq = DeviceAgent::getInstance()->getMessageQueue();
+    ENQUEUE_MESSAGE_3(
+        mq, BufferUpdate,
+        actor, getActor(),
+        buffer, buffer,
+        size, _size,
+        {
+            actor->update(buffer, size);
+        });
+}
+
 void BufferAgent::getActorBuffer(const BufferAgent *buffer, MessageQueue *mq, uint32_t size, uint8_t **pActorBuffer, bool *pNeedFreeing) {
-    if (!buffer->_stagingBuffers.empty()) { // for frequent updates on big buffers
+    if (buffer->_stagingBuffer) { // for frequent updates on big buffers
         uint32_t frameIndex = DeviceAgent::getInstance()->getCurrentIndex();
-        *pActorBuffer       = buffer->_stagingBuffers[frameIndex];
+        *pActorBuffer = buffer->_stagingBuffer.get() + frameIndex * buffer->_size;
     } else if (size > STAGING_BUFFER_THRESHOLD) { // less frequent updates on big buffers
         *pActorBuffer = reinterpret_cast<uint8_t *>(malloc(size));
         *pNeedFreeing = true;
     } else { // for small enough buffers
         *pActorBuffer = mq->allocate<uint8_t>(size);
     }
+}
+
+uint8_t *BufferAgent::getStagingAddress() const {
+    if (!_stagingBuffer) {
+        return nullptr;
+    }
+    uint32_t frameIndex = DeviceAgent::getInstance()->getCurrentIndex();
+    return _stagingBuffer.get() + _size * frameIndex;
 }
 
 } // namespace gfx

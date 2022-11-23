@@ -49,7 +49,7 @@ namespace cc {
 namespace gfx {
 
 DeviceValidator *DeviceValidator::instance = nullptr;
-bool             DeviceValidator::allowStacktraceJS{true};
+bool DeviceValidator::allowStacktraceJS{true};
 
 DeviceValidator *DeviceValidator::getInstance() {
     return DeviceValidator::instance;
@@ -66,31 +66,30 @@ DeviceValidator::~DeviceValidator() {
 
 bool DeviceValidator::doInit(const DeviceInfo &info) {
     uint32_t flexibleSet{info.bindingMappingInfo.setIndices.back()};
-    CCASSERT(!info.bindingMappingInfo.maxBlockCounts[flexibleSet], "flexible set limits should be zero");
-    CCASSERT(!info.bindingMappingInfo.maxSamplerTextureCounts[flexibleSet], "flexible set limits should be zero");
-    CCASSERT(!info.bindingMappingInfo.maxSamplerCounts[flexibleSet], "flexible set limits should be zero");
-    CCASSERT(!info.bindingMappingInfo.maxTextureCounts[flexibleSet], "flexible set limits should be zero");
-    CCASSERT(!info.bindingMappingInfo.maxBufferCounts[flexibleSet], "flexible set limits should be zero");
-    CCASSERT(!info.bindingMappingInfo.maxImageCounts[flexibleSet], "flexible set limits should be zero");
-    CCASSERT(!info.bindingMappingInfo.maxSubpassInputCounts[flexibleSet], "flexible set limits should be zero");
+    CC_ASSERT(!info.bindingMappingInfo.maxBlockCounts[flexibleSet]);          // Flexible set limits should be zero.
+    CC_ASSERT(!info.bindingMappingInfo.maxSamplerTextureCounts[flexibleSet]); // Flexible set limits should be zero.
+    CC_ASSERT(!info.bindingMappingInfo.maxSamplerCounts[flexibleSet]);        // Flexible set limits should be zero.
+    CC_ASSERT(!info.bindingMappingInfo.maxTextureCounts[flexibleSet]);        // Flexible set limits should be zero.
+    CC_ASSERT(!info.bindingMappingInfo.maxBufferCounts[flexibleSet]);         // Flexible set limits should be zero.
+    CC_ASSERT(!info.bindingMappingInfo.maxImageCounts[flexibleSet]);          // Flexible set limits should be zero.
+    CC_ASSERT(!info.bindingMappingInfo.maxSubpassInputCounts[flexibleSet]);   // Flexible set limits should be zero.
 
     if (!_actor->initialize(info)) {
         return false;
     }
-
-    _api        = _actor->getGfxAPI();
+    _api = _actor->getGfxAPI();
     _deviceName = _actor->getDeviceName();
-    _queue      = CC_NEW(QueueValidator(_actor->getQueue()));
-    _queryPool  = CC_NEW(QueryPoolValidator(_actor->getQueryPool()));
-    _cmdBuff    = CC_NEW(CommandBufferValidator(_actor->getCommandBuffer()));
-    _renderer   = _actor->getRenderer();
-    _vendor     = _actor->getVendor();
-    _caps       = _actor->_caps;
+    _queue = ccnew QueueValidator(_actor->getQueue());
+    _queryPool = ccnew QueryPoolValidator(_actor->getQueryPool());
+    _cmdBuff = ccnew CommandBufferValidator(_actor->getCommandBuffer());
+    _renderer = _actor->getRenderer();
+    _vendor = _actor->getVendor();
+    _caps = _actor->_caps;
     memcpy(_features.data(), _actor->_features.data(), static_cast<uint32_t>(Feature::COUNT) * sizeof(bool));
     memcpy(_formatFeatures.data(), _actor->_formatFeatures.data(), static_cast<uint32_t>(Format::COUNT) * sizeof(FormatFeatureBit));
 
-    static_cast<QueueValidator *>(_queue)->_inited          = true;
-    static_cast<QueryPoolValidator *>(_queryPool)->_inited  = true;
+    static_cast<QueueValidator *>(_queue)->_inited = true;
+    static_cast<QueryPoolValidator *>(_queryPool)->_inited = true;
     static_cast<CommandBufferValidator *>(_cmdBuff)->_queue = _queue;
     static_cast<CommandBufferValidator *>(_cmdBuff)->initValidator();
 
@@ -107,17 +106,17 @@ void DeviceValidator::doDestroy() {
     if (_cmdBuff) {
         static_cast<CommandBufferValidator *>(_cmdBuff)->destroyValidator();
         static_cast<CommandBufferValidator *>(_cmdBuff)->_actor = nullptr;
-        CC_DELETE(_cmdBuff);
+        delete _cmdBuff;
         _cmdBuff = nullptr;
     }
     if (_queryPool) {
         static_cast<QueryPoolValidator *>(_queryPool)->_actor = nullptr;
-        CC_DELETE(_queryPool);
+        delete _queryPool;
         _queryPool = nullptr;
     }
     if (_queue) {
         static_cast<QueueValidator *>(_queue)->_actor = nullptr;
-        CC_DELETE(_queue);
+        delete _queue;
         _queue = nullptr;
     }
 
@@ -145,7 +144,7 @@ void DeviceValidator::acquire(Swapchain *const *swapchains, uint32_t count) {
     swapchainActors.resize(count);
 
     for (uint32_t i = 0U; i < count; ++i) {
-        auto *swapchain    = static_cast<SwapchainValidator *>(swapchains[i]);
+        auto *swapchain = static_cast<SwapchainValidator *>(swapchains[i]);
         swapchainActors[i] = swapchain->getActor();
     }
 
@@ -160,99 +159,99 @@ void DeviceValidator::present() {
 }
 
 CommandBuffer *DeviceValidator::createCommandBuffer(const CommandBufferInfo &info, bool hasAgent) {
-    CommandBuffer *actor  = _actor->createCommandBuffer(info, hasAgent);
-    CommandBuffer *result = CC_NEW(CommandBufferValidator(actor));
+    CommandBuffer *actor = _actor->createCommandBuffer(info, hasAgent);
+    CommandBuffer *result = ccnew CommandBufferValidator(actor);
     DeviceResourceTracker<CommandBuffer>::push(result);
     return result;
 }
 
 Queue *DeviceValidator::createQueue() {
-    Queue *actor  = _actor->createQueue();
-    Queue *result = CC_NEW(QueueValidator(actor));
+    Queue *actor = _actor->createQueue();
+    Queue *result = ccnew QueueValidator(actor);
     DeviceResourceTracker<Queue>::push(result);
     return result;
 }
 
 QueryPool *DeviceValidator::createQueryPool() {
-    QueryPool *actor  = _actor->createQueryPool();
-    QueryPool *result = CC_NEW(QueryPoolValidator(actor));
+    QueryPool *actor = _actor->createQueryPool();
+    QueryPool *result = ccnew QueryPoolValidator(actor);
     DeviceResourceTracker<QueryPool>::push(result);
     return result;
 }
 
 Swapchain *DeviceValidator::createSwapchain() {
-    Swapchain *actor  = _actor->createSwapchain();
-    Swapchain *result = CC_NEW(SwapchainValidator(actor));
+    Swapchain *actor = _actor->createSwapchain();
+    Swapchain *result = ccnew SwapchainValidator(actor);
     DeviceResourceTracker<Swapchain>::push(result);
     return result;
 }
 
 Buffer *DeviceValidator::createBuffer() {
-    Buffer *actor  = _actor->createBuffer();
-    Buffer *result = CC_NEW(BufferValidator(actor));
+    Buffer *actor = _actor->createBuffer();
+    Buffer *result = ccnew BufferValidator(actor);
     DeviceResourceTracker<Buffer>::push(result);
     return result;
 }
 
 Texture *DeviceValidator::createTexture() {
-    Texture *actor  = _actor->createTexture();
-    Texture *result = CC_NEW(TextureValidator(actor));
+    Texture *actor = _actor->createTexture();
+    Texture *result = ccnew TextureValidator(actor);
     DeviceResourceTracker<Texture>::push(result);
     return result;
 }
 
 Shader *DeviceValidator::createShader() {
-    Shader *actor  = _actor->createShader();
-    Shader *result = CC_NEW(ShaderValidator(actor));
+    Shader *actor = _actor->createShader();
+    Shader *result = ccnew ShaderValidator(actor);
     DeviceResourceTracker<Shader>::push(result);
     return result;
 }
 
 InputAssembler *DeviceValidator::createInputAssembler() {
-    InputAssembler *actor  = _actor->createInputAssembler();
-    InputAssembler *result = CC_NEW(InputAssemblerValidator(actor));
+    InputAssembler *actor = _actor->createInputAssembler();
+    InputAssembler *result = ccnew InputAssemblerValidator(actor);
     DeviceResourceTracker<InputAssembler>::push(result);
     return result;
 }
 
 RenderPass *DeviceValidator::createRenderPass() {
-    RenderPass *actor  = _actor->createRenderPass();
-    RenderPass *result = CC_NEW(RenderPassValidator(actor));
+    RenderPass *actor = _actor->createRenderPass();
+    RenderPass *result = ccnew RenderPassValidator(actor);
     DeviceResourceTracker<RenderPass>::push(result);
     return result;
 }
 
 Framebuffer *DeviceValidator::createFramebuffer() {
-    Framebuffer *actor  = _actor->createFramebuffer();
-    Framebuffer *result = CC_NEW(FramebufferValidator(actor));
+    Framebuffer *actor = _actor->createFramebuffer();
+    Framebuffer *result = ccnew FramebufferValidator(actor);
     DeviceResourceTracker<Framebuffer>::push(result);
     return result;
 }
 
 DescriptorSet *DeviceValidator::createDescriptorSet() {
-    DescriptorSet *actor  = _actor->createDescriptorSet();
-    DescriptorSet *result = CC_NEW(DescriptorSetValidator(actor));
+    DescriptorSet *actor = _actor->createDescriptorSet();
+    DescriptorSet *result = ccnew DescriptorSetValidator(actor);
     DeviceResourceTracker<DescriptorSet>::push(result);
     return result;
 }
 
 DescriptorSetLayout *DeviceValidator::createDescriptorSetLayout() {
-    DescriptorSetLayout *actor  = _actor->createDescriptorSetLayout();
-    DescriptorSetLayout *result = CC_NEW(DescriptorSetLayoutValidator(actor));
+    DescriptorSetLayout *actor = _actor->createDescriptorSetLayout();
+    DescriptorSetLayout *result = ccnew DescriptorSetLayoutValidator(actor);
     DeviceResourceTracker<DescriptorSetLayout>::push(result);
     return result;
 }
 
 PipelineLayout *DeviceValidator::createPipelineLayout() {
-    PipelineLayout *actor  = _actor->createPipelineLayout();
-    PipelineLayout *result = CC_NEW(PipelineLayoutValidator(actor));
+    PipelineLayout *actor = _actor->createPipelineLayout();
+    PipelineLayout *result = ccnew PipelineLayoutValidator(actor);
     DeviceResourceTracker<PipelineLayout>::push(result);
     return result;
 }
 
 PipelineState *DeviceValidator::createPipelineState() {
-    PipelineState *actor  = _actor->createPipelineState();
-    PipelineState *result = CC_NEW(PipelineStateValidator(actor));
+    PipelineState *actor = _actor->createPipelineState();
+    PipelineState *result = ccnew PipelineStateValidator(actor);
     DeviceResourceTracker<PipelineState>::push(result);
     return result;
 }
@@ -269,10 +268,12 @@ Sampler *DeviceValidator::getSampler(const SamplerInfo &info) {
 
 GeneralBarrier *DeviceValidator::getGeneralBarrier(const GeneralBarrierInfo &info) {
     if (info.prevAccesses > AccessFlagBit::PRESENT) {
-        CCASSERT(math::IsPowerOfTwo(toNumber(info.prevAccesses)), "Write access should appear on its own");
+        // Write access should appear on its own.
+        CC_ASSERT(math::isPowerOfTwo(toNumber(info.prevAccesses)));
     }
     if (info.nextAccesses > AccessFlagBit::PRESENT) {
-        CCASSERT(math::IsPowerOfTwo(toNumber(info.nextAccesses)), "Write access should appear on its own");
+        // Write access should appear on its own.
+        CC_ASSERT(math::isPowerOfTwo(toNumber(info.nextAccesses)));
     }
 
     /////////// execute ///////////
@@ -282,10 +283,12 @@ GeneralBarrier *DeviceValidator::getGeneralBarrier(const GeneralBarrierInfo &inf
 
 TextureBarrier *DeviceValidator::getTextureBarrier(const TextureBarrierInfo &info) {
     if (info.prevAccesses > AccessFlagBit::PRESENT) {
-        CCASSERT(math::IsPowerOfTwo(toNumber(info.prevAccesses)), "Write access should appear on its own");
+        // Write access should appear on its own.
+        CC_ASSERT(math::isPowerOfTwo(toNumber(info.prevAccesses)));
     }
     if (info.nextAccesses > AccessFlagBit::PRESENT) {
-        CCASSERT(math::IsPowerOfTwo(toNumber(info.nextAccesses)), "Write access should appear on its own");
+        // Write access should appear on its own.
+        CC_ASSERT(math::isPowerOfTwo(toNumber(info.nextAccesses)));
     }
 
     /////////// execute ///////////
@@ -297,6 +300,26 @@ void DeviceValidator::copyBuffersToTexture(const uint8_t *const *buffers, Textur
     auto *textureValidator = static_cast<TextureValidator *>(dst);
     textureValidator->sanityCheck();
 
+    uint32_t blockWidth = formatAlignment(dst->getFormat()).first;
+    uint32_t blockHeight = formatAlignment(dst->getFormat()).second;
+
+    for (uint32_t i = 0; i < count; ++i) {
+        const auto region = regions[i];
+        uint32_t level = region.texSubres.mipLevel;
+
+        uint32_t offsetX = region.texOffset.x;
+        uint32_t offsetY = region.texOffset.y;
+        uint32_t extentX = region.texExtent.width;
+        uint32_t extentY = region.texExtent.height;
+        uint32_t imgWidth = dst->getWidth() >> level;
+        uint32_t imgHeight = dst->getHeight() >> level;
+
+        CC_ASSERT(offsetX % blockWidth == 0);
+        CC_ASSERT(offsetY % blockHeight == 0);
+
+        CC_ASSERT((extentX % blockWidth == 0) || (extentX % blockWidth != 0 && offsetX + extentX == imgWidth));
+        CC_ASSERT((extentY % blockHeight == 0) || (extentY % blockHeight != 0 && offsetY + extentY == imgHeight));
+    }
     /////////// execute ///////////
 
     _actor->copyBuffersToTexture(buffers, textureValidator->getActor(), regions, count);
@@ -319,9 +342,9 @@ void DeviceValidator::flushCommands(CommandBuffer *const *cmdBuffs, uint32_t cou
     cmdBuffActors.resize(count);
 
     for (uint32_t i = 0U; i < count; ++i) {
-        auto *cmdBuff             = static_cast<CommandBufferValidator *>(cmdBuffs[i]);
+        auto *cmdBuff = static_cast<CommandBufferValidator *>(cmdBuffs[i]);
         cmdBuff->_commandsFlushed = true;
-        cmdBuffActors[i]          = cmdBuff->getActor();
+        cmdBuffActors[i] = cmdBuff->getActor();
     }
 
     _actor->flushCommands(cmdBuffActors.data(), count);
@@ -332,8 +355,8 @@ void DeviceValidator::getQueryPoolResults(QueryPool *queryPool) {
 
     _actor->getQueryPoolResults(actorQueryPool);
 
-    auto *                      actorQueryPoolValidator = static_cast<QueryPoolValidator *>(actorQueryPool);
-    auto *                      queryPoolValidator      = static_cast<QueryPoolValidator *>(queryPool);
+    auto *actorQueryPoolValidator = static_cast<QueryPoolValidator *>(actorQueryPool);
+    auto *queryPoolValidator = static_cast<QueryPoolValidator *>(queryPool);
     std::lock_guard<std::mutex> lock(actorQueryPoolValidator->_mutex);
     queryPoolValidator->_results = actorQueryPoolValidator->_results;
 }

@@ -39,6 +39,6 @@ TEST(mathVertexTest, test8) {
     // ccVertexLineIntersect
     logLabel = "test the vertex ccVertexLineIntersect function";
     float res;
-    bool  isFind = cc::ccVertexLineIntersect(5, 5, 1, 10, 12, 20, 12, 40, &res);
+    bool isFind = cc::ccVertexLineIntersect(5, 5, 1, 10, 12, 20, 12, 40, &res);
     ExpectEq(isFind, true);
 }

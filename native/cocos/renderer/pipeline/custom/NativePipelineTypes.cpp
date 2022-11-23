@@ -31,4 +31,85 @@
 // clang-format off
 #include "NativePipelineTypes.h"
 
+namespace cc {
+
+namespace render {
+
+PersistentRenderPassAndFramebuffer::PersistentRenderPassAndFramebuffer(const allocator_type& alloc) noexcept
+: clearColors(alloc) {}
+
+PersistentRenderPassAndFramebuffer::PersistentRenderPassAndFramebuffer(PersistentRenderPassAndFramebuffer&& rhs, const allocator_type& alloc)
+: renderPass(std::move(rhs.renderPass)),
+  framebuffer(std::move(rhs.framebuffer)),
+  clearColors(std::move(rhs.clearColors), alloc),
+  clearDepth(rhs.clearDepth),
+  clearStencil(rhs.clearStencil),
+  refCount(rhs.refCount) {}
+
+PersistentRenderPassAndFramebuffer::PersistentRenderPassAndFramebuffer(PersistentRenderPassAndFramebuffer const& rhs, const allocator_type& alloc)
+: renderPass(rhs.renderPass),
+  framebuffer(rhs.framebuffer),
+  clearColors(rhs.clearColors, alloc),
+  clearDepth(rhs.clearDepth),
+  clearStencil(rhs.clearStencil),
+  refCount(rhs.refCount) {}
+
+RenderInstancingQueue::RenderInstancingQueue(const allocator_type& alloc) noexcept
+: batches(alloc),
+  sortedBatches(alloc) {}
+
+RenderInstancingQueue::RenderInstancingQueue(RenderInstancingQueue&& rhs, const allocator_type& alloc)
+: batches(std::move(rhs.batches), alloc),
+  sortedBatches(std::move(rhs.sortedBatches), alloc) {}
+
+RenderInstancingQueue::RenderInstancingQueue(RenderInstancingQueue const& rhs, const allocator_type& alloc)
+: batches(rhs.batches, alloc),
+  sortedBatches(rhs.sortedBatches, alloc) {}
+
+RenderDrawQueue::RenderDrawQueue(const allocator_type& alloc) noexcept
+: instances(alloc) {}
+
+RenderDrawQueue::RenderDrawQueue(RenderDrawQueue&& rhs, const allocator_type& alloc)
+: instances(std::move(rhs.instances), alloc) {}
+
+RenderDrawQueue::RenderDrawQueue(RenderDrawQueue const& rhs, const allocator_type& alloc)
+: instances(rhs.instances, alloc) {}
+
+NativeRenderQueue::NativeRenderQueue(const allocator_type& alloc) noexcept
+: opaqueQueue(alloc),
+  transparentQueue(alloc),
+  opaqueInstancingQueue(alloc),
+  transparentInstancingQueue(alloc) {}
+
+NativeRenderQueue::NativeRenderQueue(SceneFlags sceneFlagsIn, const allocator_type& alloc) noexcept
+: opaqueQueue(alloc),
+  transparentQueue(alloc),
+  opaqueInstancingQueue(alloc),
+  transparentInstancingQueue(alloc),
+  sceneFlags(sceneFlagsIn) {}
+
+NativeRenderQueue::NativeRenderQueue(NativeRenderQueue&& rhs, const allocator_type& alloc)
+: opaqueQueue(std::move(rhs.opaqueQueue), alloc),
+  transparentQueue(std::move(rhs.transparentQueue), alloc),
+  opaqueInstancingQueue(std::move(rhs.opaqueInstancingQueue), alloc),
+  transparentInstancingQueue(std::move(rhs.transparentInstancingQueue), alloc),
+  sceneFlags(rhs.sceneFlags) {}
+
+DefaultSceneVisitor::DefaultSceneVisitor(const allocator_type& alloc) noexcept
+: name(alloc) {}
+
+DefaultForwardLightingTransversal::DefaultForwardLightingTransversal(const allocator_type& alloc) noexcept
+: name(alloc) {}
+
+ResourceGroup::ResourceGroup(const allocator_type& alloc) noexcept
+: instancingBuffers(alloc) {}
+
+NativeRenderContext::NativeRenderContext(const allocator_type& alloc) noexcept
+: renderPasses(alloc),
+  resourceGroups(alloc) {}
+
+} // namespace render
+
+} // namespace cc
+
 // clang-format on

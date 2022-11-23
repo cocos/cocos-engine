@@ -1,7 +1,4 @@
-/**
- * @packageDocumentation
- * @module asset
- */
+
 
 export * from './sprite-frame';
 export { SpriteAtlas } from './sprite-atlas';

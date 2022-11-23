@@ -35,12 +35,12 @@ THE SOFTWARE.
 TEST(geometryCapsuleTest, testTransform) {
     cc::geometry::Capsule capsule{1.0, 2.0};
     cc::geometry::Capsule capsuleNew{};
-    cc::Mat4              trans;
-    cc::Quaternion        quat{};
-    cc::Vec3              scale{1.0F, 2.0F, 3.0F};
+    cc::Mat4 trans;
+    cc::Quaternion quat{};
+    cc::Vec3 scale{1.0F, 2.0F, 3.0F};
     {
-        cc::Vec3 axis  = {1.0, 0.0, 0.0};
-        float    angle = M_PI;
+        cc::Vec3 axis = {1.0, 0.0, 0.0};
+        float angle = M_PI;
         cc::Quaternion::createFromAxisAngle(axis, angle, &quat);
         trans.translate(0, 1, 0);
     }

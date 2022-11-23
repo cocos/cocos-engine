@@ -25,11 +25,6 @@
 */
 
 /**
- * @packageDocumentation
- * @module ui
- */
-
-/**
  * @en
  * Handling touch events in a ViewGroup takes special care,
  * because it's common for a ViewGroup to have children that are targets for different touch events than the ViewGroup itself.
@@ -44,7 +39,7 @@
  */
 
 import { ccclass, executionOrder } from 'cc.decorator';
-import { Component } from '../core/components';
+import { Component } from '../scene-graph/component';
 import { legacyCC } from '../core/global-exports';
 
 @ccclass('cc.ViewGroup')

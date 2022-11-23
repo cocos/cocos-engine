@@ -25,6 +25,7 @@
 
 #include "physics/physx/PhysXSharedBody.h"
 #include <cmath>
+#include "base/memory/Memory.h"
 #include "physics/physx/PhysXInc.h"
 #include "physics/physx/PhysXUtils.h"
 #include "physics/physx/PhysXWorld.h"
@@ -49,8 +50,8 @@ ccstd::unordered_map<Node *, PhysXSharedBody *> PhysXSharedBody::sharedBodesMap;
 
 static int idCounter = 0;
 PhysXSharedBody::PhysXSharedBody(
-    Node *                node,
-    PhysXWorld *const     world,
+    Node *node,
+    PhysXWorld *const world,
     PhysXRigidBody *const body) : _mID(idCounter++),
                                   _mRef(0),
                                   _mType(ERigidBodyType::STATIC),
@@ -62,22 +63,22 @@ PhysXSharedBody::PhysXSharedBody(
                                   _mWrappedWorld(world),
                                   _mWrappedBody(body) {
     _mImpl.ptr = 0;
-    _mNode     = node;
+    _mNode = node;
 };
 
 PhysXSharedBody *PhysXSharedBody::getSharedBody(const Node *node, PhysXWorld *const world, PhysXRigidBody *const body) {
-    auto             iter = sharedBodesMap.find(const_cast<Node *>(node));
+    auto iter = sharedBodesMap.find(const_cast<Node *>(node));
     PhysXSharedBody *newSB;
     if (iter != sharedBodesMap.end()) {
         newSB = iter->second;
     } else {
-        newSB                     = new PhysXSharedBody(const_cast<Node *>(node), world, body);
+        newSB = ccnew PhysXSharedBody(const_cast<Node *>(node), world, body);
         newSB->_mFilterData.word0 = 1;
         newSB->_mFilterData.word1 = world->getMaskByIndex(0);
         sharedBodesMap.insert(std::pair<Node *, PhysXSharedBody *>(const_cast<Node *>(node), newSB));
     }
     if (body != nullptr) {
-        auto g                    = body->getInitialGroup();
+        auto g = body->getInitialGroup();
         newSB->_mFilterData.word0 = g;
         newSB->_mFilterData.word1 = world->getMaskByIndex(static_cast<uint32_t>(log2(g)));
     }
@@ -120,9 +121,9 @@ void PhysXSharedBody::enabled(bool v) {
             _mWrappedWorld->addActor(*this);
         }
     } else {
-        auto *wb       = _mWrappedBody;
-        auto  ws       = _mWrappedShapes;
-        auto  isRemove = ws.empty() && (wb == nullptr || (wb != nullptr && !wb->isEnabled()));
+        auto *wb = _mWrappedBody;
+        auto ws = _mWrappedShapes;
+        auto isRemove = ws.empty() && (wb == nullptr || (wb != nullptr && !wb->isEnabled()));
         if (isRemove) {
             _mIndex = -1;
             if (!isStaticOrKinematic()) {
@@ -161,11 +162,6 @@ void PhysXSharedBody::switchActor(const bool isStaticBefore) {
         if (isDynamic()) _mDynamicActor->wakeUp();
         _mDynamicActor->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, isKinematic());
         PxRigidBodyExt::setMassAndUpdateInertia(*_mDynamicActor, _mMass);
-        PxTransform com{PxIdentity};
-        for (auto const &ws : _mWrappedShapes) {
-            if (!ws->isTrigger()) com.p -= ws->getCenter();
-        }
-        _mDynamicActor->setCMassLocalPose(com);
     }
 }
 
@@ -178,7 +174,7 @@ void PhysXSharedBody::initStaticActor() {
         if (!transform.p.isFinite()) transform.p = PxVec3{PxIdentity};
         if (!transform.q.isUnit()) transform.q = PxQuat{PxIdentity};
         PxPhysics &phy = PxGetPhysics();
-        _mStaticActor  = phy.createRigidStatic(transform);
+        _mStaticActor = phy.createRigidStatic(transform);
     }
 }
 
@@ -194,16 +190,6 @@ void PhysXSharedBody::initDynamicActor() {
         _mDynamicActor = phy.createRigidDynamic(transform);
         _mDynamicActor->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, isKinematic());
     }
-}
-
-void PhysXSharedBody::updateCenterOfMass() {
-    initActor();
-    if (isStatic()) return;
-    PxTransform com{PxIdentity};
-    for (auto const &ws : _mWrappedShapes) {
-        if (!ws->isTrigger()) com.p -= ws->getCenter();
-    }
-    _mDynamicActor->setCMassLocalPose(com);
 }
 
 void PhysXSharedBody::syncScale() {
@@ -244,7 +230,7 @@ void PhysXSharedBody::syncSceneToPhysics() {
 
 void PhysXSharedBody::syncSceneWithCheck() {
     if (getNode()->getChangedFlags() & static_cast<uint32_t>(TransformBit::SCALE)) syncScale();
-    auto wp         = getImpl().rigidActor->getGlobalPose();
+    auto wp = getImpl().rigidActor->getGlobalPose();
     bool needUpdate = false;
     getNode()->updateWorldTransform();
     if (wp.p != getNode()->getWorldPosition()) {
@@ -271,8 +257,8 @@ void PhysXSharedBody::syncPhysicsToScene() {
 }
 
 void PhysXSharedBody::addShape(const PhysXShape &shape) {
-    auto beg  = _mWrappedShapes.begin();
-    auto end  = _mWrappedShapes.end();
+    auto beg = _mWrappedShapes.begin();
+    auto end = _mWrappedShapes.end();
     auto iter = find(beg, end, &shape);
     if (iter == end) {
         shape.getShape().setSimulationFilterData(_mFilterData);
@@ -280,21 +266,19 @@ void PhysXSharedBody::addShape(const PhysXShape &shape) {
         getImpl().rigidActor->attachShape(shape.getShape());
         _mWrappedShapes.push_back(&const_cast<PhysXShape &>(shape));
         if (!shape.isTrigger()) {
-            if (!const_cast<PhysXShape &>(shape).getCenter().isZero()) updateCenterOfMass();
             if (isDynamic()) PxRigidBodyExt::setMassAndUpdateInertia(*getImpl().rigidDynamic, _mMass);
         }
     }
 }
 
 void PhysXSharedBody::removeShape(const PhysXShape &shape) {
-    auto beg  = _mWrappedShapes.begin();
-    auto end  = _mWrappedShapes.end();
+    auto beg = _mWrappedShapes.begin();
+    auto end = _mWrappedShapes.end();
     auto iter = find(beg, end, &shape);
     if (iter != end) {
         _mWrappedShapes.erase(iter);
         getImpl().rigidActor->detachShape(shape.getShape(), true);
         if (!const_cast<PhysXShape &>(shape).isTrigger()) {
-            if (!const_cast<PhysXShape &>(shape).getCenter().isZero()) updateCenterOfMass();
             if (isDynamic()) PxRigidBodyExt::setMassAndUpdateInertia(*getImpl().rigidDynamic, _mMass);
         }
     }
@@ -302,13 +286,13 @@ void PhysXSharedBody::removeShape(const PhysXShape &shape) {
 
 void PhysXSharedBody::addJoint(const PhysXJoint &joint, const PxJointActorIndex::Enum index) {
     if (index == PxJointActorIndex::eACTOR1) {
-        auto beg  = _mWrappedJoints1.begin();
-        auto end  = _mWrappedJoints1.end();
+        auto beg = _mWrappedJoints1.begin();
+        auto end = _mWrappedJoints1.end();
         auto iter = find(beg, end, &joint);
         if (iter == end) _mWrappedJoints1.push_back(&const_cast<PhysXJoint &>(joint));
     } else {
-        auto beg  = _mWrappedJoints0.begin();
-        auto end  = _mWrappedJoints0.end();
+        auto beg = _mWrappedJoints0.begin();
+        auto end = _mWrappedJoints0.end();
         auto iter = find(beg, end, &joint);
         if (iter == end) _mWrappedJoints0.push_back(&const_cast<PhysXJoint &>(joint));
     }
@@ -316,13 +300,13 @@ void PhysXSharedBody::addJoint(const PhysXJoint &joint, const PxJointActorIndex:
 
 void PhysXSharedBody::removeJoint(const PhysXJoint &joint, const PxJointActorIndex::Enum index) {
     if (index == PxJointActorIndex::eACTOR1) {
-        auto beg  = _mWrappedJoints1.begin();
-        auto end  = _mWrappedJoints1.end();
+        auto beg = _mWrappedJoints1.begin();
+        auto end = _mWrappedJoints1.end();
         auto iter = find(beg, end, &joint);
         if (iter != end) _mWrappedJoints1.erase(iter);
     } else {
-        auto beg  = _mWrappedJoints0.begin();
-        auto end  = _mWrappedJoints0.end();
+        auto beg = _mWrappedJoints0.begin();
+        auto end = _mWrappedJoints0.end();
         auto iter = find(beg, end, &joint);
         if (iter != end) _mWrappedJoints0.erase(iter);
     }

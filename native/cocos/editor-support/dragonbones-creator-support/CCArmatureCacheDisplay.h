@@ -30,6 +30,12 @@
 #include "base/RefCounted.h"
 #include "dragonbones/DragonBonesHeaders.h"
 
+namespace cc {
+class RenderEntity;
+class RenderDrawInfo;
+class Material;
+};
+
 DRAGONBONES_NAMESPACE_BEGIN
 
 class CCArmatureCacheDisplay : public cc::RefCounted, public cc::middleware::IMiddleware {
@@ -38,9 +44,8 @@ public:
     ~CCArmatureCacheDisplay() override;
     void dispose();
 
-    void     update(float dt) override;
-    void     render(float dt) override;
-    uint32_t getRenderOrder() const override;
+    void update(float dt) override;
+    void render(float dt) override;
 
     void setTimeScale(float scale) {
         _timeScale = scale;
@@ -55,22 +60,19 @@ public:
     void onEnable();
     void onDisable();
 
-    Armature * getArmature() const;
+    Armature *getArmature() const;
     Animation *getAnimation() const;
 
     void setColor(float r, float g, float b, float a);
-    void setBatchEnabled(bool enabled) {
-        // disable switch batch mode, force to enable batch, it may be changed in future version
-        // _batch = enabled;
-    }
+    void setBatchEnabled(bool enabled);
     void setAttachEnabled(bool enabled);
 
     void setOpacityModifyRGB(bool value) {
         _premultipliedAlpha = value;
     }
 
-    using dbEventCallback = std::function<void (EventObject *)>;
-    void                                       setDBEventCallback(dbEventCallback callback) {
+    using dbEventCallback = std::function<void(EventObject *)>;
+    void setDBEventCallback(dbEventCallback callback) {
         _dbEventCallback = std::move(callback);
     }
     void addDBEventListener(const std::string &type);
@@ -86,37 +88,40 @@ public:
      * format |render info offset|attach info offset|
      */
     se_object_ptr getSharedBufferOffset() const;
-    /**
-         * @return js send to cpp parameters, it's a Uint32Array
-		 * format |render order|world matrix|
-         */
-    se_object_ptr getParamsBuffer() const;
+
+    cc::RenderDrawInfo *requestDrawInfo(int idx);
+    cc::Material *requestMaterial(uint16_t blendSrc, uint16_t blendDst);
+    void setMaterial(cc::Material *material);
+    void setRenderEntity(cc::RenderEntity* entity);
 
 private:
-    float       _timeScale     = 1;
-    int         _curFrameIndex = -1;
-    float       _accTime       = 0.0F;
-    int         _playCount     = 0;
-    int         _playTimes     = 0;
-    bool        _isAniComplete = true;
+    float _timeScale = 1;
+    int _curFrameIndex = -1;
+    float _accTime = 0.0F;
+    int _playCount = 0;
+    int _playTimes = 0;
+    bool _isAniComplete = true;
     std::string _animationName;
 
-    Armature *                    _armature      = nullptr;
+    Armature *_armature = nullptr;
     ArmatureCache::AnimationData *_animationData = nullptr;
-    std::map<std::string, bool>   _listenerIDMap;
+    std::map<std::string, bool> _listenerIDMap;
 
-    bool                    _useAttach = false;
-    bool                    _batch     = true;
+    bool _useAttach = false;
+    bool _enableBatch = true;
     cc::middleware::Color4F _nodeColor = cc::middleware::Color4F::WHITE;
 
-    bool            _premultipliedAlpha = false;
-    dbEventCallback _dbEventCallback    = nullptr;
-    ArmatureCache * _armatureCache      = nullptr;
-    EventObject *   _eventObject;
+    bool _premultipliedAlpha = false;
+    dbEventCallback _dbEventCallback = nullptr;
+    ArmatureCache *_armatureCache = nullptr;
+    EventObject *_eventObject;
 
     cc::middleware::IOTypedArray *_sharedBufferOffset = nullptr;
-    // Js fill this buffer to send parameter to cpp, avoid to call jsb function.
-    cc::middleware::IOTypedArray *_paramsBuffer = nullptr;
+
+    cc::RenderEntity *_entity = nullptr;
+    cc::Material *_material = nullptr;
+    ccstd::vector<cc::RenderDrawInfo *> _drawInfoArray;
+    ccstd::unordered_map<uint32_t, cc::Material*> _materialCaches;
 };
 
 DRAGONBONES_NAMESPACE_END

@@ -27,8 +27,7 @@
 #include <functional>
 #include "base/Log.h"
 #include "base/Macros.h"
-#include "bindings/event/EventDispatcher.h"
-#include "platform/IEventDispatch.h"
+#include "engine/EngineEvents.h"
 #include "platform/empty/EmptyPlatform.h"
 
 namespace {
@@ -36,21 +35,36 @@ namespace {
 } // namespace
 
 namespace cc {
-SystemWindow::SystemWindow() {
+SystemWindow::SystemWindow(uint32_t windowId, void* externalHandle)
+: _windowId(windowId) {
+    if (externalHandle) {
+        _windowHandle = reinterpret_cast<uintptr_t>(externalHandle);
+    }
 }
 
-SystemWindow::~SystemWindow() {
+SystemWindow::~SystemWindow() = default;
+
+uintptr_t SystemWindow::getWindowHandle() const {
+    return _windowHandle;
 }
 
-uintptr_t SystemWindow::getWindowHandler() const {
-    return 0;
+uint32_t SystemWindow::getWindowId() const {
+    return _windowId;
 }
 
 void SystemWindow::setCursorEnabled(bool value) {
 }
 
-void SystemWindow::copyTextToClipboard(const ccstd::string &text) {
-    //TODO
+void SystemWindow::copyTextToClipboard(const ccstd::string& text) {
+    // TODO
+}
+
+int SystemWindow::init() {
+    return 0;
+}
+
+void SystemWindow::pollEvent(bool* quit) {
+    return;
 }
 
 SystemWindow::Size SystemWindow::getViewSize() const {

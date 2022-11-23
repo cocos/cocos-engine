@@ -24,26 +24,21 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module ui
- */
-
 import { ccclass, help, executionOrder, menu, tooltip, displayOrder, visible, multiline, type, serializable, editable } from 'cc.decorator';
-import { BYTEDANCE, EDITOR } from 'internal:constants';
+import { BYTEDANCE, EDITOR, JSB } from 'internal:constants';
 import { minigame } from 'pal/minigame';
 import { BitmapFont, Font, SpriteFrame } from '../assets';
-import { ImageAsset, Texture2D } from '../../core/assets';
-import { ccenum } from '../../core/value-types/enum';
+import { ImageAsset, Texture2D } from '../../asset/assets';
+import { ccenum, cclegacy, Color } from '../../core';
 import { IBatcher } from '../renderer/i-batcher';
 import { FontAtlas } from '../assets/bitmap-font';
 import { CanvasPool, ISharedLabelData, LetterRenderTexture } from '../assembler/label/font-utils';
-import { InstanceMaterialType, Renderable2D } from '../framework/renderable-2d';
-import { TextureBase } from '../../core/assets/texture-base';
-import { PixelFormat } from '../../core/assets/asset-enum';
-import { legacyCC } from '../../core/global-exports';
-import { BlendFactor } from '../../core/gfx';
+import { InstanceMaterialType, UIRenderer } from '../framework/ui-renderer';
+import { TextureBase } from '../../asset/assets/texture-base';
+import { PixelFormat } from '../../asset/assets/asset-enum';
+import { BlendFactor } from '../../gfx';
 
+const tempColor = Color.WHITE.clone();
 /**
  * @en Enum for horizontal text alignment.
  *
@@ -194,7 +189,7 @@ ccenum(CacheMode);
 @help('i18n:cc.Label')
 @executionOrder(110)
 @menu('2D/Label')
-export class Label extends Renderable2D {
+export class Label extends UIRenderer {
     public static HorizontalAlign = HorizontalTextAlignment;
     public static VerticalAlign = VerticalTextAlignment;
     public static Overflow = Overflow;
@@ -229,7 +224,7 @@ export class Label extends Renderable2D {
         }
 
         this._string = value;
-        this.updateRenderData();
+        this.markForUpdateRenderData();
     }
 
     /**
@@ -251,7 +246,7 @@ export class Label extends Renderable2D {
         }
 
         this._horizontalAlign = value;
-        this.updateRenderData();
+        this.markForUpdateRenderData();
     }
 
     /**
@@ -273,7 +268,7 @@ export class Label extends Renderable2D {
         }
 
         this._verticalAlign = value;
-        this.updateRenderData();
+        this.markForUpdateRenderData();
     }
 
     /**
@@ -308,29 +303,7 @@ export class Label extends Renderable2D {
         }
 
         this._fontSize = value;
-        this.updateRenderData();
-    }
-
-    /**
-     * @en
-     * Font family of label, only take effect when useSystemFont property is true.
-     *
-     * @zh
-     * 文本字体名称, 只在 useSystemFont 属性为 true 的时候生效。
-     */
-    @displayOrder(8)
-    @visible(function (this: Label) { return !this._isSystemFontUsed; })
-    @tooltip('i18n:label.font_family')
-    get fontFamily () {
-        return this._fontFamily;
-    }
-    set fontFamily (value) {
-        if (this._fontFamily === value) {
-            return;
-        }
-
-        this._fontFamily = value;
-        this.updateRenderData();
+        this.markForUpdateRenderData();
     }
 
     /**
@@ -351,7 +324,7 @@ export class Label extends Renderable2D {
         }
 
         this._lineHeight = value;
-        this.updateRenderData();
+        this.markForUpdateRenderData();
     }
 
     /**
@@ -375,7 +348,7 @@ export class Label extends Renderable2D {
         }
 
         this._spacingX = value;
-        this.updateRenderData();
+        this.markForUpdateRenderData();
     }
 
     /**
@@ -397,7 +370,7 @@ export class Label extends Renderable2D {
         }
 
         this._overflow = value;
-        this.updateRenderData();
+        this.markForUpdateRenderData();
     }
 
     /**
@@ -418,48 +391,7 @@ export class Label extends Renderable2D {
         }
 
         this._enableWrapText = value;
-        this.updateRenderData();
-    }
-
-    /**
-     * @en
-     * The font of label.
-     *
-     * @zh
-     * 文本字体。
-     */
-    @type(Font)
-    @displayOrder(12)
-    @visible(function (this: Label) { return !this._isSystemFontUsed; })
-    @tooltip('i18n:label.font')
-    get font () {
-        // return this._N$file;
-        return this._font;
-    }
-    set font (value) {
-        if (this._font === value) {
-            return;
-        }
-
-        // if delete the font, we should change isSystemFontUsed to true
-        this._isSystemFontUsed = !value;
-
-        if (EDITOR && value) {
-            this._userDefinedFont = value;
-        }
-
-        // this._N$file = value;
-        this._font = value;
-        // if (value && this._isSystemFontUsed)
-        //     this._isSystemFontUsed = false;
-
-        if (this._renderData) {
-            this.destroyRenderData();
-            this._renderData = null;
-        }
-
-        this._fontAtlas = null;
-        this.updateRenderData(true);
+        this.markForUpdateRenderData();
     }
 
     /**
@@ -469,7 +401,7 @@ export class Label extends Renderable2D {
      * @zh
      * 是否使用系统字体。
      */
-    @displayOrder(13)
+    @displayOrder(12)
     @tooltip('i18n:label.system_font')
     get useSystemFont () {
         return this._isSystemFontUsed;
@@ -480,7 +412,6 @@ export class Label extends Renderable2D {
         }
 
         this.destroyRenderData();
-        this._renderData = null;
 
         if (EDITOR) {
             if (!value && this._isSystemFontUsed && this._userDefinedFont) {
@@ -495,7 +426,67 @@ export class Label extends Renderable2D {
             this.font = null;
         }
         this._flushAssembler();
-        this.updateRenderData();
+        this.markForUpdateRenderData();
+    }
+
+    /**
+     * @en
+     * Font family of label, only take effect when useSystemFont property is true.
+     *
+     * @zh
+     * 文本字体名称, 只在 useSystemFont 属性为 true 的时候生效。
+     */
+    @displayOrder(13)
+    @visible(function (this: Label) { return this._isSystemFontUsed; })
+    @tooltip('i18n:label.font_family')
+    get fontFamily () {
+        return this._fontFamily;
+    }
+    set fontFamily (value) {
+        if (this._fontFamily === value) {
+            return;
+        }
+
+        this._fontFamily = value;
+        this.markForUpdateRenderData();
+    }
+
+    /**
+     * @en
+     * The font of label.
+     *
+     * @zh
+     * 文本字体。
+     */
+    @type(Font)
+    @displayOrder(13)
+    @visible(function (this: Label) { return !this._isSystemFontUsed; })
+    @tooltip('i18n:label.font')
+    get font () {
+        // return this._N$file;
+        return this._font;
+    }
+    set font (value) {
+        if (this._font === value) {
+            return;
+        }
+
+        // if delete the font, we should change isSystemFontUsed to true
+        this._isSystemFontUsed = !value;
+
+        if (EDITOR) {
+            this._userDefinedFont = value;
+        }
+
+        // this._N$file = value;
+        this._font = value;
+        // if (value && this._isSystemFontUsed)
+        //     this._isSystemFontUsed = false;
+
+        this.destroyRenderData();
+
+        this._fontAtlas = null;
+        this.updateRenderData(true);
     }
 
     /**
@@ -545,7 +536,7 @@ export class Label extends Renderable2D {
         }
 
         this._isBold = value;
-        this.updateRenderData();
+        this.markForUpdateRenderData();
     }
 
     /**
@@ -566,7 +557,7 @@ export class Label extends Renderable2D {
         }
 
         this._isItalic = value;
-        this.updateRenderData();
+        this.markForUpdateRenderData();
     }
 
     /**
@@ -587,7 +578,7 @@ export class Label extends Renderable2D {
         }
 
         this._isUnderline = value;
-        this.updateRenderData();
+        this.markForUpdateRenderData();
     }
 
     /**
@@ -604,7 +595,7 @@ export class Label extends Renderable2D {
     public set underlineHeight (value) {
         if (this._underlineHeight === value) return;
         this._underlineHeight = value;
-        this.updateRenderData();
+        this.markForUpdateRenderData();
     }
 
     get spriteFrame () {
@@ -628,7 +619,7 @@ export class Label extends Renderable2D {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     get _bmFontOriginalSize () {
         if (this._font instanceof BitmapFont) {
@@ -683,6 +674,22 @@ export class Label extends Renderable2D {
     protected _fontAtlas: FontAtlas | null = null;
     protected _letterTexture: LetterRenderTexture | null = null;
 
+    protected _contentWidth = 0;
+
+    /**
+     * @engineInternal
+     */
+    get contentWidth () {
+        return this._contentWidth;
+    }
+
+    /**
+     * @engineInternal
+     */
+    set contentWidth (val) {
+        this._contentWidth = val;
+    }
+
     constructor () {
         super();
         if (EDITOR) {
@@ -734,17 +741,15 @@ export class Label extends Renderable2D {
     }
 
     public updateRenderData (force = false) {
-        this.markForUpdateRenderData();
-
         if (force) {
             this._flushAssembler();
             // Hack: Fixed the bug that richText wants to get the label length by _measureText,
             // _assembler.updateRenderData will update the content size immediately.
             if (this.renderData) this.renderData.vertDirty = true;
             this._applyFontTexture();
-            if (this._assembler) {
-                this._assembler.updateRenderData(this);
-            }
+        }
+        if (this._assembler) {
+            this._assembler.updateRenderData(this);
         }
     }
 
@@ -755,7 +760,18 @@ export class Label extends Renderable2D {
     // Cannot use the base class methods directly because BMFont and CHAR cannot be updated in assambler with just color.
     protected _updateColor () {
         super._updateColor();
-        this.updateRenderData(false);
+        this.markForUpdateRenderData();
+    }
+
+    public setEntityColor (color: Color) {
+        if (JSB) {
+            if (this._font instanceof BitmapFont) {
+                this._renderEntity.color = color;
+            } else {
+                tempColor.set(255, 255, 255, color.a);
+                this._renderEntity.color = tempColor;
+            }
+        }
     }
 
     protected _canRender () {
@@ -783,10 +799,11 @@ export class Label extends Renderable2D {
             this._assembler = assembler;
         }
 
-        if (!this._renderData) {
+        if (!this.renderData) {
             if (this._assembler && this._assembler.createData) {
                 this._renderData = this._assembler.createData(this);
-                this._renderData!.material = this.material;
+                this.renderData!.material = this.material;
+                this._updateColor();
             }
         }
     }
@@ -868,4 +885,4 @@ export class Label extends Renderable2D {
     }
 }
 
-legacyCC.Label = Label;
+cclegacy.Label = Label;

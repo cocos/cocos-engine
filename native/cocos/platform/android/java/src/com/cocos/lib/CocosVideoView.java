@@ -18,7 +18,6 @@
 
 package com.cocos.lib;
 
-import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -104,7 +103,7 @@ public class CocosVideoView extends SurfaceView {
 
     protected boolean mFullScreenEnabled = false;
 
-    private boolean mIsAssetRouse = false;
+    private boolean mIsAssetResource = false;
     private String mVideoFilePath = null;
 
     private int mViewTag = 0;
@@ -114,6 +113,8 @@ public class CocosVideoView extends SurfaceView {
     // MediaPlayer will be released when surface view is destroyed, so should record the position,
     // and use it to play after MedialPlayer is created again.
     private int mPositionBeforeRelease = 0;
+    // also need to record play state when surface is destroyed.
+    private State mStateBeforeRelease = State.IDLE;
 
     // ===========================================================
     // Constructors
@@ -162,7 +163,7 @@ public class CocosVideoView extends SurfaceView {
     }
 
     public void setVideoURL(String url) {
-        mIsAssetRouse = false;
+        mIsAssetResource = false;
         setVideoURI(Uri.parse(url), null);
     }
 
@@ -172,13 +173,13 @@ public class CocosVideoView extends SurfaceView {
         }
 
         if (path.startsWith("/")) {
-            mIsAssetRouse = false;
+            mIsAssetResource = false;
             setVideoURI(Uri.parse(path),null);
         }
         else {
 
             mVideoFilePath = path;
-            mIsAssetRouse = true;
+            mIsAssetResource = true;
             setVideoURI(Uri.parse(path), null);
         }
     }
@@ -252,6 +253,8 @@ public class CocosVideoView extends SurfaceView {
 
             // after the video is stop, it shall prepare to be playable again
             try {
+                mMediaPlayer.reset(); // reset to avoid some problems on start.
+                loadDataSource();
                 mMediaPlayer.prepare();
                 this.showFirstFrame();
             } catch (Exception ex) {}
@@ -409,12 +412,21 @@ public class CocosVideoView extends SurfaceView {
         mVideoHeight = 0;
     }
 
+    private void loadDataSource() throws IOException {
+        if (mIsAssetResource) {
+            AssetFileDescriptor afd = mActivity.getAssets().openFd(mVideoFilePath);
+            mMediaPlayer.setDataSource(afd.getFileDescriptor(),afd.getStartOffset(),afd.getLength());
+        } else {
+            mMediaPlayer.setDataSource(mVideoUri.toString());
+        }
+    }
+
     private void openVideo() {
         if (mSurfaceHolder == null) {
             // not ready for playback just yet, will try again later
             return;
         }
-        if (mIsAssetRouse) {
+        if (mIsAssetResource) {
             if(mVideoFilePath == null)
                 return;
         } else if(mVideoUri == null) {
@@ -432,14 +444,8 @@ public class CocosVideoView extends SurfaceView {
             mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
             mMediaPlayer.setScreenOnWhilePlaying(true);
 
-            if (mIsAssetRouse) {
-                AssetFileDescriptor afd = mActivity.getAssets().openFd(mVideoFilePath);
-                mMediaPlayer.setDataSource(afd.getFileDescriptor(),afd.getStartOffset(),afd.getLength());
-            } else {
-                mMediaPlayer.setDataSource(mVideoUri.toString());
-            }
+            loadDataSource();
             mCurrentState = State.INITIALIZED;
-
 
             // Use Prepare() instead of PrepareAsync to make things easy.
             mMediaPlayer.prepare();
@@ -476,11 +482,16 @@ public class CocosVideoView extends SurfaceView {
 
             mCurrentState = State.PREPARED;
 
-            if (mPositionBeforeRelease > 0) {
+            if (mStateBeforeRelease == State.STARTED) {
                 CocosVideoView.this.start();
-                CocosVideoView.this.seekTo(mPositionBeforeRelease);
-                mPositionBeforeRelease = 0;
             }
+
+            if (mPositionBeforeRelease > 0) {
+                CocosVideoView.this.seekTo(mPositionBeforeRelease);
+            }
+
+            mStateBeforeRelease = State.IDLE;
+            mPositionBeforeRelease = 0;
         }
     };
 
@@ -560,6 +571,7 @@ public class CocosVideoView extends SurfaceView {
             // after we return from this we can't use the surface any more
             mSurfaceHolder = null;
             mPositionBeforeRelease = getCurrentPosition();
+            mStateBeforeRelease = mCurrentState;
             CocosVideoView.this.release();
         }
     };

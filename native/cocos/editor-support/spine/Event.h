@@ -38,49 +38,49 @@ class EventData;
 
 /// Stores the current pose values for an Event.
 class SP_API Event : public SpineObject {
-	friend class SkeletonBinary;
+    friend class SkeletonBinary;
 
-	friend class SkeletonJson;
+    friend class SkeletonJson;
 
-	friend class AnimationState;
+    friend class AnimationState;
 
 public:
-	Event(float time, const EventData &data);
+    Event(float time, const EventData &data);
 
-	const EventData &getData();
+    const EventData &getData();
 
-	/// The animation time this event was keyed.
-	float getTime();
+    /// The animation time this event was keyed.
+    float getTime();
 
-	int getIntValue();
+    int getIntValue();
 
-	void setIntValue(int inValue);
+    void setIntValue(int inValue);
 
-	float getFloatValue();
+    float getFloatValue();
 
-	void setFloatValue(float inValue);
+    void setFloatValue(float inValue);
 
-	const String &getStringValue();
+    const String &getStringValue();
 
-	void setStringValue(const String &inValue);
+    void setStringValue(const String &inValue);
 
-	float getVolume();
+    float getVolume();
 
-	void setVolume(float inValue);
+    void setVolume(float inValue);
 
-	float getBalance();
+    float getBalance();
 
-	void setBalance(float inValue);
+    void setBalance(float inValue);
 
 private:
-	const EventData &_data;
-	const float _time;
-	int _intValue;
-	float _floatValue;
-	String _stringValue;
-	float _volume;
-	float _balance;
+    const EventData &_data;
+    const float _time;
+    int _intValue;
+    float _floatValue;
+    String _stringValue;
+    float _volume;
+    float _balance;
 };
-}
+} // namespace spine
 
 #endif /* Spine_Event_h */

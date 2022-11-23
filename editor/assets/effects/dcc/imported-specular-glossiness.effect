@@ -1,0 +1,524 @@
+// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+
+CCEffect %{
+  techniques:
+  - name: opaque
+    passes:
+    - vert: standard-vs
+      frag: standard-fs
+      properties: &props
+        mainTexture:           { value: grey, target: albedoMap, editor: { displayName: DiffuseMap } }
+        mainColor:             { value: [1.0, 1.0, 1.0, 1.0], target: diffuseColor, linear: true, editor: { displayName: DiffuseColor, type: color } }   
+        albedoScale:           { value: 1.0, target: diffuseFactor, editor: { displayName: diffuseFactor } }
+        alphaThreshold:        { value: 0.5, editor: { parent: USE_ALPHA_TEST, slide: true, range: [0, 1.0], step: 0.001 } }
+        emissive:              { value: [0.0, 0.0, 0.0, 1.0], linear: true, editor: { type: color } }
+        emissiveMap:           { value: grey }
+        emissiveScale:         { value: 1.0 }
+        emissiveScaleMap:      { value: grey }
+        shininessExponentMap:  { value: grey, editor: { parent: '!HAS_EXPORTED_GLOSSINESS' } }
+        shininessExponent:     { value: 100.0, editor: { parent: '!HAS_EXPORTED_GLOSSINESS' } }
+        specularGlossinessMap: { value: grey, editor: { parent: '!HAS_EXPORTED_GLOSSINESS' } }
+        specularColor:         { value: [0.0, 0.0, 0.0, 0.0], linear: true, editor: { displayName: SpecularColor, type: color } } 
+        specularMap:           { value: grey, editor: { parent: '!HAS_EXPORTED_METALLIC' } }
+        specularFactor:        { value: 1.0, editor: { parent: '!HAS_EXPORTED_METALLIC' } }
+        transparencyMap:       { value: grey, editor: { displayName: TransparencyMap } } 
+        transparencyFactor:    { value: 1.0, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
+        tilingOffset:          { value: [1.0, 1.0, 0.0, 0.0] }
+        normalStrength:        { value: 1.0, target: normalScale, editor: { displayName: bumpFactor, parent: USE_NORMAL_MAP, slide: true, range: [0, 5.0], step: 0.001 } }
+        normalMap:             { value: normal }
+        glossiness:            { value: 0.0, editor: { parent: HAS_EXPORTED_GLOSSINESS, slide: true, range: [0, 1.0], step: 0.001 } }
+        metallic:              { value: 0.0, editor: { parent: HAS_EXPORTED_METALLIC, slide: true, range: [0, 1.0], step: 0.001 } }
+        metallicMap:           { value: grey, editor: { parent: HAS_EXPORTED_METALLIC } }
+    - &forward-add
+      vert: standard-vs
+      frag: standard-fs
+      phase: forward-add
+      propertyIndex: 0
+      embeddedMacros: { CC_FORWARD_ADD: true }
+      depthStencilState:
+        depthFunc: equal
+        depthTest: true
+        depthWrite: false
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: one
+          blendDst: one
+          blendSrcAlpha: zero
+          blendDstAlpha: one
+    - &shadow-caster
+      vert: shadow-caster-vs:vert
+      frag: shadow-caster-fs:frag
+      phase: shadow-caster
+      propertyIndex: 0
+      rasterizerState:
+        cullMode: front
+      properties:
+        tilingOffset:          { value: [1.0, 1.0, 0.0, 0.0] }
+        mainColor:             { value: [1.0, 1.0, 1.0, 1.0], target: diffuseColor, editor: { displayName: Albedo, type: color } }
+        albedoScale:           { value: 1.0, target: diffuseFactor, editor: { displayName: diffuseFactor } }
+        alphaThreshold:        { value: 0.5, editor: { parent: USE_ALPHA_TEST } }
+        mainTexture:           { value: grey, target: albedoMap, editor: { displayName: AlbedoMap } }
+        transparencyMap:       { value: grey, editor: { displayName: TransparencyMap } } 
+        transparencyFactor:    { value: 1.0, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
+  - name: transparent
+    passes:
+    - vert: standard-vs
+      frag: standard-fs
+      embeddedMacros: { CC_FORCE_FORWARD_SHADING: true }
+      depthStencilState:
+        depthTest: true
+        depthWrite: false
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: src_alpha
+          blendDst: one_minus_src_alpha
+          blendDstAlpha: one_minus_src_alpha
+      properties: *props
+    - *forward-add
+    - *shadow-caster
+}%
+
+CCProgram shared-ubos %{
+  uniform Constants {
+    vec4  tilingOffset;
+    vec4  diffuseColor;
+    vec4  specularColor;
+    vec4  emissive;
+    float emissiveScale;
+    float alphaThreshold;
+    float shininessExponent;
+    float glossiness;
+    float metallic;
+    float normalScale;
+    float transparencyFactor;
+    float diffuseFactor;
+    float specularFactor;
+  };
+}%
+
+CCProgram standard-vs %{
+  precision highp float;
+  #include <legacy/input-standard>
+  #include <builtin/uniforms/cc-global>
+  #include <legacy/local-batch>
+  #include <shared-ubos>
+  #include <legacy/fog-vs>
+  #include <legacy/shadow-map-vs>
+  #include <legacy/sh-vs>
+
+  #if USE_VERTEX_COLOR
+    in vec4 a_color;
+    out vec4 v_color;
+  #endif
+
+  out vec3 v_position;
+  out vec3 v_normal;
+  out vec2 v_uv;
+  out vec2 v_uv1;
+
+  #if USE_NORMAL_MAP
+    out vec3 v_tangent;
+    out vec3 v_bitangent;
+  #endif
+
+  #if CC_RECEIVE_SHADOW
+    out mediump vec2 v_shadowBias;
+  #endif
+
+  #if HAS_SECOND_UV || CC_USE_LIGHTMAP
+    in vec2 a_texCoord1;
+  #endif
+
+  #if CC_USE_LIGHTMAP && !CC_FORWARD_ADD
+    #include <legacy/lightingmap-vs>
+  #endif
+
+  void main () {
+    StandardVertInput In;
+    CCVertInput(In);
+
+    mat4 matWorld, matWorldIT;
+    CCGetWorldMatrixFull(matWorld, matWorldIT);
+
+    vec4 pos = matWorld * In.position;
+
+    v_position = pos.xyz;
+    v_normal = normalize((matWorldIT * vec4(In.normal, 0.0)).xyz);
+
+    #if USE_TWOSIDE
+      vec3 viewDirect = normalize(cc_cameraPos.xyz - v_position);
+      v_normal *= dot(v_normal, viewDirect) < 0.0 ? -1.0 : 1.0;
+    #endif
+
+    #if USE_NORMAL_MAP
+      v_tangent = normalize((matWorld * vec4(In.tangent.xyz, 0.0)).xyz);
+      v_bitangent = cross(v_normal, v_tangent) * (In.tangent.w > 0.0 ? 1.0 : -1.0); // note the cross order
+    #endif
+
+    v_uv = a_texCoord * tilingOffset.xy + tilingOffset.zw;
+
+    #if HAS_SECOND_UV
+      v_uv1 = a_texCoord1 * tilingOffset.xy + tilingOffset.zw;
+    #endif
+
+    #if USE_VERTEX_COLOR
+      v_color = a_color;
+    #endif
+
+    CC_TRANSFER_FOG(pos);
+    CC_TRANSFER_SHADOW(pos);
+    CC_TRANSFER_SH();
+
+    #if CC_USE_LIGHTMAP && !CC_FORWARD_ADD
+      CCLightingMapCaclUV();
+    #endif
+
+    #if CC_RECEIVE_SHADOW
+      v_shadowBias = CCGetShadowBias();
+    #endif
+
+    gl_Position = cc_matProj * (cc_matView * matWorld) * In.position;
+  }
+}%
+
+CCProgram standard-fs %{
+  precision highp float;
+  #include <builtin/uniforms/cc-global>
+  #include <shared-ubos>
+  #include <legacy/fog-fs>
+  #include <legacy/standard-surface-entry>
+  #include <common/mesh/material>
+  #if CC_USE_LIGHTMAP && !CC_FORWARD_ADD
+    #include <legacy/lightingmap-fs>
+  #endif
+
+  in vec3 v_position;
+  in vec2 v_uv;
+  in vec2 v_uv1;
+  in vec3 v_normal;
+
+  #if CC_RECEIVE_SHADOW
+    in mediump vec2 v_shadowBias;
+  #endif
+  
+
+  #pragma define-meta  TEXTURE_UV options([v_uv, v_uv1])
+  #pragma define-meta DCC_APP_NAME range([0, 5])
+  #define DCC_APP_OTHERS 0
+  #define DCC_APP_MAX 1
+  #define DCC_APP_BLENDER 2
+  #define DCC_APP_CINEMA4D 3
+  #define DCC_APP_GLTF 4
+  #define DCC_APP_MAYA 5
+
+  #if USE_SHININESS_MAP
+    uniform sampler2D shininessExponentMap;
+    #pragma define-meta SHININESS_MAP_CHANNEL options([a,r,g,b])
+  #endif
+  #if USE_SPECULAR_GLOSSINESS_MAP
+    uniform sampler2D specularGlossinessMap;
+  #endif
+  #if USE_SPECULAR_MAP
+    uniform sampler2D specularMap;
+  #endif
+   #if USE_METALLIC_MAP
+    uniform sampler2D metallicMap;
+  #endif
+
+  #if USE_VERTEX_COLOR
+    in vec4 v_color;
+  #endif
+ 
+  #if USE_ALBEDO_MAP
+    uniform sampler2D albedoMap;
+  #endif
+  #if USE_TRANSPARENCY_MAP
+    uniform sampler2D transparencyMap;
+    #pragma define-meta TRANSPARENCY_MAP_CHANNEL options([a, r, g, b])
+  #endif
+
+  #if USE_NORMAL_MAP
+    in vec3 v_tangent;
+    in vec3 v_bitangent;
+    uniform sampler2D normalMap;
+  #endif
+ 
+  #if USE_EMISSIVE_MAP
+    uniform sampler2D emissiveMap;
+  #endif
+  #if USE_EMISSIVESCALE_MAP
+    uniform sampler2D emissiveScaleMap;
+  #endif
+
+  float discolor(vec3 srcColor) {
+    return dot(GRAY_VECTOR, srcColor);
+  }
+  float convertShininessExponent(float shininessExp)
+  {
+    #if DCC_APP_NAME == DCC_APP_BLENDER
+      // 2-100
+      float glossiness = clamp(sqrt(shininessExp) * 0.1/*/10.0*/, 0.0, 0.95); // glossiness=1 may leads to specular disappear
+    #elif DCC_APP_NAME == DCC_APP_MAX || DCC_APP_NAME == DCC_APP_MAYA
+      // 2-1024
+      float l2 = clamp(log(shininessExp + EPSILON) * 0.1442695 /*/log(2.0)/10.0*/, 0.0, 1.0);
+      float glossiness = pow(l2, 0.5);
+    #else // DCC_APP_NAME == DCC_APP_CINEMA4D / DCC_APP_GLTF / DCC_APP_OTHERS
+      // 2-1024
+      float glossiness = clamp(log(shininessExp + EPSILON) * 0.1442695 /*/log(2.0)/10.0*/, 0.0, 1.0);
+    #endif
+      return glossiness;
+  }
+  float getSpecularIntensityFromRoughness(float roughness)
+  {
+    #if DCC_APP_NAME == DCC_APP_BLENDER
+      float specularIntensityMultiplier = mix(1.0, 5.0, roughness);
+    #elif DCC_APP_NAME == DCC_APP_CINEMA4D
+      float specularIntensityMultiplier = mix(1.0, 50.0, roughness);
+    #elif DCC_APP_NAME == DCC_APP_MAX || DCC_APP_NAME == DCC_APP_MAYA
+      float specularIntensityMultiplier = mix(1.0, 20.0, roughness);
+    #else // DCC_APP_NAME == DCC_APP_GLTF / DCC_APP_OTHERS
+      float specularIntensityMultiplier = 1.0;
+    #endif
+      return specularIntensityMultiplier;
+  }
+  
+  vec4 getSpecularColorAndFactor()
+  {
+    vec3 inSpecular = specularColor.rgb * specularFactor;
+    float inFactor = 1.0; //reserved
+    #if USE_SPECULAR_GLOSSINESS_MAP
+      inSpecular = SRGBToLinear(texture(specularGlossinessMap, TEXTURE_UV).rgb);
+    #endif
+    #if USE_SPECULAR_MAP
+        vec4 specularTex = texture(specularMap, TEXTURE_UV);
+        specularTex.rgb = SRGBToLinear(specularTex.rgb);
+        inSpecular = specularTex.rgb;
+    #endif
+    return vec4(inSpecular, inFactor);
+  }
+  void surf (out StandardSurface s) {
+    //diffuse
+    vec4 baseColor = vec4(1.0);
+    #if USE_VERTEX_COLOR
+      baseColor.rgb *= SRGBToLinear(v_color.rgb);
+      baseColor.a *= v_color.a;
+    #endif
+    #if USE_ALBEDO_MAP
+      vec4 texColor = texture(albedoMap, TEXTURE_UV);
+      texColor.rgb = SRGBToLinear(texColor.rgb);
+      texColor.a *= transparencyFactor;
+      baseColor *= texColor;
+    #else
+      baseColor *= diffuseColor;
+    #endif
+    baseColor.rgb *= diffuseFactor;
+    
+    #if USE_TRANSPARENCY_MAP
+      baseColor.a = texture(transparencyMap, TEXTURE_UV).TRANSPARENCY_MAP_CHANNEL;
+      #if DCC_APP_NAME == DCC_APP_MAYA
+        baseColor.a = 1.0 - baseColor.a;
+      #endif
+    #endif
+
+    #if USE_ALPHA_TEST
+      if (baseColor.a < alphaThreshold) discard;
+    #endif
+
+    #if CC_RECEIVE_SHADOW
+      s.shadowBias = v_shadowBias;
+    #endif
+
+    vec4 specularColorAndFactor = getSpecularColorAndFactor();
+
+    //glossiness
+    float inGlossiness = 0.0, inSpecularIntensity = 1.0;
+    #if HAS_EXPORTED_GLOSSINESS
+      #if USE_SPECULAR_GLOSSINESS_MAP
+        inGlossiness = 1.0 - texture(specularGlossinessMap, TEXTURE_UV).a;
+      #else
+        inGlossiness = glossiness;
+      #endif
+    #else
+      #if USE_SHININESS_MAP
+        #if USE_SHININESS_MAP_CHANNEL
+          inGlossiness = 1.0 - texture(shininessExponentMap, TEXTURE_UV).SHININESS_MAP_CHANNEL;
+        #else
+          inGlossiness = 1.0 - discolor(texture(shininessExponentMap, TEXTURE_UV).rgb);
+        #endif
+      #else
+        inGlossiness = convertShininessExponent(shininessExponent);
+      #endif
+
+      inSpecularIntensity *= getSpecularIntensityFromRoughness(1.0 - inGlossiness);
+    #endif
+
+    //metallic
+    float inMetallic = 0.0;
+    vec4 albedo = baseColor;
+    #if HAS_EXPORTED_METALLIC
+      inMetallic = metallic;
+      float spec = specularFactor;
+      #if USE_SPECULAR_MAP
+        spec = dot(GRAY_VECTOR, texture(specularMap, TEXTURE_UV).rgb);
+      #endif
+      inSpecularIntensity *= spec * 0.5;
+    #else
+      GetMetallicAlbedoFromDiffuseSpecularWithoutColor(inMetallic, albedo.rgb, baseColor.rgb, specularColorAndFactor.rgb, 0.04);
+      inSpecularIntensity *= inMetallic; //simulate specular color is black
+    #endif
+
+    s.normal = v_normal;
+    #if USE_NORMAL_MAP
+      vec3 nmmp = texture(normalMap, TEXTURE_UV).xyz - vec3(0.5);
+      s.normal =
+        (nmmp.x * normalScale) * normalize(v_tangent) +
+        (nmmp.y * normalScale) * normalize(v_bitangent) +
+        nmmp.z * normalize(s.normal);
+    #endif
+
+    HIGHP_VALUE_TO_STRUCT_DEFINED(v_position, s.position);
+
+    s.albedo = albedo;
+    s.occlusion = 1.0;
+    s.roughness = 1.0 - inGlossiness;
+    s.metallic = inMetallic;
+    s.specularIntensity = inSpecularIntensity * 0.5;
+
+    vec3 emissiveColor = emissive.rgb;
+    #if USE_EMISSIVE_MAP
+        emissiveColor.rgb = SRGBToLinear(texture(emissiveMap, TEXTURE_UV).rgb);
+    #endif
+    //emissive color scale
+    #if USE_EMISSIVESCALE_MAP
+        vec4 emissiveScaleColor = texture(emissiveScaleMap, TEXTURE_UV);
+        emissiveScaleColor.rgb = SRGBToLinear(emissiveScaleColor.rgb);
+        emissiveColor.rgb *= emissiveScaleColor.rgb;
+    #else
+        emissiveColor.rgb *= emissiveScale;
+    #endif
+    s.emissive = emissiveColor.rgb;
+
+    #if CC_USE_LIGHTMAP && !CC_FORWARD_ADD
+      SampleAndDecodeLightMapColor(s.lightmap.rgb, s.lightmap.a, s.lightmap_test, cc_lightingMap, v_luv.xy, v_luv.z, s.normal);
+    #endif
+  }
+
+  CC_STANDARD_SURFACE_ENTRY()  
+}%
+
+CCProgram shadow-caster-vs %{
+  precision highp float;
+  #include <legacy/input-standard>
+  #include <legacy/local-batch>
+  #include <shared-ubos>
+  #include <builtin/uniforms/cc-shadow>
+
+  #if HAS_SECOND_UV || CC_USE_LIGHTMAP
+    in vec2 a_texCoord1;
+  #endif
+
+  out vec2 v_uv;
+  out vec2 v_uv1;
+  out vec4 v_worldPos;
+
+  out highp vec2 v_clip_depth;
+
+  #if USE_VERTEX_COLOR
+    in vec4 a_color;
+    out lowp vec4 v_color;
+  #endif
+
+  vec4 vert () {
+    StandardVertInput In;
+    CCVertInput(In);
+
+    mat4 matWorld, matWorldIT;
+    CCGetWorldMatrixFull(matWorld, matWorldIT);
+
+    v_worldPos = matWorld * In.position;
+    vec4 clipPos = cc_matLightViewProj * v_worldPos;
+
+    v_uv = a_texCoord * tilingOffset.xy + tilingOffset.zw;
+    #if HAS_SECOND_UV
+      v_uv1 = a_texCoord1 * tilingOffset.xy + tilingOffset.zw;
+    #endif
+
+    #if USE_VERTEX_COLOR
+      v_color = a_color;
+    #endif
+
+    v_clip_depth = clipPos.zw;
+
+    return clipPos;
+  }
+}%
+
+CCProgram shadow-caster-fs %{
+  precision highp float;
+  #include <shared-ubos>
+  #include <common/data/packing>
+  #include <legacy/shadow-map-base>
+
+  in vec2 v_uv;
+  in vec2 v_uv1;
+  in vec4 v_worldPos;
+  in highp vec2 v_clip_depth;
+
+  #pragma define-meta  TEXTURE_UV options([v_uv, v_uv1])
+  #pragma define-meta DCC_APP_NAME range([0, 5])
+  #define DCC_APP_OTHERS 0
+  #define DCC_APP_MAX 1
+  #define DCC_APP_BLENDER 2
+  #define DCC_APP_CINEMA4D 3
+  #define DCC_APP_GLTF 4
+  #define DCC_APP_MAYA 5
+
+  #if USE_ALBEDO_MAP
+    uniform sampler2D albedoMap;
+  #endif
+
+  #if USE_TRANSPARENCY_MAP
+    uniform sampler2D transparencyMap;
+    #pragma define-meta TRANSPARENCY_MAP_CHANNEL options([a, r, g, b])
+  #endif
+
+  #if USE_VERTEX_COLOR
+    in lowp vec4 v_color;
+  #endif
+
+  vec4 frag () {
+    #if USE_ALPHA_TEST
+      float alpha = diffuseColor.a;
+      #if USE_VERTEX_COLOR
+        alpha *= v_color.a;
+      #endif
+      #if USE_ALBEDO_MAP
+        alpha *= texture(albedoMap, TEXTURE_UV).a * transparencyFactor;
+      #endif
+      #if USE_TRANSPARENCY_MAP
+        alpha = texture(transparencyMap, TEXTURE_UV).TRANSPARENCY_MAP_CHANNEL;
+        #if DCC_APP_NAME == DCC_APP_MAYA
+          alpha = 1.0 - alpha;
+        #endif
+      #endif
+      if (alpha < alphaThreshold) discard;
+    #endif
+
+    highp float clipDepth = v_clip_depth.x / v_clip_depth.y * 0.5 + 0.5;
+    // spot use linear
+    if(cc_shadowLPNNInfo.x > 0.000001 && cc_shadowLPNNInfo.x < 1.999999) {
+      // enabled linear depth
+      #if CC_SHADOWMAP_USE_LINEAR_DEPTH
+        clipDepth = CCGetLinearDepth(v_worldPos.xyz);
+      #endif
+    }
+
+    #if CC_SHADOWMAP_FORMAT == SHADOWMAP_FORMAT_RGBA8
+      return packDepthToRGBA(clipDepth);
+    #else
+      return vec4(clipDepth, 1.0, 1.0, 1.0);
+    #endif
+  }
+}%

@@ -31,23 +31,23 @@
 namespace cc {
 namespace pipeline {
 
-ccstd::unordered_map<size_t, IntrusivePtr<gfx::PipelineState>> PipelineStateManager::psoHashMap;
+ccstd::unordered_map<ccstd::hash_t, IntrusivePtr<gfx::PipelineState>> PipelineStateManager::psoHashMap;
 
-gfx::PipelineState *PipelineStateManager::getOrCreatePipelineState(const scene::Pass *  pass,
-                                                                   gfx::Shader *        shader,
+gfx::PipelineState *PipelineStateManager::getOrCreatePipelineState(const scene::Pass *pass,
+                                                                   gfx::Shader *shader,
                                                                    gfx::InputAssembler *inputAssembler,
-                                                                   gfx::RenderPass *    renderPass,
-                                                                   uint                 subpass) {
-    const auto passHash       = pass->getHash();
+                                                                   gfx::RenderPass *renderPass,
+                                                                   uint32_t subpass) {
+    const auto passHash = pass->getHash();
     const auto renderPassHash = renderPass->getHash();
-    const auto iaHash         = inputAssembler->getAttributesHash();
-    const auto shaderID       = shader->getTypedID();
-    auto       hash           = passHash ^ renderPassHash ^ iaHash ^ shaderID;
+    const auto iaHash = inputAssembler->getAttributesHash();
+    const auto shaderID = shader->getTypedID();
+    auto hash = passHash ^ renderPassHash ^ iaHash ^ shaderID;
     if (subpass != 0) {
         hash = hash << subpass;
     }
 
-    auto *pso = psoHashMap[static_cast<size_t>(hash)].get();
+    auto *pso = psoHashMap[static_cast<ccstd::hash_t>(hash)].get();
     if (!pso) {
         auto *pipelineLayout = pass->getPipelineLayout();
 
@@ -63,7 +63,7 @@ gfx::PipelineState *PipelineStateManager::getOrCreatePipelineState(const scene::
                                                                gfx::PipelineBindPoint::GRAPHICS,
                                                                subpass});
 
-        psoHashMap[static_cast<size_t>(hash)] = pso;
+        psoHashMap[static_cast<ccstd::hash_t>(hash)] = pso;
     }
 
     return pso;

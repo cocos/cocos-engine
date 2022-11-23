@@ -1,5 +1,5 @@
 import { Button } from "../../cocos/ui/button";
-import { Node } from "../../cocos/core/scene-graph/node";
+import { Node } from "../../cocos/scene-graph/node";
 import { Vec3 } from "../../cocos/core/math/vec3";
 
 test('Button scale with interactable', function () {

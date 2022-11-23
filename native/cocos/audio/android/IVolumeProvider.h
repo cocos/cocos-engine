@@ -24,7 +24,7 @@ THE SOFTWARE.
 ****************************************************************************/
 #pragma once
 
-#include "audio/android/audio_utils/include/audio_utils/minifloat.h"
+#include "audio/common/utils/include/minifloat.h"
 
 namespace cc {
 

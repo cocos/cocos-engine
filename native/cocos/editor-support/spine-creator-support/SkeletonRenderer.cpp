@@ -29,6 +29,8 @@
 
 #include "spine-creator-support/SkeletonRenderer.h"
 #include <algorithm>
+#include "2d/renderer/RenderDrawInfo.h"
+#include "2d/renderer/RenderEntity.h"
 #include "MiddlewareMacro.h"
 #include "SharedBufferManager.h"
 #include "SkeletonDataMgr.h"
@@ -38,6 +40,7 @@
 #include "gfx-base/GFXDef.h"
 #include "math/Math.h"
 #include "math/Vec3.h"
+#include "renderer/core/MaterialInstance.h"
 #include "spine-creator-support/AttachmentVertices.h"
 #include "spine-creator-support/spine-cocos2dx.h"
 
@@ -49,7 +52,7 @@ using namespace cc::gfx; // NOLINT(google-build-using-namespace)
 using std::max;
 using std::min;
 
-static const std::string TECH_STAGE  = "opaque";
+static const std::string TECH_STAGE = "opaque";
 static const std::string TEXTURE_KEY = "texture";
 
 static spine::Cocos2dTextureLoader textureLoader;
@@ -86,18 +89,8 @@ void SkeletonRenderer::initialize() {
         _sharedBufferOffset = new cc::middleware::IOTypedArray(se::Object::TypedArrayType::UINT32, sizeof(uint32_t) * 2);
     }
 
-    if (_paramsBuffer == nullptr) {
-        // store render order(1), world matrix(16)
-        _paramsBuffer = new cc::middleware::IOTypedArray(se::Object::TypedArrayType::FLOAT32, sizeof(float) * 17);
-        // set render order to 0
-        _paramsBuffer->writeFloat32(0);
-        // set world transform to identity
-        _paramsBuffer->writeBytes(reinterpret_cast<const char *>(&cc::Mat4::IDENTITY), sizeof(float) * 16);
-    }
-
     _skeleton->setToSetupPose();
     _skeleton->updateWorldTransform();
-    beginSchedule();
 }
 
 void SkeletonRenderer::beginSchedule() {
@@ -125,7 +118,7 @@ void SkeletonRenderer::stopSchedule() {
 }
 
 void SkeletonRenderer::setSkeletonData(SkeletonData *skeletonData, bool ownsSkeletonData) {
-    _skeleton         = new (__FILE__, __LINE__) Skeleton(skeletonData);
+    _skeleton = new (__FILE__, __LINE__) Skeleton(skeletonData);
     _ownsSkeletonData = ownsSkeletonData;
 }
 
@@ -161,29 +154,32 @@ SkeletonRenderer::~SkeletonRenderer() {
         _sharedBufferOffset = nullptr;
     }
 
-    if (_paramsBuffer) {
-        delete _paramsBuffer;
-        _paramsBuffer = nullptr;
+    for (auto *draw : _drawInfoArray) {
+        CC_SAFE_DELETE(draw);
+    }
+
+    for (auto &item : _materialCaches) {
+        CC_SAFE_DELETE(item.second);
     }
 
     stopSchedule();
 }
 
 void SkeletonRenderer::initWithUUID(const std::string &uuid) {
-    _ownsSkeleton              = true;
-    _uuid                      = uuid;
+    _ownsSkeleton = true;
+    _uuid = uuid;
     SkeletonData *skeletonData = SkeletonDataMgr::getInstance()->retainByUUID(uuid);
-    CCASSERT(skeletonData, "Skeleton data is is null");
+    CC_ASSERT(skeletonData);
 
     setSkeletonData(skeletonData, false);
     initialize();
 }
 
 void SkeletonRenderer::initWithSkeleton(Skeleton *skeleton, bool ownsSkeleton, bool ownsSkeletonData, bool ownsAtlas) {
-    _skeleton         = skeleton;
-    _ownsSkeleton     = ownsSkeleton;
+    _skeleton = skeleton;
+    _ownsSkeleton = ownsSkeleton;
     _ownsSkeletonData = ownsSkeletonData;
-    _ownsAtlas        = ownsAtlas;
+    _ownsAtlas = ownsAtlas;
 
     initialize();
 }
@@ -195,13 +191,13 @@ void SkeletonRenderer::initWithData(SkeletonData *skeletonData, bool ownsSkeleto
 }
 
 void SkeletonRenderer::initWithJsonFile(const std::string &skeletonDataFile, Atlas *atlas, float scale) {
-    _atlas            = atlas;
+    _atlas = atlas;
     _attachmentLoader = new (__FILE__, __LINE__) Cocos2dAtlasAttachmentLoader(_atlas);
 
     SkeletonJson json(_attachmentLoader);
     json.setScale(scale);
     SkeletonData *skeletonData = json.readSkeletonDataFile(skeletonDataFile.c_str());
-    CCASSERT(skeletonData, !json.getError().isEmpty() ? json.getError().buffer() : "Error reading skeleton data.");
+    CC_ASSERT(skeletonData); // Can use json.getError() to get error message.
 
     _ownsSkeleton = true;
     setSkeletonData(skeletonData, true);
@@ -211,30 +207,30 @@ void SkeletonRenderer::initWithJsonFile(const std::string &skeletonDataFile, Atl
 
 void SkeletonRenderer::initWithJsonFile(const std::string &skeletonDataFile, const std::string &atlasFile, float scale) {
     _atlas = new (__FILE__, __LINE__) Atlas(atlasFile.c_str(), &textureLoader);
-    CCASSERT(_atlas, "Error reading atlas file.");
+    CC_ASSERT(_atlas);
 
     _attachmentLoader = new (__FILE__, __LINE__) Cocos2dAtlasAttachmentLoader(_atlas);
 
     SkeletonJson json(_attachmentLoader);
     json.setScale(scale);
     SkeletonData *skeletonData = json.readSkeletonDataFile(skeletonDataFile.c_str());
-    CCASSERT(skeletonData, !json.getError().isEmpty() ? json.getError().buffer() : "Error reading skeleton data.");
+    CC_ASSERT(skeletonData); // Can use json.getError() to get error message.
 
     _ownsSkeleton = true;
-    _ownsAtlas    = true;
+    _ownsAtlas = true;
     setSkeletonData(skeletonData, true);
 
     initialize();
 }
 
 void SkeletonRenderer::initWithBinaryFile(const std::string &skeletonDataFile, Atlas *atlas, float scale) {
-    _atlas            = atlas;
+    _atlas = atlas;
     _attachmentLoader = new (__FILE__, __LINE__) Cocos2dAtlasAttachmentLoader(_atlas);
 
     SkeletonBinary binary(_attachmentLoader);
     binary.setScale(scale);
     SkeletonData *skeletonData = binary.readSkeletonDataFile(skeletonDataFile.c_str());
-    CCASSERT(skeletonData, !binary.getError().isEmpty() ? binary.getError().buffer() : "Error reading skeleton data.");
+    CC_ASSERT(skeletonData); // Can use binary.getError() to get error message.
 
     _ownsSkeleton = true;
     setSkeletonData(skeletonData, true);
@@ -244,17 +240,17 @@ void SkeletonRenderer::initWithBinaryFile(const std::string &skeletonDataFile, A
 
 void SkeletonRenderer::initWithBinaryFile(const std::string &skeletonDataFile, const std::string &atlasFile, float scale) {
     _atlas = new (__FILE__, __LINE__) Atlas(atlasFile.c_str(), &textureLoader);
-    CCASSERT(_atlas, "Error reading atlas file.");
+    CC_ASSERT(_atlas);
 
     _attachmentLoader = new (__FILE__, __LINE__) Cocos2dAtlasAttachmentLoader(_atlas);
 
     SkeletonBinary binary(_attachmentLoader);
     binary.setScale(scale);
     SkeletonData *skeletonData = binary.readSkeletonDataFile(skeletonDataFile.c_str());
-    CCASSERT(skeletonData, !binary.getError().isEmpty() ? binary.getError().buffer() : "Error reading skeleton data.");
+    CC_ASSERT(skeletonData); // Can use binary.getError() to get error message.
 
     _ownsSkeleton = true;
-    _ownsAtlas    = true;
+    _ownsAtlas = true;
     setSkeletonData(skeletonData, true);
 
     initialize();
@@ -262,7 +258,8 @@ void SkeletonRenderer::initWithBinaryFile(const std::string &skeletonDataFile, c
 
 void SkeletonRenderer::render(float /*deltaTime*/) {
     if (!_skeleton) return;
-
+    auto *entity = _entity;
+    entity->clearDynamicRenderDrawInfos();
     _sharedBufferOffset->reset();
     _sharedBufferOffset->clear();
 
@@ -270,49 +267,33 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
     auto *mgr = MiddlewareManager::getInstance();
     if (!mgr->isRendering) return;
 
-    auto *renderMgr  = mgr->getRenderInfoMgr();
-    auto *renderInfo = renderMgr->getBuffer();
-    if (!renderInfo) return;
-
-    auto *attachMgr  = mgr->getAttachInfoMgr();
+    auto *attachMgr = mgr->getAttachInfoMgr();
     auto *attachInfo = attachMgr->getBuffer();
     if (!attachInfo) return;
-
-    //  store render info offset
-    _sharedBufferOffset->writeUint32(static_cast<uint32_t>(renderInfo->getCurPos()) / sizeof(uint32_t));
     // store attach info offset
     _sharedBufferOffset->writeUint32(static_cast<uint32_t>(attachInfo->getCurPos()) / sizeof(uint32_t));
-
-    // check enough space
-    renderInfo->checkSpace(sizeof(uint32_t) * 2, true);
-    // write border
-    renderInfo->writeUint32(0xffffffff);
-
-    std::size_t materialLenOffset = renderInfo->getCurPos();
-    //reserved space to save material len
-    renderInfo->writeUint32(0);
 
     // If opacity is 0,then return.
     if (_skeleton->getColor().a == 0) {
         return;
     }
-
+    auto &nodeWorldMat = entity->getNode()->getWorldMatrix();
     // color range is [0.0, 1.0]
-    cc::middleware::Color4F     color;
-    cc::middleware::Color4F     darkColor;
-    AttachmentVertices *        attachmentVertices = nullptr;
-    bool                        inRange            = !(_startSlotIndex != -1 || _endSlotIndex != -1);
-    auto                        vertexFormat       = _useTint ? VF_XYZUVCC : VF_XYZUVC;
-    cc::middleware::MeshBuffer *mb                 = mgr->getMeshBuffer(vertexFormat);
-    cc::middleware::IOBuffer &  vb                 = mb->getVB();
-    cc::middleware::IOBuffer &  ib                 = mb->getIB();
+    cc::middleware::Color4F color;
+    cc::middleware::Color4F darkColor;
+    AttachmentVertices *attachmentVertices = nullptr;
+    bool inRange = !(_startSlotIndex != -1 || _endSlotIndex != -1);
+    auto vertexFormat = _useTint ? VF_XYZUVCC : VF_XYZUVC;
+    cc::middleware::MeshBuffer *mb = mgr->getMeshBuffer(vertexFormat);
+    cc::middleware::IOBuffer &vb = mb->getVB();
+    cc::middleware::IOBuffer &ib = mb->getIB();
 
     // vertex size int bytes with one color
-    unsigned int vbs1 = sizeof(V2F_T2F_C4F);
+    unsigned int vbs1 = sizeof(V3F_T2F_C4B);
     // vertex size in floats with one color
     unsigned int vs1 = vbs1 / sizeof(float);
     // vertex size int bytes with two color
-    unsigned int vbs2 = sizeof(V2F_T2F_C4F_C4F);
+    unsigned int vbs2 = sizeof(V3F_T2F_C4B_C4B);
     // verex size in floats with two color
     unsigned int vs2 = vbs2 / sizeof(float);
 
@@ -321,26 +302,21 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
         vbs = vbs2;
     }
 
-    auto *paramsBuffer = _paramsBuffer->getBuffer();
-    // data store in buffer which 0 to 3 is render order, left data is node world matrix
-    const cc::Mat4 &nodeWorldMat = *reinterpret_cast<cc::Mat4 *>(&paramsBuffer[4]);
-
     unsigned int vbSize = 0;
     unsigned int ibSize = 0;
 
-    int curBlendSrc     = -1;
-    int curBlendDst     = -1;
-    int curBlendMode    = -1;
-    int preBlendMode    = -1;
-    int preTextureIndex = -1;
-    int curTextureIndex = -1;
+    int curBlendSrc = -1;
+    int curBlendDst = -1;
+    int curBlendMode = -1;
+    int preBlendMode = -1;
+    uint32_t curISegLen = 0;
+    cc::Texture2D *preTexture = nullptr;
+    cc::Texture2D *curTexture = nullptr;
+    RenderDrawInfo *curDrawInfo = nullptr;
 
-    int      preISegWritePos = -1;
-    uint32_t curISegLen      = 0;
-
-    int   materialLen = 0;
-    Slot *slot        = nullptr;
-    int   isFull      = 0;
+    int materialLen = 0;
+    Slot *slot = nullptr;
+    int isFull = 0;
 
     if (_debugSlots || _debugBones || _debugMesh) {
         // If enable debug draw,then init debug buffer.
@@ -352,9 +328,11 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
 
     auto flush = [&]() {
         // fill pre segment indices count field
-        if (preISegWritePos != -1) {
-            renderInfo->writeUint32(preISegWritePos, curISegLen);
+        if (curDrawInfo) {
+            curDrawInfo->setIbCount(curISegLen);
         }
+        curDrawInfo = requestDrawInfo(materialLen);
+        entity->addDynamicRenderDrawInfo(curDrawInfo);
         // prepare to fill new segment field
         curBlendMode = slot->getData().getBlendMode();
         switch (curBlendMode) {
@@ -374,30 +352,19 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
                 curBlendSrc = static_cast<int>(_premultipliedAlpha ? BlendFactor::ONE : BlendFactor::SRC_ALPHA);
                 curBlendDst = static_cast<int>(BlendFactor::ONE_MINUS_SRC_ALPHA);
         }
-
-        // check enough space
-        renderInfo->checkSpace(sizeof(uint32_t) * 6, true);
-
-        // fill new texture index
-        renderInfo->writeUint32(curTextureIndex);
-        // fill new blend src and dst
-        renderInfo->writeUint32(curBlendSrc);
-        renderInfo->writeUint32(curBlendDst);
-        // fill new index and vertex buffer id
-        auto bufferIndex = mb->getBufferPos();
-        renderInfo->writeUint32(bufferIndex);
-
-        // fill new index offset
-        renderInfo->writeUint32(static_cast<uint32_t>(ib.getCurPos()) / sizeof(uint16_t));
-        // save new segment indices count pos field
-        preISegWritePos = static_cast<int>(renderInfo->getCurPos());
-        // reserve indice segamentation count
-        renderInfo->writeUint32(0);
-
+        auto *material = requestMaterial(curBlendSrc, curBlendDst);
+        curDrawInfo->setMaterial(material);
+        gfx::Texture *texture = curTexture->getGFXTexture();
+        gfx::Sampler *sampler = curTexture->getGFXSampler();
+        curDrawInfo->setTexture(texture);
+        curDrawInfo->setSampler(sampler);
+        auto *uiMeshBuffer = mb->getUIMeshBuffer();
+        curDrawInfo->setMeshBuffer(uiMeshBuffer);
+        curDrawInfo->setIndexOffset(static_cast<uint32_t>(ib.getCurPos()) / sizeof(uint16_t));
         // reset pre blend mode to current
         preBlendMode = static_cast<int>(slot->getData().getBlendMode());
         // reset pre texture index to current
-        preTextureIndex = curTextureIndex;
+        preTexture = curTexture;
         // reset index segmentation count
         curISegLen = 0;
         // material length increased
@@ -416,7 +383,7 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
     auto &drawOrder = _skeleton->getDrawOrder();
     for (size_t i = 0, n = drawOrder.size(); i < n; ++i) {
         isFull = 0;
-        slot   = drawOrder[i];
+        slot = drawOrder[i];
 
         if (slot->getBone().isActive() == false) {
             continue;
@@ -446,11 +413,11 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
             continue;
         }
 
-        cc::middleware::Triangles         triangles;
+        cc::middleware::Triangles triangles;
         cc::middleware::TwoColorTriangles trianglesTwoColor;
 
         if (slot->getAttachment()->getRTTI().isExactly(RegionAttachment::rtti)) {
-            auto *attachment   = dynamic_cast<RegionAttachment *>(slot->getAttachment());
+            auto *attachment = dynamic_cast<RegionAttachment *>(slot->getAttachment());
             attachmentVertices = reinterpret_cast<AttachmentVertices *>(attachment->getRendererObject());
 
             // Early exit if attachment is invisible
@@ -461,29 +428,29 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
 
             if (!_useTint) {
                 triangles.vertCount = attachmentVertices->_triangles->vertCount;
-                vbSize              = triangles.vertCount * sizeof(V2F_T2F_C4F);
+                vbSize = triangles.vertCount * sizeof(V3F_T2F_C4B);
                 isFull |= vb.checkSpace(vbSize, true);
-                triangles.verts = reinterpret_cast<V2F_T2F_C4F *>(vb.getCurBuffer());
+                triangles.verts = reinterpret_cast<V3F_T2F_C4B *>(vb.getCurBuffer());
                 memcpy(static_cast<void *>(triangles.verts), static_cast<void *>(attachmentVertices->_triangles->verts), vbSize);
                 attachment->computeWorldVertices(slot->getBone(), reinterpret_cast<float *>(triangles.verts), 0, vs1);
 
                 triangles.indexCount = attachmentVertices->_triangles->indexCount;
-                ibSize               = triangles.indexCount * sizeof(uint16_t);
+                ibSize = triangles.indexCount * sizeof(uint16_t);
                 ib.checkSpace(ibSize, true);
                 triangles.indices = reinterpret_cast<uint16_t *>(ib.getCurBuffer());
                 memcpy(triangles.indices, attachmentVertices->_triangles->indices, ibSize);
             } else {
                 trianglesTwoColor.vertCount = attachmentVertices->_triangles->vertCount;
-                vbSize                      = trianglesTwoColor.vertCount * sizeof(V2F_T2F_C4F_C4F);
+                vbSize = trianglesTwoColor.vertCount * sizeof(V3F_T2F_C4B_C4B);
                 isFull |= vb.checkSpace(vbSize, true);
-                trianglesTwoColor.verts = reinterpret_cast<V2F_T2F_C4F_C4F *>(vb.getCurBuffer());
+                trianglesTwoColor.verts = reinterpret_cast<V3F_T2F_C4B_C4B *>(vb.getCurBuffer());
                 for (int ii = 0; ii < trianglesTwoColor.vertCount; ii++) {
                     trianglesTwoColor.verts[ii].texCoord = attachmentVertices->_triangles->verts[ii].texCoord;
                 }
                 attachment->computeWorldVertices(slot->getBone(), reinterpret_cast<float *>(trianglesTwoColor.verts), 0, vs2);
 
                 trianglesTwoColor.indexCount = attachmentVertices->_triangles->indexCount;
-                ibSize                       = trianglesTwoColor.indexCount * sizeof(uint16_t);
+                ibSize = trianglesTwoColor.indexCount * sizeof(uint16_t);
                 ib.checkSpace(ibSize, true);
                 trianglesTwoColor.indices = reinterpret_cast<uint16_t *>(ib.getCurBuffer());
                 memcpy(trianglesTwoColor.indices, attachmentVertices->_triangles->indices, ibSize);
@@ -497,8 +464,8 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
             if (_debugSlots) {
                 _debugBuffer->writeFloat32(DebugType::SLOTS);
                 _debugBuffer->writeFloat32(8);
-                float *      vertices = _useTint ? reinterpret_cast<float *>(trianglesTwoColor.verts) : reinterpret_cast<float *>(triangles.verts);
-                unsigned int stride   = _useTint ? vs2 : vs1;
+                float *vertices = _useTint ? reinterpret_cast<float *>(trianglesTwoColor.verts) : reinterpret_cast<float *>(triangles.verts);
+                unsigned int stride = _useTint ? vs2 : vs1;
                 // Quadrangle has 4 vertex.
                 for (int ii = 0; ii < 4; ii++) {
                     _debugBuffer->writeFloat32(vertices[0]);
@@ -507,7 +474,7 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
                 }
             }
         } else if (slot->getAttachment()->getRTTI().isExactly(MeshAttachment::rtti)) {
-            auto *attachment   = dynamic_cast<MeshAttachment *>(slot->getAttachment());
+            auto *attachment = dynamic_cast<MeshAttachment *>(slot->getAttachment());
             attachmentVertices = static_cast<AttachmentVertices *>(attachment->getRendererObject());
 
             // Early exit if attachment is invisible
@@ -518,29 +485,29 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
 
             if (!_useTint) {
                 triangles.vertCount = attachmentVertices->_triangles->vertCount;
-                vbSize              = triangles.vertCount * sizeof(V2F_T2F_C4F);
+                vbSize = triangles.vertCount * sizeof(V3F_T2F_C4B);
                 isFull |= vb.checkSpace(vbSize, true);
-                triangles.verts = reinterpret_cast<V2F_T2F_C4F *>(vb.getCurBuffer());
+                triangles.verts = reinterpret_cast<V3F_T2F_C4B *>(vb.getCurBuffer());
                 memcpy(static_cast<void *>(triangles.verts), static_cast<void *>(attachmentVertices->_triangles->verts), vbSize);
                 attachment->computeWorldVertices(*slot, 0, attachment->getWorldVerticesLength(), reinterpret_cast<float *>(triangles.verts), 0, vs1);
 
                 triangles.indexCount = attachmentVertices->_triangles->indexCount;
-                ibSize               = triangles.indexCount * sizeof(uint16_t);
+                ibSize = triangles.indexCount * sizeof(uint16_t);
                 ib.checkSpace(ibSize, true);
                 triangles.indices = reinterpret_cast<uint16_t *>(ib.getCurBuffer());
                 memcpy(triangles.indices, attachmentVertices->_triangles->indices, ibSize);
             } else {
                 trianglesTwoColor.vertCount = attachmentVertices->_triangles->vertCount;
-                vbSize                      = trianglesTwoColor.vertCount * sizeof(V2F_T2F_C4F_C4F);
+                vbSize = trianglesTwoColor.vertCount * sizeof(V3F_T2F_C4B_C4B);
                 isFull |= vb.checkSpace(vbSize, true);
-                trianglesTwoColor.verts = reinterpret_cast<V2F_T2F_C4F_C4F *>(vb.getCurBuffer());
+                trianglesTwoColor.verts = reinterpret_cast<V3F_T2F_C4B_C4B *>(vb.getCurBuffer());
                 for (int ii = 0; ii < trianglesTwoColor.vertCount; ii++) {
                     trianglesTwoColor.verts[ii].texCoord = attachmentVertices->_triangles->verts[ii].texCoord;
                 }
                 attachment->computeWorldVertices(*slot, 0, attachment->getWorldVerticesLength(), reinterpret_cast<float *>(trianglesTwoColor.verts), 0, vs2);
 
                 trianglesTwoColor.indexCount = attachmentVertices->_triangles->indexCount;
-                ibSize                       = trianglesTwoColor.indexCount * sizeof(uint16_t);
+                ibSize = trianglesTwoColor.indexCount * sizeof(uint16_t);
                 ib.checkSpace(ibSize, true);
                 trianglesTwoColor.indices = reinterpret_cast<uint16_t *>(ib.getCurBuffer());
                 memcpy(trianglesTwoColor.indices, attachmentVertices->_triangles->indices, ibSize);
@@ -552,9 +519,9 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
             color.a = attachment->getColor().a;
 
             if (_debugMesh) {
-                int       indexCount = _useTint ? trianglesTwoColor.indexCount : triangles.indexCount;
-                uint16_t *indices    = _useTint ? trianglesTwoColor.indices : triangles.indices;
-                float *   vertices   = _useTint ? reinterpret_cast<float *>(trianglesTwoColor.verts) : reinterpret_cast<float *>(triangles.verts);
+                int indexCount = _useTint ? trianglesTwoColor.indexCount : triangles.indexCount;
+                uint16_t *indices = _useTint ? trianglesTwoColor.indices : triangles.indices;
+                float *vertices = _useTint ? reinterpret_cast<float *>(trianglesTwoColor.verts) : reinterpret_cast<float *>(triangles.verts);
 
                 unsigned int stride = _useTint ? vs2 : vs1;
                 _debugBuffer->writeFloat32(DebugType::MESH);
@@ -589,9 +556,9 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
         }
 
         float multiplier = _premultipliedAlpha ? color.a : 255;
-        float red        = _nodeColor.r * _skeleton->getColor().r * color.r * multiplier;
-        float green      = _nodeColor.g * _skeleton->getColor().g * color.g * multiplier;
-        float blue       = _nodeColor.b * _skeleton->getColor().b * color.b * multiplier;
+        float red = _nodeColor.r * _skeleton->getColor().r * color.r * multiplier;
+        float green = _nodeColor.g * _skeleton->getColor().g * color.g * multiplier;
+        float blue = _nodeColor.b * _skeleton->getColor().b * color.b * multiplier;
 
         color.r = red * slot->getColor().r;
         color.g = green * slot->getColor().g;
@@ -611,6 +578,11 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
         // One color tint logic
         if (!_useTint) {
             // Cliping logic
+            Color4B light;
+            light.r = (uint8_t)color.r;
+            light.g = (uint8_t)color.g;
+            light.b = (uint8_t)color.b;
+            light.a = (uint8_t)color.a;
             if (_clipper->isClipping()) {
                 _clipper->clipTriangles(reinterpret_cast<float *>(&triangles.verts[0].vertex), triangles.indices, triangles.indexCount, reinterpret_cast<float *>(&triangles.verts[0].texCoord), vs1);
 
@@ -620,89 +592,67 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
                 }
 
                 triangles.vertCount = static_cast<int>(_clipper->getClippedVertices().size()) >> 1;
-                vbSize              = triangles.vertCount * sizeof(V2F_T2F_C4F);
+                vbSize = triangles.vertCount * sizeof(V3F_T2F_C4B);
                 isFull |= vb.checkSpace(vbSize, true);
-                triangles.verts = reinterpret_cast<V2F_T2F_C4F *>(vb.getCurBuffer());
+                triangles.verts = reinterpret_cast<V3F_T2F_C4B *>(vb.getCurBuffer());
 
                 triangles.indexCount = static_cast<int>(_clipper->getClippedTriangles().size());
-                ibSize               = triangles.indexCount * sizeof(uint16_t);
+                ibSize = triangles.indexCount * sizeof(uint16_t);
                 ib.checkSpace(ibSize, true);
                 triangles.indices = reinterpret_cast<uint16_t *>(ib.getCurBuffer());
                 memcpy(triangles.indices, _clipper->getClippedTriangles().buffer(), sizeof(uint16_t) * _clipper->getClippedTriangles().size());
 
                 float *verts = _clipper->getClippedVertices().buffer();
-                float *uvs   = _clipper->getClippedUVs().buffer();
-
-                Color light;
-                Color dark;
-                light.r = color.r / 255.0F;
-                light.g = color.g / 255.0F;
-                light.b = color.b / 255.0F;
-                light.a = color.a / 255.0F;
-                dark.r = dark.g = dark.b = dark.a = 0;
+                float *uvs = _clipper->getClippedUVs().buffer();
 
                 if (effect) {
                     for (int v = 0, vn = triangles.vertCount, vv = 0; v < vn; ++v, vv += 2) {
-                        V2F_T2F_C4F *vertex    = triangles.verts + v;
-                        Color        lightCopy = light;
-                        Color        darkCopy  = dark;
-                        vertex->vertex.x       = verts[vv];
-                        vertex->vertex.y       = verts[vv + 1];
-                        vertex->texCoord.u     = uvs[vv];
-                        vertex->texCoord.v     = uvs[vv + 1];
-                        effect->transform(vertex->vertex.x, vertex->vertex.y, vertex->texCoord.u, vertex->texCoord.v, lightCopy, darkCopy);
-                        vertex->color.r = lightCopy.r;
-                        vertex->color.g = lightCopy.g;
-                        vertex->color.b = lightCopy.b;
-                        vertex->color.a = lightCopy.a;
+                        V3F_T2F_C4B *vertex = triangles.verts + v;
+                        vertex->vertex.x = verts[vv];
+                        vertex->vertex.y = verts[vv + 1];
+                        vertex->texCoord.u = uvs[vv];
+                        vertex->texCoord.v = uvs[vv + 1];
+                        effect->transform(vertex->vertex.x, vertex->vertex.y);
+                        vertex->color = light;
                     }
                 } else {
                     for (int v = 0, vn = triangles.vertCount, vv = 0; v < vn; ++v, vv += 2) {
-                        V2F_T2F_C4F *vertex = triangles.verts + v;
-                        vertex->vertex.x    = verts[vv];
-                        vertex->vertex.y    = verts[vv + 1];
-                        vertex->texCoord.u  = uvs[vv];
-                        vertex->texCoord.v  = uvs[vv + 1];
-                        vertex->color.r     = light.r;
-                        vertex->color.g     = light.g;
-                        vertex->color.b     = light.b;
-                        vertex->color.a     = light.a;
+                        V3F_T2F_C4B *vertex = triangles.verts + v;
+                        vertex->vertex.x = verts[vv];
+                        vertex->vertex.y = verts[vv + 1];
+                        vertex->texCoord.u = uvs[vv];
+                        vertex->texCoord.v = uvs[vv + 1];
+                        vertex->color = light;
                     }
                 }
                 // No cliping logic
             } else {
-                Color light;
-                light.r = color.r / 255.0F;
-                light.g = color.g / 255.0F;
-                light.b = color.b / 255.0F;
-                light.a = color.a / 255.0F;
-
                 if (effect) {
-                    Color dark;
-                    dark.r = dark.g = dark.b = dark.a = 0;
                     for (int v = 0, vn = triangles.vertCount; v < vn; ++v) {
-                        V2F_T2F_C4F *vertex    = triangles.verts + v;
-                        Color        lightCopy = light;
-                        Color        darkCopy  = dark;
-                        effect->transform(vertex->vertex.x, vertex->vertex.y, vertex->texCoord.u, vertex->texCoord.v, lightCopy, darkCopy);
-                        vertex->color.r = lightCopy.r;
-                        vertex->color.g = lightCopy.g;
-                        vertex->color.b = lightCopy.b;
-                        vertex->color.a = lightCopy.a;
+                        V3F_T2F_C4B *vertex = triangles.verts + v;
+                        effect->transform(vertex->vertex.x, vertex->vertex.y);
+                        vertex->color = light;
                     }
                 } else {
                     for (int v = 0, vn = triangles.vertCount; v < vn; ++v) {
-                        V2F_T2F_C4F *vertex = triangles.verts + v;
-                        vertex->color.r     = light.r;
-                        vertex->color.g     = light.g;
-                        vertex->color.b     = light.b;
-                        vertex->color.a     = light.a;
+                        V3F_T2F_C4B *vertex = triangles.verts + v;
+                        vertex->color = light;
                     }
                 }
             }
         }
         // Two color tint logic
         else {
+            Color4B light;
+            Color4B dark;
+            light.r = (uint8_t)color.r;
+            light.g = (uint8_t)color.g;
+            light.b = (uint8_t)color.b;
+            light.a = (uint8_t)color.a;
+            dark.r = (uint8_t)darkColor.r;
+            dark.g = (uint8_t)darkColor.g;
+            dark.b = (uint8_t)darkColor.b;
+            dark.a = (uint8_t)darkColor.a;
             if (_clipper->isClipping()) {
                 _clipper->clipTriangles(reinterpret_cast<float *>(&trianglesTwoColor.verts[0].vertex), trianglesTwoColor.indices, trianglesTwoColor.indexCount, reinterpret_cast<float *>(&trianglesTwoColor.verts[0].texCoord), vs2);
 
@@ -712,127 +662,74 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
                 }
 
                 trianglesTwoColor.vertCount = static_cast<int>(_clipper->getClippedVertices().size()) >> 1;
-                vbSize                      = trianglesTwoColor.vertCount * sizeof(V2F_T2F_C4F_C4F);
+                vbSize = trianglesTwoColor.vertCount * sizeof(V3F_T2F_C4B_C4B);
                 isFull |= vb.checkSpace(vbSize, true);
-                trianglesTwoColor.verts = reinterpret_cast<V2F_T2F_C4F_C4F *>(vb.getCurBuffer());
+                trianglesTwoColor.verts = reinterpret_cast<V3F_T2F_C4B_C4B *>(vb.getCurBuffer());
 
                 trianglesTwoColor.indexCount = static_cast<int>(_clipper->getClippedTriangles().size());
-                ibSize                       = trianglesTwoColor.indexCount * sizeof(uint16_t);
-                trianglesTwoColor.indices    = reinterpret_cast<uint16_t *>(ib.getCurBuffer());
+                ibSize = trianglesTwoColor.indexCount * sizeof(uint16_t);
+                trianglesTwoColor.indices = reinterpret_cast<uint16_t *>(ib.getCurBuffer());
                 memcpy(trianglesTwoColor.indices, _clipper->getClippedTriangles().buffer(), sizeof(uint16_t) * _clipper->getClippedTriangles().size());
 
                 float *verts = _clipper->getClippedVertices().buffer();
-                float *uvs   = _clipper->getClippedUVs().buffer();
-
-                Color light;
-                Color dark;
-                light.r = color.r / 255.0F;
-                light.g = color.g / 255.0F;
-                light.b = color.b / 255.0F;
-                light.a = color.a / 255.0F;
-                dark.r  = darkColor.r / 255.0F;
-                dark.g  = darkColor.g / 255.0F;
-                dark.b  = darkColor.b / 255.0F;
-                dark.a  = darkColor.a / 255.0F;
+                float *uvs = _clipper->getClippedUVs().buffer();
 
                 if (effect) {
                     for (int v = 0, vn = trianglesTwoColor.vertCount, vv = 0; v < vn; ++v, vv += 2) {
-                        V2F_T2F_C4F_C4F *vertex    = trianglesTwoColor.verts + v;
-                        Color            lightCopy = light;
-                        Color            darkCopy  = dark;
-                        vertex->vertex.x           = verts[vv];
-                        vertex->vertex.y           = verts[vv + 1];
-                        vertex->texCoord.u         = uvs[vv];
-                        vertex->texCoord.v         = uvs[vv + 1];
-                        effect->transform(vertex->vertex.x, vertex->vertex.y, vertex->texCoord.u, vertex->texCoord.v, lightCopy, darkCopy);
-                        vertex->color.r  = lightCopy.r;
-                        vertex->color.g  = lightCopy.g;
-                        vertex->color.b  = lightCopy.b;
-                        vertex->color.a  = lightCopy.a;
-                        vertex->color2.r = darkCopy.r;
-                        vertex->color2.g = darkCopy.g;
-                        vertex->color2.b = darkCopy.b;
-                        vertex->color2.a = dark.a;
+                        V3F_T2F_C4B_C4B *vertex = trianglesTwoColor.verts + v;
+                        vertex->vertex.x = verts[vv];
+                        vertex->vertex.y = verts[vv + 1];
+                        vertex->texCoord.u = uvs[vv];
+                        vertex->texCoord.v = uvs[vv + 1];
+                        effect->transform(vertex->vertex.x, vertex->vertex.y);
+                        vertex->color = light;
+                        vertex->color2 = dark;
                     }
                 } else {
                     for (int v = 0, vn = trianglesTwoColor.vertCount, vv = 0; v < vn; ++v, vv += 2) {
-                        V2F_T2F_C4F_C4F *vertex = trianglesTwoColor.verts + v;
-                        vertex->vertex.x        = verts[vv];
-                        vertex->vertex.y        = verts[vv + 1];
-                        vertex->texCoord.u      = uvs[vv];
-                        vertex->texCoord.v      = uvs[vv + 1];
-                        vertex->color.r         = light.r;
-                        vertex->color.g         = light.g;
-                        vertex->color.b         = light.b;
-                        vertex->color.a         = light.a;
-                        vertex->color2.r        = dark.r;
-                        vertex->color2.g        = dark.g;
-                        vertex->color2.b        = dark.b;
-                        vertex->color2.a        = dark.a;
+                        V3F_T2F_C4B_C4B *vertex = trianglesTwoColor.verts + v;
+                        vertex->vertex.x = verts[vv];
+                        vertex->vertex.y = verts[vv + 1];
+                        vertex->texCoord.u = uvs[vv];
+                        vertex->texCoord.v = uvs[vv + 1];
+                        vertex->color = light;
+                        vertex->color2 = dark;
                     }
                 }
             } else {
-                Color light;
-                Color dark;
-                light.r = color.r / 255.0F;
-                light.g = color.g / 255.0F;
-                light.b = color.b / 255.0F;
-                light.a = color.a / 255.0F;
-                dark.r  = darkColor.r / 255.0F;
-                dark.g  = darkColor.g / 255.0F;
-                dark.b  = darkColor.b / 255.0F;
-                dark.a  = darkColor.a / 255.0F;
-
                 if (effect) {
                     for (int v = 0, vn = trianglesTwoColor.vertCount; v < vn; ++v) {
-                        V2F_T2F_C4F_C4F *vertex    = trianglesTwoColor.verts + v;
-                        Color            lightCopy = light;
-                        Color            darkCopy  = dark;
-                        effect->transform(vertex->vertex.x, vertex->vertex.y, vertex->texCoord.u, vertex->texCoord.v, lightCopy, darkCopy);
-                        vertex->color.r  = lightCopy.r;
-                        vertex->color.g  = lightCopy.g;
-                        vertex->color.b  = lightCopy.b;
-                        vertex->color.a  = lightCopy.a;
-                        vertex->color2.r = darkCopy.r;
-                        vertex->color2.g = darkCopy.g;
-                        vertex->color2.b = darkCopy.b;
-                        vertex->color2.a = dark.a;
+                        V3F_T2F_C4B_C4B *vertex = trianglesTwoColor.verts + v;
+                        effect->transform(vertex->vertex.x, vertex->vertex.y);
+                        vertex->color = light;
+                        vertex->color2 = dark;
                     }
                 } else {
                     for (int v = 0, vn = trianglesTwoColor.vertCount; v < vn; ++v) {
-                        V2F_T2F_C4F_C4F *vertex = trianglesTwoColor.verts + v;
-                        vertex->color.r         = light.r;
-                        vertex->color.g         = light.g;
-                        vertex->color.b         = light.b;
-                        vertex->color.a         = light.a;
-                        vertex->color2.r        = dark.r;
-                        vertex->color2.g        = dark.g;
-                        vertex->color2.b        = dark.b;
-                        vertex->color2.a        = dark.a;
+                        V3F_T2F_C4B_C4B *vertex = trianglesTwoColor.verts + v;
+                        vertex->color = light;
+                        vertex->color2 = dark;
                     }
                 }
             }
         }
 
-        curTextureIndex = attachmentVertices->_texture->getRealTextureIndex();
+        curTexture = (cc::Texture2D *)attachmentVertices->_texture->getRealTexture();
         // If texture or blendMode change,will change material.
-        if (preTextureIndex != curTextureIndex || preBlendMode != slot->getData().getBlendMode() || isFull) {
+        if (preTexture != curTexture || preBlendMode != slot->getData().getBlendMode() || isFull) {
             flush();
         }
-
-        auto vertexOffset = vb.getCurPos() / vbs;
-
-        if (vbSize > 0 && ibSize > 0) {
-            if (_batch) {
-                uint8_t * vbBuffer = vb.getCurBuffer();
-                cc::Vec3 *point    = nullptr;
-                for (unsigned int ii = 0, nn = vbSize; ii < nn; ii += vbs) {
-                    point    = reinterpret_cast<cc::Vec3 *>(vbBuffer + ii);
-                    point->z = 0; //reset for z value
-                    point->transformMat4(*point, nodeWorldMat);
-                }
+        if (_enableBatch) {
+            uint8_t *vbBuffer = vb.getCurBuffer();
+            cc::Vec3 *point = nullptr;
+            for (unsigned int ii = 0, nn = vbSize; ii < nn; ii += vbs) {
+                point = reinterpret_cast<cc::Vec3 *>(vbBuffer + ii);
+                point->z = 0;
+                point->transformMat4(*point, nodeWorldMat);
             }
-
+        }
+        auto vertexOffset = vb.getCurPos() / vbs;
+        if (vbSize > 0 && ibSize > 0) {
             if (vertexOffset > 0) {
                 auto *ibBuffer = reinterpret_cast<uint16_t *>(ib.getCurBuffer());
                 for (unsigned int ii = 0, nn = ibSize / sizeof(uint16_t); ii < nn; ii++) {
@@ -853,13 +750,10 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
 
     if (effect) effect->end();
 
-    renderInfo->writeUint32(materialLenOffset, materialLen);
-    if (preISegWritePos != -1) {
-        renderInfo->writeUint32(preISegWritePos, curISegLen);
-    }
+    if (curDrawInfo) curDrawInfo->setIbCount(curISegLen);
 
     if (_useAttach || _debugBones) {
-        auto & bones      = _skeleton->getBones();
+        auto &bones = _skeleton->getBones();
         size_t bonesCount = bones.size();
 
         cc::Mat4 boneMat = cc::Mat4::IDENTITY;
@@ -872,10 +766,10 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
         for (size_t i = 0, n = bonesCount; i < n; i++) {
             Bone *bone = bones[i];
 
-            boneMat.m[0]  = bone->getA();
-            boneMat.m[1]  = bone->getC();
-            boneMat.m[4]  = bone->getB();
-            boneMat.m[5]  = bone->getD();
+            boneMat.m[0] = bone->getA();
+            boneMat.m[1] = bone->getC();
+            boneMat.m[4] = bone->getB();
+            boneMat.m[5] = bone->getD();
             boneMat.m[12] = bone->getWorldX();
             boneMat.m[13] = bone->getWorldY();
             attachInfo->checkSpace(sizeof(boneMat), true);
@@ -883,8 +777,8 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
 
             if (_debugBones) {
                 float boneLength = bone->getData().getLength();
-                float x          = boneLength * bone->getA() + bone->getWorldX();
-                float y          = boneLength * bone->getC() + bone->getWorldY();
+                float x = boneLength * bone->getA() + bone->getWorldX();
+                float y = boneLength * bone->getC() + bone->getWorldY();
                 _debugBuffer->writeFloat32(bone->getWorldX());
                 _debugBuffer->writeFloat32(bone->getWorldY());
                 _debugBuffer->writeFloat32(x);
@@ -906,11 +800,11 @@ void SkeletonRenderer::render(float /*deltaTime*/) {
 
 cc::Rect SkeletonRenderer::getBoundingBox() const {
     static cc::middleware::IOBuffer buffer(1024);
-    float *                         worldVertices = nullptr;
-    float                           minX          = 999999.0F;
-    float                           minY          = 999999.0F;
-    float                           maxX          = -999999.0F;
-    float                           maxY          = -999999.0F;
+    float *worldVertices = nullptr;
+    float minX = 999999.0F;
+    float minY = 999999.0F;
+    float maxX = -999999.0F;
+    float maxY = -999999.0F;
     for (int i = 0; i < _skeleton->getSlots().size(); ++i) {
         Slot *slot = _skeleton->getSlots()[i];
         if (!slot->getAttachment()) continue;
@@ -933,10 +827,10 @@ cc::Rect SkeletonRenderer::getBoundingBox() const {
         for (int ii = 0; ii < verticesCount; ii += 2) {
             float x = worldVertices[ii];
             float y = worldVertices[ii + 1];
-            minX    = min(minX, x);
-            minY    = min(minY, y);
-            maxX    = max(maxX, x);
-            maxY    = max(maxY, y);
+            minX = min(minX, x);
+            minY = min(minY, y);
+            maxX = max(maxX, x);
+            maxY = max(maxY, y);
         }
     }
     if (minX == 999999.0F) minX = minY = maxX = maxY = 0;
@@ -1035,7 +929,7 @@ void SkeletonRenderer::setVertexEffectDelegate(VertexEffectDelegate *effectDeleg
 
 void SkeletonRenderer::setSlotsRange(int startSlotIndex, int endSlotIndex) {
     this->_startSlotIndex = startSlotIndex;
-    this->_endSlotIndex   = endSlotIndex;
+    this->_endSlotIndex = endSlotIndex;
 }
 
 spine::Skeleton *SkeletonRenderer::getSkeleton() const {
@@ -1062,8 +956,13 @@ void SkeletonRenderer::setColor(float r, float g, float b, float a) {
 }
 
 void SkeletonRenderer::setBatchEnabled(bool enabled) {
-    // disable switch batch mode, force to enable batch, it may be changed in future version
-    // _batch = enabled;
+    if (enabled != _enableBatch) {
+        for (auto &item : _materialCaches) {
+            CC_SAFE_DELETE(item.second);
+        }
+        _materialCaches.clear();
+        _enableBatch = enabled;
+    }
 }
 
 void SkeletonRenderer::setDebugBonesEnabled(bool enabled) {
@@ -1100,17 +999,51 @@ se_object_ptr SkeletonRenderer::getSharedBufferOffset() const {
     return nullptr;
 }
 
-se_object_ptr SkeletonRenderer::getParamsBuffer() const {
-    if (_paramsBuffer) {
-        return _paramsBuffer->getTypeArray();
-    }
-    return nullptr;
+void SkeletonRenderer::setRenderEntity(cc::RenderEntity *entity) {
+    _entity = entity;
 }
 
-uint32_t SkeletonRenderer::getRenderOrder() const {
-    if (_paramsBuffer) {
-        auto *buffer = _paramsBuffer->getBuffer();
-        return static_cast<uint32_t>(buffer[0]);
+void SkeletonRenderer::setMaterial(cc::Material *material) {
+    _material = material;
+    for (auto &item : _materialCaches) {
+        CC_SAFE_DELETE(item.second);
     }
-    return 0;
+    _materialCaches.clear();
+}
+
+cc::RenderDrawInfo *SkeletonRenderer::requestDrawInfo(int idx) {
+    if (_drawInfoArray.size() < idx + 1) {
+        cc::RenderDrawInfo *draw = new cc::RenderDrawInfo();
+        draw->setDrawInfoType(static_cast<uint32_t>(RenderDrawInfoType::MIDDLEWARE));
+        _drawInfoArray.push_back(draw);
+    }
+    return _drawInfoArray[idx];
+}
+
+cc::Material *SkeletonRenderer::requestMaterial(uint16_t blendSrc, uint16_t blendDst) {
+    uint32_t key = static_cast<uint32_t>(blendSrc) << 16 | static_cast<uint32_t>(blendDst);
+    if (_materialCaches.find(key) == _materialCaches.end()) {
+        const IMaterialInstanceInfo info{
+            (Material *)_material,
+            0};
+        MaterialInstance *materialInstance = new MaterialInstance(info);
+        PassOverrides overrides;
+        BlendStateInfo stateInfo;
+        stateInfo.blendColor = gfx::Color{1.0F, 1.0F, 1.0F, 1.0F};
+        BlendTargetInfo targetInfo;
+        targetInfo.blendEq = gfx::BlendOp::ADD;
+        targetInfo.blendAlphaEq = gfx::BlendOp::ADD;
+        targetInfo.blendSrc = (gfx::BlendFactor)blendSrc;
+        targetInfo.blendDst = (gfx::BlendFactor)blendDst;
+        targetInfo.blendSrcAlpha = (gfx::BlendFactor)blendSrc;
+        targetInfo.blendDstAlpha = (gfx::BlendFactor)blendDst;
+        BlendTargetInfoList targetList{targetInfo};
+        stateInfo.targets = targetList;
+        overrides.blendState = stateInfo;
+        materialInstance->overridePipelineStates(overrides);
+        const MacroRecord macros{{"TWO_COLORED", _useTint}, {"USE_LOCAL", !_enableBatch}};
+        materialInstance->recompileShaders(macros);
+        _materialCaches[key] = materialInstance;
+    }
+    return _materialCaches[key];
 }

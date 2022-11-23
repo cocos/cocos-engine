@@ -24,15 +24,9 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module event
- */
-
-import { EventTarget } from '../core/event';
+import { EventTarget, cclegacy } from '../core';
 import { EventAcceleration, EventKeyboard, EventMouse, EventTouch, SystemEventType, Touch } from './types';
-import { input, Input } from './input';
-import { legacyCC } from '../core/global-exports';
+import { input } from './input';
 import { InputEventType } from './types/event-enum';
 
 export declare namespace SystemEvent {
@@ -152,7 +146,7 @@ export class SystemEvent extends EventTarget {
     }
 }
 
-legacyCC.SystemEvent = SystemEvent;
+cclegacy.SystemEvent = SystemEvent;
 /**
  * @module cc
  */
@@ -164,4 +158,4 @@ legacyCC.SystemEvent = SystemEvent;
  * @deprecated since v3.4.0, please use input instead.
  */
 export const systemEvent = new SystemEvent();
-legacyCC.systemEvent = systemEvent;
+cclegacy.systemEvent = systemEvent;

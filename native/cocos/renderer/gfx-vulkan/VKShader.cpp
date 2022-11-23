@@ -40,22 +40,48 @@ CCVKShader::~CCVKShader() {
     destroy();
 }
 
-void CCVKShader::doInit(const ShaderInfo & /*info*/) {
-    _gpuShader             = CC_NEW(CCVKGPUShader);
-    _gpuShader->name       = _name;
-    _gpuShader->attributes = _attributes;
-    for (ShaderStage &stage : _stages) {
-        _gpuShader->gpuStages.push_back({stage.stage, stage.source});
+namespace {
+
+void initGpuShader(CCVKGPUShader *gpuShader) {
+    cmdFuncCCVKCreateShader(CCVKDevice::getInstance(), gpuShader);
+
+    // Clear shader source after they're uploaded to GPU
+    for (auto &stage : gpuShader->gpuStages) {
+        stage.source.clear();
+        stage.source.shrink_to_fit();
     }
 
-    cmdFuncCCVKCreateShader(CCVKDevice::getInstance(), _gpuShader);
+    gpuShader->initialized = true;
+}
+
+} // namespace
+
+CCVKGPUShader *CCVKShader::gpuShader() const {
+    if (!_gpuShader->initialized) {
+        initGpuShader(_gpuShader);
+    }
+    return _gpuShader;
+}
+
+void CCVKShader::doInit(const ShaderInfo & /*info*/) {
+    _gpuShader = ccnew CCVKGPUShader;
+    _gpuShader->name = _name;
+    _gpuShader->attributes = _attributes;
+    for (ShaderStage &stage : _stages) {
+        _gpuShader->gpuStages.emplace_back(CCVKGPUShaderStage{stage.stage, stage.source});
+    }
+    for (auto &stage : _stages) {
+        stage.source.clear();
+        stage.source.shrink_to_fit();
+    }
 }
 
 void CCVKShader::doDestroy() {
-    if (_gpuShader) {
-        CCVKDevice::getInstance()->gpuRecycleBin()->collect(_gpuShader);
-        _gpuShader = nullptr;
-    }
+    _gpuShader =  nullptr;
+}
+
+void CCVKGPUShader::shutdown() {
+    cmdFuncCCVKDestroyShader(CCVKDevice::getInstance()->gpuDevice(), this);
 }
 
 } // namespace gfx

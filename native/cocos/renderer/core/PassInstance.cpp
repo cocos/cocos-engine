@@ -35,13 +35,13 @@ namespace cc {
 PassInstance::PassInstance(scene::Pass *parent, MaterialInstance *owner) : Super(parent->getRoot()), _parent(parent), _owner(owner) {
     doInit(_parent->getPassInfoFull());
     for (const auto &b : _shaderInfo->blocks) {
-        scene::IBlockRef &      block       = _blocks[b.binding];
+        scene::IBlockRef &block = _blocks[b.binding];
         const scene::IBlockRef &parentBlock = _parent->getBlocks()[b.binding];
-        assert(block.count == parentBlock.count);
+        CC_ASSERT(block.count == parentBlock.count);
         memcpy(block.data, parentBlock.data, parentBlock.count * 4);
     }
 
-    _rootBufferDirty                        = true;
+    _rootBufferDirty = true;
     gfx::DescriptorSet *parentDescriptorSet = _parent->getDescriptorSet();
     for (const auto &samplerTexture : _shaderInfo->samplerTextures) {
         for (uint32_t i = 0; i < samplerTexture.count; ++i) {
@@ -65,12 +65,12 @@ void PassInstance::overridePipelineStates(const IPassInfo &original, const PassO
     _rs.reset();
     _depthStencilState.reset();
 
-    Pass::fillPipelineInfo(this, original);
-    Pass::fillPipelineInfo(this, IPassInfoFull(override));
+    scene::Pass::fillPipelineInfo(this, original);
+    scene::Pass::fillPipelineInfo(this, IPassInfoFull(override));
     onStateChange();
 }
 
-bool PassInstance::tryCompile(const cc::optional<MacroRecord> &defineOverrides) {
+bool PassInstance::tryCompile(const ccstd::optional<MacroRecord> &defineOverrides) {
     if (defineOverrides.has_value()) {
         if (!overrideMacros(_defines, defineOverrides.value())) return false;
     }
@@ -89,12 +89,12 @@ void PassInstance::endChangeStatesSilently() {
 
 void PassInstance::syncBatchingScheme() {
     _defines["USE_INSTANCING"] = false;
-    _defines["USE_BATCHING"]   = false;
-    _batchingScheme            = scene::BatchingSchemes::NONE;
+    _defines["USE_BATCHING"] = false;
+    _batchingScheme = scene::BatchingSchemes::NONE;
 }
 
 void PassInstance::onStateChange() {
-    _hash = Pass::getPassHash(this);
+    _hash = scene::Pass::getPassHash(this);
     _owner->onPassStateChange(_dontNotify);
 }
 

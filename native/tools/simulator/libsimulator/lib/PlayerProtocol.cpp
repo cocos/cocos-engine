@@ -23,7 +23,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-
 #include "PlayerProtocol.h"
 #include "base/Macros.h"
 
@@ -31,34 +30,28 @@ PLAYER_NS_BEGIN
 
 PlayerProtocol *PlayerProtocol::_instance = nullptr;
 
-PlayerProtocol::PlayerProtocol()
-{
-    CCASSERT(_instance == nullptr, "CAN NOT CREATE MORE PLAYER INSTANCE");
+PlayerProtocol::PlayerProtocol() {
+    CC_ASSERT(_instance == nullptr); // Can not create more player instance.
     _instance = this;
 }
 
-PlayerProtocol::~PlayerProtocol()
-{
+PlayerProtocol::~PlayerProtocol() {
     _instance = nullptr;
 }
 
-PlayerProtocol *PlayerProtocol::getInstance()
-{
+PlayerProtocol *PlayerProtocol::getInstance() {
     return _instance;
 }
 
-void PlayerProtocol::purgeInstance()
-{
+void PlayerProtocol::purgeInstance() {
     if (_instance) delete _instance;
 }
 
-void PlayerProtocol::setPlayerSettings(const PlayerSettings &settings)
-{
+void PlayerProtocol::setPlayerSettings(const PlayerSettings &settings) {
     _settings = settings;
 }
 
-PlayerSettings PlayerProtocol::getPlayerSettings() const
-{
+PlayerSettings PlayerProtocol::getPlayerSettings() const {
     return _settings;
 }
 

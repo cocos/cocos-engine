@@ -36,25 +36,25 @@ CCWGPUQueryPool::CCWGPUQueryPool() {
 }
 
 CCWGPUQueryPool::~CCWGPUQueryPool() {
-    destroy();
+    doDestroy();
 }
 
 void CCWGPUQueryPool::doInit(const QueryPoolInfo & /*info*/) {
-    CCWGPUDevice *device           = CCWGPUDevice::getInstance();
-    _gpuQueryPool                  = CC_NEW(CCWGPUQueryPoolObject);
-    _gpuQueryPool->type            = _type;
+    CCWGPUDevice *device = CCWGPUDevice::getInstance();
+    _gpuQueryPool = ccnew CCWGPUQueryPoolObject;
+    _gpuQueryPool->type = _type;
     _gpuQueryPool->maxQueryObjects = _maxQueryObjects;
     _gpuQueryPool->idPool.resize(_maxQueryObjects, 0U);
 
-    //TODO_Zeqiang: wgpu query
+    // TODO_Zeqiang: wgpu query
 
-    //cmdFuncGLES3CreateQuery(device, _gpuQueryPool);
+    // cmdFuncGLES3CreateQuery(device, _gpuQueryPool);
 }
 
 void CCWGPUQueryPool::doDestroy() {
     if (_gpuQueryPool) {
-        //cmdFuncGLES3DestroyQuery(GLES3Device::getInstance(), _gpuQueryPool);
-        CC_DELETE(_gpuQueryPool);
+        // cmdFuncGLES3DestroyQuery(GLES3Device::getInstance(), _gpuQueryPool);
+        delete _gpuQueryPool;
         _gpuQueryPool = nullptr;
     }
 }

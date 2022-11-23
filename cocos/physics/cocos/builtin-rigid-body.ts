@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { IRigidBody } from '../spec/i-rigid-body';
 import { IVec3Like } from '../../core';
 import { RigidBody, PhysicsSystem, ERigidBodyType } from '../framework';

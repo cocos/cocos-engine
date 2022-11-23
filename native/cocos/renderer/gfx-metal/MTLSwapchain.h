@@ -40,8 +40,8 @@ public:
     ~CCMTLSwapchain();
 
     inline CCMTLGPUSwapChainObject *gpuSwapChainObj() { return _gpuSwapchainObj; }
-    CCMTLTexture *                  colorTexture();
-    CCMTLTexture *                  depthStencilTexture();
+    CCMTLTexture *colorTexture();
+    CCMTLTexture *depthStencilTexture();
 
     id<CAMetalDrawable> currentDrawable();
 

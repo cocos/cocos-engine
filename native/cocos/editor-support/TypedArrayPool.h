@@ -28,6 +28,7 @@
 #include <vector>
 #include "MiddlewareMacro.h"
 #include "SeApi.h"
+#include "engine/EngineEvents.h"
 
 MIDDLEWARE_BEGIN
 /** 
@@ -54,9 +55,9 @@ public:
 
 private:
     using arrayType = se::Object::TypedArrayType;
-    using objPool   = ccstd::vector<se::Object *>;
-    using fitMap    = std::map<std::size_t, objPool *>;
-    using typeMap   = std::map<arrayType, fitMap *>;
+    using objPool = ccstd::vector<se::Object *>;
+    using fitMap = std::map<std::size_t, objPool *>;
+    using typeMap = std::map<arrayType, fitMap *>;
 
     objPool *getObjPool(arrayType type, std::size_t size);
 
@@ -73,7 +74,9 @@ private:
     void afterInitHandle();
 
     typeMap _pool;
-    bool    _allowPush = true;
+    bool _allowPush = true;
+
+    cc::events::Close::Listener _closeListener;
 
 public:
     /**

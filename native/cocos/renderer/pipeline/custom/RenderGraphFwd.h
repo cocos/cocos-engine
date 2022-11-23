@@ -30,9 +30,8 @@
  */
 // clang-format off
 #pragma once
-#include <boost/variant2/variant.hpp>
-#include "cocos/renderer/gfx-base/GFXDef-common.h"
-#include "cocos/renderer/pipeline/PipelineSceneData.h"
+#include "cocos/base/std/hash/hash.h"
+#include "cocos/base/std/variant.h"
 #include "cocos/renderer/pipeline/custom/RenderCommonFwd.h"
 #include "cocos/scene/Camera.h"
 
@@ -44,29 +43,23 @@ struct ResourceDesc;
 struct ResourceTraits;
 struct RenderSwapchain;
 struct ResourceStates;
+struct ManagedBuffer;
+struct ManagedTexture;
 struct ManagedResource;
 struct ManagedTag;
+struct ManagedBufferTag;
+struct ManagedTextureTag;
 struct PersistentBufferTag;
 struct PersistentTextureTag;
 struct FramebufferTag;
 struct SwapchainTag;
+struct SamplerTag;
 struct ResourceGraph;
-
-enum class AttachmentType;
-enum class AccessType;
-
-struct RasterView;
-
-enum class ClearValueType;
-
-struct ComputeView;
 struct RasterSubpass;
 struct SubpassGraph;
 struct RasterPass;
 struct ComputePass;
-struct CopyPair;
 struct CopyPass;
-struct MovePair;
 struct MovePass;
 struct RaytracePass;
 struct QueueTag;
@@ -74,6 +67,9 @@ struct SceneTag;
 struct DispatchTag;
 struct BlitTag;
 struct PresentTag;
+struct ClearTag;
+struct ViewportTag;
+struct ClearView;
 struct RenderQueue;
 struct SceneData;
 struct Dispatch;
@@ -86,5 +82,24 @@ struct RenderGraph;
 } // namespace render
 
 } // namespace cc
+
+namespace ccstd {
+
+template <>
+struct hash<cc::render::RasterSubpass> {
+    hash_t operator()(const cc::render::RasterSubpass& val) const noexcept;
+};
+
+template <>
+struct hash<cc::render::SubpassGraph> {
+    hash_t operator()(const cc::render::SubpassGraph& val) const noexcept;
+};
+
+template <>
+struct hash<cc::render::RasterPass> {
+    hash_t operator()(const cc::render::RasterPass& val) const noexcept;
+};
+
+} // namespace ccstd
 
 // clang-format on

@@ -1,7 +1,7 @@
 'use strict';
 const path = require('path');
 
-exports.template = `
+exports.template = /* html */`
 <div class="asset-fbx">
     <header class="header">
         <ui-tab class="tabs"></ui-tab>
@@ -12,13 +12,12 @@ exports.template = `
 </div>
 `;
 
-exports.style = `
+exports.style = /* css */`
 .asset-fbx {
     display: flex;
     flex: 1;
     flex-direction: column;
     padding-top: 5px;
-    overflow: hidden;
 }
 
 .asset-fbx > .header {
@@ -42,9 +41,6 @@ const Components = {
     fbx: path.join(__dirname, `./fbx.js`),
 };
 
-/**
- * attribute corresponds to the edit element
- */
 const Elements = {
     tabs: {
         ready() {
@@ -89,6 +85,9 @@ const Elements = {
             panel.$.tabPanel.addEventListener('change', () => {
                 panel.dispatch('change');
             });
+            panel.$.tabPanel.addEventListener('snapshot', () => {
+                panel.dispatch('snapshot');
+            });
         },
         update() {
             const panel = this;
@@ -99,11 +98,38 @@ const Elements = {
     },
 };
 
-/**
- * Methods for automatic rendering of components
- * @param assetList
- * @param metaList
- */
+exports.listeners = {
+    track(event) {
+        if (event.args?.length) {
+            const { prop, value } = event.args[0];
+            if (!value) { return; } // 只有被勾选的时候上报埋点
+
+            const trackMap = {
+                meshOptimizer: 'A100000',
+                'fbx.smartMaterialEnabled': 'A100001',
+                disableMeshSplit: 'A100002',
+            };
+            const trackId = trackMap[prop];
+            if (trackId) {
+                Editor.Metrics._trackEventWithTimer({
+                    category: 'importSystem',
+                    id: trackId,
+                    value: 1,
+                });
+            }
+        }
+    },
+};
+
+exports.ready = function() {
+    for (const prop in Elements) {
+        const element = Elements[prop];
+        if (element.ready) {
+            element.ready.call(this);
+        }
+    }
+};
+
 exports.update = function(assetList, metaList) {
     this.assetList = assetList;
     this.metaList = metaList;
@@ -116,36 +142,4 @@ exports.update = function(assetList, metaList) {
             element.update.call(this);
         }
     }
-};
-
-/**
- * Method of initializing the panel
- */
-exports.ready = function() {
-    for (const prop in Elements) {
-        const element = Elements[prop];
-        if (element.ready) {
-            element.ready.call(this);
-        }
-    }
-};
-
-exports.methods = {
-    /**
-     * Update whether a data is editable in multi-select state
-     */
-    updateInvalid(element, prop) {
-        const invalid = this.metaList.some((meta) => meta.userData[prop] !== this.meta.userData[prop]);
-        element.invalid = invalid;
-    },
-    /**
-     * Update read-only status
-     */
-    updateReadonly(element) {
-        if (this.asset.readonly) {
-            element.setAttribute('disabled', true);
-        } else {
-            element.removeAttribute('disabled');
-        }
-    },
 };

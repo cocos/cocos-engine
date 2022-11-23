@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import CANNON from '@cocos/cannon';
 import { CannonConstraint } from './cannon-constraint';
 import { IPointToPointConstraint } from '../../spec/i-physics-constraint';

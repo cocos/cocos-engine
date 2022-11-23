@@ -82,13 +82,13 @@ private:
     virtual ~PcmAudioPlayer();
 
 private:
-    int                   _id;
-    ccstd::string         _url;
-    PcmData               _decResult;
-    Track *               _track;
-    PlayEventCallback     _playEventCallback;
+    int _id;
+    ccstd::string _url;
+    PcmData _decResult;
+    Track *_track;
+    PlayEventCallback _playEventCallback;
     AudioMixerController *_controller;
-    ICallerThreadUtils *  _callerThreadUtils;
+    ICallerThreadUtils *_callerThreadUtils;
 
     friend class AudioPlayerProvider;
 };

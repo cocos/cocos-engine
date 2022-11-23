@@ -29,12 +29,19 @@
 #include <vector>
 #include "IOTypedArray.h"
 #include "MiddlewareManager.h"
-#include "base/RefMap.h"
 #include "base/RefCounted.h"
+#include "base/RefMap.h"
 #include "bindings/event/EventDispatcher.h"
 #include "dragonbones-creator-support/CCSlot.h"
 #include "dragonbones/DragonBonesHeaders.h"
 #include "middleware-adapter.h"
+
+namespace cc {
+class RenderEntity;
+class RenderDrawInfo;
+class Material;
+class Texture2D;
+};
 
 DRAGONBONES_NAMESPACE_BEGIN
 
@@ -56,8 +63,8 @@ private:
     void traverseArmature(Armature *armature, float parentOpacity = 1.0F);
 
 protected:
-    bool      _debugDraw = false;
-    Armature *_armature  = nullptr;
+    bool _debugDraw = false;
+    Armature *_armature = nullptr;
 
 public:
     CCArmatureDisplay();
@@ -99,10 +106,6 @@ public:
      * @inheritDoc
      */
     void removeDBEventListener(const std::string &type, const std::function<void(EventObject *)> &listener) override;
-    /**
-     * @inheritDoc
-     */
-    uint32_t getRenderOrder() const override;
 
     using dbEventCallback = std::function<void(EventObject *)>;
     void setDBEventCallback(dbEventCallback callback) {
@@ -132,11 +135,6 @@ public:
      * format |render info offset|attach info offset|
      */
     se_object_ptr getSharedBufferOffset() const;
-    /**
-     * @return js send to cpp parameters, it's a Uint32Array
-     * format |render order|world matrix|
-     */
-    se_object_ptr getParamsBuffer() const;
 
     void setColor(float r, float g, float b, float a);
 
@@ -144,10 +142,7 @@ public:
         _debugDraw = enabled;
     }
 
-    void setBatchEnabled(bool enabled) {
-        // disable switch batch mode, force to enable batch, it may be changed in future version
-        // _batch = enabled;
-    }
+    void setBatchEnabled(bool enabled);
 
     void setAttachEnabled(bool enabled) {
         _useAttach = enabled;
@@ -169,35 +164,43 @@ public:
      */
     CCArmatureDisplay *getRootDisplay();
 
+    cc::RenderDrawInfo *requestDrawInfo(int idx);
+    cc::Material *requestMaterial(uint16_t blendSrc, uint16_t blendDst);
+    void setMaterial(cc::Material *material);
+    void setRenderEntity(cc::RenderEntity* entity);
 private:
     std::map<std::string, bool> _listenerIDMap;
-    int                         _preBlendMode    = -1;
-    int                         _preTextureIndex = -1;
-    int                         _curTextureIndex = -1;
-    int                         _curBlendSrc     = -1;
-    int                         _curBlendDst     = -1;
+    int _preBlendMode = -1;
+    int _curBlendSrc = -1;
+    int _curBlendDst = -1;
+    cc::Texture2D *_preTexture = nullptr;
+    cc::Texture2D *_curTexture = nullptr;
+    cc::RenderDrawInfo *_curDrawInfo = nullptr;
 
     int _preISegWritePos = -1;
-    int _curISegLen      = 0;
+    int _curISegLen = 0;
 
     int _debugSlotsLen = 0;
-    int _materialLen   = 0;
+    int _materialLen = 0;
 
-    bool _batch              = true;
-    bool _useAttach          = false;
+    bool _useAttach = false;
     bool _premultipliedAlpha = false;
+    bool _enableBatch = false;
 
     // NOTE: We bind Vec2 to make JS deserialization works, we need to return const reference in convertToRootSpace method,
     // because returning Vec2 JSB object on stack to JS will let JS get mess data.
     mutable cc::Vec2 _tmpVec2;
     //
-    cc::middleware::Color4F _nodeColor       = cc::middleware::Color4F::WHITE;
-    dbEventCallback         _dbEventCallback = nullptr;
+    cc::middleware::Color4F _nodeColor = cc::middleware::Color4F::WHITE;
+    dbEventCallback _dbEventCallback = nullptr;
 
     cc::middleware::IOTypedArray *_sharedBufferOffset = nullptr;
-    cc::middleware::IOTypedArray *_debugBuffer        = nullptr;
-    // Js fill this buffer to send parameter to cpp, avoid to call jsb function.
-    cc::middleware::IOTypedArray *_paramsBuffer = nullptr;
+    cc::middleware::IOTypedArray *_debugBuffer = nullptr;
+
+    cc::RenderEntity *_entity = nullptr;
+    cc::Material *_material = nullptr;
+    ccstd::vector<cc::RenderDrawInfo *> _drawInfoArray;
+    ccstd::unordered_map<uint32_t, cc::Material*> _materialCaches;
 };
 
 DRAGONBONES_NAMESPACE_END

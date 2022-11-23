@@ -1,4 +1,4 @@
-import { Address, Filter, SamplerInfo } from '../../core/gfx';
+import { Address, Filter, SamplerInfo } from '../../gfx';
 
 export const jointTextureSamplerInfo = new SamplerInfo(
     Filter.POINT,

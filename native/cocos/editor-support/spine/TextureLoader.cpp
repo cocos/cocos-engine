@@ -28,7 +28,7 @@
  *****************************************************************************/
 
 #ifdef SPINE_UE4
-#include "SpinePluginPrivatePCH.h"
+    #include "SpinePluginPrivatePCH.h"
 #endif
 
 #include <spine/TextureLoader.h>
@@ -39,4 +39,4 @@ TextureLoader::TextureLoader() {
 
 TextureLoader::~TextureLoader() {
 }
-}
+} // namespace spine

@@ -24,8 +24,9 @@
 ****************************************************************************/
 
 #pragma once
-#include <emscripten/bind.h>
-#include <emscripten/val.h>
+#ifdef CC_WGPU_WASM
+    #include "WGPUDef.h"
+#endif
 #include <functional>
 #include "base/std/container/vector.h"
 #include "gfx-base/GFXCommandBuffer.h"
@@ -37,18 +38,17 @@ struct CCWGPUCommandBufferObject;
 
 typedef std::function<void(CCWGPUCommandBufferObject *)> EncodeFunc;
 
-class CCWGPUCommandBuffer final : public emscripten::wrapper<CommandBuffer> {
+class CCWGPUCommandBuffer final : public CommandBuffer {
 public:
-    EMSCRIPTEN_WRAPPER(CCWGPUCommandBuffer);
     CCWGPUCommandBuffer();
-    ~CCWGPUCommandBuffer() = default;
+    ~CCWGPUCommandBuffer();
 
-    void begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer) override;
+    void begin(RenderPass *renderPass, uint32_t subpass, Framebuffer *frameBuffer) override;
     void end() override;
-    void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, uint stencil, CommandBuffer *const *secondaryCBs, uint secondaryCBCount) override;
+    void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, uint32_t stencil, CommandBuffer *const *secondaryCBs, uint32_t secondaryCBCount) override;
     void endRenderPass() override;
     void bindPipelineState(PipelineState *pso) override;
-    void bindDescriptorSet(uint set, DescriptorSet *descriptorSet, uint dynamicOffsetCount, const uint *dynamicOffsets) override;
+    void bindDescriptorSet(uint32_t set, DescriptorSet *descriptorSet, uint32_t dynamicOffsetCount, const uint32_t *dynamicOffsets) override;
     void bindInputAssembler(InputAssembler *ia) override;
     void setViewport(const Viewport &vp) override;
     void setScissor(const Rect &rect) override;
@@ -56,35 +56,40 @@ public:
     void setDepthBias(float constant, float clamp, float slope) override;
     void setBlendConstants(const Color &constants) override;
     void setDepthBound(float minBounds, float maxBounds) override;
-    void setStencilWriteMask(StencilFace face, uint mask) override;
-    void setStencilCompareMask(StencilFace face, uint ref, uint mask) override;
+    void setStencilWriteMask(StencilFace face, uint32_t mask) override;
+    void setStencilCompareMask(StencilFace face, uint32_t ref, uint32_t mask) override;
     void nextSubpass() override;
     void draw(const DrawInfo &info) override;
-    void updateBuffer(Buffer *buff, const void *data, uint size) override;
-    void copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint count) override;
-    void blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint count, Filter filter) override;
+    void updateBuffer(Buffer *buff, const void *data, uint32_t size) override;
+    void copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint32_t count) override;
+    void blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint32_t count, Filter filter) override;
     void execute(CommandBuffer *const *cmdBuffs, uint32_t count) override;
     void dispatch(const DispatchInfo &info) override;
-    void pipelineBarrier(const GlobalBarrier *barrier, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint textureBarrierCount) override;
+    void pipelineBarrier(const GeneralBarrier *barrier, const BufferBarrier *const *bufferBarriers, const Buffer *const *buffers, uint32_t bufferBarrierCount, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint32_t textureBarrierCount) override;
 
-    //TODO_Zeqiang: wgpu query pool
+    void updateIndirectBuffer(Buffer *buff, const DrawInfoList &info);
+
+    // TODO_Zeqiang: wgpu query pool
     void beginQuery(QueryPool *queryPool, uint32_t id) override{};
     void endQuery(QueryPool *queryPool, uint32_t id) override{};
     void resetQueryPool(QueryPool *queryPool) override{};
     void completeQueryPool(QueryPool *queryPool) override{};
 
-    inline CCWGPUCommandBufferObject *gpuCommandBufferObject() { return _gpuCommandBufferObj; }
+    inline CCWGPUCommandBufferObject *gpuCommandBufferObject() const { return _gpuCommandBufferObj; }
 
-    void updateIndirectBuffer(Buffer *buffer, const DrawInfoList &list);
-
-    void updateBuffer(Buffer *buff, const emscripten::val &v, uint size) {
-        ccstd::vector<uint8_t> buffer = emscripten::convertJSArrayToNumberVector<uint8_t>(v);
-        updateBuffer(buff, reinterpret_cast<const void *>(buffer.data()), size);
-    }
-
-    void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const ColorList &colors, float depth, uint stencil) {
+    void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const ColorList &colors, float depth, uint32_t stencil) {
         this->CommandBuffer::beginRenderPass(renderPass, fbo, renderArea, colors.data(), depth, stencil);
     }
+
+    void reset();
+
+    void bindDescriptorSet(uint32_t set, DescriptorSet *descriptorSet, const std::vector<uint32_t> &dynamicOffsets) {
+        bindDescriptorSet(set, descriptorSet, dynamicOffsets.size(), dynamicOffsets.data());
+    }
+
+    // emscripten export
+    EXPORT_EMS(
+        void updateBuffer(Buffer *buff, const emscripten::val &v, uint32_t size);)
 
 protected:
     virtual void doInit(const CommandBufferInfo &info);
@@ -95,12 +100,15 @@ protected:
 
     CCWGPUCommandBufferObject *_gpuCommandBufferObj = nullptr;
 
-    RenderPass * _renderPass  = nullptr;
+    RenderPass *_renderPass = nullptr;
     Framebuffer *_frameBuffer = nullptr;
 
+    // first meet?
+    std::set<void *> _attachmentSet;
+
     // command buffer inner impl
-    //std::queue<EncodeFunc> _renderPassFuncQ;
-    //std::queue<EncodeFunc> _computeFuncQ;
+    // std::queue<EncodeFunc> _renderPassFuncQ;
+    // std::queue<EncodeFunc> _computeFuncQ;
 };
 
 } // namespace gfx

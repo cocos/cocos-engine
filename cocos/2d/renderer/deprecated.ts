@@ -26,16 +26,22 @@
 import * as VertexFormat from './vertex-format';
 import { Batcher2D } from './batcher-2d';
 import { DrawBatch2D } from './draw-batch';
-import { markAsWarning, replaceProperty, removeProperty } from '../../core/utils/x-deprecated';
+import { markAsWarning, replaceProperty, removeProperty, warnID } from '../../core';
 import { MeshBuffer } from './mesh-buffer';
 import { MeshRenderData } from './render-data';
-import { warnID } from '../../core';
 
 export { VertexFormat as UIVertexFormat };
 
 export { Batcher2D as UI };
 
-export { DrawBatch2D as UIDrawBatch };
+export { UIDrawBatch };
+
+/**
+ * @deprecated since v3.6.0, this is an engine private interface that will be removed in the future.
+ * @internal
+ */
+class UIDrawBatch extends DrawBatch2D {
+}
 
 markAsWarning(MeshBuffer.prototype, 'MeshBuffer',
     [

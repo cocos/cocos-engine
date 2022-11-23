@@ -26,10 +26,8 @@
 #include "platform/java/jni/glue/JniNativeGlue.h"
 #include <functional>
 #include <future>
-#include "cocos/bindings/event/CustomEventTypes.h"
-#include "cocos/bindings/event/EventDispatcher.h"
+#include "engine/EngineEvents.h"
 #include "platform/BasePlatform.h"
-#include "platform/IEventDispatch.h"
 #include "platform/java/jni/JniImp.h"
 #include "platform/java/jni/glue/MessagePipe.h"
 #include "platform/java/jni/log.h"
@@ -52,7 +50,7 @@ void JniNativeGlue::start(int argc, const char** argv) {
     platform->run(argc, argv);
 }
 
-void JniNativeGlue::setWindowHandler(NativeWindowType* window) {
+void JniNativeGlue::setWindowHandle(NativeWindowType* window) {
     if (_pendingWindow) {
         writeCommandSync(JniCommand::JNI_CMD_TERM_WINDOW);
     }
@@ -86,7 +84,7 @@ ResourceManagerType* JniNativeGlue::getResourceManager() {
     return _resourceManager;
 }
 
-NativeWindowType* JniNativeGlue::getWindowHandler() {
+NativeWindowType* JniNativeGlue::getWindowHandle() {
     return _window;
 }
 
@@ -135,7 +133,7 @@ void JniNativeGlue::writeCommandAsync(JniCommand cmd) {
 
 void JniNativeGlue::writeCommandSync(JniCommand cmd) {
     std::promise<void> fu;
-    CommandMsg         msg{.cmd = cmd, .callback = [&fu]() {
+    CommandMsg msg{.cmd = cmd, .callback = [&fu]() {
                        fu.set_value();
                    }};
     _messagePipe->writeCommand(&msg, sizeof(msg));
@@ -148,22 +146,6 @@ int JniNativeGlue::readCommand(CommandMsg* msg) {
 
 int JniNativeGlue::readCommandWithTimeout(CommandMsg* cmd, int delayMS) {
     return _messagePipe->readCommandWithTimeout(cmd, sizeof(CommandMsg), delayMS);
-}
-
-void JniNativeGlue::setEventDispatch(IEventDispatch* eventDispatcher) {
-    _eventDispatcher = eventDispatcher;
-}
-
-void JniNativeGlue::dispatchEvent(const OSEvent& ev) {
-    if (_eventDispatcher) {
-        _eventDispatcher->dispatchEvent(ev);
-    }
-}
-
-void JniNativeGlue::dispatchTouchEvent(const OSEvent& ev) {
-    if (_eventDispatcher) {
-        _eventDispatcher->dispatchTouchEvent(ev);
-    }
 }
 
 bool JniNativeGlue::isPause() const {
@@ -190,7 +172,7 @@ void JniNativeGlue::onLowMemory() {
 
 void JniNativeGlue::execCommand() {
     static CommandMsg msg;
-    static bool       runInLowRate{false};
+    static bool runInLowRate{false};
     runInLowRate = !_animating || JniCommand::JNI_CMD_PAUSE == _appState;
 
     if (readCommandWithTimeout(&msg, runInLowRate ? 50 : 0) > 0) {
@@ -208,7 +190,7 @@ void JniNativeGlue::preExecCmd(JniCommand cmd) {
         case JniCommand::JNI_CMD_INIT_WINDOW: {
             LOGV("JNI_CMD_INIT_WINDOW");
             _animating = true;
-            _window    = _pendingWindow;
+            _window = _pendingWindow;
         } break;
         case JniCommand::JNI_CMD_TERM_WINDOW:
             LOGV("JNI_CMD_TERM_WINDOW");
@@ -236,38 +218,26 @@ void JniNativeGlue::engineHandleCmd(JniCommand cmd) {
                 isWindowInitialized = true;
                 return;
             }
-            cc::CustomEvent event;
-            event.name         = EVENT_RECREATE_WINDOW;
-            event.args->ptrVal = reinterpret_cast<void*>(getWindowHandler());
-            dispatchEvent(event);
+            // FIXME: getWindowId
+            events::WindowRecreated::broadcast((uint32_t)(uintptr_t)getWindowHandle()); // NOLINT
         } break;
         case JniCommand::JNI_CMD_TERM_WINDOW: {
-            cc::CustomEvent event;
-            event.name         = EVENT_DESTROY_WINDOW;
-            event.args->ptrVal = reinterpret_cast<void*>(getWindowHandler());
-            dispatchEvent(event);
+            // FIXME: getWindowId
+            events::WindowDestroy::broadcast((uint32_t)(uintptr_t)getWindowHandle()); // NOLINT
         } break;
         case JniCommand::JNI_CMD_RESUME: {
-            WindowEvent ev;
-            ev.type = WindowEvent::Type::SHOW;
-            dispatchEvent(ev);
+            events::WindowChanged::broadcast(WindowEvent::Type::SHOW);
         } break;
         case JniCommand::JNI_CMD_PAUSE: {
-            WindowEvent ev;
-            ev.type = WindowEvent::Type::HIDDEN;
-            dispatchEvent(ev);
+            events::WindowChanged::broadcast(WindowEvent::Type::HIDDEN);
         } break;
         case JniCommand::JNI_CMD_DESTROY: {
             LOGV("APP_CMD_DESTROY");
-            WindowEvent ev;
-            ev.type = WindowEvent::Type::CLOSE;
-            dispatchEvent(ev);
+            events::WindowChanged::broadcast(WindowEvent::Type::CLOSE);
             setRunning(false);
         } break;
         case JniCommand::JNI_CMD_LOW_MEMORY: {
-            DeviceEvent ev;
-            ev.type = DeviceEvent::Type::DEVICE_MEMORY;
-            dispatchEvent(ev);
+            events::LowMemory::broadcast();
             break;
         }
         default:
@@ -278,6 +248,11 @@ void JniNativeGlue::engineHandleCmd(JniCommand cmd) {
 void JniNativeGlue::postExecCmd(JniCommand cmd) {
     switch (cmd) {
         case JniCommand::JNI_CMD_TERM_WINDOW: {
+#if CC_PLATFORM == CC_PLATFORM_ANDROID
+            if (_window) {
+                ANativeWindow_release(_window);
+            }
+#endif
             _window = nullptr;
         } break;
         default:
@@ -291,7 +266,7 @@ int32_t JniNativeGlue::getWidth() const {
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID)
         width = ANativeWindow_getWidth(_window);
 #elif (CC_PLATFORM == CC_PLATFORM_OHOS)
-        width  = NativeLayerHandle(_window, NativeLayerOps::GET_WIDTH);
+        width = NativeLayerHandle(_window, NativeLayerOps::GET_WIDTH);
 #endif
     }
     return width;

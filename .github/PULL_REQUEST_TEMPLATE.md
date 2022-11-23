@@ -2,7 +2,7 @@ Re: #
 
 ### Changelog
 
-* 
+*
 
 -------
 
@@ -10,7 +10,10 @@ Re: #
 
 This pull request:
 
-* [ ] needs automatic test cases check // Manual trigger with `@cocos-robot run test cases` afterward
+* [ ] needs automatic test cases check.
+  > Manual trigger with `@cocos-robot run test cases` afterward.
+* [ ] does not change any runtime related code or build configuration
+  > If any reviewer thinks the CI checks are needed, please uncheck this option, then close and reopen the issue.
 
 -------
 

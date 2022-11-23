@@ -30,8 +30,7 @@ DRAGONBONES_NAMESPACE_BEGIN
 /**
  * @internal
  */
-class DeformVertices : public BaseObject
-{
+class DeformVertices : public BaseObject {
     BIND_CLASS_TYPE_A(DeformVertices);
 
 public:

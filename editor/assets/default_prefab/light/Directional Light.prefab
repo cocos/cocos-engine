@@ -76,7 +76,11 @@
     "_id": "",
     "__prefab": {
       "__id__": 3
-    }
+    },
+    "_shadowFixedArea": false,
+    "_csmLevel": 4,
+    "_csmLayerLambda": 0.75,
+    "_csmOptimizationMode": 2
   },
   {
     "__type__": "cc.CompPrefabInfo",

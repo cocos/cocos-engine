@@ -24,8 +24,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { BulletSharedBody } from './bullet-shared-body';
 import { BulletRigidBody } from './bullet-rigid-body';
 import { BulletShape } from './shapes/bullet-shape';
@@ -33,15 +31,13 @@ import { ArrayCollisionMatrix } from '../utils/array-collision-matrix';
 import { TupleDictionary } from '../utils/tuple-dictionary';
 import { TriggerEventObject, CollisionEventObject, CC_V3_0, CC_V3_1, BulletCache } from './bullet-cache';
 import { bullet2CocosVec3, cocos2BulletVec3 } from './bullet-utils';
-import { Ray } from '../../core/geometry';
 import { IRaycastOptions, IPhysicsWorld } from '../spec/i-physics-world';
 import { PhysicsRayResult, PhysicsMaterial } from '../framework';
-import { error, Node, RecyclePool, Vec3 } from '../../core';
-import { IVec3Like } from '../../core/math/type-define';
+import { error, RecyclePool, Vec3, js, IVec3Like, geometry } from '../../core';
 import { BulletContactData } from './bullet-contact-data';
 import { BulletConstraint } from './constraints/bullet-constraint';
-import { fastRemoveAt } from '../../core/utils/array';
-import { bt } from './instantiated';
+import { bt, EBulletType, EBulletTriangleRaycastFlag } from './instantiated';
+import { Node } from '../../scene-graph';
 
 const contactsPool: BulletContactData[] = [];
 const v3_0 = CC_V3_0;
@@ -119,10 +115,10 @@ export class BulletWorld implements IPhysicsWorld {
 
     destroy (): void {
         if (this.constraints.length || this.bodies.length) error('You should destroy all physics component first.');
-        bt.CollisionWorld_del(this._world);
-        bt.DbvtBroadphase_del(this._broadphase);
-        bt.CollisionDispatcher_del(this._dispatcher);
-        bt.SequentialImpulseConstraintSolver_del(this._solver);
+        bt._safe_delete(this._world, EBulletType.EBulletTypeCollisionWorld);
+        bt._safe_delete(this._broadphase, EBulletType.EBulletTypeDbvtBroadPhase);
+        bt._safe_delete(this._dispatcher, EBulletType.EBulletTypeCollisionDispatcher);
+        bt._safe_delete(this._solver, EBulletType.EBulletTypeSequentialImpulseConstraintSolver);
         (this as any).bodies = null;
         (this as any).ghosts = null;
         (this as any).constraints = null;
@@ -159,12 +155,13 @@ export class BulletWorld implements IPhysicsWorld {
         this.syncSceneToPhysics();
     }
 
-    raycast (worldRay: Ray, options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
+    raycast (worldRay: geometry.Ray, options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
         worldRay.computeHit(v3_0, options.maxDistance);
         const to = cocos2BulletVec3(BulletCache.instance.BT_V3_0, v3_0);
         const from = cocos2BulletVec3(BulletCache.instance.BT_V3_1, worldRay.o);
         const allHitsCB = bt.ccAllRayCallback_static();
         bt.ccAllRayCallback_reset(allHitsCB, from, to, options.mask, options.queryTrigger);
+        bt.ccAllRayCallback_setFlags(allHitsCB, EBulletTriangleRaycastFlag.UseGjkConvexCastRaytest);
         bt.CollisionWorld_rayTest(this._world, from, to, allHitsCB);
         if (bt.RayCallback_hasHit(allHitsCB)) {
             const posArray = bt.ccAllRayCallback_getHitPointWorld(allHitsCB);
@@ -182,12 +179,13 @@ export class BulletWorld implements IPhysicsWorld {
         return false;
     }
 
-    raycastClosest (worldRay: Ray, options: IRaycastOptions, result: PhysicsRayResult): boolean {
+    raycastClosest (worldRay: geometry.Ray, options: IRaycastOptions, result: PhysicsRayResult): boolean {
         worldRay.computeHit(v3_0, options.maxDistance);
         const to = cocos2BulletVec3(BulletCache.instance.BT_V3_0, v3_0);
         const from = cocos2BulletVec3(BulletCache.instance.BT_V3_1, worldRay.o);
         const closeHitCB = bt.ccClosestRayCallback_static();
         bt.ccClosestRayCallback_reset(closeHitCB, from, to, options.mask, options.queryTrigger);
+        bt.ccClosestRayCallback_setFlags(closeHitCB, EBulletTriangleRaycastFlag.UseGjkConvexCastRaytest);
         bt.CollisionWorld_rayTest(this._world, from, to, closeHitCB);
         if (bt.RayCallback_hasHit(closeHitCB)) {
             bullet2CocosVec3(v3_0, bt.ccClosestRayCallback_getHitPointWorld(closeHitCB));
@@ -214,7 +212,7 @@ export class BulletWorld implements IPhysicsWorld {
     removeSharedBody (sharedBody: BulletSharedBody) {
         const i = this.bodies.indexOf(sharedBody);
         if (i >= 0) {
-            fastRemoveAt(this.bodies, i);
+            js.array.fastRemoveAt(this.bodies, i);
             bt.DynamicsWorld_removeRigidBody(this._world, sharedBody.body);
         }
     }
@@ -230,7 +228,7 @@ export class BulletWorld implements IPhysicsWorld {
     removeGhostObject (sharedBody: BulletSharedBody) {
         const i = this.ghosts.indexOf(sharedBody);
         if (i >= 0) {
-            fastRemoveAt(this.ghosts, i);
+            js.array.fastRemoveAt(this.ghosts, i);
             bt.CollisionWorld_removeCollisionObject(this._world, sharedBody.ghost);
         }
     }
@@ -278,7 +276,7 @@ export class BulletWorld implements IPhysicsWorld {
                         TriggerEventObject.type = 'onTriggerEnter';
                         this.triggerArrayMat.set(shape0.id, shape1.id, true);
                     }
-                    TriggerEventObject.impl = data.impl;
+                    TriggerEventObject.impl = data.impl; //btPersistentManifold
                     TriggerEventObject.selfCollider = collider0;
                     TriggerEventObject.otherCollider = collider1;
                     collider0.emit(TriggerEventObject.type, TriggerEventObject);
@@ -305,16 +303,18 @@ export class BulletWorld implements IPhysicsWorld {
                     }
 
                     for (let i = 0; i < data.contacts.length; i++) {
-                        const cq = data.contacts[i];
+                        const cq = data.contacts[i]; //btManifoldPoint
                         if (contactsPool.length > 0) {
-                            const c = contactsPool.pop(); c!.impl = cq;
+                            const c = contactsPool.pop();
+                            c!.impl = cq; //btManifoldPoint
                             CollisionEventObject.contacts.push(c!);
                         } else {
-                            const c = new BulletContactData(CollisionEventObject); c.impl = cq;
+                            const c = new BulletContactData(CollisionEventObject);
+                            c.impl = cq; //btManifoldPoint
                             CollisionEventObject.contacts.push(c);
                         }
                     }
-                    CollisionEventObject.impl = data.impl;
+                    CollisionEventObject.impl = data.impl; //btPersistentManifold
                     CollisionEventObject.selfCollider = collider0;
                     CollisionEventObject.otherCollider = collider1;
                     collider0.emit(CollisionEventObject.type, CollisionEventObject);
@@ -385,10 +385,10 @@ export class BulletWorld implements IPhysicsWorld {
     gatherConatactData () {
         const numManifolds = bt.Dispatcher_getNumManifolds(this._dispatcher);
         for (let i = 0; i < numManifolds; i++) {
-            const manifold = bt.Dispatcher_getManifoldByIndexInternal(this._dispatcher, i);
+            const manifold = bt.Dispatcher_getManifoldByIndexInternal(this._dispatcher, i);//btPersistentManifold
             const numContacts = bt.PersistentManifold_getNumContacts(manifold);
             for (let j = 0; j < numContacts; j++) {
-                const manifoldPoint = bt.PersistentManifold_getContactPoint(manifold, j);
+                const manifoldPoint = bt.PersistentManifold_getContactPoint(manifold, j);//btManifoldPoint
                 const s0 = bt.ManifoldPoint_getShape0(manifoldPoint);
                 const s1 = bt.ManifoldPoint_getShape1(manifoldPoint);
                 const shape0: BulletShape = BulletCache.getWrapper(s0, BulletShape.TYPE);
@@ -402,7 +402,7 @@ export class BulletWorld implements IPhysicsWorld {
                         item = this.contactsDic.set(shape0.id, shape1.id,
                             { shape0, shape1, contacts: [], impl: manifold });
                     }
-                    item.contacts.push(manifoldPoint);
+                    item.contacts.push(manifoldPoint);//btManifoldPoint
                 }
             }
         }

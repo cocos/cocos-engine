@@ -33,4 +33,4 @@ void Vibrator::vibrate(float duration) {
     CC_UNUSED_PARAM(duration);
 }
 
-}
+} // namespace cc

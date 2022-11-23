@@ -23,12 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module particle2d
- */
-
-import { Enum } from '../core/value-types';
+import { Enum } from '../core';
 
 /**
  * @en The Particle emitter lives forever.

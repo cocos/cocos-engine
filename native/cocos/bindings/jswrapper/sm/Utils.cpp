@@ -36,19 +36,19 @@ namespace se {
 
 namespace internal {
 
-void* SE_JS_GetPrivate(JSObject* obj, uint32_t slot) {
+void *SE_JS_GetPrivate(JSObject *obj, uint32_t slot) {
     assert(slot >= 0 && slot < 2);
-    const auto& v = JS::GetReservedSlot(obj, slot);
+    const auto &v = JS::GetReservedSlot(obj, slot);
     return v.isNullOrUndefined() ? nullptr : v.toPrivate();
 }
 
-void SE_JS_SetPrivate(JSObject* obj, uint32_t slot, void* data) {
+void SE_JS_SetPrivate(JSObject *obj, uint32_t slot, void *data) {
     assert(slot >= 0 && slot < 2);
     JS::SetReservedSlot(obj, slot, JS::PrivateValue(data));
 }
 
-bool isJSBClass(JSObject* obj) {
-    const JSClass *cls   = JS::GetClass(obj);
+bool isJSBClass(JSObject *obj) {
+    const JSClass *cls = JS::GetClass(obj);
     return (cls->flags & (JSCLASS_HAS_RESERVED_SLOTS(2)) && (cls->flags & JSCLASS_USERBIT1));
 }
 
@@ -87,8 +87,8 @@ void seToJsValue(JSContext *cx, const Value &arg, JS::MutableHandleValue outVal)
         } break;
 
         case Value::Type::String: {
-            JS::UTF8Chars   utf8Str(arg.toString().c_str(), arg.toString().length());
-            JSString *      string = JS_NewStringCopyUTF8N(cx, utf8Str);
+            JS::UTF8Chars utf8Str(arg.toString().c_str(), arg.toString().length());
+            JSString *string = JS_NewStringCopyUTF8N(cx, utf8Str);
             JS::RootedValue value(cx);
             value.setString(string);
             outVal.set(value);
@@ -118,10 +118,9 @@ void seToJsValue(JSContext *cx, const Value &arg, JS::MutableHandleValue outVal)
         } break;
         case Value::Type::BigInt: {
             JS::RootedValue value(cx);
-            JS::BigInt* bi = JS::NumberToBigInt(cx, arg.toUint64());
+            JS::BigInt *bi = JS::NumberToBigInt(cx, arg.toUint64());
             outVal.setBigInt(bi);
-        }
-            break;
+        } break;
         default:
             assert(false);
             break;

@@ -61,7 +61,7 @@ struct Color {
                                                              : alpha) {
     }
     unsigned char r = 0, g = 0, b = 0;
-    float         a = 1.0f;
+    float a = 1.0f;
 };
 
 inline bool operator==(const Color &lhs, const Color &rhs) {

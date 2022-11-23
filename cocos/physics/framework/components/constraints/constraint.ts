@@ -24,16 +24,11 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module physics
- */
-
 import { ccclass, requireComponent, displayOrder, type, readOnly, serializable } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
-import { Component } from '../../../../core';
+import { Component } from '../../../../scene-graph';
 import { RigidBody } from '../rigid-body';
-import { Eventify } from '../../../../core/event';
+import { Eventify, cclegacy } from '../../../../core';
 import { IBaseConstraint } from '../../../spec/i-physics-constraint';
 import { selector, createConstraint } from '../../physics-selector';
 import { EConstraintType } from '../../physics-enum';
@@ -82,7 +77,7 @@ export class Constraint extends Eventify(Component) {
 
     set connectedBody (v: RigidBody | null) {
         this._connectedBody = v;
-        if (!EDITOR) {
+        if (!EDITOR || cclegacy.GAME_VIEW) {
             if (this._constraint) this._constraint.setConnectedBody(v);
         }
     }
@@ -100,7 +95,7 @@ export class Constraint extends Eventify(Component) {
 
     set enableCollision (v) {
         this._enableCollision = v;
-        if (!EDITOR) {
+        if (!EDITOR || cclegacy.GAME_VIEW) {
             if (this._constraint) this._constraint.setEnableCollision(v);
         }
     }

@@ -1,8 +1,12 @@
 
 export {
     exoticAnimationTag,
-} from '../../cocos/core/animation/animation-clip';
+} from '../../cocos/animation/animation-clip';
 
 export {
     ExoticAnimation,
-} from '../../cocos/core/animation/exotic-animation/exotic-animation';
+} from '../../cocos/animation/exotic-animation/exotic-animation';
+
+export {
+    RealArrayTrack,
+} from '../../cocos/animation/tracks/array-track';

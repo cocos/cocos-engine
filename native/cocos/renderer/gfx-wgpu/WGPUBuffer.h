@@ -24,8 +24,9 @@
 ****************************************************************************/
 
 #pragma once
-#include <emscripten/bind.h>
-#include <emscripten/val.h>
+#ifdef CC_WGPU_WASM
+    #include "WGPUDef.h"
+#endif
 #include "base/std/container/vector.h"
 #include "gfx-base/GFXBuffer.h"
 
@@ -34,43 +35,34 @@ namespace gfx {
 
 struct CCWGPUBufferObject;
 
-class CCWGPUBuffer final : public emscripten::wrapper<Buffer> {
+class CCWGPUBuffer final : public Buffer {
 public:
-    EMSCRIPTEN_WRAPPER(CCWGPUBuffer);
     CCWGPUBuffer();
-    ~CCWGPUBuffer() = default;
-
-    void update(const void *buffer, uint size) override;
+    ~CCWGPUBuffer();
 
     inline CCWGPUBufferObject *gpuBufferObject() const { return _gpuBufferObject; }
-
-    static CCWGPUBuffer *defaultUniformBuffer();
-
-    static CCWGPUBuffer *defaultStorageBuffer();
-
-    inline uint getOffset() const { return _offset; }
-
-    void update(const emscripten::val &v, uint size) {
-        ccstd::vector<uint8_t> buffer = emscripten::convertJSArrayToNumberVector<uint8_t>(v);
-        update(reinterpret_cast<const void *>(buffer.data()), size);
-    }
-
+    inline uint32_t getOffset() const { return _offset; }
     void update(const DrawInfoList &drawInfos);
-
     // used before unmap?
     void check();
-
     // stamp current resource handler
     void stamp();
-
     // resource handler changed?
     inline bool internalChanged() const { return _internalChanged; }
+
+    static CCWGPUBuffer *defaultUniformBuffer();
+    static CCWGPUBuffer *defaultStorageBuffer();
+
+    void update(const void *buffer, uint32_t size) override;
+
+    EXPORT_EMS(
+        void update(const emscripten::val &v, uint32_t size);)
 
 protected:
     void doInit(const BufferInfo &info) override;
     void doInit(const BufferViewInfo &info) override;
     void doDestroy() override;
-    void doResize(uint size, uint count) override;
+    void doResize(uint32_t size, uint32_t count) override;
 
     CCWGPUBufferObject *_gpuBufferObject = nullptr;
 

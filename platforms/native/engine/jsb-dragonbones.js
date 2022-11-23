@@ -255,6 +255,7 @@ const cacheManager = require('./jsb-cache-manager');
         this.jsbTexture.setRealTextureIndex(index);
         this.jsbTexture.setPixelsWide(this._texture.width);
         this.jsbTexture.setPixelsHigh(this._texture.height);
+        this.jsbTexture.setRealTexture(this._texture);
         this._textureAtlasData = factory.parseTextureAtlasData(this.atlasJson, this.jsbTexture, this._uuid);
 
         _textureIdx2Name[url] = { name: this._textureAtlasData.name, index };
@@ -334,7 +335,7 @@ const cacheManager = require('./jsb-cache-manager');
     ////////////////////////////////////////////////////////////
     // override ArmatureDisplay
     ////////////////////////////////////////////////////////////
-    const superProto = cc.internal.Renderable2D.prototype;
+    const superProto = cc.internal.UIRenderer.prototype;
     const armatureDisplayProto = cc.internal.ArmatureDisplay.prototype;
     const AnimationCacheMode = cc.internal.ArmatureDisplay.AnimationCacheMode;
     const armatureSystem = cc.internal.ArmatureSystem;
@@ -370,7 +371,7 @@ const cacheManager = require('./jsb-cache-manager');
                 oldArmature.dispose();
             }
 
-            if (this._armature && !this.isAnimationCached()) {
+            if (this._armature && !this.isAnimationCached() && this.shouldSchedule) {
                 this._factory.add(this._armature);
             }
         },
@@ -417,6 +418,7 @@ const cacheManager = require('./jsb-cache-manager');
         if (this.isAnimationCached()) {
             const isShare = this._cacheMode === AnimationCacheMode.SHARED_CACHE;
             this._nativeDisplay = new dragonBones.CCArmatureCacheDisplay(this.armatureName, this._armatureKey, atlasUUID, isShare);
+            if (this.shouldSchedule) this._nativeDisplay.beginSchedule();
             this._armature = this._nativeDisplay.armature();
         } else {
             this._nativeDisplay = this._factory.buildArmatureDisplay(this.armatureName, this._armatureKey, '', atlasUUID);
@@ -427,7 +429,7 @@ const cacheManager = require('./jsb-cache-manager');
             this._nativeDisplay.setDebugBonesEnabled(this.debugBones);
             this._armature = this._nativeDisplay.armature();
             this._armature.animation.timeScale = this.timeScale;
-            this._factory.add(this._armature);
+            if (this.shouldSchedule) this._factory.add(this._armature);
         }
 
         // add all event into native display
@@ -452,10 +454,6 @@ const cacheManager = require('./jsb-cache-manager');
         this._sharedBufferOffset = this._nativeDisplay.getSharedBufferOffset();
         this._sharedBufferOffset[0] = 0;
         this._useAttach = false;
-        this._renderOrder = -1;
-        // store render order and world matrix
-        this._paramsBuffer = this._nativeDisplay.getParamsBuffer();
-        this._paramsBuffer[0] = -1.0;
 
         this._nativeDisplay.setOpacityModifyRGB(this.premultipliedAlpha);
 
@@ -466,13 +464,16 @@ const cacheManager = require('./jsb-cache-manager');
             this._eventTarget.emit(eventObject.type, eventObject);
         });
 
+        const materialTemplate = this.getMaterialTemplate();
+        this._nativeDisplay.setMaterial(materialTemplate);
+        this._nativeDisplay.setRenderEntity(this._renderEntity.nativeObj);
+
         this.attachUtil.init(this);
 
         if (this.animationName) {
             this.playAnimation(this.animationName, this.playTimes);
         }
 
-        this.syncTransform(true);
         this.markForUpdateRenderData();
     };
 
@@ -520,10 +521,14 @@ const cacheManager = require('./jsb-cache-manager');
         if (_onEnable) {
             _onEnable.call(this);
         }
-        if (this._armature && !this.isAnimationCached()) {
-            this._factory.add(this._armature);
+        this.shouldSchedule = true;
+        if (this._armature) {
+            if (this.isAnimationCached()) {
+                this._nativeDisplay.onEnable();
+            } else {
+                this._factory.add(this._armature);
+            }
         }
-        this.syncTransform(true);
         this._flushAssembler();
         armatureSystem.getInstance().add(this);
         middleware.retain();
@@ -539,6 +544,15 @@ const cacheManager = require('./jsb-cache-manager');
         }
         armatureSystem.getInstance().remove(this);
         middleware.release();
+    };
+
+    const _updateMaterial = armatureDisplayProto.updateMaterial;
+    armatureDisplayProto.updateMaterial = function () {
+        _updateMaterial.call(this);
+        if (this._nativeDisplay) {
+            const mat = this.getMaterialTemplate();
+            this._nativeDisplay.setMaterial(mat);
+        }
     };
 
     armatureDisplayProto.once = function (eventType, listener, target) {
@@ -584,40 +598,11 @@ const cacheManager = require('./jsb-cache-manager');
         }
     };
 
-    armatureDisplayProto.syncTransform = function (force) {
-        const node = this.node;
-        if (!node) return;
-
-        const paramsBuffer = this._paramsBuffer;
-        if (!paramsBuffer) return;
-
-        if (force || node.hasChangedFlags || node._dirtyFlags) {
-            // sync node world matrix to native
-            const worldMat = node.getWorldMatrix();
-            paramsBuffer[1]  = worldMat.m00;
-            paramsBuffer[2]  = worldMat.m01;
-            paramsBuffer[3]  = worldMat.m02;
-            paramsBuffer[4]  = worldMat.m03;
-            paramsBuffer[5]  = worldMat.m04;
-            paramsBuffer[6]  = worldMat.m05;
-            paramsBuffer[7]  = worldMat.m06;
-            paramsBuffer[8]  = worldMat.m07;
-            paramsBuffer[9]  = worldMat.m08;
-            paramsBuffer[10] = worldMat.m09;
-            paramsBuffer[11] = worldMat.m10;
-            paramsBuffer[12] = worldMat.m11;
-            paramsBuffer[13] = worldMat.m12;
-            paramsBuffer[14] = worldMat.m13;
-            paramsBuffer[15] = worldMat.m14;
-            paramsBuffer[16] = worldMat.m15;
-        }
-    };
-
     armatureDisplayProto.setAnimationCacheMode = function (cacheMode) {
         if (this._preCacheMode !== cacheMode) {
             this._cacheMode = cacheMode;
             this._buildArmature();
-        if (this._armature && !this.isAnimationCached()) {
+        if (this._armature && !this.isAnimationCached() && this.shouldSchedule) {
             this._factory.add(this._armature);
         }
             this._updateSocketBindings();
@@ -631,15 +616,6 @@ const cacheManager = require('./jsb-cache-manager');
 
         const node = this.node;
         if (!node) return;
-
-        const paramsBuffer = this._paramsBuffer;
-        if (this._renderOrder !== middleware.renderOrder) {
-            paramsBuffer[0] = middleware.renderOrder;
-            this._renderOrder = middleware.renderOrder;
-            middleware.renderOrder++;
-        }
-
-        this.syncTransform();
 
         if (this.__preColor__ === undefined || !this.color.equals(this.__preColor__)) {
             const compColor = this.color;
@@ -693,31 +669,22 @@ const cacheManager = require('./jsb-cache-manager');
     };
 
     const _tempAttachMat4 = cc.mat4();
-    const _identityTrans = new cc.Node();
-    let _tempBufferIndex; let _tempIndicesOffset; let _tempIndicesCount;
 
-    armatureDisplayProto._render = function (ui) {
+    armatureDisplayProto._render = function () {
         const nativeDisplay = this._nativeDisplay;
         if (!nativeDisplay) return;
 
-        const node = this.node;
-        if (!node) return;
-
         const sharedBufferOffset = this._sharedBufferOffset;
         if (!sharedBufferOffset) return;
-
-        const renderInfoOffset = sharedBufferOffset[0];
-        // reset render info offset
-        sharedBufferOffset[0] = 0;
 
         const sockets = this.sockets;
         if (sockets.length > 0) {
             const attachInfoMgr = middleware.attachInfoMgr;
             const attachInfo = attachInfoMgr.attachInfo;
 
-            const attachInfoOffset = sharedBufferOffset[1];
+            const attachInfoOffset = sharedBufferOffset[0];
             // reset attach info offset
-            sharedBufferOffset[1] = 0;
+            sharedBufferOffset[0] = 0;
 
             const socketNodes = this.socketNodes;
 
@@ -745,39 +712,12 @@ const cacheManager = require('./jsb-cache-manager');
                 boneNode.matrix = tm;
             }
         }
+    };
 
-        const renderInfoMgr = middleware.renderInfoMgr;
-        const renderInfo = renderInfoMgr.renderInfo;
-
-        let materialIdx = 0; let realTextureIndex; let realTexture;
-        // verify render border
-        const border = renderInfo[renderInfoOffset + materialIdx++];
-        if (border !== 0xffffffff) return;
-
-        const matLen = renderInfo[renderInfoOffset + materialIdx++];
-
-        if (matLen === 0) return;
-
-        for (let index = 0; index < matLen; index++) {
-            realTextureIndex = renderInfo[renderInfoOffset + materialIdx++];
-            realTexture = this.dragonAtlasAsset.getTextureByIndex(realTextureIndex);
-            if (!realTexture) return;
-            //HACK
-            const mat = this.material;
-            // cache material
-            this.material = this.getMaterialForBlend(
-                renderInfo[renderInfoOffset + materialIdx++],
-                renderInfo[renderInfoOffset + materialIdx++],
-);
-
-            _tempBufferIndex = renderInfo[renderInfoOffset + materialIdx++];
-            _tempIndicesOffset = renderInfo[renderInfoOffset + materialIdx++];
-            _tempIndicesCount = renderInfo[renderInfoOffset + materialIdx++];
-
-            const renderData = middleware.RenderInfoLookup[middleware.vfmtPosUvColor][_tempBufferIndex];
-            ui.commitComp(this, renderData, realTexture, this._assembler, _identityTrans);
-            renderData.updateRange(renderData.vertexStart, renderData.vertexCount, _tempIndicesOffset, _tempIndicesCount);
-            this.material = mat;
+    armatureDisplayProto._updateBatch = function () {
+        if (this.nativeDisplay) {
+            this.nativeDisplay.setBatchEnabled(this.enableBatch);
+            this.markForUpdateRenderData();
         }
     };
 
@@ -789,7 +729,8 @@ const cacheManager = require('./jsb-cache-manager');
     assembler.createData = function (comp) {
     };
 
-    assembler.updateRenderData = function () {
+    assembler.updateRenderData = function (comp) {
+        comp._render();
     };
 
     // eslint-disable-next-line no-unused-vars

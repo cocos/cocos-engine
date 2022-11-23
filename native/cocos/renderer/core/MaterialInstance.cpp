@@ -63,11 +63,11 @@ bool MaterialInstance::destroy() {
 
 ccstd::vector<IntrusivePtr<scene::Pass>> MaterialInstance::createPasses() {
     ccstd::vector<IntrusivePtr<scene::Pass>> passes;
-    auto &                                   parentPasses = _parent->getPasses();
+    auto &parentPasses = _parent->getPasses();
 
     passes.reserve(parentPasses->size());
     for (auto &parentPass : *parentPasses) {
-        passes.emplace_back(new PassInstance(parentPass, this));
+        passes.emplace_back(ccnew PassInstance(parentPass, this));
     }
     return passes;
 }

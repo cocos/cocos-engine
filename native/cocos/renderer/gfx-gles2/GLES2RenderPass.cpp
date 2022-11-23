@@ -41,10 +41,10 @@ GLES2RenderPass::~GLES2RenderPass() {
 }
 
 void GLES2RenderPass::doInit(const RenderPassInfo & /*info*/) {
-    _gpuRenderPass                         = CC_NEW(GLES2GPURenderPass);
-    _gpuRenderPass->colorAttachments       = _colorAttachments;
+    _gpuRenderPass = ccnew GLES2GPURenderPass;
+    _gpuRenderPass->colorAttachments = _colorAttachments;
     _gpuRenderPass->depthStencilAttachment = _depthStencilAttachment;
-    _gpuRenderPass->subpasses              = _subpasses;
+    _gpuRenderPass->subpasses = _subpasses;
 
     // assign a dummy subpass if not specified
     uint32_t colorCount = utils::toUint(_gpuRenderPass->colorAttachments.size());
@@ -76,7 +76,7 @@ void GLES2RenderPass::doInit(const RenderPassInfo & /*info*/) {
 void GLES2RenderPass::doDestroy() {
     if (_gpuRenderPass) {
         cmdFuncGLES2CreateRenderPass(GLES2Device::getInstance(), _gpuRenderPass);
-        CC_DELETE(_gpuRenderPass);
+        delete _gpuRenderPass;
         _gpuRenderPass = nullptr;
     }
 }

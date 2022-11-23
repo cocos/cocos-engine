@@ -80,21 +80,21 @@ Uri::Uri(Uri &&o) {
 
 Uri &Uri::operator=(const Uri &o) {
     if (this != &o) {
-        _isValid      = o._isValid;
-        _isSecure     = o._isSecure;
-        _scheme       = o._scheme;
-        _username     = o._username;
-        _password     = o._password;
-        _host         = o._host;
-        _hostName     = o._hostName;
+        _isValid = o._isValid;
+        _isSecure = o._isSecure;
+        _scheme = o._scheme;
+        _username = o._username;
+        _password = o._password;
+        _host = o._host;
+        _hostName = o._hostName;
         _hasAuthority = o._hasAuthority;
-        _port         = o._port;
-        _authority    = o._authority;
-        _pathEtc      = o._pathEtc;
-        _path         = o._path;
-        _query        = o._query;
-        _fragment     = o._fragment;
-        _queryParams  = o._queryParams;
+        _port = o._port;
+        _authority = o._authority;
+        _pathEtc = o._pathEtc;
+        _path = o._path;
+        _query = o._query;
+        _fragment = o._fragment;
+        _queryParams = o._queryParams;
     }
 
     return *this;
@@ -102,25 +102,25 @@ Uri &Uri::operator=(const Uri &o) {
 
 Uri &Uri::operator=(Uri &&o) {
     if (this != &o) {
-        _isValid        = o._isValid;
-        o._isValid      = false;
-        _isSecure       = o._isSecure;
-        o._isSecure     = false;
-        _scheme         = std::move(o._scheme);
-        _username       = std::move(o._username);
-        _password       = std::move(o._password);
-        _host           = std::move(o._host);
-        _hostName       = std::move(o._hostName);
-        _hasAuthority   = o._hasAuthority;
+        _isValid = o._isValid;
+        o._isValid = false;
+        _isSecure = o._isSecure;
+        o._isSecure = false;
+        _scheme = std::move(o._scheme);
+        _username = std::move(o._username);
+        _password = std::move(o._password);
+        _host = std::move(o._host);
+        _hostName = std::move(o._hostName);
+        _hasAuthority = o._hasAuthority;
         o._hasAuthority = false;
-        _port           = o._port;
-        o._port         = 0;
-        _authority      = std::move(o._authority);
-        _pathEtc        = std::move(o._pathEtc);
-        _path           = std::move(o._path);
-        _query          = std::move(o._query);
-        _fragment       = std::move(o._fragment);
-        _queryParams    = std::move(o._queryParams);
+        _port = o._port;
+        o._port = 0;
+        _authority = std::move(o._authority);
+        _pathEtc = std::move(o._pathEtc);
+        _path = std::move(o._path);
+        _query = std::move(o._query);
+        _fragment = std::move(o._fragment);
+        _queryParams = std::move(o._queryParams);
     }
     return *this;
 }
@@ -175,14 +175,14 @@ bool Uri::doParse(const ccstd::string &str) {
     }
 
     ccstd::string authorityAndPath(match[2].first, match[2].second);
-    std::smatch   authorityAndPathMatch;
+    std::smatch authorityAndPathMatch;
     if (!std::regex_match(authorityAndPath.cbegin(),
                           authorityAndPath.cend(),
                           authorityAndPathMatch,
                           authorityAndPathRegex)) {
         // Does not start with //, doesn't have authority
         _hasAuthority = false;
-        _path         = authorityAndPath;
+        _path = authorityAndPath;
     } else {
         static const std::regex authorityRegex(
             "(?:([^@:]*)(?::([^@]*))?@)?" // username, password
@@ -190,7 +190,7 @@ bool Uri::doParse(const ccstd::string &str) {
                                           // dotted-IPv4, or named host)
             "(?::(\\d*))?");              // port
 
-        auto        authority = authorityAndPathMatch[1];
+        auto authority = authorityAndPathMatch[1];
         std::smatch authorityMatch;
         if (!std::regex_match(authority.first,
                               authority.second,
@@ -207,15 +207,15 @@ bool Uri::doParse(const ccstd::string &str) {
         }
 
         _hasAuthority = true;
-        _username     = submatch(authorityMatch, 1);
-        _password     = submatch(authorityMatch, 2);
-        _host         = submatch(authorityMatch, 3);
-        _path         = submatch(authorityAndPathMatch, 2);
+        _username = submatch(authorityMatch, 1);
+        _password = submatch(authorityMatch, 2);
+        _host = submatch(authorityMatch, 3);
+        _path = submatch(authorityAndPathMatch, 2);
     }
 
-    _query    = submatch(match, 3);
+    _query = submatch(match, 3);
     _fragment = submatch(match, 4);
-    _isValid  = true;
+    _isValid = true;
 
     // Assign authority part
     //
@@ -265,7 +265,7 @@ bool Uri::doParse(const ccstd::string &str) {
 }
 
 void Uri::clear() {
-    _isValid  = false;
+    _isValid = false;
     _isSecure = false;
     _scheme.clear();
     _username.clear();
@@ -273,7 +273,7 @@ void Uri::clear() {
     _host.clear();
     _hostName.clear();
     _hasAuthority = false;
-    _port         = 0;
+    _port = 0;
     _authority.clear();
     _pathEtc.clear();
     _path.clear();

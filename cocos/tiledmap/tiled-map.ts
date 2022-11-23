@@ -23,14 +23,9 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module tiledmap
- */
-
 import { ccclass, displayOrder, executeInEditMode, help, menu, requireComponent, type, serializable, editable } from 'cc.decorator';
 import { EDITOR, JSB } from 'internal:constants';
-import { Component } from '../core/components';
+import { Component } from '../scene-graph/component';
 import { UITransform } from '../2d/framework';
 import { GID, Orientation, PropertiesInfo, Property, RenderOrder, StaggerAxis, StaggerIndex, TiledAnimationType, TiledTextureGrids, TileFlag,
     TMXImageLayerInfo, TMXLayerInfo, TMXObjectGroupInfo, TMXObjectType, TMXTilesetInfo } from './tiled-types';
@@ -40,9 +35,10 @@ import { TiledObjectGroup } from './tiled-object-group';
 import { TiledMapAsset } from './tiled-map-asset';
 import { Sprite } from '../2d/components/sprite';
 import { fillTextureGrids } from './tiled-utils';
-import { Size, Vec2, Node, logID, Color, sys } from '../core';
+import { Size, Vec2, logID, Color, sys } from '../core';
 import { SpriteFrame } from '../2d/assets';
-import { NodeEventType } from '../core/scene-graph/node-event';
+import { NodeEventType } from '../scene-graph/node-event';
+import { Node } from '../scene-graph';
 
 interface ImageExtendedNode extends Node {
     layerInfo: TMXImageLayerInfo;
@@ -79,8 +75,6 @@ export class TiledMap extends Component {
     _mapSize: Size = new Size(0, 0);
     _tileSize: Size = new Size(0, 0);
 
-    _preloaded = false;
-
     _mapOrientation = Orientation.ORTHO;
 
     static Orientation = Orientation;
@@ -90,6 +84,8 @@ export class TiledMap extends Component {
     static StaggerIndex = StaggerIndex;
     static TMXObjectType = TMXObjectType;
     static RenderOrder = RenderOrder;
+
+    private _isApplied = false;
 
     @serializable
     _tmxFile: TiledMapAsset | null = null;
@@ -109,9 +105,8 @@ export class TiledMap extends Component {
     set tmxAsset (value: TiledMapAsset) {
         if (this._tmxFile !== value || EDITOR) {
             this._tmxFile = value;
-            if (this._preloaded || EDITOR) {
-                this._applyFile();
-            }
+            this._applyFile();
+            this._isApplied = true;
         }
     }
 
@@ -306,13 +301,13 @@ export class TiledMap extends Component {
     }
 
     __preload () {
-        this._preloaded = true;
-
         if (!this._tmxFile) {
             return;
         }
-
-        this._applyFile();
+        if (this._isApplied === false) {
+            this._applyFile();
+            this._isApplied = true;
+        }
     }
 
     onEnable () {

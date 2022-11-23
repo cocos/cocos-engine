@@ -39,12 +39,12 @@ CCVKDescriptorSetLayout::~CCVKDescriptorSetLayout() {
 }
 
 void CCVKDescriptorSetLayout::doInit(const DescriptorSetLayoutInfo & /*info*/) {
-    _gpuDescriptorSetLayout                    = CC_NEW(CCVKGPUDescriptorSetLayout);
-    _gpuDescriptorSetLayout->id                = generateID();
-    _gpuDescriptorSetLayout->descriptorCount   = _descriptorCount;
-    _gpuDescriptorSetLayout->bindingIndices    = _bindingIndices;
+    _gpuDescriptorSetLayout = ccnew CCVKGPUDescriptorSetLayout;
+    _gpuDescriptorSetLayout->id = generateID();
+    _gpuDescriptorSetLayout->descriptorCount = _descriptorCount;
+    _gpuDescriptorSetLayout->bindingIndices = _bindingIndices;
     _gpuDescriptorSetLayout->descriptorIndices = _descriptorIndices;
-    _gpuDescriptorSetLayout->bindings          = _bindings;
+    _gpuDescriptorSetLayout->bindings = _bindings;
 
     for (auto &binding : _bindings) {
         if (hasAnyFlags(binding.descriptorType, DESCRIPTOR_DYNAMIC_TYPE)) {
@@ -58,10 +58,15 @@ void CCVKDescriptorSetLayout::doInit(const DescriptorSetLayoutInfo & /*info*/) {
 }
 
 void CCVKDescriptorSetLayout::doDestroy() {
-    if (_gpuDescriptorSetLayout) {
-        CCVKDevice::getInstance()->gpuRecycleBin()->collect(_gpuDescriptorSetLayout);
-        _gpuDescriptorSetLayout = nullptr;
+    _gpuDescriptorSetLayout = nullptr;
+}
+
+void CCVKGPUDescriptorSetLayout::shutdown() {
+    if (defaultDescriptorSet != VK_NULL_HANDLE) {
+        CCVKDevice::getInstance()->gpuRecycleBin()->collect(id, defaultDescriptorSet);
     }
+
+    cmdFuncCCVKDestroyDescriptorSetLayout(CCVKDevice::getInstance()->gpuDevice(), this);
 }
 
 } // namespace gfx

@@ -23,34 +23,82 @@
  THE SOFTWARE.
  */
 
-
-
 import {
-    AttributeName, Buffer, BufferUsageBit, Device, Feature, MemoryUsageBit, DescriptorSet, BufferInfo,
-    FormatFeatureBit, Format,
-} from '../../core/gfx';
+    AttributeName, Buffer, BufferUsageBit, Device, MemoryUsageBit, DescriptorSet, BufferInfo, FormatFeatureBit, Format,
+} from '../../gfx';
 import { Mesh } from './mesh';
-import { Texture2D } from '../../core/assets/texture-2d';
-import { ImageAsset } from '../../core/assets/image-asset';
+import { Texture2D } from '../../asset/assets/texture-2d';
+import { ImageAsset } from '../../asset/assets/image-asset';
 import { UBOMorph, UNIFORM_NORMAL_MORPH_TEXTURE_BINDING,
-    UNIFORM_POSITION_MORPH_TEXTURE_BINDING, UNIFORM_TANGENT_MORPH_TEXTURE_BINDING } from '../../core/pipeline/define';
-import { warn } from '../../core/platform/debug';
-import { Morph, MorphRendering, MorphRenderingInstance, SubMeshMorph } from './morph';
-import { assertIsNonNullable, assertIsTrue } from '../../core/data/utils/asserts';
-import { log2, nextPow2 } from '../../core/math/bits';
-import { IMacroPatch } from '../../core/renderer';
-import { legacyCC } from '../../core/global-exports';
-import { PixelFormat } from '../../core/assets/asset-enum';
+    UNIFORM_POSITION_MORPH_TEXTURE_BINDING, UNIFORM_TANGENT_MORPH_TEXTURE_BINDING } from '../../rendering/define';
+import { Morph, SubMeshMorph } from './morph';
+import { assertIsNonNullable, assertIsTrue, warn, bits, nextPow2, cclegacy } from '../../core';
+import { IMacroPatch } from '../../render-scene';
+import { PixelFormat } from '../../asset/assets/asset-enum';
 
 /**
  * True if force to use cpu computing based sub-mesh rendering.
+ * Only customizable by modify the internal engine code.
  */
 const preferCpuComputing = false;
 
 /**
- * Standard morph rendering.
- * The standard morph rendering renders each of sub-mesh morph separately.
- * Sub-mesh morph rendering may select different technique according sub-mesh morph itself.
+ * @en Interface for classes which control the rendering of morph resources.
+ * @zh 支持形变网格渲染的基类。
+ */
+export interface MorphRendering {
+    createInstance (): MorphRenderingInstance;
+}
+
+/**
+ * @en The instance of [[MorphRendering]] for dedicated control in the mesh renderer.
+ * The root [[MorphRendering]] is owned by [[Mesh]] asset, each [[MeshRenderer]] can have its own morph rendering instance.
+ * @zh 用于网格渲染器中独立控制 [[MorphRendering]] 的实例。原始 [[MorphRendering]] 被 [[Mesh]] 资源持有，每个 [[MeshRenderer]] 都持有自己的形变网格渲染实例。
+ */
+export interface MorphRenderingInstance {
+    /**
+     * Sets weights of targets of specified sub mesh.
+     * @param subMeshIndex
+     * @param weights
+     */
+    setWeights (subMeshIndex: number, weights: number[]): void;
+
+    /**
+     * Adapts pipeline state to do the rendering.
+     * @param subMeshIndex
+     * @param pipelineState
+     */
+    adaptPipelineState (subMeshIndex: number, descriptorSet: DescriptorSet): void;
+
+    /**
+     * Acquire the define overrides needed to do the rendering.
+     */
+    requiredPatches (subMeshIndex: number): IMacroPatch[] | null;
+
+    /**
+     * Destroy the rendering instance.
+     */
+    destroy (): void;
+}
+
+/**
+ * @en Create morph rendering from mesh which contains morph targets data.
+ * @zh 从包含形变对象的网格资源中创建形变网格渲染对象。
+ * @param mesh @en The mesh to create morph rendering from. @zh 用于创建形变网格渲染对象的原始网格资源。
+ * @param gfxDevice @en The device instance acquired from [[Root]]. @zh 设备对象实例，可以从 [[Root]] 获取。
+ */
+export function createMorphRendering (mesh: Mesh, gfxDevice: Device): MorphRendering {
+    return new StdMorphRendering(mesh, gfxDevice);
+}
+
+/**
+ * @en Standard morph rendering class, it supports both GPU and CPU based morph blending.
+ * If sub mesh morph targets count is less than [[pipeline.UBOMorph.MAX_MORPH_TARGET_COUNT]], then GPU based blending is enabled.
+ * Each of the sub-mesh morph has its own [[MorphRenderingInstance]],
+ * its morph target weights, render pipeline state and strategy of morph blending are controlled separately.
+ * @zh 标准形变网格渲染类，它同时支持 CPU 和 GPU 的形变混合计算。
+ * 如果子网格形变目标数量少于 [[pipeline.UBOMorph.MAX_MORPH_TARGET_COUNT]]，那么就会使用基于 GPU 的形变混合计算。
+ * 每个子网格形变都使用自己独立的 [[MorphRenderingInstance]]，它的形变目标权重、渲染管线状态和形变混合计算策略都是独立控制的。
  */
 export class StdMorphRendering implements MorphRendering {
     private _mesh: Mesh;
@@ -138,7 +186,8 @@ export class StdMorphRendering implements MorphRendering {
 }
 
 /**
- * Describes how to render a sub-mesh morph.
+ * @en Sub-mesh morph rendering describes how to render a sub-mesh morph.
+ * @zh 子网格形变渲染定义如何渲染一个子网格形变。
  */
 interface SubMeshMorphRendering {
     /**
@@ -148,7 +197,9 @@ interface SubMeshMorphRendering {
 }
 
 /**
- * The instance of once sub-mesh morph rendering.
+ * @en The instance of sub-mesh morph rendering, each sub-mesh have its own instance
+ * for controlling its morph target weights, render pipeline state and strategy of morph blending.
+ * @zh 子网格形变渲染的实例，每个子网格都拥有自己独立的子网格形变渲染实例，用于独立控制形变目标权重、渲染管线状态和形变混合计算策略。
  */
 interface SubMeshMorphRenderingInstance {
     /**
@@ -449,17 +500,17 @@ class MorphUniforms {
     public setWeights (weights: number[]) {
         assertIsTrue(weights.length === this._targetCount);
         for (let iWeight = 0; iWeight < weights.length; ++iWeight) {
-            this._localBuffer.setFloat32(UBOMorph.OFFSET_OF_WEIGHTS + 4 * iWeight, weights[iWeight], legacyCC.sys.isLittleEndian);
+            this._localBuffer.setFloat32(UBOMorph.OFFSET_OF_WEIGHTS + 4 * iWeight, weights[iWeight], cclegacy.sys.isLittleEndian);
         }
     }
 
     public setMorphTextureInfo (width: number, height: number) {
-        this._localBuffer.setFloat32(UBOMorph.OFFSET_OF_DISPLACEMENT_TEXTURE_WIDTH, width, legacyCC.sys.isLittleEndian);
-        this._localBuffer.setFloat32(UBOMorph.OFFSET_OF_DISPLACEMENT_TEXTURE_HEIGHT, height, legacyCC.sys.isLittleEndian);
+        this._localBuffer.setFloat32(UBOMorph.OFFSET_OF_DISPLACEMENT_TEXTURE_WIDTH, width, cclegacy.sys.isLittleEndian);
+        this._localBuffer.setFloat32(UBOMorph.OFFSET_OF_DISPLACEMENT_TEXTURE_HEIGHT, height, cclegacy.sys.isLittleEndian);
     }
 
     public setVerticesCount (count: number) {
-        this._localBuffer.setFloat32(UBOMorph.OFFSET_OF_VERTICES_COUNT, count, legacyCC.sys.isLittleEndian);
+        this._localBuffer.setFloat32(UBOMorph.OFFSET_OF_VERTICES_COUNT, count, cclegacy.sys.isLittleEndian);
     }
 
     public commit () {
@@ -467,11 +518,6 @@ class MorphUniforms {
     }
 }
 
-/**
- *
- * @param gfxDevice
- * @param vec4Capacity Capacity of vec4.
- */
 function createVec4TextureFactory (gfxDevice: Device, vec4Capacity: number) {
     const hasFeatureFloatTexture = gfxDevice.getFormatFeatures(Format.RGBA32F) & FormatFeatureBit.SAMPLED_TEXTURE;
 
@@ -563,12 +609,8 @@ function createVec4TextureFactory (gfxDevice: Device, vec4Capacity: number) {
 type MorphTexture = ReturnType<ReturnType<typeof createVec4TextureFactory>['create']>;
 
 /**
- * When use vertex-texture-fetch technique, we do need
- * `gl_vertexId` when we sample per-vertex data.
+ * When use vertex-texture-fetch technique, we do need `gl_vertexId` when we sample per-vertex data.
  * WebGL 1.0 does not have `gl_vertexId`; WebGL 2.0, however, does.
- * @param mesh
- * @param subMeshIndex
- * @param gfxDevice
  */
 function enableVertexId (mesh: Mesh, subMeshIndex: number, gfxDevice: Device) {
     mesh.renderingSubMeshes[subMeshIndex].enableVertexIdChannel(gfxDevice);
@@ -587,7 +629,7 @@ function bestSizeToHavePixels (nPixels: number) {
         nPixels = 5;
     }
     const aligned = nextPow2(nPixels);
-    const epxSum = log2(aligned);
+    const epxSum = bits.log2(aligned);
     const h = epxSum >> 1;
     const w = (epxSum & 1) ? (h + 1) : h;
     return {

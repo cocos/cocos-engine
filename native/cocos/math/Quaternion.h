@@ -20,8 +20,7 @@
  This file was modified to fit the cocos2d-x project
  */
 
-#ifndef QUATERNION_H_
-#define QUATERNION_H_
+#pragma once
 
 #include "math/Mat4.h"
 #include "math/Vec3.h"
@@ -393,6 +392,13 @@ public:
      */
     inline Quaternion &operator*=(const Quaternion &q);
 
+    /**
+     * Determines if this quaternion is approximately equal to the given quaternion.
+     */
+    inline bool approxEquals(const Quaternion &v, float precision = CC_FLOAT_CMP_PRECISION) const {
+        return math::isEqualF(x, v.x, precision) && math::isEqualF(y, v.y, precision) && math::isEqualF(z, v.z, precision) && math::isEqualF(w, v.w, precision);
+    }
+
     /** equals to Quaternion(0,0,0, 0) */
     static const Quaternion ZERO;
 
@@ -432,5 +438,3 @@ NS_CC_MATH_END
  @}
  */
 #include "math/Quaternion.inl"
-
-#endif

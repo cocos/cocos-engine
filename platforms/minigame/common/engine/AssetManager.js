@@ -1,4 +1,4 @@
-const cacheManager = require('../cache-manager');
+const cacheManager = require('./cache-manager');
 const { fs, downloadFile, readText, readArrayBuffer, readJson, loadSubpackage, getUserDataPath, exists } = window.fsUtils;
 
 const REGEX = /^https?:\/\/.*/;
@@ -12,6 +12,11 @@ presets['scene'].maxConcurrency = 10;
 presets['scene'].maxRequestsPerFrame = 64;
 
 let subpackages = {};
+
+const sys = cc.sys;
+if (sys.platform === sys.Platform.BAIDU_MINI_GAME) {
+    require = __baiduRequire;
+}
 
 function downloadScript (url, options, onComplete) {
     if (REGEX.test(url)) {
@@ -235,7 +240,7 @@ function downloadBundle (nameOrUrl, options, onComplete) {
                 js = `assets/${bundleName}/index.${suffix}js`;
             }
         }
-        require('../../../' + js);
+        require('./' + js);
         options.__cacheBundleRoot__ = bundleName;
         var config = `${url}/config.${suffix}json`;
         downloadJson(config, options, function (err, data) {
@@ -475,7 +480,8 @@ cc.assetManager.transformPipeline.append(function (task) {
 var originInit = cc.assetManager.init;
 cc.assetManager.init = function (options) {
     originInit.call(cc.assetManager, options);
-    options.subpackages && options.subpackages.forEach(x => subpackages[x] = 'subpackages/' + x);
+    const subpacks = cc.settings.querySettings('assets', 'subpackages');
+    subpacks && subpacks.forEach(x => subpackages[x] = 'subpackages/' + x);
     cacheManager.init();
 };
 

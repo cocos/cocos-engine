@@ -39,6 +39,8 @@ declare module 'pal/system-info' {
         public get osMainVersion (): number;
         public get browserType (): BrowserType;
         public get browserVersion (): string;
+        public get isXR (): boolean;
+        public init (): Promise<void[]> ;
         public hasFeature (feature: Feature): boolean;
         public getBatteryLevel (): number;
 

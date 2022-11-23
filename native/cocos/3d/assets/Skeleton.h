@@ -35,8 +35,8 @@ namespace cc {
  */
 class Skeleton final : public Asset {
 public:
-    using Super          = Asset;
-    Skeleton()           = default;
+    using Super = Asset;
+    Skeleton() = default;
     ~Skeleton() override = default;
     /**
      * @en The path of all bones, the length always equals the length of [[bindposes]]
@@ -72,21 +72,17 @@ public:
      * @en Gets the hash of the skeleton asset
      * @zh 获取骨骼资源的哈希值
      */
-    uint64_t getHash();
-    void     setHash(uint64_t hash) { _hash = hash; }
-
-    inline double getHashForJS() {
-        return static_cast<double>(getHash());
-    }
+    ccstd::hash_t getHash();
+    void setHash(ccstd::hash_t hash) { _hash = hash; }
 
     bool destroy() override;
     bool validate() const override;
 
 private:
-    ccstd::vector<ccstd::string>      _joints;
-    ccstd::vector<Mat4>               _bindposes;
-    cc::optional<ccstd::vector<Mat4>> _invBindposes;
-    uint64_t                          _hash{0};
+    ccstd::vector<ccstd::string> _joints;
+    ccstd::vector<Mat4> _bindposes;
+    ccstd::optional<ccstd::vector<Mat4>> _invBindposes;
+    ccstd::hash_t _hash{0U};
 };
 
 } // namespace cc

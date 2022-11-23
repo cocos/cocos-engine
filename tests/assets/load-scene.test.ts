@@ -1,8 +1,7 @@
-import { Component } from "../../cocos/core/components";
-import { director } from "../../cocos/core/director";
-import { game } from "../../cocos/core/game";
-import { Scene } from "../../cocos/core/scene-graph/scene";
-import { Node } from "../../cocos/core/scene-graph/node";
+import { Component } from "../../cocos/scene-graph/component";
+import { game, director } from "../../cocos/game";
+import { Scene } from "../../cocos/scene-graph/scene";
+import { Node } from "../../cocos/scene-graph/node";
 
 test('persist node with dynamic scene', function () {
     var oldScene = new Scene('');
@@ -13,7 +12,7 @@ test('persist node with dynamic scene', function () {
     var childNode = new Node();
     childNode.parent = globalNode;
 
-    game.addPersistRootNode(globalNode);
+    director.addPersistRootNode(globalNode);
 
     var newScene = new Scene('');
     director.runSceneImmediate(newScene);
@@ -24,7 +23,7 @@ test('persist node with dynamic scene', function () {
 test('persist node should replace existing node in scene', function () {
     var oldNode = new Node();
     oldNode.parent = director.getScene();
-    game.addPersistRootNode(oldNode);
+    director.addPersistRootNode(oldNode);
     oldNode.setSiblingIndex(0);
 
     var newScene = new Scene('');
@@ -54,7 +53,7 @@ test('lifecycle methods of persist node and replaced node', function () {
     oldComp.onEnable = jest.fn(() => {});
 
     oldNode.parent = director.getScene();
-    game.addPersistRootNode(oldNode);
+    director.addPersistRootNode(oldNode);
     game.step();
     expect(oldComp.onLoad).toBeCalledTimes(1);
     expect(oldComp.start).toBeCalledTimes(1);

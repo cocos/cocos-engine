@@ -41,44 +41,23 @@ inline const char* getName(const ResourceDesc& /*v*/) noexcept { return "Resourc
 inline const char* getName(const ResourceTraits& /*v*/) noexcept { return "ResourceTraits"; }
 inline const char* getName(const RenderSwapchain& /*v*/) noexcept { return "RenderSwapchain"; }
 inline const char* getName(const ResourceStates& /*v*/) noexcept { return "ResourceStates"; }
+inline const char* getName(const ManagedBuffer& /*v*/) noexcept { return "ManagedBuffer"; }
+inline const char* getName(const ManagedTexture& /*v*/) noexcept { return "ManagedTexture"; }
 inline const char* getName(const ManagedResource& /*v*/) noexcept { return "ManagedResource"; }
 inline const char* getName(const ManagedTag& /*v*/) noexcept { return "Managed"; }
+inline const char* getName(const ManagedBufferTag& /*v*/) noexcept { return "ManagedBuffer"; }
+inline const char* getName(const ManagedTextureTag& /*v*/) noexcept { return "ManagedTexture"; }
 inline const char* getName(const PersistentBufferTag& /*v*/) noexcept { return "PersistentBuffer"; }
 inline const char* getName(const PersistentTextureTag& /*v*/) noexcept { return "PersistentTexture"; }
 inline const char* getName(const FramebufferTag& /*v*/) noexcept { return "Framebuffer"; }
 inline const char* getName(const SwapchainTag& /*v*/) noexcept { return "Swapchain"; }
+inline const char* getName(const SamplerTag& /*v*/) noexcept { return "Sampler"; }
 inline const char* getName(const ResourceGraph& /*v*/) noexcept { return "ResourceGraph"; }
-inline const char* getName(AttachmentType e) noexcept {
-    switch (e) {
-        case AttachmentType::RENDER_TARGET: return "RENDER_TARGET";
-        case AttachmentType::DEPTH_STENCIL: return "DEPTH_STENCIL";
-    }
-    return "";
-}
-inline const char* getName(AccessType e) noexcept {
-    switch (e) {
-        case AccessType::READ: return "READ";
-        case AccessType::READ_WRITE: return "READ_WRITE";
-        case AccessType::WRITE: return "WRITE";
-    }
-    return "";
-}
-inline const char* getName(const RasterView& /*v*/) noexcept { return "RasterView"; }
-inline const char* getName(ClearValueType e) noexcept {
-    switch (e) {
-        case ClearValueType::FLOAT_TYPE: return "FLOAT_TYPE";
-        case ClearValueType::INT_TYPE: return "INT_TYPE";
-    }
-    return "";
-}
-inline const char* getName(const ComputeView& /*v*/) noexcept { return "ComputeView"; }
 inline const char* getName(const RasterSubpass& /*v*/) noexcept { return "RasterSubpass"; }
 inline const char* getName(const SubpassGraph& /*v*/) noexcept { return "SubpassGraph"; }
 inline const char* getName(const RasterPass& /*v*/) noexcept { return "RasterPass"; }
 inline const char* getName(const ComputePass& /*v*/) noexcept { return "ComputePass"; }
-inline const char* getName(const CopyPair& /*v*/) noexcept { return "CopyPair"; }
 inline const char* getName(const CopyPass& /*v*/) noexcept { return "CopyPass"; }
-inline const char* getName(const MovePair& /*v*/) noexcept { return "MovePair"; }
 inline const char* getName(const MovePass& /*v*/) noexcept { return "MovePass"; }
 inline const char* getName(const RaytracePass& /*v*/) noexcept { return "RaytracePass"; }
 inline const char* getName(const QueueTag& /*v*/) noexcept { return "Queue"; }
@@ -86,6 +65,9 @@ inline const char* getName(const SceneTag& /*v*/) noexcept { return "Scene"; }
 inline const char* getName(const DispatchTag& /*v*/) noexcept { return "Dispatch"; }
 inline const char* getName(const BlitTag& /*v*/) noexcept { return "Blit"; }
 inline const char* getName(const PresentTag& /*v*/) noexcept { return "Present"; }
+inline const char* getName(const ClearTag& /*v*/) noexcept { return "Clear"; }
+inline const char* getName(const ViewportTag& /*v*/) noexcept { return "Viewport"; }
+inline const char* getName(const ClearView& /*v*/) noexcept { return "ClearView"; }
 inline const char* getName(const RenderQueue& /*v*/) noexcept { return "RenderQueue"; }
 inline const char* getName(const SceneData& /*v*/) noexcept { return "SceneData"; }
 inline const char* getName(const Dispatch& /*v*/) noexcept { return "Dispatch"; }

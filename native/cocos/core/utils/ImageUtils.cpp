@@ -30,7 +30,7 @@ namespace {
 uint8_t *convertRGB2RGBA(uint32_t length, uint8_t *src) {
     auto *dst = reinterpret_cast<uint8_t *>(malloc(length));
     for (uint32_t i = 0; i < length; i += 4) {
-        dst[i]     = *src++;
+        dst[i] = *src++;
         dst[i + 1] = *src++;
         dst[i + 2] = *src++;
         dst[i + 3] = 255;
@@ -41,7 +41,7 @@ uint8_t *convertRGB2RGBA(uint32_t length, uint8_t *src) {
 uint8_t *convertIA2RGBA(uint32_t length, uint8_t *src) {
     auto *dst = reinterpret_cast<uint8_t *>(malloc(length));
     for (uint32_t i = 0; i < length; i += 4) {
-        dst[i]     = *src;
+        dst[i] = *src;
         dst[i + 1] = *src;
         dst[i + 2] = *src++;
         dst[i + 3] = *src++;
@@ -52,7 +52,7 @@ uint8_t *convertIA2RGBA(uint32_t length, uint8_t *src) {
 uint8_t *convertI2RGBA(uint32_t length, uint8_t *src) {
     auto *dst = reinterpret_cast<uint8_t *>(malloc(length));
     for (uint32_t i = 0; i < length; i += 4) {
-        dst[i]     = *src;
+        dst[i] = *src;
         dst[i + 1] = *src;
         dst[i + 2] = *src++;
         dst[i + 3] = 255;
@@ -65,9 +65,9 @@ namespace cc {
 void ImageUtils::convert2RGBA(Image *image) {
     if (!image->_isCompressed && image->_renderFormat != gfx::Format::RGBA8) {
         image->_dataLen = image->_width * image->_height * 4;
-        uint8_t *dst    = nullptr;
+        uint8_t *dst = nullptr;
         uint32_t length = static_cast<uint32_t>(image->_dataLen);
-        uint8_t *src    = image->_data;
+        uint8_t *src = image->_data;
         switch (image->_renderFormat) {
             case gfx::Format::A8:
             case gfx::Format::LA8:
@@ -86,7 +86,7 @@ void ImageUtils::convert2RGBA(Image *image) {
                 break;
         }
         if (dst != image->_data) free(image->_data);
-        image->_data         = dst;
+        image->_data = dst;
         image->_renderFormat = gfx::Format::RGBA8;
     }
 }

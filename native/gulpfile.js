@@ -26,9 +26,6 @@
 'use strict';
 
 var gulp = require('gulp');
-var gulpSequence = require('gulp-sequence');
-var zip = require('gulp-zip');
-var Ftp = require('ftp');
 var ExecSync = require('child_process').execSync;
 var spawn = require('child_process').spawn;
 var Path = require('path');
@@ -40,20 +37,6 @@ function absolutePath(relativePath) {
     return Path.join(__dirname, relativePath);
 }
 
-var program = require('commander');
-program
-    .option('-b, --bump [version]', 'bump to a new version, or +1')
-    .parse(process.argv);
-
-gulp.task('make-cocos2d-x', gulpSequence('gen-cocos2d-x', 'upload-cocos2d-x'));
-
-if (process.platform === 'darwin') {
-    gulp.task('publish', gulpSequence('update', 'init', 'bump-version', 'make-cocos2d-x', 'make-simulator'));
-}
-else {
-    gulp.task('publish', gulpSequence('update', 'init', 'bump-version', 'make-simulator'));
-}
-
 function execSync(cmd, workPath) {
     var execOptions = {
         cwd: workPath || '.',
@@ -62,80 +45,8 @@ function execSync(cmd, workPath) {
     ExecSync(cmd, execOptions);
 }
 
-function upload2Ftp(localPath, ftpPath, config, cb) {
-    var ftpClient = new Ftp();
-    ftpClient.on('error', function (err) {
-        if (err) {
-            if (cb) {
-                cb(err);
-            }
-            else {
-                console.warn('Upload errored after destroy: ', ftpPath);
-            }
-        }
-    });
-    ftpClient.on('ready', function () {
-        var dirName = Path.dirname(ftpPath);
-        ftpClient.mkdir(dirName, true, function (err) {
-            if (err) {
-                return cb(err);
-            }
-            ftpClient.put(localPath, ftpPath, function (err) {
-                if (err) {
-                    return cb(err);
-                }
-                ftpClient.end();
-                ftpClient.destroy();
-                cb();
-                cb = null;
-            });
-        });
-    });
-
-    // connect to ftp
-    ftpClient.connect(config);
-}
-
-function uploadZipFile(zipFileName, path, cb) {
-    var branch = getCurrentBranch();
-    if (branch === 'develop') {
-        branch = 'dev';
-    }
-    var remotePath = Path.join('TestBuilds', 'Fireball', 'cocos2d-x', branch, zipFileName);
-    var zipFilePath = Path.join(path, zipFileName);
-    upload2Ftp(zipFilePath, remotePath, {
-        host: '192.168.52.109',
-        user: process.env.ftpUser,
-        password: process.env.ftpPass
-    }, cb);
-}
-
-function getCurrentBranch() {
-    var spawnSync = require('child_process').spawnSync;
-    var output = spawnSync('git', ['symbolic-ref', '--short', '-q', 'HEAD']);
-    // console.log(output);
-    return output.stdout.toString().trim();
-}
-
-function formatPath(p) {
-    return p.replace(/\\/g, '/');
-}
-
-gulp.task('update', function (cb) {
-    const git = require('./utils/git');
-    var branch = git.getCurrentBranch('.');
-    git.pull('.', 'git@github.com:cocos-creator/cocos2d-x-lite.git', branch, cb);
-});
-
 gulp.task('init', function (cb) {
     execSync('node ./utils/download-deps.js');
-    execSync('git submodule update --init');
-    execSync('python download-bin.py --remove-download no', './tools/cocos2d-console');
-    cb();
-});
-
-gulp.task('gen-cocos2d-x', function (cb) {
-    execSync('./git-archive-all cocos2d-x.zip', './tools/make-package');
     cb();
 });
 
@@ -169,6 +80,7 @@ gulp.task('gen-simulator', async function () {
         else {
             args.push('Xcode');
         }
+        args.push('-DCC_DEBUG_FORCE=ON','-DUSE_V8_DEBUGGER_FORCE=ON');
         args.push(absolutePath('./tools/simulator/frameworks/runtime-src/'));
         const newEnv = {};
         Object.assign(newEnv, process.env);
@@ -183,6 +95,7 @@ gulp.task('gen-simulator', async function () {
         });
         cmakeProcess.on('error', err => {
             console.error(err);
+            reject();
         });
         cmakeProcess.stderr.on('data', err => {
             console.error(err.toString ? err.toString() : err);
@@ -198,7 +111,9 @@ gulp.task('gen-simulator', async function () {
     await new Promise((resolve, reject) => {
         let makeArgs = ['--build', simulatorProject];
         if (!isWin32) {
-            makeArgs = makeArgs.concat(['--', '-quiet', '-arch', 'x86_64']);
+            makeArgs = makeArgs.concat(['--config', 'Release', '--', '-quiet', '-arch', 'x86_64']);
+        } else {
+            makeArgs = makeArgs.concat(['--config', 'Release']);
         }
         const newEnv = {};
         Object.assign(newEnv, process.env);
@@ -213,17 +128,20 @@ gulp.task('gen-simulator', async function () {
         });
         buildProcess.on('error', err => {
             console.error(err);
-            process.exit(1);
+            reject();
         });
         buildProcess.stderr.on('data', err => {
             console.error(err.toString ? err.toString() : err);
-            process.exit(1);
         });
         buildProcess.stdout.on('data', data => {
             console.log(data.toString ? data.toString() : data);
         });
     });
 });
+
+function formatPath(p) {
+    return p.replace(/\\/g, '/');
+}
 
 gulp.task('clean-simulator', async function () {
     console.log('=====================================\n');
@@ -232,51 +150,27 @@ gulp.task('clean-simulator', async function () {
     let isWin32 = process.platform === 'win32';
     let delPatterns = [
         formatPath(Path.join(__dirname, './simulator/*')),
-        formatPath(`!${Path.join(__dirname, './simulator/Debug')}`),
+        formatPath(`!${Path.join(__dirname, './simulator/Release')}`),
     ];
     if (!isWin32) {
-        delPatterns.push(formatPath(Path.join(__dirname, './simulator/Debug/libcocos2d.a')));
-        delPatterns.push(formatPath(Path.join(__dirname, './simulator/Debug/libsimulator.a')));
+        delPatterns.push(formatPath(Path.join(__dirname, './simulator/Release/libsimulator.a')));
     }
     console.log('delete patterns: ', JSON.stringify(delPatterns, undefined, 2));
     await del(delPatterns, { force: true });
+    //check if target file exists
+    let ok = true;
+    if (isWin32) {
+        ok = fs.existsSync(Path.join(__dirname, './simulator/Release/SimulatorApp-Win32.exe'));
+    }
+    else {
+        ok = fs.existsSync(Path.join(__dirname, './simulator/Release/SimulatorApp-Mac.app'));
+    }
+    if (!ok) {
+        console.log('=====================================\n');
+        console.error('failed to find target executable file\n');
+        console.log('=====================================\n');
+        throw new Error(`Build process exit with 1`);
+    }
 });
 
 gulp.task('gen-simulator-release', gulp.series('gen-simulator', 'clean-simulator'));
-
-gulp.task('upload-cocos2d-x', function (cb) {
-    var zipFileName = 'cocos2d-x.zip';
-    uploadZipFile(zipFileName, './tools/make-package', cb);
-});
-
-gulp.task('bump-version', function (cb) {
-    let ver;
-    if (!program.bump) {
-        return cb();
-    }
-    let pjson = require('./package.json');
-    if (typeof program.bump === 'string') {
-        // new version
-        ver = program.bump;
-        if (!/^\d/.test(ver)) {
-            return cb(`New version must starts with a digit`);
-        }
-    }
-    else {
-        // version +1
-        ver = pjson.version.replace(/\d+$/, m => parseInt(m) + 1);
-    }
-    // update package.json
-    console.log(`Bump version from ${pjson.version} to ${ver}`);
-    pjson.version = ver;
-    fs.writeFileSync('package.json', JSON.stringify(pjson, null, 2), 'utf8');
-
-    // update cocos/cocos2d.cpp
-    let filePath = Path.join('cocos', 'cocos2d.cpp');
-    let content = fs.readFileSync(filePath, 'utf8');
-    let re = /(cocos2dVersion(?:.|\n)*return\s+").+(";)/;
-    content = content.replace(re, `$1${ver}$2`);
-    fs.writeFileSync(filePath, content, 'utf8');
-
-    cb();
-});

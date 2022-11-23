@@ -221,7 +221,8 @@ exports.updatePropByDump = function(panel, dump) {
                 $prop.setAttribute('type', 'dump');
             }
 
-            $prop.displayOrder = info.displayOrder === undefined ? index : Number(info.displayOrder);
+            const _displayOrder = info.group?.displayOrder ?? info.displayOrder;
+            $prop.displayOrder = _displayOrder === undefined ? index : Number(_displayOrder);
 
             if (element && element.displayOrder !== undefined) {
                 $prop.displayOrder = element.displayOrder;
@@ -229,8 +230,7 @@ exports.updatePropByDump = function(panel, dump) {
 
             if (!element || !element.isAppendToParent || element.isAppendToParent.call(panel)) {
                 if (info.group && dump.groups) {
-                    const id = info.group.id || 'default';
-                    const name = info.group.name;
+                    const { id = 'default', name } = info.group;
 
                     if (!panel.$groups[id] && dump.groups[id]) {
                         if (dump.groups[id].style === 'tab') {
@@ -255,7 +255,12 @@ exports.updatePropByDump = function(panel, dump) {
             }
         } else if (!$prop.isConnected || !$prop.parentElement) {
             if (!element || !element.isAppendToParent || element.isAppendToParent.call(panel)) {
-                exports.appendChildByDisplayOrder(panel.$.componentContainer, $prop, $prop.displayOrder);
+                if (info.group && dump.groups) {
+                    const { id = 'default', name } = info.group;
+                    exports.appendChildByDisplayOrder(panel.$groups[id].tabs[name], $prop, $prop.displayOrder);
+                } else {
+                    exports.appendChildByDisplayOrder(panel.$.componentContainer, $prop, $prop.displayOrder);
+                }
             }
         }
         $prop.render(info);
@@ -284,6 +289,8 @@ exports.updatePropByDump = function(panel, dump) {
             element.update.call(panel, panel.$[key], dump.value);
         }
     }
+
+    exports.toggleGroups(panel.$groups);
 };
 
 /**
@@ -326,39 +333,6 @@ exports.getName = function(dump) {
     return name.trim();
 };
 
-exports.setTooltip = function(element, dump) {
-    if (dump.tooltip) {
-        let tooltip = dump.tooltip;
-        if (tooltip.startsWith('i18n:')) {
-            tooltip = Editor.I18n.t('ENGINE.' + tooltip.substr(5));
-            // If ENGINE doesn't translate, use extension's translation data and try to translate directly
-            if (!tooltip || tooltip === dump.tooltip) {
-                tooltip = Editor.I18n.t(dump.tooltip.substr(5)) || dump.tooltip;
-            }
-        }
-        element.setAttribute('tooltip', tooltip);
-    } else {
-        element.removeAttribute('tooltip');
-    }
-};
-
-/**
- * Sets the generic property Label in prop
- * name and tooltip
- */
-exports.setLabel = function($label, dump) {
-    if (!dump) {
-        dump = this.dump;
-    }
-
-    if (!$label || !dump) {
-        return;
-    }
-
-    $label.innerHTML = exports.getName(dump);
-    exports.setTooltip($label, dump);
-};
-
 exports.createTabGroup = function(dump, panel) {
     const $group = document.createElement('div');
     $group.setAttribute('class', 'tab-group');
@@ -373,7 +347,10 @@ exports.createTabGroup = function(dump, panel) {
     $group.$header.addEventListener('change', (e) => {
         const tabNames = Object.keys($group.tabs);
         const tabName = tabNames[e.target.value || 0];
-        $group.querySelectorAll('.tab-content').forEach((child) => {
+        $group.childNodes.forEach((child) => {
+            if (!child.classList.contains('tab-content')) {
+                return;
+            }
             if (child.getAttribute('name') === tabName) {
                 child.style.display = 'block';
             } else {
@@ -413,7 +390,17 @@ exports.createTabGroup = function(dump, panel) {
 
     return $group;
 };
-
+exports.toggleGroups = function($groups) {
+    for (const key in $groups) {
+        const $props = Array.from($groups[key].querySelectorAll('.tab-content > ui-prop'));
+        const show = $props.some($prop => getComputedStyle($prop).display !== 'none');
+        if (show) {
+            $groups[key].removeAttribute('hidden');
+        } else {
+            $groups[key].setAttribute('hidden', '');
+        }
+    }
+},
 exports.appendToTabGroup = function($group, tabName) {
     if ($group.tabs[tabName]) {
         return;

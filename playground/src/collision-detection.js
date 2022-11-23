@@ -67,7 +67,7 @@ class Emitter {
     const hint = new Node('hint');
     const hintModel = hint.addComponent('cc.MeshRenderer');
     const hintMat = new Material();
-    hintMat.initialize({ effectName: 'standard' });
+    hintMat.initialize({ effectName: 'builtin-standard' });
     hintMat.setProperty('albedo', this.color);
     hintMat.setProperty('metallic', 0.1);
     hintModel.material = hintMat;
@@ -85,7 +85,7 @@ class Emitter {
       const model = node.addComponent('cc.MeshRenderer');
       const mat = new Material();
       mat.initialize({
-        effectName: 'standard',
+        effectName: 'builtin-standard',
         states: {
           blendState: {
             targets: [{

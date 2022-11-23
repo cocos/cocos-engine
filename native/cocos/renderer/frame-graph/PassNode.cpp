@@ -58,10 +58,10 @@ Handle PassNode::write(FrameGraph &graph, const Handle &output) {
 
     const ResourceNode &nodeOldVersion = graph.getResourceNode(output);
     nodeOldVersion.virtualResource->newVersion();
-    _sideEffect                  = _sideEffect || nodeOldVersion.virtualResource->isImported();
-    const Handle  handle         = graph.createResourceNode(nodeOldVersion.virtualResource);
+    _sideEffect = _sideEffect || nodeOldVersion.virtualResource->isImported();
+    const Handle handle = graph.createResourceNode(nodeOldVersion.virtualResource);
     ResourceNode &nodeNewVersion = graph.getResourceNode(handle);
-    nodeNewVersion.writer        = this;
+    nodeNewVersion.writer = this;
     _writes.push_back(handle);
     return handle;
 }
@@ -182,6 +182,10 @@ Handle PassNode::getWriteResourceNodeHandle(const FrameGraph &graph, const Virtu
     });
 
     return it == _writes.end() ? Handle{} : *it;
+}
+
+void PassNode::setBarrier(const PassBarrierPair &barrier) {
+    _barriers = barrier;
 }
 
 } // namespace framegraph

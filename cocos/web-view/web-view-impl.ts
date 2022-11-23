@@ -23,17 +23,12 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module component/web-view
- */
-
 import { legacyCC } from '../core/global-exports';
 import { WebView } from './web-view';
 import { EventType } from './web-view-enums';
 import { UITransform } from '../2d/framework';
-import { director } from '../core/director';
-import { Node } from '../core/scene-graph';
+import { director } from '../game/director';
+import { Node } from '../scene-graph';
 
 export abstract class WebViewImpl {
     protected _componentEventList: Map<EventType, (...args: any[any]) => void> = new Map();

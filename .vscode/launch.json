@@ -56,7 +56,8 @@
                 "program": "${workspaceFolder}/node_modules/jest/bin/jest.js"
             },
             "args": [
-                "${fileBasenameNoExtension}"
+                "--runTestsByPath",
+                "${relativeFileDirname}/${fileBasename}"
             ],
             "cwd": "${workspaceFolder}",
             "console": "integratedTerminal",

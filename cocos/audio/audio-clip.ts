@@ -23,17 +23,10 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module component/audio
- */
-
-import {
-    ccclass, type, serializable, override,
-} from 'cc.decorator';
-import { AudioPlayer, OneShotAudio } from 'pal/audio';
-import { Asset } from '../core/assets/asset';
-import { legacyCC } from '../core/global-exports';
+import { ccclass, serializable, override } from 'cc.decorator';
+import { AudioPlayer } from 'pal/audio';
+import { Asset } from '../asset/assets/asset';
+import { cclegacy } from '../core';
 import { AudioState, AudioType } from '../../pal/audio/type';
 
 export interface AudioMeta {
@@ -45,9 +38,9 @@ export interface AudioMeta {
 
 /**
  * @en
- * The audio clip asset. <br>
+ * The audio clip asset.
  * @zh
- * 音频片段资源。<br>
+ * 音频片段资源。
  */
 @ccclass('cc.AudioClip')
 export class AudioClip extends Asset {
@@ -73,7 +66,7 @@ export class AudioClip extends Asset {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     set _nativeAsset (meta: AudioMeta | null) {
         this._meta = meta;
@@ -91,7 +84,7 @@ export class AudioClip extends Asset {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     @override
     get _nativeDep () {
@@ -207,4 +200,4 @@ export class AudioClip extends Asset {
     // #endregion deprecated method
 }
 
-legacyCC.AudioClip = AudioClip;
+cclegacy.AudioClip = AudioClip;

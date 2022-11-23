@@ -20,8 +20,8 @@ CCEffect %{
 
 CCProgram debug-renderer-vs %{
   precision mediump float;
-  #include <cc-global>
-  #include <common>
+  #include <builtin/uniforms/cc-global>
+  #include <common/common-define>
 
   in vec2 a_position;
   in vec2 a_texCoord;
@@ -60,7 +60,7 @@ CCProgram debug-renderer-vs %{
 
 CCProgram debug-renderer-fs %{
   precision mediump float;
-  #include <output>
+  #include <legacy/output>
 
   in vec2 v_texCoord;
   in vec4 v_color;

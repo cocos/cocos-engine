@@ -33,8 +33,7 @@ DRAGONBONES_NAMESPACE_BEGIN
 /**
  * @internal
  */
-class ConstraintData : public BaseObject 
-{
+class ConstraintData : public BaseObject {
     ABSTRACT_CLASS(ConstraintData)
 
 public:
@@ -48,7 +47,7 @@ protected:
     virtual void _onClear() override;
 
 public: // For WebAssembly.
-    const BoneData* getTarget() const { return  target; }
+    const BoneData* getTarget() const { return target; }
     void setTarget(const BoneData* value) { target = value; }
 
     const BoneData* getBone() const { return bone; }
@@ -60,8 +59,7 @@ public: // For WebAssembly.
 /**
  * @internal
  */
-class IKConstraintData : public ConstraintData 
-{
+class IKConstraintData : public ConstraintData {
     BIND_CLASS_TYPE_A(IKConstraintData);
 
 public:

@@ -1,0 +1,31 @@
+// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+
+#pragma define STEP_FINT_128(v) (step(128.0, (v) + 0.5))
+#pragma define MOD_FINT_128(v) (mod(float(int((v) + 0.5)), 128.0))
+
+highp float decode32 (highp vec4 rgba) {
+  rgba = rgba * 255.0;
+  highp float Sign = 1.0 - STEP_FINT_128(rgba[3]) * 2.0;
+  highp float Exponent = 2.0 * MOD_FINT_128(rgba[3]) + STEP_FINT_128(rgba[2]) - 127.0;
+  highp float Mantissa = MOD_FINT_128(rgba[2]) * 65536.0 + rgba[1] * 256.0 + rgba[0] + 8388608.0;
+  return Sign * exp2(Exponent - 23.0) * Mantissa;
+}
+
+
+vec4 packRGBE (vec3 rgb) {
+  highp float maxComp = max(max(rgb.r, rgb.g), rgb.b);
+  highp float e = 128.0;
+  if (maxComp > 0.0001) {
+    e = log(maxComp) / log(1.1);
+    e = ceil(e);
+    e = clamp(e + 128.0, 0.0, 255.0);
+  }
+  highp float sc = 1.0 / pow(1.1, e - 128.0);
+  vec3 encode = clamp(rgb * sc, vec3(0.0), vec3(1.0)) * 255.0;
+  vec3 encode_rounded = floor(encode) + step(encode - floor(encode), vec3(0.5)); //equals to round(encode)
+  return vec4(encode_rounded, e) / 255.0;
+}
+
+vec3 unpackRGBE (vec4 rgbe) {
+  return rgbe.rgb * pow(1.1, rgbe.a * 255.0 - 128.0);
+}

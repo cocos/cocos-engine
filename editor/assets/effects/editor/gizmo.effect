@@ -4,7 +4,7 @@ CCEffect %{
   techniques:
   - passes:
     - vert: gizmo-vs:vert
-      frag: gizmo-fs:frag
+      frag: gizmo-fs:front
       priority: max - 10
       rasterizerState:
         cullMode: none
@@ -52,12 +52,33 @@ CCEffect %{
         cullMode: none
       depthStencilState: *disable_depth
       blendState: *enable_blend
+
+  - passes:
+    - vert: gizmo-vs:vert
+      frag: gizmo-fs:front
+      priority: max - 10
+      rasterizerState:
+        cullMode: none
+      depthStencilState:
+        depthTest: true
+        depthWrite: false
+      blendState: *enable_blend
+    - vert: gizmo-vs:vert
+      frag: gizmo-fs:back
+      priority: max - 10
+      rasterizerState:
+        cullMode: none
+      depthStencilState:
+        depthTest: true
+        depthWrite: false
+        depthFunc: greater
+      blendState: *enable_blend
 }%
 
 CCProgram gizmo-vs %{
   precision mediump float;
-  #include <cc-local>
-  #include <cc-global>
+  #include <builtin/uniforms/cc-local>
+  #include <builtin/uniforms/cc-global>
 
   in vec3 a_position;
   in vec3 a_normal;
@@ -85,10 +106,10 @@ CCProgram gizmo-vs %{
 
 CCProgram gizmo-fs %{
   precision mediump float;
-  #include <rect-area-light>
-  #include <cc-global>
-  #include <gamma>
-  #include <output>
+  #include <common/lighting/rect-area-light>
+  #include <builtin/uniforms/cc-global>
+  #include <common/color/gamma>
+  #include <legacy/output>
 
   in vec3 normal_w;
   in vec3 pos_w;
@@ -101,7 +122,7 @@ CCProgram gizmo-fs %{
     vec4 mainColor;
   };
 
-  vec4 frag () {
+  vec4 front () {
     vec3 N = normalize(normal_w) * (float(gl_FrontFacing) * 2.0 - 1.0);
     vec3 V = normalize(cc_cameraPos.xyz - pos_w);
 
@@ -121,12 +142,33 @@ CCProgram gizmo-fs %{
       return vec4(diffuse, mainColor.a);
     #endif
   }
+
+  vec4 back () {
+    vec3 N = normalize(normal_w) * (float(gl_FrontFacing) * 2.0 - 1.0);
+    vec3 V = normalize(cc_cameraPos.xyz - pos_w);
+
+    // vec3 L = normalize(cross(forward, vec3(0, 1, 0)));
+    // vec3 diffuse = color.rgb * (0.2 + max(0.0, dot(N, L)) * 0.8);
+
+    vec3 points [4];
+    //vec3 up = vec3(0, 1, 0);
+    points[0] = (forward * 3.0 + right + up) * 40.0;
+    points[1] = (forward * 3.0 - right + up) * 40.0;
+    points[2] = (forward * 3.0 - right - up) * 40.0;
+    points[3] = (forward * 3.0 + right - up) * 40.0;
+    vec3 diffuse = LinearToSRGB(mainColor.rgb * LTC_Evaluate(N, V, pos_l, mat3(1), points));
+    #if USE_FORWARD_PIPELINE
+      return CCFragOutput(vec4(diffuse, mainColor.a * 0.2));
+    #else
+      return vec4(diffuse, mainColor.a * 0.2);
+    #endif
+  }
 }%
 
 CCProgram line-vs %{
   precision mediump float;
-  #include <cc-local>
-  #include <cc-global>
+  #include <builtin/uniforms/cc-local>
+  #include <builtin/uniforms/cc-global>
 
   in highp vec3 a_position;
 
@@ -147,7 +189,7 @@ CCProgram line-vs %{
 
 CCProgram line-fs %{
   precision mediump float;
-  #include <output>
+  #include <legacy/output>
 
   uniform Constant {
     vec4 mainColor;
@@ -178,8 +220,8 @@ CCProgram line-fs %{
 
 CCProgram sprite-vs %{
   precision mediump float;
-  #include <cc-local>
-  #include <cc-global>
+  #include <builtin/uniforms/cc-local>
+  #include <builtin/uniforms/cc-global>
 
   in vec3 a_position;
   in vec2 a_texCoord;
@@ -198,7 +240,7 @@ CCProgram sprite-vs %{
 
 CCProgram sprite-fs %{
   precision mediump float;
-  #include <cc-global>
+  #include <builtin/uniforms/cc-global>
 
   in vec2 uv0;
   uniform Constant {

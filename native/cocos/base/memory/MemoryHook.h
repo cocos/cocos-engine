@@ -28,11 +28,11 @@
 #include "../Config.h"
 #if USE_MEMORY_LEAK_DETECTOR
 
-    #include "../Macros.h"
-    #include "CallStack.h"
-    #include "base/std/container/unordered_map.h"
-
     #include <mutex>
+    #include "../Macros.h"
+    #include "base/std/container/string.h"
+    #include "base/std/container/unordered_map.h"
+    #include "base/std/container/vector.h"
 
 typedef void *(*MallocType)(size_t size);
 typedef void (*FreeType)(void *ptr);
@@ -43,8 +43,8 @@ typedef void (*DeleteHookType)(const void *ptr);
 namespace cc {
 
 struct CC_DLL MemoryRecord {
-    uint64_t              address{0};
-    size_t                size{0};
+    uint64_t address{0};
+    size_t size{0};
     ccstd::vector<void *> callstack;
 };
 
@@ -58,9 +58,9 @@ public:
      */
     using RecordMap = ccstd::unordered_map<uint64_t, MemoryRecord>;
 
-    void   addRecord(uint64_t address, size_t size);
-    void   removeRecord(uint64_t address);
-    size_t getTotalSize() const { return _totalSize; }
+    void addRecord(uint64_t address, size_t size);
+    void removeRecord(uint64_t address);
+    inline size_t getTotalSize() const { return _totalSize; }
 
 private:
     /**
@@ -82,9 +82,9 @@ private:
 
 private:
     std::recursive_mutex _mutex;
-    bool                 _hooking{false};
-    RecordMap            _records;
-    size_t               _totalSize{0U};
+    bool _hooking{false};
+    RecordMap _records;
+    size_t _totalSize{0U};
 };
 
 extern MemoryHook GMemoryHook;

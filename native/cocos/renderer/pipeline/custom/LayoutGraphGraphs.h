@@ -30,13 +30,13 @@
  */
 // clang-format off
 #pragma once
-#include <boost/utility/string_view.hpp>
+#include <string_view>
+#include <tuple>
 #include "cocos/renderer/pipeline/custom/GraphImpl.h"
 #include "cocos/renderer/pipeline/custom/GslUtils.h"
 #include "cocos/renderer/pipeline/custom/LayoutGraphTypes.h"
 #include "cocos/renderer/pipeline/custom/Overload.h"
 #include "cocos/renderer/pipeline/custom/PathUtils.h"
-#include "cocos/renderer/pipeline/custom/invoke.hpp"
 
 namespace cc {
 
@@ -144,84 +144,31 @@ add_edge( // NOLINT
 }
 
 inline void remove_edge(LayoutGraph::vertex_descriptor u, LayoutGraph::vertex_descriptor v, LayoutGraph& g) noexcept { // NOLINT
-    // remove out-edges
-    auto& outEdgeList = g.getOutEdgeList(u);
-    // eraseFromIncidenceList
-    impl::sequenceEraseIf(outEdgeList, [v](const auto& e) {
-        return e.get_target() == v;
-    });
+    auto& s = g._vertices[u];
+    auto& t = g._vertices[v];
+    s.outEdges.erase(std::remove(s.outEdges.begin(), s.outEdges.end(), LayoutGraph::OutEdge(v)), s.outEdges.end());
+    t.inEdges.erase(std::remove(t.inEdges.begin(), t.inEdges.end(), LayoutGraph::InEdge(u)), t.inEdges.end());
+}
 
-    // remove reciprocal (bidirectional) in-edges
-    auto& inEdgeList = g.getInEdgeList(v);
-    // eraseFromIncidenceList
-    impl::sequenceEraseIf(inEdgeList, [u](const auto& e) {
-        return e.get_target() == u;
-    });
+inline void remove_edge(LayoutGraph::out_edge_iterator outIter, LayoutGraph& g) noexcept { // NOLINT
+    auto e = *outIter;
+    const auto u = source(e, g);
+    const auto v = target(e, g);
+    auto& s = g._vertices[u];
+    auto& t = g._vertices[v];
+    auto inIter = std::find(t.inEdges.begin(), t.inEdges.end(), LayoutGraph::InEdge(u));
+    CC_EXPECTS(inIter != t.inEdges.end());
+    t.inEdges.erase(inIter);
+    s.outEdges.erase(outIter.base());
 }
 
 inline void remove_edge(LayoutGraph::edge_descriptor e, LayoutGraph& g) noexcept { // NOLINT
-    // remove_edge need rewrite
-    auto& outEdgeList = g.getOutEdgeList(source(e, g));
-    impl::removeIncidenceEdge(e, outEdgeList);
-    auto& inEdgeList = g.getInEdgeList(target(e, g));
-    impl::removeIncidenceEdge(e, inEdgeList);
-}
-
-inline void remove_edge(LayoutGraph::out_edge_iterator iter, LayoutGraph& g) noexcept { // NOLINT
-    auto  e           = *iter;
-    auto& outEdgeList = g.getOutEdgeList(source(e, g));
-    auto& inEdgeList  = g.getInEdgeList(target(e, g));
-    impl::removeIncidenceEdge(e, inEdgeList);
-    outEdgeList.erase(iter.base());
-}
-
-template <class Predicate>
-inline void remove_out_edge_if(LayoutGraph::vertex_descriptor u, Predicate&& pred, LayoutGraph& g) noexcept { // NOLINT
-    for (auto pair = out_edges(u, g); pair.first != pair.second; ++pair.first) {
-        auto& outIter = pair.first;
-        auto& outEnd = pair.second;
-        if (pred(*outIter)) {
-            auto& inEdgeList = g.getInEdgeList(target(*outIter, g));
-            auto  e          = *outIter;
-            impl::removeIncidenceEdge(e, inEdgeList);
-        }
-    }
-    auto pair = out_edges(u, g);
-    auto& first = pair.first;
-    auto& last = pair.second;
-    auto& outEdgeList  = g.getOutEdgeList(u);
-    impl::sequenceRemoveIncidenceEdgeIf(first, last, outEdgeList, std::forward<Predicate>(pred));
-}
-
-template <class Predicate>
-inline void remove_in_edge_if(LayoutGraph::vertex_descriptor v, Predicate&& pred, LayoutGraph& g) noexcept { // NOLINT
-    for (auto pair = in_edges(v, g); pair.first != pair.second; ++pair.first) {
-        auto& inIter = pair.first;
-        auto& inEnd = pair.second;
-        if (pred(*inIter)) {
-            auto& outEdgeList = g.getOutEdgeList(source(*inIter, g));
-            auto  e           = *inIter;
-            impl::removeIncidenceEdge(e, outEdgeList);
-        }
-    }
-    auto pair = in_edges(v, g);
-    auto& first = pair.first;
-    auto& last = pair.second;
-    auto& inEdgeList   = g.getInEdgeList(v);
-    impl::sequenceRemoveIncidenceEdgeIf(first, last, inEdgeList, std::forward<Predicate>(pred));
-}
-
-template <class Predicate>
-inline void remove_edge_if(Predicate&& pred, LayoutGraph& g) noexcept { // NOLINT
-    auto pair = edges(g);
-    auto& ei = pair.first;
-    auto& eiEnd = pair.second;
-    for (auto next = ei; ei != eiEnd; ei = next) {
-        ++next;
-        if (pred(*ei)) {
-            remove_edge(*ei, g);
-        }
-    }
+    const auto u = source(e, g);
+    const auto v = target(e, g);
+    auto& s = g._vertices[u];
+    auto outIter = std::find(s.outEdges.begin(), s.outEdges.end(), LayoutGraph::OutEdge(v));
+    CC_EXPECTS(outIter != s.outEdges.end());
+    remove_edge(LayoutGraph::out_edge_iterator(outIter, u), g);
 }
 
 // AddressableGraph
@@ -412,84 +359,31 @@ add_edge( // NOLINT
 }
 
 inline void remove_edge(LayoutGraphData::vertex_descriptor u, LayoutGraphData::vertex_descriptor v, LayoutGraphData& g) noexcept { // NOLINT
-    // remove out-edges
-    auto& outEdgeList = g.getOutEdgeList(u);
-    // eraseFromIncidenceList
-    impl::sequenceEraseIf(outEdgeList, [v](const auto& e) {
-        return e.get_target() == v;
-    });
+    auto& s = g._vertices[u];
+    auto& t = g._vertices[v];
+    s.outEdges.erase(std::remove(s.outEdges.begin(), s.outEdges.end(), LayoutGraphData::OutEdge(v)), s.outEdges.end());
+    t.inEdges.erase(std::remove(t.inEdges.begin(), t.inEdges.end(), LayoutGraphData::InEdge(u)), t.inEdges.end());
+}
 
-    // remove reciprocal (bidirectional) in-edges
-    auto& inEdgeList = g.getInEdgeList(v);
-    // eraseFromIncidenceList
-    impl::sequenceEraseIf(inEdgeList, [u](const auto& e) {
-        return e.get_target() == u;
-    });
+inline void remove_edge(LayoutGraphData::out_edge_iterator outIter, LayoutGraphData& g) noexcept { // NOLINT
+    auto e = *outIter;
+    const auto u = source(e, g);
+    const auto v = target(e, g);
+    auto& s = g._vertices[u];
+    auto& t = g._vertices[v];
+    auto inIter = std::find(t.inEdges.begin(), t.inEdges.end(), LayoutGraphData::InEdge(u));
+    CC_EXPECTS(inIter != t.inEdges.end());
+    t.inEdges.erase(inIter);
+    s.outEdges.erase(outIter.base());
 }
 
 inline void remove_edge(LayoutGraphData::edge_descriptor e, LayoutGraphData& g) noexcept { // NOLINT
-    // remove_edge need rewrite
-    auto& outEdgeList = g.getOutEdgeList(source(e, g));
-    impl::removeIncidenceEdge(e, outEdgeList);
-    auto& inEdgeList = g.getInEdgeList(target(e, g));
-    impl::removeIncidenceEdge(e, inEdgeList);
-}
-
-inline void remove_edge(LayoutGraphData::out_edge_iterator iter, LayoutGraphData& g) noexcept { // NOLINT
-    auto  e           = *iter;
-    auto& outEdgeList = g.getOutEdgeList(source(e, g));
-    auto& inEdgeList  = g.getInEdgeList(target(e, g));
-    impl::removeIncidenceEdge(e, inEdgeList);
-    outEdgeList.erase(iter.base());
-}
-
-template <class Predicate>
-inline void remove_out_edge_if(LayoutGraphData::vertex_descriptor u, Predicate&& pred, LayoutGraphData& g) noexcept { // NOLINT
-    for (auto pair = out_edges(u, g); pair.first != pair.second; ++pair.first) {
-        auto& outIter = pair.first;
-        auto& outEnd = pair.second;
-        if (pred(*outIter)) {
-            auto& inEdgeList = g.getInEdgeList(target(*outIter, g));
-            auto  e          = *outIter;
-            impl::removeIncidenceEdge(e, inEdgeList);
-        }
-    }
-    auto pair = out_edges(u, g);
-    auto& first = pair.first;
-    auto& last = pair.second;
-    auto& outEdgeList  = g.getOutEdgeList(u);
-    impl::sequenceRemoveIncidenceEdgeIf(first, last, outEdgeList, std::forward<Predicate>(pred));
-}
-
-template <class Predicate>
-inline void remove_in_edge_if(LayoutGraphData::vertex_descriptor v, Predicate&& pred, LayoutGraphData& g) noexcept { // NOLINT
-    for (auto pair = in_edges(v, g); pair.first != pair.second; ++pair.first) {
-        auto& inIter = pair.first;
-        auto& inEnd = pair.second;
-        if (pred(*inIter)) {
-            auto& outEdgeList = g.getOutEdgeList(source(*inIter, g));
-            auto  e           = *inIter;
-            impl::removeIncidenceEdge(e, outEdgeList);
-        }
-    }
-    auto pair = in_edges(v, g);
-    auto& first = pair.first;
-    auto& last = pair.second;
-    auto& inEdgeList   = g.getInEdgeList(v);
-    impl::sequenceRemoveIncidenceEdgeIf(first, last, inEdgeList, std::forward<Predicate>(pred));
-}
-
-template <class Predicate>
-inline void remove_edge_if(Predicate&& pred, LayoutGraphData& g) noexcept { // NOLINT
-    auto pair = edges(g);
-    auto& ei = pair.first;
-    auto& eiEnd = pair.second;
-    for (auto next = ei; ei != eiEnd; ei = next) {
-        ++next;
-        if (pred(*ei)) {
-            remove_edge(*ei, g);
-        }
-    }
+    const auto u = source(e, g);
+    const auto v = target(e, g);
+    auto& s = g._vertices[u];
+    auto outIter = std::find(s.outEdges.begin(), s.outEdges.end(), LayoutGraphData::OutEdge(v));
+    CC_EXPECTS(outIter != s.outEdges.end());
+    remove_edge(LayoutGraphData::out_edge_iterator(outIter, u), g);
 }
 
 // AddressableGraph
@@ -598,13 +492,13 @@ struct property_map<cc::render::LayoutGraph, cc::render::LayoutGraph::NameTag> {
         read_write_property_map_tag,
         const cc::render::LayoutGraph,
         const ccstd::pmr::vector<ccstd::pmr::string>,
-        boost::string_view,
+        std::string_view,
         const ccstd::pmr::string&>;
     using type = cc::render::impl::VectorVertexComponentPropertyMap<
         read_write_property_map_tag,
         cc::render::LayoutGraph,
         ccstd::pmr::vector<ccstd::pmr::string>,
-        boost::string_view,
+        std::string_view,
         ccstd::pmr::string&>;
 };
 
@@ -615,13 +509,13 @@ struct property_map<cc::render::LayoutGraph, vertex_name_t> {
         read_write_property_map_tag,
         const cc::render::LayoutGraph,
         const ccstd::pmr::vector<ccstd::pmr::string>,
-        boost::string_view,
+        std::string_view,
         const ccstd::pmr::string&>;
     using type = cc::render::impl::VectorVertexComponentPropertyMap<
         read_write_property_map_tag,
         cc::render::LayoutGraph,
         ccstd::pmr::vector<ccstd::pmr::string>,
-        boost::string_view,
+        std::string_view,
         ccstd::pmr::string&>;
 };
 
@@ -675,13 +569,13 @@ struct property_map<cc::render::LayoutGraphData, cc::render::LayoutGraphData::Na
         read_write_property_map_tag,
         const cc::render::LayoutGraphData,
         const ccstd::pmr::vector<ccstd::pmr::string>,
-        boost::string_view,
+        std::string_view,
         const ccstd::pmr::string&>;
     using type = cc::render::impl::VectorVertexComponentPropertyMap<
         read_write_property_map_tag,
         cc::render::LayoutGraphData,
         ccstd::pmr::vector<ccstd::pmr::string>,
-        boost::string_view,
+        std::string_view,
         ccstd::pmr::string&>;
 };
 
@@ -692,13 +586,13 @@ struct property_map<cc::render::LayoutGraphData, vertex_name_t> {
         read_write_property_map_tag,
         const cc::render::LayoutGraphData,
         const ccstd::pmr::vector<ccstd::pmr::string>,
-        boost::string_view,
+        std::string_view,
         const ccstd::pmr::string&>;
     using type = cc::render::impl::VectorVertexComponentPropertyMap<
         read_write_property_map_tag,
         cc::render::LayoutGraphData,
         ccstd::pmr::vector<ccstd::pmr::string>,
-        boost::string_view,
+        std::string_view,
         ccstd::pmr::string&>;
 };
 
@@ -822,7 +716,7 @@ get(T DescriptorDB::*memberPointer, LayoutGraph& g) noexcept {
 inline LayoutGraph::vertices_size_type
 id(LayoutGraph::vertex_descriptor u, const LayoutGraph& g) noexcept {
     using vertex_descriptor = LayoutGraph::vertex_descriptor;
-    return cc::visit(
+    return ccstd::visit(
         overload(
             [](const impl::ValueHandle<RenderStageTag, vertex_descriptor>& h) {
                 return h.value;
@@ -830,13 +724,13 @@ id(LayoutGraph::vertex_descriptor u, const LayoutGraph& g) noexcept {
             [](const impl::ValueHandle<RenderPhaseTag, vertex_descriptor>& h) {
                 return h.value;
             }),
-        g.vertices[u].handle);
+        g._vertices[u].handle);
 }
 
 inline LayoutGraph::VertexTag
 tag(LayoutGraph::vertex_descriptor u, const LayoutGraph& g) noexcept {
     using vertex_descriptor = LayoutGraph::vertex_descriptor;
-    return cc::visit(
+    return ccstd::visit(
         overload(
             [](const impl::ValueHandle<RenderStageTag, vertex_descriptor>&) {
                 return LayoutGraph::VertexTag{RenderStageTag{}};
@@ -844,13 +738,13 @@ tag(LayoutGraph::vertex_descriptor u, const LayoutGraph& g) noexcept {
             [](const impl::ValueHandle<RenderPhaseTag, vertex_descriptor>&) {
                 return LayoutGraph::VertexTag{RenderPhaseTag{}};
             }),
-        g.vertices[u].handle);
+        g._vertices[u].handle);
 }
 
 inline LayoutGraph::VertexValue
 value(LayoutGraph::vertex_descriptor u, LayoutGraph& g) noexcept {
     using vertex_descriptor = LayoutGraph::vertex_descriptor;
-    return cc::visit(
+    return ccstd::visit(
         overload(
             [&](const impl::ValueHandle<RenderStageTag, vertex_descriptor>& h) {
                 return LayoutGraph::VertexValue{&g.stages[h.value]};
@@ -858,13 +752,13 @@ value(LayoutGraph::vertex_descriptor u, LayoutGraph& g) noexcept {
             [&](const impl::ValueHandle<RenderPhaseTag, vertex_descriptor>& h) {
                 return LayoutGraph::VertexValue{&g.phases[h.value]};
             }),
-        g.vertices[u].handle);
+        g._vertices[u].handle);
 }
 
 inline LayoutGraph::VertexConstValue
 value(LayoutGraph::vertex_descriptor u, const LayoutGraph& g) noexcept {
     using vertex_descriptor = LayoutGraph::vertex_descriptor;
-    return cc::visit(
+    return ccstd::visit(
         overload(
             [&](const impl::ValueHandle<RenderStageTag, vertex_descriptor>& h) {
                 return LayoutGraph::VertexConstValue{&g.stages[h.value]};
@@ -872,7 +766,7 @@ value(LayoutGraph::vertex_descriptor u, const LayoutGraph& g) noexcept {
             [&](const impl::ValueHandle<RenderPhaseTag, vertex_descriptor>& h) {
                 return LayoutGraph::VertexConstValue{&g.phases[h.value]};
             }),
-        g.vertices[u].handle);
+        g._vertices[u].handle);
 }
 
 template <class Tag>
@@ -882,17 +776,17 @@ holds(LayoutGraph::vertex_descriptor v, const LayoutGraph& g) noexcept;
 template <>
 inline bool
 holds<RenderStageTag>(LayoutGraph::vertex_descriptor v, const LayoutGraph& g) noexcept {
-    return boost::variant2::holds_alternative<
+    return ccstd::holds_alternative<
         impl::ValueHandle<RenderStageTag, LayoutGraph::vertex_descriptor>>(
-        g.vertices[v].handle);
+        g._vertices[v].handle);
 }
 
 template <>
 inline bool
 holds<RenderPhaseTag>(LayoutGraph::vertex_descriptor v, const LayoutGraph& g) noexcept {
-    return boost::variant2::holds_alternative<
+    return ccstd::holds_alternative<
         impl::ValueHandle<RenderPhaseTag, LayoutGraph::vertex_descriptor>>(
-        g.vertices[v].handle);
+        g._vertices[v].handle);
 }
 
 template <class ValueT>
@@ -902,17 +796,17 @@ holds_alternative(LayoutGraph::vertex_descriptor v, const LayoutGraph& g) noexce
 template <>
 inline bool
 holds_alternative<uint32_t>(LayoutGraph::vertex_descriptor v, const LayoutGraph& g) noexcept { // NOLINT
-    return boost::variant2::holds_alternative<
+    return ccstd::holds_alternative<
         impl::ValueHandle<RenderStageTag, LayoutGraph::vertex_descriptor>>(
-        g.vertices[v].handle);
+        g._vertices[v].handle);
 }
 
 template <>
 inline bool
 holds_alternative<RenderPhase>(LayoutGraph::vertex_descriptor v, const LayoutGraph& g) noexcept { // NOLINT
-    return boost::variant2::holds_alternative<
+    return ccstd::holds_alternative<
         impl::ValueHandle<RenderPhaseTag, LayoutGraph::vertex_descriptor>>(
-        g.vertices[v].handle);
+        g._vertices[v].handle);
 }
 
 template <class ValueT>
@@ -922,18 +816,18 @@ get(LayoutGraph::vertex_descriptor /*v*/, LayoutGraph& /*g*/);
 template <>
 inline uint32_t&
 get<uint32_t>(LayoutGraph::vertex_descriptor v, LayoutGraph& g) {
-    auto& handle = boost::variant2::get<
+    auto& handle = ccstd::get<
         impl::ValueHandle<RenderStageTag, LayoutGraph::vertex_descriptor>>(
-        g.vertices[v].handle);
+        g._vertices[v].handle);
     return g.stages[handle.value];
 }
 
 template <>
 inline RenderPhase&
 get<RenderPhase>(LayoutGraph::vertex_descriptor v, LayoutGraph& g) {
-    auto& handle = boost::variant2::get<
+    auto& handle = ccstd::get<
         impl::ValueHandle<RenderPhaseTag, LayoutGraph::vertex_descriptor>>(
-        g.vertices[v].handle);
+        g._vertices[v].handle);
     return g.phases[handle.value];
 }
 
@@ -944,50 +838,50 @@ get(LayoutGraph::vertex_descriptor /*v*/, const LayoutGraph& /*g*/);
 template <>
 inline const uint32_t&
 get<uint32_t>(LayoutGraph::vertex_descriptor v, const LayoutGraph& g) {
-    const auto& handle = boost::variant2::get<
+    const auto& handle = ccstd::get<
         impl::ValueHandle<RenderStageTag, LayoutGraph::vertex_descriptor>>(
-        g.vertices[v].handle);
+        g._vertices[v].handle);
     return g.stages[handle.value];
 }
 
 template <>
 inline const RenderPhase&
 get<RenderPhase>(LayoutGraph::vertex_descriptor v, const LayoutGraph& g) {
-    const auto& handle = boost::variant2::get<
+    const auto& handle = ccstd::get<
         impl::ValueHandle<RenderPhaseTag, LayoutGraph::vertex_descriptor>>(
-        g.vertices[v].handle);
+        g._vertices[v].handle);
     return g.phases[handle.value];
 }
 
 inline uint32_t&
 get(RenderStageTag /*tag*/, LayoutGraph::vertex_descriptor v, LayoutGraph& g) {
-    auto& handle = boost::variant2::get<
+    auto& handle = ccstd::get<
         impl::ValueHandle<RenderStageTag, LayoutGraph::vertex_descriptor>>(
-        g.vertices[v].handle);
+        g._vertices[v].handle);
     return g.stages[handle.value];
 }
 
 inline RenderPhase&
 get(RenderPhaseTag /*tag*/, LayoutGraph::vertex_descriptor v, LayoutGraph& g) {
-    auto& handle = boost::variant2::get<
+    auto& handle = ccstd::get<
         impl::ValueHandle<RenderPhaseTag, LayoutGraph::vertex_descriptor>>(
-        g.vertices[v].handle);
+        g._vertices[v].handle);
     return g.phases[handle.value];
 }
 
 inline const uint32_t&
 get(RenderStageTag /*tag*/, LayoutGraph::vertex_descriptor v, const LayoutGraph& g) {
-    const auto& handle = boost::variant2::get<
+    const auto& handle = ccstd::get<
         impl::ValueHandle<RenderStageTag, LayoutGraph::vertex_descriptor>>(
-        g.vertices[v].handle);
+        g._vertices[v].handle);
     return g.stages[handle.value];
 }
 
 inline const RenderPhase&
 get(RenderPhaseTag /*tag*/, LayoutGraph::vertex_descriptor v, const LayoutGraph& g) {
-    const auto& handle = boost::variant2::get<
+    const auto& handle = ccstd::get<
         impl::ValueHandle<RenderPhaseTag, LayoutGraph::vertex_descriptor>>(
-        g.vertices[v].handle);
+        g._vertices[v].handle);
     return g.phases[handle.value];
 }
 
@@ -1003,9 +897,9 @@ get_if<uint32_t>(LayoutGraph::vertex_descriptor v, LayoutGraph* pGraph) noexcept
         return ptr;
     }
     auto& g       = *pGraph;
-    auto* pHandle = boost::variant2::get_if<
+    auto* pHandle = ccstd::get_if<
         impl::ValueHandle<RenderStageTag, LayoutGraph::vertex_descriptor>>(
-        &g.vertices[v].handle);
+        &g._vertices[v].handle);
     if (pHandle) {
         ptr = &g.stages[pHandle->value];
     }
@@ -1020,9 +914,9 @@ get_if<RenderPhase>(LayoutGraph::vertex_descriptor v, LayoutGraph* pGraph) noexc
         return ptr;
     }
     auto& g       = *pGraph;
-    auto* pHandle = boost::variant2::get_if<
+    auto* pHandle = ccstd::get_if<
         impl::ValueHandle<RenderPhaseTag, LayoutGraph::vertex_descriptor>>(
-        &g.vertices[v].handle);
+        &g._vertices[v].handle);
     if (pHandle) {
         ptr = &g.phases[pHandle->value];
     }
@@ -1041,9 +935,9 @@ get_if<uint32_t>(LayoutGraph::vertex_descriptor v, const LayoutGraph* pGraph) no
         return ptr;
     }
     const auto& g       = *pGraph;
-    const auto* pHandle = boost::variant2::get_if<
+    const auto* pHandle = ccstd::get_if<
         impl::ValueHandle<RenderStageTag, LayoutGraph::vertex_descriptor>>(
-        &g.vertices[v].handle);
+        &g._vertices[v].handle);
     if (pHandle) {
         ptr = &g.stages[pHandle->value];
     }
@@ -1058,9 +952,9 @@ get_if<RenderPhase>(LayoutGraph::vertex_descriptor v, const LayoutGraph* pGraph)
         return ptr;
     }
     const auto& g       = *pGraph;
-    const auto* pHandle = boost::variant2::get_if<
+    const auto* pHandle = ccstd::get_if<
         impl::ValueHandle<RenderPhaseTag, LayoutGraph::vertex_descriptor>>(
-        &g.vertices[v].handle);
+        &g._vertices[v].handle);
     if (pHandle) {
         ptr = &g.phases[pHandle->value];
     }
@@ -1097,7 +991,7 @@ inline const std::basic_string<char, std::char_traits<char>, Allocator>&
 getPath(
     std::basic_string<char, std::char_traits<char>, Allocator>& output,
     LayoutGraph::vertex_descriptor u0, const LayoutGraph& g,
-    boost::string_view prefix = {}, LayoutGraph::vertex_descriptor parent = LayoutGraph::null_vertex()) {
+    std::string_view prefix = {}, LayoutGraph::vertex_descriptor parent = LayoutGraph::null_vertex()) {
     output.clear();
     const auto sz0 = static_cast<std::ptrdiff_t>(prefix.size());
     auto       sz  = sz0;
@@ -1119,7 +1013,7 @@ getPath(
 inline ccstd::string
 getPath(
     LayoutGraph::vertex_descriptor u0, const LayoutGraph& g,
-    boost::string_view prefix = {}, LayoutGraph::vertex_descriptor parent = LayoutGraph::null_vertex()) {
+    std::string_view prefix = {}, LayoutGraph::vertex_descriptor parent = LayoutGraph::null_vertex()) {
     ccstd::string output;
     getPath(output, u0, g, prefix, parent);
     return output;
@@ -1128,7 +1022,7 @@ getPath(
 inline ccstd::pmr::string
 getPath(
     LayoutGraph::vertex_descriptor u0, const LayoutGraph& g,
-    boost::container::pmr::memory_resource* mr, boost::string_view prefix = {}, LayoutGraph::vertex_descriptor parent = LayoutGraph::null_vertex()) {
+    boost::container::pmr::memory_resource* mr, std::string_view prefix = {}, LayoutGraph::vertex_descriptor parent = LayoutGraph::null_vertex()) {
     ccstd::pmr::string output(mr);
     getPath(output, u0, g, prefix, parent);
     return output;
@@ -1138,7 +1032,7 @@ template <class Allocator>
 inline const std::basic_string<char, std::char_traits<char>, Allocator>&
 getPath(
     std::basic_string<char, std::char_traits<char>, Allocator>& output,
-    LayoutGraph::vertex_descriptor parent, boost::string_view name, const LayoutGraph& g) {
+    LayoutGraph::vertex_descriptor parent, std::string_view name, const LayoutGraph& g) {
     output.clear();
     auto sz = impl::pathLength(parent, g);
     output.resize(sz + name.size() + 1);
@@ -1150,21 +1044,21 @@ getPath(
 }
 
 inline ccstd::string
-getPath(LayoutGraph::vertex_descriptor parent, boost::string_view name, const LayoutGraph& g) {
+getPath(LayoutGraph::vertex_descriptor parent, std::string_view name, const LayoutGraph& g) {
     ccstd::string output;
     getPath(output, parent, name, g);
     return output;
 }
 
 inline ccstd::pmr::string
-getPath(LayoutGraph::vertex_descriptor parent, boost::string_view name, const LayoutGraph& g, boost::container::pmr::memory_resource* mr) {
+getPath(LayoutGraph::vertex_descriptor parent, std::string_view name, const LayoutGraph& g, boost::container::pmr::memory_resource* mr) {
     ccstd::pmr::string output(mr);
     getPath(output, parent, name, g);
     return output;
 }
 
 inline LayoutGraph::vertex_descriptor
-locate(boost::string_view absolute, const LayoutGraph& g) noexcept {
+locate(std::string_view absolute, const LayoutGraph& g) noexcept {
     auto iter = g.pathIndex.find(absolute);
     if (iter != g.pathIndex.end()) {
         return iter->second;
@@ -1173,22 +1067,22 @@ locate(boost::string_view absolute, const LayoutGraph& g) noexcept {
 };
 
 inline LayoutGraph::vertex_descriptor
-locate(LayoutGraph::vertex_descriptor u, boost::string_view relative, const LayoutGraph& g) {
-    CC_EXPECTS(!relative.starts_with('/'));
-    CC_EXPECTS(!relative.ends_with('/'));
+locate(LayoutGraph::vertex_descriptor u, std::string_view relative, const LayoutGraph& g) {
+    CC_EXPECTS(!boost::algorithm::starts_with(relative, "/"));
+    CC_EXPECTS(!boost::algorithm::ends_with(relative, "/"));
     auto key = getPath(u, relative, g);
     impl::cleanPath(key);
     return locate(key, g);
 };
 
 inline bool
-contains(boost::string_view absolute, const LayoutGraph& g) noexcept {
+contains(std::string_view absolute, const LayoutGraph& g) noexcept {
     return locate(absolute, g) != LayoutGraph::null_vertex();
 }
 
 template <class ValueT>
 inline ValueT&
-get(boost::string_view pt, LayoutGraph& g) {
+get(std::string_view pt, LayoutGraph& g) {
     auto v = locate(pt, g);
     if (v == LayoutGraph::null_vertex()) {
         throw std::out_of_range("at LayoutGraph");
@@ -1198,7 +1092,7 @@ get(boost::string_view pt, LayoutGraph& g) {
 
 template <class ValueT>
 inline const ValueT&
-get(boost::string_view pt, const LayoutGraph& g) {
+get(std::string_view pt, const LayoutGraph& g) {
     auto v = locate(pt, g);
     if (v == LayoutGraph::null_vertex()) {
         throw std::out_of_range("at LayoutGraph");
@@ -1208,7 +1102,7 @@ get(boost::string_view pt, const LayoutGraph& g) {
 
 template <class ValueT>
 inline ValueT*
-get_if(boost::string_view pt, LayoutGraph* pGraph) noexcept { // NOLINT
+get_if(std::string_view pt, LayoutGraph* pGraph) noexcept { // NOLINT
     if (pGraph) {
         auto v = locate(pt, *pGraph);
         if (v != LayoutGraph::null_vertex()) {
@@ -1220,7 +1114,7 @@ get_if(boost::string_view pt, LayoutGraph* pGraph) noexcept { // NOLINT
 
 template <class ValueT>
 inline const ValueT*
-get_if(boost::string_view pt, const LayoutGraph* pGraph) noexcept { // NOLINT
+get_if(std::string_view pt, const LayoutGraph* pGraph) noexcept { // NOLINT
     if (pGraph) {
         auto v = locate(pt, *pGraph);
         if (v != LayoutGraph::null_vertex()) {
@@ -1251,7 +1145,7 @@ inline void removePathImpl(LayoutGraph::vertex_descriptor u, LayoutGraph& g) noe
     // notice: here we use ccstd::string, not std::pmr::string
     // we do not want to increase the memory of g
     auto pathName = getPath(u, g);
-    auto iter     = g.pathIndex.find(boost::string_view(pathName));
+    auto iter     = g.pathIndex.find(std::string_view(pathName));
     CC_EXPECTS(iter != g.pathIndex.end());
     g.pathIndex.erase(iter);
     for (auto&& nvp : g.pathIndex) {
@@ -1306,28 +1200,28 @@ inline void clear_vertex(LayoutGraph::vertex_descriptor u, LayoutGraph& g) noexc
 
 inline void remove_vertex_value_impl(const LayoutGraph::VertexHandle& h, LayoutGraph& g) noexcept { // NOLINT
     using vertex_descriptor = LayoutGraph::vertex_descriptor;
-    cc::visit(
+    ccstd::visit(
         overload(
             [&](const impl::ValueHandle<RenderStageTag, vertex_descriptor>& h) {
                 g.stages.erase(g.stages.begin() + std::ptrdiff_t(h.value));
                 if (h.value == g.stages.size()) {
                     return;
                 }
-                impl::reindexVectorHandle<RenderStageTag>(g.vertices, h.value);
+                impl::reindexVectorHandle<RenderStageTag>(g._vertices, h.value);
             },
             [&](const impl::ValueHandle<RenderPhaseTag, vertex_descriptor>& h) {
                 g.phases.erase(g.phases.begin() + std::ptrdiff_t(h.value));
                 if (h.value == g.phases.size()) {
                     return;
                 }
-                impl::reindexVectorHandle<RenderPhaseTag>(g.vertices, h.value);
+                impl::reindexVectorHandle<RenderPhaseTag>(g._vertices, h.value);
             }),
         h);
 }
 
 inline void remove_vertex(LayoutGraph::vertex_descriptor u, LayoutGraph& g) noexcept { // NOLINT
     // preserve vertex' iterators
-    auto& vert = g.vertices[u];
+    auto& vert = g._vertices[u];
     remove_vertex_value_impl(vert.handle, g);
     impl::removeVectorVertex(const_cast<LayoutGraph&>(g), u, LayoutGraph::directed_category{});
 
@@ -1358,10 +1252,10 @@ void addVertexImpl( // NOLINT
 template <class Component0, class Component1, class ValueT>
 inline LayoutGraph::vertex_descriptor
 addVertex(Component0&& c0, Component1&& c1, ValueT&& val, LayoutGraph& g, LayoutGraph::vertex_descriptor u = LayoutGraph::null_vertex()) {
-    auto v = gsl::narrow_cast<LayoutGraph::vertex_descriptor>(g.vertices.size());
+    auto v = gsl::narrow_cast<LayoutGraph::vertex_descriptor>(g._vertices.size());
 
-    g.vertices.emplace_back();
-    auto& vert = g.vertices.back();
+    g._vertices.emplace_back();
+    auto& vert = g._vertices.back();
     g.names.emplace_back(std::forward<Component0>(c0));
     g.descriptors.emplace_back(std::forward<Component1>(c1));
 
@@ -1369,7 +1263,7 @@ addVertex(Component0&& c0, Component1&& c1, ValueT&& val, LayoutGraph& g, Layout
     // if no matching overloaded function is found, Type is not supported by PolymorphicGraph
     addVertexImpl(std::forward<ValueT>(val), g, vert);
 
-    // AddressableGraph
+    // ReferenceGraph
     addPathImpl(u, v, g);
 
     return v;
@@ -1377,7 +1271,7 @@ addVertex(Component0&& c0, Component1&& c1, ValueT&& val, LayoutGraph& g, Layout
 
 template <class Tuple>
 void addVertexImpl(RenderStageTag /*tag*/, Tuple &&val, LayoutGraph &g, LayoutGraph::Vertex &vert) {
-    invoke_hpp::apply(
+    std::apply(
         [&](auto&&... args) {
             vert.handle = impl::ValueHandle<RenderStageTag, LayoutGraph::vertex_descriptor>{
                 gsl::narrow_cast<LayoutGraph::vertex_descriptor>(g.stages.size())};
@@ -1388,7 +1282,7 @@ void addVertexImpl(RenderStageTag /*tag*/, Tuple &&val, LayoutGraph &g, LayoutGr
 
 template <class Tuple>
 void addVertexImpl(RenderPhaseTag /*tag*/, Tuple &&val, LayoutGraph &g, LayoutGraph::Vertex &vert) {
-    invoke_hpp::apply(
+    std::apply(
         [&](auto&&... args) {
             vert.handle = impl::ValueHandle<RenderPhaseTag, LayoutGraph::vertex_descriptor>{
                 gsl::narrow_cast<LayoutGraph::vertex_descriptor>(g.phases.size())};
@@ -1400,18 +1294,18 @@ void addVertexImpl(RenderPhaseTag /*tag*/, Tuple &&val, LayoutGraph &g, LayoutGr
 template <class Component0, class Component1, class Tag, class ValueT>
 inline LayoutGraph::vertex_descriptor
 addVertex(Tag tag, Component0&& c0, Component1&& c1, ValueT&& val, LayoutGraph& g, LayoutGraph::vertex_descriptor u = LayoutGraph::null_vertex()) {
-    auto v = gsl::narrow_cast<LayoutGraph::vertex_descriptor>(g.vertices.size());
+    auto v = gsl::narrow_cast<LayoutGraph::vertex_descriptor>(g._vertices.size());
 
-    g.vertices.emplace_back();
-    auto& vert = g.vertices.back();
+    g._vertices.emplace_back();
+    auto& vert = g._vertices.back();
 
-    invoke_hpp::apply(
+    std::apply(
         [&](auto&&... args) {
             g.names.emplace_back(std::forward<decltype(args)>(args)...);
         },
         std::forward<Component0>(c0));
 
-    invoke_hpp::apply(
+    std::apply(
         [&](auto&&... args) {
             g.descriptors.emplace_back(std::forward<decltype(args)>(args)...);
         },
@@ -1421,7 +1315,7 @@ addVertex(Tag tag, Component0&& c0, Component1&& c1, ValueT&& val, LayoutGraph& 
     // if no matching overloaded function is found, Type is not supported by PolymorphicGraph
     addVertexImpl(tag, std::forward<ValueT>(val), g, vert);
 
-    // AddressableGraph
+    // ReferenceGraph
     addPathImpl(u, v, g);
 
     return v;
@@ -1522,7 +1416,7 @@ get(T PipelineLayoutData::*memberPointer, LayoutGraphData& g) noexcept {
 inline LayoutGraphData::vertices_size_type
 id(LayoutGraphData::vertex_descriptor u, const LayoutGraphData& g) noexcept {
     using vertex_descriptor = LayoutGraphData::vertex_descriptor;
-    return cc::visit(
+    return ccstd::visit(
         overload(
             [](const impl::ValueHandle<RenderStageTag, vertex_descriptor>& h) {
                 return h.value;
@@ -1530,13 +1424,13 @@ id(LayoutGraphData::vertex_descriptor u, const LayoutGraphData& g) noexcept {
             [](const impl::ValueHandle<RenderPhaseTag, vertex_descriptor>& h) {
                 return h.value;
             }),
-        g.vertices[u].handle);
+        g._vertices[u].handle);
 }
 
 inline LayoutGraphData::VertexTag
 tag(LayoutGraphData::vertex_descriptor u, const LayoutGraphData& g) noexcept {
     using vertex_descriptor = LayoutGraphData::vertex_descriptor;
-    return cc::visit(
+    return ccstd::visit(
         overload(
             [](const impl::ValueHandle<RenderStageTag, vertex_descriptor>&) {
                 return LayoutGraphData::VertexTag{RenderStageTag{}};
@@ -1544,13 +1438,13 @@ tag(LayoutGraphData::vertex_descriptor u, const LayoutGraphData& g) noexcept {
             [](const impl::ValueHandle<RenderPhaseTag, vertex_descriptor>&) {
                 return LayoutGraphData::VertexTag{RenderPhaseTag{}};
             }),
-        g.vertices[u].handle);
+        g._vertices[u].handle);
 }
 
 inline LayoutGraphData::VertexValue
 value(LayoutGraphData::vertex_descriptor u, LayoutGraphData& g) noexcept {
     using vertex_descriptor = LayoutGraphData::vertex_descriptor;
-    return cc::visit(
+    return ccstd::visit(
         overload(
             [&](const impl::ValueHandle<RenderStageTag, vertex_descriptor>& h) {
                 return LayoutGraphData::VertexValue{&g.stages[h.value]};
@@ -1558,13 +1452,13 @@ value(LayoutGraphData::vertex_descriptor u, LayoutGraphData& g) noexcept {
             [&](const impl::ValueHandle<RenderPhaseTag, vertex_descriptor>& h) {
                 return LayoutGraphData::VertexValue{&g.phases[h.value]};
             }),
-        g.vertices[u].handle);
+        g._vertices[u].handle);
 }
 
 inline LayoutGraphData::VertexConstValue
 value(LayoutGraphData::vertex_descriptor u, const LayoutGraphData& g) noexcept {
     using vertex_descriptor = LayoutGraphData::vertex_descriptor;
-    return cc::visit(
+    return ccstd::visit(
         overload(
             [&](const impl::ValueHandle<RenderStageTag, vertex_descriptor>& h) {
                 return LayoutGraphData::VertexConstValue{&g.stages[h.value]};
@@ -1572,7 +1466,7 @@ value(LayoutGraphData::vertex_descriptor u, const LayoutGraphData& g) noexcept {
             [&](const impl::ValueHandle<RenderPhaseTag, vertex_descriptor>& h) {
                 return LayoutGraphData::VertexConstValue{&g.phases[h.value]};
             }),
-        g.vertices[u].handle);
+        g._vertices[u].handle);
 }
 
 template <class Tag>
@@ -1582,17 +1476,17 @@ holds(LayoutGraphData::vertex_descriptor v, const LayoutGraphData& g) noexcept;
 template <>
 inline bool
 holds<RenderStageTag>(LayoutGraphData::vertex_descriptor v, const LayoutGraphData& g) noexcept {
-    return boost::variant2::holds_alternative<
+    return ccstd::holds_alternative<
         impl::ValueHandle<RenderStageTag, LayoutGraphData::vertex_descriptor>>(
-        g.vertices[v].handle);
+        g._vertices[v].handle);
 }
 
 template <>
 inline bool
 holds<RenderPhaseTag>(LayoutGraphData::vertex_descriptor v, const LayoutGraphData& g) noexcept {
-    return boost::variant2::holds_alternative<
+    return ccstd::holds_alternative<
         impl::ValueHandle<RenderPhaseTag, LayoutGraphData::vertex_descriptor>>(
-        g.vertices[v].handle);
+        g._vertices[v].handle);
 }
 
 template <class ValueT>
@@ -1601,18 +1495,18 @@ holds_alternative(LayoutGraphData::vertex_descriptor v, const LayoutGraphData& g
 
 template <>
 inline bool
-holds_alternative<uint32_t>(LayoutGraphData::vertex_descriptor v, const LayoutGraphData& g) noexcept { // NOLINT
-    return boost::variant2::holds_alternative<
+holds_alternative<RenderStageData>(LayoutGraphData::vertex_descriptor v, const LayoutGraphData& g) noexcept { // NOLINT
+    return ccstd::holds_alternative<
         impl::ValueHandle<RenderStageTag, LayoutGraphData::vertex_descriptor>>(
-        g.vertices[v].handle);
+        g._vertices[v].handle);
 }
 
 template <>
 inline bool
 holds_alternative<RenderPhaseData>(LayoutGraphData::vertex_descriptor v, const LayoutGraphData& g) noexcept { // NOLINT
-    return boost::variant2::holds_alternative<
+    return ccstd::holds_alternative<
         impl::ValueHandle<RenderPhaseTag, LayoutGraphData::vertex_descriptor>>(
-        g.vertices[v].handle);
+        g._vertices[v].handle);
 }
 
 template <class ValueT>
@@ -1620,20 +1514,20 @@ inline ValueT&
 get(LayoutGraphData::vertex_descriptor /*v*/, LayoutGraphData& /*g*/);
 
 template <>
-inline uint32_t&
-get<uint32_t>(LayoutGraphData::vertex_descriptor v, LayoutGraphData& g) {
-    auto& handle = boost::variant2::get<
+inline RenderStageData&
+get<RenderStageData>(LayoutGraphData::vertex_descriptor v, LayoutGraphData& g) {
+    auto& handle = ccstd::get<
         impl::ValueHandle<RenderStageTag, LayoutGraphData::vertex_descriptor>>(
-        g.vertices[v].handle);
+        g._vertices[v].handle);
     return g.stages[handle.value];
 }
 
 template <>
 inline RenderPhaseData&
 get<RenderPhaseData>(LayoutGraphData::vertex_descriptor v, LayoutGraphData& g) {
-    auto& handle = boost::variant2::get<
+    auto& handle = ccstd::get<
         impl::ValueHandle<RenderPhaseTag, LayoutGraphData::vertex_descriptor>>(
-        g.vertices[v].handle);
+        g._vertices[v].handle);
     return g.phases[handle.value];
 }
 
@@ -1642,52 +1536,52 @@ inline const ValueT&
 get(LayoutGraphData::vertex_descriptor /*v*/, const LayoutGraphData& /*g*/);
 
 template <>
-inline const uint32_t&
-get<uint32_t>(LayoutGraphData::vertex_descriptor v, const LayoutGraphData& g) {
-    const auto& handle = boost::variant2::get<
+inline const RenderStageData&
+get<RenderStageData>(LayoutGraphData::vertex_descriptor v, const LayoutGraphData& g) {
+    const auto& handle = ccstd::get<
         impl::ValueHandle<RenderStageTag, LayoutGraphData::vertex_descriptor>>(
-        g.vertices[v].handle);
+        g._vertices[v].handle);
     return g.stages[handle.value];
 }
 
 template <>
 inline const RenderPhaseData&
 get<RenderPhaseData>(LayoutGraphData::vertex_descriptor v, const LayoutGraphData& g) {
-    const auto& handle = boost::variant2::get<
+    const auto& handle = ccstd::get<
         impl::ValueHandle<RenderPhaseTag, LayoutGraphData::vertex_descriptor>>(
-        g.vertices[v].handle);
+        g._vertices[v].handle);
     return g.phases[handle.value];
 }
 
-inline uint32_t&
+inline RenderStageData&
 get(RenderStageTag /*tag*/, LayoutGraphData::vertex_descriptor v, LayoutGraphData& g) {
-    auto& handle = boost::variant2::get<
+    auto& handle = ccstd::get<
         impl::ValueHandle<RenderStageTag, LayoutGraphData::vertex_descriptor>>(
-        g.vertices[v].handle);
+        g._vertices[v].handle);
     return g.stages[handle.value];
 }
 
 inline RenderPhaseData&
 get(RenderPhaseTag /*tag*/, LayoutGraphData::vertex_descriptor v, LayoutGraphData& g) {
-    auto& handle = boost::variant2::get<
+    auto& handle = ccstd::get<
         impl::ValueHandle<RenderPhaseTag, LayoutGraphData::vertex_descriptor>>(
-        g.vertices[v].handle);
+        g._vertices[v].handle);
     return g.phases[handle.value];
 }
 
-inline const uint32_t&
+inline const RenderStageData&
 get(RenderStageTag /*tag*/, LayoutGraphData::vertex_descriptor v, const LayoutGraphData& g) {
-    const auto& handle = boost::variant2::get<
+    const auto& handle = ccstd::get<
         impl::ValueHandle<RenderStageTag, LayoutGraphData::vertex_descriptor>>(
-        g.vertices[v].handle);
+        g._vertices[v].handle);
     return g.stages[handle.value];
 }
 
 inline const RenderPhaseData&
 get(RenderPhaseTag /*tag*/, LayoutGraphData::vertex_descriptor v, const LayoutGraphData& g) {
-    const auto& handle = boost::variant2::get<
+    const auto& handle = ccstd::get<
         impl::ValueHandle<RenderPhaseTag, LayoutGraphData::vertex_descriptor>>(
-        g.vertices[v].handle);
+        g._vertices[v].handle);
     return g.phases[handle.value];
 }
 
@@ -1696,16 +1590,16 @@ inline ValueT*
 get_if(LayoutGraphData::vertex_descriptor v, LayoutGraphData* pGraph) noexcept; // NOLINT
 
 template <>
-inline uint32_t*
-get_if<uint32_t>(LayoutGraphData::vertex_descriptor v, LayoutGraphData* pGraph) noexcept { // NOLINT
-    uint32_t* ptr = nullptr;
+inline RenderStageData*
+get_if<RenderStageData>(LayoutGraphData::vertex_descriptor v, LayoutGraphData* pGraph) noexcept { // NOLINT
+    RenderStageData* ptr = nullptr;
     if (!pGraph) {
         return ptr;
     }
     auto& g       = *pGraph;
-    auto* pHandle = boost::variant2::get_if<
+    auto* pHandle = ccstd::get_if<
         impl::ValueHandle<RenderStageTag, LayoutGraphData::vertex_descriptor>>(
-        &g.vertices[v].handle);
+        &g._vertices[v].handle);
     if (pHandle) {
         ptr = &g.stages[pHandle->value];
     }
@@ -1720,9 +1614,9 @@ get_if<RenderPhaseData>(LayoutGraphData::vertex_descriptor v, LayoutGraphData* p
         return ptr;
     }
     auto& g       = *pGraph;
-    auto* pHandle = boost::variant2::get_if<
+    auto* pHandle = ccstd::get_if<
         impl::ValueHandle<RenderPhaseTag, LayoutGraphData::vertex_descriptor>>(
-        &g.vertices[v].handle);
+        &g._vertices[v].handle);
     if (pHandle) {
         ptr = &g.phases[pHandle->value];
     }
@@ -1734,16 +1628,16 @@ inline const ValueT*
 get_if(LayoutGraphData::vertex_descriptor v, const LayoutGraphData* pGraph) noexcept; // NOLINT
 
 template <>
-inline const uint32_t*
-get_if<uint32_t>(LayoutGraphData::vertex_descriptor v, const LayoutGraphData* pGraph) noexcept { // NOLINT
-    const uint32_t* ptr = nullptr;
+inline const RenderStageData*
+get_if<RenderStageData>(LayoutGraphData::vertex_descriptor v, const LayoutGraphData* pGraph) noexcept { // NOLINT
+    const RenderStageData* ptr = nullptr;
     if (!pGraph) {
         return ptr;
     }
     const auto& g       = *pGraph;
-    const auto* pHandle = boost::variant2::get_if<
+    const auto* pHandle = ccstd::get_if<
         impl::ValueHandle<RenderStageTag, LayoutGraphData::vertex_descriptor>>(
-        &g.vertices[v].handle);
+        &g._vertices[v].handle);
     if (pHandle) {
         ptr = &g.stages[pHandle->value];
     }
@@ -1758,9 +1652,9 @@ get_if<RenderPhaseData>(LayoutGraphData::vertex_descriptor v, const LayoutGraphD
         return ptr;
     }
     const auto& g       = *pGraph;
-    const auto* pHandle = boost::variant2::get_if<
+    const auto* pHandle = ccstd::get_if<
         impl::ValueHandle<RenderPhaseTag, LayoutGraphData::vertex_descriptor>>(
-        &g.vertices[v].handle);
+        &g._vertices[v].handle);
     if (pHandle) {
         ptr = &g.phases[pHandle->value];
     }
@@ -1797,7 +1691,7 @@ inline const std::basic_string<char, std::char_traits<char>, Allocator>&
 getPath(
     std::basic_string<char, std::char_traits<char>, Allocator>& output,
     LayoutGraphData::vertex_descriptor u0, const LayoutGraphData& g,
-    boost::string_view prefix = {}, LayoutGraphData::vertex_descriptor parent = LayoutGraphData::null_vertex()) {
+    std::string_view prefix = {}, LayoutGraphData::vertex_descriptor parent = LayoutGraphData::null_vertex()) {
     output.clear();
     const auto sz0 = static_cast<std::ptrdiff_t>(prefix.size());
     auto       sz  = sz0;
@@ -1819,7 +1713,7 @@ getPath(
 inline ccstd::string
 getPath(
     LayoutGraphData::vertex_descriptor u0, const LayoutGraphData& g,
-    boost::string_view prefix = {}, LayoutGraphData::vertex_descriptor parent = LayoutGraphData::null_vertex()) {
+    std::string_view prefix = {}, LayoutGraphData::vertex_descriptor parent = LayoutGraphData::null_vertex()) {
     ccstd::string output;
     getPath(output, u0, g, prefix, parent);
     return output;
@@ -1828,7 +1722,7 @@ getPath(
 inline ccstd::pmr::string
 getPath(
     LayoutGraphData::vertex_descriptor u0, const LayoutGraphData& g,
-    boost::container::pmr::memory_resource* mr, boost::string_view prefix = {}, LayoutGraphData::vertex_descriptor parent = LayoutGraphData::null_vertex()) {
+    boost::container::pmr::memory_resource* mr, std::string_view prefix = {}, LayoutGraphData::vertex_descriptor parent = LayoutGraphData::null_vertex()) {
     ccstd::pmr::string output(mr);
     getPath(output, u0, g, prefix, parent);
     return output;
@@ -1838,7 +1732,7 @@ template <class Allocator>
 inline const std::basic_string<char, std::char_traits<char>, Allocator>&
 getPath(
     std::basic_string<char, std::char_traits<char>, Allocator>& output,
-    LayoutGraphData::vertex_descriptor parent, boost::string_view name, const LayoutGraphData& g) {
+    LayoutGraphData::vertex_descriptor parent, std::string_view name, const LayoutGraphData& g) {
     output.clear();
     auto sz = impl::pathLength(parent, g);
     output.resize(sz + name.size() + 1);
@@ -1850,21 +1744,21 @@ getPath(
 }
 
 inline ccstd::string
-getPath(LayoutGraphData::vertex_descriptor parent, boost::string_view name, const LayoutGraphData& g) {
+getPath(LayoutGraphData::vertex_descriptor parent, std::string_view name, const LayoutGraphData& g) {
     ccstd::string output;
     getPath(output, parent, name, g);
     return output;
 }
 
 inline ccstd::pmr::string
-getPath(LayoutGraphData::vertex_descriptor parent, boost::string_view name, const LayoutGraphData& g, boost::container::pmr::memory_resource* mr) {
+getPath(LayoutGraphData::vertex_descriptor parent, std::string_view name, const LayoutGraphData& g, boost::container::pmr::memory_resource* mr) {
     ccstd::pmr::string output(mr);
     getPath(output, parent, name, g);
     return output;
 }
 
 inline LayoutGraphData::vertex_descriptor
-locate(boost::string_view absolute, const LayoutGraphData& g) noexcept {
+locate(std::string_view absolute, const LayoutGraphData& g) noexcept {
     auto iter = g.pathIndex.find(absolute);
     if (iter != g.pathIndex.end()) {
         return iter->second;
@@ -1873,22 +1767,22 @@ locate(boost::string_view absolute, const LayoutGraphData& g) noexcept {
 };
 
 inline LayoutGraphData::vertex_descriptor
-locate(LayoutGraphData::vertex_descriptor u, boost::string_view relative, const LayoutGraphData& g) {
-    CC_EXPECTS(!relative.starts_with('/'));
-    CC_EXPECTS(!relative.ends_with('/'));
+locate(LayoutGraphData::vertex_descriptor u, std::string_view relative, const LayoutGraphData& g) {
+    CC_EXPECTS(!boost::algorithm::starts_with(relative, "/"));
+    CC_EXPECTS(!boost::algorithm::ends_with(relative, "/"));
     auto key = getPath(u, relative, g);
     impl::cleanPath(key);
     return locate(key, g);
 };
 
 inline bool
-contains(boost::string_view absolute, const LayoutGraphData& g) noexcept {
+contains(std::string_view absolute, const LayoutGraphData& g) noexcept {
     return locate(absolute, g) != LayoutGraphData::null_vertex();
 }
 
 template <class ValueT>
 inline ValueT&
-get(boost::string_view pt, LayoutGraphData& g) {
+get(std::string_view pt, LayoutGraphData& g) {
     auto v = locate(pt, g);
     if (v == LayoutGraphData::null_vertex()) {
         throw std::out_of_range("at LayoutGraphData");
@@ -1898,7 +1792,7 @@ get(boost::string_view pt, LayoutGraphData& g) {
 
 template <class ValueT>
 inline const ValueT&
-get(boost::string_view pt, const LayoutGraphData& g) {
+get(std::string_view pt, const LayoutGraphData& g) {
     auto v = locate(pt, g);
     if (v == LayoutGraphData::null_vertex()) {
         throw std::out_of_range("at LayoutGraphData");
@@ -1908,7 +1802,7 @@ get(boost::string_view pt, const LayoutGraphData& g) {
 
 template <class ValueT>
 inline ValueT*
-get_if(boost::string_view pt, LayoutGraphData* pGraph) noexcept { // NOLINT
+get_if(std::string_view pt, LayoutGraphData* pGraph) noexcept { // NOLINT
     if (pGraph) {
         auto v = locate(pt, *pGraph);
         if (v != LayoutGraphData::null_vertex()) {
@@ -1920,7 +1814,7 @@ get_if(boost::string_view pt, LayoutGraphData* pGraph) noexcept { // NOLINT
 
 template <class ValueT>
 inline const ValueT*
-get_if(boost::string_view pt, const LayoutGraphData* pGraph) noexcept { // NOLINT
+get_if(std::string_view pt, const LayoutGraphData* pGraph) noexcept { // NOLINT
     if (pGraph) {
         auto v = locate(pt, *pGraph);
         if (v != LayoutGraphData::null_vertex()) {
@@ -1951,7 +1845,7 @@ inline void removePathImpl(LayoutGraphData::vertex_descriptor u, LayoutGraphData
     // notice: here we use ccstd::string, not std::pmr::string
     // we do not want to increase the memory of g
     auto pathName = getPath(u, g);
-    auto iter     = g.pathIndex.find(boost::string_view(pathName));
+    auto iter     = g.pathIndex.find(std::string_view(pathName));
     CC_EXPECTS(iter != g.pathIndex.end());
     g.pathIndex.erase(iter);
     for (auto&& nvp : g.pathIndex) {
@@ -2006,28 +1900,28 @@ inline void clear_vertex(LayoutGraphData::vertex_descriptor u, LayoutGraphData& 
 
 inline void remove_vertex_value_impl(const LayoutGraphData::VertexHandle& h, LayoutGraphData& g) noexcept { // NOLINT
     using vertex_descriptor = LayoutGraphData::vertex_descriptor;
-    cc::visit(
+    ccstd::visit(
         overload(
             [&](const impl::ValueHandle<RenderStageTag, vertex_descriptor>& h) {
                 g.stages.erase(g.stages.begin() + std::ptrdiff_t(h.value));
                 if (h.value == g.stages.size()) {
                     return;
                 }
-                impl::reindexVectorHandle<RenderStageTag>(g.vertices, h.value);
+                impl::reindexVectorHandle<RenderStageTag>(g._vertices, h.value);
             },
             [&](const impl::ValueHandle<RenderPhaseTag, vertex_descriptor>& h) {
                 g.phases.erase(g.phases.begin() + std::ptrdiff_t(h.value));
                 if (h.value == g.phases.size()) {
                     return;
                 }
-                impl::reindexVectorHandle<RenderPhaseTag>(g.vertices, h.value);
+                impl::reindexVectorHandle<RenderPhaseTag>(g._vertices, h.value);
             }),
         h);
 }
 
 inline void remove_vertex(LayoutGraphData::vertex_descriptor u, LayoutGraphData& g) noexcept { // NOLINT
     // preserve vertex' iterators
-    auto& vert = g.vertices[u];
+    auto& vert = g._vertices[u];
     remove_vertex_value_impl(vert.handle, g);
     impl::removeVectorVertex(const_cast<LayoutGraphData&>(g), u, LayoutGraphData::directed_category{});
 
@@ -2041,7 +1935,7 @@ inline void remove_vertex(LayoutGraphData::vertex_descriptor u, LayoutGraphData&
 template <class ValueT>
 void addVertexImpl( // NOLINT
     ValueT &&val, LayoutGraphData &g, LayoutGraphData::Vertex &vert, // NOLINT
-    std::enable_if_t<std::is_same<std::decay_t<ValueT>, uint32_t>::value>* dummy = nullptr) { // NOLINT
+    std::enable_if_t<std::is_same<std::decay_t<ValueT>, RenderStageData>::value>* dummy = nullptr) { // NOLINT
     vert.handle = impl::ValueHandle<RenderStageTag, LayoutGraphData::vertex_descriptor>{
         gsl::narrow_cast<LayoutGraphData::vertex_descriptor>(g.stages.size())};
     g.stages.emplace_back(std::forward<ValueT>(val));
@@ -2059,10 +1953,10 @@ void addVertexImpl( // NOLINT
 template <class Component0, class Component1, class Component2, class ValueT>
 inline LayoutGraphData::vertex_descriptor
 addVertex(Component0&& c0, Component1&& c1, Component2&& c2, ValueT&& val, LayoutGraphData& g, LayoutGraphData::vertex_descriptor u = LayoutGraphData::null_vertex()) {
-    auto v = gsl::narrow_cast<LayoutGraphData::vertex_descriptor>(g.vertices.size());
+    auto v = gsl::narrow_cast<LayoutGraphData::vertex_descriptor>(g._vertices.size());
 
-    g.vertices.emplace_back();
-    auto& vert = g.vertices.back();
+    g._vertices.emplace_back();
+    auto& vert = g._vertices.back();
     g.names.emplace_back(std::forward<Component0>(c0));
     g.updateFrequencies.emplace_back(std::forward<Component1>(c1));
     g.layouts.emplace_back(std::forward<Component2>(c2));
@@ -2071,7 +1965,7 @@ addVertex(Component0&& c0, Component1&& c1, Component2&& c2, ValueT&& val, Layou
     // if no matching overloaded function is found, Type is not supported by PolymorphicGraph
     addVertexImpl(std::forward<ValueT>(val), g, vert);
 
-    // AddressableGraph
+    // ReferenceGraph
     addPathImpl(u, v, g);
 
     return v;
@@ -2079,7 +1973,7 @@ addVertex(Component0&& c0, Component1&& c1, Component2&& c2, ValueT&& val, Layou
 
 template <class Tuple>
 void addVertexImpl(RenderStageTag /*tag*/, Tuple &&val, LayoutGraphData &g, LayoutGraphData::Vertex &vert) {
-    invoke_hpp::apply(
+    std::apply(
         [&](auto&&... args) {
             vert.handle = impl::ValueHandle<RenderStageTag, LayoutGraphData::vertex_descriptor>{
                 gsl::narrow_cast<LayoutGraphData::vertex_descriptor>(g.stages.size())};
@@ -2090,7 +1984,7 @@ void addVertexImpl(RenderStageTag /*tag*/, Tuple &&val, LayoutGraphData &g, Layo
 
 template <class Tuple>
 void addVertexImpl(RenderPhaseTag /*tag*/, Tuple &&val, LayoutGraphData &g, LayoutGraphData::Vertex &vert) {
-    invoke_hpp::apply(
+    std::apply(
         [&](auto&&... args) {
             vert.handle = impl::ValueHandle<RenderPhaseTag, LayoutGraphData::vertex_descriptor>{
                 gsl::narrow_cast<LayoutGraphData::vertex_descriptor>(g.phases.size())};
@@ -2102,24 +1996,24 @@ void addVertexImpl(RenderPhaseTag /*tag*/, Tuple &&val, LayoutGraphData &g, Layo
 template <class Component0, class Component1, class Component2, class Tag, class ValueT>
 inline LayoutGraphData::vertex_descriptor
 addVertex(Tag tag, Component0&& c0, Component1&& c1, Component2&& c2, ValueT&& val, LayoutGraphData& g, LayoutGraphData::vertex_descriptor u = LayoutGraphData::null_vertex()) {
-    auto v = gsl::narrow_cast<LayoutGraphData::vertex_descriptor>(g.vertices.size());
+    auto v = gsl::narrow_cast<LayoutGraphData::vertex_descriptor>(g._vertices.size());
 
-    g.vertices.emplace_back();
-    auto& vert = g.vertices.back();
+    g._vertices.emplace_back();
+    auto& vert = g._vertices.back();
 
-    invoke_hpp::apply(
+    std::apply(
         [&](auto&&... args) {
             g.names.emplace_back(std::forward<decltype(args)>(args)...);
         },
         std::forward<Component0>(c0));
 
-    invoke_hpp::apply(
+    std::apply(
         [&](auto&&... args) {
             g.updateFrequencies.emplace_back(std::forward<decltype(args)>(args)...);
         },
         std::forward<Component1>(c1));
 
-    invoke_hpp::apply(
+    std::apply(
         [&](auto&&... args) {
             g.layouts.emplace_back(std::forward<decltype(args)>(args)...);
         },
@@ -2129,7 +2023,7 @@ addVertex(Tag tag, Component0&& c0, Component1&& c1, Component2&& c2, ValueT&& v
     // if no matching overloaded function is found, Type is not supported by PolymorphicGraph
     addVertexImpl(tag, std::forward<ValueT>(val), g, vert);
 
-    // AddressableGraph
+    // ReferenceGraph
     addPathImpl(u, v, g);
 
     return v;

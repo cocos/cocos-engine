@@ -1,7 +1,4 @@
-/**
- * @packageDocumentation
- * @module dragonBones
- */
+
 
 import { IAssemblerManager } from '../../2d/renderer/base';
 import { ArmatureDisplay } from '../ArmatureDisplay';

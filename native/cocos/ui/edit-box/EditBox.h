@@ -41,23 +41,23 @@ public:
         ccstd::string defaultValue;
         ccstd::string confirmType;
         ccstd::string inputType;
-        int           maxLength   = 0;
-        int           x           = 0;
-        int           y           = 0;
-        int           width       = 0;
-        int           height      = 0;
-        bool          confirmHold = false;
-        bool          isMultiline = false;
+        int maxLength = 0;
+        int x = 0;
+        int y = 0;
+        int width = 0;
+        int height = 0;
+        bool confirmHold = false;
+        bool isMultiline = false;
         //NEW PROPERTIES
-        uint32_t fontSize        = 20;
-        uint32_t fontColor       = 0x00000000;
-        uint32_t backColor       = 0x00000000; //font back color
+        uint32_t fontSize = 20;
+        uint32_t fontColor = 0x00000000;
+        uint32_t backColor = 0x00000000; //font back color
         uint32_t backgroundColor = 0x00000000;
-        bool     isBold          = false;
-        bool     isItalic        = false;
-        bool     isUnderline     = false;
-        uint32_t underlineColor  = 0x00000000;
-        uint32_t textAlignment   = LEFT; //By default, override with left, center or right
+        bool isBold = false;
+        bool isItalic = false;
+        bool isUnderline = false;
+        uint32_t underlineColor = 0x00000000;
+        uint32_t textAlignment = LEFT; //By default, override with left, center or right
     };
 
     static void show(const ShowInfo &showInfo);

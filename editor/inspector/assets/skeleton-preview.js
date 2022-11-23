@@ -1,6 +1,6 @@
 'use strict';
 
-exports.template = `
+exports.template = /* html */`
 <div class="preview">
     <div class="info">
         <ui-label value="JointCount:0" class="joint-count"></ui-label>
@@ -11,7 +11,7 @@ exports.template = `
 </div>
 `;
 
-exports.style = `
+exports.style = /* css */`
 .preview {
     margin-top: 10px;
     border-top: 1px solid var(--color-normal-border);
@@ -133,38 +133,6 @@ const Elements = {
     },
 };
 
-exports.update = function(assetList, metaList) {
-    this.assetList = assetList;
-    this.metaList = metaList;
-    this.asset = assetList[0];
-    this.meta = metaList[0];
-
-    for (const prop in Elements) {
-        const element = Elements[prop];
-        if (element.update) {
-            element.update.call(this);
-        }
-    }
-};
-
-exports.ready = function() {
-    for (const prop in Elements) {
-        const element = Elements[prop];
-        if (element.ready) {
-            element.ready.call(this);
-        }
-    }
-};
-
-exports.close = function() {
-    for (const prop in Elements) {
-        const element = Elements[prop];
-        if (element.close) {
-            element.close.call(this);
-        }
-    }
-};
-
 exports.methods = {
     async refreshPreview() {
         const panel = this;
@@ -207,4 +175,36 @@ exports.methods = {
             panel.refreshPreview();
         });
     },
+};
+
+exports.ready = function() {
+    for (const prop in Elements) {
+        const element = Elements[prop];
+        if (element.ready) {
+            element.ready.call(this);
+        }
+    }
+};
+
+exports.update = function(assetList, metaList) {
+    this.assetList = assetList;
+    this.metaList = metaList;
+    this.asset = assetList[0];
+    this.meta = metaList[0];
+
+    for (const prop in Elements) {
+        const element = Elements[prop];
+        if (element.update) {
+            element.update.call(this);
+        }
+    }
+};
+
+exports.close = function() {
+    for (const prop in Elements) {
+        const element = Elements[prop];
+        if (element.close) {
+            element.close.call(this);
+        }
+    }
 };

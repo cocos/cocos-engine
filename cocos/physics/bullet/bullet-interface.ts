@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 import { BulletShape } from './shapes/bullet-shape';
 
 export interface IBulletBodyStruct {

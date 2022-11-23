@@ -37,7 +37,7 @@ public:
     explicit CCMTLInputAssembler();
     ~CCMTLInputAssembler();
     CCMTLInputAssembler(const CCMTLInputAssembler &) = delete;
-    CCMTLInputAssembler(CCMTLInputAssembler &&)      = delete;
+    CCMTLInputAssembler(CCMTLInputAssembler &&) = delete;
     CCMTLInputAssembler &operator=(const CCMTLInputAssembler &) = delete;
     CCMTLInputAssembler &operator=(CCMTLInputAssembler &&) = delete;
 

@@ -34,14 +34,10 @@ This file was modified to fit the cocos2d-x project
 //#define USE_SSE           : SSE code used
 //#define INCLUDE_SSE       : SSE code included
 
-#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
+#if (CC_PLATFORM == CC_PLATFORM_IOS)
     #if defined(__arm64__)
         #define USE_NEON64
         #define INCLUDE_NEON64
-    #elif defined(__ARM_NEON__)
-        #define USE_NEON32
-        #define INCLUDE_NEON32
-    #else
     #endif
 #elif (CC_PLATFORM == CC_PLATFORM_ANDROID)
     #if defined(__arm64__) || defined(__aarch64__)
@@ -49,10 +45,7 @@ This file was modified to fit the cocos2d-x project
         #define INCLUDE_NEON64
     #elif defined(__ARM_NEON__)
         #define INCLUDE_NEON32
-    #else
     #endif
-#else
-
 #endif
 
 #if defined(__SSE__)
@@ -77,7 +70,7 @@ This file was modified to fit the cocos2d-x project
 NS_CC_MATH_BEGIN
 
 void MathUtil::smooth(float *x, float target, float elapsedTime, float responseTime) {
-    GP_ASSERT(x);
+    CC_ASSERT(x);
 
     if (elapsedTime > 0) {
         *x += (target - *x) * elapsedTime / (elapsedTime + responseTime);
@@ -85,7 +78,7 @@ void MathUtil::smooth(float *x, float target, float elapsedTime, float responseT
 }
 
 void MathUtil::smooth(float *x, float target, float elapsedTime, float riseTime, float fallTime) {
-    GP_ASSERT(x);
+    CC_ASSERT(x);
 
     if (elapsedTime > 0) {
         float delta = target - *x;
@@ -132,12 +125,9 @@ void MathUtil::addMatrix(const float *m, float scalar, float *dst) {
 #elif defined(USE_NEON64)
     MathUtilNeon64::addMatrix(m, scalar, dst);
 #elif defined(INCLUDE_NEON32)
-    if (isNeon32Enabled())
-    {
+    if (isNeon32Enabled()) {
         MathUtilNeon::addMatrix(m, scalar, dst);
-    }
-    else
-    {
+    } else {
         MathUtilC::addMatrix(m, scalar, dst);
     }
 #else
@@ -151,12 +141,9 @@ void MathUtil::addMatrix(const float *m1, const float *m2, float *dst) {
 #elif defined(USE_NEON64)
     MathUtilNeon64::addMatrix(m1, m2, dst);
 #elif defined(INCLUDE_NEON32)
-    if (isNeon32Enabled())
-    {
+    if (isNeon32Enabled()) {
         MathUtilNeon::addMatrix(m1, m2, dst);
-    }
-    else
-    {
+    } else {
         MathUtilC::addMatrix(m1, m2, dst);
     }
 #else
@@ -170,12 +157,9 @@ void MathUtil::subtractMatrix(const float *m1, const float *m2, float *dst) {
 #elif defined(USE_NEON64)
     MathUtilNeon64::subtractMatrix(m1, m2, dst);
 #elif defined(INCLUDE_NEON32)
-    if (isNeon32Enabled())
-    {
+    if (isNeon32Enabled()) {
         MathUtilNeon::subtractMatrix(m1, m2, dst);
-    }
-    else
-    {
+    } else {
         MathUtilC::subtractMatrix(m1, m2, dst);
     }
 #else
@@ -189,12 +173,9 @@ void MathUtil::multiplyMatrix(const float *m, float scalar, float *dst) {
 #elif defined(USE_NEON64)
     MathUtilNeon64::multiplyMatrix(m, scalar, dst);
 #elif defined(INCLUDE_NEON32)
-    if (isNeon32Enabled())
-    {
+    if (isNeon32Enabled()) {
         MathUtilNeon::multiplyMatrix(m, scalar, dst);
-    }
-    else
-    {
+    } else {
         MathUtilC::multiplyMatrix(m, scalar, dst);
     }
 #else
@@ -208,12 +189,9 @@ void MathUtil::multiplyMatrix(const float *m1, const float *m2, float *dst) {
 #elif defined(USE_NEON64)
     MathUtilNeon64::multiplyMatrix(m1, m2, dst);
 #elif defined(INCLUDE_NEON32)
-    if (isNeon32Enabled())
-    {
+    if (isNeon32Enabled()) {
         MathUtilNeon::multiplyMatrix(m1, m2, dst);
-    }
-    else
-    {
+    } else {
         MathUtilC::multiplyMatrix(m1, m2, dst);
     }
 #else
@@ -227,12 +205,9 @@ void MathUtil::negateMatrix(const float *m, float *dst) {
 #elif defined(USE_NEON64)
     MathUtilNeon64::negateMatrix(m, dst);
 #elif defined(INCLUDE_NEON32)
-    if (isNeon32Enabled())
-    {
+    if (isNeon32Enabled()) {
         MathUtilNeon::negateMatrix(m, dst);
-    }
-    else
-    {
+    } else {
         MathUtilC::negateMatrix(m, dst);
     }
 #else
@@ -246,12 +221,9 @@ void MathUtil::transposeMatrix(const float *m, float *dst) {
 #elif defined(USE_NEON64)
     MathUtilNeon64::transposeMatrix(m, dst);
 #elif defined(INCLUDE_NEON32)
-    if (isNeon32Enabled())
-    {
+    if (isNeon32Enabled()) {
         MathUtilNeon::transposeMatrix(m, dst);
-    }
-    else
-    {
+    } else {
         MathUtilC::transposeMatrix(m, dst);
     }
 #else
@@ -265,12 +237,9 @@ void MathUtil::transformVec4(const float *m, float x, float y, float z, float w,
 #elif defined(USE_NEON64)
     MathUtilNeon64::transformVec4(m, x, y, z, w, dst);
 #elif defined(INCLUDE_NEON32)
-    if (isNeon32Enabled())
-    {
+    if (isNeon32Enabled()) {
         MathUtilNeon::transformVec4(m, x, y, z, w, dst);
-    }
-    else
-    {
+    } else {
         MathUtilC::transformVec4(m, x, y, z, w, dst);
     }
 #else
@@ -284,12 +253,9 @@ void MathUtil::transformVec4(const float *m, const float *v, float *dst) {
 #elif defined(USE_NEON64)
     MathUtilNeon64::transformVec4(m, v, dst);
 #elif defined(INCLUDE_NEON32)
-    if (isNeon32Enabled())
-    {
+    if (isNeon32Enabled()) {
         MathUtilNeon::transformVec4(m, v, dst);
-    }
-    else
-    {
+    } else {
         MathUtilC::transformVec4(m, v, dst);
     }
 #else
@@ -303,12 +269,9 @@ void MathUtil::crossVec3(const float *v1, const float *v2, float *dst) {
 #elif defined(USE_NEON64)
     MathUtilNeon64::crossVec3(v1, v2, dst);
 #elif defined(INCLUDE_NEON32)
-    if (isNeon32Enabled())
-    {
+    if (isNeon32Enabled()) {
         MathUtilNeon::crossVec3(v1, v2, dst);
-    }
-    else
-    {
+    } else {
         MathUtilC::crossVec3(v1, v2, dst);
     }
 #else

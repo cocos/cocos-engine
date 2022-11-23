@@ -34,7 +34,7 @@ namespace cc {
 struct ITorusOptions {
     uint32_t radialSegments{32};
     uint32_t tubularSegments{32};
-    float    arc{math::PI_2};
+    float arc{math::PI_2};
 };
 
 /**
@@ -46,6 +46,6 @@ struct ITorusOptions {
  * @param tube 管形大小。
  * @param opts 参数选项。
  */
-IGeometry torus(float radius = 0.4, float tube = 0.1, const cc::optional<ITorusOptions> &opts = cc::nullopt);
+IGeometry torus(float radius = 0.4, float tube = 0.1, const ccstd::optional<ITorusOptions> &opts = ccstd::nullopt);
 
 } // namespace cc

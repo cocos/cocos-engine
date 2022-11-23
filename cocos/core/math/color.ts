@@ -24,18 +24,14 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module core/math
- */
-
 import { CCClass } from '../data/class';
 import { ValueType } from '../value-types/value-type';
 import { IColorLike } from './type-define';
 import { clamp, EPSILON } from './utils';
 import { legacyCC } from '../global-exports';
-import { mixin } from '../utils/js-typed';
-import { JSB } from '../default-constants';
+import { assertIsTrue } from '../data/utils/asserts';
+import { Vec4 } from './vec4';
+import { Vec3 } from './vec3';
 
 const toFloat = 1 / 255;
 
@@ -94,7 +90,41 @@ export class Color extends ValueType {
         out.a = a;
         return out;
     }
-
+    /**
+     * @en Convert 8bit color to Vec4
+     * @zh 将当前颜色转换为到 Vec4
+     * @returns Vec4 as float color value
+     * @example
+     * ```
+     * const color = Color.YELLOW;
+     * color.toVec4();
+     * ```
+     */
+    public static toVec4 (color:Color, out?: Vec4): Vec4 {
+        out = out !== undefined ?  out : new Vec4();
+        out.x = srgb8BitToLinear(color.r);
+        out.y = srgb8BitToLinear(color.g);
+        out.z = srgb8BitToLinear(color.b);
+        out.w = srgb8BitToLinear(color.a);
+        return out;
+    }
+    /**
+     * @en Set 8bit Color from Vec4
+     * @zh 使用 Vec4 设置 8 bit 颜色
+     * @returns 8 Bit srgb value
+     * @example
+     * ```
+     * color.fromVec4(new Vec4(1,1,1,1));
+     * ```
+     */
+    public static fromVec4 (value: Vec4, out?: Color): Color {
+        out = out === undefined ? new Color() : out;
+        out.r = linearToSrgb8Bit(value.x);
+        out.g = linearToSrgb8Bit(value.y);
+        out.b = linearToSrgb8Bit(value.z);
+        out.a = linearToSrgb8Bit(value.w);
+        return out;
+    }
     /**
      * @en Converts the hexadecimal formal color into rgb formal and save the results to out color.
      * @zh 从十六进制颜色字符串中读入颜色到 out 中
@@ -303,7 +333,7 @@ export class Color extends ValueType {
     set w (value) { this.a = value * 255; }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _val = 0;
 
@@ -388,11 +418,7 @@ export class Color extends ValueType {
      * @returns A string representation of the current color.
      */
     public toString () {
-        return `rgba(${
-            this.r.toFixed()}, ${
-            this.g.toFixed()}, ${
-            this.b.toFixed()}, ${
-            this.a.toFixed()})`;
+        return `rgba(${this.r.toFixed()}, ${this.g.toFixed()}, ${this.b.toFixed()}, ${this.a.toFixed()})`;
     }
 
     /**
@@ -412,16 +438,9 @@ export class Color extends ValueType {
      */
     public toCSS (opt: ('rgba' | 'rgb' | '#rrggbb' | '#rrggbbaa') = 'rgba') {
         if (opt === 'rgba') {
-            return `rgba(${
-                this.r},${
-                this.g},${
-                this.b},${
-                (this.a * toFloat).toFixed(2)})`;
+            return `rgba(${this.r},${this.g},${this.b},${(this.a * toFloat).toFixed(2)})`;
         } else if (opt === 'rgb') {
-            return `rgb(${
-                this.r},${
-                this.g},${
-                this.b})`;
+            return `rgb(${this.r},${this.g},${this.b})`;
         } else {
             return `#${this.toHEX(opt)}`;
         }
@@ -525,6 +544,9 @@ export class Color extends ValueType {
             const q = v * (1 - (s * f));
             const t = v * (1 - (s * (1 - f)));
             switch (i) {
+            default:
+                assertIsTrue(false);
+                // eslint-disable-next-line no-fallthrough
             case 0:
                 r = v;
                 g = t;
@@ -654,7 +676,7 @@ export class Color extends ValueType {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _set_r_unsafe (red) {
         this._val = ((this._val & 0xffffff00) | red) >>> 0;
@@ -662,7 +684,7 @@ export class Color extends ValueType {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _set_g_unsafe (green) {
         this._val = ((this._val & 0xffff00ff) | (green << 8)) >>> 0;
@@ -670,7 +692,7 @@ export class Color extends ValueType {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _set_b_unsafe (blue) {
         this._val = ((this._val & 0xff00ffff) | (blue << 16)) >>> 0;
@@ -678,7 +700,7 @@ export class Color extends ValueType {
     }
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _set_a_unsafe (alpha) {
         this._val = ((this._val & 0x00ffffff) | (alpha << 24)) >>> 0;
@@ -697,3 +719,83 @@ export function color (r?: number | Color | string, g?: number, b?: number, a?: 
 }
 
 legacyCC.color = color;
+
+export function srgbToLinear (x: number): number {
+    if (x <= 0) return 0;
+    else if (x >= 1) return 1;
+    else if (x < 0.04045) return x / 12.92;
+    else return ((x + 0.055) / 1.055) ** 2.4;
+}
+
+export function srgb8BitToLinear (x: number): number {
+    if ((x | 0) !== x || (x >>> 8) !== 0) { throw new RangeError('Value out of 8-bit range'); }
+    return SRGB_8BIT_TO_LINEAR[x];
+}
+
+export function linearToSrgb (x: number): number {
+    if (x <= 0) return 0;
+    else if (x >= 1) return 1;
+    else if (x < 0.0031308) return x * 12.92;
+    else return x ** (1 / 2.4) * 1.055 - 0.055;
+}
+
+export function linearToSrgb8Bit (x: number): number {
+    if (x <= 0) { return 0; }
+    const TABLE: Array<number> = SRGB_8BIT_TO_LINEAR;
+    if (x >= 1) { return TABLE.length - 1; }
+    let y = 0;
+    for (let i = TABLE.length >>> 1; i !== 0; i >>>= 1) {
+        if (TABLE[y | i] <= x) { y |= i; }
+    }
+    if (x - TABLE[y] <= TABLE[y + 1] - x) { return y; } else { return y + 1; }
+}
+
+// use table for more consistent conversion between uint8 and float, offline processes only.
+let SRGB_8BIT_TO_LINEAR: Array<number> = [];
+for (let i = 0; i < 256; i++) { SRGB_8BIT_TO_LINEAR.push(srgbToLinear(i / 255.0)); }
+
+export function clampVec3 (val: Vec3, min: Vec3, max: Vec3) {
+    if (min > max) {
+        const temp = min;
+        min = max;
+        max = temp;
+    }
+    return val < min ? min : val > max ? max : val;
+}
+
+export function floorVec3 (val: Vec3) {
+    const temp = val.clone();
+    temp.x = Math.floor(val.x);
+    temp.y = Math.floor(val.y);
+    temp.z = Math.floor(val.z);
+    return temp;
+}
+
+export function stepVec3 (a: Vec3, b: Vec3) {
+    if (a < b) {
+        return b;
+    } else {
+        return a;
+    }
+}
+
+/**
+ * @en Three channel rgb color pack into four channel rbge format.
+ * @zh 三通道rgb颜色pack成四通道rbge格式
+ * @param rgb Vec3
+ */
+export function packRGBE (rgb: Vec3) {
+    const maxComp = Math.max(Math.max(rgb.x, rgb.y), rgb.z);
+    let e = 128.0;
+    if (maxComp > 0.0001) {
+        e = Math.log(maxComp) / Math.log(1.1);
+        e = Math.ceil(e);
+        e = clamp(e + 128.0, 0.0, 255.0);
+    }
+    // eslint-disable-next-line no-restricted-properties
+    const sc = 1.0 / Math.pow(1.1, e - 128.0);
+    const encode = clampVec3(rgb.multiplyScalar(sc), new Vec3(0.0, 0.0, 0.0), new Vec3(1.0, 1.0, 1.0));
+    encode.multiplyScalar(255.0);
+    const encode_rounded = floorVec3(encode).add(stepVec3(encode.subtract(floorVec3(encode)), new Vec3(0.5, 0.5, 0.5)));
+    return new Vec4(encode_rounded.x / 255.0, encode_rounded.y / 255.0, encode_rounded.z / 255.0, e / 255.0);
+}

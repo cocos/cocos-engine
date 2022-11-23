@@ -30,44 +30,45 @@
 #ifndef Spine_AttachmentTimeline_h
 #define Spine_AttachmentTimeline_h
 
-#include <spine/Timeline.h>
-#include <spine/SpineObject.h>
-#include <spine/Vector.h>
 #include <spine/MixBlend.h>
 #include <spine/MixDirection.h>
+#include <spine/SpineObject.h>
 #include <spine/SpineString.h>
+#include <spine/Timeline.h>
+#include <spine/Vector.h>
 
 namespace spine {
 
-	class Skeleton;
-	class Event;
+class Skeleton;
+class Event;
 
-	class SP_API AttachmentTimeline : public Timeline {
-		friend class SkeletonBinary;
-		friend class SkeletonJson;
+class SP_API AttachmentTimeline : public Timeline {
+    friend class SkeletonBinary;
+    friend class SkeletonJson;
 
-		RTTI_DECL
+    RTTI_DECL
 
-	public:
-		explicit AttachmentTimeline(int frameCount);
+public:
+    explicit AttachmentTimeline(int frameCount);
 
-		virtual void apply(Skeleton& skeleton, float lastTime, float time, Vector<Event*>* pEvents, float alpha, MixBlend blend, MixDirection direction);
+    virtual void apply(Skeleton& skeleton, float lastTime, float time, Vector<Event*>* pEvents, float alpha, MixBlend blend, MixDirection direction);
 
-		virtual int getPropertyId();
+    virtual int getPropertyId();
 
-		/// Sets the time and value of the specified keyframe.
-		void setFrame(int frameIndex, float time, const String& attachmentName);
+    /// Sets the time and value of the specified keyframe.
+    void setFrame(int frameIndex, float time, const String& attachmentName);
 
-		size_t getSlotIndex();
-		void setSlotIndex(size_t inValue);
-		const Vector<float>& getFrames();
-		const Vector<String>& getAttachmentNames();
-		size_t getFrameCount();
-	private:
-		size_t _slotIndex;
-		Vector<float> _frames;
-		Vector<String> _attachmentNames;
-	};
-}
+    size_t getSlotIndex();
+    void setSlotIndex(size_t inValue);
+    const Vector<float>& getFrames();
+    const Vector<String>& getAttachmentNames();
+    size_t getFrameCount();
+
+private:
+    size_t _slotIndex;
+    Vector<float> _frames;
+    Vector<String> _attachmentNames;
+};
+} // namespace spine
 
 #endif /* Spine_AttachmentTimeline_h */

@@ -36,7 +36,6 @@ public:
      * @return 0.0 ~ 1.0
      */
     virtual float getBatteryLevel() const = 0;
-
 };
 
 } // namespace cc

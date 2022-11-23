@@ -43,24 +43,25 @@ RenderPassValidator::~RenderPassValidator() {
 }
 
 void RenderPassValidator::doInit(const RenderPassInfo &info) {
-    CCASSERT(!isInited(), "initializing twice?");
+    CC_ASSERT(!isInited());
     _inited = true;
 
     bool hasDepth = info.depthStencilAttachment.format != Format::UNKNOWN;
     if (!hasDepth) {
         for (const auto &subpass : info.subpasses) {
-            CCASSERT(subpass.depthStencil == INVALID_BINDING || subpass.depthStencil < info.colorAttachments.size(),
-                     "Invalid depth stencil attachment index");
+            CC_ASSERT(subpass.depthStencil == INVALID_BINDING || subpass.depthStencil < info.colorAttachments.size());
         }
     }
 
     for (auto &attachment : _colorAttachments) {
         if (attachment.loadOp == LoadOp::LOAD && attachment.barrier->getInfo().prevAccesses == AccessFlagBit::NONE) {
-            CCASSERT(false, "Attachment missing beginAccesses for LoadOp::LOAD");
+            // Attachment missing beginAccesses for LoadOp::LOAD.
+            CC_ASSERT(false);
         }
     }
     if ((_depthStencilAttachment.depthLoadOp == LoadOp::LOAD || _depthStencilAttachment.stencilLoadOp == LoadOp::LOAD) && _depthStencilAttachment.barrier->getInfo().prevAccesses == AccessFlagBit::NONE) {
-        CCASSERT(false, "Attachment missing beginAccesses for LoadOp::LOAD");
+        // Attachment missing beginAccesses for LoadOp::LOAD.
+        CC_ASSERT(false);
     }
 
     /////////// execute ///////////
@@ -69,7 +70,7 @@ void RenderPassValidator::doInit(const RenderPassInfo &info) {
 }
 
 void RenderPassValidator::doDestroy() {
-    CCASSERT(isInited(), "destroying twice?");
+    CC_ASSERT(isInited());
     _inited = false;
 
     /////////// execute ///////////

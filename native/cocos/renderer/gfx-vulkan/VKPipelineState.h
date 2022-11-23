@@ -27,11 +27,10 @@
 
 #include "VKStd.h"
 #include "gfx-base/GFXPipelineState.h"
+#include "gfx-vulkan/VKGPUObjects.h"
 
 namespace cc {
 namespace gfx {
-
-struct CCVKGPUPipelineState;
 
 class CC_VULKAN_API CCVKPipelineState final : public PipelineState {
 public:
@@ -44,7 +43,7 @@ protected:
     void doInit(const PipelineStateInfo &info) override;
     void doDestroy() override;
 
-    CCVKGPUPipelineState *_gpuPipelineState = nullptr;
+    IntrusivePtr<CCVKGPUPipelineState> _gpuPipelineState;
 };
 
 } // namespace gfx

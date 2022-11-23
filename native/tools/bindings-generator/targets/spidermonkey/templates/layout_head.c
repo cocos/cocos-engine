@@ -32,3 +32,12 @@ $macro_judgement
 #ifndef JSB_FREE
 #define JSB_FREE(ptr) delete ptr
 #endif
+
+\#if CC_DEBUG
+static bool js_${prefix}_getter_return_true(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    s.rval().setBoolean(true);
+    return true;
+}
+SE_BIND_PROP_GET(js_${prefix}_getter_return_true)
+\#endif

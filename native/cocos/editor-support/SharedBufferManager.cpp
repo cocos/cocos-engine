@@ -36,14 +36,6 @@ SharedBufferManager::~SharedBufferManager() {
     CC_SAFE_DELETE(_buffer);
 }
 
-void SharedBufferManager::afterCleanupHandle() {
-    if (_buffer) {
-        delete _buffer;
-        _buffer = nullptr;
-    }
-    se::ScriptEngine::getInstance()->addAfterInitHook([this] { init(); });
-}
-
 void SharedBufferManager::init() {
     if (!_buffer) {
         _buffer = new IOTypedArray(_arrayType, INIT_RENDER_INFO_BUFFER_SIZE);
@@ -53,7 +45,6 @@ void SharedBufferManager::init() {
             }
         });
     }
-    se::ScriptEngine::getInstance()->addAfterCleanupHook([this] { afterCleanupHandle(); });
 }
 
 MIDDLEWARE_END

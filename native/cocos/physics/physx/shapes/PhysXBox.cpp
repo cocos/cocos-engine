@@ -31,8 +31,7 @@
 namespace cc {
 namespace physics {
 
-PhysXBox::PhysXBox() : _mHalfExtents(0.5),
-                       PhysXShape(){};
+PhysXBox::PhysXBox() : _mHalfExtents(0.5){};
 
 void PhysXBox::setSize(float x, float y, float z) {
     _mHalfExtents = physx::PxVec3{x / 2, y / 2, z / 2};
@@ -52,8 +51,8 @@ void PhysXBox::updateScale() {
 }
 
 void PhysXBox::updateGeometry() {
-    auto *node      = getSharedBody().getNode();
-    auto &geo       = getPxGeometry<physx::PxBoxGeometry>();
+    auto *node = getSharedBody().getNode();
+    auto &geo = getPxGeometry<physx::PxBoxGeometry>();
     geo.halfExtents = _mHalfExtents;
     node->updateWorldTransform();
     geo.halfExtents *= node->getWorldScale();

@@ -1,5 +1,5 @@
 import { TouchCallback } from 'pal/input';
-import { TEST } from 'internal:constants';
+import { EDITOR, TEST } from 'internal:constants';
 import { systemInfo } from 'pal/system-info';
 import { screenAdapter } from 'pal/screen-adapter';
 import { Rect, Vec2 } from '../../../cocos/core/math';
@@ -17,10 +17,13 @@ export class TouchInputSource {
     constructor () {
         if (systemInfo.hasFeature(Feature.INPUT_TOUCH)) {
             this._canvas = document.getElementById('GameCanvas') as HTMLCanvasElement;
-            if (!this._canvas && !TEST) {
+            if (!this._canvas && !TEST && !EDITOR) {
                 console.warn('failed to access canvas');
             }
-            this._registerEvent();
+            // In Editor, we don't receive touch event but maybe receive simulated touch event.
+            if (!EDITOR) {
+                this._registerEvent();
+            }
         }
     }
 

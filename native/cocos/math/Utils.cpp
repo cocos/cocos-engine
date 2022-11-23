@@ -6,7 +6,7 @@
 #include "math/Math.h"
 
 namespace {
-std::random_device                    rd;
+std::random_device rd;
 std::uniform_real_distribution<float> uniformReal{0.0F, 1.0F};
 } // namespace
 

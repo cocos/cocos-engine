@@ -23,14 +23,16 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+#pragma once
+
 //#include "core/scene-graph/ComponentScheduler.h"
 //#include "core/scene-graph/Find.h"
 #include "core/scene-graph/Layers.h"
 #include "core/scene-graph/Node.h"
 //#include "core/scene-graph/NodeActivator.h"
 #include "core/scene-graph/NodeEnum.h"
-#include "core/scene-graph/NodeEvent.h"
-#include "core/scene-graph/NodeEventProcessor.h"
+// #include "core/scene-graph/NodeEvent.h"
+// #include "core/scene-graph/NodeEventProcessor.h"
 //#include "core/scene-graph/NodeUIProperties.h"
 #include "core/scene-graph/Scene.h"
 #include "core/scene-graph/SceneGlobals.h"

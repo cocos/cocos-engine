@@ -38,8 +38,10 @@ public:
     GLES3Texture();
     ~GLES3Texture() override;
 
-    inline GLES3GPUTexture *    gpuTexture() const { return _gpuTexture; }
+    inline GLES3GPUTexture *gpuTexture() const { return _gpuTexture; }
     inline GLES3GPUTextureView *gpuTextureView() const { return _gpuTextureView; }
+
+    uint32_t getGLTextureHandle() const noexcept override;
 
 protected:
     void doInit(const TextureInfo &info) override;
@@ -50,7 +52,7 @@ protected:
 
     void createTextureView();
 
-    GLES3GPUTexture *    _gpuTexture     = nullptr;
+    GLES3GPUTexture *_gpuTexture = nullptr;
     GLES3GPUTextureView *_gpuTextureView = nullptr;
 };
 

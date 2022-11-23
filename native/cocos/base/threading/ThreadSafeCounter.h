@@ -33,12 +33,12 @@ namespace cc {
 template <typename T, typename = typename std::enable_if_t<std::is_integral<T>::value>>
 class ThreadSafeCounter final {
 public:
-    inline T    increment() noexcept { return add(1); }
-    inline T    add(T const v) noexcept { return _counter.fetch_add(v, std::memory_order_relaxed); }
-    inline T    decrement() noexcept { return subtract(1); }
-    inline T    subtract(T const v) noexcept { return _counter.fetch_sub(v, std::memory_order_relaxed); }
+    inline T increment() noexcept { return add(1); }
+    inline T add(T const v) noexcept { return _counter.fetch_add(v, std::memory_order_relaxed); }
+    inline T decrement() noexcept { return subtract(1); }
+    inline T subtract(T const v) noexcept { return _counter.fetch_sub(v, std::memory_order_relaxed); }
     inline void set(T const v) noexcept { _counter.store(v, std::memory_order_relaxed); }
-    inline T    get() const noexcept { return _counter.load(std::memory_order_relaxed); }
+    inline T get() const noexcept { return _counter.load(std::memory_order_relaxed); }
     inline void reset() noexcept { set(0); }
 
 private:

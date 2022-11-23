@@ -21,9 +21,40 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
-#include "gtest/gtest.h"
 
-int main(int argc, char **argv) {
-    ::testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
+#undef CC_USE_NVN
+#undef CC_USE_VULKAN
+#undef CC_USE_METAL
+#undef CC_USE_GLES3
+#undef CC_USE_GLES2
+
+#include "bindings/jswrapper/SeApi.h"
+#include "core/Root.h"
+#include "gtest/gtest.h"
+#include "renderer/GFXDeviceManager.h"
+
+using namespace cc;
+using namespace cc::gfx;
+
+// Fix linking error of undefined symbol cocos_main
+int cocos_main(int argc, const char** argv) {
+    return 0;
+}
+
+int main(int argc, const char* argv[]) {
+    int ret = 0;
+    cocos_main(argc, argv);
+
+    Root* root = new Root(DeviceManager::create());
+    se::ScriptEngine* scriptEngine = new se::ScriptEngine();
+    scriptEngine->start();
+    {
+        se::AutoHandleScope hs;
+        ::testing::InitGoogleTest(&argc, (char**)argv);
+        ret = RUN_ALL_TESTS();
+    }
+    scriptEngine->cleanup();
+    delete root;
+    delete scriptEngine;
+    return ret;
 }

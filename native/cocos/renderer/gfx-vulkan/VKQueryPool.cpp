@@ -40,19 +40,20 @@ CCVKQueryPool::~CCVKQueryPool() {
 }
 
 void CCVKQueryPool::doInit(const QueryPoolInfo & /*info*/) {
-    CCVKDevice *device             = CCVKDevice::getInstance();
-    _gpuQueryPool                  = CC_NEW(CCVKGPUQueryPool);
-    _gpuQueryPool->type            = _type;
+    CCVKDevice *device = CCVKDevice::getInstance();
+    _gpuQueryPool = ccnew CCVKGPUQueryPool;
+    _gpuQueryPool->type = _type;
     _gpuQueryPool->maxQueryObjects = _maxQueryObjects;
-    _gpuQueryPool->forceWait       = _forceWait;
+    _gpuQueryPool->forceWait = _forceWait;
     cmdFuncCCVKCreateQueryPool(device, _gpuQueryPool);
 }
 
 void CCVKQueryPool::doDestroy() {
-    if (_gpuQueryPool) {
-        CCVKDevice::getInstance()->gpuRecycleBin()->collect(_gpuQueryPool);
-        _gpuQueryPool = nullptr;
-    }
+    _gpuQueryPool = nullptr;
+}
+
+void CCVKGPUQueryPool::shutdown() {
+    CCVKDevice::getInstance()->gpuRecycleBin()->collect(this);
 }
 
 } // namespace gfx

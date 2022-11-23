@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 /**
  * Collision "matrix". It's actually a triangular-shaped array of whether two bodies are touching this step, for reference next step
  * @class ArrayCollisionMatrix

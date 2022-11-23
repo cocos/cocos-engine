@@ -24,15 +24,15 @@
 ****************************************************************************/
 
 #include "Reachability.h"
-#include "base/DeferredReleasePool.h"
-#include "base/Macros.h"
-
 #include <SystemConfiguration/SystemConfiguration.h>
 #include <arpa/inet.h>
 #include <ifaddrs.h>
 #include <netdb.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
+#include "base/DeferredReleasePool.h"
+#include "base/Macros.h"
+#include "base/memory/Memory.h"
 
 namespace {
 
@@ -42,7 +42,7 @@ static void PrintReachabilityFlags(SCNetworkReachabilityFlags flags, const char 
 #if ShouldPrintReachabilityFlags
 
     printf("Reachability Flag Status: %c%c %c%c%c%c%c%c%c %s\n",
-    #if CC_PLATFORM == CC_PLATFORM_MAC_IOS
+    #if CC_PLATFORM == CC_PLATFORM_IOS
            (flags & kSCNetworkReachabilityFlagsIsWWAN) ? 'W' : '-',
     #else
            '-',
@@ -90,7 +90,7 @@ cc::Reachability::NetworkStatus getNetworkStatusForFlags(SCNetworkReachabilityFl
         }
     }
 
-#if CC_PLATFORM == CC_PLATFORM_MAC_IOS
+#if CC_PLATFORM == CC_PLATFORM_IOS
     if ((flags & kSCNetworkReachabilityFlagsIsWWAN) == kSCNetworkReachabilityFlagsIsWWAN) {
         /*
              ... but WWAN connections are OK if the calling application is using the CFNetwork APIs.
@@ -106,10 +106,10 @@ cc::Reachability::NetworkStatus getNetworkStatusForFlags(SCNetworkReachabilityFl
 namespace cc {
 
 Reachability *Reachability::createWithHostName(const ccstd::string &hostName) {
-    Reachability *           returnValue  = nullptr;
+    Reachability *returnValue = nullptr;
     SCNetworkReachabilityRef reachability = SCNetworkReachabilityCreateWithName(nullptr, hostName.c_str());
     if (reachability != nullptr) {
-        returnValue = new (std::nothrow) Reachability();
+        returnValue = ccnew Reachability();
         returnValue->addRef();
         if (returnValue != nullptr) {
             cc::DeferredReleasePool::add(returnValue);
@@ -127,7 +127,7 @@ Reachability *Reachability::createWithAddress(const struct sockaddr *hostAddress
     Reachability *returnValue = nullptr;
 
     if (reachability != nullptr) {
-        returnValue = new (std::nothrow) Reachability();
+        returnValue = ccnew Reachability();
         returnValue->addRef();
         if (returnValue != nullptr) {
             cc::DeferredReleasePool::add(returnValue);
@@ -142,7 +142,7 @@ Reachability *Reachability::createWithAddress(const struct sockaddr *hostAddress
 Reachability *Reachability::createForInternetConnection() {
     struct sockaddr_in zeroAddress;
     bzero(&zeroAddress, sizeof(zeroAddress));
-    zeroAddress.sin_len    = sizeof(zeroAddress);
+    zeroAddress.sin_len = sizeof(zeroAddress);
     zeroAddress.sin_family = AF_INET;
 
     return createWithAddress((const struct sockaddr *)&zeroAddress);
@@ -162,7 +162,7 @@ Reachability::~Reachability() {
 }
 
 void Reachability::onReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkReachabilityFlags flags, void *info) {
-    CCASSERT(info != nullptr, "info was nullptr in onReachabilityCallback");
+    CC_ASSERT(info != nullptr);
 
     cc::Reachability *thiz = reinterpret_cast<cc::Reachability *>(info);
     if (thiz->_callback != nullptr) {
@@ -175,8 +175,8 @@ bool Reachability::startNotifier(const ReachabilityCallback &cb, void *userData)
     _callback = cb;
     _userData = userData;
 
-    bool                         returnValue = false;
-    SCNetworkReachabilityContext context     = {0, this, nullptr, nullptr, nullptr};
+    bool returnValue = false;
+    SCNetworkReachabilityContext context = {0, this, nullptr, nullptr, nullptr};
 
     if (SCNetworkReachabilitySetCallback(_reachabilityRef, onReachabilityCallback, &context)) {
         if (SCNetworkReachabilityScheduleWithRunLoop(_reachabilityRef, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode)) {
@@ -194,7 +194,7 @@ void Reachability::stopNotifier() {
 }
 
 bool Reachability::isConnectionRequired() const {
-    CCASSERT(_reachabilityRef != nullptr, "connectionRequired called with nullptr reachabilityRef");
+    CC_ASSERT(_reachabilityRef != nullptr);
     SCNetworkReachabilityFlags flags;
 
     if (SCNetworkReachabilityGetFlags(_reachabilityRef, &flags)) {
@@ -205,8 +205,8 @@ bool Reachability::isConnectionRequired() const {
 }
 
 Reachability::NetworkStatus Reachability::getCurrentReachabilityStatus() const {
-    CCASSERT(_reachabilityRef != nullptr, "currentNetworkStatus called with nullptr SCNetworkReachabilityRef");
-    NetworkStatus              returnValue = NetworkStatus::NOT_REACHABLE;
+    CC_ASSERT(_reachabilityRef != nullptr);
+    NetworkStatus returnValue = NetworkStatus::NOT_REACHABLE;
     SCNetworkReachabilityFlags flags;
 
     if (SCNetworkReachabilityGetFlags(_reachabilityRef, &flags)) {

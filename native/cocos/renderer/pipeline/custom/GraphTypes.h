@@ -24,16 +24,17 @@
 ****************************************************************************/
 
 #pragma once
-#include "cocos/base/Variant.h"
-#include "cocos/base/std/container/list.h"
-#include "cocos/base/std/container/string.h"
-#include "cocos/renderer/pipeline/custom/Overload.h"
 
 #include <boost/container/pmr/polymorphic_allocator.hpp>
 #include <boost/iterator/iterator_adaptor.hpp>
 #include <boost/optional.hpp>
 #include <memory>
 #include <type_traits>
+#include "base/memory/Memory.h"
+#include "base/std/container/list.h"
+#include "base/std/container/string.h"
+#include "base/std/variant.h"
+#include "renderer/pipeline/custom/Overload.h"
 
 namespace boost {
 
@@ -66,7 +67,7 @@ struct VertexOverloaded : Overloaded<Ts...> {
 
 template <class GraphT, class... Ts>
 auto visitObject(typename GraphT::vertex_descriptor v, GraphT &g, Ts... args) {
-    return cc::visit(VertexOverloaded<Ts...>{std::move(args)...}, value(v, g));
+    return ccstd::visit(VertexOverloaded<Ts...>{std::move(args)...}, value(v, g));
 }
 
 namespace impl {
@@ -197,7 +198,7 @@ template <class VertexDescriptor, class EdgeProperty>
 class StoredEdgeWithProperty : public StoredEdge<VertexDescriptor> {
 public:
     StoredEdgeWithProperty(VertexDescriptor target, const EdgeProperty &p)
-    : StoredEdge<VertexDescriptor>(target), property(new EdgeProperty(p)) {}
+    : StoredEdge<VertexDescriptor>(target), property(ccnew EdgeProperty(p)) {}
     StoredEdgeWithProperty(VertexDescriptor target, std::unique_ptr<EdgeProperty> &&ptr)
     : StoredEdge<VertexDescriptor>(target), property(std::move(ptr)) {}
     StoredEdgeWithProperty(VertexDescriptor target) // NOLINT(google-explicit-constructor)
@@ -260,7 +261,7 @@ public:
     }
 
 protected:
-    size_t   _id{static_cast<size_t>(-1)};
+    size_t _id{static_cast<size_t>(-1)};
     EdgeVec *_vector{};
 };
 
@@ -411,11 +412,11 @@ template <class VertexIterator, class OutEdgeIterator, class Graph>
 class DirectedEdgeIterator {
 public:
     using iterator_category = std::forward_iterator_tag;
-    using value_type        = typename OutEdgeIterator::value_type;
-    using reference         = typename OutEdgeIterator::reference;
-    using pointer           = typename OutEdgeIterator::pointer;
-    using difference_type   = typename OutEdgeIterator::difference_type;
-    using distance_type     = difference_type;
+    using value_type = typename OutEdgeIterator::value_type;
+    using reference = typename OutEdgeIterator::reference;
+    using pointer = typename OutEdgeIterator::pointer;
+    using difference_type = typename OutEdgeIterator::difference_type;
+    using distance_type = difference_type;
 
     DirectedEdgeIterator() = default;
     template <class G>
@@ -460,11 +461,11 @@ public:
     }
 
 protected:
-    VertexIterator                                               _begin{};
-    VertexIterator                                               _curr{};
-    VertexIterator                                               _end{};
+    VertexIterator _begin{};
+    VertexIterator _curr{};
+    VertexIterator _end{};
     boost::optional<std::pair<OutEdgeIterator, OutEdgeIterator>> _edges;
-    const Graph *                                                _g{};
+    const Graph *_g{};
 };
 
 //--------------------------------------------------------------------
@@ -485,12 +486,12 @@ struct ListEdge {
     ListEdge(VertexDescriptor s, VertexDescriptor t, T &&...args) // NOLINT
     : source(s), target(t), property(std::forward<T>(args)...) {}
 
-    EdgeProperty &      get_property() noexcept { return property; }       // NOLINT
+    EdgeProperty &get_property() noexcept { return property; }             // NOLINT
     const EdgeProperty &get_property() const noexcept { return property; } // NOLINT
 
     VertexDescriptor source{};
     VertexDescriptor target{};
-    EdgeProperty     property;
+    EdgeProperty property;
 };
 
 // template<class VertexDescriptor, PmrAllocatorUserClass_ EdgeProperty>
@@ -522,12 +523,12 @@ struct PmrListEdge {
 
     PmrListEdge(const PmrListEdge &) = delete;
 
-    EdgeProperty &      get_property() noexcept { return property; }       // NOLINT
+    EdgeProperty &get_property() noexcept { return property; }             // NOLINT
     const EdgeProperty &get_property() const noexcept { return property; } // NOLINT
 
     VertexDescriptor source{};
     VertexDescriptor target{};
-    EdgeProperty     property;
+    EdgeProperty property;
 };
 
 // Polymorphic Graph
@@ -564,11 +565,11 @@ template <class VertexIterator, class OutEdgeIterator, class Graph>
 class OwnershipIterator {
 public:
     using iterator_category = std::forward_iterator_tag;
-    using value_type        = typename OutEdgeIterator::value_type;
-    using reference         = typename OutEdgeIterator::reference;
-    using pointer           = typename OutEdgeIterator::pointer;
-    using difference_type   = typename OutEdgeIterator::difference_type;
-    using distance_type     = difference_type;
+    using value_type = typename OutEdgeIterator::value_type;
+    using reference = typename OutEdgeIterator::reference;
+    using pointer = typename OutEdgeIterator::pointer;
+    using difference_type = typename OutEdgeIterator::difference_type;
+    using distance_type = difference_type;
 
     OwnershipIterator() = default;
     template <class G>
@@ -613,11 +614,11 @@ public:
     }
 
 protected:
-    VertexIterator                                               _begin{};
-    VertexIterator                                               _curr{};
-    VertexIterator                                               _end{};
+    VertexIterator _begin{};
+    VertexIterator _curr{};
+    VertexIterator _end{};
     boost::optional<std::pair<OutEdgeIterator, OutEdgeIterator>> _edges;
-    const Graph *                                                _g{};
+    const Graph *_g{};
 };
 
 } // namespace impl

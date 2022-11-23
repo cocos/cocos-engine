@@ -11,6 +11,10 @@ class Context2DAttribute {
         this.textBaseline = undefined;
         this.strokeStyle = undefined;
         this.globalCompositeOperation = undefined;
+        this.shadowBlur = undefined;
+        this.shadowColor = undefined;
+        this.shadowOffsetX = undefined;
+        this.shadowOffsetY = undefined;
     }
 }
 
@@ -47,6 +51,14 @@ class CanvasRenderingContext2D {
     set strokeStyle (val) { this._attris.strokeStyle = val; }
     get globalCompositeOperation () { return this._attris.globalCompositeOperation; }
     set globalCompositeOperation (val) { this._attris.globalCompositeOperation = val; }
+    get shadowBlur () { return this._attris.shadowBlur; }
+    set shadowBlur (val) { this._attris.shadowBlur = val; }
+    get shadowColor () { return this._attris.shadowColor; }
+    set shadowColor (val) { this._attris.shadowColor = val; }
+    get shadowOffsetX () { return this._attris.shadowOffsetX; }
+    set shadowOffsetX (val) { this._attris.shadowOffsetX = val; }
+    get shadowOffsetY () { return this._attris.shadowOffsetY; }
+    set shadowOffsetY (val) { this._attris.shadowOffsetY = val; }
 
     restore () { this._nativeObj.restore(); }
     moveTo (x, y) { this._nativeObj.moveTo(x, y); }

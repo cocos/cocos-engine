@@ -46,22 +46,22 @@ const ccstd::unordered_map<ccstd::string, ccstd::string> &getFontFamilyNameMap()
 }
 
 static bool JSB_loadFont(se::State &s) { //NOLINT
-    const auto &   args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
+    const auto &args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
     if (argc >= 1) {
         s.rval().setNull();
 
         ccstd::string originalFamilyName;
         ok &= sevalue_to_native(args[0], &originalFamilyName);
-        SE_PRECONDITION2(ok, false, "JSB_loadFont : Error processing argument: originalFamilyName");
+        SE_PRECONDITION2(ok, false, "Error processing argument: originalFamilyName");
 
         ccstd::string source;
         ok &= sevalue_to_native(args[1], &source);
-        SE_PRECONDITION2(ok, false, "JSB_loadFont : Error processing argument: source");
+        SE_PRECONDITION2(ok, false, "Error processing argument: source");
 
-        ccstd::string                                     fontFilePath;
-        std::regex                                        re(R"(url\(\s*'\s*(.*?)\s*'\s*\))");
+        ccstd::string fontFilePath;
+        std::regex re(R"(url\(\s*'\s*(.*?)\s*'\s*\))");
         std::match_results<ccstd::string::const_iterator> results;
         if (std::regex_search(source.cbegin(), source.cend(), results, re)) {
             fontFilePath = results[1].str();

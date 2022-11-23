@@ -40,7 +40,7 @@ namespace {
 namespace cc {
 CanvasRenderingContext2DDelegate::CanvasRenderingContext2DDelegate() {
     jobject obj = JniHelper::newObject(JCLS_CANVASIMPL);
-    _obj        = JniHelper::getEnv()->NewGlobalRef(obj);
+    _obj = JniHelper::getEnv()->NewGlobalRef(obj);
     ccDeleteLocalRef(JniHelper::getEnv(), obj);
 }
 
@@ -49,7 +49,7 @@ CanvasRenderingContext2DDelegate::~CanvasRenderingContext2DDelegate() {
 }
 
 void CanvasRenderingContext2DDelegate::recreateBuffer(float w, float h) {
-    _bufferWidth  = w;
+    _bufferWidth = w;
     _bufferHeight = h;
     if (_bufferWidth < 1.0F || _bufferHeight < 1.0F) {
         return;
@@ -155,7 +155,7 @@ CanvasRenderingContext2DDelegate::Size CanvasRenderingContext2DDelegate::measure
         return ccstd::array<float, 2>{0.0F, 0.0F};
     }
     float measureText1 = JniHelper::callObjectFloatMethod(_obj, JCLS_CANVASIMPL, "measureText", text);
-    Size  size{measureText1, 0.0F};
+    Size size{measureText1, 0.0F};
     return size;
 }
 
@@ -171,20 +171,28 @@ void CanvasRenderingContext2DDelegate::setLineJoin(const ccstd::string &lineJoin
     JniHelper::callObjectVoidMethod(_obj, JCLS_CANVASIMPL, "setLineJoin", lineJoin);
 }
 
-void CanvasRenderingContext2DDelegate::setTextAlign(CanvasTextAlign align) {
+void CanvasRenderingContext2DDelegate::setTextAlign(TextAlign align) {
     JniHelper::callObjectVoidMethod(_obj, JCLS_CANVASIMPL, "setTextAlign", static_cast<int>(align));
 }
 
-void CanvasRenderingContext2DDelegate::setTextBaseline(CanvasTextBaseline baseline) {
+void CanvasRenderingContext2DDelegate::setTextBaseline(TextBaseline baseline) {
     JniHelper::callObjectVoidMethod(_obj, JCLS_CANVASIMPL, "setTextBaseline", static_cast<int>(baseline));
 }
 
-void CanvasRenderingContext2DDelegate::setFillStyle(float r, float g, float b, float a) {
-    JniHelper::callObjectVoidMethod(_obj, JCLS_CANVASIMPL, "setFillStyle", r, g, b, a);
+void CanvasRenderingContext2DDelegate::setFillStyle(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
+    JniHelper::callObjectVoidMethod(_obj, JCLS_CANVASIMPL, "setFillStyle",
+                                    static_cast<jint>(r),
+                                    static_cast<jint>(g),
+                                    static_cast<jint>(b),
+                                    static_cast<jint>(a));
 }
 
-void CanvasRenderingContext2DDelegate::setStrokeStyle(float r, float g, float b, float a) {
-    JniHelper::callObjectVoidMethod(_obj, JCLS_CANVASIMPL, "setStrokeStyle", r, g, b, a);
+void CanvasRenderingContext2DDelegate::setStrokeStyle(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
+    JniHelper::callObjectVoidMethod(_obj, JCLS_CANVASIMPL, "setStrokeStyle",
+                                    static_cast<jint>(r),
+                                    static_cast<jint>(g),
+                                    static_cast<jint>(b),
+                                    static_cast<jint>(a));
 }
 
 void CanvasRenderingContext2DDelegate::setLineWidth(float lineWidth) {
@@ -209,7 +217,7 @@ void CanvasRenderingContext2DDelegate::fillImageData(const Data &imageData, floa
 }
 
 void CanvasRenderingContext2DDelegate::updateData() {
-    jobject       bmpObj = nullptr;
+    jobject bmpObj = nullptr;
     JniMethodInfo methodInfo;
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID)
     if (JniHelper::getMethodInfo(methodInfo, JCLS_CANVASIMPL, "getBitmap", "()Landroid/graphics/Bitmap;")) {
@@ -246,7 +254,7 @@ void CanvasRenderingContext2DDelegate::updateData() {
         uint32_t size = bmpInfo.stride * bmpInfo.height;
 #else
         OhosPixelMapInfo bmpInfo;
-        void *           pixelData = nullptr;
+        void *pixelData = nullptr;
         if (GetImageInfo(env, bmpObj, bmpInfo) ==
                 OHOS_IMAGE_RESULT_SUCCESS &&
             bmpInfo.width > 0 &&
@@ -279,7 +287,7 @@ void CanvasRenderingContext2DDelegate::updateData() {
     }
 }
 
-void CanvasRenderingContext2DDelegate::unMultiplyAlpha(unsigned char *ptr, ssize_t size) { // NOLINT(readability-convert-member-functions-to-static)
+void CanvasRenderingContext2DDelegate::unMultiplyAlpha(unsigned char *ptr, uint32_t size) { // NOLINT(readability-convert-member-functions-to-static)
     // Android source data is not premultiplied alpha when API >= 19
     // please refer CanvasRenderingContext2DImpl::recreateBuffer(float w, float h)
     // in CanvasRenderingContext2DImpl.java
@@ -290,10 +298,47 @@ void CanvasRenderingContext2DDelegate::unMultiplyAlpha(unsigned char *ptr, ssize
     for (int i = 0; i < size; i += 4) {
         alpha = static_cast<float>(ptr[i + 3]);
         if (alpha > 0) {
-            ptr[i]     = CLAMP((int)((float)ptr[i] / alpha * 255), 255);
+            ptr[i] = CLAMP((int)((float)ptr[i] / alpha * 255), 255);
             ptr[i + 1] = CLAMP((int)((float)ptr[i + 1] / alpha * 255), 255);
             ptr[i + 2] = CLAMP((int)((float)ptr[i + 2] / alpha * 255), 255);
         }
     }
 }
+
+void CanvasRenderingContext2DDelegate::setShadowBlur(float blur) {
+#if (CC_PLATFORM == CC_PLATFORM_ANDROID)
+    JniHelper::callObjectVoidMethod(_obj, JCLS_CANVASIMPL, "setShadowBlur", blur);
+#else
+    CC_LOG_WARNING("shadowBlur not implemented");
+#endif
+}
+
+void CanvasRenderingContext2DDelegate::setShadowColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
+#if (CC_PLATFORM == CC_PLATFORM_ANDROID)
+    JniHelper::callObjectVoidMethod(_obj, JCLS_CANVASIMPL, "setShadowColor",
+                                    static_cast<jint>(r),
+                                    static_cast<jint>(g),
+                                    static_cast<jint>(b),
+                                    static_cast<jint>(a));
+#else
+    CC_LOG_WARNING("shadowColor not implemented");
+#endif
+}
+
+void CanvasRenderingContext2DDelegate::setShadowOffsetX(float offsetX) {
+#if (CC_PLATFORM == CC_PLATFORM_ANDROID)
+    JniHelper::callObjectVoidMethod(_obj, JCLS_CANVASIMPL, "setShadowOffsetX", offsetX);
+#else
+    CC_LOG_WARNING("shadowOffsetX not implemented");
+#endif
+}
+
+void CanvasRenderingContext2DDelegate::setShadowOffsetY(float offsetY) {
+#if (CC_PLATFORM == CC_PLATFORM_ANDROID)
+    JniHelper::callObjectVoidMethod(_obj, JCLS_CANVASIMPL, "setShadowOffsetY", offsetY);
+#else
+    CC_LOG_WARNING("shadowOffsetY not implemented");
+#endif
+}
+
 } // namespace cc

@@ -41,7 +41,7 @@ public:
     void signalAll() noexcept;
 
 private:
-    std::mutex              _mutex;
+    std::mutex _mutex;
     std::condition_variable _condVar;
 };
 

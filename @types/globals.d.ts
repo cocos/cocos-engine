@@ -26,6 +26,7 @@
 
 declare const gfx: any;
 declare const global: any;
+declare const xr: any;
 
 interface Window {
 
@@ -83,6 +84,8 @@ declare interface IWritableArrayLike<T> {
 }
 
 declare type Constructor<T = unknown> = new (...args: any[]) => T;
+
+declare type AbstractedConstructor<T = unknown> = abstract new (...args: any[]) => T;
 
 /**
  * Alias of `Function` but suppress eslint warning.

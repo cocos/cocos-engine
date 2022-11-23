@@ -102,7 +102,7 @@ public:
         array.emplace_back(std::forward<T>(item));
     }
 
-    int32_t           i = 0;
+    int32_t i = 0;
     ccstd::vector<T> &array;
 };
 

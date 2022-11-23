@@ -47,13 +47,13 @@ CCMTLBuffer::~CCMTLBuffer() {
 }
 
 void CCMTLBuffer::doInit(const BufferInfo &info) {
-    _gpuBuffer = CC_NEW(CCMTLGPUBuffer);
+    _gpuBuffer = ccnew CCMTLGPUBuffer;
     _gpuBuffer->count = _count;
     _gpuBuffer->mappedData = nullptr;
     _gpuBuffer->size = _size;
     _gpuBuffer->startOffset = _offset;
     _gpuBuffer->stride = _stride;
-    
+
     _isIndirectDrawSupported = CCMTLDevice::getInstance()->isIndirectDrawSupported();
     if (hasFlag(_usage, BufferUsage::INDEX)) {
         switch (_stride) {
@@ -83,7 +83,7 @@ void CCMTLBuffer::doInit(const BufferInfo &info) {
 }
 
 void CCMTLBuffer::doInit(const BufferViewInfo &info) {
-    auto* ccBuffer = static_cast<CCMTLBuffer *>(info.buffer);
+    auto *ccBuffer = static_cast<CCMTLBuffer *>(info.buffer);
     _gpuBuffer = ccBuffer->gpuBuffer();
     _indexType = ccBuffer->getIndexType();
     _mtlResourceOptions = ccBuffer->_mtlResourceOptions;
@@ -96,11 +96,11 @@ void CCMTLBuffer::doInit(const BufferViewInfo &info) {
     _isBufferView = true;
 }
 
-bool CCMTLBuffer::createMTLBuffer(uint size, MemoryUsage usage) {
-    if(!size) {
+bool CCMTLBuffer::createMTLBuffer(uint32_t size, MemoryUsage usage) {
+    if (!size) {
         return false;
     }
-    
+
     _mtlResourceOptions = mu::toMTLResourceOption(usage);
 
     if (_gpuBuffer->mtlBuffer) {
@@ -109,7 +109,7 @@ bool CCMTLBuffer::createMTLBuffer(uint size, MemoryUsage usage) {
         std::function<void(void)> destroyFunc = [=]() {
             if (mtlBuffer) {
                 //TODO_Zeqiang: [mac12 | ios15, ...) validate here
-//                [mtlBuffer setPurgeableState:MTLPurgeableStateEmpty];
+                //                [mtlBuffer setPurgeableState:MTLPurgeableStateEmpty];
                 [mtlBuffer release];
             }
         };
@@ -145,25 +145,25 @@ void CCMTLBuffer::doDestroy() {
         _drawInfos.clear();
     }
 
-    if(_gpuBuffer) {
+    if (_gpuBuffer) {
         id<MTLBuffer> mtlBuffer = _gpuBuffer->mtlBuffer;
         _gpuBuffer->mtlBuffer = nil;
 
         std::function<void(void)> destroyFunc = [=]() {
             if (mtlBuffer) {
                 //TODO_Zeqiang: [mac12 | ios15, ...) validate here
-//                [mtlBuffer setPurgeableState:MTLPurgeableStateEmpty];
+                //                [mtlBuffer setPurgeableState:MTLPurgeableStateEmpty];
                 [mtlBuffer release];
             }
         };
         //gpu object only
         CCMTLGPUGarbageCollectionPool::getInstance()->collect(destroyFunc);
     }
-    
+
     CC_SAFE_DELETE(_gpuBuffer);
 }
 
-void CCMTLBuffer::doResize(uint size, uint count) {
+void CCMTLBuffer::doResize(uint32_t size, uint32_t count) {
     if (hasFlag(_usage, BufferUsageBit::VERTEX) ||
         hasFlag(_usage, BufferUsageBit::INDEX) ||
         hasFlag(_usage, BufferUsageBit::UNIFORM)) {
@@ -188,7 +188,7 @@ void CCMTLBuffer::doResize(uint size, uint count) {
     }
 }
 
-void CCMTLBuffer::update(const void *buffer, uint size) {
+void CCMTLBuffer::update(const void *buffer, uint32_t size) {
     CC_PROFILE(CCMTLBufferUpdate);
     if (_isBufferView) {
         CC_LOG_WARNING("Cannot update a buffer view.");
@@ -198,8 +198,7 @@ void CCMTLBuffer::update(const void *buffer, uint size) {
     _isDrawIndirectByIndex = false;
 
     if (hasFlag(_usage, BufferUsageBit::INDIRECT)) {
-
-        uint drawInfoCount = size / _stride;
+        uint32_t drawInfoCount = size / _stride;
         const auto *drawInfo = static_cast<const DrawInfo *>(buffer);
         if (drawInfoCount > 0) {
             if (drawInfo->indexCount) {
@@ -210,9 +209,9 @@ void CCMTLBuffer::update(const void *buffer, uint size) {
         if (_isIndirectDrawSupported) {
             if (drawInfoCount > 0) {
                 if (_isDrawIndirectByIndex) {
-                    uint stride = sizeof(MTLDrawIndexedPrimitivesIndirectArguments);
+                    uint32_t stride = sizeof(MTLDrawIndexedPrimitivesIndirectArguments);
 
-                    for (uint i = 0; i < drawInfoCount; ++i) {
+                    for (uint32_t i = 0; i < drawInfoCount; ++i) {
                         auto &arguments = _indexedPrimitivesIndirectArguments[i];
                         arguments.indexCount = drawInfo->indexCount;
                         arguments.instanceCount = std::max(drawInfo->instanceCount, 1U);
@@ -223,9 +222,9 @@ void CCMTLBuffer::update(const void *buffer, uint size) {
                     }
                     updateMTLBuffer(_indexedPrimitivesIndirectArguments.data(), 0, drawInfoCount * stride);
                 } else {
-                    uint stride = sizeof(MTLDrawPrimitivesIndirectArguments);
+                    uint32_t stride = sizeof(MTLDrawPrimitivesIndirectArguments);
 
-                    for (uint i = 0; i < drawInfoCount; ++i) {
+                    for (uint32_t i = 0; i < drawInfoCount; ++i) {
                         auto &arguments = _primitiveIndirectArguments[i];
                         arguments.vertexCount = drawInfo->vertexCount;
                         arguments.instanceCount = std::max(drawInfo->instanceCount, 1U);
@@ -244,12 +243,12 @@ void CCMTLBuffer::update(const void *buffer, uint size) {
     }
 }
 
-void CCMTLBuffer::updateMTLBuffer(const void *buffer, uint /*offset*/, uint size) {
+void CCMTLBuffer::updateMTLBuffer(const void *buffer, uint32_t /*offset*/, uint32_t size) {
     if (_gpuBuffer->mtlBuffer) {
         CommandBuffer *cmdBuffer = CCMTLDevice::getInstance()->getCommandBuffer();
         cmdBuffer->begin();
         static_cast<CCMTLCommandBuffer *>(cmdBuffer)->updateBuffer(this, buffer, size);
-#if (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
+#if (CC_PLATFORM == CC_PLATFORM_MACOS)
         if (_mtlResourceOptions == MTLResourceStorageModeManaged) {
             [_gpuBuffer->mtlBuffer didModifyRange:NSMakeRange(0, _size)]; // Synchronize the managed buffer.
         }
@@ -257,23 +256,23 @@ void CCMTLBuffer::updateMTLBuffer(const void *buffer, uint /*offset*/, uint size
     }
 }
 
-void CCMTLBuffer::encodeBuffer(CCMTLCommandEncoder &encoder, uint offset, uint binding, ShaderStageFlags stages) {
+void CCMTLBuffer::encodeBuffer(CCMTLCommandEncoder &encoder, uint32_t offset, uint32_t binding, ShaderStageFlags stages) {
     if (_isBufferView) {
         offset += _bufferViewOffset;
     }
 
     if (hasFlag(stages, ShaderStageFlagBit::VERTEX)) {
-        CCMTLRenderCommandEncoder* renderEncoder = static_cast<CCMTLRenderCommandEncoder*>(&encoder);
+        CCMTLRenderCommandEncoder *renderEncoder = static_cast<CCMTLRenderCommandEncoder *>(&encoder);
         renderEncoder->setVertexBuffer(_gpuBuffer->mtlBuffer, offset, binding);
     }
 
     if (hasFlag(stages, ShaderStageFlagBit::FRAGMENT)) {
-        CCMTLRenderCommandEncoder* renderEncoder = static_cast<CCMTLRenderCommandEncoder*>(&encoder);
+        CCMTLRenderCommandEncoder *renderEncoder = static_cast<CCMTLRenderCommandEncoder *>(&encoder);
         renderEncoder->setFragmentBuffer(_gpuBuffer->mtlBuffer, offset, binding);
     }
 
-    if(hasFlag(stages, ShaderStageFlagBit::COMPUTE)) {
-        CCMTLComputeCommandEncoder* computeEncoder = static_cast<CCMTLComputeCommandEncoder*>(&encoder);
+    if (hasFlag(stages, ShaderStageFlagBit::COMPUTE)) {
+        CCMTLComputeCommandEncoder *computeEncoder = static_cast<CCMTLComputeCommandEncoder *>(&encoder);
         computeEncoder->setBuffer(_gpuBuffer->mtlBuffer, offset, binding);
     }
 }

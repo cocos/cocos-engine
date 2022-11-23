@@ -27,7 +27,7 @@
 
 #include <cstdint>
 #include <type_traits>
-#include "base/CachedArray.h"
+#include "core/memop/CachedArray.h"
 
 namespace cc {
 namespace gfx {
@@ -64,13 +64,13 @@ enum class GLESCmdType : uint8_t {
 struct GLESBindingMapping {
     ccstd::vector<int32_t> blockOffsets;
     ccstd::vector<int32_t> samplerTextureOffsets;
-    uint32_t               flexibleSet{0};
+    uint32_t flexibleSet{0};
 };
 
 class GLESCmd {
 public:
     GLESCmdType type;
-    uint32_t    refCount = 0;
+    uint32_t refCount = 0;
 
     explicit GLESCmd(GLESCmdType type) : type(type) {}
     virtual ~GLESCmd() = default;
@@ -78,40 +78,40 @@ public:
     virtual void clear() = 0;
 };
 
-#define INITIAL_CAPACITY 1
+#define GLES_COMMAND_POOL_INITIAL_CAPACITY 1
 
 template <typename T, typename = std::enable_if_t<std::is_base_of<GLESCmd, T>::value>>
 class CommandPool {
 public:
-    CommandPool() : _freeCmds(INITIAL_CAPACITY) {
-        _frees   = new T *[INITIAL_CAPACITY];
-        _count   = INITIAL_CAPACITY;
-        _freeIdx = INITIAL_CAPACITY - 1;
+    CommandPool() : _freeCmds(GLES_COMMAND_POOL_INITIAL_CAPACITY) {
+        _frees = ccnew T *[GLES_COMMAND_POOL_INITIAL_CAPACITY];
+        _count = GLES_COMMAND_POOL_INITIAL_CAPACITY;
+        _freeIdx = GLES_COMMAND_POOL_INITIAL_CAPACITY - 1;
         for (uint32_t i = 0; i < _count; ++i) {
-            _frees[i] = CC_NEW(T);
+            _frees[i] = ccnew T;
         }
     }
 
     ~CommandPool() {
         for (uint32_t i = 0; i < _count; ++i) {
-            CC_DELETE(_frees[i]);
+            delete _frees[i];
         }
         delete[](_frees);
 
         for (uint32_t i = 0; i < _freeCmds.size(); ++i) {
-            CC_DELETE(_freeCmds[i]);
+            delete _freeCmds[i];
         }
         _freeCmds.clear();
     }
 
     T *alloc() {
         if (_freeIdx < 0) {
-            T **     oldFrees = _frees;
-            uint32_t size     = _count * 2;
-            _frees            = new T *[size];
+            T **oldFrees = _frees;
+            uint32_t size = _count * 2;
+            _frees = ccnew T *[size];
             uint32_t increase = size - _count;
             for (uint32_t i = 0; i < increase; ++i) {
-                _frees[i] = CC_NEW(T);
+                _frees[i] = ccnew T;
             }
             for (uint32_t i = increase, j = 0; i < size; ++i, ++j) {
                 _frees[i] = oldFrees[j];
@@ -122,7 +122,7 @@ public:
             _freeIdx += static_cast<int>(increase);
         }
 
-        T *cmd             = _frees[_freeIdx];
+        T *cmd = _frees[_freeIdx];
         _frees[_freeIdx--] = nullptr;
         ++cmd->refCount;
         return cmd;
@@ -153,10 +153,10 @@ public:
     }
 
 protected:
-    T **             _frees = nullptr;
-    uint32_t         _count = 0;
+    T **_frees = nullptr;
+    uint32_t _count = 0;
     CachedArray<T *> _freeCmds;
-    int              _freeIdx = 0;
+    int _freeIdx = 0;
 };
 
 } // namespace gfx

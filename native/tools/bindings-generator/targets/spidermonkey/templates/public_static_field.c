@@ -34,7 +34,7 @@ SE_BIND_PROP_GET(${signature_name}_get_${name})
 static bool ${signature_name}_set_${name}(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
-    SE_PRECONDITION2(args.size() == 1, false, "${signature_name}_set_${name} : arguments count incorrect");
+    SE_PRECONDITION2(args.size() == 1, false, "arguments count incorrect");
 
     CC_UNUSED bool ok = true;
     #set $arg_type = $ntype.to_string($generator)
@@ -64,7 +64,7 @@ static bool ${signature_name}_set_${name}(se::State& s) // NOLINT(readability-id
                     })
 #end if
     $conv_text;
-    SE_PRECONDITION2(ok, false, "${signature_name}_set_${name} : Error processing new value");
+    SE_PRECONDITION2(ok, false, "Error processing new value");
     return true;
 }
 SE_BIND_PROP_SET(${signature_name}_set_${name})

@@ -24,44 +24,44 @@
 ****************************************************************************/
 
 #include "physics/sdk/Joint.h"
+#include "base/memory/Memory.h"
 #include "physics/PhysicsSelector.h"
 
-#define CC_PHYSICS_JOINT_DEFINITION(CLASS, WRAPPED) \
-                                                    \
-    CLASS::CLASS() {                                \
-        _impl.reset(new WRAPPED());                 \
-    }                                               \
-                                                    \
-    CLASS::~CLASS() {                               \
-        _impl.reset(nullptr);                       \
-    }                                               \
-                                                    \
-    uintptr_t CLASS::getImpl() {                    \
-        return _impl->getImpl();                    \
-    }                                               \
-                                                    \
-    void CLASS::initialize(Node *node) {            \
-        _impl->initialize(node);                    \
-    }                                               \
-                                                    \
-    void CLASS::onEnable() {                        \
-        _impl->onEnable();                          \
-    }                                               \
-                                                    \
-    void CLASS::onDisable() {                       \
-        _impl->onDisable();                         \
-    }                                               \
-                                                    \
-    void CLASS::onDestroy() {                       \
-        _impl->onDestroy();                         \
-    }                                               \
-                                                    \
-    void CLASS::setConnectedBody(uintptr_t v) {     \
-        _impl->setConnectedBody(v);                 \
-    }                                               \
-                                                    \
-    void CLASS::setEnableCollision(bool v) {        \
-        _impl->setEnableCollision(v);               \
+#define CC_PHYSICS_JOINT_DEFINITION(CLASS, WRAPPED)      \
+                                                         \
+    CLASS::CLASS() {                                     \
+        _impl.reset(ccnew WRAPPED());                    \
+    }                                                    \
+                                                         \
+    CLASS::~CLASS() {                                    \
+        _impl.reset(nullptr);                            \
+    }                                                    \
+                                                         \
+    void CLASS::initialize(Node *node) {                 \
+        _impl->initialize(node);                         \
+    }                                                    \
+                                                         \
+    void CLASS::onEnable() {                             \
+        _impl->onEnable();                               \
+    }                                                    \
+                                                         \
+    void CLASS::onDisable() {                            \
+        _impl->onDisable();                              \
+    }                                                    \
+                                                         \
+    void CLASS::onDestroy() {                            \
+        _impl->onDestroy();                              \
+    }                                                    \
+                                                         \
+    void CLASS::setConnectedBody(uint32_t rigidBodyID) { \
+        _impl->setConnectedBody(rigidBodyID);            \
+    }                                                    \
+                                                         \
+    void CLASS::setEnableCollision(bool v) {             \
+        _impl->setEnableCollision(v);                    \
+    }                                                    \
+    uint32_t CLASS::getObjectID() const {                \
+        return _impl->getObjectID();                     \
     }
 
 namespace cc {
@@ -71,6 +71,7 @@ namespace physics {
 
 CC_PHYSICS_JOINT_DEFINITION(DistanceJoint, WrappedDistanceJoint)
 CC_PHYSICS_JOINT_DEFINITION(RevoluteJoint, WrappedRevoluteJoint)
+CC_PHYSICS_JOINT_DEFINITION(FixedJoint, WrappedFixedJoint)
 
 /// EXTRAS ///
 
@@ -92,6 +93,14 @@ void RevoluteJoint::setPivotB(float x, float y, float z) {
 
 void RevoluteJoint::setAxis(float x, float y, float z) {
     _impl->setAxis(x, y, z);
+}
+
+void FixedJoint::setBreakForce(float force) {
+    _impl->setBreakForce(force);
+}
+
+void FixedJoint::setBreakTorque(float torque) {
+    _impl->setBreakTorque(torque);
 }
 
 } // namespace physics

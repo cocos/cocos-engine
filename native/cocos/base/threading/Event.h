@@ -41,7 +41,7 @@ private:
     T _syncObject{};
 };
 
-using EventCV  = Event<ConditionVariable>;
+using EventCV = Event<ConditionVariable>;
 using EventSem = Event<Semaphore>;
 
 } // namespace cc

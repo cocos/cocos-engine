@@ -22,10 +22,10 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-import { legacyCC } from "../../core/global-exports";
+import { cclegacy } from "../../core";
 
 export const MeshUtils = jsb.MeshUtils;
 export const createMesh = MeshUtils.createMesh;
 export const createDynamicMesh = MeshUtils.createDynamicMesh;
-legacyCC.MeshUtils = jsb.MeshUtils;
+cclegacy.MeshUtils = jsb.MeshUtils;
 

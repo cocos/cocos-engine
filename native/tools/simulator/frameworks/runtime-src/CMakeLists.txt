@@ -27,11 +27,6 @@ if(USE_SE_JSC AND APPLE)
     set(USE_V8_DEBUGGER OFF)
 endif()
 
-if(CMAKE_OSX_SYSROOT STREQUAL "iphonesimulator")
-    set(TARGET_IOS_VERSION "9.0")
-else()
-    set(TARGET_IOS_VERSION "8.0")
-endif()
 set(TARGET_OSX_VERSION "10.14")
 
 set(cocosdir ${CMAKE_CURRENT_LIST_DIR}/../../../..)
@@ -39,8 +34,13 @@ if(NOT cocosdir)
     message(FATAL_ERROR "COCOS_ROOT is not set!")
 endif()
 
+# TODO(v3.6.1): enable all modules and scripts for simulator
+set(USE_DEBUG_RENDERER OFF)
+
 include(${cocosdir}/CMakeLists.txt)
 include(${cocosdir}/tools/simulator/libsimulator/CMakeLists.txt)
+
+
 
 if(MACOSX)
     set(LIB_NAME ${APP_NAME}-Mac)
@@ -105,7 +105,7 @@ elseif(MACOSX)
         proj.ios_mac/mac/zh-Hans.lproj/MainMenu.xib
     )
     list(APPEND PROJ_SOURCES
-       # proj.ios_mac/mac/main.mm
+        proj.ios_mac/mac/main.mm
         proj.ios_mac/mac/SimulatorApp.h
         proj.ios_mac/mac/SimulatorApp.mm
        # proj.ios_mac/mac/AppDelegate.h
@@ -208,6 +208,12 @@ elseif(WINDOWS)
             get_filename_component(abs ${item} ABSOLUTE)
             add_custom_command(TARGET ${LIB_NAME} POST_BUILD
                 COMMAND ${CMAKE_COMMAND} -E copy_if_different ${abs} $<TARGET_FILE_DIR:${LIB_NAME}>/${filename}
+            )
+        endforeach()
+        foreach(item ${V8_DLLS})
+            get_filename_component(filename ${item} NAME)
+            add_custom_command(TARGET ${LIB_NAME} POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different ${V8_DIR}/$<IF:$<BOOL:$<CONFIG:RELEASE>>,Release,Debug>/${filename} $<TARGET_FILE_DIR:${LIB_NAME}>/${filename}
             )
         endforeach()
         target_link_options(${LIB_NAME} PRIVATE /SUBSYSTEM:WINDOWS)

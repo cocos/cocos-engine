@@ -30,12 +30,16 @@ using namespace emscripten;
 namespace cc {
 namespace gfx {
 
-CCWGPUFramebuffer::CCWGPUFramebuffer() : wrapper<Framebuffer>(val::object()) {
+CCWGPUFramebuffer::CCWGPUFramebuffer() : Framebuffer() {
+}
+
+CCWGPUFramebuffer::~CCWGPUFramebuffer() {
+    doDestroy();
 }
 
 void CCWGPUFramebuffer::doInit(const FramebufferInfo &info) {
     for (auto *tex : info.colorTextures) {
-        auto *           ccTex     = static_cast<CCWGPUTexture *>(tex);
+        auto *ccTex = static_cast<CCWGPUTexture *>(tex);
         CCWGPUSwapchain *swapchain = ccTex->swapchain();
         if (swapchain) {
             _swapchain = swapchain;

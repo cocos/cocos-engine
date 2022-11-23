@@ -29,7 +29,7 @@
 
 #pragma once
 
-using astc_byte   = unsigned char;
+using astc_byte = unsigned char;
 using astc_uint32 = unsigned int;
 
 // Size of a ASTC header

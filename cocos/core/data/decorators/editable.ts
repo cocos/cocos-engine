@@ -23,12 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module decorator
- */
-
-import { DEV, EDITOR } from 'internal:constants';
+import { DEV } from 'internal:constants';
 import { IExposedAttributes } from '../utils/attribute-defines';
 import { getOrCreatePropertyStash } from './property';
 import { PropertyStash, PropertyStashInternalFlag } from '../class-stash';
@@ -74,8 +69,9 @@ export const executeInEditMode: ClassDecorator & ((yes?: boolean) => ClassDecora
 export const menu: (path: string) => ClassDecorator =    DEV ? makeEditorClassDecoratorFn('menu') : emptyDecoratorFn;
 
 /**
- * @en When {{executeInEditMode}} is set, this decorator will decide when a node with the component is on focus whether the editor should running in high FPS mode.
- * @zh 当指定了 "executeInEditMode" 以后，playOnFocus 可以在选中当前组件所在的节点时，提高编辑器的场景刷新频率到 60 FPS，否则场景就只会在必要的时候进行重绘。
+ * @en When [[_decorator.executeInEditMode]] is set,
+ * this decorator will make the editor running in high FPS mode when a node with the component is focused
+ * @zh 当指定了 [[_decorator.executeInEditMode]] 以后，playOnFocus 可以在选中当前组件所在的节点时，提高编辑器的场景刷新频率到 60 FPS，否则场景就只会在必要的时候进行重绘。
  * @example
  * ```ts
  * import { _decorator, Component } from 'cc';
@@ -129,7 +125,8 @@ export const inspector: (url: string) => ClassDecorator =    DEV ? makeEditorCla
 export const icon: (url: string) => ClassDecorator =    DEV ? makeEditorClassDecoratorFn('icon') : emptyDecoratorFn;
 
 /**
- * @en Define the help documentation url, if given, the component section in the **inspector** will have a help documentation icon reference to the web page given.
+ * @en Define the help documentation url,
+ * if given, the component section in the **Inspector** will have a help documentation icon reference to the web page given.
  * @zh 指定当前组件的帮助文档的 url，设置过后，在 **属性检查器** 中就会出现一个帮助图标，用户点击将打开指定的网页。
  * @param url The url of the help documentation
  * @example
@@ -151,11 +148,12 @@ export const help: (url: string) => ClassDecorator = DEV ? makeEditorClassDecora
  * Enables the editor interoperability of the property.
  * @zh
  * 允许该属性与编辑器交互。
+ * @engineInternal
  */
 export const editable: LegacyPropertyDecorator = !DEV
     ? emptyDecorator
-    : (target, propertyKey, descriptor) => {
-        const propertyStash = getOrCreatePropertyStash(target, propertyKey, descriptor);
+    : (target, propertyKey, descriptorOrInitializer) => {
+        const propertyStash = getOrCreatePropertyStash(target, propertyKey, descriptorOrInitializer);
         setImplicitVisible(propertyStash);
     };
 
@@ -165,6 +163,7 @@ export const editable: LegacyPropertyDecorator = !DEV
  * @zh
  * 设置在编辑器展示该属性的条件。
  * @param condition 展示条件，当返回 `true` 时展示；否则不展示。
+ * @engineInternal
  */
 export const visible: (condition: boolean | (() => boolean)) => LegacyPropertyDecorator = !DEV
     ? emptyDecoratorFn
@@ -186,6 +185,7 @@ export const readOnly: LegacyPropertyDecorator = !DEV
  * @zh
  * 设置该属性在编辑器中的显示名称。
  * @param text 显示名称。
+ * @engineInternal
  */
 export const displayName: (text: string) => LegacyPropertyDecorator = !DEV
     ? emptyDecoratorFn
@@ -197,10 +197,11 @@ export const displayName: (text: string) => LegacyPropertyDecorator = !DEV
  * @zh
  * 设置该属性在编辑器中的工具提示内容。
  * @param text 工具提示。
+ * @engineInternal
  */
 export const tooltip: (text: string) => LegacyPropertyDecorator = !DEV
     ? emptyDecoratorFn
-    : setPropertyStashVar1WithImplicitVisible('tooltip');
+    : setPropertyStashWithImplicitI18n('tooltip');
 
 /**
  * @en
@@ -219,6 +220,7 @@ export const group: (options: NonNullable<IExposedAttributes['group']>) => Legac
  * @zh
  * 设置该属性在编辑器中允许设置的范围。
  * @param values 范围。
+ * @engineInternal
  */
 export const range: (values: [number, number, number] | [number, number]) => LegacyPropertyDecorator = !DEV
     ? emptyDecoratorFn
@@ -252,6 +254,7 @@ export const rangeMax: (value: number) => LegacyPropertyDecorator = !DEV
  * @zh
  * 设置该属性在编辑器中的步进值。
  * @param value 步进值。
+ * @engineInternal
  */
 export const rangeStep: (value: number) => LegacyPropertyDecorator = !DEV
     ? emptyDecoratorFn
@@ -262,6 +265,7 @@ export const rangeStep: (value: number) => LegacyPropertyDecorator = !DEV
  * Enable a slider be given to coordinate the property in editor.
  * @zh
  * 允许在编辑器中提供滑动条来调节值
+ * @engineInternal
  */
 export const slide: LegacyPropertyDecorator = !DEV
     ? emptyDecorator
@@ -273,6 +277,7 @@ export const slide: LegacyPropertyDecorator = !DEV
  * @zh
  * 设置该属性在编辑器中的显示顺序。
  * @param order 显示顺序。
+ * @engineInternal
  */
 export const displayOrder: (order: number) => LegacyPropertyDecorator = !DEV
     ? emptyDecoratorFn
@@ -318,11 +323,12 @@ export const multiline: LegacyPropertyDecorator = !DEV
  * Sets the property so that it does not interop with the animation parts in editor.
  * @zh
  * 设置该属性不参与编辑器中动画相关的交互。
+ * @engineInternal
  */
 export const disallowAnimation: LegacyPropertyDecorator = !DEV
     ? emptyDecorator
-    : (target, propertyKey, descriptor) => {
-        const propertyStash = getOrCreatePropertyStash(target, propertyKey, descriptor);
+    : (target, propertyKey, descriptorOrInitializer) => {
+        const propertyStash = getOrCreatePropertyStash(target, propertyKey, descriptorOrInitializer);
         propertyStash.animatable = false;
     };
 
@@ -330,8 +336,8 @@ function setPropertyStashWithImplicitVisible<TKey extends keyof PropertyStash> (
     key: TKey,
     value: NonNullable<PropertyStash[TKey]>,
 ): LegacyPropertyDecorator {
-    return (target, propertyKey, descriptor) => {
-        const propertyStash = getOrCreatePropertyStash(target, propertyKey, descriptor);
+    return (target, propertyKey, descriptorOrInitializer) => {
+        const propertyStash = getOrCreatePropertyStash(target, propertyKey, descriptorOrInitializer);
         propertyStash[key] = value;
         setImplicitVisible(propertyStash);
     };
@@ -340,8 +346,8 @@ function setPropertyStashWithImplicitVisible<TKey extends keyof PropertyStash> (
 function setPropertyStashVar1WithImplicitVisible<TKey extends keyof PropertyStash> (
     key: TKey,
 ) {
-    return (value: NonNullable<PropertyStash[TKey]>): LegacyPropertyDecorator => (target, propertyKey, descriptor) => {
-        const propertyStash = getOrCreatePropertyStash(target, propertyKey, descriptor);
+    return (value: NonNullable<PropertyStash[TKey]>): LegacyPropertyDecorator => (target, propertyKey, descriptorOrInitializer) => {
+        const propertyStash = getOrCreatePropertyStash(target, propertyKey, descriptorOrInitializer);
         propertyStash[key] = value;
         setImplicitVisible(propertyStash);
     };
@@ -349,4 +355,20 @@ function setPropertyStashVar1WithImplicitVisible<TKey extends keyof PropertyStas
 
 function setImplicitVisible (propertyStash: PropertyStash) {
     propertyStash.__internalFlags |= PropertyStashInternalFlag.IMPLICIT_VISIBLE;
+}
+
+function setPropertyStashWithImplicitI18n<TKey extends keyof PropertyStash> (
+    key: TKey,
+) {
+    return (value: NonNullable<PropertyStash[TKey]>): LegacyPropertyDecorator => (target, propertyKey, descriptorOrInitializer) => {
+        const propertyStash = getOrCreatePropertyStash(target, propertyKey, descriptorOrInitializer);
+        const prefix = 'i18n:';
+        if (value.startsWith(prefix)) {
+            const extensionPrefix = 'ENGINE.';
+            propertyStash[key] = `${prefix}${extensionPrefix}${value.substring(prefix.length)}`;
+        } else {
+            propertyStash[key] = value;
+        }
+        setImplicitVisible(propertyStash);
+    };
 }

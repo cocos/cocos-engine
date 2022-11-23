@@ -88,6 +88,17 @@ void DescriptorSetAgent::update() {
         });
 }
 
+void DescriptorSetAgent::forceUpdate() {
+    _isDirty = false;
+    ENQUEUE_MESSAGE_1(
+        DeviceAgent::getInstance()->getMessageQueue(),
+        DescriptorSetForceUpdate,
+        actor, getActor(),
+        {
+            actor->forceUpdate();
+        });
+}
+
 void DescriptorSetAgent::bindBuffer(uint32_t binding, Buffer *buffer, uint32_t index) {
     DescriptorSet::bindBuffer(binding, buffer, index);
 

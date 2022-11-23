@@ -1,23 +1,50 @@
 import { EDITOR } from 'internal:constants';
 import { systemInfo } from 'pal/system-info';
-import { AudioEvent, AudioState, AudioType } from '../type';
+import { AudioPCMDataView, AudioEvent, AudioState, AudioType } from '../type';
 import { EventTarget } from '../../../cocos/core/event';
 import { clamp01 } from '../../../cocos/core';
 import { enqueueOperation, OperationInfo, OperationQueueable } from '../operation-queue';
 import AudioTimer from '../audio-timer';
 import { audioBufferManager } from '../audio-buffer-manager';
+import legacyCC from '../../../predefine';
 
 // NOTE: fix CI
 const AudioContextClass = (window.AudioContext || window.webkitAudioContext || window.mozAudioContext);
+const _contextRunningEvent = 'on-context-running';
+
 export class AudioContextAgent {
     public static support = !!AudioContextClass;
+
+    private _eventTarget: EventTarget;
     private _context: AudioContext;
+    private _isRunning = false;
     constructor () {
         this._context = new (window.AudioContext || window.webkitAudioContext || window.mozAudioContext)();
+        this._eventTarget = new EventTarget();
+        this._context.onstatechange = () => {
+            if (this._context.state === 'running') {
+                this._isRunning = true;
+                this._eventTarget.emit(_contextRunningEvent);
+            } else {
+                this._isRunning = false;
+            }
+        };
+    }
+
+    get isRunning () {
+        return this._isRunning;
     }
 
     get currentTime () {
         return this._context.currentTime;
+    }
+
+    public onceRunning (cb: (...args: any[]) => void, target?: any) {
+        this._eventTarget.once(_contextRunningEvent, cb, target);
+    }
+
+    public offRunning (cb?: (...args: any[]) => void, target?: any) {
+        this._eventTarget.off(_contextRunningEvent, cb, target);
     }
 
     public decodeAudioData (audioData: ArrayBuffer): Promise<AudioBuffer> {
@@ -34,11 +61,16 @@ export class AudioContextAgent {
 
     public runContext (): Promise<void> {
         return new Promise((resolve) => {
+            if (this.isRunning) {
+                resolve();
+                return;
+            }
             const context = this._context;
             if (!context.resume) {
                 resolve();
                 return;
             }
+            context.resume().catch((e) => {});
             if (context.state === 'running') {
                 resolve();
                 return;
@@ -128,7 +160,7 @@ export class OneShotAudioWeb {
     }
 
     public play (): void {
-        if (EDITOR) {
+        if (EDITOR && !legacyCC.GAME_VIEW) {
             return;
         }
         this._bufferSourceNode.start();
@@ -162,11 +194,11 @@ export class AudioPlayerWeb implements OperationQueueable {
     private _audioTimer: AudioTimer;
 
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _eventTarget: EventTarget = new EventTarget();
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _operationQueue: OperationInfo[] = [];
 
@@ -237,6 +269,14 @@ export class AudioPlayerWeb implements OperationQueueable {
         });
     }
 
+    get sampleRate (): number {
+        return this._audioBuffer.sampleRate;
+    }
+
+    public getPCMData (channelIndex: number): AudioPCMDataView | undefined {
+        return new AudioPCMDataView(this._audioBuffer.getChannelData(channelIndex), 1);
+    }
+
     private _onHide () {
         if (this._state === AudioState.PLAYING) {
             this.pause().then(() => {
@@ -289,6 +329,7 @@ export class AudioPlayerWeb implements OperationQueueable {
     @enqueueOperation
     seek (time: number): Promise<void> {
         return new Promise((resolve) => {
+            audioContextAgent!.offRunning();
             this._audioTimer.seek(time);
             if (this._state === AudioState.PLAYING) {
                 // one AudioBufferSourceNode can't start twice
@@ -302,7 +343,8 @@ export class AudioPlayerWeb implements OperationQueueable {
 
     @enqueueOperation
     play (): Promise<void> {
-        if (EDITOR) {
+        audioContextAgent!.offRunning();
+        if (EDITOR && !legacyCC.GAME_VIEW) {
             return Promise.resolve();
         }
         return this._doPlay();
@@ -312,32 +354,46 @@ export class AudioPlayerWeb implements OperationQueueable {
     // so we define this method to ensure that the audio seeking works.
     private _doPlay (): Promise<void> {
         return new Promise((resolve) => {
-            // one AudioBufferSourceNode can't start twice
-            this._stopSourceNode();
-            this._sourceNode = audioContextAgent!.createBufferSource(this._audioBuffer, this.loop);
-            this._sourceNode.connect(this._gainNode);
-            this._sourceNode.start(0, this._audioTimer.currentTime);
-            audioContextAgent!.runContext().then(() => {
-                this._state = AudioState.PLAYING;
-                this._audioTimer.start();
-
-                /* still not supported by all platforms *
-                this._sourceNode.onended = this._onEnded;
-                /* doing it manually for now */
-                const checkEnded = () => {
-                    if (this.loop) {
-                        this._currentTimer = window.setTimeout(checkEnded, this._audioBuffer.duration * 1000);
-                    } else {  // do ended
-                        this._audioTimer.stop();
-                        this._eventTarget.emit(AudioEvent.ENDED);
-                        this._state = AudioState.INIT;
-                    }
-                };
-                window.clearTimeout(this._currentTimer);
-                this._currentTimer = window.setTimeout(checkEnded, (this._audioBuffer.duration - this._audioTimer.currentTime) * 1000);
+            if (audioContextAgent!.isRunning) {
+                this._startSourceNode();
                 resolve();
-            }).catch((e) => {});
+            } else {
+                // Running event may be emit when:
+                // - manually resume audio context.
+                // - system automatically resume audio context when enter foreground from background.
+                audioContextAgent!.onceRunning(() => {
+                    this._startSourceNode();
+                    resolve();
+                });
+                // Ensure resume context.
+                audioContextAgent!.runContext().catch((e) => {});
+            }
         });
+    }
+
+    private _startSourceNode () {
+        // one AudioBufferSourceNode can't start twice
+        this._stopSourceNode();
+        this._sourceNode = audioContextAgent!.createBufferSource(this._audioBuffer, this.loop);
+        this._sourceNode.connect(this._gainNode);
+        this._sourceNode.start(0, this._audioTimer.currentTime);
+        this._state = AudioState.PLAYING;
+        this._audioTimer.start();
+
+        /* still not supported by all platforms *
+        this._sourceNode.onended = this._onEnded;
+        /* doing it manually for now */
+        const checkEnded = () => {
+            if (this.loop) {
+                this._currentTimer = window.setTimeout(checkEnded, this._audioBuffer.duration * 1000);
+            } else {  // do ended
+                this._audioTimer.stop();
+                this._eventTarget.emit(AudioEvent.ENDED);
+                this._state = AudioState.INIT;
+            }
+        };
+        window.clearTimeout(this._currentTimer);
+        this._currentTimer = window.setTimeout(checkEnded, (this._audioBuffer.duration - this._audioTimer.currentTime) * 1000);
     }
 
     private _stopSourceNode () {
@@ -353,6 +409,7 @@ export class AudioPlayerWeb implements OperationQueueable {
 
     @enqueueOperation
     pause (): Promise<void> {
+        audioContextAgent!.offRunning();
         if (this._state !== AudioState.PLAYING || !this._sourceNode) {
             return Promise.resolve();
         }
@@ -365,6 +422,7 @@ export class AudioPlayerWeb implements OperationQueueable {
 
     @enqueueOperation
     stop (): Promise<void> {
+        audioContextAgent!.offRunning();
         if (!this._sourceNode) {
             return Promise.resolve();
         }

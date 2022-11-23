@@ -26,8 +26,7 @@
 #import "ViewController.h"
 #import "platform/mac/View.h"
 
-@implementation ViewController
-{
+@implementation ViewController {
     View* _view;
 }
 

@@ -37,20 +37,20 @@ namespace spine {
 class MeshAttachment;
 
 class SP_API LinkedMesh : public SpineObject {
-	friend class SkeletonBinary;
+    friend class SkeletonBinary;
 
-	friend class SkeletonJson;
+    friend class SkeletonJson;
 
 public:
-	LinkedMesh(MeshAttachment *mesh, const String &skin, size_t slotIndex, const String &parent, bool inheritDeform);
+    LinkedMesh(MeshAttachment *mesh, const String &skin, size_t slotIndex, const String &parent, bool inheritDeform);
 
 private:
-	MeshAttachment *_mesh;
-	String _skin;
-	size_t _slotIndex;
-	String _parent;
-	bool _inheritDeform;
+    MeshAttachment *_mesh;
+    String _skin;
+    size_t _slotIndex;
+    String _parent;
+    bool _inheritDeform;
 };
-}
+} // namespace spine
 
 #endif /* Spine_LinkedMesh_h */

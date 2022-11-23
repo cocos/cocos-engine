@@ -33,8 +33,12 @@ namespace physics {
 
 physx::PxRigidActor *PhysXJoint::tempRigidActor = nullptr;
 
+PhysXJoint::PhysXJoint() {
+    _mObjectID = PhysXWorld::getInstance().addWrapperObject(reinterpret_cast<uintptr_t>(this));
+};
+
 void PhysXJoint::initialize(Node *node) {
-    auto &ins    = PhysXWorld::getInstance();
+    auto &ins = PhysXWorld::getInstance();
     _mSharedBody = ins.getSharedBody(node);
     _mSharedBody->reference(true);
     onComponentSet();
@@ -58,12 +62,18 @@ void PhysXJoint::onDisable() {
 
 void PhysXJoint::onDestroy() {
     _mSharedBody->reference(false);
+    PhysXWorld::getInstance().removeWrapperObject(_mObjectID);
 }
 
-void PhysXJoint::setConnectedBody(uintptr_t v) {
-    if (v) {
-        auto &ins       = PhysXWorld::getInstance();
-        _mConnectedBody = ins.getSharedBody(reinterpret_cast<Node *>(v));
+void PhysXJoint::setConnectedBody(uint32_t rigidBodyID) {
+    PhysXRigidBody *pxRigidBody = reinterpret_cast<PhysXRigidBody *>(PhysXWorld::getInstance().getWrapperPtrWithObjectID(rigidBodyID));
+    if (pxRigidBody == nullptr)
+        return;
+
+    uintptr_t nodePtr = reinterpret_cast<uintptr_t>(pxRigidBody->getSharedBody().getNode());
+    if (nodePtr) {
+        auto &ins = PhysXWorld::getInstance();
+        _mConnectedBody = ins.getSharedBody(reinterpret_cast<Node *>(nodePtr));
     } else {
         _mConnectedBody = nullptr;
     }

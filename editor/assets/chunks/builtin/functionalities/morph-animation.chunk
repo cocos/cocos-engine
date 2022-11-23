@@ -1,0 +1,114 @@
+#include <builtin/uniforms/cc-morph>
+
+/**
+ * Fetch n-th pixel from texture, row by row.
+ */
+vec2 getPixelLocation(vec2 textureResolution, int pixelIndex) {
+  float pixelIndexF = float(pixelIndex);
+  float x = mod(pixelIndexF, textureResolution.x);
+  float y = floor(pixelIndexF / textureResolution.x);
+  return vec2(x, y);
+}
+
+vec2 getPixelCoordFromLocation(vec2 location, vec2 textureResolution) {
+  return (vec2(location.x, location.y) + .5) / textureResolution;
+}
+
+#if CC_DEVICE_SUPPORT_FLOAT_TEXTURE
+  #if __VERSION__ >= 300
+    vec4 fetchVec3ArrayFromTexture(sampler2D tex, int pixelIndex) {
+      ivec2 texSize = textureSize(tex, 0);
+      return texelFetch(tex, ivec2(pixelIndex % texSize.x, pixelIndex / texSize.x), 0);
+    }
+  #else
+    vec4 fetchVec3ArrayFromTexture(sampler2D tex, int elementIndex) {
+      int pixelIndex = elementIndex;
+      vec2 location = getPixelLocation(cc_displacementTextureInfo.xy, pixelIndex);
+      vec2 uv = getPixelCoordFromLocation(location, cc_displacementTextureInfo.xy);
+      return texture(tex, uv);
+    }
+  #endif
+#else
+  vec4 fetchVec3ArrayFromTexture(sampler2D tex, int elementIndex) {
+    int pixelIndex = elementIndex * 4;
+    vec2 location = getPixelLocation(cc_displacementTextureInfo.xy, pixelIndex);
+    // Here implies that the texture's width must be multiple of 4.
+    vec2 x = getPixelCoordFromLocation(location + vec2(0.0, 0.0), cc_displacementTextureInfo.xy);
+    vec2 y = getPixelCoordFromLocation(location + vec2(1.0, 0.0), cc_displacementTextureInfo.xy);
+    vec2 z = getPixelCoordFromLocation(location + vec2(2.0, 0.0), cc_displacementTextureInfo.xy);
+    return vec4(
+      decode32(texture(tex, x)),
+      decode32(texture(tex, y)),
+      decode32(texture(tex, z)),
+      1.0
+    );
+  }
+#endif
+
+float getDisplacementWeight(int index) {
+  int quot = index / 4;
+  int remainder = index - quot * 4;
+  if (remainder == 0) {
+    return cc_displacementWeights[quot].x;
+  } else if (remainder == 1) {
+    return cc_displacementWeights[quot].y;
+  } else if (remainder == 2) {
+    return cc_displacementWeights[quot].z;
+  } else {
+    return cc_displacementWeights[quot].w;
+  }
+}
+
+vec3 getVec3DisplacementFromTexture(sampler2D tex, int vertexIndex) {
+#if CC_MORPH_PRECOMPUTED
+  return fetchVec3ArrayFromTexture(tex, vertexIndex).rgb;
+#else
+  vec3 result = vec3(0, 0, 0);
+  int nVertices = int(cc_displacementTextureInfo.z);
+  for (int iTarget = 0; iTarget < CC_MORPH_TARGET_COUNT; ++iTarget) {
+    result += (fetchVec3ArrayFromTexture(tex, nVertices * iTarget + vertexIndex).rgb * getDisplacementWeight(iTarget));
+  }
+  return result;
+#endif
+}
+
+
+#if CC_MORPH_TARGET_HAS_POSITION
+vec3 getPositionDisplacement(int vertexId) {
+    return getVec3DisplacementFromTexture(cc_PositionDisplacements, vertexId);
+}
+#endif
+
+#if CC_MORPH_TARGET_HAS_NORMAL
+vec3 getNormalDisplacement(int vertexId) {
+    return getVec3DisplacementFromTexture(cc_NormalDisplacements, vertexId);
+}
+#endif
+
+#if CC_MORPH_TARGET_HAS_TANGENT
+vec3 getTangentDisplacement(int vertexId) {
+    return getVec3DisplacementFromTexture(cc_TangentDisplacements, vertexId);
+}
+#endif
+
+void applyMorph (inout vec4 position, inout vec3 normal, inout vec4 tangent) {
+  int vertexId = getVertexId();
+
+#if CC_MORPH_TARGET_HAS_POSITION
+  position.xyz = position.xyz + getPositionDisplacement(vertexId);
+#endif
+
+#if CC_MORPH_TARGET_HAS_NORMAL
+  normal.xyz = normal.xyz + getNormalDisplacement(vertexId);
+#endif
+
+#if CC_MORPH_TARGET_HAS_TANGENT
+  tangent.xyz = tangent.xyz + getTangentDisplacement(vertexId);
+#endif
+}
+
+void applyMorph (inout vec4 position) {
+#if CC_MORPH_TARGET_HAS_POSITION
+  position.xyz = position.xyz + getPositionDisplacement(getVertexId());
+#endif
+}

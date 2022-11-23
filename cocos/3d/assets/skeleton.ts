@@ -23,18 +23,10 @@
  THE SOFTWARE.
 */
 
-/**
- * @packageDocumentation
- * @module asset
- */
-
 import { ccclass, type, serializable } from 'cc.decorator';
-import { CCString } from '../../core/data/utils/attribute';
-import { Mat4 } from '../../core/math';
-import { murmurhash2_32_gc } from '../../core/utils/murmurhash2_gc';
+import { CCString, Mat4, cclegacy, murmurhash2_32_gc } from '../../core';
 import type { DataPoolManager } from '../skeletal-animation/data-pool-manager';
-import { Asset } from '../../core/assets/asset';
-import { legacyCC } from '../../core/global-exports';
+import { Asset } from '../../asset/assets/asset';
 
 /**
  * @en The skeleton asset. It stores the path related to [[SkinnedMeshRenderer.skinningRoot]] of all bones and its bind pose matrix.
@@ -115,13 +107,18 @@ export class Skeleton extends Asset {
     }
 
     public destroy () {
-        (legacyCC.director.root?.dataPoolManager as DataPoolManager)?.releaseSkeleton(this);
+        (cclegacy.director.root?.dataPoolManager as DataPoolManager)?.releaseSkeleton(this);
         return super.destroy();
     }
 
+    /**
+     * @en Check whether the skeleton is validate which means it has both joints and bindposes data.
+     * @zh 检查当前骨骼对象是否是有效的，取决于它是否包含关节路径和绑定姿势数据。
+     * @returns @en Whether the skeleton is valid or not @zh 此骨骼是否有效
+     */
     public validate () {
         return this.joints.length > 0 && this.bindposes.length > 0;
     }
 }
 
-legacyCC.Skeleton = Skeleton;
+cclegacy.Skeleton = Skeleton;

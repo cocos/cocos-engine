@@ -39,49 +39,49 @@ struct ConstantBuffer {
 
 } // namespace
 
-void ReflectionComp::applyTexSize(uint width, uint height, const Mat4 &matView,
+void ReflectionComp::applyTexSize(uint32_t width, uint32_t height, const Mat4 &matView,
                                   const Mat4 &matViewProj, const Mat4 &matViewProjInv,
                                   const Mat4 &matProjInv, const Vec4 &viewPort) {
-    uint globalWidth  = width;
-    uint globalHeight = height;
-    uint groupWidth   = this->getGroupSizeX();
-    uint groupHeight  = this->getGroupSizeY();
+    uint32_t globalWidth = width;
+    uint32_t globalHeight = height;
+    uint32_t groupWidth = this->getGroupSizeX();
+    uint32_t groupHeight = this->getGroupSizeY();
 
-    _dispatchInfo        = {(globalWidth - 1) / groupWidth + 1, (globalHeight - 1) / groupHeight + 1, 1};
+    _dispatchInfo = {(globalWidth - 1) / groupWidth + 1, (globalHeight - 1) / groupHeight + 1, 1};
     _denoiseDispatchInfo = {((globalWidth - 1) / 2) / groupWidth + 1, ((globalHeight - 1) / 2) / groupHeight + 1, 1};
 
     ConstantBuffer constants;
-    constants.matView        = matView;
-    constants.matProjInv     = matProjInv;
-    constants.matViewProj    = matViewProj;
+    constants.matView = matView;
+    constants.matProjInv = matProjInv;
+    constants.matViewProj = matViewProj;
     constants.matViewProjInv = matViewProjInv;
-    constants.viewPort       = viewPort;
-    constants.texSize        = {float(width), float(height)};
-    constants.viewPort       = viewPort;
+    constants.viewPort = viewPort;
+    constants.texSize = {float(width), float(height)};
+    constants.viewPort = viewPort;
 
     if (_compConstantsBuffer) {
         _compConstantsBuffer->update(&constants, sizeof(constants));
     }
 }
 
-void ReflectionComp::init(gfx::Device *dev, uint groupSizeX, uint groupSizeY) {
+void ReflectionComp::init(gfx::Device *dev, uint32_t groupSizeX, uint32_t groupSizeY) {
     if (!dev->hasFeature(gfx::Feature::COMPUTE_SHADER)) return;
 
-    _device     = dev;
+    _device = dev;
     _groupSizeX = groupSizeX;
     _groupSizeY = groupSizeY;
 
     gfx::SamplerInfo samplerInfo;
     samplerInfo.minFilter = gfx::Filter::POINT;
     samplerInfo.magFilter = gfx::Filter::POINT;
-    _sampler              = _device->getSampler(samplerInfo);
+    _sampler = _device->getSampler(samplerInfo);
 
-    uint maxInvocations = _device->getCapabilities().maxComputeWorkGroupInvocations;
-    CCASSERT(_groupSizeX * _groupSizeY <= maxInvocations, "maxInvocations is too small");
+    uint32_t maxInvocations = _device->getCapabilities().maxComputeWorkGroupInvocations;
+    CC_ASSERT(_groupSizeX * _groupSizeY <= maxInvocations); // maxInvocations is too small
     CC_LOG_INFO(" work group size: %dx%d", _groupSizeX, _groupSizeY);
 
     gfx::DescriptorSetLayoutInfo layoutInfo = {pipeline::localDescriptorSetLayout.bindings};
-    _localDescriptorSetLayout               = _device->createDescriptorSetLayout(layoutInfo);
+    _localDescriptorSetLayout = _device->createDescriptorSetLayout(layoutInfo);
 
     gfx::GeneralBarrierInfo infoPre = {
         gfx::AccessFlagBit::COLOR_ATTACHMENT_WRITE,
@@ -133,15 +133,16 @@ void ReflectionComp::getReflectorShader(ShaderSources<ComputeShaderSource> &sour
             vec2 texSize;
         };
 
-        layout(set = 0, binding = 1) uniform sampler2D lightingTex;
-        layout(set = 0, binding = 2) uniform sampler2D depth;
-        layout(set = 0, binding = 3, rgba8) writeonly uniform lowp image2D reflectionTex;
-        layout(set = 0, binding = 4, std140) uniform CCLocal
+        layout(set = 0, binding = 1, std140) uniform CCLocal
         {
             mat4 cc_matWorld;
             mat4 cc_matWorldIT;
             vec4 cc_lightingMapUVParam;
         };
+
+        layout(set = 0, binding = 2) uniform sampler2D lightingTex;
+        layout(set = 0, binding = 3) uniform sampler2D depth;
+        layout(set = 0, binding = 4, rgba8) writeonly uniform lowp image2D reflectionTex;
 
         vec4 screen2WS(vec3 coord) {
             vec4 ndc = vec4(
@@ -261,7 +262,7 @@ void ReflectionComp::initReflectionRes() {
         getReflectorShader(sources, i);
 
         gfx::ShaderInfo shaderInfo;
-        shaderInfo.name   = "Compute ";
+        shaderInfo.name = "Compute ";
         shaderInfo.stages = {{gfx::ShaderStageFlagBit::COMPUTE, getAppropriateShaderSource(sources)}};
         shaderInfo.blocks = {
             {0, 0, "Constants", {
@@ -273,32 +274,32 @@ void ReflectionComp::initReflectionRes() {
                                     {"texSize", gfx::Type::FLOAT2, 1},
                                 },
              1},
-            {0, 4, "CCLocal", {{"cc_matWorld", gfx::Type::MAT4, 1}, {"cc_matWorldIT", gfx::Type::MAT4, 1}, {"cc_lightingMapUVParam", gfx::Type::FLOAT4, 1}}, 1}};
+            {0, 1, "CCLocal", {{"cc_matWorld", gfx::Type::MAT4, 1}, {"cc_matWorldIT", gfx::Type::MAT4, 1}, {"cc_lightingMapUVParam", gfx::Type::FLOAT4, 1}}, 1}};
         shaderInfo.samplerTextures = {
-            {0, 1, "lightingTex", gfx::Type::SAMPLER2D, 1},
-            {0, 2, "depth", gfx::Type::SAMPLER2D, 1}};
+            {0, 2, "lightingTex", gfx::Type::SAMPLER2D, 1},
+            {0, 3, "depth", gfx::Type::SAMPLER2D, 1}};
         shaderInfo.images = {
-            {0, 3, "reflectionTex", gfx::Type::IMAGE2D, 1, gfx::MemoryAccessBit::WRITE_ONLY}};
+            {0, 4, "reflectionTex", gfx::Type::IMAGE2D, 1, gfx::MemoryAccessBit::WRITE_ONLY}};
         _compShader[i] = _device->createShader(shaderInfo);
     }
 
     gfx::DescriptorSetLayoutInfo dslInfo;
     dslInfo.bindings.push_back({0, gfx::DescriptorType::UNIFORM_BUFFER, 1, gfx::ShaderStageFlagBit::COMPUTE});
-    dslInfo.bindings.push_back({1, gfx::DescriptorType::SAMPLER_TEXTURE, 1, gfx::ShaderStageFlagBit::COMPUTE});
+    dslInfo.bindings.push_back({1, gfx::DescriptorType::UNIFORM_BUFFER, 1, gfx::ShaderStageFlagBit::COMPUTE});
     dslInfo.bindings.push_back({2, gfx::DescriptorType::SAMPLER_TEXTURE, 1, gfx::ShaderStageFlagBit::COMPUTE});
-    dslInfo.bindings.push_back({3, gfx::DescriptorType::STORAGE_IMAGE, 1, gfx::ShaderStageFlagBit::COMPUTE});
-    dslInfo.bindings.push_back({4, gfx::DescriptorType::UNIFORM_BUFFER, 1, gfx::ShaderStageFlagBit::COMPUTE});
+    dslInfo.bindings.push_back({3, gfx::DescriptorType::SAMPLER_TEXTURE, 1, gfx::ShaderStageFlagBit::COMPUTE});
+    dslInfo.bindings.push_back({4, gfx::DescriptorType::STORAGE_IMAGE, 1, gfx::ShaderStageFlagBit::COMPUTE});
 
     _compDescriptorSetLayout = _device->createDescriptorSetLayout(dslInfo);
-    _compDescriptorSet       = _device->createDescriptorSet({_compDescriptorSetLayout});
+    _compDescriptorSet = _device->createDescriptorSet({_compDescriptorSetLayout});
 
     _compPipelineLayout = _device->createPipelineLayout({{_compDescriptorSetLayout}});
 
     for (int i = 0; i < 2; ++i) {
         gfx::PipelineStateInfo pipelineInfo;
-        pipelineInfo.shader         = _compShader[i];
+        pipelineInfo.shader = _compShader[i];
         pipelineInfo.pipelineLayout = _compPipelineLayout;
-        pipelineInfo.bindPoint      = gfx::PipelineBindPoint::COMPUTE;
+        pipelineInfo.bindPoint = gfx::PipelineBindPoint::COMPUTE;
 
         _compPipelineState[i] = _device->createPipelineState(pipelineInfo);
     }
@@ -309,13 +310,13 @@ void ReflectionComp::getDenoiseShader(ShaderSources<ComputeShaderSource> &source
         R"(
         #define CC_USE_ENVMAP %d
         layout(local_size_x = %d, local_size_y = %d, local_size_z = 1) in;
-        layout(set = 0, binding = 0) uniform sampler2D reflectionTex;
+        layout(set = 0, binding = 1) uniform sampler2D reflectionTex;
         layout(set = 1, binding = %d, rgba8) writeonly uniform lowp image2D denoiseTex;
 
         #if CC_USE_ENVMAP == 1
-          layout(set = 0, binding = 1) uniform samplerCube envMap;
-          layout(set = 0, binding = 2) uniform sampler2D depth;
-          layout(set = 0, binding = 3) uniform Constants
+          layout(set = 0, binding = 2) uniform samplerCube envMap;
+          layout(set = 0, binding = 3) uniform sampler2D depth;
+          layout(set = 0, binding = 0) uniform Constants
           {
               mat4 matView;
               mat4 matProjInv;
@@ -500,13 +501,13 @@ void ReflectionComp::initDenoiseRes() {
         getDenoiseShader(sources, i);
 
         gfx::ShaderInfo shaderInfo;
-        shaderInfo.name   = "Compute ";
+        shaderInfo.name = "Compute ";
         shaderInfo.stages = {{gfx::ShaderStageFlagBit::COMPUTE, getAppropriateShaderSource(sources)}};
 
         if (i == 0) {
-            shaderInfo.blocks          = {};
+            shaderInfo.blocks = {};
             shaderInfo.samplerTextures = {
-                {0, 0, "reflectionTex", gfx::Type::SAMPLER2D, 1}};
+                {0, 1, "reflectionTex", gfx::Type::SAMPLER2D, 1}};
         } else {
             shaderInfo.blocks = {
                 {0, 0, "Constants", {
@@ -520,9 +521,9 @@ void ReflectionComp::initDenoiseRes() {
                  1},
             };
             shaderInfo.samplerTextures = {
-                {0, 0, "reflectionTex", gfx::Type::SAMPLER2D, 1},
-                {0, 1, "envMap", gfx::Type::SAMPLER_CUBE, 1},
-                {0, 2, "depth", gfx::Type::SAMPLER2D, 1}};
+                {0, 1, "reflectionTex", gfx::Type::SAMPLER2D, 1},
+                {0, 2, "envMap", gfx::Type::SAMPLER_CUBE, 1},
+                {0, 3, "depth", gfx::Type::SAMPLER2D, 1}};
         }
 
         shaderInfo.images = {
@@ -532,20 +533,19 @@ void ReflectionComp::initDenoiseRes() {
     }
 
     gfx::DescriptorSetLayoutInfo dslInfo;
-    dslInfo.bindings.push_back({0, gfx::DescriptorType::SAMPLER_TEXTURE, 1, gfx::ShaderStageFlagBit::COMPUTE});
+    dslInfo.bindings.push_back({0, gfx::DescriptorType::UNIFORM_BUFFER, 1, gfx::ShaderStageFlagBit::COMPUTE});
     dslInfo.bindings.push_back({1, gfx::DescriptorType::SAMPLER_TEXTURE, 1, gfx::ShaderStageFlagBit::COMPUTE});
     dslInfo.bindings.push_back({2, gfx::DescriptorType::SAMPLER_TEXTURE, 1, gfx::ShaderStageFlagBit::COMPUTE});
-    dslInfo.bindings.push_back({3, gfx::DescriptorType::UNIFORM_BUFFER, 1, gfx::ShaderStageFlagBit::COMPUTE});
-    dslInfo.bindings.push_back({4, gfx::DescriptorType::UNIFORM_BUFFER, 1, gfx::ShaderStageFlagBit::COMPUTE});
+    dslInfo.bindings.push_back({3, gfx::DescriptorType::SAMPLER_TEXTURE, 1, gfx::ShaderStageFlagBit::COMPUTE});
     _compDenoiseDescriptorSetLayout = _device->createDescriptorSetLayout(dslInfo);
-    _compDenoisePipelineLayout      = _device->createPipelineLayout({{_compDenoiseDescriptorSetLayout, _localDescriptorSetLayout}});
-    _compDenoiseDescriptorSet       = _device->createDescriptorSet({_compDenoiseDescriptorSetLayout});
+    _compDenoisePipelineLayout = _device->createPipelineLayout({{_compDenoiseDescriptorSetLayout, _localDescriptorSetLayout}});
+    _compDenoiseDescriptorSet = _device->createDescriptorSet({_compDenoiseDescriptorSetLayout});
 
     for (int i = 0; i < 2; ++i) {
         gfx::PipelineStateInfo pipelineInfo;
-        pipelineInfo.shader         = _compDenoiseShader[i];
+        pipelineInfo.shader = _compDenoiseShader[i];
         pipelineInfo.pipelineLayout = _compDenoisePipelineLayout;
-        pipelineInfo.bindPoint      = gfx::PipelineBindPoint::COMPUTE;
+        pipelineInfo.bindPoint = gfx::PipelineBindPoint::COMPUTE;
 
         _compDenoisePipelineState[i] = _device->createPipelineState(pipelineInfo);
     }

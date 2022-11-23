@@ -40,6 +40,7 @@ public:
     void destroy();
 
     virtual void update() = 0;
+    virtual void forceUpdate() = 0;
 
     virtual void bindBuffer(uint32_t binding, Buffer *buffer, uint32_t index);
     virtual void bindTexture(uint32_t binding, Texture *texture, uint32_t index);
@@ -50,27 +51,33 @@ public:
     bool bindTextureJSB(uint32_t binding, Texture *texture, uint32_t index);
     bool bindSamplerJSB(uint32_t binding, Sampler *sampler, uint32_t index);
 
-    Buffer * getBuffer(uint32_t binding, uint32_t index) const;
+    Buffer *getBuffer(uint32_t binding, uint32_t index) const;
     Texture *getTexture(uint32_t binding, uint32_t index) const;
     Sampler *getSampler(uint32_t binding, uint32_t index) const;
 
-    inline DescriptorSetLayout *getLayout() { return _layout; }
+    inline DescriptorSetLayout *getLayout() const { return _layout; }
 
-    inline void     bindBuffer(uint32_t binding, Buffer *buffer) { bindBuffer(binding, buffer, 0U); }
-    inline void     bindTexture(uint32_t binding, Texture *texture) { bindTexture(binding, texture, 0U); }
-    inline void     bindSampler(uint32_t binding, Sampler *sampler) { bindSampler(binding, sampler, 0U); }
-    inline Buffer * getBuffer(uint32_t binding) const { return getBuffer(binding, 0U); }
+    inline void bindBuffer(uint32_t binding, Buffer *buffer) { bindBuffer(binding, buffer, 0U); }
+    inline void bindTexture(uint32_t binding, Texture *texture) { bindTexture(binding, texture, 0U); }
+    inline void bindSampler(uint32_t binding, Sampler *sampler) { bindSampler(binding, sampler, 0U); }
+    inline Buffer *getBuffer(uint32_t binding) const { return getBuffer(binding, 0U); }
     inline Texture *getTexture(uint32_t binding) const { return getTexture(binding, 0U); }
     inline Sampler *getSampler(uint32_t binding) const { return getSampler(binding, 0U); }
 
 protected:
     virtual void doInit(const DescriptorSetInfo &info) = 0;
-    virtual void doDestroy()                           = 0;
+    virtual void doDestroy() = 0;
+
+    template <typename T>
+    struct ObjectWithId {
+        T *ptr = nullptr;
+        uint32_t id = INVALID_OBJECT_ID;
+    };
 
     DescriptorSetLayout *_layout = nullptr;
-    BufferList           _buffers;
-    TextureList          _textures;
-    SamplerList          _samplers;
+    ccstd::vector<ObjectWithId<Buffer>> _buffers;
+    ccstd::vector<ObjectWithId<Texture>> _textures;
+    ccstd::vector<ObjectWithId<Sampler>> _samplers;
 
     bool _isDirty = false;
 };

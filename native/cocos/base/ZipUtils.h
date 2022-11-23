@@ -33,9 +33,6 @@
 
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID)
     #include "platform/android/FileUtils-android.h"
-#elif (CC_PLATFORM == CC_PLATFORM_WINDOWS)
-    // for import ssize_t on win32 platform
-    #include "platform/StdC.h"
 #endif
 
 namespace cc {
@@ -44,11 +41,11 @@ using unz_file_info = struct unz_file_info_s;
 #endif
 
 struct CCZHeader {
-    unsigned char sig[4];           /** Signature. Should be 'CCZ!' 4 bytes. */
-    uint16_t      compression_type; /** Should be 0. */
-    uint16_t      version;          /** Should be 2 (although version type==1 is also supported). */
-    unsigned int  reserved;         /** Reserved for users. */
-    unsigned int  len;              /** Size of the uncompressed file. */
+    unsigned char sig[4];      /** Signature. Should be 'CCZ!' 4 bytes. */
+    uint16_t compression_type; /** Should be 0. */
+    uint16_t version;          /** Should be 2 (although version type==1 is also supported). */
+    unsigned int reserved;     /** Reserved for users. */
+    unsigned int len;          /** Size of the uncompressed file. */
 };
 
 enum {
@@ -68,7 +65,7 @@ public:
          * @return The length of the deflated buffer.
          * @since v0.8.1
          */
-    static ssize_t inflateMemory(unsigned char *in, ssize_t inLength, unsigned char **out);
+    static uint32_t inflateMemory(unsigned char *in, uint32_t inLength, unsigned char **out);
 
     /**
         * Inflates either zlib or gzip deflated memory. The inflated memory is expected to be freed by the caller.
@@ -78,7 +75,7 @@ public:
         * @return The length of the deflated buffer.
         * @since v1.0.0
         */
-    static ssize_t inflateMemoryWithHint(unsigned char *in, ssize_t inLength, unsigned char **out, ssize_t outLengthHint);
+    static uint32_t inflateMemoryWithHint(unsigned char *in, uint32_t inLength, unsigned char **out, uint32_t outLengthHint);
 
     /**
          * Inflates a GZip file into memory.
@@ -102,7 +99,7 @@ public:
          * @return True is GZip format. false is not.
          * @since v3.0
          */
-    static bool isGZipBuffer(const unsigned char *buffer, ssize_t len);
+    static bool isGZipBuffer(const unsigned char *buffer, uint32_t len);
 
     /**
          * Inflates a CCZ file into memory.
@@ -118,7 +115,7 @@ public:
          * @return The length of the deflated buffer.
          * @since v3.0
          */
-    static int inflateCCZBuffer(const unsigned char *buffer, ssize_t len, unsigned char **out);
+    static int inflateCCZBuffer(const unsigned char *buffer, uint32_t len, unsigned char **out);
 
     /**
          * Test a file is a CCZ format file or not.
@@ -134,7 +131,7 @@ public:
          * @return True is CCZ format. false is not.
          * @since v3.0
          */
-    static bool isCCZBuffer(const unsigned char *buffer, ssize_t len);
+    static bool isCCZBuffer(const unsigned char *buffer, uint32_t len);
 
     /**
          * Sets the pvr.ccz encryption key parts separately for added security.
@@ -187,13 +184,13 @@ public:
     static void setPvrEncryptionKey(unsigned int keyPart1, unsigned int keyPart2, unsigned int keyPart3, unsigned int keyPart4);
 
 private:
-    static int                 inflateMemoryWithHint(unsigned char *in, ssize_t inLength, unsigned char **out, ssize_t *outLength, ssize_t outLengthHint);
-    static inline void         decodeEncodedPvr(unsigned int *data, ssize_t len);
-    static inline unsigned int checksumPvr(const unsigned int *data, ssize_t len);
+    static int inflateMemoryWithHint(unsigned char *in, uint32_t inLength, unsigned char **out, uint32_t *outLength, uint32_t outLengthHint);
+    static inline void decodeEncodedPvr(unsigned int *data, uint32_t len);
+    static inline unsigned int checksumPvr(const unsigned int *data, uint32_t len);
 
     static unsigned int encryptedPvrKeyParts[4];
     static unsigned int encryptionKey[1024];
-    static bool         encryptionKeyIsValid;
+    static bool encryptionKeyIsValid;
 };
 
 // forward declaration
@@ -252,7 +249,7 @@ public:
         *
         * @since v2.0.5
         */
-    unsigned char *getFileData(const ccstd::string &fileName, ssize_t *size);
+    unsigned char *getFileData(const ccstd::string &fileName, uint32_t *size);
 
     /**
         * Get resource file data from a zip file.
@@ -272,7 +269,7 @@ private:
     ZipFile();
 
     bool initWithBuffer(const void *buffer, uint32_t size);
-    int  getCurrentFileInfo(ccstd::string *filename, unz_file_info *info);
+    int getCurrentFileInfo(ccstd::string *filename, unz_file_info *info);
 
     /** Internal data like zip file pointer / file list array and so on */
     ZipFilePrivate *_data{nullptr};

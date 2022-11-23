@@ -33,10 +33,10 @@ namespace framegraph {
 class PassNodeBuilder final {
 public:
     PassNodeBuilder(FrameGraph &graph, PassNode &passNode) noexcept;
-    PassNodeBuilder()                        = delete;
-    ~PassNodeBuilder()                       = default;
+    PassNodeBuilder() = delete;
+    ~PassNodeBuilder() = default;
     PassNodeBuilder(const PassNodeBuilder &) = delete;
-    PassNodeBuilder(PassNodeBuilder &&)      = delete;
+    PassNodeBuilder(PassNodeBuilder &&) = delete;
     PassNodeBuilder &operator=(const PassNodeBuilder &) = delete;
     PassNodeBuilder &operator=(PassNodeBuilder &&) = delete;
 
@@ -48,22 +48,23 @@ public:
     TypedHandle<ResourceType> read(TypedHandle<ResourceType> const &input) const noexcept;
     template <typename ResourceType>
     TypedHandle<ResourceType> write(TypedHandle<ResourceType> const &output) const noexcept;
-    TextureHandle             write(const TextureHandle &output, uint8_t mipmapLevel, uint8_t faceId, uint8_t arrayPosition, const RenderTargetAttachment::Descriptor &attachmentDesc) const noexcept;
-    TextureHandle             write(const TextureHandle &output, const RenderTargetAttachment::Descriptor &attachmentDesc) const noexcept;
+    TextureHandle write(const TextureHandle &output, uint8_t mipmapLevel, uint8_t faceId, uint8_t arrayPosition, const RenderTargetAttachment::Descriptor &attachmentDesc) const noexcept;
+    TextureHandle write(const TextureHandle &output, const RenderTargetAttachment::Descriptor &attachmentDesc) const noexcept;
 
     inline void sideEffect() const noexcept;
     inline void subpass(bool end = false, bool clearActionIgnorable = true) const noexcept;
     inline void setViewport(const gfx::Rect &scissor) noexcept;
     inline void setViewport(const gfx::Viewport &viewport, const gfx::Rect &scissor) noexcept;
+    inline void setBarrier(const PassBarrierPair &barrier);
 
-    void   writeToBlackboard(const StringHandle &name, const Handle &handle) const noexcept;
+    void writeToBlackboard(const StringHandle &name, const Handle &handle) const noexcept;
     Handle readFromBlackboard(const StringHandle &name) const noexcept;
 
 private:
     Handle read(const Handle &input) const noexcept;
 
     FrameGraph &_graph;
-    PassNode &  _passNode;
+    PassNode &_passNode;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -93,6 +94,10 @@ void PassNodeBuilder::setViewport(const gfx::Rect &scissor) noexcept {
 
 void PassNodeBuilder::setViewport(const gfx::Viewport &viewport, const gfx::Rect &scissor) noexcept {
     _passNode.setViewport(viewport, scissor);
+}
+
+void PassNodeBuilder::setBarrier(const PassBarrierPair &barrier) {
+    _passNode.setBarrier(barrier);
 }
 
 } // namespace framegraph

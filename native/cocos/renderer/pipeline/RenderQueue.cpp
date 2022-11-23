@@ -33,8 +33,8 @@
 #include "gfx-base/GFXDevice.h"
 #include "gfx-base/GFXShader.h"
 #include "scene/Model.h"
-#include "scene/SubModel.h"
 #include "scene/Pass.h"
+#include "scene/SubModel.h"
 
 namespace cc {
 namespace pipeline {
@@ -47,20 +47,21 @@ void RenderQueue::clear() {
     _queue.clear();
 }
 
-bool RenderQueue::insertRenderPass(const RenderObject &renderObj, uint subModelIdx, uint passIdx) {
-    const auto *      subModel      = renderObj.model->getSubModels()[subModelIdx].get();
-    const auto *const pass          = subModel->getPass(passIdx);
-    const bool        isTransparent = pass->getBlendState()->targets[0].blend;
+bool RenderQueue::insertRenderPass(const RenderObject &renderObj, uint32_t subModelIdx, uint32_t passIdx) {
+    const auto *subModel = renderObj.model->getSubModels()[subModelIdx].get();
+    const auto *const pass = subModel->getPass(passIdx);
+    const bool isTransparent = pass->getBlendState()->targets[0].blend;
 
     if (isTransparent != _passDesc.isTransparent || !(pass->getPhase() & _passDesc.phases)) {
         return false;
     }
 
-    auto       passPriority  = static_cast<uint32_t>(pass->getPriority());
-    auto       modelPriority = static_cast<uint32_t>(subModel->getPriority());
-    auto       shaderId      = static_cast<uint32_t>(reinterpret_cast<uintptr_t>(subModel->getShader(passIdx)));
-    const auto hash          = (0 << 30) | (passPriority << 16) | (modelPriority << 8) | passIdx;
-    RenderPass renderPass    = {hash, renderObj.depth, shaderId, passIdx, subModel};
+    auto passPriority = static_cast<uint32_t>(pass->getPriority());
+    auto modelPriority = static_cast<uint32_t>(subModel->getPriority());
+    auto shaderId = static_cast<uint32_t>(reinterpret_cast<uintptr_t>(subModel->getShader(passIdx)));
+    const auto hash = (0 << 30) | (passPriority << 16) | (modelPriority << 8) | passIdx;
+    const auto priority = renderObj.model->getPriority();
+    RenderPass renderPass = {priority, hash, renderObj.depth, shaderId, passIdx, subModel};
     _queue.emplace_back(renderPass);
 
     return true;
@@ -78,9 +79,9 @@ void RenderQueue::sort() {
 }
 
 void RenderQueue::recordCommandBuffer(gfx::Device * /*device*/, scene::Camera *camera, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff, uint32_t subpassIndex) {
-    PipelineSceneData *const sceneData            = _pipeline->getPipelineSceneData();
-    bool                     enableOcclusionQuery = _pipeline->isOcclusionQueryEnabled() && _useOcclusionQuery;
-    auto *                   queryPool            = _pipeline->getQueryPools()[0];
+    PipelineSceneData *const sceneData = _pipeline->getPipelineSceneData();
+    bool enableOcclusionQuery = _pipeline->isOcclusionQueryEnabled() && _useOcclusionQuery;
+    auto *queryPool = _pipeline->getQueryPools()[0];
     for (auto &i : _queue) {
         const auto *subModel = i.subModel;
         if (enableOcclusionQuery) {
@@ -89,9 +90,9 @@ void RenderQueue::recordCommandBuffer(gfx::Device * /*device*/, scene::Camera *c
 
         if (enableOcclusionQuery && _pipeline->isOccluded(camera, subModel)) {
             gfx::InputAssembler *inputAssembler = sceneData->getOcclusionQueryInputAssembler();
-            const scene::Pass *  pass           = sceneData->getOcclusionQueryPass();
-            gfx::Shader *        shader         = sceneData->getOcclusionQueryShader();
-            auto *               pso            = PipelineStateManager::getOrCreatePipelineState(pass, shader, inputAssembler, renderPass, subpassIndex);
+            const scene::Pass *pass = sceneData->getOcclusionQueryPass();
+            gfx::Shader *shader = sceneData->getOcclusionQueryShader();
+            auto *pso = PipelineStateManager::getOrCreatePipelineState(pass, shader, inputAssembler, renderPass, subpassIndex);
 
             cmdBuff->bindPipelineState(pso);
             cmdBuff->bindDescriptorSet(materialSet, pass->getDescriptorSet());
@@ -99,11 +100,11 @@ void RenderQueue::recordCommandBuffer(gfx::Device * /*device*/, scene::Camera *c
             cmdBuff->bindInputAssembler(inputAssembler);
             cmdBuff->draw(inputAssembler);
         } else {
-            const auto  passIdx        = i.passIndex;
-            auto *      inputAssembler = subModel->getInputAssembler();
-            const auto *pass           = subModel->getPass(passIdx);
-            auto *      shader         = subModel->getShader(passIdx);
-            auto *      pso            = PipelineStateManager::getOrCreatePipelineState(pass, shader, inputAssembler, renderPass, subpassIndex);
+            const auto passIdx = i.passIndex;
+            auto *inputAssembler = subModel->getInputAssembler();
+            const auto *pass = subModel->getPass(passIdx);
+            auto *shader = subModel->getShader(passIdx);
+            auto *pso = PipelineStateManager::getOrCreatePipelineState(pass, shader, inputAssembler, renderPass, subpassIndex);
 
             cmdBuff->bindPipelineState(pso);
             cmdBuff->bindDescriptorSet(materialSet, pass->getDescriptorSet());

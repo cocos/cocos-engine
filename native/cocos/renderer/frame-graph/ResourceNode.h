@@ -32,9 +32,9 @@ namespace framegraph {
 
 struct ResourceNode final {
     VirtualResource *virtualResource{nullptr};
-    PassNode *       writer{nullptr};
-    uint32_t         readerCount{0};
-    uint8_t          version{0};
+    PassNode *writer{nullptr};
+    uint32_t readerCount{0};
+    uint8_t version{0};
 };
 
 } // namespace framegraph

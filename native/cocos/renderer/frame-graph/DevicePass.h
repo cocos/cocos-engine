@@ -25,7 +25,9 @@
 
 #pragma once
 
+#include <limits>
 #include "CallbackPass.h"
+#include "ImmutableState.h"
 #include "RenderTargetAttachment.h"
 #include "base/std/container/string.h"
 #include "gfx-base/GFXDef.h"
@@ -38,8 +40,8 @@ public:
     DevicePass() = delete;
     DevicePass(const FrameGraph &graph, ccstd::vector<PassNode *> const &subpassNodes);
     DevicePass(const DevicePass &) = delete;
-    DevicePass(DevicePass &&)      = delete;
-    ~DevicePass()                  = default;
+    DevicePass(DevicePass &&) = delete;
+    ~DevicePass() = default;
     DevicePass &operator=(const DevicePass &) = delete;
     DevicePass &operator=(DevicePass &&) = delete;
 
@@ -47,20 +49,21 @@ public:
 
 private:
     struct LogicPass final {
-        Executable *  pass{nullptr};
-        bool          customViewport{false};
+        Executable *pass{nullptr};
+        bool customViewport{false};
         gfx::Viewport viewport;
-        gfx::Rect     scissor;
+        gfx::Rect scissor;
     };
 
     struct Subpass final {
+        gfx::SubpassInfo desc;
         ccstd::vector<LogicPass> logicPasses{};
-        gfx::SubpassInfo         desc;
+        uint32_t barrierID{0xFFFFFFFF};
     };
 
     struct Attachment final {
         RenderTargetAttachment attachment;
-        gfx::Texture *         renderTarget{nullptr};
+        gfx::Texture *renderTarget{nullptr};
     };
 
     void append(const FrameGraph &graph, const PassNode *passNode, ccstd::vector<RenderTargetAttachment> *attachments);
@@ -70,17 +73,21 @@ private:
     void next(gfx::CommandBuffer *cmdBuff) noexcept;
     void end(gfx::CommandBuffer *cmdBuff);
 
-    ccstd::vector<Subpass>    _subpasses{};
+    void passDependency(gfx::RenderPassInfo &rpInfo);
+
+    ccstd::vector<Subpass> _subpasses{};
     ccstd::vector<Attachment> _attachments{};
-    uint16_t                  _usedRenderTargetSlotMask{0};
-    DevicePassResourceTable   _resourceTable;
+    uint16_t _usedRenderTargetSlotMask{0};
+    DevicePassResourceTable _resourceTable;
 
     gfx::Viewport _viewport;
-    gfx::Rect     _scissor;
+    gfx::Rect _scissor;
     gfx::Viewport _curViewport;
-    gfx::Rect     _curScissor;
-    RenderPass    _renderPass;
-    Framebuffer   _fbo;
+    gfx::Rect _curScissor;
+    RenderPass _renderPass;
+    Framebuffer _fbo;
+
+    std::vector<std::reference_wrapper<const PassBarrierPair>> _barriers;
 };
 
 } // namespace framegraph

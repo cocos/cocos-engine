@@ -1,0 +1,25 @@
+
+precision highp float;
+#include <builtin/uniforms/cc-global>
+#include <legacy/output>
+
+in vec2 v_uv;
+
+uniform OutlineFrag {
+  vec4 baseColor;
+};
+
+#if USE_BASE_COLOR_MAP
+  uniform sampler2D baseColorMap;
+#endif
+
+vec4 frag () {
+  vec4 color = baseColor * cc_mainLitColor;
+  #if USE_BASE_COLOR_MAP
+    vec4 texColor = texture(baseColorMap, v_uv);
+    texColor.rgb = SRGBToLinear(texColor.rgb);
+    color *= texColor;
+  #endif
+
+  return CCFragOutput(vec4(color.rgb, 1.0));
+}

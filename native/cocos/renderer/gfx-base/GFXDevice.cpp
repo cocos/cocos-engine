@@ -26,11 +26,15 @@
 #include "GFXDevice.h"
 #include "GFXObject.h"
 #include "base/memory/Memory.h"
+#include "platform/BasePlatform.h"
+#include "platform/interfaces/modules/ISystemWindow.h"
+#include "platform/interfaces/modules/ISystemWindowManager.h"
 
 namespace cc {
 namespace gfx {
 
 Device *Device::instance = nullptr;
+bool Device::isSupportDetachDeviceThread = true;
 
 Device *Device::getInstance() {
     return Device::instance;
@@ -39,8 +43,8 @@ Device *Device::getInstance() {
 Device::Device() {
     Device::instance = this;
     // Device instance is created and hold by TS. Native should hold it too
-    // to make sure it exists after JavaScript virtural machine is destroyed.
-    // Then will destory the Device instance in native.
+    // to make sure it exists after JavaScript virtual machine is destroyed.
+    // Then will destroy the Device instance in native.
     addRef();
     _features.fill(false);
     _formatFeatures.fill(FormatFeature::NONE);
@@ -62,9 +66,9 @@ bool Device::initialize(const DeviceInfo &info) {
 #endif
 
     bool result = doInit(info);
-    _cmdBuff->addRef();
-    _queue->addRef();
 
+    CC_SAFE_ADD_REF(_cmdBuff);
+    CC_SAFE_ADD_REF(_queue);
     return result;
 }
 
@@ -84,29 +88,14 @@ void Device::destroy() {
     }
     _textureBarriers.clear();
 
+    for (auto pair : _bufferBarriers) {
+        CC_SAFE_DELETE(pair.second);
+    }
+    _bufferBarriers.clear();
+
     doDestroy();
 
     CC_SAFE_DELETE(_onAcquire);
-}
-
-void Device::destroySurface(void *windowHandle) {
-    setRendererAvailable(false);
-    for (const auto &swapchain : _swapchains) {
-        if (swapchain->getWindowHandle() == windowHandle) {
-            swapchain->destroySurface();
-            break;
-        }
-    }
-}
-
-void Device::createSurface(void *windowHandle) {
-    for (const auto &swapchain : _swapchains) {
-        if (!swapchain->getWindowHandle()) {
-            swapchain->createSurface(windowHandle);
-            break;
-        }
-    }
-    setRendererAvailable(true);
 }
 
 Sampler *Device::getSampler(const SamplerInfo &info) {
@@ -128,6 +117,82 @@ TextureBarrier *Device::getTextureBarrier(const TextureBarrierInfo &info) {
         _textureBarriers[info] = createTextureBarrier(info);
     }
     return _textureBarriers[info];
+}
+
+BufferBarrier *Device::getBufferBarrier(const BufferBarrierInfo &info) {
+    if (!_bufferBarriers.count(info)) {
+        _bufferBarriers[info] = createBufferBarrier(info);
+    }
+    return _bufferBarriers[info];
+}
+
+DefaultResource::DefaultResource(Device *device) {
+    uint32_t bufferSize = 64;
+    ccstd::vector<uint8_t> buffer(bufferSize, 255);
+    const uint8_t *bufferData = buffer.data();
+    if (device->getCapabilities().maxTextureSize >= 2) {
+        _texture2D = device->createTexture({TextureType::TEX2D, TextureUsageBit::STORAGE | TextureUsageBit::SAMPLED, 
+            Format::RGBA8, 2, 2, TextureFlagBit::NONE});
+        BufferTextureCopy region = {0, 0, 0, {0, 0, 0}, {2, 2, 1}, {0, 0, 1}};
+        device->copyBuffersToTexture(&bufferData, _texture2D, &region, 1);
+    }
+    if (device->getCapabilities().maxTextureSize >= 2) {
+        _textureCube = device->createTexture({TextureType::CUBE, TextureUsageBit::STORAGE | TextureUsageBit::SAMPLED,
+            Format::RGBA8, 2, 2, TextureFlagBit::NONE, 6});
+        BufferTextureCopy region = {0, 0, 0, {0, 0, 0}, {2, 2, 1}, {0, 0, 1}};
+        device->copyBuffersToTexture(&bufferData, _textureCube, &region, 1);
+        region.texSubres.baseArrayLayer = 1;
+        device->copyBuffersToTexture(&bufferData, _textureCube, &region, 1);
+        region.texSubres.baseArrayLayer = 2;
+        device->copyBuffersToTexture(&bufferData, _textureCube, &region, 1);
+        region.texSubres.baseArrayLayer = 3;
+        device->copyBuffersToTexture(&bufferData, _textureCube, &region, 1);
+        region.texSubres.baseArrayLayer = 4;
+        device->copyBuffersToTexture(&bufferData, _textureCube, &region, 1);
+        region.texSubres.baseArrayLayer = 5;
+        device->copyBuffersToTexture(&bufferData, _textureCube, &region, 1);
+    }
+
+    if (device->getCapabilities().max3DTextureSize >= 2) {
+        _texture3D = device->createTexture({TextureType::TEX3D, TextureUsageBit::STORAGE | TextureUsageBit::SAMPLED,
+            Format::RGBA8, 2, 2, TextureFlagBit::NONE, 1, 1, SampleCount::ONE, 2});
+        BufferTextureCopy region = {0, 0, 0, {0, 0, 0}, {2, 2, 2}, {0, 0, 1}};
+        device->copyBuffersToTexture(&bufferData, _texture3D, &region, 1);
+    }
+    if (device->getCapabilities().maxArrayTextureLayers >= 2) {
+        _texture1DArray = device->createTexture({TextureType::TEX1D_ARRAY, TextureUsageBit::STORAGE | TextureUsageBit::SAMPLED,
+            Format::RGBA8, 1, 1, TextureFlagBit::NONE, 2});
+        BufferTextureCopy region = {0, 0, 0, {0, 0, 0}, {1, 1, 1}, {0, 0, 1}};
+        device->copyBuffersToTexture(&bufferData, _texture1DArray, &region, 1);
+        region.texSubres.baseArrayLayer = 1;
+        device->copyBuffersToTexture(&bufferData, _texture1DArray, &region, 1);
+    }
+    if (device->getCapabilities().maxArrayTextureLayers >= 2) {
+        _texture2DArray = device->createTexture({TextureType::TEX2D_ARRAY, TextureUsageBit::STORAGE | TextureUsageBit::SAMPLED,
+            Format::RGBA8, 2, 2, TextureFlagBit::NONE, 2});
+        BufferTextureCopy region = {0, 0, 0, {0, 0, 0}, {2, 2, 1}, {0, 0, 1}};
+        device->copyBuffersToTexture(&bufferData, _texture2DArray, &region, 1);
+        region.texSubres.baseArrayLayer = 1;
+        device->copyBuffersToTexture(&bufferData, _texture2DArray, &region, 1);
+    }
+}
+
+const Texture *DefaultResource::getTexture(TextureType type) const {
+    switch (type) {
+        case TextureType::TEX2D:
+            return _texture2D;
+        case TextureType::CUBE:
+            return _textureCube;
+        case TextureType::TEX3D:
+            return _texture3D;
+        case TextureType::TEX1D_ARRAY:
+            return _texture1DArray;
+        case TextureType::TEX2D_ARRAY:
+            return _texture2DArray;
+        default:
+            CC_ASSERT(false);
+            return nullptr;
+    }
 }
 
 } // namespace gfx

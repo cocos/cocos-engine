@@ -38,6 +38,7 @@
 #include "scene/Camera.h"
 #include "scene/DirectionalLight.h"
 #include "scene/DrawBatch2D.h"
+#include "scene/LODGroup.h"
 #include "scene/Model.h"
 #include "scene/Octree.h"
 #include "scene/SphereLight.h"
@@ -51,12 +52,33 @@ RenderScene::~RenderScene() = default;
 
 void RenderScene::activate() {
     const auto *sceneData = Root::getInstance()->getPipeline()->getPipelineSceneData();
-    _octree               = sceneData->getOctree();
+    _octree = sceneData->getOctree();
 }
 
 bool RenderScene::initialize(const IRenderSceneInfo &info) {
     _name = info.name;
     return true;
+}
+
+void RenderScene::addLODGroup(LODGroup *group) {
+    _lodGroups.emplace_back(group);
+}
+
+void RenderScene::removeLODGroup(LODGroup *group) {
+    auto iter = std::find(_lodGroups.begin(), _lodGroups.end(), group);
+    if (iter != _lodGroups.end()) {
+        group->detachFromScene();
+        _lodGroups.erase(iter);
+    } else {
+        CC_LOG_WARNING("Try to remove invalid LODGroup.");
+    }
+}
+
+void RenderScene::removeLODGroups() {
+    for (const auto &group : _lodGroups) {
+        group->detachFromScene();
+    }
+    _lodGroups.clear();
 }
 
 void RenderScene::setMainLight(DirectionalLight *dl) {
@@ -79,6 +101,7 @@ void RenderScene::update(uint32_t stamp) {
         if (model->isEnabled()) {
             model->updateTransform(stamp);
             model->updateUBOs(stamp);
+            model->updateOctree();
         }
     }
 
@@ -91,6 +114,7 @@ void RenderScene::destroy() {
     removeCameras();
     removeSphereLights();
     removeSpotLights();
+    removeLODGroups();
     removeModels();
 }
 
@@ -102,6 +126,7 @@ void RenderScene::addCamera(Camera *camera) {
 void RenderScene::removeCamera(Camera *camera) {
     auto iter = std::find(_cameras.begin(), _cameras.end(), camera);
     if (iter != _cameras.end()) {
+        (*iter)->detachFromScene();
         _cameras.erase(iter);
     }
 }
@@ -109,6 +134,7 @@ void RenderScene::removeCamera(Camera *camera) {
 void RenderScene::removeCameras() {
     for (const auto &camera : _cameras) {
         camera->detachFromScene();
+        camera->destroy();
     }
     _cameras.clear();
 }
@@ -188,14 +214,6 @@ void RenderScene::addModel(Model *model) {
     if (_octree && _octree->isEnabled()) {
         _octree->insert(model);
     }
-}
-
-void RenderScene::removeModel(index_t idx) {
-    if (idx >= static_cast<index_t>(_models.size())) {
-        CC_LOG_WARNING("Try to remove invalid model.");
-        return;
-    }
-    _models.erase(_models.begin() + idx);
 }
 
 void RenderScene::removeModel(Model *model) {

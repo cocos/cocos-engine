@@ -39,6 +39,16 @@ BufferValidator::BufferValidator(Buffer *actor)
 
 BufferValidator::~BufferValidator() {
     DeviceResourceTracker<Buffer>::erase(this);
+
+    if (_source != nullptr) {
+        CC_ASSERT(_isBufferView);
+        _source->removeView(this);
+    }
+    for (auto *view : _views) {
+        CC_ASSERT(view->isBufferView());
+        view->onExpire();
+    }
+
     CC_SAFE_DELETE(_actor);
 
     uint64_t lifeTime = DeviceValidator::getInstance()->currentFrame() - _creationFrame;
@@ -50,20 +60,22 @@ BufferValidator::~BufferValidator() {
 }
 
 void BufferValidator::doInit(const BufferInfo &info) {
-    CCASSERT(!isInited(), "initializing twice?");
+    // Initialize twice?
+    CC_ASSERT(!isInited());
     _inited = true;
 
-    CCASSERT(info.usage != BufferUsageBit::NONE, "invalid buffer param");
-    CCASSERT(info.memUsage != MemoryUsageBit::NONE, "invalid buffer param");
-    CCASSERT(info.size, "zero-sized buffer?");
-    CCASSERT(info.size / info.stride * info.stride == info.size, "size is not multiple of stride?");
+    CC_ASSERT(info.usage != BufferUsageBit::NONE);
+    CC_ASSERT(info.memUsage != MemoryUsageBit::NONE);
+    CC_ASSERT(info.size);
+    CC_ASSERT(info.size / info.stride * info.stride == info.size);
 
-    _initStack        = utils::getStacktraceJS();
-    _creationFrame    = DeviceValidator::getInstance()->currentFrame();
+    _initStack = utils::getStacktraceJS();
+    _creationFrame = DeviceValidator::getInstance()->currentFrame();
     _totalUpdateTimes = 0U;
 
     if (hasFlag(info.usage, BufferUsageBit::VERTEX) && !info.stride) {
-        CCASSERT(false, "invalid stride for vertex buffer");
+        // Invalid stride for vertex buffer.
+        CC_ASSERT(false);
     }
 
     /////////// execute ///////////
@@ -72,29 +84,44 @@ void BufferValidator::doInit(const BufferInfo &info) {
 }
 
 void BufferValidator::doInit(const BufferViewInfo &info) {
-    CCASSERT(!isInited(), "initializing twice?");
+    // Initialize twice?
+    CC_ASSERT(!isInited());
     _inited = true;
 
-    CCASSERT(info.buffer && static_cast<BufferValidator *>(info.buffer)->isInited(), "already destroyed?");
-    CCASSERT(info.offset + info.range <= info.buffer->getSize(), "invalid range");
-    CCASSERT(info.range, "zero-sized buffer?");
+    auto *vBuffer = static_cast<BufferValidator *>(info.buffer);
+    // Already been destroyed?
+    CC_ASSERT(vBuffer != nullptr && vBuffer->isInited());
+    CC_ASSERT(info.offset + info.range <= info.buffer->getSize());
+    // zero-sized buffer?
+    CC_ASSERT(info.range);
 
     uint32_t stride = info.buffer->getStride();
-    CCASSERT(info.offset / stride * stride == info.offset, "offset is not multiple of stride?");
+    // Offset is not multiple of stride?
+    CC_ASSERT(info.offset / stride * stride == info.offset);
 
     /////////// execute ///////////
 
     BufferViewInfo actorInfo = info;
-    actorInfo.buffer         = static_cast<BufferValidator *>(info.buffer)->getActor();
+    actorInfo.buffer = vBuffer->getActor();
+
+    _source = vBuffer;
+    _source->addView(this);
 
     _actor->initialize(actorInfo);
 }
 
 void BufferValidator::doResize(uint32_t size, uint32_t /*count*/) {
-    CCASSERT(isInited(), "alread destroyed?");
+    // Already been destroyed?
+    CC_ASSERT(isInited());
 
-    CCASSERT(!_isBufferView, "cannot resize through buffer views");
-    CCASSERT(size, "invalid size");
+    // Cannot resize through buffer views.
+    CC_ASSERT(!_isBufferView);
+    CC_ASSERT(size);
+
+    for (auto *view : _views) {
+        view->onExpire();
+    }
+    _views.clear();
 
     /////////// execute ///////////
 
@@ -102,7 +129,8 @@ void BufferValidator::doResize(uint32_t size, uint32_t /*count*/) {
 }
 
 void BufferValidator::doDestroy() {
-    CCASSERT(isInited(), "destroying twice?");
+    // Be destroyed twice?"
+    CC_ASSERT(isInited());
     _inited = false;
 
     /////////// execute ///////////
@@ -111,19 +139,21 @@ void BufferValidator::doDestroy() {
 }
 
 void BufferValidator::update(const void *buffer, uint32_t size) {
-    CCASSERT(isInited(), "alread destroyed?");
+    CC_ASSERT(isInited());
 
-    CCASSERT(!_isBufferView, "cannot update through buffer views");
-    CCASSERT(size && size <= _size, "invalid size");
-    CCASSERT(buffer, "invalid buffer data");
+    // Cannot update through buffer views.
+    CC_ASSERT(!_isBufferView);
+    CC_ASSERT(size && size <= _size);
+    CC_ASSERT(buffer);
 
     if (hasFlag(_usage, BufferUsageBit::INDIRECT)) {
-        const auto * drawInfo      = static_cast<const DrawInfo *>(buffer);
+        const auto *drawInfo = static_cast<const DrawInfo *>(buffer);
         const size_t drawInfoCount = size / sizeof(DrawInfo);
-        const bool   isIndexed     = drawInfoCount > 0 && drawInfo->indexCount > 0;
+        const bool isIndexed = drawInfoCount > 0 && drawInfo->indexCount > 0;
         for (size_t i = 1U; i < drawInfoCount; ++i) {
             if ((++drawInfo)->indexCount > 0 != isIndexed) {
-                CCASSERT(false, "inconsistent indirect draw infos on using index buffer");
+                // Inconsistent indirect draw infos on using index buffer.
+                CC_ASSERT(false);
             }
         }
     }
@@ -153,6 +183,28 @@ void BufferValidator::sanityCheck(const void *buffer, uint32_t size) {
 
     _lastUpdateFrame = cur;
 }
+
+void BufferValidator::addView(BufferValidator *view) {
+    _views.emplace_back(view);
+}
+
+void BufferValidator::removeView(BufferValidator *view) {
+    _views.erase(std::remove(_views.begin(), _views.end(), view), _views.end());
+}
+
+void BufferValidator::onExpire() {
+    _source = nullptr;
+    _expired = true;
+}
+
+void BufferValidator::flush(const uint8_t *buffer) {
+    Buffer::flushBuffer(_actor, buffer);
+}
+
+uint8_t *BufferValidator::getStagingAddress() const {
+    return Buffer::getBufferStagingAddress(_actor);
+}
+
 
 } // namespace gfx
 } // namespace cc

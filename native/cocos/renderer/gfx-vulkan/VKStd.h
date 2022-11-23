@@ -47,7 +47,7 @@
             VkResult err = x;                                          \
             if (err) {                                                 \
                 CC_LOG_ERROR("%s returned Vulkan error: %d", #x, err); \
-                CCASSERT(false, "Vulkan Error");                       \
+                CC_ASSERT(false);                                      \
             }                                                          \
         } while (0)
 

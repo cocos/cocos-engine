@@ -89,8 +89,12 @@ function collectGroups(dump) {
 
     for (const name in dump.value) {
         const info = dump.value[name];
-        if (!info || !info.group) {
-            if (info.isArray) {
+        if (!info) {
+            continue;
+        }
+
+        if (!info.group) {
+            if (info.isArray && Array.isArray(info.value)) {
                 info.value.forEach((item) => {
                     collectGroups(item);
                 });
@@ -133,6 +137,7 @@ function translationDump(dump, dumps, assets) {
     dump.position.path = 'position';
     dump.rotation.path = 'rotation';
     dump.scale.path = 'scale';
+    dump.mobility.path = 'mobility';
     dump.layer.path = 'layer';
     if (dumps) {
         dump.active.values = dumps.map((dump) => dump.active.value);
@@ -140,6 +145,7 @@ function translationDump(dump, dumps, assets) {
         dump.position.values = dumps.map((dump) => dump.position.value);
         dump.rotation.values = dumps.map((dump) => dump.rotation.value);
         dump.scale.values = dumps.map((dump) => dump.scale.value);
+        dump.mobility.values = dumps.map((dump) => dump.mobility.value);
         dump.layer.values = dumps.map((dump) => dump.layer.value);
     }
     for (let i = 0; i < dump.__comps__.length; i++) {

@@ -39,11 +39,11 @@ CCVKRenderPass::~CCVKRenderPass() {
 }
 
 void CCVKRenderPass::doInit(const RenderPassInfo & /*info*/) {
-    _gpuRenderPass                         = CC_NEW(CCVKGPURenderPass);
-    _gpuRenderPass->colorAttachments       = _colorAttachments;
+    _gpuRenderPass = ccnew CCVKGPURenderPass;
+    _gpuRenderPass->colorAttachments = _colorAttachments;
     _gpuRenderPass->depthStencilAttachment = _depthStencilAttachment;
-    _gpuRenderPass->subpasses              = _subpasses;
-    _gpuRenderPass->dependencies           = _dependencies;
+    _gpuRenderPass->subpasses = _subpasses;
+    _gpuRenderPass->dependencies = _dependencies;
 
     // assign a dummy subpass if not specified
     uint32_t colorCount = utils::toUint(_gpuRenderPass->colorAttachments.size());
@@ -73,10 +73,11 @@ void CCVKRenderPass::doInit(const RenderPassInfo & /*info*/) {
 }
 
 void CCVKRenderPass::doDestroy() {
-    if (_gpuRenderPass) {
-        CCVKDevice::getInstance()->gpuRecycleBin()->collect(_gpuRenderPass);
-        _gpuRenderPass = nullptr;
-    }
+    _gpuRenderPass = nullptr;
+}
+
+void CCVKGPURenderPass::shutdown() {
+    CCVKDevice::getInstance()->gpuRecycleBin()->collect(this);
 }
 
 } // namespace gfx

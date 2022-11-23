@@ -20,10 +20,10 @@
  This file was modified to fit the cocos2d-x project
  */
 
-#ifndef MATH_VEC3_H
-#define MATH_VEC3_H
+#pragma once
 
 #include <cmath>
+#include "math/Math.h"
 #include "math/MathBase.h"
 
 /**
@@ -236,12 +236,20 @@ public:
     void transformMat3(const Vec3 &v, const Mat3 &m);
 
     /**
-     * Transforms this vector by the specified Mat4 and stores the result in this vector.
+     * Transforms the input vector by the specified Mat4 and stores the result in this vector.
      *
      * @param v The Vec3 to transform.
      * @param m The matrix.
      */
     void transformMat4(const Vec3 &v, const Mat4 &m);
+
+    /**
+     * Transforms this vector by the specified Mat4 and stores the result in this vector.
+     * @param m The matrix.
+     */
+    inline void transformMat4(const Mat4 &m) {
+        transformMat4(*this, m);
+    }
 
     /**
      * Transforms vector v by the specified Mat4 and stores the result in dst vector.
@@ -603,6 +611,13 @@ public:
      */
     inline bool operator!=(const Vec3 &v) const;
 
+    /**
+     * Determines if this vector is approximately equal to the given vector.
+     */
+    inline bool approxEquals(const Vec3 &v, float precision = CC_FLOAT_CMP_PRECISION) const {
+        return math::isEqualF(x, v.x, precision) && math::isEqualF(y, v.y, precision) && math::isEqualF(z, v.z, precision);
+    }
+
     /** equals to Vec3(0,0,0) */
     static const Vec3 ZERO;
     /** equals to Vec3(1,1,1) */
@@ -615,6 +630,10 @@ public:
     static const Vec3 UNIT_Z;
     /** equals to Vec3(0,0,-1) */
     static const Vec3 FORWARD;
+
+private:
+    void transformMat4C(const Vec3 &v, const Mat4 &m);
+    void transformMat4Neon(const Vec3 &v, const Mat4 &m);
 };
 
 /**
@@ -634,5 +653,3 @@ NS_CC_MATH_END
  @}
  */
 #include "math/Vec3.inl"
-
-#endif // MATH_VEC3_H

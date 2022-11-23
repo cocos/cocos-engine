@@ -23,12 +23,7 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module 3d/primitive
- */
-
-import { PrimitiveMode, Attribute } from '../core/gfx';
+import { PrimitiveMode, Attribute } from '../gfx';
 
 /**
  * @en

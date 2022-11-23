@@ -36,16 +36,16 @@ class CCMTLSampler final : public Sampler {
 public:
     explicit CCMTLSampler(const SamplerInfo &info);
     ~CCMTLSampler();
-    CCMTLSampler()                     = delete;
+    CCMTLSampler() = delete;
     CCMTLSampler(const CCMTLSampler &) = delete;
-    CCMTLSampler(CCMTLSampler &&)      = delete;
+    CCMTLSampler(CCMTLSampler &&) = delete;
     CCMTLSampler &operator=(const CCMTLSampler &) = delete;
     CCMTLSampler &operator=(CCMTLSampler &&) = delete;
 
     inline id<MTLSamplerState> getMTLSamplerState() const { return _mtlSamplerState; }
 
     static CCMTLSampler *getDefaultSampler();
-    static void          deleteDefaultSampler();
+    static void deleteDefaultSampler();
 
 protected:
     id<MTLSamplerState> _mtlSamplerState = nil;

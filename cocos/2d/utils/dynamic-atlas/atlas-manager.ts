@@ -1,14 +1,10 @@
-/**
- * @packageDocumentation
- */
-
 import { EDITOR } from 'internal:constants';
-import { Filter } from '../../../core/assets/asset-enum';
-import { legacyCC } from '../../../core/global-exports';
-import { js } from '../../../core/utils/js';
+import { System, macro, js, cclegacy } from '../../../core';
+import { Filter } from '../../../asset/assets/asset-enum';
 import { Atlas } from './atlas';
+import { director } from '../../../game';
 
-export class DynamicAtlasManager {
+export class DynamicAtlasManager extends System {
     public static instance: DynamicAtlasManager;
 
     private _atlases: Atlas[] = [];
@@ -36,10 +32,10 @@ export class DynamicAtlasManager {
 
         if (value) {
             this.reset();
-            legacyCC.director.on(legacyCC.Director.EVENT_BEFORE_SCENE_LAUNCH, this.beforeSceneLoad, this);
+            cclegacy.director.on(cclegacy.Director.EVENT_BEFORE_SCENE_LAUNCH, this.beforeSceneLoad, this);
         } else {
             this.reset();
-            legacyCC.director.off(legacyCC.Director.EVENT_BEFORE_SCENE_LAUNCH, this.beforeSceneLoad, this);
+            cclegacy.director.off(cclegacy.Director.EVENT_BEFORE_SCENE_LAUNCH, this.beforeSceneLoad, this);
         }
 
         this._enabled = value;
@@ -126,6 +122,13 @@ export class DynamicAtlasManager {
     }
 
     /**
+     * @internal
+     */
+    public init () {
+        this.enabled = !macro.CLEANUP_IMAGE_CACHE;
+    }
+
+    /**
      * @en
      * Append a sprite frame into the dynamic atlas.
      *
@@ -136,7 +139,7 @@ export class DynamicAtlasManager {
      * @param spriteFrame  the sprite frame that will be inserted in the atlas.
      */
     public insertSpriteFrame (spriteFrame) {
-        if (EDITOR) return null;
+        if (EDITOR && !cclegacy.GAME_VIEW) return null;
         if (!this._enabled || this._atlasIndex === this._maxAtlasCount
             || !spriteFrame || spriteFrame._original) return null;
 
@@ -235,7 +238,7 @@ export class DynamicAtlasManager {
      * @param frame  the sprite frame that will be packed in the dynamic atlas.
      */
     public packToDynamicAtlas (comp, frame) {
-        if (EDITOR) return;
+        if ((EDITOR && !cclegacy.GAME_VIEW) || !this._enabled) return;
 
         if (frame && !frame._original && frame.packable && frame.texture && frame.texture.width > 0 && frame.texture.height > 0) {
             const packedFrame = this.insertSpriteFrame(frame);
@@ -248,4 +251,6 @@ export class DynamicAtlasManager {
 
 export const dynamicAtlasManager: DynamicAtlasManager = DynamicAtlasManager.instance = new DynamicAtlasManager();
 
-legacyCC.internal.dynamicAtlasManager = dynamicAtlasManager;
+director.registerSystem('dynamicAtlasManager', dynamicAtlasManager, 0);
+
+cclegacy.internal.dynamicAtlasManager = dynamicAtlasManager;

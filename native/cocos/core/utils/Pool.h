@@ -26,11 +26,6 @@
 #pragma once
 
 /**
- * @packageDocumentation
- * @module core
- */
-
-/**
  * @en
  * A fixed-length object pool designed for general type.<br>
  * The implementation of this object pool is very simple,
@@ -136,7 +131,7 @@ public:
     T _get() { //NOLINT(readability-identifier-naming)
         if (_count > 0) {
             --_count;
-            T cache       = _pool[_count];
+            T cache = _pool[_count];
             _pool[_count] = nullptr;
             return cache;
         }
@@ -174,7 +169,7 @@ public:
 
 private:
     ccstd::vector<T> _pool;
-    CleanUpFunction  _cleanup{nullptr};
+    CleanUpFunction _cleanup{nullptr};
 
     /**
      * @en

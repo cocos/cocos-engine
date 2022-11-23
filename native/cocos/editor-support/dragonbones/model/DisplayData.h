@@ -31,8 +31,7 @@ DRAGONBONES_NAMESPACE_BEGIN
 /**
  * @internal
  */
-class VerticesData
-{
+class VerticesData {
 public:
     bool isShared;
     bool inheritDeform;
@@ -40,12 +39,9 @@ public:
     DragonBonesData* data;
     WeightData* weight;
 
-    VerticesData() :
-        weight(nullptr)
-    {
+    VerticesData() : weight(nullptr) {
     }
-    ~VerticesData()
-    {
+    ~VerticesData() {
     }
 
     void clear();
@@ -54,8 +50,7 @@ public:
 /**
  * @internal
  */
-class DisplayData : public BaseObject
-{
+class DisplayData : public BaseObject {
     ABSTRACT_CLASS(DisplayData)
 
 public:
@@ -80,8 +75,7 @@ public: // For WebAssembly.
 /**
  * @internal
  */
-class ImageDisplayData : public DisplayData
-{
+class ImageDisplayData : public DisplayData {
     BIND_CLASS_TYPE_A(ImageDisplayData);
 
 public:
@@ -100,8 +94,7 @@ public: // For WebAssembly.
 /**
  * @internal
  */
-class ArmatureDisplayData : public DisplayData
-{
+class ArmatureDisplayData : public DisplayData {
     BIND_CLASS_TYPE_A(ArmatureDisplayData);
 
 public:
@@ -127,8 +120,7 @@ public: // For WebAssembly.
 /**
  * @internal
  */
-class MeshDisplayData : public DisplayData
-{
+class MeshDisplayData : public DisplayData {
     BIND_CLASS_TYPE_A(MeshDisplayData);
 
 public:
@@ -141,20 +133,16 @@ protected:
 /**
  * @internal
  */
-class BoundingBoxDisplayData : public DisplayData
-{
+class BoundingBoxDisplayData : public DisplayData {
     BIND_CLASS_TYPE_B(BoundingBoxDisplayData);
 
 public:
     BoundingBoxData* boundingBox;
 
-    BoundingBoxDisplayData() : 
-        boundingBox(nullptr)
-    {
-        _onClear(); 
+    BoundingBoxDisplayData() : boundingBox(nullptr) {
+        _onClear();
     }
-    ~BoundingBoxDisplayData()
-    {
+    ~BoundingBoxDisplayData() {
         _onClear();
     }
 
@@ -168,8 +156,7 @@ public: // For WebAssembly.
 /**
  * @internal
  */
-class WeightData : public BaseObject
-{
+class WeightData : public BaseObject {
     BIND_CLASS_TYPE_A(WeightData);
 
 public:

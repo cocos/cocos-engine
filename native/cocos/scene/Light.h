@@ -29,6 +29,7 @@
 #include "base/RefCounted.h"
 #include "base/std/container/string.h"
 #include "math/Vec3.h"
+#include "pipeline/Define.h"
 
 namespace cc {
 class Node;
@@ -54,7 +55,7 @@ public:
     void destroy();
 
     virtual void initialize() {
-        _color     = Vec3(1, 1, 1);
+        _color = Vec3(1, 1, 1);
         _colorTemp = 6550.F;
     }
 
@@ -64,41 +65,55 @@ public:
     inline void setBaked(bool val) { _baked = val; }
 
     inline const Vec3 &getColor() const { return _color; }
-    inline void        setColor(const Vec3 &color) { _color = color; }
+    inline void setColor(const Vec3 &color) { _color = color; }
 
     inline bool isUseColorTemperature() const { return _useColorTemperature; }
     inline void setUseColorTemperature(bool value) { _useColorTemperature = value; }
 
     inline float getColorTemperature() const { return _colorTemp; }
-    inline void  setColorTemperature(float val) { _colorTemp = val; }
+    inline void setColorTemperature(float val) {
+        _colorTemp = val;
+        setColorTemperatureRGB(colorTemperatureToRGB(val));
+    }
+
+    inline uint32_t getVisibility() const { return _visibility; }
+    inline void setVisibility(uint32_t visibility) { _visibility = visibility; }
 
     inline Node *getNode() const { return _node.get(); }
-    void         setNode(Node *node);
+    void setNode(Node *node);
 
     inline LightType getType() const { return _type; }
-    inline void      setType(LightType type) { _type = type; }
+    inline void setType(LightType type) { _type = type; }
 
     inline const ccstd::string &getName() const { return _name; }
-    inline void                 setName(const ccstd::string &name) { _name = name; }
+    inline void setName(const ccstd::string &name) { _name = name; }
 
     inline RenderScene *getScene() const { return _scene; }
 
     inline const Vec3 &getColorTemperatureRGB() const { return _colorTemperatureRGB; }
-    inline void        setColorTemperatureRGB(const Vec3 &value) { _colorTemperatureRGB = value; }
+    inline void setColorTemperatureRGB(const Vec3 &value) { _colorTemperatureRGB = value; }
 
     static float nt2lm(float size);
+    static Vec3 colorTemperatureToRGB(float kelvin);
 
 protected:
-    bool               _useColorTemperature{false};
-    bool               _baked{false};
+    bool _useColorTemperature{false};
+    bool _baked{false};
+
+    LightType _type{LightType::UNKNOWN};
+
+    uint32_t _visibility = pipeline::CAMERA_DEFAULT_MASK;
+
     IntrusivePtr<Node> _node;
-    float              _colorTemp{6550.F};
-    LightType          _type{LightType::UNKNOWN};
-    ccstd::string      _name;
-    RenderScene *      _scene{nullptr};
-    Vec3               _color{1, 1, 1};
-    Vec3               _colorTemperatureRGB;
-    Vec3               _forward{0, 0, -1};
+    RenderScene *_scene{nullptr};
+
+    float _colorTemp{6550.F};
+
+    Vec3 _color{1, 1, 1};
+    Vec3 _colorTemperatureRGB;
+    Vec3 _forward{0, 0, -1};
+
+    ccstd::string _name;
 
 private:
     CC_DISALLOW_COPY_MOVE_ASSIGN(Light);

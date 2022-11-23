@@ -1,6 +1,6 @@
 import { lerp, Quat, Vec3 } from '../../../cocos/core';
-import { ExoticAnimation } from '../../../cocos/core/animation/exotic-animation/exotic-animation';
-import { Binder, RuntimeBinding, TrackBinding } from '../../../cocos/core/animation/tracks/track';
+import { ExoticAnimation } from '../../../cocos/animation/exotic-animation/exotic-animation';
+import { Binder, RuntimeBinding, TrackBinding } from '../../../cocos/animation/tracks/track';
 import { degreesToRadians } from '../../../cocos/core/utils/misc';
 import '../../utils/matcher-deep-close-to';
 

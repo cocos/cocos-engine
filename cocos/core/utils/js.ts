@@ -25,8 +25,7 @@
  THE SOFTWARE.
 */
 
-import * as jsarray from './array';
-import IDGenerator from './id-generator';
+import { IDGenerator } from './id-generator';
 import {
     _idToClass,
     _nameToClass,
@@ -40,7 +39,9 @@ import {
     formatStr,
     get,
     getClassByName,
+    getClassById,
     getClassName,
+    getClassId,
     getPropertyDescriptor,
     getset,
     getSuper,
@@ -58,19 +59,22 @@ import {
     unregisterClass,
     value,
 } from './js-typed';
-import Pool from './pool';
-
+import { Pool } from './pool';
+import * as array from './array';
 import { legacyCC } from '../global-exports';
 
 export * from './js-typed';
-export { default as IDGenerator } from './id-generator';
-export { default as Pool } from './pool';
-export const array = jsarray;
+export { IDGenerator } from './id-generator';
+export { Pool } from './pool';
+export { array };
 
+/**
+ * @deprecated since v3.7.0, `js.js` is deprecated, please access `js` directly instead.
+ */
 export const js = {
     IDGenerator,
     Pool,
-    array: jsarray,
+    array,
     isNumber,
     isString,
     isEmptyObject,
@@ -90,10 +94,11 @@ export const js = {
     setClassName,
     setClassAlias,
     getClassByName,
+    getClassById,
     /**
      * @en All classes registered in the engine, indexed by name.
      * @zh 引擎中已注册的所有类型，通过名称进行索引。
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      * @example
      * ```
      * import { js } from 'cc';
@@ -107,7 +112,7 @@ export const js = {
      * js._registeredClassNames = builtinClassNames;
      * ```
      *
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     get _registeredClassNames (): typeof _nameToClass {
         return { ..._nameToClass };
@@ -132,7 +137,7 @@ export const js = {
      * js._registeredClassNames = builtinClassNames;
      * ```
      *
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     get _registeredClassIds (): typeof _idToClass {
         return { ..._idToClass };
@@ -142,15 +147,16 @@ export const js = {
         Object.assign(_idToClass, value);
     },
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     _getClassId,
+    getClassId,
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     _setClassId,
     /**
-     * @legacyPublic
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     _getClassById,
     obsolete,

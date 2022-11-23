@@ -42,8 +42,7 @@ DRAGONBONES_NAMESPACE_BEGIN
  * @version DragonBones 5.0
  * @language zh_CN
  */
-class AnimationConfig : public BaseObject
-{
+class AnimationConfig : public BaseObject {
     BIND_CLASS_TYPE_A(AnimationConfig);
 
 public:

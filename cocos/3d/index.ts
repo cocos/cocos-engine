@@ -23,8 +23,6 @@
  THE SOFTWARE.
 */
 
-
-
 import * as utils from './misc';
 import { legacyCC } from '../core/global-exports';
 

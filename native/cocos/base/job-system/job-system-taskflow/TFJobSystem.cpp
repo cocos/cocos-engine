@@ -31,7 +31,7 @@ namespace cc {
 
 TFJobSystem *TFJobSystem::_instance = nullptr;
 
-TFJobSystem::TFJobSystem(uint threadCount) noexcept
+TFJobSystem::TFJobSystem(uint32_t threadCount) noexcept
 : _executor(threadCount) {
     CC_LOG_INFO("Taskflow Job system initialized: %d worker threads", threadCount);
 }

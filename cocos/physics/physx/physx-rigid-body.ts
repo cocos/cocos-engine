@@ -23,8 +23,6 @@
  THE SOFTWARE.
  */
 
-
-
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 import { IVec3Like, Vec3 } from '../../core';
 import { ERigidBodyType, PhysicsSystem, RigidBody } from '../framework';

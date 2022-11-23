@@ -41,8 +41,7 @@ DRAGONBONES_NAMESPACE_BEGIN
  * @version DragonBones 3.0
  * @language zh_CN
  */
-class AnimationState : public BaseObject
-{
+class AnimationState : public BaseObject {
     BIND_CLASS_TYPE_B(AnimationState);
 
 private:
@@ -254,14 +253,11 @@ private:
     ZOrderTimelineState* _zOrderTimeline;
 
 public:
-    AnimationState() :
-        _actionTimeline(nullptr),
-        _zOrderTimeline(nullptr)
-    {
+    AnimationState() : _actionTimeline(nullptr),
+                       _zOrderTimeline(nullptr) {
         _onClear();
     }
-    virtual ~AnimationState()
-    {
+    virtual ~AnimationState() {
         _onClear();
     }
 
@@ -383,8 +379,7 @@ public:
      * @version DragonBones 5.1
      * @language zh_CN
      */
-    inline bool isFadeIn() const 
-    {
+    inline bool isFadeIn() const {
         return _fadeState < 0;
     }
     /**
@@ -397,8 +392,7 @@ public:
      * @version DragonBones 5.1
      * @language zh_CN
      */
-    inline bool isFadeOut() const
-    {
+    inline bool isFadeOut() const {
         return _fadeState > 0;
     }
     /**
@@ -411,8 +405,7 @@ public:
      * @version DragonBones 5.1
      * @language zh_CN
      */
-    inline bool isFadeComplete() const
-    {
+    inline bool isFadeComplete() const {
         return _fadeState == 0;
     }
     /**
@@ -458,8 +451,7 @@ public:
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    inline float getTotalTime() const
-    {
+    inline float getTotalTime() const {
         return _duration;
     }
     /**
@@ -474,8 +466,7 @@ public:
      */
     float getCurrentTime() const;
     void setCurrentTime(float value);
-    inline const std::string& getName() const
-    {
+    inline const std::string& getName() const {
         return name;
     }
 
@@ -491,16 +482,14 @@ public:
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    inline const AnimationData* getAnimationData() const
-    { 
-        return _animationData; 
+    inline const AnimationData* getAnimationData() const {
+        return _animationData;
     }
 };
 /**
  * @internal
  */
-class BonePose : public BaseObject
-{
+class BonePose : public BaseObject {
     BIND_CLASS_TYPE_A(BonePose);
 
 public:
@@ -514,8 +503,7 @@ protected:
 /**
  * @internal
  */
-class BlendState
-{
+class BlendState {
 public:
     bool dirty;
     int layer;
@@ -531,4 +519,4 @@ public:
 };
 
 DRAGONBONES_NAMESPACE_END
-#endif  // DRAGONBONES_ANIMATION_STATE_H
+#endif // DRAGONBONES_ANIMATION_STATE_H

@@ -27,7 +27,7 @@
 
 #include <cocos/renderer/pipeline/custom/GslUtils.h>
 #include <boost/algorithm/string/predicate.hpp>
-#include <boost/utility/string_view.hpp>
+#include <string_view>
 #include "base/std/container/array.h"
 
 namespace cc {
@@ -38,12 +38,12 @@ namespace impl {
 
 template <class CharT, class Allocator>
 inline void cleanPath(std::basic_string<CharT, std::char_traits<CharT>, Allocator> &str) noexcept {
-    using string_t                = std::basic_string<CharT, std::char_traits<CharT>, Allocator>;
-    constexpr CharT slash[]       = {'/', '\0'};
+    using string_t = std::basic_string<CharT, std::char_traits<CharT>, Allocator>;
+    constexpr CharT slash[] = {'/', '\0'};
     constexpr CharT doubleSlash[] = {'/', '/', '\0'};
 
     CC_EXPECTS(!str.empty());
-    CC_EXPECTS(boost::algorithm::starts_with(str, boost::string_view(slash)));
+    CC_EXPECTS(boost::algorithm::starts_with(str, std::string_view(slash)));
     CC_EXPECTS(str.find(doubleSlash) == string_t::npos);
     CC_EXPECTS([&]() { // NOLINT
         bool valid = true;
@@ -64,14 +64,14 @@ inline void cleanPath(std::basic_string<CharT, std::char_traits<CharT>, Allocato
         }
         // remove tailing /.
         constexpr CharT ending[] = {'/', '.', '\0'};
-        if (boost::algorithm::ends_with(str, boost::string_view(ending))) {
+        if (boost::algorithm::ends_with(str, std::string_view(ending))) {
             str.resize(str.size() - 2);
         }
     }
 
     // try remove /..
     constexpr ccstd::array<CharT, 4> previous = {CharT('/'), CharT('.'), CharT('.'), CharT('\0')};
-    auto                             pos      = str.find(previous.data());
+    auto pos = str.find(previous.data());
     while (pos != string_t::npos) {
         if (pos == 0) {
             // root element has not parent path

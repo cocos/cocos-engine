@@ -24,7 +24,7 @@
 ****************************************************************************/
 #pragma once
 
-#include "cocos/base/Optional.h"
+#include "base/std/optional.h"
 
 #include "3d/assets/Mesh.h"
 #include "primitive/PrimitiveDefine.h"
@@ -36,7 +36,7 @@ struct ICreateMeshOptions {
      * @en calculate mesh's aabb or not
      * @zh 是否计算模型的包围盒。
      */
-    cc::optional<bool> calculateBounds;
+    ccstd::optional<bool> calculateBounds;
 };
 
 struct ICreateDynamicMeshOptions {

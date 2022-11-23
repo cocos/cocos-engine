@@ -4,7 +4,7 @@
 # Android ndk version must be ndk-r16 or greater.
 
 
-import sys, os, shutil, subprocess, re
+import sys, os, subprocess, re
 from contextlib import contextmanager
 
 if sys.version_info.major >= 3:
@@ -13,22 +13,6 @@ else:
     import ConfigParser as configparser
 
 defaultSections = [
-    'cocos',
-    'video',
-    'webview',
-    'audio' ,
-    'extension',
-    'network',
-    'gfx',
-    'pipeline',
-    'render',
-    'spine',
-    'editor_support',
-    'dragonbones',
-    'physics',
-    'scene',
-    'geometry',
-    'assets'
 ]
 
 projectRoot = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
@@ -184,7 +168,11 @@ def main():
             command = '%s -W ignore %s %s -s %s -t %s -o %s -n %s' % (python_bin, generator_py, cfg, section, target, directory, filename)
             print ("command : %s" % (command))
             # tasks.append(_run_cmd(command))
-            _run_cmd(command).communicate()
+            popen = _run_cmd(command)
+            popen.communicate()
+            if popen.returncode != 0:
+                print ("Error: failed to generate bindings for '%s'" % (section))
+                sys.exit(popen.returncode)
 
         if len(sys.argv) > 2 and sys.argv[1] == '--config':
             for path in sys.argv[2:]:

@@ -33,6 +33,10 @@ interface EditorExtendsNode {
     getNodes(): {[uuid: string]: any};
 }
 
+interface EditorExtendsPrefabUtils {
+    addPrefabInstance(node: Node);
+}
+
 interface EditorExtendsComponent {
     addMenu(component: Function, path: string, priority?: number);
     removeMenu(component: Function);
@@ -47,6 +51,8 @@ interface EditorExtendsComponent {
 interface EditorExtendsAsset {
     queryAssetInfo(uuid: string, callback: Function): any;
     getAssetInfoFromUrl(url: string): EditorAssetInfo;
+    saveDataToImage(buffer: Uint8Array | null, width: number, height: number, sceneName: string, fileName: string): any;
+    bakeReflectionProbe(files: string[], isHDR: boolean, sceneName:string, probeID: number, callback: Function): any
 }
 
 interface EditorExtendsUuid {
@@ -65,12 +71,12 @@ declare namespace EditorExtends {
     const Component: EditorExtendsComponent;
     const Asset: EditorExtendsAsset;
     const UuidUtils: EditorExtendsUuid;
-
+    const PrefabUtils:EditorExtendsPrefabUtils;
     const MissingReporter: {
         classInstance: any;
         class: any;
         object: any;
-    }
+    };
 
     const serialize: any;
 

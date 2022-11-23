@@ -23,15 +23,10 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module component/web-view
- */
-
 import { ccclass, help, executeInEditMode, menu, tooltip, type, displayOrder, serializable, requireComponent } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { UITransform } from '../2d/framework';
-import { Component, EventHandler as ComponentEventHandler } from '../core/components';
+import { Component, EventHandler as ComponentEventHandler } from '../scene-graph';
 import { WebViewImplManager } from './web-view-impl-manager';
 import { EventType } from './web-view-enums';
 import { legacyCC } from '../core/global-exports';
@@ -169,7 +164,7 @@ export class WebView extends Component {
     }
 
     public __preload () {
-        if (EDITOR) {
+        if (EDITOR && !legacyCC.GAME_VIEW) {
             return;
         }
         this._impl = WebViewImplManager.getImpl(this);
