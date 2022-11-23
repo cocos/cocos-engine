@@ -19,7 +19,16 @@ minigame.wx.onWheel = wx.onWheel?.bind(wx);
 // #endregion platform related
 
 // #region SystemInfo
-let _cachedSystemInfo: SystemInfo = wx.getSystemInfoSync();
+let _cachedSystemInfo: SystemInfo;
+function updateCachedSystemInfo () {
+    _cachedSystemInfo = wx.getSystemInfoSync();
+    if (_cachedSystemInfo.system.toLowerCase().indexOf('ios') >= 0) {
+        _cachedSystemInfo.platform = 'ios';
+    } else {
+        _cachedSystemInfo.platform = 'android';
+    }
+}
+updateCachedSystemInfo();
 // @ts-expect-error TODO: move into minigame.d.ts
 minigame.testAndUpdateSystemInfoCache = function (testAmount: number, testInterval: number) {
     let successfullyTestTimes = 0;
@@ -62,7 +71,7 @@ Object.defineProperty(minigame, 'isLandscape', {
     },
 });
 // init landscapeOrientation as LANDSCAPE_RIGHT
-const landscapeOrientation = Orientation.LANDSCAPE_RIGHT;
+const landscapeOrientation = Orientation.PORTRAIT;
 // TODO(): toLocaleLowerCase not implemented in wechat
 // if (systemInfo.platform.toLocaleLowerCase() !== 'android') {
 //     // onDeviceOrientationChange doesn't work well on Android.

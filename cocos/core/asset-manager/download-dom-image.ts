@@ -34,6 +34,12 @@ export default function downloadDomImage (
 ): HTMLImageElement {
     const img = new Image();
 
+    // support for remote image loading
+    const prefixServer = cc.settings.querySettings('custom', 'prefixServer') || '';
+    if (prefixServer) {
+        url = `${prefixServer}${url}`;
+    }
+
     if (window.location.protocol !== 'file:') {
         img.crossOrigin = 'anonymous';
     }
