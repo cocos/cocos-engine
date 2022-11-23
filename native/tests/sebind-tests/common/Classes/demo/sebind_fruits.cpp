@@ -167,7 +167,7 @@ bool jsb_register_fruits(se::Object *globalThis) {
                     auto result = addFunc(a, b);
                     auto result2 =
                         sebind::callFunction<std::string, const std::string &,
-                                             const char *>(func, a, b);
+                                             const char *>(nullptr, func, a, b);
                     std::cout << "result 1 " << result << std::endl;
                     std::cout << "result 2 " << result2 << std::endl;
                     return result;

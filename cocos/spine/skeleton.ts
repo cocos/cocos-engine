@@ -162,6 +162,12 @@ export class Skeleton extends UIRenderer {
     get drawList () { return this._drawList; }
 
     @override
+    protected _updateBuiltinMaterial (): Material {
+        const material = builtinResMgr.get<Material>('default-spine-material');
+        return material;
+    }
+
+    @override
     @type(Material)
     @displayOrder(0)
     @displayName('CustomMaterial')
@@ -170,9 +176,17 @@ export class Skeleton extends UIRenderer {
     }
     set customMaterial (val) {
         this._customMaterial = val;
-        this._cleanMaterialCache();
-        this.setMaterial(this._customMaterial, 0);
+        this.updateMaterial();
         this.markForUpdateRenderData();
+    }
+
+    @override
+    protected updateMaterial () {
+        let mat;
+        if (this._customMaterial) mat = this._customMaterial;
+        else mat = this._updateBuiltinMaterial();
+        this.setMaterial(mat, 0);
+        this._cleanMaterialCache();
     }
 
     /**
@@ -1355,11 +1369,10 @@ export class Skeleton extends UIRenderer {
     }
 
     private getMaterialTemplate () : Material {
-        let material = this.customMaterial;
-        if (material === null) {
-            material = builtinResMgr.get<Material>('default-spine-material');
-        }
-        return material;
+        if (this.customMaterial !== null) return this.customMaterial;
+        if (this.material) return this.material;
+        this.updateMaterial();
+        return this.material!;
     }
 
     public getMaterialForBlendAndTint (src: BlendFactor, dst: BlendFactor, type: SpineMaterialType): MaterialInstance {
