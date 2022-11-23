@@ -751,7 +751,9 @@ class ExoticNodeAnimationEvaluatorX {
 
     public evaluate (time: number, pose: Pose) {
         const {
-            _transformHandle: transformHandle,
+            _transformHandle: {
+                index: transformIndex,
+            },
             _position: position,
             _rotation: rotation,
             _scale: scale,
@@ -761,15 +763,15 @@ class ExoticNodeAnimationEvaluatorX {
         } = pose;
         if (position) {
             const value = position.evaluate(time);
-            poseTransforms.setPosition(transformHandle.index, value);
+            poseTransforms.setPosition(transformIndex, value);
         }
         if (rotation) {
             const rotationAbs = rotation.evaluate(time);
-            poseTransforms.setRotation(transformHandle.index, rotationAbs);
+            poseTransforms.setRotation(transformIndex, rotationAbs);
         }
         if (scale) {
             const value = scale.evaluate(time);
-            poseTransforms.setScale(transformHandle.index, value);
+            poseTransforms.setScale(transformIndex, value);
         }
     }
 
