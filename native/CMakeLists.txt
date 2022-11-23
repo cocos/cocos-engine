@@ -2775,6 +2775,11 @@ if(USE_AR_MODULE)
         cocos/renderer/pipeline/xr/ar/ARBackground.cpp
         cocos/renderer/pipeline/xr/ar/ARBackground.h
     )
+    if(ANDROID OR IOS)
+        cocos_source_files(
+            cocos/xr/ar/ARLib.h
+        )
+    endif()
 endif()
 
 ##### extensions
