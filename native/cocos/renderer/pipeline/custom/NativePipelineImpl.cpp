@@ -204,19 +204,29 @@ void NativePipeline::updateRenderWindow(const ccstd::string &name, scene::Render
     auto &desc = get(ResourceGraph::Desc, resourceGraph, resID);
     visitObject(
         resID, resourceGraph,
-        [&](IntrusivePtr<gfx::Framebuffer>& fb) {
+        [&](IntrusivePtr<gfx::Framebuffer> &fb) {
             CC_EXPECTS(!renderWindow->getSwapchain());
             desc.width = renderWindow->getWidth();
             desc.height = renderWindow->getHeight();
             fb = renderWindow->getFramebuffer();
         },
-        [&](RenderSwapchain& sc) {
+        [&](RenderSwapchain &sc) {
             CC_EXPECTS(renderWindow->getSwapchain());
             desc.width = renderWindow->getSwapchain()->getWidth();
             desc.height = renderWindow->getSwapchain()->getHeight();
             sc.swapchain = renderWindow->getSwapchain();
         },
-        [](const auto& /*res*/) {});
+        [](const auto & /*res*/) {});
+}
+
+void NativePipeline::updateRenderTarget(
+    const ccstd::string &name,
+    uint32_t width, uint32_t height, gfx::Format format) { // NOLINT(bugprone-easily-swappable-parameters)
+}
+
+void NativePipeline::updateDepthStencil(
+    const ccstd::string &name,
+    uint32_t width, uint32_t height, gfx::Format format) { // NOLINT(bugprone-easily-swappable-parameters)
 }
 
 void NativePipeline::beginFrame() {
