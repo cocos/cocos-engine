@@ -72,6 +72,11 @@ export class GlobalDSManager {
         return this._descriptorSetLayout;
     }
 
+    // apply layoutGraph descriptorSet
+    set globalDescriptorSet (val: DescriptorSet) {
+        this._globalDescriptorSet = val;
+    }
+
     get globalDescriptorSet () {
         return this._globalDescriptorSet;
     }

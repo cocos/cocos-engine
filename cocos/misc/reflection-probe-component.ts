@@ -243,6 +243,10 @@ export class ReflectionProbe extends Component {
         return this._probe!;
     }
 
+    /**
+     * @en Reflection probe cube mode preview sphere
+     * @zh 反射探针cube模式的预览小球
+     */
     set previewSphere (val: Node) {
         this._previewSphere = val;
         this.probe.previewSphere = val;
@@ -255,6 +259,10 @@ export class ReflectionProbe extends Component {
         return this._previewSphere!;
     }
 
+    /**
+     * @en Reflection probe planar mode preview plane
+     * @zh 反射探针Planar模式的预览平面
+     */
     set previewPlane (val: Node) {
         this._previewPlane = val;
     }
@@ -318,7 +326,7 @@ export class ReflectionProbe extends Component {
      * @en Clear the baked cubemap.
      * @zh 清除烘焙的cubemap
      */
-    public refresh () {
+    public clearBakedCubemap () {
         this.cubemap = null;
         ReflectionProbeManager.probeManager.updateBakedCubemap(this.probe);
     }

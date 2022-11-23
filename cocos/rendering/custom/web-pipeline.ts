@@ -33,7 +33,7 @@ import { ComputePassBuilder, ComputeQueueBuilder, CopyPassBuilder, LayoutGraphBu
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { Model, Camera, ShadowType, CSMLevel, DirectionalLight, SpotLight, PCFType, Shadows } from '../../render-scene/scene';
 import { Light, LightType } from '../../render-scene/scene/light';
-import { LayoutGraphData } from './layout-graph';
+import { DescriptorSetData, DescriptorSetLayoutData, LayoutGraphData } from './layout-graph';
 import { Executor } from './executor';
 import { RenderWindow } from '../../render-scene/core/render-window';
 import { MacroRecord, RenderScene } from '../../render-scene';
@@ -438,7 +438,7 @@ function setCameraUBOValues (setter: WebSetter,
 
     const fog = cfg.fog;
     const colorTempRGB = fog.colorArray;
-    setter.setVec4('cc_fogColor', new Vec4(colorTempRGB.x, colorTempRGB.y, colorTempRGB.z, colorTempRGB.w));
+    setter.setVec4('cc_fogColor', new Vec4(colorTempRGB.x, colorTempRGB.y, colorTempRGB.z, colorTempRGB.z));
     setter.setVec4('cc_fogBase', new Vec4(fog.fogStart, fog.fogEnd, fog.fogDensity, 0.0));
     setter.setVec4('cc_fogAdd', new Vec4(fog.fogTop, fog.fogRange, fog.fogAtten, 0.0));
     setter.setVec4('cc_nearFar', new Vec4(camera.nearClip, camera.farClip, 0.0, 0.0));
@@ -785,6 +785,20 @@ export class WebPipeline implements Pipeline {
             this.resourceGraph._vertices[resId]._object = renderWindow.framebuffer;
         }
     }
+    updateRenderTarget (name: string, width: number, height: number, format: Format = Format.UNKNOWN): void {
+        const resId = this.resourceGraph.vertex(name);
+        const desc = this.resourceGraph.getDesc(resId);
+        desc.width = width;
+        desc.height = height;
+        if (format !== Format.UNKNOWN) desc.format = format;
+    }
+    updateDepthStencil (name: string, width: number, height: number, format: Format = Format.UNKNOWN): void {
+        const resId = this.resourceGraph.vertex(name);
+        const desc = this.resourceGraph.getDesc(resId);
+        desc.width = width;
+        desc.height = height;
+        if (format !== Format.UNKNOWN) desc.format = format;
+    }
     public containsResource (name: string): boolean {
         return this._resourceGraph.contains(name);
     }
@@ -841,12 +855,18 @@ export class WebPipeline implements Pipeline {
         return this._combineSignY;
     }
 
+    public globalDescriptorSetData () {
+        return this._globalDescSetData;
+    }
+
     public activate (swapchain: Swapchain): boolean {
         this._device = deviceManager.gfxDevice;
+        this.layoutGraphBuilder.compile();
         this._globalDSManager = new GlobalDSManager(this._device);
-        const globalLayoutData = this.getGlobalDescriptorSetData()!;
-        this._globalDescriptorSetLayout = globalLayoutData.descriptorSetLayout;
-        this._globalDescriptorSet = globalLayoutData.descriptorSet!;
+        this._globalDescSetData = this.getGlobalDescriptorSetData()!;
+        this._globalDescriptorSetLayout = this._globalDescSetData.descriptorSetLayout;
+        this._globalDescriptorSet = this._globalDescSetData.descriptorSet!;
+        this._globalDSManager.globalDescriptorSet = this.globalDescriptorSet;
         this.setMacroBool('CC_USE_HDR', this._pipelineSceneData.isHDR);
         this._generateConstantMacros(false);
         this._pipelineSceneData.activate(this._device);
@@ -867,7 +887,6 @@ export class WebPipeline implements Pipeline {
         if (this.usesDeferredPipeline) {
             this.setMacroInt('CC_PIPELINE_TYPE', 1);
         }
-        this.layoutGraphBuilder.compile();
 
         this._forward = new ForwardPipelineBuilder();
         this._deferred = new DeferredPipelineBuilder();
@@ -1199,6 +1218,7 @@ export class WebPipeline implements Pipeline {
     private _customPipelineName = '';
     private _forward!: ForwardPipelineBuilder;
     private _deferred!: DeferredPipelineBuilder;
+    private _globalDescSetData!: DescriptorSetData;
     public builder: PipelineBuilder | null = null;
     private _combineSignY = 0;
     // csm uniform used vectors count

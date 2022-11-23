@@ -282,6 +282,8 @@ public:
     virtual uint32_t addRenderTarget(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) = 0;
     virtual uint32_t addDepthStencil(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) = 0;
     virtual void updateRenderWindow(const ccstd::string &name, scene::RenderWindow *renderWindow) = 0;
+    virtual void updateRenderTarget(const ccstd::string &name, uint32_t width, uint32_t height, gfx::Format format) = 0;
+    virtual void updateDepthStencil(const ccstd::string &name, uint32_t width, uint32_t height, gfx::Format format) = 0;
     virtual void beginFrame() = 0;
     virtual void endFrame() = 0;
     virtual RasterPassBuilder *addRasterPass(uint32_t width, uint32_t height, const ccstd::string &layoutName) = 0;
@@ -297,6 +299,12 @@ public:
     }
     uint32_t addDepthStencil(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height) {
         return addDepthStencil(name, format, width, height, ResourceResidency::MANAGED);
+    }
+    void updateRenderTarget(const ccstd::string &name, uint32_t width, uint32_t height) {
+        updateRenderTarget(name, width, height, gfx::Format::UNKNOWN);
+    }
+    void updateDepthStencil(const ccstd::string &name, uint32_t width, uint32_t height) {
+        updateDepthStencil(name, width, height, gfx::Format::UNKNOWN);
     }
     RasterPassBuilder *addRasterPass(uint32_t width, uint32_t height) {
         return addRasterPass(width, height, "default");
