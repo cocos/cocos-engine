@@ -322,7 +322,8 @@ export class AnimationCache {
                 _vertices[v + 5] = _darkColor32;      // dark color
             }
         } else {
-            clipper.clipTriangles(_vertices, _vfCount, _indices, _indexCount,
+            const subIndices = _indices.slice(_indexOffset, _indices.length);
+            clipper.clipTriangles(_vertices, _vfCount, subIndices, _indexCount,
                 _vertices, _finalColor, _darkColor, true, PerVertexSize, _vfOffset, _vfOffset + 2);
             const clippedVertices = clipper.clippedVertices;
             const clippedTriangles = clipper.clippedTriangles;
