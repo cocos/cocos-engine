@@ -30,6 +30,7 @@ import { physics } from '../../../exports/physics-framework';
 import { game } from '../../core/game';
 import { sys } from '../../core/platform';
 import { pageSize, pageCount, importFunc } from './bullet-env';
+import { settings } from '../../core/settings';
 
 let bulletLibs: any = bulletModule;
 if (globalThis.BULLET) {
@@ -94,7 +95,7 @@ export function waitForAmmoInstantiation () {
                 }
 
                 if (WECHAT || RUNTIME_BASED) {
-                    const rootURL = cc.settings.querySettings('custom', 'rootURL');
+                    const rootURL = settings.querySettings('custom', 'rootURL');
                     // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
                     const wasmFilePath = `${rootURL}cocos-js/${module}` as any;
                     instantiateWasm(wasmFilePath);
