@@ -30,6 +30,109 @@ import { Device, Format, FormatFeatureBit, deviceManager } from '../../gfx';
 import { Asset } from './asset';
 import { PixelFormat } from './asset-enum';
 import { warnID, macro, sys, cclegacy } from '../../core';
+import { Enum } from '../../core/value-types/enum';
+
+// Compress mipmap constants
+const COMPRESSED_HEADER_LENGTH = 4;
+const COMPRESSED_MIPMAP_DATA_SIZE_LENGTH = 4;
+const COMPRESSED_MIPMAP_LEVEL_COUNT_LENGTH = 4;
+const COMPRESSED_MIPMAP_MAGIC = 0x50494d43;
+
+export const compressType = Enum({
+    PVR: 0,
+    PKM: 1,
+    ASTC: 2,
+});
+
+// PVR constants //
+// https://github.com/toji/texture-tester/blob/master/js/webgl-texture-util.js#L424
+const PVR_HEADER_LENGTH = 13; // The header length in 32 bit ints.
+const PVR_MAGIC = 0x03525650; // 0x50565203;
+
+// Offsets into the header array.
+const PVR_HEADER_MAGIC = 0;
+const PVR_HEADER_FORMAT = 2;
+const PVR_HEADER_HEIGHT = 6;
+const PVR_HEADER_WIDTH = 7;
+const PVR_HEADER_MIPMAPCOUNT = 11;
+const PVR_HEADER_METADATA = 12;
+
+// ETC constants //
+const ETC_PKM_HEADER_LENGTH = 16;
+
+const ETC_PKM_FORMAT_OFFSET = 6;
+const ETC_PKM_ENCODED_WIDTH_OFFSET = 8;
+const ETC_PKM_ENCODED_HEIGHT_OFFSET = 10;
+const ETC_PKM_WIDTH_OFFSET = 12;
+const ETC_PKM_HEIGHT_OFFSET = 14;
+
+const ETC1_RGB_NO_MIPMAPS = 0;
+const ETC2_RGB_NO_MIPMAPS = 1;
+const ETC2_RGBA_NO_MIPMAPS = 3;
+
+//= ==============//
+// ASTC constants //
+//= ==============//
+
+// struct astc_header
+// {
+//  uint8_t magic[4];
+//  uint8_t blockdim_x;
+//  uint8_t blockdim_y;
+//  uint8_t blockdim_z;
+//  uint8_t xsize[3]; // x-size = xsize[0] + xsize[1] + xsize[2]
+//  uint8_t ysize[3]; // x-size, y-size and z-size are given in texels;
+//  uint8_t zsize[3]; // block count is inferred
+// };
+const ASTC_MAGIC = 0x5CA1AB13;
+
+const ASTC_HEADER_LENGTH = 16; // The header length
+const ASTC_HEADER_MAGIC = 4;
+const ASTC_HEADER_BLOCKDIM = 3;
+
+const ASTC_HEADER_SIZE_X_BEGIN = 7;
+const ASTC_HEADER_SIZE_Y_BEGIN = 10;
+const ASTC_HEADER_SIZE_Z_BEGIN = 13;
+
+function getASTCFormat (xdim, ydim) {
+    if (xdim === 4) {
+        return PixelFormat.RGBA_ASTC_4x4;
+    } if (xdim === 5) {
+        if (ydim === 4) {
+            return PixelFormat.RGBA_ASTC_5x4;
+        }
+        return PixelFormat.RGBA_ASTC_5x5;
+    } if (xdim === 6) {
+        if (ydim === 5) {
+            return PixelFormat.RGBA_ASTC_6x5;
+        }
+        return PixelFormat.RGBA_ASTC_6x6;
+    } if (xdim === 8) {
+        if (ydim === 5) {
+            return PixelFormat.RGBA_ASTC_8x5;
+        } if (ydim === 6) {
+            return PixelFormat.RGBA_ASTC_8x6;
+        }
+        return PixelFormat.RGBA_ASTC_8x8;
+    } if (xdim === 10) {
+        if (ydim === 5) {
+            return PixelFormat.RGBA_ASTC_10x5;
+        } if (ydim === 6) {
+            return PixelFormat.RGBA_ASTC_10x6;
+        } if (ydim === 8) {
+            return PixelFormat.RGBA_ASTC_10x8;
+        }
+        return PixelFormat.RGBA_ASTC_10x10;
+    }
+    if (ydim === 10) {
+        return PixelFormat.RGBA_ASTC_12x10;
+    }
+    return PixelFormat.RGBA_ASTC_12x12;
+}
+
+function readBEUint16 (header, offset: number) {
+    return (header[offset] << 8) | header[offset + 1];
+}
 
 /**
  * @en Image source in memory
@@ -41,6 +144,7 @@ export interface IMemoryImageSource {
     width: number;
     height: number;
     format: number;
+    mipmapLevelDataSize?: number[];
 }
 
 /**
@@ -102,7 +206,254 @@ export class ImageAsset extends Asset {
      * @returns out @zh 合并后的压缩纹理数据 @en Merged compressed texture data
      */
     public static mergeCompressedTextureMips (files: ArrayBuffer[] | ArrayBufferView[]) {
-        return new Uint8Array(0);
+        let out = new Uint8Array(0);
+
+        let err: Error | null = null;
+        try {
+            // Create compressed file
+            // file header length
+            const fileHeaderLength = COMPRESSED_HEADER_LENGTH + COMPRESSED_MIPMAP_LEVEL_COUNT_LENGTH + files.length * COMPRESSED_MIPMAP_DATA_SIZE_LENGTH;
+            let fileLength = 0;
+            for (const file of files) {
+                fileLength += file.byteLength;
+            }
+            fileLength += fileHeaderLength;   // add file header length
+            out = new Uint8Array(fileLength);
+            const outView = new DataView(
+                out.buffer,
+                out.byteOffset,
+                out.byteLength,
+            );
+
+            // Append compresssed header
+            outView.setUint32(0, COMPRESSED_MIPMAP_MAGIC, true); // add magic
+            outView.setUint32(COMPRESSED_HEADER_LENGTH, files.length, true); // add count number
+            let dataOffset = fileHeaderLength;
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                outView.setUint32(COMPRESSED_HEADER_LENGTH + COMPRESSED_MIPMAP_LEVEL_COUNT_LENGTH + i * COMPRESSED_MIPMAP_DATA_SIZE_LENGTH,
+                    file.byteLength, true); //add file data size
+
+                // Append compresssed file
+                if (file instanceof ArrayBuffer) {
+                    const srcArray = new Uint8Array(file);
+                    out.set(srcArray, dataOffset);
+                } else {
+                    const srcArray = new Uint8Array(file.buffer, file.byteOffset, file.byteLength);
+                    out.set(srcArray, dataOffset);
+                }
+                dataOffset += file.byteLength;
+            }
+        } catch (e) {
+            err = e as Error;
+            console.warn(err);
+        }
+
+        return out;
+    }
+
+    /**
+     * @param file 解析压缩纹理
+     * @param type 压缩纹理类型
+     * @engineInternal
+     */
+    public static parseCompressedTextures (file: ArrayBuffer | ArrayBufferView, type: number) {
+        const out: IMemoryImageSource = {
+            _data: new Uint8Array(0),
+            _compressed: true,
+            width: 0,
+            height: 0,
+            format: 0,
+            mipmapLevelDataSize: [],
+        };
+
+        const buffer = file instanceof ArrayBuffer ? file : file.buffer;
+        const bufferView = new DataView(buffer);
+        // Get a view of the arrayBuffer that represents compress header.
+        const magicNumber = bufferView.getUint32(0, true);
+        // Do some sanity checks to make sure this is a valid compress file.
+        if (magicNumber === COMPRESSED_MIPMAP_MAGIC) {
+            // Get a view of the arrayBuffer that represents compress document.
+            const mipmapLevelNumber = bufferView.getUint32(COMPRESSED_HEADER_LENGTH, true);
+            const mipmapLevelDataSize = bufferView.getUint32(COMPRESSED_HEADER_LENGTH + COMPRESSED_MIPMAP_LEVEL_COUNT_LENGTH, true);
+            const fileHeaderByteLength = COMPRESSED_HEADER_LENGTH + COMPRESSED_MIPMAP_LEVEL_COUNT_LENGTH
+                + mipmapLevelNumber * COMPRESSED_MIPMAP_DATA_SIZE_LENGTH;
+
+            // Get a view of the arrayBuffer that represents compress chunks.
+            ImageAsset.parseCompressedTexture(file, 0, fileHeaderByteLength, mipmapLevelDataSize, type, out);
+            let beginOffset = fileHeaderByteLength + mipmapLevelDataSize;
+
+            for (let i = 1; i < mipmapLevelNumber; i++) {
+                const endOffset = bufferView.getUint32(COMPRESSED_HEADER_LENGTH + COMPRESSED_MIPMAP_LEVEL_COUNT_LENGTH
+                    +  i * COMPRESSED_MIPMAP_DATA_SIZE_LENGTH, true);
+                ImageAsset.parseCompressedTexture(file, i, beginOffset, endOffset, type, out);
+                beginOffset += endOffset;
+            }
+        } else {
+            ImageAsset.parseCompressedTexture(file, 0, 0, 0, type, out);
+        }
+        return out;
+    }
+
+    /**
+     * @zh 解析压缩纹理
+     * @param file @zh ccon 文件
+     * @param levelIndex @zh 当前 mipmap 层级
+     * @param beginOffset @zh 压缩纹理开始时的偏移
+     * @param endOffset @zh 压缩纹理结束时的偏移
+     * @param type @zh 压缩纹理类型
+     * @param out @zh 压缩纹理输出
+     * @engineInternal
+     */
+    public static parseCompressedTexture (file: ArrayBuffer | ArrayBufferView, levelIndex: number,
+        beginOffset: number, endOffset: number, type: number, out: IMemoryImageSource) {
+        switch (type) {
+        case compressType.PVR:
+            ImageAsset.parsePVRTexture(file, levelIndex, beginOffset, endOffset, out);
+            break;
+        case compressType.PKM:
+            ImageAsset.parsePKMTexture(file, levelIndex, beginOffset, endOffset, out);
+            break;
+        case compressType.ASTC:
+            ImageAsset.parseASTCTexture(file, levelIndex, beginOffset, endOffset, out);
+            break;
+        default:
+            break;
+        }
+    }
+
+    /**
+     * @zh 解析 PVR 格式的压缩纹理
+     * @param file @zh ccon 文件
+     * @param levelIndex @zh 当前 mipmap 层级
+     * @param beginOffset @zh 压缩纹理开始时的偏移
+     * @param endOffset @zh 压缩纹理结束时的偏移
+     * @param out @zh 压缩纹理输出
+     * @engineInternal
+     */
+    public static parsePVRTexture (file: ArrayBuffer | ArrayBufferView, levelIndex: number,
+        beginOffset: number, endOffset: number, out: IMemoryImageSource) {
+        const buffer = file instanceof ArrayBuffer ? file : file.buffer;
+        // Get a view of the arrayBuffer that represents the DDS header.
+        const header = new Int32Array(buffer, beginOffset, PVR_HEADER_LENGTH);
+
+        // Do some sanity checks to make sure this is a valid DDS file.
+        if (header[PVR_HEADER_MAGIC] === PVR_MAGIC) {
+            // Gather other basic metrics and a view of the raw the DXT data.
+            const byteOffset = beginOffset + header[PVR_HEADER_METADATA] + 52;
+            const length = endOffset - header.byteLength;
+            if (endOffset > 0) {
+                const srcView = new Uint8Array(buffer, byteOffset, length);
+                const dstView = new Uint8Array(out._data!.byteLength + srcView.byteLength);
+                dstView.set(out._data as Uint8Array);
+                dstView.set(srcView, out._data!.byteLength);
+                out._data  = dstView;
+                out.mipmapLevelDataSize![levelIndex] = length;
+            } else {
+                out._data = new Uint8Array(buffer, byteOffset);
+            }
+            out.width = levelIndex > 0 ? out.width : header[PVR_HEADER_WIDTH];
+            out.height = levelIndex > 0 ? out.height : header[PVR_HEADER_HEIGHT];
+        } else if (header[11] === 0x21525650) {
+            const byteOffset = beginOffset + header[0];
+            const length = endOffset - header.byteLength;
+            if (endOffset > 0) {
+                const srcView = new Uint8Array(buffer, byteOffset, length);
+                const dstView = new Uint8Array(out._data!.byteLength + srcView.byteLength);
+                dstView.set(out._data as Uint8Array);
+                dstView.set(srcView, out._data!.byteLength);
+                out._data  = dstView;
+                out.mipmapLevelDataSize![levelIndex] = length;
+            } else {
+                out._data  = new Uint8Array(buffer, byteOffset);
+            }
+            out.width = levelIndex > 0 ? out.width : header[1];
+            out.height = levelIndex > 0 ? out.height : header[2];
+        } else {
+            throw new Error('Invalid magic number in PVR header');
+        }
+    }
+
+    /**
+     * @zh 解析 PKM 格式的压缩纹理
+     * @param file @zh ccon 文件
+     * @param levelIndex @zh 当前 mipmap 层级
+     * @param beginOffset @zh 压缩纹理开始时的偏移
+     * @param endOffset @zh 压缩纹理结束时的偏移
+     * @param out @zh 压缩纹理输出
+     * @engineInternal
+     */
+    public static parsePKMTexture (file: ArrayBuffer | ArrayBufferView, levelIndex: number,
+        beginOffset: number, endOffset: number, out: IMemoryImageSource) {
+        const buffer = file instanceof ArrayBuffer ? file : file.buffer;
+        const header = new Uint8Array(buffer, beginOffset, ETC_PKM_HEADER_LENGTH);
+        const format = readBEUint16(header, ETC_PKM_FORMAT_OFFSET);
+        if (format !== ETC1_RGB_NO_MIPMAPS && format !== ETC2_RGB_NO_MIPMAPS && format !== ETC2_RGBA_NO_MIPMAPS) {
+            throw new Error('Invalid magic number in ETC header');
+        }
+
+        const byteOffset = beginOffset + ETC_PKM_HEADER_LENGTH;
+        const length = endOffset - ETC_PKM_HEADER_LENGTH;
+        if (endOffset > 0) {
+            const srcView = new Uint8Array(buffer, byteOffset, length);
+            const dstView = new Uint8Array(out._data!.byteLength + srcView.byteLength);
+            dstView.set(out._data as Uint8Array);
+            dstView.set(srcView, out._data!.byteLength);
+            out._data  = dstView;
+            out.mipmapLevelDataSize![levelIndex] = length;
+        } else {
+            out._data = new Uint8Array(buffer, byteOffset);
+        }
+        out.width = levelIndex > 0 ? out.width : readBEUint16(header, ETC_PKM_WIDTH_OFFSET);
+        out.height = levelIndex > 0 ? out.height : readBEUint16(header, ETC_PKM_HEIGHT_OFFSET);
+    }
+
+    /**
+     * @zh 解析 ASTC 格式的压缩纹理
+     * @param file @zh ccon 文件
+     * @param levelIndex @zh 当前 mipmap 层级
+     * @param beginOffset @zh 压缩纹理开始时的偏移
+     * @param endOffset @zh 压缩纹理结束时的偏移
+     * @param out @zh 压缩纹理输出
+     * @engineInternal
+     */
+    public static parseASTCTexture (file: ArrayBuffer | ArrayBufferView, levelIndex: number,
+        beginOffset: number, endOffset: number, out: IMemoryImageSource) {
+        const buffer = file instanceof ArrayBuffer ? file : file.buffer;
+        const header = new Uint8Array(buffer, beginOffset, ASTC_HEADER_LENGTH);
+
+        const magicval = header[0] + (header[1] << 8) + (header[2] << 16) + (header[3] << 24);
+        if (magicval !== ASTC_MAGIC) {
+            throw new Error('Invalid magic number in ASTC header');
+        }
+
+        const xdim = header[ASTC_HEADER_MAGIC];
+        const ydim = header[ASTC_HEADER_MAGIC + 1];
+        const zdim = header[ASTC_HEADER_MAGIC + 2];
+        if ((xdim < 3 || xdim > 6 || ydim < 3 || ydim > 6 || zdim < 3 || zdim > 6)
+                && (xdim < 4 || xdim === 7 || xdim === 9 || xdim === 11 || xdim > 12
+                || ydim < 4 || ydim === 7 || ydim === 9 || ydim === 11 || ydim > 12 || zdim !== 1)) {
+            throw new Error('Invalid block number in ASTC header');
+        }
+
+        const format = getASTCFormat(xdim, ydim);
+        const byteOffset = beginOffset + ASTC_HEADER_LENGTH;
+        const length = endOffset - ASTC_HEADER_LENGTH;
+        if (endOffset > 0) {
+            const srcView = new Uint8Array(buffer, byteOffset, length);
+            const dstView = new Uint8Array(out._data!.byteLength + srcView.byteLength);
+            dstView.set(out._data as Uint8Array);
+            dstView.set(srcView, out._data!.byteLength);
+            out._data  = dstView;
+            out.mipmapLevelDataSize![levelIndex] = length;
+        } else {
+            out._data = new Uint8Array(buffer, byteOffset);
+        }
+        out.width = levelIndex > 0 ? out.width : header[ASTC_HEADER_SIZE_X_BEGIN] + (header[ASTC_HEADER_SIZE_X_BEGIN + 1] << 8)
+                + (header[ASTC_HEADER_SIZE_X_BEGIN + 2] << 16);
+        out.height = levelIndex > 0 ? out.height : header[ASTC_HEADER_SIZE_Y_BEGIN] + (header[ASTC_HEADER_SIZE_Y_BEGIN + 1] << 8)
+                + (header[ASTC_HEADER_SIZE_Y_BEGIN + 2] << 16);
+        out.format = format;
     }
 
     /**
@@ -167,6 +518,15 @@ export class ImageAsset extends Asset {
     }
 
     /**
+     * @en If this image resource is a mipmap, get the data size of each layer
+     * @zh 此图像资源是 mipmap 时，获取每层数据大小。
+     * @engineInternal
+     */
+    get mipmapLevelDataSize () : number[] | undefined {
+        return (this._nativeData as IMemoryImageSource).mipmapLevelDataSize;
+    }
+
+    /**
      * @en The original source image URL, it could be empty.
      * @zh 此图像资源的原始图像源的 URL。当原始图像元不是 HTML 文件时可能为空。
      * @deprecated Please use [[nativeUrl]]
@@ -196,6 +556,7 @@ export class ImageAsset extends Asset {
             height: 0,
             format: 0,
             _compressed: false,
+            mipmapLevelDataSize: [],
         };
 
         if (EDITOR) {

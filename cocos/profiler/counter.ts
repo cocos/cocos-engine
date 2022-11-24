@@ -44,9 +44,9 @@ export class Counter {
         this._value = val;
     }
 
-    protected _id: string;
+    protected declare _id: string;
     protected _opts: ICounterOption;
-    protected _accumStart: number;
+    protected declare _accumStart: number;
     protected _total = 0;
     protected _value = 0;
     protected _averageValue = 0;

@@ -29,7 +29,7 @@
 #include "cocos/bindings/manual/jsb_global.h"
 #include "cocos/bindings/manual/jsb_module_register.h"
 #include "cocos/renderer/pipeline/GlobalDescriptorSetManager.h"
-
+#include "cocos/platform/interfaces/modules/ISystemWindowManager.h"
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
     #include "SimulatorApp.h"
     #include "windows.h"
@@ -43,6 +43,7 @@
 #include "runtime/ConfigParser.h"
 #include "runtime/Runtime.h"
 
+
 using namespace std;
 Game::Game() {
 }
@@ -53,24 +54,28 @@ Game::~Game() {
 }
 
 int Game::init() {
+    
     cc::pipeline::GlobalDSManager::setDescriptorSetLayout();
-    SimulatorApp::getInstance()->run();
-    int windowWidth = SimulatorApp::getInstance()->getWidth();
-    int windowHeight = SimulatorApp::getInstance()->getHegith();
+    cc::ISystemWindowInfo info;
+    info.width= SimulatorApp::getInstance()->getWidth();
+    info.height = SimulatorApp::getInstance()->getHeight();
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
-    int windowPositionX = (GetSystemMetrics(SM_CXSCREEN) - windowWidth) / 2;
-    int windowPositionY = (GetSystemMetrics(SM_CYSCREEN) - windowHeight) / 2;
+    info.x = (GetSystemMetrics(SM_CXSCREEN) - info.width) / 2;
+    info.y = (GetSystemMetrics(SM_CYSCREEN) - info.height) / 2;
 #elif (CC_PLATFORM == CC_PLATFORM_MACOS)
     auto mainDisplayId = CGMainDisplayID();
-    int windowPositionX = (CGDisplayPixelsWide(mainDisplayId) - windowWidth) / 2;
-    int windowPositionY = (CGDisplayPixelsHigh(mainDisplayId) - windowHeight) / 2;
+    info.x = (CGDisplayPixelsWide(mainDisplayId) - info.width) / 2;
+    info.y = (CGDisplayPixelsHigh(mainDisplayId) - info.height) / 2;
 #endif
-    createWindow("My game", windowPositionX, windowPositionY, SimulatorApp::getInstance()->getWidth(),
-                 SimulatorApp::getInstance()->getHegith(),
-                 cc::ISystemWindow::CC_WINDOW_SHOWN |
-                     cc::ISystemWindow::CC_WINDOW_RESIZABLE |
-                     cc::ISystemWindow::CC_WINDOW_INPUT_FOCUS);
+    info.title = "My Game";
+    info.flags = cc::ISystemWindow::CC_WINDOW_SHOWN |
+                 cc::ISystemWindow::CC_WINDOW_RESIZABLE |
+                 cc::ISystemWindow::CC_WINDOW_INPUT_FOCUS;
+    
+    cc::ISystemWindowManager* windowMgr = CC_GET_PLATFORM_INTERFACE(cc::ISystemWindowManager);
+    windowMgr->createWindow(info);
 
+    SimulatorApp::getInstance()->run();
     auto parser = ConfigParser::getInstance();
     setDebugIpAndPort("0.0.0.0", 5086, parser->isWaitForConnect());
 

@@ -6796,6 +6796,7 @@ static bool js_cc_geometry_Spline_getPoint__SWIG_0(se::State& s)
     float arg2 ;
     uint32_t arg3 ;
     cc::Vec3 result;
+    cc::Vec3 *temp ;
     
     arg1 = SE_THIS_OBJECT<cc::geometry::Spline>(s);
     if (nullptr == arg1) return true;
@@ -6808,9 +6809,10 @@ static bool js_cc_geometry_Spline_getPoint__SWIG_0(se::State& s)
     
     result = ((cc::geometry::Spline const *)arg1)->getPoint(arg2,arg3);
     
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    temp = ccnew cc::Vec3(result);
+    ok &= nativevalue_to_se(temp, s.rval(), s.thisObject());
     SE_PRECONDITION2(ok, false, "Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    s.rval().toObject()->getPrivateObject()->tryAllowDestroyInGC();
     
     
     
@@ -6824,6 +6826,7 @@ static bool js_cc_geometry_Spline_getPoint__SWIG_1(se::State& s)
     cc::geometry::Spline *arg1 = (cc::geometry::Spline *) NULL ;
     float arg2 ;
     cc::Vec3 result;
+    cc::Vec3 *temp ;
     
     arg1 = SE_THIS_OBJECT<cc::geometry::Spline>(s);
     if (nullptr == arg1) return true;
@@ -6832,9 +6835,10 @@ static bool js_cc_geometry_Spline_getPoint__SWIG_1(se::State& s)
     SE_PRECONDITION2(ok, false, "Error processing arguments"); 
     result = ((cc::geometry::Spline const *)arg1)->getPoint(arg2);
     
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+    temp = ccnew cc::Vec3(result);
+    ok &= nativevalue_to_se(temp, s.rval(), s.thisObject());
     SE_PRECONDITION2(ok, false, "Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+    s.rval().toObject()->getPrivateObject()->tryAllowDestroyInGC();
     
     
     

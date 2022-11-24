@@ -22,7 +22,7 @@
         "mipfilter": "linear",
         "anisotropy": 0,
         "isRGBE": true,
-        "imageDatabaseUri": "db://internal/default_skybox/default_skybox.hdr"
+        "imageDatabaseUri": "d032ac98-05e1-4090-88bb-eb640dcb5fc1"
       },
       "ver": "1.0.10",
       "imported": true,

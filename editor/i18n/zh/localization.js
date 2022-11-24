@@ -166,6 +166,8 @@ module.exports = {
         shadowNear: '固定区域开始值',
         shadowFar: '固定区域结束值',
         shadowOrthoSize: '固定区域大小，该值越大则阴影精度越低',
+        shadowAdvancedOptions: '阴影高级选项',
+        csmLayersTransition: '是否开启级联阴影层级过渡（提升质量，降低性能）',
     },
     model: {
         shadow_receiving_model: '阴影接受方式',
@@ -667,6 +669,7 @@ module.exports = {
         rotationOvertimeModule: '粒子旋转模块',
         textureAnimationModule: '贴图动画模块',
         trailModule: '粒子轨迹模块（只支持 CPU 粒子）',
+        noiseModule: '粒子噪声动画模块（只支持 CPU 粒子）',
         renderer: '粒子渲染模块',
         renderCulling: '是否开启粒子剔除功能。<br>开启该项将会生成一个粒子发射器包围盒，若包围盒不在摄像机的可见范围内，该粒子发射器便会被剔除。<br>粒子发射器被剔除后的行为请参考下面的 Culling Mode。',
         cullingMode: '粒子发射器被剔除之后的行为，可设置的选项包括 Pause, Pause and Catchup, Always Simulate。<br>选择 Pause 时，若粒子发射器包围盒不在摄像机的可见范围内，粒子暂停模拟。若恢复可见，则粒子会接着上次暂停的时间继续模拟；<br>选择 Pause and Catchup 时，若粒子发射器包围盒不在摄像机的可见范围内，粒子暂停模拟。若恢复可见，则粒子会以当前的时间开始模拟；<br>选择 Always Simulate 时，无论粒子发射器包围盒是否在摄像机的可见范围内，粒子都会一直模拟，只是不在摄像机的可见范围内时不进行渲染。',
@@ -768,10 +771,6 @@ module.exports = {
             network: {
                 label: '网络',
                 description: '网络模块。',
-            },
-            xr: {
-                label: 'XR',
-                description: 'XR系统。',
             },
         },
         core: {
@@ -922,13 +921,9 @@ module.exports = {
             label: "Marionette 动画系统",
             description: "启用 Marionette 动画系统。",
         },
-        base_xr: {
-            label: "基础 XR 功能",
-            description: "基础 XR 功能支持。",
-        },
-        ar: {
-            label: "AR 功能",
-            description: "AR 功能支持。",
+        xr: {
+            label: "XR",
+            description: "启用 XR 功能系统。",
         },
         custom_pipeline: {
             label: "自定义渲染管线（实验）",

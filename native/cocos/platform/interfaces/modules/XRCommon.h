@@ -87,6 +87,8 @@ enum class XRConfigKey {
     HAND_TRACKING = 32,
     HAND_TRACKING_DATA = 33,
     HAND_TRACKING_SUPPORT_STATUS = 34,
+    APPLY_HAPTIC_CONTROLLER = 35,
+    STOP_HAPTIC_CONTROLLER = 36,
     MAX_COUNT
 };
 
@@ -286,6 +288,7 @@ struct XRPose : public XRControllerInfo {
         HAND_RIGHT,
         AIM_RIGHT,
         HEAD_MIDDLE,
+        AR_MOBILE,
         UNKNOWN
     };
 

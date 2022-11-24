@@ -94,6 +94,8 @@ public:
     void updateInstancedAttributes(const ccstd::vector<gfx::Attribute> &attributes);
     void updateInstancedWorldMatrix(const Mat4 &mat, int32_t idx);
     void updateInstancedSH(const Float32Array &data, int32_t idx);
+    inline int32_t getReflectionProbeType() const { return _reflectionProbeType; }
+    void setReflectionProbeType(int32_t val) { _reflectionProbeType = val; }
 
 protected:
     void flushPassInfo();
@@ -123,6 +125,7 @@ protected:
 
     std::shared_ptr<ccstd::vector<IntrusivePtr<Pass>>> _passes;
 
+    int32_t _reflectionProbeType{0};
 private:
     static inline int32_t generateId() {
         static int32_t generator = 0;

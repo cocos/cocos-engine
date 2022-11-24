@@ -133,6 +133,6 @@ exports.methods = {
         return null;
     },
     handleMultiScreenSize(index) {
-        return `LOD ${index} Transition (% Screen Size)`;
+        return `LOD ${index} Transition (% Screen Ratio)`;
     },
 };

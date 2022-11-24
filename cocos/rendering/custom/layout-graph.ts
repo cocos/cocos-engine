@@ -581,11 +581,12 @@ export class UniformBlockData {
 }
 
 export class DescriptorData {
-    constructor (descriptorID = 0) {
+    constructor (descriptorID = 0, count = 1) {
         this.descriptorID = descriptorID;
+        this.count = count;
     }
     descriptorID: number;
-    count = 1;
+    count: number;
 }
 
 export class DescriptorBlockData {

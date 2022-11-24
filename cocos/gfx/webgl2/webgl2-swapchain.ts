@@ -120,6 +120,22 @@ export function getExtensions (gl: WebGL2RenderingContext) {
 export function getContext (canvas: HTMLCanvasElement): WebGL2RenderingContext | null {
     let context: WebGL2RenderingContext | null = null;
     try {
+        if (globalThis.__globalXR.webxrCompatible) {
+            const glAttribs = {
+                alpha: macro.ENABLE_TRANSPARENT_CANVAS,
+                antialias: EDITOR || macro.ENABLE_WEBGL_ANTIALIAS,
+                depth: true,
+                stencil: true,
+                premultipliedAlpha: false,
+                preserveDrawingBuffer: false,
+                powerPreference: 'default',
+                failIfMajorPerformanceCaveat: false,
+                xrCompatible: true,
+            };
+            context = canvas.getContext('webgl2', glAttribs) as WebGL2RenderingContext;
+            return context;
+        }
+
         const webGLCtxAttribs: WebGLContextAttributes = {
             alpha: macro.ENABLE_TRANSPARENT_CANVAS,
             antialias: EDITOR || macro.ENABLE_WEBGL_ANTIALIAS,

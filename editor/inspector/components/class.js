@@ -51,6 +51,17 @@ exports.methods = {
         });
         return $group;
     },
+    toggleGroups($groups) {
+        for (const key in $groups) {
+            const $props = Array.from($groups[key].querySelectorAll('.tab-content > ui-prop'));
+            const show = $props.some($prop => getComputedStyle($prop).display !== 'none');
+            if (show) {
+                $groups[key].removeAttribute('hidden');
+            } else {
+                $groups[key].setAttribute('hidden', '');
+            }
+        }
+    },
     appendToTabGroup($group, tabName) {
         if ($group.tabs[tabName]) {
             return;
@@ -94,6 +105,11 @@ exports.methods = {
  */
 async function update(dump) {
     const $panel = this;
+
+    if (!$panel.$this.isConnected) {
+        return;
+    }
+
     const $section = $panel.$.section;
     const oldPropList = Object.keys($panel.$propList);
     const newPropList = [];
@@ -158,6 +174,8 @@ async function update(dump) {
             }
         }
     }
+
+    $panel.toggleGroups($panel.$groups);
 }
 exports.update = update;
 async function ready() {

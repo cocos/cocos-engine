@@ -6,17 +6,16 @@
 #include <common/color/gamma>
 #include <legacy/shadow-map-base>
 #include <common/data/unpack>
-
+#include <common/texture/texture-lod>
 #if CC_USE_IBL
   #include <builtin/uniforms/cc-environment>
-  #include <common/texture/texture-lod>
 
   #if CC_USE_DIFFUSEMAP
     #include <builtin/uniforms/cc-diffusemap>
   #endif
 #endif
 
-#if USE_REFLECTION_PROBE
+#if CC_USE_REFLECTION_PROBE
   #include <builtin/uniforms/cc-reflection-probe>
 #endif
 #if CC_USE_LIGHT_PROBE
@@ -55,10 +54,10 @@ vec3 BRDFApprox (vec3 specular, float roughness, float NoV) {
     	float mipBias = mix(0.0, 5.0, clamp(delta, 0.0, 1.0));
 
 
-      #if USE_REFLECTION_PROBE == REFLECTION_PROBE_CUBE
+      #if CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_CUBE
         vec4 biased = fragTextureLod(cc_reflectionProbeCubemap, R, mip + mipBias);
      	  vec4 filtered = texture(cc_reflectionProbeCubemap, R);
-      #elif USE_REFLECTION_PROBE == REFLECTION_PROBE_PLANAR
+      #elif CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_PLANAR
         vec4 biased = fragTextureLod(cc_reflectionProbePlanarMap, screenUV, mip + mipBias);
         vec4 filtered = texture(cc_reflectionProbePlanarMap, screenUV);
       #else
@@ -66,8 +65,8 @@ vec3 BRDFApprox (vec3 specular, float roughness, float NoV) {
      	  vec4 filtered = texture(cc_environment, R);
       #endif
 
-      #if CC_USE_IBL == IBL_RGBE || USE_REFLECTION_PROBE != REFLECTION_PROBE_NONE
-      	biased.rgb = unpackRGBE(biased);
+      #if CC_USE_IBL == IBL_RGBE || CC_USE_REFLECTION_PROBE != REFLECTION_PROBE_TYPE_NONE
+        biased.rgb = unpackRGBE(biased);
       	filtered.rgb = unpackRGBE(filtered);
       #else
       	biased.rgb = SRGBToLinear(biased.rgb);
@@ -119,7 +118,7 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
   float NL = max(dot(N, L), 0.0);
 
   float shadow = 1.0;
-  #if !CC_USE_LIGHTMAP && CC_RECEIVE_SHADOW && CC_SHADOW_TYPE == CC_SHADOW_MAP
+  #if CC_USE_LIGHTMAP != LIGHT_MAP_TYPE_ALL_IN_ONE && CC_RECEIVE_SHADOW && CC_SHADOW_TYPE == CC_SHADOW_MAP
     if (NL > 0.0 && cc_mainLitDir.w > 0.0) {
       if (cc_shadowLPNNInfo.w > 0.0) {
         #if CC_DIR_LIGHT_SHADOW_TYPE == CC_DIR_LIGHT_SHADOW_CASCADED
@@ -141,15 +140,16 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
         // baked in LDR scene still regarded as exposured with standard camera parameters
         lightmap.rgb *= cc_exposure.w * cc_exposure.x;
     #endif
-    #if CC_USE_LIGHT_MAP == CC_LIGHTMAP_INDIRECT_OCCLUSION
+    #if CC_USE_LIGHTMAP == LIGHT_MAP_TYPE_INDIRECT_OCCLUSION
       shadow *= s.lightmap.a; // apply baked shadows for real-time lighting
+      s.occlusion *= s.lightmap_test;
       finalColor += diffuse * lightmap.rgb;
     #else
       finalColor += diffuse * lightmap.rgb * shadow; // apply real-time shadows for baked color
     #endif
   #endif
   
-  #if CC_USE_LIGHTMAP != CC_LIGHTMAP_ALL_IN_ONE
+  #if CC_USE_LIGHTMAP != LIGHT_MAP_TYPE_ALL_IN_ONE
     float NV = max(abs(dot(N, V)), 0.0);
     specular = BRDFApprox(specular, s.roughness, NV);
   
@@ -189,7 +189,7 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
     #else
       vec4 envmap = fragTextureLod(cc_environment, rotationDir, s.roughness * (cc_ambientGround.w - 1.0));
 
-      #if CC_USE_IBL == IBL_RGBE || USE_REFLECTION_PROBE != REFLECTION_PROBE_NONE
+      #if CC_USE_IBL == IBL_RGBE || CC_USE_REFLECTION_PROBE != REFLECTION_PROBE_TYPE_NONE
         env = unpackRGBE(envmap);
       #else
         env = SRGBToLinear(envmap.rgb);
@@ -198,12 +198,16 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
 
   #endif
 
-  #if USE_REFLECTION_PROBE
-    #if USE_REFLECTION_PROBE == REFLECTION_PROBE_CUBE
-      vec4 probe = fragTextureLod(cc_reflectionProbeCubemap, R, s.roughness * (cc_ambientGround.w - 1.0));
-    #elif USE_REFLECTION_PROBE == REFLECTION_PROBE_PLANAR
-      vec2 screenUV = GetScreenUV(s.position, cc_matViewProj, cc_cameraPos.w);
-      vec4 probe = texture(cc_reflectionProbePlanarMap, screenUV);
+  #if CC_USE_REFLECTION_PROBE
+    vec4 probe = vec4(0.0);
+    #if !CC_USE_IBL
+      vec3 R = normalize(reflect(-V, N));
+    #endif
+    #if CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_CUBE
+      probe = fragTextureLod(cc_reflectionProbeCubemap, R, s.roughness * (cc_ambientGround.w - 1.0));
+    #elif CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_PLANAR
+      vec2 screenUV = GetPlanarReflectScreenUV(s.position, cc_matViewProj, cc_cameraPos.w, V, R);
+      probe = texture(cc_reflectionProbePlanarMap, screenUV);
     #endif
     env = unpackRGBE(probe);
   #endif

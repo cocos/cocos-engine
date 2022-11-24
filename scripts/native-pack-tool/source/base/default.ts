@@ -507,6 +507,7 @@ export class CocosParams<T> {
     public projectName: string;
     public cmakePath: string;
     public platform: string;
+    public platformName: string;
     /**
      * engine root
      */
@@ -565,6 +566,7 @@ export class CocosParams<T> {
         this.debug = params.debug;
         this.cmakePath = params.cmakePath;
         this.platform = params.platform;
+        this.platformName = params.platformName;
         this.enginePath = params.enginePath;
         this.nativeEnginePath = params.nativeEnginePath;
         this.projDir = params.projDir;

@@ -57,7 +57,7 @@ public:
         _probeType = type;
     }
     inline ProbeType getProbeType() const { return _probeType; }
-
+    inline int32_t getProbeId() const { return _probeId; }
     inline void setResolution(int32_t resolution) { _resolution = resolution; }
     inline int32_t getResolution() const { return _resolution; }
     /**

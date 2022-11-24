@@ -7,7 +7,16 @@ vec2 GetScreenUV(vec3 worldPos, mat4 matViewProj, float flipNDCSign)
 {
   vec4 clipPos = matViewProj * vec4(worldPos, 1.0);
   vec2 screenUV = clipPos.xy / clipPos.w * 0.5 + 0.5;
-  screenUV = vec2(1.0 - screenUV.x, 1.0 - screenUV.y);
+  screenUV = vec2(1.0 - screenUV.x, screenUV.y);
+  CC_HANDLE_NDC_SAMPLE_FLIP(screenUV, flipNDCSign);
+  return screenUV;
+}
+
+vec2 GetPlanarReflectScreenUV(vec3 worldPos, mat4 matVirtualCameraViewProj, float flipNDCSign, vec3 viewDir, vec3 reflectDir)
+{
+  vec4 clipPos = matVirtualCameraViewProj * vec4(worldPos, 1.0);
+  vec2 screenUV = clipPos.xy / clipPos.w * 0.5 + 0.5;
+  screenUV = vec2(1.0 - screenUV.x, screenUV.y);
   CC_HANDLE_NDC_SAMPLE_FLIP(screenUV, flipNDCSign);
   return screenUV;
 }

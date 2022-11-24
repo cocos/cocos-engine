@@ -13,6 +13,7 @@ import { RenderWindow } from '../../render-scene/core/render-window';
 export enum AntiAliasing {
     NONE,
     FXAA,
+    FXAAHQ,
 }
 
 export function validPunctualLightsCulling (pipeline: Pipeline, camera: Camera) {
@@ -92,8 +93,13 @@ export function getRenderArea (camera: Camera, width: number, height: number, li
                 out.width = w;
                 out.height = h;
             } else {
+                const screenSpaceSignY = cclegacy.director.root.device.capabilities.screenSpaceSignY;
                 out.x = level % 2 * 0.5 * w;
-                out.y = (1 - Math.floor(level / 2)) * 0.5 * h;
+                if (screenSpaceSignY) {
+                    out.y = (1 - Math.floor(level / 2)) * 0.5 * h;
+                } else {
+                    out.y = Math.floor(level / 2) * 0.5 * h;
+                }
                 out.width = 0.5 * w;
                 out.height = 0.5 * h;
             }
@@ -110,6 +116,87 @@ export function getRenderArea (camera: Camera, width: number, height: number, li
         }
     }
     return out;
+}
+
+class FxaaData {
+    declare fxaaMaterial: Material;
+    private _updateFxaaPass () {
+        if (!this.fxaaMaterial) return;
+
+        const combinePass = this.fxaaMaterial.passes[0];
+        combinePass.beginChangeStatesSilently();
+        combinePass.tryCompile();
+        combinePass.endChangeStatesSilently();
+    }
+    private _init () {
+        if (this.fxaaMaterial) return;
+        this.fxaaMaterial = new Material();
+        this.fxaaMaterial._uuid = 'builtin-fxaa-material';
+        this.fxaaMaterial.initialize({ effectName: 'pipeline/fxaa-hq' });
+        for (let i = 0; i < this.fxaaMaterial.passes.length; ++i) {
+            this.fxaaMaterial.passes[i].tryCompile();
+        }
+        this._updateFxaaPass();
+    }
+    constructor () {
+        this._init();
+    }
+}
+
+let fxaaData: FxaaData | null = null;
+export function buildFxaaPass (camera: Camera,
+    ppl: Pipeline,
+    inputRT: string) {
+    if (!fxaaData) {
+        fxaaData = new FxaaData();
+    }
+    const cameraID = getCameraUniqueID(camera);
+    const cameraName = `Camera${cameraID}`;
+    let width = camera.window.width;
+    let height = camera.window.height;
+    const area = getRenderArea(camera, width, height);
+    width = area.width;
+    height = area.height;
+    // Start
+    const clearColor = new Color(0, 0, 0, 1);
+    if (camera.clearFlag & ClearFlagBit.COLOR) {
+        clearColor.x = camera.clearColor.x;
+        clearColor.y = camera.clearColor.y;
+        clearColor.z = camera.clearColor.z;
+    }
+    clearColor.w = camera.clearColor.w;
+
+    const fxaaPassRTName = `dsFxaaPassColor${cameraName}`;
+    const fxaaPassDSName = `dsFxaaPassDS${cameraName}`;
+
+    // ppl.updateRenderWindow(inputRT, camera.window);
+    if (!ppl.containsResource(fxaaPassRTName)) {
+        ppl.addRenderTarget(fxaaPassRTName, Format.RGBA8, width, height, ResourceResidency.MANAGED);
+        ppl.addDepthStencil(fxaaPassDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
+    }
+    ppl.updateRenderTarget(fxaaPassRTName, width, height);
+    ppl.updateDepthStencil(fxaaPassDSName, width, height);
+    const fxaaPassIdx = 0;
+    const fxaaPass = ppl.addRasterPass(width, height, 'fxaa');
+    fxaaPass.name = `CameraFxaaPass${cameraID}`;
+    fxaaPass.setViewport(new Viewport(area.x, area.y, width, height));
+    if (ppl.containsResource(inputRT)) {
+        const computeView = new ComputeView();
+        computeView.name = 'sceneColorMap';
+        fxaaPass.addComputeView(inputRT, computeView);
+    }
+    const fxaaPassView = new RasterView('_',
+        AccessType.WRITE, AttachmentType.RENDER_TARGET,
+        LoadOp.CLEAR, StoreOp.STORE,
+        camera.clearFlag,
+        clearColor);
+    fxaaPass.addRasterView(fxaaPassRTName, fxaaPassView);
+    fxaaData.fxaaMaterial.setProperty('texSize', new Vec4(width, height, 1.0 / width, 1.0 / height), fxaaPassIdx);
+    fxaaPass.addQueue(QueueHint.RENDER_TRANSPARENT).addCameraQuad(
+        camera, fxaaData.fxaaMaterial, fxaaPassIdx,
+        SceneFlags.NONE,
+    );
+    return { rtName: fxaaPassRTName, dsName: fxaaPassDSName };
 }
 
 export const MAX_BLOOM_FILTER_PASS_NUM = 6;
@@ -199,6 +286,8 @@ export function buildBloomPass (camera: Camera,
         ppl.addRenderTarget(bloomPassPrefilterRTName, Format.RGBA8, width, height, ResourceResidency.MANAGED);
         ppl.addDepthStencil(bloomPassPrefilterDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
     }
+    ppl.updateRenderTarget(bloomPassPrefilterRTName, width, height);
+    ppl.updateDepthStencil(bloomPassPrefilterDSName, width, height);
     const bloomPrefilterPass = ppl.addRasterPass(width, height, 'Bloom_Prefilter');
     bloomPrefilterPass.name = `CameraBloomPrefilterPass${cameraID}`;
     bloomPrefilterPass.setViewport(new Viewport(area.x, area.y, width, height));
@@ -229,6 +318,8 @@ export function buildBloomPass (camera: Camera,
             ppl.addRenderTarget(bloomPassDownSampleRTName, Format.RGBA8, width, height, ResourceResidency.MANAGED);
             ppl.addDepthStencil(bloomPassDownSampleDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
         }
+        ppl.updateRenderTarget(bloomPassDownSampleRTName, width, height);
+        ppl.updateDepthStencil(bloomPassDownSampleDSName, width, height);
         const bloomDownSamplePass = ppl.addRasterPass(width, height, `Bloom_Downsample${i}`);
         bloomDownSamplePass.name = `CameraBloomDownSamplePass${cameraID}${i}`;
         bloomDownSamplePass.setViewport(new Viewport(area.x, area.y, width, height));
@@ -262,6 +353,8 @@ export function buildBloomPass (camera: Camera,
             ppl.addRenderTarget(bloomPassUpSampleRTName, Format.RGBA8, width, height, ResourceResidency.MANAGED);
             ppl.addDepthStencil(bloomPassUpSampleDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
         }
+        ppl.updateRenderTarget(bloomPassUpSampleRTName, width, height);
+        ppl.updateDepthStencil(bloomPassUpSampleDSName, width, height);
         const bloomUpSamplePass = ppl.addRasterPass(width, height, `Bloom_Upsample${i}`);
         bloomUpSamplePass.name = `CameraBloomUpSamplePass${cameraID}${bloomData.iterations - 1 - i}`;
         bloomUpSamplePass.setViewport(new Viewport(area.x, area.y, width, height));
@@ -294,6 +387,8 @@ export function buildBloomPass (camera: Camera,
         ppl.addRenderTarget(bloomPassCombineRTName, Format.RGBA8, width, height, ResourceResidency.MANAGED);
         ppl.addDepthStencil(bloomPassCombineDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
     }
+    ppl.updateRenderTarget(bloomPassCombineRTName, width, height);
+    ppl.updateDepthStencil(bloomPassCombineDSName, width, height);
     const bloomCombinePass = ppl.addRasterPass(width, height, 'Bloom_Combine');
     bloomCombinePass.name = `CameraBloomCombinePass${cameraID}`;
     bloomCombinePass.setViewport(new Viewport(area.x, area.y, width, height));
@@ -363,6 +458,7 @@ export function buildPostprocessPass (camera: Camera,
         ppl.addDepthStencil(postprocessPassDS, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
     }
     ppl.updateRenderWindow(postprocessPassRTName, camera.window);
+    ppl.updateDepthStencil(postprocessPassDS, width, height);
     const postprocessPass = ppl.addRasterPass(width, height, 'Postprocess');
     postprocessPass.name = `CameraPostprocessPass${cameraID}`;
     postprocessPass.setViewport(new Viewport(area.x, area.y, area.width, area.height));
@@ -421,6 +517,9 @@ export function buildForwardPass (camera: Camera,
     }
     if (!isOffScreen) {
         ppl.updateRenderWindow(forwardPassRTName, camera.window);
+    } else {
+        ppl.updateRenderTarget(forwardPassRTName, width, height);
+        ppl.updateDepthStencil(forwardPassDSName, width, height);
     }
     const forwardPass = ppl.addRasterPass(width, height, 'default');
     forwardPass.name = `CameraForwardPass${cameraID}`;
@@ -470,6 +569,8 @@ export function buildShadowPass (passName: Readonly<string>,
     ppl: Pipeline,
     camera: Camera, light: Light, level: number,
     width: Readonly<number>, height: Readonly<number>) {
+    const fboW = width;
+    const fboH = height;
     const area = getRenderArea(camera, width, height, light, level);
     width = area.width;
     height = area.height;
@@ -477,9 +578,11 @@ export function buildShadowPass (passName: Readonly<string>,
     const shadowMapName = passName;
     if (!ppl.containsResource(shadowMapName)) {
         const format = supportsR32FloatTexture(device) ? Format.R32F : Format.RGBA8;
-        ppl.addRenderTarget(shadowMapName, format, width, height, ResourceResidency.MANAGED);
-        ppl.addDepthStencil(`${shadowMapName}Depth`, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
+        ppl.addRenderTarget(shadowMapName, format, fboW, fboH, ResourceResidency.MANAGED);
+        ppl.addDepthStencil(`${shadowMapName}Depth`, Format.DEPTH_STENCIL, fboW, fboH, ResourceResidency.MANAGED);
     }
+    ppl.updateRenderTarget(shadowMapName, fboW, fboH);
+    ppl.updateDepthStencil(`${shadowMapName}Depth`, fboW, fboH);
     const pass = ppl.addRasterPass(width, height, 'default');
     pass.name = passName;
     pass.setViewport(new Viewport(area.x, area.y, area.width, area.height));
@@ -534,6 +637,7 @@ export function buildReflectionProbePass (camera: Camera,
         ppl.addDepthStencil(probePassDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
     }
     ppl.updateRenderWindow(probePassRTName, renderWindow);
+    ppl.updateDepthStencil(probePassDSName, width, height);
 
     const probePass = ppl.addRasterPass(width, height, 'default');
     probePass.name = `ReflectionProbePass${faceIdx}`;
@@ -641,6 +745,10 @@ export function buildGBufferPass (camera: Camera,
         ppl.addRenderTarget(gBufferPassEmissive, colFormat, width, height, ResourceResidency.MANAGED);
         ppl.addDepthStencil(gBufferPassDSName, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
     }
+    ppl.updateRenderTarget(gBufferPassRTName, width, height);
+    ppl.updateRenderTarget(gBufferPassNormal, width, height);
+    ppl.updateRenderTarget(gBufferPassEmissive, width, height);
+    ppl.updateDepthStencil(gBufferPassDSName, width, height);
     // gbuffer pass
     const gBufferPass = ppl.addRasterPass(width, height, 'Geometry');
     gBufferPass.name = `CameraGBufferPass${cameraID}`;
@@ -728,6 +836,8 @@ export function buildLightingPass (camera: Camera, ppl: Pipeline, gBuffer: GBuff
         ppl.addRenderTarget(deferredLightingPassRTName, Format.RGBA8, width, height, ResourceResidency.MANAGED);
         ppl.addDepthStencil(deferredLightingPassDS, Format.DEPTH_STENCIL, width, height, ResourceResidency.MANAGED);
     }
+    ppl.updateRenderTarget(deferredLightingPassRTName, width, height);
+    ppl.updateDepthStencil(deferredLightingPassDS, width, height);
     // lighting pass
     const lightingPass = ppl.addRasterPass(width, height, 'Lighting');
     lightingPass.name = `CameraLightingPass${cameraID}`;
@@ -821,7 +931,7 @@ export function buildNativeForwardPass (camera: Camera, ppl: Pipeline) {
     }
 
     ppl.updateRenderWindow(forwardPassRTName, camera.window);
-
+    ppl.updateDepthStencil(forwardPassDSName, width, height);
     // Passes
     const forwardPass = ppl.addRasterPass(width, height, 'default');
     forwardPass.name = `CameraForwardPass${cameraID}`;
