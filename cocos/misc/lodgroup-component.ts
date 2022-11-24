@@ -301,7 +301,7 @@ export class LODGroup extends Component {
         valArray.forEach((lod: LOD, index: number) => {
             this.lodGroup.insertLOD(index, lod.lodData);
             this._LODs[index] = lod;
-            lod.modelAddedCallback = this.onLodModelAddedCallback;
+            lod.modelAddedCallback = this.onLodModelAddedCallback.bind(this);
         });
     }
 
@@ -333,7 +333,7 @@ export class LODGroup extends Component {
         if (!lod) {
             lod = new LOD();
         }
-        lod.modelAddedCallback = this.onLodModelAddedCallback;
+        lod.modelAddedCallback = this.onLodModelAddedCallback.bind(this);
         if (!screenUsagePercentage) {
             const preLod = this.getLOD(index - 1);
             const nextLod = this.getLOD(index);
@@ -405,7 +405,7 @@ export class LODGroup extends Component {
             return;
         }
         this._LODs[index] = lod;
-        lod.modelAddedCallback = this.onLodModelAddedCallback;
+        lod.modelAddedCallback = this.onLodModelAddedCallback.bind(this);
         this.lodGroup.updateLOD(index, lod.lodData);
     }
 
