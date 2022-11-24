@@ -7,7 +7,7 @@ import { AudioContextAgent, WAAudioPlayer, WAOneShotAudio } from '../webaudio/ba
 type AbstractOneShotAudio = DomInnerOneShotAudio | WAOneShotAudio;
 type AbstractAudioPlayer = DomInnerAudioPlayer | WAAudioPlayer;
 
-export class OneShotAudio {
+export class InnerOneShotAudio {
     private _audio:  AbstractOneShotAudio;
     get onPlay () {
         return this._audio.onPlay;

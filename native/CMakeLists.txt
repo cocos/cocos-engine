@@ -2032,15 +2032,14 @@ cocos_source_files(
 )
 
 if(USE_AUDIO)
-    if(OHOS)
+    cocos_source_files(
+        NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_audio_auto.cpp
+                                cocos/bindings/auto/jsb_audio_auto.h
+    )
+    if(NOT OHOS)
         cocos_source_files(
-            NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_audio_deprecated_auto.cpp
-                                    cocos/bindings/auto/jsb_audio_deprecated_auto.h
-        )
-    else()
-        cocos_source_files(
-            NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_audio_auto.cpp
-                                    cocos/bindings/auto/jsb_audio_auto.h
+            NO_WERROR   NO_UBUILD   cocos/bindings/auto/jsb_audio_graph_auto.cpp
+                                    cocos/bindings/auto/jsb_audio_graph_auto.h
         )
     endif()
 endif()

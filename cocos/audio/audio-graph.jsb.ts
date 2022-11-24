@@ -2,7 +2,7 @@ import { AudioContextOptions } from './base';
 
 import { AudioContext, nativeDefaultContext } from './native';
 import { AudioBackend, AudioInfo } from './type';
-
+export { audioBufferManager } from './native';
 
 class AudioContextManager {
     public defaultContext: AudioContext;

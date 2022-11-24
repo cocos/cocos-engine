@@ -1,7 +1,7 @@
 import { CCAudioNode } from '../../base';
 
 export abstract class WAAudioNode implements CCAudioNode {
-    abstract readonly anode: AudioNode;
+    protected abstract get anode(): AudioNode;
     connect (node: WAAudioNode): WAAudioNode {
         this.anode.connect(node.anode);
         return node;

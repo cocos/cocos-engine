@@ -186,6 +186,7 @@ function downloadBundle (nameOrUrl, options, onComplete) {
         }
     const config = `${url}/cc.config.${version ? `${version}.` : ''}json`;
     options.__cacheBundleRoot__ = bundleName;
+    // eslint-disable-next-line consistent-return
     downloadJson(config, options, (err, response) => {
         if (err) {
             return onComplete(err, null);
@@ -194,12 +195,13 @@ function downloadBundle (nameOrUrl, options, onComplete) {
         out && (out.base = `${url}/`);
 
         const js = `${url}/index.${version ? `${version}.` : ''}${out.encrypted ? 'jsc' : `js`}`;
+        // eslint-disable-next-line consistent-return
         downloadScript(js, options, (err) => {
             if (err) {
                 return onComplete(err, null);
             }
             onComplete(null, out);
-        }
+        });
     });
 }
 

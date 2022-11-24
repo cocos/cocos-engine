@@ -2,18 +2,17 @@ import { AudioContextOptions, CCAudioContext, StateChangeCallback } from '../../
 import { WAGainNode } from './wa-gain-node';
 import { WASourceNode } from './wa-source-node';
 import { WAStereoPannerNode } from './wa-stereo-panner-node';
+import { WADestinationNode } from './wa-destination-node';
 
 export class WAAudioContext implements CCAudioContext {
     private _ctx: AudioContext;
+    private _destination: WADestinationNode;
     get ctx () { return this._ctx; }
     get currentTime (): number {
         return this._ctx.currentTime;
     }
-    set currentTime (time: number) {
-
-    }
-    get destination (): AudioDestinationNode {
-        return this._ctx.destination;
+    get destination (): WADestinationNode {
+        return this._destination;
     }
     private _onStateChange:  StateChangeCallback | null = null;
     get onstatechange (): StateChangeCallback | null {
@@ -89,6 +88,7 @@ export class WAAudioContext implements CCAudioContext {
     constructor (options?: AudioContextOptions) {
         this._ctx = new AudioContext(options);
         this._state = this._ctx.state;
+        this._destination = new WADestinationNode(this._ctx);
     }
 }
 export const waDefaultContext = new WAAudioContext();
