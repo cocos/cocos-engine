@@ -22,7 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-import { HTML5 } from 'internal:constants';
+import { HTML5, TAOBAO } from 'internal:constants';
 import { legacyCC } from './global-exports';
 
 declare const fsUtils: any;
@@ -76,12 +76,24 @@ export class Settings {
         if (!path) return Promise.resolve();
         return new Promise((resolve, reject) => {
             if (!HTML5 && !path.startsWith('http')) {
-                const result = fsUtils.readJsonSync(path);
-                if (result instanceof Error) {
-                    reject(result);
+                // TODO: readJsonSync not working on Taobao IDE
+                if (TAOBAO) {
+                    globalThis.fsUtils.readJson(path, (err, result) => {
+                        if (err) {
+                            reject(err);
+                            return;
+                        }
+                        this._settings = result;
+                        resolve();
+                    });
                 } else {
-                    this._settings = result;
-                    resolve();
+                    const result = fsUtils.readJsonSync(path);
+                    if (result instanceof Error) {
+                        reject(result);
+                    } else {
+                        this._settings = result;
+                        resolve();
+                    }
                 }
             } else {
                 const xhr = new XMLHttpRequest();

@@ -24,7 +24,7 @@
  THE SOFTWARE.
 */
 
-import { BUILD, DEBUG, EDITOR, HTML5, JSB, NATIVE, PREVIEW, RUNTIME_BASED, TEST, WEBGPU } from 'internal:constants';
+import { BUILD, DEBUG, EDITOR, HTML5, JSB, NATIVE, PREVIEW, RUNTIME_BASED, TAOBAO, TEST, WEBGPU } from 'internal:constants';
 import { systemInfo } from 'pal/system-info';
 import { findCanvas, loadJsFile } from 'pal/env';
 import { Pacer } from 'pal/pacer';
