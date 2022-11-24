@@ -26,6 +26,7 @@
 
 import { getError } from '../platform/debug';
 import { CompleteCallback, IDownloadParseOptions } from './shared';
+import { settings } from '../settings';
 
 export default function downloadDomImage (
     url: string,
@@ -35,7 +36,7 @@ export default function downloadDomImage (
     const img = new Image();
 
     // support for remote image loading
-    const prefixServer = cc.settings.querySettings('custom', 'prefixServer') || '';
+    const prefixServer = settings.querySettings('custom', 'prefixServer') || '';
     if (prefixServer) {
         url = `${prefixServer}${url}`;
     }
