@@ -240,9 +240,6 @@ export class WebLayoutGraphBuilder implements LayoutGraphBuilder  {
                 }
             });
         }
-        if (DEBUG) {
-            console.log(this.print());
-        }
         return 0;
     }
 
