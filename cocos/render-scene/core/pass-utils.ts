@@ -81,7 +81,7 @@ export const type2validator = {
     [Type.INT3]: (v: Vec3): boolean => !!(v instanceof Vec3),
     [Type.FLOAT3]: (v: Vec3): boolean => !!(v instanceof Vec3),
     [Type.INT4]: (v: Vec4): boolean => !!(v instanceof Vec4),
-    [Type.FLOAT4]: (v: Vec4 | Color): boolean => !!((v instanceof Vec4) || (v instanceof Color)),
+    [Type.FLOAT4]: (v: Vec4 | Color | Quat): boolean => !!((v instanceof Vec4) || (v instanceof Color) || (v instanceof Quat)),
     [Type.MAT3]: (v: Mat3): boolean => !!(v instanceof Mat3),
     [Type.MAT4]: (v: Mat4): boolean => !!(v instanceof Mat4),
 };
