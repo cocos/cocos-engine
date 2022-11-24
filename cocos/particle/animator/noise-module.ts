@@ -245,12 +245,12 @@ export class NoiseModule extends ParticleModuleBase {
         this.noise.setOctaves(this.octaves, this.octaveMultiplier, this.octaveScale);
 
         this.samplePosition.set(particle.position);
-        this.samplePosition.add3f(Math.random() * 1.0, Math.random() * 1.0, Math.random() * 1.0);
+        // this.samplePosition.add3f(Math.random() * 1.0, Math.random() * 1.0, Math.random() * 1.0);
         this.noise.setSamplePoint(this.samplePosition);
         this.noise.getNoiseParticle();
 
         const noisePosition: Vec3 = this.noise.getResult();
-        noisePosition.multiply3f(Math.random(), Math.random(), Math.random());
+        //noisePosition.multiply3f(Math.random(), Math.random(), Math.random());
         Vec3.add(particle.position, particle.position, noisePosition.multiplyScalar(dt));
     }
 
