@@ -435,6 +435,10 @@ export class VisibilityGraph {
                 if (!shader) {
                     continue;
                 }
+                if (shader.descriptors === undefined) {
+                    console.warn(`No descriptors in shader: ${programName}, please reimport ALL effects`);
+                    continue;
+                }
                 const passName = getPassName(pass);
                 const passData = this.getPass(passName);
                 const phaseName = getPhaseName(pass);
@@ -679,7 +683,10 @@ export class LayoutGraphInfo {
                     console.warn(`program: ${programName} not found`);
                     continue;
                 }
-
+                if (shader.descriptors === undefined) {
+                    console.warn(`No descriptors in shader: ${programName}, please reimport ALL effects`);
+                    continue;
+                }
                 // get database
                 const passName = getPassName(pass);
                 const phaseName = getPhaseName(pass);
