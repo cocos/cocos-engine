@@ -48,8 +48,8 @@ public:
     void update();
     int getAPIState();
 
-    void setCameraId(std::string id);
-    std::string getCameraId() const;
+    void setCameraId(const std::string &id);
+    const std::string &getCameraId() const;
     Pose getCameraPose() const;
     Matrix getCameraViewMatrix() const;
     Matrix getCameraProjectionMatrix() const;

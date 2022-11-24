@@ -39,7 +39,7 @@ static bool js_ar_ARModule_getAddedPlanesInfo(se::State& s)
         float* result = cobj->getAddedPlanesInfo();
 
         int len = cobj->getInfoLength();
-        se::Object* planesInfo = se::Object::createTypedArray(se::Object::TypedArrayType::FLOAT32, result, sizeof(float) * len);
+        se::HandleObject planesInfo{se::Object::createTypedArray(se::Object::TypedArrayType::FLOAT32, result, sizeof(float) * len)};
         s.rval().setObject(planesInfo);
         return true;
     }
@@ -60,7 +60,7 @@ static bool js_ar_ARModule_getUpdatedPlanesInfo(se::State& s)
     if (argc == 0) {
         float* result = cobj->getUpdatedPlanesInfo();
         int len = cobj->getInfoLength();
-        se::Object* planesInfo = se::Object::createTypedArray(se::Object::TypedArrayType::FLOAT32, result, sizeof(float) * len);
+        se::HandleObject planesInfo{se::Object::createTypedArray(se::Object::TypedArrayType::FLOAT32, result, sizeof(float) * len)};
         s.rval().setObject(planesInfo);
         return true;
     }
@@ -80,7 +80,7 @@ static bool js_ar_ARModule_getRemovedPlanesInfo(se::State& s)
     if (argc == 0) {
         float* result = cobj->getRemovedPlanesInfo();
         int len = cobj->getInfoLength();
-        se::Object* planesInfo = se::Object::createTypedArray(se::Object::TypedArrayType::FLOAT32, result, sizeof(float) * len);
+        se::HandleObject planesInfo{se::Object::createTypedArray(se::Object::TypedArrayType::FLOAT32, result, sizeof(float) * len)};
         s.rval().setObject(planesInfo);
         return true;
     }
@@ -105,7 +105,7 @@ static bool js_ar_ARModule_getPlanePolygon(se::State& s)
 
         float* buffer = cobj->getPlanePolygon(arg0.value());
         int len = cobj->getInfoLength();
-        se::Object* verticesInfo = se::Object::createTypedArray(se::Object::TypedArrayType::FLOAT32, buffer, sizeof(float) * len);
+        se::HandleObject verticesInfo{se::Object::createTypedArray(se::Object::TypedArrayType::FLOAT32, buffer, sizeof(float) * len)};
         s.rval().setObject(verticesInfo);
         return true;
     }
@@ -125,7 +125,7 @@ static bool js_ar_ARModule_getAddedSceneMesh(se::State& s)
     if (argc == 0) {
         float* buffer = cobj->getAddedSceneMesh();
         int len = cobj->getInfoLength();
-        se::Object* planesInfo = se::Object::createTypedArray(se::Object::TypedArrayType::FLOAT32, buffer, sizeof(float) * len);
+        se::HandleObject planesInfo{se::Object::createTypedArray(se::Object::TypedArrayType::FLOAT32, buffer, sizeof(float) * len)};
         s.rval().setObject(planesInfo);
         return true;
     }
@@ -145,7 +145,7 @@ static bool js_ar_ARModule_getUpdatedSceneMesh(se::State& s)
     if (argc == 0) {
         float* buffer = cobj->getUpdatedSceneMesh();
         int len = cobj->getInfoLength();
-        se::Object* planesInfo = se::Object::createTypedArray(se::Object::TypedArrayType::FLOAT32, buffer, sizeof(float) * len);
+        se::HandleObject planesInfo{se::Object::createTypedArray(se::Object::TypedArrayType::FLOAT32, buffer, sizeof(float) * len)};
         s.rval().setObject(planesInfo);
         return true;
     }
@@ -165,7 +165,7 @@ static bool js_ar_ARModule_getRemovedSceneMesh(se::State& s)
     if (argc == 0) {
         int* buffer = cobj->getRemovedSceneMesh();
         int len = cobj->getInfoLength();
-        se::Object* meshesInfo = se::Object::createTypedArray(se::Object::TypedArrayType::UINT32, buffer, sizeof(float) * len);
+        se::HandleObject meshesInfo{se::Object::createTypedArray(se::Object::TypedArrayType::UINT32, buffer, sizeof(float) * len)};
         s.rval().setObject(meshesInfo);
         return true;
     }
@@ -185,7 +185,7 @@ static bool js_ar_ARModule_requireSceneMesh(se::State& s)
     if (argc == 0) {
         int* buffer = cobj->requireSceneMesh();
         int len = cobj->getInfoLength();
-        se::Object* meshesInfo = se::Object::createTypedArray(se::Object::TypedArrayType::UINT32, buffer, sizeof(float) * len);
+        se::HandleObject meshesInfo{se::Object::createTypedArray(se::Object::TypedArrayType::UINT32, buffer, sizeof(float) * len)};
         s.rval().setObject(meshesInfo);
         return true;
     }
@@ -210,7 +210,7 @@ static bool js_ar_ARModule_getSceneMeshVertices(se::State& s)
 
         float* buffer = cobj->getSceneMeshVertices(arg0.value());
         int len = cobj->getInfoLength();
-        se::Object* verticesInfo = se::Object::createTypedArray(se::Object::TypedArrayType::FLOAT32, buffer, sizeof(float) * len);
+        se::HandleObject verticesInfo{se::Object::createTypedArray(se::Object::TypedArrayType::FLOAT32, buffer, sizeof(float) * len)};
         s.rval().setObject(verticesInfo);
         return true;
     }
@@ -235,7 +235,7 @@ static bool js_ar_ARModule_getSceneMeshTriangleIndices(se::State& s)
 
         int* buffer = cobj->getSceneMeshTriangleIndices(arg0.value());
         int len = cobj->getInfoLength();
-        se::Object* indicesInfo = se::Object::createTypedArray(se::Object::TypedArrayType::UINT32, buffer, sizeof(float) * len);
+        se::HandleObject indicesInfo{se::Object::createTypedArray(se::Object::TypedArrayType::UINT32, buffer, sizeof(float) * len)};
         s.rval().setObject(indicesInfo);
         return true;
     }
@@ -255,7 +255,7 @@ static bool js_ar_ARModule_getAddedImagesInfo(se::State& s)
     if (argc == 0) {
         float* buffer = cobj->getAddedImagesInfo();
         int len = cobj->getInfoLength();
-        se::Object* imagesInfo = se::Object::createTypedArray(se::Object::TypedArrayType::FLOAT32, buffer, sizeof(float) * len);
+        se::HandleObject imagesInfo{se::Object::createTypedArray(se::Object::TypedArrayType::FLOAT32, buffer, sizeof(float) * len)};
         s.rval().setObject(imagesInfo);
         return true;
     }
@@ -275,7 +275,7 @@ static bool js_ar_ARModule_getUpdatedImagesInfo(se::State& s)
     if (argc == 0) {
         float* buffer = cobj->getUpdatedImagesInfo();
         int len = cobj->getInfoLength();
-        se::Object* imagesInfo = se::Object::createTypedArray(se::Object::TypedArrayType::FLOAT32, buffer, sizeof(float) * len);
+        se::HandleObject imagesInfo{se::Object::createTypedArray(se::Object::TypedArrayType::FLOAT32, buffer, sizeof(float) * len)};
         s.rval().setObject(imagesInfo);
         return true;
     }
@@ -295,7 +295,7 @@ static bool js_ar_ARModule_getRemovedImagesInfo(se::State& s)
     if (argc == 0) {
         float* buffer = cobj->getRemovedImagesInfo();
         int len = cobj->getInfoLength();
-        se::Object* imagesInfo = se::Object::createTypedArray(se::Object::TypedArrayType::FLOAT32, buffer, sizeof(float) * len);
+        se::HandleObject imagesInfo{se::Object::createTypedArray(se::Object::TypedArrayType::FLOAT32, buffer, sizeof(float) * len)};
         s.rval().setObject(imagesInfo);
         return true;
     }
@@ -315,7 +315,7 @@ static bool js_ar_ARModule_getAddedObjectsInfo(se::State& s)
     if (argc == 0) {
         float* buffer = cobj->getAddedObjectsInfo();
         int len = cobj->getInfoLength();
-        se::Object* info = se::Object::createTypedArray(se::Object::TypedArrayType::FLOAT32, buffer, sizeof(float) * len);
+        se::HandleObject info{se::Object::createTypedArray(se::Object::TypedArrayType::FLOAT32, buffer, sizeof(float) * len)};
         s.rval().setObject(info);
         return true;
     }
@@ -335,7 +335,7 @@ static bool js_ar_ARModule_getUpdatedObjectsInfo(se::State& s)
     if (argc == 0) {
         float* buffer = cobj->getUpdatedObjectsInfo();
         int len = cobj->getInfoLength();
-        se::Object* info = se::Object::createTypedArray(se::Object::TypedArrayType::FLOAT32, buffer, sizeof(float) * len);
+        se::HandleObject info{se::Object::createTypedArray(se::Object::TypedArrayType::FLOAT32, buffer, sizeof(float) * len)};
         s.rval().setObject(info);
         return true;
     }
@@ -355,7 +355,7 @@ static bool js_ar_ARModule_getRemovedObjectsInfo(se::State& s)
     if (argc == 0) {
         float* buffer = cobj->getRemovedObjectsInfo();
         int len = cobj->getInfoLength();
-        se::Object* info = se::Object::createTypedArray(se::Object::TypedArrayType::FLOAT32, buffer, sizeof(float) * len);
+        se::HandleObject info{se::Object::createTypedArray(se::Object::TypedArrayType::FLOAT32, buffer, sizeof(float) * len)};
         s.rval().setObject(info);
         return true;
     }
@@ -375,7 +375,7 @@ static bool js_ar_ARModule_getAddedFacesInfo(se::State& s)
     if (argc == 0) {
         float* buffer = cobj->getAddedFacesInfo();
         int len = cobj->getInfoLength();
-        se::Object* info = se::Object::createTypedArray(se::Object::TypedArrayType::FLOAT32, buffer, sizeof(float) * len);
+        se::HandleObject info{se::Object::createTypedArray(se::Object::TypedArrayType::FLOAT32, buffer, sizeof(float) * len)};
         s.rval().setObject(info);
         return true;
     }
@@ -395,7 +395,7 @@ static bool js_ar_ARModule_getUpdatedFacesInfo(se::State& s)
     if (argc == 0) {
         float* buffer = cobj->getUpdatedFacesInfo();
         int len = cobj->getInfoLength();
-        se::Object* info = se::Object::createTypedArray(se::Object::TypedArrayType::FLOAT32, buffer, sizeof(float) * len);
+        se::HandleObject info{se::Object::createTypedArray(se::Object::TypedArrayType::FLOAT32, buffer, sizeof(float) * len)};
         s.rval().setObject(info);
         return true;
     }
@@ -415,7 +415,7 @@ static bool js_ar_ARModule_getRemovedFacesInfo(se::State& s)
     if (argc == 0) {
         float* buffer = cobj->getRemovedFacesInfo();
         int len = cobj->getInfoLength();
-        se::Object* info = se::Object::createTypedArray(se::Object::TypedArrayType::FLOAT32, buffer, sizeof(float) * len);
+        se::HandleObject info{se::Object::createTypedArray(se::Object::TypedArrayType::FLOAT32, buffer, sizeof(float) * len)};
         s.rval().setObject(info);
         return true;
     }
@@ -440,7 +440,7 @@ static bool js_ar_ARModule_getFaceBlendShapes(se::State& s)
 
         float* buffer = cobj->getFaceBlendShapes(arg0.value());
         int len = cobj->getInfoLength();
-        se::Object* verticesInfo = se::Object::createTypedArray(se::Object::TypedArrayType::FLOAT32, buffer, sizeof(float) * len);
+        se::HandleObject verticesInfo{se::Object::createTypedArray(se::Object::TypedArrayType::FLOAT32, buffer, sizeof(float) * len)};
         s.rval().setObject(verticesInfo);
         return true;
     }

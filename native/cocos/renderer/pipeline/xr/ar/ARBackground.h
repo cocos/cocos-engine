@@ -52,9 +52,11 @@ struct ShaderSources {
 class CC_DLL ARBackground {
 public:
     ARBackground() = default;
+    ~ARBackground();
 
     void activate(RenderPipeline* pipeline, gfx::Device* dev);
     void render(scene::Camera* camera, gfx::RenderPass* renderPass, gfx::CommandBuffer* cmdBuffer);
+    void destroy();
 
 private:
     template <typename T>

@@ -66,7 +66,7 @@ void ARStage::activate(RenderPipeline *pipeline, RenderFlow *flow) {
 }
 
 void ARStage::destroy() {
-    CC_SAFE_DELETE(_arBackground);
+    CC_SAFE_DESTROY_AND_DELETE(_arBackground);
     CC_SAFE_DELETE(_pipeline);
     CC_SAFE_DELETE(_device);
     RenderStage::destroy();

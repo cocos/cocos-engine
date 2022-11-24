@@ -84,11 +84,11 @@ int ARModule::getAPIState() {
     return _impl->getAPIState();
 }
 
-void ARModule::setCameraId(std::string id) {
+void ARModule::setCameraId(const std::string &id) {
     _cameraId = id;
 }
 
-std::string ARModule::getCameraId() const {
+const std::string &ARModule::getCameraId() const {
     return _cameraId;
 }
 

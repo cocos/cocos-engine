@@ -115,7 +115,7 @@ public:
     float* getFaceBlendShapes(int faceRef) override;
 protected:
 #if CC_PLATFORM == CC_PLATFORM_ANDROID
-    _jobject* _impl;
+    _jobject* _impl{nullptr};
     Pose _cameraPose;
     Matrix _viewMatrix;
     Matrix _projMatrix;
@@ -127,9 +127,9 @@ protected:
 
     int _infoLength = 0;
 
-    float* _addedPlanesInfo = nullptr;
-    float* _updatedPlanesInfo = nullptr;
-    float* _removedPlanesInfo = nullptr;
+    float* _addedPlanesInfo{nullptr};
+    float* _updatedPlanesInfo{nullptr};
+    float* _removedPlanesInfo{nullptr};
 
     float* _sceneMeshVertices{nullptr};
     int* _sceneMeshIndices{nullptr};
@@ -159,6 +159,7 @@ protected:
     void* _sceneMesh{nullptr};
     void* _imageTracking{nullptr};
     void* _objectTracking{nullptr};
+    void* _faceTracking{nullptr};
 #endif
 };
 

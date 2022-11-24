@@ -24,6 +24,7 @@
 
 #include "pipeline/xr/ar/ARBackground.h"
 #include "ar/ARModule.h"
+#include "base/memory/Memory.h"
 #include "gfx-base/GFXCommandBuffer.h"
 #include "gfx-base/GFXDef-common.h"
 #include "gfx-base/GFXDef.h"
@@ -37,6 +38,10 @@
 
 namespace cc {
 namespace pipeline {
+
+ARBackground::~ARBackground() {
+    destroy();
+}
 
 void ARBackground::activate(RenderPipeline *pipeline, gfx::Device *dev) {
     _pipeline = pipeline;
@@ -388,6 +393,23 @@ T &ARBackground::getAppropriateShaderSource(ShaderSources<T> &sources) {
         default: break;
     }
     return sources.glsl4;
+}
+
+void ARBackground::destroy() {
+    CC_SAFE_DESTROY_AND_DELETE(_shader);
+    CC_SAFE_DESTROY_AND_DELETE(_vertexBuffer);
+#if CC_PLATFORM == CC_PLATFORM_ANDROID    
+    CC_SAFE_DESTROY_AND_DELETE(_uniformBuffer);
+#elif CC_PLATFORM == CC_PLATFORM_MAC_IOS
+    CC_SAFE_DESTROY_AND_DELETE(_ycbcrTransferBuffer);
+#endif 
+    CC_SAFE_DESTROY_AND_DELETE(_inputAssembler);
+    CC_SAFE_DESTROY_AND_DELETE(_descriptorSetLayout);
+    CC_SAFE_DESTROY_AND_DELETE(_descriptorSet);
+    CC_SAFE_DESTROY_AND_DELETE(_pipelineLayout);
+    CC_SAFE_DESTROY_AND_DELETE(_pipelineState);
+    CC_SAFE_DELETE(_pipeline);
+    CC_SAFE_DELETE(_device);
 }
 
 } // namespace pipeline
