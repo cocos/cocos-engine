@@ -22,17 +22,13 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 ****************************************************************************/
-
 #pragma once
 
-// public headers for user application
+#define COCOS_MAJOR_VERSION     3
+#define COCOS_MINJOR_VERSION    7
+#define COCOS_PATCH_VERSION     0
+#define COCOS_VERSION_STRING    "3.7.0"
+#define COCOS_VERSION_DEFINED   1
+#define COCOS_VERSION           30700
 
-#include "cocos-version.h"
-#include "application/ApplicationManager.h"
-#include "application/BaseGame.h"
-#include "bindings/event/EventDispatcher.h"
-#include "bindings/jswrapper/SeApi.h"
-#include "bindings/manual/jsb_classtype.h"
-#include "bindings/manual/jsb_global.h"
-#include "bindings/manual/jsb_module_register.h"
-#include "core/event/Event.h"
+// #define COCOS_PRE_RELEASE       "release"
