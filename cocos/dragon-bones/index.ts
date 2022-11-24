@@ -72,6 +72,5 @@ export * from './DragonBonesAtlasAsset';
 export * from './ArmatureDisplay';
 export * from './AttachUtil';
 export * from './assembler';
-export * from './deprecated';
 
 export * from '@cocos/dragonbones-js';
