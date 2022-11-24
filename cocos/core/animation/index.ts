@@ -31,7 +31,7 @@ legacyCC.easing = easing;
 export * from '../curves/bezier';
 export { easing };
 export * from './animation-curve';
-export { AnimationClip, exoticAnimationTag } from './animation-clip';
+export { AnimationClip } from './animation-clip';
 export * from './animation-manager';
 export {
     AnimationState,
@@ -43,8 +43,3 @@ export {
 export * from './transform-utils';
 export { animation };
 export type { ILerpable } from './types';
-
-// For runtime create animation clip.
-export * from './exotic-animation/exotic-animation';
-export * from './tracks/track';
-export * from './tracks/array-track';
