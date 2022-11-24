@@ -1421,97 +1421,97 @@ export class Mat4 extends ValueType {
      * @en Value at column 0 row 0 of the matrix.
      * @zh 矩阵第 0 列第 0 行的元素。
      */
-    public m00: number;
+    public declare m00: number;
 
     /**
      * @en Value at column 0 row 1 of the matrix.
      * @zh 矩阵第 0 列第 1 行的元素。
      */
-    public m01: number;
+    public declare m01: number;
 
     /**
      * @en Value at column 0 row 2 of the matrix.
      * @zh 矩阵第 0 列第 2 行的元素。
      */
-    public m02: number;
+    public declare m02: number;
 
     /**
      * @en Value at column 0 row 3 of the matrix.
      * @zh 矩阵第 0 列第 3 行的元素。
      */
-    public m03: number;
+    public declare m03: number;
 
     /**
      * @en Value at column 1 row 0 of the matrix.
      * @zh 矩阵第 1 列第 0 行的元素。
      */
-    public m04: number;
+    public declare m04: number;
 
     /**
      * @en Value at column 1 row 1 of the matrix.
      * @zh 矩阵第 1 列第 1 行的元素。
      */
-    public m05: number;
+    public declare m05: number;
 
     /**
      * @en Value at column 1 row 2 of the matrix.
      * @zh 矩阵第 1 列第 2 行的元素。
      */
-    public m06: number;
+    public declare m06: number;
 
     /**
      * @en Value at column 1 row 3 of the matrix.
      * @zh 矩阵第 1 列第 3 行的元素。
      */
-    public m07: number;
+    public declare m07: number;
 
     /**
      * @en Value at column 2 row 0 of the matrix.
      * @zh 矩阵第 2 列第 0 行的元素。
      */
-    public m08: number;
+    public declare m08: number;
 
     /**
      * @en Value at column 2 row 1 of the matrix.
      * @zh 矩阵第 2 列第 1 行的元素。
      */
-    public m09: number;
+    public declare m09: number;
 
     /**
      * @en Value at column 2 row 2 of the matrix.
      * @zh 矩阵第 2 列第 2 行的元素。
      */
-    public m10: number;
+    public declare m10: number;
 
     /**
      * @en Value at column 2 row 3 of the matrix.
      * @zh 矩阵第 2 列第 3 行的元素。
      */
-    public m11: number;
+    public declare m11: number;
 
     /**
      * @en Value at column 3 row 0 of the matrix.
      * @zh 矩阵第 3 列第 0 行的元素。
      */
-    public m12: number;
+    public declare m12: number;
 
     /**
      * @en Value at column 3 row 1 of the matrix.
      * @zh 矩阵第 3 列第 1 行的元素。
      */
-    public m13: number;
+    public declare m13: number;
 
     /**
      * @en Value at column 3 row 2 of the matrix.
      * @zh 矩阵第 3 列第 2 行的元素。
      */
-    public m14: number;
+    public declare m14: number;
 
     /**
      * @en Value at column 3 row 3 of the matrix.
      * @zh 矩阵第 3 列第 3 行的元素。
      */
-    public m15: number;
+    public declare m15: number;
 
     constructor(other: Mat4);
 

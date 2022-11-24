@@ -52,6 +52,7 @@ export declare namespace EffectAsset {
         blendState?: BlendState;
         dynamicStates?: DynamicStateFlags;
         phase?: string | number;
+        pass?: string;
     }
     export interface IPassInfo extends IPassStates {
         program: string; // auto-generated from 'vert' and 'frag'
@@ -151,6 +152,16 @@ export declare namespace EffectAsset {
         samplerTextures: IBuiltin[];
         images: IBuiltin[];
     }
+    export interface IDescriptorInfo {
+        rate: number;
+        blocks: IBlockInfo[];
+        samplerTextures: ISamplerTextureInfo[];
+        samplers: ISamplerInfo[];
+        textures: ITextureInfo[];
+        buffers: IBufferInfo[];
+        images: IImageInfo[];
+        subpassInputs: IInputAttachmentInfo[];
+    }
     export interface IShaderInfo {
         name: string;
         hash: number;
@@ -167,6 +178,7 @@ export declare namespace EffectAsset {
         buffers: IBufferInfo[];
         images: IImageInfo[];
         subpassInputs: IInputAttachmentInfo[];
+        descriptors: IDescriptorInfo[];
         accelerationStructures: IIAccelerationStructureInfp[];
     }
     export interface IPreCompileInfo {
