@@ -232,7 +232,8 @@ const ccstd::unordered_map<gfx::Type, GFXTypeValidatorCallback> type2validator =
     {gfx::Type::FLOAT4, [](const MaterialProperty &v) -> bool {
          const auto *p = ccstd::get_if<Vec4>(&v);
          const auto *pColor = ccstd::get_if<Color>(&v);
-         return p != nullptr || pColor != nullptr;
+         const auto *pQuat = ccstd::get_if<Quaternion>(&v);
+         return p != nullptr || pColor != nullptr || pQuat != nullptr;
      }},
     {gfx::Type::MAT3, [](const MaterialProperty &v) -> bool {
          const auto *p = ccstd::get_if<Mat3>(&v);
