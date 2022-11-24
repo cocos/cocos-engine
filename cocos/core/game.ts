@@ -1017,6 +1017,7 @@ export class Game extends EventTarget {
                 director.loadScene(launchScene, () => {
                     console.log(`Success to load scene: ${launchScene}`);
                     this._initTime = performance.now();
+                    this._startTime = performance.now();
                     director.startAnimation();
                     this.onStart?.();
                 });
