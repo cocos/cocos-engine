@@ -1,7 +1,7 @@
-/*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+/****************************************************************************
+ Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
 
- https://www.cocos.com/
+ http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -21,14 +21,12 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+****************************************************************************/
 
-import { removeProperty } from '../core';
-import { ArmatureDisplay } from './ArmatureDisplay';
+#pragma once
 
-removeProperty(ArmatureDisplay.prototype, 'ArmatureDisplay', [
-    {
-        name: '_enableBatch',
-        suggest: 'Not support batch render mode',
-    },
-]);
+namespace se {
+class Object;
+}
+
+bool register_all_ar_manual(se::Object* obj); // NOLINT(readability-identifier-naming)

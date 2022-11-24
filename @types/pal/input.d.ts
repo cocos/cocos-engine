@@ -358,4 +358,26 @@ declare module 'pal/input' {
          */
         public get headMiddleOrientation (): InputSourceOrientation;
     }
+
+    type HandsetCallback = (res: import('cocos/input/types').EventHandset) => void;
+    /**
+     * Class designed for Handset input.
+     */
+     export class HandsetInputDevice {
+        /**
+         * Register the handset event callback.
+         * @engineInternal
+         */
+        public _on (eventType: import('cocos/input/types/event-enum').InputEventType, callback: HandsetCallback, target?: any);
+        /**
+         * @en The position handset
+         * @zh 手持设备相机位置
+         */
+        public get handsetPosition (): InputSourcePosition;
+        /**
+         * @en The orientation handset
+         * @zh 手持设备相机方向
+         */
+        public get handsetOrientation (): InputSourceOrientation;
+    }
 }

@@ -66,6 +66,11 @@
     #include "cocos/bindings/auto/jsb_xr_auto.h"
 #endif
 
+#if CC_USE_AR_MODULE
+    #include "cocos/bindings/auto/jsb_ar_auto.h"
+    #include "cocos/bindings/manual/jsb_ar_manual.h"
+#endif
+
 #if (CC_PLATFORM == CC_PLATFORM_IOS || CC_PLATFORM == CC_PLATFORM_MACOS)
     #include "cocos/bindings/manual/JavaScriptObjCBridge.h"
 #endif
@@ -186,6 +191,11 @@ bool jsb_register_all_modules() {
 #if CC_USE_PHYSICS_PHYSX
     se->addRegisterCallback(register_all_physics);
 #endif
+
+#if CC_USE_AR_MODULE
+    se->addRegisterCallback(register_all_ar);
+    se->addRegisterCallback(register_all_ar_manual);
+#endif // CC_USE_AR_MODULE
 
 #if (CC_PLATFORM == CC_PLATFORM_IOS || CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS)
 

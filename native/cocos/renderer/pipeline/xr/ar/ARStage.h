@@ -1,7 +1,7 @@
-/*
+/****************************************************************************
  Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
 
- https://www.cocos.com/
+ http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -21,6 +21,35 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+****************************************************************************/
 
-export * from '../cocos/xr/ar';
+#pragma once
+
+#include "pipeline/RenderStage.h"
+
+namespace cc {
+namespace pipeline {
+
+// ARModule ADD, need remove after modify
+class ARBackground;
+
+class CC_DLL ARStage : public RenderStage {
+public:
+    static const RenderStageInfo &getInitializeInfo();
+
+    ARStage();
+    ~ARStage() override;
+
+    bool initialize(const RenderStageInfo &info) override;
+    void activate(RenderPipeline *pipeline, RenderFlow *flow) override;
+    void destroy() override;
+    void render(scene::Camera *camera) override;
+
+private:
+    static RenderStageInfo initInfo;
+
+    ARBackground *_arBackground = nullptr;
+};
+
+} // namespace pipeline
+} // namespace cc
