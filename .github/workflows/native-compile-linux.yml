@@ -3,6 +3,7 @@ name: <Native> Linux
 on:
   pull_request:
     paths:
+    - '.github/workflows/native-compile-linux.yml'
     - 'templates/**'
     - 'native/**'
 
