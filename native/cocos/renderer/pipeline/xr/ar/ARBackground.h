@@ -62,7 +62,6 @@ private:
     template <typename T>
     T& getAppropriateShaderSource(ShaderSources<T>& sources);
 
-    RenderPipeline* _pipeline{nullptr};
     gfx::Device* _device{nullptr};
 
     gfx::Shader* _shader{nullptr};

@@ -44,8 +44,6 @@ ARBackground::~ARBackground() {
 }
 
 void ARBackground::activate(RenderPipeline *pipeline, gfx::Device *dev) {
-    _pipeline = pipeline;
-
     _device = dev;
 
 #pragma region _shader
@@ -408,8 +406,6 @@ void ARBackground::destroy() {
     CC_SAFE_DESTROY_AND_DELETE(_descriptorSet);
     CC_SAFE_DESTROY_AND_DELETE(_pipelineLayout);
     CC_SAFE_DESTROY_AND_DELETE(_pipelineState);
-    CC_SAFE_DELETE(_pipeline);
-    CC_SAFE_DELETE(_device);
 }
 
 } // namespace pipeline
