@@ -28,10 +28,10 @@ import { Root } from '../../root';
 import { TextureBase } from '../../asset/assets/texture-base';
 import { builtinResMgr } from '../../asset/asset-manager/builtin-res-mgr';
 import { getPhaseID } from '../../rendering/pass-phase';
-import { murmurhash2_32_gc, errorID, assertID } from '../../core';
+import { murmurhash2_32_gc, errorID, assertID, cclegacy, assert } from '../../core';
 import { BufferUsageBit, DynamicStateFlagBit, DynamicStateFlags, Feature, GetTypeSize, MemoryUsageBit, PrimitiveMode, Type, Color,
     BlendState, BlendTarget, Buffer, BufferInfo, BufferViewInfo, DepthStencilState, DescriptorSet,
-    DescriptorSetInfo, DescriptorSetLayout, Device, RasterizerState, Sampler, Texture, Shader, PipelineLayout, deviceManager,
+    DescriptorSetInfo, DescriptorSetLayout, Device, RasterizerState, Sampler, Texture, Shader, PipelineLayout, deviceManager, DescriptorType,
 } from '../../gfx';
 import { EffectAsset } from '../../asset/assets/effect-asset';
 import { IProgramInfo, programLib } from './program-lib';
@@ -180,6 +180,8 @@ export class Pass {
     protected _priority: RenderPriority = RenderPriority.DEFAULT;
     protected _stage: RenderPassStage = RenderPassStage.DEFAULT;
     protected _phase = getPhaseID('default');
+    protected _passID = 0xFFFFFFFF;
+    protected _phaseID = 0xFFFFFFFF;
     protected _primitive: PrimitiveMode = PrimitiveMode.TRIANGLE_LIST;
     protected _batchingScheme: BatchingSchemes = BatchingSchemes.NONE;
     protected _dynamicStates: DynamicStateFlagBit = DynamicStateFlagBit.NONE;
@@ -543,26 +545,8 @@ export class Pass {
      */
     public endChangeStatesSilently (): void {}
 
-    protected _doInit (info: IPassInfoFull, copyDefines = false): void {
-        this._priority = RenderPriority.DEFAULT;
-        this._stage = RenderPassStage.DEFAULT;
-        this._phase = getPhaseID('default');
-        this._primitive = PrimitiveMode.TRIANGLE_LIST;
-
-        this._passIndex = info.passIndex;
-        this._propertyIndex = info.propertyIndex !== undefined ? info.propertyIndex : info.passIndex;
-        this._programName = info.program;
-        this._defines = copyDefines ? ({ ...info.defines }) : info.defines;
-        this._shaderInfo = programLib.getTemplate(info.program);
-        this._properties = info.properties || this._properties;
-
+    private _createGfxResources (info: IPassInfoFull, offset: number | null) {
         const device = this._device;
-        Pass.fillPipelineInfo(this, info);
-        if (info.stateOverrides) { Pass.fillPipelineInfo(this, info.stateOverrides); }
-
-        // init descriptor set
-        _dsInfo.layout = programLib.getDescriptorSetLayout(this._device, info.program);
-        this._descriptorSet = this._device.createDescriptorSet(_dsInfo);
 
         // calculate total size required
         const blocks = this._shaderInfo.blocks;
@@ -587,7 +571,7 @@ export class Pass {
         }
         // create buffer views
         for (let i = 0, count = 0; i < blocks.length; i++) {
-            const { binding } = blocks[i];
+            const binding = offset === null ? blocks[i].binding : offset + i;
             const size = blockSizes[i];
             _bufferViewInfo.buffer = this._rootBuffer!;
             _bufferViewInfo.offset = startOffsets[count++];
@@ -609,6 +593,50 @@ export class Pass {
             indirectHandleMap[name] = this.getHandle.apply(this, prop.handleInfo)!;
         }
         Object.assign(directHandleMap, indirectHandleMap);
+    }
+
+    protected _doInit (info: IPassInfoFull, copyDefines = false): void {
+        this._priority = RenderPriority.DEFAULT;
+        this._stage = RenderPassStage.DEFAULT;
+        this._phase = getPhaseID('default');
+        this._primitive = PrimitiveMode.TRIANGLE_LIST;
+
+        this._passIndex = info.passIndex;
+        this._propertyIndex = info.propertyIndex !== undefined ? info.propertyIndex : info.passIndex;
+        this._programName = info.program;
+        this._defines = copyDefines ? ({ ...info.defines }) : info.defines;
+        this._shaderInfo = programLib.getTemplate(info.program);
+        this._properties = info.properties || this._properties;
+
+        const device = this._device;
+        Pass.fillPipelineInfo(this, info);
+        if (info.stateOverrides) { Pass.fillPipelineInfo(this, info.stateOverrides); }
+
+        if (cclegacy.rendering === undefined || !cclegacy.rendering.enableEffectImport) {
+            _dsInfo.layout = programLib.getDescriptorSetLayout(device, info.program);
+            this._descriptorSet = this._device.createDescriptorSet(_dsInfo);
+            this._createGfxResources(info, null);
+            return;
+        }
+
+        const r = cclegacy.rendering;
+        this._passID = r.getCustomPassID(info.pass);
+        if (this._passID === r.invalidID) {
+            console.error(`Invalid render pass, program: ${info.program}`);
+            return;
+        }
+        this._phaseID = r.getCustomPhaseID(this._passID, info.phase);
+        if (this._phaseID === r.invalidID) {
+            console.error(`Invalid render phase, program: ${info.program}`);
+            return;
+        }
+
+        // init descriptor set
+        _dsInfo.layout = r.getMaterialDescriptorSetLayout(this._passID, this._phaseID);
+        const offset: number | null = r.getMaterialUniformBlockOffset(this._passID, this._phaseID);
+        assert(offset !== null || this._shaderInfo.blocks.length === 0);
+        this._descriptorSet = this._device.createDescriptorSet(_dsInfo);
+        this._createGfxResources(info, offset);
     }
 
     protected _syncBatchingScheme (): void {

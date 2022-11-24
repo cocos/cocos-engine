@@ -159,6 +159,10 @@ export class DeviceManager {
         }
 
         if (this._canvas) { this._canvas.oncontextmenu = () => false; }
+
+        if (cclegacy.rendering) {
+            cclegacy.rendering.setDevice(this._gfxDevice);
+        }
     }
 
     private _initSwapchain () {

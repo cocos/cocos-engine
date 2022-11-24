@@ -74,7 +74,7 @@ function addCustomBuiltinPipelines (map: Map<string, PipelineBuilder>) {
 
 addCustomBuiltinPipelines(customPipelineBuilderMap);
 
-export function deserializeLayoutGraph (arrayBuffer: ArrayBuffer) {
+export function initializeLayoutGraph (arrayBuffer: ArrayBuffer) {
     // noop
 }
 

@@ -23,6 +23,7 @@
  THE SOFTWARE.
  */
 
+import { EDITOR } from 'internal:constants';
 import { Pipeline, PipelineBuilder } from './pipeline';
 import { WebPipeline } from './web-pipeline';
 import { buildDeferredLayout, buildForwardLayout, replacePerBatchOrInstanceShaderInfo } from './effect';
@@ -32,19 +33,29 @@ import { CustomPipelineBuilder, NativePipelineBuilder } from './custom-pipeline'
 import { LayoutGraphData, loadLayoutGraphData } from './layout-graph';
 import { BinaryInputArchive } from './binary-archive';
 import { EffectAsset } from '../../asset/assets/effect-asset';
+import { Device } from '../../gfx/base/device';
+import { DescriptorTypeOrder, UpdateFrequency } from './types';
+import { getDescriptorSetLayout, getDescriptorSetLayoutData, initializeLayoutGraphData, terminateLayoutGraphData } from './layout-graph-utils';
+import { DescriptorSetLayout } from '../../gfx';
 
 let _pipeline: WebPipeline | null = null;
+let _device: Device;
 
-const defaultLayoutGraph = new LayoutGraphData();
+const lg = new LayoutGraphData();
 
 export * from './types';
 export * from './pipeline';
 export * from './archive';
 
-export const enableEffectImport = false;
+export const enableEffectImport = !EDITOR;
+export const invalidID = 0xFFFFFFFF;
+
+export function setDevice (device: Device) {
+    _device = device;
+}
 
 export function createCustomPipeline (): Pipeline {
-    const layoutGraph = enableEffectImport ? defaultLayoutGraph : new LayoutGraphData();
+    const layoutGraph = enableEffectImport ? lg : new LayoutGraphData();
 
     const ppl = new WebPipeline(layoutGraph);
     const pplName = macro.CUSTOM_PIPELINE_NAME;
@@ -85,12 +96,43 @@ function addCustomBuiltinPipelines (map: Map<string, PipelineBuilder>) {
 
 addCustomBuiltinPipelines(customPipelineBuilderMap);
 
-export function deserializeLayoutGraph (arrayBuffer: ArrayBuffer) {
+export function initializeLayoutGraph (arrayBuffer: ArrayBuffer) {
     const readBinaryData = new BinaryInputArchive(arrayBuffer);
-    loadLayoutGraphData(readBinaryData, defaultLayoutGraph);
+    loadLayoutGraphData(readBinaryData, lg);
+    initializeLayoutGraphData(_device, lg);
+}
+
+export function terminateLayoutGraph () {
+    terminateLayoutGraphData(lg);
+}
+
+export function getCustomPassID (name: string | undefined): number {
+    return lg.locateChild(lg.nullVertex(),
+        name || 'default');
+}
+
+export function getCustomPhaseID (passID: number, name: string| undefined): number {
+    return lg.locateChild(passID, name || 'default');
+}
+
+export function getMaterialDescriptorSetLayout (passID: number, phaseID: number): DescriptorSetLayout {
+    return getDescriptorSetLayout(lg, passID, phaseID, UpdateFrequency.PER_BATCH);
+}
+
+export function getMaterialDescriptorOffset (passID: number, phaseID: number): DescriptorSetLayout {
+    return getDescriptorSetLayout(lg, passID, phaseID, UpdateFrequency.PER_BATCH);
+}
+
+export function getMaterialUniformBlockOffset (passID: number, phaseID: number): number | null {
+    const data = getDescriptorSetLayoutData(lg, passID, phaseID, UpdateFrequency.PER_BATCH);
+    for (const block of data.descriptorBlocks) {
+        if (block.type === DescriptorTypeOrder.UNIFORM_BUFFER) {
+            return block.offset;
+        }
+    }
+    return null;
 }
 
 export function replaceShaderInfo (asset: EffectAsset) {
-    const stageName = 'default';
-    replacePerBatchOrInstanceShaderInfo(defaultLayoutGraph, asset, stageName);
+    // replacePerBatchOrInstanceShaderInfo(lg, asset);
 }

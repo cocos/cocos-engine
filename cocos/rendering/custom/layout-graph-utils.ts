@@ -25,9 +25,10 @@
 
 /* eslint-disable max-len */
 import { EffectAsset } from '../../asset/assets';
-import { ShaderStageFlagBit, Type, Uniform, UniformBlock } from '../../gfx';
+import { assert } from '../../core';
+import { DescriptorSetLayout, DescriptorSetLayoutBinding, DescriptorSetLayoutInfo, DescriptorType, Device, ShaderStageFlagBit, Type, Uniform, UniformBlock } from '../../gfx';
 import { DefaultVisitor, depthFirstSearch, GraphColor, MutableVertexPropertyMap } from './graph';
-import { DescriptorBlockData, DescriptorData, DescriptorDB, DescriptorSetData, LayoutGraph, LayoutGraphData, LayoutGraphDataValue, LayoutGraphValue, PipelineLayoutData, RenderPhase, RenderPhaseData, RenderStageData, ShaderProgramData } from './layout-graph';
+import { DescriptorBlockData, DescriptorData, DescriptorDB, DescriptorSetData, DescriptorSetLayoutData, LayoutGraph, LayoutGraphData, LayoutGraphDataValue, LayoutGraphValue, PipelineLayoutData, RenderPhase, RenderPhaseData, RenderStageData, ShaderProgramData } from './layout-graph';
 import { LayoutGraphBuilder } from './pipeline';
 import { UpdateFrequency, getUpdateFrequencyName, getDescriptorTypeOrderName, Descriptor, DescriptorBlock, DescriptorBlockFlattened, DescriptorBlockIndex, DescriptorTypeOrder, ParameterType } from './types';
 
@@ -81,6 +82,32 @@ function getGfxTypeName (type: Type): string {
     case Type.SUBPASS_INPUT: return 'SubpassInput';
     case Type.COUNT: return 'Count';
     default: return 'Unknown';
+    }
+}
+
+export function getGfxDescriptorType (type: DescriptorTypeOrder): DescriptorType {
+    switch (type) {
+    case DescriptorTypeOrder.UNIFORM_BUFFER:
+        return DescriptorType.UNIFORM_BUFFER;
+    case DescriptorTypeOrder.DYNAMIC_UNIFORM_BUFFER:
+        return DescriptorType.DYNAMIC_UNIFORM_BUFFER;
+    case DescriptorTypeOrder.SAMPLER_TEXTURE:
+        return DescriptorType.SAMPLER_TEXTURE;
+    case DescriptorTypeOrder.SAMPLER:
+        return DescriptorType.SAMPLER;
+    case DescriptorTypeOrder.TEXTURE:
+        return DescriptorType.TEXTURE;
+    case DescriptorTypeOrder.STORAGE_BUFFER:
+        return DescriptorType.STORAGE_BUFFER;
+    case DescriptorTypeOrder.DYNAMIC_STORAGE_BUFFER:
+        return DescriptorType.DYNAMIC_STORAGE_BUFFER;
+    case DescriptorTypeOrder.STORAGE_IMAGE:
+        return DescriptorType.STORAGE_IMAGE;
+    case DescriptorTypeOrder.INPUT_ATTACHMENT:
+        return DescriptorType.INPUT_ATTACHMENT;
+    default:
+        console.error('DescriptorType not found');
+        return DescriptorType.INPUT_ATTACHMENT;
     }
 }
 
@@ -1076,4 +1103,106 @@ export function printLayoutGraphData (g: LayoutGraphData): string {
     const colorMap = new VectorGraphColorMap(g.numVertices());
     depthFirstSearch(g, visitor, colorMap);
     return visitor.oss;
+}
+
+function initializeDescriptorSetLayoutInfo (layoutData: DescriptorSetLayoutData,
+    info: DescriptorSetLayoutInfo): void {
+    for (let i = 0; i < layoutData.descriptorBlocks.length; ++i) {
+        const block = layoutData.descriptorBlocks[i];
+        let slot = block.offset;
+        for (let j = 0; j < block.descriptors.length; ++j) {
+            const d = block.descriptors[j];
+            const binding = new DescriptorSetLayoutBinding();
+            binding.binding = slot;
+            binding.descriptorType = getGfxDescriptorType(block.type);
+            binding.count = d.count;
+            binding.stageFlags = block.visibility;
+            binding.immutableSamplers = [];
+            info.bindings.push(binding);
+            slot += d.count;
+        }
+    }
+}
+
+let _emptyDescriptorSetLayout: DescriptorSetLayout;
+
+export function initializeLayoutGraphData (device: Device, lg: LayoutGraphData) {
+    _emptyDescriptorSetLayout = device.createDescriptorSetLayout(new DescriptorSetLayoutInfo());
+    for (const v of lg.vertices()) {
+        const layoutData = lg.getLayout(v);
+        for (const [_, set] of layoutData.descriptorSets) {
+            if (set.descriptorSetLayout !== null) {
+                continue;
+            }
+            initializeDescriptorSetLayoutInfo(set.descriptorSetLayoutData,
+                set.descriptorSetLayoutInfo);
+            set.descriptorSetLayout = device.createDescriptorSetLayout(set.descriptorSetLayoutInfo);
+        }
+    }
+}
+
+export function terminateLayoutGraphData (lg: LayoutGraphData) {
+    for (const v of lg.vertices()) {
+        const layoutData = lg.getLayout(v);
+        for (const [_, set] of layoutData.descriptorSets) {
+            if (set.descriptorSetLayout !== null) {
+                set.descriptorSetLayout.destroy();
+            }
+        }
+    }
+    _emptyDescriptorSetLayout.destroy();
+}
+
+export function getDescriptorSetLayout (lg: LayoutGraphData,
+    passID: number, phaseID: number, rate: UpdateFrequency): DescriptorSetLayout {
+    if (rate < UpdateFrequency.PER_PASS) {
+        const phaseData = lg.getLayout(phaseID);
+        const data = phaseData.descriptorSets.get(rate);
+        if (data) {
+            if (!data.descriptorSetLayout) {
+                console.error('descriptor set layout not initialized');
+                return _emptyDescriptorSetLayout;
+            }
+            return data.descriptorSetLayout;
+        }
+        return _emptyDescriptorSetLayout;
+    }
+
+    assert(rate === UpdateFrequency.PER_PASS);
+    assert(passID === lg.getParent(phaseID));
+
+    const passData = lg.getLayout(passID);
+    const data = passData.descriptorSets.get(rate);
+    if (data) {
+        if (!data.descriptorSetLayout) {
+            console.error('descriptor set layout not initialized');
+            return _emptyDescriptorSetLayout;
+        }
+        return data.descriptorSetLayout;
+    }
+    return _emptyDescriptorSetLayout;
+}
+
+const _emptyDescriptorSetLayoutData = new DescriptorSetLayoutData();
+
+export function getDescriptorSetLayoutData (lg: LayoutGraphData,
+    passID: number, phaseID: number, rate: UpdateFrequency): DescriptorSetLayoutData {
+    if (rate < UpdateFrequency.PER_PASS) {
+        const phaseData = lg.getLayout(phaseID);
+        const data = phaseData.descriptorSets.get(rate);
+        if (data) {
+            return data.descriptorSetLayoutData;
+        }
+        return _emptyDescriptorSetLayoutData;
+    }
+
+    assert(rate === UpdateFrequency.PER_PASS);
+    assert(passID === lg.getParent(phaseID));
+
+    const passData = lg.getLayout(passID);
+    const data = passData.descriptorSets.get(rate);
+    if (data) {
+        return data.descriptorSetLayoutData;
+    }
+    return _emptyDescriptorSetLayoutData;
 }
