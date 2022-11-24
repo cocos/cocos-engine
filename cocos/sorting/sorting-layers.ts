@@ -137,6 +137,8 @@ export class SortingLayers {
      */
     public static getBuiltinLayers (): ReadonlyArray<SortingItem> {
         return [{ id: 0, name: 'default', value: 0 }];
+        // Tips：If want ues more builtin layer, builtin layer id should smaller than 0, custom layer id is bigger than 0
+        // 'default' layer id is 0
     }
 
     /**
