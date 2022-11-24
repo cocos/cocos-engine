@@ -613,7 +613,8 @@ export class RichText extends Component {
 
         // a line should be an unit to split long string
         const lineCountForOnePart = 1;
-        let sizeForThisPart = (lineCountForOnePart * this.maxWidth === 0) ? 2048 : (lineCountForOnePart * this.maxWidth);
+        let sizeForThisPart = (lineCountForOnePart * this.maxWidth === 0 || lineCountForOnePart * this.maxWidth > 2048)
+            ? 2048 : (lineCountForOnePart * this.maxWidth);
 
         // it does influence the first element of splitted array,
         // the element should put into the left space in current line
