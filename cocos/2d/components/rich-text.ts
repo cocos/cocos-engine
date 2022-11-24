@@ -697,9 +697,10 @@ export class RichText extends Component {
 
             leftTryTimes--;
 
-            // Exit1: If the current string is the last part of text,
+            // Exit1: If the current string is the last part of text and its size is less than 2048,
             // the leftString will be empty string, then we should exit
-            if (!leftString) {
+            if (!leftString
+                && curStringSizeX < 2048) {
                 curStart = text.length;
                 curEnd = text.length;
                 partStringArr.push(curString);
