@@ -525,7 +525,7 @@ struct IShaderInfo {
     ccstd::vector<IBufferInfo> buffers;
     ccstd::vector<IImageInfo> images;
     ccstd::vector<IInputAttachmentInfo> subpassInputs;
-    ccstd::vector<IDescriptorInfo> descriptors;
+    // ccstd::vector<IDescriptorInfo> descriptors;
 
     const IShaderSource *getSource(const ccstd::string &version) const {
         if (version == "glsl1") return &glsl1;
