@@ -684,7 +684,8 @@ export class RichText extends Component {
             sizeForThisPart = (lineCountForOnePart * this.maxWidth === 0 || lineCountForOnePart * this.maxWidth > 2048)
                 ? 2048 : (lineCountForOnePart * this.maxWidth);
 
-            // generate the next element
+            // estimate the next element length
+            // precise calculation is in the next loop
             const nextStep = sizeForThisPart / this.fontSize;
             curStart = curEnd;
             curEnd += nextStep;
