@@ -283,7 +283,7 @@ export class LODGroup extends Component {
 
     /**
      * @en Get LOD array config.
-     * @zh 获取当前包围盒的大小
+     * @zh 获取 LOD 数组
      */
     @type([LOD])
     get LODs () : readonly LOD[] {
@@ -353,7 +353,9 @@ export class LODGroup extends Component {
         lod.screenUsagePercentage = screenUsagePercentage;
         this._LODs.splice(index, 0, lod);
         this._lodGroup.insertLOD(index, lod.lodData);
-        this._emitChangeNode(this.node);
+        if (this.node) {
+            this._emitChangeNode(this.node);
+        }
         return lod;
     }
 
@@ -540,6 +542,16 @@ export class LODGroup extends Component {
             this.node.on(NodeEventType.COMPONENT_REMOVED, this._onRemove, this);
             this._eventRegistered = true;
         }
+        this._constructLOD();
+    }
+
+    _onRemove (comp: Component) {
+        if (comp === this) {
+            this.onDisable();
+        }
+    }
+
+    private _constructLOD () {
         // generate default lod for lodGroup
         if (this.lodCount < 1) {
             const size = DEFAULT_SCREEN_OCCUPATION.length;
@@ -549,14 +561,9 @@ export class LODGroup extends Component {
         }
     }
 
-    _onRemove (comp: Component) {
-        if (comp === this) {
-            this.onDisable();
-        }
-    }
-
     // Redo, Undo, Prefab restore, etc.
     onRestore () {
+        this._constructLOD();
         if (this.enabledInHierarchy) {
             this._attachToScene();
         }
