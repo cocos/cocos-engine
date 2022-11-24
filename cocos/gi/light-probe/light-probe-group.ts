@@ -36,6 +36,7 @@ import {
     type,
     visible,
 } from 'cc.decorator';
+import { isValid } from '../../core';
 import { EDITOR } from 'internal:constants';
 import { NodeEventType } from '../../scene-graph/node-event';
 import { Component } from '../../scene-graph/component';
@@ -229,7 +230,7 @@ export class LightProbeGroup extends Component {
     }
 
     private onAncestorTransformChanged () {
-        if (!this.node) {
+        if (!this.node || !isValid(this.node, true)) {
             return;
         }
 
