@@ -94,8 +94,9 @@ export function waitForAmmoInstantiation () {
                 }
 
                 if (WECHAT || RUNTIME_BASED) {
+                    const rootURL = cc.settings.querySettings('custom', 'rootURL');
                     // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                    const wasmFilePath = `cocos-js/${module}` as any;
+                    const wasmFilePath = `${rootURL}cocos-js/${module}` as any;
                     instantiateWasm(wasmFilePath);
                 } else {
                     fetch(module).then((response) => {
