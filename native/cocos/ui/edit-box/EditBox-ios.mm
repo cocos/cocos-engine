@@ -222,8 +222,10 @@ void onParentViewTouched(const cc::CustomEvent &touchEvent){
         return;
 
     // check length limit after text changed, a little rude
-    if (textView.text.length > g_maxLength)
-        textView.text = [textView.text substringToIndex:g_maxLength];
+    if (textView.text.length > g_maxLength) {
+        NSRange rangeIndex = [textView.text rangeOfComposedCharacterSequenceAtIndex:g_maxLength];
+        textView.text = [textView.text substringToIndex:rangeIndex.location];
+    }
     tViewOnView.text = textView.text;
     tViewOnToolbar.text = textView.text;
     callJSFunc("input", [textView.text UTF8String]);

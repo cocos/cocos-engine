@@ -3,6 +3,7 @@ name: <Native> Linux
 on:
   pull_request:
     paths:
+    - '.github/workflows/native-compile-linux.yml'
     - 'templates/**'
     - 'native/**'
 
@@ -36,7 +37,7 @@ jobs:
           sudo apt install ninja-build -y
       - name: Compile
         env:
-          COCOS_ENGINE_DEV: 1
+          COCOS_ENGINE_DEV: 0
         run: |
           NATIVE_ROOT=$GITHUB_WORKSPACE/native
           echo "Compiling Linux ... "

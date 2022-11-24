@@ -16390,43 +16390,6 @@ static bool js_cc_IShaderInfo_subpassInputs_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_IShaderInfo_subpassInputs_get) 
 
-static bool js_cc_IShaderInfo_descriptors_set(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::IShaderInfo *arg1 = (cc::IShaderInfo *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::IShaderInfo>(s);
-    if (nullptr == arg1) return true;
-    
-    ok &= sevalue_to_native(args[0], &arg1->descriptors, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_SET(js_cc_IShaderInfo_descriptors_set) 
-
-static bool js_cc_IShaderInfo_descriptors_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::IShaderInfo *arg1 = (cc::IShaderInfo *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::IShaderInfo>(s);
-    if (nullptr == arg1) return true;
-    
-    ok &= nativevalue_to_se(arg1->descriptors, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "Error processing arguments");
-    SE_HOLD_RETURN_VALUE(arg1->descriptors, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_IShaderInfo_descriptors_get) 
-
 static bool js_cc_IShaderInfo_getSource(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -16584,12 +16547,6 @@ bool sevalue_to_native(const se::Value &from, cc::IShaderInfo * to, se::Object *
     }
     
     
-    json->getProperty("descriptors", &field, true);
-    if (!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->descriptors), ctx);
-    }
-    
-    
     return ok;
 }
 
@@ -16612,7 +16569,6 @@ bool js_register_cc_IShaderInfo(se::Object* obj) {
     cls->defineProperty("buffers", _SE(js_cc_IShaderInfo_buffers_get), _SE(js_cc_IShaderInfo_buffers_set)); 
     cls->defineProperty("images", _SE(js_cc_IShaderInfo_images_get), _SE(js_cc_IShaderInfo_images_set)); 
     cls->defineProperty("subpassInputs", _SE(js_cc_IShaderInfo_subpassInputs_get), _SE(js_cc_IShaderInfo_subpassInputs_set)); 
-    cls->defineProperty("descriptors", _SE(js_cc_IShaderInfo_descriptors_get), _SE(js_cc_IShaderInfo_descriptors_set)); 
     
     cls->defineFunction("getSource", _SE(js_cc_IShaderInfo_getSource)); 
     
