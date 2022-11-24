@@ -681,7 +681,8 @@ export class RichText extends Component {
             // it is reasonable that using the length of this result to estimate the next result.
             partStringArr.push(curString);
             // after putting the first element in array, we should reset sizeForThisPart
-            sizeForThisPart = (lineCountForOnePart * this.maxWidth === 0) ? 2048 : (lineCountForOnePart * this.maxWidth);
+            sizeForThisPart = (lineCountForOnePart * this.maxWidth === 0 || lineCountForOnePart * this.maxWidth > 2048)
+                ? 2048 : (lineCountForOnePart * this.maxWidth);
 
             // generate the next element
             const nextStep = sizeForThisPart / this.fontSize;
