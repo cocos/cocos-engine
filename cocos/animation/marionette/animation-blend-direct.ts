@@ -5,13 +5,14 @@ import { AnimationBlend, AnimationBlendEval, AnimationBlendItem } from './animat
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
 import { AnimationGraphLayerWideBindingContext } from './animation-graph-context';
 import { ReadonlyClipOverrideMap } from './graph-eval';
+import { BindableNumber, bindOr, VariableType } from './parametric';
 
 const { ccclass, serializable } = _decorator;
 
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}AnimationBlendDirectItem`)
 class AnimationBlendDirectItem extends AnimationBlendItem {
     @serializable
-    public weight = 0.0;
+    public weight = new BindableNumber(0.0);
 
     public clone () {
         const that = new AnimationBlendDirectItem();
@@ -49,13 +50,25 @@ export class AnimationBlendDirect extends AnimationBlend {
     }
 
     public [createEval] (context: AnimationGraphLayerWideBindingContext, clipOverrides: ReadonlyClipOverrideMap | null) {
-        const myEval = new AnimationBlendDirectEval(
+        const myEval: AnimationBlendDirectEval = new AnimationBlendDirectEval(
             context,
             clipOverrides,
             this,
             this._items,
-            this._items.map(({ weight }) => weight),
+            new Array<number>(this._items.length).fill(0.0),
         );
+        for (let iItem = 0; iItem < this._items.length; ++iItem) {
+            const item = this._items[iItem];
+            const initialValue = bindOr(
+                context.up,
+                item.weight,
+                VariableType.FLOAT,
+                myEval.setInput,
+                myEval,
+                iItem,
+            );
+            myEval.setInput(initialValue, iItem);
+        }
         return myEval;
     }
 }

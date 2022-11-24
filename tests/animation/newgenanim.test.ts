@@ -4857,7 +4857,7 @@ describe('NewGen Anim', () => {
             animationBlend.items = itemFixtures.map((itemFixture) => {
                 const item = new AnimationBlendDirect.Item();
                 item.motion = itemFixture.animation.createMotion(valueObserver.getCreateMotionContext());
-                item.weight = itemFixture.weight;
+                item.weight.value = itemFixture.weight;
                 return item;
             });
 
