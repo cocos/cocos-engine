@@ -700,7 +700,6 @@ export class Camera {
         if (!this._window) return;
 
         this._width = width;
-        this._width = width;
         this._height = height;
         this._aspect = (width * this._viewport.width) / (height * this._viewport.height);
         this._isProjDirty = true;

@@ -71,4 +71,9 @@ export enum Feature {
      * @zh 是否支持派发 EventHMD
      */
     EVENT_HMD = 'EVENT_HMD',
+    /**
+     * @en Feature to support dispatching EventHandset.
+     * @zh 是否支持派发 EventHandset
+     */
+    EVENT_HANDSET = 'EVENT_HANDSET',
 }
