@@ -141,8 +141,8 @@ export class LOD {
     /**
       * @engineInternal
       */
-    setModelAddedCallback (modelAddedCallback: (() => void)) {
-        this._modelAddedCallback = modelAddedCallback;
+    set modelAddedCallback (callback: ModelAddedCallback) {
+        this._modelAddedCallback = callback;
     }
 
     /**
@@ -301,7 +301,7 @@ export class LODGroup extends Component {
         valArray.forEach((lod: LOD, index: number) => {
             this.lodGroup.insertLOD(index, lod.lodData);
             this._LODs[index] = lod;
-            lod.setModelAddedCallback(this.onLodModelAddedCallback.bind(this));
+            lod.modelAddedCallback = this.onLodModelAddedCallback;
         });
     }
 
@@ -333,7 +333,7 @@ export class LODGroup extends Component {
         if (!lod) {
             lod = new LOD();
         }
-        lod.setModelAddedCallback(this.onLodModelAddedCallback.bind(this));
+        lod.modelAddedCallback = this.onLodModelAddedCallback;
         if (!screenUsagePercentage) {
             const preLod = this.getLOD(index - 1);
             const nextLod = this.getLOD(index);
@@ -405,7 +405,7 @@ export class LODGroup extends Component {
             return;
         }
         this._LODs[index] = lod;
-        lod.setModelAddedCallback(this.onLodModelAddedCallback.bind(this));
+        lod.modelAddedCallback = this.onLodModelAddedCallback;
         this.lodGroup.updateLOD(index, lod.lodData);
     }
 
