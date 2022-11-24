@@ -39,6 +39,7 @@ import { warnID } from '../core/platform/debug';
 import { Material } from '../asset/assets/material';
 import { cclegacy } from '../core';
 import { Scene } from './scene';
+import { LightProbeGroup } from 'exports/light-probe';
 
 const _up = new Vec3(0, 1, 0);
 const _v3 = new Vec3();
@@ -1311,7 +1312,7 @@ export class LightProbeInfo {
         const points: Vec3[] = [];
         for (let i = 0; i < this._nodes.length; i++) {
             const node = this._nodes[i].node;
-            const probes = this._nodes[i].probes;
+            const probes = this._nodes[i].node.getComponent(LightProbeGroup)?.probes;
             const worldPosition = node.worldPosition;
 
             if (!probes) {
