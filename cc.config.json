@@ -137,6 +137,9 @@
         "video": {
             "modules": ["video"]
         },
+        "xr": {
+            "modules": ["xr"]
+        },
         "light-probe": { 
             "modules": [ "light-probe" ] 
         },
@@ -164,6 +167,10 @@
         },
         "dragon-bones": {
             "modules": ["dragon-bones"],
+            "dependentAssets":[ 
+                "c27215d8-6835-4b68-bfbb-bdeac6100c04",
+                "b5d6115f-0370-4d7c-aad3-c194cc71cf98"
+            ],
             "dependentModules": ["2d"]
         },
         "marionette": {
@@ -171,13 +178,6 @@
             "intrinsicFlags": {
                 "MARIONETTE": true
             }
-        },
-        "xr": {
-            "modules": ["xr"]
-        },
-        "ar": {
-            "modules": ["ar"],
-            "dependentModules": ["xr"]
         },
         "custom-pipeline": {
             "modules": ["custom-pipeline"]

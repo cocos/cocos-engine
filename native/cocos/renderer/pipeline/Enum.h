@@ -26,6 +26,7 @@
 #pragma once
 
 enum class CommonInsertPoint {
+    DIP_AR_BACKGROUND = 90,
     DIP_BLOOM = 350,
     DIP_POSTPROCESS = 400,
 };

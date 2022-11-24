@@ -51,7 +51,7 @@ export class RenderInstancedQueue {
             res.value.clear();
             res = it.next();
         }
-        this._renderQueue = [];
+        this._renderQueue.length = 0;
         this.queue.clear();
     }
 

@@ -390,6 +390,7 @@ export class VideoPlayer extends Component {
         this._impl.componentEventList.set(EventType.STOPPED, this.onStopped.bind(this));
         this._impl.componentEventList.set(EventType.COMPLETED, this.onCompleted.bind(this));
         this._impl.componentEventList.set(EventType.ERROR, this.onError.bind(this));
+        this._impl.componentEventList.set(EventType.CLICKED, this.onClicked.bind(this));
         if (this._playOnAwake && this._impl.loaded) {
             this.play();
         }
@@ -454,6 +455,11 @@ export class VideoPlayer extends Component {
     public onError () {
         ComponentEventHandler.emitEvents(this.videoPlayerEvent, this, EventType.ERROR);
         this.node.emit(EventType.ERROR, this);
+    }
+    
+    public onClicked() {
+        ComponentEventHandler.emitEvents(this.videoPlayerEvent, this, EventType.CLICKED);
+        this.node.emit(EventType.CLICKED, this);
     }
 
     /**

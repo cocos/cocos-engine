@@ -1,4 +1,3 @@
-import { cclegacy } from '../../core';
 import { EffectAsset } from '../../asset/assets';
 import { CollectVisitor, WebDescriptorHierarchy } from './web-descriptor-hierarchy';
 // eslint-disable-next-line max-len

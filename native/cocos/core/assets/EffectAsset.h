@@ -340,6 +340,7 @@ struct IPassStates {
     ccstd::optional<BlendStateInfo> blendState;
     ccstd::optional<gfx::DynamicStateFlags> dynamicStates;
     ccstd::optional<ccstd::string> phase;
+    ccstd::optional<ccstd::string> pass;
 
     IPassStates() = default;
     explicit IPassStates(const IPassInfoFull &o);
@@ -492,6 +493,17 @@ struct IBuiltins {
     BuiltinsStatisticsType statistics;
 };
 
+struct IDescriptorInfo {
+    uint32_t rate{0};
+    ccstd::vector<IBlockInfo> blocks;
+    ccstd::vector<ISamplerTextureInfo> samplerTextures;
+    ccstd::vector<ISamplerInfo> samplers;
+    ccstd::vector<ITextureInfo> textures;
+    ccstd::vector<IBufferInfo> buffers;
+    ccstd::vector<IImageInfo> images;
+    ccstd::vector<IInputAttachmentInfo> subpassInputs;
+};
+
 struct IShaderSource {
     ccstd::string vert;
     ccstd::string frag;
@@ -513,6 +525,7 @@ struct IShaderInfo {
     ccstd::vector<IBufferInfo> buffers;
     ccstd::vector<IImageInfo> images;
     ccstd::vector<IInputAttachmentInfo> subpassInputs;
+    // ccstd::vector<IDescriptorInfo> descriptors;
 
     const IShaderSource *getSource(const ccstd::string &version) const {
         if (version == "glsl1") return &glsl1;

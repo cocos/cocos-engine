@@ -1838,6 +1838,7 @@ We don't currently support conversion of \`CubicSplineQuatValue\`.
 Instancing/Batching enabled for non-baked skinning model '%s', this may result in unexpected rendering artifacts. Consider turning it off in the material if you do not intend to do this.
 
 ### 3937
+
 Previous error occurred when instantiating animation clip %s on node %s.
 
 ### 3938
@@ -3205,6 +3206,14 @@ GeometryRenderer: too many lines.
 ### 12009
 
 GeometryRenderer: too many triangles.
+
+### 12010
+
+PassUtils: illegal uniform handle, accessing uniform at offset %d
+
+### 12011
+
+Pass: setUniform is invoked with incompatible uniform data type for binding %d, expected type is %s
 
 ### 12100
 
