@@ -174,7 +174,7 @@ export class Plane {
      * @zh
      * 原点到平面的距离。
      */
-    public d: number;
+    public declare d: number;
 
     /**
      * @en
@@ -196,7 +196,7 @@ export class Plane {
     set w (val) { this.d = val; }
     get w () { return this.d; }
 
-    protected readonly _type: number;
+    protected declare readonly _type: number;
 
     /**
      * @en

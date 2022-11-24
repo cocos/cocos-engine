@@ -122,7 +122,9 @@ vec3 CalculateEnvironmentSpecular(in LightingIntermediateData lightingData, floa
     envSpec = SampleEnvironmentSpecular(cc_reflectionProbeCubemap, lightingData, cc_ambientGround.w);
   #elif CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_PLANAR
     vec3 R = normalize(reflect(-lightingData.V, lightingData.N));
-    vec2 screenUV = GetPlanarReflectScreenUV(lightingData.worldPosition, cc_matViewProj, cc_cameraPos.w, lightintData.V, R);
+    vec3 worldPos;
+    HIGHP_VALUE_FROM_STRUCT_DEFINED(worldPos, lightingData.worldPosition);
+    vec2 screenUV = GetPlanarReflectScreenUV(worldPos, cc_matViewProj, cc_cameraPos.w, lightintData.V, R);
     envSpec = fragTextureLod(cc_reflectionProbePlanarMap, screenUV, cc_ambientGround.w).xyz;
   #endif
 #endif
