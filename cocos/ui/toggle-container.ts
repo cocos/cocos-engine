@@ -162,7 +162,7 @@ export class ToggleContainer extends Component {
                 if (toggle === firstToggle) {
                     continue;
                 }
-                toggle.isChecked = false;
+                toggle!.isChecked = false;
             }
         }
     }
