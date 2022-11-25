@@ -88,7 +88,7 @@ export class ToggleContainer extends Component {
      */
     get toggleItems () {
         return this.node.children.map((item) => {
-            if (!item._activeInHierarchy) return null;
+            if (!item.activeInHierarchy) return null;
             const toggle = item.getComponent('cc.Toggle') as Toggle;
             if (toggle && toggle.enabled) {
                 return toggle;
