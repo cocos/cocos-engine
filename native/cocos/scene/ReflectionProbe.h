@@ -107,6 +107,7 @@ public:
     void updateBoundingBox();
     void syncCameraParams(const Camera* camera);
     void transformReflectionCamera(const Camera* sourceCamera);
+    void _calculateObliqueMatrix();
     void renderPlanarReflection(const Camera* camera);
     static Vec3 reflect(const Vec3& point, const Vec3& normal, int32_t offset);
 
