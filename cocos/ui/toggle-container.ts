@@ -86,7 +86,7 @@ export class ToggleContainer extends Component {
      * @zh
      * 只读属性，返回 toggleContainer 管理的 toggle 数组引用。
      */
-    get toggleItems () {
+    get toggleItems (): (Toggle|null)[] {
         return this.node.children.map((item) => {
             if (!item.activeInHierarchy) return null;
             const toggle = item.getComponent('cc.Toggle') as Toggle;
@@ -109,11 +109,11 @@ export class ToggleContainer extends Component {
     }
 
     public activeToggles () {
-        return this.toggleItems.filter((x) => x.isChecked);
+        return this.toggleItems.filter((x) => x?.isChecked);
     }
 
     public anyTogglesChecked () {
-        return !!this.toggleItems.find((x) => x.isChecked);
+        return !!this.toggleItems.find((x) => x?.isChecked);
     }
 
     /**
