@@ -3,6 +3,14 @@ $global._touchcancelCB = null;
 $global._touchendCB = null;
 $global._touchmoveCB = null;
 
+// HACK: on some devices my.createCanvas is undefined
+if (!my.createCanvas) {
+	my.createCanvas = my._createCanvas;
+}
+if (!my.createOffscreenCanvas) {
+	my.createOffscreenCanvas = my._createOffscreenCanvas;
+}
+
 Page({
 	onReady () { },
 	onError (err) {
