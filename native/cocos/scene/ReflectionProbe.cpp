@@ -116,33 +116,14 @@ void ReflectionProbe::transformReflectionCamera(const Camera* sourceCamera) {
     Quaternion::fromViewUp(_forward, _up, &_cameraWorldRotation);
     _cameraNode->setWorldRotation(_cameraWorldRotation);
     _camera->update(true);
-    _calculateObliqueMatrix();
-}
 
-void ReflectionProbe::_calculateObliqueMatrix() {
-    cc::Vec4 viewSpaceProbe{Vec3::UNIT_Y.x, Vec3::UNIT_Y.y, Vec3::UNIT_Y.z, -Vec3::dot(Vec3::UNIT_Y, _node->getWorldPosition())};
-
-    auto matView = _camera->getMatView();
+    // Transform the plane from world space to reflection camera space use the inverse transpose matrix
+    Vec4 viewSpaceProbe{ Vec3::UNIT_Y.x, Vec3::UNIT_Y.y, Vec3::UNIT_Y.z, -Vec3::dot(Vec3::UNIT_Y, _node->getWorldPosition()) };
+    Mat4 matView = _camera->getMatView();
     matView.inverse();
     matView.transpose();
     matView.transformVector(&viewSpaceProbe);
-
-    cc::Mat4& matProj = _camera->getMatProj();
-    cc::Mat4 matProjInv = _camera->getMatProjInv();
-    
-    cc::Vec4 viewFar{ math::sgn(viewSpaceProbe.x), math::sgn(viewSpaceProbe.y), 1.0, 1.0 };
-    matProjInv.transformVector(&viewFar);
-    
-    cc::Vec4 m4 = { matProj.m[12], matProj.m[13], matProj.m[14], matProj.m[15] };
-    float scaled_plane = 2.0 / Vec4::dot(viewSpaceProbe, viewFar);
-    cc::Vec4 newViewSpaceNearPlane = viewSpaceProbe * scaled_plane;
-
-    cc::Vec4 m3 = newViewSpaceNearPlane - m4;
-
-    matProj.m[8] = m3.x;
-    matProj.m[9] = m3.y;
-    matProj.m[10] = m3.z;
-    matProj.m[11] = m3.w;
+    _camera->calculateObliqueMat(viewSpaceProbe);
 }
 
 Vec3 ReflectionProbe::reflect(const Vec3& point, const Vec3& normal, int32_t offset) {

@@ -483,27 +483,10 @@ export class ReflectionProbe {
 
         this.camera.update(true);
 
-        this._calculateObliqueMatrix();
-    }
-    private _calculateObliqueMatrix () {
+        // Transform the plane from world space to reflection camera space use the inverse transpose matrix
         const viewSpaceProbe = new Vec4(Vec3.UP.x, Vec3.UP.y, Vec3.UP.z, -Vec3.dot(Vec3.UP, this.node.worldPosition));
         viewSpaceProbe.transformMat4(this.camera.matView.invert().transpose());
-
-        const matProj = this.camera.matProj;
-
-        const clipFar = new Vec4(Math.sign(viewSpaceProbe.x), Math.sign(viewSpaceProbe.y), 1.0, 1.0);
-        const viewFar = clipFar.transformMat4(this.camera.matProjInv);
-
-        const m4 = new Vec4(matProj.m03, matProj.m07, matProj.m11, matProj.m15);
-        const scaled_plane = 2.0 / Vec4.dot(viewSpaceProbe, viewFar);
-        const newViewSpaceNearPlane = viewSpaceProbe.multiplyScalar(scaled_plane);
-
-        const m3 = newViewSpaceNearPlane.subtract(m4);
-
-        matProj.m02 = m3.x;
-        matProj.m06 = m3.y;
-        matProj.m10 = m3.z;
-        matProj.m14 = m3.w;
+        this.camera.calculateObliqueMat(viewSpaceProbe);
     }
 
     private _reflect (out: Vec3, point: Vec3, normal: Vec3, offset: number) {
