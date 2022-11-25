@@ -285,13 +285,13 @@ export class AnimationCache {
         _finalColor.a = _tempa;
 
         if (slot.darkColor == null) {
-            _darkColor.set(0.0, 0, 0, 1.0);
+            _darkColor.set(0.0, 0, 0, 0.0);
         } else {
             _darkColor.r = slot.darkColor.r * _tempr;
             _darkColor.g = slot.darkColor.g * _tempg;
             _darkColor.b = slot.darkColor.b * _tempb;
+            _darkColor.a = 0;
         }
-        _darkColor.a = 0;
 
         _finalColor32 = ((_finalColor.a << 24) >>> 0) + (_finalColor.b << 16) + (_finalColor.g << 8) + _finalColor.r;
         _darkColor32 = ((_darkColor.a << 24) >>> 0) + (_darkColor.b << 16) + (_darkColor.g << 8) + _darkColor.r;
