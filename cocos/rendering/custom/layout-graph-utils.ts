@@ -245,10 +245,12 @@ function unindent (space: string): string {
 function convertDescriptorBlock (block: DescriptorBlock): DescriptorBlockFlattened {
     const flattened = new DescriptorBlockFlattened();
 
+    // sort descriptors by name
     const descriptors = Array.from(block.descriptors).sort(
         (a, b) => String(a[0]).localeCompare(b[0]),
     );
 
+    // flatten descriptors
     descriptors.forEach((v: [string, Descriptor]) => {
         const name: string = v[0];
         const d = v[1];
@@ -256,16 +258,20 @@ function convertDescriptorBlock (block: DescriptorBlock): DescriptorBlockFlatten
         flattened.descriptors.push(d);
     });
 
+    // sort uniforms by name
     const uniformBlocks = Array.from(block.uniformBlocks).sort(
         (a, b) => String(a[0]).localeCompare(b[0]),
     );
 
+    // flatten uniforms
     uniformBlocks.forEach((v: [string, UniformBlock]) => {
         const name = v[0];
         const uniformBlock = v[1];
         flattened.uniformBlockNames.push(name);
         flattened.uniformBlocks.push(uniformBlock);
     });
+
+    // calculate count and capacity
     flattened.count = block.count;
     flattened.capacity = block.capacity;
     return flattened;
@@ -273,6 +279,9 @@ function convertDescriptorBlock (block: DescriptorBlock): DescriptorBlockFlatten
 
 class DescriptorCounter {
     public addDescriptor (key: string, name: string, count: number) {
+        // key is DescriptorBlockIndex
+        // name is Descriptor name
+        // count is Descriptor count
         const v = this.counter.get(key);
         if (v === undefined) {
             this.counter.set(key, count);
@@ -282,6 +291,7 @@ class DescriptorCounter {
         this.counter.set(key, v + count);
         this.inspector.get(key)?.push(name);
     }
+    // counter is the num of descriptors in each block
     readonly counter = new Map<string, number>();
     readonly inspector = new Map<string, Array<string>>();
 }
@@ -346,6 +356,7 @@ function getPassName (pass: EffectAsset.IPassInfo): string {
     }
     return pass.pass;
 }
+
 function getPhaseName (pass: EffectAsset.IPassInfo): string {
     if (pass.phase === undefined) {
         return 'default';
@@ -373,6 +384,8 @@ export class VisibilityIndex {
 
 export class VisibilityBlock {
     public mergeVisibility (name: string, vis: ShaderStageFlagBit) {
+        // for each descriptor, merge visibility
+        // rate must >= PER_PHASE
         const v0 = this.descriptors.get(name);
         if (v0 === undefined) {
             this.descriptors.set(name, vis);
@@ -471,6 +484,10 @@ export class VisibilityGraph {
                 const phaseName = getPhaseName(pass);
                 const phaseData = passData.getPhase(phaseName);
                 for (const list of shader.descriptors) {
+                    if (list.rate < UpdateFrequency.PER_PHASE) {
+                        // do not merger PER_BATCH, PER_INSTANCE descriptors
+                        continue;
+                    }
                     this.merge(list.rate, DescriptorTypeOrder.UNIFORM_BUFFER, list.blocks, phaseData);
                     this.merge(list.rate, DescriptorTypeOrder.STORAGE_BUFFER, list.buffers, phaseData);
                     this.merge(list.rate, DescriptorTypeOrder.TEXTURE, list.textures, phaseData);
@@ -600,7 +617,7 @@ export class LayoutGraphInfo {
                 rate,
                 ParameterType.TABLE,
                 DescriptorTypeOrder.UNIFORM_BUFFER,
-                visBlock.getVisibility(info.name),
+                rate >= UpdateFrequency.PER_PHASE ? visBlock.getVisibility(info.name) : info.stageFlags,
             );
             const key = JSON.stringify(blockIndex);
             const block = this.getDescriptorBlock(key, db);
@@ -628,7 +645,7 @@ export class LayoutGraphInfo {
                 rate,
                 ParameterType.TABLE,
                 DescriptorTypeOrder.STORAGE_BUFFER,
-                visBlock.getVisibility(info.name),
+                rate >= UpdateFrequency.PER_PHASE ? visBlock.getVisibility(info.name) : info.stageFlags,
             );
             const key = JSON.stringify(blockIndex);
             const block = this.getDescriptorBlock(key, db);
@@ -656,7 +673,7 @@ export class LayoutGraphInfo {
                 rate,
                 ParameterType.TABLE,
                 order,
-                visBlock.getVisibility(info.name),
+                rate >= UpdateFrequency.PER_PHASE ? visBlock.getVisibility(info.name) : info.stageFlags,
             );
             const key = JSON.stringify(blockIndex);
             const block = this.getDescriptorBlock(key, db);
@@ -684,7 +701,7 @@ export class LayoutGraphInfo {
                 rate,
                 ParameterType.TABLE,
                 order,
-                visBlock.getVisibility(info.name),
+                rate >= UpdateFrequency.PER_PHASE ? visBlock.getVisibility(info.name) : info.stageFlags,
             );
             const key = JSON.stringify(blockIndex);
             const block = this.getDescriptorBlock(key, db);
@@ -761,6 +778,7 @@ export class LayoutGraphInfo {
         // merge phase to pass
         for (const v of lg.vertices()) {
             if (lg.id(v) === LayoutGraphValue.RenderStage) {
+                // create visibility database
                 visMap.set(v, new VisibilityDB());
                 continue;
             }
@@ -776,6 +794,7 @@ export class LayoutGraphInfo {
                 console.error(`pass: ${lg.getName(parentID)} has no visibility database`);
                 return 1;
             }
+            // merge phase visibility to pass visibility
             for (const [key, block] of phaseDB.blocks) {
                 const index: DescriptorBlockIndex = JSON.parse(key);
                 if (index.updateFrequency <= UpdateFrequency.PER_PHASE) {
@@ -881,6 +900,7 @@ export class LayoutGraphInfo {
                 }
             }
         }
+        console.debug(this.print());
         return 0;
     }
     public print (): string {
@@ -931,11 +951,11 @@ function buildLayoutGraphDataImpl (graph: LayoutGraph, builder: LayoutGraphBuild
             (lhs: [string, DescriptorBlock], rhs: [string, DescriptorBlock]) => {
                 const lhsIndex: DescriptorBlockIndex = JSON.parse(lhs[0]);
                 const rhsIndex: DescriptorBlockIndex = JSON.parse(rhs[0]);
-                const lhsValue =                    lhsIndex.updateFrequency * 10000
+                const lhsValue = lhsIndex.updateFrequency * 10000
                     + lhsIndex.parameterType * 1000
                     + lhsIndex.descriptorType * 100
                     + lhsIndex.visibility;
-                const rhsValue =                    rhsIndex.updateFrequency * 10000
+                const rhsValue = rhsIndex.updateFrequency * 10000
                     + rhsIndex.parameterType * 1000
                     + rhsIndex.descriptorType * 100
                     + rhsIndex.visibility;
@@ -1080,6 +1100,7 @@ class LayoutGraphBuilder2 implements LayoutGraphBuilder {
         layout.capacity += block.capacity;
     }
     compile (): number {
+        console.debug(this.print());
         return 0;
     }
     print (): string {
