@@ -2,7 +2,7 @@
 #include <cstdint>
 #include "State.h"
 #include "bindings/auto/jsb_audio_auto.h"
-#include "bindings/auto/jsb_audio_graph_based_auto.h"
+#include "bindings/auto/jsb_audio_graph_auto.h"
 #include "cocos/bindings/manual/jsb_conversions.h"
 #include "cocos/bindings/manual/jsb_global.h"
 #include "cocos/base/ThreadPool.h"
