@@ -236,8 +236,8 @@ void ARModule::addImageToLib(const std::string& imageName) const {
     _impl->addImageToLib(imageName);
 }
 
-void ARModule::addImageToLibWithSize(const std::string& imageName, float withInMeters) const {
-    _impl->addImageToLibWithSize(imageName, withInMeters);
+void ARModule::addImageToLibWithSize(const std::string& imageName, float widthInMeters) const {
+    _impl->addImageToLibWithSize(imageName, widthInMeters);
 }
 
 void ARModule::setImageMaxTrackingNumber(int number) const {

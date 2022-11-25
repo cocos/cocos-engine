@@ -95,7 +95,7 @@ public:
     // image recognition & tracking
     virtual void enableImageTracking(bool enable) = 0;
     virtual void addImageToLib(const std::string& name) = 0;
-    virtual void addImageToLibWithSize(const std::string& name, float withInMeters) = 0;
+    virtual void addImageToLibWithSize(const std::string& name, float widthInMeters) = 0;
     virtual void setImageMaxTrackingNumber(int number) = 0;
     virtual float* getAddedImagesInfo() = 0;
     virtual float* getUpdatedImagesInfo() = 0;
