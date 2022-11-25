@@ -327,7 +327,7 @@ private:
 
     // MonotonicPool<SubMeshGeomDescriptor, true> _geomDesc;
     ArenaAllocator<SubMeshGeomDescriptor> _geomDesc;
-    ccstd::vector<std::pair<ccstd::vector<SubMeshGeomDescriptor>, int>> _geomDescCache;
+    ccstd::vector<std::tuple<ccstd::vector<SubMeshGeomDescriptor>,int,int>> _geomDescLUT;
 
     /*
      * matID n : matID of the nth geometry
@@ -340,7 +340,7 @@ private:
 
     // MonotonicPool<uint64_t,true> _materialDesc;
     ArenaAllocator<uint64_t> _materialDesc;
-    ccstd::vector<std::pair<ccstd::vector<uint64_t>, int>> _materialDescCache;
+    ccstd::vector<std::tuple<ccstd::vector<uint64_t>,int,int>> _materialDescLUT;
 
     /* |----------------------------------------------||----------------------------------------------||----------------------------------------------|
      * |-------------------descriptor 0---------------||-------------------descriptor 1---------------||-------------------descriptor 2---------------| instanceCustomIndex
@@ -350,18 +350,37 @@ private:
 
     // MonotonicPool<MeshShadingDescriptor> _shadingInstanceDescriptors;
     ArenaAllocator<MeshShadingDescriptor> _shadingInstanceDescriptors;
-    ccstd::vector<std::pair<MeshShadingDescriptor, int>> _shadingInstanceDescriptorsCache;
+    ccstd::vector<std::tuple<MeshShadingDescriptor,int,int>> _shadingInstanceDescriptorsLUT;
 
     uint16_t registrySubmeshes(const ccstd::vector<SubMeshGeomDescriptor>& subMeshes);
 
     uint16_t registryMaterials(const ccstd::vector<uint64_t>& materials);
 
-    void unregistrySubmeshes(const int offset, const int size) noexcept {
-        _geomDesc.deallocate(offset, size);
+    void unregistrySubmeshes(const int offset) noexcept {
+        for (auto it = _geomDescLUT.begin();it!=_geomDescLUT.end();++it) {
+            if (std::get<1>(*it) == offset) {
+                std::get<2>(*it)--;
+                if (std::get<2>(*it) == 0) {
+                    _geomDesc.deallocate(offset, std::get<0>(*it).size());
+                    _geomDescLUT.erase(it);
+                }
+                break;
+            }
+        }
+        
     }
 
-    void unregistryMaterials(const int offset, const int size) noexcept {
-        _materialDesc.deallocate(offset, size);
+    void unregistryMaterials(const int offset) noexcept {
+        for (auto it =_materialDescLUT.begin(); it != _materialDescLUT.end(); ++it) {
+            if (std::get<1>(*it) == offset) {
+                std::get<2>(*it)--;
+                if (std::get<2>(*it) == 0) {
+                    _materialDesc.deallocate(offset, std::get<0>(*it).size());
+                    _materialDescLUT.erase(it);
+                }
+                break;
+            }
+        }
     }
 
 public:
@@ -372,18 +391,29 @@ public:
     uint32_t registry(const ccstd::vector<RayTracingGeometryShadingDescriptor>& shadingGeometries);
 
     void unregistry(const gfx::ASInstance& a) {
-        const auto offset = a.instanceCustomIdx;
-        const auto size = a.accelerationStructureRef->getInfo().triangleMeshes.size();
-        unregistrySubmeshes(offset, size);
-        unregistryMaterials(offset, size);
+        for (auto it = _shadingInstanceDescriptorsLUT.begin();it!=_shadingInstanceDescriptorsLUT.end();++it) {
+            if (std::get<1>(*it) == a.instanceCustomIdx) {
+                std::get<2>(*it)--;
+                if (std::get<2>(*it) == 0) {
+                    _shadingInstanceDescriptors.deallocate(a.instanceCustomIdx, 1);
+                    auto& descriptor = std::get<0>(*it);
+                    unregistrySubmeshes(descriptor.subMeshGeometryOffset);
+                    unregistryMaterials(descriptor.subMeshMaterialOffset);
+                    _shadingInstanceDescriptorsLUT.erase(it);
+                }
+                break;
+            }
+        }
     }
 
     void recreate();
 
     void update() {
         _geomDescGPUBuffer->update(_geomDesc.data());
+        _materialDescGPUBuffer->update(_materialDesc.data());
         _instanceDescGPUBuffer->update(_shadingInstanceDescriptors.data());
     }
+
 };
 
 /*
@@ -410,10 +440,11 @@ struct ShaderRecord final {
 
 struct RayTracingBindingTable final{
 
-    //using ShaderRecordList = MonotonicPool<ShaderRecord,true>;
     using ShaderRecordList = ArenaAllocator<ShaderRecord>;
 
     ShaderRecordList _hitGroup;
+    IntrusivePtr<gfx::Buffer> _bingTableGPUBuffer;
+    
     uint32_t registry(const ccstd::vector<RayTracingGeometryShadingDescriptor>& shadingGeometries) {
         ccstd::vector<ShaderRecord> shaderRecords;
         shaderRecords.reserve(shadingGeometries.size());

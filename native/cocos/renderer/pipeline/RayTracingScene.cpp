@@ -159,6 +159,29 @@ namespace pipeline
         }
     }
 
+    void RayTracingScene::build(const RayTracingSceneDescriptor& rtScene) {
+        gfx::AccelerationStructureInfo tlasInfo{};
+        tlasInfo.buildFlag = gfx::ASBuildFlagBits::ALLOW_UPDATE | gfx::ASBuildFlagBits::PREFER_FAST_TRACE;
+
+        for (const auto& instance : rtScene.instances) {
+            tlasInfo.instances.emplace_back(addInstance(instance));
+        }
+
+        _topLevelAccelerationStructure = gfx::Device::getInstance()->createAccelerationStructure(tlasInfo);
+        _topLevelAccelerationStructure->build();
+        // todo if all instances are static and no instance can be added or removed, then we can compact TLAS
+        /*
+         *  bool satisfied_condition = false;
+            if (satisfied_condition) {
+                _topLevelAccelerationStructure->compact();
+            }
+         */
+    }
+
+    void RayTracingScene::update(const RayTracingSceneDescriptor& rtScene) {
+        
+    }
+
     void RayTracingScene::update(const scene::RenderScene* scene) {
         needRebuild = needUpdate = needRecreate = false;
 
@@ -233,8 +256,11 @@ namespace pipeline
                                tlasInfo.instances.push_back(addInstance(e.instDescriptor));
                            },
                            [&](const RayTracingSceneRemoveInstanceEvent& e) {
-                               rqBinding.unregistry(tlasInfo.instances[e.instIdx]);
-                               rtBinding.unregistry(tlasInfo.instances[e.instIdx]);
+                               if (use_ray_query) {
+                                   rqBinding.unregistry(tlasInfo.instances[e.instIdx]);
+                               }else {
+                                   rtBinding.unregistry(tlasInfo.instances[e.instIdx]);
+                               }
                                tlasInfo.instances.erase(tlasInfo.instances.begin() + e.instIdx);
                            },
                            [&](const RayTracingSceneMoveInstanceEvent& e) {
@@ -245,6 +271,7 @@ namespace pipeline
 
         _topLevelAccelerationStructure->setInfo(tlasInfo);
         _topLevelAccelerationStructure->update();
+        rqBinding.update();
     }
 
     void RayTracingScene::destroy() {
@@ -255,26 +282,30 @@ namespace pipeline
     }
 
     uint16_t RayQueryBindingTable::registrySubmeshes(const ccstd::vector<SubMeshGeomDescriptor>& subMeshes) {
-        for (const auto & sm : _geomDescCache) {
-            if (sm.first==subMeshes) {
-                return sm.second;
+
+        for (auto & sm : _geomDescLUT) {
+            if (std::get<0>(sm) == subMeshes) {
+                std::get<2>(sm)++;
+                return std::get<1>(sm);
             }
         }
 
         auto offset = static_cast<uint16_t>(_geomDesc.allocate(subMeshes));
-        _geomDescCache.emplace_back(subMeshes, offset);
+        _geomDescLUT.emplace_back(subMeshes, offset,1);
         return offset;
     }
 
     uint16_t RayQueryBindingTable::registryMaterials(const ccstd::vector<uint64_t>& materials) {
-        for (const auto & m : _materialDescCache) {
-            if (m.first == materials) {
-                return m.second;
+
+        for (auto & m : _materialDescLUT) {
+            if (std::get<0>(m) == materials) {
+                std::get<2>(m)++;
+                return std::get<1>(m);
             }
         }
 
         auto offset = static_cast<uint16_t>(_materialDesc.allocate(materials));
-        _materialDescCache.emplace_back(materials, offset);
+        _materialDescLUT.emplace_back(materials, offset,1);
         return offset;
     }
 
@@ -302,31 +333,33 @@ namespace pipeline
         shadingDesciptor.subMeshGeometryOffset = registrySubmeshes(meshes);
         shadingDesciptor.subMeshMaterialOffset = registryMaterials(materials);
 
-        for (const auto & s : _shadingInstanceDescriptorsCache) {
-            if (s.first == shadingDesciptor) {
-                return s.second;
+        for (auto & s : _shadingInstanceDescriptorsLUT) {
+            if (std::get<0>(s)== shadingDesciptor) {
+                std::get<2>(s)++;
+                return std::get<1>(s);
             }
         }
 
         auto offset = static_cast<uint32_t>(_shadingInstanceDescriptors.allocate({shadingDesciptor}));
-        _shadingInstanceDescriptorsCache.emplace_back(shadingDesciptor, offset);
+        _shadingInstanceDescriptorsLUT.emplace_back(shadingDesciptor, offset,1);
         return offset;
     }
 
     void RayQueryBindingTable::recreate() {
-        gfx::BufferInfo geomDescBufferInfo{};
-        geomDescBufferInfo.size = static_cast<uint32_t>(_geomDesc.size()) * sizeof(SubMeshGeomDescriptor);
-        geomDescBufferInfo.flags = gfx::BufferFlags::NONE;
-        geomDescBufferInfo.usage = gfx::BufferUsage::STORAGE | gfx::BufferUsage::TRANSFER_DST;
-        geomDescBufferInfo.memUsage = gfx::MemoryUsage::HOST;
-        _geomDescGPUBuffer = gfx::Device::getInstance()->createBuffer(geomDescBufferInfo);
+        gfx::BufferInfo bufferInfo{};
+       
+        bufferInfo.flags = gfx::BufferFlags::NONE;
+        bufferInfo.usage = gfx::BufferUsage::STORAGE | gfx::BufferUsage::TRANSFER_DST;
+        bufferInfo.memUsage = gfx::MemoryUsage::HOST;
 
-        gfx::BufferInfo instanceDescBufferInfo{};
-        instanceDescBufferInfo.size = static_cast<uint32_t>(_shadingInstanceDescriptors.size()) * sizeof(MeshShadingDescriptor);
-        instanceDescBufferInfo.flags = gfx::BufferFlags::NONE;
-        instanceDescBufferInfo.usage = gfx::BufferUsage::STORAGE | gfx::BufferUsage::TRANSFER_DST;
-        instanceDescBufferInfo.memUsage = gfx::MemoryUsage::HOST;
-        _instanceDescGPUBuffer = gfx::Device::getInstance()->createBuffer(instanceDescBufferInfo);
+        bufferInfo.size = static_cast<uint32_t>(_geomDesc.size()) * sizeof(SubMeshGeomDescriptor);
+        _geomDescGPUBuffer = gfx::Device::getInstance()->createBuffer(bufferInfo);
+
+        bufferInfo.size = static_cast<uint32_t>(_geomDesc.size()) * sizeof(uint64_t);
+        _materialDescGPUBuffer = gfx::Device::getInstance()->createBuffer(bufferInfo);
+
+         bufferInfo.size = static_cast<uint32_t>(_shadingInstanceDescriptors.size()) * sizeof(MeshShadingDescriptor);
+        _instanceDescGPUBuffer = gfx::Device::getInstance()->createBuffer(bufferInfo);
     }
 
 }  // namespace pipeline

@@ -34,21 +34,9 @@ namespace pipeline
        
         void destroy();
 
-        void build(const RayTracingSceneDescriptor& rtScene) {
-            
-            for (const auto& instance : rtScene.instances) {
-                addInstance(instance);
-            }
-            gfx::AccelerationStructureInfo tlasInfo{};
-            tlasInfo.buildFlag = gfx::ASBuildFlagBits::ALLOW_UPDATE | gfx::ASBuildFlagBits::PREFER_FAST_TRACE;
-            //tlasInfo.instances = _instances; todo
-            _topLevelAccelerationStructure = gfx::Device::getInstance()->createAccelerationStructure(tlasInfo);
-            _topLevelAccelerationStructure->build();
-        }
+        void build(const RayTracingSceneDescriptor& rtScene);
 
-        void update(const RayTracingSceneDescriptor& rtScene) {
-
-        }
+        void update(const RayTracingSceneDescriptor& rtScene);
 
         void update(const RayTracingSceneUpdateInfo& updateInfo);
         
@@ -106,10 +94,12 @@ namespace pipeline
         bool needUpdate = false;
         bool needRecreate = false;
 
-        RayTracingSceneAccelerationStructureManager asManager;
+        bool use_ray_query = true;
+
+        RayTracingSceneAccelerationStructureManager accelerationStructureManager;
 
         RayQueryBindingTable rqBinding;
-        RayQueryBindingTable rtBinding;
+        RayTracingBindingTable rtBinding;
 
         inline void handleNewModel(const IntrusivePtr<scene::Model>& model);
         inline void handleModel(const IntrusivePtr<scene::Model>& model);
@@ -121,10 +111,12 @@ namespace pipeline
             asInstanceInfo.transform = instance.transform;
             gfx::AccelerationStructureInfo blasInfo{};
             fillBlasInfo2(blasInfo, instance);
-
-            asInstanceInfo.accelerationStructureRef = asManager.registry(blasInfo);
-            asInstanceInfo.instanceCustomIdx = rqBinding.registry(instance.shadingGeometries);
-            asInstanceInfo.shaderBindingTableRecordOffset = rtBinding.registry(instance.shadingGeometries);
+            asInstanceInfo.accelerationStructureRef = accelerationStructureManager.registry(blasInfo);
+            if (use_ray_query) {
+                asInstanceInfo.instanceCustomIdx = rqBinding.registry(instance.shadingGeometries);
+            }else {
+                asInstanceInfo.shaderBindingTableRecordOffset = rtBinding.registry(instance.shadingGeometries);
+            }
 
             return asInstanceInfo;
         }

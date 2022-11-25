@@ -26,6 +26,7 @@
 #include "VKAccelerationStructure.h"
 #include "VKCommands.h"
 #include "VKDevice.h"
+#include "VKCommandBuffer.h"
 
 namespace cc {
 namespace gfx {
@@ -91,14 +92,12 @@ void CCVKAccelerationStructure::doBuild() {
     cmdBuf->begin();
     cmdBuf->buildAccelerationStructure(this);
     cmdBuf->end();
-
     device->flushCommands(&cmdBuf, 1);
     device->getQueue()->submit(&cmdBuf, 1);
     //device->waitAllFences();
 }
 
 void CCVKAccelerationStructure::doCompact() {
-    return;
     auto* device = CCVKDevice::getInstance();
 
     IntrusivePtr<CCVKAccelerationStructure> compactedAccel = ccnew CCVKAccelerationStructure;

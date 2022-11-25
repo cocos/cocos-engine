@@ -1582,13 +1582,16 @@ void fillGeometryInfo(CCVKDevice *device, CCVKGPUAccelerationStructure *gpuAccel
     const uint32_t instanceCount = instances.size();
     const uint32_t instanceBufferSize = instanceCount * sizeof(VkAccelerationStructureInstanceKHR);
 
-    // Create instances data buffer, but do not upload data yet.
+    //todo DESIGN CONSIDERATION
+    /* Who should hold instances buffer?
+     * platform, abstraction, efficiency
+     */
 
+    // Create instances data buffer, but do not upload data yet.
     gpuAccelerationStructure->instancesBuffer = ccnew CCVKGPUBuffer;
     gpuAccelerationStructure->instancesBuffer->size = instanceBufferSize;
     gpuAccelerationStructure->instancesBuffer->usage = BufferUsageBit::SHADER_DEVICE_ADDRESS | BufferUsageBit::ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY | BufferUsageBit::TRANSFER_DST;
     gpuAccelerationStructure->instancesBuffer->memUsage = MemoryUsageBit::DEVICE;
-    //cmdFuncCCVKCreateBuffer(device, gpuAccelerationStructure->instancesBuffer);
     gpuAccelerationStructure->instancesBuffer->init();
 
     VkAccelerationStructureGeometryInstancesDataKHR instancesData{VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_INSTANCES_DATA_KHR};
@@ -1722,21 +1725,13 @@ void updateInstanceDataGPUBuffer(CCVKDevice *device, CCVKGPUAccelerationStructur
 void checkScratchBufferRequirement(CCVKDevice *device, CCVKGPUAccelerationStructure *accel) {
     // Create Scratch Buffer (if needed)
     if (!accel->scratchBuffer || accel->scratchBuffer->size < accel->buildSizesInfo.buildScratchSize) {
-        /*
-        if (accel->scratchBuffer) {
-            // clean old scrath Buffer
-            accel->scratchBuffer = nullptr;
-        }
-        else {
-            accel->scratchBuffer = ccnew CCVKGPUBuffer;
-        }*/
-        accel->scratchBuffer = ccnew CCVKGPUBuffer;
 
-        accel->scratchBuffer->size = accel->buildSizesInfo.buildScratchSize*2;
+        accel->scratchBuffer = ccnew CCVKGPUBuffer;
+        accel->scratchBuffer->size = accel->buildSizesInfo.buildScratchSize;
         accel->scratchBuffer->usage = BufferUsageBit::SHADER_DEVICE_ADDRESS | BufferUsageBit::STORAGE;
         accel->scratchBuffer->memUsage = MemoryUsageBit::DEVICE;
         accel->scratchBuffer->init();
-        //todo
+        //todo fix alignment problem
         /*
          * VUID-vkCmdBuildAccelerationStructuresKHR-pInfos-03710
          * For each element of pInfos,
@@ -1769,6 +1764,7 @@ void cmdFuncCCVKBuildAccelerationStructure(CCVKDevice *device,CCVKGPUAcceleratio
     const auto &accelRangeInfosConRef = accel->rangeInfos;
     const size_t rangeInfoCount = accelRangeInfosConRef.size();
     ccstd::vector<const VkAccelerationStructureBuildRangeInfoKHR *> buildRangeInfoPtrs(rangeInfoCount);
+
     for (uint32_t i =0;i<rangeInfoCount;++i) {
         buildRangeInfoPtrs[i] = &accelRangeInfosConRef[i];
     }
@@ -1794,7 +1790,7 @@ void cmdFuncCCVKBuildAccelerationStructure(CCVKDevice *device,CCVKGPUAcceleratio
                              VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_KHR,
                              0, 1, &barrier, 0, nullptr, 0, nullptr);
     }
-
+     
     if (hasFlag(accel->buildFlags, ASBuildFlagBits::ALLOW_COMPACTION)) {
         const auto &vkdevice = device->gpuDevice()->vkDevice;
 
