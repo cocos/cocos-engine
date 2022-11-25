@@ -483,58 +483,29 @@ export class ReflectionProbe {
 
         this.camera.update(true);
 
-        this._calculateObliqueMatrix(this.camera);
+        this._calculateObliqueMatrix();
     }
-    public offset = new Vec4();
-    private _calculateObliqueMatrix (camera: Camera) {
-        //世界空间的平面先变换到相机空间
-        const viewPos = new Vec4();
-        const temp = new Vec3();
-        temp.x = this.offset.x;
-        temp.y = this.offset.y;
-        temp.z = this.offset.z;
-        Vec3.transformMat4(viewPos, this.node.worldPosition, camera.matView);
+    private _calculateObliqueMatrix () {
+        const viewSpaceProbe = new Vec4(Vec3.UP.x, Vec3.UP.y, Vec3.UP.z, -Vec3.dot(Vec3.UP, this.node.worldPosition));
+        viewSpaceProbe.transformMat4(this.camera.matView.invert().transpose());
 
-        // viewPos.x = this.offset.x;
-        // viewPos.y = this.offset.y;
-        // viewPos.z = this.offset.z;
-        // viewPos.w = this.offset.w;
+        const matProj = this.camera.matProj;
 
-        const proj = camera.matProj.clone();
+        const clipFar = new Vec4(Math.sign(viewSpaceProbe.x), Math.sign(viewSpaceProbe.y), 1.0, 1.0);
+        const viewFar = clipFar.transformMat4(this.camera.matProjInv);
 
-        //计算近裁面的最远角点Q
-        const q = new Vec4();
-        q.x = (Math.sign(viewPos.x) + proj.m08) / proj.m00;
-        q.y = (Math.sign(viewPos.y) + proj.m09) / proj.m05;
-        q.z = -1.0;
-        q.w = (1.0 + proj.m10) / proj.m14;
+        const m4 = new Vec4(matProj.m03, matProj.m07, matProj.m11, matProj.m15);
+        const scaled_plane = 2.0 / Vec4.dot(viewSpaceProbe, viewFar);
+        const newViewSpaceNearPlane = viewSpaceProbe.multiplyScalar(scaled_plane);
 
-        const c = viewPos.multiplyScalar(2.0 / Vec4.dot(viewPos, q));
+        const m3 = newViewSpaceNearPlane.subtract(m4);
 
-        //计算M3'
-        proj.m02 = this.offset.x;
-        proj.m06 = this.offset.y;
-        proj.m10 = this.offset.z;
-        proj.m14 = this.offset.w;
-        // eslint-disable-next-line prefer-const
-        let matViewProj = new Mat4();
-        // eslint-disable-next-line prefer-const
-        let matViewProjInv = new Mat4();
-        Mat4.multiply(matViewProj, proj, camera.matView);
-        Mat4.invert(matViewProjInv, matViewProj);
-
-        const matProjInv = new Mat4();
-        Mat4.invert(matProjInv, proj);
-
-        camera.matProj = proj;
-        // camera.matProjInv = matProjInv;
-        // camera.matViewProj = matViewProj;
-        // camera.matViewProjInv = matViewProjInv;
-
-        //camera.frustum.update(matViewProj, matViewProjInv);
-        // this._probeFrustum.update(matViewProj, matViewProjInv);
-        // camera.update(true);
+        matProj.m02 = m3.x;
+        matProj.m06 = m3.y;
+        matProj.m10 = m3.z;
+        matProj.m14 = m3.w;
     }
+
     private _reflect (out: Vec3, point: Vec3, normal: Vec3, offset: number) {
         const n = Vec3.clone(normal);
         n.normalize();

@@ -101,16 +101,6 @@ export class ReflectionProbe extends Component {
     @serializable
     protected _offset = new Vec4();
 
-    @type(Vec4)
-    set offset (value) {
-        this._offset = value;
-        this.probe.offset = value;
-    }
-
-    get offset () {
-        return this._offset;
-    }
-
     /**
      * @en
      * Gets or sets the size of the box
@@ -293,7 +283,6 @@ export class ReflectionProbe extends Component {
         if (EDITOR || this.probeType === ProbeType.PLANAR) {
             this._createProbe();
         }
-        this.probe.offset = this._offset;
     }
 
     onEnable () {
