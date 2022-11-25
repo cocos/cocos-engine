@@ -30,13 +30,14 @@ import { buildDeferredLayout, buildForwardLayout, replacePerBatchOrInstanceShade
 import { macro } from '../../core';
 import { DeferredPipelineBuilder, ForwardPipelineBuilder } from './builtin-pipelines';
 import { CustomPipelineBuilder, NativePipelineBuilder } from './custom-pipeline';
-import { LayoutGraphData, loadLayoutGraphData } from './layout-graph';
+import { DescriptorSetLayoutData, LayoutGraphData, loadLayoutGraphData } from './layout-graph';
 import { BinaryInputArchive } from './binary-archive';
 import { EffectAsset } from '../../asset/assets/effect-asset';
 import { Device } from '../../gfx/base/device';
 import { DescriptorTypeOrder, UpdateFrequency } from './types';
 import { getDescriptorSetLayout, getDescriptorSetLayoutData, initializeLayoutGraphData, terminateLayoutGraphData } from './layout-graph-utils';
-import { DescriptorSetLayout } from '../../gfx';
+import { DescriptorSetLayout, DescriptorSetLayoutBinding, DescriptorType, GetTypeSize, ShaderInfo, Uniform, UniformBlock, UniformSamplerTexture } from '../../gfx';
+import { ITemplateInfo } from '../../render-scene/core/program-lib';
 
 let _pipeline: WebPipeline | null = null;
 let _device: Device;
@@ -136,3 +137,126 @@ export function getMaterialUniformBlockOffset (passID: number, phaseID: number):
 export function replaceShaderInfo (asset: EffectAsset) {
     // replacePerBatchOrInstanceShaderInfo(lg, asset);
 }
+
+function getSize (block: EffectAsset.IBlockInfo) {
+    return block.members.reduce((s, m) => s + GetTypeSize(m.type) * m.count, 0);
+}
+
+const _descriptorSetSlot = [3, 2, 1, 0];
+
+// export function rebindMaterialDescriptors (descriptorInfo: EffectAsset.IDescriptorInfo,
+//     layout: DescriptorSetLayoutData): ITemplateInfo {
+//     const tmplInfo = {} as ITemplateInfo;
+//     // cache material-specific descriptor set layout
+//     tmplInfo.samplerStartBinding = descriptorInfo.blocks.length;
+//     tmplInfo.shaderInfo = new ShaderInfo();
+//     tmplInfo.blockSizes = [];
+//     tmplInfo.bindings = [];
+
+//     const slot = _descriptorSetSlot[UpdateFrequency.PER_BATCH];
+
+//     for (const descriptorBlock of layout.descriptorBlocks) {
+//         const offset = descriptorBlock.offset;
+//         const vis = descriptorBlock.visibility;
+//         switch (descriptorBlock.type) {
+//         case DescriptorTypeOrder.UNIFORM_BUFFER:
+//             for (let i = 0; i < descriptorInfo.blocks.length; i++) {
+//                 const binding = offset + i;
+//                 const block = descriptorInfo.blocks[i];
+//                 tmplInfo.blockSizes.push(getSize(block));
+//                 // effect compiler guarantees block count = 1
+//                 tmplInfo.bindings.push(new DescriptorSetLayoutBinding(binding,
+//                     DescriptorType.UNIFORM_BUFFER, 1, vis));
+//                 tmplInfo.shaderInfo.blocks.push(
+//                     new UniformBlock(slot, binding, block.name,
+//                         block.members.map((m) => new Uniform(m.name, m.type, m.count)),
+//                         1),
+//                 );
+//             }
+//             break;
+//         case DescriptorTypeOrder.DYNAMIC_UNIFORM_BUFFER:
+//             break;
+//         case DescriptorTypeOrder.SAMPLER_TEXTURE:
+//             for (let i = 0; i < descriptorInfo.samplerTextures.length; i++) {
+//                 const binding = offset + i;
+//                 const samplerTexture = descriptorInfo.samplerTextures[i];
+//                 tmplInfo.bindings.push(new DescriptorSetLayoutBinding(binding,
+//                     DescriptorType.SAMPLER_TEXTURE, samplerTexture.count, vis));
+//                 tmplInfo.shaderInfo.samplerTextures.push(new UniformSamplerTexture(
+//                     slot, binding, samplerTexture.name, samplerTexture.type, samplerTexture.count,
+//                 ));
+//             }
+//             break;
+//         case DescriptorTypeOrder.SAMPLER:
+//             for (let i = 0; i < descriptorInfo.samplers.length; i++) {
+//                 const binding = offset + i;
+//                 const sampler = descriptorInfo.samplers[i];
+//                 tmplInfo.bindings.push(new DescriptorSetLayoutBinding(binding,
+//                     DescriptorType.SAMPLER, sampler.count, sampler.stageFlags));
+//                 tmplInfo.shaderInfo.samplers.push(new UniformSampler(
+//                     SetIndex.MATERIAL, sampler.binding, sampler.name, sampler.count,
+//                 ));
+//             }
+//             break;
+//         case DescriptorTypeOrder.TEXTURE:
+//             break;
+//         case DescriptorTypeOrder.STORAGE_BUFFER:
+//             break;
+//         case DescriptorTypeOrder.DYNAMIC_STORAGE_BUFFER:
+//             break;
+//         case DescriptorTypeOrder.STORAGE_IMAGE:
+//             break;
+//         case DescriptorTypeOrder.INPUT_ATTACHMENT:
+//             break;
+//         default:
+//             break;
+//         }
+//     }
+
+//     // let offset =
+
+//     for (let i = 0; i < descriptorInfo.textures.length; i++) {
+//         const texture = descriptorInfo.textures[i];
+//         tmplInfo.bindings.push(new DescriptorSetLayoutBinding(texture.binding,
+//             DescriptorType.TEXTURE, texture.count, texture.stageFlags));
+//         tmplInfo.shaderInfo.textures.push(new UniformTexture(
+//             SetIndex.MATERIAL, texture.binding, texture.name, texture.type, texture.count,
+//         ));
+//     }
+//     for (let i = 0; i < descriptorInfo.buffers.length; i++) {
+//         const buffer = descriptorInfo.buffers[i];
+//         tmplInfo.bindings.push(new DescriptorSetLayoutBinding(buffer.binding,
+//             DescriptorType.STORAGE_BUFFER, 1, buffer.stageFlags));
+//         tmplInfo.shaderInfo.buffers.push(new UniformStorageBuffer(
+//             SetIndex.MATERIAL, buffer.binding, buffer.name, 1, buffer.memoryAccess,
+//         )); // effect compiler guarantees buffer count = 1
+//     }
+//     for (let i = 0; i < descriptorInfo.images.length; i++) {
+//         const image = descriptorInfo.images[i];
+//         tmplInfo.bindings.push(new DescriptorSetLayoutBinding(image.binding,
+//             DescriptorType.STORAGE_IMAGE, image.count, image.stageFlags));
+//         tmplInfo.shaderInfo.images.push(new UniformStorageImage(
+//             SetIndex.MATERIAL, image.binding, image.name, image.type, image.count, image.memoryAccess,
+//         ));
+//     }
+//     for (let i = 0; i < descriptorInfo.subpassInputs.length; i++) {
+//         const subpassInput = descriptorInfo.subpassInputs[i];
+//         tmplInfo.bindings.push(new DescriptorSetLayoutBinding(subpassInput.binding,
+//             DescriptorType.INPUT_ATTACHMENT, subpassInput.count, subpassInput.stageFlags));
+//         tmplInfo.shaderInfo.subpassInputs.push(new UniformInputAttachment(
+//             SetIndex.MATERIAL, subpassInput.binding, subpassInput.name, subpassInput.count,
+//         ));
+//     }
+//     tmplInfo.gfxAttributes = [];
+//     for (let i = 0; i < descriptorInfo.attributes.length; i++) {
+//         const attr = descriptorInfo.attributes[i];
+//         tmplInfo.gfxAttributes.push(new Attribute(attr.name, attr.format, attr.isNormalized, 0, attr.isInstanced, attr.location));
+//     }
+//     insertBuiltinBindings(descriptorInfo, tmplInfo, localDescriptorSetLayout, 'locals');
+
+//     tmplInfo.shaderInfo.stages.push(new ShaderStage(ShaderStageFlagBit.VERTEX, ''));
+//     tmplInfo.shaderInfo.stages.push(new ShaderStage(ShaderStageFlagBit.FRAGMENT, ''));
+//     tmplInfo.handleMap = genHandles(descriptorInfo);
+//     tmplInfo.setLayouts = [];
+//     return tmplInfo;
+// }

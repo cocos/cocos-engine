@@ -27,11 +27,13 @@ import { EffectAsset } from '../../asset/assets/effect-asset';
 import { SetIndex, IDescriptorSetLayoutInfo, globalDescriptorSetLayout, localDescriptorSetLayout } from '../../rendering/define';
 import { PipelineRuntime } from '../../rendering/custom/pipeline';
 import { genHandle, MacroRecord } from './pass-utils';
-import { PipelineLayoutInfo, Device, Attribute, UniformBlock, ShaderInfo,
+import {
+    PipelineLayoutInfo, Device, Attribute, UniformBlock, ShaderInfo,
     Uniform, ShaderStage, DESCRIPTOR_SAMPLER_TYPE, DESCRIPTOR_BUFFER_TYPE,
     DescriptorSetLayout, DescriptorSetLayoutBinding, DescriptorSetLayoutInfo,
     DescriptorType, GetTypeSize, ShaderStageFlagBit, API, UniformSamplerTexture, PipelineLayout,
-    Shader, UniformStorageBuffer, UniformStorageImage, UniformSampler, UniformTexture, UniformInputAttachment } from '../../gfx';
+    Shader, UniformStorageBuffer, UniformStorageImage, UniformSampler, UniformTexture, UniformInputAttachment,
+} from '../../gfx';
 import { debug, cclegacy } from '../../core';
 
 const _dsLayoutInfo = new DescriptorSetLayoutInfo();
@@ -50,13 +52,6 @@ export interface ITemplateInfo {
     handleMap: Record<string, number>;
     bindings: DescriptorSetLayoutBinding[];
     samplerStartBinding: number;
-}
-
-export interface IProgramInfo extends EffectAsset.IShaderInfo {
-    effectName: string;
-    defines: IDefineRecord[];
-    constantMacros: string;
-    uber: boolean; // macro number exceeds default limits, will fallback to string hash
 }
 
 interface IMacroInfo {
@@ -178,6 +173,119 @@ function getActiveAttributes (tmpl: IProgramInfo, tmplInfo: ITemplateInfo, defin
     return out;
 }
 
+function makeProgramInfo (shader: EffectAsset.IShaderInfo): IProgramInfo {
+    const tmpl = { ...shader } as IProgramInfo;
+    tmpl.effectName = '';
+
+    // calculate option mask offset
+    let offset = 0;
+    for (const def of tmpl.defines) {
+        let cnt = 1;
+        if (def.type === 'number') {
+            const range = def.range!;
+            cnt = getBitCount(range[1] - range[0] + 1); // inclusive on both ends
+            def._map = (value: number) => value - range[0];
+        } else if (def.type === 'string') {
+            cnt = getBitCount(def.options!.length);
+            def._map = (value: any) => Math.max(0, def.options!.findIndex((s) => s === value));
+        } else if (def.type === 'boolean') {
+            def._map = (value: any) => (value ? 1 : 0);
+        }
+        def._offset = offset;
+        offset += cnt;
+    }
+    if (offset > 31) { tmpl.uber = true; }
+    // generate constant macros
+    tmpl.constantMacros = '';
+    for (const key in shader.builtins.statistics) {
+        tmpl.constantMacros += `#define ${key} ${shader.builtins.statistics[key]}\n`;
+    }
+    return tmpl;
+}
+
+function makeTemplateInfo (programInfo: IProgramInfo): ITemplateInfo {
+    const tmplInfo = {} as ITemplateInfo;
+    // cache material-specific descriptor set layout
+    tmplInfo.samplerStartBinding = programInfo.blocks.length;
+    tmplInfo.shaderInfo = new ShaderInfo();
+    tmplInfo.blockSizes = []; tmplInfo.bindings = [];
+    for (let i = 0; i < programInfo.blocks.length; i++) {
+        const block = programInfo.blocks[i];
+        tmplInfo.blockSizes.push(getSize(block));
+        tmplInfo.bindings.push(new DescriptorSetLayoutBinding(block.binding,
+            DescriptorType.UNIFORM_BUFFER, 1, block.stageFlags));
+        tmplInfo.shaderInfo.blocks.push(new UniformBlock(SetIndex.MATERIAL, block.binding, block.name,
+            block.members.map((m) => new Uniform(m.name, m.type, m.count)), 1)); // effect compiler guarantees block count = 1
+    }
+    for (let i = 0; i < programInfo.samplerTextures.length; i++) {
+        const samplerTexture = programInfo.samplerTextures[i];
+        tmplInfo.bindings.push(new DescriptorSetLayoutBinding(samplerTexture.binding,
+            DescriptorType.SAMPLER_TEXTURE, samplerTexture.count, samplerTexture.stageFlags));
+        tmplInfo.shaderInfo.samplerTextures.push(new UniformSamplerTexture(
+            SetIndex.MATERIAL, samplerTexture.binding, samplerTexture.name, samplerTexture.type, samplerTexture.count,
+        ));
+    }
+    for (let i = 0; i < programInfo.samplers.length; i++) {
+        const sampler = programInfo.samplers[i];
+        tmplInfo.bindings.push(new DescriptorSetLayoutBinding(sampler.binding,
+            DescriptorType.SAMPLER, sampler.count, sampler.stageFlags));
+        tmplInfo.shaderInfo.samplers.push(new UniformSampler(
+            SetIndex.MATERIAL, sampler.binding, sampler.name, sampler.count,
+        ));
+    }
+    for (let i = 0; i < programInfo.textures.length; i++) {
+        const texture = programInfo.textures[i];
+        tmplInfo.bindings.push(new DescriptorSetLayoutBinding(texture.binding,
+            DescriptorType.TEXTURE, texture.count, texture.stageFlags));
+        tmplInfo.shaderInfo.textures.push(new UniformTexture(
+            SetIndex.MATERIAL, texture.binding, texture.name, texture.type, texture.count,
+        ));
+    }
+    for (let i = 0; i < programInfo.buffers.length; i++) {
+        const buffer = programInfo.buffers[i];
+        tmplInfo.bindings.push(new DescriptorSetLayoutBinding(buffer.binding,
+            DescriptorType.STORAGE_BUFFER, 1, buffer.stageFlags));
+        tmplInfo.shaderInfo.buffers.push(new UniformStorageBuffer(
+            SetIndex.MATERIAL, buffer.binding, buffer.name, 1, buffer.memoryAccess,
+        )); // effect compiler guarantees buffer count = 1
+    }
+    for (let i = 0; i < programInfo.images.length; i++) {
+        const image = programInfo.images[i];
+        tmplInfo.bindings.push(new DescriptorSetLayoutBinding(image.binding,
+            DescriptorType.STORAGE_IMAGE, image.count, image.stageFlags));
+        tmplInfo.shaderInfo.images.push(new UniformStorageImage(
+            SetIndex.MATERIAL, image.binding, image.name, image.type, image.count, image.memoryAccess,
+        ));
+    }
+    for (let i = 0; i < programInfo.subpassInputs.length; i++) {
+        const subpassInput = programInfo.subpassInputs[i];
+        tmplInfo.bindings.push(new DescriptorSetLayoutBinding(subpassInput.binding,
+            DescriptorType.INPUT_ATTACHMENT, subpassInput.count, subpassInput.stageFlags));
+        tmplInfo.shaderInfo.subpassInputs.push(new UniformInputAttachment(
+            SetIndex.MATERIAL, subpassInput.binding, subpassInput.name, subpassInput.count,
+        ));
+    }
+    tmplInfo.gfxAttributes = [];
+    for (let i = 0; i < programInfo.attributes.length; i++) {
+        const attr = programInfo.attributes[i];
+        tmplInfo.gfxAttributes.push(new Attribute(attr.name, attr.format, attr.isNormalized, 0, attr.isInstanced, attr.location));
+    }
+    insertBuiltinBindings(programInfo, tmplInfo, localDescriptorSetLayout, 'locals');
+
+    tmplInfo.shaderInfo.stages.push(new ShaderStage(ShaderStageFlagBit.VERTEX, ''));
+    tmplInfo.shaderInfo.stages.push(new ShaderStage(ShaderStageFlagBit.FRAGMENT, ''));
+    tmplInfo.handleMap = genHandles(programInfo);
+    tmplInfo.setLayouts = [];
+    return tmplInfo;
+}
+
+export interface IProgramInfo extends EffectAsset.IShaderInfo {
+    effectName: string;
+    defines: IDefineRecord[];
+    constantMacros: string;
+    uber: boolean; // macro number exceeds default limits, will fallback to string hash
+}
+
 /**
  * @en The global maintainer of all shader resources.
  * @zh 维护 shader 资源实例的全局管理器。
@@ -186,6 +294,7 @@ class ProgramLib {
     protected _templates: Record<string, IProgramInfo> = {}; // per shader
     protected _cache: Record<string, Shader> = {};
     protected _templateInfos: Record<number, ITemplateInfo> = {};
+    protected _effectInfos = new Map<string, Array<Array<ITemplateInfo>>>();
 
     public register (effect: EffectAsset) {
         for (let i = 0; i < effect.shaders.length; i++) {
@@ -202,6 +311,46 @@ class ProgramLib {
                 }
             }
         }
+        if (cclegacy.rendering === undefined || !cclegacy.rendering.enableEffectImport) {
+            return;
+        }
+
+        let effectInfo = this._effectInfos.get(effect.name);
+        if (effectInfo !== undefined) {
+            return;
+        }
+        // add effect info
+        effectInfo = new Array<Array<ITemplateInfo>>();
+        this._effectInfos.set(effect.name, effectInfo);
+
+        // register template info
+        effectInfo.length = effect.techniques.length;
+        for (let i = 0; i < effect.techniques.length; i++) {
+            const tech = effect.techniques[i];
+            const techInfo = new Array<ITemplateInfo>();
+            effectInfo[i] = techInfo;
+            techInfo.length = tech.passes.length;
+            for (let j = 0; j < tech.passes.length; j++) {
+                const pass = tech.passes[j];
+                const programName = pass.program;
+                let shader: EffectAsset.IShaderInfo | null = null;
+                for (const shaderInfo of effect.shaders) {
+                    if (shaderInfo.name === programName) {
+                        shader = shaderInfo;
+                    }
+                }
+                if (!shader) {
+                    console.warn(`program: ${programName} not found`);
+                    continue;
+                }
+                if (shader.descriptors === undefined) {
+                    console.warn(`No descriptors in shader: ${programName}, please reimport ALL effects`);
+                    continue;
+                }
+                const programInfo = makeProgramInfo(shader);
+                techInfo[j] = makeTemplateInfo(programInfo);
+            }
+        }
     }
 
     /**
@@ -210,112 +359,18 @@ class ProgramLib {
      */
     public define (shader: EffectAsset.IShaderInfo) {
         const curTmpl = this._templates[shader.name];
-        if (curTmpl && curTmpl.hash === shader.hash) { return curTmpl; }
-        const tmpl = ({ ...shader }) as IProgramInfo;
-        // calculate option mask offset
-        let offset = 0;
-        for (let i = 0; i < tmpl.defines.length; i++) {
-            const def = tmpl.defines[i];
-            let cnt = 1;
-            if (def.type === 'number') {
-                const range = def.range!;
-                cnt = getBitCount(range[1] - range[0] + 1); // inclusive on both ends
-                def._map = (value: number) => value - range[0];
-            } else if (def.type === 'string') {
-                cnt = getBitCount(def.options!.length);
-                def._map = (value: any) => Math.max(0, def.options!.findIndex((s) => s === value));
-            } else if (def.type === 'boolean') {
-                def._map = (value: any) => (value ? 1 : 0);
-            }
-            def._offset = offset;
-            offset += cnt;
+        if (curTmpl && curTmpl.hash === shader.hash) {
+            return curTmpl;
         }
-        if (offset > 31) { tmpl.uber = true; }
-        // generate constant macros
-        tmpl.constantMacros = '';
-        for (const key in tmpl.builtins.statistics) {
-            tmpl.constantMacros += `#define ${key} ${tmpl.builtins.statistics[key]}\n`;
-        }
+        const programInfo = makeProgramInfo(shader);
         // store it
-        this._templates[shader.name] = tmpl;
-        if (!this._templateInfos[tmpl.hash]) {
-            const tmplInfo = {} as ITemplateInfo;
-            // cache material-specific descriptor set layout
-            tmplInfo.samplerStartBinding = tmpl.blocks.length;
-            tmplInfo.shaderInfo = new ShaderInfo();
-            tmplInfo.blockSizes = []; tmplInfo.bindings = [];
-            for (let i = 0; i < tmpl.blocks.length; i++) {
-                const block = tmpl.blocks[i];
-                tmplInfo.blockSizes.push(getSize(block));
-                tmplInfo.bindings.push(new DescriptorSetLayoutBinding(block.binding,
-                    DescriptorType.UNIFORM_BUFFER, 1, block.stageFlags));
-                tmplInfo.shaderInfo.blocks.push(new UniformBlock(SetIndex.MATERIAL, block.binding, block.name,
-                    block.members.map((m) => new Uniform(m.name, m.type, m.count)), 1)); // effect compiler guarantees block count = 1
-            }
-            for (let i = 0; i < tmpl.samplerTextures.length; i++) {
-                const samplerTexture = tmpl.samplerTextures[i];
-                tmplInfo.bindings.push(new DescriptorSetLayoutBinding(samplerTexture.binding,
-                    DescriptorType.SAMPLER_TEXTURE, samplerTexture.count, samplerTexture.stageFlags));
-                tmplInfo.shaderInfo.samplerTextures.push(new UniformSamplerTexture(
-                    SetIndex.MATERIAL, samplerTexture.binding, samplerTexture.name, samplerTexture.type, samplerTexture.count,
-                ));
-            }
-            for (let i = 0; i < tmpl.samplers.length; i++) {
-                const sampler = tmpl.samplers[i];
-                tmplInfo.bindings.push(new DescriptorSetLayoutBinding(sampler.binding,
-                    DescriptorType.SAMPLER, sampler.count, sampler.stageFlags));
-                tmplInfo.shaderInfo.samplers.push(new UniformSampler(
-                    SetIndex.MATERIAL, sampler.binding, sampler.name, sampler.count,
-                ));
-            }
-            for (let i = 0; i < tmpl.textures.length; i++) {
-                const texture = tmpl.textures[i];
-                tmplInfo.bindings.push(new DescriptorSetLayoutBinding(texture.binding,
-                    DescriptorType.TEXTURE, texture.count, texture.stageFlags));
-                tmplInfo.shaderInfo.textures.push(new UniformTexture(
-                    SetIndex.MATERIAL, texture.binding, texture.name, texture.type, texture.count,
-                ));
-            }
-            for (let i = 0; i < tmpl.buffers.length; i++) {
-                const buffer = tmpl.buffers[i];
-                tmplInfo.bindings.push(new DescriptorSetLayoutBinding(buffer.binding,
-                    DescriptorType.STORAGE_BUFFER, 1, buffer.stageFlags));
-                tmplInfo.shaderInfo.buffers.push(new UniformStorageBuffer(
-                    SetIndex.MATERIAL, buffer.binding, buffer.name, 1, buffer.memoryAccess,
-                )); // effect compiler guarantees buffer count = 1
-            }
-            for (let i = 0; i < tmpl.images.length; i++) {
-                const image = tmpl.images[i];
-                tmplInfo.bindings.push(new DescriptorSetLayoutBinding(image.binding,
-                    DescriptorType.STORAGE_IMAGE, image.count, image.stageFlags));
-                tmplInfo.shaderInfo.images.push(new UniformStorageImage(
-                    SetIndex.MATERIAL, image.binding, image.name, image.type, image.count, image.memoryAccess,
-                ));
-            }
-            for (let i = 0; i < tmpl.subpassInputs.length; i++) {
-                const subpassInput = tmpl.subpassInputs[i];
-                tmplInfo.bindings.push(new DescriptorSetLayoutBinding(subpassInput.binding,
-                    DescriptorType.INPUT_ATTACHMENT, subpassInput.count, subpassInput.stageFlags));
-                tmplInfo.shaderInfo.subpassInputs.push(new UniformInputAttachment(
-                    SetIndex.MATERIAL, subpassInput.binding, subpassInput.name, subpassInput.count,
-                ));
-            }
-            tmplInfo.gfxAttributes = [];
-            for (let i = 0; i < tmpl.attributes.length; i++) {
-                const attr = tmpl.attributes[i];
-                tmplInfo.gfxAttributes.push(new Attribute(attr.name, attr.format, attr.isNormalized, 0, attr.isInstanced, attr.location));
-            }
-            insertBuiltinBindings(tmpl, tmplInfo, localDescriptorSetLayout, 'locals');
-
-            tmplInfo.shaderInfo.stages.push(new ShaderStage(ShaderStageFlagBit.VERTEX, ''));
-            tmplInfo.shaderInfo.stages.push(new ShaderStage(ShaderStageFlagBit.FRAGMENT, ''));
-            tmplInfo.handleMap = genHandles(tmpl);
-            tmplInfo.setLayouts = [];
-
-            this._templateInfos[tmpl.hash] = tmplInfo;
+        this._templates[shader.name] = programInfo;
+        if (!this._templateInfos[programInfo.hash]) {
+            const tmplInfo = makeTemplateInfo(programInfo);
+            this._templateInfos[programInfo.hash] = tmplInfo;
         }
 
-        return tmpl;
+        return programInfo;
     }
 
     /**

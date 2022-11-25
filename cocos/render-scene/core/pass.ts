@@ -545,11 +545,10 @@ export class Pass {
      */
     public endChangeStatesSilently (): void {}
 
-    private _createGfxResources (info: IPassInfoFull, offset: number | null) {
+    private _createGfxResources (info: IPassInfoFull, blocks: EffectAsset.IBlockInfo[]) {
         const device = this._device;
 
         // calculate total size required
-        const blocks = this._shaderInfo.blocks;
         const tmplInfo = programLib.getTemplateInfo(info.program);
         const { blockSizes, handleMap } = tmplInfo;
         const alignment = device.capabilities.uboOffsetAlignment;
@@ -571,7 +570,7 @@ export class Pass {
         }
         // create buffer views
         for (let i = 0, count = 0; i < blocks.length; i++) {
-            const binding = offset === null ? blocks[i].binding : offset + i;
+            const binding = blocks[i].binding;
             const size = blockSizes[i];
             _bufferViewInfo.buffer = this._rootBuffer!;
             _bufferViewInfo.offset = startOffsets[count++];
@@ -615,7 +614,7 @@ export class Pass {
         if (cclegacy.rendering === undefined || !cclegacy.rendering.enableEffectImport) {
             _dsInfo.layout = programLib.getDescriptorSetLayout(device, info.program);
             this._descriptorSet = this._device.createDescriptorSet(_dsInfo);
-            this._createGfxResources(info, null);
+            this._createGfxResources(info, this._shaderInfo.blocks);
             return;
         }
 
@@ -633,10 +632,8 @@ export class Pass {
 
         // init descriptor set
         _dsInfo.layout = r.getMaterialDescriptorSetLayout(this._passID, this._phaseID);
-        const offset: number | null = r.getMaterialUniformBlockOffset(this._passID, this._phaseID);
-        assert(offset !== null || this._shaderInfo.blocks.length === 0);
         this._descriptorSet = this._device.createDescriptorSet(_dsInfo);
-        this._createGfxResources(info, offset);
+        // this._createGfxResources(info);
     }
 
     protected _syncBatchingScheme (): void {
