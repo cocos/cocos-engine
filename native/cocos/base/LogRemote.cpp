@@ -74,13 +74,16 @@ enum class UdpLogClientState {
     OK,
     DONE, // FAILED
 };
+
+uint64_t logId = 0;
+
 /**
 * Parse auto-test-config.json to get ServerConfig.IP & ServerConfig.PORT
 * Logs will be formated with 5 fields
 * 1. testId
 * 2. clientId
 * 3. bootId,  the boot timestamp
-* 4. milliseconds since boot
+* 4. sequence number of the message
 * 5. log content
 *
 * These parts are joined with '\n'.
@@ -103,14 +106,11 @@ public:
         if (_status == UdpLogClientState::DONE) {
             return;
         }
-        auto timeNow = std::chrono::duration_cast<std::chrono::milliseconds>(
-                           std::chrono::system_clock::now().time_since_epoch())
-                           .count();
         std::stringstream ss;
         ss << _testID << std::endl
            << _clientID << std::endl
            << _bootID << std::endl
-           << (timeNow - _bootID) << std::endl
+           << ++logId << std::endl
            << msg;
         sendLog(ss.str());
     }
