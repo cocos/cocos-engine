@@ -185,13 +185,6 @@ export class Toggle extends Button {
         }
     }
 
-    public onDestroy () {
-        const group = this._toggleContainer;
-        if (group) {
-            group.ensureValidState();
-        }
-    }
-
     protected _emitToggleEvents () {
         this.node.emit(Toggle.EventType.TOGGLE, this);
         if (this.checkEvents) {
