@@ -1,6 +1,14 @@
 $global._onShowCB = null;
 $global._onHideCB = null;
 
+// HACK: on some devices my.createCanvas is undefined
+if (!my.createCanvas) {
+	my.createCanvas = my._createCanvas;
+}
+if (!my.createOffscreenCanvas) {
+	my.createOffscreenCanvas = my._createOffscreenCanvas;
+}
+
 App({
   onLaunch: function onLaunch(options) {
     console.info('App onLaunched');
