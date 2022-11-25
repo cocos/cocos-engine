@@ -1732,10 +1732,17 @@ void checkScratchBufferRequirement(CCVKDevice *device, CCVKGPUAccelerationStruct
         }*/
         accel->scratchBuffer = ccnew CCVKGPUBuffer;
 
-        accel->scratchBuffer->size = accel->buildSizesInfo.buildScratchSize;
+        accel->scratchBuffer->size = accel->buildSizesInfo.buildScratchSize*2;
         accel->scratchBuffer->usage = BufferUsageBit::SHADER_DEVICE_ADDRESS | BufferUsageBit::STORAGE;
         accel->scratchBuffer->memUsage = MemoryUsageBit::DEVICE;
         accel->scratchBuffer->init();
+        //todo
+        /*
+         * VUID-vkCmdBuildAccelerationStructuresKHR-pInfos-03710
+         * For each element of pInfos,
+         * its scratchData.deviceAddress member must be a multiple of
+         * VkPhysicalDeviceAccelerationStructurePropertiesKHR::minAccelerationStructureScratchOffsetAlignment
+         */
     }
 }
 

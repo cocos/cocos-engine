@@ -255,13 +255,27 @@ namespace pipeline
     }
 
     uint16_t RayQueryBindingTable::registrySubmeshes(const ccstd::vector<SubMeshGeomDescriptor>& subMeshes) {
+        for (const auto & sm : _geomDescCache) {
+            if (sm.first==subMeshes) {
+                return sm.second;
+            }
+        }
 
-        return static_cast<uint16_t>(_geomDesc.allocate(subMeshes));
+        auto offset = static_cast<uint16_t>(_geomDesc.allocate(subMeshes));
+        _geomDescCache.emplace_back(subMeshes, offset);
+        return offset;
     }
 
     uint16_t RayQueryBindingTable::registryMaterials(const ccstd::vector<uint64_t>& materials) {
+        for (const auto & m : _materialDescCache) {
+            if (m.first == materials) {
+                return m.second;
+            }
+        }
 
-        return static_cast<uint16_t>(_materialDesc.allocate(materials));
+        auto offset = static_cast<uint16_t>(_materialDesc.allocate(materials));
+        _materialDescCache.emplace_back(materials, offset);
+        return offset;
     }
 
     uint32_t RayQueryBindingTable::registry(const ccstd::vector<RayTracingGeometryShadingDescriptor>& shadingGeometries) {
@@ -288,7 +302,15 @@ namespace pipeline
         shadingDesciptor.subMeshGeometryOffset = registrySubmeshes(meshes);
         shadingDesciptor.subMeshMaterialOffset = registryMaterials(materials);
 
-        return static_cast<uint32_t>(_shadingInstanceDescriptors.allocate({shadingDesciptor}));
+        for (const auto & s : _shadingInstanceDescriptorsCache) {
+            if (s.first == shadingDesciptor) {
+                return s.second;
+            }
+        }
+
+        auto offset = static_cast<uint32_t>(_shadingInstanceDescriptors.allocate({shadingDesciptor}));
+        _shadingInstanceDescriptorsCache.emplace_back(shadingDesciptor, offset);
+        return offset;
     }
 
     void RayQueryBindingTable::recreate() {

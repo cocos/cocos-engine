@@ -327,6 +327,7 @@ private:
 
     // MonotonicPool<SubMeshGeomDescriptor, true> _geomDesc;
     ArenaAllocator<SubMeshGeomDescriptor> _geomDesc;
+    ccstd::vector<std::pair<ccstd::vector<SubMeshGeomDescriptor>, int>> _geomDescCache;
 
     /*
      * matID n : matID of the nth geometry
@@ -339,6 +340,7 @@ private:
 
     // MonotonicPool<uint64_t,true> _materialDesc;
     ArenaAllocator<uint64_t> _materialDesc;
+    ccstd::vector<std::pair<ccstd::vector<uint64_t>, int>> _materialDescCache;
 
     /* |----------------------------------------------||----------------------------------------------||----------------------------------------------|
      * |-------------------descriptor 0---------------||-------------------descriptor 1---------------||-------------------descriptor 2---------------| instanceCustomIndex
@@ -348,6 +350,7 @@ private:
 
     // MonotonicPool<MeshShadingDescriptor> _shadingInstanceDescriptors;
     ArenaAllocator<MeshShadingDescriptor> _shadingInstanceDescriptors;
+    ccstd::vector<std::pair<MeshShadingDescriptor, int>> _shadingInstanceDescriptorsCache;
 
     uint16_t registrySubmeshes(const ccstd::vector<SubMeshGeomDescriptor>& subMeshes);
 
