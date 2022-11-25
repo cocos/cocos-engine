@@ -158,21 +158,6 @@ export class LightProbeGroup extends Component {
         this._nProbesZ = val;
     }
 
-    public onLoad () {
-        if (!EDITOR) {
-            return;
-        }
-
-        if (!this.node) {
-            return;
-        }
-
-        const changed = this.node.scene.globals.lightProbeInfo.addNode(this.node);
-        if (changed) {
-            this.onProbeChanged();
-        }
-    }
-
     public onEnable () {
         if (!EDITOR) {
             return;
