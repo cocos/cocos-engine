@@ -401,6 +401,7 @@ struct CC_DLL UBOSH {
 };
 
 enum class CC_DLL ForwardStagePriority {
+    AR      = 5,
     FORWARD = 10,
     UI = 20
 };

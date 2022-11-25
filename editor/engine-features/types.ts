@@ -8,6 +8,7 @@ export type EngineFeature =
     | 'graphcis'
     | '3d'
     | '2d'
+    | 'xr'
     | 'ui'
     | 'particle'
     | 'physics'
@@ -32,9 +33,7 @@ export type EngineFeature =
     | 'profiler'
     | 'marionette'
     | 'animation'
-    | 'skeletal-animation'
-    | 'xr'
-    | 'ar';
+    | 'skeletal-animation';
 export interface ModuleRenderConfig {
     $schema?: string;
 

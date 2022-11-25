@@ -33,6 +33,8 @@ import { NodeEventType } from '../scene-graph/node-event';
 
 // Ratio of objects occupying the screen
 const DEFAULT_SCREEN_OCCUPATION: number[] = [0.25, 0.125, 0.0625];
+
+export type ModelAddedCallback = () => void;
 @ccclass('cc.LOD')
 export class LOD {
     // Minimum percentage of screen usage for the current lod in effect, range in [0, 1]
@@ -48,8 +50,14 @@ export class LOD {
      */
     private _LODData: scene.LODData = new scene.LODData();
 
+    /**
+     * @engineInternal
+     */
+    private _modelAddedCallback: ModelAddedCallback | null;
+
     constructor () {
         this._LODData.screenUsagePercentage = this._screenUsagePercentage;
+        this._modelAddedCallback = null;
     }
 
     /**
@@ -78,14 +86,19 @@ export class LOD {
      */
     set renderers (meshList: readonly MeshRenderer[]) {
         if (meshList === this._renderers) return;
+        let modelAdded = false;
         this._renderers.length = 0;
         this._LODData.clearModels();
         for (let i = 0; i < meshList.length; i++) {
             this._renderers[i] = meshList[i];
             const model = meshList[i]?.model;
             if (model) {
+                modelAdded = true;
                 this._LODData.addModel(model);
             }
+        }
+        if (this._modelAddedCallback && modelAdded) {
+            this._modelAddedCallback();
         }
     }
 
@@ -126,6 +139,13 @@ export class LOD {
     get lodData () { return this._LODData; }
 
     /**
+      * @engineInternal
+      */
+    set modelAddedCallback (callback: ModelAddedCallback) {
+        this._modelAddedCallback = callback;
+    }
+
+    /**
      * @en Insert a [[MeshRenderer]] before specific index position.
      * @zh 在指定的数组索引处插入一个[[MeshRenderer]]
      * @param index @en The rendering array is indexed from 0. If - 1 is passed, it will be added to the end of the list.
@@ -133,14 +153,19 @@ export class LOD {
      * @param renderer @en The mesh-renderer object. @zh [[MeshRenderer]] 对象
      * @returns @en The inserted [[MeshRenderer]] @zh 返回被插入的 [[MeshRenderer]] 对象
      */
-    insertRenderer (index: number, renderer: MeshRenderer): MeshRenderer {
+    public insertRenderer (index: number, renderer: MeshRenderer): MeshRenderer {
         // make sure insert at the tail of the list.
         if (index < 0 || index > this._renderers.length) {
             index = this._renderers.length;
         }
         this._renderers.splice(index, 0, renderer);
+        let modelAdded = false;
         if (renderer.model) {
+            modelAdded = true;
             this._LODData.addModel(renderer.model);
+        }
+        if (this._modelAddedCallback && modelAdded) {
+            this._modelAddedCallback();
         }
         return renderer;
     }
@@ -258,7 +283,7 @@ export class LODGroup extends Component {
 
     /**
      * @en Get LOD array config.
-     * @zh 获取当前包围盒的大小
+     * @zh 获取 LOD 数组
      */
     @type([LOD])
     get LODs () : readonly LOD[] {
@@ -276,6 +301,7 @@ export class LODGroup extends Component {
         valArray.forEach((lod: LOD, index: number) => {
             this.lodGroup.insertLOD(index, lod.lodData);
             this._LODs[index] = lod;
+            lod.modelAddedCallback = this.onLodModelAddedCallback.bind(this);
         });
     }
 
@@ -283,6 +309,12 @@ export class LODGroup extends Component {
      * @engineInternal
      */
     get lodGroup () { return this._lodGroup; }
+
+    private onLodModelAddedCallback () {
+        if (this.objectSize === 0) {
+            this.recalculateBounds();
+        }
+    }
 
     /**
      * @en Insert the [[LOD]] at specific index position, [[LOD]] will be inserted to the last position if index less than 0 or greater than lodCount.
@@ -301,6 +333,7 @@ export class LODGroup extends Component {
         if (!lod) {
             lod = new LOD();
         }
+        lod.modelAddedCallback = this.onLodModelAddedCallback.bind(this);
         if (!screenUsagePercentage) {
             const preLod = this.getLOD(index - 1);
             const nextLod = this.getLOD(index);
@@ -320,7 +353,9 @@ export class LODGroup extends Component {
         lod.screenUsagePercentage = screenUsagePercentage;
         this._LODs.splice(index, 0, lod);
         this._lodGroup.insertLOD(index, lod.lodData);
-        this._emitChangeNode(this.node);
+        if (this.node) {
+            this._emitChangeNode(this.node);
+        }
         return lod;
     }
 
@@ -372,6 +407,7 @@ export class LODGroup extends Component {
             return;
         }
         this._LODs[index] = lod;
+        lod.modelAddedCallback = this.onLodModelAddedCallback.bind(this);
         this.lodGroup.updateLOD(index, lod.lodData);
     }
 
@@ -455,6 +491,10 @@ export class LODGroup extends Component {
             // Save the result
             this.localBoundaryCenter = c;
             this.objectSize = Math.max(e.x, e.y, e.z) * 2.0;
+        } else {
+            // No model exists, reset to default value
+            this.localBoundaryCenter = new Vec3(0, 0, 0);
+            this.objectSize = 0;
         }
         this._emitChangeNode(this.node);
     }
@@ -502,6 +542,16 @@ export class LODGroup extends Component {
             this.node.on(NodeEventType.COMPONENT_REMOVED, this._onRemove, this);
             this._eventRegistered = true;
         }
+        this._constructLOD();
+    }
+
+    _onRemove (comp: Component) {
+        if (comp === this) {
+            this.onDisable();
+        }
+    }
+
+    private _constructLOD () {
         // generate default lod for lodGroup
         if (this.lodCount < 1) {
             const size = DEFAULT_SCREEN_OCCUPATION.length;
@@ -511,14 +561,9 @@ export class LODGroup extends Component {
         }
     }
 
-    _onRemove (comp: Component) {
-        if (comp === this) {
-            this.onDisable();
-        }
-    }
-
     // Redo, Undo, Prefab restore, etc.
     onRestore () {
+        this._constructLOD();
         if (this.enabledInHierarchy) {
             this._attachToScene();
         }

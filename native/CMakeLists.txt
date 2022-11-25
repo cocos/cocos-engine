@@ -30,6 +30,10 @@ cc_set_if_undefined(USE_PHYSICS_PHYSX        OFF)
 cc_set_if_undefined(USE_MODULES              OFF)
 cc_set_if_undefined(USE_XR                   OFF)
 cc_set_if_undefined(USE_SERVER_MODE          OFF)
+cc_set_if_undefined(USE_AR_MODULE            OFF)
+cc_set_if_undefined(USE_AR_AUTO              OFF)
+cc_set_if_undefined(USE_AR_CORE              OFF)
+cc_set_if_undefined(USE_AR_ENGINE            OFF)
 cc_set_if_undefined(USE_PLUGINS              ON)
 cc_set_if_undefined(USE_OCCLUSION_QUERY      ON)
 cc_set_if_undefined(USE_DEBUG_RENDERER       ON)
@@ -206,6 +210,10 @@ cc_inspect_values(
     USE_JOB_SYSTEM_TASKFLOW
     USE_XR
     USE_SERVER_MODE
+    USE_AR_MODULE
+    USE_AR_AUTO
+    USE_AR_CORE
+    USE_AR_ENGINE
     USE_CCACHE
     CCACHE_EXECUTABLE
     NODE_EXECUTABLE
@@ -2467,6 +2475,13 @@ if(USE_MIDDLEWARE)
     endif()
 endif()
 
+if(USE_AR_MODULE)
+    cocos_source_files(
+            cocos/bindings/auto/jsb_ar_auto.cpp
+            cocos/bindings/auto/jsb_ar_auto.h
+    )
+endif()
+
 ######## manual
 cocos_source_files(
             cocos/bindings/manual/jsb_classtype.cpp
@@ -2547,6 +2562,13 @@ elseif(WIN32)
 elseif(LINUX)
     cocos_source_files(
         NO_WERROR    cocos/bindings/manual/jsb_platform_linux.cpp
+    )
+endif()
+
+if(USE_AR_MODULE)
+    cocos_source_files(
+                     cocos/bindings/manual/jsb_ar_manual.cpp
+                     cocos/bindings/manual/jsb_ar_manual.h
     )
 endif()
 
@@ -2761,6 +2783,24 @@ elseif(LINUX OR QNX)
     endif()
 endif()
 
+##### ar module
+if(USE_AR_MODULE)
+    cocos_source_files(
+        cocos/xr/ar/ARModule.cpp
+        cocos/xr/ar/ARModule.h
+        cocos/xr/ar/IARAPI.h
+        cocos/renderer/pipeline/xr/ar/ARStage.cpp
+        cocos/renderer/pipeline/xr/ar/ARStage.h
+        cocos/renderer/pipeline/xr/ar/ARBackground.cpp
+        cocos/renderer/pipeline/xr/ar/ARBackground.h
+    )
+    if(ANDROID OR IOS)
+        cocos_source_files(
+            cocos/xr/ar/ARLib.h
+        )
+    endif()
+endif()
+
 ##### extensions
 
 cocos_source_files(
@@ -2956,6 +2996,10 @@ function(cc_apply_definations target)
         $<IF:$<BOOL:${USE_JOB_SYSTEM_TBB}>,CC_USE_JOB_SYSTEM_TBB=1,CC_USE_JOB_SYSTEM_TBB=0>
         $<IF:$<BOOL:${USE_JOB_SYSTEM_TASKFLOW}>,CC_USE_JOB_SYSTEM_TASKFLOW=1,CC_USE_JOB_SYSTEM_TASKFLOW=0>
         $<IF:$<BOOL:${USE_PHYSICS_PHYSX}>,CC_USE_PHYSICS_PHYSX=1,CC_USE_PHYSICS_PHYSX=0>
+        $<IF:$<BOOL:${USE_AR_MODULE}>,CC_USE_AR_MODULE=1,CC_USE_AR_MODULE=0>
+        $<IF:$<BOOL:${USE_AR_AUTO}>,CC_USE_AR_AUTO=1,CC_USE_AR_AUTO=0>
+        $<IF:$<BOOL:${USE_AR_CORE}>,CC_USE_AR_CORE=1,CC_USE_AR_CORE=0>
+        $<IF:$<BOOL:${USE_AR_ENGINE}>,CC_USE_AR_ENGINE=1,CC_USE_AR_ENGINE=0>
         $<IF:$<BOOL:${USE_OCCLUSION_QUERY}>,CC_USE_OCCLUSION_QUERY=1,CC_USE_OCCLUSION_QUERY=0>
         $<IF:$<BOOL:${USE_DEBUG_RENDERER}>,CC_USE_DEBUG_RENDERER=1,CC_USE_DEBUG_RENDERER=0>
         $<IF:$<BOOL:${USE_GEOMETRY_RENDERER}>,CC_USE_GEOMETRY_RENDERER=1,CC_USE_GEOMETRY_RENDERER=0>
