@@ -113,7 +113,7 @@ class SystemInfo extends EventTarget {
             [Feature.EVENT_GAMEPAD]: false,
             [Feature.EVENT_HANDLE]: this.isXR,
             [Feature.EVENT_HMD]: this.isXR,
-            [Feature.EVENT_HANDSET]: false,
+            [Feature.EVENT_HANDHELD]: false,
         };
 
         this._initPromise = [];

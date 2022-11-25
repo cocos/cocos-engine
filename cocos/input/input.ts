@@ -25,10 +25,10 @@
 */
 
 import { EDITOR, NATIVE } from 'internal:constants';
-import { TouchInputSource, MouseInputSource, KeyboardInputSource, AccelerometerInputSource, GamepadInputDevice, HandleInputDevice, HMDInputDevice, HandsetInputDevice } from 'pal/input';
+import { TouchInputSource, MouseInputSource, KeyboardInputSource, AccelerometerInputSource, GamepadInputDevice, HandleInputDevice, HMDInputDevice, HandheldInputDevice } from 'pal/input';
 import { touchManager } from '../../pal/input/touch-manager';
 import { sys, EventTarget, cclegacy } from '../core';
-import { Event, EventAcceleration, EventGamepad, EventHandle, EventHandset, EventHMD, EventKeyboard, EventMouse, EventTouch, Touch } from './types';
+import { Event, EventAcceleration, EventGamepad, EventHandle, EventHandheld, EventHMD, EventKeyboard, EventMouse, EventTouch, Touch } from './types';
 import { InputEventType } from './types/event-enum';
 
 export enum EventDispatcherPriority {
@@ -90,7 +90,7 @@ interface InputEventMap {
     [Input.EventType.HANDLE_INPUT]: (event: EventHandle) => void,
     [Input.EventType.HANDLE_POSE_INPUT]: (event: EventHandle) => void,
     [Input.EventType.HMD_POSE_INPUT]: (event: EventHMD) => void,
-    [Input.EventType.HANDSET_POSE_INPUT]: (event: EventHandset) => void,
+    [Input.EventType.HANDHELD_POSE_INPUT]: (event: EventHandheld) => void,
 }
 
 /**
@@ -134,7 +134,7 @@ export class Input {
     private _accelerometerInput = new AccelerometerInputSource();
     private _handleInput = new HandleInputDevice();
     private _hmdInput = new HMDInputDevice();
-    private _handsetInput = new HandsetInputDevice();
+    private _handheldInput = new HandheldInputDevice();
 
     private _eventTouchList: EventTouch[] = [];
     private _eventMouseList: EventMouse[] = [];
@@ -143,7 +143,7 @@ export class Input {
     private _eventGamepadList: EventGamepad[] = [];
     private _eventHandleList: EventHandle[] = [];
     private _eventHMDList: EventHMD[] = [];
-    private _eventHandsetList: EventHandset[] = [];
+    private _eventHandheldList: EventHandheld[] = [];
 
     private _needSimulateTouchMoveEvent = false;
 
@@ -353,9 +353,9 @@ export class Input {
             this._hmdInput._on(InputEventType.HMD_POSE_INPUT, (event) => { this._dispatchOrPushEvent(event, eventHMDList); });
         }
 
-        if (sys.hasFeature(sys.Feature.EVENT_HANDSET)) {
-            const eventHandsetList = this._eventHandsetList;
-            this._handsetInput._on(InputEventType.HANDSET_POSE_INPUT, (event) => { this._dispatchOrPushEvent(event, eventHandsetList); });
+        if (sys.hasFeature(sys.Feature.EVENT_HANDHELD)) {
+            const eventHandheldList = this._eventHandheldList;
+            this._handheldInput._on(InputEventType.HANDHELD_POSE_INPUT, (event) => { this._dispatchOrPushEvent(event, eventHandheldList); });
         }
     }
 
@@ -399,11 +399,11 @@ export class Input {
             this._emitEvent(eventHMD);
         }
 
-        const eventHandsetList = this._eventHandsetList;
+        const eventHandheldList = this._eventHandheldList;
         // TODO: culling event queue
-        for (let i = 0, length = eventHandsetList.length; i < length; ++i) {
-            const eventHandset = eventHandsetList[i];
-            this._emitEvent(eventHandset);
+        for (let i = 0, length = eventHandheldList.length; i < length; ++i) {
+            const eventHandheld = eventHandheldList[i];
+            this._emitEvent(eventHandheld);
         }
 
         const eventMouseList = this._eventMouseList;
