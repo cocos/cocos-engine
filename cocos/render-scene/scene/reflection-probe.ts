@@ -435,7 +435,6 @@ export class ReflectionProbe {
         this._camera.aperture = CameraAperture.F16_0;
         this._camera.shutter = CameraShutter.D125;
         this._camera.iso = CameraISO.ISO100;
-        this._camera.attachToScene(this.node.scene.renderScene!);
         return this._camera;
     }
 
