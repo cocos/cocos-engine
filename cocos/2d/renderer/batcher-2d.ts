@@ -929,7 +929,7 @@ export class Batcher2D implements IBatcher {
     //sync mesh buffer to naive
     public syncMeshBuffersToNative (accId: number, buffers: MeshBuffer[]) {
         if (JSB) {
-            const nativeBuffers: NativeUIMeshBuffer[] = buffers.map(buf => buf.nativeObj);
+            const nativeBuffers = buffers.map(buf => buf.nativeObj);
             this._nativeObj.syncMeshBuffersToNative(accId, nativeBuffers);
         }
     }
