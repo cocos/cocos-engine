@@ -145,7 +145,7 @@ export class Batcher2D implements IBatcher {
         }
         this._batches.destroy();
 
-        for (let accessor of this._bufferAccessors.values()) {
+        for (const accessor of this._bufferAccessors.values()) {
             accessor.destroy();
         }
         this._bufferAccessors.clear();
@@ -277,11 +277,11 @@ export class Batcher2D implements IBatcher {
         if (JSB) {
             this._nativeObj.uploadBuffers();
         } else if (this._batches.length > 0) {
-            for (let rd of this._meshDataArray) {
+            for (const rd of this._meshDataArray) {
                 rd.uploadBuffers();
             }
 
-            for (let accessor of this._bufferAccessors.values()) {
+            for (const accessor of this._bufferAccessors.values()) {
                 accessor.uploadBuffers();
                 accessor.reset();
             }
@@ -304,10 +304,10 @@ export class Batcher2D implements IBatcher {
                 this._drawBatchPool.free(batch);
             }
             // Reset buffer accessors
-            for (let accessor of this._bufferAccessors.values()) {
+            for (const accessor of this._bufferAccessors.values()) {
                 accessor.reset();
             }
-            for (let rd of this._meshDataArray) {
+            for (const rd of this._meshDataArray) {
                 rd.freeIAPool();
             }
             this._meshDataArray.length = 0;
@@ -929,7 +929,7 @@ export class Batcher2D implements IBatcher {
     //sync mesh buffer to naive
     public syncMeshBuffersToNative (accId: number, buffers: MeshBuffer[]) {
         if (JSB) {
-            const nativeBuffers = buffers.map(buf => buf.nativeObj);
+            const nativeBuffers = buffers.map((buf) => buf.nativeObj);
             this._nativeObj.syncMeshBuffersToNative(accId, nativeBuffers);
         }
     }
@@ -1086,7 +1086,7 @@ class DescriptorSetCache {
         }
 
         const uselessArray: number[] = [];
-        for (let value of caches) {
+        for (const value of caches) {
             if (value.isValid()) {
                 value.uploadLocalData();
             } else {
@@ -1102,7 +1102,7 @@ class DescriptorSetCache {
 
     public reset () {
         const caches = this._localDescriptorSetCache;
-        for (let value of caches) {
+        for (const value of caches) {
             this._localCachePool.free(value);
         }
         this._localDescriptorSetCache.length = 0;
@@ -1118,7 +1118,7 @@ class DescriptorSetCache {
     }
 
     public destroy () {
-        for (let value of this._descriptorSetCache.values()) {
+        for (const value of this._descriptorSetCache.values()) {
             value.destroy();
         }
         this._descriptorSetCache.clear();
