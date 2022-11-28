@@ -6,4 +6,4 @@ export * from './event-touch';
 export * from './event-gamepad';
 export * from './event-handle';
 export * from './event-hmd';
-export * from './event-handset';
+export * from './event-handheld';
