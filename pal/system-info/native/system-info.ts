@@ -75,7 +75,7 @@ class SystemInfo extends EventTarget {
         this.browserType = BrowserType.UNKNOWN;
         this.browserVersion = '';
 
-        this.isXR = typeof xr !== 'undefined';
+        this.isXR = (typeof xr !== 'undefined' && typeof xr.XrEntry !== 'undefined');
 
         this._featureMap = {
             [Feature.WEBP]: true,
@@ -92,6 +92,7 @@ class SystemInfo extends EventTarget {
             [Feature.EVENT_GAMEPAD]: true,
             [Feature.EVENT_HANDLE]: this.isXR,
             [Feature.EVENT_HMD]: this.isXR,
+            [Feature.EVENT_HANDHELD]: (typeof xr !== 'undefined' && typeof xr.ARModule !== 'undefined'),
         };
 
         this._initPromise = [];

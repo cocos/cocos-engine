@@ -188,6 +188,8 @@ class SystemInfo extends EventTarget {
             [Feature.EVENT_GAMEPAD]: (navigator.getGamepads !== undefined || navigator.webkitGetGamepads !== undefined),
             [Feature.EVENT_HANDLE]: EDITOR || PREVIEW,
             [Feature.EVENT_HMD]: this.isXR,
+            // @ts-expect-error undefined xr
+            [Feature.EVENT_HANDHELD]: (typeof navigator.xr !== 'undefined'),
         };
 
         this._initPromise = [];

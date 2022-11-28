@@ -186,12 +186,6 @@ CCProgram standard-fs %{
       if (s.albedo.ALPHA_TEST_CHANNEL < albedoScaleAndCutoff.w) discard;
     #endif
 
-    #if CC_USE_LIGHTMAP && !CC_FORWARD_ADD
-      vec4 lightColor = texture(cc_lightingMap, v_luv);
-      s.lightmap.rgb = lightColor.xyz;
-      s.lightmap.a = lightColor.a;
-    #endif
-
     s.normal = v_normal;
     #if USE_NORMAL_MAP
       vec3 nmmp = texture(normalMap, NORMAL_UV).xyz - vec3(0.5);
@@ -199,6 +193,10 @@ CCProgram standard-fs %{
         (nmmp.x * pbrParams.w) * normalize(v_tangent) +
         (nmmp.y * pbrParams.w) * normalize(v_bitangent) +
         nmmp.z * normalize(s.normal);
+    #endif
+
+    #if CC_USE_LIGHTMAP && !CC_FORWARD_ADD
+      SampleAndDecodeLightMapColor(s.lightmap.rgb, s.lightmap.a, s.lightmap_test, cc_lightingMap, v_luv.xy, v_luv.z, s.normal);
     #endif
 
     HIGHP_VALUE_TO_STRUCT_DEFINED(v_position, s.position);

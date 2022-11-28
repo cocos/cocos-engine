@@ -27,10 +27,10 @@
 #include "LightProbe.h"
 #include "PolynomialSolver.h"
 #include "core/Root.h"
+#include "core/scene-graph/Scene.h"
 #include "math/Math.h"
 #include "math/Utils.h"
 #include "renderer/pipeline/custom/RenderInterfaceTypes.h"
-#include "core/scene-graph/Scene.h"
 
 namespace cc {
 namespace gi {
@@ -200,14 +200,18 @@ void LightProbes::initialize(LightProbeInfo *info) {
     _data = info->getData();
 }
 
-void LightProbeInfo::activate(Scene* scene, LightProbes *resource) {
+void LightProbeInfo::activate(Scene *scene, LightProbes *resource) {
     _scene = scene;
     _resource = resource;
     _resource->initialize(this);
 }
 
 void LightProbeInfo::clearSHCoefficients() {
-    auto &probes = _data.getProbes();
+    if (!_data) {
+        return;
+    }
+
+    auto &probes = _data->getProbes();
     for (auto &probe : probes) {
         probe.coefficients.clear();
     }
@@ -215,7 +219,7 @@ void LightProbeInfo::clearSHCoefficients() {
     clearAllSHUBOs();
 }
 
-bool LightProbeInfo::addNode(Node* node) {
+bool LightProbeInfo::addNode(Node *node) {
     if (!node) {
         return false;
     }
@@ -256,6 +260,13 @@ void LightProbeInfo::syncData(Node *node, const ccstd::vector<Vec3> &probes) {
 }
 
 void LightProbeInfo::update(bool updateTet) {
+    if (!_data) {
+        _data = new LightProbesData();
+        if (_resource) {
+            _resource->setData(_data);
+        }
+    }
+
     ccstd::vector<Vec3> points;
 
     for (auto &item : _nodes) {
@@ -271,15 +282,15 @@ void LightProbeInfo::update(bool updateTet) {
     auto pointCount = points.size();
     if (pointCount < 4) {
         resetAllTetraIndices();
-        _data.reset();
+        _data->reset();
         return;
     }
 
-    _data.updateProbes(points);
+    _data->updateProbes(points);
 
     if (updateTet) {
         resetAllTetraIndices();
-        _data.updateTetrahedrons();
+        _data->updateTetrahedrons();
     }
 }
 

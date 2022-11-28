@@ -49,7 +49,6 @@ export * from './skeleton-data';
 export * from './skeleton-texture';
 export * from './vertex-effect-delegate';
 export * from './assembler';
-export * from './deprecated';
 
 export { spine };
 

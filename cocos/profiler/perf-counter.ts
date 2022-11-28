@@ -28,7 +28,7 @@ import { Counter, ICounterOption } from './counter';
 
 @ccclass('cc.PerfCounter')
 export class PerfCounter extends Counter {
-    private _time: number;
+    private declare _time: number;
     constructor (id: string, opts: ICounterOption, now: number) {
         super(id, opts, now);
         this._time = now;

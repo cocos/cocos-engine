@@ -1,7 +1,7 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
 
- https://www.cocos.com/
+ http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -21,14 +21,32 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
+*/
+
+import { HandheldInputDevice } from 'pal/input';
+import { Event } from './event';
+import { SystemEventTypeUnion } from '../event-enum';
+
+/**
+ * @en
+ * The Handheld event.
+ *
+ * @zh
+ * 手持设备事件。
  */
+export class EventHandheld extends Event {
+    /**
+     * @en The handheld device which trigger the current handheld event
+     * @zh 触发当前手持设备事件的手持设备
+     */
+    public handheldInputDevice: HandheldInputDevice;
 
-import { removeProperty } from '../core';
-import { ArmatureDisplay } from './ArmatureDisplay';
-
-removeProperty(ArmatureDisplay.prototype, 'ArmatureDisplay', [
-    {
-        name: '_enableBatch',
-        suggest: 'Not support batch render mode',
-    },
-]);
+    /**
+     * @param eventType - The type of the event
+     * @param handheldInputDevice - The handheld device which trigger the current handheld event
+     */
+    constructor (eventType: SystemEventTypeUnion, handheldInputDevice: HandheldInputDevice) {
+        super(eventType, false);
+        this.handheldInputDevice = handheldInputDevice;
+    }
+}

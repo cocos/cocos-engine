@@ -132,11 +132,23 @@ export class SortingLayers {
     }
 
     /**
+     * @zh 获取内置 Sorting Layer 数组
+     * @en Get Builtin Layer array
+     */
+    public static getBuiltinLayers (): ReadonlyArray<SortingItem> {
+        return [{ id: 0, name: 'default', value: 0 }];
+        // Tips：If want ues more builtin layer, builtin layer id should smaller than 0, custom layer id is bigger than 0
+        // 'default' layer id is 0
+    }
+
+    /**
      * @engineInternal
      */
     public static init () {
-        const sortingLayers = settings.querySettings<SortingItem[]>(Settings.Category.ENGINE, 'sortingLayers');
-        if (!sortingLayers) return;
+        let sortingLayers = settings.querySettings<ReadonlyArray<SortingItem>>(Settings.Category.ENGINE, 'sortingLayers');
+        if (!sortingLayers || sortingLayers.length === 0) {
+            sortingLayers = this.getBuiltinLayers();
+        }
         SortingLayers.resetState();
         for (let i = 0; i < sortingLayers.length; i++) {
             const layer = sortingLayers[i];

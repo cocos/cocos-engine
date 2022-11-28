@@ -169,6 +169,8 @@ module.exports = {
         shadowNear: 'Fix area start',
         shadowFar: 'Fix area end',
         shadowOrthoSize: 'Fix area size, the larger value, the lower precision of shadows',
+        shadowAdvancedOptions: 'shadow advanced options',
+        csmLayersTransition: 'Enable or disable CSM layers transition(Improve quality, reduce performance)',
     },
     model: {
         shadow_receiving_model: 'Shadow receive mode',
@@ -682,7 +684,8 @@ module.exports = {
         limitVelocityOvertimeModule: 'Particle velocity limitation module (only support on CPU)',
         rotationOvertimeModule: 'Particle rotation module',
         textureAnimationModule: 'Texture animation module',
-        trailModule: 'Trail module (only support on CPU)',
+        trailModule: 'Trail module (only supported in CPU particle system)',
+        noiseModule: 'Noise module (only supported in CPU particle system)',
         renderer: 'Particle render module',
         renderCulling: 'Whether to enable the particle culling feature. <br>If enabled, a particle emitter bounding box will be generated, <br>and the particle emitter will be culled if the bounding box is not in the visible range of the camera. <br>Please refer to the cullingMode option below for the behavior settings after particle culling.',
         cullingMode: 'Sets the behavior of the particle emitter after it has been culled. <br>The available options include Pause, Pause and Catchup, and Always Simulate.<br>When the Pause is selected, the particle will pause the simulation if the particle emitter bounding box is not in the camera\'s visible range. <br>If it resumes visibility, the particle will continue simulating at the time of last pause.<br>When the Pause and Catchup is selected, if the particle emitter bounding box is not in the camera\'s visible range, the particle will pause the simulation.  If visible again, the particle will start simulating at the current time.<br>When the Always Simulate is selected, the particle will keep simulating regardless of whether the particle emitter bounding box is in the camera\'s visible range, but will not render when it is not in the camera\'s visible range.',
@@ -787,10 +790,6 @@ module.exports = {
             network: {
                 label: 'Network',
                 description: 'Network Module.',
-            },
-            xr: {
-                label: 'XR',
-                description: 'XR System.',
             },
         },
         core: {
@@ -941,13 +940,9 @@ module.exports = {
             label: "Marionette Animation System",
             description: "Enable the Marionette animation system",
         },
-        base_xr: {
-            label: "Basic XR",
-            description: "Basic XR support.",
-        },
-        ar: {
-            label: "AR",
-            description: "AR support.",
+        xr: {
+            label: "XR",
+            description: "Enable the XR function system",
         },
         custom_pipeline: {
             label: "Custom Render Pipeline (Experimental)",

@@ -753,6 +753,6 @@ int SimulatorApp::getWidth() const {
     return [app getWidth];;
 }
 
-int SimulatorApp::getHegith() const {
+int SimulatorApp::getHeight() const {
     return [app getHeight];;
 }

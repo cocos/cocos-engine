@@ -37,6 +37,8 @@ const _v3 = new Vec3();
  * @zh 渲染场景中的方向光抽象，这是场景中的主光源。作为主光源，每个场景只能有一个方向光，它也包含阴影配置，用来生成实时阴影。
  */
 export class DirectionalLight extends Light {
+    public static readonly CSM_TRANSITION_RANGE = 0.05;
+
     protected _dir: Vec3 = new Vec3(1.0, -1.0, -1.0);
     protected _illuminanceHDR: number = Ambient.SUN_ILLUM;
     protected _illuminanceLDR = 1.0;
@@ -55,6 +57,8 @@ export class DirectionalLight extends Light {
     protected _csmNeedUpdate = false;
     protected _csmLayerLambda = 0.75;
     protected _csmOptimizationMode = CSMOptimizationMode.DisableRotationFix;
+
+    protected _csmLayersTransition = false;
 
     // fixed area properties
     protected _shadowFixedArea = false;
@@ -286,6 +290,18 @@ export class DirectionalLight extends Light {
         this._shadowOrthoSize = val;
     }
 
+    /**
+     * @en Enabled csm layers transition
+     * @zh 是否启用级联阴影层级过渡？
+     */
+    get csmLayersTransition () {
+        return this._csmLayersTransition;
+    }
+    set csmLayersTransition (val) {
+        this._csmLayersTransition = val;
+        this._activate();
+    }
+
     constructor () {
         super();
         this._type = LightType.DIRECTIONAL;
@@ -314,8 +330,11 @@ export class DirectionalLight extends Light {
         if (this._shadowEnabled) {
             if (this._shadowFixedArea || !pipeline.pipelineSceneData.csmSupported) {
                 pipeline.macros.CC_DIR_LIGHT_SHADOW_TYPE = 1;
+            } else if (this.csmLevel > 1 && pipeline.pipelineSceneData.csmSupported) {
+                pipeline.macros.CC_DIR_LIGHT_SHADOW_TYPE = 2;
+                pipeline.macros.CC_CASCADED_LAYERS_TRANSITION = this._csmLayersTransition;
             } else {
-                pipeline.macros.CC_DIR_LIGHT_SHADOW_TYPE = this.csmLevel > 1 ? 2 : 1;
+                pipeline.macros.CC_DIR_LIGHT_SHADOW_TYPE = 1;
             }
             pipeline.macros.CC_DIR_SHADOW_PCF_TYPE = this._shadowPcf;
         } else {
