@@ -30,7 +30,7 @@ import { Vec3, nextPow2, Mat4, Color, Pool, geometry } from '../core';
 import { Device, RenderPass, Buffer, BufferUsageBit, MemoryUsageBit,
     BufferInfo, BufferViewInfo, CommandBuffer } from '../gfx';
 import { RenderBatchedQueue } from './render-batched-queue';
-import { RenderInstancedQueue } from './render-instanced-queue';
+import { enableInstancing, RenderInstancedQueue } from './render-instanced-queue';
 import { SphereLight } from '../render-scene/scene/sphere-light';
 import { SpotLight } from '../render-scene/scene/spot-light';
 import { SubModel } from '../render-scene/scene/submodel';
@@ -292,12 +292,17 @@ export class RenderAdditiveLightQueue {
             const visibility = light.visibility;
             if (((visibility & model.node.layer) === model.node.layer)) {
                 switch (batchingScheme) {
-                case BatchingSchemes.INSTANCING: {
-                    const buffer = pass.getInstancedBuffer(l);
-                    buffer.merge(subModel, lightPassIdx);
-                    buffer.dynamicOffsets[0] = this._lightBufferStride;
-                    this._instancedQueue.queue.add(buffer);
-                } break;
+                case BatchingSchemes.INSTANCING:
+                    if (enableInstancing) {
+                        const buffer = pass.getInstancedBuffer(l);
+                        buffer.merge(subModel, lightPassIdx);
+                        buffer.dynamicOffsets[0] = this._lightBufferStride;
+                        this._instancedQueue.queue.add(buffer);
+                    } else {
+                        lp!.lights.push(light);
+                        lp!.dynamicOffsets.push(this._lightBufferStride * lightIdx);
+                    }
+                    break;
                 case BatchingSchemes.VB_MERGING: {
                     const buffer = pass.getBatchedBuffer(l);
                     buffer.merge(subModel, lightPassIdx, model);

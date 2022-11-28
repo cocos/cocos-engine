@@ -33,7 +33,7 @@ import { Model } from '../render-scene/scene/model';
 import { ProbeType, ReflectionProbe, SKYBOX_FLAG } from '../render-scene/scene';
 import { PipelineRuntime } from './custom/pipeline';
 import { IMacroPatch, RenderScene } from '../render-scene';
-import { RenderInstancedQueue } from './render-instanced-queue';
+import { enableInstancing, RenderInstancedQueue } from './render-instanced-queue';
 import { RenderBatchedQueue } from './render-batched-queue';
 import { geometry } from '../core';
 import { Layers } from '../scene-graph/layers';
@@ -149,7 +149,7 @@ export class RenderReflectionProbeQueue {
                 this._rgbeSubModelsArray.push(subModel);
             }
 
-            if (batchingScheme === BatchingSchemes.INSTANCING) {            // instancing
+            if (enableInstancing && batchingScheme === BatchingSchemes.INSTANCING) {            // instancing
                 const buffer = pass.getInstancedBuffer();
                 buffer.merge(subModel, passIdx);
                 this._instancedQueue.queue.add(buffer);

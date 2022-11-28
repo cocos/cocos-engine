@@ -29,7 +29,7 @@ import { Device, RenderPass, Shader, CommandBuffer } from '../gfx';
 import { getPhaseID } from './pass-phase';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { Pass, BatchingSchemes } from '../render-scene/core/pass';
-import { RenderInstancedQueue } from './render-instanced-queue';
+import { enableInstancing, RenderInstancedQueue } from './render-instanced-queue';
 import { RenderBatchedQueue } from './render-batched-queue';
 import { ShadowType } from '../render-scene/scene/shadows';
 import { Light, LightType } from '../render-scene/scene/light';
@@ -143,7 +143,7 @@ export class RenderShadowMapBatchedQueue {
             const pass = subModel.passes[shadowPassIdx];
             const batchingScheme = pass.batchingScheme;
 
-            if (batchingScheme === BatchingSchemes.INSTANCING) {            // instancing
+            if (enableInstancing && batchingScheme === BatchingSchemes.INSTANCING) {            // instancing
                 const buffer = pass.getInstancedBuffer();
                 buffer.merge(subModel, shadowPassIdx);
                 this._instancedQueue.queue.add(buffer);

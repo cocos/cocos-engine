@@ -28,6 +28,8 @@ import { Device, RenderPass, PipelineState, CommandBuffer, DescriptorSet } from 
 import { PipelineStateManager } from './pipeline-state-manager';
 import { SetIndex } from './define';
 
+export const enableInstancing = true;
+
 /**
  * @en Render queue for instanced batching
  * @zh 渲染合批队列。

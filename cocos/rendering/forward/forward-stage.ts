@@ -29,7 +29,7 @@ import { getPhaseID } from '../pass-phase';
 import { renderQueueClearFunc, RenderQueue, convertRenderQueue, renderQueueSortFunc } from '../render-queue';
 import { ClearFlagBit, Color, Rect } from '../../gfx';
 import { RenderBatchedQueue } from '../render-batched-queue';
-import { RenderInstancedQueue } from '../render-instanced-queue';
+import { enableInstancing, RenderInstancedQueue } from '../render-instanced-queue';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { ForwardStagePriority } from '../enum';
 import { RenderAdditiveLightQueue } from '../render-additive-light-queue';
@@ -147,7 +147,7 @@ export class ForwardStage extends RenderStage {
                     const pass = passes[p];
                     if (pass.phase !== this._phaseID) continue;
                     const batchingScheme = pass.batchingScheme;
-                    if (batchingScheme === BatchingSchemes.INSTANCING) {
+                    if (enableInstancing && batchingScheme === BatchingSchemes.INSTANCING) {
                         const instancedBuffer = pass.getInstancedBuffer();
                         instancedBuffer.merge(subModel, p);
                         this._instancedQueue.queue.add(instancedBuffer);

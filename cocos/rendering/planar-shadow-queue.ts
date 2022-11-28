@@ -28,7 +28,7 @@ import { SetIndex } from './define';
 import { CommandBuffer, Device, RenderPass } from '../gfx';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { Model, Camera, SubModel } from '../render-scene/scene';
-import { RenderInstancedQueue } from './render-instanced-queue';
+import { enableInstancing, RenderInstancedQueue } from './render-instanced-queue';
 import { ShadowType } from '../render-scene/scene/shadows';
 import { Layers } from '../scene-graph/layers';
 import { PipelineRuntime } from './custom/pipeline';
@@ -88,7 +88,7 @@ export class PlanarShadowQueue {
                 for (let k = 0; k < passes.length; k++) {
                     const pass = passes[k];
                     const batchingScheme = pass.batchingScheme;
-                    if (batchingScheme === BatchingSchemes.INSTANCING) {
+                    if (enableInstancing && batchingScheme === BatchingSchemes.INSTANCING) {
                         instancedBuffer.merge(subModel, k, subModel.planarShader);
                         this._instancedQueue.queue.add(instancedBuffer);
                     } else {
