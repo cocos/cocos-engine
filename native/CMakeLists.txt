@@ -3033,12 +3033,14 @@ if(MSVC)
     target_compile_options(${ENGINE_NAME} PUBLIC /MP
         /bigobj
         /wd4018 # signed/unsigned mismatch
+        /wd4221 # no public symbols
         /wd4244 # type conversion data lost
         /wd4267 # conversion from 'size_t' to 'type', possible loss of data
         /wd4305 # truncation from 'type1' to 'type2'
         /wd4309 # truncation of constant value
         /wd4819 # file contains a character that cannot be represented in the current code page
         /wd4996 # deprecated
+        /wd4098 # defaultlib conflicts
         /wd4099 # PDB 'filename' was not found with 'object/library' or at 'path'; linking object as if no debug info
     )
 endif()
