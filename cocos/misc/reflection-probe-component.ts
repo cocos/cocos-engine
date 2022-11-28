@@ -24,7 +24,7 @@
  */
 import { ccclass, executeInEditMode, menu, playOnFocus, serializable, tooltip, type, visible } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
-import { CCObject, Color, Enum, size, Vec3, Vec4 } from '../core';
+import { CCObject, Color, Enum, size, Vec3 } from '../core';
 
 import { TextureCube } from '../asset/assets';
 import { scene } from '../render-scene';
@@ -35,7 +35,6 @@ import { Layers } from '../scene-graph/layers';
 import { Camera } from './camera-component';
 import { Node } from '../scene-graph';
 import { ProbeClearFlag, ProbeType } from '../render-scene/scene/reflection-probe';
-import { property } from '../core/data/class-decorator';
 
 export enum ProbeResolution {
     /**
@@ -97,9 +96,6 @@ export class ReflectionProbe extends Component {
 
     protected _previewSphere: Node | null = null;
     protected _previewPlane: Node | null = null;
-
-    @serializable
-    protected _offset = new Vec4();
 
     /**
      * @en

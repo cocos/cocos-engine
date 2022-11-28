@@ -106,10 +106,6 @@ export class RenderReflectionProbeQueue {
                     }
                 } else if (((model.node.layer & REFLECTION_PROBE_DEFAULT_MASK) === model.node.layer)
                     || (REFLECTION_PROBE_DEFAULT_MASK & model.visFlags)) {
-                    model.updateWorldBound();
-                    // if (geometry.intersect.aabbFrustumCompletelyInside(model.worldBounds, probe.probeFrustum)) {
-                    //     this.add(model);
-                    // }
                     this.add(model);
                 }
             }

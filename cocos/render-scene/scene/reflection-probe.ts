@@ -25,12 +25,11 @@
 import { EDITOR } from 'internal:constants';
 import { Camera, CameraAperture, CameraFOVAxis, CameraISO, CameraProjection, CameraShutter, CameraType, SKYBOX_FLAG, TrackingType } from './camera';
 import { Node } from '../../scene-graph/node';
-import { Color, Quat, Rect, toRadian, Vec2, Vec3, geometry, cclegacy, Vec4, Mat4 } from '../../core';
+import { Color, Quat, Rect, toRadian, Vec2, Vec3, geometry, cclegacy, Vec4 } from '../../core';
 import { CAMERA_DEFAULT_MASK } from '../../rendering/define';
 import { ClearFlagBit, Framebuffer } from '../../gfx';
 import { TextureCube } from '../../asset/assets/texture-cube';
 import { RenderTexture } from '../../asset/assets/render-texture';
-import { Frustum } from '../../core/geometry';
 
 export enum ProbeClearFlag {
     SKYBOX = SKYBOX_FLAG | ClearFlagBit.DEPTH_STENCIL,
@@ -122,12 +121,6 @@ export class ReflectionProbe {
     protected _previewSphere: Node | null = null;
 
     protected _previewPlane: Node | null = null;
-
-    protected _probeFrustum: Frustum = new Frustum();
-
-    get probeFrustum () {
-        return this._probeFrustum;
-    }
 
     /**
      * @en Set probe type,cube or planar.
