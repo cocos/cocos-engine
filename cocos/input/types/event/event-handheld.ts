@@ -23,30 +23,30 @@
  THE SOFTWARE.
 */
 
-import { HandsetInputDevice } from 'pal/input';
+import { HandheldInputDevice } from 'pal/input';
 import { Event } from './event';
 import { SystemEventTypeUnion } from '../event-enum';
 
 /**
  * @en
- * The Handset event.
+ * The Handheld event.
  *
  * @zh
  * 手持设备事件。
  */
-export class EventHandset extends Event {
+export class EventHandheld extends Event {
     /**
-     * @en The handset device which trigger the current handset event
+     * @en The handheld device which trigger the current handheld event
      * @zh 触发当前手持设备事件的手持设备
      */
-    public handsetInputDevice: HandsetInputDevice;
+    public handheldInputDevice: HandheldInputDevice;
 
     /**
      * @param eventType - The type of the event
-     * @param handsetInputDevice - The handset device which trigger the current handset event
+     * @param handheldInputDevice - The handheld device which trigger the current handheld event
      */
-    constructor (eventType: SystemEventTypeUnion, handsetInputDevice: HandsetInputDevice) {
+    constructor (eventType: SystemEventTypeUnion, handheldInputDevice: HandheldInputDevice) {
         super(eventType, false);
-        this.handsetInputDevice = handsetInputDevice;
+        this.handheldInputDevice = handheldInputDevice;
     }
 }

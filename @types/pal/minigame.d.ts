@@ -23,7 +23,7 @@ declare module 'pal/minigame' {
          * @returns {SafeArea} An interface displaying the data of safe area, including 'top', 'bottom', 'left', 'right', 'width' and 'height'.
          */
         getSafeArea(): SafeArea;
-        triggerGC(): void;
+        triggerGC?(): void;
         getBatteryInfoSync(): BatteryInfo;
 
         exitMiniProgram? (): void;

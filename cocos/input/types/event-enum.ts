@@ -404,10 +404,10 @@ export enum InputEventType {
     HMD_POSE_INPUT = 'hmd-pose-input',
 
     /**
-     * @en The event type for handset pose input
+     * @en The event type for handheld pose input
      * @zh 手持设备相机姿态输入事件
      */
-    HANDSET_POSE_INPUT = 'handset-pose-input'
+    HANDHELD_POSE_INPUT = 'handheld-pose-input'
 }
 
 export type SystemEventTypeUnion = SystemEventType | NodeEventType | InputEventType | string;
