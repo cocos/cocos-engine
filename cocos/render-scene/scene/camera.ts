@@ -514,19 +514,12 @@ export class Camera {
         return this._matProj;
     }
 
-    set matProj (val) {
-        this._matProj = val;
-    }
-
     /**
      * @en The inverse of the projection matrix of the camera
      * @zh 相机的逆投影矩阵
      */
     get matProjInv () {
         return this._matProjInv;
-    }
-    set matProjInv (val) {
-        this._matProjInv = val;
     }
 
     /**
@@ -537,20 +530,12 @@ export class Camera {
         return this._matViewProj;
     }
 
-    set matViewProj (val) {
-        this._matViewProj = val;
-    }
-
     /**
      * @en The inverse of the view projection matrix of the camera
      * @zh 相机的逆视图投影矩阵
      */
     get matViewProjInv () {
         return this._matViewProjInv;
-    }
-
-    set matViewProjInv (val) {
-        this._matViewProjInv = val;
     }
 
     /**

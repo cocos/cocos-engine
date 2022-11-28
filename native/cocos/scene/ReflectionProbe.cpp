@@ -98,7 +98,7 @@ void ReflectionProbe::renderPlanarReflection(const Camera* sourceCamera) {
 }
 
 void ReflectionProbe::transformReflectionCamera(const Camera* sourceCamera) {
-    int32_t offset = Vec3::dot(_node->getWorldPosition(), Vec3::UNIT_Y);
+    float offset = Vec3::dot(_node->getWorldPosition(), Vec3::UNIT_Y);
     _cameraWorldPos = reflect(sourceCamera->getNode()->getWorldPosition(), Vec3::UNIT_Y, offset);
     _cameraNode->setWorldPosition(_cameraWorldPos);
 
@@ -126,7 +126,7 @@ void ReflectionProbe::transformReflectionCamera(const Camera* sourceCamera) {
     _camera->calculateObliqueMat(viewSpaceProbe);
 }
 
-Vec3 ReflectionProbe::reflect(const Vec3& point, const Vec3& normal, int32_t offset) {
+Vec3 ReflectionProbe::reflect(const Vec3& point, const Vec3& normal, float offset) {
     Vec3 n = normal;
     n.normalize();
     float dist = Vec3::dot(n, point) - offset;
