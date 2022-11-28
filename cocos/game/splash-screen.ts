@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { EDITOR, PREVIEW } from 'internal:constants';
+import { EDITOR, NATIVE, PREVIEW, TAOBAO } from 'internal:constants';
 import { Material } from '../asset/assets/material';
 import { clamp01, Mat4, Vec2, Settings, settings, sys, cclegacy, easing } from '../core';
 import {
@@ -120,7 +120,8 @@ export class SplashScreen {
         };
         this._curTime = 0;
 
-        if (EDITOR || PREVIEW || this.settings.base64src === '' || this.settings.totalTime <= 0) {
+        // TODO: Image can't load with base64 data on Taobao platform.
+        if (EDITOR || PREVIEW || TAOBAO || !this.settings.enabled || this.settings.base64src === '' || this.settings.totalTime <= 0) {
             this.settings.totalTime = 0;
         } else {
             this.device = cclegacy.director.root!.device;
