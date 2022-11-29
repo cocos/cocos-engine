@@ -45,7 +45,6 @@ import { RenderEntity, RenderEntityType } from '../renderer/render-entity';
 import { uiRendererManager } from './ui-renderer-manager';
 import { RenderDrawInfoType } from '../renderer/render-draw-info';
 import { director } from '../../game';
-import { MaterialInstance } from '../../render-scene';
 
 // hack
 ccenum(BlendFactor);
