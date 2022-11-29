@@ -35,6 +35,7 @@ import {
     Shader, UniformStorageBuffer, UniformStorageImage, UniformSampler, UniformTexture, UniformInputAttachment,
 } from '../../gfx';
 import { debug, cclegacy } from '../../core';
+import { UpdateFrequency } from '../../rendering/custom';
 
 const _dsLayoutInfo = new DescriptorSetLayoutInfo();
 
@@ -173,9 +174,9 @@ function getActiveAttributes (tmpl: IProgramInfo, tmplInfo: ITemplateInfo, defin
     return out;
 }
 
-function makeProgramInfo (shader: EffectAsset.IShaderInfo): IProgramInfo {
+function makeProgramInfo (effectName: string, shader: EffectAsset.IShaderInfo): IProgramInfo {
     const tmpl = { ...shader } as IProgramInfo;
-    tmpl.effectName = '';
+    tmpl.effectName = effectName;
 
     // calculate option mask offset
     let offset = 0;
@@ -279,6 +280,38 @@ function makeTemplateInfo (programInfo: IProgramInfo): ITemplateInfo {
     return tmplInfo;
 }
 
+function makeTemplateInfo2 (passID: number, phaseID: number, programInfo: IProgramInfo): ITemplateInfo {
+    const tmplInfo = {} as ITemplateInfo;
+    // cache material-specific descriptor set layout
+    tmplInfo.samplerStartBinding = programInfo.blocks.length;
+    tmplInfo.shaderInfo = new ShaderInfo();
+    tmplInfo.blockSizes = [];
+    tmplInfo.bindings = [];
+
+    cclegacy.rendering.rebindMaterialDescriptors(passID, phaseID,
+        UpdateFrequency.PER_BATCH,
+        programInfo.descriptors[UpdateFrequency.PER_BATCH],
+        tmplInfo);
+
+    cclegacy.rendering.rebindMaterialDescriptors(passID, phaseID,
+        UpdateFrequency.PER_INSTANCE,
+        programInfo.descriptors[UpdateFrequency.PER_INSTANCE],
+        tmplInfo);
+
+    tmplInfo.gfxAttributes = [];
+    for (let i = 0; i < programInfo.attributes.length; ++i) {
+        const attr = programInfo.attributes[i];
+        tmplInfo.gfxAttributes.push(new Attribute(attr.name, attr.format, attr.isNormalized, 0, attr.isInstanced, attr.location));
+    }
+
+    tmplInfo.shaderInfo.stages.push(new ShaderStage(ShaderStageFlagBit.VERTEX, ''));
+    tmplInfo.shaderInfo.stages.push(new ShaderStage(ShaderStageFlagBit.FRAGMENT, ''));
+    tmplInfo.handleMap = genHandles(programInfo);
+    tmplInfo.setLayouts = [];
+
+    return tmplInfo;
+}
+
 export interface IProgramInfo extends EffectAsset.IShaderInfo {
     effectName: string;
     defines: IDefineRecord[];
@@ -294,12 +327,12 @@ class ProgramLib {
     protected _templates: Record<string, IProgramInfo> = {}; // per shader
     protected _cache: Record<string, Shader> = {};
     protected _templateInfos: Record<number, ITemplateInfo> = {};
-    protected _effectInfos = new Map<string, Array<Array<ITemplateInfo>>>();
+    protected _phaseShaders = new Map<number, Map<string, ITemplateInfo>>();
 
     public register (effect: EffectAsset) {
+        const importEffect: boolean = cclegacy.rendering !== undefined && cclegacy.rendering.enableEffectImport;
         for (let i = 0; i < effect.shaders.length; i++) {
-            const tmpl = this.define(effect.shaders[i]);
-            tmpl.effectName = effect.name;
+            this.define(effect.name, effect.shaders[i]);
         }
         for (let i = 0; i < effect.techniques.length; i++) {
             const tech = effect.techniques[i];
@@ -311,28 +344,40 @@ class ProgramLib {
                 }
             }
         }
-        if (cclegacy.rendering === undefined || !cclegacy.rendering.enableEffectImport) {
+        if (!importEffect) {
+            for (let i = 0; i < effect.shaders.length; i++) {
+                const shader = effect.shaders[i];
+                const programInfo = this._templates[shader.name];
+                if (!this._templateInfos[programInfo.hash]) {
+                    const tmplInfo = makeTemplateInfo(programInfo);
+                    this._templateInfos[programInfo.hash] = tmplInfo;
+                }
+            }
             return;
         }
-
-        let effectInfo = this._effectInfos.get(effect.name);
-        if (effectInfo !== undefined) {
-            return;
-        }
-        // add effect info
-        effectInfo = new Array<Array<ITemplateInfo>>();
-        this._effectInfos.set(effect.name, effectInfo);
-
-        // register template info
-        effectInfo.length = effect.techniques.length;
+        const r = cclegacy.rendering;
         for (let i = 0; i < effect.techniques.length; i++) {
             const tech = effect.techniques[i];
-            const techInfo = new Array<ITemplateInfo>();
-            effectInfo[i] = techInfo;
-            techInfo.length = tech.passes.length;
             for (let j = 0; j < tech.passes.length; j++) {
                 const pass = tech.passes[j];
                 const programName = pass.program;
+                const passID = r.getCustomPassID(pass.pass);
+                if (passID === r.invalidID) {
+                    console.error(`Invalid render pass, program: ${programName}`);
+                    return;
+                }
+                const phaseID = r.getCustomPhaseID(passID, pass.phase);
+                if (phaseID === r.invalidID) {
+                    console.error(`Invalid render phase, program: ${programName}`);
+                    return;
+                }
+
+                let phaseShaders = this._phaseShaders.get(phaseID);
+                if (phaseShaders === undefined) {
+                    phaseShaders = new Map<string, ITemplateInfo>();
+                    this._phaseShaders.set(phaseID, phaseShaders);
+                }
+
                 let shader: EffectAsset.IShaderInfo | null = null;
                 for (const shaderInfo of effect.shaders) {
                     if (shaderInfo.name === programName) {
@@ -347,8 +392,8 @@ class ProgramLib {
                     console.warn(`No descriptors in shader: ${programName}, please reimport ALL effects`);
                     continue;
                 }
-                const programInfo = makeProgramInfo(shader);
-                techInfo[j] = makeTemplateInfo(programInfo);
+                const programInfo = makeProgramInfo(effect.name, shader);
+                phaseShaders.set(shader.name, makeTemplateInfo2(passID, phaseID, programInfo));
             }
         }
     }
@@ -357,19 +402,14 @@ class ProgramLib {
      * @en Register the shader template with the given info
      * @zh 注册 shader 模板。
      */
-    public define (shader: EffectAsset.IShaderInfo) {
+    public define (effectName: string, shader: EffectAsset.IShaderInfo) {
         const curTmpl = this._templates[shader.name];
         if (curTmpl && curTmpl.hash === shader.hash) {
             return curTmpl;
         }
-        const programInfo = makeProgramInfo(shader);
+        const programInfo = makeProgramInfo(effectName, shader);
         // store it
         this._templates[shader.name] = programInfo;
-        if (!this._templateInfos[programInfo.hash]) {
-            const tmplInfo = makeTemplateInfo(programInfo);
-            this._templateInfos[programInfo.hash] = tmplInfo;
-        }
-
         return programInfo;
     }
 
@@ -492,6 +532,55 @@ class ProgramLib {
         if (!key) key = this.getKey(name, defines);
         const res = this._cache[key];
         if (res) { return res; }
+
+        const tmpl = this._templates[name];
+        const tmplInfo = this._templateInfos[tmpl.hash];
+        if (!tmplInfo.pipelineLayout) {
+            this.getDescriptorSetLayout(device, name); // ensure set layouts have been created
+            insertBuiltinBindings(tmpl, tmplInfo, globalDescriptorSetLayout, 'globals');
+            tmplInfo.setLayouts[SetIndex.GLOBAL] = pipeline.descriptorSetLayout;
+            tmplInfo.pipelineLayout = device.createPipelineLayout(new PipelineLayoutInfo(tmplInfo.setLayouts));
+        }
+
+        const macroArray = prepareDefines(defines, tmpl.defines);
+        const prefix = pipeline.constantMacros + tmpl.constantMacros
+            + macroArray.reduce((acc, cur) => `${acc}#define ${cur.name} ${cur.value}\n`, '');
+
+        let src = tmpl.glsl3;
+        const deviceShaderVersion = getDeviceShaderVersion(device);
+        if (deviceShaderVersion) {
+            src = tmpl[deviceShaderVersion];
+        } else {
+            console.error('Invalid GFX API!');
+        }
+        tmplInfo.shaderInfo.stages[0].source = prefix + src.vert;
+        tmplInfo.shaderInfo.stages[1].source = prefix + src.frag;
+
+        // strip out the active attributes only, instancing depend on this
+        tmplInfo.shaderInfo.attributes = getActiveAttributes(tmpl, tmplInfo, defines);
+
+        tmplInfo.shaderInfo.name = getShaderInstanceName(name, macroArray);
+        return this._cache[key] = device.createShader(tmplInfo.shaderInfo);
+    }
+
+    public getGFXShader2 (device: Device, passID: number, phaseID: number,
+        name: string, defines: MacroRecord, pipeline: PipelineRuntime, key?: string): Shader | null {
+        Object.assign(defines, pipeline.macros);
+        // if (!key) {
+        //     key = this.getKey(name, defines);
+        // }
+        // const res = this._cache[key];
+        // if (res) {
+        //     return res;
+        // }
+        const phaseShaders = this._phaseShaders.get(phaseID);
+        if (phaseShaders === undefined) {
+            return null;
+        }
+        const shader = phaseShaders.get(name);
+        if (shader === undefined) {
+            return null;
+        }
 
         const tmpl = this._templates[name];
         const tmplInfo = this._templateInfos[tmpl.hash];

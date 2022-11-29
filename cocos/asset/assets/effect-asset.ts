@@ -309,6 +309,9 @@ export class EffectAsset extends Asset {
 
     protected _precompile () {
         const root = cclegacy.director.root as Root;
+        if (cclegacy.rendering !== undefined) {
+            return;
+        }
         for (let i = 0; i < this.shaders.length; i++) {
             const shader = this.shaders[i];
             const combination = this.combinations[i];
