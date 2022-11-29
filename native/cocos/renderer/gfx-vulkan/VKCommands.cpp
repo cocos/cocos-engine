@@ -274,6 +274,25 @@ void cmdFuncCCVKCreateBuffer(CCVKDevice *device, CCVKGPUBuffer *gpuBuffer) {
 
     VmaAllocationCreateInfo allocInfo{};
 
+    if (hasAnyFlags(gpuBuffer->usage, BufferUsageBit::ACCELERATION_STRUCTURE_BUILD_SCRATCH)) {
+        allocInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
+        VkMemoryRequirements memReq;
+        memReq.size = gpuBuffer->size;
+        memReq.alignment = device->gpuContext()->physicalDeviceAccelerationStructureProperties.minAccelerationStructureScratchOffsetAlignment;
+
+        VmaAllocationInfo res;
+        VK_CHECK(vmaAllocateMemory(device->gpuDevice()->memoryAllocator,&memReq,&allocInfo,&gpuBuffer->vmaAllocation,&res));
+
+        VkBufferCreateInfo info{VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO};
+        info.size = gpuBuffer->size;
+        info.usage = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
+        VK_CHECK(vkCreateBuffer(device->gpuDevice()->vkDevice,&info,nullptr,&gpuBuffer->vkBuffer));
+
+        VK_CHECK(vmaBindBufferMemory(device->gpuDevice()->memoryAllocator, gpuBuffer->vmaAllocation, gpuBuffer->vkBuffer));
+
+        return;
+    }
+
     if (gpuBuffer->memUsage == MemoryUsage::HOST) {
         bufferInfo.usage |= VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
         allocInfo.flags = VMA_ALLOCATION_CREATE_MAPPED_BIT;
@@ -1726,18 +1745,17 @@ void checkScratchBufferRequirement(CCVKDevice *device, CCVKGPUAccelerationStruct
     // Create Scratch Buffer (if needed)
     if (!accel->scratchBuffer || accel->scratchBuffer->size < accel->buildSizesInfo.buildScratchSize) {
 
-        accel->scratchBuffer = ccnew CCVKGPUBuffer;
-        accel->scratchBuffer->size = accel->buildSizesInfo.buildScratchSize;
-        accel->scratchBuffer->usage = BufferUsageBit::SHADER_DEVICE_ADDRESS | BufferUsageBit::STORAGE;
-        accel->scratchBuffer->memUsage = MemoryUsageBit::DEVICE;
-        accel->scratchBuffer->init();
-        //todo fix alignment problem
         /*
          * VUID-vkCmdBuildAccelerationStructuresKHR-pInfos-03710
          * For each element of pInfos,
          * its scratchData.deviceAddress member must be a multiple of
          * VkPhysicalDeviceAccelerationStructurePropertiesKHR::minAccelerationStructureScratchOffsetAlignment
          */
+        accel->scratchBuffer = ccnew CCVKGPUBuffer;
+        accel->scratchBuffer->size = accel->buildSizesInfo.buildScratchSize;
+        accel->scratchBuffer->usage = BufferUsageBit::SHADER_DEVICE_ADDRESS | BufferUsageBit::ACCELERATION_STRUCTURE_BUILD_SCRATCH;
+        accel->scratchBuffer->memUsage = MemoryUsageBit::DEVICE;
+        accel->scratchBuffer->init();
     }
 }
 
@@ -1760,6 +1778,9 @@ void cmdFuncCCVKBuildAccelerationStructure(CCVKDevice *device,CCVKGPUAcceleratio
 
     checkScratchBufferRequirement(device, accel);
     buildGeomInfo.scratchData.deviceAddress = getVkBufferDeviceAddr(device->gpuDevice()->vkDevice, accel->scratchBuffer);
+
+    CC_ASSERT(buildGeomInfo.scratchData.deviceAddress != 0);
+    CC_ASSERT(isMultipleOf(buildGeomInfo.scratchData.deviceAddress,device->gpuContext()->physicalDeviceAccelerationStructureProperties.minAccelerationStructureScratchOffsetAlignment));
 
     const auto &accelRangeInfosConRef = accel->rangeInfos;
     const size_t rangeInfoCount = accelRangeInfosConRef.size();

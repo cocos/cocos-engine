@@ -690,6 +690,10 @@ VkDeviceSize roundUp(VkDeviceSize numToRound, uint32_t multiple) {
     return ((numToRound + multiple - 1) / multiple) * multiple;
 }
 
+bool isMultipleOf(VkDeviceSize numToCheck, uint32_t multiple) {
+    return numToCheck % multiple == 0;
+}
+
 bool isLayerSupported(const char *required, const ccstd::vector<VkLayerProperties> &available) {
     for (const VkLayerProperties &availableLayer : available) {
         if (strcmp(availableLayer.layerName, required) == 0) {

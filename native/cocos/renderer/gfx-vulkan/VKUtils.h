@@ -81,6 +81,7 @@ void fullPipelineBarrier(VkCommandBuffer cmdBuff);
 const ThsvsAccessType *getAccessType(AccessFlagBit flag);
 void getAccessTypes(AccessFlags flag, ccstd::vector<ThsvsAccessType> &v);
 VkDeviceSize roundUp(VkDeviceSize numToRound, uint32_t multiple);
+bool isMultipleOf(VkDeviceSize numToCheck, uint32_t multiple);
 bool isLayerSupported(const char *required, const ccstd::vector<VkLayerProperties> &available);
 bool isExtensionSupported(const char *required, const ccstd::vector<VkExtensionProperties> &available);
 bool isFormatSupported(VkPhysicalDevice device, VkFormat format);
