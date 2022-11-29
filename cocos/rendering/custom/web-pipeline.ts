@@ -1035,7 +1035,6 @@ export class WebPipeline implements Pipeline {
         desc.format = format;
         desc.flags = ResourceFlags.COLOR_ATTACHMENT | ResourceFlags.SAMPLED;
 
-        assert(isManaged(residency));
         return this._resourceGraph.addVertex<ResourceGraphValue.Managed>(
             ResourceGraphValue.Managed,
             new ManagedResource(),
