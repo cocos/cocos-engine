@@ -69,18 +69,17 @@ function makeShaderInfo (layouts: PipelineLayoutData, srcShaderInfo: EffectAsset
 
         for (const descriptorBlock of layout.descriptorBlocks) {
             const visibility = descriptorBlock.visibility;
+            let binding = descriptorBlock.offset;
 
-            let binding = 0;
             switch (descriptorBlock.type) {
             case DescriptorTypeOrder.UNIFORM_BUFFER:
-                binding = descriptorBlock.offset;
-                for (const block of descriptorInfo.blocks) {
-                    if (block.stageFlags !== visibility) {
+                for (const ub of descriptorInfo.blocks) {
+                    if (ub.stageFlags !== visibility) {
                         continue;
                     }
                     shaderInfo.blocks.push(
-                        new UniformBlock(set, binding, block.name,
-                            block.members.map((m) => new Uniform(m.name, m.type, m.count)),
+                        new UniformBlock(set, binding, ub.name,
+                            ub.members.map((m) => new Uniform(m.name, m.type, m.count)),
                             1), // count is always 1 for UniformBlock
                     );
                     ++binding;
@@ -90,7 +89,6 @@ function makeShaderInfo (layouts: PipelineLayoutData, srcShaderInfo: EffectAsset
                 // not implemented yet
                 break;
             case DescriptorTypeOrder.SAMPLER_TEXTURE:
-                binding = descriptorBlock.offset;
                 for (const tex of descriptorInfo.samplerTextures) {
                     if (tex.stageFlags !== visibility) {
                         continue;
@@ -102,7 +100,6 @@ function makeShaderInfo (layouts: PipelineLayoutData, srcShaderInfo: EffectAsset
                 }
                 break;
             case DescriptorTypeOrder.SAMPLER:
-                binding = descriptorBlock.offset;
                 for (const sampler of descriptorInfo.samplers) {
                     if (sampler.stageFlags !== visibility) {
                         continue;
@@ -114,7 +111,6 @@ function makeShaderInfo (layouts: PipelineLayoutData, srcShaderInfo: EffectAsset
                 }
                 break;
             case DescriptorTypeOrder.TEXTURE:
-                binding = descriptorBlock.offset;
                 for (const texture of descriptorInfo.textures) {
                     if (texture.stageFlags !== visibility) {
                         continue;
@@ -126,7 +122,6 @@ function makeShaderInfo (layouts: PipelineLayoutData, srcShaderInfo: EffectAsset
                 }
                 break;
             case DescriptorTypeOrder.STORAGE_BUFFER:
-                binding = descriptorBlock.offset;
                 for (const buffer of descriptorInfo.buffers) {
                     if (buffer.stageFlags !== visibility) {
                         continue;
@@ -138,9 +133,9 @@ function makeShaderInfo (layouts: PipelineLayoutData, srcShaderInfo: EffectAsset
                 }
                 break;
             case DescriptorTypeOrder.DYNAMIC_STORAGE_BUFFER:
+                // not implemented yet
                 break;
             case DescriptorTypeOrder.STORAGE_IMAGE:
-                binding = descriptorBlock.offset;
                 for (const image of descriptorInfo.images) {
                     if (image.stageFlags !== visibility) {
                         continue;
@@ -152,7 +147,6 @@ function makeShaderInfo (layouts: PipelineLayoutData, srcShaderInfo: EffectAsset
                 }
                 break;
             case DescriptorTypeOrder.INPUT_ATTACHMENT:
-                binding = descriptorBlock.offset;
                 for (const subpassInput of descriptorInfo.subpassInputs) {
                     if (subpassInput.stageFlags !== visibility) {
                         continue;
