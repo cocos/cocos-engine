@@ -45,6 +45,7 @@ import { RenderEntity, RenderEntityType } from '../renderer/render-entity';
 import { uiRendererManager } from './ui-renderer-manager';
 import { RenderDrawInfoType } from '../renderer/render-draw-info';
 import { director } from '../../game';
+import { MaterialInstance } from '../../render-scene';
 
 // hack
 ccenum(BlendFactor);
@@ -172,6 +173,7 @@ export class UIRenderer extends Renderer {
 
     set customMaterial (val) {
         this._customMaterial = val;
+        this._useCustomMatIns = false;
         this.updateMaterial();
     }
 
@@ -251,6 +253,8 @@ export class UIRenderer extends Renderer {
     protected _instanceMaterialType = -1;
     protected _srcBlendFactorCache = BlendFactor.SRC_ALPHA;
     protected _dstBlendFactorCache = BlendFactor.ONE_MINUS_SRC_ALPHA;
+
+    private _useCustomMatIns = false;
     /**
      * @internal
      */
@@ -417,7 +421,9 @@ export class UIRenderer extends Renderer {
 
     protected updateMaterial () {
         if (this._customMaterial) {
-            this.setMaterial(this._customMaterial, 0);
+            if (!this._useCustomMatIns) {
+                this.setMaterial(this._customMaterial, 0);
+            }
             return;
         }
         const mat = this._updateBuiltinMaterial();
@@ -521,6 +527,9 @@ export class UIRenderer extends Renderer {
     }
 
     protected _onMaterialModified (idx: number, material: Material | null) {
+        if (this._materialInstances.length > 0) {
+            this._useCustomMatIns = true;
+        }
         if (this.renderData) {
             this.markForUpdateRenderData();
             this.renderData.passDirty = true;
