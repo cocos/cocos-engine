@@ -52,7 +52,7 @@ void decideProfilerCamera(const ccstd::vector<scene::Camera *> &cameras) {
 }
 
 void renderProfiler(gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff, scene::Model *profiler, const scene::Camera *camera) {
-    if (profiler && profiler->isEnabled() && camera == profilerCamera) {
+    if (profiler && profiler->isEnabled() && camera->getVisibility() & static_cast<uint32_t>(pipeline::LayerList::PROFILER)) {
         const auto &submodel = profiler->getSubModels()[0];
         auto *pass = submodel->getPass(0);
         auto *ia = submodel->getInputAssembler();

@@ -173,16 +173,12 @@ export class Profiler extends System {
                 this._swapchain = root.mainWindow!.swapchain;
                 this._pipeline = root.pipeline;
             }
-            if (!EDITOR || cclegacy.GAME_VIEW) {
-                this.generateCanvas();
-            }
+
+            this.generateCanvas();
             this.generateStats();
-            if (!EDITOR || cclegacy.GAME_VIEW) {
-                cclegacy.game.once(cclegacy.Game.EVENT_ENGINE_INITED, this.generateNode, this);
-                cclegacy.game.on(cclegacy.Game.EVENT_RESTART, this.generateNode, this);
-            } else {
-                this._inited = true;
-            }
+            cclegacy.game.once(cclegacy.Game.EVENT_ENGINE_INITED, this.generateNode, this);
+            cclegacy.game.on(cclegacy.Game.EVENT_RESTART, this.generateNode, this);
+
             if (this._rootNode) {
                 this._rootNode.active = true;
             }
@@ -245,26 +241,24 @@ export class Profiler extends System {
         let i = 0;
         for (const id in _profileInfo) {
             const element = _profileInfo[id];
-            if (!EDITOR || cclegacy.GAME_VIEW) this._ctx.fillText(element.desc, 0, i * this._lineHeight);
+            this._ctx.fillText(element.desc, 0, i * this._lineHeight);
             element.counter = new PerfCounter(id, element, now);
             i++;
         }
         this._totalLines = i;
         this._wordHeight = this._totalLines * this._lineHeight / this._canvas.height;
-        if (!EDITOR || cclegacy.GAME_VIEW) {
-            for (let j = 0; j < _characters.length; ++j) {
-                const offset = this._ctx.measureText(_characters[j]).width;
-                this._eachNumWidth = Math.max(this._eachNumWidth, offset);
-            }
-            for (let j = 0; j < _characters.length; ++j) {
-                this._ctx.fillText(_characters[j], j * this._eachNumWidth, this._totalLines * this._lineHeight);
-            }
+        for (let j = 0; j < _characters.length; ++j) {
+            const offset = this._ctx.measureText(_characters[j]).width;
+            this._eachNumWidth = Math.max(this._eachNumWidth, offset);
+        }
+        for (let j = 0; j < _characters.length; ++j) {
+            this._ctx.fillText(_characters[j], j * this._eachNumWidth, this._totalLines * this._lineHeight);
         }
         this._eachNumWidth /= this._canvas.width;
 
         this._stats = _profileInfo as IProfilerState;
         this._canvasArr[0] = this._canvas;
-        if (!EDITOR || cclegacy.GAME_VIEW) this._device!.copyTexImagesToTexture(this._canvasArr, this._texture!, this._regionArr);
+        this._device!.copyTexImagesToTexture(this._canvasArr, this._texture!, this._regionArr);
     }
 
     public generateNode () {
@@ -390,24 +384,22 @@ export class Profiler extends System {
             return;
         }
 
-        if (!EDITOR || cclegacy.GAME_VIEW) {
-            const surfaceTransform = this._swapchain!.surfaceTransform;
-            const clipSpaceSignY = this._device!.capabilities.clipSpaceSignY;
-            if (surfaceTransform !== this.offsetData[3]) {
-                const preTransform = preTransforms[surfaceTransform];
-                let x = -0.9; let y = -0.9 * clipSpaceSignY;
-                if (sys.isXR) {
-                    x = -0.5; y = -0.5 * clipSpaceSignY;
-                }
-                this.offsetData[0] = x * preTransform[0] + y * preTransform[2];
-                this.offsetData[1] = x * preTransform[1] + y * preTransform[3];
-                this.offsetData[2] = this._eachNumWidth;
-                this.offsetData[3] = surfaceTransform;
+        const surfaceTransform = this._swapchain!.surfaceTransform;
+        const clipSpaceSignY = this._device!.capabilities.clipSpaceSignY;
+        if (surfaceTransform !== this.offsetData[3]) {
+            const preTransform = preTransforms[surfaceTransform];
+            let x = -0.9; let y = -0.9 * clipSpaceSignY;
+            if (sys.isXR) {
+                x = -0.5; y = -0.5 * clipSpaceSignY;
             }
-
-            // @ts-expect-error using private members for efficiency.
-            this.pass._rootBufferDirty = true;
+            this.offsetData[0] = x * preTransform[0] + y * preTransform[2];
+            this.offsetData[1] = x * preTransform[1] + y * preTransform[3];
+            this.offsetData[2] = this._eachNumWidth;
+            this.offsetData[3] = surfaceTransform;
         }
+
+        // @ts-expect-error using private members for efficiency.
+        this.pass._rootBufferDirty = true;
 
         if (this._meshRenderer.model) {
             director.root!.pipeline.profiler = this._meshRenderer.model;
@@ -442,21 +434,19 @@ export class Profiler extends System {
         (this._stats.tricount.counter as PerfCounter).value = device.numTris;
 
         let i = 0;
-        if (!EDITOR || cclegacy.GAME_VIEW) {
-            const view = this.digitsData;
-            for (const id in this._stats) {
-                const stat = this._stats[id] as ICounterOption;
-                stat.counter.sample(now);
-                const result = stat.counter.human().toString();
-                for (let j = _constants.segmentsPerLine - 1; j >= 0; j--) {
-                    const index = i * _constants.segmentsPerLine + j;
-                    const character = result[result.length - (_constants.segmentsPerLine - j)];
-                    let offset = _string2offset[character];
-                    if (offset === undefined) { offset = 11; }
-                    view[index] = offset;
-                }
-                i++;
+        const view = this.digitsData;
+        for (const id in this._stats) {
+            const stat = this._stats[id] as ICounterOption;
+            stat.counter.sample(now);
+            const result = stat.counter.human().toString();
+            for (let j = _constants.segmentsPerLine - 1; j >= 0; j--) {
+                const index = i * _constants.segmentsPerLine + j;
+                const character = result[result.length - (_constants.segmentsPerLine - j)];
+                let offset = _string2offset[character];
+                if (offset === undefined) { offset = 11; }
+                view[index] = offset;
             }
+            i++;
         }
     }
 }
