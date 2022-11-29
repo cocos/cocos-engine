@@ -28,6 +28,7 @@ import { IVec4Like } from '../core';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { SetIndex } from './define';
 import { Camera, Model } from '../render-scene/scene';
+import { Layers } from '../scene-graph/layers';
 
 const profilerViewport = new Viewport();
 const profilerScissor = new Rect();
@@ -76,7 +77,7 @@ export function decideProfilerCamera (cameras: Camera[]) {
 }
 
 export function renderProfiler (device: Device, renderPass: RenderPass, cmdBuff: CommandBuffer, profiler: Model | null, camera: Camera) {
-    if (profiler && profiler.enabled && camera === profilerCamera) {
+    if (profiler && profiler.enabled && camera.visibility & Layers.Enum.PROFILER) {
         const { inputAssembler, passes, shaders, descriptorSet } = profiler.subModels[0];
         profilerViewport.width = profilerScissor.width = camera.window.width;
         profilerViewport.height = profilerScissor.height = camera.window.height;
