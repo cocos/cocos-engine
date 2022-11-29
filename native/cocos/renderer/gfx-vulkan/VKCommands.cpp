@@ -275,6 +275,12 @@ void cmdFuncCCVKCreateBuffer(CCVKDevice *device, CCVKGPUBuffer *gpuBuffer) {
     VmaAllocationCreateInfo allocInfo{};
 
     if (hasAnyFlags(gpuBuffer->usage, BufferUsageBit::ACCELERATION_STRUCTURE_BUILD_SCRATCH)) {
+        /*
+         * VUID-vkCmdBuildAccelerationStructuresKHR-pInfos-03710
+         * For each element of pInfos,
+         * its scratchData.deviceAddress member must be a multiple of
+         * VkPhysicalDeviceAccelerationStructurePropertiesKHR::minAccelerationStructureScratchOffsetAlignment
+         */
         allocInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
         VkMemoryRequirements memReq;
         memReq.size = gpuBuffer->size;
@@ -287,7 +293,6 @@ void cmdFuncCCVKCreateBuffer(CCVKDevice *device, CCVKGPUBuffer *gpuBuffer) {
         info.size = gpuBuffer->size;
         info.usage = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
         VK_CHECK(vkCreateBuffer(device->gpuDevice()->vkDevice,&info,nullptr,&gpuBuffer->vkBuffer));
-
         VK_CHECK(vmaBindBufferMemory(device->gpuDevice()->memoryAllocator, gpuBuffer->vmaAllocation, gpuBuffer->vkBuffer));
 
         return;
@@ -1745,12 +1750,6 @@ void checkScratchBufferRequirement(CCVKDevice *device, CCVKGPUAccelerationStruct
     // Create Scratch Buffer (if needed)
     if (!accel->scratchBuffer || accel->scratchBuffer->size < accel->buildSizesInfo.buildScratchSize) {
 
-        /*
-         * VUID-vkCmdBuildAccelerationStructuresKHR-pInfos-03710
-         * For each element of pInfos,
-         * its scratchData.deviceAddress member must be a multiple of
-         * VkPhysicalDeviceAccelerationStructurePropertiesKHR::minAccelerationStructureScratchOffsetAlignment
-         */
         accel->scratchBuffer = ccnew CCVKGPUBuffer;
         accel->scratchBuffer->size = accel->buildSizesInfo.buildScratchSize;
         accel->scratchBuffer->usage = BufferUsageBit::SHADER_DEVICE_ADDRESS | BufferUsageBit::ACCELERATION_STRUCTURE_BUILD_SCRATCH;

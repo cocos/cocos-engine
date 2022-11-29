@@ -92,10 +92,24 @@ private:
 };
 
 enum class AllocationPolicy {
+    // No fragment management
+    MONOTONIC_STACK,
+    //Sequential - Not very suit for real-time application
     BEST_FIT,
     WORST_FIT,
     FIRST_FIT,
-    NEXT_FIT
+    NEXT_FIT,
+
+    //Segregated
+    FAST_FIT,
+
+    //Buddy Systems - Need predefining max size
+    BUDDY,
+
+    //Indexed
+    INDEXED_FIT,
+    HALF_FIT,
+
 };
 
 template <typename BlockType, typename Derived>
@@ -139,6 +153,19 @@ struct ArenaAllocator<BlockType, policy> : ArenaAllocatorBase<BlockType, ArenaAl
 #define ARENA_ALLOCATOR_DEFINITION_END(policy) \
     }                                          \
     ;
+
+/***********************************************************
+ *  Monotonic Stack Policy
+ ***********************************************************/
+ARENA_ALLOCATOR_DEFINITION_START(AllocationPolicy::MONOTONIC_STACK)
+bool use_avaiable_free_blocks(const int size, int& offset) {
+    return false;
+}
+
+void add_free_blocks(const int offset, const int size) {
+    
+}
+ARENA_ALLOCATOR_DEFINITION_END(AllocationPolicy::MONOTONIC_STACK)
 
 /***********************************************************
  *  Best Fit Policy
