@@ -562,7 +562,6 @@ class ProgramLib {
             shaderInfo.copy(tmplInfo.shaderInfo);
             shaderInfo.stages[0].source = instantiateLocationDefines(tmplInfo.shaderInfo.stages[0].source, tmpl, macroArray, 'vert', attrMap);
             shaderInfo.stages[1].source = instantiateLocationDefines(tmplInfo.shaderInfo.stages[1].source, tmpl, macroArray, 'frag', attrMap);
-            // let maxLoc = 0;
             for (let i = 0; i < shaderInfo.attributes.length; ++i) {
                 const name = shaderInfo.attributes[i].name;
                 let loc = 0;
