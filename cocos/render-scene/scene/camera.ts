@@ -24,7 +24,7 @@
  */
 import { EDITOR } from 'internal:constants';
 import { SurfaceTransform, ClearFlagBit, Device, Color, ClearFlags } from '../../gfx';
-import { lerp, Mat4, Rect, toRadian, Vec3, IVec4Like, preTransforms, warnID, geometry, cclegacy } from '../../core';
+import { lerp, Mat4, Rect, toRadian, Vec3, IVec4Like, preTransforms, warnID, geometry, cclegacy, Vec4 } from '../../core';
 import { CAMERA_DEFAULT_MASK } from '../../rendering/define';
 import { Node } from '../../scene-graph';
 import { RenderScene } from '../core/render-scene';
@@ -1053,6 +1053,27 @@ export class Camera {
         Mat4.multiply(out, _tempMat1, out);
 
         return out;
+    }
+
+    /**
+     * @en Calculate and set oblique view frustum projection matrix.
+     * @zh 计算并设置斜视锥体投影矩阵
+     * @param clipPlane clip plane in camera space
+     */
+    public calculateObliqueMat (viewSpacePlane: Vec4) {
+        const clipFar = new Vec4(Math.sign(viewSpacePlane.x), Math.sign(viewSpacePlane.y), 1.0, 1.0);
+        const viewFar = clipFar.transformMat4(this._matProjInv);
+
+        const m4 = new Vec4(this._matProj.m03, this._matProj.m07, this._matProj.m11, this._matProj.m15);
+        const scale = 2.0 / Vec4.dot(viewSpacePlane, viewFar);
+        const newViewSpaceNearPlane = viewSpacePlane.multiplyScalar(scale);
+
+        const m3 = newViewSpaceNearPlane.subtract(m4);
+
+        this._matProj.m02 = m3.x;
+        this._matProj.m06 = m3.y;
+        this._matProj.m10 = m3.z;
+        this._matProj.m14 = m3.w;
     }
 
     /**
