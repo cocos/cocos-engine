@@ -184,11 +184,13 @@ export class WebProgramLibrary extends ProgramLibraryData implements ProgramLibr
         for (const tech of effect.techniques) {
             for (const pass of tech.passes) {
                 const programName = pass.program;
+                // pass
                 const passID = getCustomPassID(this.layoutGraph, pass.pass);
                 if (passID === INVALID_ID) {
                     console.error(`Invalid render pass, program: ${programName}`);
                     continue;
                 }
+                // phase
                 const phaseID = getCustomPhaseID(this.layoutGraph, passID, pass.phase);
                 if (phaseID === INVALID_ID) {
                     console.error(`Invalid render phase, program: ${programName}`);
@@ -196,6 +198,7 @@ export class WebProgramLibrary extends ProgramLibraryData implements ProgramLibr
                 }
                 const layouts = lg.getLayout(phaseID);
 
+                // programs
                 const group = this.phases.get(phaseID);
                 if (group === undefined) {
                     console.error(`Invalid render phase, program: ${programName}`);
@@ -203,6 +206,7 @@ export class WebProgramLibrary extends ProgramLibraryData implements ProgramLibr
                 }
                 const phasePrograms = group.programs;
 
+                // source shader info
                 let srcShaderInfo: EffectAsset.IShaderInfo | null = null;
                 for (const shaderInfo of effect.shaders) {
                     if (shaderInfo.name === programName) {
@@ -218,6 +222,8 @@ export class WebProgramLibrary extends ProgramLibraryData implements ProgramLibr
                     console.error(`No descriptors in shader: ${programName}, please reimport ALL effects`);
                     continue;
                 }
+
+                // build program
                 const programInfo = makeProgramInfo(effect.name, srcShaderInfo);
                 const shaderInfo = makeShaderInfo(layouts, srcShaderInfo);
                 phasePrograms.set(srcShaderInfo.name, new ProgramInfo(programInfo, shaderInfo));
