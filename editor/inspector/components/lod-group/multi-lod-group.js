@@ -62,14 +62,17 @@ exports.methods = {
         if (that.dump.value) {
             that.multiObjectSizeInvalid = that.dump.value.objectSize.values.some((val) => val !== that.dump.value.objectSize.values[0]);
             const multiLodGroups = that.dump.value.LODs.values;
-            that.multiLen = multiLodGroups.reduce((pre, next) => {
-                return pre.length < next.length ? pre.length : next.length;
-            });
+            that.multiLen = multiLodGroups.reduce((pre, current) => {
+                return pre < current.length ? pre : current.length;
+            }, multiLodGroups[0].length);
             const multiLods = [];
             for (let i = 0; i < that.multiLen; i++) {
                 let multiScreenSizeInvalid = false;
                 for (let j = 1; j < multiLodGroups.length; j++) {
-                    if (multiLodGroups[j][i].value.screenUsagePercentage.value !== multiLodGroups[0][i].value.screenUsagePercentage.value) {
+                    if (
+                        !multiLodGroups[0][i] || !multiLodGroups[j][i] ||
+                        multiLodGroups[j][i].value.screenUsagePercentage.value !== multiLodGroups[0][i].value.screenUsagePercentage.value
+                    ) {
                         multiScreenSizeInvalid = true;
                         break;
                     }
@@ -88,7 +91,7 @@ exports.methods = {
     onMultiScreenSizeConfirm(event, index) {
         const that = this;
         that.dump.value.LODs.values.forEach((lod) => {
-            lod[index].value.screenUsagePercentage.value = event.target.value / 100;
+            lod[index] && (lod[index].value.screenUsagePercentage.value = event.target.value / 100);
         });
         that.updateDump(that.dump.value.LODs);
     },

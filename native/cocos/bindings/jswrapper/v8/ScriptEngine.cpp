@@ -221,8 +221,15 @@ public:
         ccstd::string flags;
         // NOTICE: spaces are required between flags
         flags.append(" --expose-gc-as=" EXPOSE_GC);
-        flags.append(" --no-flush-bytecode --no-lazy"); // for bytecode support
-                                                        // flags.append(" --trace-gc"); // v8 trace gc
+        // for bytecode support
+        flags.append(" --no-flush-bytecode --no-lazy");
+        // v8 trace gc
+        // flags.append(" --trace-gc");
+
+        // NOTICE: should be remove flag --no-turbo-escape after upgrade v8 to 10.x
+        // https://github.com/cocos/cocos-engine/issues/13342
+        flags.append(" --no-turbo-escape");
+
         #if (CC_PLATFORM == CC_PLATFORM_IOS)
         flags.append(" --jitless");
         #endif

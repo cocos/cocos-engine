@@ -105,7 +105,7 @@ declare namespace jsb {
 
     export let onHandlePoseInput: (infoList: PoseInfo[]) => void | undefined;
     export let onHMDPoseInput: (infoList: PoseInfo[]) => void | undefined;
-    export let onHandsetPoseInput: (infoList: PoseInfo[]) => void | undefined;
+    export let onHandheldPoseInput: (infoList: PoseInfo[]) => void | undefined;
 
     export interface KeyboardEvent {
         altKey: boolean;

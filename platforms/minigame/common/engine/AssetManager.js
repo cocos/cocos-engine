@@ -23,7 +23,10 @@ function downloadScript (url, options, onComplete) {
         onComplete && onComplete(new Error('Can not load remote scripts'));
     }
     else {
-        require('../../../' + url);
+        //TODO: Can't load scripts dynamically on Taobao platform
+        if (sys.platform !== sys.Platform.TAOBAO_CREATIVE_APP) {
+            require('../../../' + url);
+        }
         onComplete && onComplete(null);
     }
 }
@@ -240,7 +243,10 @@ function downloadBundle (nameOrUrl, options, onComplete) {
                 js = `assets/${bundleName}/index.${suffix}js`;
             }
         }
-        require('./' + js);
+        //TODO: Can't load scripts dynamically on Taobao platform
+        if (sys.platform !== sys.Platform.TAOBAO_CREATIVE_APP) {
+            require('./' + js);
+        }
         options.__cacheBundleRoot__ = bundleName;
         var config = `${url}/config.${suffix}json`;
         downloadJson(config, options, function (err, data) {
@@ -259,7 +265,6 @@ function downloadBundle (nameOrUrl, options, onComplete) {
                     data.base = unzipPath + '/res/';
                     // PATCH: for android alipay version before v10.1.95 (v10.1.95 included)
                     // to remove in the future
-                    let sys = cc.sys;
                     if (sys.platform === sys.Platform.ALIPAY_MINI_GAME && sys.os === sys.OS.ANDROID) {
                         let resPath = unzipPath + 'res/';
                         if (fs.accessSync({path: resPath})) {

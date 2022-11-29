@@ -69,8 +69,6 @@ using namespace cc;
 //  2. namespace is needed
 //
 %ignore cc::RefCounted;
-%ignore cc::scene::LODGroup::getVisibleLODLevel;
-%ignore cc::scene::LODGroup::getLockedLODLevels;
 
 %ignore cc::scene::Pass::getBlocks;
 %ignore cc::scene::Pass::initPassFromTarget;

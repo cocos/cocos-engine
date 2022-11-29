@@ -7110,6 +7110,58 @@ static bool js_cc_scene_LODGroup_detachFromScene(se::State& s)
 }
 SE_BIND_FUNC(js_cc_scene_LODGroup_detachFromScene) 
 
+static bool js_cc_scene_LODGroup_getVisibleLODLevel(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::LODGroup *arg1 = (cc::scene::LODGroup *) NULL ;
+    cc::scene::Camera *arg2 = (cc::scene::Camera *) NULL ;
+    int8_t result;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::scene::LODGroup>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    result = ((cc::scene::LODGroup const *)arg1)->getVisibleLODLevel((cc::scene::Camera const *)arg2);
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject()); 
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_scene_LODGroup_getVisibleLODLevel) 
+
+static bool js_cc_scene_LODGroup_getLockedLODLevels(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::LODGroup *arg1 = (cc::scene::LODGroup *) NULL ;
+    ccstd::vector< uint8_t > *result = 0 ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::scene::LODGroup>(s);
+    if (nullptr == arg1) return true;
+    result = (ccstd::vector< uint8_t > *) &((cc::scene::LODGroup const *)arg1)->getLockedLODLevels();
+    
+    ok &= nativevalue_to_se(*result, s.rval(), s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(*result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_scene_LODGroup_getLockedLODLevels) 
+
 static bool js_cc_scene_LODGroup_lockLODLevels(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -7463,6 +7515,8 @@ bool js_register_cc_scene_LODGroup(se::Object* obj) {
     
     cls->defineFunction("attachToScene", _SE(js_cc_scene_LODGroup_attachToScene)); 
     cls->defineFunction("detachFromScene", _SE(js_cc_scene_LODGroup_detachFromScene)); 
+    cls->defineFunction("getVisibleLODLevel", _SE(js_cc_scene_LODGroup_getVisibleLODLevel)); 
+    cls->defineFunction("getLockedLODLevels", _SE(js_cc_scene_LODGroup_getLockedLODLevels)); 
     cls->defineFunction("lockLODLevels", _SE(js_cc_scene_LODGroup_lockLODLevels)); 
     cls->defineFunction("clearLODs", _SE(js_cc_scene_LODGroup_clearLODs)); 
     cls->defineFunction("insertLOD", _SE(js_cc_scene_LODGroup_insertLOD)); 
