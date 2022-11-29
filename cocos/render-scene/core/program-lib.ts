@@ -23,15 +23,18 @@
  THE SOFTWARE.
 */
 
+import * as env from 'internal:constants';
 import { EffectAsset } from '../../asset/assets/effect-asset';
 import { SetIndex, IDescriptorSetLayoutInfo, globalDescriptorSetLayout, localDescriptorSetLayout } from '../../rendering/define';
 import { PipelineRuntime } from '../../rendering/custom/pipeline';
 import { genHandle, MacroRecord } from './pass-utils';
-import { PipelineLayoutInfo, Device, Attribute, UniformBlock, ShaderInfo,
+import {
+    PipelineLayoutInfo, Device, Attribute, UniformBlock, ShaderInfo,
     Uniform, ShaderStage, DESCRIPTOR_SAMPLER_TYPE, DESCRIPTOR_BUFFER_TYPE,
     DescriptorSetLayout, DescriptorSetLayoutBinding, DescriptorSetLayoutInfo,
     DescriptorType, GetTypeSize, ShaderStageFlagBit, API, UniformSamplerTexture, PipelineLayout,
-    Shader, UniformStorageBuffer, UniformStorageImage, UniformSampler, UniformTexture, UniformInputAttachment } from '../../gfx';
+    Shader, UniformStorageBuffer, UniformStorageImage, UniformSampler, UniformTexture, UniformInputAttachment,
+} from '../../gfx';
 import { debug, cclegacy } from '../../core';
 
 const _dsLayoutInfo = new DescriptorSetLayoutInfo();
@@ -180,8 +183,6 @@ function getActiveAttributes (tmpl: IProgramInfo, tmplInfo: ITemplateInfo, defin
 
 // eslint-disable-next-line max-len
 function instantiateLocationDefines (source: string, tmpl: IProgramInfo, macroInfo: IMacroInfo[], shaderStage: string, attrMap: Map<string, number>) {
-    // layout(location = USE_INSTANCING__AND__CC_USE_BAKED_ANIMATION*1+USE_INSTANCING*1+5) in vec4 a_matWorld0;
-
     // eslint-disable-next-line max-len
     function instLocation (source: string, tmpl: IProgramInfo, macroInfo: IMacroInfo[], shaderStage, inOrOut: string, attrMap: Map<string, number>) {
         const locExistingRegStr = `layout\\(location = (\\d+)\\)\\s+${inOrOut}.*?\\s(\\w+)[;,\\)]`;
@@ -190,20 +191,24 @@ function instantiateLocationDefines (source: string, tmpl: IProgramInfo, macroIn
         let code = source;
         const locSet = new Set();
         while (locExistingRes) {
-            let loc = parseInt(locExistingRes[1]);
-            if (loc > 15) {
-                let n = 0;
-                while (locSet.has(n)) {
-                    n++;
+            const attrName = locExistingRes[2];
+            const attrInfo = tmpl.attributes.find((ele) => ele.name === attrName);
+            const preExisted = attrInfo?.defines.length === 0 || attrInfo?.defines.every((ele) => ele === '');
+            if (preExisted) {
+                let loc = parseInt(locExistingRes[1]);
+                if (loc > 15) {
+                    let n = 0;
+                    while (locSet.has(n)) {
+                        n++;
+                    }
+                    loc = n;
+                    // flatten location index
+                    const locDefStr = locExistingRes[0].replace(locExistingRes[1], `${loc}`);
+                    code = source.replace(locExistingRes[0], locDefStr);
                 }
-                loc = n;
-                // flatten location index
-                const locDefStr = locExistingRes[0].replace(locExistingRes[1], `${loc}`);
-                code = source.replace(locExistingRes[0], locDefStr);
-                locSet.add(n);
+                locSet.add(loc);
+                attrMap.set(locExistingRes[2], loc);
             }
-            locSet.add(loc);
-            attrMap.set(locExistingRes[2], loc);
             locExistingRes = locExistingReg.exec(source);
         }
 
@@ -212,11 +217,8 @@ function instantiateLocationDefines (source: string, tmpl: IProgramInfo, macroIn
 
         let locHolder = locHolderReg.exec(source);
         while (locHolder) {
-            if (locHolder[1].includes('+')) {
-                // USE_INSTANCING__AND__CC_USE_BAKED_ANIMATION*1, USE_INSTANCING*1, 5
-                const expressions = locHolder[1].split('+');
-
-                const attrName = locHolder[2];
+            const attrName = locHolder[2];
+            if (!attrMap.has(attrName)) {
                 const attrInfo = tmpl.attributes.find((ele) => ele.name === attrName);
                 let active = true;
                 let location = 0;
@@ -234,30 +236,6 @@ function instantiateLocationDefines (source: string, tmpl: IProgramInfo, macroIn
                     });
                 }
 
-                // location = expressions.reduce((acc, expression) => {
-                //     if (expression.includes('*')) {
-                //         const operands = expression.split('*');
-                //         const index = parseInt(operands[1]!);
-                //         const factors = operands[0].split('__AND__');
-                //         const cond = factors.every((factor) => {
-                //             const inverseCond = factor.startsWith('!');
-                //             const defStr = inverseCond ? factor.slice(1) : factor;
-                //             const v = macroInfo.find((ele) => ele.name === defStr);
-                //             let res = !!v;
-                //             if (v) {
-                //                 res = !(v.value === '0' || v.value === 'false' || v.value === 'FALSE');
-                //             }
-                //             return inverseCond ? !res : res;
-                //         });
-                //         const factor = cond ? 1 : 0;
-                //         acc += factor * index;
-                //         if (acc > 0) active = true;
-                //     } else {
-                //         acc += parseInt(expression);
-                //     }
-                //     return acc;
-                // }, 0);
-
                 if (active) {
                     while (locSet.has(location)) {
                         location++;
@@ -269,9 +247,7 @@ function instantiateLocationDefines (source: string, tmpl: IProgramInfo, macroIn
                             attrInfo.location = location;
                         }
 
-                        if (inOrOut === 'out') {
-                            attrMap.set(attrName, location);
-                        }
+                        attrMap.set(attrName, location);
                     } else if (shaderStage === 'frag') {
                         if (inOrOut === 'in') {
                             location = attrMap.get(attrName) || 0;
@@ -579,19 +555,24 @@ class ProgramLib {
 
         tmplInfo.shaderInfo.name = getShaderInstanceName(name, macroArray);
 
-        const attrMap = new Map<string, number>();
-        const shaderInfo = new ShaderInfo();
-        shaderInfo.copy(tmplInfo.shaderInfo);
-        shaderInfo.stages[0].source = instantiateLocationDefines(tmplInfo.shaderInfo.stages[0].source, tmpl, macroArray, 'vert', attrMap);
-        shaderInfo.stages[1].source = instantiateLocationDefines(tmplInfo.shaderInfo.stages[1].source, tmpl, macroArray, 'frag', attrMap);
-        // let maxLoc = 0;
-        for (let i = 0; i < shaderInfo.attributes.length; ++i) {
-            const name = shaderInfo.attributes[i].name;
-            let loc = 0;
-            if (attrMap.has(name)) {
-                loc = attrMap.get(name)!;
-                shaderInfo.attributes[i].location = loc;
+        let shaderInfo;
+        if (env.WEBGPU) {
+            const attrMap = new Map<string, number>();
+            shaderInfo = new ShaderInfo();
+            shaderInfo.copy(tmplInfo.shaderInfo);
+            shaderInfo.stages[0].source = instantiateLocationDefines(tmplInfo.shaderInfo.stages[0].source, tmpl, macroArray, 'vert', attrMap);
+            shaderInfo.stages[1].source = instantiateLocationDefines(tmplInfo.shaderInfo.stages[1].source, tmpl, macroArray, 'frag', attrMap);
+            // let maxLoc = 0;
+            for (let i = 0; i < shaderInfo.attributes.length; ++i) {
+                const name = shaderInfo.attributes[i].name;
+                let loc = 0;
+                if (attrMap.has(name)) {
+                    loc = attrMap.get(name)!;
+                    shaderInfo.attributes[i].location = loc;
+                }
             }
+        } else {
+            shaderInfo = tmplInfo.shaderInfo;
         }
 
         return this._cache[key] = device.createShader(shaderInfo);
