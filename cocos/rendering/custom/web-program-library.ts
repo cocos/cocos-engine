@@ -196,7 +196,7 @@ export class WebProgramLibrary extends ProgramLibraryData implements ProgramLibr
                 const group = this.phases.get(phaseID);
                 if (group === undefined) {
                     console.error(`Invalid render phase, program: ${programName}`);
-                    return;
+                    continue;
                 }
                 const phasePrograms = group.programs;
 
