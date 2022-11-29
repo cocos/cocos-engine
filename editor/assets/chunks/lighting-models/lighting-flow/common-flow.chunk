@@ -77,7 +77,7 @@
 
       // CCSurfacesLightingCalculateShadow:
       lightingResult.shadow = 1.0;
-      #if CC_SURFACES_USE_LIGHT_MAP != LIGHT_MAP_TYPE_ALL_IN_ONE && CC_RECEIVE_SHADOW && CC_SHADOW_TYPE == CC_SHADOW_MAP
+      #if CC_RECEIVE_SHADOW && CC_SHADOW_TYPE == CC_SHADOW_MAP
         if (cc_mainLitDir.w > 0.0) {
           vec4 shadowPos = vec4(0.0), shadowNDCPosWithBias = vec4(0.0);
           if (CCSurfacesLightingEnableShadow(lightingData.NoL)) {

@@ -189,7 +189,7 @@ class SystemInfo extends EventTarget {
             [Feature.EVENT_HANDLE]: EDITOR || PREVIEW,
             [Feature.EVENT_HMD]: this.isXR,
             // @ts-expect-error undefined xr
-            [Feature.EVENT_HANDSET]: (typeof navigator.xr !== 'undefined'),
+            [Feature.EVENT_HANDHELD]: (typeof navigator.xr !== 'undefined'),
         };
 
         this._initPromise = [];

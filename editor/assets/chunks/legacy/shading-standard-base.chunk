@@ -118,7 +118,7 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
   float NL = max(dot(N, L), 0.0);
 
   float shadow = 1.0;
-  #if CC_USE_LIGHTMAP != LIGHT_MAP_TYPE_ALL_IN_ONE && CC_RECEIVE_SHADOW && CC_SHADOW_TYPE == CC_SHADOW_MAP
+  #if CC_RECEIVE_SHADOW && CC_SHADOW_TYPE == CC_SHADOW_MAP
     if (NL > 0.0 && cc_mainLitDir.w > 0.0) {
       if (cc_shadowLPNNInfo.w > 0.0) {
         #if CC_DIR_LIGHT_SHADOW_TYPE == CC_DIR_LIGHT_SHADOW_CASCADED
