@@ -33,7 +33,7 @@ import { IVec2Like } from '../../../core';
 /// </summary>
 /// <param name="polygon"></param>
 /// <returns></returns>
-export function ConvexPartition(polygon: IVec2Like[]) {
+export function ConvexPartition (polygon: IVec2Like[]) {
     // We force it to CCW as it is a precondition in this algorithm.
     ForceCounterClockWise(polygon);
 
@@ -49,22 +49,22 @@ export function ConvexPartition(polygon: IVec2Like[]) {
         return [polygon];
     }
 
-    let ret : IVec2Like[][]= [];
-    let triangles = Triangulate(polygon);
-    if(!triangles) return null;
+    const ret : IVec2Like[][] = [];
+    const triangles = Triangulate(polygon);
+    if (!triangles) return null;
     for (; triangles.length;) {
         let poly = triangles.splice(0, 1)[0];
         for (let iPoly = 0, polyLen = poly.length; iPoly < polyLen; ++iPoly) {
-            let diag1 = poly[iPoly];
-            let diag2 = poly[(iPoly + 1) % polyLen];
+            const diag1 = poly[iPoly];
+            const diag2 = poly[(iPoly + 1) % polyLen];
             // find diagonal
             let tri3: (IVec2Like | null) = null;
             let iTri2 = 0;
             for (; iTri2 < triangles.length; ++iTri2) {
-                let triangle = triangles[iTri2] as [IVec2Like,IVec2Like,IVec2Like];
+                const triangle = triangles[iTri2] as [IVec2Like, IVec2Like, IVec2Like];
                 for (let i = 0; i < 3; ++i) {
-                    let tri1 = triangle[i];
-                    let tri2 = triangle[(i + 1) % 3];
+                    const tri1 = triangle[i];
+                    const tri2 = triangle[(i + 1) % 3];
                     if (equals(diag1, tri2) && equals(diag2, tri1)) {
                         tri3 = triangle[(i + 2) % 3];
                         break;
@@ -84,7 +84,7 @@ export function ConvexPartition(polygon: IVec2Like[]) {
                 continue;
             }
             // merge triangle
-            let newPoly : IVec2Like[]= [];
+            const newPoly : IVec2Like[] = [];
             for (let i = (iPoly + 1) % polyLen; i != iPoly; i = (i + 1) % polyLen) {
                 newPoly.push(poly[i]);
             }
@@ -100,36 +100,36 @@ export function ConvexPartition(polygon: IVec2Like[]) {
 }
 
 class Vertex {
-    public isActive: boolean = false;
-    public isConvex: boolean = false;
-    public isEar: boolean = false;
+    public isActive = false;
+    public isConvex = false;
+    public isEar = false;
     public point: IVec2Like| null = null;
-    public angleCos: number = 0;
-    public shouldUpdate:boolean = false;
-    public index: number = 0;
+    public angleCos = 0;
+    public shouldUpdate = false;
+    public index = 0;
     public prev: Vertex| null = null;
     public next: Vertex| null = null;
 }
 
 // Signed area.
-function area(a, b, c) {
+function area (a, b, c) {
     return (b.y - a.y) * (c.x - b.x) - (b.x - a.x) * (c.y - b.y);
 }
 
 // Whether corner of a counterclockwise polygon is convex.
-function isConvex(p1, p2, p3) {
+function isConvex (p1, p2, p3) {
     return area(p1, p2, p3) < 0;
 }
 
-function equals(a, b) {
+function equals (a, b) {
     return a.x === b.x && a.y === b.y;
 }
 
-function isClockwise(polygon: IVec2Like[]) {
+function isClockwise (polygon: IVec2Like[]) {
     let sum = 0;
     for (let i = 0, len = polygon.length; i < len; ++i) {
-        let p1 = polygon[i];
-        let p2 = polygon[(i + 1) % len];
+        const p1 = polygon[i];
+        const p2 = polygon[(i + 1) % len];
         sum += (p2.x - p1.x) * (p2.y + p1.y);
     }
     return sum > 0;
@@ -142,39 +142,39 @@ function ForceCounterClockWise (vertices: IVec2Like[]) {
     }
 }
 
-function updateVertex(vertex, vertices) {
+function updateVertex (vertex, vertices) {
     if (!vertex.shouldUpdate) {
         return;
     }
     vertex.shouldUpdate = false;
-    let v1 = vertex.prev.point;
-    let v2 = vertex.point;
-    let v3 = vertex.next.point;
+    const v1 = vertex.prev.point;
+    const v2 = vertex.point;
+    const v3 = vertex.next.point;
     vertex.isConvex = isConvex(v1, v2, v3);
     let v1x = v1.x - v2.x;
     let v1y = v1.y - v2.y;
-    let v1Len = Math.sqrt(v1x * v1x + v1y * v1y);
+    const v1Len = Math.sqrt(v1x * v1x + v1y * v1y);
     v1x /= v1Len;
     v1y /= v1Len;
     let v3x = v3.x - v2.x;
     let v3y = v3.y - v2.y;
-    let v3Len = Math.sqrt(v3x * v3x + v3y * v3y);
+    const v3Len = Math.sqrt(v3x * v3x + v3y * v3y);
     v3x /= v3Len;
     v3y /= v3Len;
     vertex.angleCos = v1x * v3x + v1y * v3y;
     if (vertex.isConvex) {
         vertex.isEar = true;
         for (let i = 0, len = vertices.length; i < len; ++i) {
-            let curr = vertices[i];
+            const curr = vertices[i];
             if (!curr.isActive || curr === vertex) {
                 continue;
             }
             if (equals(v1, curr.point) || equals(v2, curr.point) || equals(v3, curr.point)) {
                 continue;
             }
-            let areaA = area(v1, curr.point, v2);
-            let areaB = area(v2, curr.point, v3);
-            let areaC = area(v3, curr.point, v1);
+            const areaA = area(v1, curr.point, v2);
+            const areaB = area(v2, curr.point, v3);
+            const areaC = area(v3, curr.point, v1);
             if (areaA > 0 && areaB > 0 && areaC > 0) {
                 vertex.isEar = false;
                 break;
@@ -198,14 +198,13 @@ function updateVertex(vertex, vertices) {
                 }
             }
         }
-    }
-    else {
+    } else {
         vertex.isEar = false;
     }
 }
 
-function removeCollinearOrDuplicate(start) {
-    for (let curr = start, end = start;;) {
+function removeCollinearOrDuplicate (start) {
+    for (let curr = start, end = start; ;) {
         if (equals(curr.point, curr.next.point)
             || area(curr.prev.point, curr.point, curr.next.point) === 0) {
             curr.prev.next = curr.next;
@@ -227,18 +226,18 @@ function removeCollinearOrDuplicate(start) {
 }
 
 // Triangulation by ear clipping.
-function Triangulate(polygon: IVec2Like[]) {
+function Triangulate (polygon: IVec2Like[]) {
     ForceCounterClockWise(polygon);
 
     if (polygon.length < 4) {
         return [polygon];
     }
-    let len = polygon.length;
-    let vertices: Vertex[] = [];
-    let triangles: [IVec2Like,IVec2Like,IVec2Like][] = [];
+    const len = polygon.length;
+    const vertices: Vertex[] = [];
+    const triangles: [IVec2Like, IVec2Like, IVec2Like][] = [];
     // init
     for (let i = 0; i < len; ++i) {
-        let v = new Vertex();
+        const v = new Vertex();
         v.isActive = true;
         v.isConvex = false;
         v.isEar = false;
@@ -249,33 +248,32 @@ function Triangulate(polygon: IVec2Like[]) {
         vertices.push(v);
     }
     for (let i = 0; i < len; ++i) {
-        let vertex = vertices[i];
+        const vertex = vertices[i];
         vertex.prev = vertices[(i + len - 1) % len];
         vertex.next = vertices[(i + 1) % len];
     }
-    vertices.forEach(function (vertex) { return updateVertex(vertex, vertices); });
+    vertices.forEach((vertex) => updateVertex(vertex, vertices));
     for (let i = 0; i < len - 3; ++i) {
         let ear;
         // find the most extruded ear
         for (let j = 0; j < len; ++j) {
-            let vertex = vertices[j];
+            const vertex = vertices[j];
             if (!vertex.isActive || !vertex.isEar) {
                 continue;
             }
             if (!ear) {
                 ear = vertex;
-            }
-            else if (vertex.angleCos > ear.angleCos) {
+            } else if (vertex.angleCos > ear.angleCos) {
                 ear = vertex;
             }
         }
         if (!ear) {
             for (let i_1 = 0; i_1 < len; ++i_1) {
-                let vertex = vertices[i_1];
+                const vertex = vertices[i_1];
                 if (vertex.isActive) {
-                    let p1 = vertex.prev!.point;
-                    let p2 = vertex.point;
-                    let p3 = vertex.next!.point;
+                    const p1 = vertex.prev!.point;
+                    const p2 = vertex.point;
+                    const p3 = vertex.next!.point;
                     if (Math.abs(area(p1, p2, p3)) > 1e-5) {
                         //throw new Error('Failed to find ear. There may be self-intersection in the polygon.');
                         console.log('Failed to find ear. There may be self-intersection in the polygon.');
@@ -300,13 +298,13 @@ function Triangulate(polygon: IVec2Like[]) {
         }
     }
     for (let i = 0; i < len; ++i) {
-        let vertex = vertices[i];
+        const vertex = vertices[i];
         if (vertex.isActive) {
             vertex.prev!.isActive = false;
             vertex.next!.isActive = false;
-            let p1 = vertex.prev!.point;
-            let p2 = vertex.point;
-            let p3 = vertex.next!.point;
+            const p1 = vertex.prev!.point;
+            const p2 = vertex.point;
+            const p3 = vertex.next!.point;
             if (Math.abs(area(p1, p2, p3)) > 1e-5) {
                 triangles.push([p1!, p2!, p3!]);
             }
@@ -314,4 +312,3 @@ function Triangulate(polygon: IVec2Like[]) {
     }
     return triangles;
 }
-
