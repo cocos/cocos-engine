@@ -1,14 +1,30 @@
-
-
-import { ccclass, property, menu } from '../../../../core/data/class-decorator';
-import { Component, Vec2, Size } from '../../../../core';
+import { ccclass, property, menu, type } from '../../../../core/data/class-decorator';
+import { Component, Vec2, Size, Enum } from '../../../../core';
 import { Collider2D } from './collider-2d';
 import { ECollider2DType } from '../../physics-types';
 import { IPolygonShape } from '../../../spec/i-physics-shape';
 
+export enum EPolygonPartitionType {
+    MarkBayazit = 0,
+    HertelMehlhorn = 1
+}
+Enum(EPolygonPartitionType);
+
 @ccclass('cc.PolygonCollider2D')
 @menu('Physics2D/Colliders/PolygonCollider2D')
 export class PolygonCollider2D extends Collider2D {
+    @type(EPolygonPartitionType)
+    public get polygonPartitionType (): EPolygonPartitionType {
+        return this._polygonPartitionType;
+    }
+
+    public set polygonPartitionType (v: EPolygonPartitionType) {
+        this._polygonPartitionType = v;
+    }
+
+    @property
+    _polygonPartitionType = EPolygonPartitionType.HertelMehlhorn;
+
     @property({ serializable: false, displayOrder: 0 })
     threshold = 1;
 

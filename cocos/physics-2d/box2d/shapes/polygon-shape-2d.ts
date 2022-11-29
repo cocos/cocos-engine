@@ -1,10 +1,11 @@
 import b2 from '@cocos/box2d';
 import { b2Shape2D } from './shape-2d';
 import * as PolygonSeparator from '../../framework/utils/polygon-separator';
-import { PolygonCollider2D } from '../../framework';
+import * as PolygonPartition from '../../framework/utils/polygon-partition';
+import { EPolygonPartitionType, PolygonCollider2D } from '../../framework';
 import { PHYSICS_2D_PTM_RATIO } from '../../framework/physics-types';
 import { IPolygonShape } from '../../spec/i-physics-shape';
-import { Vec2 } from '../../../core';
+import { Vec2, IVec2Like } from '../../../core';
 
 export class b2PolygonShape extends b2Shape2D implements IPolygonShape {
     _worldPoints: Vec2[] = [];
@@ -35,7 +36,14 @@ export class b2PolygonShape extends b2Shape2D implements IPolygonShape {
             points.length -= 1;
         }
 
-        const polys = PolygonSeparator.ConvexPartition(points);
+        let polys :IVec2Like[][]|null = null;
+        if (comp._polygonPartitionType === EPolygonPartitionType.MarkBayazit) {
+            polys = PolygonSeparator.ConvexPartition(points);
+        } else if (comp._polygonPartitionType === EPolygonPartitionType.HertelMehlhorn) {
+            polys = PolygonPartition.ConvexPartition(points);
+        }
+        if (!polys) return shapes;
+
         const offset = comp.offset;
 
         for (let i = 0; i < polys.length; i++) {
