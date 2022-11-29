@@ -32,10 +32,12 @@ import { CustomPipelineBuilder, NativePipelineBuilder } from './custom-pipeline'
 import { LayoutGraphData, loadLayoutGraphData } from './layout-graph';
 import { BinaryInputArchive } from './binary-archive';
 import { EffectAsset } from '../../asset/assets/effect-asset';
+import { WebProgramLibrary } from './web-program-library';
 
 let _pipeline: WebPipeline | null = null;
 
 const defaultLayoutGraph = new LayoutGraphData();
+const programLib = new WebProgramLibrary(defaultLayoutGraph);
 
 export * from './types';
 export * from './pipeline';

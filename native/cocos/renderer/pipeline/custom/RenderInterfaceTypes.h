@@ -295,7 +295,7 @@ public:
     virtual ~ProgramLibrary() noexcept = default;
 
     virtual void addEffect(EffectAsset *effectAsset) = 0;
-    virtual ProgramProxy *getShaderProgram(const ccstd::string &variantName) const = 0;
+    virtual ProgramProxy *getProgramVariant(uint32_t phaseID, const ccstd::string &variantName) const = 0;
 };
 
 class Pipeline : public PipelineRuntime {

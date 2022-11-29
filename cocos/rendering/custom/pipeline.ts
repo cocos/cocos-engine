@@ -166,7 +166,7 @@ export interface ProgramProxy {
 
 export interface ProgramLibrary {
     addEffect (effectAsset: EffectAsset): void;
-    getShaderProgram (variantName: string): ProgramProxy;
+    getProgramVariant (phaseID: number, variantName: string): ProgramProxy;
 }
 
 export interface Pipeline extends PipelineRuntime {
