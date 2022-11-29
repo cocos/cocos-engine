@@ -349,7 +349,7 @@ void FrameGraph::mergePassNodes() noexcept {
 
                 ResourceNode &resourceNode = _resourceNodes[attachmentInLastPassNode.textureHandle];
                 uint16_t &writeCount = resourceNode.virtualResource->_writerCount;
-                CC_ASSERT(writeCount > 1);
+                CC_ASSERT_GT(writeCount, 1);
                 --writeCount;
 
                 resourceNode.readerCount += _resourceNodes[attachmentInCurrentPassNode.textureHandle].readerCount;

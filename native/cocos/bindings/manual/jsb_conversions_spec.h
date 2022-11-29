@@ -260,7 +260,7 @@ inline bool sevalue_to_native(const se::Value &from, double *to, se::Object * /*
 }
 
 //inline bool sevalue_to_native(const se::Value & /*from*/, void * /*to*/, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
-//    CC_ASSERT(false);                                                                               // void not supported
+//    CC_ABORT();                                                                               // void not supported
 //    return false;
 //}
 
@@ -322,7 +322,7 @@ inline bool sevalue_to_native(const se::Value &from, ccstd::vector<se::Value> *t
 
 //////////////////  ccstd::any
 inline bool sevalue_to_native(const se::Value & /*from*/, ccstd::any * /*to*/, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
-    CC_ASSERT(false);
+    CC_ABORT();
     SE_LOGE("Can not convert any to specific types");
     return false;
 }
@@ -338,7 +338,7 @@ bool sevalue_to_native(const se::Value &from, cc::IBArray *to, se::Object * /*ct
 //}
 
 inline bool sevalue_to_native(const se::Value &from, void **to, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
-    CC_ASSERT(to != nullptr);
+    CC_ASSERT_NOT_NULL(to);
     if (from.isNumber() || from.isBigInt()) {
         // NOLINTNEXTLINE(performance-no-int-to-ptr)
         *to = reinterpret_cast<void *>(from.toUint64());
@@ -563,7 +563,7 @@ inline bool nativevalue_to_se(const ccstd::monostate & /*from*/, se::Value &to, 
 }
 
 inline bool nativevalue_to_se(const ccstd::any &from, se::Value &to, se::Object *ctx) { //NOLINT
-    CC_ASSERT(false);
+    CC_ABORT();
     SE_LOGE("should not convert ccstd::any");
     return true;
 }

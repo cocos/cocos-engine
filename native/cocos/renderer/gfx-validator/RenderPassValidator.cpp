@@ -56,12 +56,12 @@ void RenderPassValidator::doInit(const RenderPassInfo &info) {
     for (auto &attachment : _colorAttachments) {
         if (attachment.loadOp == LoadOp::LOAD && attachment.barrier->getInfo().prevAccesses == AccessFlagBit::NONE) {
             // Attachment missing beginAccesses for LoadOp::LOAD.
-            CC_ASSERT(false);
+            CC_ABORT();
         }
     }
     if ((_depthStencilAttachment.depthLoadOp == LoadOp::LOAD || _depthStencilAttachment.stencilLoadOp == LoadOp::LOAD) && _depthStencilAttachment.barrier->getInfo().prevAccesses == AccessFlagBit::NONE) {
         // Attachment missing beginAccesses for LoadOp::LOAD.
-        CC_ASSERT(false);
+        CC_ABORT();
     }
 
     /////////// execute ///////////

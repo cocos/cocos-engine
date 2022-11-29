@@ -166,7 +166,7 @@ uint32_t Spline::getSegments() const {
 
             return count / 4;
         default:
-            CC_ASSERT(false);
+            CC_ABORT();
             return 0;
     }
 }

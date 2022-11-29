@@ -171,7 +171,7 @@ private:
                     continue;
                 }
                 eleCount++;
-                CC_ASSERT(eleCount < 2);
+                CC_ASSERT_LT(eleCount, 2);
                 eachCallback(itr->second);
             }
             if constexpr (hasEmptyCallback) {

@@ -128,7 +128,7 @@ ccstd::unordered_map<ccstd::string, se::Value> gModuleCache;
 static bool require(se::State &s) { // NOLINT
     const auto &args = s.args();
     int argc = static_cast<int>(args.size());
-    CC_ASSERT(argc >= 1);
+    CC_ASSERT_GE(argc, 1);
     CC_ASSERT(args[0].isString());
 
     return jsb_run_script(args[0].toString(), &s.rval());
@@ -235,14 +235,14 @@ static bool doModuleRequire(const ccstd::string &path, se::Value *ret, const ccs
     }
 
     SE_LOGE("doModuleRequire %s, buffer is empty!\n", path.c_str());
-    CC_ASSERT(false);
+    CC_ABORT();
     return false;
 }
 
 static bool moduleRequire(se::State &s) { // NOLINT
     const auto &args = s.args();
     int argc = static_cast<int>(args.size());
-    CC_ASSERT(argc >= 2);
+    CC_ASSERT_GE(argc, 2);
     CC_ASSERT(args[0].isString());
     CC_ASSERT(args[1].isString());
 
@@ -308,7 +308,7 @@ static bool jsc_dumpNativePtrToSeObjectMap(se::State &s) { // NOLINT
 SE_BIND_FUNC(jsc_dumpNativePtrToSeObjectMap)
 
 static bool jsc_dumpRoot(se::State &s) { // NOLINT
-    CC_ASSERT(false);
+    CC_ABORT();
     return true;
 }
 SE_BIND_FUNC(jsc_dumpRoot)
@@ -349,7 +349,7 @@ SE_BIND_FUNC(JSBCore_os)
 
 static bool JSBCore_getCurrentLanguage(se::State &s) { // NOLINT
     ISystem *systemIntf = CC_GET_PLATFORM_INTERFACE(ISystem);
-    CC_ASSERT(systemIntf != nullptr);
+    CC_ASSERT_NOT_NULL(systemIntf);
     ccstd::string languageStr = systemIntf->getCurrentLanguageToString();
     s.rval().setString(languageStr);
     return true;
@@ -358,7 +358,7 @@ SE_BIND_FUNC(JSBCore_getCurrentLanguage)
 
 static bool JSBCore_getCurrentLanguageCode(se::State &s) { // NOLINT
     ISystem *systemIntf = CC_GET_PLATFORM_INTERFACE(ISystem);
-    CC_ASSERT(systemIntf != nullptr);
+    CC_ASSERT_NOT_NULL(systemIntf);
     ccstd::string language = systemIntf->getCurrentLanguageCode();
     s.rval().setString(language);
     return true;
@@ -367,7 +367,7 @@ SE_BIND_FUNC(JSBCore_getCurrentLanguageCode)
 
 static bool JSB_getOSVersion(se::State &s) { // NOLINT
     ISystem *systemIntf = CC_GET_PLATFORM_INTERFACE(ISystem);
-    CC_ASSERT(systemIntf != nullptr);
+    CC_ASSERT_NOT_NULL(systemIntf);
     ccstd::string systemVersion = systemIntf->getSystemVersion();
     s.rval().setString(systemVersion);
     return true;
@@ -412,7 +412,7 @@ static bool JSB_setCursorEnabled(se::State &s) { // NOLINT
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     auto *systemWindowIntf = CC_GET_SYSTEM_WINDOW(ISystemWindow::mainWindowId);
-    CC_ASSERT(systemWindowIntf != nullptr);
+    CC_ASSERT_NOT_NULL(systemWindowIntf);
     systemWindowIntf->setCursorEnabled(value);
     return true;
 }
@@ -435,8 +435,8 @@ static bool JSB_saveByteCode(se::State &s) { // NOLINT
 SE_BIND_FUNC(JSB_saveByteCode)
 
 static bool getOrCreatePlainObject_r(const char *name, se::Object *parent, se::Object **outObj) { // NOLINT
-    CC_ASSERT(parent != nullptr);
-    CC_ASSERT(outObj != nullptr);
+    CC_ASSERT_NOT_NULL(parent);
+    CC_ASSERT_NOT_NULL(outObj);
     se::Value tmp;
 
     if (parent->getProperty(name, &tmp) && tmp.isObject()) {
@@ -587,7 +587,7 @@ bool jsb_global_load_image(const ccstd::string &path, const se::Value &callbackV
                 return;
             }
             auto engine = app->getEngine();
-            CC_ASSERT(engine != nullptr);
+            CC_ASSERT_NOT_NULL(engine);
             engine->getScheduler()->performFunctionInCocosThread([=]() {
                 se::AutoHandleScope hs;
                 se::ValueArray seArgs;
@@ -752,7 +752,7 @@ static bool JSB_openURL(se::State &s) { // NOLINT
         ok = sevalue_to_native(args[0], &url);
         SE_PRECONDITION2(ok, false, "url is invalid!");
         ISystem *systemIntf = CC_GET_PLATFORM_INTERFACE(ISystem);
-        CC_ASSERT(systemIntf != nullptr);
+        CC_ASSERT_NOT_NULL(systemIntf);
         systemIntf->openURL(url);
         return true;
     }
@@ -771,7 +771,7 @@ static bool JSB_copyTextToClipboard(se::State &s) { // NOLINT
         ok = sevalue_to_native(args[0], &text);
         SE_PRECONDITION2(ok, false, "text is invalid!");
         ISystemWindow *systemWindowIntf = CC_GET_PLATFORM_INTERFACE(ISystemWindow);
-        CC_ASSERT(systemWindowIntf != nullptr);
+        CC_ASSERT_NOT_NULL(systemWindowIntf);
         systemWindowIntf->copyTextToClipboard(text);
         return true;
     }

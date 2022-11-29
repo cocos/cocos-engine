@@ -118,7 +118,7 @@ void BloomStage::destroy() {
 void BloomStage::render(scene::Camera *camera) {
     CC_PROFILE(BloomStageRender);
     auto *pipeline = _pipeline;
-    CC_ASSERT(pipeline != nullptr);
+    CC_ASSERT_NOT_NULL(pipeline);
     if (!pipeline->isBloomEnabled() || pipeline->getPipelineSceneData()->getRenderObjects().empty()) return;
 
     if (_prefilterUBO == nullptr) {
@@ -165,7 +165,7 @@ void BloomStage::render(scene::Camera *camera) {
     };
 
     auto *stage = static_cast<BloomStage *>(pipeline->getRenderstageByName(BLOOM_STAGE_NAME));
-    CC_ASSERT(stage != nullptr);
+    CC_ASSERT_NOT_NULL(stage);
     int iterations = stage->getIterations();
     float intensity = stage->getIntensity();
     float threshold = stage->getThreshold();
@@ -226,7 +226,7 @@ void BloomStage::render(scene::Camera *camera) {
         gfx::Shader *shader = sceneData->getBloomPrefilterPassShader();
         gfx::PipelineState *pso = PipelineStateManager::getOrCreatePipelineState(
             pass, shader, _inputAssembler, renderPass);
-        CC_ASSERT(pso != nullptr);
+        CC_ASSERT_NOT_NULL(pso);
 
         data.bloomUBO->update(data.textureSize, sizeof(data.textureSize));
 
@@ -304,7 +304,7 @@ void BloomStage::render(scene::Camera *camera) {
             gfx::Shader *shader = sceneData->getBloomDownSamplePassShader();
             gfx::PipelineState *pso = PipelineStateManager::getOrCreatePipelineState(
                 pass, shader, _inputAssembler, renderPass);
-            CC_ASSERT(pso != nullptr);
+            CC_ASSERT_NOT_NULL(pso);
 
             data.bloomUBO->update(data.textureSize, sizeof(data.textureSize));
 
@@ -376,7 +376,7 @@ void BloomStage::render(scene::Camera *camera) {
             gfx::Shader *shader = sceneData->getBloomUpSamplePassShader();
             gfx::PipelineState *pso = PipelineStateManager::getOrCreatePipelineState(
                 pass, shader, _inputAssembler, renderPass);
-            CC_ASSERT(pso != nullptr);
+            CC_ASSERT_NOT_NULL(pso);
 
             data.bloomUBO->update(data.textureSize, sizeof(data.textureSize));
 
@@ -453,7 +453,7 @@ void BloomStage::render(scene::Camera *camera) {
         gfx::Shader *shader = sceneData->getBloomCombinePassShader();
         gfx::PipelineState *pso = PipelineStateManager::getOrCreatePipelineState(
             pass, shader, _inputAssembler, renderPass);
-        CC_ASSERT(pso != nullptr);
+        CC_ASSERT_NOT_NULL(pso);
 
         data.bloomUBO->update(data.textureSize, sizeof(data.textureSize));
 

@@ -262,7 +262,7 @@ void Camera::detachCamera() {
 }
 
 geometry::Ray Camera::screenPointToRay(float x, float y) {
-    CC_ASSERT(_node != nullptr);
+    CC_ASSERT_NOT_NULL(_node);
     const float cx = _orientedViewport.x * static_cast<float>(_width);
     const float cy = _orientedViewport.y * static_cast<float>(_height);
     const float cw = _orientedViewport.z * static_cast<float>(_width);

@@ -76,13 +76,13 @@ Node::~Node() {
 
 void Node::onBatchCreated(bool dontChildPrefab) {
     // onBatchCreated was implemented in TS, so code should never go here.
-    CC_ASSERT(false);
+    CC_ABORT();
     emit<BatchCreated>(dontChildPrefab);
 }
 
 Node *Node::instantiate(Node *cloned, bool isSyncedNode) {
     if (!cloned) {
-        CC_ASSERT(false);
+        CC_ABORT();
         // TODO(): cloned = legacyCC.instantiate._clone(this, this);
         return nullptr;
     }

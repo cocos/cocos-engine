@@ -46,28 +46,28 @@ RenderEntity::~RenderEntity() {
 };
 
 void RenderEntity::addDynamicRenderDrawInfo(RenderDrawInfo* drawInfo) {
-    CC_ASSERT(_renderEntityType != RenderEntityType::STATIC);
+    CC_ASSERT_NE(_renderEntityType, RenderEntityType::STATIC);
     _dynamicDrawInfos.push_back(drawInfo);
 }
 void RenderEntity::setDynamicRenderDrawInfo(RenderDrawInfo* drawInfo, uint32_t index) {
-    CC_ASSERT(_renderEntityType != RenderEntityType::STATIC);
+    CC_ASSERT_NE(_renderEntityType, RenderEntityType::STATIC);
     if (index < _dynamicDrawInfos.size()) {
         _dynamicDrawInfos[index] = drawInfo;
     }
 }
 void RenderEntity::removeDynamicRenderDrawInfo() {
-    CC_ASSERT(_renderEntityType != RenderEntityType::STATIC);
+    CC_ASSERT_NE(_renderEntityType, RenderEntityType::STATIC);
     if (_dynamicDrawInfos.empty()) return;
     _dynamicDrawInfos.pop_back(); // warning: memory leaking & crash
 }
 
 void RenderEntity::clearDynamicRenderDrawInfos() {
-    CC_ASSERT(_renderEntityType != RenderEntityType::STATIC);
+    CC_ASSERT_NE(_renderEntityType, RenderEntityType::STATIC);
     _dynamicDrawInfos.clear();
 }
 
 void RenderEntity::clearStaticRenderDrawInfos() {
-    CC_ASSERT(_renderEntityType == RenderEntityType::STATIC);
+    CC_ASSERT_EQ(_renderEntityType, RenderEntityType::STATIC);
 
     for (uint32_t i = 0; i < _staticDrawInfoSize; i++) {
         RenderDrawInfo& drawInfo = _staticDrawInfos[i];
@@ -91,14 +91,14 @@ void RenderEntity::setRenderTransform(Node* renderTransform) {
 }
 
 RenderDrawInfo* RenderEntity::getDynamicRenderDrawInfo(uint32_t index) {
-    CC_ASSERT(_renderEntityType != RenderEntityType::STATIC);
+    CC_ASSERT_NE(_renderEntityType, RenderEntityType::STATIC);
     if (index >= _dynamicDrawInfos.size()) {
         return nullptr;
     }
     return _dynamicDrawInfos[index];
 }
 ccstd::vector<RenderDrawInfo*>& RenderEntity::getDynamicRenderDrawInfos() {
-    CC_ASSERT(_renderEntityType != RenderEntityType::STATIC);
+    CC_ASSERT_NE(_renderEntityType, RenderEntityType::STATIC);
     return _dynamicDrawInfos;
 }
 void RenderEntity::setStaticDrawInfoSize(uint32_t size) {
@@ -110,7 +110,7 @@ RenderDrawInfo* RenderEntity::getStaticRenderDrawInfo(uint32_t index) {
     return &(_staticDrawInfos[index]);
 }
 std::array<RenderDrawInfo, RenderEntity::STATIC_DRAW_INFO_CAPACITY>& RenderEntity::getStaticRenderDrawInfos() {
-    CC_ASSERT(_renderEntityType == RenderEntityType::STATIC);
+    CC_ASSERT_EQ(_renderEntityType, RenderEntityType::STATIC);
     return _staticDrawInfos;
 }
 } // namespace cc

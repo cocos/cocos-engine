@@ -357,7 +357,7 @@ public:
 
     /** Adds a new element at the end of the Vector. */
     void pushBack(T object) {
-        CC_ASSERT(object != nullptr);
+        CC_ASSERT_NOT_NULL(object);
         _data.push_back(object);
         object->addRef();
     }
@@ -377,7 +377,7 @@ public:
      */
     void insert(uint32_t index, T object) {
         CC_ASSERT(index <= size());
-        CC_ASSERT(object != nullptr);
+        CC_ASSERT_NOT_NULL(object);
         _data.insert((std::begin(_data) + index), object);
         object->addRef();
     }
@@ -398,7 +398,7 @@ public:
      *                   If its value is 'false', it will just erase the first occurrence.
      */
     void eraseObject(T object, bool removeAll = false) {
-        CC_ASSERT(object != nullptr);
+        CC_ASSERT_NOT_NULL(object);
 
         if (removeAll) {
             for (auto iter = _data.begin(); iter != _data.end();) {
@@ -485,7 +485,7 @@ public:
     /** Replace value at index with given object. */
     void replace(uint32_t index, T object) {
         CC_ASSERT(index < size());
-        CC_ASSERT(object != nullptr);
+        CC_ASSERT_NOT_NULL(object);
 
         CC_SAFE_RELEASE(_data[index]);
         _data[index] = object;

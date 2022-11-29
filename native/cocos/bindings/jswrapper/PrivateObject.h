@@ -57,7 +57,7 @@ public:
     virtual const char *getName() const = 0;
     virtual void *getRaw() const = 0;
     virtual void allowDestroyInGC() const {
-        CC_ASSERT(false);
+        CC_ABORT();
     }
     virtual void tryAllowDestroyInGC() const {}
 
@@ -185,7 +185,7 @@ inline std::shared_ptr<T> TypedPrivateObject<T>::share() {
     if (isSharedPtr()) {
         return reinterpret_cast<SharedPtrPrivateObject<T> *>(this)->getData();
     }
-    CC_ASSERT(false);
+    CC_ABORT();
     return std::shared_ptr<T>(nullptr);
 }
 template <typename T>

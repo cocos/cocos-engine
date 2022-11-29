@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <cassert>
+#include <assert.h> // NOLINT
 #include <sstream>
 #include <utility>
 

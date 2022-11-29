@@ -76,7 +76,7 @@ int CocosApplication::init() {
                 this->onClose();
                 break;
             default:
-                CC_ASSERT(false);
+                CC_ABORT();
         }
     });
 

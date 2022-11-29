@@ -815,11 +815,11 @@ bool ScriptEngine::isValid() const {
 bool ScriptEngine::evalString(const char *script, uint32_t length /* = 0 */, Value *ret /* = nullptr */, const char *fileName /* = nullptr */) {
     if (_engineThreadId != std::this_thread::get_id()) {
         // `evalString` should run in main thread
-        CC_ASSERT(false);
+        CC_ABORT();
         return false;
     }
 
-    CC_ASSERT(script != nullptr);
+    CC_ASSERT_NOT_NULL(script);
     if (length == 0) {
         length = static_cast<uint32_t>(strlen(script));
     }

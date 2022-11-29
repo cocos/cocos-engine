@@ -114,7 +114,7 @@
 
 template <typename T>
 bool seval_to_native_ptr(const se::Value &v, T *ret) { // NOLINT(readability-identifier-naming)
-    CC_ASSERT(ret != nullptr);
+    CC_ASSERT_NOT_NULL(ret);
 
     if (v.isObject()) {
         T ptr = static_cast<T>(v.toObject()->getPrivateData());
@@ -199,7 +199,7 @@ seval_to_type(const se::Value &v, bool &ok) { // NOLINT(readability-identifier-n
 template <typename T>
 typename std::enable_if<std::is_pointer<T>::value && std::is_class<typename std::remove_pointer<T>::type>::value, bool>::type
 seval_to_std_vector(const se::Value &v, ccstd::vector<T> *ret) { // NOLINT(readability-identifier-naming)
-    CC_ASSERT(ret != nullptr);
+    CC_ASSERT_NOT_NULL(ret);
     CC_ASSERT(v.isObject());
     se::Object *obj = v.toObject();
     CC_ASSERT(obj->isArray());
@@ -239,7 +239,7 @@ seval_to_std_vector(const se::Value &v, ccstd::vector<T> *ret) { // NOLINT(reada
 template <typename T>
 typename std::enable_if<!std::is_pointer<T>::value, bool>::type
 seval_to_std_vector(const se::Value &v, ccstd::vector<T> *ret) { // NOLINT(readability-identifier-naming)
-    CC_ASSERT(ret != nullptr);
+    CC_ASSERT_NOT_NULL(ret);
     CC_ASSERT(v.isObject());
     se::Object *obj = v.toObject();
     CC_ASSERT(obj->isArray());
@@ -272,7 +272,7 @@ seval_to_std_vector(const se::Value &v, ccstd::vector<T> *ret) { // NOLINT(reada
 
 template <typename T>
 bool seval_to_Map_string_key(const se::Value &v, cc::RefMap<ccstd::string, T> *ret) { // NOLINT(readability-identifier-naming)
-    CC_ASSERT(ret != nullptr);
+    CC_ASSERT_NOT_NULL(ret);
     CC_ASSERT(v.isObject());
     se::Object *obj = v.toObject();
 
@@ -318,7 +318,7 @@ native_ptr_to_seval(T &v_ref, se::Value *ret, bool *isReturnCachedValue = nullpt
     using DecayT = typename std::decay<typename std::remove_const<decltype(v_ref)>::type>::type;
     auto *v = const_cast<DecayT *>(&v_ref);
 
-    CC_ASSERT(ret != nullptr);
+    CC_ASSERT_NOT_NULL(ret);
     if (v == nullptr) {
         ret->setNull();
         return true;
@@ -335,7 +335,7 @@ native_ptr_to_seval(T &v_ref, se::Value *ret, bool *isReturnCachedValue = nullpt
         .orElse([&]() {
             // If we couldn't find native object in map, then the native object is created from native code. e.g. TMXLayer::getTileAt
             // CC_LOG_DEBUGWARN("WARNING: non-Ref type: (%s) isn't catched!", typeid(*v).name());
-            CC_ASSERT(cls != nullptr);
+            CC_ASSERT_NOT_NULL(cls);
             se::Object *obj = se::Object::createObjectWithClass(cls);
             ret->setObject(obj, true);
             cc_tmp_set_private_data(obj, v);
@@ -351,7 +351,7 @@ template <typename T>
 bool native_ptr_to_rooted_seval( // NOLINT(readability-identifier-naming)
     typename std::enable_if<!std::is_base_of<cc::RefCounted, T>::value, T>::type *v,
     se::Value *ret, bool *isReturnCachedValue = nullptr) {
-    CC_ASSERT(ret != nullptr);
+    CC_ASSERT_NOT_NULL(ret);
     if (v == nullptr) {
         ret->setNull();
         return true;
@@ -370,7 +370,7 @@ bool native_ptr_to_rooted_seval( // NOLINT(readability-identifier-naming)
             })
         .orElse([&]() {
             // If we couldn't find native object in map, then the native object is created from native code. e.g. TMXLayer::getTileAt
-            CC_ASSERT(cls != nullptr);
+            CC_ASSERT_NOT_NULL(cls);
             auto *obj = se::Object::createObjectWithClass(cls);
             obj->root();
             obj->setRawPrivateData(v);
@@ -388,7 +388,7 @@ template <typename T>
 bool native_ptr_to_seval(T *vp, se::Class *cls, se::Value *ret, bool *isReturnCachedValue = nullptr) { // NOLINT(readability-identifier-naming)
     using DecayT = typename std::decay<typename std::remove_const<T>::type>::type;
     auto *v = const_cast<DecayT *>(vp);
-    CC_ASSERT(ret != nullptr);
+    CC_ASSERT_NOT_NULL(ret);
     if (v == nullptr) {
         ret->setNull();
         return true;
@@ -405,7 +405,7 @@ bool native_ptr_to_seval(T *vp, se::Class *cls, se::Value *ret, bool *isReturnCa
         .orElse([&]() {
             // If we couldn't find native object in map, then the native object is created from native code. e.g. TMXLayer::getTileAt
             // CC_LOG_DEBUGWARN("WARNING: Ref type: (%s) isn't catched!", typeid(*v).name());
-            CC_ASSERT(cls != nullptr);
+            CC_ASSERT_NOT_NULL(cls);
             auto *obj = se::Object::createObjectWithClass(cls);
             ret->setObject(obj, true);
             cc_tmp_set_private_data(obj, v);
@@ -421,7 +421,7 @@ template <typename T>
 bool native_ptr_to_seval(T *vp, se::Value *ret, bool *isReturnCachedValue = nullptr) { // NOLINT(readability-identifier-naming)
     using DecayT = typename std::decay<typename std::remove_const<T>::type>::type;
     auto *v = const_cast<DecayT *>(vp);
-    CC_ASSERT(ret != nullptr);
+    CC_ASSERT_NOT_NULL(ret);
     if (v == nullptr) {
         ret->setNull();
         return true;
@@ -440,7 +440,7 @@ bool native_ptr_to_seval(T *vp, se::Value *ret, bool *isReturnCachedValue = null
         .orElse([&]() {
             // If we couldn't find native object in map, then the native object is created from native code. e.g. TMXLayer::getTileAt
             // CC_LOG_DEBUGWARN("WARNING: Ref type: (%s) isn't catched!", typeid(*v).name());
-            CC_ASSERT(cls != nullptr);
+            CC_ASSERT_NOT_NULL(cls);
             auto *obj = se::Object::createObjectWithClass(cls);
             ret->setObject(obj, true);
             cc_tmp_set_private_data(obj, v);
@@ -453,7 +453,7 @@ bool native_ptr_to_seval(T *vp, se::Value *ret, bool *isReturnCachedValue = null
 }
 template <typename T>
 bool std_vector_to_seval(const ccstd::vector<T> &v, se::Value *ret) { // NOLINT(readability-identifier-naming)
-    CC_ASSERT(ret != nullptr);
+    CC_ASSERT_NOT_NULL(ret);
     bool ok = true;
     se::HandleObject obj(se::Object::createArrayObject(v.size()));
 
@@ -472,7 +472,7 @@ bool std_vector_to_seval(const ccstd::vector<T> &v, se::Value *ret) { // NOLINT(
 
 template <typename T>
 bool seval_to_reference(const se::Value &v, T **ret) { // NOLINT(readability-identifier-naming)
-    CC_ASSERT(ret != nullptr);
+    CC_ASSERT_NOT_NULL(ret);
     CC_ASSERT(v.isObject());
     *ret = static_cast<T *>(v.toObject()->getPrivateData());
     return true;
@@ -625,7 +625,7 @@ sevalue_to_native(const se::Value &from, T *to, se::Object * /*unused*/) { // NO
     if constexpr (std::is_copy_assignable<T>::value) {
         *to = *static_cast<T *>(obj->getPrivateData());
     } else {
-        CC_ASSERT(false); // can not copy
+        CC_ABORT(); // can not copy
     }
     return true;
 }
@@ -681,7 +681,7 @@ bool sevalue_to_native(const se::Value &from, ccstd::array<T, CNT> *to, se::Obje
     uint32_t len = 0;
     array->getArrayLength(&len);
     se::Value tmp;
-    CC_ASSERT(len >= CNT);
+    CC_ASSERT_GE(len, CNT);
     for (uint32_t i = 0; i < CNT; i++) {
         array->getArrayElement(i, &tmp);
         sevalue_to_native(tmp, &(*to)[i], ctx);
@@ -712,7 +712,7 @@ bool sevalue_to_native(const se::Value &from, ccstd::array<uint8_t, CNT> *to, se
         uint32_t len = 0;
         array->getArrayLength(&len);
         se::Value tmp;
-        CC_ASSERT(len >= CNT);
+        CC_ASSERT_GE(len, CNT);
         for (size_t i = 0; i < CNT; i++) {
             array->getArrayElement(static_cast<uint32_t>(i), &tmp);
             sevalue_to_native(tmp, &(*to)[i], ctx);
@@ -772,7 +772,7 @@ sevalue_to_native(const se::Value &from, T **to, se::Object * /*ctx*/) { // NOLI
     } else if (data->isTypedArray()) {
         data->getTypedArrayData(&tmp, nullptr);
     } else {
-        CC_ASSERT(false); // bad type
+        CC_ABORT(); // bad type
         return false;
     }
     *to = reinterpret_cast<T *>(tmp);
@@ -935,7 +935,7 @@ inline bool sevalue_to_native(const se::Value &from, std::function<void(Args...)
 template <typename... Args>
 inline bool sevalue_to_native(const se::Value & /*from*/, ccstd::variant<Args...> * /*to*/, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
     static_assert(sizeof...(Args) == 0, "should not pass variant from js -> native");
-    CC_ASSERT(false);
+    CC_ABORT();
     return false;
 }
 
@@ -950,7 +950,7 @@ inline bool sevalue_to_native(const se::Value &from, HolderType<T, is_reference>
         if constexpr (std::is_constructible<T>::value) {
             holder->ptr = ccnew_placement(&holder->inlineObject) T;
         } else {
-            CC_ASSERT(false); // default construtor not provided
+            CC_ABORT(); // default construtor not provided
         }
         return sevalue_to_native(from, holder->ptr, ctx);
     } else if constexpr (is_jsb_object_v<T>) {
@@ -1382,7 +1382,7 @@ bool nativevalue_to_se(const spine::Vector<T *> &v, se::Value &ret, se::Object *
 
 template <typename T>
 bool sevalue_to_native(const se::Value &v, spine::Vector<T *> *ret, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
-    CC_ASSERT(ret != nullptr);
+    CC_ASSERT_NOT_NULL(ret);
     CC_ASSERT(v.isObject());
     se::Object *obj = v.toObject();
     CC_ASSERT(obj->isArray());

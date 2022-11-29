@@ -183,7 +183,7 @@ void EventDispatcher::dispatchTouchEvent(const TouchEvent &touchEvent) {
             eventName = "onTouchCancel";
             break;
         default:
-            CC_ASSERT(false);
+            CC_ABORT();
             break;
     }
 
@@ -233,7 +233,7 @@ void EventDispatcher::dispatchMouseEvent(const MouseEvent &mouseEvent) {
             jsFunctionName = "onMouseWheel";
             break;
         default:
-            CC_ASSERT(false);
+            CC_ABORT();
             break;
     }
 
@@ -259,7 +259,7 @@ void EventDispatcher::dispatchKeyboardEvent(const KeyboardEvent &keyboardEvent) 
             eventName = "onKeyUp";
             break;
         default:
-            CC_ASSERT(false);
+            CC_ABORT();
             break;
     }
 
