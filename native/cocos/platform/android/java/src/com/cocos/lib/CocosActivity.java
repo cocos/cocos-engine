@@ -87,7 +87,7 @@ public class CocosActivity extends GameActivity {
 
         int orientation = getRequestedOrientation();
         if (orientation == ActivityInfo.SCREEN_ORIENTATION_SENSOR || orientation == ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE || orientation == ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT) {
-            mOrientationHelper = new CocosOrientationHelper(this);
+            // mOrientationHelper = new CocosOrientationHelper(this);
         }
     }
 

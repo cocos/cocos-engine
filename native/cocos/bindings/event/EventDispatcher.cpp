@@ -364,24 +364,24 @@ void EventDispatcher::dispatchResizeEvent(int width, int height, uint32_t window
 }
 
 void EventDispatcher::dispatchOrientationChangeEvent(int orientation) {
-    if (!se::ScriptEngine::getInstance()->isValid()) {
-        return;
-    }
+    // if (!se::ScriptEngine::getInstance()->isValid()) {
+    //     return;
+    // }
 
-    se::AutoHandleScope scope;
-    CC_ASSERT(inited);
+    // se::AutoHandleScope scope;
+    // CC_ASSERT(inited);
 
-    se::Value func;
-    __jsbObj->getProperty("onOrientationChanged", &func);
-    if (func.isObject() && func.toObject()->isFunction()) {
-        se::Value evtObj;
-        accessCacheArgObj(func.toObject(), &evtObj);
-        evtObj.toObject()->setProperty("orientation", se::Value(orientation));
+    // se::Value func;
+    // __jsbObj->getProperty("onOrientationChanged", &func);
+    // if (func.isObject() && func.toObject()->isFunction()) {
+    //     se::Value evtObj;
+    //     accessCacheArgObj(func.toObject(), &evtObj);
+    //     evtObj.toObject()->setProperty("orientation", se::Value(orientation));
 
-        se::ValueArray args;
-        args.emplace_back(evtObj);
-        func.toObject()->call(args, nullptr);
-    }
+    //     se::ValueArray args;
+    //     args.emplace_back(evtObj);
+    //     func.toObject()->call(args, nullptr);
+    // }
 }
 
 void EventDispatcher::dispatchEnterBackgroundEvent() {
