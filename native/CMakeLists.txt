@@ -429,6 +429,7 @@ cocos_source_files(
     cocos/base/IndexHandle.h
     cocos/base/Locked.h
     cocos/base/Macros.h
+    cocos/base/Assertf.h
     cocos/base/Object.h
     cocos/base/Ptr.h
     cocos/base/Random.h
