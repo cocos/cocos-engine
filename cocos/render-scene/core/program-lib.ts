@@ -181,90 +181,190 @@ function getActiveAttributes (tmpl: IProgramInfo, tmplInfo: ITemplateInfo, defin
     return out;
 }
 
-// eslint-disable-next-line max-len
-function instantiateLocationDefines (source: string, tmpl: IProgramInfo, macroInfo: IMacroInfo[], shaderStage: string, attrMap: Map<string, number>) {
-    // eslint-disable-next-line max-len
-    function instLocation (source: string, tmpl: IProgramInfo, macroInfo: IMacroInfo[], shaderStage, inOrOut: string, attrMap: Map<string, number>) {
-        const locExistingRegStr = `layout\\(location = (\\d+)\\)\\s+${inOrOut}.*?\\s(\\w+)[;,\\)]`;
-        const locExistingReg = new RegExp(locExistingRegStr, 'g');
-        let locExistingRes = locExistingReg.exec(source);
-        let code = source;
-        const locSet = new Set();
-        while (locExistingRes) {
-            const attrName = locExistingRes[2];
-            const attrInfo = tmpl.attributes.find((ele) => ele.name === attrName);
-            const preExisted = attrInfo?.defines.length === 0 || attrInfo?.defines.every((ele) => ele === '');
-            if (preExisted) {
-                let loc = parseInt(locExistingRes[1]);
-                if (loc > 15) {
-                    let n = 0;
-                    while (locSet.has(n)) {
-                        n++;
-                    }
-                    loc = n;
-                    // flatten location index
-                    const locDefStr = locExistingRes[0].replace(locExistingRes[1], `${loc}`);
-                    code = source.replace(locExistingRes[0], locDefStr);
+// find those location which won't be affected by defines, and replace by ascending order of existing slot if location > 15
+function findDefineIndependent (source: string, tmpl: IProgramInfo, attrMap: Map<string, number>, locSet: Set<number>) {
+    const locExistingRegStr = `layout\\(location = (\\d+)\\)\\s+in.*?\\s(\\w+)[;,\\)]`;
+    const locExistingReg = new RegExp(locExistingRegStr, 'g');
+    let locExistingRes = locExistingReg.exec(source);
+    let code = source;
+    // layout(location = 3) in mediump vec3 v_normal;
+    // 3
+    // v_normal
+    while (locExistingRes) {
+        const attrName = locExistingRes[2];
+        const attrInfo = tmpl.attributes.find((ele) => ele.name === attrName);
+        // no define required.
+        const preExisted = attrInfo?.defines.length === 0 || attrInfo?.defines.every((ele) => ele === '');
+        if (preExisted) {
+            let loc = parseInt(locExistingRes[1]);
+            if (loc > 15) {
+                // fill hole by ascending order if location > 15
+                let n = 0;
+                while (locSet.has(n)) {
+                    n++;
                 }
-                locSet.add(loc);
-                attrMap.set(locExistingRes[2], loc);
+                loc = n;
+                // flatten location index
+                const locDefStr = locExistingRes[0].replace(locExistingRes[1], `${loc}`);
+                code = source.replace(locExistingRes[0], locDefStr);
             }
-            locExistingRes = locExistingReg.exec(source);
+            locSet.add(loc);
+            attrMap.set(locExistingRes[2], loc);
         }
-
-        const locHolderRegStr = `layout\\(location = ([^\\)]+)\\)\\s+${inOrOut}.*?\\s(\\w+)[;,\\)]`;
-        const locHolderReg = new RegExp(locHolderRegStr, 'g');
-
-        let locHolder = locHolderReg.exec(source);
-        while (locHolder) {
-            const attrName = locHolder[2];
-            if (!attrMap.has(attrName)) {
-                const attrInfo = tmpl.attributes.find((ele) => ele.name === attrName);
-                let active = true;
-                let location = 0;
-                // only vertexshader input is checked
-                if (inOrOut === 'in' && shaderStage === 'vert') {
-                    active = !!attrInfo?.defines.every((defStrIn) => {
-                        const inverseCond = defStrIn.startsWith('!');
-                        const defStr = inverseCond ? defStrIn.slice(1) : defStrIn;
-                        const v = macroInfo.find((ele) => ele.name === defStr);
-                        let res = !!v;
-                        if (v) {
-                            res = !(v.value === '0' || v.value === 'false' || v.value === 'FALSE');
-                        }
-                        return inverseCond ? !res : res;
-                    });
-                }
-
-                if (active) {
-                    while (locSet.has(location)) {
-                        location++;
-                    }
-                    locSet.add(location);
-                    if (shaderStage === 'vert') {
-                        // const attrInfo = tmpl.attributes.find((ele) => ele.name === attrName);
-                        if (attrInfo) {
-                            attrInfo.location = location;
-                        }
-
-                        attrMap.set(attrName, location);
-                    } else if (shaderStage === 'frag') {
-                        if (inOrOut === 'in') {
-                            location = attrMap.get(attrName) || 0;
-                        }
-                    }
-                }
-
-                const locInstStr = locHolder[0].replace(locHolder[1], `${location}`);
-                code = code.replace(locHolder[0], locInstStr);
-            }
-            locHolder = locHolderReg.exec(source);
-        }
-        return code;
+        locExistingRes = locExistingReg.exec(source);
     }
-    let code = instLocation(source, tmpl, macroInfo, shaderStage, 'in', attrMap);
-    code = instLocation(code, tmpl, macroInfo, shaderStage, 'out', attrMap);
     return code;
+}
+
+// replace those which could be affected by defines
+function replaceVertexMutableLocation (
+    source: string,
+    tmpl: IProgramInfo,
+    macroInfo: IMacroInfo[],
+    inOrOut: string,
+    attrMap: Map<string, number>,
+    locSet: Set<number> = new Set<number>(),
+) {
+    const locHolderRegStr = `layout\\(location = ([^\\)]+)\\)\\s+${inOrOut}.*?\\s(\\w+)[;,\\)]`;
+    const locHolderReg = new RegExp(locHolderRegStr, 'g');
+
+    let code = source;
+    // layout(location = 3) in mediump vec3 v_normal;
+    // 3
+    // v_normal
+    let locHolder = locHolderReg.exec(source);
+    while (locHolder) {
+        const attrName = locHolder[2];
+        if (!attrMap.has(attrName)) {
+            const attrInfo = tmpl.attributes.find((ele) => ele.name === attrName);
+            let active = true;
+            let location = 0;
+            // only vertexshader input is checked
+            if (inOrOut === 'in') {
+                // attrInfo?.defines store defines need to be satisfied
+                // macroInfo stores value of defines
+                // '!CC_USE_XXX' starts with a '!' is inverse condition.
+                // all defines satisfied?
+                active = !!attrInfo?.defines.every((defStrIn) => {
+                    const inverseCond = defStrIn.startsWith('!');
+                    const defStr = inverseCond ? defStrIn.slice(1) : defStrIn;
+                    const v = macroInfo.find((ele) => ele.name === defStr);
+                    let res = !!v;
+                    if (v) {
+                        res = !(v.value === '0' || v.value === 'false' || v.value === 'FALSE');
+                    }
+                    return inverseCond ? !res : res;
+                });
+            }
+
+            // those didn't pass the check above are deactive, ignore
+            if (active) {
+                while (locSet.has(location)) {
+                    location++;
+                }
+                locSet.add(location);
+                // const attrInfo = tmpl.attributes.find((ele) => ele.name === attrName);
+                if (attrInfo) {
+                    attrInfo.location = location;
+                }
+
+                attrMap.set(attrName, location);
+            }
+
+            const locInstStr = locHolder[0].replace(locHolder[1], `${location}`);
+            code = code.replace(locHolder[0], locInstStr);
+        }
+        locHolder = locHolderReg.exec(source);
+    }
+    return code;
+}
+
+function replaceFragmentLocation (
+    source: string,
+    inOrOut: string,
+    attrMap: Map<string, number>,
+) {
+    let code = source;
+    const locHolderRegStr = `layout\\(location = ([^\\)]+)\\)\\s+${inOrOut}.*?\\s(\\w+)[;,\\)]`;
+    const locHolderReg = new RegExp(locHolderRegStr, 'g');
+
+    const locSet = new Set<number>();
+    // layout(location = 3) in mediump vec3 v_normal;
+    // 3
+    // v_normal
+    let locHolder = locHolderReg.exec(source);
+    while (locHolder) {
+        const attrName = locHolder[2];
+        if (!attrMap.has(attrName)) {
+            let location = 0;
+
+            if (inOrOut === 'in') {
+                // {...fragment_in} === {...vertex_out}
+                location = attrMap.get(attrName) || 0;
+            } else {
+                // no check on (vertex out)/(frament in/out)
+                while (locSet.has(location)) {
+                    location++;
+                }
+            }
+            locSet.add(location);
+
+            const locInstStr = locHolder[0].replace(locHolder[1], `${location}`);
+            code = code.replace(locHolder[0], locInstStr);
+        }
+        locHolder = locHolderReg.exec(source);
+    }
+    return code;
+}
+
+// eslint-disable-next-line max-len
+function flattenShaderLocation (
+    source: string,
+    tmpl: IProgramInfo,
+    macroInfo: IMacroInfo[],
+    shaderStage,
+    attrMap: Map<string, number>,
+) {
+    let code = source;
+    if (shaderStage === 'vert') {
+        const locSet = new Set<number>();
+        code = findDefineIndependent(source, tmpl, attrMap, locSet);
+        code = replaceVertexMutableLocation(code, tmpl, macroInfo, 'in', attrMap, locSet);
+
+        code = replaceVertexMutableLocation(code, tmpl, macroInfo, 'out', attrMap);
+    } else if (shaderStage === 'frag') {
+        code = replaceFragmentLocation(code, 'in', attrMap);
+        code = replaceFragmentLocation(code, 'out', attrMap);
+    } else {
+        // error
+    }
+
+    return code;
+}
+
+function processShaderInfo (
+    tmpl: IProgramInfo,
+    macroInfo: IMacroInfo[],
+    shaderInfo,
+) {
+    // during configuring vertex state when make a pipelinestate
+    // webgpu request max location of vertex attribute should not be greater than 15
+    // shader source comes from offline effect-compiler can't have sense what macro is activate
+    // so here we flatten attribute location in runtime
+    const attrMap = new Map<string, number>();
+
+    shaderInfo.stages[0].source = flattenShaderLocation(shaderInfo.stages[0].source, tmpl, macroInfo, 'vert', attrMap);
+    shaderInfo.stages[1].source = flattenShaderLocation(shaderInfo.stages[1].source, tmpl, macroInfo, 'frag', attrMap);
+    // don't forget to change location 'shaderInfo.attributes' which comes from serialization
+    // to keep consistency with shader source
+    for (let i = 0; i < shaderInfo.attributes.length; ++i) {
+        const name = shaderInfo.attributes[i].name;
+        let loc = 0;
+        if (attrMap.has(name)) {
+            loc = attrMap.get(name)!;
+            shaderInfo.attributes[i].location = loc;
+        }
+    }
 }
 
 /**
@@ -555,23 +655,12 @@ class ProgramLib {
 
         tmplInfo.shaderInfo.name = getShaderInstanceName(name, macroArray);
 
-        let shaderInfo;
+        let shaderInfo = tmplInfo.shaderInfo;
         if (env.WEBGPU) {
-            const attrMap = new Map<string, number>();
+            // keep 'tmplInfo.shaderInfo' originally
             shaderInfo = new ShaderInfo();
             shaderInfo.copy(tmplInfo.shaderInfo);
-            shaderInfo.stages[0].source = instantiateLocationDefines(tmplInfo.shaderInfo.stages[0].source, tmpl, macroArray, 'vert', attrMap);
-            shaderInfo.stages[1].source = instantiateLocationDefines(tmplInfo.shaderInfo.stages[1].source, tmpl, macroArray, 'frag', attrMap);
-            for (let i = 0; i < shaderInfo.attributes.length; ++i) {
-                const name = shaderInfo.attributes[i].name;
-                let loc = 0;
-                if (attrMap.has(name)) {
-                    loc = attrMap.get(name)!;
-                    shaderInfo.attributes[i].location = loc;
-                }
-            }
-        } else {
-            shaderInfo = tmplInfo.shaderInfo;
+            processShaderInfo(tmpl, macroArray, shaderInfo);
         }
 
         return this._cache[key] = device.createShader(shaderInfo);
