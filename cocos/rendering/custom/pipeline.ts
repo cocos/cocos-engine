@@ -29,7 +29,7 @@
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
  */
 /* eslint-disable max-len */
-import { Material } from '../../asset/assets';
+import { EffectAsset, Material } from '../../asset/assets';
 import { Camera } from '../../render-scene/scene/camera';
 import { GeometryRenderer } from '../geometry-renderer';
 import { Buffer, Color, CommandBuffer, DescriptorSet, DescriptorSetLayout, Device, DrawInfo, Format, InputAssembler, PipelineState, Rect, Sampler, Swapchain, Texture, UniformBlock, Viewport } from '../../gfx';
@@ -157,6 +157,16 @@ export interface LayoutGraphBuilder {
     reserveDescriptorBlock (nodeID: number, index: DescriptorBlockIndex, block: DescriptorBlockFlattened): void;
     compile (): number;
     print (): string;
+}
+
+export interface ProgramProxy {
+    readonly name: string;
+    readonly variantName: string;
+}
+
+export interface ProgramLibrary {
+    addEffect (effectAsset: EffectAsset): void;
+    getShaderProgram (variantName: string): ProgramProxy;
 }
 
 export interface Pipeline extends PipelineRuntime {

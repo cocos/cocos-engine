@@ -30,6 +30,7 @@
  */
 // clang-format off
 #pragma once
+#include "cocos/core/assets/EffectAsset.h"
 #include "cocos/renderer/gfx-base/GFXDef-common.h"
 #include "cocos/renderer/pipeline/PipelineSceneData.h"
 #include "cocos/renderer/pipeline/custom/RenderCommonTypes.h"
@@ -269,6 +270,32 @@ public:
     virtual void reserveDescriptorBlock(uint32_t nodeID, const DescriptorBlockIndex &index, const DescriptorBlockFlattened &block) = 0;
     virtual int compile() = 0;
     virtual ccstd::string print() const = 0;
+};
+
+class ProgramProxy {
+public:
+    ProgramProxy() noexcept = default;
+    ProgramProxy(ProgramProxy&& rhs) = delete;
+    ProgramProxy(ProgramProxy const& rhs) = delete;
+    ProgramProxy& operator=(ProgramProxy&& rhs) = delete;
+    ProgramProxy& operator=(ProgramProxy const& rhs) = delete;
+    virtual ~ProgramProxy() noexcept = default;
+
+    virtual const ccstd::string &getName() const noexcept = 0;
+    virtual const ccstd::string &getVariantName() const noexcept = 0;
+};
+
+class ProgramLibrary {
+public:
+    ProgramLibrary() noexcept = default;
+    ProgramLibrary(ProgramLibrary&& rhs) = delete;
+    ProgramLibrary(ProgramLibrary const& rhs) = delete;
+    ProgramLibrary& operator=(ProgramLibrary&& rhs) = delete;
+    ProgramLibrary& operator=(ProgramLibrary const& rhs) = delete;
+    virtual ~ProgramLibrary() noexcept = default;
+
+    virtual void addEffect(EffectAsset *effectAsset) = 0;
+    virtual ProgramProxy *getShaderProgram(const ccstd::string &variantName) const = 0;
 };
 
 class Pipeline : public PipelineRuntime {

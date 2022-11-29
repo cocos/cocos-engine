@@ -31,6 +31,7 @@
 // clang-format off
 #pragma once
 #include "cocos/base/std/variant.h"
+#include "cocos/core/assets/EffectAsset.h"
 #include "cocos/renderer/pipeline/PipelineSceneData.h"
 #include "cocos/renderer/pipeline/custom/RenderCommonFwd.h"
 #include "cocos/scene/Camera.h"
@@ -52,6 +53,8 @@ class SceneVisitor;
 class SceneTask;
 class SceneTransversal;
 class LayoutGraphBuilder;
+class ProgramProxy;
+class ProgramLibrary;
 class Pipeline;
 class PipelineBuilder;
 class Factory;
