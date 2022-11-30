@@ -307,10 +307,6 @@ void cc_tmp_set_private_data(se::Object *obj, T *v) { // NOLINT(readability-iden
     }
 }
 
-inline void cc_tmp_set_private_data(se::Object *obj, cc::gfx::Sampler *v) { // NOLINT(readability-identifier-naming)
-    obj->setRawPrivateData(v);
-}
-
 //  handle reference
 template <typename T>
 typename std::enable_if<!std::is_pointer<T>::value, bool>::type
@@ -549,51 +545,6 @@ struct HolderType<const char *, false> {
     std::remove_const_t<type> *ptr = nullptr;
     inline type value() const { return data.c_str(); }
 };
-
-#define HOLD_UNBOUND_TYPE(FromType, IsReference)                         \
-    template <>                                                          \
-    struct HolderType<FromType, IsReference> {                           \
-        using type = FromType;                                           \
-        using local_type = typename std::remove_pointer<FromType>::type; \
-        std::remove_const_t<local_type> data;                            \
-        std::remove_const_t<type> *ptr = nullptr;                        \
-        inline type value() { return &data; }                            \
-    }
-
-HOLD_UNBOUND_TYPE(cc::Vec3 *, false);
-HOLD_UNBOUND_TYPE(cc::Quaternion *, false);
-HOLD_UNBOUND_TYPE(const cc::Mat4 *, false);
-HOLD_UNBOUND_TYPE(cc::Color *, false);
-HOLD_UNBOUND_TYPE(cc::geometry::Frustum *, false);
-HOLD_UNBOUND_TYPE(cc::geometry::AABB *, false);
-
-template <>
-struct HolderType<cc::ArrayBuffer, true> {
-    using type = cc::ArrayBuffer;
-    using local_type = cc::ArrayBuffer;
-    local_type data;
-    std::remove_const_t<type> *ptr = nullptr;
-    inline type &value() { return data; }
-};
-
-template <typename R, typename... ARGS>
-struct HolderType<std::function<R(ARGS...)>, true> {
-    using type = std::function<R(ARGS...)>;
-    using local_type = std::function<R(ARGS...)>;
-    local_type data;
-    std::remove_const_t<type> *ptr = nullptr;
-    inline type value() { return data; }
-};
-
-// template <typename T>
-// struct HolderType<ccstd::optional<T>, true> {
-//     using NonconstT  = typename std::remove_const<T>::type;
-//     using type       = ccstd::optional<NonconstT>;
-//     using local_type = NonconstT;
-//     local_type                 data;
-//     std::remove_const_t<type> *ptr = nullptr;
-//     inline type                value() { return std::make_optional<T>(data); }
-// };
 
 ///////////////////////////////////convertion//////////////////////////////////////////////////////////
 
@@ -1242,12 +1193,12 @@ inline bool nativevalue_to_se(const ccstd::vector<bool> &from, se::Value &to, se
 }
 
 template <typename T>
-typename std::enable_if<std::is_convertible<T, ccstd::string>::value, void>::type cc_tmp_set_property(se::Object *obj, T &key, se::Value &value) { // NOLINT(readability-identifier-naming)
-    obj->setProperty(key, value);
-}
-template <typename T>
-typename std::enable_if<!std::is_convertible<T, ccstd::string>::value, void>::type cc_tmp_set_property(se::Object *obj, T &str, se::Value &value) { // NOLINT(readability-identifier-naming)
-    obj->setProperty(std::to_string(str), value);
+void cc_tmp_set_property(se::Object *obj, T &key, se::Value &value) { // NOLINT(readability-identifier-naming)
+    if constexpr (std::is_convertible<T, ccstd::string>::value) {
+        obj->setProperty(key, value);
+    } else {
+        obj->setProperty(std::to_string(key), value);
+    }
 }
 
 template <typename K, typename V>

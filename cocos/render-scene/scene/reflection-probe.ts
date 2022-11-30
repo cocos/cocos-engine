@@ -25,7 +25,7 @@
 import { EDITOR } from 'internal:constants';
 import { Camera, CameraAperture, CameraFOVAxis, CameraISO, CameraProjection, CameraShutter, CameraType, SKYBOX_FLAG, TrackingType } from './camera';
 import { Node } from '../../scene-graph/node';
-import { Color, Quat, Rect, toRadian, Vec2, Vec3, geometry, cclegacy } from '../../core';
+import { Color, Quat, Rect, toRadian, Vec2, Vec3, geometry, cclegacy, Vec4 } from '../../core';
 import { CAMERA_DEFAULT_MASK } from '../../rendering/define';
 import { ClearFlagBit, Framebuffer } from '../../gfx';
 import { TextureCube } from '../../asset/assets/texture-cube';
@@ -119,6 +119,8 @@ export class ReflectionProbe {
      * @zh 反射探针cube模式的预览小球
      */
     protected _previewSphere: Node | null = null;
+
+    protected _previewPlane: Node | null = null;
 
     /**
      * @en Set probe type,cube or planar.
@@ -258,6 +260,18 @@ export class ReflectionProbe {
 
     get previewSphere () {
         return this._previewSphere!;
+    }
+
+    /**
+     * @en Reflection probe planar mode preview plane
+     * @zh 反射探针Planar模式的预览平面
+     */
+    set previewPlane (val: Node) {
+        this._previewPlane = val;
+    }
+
+    get previewPlane () {
+        return this._previewPlane!;
     }
 
     constructor (id: number) {
@@ -460,7 +474,13 @@ export class ReflectionProbe {
         this.cameraNode.worldRotation = this._cameraWorldRotation;
 
         this.camera.update(true);
+
+        // Transform the plane from world space to reflection camera space use the inverse transpose matrix
+        const viewSpaceProbe = new Vec4(Vec3.UP.x, Vec3.UP.y, Vec3.UP.z, -Vec3.dot(Vec3.UP, this.node.worldPosition));
+        viewSpaceProbe.transformMat4(this.camera.matView.clone().invert().transpose());
+        this.camera.calculateObliqueMat(viewSpaceProbe);
     }
+
     private _reflect (out: Vec3, point: Vec3, normal: Vec3, offset: number) {
         const n = Vec3.clone(normal);
         n.normalize();

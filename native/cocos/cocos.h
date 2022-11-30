@@ -27,6 +27,7 @@
 
 // public headers for user application
 
+#include "cocos-version.h"
 #include "application/ApplicationManager.h"
 #include "application/BaseGame.h"
 #include "bindings/event/EventDispatcher.h"

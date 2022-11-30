@@ -143,6 +143,12 @@ export class ReflectionProbeManager {
                 meshRender.updateProbePlanarMap(texture);
             }
         }
+        if (probe.previewPlane) {
+            const meshRender = probe.previewPlane.getComponent(MeshRenderer);
+            if (meshRender) {
+                meshRender.updateProbePlanarMap(texture);
+            }
+        }
     }
 
     /**

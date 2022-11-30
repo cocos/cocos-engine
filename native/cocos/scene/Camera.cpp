@@ -379,6 +379,28 @@ Mat4 Camera::worldMatrixToScreen(const Mat4 &worldMatrix, uint32_t width, uint32
     return out;
 }
 
+/**
+* @en Calculate and set oblique view frustum projection matrix.
+* @zh 计算并设置斜视锥体投影矩阵 
+* @param clipPlane clip plane in camera space
+*/
+void Camera::calculateObliqueMat(const Vec4& viewSpacePlane) {
+    Vec4 far{math::sgn(viewSpacePlane.x), math::sgn(viewSpacePlane.y), 1.F, 1.F};
+
+    _matProjInv.transformVector(&far);
+
+    const Vec4 m4 = {_matProj.m[3], _matProj.m[7], _matProj.m[11], _matProj.m[15]};
+    const float scale = 2.F / Vec4::dot(viewSpacePlane, far);
+    const Vec4 newViewSpaceNearPlane = viewSpacePlane * scale;
+
+    const Vec4 m3 = newViewSpaceNearPlane - m4;
+
+    _matProj.m[2] = m3.x;
+    _matProj.m[6] = m3.y;
+    _matProj.m[10] = m3.z;
+    _matProj.m[14] = m3.w;
+}
+
 void Camera::setNode(Node *val) { _node = val; }
 
 void Camera::setExposure(float ev100) {
