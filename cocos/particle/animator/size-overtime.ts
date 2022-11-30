@@ -63,7 +63,7 @@ export default class SizeOvertimeModule extends ParticleModuleBase {
      */
     @type(CurveRange)
     @serializable
-    @range([0, 1])
+    @range([0, Number.POSITIVE_INFINITY])
     @displayOrder(2)
     @tooltip('i18n:sizeOvertimeModule.size')
     @visible(function (this: SizeOvertimeModule): boolean { return !this.separateAxes; })
@@ -74,7 +74,7 @@ export default class SizeOvertimeModule extends ParticleModuleBase {
      */
     @type(CurveRange)
     @serializable
-    @range([0, 1])
+    @range([0, Number.POSITIVE_INFINITY])
     @displayOrder(3)
     @tooltip('i18n:sizeOvertimeModule.x')
     @visible(function (this: SizeOvertimeModule): boolean { return this.separateAxes; })
@@ -85,7 +85,7 @@ export default class SizeOvertimeModule extends ParticleModuleBase {
      */
     @type(CurveRange)
     @serializable
-    @range([0, 1])
+    @range([0, Number.POSITIVE_INFINITY])
     @displayOrder(4)
     @tooltip('i18n:sizeOvertimeModule.y')
     @visible(function (this: SizeOvertimeModule): boolean { return this.separateAxes; })
@@ -96,7 +96,7 @@ export default class SizeOvertimeModule extends ParticleModuleBase {
      */
     @type(CurveRange)
     @serializable
-    @range([0, 1])
+    @range([0, Number.POSITIVE_INFINITY])
     @displayOrder(5)
     @tooltip('i18n:sizeOvertimeModule.z')
     @visible(function (this: SizeOvertimeModule): boolean { return this.separateAxes; })
