@@ -121,7 +121,7 @@ export class SplashScreen {
         this._curTime = 0;
 
         // TODO: Image can't load with base64 data on Taobao platform.
-        if (EDITOR || PREVIEW || TAOBAO || this.settings.base64src === '' || this.settings.totalTime <= 0) {
+        if (EDITOR || TAOBAO || this.settings.base64src === '' || this.settings.totalTime <= 0) {
             this.settings.totalTime = 0;
         } else {
             this.device = cclegacy.director.root!.device;
