@@ -35,14 +35,14 @@
 #include "core/geometry/Frustum.h"
 #include "core/geometry/Intersect.h"
 #include "core/geometry/Sphere.h"
-#include "core/scene-graph/Node.h"
 #include "core/platform/Debug.h"
+#include "core/scene-graph/Node.h"
 #include "math/Quaternion.h"
 #include "profiler/Profiler.h"
 #include "scene/Camera.h"
 #include "scene/DirectionalLight.h"
-#include "scene/Light.h"
 #include "scene/LODGroup.h"
+#include "scene/Light.h"
 #include "scene/Octree.h"
 #include "scene/RenderScene.h"
 #include "scene/Shadow.h"
@@ -103,28 +103,26 @@ void shadowCulling(const RenderPipeline *pipeline, const scene::Camera *camera, 
     auto *csmLayers = sceneData->getCSMLayers();
     const auto *const scene = camera->getScene();
     const auto *mainLight = scene->getMainLight();
+    const uint32_t visibility = camera->getVisibility();
 
     layer->clearShadowObjects();
+
     for (size_t i = 0; i < csmLayers->getLayerObjects().size(); ++i) {
         const auto *model = csmLayers->getLayerObjects()[i].model;
-        // filter model by view visibility
-        if (model->isEnabled()) {
-            const uint32_t visibility = camera->getVisibility();
-            const auto *node = model->getNode();
-            if ((model->getNode() && ((visibility & node->getLayer()) == node->getLayer())) ||
-                (visibility & static_cast<uint32_t>(model->getVisFlags()))) {
-                // frustum culling
-                const bool accurate = model->getWorldBounds()->aabbFrustum(layer->getValidFrustum());
-                if (accurate) {
-                    layer->addShadowObject(genRenderObject(model, camera));
-                    if (layer->getLevel() < static_cast<uint32_t>(mainLight->getCSMLevel())) {
-                        if (static_cast<uint32_t>(mainLight->getCSMOptimizationMode()) == 2 &&
-                            aabbFrustumCompletelyInside(*model->getWorldBounds(), layer->getValidFrustum())) {
-                            csmLayers->getLayerObjects().erase(csmLayers->getLayerObjects().begin() + static_cast<uint32_t>(i));
-                            i--;
-                        }
-                    }
-                }
+        if (!model || !model->isEnabled() || !model->getNode()) return;
+        const auto *node = model->getNode();
+        if (((visibility & node->getLayer()) != node->getLayer()) && !(visibility & static_cast<uint32_t>(model->getVisFlags()))) return;
+        if (!model->getWorldBounds() || !model->isCastShadow()) return;
+
+        // frustum culling
+        const bool accurate = model->getWorldBounds()->aabbFrustum(layer->getValidFrustum());
+        if (!accurate) return;
+        layer->addShadowObject(genRenderObject(model, camera));
+        if (layer->getLevel() < static_cast<uint32_t>(mainLight->getCSMLevel())) {
+            if (mainLight->getCSMOptimizationMode() == scene::CSMOptimizationMode::REMOVE_DUPLICATES &&
+                aabbFrustumCompletelyInside(*model->getWorldBounds(), layer->getValidFrustum())) {
+                csmLayers->getLayerObjects().erase(csmLayers->getLayerObjects().begin() + static_cast<uint32_t>(i));
+                i--;
             }
         }
     }
@@ -154,7 +152,7 @@ void sceneCulling(const RenderPipeline *pipeline, scene::Camera *camera) {
     if (clearFlagValue & skyboxFlag) {
         if (skyBox != nullptr && skyBox->isEnabled() && skyBox->getModel()) {
             sceneData->addRenderObject(genRenderObject(skyBox->getModel(), camera));
-        } else if(clearFlagValue == skyboxFlag) {
+        } else if (clearFlagValue == skyboxFlag) {
             debug::warnID(15100, camera->getName());
         }
     }
