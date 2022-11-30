@@ -111,7 +111,7 @@ export class ParticleSystem extends ModelRenderer {
      * @zh 粒子初始大小。
      */
     @formerlySerializedAs('startSize')
-    @range([0, 1])
+    @range([0, Number.POSITIVE_INFINITY])
     @type(CurveRange)
     @displayOrder(10)
     @tooltip('i18n:particle_system.startSizeX')
@@ -122,7 +122,7 @@ export class ParticleSystem extends ModelRenderer {
      */
     @type(CurveRange)
     @serializable
-    @range([0, 1])
+    @range([0, Number.POSITIVE_INFINITY])
     @displayOrder(10)
     @tooltip('i18n:particle_system.startSizeY')
     @visible(function (this: ParticleSystem): boolean { return this.startSize3D; })
@@ -133,7 +133,7 @@ export class ParticleSystem extends ModelRenderer {
      */
     @type(CurveRange)
     @serializable
-    @range([0, 1])
+    @range([0, Number.POSITIVE_INFINITY])
     @displayOrder(10)
     @tooltip('i18n:particle_system.startSizeZ')
     @visible(function (this: ParticleSystem): boolean { return this.startSize3D; })
@@ -144,7 +144,6 @@ export class ParticleSystem extends ModelRenderer {
      */
     @type(CurveRange)
     @serializable
-    @range([-1, 1])
     @displayOrder(11)
     @tooltip('i18n:particle_system.startSpeed')
     public startSpeed = new CurveRange();
@@ -159,7 +158,7 @@ export class ParticleSystem extends ModelRenderer {
      */
     @type(CurveRange)
     @serializable
-    @range([-1, 1])
+    @range([-2 * Math.PI, 2 * Math.PI])
     @radian
     @displayOrder(12)
     @tooltip('i18n:particle_system.startRotationX')
@@ -171,7 +170,7 @@ export class ParticleSystem extends ModelRenderer {
      */
     @type(CurveRange)
     @serializable
-    @range([-1, 1])
+    @range([-2 * Math.PI, 2 * Math.PI])
     @radian
     @displayOrder(12)
     @tooltip('i18n:particle_system.startRotationY')
@@ -183,7 +182,7 @@ export class ParticleSystem extends ModelRenderer {
      */
     @type(CurveRange)
     @formerlySerializedAs('startRotation')
-    @range([-1, 1])
+    @range([-2 * Math.PI, 2 * Math.PI])
     @radian
     @displayOrder(12)
     @tooltip('i18n:particle_system.startRotationZ')
@@ -195,7 +194,7 @@ export class ParticleSystem extends ModelRenderer {
      */
     @type(CurveRange)
     @serializable
-    @range([0, 1])
+    @range([0, Number.POSITIVE_INFINITY])
     @displayOrder(6)
     @tooltip('i18n:particle_system.startDelay')
     public startDelay = new CurveRange();
@@ -205,7 +204,7 @@ export class ParticleSystem extends ModelRenderer {
      */
     @type(CurveRange)
     @serializable
-    @range([0, 1])
+    @range([0, Number.POSITIVE_INFINITY])
     @displayOrder(7)
     @tooltip('i18n:particle_system.startLifetime')
     public startLifetime = new CurveRange();
@@ -284,7 +283,6 @@ export class ParticleSystem extends ModelRenderer {
      */
     @type(CurveRange)
     @serializable
-    @range([-1, 1])
     @displayOrder(13)
     @tooltip('i18n:particle_system.gravityModifier')
     public gravityModifier = new CurveRange();
@@ -295,7 +293,7 @@ export class ParticleSystem extends ModelRenderer {
      */
     @type(CurveRange)
     @serializable
-    @range([0, 1])
+    @range([0, 2147483647])
     @displayOrder(14)
     @tooltip('i18n:particle_system.rateOverTime')
     public rateOverTime = new CurveRange();
@@ -305,7 +303,7 @@ export class ParticleSystem extends ModelRenderer {
      */
     @type(CurveRange)
     @serializable
-    @range([0, 1])
+    @range([0, 2147483647])
     @displayOrder(15)
     @tooltip('i18n:particle_system.rateOverDistance')
     public rateOverDistance = new CurveRange();
