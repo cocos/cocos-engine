@@ -4,7 +4,7 @@ import { Attribute, Device, ShaderInfo, Uniform, UniformBlock, UniformInputAttac
 import { getActiveAttributes, getDeviceShaderVersion, getShaderInstanceName, getVariantKey, MacroRecord, prepareDefines } from '../../render-scene';
 import { IProgramInfo } from '../../render-scene/core/program-lib';
 import { LayoutGraphData, LayoutGraphDataValue, PipelineLayoutData } from './layout-graph';
-import { ProgramLibrary, ProgramProxy } from './pipeline';
+import { ProgramLibrary, ProgramProxy } from './private';
 import { DescriptorTypeOrder } from './types';
 import { ProgramGroup, ProgramHost, ProgramInfo, ProgramLibraryData } from './web-types';
 

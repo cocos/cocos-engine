@@ -273,34 +273,6 @@ public:
     virtual ccstd::string print() const = 0;
 };
 
-class ProgramProxy {
-public:
-    ProgramProxy() noexcept = default;
-    ProgramProxy(ProgramProxy&& rhs) = delete;
-    ProgramProxy(ProgramProxy const& rhs) = delete;
-    ProgramProxy& operator=(ProgramProxy&& rhs) = delete;
-    ProgramProxy& operator=(ProgramProxy const& rhs) = delete;
-    virtual ~ProgramProxy() noexcept = default;
-
-    virtual const ccstd::string &getName() const noexcept = 0;
-};
-
-class ProgramLibrary {
-public:
-    ProgramLibrary() noexcept = default;
-    ProgramLibrary(ProgramLibrary&& rhs) = delete;
-    ProgramLibrary(ProgramLibrary const& rhs) = delete;
-    ProgramLibrary& operator=(ProgramLibrary&& rhs) = delete;
-    ProgramLibrary& operator=(ProgramLibrary const& rhs) = delete;
-    virtual ~ProgramLibrary() noexcept = default;
-
-    virtual void addEffect(EffectAsset *effectAsset) = 0;
-    virtual ProgramProxy *getProgramVariant(gfx::Device *device, uint32_t phaseID, const ccstd::string &name, const MacroRecord &defines, const ccstd::pmr::string *key) const = 0;
-    ProgramProxy *getProgramVariant(gfx::Device *device, uint32_t phaseID, const ccstd::string &name, const MacroRecord &defines) const {
-        return getProgramVariant(device, phaseID, name, defines, nullptr);
-    }
-};
-
 class Pipeline : public PipelineRuntime {
 public:
     Pipeline() noexcept = default;
