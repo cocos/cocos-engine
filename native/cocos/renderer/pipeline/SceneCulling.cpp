@@ -109,14 +109,14 @@ void shadowCulling(const RenderPipeline *pipeline, const scene::Camera *camera, 
 
     for (size_t i = 0; i < csmLayers->getLayerObjects().size(); ++i) {
         const auto *model = csmLayers->getLayerObjects()[i].model;
-        if (!model || !model->isEnabled() || !model->getNode()) return;
+        if (!model || !model->isEnabled() || !model->getNode()) continue;
         const auto *node = model->getNode();
-        if (((visibility & node->getLayer()) != node->getLayer()) && !(visibility & static_cast<uint32_t>(model->getVisFlags()))) return;
-        if (!model->getWorldBounds() || !model->isCastShadow()) return;
+        if (((visibility & node->getLayer()) != node->getLayer()) && !(visibility & static_cast<uint32_t>(model->getVisFlags()))) continue;
+        if (!model->getWorldBounds() || !model->isCastShadow()) continue;
 
         // frustum culling
         const bool accurate = model->getWorldBounds()->aabbFrustum(layer->getValidFrustum());
-        if (!accurate) return;
+        if (!accurate) continue;
         layer->addShadowObject(genRenderObject(model, camera));
         if (layer->getLevel() < static_cast<uint32_t>(mainLight->getCSMLevel())) {
             if (mainLight->getCSMOptimizationMode() == scene::CSMOptimizationMode::REMOVE_DUPLICATES &&
