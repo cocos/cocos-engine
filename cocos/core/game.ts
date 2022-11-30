@@ -1027,7 +1027,9 @@ export class Game extends EventTarget {
                 this.onStart?.();
             }
         } else {
-            director.tick(this._calculateDT());
+            const dt = this._calculateDT();
+            const maxDt = 1.0 / 30.0;
+            director.tick(dt > maxDt ? maxDt : dt);
         }
     }
 
