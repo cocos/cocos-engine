@@ -265,6 +265,7 @@ export class ReflectionProbe extends Component {
      */
     set previewPlane (val: Node) {
         this._previewPlane = val;
+        this.probe.previewPlane = val;
     }
 
     get previewPlane () {

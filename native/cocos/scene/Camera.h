@@ -365,6 +365,7 @@ public:
     inline bool isCullingEnabled() const { return _isCullingEnabled; }
     inline void setCullingEnable(bool val) { _isCullingEnabled = val; }
 
+    void calculateObliqueMat(const Vec4& viewSpacePlane);
 protected:
     void setExposure(float ev100);
 

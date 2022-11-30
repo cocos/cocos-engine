@@ -210,7 +210,7 @@ void Delaunay::addProbe(int32_t vertexIndex) {
 void Delaunay::reorder(const Vec3 &center) {
     // The tetrahedron in the middle is placed at the front of the vector
     std::sort(_tetrahedrons.begin(), _tetrahedrons.end(), [center](Tetrahedron &a, Tetrahedron &b) {
-        return a.sphere.center.distanceSquared(center) <= b.sphere.center.distanceSquared(center);
+        return a.sphere.center.distanceSquared(center) < b.sphere.center.distanceSquared(center);
     });
 }
 
