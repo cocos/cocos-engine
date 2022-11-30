@@ -1,7 +1,8 @@
 /* eslint-disable max-len */
 import { EffectAsset } from '../../asset/assets';
 import { Attribute, Device, ShaderInfo, Uniform, UniformBlock, UniformInputAttachment, UniformSampler, UniformSamplerTexture, UniformStorageBuffer, UniformStorageImage, UniformTexture } from '../../gfx';
-import { getActiveAttributes, getDeviceShaderVersion, getShaderInstanceName, getVariantKey, MacroRecord, prepareDefines } from '../../render-scene';
+import { getActiveAttributes, getShaderInstanceName, prepareDefines } from '../../render-scene/core/program-utils';
+import { getDeviceShaderVersion, getVariantKey, MacroRecord } from '../../render-scene';
 import { IProgramInfo } from '../../render-scene/core/program-lib';
 import { LayoutGraphData, LayoutGraphDataValue, PipelineLayoutData } from './layout-graph';
 import { ProgramLibrary, ProgramProxy } from './private';
