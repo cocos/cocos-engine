@@ -29,16 +29,9 @@
 #include <sstream>
 #include <utility>
 
-#if CC_DEBUG
+#if CC_DEBUG && !NDEBUG
 
     #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
-        // NOLINTNEXTLINE
-        #define _CC_ASSERT_(cond)                                                        \
-            do {                                                                         \
-                if (!(cond)) {                                                           \
-                    _wassert(_CRT_WIDE(#cond), _CRT_WIDE(__FILE__), (unsigned)__LINE__); \
-                }                                                                        \
-            } while (false)
         #define CC_ASSERT_FORMAT(cond, fmt, ...)                                                                     \
             do {                                                                                                     \
                 if (!(cond)) {                                                                                       \
@@ -60,13 +53,6 @@
             } while (false)
 
     #elif (CC_PLATFORM == CC_PLATFORM_ANDROID)
-    // NOLINTNEXTLINE
-        #define _CC_ASSERT_(cond)                                              \
-            do {                                                               \
-                if (__builtin_expect(!(cond), 0)) {                            \
-                    __assert2(__FILE__, __LINE__, __PRETTY_FUNCTION__, #cond); \
-                }                                                              \
-            } while (false)
         #define CC_ASSERT_FORMAT(cond, fmt, ...)                                                \
             do {                                                                                \
                 if (__builtin_expect(!(cond), 0)) {                                             \
@@ -82,13 +68,6 @@
                 __assert2(__FILE__, __LINE__, __PRETTY_FUNCTION__, message); \
             } while (false)
     #elif defined(__APPLE__)
-    // NOLINTNEXTLINE
-        #define _CC_ASSERT_(cond)                        \
-            do {                                         \
-                if (__builtin_expect(!(cond), 0)) {      \
-                    __assert(#cond, __FILE__, __LINE__); \
-                }                                        \
-            } while (false)
         #define CC_ASSERT_FORMAT(cond, fmt, ...)                                                \
             do {                                                                                \
                 if (__builtin_expect(!(cond), 0)) {                                             \
@@ -106,9 +85,10 @@
     #else
         #define CC_ASSERT_FORMAT(cond, ...) assert(cond)
         #define CC_ABORTF(fmt, ...)         abort()
-    // NOLINTNEXTLINE
-        #define _CC_ASSERT_(cond)           assert(cond)
     #endif
+
+    // NOLINTNEXTLINE
+    #define _CC_ASSERT_(cond) assert(cond)
 
     // NOLINTNEXTLINE
     #define _CC_ASSERTF_CMP(expr1, op, expr2, fmt, ...)             \
