@@ -204,7 +204,6 @@ export class TextureCube extends SimpleTexture {
                 width: face.width,
                 height: face.height,
                 format: face.format,
-                mipmapLevel: 1,
             });
             tex.uploadData(face.data!);
 
