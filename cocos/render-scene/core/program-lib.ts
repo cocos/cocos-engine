@@ -318,7 +318,7 @@ function replaceFragmentLocation (
 }
 
 // eslint-disable-next-line max-len
-function flattenShaderLocation (
+export function flattenShaderLocation (
     source: string,
     tmpl: IProgramInfo,
     macroInfo: IMacroInfo[],
