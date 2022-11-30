@@ -91,15 +91,25 @@ export function shadowCulling (camera: Camera, sceneData: PipelineSceneData, lay
     const visibility = camera.visibility;
 
     csmLayerObjects.array.forEach((obj, index) => {
-        if (!obj) { return; }
+        if (!obj) {
+            return;
+        }
         const model = obj.model;
-        if (!model || !model.enabled || !model.node) { return; }
-        if (((visibility & model.node.layer) !== model.node.layer) && !(visibility & model.visFlags)) { return; }
-        if (!model.worldBounds || !model.castShadow) { return; }
+        if (!model || !model.enabled || !model.node) {
+            return;
+        }
+        if (((visibility & model.node.layer) !== model.node.layer) && !(visibility & model.visFlags)) {
+            return;
+        }
+        if (!model.worldBounds || !model.castShadow) {
+            return;
+        }
 
         // frustum culling
         const accurate = geometry.intersect.aabbFrustum(model.worldBounds, dirLightFrustum);
-        if (!accurate) { return; }
+        if (!accurate) {
+            return;
+        }
         dirShadowObjects.push(obj);
         if (layer.level < mainLight.csmLevel) {
             if (mainLight.csmOptimizationMode === CSMOptimizationMode.RemoveDuplicates
