@@ -1153,7 +1153,7 @@ export function initializeLayoutGraphData (device: Device, lg: LayoutGraphData) 
         const layoutData = lg.getLayout(v);
         for (const [_, set] of layoutData.descriptorSets) {
             if (set.descriptorSetLayout !== null) {
-                continue;
+                console.warn('descriptor set layout already initialized. It will be overwritten');
             }
             initializeDescriptorSetLayoutInfo(set.descriptorSetLayoutData,
                 set.descriptorSetLayoutInfo);
@@ -1211,7 +1211,7 @@ export function getDescriptorSetLayoutData (lg: LayoutGraphData,
     if (rate < UpdateFrequency.PER_PASS) {
         const phaseData = lg.getLayout(phaseID);
         const data = phaseData.descriptorSets.get(rate);
-        if (data) {
+        if (data !== undefined) {
             return data.descriptorSetLayoutData;
         }
         return _emptyDescriptorSetLayoutData;
