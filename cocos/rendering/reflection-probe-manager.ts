@@ -25,11 +25,15 @@
  */
 
 import { MeshRenderer, ReflectionProbeType } from '../3d/framework/mesh-renderer';
-import { Vec3, geometry } from '../core';
-import { Texture } from '../gfx';
+import { Texture2D } from '../asset/assets';
+import { PixelFormat } from '../asset/assets/asset-enum';
+import { Vec3, geometry, cclegacy } from '../core';
+import { Director, director } from '../game/director';
+import { BufferTextureCopy, deviceManager, Format, Texture, TextureInfo, TextureType } from '../gfx';
 import { Camera, Model } from '../render-scene/scene';
 import { ProbeType, ReflectionProbe } from '../render-scene/scene/reflection-probe';
 import { Layers } from '../scene-graph/layers';
+import { UNIFORM_REFLECTION_PROBE_MAP_BINDING } from './define';
 
 const REFLECTION_PROBE_DEFAULT_MASK = Layers.makeMaskExclude([Layers.BitMask.UI_2D, Layers.BitMask.UI_3D, Layers.BitMask.GIZMOS, Layers.BitMask.EDITOR,
     Layers.BitMask.SCENE_GIZMO, Layers.BitMask.PROFILER]);
@@ -51,6 +55,42 @@ export class ReflectionProbeManager {
      * 场景中所有使用planar类型反射探针的模型
      */
     private _usePlanarModels = new Map<Model, ReflectionProbe>();
+
+    protected _texture: Texture | null = null;
+
+    constructor () {
+        //director.on(Director.EVENT_BEGIN_FRAME, this.onLoadScene);
+        console.log(`constructor================${this._probes.length}`);
+        const texInfo = new TextureInfo(TextureType.TEX2D);
+        texInfo.width = 100;
+        texInfo.height = 10;
+        this._texture = deviceManager.gfxDevice.createTexture(texInfo);
+    }
+
+    // public onLoadScene () {
+    //     console.log(`on scene load================${this._probes.length}`);
+    //     const texInfo = new TextureInfo(TextureType.TEX2D);
+    //     texInfo.width = 100;
+    //     texInfo.height = 10;
+    //     this._texture = deviceManager.gfxDevice.createTexture(texInfo);
+    // }
+
+    public updateReflectonProbeTexture () {
+        const buffer = new Uint8Array(4 * 100 * 100);
+        for (let i = 0; i < buffer.length; i++) {
+            buffer[i] = 0.5;
+        }
+        const region = new BufferTextureCopy();
+        region.texOffset.x = 0;
+        region.texOffset.y = 0;
+        region.texExtent.width = 100;
+        region.texExtent.height = 100;
+
+        deviceManager.gfxDevice.copyBuffersToTexture([buffer], this._texture!, [region]);
+
+        const ds = (cclegacy.director.root).pipeline.descriptorSet;
+        ds.bindTexture(UNIFORM_REFLECTION_PROBE_MAP_BINDING, this._texture);
+    }
 
     public register (probe: ReflectionProbe) {
         const index = this._probes.indexOf(probe);
