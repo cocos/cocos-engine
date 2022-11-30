@@ -1,7 +1,7 @@
-import { EffectAsset } from "../../asset/assets/effect-asset";
-import { Attribute } from "../../gfx/base/define";
-import { MacroRecord } from "./pass-utils";
-import { IProgramInfo } from "./program-lib";
+import { EffectAsset } from '../../asset/assets/effect-asset';
+import { Attribute } from '../../gfx/base/define';
+import { MacroRecord } from './pass-utils';
+import { IMacroInfo, IProgramInfo } from './program-lib';
 
 function mapDefine (info: EffectAsset.IDefineInfo, def: number | string | boolean) {
     switch (info.type) {
@@ -12,12 +12,6 @@ function mapDefine (info: EffectAsset.IDefineInfo, def: number | string | boolea
         console.warn(`unknown define type '${info.type}'`);
         return '-1'; // should neven happen
     }
-}
-
-export interface IMacroInfo {
-    name: string;
-    value: string;
-    isDefault: boolean;
 }
 
 export function prepareDefines (defs: MacroRecord, tDefs: EffectAsset.IDefineInfo[]) {
@@ -57,4 +51,34 @@ export function getActiveAttributes (tmpl: IProgramInfo, gfxAttributes: Attribut
         out.push(gfxAttributes[i]);
     }
     return out;
+}
+
+export function getVariantKey (programInfo: IProgramInfo, defines: MacroRecord) {
+    const tmplDefs = programInfo.defines;
+    if (programInfo.uber) {
+        let key = '';
+        for (let i = 0; i < tmplDefs.length; i++) {
+            const tmplDef = tmplDefs[i];
+            const value = defines[tmplDef.name];
+            if (!value || !tmplDef._map) {
+                continue;
+            }
+            const mapped = tmplDef._map(value);
+            const offset = tmplDef._offset;
+            key += `${offset}${mapped}|`;
+        }
+        return `${key}${programInfo.hash}`;
+    }
+    let key = 0;
+    for (let i = 0; i < tmplDefs.length; i++) {
+        const tmplDef = tmplDefs[i];
+        const value = defines[tmplDef.name];
+        if (!value || !tmplDef._map) {
+            continue;
+        }
+        const mapped = tmplDef._map(value);
+        const offset = tmplDef._offset;
+        key |= mapped << offset;
+    }
+    return `${key.toString(16)}|${programInfo.hash}`;
 }

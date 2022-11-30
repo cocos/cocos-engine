@@ -35,7 +35,7 @@ import {
     DescriptorType, GetTypeSize, ShaderStageFlagBit, API, UniformSamplerTexture, PipelineLayout,
     Shader, UniformStorageBuffer, UniformStorageImage, UniformSampler, UniformTexture, UniformInputAttachment,
 } from '../../gfx';
-import { getActiveAttributes, getShaderInstanceName, IMacroInfo, prepareDefines } from './program-utils';
+import { getActiveAttributes, getShaderInstanceName, prepareDefines } from './program-utils';
 import { debug, cclegacy } from '../../core';
 
 const _dsLayoutInfo = new DescriptorSetLayoutInfo();
@@ -61,6 +61,12 @@ export interface IProgramInfo extends EffectAsset.IShaderInfo {
     defines: IDefineRecord[];
     constantMacros: string;
     uber: boolean; // macro number exceeds default limits, will fallback to string hash
+}
+
+export interface IMacroInfo {
+    name: string;
+    value: string;
+    isDefault: boolean;
 }
 
 function getBitCount (cnt: number) {
@@ -310,36 +316,6 @@ function processShaderInfo (
             shaderInfo.attributes[i].location = loc;
         }
     }
-}
-
-export function getVariantKey (programInfo: IProgramInfo, defines: MacroRecord) {
-    const tmplDefs = programInfo.defines;
-    if (programInfo.uber) {
-        let key = '';
-        for (let i = 0; i < tmplDefs.length; i++) {
-            const tmplDef = tmplDefs[i];
-            const value = defines[tmplDef.name];
-            if (!value || !tmplDef._map) {
-                continue;
-            }
-            const mapped = tmplDef._map(value);
-            const offset = tmplDef._offset;
-            key += `${offset}${mapped}|`;
-        }
-        return `${key}${programInfo.hash}`;
-    }
-    let key = 0;
-    for (let i = 0; i < tmplDefs.length; i++) {
-        const tmplDef = tmplDefs[i];
-        const value = defines[tmplDef.name];
-        if (!value || !tmplDef._map) {
-            continue;
-        }
-        const mapped = tmplDef._map(value);
-        const offset = tmplDef._offset;
-        key |= mapped << offset;
-    }
-    return `${key.toString(16)}|${programInfo.hash}`;
 }
 
 /**
