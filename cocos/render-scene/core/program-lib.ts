@@ -80,7 +80,7 @@ function mapDefine (info: EffectAsset.IDefineInfo, def: number | string | boolea
     }
 }
 
-function prepareDefines (defs: MacroRecord, tDefs: EffectAsset.IDefineInfo[]) {
+export function prepareDefines (defs: MacroRecord, tDefs: EffectAsset.IDefineInfo[]) {
     const macros: IMacroInfo[] = [];
     for (let i = 0; i < tDefs.length; i++) {
         const tmpl = tDefs[i];
@@ -93,7 +93,7 @@ function prepareDefines (defs: MacroRecord, tDefs: EffectAsset.IDefineInfo[]) {
     return macros;
 }
 
-function getShaderInstanceName (name: string, macros: IMacroInfo[]) {
+export function getShaderInstanceName (name: string, macros: IMacroInfo[]) {
     return name + macros.reduce((acc, cur) => (cur.isDefault ? acc : `${acc}|${cur.name}${cur.value}`), '');
 }
 
@@ -167,15 +167,44 @@ function dependencyCheck (dependencies: string[], defines: MacroRecord) {
     }
     return true;
 }
-function getActiveAttributes (tmpl: IProgramInfo, tmplInfo: ITemplateInfo, defines: MacroRecord) {
+export function getActiveAttributes (tmpl: IProgramInfo, gfxAttributes: Attribute[], defines: MacroRecord) {
     const out: Attribute[] = [];
     const attributes = tmpl.attributes;
-    const gfxAttributes = tmplInfo.gfxAttributes;
     for (let i = 0; i < attributes.length; i++) {
         if (!dependencyCheck(attributes[i].defines, defines)) { continue; }
         out.push(gfxAttributes[i]);
     }
     return out;
+}
+
+export function getVariantKey (programInfo: IProgramInfo, defines: MacroRecord) {
+    const tmplDefs = programInfo.defines;
+    if (programInfo.uber) {
+        let key = '';
+        for (let i = 0; i < tmplDefs.length; i++) {
+            const tmplDef = tmplDefs[i];
+            const value = defines[tmplDef.name];
+            if (!value || !tmplDef._map) {
+                continue;
+            }
+            const mapped = tmplDef._map(value);
+            const offset = tmplDef._offset;
+            key += `${offset}${mapped}|`;
+        }
+        return `${key}${programInfo.hash}`;
+    }
+    let key = 0;
+    for (let i = 0; i < tmplDefs.length; i++) {
+        const tmplDef = tmplDefs[i];
+        const value = defines[tmplDef.name];
+        if (!value || !tmplDef._map) {
+            continue;
+        }
+        const mapped = tmplDef._map(value);
+        const offset = tmplDef._offset;
+        key |= mapped << offset;
+    }
+    return `${key.toString(16)}|${programInfo.hash}`;
 }
 
 /**
@@ -373,33 +402,7 @@ class ProgramLib {
      */
     public getKey (name: string, defines: MacroRecord) {
         const tmpl = this._templates[name];
-        const tmplDefs = tmpl.defines;
-        if (tmpl.uber) {
-            let key = '';
-            for (let i = 0; i < tmplDefs.length; i++) {
-                const tmplDef = tmplDefs[i];
-                const value = defines[tmplDef.name];
-                if (!value || !tmplDef._map) {
-                    continue;
-                }
-                const mapped = tmplDef._map(value);
-                const offset = tmplDef._offset;
-                key += `${offset}${mapped}|`;
-            }
-            return `${key}${tmpl.hash}`;
-        }
-        let key = 0;
-        for (let i = 0; i < tmplDefs.length; i++) {
-            const tmplDef = tmplDefs[i];
-            const value = defines[tmplDef.name];
-            if (!value || !tmplDef._map) {
-                continue;
-            }
-            const mapped = tmplDef._map(value);
-            const offset = tmplDef._offset;
-            key |= mapped << offset;
-        }
-        return `${key.toString(16)}|${tmpl.hash}`;
+        return getVariantKey(tmpl, defines);
     }
 
     /**
@@ -462,7 +465,7 @@ class ProgramLib {
         tmplInfo.shaderInfo.stages[1].source = prefix + src.frag;
 
         // strip out the active attributes only, instancing depend on this
-        tmplInfo.shaderInfo.attributes = getActiveAttributes(tmpl, tmplInfo, defines);
+        tmplInfo.shaderInfo.attributes = getActiveAttributes(tmpl, tmplInfo.gfxAttributes, defines);
 
         tmplInfo.shaderInfo.name = getShaderInstanceName(name, macroArray);
         return this._cache[key] = device.createShader(tmplInfo.shaderInfo);

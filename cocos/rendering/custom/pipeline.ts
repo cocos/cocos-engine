@@ -161,12 +161,12 @@ export interface LayoutGraphBuilder {
 
 export interface ProgramProxy {
     readonly name: string;
-    readonly variantName: string;
 }
 
 export interface ProgramLibrary {
     addEffect (effectAsset: EffectAsset): void;
-    getProgramVariant (phaseID: number, variantName: string): ProgramProxy;
+    getProgramVariant (device: Device, phaseID: number, name: string, defines: MacroRecord, key: string | null): ProgramProxy | null;
+    getProgramVariant (device: Device, phaseID: number, name: string, defines: MacroRecord/*, null*/): ProgramProxy | null;
 }
 
 export interface Pipeline extends PipelineRuntime {

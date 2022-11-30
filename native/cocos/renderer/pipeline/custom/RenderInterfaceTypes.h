@@ -31,6 +31,7 @@
 // clang-format off
 #pragma once
 #include "cocos/core/assets/EffectAsset.h"
+#include "cocos/renderer/core/PassUtils.h"
 #include "cocos/renderer/gfx-base/GFXDef-common.h"
 #include "cocos/renderer/pipeline/PipelineSceneData.h"
 #include "cocos/renderer/pipeline/custom/RenderCommonTypes.h"
@@ -282,7 +283,6 @@ public:
     virtual ~ProgramProxy() noexcept = default;
 
     virtual const ccstd::string &getName() const noexcept = 0;
-    virtual const ccstd::string &getVariantName() const noexcept = 0;
 };
 
 class ProgramLibrary {
@@ -295,7 +295,10 @@ public:
     virtual ~ProgramLibrary() noexcept = default;
 
     virtual void addEffect(EffectAsset *effectAsset) = 0;
-    virtual ProgramProxy *getProgramVariant(uint32_t phaseID, const ccstd::string &variantName) const = 0;
+    virtual ProgramProxy *getProgramVariant(gfx::Device *device, uint32_t phaseID, const ccstd::string &name, const MacroRecord &defines, const ccstd::pmr::string *key) const = 0;
+    ProgramProxy *getProgramVariant(gfx::Device *device, uint32_t phaseID, const ccstd::string &name, const MacroRecord &defines) const {
+        return getProgramVariant(device, phaseID, name, defines, nullptr);
+    }
 };
 
 class Pipeline : public PipelineRuntime {

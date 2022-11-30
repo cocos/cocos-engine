@@ -29,7 +29,7 @@
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
  */
 /* eslint-disable max-len */
-import { ShaderInfo } from '../../gfx';
+import { Attribute, Shader, ShaderInfo } from '../../gfx';
 import { LayoutGraphData } from './layout-graph';
 import { IProgramInfo } from '../../render-scene/core/program-lib';
 
@@ -40,10 +40,19 @@ export class ProgramInfo {
     }
     readonly programInfo: IProgramInfo;
     readonly shaderInfo: ShaderInfo;
+    readonly attributes: Attribute[] = [];
+}
+
+export class ProgramHost {
+    constructor (program: Shader) {
+        this.program = program;
+    }
+    readonly program: Shader;
 }
 
 export class ProgramGroup {
-    readonly programs: Map<string, ProgramInfo> = new Map<string, ProgramInfo>();
+    readonly programInfos: Map<string, ProgramInfo> = new Map<string, ProgramInfo>();
+    readonly programHosts: Map<string, ProgramHost> = new Map<string, ProgramHost>();
 }
 
 export class ProgramLibraryData {

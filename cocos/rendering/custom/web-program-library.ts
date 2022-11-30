@@ -1,11 +1,12 @@
 /* eslint-disable max-len */
 import { EffectAsset } from '../../asset/assets';
-import { ShaderInfo, Uniform, UniformBlock, UniformInputAttachment, UniformSampler, UniformSamplerTexture, UniformStorageBuffer, UniformStorageImage, UniformTexture } from '../../gfx';
+import { Attribute, Device, ShaderInfo, Uniform, UniformBlock, UniformInputAttachment, UniformSampler, UniformSamplerTexture, UniformStorageBuffer, UniformStorageImage, UniformTexture } from '../../gfx';
+import { getActiveAttributes, getDeviceShaderVersion, getShaderInstanceName, getVariantKey, MacroRecord, prepareDefines } from '../../render-scene';
 import { IProgramInfo } from '../../render-scene/core/program-lib';
 import { LayoutGraphData, LayoutGraphDataValue, PipelineLayoutData } from './layout-graph';
 import { ProgramLibrary, ProgramProxy } from './pipeline';
 import { DescriptorTypeOrder } from './types';
-import { ProgramGroup, ProgramInfo, ProgramLibraryData } from './web-types';
+import { ProgramGroup, ProgramHost, ProgramInfo, ProgramLibraryData } from './web-types';
 
 const INVALID_ID = 0xFFFFFFFF;
 const _descriptorSetIndex = [3, 2, 1, 0];
@@ -164,6 +165,16 @@ function makeShaderInfo (layouts: PipelineLayoutData, srcShaderInfo: EffectAsset
     return shaderInfo;
 }
 
+class WebProgramProxy implements ProgramProxy {
+    constructor (host: ProgramHost) {
+        this.host = host;
+    }
+    get name (): string {
+        return this.host.program.name;
+    }
+    host: ProgramHost;
+}
+
 export class WebProgramLibrary extends ProgramLibraryData implements ProgramLibrary {
     constructor (lg: LayoutGraphData) {
         super(lg);
@@ -198,7 +209,7 @@ export class WebProgramLibrary extends ProgramLibraryData implements ProgramLibr
                     console.error(`Invalid render phase, program: ${programName}`);
                     continue;
                 }
-                const phasePrograms = group.programs;
+                const phasePrograms = group.programInfos;
 
                 // source shader info
                 let srcShaderInfo: EffectAsset.IShaderInfo | null = null;
@@ -220,11 +231,71 @@ export class WebProgramLibrary extends ProgramLibraryData implements ProgramLibr
                 // build program
                 const programInfo = makeProgramInfo(effect.name, srcShaderInfo);
                 const shaderInfo = makeShaderInfo(layouts, srcShaderInfo);
-                phasePrograms.set(srcShaderInfo.name, new ProgramInfo(programInfo, shaderInfo));
+                const info = new ProgramInfo(programInfo, shaderInfo);
+                for (let i = 0; i < programInfo.attributes.length; i++) {
+                    const attr = programInfo.attributes[i];
+                    info.attributes.push(new Attribute(
+                        attr.name, attr.format, attr.isNormalized, 0, attr.isInstanced, attr.location,
+                    ));
+                }
+                phasePrograms.set(srcShaderInfo.name, info);
             }
         }
     }
-    getProgramVariant (phaseID: number, variantName: string): ProgramProxy {
-        throw new Error('Method not implemented.');
+    getProgramVariant (device: Device, phaseID: number, name: string, defines: MacroRecord, key: string | null = null): ProgramProxy | null {
+        // get phase
+        const group = this.phases.get(phaseID);
+        if (group === undefined) {
+            console.error(`Invalid render phase, program: ${name}`);
+            return null;
+        }
+        // get info
+        const info = group.programInfos.get(name);
+        if (info === undefined) {
+            console.error(`Invalid program, program: ${name}`);
+            return null;
+        }
+        const programInfo = info.programInfo;
+        if (key === null) {
+            key = getVariantKey(programInfo, defines);
+        }
+
+        // try get program
+        const programHosts = group.programHosts;
+        const programHost = programHosts.get(key);
+        if (programHost !== undefined) {
+            return new WebProgramProxy(programHost);
+        }
+
+        // prepare variant
+        const macroArray = prepareDefines(defines, programInfo.defines);
+        const prefix = this.constantMacros + programInfo.constantMacros
+        + macroArray.reduce((acc, cur) => `${acc}#define ${cur.name} ${cur.value}\n`, '');
+
+        let src = programInfo.glsl3;
+        const deviceShaderVersion = getDeviceShaderVersion(device);
+        if (deviceShaderVersion) {
+            src = programInfo[deviceShaderVersion];
+        } else {
+            console.error('Invalid GFX API!');
+        }
+
+        // prepare shader info
+        const shaderInfo = info.shaderInfo;
+        shaderInfo.stages[0].source = prefix + src.vert;
+        shaderInfo.stages[1].source = prefix + src.frag;
+        shaderInfo.attributes = getActiveAttributes(programInfo, info.attributes, defines);
+        shaderInfo.name = getShaderInstanceName(name, macroArray);
+
+        // create shader
+        const shader = device.createShader(shaderInfo);
+
+        // create program host and register
+        const host = new ProgramHost(shader);
+        programHosts.set(key, host);
+
+        // create
+        return new WebProgramProxy(host);
     }
+    constantMacros = '';
 }
