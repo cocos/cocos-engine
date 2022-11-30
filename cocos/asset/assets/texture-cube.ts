@@ -25,7 +25,7 @@
 
 import { EDITOR, TEST } from 'internal:constants';
 import { ccclass, serializable } from 'cc.decorator';
-import { TextureType, TextureInfo, TextureViewInfo } from '../../gfx';
+import { TextureType, TextureInfo, TextureViewInfo, BufferTextureCopy } from '../../gfx';
 import { ImageAsset } from './image-asset';
 import { PresumedGFXTextureInfo, PresumedGFXTextureViewInfo, SimpleTexture } from './simple-texture';
 import { ITexture2DCreateInfo, Texture2D } from './texture-2d';
@@ -187,15 +187,9 @@ export class TextureCube extends SimpleTexture {
         if (!imageAtlasAsset.data) {
             return;
         }
-        const faceAtlas = this._mipmapAtlas.atlas;
+
         const layout = this._mipmapAtlas.layout;
         const mip0Layout = layout[0];
-
-        const ctx = Object.assign(document.createElement('canvas'), {
-            width: imageAtlasAsset.width,
-            height: imageAtlasAsset.height,
-        }).getContext('2d');
-
         this.reset({
             width: mip0Layout.width,
             height: mip0Layout.height,
@@ -203,24 +197,38 @@ export class TextureCube extends SimpleTexture {
             mipmapLevel: layout.length,
         });
 
-        for (let j = 0; j < layout.length; j++) {
-            const layoutInfo = layout[j];
-            _forEachFace(faceAtlas, (face, faceIndex) => {
-                ctx!.clearRect(0, 0, imageAtlasAsset.width, imageAtlasAsset.height);
-                const drawImg = face.data as HTMLImageElement;
-                ctx!.drawImage(drawImg, 0, 0);
-                const rawData = ctx!.getImageData(layoutInfo.left, layoutInfo.top, layoutInfo.width, layoutInfo.height);
+        _forEachFace(this._mipmapAtlas.atlas, (face, faceIndex) => {
+            const tex = new Texture2D();
+            tex.image = face;
+            tex.reset({
+                width: face.width,
+                height: face.height,
+                format: face.format,
+                mipmapLevel: 1,
+            });
+            tex.uploadData(face.data!);
 
+            for (let i = 0; i < layout.length; i++) {
+                const layoutInfo = layout[i];
+
+                const buffer = new Uint8Array(4 * layoutInfo.width * layoutInfo.height);
+                const region = new BufferTextureCopy();
+                region.texOffset.x = layoutInfo.left;
+                region.texOffset.y = layoutInfo.top;
+                region.texExtent.width = layoutInfo.width;
+                region.texExtent.height = layoutInfo.height;
+
+                this._getGFXDevice()!.copyTextureToBuffers(tex.getGFXTexture()!, [buffer], [region]);
                 const bufferAsset = new ImageAsset({
-                    _data: rawData.data,
+                    _data: buffer,
                     _compressed: face.isCompressed,
-                    width: rawData.width,
-                    height: rawData.height,
+                    width: layoutInfo.width,
+                    height: layoutInfo.height,
                     format: face.format,
                 });
                 this._assignImage(bufferAsset, layoutInfo.level, faceIndex);
-            });
-        }
+            }
+        });
     }
 
     get mipmapAtlas () {
