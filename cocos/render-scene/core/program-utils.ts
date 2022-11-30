@@ -26,7 +26,13 @@
 import { EffectAsset } from '../../asset/assets/effect-asset';
 import { Attribute } from '../../gfx/base/define';
 import { MacroRecord } from './pass-utils';
-import { IMacroInfo, IProgramInfo } from './program-lib';
+import { IProgramInfo } from './program-lib';
+
+export interface IMacroInfo {
+    name: string;
+    value: string;
+    isDefault: boolean;
+}
 
 function mapDefine (info: EffectAsset.IDefineInfo, def: number | string | boolean) {
     switch (info.type) {

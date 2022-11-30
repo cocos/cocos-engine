@@ -35,7 +35,7 @@ import {
     DescriptorType, GetTypeSize, ShaderStageFlagBit, API, UniformSamplerTexture, PipelineLayout,
     Shader, UniformStorageBuffer, UniformStorageImage, UniformSampler, UniformTexture, UniformInputAttachment,
 } from '../../gfx';
-import { getActiveAttributes, getShaderInstanceName, getVariantKey, prepareDefines } from './program-utils';
+import { getActiveAttributes, getShaderInstanceName, getVariantKey, IMacroInfo, prepareDefines } from './program-utils';
 import { debug, cclegacy } from '../../core';
 
 const _dsLayoutInfo = new DescriptorSetLayoutInfo();
@@ -61,12 +61,6 @@ export interface IProgramInfo extends EffectAsset.IShaderInfo {
     defines: IDefineRecord[];
     constantMacros: string;
     uber: boolean; // macro number exceeds default limits, will fallback to string hash
-}
-
-export interface IMacroInfo {
-    name: string;
-    value: string;
-    isDefault: boolean;
 }
 
 function getBitCount (cnt: number) {
