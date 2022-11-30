@@ -74,7 +74,7 @@ void XRRemotePreviewManager::onClientConnected(const std::shared_ptr<WebSocketSe
     if (len > 0) {
         pname = static_cast<char *>(malloc(len + 2));
         snprintf(pname, len + 2, "%s %s", lman > 0 ? man : "", lmod > 0 ? mod : "");
-        strcpy(deviceInfo.deviceName, pname);
+        memcpy(deviceInfo.deviceName, pname, sizeof(char) * 32);
     }
     if (pname) free(pname);
 #endif
