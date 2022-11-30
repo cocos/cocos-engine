@@ -28,7 +28,7 @@ import { Root } from '../../root';
 import { TextureBase } from '../../asset/assets/texture-base';
 import { builtinResMgr } from '../../asset/asset-manager/builtin-res-mgr';
 import { getPhaseID } from '../../rendering/pass-phase';
-import { murmurhash2_32_gc, errorID, assertID } from '../../core';
+import { murmurhash2_32_gc, errorID, assertID, cclegacy } from '../../core';
 import { BufferUsageBit, DynamicStateFlagBit, DynamicStateFlags, Feature, GetTypeSize, MemoryUsageBit, PrimitiveMode, Type, Color,
     BlendState, BlendTarget, Buffer, BufferInfo, BufferViewInfo, DepthStencilState, DescriptorSet,
     DescriptorSetInfo, DescriptorSetLayout, Device, RasterizerState, Sampler, Texture, Shader, PipelineLayout, deviceManager,
@@ -41,6 +41,7 @@ import { MacroRecord, MaterialProperty, customizeType, getBindingFromHandle, get
 import { RenderPassStage, RenderPriority } from '../../rendering/define';
 import { InstancedBuffer } from '../../rendering/instanced-buffer';
 import { BatchedBuffer } from '../../rendering/batched-buffer';
+import { ProgramLibrary } from '../../rendering/custom/private';
 
 export interface IPassInfoFull extends EffectAsset.IPassInfo {
     // generated part
@@ -147,7 +148,14 @@ export class Pass {
      * @param hPass Handle of the pass info used to compute hash value.
      */
     public static getPassHash (pass: Pass): number {
-        const shaderKey = programLib.getKey(pass.program, pass.defines);
+        let shaderKey = '';
+        if (cclegacy.rendering && cclegacy.rendering.enableEffectImport) {
+            shaderKey = (cclegacy.rendering.programLib as ProgramLibrary).getKey(
+                pass._phaseID, pass.program, pass.defines,
+            );
+        } else {
+            shaderKey = programLib.getKey(pass.program, pass.defines);
+        }
         let res = `${shaderKey},${pass._primitive},${pass._dynamicStates}`;
         res += serializeBlendState(pass._bs);
         res += serializeDepthStencilState(pass._dss);
@@ -180,6 +188,7 @@ export class Pass {
     protected _priority: RenderPriority = RenderPriority.DEFAULT;
     protected _stage: RenderPassStage = RenderPassStage.DEFAULT;
     protected _phase = getPhaseID('default');
+    protected _phaseID = 0xFFFFFFFF;
     protected _primitive: PrimitiveMode = PrimitiveMode.TRIANGLE_LIST;
     protected _batchingScheme: BatchingSchemes = BatchingSchemes.NONE;
     protected _dynamicStates: DynamicStateFlagBit = DynamicStateFlagBit.NONE;

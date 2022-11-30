@@ -60,6 +60,7 @@ public:
     virtual ~ProgramLibrary() noexcept = default;
 
     virtual void addEffect(EffectAsset *effectAsset) = 0;
+    virtual ccstd::pmr::string getKey(uint32_t phaseID, const ccstd::pmr::string &programName, const MacroRecord &defines) const = 0;
     virtual ProgramProxy *getProgramVariant(gfx::Device *device, uint32_t phaseID, const ccstd::string &name, const MacroRecord &defines, const ccstd::pmr::string *key) const = 0;
     ProgramProxy *getProgramVariant(gfx::Device *device, uint32_t phaseID, const ccstd::string &name, const MacroRecord &defines) const {
         return getProgramVariant(device, phaseID, name, defines, nullptr);

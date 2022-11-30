@@ -39,6 +39,7 @@ export interface ProgramProxy {
 
 export interface ProgramLibrary {
     addEffect (effectAsset: EffectAsset): void;
+    getKey (phaseID: number, programName: string, defines: MacroRecord): string;
     getProgramVariant (device: Device, phaseID: number, name: string, defines: MacroRecord, key: string | null): ProgramProxy | null;
     getProgramVariant (device: Device, phaseID: number, name: string, defines: MacroRecord/*, null*/): ProgramProxy | null;
 }

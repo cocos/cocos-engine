@@ -268,6 +268,23 @@ export class WebProgramLibrary extends ProgramLibraryData implements ProgramLibr
             }
         }
     }
+
+    getKey (phaseID: number, programName: string, defines: MacroRecord): string {
+        // get phase
+        const group = this.phases.get(phaseID);
+        if (group === undefined) {
+            console.error(`Invalid render phase, program: ${programName}`);
+            return '';
+        }
+        // get info
+        const info = group.programInfos.get(programName);
+        if (info === undefined) {
+            console.error(`Invalid program, program: ${programName}`);
+            return '';
+        }
+        return getVariantKey(info.programInfo, defines);
+    }
+
     getProgramVariant (device: Device, phaseID: number, name: string, defines: MacroRecord, key: string | null = null): ProgramProxy | null {
         // get phase
         const group = this.phases.get(phaseID);

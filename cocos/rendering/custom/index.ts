@@ -37,13 +37,13 @@ import { WebProgramLibrary } from './web-program-library';
 let _pipeline: WebPipeline | null = null;
 
 const defaultLayoutGraph = new LayoutGraphData();
-const programLib = new WebProgramLibrary(defaultLayoutGraph);
 
 export * from './types';
 export * from './pipeline';
 export * from './archive';
 
 export const enableEffectImport = false;
+export const programLib = new WebProgramLibrary(defaultLayoutGraph);
 
 export function createCustomPipeline (): Pipeline {
     const layoutGraph = enableEffectImport ? defaultLayoutGraph : new LayoutGraphData();

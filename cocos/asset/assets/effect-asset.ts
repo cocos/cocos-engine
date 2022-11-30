@@ -33,6 +33,7 @@ import { MacroRecord } from '../../render-scene/core/pass-utils';
 import { programLib } from '../../render-scene/core/program-lib';
 import { Asset } from './asset';
 import { cclegacy, warnID } from '../../core';
+import { ProgramLibrary } from '../../rendering/custom/private';
 
 export declare namespace EffectAsset {
     export interface IPropertyInfo {
@@ -300,14 +301,19 @@ export class EffectAsset extends Asset {
      */
     public onLoaded () {
         if (cclegacy.rendering && cclegacy.rendering.enableEffectImport) {
-            cclegacy.rendering.replaceShaderInfo(this);
+            (cclegacy.rendering.programLib as ProgramLibrary).addEffect(this);
+        } else {
+            programLib.register(this);
         }
-        programLib.register(this);
         EffectAsset.register(this);
         if (!EDITOR || cclegacy.GAME_VIEW) { cclegacy.game.once(cclegacy.Game.EVENT_RENDERER_INITED, this._precompile, this); }
     }
 
     protected _precompile () {
+        if (cclegacy.rendering && cclegacy.rendering.enableEffectImport) {
+            // TODO(zhouzhenglong): add precompile
+            return;
+        }
         const root = cclegacy.director.root as Root;
         for (let i = 0; i < this.shaders.length; i++) {
             const shader = this.shaders[i];
