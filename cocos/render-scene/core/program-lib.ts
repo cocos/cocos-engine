@@ -27,15 +27,15 @@ import * as env from 'internal:constants';
 import { EffectAsset } from '../../asset/assets/effect-asset';
 import { SetIndex, IDescriptorSetLayoutInfo, globalDescriptorSetLayout, localDescriptorSetLayout } from '../../rendering/define';
 import { PipelineRuntime } from '../../rendering/custom/pipeline';
-import { genHandle, MacroRecord } from './pass-utils';
+import { MacroRecord } from './pass-utils';
 import {
     PipelineLayoutInfo, Device, Attribute, UniformBlock, ShaderInfo,
     Uniform, ShaderStage, DESCRIPTOR_SAMPLER_TYPE, DESCRIPTOR_BUFFER_TYPE,
     DescriptorSetLayout, DescriptorSetLayoutBinding, DescriptorSetLayoutInfo,
-    DescriptorType, GetTypeSize, ShaderStageFlagBit, API, UniformSamplerTexture, PipelineLayout,
+    DescriptorType, ShaderStageFlagBit, API, UniformSamplerTexture, PipelineLayout,
     Shader, UniformStorageBuffer, UniformStorageImage, UniformSampler, UniformTexture, UniformInputAttachment,
 } from '../../gfx';
-import { getActiveAttributes, getShaderInstanceName, getVariantKey, IMacroInfo, prepareDefines } from './program-utils';
+import { genHandles, getActiveAttributes, getShaderInstanceName, getSize, getVariantKey, IMacroInfo, prepareDefines } from './program-utils';
 import { debug, cclegacy } from '../../core';
 
 const _dsLayoutInfo = new DescriptorSetLayoutInfo();
@@ -99,31 +99,6 @@ function insertBuiltinBindings (
     }
     Array.prototype.unshift.apply(tmplInfo.shaderInfo.samplerTextures, tempSamplerTextures);
     if (outBindings) outBindings.sort((a, b) => a.binding - b.binding);
-}
-
-function getSize (block: EffectAsset.IBlockInfo) {
-    return block.members.reduce((s, m) => s + GetTypeSize(m.type) * m.count, 0);
-}
-
-function genHandles (tmpl: IProgramInfo) {
-    const handleMap: Record<string, number> = {};
-    // block member handles
-    for (let i = 0; i < tmpl.blocks.length; i++) {
-        const block = tmpl.blocks[i];
-        const members = block.members;
-        let offset = 0;
-        for (let j = 0; j < members.length; j++) {
-            const uniform = members[j];
-            handleMap[uniform.name] = genHandle(block.binding, uniform.type, uniform.count, offset);
-            offset += (GetTypeSize(uniform.type) >> 2) * uniform.count; // assumes no implicit padding, which is guaranteed by effect compiler
-        }
-    }
-    // samplerTexture handles
-    for (let i = 0; i < tmpl.samplerTextures.length; i++) {
-        const samplerTexture = tmpl.samplerTextures[i];
-        handleMap[samplerTexture.name] = genHandle(samplerTexture.binding, samplerTexture.type, samplerTexture.count);
-    }
-    return handleMap;
 }
 
 // find those location which won't be affected by defines, and replace by ascending order of existing slot if location > 15

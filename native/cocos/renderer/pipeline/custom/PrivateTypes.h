@@ -67,6 +67,7 @@ public:
     virtual const gfx::DescriptorSetLayout &getMaterialDescriptorSetLayout(uint32_t phaseID) const = 0;
     virtual const gfx::DescriptorSetLayout &getLocalDescriptorSetLayout(uint32_t phaseID) const = 0;
     virtual const IProgramInfo &getProgramInfo(uint32_t phaseID, const ccstd::pmr::string &programName) const = 0;
+    virtual const gfx::ShaderInfo &getShaderInfo(uint32_t phaseID, const ccstd::pmr::string &programName) const = 0;
     virtual ProgramProxy *getProgramVariant(gfx::Device *device, uint32_t phaseID, const ccstd::string &name, const MacroRecord &defines, const ccstd::pmr::string *key) const = 0;
     virtual const ccstd::pmr::vector<unsigned> &getBlockSizes(uint32_t phaseID, const ccstd::pmr::string &programName) const = 0;
     virtual const Record<ccstd::string, uint32_t> &getHandleMap(uint32_t phaseID, const ccstd::pmr::string &programName) const = 0;

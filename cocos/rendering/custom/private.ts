@@ -30,7 +30,7 @@
  */
 /* eslint-disable max-len */
 import { EffectAsset } from '../../asset/assets';
-import { DescriptorSetLayout, Device, PipelineLayout, Shader } from '../../gfx';
+import { DescriptorSetLayout, Device, PipelineLayout, Shader, ShaderInfo } from '../../gfx';
 import { MacroRecord } from '../../render-scene/core/pass-utils';
 import { IProgramInfo } from '../../render-scene/core/program-lib';
 
@@ -46,6 +46,7 @@ export interface ProgramLibrary {
     getMaterialDescriptorSetLayout (phaseID: number): DescriptorSetLayout;
     getLocalDescriptorSetLayout (phaseID: number): DescriptorSetLayout;
     getProgramInfo (phaseID: number, programName: string): IProgramInfo;
+    getShaderInfo (phaseID: number, programName: string): ShaderInfo;
     getProgramVariant (device: Device, phaseID: number, name: string, defines: MacroRecord, key: string | null): ProgramProxy | null;
     getProgramVariant (device: Device, phaseID: number, name: string, defines: MacroRecord/*, null*/): ProgramProxy | null;
     getBlockSizes (phaseID: number, programName: string): number[];

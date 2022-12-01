@@ -26,7 +26,7 @@
 /* eslint-disable max-len */
 import { EffectAsset } from '../../asset/assets';
 import { Attribute, DescriptorSetLayout, Device, PipelineLayout, Shader, ShaderInfo, Uniform, UniformBlock, UniformInputAttachment, UniformSampler, UniformSamplerTexture, UniformStorageBuffer, UniformStorageImage, UniformTexture } from '../../gfx';
-import { getActiveAttributes, getShaderInstanceName, getVariantKey, prepareDefines } from '../../render-scene/core/program-utils';
+import { genHandles, getActiveAttributes, getShaderInstanceName, getSize, getVariantKey, prepareDefines } from '../../render-scene/core/program-utils';
 import { getDeviceShaderVersion, MacroRecord } from '../../render-scene';
 import { IProgramInfo } from '../../render-scene/core/program-lib';
 import { LayoutGraphData, LayoutGraphDataValue, PipelineLayoutData } from './layout-graph';
@@ -75,8 +75,10 @@ function makeProgramInfo (effectName: string, shader: EffectAsset.IShaderInfo): 
     return programInfo;
 }
 
-function makeShaderInfo (layouts: PipelineLayoutData, srcShaderInfo: EffectAsset.IShaderInfo): ShaderInfo {
+function makeShaderInfo (layouts: PipelineLayoutData,
+    srcShaderInfo: EffectAsset.IShaderInfo): [ShaderInfo, Array<number>] {
     const shaderInfo = new ShaderInfo();
+    const blockSizes = new Array<number>();
     for (const [rate, data] of layouts.descriptorSets) {
         const set = _descriptorSetIndex[rate];
         const layout = data.descriptorSetLayoutData;
@@ -88,13 +90,14 @@ function makeShaderInfo (layouts: PipelineLayoutData, srcShaderInfo: EffectAsset
 
             switch (descriptorBlock.type) {
             case DescriptorTypeOrder.UNIFORM_BUFFER:
-                for (const ub of descriptorInfo.blocks) {
-                    if (ub.stageFlags !== visibility) {
+                for (const block of descriptorInfo.blocks) {
+                    if (block.stageFlags !== visibility) {
                         continue;
                     }
+                    blockSizes.push(getSize(block));
                     shaderInfo.blocks.push(
-                        new UniformBlock(set, binding, ub.name,
-                            ub.members.map((m) => new Uniform(m.name, m.type, m.count)),
+                        new UniformBlock(set, binding, block.name,
+                            block.members.map((m) => new Uniform(m.name, m.type, m.count)),
                             1), // count is always 1 for UniformBlock
                     );
                     ++binding;
@@ -176,7 +179,7 @@ function makeShaderInfo (layouts: PipelineLayoutData, srcShaderInfo: EffectAsset
             }
         }
     }
-    return shaderInfo;
+    return [shaderInfo, blockSizes];
 }
 
 class WebProgramProxy implements ProgramProxy {
@@ -247,14 +250,19 @@ export class WebProgramLibrary extends ProgramLibraryData implements ProgramLibr
 
                 // build program
                 const programInfo = makeProgramInfo(effect.name, srcShaderInfo);
-                const shaderInfo = makeShaderInfo(layouts, srcShaderInfo);
-                const info = new ProgramInfo(programInfo, shaderInfo);
-                for (let i = 0; i < programInfo.attributes.length; i++) {
-                    const attr = programInfo.attributes[i];
-                    info.attributes.push(new Attribute(
+                // shaderInfo and blockSizes
+                const [shaderInfo, blockSizes] = makeShaderInfo(layouts, srcShaderInfo);
+                // handle map
+                const handleMap = genHandles(shaderInfo);
+                // attributes
+                const attributes = new Array<Attribute>();
+                for (const attr of programInfo.attributes) {
+                    attributes.push(new Attribute(
                         attr.name, attr.format, attr.isNormalized, 0, attr.isInstanced, attr.location,
                     ));
                 }
+                // create programInfo
+                const info = new ProgramInfo(programInfo, shaderInfo, attributes, blockSizes, handleMap);
                 phasePrograms.set(srcShaderInfo.name, info);
             }
         }
@@ -265,6 +273,13 @@ export class WebProgramLibrary extends ProgramLibraryData implements ProgramLibr
         const group = this.phases.get(phaseID)!;
         const info = group.programInfos.get(programName)!;
         return info.programInfo;
+    }
+
+    getShaderInfo (phaseID: number, programName: string): ShaderInfo {
+        assert(phaseID !== INVALID_ID);
+        const group = this.phases.get(phaseID)!;
+        const info = group.programInfos.get(programName)!;
+        return info.shaderInfo;
     }
 
     getKey (phaseID: number, programName: string, defines: MacroRecord): string {
@@ -352,11 +367,31 @@ export class WebProgramLibrary extends ProgramLibraryData implements ProgramLibr
     }
     getBlockSizes (phaseID: number, programName: string): number[] {
         assert(phaseID !== INVALID_ID);
-        throw new Error('Method not implemented.');
+        const group = this.phases.get(phaseID);
+        if (!group) {
+            console.error(`Invalid render phase, program: ${programName}`);
+            return [];
+        }
+        const info = group.programInfos.get(programName);
+        if (!info) {
+            console.error(`Invalid program, program: ${programName}`);
+            return [];
+        }
+        return info.blockSizes;
     }
     getHandleMap (phaseID: number, programName: string): Record<string, number> {
         assert(phaseID !== INVALID_ID);
-        throw new Error('Method not implemented.');
+        const group = this.phases.get(phaseID);
+        if (!group) {
+            console.error(`Invalid render phase, program: ${programName}`);
+            return {};
+        }
+        const info = group.programInfos.get(programName);
+        if (!info) {
+            console.error(`Invalid program, program: ${programName}`);
+            return {};
+        }
+        return info.handleMap;
     }
     getPipelineLayout (phaseID: number): PipelineLayout {
         assert(phaseID !== INVALID_ID);

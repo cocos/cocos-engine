@@ -24,8 +24,8 @@
 ****************************************************************************/
 
 import { EffectAsset } from '../../asset/assets/effect-asset';
-import { Attribute } from '../../gfx/base/define';
-import { MacroRecord } from './pass-utils';
+import { Attribute, GetTypeSize, ShaderInfo } from '../../gfx/base/define';
+import { genHandle, MacroRecord } from './pass-utils';
 import { IProgramInfo } from './program-lib';
 
 export interface IMacroInfo {
@@ -112,4 +112,29 @@ export function getVariantKey (programInfo: IProgramInfo, defines: MacroRecord) 
         key |= mapped << offset;
     }
     return `${key.toString(16)}|${programInfo.hash}`;
+}
+
+export function getSize (block: EffectAsset.IBlockInfo) {
+    return block.members.reduce((s, m) => s + GetTypeSize(m.type) * m.count, 0);
+}
+
+export function genHandles (tmpl: EffectAsset.IShaderInfo | ShaderInfo) {
+    const handleMap: Record<string, number> = {};
+    // block member handles
+    for (let i = 0; i < tmpl.blocks.length; i++) {
+        const block = tmpl.blocks[i];
+        const members = block.members;
+        let offset = 0;
+        for (let j = 0; j < members.length; j++) {
+            const uniform = members[j];
+            handleMap[uniform.name] = genHandle(block.binding, uniform.type, uniform.count, offset);
+            offset += (GetTypeSize(uniform.type) >> 2) * uniform.count; // assumes no implicit padding, which is guaranteed by effect compiler
+        }
+    }
+    // samplerTexture handles
+    for (let i = 0; i < tmpl.samplerTextures.length; i++) {
+        const samplerTexture = tmpl.samplerTextures[i];
+        handleMap[samplerTexture.name] = genHandle(samplerTexture.binding, samplerTexture.type, samplerTexture.count);
+    }
+    return handleMap;
 }
