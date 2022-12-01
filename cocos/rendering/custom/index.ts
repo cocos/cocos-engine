@@ -35,6 +35,7 @@ import { WebProgramLibrary } from './web-program-library';
 import { Device } from '../../gfx';
 import { initializeLayoutGraphData, terminateLayoutGraphData,
     getCustomPassID as getCustomPassIDImpl, getCustomPhaseID as getCustomPhaseIDImpl } from './layout-graph-utils';
+import { ProgramLibrary } from './private';
 
 let _pipeline: WebPipeline | null = null;
 
@@ -46,7 +47,7 @@ export * from './pipeline';
 export * from './archive';
 
 export const enableEffectImport = false;
-export const programLib = new WebProgramLibrary(defaultLayoutGraph);
+export const programLib: ProgramLibrary = new WebProgramLibrary(defaultLayoutGraph);
 
 export function createCustomPipeline (): Pipeline {
     const layoutGraph = enableEffectImport ? defaultLayoutGraph : new LayoutGraphData();
@@ -64,7 +65,7 @@ export function createCustomPipeline (): Pipeline {
     }
 
     _pipeline = ppl;
-    programLib.constantMacros = ppl.constantMacros;
+    (programLib as WebProgramLibrary).constantMacros = ppl.constantMacros;
     return ppl;
 }
 
