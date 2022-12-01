@@ -236,7 +236,7 @@ export class RichText extends Component {
         this._layoutDirty = true;
         this._updateRichTextStatus();
     }
-    
+
     /**
      * @en
      * Font color of RichText.
@@ -1027,7 +1027,7 @@ export class RichText extends Component {
             }
         }
     }
-    
+
     protected _updateTextDefaultColor () {
         for (let i = 0; i < this._segments.length; ++i) {
             const segment = this._segments[i];
@@ -1261,7 +1261,8 @@ export class RichText extends Component {
         }
 
         if (textStyle) {
-            label.color = this._convertLiteralColorValue(textStyle.color || 'white');
+            if (textStyle.color) label.color = this._convertLiteralColorValue(textStyle.color);
+            else label.color = this._fontColor;
             label.isBold = !!textStyle.bold;
             label.isItalic = !!textStyle.italic;
             // TODO: temporary implementation, the italic effect should be implemented in the internal of label-assembler.
