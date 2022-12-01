@@ -32,7 +32,7 @@
 #include "base/Log.h"
 #include "core/Root.h"
 #include "core/scene-graph/Node.h"
-#include "pipeline/RayTracingScene.h"
+#include "RayTracingScene.h"
 #include "profiler/Profiler.h"
 #include "renderer/pipeline/PipelineSceneData.h"
 #include "renderer/pipeline/custom/RenderInterfaceTypes.h"
@@ -54,7 +54,7 @@ RenderScene::~RenderScene() = default;
 void RenderScene::activate() {
     const auto *sceneData = Root::getInstance()->getPipeline()->getPipelineSceneData();
     _octree = sceneData->getOctree();
-    _sceneAccel = ccnew pipeline::RayTracingScene;
+    _sceneAccel = ccnew RayTracingScene;
 }
 
 bool RenderScene::initialize(const IRenderSceneInfo &info) {
@@ -216,15 +216,6 @@ void RenderScene::removeSpotLights() {
 void RenderScene::addModel(Model *model) {
     model->attachToScene(this);
     _models.emplace_back(model);
-
-    /*
-    for (const auto &submodel : model->getSubModels()) {
-        const auto *ia = submodel->getInputAssembler();
-        const auto indexCount = ia->getIndexCount();
-        if (indexCount == 486) {
-            CC_LOG_INFO("");
-        }
-    }*/
 
     if (_octree && _octree->isEnabled()) {
         _octree->insert(model);

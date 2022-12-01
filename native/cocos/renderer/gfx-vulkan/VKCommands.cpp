@@ -281,18 +281,23 @@ void cmdFuncCCVKCreateBuffer(CCVKDevice *device, CCVKGPUBuffer *gpuBuffer) {
          * its scratchData.deviceAddress member must be a multiple of
          * VkPhysicalDeviceAccelerationStructurePropertiesKHR::minAccelerationStructureScratchOffsetAlignment
          */
-        allocInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
-        VkMemoryRequirements memReq;
-        memReq.size = gpuBuffer->size;
-        memReq.alignment = device->gpuContext()->physicalDeviceAccelerationStructureProperties.minAccelerationStructureScratchOffsetAlignment;
-
-        VmaAllocationInfo res;
-        VK_CHECK(vmaAllocateMemory(device->gpuDevice()->memoryAllocator,&memReq,&allocInfo,&gpuBuffer->vmaAllocation,&res));
+        
 
         VkBufferCreateInfo info{VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO};
         info.size = gpuBuffer->size;
-        info.usage = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
+        info.usage = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT;
         VK_CHECK(vkCreateBuffer(device->gpuDevice()->vkDevice,&info,nullptr,&gpuBuffer->vkBuffer));
+
+        VkMemoryRequirements memReq;
+        vkGetBufferMemoryRequirements(device->gpuDevice()->vkDevice,gpuBuffer->vkBuffer,&memReq);
+        memReq.alignment = device->gpuContext()->physicalDeviceAccelerationStructureProperties.minAccelerationStructureScratchOffsetAlignment;
+
+        allocInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
+        
+
+        VmaAllocationInfo res;
+        VK_CHECK(vmaAllocateMemory(device->gpuDevice()->memoryAllocator, &memReq, &allocInfo, &gpuBuffer->vmaAllocation, &res));
+
         VK_CHECK(vmaBindBufferMemory(device->gpuDevice()->memoryAllocator, gpuBuffer->vmaAllocation, gpuBuffer->vkBuffer));
 
         return;

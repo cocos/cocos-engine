@@ -1278,9 +1278,6 @@ cocos_source_files(
                  cocos/renderer/pipeline/PipelineUBO.h
                  cocos/renderer/pipeline/PipelineSceneData.cpp
                  cocos/renderer/pipeline/PipelineSceneData.h
-                 cocos/renderer/pipeline/RayTracingSceneTypes.h
-                 cocos/renderer/pipeline/RayTracingScene.cpp
-                 cocos/renderer/pipeline/RayTracingScene.h
                  cocos/renderer/pipeline/forward/ForwardFlow.cpp
                  cocos/renderer/pipeline/forward/ForwardFlow.h
                  cocos/renderer/pipeline/forward/ForwardPipeline.cpp
@@ -1440,6 +1437,9 @@ cocos_source_files(
                  cocos/scene/ReflectionProbe.cpp
                  cocos/scene/ReflectionProbeManager.cpp
                  cocos/scene/ReflectionProbeManager.h
+                 cocos/scene/RayTracingSceneTypes.h
+                 cocos/scene/RayTracingScene.cpp
+                 cocos/scene/RayTracingScene.h
 )
 
 ##### primitive

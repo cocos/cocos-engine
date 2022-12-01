@@ -381,20 +381,8 @@ CCProgram ray-query-fs %{
     hitRecord.uv = barycentrics.x * va0.texCoord + barycentrics.y * va1.texCoord + barycentrics.z * va2.texCoord;
     hitRecord.tangent = barycentrics.x * va0.tangent + barycentrics.y * va1.tangent + barycentrics.z * va2.tangent;
     hitRecord.albedo = vec3(1.0);
-    if(hit_geom_id >= 54 && hit_geom_id <= 61){
-      hitRecord.albedo = color_lut[hit_geom_id - 54];
-    }else if(hit_geom_id >= 63 && hit_geom_id <= 72){
-      hitRecord.albedo = color_lut[hit_geom_id - 63];
-    }else if(hit_geom_id == 99 || hit_geom_id == 96){
-      hitRecord.albedo = vec3(0.95, 0.1,0.1);
-    }else if(hit_geom_id == 98 || hit_geom_id == 97){
-     hitRecord.albedo = vec3(1.00, 0.71, 0.29);
-    }else if(hit_geom_id == 74 || hit_geom_id == 76|| hit_geom_id == 78|| hit_geom_id == 80){
-     hitRecord.albedo = vec3(0.01, 0.01, 0.01);
-    }else if(hit_geom_id == 53){
-      hitRecord.albedo = vec3(0.2, 0.4, 0.0);
-    }
-       return hitRecord;
+    
+    return hitRecord;
   }
 
   HitRecord getHitRecordWorldSpace(rayQueryEXT rayQuery){
@@ -571,7 +559,20 @@ CCProgram ray-query-fs %{
         MeshDesc mesh = instanceDescs[hit_instance_id];
         int hit_geom_id = rayQueryGetIntersectionGeometryIndexEXT(rayQuery,true);
         HitRecord hitRecordWS = getHitRecordWorldSpace(rayQuery);
-        s.albedo.rgb = hitRecordWS.albedo;
+        if(hit_geom_id >= 54 && hit_geom_id <= 61){
+          s.albedo.rgb = color_lut[hit_geom_id - 54];
+        }else if(hit_geom_id >= 63 && hit_geom_id <= 72){
+          s.albedo.rgb = color_lut[hit_geom_id - 63];
+        }else if(hit_geom_id == 99 || hit_geom_id == 96){
+          s.albedo.rgb = vec3(0.95, 0.1,0.1);
+        }else if(hit_geom_id == 98 || hit_geom_id == 97){
+          s.albedo.rgb = vec3(1.00, 0.71, 0.29);
+        }else if(hit_geom_id == 74 || hit_geom_id == 76|| hit_geom_id == 78|| hit_geom_id == 80){
+          s.albedo.rgb = vec3(0.01, 0.01, 0.01);
+        }else if(hit_geom_id == 53){
+          s.albedo.rgb = vec3(0.2, 0.4, 0.0);
+        }
+        /*
         if(false){
           vec3 hitNormal = hitRecordWS.normal;
           direction = reflect(direction,hitNormal);
@@ -590,14 +591,11 @@ CCProgram ray-query-fs %{
           //s.albedo.rgb += calculate_diffuse(frame_id,seed,TBN,origin,s);
         }else{
           s.albedo.rgb += calculate_diffuse(frame_id,seed,TBN,origin,s);
-        }
+        }*/
+        s.albedo.rgb += calculate_diffuse(frame_id,seed,TBN,origin,s);
       }
-      //float ao = calculate_ao(frame_id,seed,TBN,origin,10.0);
-     
-      //s.albedo *= (1.0 - ao);
     #endif
   
-
     vec4 pbr = pbrParams;
     #if USE_PBR_MAP
       vec4 res = texture(pbrMap, PBR_UV);

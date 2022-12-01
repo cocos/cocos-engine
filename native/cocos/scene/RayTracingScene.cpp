@@ -1,15 +1,15 @@
 #include "RayTracingScene.h"
-#include "GlobalDescriptorSetManager.h"
+#include "../pipeline/GlobalDescriptorSetManager.h"
 #include "3d/assets/Mesh.h"
 #include "gfx-base/GFXDevice.h"
 #include "scene/Model.h"
 #include "scene/RenderScene.h"
 #include "core/Root.h"
-#include "custom/RenderInterfaceTypes.h"
+#include "../renderer/pipeline/custom/RenderInterfaceTypes.h"
 
 namespace cc
 {
-namespace pipeline
+namespace scene
 {
 
     namespace{
@@ -236,9 +236,9 @@ namespace pipeline
         }
 
         if (needRecreate) {
-            _globalDSManager->bindAccelerationStructure(TOPLEVELAS::BINDING, _topLevelAccelerationStructure);
-            _globalDSManager->bindBuffer(SCENEGEOMETRYDESC::BINDING, rqBinding._geomDescGPUBuffer);
-            _globalDSManager->bindBuffer(SCENEINSTANCEDESC::BINDING, rqBinding._instanceDescGPUBuffer);
+            _globalDSManager->bindAccelerationStructure(pipeline::TOPLEVELAS::BINDING, _topLevelAccelerationStructure);
+            _globalDSManager->bindBuffer(pipeline::SCENEGEOMETRYDESC::BINDING, rqBinding._geomDescGPUBuffer);
+            _globalDSManager->bindBuffer(pipeline::SCENEINSTANCEDESC::BINDING, rqBinding._instanceDescGPUBuffer);
             _globalDSManager->update();
         }
 
@@ -362,5 +362,5 @@ namespace pipeline
         _instanceDescGPUBuffer = gfx::Device::getInstance()->createBuffer(bufferInfo);
     }
 
-}  // namespace pipeline
+}  // namespace scene
 } // namespace cc

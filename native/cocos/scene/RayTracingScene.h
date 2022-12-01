@@ -9,13 +9,14 @@
 namespace cc
 {
 
-namespace scene{
-class RenderScene;
-class Model;
+namespace pipeline{
+class GlobalDSManager;
 }
-namespace pipeline
+
+namespace scene
 {
-    class GlobalDSManager;
+    class RenderScene;
+    class Model;
 
     namespace {
     template <class... Ts>
@@ -87,7 +88,8 @@ namespace pipeline
 
         //ccstd::unordered_map<std::pair<uint64_t,std::vector<uint64_t>>, std::pair<IntrusivePtr<gfx::AccelerationStructure>, uint64_t>> _shadingBlasMap;
          
-        GlobalDSManager* _globalDSManager{nullptr};
+        pipeline::GlobalDSManager* _globalDSManager{nullptr};
+        
     private:
 
         bool needRebuild = false;

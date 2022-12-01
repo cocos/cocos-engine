@@ -11,8 +11,7 @@ namespace scene {
 
 class RenderScene;
 class Model;
-} // namespace scene
-namespace pipeline {
+
 struct RayTracingMeshDescriptor final {
     IntrusivePtr<gfx::Buffer> vertexBuffer;
     IntrusivePtr<gfx::Buffer> indexBuffer;
@@ -492,5 +491,5 @@ struct RayTracingBindingTable final{
     }
 };
 
-} // namespace pipeline
+} // namespace scene
 } // namespace cc

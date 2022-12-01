@@ -37,10 +37,6 @@ class Node;
 class SkinningModel;
 class BakedSkinningModel;
 
-namespace pipeline {
-    class RayTracingScene;
-}
-
 namespace scene {
 
 class Model;
@@ -51,6 +47,7 @@ class DirectionalLight;
 class LODGroup;
 class SphereLight;
 class SpotLight;
+class RayTracingScene;
 
 struct IRaycastResult {
     Node *node{nullptr};
@@ -128,7 +125,7 @@ private:
     ccstd::vector<IntrusivePtr<SpotLight>> _spotLights;
     ccstd::vector<DrawBatch2D *> _batches;
     Octree *_octree{nullptr};
-    pipeline::RayTracingScene *_sceneAccel;
+    RayTracingScene *_sceneAccel;
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(RenderScene);
 };
