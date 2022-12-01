@@ -188,6 +188,7 @@ export class Pass {
     protected _priority: RenderPriority = RenderPriority.DEFAULT;
     protected _stage: RenderPassStage = RenderPassStage.DEFAULT;
     protected _phase = getPhaseID('default');
+    protected _passID = 0xFFFFFFFF;
     protected _phaseID = 0xFFFFFFFF;
     protected _primitive: PrimitiveMode = PrimitiveMode.TRIANGLE_LIST;
     protected _batchingScheme: BatchingSchemes = BatchingSchemes.NONE;
@@ -565,6 +566,21 @@ export class Pass {
         this._shaderInfo = programLib.getTemplate(info.program);
         this._properties = info.properties || this._properties;
 
+        if (cclegacy.rendering) {
+            const r = cclegacy.rendering;
+            this._passID = r.getCustomPassID(info.pass);
+            if (this._passID === r.INVALID_ID) {
+                console.error(`Invalid render pass, program: ${info.program}`);
+                return;
+            }
+            this._phaseID = r.getCustomPhaseID(this._passID, info.phase);
+            if (this._phaseID === r.INVALID_ID) {
+                console.error(`Invalid render phase, program: ${info.program}`);
+                return;
+            }
+        }
+
+        // init gfx
         const device = this._device;
         Pass.fillPipelineInfo(this, info);
         if (info.stateOverrides) { Pass.fillPipelineInfo(this, info.stateOverrides); }

@@ -111,6 +111,20 @@ export function getGfxDescriptorType (type: DescriptorTypeOrder): DescriptorType
     }
 }
 
+export function getCustomPassID (lg: LayoutGraphData, name: string | undefined): number {
+    return lg.locateChild(lg.nullVertex(), name || 'default');
+}
+
+export function getCustomPhaseID (lg: LayoutGraphData, passID: number, name: string | number | undefined): number {
+    if (name === undefined) {
+        return lg.locateChild(passID, 'default');
+    }
+    if (typeof (name) === 'number') {
+        return lg.locateChild(passID, name.toString());
+    }
+    return lg.locateChild(passID, name);
+}
+
 function hasFlag (flags: ShaderStageFlagBit, flagToTest: ShaderStageFlagBit): boolean {
     return (flags & flagToTest) !== 0;
 }

@@ -33,6 +33,7 @@ import { LayoutGraphData, LayoutGraphDataValue, PipelineLayoutData } from './lay
 import { ProgramLibrary, ProgramProxy } from './private';
 import { DescriptorTypeOrder } from './types';
 import { ProgramGroup, ProgramHost, ProgramInfo, ProgramLibraryData } from './web-types';
+import { getCustomPassID, getCustomPhaseID } from './layout-graph-utils';
 
 const INVALID_ID = 0xFFFFFFFF;
 const _descriptorSetIndex = [3, 2, 1, 0];
@@ -71,20 +72,6 @@ function makeProgramInfo (effectName: string, shader: EffectAsset.IShaderInfo): 
         programInfo.constantMacros += `#define ${key} ${shader.builtins.statistics[key]}\n`;
     }
     return programInfo;
-}
-
-function getCustomPassID (lg: LayoutGraphData, name: string | undefined): number {
-    return lg.locateChild(lg.nullVertex(), name || 'default');
-}
-
-function getCustomPhaseID (lg: LayoutGraphData, passID: number, name: string | number | undefined): number {
-    if (name === undefined) {
-        return lg.locateChild(passID, 'default');
-    }
-    if (typeof (name) === 'number') {
-        return lg.locateChild(passID, name.toString());
-    }
-    return lg.locateChild(passID, name);
 }
 
 function makeShaderInfo (layouts: PipelineLayoutData, srcShaderInfo: EffectAsset.IShaderInfo): ShaderInfo {
