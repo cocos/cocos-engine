@@ -41,6 +41,8 @@ export class ProgramInfo {
     readonly programInfo: IProgramInfo;
     readonly shaderInfo: ShaderInfo;
     readonly attributes: Attribute[] = [];
+    readonly blockSizes: number[] = [];
+    readonly handleMap: Record<string, number> = {};
 }
 
 export class ProgramHost {
