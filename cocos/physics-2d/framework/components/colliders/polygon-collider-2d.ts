@@ -1,5 +1,5 @@
-import { ccclass, property, menu, type } from '../../../../core/data/class-decorator';
-import { Component, Vec2, Size, Enum } from '../../../../core';
+import { ccclass, property, menu } from '../../../../core/data/class-decorator';
+import { Component, Vec2, Size } from '../../../../core';
 import { Collider2D } from './collider-2d';
 import { ECollider2DType } from '../../physics-types';
 import { IPolygonShape } from '../../../spec/i-physics-shape';

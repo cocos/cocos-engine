@@ -36,10 +36,9 @@ export class b2PolygonShape extends b2Shape2D implements IPolygonShape {
             points.length -= 1;
         }
 
-        let polys :IVec2Like[][]|null = null;
-        polys = PolygonPartition.ConvexPartition(points);
+        const polys = PolygonPartition.ConvexPartition(points);
         if (!polys) {
-            console.log('[Physics2D] b2PolygonShape failed to decompose polygon into convex polygons');
+            console.log('[Physics2D] b2PolygonShape failed to decompose polygon into convex polygons, node name: ', comp.node.name);
             return shapes;
         }
 
