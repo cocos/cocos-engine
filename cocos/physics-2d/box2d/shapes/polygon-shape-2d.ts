@@ -2,7 +2,7 @@ import b2 from '@cocos/box2d';
 import { b2Shape2D } from './shape-2d';
 import * as PolygonSeparator from '../../framework/utils/polygon-separator';
 import * as PolygonPartition from '../../framework/utils/polygon-partition';
-import { EPolygonPartitionType, PolygonCollider2D } from '../../framework';
+import { PolygonCollider2D } from '../../framework';
 import { PHYSICS_2D_PTM_RATIO } from '../../framework/physics-types';
 import { IPolygonShape } from '../../spec/i-physics-shape';
 import { Vec2, IVec2Like } from '../../../core';
@@ -37,12 +37,11 @@ export class b2PolygonShape extends b2Shape2D implements IPolygonShape {
         }
 
         let polys :IVec2Like[][]|null = null;
-        if (comp._polygonPartitionType === EPolygonPartitionType.MarkBayazit) {
-            polys = PolygonSeparator.ConvexPartition(points);
-        } else if (comp._polygonPartitionType === EPolygonPartitionType.HertelMehlhorn) {
-            polys = PolygonPartition.ConvexPartition(points);
+        polys = PolygonPartition.ConvexPartition(points);
+        if (!polys) {
+            console.log('[Physics2D] b2PolygonShape failed to decompose polygon into convex polygons');
+            return shapes;
         }
-        if (!polys) return shapes;
 
         const offset = comp.offset;
 
