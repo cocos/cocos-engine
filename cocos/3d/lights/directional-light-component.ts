@@ -75,6 +75,8 @@ export class DirectionalLight extends Light {
     protected _csmAdvancedOptions = false;
     @serializable
     protected _csmLayersTransition = false;
+    @serializable
+    protected _csmTransitionRange = 0.05;
 
     // fixed area properties
     @serializable
@@ -265,7 +267,8 @@ export class DirectionalLight extends Light {
     @visible(function (this: DirectionalLight) {
         return (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.enabled
         && (cclegacy.director.root as Root).pipeline.pipelineSceneData.shadows.type
-        === ShadowType.ShadowMap && this._shadowFixedArea === false;
+        === ShadowType.ShadowMap && this._shadowFixedArea === false
+        && this._csmAdvancedOptions;
     })
     @property({ group: { name: 'DynamicShadowSettings', displayOrder: 10 } })
     @editable
@@ -503,6 +506,25 @@ export class DirectionalLight extends Light {
         if (this._light) { this._light.csmLayersTransition = val; }
     }
 
+    /**
+     * @en get or set csm layers transition range
+     * @zh 获取或者设置级联阴影层级过渡范围？
+     */
+    @visible(false)
+    @property({ group: { name: 'DynamicShadowSettings', displayOrder: 21 } })
+    @editable
+    @tooltip('CSM transition range')
+    @range([0.0, 0.1, 0.01])
+    @slide
+    @type(CCFloat)
+    get csmTransitionRange () {
+        return this._csmTransitionRange;
+    }
+    set csmTransitionRange (val) {
+        this._csmTransitionRange = val;
+        if (this._light) { this._light.csmTransitionRange = val; }
+    }
+
     constructor () {
         super();
         this._lightType = scene.DirectionalLight;
@@ -538,6 +560,7 @@ export class DirectionalLight extends Light {
             this._light.csmLayerLambda = this._csmLayerLambda;
             this._light.csmOptimizationMode = this._csmOptimizationMode;
             this._light.csmLayersTransition = this._csmLayersTransition;
+            this._light.csmTransitionRange = this._csmTransitionRange;
         }
     }
 }
