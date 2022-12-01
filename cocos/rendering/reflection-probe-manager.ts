@@ -56,34 +56,10 @@ export class ReflectionProbeManager {
 
     constructor () {
         if (EDITOR) {
-            director.on(Director.EVENT_BEFORE_UPDATE, this.onUpdateProbes, this);
+            director.on(Director.EVENT_BEFORE_UPDATE, this._onUpdateProbes, this);
         }
     }
 
-    public onUpdateProbes () {
-        if (this._probes.length === 0) return;
-        const scene = director.getScene();
-        if (!scene || !scene.renderScene) {
-            return;
-        }
-        const models = scene.renderScene.models;
-        for (let i = 0; i < models.length; i++) {
-            const model = models[i];
-            if (!model.node) continue;
-            if ((model.node.layer & REFLECTION_PROBE_DEFAULT_MASK) && model.node.hasChangedFlags) {
-                if (model.reflectionProbeType === ReflectionProbeType.BAKED_CUBEMAP) {
-                    this._probes.forEach((probe) => {
-                        this.updateUseCubeModels(probe);
-                    });
-                } else {
-                    this._probes.forEach((probe) => {
-                        this.updateUsePlanarModels(probe);
-                    });
-                }
-                break;
-            }
-        }
-    }
     public register (probe: ReflectionProbe) {
         const index = this._probes.indexOf(probe);
         if (index === -1) {
@@ -318,6 +294,31 @@ export class ReflectionProbeManager {
             const p = this._useCubeModels.get(key);
             if (p !== undefined && p === probe) {
                 this._useCubeModels.delete(key);
+            }
+        }
+    }
+
+    private _onUpdateProbes () {
+        if (this._probes.length === 0) return;
+        const scene = director.getScene();
+        if (!scene || !scene.renderScene) {
+            return;
+        }
+        const models = scene.renderScene.models;
+        for (let i = 0; i < models.length; i++) {
+            const model = models[i];
+            if (!model.node) continue;
+            if ((model.node.layer & REFLECTION_PROBE_DEFAULT_MASK) && model.node.hasChangedFlags) {
+                if (model.reflectionProbeType === ReflectionProbeType.BAKED_CUBEMAP) {
+                    this._probes.forEach((probe) => {
+                        this.updateUseCubeModels(probe);
+                    });
+                } else {
+                    this._probes.forEach((probe) => {
+                        this.updateUsePlanarModels(probe);
+                    });
+                }
+                break;
             }
         }
     }
