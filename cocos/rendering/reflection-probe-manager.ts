@@ -26,8 +26,8 @@
 
 import { EDITOR } from 'internal:constants';
 import { MeshRenderer, ReflectionProbeType } from '../3d/framework/mesh-renderer';
-import { Vec3, geometry } from '../core';
-import { director, Director } from '../game/director';
+import { Vec3, geometry, cclegacy } from '../core';
+import { director, Director } from '../game';
 import { Texture } from '../gfx';
 import { Camera, Model } from '../render-scene/scene';
 import { ProbeType, ReflectionProbe } from '../render-scene/scene/reflection-probe';
@@ -72,12 +72,10 @@ export class ReflectionProbeManager {
             if (!model.node) continue;
             if ((model.node.layer & REFLECTION_PROBE_DEFAULT_MASK) && model.node.hasChangedFlags) {
                 if (model.reflectionProbeType === ReflectionProbeType.BAKED_CUBEMAP) {
-                    console.log('updateUseCubeModels======');
                     this._probes.forEach((probe) => {
                         this.updateUseCubeModels(probe);
                     });
                 } else {
-                    console.log('updateUsePlanarModels======');
                     this._probes.forEach((probe) => {
                         this.updateUsePlanarModels(probe);
                     });
@@ -326,3 +324,4 @@ export class ReflectionProbeManager {
 }
 
 ReflectionProbeManager.probeManager = new ReflectionProbeManager();
+cclegacy.internal.reflectionProbeManager = ReflectionProbeManager.probeManager;
