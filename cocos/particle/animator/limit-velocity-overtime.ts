@@ -59,7 +59,6 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
      */
     @type(CurveRange)
     @serializable
-    @range([-1, 1])
     @displayOrder(4)
     @tooltip('i18n:limitVelocityOvertimeModule.limitX')
     @visible(function (this: LimitVelocityOvertimeModule): boolean {
@@ -72,7 +71,6 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
      */
     @type(CurveRange)
     @serializable
-    @range([-1, 1])
     @displayOrder(5)
     @tooltip('i18n:limitVelocityOvertimeModule.limitY')
     @visible(function (this: LimitVelocityOvertimeModule): boolean {
@@ -85,7 +83,6 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
      */
     @type(CurveRange)
     @serializable
-    @range([-1, 1])
     @displayOrder(6)
     @tooltip('i18n:limitVelocityOvertimeModule.limitZ')
     @visible(function (this: LimitVelocityOvertimeModule): boolean {
@@ -98,7 +95,6 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
      */
     @type(CurveRange)
     @serializable
-    @range([-1, 1])
     @displayOrder(3)
     @tooltip('i18n:limitVelocityOvertimeModule.limit')
     @visible(function (this: LimitVelocityOvertimeModule): boolean {
