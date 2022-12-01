@@ -621,7 +621,7 @@ export class Pass {
 
         // init descriptor set
         if (cclegacy.rendering && cclegacy.rendering.enableEffectImport) {
-            _dsInfo.layout = (cclegacy.renderingprogramLib as ProgramLibrary)
+            _dsInfo.layout = (cclegacy.rendering.programLib as ProgramLibrary)
                 .getMaterialDescriptorSetLayout(this._phaseID);
         } else {
             _dsInfo.layout = programLib.getDescriptorSetLayout(this._device, info.program);
@@ -630,14 +630,17 @@ export class Pass {
 
         // calculate total size required
         const blocks = this._shaderInfo.blocks;
-        let tmplInfo: ITemplateInfo;
+        let blockSizes: number[];
+        let handleMap: Record<string, number>;
         if (cclegacy.rendering && cclegacy.rendering.enableEffectImport) {
-            tmplInfo = (cclegacy.rendering.programLib as ProgramLibrary)
-                .getTemplateInfo(this._phaseID, this._programName);
+            const programLib = (cclegacy.rendering.programLib as ProgramLibrary);
+            blockSizes = programLib.getBlockSizes(this._phaseID, this._programName);
+            handleMap = programLib.getHandleMap(this._phaseID, this._programName);
         } else {
-            tmplInfo = programLib.getTemplateInfo(info.program);
+            const tmplInfo = programLib.getTemplateInfo(info.program);
+            blockSizes = tmplInfo.blockSizes;
+            handleMap = tmplInfo.handleMap;
         }
-        const { blockSizes, handleMap } = tmplInfo;
         const alignment = device.capabilities.uboOffsetAlignment;
         const startOffsets: number[] = [];
         let lastSize = 0; let lastOffset = 0;

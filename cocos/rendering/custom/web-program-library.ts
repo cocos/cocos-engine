@@ -27,13 +27,14 @@
 import { EffectAsset } from '../../asset/assets';
 import { Attribute, DescriptorSetLayout, Device, PipelineLayout, Shader, ShaderInfo, Uniform, UniformBlock, UniformInputAttachment, UniformSampler, UniformSamplerTexture, UniformStorageBuffer, UniformStorageImage, UniformTexture } from '../../gfx';
 import { getActiveAttributes, getShaderInstanceName, getVariantKey, prepareDefines } from '../../render-scene/core/program-utils';
-import { getDeviceShaderVersion, ITemplateInfo, MacroRecord } from '../../render-scene';
+import { getDeviceShaderVersion, MacroRecord } from '../../render-scene';
 import { IProgramInfo } from '../../render-scene/core/program-lib';
 import { LayoutGraphData, LayoutGraphDataValue, PipelineLayoutData } from './layout-graph';
 import { ProgramLibrary, ProgramProxy } from './private';
 import { DescriptorTypeOrder, UpdateFrequency } from './types';
 import { ProgramGroup, ProgramHost, ProgramInfo, ProgramLibraryData } from './web-types';
 import { getCustomPassID, getCustomPhaseID, getDescriptorSetLayout } from './layout-graph-utils';
+import { assert } from '../../core/platform/debug';
 
 const INVALID_ID = 0xFFFFFFFF;
 const _descriptorSetIndex = [3, 2, 1, 0];
@@ -260,12 +261,14 @@ export class WebProgramLibrary extends ProgramLibraryData implements ProgramLibr
     }
 
     getProgramInfo (phaseID: number, programName: string): IProgramInfo {
+        assert(phaseID !== INVALID_ID);
         const group = this.phases.get(phaseID)!;
         const info = group.programInfos.get(programName)!;
         return info.programInfo;
     }
 
     getKey (phaseID: number, programName: string, defines: MacroRecord): string {
+        assert(phaseID !== INVALID_ID);
         // get phase
         const group = this.phases.get(phaseID);
         if (group === undefined) {
@@ -282,6 +285,7 @@ export class WebProgramLibrary extends ProgramLibraryData implements ProgramLibr
     }
 
     getProgramVariant (device: Device, phaseID: number, name: string, defines: MacroRecord, key: string | null = null): ProgramProxy | null {
+        assert(phaseID !== INVALID_ID);
         // get phase
         const group = this.phases.get(phaseID);
         if (group === undefined) {
@@ -337,18 +341,27 @@ export class WebProgramLibrary extends ProgramLibraryData implements ProgramLibr
         return new WebProgramProxy(host);
     }
     getMaterialDescriptorSetLayout (phaseID: number): DescriptorSetLayout {
+        assert(phaseID !== INVALID_ID);
         const passID = this.layoutGraph.getParent(phaseID);
         return getDescriptorSetLayout(this.layoutGraph, passID, phaseID, UpdateFrequency.PER_BATCH);
     }
     getLocalDescriptorSetLayout (phaseID: number): DescriptorSetLayout {
+        assert(phaseID !== INVALID_ID);
         const passID = this.layoutGraph.getParent(phaseID);
         return getDescriptorSetLayout(this.layoutGraph, passID, phaseID, UpdateFrequency.PER_INSTANCE);
     }
-    getTemplateInfo (phaseID: number, programName: string): ITemplateInfo {
+    getBlockSizes (phaseID: number, programName: string): number[] {
+        assert(phaseID !== INVALID_ID);
+        throw new Error('Method not implemented.');
+    }
+    getHandleMap (phaseID: number, programName: string): Record<string, number> {
+        assert(phaseID !== INVALID_ID);
         throw new Error('Method not implemented.');
     }
     getPipelineLayout (phaseID: number): PipelineLayout {
-        throw new Error('Method not implemented.');
+        assert(phaseID !== INVALID_ID);
+        const layout = this.layoutGraph.getLayout(phaseID);
+        return layout.pipelineLayout!;
     }
     constantMacros = '';
 }

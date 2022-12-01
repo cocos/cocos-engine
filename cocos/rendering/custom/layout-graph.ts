@@ -30,7 +30,7 @@
  */
 /* eslint-disable max-len */
 import { AddressableGraph, AdjI, AdjacencyGraph, BidirectionalGraph, ComponentGraph, ED, InEI, MutableGraph, MutableReferenceGraph, NamedGraph, OutE, OutEI, PolymorphicGraph, PropertyGraph, PropertyMap, ReferenceGraph, VertexListGraph, directional, findRelative, getPath, parallel, reindexEdgeList, traversal } from './graph';
-import { DescriptorSet, DescriptorSetLayout, DescriptorSetLayoutInfo, ShaderStageFlagBit, Type, UniformBlock } from '../../gfx';
+import { DescriptorSet, DescriptorSetLayout, DescriptorSetLayoutInfo, PipelineLayout, ShaderStageFlagBit, Type, UniformBlock } from '../../gfx';
 import { DescriptorBlock, saveDescriptorBlock, loadDescriptorBlock, DescriptorBlockIndex, saveDescriptorBlockIndex, loadDescriptorBlockIndex, DescriptorTypeOrder, UpdateFrequency } from './types';
 import { OutputArchive, InputArchive } from './archive';
 import { saveUniformBlock, loadUniformBlock, saveDescriptorSetLayoutInfo, loadDescriptorSetLayoutInfo } from './serialization';
@@ -627,6 +627,7 @@ export class DescriptorSetData {
 
 export class PipelineLayoutData {
     readonly descriptorSets: Map<UpdateFrequency, DescriptorSetData> = new Map<UpdateFrequency, DescriptorSetData>();
+    /*refcount*/ pipelineLayout: PipelineLayout | null = null;
 }
 
 export class ShaderBindingData {
@@ -1452,6 +1453,7 @@ export function savePipelineLayoutData (ar: OutputArchive, v: PipelineLayoutData
         ar.writeNumber(k1);
         saveDescriptorSetData(ar, v1);
     }
+    // skip, v.pipelineLayout: PipelineLayout
 }
 
 export function loadPipelineLayoutData (ar: InputArchive, v: PipelineLayoutData) {
@@ -1463,6 +1465,7 @@ export function loadPipelineLayoutData (ar: InputArchive, v: PipelineLayoutData)
         loadDescriptorSetData(ar, v1);
         v.descriptorSets.set(k1, v1);
     }
+    // skip, v.pipelineLayout: PipelineLayout
 }
 
 export function saveShaderBindingData (ar: OutputArchive, v: ShaderBindingData) {

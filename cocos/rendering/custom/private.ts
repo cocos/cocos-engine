@@ -32,7 +32,7 @@
 import { EffectAsset } from '../../asset/assets';
 import { DescriptorSetLayout, Device, PipelineLayout, Shader } from '../../gfx';
 import { MacroRecord } from '../../render-scene/core/pass-utils';
-import { IProgramInfo, ITemplateInfo } from '../../render-scene/core/program-lib';
+import { IProgramInfo } from '../../render-scene/core/program-lib';
 
 export interface ProgramProxy {
     readonly name: string;
@@ -48,5 +48,6 @@ export interface ProgramLibrary {
     getProgramInfo (phaseID: number, programName: string): IProgramInfo;
     getProgramVariant (device: Device, phaseID: number, name: string, defines: MacroRecord, key: string | null): ProgramProxy | null;
     getProgramVariant (device: Device, phaseID: number, name: string, defines: MacroRecord/*, null*/): ProgramProxy | null;
-    getTemplateInfo (phaseID: number, programName: string): ITemplateInfo;
+    getBlockSizes (phaseID: number, programName: string): number[];
+    getHandleMap (phaseID: number, programName: string): Record<string, number>;
 }

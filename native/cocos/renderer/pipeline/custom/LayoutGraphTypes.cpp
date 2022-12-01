@@ -166,7 +166,8 @@ PipelineLayoutData::PipelineLayoutData(const allocator_type& alloc) noexcept
 : descriptorSets(alloc) {}
 
 PipelineLayoutData::PipelineLayoutData(PipelineLayoutData&& rhs, const allocator_type& alloc)
-: descriptorSets(std::move(rhs.descriptorSets), alloc) {}
+: descriptorSets(std::move(rhs.descriptorSets), alloc),
+  pipelineLayout(std::move(rhs.pipelineLayout)) {}
 
 ShaderBindingData::ShaderBindingData(const allocator_type& alloc) noexcept
 : descriptorBindings(alloc) {}

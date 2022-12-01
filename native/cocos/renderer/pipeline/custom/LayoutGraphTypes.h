@@ -395,6 +395,7 @@ struct PipelineLayoutData {
     PipelineLayoutData& operator=(PipelineLayoutData const& rhs) = delete;
 
     ccstd::pmr::map<UpdateFrequency, DescriptorSetData> descriptorSets;
+    IntrusivePtr<gfx::PipelineLayout> pipelineLayout;
 };
 
 struct ShaderBindingData {

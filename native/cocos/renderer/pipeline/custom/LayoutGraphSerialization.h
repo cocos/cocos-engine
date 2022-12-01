@@ -225,10 +225,12 @@ inline void load(InputArchive& ar, DescriptorSetData& v) {
 
 inline void save(OutputArchive& ar, const PipelineLayoutData& v) {
     save(ar, v.descriptorSets);
+    // skip, pipelineLayout: IntrusivePtr<gfx::PipelineLayout>
 }
 
 inline void load(InputArchive& ar, PipelineLayoutData& v) {
     load(ar, v.descriptorSets);
+    // skip, pipelineLayout: IntrusivePtr<gfx::PipelineLayout>
 }
 
 inline void save(OutputArchive& ar, const ShaderBindingData& v) {
