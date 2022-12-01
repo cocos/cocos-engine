@@ -536,7 +536,7 @@ export class Pass {
         }
 
         if (!patches) {
-            return (this._shader);
+            return this._shader;
         }
 
         if (EDITOR) {
