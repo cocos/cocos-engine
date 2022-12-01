@@ -315,7 +315,7 @@ export class ReflectionProbeManager {
                             this.updateUseCubeModels(probe);
                         }
                     });
-                } else {
+                } else if (model.reflectionProbeType === ReflectionProbeType.PLANAR_REFLECTION) {
                     this._probes.forEach((probe) => {
                         if (probe.probeType === ProbeType.PLANAR) {
                             this.updateUsePlanarModels(probe);
