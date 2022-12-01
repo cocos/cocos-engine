@@ -143,6 +143,11 @@
       #if CC_ENABLE_CLUSTERED_LIGHT_CULLING
         //#include <legacy/shading-cluster-additive>
       #endif
+
+      // user-defined lighting model
+      #ifdef CC_SURFACES_LIGHTING_MODIFY_FINAL_RESULT
+        SurfacesLightingModifyFinalResult(lightingResult, lightingData, surfaceData);
+      #endif      
     }
   #endif
 #endif
