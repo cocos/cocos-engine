@@ -24,8 +24,10 @@
  THE SOFTWARE.
  */
 
+import { EDITOR } from 'internal:constants';
 import { MeshRenderer, ReflectionProbeType } from '../3d/framework/mesh-renderer';
 import { Vec3, geometry } from '../core';
+import { director, Director } from '../game/director';
 import { Texture } from '../gfx';
 import { Camera, Model } from '../render-scene/scene';
 import { ProbeType, ReflectionProbe } from '../render-scene/scene/reflection-probe';
@@ -52,6 +54,38 @@ export class ReflectionProbeManager {
      */
     private _usePlanarModels = new Map<Model, ReflectionProbe>();
 
+    constructor () {
+        if (EDITOR) {
+            director.on(Director.EVENT_BEFORE_UPDATE, this.onUpdateProbes, this);
+        }
+    }
+
+    public onUpdateProbes () {
+        if (this._probes.length === 0) return;
+        const scene = director.getScene();
+        if (!scene || !scene.renderScene) {
+            return;
+        }
+        const models = scene.renderScene.models;
+        for (let i = 0; i < models.length; i++) {
+            const model = models[i];
+            if (!model.node) continue;
+            if ((model.node.layer & REFLECTION_PROBE_DEFAULT_MASK) && model.node.hasChangedFlags) {
+                if (model.reflectionProbeType === ReflectionProbeType.BAKED_CUBEMAP) {
+                    console.log('updateUseCubeModels======');
+                    this._probes.forEach((probe) => {
+                        this.updateUseCubeModels(probe);
+                    });
+                } else {
+                    console.log('updateUsePlanarModels======');
+                    this._probes.forEach((probe) => {
+                        this.updateUsePlanarModels(probe);
+                    });
+                }
+                break;
+            }
+        }
+    }
     public register (probe: ReflectionProbe) {
         const index = this._probes.indexOf(probe);
         if (index === -1) {
@@ -251,7 +285,7 @@ export class ReflectionProbeManager {
         let idx = -1;
         let find = false;
         for (let i = 0; i < this._probes.length; i++) {
-            if (!this._probes[i].validate() || !geometry.intersect.aabbWithAABB(model.worldBounds, this._probes[i].boundingBox!)) {
+            if (this._probes[i].probeType !== ProbeType.CUBE || !this._probes[i].validate() || !geometry.intersect.aabbWithAABB(model.worldBounds, this._probes[i].boundingBox!)) {
                 continue;
             } else if (!find) {
                 find = true;

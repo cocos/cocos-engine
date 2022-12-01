@@ -317,9 +317,10 @@ export class ReflectionProbe extends Component {
                     }
                 }
             }
-            this.probe.updateBoundingBox();
-            ReflectionProbeManager.probeManager.updateUseCubeModels(this.probe);
-            ReflectionProbeManager.probeManager.updateUsePlanarModels(this.probe);
+
+            if (this.node.hasChangedFlags) {
+                this.probe.updateBoundingBox();
+            }
         }
     }
 
