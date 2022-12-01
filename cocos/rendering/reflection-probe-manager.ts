@@ -311,11 +311,15 @@ export class ReflectionProbeManager {
             if ((model.node.layer & REFLECTION_PROBE_DEFAULT_MASK) && model.node.hasChangedFlags) {
                 if (model.reflectionProbeType === ReflectionProbeType.BAKED_CUBEMAP) {
                     this._probes.forEach((probe) => {
-                        this.updateUseCubeModels(probe);
+                        if (probe.probeType === ProbeType.CUBE) {
+                            this.updateUseCubeModels(probe);
+                        }
                     });
                 } else {
                     this._probes.forEach((probe) => {
-                        this.updateUsePlanarModels(probe);
+                        if (probe.probeType === ProbeType.PLANAR) {
+                            this.updateUsePlanarModels(probe);
+                        }
                     });
                 }
                 break;
