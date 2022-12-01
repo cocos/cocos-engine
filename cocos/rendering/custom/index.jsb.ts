@@ -31,6 +31,7 @@ import { macro } from '../../core/platform/macro';
 import { DeferredPipelineBuilder, ForwardPipelineBuilder } from './builtin-pipelines';
 import { CustomPipelineBuilder, NativePipelineBuilder } from './custom-pipeline';
 import { EffectAsset } from '../../asset/assets/effect-asset';
+import { Device } from '../../gfx';
 
 export * from './types';
 export * from './pipeline';
@@ -74,7 +75,11 @@ function addCustomBuiltinPipelines (map: Map<string, PipelineBuilder>) {
 
 addCustomBuiltinPipelines(customPipelineBuilderMap);
 
-export function deserializeLayoutGraph (arrayBuffer: ArrayBuffer) {
+export function init (device: Device, arrayBuffer: ArrayBuffer) {
+    // noop
+}
+
+export function destroy () {
     // noop
 }
 

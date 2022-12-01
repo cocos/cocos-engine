@@ -754,7 +754,15 @@ export class Game extends EventTarget {
             })
             .then(() => effectSettings.init(config.effectSettingsPath))
             .then(() => {
-                effectSettings.applyBindings();
+                if (!cclegacy.rendering || !cclegacy.rendering.enableEffectImport) {
+                    return;
+                }
+                const data = effectSettings.data;
+                if (data === null) {
+                    console.error('Effect settings not found, effects will not be imported.');
+                    return;
+                }
+                cclegacy.rendering.init(deviceManager.gfxDevice, data);
             })
             .then(() => {
                 if (DEBUG) {

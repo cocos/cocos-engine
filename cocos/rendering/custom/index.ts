@@ -33,6 +33,8 @@ import { LayoutGraphData, loadLayoutGraphData } from './layout-graph';
 import { BinaryInputArchive } from './binary-archive';
 import { EffectAsset } from '../../asset/assets/effect-asset';
 import { WebProgramLibrary } from './web-program-library';
+import { Device } from '../../gfx';
+import { initializeLayoutGraphData, terminateLayoutGraphData } from './layout-graph-utils';
 
 let _pipeline: WebPipeline | null = null;
 
@@ -88,9 +90,14 @@ function addCustomBuiltinPipelines (map: Map<string, PipelineBuilder>) {
 
 addCustomBuiltinPipelines(customPipelineBuilderMap);
 
-export function deserializeLayoutGraph (arrayBuffer: ArrayBuffer) {
+export function init (device: Device, arrayBuffer: ArrayBuffer) {
     const readBinaryData = new BinaryInputArchive(arrayBuffer);
     loadLayoutGraphData(readBinaryData, defaultLayoutGraph);
+    initializeLayoutGraphData(device, defaultLayoutGraph);
+}
+
+export function destroy () {
+    terminateLayoutGraphData(defaultLayoutGraph);
 }
 
 export function replaceShaderInfo (asset: EffectAsset) {
