@@ -26,7 +26,7 @@
 /* eslint-disable max-len */
 import { EffectAsset } from '../../asset/assets';
 import { assert } from '../../core';
-import { DescriptorSetLayout, DescriptorSetLayoutBinding, DescriptorSetLayoutInfo, DescriptorType, Device, ShaderStageFlagBit, Type, Uniform, UniformBlock } from '../../gfx';
+import { DescriptorSetLayout, DescriptorSetLayoutBinding, DescriptorSetLayoutInfo, DescriptorType, Device, PipelineLayoutInfo, ShaderStageFlagBit, Type, Uniform, UniformBlock } from '../../gfx';
 import { DefaultVisitor, depthFirstSearch, GraphColor, MutableVertexPropertyMap } from './graph';
 import { DescriptorBlockData, DescriptorData, DescriptorDB, DescriptorSetData, DescriptorSetLayoutData, LayoutGraph, LayoutGraphData, LayoutGraphDataValue, LayoutGraphValue, PipelineLayoutData, RenderPhase, RenderPhaseData, RenderStageData, ShaderProgramData } from './layout-graph';
 import { LayoutGraphBuilder } from './pipeline';
@@ -1161,7 +1161,18 @@ function initializeDescriptorSetLayoutInfo (layoutData: DescriptorSetLayoutData,
 
 let _emptyDescriptorSetLayout: DescriptorSetLayout;
 
+function populatePipelineLayoutInfo (layout: PipelineLayoutData,
+    rate: UpdateFrequency, info: PipelineLayoutInfo) {
+    const set = layout.descriptorSets.get(rate);
+    if (set && set.descriptorSetLayout) {
+        info.setLayouts.push(set.descriptorSetLayout);
+    } else {
+        info.setLayouts.push(_emptyDescriptorSetLayout);
+    }
+}
+
 export function initializeLayoutGraphData (device: Device, lg: LayoutGraphData) {
+    // create descriptor sets
     _emptyDescriptorSetLayout = device.createDescriptorSetLayout(new DescriptorSetLayoutInfo());
     for (const v of lg.vertices()) {
         const layoutData = lg.getLayout(v);
@@ -1173,6 +1184,23 @@ export function initializeLayoutGraphData (device: Device, lg: LayoutGraphData) 
                 set.descriptorSetLayoutInfo);
             set.descriptorSetLayout = device.createDescriptorSetLayout(set.descriptorSetLayoutInfo);
         }
+    }
+    // create pipeline layouts
+    for (const v of lg.vertices()) {
+        if (!lg.holds(LayoutGraphDataValue.RenderPhase, v)) {
+            continue;
+        }
+        const passID = lg.getParent(v);
+        const phaseID = v;
+        const passLayout = lg.getLayout(passID);
+        const phaseLayout = lg.getLayout(phaseID);
+        const info = new PipelineLayoutInfo();
+        populatePipelineLayoutInfo(passLayout, UpdateFrequency.PER_PASS, info);
+        populatePipelineLayoutInfo(phaseLayout, UpdateFrequency.PER_PHASE, info);
+        populatePipelineLayoutInfo(phaseLayout, UpdateFrequency.PER_BATCH, info);
+        populatePipelineLayoutInfo(phaseLayout, UpdateFrequency.PER_INSTANCE, info);
+        const phase = lg.getRenderPhase(phaseID);
+        phase.pipelineLayout = device.createPipelineLayout(info);
     }
 }
 

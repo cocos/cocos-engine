@@ -166,8 +166,7 @@ PipelineLayoutData::PipelineLayoutData(const allocator_type& alloc) noexcept
 : descriptorSets(alloc) {}
 
 PipelineLayoutData::PipelineLayoutData(PipelineLayoutData&& rhs, const allocator_type& alloc)
-: descriptorSets(std::move(rhs.descriptorSets), alloc),
-  pipelineLayout(std::move(rhs.pipelineLayout)) {}
+: descriptorSets(std::move(rhs.descriptorSets), alloc) {}
 
 ShaderBindingData::ShaderBindingData(const allocator_type& alloc) noexcept
 : descriptorBindings(alloc) {}
@@ -215,7 +214,8 @@ RenderPhaseData::RenderPhaseData(const allocator_type& alloc) noexcept
 RenderPhaseData::RenderPhaseData(RenderPhaseData&& rhs, const allocator_type& alloc)
 : rootSignature(std::move(rhs.rootSignature), alloc),
   shaderPrograms(std::move(rhs.shaderPrograms), alloc),
-  shaderIndex(std::move(rhs.shaderIndex), alloc) {}
+  shaderIndex(std::move(rhs.shaderIndex), alloc),
+  pipelineLayout(std::move(rhs.pipelineLayout)) {}
 
 LayoutGraphData::LayoutGraphData(const allocator_type& alloc) noexcept
 : _vertices(alloc),

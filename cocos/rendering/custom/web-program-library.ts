@@ -360,7 +360,7 @@ export class WebProgramLibrary extends ProgramLibraryData implements ProgramLibr
     }
     getPipelineLayout (phaseID: number): PipelineLayout {
         assert(phaseID !== INVALID_ID);
-        const layout = this.layoutGraph.getLayout(phaseID);
+        const layout = this.layoutGraph.getRenderPhase(phaseID);
         return layout.pipelineLayout!;
     }
     constantMacros = '';

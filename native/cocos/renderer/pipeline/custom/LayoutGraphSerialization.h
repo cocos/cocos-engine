@@ -225,12 +225,10 @@ inline void load(InputArchive& ar, DescriptorSetData& v) {
 
 inline void save(OutputArchive& ar, const PipelineLayoutData& v) {
     save(ar, v.descriptorSets);
-    // skip, pipelineLayout: IntrusivePtr<gfx::PipelineLayout>
 }
 
 inline void load(InputArchive& ar, PipelineLayoutData& v) {
     load(ar, v.descriptorSets);
-    // skip, pipelineLayout: IntrusivePtr<gfx::PipelineLayout>
 }
 
 inline void save(OutputArchive& ar, const ShaderBindingData& v) {
@@ -287,12 +285,14 @@ inline void save(OutputArchive& ar, const RenderPhaseData& v) {
     save(ar, v.rootSignature);
     save(ar, v.shaderPrograms);
     save(ar, v.shaderIndex);
+    // skip, pipelineLayout: IntrusivePtr<gfx::PipelineLayout>
 }
 
 inline void load(InputArchive& ar, RenderPhaseData& v) {
     load(ar, v.rootSignature);
     load(ar, v.shaderPrograms);
     load(ar, v.shaderIndex);
+    // skip, pipelineLayout: IntrusivePtr<gfx::PipelineLayout>
 }
 
 inline void save(OutputArchive& ar, const LayoutGraphData& g) {

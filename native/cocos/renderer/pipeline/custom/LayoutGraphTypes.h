@@ -396,7 +396,6 @@ struct PipelineLayoutData {
     PipelineLayoutData& operator=(PipelineLayoutData const& rhs) = delete;
 
     ccstd::pmr::map<UpdateFrequency, DescriptorSetData> descriptorSets;
-    IntrusivePtr<gfx::PipelineLayout> pipelineLayout;
 };
 
 struct ShaderBindingData {
@@ -519,6 +518,7 @@ struct RenderPhaseData {
     ccstd::pmr::string rootSignature;
     ccstd::pmr::vector<ShaderProgramData> shaderPrograms;
     PmrTransparentMap<ccstd::pmr::string, uint32_t> shaderIndex;
+    IntrusivePtr<gfx::PipelineLayout> pipelineLayout;
 };
 
 struct LayoutGraphData {

@@ -627,7 +627,6 @@ export class DescriptorSetData {
 
 export class PipelineLayoutData {
     readonly descriptorSets: Map<UpdateFrequency, DescriptorSetData> = new Map<UpdateFrequency, DescriptorSetData>();
-    /*refcount*/ pipelineLayout: PipelineLayout | null = null;
 }
 
 export class ShaderBindingData {
@@ -659,6 +658,7 @@ export class RenderPhaseData {
     rootSignature = '';
     readonly shaderPrograms: ShaderProgramData[] = [];
     readonly shaderIndex: Map<string, number> = new Map<string, number>();
+    /*refcount*/ pipelineLayout: PipelineLayout | null = null;
 }
 
 //=================================================================
@@ -1453,7 +1453,6 @@ export function savePipelineLayoutData (ar: OutputArchive, v: PipelineLayoutData
         ar.writeNumber(k1);
         saveDescriptorSetData(ar, v1);
     }
-    // skip, v.pipelineLayout: PipelineLayout
 }
 
 export function loadPipelineLayoutData (ar: InputArchive, v: PipelineLayoutData) {
@@ -1465,7 +1464,6 @@ export function loadPipelineLayoutData (ar: InputArchive, v: PipelineLayoutData)
         loadDescriptorSetData(ar, v1);
         v.descriptorSets.set(k1, v1);
     }
-    // skip, v.pipelineLayout: PipelineLayout
 }
 
 export function saveShaderBindingData (ar: OutputArchive, v: ShaderBindingData) {
@@ -1591,6 +1589,7 @@ export function saveRenderPhaseData (ar: OutputArchive, v: RenderPhaseData) {
         ar.writeString(k1);
         ar.writeNumber(v1);
     }
+    // skip, v.pipelineLayout: PipelineLayout
 }
 
 export function loadRenderPhaseData (ar: InputArchive, v: RenderPhaseData) {
@@ -1609,6 +1608,7 @@ export function loadRenderPhaseData (ar: InputArchive, v: RenderPhaseData) {
         const v1 = ar.readNumber();
         v.shaderIndex.set(k1, v1);
     }
+    // skip, v.pipelineLayout: PipelineLayout
 }
 
 export function saveLayoutGraphData (ar: OutputArchive, g: LayoutGraphData) {
