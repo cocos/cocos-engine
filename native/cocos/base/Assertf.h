@@ -37,7 +37,7 @@
                 if (!(cond)) {                                                                                       \
                     char message[256] = {0};                                                                         \
                     wchar_t messageTmp[256] = {0};                                                                   \
-                    snprintf(message, 256, "CC_ASSERT(%s) failed. " fmt "\n%s", #cond, ##__VA_ARGS__, __FUNCTION__); \
+                    snprintf(message, sizeof(message), "CC_ASSERT(%s) failed. " fmt "\n%s", #cond, ##__VA_ARGS__, __FUNCTION__); \
                     std::copy(message, message + strlen(message), messageTmp);                                       \
                     _wassert(messageTmp, _CRT_WIDE(__FILE__), (unsigned)__LINE__);                                   \
                 }                                                                                                    \
@@ -47,7 +47,7 @@
             do {                                                               \
                 char message[256] = {0};                                       \
                 wchar_t messageTmp[256] = {0};                                 \
-                snprintf(message, 256, fmt, ##__VA_ARGS__);                    \
+                snprintf(message, sizeof(message), fmt, ##__VA_ARGS__);        \
                 std::copy(message, message + strlen(message), messageTmp);     \
                 _wassert(messageTmp, _CRT_WIDE(__FILE__), (unsigned)__LINE__); \
             } while (false)
@@ -57,14 +57,14 @@
             do {                                                                                \
                 if (__builtin_expect(!(cond), 0)) {                                             \
                     char message[256] = {0};                                                    \
-                    snprintf(message, 256, "CC_ASSERT(%s) failed. " fmt, #cond, ##__VA_ARGS__); \
+                    snprintf(message, sizeof(message), "CC_ASSERT(%s) failed. " fmt, #cond, ##__VA_ARGS__); \
                     __assert2(__FILE__, __LINE__, __PRETTY_FUNCTION__, message);                \
                 }                                                                               \
             } while (false)
         #define CC_ABORTF(fmt, ...)                                          \
             do {                                                             \
                 char message[256] = {0};                                     \
-                snprintf(message, 256, fmt, ##__VA_ARGS__);                  \
+                snprintf(message, sizeof(message), fmt, ##__VA_ARGS__);      \
                 __assert2(__FILE__, __LINE__, __PRETTY_FUNCTION__, message); \
             } while (false)
     #elif defined(__APPLE__)
@@ -72,14 +72,14 @@
             do {                                                                                \
                 if (__builtin_expect(!(cond), 0)) {                                             \
                     char message[256] = {0};                                                    \
-                    snprintf(message, 256, "CC_ASSERT(%s) failed. " fmt, #cond, ##__VA_ARGS__); \
+                    snprintf(message, sizeof(message), "CC_ASSERT(%s) failed. " fmt, #cond, ##__VA_ARGS__); \
                     __assert(message, __FILE__, __LINE__);                                      \
                 }                                                                               \
             } while (false)
         #define CC_ABORTF(fmt, ...)                         \
             do {                                            \
                 char message[256] = {0};                    \
-                snprintf(message, 256, fmt, ##__VA_ARGS__); \
+                snprintf(message, sizeof(message), fmt, ##__VA_ARGS__); \
                 __assert(message, __FILE__, __LINE__);      \
             } while (false)
     #else
