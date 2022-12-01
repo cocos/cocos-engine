@@ -30,16 +30,23 @@
  */
 /* eslint-disable max-len */
 import { EffectAsset } from '../../asset/assets';
-import { Device } from '../../gfx';
+import { DescriptorSetLayout, Device, PipelineLayout, Shader } from '../../gfx';
 import { MacroRecord } from '../../render-scene/core/pass-utils';
+import { IProgramInfo, ITemplateInfo } from '../../render-scene/core/program-lib';
 
 export interface ProgramProxy {
     readonly name: string;
+    readonly shader: Shader;
 }
 
 export interface ProgramLibrary {
     addEffect (effectAsset: EffectAsset): void;
     getKey (phaseID: number, programName: string, defines: MacroRecord): string;
+    getPipelineLayout (phaseID: number): PipelineLayout;
+    getMaterialDescriptorSetLayout (phaseID: number): DescriptorSetLayout;
+    getLocalDescriptorSetLayout (phaseID: number): DescriptorSetLayout;
+    getProgramInfo (phaseID: number, programName: string): IProgramInfo;
     getProgramVariant (device: Device, phaseID: number, name: string, defines: MacroRecord, key: string | null): ProgramProxy | null;
     getProgramVariant (device: Device, phaseID: number, name: string, defines: MacroRecord/*, null*/): ProgramProxy | null;
+    getTemplateInfo (phaseID: number, programName: string): ITemplateInfo;
 }

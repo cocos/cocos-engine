@@ -34,14 +34,14 @@ import { BufferUsageBit, DynamicStateFlagBit, DynamicStateFlags, Feature, GetTyp
     DescriptorSetInfo, DescriptorSetLayout, Device, RasterizerState, Sampler, Texture, Shader, PipelineLayout, deviceManager,
 } from '../../gfx';
 import { EffectAsset } from '../../asset/assets/effect-asset';
-import { IProgramInfo, programLib } from './program-lib';
+import { IProgramInfo, ITemplateInfo, programLib } from './program-lib';
 import { MacroRecord, MaterialProperty, customizeType, getBindingFromHandle, getDefaultFromType, getStringFromType,
     getOffsetFromHandle, getTypeFromHandle, type2reader, type2writer, getCountFromHandle, type2validator,
 } from './pass-utils';
 import { RenderPassStage, RenderPriority } from '../../rendering/define';
 import { InstancedBuffer } from '../../rendering/instanced-buffer';
 import { BatchedBuffer } from '../../rendering/batched-buffer';
-import { ProgramLibrary } from '../../rendering/custom/private';
+import { ProgramLibrary, ProgramProxy } from '../../rendering/custom/private';
 
 export interface IPassInfoFull extends EffectAsset.IPassInfo {
     // generated part
@@ -150,9 +150,9 @@ export class Pass {
     public static getPassHash (pass: Pass): number {
         let shaderKey = '';
         if (cclegacy.rendering && cclegacy.rendering.enableEffectImport) {
-            shaderKey = (cclegacy.rendering.programLib as ProgramLibrary).getKey(
-                pass._phaseID, pass.program, pass.defines,
-            );
+            const key = (cclegacy.rendering.programLib as ProgramLibrary)
+                .getKey(pass._phaseID, pass.program, pass.defines);
+            shaderKey = `${pass._phaseID.toString()},${key}`;
         } else {
             shaderKey = programLib.getKey(pass.program, pass.defines);
         }
@@ -181,7 +181,7 @@ export class Pass {
     protected _shaderInfo: IProgramInfo = null!;
     protected _defines: MacroRecord = {};
     protected _properties: Record<string, EffectAsset.IPropertyInfo> = {};
-    protected _shader: Shader | null = null
+    protected _shader: Shader | ProgramProxy | null = null
     protected _bs: BlendState = new BlendState();
     protected _dss: DepthStencilState = new DepthStencilState();
     protected _rs: RasterizerState = new RasterizerState();
@@ -493,12 +493,33 @@ export class Pass {
      */
     public tryCompile (): boolean {
         const { pipeline } = this._root;
-        if (!pipeline) { return false; }
+        if (!pipeline) {
+            return false;
+        }
         this._syncBatchingScheme();
-        const shader = programLib.getGFXShader(this._device, this._programName, this._defines, pipeline);
-        if (!shader) { console.warn(`create shader ${this._programName} failed`); return false; }
-        this._shader = shader;
-        this._pipelineLayout = programLib.getTemplateInfo(this._programName).pipelineLayout;
+
+        if (cclegacy.rendering && cclegacy.rendering.enableEffectImport) {
+            const r = cclegacy.rendering;
+            const programLib = r.programLib as ProgramLibrary;
+            const shader = programLib.getProgramVariant(
+                this._device, this._phaseID, this._programName, this._defines,
+            );
+            if (!shader) {
+                console.warn(`create shader ${this._programName} failed`);
+                return false;
+            }
+            this._shader = shader;
+            this._pipelineLayout = programLib.getPipelineLayout(this._phaseID);
+        } else {
+            const shader = programLib.getGFXShader(this._device, this._programName, this._defines, pipeline);
+            if (!shader) {
+                console.warn(`create shader ${this._programName} failed`);
+                return false;
+            }
+            this._shader = shader;
+            this._pipelineLayout = programLib.getTemplateInfo(this._programName).pipelineLayout;
+        }
+
         this._hash = Pass.getPassHash(this);
         return true;
     }
@@ -515,7 +536,14 @@ export class Pass {
         }
 
         if (!patches) {
-            return this._shader;
+            if (cclegacy.rendering && cclegacy.rendering.enableEffectImport) {
+                if (this._shader === null) {
+                    return null;
+                }
+                return (this._shader as ProgramProxy).shader;
+            } else {
+                return (this._shader as Shader | null);
+            }
         }
 
         if (EDITOR) {
@@ -533,7 +561,16 @@ export class Pass {
             this._defines[patch.name] = patch.value;
         }
 
-        const shader = programLib.getGFXShader(this._device, this._programName, this._defines, pipeline);
+        let shader: Shader | null = null;
+        if (cclegacy.rendering && cclegacy.rendering.enableEffectImport) {
+            const program = (cclegacy.rendering.programLib as ProgramLibrary)
+                .getProgramVariant(this._device, this._phaseID, this._programName, this._defines);
+            if (program) {
+                shader = program.shader;
+            }
+        } else {
+            shader = programLib.getGFXShader(this._device, this._programName, this._defines, pipeline);
+        }
 
         for (let i = 0; i < patches.length; i++) {
             const patch = patches[i];
@@ -557,16 +594,7 @@ export class Pass {
         this._priority = RenderPriority.DEFAULT;
         this._stage = RenderPassStage.DEFAULT;
         this._phase = getPhaseID('default');
-        this._primitive = PrimitiveMode.TRIANGLE_LIST;
-
-        this._passIndex = info.passIndex;
-        this._propertyIndex = info.propertyIndex !== undefined ? info.propertyIndex : info.passIndex;
-        this._programName = info.program;
-        this._defines = copyDefines ? ({ ...info.defines }) : info.defines;
-        this._shaderInfo = programLib.getTemplate(info.program);
-        this._properties = info.properties || this._properties;
-
-        if (cclegacy.rendering) {
+        if (cclegacy.rendering && cclegacy.rendering.enableEffectImport) {
             const r = cclegacy.rendering;
             this._passID = r.getCustomPassID(info.pass);
             if (this._passID === r.INVALID_ID) {
@@ -579,6 +607,19 @@ export class Pass {
                 return;
             }
         }
+        this._primitive = PrimitiveMode.TRIANGLE_LIST;
+
+        this._passIndex = info.passIndex;
+        this._propertyIndex = info.propertyIndex !== undefined ? info.propertyIndex : info.passIndex;
+        this._programName = info.program;
+        this._defines = copyDefines ? ({ ...info.defines }) : info.defines;
+        if (cclegacy.rendering && cclegacy.rendering.enableEffectImport) {
+            this._shaderInfo = (cclegacy.rendering.programLib as ProgramLibrary)
+                .getProgramInfo(this._phaseID, this._programName);
+        } else {
+            this._shaderInfo = programLib.getTemplate(info.program);
+        }
+        this._properties = info.properties || this._properties;
 
         // init gfx
         const device = this._device;
@@ -586,12 +627,23 @@ export class Pass {
         if (info.stateOverrides) { Pass.fillPipelineInfo(this, info.stateOverrides); }
 
         // init descriptor set
-        _dsInfo.layout = programLib.getDescriptorSetLayout(this._device, info.program);
+        if (cclegacy.rendering && cclegacy.rendering.enableEffectImport) {
+            _dsInfo.layout = (cclegacy.renderingprogramLib as ProgramLibrary)
+                .getMaterialDescriptorSetLayout(this._phaseID);
+        } else {
+            _dsInfo.layout = programLib.getDescriptorSetLayout(this._device, info.program);
+        }
         this._descriptorSet = this._device.createDescriptorSet(_dsInfo);
 
         // calculate total size required
         const blocks = this._shaderInfo.blocks;
-        const tmplInfo = programLib.getTemplateInfo(info.program);
+        let tmplInfo: ITemplateInfo;
+        if (cclegacy.rendering && cclegacy.rendering.enableEffectImport) {
+            tmplInfo = (cclegacy.rendering.programLib as ProgramLibrary)
+                .getTemplateInfo(this._phaseID, this._programName);
+        } else {
+            tmplInfo = programLib.getTemplateInfo(info.program);
+        }
         const { blockSizes, handleMap } = tmplInfo;
         const alignment = device.capabilities.uboOffsetAlignment;
         const startOffsets: number[] = [];
@@ -660,6 +712,8 @@ export class Pass {
         this._priority = target.priority;
         this._stage = target.stage;
         this._phase = target.phase;
+        this._phaseID = target._phaseID;
+        this._passID = target._passID;
         this._batchingScheme = target.batchingScheme;
         this._primitive = target.primitive;
         this._dynamicStates = target.dynamicStates;
@@ -680,7 +734,12 @@ export class Pass {
 
         this._shader = target._shader;
 
-        this._pipelineLayout = programLib.getTemplateInfo(this._programName).pipelineLayout;
+        if (cclegacy.rendering && cclegacy.rendering.enableEffectImport) {
+            this._pipelineLayout = (cclegacy.rendering.programLib as ProgramLibrary)
+                .getPipelineLayout(this._phaseID);
+        } else {
+            this._pipelineLayout = programLib.getTemplateInfo(this._programName).pipelineLayout;
+        }
         this._hash = target._hash ^ hashFactor;
     }
 
@@ -693,7 +752,14 @@ export class Pass {
     get root (): Root { return this._root; }
     get device (): Device { return this._device; }
     get shaderInfo (): IProgramInfo { return this._shaderInfo; }
-    get localSetLayout (): DescriptorSetLayout { return programLib.getDescriptorSetLayout(this._device, this._programName, true); }
+    get localSetLayout (): DescriptorSetLayout {
+        if (cclegacy.rendering && cclegacy.rendering.enableEffectImport) {
+            return (cclegacy.rendering.programLib as ProgramLibrary)
+                .getLocalDescriptorSetLayout(this._phaseID);
+        } else {
+            return programLib.getDescriptorSetLayout(this._device, this._programName, true);
+        }
+    }
     get program (): string { return this._programName; }
     get properties (): Record<string, EffectAsset.IPropertyInfo> { return this._properties; }
     get defines (): Record<string, string | number | boolean> { return this._defines; }
