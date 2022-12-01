@@ -154,6 +154,21 @@ const ccstd::unordered_map<gfx::Type, GFXTypeWriterCallback> type2writer = {
              a[idx] = vec3.x;
              a[idx + 1] = vec3.y;
              a[idx + 2] = vec3.z;
+         } else if (ccstd::holds_alternative<Color>(v)) {
+             const auto &tmp = ccstd::get<Color>(v).toVec4();
+             a[idx] = tmp.x;
+             a[idx + 1] = tmp.y;
+             a[idx + 2] = tmp.z;
+         } else if (ccstd::holds_alternative<Vec4>(v)) {
+             const auto &tmp = ccstd::get<Vec4>(v);
+             a[idx] = tmp.x;
+             a[idx + 1] = tmp.y;
+             a[idx + 2] = tmp.z;
+         } else if (ccstd::holds_alternative<Vec2>(v)) {
+             const auto &tmp = ccstd::get<Vec2>(v);
+             a[idx] = tmp.x;
+             a[idx + 1] = tmp.y;
+             a[idx + 2] = 0;
          } else {
              CC_ASSERT(false);
          }
