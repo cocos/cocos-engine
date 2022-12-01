@@ -284,7 +284,7 @@
                 "pal/input": "pal/input/web/index.ts",
                 "pal/env": "pal/env/web/env.ts",
                 "pal/pacer": "pal/pacer/pacer-web.ts",
-                "pal/audio": "cocos/audio/pal/index.web.ts"
+                "pal/audio": "cocos/audio/pal/web/index.ts"
             }
         },
         {
@@ -297,7 +297,7 @@
                 "pal/input": "pal/input/native/index.ts",
                 "pal/env": "pal/env/native/env.ts",
                 "pal/pacer": "pal/pacer/pacer-native.ts",
-                "pal/audio": "cocos/audio/pal/index.native.ts"
+                "pal/audio": "cocos/audio/pal/native/index.ts"
             }
         },
         {
@@ -310,7 +310,7 @@
                 "pal/input": "pal/input/minigame/index.ts",
                 "pal/env": "pal/env/minigame/env.ts",
                 "pal/pacer": "pal/pacer/pacer-minigame.ts",
-                "pal/audio": "cocos/audio/pal/index.minigame.ts"
+                "pal/audio": "cocos/audio/pal/minigame/index.ts"
             }
         },
         {

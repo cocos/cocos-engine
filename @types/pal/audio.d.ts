@@ -17,7 +17,7 @@ declare module 'pal/audio' {
          * Play the audio.
          */
         public play (): void;
-
+        public pause(): void;
         /**
          * Stops playing the audio.
          */
@@ -185,4 +185,84 @@ declare module 'pal/audio' {
          */
         offEnded (cb?: () => void): void;
     }
+    export class CCAudioBuffer {
+        readonly sampleRate: number;
+        readonly length: number;
+        readonly duration: number;
+        readonly numberOfChannels: number;
+        copyFromChannel(destination: Float32Array, channelNumber: number, bufferOffset?: number): void;
+        copyToChannel(source: Float32Array, channelNumber: number, bufferOffset?: number): void;
+        getChannelData(channel: number): Float32Array;
+    }
+    export abstract class CCAudioNode {
+        connect(node: CCAudioNode): CCAudioNode;
+        disconnect(node?: CCAudioNode);
+    }
+    export class CCDestinationNode extends CCAudioNode {
+        maxChannelCount: Readonly<number>;
+    }
+    export class CCGainNode extends CCAudioNode {
+        gain: number;
+    }
+    export class CCStereoPannerNode extends CCAudioNode {
+        pan: number
+    }
+
+    export interface AudioContextOptions {
+        latencyHint?: AudioContextLatencyCategory | number;
+        sampleRate?: number;
+    }
+    export type StateChangeCallback = (ctx: CCAudioContext, ev: Event) => any;
+    export interface DecodeSuccessCallback {
+        (decodedData: AudioBuffer): void;
+    }
+    export interface DecodeErrorCallback {
+        (error: DOMException): void;
+    }
+    export interface BaseAudioContextEventMap {
+        'statechange': Event;
+    }
+    export type AudioContextState = 'closed' | 'running' | 'suspended';
+
+    export class CCSourceNode extends CCAudioNode {
+        get isReady(): boolean;
+        buffer: CCAudioBuffer;
+
+        // For most of time, we can set the volume directly from here.
+        volume: number;
+        loop: boolean;
+        currentTime: number;
+        playbackRate: number;
+
+        // Offset is the number of second, should sync with absn
+        start (time?: number);
+
+        pause ();
+        stop ()
+        onEnded (callback: ()=>void);
+        // Reset source node time when the audio is finish playing
+        _onEnded ();
+        _onExternalEnded: (() => void) | undefined;
+    }
+    export class CCAudioContext {
+        /** Available only in secure contexts */
+        get currentTime(): number;
+        get destination(): CCDestinationNode;
+        // readonly listener: AudioListener;
+        onstatechange: StateChangeCallback | null;
+        get sampleRate(): number;
+        get state(): string;
+        createBuffer(numberOfChannels: number, length: number, sampleRate: number): CCAudioBuffer;
+        createSourceNode(buffer?: CCAudioBuffer): CCSourceNode;
+        createGain(): CCGainNode;
+        createStereoPanner(): CCStereoPannerNode;
+        decodeAudioData(
+            url: string,
+            successCallback?: DecodeSuccessCallback | null,
+            errorCallback?: DecodeErrorCallback | null): Promise<CCAudioBuffer>;
+        close();
+        resume();
+        suspend();
+    }
+
 }

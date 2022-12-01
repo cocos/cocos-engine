@@ -46,5 +46,5 @@
       "exports/**/*.ts",
       "typedoc-index.ts",
       "**/pal/**/*.ts"
-  ]
+    ]
 }

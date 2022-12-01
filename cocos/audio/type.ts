@@ -8,6 +8,22 @@ export enum AudioInterpretation {
     SPEAKERS,
     DISCRETE,
 }
+export interface AudioContextOptions {
+    latencyHint?: AudioContextLatencyCategory | number;
+    sampleRate?: number;
+}
+
+export interface DecodeSuccessCallback {
+    (decodedData: AudioBuffer): void;
+}
+export interface DecodeErrorCallback {
+    (error: DOMException): void;
+}
+export interface BaseAudioContextEventMap {
+    'statechange': Event;
+}
+export type AudioContextState = 'closed' | 'running' | 'suspended';
+
 export interface SourceOptions {
     loop: boolean;
     loopEnd: number;
