@@ -50,8 +50,7 @@ export const TRANSFORM_ON = 1 << 0;
 
 const idGenerator = new js.IDGenerator('Node');
 
-function getConstructor<T>
-(typeOrClassName: string | Constructor<T> | AbstractedConstructor<T>): Constructor<T> | AbstractedConstructor<T> | null | undefined {
+function getConstructor<T> (typeOrClassName: string | Constructor<T> | AbstractedConstructor<T>): Constructor<T> | AbstractedConstructor<T> | null | undefined {
     if (!typeOrClassName) {
         errorID(3804);
         return null;
@@ -264,8 +263,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         node._updateScene();
     }
 
-    protected static _findComponent<T extends Component>
-    (node: Node, constructor: Constructor<T> | AbstractedConstructor<T>): T | null {
+    protected static _findComponent<T extends Component> (node: Node, constructor: Constructor<T> | AbstractedConstructor<T>): T | null {
         const cls = constructor;
         const comps = node._components;
         // @ts-expect-error internal rtti property
@@ -287,8 +285,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         return null;
     }
 
-    protected static _findComponents<T extends Component>
-    (node: Node, constructor: Constructor<T> | AbstractedConstructor<T>, components: Component[]) {
+    protected static _findComponents<T extends Component> (node: Node, constructor: Constructor<T> | AbstractedConstructor<T>, components: Component[]) {
         const cls = constructor;
         const comps = node._components;
         // @ts-expect-error internal rtti property
@@ -309,8 +306,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         }
     }
 
-    protected static _findChildComponent<T extends Component>
-    (children: Node[], constructor: Constructor<T> | AbstractedConstructor<T>): T | null {
+    protected static _findChildComponent<T extends Component> (children: Node[], constructor: Constructor<T> | AbstractedConstructor<T>): T | null {
         for (let i = 0; i < children.length; ++i) {
             const node = children[i];
             let comp = Node._findComponent(node, constructor);
@@ -352,7 +348,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
 
     // The PrefabInfo object
     @serializable
-    protected _prefab: PrefabInfo|null = null;
+    protected _prefab: PrefabInfo | null = null;
 
     protected _scene: Scene = null!;
 
@@ -790,7 +786,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * var sprite = node.getComponent(Sprite);
      * ```
      */
-    public getComponent<T extends Component> (classConstructor: Constructor<T> | AbstractedConstructor<T>): T | null;
+    public getComponent<T extends Component>(classConstructor: Constructor<T> | AbstractedConstructor<T>): T | null;
 
     /**
       * @en
@@ -806,7 +802,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
       * var test = node.getComponent("Test");
       * ```
       */
-    public getComponent (className: string): Component | null;
+    public getComponent(className: string): Component | null;
 
     public getComponent<T extends Component> (typeOrClassName: string | Constructor<T> | AbstractedConstructor<T>) {
         const constructor = getConstructor(typeOrClassName);
@@ -821,14 +817,14 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @zh 返回节点上指定类型的所有组件。
      * @param classConstructor The class of the target component
      */
-    public getComponents<T extends Component> (classConstructor: Constructor<T> | AbstractedConstructor<T>): T[];
+    public getComponents<T extends Component>(classConstructor: Constructor<T> | AbstractedConstructor<T>): T[];
 
     /**
      * @en Returns all components of given type in the node.
      * @zh 返回节点上指定类型的所有组件。
      * @param className The class name of the target component
      */
-    public getComponents (className: string): Component[];
+    public getComponents(className: string): Component[];
 
     public getComponents<T extends Component> (typeOrClassName: string | Constructor<T> | AbstractedConstructor<T>) {
         const constructor = getConstructor(typeOrClassName);
@@ -848,7 +844,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * var sprite = node.getComponentInChildren(Sprite);
      * ```
      */
-    public getComponentInChildren<T extends Component> (classConstructor: Constructor<T> | AbstractedConstructor<T>): T | null;
+    public getComponentInChildren<T extends Component>(classConstructor: Constructor<T> | AbstractedConstructor<T>): T | null;
 
     /**
      * @en Returns the component of given type in any of its children using depth first search.
@@ -859,7 +855,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * var Test = node.getComponentInChildren("Test");
      * ```
      */
-    public getComponentInChildren (className: string): Component | null;
+    public getComponentInChildren(className: string): Component | null;
 
     public getComponentInChildren<T extends Component> (typeOrClassName: string | Constructor<T> | AbstractedConstructor<T>) {
         const constructor = getConstructor(typeOrClassName);
@@ -878,7 +874,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * var sprites = node.getComponentsInChildren(Sprite);
      * ```
      */
-    public getComponentsInChildren<T extends Component> (classConstructor: Constructor<T> | AbstractedConstructor<T>): T[];
+    public getComponentsInChildren<T extends Component>(classConstructor: Constructor<T> | AbstractedConstructor<T>): T[];
 
     /**
      * @en Returns all components of given type in self or any of its children.
@@ -889,7 +885,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * var tests = node.getComponentsInChildren("Test");
      * ```
      */
-    public getComponentsInChildren (className: string): Component[];
+    public getComponentsInChildren(className: string): Component[];
 
     public getComponentsInChildren<T extends Component> (typeOrClassName: string | Constructor<T> | AbstractedConstructor<T>) {
         const constructor = getConstructor(typeOrClassName);
@@ -911,7 +907,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * var sprite = node.addComponent(Sprite);
      * ```
      */
-    public addComponent<T extends Component> (classConstructor: Constructor<T>): T;
+    public addComponent<T extends Component>(classConstructor: Constructor<T>): T;
 
     /**
      * @en Adds a component class to the node. You can also add component to node by passing in the name of the script.
@@ -923,7 +919,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * var test = node.addComponent("Test");
      * ```
      */
-    public addComponent (className: string): Component;
+    public addComponent(className: string): Component;
 
     public addComponent<T extends Component> (typeOrClassName: string | Constructor<T>) {
         if (EDITOR && (this._objFlags & Destroying)) {
@@ -1019,7 +1015,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * node.removeComponent(Sprite);
      * ```
      */
-    public removeComponent<T extends Component> (classConstructor: Constructor<T> | AbstractedConstructor<T>): void;
+    public removeComponent<T extends Component>(classConstructor: Constructor<T> | AbstractedConstructor<T>): void;
 
     /**
      * @en
@@ -1040,7 +1036,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * node.removeComponent('Sprite');
      * ```
      */
-    public removeComponent (classNameOrInstance: string | Component): void;
+    public removeComponent(classNameOrInstance: string | Component): void;
 
     public removeComponent (component: any) {
         if (!component) {
@@ -1385,7 +1381,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         return destroyByParent;
     }
 
-    protected _onSiblingIndexChanged? (siblingIndex: number): void;
+    protected _onSiblingIndexChanged?(siblingIndex: number): void;
 
     /**
      * @en
@@ -1395,7 +1391,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @param constructor Constructor of the component.
      * @throws If one or more component of same type have been existed in this node.
      */
-    protected _checkMultipleComp?<T extends Component> (constructor: Constructor<T>): void;
+    protected _checkMultipleComp?<T extends Component>(constructor: Constructor<T>): void;
 
     // ---------------------- Node ------------------------
     /**
@@ -1931,7 +1927,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         let j = 0;
         let l = 0;
         let cur: this;
-        let children:this[];
+        let children: this[];
         let hasChangedFlags = 0;
         const childDirtyBit = dirtyBit | TransformBit.POSITION;
 
@@ -2022,7 +2018,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @zh 设置本地坐标
      * @param position Target position
      */
-    public setPosition (position: Readonly<Vec3>): void;
+    public setPosition(position: Readonly<Vec3>): void;
 
     /**
      * @en Set position in local coordinate system
@@ -2031,7 +2027,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @param y Y axis position
      * @param z Z axis position
      */
-    public setPosition (x: number, y: number, z?: number): void;
+    public setPosition(x: number, y: number, z?: number): void;
 
     public setPosition (val: Readonly<Vec3> | number, y?: number, z?: number): void {
         if (y === undefined && z === undefined) {
@@ -2067,7 +2063,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @zh 用四元数设置本地旋转, 请确保设置的四元数已归一化。
      * @param rotation Rotation in quaternion
      */
-    public setRotation (rotation: Readonly<Quat>): void;
+    public setRotation(rotation: Readonly<Quat>): void;
 
     /**
      * @en Set rotation in local coordinate system with a quaternion representing the rotation.
@@ -2078,7 +2074,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @param z Z value in quaternion
      * @param w W value in quaternion
      */
-    public setRotation (x: number, y: number, z: number, w: number): void;
+    public setRotation(x: number, y: number, z: number, w: number): void;
 
     public setRotation (val: Readonly<Quat> | number, y?: number, z?: number, w?: number) {
         if (y === undefined || z === undefined || w === undefined) {
@@ -2099,7 +2095,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @zh 用欧拉角设置本地旋转
      * @param rotation Rotation in vector
      */
-    public setRotationFromEuler (rotation: Vec3): void;
+    public setRotationFromEuler(rotation: Vec3): void;
 
     /**
      * @en Set rotation in local coordinate system with euler angles
@@ -2108,7 +2104,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @param y Y axis rotation
      * @param z Z axis rotation
      */
-    public setRotationFromEuler (x: number, y: number, zOpt?: number): void;
+    public setRotationFromEuler(x: number, y: number, zOpt?: number): void;
 
     public setRotationFromEuler (val: Vec3 | number, y?: number, zOpt?: number): void {
         const z = zOpt === undefined ? this._euler.z : zOpt;
@@ -2147,7 +2143,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @zh 设置本地缩放
      * @param scale Target scale
      */
-    public setScale (scale: Readonly<Vec3>): void;
+    public setScale(scale: Readonly<Vec3>): void;
 
     /**
      * @en Set scale in local coordinate system
@@ -2156,7 +2152,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @param y Y axis scale
      * @param z Z axis scale
      */
-    public setScale (x: number, y: number, z?: number): void;
+    public setScale(x: number, y: number, z?: number): void;
 
     public setScale (val: Readonly<Vec3> | number, y?: number, z?: number) {
         if (y === undefined && z === undefined) {
@@ -2214,7 +2210,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @zh 设置世界坐标
      * @param position Target position
      */
-    public setWorldPosition (position: Vec3): void;
+    public setWorldPosition(position: Vec3): void;
 
     /**
      * @en Set position in world coordinate system
@@ -2223,7 +2219,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @param y Y axis position
      * @param z Z axis position
      */
-    public setWorldPosition (x: number, y: number, z: number): void;
+    public setWorldPosition(x: number, y: number, z: number): void;
 
     public setWorldPosition (val: Vec3 | number, y?: number, z?: number) {
         if (y === undefined || z === undefined) {
@@ -2233,10 +2229,10 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         }
         const parent = this._parent;
         const local = this._lpos;
+        this.updateWorldTransform();
         if (parent) {
             // TODO: benchmark these approaches
             /* */
-            parent.updateWorldTransform();
             Vec3.transformMat4(local, this._pos, Mat4.invert(m4_1, parent._mat));
             /* *
             parent.inverseTransformPoint(local, this._pos);
@@ -2270,7 +2266,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @zh 用四元数设置世界坐标系下的旋转
      * @param rotation Rotation in quaternion
      */
-    public setWorldRotation (rotation: Quat): void;
+    public setWorldRotation(rotation: Quat): void;
 
     /**
      * @en Set rotation in world coordinate system with a quaternion representing the rotation
@@ -2280,7 +2276,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @param z Z value in quaternion
      * @param w W value in quaternion
      */
-    public setWorldRotation (x: number, y: number, z: number, w: number): void;
+    public setWorldRotation(x: number, y: number, z: number, w: number): void;
 
     public setWorldRotation (val: Quat | number, y?: number, z?: number, w?: number) {
         if (y === undefined || z === undefined || w === undefined) {
@@ -2288,6 +2284,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         } else {
             Quat.set(this._rot, val as number, y, z, w);
         }
+        this.updateWorldTransform();
         if (this._parent) {
             this._parent.updateWorldTransform();
             Quat.multiply(this._lrot, Quat.conjugate(this._lrot, this._parent._rot), this._rot);
@@ -2344,7 +2341,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @zh 设置世界坐标系下的缩放
      * @param scale Target scale
      */
-    public setWorldScale (scale: Vec3): void;
+    public setWorldScale(scale: Vec3): void;
 
     /**
      * @en Set scale in world coordinate system
@@ -2353,7 +2350,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @param y Y axis scale
      * @param z Z axis scale
      */
-    public setWorldScale (x: number, y: number, z: number): void;
+    public setWorldScale(x: number, y: number, z: number): void;
 
     public setWorldScale (val: Vec3 | number, y?: number, z?: number) {
         if (y === undefined || z === undefined) {
@@ -2362,8 +2359,8 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
             Vec3.set(this._scale, val as number, y, z);
         }
         const parent = this._parent;
+        this.updateWorldTransform();
         if (parent) {
-            parent.updateWorldTransform();
             v3_a.x = this._scale.x / Vec3.set(v3_b, this._mat.m00, this._mat.m01, this._mat.m02).length();
             v3_a.y = this._scale.y / Vec3.set(v3_b, this._mat.m04, this._mat.m05, this._mat.m06).length();
             v3_a.z = this._scale.z / Vec3.set(v3_b, this._mat.m08, this._mat.m09, this._mat.m10).length();

@@ -476,7 +476,7 @@ void Node::updateWorldTransformRecursive(uint32_t &dirtyBits) { // NOLINT(misc-n
             Mat4::fromRTS(_localRotation, _localPosition, _localScale, &_worldMatrix);
             Mat4::multiply(parent->_worldMatrix, _worldMatrix, &_worldMatrix);
             const bool rotChanged = dirtyBits & static_cast<uint32_t>(TransformBit::ROTATION);
-            Quaternion *rotTmp =  rotChanged ? &_worldRotation : nullptr;
+            Quaternion *rotTmp = rotChanged ? &_worldRotation : nullptr;
             Mat4::toRTS(_worldMatrix, rotTmp, nullptr, &_worldScale);
         }
     } else {
@@ -534,9 +534,9 @@ void Node::invalidateChildren(TransformBit dirtyBit) { // NOLINT(misc-no-recursi
 }
 
 void Node::setWorldPosition(float x, float y, float z) {
+    updateWorldTransform(); // ensure reentryability
     _worldPosition.set(x, y, z);
     if (_parent) {
-        _parent->updateWorldTransform();
         Mat4 invertWMat{_parent->_worldMatrix};
         invertWMat.inverse();
         _localPosition.transformMat4(_worldPosition, invertWMat);
@@ -549,7 +549,6 @@ void Node::setWorldPosition(float x, float y, float z) {
 
     if (_eventMask & TRANSFORM_ON) {
         emit<TransformChanged>(TransformBit::POSITION);
-
     }
 }
 
@@ -559,9 +558,9 @@ const Vec3 &Node::getWorldPosition() const {
 }
 
 void Node::setWorldRotation(float x, float y, float z, float w) {
+    updateWorldTransform(); // ensure reentryability
     _worldRotation.set(x, y, z, w);
     if (_parent) {
-        _parent->updateWorldTransform();
         _localRotation.set(_parent->_worldRotation.getConjugated());
         _localRotation.multiply(_worldRotation);
     } else {
@@ -570,13 +569,13 @@ void Node::setWorldRotation(float x, float y, float z, float w) {
 
     _eulerDirty = true;
 
+    notifyLocalRotationUpdated();
+
     invalidateChildren(TransformBit::ROTATION);
 
     if (_eventMask & TRANSFORM_ON) {
         emit<TransformChanged>(TransformBit::ROTATION);
     }
-
-    notifyLocalRotationUpdated();
 }
 
 const Quaternion &Node::getWorldRotation() const { // NOLINT(misc-no-recursion)
@@ -585,10 +584,11 @@ const Quaternion &Node::getWorldRotation() const { // NOLINT(misc-no-recursion)
 }
 
 void Node::setWorldScale(float x, float y, float z) {
+    updateWorldTransform(); // ensure reentryability
+
     Vec3 oldWorldScale = _worldScale;
     _worldScale.set(x, y, z);
     if (_parent != nullptr) {
-        _parent->updateWorldTransform();
         Mat3 localRS;
         Mat3 localRotInv;
         Mat4 worldMatrixTmp = _worldMatrix;
@@ -600,8 +600,8 @@ void Node::setWorldScale(float x, float y, float z) {
         // convert to Matrix 3 x 3
         Mat3::fromMat4(tmpLocalTransform, &localRS);
         Mat3::fromQuat(_localRotation.getConjugated(), &localRotInv);
-        // remove rotation part of the local matrix 
-        Mat3::multiply(localRS, localRotInv, &localRS);
+        // remove rotation part of the local matrix
+        Mat3::multiply(localRotInv, localRS, &localRS);
 
         // extract scaling part from local matrix
         _localScale.x = Vec3{localRS.m[0], localRS.m[1], localRS.m[2]}.length();
