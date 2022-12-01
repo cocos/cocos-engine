@@ -28,38 +28,37 @@
  * The following section is auto-generated.
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
  */
-// clang-format off
-#pragma once
-#include "cocos/base/std/variant.h"
-#include "cocos/core/assets/EffectAsset.h"
-#include "cocos/renderer/core/PassUtils.h"
-#include "cocos/renderer/pipeline/PipelineSceneData.h"
-#include "cocos/renderer/pipeline/custom/RenderCommonFwd.h"
-#include "cocos/scene/Camera.h"
+/* eslint-disable max-len */
+import { Attribute, Shader, ShaderInfo } from '../../gfx';
+import { LayoutGraphData } from './layout-graph';
+import { IProgramInfo } from '../../render-scene/core/program-lib';
 
-namespace cc {
+export class ProgramInfo {
+    constructor (programInfo: IProgramInfo, shaderInfo: ShaderInfo) {
+        this.programInfo = programInfo;
+        this.shaderInfo = shaderInfo;
+    }
+    readonly programInfo: IProgramInfo;
+    readonly shaderInfo: ShaderInfo;
+    readonly attributes: Attribute[] = [];
+}
 
-namespace render {
+export class ProgramHost {
+    constructor (program: Shader) {
+        this.program = program;
+    }
+    readonly program: Shader;
+}
 
-class PipelineRuntime;
-class RenderNode;
-class Setter;
-class RasterQueueBuilder;
-class RasterPassBuilder;
-class ComputeQueueBuilder;
-class ComputePassBuilder;
-class MovePassBuilder;
-class CopyPassBuilder;
-class SceneVisitor;
-class SceneTask;
-class SceneTransversal;
-class LayoutGraphBuilder;
-class Pipeline;
-class PipelineBuilder;
-class Factory;
+export class ProgramGroup {
+    readonly programInfos: Map<string, ProgramInfo> = new Map<string, ProgramInfo>();
+    readonly programHosts: Map<string, ProgramHost> = new Map<string, ProgramHost>();
+}
 
-} // namespace render
-
-} // namespace cc
-
-// clang-format on
+export class ProgramLibraryData {
+    constructor (layoutGraph: LayoutGraphData) {
+        this.layoutGraph = layoutGraph;
+    }
+    /*pointer*/ layoutGraph: LayoutGraphData;
+    readonly phases: Map<number, ProgramGroup> = new Map<number, ProgramGroup>();
+}

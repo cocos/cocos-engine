@@ -35,6 +35,7 @@ import {
     DescriptorType, GetTypeSize, ShaderStageFlagBit, API, UniformSamplerTexture, PipelineLayout,
     Shader, UniformStorageBuffer, UniformStorageImage, UniformSampler, UniformTexture, UniformInputAttachment,
 } from '../../gfx';
+import { getActiveAttributes, getShaderInstanceName, getVariantKey, IMacroInfo, prepareDefines } from './program-utils';
 import { debug, cclegacy } from '../../core';
 
 const _dsLayoutInfo = new DescriptorSetLayoutInfo();
@@ -62,42 +63,8 @@ export interface IProgramInfo extends EffectAsset.IShaderInfo {
     uber: boolean; // macro number exceeds default limits, will fallback to string hash
 }
 
-interface IMacroInfo {
-    name: string;
-    value: string;
-    isDefault: boolean;
-}
-
 function getBitCount (cnt: number) {
     return Math.ceil(Math.log2(Math.max(cnt, 2)));
-}
-
-function mapDefine (info: EffectAsset.IDefineInfo, def: number | string | boolean) {
-    switch (info.type) {
-    case 'boolean': return typeof def === 'number' ? def.toString() : (def ? '1' : '0');
-    case 'string': return def !== undefined ? def as string : info.options![0];
-    case 'number': return def !== undefined ? def.toString() : info.range![0].toString();
-    default:
-        console.warn(`unknown define type '${info.type}'`);
-        return '-1'; // should neven happen
-    }
-}
-
-function prepareDefines (defs: MacroRecord, tDefs: EffectAsset.IDefineInfo[]) {
-    const macros: IMacroInfo[] = [];
-    for (let i = 0; i < tDefs.length; i++) {
-        const tmpl = tDefs[i];
-        const name = tmpl.name;
-        const v = defs[name];
-        const value = mapDefine(tmpl, v);
-        const isDefault = !v || v === '0';
-        macros.push({ name, value, isDefault });
-    }
-    return macros;
-}
-
-function getShaderInstanceName (name: string, macros: IMacroInfo[]) {
-    return name + macros.reduce((acc, cur) => (cur.isDefault ? acc : `${acc}|${cur.name}${cur.value}`), '');
 }
 
 function insertBuiltinBindings (
@@ -157,28 +124,6 @@ function genHandles (tmpl: IProgramInfo) {
         handleMap[samplerTexture.name] = genHandle(samplerTexture.binding, samplerTexture.type, samplerTexture.count);
     }
     return handleMap;
-}
-
-function dependencyCheck (dependencies: string[], defines: MacroRecord) {
-    for (let i = 0; i < dependencies.length; i++) {
-        const d = dependencies[i];
-        if (d[0] === '!') { // negative dependency
-            if (defines[d.slice(1)]) { return false; }
-        } else if (!defines[d]) {
-            return false;
-        }
-    }
-    return true;
-}
-function getActiveAttributes (tmpl: IProgramInfo, tmplInfo: ITemplateInfo, defines: MacroRecord) {
-    const out: Attribute[] = [];
-    const attributes = tmpl.attributes;
-    const gfxAttributes = tmplInfo.gfxAttributes;
-    for (let i = 0; i < attributes.length; i++) {
-        if (!dependencyCheck(attributes[i].defines, defines)) { continue; }
-        out.push(gfxAttributes[i]);
-    }
-    return out;
 }
 
 // find those location which won't be affected by defines, and replace by ascending order of existing slot if location > 15
@@ -562,33 +507,7 @@ class ProgramLib {
      */
     public getKey (name: string, defines: MacroRecord) {
         const tmpl = this._templates[name];
-        const tmplDefs = tmpl.defines;
-        if (tmpl.uber) {
-            let key = '';
-            for (let i = 0; i < tmplDefs.length; i++) {
-                const tmplDef = tmplDefs[i];
-                const value = defines[tmplDef.name];
-                if (!value || !tmplDef._map) {
-                    continue;
-                }
-                const mapped = tmplDef._map(value);
-                const offset = tmplDef._offset;
-                key += `${offset}${mapped}|`;
-            }
-            return `${key}${tmpl.hash}`;
-        }
-        let key = 0;
-        for (let i = 0; i < tmplDefs.length; i++) {
-            const tmplDef = tmplDefs[i];
-            const value = defines[tmplDef.name];
-            if (!value || !tmplDef._map) {
-                continue;
-            }
-            const mapped = tmplDef._map(value);
-            const offset = tmplDef._offset;
-            key |= mapped << offset;
-        }
-        return `${key.toString(16)}|${tmpl.hash}`;
+        return getVariantKey(tmpl, defines);
     }
 
     /**
@@ -651,7 +570,7 @@ class ProgramLib {
         tmplInfo.shaderInfo.stages[1].source = prefix + src.frag;
 
         // strip out the active attributes only, instancing depend on this
-        tmplInfo.shaderInfo.attributes = getActiveAttributes(tmpl, tmplInfo, defines);
+        tmplInfo.shaderInfo.attributes = getActiveAttributes(tmpl, tmplInfo.gfxAttributes, defines);
 
         tmplInfo.shaderInfo.name = getShaderInstanceName(name, macroArray);
 

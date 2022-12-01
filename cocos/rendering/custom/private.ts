@@ -28,38 +28,17 @@
  * The following section is auto-generated.
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
  */
-// clang-format off
-#pragma once
-#include "cocos/base/std/variant.h"
-#include "cocos/core/assets/EffectAsset.h"
-#include "cocos/renderer/core/PassUtils.h"
-#include "cocos/renderer/pipeline/PipelineSceneData.h"
-#include "cocos/renderer/pipeline/custom/RenderCommonFwd.h"
-#include "cocos/scene/Camera.h"
+/* eslint-disable max-len */
+import { EffectAsset } from '../../asset/assets';
+import { Device } from '../../gfx';
+import { MacroRecord } from '../../render-scene/core/pass-utils';
 
-namespace cc {
+export interface ProgramProxy {
+    readonly name: string;
+}
 
-namespace render {
-
-class PipelineRuntime;
-class RenderNode;
-class Setter;
-class RasterQueueBuilder;
-class RasterPassBuilder;
-class ComputeQueueBuilder;
-class ComputePassBuilder;
-class MovePassBuilder;
-class CopyPassBuilder;
-class SceneVisitor;
-class SceneTask;
-class SceneTransversal;
-class LayoutGraphBuilder;
-class Pipeline;
-class PipelineBuilder;
-class Factory;
-
-} // namespace render
-
-} // namespace cc
-
-// clang-format on
+export interface ProgramLibrary {
+    addEffect (effectAsset: EffectAsset): void;
+    getProgramVariant (device: Device, phaseID: number, name: string, defines: MacroRecord, key: string | null): ProgramProxy | null;
+    getProgramVariant (device: Device, phaseID: number, name: string, defines: MacroRecord/*, null*/): ProgramProxy | null;
+}

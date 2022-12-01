@@ -30,6 +30,8 @@
  */
 // clang-format off
 #pragma once
+#include "cocos/core/assets/EffectAsset.h"
+#include "cocos/renderer/core/PassUtils.h"
 #include "cocos/renderer/gfx-base/GFXDef-common.h"
 #include "cocos/renderer/pipeline/PipelineSceneData.h"
 #include "cocos/renderer/pipeline/custom/RenderCommonTypes.h"
