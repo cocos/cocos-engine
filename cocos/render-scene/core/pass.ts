@@ -181,7 +181,7 @@ export class Pass {
     protected _shaderInfo: IProgramInfo = null!;
     protected _defines: MacroRecord = {};
     protected _properties: Record<string, EffectAsset.IPropertyInfo> = {};
-    protected _shader: Shader | ProgramProxy | null = null
+    protected _shader: Shader | null = null
     protected _bs: BlendState = new BlendState();
     protected _dss: DepthStencilState = new DepthStencilState();
     protected _rs: RasterizerState = new RasterizerState();
@@ -501,14 +501,14 @@ export class Pass {
         if (cclegacy.rendering && cclegacy.rendering.enableEffectImport) {
             const r = cclegacy.rendering;
             const programLib = r.programLib as ProgramLibrary;
-            const shader = programLib.getProgramVariant(
+            const program = programLib.getProgramVariant(
                 this._device, this._phaseID, this._programName, this._defines,
             );
-            if (!shader) {
+            if (!program) {
                 console.warn(`create shader ${this._programName} failed`);
                 return false;
             }
-            this._shader = shader;
+            this._shader = program.shader;
             this._pipelineLayout = programLib.getPipelineLayout(this._phaseID);
         } else {
             const shader = programLib.getGFXShader(this._device, this._programName, this._defines, pipeline);
@@ -536,14 +536,7 @@ export class Pass {
         }
 
         if (!patches) {
-            if (cclegacy.rendering && cclegacy.rendering.enableEffectImport) {
-                if (this._shader === null) {
-                    return null;
-                }
-                return (this._shader as ProgramProxy).shader;
-            } else {
-                return (this._shader as Shader | null);
-            }
+            return (this._shader);
         }
 
         if (EDITOR) {
