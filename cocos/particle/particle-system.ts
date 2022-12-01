@@ -1253,11 +1253,9 @@ export class ParticleSystem extends ModelRenderer {
 
         if (!this._isPlaying) return;
 
-        if (this.processor.getModel()?.scene) { // Just update particle system in the scene
-            this.processor.beforeRender();
-            if (this._trailModule && this._trailModule.enable) {
-                this._trailModule.beforeRender();
-            }
+        this.processor.beforeRender();
+        if (this._trailModule && this._trailModule.enable) {
+            this._trailModule.beforeRender();
         }
     }
 
