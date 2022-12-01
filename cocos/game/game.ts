@@ -754,6 +754,7 @@ export class Game extends EventTarget {
             })
             .then(() => effectSettings.init(config.effectSettingsPath))
             .then(() => {
+                // initialize custom render pipeline
                 if (!cclegacy.rendering || !cclegacy.rendering.enableEffectImport) {
                     return;
                 }
