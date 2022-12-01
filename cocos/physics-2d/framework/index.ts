@@ -1,4 +1,5 @@
 import * as PolygonSeparator from './utils/polygon-separator';
+import * as PolygonPartition from './utils/polygon-partition';
 
 export * from './physics-types';
 
@@ -28,4 +29,5 @@ export * from './components/joints/hinge-joint-2d';
 
 export const Physics2DUtils = {
     PolygonSeparator,
+    PolygonPartition,
 };
