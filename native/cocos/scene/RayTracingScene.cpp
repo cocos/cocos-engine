@@ -76,8 +76,6 @@ namespace scene
 
         gfx::ASInstance tlasGeom;
 
-        const auto& subModels = pModel->getSubModels();
-        //todo temporal code
         tlasGeom.mask = 0xFF;
         tlasGeom.transform = pModel->getTransform()->getWorldMatrix();
         tlasGeom.flags = gfx::GeometryInstanceFlagBits::TRIANGLE_FACING_CULL_DISABLE;
@@ -86,38 +84,20 @@ namespace scene
             tlasGeom.flags = gfx::GeometryInstanceFlagBits::FORCE_OPAQUE;
         }
 
-        //search for blas geom
-        auto meshUuid = reinterpret_cast<uint64_t>(subModels[0]->getSubMesh());
+        gfx::AccelerationStructureInfo blasInfo{};
+        fillBlasInfo(blasInfo, pModel);
 
-        if (pModel->getNode()->getName() == "AABB") {
-            meshUuid += 1024;
-        }
-
-        auto blasIt = _geomBlasCache.find(meshUuid);
-        if (blasIt != _geomBlasCache.cend()) {
-            // BLAS could be reused.
-            tlasGeom.accelerationStructureRef = blasIt->second;
-            //shadingInstanceDescriptor.subMeshGeometryOffset = blasIt->second.second;
-        } else {
-            // New BLAS should be create and build.
-            gfx::AccelerationStructureInfo blasInfo{};
-            fillBlasInfo(blasInfo, pModel);
-            auto blas = gfx::Device::getInstance()->createAccelerationStructure(blasInfo);
-            blas->build();
-            blas->compact();
-
-            _geomBlasCache.emplace(meshUuid, blas);
-
-            tlasGeom.accelerationStructureRef = blas;
-        }
+        tlasGeom.accelerationStructureRef = accelerationStructureManager.registry(blasInfo);
 
         ccstd::vector<RayTracingGeometryShadingDescriptor> shadingDescriptors{};
+        shadingDescriptors.reserve(pModel->getSubModels().size());
 
         for (const auto &mesh:tlasGeom.accelerationStructureRef->getInfo().triangleMeshes) {
-            RayTracingGeometryShadingDescriptor descriptor;
             RayTracingMeshDescriptor m;
             m.indexBuffer = mesh.indexBuffer;
             m.vertexBuffer = mesh.vertexBuffer;
+
+            RayTracingGeometryShadingDescriptor descriptor;
             descriptor.meshDescriptor = m;
             descriptor.materialID = 1;
             shadingDescriptors.push_back(descriptor);
@@ -127,7 +107,6 @@ namespace scene
         //tlasGeom.shaderBindingTableRecordOffset = rtBinding.registry(shadingDescriptors);
 
         _modelCache.emplace(pModel->getNode()->getUuid(), std::pair{true, tlasGeom});
-
     }
 
     void RayTracingScene::handleModel(const IntrusivePtr<scene::Model>& pModel) {
@@ -183,6 +162,7 @@ namespace scene
     }
 
     void RayTracingScene::update(const scene::RenderScene* scene) {
+
         needRebuild = needUpdate = needRecreate = false;
 
         for (const auto& pModel : scene->getModels()) {
@@ -199,8 +179,9 @@ namespace scene
                 modelIt = _modelCache.erase(modelIt);
                 needRebuild = true;
             }
-        } 
+        }
 
+        /*
         //sweep deactive blas
         auto blasIt = _geomBlasCache.begin();
         while (blasIt != _geomBlasCache.end()) {
@@ -210,7 +191,7 @@ namespace scene
             }else {
                 ++blasIt;
             }
-        }
+        }*/
 
         if (needRebuild||needUpdate) {
 

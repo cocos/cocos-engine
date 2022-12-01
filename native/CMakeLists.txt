@@ -1440,6 +1440,8 @@ cocos_source_files(
                  cocos/scene/RayTracingSceneTypes.h
                  cocos/scene/RayTracingScene.cpp
                  cocos/scene/RayTracingScene.h
+                 cocos/scene/AccelerationStructureManager.cpp
+                 cocos/scene/AccelerationStructureManager.h
 )
 
 ##### primitive

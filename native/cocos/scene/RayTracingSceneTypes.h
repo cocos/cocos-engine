@@ -40,15 +40,15 @@ struct RayTracingSceneDescriptor final {
     ccstd::vector<RayTracingInstanceDescriptor> instances;
 };
 
-struct RayTracingSceneAddInstanceEvent {
+struct RayTracingSceneAddInstanceEvent final{
     RayTracingInstanceDescriptor instDescriptor;
 };
 
-struct RayTracingSceneRemoveInstanceEvent {
+struct RayTracingSceneRemoveInstanceEvent final{
     uint32_t instIdx;
 };
 
-struct RayTracingSceneMoveInstanceEvent {
+struct RayTracingSceneMoveInstanceEvent final{
     Mat4& transform;
     uint32_t instIdx;
 };
@@ -62,32 +62,38 @@ struct RayTracingSceneUpdateInfo {
 using AccelerationStructurePtr = IntrusivePtr<gfx::AccelerationStructure>;
 
 struct RayTracingSceneAccelerationStructureManager final {
+
     std::optional<AccelerationStructurePtr> checkExistingBlas(const gfx::AccelerationStructureInfo& info) {
+        for (const auto & r : _geomBlasRecords) {
+            if (r.first == info) {
+                return r.second;
+            }
+        }
         return {};
     }
-
-    auto createBlas(const gfx::AccelerationStructureInfo& info) {
-        auto blas = gfx::Device::getInstance()->createAccelerationStructure(info);
-        blas->build();
-        blas->compact();
-        _geomBlasCache.emplace();
-        return blas;
-    }
-
+;
     AccelerationStructurePtr registry(const gfx::AccelerationStructureInfo& info) {
-        auto result = checkExistingBlas(info);
-        if (result) {
+
+        if (auto result = checkExistingBlas(info)) {
             return result.value();
         }
+
         return createBlas(info);
     }
 
 private:
-    /*
-     * first: blas's uuid
-     * second: blas ref
-     */
-    ccstd::unordered_map<uint64_t, AccelerationStructurePtr> _geomBlasCache;
+
+    using AccelerationStructureRecord = std::pair<gfx::AccelerationStructureInfo,AccelerationStructurePtr>;
+
+    ccstd::vector<AccelerationStructureRecord> _geomBlasRecords;
+
+    AccelerationStructurePtr createBlas(const gfx::AccelerationStructureInfo& info) {
+        auto blas = gfx::Device::getInstance()->createAccelerationStructure(info);
+        blas->build();
+        blas->compact();
+        _geomBlasRecords.emplace_back(info, blas);
+        return blas;
+    }
 };
 
 enum class AllocationPolicy {

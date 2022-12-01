@@ -1307,18 +1307,27 @@ struct ASTriangleMesh {
     uint32_t vertexStride;
     uint32_t indexCount;
     Buffer* vertexBuffer;
-    Buffer* indexBuffer; 
+    Buffer* indexBuffer;
+
+    bool operator==(const ASTriangleMesh& other) const {
+        return flag == other.flag && vertexBuffer == other.vertexBuffer && indexBuffer == other.indexBuffer
+            && vertexFormat == other.vertexFormat && vertexCount == other.vertexCount && vertexStride == other.vertexStride;
+    }
 };
 
 struct ASAABB {
     ASGeometryFlags flag;
-    //Buffer *aabbsBuffer;
     float minX;
     float minY;
     float minZ;
     float maxX;
     float maxY;
     float maxZ;
+
+    bool operator==(const ASAABB& other) const {
+        return minX == other.minX && minY == other.minY && minZ == other.minZ &&
+               maxX == other.maxX && maxY == other.maxY && maxZ == other.maxZ;
+    }
 };
 
 struct ASInstance {
@@ -1335,6 +1344,10 @@ struct AccelerationStructureInfo{
     ccstd::vector<ASAABB> aabbs;
     ccstd::vector<ASInstance> instances;
     ASBuildFlags buildFlag;
+
+    bool operator==(const AccelerationStructureInfo& other) const {
+        return buildFlag == other.buildFlag && aabbs == other.aabbs && triangleMeshes == other.triangleMeshes;
+    }
 };
 
 using AttributeList = ccstd::vector<Attribute>;
