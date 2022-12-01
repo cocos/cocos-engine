@@ -21360,6 +21360,33 @@ static bool js_cc_scene_Camera_setCullingEnable(se::State& s)
 }
 SE_BIND_FUNC(js_cc_scene_Camera_setCullingEnable) 
 
+static bool js_cc_scene_Camera_calculateObliqueMat(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::Camera *arg1 = (cc::scene::Camera *) NULL ;
+    cc::Vec4 *arg2 = 0 ;
+    cc::Vec4 temp2 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::scene::Camera>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    arg2 = &temp2;
+    
+    (arg1)->calculateObliqueMat((cc::Vec4 const &)*arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_scene_Camera_calculateObliqueMat) 
+
 static bool js_cc_scene_Camera_iso_set(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -22656,6 +22683,7 @@ bool js_register_cc_scene_Camera(se::Object* obj) {
     cls->defineFunction("setTrackingType", _SE(js_cc_scene_Camera_setTrackingType)); 
     cls->defineFunction("isCullingEnabled", _SE(js_cc_scene_Camera_isCullingEnabled)); 
     cls->defineFunction("setCullingEnable", _SE(js_cc_scene_Camera_setCullingEnable)); 
+    cls->defineFunction("calculateObliqueMat", _SE(js_cc_scene_Camera_calculateObliqueMat)); 
     
     cls->defineStaticProperty("SKYBOX_FLAG", _SE(js_cc_scene_Camera_SKYBOX_FLAG_get), nullptr); 
     
@@ -23982,7 +24010,7 @@ static bool js_cc_scene_ReflectionProbe_reflect_static(se::State& s)
     size_t argc = args.size();
     cc::Vec3 *arg1 = 0 ;
     cc::Vec3 *arg2 = 0 ;
-    int32_t arg3 ;
+    float arg3 ;
     cc::Vec3 temp1 ;
     cc::Vec3 temp2 ;
     cc::Vec3 result;
@@ -24005,7 +24033,7 @@ static bool js_cc_scene_ReflectionProbe_reflect_static(se::State& s)
     
     ok &= sevalue_to_native(args[2], &arg3, s.thisObject());
     SE_PRECONDITION2(ok, false, "Error processing arguments"); 
-    result = cc::scene::ReflectionProbe::reflect((cc::Vec3 const &)*arg1,(cc::Vec3 const &)*arg2,SWIG_STD_MOVE(arg3));
+    result = cc::scene::ReflectionProbe::reflect((cc::Vec3 const &)*arg1,(cc::Vec3 const &)*arg2,arg3);
     
     temp = ccnew cc::Vec3(result);
     ok &= nativevalue_to_se(temp, s.rval(), s.thisObject());
