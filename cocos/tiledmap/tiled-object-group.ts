@@ -247,6 +247,7 @@ export class TiledObjectGroup extends Component {
                 textNode.name = textName;
                 textNode.parent = this.node;
                 textNode.setSiblingIndex(i);
+                textNode.layer = this.node.layer;
 
                 let label = textNode.getComponent(Label);
                 if (!label) {
@@ -317,6 +318,7 @@ export class TiledObjectGroup extends Component {
                 imgNode.name = imgName;
                 imgNode.parent = this.node;
                 imgNode.setSiblingIndex(i);
+                imgNode.layer = this.node.layer;
 
                 let sprite = imgNode.getComponent(Sprite);
                 if (!sprite) {
