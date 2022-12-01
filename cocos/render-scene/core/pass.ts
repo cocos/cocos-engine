@@ -41,7 +41,7 @@ import { MacroRecord, MaterialProperty, customizeType, getBindingFromHandle, get
 import { RenderPassStage, RenderPriority } from '../../rendering/define';
 import { InstancedBuffer } from '../../rendering/instanced-buffer';
 import { BatchedBuffer } from '../../rendering/batched-buffer';
-import { ProgramLibrary, ProgramProxy } from '../../rendering/custom/private';
+import { ProgramLibrary } from '../../rendering/custom/private';
 
 export interface IPassInfoFull extends EffectAsset.IPassInfo {
     // generated part
