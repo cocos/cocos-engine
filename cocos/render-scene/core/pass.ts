@@ -583,6 +583,41 @@ export class Pass {
      */
     public endChangeStatesSilently (): void {}
 
+    private buildUniformBlocks (device: Device, blocks: EffectAsset.IBlockInfo[], blockSizes: number[]) {
+        const alignment = device.capabilities.uboOffsetAlignment;
+        const startOffsets: number[] = [];
+        let lastSize = 0; let lastOffset = 0;
+        for (let i = 0; i < blocks.length; i++) {
+            const size = blockSizes[i];
+            startOffsets.push(lastOffset);
+            lastOffset += Math.ceil(size / alignment) * alignment;
+            lastSize = size;
+        }
+        // create gfx buffer resource
+        const totalSize = startOffsets[startOffsets.length - 1] + lastSize;
+        if (totalSize) {
+            // https://bugs.chromium.org/p/chromium/issues/detail?id=988988
+            _bufferInfo.size = Math.ceil(totalSize / 16) * 16;
+            this._rootBuffer = device.createBuffer(_bufferInfo);
+            this._rootBlock = new ArrayBuffer(totalSize);
+        }
+        // create buffer views
+        for (let i = 0, count = 0; i < blocks.length; i++) {
+            const { binding } = blocks[i];
+            const size = blockSizes[i];
+            _bufferViewInfo.buffer = this._rootBuffer!;
+            _bufferViewInfo.offset = startOffsets[count++];
+            _bufferViewInfo.range = Math.ceil(size / 16) * 16;
+            const bufferView = this._buffers[binding] = device.createBuffer(_bufferViewInfo);
+            // non-builtin UBO data pools, note that the effect compiler
+            // guarantees these bindings to be consecutive, starting from 0 and non-array-typed
+            this._blocks[binding] = new Float32Array(this._rootBlock!, _bufferViewInfo.offset,
+                size / Float32Array.BYTES_PER_ELEMENT);
+            this._blocksInt[binding] = new Int32Array(this._blocks[binding].buffer, this._blocks[binding].byteOffset, this._blocks[binding].length);
+            this._descriptorSet.bindBuffer(binding, bufferView);
+        }
+    }
+
     protected _doInit (info: IPassInfoFull, copyDefines = false): void {
         this._priority = RenderPriority.DEFAULT;
         this._stage = RenderPassStage.DEFAULT;
@@ -641,38 +676,10 @@ export class Pass {
             blockSizes = tmplInfo.blockSizes;
             handleMap = tmplInfo.handleMap;
         }
-        const alignment = device.capabilities.uboOffsetAlignment;
-        const startOffsets: number[] = [];
-        let lastSize = 0; let lastOffset = 0;
-        for (let i = 0; i < blocks.length; i++) {
-            const size = blockSizes[i];
-            startOffsets.push(lastOffset);
-            lastOffset += Math.ceil(size / alignment) * alignment;
-            lastSize = size;
-        }
-        // create gfx buffer resource
-        const totalSize = startOffsets[startOffsets.length - 1] + lastSize;
-        if (totalSize) {
-            // https://bugs.chromium.org/p/chromium/issues/detail?id=988988
-            _bufferInfo.size = Math.ceil(totalSize / 16) * 16;
-            this._rootBuffer = device.createBuffer(_bufferInfo);
-            this._rootBlock = new ArrayBuffer(totalSize);
-        }
-        // create buffer views
-        for (let i = 0, count = 0; i < blocks.length; i++) {
-            const { binding } = blocks[i];
-            const size = blockSizes[i];
-            _bufferViewInfo.buffer = this._rootBuffer!;
-            _bufferViewInfo.offset = startOffsets[count++];
-            _bufferViewInfo.range = Math.ceil(size / 16) * 16;
-            const bufferView = this._buffers[binding] = device.createBuffer(_bufferViewInfo);
-            // non-builtin UBO data pools, note that the effect compiler
-            // guarantees these bindings to be consecutive, starting from 0 and non-array-typed
-            this._blocks[binding] = new Float32Array(this._rootBlock!, _bufferViewInfo.offset,
-                size / Float32Array.BYTES_PER_ELEMENT);
-            this._blocksInt[binding] = new Int32Array(this._blocks[binding].buffer, this._blocks[binding].byteOffset, this._blocks[binding].length);
-            this._descriptorSet.bindBuffer(binding, bufferView);
-        }
+
+        // build uniform blocks
+        this.buildUniformBlocks(device, blocks, blockSizes);
+
         // store handles
         const directHandleMap = this._propertyHandleMap = handleMap;
         const indirectHandleMap: Record<string, number> = {};
