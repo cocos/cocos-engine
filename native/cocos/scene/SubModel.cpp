@@ -385,7 +385,7 @@ void SubModel::setInstancedAttribute(const ccstd::string &name, const float *val
                 case gfx::FormatType::SNORM:
                 case gfx::FormatType::UINT:
                 case gfx::FormatType::INT: {
-                    CC_ABORT(); // NOLINT
+                    CC_ABORT();
                 } break;
                 case gfx::FormatType::FLOAT:
                 case gfx::FormatType::UFLOAT: {

@@ -663,7 +663,7 @@ static bool js_Model_setInstancedAttribute(se::State &s) // NOLINT(readability-i
 
                     default:
                         // FIXME:
-                        CC_ABORT(); // NOLINT
+                        CC_ABORT(); 
                         break;
                 }
                 return true;

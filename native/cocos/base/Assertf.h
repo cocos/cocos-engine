@@ -67,7 +67,7 @@
                 snprintf(message, sizeof(message), fmt, ##__VA_ARGS__);      \
                 __assert2(__FILE__, __LINE__, __PRETTY_FUNCTION__, message); \
             } while (false)
-    #elif defined(__APPLE__)
+    #elif CC_PLATFORM == CC_PLATFORM_IOS || CC_PLATFORM == CC_PLATFORM_MACOS
         #define CC_ASSERT_FORMAT(cond, fmt, ...)                                                \
             do {                                                                                \
                 if (__builtin_expect(!(cond), 0)) {                                             \
@@ -137,7 +137,17 @@
      *
      */
     #define CC_ASSERTF(cond, fmt, ...) CC_ASSERT_FORMAT(cond, fmt, ##__VA_ARGS__)
-    #define CC_ABORT()                 CC_ABORTF("CC_ABORT")
+
+    /**
+     *  CC_ABORT call abort() in debug mode.
+     *
+     *  printf like abort: CC_ABORTF
+     *      
+     *  CC_ABORTF("Dead Code") 
+     *  CC_ABORTF("Invalidate state code %d", statusCode);
+     *  CC_ABORTF("Should crash in debug mode")
+     */
+    #define CC_ABORT()                 abort()
     #define CC_ASSERT(cond)            _CC_ASSERT_(cond)
 
 #else
