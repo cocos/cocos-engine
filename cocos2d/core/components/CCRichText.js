@@ -76,7 +76,7 @@ let pool = new js.Pool(function (node) {
     }
 
     return true;
-}, 20);
+}, 100);
 
 pool.get = function (string, richtext) {
     let labelNode = this._get();
