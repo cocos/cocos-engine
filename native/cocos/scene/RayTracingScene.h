@@ -42,6 +42,11 @@ namespace scene
         void update(const RayTracingSceneUpdateInfo& updateInfo);
         
         void fillBlasInfo2(gfx::AccelerationStructureInfo& blasInfo, const RayTracingInstanceDescriptor& instance) {
+
+            if (instance.shadingGeometries.empty()) {
+                return;
+            }
+
             if (instance.shadingGeometries[0].meshDescriptor) {
                 //triangle mesh
                 for (const auto& shadingGeom : instance.shadingGeometries) {
@@ -73,11 +78,7 @@ namespace scene
 
     protected:
         AccelerationStructurePtr _topLevelAccelerationStructure;
-        /*
-         * first: blas's uuid
-         * second: blas ref
-         */
-        ccstd::unordered_map<uint64_t,AccelerationStructurePtr> _geomBlasCache;
+
         /*
          * first: model's uuid
          * second:
@@ -108,12 +109,15 @@ namespace scene
 
         gfx::ASInstance addInstance(const RayTracingInstanceDescriptor& instance) {
             gfx::ASInstance asInstanceInfo{};
-            asInstanceInfo.mask = 0xFF;
-            asInstanceInfo.flags = gfx::GeometryInstanceFlagBits::TRIANGLE_FACING_CULL_DISABLE;
+            asInstanceInfo.mask = instance.mask;
+            asInstanceInfo.flags = instance.flags;
             asInstanceInfo.transform = instance.transform;
+
             gfx::AccelerationStructureInfo blasInfo{};
+
             fillBlasInfo2(blasInfo, instance);
             asInstanceInfo.accelerationStructureRef = accelerationStructureManager.registry(blasInfo);
+
             if (use_ray_query) {
                 asInstanceInfo.instanceCustomIdx = rqBinding.registry(instance.shadingGeometries);
             }else {

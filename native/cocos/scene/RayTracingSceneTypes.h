@@ -30,7 +30,7 @@ struct RayTracingInstanceDescriptor final {
     uint32_t instanceCustomIdx;
     uint32_t mask;
     gfx::GeometryInstanceFlags flags;
-    Mat4& transform;
+    Mat4 transform;
     ccstd::vector<RayTracingGeometryShadingDescriptor> shadingGeometries;
     ccstd::string uuid;
     bool changed;
@@ -346,6 +346,13 @@ struct MeshShadingDescriptor final {
 
 struct RayQueryBindingTable final {
 private:
+
+    using BindingRecordOffsetType = int;
+    using BindingRecordRefCountType = int;
+
+    template<typename T>
+    using BindingRecord = std::tuple<T,BindingRecordOffsetType,BindingRecordRefCountType>;
+
     // instanceDecs.geometryOffset + geometryIndex
     /*
      * IA n ：index address of the nth geometry
@@ -359,7 +366,7 @@ private:
 
     // MonotonicPool<SubMeshGeomDescriptor, true> _geomDesc;
     ArenaAllocator<SubMeshGeomDescriptor> _geomDesc;
-    ccstd::vector<std::tuple<ccstd::vector<SubMeshGeomDescriptor>,int,int>> _geomDescLUT;
+    ccstd::vector<BindingRecord<ccstd::vector<SubMeshGeomDescriptor>>> _geomDescLUT;
 
     /*
      * matID n : matID of the nth geometry
@@ -372,7 +379,7 @@ private:
 
     // MonotonicPool<uint64_t,true> _materialDesc;
     ArenaAllocator<uint64_t> _materialDesc;
-    ccstd::vector<std::tuple<ccstd::vector<uint64_t>,int,int>> _materialDescLUT;
+    ccstd::vector<BindingRecord<ccstd::vector<uint64_t>>> _materialDescLUT;
 
     /* |----------------------------------------------||----------------------------------------------||----------------------------------------------|
      * |-------------------descriptor 0---------------||-------------------descriptor 1---------------||-------------------descriptor 2---------------| instanceCustomIndex
@@ -382,7 +389,7 @@ private:
 
     // MonotonicPool<MeshShadingDescriptor> _shadingInstanceDescriptors;
     ArenaAllocator<MeshShadingDescriptor> _shadingInstanceDescriptors;
-    ccstd::vector<std::tuple<MeshShadingDescriptor,int,int>> _shadingInstanceDescriptorsLUT;
+    ccstd::vector<BindingRecord<MeshShadingDescriptor>> _shadingInstanceDescriptorsLUT;
 
     uint16_t registrySubmeshes(const ccstd::vector<SubMeshGeomDescriptor>& subMeshes);
 

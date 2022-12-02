@@ -53,7 +53,7 @@ namespace scene
         blasInfo.buildFlag = gfx::ASBuildFlagBits::ALLOW_COMPACTION | gfx::ASBuildFlagBits::PREFER_FAST_TRACE;
     }
 
-    auto similarTransform = [](const Mat4* mat1, const Mat4* mat2) -> bool {
+    bool similarTransformMatrix(const Mat4* mat1, const Mat4* mat2) {
         Vec3 vec1;
         Vec3 vec2;
         mat1->getScale(&vec1);
@@ -74,6 +74,7 @@ namespace scene
 
     void RayTracingScene::handleNewModel(const IntrusivePtr<scene::Model>& pModel) {
 
+        /*
         gfx::ASInstance tlasGeom;
 
         tlasGeom.mask = 0xFF;
@@ -105,8 +106,31 @@ namespace scene
         
         tlasGeom.instanceCustomIdx = rqBinding.registry(shadingDescriptors);
         //tlasGeom.shaderBindingTableRecordOffset = rtBinding.registry(shadingDescriptors);
+        */
+        RayTracingInstanceDescriptor instance_descriptor{};
+        instance_descriptor.transform = pModel->getTransform()->getWorldMatrix();
+        instance_descriptor.mask = 0xFF;
+        instance_descriptor.flags = gfx::GeometryInstanceFlagBits::TRIANGLE_FACING_CULL_DISABLE;
+        instance_descriptor.uuid = pModel->getNode()->getUuid();
 
-        _modelCache.emplace(pModel->getNode()->getUuid(), std::pair{true, tlasGeom});
+        gfx::AccelerationStructureInfo blasInfo{};
+        fillBlasInfo(blasInfo, pModel);
+
+        for (const auto & mesh : blasInfo.triangleMeshes) {
+            RayTracingMeshDescriptor m;
+            m.indexBuffer = mesh.indexBuffer;
+            m.vertexBuffer = mesh.vertexBuffer;
+            m.indexCount = mesh.indexCount;
+            m.vertexCount = mesh.vertexCount;
+            m.vertexFormat = mesh.vertexFormat;
+
+            RayTracingGeometryShadingDescriptor descriptor;
+            descriptor.meshDescriptor = std::move(m);
+            descriptor.materialID = 1;
+            instance_descriptor.shadingGeometries.emplace_back(descriptor);
+        }
+
+        _modelCache.emplace(pModel->getNode()->getUuid(), std::pair{true, addInstance(instance_descriptor)});
     }
 
     void RayTracingScene::handleModel(const IntrusivePtr<scene::Model>& pModel) {
@@ -126,7 +150,7 @@ namespace scene
                 // Instance transform changed, tlas should be updated.
                 auto lastUpdateTransfrom = &modelIt->second.second.transform;
                 const auto* currentTransfrom = &pModel->getTransform()->getWorldMatrix();
-                similarTransform(lastUpdateTransfrom, currentTransfrom) ? needUpdate = true : needRebuild = true;
+                similarTransformMatrix(lastUpdateTransfrom, currentTransfrom) ? needUpdate = true : needRebuild = true;
                 modelIt->second.second.transform = *currentTransfrom;
             }
 
@@ -180,18 +204,6 @@ namespace scene
                 needRebuild = true;
             }
         }
-
-        /*
-        //sweep deactive blas
-        auto blasIt = _geomBlasCache.begin();
-        while (blasIt != _geomBlasCache.end()) {
-            if (blasIt->second->getRefCount()==0) {
-                blasIt = _geomBlasCache.erase(blasIt);
-                //blasIt->second->destroy();
-            }else {
-                ++blasIt;
-            }
-        }*/
 
         if (needRebuild||needUpdate) {
 
@@ -257,8 +269,6 @@ namespace scene
 
     void RayTracingScene::destroy() {
         _topLevelAccelerationStructure = nullptr;
-        //_bottomLevelAccelerationStructures.clear();
-        _geomBlasCache.clear();
         _modelCache.clear();
     }
 
