@@ -25,7 +25,7 @@
 
 /* eslint-disable max-len */
 import { EffectAsset } from '../../asset/assets';
-import { Attribute, DescriptorSetLayout, Device, PipelineLayout, Shader, ShaderInfo, Uniform, UniformBlock, UniformInputAttachment, UniformSampler, UniformSamplerTexture, UniformStorageBuffer, UniformStorageImage, UniformTexture } from '../../gfx';
+import { Attribute, DescriptorSetLayout, Device, PipelineLayout, Shader, ShaderInfo, ShaderStage, ShaderStageFlagBit, Uniform, UniformBlock, UniformInputAttachment, UniformSampler, UniformSamplerTexture, UniformStorageBuffer, UniformStorageImage, UniformTexture } from '../../gfx';
 import { genHandles, getActiveAttributes, getShaderInstanceName, getSize, getVariantKey, prepareDefines } from '../../render-scene/core/program-utils';
 import { getDeviceShaderVersion, MacroRecord } from '../../render-scene';
 import { IProgramInfo } from '../../render-scene/core/program-lib';
@@ -179,6 +179,8 @@ function makeShaderInfo (layouts: PipelineLayoutData,
             }
         }
     }
+    shaderInfo.stages.push(new ShaderStage(ShaderStageFlagBit.VERTEX, ''));
+    shaderInfo.stages.push(new ShaderStage(ShaderStageFlagBit.FRAGMENT, ''));
     return [shaderInfo, blockSizes];
 }
 
