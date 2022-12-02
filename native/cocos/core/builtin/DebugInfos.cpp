@@ -28,7 +28,7 @@
 
 namespace cc {
 
-ccstd::unordered_map<int, ccstd::string> debugInfos = {
+ccstd::unordered_map<uint32_t, ccstd::string> debugInfos = {
 { 0100, "%s not yet implemented." },
 { 0200, "You should specify a valid DOM canvas element." },
 { 1006, "[Action step]. override me" },
