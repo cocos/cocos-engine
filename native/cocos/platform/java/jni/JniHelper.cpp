@@ -138,6 +138,22 @@ void JniHelper::init(JNIEnv *env, jobject activity) {
     CC_ASSERT(ok);
 }
 
+void JniHelper::onDestroy() {
+    if(JniHelper::sJavaVM) {
+        if(JniHelper::sActivity) {
+            cc::JniHelper::getEnv()->DeleteGlobalRef(JniHelper::sActivity);
+            JniHelper::sActivity = nullptr;
+        }
+
+        if(JniHelper::classloader) {
+            cc::JniHelper::getEnv()->DeleteGlobalRef(JniHelper::classloader);
+            JniHelper::classloader = nullptr;
+        }
+        JniHelper::classloaderCallback = nullptr;
+        LOGD("JniHelper::onDestroy");
+    }
+}
+
 JNIEnv *JniHelper::cacheEnv() {
     JavaVM *jvm = JniHelper::sJavaVM;
     JNIEnv *env = nullptr;
