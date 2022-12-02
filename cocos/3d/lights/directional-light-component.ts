@@ -510,10 +510,10 @@ export class DirectionalLight extends Light {
      * @en get or set csm layers transition range
      * @zh 获取或者设置级联阴影层级过渡范围？
      */
+    @tooltip('i18n:lights.csmTransitionRange')
     @visible(false)
     @property({ group: { name: 'DynamicShadowSettings', displayOrder: 21 } })
     @editable
-    @tooltip('CSM transition range')
     @range([0.0, 0.1, 0.01])
     @slide
     @type(CCFloat)
