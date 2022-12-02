@@ -33,7 +33,7 @@ import { ReflectionProbeManager } from '../rendering/reflection-probe-manager';
 import { Component } from '../scene-graph/component';
 import { Layers } from '../scene-graph/layers';
 import { Camera } from './camera-component';
-import { Node } from '../scene-graph';
+import { Node, TransformBit } from '../scene-graph';
 import { ProbeClearFlag, ProbeType } from '../render-scene/scene/reflection-probe';
 
 export enum ProbeResolution {
@@ -291,8 +291,8 @@ export class ReflectionProbe extends Component {
 
     public start () {
         if (this._sourceCamera && this.probeType === ProbeType.PLANAR) {
-            ReflectionProbeManager.probeManager.updateUsePlanarModels(this.probe);
             this.probe.renderPlanarReflection(this.sourceCamera.camera);
+            ReflectionProbeManager.probeManager.filterModelsForPlanarReflection();
         }
     }
 
@@ -320,6 +320,9 @@ export class ReflectionProbe extends Component {
 
             if (this.node.hasChangedFlags) {
                 this.probe.updateBoundingBox();
+            }
+            if (this.node.hasChangedFlags & TransformBit.POSITION) {
+                ReflectionProbeManager.probeManager.onUpdateProbes(true);
             }
         }
     }

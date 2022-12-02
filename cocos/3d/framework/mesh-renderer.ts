@@ -651,12 +651,18 @@ export class MeshRenderer extends ModelRenderer {
     }
 
     public updateProbeCubemap (cubeMap: TextureCube | null) {
+        if (this.bakeSettings._probeCubemap === cubeMap) {
+            return;
+        }
         this.bakeSettings._probeCubemap = cubeMap;
         if (this.model !== null) {
             this.model.updateReflctionProbeCubemap(this.bakeSettings._probeCubemap);
         }
     }
     public updateProbePlanarMap (planarMap: Texture | null) {
+        if (this.bakeSettings._probePlanarmap === planarMap) {
+            return;
+        }
         this.bakeSettings._probePlanarmap = planarMap;
         if (this.model !== null) {
             this.model.updateReflctionProbePlanarMap(this.bakeSettings._probePlanarmap);
