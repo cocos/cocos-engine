@@ -2230,10 +2230,10 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         const parent = this._parent;
         const local = this._lpos;
         if (parent) {
-            parent.updateWorldTransform();
-            Vec3.transformMat4(local, this._pos, Mat4.invert(m4_1, parent._mat));
             // TODO: benchmark these approaches
             /* */
+            parent.updateWorldTransform();
+            Vec3.transformMat4(local, this._pos, Mat4.invert(m4_1, parent._mat));
             /* *
             parent.inverseTransformPoint(local, this._pos);
             /* */
@@ -2352,14 +2352,16 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     public setWorldScale(x: number, y: number, z: number): void;
 
     public setWorldScale (val: Vec3 | number, y?: number, z?: number) {
+        const parent = this._parent;
+        if (parent) {
+            this.updateWorldTransform();
+        }
         if (y === undefined || z === undefined) {
             Vec3.copy(this._scale, val as Vec3);
         } else {
             Vec3.set(this._scale, val as number, y, z);
         }
-        const parent = this._parent;
         if (parent) {
-            parent.updateWorldTransform();
             v3_a.x = this._scale.x / Vec3.set(v3_b, this._mat.m00, this._mat.m01, this._mat.m02).length();
             v3_a.y = this._scale.y / Vec3.set(v3_b, this._mat.m04, this._mat.m05, this._mat.m06).length();
             v3_a.z = this._scale.z / Vec3.set(v3_b, this._mat.m08, this._mat.m09, this._mat.m10).length();

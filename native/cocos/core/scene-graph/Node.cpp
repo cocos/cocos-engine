@@ -584,11 +584,10 @@ const Quaternion &Node::getWorldRotation() const { // NOLINT(misc-no-recursion)
 }
 
 void Node::setWorldScale(float x, float y, float z) {
-    updateWorldTransform(); // ensure reentryability
-
-    Vec3 oldWorldScale = _worldScale;
-    _worldScale.set(x, y, z);
     if (_parent != nullptr) {
+        updateWorldTransform(); // ensure reentryability
+        Vec3 oldWorldScale = _worldScale;
+        _worldScale.set(x, y, z);
         Mat3 localRS;
         Mat3 localRotInv;
         Mat4 worldMatrixTmp = _worldMatrix;
@@ -608,6 +607,7 @@ void Node::setWorldScale(float x, float y, float z) {
         _localScale.y = Vec3{localRS.m[3], localRS.m[4], localRS.m[5]}.length();
         _localScale.z = Vec3{localRS.m[6], localRS.m[7], localRS.m[8]}.length();
     } else {
+        _worldScale.set(x, y, z);
         _localScale = _worldScale;
     }
 
