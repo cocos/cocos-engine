@@ -6,7 +6,7 @@ exports.template = `
     <ui-prop>
         <ui-label slot="label" value="Object Size"></ui-label>
         <div class="object-size-content" slot="content">
-            <ui-num-input min="0" max="1" step="0.01" preci="2"
+            <ui-num-input min="0" step="0.01"
                 :invalid="multiObjectSizeInvalid"
                 :value="multiObjectSizeInvalid && dump.value && dump.value.objectSize ? null : dump.value.objectSize.values[0]"
                 @confirm="onMultiObjectSizeConfirm($event)"
