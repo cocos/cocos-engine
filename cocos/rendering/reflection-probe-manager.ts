@@ -100,6 +100,18 @@ export class ReflectionProbeManager {
         }
     }
 
+    public clearPlanarReflectionMap (probe:ReflectionProbe) {
+        for (const entry of this._usePlanarModels.entries()) {
+            if (entry[1] === probe) {
+                const model = entry[0];
+                const meshRender = model.node.getComponent(MeshRenderer);
+                if (meshRender) {
+                    meshRender.updateProbePlanarMap(null);
+                }
+            }
+        }
+    }
+
     public register (probe: ReflectionProbe) {
         const index = this._probes.indexOf(probe);
         if (index === -1) {

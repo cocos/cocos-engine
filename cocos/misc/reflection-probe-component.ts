@@ -132,7 +132,7 @@ export class ReflectionProbe extends Component {
                 if (EDITOR) {
                     this._objFlags |= CCObject.Flags.IsRotationLocked;
                 }
-                ReflectionProbeManager.probeManager.updatePlanarMap(this.probe, null);
+                ReflectionProbeManager.probeManager.clearPlanarReflectionMap(this.probe);
             } else {
                 if (lastSizeIsNoExist) {
                     this._size.set(ReflectionProbe.DEFAULT_PLANER_SIZE);
@@ -151,6 +151,7 @@ export class ReflectionProbe extends Component {
             }
             this._lastSize.set(lastSize);
             this.size = this._size;
+            ReflectionProbeManager.probeManager.onUpdateProbes(true);
         }
     }
     get probeType () {
