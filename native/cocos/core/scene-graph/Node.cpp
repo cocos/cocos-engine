@@ -534,9 +534,9 @@ void Node::invalidateChildren(TransformBit dirtyBit) { // NOLINT(misc-no-recursi
 }
 
 void Node::setWorldPosition(float x, float y, float z) {
-    updateWorldTransform(); // ensure reentryability
     _worldPosition.set(x, y, z);
     if (_parent) {
+        _parent->updateWorldTransform();
         Mat4 invertWMat{_parent->_worldMatrix};
         invertWMat.inverse();
         _localPosition.transformMat4(_worldPosition, invertWMat);
@@ -558,9 +558,9 @@ const Vec3 &Node::getWorldPosition() const {
 }
 
 void Node::setWorldRotation(float x, float y, float z, float w) {
-    updateWorldTransform(); // ensure reentryability
     _worldRotation.set(x, y, z, w);
     if (_parent) {
+        _parent->updateWorldTransform();
         _localRotation.set(_parent->_worldRotation.getConjugated());
         _localRotation.multiply(_worldRotation);
     } else {

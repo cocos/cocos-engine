@@ -2222,7 +2222,6 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     public setWorldPosition(x: number, y: number, z: number): void;
 
     public setWorldPosition (val: Vec3 | number, y?: number, z?: number) {
-        this.updateWorldTransform();
         if (y === undefined || z === undefined) {
             Vec3.copy(this._pos, val as Vec3);
         } else {
@@ -2231,9 +2230,10 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         const parent = this._parent;
         const local = this._lpos;
         if (parent) {
+            parent.updateWorldTransform();
+            Vec3.transformMat4(local, this._pos, Mat4.invert(m4_1, parent._mat));
             // TODO: benchmark these approaches
             /* */
-            Vec3.transformMat4(local, this._pos, Mat4.invert(m4_1, parent._mat));
             /* *
             parent.inverseTransformPoint(local, this._pos);
             /* */
@@ -2279,13 +2279,13 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     public setWorldRotation(x: number, y: number, z: number, w: number): void;
 
     public setWorldRotation (val: Quat | number, y?: number, z?: number, w?: number) {
-        this.updateWorldTransform();
         if (y === undefined || z === undefined || w === undefined) {
             Quat.copy(this._rot, val as Quat);
         } else {
             Quat.set(this._rot, val as number, y, z, w);
         }
         if (this._parent) {
+            this._parent.updateWorldTransform();
             Quat.multiply(this._lrot, Quat.conjugate(this._lrot, this._parent._rot), this._rot);
         } else {
             Quat.copy(this._lrot, this._rot);
