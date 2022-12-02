@@ -45,11 +45,11 @@ MemoryView * Allocator::allocate(uint64_t size, uint64_t alignment) {
     return view;
 }
 
-void Allocator::free(MemoryView *view) {
-    if (view == nullptr || view->memoryIndex >= static_cast<uint32_t>(_pools.size())) {
+void Allocator::free(MemoryView *allocation) {
+    if (allocation == nullptr || allocation->memoryIndex >= static_cast<uint32_t>(_pools.size())) {
         return;
     }
-    _pools[view->memoryIndex].free(static_cast<TLSFPool::Block*>(view));
+    _pools[allocation->memoryIndex].free(static_cast<TLSFPool::Block*>(allocation));
 }
 
 void Allocator::setMemoryImpl(IMemory *impl) {

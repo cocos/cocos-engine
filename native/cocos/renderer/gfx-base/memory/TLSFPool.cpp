@@ -28,8 +28,8 @@ THE SOFTWARE.
 #include "base/Utils.h"
 
 namespace cc::gfx {
-void TLSFPool::initialize(const TLSFPoolInfo &desc) {
-    _poolSize = desc.poolSize != 0 ? desc.poolSize : DEFAULT_POOL_SIZE;
+void TLSFPool::initialize(const TLSFPoolInfo &poolInfo) {
+    _poolSize = poolInfo.poolSize != 0 ? poolInfo.poolSize : DEFAULT_POOL_SIZE;
 
     _nullBlock = _blocks.allocate();
     _nullBlock->offset = 0;
