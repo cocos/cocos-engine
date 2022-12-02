@@ -246,7 +246,7 @@ export default class ParticleBatchModel extends scene.Model {
     }
 
     private createSubMeshDataInsDynamic (): ArrayBuffer {
-        this._insBuffers = [];
+        this._insBuffers.length = 0;
         this.destroySubMeshData();
 
         const vertexBuffer = this._device.createBuffer(new BufferInfo(
