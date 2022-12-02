@@ -2222,6 +2222,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     public setWorldPosition(x: number, y: number, z: number): void;
 
     public setWorldPosition (val: Vec3 | number, y?: number, z?: number) {
+        this.updateWorldTransform();
         if (y === undefined || z === undefined) {
             Vec3.copy(this._pos, val as Vec3);
         } else {
@@ -2229,7 +2230,6 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         }
         const parent = this._parent;
         const local = this._lpos;
-        this.updateWorldTransform();
         if (parent) {
             // TODO: benchmark these approaches
             /* */
@@ -2279,14 +2279,13 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     public setWorldRotation(x: number, y: number, z: number, w: number): void;
 
     public setWorldRotation (val: Quat | number, y?: number, z?: number, w?: number) {
+        this.updateWorldTransform();
         if (y === undefined || z === undefined || w === undefined) {
             Quat.copy(this._rot, val as Quat);
         } else {
             Quat.set(this._rot, val as number, y, z, w);
         }
-        this.updateWorldTransform();
         if (this._parent) {
-            this._parent.updateWorldTransform();
             Quat.multiply(this._lrot, Quat.conjugate(this._lrot, this._parent._rot), this._rot);
         } else {
             Quat.copy(this._lrot, this._rot);
@@ -2359,8 +2358,8 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
             Vec3.set(this._scale, val as number, y, z);
         }
         const parent = this._parent;
-        this.updateWorldTransform();
         if (parent) {
+            parent.updateWorldTransform();
             v3_a.x = this._scale.x / Vec3.set(v3_b, this._mat.m00, this._mat.m01, this._mat.m02).length();
             v3_a.y = this._scale.y / Vec3.set(v3_b, this._mat.m04, this._mat.m05, this._mat.m06).length();
             v3_a.z = this._scale.z / Vec3.set(v3_b, this._mat.m08, this._mat.m09, this._mat.m10).length();
