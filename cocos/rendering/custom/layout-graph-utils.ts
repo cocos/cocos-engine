@@ -1085,7 +1085,7 @@ class LayoutGraphBuilder2 implements LayoutGraphBuilder {
             const name: string = block.descriptorNames[j];
             const d: Descriptor = block.descriptors[j];
             const nameID = this.getDescriptorID(name);
-            const data = new DescriptorData(nameID, d.count);
+            const data = new DescriptorData(nameID, d.type, d.count);
             dstBlock.descriptors.push(data);
         }
         layout.capacity += block.capacity;

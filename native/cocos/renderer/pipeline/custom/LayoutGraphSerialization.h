@@ -171,11 +171,13 @@ inline void load(InputArchive& ar, NameLocalID& v) {
 
 inline void save(OutputArchive& ar, const DescriptorData& v) {
     save(ar, v.descriptorID);
+    save(ar, v.type);
     save(ar, v.count);
 }
 
 inline void load(InputArchive& ar, DescriptorData& v) {
     load(ar, v.descriptorID);
+    load(ar, v.type);
     load(ar, v.count);
 }
 

@@ -25,11 +25,11 @@
 
 /* eslint-disable max-len */
 import { EffectAsset } from '../../asset/assets';
-import { Attribute, DescriptorSetLayout, Device, PipelineLayout, Shader, ShaderInfo, ShaderStage, ShaderStageFlagBit, Uniform, UniformBlock, UniformInputAttachment, UniformSampler, UniformSamplerTexture, UniformStorageBuffer, UniformStorageImage, UniformTexture } from '../../gfx';
+import { Attribute, DescriptorSetLayout, Device, MemoryAccessBit, PipelineLayout, Shader, ShaderInfo, ShaderStage, ShaderStageFlagBit, Uniform, UniformBlock, UniformInputAttachment, UniformSampler, UniformSamplerTexture, UniformStorageBuffer, UniformStorageImage, UniformTexture } from '../../gfx';
 import { genHandles, getActiveAttributes, getShaderInstanceName, getSize, getVariantKey, prepareDefines } from '../../render-scene/core/program-utils';
 import { getDeviceShaderVersion, MacroRecord } from '../../render-scene';
 import { IProgramInfo } from '../../render-scene/core/program-lib';
-import { LayoutGraphData, LayoutGraphDataValue, PipelineLayoutData } from './layout-graph';
+import { DescriptorSetLayoutData, LayoutGraphData, LayoutGraphDataValue, PipelineLayoutData } from './layout-graph';
 import { ProgramLibrary, ProgramProxy } from './private';
 import { DescriptorTypeOrder, UpdateFrequency } from './types';
 import { ProgramGroup, ProgramHost, ProgramInfo, ProgramLibraryData } from './web-types';
@@ -75,107 +75,289 @@ function makeProgramInfo (effectName: string, shader: EffectAsset.IShaderInfo): 
     return programInfo;
 }
 
-function makeShaderInfo (layouts: PipelineLayoutData,
-    srcShaderInfo: EffectAsset.IShaderInfo): [ShaderInfo, Array<number>] {
+function populateMixedShaderInfo (
+    layout: DescriptorSetLayoutData,
+    descriptorInfo: EffectAsset.IDescriptorInfo,
+    set: number, shaderInfo: ShaderInfo, blockSizes: number[],
+) {
+    for (const descriptorBlock of layout.descriptorBlocks) {
+        const visibility = descriptorBlock.visibility;
+        let binding = descriptorBlock.offset;
+
+        switch (descriptorBlock.type) {
+        case DescriptorTypeOrder.UNIFORM_BUFFER:
+            for (const block of descriptorInfo.blocks) {
+                if (block.stageFlags !== visibility) {
+                    continue;
+                }
+                blockSizes.push(getSize(block));
+                shaderInfo.blocks.push(
+                    new UniformBlock(set, binding, block.name,
+                        block.members.map((m) => new Uniform(m.name, m.type, m.count)),
+                        1), // count is always 1 for UniformBlock
+                );
+                ++binding;
+            }
+            break;
+        case DescriptorTypeOrder.DYNAMIC_UNIFORM_BUFFER:
+            // not implemented yet
+            break;
+        case DescriptorTypeOrder.SAMPLER_TEXTURE:
+            for (const tex of descriptorInfo.samplerTextures) {
+                if (tex.stageFlags !== visibility) {
+                    continue;
+                }
+                shaderInfo.samplerTextures.push(new UniformSamplerTexture(
+                    set, binding, tex.name, tex.type, tex.count,
+                ));
+                ++binding;
+            }
+            break;
+        case DescriptorTypeOrder.SAMPLER:
+            for (const sampler of descriptorInfo.samplers) {
+                if (sampler.stageFlags !== visibility) {
+                    continue;
+                }
+                shaderInfo.samplers.push(new UniformSampler(
+                    set, binding, sampler.name, sampler.count,
+                ));
+                ++binding;
+            }
+            break;
+        case DescriptorTypeOrder.TEXTURE:
+            for (const texture of descriptorInfo.textures) {
+                if (texture.stageFlags !== visibility) {
+                    continue;
+                }
+                shaderInfo.textures.push(new UniformTexture(
+                    set, binding, texture.name, texture.type, texture.count,
+                ));
+                ++binding;
+            }
+            break;
+        case DescriptorTypeOrder.STORAGE_BUFFER:
+            for (const buffer of descriptorInfo.buffers) {
+                if (buffer.stageFlags !== visibility) {
+                    continue;
+                }
+                shaderInfo.buffers.push(new UniformStorageBuffer(
+                    set, binding, buffer.name, 1, buffer.memoryAccess,
+                )); // effect compiler guarantees buffer count = 1
+                ++binding;
+            }
+            break;
+        case DescriptorTypeOrder.DYNAMIC_STORAGE_BUFFER:
+            // not implemented yet
+            break;
+        case DescriptorTypeOrder.STORAGE_IMAGE:
+            for (const image of descriptorInfo.images) {
+                if (image.stageFlags !== visibility) {
+                    continue;
+                }
+                shaderInfo.images.push(new UniformStorageImage(
+                    set, binding, image.name, image.type, image.count, image.memoryAccess,
+                ));
+                ++binding;
+            }
+            break;
+        case DescriptorTypeOrder.INPUT_ATTACHMENT:
+            for (const subpassInput of descriptorInfo.subpassInputs) {
+                if (subpassInput.stageFlags !== visibility) {
+                    continue;
+                }
+                shaderInfo.subpassInputs.push(new UniformInputAttachment(
+                    set, subpassInput.binding, subpassInput.name, subpassInput.count,
+                ));
+                ++binding;
+            }
+            break;
+        default:
+        }
+    }
+}
+
+function populateMergedShaderInfo (valueNames: string[],
+    layout: DescriptorSetLayoutData,
+    set: number, shaderInfo: ShaderInfo, blockSizes: number[]) {
+    for (const descriptorBlock of layout.descriptorBlocks) {
+        let binding = descriptorBlock.offset;
+        switch (descriptorBlock.type) {
+        case DescriptorTypeOrder.UNIFORM_BUFFER:
+            for (const block of descriptorBlock.descriptors) {
+                const uniformBlock = layout.uniformBlocks.get(block.descriptorID);
+                if (uniformBlock === undefined) {
+                    console.error(`Failed to find uniform block ${block.descriptorID} in layout`);
+                    continue;
+                }
+                blockSizes.push(0);
+                shaderInfo.blocks.push(
+                    new UniformBlock(set, binding, valueNames[block.descriptorID],
+                        uniformBlock.members.map((m) => new Uniform(m.name, m.type, m.count)),
+                        1), // count is always 1 for UniformBlock
+                );
+                ++binding;
+            }
+            if (binding !== descriptorBlock.offset + descriptorBlock.capacity) {
+                console.error(`Uniform buffer binding mismatch for set ${set}`);
+            }
+            break;
+        case DescriptorTypeOrder.DYNAMIC_UNIFORM_BUFFER:
+            // not implemented yet
+            break;
+        case DescriptorTypeOrder.SAMPLER_TEXTURE:
+            for (const tex of descriptorBlock.descriptors) {
+                shaderInfo.samplerTextures.push(new UniformSamplerTexture(
+                    set, binding, valueNames[tex.descriptorID], tex.type, tex.count,
+                ));
+                ++binding;
+            }
+            break;
+        case DescriptorTypeOrder.SAMPLER:
+            for (const sampler of descriptorBlock.descriptors) {
+                shaderInfo.samplers.push(new UniformSampler(
+                    set, binding, valueNames[sampler.descriptorID], sampler.count,
+                ));
+                ++binding;
+            }
+            break;
+        case DescriptorTypeOrder.TEXTURE:
+            for (const texture of descriptorBlock.descriptors) {
+                shaderInfo.textures.push(new UniformTexture(
+                    set, binding, valueNames[texture.descriptorID], texture.type, texture.count,
+                ));
+                ++binding;
+            }
+            break;
+        case DescriptorTypeOrder.STORAGE_BUFFER:
+            for (const buffer of descriptorBlock.descriptors) {
+                shaderInfo.buffers.push(new UniformStorageBuffer(
+                    set, binding, valueNames[buffer.descriptorID], 1,
+                    MemoryAccessBit.READ_WRITE/*buffer.memoryAccess*/,
+                )); // effect compiler guarantees buffer count = 1
+                ++binding;
+            }
+            break;
+        case DescriptorTypeOrder.DYNAMIC_STORAGE_BUFFER:
+            // not implemented yet
+            break;
+        case DescriptorTypeOrder.STORAGE_IMAGE:
+            for (const image of descriptorBlock.descriptors) {
+                shaderInfo.images.push(new UniformStorageImage(
+                    set, binding, valueNames[image.descriptorID], image.type, image.count,
+                    MemoryAccessBit.READ_WRITE/*image.memoryAccess*/,
+                ));
+                ++binding;
+            }
+            break;
+        case DescriptorTypeOrder.INPUT_ATTACHMENT:
+            for (const subpassInput of descriptorBlock.descriptors) {
+                shaderInfo.subpassInputs.push(new UniformInputAttachment(
+                    set, binding, valueNames[subpassInput.descriptorID], subpassInput.count,
+                ));
+                ++binding;
+            }
+            break;
+        default:
+        }
+    }
+}
+
+function populateShaderInfo (
+    descriptorInfo: EffectAsset.IDescriptorInfo,
+    set: number, shaderInfo: ShaderInfo, blockSizes: number[],
+) {
+    for (let i = 0; i < descriptorInfo.blocks.length; i++) {
+        const block = descriptorInfo.blocks[i];
+        blockSizes.push(getSize(block));
+        shaderInfo.blocks.push(new UniformBlock(set, block.binding, block.name,
+            block.members.map((m) => new Uniform(m.name, m.type, m.count)), 1)); // effect compiler guarantees block count = 1
+    }
+    for (let i = 0; i < descriptorInfo.samplerTextures.length; i++) {
+        const samplerTexture = descriptorInfo.samplerTextures[i];
+        shaderInfo.samplerTextures.push(new UniformSamplerTexture(
+            set, samplerTexture.binding, samplerTexture.name, samplerTexture.type, samplerTexture.count,
+        ));
+    }
+    for (let i = 0; i < descriptorInfo.samplers.length; i++) {
+        const sampler = descriptorInfo.samplers[i];
+        shaderInfo.samplers.push(new UniformSampler(
+            set, sampler.binding, sampler.name, sampler.count,
+        ));
+    }
+    for (let i = 0; i < descriptorInfo.textures.length; i++) {
+        const texture = descriptorInfo.textures[i];
+        shaderInfo.textures.push(new UniformTexture(
+            set, texture.binding, texture.name, texture.type, texture.count,
+        ));
+    }
+    for (let i = 0; i < descriptorInfo.buffers.length; i++) {
+        const buffer = descriptorInfo.buffers[i];
+        shaderInfo.buffers.push(new UniformStorageBuffer(
+            set, buffer.binding, buffer.name, 1, buffer.memoryAccess,
+        )); // effect compiler guarantees buffer count = 1
+    }
+    for (let i = 0; i < descriptorInfo.images.length; i++) {
+        const image = descriptorInfo.images[i];
+        shaderInfo.images.push(new UniformStorageImage(
+            set, image.binding, image.name, image.type, image.count, image.memoryAccess,
+        ));
+    }
+    for (let i = 0; i < descriptorInfo.subpassInputs.length; i++) {
+        const subpassInput = descriptorInfo.subpassInputs[i];
+        shaderInfo.subpassInputs.push(new UniformInputAttachment(
+            set, subpassInput.binding, subpassInput.name, subpassInput.count,
+        ));
+    }
+}
+
+function makeShaderInfo (
+    lg: LayoutGraphData,
+    passLayouts: PipelineLayoutData,
+    phaseLayouts: PipelineLayoutData,
+    srcShaderInfo: EffectAsset.IShaderInfo,
+    isPerProgram = false,
+): [ShaderInfo, Array<number>] {
     const shaderInfo = new ShaderInfo();
     const blockSizes = new Array<number>();
-    for (const [rate, data] of layouts.descriptorSets) {
-        const set = _descriptorSetIndex[rate];
-        const layout = data.descriptorSetLayoutData;
-        const descriptorInfo = srcShaderInfo.descriptors[rate];
-
-        for (const descriptorBlock of layout.descriptorBlocks) {
-            const visibility = descriptorBlock.visibility;
-            let binding = descriptorBlock.offset;
-
-            switch (descriptorBlock.type) {
-            case DescriptorTypeOrder.UNIFORM_BUFFER:
-                for (const block of descriptorInfo.blocks) {
-                    if (block.stageFlags !== visibility) {
-                        continue;
-                    }
-                    blockSizes.push(getSize(block));
-                    shaderInfo.blocks.push(
-                        new UniformBlock(set, binding, block.name,
-                            block.members.map((m) => new Uniform(m.name, m.type, m.count)),
-                            1), // count is always 1 for UniformBlock
-                    );
-                    ++binding;
-                }
-                break;
-            case DescriptorTypeOrder.DYNAMIC_UNIFORM_BUFFER:
-                // not implemented yet
-                break;
-            case DescriptorTypeOrder.SAMPLER_TEXTURE:
-                for (const tex of descriptorInfo.samplerTextures) {
-                    if (tex.stageFlags !== visibility) {
-                        continue;
-                    }
-                    shaderInfo.samplerTextures.push(new UniformSamplerTexture(
-                        set, binding, tex.name, tex.type, tex.count,
-                    ));
-                    ++binding;
-                }
-                break;
-            case DescriptorTypeOrder.SAMPLER:
-                for (const sampler of descriptorInfo.samplers) {
-                    if (sampler.stageFlags !== visibility) {
-                        continue;
-                    }
-                    shaderInfo.samplers.push(new UniformSampler(
-                        set, binding, sampler.name, sampler.count,
-                    ));
-                    ++binding;
-                }
-                break;
-            case DescriptorTypeOrder.TEXTURE:
-                for (const texture of descriptorInfo.textures) {
-                    if (texture.stageFlags !== visibility) {
-                        continue;
-                    }
-                    shaderInfo.textures.push(new UniformTexture(
-                        set, binding, texture.name, texture.type, texture.count,
-                    ));
-                    ++binding;
-                }
-                break;
-            case DescriptorTypeOrder.STORAGE_BUFFER:
-                for (const buffer of descriptorInfo.buffers) {
-                    if (buffer.stageFlags !== visibility) {
-                        continue;
-                    }
-                    shaderInfo.buffers.push(new UniformStorageBuffer(
-                        set, binding, buffer.name, 1, buffer.memoryAccess,
-                    )); // effect compiler guarantees buffer count = 1
-                    ++binding;
-                }
-                break;
-            case DescriptorTypeOrder.DYNAMIC_STORAGE_BUFFER:
-                // not implemented yet
-                break;
-            case DescriptorTypeOrder.STORAGE_IMAGE:
-                for (const image of descriptorInfo.images) {
-                    if (image.stageFlags !== visibility) {
-                        continue;
-                    }
-                    shaderInfo.images.push(new UniformStorageImage(
-                        set, binding, image.name, image.type, image.count, image.memoryAccess,
-                    ));
-                    ++binding;
-                }
-                break;
-            case DescriptorTypeOrder.INPUT_ATTACHMENT:
-                for (const subpassInput of descriptorInfo.subpassInputs) {
-                    if (subpassInput.stageFlags !== visibility) {
-                        continue;
-                    }
-                    shaderInfo.subpassInputs.push(new UniformInputAttachment(
-                        set, subpassInput.binding, subpassInput.name, subpassInput.count,
-                    ));
-                    ++binding;
-                }
-                break;
-            default:
+    { // pass
+        const passLayout = passLayouts.descriptorSets.get(UpdateFrequency.PER_PASS);
+        if (passLayout) {
+            populateMergedShaderInfo(lg.valueNames, passLayout.descriptorSetLayoutData,
+                _descriptorSetIndex[UpdateFrequency.PER_PASS], shaderInfo, blockSizes);
+        }
+    }
+    { // phase
+        const phaseLayout = phaseLayouts.descriptorSets.get(UpdateFrequency.PER_PHASE);
+        if (phaseLayout) {
+            populateMergedShaderInfo(lg.valueNames, phaseLayout.descriptorSetLayoutData,
+                _descriptorSetIndex[UpdateFrequency.PER_PHASE], shaderInfo, blockSizes);
+        }
+    }
+    { // batch
+        const batchInfo = srcShaderInfo.descriptors[UpdateFrequency.PER_BATCH];
+        if (isPerProgram) {
+            populateShaderInfo(batchInfo,
+                _descriptorSetIndex[UpdateFrequency.PER_BATCH], shaderInfo, blockSizes);
+        } else {
+            const batchLayout = phaseLayouts.descriptorSets.get(UpdateFrequency.PER_BATCH);
+            if (batchLayout) {
+                populateMixedShaderInfo(batchLayout.descriptorSetLayoutData,
+                    batchInfo, _descriptorSetIndex[UpdateFrequency.PER_BATCH],
+                    shaderInfo, blockSizes);
+            }
+        }
+    }
+    { // instance
+        const instanceInfo = srcShaderInfo.descriptors[UpdateFrequency.PER_INSTANCE];
+        if (isPerProgram) {
+            populateShaderInfo(instanceInfo,
+                _descriptorSetIndex[UpdateFrequency.PER_INSTANCE], shaderInfo, blockSizes);
+        } else {
+            const instanceLayout = phaseLayouts.descriptorSets.get(UpdateFrequency.PER_INSTANCE);
+            if (instanceLayout) {
+                populateMixedShaderInfo(instanceLayout.descriptorSetLayoutData,
+                    instanceInfo, _descriptorSetIndex[UpdateFrequency.PER_INSTANCE],
+                    shaderInfo, blockSizes);
             }
         }
     }
@@ -217,13 +399,14 @@ export class WebProgramLibrary extends ProgramLibraryData implements ProgramLibr
                     console.error(`Invalid render pass, program: ${programName}`);
                     continue;
                 }
+                const passLayout = lg.getLayout(passID);
                 // phase
                 const phaseID = getCustomPhaseID(this.layoutGraph, passID, pass.phase);
                 if (phaseID === INVALID_ID) {
                     console.error(`Invalid render phase, program: ${programName}`);
                     continue;
                 }
-                const layouts = lg.getLayout(phaseID);
+                const phaseLayout = lg.getLayout(phaseID);
 
                 // programs
                 let group = this.phases.get(phaseID);
@@ -252,8 +435,10 @@ export class WebProgramLibrary extends ProgramLibraryData implements ProgramLibr
 
                 // build program
                 const programInfo = makeProgramInfo(effect.name, srcShaderInfo);
+                // TODO(zhouzhenglong): change bindings of programInfo
+
                 // shaderInfo and blockSizes
-                const [shaderInfo, blockSizes] = makeShaderInfo(layouts, srcShaderInfo);
+                const [shaderInfo, blockSizes] = makeShaderInfo(lg, passLayout, phaseLayout, srcShaderInfo);
                 // handle map
                 const handleMap = genHandles(shaderInfo);
                 // attributes

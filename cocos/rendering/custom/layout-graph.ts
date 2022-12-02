@@ -581,11 +581,13 @@ export class UniformBlockData {
 }
 
 export class DescriptorData {
-    constructor (descriptorID = 0, count = 1) {
+    constructor (descriptorID = 0, type: Type = Type.UNKNOWN, count = 1) {
         this.descriptorID = descriptorID;
+        this.type = type;
         this.count = count;
     }
     descriptorID: number;
+    type: Type;
     count: number;
 }
 
@@ -1365,11 +1367,13 @@ export function loadUniformBlockData (ar: InputArchive, v: UniformBlockData) {
 
 export function saveDescriptorData (ar: OutputArchive, v: DescriptorData) {
     ar.writeNumber(v.descriptorID);
+    ar.writeNumber(v.type);
     ar.writeNumber(v.count);
 }
 
 export function loadDescriptorData (ar: InputArchive, v: DescriptorData) {
     v.descriptorID = ar.readNumber();
+    v.type = ar.readNumber();
     v.count = ar.readNumber();
 }
 
