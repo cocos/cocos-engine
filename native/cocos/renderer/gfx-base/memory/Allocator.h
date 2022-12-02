@@ -35,6 +35,9 @@ struct AllocatorInfo {
     uint64_t chunkSize;
 };
 
+/**
+ * @en Allocator for Video Memory. Designed to support different dynamic allocation algorithms.
+ */
 class Allocator {
 public:
     explicit Allocator(const AllocatorInfo&);
@@ -43,6 +46,9 @@ public:
     Allocator(const Allocator&) = delete;
     Allocator &operator=(const Allocator&) = delete;
 
+    /**
+     * @en interface for Memory Objects, e.g. "VkMemory", "MTLHeap".
+     */
     class IMemory {
     public:
         IMemory() = default;
@@ -52,12 +58,25 @@ public:
         virtual void free(uint32_t index) = 0;
     };
 
+    /**
+     * @en allocate memory with size and alignment
+     * @param size allocation size
+     * @param alignment allocation alignment
+     * @return allocation result
+     */
     MemoryView *allocate(uint64_t size, uint64_t alignment);
 
-    void free(MemoryView *);
+    /**
+     * @en free allocation
+     * @param allocation allocation to be freed.
+     */
+    void free(MemoryView *allocation);
 
+    /**
+     * @en set memory allocation implement.
+     * @param impl memory implement
+     */
     void setMemoryImpl(IMemory *impl);
-
 private:
     void allocateMemory();
 

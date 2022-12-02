@@ -37,6 +37,13 @@ struct LinkedData {
     LinkedData *next = nullptr;
 };
 
+/**
+ * @tparam T container's element type
+ * @en Linear storage for elements.
+ * Allocation order:
+ * 1. allocate from freelist.
+ * 2. append a new element to the end of the container.
+ */
 template <typename T>
 class ObjectChunkPool {
 public:
@@ -53,6 +60,12 @@ public:
 
     using Data = LinkedData<T>;
 
+    /**
+     * @en allocate an object with construct parameters.
+     * @tparam Args argument types.
+     * @param args arguments to forward to the constructor of the element.
+     * @return allocation result
+     */
     template <typename ...Args>
     T* allocate(Args && ...args) {
         T* ptr = nullptr;
@@ -73,6 +86,10 @@ public:
         return ptr;
     }
 
+    /**
+     * @en free an object. Appends to the end of freelist.
+     * @param data Data to be freed.
+     */
     void free(T *data) {
         if (data != nullptr) {
             data->~T();

@@ -28,7 +28,7 @@ THE SOFTWARE.
 #include "base/Utils.h"
 
 namespace cc::gfx {
-void TLSFPool::initialize(const Descriptor &desc) {
+void TLSFPool::initialize(const TLSFPoolInfo &desc) {
     _poolSize = desc.poolSize != 0 ? desc.poolSize : DEFAULT_POOL_SIZE;
 
     _nullBlock = _blocks.allocate();
