@@ -88,16 +88,16 @@ void printLog(DebugMode mode, const ccstd::string &fmt, ccstd::any *arr, int par
         if (pos != ccstd::string::npos && pos != (msg.length() - 1) && (msg[pos + 1] == 'd' || msg[pos + 1] == 's' || msg[pos + 1] == 'f')) {
             needToReplace = true;
         }
-        auto &elemTypeId = arr[i].type();
+        const auto &elemTypeId = arr[i].type();
         if (elemTypeId == typeid(const ccstd::string)) {
-            const ccstd::string s = ccstd::any_cast<const ccstd::string>(arr[i]);
+            const auto s = ccstd::any_cast<const ccstd::string>(arr[i]);
             if (needToReplace) {
                 msg.replace(pos, 2, s);
             } else {
                 msg += " " + s;
             }
         } else if (elemTypeId == typeid(ccstd::string)) {
-            ccstd::string s = ccstd::any_cast<ccstd::string>(arr[i]);
+            auto s = ccstd::any_cast<ccstd::string>(arr[i]);
             if (needToReplace) {
                 msg.replace(pos, 2, s);
             } else {
@@ -133,7 +133,8 @@ void printLog(DebugMode mode, const ccstd::string &fmt, ccstd::any *arr, int par
                 msg += " " + s;
             }
         } else {
-            CC_LOG_ERROR("Debug: unsupport params data type: '%s'", elemTypeId.name());
+            CC_LOG_ERROR("DebugInfos: unsupport params data type: '%s'", elemTypeId.name());
+            CC_LOG_ERROR(" fmt: \"%s\", parameter index: %d", fmt.c_str(), i);
             return;
         }
     }
@@ -142,4 +143,4 @@ void printLog(DebugMode mode, const ccstd::string &fmt, ccstd::any *arr, int par
 }
 
 } // namespace debug
-} //namespace cc
+} // namespace cc
