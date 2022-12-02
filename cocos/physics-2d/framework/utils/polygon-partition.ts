@@ -85,7 +85,7 @@ export function ConvexPartition (polygon: IVec2Like[]) {
             }
             // merge triangle
             const newPoly : IVec2Like[] = [];
-            for (let i = (iPoly + 1) % polyLen; i != iPoly; i = (i + 1) % polyLen) {
+            for (let i = (iPoly + 1) % polyLen; i !== iPoly; i = (i + 1) % polyLen) {
                 newPoly.push(poly[i]);
             }
             newPoly.push(diag1, tri3);
@@ -112,16 +112,16 @@ class Vertex {
 }
 
 // Signed area.
-function area (a, b, c) {
+function area (a: IVec2Like, b: IVec2Like, c: IVec2Like) {
     return (b.y - a.y) * (c.x - b.x) - (b.x - a.x) * (c.y - b.y);
 }
 
 // Whether corner of a counterclockwise polygon is convex.
-function isConvex (p1, p2, p3) {
+function isConvex (p1: IVec2Like, p2: IVec2Like, p3: IVec2Like) {
     return area(p1, p2, p3) < 0;
 }
 
-function equals (a, b) {
+function equals (a: IVec2Like, b: IVec2Like) {
     return a.x === b.x && a.y === b.y;
 }
 
@@ -142,14 +142,14 @@ function ForceCounterClockWise (vertices: IVec2Like[]) {
     }
 }
 
-function updateVertex (vertex, vertices) {
+function updateVertex (vertex : Vertex, vertices : Vertex[]) {
     if (!vertex.shouldUpdate) {
         return;
     }
     vertex.shouldUpdate = false;
-    const v1 = vertex.prev.point;
-    const v2 = vertex.point;
-    const v3 = vertex.next.point;
+    const v1 = vertex.prev!.point!;
+    const v2 = vertex.point!;
+    const v3 = vertex.next!.point!;
     vertex.isConvex = isConvex(v1, v2, v3);
     let v1x = v1.x - v2.x;
     let v1y = v1.y - v2.y;
@@ -169,30 +169,31 @@ function updateVertex (vertex, vertices) {
             if (!curr.isActive || curr === vertex) {
                 continue;
             }
-            if (equals(v1, curr.point) || equals(v2, curr.point) || equals(v3, curr.point)) {
+            const currentPoint = curr.point!;
+            if (equals(v1, currentPoint) || equals(v2, currentPoint) || equals(v3, currentPoint)) {
                 continue;
             }
-            const areaA = area(v1, curr.point, v2);
-            const areaB = area(v2, curr.point, v3);
-            const areaC = area(v3, curr.point, v1);
+            const areaA = area(v1, currentPoint, v2);
+            const areaB = area(v2, currentPoint, v3);
+            const areaC = area(v3, currentPoint, v1);
             if (areaA > 0 && areaB > 0 && areaC > 0) {
                 vertex.isEar = false;
                 break;
             }
             if (areaA === 0 && areaB >= 0 && areaC >= 0) {
-                if (area(v1, curr.prev.point, v2) > 0 || area(v1, curr.next.point, v2) > 0) {
+                if (area(v1, curr.prev!.point!, v2) > 0 || area(v1, curr.next!.point!, v2) > 0) {
                     vertex.isEar = false;
                     break;
                 }
             }
             if (areaB === 0 && areaA >= 0 && areaC >= 0) {
-                if (area(v2, curr.prev.point, v3) > 0 || area(v2, curr.next.point, v3) > 0) {
+                if (area(v2, curr.prev!.point!, v3) > 0 || area(v2, curr.next!.point!, v3) > 0) {
                     vertex.isEar = false;
                     break;
                 }
             }
             if (areaC === 0 && areaA >= 0 && areaB >= 0) {
-                if (area(v3, curr.prev.point, v1) > 0 || area(v3, curr.next.point, v1) > 0) {
+                if (area(v3, curr.prev!.point!, v1) > 0 || area(v3, curr.next!.point!, v1) > 0) {
                     vertex.isEar = false;
                     break;
                 }
@@ -203,22 +204,22 @@ function updateVertex (vertex, vertices) {
     }
 }
 
-function removeCollinearOrDuplicate (start) {
+function removeCollinearOrDuplicate (start : Vertex) {
     for (let curr = start, end = start; ;) {
-        if (equals(curr.point, curr.next.point)
-            || area(curr.prev.point, curr.point, curr.next.point) === 0) {
-            curr.prev.next = curr.next;
-            curr.next.prev = curr.prev;
-            curr.prev.shouldUpdate = true;
-            curr.next.shouldUpdate = true;
+        if (equals(curr.point!, curr.next!.point!)
+            || area(curr.prev!.point!, curr.point!, curr.next!.point!) === 0) {
+            curr.prev!.next = curr.next;
+            curr.next!.prev = curr.prev;
+            curr.prev!.shouldUpdate = true;
+            curr.next!.shouldUpdate = true;
             if (curr === curr.next) {
                 break;
             }
-            end = curr.prev;
-            curr = curr.next;
+            end = curr.prev!;
+            curr = curr.next!;
             continue;
         }
-        curr = curr.next;
+        curr = curr.next!;
         if (curr === end) {
             break;
         }
@@ -271,12 +272,11 @@ function Triangulate (polygon: IVec2Like[]) {
             for (let i_1 = 0; i_1 < len; ++i_1) {
                 const vertex = vertices[i_1];
                 if (vertex.isActive) {
-                    const p1 = vertex.prev!.point;
-                    const p2 = vertex.point;
-                    const p3 = vertex.next!.point;
+                    const p1 = vertex.prev!.point!;
+                    const p2 = vertex.point!;
+                    const p3 = vertex.next!.point!;
                     if (Math.abs(area(p1, p2, p3)) > 1e-5) {
-                        //throw new Error('Failed to find ear. There may be self-intersection in the polygon.');
-                        console.log('Failed to find ear. There may be self-intersection in the polygon.');
+                        console.log('Failed to find ear. There might be self-intersection in the polygon.');
                         return null;
                     }
                 }
@@ -302,11 +302,11 @@ function Triangulate (polygon: IVec2Like[]) {
         if (vertex.isActive) {
             vertex.prev!.isActive = false;
             vertex.next!.isActive = false;
-            const p1 = vertex.prev!.point;
-            const p2 = vertex.point;
-            const p3 = vertex.next!.point;
+            const p1 = vertex.prev!.point!;
+            const p2 = vertex.point!;
+            const p3 = vertex.next!.point!;
             if (Math.abs(area(p1, p2, p3)) > 1e-5) {
-                triangles.push([p1!, p2!, p3!]);
+                triangles.push([p1, p2, p3]);
             }
         }
     }
