@@ -42,28 +42,12 @@ CCVKAccelerationStructure::~CCVKAccelerationStructure() {
 void CCVKAccelerationStructure::doInit(const AccelerationStructureInfo& info) {
     _gpuAccelerationStructure = ccnew CCVKGPUAccelerationStructure;
 
-    if (!info.instances.empty()) {
-        _gpuAccelerationStructure->geomtryInfos = info.instances;
-    } else if (!info.triangleMeshes.empty()) {
-        _gpuAccelerationStructure->geomtryInfos = info.triangleMeshes;
-    } else if (!info.aabbs.empty()) {
-        _gpuAccelerationStructure->geomtryInfos = info.aabbs;
-    }
-
-    _gpuAccelerationStructure->buildFlags = info.buildFlag;
+    doSetInfo(info);
 
     cmdFuncCCVKCreateAcclerationStructure(CCVKDevice::getInstance(), _gpuAccelerationStructure); 
 }
 
 void CCVKAccelerationStructure::doUpdate() {
-
-    if (!_info.instances.empty()) {
-        _gpuAccelerationStructure->geomtryInfos = _info.instances;
-    } else if (!_info.triangleMeshes.empty()) {
-        _gpuAccelerationStructure->geomtryInfos = _info.triangleMeshes;
-    } else if (!_info.aabbs.empty()) {
-        _gpuAccelerationStructure->geomtryInfos = _info.aabbs;
-    }
 
     auto* device = CCVKDevice::getInstance();
     auto* cmdBuf = device->getCommandBuffer();
@@ -78,14 +62,6 @@ void CCVKAccelerationStructure::doUpdate() {
 
 void CCVKAccelerationStructure::doBuild() {
 
-    if (!_info.instances.empty()) {
-        _gpuAccelerationStructure->geomtryInfos = _info.instances;
-    } else if (!_info.triangleMeshes.empty()) {
-        _gpuAccelerationStructure->geomtryInfos = _info.triangleMeshes;
-    } else if (!_info.aabbs.empty()) {
-        _gpuAccelerationStructure->geomtryInfos = _info.aabbs;
-    }
-
     auto* device = CCVKDevice::getInstance();
     auto* cmdBuf = device->getCommandBuffer();
 
@@ -97,9 +73,13 @@ void CCVKAccelerationStructure::doBuild() {
     //device->waitAllFences();
 }
 
+void CCVKAccelerationStructure::doBuild(const IntrusivePtr<Buffer>& scratchBuffer) {
+    doBuild();
+}
+
+
 void CCVKAccelerationStructure::doCompact() {
     auto* device = CCVKDevice::getInstance();
-
     IntrusivePtr<CCVKAccelerationStructure> compactedAccel = ccnew CCVKAccelerationStructure;
     compactedAccel->_gpuAccelerationStructure = ccnew CCVKGPUAccelerationStructure;
 

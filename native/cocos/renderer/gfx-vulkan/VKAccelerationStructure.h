@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "VKGPUObjects.h"
 #include "VKStd.h"
 #include "gfx-base/GFXAccelerationStructure.h"
 
@@ -47,7 +48,22 @@ protected:
     void doDestroy() override;
     void doUpdate() override;
     void doBuild() override;
+    void doBuild(const IntrusivePtr<Buffer>& scratchBuffer) override;
     void doCompact() override;
+    uint64_t doGetBuildScratchSize() const override { return _gpuAccelerationStructure->buildSizesInfo.buildScratchSize; }
+    uint64_t doGetUpdateScratchSize() const override { return _gpuAccelerationStructure->buildSizesInfo.buildScratchSize; }
+    void doSetInfo(const AccelerationStructureInfo& info) override {
+        _info = info;
+        if (!info.instances.empty()) {
+            _gpuAccelerationStructure->geomtryInfos = info.instances;
+        } else if (!info.triangleMeshes.empty()) {
+            _gpuAccelerationStructure->geomtryInfos = info.triangleMeshes;
+        } else if (!info.aabbs.empty()) {
+            _gpuAccelerationStructure->geomtryInfos = info.aabbs;
+        }
+
+        _gpuAccelerationStructure->buildFlags = info.buildFlag;
+    }
 
     IntrusivePtr<CCVKGPUAccelerationStructure> _gpuAccelerationStructure;
 };

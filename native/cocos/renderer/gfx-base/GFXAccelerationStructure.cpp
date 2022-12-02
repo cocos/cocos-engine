@@ -21,6 +21,11 @@ void AccelerationStructure::build() {
     doBuild();
 }
 
+void AccelerationStructure::build(const IntrusivePtr<Buffer>& scratchBuffer) {
+    doBuild(scratchBuffer);
+}
+
+
 void AccelerationStructure::update(){
     doUpdate();
 }
@@ -33,6 +38,16 @@ void AccelerationStructure::destroy() {
     doDestroy();
     _info = AccelerationStructureInfo();
 }
+
+uint64_t AccelerationStructure::getBuildScratchSize() const{
+    return doGetBuildScratchSize();
+}
+
+uint64_t AccelerationStructure::getUpdateScratchSize() const{
+    return doGetUpdateScratchSize();
+}
+
+
 
 } // namespace gfx
 } // namespace cc

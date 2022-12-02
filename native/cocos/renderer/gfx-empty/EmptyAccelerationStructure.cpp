@@ -17,6 +17,11 @@ namespace cc {
             
         }
 
+        void EmptyAccelerationStructure::doBuild(const IntrusivePtr<Buffer>& scratchBuffer) {
+            
+        }
+
+
         void EmptyAccelerationStructure::doUpdate() {
             
         }

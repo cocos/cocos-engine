@@ -74,39 +74,6 @@ namespace scene
 
     void RayTracingScene::handleNewModel(const IntrusivePtr<scene::Model>& pModel) {
 
-        /*
-        gfx::ASInstance tlasGeom;
-
-        tlasGeom.mask = 0xFF;
-        tlasGeom.transform = pModel->getTransform()->getWorldMatrix();
-        tlasGeom.flags = gfx::GeometryInstanceFlagBits::TRIANGLE_FACING_CULL_DISABLE;
-
-        if (pModel->getNode()->getName() == "AABB") {
-            tlasGeom.flags = gfx::GeometryInstanceFlagBits::FORCE_OPAQUE;
-        }
-
-        gfx::AccelerationStructureInfo blasInfo{};
-        fillBlasInfo(blasInfo, pModel);
-
-        tlasGeom.accelerationStructureRef = accelerationStructureManager.registry(blasInfo);
-
-        ccstd::vector<RayTracingGeometryShadingDescriptor> shadingDescriptors{};
-        shadingDescriptors.reserve(pModel->getSubModels().size());
-
-        for (const auto &mesh:tlasGeom.accelerationStructureRef->getInfo().triangleMeshes) {
-            RayTracingMeshDescriptor m;
-            m.indexBuffer = mesh.indexBuffer;
-            m.vertexBuffer = mesh.vertexBuffer;
-
-            RayTracingGeometryShadingDescriptor descriptor;
-            descriptor.meshDescriptor = m;
-            descriptor.materialID = 1;
-            shadingDescriptors.push_back(descriptor);
-        }
-        
-        tlasGeom.instanceCustomIdx = rqBinding.registry(shadingDescriptors);
-        //tlasGeom.shaderBindingTableRecordOffset = rtBinding.registry(shadingDescriptors);
-        */
         RayTracingInstanceDescriptor instance_descriptor{};
         instance_descriptor.transform = pModel->getTransform()->getWorldMatrix();
         instance_descriptor.mask = 0xFF;
