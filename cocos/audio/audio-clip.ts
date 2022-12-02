@@ -25,11 +25,10 @@
 
 import { ccclass, serializable, override } from 'cc.decorator';
 import { HTML5, NATIVE } from 'internal:constants';
-import { InnerAudioPlayer } from 'pal/audio';
+import { InnerAudioPlayer, audioBufferManager } from 'pal/audio';
 import { Asset } from '../asset/assets/asset';
 import { cclegacy } from '../core';
 import { AudioPCMDataView, AudioPCMHeader, AudioType, AudioState } from './type';
-import { audioBufferManager } from './audio-graph';
 
 export interface AudioMeta {
     // player: AudioPlayer | null,

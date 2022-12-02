@@ -1,12 +1,11 @@
 import { systemInfo } from 'pal/system-info';
-import { CCAudioBuffer, CCSourceNode, CCStereoPannerNode } from './base';
+import { CCAudioBuffer, CCSourceNode, CCStereoPannerNode, audioBufferManager } from 'pal/audio';
 import { DynamicPath, Playable, AudioAction } from './playable';
 import { AudioEvent, AudioState, PlayerOptions } from './type';
 import { AudioClip } from './audio-clip';
 import { EventTarget } from '../core/event';
 import { clamp, clamp01 } from '../core';
-import { audioBufferManager, audioContextManager } from './audio-graph';
-
+import { audioContextManager } from './audio-graph';
 /**
  *
  */

@@ -3,6 +3,13 @@ import { legacyCC } from '../../../core/global-exports';
 import { DomInnerAudioPlayer,DomInnerOneShotAudio} from './basic/dom-inner-player';
 import { AudioContextAgent, WAAudioPlayer ,WAOneShotAudio} from './basic/wa-inner-player'
 import { AudioLoadOptions, AudioType, AudioState, AudioPCMDataView } from '../../type';
+export { audioBufferManager, CCAudioBufferManager } from './graph/audio-buffer-manager';
+export * from './graph/audio-context';
+export * from './graph/audio-node';
+export * from './graph/destination-node';
+export * from './graph/gain-node';
+export * from './graph/source-node';
+export * from './graph/stereo-panner-node';
 
 type AbstractOneShotAudio = DomInnerOneShotAudio | WAOneShotAudio;
 type AbstractAudioPlayer = DomInnerAudioPlayer | WAAudioPlayer;
@@ -105,5 +112,6 @@ export class InnerAudioPlayer {
     onEnded (cb: () => void) { this._player.onEnded(cb); }
     offEnded (cb?: () => void) { this._player.offEnded(cb); }
 }
+
 // REMOVE_ME
 legacyCC.InnerAudioPlayer = InnerAudioPlayer;

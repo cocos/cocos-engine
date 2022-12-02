@@ -1,10 +1,7 @@
-import { CCAudioContext, AudioContextOptions } from './base';
-import { DomAudioContext } from './dom';
-import { AudioFormat, AudioInfo } from './type';
-import { WAAudioContext, waDefaultContext } from './webaudio';
-import { waAudioBufferManager } from './webaudio/graph/audio-buffer-manager';
+import { CCAudioContext, AudioContextOptions, audioBufferManager } from 'pal/audio';
 
-export const audioBufferManager = waAudioBufferManager;
+import { AudioFormat, AudioInfo } from './type';
+
 enum AudioBackend {
     INNERCTX,
     DOM,
@@ -14,13 +11,7 @@ enum AudioBackend {
 class AudioContextManager {
     public defaultContext: CCAudioContext;
     public createAudioContext (backend: AudioBackend, options?: AudioContextOptions): CCAudioContext {
-        switch (backend) {
-        case AudioBackend.DOM:
-            return new DomAudioContext(options);
-        case AudioBackend.WEBAUDIO:
-        default:
-            return new WAAudioContext(options);
-        }
+        return new CCAudioContext(options);
     }
     public load (url: string, ctx?: CCAudioContext):Promise<AudioInfo> {
         return new Promise<AudioInfo>((resolve, reject) => {
@@ -41,7 +32,7 @@ class AudioContextManager {
         });
     }
     constructor () {
-        this.defaultContext = waDefaultContext;
+        this.defaultContext = new CCAudioContext();
     }
 }
 export const audioContextManager = new AudioContextManager();

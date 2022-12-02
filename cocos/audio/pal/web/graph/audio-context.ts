@@ -3,6 +3,7 @@ import { CCSourceNode } from './source-node';
 import { CCStereoPannerNode } from './stereo-panner-node';
 import { CCDestinationNode } from './destination-node';
 
+export type CCAudioBuffer = AudioBuffer;
 export type StateChangeCallback = (ctx: CCAudioContext, ev: Event) => any;
 export class CCAudioContext implements CCAudioContext {
     private _ctx: AudioContext;

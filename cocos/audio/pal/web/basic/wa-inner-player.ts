@@ -5,7 +5,7 @@ import { EventTarget } from '../../../../core/event';
 import { clamp01 } from '../../../../core';
 import { enqueueOperation, OperationInfo, OperationQueueable } from '../../enqueue-operation';
 import AudioTimer from './audio-timer';
-import { audioBufferManager } from '../../../audio-buffer-manager';
+import { audioBufferManager } from '../graph/audio-buffer-manager';
 import legacyCC from '../../../../../predefine';
 
 // NOTE: fix CI

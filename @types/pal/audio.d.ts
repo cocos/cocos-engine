@@ -263,6 +263,16 @@ declare module 'pal/audio' {
         close();
         resume();
         suspend();
+        constructor(options?: AudioContextOptions);
     }
+    export class CCAudioBufferManager {
+        public addCache (url: string, audioBuffer: CCAudioBuffer)
+        public retainCache (url: string) ;
 
+        public getCache (url: string): CCAudioBuffer | undefined;
+
+        public tryReleasingCache (url: string);
+        public loadBuffer (url: string, ctx?: CCAudioContext): Promise<CCAudioBuffer>;
+    }
+    export const audioBufferManager: CCAudioBufferManager;
 }

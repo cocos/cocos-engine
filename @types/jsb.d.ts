@@ -199,6 +199,83 @@ declare namespace jsb {
         _data(): TypedArray;
         __data: TypedArray;
     }
+    export class AudioBuffer {
+        readonly sampleRate: number;
+        readonly length: number;
+        readonly duration: number;
+        readonly numberOfChannels: number;
+        copyFromChannel(destination: Float32Array, channelNumber: number, bufferOffset?: number): void;
+        copyToChannel(source: Float32Array, channelNumber: number, bufferOffset?: number): void;
+        getChannelData(channel: number): Float32Array;
+    }
+    export abstract class AudioNode {
+        connect(node: AudioNode): AudioNode;
+        disconnect(node?: AudioNode);
+    }
+    export class AudioDestinationNode extends AudioNode {
+        maxChannelCount: Readonly<number>;
+    }
+    export class GainNode extends AudioNode {
+        gain: number;
+    }
+    export class StereoPannerNode extends AudioNode {
+        pan: number
+    }
+
+    export interface AudioContextOptions {
+        latencyHint?: AudioContextLatencyCategory | number;
+        sampleRate?: number;
+    }
+    export type StateChangeCallback = (ctx: AudioContext, ev: Event) => any;
+    export interface DecodeSuccessCallback {
+        (decodedData: AudioBuffer): void;
+    }
+    export interface DecodeErrorCallback {
+        (error: DOMException): void;
+    }
+    export interface BaseAudioContextEventMap {
+        'statechange': Event;
+    }
+    export type AudioContextState = 'closed' | 'running' | 'suspended';
+
+    export class SourceNode extends AudioNode {
+        get isReady(): boolean;
+        buffer: AudioBuffer;
+
+        // For most of time, we can set the volume directly from here.
+        volume: number;
+        loop: boolean;
+        currentTime: number;
+        playbackRate: number;
+
+        // Offset is the number of second, should sync with absn
+        start (time?: number);
+
+        pause ();
+        stop ()
+        onEnded (callback: ()=>void);
+        // Reset source node time when the audio is finish playing
+        _onEnded ();
+        _onExternalEnded: (() => void) | undefined;
+    }
+    export class AudioContext {
+        /** Available only in secure contexts */
+        get currentTime(): number;
+        get destination(): DestinationNode;
+        // readonly listener: AudioListener;
+        onstatechange: StateChangeCallback | null;
+        get sampleRate(): number;
+        get state(): string;
+        createBuffer(numberOfChannels: number, length: number, sampleRate: number): AudioBuffer;
+        createSourceNode(buffer?: AudioBuffer): SourceNode;
+        createGain(): GainNode;
+        createStereoPanner(): StereoPannerNode;
+        decodeAudioDataFromUrl(url, cb:(buffer: AudioBuffer)=>void);
+        close();
+        resume();
+        suspend();
+        constructor(options?: AudioContextOptions);
+    }
 
     export class Color extends NativePOD {
     }

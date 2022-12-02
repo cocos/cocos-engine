@@ -1,11 +1,12 @@
-import { CCAudioBuffer, CCAudioContext } from 'pal/audio';
+import { CCAudioBuffer, CCAudioContext } from './native-audio-context';
 
 declare const jsb: any;
+
 interface CachedAudioBufferData {
     usedCount: number,
     audioBuffer: CCAudioBuffer,
 }
-export const defaultContext = new CCAudioContext();
+export const defaultContext = new jsb.AudioContext();
 /**
  * This is a manager to manage the cache of audio buffer for web audio and dom audio.
  */
@@ -42,6 +43,7 @@ export class CCAudioBufferManager {
         if (!audioBufferData) {
             return undefined;
         } else {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
             return audioBufferData.audioBuffer;
         }
     }

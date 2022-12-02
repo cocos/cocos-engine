@@ -3,7 +3,6 @@
 import './audio-downloader';
 import './audio-graph';
 import './playable';
-import './audio-buffer-manager';
 
 export { AudioSource } from './audio-source';
 

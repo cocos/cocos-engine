@@ -3,7 +3,7 @@ import { InnerCtxAudioPlayer, InnerCtxOneShotAudio } from './basic/innerctx-inne
 import { AudioLoadOptions, AudioType, AudioState, AudioPCMDataView } from '../../type';
 import { WAAudioPlayer, WAOneShotAudio } from './basic/wa-inner-player';
 import { minigame } from 'pal/minigame';
-
+export { audioBufferManager, CCAudioBufferManager } from './graph/audio-buffer-manager';
 type AbstractOneShotAudio = InnerCtxOneShotAudio | WAOneShotAudio;
 type AbstractAudioPlayer = InnerCtxAudioPlayer | WAAudioPlayer;
 

@@ -263,8 +263,7 @@
                 "cocos/3d/models/baked-skinning-model.ts": "cocos/3d/models/baked-skinning-model.jsb.ts",
                 "cocos/3d/misc/create-mesh.ts": "cocos/3d/misc/create-mesh.jsb.ts",
                 "cocos/gi/light-probe/light-probe.ts": "cocos/gi/light-probe/light-probe.jsb.ts",
-                "cocos/gi/light-probe/delaunay.ts": "cocos/gi/light-probe/delaunay.jsb.ts",
-                "cocos/audio/audio-graph.ts": "cocos/audio/audio-graph.jsb.ts"
+                "cocos/gi/light-probe/delaunay.ts": "cocos/gi/light-probe/delaunay.jsb.ts"
             }
         },
         {
@@ -311,13 +310,6 @@
                 "pal/env": "pal/env/minigame/env.ts",
                 "pal/pacer": "pal/pacer/pacer-minigame.ts",
                 "pal/audio": "cocos/audio/pal/minigame/index.ts"
-            }
-        },
-        {
-            "test": "context.buildTimeConstants && context.buildTimeConstants.MINIGAME",
-            "isVirtualModule": false,
-            "overrides": {
-                "cocos/audio/audio-graph.ts": "cocos/audio/audio-graph.minigame.ts"
             }
         },
         {
