@@ -224,10 +224,10 @@ export class WebProgramLibrary extends ProgramLibraryData implements ProgramLibr
                 const layouts = lg.getLayout(phaseID);
 
                 // programs
-                const group = this.phases.get(phaseID);
+                let group = this.phases.get(phaseID);
                 if (group === undefined) {
-                    console.error(`Invalid render phase, program: ${programName}`);
-                    continue;
+                    group = new ProgramGroup();
+                    this.phases.set(phaseID, group);
                 }
                 const phasePrograms = group.programInfos;
 
