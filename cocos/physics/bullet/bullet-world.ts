@@ -161,7 +161,7 @@ export class BulletWorld implements IPhysicsWorld {
         const from = cocos2BulletVec3(BulletCache.instance.BT_V3_1, worldRay.o);
         const allHitsCB = bt.ccAllRayCallback_static();
         bt.ccAllRayCallback_reset(allHitsCB, from, to, options.mask, options.queryTrigger);
-        bt.ccAllRayCallback_setFlags(allHitsCB, EBulletTriangleRaycastFlag.UseGjkConvexCastRaytest);
+        bt.ccAllRayCallback_setFlags(allHitsCB, EBulletTriangleRaycastFlag.UseSubSimplexConvexCastRaytest);
         bt.CollisionWorld_rayTest(this._world, from, to, allHitsCB);
         if (bt.RayCallback_hasHit(allHitsCB)) {
             const posArray = bt.ccAllRayCallback_getHitPointWorld(allHitsCB);
@@ -185,7 +185,7 @@ export class BulletWorld implements IPhysicsWorld {
         const from = cocos2BulletVec3(BulletCache.instance.BT_V3_1, worldRay.o);
         const closeHitCB = bt.ccClosestRayCallback_static();
         bt.ccClosestRayCallback_reset(closeHitCB, from, to, options.mask, options.queryTrigger);
-        bt.ccClosestRayCallback_setFlags(closeHitCB, EBulletTriangleRaycastFlag.UseGjkConvexCastRaytest);
+        bt.ccClosestRayCallback_setFlags(closeHitCB, EBulletTriangleRaycastFlag.UseSubSimplexConvexCastRaytest);
         bt.CollisionWorld_rayTest(this._world, from, to, closeHitCB);
         if (bt.RayCallback_hasHit(closeHitCB)) {
             bullet2CocosVec3(v3_0, bt.ccClosestRayCallback_getHitPointWorld(closeHitCB));
