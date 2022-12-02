@@ -404,6 +404,10 @@ using namespace cc;
 #define cc_scene_DirectionalLight_csmLayersTransition_set(self_, val_) self_->setCSMLayersTransition(val_)
   
 
+#define cc_scene_DirectionalLight_csmTransitionRange_get(self_) self_->getCSMTransitionRange()
+#define cc_scene_DirectionalLight_csmTransitionRange_set(self_, val_) self_->setCSMTransitionRange(val_)
+  
+
 #define cc_scene_SpotLight_position_get(self_) self_->getPosition()
   
 
@@ -11674,20 +11678,6 @@ static bool js_delete_cc_scene_DirectionalLight(se::State& s)
 }
 SE_BIND_FINALIZE_FUNC(js_delete_cc_scene_DirectionalLight) 
 
-static bool js_cc_scene_DirectionalLight_CSM_TRANSITION_RANGE_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    float result;
-    
-    result = (float)(float)cc::scene::DirectionalLight::CSM_TRANSITION_RANGE;
-    
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject()); 
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_scene_DirectionalLight_CSM_TRANSITION_RANGE_get) 
-
 static bool js_cc_scene_DirectionalLight_direction_set(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -12445,6 +12435,43 @@ static bool js_cc_scene_DirectionalLight_csmLayersTransition_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_scene_DirectionalLight_csmLayersTransition_get) 
 
+static bool js_cc_scene_DirectionalLight_csmTransitionRange_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::DirectionalLight *arg1 = (cc::scene::DirectionalLight *) NULL ;
+    float arg2 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::DirectionalLight>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    cc_scene_DirectionalLight_csmTransitionRange_set(arg1,arg2);
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_scene_DirectionalLight_csmTransitionRange_set) 
+
+static bool js_cc_scene_DirectionalLight_csmTransitionRange_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::scene::DirectionalLight *arg1 = (cc::scene::DirectionalLight *) NULL ;
+    float result;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::DirectionalLight>(s);
+    if (nullptr == arg1) return true;
+    result = (float)cc_scene_DirectionalLight_csmTransitionRange_get(arg1);
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject()); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_scene_DirectionalLight_csmTransitionRange_get) 
+
 bool js_register_cc_scene_DirectionalLight(se::Object* obj) {
     auto* cls = se::Class::create("DirectionalLight", obj, __jsb_cc_scene_Light_proto, _SE(js_new_cc_scene_DirectionalLight)); 
     
@@ -12468,9 +12495,9 @@ bool js_register_cc_scene_DirectionalLight(se::Object* obj) {
     cls->defineProperty("csmLayerLambda", _SE(js_cc_scene_DirectionalLight_csmLayerLambda_get), _SE(js_cc_scene_DirectionalLight_csmLayerLambda_set)); 
     cls->defineProperty("csmOptimizationMode", _SE(js_cc_scene_DirectionalLight_csmOptimizationMode_get), _SE(js_cc_scene_DirectionalLight_csmOptimizationMode_set)); 
     cls->defineProperty("csmLayersTransition", _SE(js_cc_scene_DirectionalLight_csmLayersTransition_get), _SE(js_cc_scene_DirectionalLight_csmLayersTransition_set)); 
+    cls->defineProperty("csmTransitionRange", _SE(js_cc_scene_DirectionalLight_csmTransitionRange_get), _SE(js_cc_scene_DirectionalLight_csmTransitionRange_set)); 
     
     
-    cls->defineStaticProperty("CSM_TRANSITION_RANGE", _SE(js_cc_scene_DirectionalLight_CSM_TRANSITION_RANGE_get), nullptr); 
     
     
     
