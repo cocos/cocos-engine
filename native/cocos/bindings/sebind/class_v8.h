@@ -97,8 +97,7 @@ void genericConstructor(const v8::FunctionCallbackInfo<v8::Value> &v8args) {
 }
 // v8 property callback
 template <typename ContextType>
-void genericAccessorSet(v8::Local<v8::Name> /*prop*/, v8::Local<v8::Value> jsVal,
-                        const v8::PropertyCallbackInfo<void> &v8args) {
+void genericAccessorSet(const v8::FunctionCallbackInfo<v8::Value> &v8args) {
     auto *attr = reinterpret_cast<ContextType *>(v8args.Data().IsEmpty() ? nullptr : v8args.Data().As<v8::External>()->Value());
     assert(attr);
     v8::Isolate *isolate = v8args.GetIsolate();
@@ -109,7 +108,7 @@ void genericAccessorSet(v8::Local<v8::Name> /*prop*/, v8::Local<v8::Value> jsVal
     se::ValueArray &args = se::gValueArrayPool.get(1, needDeleteValueArray);
     se::CallbackDepthGuard depthGuard{args, se::gValueArrayPool._depth, needDeleteValueArray};
     se::Value &data{args[0]};
-    se::internal::jsToSeValue(isolate, jsVal, &data);
+    se::internal::jsToSeValue(isolate, v8args[0], &data);
     se::State state(thisObject, args);
     ret = attr->set(state);
     if (!ret) {
@@ -117,8 +116,7 @@ void genericAccessorSet(v8::Local<v8::Name> /*prop*/, v8::Local<v8::Value> jsVal
     }
 }
 template <typename ContextType>
-void genericAccessorGet(v8::Local<v8::Name> /*prop*/,
-                        const v8::PropertyCallbackInfo<v8::Value> &v8args) {
+void genericAccessorGet(const v8::FunctionCallbackInfo<v8::Value> &v8args) {
     auto *attr = reinterpret_cast<ContextType *>(v8args.Data().IsEmpty() ? nullptr : v8args.Data().As<v8::External>()->Value());
     assert(attr);
     v8::Isolate *isolate = v8args.GetIsolate();
