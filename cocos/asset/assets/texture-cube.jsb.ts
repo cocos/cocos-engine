@@ -228,8 +228,8 @@ cclegacy.TextureCube = jsb.TextureCube;
 
 // handle meta data, it is generated automatically
 const TextureCubeProto = TextureCube.prototype;
-serializable(TextureCubeProto, 'isRGBE');
-serializable(TextureCubeProto, '_mipmaps');
-serializable(TextureCubeProto, '_mipmapMode');
-serializable(TextureCubeProto, '_mipmapAtlas');
+serializable(TextureCubeProto, 'isRGBE', () => false);
+serializable(TextureCubeProto, '_mipmaps', () => []);
+serializable(TextureCubeProto, '_mipmapMode', () => MipmapMode.NONE);
+serializable(TextureCubeProto, '_mipmapAtlas', () => null);
 ccclass('cc.TextureCube')(TextureCube);

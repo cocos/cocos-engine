@@ -27,7 +27,8 @@ import { EffectAsset } from './effect-asset';
 import { Texture } from '../../gfx';
 import { TextureBase } from './texture-base';
 import { PassOverrides, MacroRecord, MaterialProperty } from '../../render-scene';
-import { Color, Mat3, Mat4, Quat, Vec2, Vec3, Vec4, _decorator, cclegacy } from '../../core';
+import { Color, Mat3, Mat4, Quat, Vec2, Vec3, Vec4, cclegacy } from '../../core';
+import { type, serializable, ccclass } from '../../core/data/decorators';
 import './asset';
 
 /**
@@ -300,9 +301,10 @@ Object.defineProperty(materialProto, 'passes', {
 
 // handle meta data, it is generated automatically
 const MaterialProto = Material.prototype;
-_decorator.type(EffectAsset)(MaterialProto, '_effectAsset');
-_decorator.serializable(MaterialProto, '_techIdx');
-_decorator.serializable(MaterialProto, '_defines');
-_decorator.serializable(MaterialProto, '_states');
-_decorator.serializable(MaterialProto, '_props');
-_decorator.ccclass('cc.Material')(Material);
+// @ts-expect-error
+type(EffectAsset)(MaterialProto, '_effectAsset', () => null);
+serializable(MaterialProto, '_techIdx', () => 0);
+serializable(MaterialProto, '_defines', () => []);
+serializable(MaterialProto, '_states', () => []);
+serializable(MaterialProto, '_props', () => []);
+ccclass('cc.Material')(Material);

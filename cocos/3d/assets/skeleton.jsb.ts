@@ -64,7 +64,7 @@ skeletonProto.onLoaded = function () {
 
 // handle meta data, it is generated automatically
 const SkeletonProto = Skeleton.prototype;
-type([CCString])(SkeletonProto, '_joints');
-type([Mat4])(SkeletonProto, '_bindposes');
-serializable(SkeletonProto, '_hash');
+type([CCString])(SkeletonProto, '_joints', () => []);
+type([Mat4])(SkeletonProto, '_bindposes', () => []);
+serializable(SkeletonProto, '_hash', () => 0);
 ccclass('cc.Skeleton')(Skeleton);
