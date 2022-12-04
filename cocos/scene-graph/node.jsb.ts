@@ -789,6 +789,17 @@ nodeProto.getWorldRS = function getWorldRS (out?: Mat4): Mat4 {
     return out;
 };
 
+Object.defineProperty(nodeProto, 'name', {
+    configurable: true,
+    enumerable: true,
+    get(): string {
+        return this._name;
+    },
+    set(v: string) {
+        this._name = v;
+    }
+});
+
 Object.defineProperty(nodeProto, 'position', {
     configurable: true,
     enumerable: true,
