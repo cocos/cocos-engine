@@ -92,6 +92,7 @@ namespace cc {
 %ignore DebugRenderer::activate;
 %ignore DebugRenderer::render;
 %ignore DebugRenderer::destroy;
+%ignore DebugRenderer::update;
 
 %ignore DebugFontInfo;
 %ignore DebugRendererInfo;
