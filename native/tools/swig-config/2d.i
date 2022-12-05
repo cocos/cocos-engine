@@ -156,6 +156,7 @@
 %attribute(cc::RenderDrawInfo, uint8_t, stride, getStride, setStride);
 
 %attribute(cc::RenderEntity, cc::Node*, node, getNode, setNode);
+%attribute(cc::RenderEntity, cc::Node*, renderTransform, getRenderTransform, setRenderTransform);
 %attribute(cc::RenderEntity, uint32_t, staticDrawInfoSize, getStaticDrawInfoSize, setStaticDrawInfoSize);
 %attribute(cc::RenderEntity, uint32_t, stencilStage, getStencilStage, setStencilStage);
 
