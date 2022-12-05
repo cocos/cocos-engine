@@ -24,7 +24,7 @@
  */
 import { EDITOR } from 'internal:constants';
 import { Model } from '../render-scene/scene/model';
-import { Camera, SKYBOX_FLAG } from '../render-scene/scene/camera';
+import { Camera, CameraUsage, SKYBOX_FLAG } from '../render-scene/scene/camera';
 import { Vec3, Pool, warnID, geometry, cclegacy } from '../core';
 import { RenderPipeline } from './render-pipeline';
 import { IRenderObject, UBOShadow } from './define';
@@ -149,7 +149,7 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
     if ((camera.clearFlag & SKYBOX_FLAG)) {
         if (skybox.enabled && skybox.model) {
             renderObjects.push(getRenderObject(skybox.model, camera));
-        } else if (camera.clearFlag === SKYBOX_FLAG && !EDITOR) {
+        } else if (camera.cameraUsage !== CameraUsage.EDITOR && camera.cameraUsage !== CameraUsage.SCENE_VIEW) {
             cclegacy.warnID(15100, camera.name);
         }
     }
