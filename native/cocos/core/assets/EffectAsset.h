@@ -402,7 +402,10 @@ struct IBlockInfo {
     uint32_t binding{UINT32_MAX};
     ccstd::string name;
     ccstd::vector<gfx::Uniform> members;
+
     gfx::ShaderStageFlags stageFlags{gfx::ShaderStageFlags::NONE};
+
+    ccstd::vector<ccstd::string> defines;
 };
 
 struct ISamplerTextureInfo {
@@ -411,6 +414,7 @@ struct ISamplerTextureInfo {
     gfx::Type type{gfx::Type::UNKNOWN};
     uint32_t count{0};
     gfx::ShaderStageFlags stageFlags{gfx::ShaderStageFlags::NONE};
+    ccstd::vector<ccstd::string> defines; // NOTE: used in Editor only
 };
 
 struct ITextureInfo {
@@ -471,6 +475,8 @@ struct IDefineInfo {
     ccstd::optional<ccstd::vector<int32_t>> range; // cjh number is float?  ?: number[];
     ccstd::optional<ccstd::vector<ccstd::string>> options;
     ccstd::optional<ccstd::string> defaultVal;
+    ccstd::optional<ccstd::vector<ccstd::string>> defines; // NOTE: it's only used in Editor
+    ccstd::optional<ccstd::unordered_map<ccstd::string, bool>> editor; // NOTE: it's only used in Editor
 };
 
 struct IBuiltin {
