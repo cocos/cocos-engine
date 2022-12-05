@@ -160,7 +160,7 @@ void sceneCulling(const RenderPipeline *pipeline, scene::Camera *camera) {
     if (clearFlagValue & skyboxFlag) {
         if (skyBox != nullptr && skyBox->isEnabled() && skyBox->getModel()) {
             sceneData->addRenderObject(genRenderObject(skyBox->getModel(), camera));
-        } else if (clearFlagValue == skyboxFlag) {
+        } else {
             debug::warnID(15100, camera->getName());
         }
     }
