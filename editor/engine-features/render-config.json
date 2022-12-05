@@ -229,6 +229,13 @@
             "wechatPlugin": false,
             "category": "animation"
         },
+        "_experimental-animation-internals": {
+            "default": [],
+            "label": "i18n:ENGINE.features._experimental_animation_internals.label",
+            "description": "i18n:ENGINE.features._experimental_animation_internals.description",
+            "wechatPlugin": false,
+            "category": "_experimental_internals"
+        },
         "custom-pipeline": {
             "default": [],
             "label": "i18n:ENGINE.features.custom_pipeline.label",
@@ -248,6 +255,10 @@
         "animation": {
             "label": "i18n:ENGINE.features.categories.animation.label",
             "description": "i18n:ENGINE.features.categories.animation.description"
+        },
+        "_experimental_internals": {
+            "label": "i18n:ENGINE.features.categories._experimental_internals.label",
+            "description": "i18n:ENGINE.features.categories._experimental_internals.description"
         }
     }
 }

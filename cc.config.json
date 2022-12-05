@@ -125,6 +125,9 @@
                 "MARIONETTE": true
             }
         },
+        "_experimental-animation-internals": {
+            "modules": ["_experimental-animation-internals"]
+        },
         "custom-pipeline": { "modules": ["custom-pipeline"] }
     },
     "moduleOverrides": [

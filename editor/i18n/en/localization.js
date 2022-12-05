@@ -782,6 +782,14 @@ module.exports = {
                 label: 'Animation',
                 description: 'Animation System.',
             },
+            _experimental_internals: {
+                label: '(Experimental)Internal interfaces',
+                description:
+                    '(Experimental)Export internal interfaces. ' +
+                    'Features under this category might be used by certain external libraries that are tightly related to engine. ' +
+                    'These features are highly coupled with engine editions, undocumented, and ' +
+                    'no compatibilities are guaranteed.',
+            },
         },
         core: {
             label: "Core",
@@ -934,6 +942,10 @@ module.exports = {
         custom_pipeline: {
             label: "Custom Render Pipeline (Experimental)",
             description: "Enable custom render pipeline",
+        },
+        _experimental_animation_internals: {
+            label: "(Experimental)Animation Internals",
+            description: "(Experimental)Export animation internal interfaces.",
         },
     },
     renderable_2d: {
