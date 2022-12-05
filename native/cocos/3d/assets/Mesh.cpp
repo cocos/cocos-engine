@@ -263,8 +263,12 @@ const Vec3 *Mesh::getMaxPosition() const {
 ccstd::hash_t Mesh::getHash() {
     if (_hash == 0U) {
         ccstd::hash_t seed = 666;
-        ccstd::hash_range(seed, _data.buffer()->getData(), _data.buffer()->getData() + _data.length());
-        _hash = seed;
+        if (_data.buffer()) {
+            ccstd::hash_range(seed, _data.buffer()->getData(), _data.buffer()->getData() + _data.length());
+            _hash = seed;
+        } else {
+            ccstd::hash_combine<ccstd::hash_t>(_hash, seed);
+        }
     }
 
     return _hash;
