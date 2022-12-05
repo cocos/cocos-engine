@@ -137,12 +137,12 @@ cclegacy.TextureBase = jsb.TextureBase;
 
 // handle meta data, it is generated automatically
 const TextureBaseProto = TextureBase.prototype;
-serializable(TextureBaseProto, '_format');
-serializable(TextureBaseProto, '_minFilter');
-serializable(TextureBaseProto, '_magFilter');
-serializable(TextureBaseProto, '_mipFilter');
-serializable(TextureBaseProto, '_wrapS');
-serializable(TextureBaseProto, '_wrapT');
-serializable(TextureBaseProto, '_wrapR');
-serializable(TextureBaseProto, '_anisotropy');
+serializable(TextureBaseProto, '_format', () => PixelFormat.RGBA8888);
+serializable(TextureBaseProto, '_minFilter', () => Filter.LINEAR);
+serializable(TextureBaseProto, '_magFilter', () => Filter.LINEAR);
+serializable(TextureBaseProto, '_mipFilter', () => Filter.NONE);
+serializable(TextureBaseProto, '_wrapS', () => WrapMode.REPEAT);
+serializable(TextureBaseProto, '_wrapT', () => WrapMode.REPEAT);
+serializable(TextureBaseProto, '_wrapR', () => WrapMode.REPEAT);
+serializable(TextureBaseProto, '_anisotropy', () => 0);
 ccclass('cc.TextureBase')(TextureBase);

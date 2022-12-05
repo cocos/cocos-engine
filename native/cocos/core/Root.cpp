@@ -31,6 +31,9 @@
 #include "platform/interfaces/modules/ISystemWindow.h"
 #include "platform/interfaces/modules/ISystemWindowManager.h"
 #include "platform/java/modules/XRInterface.h"
+#if CC_USE_DEBUG_RENDERER
+    #include "profiler/DebugRenderer.h"
+#endif
 #include "profiler/Profiler.h"
 #include "renderer/gfx-base/GFXDevice.h"
 #include "renderer/gfx-base/GFXSwapchain.h"
@@ -411,6 +414,10 @@ void Root::frameMoveEnd() {
             }
         }
     #endif
+    #if CC_USE_DEBUG_RENDERER
+        CC_DEBUG_RENDERER->update();
+    #endif
+
         emit<BeforeRender>();
         _pipelineRuntime->render(_cameraList);
 #endif

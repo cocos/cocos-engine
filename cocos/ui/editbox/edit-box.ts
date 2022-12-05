@@ -478,10 +478,13 @@ export class EditBox extends Component {
 
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     * @param text content filtered by sensitive words.This parameter may be undefined.
+     * If relevant platform returns desensitized content, it will be passed to developer by EventType.EDITING_DID_ENDED.
+     * Now only ByteDance minigame platform
      */
-    public _editBoxEditingDidEnded () {
+    public _editBoxEditingDidEnded (text?: string) {
         ComponentEventHandler.emitEvents(this.editingDidEnded, this);
-        this.node.emit(EventType.EDITING_DID_ENDED, this);
+        this.node.emit(EventType.EDITING_DID_ENDED, this, text);
     }
 
     /**
@@ -496,10 +499,13 @@ export class EditBox extends Component {
 
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     * @param text content filtered by sensitive words.This parameter may be undefined.
+     * If relevant platform returns desensitized content, it will be passed to developer by EventType.EDITING_RETURN.
+     * Now only ByteDance minigame platform
      */
-    public _editBoxEditingReturn () {
+    public _editBoxEditingReturn (text?: string) {
         ComponentEventHandler.emitEvents(this.editingReturn, this);
-        this.node.emit(EventType.EDITING_RETURN, this);
+        this.node.emit(EventType.EDITING_RETURN, this, text);
     }
 
     /**

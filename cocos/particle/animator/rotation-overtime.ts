@@ -72,7 +72,6 @@ export default class RotationOvertimeModule extends ParticleModuleBase {
      */
     @type(CurveRange)
     @serializable
-    @range([-1, 1])
     @radian
     @displayOrder(2)
     @tooltip('i18n:rotationOvertimeModule.x')
@@ -84,7 +83,6 @@ export default class RotationOvertimeModule extends ParticleModuleBase {
      */
     @type(CurveRange)
     @serializable
-    @range([-1, 1])
     @radian
     @displayOrder(3)
     @tooltip('i18n:rotationOvertimeModule.y')
@@ -96,7 +94,6 @@ export default class RotationOvertimeModule extends ParticleModuleBase {
      */
     @type(CurveRange)
     @serializable
-    @range([-1, 1])
     @radian
     @displayOrder(4)
     @tooltip('i18n:rotationOvertimeModule.z')

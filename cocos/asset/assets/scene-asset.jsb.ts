@@ -55,6 +55,6 @@ sceneAssetProto._ctor = function () {
 
 // handle meta data, it is generated automatically
 const SceneAssetProto = SceneAsset.prototype;
-serializable(SceneAssetProto, 'scene');
-editable(SceneAssetProto, 'scene');
+serializable(SceneAssetProto, 'scene', () => null);
+editable(SceneAssetProto, 'scene', () => null);
 ccclass('cc.SceneAsset')(SceneAsset);

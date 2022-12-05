@@ -72,6 +72,7 @@ public:
         _csmLayersTransition = csmLayersTransition;
         activate();
     }
+    inline void setCSMTransitionRange(bool csmTransitionRange) { _csmTransitionRange = csmTransitionRange; }
 
     inline bool isShadowEnabled() const { return _shadowEnabled; }
     inline PCFType getShadowPcf() const { return _shadowPcf; }
@@ -96,10 +97,9 @@ public:
     inline float getIlluminanceHDR() const { return _illuminanceHDR; }
     inline float getIlluminanceLDR() const { return _illuminanceLDR; }
     inline float getCSMLayersTransition() const { return _csmLayersTransition; }
+    inline float getCSMTransitionRange() const { return _csmTransitionRange; }
     float getIlluminance() const;
     void setIlluminance(float value);
-
-    inline static const float CSM_TRANSITION_RANGE{0.05F};
 
 private:
     void activate() const;
@@ -125,6 +125,7 @@ private:
     float _shadowNear{0.1F};
     float _shadowFar{10.0F};
     float _shadowOrthoSize{1.0F};
+    float _csmTransitionRange{0.05F};
 
     Vec3 _dir{1.0F, -1.0F, -1.0F};
 

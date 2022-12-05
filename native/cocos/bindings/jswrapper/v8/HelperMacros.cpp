@@ -134,7 +134,7 @@ SE_HOT void jsbConstructorWrapper(const v8::FunctionCallbackInfo<v8::Value> &v8a
     if (found) property.toObject()->call(args, thisObject);
 }
 
-SE_HOT void jsbGetterWrapper(const v8::PropertyCallbackInfo<v8::Value> &v8args, se_function_ptr func, const char *funcName) {
+SE_HOT void jsbGetterWrapper(const v8::FunctionCallbackInfo<v8::Value> &v8args, se_function_ptr func, const char *funcName) {
     v8::Isolate *isolate = v8args.GetIsolate();
     v8::HandleScope scope(isolate);
     bool ret = true;
@@ -147,7 +147,7 @@ SE_HOT void jsbGetterWrapper(const v8::PropertyCallbackInfo<v8::Value> &v8args, 
     se::internal::setReturnValue(state.rval(), v8args);
 }
 
-SE_HOT void jsbSetterWrapper(v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void> &v8args, se_function_ptr func, const char *funcName) {
+SE_HOT void jsbSetterWrapper(const v8::FunctionCallbackInfo<v8::Value> &v8args, se_function_ptr func, const char *funcName) {
     v8::Isolate *isolate = v8args.GetIsolate();
     v8::HandleScope scope(isolate);
     bool ret = true;
@@ -156,7 +156,7 @@ SE_HOT void jsbSetterWrapper(v8::Local<v8::Value> value, const v8::PropertyCallb
     se::ValueArray &args = se::gValueArrayPool.get(1, needDeleteValueArray);
     se::CallbackDepthGuard depthGuard{args, se::gValueArrayPool._depth, needDeleteValueArray};
     se::Value &data{args[0]};
-    se::internal::jsToSeValue(isolate, value, &data);
+    se::internal::jsToSeValue(isolate, v8args[0], &data);
     se::State state(thisObject, args);
     ret = func(state);
     if (!ret) {

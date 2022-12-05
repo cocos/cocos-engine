@@ -154,6 +154,10 @@
 #define cc_RenderEntity_node_set(self_, val_) self_->setNode(val_)
   
 
+#define cc_RenderEntity_renderTransform_get(self_) self_->getRenderTransform()
+#define cc_RenderEntity_renderTransform_set(self_, val_) self_->setRenderTransform(val_)
+  
+
 #define cc_RenderEntity_staticDrawInfoSize_get(self_) self_->getStaticDrawInfoSize()
 #define cc_RenderEntity_staticDrawInfoSize_set(self_, val_) self_->setStaticDrawInfoSize(val_)
   
@@ -2805,55 +2809,6 @@ static bool js_cc_RenderEntity_setUseLocal(se::State& s)
 }
 SE_BIND_FUNC(js_cc_RenderEntity_setUseLocal) 
 
-static bool js_cc_RenderEntity_getRenderTransform(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::RenderEntity *arg1 = (cc::RenderEntity *) NULL ;
-    cc::Node *result = 0 ;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::RenderEntity>(s);
-    if (nullptr == arg1) return true;
-    result = (cc::Node *)((cc::RenderEntity const *)arg1)->getRenderTransform();
-    
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_RenderEntity_getRenderTransform) 
-
-static bool js_cc_RenderEntity_setRenderTransform(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::RenderEntity *arg1 = (cc::RenderEntity *) NULL ;
-    cc::Node *arg2 = (cc::Node *) NULL ;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::RenderEntity>(s);
-    if (nullptr == arg1) return true;
-    
-    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
-    (arg1)->setRenderTransform(arg2);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_RenderEntity_setRenderTransform) 
-
 static bool js_cc_RenderEntity_getStaticRenderDrawInfo(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -3143,6 +3098,45 @@ static bool js_cc_RenderEntity_node_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_RenderEntity_node_get) 
 
+static bool js_cc_RenderEntity_renderTransform_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::RenderEntity *arg1 = (cc::RenderEntity *) NULL ;
+    cc::Node *arg2 = (cc::Node *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::RenderEntity>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    cc_RenderEntity_renderTransform_set(arg1,arg2);
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_RenderEntity_renderTransform_set) 
+
+static bool js_cc_RenderEntity_renderTransform_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::RenderEntity *arg1 = (cc::RenderEntity *) NULL ;
+    cc::Node *result = 0 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::RenderEntity>(s);
+    if (nullptr == arg1) return true;
+    result = (cc::Node *)cc_RenderEntity_renderTransform_get(arg1);
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_RenderEntity_renderTransform_get) 
+
 static bool js_cc_RenderEntity_staticDrawInfoSize_set(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -3223,6 +3217,7 @@ bool js_register_cc_RenderEntity(se::Object* obj) {
     auto* cls = se::Class::create("RenderEntity", obj, nullptr, _SE(js_new_cc_RenderEntity)); 
     
     cls->defineProperty("node", _SE(js_cc_RenderEntity_node_get), _SE(js_cc_RenderEntity_node_set)); 
+    cls->defineProperty("renderTransform", _SE(js_cc_RenderEntity_renderTransform_get), _SE(js_cc_RenderEntity_renderTransform_set)); 
     cls->defineProperty("staticDrawInfoSize", _SE(js_cc_RenderEntity_staticDrawInfoSize_get), _SE(js_cc_RenderEntity_staticDrawInfoSize_set)); 
     cls->defineProperty("stencilStage", _SE(js_cc_RenderEntity_stencilStage_get), _SE(js_cc_RenderEntity_stencilStage_set)); 
     
@@ -3236,8 +3231,6 @@ bool js_register_cc_RenderEntity(se::Object* obj) {
     cls->defineFunction("getIsMaskInverted", _SE(js_cc_RenderEntity_getIsMaskInverted)); 
     cls->defineFunction("getUseLocal", _SE(js_cc_RenderEntity_getUseLocal)); 
     cls->defineFunction("setUseLocal", _SE(js_cc_RenderEntity_setUseLocal)); 
-    cls->defineFunction("getRenderTransform", _SE(js_cc_RenderEntity_getRenderTransform)); 
-    cls->defineFunction("setRenderTransform", _SE(js_cc_RenderEntity_setRenderTransform)); 
     cls->defineFunction("getStaticRenderDrawInfo", _SE(js_cc_RenderEntity_getStaticRenderDrawInfo)); 
     cls->defineFunction("getStaticRenderDrawInfos", _SE(js_cc_RenderEntity_getStaticRenderDrawInfos)); 
     cls->defineFunction("getEntitySharedBufferForJS", _SE(js_cc_RenderEntity_getEntitySharedBufferForJS)); 

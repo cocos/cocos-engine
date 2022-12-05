@@ -23,6 +23,7 @@
  THE SOFTWARE.
  */
 
+import { EDITOR } from 'internal:constants';
 import { CommandBuffer, Device, Rect, RenderPass, Viewport } from '../gfx';
 import { IVec4Like } from '../core';
 import { PipelineStateManager } from './pipeline-state-manager';
@@ -77,18 +78,28 @@ export function decideProfilerCamera (cameras: Camera[]) {
 }
 
 export function renderProfiler (device: Device, renderPass: RenderPass, cmdBuff: CommandBuffer, profiler: Model | null, camera: Camera) {
-    if (profiler && profiler.enabled && camera.visibility & Layers.Enum.PROFILER) {
-        const { inputAssembler, passes, shaders, descriptorSet } = profiler.subModels[0];
-        profilerViewport.width = profilerScissor.width = camera.window.width;
-        profilerViewport.height = profilerScissor.height = camera.window.height;
-        const pso = PipelineStateManager.getOrCreatePipelineState(device, passes[0], shaders[0], renderPass, inputAssembler);
-
-        cmdBuff.setViewport(profilerViewport);
-        cmdBuff.setScissor(profilerScissor);
-        cmdBuff.bindPipelineState(pso);
-        cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, passes[0].descriptorSet);
-        cmdBuff.bindDescriptorSet(SetIndex.LOCAL, descriptorSet);
-        cmdBuff.bindInputAssembler(inputAssembler);
-        cmdBuff.draw(inputAssembler);
+    if (!profiler || !profiler.enabled) {
+        return;
     }
+
+    if (EDITOR) {
+        if (!(camera.visibility & Layers.Enum.PROFILER)) {
+            return;
+        }
+    } else if (camera !== profilerCamera) {
+        return;
+    }
+
+    const { inputAssembler, passes, shaders, descriptorSet } = profiler.subModels[0];
+    profilerViewport.width = profilerScissor.width = camera.window.width;
+    profilerViewport.height = profilerScissor.height = camera.window.height;
+    const pso = PipelineStateManager.getOrCreatePipelineState(device, passes[0], shaders[0], renderPass, inputAssembler);
+
+    cmdBuff.setViewport(profilerViewport);
+    cmdBuff.setScissor(profilerScissor);
+    cmdBuff.bindPipelineState(pso);
+    cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, passes[0].descriptorSet);
+    cmdBuff.bindDescriptorSet(SetIndex.LOCAL, descriptorSet);
+    cmdBuff.bindInputAssembler(inputAssembler);
+    cmdBuff.draw(inputAssembler);
 }

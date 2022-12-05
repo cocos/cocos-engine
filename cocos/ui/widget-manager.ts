@@ -281,7 +281,7 @@ export const widgetManager = cclegacy._widgetManager = {
         if (!EDITOR) {
             const thisOnResized = this.onResized.bind(this);
             View.instance.on('canvas-resize', thisOnResized);
-            screenAdapter.on('orientation-change', thisOnResized);
+            screenAdapter.on('window-resize', thisOnResized);
         }
     },
     add (widget: Widget) {

@@ -1,0 +1,14 @@
+
+// saturated V dot N
+float GetFresnel(float ior, float VoNSat)
+{
+	float g, c, n, prev, next;
+	n = ior;
+	c = ior * VoNSat;
+	g = sqrt(1.0 + c * c - c);
+	prev = (g - c) / (g + c);
+	next = (c * (g+c) - n*n) / (c * (g-c) + n*n);
+	prev *= prev;
+	next *= next;
+	return 0.5 * prev * (1.0 + next);
+}
