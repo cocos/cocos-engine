@@ -44,8 +44,12 @@ ISystemWindow *SystemWindowManager::createWindow(const ISystemWindowInfo &info) 
             if (!info.externalHandle) {
                 window->createWindow(info.title.c_str(), info.x, info.y, info.width, info.height, info.flags);
             }
-            _windows[_nextWindowId] = std::shared_ptr<ISystemWindow>(window);
-            _nextWindowId++;
+            if (info.windowId > 0) {
+                _windows[info.windowId] = std::shared_ptr<ISystemWindow>(window);
+            } else {
+                _windows[_nextWindowId] = std::shared_ptr<ISystemWindow>(window);
+                _nextWindowId++;
+            }
         }
         return window;
     }

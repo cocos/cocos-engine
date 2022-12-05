@@ -110,7 +110,18 @@ JNIEXPORT void JNICALL Java_com_cocos_lib_CocosSurfaceView_onSurfaceCreatedNativ
 
     auto *platform = static_cast<cc::AndroidPlatform *>(cc::BasePlatform::getPlatform());
     auto *windowMgr = platform->getInterface<cc::SystemWindowManager>();
-    auto *iSysWindow = windowMgr->getWindow(windowCache->getWindowId());
+    auto windowId = windowCache->getWindowId();
+    auto *iSysWindow = windowMgr->getWindow(windowId);
+    // iSysWindow equals nullptr indicates the creation of surface is called from java, otherwise called from ts
+    if (!iSysWindow) {
+        cc::ISystemWindowInfo info;
+        info.width = ANativeWindow_getWidth(nativeWindow);
+        info.height = ANativeWindow_getHeight(nativeWindow);
+        info.externalHandle = nativeWindow;
+        info.windowId = windowId;
+        iSysWindow = windowMgr->createWindow(info);
+    }
+
     auto *sysWindow = static_cast<cc::SystemWindow *>(iSysWindow);
     sysWindow->setWindowHandle(nativeWindow);
     if (oldNativeWindow) {

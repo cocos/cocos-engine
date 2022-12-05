@@ -36,6 +36,7 @@ struct ISystemWindowInfo {
     int32_t width{-1};
     int32_t height{-1};
     int32_t flags{-1};
+    int32_t windowId{-1};
     void *externalHandle{nullptr};
 };
 

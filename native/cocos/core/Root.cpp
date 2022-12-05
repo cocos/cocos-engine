@@ -379,6 +379,17 @@ void Root::frameMoveProcess(bool isNeedUpdateScene, int32_t totalFrames) {
         window->extractRenderCameras(_cameraList);
     }
 
+    if (!_cameraList.empty()) {
+        for (const auto &camera : _cameraList) {
+            int windowId = camera->getSystemWindowId();
+            for (const auto &window: _renderWindows) {
+                if (window != camera->getWindow() && windowId == window->getSwapchain()->getWindowId()) {
+                    camera->changeTargetWindow(window);
+                }
+            }
+        }
+    }
+
     if (_pipelineRuntime != nullptr && !_cameraList.empty()) {
         _device->acquire(_swapchains);
 

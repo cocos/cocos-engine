@@ -177,6 +177,18 @@ public class CocosActivity extends GameActivity {
         }
     }
 
+    //Used for multiple windows. Params windowId: [1,127] for internal use, users should pass value greater than 127
+    public SurfaceView createSurface(int windowId) {
+        CocosSurfaceView view = new CocosSurfaceView(this, windowId);
+        view.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        if (null == mSurfaceViewArray) {
+            mSurfaceViewArray = new ArrayList<>();
+        }
+        mSurfaceViewArray.add(view);
+
+        return view;
+    }
+
     // invoke from native code
     @SuppressWarnings({"UnusedDeclaration"})
     private void createSurface(int x, int y, int width, int height, int windowId) {
