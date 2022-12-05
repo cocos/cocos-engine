@@ -41,6 +41,6 @@ cclegacy.TextAsset = jsb.TextAsset;
 
 // handle meta data, it is generated automatically
 const TextAssetProto = TextAsset.prototype;
-editable(TextAssetProto, 'text');
-serializable(TextAssetProto, 'text');
+editable(TextAssetProto, 'text', () => '');
+serializable(TextAssetProto, 'text', () => '');
 ccclass('cc.TextAsset')(TextAsset);

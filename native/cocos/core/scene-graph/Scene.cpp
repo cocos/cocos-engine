@@ -36,7 +36,9 @@ Scene::Scene(const ccstd::string &name)
 : Node(name) {
     // _activeInHierarchy is initalized to 'false', so doesn't need to set it to false again
     //    _activeInHierarchy = false;
-    _renderScene = Root::getInstance()->createScene({});
+    if (Root::getInstance() != nullptr) {
+        _renderScene = Root::getInstance()->createScene({});
+    }
     _globals = ccnew SceneGlobals();
 }
 

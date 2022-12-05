@@ -72,9 +72,9 @@ public:
          *  @param[in] data A data pointer attach to the property's callback
          *  @return true if succeed, otherwise false.
          */
-    bool defineProperty(const char *name, v8::AccessorNameGetterCallback getter, v8::AccessorNameSetterCallback setter, void *data = nullptr);
+    bool defineProperty(const char *name, v8::FunctionCallback getter, v8::FunctionCallback setter, void *data = nullptr);
 
-    bool defineProperty(const std::initializer_list<const char *> &names, v8::AccessorNameGetterCallback getter, v8::AccessorNameSetterCallback setter, void *data = nullptr);
+    bool defineProperty(const std::initializer_list<const char *> &names, v8::FunctionCallback getter, v8::FunctionCallback setter, void *data = nullptr);
 
     /**
          *  @brief Defines a static function with a callback. Only JavaScript constructor object will have this function.
@@ -93,7 +93,7 @@ public:
          *  @param[in] data A data pointer attach to static property callback
          *  @return true if succeed, otherwise false.
          */
-    bool defineStaticProperty(const char *name, v8::AccessorNameGetterCallback getter, v8::AccessorNameSetterCallback setter, void *data = nullptr);
+    bool defineStaticProperty(const char *name, v8::FunctionCallback getter, v8::FunctionCallback setter, void *data = nullptr);
 
     /**
          *  @brief Defines the finalize function with a callback.

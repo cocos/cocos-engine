@@ -498,7 +498,7 @@ bool Object::setProperty(const char *name, const Value &data) {
     return true;
 }
 
-bool Object::defineProperty(const char *name, v8::AccessorNameGetterCallback getter, v8::AccessorNameSetterCallback setter) {
+bool Object::defineProperty(const char *name, v8::FunctionCallback getter, v8::FunctionCallback setter) {
     v8::MaybeLocal<v8::String> nameValue = v8::String::NewFromUtf8(__isolate, name, v8::NewStringType::kNormal);
     if (nameValue.IsEmpty()) {
         return false;
@@ -506,8 +506,19 @@ bool Object::defineProperty(const char *name, v8::AccessorNameGetterCallback get
 
     v8::Local<v8::String> nameValChecked = nameValue.ToLocalChecked();
     v8::Local<v8::Name> jsName = v8::Local<v8::Name>::Cast(nameValChecked);
-    v8::Maybe<bool> ret = _obj.handle(__isolate)->SetAccessor(__isolate->GetCurrentContext(), jsName, getter, setter);
-    return ret.IsJust() && ret.FromJust();
+    v8::Local<v8::Context> currentContext = __isolate->GetCurrentContext();
+
+    v8::MaybeLocal<v8::Function> v8Getter = v8::Function::New(currentContext, getter);
+    v8::MaybeLocal<v8::Function> v8Setter = v8::Function::New(currentContext, setter);
+    if (!v8Getter.IsEmpty() && !v8Setter.IsEmpty()) {
+        _obj.handle(__isolate)->SetAccessorProperty(jsName, v8Getter.ToLocalChecked(), v8Setter.ToLocalChecked());
+    } else if (v8Getter.IsEmpty()) {
+        _obj.handle(__isolate)->SetAccessorProperty(jsName, {}, v8Setter.ToLocalChecked());
+    } else if (v8Setter.IsEmpty()) {
+        _obj.handle(__isolate)->SetAccessorProperty(jsName, v8Getter.ToLocalChecked(), {});
+    }
+
+    return true;
 }
 
 bool Object::defineOwnProperty(const char *name, const se::Value &value, bool writable, bool enumerable, bool configurable) {

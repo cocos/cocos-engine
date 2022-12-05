@@ -27,7 +27,7 @@ import { Component } from './component';
 import { NodeEventType } from './node-event';
 import { CCObject } from '../core/data/object';
 import { NodeUIProperties } from './node-ui-properties';
-import { NodeSpace, TransformBit } from './node-enum';
+import { MobilityMode, NodeSpace, TransformBit } from './node-enum';
 import { Mat4, Quat, Vec3 } from '../core/math';
 import { Layers } from './layers';
 import { editorExtrasTag, SerializationContext, SerializationOutput, serializeTag } from '../core/data';
@@ -789,6 +789,17 @@ nodeProto.getWorldRS = function getWorldRS (out?: Mat4): Mat4 {
     return out;
 };
 
+Object.defineProperty(nodeProto, 'name', {
+    configurable: true,
+    enumerable: true,
+    get(): string {
+        return this._name;
+    },
+    set(v: string) {
+        this._name = v;
+    }
+});
+
 Object.defineProperty(nodeProto, 'position', {
     configurable: true,
     enumerable: true,
@@ -1362,17 +1373,17 @@ const activeInHierarchyDescriptor = Object.getOwnPropertyDescriptor(NodeProto, '
 editable(NodeProto, 'activeInHierarchy', activeInHierarchyDescriptor);
 const parentDescriptor = Object.getOwnPropertyDescriptor(NodeProto, 'parent');
 editable(NodeProto, 'parent', parentDescriptor);
-serializable(NodeProto, '_parent');
-serializable(NodeProto, '_children');
-serializable(NodeProto, '_active');
-serializable(NodeProto, '_components');
-serializable(NodeProto, '_prefab');
-serializable(NodeProto, '_lpos');
-serializable(NodeProto, '_lrot');
-serializable(NodeProto, '_lscale');
-serializable(NodeProto, '_mobility');
-serializable(NodeProto, '_layer');
-serializable(NodeProto, '_euler');
+serializable(NodeProto, '_parent', () => null);
+serializable(NodeProto, '_children', () => []);
+serializable(NodeProto, '_active', () => true);
+serializable(NodeProto, '_components', () => []);
+serializable(NodeProto, '_prefab', () => null);
+serializable(NodeProto, '_lpos', () => new Vec3());
+serializable(NodeProto, '_lrot', () => new Quat());
+serializable(NodeProto, '_lscale', () => new Vec3(1, 1, 1));
+serializable(NodeProto, '_mobility', () => MobilityMode.Static);
+serializable(NodeProto, '_layer', () => Layers.Enum.DEFAULT);
+serializable(NodeProto, '_euler', () => new Vec3());
 const eulerAnglesDescriptor = Object.getOwnPropertyDescriptor(NodeProto, 'eulerAngles');
 type(Vec3)(NodeProto, 'eulerAngles', eulerAnglesDescriptor);
 const angleDescriptor = Object.getOwnPropertyDescriptor(NodeProto, 'angle');
