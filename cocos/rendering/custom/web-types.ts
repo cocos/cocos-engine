@@ -72,4 +72,5 @@ export class ProgramLibraryData {
     }
     /*pointer*/ layoutGraph: LayoutGraphData;
     readonly phases: Map<number, ProgramGroup> = new Map<number, ProgramGroup>();
+    mergeHighFrequency = true;
 }

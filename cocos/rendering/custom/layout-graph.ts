@@ -856,6 +856,7 @@ export class LayoutGraphData implements BidirectionalGraph
         this.constantIndex.clear();
         this.shaderLayoutIndex.clear();
         this.effects.clear();
+        this.constantMacros = '';
         // ComponentGraph
         this._names.length = 0;
         this._updateFrequencies.length = 0;
@@ -1225,6 +1226,7 @@ export class LayoutGraphData implements BidirectionalGraph
     readonly constantIndex: Map<string, number> = new Map<string, number>();
     readonly shaderLayoutIndex: Map<string, number> = new Map<string, number>();
     readonly effects: Map<string, EffectData> = new Map<string, EffectData>();
+    constantMacros = '';
 }
 
 export function saveDescriptorDB (ar: OutputArchive, v: DescriptorDB) {

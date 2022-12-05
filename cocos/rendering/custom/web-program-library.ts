@@ -335,7 +335,7 @@ function makeShaderInfo (
     passLayouts: PipelineLayoutData,
     phaseLayouts: PipelineLayoutData,
     srcShaderInfo: EffectAsset.IShaderInfo,
-    isPerProgram = false,
+    mergeHighFrequency: boolean,
 ): [ShaderInfo, Array<number>] {
     const shaderInfo = new ShaderInfo();
     const blockSizes = new Array<number>();
@@ -355,30 +355,30 @@ function makeShaderInfo (
     }
     { // batch
         const batchInfo = srcShaderInfo.descriptors[UpdateFrequency.PER_BATCH];
-        if (isPerProgram) {
-            populateShaderInfo(batchInfo,
-                _descriptorSetIndex[UpdateFrequency.PER_BATCH], shaderInfo, blockSizes);
-        } else {
+        if (mergeHighFrequency) {
             const batchLayout = phaseLayouts.descriptorSets.get(UpdateFrequency.PER_BATCH);
             if (batchLayout) {
                 populateMixedShaderInfo(batchLayout.descriptorSetLayoutData,
                     batchInfo, _descriptorSetIndex[UpdateFrequency.PER_BATCH],
                     shaderInfo, blockSizes);
             }
+        } else {
+            populateShaderInfo(batchInfo,
+                _descriptorSetIndex[UpdateFrequency.PER_BATCH], shaderInfo, blockSizes);
         }
     }
     { // instance
         const instanceInfo = srcShaderInfo.descriptors[UpdateFrequency.PER_INSTANCE];
-        if (isPerProgram) {
-            populateShaderInfo(instanceInfo,
-                _descriptorSetIndex[UpdateFrequency.PER_INSTANCE], shaderInfo, blockSizes);
-        } else {
+        if (mergeHighFrequency) {
             const instanceLayout = phaseLayouts.descriptorSets.get(UpdateFrequency.PER_INSTANCE);
             if (instanceLayout) {
                 populateMixedShaderInfo(instanceLayout.descriptorSetLayoutData,
                     instanceInfo, _descriptorSetIndex[UpdateFrequency.PER_INSTANCE],
                     shaderInfo, blockSizes);
             }
+        } else {
+            populateShaderInfo(instanceInfo,
+                _descriptorSetIndex[UpdateFrequency.PER_INSTANCE], shaderInfo, blockSizes);
         }
     }
     shaderInfo.stages.push(new ShaderStage(ShaderStageFlagBit.VERTEX, ''));
@@ -457,10 +457,13 @@ export class WebProgramLibrary extends ProgramLibraryData implements ProgramLibr
                 const programInfo = makeProgramInfo(effect.name, srcShaderInfo);
 
                 // shaderInfo and blockSizes
-                const [shaderInfo, blockSizes] = makeShaderInfo(lg, passLayout, phaseLayout, srcShaderInfo);
+                const [shaderInfo, blockSizes] = makeShaderInfo(lg, passLayout, phaseLayout,
+                    srcShaderInfo, this.mergeHighFrequency);
 
-                // overwrite programInfo
-                overwriteProgramBlockInfo(shaderInfo, programInfo);
+                if (this.mergeHighFrequency) {
+                    // overwrite programInfo
+                    overwriteProgramBlockInfo(shaderInfo, programInfo);
+                }
 
                 // handle map
                 const handleMap = genHandles(shaderInfo);
@@ -537,7 +540,7 @@ export class WebProgramLibrary extends ProgramLibraryData implements ProgramLibr
 
         // prepare variant
         const macroArray = prepareDefines(defines, programInfo.defines);
-        const prefix = this.constantMacros + programInfo.constantMacros
+        const prefix = this.layoutGraph.constantMacros + programInfo.constantMacros
         + macroArray.reduce((acc, cur) => `${acc}#define ${cur.name} ${cur.value}\n`, '');
 
         let src = programInfo.glsl3;
@@ -608,5 +611,4 @@ export class WebProgramLibrary extends ProgramLibraryData implements ProgramLibr
         const layout = this.layoutGraph.getRenderPhase(phaseID);
         return layout.pipelineLayout!;
     }
-    constantMacros = '';
 }
