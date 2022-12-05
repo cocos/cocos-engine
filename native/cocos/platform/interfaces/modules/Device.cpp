@@ -35,62 +35,62 @@
 namespace cc {
 
 int Device::getDPI() {
-    CC_ASSERT(CC_GET_PLATFORM_INTERFACE(IScreen) != nullptr);
+    CC_ASSERT_NOT_NULL(CC_GET_PLATFORM_INTERFACE(IScreen));
     return CC_GET_PLATFORM_INTERFACE(IScreen)->getDPI();
 }
 
 float Device::getDevicePixelRatio() {
-    CC_ASSERT(CC_GET_PLATFORM_INTERFACE(IScreen) != nullptr);
+    CC_ASSERT_NOT_NULL(CC_GET_PLATFORM_INTERFACE(IScreen));
     return CC_GET_PLATFORM_INTERFACE(IScreen)->getDevicePixelRatio();
 }
 
 void Device::setKeepScreenOn(bool keepScreenOn) {
-    CC_ASSERT(CC_GET_PLATFORM_INTERFACE(IScreen) != nullptr);
+    CC_ASSERT_NOT_NULL(CC_GET_PLATFORM_INTERFACE(IScreen));
     return CC_GET_PLATFORM_INTERFACE(IScreen)->setKeepScreenOn(keepScreenOn);
 }
 
 void Device::setAccelerometerEnabled(bool isEnabled) {
-    CC_ASSERT(CC_GET_PLATFORM_INTERFACE(IAccelerometer) != nullptr);
+    CC_ASSERT_NOT_NULL(CC_GET_PLATFORM_INTERFACE(IAccelerometer));
     return CC_GET_PLATFORM_INTERFACE(IAccelerometer)->setAccelerometerEnabled(isEnabled);
 }
 
 void Device::setAccelerometerInterval(float interval) {
-    CC_ASSERT(CC_GET_PLATFORM_INTERFACE(IAccelerometer) != nullptr);
+    CC_ASSERT_NOT_NULL(CC_GET_PLATFORM_INTERFACE(IAccelerometer));
     return CC_GET_PLATFORM_INTERFACE(IAccelerometer)->setAccelerometerInterval(interval);
 }
 
 const IAccelerometer::MotionValue &Device::getDeviceMotionValue() {
-    CC_ASSERT(CC_GET_PLATFORM_INTERFACE(IAccelerometer) != nullptr);
+    CC_ASSERT_NOT_NULL(CC_GET_PLATFORM_INTERFACE(IAccelerometer));
     return CC_GET_PLATFORM_INTERFACE(IAccelerometer)->getDeviceMotionValue();
 }
 
 IScreen::Orientation Device::getDeviceOrientation() {
-    CC_ASSERT(CC_GET_PLATFORM_INTERFACE(IScreen) != nullptr);
+    CC_ASSERT_NOT_NULL(CC_GET_PLATFORM_INTERFACE(IScreen));
     return CC_GET_PLATFORM_INTERFACE(IScreen)->getDeviceOrientation();
 }
 
 ccstd::string Device::getDeviceModel() {
-    CC_ASSERT(CC_GET_PLATFORM_INTERFACE(ISystem) != nullptr);
+    CC_ASSERT_NOT_NULL(CC_GET_PLATFORM_INTERFACE(ISystem));
     return CC_GET_PLATFORM_INTERFACE(ISystem)->getDeviceModel();
 }
 
 void Device::vibrate(float duration) {
-    CC_ASSERT(CC_GET_PLATFORM_INTERFACE(IVibrator) != nullptr);
+    CC_ASSERT_NOT_NULL(CC_GET_PLATFORM_INTERFACE(IVibrator));
     return CC_GET_PLATFORM_INTERFACE(IVibrator)->vibrate(duration);
 }
 
 float Device::getBatteryLevel() {
-    CC_ASSERT(CC_GET_PLATFORM_INTERFACE(IBattery) != nullptr);
+    CC_ASSERT_NOT_NULL(CC_GET_PLATFORM_INTERFACE(IBattery));
     return CC_GET_PLATFORM_INTERFACE(IBattery)->getBatteryLevel();
 }
 
 INetwork::NetworkType Device::getNetworkType() {
-    CC_ASSERT(CC_GET_PLATFORM_INTERFACE(INetwork) != nullptr);
+    CC_ASSERT_NOT_NULL(CC_GET_PLATFORM_INTERFACE(INetwork));
     return CC_GET_PLATFORM_INTERFACE(INetwork)->getNetworkType();
 }
 
 Vec4 Device::getSafeAreaEdge() {
-    CC_ASSERT(CC_GET_PLATFORM_INTERFACE(IScreen) != nullptr);
+    CC_ASSERT_NOT_NULL(CC_GET_PLATFORM_INTERFACE(IScreen));
     return CC_GET_PLATFORM_INTERFACE(IScreen)->getSafeAreaEdge();
 }
 

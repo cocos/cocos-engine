@@ -532,7 +532,7 @@ public:
 
             GLenum status;
             GL_CHECK(status = glCheckFramebufferStatus(GL_FRAMEBUFFER));
-            CC_ASSERT(status == GL_FRAMEBUFFER_COMPLETE);
+            CC_ASSERT_EQ(status, GL_FRAMEBUFFER_COMPLETE);
 
             cacheMap[glResource].glFramebuffer = glFramebuffer;
         }

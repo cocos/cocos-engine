@@ -1075,7 +1075,7 @@ void Mesh::updateSubMesh(index_t primitiveIndex, const IDynamicGeometry &geometr
         auto *dstBuffer = _data.buffer()->getData() + bundle.view.offset;
         const auto *srcBuffer = vertices.buffer()->getData() + vertices.byteOffset();
         auto *vertexBuffer = subMesh->getVertexBuffers()[index];
-        CC_ASSERT(vertexCount <= info.maxSubMeshVertices);
+        CC_ASSERT_LE(vertexCount, info.maxSubMeshVertices);
 
         if (updateSize > 0U) {
             std::memcpy(dstBuffer, srcBuffer, updateSize);
@@ -1095,7 +1095,7 @@ void Mesh::updateSubMesh(index_t primitiveIndex, const IDynamicGeometry &geometr
         const auto *srcBuffer = (stride == sizeof(uint16_t)) ? geometry.indices16.value().buffer()->getData() + geometry.indices16.value().byteOffset()
                                                              : geometry.indices32.value().buffer()->getData() + geometry.indices32.value().byteOffset();
         auto *indexBuffer = subMesh->getIndexBuffer();
-        CC_ASSERT(indexCount <= info.maxSubMeshIndices);
+        CC_ASSERT_LE(indexCount ,info.maxSubMeshIndices);
 
         if (updateSize > 0U) {
             std::memcpy(dstBuffer, srcBuffer, updateSize);
@@ -1171,7 +1171,7 @@ void Mesh::tryConvertVertexData() {
         const uint32_t stride = view.stride;
         uint32_t dstStride = stride;
 
-        CC_ASSERT(count * stride == length);
+        CC_ASSERT_EQ(count * stride == length);
 
         checkAttributesNeedConvert(orignalAttributes, attributes, attributeIndicsNeedConvert, dstStride);
         if (attributeIndicsNeedConvert.empty()) {
@@ -1218,7 +1218,7 @@ void Mesh::tryConvertVertexData() {
                         convertRGBA32FToRGBA16F(pValue, pDst);
                     } break;
                     default:
-                        CC_ASSERT(false);
+                        CC_ABORT();
                         break;
                 }
 
@@ -1227,7 +1227,7 @@ void Mesh::tryConvertVertexData() {
                 srcIndex += formatInfo.size;
             }
 
-            CC_ASSERT(wroteBytes == dstStride);
+            CC_ASSERT_EQ(wroteBytes, dstStride);
         }
 
         // update stride & length

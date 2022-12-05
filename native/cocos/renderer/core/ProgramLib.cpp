@@ -332,7 +332,7 @@ IProgramInfo *ProgramLib::define(IShaderInfo &shader) {
                 if (ccstd::holds_alternative<bool>(value)) {
                     return (ccstd::get<bool>(value) ? 1 : 0) - range[0];
                 }
-                CC_ASSERT(false); // We only support macro with int32_t type now.
+                CC_ABORT(); // We only support macro with int32_t type now.
                 return 0;
             };
         } else if (def.type == "string") {

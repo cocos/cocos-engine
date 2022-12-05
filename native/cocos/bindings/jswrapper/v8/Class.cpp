@@ -242,7 +242,7 @@ bool Class::defineStaticProperty(const char *name, v8::FunctionCallback getter, 
 }
 
 bool Class::defineFinalizeFunction(V8FinalizeFunc finalizeFunc) {
-    CC_ASSERT(finalizeFunc != nullptr);
+    CC_ASSERT_NOT_NULL(finalizeFunc);
     _finalizeFunc = finalizeFunc;
     return true;
 }

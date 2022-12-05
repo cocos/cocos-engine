@@ -312,7 +312,7 @@ Object *Object::createTypedArray(TypedArrayType type, const void *data, size_t b
             arr = v8::Float64Array::New(jsobj, 0, byteLength / 8);
             break;
         default:
-            CC_ASSERT(false); // Should never go here.
+            CC_ABORT(); // Should never go here.
             break;
     }
 
@@ -371,7 +371,7 @@ Object *Object::createTypedArrayWithBuffer(TypedArrayType type, const Object *ob
             typedArray = v8::Float64Array::New(jsobj, offset, byteLength / 8);
             break;
         default:
-            CC_ASSERT(false); // Should never go here.
+            CC_ABORT(); // Should never go here.
             break;
     }
 
@@ -413,7 +413,7 @@ bool Object::init(Class *cls, v8::Local<v8::Object> obj) {
 }
 
 bool Object::getProperty(const char *name, Value *data, bool cachePropertyName) {
-    CC_ASSERT(data != nullptr);
+    CC_ASSERT_NOT_NULL(data);
     data->setUndefined();
 
     v8::HandleScope handleScope(__isolate);
@@ -640,7 +640,7 @@ bool Object::getArrayBufferData(uint8_t **ptr, size_t *length) const {
 }
 
 void Object::setPrivateObject(PrivateObjectBase *data) {
-    CC_ASSERT(_privateObject == nullptr);
+    CC_ASSERT_NULL(_privateObject);
     #if CC_DEBUG
     // CC_ASSERT(!NativePtrToObjectMap::contains(data->getRaw()));
     if (data != nullptr) {
@@ -651,7 +651,7 @@ void Object::setPrivateObject(PrivateObjectBase *data) {
         #if JSB_TRACK_OBJECT_CREATION
                 SE_LOGE(" previous object created at %s\n", it->second->_objectCreationStackFrame.c_str());
         #endif
-                CC_ASSERT(false);
+                CC_ABORT();
             });
     }
     #endif
@@ -747,7 +747,7 @@ bool Object::call(const ValueArray &args, Object *thisObject, Value *rval /* = n
     SE_REPORT_ERROR("Invoking function (%p) failed!", this);
     se::ScriptEngine::getInstance()->clearException();
 
-    //        CC_ASSERT(false);
+    //        CC_ABORT();
 
     return false;
 }
@@ -793,7 +793,7 @@ bool Object::isArray() const {
 
 bool Object::getArrayLength(uint32_t *length) const {
     CC_ASSERT(isArray());
-    CC_ASSERT(length != nullptr);
+    CC_ASSERT_NOT_NULL(length);
     auto *thiz = const_cast<Object *>(this);
 
     v8::Local<v8::Array> v8Arr = v8::Local<v8::Array>::Cast(thiz->_obj.handle(__isolate));
@@ -803,7 +803,7 @@ bool Object::getArrayLength(uint32_t *length) const {
 
 bool Object::getArrayElement(uint32_t index, Value *data) const {
     CC_ASSERT(isArray());
-    CC_ASSERT(data != nullptr);
+    CC_ASSERT_NOT_NULL(data);
     auto *thiz = const_cast<Object *>(this);
     v8::MaybeLocal<v8::Value> result = thiz->_obj.handle(__isolate)->Get(__isolate->GetCurrentContext(), index);
 
@@ -826,7 +826,7 @@ bool Object::setArrayElement(uint32_t index, const Value &data) {
 }
 
 bool Object::getAllKeys(ccstd::vector<ccstd::string> *allKeys) const {
-    CC_ASSERT(allKeys != nullptr);
+    CC_ASSERT_NOT_NULL(allKeys);
     auto *thiz = const_cast<Object *>(this);
     v8::Local<v8::Context> context = __isolate->GetCurrentContext();
     v8::MaybeLocal<v8::Array> keys = thiz->_obj.handle(__isolate)->GetOwnPropertyNames(context);
@@ -1009,7 +1009,7 @@ Class *Object::_getClass() const { // NOLINT(readability-identifier-naming)
 }
 
 void Object::_setFinalizeCallback(V8FinalizeFunc finalizeCb) { // NOLINT(readability-identifier-naming)
-    CC_ASSERT(finalizeCb != nullptr);
+    CC_ASSERT_NOT_NULL(finalizeCb);
     _finalizeCb = finalizeCb;
 }
 

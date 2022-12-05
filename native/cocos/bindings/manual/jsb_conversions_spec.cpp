@@ -135,7 +135,7 @@ bool Vec4_to_seval(const cc::Vec4 &v, se::Value *ret) { // NOLINT(readability-id
 }
 
 bool Mat4_to_seval(const cc::Mat4 &v, se::Value *ret) { // NOLINT(readability-identifier-naming)
-    CC_ASSERT(ret != nullptr);
+    CC_ASSERT_NOT_NULL(ret);
     se::HandleObject obj(se::Object::createArrayObject(16));
 
     for (uint8_t i = 0; i < 16; ++i) {
@@ -163,7 +163,7 @@ bool seval_to_ccvalue(const se::Value &v, cc::Value *ret) { // NOLINT
     return sevalue_to_native(v, ret, nullptr);
 }
 bool sevalue_to_native(const se::Value &from, cc::Value *to, se::Object * /*ctx*/) { // NOLINT
-    CC_ASSERT(to != nullptr);
+    CC_ASSERT_NOT_NULL(to);
     bool ok = true;
     if (from.isObject()) {
         se::Object *jsobj = from.toObject();
@@ -201,7 +201,7 @@ bool seval_to_ccvaluemap(const se::Value &v, cc::ValueMap *ret) { // NOLINT
 }
 
 bool sevalue_to_native(const se::Value &from, cc::ValueMap *to, se::Object * /*ctx*/) { // NOLINT
-    CC_ASSERT(to != nullptr);
+    CC_ASSERT_NOT_NULL(to);
 
     if (from.isNullOrUndefined()) {
         to->clear();
@@ -233,7 +233,7 @@ bool sevalue_to_native(const se::Value &from, cc::ValueMap *to, se::Object * /*c
 
 // NOLINTNEXTLINE(readability-identifier-naming)
 bool seval_to_ccvaluemapintkey(const se::Value &v, cc::ValueMapIntKey *ret) {
-    CC_ASSERT(ret != nullptr);
+    CC_ASSERT_NOT_NULL(ret);
     if (v.isNullOrUndefined()) {
         ret->clear();
         return true;
@@ -272,7 +272,7 @@ bool seval_to_ccvaluemapintkey(const se::Value &v, cc::ValueMapIntKey *ret) {
 
 // NOLINTNEXTLINE(readability-identifier-naming)
 bool seval_to_ccvaluevector(const se::Value &v, cc::ValueVector *ret) { // NOLINT
-    CC_ASSERT(ret != nullptr);
+    CC_ASSERT_NOT_NULL(ret);
 
     SE_PRECONDITION3(v.isObject(), false, ret->clear());
 
@@ -315,7 +315,7 @@ bool seval_to_Data(const se::Value &v, cc::Data *ret) {
     return sevalue_to_native(v, ret, nullptr);
 }
 bool sevalue_to_native(const se::Value &v, cc::Data *ret, se::Object * /*ctx*/) { // NOLINT
-    CC_ASSERT(ret != nullptr);
+    CC_ASSERT_NOT_NULL(ret);
     SE_PRECONDITION2(v.isObject() && (v.toObject()->isTypedArray() || v.toObject()->isArrayBuffer()), false, "Convert parameter to Data failed!");
     uint8_t *ptr = nullptr;
     size_t length = 0;
@@ -337,7 +337,7 @@ bool sevalue_to_native(const se::Value &v, cc::Data *ret, se::Object * /*ctx*/) 
 // NOLINTNEXTLINE(readability-identifier-naming)
 bool seval_to_DownloaderHints(const se::Value &v, cc::network::DownloaderHints *ret) {
     const static cc::network::DownloaderHints ZERO{0, 0, ""};
-    CC_ASSERT(ret != nullptr);
+    CC_ASSERT_NOT_NULL(ret);
     SE_PRECONDITION2(v.isObject(), false, "Convert parameter to DownloaderHints failed!");
     se::Value tmp;
     se::Object *obj = v.toObject();
@@ -947,7 +947,7 @@ bool sevalue_to_native(const se::Value &from, ccstd::variant<ccstd::vector<float
     } else if (from.isString()) {
         *to = from.toString();
     } else {
-        CC_ASSERT(false);
+        CC_ABORT();
     }
     return true;
 }
@@ -1098,7 +1098,7 @@ bool sevalue_to_native(const se::Value &from, cc::TypedArray *to, se::Object * /
                 *to = cc::Float64Array();
                 break;
             default:
-                CC_ASSERT(false);
+                CC_ABORT();
         }
     }
 
@@ -1162,7 +1162,7 @@ bool sevalue_to_native(const se::Value &v, spine::Vector<spine::String> *ret, se
 #if CC_USE_MIDDLEWARE
 // NOLINTNEXTLINE(readability-identifier-naming)
 bool seval_to_Map_string_key(const se::Value &v, cc::RefMap<ccstd::string, cc::middleware::Texture2D *> *ret) {
-    CC_ASSERT(ret != nullptr);
+    CC_ASSERT_NOT_NULL(ret);
     CC_ASSERT(v.isObject());
     se::Object *obj = v.toObject();
 
@@ -1212,7 +1212,7 @@ bool ccvaluemap_to_seval(const cc::ValueMap &v, se::Value *ret) { // NOLINT
 
 // NOLINTNEXTLINE(readability-identifier-naming)
 bool ccvaluemapintkey_to_seval(const cc::ValueMapIntKey &v, se::Value *ret) { // NOLINT
-    CC_ASSERT(ret != nullptr);
+    CC_ASSERT_NOT_NULL(ret);
 
     se::HandleObject obj(se::Object::createPlainObject());
     bool ok = true;
@@ -1244,7 +1244,7 @@ bool ccvaluemapintkey_to_seval(const cc::ValueMapIntKey &v, se::Value *ret) { //
 
 // NOLINTNEXTLINE(readability-identifier-naming)
 bool ccvaluevector_to_seval(const cc::ValueVector &v, se::Value *ret) { // NOLINT
-    CC_ASSERT(ret != nullptr);
+    CC_ASSERT_NOT_NULL(ret);
     se::HandleObject obj(se::Object::createArrayObject(v.size()));
     bool ok = true;
 
@@ -1280,7 +1280,7 @@ bool Data_to_seval(const cc::Data &v, se::Value *ret) {
 
 bool Data_to_TypedArray(const cc::Data &v, se::Value *ret) { // NOLINT(readability-identifier-naming)
     // NOTICE: should remove this function, kept for backward compatibility
-    CC_ASSERT(ret != nullptr);
+    CC_ASSERT_NOT_NULL(ret);
     if (v.isNull()) {
         ret->setNull();
     } else {
