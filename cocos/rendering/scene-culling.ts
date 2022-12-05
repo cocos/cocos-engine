@@ -32,7 +32,6 @@ import { ShadowType, CSMOptimizationMode } from '../render-scene/scene/shadows';
 import { PipelineSceneData } from './pipeline-scene-data';
 import { ShadowLayerVolume } from './shadow/csm-layers';
 import { LODModelsCachedUtils } from './lod-models-utils';
-import { Layers } from '../scene-graph/layers';
 
 const _tempVec3 = new Vec3();
 const _sphere = geometry.Sphere.create(0, 0, 0, 1);
