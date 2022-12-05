@@ -47,8 +47,6 @@ export class BuiltinPhysicsWorld implements IPhysicsWorld {
                 if (this.shouldCollide(shape, other)) {
                     const contact = new BuiltinContact(shape, other);
                     this._contacts.push(contact);
-                    if (shape._contacts.indexOf(contact) === -1) { shape._contacts.push(contact); }
-                    if (other._contacts.indexOf(contact) === -1) { other._contacts.push(contact); }
                 }
             }
 
@@ -61,27 +59,15 @@ export class BuiltinPhysicsWorld implements IPhysicsWorld {
         const index = shapes.indexOf(shape);
         if (index >= 0) {
             fastRemoveAt(shapes, index);
-
-            for (let i = 0; i < shape._contacts.length; i++) {
-                const contact = shape._contacts[i];
-                const cIndex = this._contacts.indexOf(contact);
-                if (cIndex >= 0) {
-                    //remove corresponding contact from another shape
-                    let otherShape;
-                    if (contact.shape1 === shape) {
-                        otherShape = contact.shape2;
-                    } else {
-                        otherShape = contact.shape1;
-                    }
-                    const cIndex1 = otherShape._contacts.indexOf(contact);
-                    if (cIndex1  > 0) {
-                        fastRemoveAt(otherShape._contacts, cIndex1);
-                    }
-
+            const contacts = this._contacts;
+            for (let i = contacts.length - 1; i >= 0; i--) {
+                const contact = contacts[i];
+                if (contact.shape1 === shape || contact.shape2 === shape) {
                     if (contact.touching) {
                         this._emitCollide(contact, Contact2DType.END_CONTACT);
                     }
-                    fastRemoveAt(this._contacts, cIndex);
+
+                    fastRemoveAt(contacts, i);
                 }
             }
         }
