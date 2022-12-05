@@ -68,10 +68,11 @@ void CCVKPipelineState::doInit(const PipelineStateInfo & /*info*/) {
 }
 
 void CCVKPipelineState::doDestroy() {
-    if (_gpuPipelineState) {
-        CCVKDevice::getInstance()->gpuRecycleBin()->collect(_gpuPipelineState);
-        _gpuPipelineState = nullptr;
-    }
+    _gpuPipelineState = nullptr;
+}
+
+void CCVKGPUPipelineState::shutdown() {
+    CCVKDevice::getInstance()->gpuRecycleBin()->collect(this);
 }
 
 } // namespace gfx

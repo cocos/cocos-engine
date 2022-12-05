@@ -39,7 +39,7 @@ class PhysXJoint : virtual public IBaseJoint {
 
 public:
     PhysXJoint();
-    ~PhysXJoint() override;
+    ~PhysXJoint() override = default;
     void initialize(Node *node) override;
     void onEnable() override;
     void onDisable() override;

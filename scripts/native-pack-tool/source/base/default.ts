@@ -306,12 +306,12 @@ export abstract class NativePackTool {
         this.validateDirectory(commonSrc, commonDst, missingDirs);
         this.validatePlatformDirectory(missingDirs);
         if (missingDirs.length > 0) {
-            console.warn(`Following files are missing`);
+            console.log(`Following files are missing`);
             for (let f of missingDirs) {
-                console.warn(`  ${f}`);
+                console.log(`  ${f}`);
             }
-            console.warn(`Consider fix the problem or remove the directory`);
-            console.warn(`To avoid this warning, set field \'skipCheck\' in cocos-version.json to true.`);
+            console.log(`Consider fix the problem or remove the directory`);
+            console.log(`To avoid this warning, set field \'skipCheck\' in cocos-version.json to true.`);
             return false;
         }
         return true;
@@ -326,7 +326,7 @@ export abstract class NativePackTool {
         try {
             if (this.validateTemplateVersion()) {
                 if (!this.skipVersionCheck && !this.validateTemplateConsistency()) {
-                    console.warn(`Failed to validate "native" directory`);
+                    console.log(`Failed to validate "native" directory`);
                 }
             }
         } catch (e) {
@@ -507,6 +507,7 @@ export class CocosParams<T> {
     public projectName: string;
     public cmakePath: string;
     public platform: string;
+    public platformName: string;
     /**
      * engine root
      */
@@ -565,6 +566,7 @@ export class CocosParams<T> {
         this.debug = params.debug;
         this.cmakePath = params.cmakePath;
         this.platform = params.platform;
+        this.platformName = params.platformName;
         this.enginePath = params.enginePath;
         this.nativeEnginePath = params.nativeEnginePath;
         this.projDir = params.projDir;

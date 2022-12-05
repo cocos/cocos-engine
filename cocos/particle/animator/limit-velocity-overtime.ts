@@ -24,7 +24,7 @@
  */
 
 import { ccclass, tooltip, displayOrder, range, type, serializable, visible } from 'cc.decorator';
-import { lerp, pseudoRandom, Vec3, Mat4, Quat } from '../../core/math';
+import { lerp, pseudoRandom, Vec3, Mat4, Quat } from '../../core';
 import { Space, ModuleRandSeed } from '../enum';
 import { Particle, ParticleModuleBase, PARTICLE_MODULE_NAME } from '../particle';
 import CurveRange from './curve-range';
@@ -169,6 +169,7 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
             Vec3.multiplyScalar(dampedVel, dampedVel, dampenBeyondLimit(p.ultimateVelocity.length(), this.limit.evaluate(normalizedTime, pseudoRandom(p.randomSeed + LIMIT_VELOCITY_RAND_OFFSET))!, this.dampen));
         }
         Vec3.copy(p.ultimateVelocity, dampedVel);
+        Vec3.copy(p.velocity, p.ultimateVelocity);
     }
 }
 
@@ -176,7 +177,12 @@ function dampenBeyondLimit (vel: number, limit: number, dampen: number) {
     const sgn = Math.sign(vel);
     let abs = Math.abs(vel);
     if (abs > limit) {
-        abs = lerp(abs, limit, dampen);
+        const absToGive = abs - abs * dampen;
+        if (absToGive > limit) {
+            abs = absToGive;
+        } else {
+            abs = limit;
+        }
     }
     return abs * sgn;
 }

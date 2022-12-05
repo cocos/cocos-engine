@@ -121,7 +121,7 @@ bool CCVKGPUContext::initialize() {
     }
 
     IXRInterface *xr = CC_GET_XR_INTERFACE();
-    if(xr) apiVersion = xr->getXRVkApiVersion(apiVersion);
+    if (xr) apiVersion = xr->getXRVkApiVersion(apiVersion);
     minorVersion = VK_VERSION_MINOR(apiVersion);
     if (minorVersion < 1) {
         requestedExtensions.push_back(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
@@ -246,7 +246,7 @@ bool CCVKGPUContext::initialize() {
 #endif
 
     // Create the Vulkan instance
-    if(xr) {
+    if (xr) {
         xr->initializeVulkanData(vkGetInstanceProcAddr);
         vkInstance = xr->createXRVulkanInstance(instanceInfo);
     } else {
@@ -278,7 +278,7 @@ bool CCVKGPUContext::initialize() {
     }
 
     ccstd::vector<VkPhysicalDevice> physicalDeviceHandles(physicalDeviceCount);
-    if(xr) {
+    if (xr) {
         physicalDeviceHandles[0] = xr->getXRVulkanGraphicsDevice();
     } else {
         VK_CHECK(vkEnumeratePhysicalDevices(vkInstance, &physicalDeviceCount, physicalDeviceHandles.data()));

@@ -26,9 +26,9 @@
 #include "scene/DirectionalLight.h"
 #include "core/Root.h"
 #include "core/scene-graph/Node.h"
-#include "renderer/pipeline/custom/RenderInterfaceTypes.h"
 #include "renderer/pipeline/PipelineSceneData.h"
 #include "renderer/pipeline/RenderPipeline.h"
+#include "renderer/pipeline/custom/RenderInterfaceTypes.h"
 
 namespace cc {
 namespace scene {
@@ -75,8 +75,11 @@ void DirectionalLight::activate() const {
         if (_shadowEnabled) {
             if (_shadowFixedArea || !pipeline->getPipelineSceneData()->getCSMSupported()) {
                 pipeline->setValue("CC_DIR_LIGHT_SHADOW_TYPE", 1);
+            } else if (_csmLevel > CSMLevel::LEVEL_1 && pipeline->getPipelineSceneData()->getCSMSupported()) {
+                pipeline->setValue("CC_DIR_LIGHT_SHADOW_TYPE", 2);
+                pipeline->setValue("CC_CASCADED_LAYERS_TRANSITION", _csmLayersTransition);
             } else {
-                pipeline->setValue("CC_DIR_LIGHT_SHADOW_TYPE", static_cast<int32_t>(_csmLevel) > 1 ? 2 : 1);
+                pipeline->setValue("CC_DIR_LIGHT_SHADOW_TYPE", 1);
             }
             pipeline->setValue("CC_DIR_SHADOW_PCF_TYPE", static_cast<int32_t>(_shadowPcf));
         } else {

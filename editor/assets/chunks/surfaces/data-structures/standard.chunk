@@ -16,6 +16,11 @@ struct SurfacesMaterialData
 #if CC_SURFACES_LIGHTING_ANISOTROPIC
   float anisotropyShape;
 #endif
-  // float transmittanceFactor;
+#if CC_SURFACES_LIGHTING_TRANSMITTENCE
+  vec4 transmittenceParams;
+#endif
+#if CC_SURFACES_LIGHTING_TRT
+  float roughnessTRT;
+#endif
   // float sssCurvature;
 };

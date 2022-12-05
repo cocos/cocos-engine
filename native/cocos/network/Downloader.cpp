@@ -157,8 +157,8 @@ std::shared_ptr<const DownloadTask> Downloader::createDownloadTask(const ccstd::
     return createDownloadTask(srcUrl, storagePath, emptyHeader, identifier);
 }
 
-void Downloader::abort(const DownloadTask &task) {
-    _impl->abort(task._coTask);
+void Downloader::abort(const std::shared_ptr<const DownloadTask> &task) {
+    _impl->abort(task->_coTask);
 }
 //ccstd::string Downloader::getFileNameFromUrl(const ccstd::string& srcUrl)
 //{

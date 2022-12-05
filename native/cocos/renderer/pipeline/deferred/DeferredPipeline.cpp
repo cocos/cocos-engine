@@ -121,8 +121,9 @@ void DeferredPipeline::render(const ccstd::vector<scene::Camera *> &cameras) {
         _commandBuffers[0]->resetQueryPool(_queryPools[0]);
     }
 
+    _pipelineUBO->updateMultiCameraUBO(_globalDSManager, cameras);
     _pipelineUBO->updateGlobalUBO(cameras[0]);
-    _pipelineUBO->updateMultiCameraUBO(cameras);
+
     ensureEnoughSize(cameras);
     decideProfilerCamera(cameras);
 

@@ -26,15 +26,16 @@
 #pragma once
 
 #include <iostream>
-
 #include "platform/interfaces/modules/ISystemWindow.h"
 
-namespace cc {
+@class UIWindow;
 
+namespace cc {
 class SystemWindow : public ISystemWindow {
 public:
-    SystemWindow() = default;
+    SystemWindow(uint32_t windowId, void* externalHandle);
     ~SystemWindow() override;
+
     void closeWindow() override;
     uintptr_t getWindowHandle() const override;
 
@@ -45,8 +46,15 @@ public:
     void setCursorEnabled(bool value) override;
     void copyTextToClipboard(const std::string& text) override;
 
+    uint32_t getWindowId() const override { return _windowId; }
+    UIWindow* getUIWindow() const { return _window; }
+
 private:
     int32_t _width{0};
     int32_t _height{0};
+
+    uint32_t _windowId{0};
+    void* _externalHandle{nullptr};
+    UIWindow* _window{nullptr};
 };
 } // namespace cc

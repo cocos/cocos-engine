@@ -27,11 +27,10 @@
 
 #include "VKStd.h"
 #include "gfx-base/GFXShader.h"
+#include "gfx-vulkan/VKGPUObjects.h"
 
 namespace cc {
 namespace gfx {
-
-struct CCVKGPUShader;
 
 class CC_VULKAN_API CCVKShader final : public Shader {
 public:
@@ -44,7 +43,7 @@ protected:
     void doInit(const ShaderInfo &info) override;
     void doDestroy() override;
 
-    CCVKGPUShader *_gpuShader = nullptr;
+    IntrusivePtr<CCVKGPUShader> _gpuShader;
 };
 
 } // namespace gfx

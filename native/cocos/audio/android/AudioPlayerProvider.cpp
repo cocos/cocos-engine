@@ -451,7 +451,7 @@ void AudioPlayerProvider::resume() {
 }
 void AudioPlayerProvider::registerPcmData(const ccstd::string &audioFilePath, PcmData &data) {
     std::lock_guard<std::mutex> lck(_pcmCacheMutex);
-    if (_pcmCache.find(audioFilePath) != _pcmCache.end()){
+    if (_pcmCache.find(audioFilePath) != _pcmCache.end()) {
         CC_LOG_DEBUG("file %s pcm data is already cached.", audioFilePath.c_str());
         return;
     }

@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { Game, game } from '../../core';
+import { Game, game } from '../../game';
 import { selector } from '../framework/physics-selector';
 import { BulletRigidBody } from './bullet-rigid-body';
 import { BulletWorld } from './bullet-world';
@@ -37,6 +37,7 @@ import { BulletTerrainShape } from './shapes/bullet-terrain-shape';
 import { BulletSimplexShape } from './shapes/bullet-simplex-shape';
 import { BulletPlaneShape } from './shapes/bullet-plane-shape';
 import { BulletP2PConstraint } from './constraints/bullet-p2p-constraint';
+import { BulletFixedConstraint } from './constraints/bullet-fixed-constraint';
 import { BulletHingeConstraint } from './constraints/bullet-hinge-constraint';
 
 game.once(Game.EVENT_PRE_SUBSYSTEM_INIT, () => {
@@ -56,5 +57,6 @@ game.once(Game.EVENT_PRE_SUBSYSTEM_INIT, () => {
 
         PointToPointConstraint: BulletP2PConstraint,
         HingeConstraint: BulletHingeConstraint,
+        FixedConstraint: BulletFixedConstraint,
     });
 });

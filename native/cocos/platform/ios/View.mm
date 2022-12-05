@@ -50,6 +50,7 @@ namespace {
 
 - (void)dispatchTouchEvent:(cc::TouchEvent::Type)type withEvent:(NSSet *)touches {
     cc::TouchEvent touchEvent;
+    touchEvent.windowId = 1;
     touchEvent.type = type;
     for (UITouch *touch in touches) {
         touchEvent.touches.push_back({static_cast<float>([touch locationInView:[touch view]].x),
@@ -57,7 +58,7 @@ namespace {
                                       static_cast<int>((intptr_t)touch)});
     }
     CC_ASSERT(_platform != nullptr);
-    _platform->dispatchTouchEvent(touchEvent);
+    cc::events::Touch::broadcast(touchEvent);
 }
 
 - (id)initWithFrame:(CGRect)frame {

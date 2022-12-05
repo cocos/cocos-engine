@@ -24,12 +24,13 @@
  */
 
 import { EDITOR } from 'internal:constants';
-import { Asset } from '../core/assets';
-import { ccclass, serializable } from '../core/data/decorators';
+import { Asset } from '../asset/assets';
 import { ArmatureCache } from './ArmatureCache';
-import { Enum, Node } from '../core';
+import { Enum, cclegacy, _decorator } from '../core';
 import { CCFactory } from './CCFactory';
-import { legacyCC } from '../core/global-exports';
+import { Node } from '../scene-graph';
+
+const { ccclass, serializable } = _decorator;
 
 /**
  * @en The skeleton data of dragonBones.
@@ -78,7 +79,7 @@ export class DragonBonesAsset extends Asset {
 
     reset () {
         this._clear();
-        if (EDITOR && !legacyCC.GAME_VIEW) {
+        if (EDITOR && !cclegacy.GAME_VIEW) {
             this._armaturesEnum = null;
         }
     }
@@ -172,4 +173,4 @@ export class DragonBonesAsset extends Asset {
     }
 }
 
-legacyCC.internal.DragonBonesAsset = DragonBonesAsset;
+cclegacy.internal.DragonBonesAsset = DragonBonesAsset;

@@ -23,8 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#ifndef __cocos2d_libs__CCEventAssetsManagerEx__
-#define __cocos2d_libs__CCEventAssetsManagerEx__
+#pragma once
 
 #include <string>
 #include "base/RefCounted.h"
@@ -91,11 +90,11 @@ public:
     int getTotalFiles() const;
 
     /** Constructor */
-    EventAssetsManagerEx(const std::string &eventName, cc::extension::AssetsManagerEx *manager, const EventCode &code, std::string assetId = "", std::string message = "", int curleCode = 0, int curlmCode = 0);
+    EventAssetsManagerEx(const std::string &eventName, cc::extension::AssetsManagerEx *manager, EventCode code, std::string assetId = "", std::string message = "", int curleCode = 0, int curlmCode = 0);
 
-private:
     ~EventAssetsManagerEx() override = default;
 
+private:
     EventCode _code;
 
     cc::extension::AssetsManagerEx *_manager;
@@ -111,4 +110,3 @@ private:
 
 NS_CC_EXT_END
 
-#endif /* defined(__cocos2d_libs__CCEventAssetsManagerEx__) */

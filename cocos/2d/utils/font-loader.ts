@@ -23,11 +23,11 @@
  THE SOFTWARE.
  */
 
-import { warnID } from '../../core/platform/debug';
+import { warnID } from '../../core';
 import { safeMeasureText } from './text-utils';
-import { CompleteCallback, IDownloadParseOptions } from '../../core/asset-manager/shared';
-import downloader from '../../core/asset-manager/downloader';
-import factory from '../../core/asset-manager/factory';
+import { CompleteCallback, IDownloadParseOptions } from '../../asset/asset-manager/shared';
+import downloader from '../../asset/asset-manager/downloader';
+import factory from '../../asset/asset-manager/factory';
 import { TTFFont } from '../assets/ttf-font';
 
 interface IFontLoadHandle {

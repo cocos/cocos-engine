@@ -23,12 +23,11 @@
  THE SOFTWARE.
 */
 
-import {  Mat4 } from '../../../core/math';
+import {  Mat4, errorID } from '../../../core';
 import { IRenderData, RenderData } from '../../renderer/render-data';
 import { IBatcher } from '../../renderer/i-batcher';
 import { Sprite } from '../../components';
 import { IAssembler } from '../../renderer/base';
-import { errorID } from '../../../core/platform/debug';
 import { dynamicAtlasManager } from '../../utils/dynamic-atlas/atlas-manager';
 import { StaticVBChunk } from '../../renderer/static-vb-accessor';
 

@@ -24,12 +24,8 @@ exports.listeners = {
 
         let setChildrenLayer = false;
         if (dump.path === 'layer') {
-            dump.value = panel.$.nodeLayerSelect.value - 0;
-            if ('values' in dump) {
-                dump.values.forEach((val, index) => {
-                    dump.values[index] = dump.value;
-                });
-            }
+            const newValue = Number(panel.$.nodeLayerSelect.value);
+
             if (panel.dumps && panel.dumps.some((perdump) => perdump.children && perdump.children.length > 0)) {
                 // 只修改自身节点
                 let choose = 1;
@@ -54,7 +50,16 @@ exports.listeners = {
                     return;
                 } else {
                     setChildrenLayer = choose === 0 ? true : false;
+
+                    dump.value = newValue;
+                    if (setChildrenLayer && 'values' in dump) {
+                        dump.values.forEach((val, index) => {
+                            dump.values[index] = newValue;
+                        });
+                    }
                 }
+            } else {
+                dump.value = newValue;
             }
         }
 
@@ -305,6 +310,7 @@ exports.template = /* html*/`
         <ui-prop class="position" type="dump"></ui-prop>
         <ui-prop class="rotation" type="dump"></ui-prop>
         <ui-prop class="scale" type="dump"></ui-prop>
+        <ui-prop class="mobility" type="dump"></ui-prop>
         <ui-prop class="layer" type="dump" html="false">
             <ui-label slot="label" value="Layer"></ui-label>
             <div class="layer-content" slot="content">
@@ -367,6 +373,7 @@ exports.$ = {
     nodePosition: '.node > .position',
     nodeRotation: '.node > .rotation',
     nodeScale: '.node > .scale',
+    nodeMobility: '.node > .mobility',
     nodeLayer: '.node > .layer',
     nodeLayerSelect: '.node > .layer .layer-select',
     nodeLayerButton: '.node > .layer .layer-edit',
@@ -383,13 +390,16 @@ const Elements = {
     panel: {
         ready() {
             const panel = this;
-            let animationId;
+            panel.__nodeChangedHandle__ = undefined;
 
             panel.__nodeChanged__ = (uuid) => {
                 if (Array.isArray(panel.uuidList) && panel.uuidList.includes(uuid)) {
-                    window.cancelAnimationFrame(animationId);
-                    animationId = window.requestAnimationFrame(async () => {
+                    window.cancelAnimationFrame(panel.__nodeChangedHandle__);
+                    panel.__nodeChangedHandle__ = window.requestAnimationFrame(async () => {
                         for (const prop in Elements) {
+                            if (!panel.ready) {
+                                return;
+                            }
                             const element = Elements[prop];
                             if (element.update) {
                                 await element.update.call(panel);
@@ -498,6 +508,11 @@ const Elements = {
         },
         close() {
             const panel = this;
+
+            if (panel.__nodeChangedHandle__) {
+                window.cancelAnimationFrame(panel.__nodeChangedHandle__);
+                panel.__nodeChangedHandle__ = undefined;
+            }
 
             Editor.Message.removeBroadcastListener('scene:change-node', panel.__nodeChanged__);
             Editor.Message.removeBroadcastListener('project:setting-change', panel.__projectSettingChanged__);
@@ -896,7 +911,7 @@ const Elements = {
                 event.stopPropagation();
             });
         },
-        update() {
+        async update() {
             const panel = this;
 
             if (!panel.dump || panel.dump.isScene) {
@@ -908,6 +923,7 @@ const Elements = {
             panel.$.nodePosition.render(panel.dump.position);
             panel.$.nodeRotation.render(panel.dump.rotation);
             panel.$.nodeScale.render(panel.dump.scale);
+            panel.$.nodeMobility.render(panel.dump.mobility);
             panel.$.nodeLayer.render(panel.dump.layer);
 
             // 查找需要渲染的 component 列表
@@ -938,7 +954,9 @@ const Elements = {
 
             // 如果元素长度、类型一致，则直接更新现有的界面
             if (isAllSameType) {
-                sectionBody.__sections__.forEach(($section, index) => {
+                for (let index = 0; index < sectionBody.__sections__.length; index++) {
+                    const $section = sectionBody.__sections__[index];
+
                     const dump = componentList[index];
                     $section.dump = dump;
 
@@ -960,10 +978,10 @@ const Elements = {
                         $link.removeAttribute('value');
                     }
 
-                    Array.prototype.forEach.call($section.__panels__, ($panel) => {
-                        $panel.update(dump);
-                    });
-                });
+                    await Promise.all($section.__panels__.map(($panel) => {
+                        return $panel.update(dump);
+                    }));
+                }
             } else {
                 // 如果元素不一致，说明切换了选中元素，那么需要更新整个界面
                 sectionBody.innerText = '';
@@ -1291,7 +1309,6 @@ const Elements = {
                     materialPanel.panelObject.$.container.removeAttribute('whole');
                     materialPanel.panelObject.$.container.setAttribute('cache-expand', materialUuid);
                     const { section = {} } = panel.renderManager[materialPanelType];
-                    materialPanel.update([materialUuid], { section });
 
                     // 按数组顺序放置
                     if (materialPrevPanel) {
@@ -1299,6 +1316,9 @@ const Elements = {
                     } else {
                         panel.$.sectionAsset.prepend(materialPanel);
                     }
+
+                    // call update after panel is connected(ensure lifecycle hook `ready` has been called)
+                    materialPanel.update([materialUuid], { section });
 
                     materialPanel.focusEventInNode = () => {
                         const children = Array.from(materialPanel.parentElement.children);
@@ -1839,6 +1859,7 @@ exports.ready = async function ready() {
 
     // 为了避免把 ui-num-input, ui-color 的连续 change 进行 snapshot
     panel.snapshotLock = false;
+    panel.ready = true;
 
     for (const prop in Elements) {
         const element = Elements[prop];
@@ -1855,6 +1876,7 @@ exports.ready = async function ready() {
 
 exports.close = async function close() {
     const panel = this;
+    panel.ready = false;
 
     for (const prop in Elements) {
         const element = Elements[prop];
@@ -1885,4 +1907,5 @@ exports.beforeClose = async function beforeClose() {
 
 exports.config = {
     section: require('../components.js'),
+    footer: require('../components-footer.js'),
 };

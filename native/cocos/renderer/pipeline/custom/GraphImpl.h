@@ -511,7 +511,7 @@ inline void reindexVectorHandle(Container &container, HandleDescriptor u) {
 
 template <class Graph, class VertexDescriptor>
 inline void removeVectorVertex(Graph &g, VertexDescriptor u, boost::directed_tag /*tag*/) {
-    g.vertices.erase(g.vertices.begin() + u);
+    g._vertices.erase(g._vertices.begin() + u);
     auto numV = num_vertices(g);
     if (u != numV) {
         for (VertexDescriptor v = 0; v < numV; ++v) {
@@ -522,7 +522,7 @@ inline void removeVectorVertex(Graph &g, VertexDescriptor u, boost::directed_tag
 
 template <class Graph, class VertexDescriptor>
 inline void removeVectorVertex(Graph &g, VertexDescriptor u, boost::undirected_tag /*tag*/) {
-    g.vertices.erase(g.vertices.begin() + u);
+    g._vertices.erase(g._vertices.begin() + u);
     VertexDescriptor numV = num_vertices(g);
     for (VertexDescriptor v = 0; v < numV; ++v) {
         reindexEdgeList(g.getOutEdgeList(v), u);
@@ -542,7 +542,7 @@ inline void removeVectorVertex(Graph &g, VertexDescriptor u, boost::undirected_t
 
 template <class Graph, class VertexDescriptor>
 inline void removeVectorVertex(Graph &g, VertexDescriptor u, boost::bidirectional_tag /*tag*/) {
-    g.vertices.erase(g.vertices.begin() + u);
+    g._vertices.erase(g._vertices.begin() + u);
     VertexDescriptor numV = num_vertices(g);
     VertexDescriptor v;
     if (u != numV) {
@@ -559,7 +559,7 @@ inline void removeVectorVertex(Graph &g, VertexDescriptor u, boost::bidirectiona
 template <class Graph, class VertexDescriptor, class EdgeList>
 inline void removeVectorVertex(Graph &g, EdgeList & /*edges*/,
                                VertexDescriptor u, boost::bidirectional_tag /*tag*/) {
-    g.vertices.erase(g.vertices.begin() + u);
+    g._vertices.erase(g._vertices.begin() + u);
     VertexDescriptor numV = num_vertices(g);
     VertexDescriptor v;
     if (u != numV) {

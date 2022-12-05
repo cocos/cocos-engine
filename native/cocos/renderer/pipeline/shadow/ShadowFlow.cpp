@@ -58,7 +58,6 @@ ShadowFlow::~ShadowFlow() = default;
 bool ShadowFlow::initialize(const RenderFlowInfo &info) {
     RenderFlow::initialize(info);
     if (_stages.empty()) {
-
         auto *shadowStage = ccnew ShadowStage;
         shadowStage->initialize(ShadowStage::getInitializeInfo());
         _stages.emplace_back(shadowStage);
@@ -98,6 +97,9 @@ void ShadowFlow::activate(RenderPipeline *pipeline) {
 
     // 0: CC_DIR_LIGHT_SHADOW_PLANAR, 1: CC_DIR_LIGHT_SHADOW_UNIFORM, 2: CC_DIR_LIGHT_SHADOW_CASCADED, 3: CC_DIR_LIGHT_SHADOW_VARIANCE
     pipeline->setValue("CC_DIR_LIGHT_SHADOW_TYPE ", 0);
+
+    // 0: CC_CASCADED_LAYERS_TRANSITION_OFF, 1: CC_CASCADED_LAYERS_TRANSITION_ON
+    pipeline->setValue("CC_CASCADED_LAYERS_TRANSITION ", 0);
 
     pipeline->onGlobalPipelineStateChanged();
 }

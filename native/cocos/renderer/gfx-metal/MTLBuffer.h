@@ -43,7 +43,7 @@ public:
     ~CCMTLBuffer();
     CCMTLBuffer(const CCMTLBuffer &) = delete;
     CCMTLBuffer(CCMTLBuffer &&) = delete;
-    CCMTLBuffer &operator=(const CCMTLBuffer &) = default;
+    CCMTLBuffer &operator=(const CCMTLBuffer &) = delete;
     CCMTLBuffer &operator=(CCMTLBuffer &&) = delete;
 
     void update(const void *buffer, uint32_t offset) override;

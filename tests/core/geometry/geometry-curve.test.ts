@@ -1,5 +1,5 @@
-import { WrapModeMask } from '../../../cocos/core/animation/types';
-import { ExtrapolationMode, RealCurve, RealInterpolationMode, RealKeyframeValue, TangentWeightMode } from '../../../cocos/core/curves';
+import { WrapModeMask } from '../../../cocos/core/geometry';
+import { ExtrapolationMode, RealCurve, RealInterpolationMode, TangentWeightMode } from '../../../cocos/core/curves';
 import { AnimationCurve, Keyframe } from '../../../cocos/core/geometry/curve';
 
 describe('geometry.AnimationCurve', () => {

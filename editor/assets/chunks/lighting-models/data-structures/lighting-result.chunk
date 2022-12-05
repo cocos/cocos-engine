@@ -9,5 +9,11 @@ struct LightingResult
   float shadow, ao;
   vec3 lightmapColor;
   vec3 emissive;
-  //vec3 transmittance, scattered;
+#if CC_SURFACES_LIGHTING_TRANSMITTENCE
+  vec3 transmittence;
+#endif  
+#if CC_SURFACES_LIGHTING_TRT
+  vec3 directTRT, environmentTRT;
+#endif  
+  //vec3 scattered;
 };

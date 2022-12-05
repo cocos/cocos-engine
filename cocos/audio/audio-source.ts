@@ -26,11 +26,11 @@
 import { AudioPlayer } from 'pal/audio';
 import { ccclass, help, menu, tooltip, type, range, serializable } from 'cc.decorator';
 import { AudioPCMDataView, AudioState } from '../../pal/audio/type';
-import { Component } from '../core/components/component';
-import { clamp } from '../core/math';
+import { Component } from '../scene-graph/component';
+import { clamp } from '../core';
 import { AudioClip } from './audio-clip';
 import { audioManager } from './audio-manager';
-import { Node } from '../core';
+import { Node } from '../scene-graph';
 
 const _LOADED_EVENT = 'audiosource-loaded';
 
@@ -106,7 +106,6 @@ export class AudioSource extends Component {
     }
     private _syncPlayer () {
         const clip = this._clip;
-        this._isLoaded = false;
         if (this._lastSetClip === clip) {
             return;
         }
@@ -119,6 +118,10 @@ export class AudioSource extends Component {
             console.error('Invalid audio clip');
             return;
         }
+        // The state of _isloaded cannot be modified if clip is the wrong argument.
+        // Because load is an asynchronous function, if it is called multiple times with the same arguments.
+        // It may cause an illegal state change
+        this._isLoaded = false;
         this._lastSetClip = clip;
         this._operationsBeforeLoading.length = 0;
         AudioPlayer.load(clip._nativeAsset.url, {

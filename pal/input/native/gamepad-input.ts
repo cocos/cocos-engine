@@ -6,7 +6,7 @@ import { Feature } from '../../system-info/enum-type';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { EventGamepad } from '../../../cocos/input/types';
 import { InputSourceButton, InputSourceDpad, InputSourceStick } from '../input-source';
-import { fastRemoveAt } from '../../../cocos/core/utils/array';
+import { js } from '../../../cocos/core';
 
 enum Button {
     BUTTON_SOUTH,
@@ -167,7 +167,7 @@ export class GamepadInputDevice {
         if (removeIndex === -1) {
             return;
         }
-        fastRemoveAt(GamepadInputDevice.all, removeIndex);
+        js.array.fastRemoveAt(GamepadInputDevice.all, removeIndex);
     }
     private static _getInputDevice (id: number) {
         return GamepadInputDevice.all.find((device) => device.deviceId === id);

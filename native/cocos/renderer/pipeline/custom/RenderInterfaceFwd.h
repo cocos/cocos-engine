@@ -31,14 +31,18 @@
 // clang-format off
 #pragma once
 #include "cocos/base/std/variant.h"
-#include "cocos/renderer/pipeline/custom/LayoutGraphFwd.h"
-#include "cocos/renderer/pipeline/custom/RenderGraphFwd.h"
+#include "cocos/core/assets/EffectAsset.h"
+#include "cocos/renderer/core/PassUtils.h"
+#include "cocos/renderer/pipeline/PipelineSceneData.h"
+#include "cocos/renderer/pipeline/custom/RenderCommonFwd.h"
+#include "cocos/scene/Camera.h"
 
 namespace cc {
 
 namespace render {
 
 class PipelineRuntime;
+class RenderNode;
 class Setter;
 class RasterQueueBuilder;
 class RasterPassBuilder;

@@ -23,11 +23,6 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module component/xr
- */
-
 import { Vec3 } from '../../core/math';
 import { Event } from '../../input/types';
 

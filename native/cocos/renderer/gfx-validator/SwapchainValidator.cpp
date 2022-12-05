@@ -85,16 +85,27 @@ void SwapchainValidator::doDestroy() {
     _actor->destroy();
 }
 
+void SwapchainValidator::updateInfo() {
+    _generation = _actor->getGeneration();
+    SwapchainTextureInfo textureInfo;
+    textureInfo.swapchain = this;
+    textureInfo.format = _actor->getColorTexture()->getFormat();
+    textureInfo.width = _actor->getWidth();
+    textureInfo.height = _actor->getHeight();
+    updateTextureInfo(textureInfo, _colorTexture);
+
+    textureInfo.format = _actor->getDepthStencilTexture()->getFormat();
+    updateTextureInfo(textureInfo, _depthStencilTexture);
+
+    _transform = _actor->getSurfaceTransform();
+}
+
 void SwapchainValidator::doResize(uint32_t width, uint32_t height, SurfaceTransform transform) {
     CC_ASSERT(isInited());
 
     _actor->resize(width, height, transform);
 
-    auto *colorTexture = static_cast<TextureValidator *>(_colorTexture.get());
-    auto *depthStencilTexture = static_cast<TextureValidator *>(_depthStencilTexture.get());
-    colorTexture->_info.width = depthStencilTexture->_info.width = _actor->getWidth();
-    colorTexture->_info.height = depthStencilTexture->_info.height = _actor->getHeight();
-    _transform = _actor->getSurfaceTransform();
+    updateInfo();
 }
 
 void SwapchainValidator::doDestroySurface() {
@@ -107,6 +118,8 @@ void SwapchainValidator::doCreateSurface(void *windowHandle) {
     CC_ASSERT(isInited());
 
     _actor->createSurface(windowHandle);
+
+    updateInfo();
 }
 
 } // namespace gfx

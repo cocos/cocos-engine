@@ -1,6 +1,6 @@
 import { MeshBuffer } from '../../cocos/2d/renderer/mesh-buffer';
 import { vfmtPosUvColor } from '../../cocos/2d/renderer/vertex-format';
-import { deviceManager } from '../../cocos/core/gfx';
+import { deviceManager } from '../../cocos/gfx';
 
 const meshBuffer = new MeshBuffer();
 meshBuffer.initialize(deviceManager.gfxDevice, vfmtPosUvColor, 1024, 2048);

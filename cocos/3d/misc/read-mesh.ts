@@ -24,7 +24,7 @@
  */
 
 import { Mesh } from '../assets/mesh';
-import { AttributeName, Format, FormatInfos } from '../../core/gfx';
+import { AttributeName, Format, FormatInfos } from '../../gfx';
 import { IGeometry } from '../../primitive/define';
 import { readBuffer } from './buffer';
 

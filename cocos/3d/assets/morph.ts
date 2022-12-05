@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { AttributeName } from '../../core/gfx';
+import { AttributeName } from '../../gfx';
 import { Mesh } from './mesh';
 
 /**

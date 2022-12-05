@@ -296,7 +296,7 @@ void GLES2GPUContext::makeCurrent(const GLES2GPUSwapchain *drawSwapchain, const 
     }
 
     makeCurrent(drawSurface, readSurface, _eglCurrentContext);
-    
+
     if (prevContext != _eglCurrentContext) {
         resetStates();
     }

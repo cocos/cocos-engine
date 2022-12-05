@@ -24,35 +24,31 @@
 */
 
 import { JSB } from 'internal:constants';
-import { Camera, Model } from '../../core/renderer/scene';
+import { Camera, Model } from '../../render-scene/scene';
 import type { UIStaticBatch } from '../components/ui-static-batch';
-import { Material } from '../../core/assets/material';
+import { Material } from '../../asset/assets/material';
 import { RenderRoot2D, UIRenderer } from '../framework';
 import { Texture, Device, Attribute, Sampler, DescriptorSetInfo, Buffer,
-    BufferInfo, BufferUsageBit, MemoryUsageBit, DescriptorSet, InputAssembler, deviceManager, PrimitiveMode } from '../../core/gfx';
-import { Pool } from '../../core/memop';
-import { CachedArray } from '../../core/memop/cached-array';
-import { Root } from '../../core/root';
-import { Node } from '../../core/scene-graph';
+    BufferInfo, BufferUsageBit, MemoryUsageBit, DescriptorSet, InputAssembler, deviceManager, PrimitiveMode } from '../../gfx';
+import { CachedArray, Pool, Mat4, cclegacy, assertIsTrue } from '../../core';
+import { Root } from '../../root';
+import { Node } from '../../scene-graph';
 import { Stage, StencilManager } from './stencil-manager';
 import { DrawBatch2D } from './draw-batch';
-import { legacyCC } from '../../core/global-exports';
-import { ModelLocalBindings, UBOLocal } from '../../core/pipeline/define';
+import { ModelLocalBindings, UBOLocal } from '../../rendering/define';
 import { SpriteFrame } from '../assets';
-import { TextureBase } from '../../core/assets/texture-base';
-import { Mat4, Vec3 } from '../../core/math';
+import { TextureBase } from '../../asset/assets/texture-base';
 import { IBatcher } from './i-batcher';
-import { StaticVBAccessor, StaticVBChunk } from './static-vb-accessor';
-import { assertIsTrue } from '../../core/data/utils/asserts';
+import { StaticVBAccessor } from './static-vb-accessor';
 import { getAttributeStride, vfmt, vfmtPosUvColor } from './vertex-format';
 import { updateOpacity } from '../assembler/utils';
-import { BaseRenderData, MeshRenderData, RenderData } from './render-data';
+import { BaseRenderData, MeshRenderData } from './render-data';
 import { UIMeshRenderer } from '../components/ui-mesh-renderer';
-import { NativeBatcher2d, NativeRenderDrawInfo, NativeUIMeshBuffer } from './native-2d';
+import { NativeBatcher2d, NativeUIMeshBuffer } from './native-2d';
 import { MeshBuffer } from './mesh-buffer';
-import { scene } from '../../core/renderer';
-import { builtinResMgr, RenderingSubMesh } from '../../core';
-import { Mask } from '../components/mask';
+import { scene } from '../../render-scene';
+import { builtinResMgr } from '../../asset/asset-manager';
+import { RenderingSubMesh } from '../../asset/assets';
 
 const _dsInfo = new DescriptorSetInfo(null!);
 const m4_1 = new Mat4();
@@ -163,7 +159,7 @@ export class Batcher2D implements IBatcher {
         StencilManager.sharedManager!.destroy();
 
         if (this._maskClearModel && this._maskModelMesh) {
-            legacyCC.director.root.destroyModel(this._maskClearModel);
+            cclegacy.director.root.destroyModel(this._maskClearModel);
             this._maskModelMesh.destroy();
         }
         if (this._maskClearMtl) {
@@ -556,7 +552,7 @@ export class Batcher2D implements IBatcher {
             dssHash = StencilManager.sharedManager!.getStencilHash(comp.stencilStage);
         }
 
-        const stamp = legacyCC.director.getTotalFrames();
+        const stamp = cclegacy.director.getTotalFrames();
         if (model) {
             model.updateTransform(stamp);
             model.updateUBOs(stamp);
@@ -860,7 +856,7 @@ export class Batcher2D implements IBatcher {
         if (!this._maskClearModel) {
             this._maskClearMtl = builtinResMgr.get<Material>('default-clear-stencil');
 
-            this._maskClearModel = legacyCC.director.root.createModel(scene.Model);
+            this._maskClearModel = cclegacy.director.root.createModel(scene.Model);
             const stride = getAttributeStride(vfmt);
             const gfxDevice: Device = deviceManager.gfxDevice;
             const vertexBuffer = gfxDevice.createBuffer(new BufferInfo(
@@ -906,7 +902,7 @@ export class Batcher2D implements IBatcher {
         }
 
         const model = this._maskClearModel!;
-        const stamp = legacyCC.director.getTotalFrames();
+        const stamp = cclegacy.director.getTotalFrames();
         if (model) {
             model.updateTransform(stamp);
             model.updateUBOs(stamp);
@@ -1052,7 +1048,7 @@ class DescriptorSetCache {
     }
 
     public getDescriptorSet (batch: DrawBatch2D): DescriptorSet {
-        const root = legacyCC.director.root;
+        const root = cclegacy.director.root;
         let hash;
         if (batch.useLocalData) {
             const caches = this._localDescriptorSetCache;
@@ -1131,4 +1127,4 @@ class DescriptorSetCache {
     }
 }
 
-legacyCC.internal.Batcher2D = Batcher2D;
+cclegacy.internal.Batcher2D = Batcher2D;

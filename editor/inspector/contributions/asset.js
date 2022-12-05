@@ -9,7 +9,7 @@ exports.listeners = {};
 exports.style = fs.readFileSync(path.join(__dirname, './asset.css'), 'utf8');
 
 exports.template = `
-<ui-section whole class="container">
+<ui-section whole scrollable="false" class="container">
     <header class="header" slot="header">
         <ui-icon class="icon" color tooltip="i18n:ENGINE.assets.locate_asset"></ui-icon>
         <ui-image class="image" tooltip="i18n:ENGINE.assets.locate_asset"></ui-image>
@@ -56,12 +56,12 @@ const Elements = {
     panel: {
         ready() {
             const panel = this;
-            let animationId;
+            panel.__assetChangedHandle__ = undefined;
 
             panel.__assetChanged__ = (uuid) => {
                 if (Array.isArray(panel.uuidList) && panel.uuidList.includes(uuid)) {
-                    window.cancelAnimationFrame(animationId);
-                    animationId = window.requestAnimationFrame(async () => {
+                    window.cancelAnimationFrame(panel.__assetChangedHandle__);
+                    panel.__assetChangedHandle__ = window.requestAnimationFrame(async () => {
                         await panel.reset();
                     });
                 }
@@ -149,6 +149,11 @@ const Elements = {
         },
         close() {
             const panel = this;
+
+            if (panel.__assetChangedHandle__) {
+                window.cancelAnimationFrame(panel.__assetChangedHandle__);
+                panel.__assetChangedHandle__ = undefined;
+            }
 
             Editor.Message.removeBroadcastListener('asset-db:asset-change', panel.__assetChanged__);
 
@@ -272,7 +277,7 @@ const Elements = {
 
             panel.contentRenders = {};
         },
-        update() {
+        async update() {
             const panel = this;
 
             // 重置渲染对象
@@ -305,12 +310,8 @@ const Elements = {
                     const file = list[i];
                     if (!contentRender.__panels__[i]) {
                         contentRender.__panels__[i] = document.createElement('ui-panel');
-                        contentRender.__panels__[i].addEventListener('change', (event) => {
+                        contentRender.__panels__[i].addEventListener('change', () => {
                             Elements.header.isDirty.call(panel);
-
-                            if (!event || !event.args || !event.args[0] || event.args[0].snapshot !== false) {
-                                panel.history && panel.history.snapshot(panel);
-                            }
                         });
                         contentRender.__panels__[i].addEventListener('snapshot', () => {
                             panel.history && panel.history.snapshot(panel);
@@ -326,10 +327,16 @@ const Elements = {
                 }
 
                 contentRender.__panels__ = Array.from(contentRender.children);
-                Array.prototype.forEach.call(contentRender.__panels__, ($panel) => {
-                    $panel.injectionStyle(`ui-prop { margin-top: 5px; }`);
-                    $panel.update(panel.assetList, panel.metaList);
-                });
+                try {
+                    await Promise.all(
+                        contentRender.__panels__.map(($panel) => {
+                            $panel.injectionStyle(`ui-prop { margin-top: 5px; }`);
+                            return $panel.update(panel.assetList, panel.metaList);
+                        }),
+                    );
+                } catch (err) {
+                    console.error(err);
+                }
             }
         },
     },
@@ -541,6 +548,10 @@ exports.methods = {
             }
         }
 
+        if (panel.ready !== true) {
+            return;
+        }
+
         panel.$this.update(panel.uuidList, panel.renderMap);
     },
     getHelpUrl(url) {
@@ -577,12 +588,12 @@ exports.update = async function update(uuidList, renderMap, dropConfig) {
             await element.update.call(panel);
         }
     }
-
     panel.history && panel.history.snapshot(panel);
 };
 
 exports.ready = function ready() {
     const panel = this;
+    panel.ready = true;
 
     for (const prop in Elements) {
         const element = Elements[prop];
@@ -651,6 +662,7 @@ exports.beforeClose = async function beforeClose() {
 
 exports.close = async function close() {
     const panel = this;
+    panel.ready = false;
 
     for (const prop in Elements) {
         const element = Elements[prop];

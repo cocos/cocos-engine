@@ -27,8 +27,8 @@
     #include <sys/types.h>
 #endif
 
-#include <cstdio>
 #include <cstdint>
+#include <cstdio>
 
 namespace sf {
 

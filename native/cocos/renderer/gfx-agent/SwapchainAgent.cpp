@@ -106,10 +106,20 @@ void SwapchainAgent::doResize(uint32_t width, uint32_t height, SurfaceTransform 
 
     mq->kickAndWait();
 
-    auto *colorTexture = static_cast<TextureAgent *>(_colorTexture.get());
-    auto *depthStencilTexture = static_cast<TextureAgent *>(_depthStencilTexture.get());
-    colorTexture->_info.width = depthStencilTexture->_info.width = _actor->getWidth();
-    colorTexture->_info.height = depthStencilTexture->_info.height = _actor->getHeight();
+    updateInfo();
+}
+
+void SwapchainAgent::updateInfo() {
+    _generation = _actor->getGeneration();
+    SwapchainTextureInfo textureInfo;
+    textureInfo.swapchain = this;
+    textureInfo.format = _actor->getColorTexture()->getFormat();
+    textureInfo.width = _actor->getWidth();
+    textureInfo.height = _actor->getHeight();
+    updateTextureInfo(textureInfo, _colorTexture);
+
+    textureInfo.format = _actor->getDepthStencilTexture()->getFormat();
+    updateTextureInfo(textureInfo, _depthStencilTexture);
 
     _transform = _actor->getSurfaceTransform();
 }
@@ -134,6 +144,8 @@ void SwapchainAgent::doCreateSurface(void *windowHandle) {
             actor->createSurface(windowHandle);
         });
     DeviceAgent::getInstance()->getMessageQueue()->kickAndWait();
+
+    updateInfo();
 }
 
 } // namespace gfx

@@ -39,6 +39,8 @@
 #include "network/Downloader.h"
 
 #include "bindings/auto/jsb_assets_auto.h"
+#include "bindings/auto/jsb_cocos_auto.h"
+#include "bindings/auto/jsb_physics_auto.h"
 #include "cocos/core/geometry/Geometry.h"
 #include "scene/Fog.h"
 #include "scene/Shadow.h"
@@ -360,6 +362,10 @@ bool seval_to_DownloaderHints(const se::Value &v, cc::network::DownloaderHints *
 bool sevalue_to_native(const se::Value &from, cc::Vec4 *to, se::Object * /*ctx*/) {
     SE_PRECONDITION2(from.isObject(), false, "Convert parameter to Vec4 failed!");
     se::Object *obj = from.toObject();
+    if (obj->getPrivateData()) {
+        *to = *obj->getTypedPrivateData<cc::Vec4>();
+        return true;
+    }
     se::Value tmp;
     set_member_field(obj, to, "x", &cc::Vec4::x, tmp);
     set_member_field(obj, to, "y", &cc::Vec4::y, tmp);
@@ -398,6 +404,11 @@ bool sevalue_to_native(const se::Value &from, cc::Rect *to, se::Object * /*ctx*/
 bool sevalue_to_native(const se::Value &from, cc::Mat3 *to, se::Object * /*ctx*/) {
     SE_PRECONDITION2(from.isObject(), false, "Convert parameter to Matrix3 failed!");
     se::Object *obj = from.toObject();
+
+    if (obj->getPrivateData()) {
+        *to = *obj->getTypedPrivateData<cc::Mat3>();
+        return true;
+    }
 
     if (obj->isTypedArray()) {
         // typed array
@@ -440,6 +451,10 @@ bool sevalue_to_native(const se::Value &from, cc::Mat3 *to, se::Object * /*ctx*/
 bool sevalue_to_native(const se::Value &from, cc::Mat4 *to, se::Object * /*unused*/) {
     SE_PRECONDITION2(from.isObject(), false, "Convert parameter to Matrix4 failed!");
     se::Object *obj = from.toObject();
+    if (obj->getPrivateData()) {
+        *to = *obj->getTypedPrivateData<cc::Mat4>();
+        return true;
+    }
 
     if (obj->isTypedArray()) {
         // typed array
@@ -484,6 +499,10 @@ bool sevalue_to_native(const se::Value &from, cc::Vec3 *to, se::Object * /*unuse
     SE_PRECONDITION2(from.isObject(), false, "Convert parameter to Vec3 failed!");
 
     se::Object *obj = from.toObject();
+    if (obj->getPrivateData() != nullptr) {
+        *to = *obj->getTypedPrivateData<cc::Vec3>();
+        return true;
+    }
     se::Value tmp;
     set_member_field(obj, to, "x", &cc::Vec3::x, tmp);
     set_member_field(obj, to, "y", &cc::Vec3::y, tmp);
@@ -496,6 +515,10 @@ bool sevalue_to_native(const se::Value &from, cc::Color *to, se::Object * /*unus
     SE_PRECONDITION2(from.isObject(), false, "Convert parameter to Color failed!");
 
     se::Object *obj = from.toObject();
+    if (obj->getPrivateObject()) {
+        *to = *obj->getTypedPrivateData<cc::Color>();
+        return true;
+    }
     se::Value t;
     set_member_field(obj, to, "r", &cc::Color::r, t);
     set_member_field(obj, to, "g", &cc::Color::g, t);
@@ -509,6 +532,10 @@ bool sevalue_to_native(const se::Value &from, cc::Vec2 *to, se::Object * /*unuse
     SE_PRECONDITION2(from.isObject(), false, "Convert parameter to Vec2 failed!");
 
     se::Object *obj = from.toObject();
+    if (obj->getPrivateObject()) {
+        *to = *obj->getTypedPrivateData<cc::Vec2>();
+        return true;
+    }
     se::Value tmp;
     set_member_field(obj, to, "x", &cc::Vec2::x, tmp);
     set_member_field(obj, to, "y", &cc::Vec2::y, tmp);
@@ -530,6 +557,10 @@ bool sevalue_to_native(const se::Value &from, cc::Size *to, se::Object * /*unuse
 bool sevalue_to_native(const se::Value &from, cc::Quaternion *to, se::Object * /*unused*/) {
     SE_PRECONDITION2(from.isObject(), false, "Convert parameter to Quaternion failed!");
     se::Object *obj = from.toObject();
+    if (obj->getPrivateObject()) {
+        *to = *obj->getTypedPrivateData<cc::Quaternion>();
+        return true;
+    }
     se::Value tmp;
     set_member_field(obj, to, "x", &cc::Quaternion::x, tmp);
     set_member_field(obj, to, "y", &cc::Quaternion::y, tmp);
@@ -1380,39 +1411,6 @@ bool nativevalue_to_se(const ccstd::unordered_map<ccstd::string, cc::Value> &fro
 }
 
 // NOLINTNEXTLINE(readability-identifier-naming)
-bool nativevalue_to_se(const cc::Vec4 &from, se::Value &to, se::Object * /*unused*/) {
-    se::HandleObject obj(se::Object::createPlainObject());
-    obj->setProperty("x", se::Value(from.x));
-    obj->setProperty("y", se::Value(from.y));
-    obj->setProperty("z", se::Value(from.z));
-    obj->setProperty("w", se::Value(from.w));
-    obj->setProperty("type", se::Value(static_cast<uint32_t>(MathType::VEC4)));
-    to.setObject(obj);
-    return true;
-}
-
-// NOLINTNEXTLINE(readability-identifier-naming)
-bool nativevalue_to_se(const cc::Vec2 &from, se::Value &to, se::Object * /*unused*/) {
-    se::HandleObject obj(se::Object::createPlainObject());
-    obj->setProperty("x", se::Value(from.x));
-    obj->setProperty("y", se::Value(from.y));
-    obj->setProperty("type", se::Value(static_cast<uint32_t>(MathType::VEC2)));
-    to.setObject(obj);
-    return true;
-}
-
-// NOLINTNEXTLINE(readability-identifier-naming)
-bool nativevalue_to_se(const cc::Vec3 &from, se::Value &to, se::Object * /*unused*/) {
-    se::HandleObject obj(se::Object::createPlainObject());
-    obj->setProperty("x", se::Value(from.x));
-    obj->setProperty("y", se::Value(from.y));
-    obj->setProperty("z", se::Value(from.z));
-    obj->setProperty("type", se::Value(static_cast<uint32_t>(MathType::VEC3)));
-    to.setObject(obj);
-    return true;
-}
-
-// NOLINTNEXTLINE(readability-identifier-naming)
 bool nativevalue_to_se(const cc::Size &from, se::Value &to, se::Object * /*unused*/) {
     se::HandleObject obj(se::Object::createPlainObject());
     obj->setProperty("width", se::Value(from.width));
@@ -1488,7 +1486,6 @@ bool nativevalue_to_se(const cc::gfx::FormatInfo *from, se::Value &to, se::Objec
     return true;
 }
 
-
 // NOLINTNEXTLINE(readability-identifier-naming)
 bool nativevalue_to_se(const cc::ArrayBuffer &arrayBuffer, se::Value &to, se::Object * /*ctx*/) {
     to.setObject(arrayBuffer.getJSArrayBuffer());
@@ -1510,32 +1507,6 @@ bool nativevalue_to_se(const cc::NativeDep &from, se::Value &to, se::Object * /*
     obj->setProperty("uuid", se::Value(from.uuid));
     obj->setProperty("ext", se::Value(from.ext));
     obj->setProperty("__isNative__", se::Value(from.__isNative__));
-    to.setObject(obj);
-    return true;
-}
-
-// NOLINTNEXTLINE(readability-identifier-naming)
-bool nativevalue_to_se(const cc::Mat3 &from, se::Value &to, se::Object * /*ctx*/) {
-    se::HandleObject obj(se::Object::createPlainObject());
-    char keybuf[8] = {0};
-    for (auto i = 0; i < 9; i++) {
-        snprintf(keybuf, sizeof(keybuf), "m%02d", i);
-        obj->setProperty(keybuf, se::Value(from.m[i]));
-    }
-    obj->setProperty("type", se::Value(static_cast<uint32_t>(MathType::MAT3)));
-    to.setObject(obj);
-    return true;
-}
-
-// NOLINTNEXTLINE(readability-identifier-naming)
-bool nativevalue_to_se(const cc::Mat4 &from, se::Value &to, se::Object * /*ctx*/) {
-    se::HandleObject obj(se::Object::createPlainObject());
-    char keybuf[8] = {0};
-    for (auto i = 0; i < 16; i++) {
-        snprintf(keybuf, sizeof(keybuf), "m%02d", i);
-        obj->setProperty(keybuf, se::Value(from.m[i]));
-    }
-    obj->setProperty("type", se::Value(static_cast<uint32_t>(MathType::MAT4)));
     to.setObject(obj);
     return true;
 }
@@ -1598,6 +1569,7 @@ bool nativevalue_to_se(const cc::physics::RaycastResult &from, se::Value &to, se
     se::HandleObject obj(se::Object::createPlainObject());
     obj->setProperty("shape", se::Value(from.shape));
     obj->setProperty("distance", se::Value(from.distance));
+
     se::Value tmp;
     if (nativevalue_to_se(from.hitPoint, tmp, ctx)) obj->setProperty("hitPoint", tmp);
     if (nativevalue_to_se(from.hitNormal, tmp, ctx)) obj->setProperty("hitNormal", tmp);
@@ -1759,4 +1731,4 @@ bool nativevalue_to_se(const cc::geometry::Sphere &from, se::Value &to, se::Obje
     return true;
 }
 
-#endif //CC_USE_PHYSICS_PHYSX
+#endif // CC_USE_PHYSICS_PHYSX

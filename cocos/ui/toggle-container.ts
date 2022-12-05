@@ -25,10 +25,10 @@
 */
 
 import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, type, serializable } from 'cc.decorator';
-import { Component, EventHandler as ComponentEventHandler } from '../core/components';
+import { Component, EventHandler as ComponentEventHandler } from '../scene-graph';
 import { Toggle } from './toggle';
 import { legacyCC } from '../core/global-exports';
-import { NodeEventType } from '../core/scene-graph/node-event';
+import { NodeEventType } from '../scene-graph/node-event';
 
 /**
  * @en
@@ -86,14 +86,14 @@ export class ToggleContainer extends Component {
      * @zh
      * 只读属性，返回 toggleContainer 管理的 toggle 数组引用。
      */
-    get toggleItems () {
+    get toggleItems (): Toggle[] {
         return this.node.children.map((item) => {
             const toggle = item.getComponent('cc.Toggle') as Toggle;
             if (toggle && toggle.enabled) {
                 return toggle;
             }
             return null;
-        }).filter(Boolean);
+        }).filter(Boolean) as Toggle[];
     }
 
     public onEnable () {

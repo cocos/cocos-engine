@@ -31,7 +31,7 @@
 
 NS_CC_EXT_BEGIN
 
-EventAssetsManagerEx::EventAssetsManagerEx(const std::string & /*eventName*/, cc::extension::AssetsManagerEx *manager, const EventCode &code, std::string assetId /* = "" */, std::string message /* = "" */, int curleCode /* = CURLE_OK*/, int curlmCode /* = CURLM_OK*/)
+EventAssetsManagerEx::EventAssetsManagerEx(const std::string & /*eventName*/, cc::extension::AssetsManagerEx *manager, EventCode code, std::string assetId /* = "" */, std::string message /* = "" */, int curleCode /* = CURLE_OK*/, int curlmCode /* = CURLM_OK*/)
 : _code(code),
   _manager(manager),
   _message(std::move(message)),

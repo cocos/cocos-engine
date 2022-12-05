@@ -66,6 +66,7 @@ module.exports = {
             TiledMap: ``,
             Spine: ``,
             OctreeCulling: `${url}/${version}/manual/en/advanced-topics/native-scene-culling.html`,
+            LightProbe: ``,
         },
         assets: {
             javascript: `${url}/${version}/manual/en/concepts/scene/node-component.html`,
@@ -152,6 +153,7 @@ module.exports = {
         illuminance: 'Illuminance of the light',
         luminous_power: 'Luminous power of the light',
         luminance: 'Luminance of the light',
+        visibility: 'Visibility mask, declaring a set of node layers that will be visible to this valid punctual Light(Does not work with directional light)',
         term: 'The photometric term currently being used',
         size: 'Size of the light',
         range: 'Range of the light',
@@ -167,6 +169,9 @@ module.exports = {
         shadowNear: 'Fix area start',
         shadowFar: 'Fix area end',
         shadowOrthoSize: 'Fix area size, the larger value, the lower precision of shadows',
+        shadowAdvancedOptions: 'shadow advanced options',
+        csmLayersTransition: 'Enable or disable CSM layers transition(Improve quality, reduce performance)',
+        csmTransitionRange: 'CSM layers transition range(in NDC space: value range is 0 to 1)',
     },
     model: {
         shadow_receiving_model: 'Shadow receive mode',
@@ -680,7 +685,8 @@ module.exports = {
         limitVelocityOvertimeModule: 'Particle velocity limitation module (only support on CPU)',
         rotationOvertimeModule: 'Particle rotation module',
         textureAnimationModule: 'Texture animation module',
-        trailModule: 'Trail module (only support on CPU)',
+        trailModule: 'Trail module (only supported in CPU particle system)',
+        noiseModule: 'Noise module (only supported in CPU particle system)',
         renderer: 'Particle render module',
         renderCulling: 'Whether to enable the particle culling feature. <br>If enabled, a particle emitter bounding box will be generated, <br>and the particle emitter will be culled if the bounding box is not in the visible range of the camera. <br>Please refer to the cullingMode option below for the behavior settings after particle culling.',
         cullingMode: 'Sets the behavior of the particle emitter after it has been culled. <br>The available options include Pause, Pause and Catchup, and Always Simulate.<br>When the Pause is selected, the particle will pause the simulation if the particle emitter bounding box is not in the camera\'s visible range. <br>If it resumes visibility, the particle will continue simulating at the time of last pause.<br>When the Pause and Catchup is selected, if the particle emitter bounding box is not in the camera\'s visible range, the particle will pause the simulation.  If visible again, the particle will start simulating at the current time.<br>When the Always Simulate is selected, the particle will keep simulating regardless of whether the particle emitter bounding box is in the camera\'s visible range, but will not render when it is not in the camera\'s visible range.',
@@ -782,6 +788,10 @@ module.exports = {
                 label: 'Animation',
                 description: 'Animation System.',
             },
+            network: {
+                label: 'Network',
+                description: 'Network Module.',
+            },
         },
         core: {
             label: "Core",
@@ -871,6 +881,10 @@ module.exports = {
             label: "Terrain",
             description: "Terrain support.",
         },
+        light_probe: {
+            label: "Light Probe",
+            description: "Light Probe support.",
+        },
         audio: {
             label: "Audio",
             description: "Audio playing support.",
@@ -934,6 +948,14 @@ module.exports = {
         custom_pipeline: {
             label: "Custom Render Pipeline (Experimental)",
             description: "Enable custom render pipeline",
+        },
+        websocket: {
+            label: "WebSocket",
+            description: "Enable WebSocket for native. For implementation, iOS/macOS uses SocketRocket, Android uses OkHttp, and Windows uses libwebsockets.",
+        },
+        websocket_server: {
+            label: "WebSocket Server",
+            description: "Enable WebSocket Server for native. Note: WebSocket must also be enabled.",
         },
     },
     renderable_2d: {
@@ -1005,5 +1027,22 @@ module.exports = {
         minPos: 'The minimum position of the world bounding box.',
         maxPos: 'The maximum position of the world bounding box.',
         depth: 'The depth of octree.',
+    },
+    light_probe: {
+        giScale: 'The value of GI multiplier.',
+        giSamples: 'The value of GI sample counts.',
+        bounces: 'The value of light bounces.',
+        reduceRinging: 'The value to reduce ringing of light probe.',
+        showProbe: 'The switch of showing light probe.',
+        showWireframe: 'The switch of showing connection of light probe.',
+        showConvex: 'The switch of showing convex of light probe.',
+    },
+    light_probe_group: {
+        method: 'The automatic generation algorithm of light probe.',
+        nProbesX: 'The number of probes generated in X axis.',
+        nProbesY: 'The number of probes generated in Y axis.',
+        nProbesZ: 'The number of probes generated in Z axis.',
+        minPos: 'The minimum point of the bounding box of the generated probes.',
+        maxPos: 'The maximum point of the bounding box of the generated probes.',
     },
 };

@@ -41,8 +41,9 @@ public:
      */
     template <class T>
     std::enable_if_t<std::is_base_of<BaseApplication, T>::value, ApplicationPtr>
-    createApplication() {
+    createApplication(int argc, const char* argv[]) {
         ApplicationPtr app = std::make_shared<T>();
+        app->setArgumentsInternal(argc, argv);
         _apps.push_back(app);
         _currentApp = app;
         return app;
@@ -73,18 +74,21 @@ private:
 #define CC_CURRENT_APPLICATION_SAFE()   CC_APPLICATION_MANAGER()->getCurrentAppSafe()
 #define CC_CURRENT_ENGINE()             CC_CURRENT_APPLICATION_SAFE()->getEngine()
 #define CC_GET_PLATFORM_INTERFACE(intf) CC_CURRENT_ENGINE()->getInterface<intf>()
+#define CC_GET_SYSTEM_WINDOW(id)        CC_GET_PLATFORM_INTERFACE(cc::ISystemWindowManager)->getWindow(id)
+#define CC_GET_MAIN_SYSTEM_WINDOW()     CC_GET_SYSTEM_WINDOW(cc::ISystemWindow::mainWindowId) // Assuming the 1st created window is the main system window for now!
+
 #define CC_GET_XR_INTERFACE() BasePlatform::getPlatform()->getInterface<IXRInterface>()
 
 /**
  * @brief Called at the user-defined main entry
  */
-#define CC_START_APPLICATION(className)                                      \
-    do {                                                                     \
-        auto app = CC_APPLICATION_MANAGER()->createApplication<className>(); \
-        if (app->init()) {                                                   \
-            return -1;                                                       \
-        }                                                                    \
-        return app->run(argc, argv);                                         \
+#define CC_START_APPLICATION(className)                                                \
+    do {                                                                               \
+        auto app = CC_APPLICATION_MANAGER()->createApplication<className>(argc, argv); \
+        if (app->init()) {                                                             \
+            return -1;                                                                 \
+        }                                                                              \
+        return app->run(argc, argv);                                                   \
     } while (0)
 
 #define CC_REGISTER_APPLICATION(className)        \

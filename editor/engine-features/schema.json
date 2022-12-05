@@ -147,6 +147,9 @@
                 },
                 "webview": {
                     "$ref": "#/definitions/Item"
+                },
+                "xr": {
+                    "$ref": "#/definitions/Item"
                 }
             },
             "type": "object"
@@ -290,6 +293,9 @@
                     "$ref": "#/definitions/BaseItem"
                 },
                 "webview": {
+                    "$ref": "#/definitions/BaseItem"
+                },
+                "xr": {
                     "$ref": "#/definitions/BaseItem"
                 }
             },

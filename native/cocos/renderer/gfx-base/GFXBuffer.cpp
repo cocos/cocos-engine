@@ -48,6 +48,10 @@ void Buffer::initialize(const BufferInfo &info) {
     _count = _size / _stride;
 
     doInit(info);
+
+    if (hasFlag(info.flags, BufferFlagBit::ENABLE_STAGING_WRITE) && getStagingAddress() == nullptr) {
+        _data = std::make_unique<uint8_t[]>(_size);
+    }
 }
 
 void Buffer::initialize(const BufferViewInfo &info) {
@@ -76,6 +80,27 @@ void Buffer::resize(uint32_t size) {
         _size = size;
         _count = count;
     }
+}
+
+void Buffer::write(const uint8_t *value, uint32_t offset, uint32_t size) const {
+    CC_ASSERT(hasFlag(_flags, BufferFlagBit::ENABLE_STAGING_WRITE));
+    uint8_t *dst = getStagingAddress();
+    if (dst == nullptr || offset + size >= _size) {
+        return;
+    }
+    memcpy(dst + offset, value, size);
+}
+
+void Buffer::update() {
+    flush(getStagingAddress());
+}
+
+uint8_t *Buffer::getBufferStagingAddress(Buffer *buffer) {
+    return buffer->getStagingAddress();
+}
+
+void Buffer::flushBuffer(Buffer *buffer, const uint8_t *data) {
+    buffer->flush(data);
 }
 
 } // namespace gfx

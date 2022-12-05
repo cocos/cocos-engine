@@ -25,7 +25,7 @@
 */
 
 import { Event } from './event';
-import { Vec2 } from '../../../core/math/vec2';
+import { Vec2 } from '../../../core';
 import { Touch } from '../touch';
 import { SystemEventTypeUnion } from '../event-enum';
 
@@ -55,6 +55,12 @@ export class EventTouch extends Event {
      * @zh 表示触摸事件是真实触点触发的还是模拟的
      */
     public simulate = false;
+
+    /**
+     * @en The unique ID of SystemWindow, which triggerd the event
+     * @zh 触发此事件的系统窗口 ID
+     */
+    public windowId = 0;
 
     /**
      * @en Set whether to prevent events from being swallowed by nodes, which is false by default.

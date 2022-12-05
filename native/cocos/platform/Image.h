@@ -54,6 +54,8 @@ public:
         ETC2,
         //! ASTC
         ASTC,
+        //! Compressed Data
+        COMPRESSED,
         //! Raw Data
         RAW_DATA,
         //! Unknown format
@@ -81,6 +83,7 @@ public:
     inline int getHeight() const { return _height; }
     inline ccstd::string getFilePath() const { return _filePath; }
     inline bool isCompressed() const { return _isCompressed; }
+    inline const ccstd::vector<uint32_t> &getMipmapLevelDataSize() const { return _mipmapLevelDataSize; }
 
     /**
      @brief    Save Image data to the specified file, with specified format.
@@ -88,7 +91,6 @@ public:
      @param    isToRGB        whether the image is saved as RGB format.
      */
     bool saveToFile(const std::string &filename, bool isToRGB = true);
-
 
 protected:
     bool initWithJpgData(const unsigned char *data, uint32_t dataLen);
@@ -102,10 +104,11 @@ protected:
     bool initWithETCData(const unsigned char *data, uint32_t dataLen);
     bool initWithETC2Data(const unsigned char *data, uint32_t dataLen);
     bool initWithASTCData(const unsigned char *data, uint32_t dataLen);
+    bool initWithCompressedMipsData(const unsigned char *data, uint32_t dataLen);
 
-    bool saveImageToPNG(const std::string& filePath, bool isToRGB = true);
-    bool saveImageToJPG(const std::string& filePath);
-    
+    bool saveImageToPNG(const std::string &filePath, bool isToRGB = true);
+    bool saveImageToJPG(const std::string &filePath);
+
     unsigned char *_data = nullptr;
     uint32_t _dataLen = 0;
     int _width = 0;
@@ -114,6 +117,7 @@ protected:
     gfx::Format _renderFormat;
     ccstd::string _filePath;
     bool _isCompressed = false;
+    ccstd::vector<uint32_t> _mipmapLevelDataSize;
 
     static Format detectFormat(const unsigned char *data, uint32_t dataLen);
     static bool isPng(const unsigned char *data, uint32_t dataLen);
@@ -123,6 +127,7 @@ protected:
     static bool isEtc(const unsigned char *data, uint32_t dataLen);
     static bool isEtc2(const unsigned char *data, uint32_t dataLen);
     static bool isASTC(const unsigned char *data, uint32_t detaLen);
+    static bool isCompressed(const unsigned char *data, uint32_t detaLen);
 
     static gfx::Format getASTCFormat(const unsigned char *pHeader);
 

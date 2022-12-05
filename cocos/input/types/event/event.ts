@@ -24,7 +24,7 @@
  THE SOFTWARE.
 */
 
-import { legacyCC } from '../../../core/global-exports';
+import { cclegacy } from '../../../core';
 import { SystemEventTypeUnion } from '../event-enum';
 
 /**
@@ -291,4 +291,4 @@ export class Event {
 }
 
 /* tslint:disable:no-string-literal */
-legacyCC.Event = Event;
+cclegacy.Event = Event;

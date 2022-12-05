@@ -27,8 +27,9 @@ import { ccclass, help, menu, executionOrder, visible, override } from 'cc.decor
 import { UIRenderer } from '../framework/ui-renderer';
 import { IBatcher } from '../renderer/i-batcher';
 import { DrawBatch2D } from '../renderer/draw-batch';
-import { director, Color, warnID } from '../../core';
+import { Color, warnID } from '../../core';
 import { StaticVBAccessor } from '../renderer/static-vb-accessor';
+import { director } from '../../game';
 
 /**
  * @en

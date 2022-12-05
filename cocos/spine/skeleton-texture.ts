@@ -23,8 +23,8 @@
  THE SOFTWARE.
  */
 
-import { Material, Texture2D } from '../core';
-import { Filter, WrapMode } from '../core/assets/asset-enum';
+import { Material, Texture2D } from '../asset/assets';
+import { Filter, WrapMode } from '../asset/assets/asset-enum';
 import spine from './lib/spine-core.js';
 
 export class SkeletonTexture extends spine.Texture {

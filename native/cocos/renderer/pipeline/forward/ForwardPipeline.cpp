@@ -33,8 +33,9 @@
 #include "ForwardFlow.h"
 #include "gfx-base/GFXDevice.h"
 #include "profiler/Profiler.h"
-#include "scene/RenderScene.h"
 #include "scene/Camera.h"
+#include "scene/RenderScene.h"
+#include "../reflection-probe/ReflectionProbeFlow.h"
 
 namespace cc {
 namespace pipeline {
@@ -63,6 +64,10 @@ bool ForwardPipeline::initialize(const RenderPipelineInfo &info) {
         auto *shadowFlow = ccnew ShadowFlow;
         shadowFlow->initialize(ShadowFlow::getInitializeInfo());
         _flows.emplace_back(shadowFlow);
+
+        auto *reflectionProbeFlow = ccnew ReflectionProbeFlow();
+        reflectionProbeFlow->initialize(ReflectionProbeFlow::getInitializeInfo());
+        _flows.emplace_back(reflectionProbeFlow);
 
         auto *forwardFlow = ccnew ForwardFlow;
         forwardFlow->initialize(ForwardFlow::getInitializeInfo());
@@ -106,8 +111,9 @@ void ForwardPipeline::render(const ccstd::vector<scene::Camera *> &cameras) {
         _commandBuffers[0]->resetQueryPool(_queryPools[0]);
     }
 
+    _pipelineUBO->updateMultiCameraUBO(_globalDSManager, cameras);
     _pipelineUBO->updateGlobalUBO(cameras[0]);
-    _pipelineUBO->updateMultiCameraUBO(cameras);
+
     ensureEnoughSize(cameras);
     decideProfilerCamera(cameras);
 

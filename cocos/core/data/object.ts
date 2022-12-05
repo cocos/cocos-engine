@@ -77,7 +77,7 @@ const objectsToDestroy: any = [];
 let deferredDestroyTimer = null;
 
 function compileDestruct (obj, ctor) {
-    const shouldSkipId = obj instanceof legacyCC._BaseNode || obj instanceof legacyCC.Component;
+    const shouldSkipId = obj instanceof legacyCC.Node || obj instanceof legacyCC.Component;
     const idToSkip = shouldSkipId ? '_id' : null;
 
     let key;
@@ -636,6 +636,7 @@ declare namespace CCObject {
  * @method isCCObject
  * @param object
  * @return @en Whether it is a CCObject boolean value. @zh 是否为CCObject的布尔值。
+ * @engineInternal
  */
 export function isCCObject (object: any) {
     return object instanceof CCObject;

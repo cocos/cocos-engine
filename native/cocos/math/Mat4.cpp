@@ -1046,11 +1046,8 @@ Mat4 Mat4::getTransposed() const {
     return mat;
 }
 
-bool Mat4::approxEquals(const Mat4& v, float precision/* = CC_FLOAT_CMP_PRECISION */) const {
-    return math::isEqualF(m[0], v.m[0], precision) && math::isEqualF(m[1], v.m[1], precision) && math::isEqualF(m[2], v.m[2], precision) && math::isEqualF(m[3], v.m[3], precision)
-        && math::isEqualF(m[4], v.m[4], precision) && math::isEqualF(m[5], v.m[5], precision) && math::isEqualF(m[6], v.m[6], precision) && math::isEqualF(m[7], v.m[7], precision)
-        && math::isEqualF(m[8], v.m[8], precision) && math::isEqualF(m[9], v.m[9], precision) && math::isEqualF(m[10], v.m[10], precision) && math::isEqualF(m[11], v.m[11], precision)
-        && math::isEqualF(m[12], v.m[12], precision) && math::isEqualF(m[13], v.m[13], precision) && math::isEqualF(m[14], v.m[14], precision) && math::isEqualF(m[15], v.m[15], precision);
+bool Mat4::approxEquals(const Mat4 &v, float precision /* = CC_FLOAT_CMP_PRECISION */) const {
+    return math::isEqualF(m[0], v.m[0], precision) && math::isEqualF(m[1], v.m[1], precision) && math::isEqualF(m[2], v.m[2], precision) && math::isEqualF(m[3], v.m[3], precision) && math::isEqualF(m[4], v.m[4], precision) && math::isEqualF(m[5], v.m[5], precision) && math::isEqualF(m[6], v.m[6], precision) && math::isEqualF(m[7], v.m[7], precision) && math::isEqualF(m[8], v.m[8], precision) && math::isEqualF(m[9], v.m[9], precision) && math::isEqualF(m[10], v.m[10], precision) && math::isEqualF(m[11], v.m[11], precision) && math::isEqualF(m[12], v.m[12], precision) && math::isEqualF(m[13], v.m[13], precision) && math::isEqualF(m[14], v.m[14], precision) && math::isEqualF(m[15], v.m[15], precision);
 }
 
 const Mat4 Mat4::IDENTITY = Mat4(

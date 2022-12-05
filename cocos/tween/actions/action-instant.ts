@@ -27,7 +27,7 @@
 /* eslint-disable @typescript-eslint/ban-types */
 
 import { FiniteTimeAction, Action } from './action';
-import { Renderer } from '../../core/components/renderer';
+import { Renderer } from '../../misc/renderer';
 
 /**
  * @en Instant actions are immediate actions. They don't have a duration like the ActionInterval actions.

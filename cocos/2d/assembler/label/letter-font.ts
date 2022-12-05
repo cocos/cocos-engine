@@ -23,7 +23,7 @@
  THE SOFTWARE.
 */
 
-import { mixin } from '../../../core/utils/js';
+import { js } from '../../../core';
 import { Label, LabelOutline } from '../../components';
 import { bmfontUtils } from './bmfontUtils';
 import { shareLabelInfo, LetterAtlas, computeHash } from './font-utils';
@@ -34,7 +34,7 @@ const _isBold = false;
 
 let _shareAtlas: LetterAtlas | null  = null;
 
-export const letterFont = mixin(bmfontUtils, {
+export const letterFont = js.mixin(bmfontUtils, {
     getAssemblerData () {
         if (!_shareAtlas) {
             _shareAtlas = new LetterAtlas(_atlasWidth, _atlasHeight);

@@ -360,7 +360,8 @@ void Quaternion::fromMat3(const Mat3 &m, Quaternion *out) {
         out->y = (m06 - m02) * s;
         out->z = (m01 - m03) * s;
     } else if ((m00 > m04) && (m00 > m08)) {
-        const float s = 2.F * sqrtf(1.F + m04 - m00 - m08);
+        //m00 - m04 - m08 consistent with ts engine, otherwise y-axis rotation greater than 90 degrees will not get the correct result
+        const float s = 2.F * sqrtf(1.F + m00 - m04 - m08);
 
         out->w = (m05 - m07) / s;
         out->x = 0.25F * s;

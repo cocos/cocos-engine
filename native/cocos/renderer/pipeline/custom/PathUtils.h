@@ -27,7 +27,7 @@
 
 #include <cocos/renderer/pipeline/custom/GslUtils.h>
 #include <boost/algorithm/string/predicate.hpp>
-#include <boost/utility/string_view.hpp>
+#include <string_view>
 #include "base/std/container/array.h"
 
 namespace cc {
@@ -43,7 +43,7 @@ inline void cleanPath(std::basic_string<CharT, std::char_traits<CharT>, Allocato
     constexpr CharT doubleSlash[] = {'/', '/', '\0'};
 
     CC_EXPECTS(!str.empty());
-    CC_EXPECTS(boost::algorithm::starts_with(str, boost::string_view(slash)));
+    CC_EXPECTS(boost::algorithm::starts_with(str, std::string_view(slash)));
     CC_EXPECTS(str.find(doubleSlash) == string_t::npos);
     CC_EXPECTS([&]() { // NOLINT
         bool valid = true;
@@ -64,7 +64,7 @@ inline void cleanPath(std::basic_string<CharT, std::char_traits<CharT>, Allocato
         }
         // remove tailing /.
         constexpr CharT ending[] = {'/', '.', '\0'};
-        if (boost::algorithm::ends_with(str, boost::string_view(ending))) {
+        if (boost::algorithm::ends_with(str, std::string_view(ending))) {
             str.resize(str.size() - 2);
         }
     }

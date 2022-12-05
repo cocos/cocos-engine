@@ -25,7 +25,7 @@
 
 import { JSB } from 'internal:constants';
 import { SpriteFrame } from '../../assets';
-import { Mat4, Vec2 } from '../../../core/math';
+import { Mat4, Vec2 } from '../../../core';
 import { IRenderData, RenderData } from '../../renderer/render-data';
 import { IBatcher } from '../../renderer/i-batcher';
 import { Sprite, UIOpacity } from '../../components';

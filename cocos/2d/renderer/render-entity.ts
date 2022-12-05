@@ -1,11 +1,9 @@
 import { JSB } from 'internal:constants';
 import { NativeRenderEntity } from './native-2d';
-import { Batcher2D } from './batcher-2d';
-import { RenderData } from './render-data';
 import { RenderDrawInfo } from './render-draw-info';
-import { color, Color, director, Material, Node } from '../../core';
-import { EmitLocation } from '../../particle/enum';
+import { Color } from '../../core';
 import { Stage } from './stencil-manager';
+import { Node } from '../../scene-graph';
 
 export enum RenderEntityType {
     STATIC,

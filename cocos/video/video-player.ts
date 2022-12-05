@@ -26,7 +26,7 @@
 import { ccclass, displayOrder, executeInEditMode, help, menu, slide, range, requireComponent, tooltip, type, serializable } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { warn } from '../core/platform';
-import { Component, EventHandler as ComponentEventHandler } from '../core/components';
+import { Component, EventHandler as ComponentEventHandler } from '../scene-graph';
 import { UITransform } from '../2d/framework';
 import { clamp } from '../core/math';
 import { VideoClip } from './assets/video-clip';
@@ -390,6 +390,7 @@ export class VideoPlayer extends Component {
         this._impl.componentEventList.set(EventType.STOPPED, this.onStopped.bind(this));
         this._impl.componentEventList.set(EventType.COMPLETED, this.onCompleted.bind(this));
         this._impl.componentEventList.set(EventType.ERROR, this.onError.bind(this));
+        this._impl.componentEventList.set(EventType.CLICKED, this.onClicked.bind(this));
         if (this._playOnAwake && this._impl.loaded) {
             this.play();
         }
@@ -454,6 +455,11 @@ export class VideoPlayer extends Component {
     public onError () {
         ComponentEventHandler.emitEvents(this.videoPlayerEvent, this, EventType.ERROR);
         this.node.emit(EventType.ERROR, this);
+    }
+    
+    public onClicked() {
+        ComponentEventHandler.emitEvents(this.videoPlayerEvent, this, EventType.CLICKED);
+        this.node.emit(EventType.CLICKED, this);
     }
 
     /**

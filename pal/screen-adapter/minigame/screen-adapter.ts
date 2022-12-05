@@ -127,7 +127,7 @@ class ScreenAdapter extends EventTarget {
         // TODO: onResize or onOrientationChange is not supported well
         if (WECHAT || COCOSPLAY) {
             minigame.onWindowResize?.(() => {
-                this.emit('window-resize');
+                this.emit('window-resize', this.windowSize.width, this.windowSize.height);
             });
         }
     }

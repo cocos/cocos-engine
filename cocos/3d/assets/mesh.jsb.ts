@@ -23,9 +23,7 @@
  THE SOFTWARE.
 */
 import { ccclass, serializable } from 'cc.decorator';
-import { legacyCC } from '../../core/global-exports';
-import { Vec3 } from '../../core/math';
-import '../../core/assets/asset';
+import { cclegacy, Vec3 } from '../../core';
 
 declare const jsb: any;
 
@@ -159,11 +157,11 @@ meshAssetProto.onLoaded = function () {
     originOnLoaded.apply(this);
 };
 
-legacyCC.Mesh = jsb.Mesh;
+cclegacy.Mesh = jsb.Mesh;
 
 // handle meta data, it is generated automatically
 const MeshProto = Mesh.prototype;
-serializable(MeshProto, '_struct');
-serializable(MeshProto, '_hash');
-serializable(MeshProto, '_allowDataAccess');
+serializable(MeshProto, '_struct', () => { return { vertexBundles: [], primitives: [] } });
+serializable(MeshProto, '_hash', () => 0);
+serializable(MeshProto, '_allowDataAccess', () => true);
 ccclass('cc.Mesh')(Mesh);

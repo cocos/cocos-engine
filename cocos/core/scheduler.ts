@@ -24,15 +24,15 @@
  THE SOFTWARE.
 */
 
-import IdGenerator from './utils/id-generator';
+import { IDGenerator } from './utils/id-generator';
 import { createMap } from './utils/js';
-import System from './components/system';
+import { System } from './system';
 import { legacyCC } from './global-exports';
 import { errorID, warnID, logID, assertID } from './platform/debug';
 
 const MAX_POOL_SIZE = 20;
 
-const idGenerator = new IdGenerator('Scheduler');
+const idGenerator = new IDGenerator('Scheduler');
 
 export interface ISchedulable {
     id?:string;

@@ -89,6 +89,8 @@ public:
          */
     void unref();
 
+    static void setIsolateValid(bool valid);
+
 private:
     static void weakCallback(const v8::WeakCallbackInfo<Object> &data);
 

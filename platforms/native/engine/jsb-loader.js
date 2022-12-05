@@ -206,13 +206,17 @@ function downloadBundle (nameOrUrl, options, onComplete) {
         let out = response;
         out && (out.base = url + '/');
 
-        var js = `${url}/index.${version ? version + '.' : ''}${out.encrypted ? 'jsc' : `js`}`;
-        downloadScript(js, options, function (err) {
-            if (err) {
-                return onComplete(err, null);
-            }
+        if (out.hasPreloadScript) {
+            var js = `${url}/index.${version ? version + '.' : ''}${out.encrypted ? 'jsc' : `js`}`;
+            downloadScript(js, options, function (err) {
+                if (err) {
+                    return onComplete(err, null);
+                }
+                onComplete(null, out);
+            });
+        } else {
             onComplete(null, out);
-        });
+        }
     });
 };
 

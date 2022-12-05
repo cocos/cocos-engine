@@ -25,7 +25,7 @@
 
 import { TrackEntryListeners } from './track-entry-listeners';
 import spine from './lib/spine-core.js';
-import { Texture2D } from '../core';
+import { Texture2D } from '../asset/assets';
 // Permit max cache time, unit is second.
 const MaxCacheTime = 30;
 const FrameTime = 1 / 60;
@@ -322,7 +322,8 @@ export class AnimationCache {
                 _vertices[v + 5] = _darkColor32;      // dark color
             }
         } else {
-            clipper.clipTriangles(_vertices, _vfCount, _indices, _indexCount,
+            const subIndices = _indices.slice(_indexOffset, _indices.length);
+            clipper.clipTriangles(_vertices, _vfCount, subIndices, _indexCount,
                 _vertices, _finalColor, _darkColor, true, PerVertexSize, _vfOffset, _vfOffset + 2);
             const clippedVertices = clipper.clippedVertices;
             const clippedTriangles = clipper.clippedTriangles;

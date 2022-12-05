@@ -75,7 +75,6 @@ void OhosPlatform::waitWindowInitialized() {
             break;
         }
     }
-    _jniNativeGlue->setEventDispatch(this);
 }
 
 int32_t OhosPlatform::loop() {

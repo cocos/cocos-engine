@@ -22,7 +22,7 @@
   #define VSOutput_mirrorNormal v_tangent.w
 #endif
 
-#if CC_SURFACES_USE_SECOND_UV && !CC_USE_LIGHTMAP
+#if CC_SURFACES_USE_SECOND_UV
   #define VSOutput_texcoord1 v_uv1
 #endif
 

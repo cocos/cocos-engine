@@ -33,9 +33,11 @@
 #include "base/Value.h"
 #include "core/Types.h"
 #include "core/assets/Asset.h"
+#include "engine/BaseEngine.h"
 #include "renderer/core/PassUtils.h"
 #include "renderer/gfx-base/GFXDef.h"
 #include "renderer/pipeline/Define.h"
+
 
 namespace cc {
 
@@ -338,6 +340,7 @@ struct IPassStates {
     ccstd::optional<BlendStateInfo> blendState;
     ccstd::optional<gfx::DynamicStateFlags> dynamicStates;
     ccstd::optional<ccstd::string> phase;
+    ccstd::optional<ccstd::string> pass;
 
     IPassStates() = default;
     explicit IPassStates(const IPassInfoFull &o);
@@ -348,7 +351,7 @@ using PassOverrides = IPassStates;
 
 using PassPropertyInfoMap = ccstd::unordered_map<ccstd::string, IPropertyInfo>;
 
-struct IPassInfoFull final { //cjh } : public IPassInfo {
+struct IPassInfoFull final { // cjh } : public IPassInfo {
     // IPassStates
     ccstd::optional<int32_t> priority;
     ccstd::optional<gfx::PrimitiveMode> primitive;
@@ -465,7 +468,7 @@ struct IAttributeInfo {
 struct IDefineInfo {
     ccstd::string name;
     ccstd::string type;
-    ccstd::optional<ccstd::vector<int32_t>> range; //cjh number is float?  ?: number[];
+    ccstd::optional<ccstd::vector<int32_t>> range; // cjh number is float?  ?: number[];
     ccstd::optional<ccstd::vector<ccstd::string>> options;
     ccstd::optional<ccstd::string> defaultVal;
 };
@@ -490,6 +493,17 @@ struct IBuiltins {
     BuiltinsStatisticsType statistics;
 };
 
+struct IDescriptorInfo {
+    uint32_t rate{0};
+    ccstd::vector<IBlockInfo> blocks;
+    ccstd::vector<ISamplerTextureInfo> samplerTextures;
+    ccstd::vector<ISamplerInfo> samplers;
+    ccstd::vector<ITextureInfo> textures;
+    ccstd::vector<IBufferInfo> buffers;
+    ccstd::vector<IImageInfo> images;
+    ccstd::vector<IInputAttachmentInfo> subpassInputs;
+};
+
 struct IShaderSource {
     ccstd::string vert;
     ccstd::string frag;
@@ -511,6 +525,7 @@ struct IShaderInfo {
     ccstd::vector<IBufferInfo> buffers;
     ccstd::vector<IImageInfo> images;
     ccstd::vector<IInputAttachmentInfo> subpassInputs;
+    // ccstd::vector<IDescriptorInfo> descriptors;
 
     const IShaderSource *getSource(const ccstd::string &version) const {
         if (version == "glsl1") return &glsl1;
@@ -582,6 +597,8 @@ public:
     bool validate() const override;
 
 protected:
+    BaseEngine::EngineStatusChange::EventID _engineEventId;
+
     static ccstd::vector<MacroRecord> doCombine(const ccstd::vector<MacroRecord> &cur, const IPreCompileInfo &info, IPreCompileInfo::iterator iter);
     static ccstd::vector<MacroRecord> generateRecords(const ccstd::string &key, const IPreCompileInfoValueType &value);
     static ccstd::vector<MacroRecord> insertInfoValue(const ccstd::vector<MacroRecord> &records,
@@ -617,7 +634,7 @@ public:
     ccstd::vector<IPreCompileInfo> _combinations;
     //
 protected:
-    static RegisteredEffectAssetMap effects; //cjh TODO: how to clear when game exits.
+    static RegisteredEffectAssetMap effects; // cjh TODO: how to clear when game exits.
     static bool layoutValid;
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(EffectAsset);

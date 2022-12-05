@@ -24,8 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#ifndef __AssetsManagerEx__
-#define __AssetsManagerEx__
+#pragma once
 
 #include <string>
 #include <unordered_map>
@@ -66,8 +65,8 @@ public:
         FAIL_TO_UPDATE
     };
 
-    const static std::string VERSION_ID;
-    const static std::string MANIFEST_ID;
+    static const std::string VERSION_ID;
+    static const std::string MANIFEST_ID;
 
     using VersionCompareHandle = std::function<int(const std::string &, const std::string &)>;
     using VerifyCallback = std::function<bool(const std::string &, Manifest::Asset)>;
@@ -411,5 +410,3 @@ private:
 };
 
 NS_CC_EXT_END
-
-#endif /* defined(__AssetsManagerEx__) */

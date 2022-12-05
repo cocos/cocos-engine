@@ -27,11 +27,10 @@
 
 #include "VKStd.h"
 #include "gfx-base/GFXRenderPass.h"
+#include "gfx-vulkan/VKGPUObjects.h"
 
 namespace cc {
 namespace gfx {
-
-class CCVKGPURenderPass;
 
 class CC_VULKAN_API CCVKRenderPass final : public RenderPass {
 public:
@@ -44,7 +43,7 @@ protected:
     void doInit(const RenderPassInfo &info) override;
     void doDestroy() override;
 
-    CCVKGPURenderPass *_gpuRenderPass = nullptr;
+    IntrusivePtr<CCVKGPURenderPass> _gpuRenderPass;
 };
 
 } // namespace gfx

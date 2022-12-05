@@ -44,6 +44,7 @@ class Camera;
 class Octree;
 class DrawBatch2D;
 class DirectionalLight;
+class LODGroup;
 class SphereLight;
 class SpotLight;
 
@@ -70,6 +71,10 @@ public:
     void addCamera(Camera *camera);
     void removeCamera(Camera *camera);
     void removeCameras();
+
+    void addLODGroup(LODGroup *group);
+    void removeLODGroup(LODGroup *group);
+    void removeLODGroups();
 
     void unsetMainLight(DirectionalLight *dl);
     void addDirectionalLight(DirectionalLight *dl);
@@ -99,6 +104,7 @@ public:
     inline uint64_t generateModelId() { return _modelId++; }
     inline const ccstd::string &getName() const { return _name; }
     inline const ccstd::vector<IntrusivePtr<Camera>> &getCameras() const { return _cameras; }
+    inline const ccstd::vector<IntrusivePtr<LODGroup>> &getLODGroups() const { return _lodGroups; }
     inline const ccstd::vector<IntrusivePtr<SphereLight>> &getSphereLights() const { return _sphereLights; }
     inline const ccstd::vector<IntrusivePtr<SpotLight>> &getSpotLights() const { return _spotLights; }
     inline const ccstd::vector<IntrusivePtr<Model>> &getModels() const { return _models; }
@@ -113,6 +119,7 @@ private:
     ccstd::vector<IntrusivePtr<Model>> _models;
     ccstd::vector<IntrusivePtr<Camera>> _cameras;
     ccstd::vector<IntrusivePtr<DirectionalLight>> _directionalLights;
+    ccstd::vector<IntrusivePtr<LODGroup>> _lodGroups;
     ccstd::vector<IntrusivePtr<SphereLight>> _sphereLights;
     ccstd::vector<IntrusivePtr<SpotLight>> _spotLights;
     ccstd::vector<DrawBatch2D *> _batches;

@@ -14,6 +14,10 @@ jobs:
       (! contains(github.event.pull_request.body, '[X] does not change any runtime related code or build configuration'))
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '14.19'
+
       - name: clone REPO
         run: |
           git config --global user.name "test"

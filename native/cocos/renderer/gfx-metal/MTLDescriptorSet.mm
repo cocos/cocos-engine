@@ -65,19 +65,19 @@ void CCMTLDescriptorSet::update() {
         const auto &descriptors = _gpuDescriptorSet->gpuDescriptors;
         for (size_t i = 0; i < descriptors.size(); i++) {
             if (hasAnyFlags(descriptors[i].type, DESCRIPTOR_BUFFER_TYPE)) {
-                if (_buffers[i]) {
-                    _gpuDescriptorSet->gpuDescriptors[i].buffer = static_cast<CCMTLBuffer *>(_buffers[i]);
+                if (_buffers[i].ptr) {
+                    _gpuDescriptorSet->gpuDescriptors[i].buffer = static_cast<CCMTLBuffer *>(_buffers[i].ptr);
                 }
             } else if (hasAnyFlags(descriptors[i].type, DESCRIPTOR_TEXTURE_TYPE)) {
-                if (!_textures[i] && !_samplers[i])
+                if (!_textures[i].ptr && !_samplers[i].ptr)
                     continue;
 
-                Texture *tex = _textures[i];
+                Texture *tex = _textures[i].ptr;
                 if (!tex)
                     tex = CCMTLTexture::getDefaultTexture();
                 _gpuDescriptorSet->gpuDescriptors[i].texture = static_cast<CCMTLTexture *>(tex);
 
-                Sampler *sampler = _samplers[i];
+                Sampler *sampler = _samplers[i].ptr;
                 if (!sampler)
                     sampler = CCMTLSampler::getDefaultSampler();
                 _gpuDescriptorSet->gpuDescriptors[i].sampler = static_cast<CCMTLSampler *>(sampler);

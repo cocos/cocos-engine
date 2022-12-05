@@ -36,12 +36,15 @@
 #if defined(CC_SERVER_MODE)
     #include "platform/empty/modules/Screen.h"
     #include "platform/empty/modules/SystemWindow.h"
+    #include "platform/empty/modules/SystemWindowManager.h"
 #else
     #include "modules/Screen.h"
     #include "modules/SystemWindow.h"
+    #include "modules/SystemWindowManager.h"
 #endif
 
 #import <AppKit/AppKit.h>
+#include "base/memory/Memory.h"
 
 extern int cocos_main(int argc, const char **argv);
 
@@ -64,7 +67,12 @@ extern int cocos_main(int argc, const char **argv);
     }
     return self;
 }
-
+#if CC_EDITOR
+    - (void)start { }
+    - (void)changeFPS { }
+    - (void)pause { }
+    - (void)resume { }
+#else
 - (void)start {
     int32_t fps = _platform->getFps();
     _timer = [NSTimer scheduledTimerWithTimeInterval:1.0f / fps
@@ -90,7 +98,7 @@ extern int cocos_main(int argc, const char **argv);
 - (void)renderScene {
     _platform->runTask();
 }
-
+#endif
 @end
 
 namespace {
@@ -110,14 +118,27 @@ int32_t MacPlatform::init() {
     registerInterface(std::make_shared<Network>());
     registerInterface(std::make_shared<Screen>());
     registerInterface(std::make_shared<System>());
-    registerInterface(std::make_shared<SystemWindow>(this));
+    registerInterface(std::make_shared<SystemWindowManager>());
     registerInterface(std::make_shared<Vibrator>());
     return 0;
 }
 
 int32_t MacPlatform::loop(void) {
+#if CC_EDITOR
+    runTask();
+    return 1;
+#else
     [_timer start];
-    return cocos_main(0, nullptr);
+    NSArray *arguments = [[NSProcessInfo processInfo] arguments];
+    int argc = static_cast<int>(arguments.count);
+    std::vector<const char*> argv;
+    argv.reserve(argc);
+    for (id arg in arguments) {
+        argv.emplace_back([arg UTF8String]);
+    }
+
+    return cocos_main(argc, argv.data());
+#endif
 }
 
 int32_t MacPlatform::run(int argc, const char **argv) {
@@ -146,7 +167,7 @@ void MacPlatform::onPause() {
 
     cc::WindowEvent ev;
     ev.type = cc::WindowEvent::Type::HIDDEN;
-    dispatchEvent(ev);
+    cc::events::WindowEvent::broadcast(ev);
 }
 
 void MacPlatform::onResume() {
@@ -154,13 +175,17 @@ void MacPlatform::onResume() {
 
     cc::WindowEvent ev;
     ev.type = cc::WindowEvent::Type::SHOW;
-    dispatchEvent(ev);
+    cc::events::WindowEvent::broadcast(ev);
 }
 
 void MacPlatform::onClose() {
     cc::WindowEvent ev;
     ev.type = cc::WindowEvent::Type::CLOSE;
-    dispatchEvent(ev);
+    cc::events::WindowEvent::broadcast(ev);
+}
+
+cc::ISystemWindow *MacPlatform::createNativeWindow(uint32_t windowId, void *externalHandle) { 
+    return ccnew SystemWindow(windowId, externalHandle);
 }
 
 } // namespace cc

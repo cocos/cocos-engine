@@ -45,6 +45,10 @@ class Texture;
  * @zh 贴图资源基类。它定义了所有贴图共用的概念。
  */
 class TextureBase : public Asset {
+    IMPL_EVENT_TARGET(TextureBase)
+    DECLARE_TARGET_EVENT_BEGIN(TextureBase)
+    TARGET_EVENT_ARG1(SamplerUpdated, cc::gfx::Sampler *)
+    DECLARE_TARGET_EVENT_END()
 public:
     using Super = Asset;
 
@@ -240,10 +244,9 @@ public:
     /*@serializable*/
     uint32_t _anisotropy{0};
 
+protected:
     uint32_t _width{1};
     uint32_t _height{1};
-
-protected:
     ccstd::string _id;
     gfx::SamplerInfo _samplerInfo;
     gfx::Sampler *_gfxSampler{nullptr};

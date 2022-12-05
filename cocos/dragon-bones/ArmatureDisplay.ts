@@ -23,14 +23,11 @@
  THE SOFTWARE.
  */
 
-import { EDITOR, JSB } from 'internal:constants';
+import { EDITOR } from 'internal:constants';
 import { Armature, Bone, EventObject } from '@cocos/dragonbones-js';
-import { ccclass, executeInEditMode, help, menu } from '../core/data/class-decorator';
 import { UIRenderer } from '../2d/framework/ui-renderer';
-import { Node, CCClass, Color, Enum, ccenum, errorID, Texture2D, Material, builtinResMgr, RecyclePool, js, CCObject } from '../core';
-import { EventTarget } from '../core/event';
-import { BlendFactor } from '../core/gfx';
-import { displayName, displayOrder, editable, override, serializable, tooltip, type, visible } from '../core/data/decorators';
+import { CCClass, Color, Enum, ccenum, errorID, RecyclePool, js, CCObject, EventTarget, cclegacy, _decorator } from '../core';
+import { BlendFactor } from '../gfx';
 import { AnimationCache, ArmatureCache, ArmatureFrame } from './ArmatureCache';
 import { AttachUtil } from './AttachUtil';
 import { CCFactory } from './CCFactory';
@@ -38,13 +35,14 @@ import { DragonBonesAsset } from './DragonBonesAsset';
 import { DragonBonesAtlasAsset } from './DragonBonesAtlasAsset';
 import { Graphics } from '../2d/components';
 import { CCArmatureDisplay } from './CCArmatureDisplay';
-import { MaterialInstance } from '../core/renderer/core/material-instance';
-import { legacyCC } from '../core/global-exports';
+import { MaterialInstance } from '../render-scene/core/material-instance';
 import { ArmatureSystem } from './ArmatureSystem';
 import { Batcher2D } from '../2d/renderer/batcher-2d';
 import { RenderEntity, RenderEntityType } from '../2d/renderer/render-entity';
 import { RenderDrawInfo } from '../2d/renderer/render-draw-info';
-import { director } from '../core/director';
+import { Material, Texture2D } from '../asset/assets';
+import { Node } from '../scene-graph';
+import { builtinResMgr } from '../asset/asset-manager';
 
 enum DefaultArmaturesEnum {
     default = -1,
@@ -90,6 +88,8 @@ export enum AnimationCacheMode {
     PRIVATE_CACHE = 2
 }
 ccenum(AnimationCacheMode);
+
+const { ccclass, serializable, editable, type, help, menu, tooltip, visible, displayName, override, displayOrder, executeInEditMode } = _decorator;
 
 function setEnumAttr (obj, propName, enumDef) {
     CCClass.Attr.setClassAttr(obj, propName, 'type', 'Enum');
@@ -181,7 +181,7 @@ export class ArmatureDisplay extends UIRenderer {
         this._dragonAsset = value;
         this.destroyRenderData();
         this._refresh();
-        if (EDITOR && !legacyCC.GAME_VIEW) {
+        if (EDITOR && !cclegacy.GAME_VIEW) {
             this._defaultArmatureIndex = 0;
             this._animationIndex = 0;
         }
@@ -216,7 +216,7 @@ export class ArmatureDisplay extends UIRenderer {
         const animNames = this.getAnimationNames(this._armatureName);
 
         if (!this.animationName || animNames.indexOf(this.animationName) < 0) {
-            if (EDITOR && !legacyCC.GAME_VIEW) {
+            if (EDITOR && !cclegacy.GAME_VIEW) {
                 this.animationName = animNames[0];
             } else {
                 // Not use default animation name at runtime
@@ -591,11 +591,10 @@ export class ArmatureDisplay extends UIRenderer {
     }
 
     private getMaterialTemplate () : Material {
-        let material = this.customMaterial;
-        if (material === null) {
-            material = builtinResMgr.get<Material>('default-spine-material');
-        }
-        return material;
+        if (this.customMaterial !== null) return this.customMaterial;
+        if (this.material) return this.material;
+        this.updateMaterial();
+        return this.material!;
     }
 
     public getMaterialForBlend (src: BlendFactor, dst: BlendFactor): MaterialInstance {
@@ -625,6 +624,12 @@ export class ArmatureDisplay extends UIRenderer {
     }
 
     @override
+    protected _updateBuiltinMaterial (): Material {
+        const material = builtinResMgr.get<Material>('default-spine-material');
+        return material;
+    }
+
+    @override
     @type(Material)
     @displayOrder(0)
     @displayName('CustomMaterial')
@@ -633,9 +638,17 @@ export class ArmatureDisplay extends UIRenderer {
     }
     set customMaterial (val) {
         this._customMaterial = val;
-        this._cleanMaterialCache();
-        this.setMaterial(this._customMaterial, 0);
+        this.updateMaterial();
         this.markForUpdateRenderData();
+    }
+
+    @override
+    protected updateMaterial () {
+        let mat;
+        if (this._customMaterial) mat = this._customMaterial;
+        else mat = this._updateBuiltinMaterial();
+        this.setMaterial(mat, 0);
+        this._cleanMaterialCache();
     }
 
     protected _render (batcher: Batcher2D) {
@@ -667,7 +680,7 @@ export class ArmatureDisplay extends UIRenderer {
     }
 
     _init () {
-        if (EDITOR && !legacyCC.GAME_VIEW) {
+        if (EDITOR && !cclegacy.GAME_VIEW) {
             const Flags = CCObject.Flags;
             this._objFlags |= (Flags.IsAnchorLocked | Flags.IsSizeLocked);
             // this._refreshInspector();
@@ -744,7 +757,7 @@ export class ArmatureDisplay extends UIRenderer {
      * @return {Boolean}
      */
     isAnimationCached () {
-        if (EDITOR && !legacyCC.GAME_VIEW) return false;
+        if (EDITOR && !cclegacy.GAME_VIEW) return false;
         return this._cacheMode !== AnimationCacheMode.REALTIME;
     }
 
@@ -778,10 +791,9 @@ export class ArmatureDisplay extends UIRenderer {
     }
 
     updateAnimation (dt) {
+        this.markForUpdateRenderData();
         if (!this.isAnimationCached()) return;
         if (!this._frameCache) return;
-
-        this.markForUpdateRenderData();
 
         const frameCache = this._frameCache;
         if (!frameCache.isInited()) {
@@ -859,7 +871,7 @@ export class ArmatureDisplay extends UIRenderer {
         this._materialInstances = this._materialInstances.filter((instance) => !!instance);
         this._inited = false;
 
-        if (!EDITOR || legacyCC.GAME_VIEW) {
+        if (!EDITOR || cclegacy.GAME_VIEW) {
             if (this._cacheMode === AnimationCacheMode.PRIVATE_CACHE) {
                 this._armatureCache!.dispose();
                 this._armatureCache = null;
@@ -909,7 +921,7 @@ export class ArmatureDisplay extends UIRenderer {
         // Switch Asset or Atlas or cacheMode will rebuild armature.
         if (this._armature) {
             // dispose pre build armature
-            if (!EDITOR || legacyCC.GAME_VIEW) {
+            if (!EDITOR || cclegacy.GAME_VIEW) {
                 if (this._preCacheMode === AnimationCacheMode.PRIVATE_CACHE) {
                     this._armatureCache!.dispose();
                 } else if (this._preCacheMode === AnimationCacheMode.REALTIME) {
@@ -928,7 +940,7 @@ export class ArmatureDisplay extends UIRenderer {
             this._preCacheMode = -1;
         }
 
-        if (!EDITOR || legacyCC.GAME_VIEW) {
+        if (!EDITOR || cclegacy.GAME_VIEW) {
             if (this._cacheMode === AnimationCacheMode.SHARED_CACHE) {
                 this._armatureCache = ArmatureCache.sharedCache;
             } else if (this._cacheMode === AnimationCacheMode.PRIVATE_CACHE) {
@@ -949,7 +961,7 @@ export class ArmatureDisplay extends UIRenderer {
         }
 
         this._preCacheMode = this._cacheMode;
-        if (EDITOR && !legacyCC.GAME_VIEW || this._cacheMode === AnimationCacheMode.REALTIME) {
+        if (EDITOR && !cclegacy.GAME_VIEW || this._cacheMode === AnimationCacheMode.REALTIME) {
             this._displayProxy = this._factory!.buildArmatureDisplay(this.armatureName, this._armatureKey, '', atlasUUID) as CCArmatureDisplay;
             if (!this._displayProxy) return;
             this._displayProxy._ccNode = this.node;
@@ -1012,7 +1024,7 @@ export class ArmatureDisplay extends UIRenderer {
     _refresh () {
         this._buildArmature();
         this._indexBoneSockets();
-        if (EDITOR && !legacyCC.GAME_VIEW) {
+        if (EDITOR && !cclegacy.GAME_VIEW) {
             // update inspector
             this._updateArmatureEnum();
             this._updateAnimEnum();
@@ -1382,4 +1394,4 @@ export class ArmatureDisplay extends UIRenderer {
     }
 }
 
-legacyCC.internal.ArmatureDisplay = ArmatureDisplay;
+cclegacy.internal.ArmatureDisplay = ArmatureDisplay;

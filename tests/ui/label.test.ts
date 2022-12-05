@@ -1,6 +1,5 @@
-import { isLabeledStatement } from "typescript";
 import { Label } from "../../cocos/2d/components";
-import { Node } from "../../cocos/core/scene-graph/node";
+import { Node } from "../../cocos/scene-graph/node";
 
 test('label.string.setter', () => {
     let node = new Node();

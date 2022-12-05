@@ -42,16 +42,16 @@ CCVKSampler::CCVKSampler(const SamplerInfo &info) : Sampler(info) {
     _gpuSampler->addressW = _info.addressW;
     _gpuSampler->maxAnisotropy = _info.maxAnisotropy;
     _gpuSampler->cmpFunc = _info.cmpFunc;
-
-    cmdFuncCCVKCreateSampler(CCVKDevice::getInstance(), _gpuSampler);
+    _gpuSampler->init();
 }
 
-CCVKSampler::~CCVKSampler() { // NOLINT(bugprone-exception-escape) garbage collect may throw
-    if (_gpuSampler) {
-        CCVKDevice::getInstance()->gpuDescriptorHub()->disengage(_gpuSampler);
-        CCVKDevice::getInstance()->gpuRecycleBin()->collect(_gpuSampler);
-        _gpuSampler = nullptr;
-    }
+void CCVKGPUSampler::init() {
+    cmdFuncCCVKCreateSampler(CCVKDevice::getInstance(), this);
+}
+
+void CCVKGPUSampler::shutdown() {
+    CCVKDevice::getInstance()->gpuDescriptorHub()->disengage(this);
+    CCVKDevice::getInstance()->gpuRecycleBin()->collect(this);
 }
 
 } // namespace gfx

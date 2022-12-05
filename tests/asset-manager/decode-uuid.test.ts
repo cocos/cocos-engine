@@ -1,5 +1,5 @@
 
-import { decodeUuid } from "../../cocos/core/asset-manager/helper";
+import { decodeUuid } from "../../cocos/asset/asset-manager/helper";
 
 test('decode uuid', function () {
     const encoded = 'fcmR3XADNLgJ1ByKhqcC5Z';

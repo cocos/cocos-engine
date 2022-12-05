@@ -24,7 +24,7 @@
  */
 
 import { ccclass, serializable } from 'cc.decorator';
-import { Asset, Texture2D } from '../core/assets';
+import { Asset, Texture2D } from '../asset/assets';
 
 export const TERRAIN_MAX_LEVELS = 4;
 export const TERRAIN_MAX_BLEND_LAYERS = 4;

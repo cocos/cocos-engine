@@ -27,11 +27,10 @@
 
 #include "VKStd.h"
 #include "gfx-base/GFXFramebuffer.h"
+#include "gfx-vulkan/VKGPUObjects.h"
 
 namespace cc {
 namespace gfx {
-
-struct CCVKGPUFramebuffer;
 
 class CC_VULKAN_API CCVKFramebuffer final : public Framebuffer {
 public:
@@ -44,7 +43,7 @@ protected:
     void doInit(const FramebufferInfo &info) override;
     void doDestroy() override;
 
-    CCVKGPUFramebuffer *_gpuFBO = nullptr;
+    IntrusivePtr<CCVKGPUFramebuffer> _gpuFBO;
 };
 
 } // namespace gfx

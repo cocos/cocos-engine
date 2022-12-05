@@ -43,4 +43,28 @@ enum class TransformBit : uint32_t {
 };
 CC_ENUM_BITWISE_OPERATORS(TransformBit);
 
+/**
+ * @en Node's mobility
+ * @zh 节点的移动性
+ */
+enum class MobilityMode {
+    /**
+     * @en Static node
+     * @zh 静态节点
+     */
+    Static = 0,
+
+    /**
+     * @en Stationary node
+     * @zh 固定节点
+     */
+    Stationary = 1,
+
+    /**
+     * @en Movable node
+     * @zh 可移动节点
+     */
+    Movable = 2,
+};
+
 } // namespace cc

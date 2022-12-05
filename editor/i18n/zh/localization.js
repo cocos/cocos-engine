@@ -66,6 +66,7 @@ module.exports = {
             TiledMap: ``,
             Spine: ``,
             OctreeCulling: `${url}/${version}/manual/zh/advanced-topics/native-scene-culling.html`,
+            LightProbe: ``,
         },
         assets: {
             javascript: `${url}/${version}/manual/zh/concepts/scene/node-component.html`,
@@ -149,6 +150,7 @@ module.exports = {
         illuminance: '光源强度',
         luminous_flux: '光通量',
         luminance: '光亮度',
+        visibility: '可见性掩码，声明在当前精确光源中可见的节点层级集合（对方向光不生效）',
         term: '当前使用的光度学计量单位',
         size: '光源大小',
         range: '光源范围',
@@ -164,6 +166,9 @@ module.exports = {
         shadowNear: '固定区域开始值',
         shadowFar: '固定区域结束值',
         shadowOrthoSize: '固定区域大小，该值越大则阴影精度越低',
+        shadowAdvancedOptions: '阴影高级选项',
+        csmLayersTransition: '是否开启级联阴影层级过渡（提升质量，降低性能）',
+        csmTransitionRange: '级联阴影层级过渡范围(NDC空间: 取值范围为 0 ~ 1)',
     },
     model: {
         shadow_receiving_model: '阴影接受方式',
@@ -665,6 +670,7 @@ module.exports = {
         rotationOvertimeModule: '粒子旋转模块',
         textureAnimationModule: '贴图动画模块',
         trailModule: '粒子轨迹模块（只支持 CPU 粒子）',
+        noiseModule: '粒子噪声动画模块（只支持 CPU 粒子）',
         renderer: '粒子渲染模块',
         renderCulling: '是否开启粒子剔除功能。<br>开启该项将会生成一个粒子发射器包围盒，若包围盒不在摄像机的可见范围内，该粒子发射器便会被剔除。<br>粒子发射器被剔除后的行为请参考下面的 Culling Mode。',
         cullingMode: '粒子发射器被剔除之后的行为，可设置的选项包括 Pause, Pause and Catchup, Always Simulate。<br>选择 Pause 时，若粒子发射器包围盒不在摄像机的可见范围内，粒子暂停模拟。若恢复可见，则粒子会接着上次暂停的时间继续模拟；<br>选择 Pause and Catchup 时，若粒子发射器包围盒不在摄像机的可见范围内，粒子暂停模拟。若恢复可见，则粒子会以当前的时间开始模拟；<br>选择 Always Simulate 时，无论粒子发射器包围盒是否在摄像机的可见范围内，粒子都会一直模拟，只是不在摄像机的可见范围内时不进行渲染。',
@@ -763,6 +769,10 @@ module.exports = {
                 label: '动画',
                 description: '动画系统。',
             },
+            network: {
+                label: '网络',
+                description: '网络模块。',
+            },
         },
         core: {
             label: "核心功能",
@@ -852,6 +862,10 @@ module.exports = {
             label: "地形",
             description: "地形功能支持。",
         },
+        light_probe: {
+            label: "光照探针",
+            description: "光照探针功能支持。",
+        },
         audio: {
             label: "音频",
             description: "音频播放支持。",
@@ -915,6 +929,14 @@ module.exports = {
         custom_pipeline: {
             label: "自定义渲染管线（实验）",
             description: "启用自定义渲染管线。",
+        },
+        websocket: {
+            label: "WebSocket",
+            description: "对原生启用 WebSocket。其中iOS/macOS使用SocketRocket实现, Android使用OkHttp实现, Windows使用libwebsockets实现。",
+        },
+        websocket_server: {
+            label: "WebSocket Server",
+            description: "对原生启用 WebSocket Server。注意: 必须同时启用 WebSocket。",
         },
     },
     renderable_2d: {
@@ -986,5 +1008,22 @@ module.exports = {
         minPos: '世界包围盒最小顶点的坐标',
         maxPos: '世界包围盒最大顶点的坐标',
         depth: '八叉树深度',
+    },
+    light_probe: {
+        giScale: 'GI乘数',
+        giSamples: 'GI采样数量',
+        bounces: '光照反弹次数',
+        reduceRinging: '减少光照探针的振铃效果',
+        showProbe: '是否显示光照探针',
+        showWireframe: '是否显示光照探针连线',
+        showConvex: '是否显示光照探针凸包',
+    },
+    light_probe_group: {
+        method: '光照探针的自动生成算法',
+        nProbesX: 'X轴生成的光照探针数量',
+        nProbesY: 'Y轴生成的光照探针数量',
+        nProbesZ: 'Z轴生成的光照探针数量',
+        minPos: '生成光照探针的包围盒最小点',
+        maxPos: '生成光照探针的包围盒最大点',
     },
 };

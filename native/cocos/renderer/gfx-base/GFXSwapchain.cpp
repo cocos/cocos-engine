@@ -39,6 +39,7 @@ void Swapchain::initialize(const SwapchainInfo &info) {
     CC_ASSERT(info.windowHandle);
 #endif
 
+    _windowId = info.windowId;
     _windowHandle = info.windowHandle;
     _vsyncMode = info.vsyncMode;
 
@@ -49,6 +50,7 @@ void Swapchain::destroy() {
     doDestroy();
 
     _windowHandle = nullptr;
+    _windowId = 0;
 }
 
 void Swapchain::resize(uint32_t width, uint32_t height, SurfaceTransform transform) {

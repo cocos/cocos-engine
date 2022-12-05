@@ -24,9 +24,9 @@
  */
 
 import { EDITOR } from 'internal:constants';
-import { System, Director, director } from '../core';
+import { System, cclegacy } from '../core';
 import { ActionManager } from './actions/action-manager';
-import { legacyCC } from '../core/global-exports';
+import { Director, director } from '../game';
 
 /**
  * @en
@@ -71,7 +71,7 @@ export class TweenSystem extends System {
      * @param dt @en The delta time @zh 间隔时间
      */
     update (dt: number) {
-        if (!EDITOR || legacyCC.GAME_VIEW || this._executeInEditMode) {
+        if (!EDITOR || cclegacy.GAME_VIEW || this._executeInEditMode) {
             this.actionMgr.update(dt);
         }
     }

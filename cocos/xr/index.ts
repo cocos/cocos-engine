@@ -23,9 +23,5 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
-
 export * from './event/xr-event-handle';
+export * from './rendering/ar-background-stage';

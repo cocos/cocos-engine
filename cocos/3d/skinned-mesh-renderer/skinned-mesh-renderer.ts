@@ -26,16 +26,15 @@
 import {
     ccclass, executeInEditMode, executionOrder, help, menu, tooltip, type,
 } from 'cc.decorator';
-import type { AnimationClip } from '../../core/animation/animation-clip';
-import { Material } from '../../core/assets';
+import type { AnimationClip } from '../../animation/animation-clip';
+import { Material } from '../../asset/assets';
 import { Skeleton } from '../assets/skeleton';
-import { Node } from '../../core/scene-graph/node';
+import { Node } from '../../scene-graph/node';
 import { MeshRenderer } from '../framework/mesh-renderer';
 import type { SkeletalAnimation } from '../skeletal-animation';
-import { legacyCC } from '../../core/global-exports';
+import { cclegacy, assertIsTrue } from '../../core';
 import { SkinningModel } from '../models/skinning-model';
 import { BakedSkinningModel } from '../models/baked-skinning-model';
-import { assertIsTrue } from '../../core/data/utils/asserts';
 
 /**
  * @en The skinned mesh renderer component.
@@ -132,12 +131,13 @@ export class SkinnedMeshRenderer extends MeshRenderer {
         if (!force && this._modelType === modelType) { return; }
         this._modelType = modelType;
         if (this._model) {
-            legacyCC.director.root.destroyModel(this._model);
+            cclegacy.director.root.destroyModel(this._model);
             this._model = null;
             this._models.length = 0;
             this._updateModels();
             this._updateCastShadow();
             this._updateReceiveShadow();
+            this._updateUseLightProbe();
             if (this.enabledInHierarchy) {
                 this._attachToScene();
             }

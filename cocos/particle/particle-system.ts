@@ -26,12 +26,11 @@
 // eslint-disable-next-line max-len
 import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displayOrder, type, range, displayName, formerlySerializedAs, override, radian, serializable, visible } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
-import { Renderer } from '../core/components/renderer';
-import { ModelRenderer } from '../core/components/model-renderer';
-import { Material } from '../core/assets/material';
-import { Mat4, pseudoRandom, Quat, randomRangeInt, Vec2, Vec3 } from '../core/math';
-import { INT_MAX } from '../core/math/bits';
-import { scene } from '../core/renderer';
+import { Renderer } from '../misc/renderer';
+import { ModelRenderer } from '../misc/model-renderer';
+import { Material } from '../asset/assets/material';
+import { Mat4, pseudoRandom, Quat, randomRangeInt, Vec2, Vec3, CCBoolean, CCFloat, bits, geometry, cclegacy } from '../core';
+import { scene } from '../render-scene';
 import ColorOverLifetimeModule from './animator/color-overtime';
 import CurveRange, { Mode } from './animator/curve-range';
 import ForceOvertimeModule from './animator/force-overtime';
@@ -49,13 +48,10 @@ import ParticleSystemRenderer from './renderer/particle-system-renderer-data';
 import TrailModule from './renderer/trail';
 import { IParticleSystemRenderer } from './renderer/particle-system-renderer-base';
 import { PARTICLE_MODULE_PROPERTY } from './particle';
-import { legacyCC } from '../core/global-exports';
-import { TransformBit } from '../core/scene-graph/node-enum';
-import { AABB, intersect } from '../core/geometry';
-import { Camera } from '../core/renderer/scene';
+import { TransformBit } from '../scene-graph/node-enum';
+import { Camera } from '../render-scene/scene';
 import { ParticleCuller } from './particle-culler';
 import { NoiseModule } from './animator/noise-module';
-import { CCBoolean, CCFloat } from '../core';
 
 const _world_mat = new Mat4();
 const _world_rol = new Quat();
@@ -69,6 +65,7 @@ const superMaterials = Object.getOwnPropertyDescriptor(Renderer.prototype, 'shar
 @executeInEditMode
 export class ParticleSystem extends ModelRenderer {
     /**
+     * @en Maximum particle capacity to generate
      * @zh 粒子系统能生成的最大粒子数量。
      */
     @range([0, Number.POSITIVE_INFINITY])
@@ -88,6 +85,7 @@ export class ParticleSystem extends ModelRenderer {
     }
 
     /**
+     * @en The initial color of the particle
      * @zh 粒子初始颜色。
      */
     @type(GradientRange)
@@ -108,7 +106,8 @@ export class ParticleSystem extends ModelRenderer {
     public startSize3D = false;
 
     /**
-     * @zh 粒子初始大小。
+     * @en The initial X size of the particle
+     * @zh 粒子初始x轴方向大小。
      */
     @formerlySerializedAs('startSize')
     @range([0, 1])
@@ -118,7 +117,8 @@ export class ParticleSystem extends ModelRenderer {
     public startSizeX = new CurveRange();
 
     /**
-     * @zh 粒子初始大小。
+     * @en The initial Y size of the particle
+     * @zh 粒子初始y轴方向大小。
      */
     @type(CurveRange)
     @serializable
@@ -129,7 +129,8 @@ export class ParticleSystem extends ModelRenderer {
     public startSizeY = new CurveRange();
 
     /**
-     * @zh 粒子初始大小。
+     * @en The initial Z size of the particle
+     * @zh 粒子初始z轴方向大小。
      */
     @type(CurveRange)
     @serializable
@@ -140,6 +141,7 @@ export class ParticleSystem extends ModelRenderer {
     public startSizeZ = new CurveRange();
 
     /**
+     * @en The initial velocity of the particle
      * @zh 粒子初始速度。
      */
     @type(CurveRange)
@@ -155,7 +157,8 @@ export class ParticleSystem extends ModelRenderer {
     public startRotation3D = false;
 
     /**
-     * @zh 粒子初始旋转角度。
+     * @en The initial rotation angle of the particle on X axis
+     * @zh 粒子初始x轴旋转角度。
      */
     @type(CurveRange)
     @serializable
@@ -167,7 +170,8 @@ export class ParticleSystem extends ModelRenderer {
     public startRotationX = new CurveRange();
 
     /**
-     * @zh 粒子初始旋转角度。
+     * @en The initial rotation angle of the particle on Y axis
+     * @zh 粒子初始y轴旋转角度。
      */
     @type(CurveRange)
     @serializable
@@ -179,7 +183,8 @@ export class ParticleSystem extends ModelRenderer {
     public startRotationY = new CurveRange();
 
     /**
-     * @zh 粒子初始旋转角度。
+     * @en The initial rotation angle of the particle on Z axis
+     * @zh 粒子初始z轴旋转角度。
      */
     @type(CurveRange)
     @formerlySerializedAs('startRotation')
@@ -191,6 +196,7 @@ export class ParticleSystem extends ModelRenderer {
     public startRotationZ = new CurveRange();
 
     /**
+     * @en The time delay to start emission after the particle system starts running
      * @zh 粒子系统开始运行后，延迟粒子发射的时间。
      */
     @type(CurveRange)
@@ -201,6 +207,7 @@ export class ParticleSystem extends ModelRenderer {
     public startDelay = new CurveRange();
 
     /**
+     * @en Particle life time
      * @zh 粒子生命周期。
      */
     @type(CurveRange)
@@ -211,6 +218,7 @@ export class ParticleSystem extends ModelRenderer {
     public startLifetime = new CurveRange();
 
     /**
+     * @en Particle system duration time
      * @zh 粒子系统运行时间。
      */
     @serializable
@@ -219,6 +227,7 @@ export class ParticleSystem extends ModelRenderer {
     public duration = 5.0;
 
     /**
+     * @en Whether the particle system is looping.
      * @zh 粒子系统是否循环播放。
      */
     @serializable
@@ -227,6 +236,7 @@ export class ParticleSystem extends ModelRenderer {
     public loop = true;
 
     /**
+     * @en Play one round before start this particle system
      * @zh 选中之后，粒子系统会以已播放完一轮之后的状态开始播放（仅当循环播放启用时有效）。
      */
     @displayOrder(3)
@@ -243,6 +253,7 @@ export class ParticleSystem extends ModelRenderer {
     }
 
     /**
+     * @en The simulation space of the particle system, it could be world, local or custom
      * @zh 选择粒子系统所在的坐标系[[Space]]。<br>
      */
     @type(Space)
@@ -264,6 +275,7 @@ export class ParticleSystem extends ModelRenderer {
     }
 
     /**
+     * @en The simulation speed of the particle system
      * @zh 控制整个粒子系统的更新速度。
      */
     @serializable
@@ -272,6 +284,7 @@ export class ParticleSystem extends ModelRenderer {
     public simulationSpeed = 1.0;
 
     /**
+     * @en Automatically start playing after particle system initialized
      * @zh 粒子系统加载后是否自动开始播放。
      */
     @serializable
@@ -280,6 +293,7 @@ export class ParticleSystem extends ModelRenderer {
     public playOnAwake = true;
 
     /**
+     * @en The gravity of the particle system
      * @zh 粒子受重力影响的重力系数。
      */
     @type(CurveRange)
@@ -291,7 +305,8 @@ export class ParticleSystem extends ModelRenderer {
 
     // emission module
     /**
-     * @zh 每秒发射的粒子数。
+     * @en The value curve of emission rate over time
+     * @zh 随时间推移发射的粒子数的变化曲线。
      */
     @type(CurveRange)
     @serializable
@@ -301,7 +316,8 @@ export class ParticleSystem extends ModelRenderer {
     public rateOverTime = new CurveRange();
 
     /**
-     * @zh 每移动单位距离发射的粒子数。
+     * @en The value curve of emission rate over distance
+     * @zh 每移动单位距离发射的粒子数的变化曲线。
      */
     @type(CurveRange)
     @serializable
@@ -311,6 +327,7 @@ export class ParticleSystem extends ModelRenderer {
     public rateOverDistance = new CurveRange();
 
     /**
+     * @en Burst triggers of the particle system
      * @zh 设定在指定时间发射指定数量的粒子的 burst 的数量。
      */
     @type([Burst])
@@ -330,7 +347,7 @@ export class ParticleSystem extends ModelRenderer {
         this._renderCulling = value;
         if (value) {
             if (!this._boundingBox) {
-                this._boundingBox = new AABB();
+                this._boundingBox = new geometry.AABB();
                 this._calculateBounding(false);
             }
         }
@@ -470,13 +487,14 @@ export class ParticleSystem extends ModelRenderer {
     @type(ColorOverLifetimeModule)
     _colorOverLifetimeModule: ColorOverLifetimeModule | null = null;
     /**
+     * @en The module controlling particles' color over life time
      * @zh 颜色控制模块。
      */
     @type(ColorOverLifetimeModule)
     @displayOrder(23)
     @tooltip('i18n:particle_system.colorOverLifetimeModule')
     public get colorOverLifetimeModule () {
-        if (EDITOR && !legacyCC.GAME_VIEW) {
+        if (EDITOR && !cclegacy.GAME_VIEW) {
             if (!this._colorOverLifetimeModule) {
                 this._colorOverLifetimeModule = new ColorOverLifetimeModule();
                 this._colorOverLifetimeModule.bindTarget(this.processor);
@@ -494,13 +512,14 @@ export class ParticleSystem extends ModelRenderer {
     @type(ShapeModule)
     _shapeModule: ShapeModule | null = null;
     /**
+     * @en The module controlling emitter's shape
      * @zh 粒子发射器模块。
      */
     @type(ShapeModule)
     @displayOrder(17)
     @tooltip('i18n:particle_system.shapeModule')
     public get shapeModule () {
-        if (EDITOR && !legacyCC.GAME_VIEW) {
+        if (EDITOR && !cclegacy.GAME_VIEW) {
             if (!this._shapeModule) {
                 this._shapeModule = new ShapeModule();
                 this._shapeModule.onInit(this);
@@ -518,13 +537,14 @@ export class ParticleSystem extends ModelRenderer {
     @type(SizeOvertimeModule)
     _sizeOvertimeModule: SizeOvertimeModule | null = null;
     /**
+     * @en The module controlling particles' size over time
      * @zh 粒子大小模块。
      */
     @type(SizeOvertimeModule)
     @displayOrder(21)
     @tooltip('i18n:particle_system.sizeOvertimeModule')
     public get sizeOvertimeModule () {
-        if (EDITOR && !legacyCC.GAME_VIEW) {
+        if (EDITOR && !cclegacy.GAME_VIEW) {
             if (!this._sizeOvertimeModule) {
                 this._sizeOvertimeModule = new SizeOvertimeModule();
                 this._sizeOvertimeModule.bindTarget(this.processor);
@@ -542,13 +562,14 @@ export class ParticleSystem extends ModelRenderer {
     @type(VelocityOvertimeModule)
     _velocityOvertimeModule: VelocityOvertimeModule | null = null;
     /**
+     * @en The module controlling particles' velocity over time
      * @zh 粒子速度模块。
      */
     @type(VelocityOvertimeModule)
     @displayOrder(18)
     @tooltip('i18n:particle_system.velocityOvertimeModule')
     public get velocityOvertimeModule () {
-        if (EDITOR && !legacyCC.GAME_VIEW) {
+        if (EDITOR && !cclegacy.GAME_VIEW) {
             if (!this._velocityOvertimeModule) {
                 this._velocityOvertimeModule = new VelocityOvertimeModule();
                 this._velocityOvertimeModule.bindTarget(this.processor);
@@ -566,13 +587,14 @@ export class ParticleSystem extends ModelRenderer {
     @type(ForceOvertimeModule)
     _forceOvertimeModule: ForceOvertimeModule | null = null;
     /**
+     * @en The module controlling the force applied to particles over time
      * @zh 粒子加速度模块。
      */
     @type(ForceOvertimeModule)
     @displayOrder(19)
     @tooltip('i18n:particle_system.forceOvertimeModule')
     public get forceOvertimeModule () {
-        if (EDITOR && !legacyCC.GAME_VIEW) {
+        if (EDITOR && !cclegacy.GAME_VIEW) {
             if (!this._forceOvertimeModule) {
                 this._forceOvertimeModule = new ForceOvertimeModule();
                 this._forceOvertimeModule.bindTarget(this.processor);
@@ -591,13 +613,14 @@ export class ParticleSystem extends ModelRenderer {
     _limitVelocityOvertimeModule: LimitVelocityOvertimeModule | null = null;
 
     /**
+     * @en The module which limits the velocity applied to particles over time, only supported in CPU particle system
      * @zh 粒子限制速度模块（只支持 CPU 粒子）。
      */
     @type(LimitVelocityOvertimeModule)
     @displayOrder(20)
     @tooltip('i18n:particle_system.limitVelocityOvertimeModule')
     public get limitVelocityOvertimeModule () {
-        if (EDITOR && !legacyCC.GAME_VIEW) {
+        if (EDITOR && !cclegacy.GAME_VIEW) {
             if (!this._limitVelocityOvertimeModule) {
                 this._limitVelocityOvertimeModule = new LimitVelocityOvertimeModule();
                 this._limitVelocityOvertimeModule.bindTarget(this.processor);
@@ -615,13 +638,14 @@ export class ParticleSystem extends ModelRenderer {
     @type(RotationOvertimeModule)
     _rotationOvertimeModule: RotationOvertimeModule | null = null;
     /**
+     * @en The module controlling the rotation of particles over time
      * @zh 粒子旋转模块。
      */
     @type(RotationOvertimeModule)
     @displayOrder(22)
     @tooltip('i18n:particle_system.rotationOvertimeModule')
     public get rotationOvertimeModule () {
-        if (EDITOR && !legacyCC.GAME_VIEW) {
+        if (EDITOR && !cclegacy.GAME_VIEW) {
             if (!this._rotationOvertimeModule) {
                 this._rotationOvertimeModule = new RotationOvertimeModule();
                 this._rotationOvertimeModule.bindTarget(this.processor);
@@ -639,13 +663,14 @@ export class ParticleSystem extends ModelRenderer {
     @type(TextureAnimationModule)
     _textureAnimationModule: TextureAnimationModule | null = null;
     /**
+     * @en The module controlling the texture animation of particles
      * @zh 贴图动画模块。
      */
     @type(TextureAnimationModule)
     @displayOrder(24)
     @tooltip('i18n:particle_system.textureAnimationModule')
     public get textureAnimationModule () {
-        if (EDITOR && !legacyCC.GAME_VIEW) {
+        if (EDITOR && !cclegacy.GAME_VIEW) {
             if (!this._textureAnimationModule) {
                 this._textureAnimationModule = new TextureAnimationModule();
                 this._textureAnimationModule.bindTarget(this.processor);
@@ -662,9 +687,13 @@ export class ParticleSystem extends ModelRenderer {
     // noise module
     @type(NoiseModule)
     private _noiseModule: NoiseModule | null = null;
-
+    /**
+     * @en The module controlling noise map applied to the particles, only supported in CPU particle system
+     * @zh 噪声动画模块。
+     */
     @type(NoiseModule)
     @displayOrder(24)
+    @tooltip('i18n:particle_system.noiseModule')
     public get noiseModule () {
         if (EDITOR) {
             if (!this._noiseModule) {
@@ -684,17 +713,16 @@ export class ParticleSystem extends ModelRenderer {
     @type(TrailModule)
     _trailModule: TrailModule | null = null;
     /**
+     * @en The module controlling the trail module
      * @zh 粒子轨迹模块。
      */
     @type(TrailModule)
     @displayOrder(25)
     @tooltip('i18n:particle_system.trailModule')
     public get trailModule () {
-        if (EDITOR && !legacyCC.GAME_VIEW) {
+        if (EDITOR && !cclegacy.GAME_VIEW) {
             if (!this._trailModule) {
                 this._trailModule = new TrailModule();
-                this._trailModule.onInit(this);
-                this._trailModule.onEnable();
             }
         }
         return this._trailModule;
@@ -727,7 +755,7 @@ export class ParticleSystem extends ModelRenderer {
     private _oldWPos: Vec3;
     private _curWPos: Vec3;
 
-    private _boundingBox: AABB | null;
+    private _boundingBox: geometry.AABB | null;
     private _culler: ParticleCuller | null;
     private _oldPos: Vec3 | null;
     private _curPos: Vec3 | null;
@@ -795,7 +823,7 @@ export class ParticleSystem extends ModelRenderer {
         // HACK, TODO
         this.renderer.onInit(this);
         if (this._shapeModule) this._shapeModule.onInit(this);
-        if (this._trailModule && !this.renderer.useGPU) {
+        if (this._trailModule && !this.renderer.useGPU && this._trailModule.enable) {
             this._trailModule.onInit(this);
         }
         this.bindModule();
@@ -973,6 +1001,7 @@ export class ParticleSystem extends ModelRenderer {
     }
 
     /**
+     * @en Get current particle capacity
      * @zh 获取当前粒子数量
      */
     public getParticleCount () {
@@ -998,7 +1027,7 @@ export class ParticleSystem extends ModelRenderer {
                 this._trailModule._detachFromScene();
             }
         }
-        legacyCC.director.off(legacyCC.Director.EVENT_BEFORE_COMMIT, this.beforeRender, this);
+        cclegacy.director.off(cclegacy.Director.EVENT_BEFORE_COMMIT, this.beforeRender, this);
         // this._system.remove(this);
         this.processor.onDestroy();
         if (this._trailModule) this._trailModule.destroy();
@@ -1011,15 +1040,15 @@ export class ParticleSystem extends ModelRenderer {
 
     protected onEnable () {
         super.onEnable();
-        legacyCC.director.on(legacyCC.Director.EVENT_BEFORE_COMMIT, this.beforeRender, this);
-        if (this.playOnAwake && (!EDITOR || legacyCC.GAME_VIEW)) {
+        cclegacy.director.on(cclegacy.Director.EVENT_BEFORE_COMMIT, this.beforeRender, this);
+        if (this.playOnAwake && (!EDITOR || cclegacy.GAME_VIEW)) {
             this.play();
         }
         this.processor.onEnable();
         if (this._trailModule) this._trailModule.onEnable();
     }
     protected onDisable () {
-        legacyCC.director.off(legacyCC.Director.EVENT_BEFORE_COMMIT, this.beforeRender, this);
+        cclegacy.director.off(cclegacy.Director.EVENT_BEFORE_COMMIT, this.beforeRender, this);
         this.processor.onDisable();
         if (this._trailModule) this._trailModule.onDisable();
         if (this._boundingBox) {
@@ -1038,7 +1067,7 @@ export class ParticleSystem extends ModelRenderer {
                 this._culler = new ParticleCuller(this);
             }
             this._culler.calculatePositions();
-            AABB.fromPoints(this._boundingBox, this._culler.minPos, this._culler.maxPos);
+            geometry.AABB.fromPoints(this._boundingBox, this._culler.minPos, this._culler.maxPos);
             if (forceRefresh) {
                 this.aabbHalfX = this._boundingBox.halfExtents.x;
                 this.aabbHalfY = this._boundingBox.halfExtents.y;
@@ -1081,7 +1110,7 @@ export class ParticleSystem extends ModelRenderer {
             this._isSimulating = true;
         } else {
             if (!this._boundingBox) {
-                this._boundingBox = new AABB();
+                this._boundingBox = new geometry.AABB();
                 this._calculateBounding(false);
             }
 
@@ -1112,12 +1141,12 @@ export class ParticleSystem extends ModelRenderer {
                     const camera:Camera = cameraLst[i];
                     const visibility = camera.visibility;
                     if ((visibility & this.node.layer) === this.node.layer) {
-                        if (EDITOR && !legacyCC.GAME_VIEW) {
-                            if (camera.name === 'Editor Camera' && intersect.aabbFrustum(this._boundingBox, camera.frustum)) {
+                        if (EDITOR && !cclegacy.GAME_VIEW) {
+                            if (camera.name === 'Editor Camera' && geometry.intersect.aabbFrustum(this._boundingBox, camera.frustum)) {
                                 culled = false;
                                 break;
                             }
-                        } else if (intersect.aabbFrustum(this._boundingBox, camera.frustum)) {
+                        } else if (geometry.intersect.aabbFrustum(this._boundingBox, camera.frustum)) {
                             culled = false;
                             break;
                         }
@@ -1195,15 +1224,21 @@ export class ParticleSystem extends ModelRenderer {
                 }
             }
         }
+
+        if (!this.renderer.useGPU && this._trailModule && this._trailModule.enable) {
+            // @ts-expect-error private property access
+            if (!this._trailModule._inited) {
+                this._trailModule.clear();
+                this._trailModule.destroy();
+                this._trailModule.onInit(this);
+                // Rebuild trail buffer
+                this._trailModule.enable = false;
+                this._trailModule.enable = true;
+            }
+        }
     }
 
     protected beforeRender () {
-        if (!this._isPlaying) return;
-        this.processor.beforeRender();
-        if (this._trailModule && this._trailModule.enable) {
-            this._trailModule.beforeRender();
-        }
-
         if (this.getParticleCount() <= 0) {
             if (this.processor.getModel()?.scene) {
                 this.processor.detachFromScene();
@@ -1214,6 +1249,13 @@ export class ParticleSystem extends ModelRenderer {
             }
         } else if (!this.processor.getModel()?.scene) {
             this._needAttach = true;
+        }
+
+        if (!this._isPlaying) return;
+
+        this.processor.beforeRender();
+        if (this._trailModule && this._trailModule.enable) {
+            this._trailModule.beforeRender();
         }
     }
 
@@ -1249,7 +1291,7 @@ export class ParticleSystem extends ModelRenderer {
             particle.particleSystem = this;
             particle.reset();
 
-            const rand = pseudoRandom(randomRangeInt(0, INT_MAX));
+            const rand = pseudoRandom(randomRangeInt(0, bits.INT_MAX));
 
             if (this._shapeModule && this._shapeModule.enable) {
                 this._shapeModule.emit(particle);
@@ -1345,10 +1387,13 @@ export class ParticleSystem extends ModelRenderer {
             }
 
             // emit by rateOverDistance
-            this.node.getWorldPosition(this._curWPos);
-            const distance = Vec3.distance(this._curWPos, this._oldWPos);
-            Vec3.copy(this._oldWPos, this._curWPos);
-            this._emitRateDistanceCounter += distance * this.rateOverDistance.evaluate(this._time / this.duration, 1)!;
+            const rateOverDistance = this.rateOverDistance.evaluate(this._time / this.duration, 1)!;
+            if (rateOverDistance > 0) {
+                Vec3.copy(this._oldWPos, this._curWPos);
+                this.node.getWorldPosition(this._curWPos);
+                const distance = Vec3.distance(this._curWPos, this._oldWPos);
+                this._emitRateDistanceCounter += distance * rateOverDistance;
+            }
 
             if (this._emitRateDistanceCounter > 1) {
                 const emitNum = Math.floor(this._emitRateDistanceCounter);

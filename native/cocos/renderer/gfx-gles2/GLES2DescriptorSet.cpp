@@ -73,7 +73,7 @@ void GLES2DescriptorSet::update() {
         auto &descriptors = _gpuDescriptorSet->gpuDescriptors;
         for (size_t i = 0; i < descriptors.size(); i++) {
             if (hasAnyFlags(descriptors[i].type, DESCRIPTOR_BUFFER_TYPE)) {
-                auto *buffer = static_cast<GLES2Buffer *>(_buffers[i]);
+                auto *buffer = static_cast<GLES2Buffer *>(_buffers[i].ptr);
                 if (buffer) {
                     if (buffer->gpuBuffer()) {
                         descriptors[i].gpuBuffer = buffer->gpuBuffer();
@@ -82,11 +82,11 @@ void GLES2DescriptorSet::update() {
                     }
                 }
             } else if (hasAnyFlags(descriptors[i].type, DESCRIPTOR_TEXTURE_TYPE)) {
-                if (_textures[i]) {
-                    descriptors[i].gpuTexture = static_cast<GLES2Texture *>(_textures[i])->gpuTexture();
+                if (_textures[i].ptr) {
+                    descriptors[i].gpuTexture = static_cast<GLES2Texture *>(_textures[i].ptr)->gpuTexture();
                 }
-                if (_samplers[i]) {
-                    descriptors[i].gpuSampler = static_cast<GLES2Sampler *>(_samplers[i])->gpuSampler();
+                if (_samplers[i].ptr) {
+                    descriptors[i].gpuSampler = static_cast<GLES2Sampler *>(_samplers[i].ptr)->gpuSampler();
                 }
             }
         }

@@ -68,16 +68,16 @@ struct FunctionExactor<R(ARGS...)> {
         };
         return func;
     }
-    static R call(const se::Value &fnVal, ARGS &&...args) {
+    static R call(se::Object *jsThisObject, const se::Value &fnVal, ARGS &&...args) {
         se::AutoHandleScope scope;
         se::ValueArray jsArgs;
         jsArgs.resize(sizeof...(ARGS));
         nativevalue_to_se_args_v(jsArgs, std::forward<ARGS>(args)...);
         se::Value rval;
-        bool succ = fnVal.toObject()->call(jsArgs, nullptr, &rval);
+        bool succ = fnVal.toObject()->call(jsArgs, jsThisObject, &rval);
         if constexpr (!std::is_void_v<R>) {
             R result;
-            sevalue_to_native(rval, &result, nullptr);
+            sevalue_to_native(rval, &result, jsThisObject);
             return result;
         }
     }
@@ -331,7 +331,7 @@ ResultType mapTupleArguments(se::Object *self, TupleIn &input, std::index_sequen
     using map_tuple = typename Mapping::mapping_list::tuple_type;
     using result_type = typename Mapping::result_types_tuple_mutable;
     static_assert(std::is_same<ResultType, result_type>::value, "result_type mismatch");
-    // if CC_CONSTEXPR (std::tuple_size<result_type>::value > 0) {
+    //if constexpr (std::tuple_size<result_type>::value > 0) {
     return result_type(ArgumentFilter::forward<map_tuple, TupleIn, indexes>(self, input)...);
     //}
     // return result_type();
@@ -842,7 +842,7 @@ struct InstanceAttribute<AttributeAccessor<T, Getter, Setter>> : InstanceAttribu
     }
 
     bool set(se::State &state) const override {
-        if CC_CONSTEXPR (HAS_SETTER) {
+        if constexpr (HAS_SETTER) {
             T *self = reinterpret_cast<T *>(state.nativeThisObject());
             se::Object *thisObject = state.thisObject();
             const auto &args = state.args();
@@ -1000,7 +1000,7 @@ struct StaticAttribute<SAttributeAccessor<T, Getter, Setter>> : StaticAttributeB
     }
 
     bool set(se::State &state) const override {
-        if CC_CONSTEXPR (HAS_SETTER) {
+        if constexpr (HAS_SETTER) {
             const auto &args = state.args();
             HolderType<set_value_type, std::is_reference<set_value_type>::value> temp;
             sevalue_to_native(args[0], &(temp.data), nullptr);
@@ -1045,13 +1045,17 @@ auto bindFunction(const se::Value &fnVal) {
 }
 
 template <typename R, typename... ARGS>
-R callFunction(const se::Value &fnVal, ARGS... args) {
+R callFunction(se::Object *jsThisObject, const se::Value &fnVal, ARGS... args) {
     using T = R(ARGS...);
     assert(fnVal.isObject() && fnVal.toObject()->isFunction());
     if constexpr (!std::is_void_v<R>) {
-        return intl::FunctionExactor<T>::call(fnVal, std::forward<ARGS>(args)...);
+        return intl::FunctionExactor<T>::call(jsThisObject, fnVal, std::forward<ARGS>(args)...);
     } else {
-        intl::FunctionExactor<T>::call(fnVal, std::forward<ARGS>(args)...);
+        intl::FunctionExactor<T>::call(jsThisObject, fnVal, std::forward<ARGS>(args)...);
     }
+}
+template <typename R, typename... ARGS>
+R callFunction(const se::Value &fnVal, ARGS... args) {
+    return callFunction<R, ARGS...>(nullptr, fnVal, args...);
 }
 } // namespace sebind

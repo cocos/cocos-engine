@@ -25,9 +25,10 @@
  */
 
 import { ccclass, type, serializable } from 'cc.decorator';
-import { Asset } from '../core/assets/asset';
-import { CCString, Size, TextAsset } from '../core';
+import { Asset } from '../asset/assets/asset';
+import { CCString, Size } from '../core';
 import { SpriteFrame } from '../2d/assets';
+import { TextAsset } from '../asset/assets';
 
 /**
  * @en

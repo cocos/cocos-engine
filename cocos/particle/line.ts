@@ -24,15 +24,14 @@
  */
 
 import { ccclass, help, executeInEditMode, menu, tooltip, displayOrder, type, serializable, range } from 'cc.decorator';
-import { Material, Texture2D } from '../core/assets';
-import { Component } from '../core/components';
-import { Vec3, Vec2, Vec4 } from '../core/math';
+import { Material, Texture2D } from '../asset/assets';
+import { Component } from '../scene-graph';
+import { Vec3, Vec2, Vec4, cclegacy } from '../core';
 import { LineModel } from './models/line-model';
-import { builtinResMgr } from '../core/builtin';
+import { builtinResMgr } from '../asset/asset-manager';
 import CurveRange from './animator/curve-range';
 import GradientRange from './animator/gradient-range';
-import { legacyCC } from '../core/global-exports';
-import { IMaterialInstanceInfo, MaterialInstance } from '../core/renderer/core/material-instance';
+import { IMaterialInstanceInfo, MaterialInstance } from '../render-scene/core/material-instance';
 
 const _matInsInfo: IMaterialInstanceInfo = {
     parent: null!,
@@ -74,11 +73,11 @@ export class Line extends Component {
     @type(Material)
     @displayOrder(1)
     @tooltip('i18n:line.material')
-    get material() {
+    get material () {
         return this._material;
     }
 
-    set material(val) {
+    set material (val) {
         this._material = val;
     }
 
@@ -219,7 +218,7 @@ export class Line extends Component {
     }
 
     public onLoad () {
-        const model = this._model = legacyCC.director.root.createModel(LineModel);
+        const model = this._model = cclegacy.director.root.createModel(LineModel);
         model.node = model.transform = this.node;
         if (this._material === null) {
             this._material = new Material();

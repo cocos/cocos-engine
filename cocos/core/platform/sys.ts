@@ -268,7 +268,12 @@ export const sys = {
         str += `language : ${this.language}\r\n`;
         str += `browserType : ${this.browserType}\r\n`;
         str += `browserVersion : ${this.browserVersion}\r\n`;
-        str += `capabilities : ${JSON.stringify(this.capabilities)}\r\n`;
+        str += `supports webp: ${sys.hasFeature(Feature.WEBP)}\r\n`;
+        str += `supports bitmap: ${sys.hasFeature(Feature.IMAGE_BITMAP)}\r\n`;
+        str += `supports touches: ${sys.hasFeature(Feature.INPUT_TOUCH)}\r\n`;
+        str += `supports mouse: ${sys.hasFeature(Feature.EVENT_MOUSE)}\r\n`;
+        str += `supports keyboard: ${sys.hasFeature(Feature.EVENT_KEYBOARD)}\r\n`;
+        str += `supports accelerometer: ${sys.hasFeature(Feature.EVENT_ACCELEROMETER)}\r\n`;
         str += `os : ${this.os}\r\n`;
         str += `osVersion : ${this.osVersion}\r\n`;
         str += `platform : ${this.platform}\r\n`;
@@ -285,36 +290,40 @@ export const sys = {
     },
 
     /**
-     * @internal
+     * @engineInternal
      */
-    init () {
-        try {
-            let localStorage: Storage | null = sys.localStorage = window.localStorage;
-            localStorage.setItem('storage', '');
-            localStorage.removeItem('storage');
-            localStorage = null;
-        } catch (e) {
-            const warn = function () {
-                warnID(5200);
-            };
-            this.localStorage = {
-                // @ts-expect-error Type '() => void' is not assignable to type '(key: string) => string | null'
-                getItem: warn,
-                setItem: warn,
-                clear: warn,
-                removeItem: warn,
-            };
-        }
+    init (): Promise<void> {
+        return Promise.resolve()
+            .then(() => systemInfo.init())
+            .then(() => {
+                try {
+                    let localStorage: Storage | null = sys.localStorage = window.localStorage;
+                    localStorage.setItem('storage', '');
+                    localStorage.removeItem('storage');
+                    localStorage = null;
+                } catch (e) {
+                    const warn = function () {
+                        warnID(5200);
+                    };
+                    this.localStorage = {
+                        // @ts-expect-error Type '() => void' is not assignable to type '(key: string) => string | null'
+                        getItem: warn,
+                        setItem: warn,
+                        clear: warn,
+                        removeItem: warn,
+                    };
+                }
 
-        if (WECHAT) {
-            // @ts-expect-error HACK: this private property only needed on web & wechat JIT
-            this.__isWebIOS14OrIPadOS14Env = (sys.os === OS.IOS || sys.os === OS.OSX) && GameGlobal?.isIOSHighPerformanceMode
+                if (WECHAT) {
+                    // @ts-expect-error HACK: this private property only needed on web & wechat JIT
+                    this.__isWebIOS14OrIPadOS14Env = (sys.os === OS.IOS || sys.os === OS.OSX) && GameGlobal?.isIOSHighPerformanceMode
             && /(OS 1((4\.[0-9])|(5\.[0-3])))|(Version\/1((4\.[0-9])|(5\.[0-3])))/.test(window.navigator.userAgent);
-        } else {
-            // @ts-expect-error HACK: this private property only needed on web & wechat JIT
-            this.__isWebIOS14OrIPadOS14Env = (sys.os === OS.IOS || sys.os === OS.OSX) && systemInfo.isBrowser
+                } else {
+                    // @ts-expect-error HACK: this private property only needed on web & wechat JIT
+                    this.__isWebIOS14OrIPadOS14Env = (sys.os === OS.IOS || sys.os === OS.OSX) && systemInfo.isBrowser
             && /(OS 14)|(Version\/14)/.test(window.navigator.userAgent);
-        }
+                }
+            });
     },
 
     /**

@@ -1,4 +1,4 @@
-import type { Node } from '../scene-graph';
+import type { Node } from '../../scene-graph';
 
 // export interface IArrayProxy {
 //     owner: any,

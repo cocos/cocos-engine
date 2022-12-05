@@ -44,6 +44,7 @@
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
+    cursor: default;
 }
 
 :host > .container > .header > .name[readonly] {
@@ -81,6 +82,7 @@
     display: flex;
     padding-top: 5px;
     flex: 1;
+    min-height: 0;
     flex-direction: column;
 }
 
@@ -92,7 +94,7 @@
 
 :host > .container > .content > .content-section {
     flex: 1;
-    overflow: auto;
+    overflow: scroll;
 }
 
 :host > .container > .content > section > ui-panel {
@@ -102,10 +104,7 @@
 
 :host > .container > .content > section > ui-panel:only-child {
     flex: 1;
-}
-
-:host > .container > .content > .content-footer {
-    margin-top: 10px;
+    min-height: 0;
 }
 
 :host([sub-type="material"]) > .container > .content,

@@ -1,5 +1,5 @@
-import { AnimationClip } from '../../cocos/core/animation/animation-clip';
-import { Animation } from '../../cocos/core/animation/animation-component';
+import { AnimationClip } from '../../cocos/animation/animation-clip';
+import { Animation } from '../../cocos/animation/animation-component';
 
 describe('Animation Component', () => {
     describe('Sync default clip into clips array(clip equivalence)', () => {

@@ -29,7 +29,7 @@ import { BuiltinRigidBody } from './builtin-rigid-body';
 import { BuiltinBoxShape } from './shapes/builtin-box-shape';
 import { BuiltinSphereShape } from './shapes/builtin-sphere-shape';
 import { BuiltinCapsuleShape } from './shapes/builtin-capsule-shape';
-import { Game, game } from '../../core';
+import { Game, game } from '../../game';
 
 game.once(Game.EVENT_PRE_SUBSYSTEM_INIT, () => {
     selector.register('builtin', {

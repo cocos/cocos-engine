@@ -4,5 +4,5 @@ expect.extend(matchers);
 
 const testPath = expect.getState().testPath;
 if (testPath.match(/animation/)) {
-    require('../cocos/core/animation');
+    require('../cocos/animation');
 }

@@ -41,6 +41,7 @@
 #include "cocos/renderer/pipeline/custom/LayoutGraphTypes.h"
 #include "cocos/renderer/pipeline/custom/Map.h"
 #include "cocos/renderer/pipeline/custom/RenderGraphTypes.h"
+#include "cocos/renderer/pipeline/custom/Set.h"
 #include "gfx-base/GFXDef-common.h"
 
 namespace cc {
@@ -48,6 +49,16 @@ namespace cc {
 namespace render {
 
 struct NullTag {};
+
+struct ResourceLifeRecord {
+    uint32_t start{0};
+    uint32_t end{0};
+};
+
+struct LeafStatus {
+    bool isExternal{false};
+    bool needCulling{false};
+};
 
 struct BufferRange {
     uint32_t offset{0};
@@ -73,12 +84,16 @@ inline bool operator<(const TextureRange& lhs, const TextureRange& rhs) noexcept
 
 using Range = ccstd::variant<BufferRange, TextureRange>;
 
+using ResourceUsage = ccstd::variant<gfx::BufferUsageBit, gfx::TextureUsageBit>;
+
 struct AccessStatus {
-    uint32_t                vertID{0xFFFFFFFF};
+    uint32_t vertID{0xFFFFFFFF};
     gfx::ShaderStageFlagBit visibility{gfx::ShaderStageFlagBit::NONE};
-    gfx::MemoryAccessBit    access{gfx::MemoryAccessBit::NONE};
-    gfx::PassType           passType{gfx::PassType::RASTER};
-    Range                   range;
+    gfx::MemoryAccessBit access{gfx::MemoryAccessBit::NONE};
+    gfx::PassType passType{gfx::PassType::RASTER};
+    gfx::AccessFlagBit accessFlag{gfx::AccessFlagBit::NONE};
+    ResourceUsage usage;
+    Range range;
 };
 
 struct ResourceTransition {
@@ -87,14 +102,14 @@ struct ResourceTransition {
 };
 
 struct ResourceAccessNode {
-    std::vector<AccessStatus>  attachemntStatus;
+    std::vector<AccessStatus> attachmentStatus;
     struct ResourceAccessNode* nextSubpass{nullptr};
 };
 
 struct ResourceAccessGraph {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
-        return {vertices.get_allocator().resource()};
+        return {_vertices.get_allocator().resource()};
     }
 
     inline boost::container::pmr::memory_resource* resource() const noexcept {
@@ -102,7 +117,7 @@ struct ResourceAccessGraph {
     }
 
     ResourceAccessGraph(const allocator_type& alloc) noexcept; // NOLINT
-    ResourceAccessGraph(ResourceAccessGraph&& rhs)      = delete;
+    ResourceAccessGraph(ResourceAccessGraph&& rhs) = delete;
     ResourceAccessGraph(ResourceAccessGraph const& rhs) = delete;
     ResourceAccessGraph& operator=(ResourceAccessGraph&& rhs) = delete;
     ResourceAccessGraph& operator=(ResourceAccessGraph const& rhs) = delete;
@@ -146,29 +161,29 @@ struct ResourceAccessGraph {
 
     // VertexList help functions
     inline ccstd::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) noexcept {
-        return vertices[v].outEdges;
+        return _vertices[v].outEdges;
     }
     inline const ccstd::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) const noexcept {
-        return vertices[v].outEdges;
+        return _vertices[v].outEdges;
     }
 
     inline ccstd::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) noexcept {
-        return vertices[v].inEdges;
+        return _vertices[v].inEdges;
     }
     inline const ccstd::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) const noexcept {
-        return vertices[v].inEdges;
+        return _vertices[v].inEdges;
     }
 
     inline boost::integer_range<vertex_descriptor> getVertexList() const noexcept {
-        return {0, static_cast<vertices_size_type>(vertices.size())};
+        return {0, static_cast<vertices_size_type>(_vertices.size())};
     }
 
     inline vertex_descriptor getCurrentID() const noexcept {
-        return static_cast<vertex_descriptor>(vertices.size());
+        return static_cast<vertex_descriptor>(_vertices.size());
     }
 
     inline ccstd::pmr::vector<boost::default_color_type> colors(boost::container::pmr::memory_resource* mr) const {
-        return ccstd::pmr::vector<boost::default_color_type>(vertices.size(), mr);
+        return ccstd::pmr::vector<boost::default_color_type>(_vertices.size(), mr);
     }
 
     // EdgeListGraph
@@ -204,12 +219,12 @@ struct ResourceAccessGraph {
         Vertex(Vertex const& rhs, const allocator_type& alloc);
 
         Vertex(Vertex&& rhs) noexcept = default;
-        Vertex(Vertex const& rhs)     = delete;
+        Vertex(Vertex const& rhs) = delete;
         Vertex& operator=(Vertex&& rhs) = default;
         Vertex& operator=(Vertex const& rhs) = default;
 
         ccstd::pmr::vector<OutEdge> outEdges;
-        ccstd::pmr::vector<InEdge>  inEdges;
+        ccstd::pmr::vector<InEdge> inEdges;
     };
 
     struct PassIDTag {
@@ -218,26 +233,38 @@ struct ResourceAccessGraph {
     } static constexpr AccessNode{}; // NOLINT
 
     // Vertices
-    ccstd::pmr::vector<Vertex> vertices;
+    ccstd::pmr::vector<Vertex> _vertices;
     // Components
     ccstd::pmr::vector<RenderGraph::vertex_descriptor> passID;
-    ccstd::pmr::vector<ResourceAccessNode>             access;
+    ccstd::pmr::vector<ResourceAccessNode> access;
     // UuidGraph
     PmrUnorderedMap<RenderGraph::vertex_descriptor, vertex_descriptor> passIndex;
     // Members
-    ccstd::pmr::vector<ccstd::pmr::string>              resourceNames;
+    ccstd::pmr::vector<ccstd::pmr::string> resourceNames;
     PmrUnorderedStringMap<ccstd::pmr::string, uint32_t> resourceIndex;
-    RenderGraph::vertex_descriptor                      presentPassID{0xFFFFFFFF};
-    ccstd::pmr::vector<RenderGraph::vertex_descriptor>  externalPasses;
-    PmrFlatMap<uint32_t, ResourceTransition>            accessRecord;
+    vertex_descriptor presentPassID{0xFFFFFFFF};
+    PmrFlatMap<vertex_descriptor, LeafStatus> leafPasses;
+    PmrFlatSet<vertex_descriptor> culledPasses;
+    PmrFlatMap<uint32_t, ResourceTransition> accessRecord;
+    PmrFlatMap<ccstd::pmr::string, ResourceLifeRecord> resourceLifeRecord;
+    ccstd::pmr::vector<vertex_descriptor> topologicalOrder;
 };
 
-struct EmptyGraph {
-    EmptyGraph() = default;
-    EmptyGraph(EmptyGraph&& rhs)      = delete;
-    EmptyGraph(EmptyGraph const& rhs) = delete;
-    EmptyGraph& operator=(EmptyGraph&& rhs) = delete;
-    EmptyGraph& operator=(EmptyGraph const& rhs) = delete;
+struct RelationGraph {
+    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
+    allocator_type get_allocator() const noexcept { // NOLINT
+        return {_vertices.get_allocator().resource()};
+    }
+
+    inline boost::container::pmr::memory_resource* resource() const noexcept {
+        return get_allocator().resource();
+    }
+
+    RelationGraph(const allocator_type& alloc) noexcept; // NOLINT
+    RelationGraph(RelationGraph&& rhs) = delete;
+    RelationGraph(RelationGraph const& rhs) = delete;
+    RelationGraph& operator=(RelationGraph&& rhs) = delete;
+    RelationGraph& operator=(RelationGraph const& rhs) = delete;
 
     // Graph
     using directed_category      = boost::bidirectional_tag;
@@ -258,53 +285,53 @@ struct EmptyGraph {
     // IncidenceGraph
     using OutEdge     = impl::StoredEdge<vertex_descriptor>;
     using out_edge_iterator = impl::OutEdgeIter<
-        std::vector<OutEdge>::iterator,
+        ccstd::pmr::vector<OutEdge>::iterator,
         vertex_descriptor, edge_descriptor, int32_t>;
     using degree_size_type = uint32_t;
 
     // BidirectionalGraph
     using InEdge     = impl::StoredEdge<vertex_descriptor>;
     using in_edge_iterator = impl::InEdgeIter<
-        std::vector<InEdge>::iterator,
+        ccstd::pmr::vector<InEdge>::iterator,
         vertex_descriptor, edge_descriptor, int32_t>;
 
     // AdjacencyGraph
     using adjacency_iterator = boost::adjacency_iterator_generator<
-        EmptyGraph, vertex_descriptor, out_edge_iterator>::type;
+        RelationGraph, vertex_descriptor, out_edge_iterator>::type;
 
     // VertexListGraph
     using vertex_iterator    = boost::integer_range<vertex_descriptor>::iterator;
     using vertices_size_type = uint32_t;
 
     // VertexList help functions
-    inline std::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) noexcept {
-        return vertices[v].outEdges;
+    inline ccstd::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) noexcept {
+        return _vertices[v].outEdges;
     }
-    inline const std::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) const noexcept {
-        return vertices[v].outEdges;
+    inline const ccstd::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) const noexcept {
+        return _vertices[v].outEdges;
     }
 
-    inline std::vector<InEdge>& getInEdgeList(vertex_descriptor v) noexcept {
-        return vertices[v].inEdges;
+    inline ccstd::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) noexcept {
+        return _vertices[v].inEdges;
     }
-    inline const std::vector<InEdge>& getInEdgeList(vertex_descriptor v) const noexcept {
-        return vertices[v].inEdges;
+    inline const ccstd::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) const noexcept {
+        return _vertices[v].inEdges;
     }
 
     inline boost::integer_range<vertex_descriptor> getVertexList() const noexcept {
-        return {0, static_cast<vertices_size_type>(vertices.size())};
+        return {0, static_cast<vertices_size_type>(_vertices.size())};
     }
 
     inline vertex_descriptor getCurrentID() const noexcept {
-        return static_cast<vertex_descriptor>(vertices.size());
+        return static_cast<vertex_descriptor>(_vertices.size());
     }
 
     inline ccstd::pmr::vector<boost::default_color_type> colors(boost::container::pmr::memory_resource* mr) const {
-        return ccstd::pmr::vector<boost::default_color_type>(vertices.size(), mr);
+        return ccstd::pmr::vector<boost::default_color_type>(_vertices.size(), mr);
     }
 
     // EdgeListGraph
-    using edge_iterator   = impl::DirectedEdgeIterator<vertex_iterator, out_edge_iterator, EmptyGraph>;
+    using edge_iterator   = impl::DirectedEdgeIterator<vertex_iterator, out_edge_iterator, RelationGraph>;
     using edges_size_type = uint32_t;
 
     // ContinuousContainer
@@ -312,18 +339,41 @@ struct EmptyGraph {
 
     // Members
     struct Vertex {
-        std::vector<OutEdge> outEdges;
-        std::vector<InEdge>  inEdges;
+        using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
+        allocator_type get_allocator() const noexcept { // NOLINT
+            return {outEdges.get_allocator().resource()};
+        }
+
+        Vertex(const allocator_type& alloc) noexcept; // NOLINT
+        Vertex(Vertex&& rhs, const allocator_type& alloc);
+        Vertex(Vertex const& rhs, const allocator_type& alloc);
+
+        Vertex(Vertex&& rhs) noexcept = default;
+        Vertex(Vertex const& rhs) = delete;
+        Vertex& operator=(Vertex&& rhs) = default;
+        Vertex& operator=(Vertex const& rhs) = default;
+
+        ccstd::pmr::vector<OutEdge> outEdges;
+        ccstd::pmr::vector<InEdge> inEdges;
     };
+
+    struct DescIDTag {
+    } static constexpr DescID{}; // NOLINT
+
     // Vertices
-    std::vector<Vertex> vertices;
+    ccstd::pmr::vector<Vertex> _vertices;
+    // Components
+    ccstd::pmr::vector<ResourceAccessGraph::vertex_descriptor> descID;
+    // UuidGraph
+    PmrUnorderedMap<ResourceAccessGraph::vertex_descriptor, vertex_descriptor> vertexMap;
 };
 
 struct Barrier {
-    RenderGraph::vertex_descriptor resourceID{0xFFFFFFFF};
-    gfx::BarrierType               type{gfx::BarrierType::FULL};
-    AccessStatus                   beginStatus;
-    AccessStatus                   endStatus;
+    ResourceGraph::vertex_descriptor resourceID{0xFFFFFFFF};
+    gfx::BarrierType type{gfx::BarrierType::FULL};
+    gfx::GFXObject* barrier{nullptr};
+    AccessStatus beginStatus;
+    AccessStatus endStatus;
 };
 
 struct BarrierPair {
@@ -332,7 +382,7 @@ struct BarrierPair {
 };
 
 struct BarrierNode {
-    BarrierPair              blockBarrier;
+    BarrierPair blockBarrier;
     std::vector<BarrierPair> subpassBarriers;
 };
 
@@ -342,8 +392,8 @@ struct FrameGraphDispatcher {
         return {resourceAccessGraph.get_allocator().resource()};
     }
 
-    FrameGraphDispatcher(ResourceGraph& resourceGraphIn, RenderGraph& graphIn, LayoutGraphData& layoutGraphIn, boost::container::pmr::memory_resource* scratchIn, const allocator_type& alloc) noexcept;
-    FrameGraphDispatcher(FrameGraphDispatcher&& rhs)      = delete;
+    FrameGraphDispatcher(ResourceGraph& resourceGraphIn, const RenderGraph& graphIn, LayoutGraphData& layoutGraphIn, boost::container::pmr::memory_resource* scratchIn, const allocator_type& alloc) noexcept;
+    FrameGraphDispatcher(FrameGraphDispatcher&& rhs) = delete;
     FrameGraphDispatcher(FrameGraphDispatcher const& rhs) = delete;
     FrameGraphDispatcher& operator=(FrameGraphDispatcher&& rhs) = delete;
     FrameGraphDispatcher& operator=(FrameGraphDispatcher const& rhs) = delete;
@@ -365,18 +415,18 @@ struct FrameGraphDispatcher {
 
     BarrierMap barrierMap;
 
-    ResourceAccessGraph                                resourceAccessGraph;
-    ResourceGraph&                                     resourceGraph;
-    RenderGraph&                                       graph;
-    LayoutGraphData&                                   layoutGraph;
-    boost::container::pmr::memory_resource*            scratch{nullptr};
+    ResourceAccessGraph resourceAccessGraph;
+    ResourceGraph& resourceGraph;
+    const RenderGraph& graph;
+    LayoutGraphData& layoutGraph;
+    boost::container::pmr::memory_resource* scratch{nullptr};
     PmrFlatMap<ccstd::pmr::string, ResourceTransition> externalResMap;
-    EmptyGraph                                         relationGraph;
-    bool                                               _enablePassReorder{false};
-    bool                                               _enableAutoBarrier{true};
-    bool                                               _enableMemoryAliasing{false};
-    bool                                               _accessGraphBuilt{false};
-    float                                              _paralellExecWeight{0.0F};
+    RelationGraph relationGraph;
+    bool _enablePassReorder{false};
+    bool _enableAutoBarrier{true};
+    bool _enableMemoryAliasing{false};
+    bool _accessGraphBuilt{false};
+    float _paralellExecWeight{0.0F};
 };
 
 } // namespace render

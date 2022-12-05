@@ -22,7 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-import { sys } from "../core/platform/sys";
+import { sys } from "../core";
 import { NATIVE } from 'internal:constants';
 const globalJsb = globalThis.jsb ?? {};
 if( NATIVE ){
@@ -153,4 +153,5 @@ export const native = {
     EventAssetsManager: globalJsb.EventAssetsManager,
     Manifest: globalJsb.Manifest,
     saveImageData: globalJsb.saveImageData,
+    process: globalJsb.process,
 };

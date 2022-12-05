@@ -24,7 +24,7 @@
  THE SOFTWARE.
 */
 
-import { ccenum } from '../../../core/value-types/enum';
+import { ccenum } from '../../../core';
 
 /**
  * @en Enum for LineCap.

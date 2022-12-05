@@ -27,6 +27,7 @@
 
 #include "VKStd.h"
 #include "gfx-base/GFXSwapchain.h"
+#include "gfx-vulkan/VKGPUObjects.h"
 
 namespace cc {
 class IXRInterface;
@@ -34,9 +35,6 @@ namespace gfx {
 
 class CCVKDevice;
 class CCVKGPUDevice;
-struct CCVKGPUSwapchain;
-struct CCVKGPUSwapchain;
-class CCVKGPUSemaphorePool;
 
 class CC_VULKAN_API CCVKSwapchain final : public Swapchain {
 public:
@@ -59,7 +57,7 @@ protected:
     void createVkSurface();
     void destroySwapchain(CCVKGPUDevice *gpuDevice);
 
-    CCVKGPUSwapchain *_gpuSwapchain = nullptr;
+    IntrusivePtr<CCVKGPUSwapchain> _gpuSwapchain;
     IXRInterface *_xr = nullptr;
 };
 

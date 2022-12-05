@@ -40,7 +40,7 @@ void android_main(struct android_app *app) {
 }
 
 //NOLINTNEXTLINE
-JNIEXPORT void JNICALL Java_com_cocos_lib_CocosActivity_onCreateNative(JNIEnv *env, jobject obj, jobject activity) {
+JNIEXPORT void JNICALL Java_com_cocos_lib_CocosActivity_onCreateNative(JNIEnv *env, jobject activity) {
     cc::JniHelper::init(env, activity);
 }
 }

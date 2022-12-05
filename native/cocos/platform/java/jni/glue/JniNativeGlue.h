@@ -52,7 +52,6 @@ using NativeEnv = void*;      //jnienv
 namespace cc {
 
 class IEventDispatch;
-class OSEvent;
 class TouchEvent;
 
 class CC_DLL JniNativeGlue {
@@ -103,10 +102,6 @@ public:
     void writeCommandSync(JniCommand cmd);
     int readCommand(CommandMsg* msg);
     int readCommandWithTimeout(CommandMsg* cmd, int delayMS);
-
-    void setEventDispatch(IEventDispatch* eventDispatcher);
-    void dispatchEvent(const OSEvent& ev);
-    void dispatchTouchEvent(const TouchEvent& ev);
 
     void onPause();
     void onResume();

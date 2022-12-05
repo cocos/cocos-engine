@@ -28,18 +28,18 @@ import { ccclass, help, executeInEditMode, executionOrder, menu, requireComponen
 import { EDITOR, JSB, MINIGAME, RUNTIME_BASED } from 'internal:constants';
 import { UITransform } from '../../2d/framework';
 import { SpriteFrame } from '../../2d/assets/sprite-frame';
-import { Component } from '../../core/components/component';
-import { EventHandler as ComponentEventHandler } from '../../core/components/component-event-handler';
-import { Color, Size, Vec3 } from '../../core/math';
+import { Component } from '../../scene-graph/component';
+import { EventHandler as ComponentEventHandler } from '../../scene-graph/component-event-handler';
+import { Size } from '../../core/math';
 import { EventTouch } from '../../input/types';
-import { Node } from '../../core/scene-graph/node';
+import { Node } from '../../scene-graph/node';
 import { Label, VerticalTextAlignment } from '../../2d/components/label';
 import { Sprite } from '../../2d/components/sprite';
 import { EditBoxImpl } from './edit-box-impl';
 import { EditBoxImplBase } from './edit-box-impl-base';
 import { InputFlag, InputMode, KeyboardReturnType } from './types';
 import { legacyCC } from '../../core/global-exports';
-import { NodeEventType } from '../../core/scene-graph/node-event';
+import { NodeEventType } from '../../scene-graph/node-event';
 import { XrKeyboardEventType, XrUIPressEventType } from '../../xr/event/xr-event-handle';
 
 const LEFT_PADDING = 2;
@@ -478,10 +478,13 @@ export class EditBox extends Component {
 
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     * @param text content filtered by sensitive words.This parameter may be undefined.
+     * If relevant platform returns desensitized content, it will be passed to developer by EventType.EDITING_DID_ENDED.
+     * Now only ByteDance minigame platform
      */
-    public _editBoxEditingDidEnded () {
+    public _editBoxEditingDidEnded (text?: string) {
         ComponentEventHandler.emitEvents(this.editingDidEnded, this);
-        this.node.emit(EventType.EDITING_DID_ENDED, this);
+        this.node.emit(EventType.EDITING_DID_ENDED, this, text);
     }
 
     /**
@@ -496,10 +499,13 @@ export class EditBox extends Component {
 
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     * @param text content filtered by sensitive words.This parameter may be undefined.
+     * If relevant platform returns desensitized content, it will be passed to developer by EventType.EDITING_RETURN.
+     * Now only ByteDance minigame platform
      */
-    public _editBoxEditingReturn () {
+    public _editBoxEditingReturn (text?: string) {
         ComponentEventHandler.emitEvents(this.editingReturn, this);
-        this.node.emit(EventType.EDITING_RETURN, this);
+        this.node.emit(EventType.EDITING_RETURN, this, text);
     }
 
     /**
@@ -768,11 +774,11 @@ export class EditBox extends Component {
         this._syncSize();
     }
 
-    protected _xrUnClick() {
+    protected _xrUnClick () {
         this.node.emit(EventType.XR_EDITING_DID_BEGAN, this._maxLength, this.string);
     }
 
-    protected _xrKeyBoardInput(str: string) {
+    protected _xrKeyBoardInput (str: string) {
         this.string = str;
     }
 }

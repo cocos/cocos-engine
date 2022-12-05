@@ -1,4 +1,6 @@
-import { createCustomPipeline } from '../cocos/core/pipeline/custom';
 import { legacyCC } from '../cocos/core/global-exports';
+import * as rendering from '../cocos/rendering/custom';
 
-legacyCC.internal.createCustomPipeline = createCustomPipeline;
+export { rendering };
+
+legacyCC.rendering = rendering;

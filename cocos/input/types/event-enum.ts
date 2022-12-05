@@ -23,8 +23,8 @@
  THE SOFTWARE.
  */
 
-import { legacyCC } from '../../core/global-exports';
-import { NodeEventType } from '../../core/scene-graph/node-event';
+import { cclegacy } from '../../core';
+import { NodeEventType } from '../../scene-graph/node-event';
 
 /**
  * @en The event type supported by SystemEvent and Node events
@@ -401,9 +401,15 @@ export enum InputEventType {
      * @en The event type for hmd pose input
      * @zh 头戴显示器姿态输入事件
      */
-    HMD_POSE_INPUT = 'hmd-pose-input'
+    HMD_POSE_INPUT = 'hmd-pose-input',
+
+    /**
+     * @en The event type for handheld pose input
+     * @zh 手持设备相机姿态输入事件
+     */
+    HANDHELD_POSE_INPUT = 'handheld-pose-input'
 }
 
 export type SystemEventTypeUnion = SystemEventType | NodeEventType | InputEventType | string;
 
-legacyCC.SystemEventType = SystemEventType;
+cclegacy.SystemEventType = SystemEventType;

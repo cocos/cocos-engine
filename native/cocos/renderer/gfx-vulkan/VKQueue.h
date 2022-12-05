@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include <memory>
 #include "VKStd.h"
 #include "gfx-base/GFXQueue.h"
 
@@ -40,7 +41,7 @@ public:
 
     void submit(CommandBuffer *const *cmdBuffs, uint32_t count) override;
 
-    inline CCVKGPUQueue *gpuQueue() const { return _gpuQueue; }
+    inline CCVKGPUQueue *gpuQueue() const { return _gpuQueue.get(); }
 
 protected:
     friend class CCVKDevice;
@@ -48,7 +49,7 @@ protected:
     void doInit(const QueueInfo &info) override;
     void doDestroy() override;
 
-    CCVKGPUQueue *_gpuQueue = nullptr;
+    std::unique_ptr<CCVKGPUQueue> _gpuQueue;
 
     uint32_t _numDrawCalls = 0;
     uint32_t _numInstances = 0;

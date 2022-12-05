@@ -23,12 +23,12 @@
  THE SOFTWARE.
  */
 
-import { Model } from '../../core/renderer/scene/model';
+import { Model } from '../../render-scene/scene/model';
 import { MorphRenderingInstance } from '../assets/morph-rendering';
-import { Material } from '../../core/assets/material';
-import { RenderingSubMesh } from '../../core/assets/rendering-sub-mesh';
-import { DescriptorSet } from '../../core/gfx';
-import { IMacroPatch } from '../../core/renderer';
+import { Material } from '../../asset/assets/material';
+import { RenderingSubMesh } from '../../asset/assets/rendering-sub-mesh';
+import { DescriptorSet } from '../../gfx';
+import { IMacroPatch } from '../../render-scene';
 
 /**
  * @en

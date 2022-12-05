@@ -38,6 +38,10 @@ public:
     inline uint32_t getObjectID() const { return _objectID; }
     inline uint32_t getTypedID() const { return _typedID; }
 
+    inline static uint32_t getObjectID(const GFXObject *obj) {
+        return obj == nullptr ? INVALID_OBJECT_ID : obj->getObjectID();
+    }
+
 protected:
     template <typename T>
     static uint32_t generateObjectID() noexcept {
@@ -45,6 +49,7 @@ protected:
         return ++generator;
     }
 
+    static constexpr uint32_t INVALID_OBJECT_ID = 0;
     ObjectType _objectType = ObjectType::UNKNOWN;
     uint32_t _objectID = 0U;
 

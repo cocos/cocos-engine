@@ -47,7 +47,7 @@ void CCVKPipelineLayout::doInit(const PipelineLayoutInfo & /*info*/) {
         CCVKGPUDescriptorSetLayout *gpuSetLayout = static_cast<CCVKDescriptorSetLayout *>(setLayout)->gpuDescriptorSetLayout();
         uint32_t dynamicCount = utils::toUint(gpuSetLayout->dynamicBindings.size());
         _gpuPipelineLayout->dynamicOffsetOffsets.push_back(offset);
-        _gpuPipelineLayout->setLayouts.push_back(gpuSetLayout);
+        _gpuPipelineLayout->setLayouts.emplace_back(gpuSetLayout);
         offset += dynamicCount;
     }
     _gpuPipelineLayout->dynamicOffsetOffsets.push_back(offset);
@@ -57,10 +57,11 @@ void CCVKPipelineLayout::doInit(const PipelineLayoutInfo & /*info*/) {
 }
 
 void CCVKPipelineLayout::doDestroy() {
-    if (_gpuPipelineLayout) {
-        CCVKDevice::getInstance()->gpuRecycleBin()->collect(_gpuPipelineLayout);
-        _gpuPipelineLayout = nullptr;
-    }
+    _gpuPipelineLayout = nullptr;
+}
+
+void CCVKGPUPipelineLayout::shutdown() {
+    cmdFuncCCVKDestroyPipelineLayout(CCVKDevice::getInstance()->gpuDevice(), this);
 }
 
 } // namespace gfx

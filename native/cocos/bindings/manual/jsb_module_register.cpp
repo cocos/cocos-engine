@@ -31,6 +31,7 @@
 #include "cocos/bindings/auto/jsb_extension_auto.h"
 #include "cocos/bindings/auto/jsb_geometry_auto.h"
 #include "cocos/bindings/auto/jsb_gfx_auto.h"
+#include "cocos/bindings/auto/jsb_gi_auto.h"
 #include "cocos/bindings/auto/jsb_network_auto.h"
 #include "cocos/bindings/auto/jsb_pipeline_auto.h"
 #include "cocos/bindings/auto/jsb_render_auto.h"
@@ -63,6 +64,11 @@
 
 #if CC_USE_XR
     #include "cocos/bindings/auto/jsb_xr_auto.h"
+#endif
+
+#if CC_USE_AR_MODULE
+    #include "cocos/bindings/auto/jsb_ar_auto.h"
+    #include "cocos/bindings/manual/jsb_ar_manual.h"
 #endif
 
 #if (CC_PLATFORM == CC_PLATFORM_IOS || CC_PLATFORM == CC_PLATFORM_MACOS)
@@ -138,9 +144,10 @@ bool jsb_register_all_modules() {
     se->addRegisterCallback(register_all_pipeline_manual);
     se->addRegisterCallback(register_all_geometry);
     se->addRegisterCallback(register_all_scene);
+    se->addRegisterCallback(register_all_gi);
     se->addRegisterCallback(register_all_scene_manual);
     se->addRegisterCallback(register_all_render);
-    se->addRegisterCallback(register_all_2d);
+    se->addRegisterCallback(register_all_native2d);
 
 #if (CC_PLATFORM == CC_PLATFORM_IOS || CC_PLATFORM == CC_PLATFORM_MACOS)
     se->addRegisterCallback(register_javascript_objc_bridge);
@@ -184,6 +191,11 @@ bool jsb_register_all_modules() {
 #if CC_USE_PHYSICS_PHYSX
     se->addRegisterCallback(register_all_physics);
 #endif
+
+#if CC_USE_AR_MODULE
+    se->addRegisterCallback(register_all_ar);
+    se->addRegisterCallback(register_all_ar_manual);
+#endif // CC_USE_AR_MODULE
 
 #if (CC_PLATFORM == CC_PLATFORM_IOS || CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS)
 

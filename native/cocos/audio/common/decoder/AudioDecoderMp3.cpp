@@ -24,9 +24,9 @@
  THE SOFTWARE.
 ****************************************************************************/
 
+#include "audio/common/decoder/AudioDecoderMp3.h"
 #include <malloc.h>
 #include <cstdint>
-#include "audio/common/decoder/AudioDecoderMp3.h"
 #include "audio/include/AudioMacros.h"
 #include "platform/FileUtils.h"
 

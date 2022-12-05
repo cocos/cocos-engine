@@ -1,4 +1,4 @@
-import { RealArrayTrack } from "../../../cocos/core/animation/tracks/array-track";
+import { RealArrayTrack } from "../../../cocos/animation/tracks/array-track";
 
 describe('Real array track', () => {
     test('Length', () => {

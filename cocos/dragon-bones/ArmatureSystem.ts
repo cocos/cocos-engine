@@ -23,10 +23,9 @@
  THE SOFTWARE.
  */
 
-import { director } from '../core/director';
-import { System } from '../core/components';
+import { director } from '../game/director';
+import { System, cclegacy } from '../core';
 import { ArmatureDisplay } from './ArmatureDisplay';
-import { legacyCC } from '../core/global-exports';
 
 export class ArmatureSystem extends System {
     /**
@@ -92,4 +91,4 @@ export class ArmatureSystem extends System {
     }
 }
 
-legacyCC.internal.ArmatureSystem = ArmatureSystem;
+cclegacy.internal.ArmatureSystem = ArmatureSystem;

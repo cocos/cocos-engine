@@ -24,8 +24,8 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include <cstdint>
 #include "audio/common/decoder/AudioDecoderOgg.h"
+#include <cstdint>
 
 #include "audio/include/AudioMacros.h"
 #include "platform/FileUtils.h"

@@ -25,8 +25,8 @@
 */
 
 import { ccclass } from 'cc.decorator';
-import { Asset } from '../../core/assets';
-import { legacyCC } from '../../core/global-exports';
+import { Asset } from '../../asset/assets';
+import { cclegacy } from '../../core';
 
 /**
  * @en Class for Font handling.
@@ -36,4 +36,4 @@ import { legacyCC } from '../../core/global-exports';
 export class Font extends Asset {
 }
 
-legacyCC.Font = Font;
+cclegacy.Font = Font;

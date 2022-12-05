@@ -58,10 +58,15 @@ void CCVKDescriptorSetLayout::doInit(const DescriptorSetLayoutInfo & /*info*/) {
 }
 
 void CCVKDescriptorSetLayout::doDestroy() {
-    if (_gpuDescriptorSetLayout) {
-        CCVKDevice::getInstance()->gpuRecycleBin()->collect(_gpuDescriptorSetLayout);
-        _gpuDescriptorSetLayout = nullptr;
+    _gpuDescriptorSetLayout = nullptr;
+}
+
+void CCVKGPUDescriptorSetLayout::shutdown() {
+    if (defaultDescriptorSet != VK_NULL_HANDLE) {
+        CCVKDevice::getInstance()->gpuRecycleBin()->collect(id, defaultDescriptorSet);
     }
+
+    cmdFuncCCVKDestroyDescriptorSetLayout(CCVKDevice::getInstance()->gpuDevice(), this);
 }
 
 } // namespace gfx

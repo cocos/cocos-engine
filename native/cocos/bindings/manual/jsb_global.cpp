@@ -411,7 +411,7 @@ static bool JSB_setCursorEnabled(se::State &s) { // NOLINT
     ok &= sevalue_to_native(args[0], &value);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-    auto *systemWindowIntf = CC_GET_PLATFORM_INTERFACE(ISystemWindow);
+    auto *systemWindowIntf = CC_GET_SYSTEM_WINDOW(ISystemWindow::mainWindowId);
     CC_ASSERT(systemWindowIntf != nullptr);
     systemWindowIntf->setCursorEnabled(value);
     return true;
@@ -467,6 +467,7 @@ struct ImageInfo {
     cc::gfx::Format format = cc::gfx::Format::UNKNOWN;
     bool hasAlpha = false;
     bool compressed = false;
+    ccstd::vector<uint32_t> mipmapLevelDataSize;
 };
 
 uint8_t *convertRGB2RGBA(uint32_t length, uint8_t *src) {
@@ -510,6 +511,7 @@ struct ImageInfo *createImageInfo(Image *img) {
     img->takeData(&imgInfo->data);
     imgInfo->format = img->getRenderFormat();
     imgInfo->compressed = img->isCompressed();
+    imgInfo->mipmapLevelDataSize = img->getMipmapLevelDataSize();
 
     // Convert to RGBA888 because standard web api will return only RGBA888.
     // If not, then it may have issue in glTexSubImage. For example, engine
@@ -598,6 +600,10 @@ bool jsb_global_load_image(const ccstd::string &path, const se::Value &callbackV
                     retObj->setProperty("data", se::Value(obj));
                     retObj->setProperty("width", se::Value(imgInfo->width));
                     retObj->setProperty("height", se::Value(imgInfo->height));
+                    
+                    se::Value mipmapLevelDataSizeArr;
+                    nativevalue_to_se(imgInfo->mipmapLevelDataSize, mipmapLevelDataSizeArr, nullptr);
+                    retObj->setProperty("mipmapLevelDataSize", mipmapLevelDataSizeArr);
 
                     seArgs.push_back(se::Value(retObj));
 
@@ -660,14 +666,14 @@ static bool js_loadImage(se::State &s) { // NOLINT
     return false;
 }
 SE_BIND_FUNC(js_loadImage)
-//pixels(RGBA), width, height, fullFilePath(*.png/*.jpg)
-static bool js_saveImageData(se::State& s) { // NOLINT
-    const auto& args = s.args();
+// pixels(RGBA), width, height, fullFilePath(*.png/*.jpg)
+static bool js_saveImageData(se::State &s) { // NOLINT
+    const auto &args = s.args();
     size_t argc = args.size();
-    bool ok = true;// NOLINT(readability-identifier-length)
+    bool ok = true; // NOLINT(readability-identifier-length)
     if (argc == 4 || argc == 5) {
         auto *uint8ArrayObj = args[0].toObject();
-        uint8_t *uint8ArrayData {nullptr};
+        uint8_t *uint8ArrayData{nullptr};
         size_t length = 0;
         uint8ArrayObj->root();
         uint8ArrayObj->incRef();
@@ -682,7 +688,7 @@ static bool js_saveImageData(se::State& s) { // NOLINT
         SE_PRECONDITION2(ok, false, "js_saveImageData : Error processing arguments");
 
         se::Value callbackVal = argc == 5 ? args[4] : se::Value::Null;
-        se::Object *callbackObj {nullptr};
+        se::Object *callbackObj{nullptr};
         if (!callbackVal.isNull()) {
             CC_ASSERT(callbackVal.isObject());
             CC_ASSERT(callbackVal.toObject()->isFunction());
@@ -696,7 +702,7 @@ static bool js_saveImageData(se::State& s) { // NOLINT
             auto *img = ccnew Image();
             // A conversion from size_t to uint32_t might lose integer precision
             img->initWithRawData(uint8ArrayData, static_cast<uint32_t>(length), width, height, 32 /*Unused*/);
-            bool isSuccess = img->saveToFile(filePath, false/*isToRGB*/);
+            bool isSuccess = img->saveToFile(filePath, false /*isToRGB*/);
             CC_CURRENT_ENGINE()->getScheduler()->performFunctionInCocosThread([=]() {
                 se::AutoHandleScope hs;
                 se::ValueArray seArgs;
@@ -1362,6 +1368,14 @@ static bool jsb_register_TextDecoder(se::Object *globalObj) {
     return true;
 }
 
+static bool JSB_process_get_argv(se::State &s) // NOLINT(readability-identifier-naming)
+{
+    const auto &args = CC_CURRENT_APPLICATION()->getArguments();
+    nativevalue_to_se(args, s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(JSB_process_get_argv)
+
 bool jsb_register_global_variables(se::Object *global) { // NOLINT
     gThreadPool = LegacyThreadPool::newFixedThreadPool(3);
 
@@ -1386,6 +1400,11 @@ bool jsb_register_global_variables(se::Object *global) { // NOLINT
     __jsbObj->defineFunction("setCursorEnabled", _SE(JSB_setCursorEnabled));
     __jsbObj->defineFunction("saveByteCode", _SE(JSB_saveByteCode));
     __jsbObj->defineFunction("createExternalArrayBuffer", _SE(jsb_createExternalArrayBuffer));
+
+    // Create process object
+    se::HandleObject processObj{se::Object::createPlainObject()};
+    processObj->defineProperty("argv", _SE(JSB_process_get_argv), nullptr);
+    __jsbObj->setProperty("process", se::Value(processObj));
 
     se::HandleObject zipUtils(se::Object::createPlainObject());
     zipUtils->defineFunction("inflateMemory", _SE(JSB_zipUtils_inflateMemory));

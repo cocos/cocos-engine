@@ -26,9 +26,9 @@
 
 import { AudioPlayer } from 'pal/audio';
 import { AudioClip, AudioMeta } from './audio-clip';
-import { CompleteCallback, IDownloadParseOptions } from '../core/asset-manager/shared';
-import downloader from '../core/asset-manager/downloader';
-import factory from '../core/asset-manager/factory';
+import { CompleteCallback, IDownloadParseOptions } from '../asset/asset-manager/shared';
+import downloader from '../asset/asset-manager/downloader';
+import factory from '../asset/asset-manager/factory';
 
 export function loadAudioPlayer (url: string, options: IDownloadParseOptions, onComplete: CompleteCallback) {
     AudioPlayer.load(url, {

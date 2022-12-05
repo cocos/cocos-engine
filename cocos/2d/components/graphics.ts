@@ -26,20 +26,18 @@
 
 import { ccclass, help, executionOrder, menu, tooltip, type, visible, override, editable, serializable } from 'cc.decorator';
 import { JSB } from 'internal:constants';
-import { builtinResMgr } from '../../core/builtin';
+import { builtinResMgr } from '../../asset/asset-manager';
 import { InstanceMaterialType, UIRenderer } from '../framework/ui-renderer';
-import { director } from '../../core/director';
-import { Color } from '../../core/math';
-import { scene } from '../../core/renderer';
+import { director } from '../../game/director';
+import { Color, warnID, cclegacy } from '../../core';
+import { scene } from '../../render-scene';
 import { IAssembler } from '../renderer/base';
 import { IBatcher } from '../renderer/i-batcher';
 import { LineCap, LineJoin } from '../assembler/graphics/types';
 import { Impl } from '../assembler/graphics/webgl/impl';
-import { RenderingSubMesh } from '../../core/assets';
-import { Format, PrimitiveMode, Attribute, Device, BufferUsageBit, BufferInfo, MemoryUsageBit, deviceManager } from '../../core/gfx';
+import { RenderingSubMesh } from '../../asset/assets';
+import { Format, PrimitiveMode, Attribute, Device, BufferUsageBit, BufferInfo, MemoryUsageBit, deviceManager } from '../../gfx';
 import { vfmtPosColor, getAttributeStride, getComponentPerVertex } from '../renderer/vertex-format';
-import { legacyCC } from '../../core/global-exports';
-import { warnID } from '../../core/platform/debug';
 import { NativeUIModelProxy } from '../renderer/native-2d';
 import { RenderEntity, RenderEntityType } from '../renderer/render-entity';
 
@@ -755,4 +753,4 @@ export class Graphics extends UIRenderer {
     }
 }
 
-legacyCC.Graphics = Graphics;
+cclegacy.Graphics = Graphics;

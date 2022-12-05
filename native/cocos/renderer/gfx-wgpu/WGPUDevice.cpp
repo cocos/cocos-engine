@@ -301,7 +301,7 @@ void CCWGPUDevice::copyBuffersToTexture(const uint8_t *const *buffers, Texture *
 
         // it's buffer data layout
         WGPUTextureDataLayout texDataLayout = {
-            .offset = 0, // we always create a non-offset staging buffer or give interface a non-offset buffer address
+            .offset = 0,
             .bytesPerRow = bufferBytesPerRow,
             .rowsPerImage = bufferPixelHeight,
         };
@@ -481,9 +481,9 @@ void CCWGPUDevice::getQueryPoolResults(QueryPool *queryPool) {
 }
 
 void CCWGPUDevice::debug() {
-    auto wgpuCommandEncoder = wgpuDeviceCreateCommandEncoder(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuDevice, nullptr);
-    auto wgpuCommandBuffer = wgpuCommandEncoderFinish(wgpuCommandEncoder, nullptr);
-    wgpuQueueSubmit(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuQueue, 1, &wgpuCommandBuffer);
+    // auto wgpuCommandEncoder = wgpuDeviceCreateCommandEncoder(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuDevice, nullptr);
+    // auto wgpuCommandBuffer = wgpuCommandEncoderFinish(wgpuCommandEncoder, nullptr);
+    // wgpuQueueSubmit(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuQueue, 1, &wgpuCommandBuffer);
 }
 
 void CCWGPUDevice::initConfigs() {

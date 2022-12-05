@@ -86,8 +86,9 @@ export class PhysXConeShape extends PhysXShape implements IConeShape {
         const scale = _trans.translation;
         Vec3.copy(scale, collider.node.worldScale);
         scale.y *= Math.max(0.0001, h / 1);
-        const xz = Math.max(0.0001, r / 0.5);
-        scale.x *= xz; scale.z *= xz;
+        const radius = Math.max(0.0001, r / 0.5);
+        const xzMaxNorm = Math.max(scale.x, scale.z);
+        scale.x = scale.z = xzMaxNorm * radius;
         const quat = _trans.rotation;
         switch (a) {
         case EAxisDirection.X_AXIS:

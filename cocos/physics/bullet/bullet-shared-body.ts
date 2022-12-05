@@ -23,8 +23,8 @@
  THE SOFTWARE.
  */
 
-import { TransformBit } from '../../core/scene-graph/node-enum';
-import { Node } from '../../core';
+import { TransformBit } from '../../scene-graph/node-enum';
+import { Node } from '../../scene-graph';
 import { BulletWorld } from './bullet-world';
 import { BulletRigidBody } from './bullet-rigid-body';
 import { BulletShape } from './shapes/bullet-shape';
@@ -34,8 +34,8 @@ import { IBulletBodyStruct, IBulletGhostStruct } from './bullet-interface';
 import { CC_V3_0, CC_QUAT_0, BulletCache } from './bullet-cache';
 import { PhysicsSystem } from '../framework';
 import { ERigidBodyType, PhysicsGroup } from '../framework/physics-enum';
-import { fastRemoveAt } from '../../core/utils/array';
-import { bt } from './instantiated';
+import { js } from '../../core';
+import { bt, EBulletType } from './instantiated';
 import { BulletConstraint } from './constraints/bullet-constraint';
 
 const v3_0 = CC_V3_0;
@@ -346,7 +346,7 @@ export class BulletSharedBody {
         if (isTrigger) {
             const index = this.ghostStruct.wrappedShapes.indexOf(v);
             if (index >= 0) {
-                fastRemoveAt(this.ghostStruct.wrappedShapes, index);
+                js.array.fastRemoveAt(this.ghostStruct.wrappedShapes, index);
                 v.setCompound(0);
                 this.ghostEnabled = false;
             }
@@ -360,7 +360,7 @@ export class BulletSharedBody {
                 }
                 bt.CollisionObject_activate(this.body, true);
                 this.dirty |= EBtSharedBodyDirty.BODY_RE_ADD;
-                fastRemoveAt(this.bodyStruct.wrappedShapes, index);
+                js.array.fastRemoveAt(this.bodyStruct.wrappedShapes, index);
                 this.bodyEnabled = false;
             }
         }
@@ -379,10 +379,10 @@ export class BulletSharedBody {
     removeJoint (v: BulletConstraint, type: 0 | 1) {
         if (type) {
             const i = this.wrappedJoints1.indexOf(v);
-            if (i >= 0) fastRemoveAt(this.wrappedJoints1, i);
+            if (i >= 0) js.array.fastRemoveAt(this.wrappedJoints1, i);
         } else {
             const i = this.wrappedJoints0.indexOf(v);
-            if (i >= 0) fastRemoveAt(this.wrappedJoints0, i);
+            if (i >= 0) js.array.fastRemoveAt(this.wrappedJoints0, i);
         }
     }
 
@@ -513,16 +513,16 @@ export class BulletSharedBody {
         if (this._bodyStruct) {
             const bodyStruct = this._bodyStruct;
             BulletCache.delWrapper(bodyStruct.body, bt.BODY_CACHE_NAME);
-            bt.MotionState_del(bodyStruct.motionState);
-            bt.CollisionShape_del(bodyStruct.compound);
-            bt.CollisionObject_del(bodyStruct.body);
+            bt._safe_delete(bodyStruct.motionState, EBulletType.EBulletTypeMotionState);
+            bt._safe_delete(bodyStruct.compound, EBulletType.EBulletTypeCollisionShape);
+            bt._safe_delete(bodyStruct.body, EBulletType.EBulletTypeCollisionObject);
             (this._bodyStruct as any) = null;
         }
 
         if (this._ghostStruct) {
             const ghostStruct = this._ghostStruct;
-            bt.CollisionShape_del(ghostStruct.compound);
-            bt.CollisionObject_del(ghostStruct.ghost);
+            bt._safe_delete(ghostStruct.compound, EBulletType.EBulletTypeCollisionShape);
+            bt._safe_delete(ghostStruct.ghost, EBulletType.EBulletTypeCollisionObject);
             (this._ghostStruct as any) = null;
         }
     }

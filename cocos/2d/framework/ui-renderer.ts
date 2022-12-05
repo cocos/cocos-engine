@@ -28,25 +28,23 @@ import {
     ccclass, executeInEditMode, requireComponent, tooltip,
     type, displayOrder, serializable, override, visible, displayName, disallowAnimation,
 } from 'cc.decorator';
-import { Color } from '../../core/math';
-import { ccenum } from '../../core/value-types/enum';
-import { builtinResMgr } from '../../core/builtin';
-import { Material } from '../../core/assets';
-import { BlendFactor, BlendState, BlendTarget } from '../../core/gfx';
+import { Color, assert, ccenum, cclegacy } from '../../core';
+import { builtinResMgr } from '../../asset/asset-manager';
+import { Material } from '../../asset/assets';
+import { BlendFactor } from '../../gfx';
 import { IAssembler, IAssemblerManager } from '../renderer/base';
 import { RenderData } from '../renderer/render-data';
 import { IBatcher } from '../renderer/i-batcher';
-import { Node } from '../../core/scene-graph';
-import { TransformBit } from '../../core/scene-graph/node-enum';
+import { Node } from '../../scene-graph';
+import { TransformBit } from '../../scene-graph/node-enum';
 import { UITransform } from './ui-transform';
 import { Stage } from '../renderer/stencil-manager';
-import { legacyCC } from '../../core/global-exports';
-import { NodeEventType } from '../../core/scene-graph/node-event';
-import { Renderer } from '../../core/components/renderer';
+import { NodeEventType } from '../../scene-graph/node-event';
+import { Renderer } from '../../misc/renderer';
 import { RenderEntity, RenderEntityType } from '../renderer/render-entity';
 import { uiRendererManager } from './ui-renderer-manager';
-import { assert, director } from '../../core';
 import { RenderDrawInfoType } from '../renderer/render-draw-info';
+import { director } from '../../game';
 
 // hack
 ccenum(BlendFactor);
@@ -573,4 +571,4 @@ export class UIRenderer extends Renderer {
     }
 }
 
-legacyCC.internal.UIRenderer = UIRenderer;
+cclegacy.internal.UIRenderer = UIRenderer;

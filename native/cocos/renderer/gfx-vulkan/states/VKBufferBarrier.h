@@ -36,12 +36,12 @@ struct CCVKGPUBufferBarrier;
 class CC_VULKAN_API CCVKBufferBarrier : public BufferBarrier {
 public:
     explicit CCVKBufferBarrier(const BufferBarrierInfo &info);
-    ~CCVKBufferBarrier() override;
+    ~CCVKBufferBarrier() override = default;
 
-    inline const CCVKGPUBufferBarrier *gpuBarrier() const { return _gpuBarrier; }
+    inline const CCVKGPUBufferBarrier *gpuBarrier() const { return _gpuBarrier.get(); }
 
 protected:
-    CCVKGPUBufferBarrier *_gpuBarrier = nullptr;
+    std::unique_ptr<CCVKGPUBufferBarrier> _gpuBarrier;
 };
 
 } // namespace gfx

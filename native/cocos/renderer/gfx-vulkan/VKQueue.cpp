@@ -42,17 +42,13 @@ CCVKQueue::~CCVKQueue() {
 }
 
 void CCVKQueue::doInit(const QueueInfo & /*info*/) {
-    _gpuQueue = ccnew CCVKGPUQueue;
+    _gpuQueue = std::make_unique<CCVKGPUQueue>();
     _gpuQueue->type = _type;
-    cmdFuncCCVKGetDeviceQueue(CCVKDevice::getInstance(), _gpuQueue);
+    cmdFuncCCVKGetDeviceQueue(CCVKDevice::getInstance(), _gpuQueue.get());
 }
 
 void CCVKQueue::doDestroy() {
-    if (_gpuQueue) {
-        _gpuQueue->vkQueue = VK_NULL_HANDLE;
-        delete _gpuQueue;
-        _gpuQueue = nullptr;
-    }
+    _gpuQueue = nullptr;
 }
 
 void CCVKQueue::submit(CommandBuffer *const *cmdBuffs, uint32_t count) {

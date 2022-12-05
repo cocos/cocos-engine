@@ -24,15 +24,13 @@
 */
 
 import { ccclass, type, serializable } from 'cc.decorator';
-import { CCString } from '../../core/data/utils/attribute';
-import { Mat4 } from '../../core/math';
+import { CCString, cclegacy, Mat4 } from '../../core';
 import { DataPoolManager } from '../skeletal-animation/data-pool-manager';
-import { Asset } from '../../core/assets/asset';
-import { legacyCC } from '../../core/global-exports';
+import { Asset } from '../../asset/assets/asset';
 
 export const Skeleton = jsb.Skeleton;
 export type Skeleton = jsb.Skeleton;
-legacyCC.Skeleton = Skeleton;
+cclegacy.Skeleton = Skeleton;
 const skeletonProto: any = Skeleton.prototype;
 
 Object.defineProperty(skeletonProto, 'bindposes', {
@@ -54,7 +52,7 @@ skeletonProto._ctor = function () {
 };
 
 skeletonProto.destroy = function () {
-    (legacyCC.director.root?.dataPoolManager as DataPoolManager)?.releaseSkeleton(this);
+    (cclegacy.director.root?.dataPoolManager as DataPoolManager)?.releaseSkeleton(this);
     return Asset.prototype.destroy.call(this);
 };
 
@@ -66,7 +64,7 @@ skeletonProto.onLoaded = function () {
 
 // handle meta data, it is generated automatically
 const SkeletonProto = Skeleton.prototype;
-type([CCString])(SkeletonProto, '_joints');
-type([Mat4])(SkeletonProto, '_bindposes');
-serializable(SkeletonProto, '_hash');
+type([CCString])(SkeletonProto, '_joints', () => []);
+type([Mat4])(SkeletonProto, '_bindposes', () => []);
+serializable(SkeletonProto, '_hash', () => 0);
 ccclass('cc.Skeleton')(Skeleton);

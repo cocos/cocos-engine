@@ -174,7 +174,7 @@ public:
             [buffer.mtlBuffer release];
             buffer.mtlBuffer = nil;
         }
-        
+
         _pool.clear();
     }
 
@@ -205,7 +205,6 @@ public:
         gpuBuffer->startOffset = offset;
         gpuBuffer->mappedData = buffer->mappedData + offset;
         buffer->curOffset = offset + gpuBuffer->size;
-        
     }
 
     void reset() {

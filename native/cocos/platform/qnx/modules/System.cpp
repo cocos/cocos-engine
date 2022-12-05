@@ -120,6 +120,8 @@ System::LanguageType System::getLanguageTypeByISO2(const char *code) const {
         ret = LanguageType::ROMANIAN;
     } else if (strncmp(code, "bg", 2) == 0) {
         ret = LanguageType::BULGARIAN;
+    } else if (strncmp(code, "hi", 2) == 0) {
+        ret = LanguageType::HINDI;
     }
     return ret;
 }

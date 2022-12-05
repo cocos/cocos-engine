@@ -29,8 +29,9 @@ import { legacyCC } from '../global-exports';
 
 /**
  * `visibleRect` is a singleton object which defines the actual visible rect of the current view
+ * @engineInternal
  */
-const visibleRect = {
+export const visibleRect = {
     /**
      * Top left coordinate of the screen related to the game scene.
      */
@@ -128,4 +129,3 @@ const visibleRect = {
 };
 
 legacyCC.visibleRect = visibleRect;
-export default visibleRect;

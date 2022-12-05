@@ -47,7 +47,7 @@ static bool js_network_Downloader_createDownloadFileTask(se::State &s) { // NOLI
                          "js_network_Downloader_createDownloadFileTask : Error processing arguments");
         std::shared_ptr<const cc::network::DownloadTask> result = cobj->createDownloadTask(
             arg0, arg1);
-        ok &= nativevalue_to_se(*result, s.rval());
+        ok &= nativevalue_to_se(result, s.rval());
         //ROOT downloader object
         s.thisObject()->root();
 
@@ -66,7 +66,7 @@ static bool js_network_Downloader_createDownloadFileTask(se::State &s) { // NOLI
                          "js_network_Downloader_createDownloadFileTask : Error processing arguments");
         std::shared_ptr<const cc::network::DownloadTask> result = cobj->createDownloadTask(
             arg0, arg1, arg2);
-        ok &= nativevalue_to_se(*result, s.rval());
+        ok &= nativevalue_to_se(result, s.rval());
         //ROOT downloader object
         s.thisObject()->root();
 
@@ -96,7 +96,7 @@ static bool js_network_Downloader_createDownloadTask(se::State &s) { // NOLINT(r
                          "js_network_Downloader_createDownloadTask : Error processing arguments");
         std::shared_ptr<const cc::network::DownloadTask> result = cobj->createDownloadTask(
             arg0, arg1);
-        ok &= nativevalue_to_se(*result, s.rval());
+        ok &= nativevalue_to_se(result, s.rval());
         //ROOT downloader object
         s.thisObject()->root();
 
@@ -115,7 +115,7 @@ static bool js_network_Downloader_createDownloadTask(se::State &s) { // NOLINT(r
                          "js_network_Downloader_createDownloadTask : Error processing arguments");
         std::shared_ptr<const cc::network::DownloadTask> result = cobj->createDownloadTask(
             arg0, arg1, arg2);
-        ok &= nativevalue_to_se(*result, s.rval());
+        ok &= nativevalue_to_se(result, s.rval());
         //ROOT downloader object
         s.thisObject()->root();
 

@@ -78,6 +78,8 @@ CommonSystem::LanguageType CommonSystem::getCurrentLanguage() const {
         ret = LanguageType::ROMANIAN;
     } else if (0 == strcmp("bg", pLanguageName)) {
         ret = LanguageType::BULGARIAN;
+    } else if (0 == strcmp("hi", pLanguageName)) {
+        ret = LanguageType::HINDI;
     }
     return ret;
 }

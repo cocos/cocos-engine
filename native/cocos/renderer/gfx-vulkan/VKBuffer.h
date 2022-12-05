@@ -27,12 +27,10 @@
 
 #include "VKStd.h"
 #include "gfx-base/GFXBuffer.h"
+#include "gfx-vulkan/VKGPUObjects.h"
 
 namespace cc {
 namespace gfx {
-
-struct CCVKGPUBuffer;
-struct CCVKGPUBufferView;
 
 class CC_VULKAN_API CCVKBuffer final : public Buffer {
 public:
@@ -50,10 +48,11 @@ protected:
     void doDestroy() override;
     void doResize(uint32_t size, uint32_t count) override;
 
-    void createBufferView();
+    void createBuffer(uint32_t size, uint32_t count);
+    void createBufferView(uint32_t range);
 
-    CCVKGPUBuffer *_gpuBuffer = nullptr;
-    CCVKGPUBufferView *_gpuBufferView = nullptr;
+    IntrusivePtr<CCVKGPUBuffer> _gpuBuffer;
+    IntrusivePtr<CCVKGPUBufferView> _gpuBufferView;
 };
 
 } // namespace gfx

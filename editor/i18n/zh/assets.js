@@ -99,9 +99,11 @@ module.exports = {
             flipVertical: 'Flip Vertical',
             flipVerticalTip: 'Flip Vertical',
             fixAlphaTransparencyArtifacts: 'Fix Alpha Transparency Artifacts',
-            fixAlphaTransparencyArtifactsTip: '为全透明像素填充相邻像素的颜色，防止纹理过滤引起的黑边问题。当使用 Alpha 透明通道时，请启用此功能。',
+            fixAlphaTransparencyArtifactsTip:
+                '为全透明像素填充相邻像素的颜色，防止纹理过滤引起的黑边问题。当使用 Alpha 透明通道时，请启用此功能。',
             isRGBE: 'Is RGBE',
             isRGBETip: 'Is RGBE',
+            flipGreenChannel: '翻转绿通道',
         },
         spriteFrame: {
             packable: 'Packable',
@@ -327,6 +329,32 @@ module.exports = {
                         title: 'Verbose Output',
                     },
                 },
+                algorithm: {
+                    name: '减面算法',
+                    simplify: 'simplify',
+                    gltfpack: 'gltfpack (已废弃)',
+                },
+                simplify: {
+                    targetRatio: {
+                        name: 'LOD 压缩比例',
+                        title: 'Target Ratio',
+                    },
+                    enableSmartLink: {
+                        name: '防止破面',
+                        title: 'Smart Link',
+                    },
+                    agressiveness: {
+                        name: '误差距离',
+                        title: 'Agressiveness',
+                    },
+                    maxIterationCount: {
+                        name: '计算迭代次数',
+                        title: 'Max Iteration Count',
+                    },
+                },
+                gltfpack: {
+                    warn: '当前资源使用的减面算法 gltfpack 已被废弃，请选用新的 simplify 减面算法。',
+                },
                 warn: '警告：优化后，网格资源的数量和名称会发生改变，这将会造成组件引用的资源丢失，请及时手动更新；（另外，对于模型资源中预生成的预制体，资源同步机制会自动更新）',
             },
             animationBakeRate: {
@@ -337,6 +365,10 @@ module.exports = {
             promoteSingleRootNode: {
                 name: '提升单一根节点',
                 title: '若开启并且模型场景顶部仅有一个根节点，那么该节点就作为预制体的根节点。<br>否则，场景的所有根节点作为预制体的子节点。',
+            },
+            generateLightmapUVNode: {
+                name: '生成灯光贴图 UV　通道',
+                title: '若开启会为模型生成灯光贴图的 UV 通道， 若模型有第二套 UV , 该 UV 会被生成的 UV 覆盖。< br > 否则，使用原始 UV 信息。',
             },
             preferLocalTimeSpan: {
                 name: '优先使用文件时间范围',
@@ -366,7 +398,7 @@ module.exports = {
         },
         material: {
             'fail-to-load-custom-inspector': 'Material: 自定义 Effect {effect} 的 Inspector 加载失败',
-            'illegal-inspector-url': "Inspector 的路径不合法",
+            'illegal-inspector-url': 'Inspector 的路径不合法',
         },
         animationGraph: {
             edit: '编辑',

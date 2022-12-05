@@ -1,4 +1,4 @@
-import { ALIPAY, BAIDU, BYTEDANCE, COCOSPLAY, HUAWEI, LINKSURE, OPPO, QTT, VIVO, WECHAT, XIAOMI, DEBUG, EDITOR, TEST } from 'internal:constants';
+import { ALIPAY, BAIDU, BYTEDANCE, COCOSPLAY, HUAWEI, LINKSURE, OPPO, QTT, VIVO, WECHAT, XIAOMI, DEBUG, TEST, TAOBAO } from 'internal:constants';
 import { minigame } from 'pal/minigame';
 import { IFeatureMap } from 'pal/system-info';
 import { EventTarget } from '../../../cocos/core/event';
@@ -14,6 +14,8 @@ if (WECHAT) {
     currentPlatform = Platform.XIAOMI_QUICK_GAME;
 } else if (ALIPAY) {
     currentPlatform = Platform.ALIPAY_MINI_GAME;
+} else if (TAOBAO) {
+    currentPlatform = Platform.TAOBAO_CREATIVE_APP;
 } else if (BYTEDANCE) {
     currentPlatform = Platform.BYTEDANCE_MINI_GAME;
 } else if (OPPO) {
@@ -46,6 +48,7 @@ class SystemInfo extends EventTarget {
     public readonly browserVersion: string;
     public readonly isXR: boolean;
     private _featureMap: IFeatureMap;
+    private _initPromise: Promise<void>[];
 
     constructor () {
         super();
@@ -96,12 +99,9 @@ class SystemInfo extends EventTarget {
 
         this.isXR = false;
 
-        // init capability
-        const supportWebp = this._supportsWebp();
-
         const isPCWechat = WECHAT && this.os === OS.WINDOWS && !minigame.isDevTool;
         this._featureMap = {
-            [Feature.WEBP]: supportWebp,
+            [Feature.WEBP]: false,      // Initialize in Promise,
             [Feature.IMAGE_BITMAP]: false,
             [Feature.WEB_VIEW]: false,
             [Feature.VIDEO_PLAYER]: WECHAT || OPPO,
@@ -115,26 +115,48 @@ class SystemInfo extends EventTarget {
             [Feature.EVENT_GAMEPAD]: false,
             [Feature.EVENT_HANDLE]: this.isXR,
             [Feature.EVENT_HMD]: this.isXR,
+            [Feature.EVENT_HANDHELD]: false,
         };
+
+        this._initPromise = [];
+        this._initPromise.push(this._supportsWebpPromise());
 
         this._registerEvent();
     }
 
-    private _supportsWebp (): boolean {
-        // NOTE: canvas.toDataURL() is not supported on WeChat iOS end (Found on iPhone 7p)
-        const isIOSWechat = WECHAT && this.os === OS.IOS;
-        const _tmpCanvas = document.createElement('canvas');  // TODO: remove this
-        let supportWebp: boolean;
-        if (isIOSWechat) {
-            supportWebp = true;
-        } else {
-            try {
-                supportWebp = TEST ? false : _tmpCanvas.toDataURL('image/webp').startsWith('data:image/webp');
-            } catch (e) {
-                supportWebp  = false;
-            }
+    private _supportsWebpPromise (): Promise<void> {
+        if (!TEST) {
+            return this._supportsWebp().then((isSupport) => {
+                this._setFeature(Feature.WEBP, isSupport);
+            });
         }
-        return supportWebp;
+        return Promise.resolve();
+    }
+
+    private _supportsWebp (): Promise<boolean> {
+        return new Promise<boolean>((resolve, reject) => {
+            try {
+                const img = document.createElement('img');
+                const timer = setTimeout(() => {
+                    resolve(false);
+                }, 500);
+                img.onload = function onload () {
+                    clearTimeout(timer);
+                    const result = (img.width > 0) && (img.height > 0);
+                    resolve(result);
+                };
+                img.onerror = function onerror (err) {
+                    clearTimeout(timer);
+                    if (DEBUG) {
+                        console.warn('Create Webp image failed, message: '.concat(err.toString()));
+                    }
+                    resolve(false);
+                };
+                img.src = 'data:image/webp;base64,UklGRiIAAABXRUJQVlA4IBYAAAAwAQCdASoBAAEADsD+JaQAA3AAAAAA';
+            } catch (error) {
+                resolve(false);
+            }
+        });
     }
 
     private _registerEvent () {
@@ -146,6 +168,14 @@ class SystemInfo extends EventTarget {
         });
     }
 
+    private _setFeature (feature: Feature, value: boolean) {
+        return this._featureMap[feature] = value;
+    }
+
+    public init (): Promise<void[]> {
+        return Promise.all(this._initPromise);
+    }
+
     public hasFeature (feature: Feature): boolean {
         return this._featureMap[feature];
     }
@@ -154,7 +184,7 @@ class SystemInfo extends EventTarget {
         return minigame.getBatteryInfoSync().level / 100;
     }
     public triggerGC (): void {
-        minigame.triggerGC();
+        minigame.triggerGC?.();
     }
     public openURL (url: string): void {
         if (DEBUG) {

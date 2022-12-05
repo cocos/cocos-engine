@@ -31,7 +31,7 @@ namespace cc {
 static uint32_t getAttributesStride(ccstd::vector<gfx::Attribute>& attrs) {
     uint32_t stride = 0;
     for (auto& attr : attrs) {
-        const auto &info = gfx::GFX_FORMAT_INFOS[static_cast<uint32_t>(attr.format)];
+        const auto& info = gfx::GFX_FORMAT_INFOS[static_cast<uint32_t>(attr.format)];
         stride += info.size;
     }
     return stride;

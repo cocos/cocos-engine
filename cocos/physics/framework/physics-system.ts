@@ -24,22 +24,18 @@
  */
 
 import { EDITOR } from 'internal:constants';
-import { Vec3, builtinResMgr, RecyclePool, game, Enum } from '../../core';
+import { Vec3, RecyclePool, Enum, System, cclegacy, Settings, settings, geometry, warn } from '../../core';
 import { IRaycastOptions } from '../spec/i-physics-world';
-import { director, Director } from '../../core/director';
-import { System } from '../../core/components';
+import { director, Director, game } from '../../game';
 import { PhysicsMaterial } from './assets/physics-material';
-
-import { Ray } from '../../core/geometry';
-import { PhysicsRayResult } from './physics-ray-result';
-import { IPhysicsConfig, ICollisionMatrix, IPhysicsMaterial } from './physics-config';
+import { PhysicsRayResult, PhysicsLineStripCastResult } from './physics-ray-result';
+import { IPhysicsConfig, ICollisionMatrix } from './physics-config';
 import { CollisionMatrix } from './collision-matrix';
 import { PhysicsGroup } from './physics-enum';
 import { constructDefaultWorld, IWorldInitData, selector } from './physics-selector';
-import { legacyCC } from '../../core/global-exports';
-import { Settings, settings } from '../../core/settings';
+import { assetManager, builtinResMgr } from '../../asset/asset-manager';
 
-legacyCC.internal.PhysicsGroup = PhysicsGroup;
+cclegacy.internal.PhysicsGroup = PhysicsGroup;
 
 /**
  * @en
@@ -210,22 +206,44 @@ export class PhysicsSystem extends System implements IWorldInitData {
         return this._material;
     }
 
-    initDefaultMaterial () : void {
-        if (this._material != null) {
-            return;
+    /**
+     * @en
+     * Set the default physics material.
+     * @zh
+     * 设置默认物理材质。
+     */
+    public setDefaultPhysicsMaterial (material : PhysicsMaterial) {
+        this._material = material;
+        this.physicsWorld.setDefaultMaterial(this._material);
+        this._material.on(PhysicsMaterial.EVENT_UPDATE, this._updateMaterial, this);
+    }
+
+    // eslint-disable-next-line consistent-return
+    private initDefaultMaterial (): Promise<void> {
+        if (this._material != null) return Promise.resolve();
+
+        const builtinMaterial = builtinResMgr.get<PhysicsMaterial>('default-physics-material');
+        if (!builtinMaterial) {
+            console.error('PhysicsSystem initDefaultMaterial() Failed to load builtinMaterial');
+            return Promise.resolve();
         }
 
-        this._material = builtinResMgr.get<PhysicsMaterial>('default-physics-material');
-        if (this._material != null) {
-            //console.log('initDefaultMaterial');
-            //console.log('this._materialConfig', this._materialConfig);
-            this.physicsWorld.setDefaultMaterial(this._material);
-            this._material.on(PhysicsMaterial.EVENT_UPDATE, this._updateMaterial, this);
-
-            //set default physics material using material config
-            this.setDefaultMaterial(this._materialConfig);
-        } else {
-            console.error('PhysicsSystem initDefaultMaterial failed');
+        const userMaterial = settings.querySettings(Settings.Category.PHYSICS, 'defaultMaterial');
+        if (!userMaterial) { //use built-in default physics material
+            this.setDefaultPhysicsMaterial(builtinMaterial);
+            return Promise.resolve();
+        } else { //use user customized default physics material
+            return new Promise<PhysicsMaterial>((resolve, reject) => {
+                assetManager.loadAny(userMaterial, (err, asset) => ((err || !(asset instanceof PhysicsMaterial))
+                    ? reject(err)
+                    : resolve(asset)));
+            }).then((asset) => {
+                this.setDefaultPhysicsMaterial(asset);
+            }).catch((reason) => {
+                warn(reason);
+                warn(`Failed to load user customized default physics material: ${userMaterial}, will fallback to built-in default physics material`);
+                this.setDefaultPhysicsMaterial(builtinMaterial);
+            });
         }
     }
 
@@ -256,6 +274,22 @@ export class PhysicsSystem extends System implements IWorldInitData {
     public readonly raycastResults: PhysicsRayResult[] = [];
 
     /**
+     * @en
+     * Gets the lineStripCastClosest test result.
+     * @zh
+     * 获取 lineStripCastClosest 的检测结果。
+     */
+    public lineStripCastClosestResult = new PhysicsLineStripCastResult();
+
+    /**
+    * @en
+    * Gets the lineStripCast test results.
+    * @zh
+    * 获取 lineStripCast 的检测结果。
+    */
+    public lineStripCastResults: PhysicsLineStripCastResult[] = [];
+
+    /**
     * @en
     * Gets the collision matrix that used for initialization only.
     * @zh
@@ -283,7 +317,6 @@ export class PhysicsSystem extends System implements IWorldInitData {
     private _sleepThreshold = 0.1;
     private readonly _gravity = new Vec3(0, -10, 0);
     private _material!: PhysicsMaterial; //default physics material
-    private _materialConfig: IPhysicsMaterial = new PhysicsMaterial();
     private static readonly _instance: PhysicsSystem | null = null;
     private readonly raycastOptions: IRaycastOptions = {
         group: -1,
@@ -299,7 +332,7 @@ export class PhysicsSystem extends System implements IWorldInitData {
     }
 
     postUpdate (deltaTime: number) {
-        if (EDITOR && !legacyCC.GAME_VIEW && !this._executeInEditMode && !selector.runInEditor) return;
+        if (EDITOR && !cclegacy.GAME_VIEW && !this._executeInEditMode && !selector.runInEditor) return;
 
         if (!this.physicsWorld) return;
 
@@ -350,11 +383,6 @@ export class PhysicsSystem extends System implements IWorldInitData {
         const gravity = config ? config.gravity : settings.querySettings(Settings.Category.PHYSICS, 'gravity');
         if (gravity) Vec3.copy(this._gravity, gravity);
 
-        const defaultMaterialConfig = config ? config.defaultMaterial : settings.querySettings(Settings.Category.PHYSICS, 'defaultMaterial');
-        //console.log('resetConfiguration');
-        //console.log('defaultMaterialConfig', defaultMaterialConfig);
-        this._materialConfig = defaultMaterialConfig;
-
         const collisionMatrix = config ? config.collisionMatrix : settings.querySettings(Settings.Category.PHYSICS, 'collisionMatrix');
         if (collisionMatrix) {
             for (const i in collisionMatrix) {
@@ -374,24 +402,6 @@ export class PhysicsSystem extends System implements IWorldInitData {
             this.physicsWorld.setGravity(this._gravity);
             this.physicsWorld.setAllowSleep(this._allowSleep);
         }
-    }
-
-    /**
-     * @en
-     * Set the default physics material to given value.
-     * @zh
-     * 设置默认物理材质到指定的值。
-     */
-    setDefaultMaterial (materialConfig : IPhysicsMaterial):void {
-        if (!this._material) return;
-        if (!materialConfig) return;
-
-        this._material.setValues(
-            materialConfig.friction,
-            materialConfig.rollingFriction,
-            materialConfig.spinningFriction,
-            materialConfig.restitution,
-        );
     }
 
     /**
@@ -447,7 +457,7 @@ export class PhysicsSystem extends System implements IWorldInitData {
      * @param queryTrigger @zh 是否检测触发器 @en Whether to detect triggers
      * @return {boolean} @zh 表示是否有检测到碰撞 @en Indicates whether a collision has been detected
      */
-    raycast (worldRay: Ray, mask = 0xffffffff, maxDistance = 10000000, queryTrigger = true): boolean {
+    raycast (worldRay: geometry.Ray, mask = 0xffffffff, maxDistance = 10000000, queryTrigger = true): boolean {
         if (!this.physicsWorld) return false;
         this.raycastResultPool.reset();
         this.raycastResults.length = 0;
@@ -470,12 +480,99 @@ export class PhysicsSystem extends System implements IWorldInitData {
      * @param queryTrigger @zh 是否检测触发器 @en Whether to detect triggers
      * @return {boolean} @zh 表示是否有检测到碰撞 @en Indicates whether a collision has been detected
      */
-    raycastClosest (worldRay: Ray, mask = 0xffffffff, maxDistance = 10000000, queryTrigger = true): boolean {
+    raycastClosest (worldRay: geometry.Ray, mask = 0xffffffff, maxDistance = 10000000, queryTrigger = true): boolean {
         if (!this.physicsWorld) return false;
         this.raycastOptions.mask = mask >>> 0;
         this.raycastOptions.maxDistance = maxDistance;
         this.raycastOptions.queryTrigger = queryTrigger;
         return this.physicsWorld.raycastClosest(worldRay, this.raycastOptions, this.raycastClosestResult);
+    }
+
+    /**
+    * @en
+    * Collision detect all collider and record all the detected results, using
+    * PhysicsSystem.Instance.lineStripCastResults to access the results.
+    * @zh
+    * 逐线段检测所有的碰撞盒，并记录所有检测结果。通过 PhysicsSystem.instance.lineStripCastResults 访问结果。
+    * @param samplePointsWorldSpace @zh 世界空间下的采样点/直线段 @en sample points/line segments in world space
+    * @param mask @zh 掩码，默认为 0xffffffff @en Mask, default value is 0xffffffff
+    * @param maxDistance @zh 沿着直线段的最大检测距离，默认为 10000000，目前请勿传入 Infinity 或 Number.MAX_VALUE
+    *                    @en Maximum detection distance along the line segments, default value is 10000000, do not pass Infinity or Number.MAX_VALUE for now
+    * @param queryTrigger @zh 是否检测触发器 @en Whether to detect triggers
+    * @return {boolean} @zh 表示是否有检测到碰撞 @en Indicates whether a collision has been detected
+    */
+    lineStripCast (samplePointsWorldSpace: Array<Vec3>, mask = 0xffffffff, maxDistance = 10000000, queryTrigger = true): boolean {
+        if (samplePointsWorldSpace.length < 2) return false;
+        this.lineStripCastResults = [];
+        let distance = 0;
+        const worldRay = new geometry.Ray();
+        for (let i = 1; i < samplePointsWorldSpace.length; ++i) {
+            if (distance > maxDistance) break;
+
+            const fromPoint = samplePointsWorldSpace[i - 1];
+            const toPoint = samplePointsWorldSpace[i];
+            const direction = new Vec3();
+            Vec3.subtract(direction, toPoint, fromPoint);
+            const stepLength = Vec3.len(direction);
+            distance += stepLength;
+            Vec3.multiplyScalar(direction, direction, 1.0 / stepLength);
+            worldRay.d = direction;
+            worldRay.o = fromPoint;
+            const hit = this.raycast(worldRay, mask, stepLength, queryTrigger);
+            if (hit) {
+                for (let re = 0; re < this.raycastResults.length; re++) {
+                    const result = this.raycastResults[re];
+                    //if ray starts inside shape and hit point equals to start point, this should be ignored
+                    if (re === 0 && Vec3.equals(fromPoint, result.hitPoint)) { continue; }
+                    const copiedResult = new PhysicsLineStripCastResult();
+                    copiedResult._assign(result.hitPoint, result.distance, result.collider, result.hitNormal, i - 1);
+                    this.lineStripCastResults.push(copiedResult);
+                }
+            }
+        }
+        return this.lineStripCastResults.length > 0;
+    }
+
+    /**
+     * @en
+     * Collision detect all collider, and record the ray test results with the shortest distance.
+     * Using PhysicsSystem.Instance.lineStripCastClosestResult to access the result.
+     * @zh
+     * 逐线段检测所有的碰撞盒，并记录沿这些线段距离最短的检测结果，通过 PhysicsSystem.instance.lineStripCastClosestResult 访问结果。
+     * @param samplePointsWorldSpace @zh 世界空间下的采样点/直线段 @en sample points/line segments in world space
+     * @param mask @zh 掩码，默认为 0xffffffff @en Mask, default value is 0xffffffff
+     * @param maxDistance @zh 沿着直线段的最大检测距离，默认为 10000000，目前请勿传入 Infinity 或 Number.MAX_VALUE
+     *                    @en Maximum detection distance along the line segments, default value is 10000000, do not pass Infinity or Number.MAX_VALUE for now
+     * @param queryTrigger @zh 是否检测触发器 @en Whether to detect triggers
+     * @return {boolean} @zh 表示是否有检测到碰撞 @en Indicates whether a collision has been detected
+     */
+    lineStripCastClosest (samplePointsWorldSpace: Array<Vec3>, mask = 0xffffffff, maxDistance = 10000000, queryTrigger = true): boolean {
+        if (samplePointsWorldSpace.length < 2) { return false; }
+        let distance = 0;
+        const worldRay = new geometry.Ray();
+        let hit = false;
+        for (let i = 1; i < samplePointsWorldSpace.length; ++i) {
+            if (distance > maxDistance) break;
+
+            const fromPoint = samplePointsWorldSpace[i - 1];
+            const toPoint = samplePointsWorldSpace[i];
+            const direction = new Vec3();
+            Vec3.subtract(direction, toPoint, fromPoint);
+            const stepLength = Vec3.len(direction);
+            distance += stepLength;
+            Vec3.multiplyScalar(direction, direction, 1.0 / stepLength);
+            worldRay.d = direction;
+            worldRay.o = fromPoint;
+            hit = this.raycastClosest(worldRay, mask, stepLength, queryTrigger);
+            if (hit) {
+                const result = this.raycastClosestResult;
+                const copiedResult = new PhysicsLineStripCastResult();
+                copiedResult._assign(result.hitPoint, result.distance, result.collider, result.hitNormal, i - 1);
+                this.lineStripCastClosestResult = copiedResult;
+                break;
+            }
+        }
+        return hit;
     }
 
     private _updateMaterial () {
@@ -491,6 +588,8 @@ export class PhysicsSystem extends System implements IWorldInitData {
      * 预先加载模块的情况下，会自动执行。
      */
     static constructAndRegister () {
+        const enabled = settings.querySettings(Settings.Category.PHYSICS, 'enabled') ?? true;
+        if (!enabled) { return; }
         if (!PhysicsSystem._instance) {
             // Construct physics world and physics system only once
             const sys = new PhysicsSystem();
@@ -499,11 +598,7 @@ export class PhysicsSystem extends System implements IWorldInitData {
             (PhysicsSystem._instance as unknown as PhysicsSystem) = sys;
             director.registerSystem(PhysicsSystem.ID, sys, sys.priority);
 
-            if (!builtinResMgr.get<PhysicsMaterial>('default-physics-material')) {
-                game.onPostProjectInitDelegate.add(sys.initDefaultMaterial.bind(sys));
-            } else {
-                sys.initDefaultMaterial();
-            }
+            game.onPostProjectInitDelegate.add(sys.initDefaultMaterial.bind(sys));
         }
     }
 }

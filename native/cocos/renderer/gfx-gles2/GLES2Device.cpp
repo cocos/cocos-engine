@@ -188,6 +188,14 @@ bool GLES2Device::doInit(const DeviceInfo & /*info*/) {
     glGetIntegerv(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS, reinterpret_cast<GLint *>(&_caps.maxVertexTextureUnits));
     glGetIntegerv(GL_MAX_TEXTURE_SIZE, reinterpret_cast<GLint *>(&_caps.maxTextureSize));
     glGetIntegerv(GL_MAX_CUBE_MAP_TEXTURE_SIZE, reinterpret_cast<GLint *>(&_caps.maxCubeMapTextureSize));
+    if (checkExtension("GL_OES_texture_3D")) {
+        glGetIntegerv(GL_MAX_3D_TEXTURE_SIZE_OES, reinterpret_cast<GLint *>(&_caps.max3DTextureSize));
+        // texture2DArray fallback to texture3DOES
+        _caps.maxArrayTextureLayers = _caps.max3DTextureSize;
+    } else {
+        _caps.max3DTextureSize = 0;
+        _caps.maxArrayTextureLayers = 0;
+    }
 
     QueueInfo queueInfo;
     queueInfo.type = QueueType::GRAPHICS;
