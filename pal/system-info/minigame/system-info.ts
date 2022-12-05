@@ -135,6 +135,11 @@ class SystemInfo extends EventTarget {
 
     private _supportsWebp (): Promise<boolean> {
         return new Promise<boolean>((resolve, reject) => {
+            // HACK: webp base64 doesn't support on Wechat.
+            if (WECHAT && this.os === OS.ANDROID) {
+                resolve(false);
+                return;
+            }
             try {
                 const img = document.createElement('img');
                 const timer = setTimeout(() => {
