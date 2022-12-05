@@ -763,6 +763,12 @@ module.exports = {
                 label: '动画',
                 description: '动画系统。',
             },
+            _experimental_internals: {
+                label: '（实验性）内部接口',
+                description:
+                    '（实验性）导出内部接口。此分类下的功能可能会被某些与引擎紧密相关的外部库使用。' +
+                    '这些功能和引擎版本高度耦合，无明确文档并不保证任何兼容性。',
+            },
         },
         core: {
             label: "核心功能",
@@ -915,6 +921,10 @@ module.exports = {
         custom_pipeline: {
             label: "自定义渲染管线（实验）",
             description: "启用自定义渲染管线。",
+        },
+        _experimental_animation_internals: {
+            label: "（实验性）内部动画接口",
+            description: "（实验性）导出内部动画接口。",
         },
     },
     renderable_2d: {
