@@ -442,7 +442,8 @@ module.exports = {
         reset_node: 'Reset',
         reset_node_position: 'Reset Position',
         reset_node_rotation: 'Reset Rotation',
-        reset_node_scale: 'Reset Scale ',
+        reset_node_scale: 'Reset Scale',
+        reset_node_mobility: 'Reset Mobility',
 
         copy_node_value: 'Copy Node Values',
         paste_node_value: 'Paste Node Values',
