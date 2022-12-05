@@ -530,26 +530,26 @@ serializable(LightProbeInfoProto, '_showWireframe', () => true);
 serializable(LightProbeInfoProto, '_showConvex', () => false);
 serializable(LightProbeInfoProto, '_data', () => null);
 
-const lightProbeGIScaleRingingDescriptor = Object.getOwnPropertyDescriptor(LightProbeInfoProto, 'giScale');
-range([0.01, 100, 1])(LightProbeInfoProto, 'giScale', lightProbeGIScaleRingingDescriptor)
-type(CCFloat)(LightProbeInfoProto, 'giScale', lightProbeGIScaleRingingDescriptor)
-displayName('GIScale')(LightProbeInfoProto, 'giScale', lightProbeGIScaleRingingDescriptor)
-tooltip('i18n:light_probe.giScale')(LightProbeInfoProto, 'giScale', lightProbeGIScaleRingingDescriptor);
-editable(LightProbeInfoProto, 'giScale', lightProbeGIScaleRingingDescriptor);
+const lightProbeGIScaleDescriptor = Object.getOwnPropertyDescriptor(LightProbeInfoProto, 'giScale');
+range([0.01, 100, 1])(LightProbeInfoProto, 'giScale', lightProbeGIScaleDescriptor)
+type(CCFloat)(LightProbeInfoProto, 'giScale', lightProbeGIScaleDescriptor)
+displayName('GIScale')(LightProbeInfoProto, 'giScale', lightProbeGIScaleDescriptor)
+tooltip('i18n:light_probe.giScale')(LightProbeInfoProto, 'giScale', lightProbeGIScaleDescriptor);
+editable(LightProbeInfoProto, 'giScale', lightProbeGIScaleDescriptor);
 
-const lightProbeGISamplesRingingDescriptor = Object.getOwnPropertyDescriptor(LightProbeInfoProto, 'giSamples');
-tooltip('i18n:light_probe.giSamples')(LightProbeInfoProto, 'giSamples', lightProbeGISamplesRingingDescriptor);
-editable(LightProbeInfoProto, 'giSamples', lightProbeGISamplesRingingDescriptor);
-range([64, 65536, 1])(LightProbeInfoProto, 'giSamples', lightProbeGISamplesRingingDescriptor);
-type(CCInteger)(LightProbeInfoProto, 'giSamples', lightProbeGISamplesRingingDescriptor);
-displayName('GISamples')(LightProbeInfoProto, 'giSamples', lightProbeGISamplesRingingDescriptor);
+const lightProbeGISamplesDescriptor = Object.getOwnPropertyDescriptor(LightProbeInfoProto, 'giSamples');
+tooltip('i18n:light_probe.giSamples')(LightProbeInfoProto, 'giSamples', lightProbeGISamplesDescriptor);
+editable(LightProbeInfoProto, 'giSamples', lightProbeGISamplesDescriptor);
+range([64, 65536, 1])(LightProbeInfoProto, 'giSamples', lightProbeGISamplesDescriptor);
+type(CCInteger)(LightProbeInfoProto, 'giSamples', lightProbeGISamplesDescriptor);
+displayName('GISamples')(LightProbeInfoProto, 'giSamples', lightProbeGISamplesDescriptor);
 
-const lightProbeBouncesRingingDescriptor = Object.getOwnPropertyDescriptor(LightProbeInfoProto, 'bounces');
-tooltip('i18n:light_probe.bounces')(LightProbeInfoProto, 'bounces', lightProbeBouncesRingingDescriptor);
-editable(LightProbeInfoProto, 'bounces', lightProbeBouncesRingingDescriptor);
-range([1, 4, 1])(LightProbeInfoProto, 'bounces', lightProbeBouncesRingingDescriptor);
-type(CCInteger)(LightProbeInfoProto, 'bounces', lightProbeBouncesRingingDescriptor);
-tooltip('i18n:light_probe.bounces')(LightProbeInfoProto, 'bounces', lightProbeBouncesRingingDescriptor);
+const lightProbeBouncesDescriptor = Object.getOwnPropertyDescriptor(LightProbeInfoProto, 'bounces');
+tooltip('i18n:light_probe.bounces')(LightProbeInfoProto, 'bounces', lightProbeBouncesDescriptor);
+editable(LightProbeInfoProto, 'bounces', lightProbeBouncesDescriptor);
+range([1, 4, 1])(LightProbeInfoProto, 'bounces', lightProbeBouncesDescriptor);
+type(CCInteger)(LightProbeInfoProto, 'bounces', lightProbeBouncesDescriptor);
+tooltip('i18n:light_probe.bounces')(LightProbeInfoProto, 'bounces', lightProbeBouncesDescriptor);
 
 const lightProbeReduceRingingDescriptor = Object.getOwnPropertyDescriptor(LightProbeInfoProto, 'reduceRinging');
 tooltip('i18n:light_probe.reduceRinging')(LightProbeInfoProto, 'reduceRinging', lightProbeReduceRingingDescriptor);
