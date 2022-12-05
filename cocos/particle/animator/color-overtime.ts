@@ -61,6 +61,7 @@ export default class ColorOvertimeModule extends ParticleModuleBase {
 
     public animate (particle: Particle) {
         particle.color.set(particle.startColor);
-        particle.color.multiply(this.color.evaluate(1.0 - particle.remainingLifetime / particle.startLifetime, pseudoRandom(particle.randomSeed + COLOR_OVERTIME_RAND_OFFSET)));
+        const randomRatio = particle.randomSeed + COLOR_OVERTIME_RAND_OFFSET;
+        particle.color.multiply(this.color.evaluate(1.0 - particle.remainingLifetime / particle.startLifetime, randomRatio, true));
     }
 }

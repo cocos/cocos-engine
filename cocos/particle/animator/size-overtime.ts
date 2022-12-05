@@ -106,7 +106,9 @@ export default class SizeOvertimeModule extends ParticleModuleBase {
 
     public animate (particle: Particle, dt: number) {
         if (!this.separateAxes) {
-            Vec3.multiplyScalar(particle.size, particle.startSize, this.size.evaluate(1 - particle.remainingLifetime / particle.startLifetime, pseudoRandom(particle.randomSeed + SIZE_OVERTIME_RAND_OFFSET))!);
+            const randomRatio = particle.randomSeed + SIZE_OVERTIME_RAND_OFFSET;
+            Vec3.multiplyScalar(particle.size, particle.startSize,
+                this.size.evaluate(1 - particle.remainingLifetime / particle.startLifetime, randomRatio, true)!);
         } else {
             const currLifetime = 1 - particle.remainingLifetime / particle.startLifetime;
             const sizeRand = pseudoRandom(particle.randomSeed + SIZE_OVERTIME_RAND_OFFSET);

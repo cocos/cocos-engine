@@ -24,7 +24,7 @@
  */
 
 import { ccclass } from 'cc.decorator';
-import { lerp, RealCurve, CCClass, geometry, Enum } from '../../core';
+import { lerp, RealCurve, CCClass, geometry, Enum, pseudoRandom } from '../../core';
 import { PixelFormat, Filter, WrapMode } from '../../asset/assets/asset-enum';
 import { Texture2D, ImageAsset } from '../../asset/assets';
 
@@ -131,7 +131,7 @@ export default class CurveRange  {
 
     }
 
-    public evaluate (time: number, rndRatio: number) {
+    public evaluate (time: number, rndRatio: number, random?:boolean) {
         switch (this.mode) {
         default:
         case Mode.Constant:
@@ -139,8 +139,14 @@ export default class CurveRange  {
         case Mode.Curve:
             return this.spline.evaluate(time) * this.multiplier;
         case Mode.TwoCurves:
+            if (random) {
+                rndRatio = pseudoRandom(rndRatio);
+            }
             return lerp(this.splineMin.evaluate(time), this.splineMax.evaluate(time), rndRatio) * this.multiplier;
         case Mode.TwoConstants:
+            if (random) {
+                rndRatio = pseudoRandom(rndRatio);
+            }
             return lerp(this.constantMin, this.constantMax, rndRatio);
         }
     }

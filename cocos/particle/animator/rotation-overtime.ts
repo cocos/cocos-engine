@@ -123,13 +123,16 @@ export default class RotationOvertimeModule extends ParticleModuleBase {
 
     public animate (p: Particle, dt: number) {
         const normalizedTime = 1 - p.remainingLifetime / p.startLifetime;
-        const rotationRand = pseudoRandom(p.randomSeed + ROTATION_OVERTIME_RAND_OFFSET);
+        const randomRatio = p.randomSeed + ROTATION_OVERTIME_RAND_OFFSET;
         const renderMode = p.particleSystem.processor.getInfo().renderMode;
 
         if ((!this._separateAxes) || (renderMode === RenderMode.VerticalBillboard || renderMode === RenderMode.HorizontalBillboard)) {
-            Quat.fromEuler(p.deltaQuat, 0, 0, this.z.evaluate(normalizedTime, rotationRand)! * dt * Particle.R2D);
+            Quat.fromEuler(p.deltaQuat, 0, 0, this.z.evaluate(normalizedTime, randomRatio, true)! * dt * Particle.R2D);
         } else {
-            Quat.fromEuler(p.deltaQuat, this.x.evaluate(normalizedTime, rotationRand)! * dt * Particle.R2D, this.y.evaluate(normalizedTime, rotationRand)! * dt * Particle.R2D, this.z.evaluate(normalizedTime, rotationRand)! * dt * Particle.R2D);
+            Quat.fromEuler(p.deltaQuat,
+                this.x.evaluate(normalizedTime, randomRatio, true)! * dt * Particle.R2D,
+                this.y.evaluate(normalizedTime, randomRatio, true)! * dt * Particle.R2D,
+                this.z.evaluate(normalizedTime, randomRatio, true)! * dt * Particle.R2D);
         }
 
         // Rotation-overtime combine with start rotation, after that we get quat from the mat

@@ -149,10 +149,12 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
     public animate (p: Particle, dt: number) {
         const normalizedTime = 1 - p.remainingLifetime / p.startLifetime;
         const dampedVel = _temp_v3;
+        const randomRatio = p.randomSeed + LIMIT_VELOCITY_RAND_OFFSET;
         if (this.separateAxes) {
-            Vec3.set(_temp_v3_1, this.limitX.evaluate(normalizedTime, pseudoRandom(p.randomSeed + LIMIT_VELOCITY_RAND_OFFSET))!,
-                this.limitY.evaluate(normalizedTime, pseudoRandom(p.randomSeed + LIMIT_VELOCITY_RAND_OFFSET))!,
-                this.limitZ.evaluate(normalizedTime, pseudoRandom(p.randomSeed + LIMIT_VELOCITY_RAND_OFFSET))!);
+            Vec3.set(_temp_v3_1,
+                this.limitX.evaluate(normalizedTime, randomRatio, true)!,
+                this.limitY.evaluate(normalizedTime, randomRatio, true)!,
+                this.limitZ.evaluate(normalizedTime, randomRatio, true)!);
             if (this.needTransform) {
                 Vec3.transformQuat(_temp_v3_1, _temp_v3_1, this.rotation);
             }
@@ -162,7 +164,8 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
                 dampenBeyondLimit(p.ultimateVelocity.z, _temp_v3_1.z, this.dampen));
         } else {
             Vec3.normalize(dampedVel, p.ultimateVelocity);
-            Vec3.multiplyScalar(dampedVel, dampedVel, dampenBeyondLimit(p.ultimateVelocity.length(), this.limit.evaluate(normalizedTime, pseudoRandom(p.randomSeed + LIMIT_VELOCITY_RAND_OFFSET))!, this.dampen));
+            Vec3.multiplyScalar(dampedVel, dampedVel,
+                dampenBeyondLimit(p.ultimateVelocity.length(), this.limit.evaluate(normalizedTime, randomRatio, true)!, this.dampen));
         }
         Vec3.copy(p.ultimateVelocity, dampedVel);
         Vec3.copy(p.velocity, p.ultimateVelocity);
