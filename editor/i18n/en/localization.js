@@ -782,14 +782,6 @@ module.exports = {
                 label: 'Animation',
                 description: 'Animation System.',
             },
-            _experimental_internals: {
-                label: '(Experimental)Internal interfaces',
-                description:
-                    '(Experimental)Export internal interfaces. ' +
-                    'Features under this category might be used by certain external libraries that are tightly related to engine. ' +
-                    'These features are highly coupled with engine editions, undocumented, and ' +
-                    'no compatibilities are guaranteed.',
-            },
         },
         core: {
             label: "Core",
@@ -945,7 +937,11 @@ module.exports = {
         },
         _experimental_animation_internals: {
             label: "(Experimental)Animation Internals",
-            description: "(Experimental)Export animation internal interfaces.",
+            description:
+                '(Experimental)Export animation internal interfaces.' +
+                'Interfaces exported by this feature might be used by certain external libraries that are tightly related to engine. ' +
+                'These interfaces are highly coupled with engine editions, undocumented, and ' +
+                'no compatibilities are guaranteed.',
         },
     },
     renderable_2d: {
