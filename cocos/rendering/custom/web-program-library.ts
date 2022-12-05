@@ -75,6 +75,26 @@ function makeProgramInfo (effectName: string, shader: EffectAsset.IShaderInfo): 
     return programInfo;
 }
 
+function overwriteProgramBlockInfo (shaderInfo: ShaderInfo, programInfo: IProgramInfo) {
+    const set = _descriptorSetIndex[UpdateFrequency.PER_BATCH];
+    for (const block of programInfo.blocks) {
+        let found = false;
+        for (const src of shaderInfo.blocks) {
+            if (src.set !== set) {
+                continue;
+            }
+            if (src.name === block.name) {
+                block.binding = src.binding;
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            console.error(`Block ${block.name} not found in shader ${shaderInfo.name}`);
+        }
+    }
+}
+
 function populateMixedShaderInfo (
     layout: DescriptorSetLayoutData,
     descriptorInfo: EffectAsset.IDescriptorInfo,
@@ -435,10 +455,13 @@ export class WebProgramLibrary extends ProgramLibraryData implements ProgramLibr
 
                 // build program
                 const programInfo = makeProgramInfo(effect.name, srcShaderInfo);
-                // TODO(zhouzhenglong): change bindings of programInfo
 
                 // shaderInfo and blockSizes
                 const [shaderInfo, blockSizes] = makeShaderInfo(lg, passLayout, phaseLayout, srcShaderInfo);
+
+                // overwrite programInfo
+                overwriteProgramBlockInfo(shaderInfo, programInfo);
+
                 // handle map
                 const handleMap = genHandles(shaderInfo);
                 // attributes
