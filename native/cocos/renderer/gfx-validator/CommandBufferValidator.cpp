@@ -540,6 +540,11 @@ void CommandBufferValidator::buildAccelerationStructure(AccelerationStructure* a
     //todo
 }
 
+void CommandBufferValidator::buildAccelerationStructure(AccelerationStructure *accel,Buffer* scratchBuffer) {
+    CC_ASSERT(isInited());
+    // todo
+}
+
 void CommandBufferValidator::updateAccelerationStructure(AccelerationStructure *accel) {
     CC_ASSERT(isInited());
     // todo

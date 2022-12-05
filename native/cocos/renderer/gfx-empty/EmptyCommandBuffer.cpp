@@ -114,6 +114,10 @@ void EmptyCommandBuffer::resetQueryPool(QueryPool *queryPool) {
 void EmptyCommandBuffer::buildAccelerationStructure(AccelerationStructure* accel) {
 }
 
+void EmptyCommandBuffer::buildAccelerationStructure(AccelerationStructure* accel, Buffer* scratchBuffer) {
+    
+}
+
 void EmptyCommandBuffer::updateAccelerationStructure(AccelerationStructure* accel) {
     
 }

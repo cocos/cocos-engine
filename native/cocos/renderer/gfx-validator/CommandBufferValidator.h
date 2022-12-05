@@ -66,6 +66,7 @@ public:
     void resetQueryPool(QueryPool *queryPool) override;
     void completeQueryPool(QueryPool *queryPool) override;
     void buildAccelerationStructure(AccelerationStructure* accel) override;
+    void buildAccelerationStructure(AccelerationStructure* accel, Buffer* scratchBuffer) override;
     void updateAccelerationStructure(AccelerationStructure* accel) override;
     void compactAccelerationStructure(AccelerationStructure *accel, AccelerationStructure *res) override;
     void traceRays(const RayTracingInfo& info) override;

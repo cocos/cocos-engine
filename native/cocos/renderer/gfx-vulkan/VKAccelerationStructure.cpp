@@ -74,7 +74,14 @@ void CCVKAccelerationStructure::doBuild() {
 }
 
 void CCVKAccelerationStructure::doBuild(const IntrusivePtr<Buffer>& scratchBuffer) {
-    doBuild();
+    auto* device = CCVKDevice::getInstance();
+    auto* cmdBuf = device->getCommandBuffer();
+
+    cmdBuf->begin();
+    cmdBuf->buildAccelerationStructure(this, scratchBuffer);
+    cmdBuf->end();
+    device->flushCommands(&cmdBuf, 1);
+    device->getQueue()->submit(&cmdBuf, 1);
 }
 
 

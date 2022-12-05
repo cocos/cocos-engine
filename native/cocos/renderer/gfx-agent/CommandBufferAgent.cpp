@@ -515,6 +515,10 @@ void CommandBufferAgent::buildAccelerationStructure(AccelerationStructure* accel
     //todo
 }
 
+void CommandBufferAgent::buildAccelerationStructure(AccelerationStructure* accel, Buffer* scratchBuffer) {
+    
+}
+
 void CommandBufferAgent::updateAccelerationStructure(AccelerationStructure* accel) {
     //todo
 }
