@@ -40,6 +40,7 @@ applyMixins(jsb.Asset, [CallbacksInvoker, jsbUtils.ExtraEventMethods]);
 const assetProto: any = jsb.Asset.prototype;
 
 assetProto._ctor = function () {
+    this.loaded = true; // deprecated in v3.3
     this._ref = 0;
     this.__nativeRefs = {};
     this.__jsb_ref_id = undefined;
