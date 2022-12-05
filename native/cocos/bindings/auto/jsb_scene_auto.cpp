@@ -1036,6 +1036,18 @@ using namespace cc;
 #define cc_scene_SkyboxInfo_diffuseMap_set(self_, val_) self_->setDiffuseMap(val_)
   
 
+#define cc_scene_SkyboxInfo_reflectionMap_get(self_) self_->getReflectionMap()
+#define cc_scene_SkyboxInfo_reflectionMap_set(self_, val_) self_->setReflectionMap(val_)
+  
+
+#define cc_scene_SkyboxInfo_skyboxMaterial_get(self_) self_->getSkyboxMaterial()
+#define cc_scene_SkyboxInfo_skyboxMaterial_set(self_, val_) self_->setSkyboxMaterial(val_)
+  
+
+#define cc_scene_SkyboxInfo_rotationAngle_get(self_) self_->getRotationAngle()
+#define cc_scene_SkyboxInfo_rotationAngle_set(self_, val_) self_->setRotationAngle(val_)
+  
+
 #define cc_scene_SkyboxInfo_envLightingType_get(self_) self_->getEnvLightingType()
 #define cc_scene_SkyboxInfo_envLightingType_set(self_, val_) self_->setEnvLightingType(val_)
   
@@ -10260,30 +10272,6 @@ static bool js_delete_cc_scene_SkyboxInfo(se::State& s)
 }
 SE_BIND_FINALIZE_FUNC(js_delete_cc_scene_SkyboxInfo) 
 
-static bool js_cc_scene_SkyboxInfo_setReflectionMap(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::scene::SkyboxInfo *arg1 = (cc::scene::SkyboxInfo *) NULL ;
-    cc::TextureCube *arg2 = (cc::TextureCube *) NULL ;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::scene::SkyboxInfo>(s);
-    if (nullptr == arg1) return true;
-    
-    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
-    (arg1)->setReflectionMap(arg2);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_scene_SkyboxInfo_setReflectionMap) 
-
 static bool js_cc_scene_SkyboxInfo_activate(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -10991,6 +10979,121 @@ static bool js_cc_scene_SkyboxInfo_diffuseMap_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_scene_SkyboxInfo_diffuseMap_get) 
 
+static bool js_cc_scene_SkyboxInfo_reflectionMap_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::SkyboxInfo *arg1 = (cc::scene::SkyboxInfo *) NULL ;
+    cc::TextureCube *arg2 = (cc::TextureCube *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::SkyboxInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    cc_scene_SkyboxInfo_reflectionMap_set(arg1,arg2);
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_scene_SkyboxInfo_reflectionMap_set) 
+
+static bool js_cc_scene_SkyboxInfo_reflectionMap_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::scene::SkyboxInfo *arg1 = (cc::scene::SkyboxInfo *) NULL ;
+    cc::TextureCube *result = 0 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::SkyboxInfo>(s);
+    if (nullptr == arg1) return true;
+    result = (cc::TextureCube *)cc_scene_SkyboxInfo_reflectionMap_get(arg1);
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_scene_SkyboxInfo_reflectionMap_get) 
+
+static bool js_cc_scene_SkyboxInfo_skyboxMaterial_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::SkyboxInfo *arg1 = (cc::scene::SkyboxInfo *) NULL ;
+    cc::Material *arg2 = (cc::Material *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::SkyboxInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    cc_scene_SkyboxInfo_skyboxMaterial_set(arg1,arg2);
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_scene_SkyboxInfo_skyboxMaterial_set) 
+
+static bool js_cc_scene_SkyboxInfo_skyboxMaterial_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::scene::SkyboxInfo *arg1 = (cc::scene::SkyboxInfo *) NULL ;
+    cc::Material *result = 0 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::SkyboxInfo>(s);
+    if (nullptr == arg1) return true;
+    result = (cc::Material *)cc_scene_SkyboxInfo_skyboxMaterial_get(arg1);
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_scene_SkyboxInfo_skyboxMaterial_get) 
+
+static bool js_cc_scene_SkyboxInfo_rotationAngle_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::SkyboxInfo *arg1 = (cc::scene::SkyboxInfo *) NULL ;
+    float arg2 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::SkyboxInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    cc_scene_SkyboxInfo_rotationAngle_set(arg1,arg2);
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_scene_SkyboxInfo_rotationAngle_set) 
+
+static bool js_cc_scene_SkyboxInfo_rotationAngle_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::scene::SkyboxInfo *arg1 = (cc::scene::SkyboxInfo *) NULL ;
+    float result;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::SkyboxInfo>(s);
+    if (nullptr == arg1) return true;
+    result = (float)cc_scene_SkyboxInfo_rotationAngle_get(arg1);
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject()); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_scene_SkyboxInfo_rotationAngle_get) 
+
 static bool js_cc_scene_SkyboxInfo_envLightingType_set(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -11054,9 +11157,11 @@ bool js_register_cc_scene_SkyboxInfo(se::Object* obj) {
     cls->defineProperty("useHDR", _SE(js_cc_scene_SkyboxInfo_useHDR_get), _SE(js_cc_scene_SkyboxInfo_useHDR_set)); 
     cls->defineProperty("envmap", _SE(js_cc_scene_SkyboxInfo_envmap_get), _SE(js_cc_scene_SkyboxInfo_envmap_set)); 
     cls->defineProperty("diffuseMap", _SE(js_cc_scene_SkyboxInfo_diffuseMap_get), _SE(js_cc_scene_SkyboxInfo_diffuseMap_set)); 
+    cls->defineProperty("reflectionMap", _SE(js_cc_scene_SkyboxInfo_reflectionMap_get), _SE(js_cc_scene_SkyboxInfo_reflectionMap_set)); 
+    cls->defineProperty("skyboxMaterial", _SE(js_cc_scene_SkyboxInfo_skyboxMaterial_get), _SE(js_cc_scene_SkyboxInfo_skyboxMaterial_set)); 
+    cls->defineProperty("rotationAngle", _SE(js_cc_scene_SkyboxInfo_rotationAngle_get), _SE(js_cc_scene_SkyboxInfo_rotationAngle_set)); 
     cls->defineProperty("envLightingType", _SE(js_cc_scene_SkyboxInfo_envLightingType_get), _SE(js_cc_scene_SkyboxInfo_envLightingType_set)); 
     
-    cls->defineFunction("setReflectionMap", _SE(js_cc_scene_SkyboxInfo_setReflectionMap)); 
     cls->defineFunction("activate", _SE(js_cc_scene_SkyboxInfo_activate)); 
     
     

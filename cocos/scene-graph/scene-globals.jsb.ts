@@ -350,9 +350,11 @@ const shadowEnabledDescriptor = Object.getOwnPropertyDescriptor(ShadowsInfoProto
 tooltip('i18n:shadow.enabled')(ShadowsInfoProto, 'enabled', shadowEnabledDescriptor);
 editable(ShadowsInfoProto, 'enabled', shadowEnabledDescriptor);
 const typeDescriptor = Object.getOwnPropertyDescriptor(ShadowsInfoProto, 'type');
+tooltip('i18n:shadow.type')(ShadowsInfoProto, 'type', typeDescriptor)
 type(ShadowType)(ShadowsInfoProto, 'type', typeDescriptor);
 editable(ShadowsInfoProto, 'type', typeDescriptor);
 const shadowColorDescriptor = Object.getOwnPropertyDescriptor(ShadowsInfoProto, 'shadowColor');
+tooltip('i18n:shadow.shadowColor')(ShadowsInfoProto, 'shadowColor', shadowColorDescriptor);
 visible(checkFieldIs("_type", ShadowType.Planar))(ShadowsInfoProto, 'shadowColor', shadowColorDescriptor);
 const planeDirectionDescriptor = Object.getOwnPropertyDescriptor(ShadowsInfoProto, 'planeDirection');
 tooltip('i18n:shadow.planeDirection')(ShadowsInfoProto, 'planeDirection', planeDirectionDescriptor);
@@ -453,6 +455,20 @@ type(TextureCube)(SkyboxInfoProto, '_reflectionHDR', () => null);
 serializable(SkyboxInfoProto, '_reflectionHDR', () => null);
 type(TextureCube)(SkyboxInfoProto, '_reflectionLDR', () => null);
 serializable(SkyboxInfoProto, '_reflectionLDR', () => null);
+
+const skyboxRotationAngleDescriptor = Object.getOwnPropertyDescriptor(SkyboxInfoProto, 'rotationAngle');
+type(CCFloat)(SkyboxInfoProto, 'rotationAngle', skyboxRotationAngleDescriptor);
+range([0, 360])(SkyboxInfoProto, 'rotationAngle', skyboxRotationAngleDescriptor);
+rangeStep(1)(SkyboxInfoProto, 'rotationAngle', skyboxRotationAngleDescriptor);
+slide(SkyboxInfoProto, 'rotationAngle', skyboxRotationAngleDescriptor);
+tooltip('i18n:skybox.rotationAngle')(SkyboxInfoProto, 'rotationAngle', skyboxRotationAngleDescriptor);
+
+const skyboxReflectionMapDescriptor = Object.getOwnPropertyDescriptor(SkyboxInfoProto, 'reflectionMap');
+editable(SkyboxInfoProto, 'reflectionMap', skyboxReflectionMapDescriptor);
+readOnly(SkyboxInfoProto, 'reflectionMap', skyboxReflectionMapDescriptor)
+type(TextureCube)(SkyboxInfoProto, 'reflectionMap', skyboxReflectionMapDescriptor)
+displayOrder(100)(SkyboxInfoProto, 'reflectionMap', skyboxReflectionMapDescriptor)
+
 const skyboxEnabledDescriptor = Object.getOwnPropertyDescriptor(SkyboxInfoProto, 'enabled');
 tooltip('i18n:skybox.enabled')(SkyboxInfoProto, 'enabled', skyboxEnabledDescriptor);
 editable(SkyboxInfoProto, 'enabled', skyboxEnabledDescriptor);
@@ -477,6 +493,7 @@ const skyboxMaterialDescriptor = Object.getOwnPropertyDescriptor(SkyboxInfoProto
 tooltip('i18n:skybox.material')(SkyboxInfoProto, 'skyboxMaterial', skyboxMaterialDescriptor);
 type(Material)(SkyboxInfoProto, 'skyboxMaterial', skyboxMaterialDescriptor);
 editable(SkyboxInfoProto, 'skyboxMaterial', skyboxMaterialDescriptor);
+serializable(SkyboxInfoProto, '_rotationAngle', () => 0);
 ccclass('cc.SkyboxInfo')(SkyboxInfo);
 
 const AmbientInfoProto = AmbientInfo.prototype;
@@ -512,25 +529,45 @@ serializable(LightProbeInfoProto, '_showProbe', () => true);
 serializable(LightProbeInfoProto, '_showWireframe', () => true);
 serializable(LightProbeInfoProto, '_showConvex', () => false);
 serializable(LightProbeInfoProto, '_data', () => null);
-const lightProbeGIScaleRingingDescriptor = Object.getOwnPropertyDescriptor(LightProbeInfo, 'giScale');
-tooltip('i18n:light_probe.giScale')(LightProbeInfo, 'giScale', lightProbeGIScaleRingingDescriptor);
-editable(LightProbeInfo, 'giScale', lightProbeGIScaleRingingDescriptor);
-const lightProbeGISamplesRingingDescriptor = Object.getOwnPropertyDescriptor(LightProbeInfo, 'giSamples');
-tooltip('i18n:light_probe.giSamples')(LightProbeInfo, 'giSamples', lightProbeGISamplesRingingDescriptor);
-editable(LightProbeInfo, 'giSamples', lightProbeGISamplesRingingDescriptor);
-const lightProbeBouncesRingingDescriptor = Object.getOwnPropertyDescriptor(LightProbeInfo, 'bounces');
-tooltip('i18n:light_probe.bounces')(LightProbeInfo, 'bounces', lightProbeBouncesRingingDescriptor);
-editable(LightProbeInfo, 'bounces', lightProbeBouncesRingingDescriptor);
-const lightProbeReduceRingingDescriptor = Object.getOwnPropertyDescriptor(LightProbeInfo, 'reduceRinging');
-tooltip('i18n:light_probe.reduceRinging')(LightProbeInfo, 'reduceRinging', lightProbeReduceRingingDescriptor);
-editable(LightProbeInfo, 'reduceRinging', lightProbeReduceRingingDescriptor);
-const lightProbeShowProbeDescriptor = Object.getOwnPropertyDescriptor(LightProbeInfo, 'showProbe');
-tooltip('i18n:light_probe.showProbe')(LightProbeInfo, 'showProbe', lightProbeShowProbeDescriptor);
-editable(LightProbeInfo, 'showProbe', lightProbeShowProbeDescriptor);
-const lightProbeShowWireframeDescriptor = Object.getOwnPropertyDescriptor(LightProbeInfo, 'showWireframe');
-tooltip('i18n:light_probe.showWireframe')(LightProbeInfo, 'showWireframe', lightProbeShowWireframeDescriptor);
-editable(LightProbeInfo, 'showWireframe', lightProbeShowWireframeDescriptor);
-const lightProbeShowConvexDescriptor = Object.getOwnPropertyDescriptor(LightProbeInfo, 'showConvex');
-tooltip('i18n:light_probe.showConvex')(LightProbeInfo, 'showConvex', lightProbeShowConvexDescriptor);
-editable(LightProbeInfo, 'showConvex', lightProbeShowConvexDescriptor);
+
+const lightProbeGIScaleRingingDescriptor = Object.getOwnPropertyDescriptor(LightProbeInfoProto, 'giScale');
+range([0.01, 100, 1])(LightProbeInfoProto, 'giScale', lightProbeGIScaleRingingDescriptor)
+type(CCFloat)(LightProbeInfoProto, 'giScale', lightProbeGIScaleRingingDescriptor)
+displayName('GIScale')(LightProbeInfoProto, 'giScale', lightProbeGIScaleRingingDescriptor)
+tooltip('i18n:light_probe.giScale')(LightProbeInfoProto, 'giScale', lightProbeGIScaleRingingDescriptor);
+editable(LightProbeInfoProto, 'giScale', lightProbeGIScaleRingingDescriptor);
+
+const lightProbeGISamplesRingingDescriptor = Object.getOwnPropertyDescriptor(LightProbeInfoProto, 'giSamples');
+tooltip('i18n:light_probe.giSamples')(LightProbeInfoProto, 'giSamples', lightProbeGISamplesRingingDescriptor);
+editable(LightProbeInfoProto, 'giSamples', lightProbeGISamplesRingingDescriptor);
+range([64, 65536, 1])(LightProbeInfoProto, 'giSamples', lightProbeGISamplesRingingDescriptor);
+type(CCInteger)(LightProbeInfoProto, 'giSamples', lightProbeGISamplesRingingDescriptor);
+displayName('GISamples')(LightProbeInfoProto, 'giSamples', lightProbeGISamplesRingingDescriptor);
+
+const lightProbeBouncesRingingDescriptor = Object.getOwnPropertyDescriptor(LightProbeInfoProto, 'bounces');
+tooltip('i18n:light_probe.bounces')(LightProbeInfoProto, 'bounces', lightProbeBouncesRingingDescriptor);
+editable(LightProbeInfoProto, 'bounces', lightProbeBouncesRingingDescriptor);
+range([1, 4, 1])(LightProbeInfoProto, 'bounces', lightProbeBouncesRingingDescriptor);
+type(CCInteger)(LightProbeInfoProto, 'bounces', lightProbeBouncesRingingDescriptor);
+tooltip('i18n:light_probe.bounces')(LightProbeInfoProto, 'bounces', lightProbeBouncesRingingDescriptor);
+
+const lightProbeReduceRingingDescriptor = Object.getOwnPropertyDescriptor(LightProbeInfoProto, 'reduceRinging');
+tooltip('i18n:light_probe.reduceRinging')(LightProbeInfoProto, 'reduceRinging', lightProbeReduceRingingDescriptor);
+editable(LightProbeInfoProto, 'reduceRinging', lightProbeReduceRingingDescriptor);
+range([0.0, 0.05, 0.001])(LightProbeInfoProto, 'reduceRinging', lightProbeReduceRingingDescriptor);
+slide(LightProbeInfoProto, 'reduceRinging', lightProbeReduceRingingDescriptor);
+type(CCFloat)(LightProbeInfoProto, 'reduceRinging', lightProbeReduceRingingDescriptor);
+
+const lightProbeShowProbeDescriptor = Object.getOwnPropertyDescriptor(LightProbeInfoProto, 'showProbe');
+tooltip('i18n:light_probe.showProbe')(LightProbeInfoProto, 'showProbe', lightProbeShowProbeDescriptor);
+editable(LightProbeInfoProto, 'showProbe', lightProbeShowProbeDescriptor);
+
+const lightProbeShowWireframeDescriptor = Object.getOwnPropertyDescriptor(LightProbeInfoProto, 'showWireframe');
+tooltip('i18n:light_probe.showWireframe')(LightProbeInfoProto, 'showWireframe', lightProbeShowWireframeDescriptor);
+editable(LightProbeInfoProto, 'showWireframe', lightProbeShowWireframeDescriptor);
+
+const lightProbeShowConvexDescriptor = Object.getOwnPropertyDescriptor(LightProbeInfoProto, 'showConvex');
+tooltip('i18n:light_probe.showConvex')(LightProbeInfoProto, 'showConvex', lightProbeShowConvexDescriptor);
+editable(LightProbeInfoProto, 'showConvex', lightProbeShowConvexDescriptor);
+
 ccclass('cc.LightProbeInfo')(LightProbeInfo);

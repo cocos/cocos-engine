@@ -514,6 +514,9 @@ using namespace cc;
 %attribute(cc::scene::SkyboxInfo, bool, useHDR, isUseHDR, setUseHDR);
 %attribute(cc::scene::SkyboxInfo, TextureCube*, envmap, getEnvmap, setEnvmap);
 %attribute(cc::scene::SkyboxInfo, TextureCube*, diffuseMap, getDiffuseMap, setDiffuseMap);
+%attribute(cc::scene::SkyboxInfo, TextureCube*, reflectionMap, getReflectionMap, setReflectionMap);
+%attribute(cc::scene::SkyboxInfo, Material*, skyboxMaterial, getSkyboxMaterial, setSkyboxMaterial);
+%attribute(cc::scene::SkyboxInfo, float, rotationAngle, getRotationAngle, setRotationAngle);
 %attribute(cc::scene::SkyboxInfo, cc::scene::EnvironmentLightingType, envLightingType, getEnvLightingType, setEnvLightingType);
 
 %attribute(cc::scene::OctreeInfo, bool, enabled, isEnabled, setEnabled);

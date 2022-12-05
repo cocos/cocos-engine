@@ -1390,6 +1390,7 @@ const angleDescriptor = Object.getOwnPropertyDescriptor(NodeProto, 'angle');
 editable(NodeProto, 'angle', angleDescriptor);
 const mobilityDescriptor = Object.getOwnPropertyDescriptor(NodeProto, 'mobility');
 editable(NodeProto, 'mobility', mobilityDescriptor);
+type(MobilityMode)(NodeProto, 'mobility', mobilityDescriptor);
 const layerDescriptor = Object.getOwnPropertyDescriptor(NodeProto, 'layer');
 editable(NodeProto, 'layer', layerDescriptor);
 
