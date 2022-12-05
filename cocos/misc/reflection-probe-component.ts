@@ -250,9 +250,11 @@ export class ReflectionProbe extends Component {
      */
     set previewSphere (val: Node) {
         this._previewSphere = val;
-        this.probe.previewSphere = val;
-        if (this._previewSphere) {
-            ReflectionProbeManager.probeManager.updatePreviewSphere(this.probe);
+        if (this.probe) {
+            this.probe.previewSphere = val;
+            if (this._previewSphere) {
+                ReflectionProbeManager.probeManager.updatePreviewSphere(this.probe);
+            }
         }
     }
 
@@ -266,7 +268,9 @@ export class ReflectionProbe extends Component {
      */
     set previewPlane (val: Node) {
         this._previewPlane = val;
-        this.probe.previewPlane = val;
+        if (this.probe) {
+            this.probe.previewPlane = val;
+        }
     }
 
     get previewPlane () {
