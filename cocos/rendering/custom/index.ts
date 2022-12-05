@@ -65,7 +65,6 @@ export function createCustomPipeline (): Pipeline {
     }
 
     _pipeline = ppl;
-    (programLib as WebProgramLibrary).constantMacros = ppl.constantMacros;
     return ppl;
 }
 
