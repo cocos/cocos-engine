@@ -97,9 +97,9 @@ void ReflectionProbe::renderPlanarReflection(const Camera* sourceCamera) {
     _needRender = true;
 }
 
-void switchProbeType(int32_t type, const Camera* sourceCamera) {
-    if (type == ProbeType.CUBE) {
-        this._needRender = false;
+void ReflectionProbe::switchProbeType(int32_t type, const Camera* sourceCamera) {
+    if (type == static_cast<uint32_t>(ProbeType::CUBE)) {
+        _needRender = false;
     } else if (sourceCamera != nullptr) {
         renderPlanarReflection(sourceCamera);
     }
