@@ -651,7 +651,8 @@ bool Mesh::merge(Mesh *mesh, const Mat4 *worldMatrix /* = nullptr */, bool valid
                 attrSize = gfx::GFX_FORMAT_INFOS[static_cast<uint32_t>(attr.format)].size;
                 srcVBOffset = bundle.view.length + srcAttrOffset;
                 for (uint32_t v = 0; v < dstBundle.view.count; ++v) {
-                    dstAttrView = dstVBView.subarray(dstVBOffset, dstVBOffset + attrSize);
+                    // Important note: the semantics of subarray are different in typescript and native
+                    dstAttrView = dstVBView.subarray(dstBundle.view.offset + dstVBOffset, dstBundle.view.offset + dstVBOffset + attrSize);
                     vbView.set(dstAttrView, srcVBOffset);
                     if ((attr.name == gfx::ATTR_NAME_POSITION || attr.name == gfx::ATTR_NAME_NORMAL) && worldMatrix != nullptr) {
                         Float32Array f32Temp(vbView.buffer(), srcVBOffset, 3);
@@ -686,7 +687,6 @@ bool Mesh::merge(Mesh *mesh, const Mat4 *worldMatrix /* = nullptr */, bool valid
     // merge index buffer
     uint32_t idxCount = 0;
     uint32_t idxStride = 2;
-    uint32_t vertBatchCount = 0;
 
     ccstd::vector<Mesh::ISubMesh> primitives;
     primitives.resize(_struct.primitives.size());
@@ -698,6 +698,7 @@ bool Mesh::merge(Mesh *mesh, const Mat4 *worldMatrix /* = nullptr */, bool valid
         primitives[i].primitiveMode = prim.primitiveMode;
         primitives[i].vertexBundelIndices = prim.vertexBundelIndices;
 
+        uint32_t vertBatchCount = 0;
         for (const uint32_t bundleIdx : prim.vertexBundelIndices) {
             vertBatchCount = std::max(vertBatchCount, _struct.vertexBundles[bundleIdx].view.count);
         }
