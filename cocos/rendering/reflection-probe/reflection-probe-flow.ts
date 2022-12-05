@@ -29,7 +29,7 @@ import { ReflectionProbeStage } from './reflection-probe-stage';
 import { RenderFlowTag } from '../pipeline-serialization';
 import { RenderPipeline } from '..';
 import { Camera, ProbeType, ReflectionProbe } from '../../render-scene/scene';
-import { ReflectionProbeManager } from '../reflection-probe-manager';
+import { cclegacy } from '../../core';
 
 /**
  * @en reflection probe render flow
@@ -59,7 +59,7 @@ export class ReflectionProbeFlow extends RenderFlow {
     }
 
     public render (camera: Camera) {
-        const probes = ReflectionProbeManager.probeManager.getProbes();
+        const probes = cclegacy.internal.reflectionProbeManager.getProbes();
         for (let i = 0; i < probes.length; i++) {
             if (probes[i].needRender) {
                 if (EDITOR || probes[i].probeType === ProbeType.PLANAR) {
@@ -76,10 +76,9 @@ export class ReflectionProbeFlow extends RenderFlow {
         for (let i = 0; i < this._stages.length; i++) {
             const probeStage = this._stages[i] as ReflectionProbeStage;
             if (probe.probeType === ProbeType.PLANAR) {
-                ReflectionProbeManager.probeManager.updatePlanarMap(probe, null);
                 probeStage.setUsageInfo(probe, probe.realtimePlanarTexture!.window!.framebuffer);
                 probeStage.render(camera);
-                ReflectionProbeManager.probeManager.updatePlanarMap(probe, probe.realtimePlanarTexture!.getGFXTexture());
+                cclegacy.internal.reflectionProbeManager.updatePlanarMap(probe, probe.realtimePlanarTexture!.getGFXTexture());
             } else {
                 for (let faceIdx = 0; faceIdx < 6; faceIdx++) {
                     //update camera dirction
