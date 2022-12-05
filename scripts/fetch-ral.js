@@ -159,7 +159,7 @@ async function removeDir (dirPath) {
         }
         await cleanOldRal();
         await removeDir(repositoryPath);
-        await runCommand('git clone https://github.com/yangws/runtime-web-adapter', __dirname);
+        await runCommand('git clone git@github.com:yangws/runtime-web-adapter.git', __dirname);
         await runCommand('git checkout for-creator-3', repositoryPath);
         await runCommand(`git reset --hard ${readJsonSync(targetCommitFile).commit}`, repositoryPath);
         await runCommand('npm install', repositoryPath);
