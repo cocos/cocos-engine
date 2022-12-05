@@ -155,7 +155,7 @@ export default class TextureAnimationModule extends ParticleModuleBase {
      */
     @type(CurveRange)
     @serializable
-    @range([0, 1])
+    @range([0, Number.POSITIVE_INFINITY])
     @displayOrder(7)
     @tooltip('i18n:textureAnimationModule.frameOverTime')
     public frameOverTime = new CurveRange();
@@ -165,7 +165,7 @@ export default class TextureAnimationModule extends ParticleModuleBase {
      */
     @type(CurveRange)
     @serializable
-    @range([0, 1])
+    @range([0, Number.POSITIVE_INFINITY])
     @displayOrder(8)
     @tooltip('i18n:textureAnimationModule.startFrame')
     public startFrame = new CurveRange();
