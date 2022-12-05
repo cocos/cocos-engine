@@ -188,6 +188,8 @@ export class TextureCube extends SimpleTexture {
         if (!imageAtlasAsset.data) {
             return;
         }
+        //In ios wechat mini-game platform drawImage and getImageData can not get correct data,so upload to gfxTexture than use readPixels to get data
+        //The performance of upload to gfxTexture and readPixels is not good, so only use this way in the ios wechat mini-game platform
         if (WECHAT && sys.os === OS.IOS) {
             this._uploadDataForWechatGame();
             return;
