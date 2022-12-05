@@ -191,7 +191,7 @@ export class TextureCube extends SimpleTexture {
         //In ios wechat mini-game platform drawImage and getImageData can not get correct data,so upload to gfxTexture than use readPixels to get data
         //The performance of upload to gfxTexture and readPixels is not good, so only use this way in the ios wechat mini-game platform
         if (WECHAT && sys.os === OS.IOS) {
-            this._uploadDataForWechatGame();
+            this._uploadAtlas();
             return;
         }
         const faceAtlas = this._mipmapAtlas.atlas;
@@ -499,7 +499,7 @@ export class TextureCube extends SimpleTexture {
         return texViewInfo;
     }
 
-    protected _uploadDataForWechatGame () {
+    protected _uploadAtlas () {
         const layout = this._mipmapAtlas!.layout;
         const mip0Layout = layout[0];
         this.reset({
