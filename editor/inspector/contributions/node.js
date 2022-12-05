@@ -1769,7 +1769,7 @@ exports.methods = {
                 },
                 {
                     label: Editor.I18n.t('ENGINE.menu.reset_node_scale'),
-                    enabled: !dump.rotation.readonly && JSON.stringify(dump.scale.value) !== JSON.stringify(dump.scale.default),
+                    enabled: !dump.scale.readonly && JSON.stringify(dump.scale.value) !== JSON.stringify(dump.scale.default),
                     async click() {
                         Editor.Message.send('scene', 'snapshot');
 
@@ -1785,7 +1785,7 @@ exports.methods = {
                 },
                 {
                     label: Editor.I18n.t('ENGINE.menu.reset_node_mobility'),
-                    enabled: !dump.rotation.readonly && JSON.stringify(dump.scale.value) !== JSON.stringify(dump.scale.default),
+                    enabled: !dump.mobility.readonly && JSON.stringify(dump.mobility.value) !== JSON.stringify(dump.mobility.default),
                     async click() {
                         Editor.Message.send('scene', 'snapshot');
 
