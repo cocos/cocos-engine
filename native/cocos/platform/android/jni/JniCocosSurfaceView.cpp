@@ -31,8 +31,6 @@
 #include "application/ApplicationManager.h"
 #include "base/memory/Memory.h"
 #include "engine/EngineEvents.h"
-#include "cocos/core/Root.h"
-#include "cocos/scene/Camera.h"
 #include "platform/android/AndroidPlatform.h"
 #include "platform/java/jni/glue/JniNativeGlue.h"
 #include "platform/java/modules/SystemWindow.h"
@@ -122,16 +120,6 @@ JNIEXPORT void JNICALL Java_com_cocos_lib_CocosSurfaceView_onSurfaceCreatedNativ
         info.externalHandle = nativeWindow;
         info.windowId = windowId;
         iSysWindow = windowMgr->createWindow(info);
-
-        if (cc::Root::getInstance() && cc::Root::getInstance()->isInitialized()) {
-            auto* renderWindow = cc::Root::getInstance()->createRenderWindowFromSystemWindow(iSysWindow);
-            auto &cameraList = cc::Root::getInstance()->getCameraList();
-            for (auto &camera : cameraList) {
-                if (windowId == camera->getSystemWindowId()) {
-                    renderWindow->attachCamera(camera);
-                }
-            }
-        }
     }
 
     auto *sysWindow = static_cast<cc::SystemWindow *>(iSysWindow);

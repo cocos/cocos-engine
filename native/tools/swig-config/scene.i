@@ -74,7 +74,6 @@ using namespace cc;
 %ignore cc::scene::Pass::initPassFromTarget;
 
 %ignore cc::Root::getEventProcessor;
-%ignore cc::Root::isInitialized;
 %ignore cc::Node::getEventProcessor;
 
 %ignore cc::Node::setRTSInternal;

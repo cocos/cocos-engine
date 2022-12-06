@@ -39,7 +39,7 @@ void SystemWindowManager::processEvent(bool *quit) {
 
 ISystemWindow *SystemWindowManager::createWindow(const ISystemWindowInfo &info) {
     if (!isExternalHandleExist(info.externalHandle)) {
-        ISystemWindow *window = BasePlatform::getPlatform()->createNativeWindow(_nextWindowId, info.externalHandle);
+        ISystemWindow *window = BasePlatform::getPlatform()->createNativeWindow(info.windowId > 0 ? info.windowId : _nextWindowId, info.externalHandle);
         if (window) {
             if (!info.externalHandle) {
                 window->createWindow(info.title.c_str(), info.x, info.y, info.width, info.height, info.flags);

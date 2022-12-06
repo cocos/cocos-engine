@@ -93,7 +93,6 @@ void Root::initialize(gfx::Swapchain * /*swapchain*/) {
     uint32_t maxJoints = (_device->getCapabilities().maxVertexUniformVectors - usedUBOVectorCount) / 3;
     maxJoints = maxJoints < 256 ? maxJoints : 256;
     pipeline::localDescriptorSetLayoutResizeMaxJoints(maxJoints);
-    _isInitialized = true;
 }
 
 render::Pipeline *Root::getCustomPipeline() const {
@@ -633,8 +632,25 @@ void Root::addWindowEventListener() {
     });
 
     _windowRecreatedListener.bind([this](uint32_t windowId) -> void {
+        bool isRenderWindowCreated = false;
         for (const auto &window : _renderWindows) {
-            window->onNativeWindowResume(windowId);
+            auto *swapChain = window->getSwapchain();
+            if (swapChain && swapChain->getWindowId() == windowId) {
+                isRenderWindowCreated = true;
+                window->onNativeWindowResume(windowId);
+            }
+        }
+
+        // nativeWindow maybe construct after Root's initialize.
+        if (!isRenderWindowCreated) {
+            auto* renderWindow = cc::Root::getInstance()->createRenderWindowFromSystemWindow(windowId);
+            auto &cameraList = cc::Root::getInstance()->getCameraList();
+            for (auto &camera : cameraList) {
+                if (windowId == camera->getSystemWindowId()) {
+                    renderWindow->attachCamera(camera);
+                    renderWindow->onNativeWindowResume(windowId);
+                }
+            }
         }
     });
 }
