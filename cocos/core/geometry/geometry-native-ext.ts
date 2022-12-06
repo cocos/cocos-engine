@@ -176,7 +176,7 @@ if (NATIVE) {
     Object.setPrototypeOf(ns.Capsule.prototype, Capsule.prototype);
 
     // Frustum
-    cacheUnderlyingData(ns.Frustum);
+    // cacheUnderlyingData(ns.Frustum); // no needed
     cacheProperty(ns.Frustum, 'vertices');
     cacheProperty(ns.Frustum, 'planes');
     Object.setPrototypeOf(ns.Frustum.prototype, Frustum.prototype);

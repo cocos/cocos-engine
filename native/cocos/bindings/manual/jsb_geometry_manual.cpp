@@ -130,10 +130,11 @@ bool register_all_geometry_manual(se::Object * /*obj*/) { // NOLINT(readability-
     DESC_UNDERLINE_DATA_FIELD(ellipseCenter1)
     DESC_UNDERLINE_DATA_END(Capsule)
 
-    DESC_UNDERLINE_DATA_BEGIN(Frustum)
-    DESC_UNDERLINE_DATA_FIELD(vertices)
-    DESC_UNDERLINE_DATA_FIELD(planes)
-    DESC_UNDERLINE_DATA_END(Frustum)
+    // underlying data not required for Frustum
+    // DESC_UNDERLINE_DATA_BEGIN(Frustum)
+    // DESC_UNDERLINE_DATA_FIELD(vertices)
+    // DESC_UNDERLINE_DATA_FIELD(planes)
+    // DESC_UNDERLINE_DATA_END(Frustum)
 
     return true;
 }
