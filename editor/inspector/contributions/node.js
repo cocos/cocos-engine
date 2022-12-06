@@ -1282,6 +1282,8 @@ const Elements = {
                                 trackEventWithTimer('laber', `A100000_${data.name}`);
                                 if (data.name === 'cc.LODGroup') {
                                     trackEventWithTimer('LOD', 'A100000');
+                                } else if (data.name === 'cc.ParticleSystem' || data.name === 'cc.ParticleSystem2D') {
+                                    trackEventWithTimer('particleSystem', 'A100012');
                                 }
                             }
 
