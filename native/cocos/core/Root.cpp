@@ -420,6 +420,7 @@ void Root::frameMoveEnd() {
 
         emit<BeforeRender>();
         _pipelineRuntime->render(_cameraList);
+        emit<AfterRender>();
 #endif
         _device->present();
     }

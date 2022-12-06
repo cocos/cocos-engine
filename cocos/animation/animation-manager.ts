@@ -92,7 +92,7 @@ export class AnimationManager extends System {
         }
         this._blendStateBuffer.apply();
 
-        const stamp = cclegacy.director.getTotalFrames();
+        const stamp = director.getTotalFrames();
         for (let i = 0, l = _sockets.length; i < l; i++) {
             const { target, transform } = _sockets[i];
             target.matrix = getWorldMatrix(transform, stamp);

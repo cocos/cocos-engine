@@ -76,6 +76,7 @@ void CCSurfacesInitializeLightingIntermediateData(inout LightingIntermediateData
   HIGHP_VALUE_FROM_STRUCT_DEFINED(worldPos, surfaceData.worldPos);
   CCSurfacesLightingGetIntermediateData_PerPixel(lightingData, surfaceData.worldNormal, worldPos, vec3(0.0), vec3(0.0));
   lightingData.specularParam = surfaceData.specular.a;
+  lightingData.ior = 1.0;
 }
 void CCSurfacesLightingCalculateIntermediateData_PerLight(inout LightingIntermediateData lightingData, in SurfacesMaterialData surfaceData, vec3 lightDirWithDist)
 {
