@@ -96,10 +96,10 @@ void ShadowFlow::activate(RenderPipeline *pipeline) {
     pipeline->setValue("CC_DIR_SHADOW_PCF_TYPE", 0);
 
     // 0: CC_DIR_LIGHT_SHADOW_PLANAR, 1: CC_DIR_LIGHT_SHADOW_UNIFORM, 2: CC_DIR_LIGHT_SHADOW_CASCADED, 3: CC_DIR_LIGHT_SHADOW_VARIANCE
-    pipeline->setValue("CC_DIR_LIGHT_SHADOW_TYPE ", 0);
+    pipeline->setValue("CC_DIR_LIGHT_SHADOW_TYPE", 0);
 
     // 0: CC_CASCADED_LAYERS_TRANSITION_OFF, 1: CC_CASCADED_LAYERS_TRANSITION_ON
-    pipeline->setValue("CC_CASCADED_LAYERS_TRANSITION ", 0);
+    pipeline->setValue("CC_CASCADED_LAYERS_TRANSITION", 0);
 
     pipeline->onGlobalPipelineStateChanged();
 }
