@@ -29,7 +29,7 @@
 
 import { DEBUG, EDITOR, BUILD, TEST } from 'internal:constants';
 import { SceneAsset } from '../asset/assets/scene-asset';
-import { System, EventTarget, Scheduler, js, errorID, error, assertID, warnID, macro, cclegacy, CCObject } from '../core';
+import { System, EventTarget, Scheduler, js, errorID, error, assertID, warnID, macro, CCObject, cclegacy, isValid } from '../core';
 import { input } from '../input';
 import { Root } from '../root';
 import { Node, Scene } from '../scene-graph';
@@ -37,6 +37,7 @@ import { ComponentScheduler } from '../scene-graph/component-scheduler';
 import NodeActivator from '../scene-graph/node-activator';
 import { containerManager } from '../core/memop/container-manager';
 import { uiRendererManager } from '../2d/framework/ui-renderer-manager';
+import { assetManager } from '../asset/asset-manager';
 import { deviceManager } from '../gfx';
 
 // ----------------------------------------------------------------------------------------------------------------------
@@ -295,7 +296,7 @@ export class Director extends EventTarget {
         this._nodeActivator.reset();
 
         if (!EDITOR) {
-            if (cclegacy.isValid(this._scene)) {
+            if (isValid(this._scene)) {
                 this._scene!.destroy();
             }
             this._scene = null;
@@ -304,7 +305,7 @@ export class Director extends EventTarget {
         this.stopAnimation();
 
         // Clear all caches
-        cclegacy.assetManager.releaseAll();
+        assetManager.releaseAll();
     }
 
     /**
@@ -378,7 +379,7 @@ export class Director extends EventTarget {
         if (BUILD && DEBUG) {
             console.time('Destroy');
         }
-        if (cclegacy.isValid(oldScene)) {
+        if (isValid(oldScene)) {
             oldScene!.destroy();
         }
         if (!EDITOR) {
@@ -386,7 +387,8 @@ export class Director extends EventTarget {
             if (BUILD && DEBUG) {
                 console.time('AutoRelease');
             }
-            cclegacy.assetManager._releaseManager._autoRelease(oldScene, scene, this._persistRootNodes);
+            // @ts-expect-error Using private API in editor
+            assetManager._releaseManager._autoRelease(oldScene!, scene, this._persistRootNodes);
             if (BUILD && DEBUG) {
                 console.timeEnd('AutoRelease');
             }
@@ -459,7 +461,7 @@ export class Director extends EventTarget {
             warnID(1208, sceneName, this._loadingScene);
             return false;
         }
-        const bundle = cclegacy.assetManager.bundles.find((bundle) => !!bundle.getSceneInfo(sceneName));
+        const bundle = assetManager.bundles.find((bundle) => !!bundle.getSceneInfo(sceneName));
         if (bundle) {
             this.emit(Director.EVENT_BEFORE_SCENE_LOADING, sceneName);
             this._loadingScene = sceneName;
@@ -517,8 +519,9 @@ export class Director extends EventTarget {
         onProgress?: Director.OnLoadSceneProgress | Director.OnSceneLoaded,
         onLoaded?: Director.OnSceneLoaded,
     ) {
-        const bundle = cclegacy.assetManager.bundles.find((bundle) => !!bundle.getSceneInfo(sceneName));
+        const bundle = assetManager.bundles.find((bundle) => !!bundle.getSceneInfo(sceneName));
         if (bundle) {
+            // @ts-expect-error Manual checked parameter mapping
             bundle.preloadScene(sceneName, null, onProgress, onLoaded);
         } else {
             const err = `Can not preload the scene "${sceneName}" because it is not in the build settings.`;
@@ -746,7 +749,7 @@ export class Director extends EventTarget {
 
     private setupRenderPipelineBuilder () {
         if (macro.CUSTOM_PIPELINE_NAME !== '' && cclegacy.rendering && this._root && this._root.usesCustomPipeline) {
-            cclegacy.director.on(cclegacy.Director.EVENT_BEFORE_RENDER, this.buildRenderPipeline, this);
+            this.on(Director.EVENT_BEFORE_RENDER, this.buildRenderPipeline, this);
         }
     }
 
@@ -782,14 +785,14 @@ export class Director extends EventTarget {
      * @param node - The node to be made persistent
      */
     public addPersistRootNode (node: Node) {
-        if (!cclegacy.Node.isNode(node) || !node.uuid) {
+        if (!Node.isNode(node) || !node.uuid) {
             warnID(3800);
             return;
         }
         const id = node.uuid;
         if (!this._persistRootNodes[id]) {
             const scene = this._scene as any;
-            if (cclegacy.isValid(scene)) {
+            if (isValid(scene)) {
                 if (!node.parent) {
                     node.parent = scene;
                     node._originalSceneId = scene.uuid;
@@ -805,7 +808,8 @@ export class Director extends EventTarget {
             }
             this._persistRootNodes[id] = node;
             node._persistNode = true;
-            cclegacy.assetManager._releaseManager._addPersistNodeRef(node);
+            // @ts-expect-error Using private API
+            assetManager._releaseManager._addPersistNodeRef(node);
         }
     }
 
@@ -820,7 +824,8 @@ export class Director extends EventTarget {
             delete this._persistRootNodes[id];
             node._persistNode = false;
             node._originalSceneId = '';
-            cclegacy.assetManager._releaseManager._removePersistNodeRef(node);
+            // @ts-expect-error Using private API
+            assetManager._releaseManager._removePersistNodeRef(node);
         }
     }
 

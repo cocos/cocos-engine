@@ -359,6 +359,7 @@ export class Root {
      * @returns The setup is successful or not
      */
     public setRenderPipeline (rppl?: RenderPipeline): boolean {
+        const { internal, director, rendering } = cclegacy;
         //-----------------------------------------------
         // prepare classic pipeline
         //-----------------------------------------------
@@ -382,8 +383,8 @@ export class Root {
         //-----------------------------------------------
         // choose pipeline
         //-----------------------------------------------
-        if (macro.CUSTOM_PIPELINE_NAME !== '' && cclegacy.rendering && this.usesCustomPipeline) {
-            this._customPipeline = cclegacy.rendering.createCustomPipeline();
+        if (macro.CUSTOM_PIPELINE_NAME !== '' && rendering && this.usesCustomPipeline) {
+            this._customPipeline = rendering.createCustomPipeline();
             isCreateDefaultPipeline = true;
             this._pipeline = this._customPipeline!;
         } else {
@@ -408,14 +409,14 @@ export class Root {
         //-----------------------------------------------
         // pipeline initialization completed
         //-----------------------------------------------
-        const scene = cclegacy.director.getScene();
+        const scene = director.getScene();
         if (scene) {
             scene.globals.activate();
         }
 
         this.onGlobalPipelineStateChanged();
-        if (!this._batcher && cclegacy.internal.Batcher2D) {
-            this._batcher = new cclegacy.internal.Batcher2D(this);
+        if (!this._batcher && internal.Batcher2D) {
+            this._batcher = new internal.Batcher2D(this);
             if (!this._batcher!.initialize()) {
                 this.destroy();
                 return false;
