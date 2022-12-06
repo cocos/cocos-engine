@@ -106,6 +106,9 @@ export class ReflectionProbe extends Component {
     set size (value) {
         this._size.set(value);
         this.probe.size = this._size;
+        if (this.probe) {
+            ReflectionProbeManager.probeManager.onUpdateProbes(true);
+        }
     }
     @type(Vec3)
     get size () {
@@ -162,7 +165,7 @@ export class ReflectionProbe extends Component {
      * @en set render texture size
      * @zh 设置渲染纹理大小
      */
-    @visible(function (this:ReflectionProbe) { return this.probeType === ProbeType.CUBE; })
+    @visible(function (this: ReflectionProbe) { return this.probeType === ProbeType.CUBE; })
     @type(Enum(ProbeResolution))
     set resolution (value: number) {
         this._resolution = value;
