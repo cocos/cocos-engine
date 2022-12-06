@@ -93,6 +93,7 @@ export default class CurveRange  {
      * @deprecated Since V3.3. Use `spline` instead.
      */
     get curve () {
+        return this._curve ??= new AnimationCurve(this.spline);
     }
 
     set curve (value) {
