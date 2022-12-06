@@ -162,15 +162,15 @@ export class Director extends EventTarget {
     public static readonly EVENT_BEFORE_COMMIT = 'director_before_commit';
 
     /**
-     * @en The event which will be triggered before the render pipeline process the render scene.
-     * @zh 当前渲染帧渲染前所触发的事件。
+     * @en The event which will be triggered before the render pipeline processes the render scene.
+     * @zh 当前帧将渲染场景提交到渲染管线之前所触发的事件。
      * @event Director.EVENT_BEFORE_RENDER
      */
     public static readonly EVENT_BEFORE_RENDER = 'director_before_render';
 
     /**
-     * @en The event which will be triggered after the render pipeline process the render scene.
-     * @zh 当前渲染帧渲染前所触发的事件。
+     * @en The event which will be triggered after the render pipeline finishes the rendering process on CPU.
+     * @zh 当前帧渲染管线渲染流程完成后所触发的事件。
      * @event Director.EVENT_AFTER_RENDER
      */
     public static readonly EVENT_AFTER_RENDER = 'director_after_render';
