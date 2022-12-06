@@ -138,10 +138,10 @@ export class View extends Eventify(System) {
             this.resizeWithBrowserSize(true);
             const designResolution = settings.querySettings(Settings.Category.SCREEN, 'designResolution');
             if (designResolution) {
-                console.time('9.1.2.1');
+                console.time('phase 9.1.2.1');
                 this.setDesignResolutionSize(Number(designResolution.width), Number(designResolution.height),
                     designResolution.policy || ResolutionPolicy.FIXED_HEIGHT);
-                console.timeEnd('9.1.2.1');
+                console.timeEnd('phase 9.1.2.1');
             }
         }
 
