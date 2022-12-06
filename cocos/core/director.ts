@@ -456,9 +456,9 @@ export class Director extends EventTarget {
         if (bundle) {
             this.emit(Director.EVENT_BEFORE_SCENE_LOADING, sceneName);
             this._loadingScene = sceneName;
-            console.time(`LoadScene ${sceneName}`);
+            console.time(`phase LoadScene ${sceneName}`);
             bundle.loadScene(sceneName, (err, scene) => {
-                console.timeEnd(`LoadScene ${sceneName}`);
+                console.timeEnd(`phase LoadScene ${sceneName}`);
                 this._loadingScene = '';
                 if (err) {
                     error(err);
@@ -739,14 +739,14 @@ export class Director extends EventTarget {
         this.registerSystem(Scheduler.ID, this._scheduler, 200);
         this._root = new Root(deviceManager.gfxDevice);
         const rootInfo = {};
-        console.time('9.1.1');
+        console.time('phase 9.1.1');
         this._root.initialize(rootInfo);
-        console.timeEnd('9.1.1');
-        console.time('9.1.2');
+        console.timeEnd('phase 9.1.1');
+        console.time('phase 9.1.2');
         for (let i = 0; i < this._systems.length; i++) {
             this._systems[i].init();
         }
-        console.timeEnd('9.1.2');
+        console.timeEnd('phase 9.1.2');
         this.emit(Director.EVENT_INIT);
     }
 

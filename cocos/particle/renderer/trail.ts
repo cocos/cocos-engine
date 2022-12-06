@@ -482,7 +482,7 @@ export default class TrailModule {
             } else {
                 p.trailDelay++;
             }
-            return;
+            // return;
         }
 
         let trail = this._particleTrail.get(p);
