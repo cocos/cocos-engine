@@ -25,9 +25,9 @@
 
 import { ccclass } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
-import { lerp, RealCurve, CCClass, geometry, Enum } from '../../core';
-import { PixelFormat, Filter, WrapMode } from '../../asset/assets/asset-enum';
-import { Texture2D, ImageAsset } from '../../asset/assets';
+import { lerp, RealCurve, CCClass, geometry, Enum, ImageAsset, Texture2D } from '../../core';
+import { Filter, PixelFormat, WrapMode } from '../../core/assets/asset-enum';
+import { AnimationCurve, constructLegacyCurveAndConvert } from '../../core/geometry/curve';
 
 const setClassAttr = CCClass.Attr.setClassAttr;
 
@@ -60,11 +60,11 @@ export default class CurveRange  {
         case Mode.TwoConstants:
             break;
         case Mode.Curve:
-            if (!this.spline) this.spline = geometry.constructLegacyCurveAndConvert();
+            if (!this.spline) this.spline = constructLegacyCurveAndConvert();
             break;
         case Mode.TwoCurves:
-            if (!this.splineMax) this.splineMax = geometry.constructLegacyCurveAndConvert();
-            if (!this.splineMin) this.splineMin = geometry.constructLegacyCurveAndConvert();
+            if (!this.splineMax) this.splineMax = constructLegacyCurveAndConvert();
+            if (!this.splineMin) this.splineMin = constructLegacyCurveAndConvert();
             break;
         default:
             break;
@@ -156,9 +156,9 @@ export default class CurveRange  {
         /* Only create RealCurves in Editor, in order to show the Splines in Editor,
         in RunTime the RealCurves will only be created when it is in Curve mode*/
         if (EDITOR) {
-            this.spline = geometry.constructLegacyCurveAndConvert();
-            this.splineMin = geometry.constructLegacyCurveAndConvert();
-            this.splineMax = geometry.constructLegacyCurveAndConvert();
+            this.spline = constructLegacyCurveAndConvert();
+            this.splineMin = constructLegacyCurveAndConvert();
+            this.splineMax = constructLegacyCurveAndConvert();
         }
     }
 
@@ -198,9 +198,9 @@ export default class CurveRange  {
         return SerializableTable[this.mode];
     }
 
-    private declare _curve: AnimationCurve | undefined;
-    private declare _curveMin: AnimationCurve | undefined;
-    private declare _curveMax: AnimationCurve | undefined;
+    private declare _curve: geometry.AnimationCurve | undefined;
+    private declare _curveMin: geometry.AnimationCurve | undefined;
+    private declare _curveMax: geometry.AnimationCurve | undefined;
 }
 
 CCClass.fastDefine('cc.CurveRange', CurveRange, {
