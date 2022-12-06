@@ -128,7 +128,7 @@ export class ReflectionProbe extends Component {
                 if (lastSizeIsNoExist) {
                     this._size.set(ReflectionProbe.DEFAULT_CUBE_SIZE);
                 }
-                this.probe.switchProbeType(value);
+                this.probe.switchProbeType(value, null);
                 if (EDITOR) {
                     this._objFlags |= CCObject.Flags.IsRotationLocked;
                 }
@@ -162,7 +162,7 @@ export class ReflectionProbe extends Component {
      * @en set render texture size
      * @zh 设置渲染纹理大小
      */
-    @visible(function (this:ReflectionProbe) { return this.probeType === ProbeType.CUBE; })
+    @visible(function (this: ReflectionProbe) { return this.probeType === ProbeType.CUBE; })
     @type(Enum(ProbeResolution))
     set resolution (value: number) {
         this._resolution = value;

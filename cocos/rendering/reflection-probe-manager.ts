@@ -100,7 +100,7 @@ export class ReflectionProbeManager {
         }
     }
 
-    public clearPlanarReflectionMap (probe:ReflectionProbe) {
+    public clearPlanarReflectionMap (probe: ReflectionProbe) {
         for (const entry of this._usePlanarModels.entries()) {
             if (entry[1] === probe) {
                 const model = entry[0];
