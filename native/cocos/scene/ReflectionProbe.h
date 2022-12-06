@@ -113,8 +113,6 @@ public:
 
     void updatePlanarTexture(const scene::RenderScene* scene);
 
-    bool validate() const { return false; }
-
     void destroy();
 
     inline bool validate() const { return _cubemap != nullptr; }
