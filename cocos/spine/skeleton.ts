@@ -180,7 +180,6 @@ export class Skeleton extends UIRenderer {
         this.markForUpdateRenderData();
     }
 
-    @override
     protected updateMaterial () {
         let mat;
         if (this._customMaterial) mat = this._customMaterial;
