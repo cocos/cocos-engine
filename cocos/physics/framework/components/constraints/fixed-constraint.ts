@@ -33,7 +33,7 @@ import {
 } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { Constraint } from './constraint';
-import { IVec3Like, Vec3 } from '../../../../core';
+import { CCFloat, IVec3Like, Vec3 } from '../../../../core';
 import { EConstraintType } from '../../physics-enum';
 import { IFixedConstraint } from '../../../spec/i-physics-constraint';
 import { legacyCC } from '../../../../core/global-exports';
@@ -48,7 +48,7 @@ export class FixedConstraint extends Constraint {
      * @zh
      * 约束的断裂力阈值。
      */
-    @type(Number)
+    @type(CCFloat)
     get breakForce (): number {
         return this._breakForce;
     }
@@ -66,7 +66,7 @@ export class FixedConstraint extends Constraint {
      * @zh
      * 约束的断裂扭矩阈值。
      */
-    @type(Number)
+    @type(CCFloat)
     get breakTorque (): number {
         return this._breakTorque;
     }

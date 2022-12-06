@@ -25,7 +25,7 @@
 
 import { Light } from './light-component';
 import { scene } from '../../render-scene';
-import { cclegacy, clamp, warnID, CCBoolean, CCFloat, _decorator, settings, Settings } from '../../core';
+import { cclegacy, clamp, warnID, CCBoolean, CCFloat, _decorator, settings, Settings, override } from '../../core';
 import { Camera, PCFType, Shadows, ShadowType, CSMOptimizationMode, CSMLevel } from '../../render-scene/scene';
 import { Root } from '../../root';
 
@@ -120,6 +120,7 @@ export class DirectionalLight extends Light {
      * @zh 方向光关闭该功能。
      * @engineInternal
      */
+    @override
     @visible(false)
     set visibility (vis: number) {
         this._visibility = vis;

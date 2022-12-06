@@ -135,7 +135,14 @@ CCProgram surface-vertex %{
       worldNormal.xyz *= In.worldNormal.w;
   #endif
     return normalize(worldNormal);
-  }*/
+  }
+  
+  // see <surfaces/default-functions/common-vs> for more overrided functions
+  #define CC_SURFACES_VERTEX_MODIFY_SHARED_DATA
+  void SurfacesVertexModifySharedData(inout SurfacesStandardVertexIntermediate In)
+  {
+  }
+*/
   
   #define CC_SURFACES_VERTEX_MODIFY_UV
   void SurfacesVertexModifyUV(inout SurfacesStandardVertexIntermediate In)
@@ -295,6 +302,23 @@ CCProgram surface-fragment %{
 
     return pbr;
   }
+
+  /*
+  // definition of SurfacesMaterialData structure with corresponding shading-model
+  #include <surfaces/data-structures/standard>
+
+  //see <surfaces/default-functions/XXXX> for more overrided functions, XXXX is shading-model name
+  #define CC_SURFACES_FRAGMENT_MODIFY_SHARED_DATA
+  void SurfacesFragmentModifySharedData(inout SurfacesMaterialData surfaceData)
+  {
+  }
+
+  // see <lighting-models/default-functions/XXXX> for more overrided functions, XXXX is lighting-model name
+  #include <lighting-models/includes/common>
+  #define CC_SURFACES_LIGHTING_MODIFY_FINAL_RESULT
+  void SurfacesLightingModifyFinalResult(inout LightingResult result, in LightingIntermediateData lightingData, in SurfacesMaterialData surfaceData)
+  {
+  }*/
 }%
 
 CCProgram standard-vs %{

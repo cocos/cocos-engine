@@ -45,7 +45,7 @@ import { TerrainLod, TerrainLodKey, TERRAIN_LOD_LEVELS, TERRAIN_LOD_MAX_DISTANCE
 import { TerrainAsset, TerrainLayerInfo, TERRAIN_HEIGHT_BASE, TERRAIN_HEIGHT_FACTORY,
     TERRAIN_BLOCK_TILE_COMPLEXITY, TERRAIN_BLOCK_VERTEX_SIZE, TERRAIN_BLOCK_VERTEX_COMPLEXITY,
     TERRAIN_MAX_LAYER_COUNT, TERRAIN_HEIGHT_FMIN, TERRAIN_HEIGHT_FMAX, TERRAIN_MAX_BLEND_LAYERS, TERRAIN_DATA_VERSION5 } from './terrain-asset';
-import { CCBoolean, CCFloat } from '../core';
+import { CCFloat } from '../core';
 import { PipelineEventType } from '../rendering';
 import { Node } from '../scene-graph';
 
@@ -1152,22 +1152,18 @@ export class Terrain extends Component {
     @disallowAnimation
     protected _lightmapInfos: TerrainBlockLightmapInfo[] = [];
 
-    @type(CCBoolean)
     @serializable
     @disallowAnimation
     protected _receiveShadow = false;
 
-    @type(CCBoolean)
     @serializable
     @disallowAnimation
     protected _useNormalmap = false;
 
-    @type(CCBoolean)
     @serializable
     @disallowAnimation
     protected _usePBR = false;
 
-    @type(CCBoolean)
     @serializable
     @disallowAnimation
     protected _lodEnable = false;

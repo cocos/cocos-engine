@@ -251,6 +251,7 @@ export class UIRenderer extends Renderer {
     protected _instanceMaterialType = -1;
     protected _srcBlendFactorCache = BlendFactor.SRC_ALPHA;
     protected _dstBlendFactorCache = BlendFactor.ONE_MINUS_SRC_ALPHA;
+
     /**
      * @internal
      */
@@ -417,7 +418,9 @@ export class UIRenderer extends Renderer {
 
     protected updateMaterial () {
         if (this._customMaterial) {
-            this.setMaterial(this._customMaterial, 0);
+            if (this.getMaterial(0) !== this._customMaterial) {
+                this.setMaterial(this._customMaterial, 0);
+            }
             return;
         }
         const mat = this._updateBuiltinMaterial();
