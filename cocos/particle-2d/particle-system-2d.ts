@@ -26,7 +26,7 @@
 
 import {
     ccclass, editable, type, displayOrder, menu,
-    executeInEditMode, serializable, playOnFocus, tooltip, visible, formerlySerializedAs, override
+    executeInEditMode, serializable, playOnFocus, tooltip, visible, formerlySerializedAs, override,
 } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { UIRenderer } from '../2d/framework/ui-renderer';
