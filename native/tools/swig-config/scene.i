@@ -78,7 +78,6 @@ using namespace cc;
 
 %ignore cc::Node::setRTSInternal;
 %ignore cc::Node::setRTS;
-%ignore cc::scene::Camera::syncCameraEditor;
 //FIXME: These methods binding code will generate SwigValueWrapper type which is not supported now.
 %ignore cc::scene::SubModel::getInstancedAttributeBlock;
 %ignore cc::scene::SubModel::getInstancedWorldMatrixIndex;
@@ -143,7 +142,7 @@ using namespace cc;
 %ignore cc::scene::Camera::screenToWorld;
 %ignore cc::scene::Camera::worldToScreen;
 %ignore cc::scene::Camera::worldMatrixToScreen;
-%ignore cc::scene::Camera::syncCameraEditor;
+// %ignore cc::scene::Camera::syncCameraEditor;
 %ignore cc::scene::Camera::getMatView;
 %ignore cc::scene::Camera::getMatProj;
 %ignore cc::scene::Camera::getMatProjInv;
