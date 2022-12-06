@@ -2475,6 +2475,8 @@ cocos_source_files(
             cocos/bindings/manual/jsb_classtype.h
             cocos/bindings/manual/jsb_cocos_manual.cpp
             cocos/bindings/manual/jsb_cocos_manual.h
+            cocos/bindings/manual/jsb_geometry_manual.cpp
+            cocos/bindings/manual/jsb_geometry_manual.h
             cocos/bindings/manual/jsb_conversions.h
             cocos/bindings/manual/jsb_conversions_spec.cpp
             cocos/bindings/manual/jsb_conversions_spec.h

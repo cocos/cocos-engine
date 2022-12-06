@@ -34,8 +34,7 @@ namespace cc {
 namespace geometry {
 
 Spline::Spline(SplineMode mode /*= SplineMode::CATMULL_ROM*/, ccstd::vector<Vec3> knots /*= {}*/)
-: _mode(mode), _knots(std::move(knots)) {
-    setType(ShapeEnum::SHAPE_SPLINE);
+: ShapeBase(ShapeEnum::SHAPE_SPLINE), _mode(mode), _knots(std::move(knots)) {
 }
 
 Spline *Spline::create(SplineMode mode, const ccstd::vector<Vec3> &knots /*= {}*/) {

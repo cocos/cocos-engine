@@ -111,7 +111,7 @@ public:
     static void transformExtentM4(Vec3 *out, const Vec3 &extent, const Mat4 &m4);
 
     AABB(float px, float py, float pz, float hw, float hh, float hl);
-    AABB();
+    AABB() : ShapeBase(ShapeEnum::SHAPE_AABB){}
     ~AABB() override = default;
 
     /**
