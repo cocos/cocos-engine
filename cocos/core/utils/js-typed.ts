@@ -503,6 +503,7 @@ export function getSuper (constructor: Function) {
  * @return whether subclass is child of superclass
  */
 export function isChildClassOf<T extends Constructor>(subclass: unknown, superclass: T): subclass is T;
+export function isChildClassOf<T extends Constructor>(subclass: T, superclass: unknown): subclass is T;
 export function isChildClassOf(subclass: unknown, superclass: unknown): boolean;
 export function isChildClassOf (subclass: unknown, superclass: unknown) {
     if (subclass && superclass) {
