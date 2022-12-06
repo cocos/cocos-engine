@@ -368,7 +368,7 @@ bool macroRecordAsBool(const MacroRecord::mapped_type &v) {
     }
 
     if (ccstd::holds_alternative<int32_t>(v)) {
-        return ccstd::get<int32_t>(v);
+        return ccstd::get<int32_t>(v) != 0;
     }
 
     if (ccstd::holds_alternative<ccstd::string>(v)) {
