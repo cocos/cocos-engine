@@ -1,10 +1,10 @@
 
-// saturated V dot N
-float GetFresnel(float ior, float VoNSat)
+// saturated N dot V
+float CalculateFresnelCoefficient(float ior, float NoVSat)
 {
 	float g, c, n, prev, next;
 	n = ior;
-	c = ior * VoNSat;
+	c = ior * NoVSat;
 	g = sqrt(1.0 + c * c - c);
 	prev = (g - c) / (g + c);
 	next = (c * (g+c) - n*n) / (c * (g-c) + n*n);
