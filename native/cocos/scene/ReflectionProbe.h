@@ -117,6 +117,8 @@ public:
 
     void destroy();
 
+    inline bool validate() const { return _cubemap != nullptr; }
+
 private:
     IntrusivePtr<cc::RenderTexture> _realtimePlanarTexture{nullptr};
 

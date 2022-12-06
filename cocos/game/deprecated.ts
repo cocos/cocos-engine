@@ -23,8 +23,10 @@
  THE SOFTWARE.
  */
 
-import { removeProperty, markAsWarning } from '../core';
-import { Director } from './director';
+import { assetManager } from '../asset/asset-manager';
+import { ISceneInfo } from '../asset/asset-manager/config';
+import { removeProperty, markAsWarning, replaceProperty } from '../core/utils/x-deprecated';
+import { Director, director } from './director';
 import { game } from './game';
 
 // Director
@@ -87,6 +89,20 @@ removeProperty(Director.prototype, 'director', [
     },
 ]);
 
+replaceProperty(director, 'director', [
+    {
+        name: '_getSceneUuid',
+        targetName: 'assetManager.main',
+        newName: 'getSceneInfo',
+        customFunction: (sceneName) => {
+            if (assetManager.main) {
+                return assetManager.main.getSceneInfo(sceneName)?.uuid;
+            }
+            return '';
+        },
+    },
+]);
+
 // game
 
 markAsWarning(game, 'game', [
@@ -95,5 +111,22 @@ markAsWarning(game, 'game', [
     },
     {
         name: 'groupList',
+    },
+]);
+
+replaceProperty(game, 'game', [
+    {
+        name: '_sceneInfos',
+        targetName: 'assetManager.main',
+        newName: 'getSceneInfo',
+        customGetter: () => {
+            const scenes: ISceneInfo[] = [];
+            if (assetManager.main) {
+                assetManager.main.config.scenes.forEach((val) => {
+                    scenes.push(val);
+                });
+            }
+            return scenes;
+        },
     },
 ]);

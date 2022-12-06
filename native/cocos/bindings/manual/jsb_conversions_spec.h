@@ -159,6 +159,7 @@ bool seval_to_DownloaderHints(const se::Value &v, cc::network::DownloaderHints *
 
 bool sevalue_to_native(const se::Value &from, cc::MacroValue *to, se::Object *ctx);                    // NOLINT(readability-identifier-naming)
 bool sevalue_to_native(const se::Value &from, cc::IPreCompileInfoValueType *to, se::Object * /*ctx*/); // NOLINT(readability-identifier-naming)
+bool sevalue_to_native(const se::Value &from, cc::IPropertyEditorValueType *to, se::Object * /*ctx*/); // NOLINT(readability-identifier-naming)
 
 // ccstd::any
 bool sevalue_to_native(const se::Value &from, ccstd::any *to, se::Object *ctx); //NOLINT(readability-identifier-naming)

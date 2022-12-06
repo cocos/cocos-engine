@@ -532,7 +532,7 @@ void Pass::doInit(const IPassInfoFull &info, bool /*copyDefines*/ /* = false */)
     _primitive = gfx::PrimitiveMode::TRIANGLE_LIST;
 
     _passIndex = info.passIndex;
-    _propertyIndex = info.propertyIndex != CC_INVALID_INDEX ? info.propertyIndex : info.passIndex;
+    _propertyIndex = info.propertyIndex.has_value() ? info.propertyIndex.value() : info.passIndex;
     _programName = info.program;
     _defines = info.defines; // cjh c++ always does copy by assignment.  copyDefines ? ({ ...info.defines }) : info.defines;
     _shaderInfo = programLib->getTemplate(info.program);
@@ -624,7 +624,7 @@ void Pass::doInit(const IPassInfoFull &info, bool /*copyDefines*/ /* = false */)
 void Pass::syncBatchingScheme() {
     auto iter = _defines.find("USE_INSTANCING");
     if (iter != _defines.end()) {
-        if (_device->hasFeature(gfx::Feature::INSTANCED_ARRAYS) && ccstd::get<bool>(iter->second)) {
+        if (_device->hasFeature(gfx::Feature::INSTANCED_ARRAYS) && macroRecordAsBool(iter->second)) {
             _batchingScheme = BatchingSchemes::INSTANCING;
         } else {
             iter->second = false;
@@ -632,7 +632,7 @@ void Pass::syncBatchingScheme() {
         }
     } else {
         auto iter = _defines.find("USE_BATCHING");
-        if (iter != _defines.end() && ccstd::get<bool>(iter->second)) {
+        if (iter != _defines.end() && macroRecordAsBool(iter->second)) {
             _batchingScheme = BatchingSchemes::VB_MERGING;
         } else {
             _batchingScheme = BatchingSchemes::NONE;

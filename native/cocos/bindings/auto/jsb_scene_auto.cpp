@@ -21196,6 +21196,30 @@ static bool js_cc_scene_Camera_setFixedSize(se::State& s)
 }
 SE_BIND_FUNC(js_cc_scene_Camera_setFixedSize) 
 
+static bool js_cc_scene_Camera_syncCameraEditor(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::Camera *arg1 = (cc::scene::Camera *) NULL ;
+    cc::scene::Camera *arg2 = (cc::scene::Camera *) NULL ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::scene::Camera>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    (arg1)->syncCameraEditor((cc::scene::Camera const *)arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_scene_Camera_syncCameraEditor) 
+
 static bool js_cc_scene_Camera_update__SWIG_0(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -22804,6 +22828,7 @@ bool js_register_cc_scene_Camera(se::Object* obj) {
     cls->defineFunction("detachFromScene", _SE(js_cc_scene_Camera_detachFromScene)); 
     cls->defineFunction("resize", _SE(js_cc_scene_Camera_resize)); 
     cls->defineFunction("setFixedSize", _SE(js_cc_scene_Camera_setFixedSize)); 
+    cls->defineFunction("syncCameraEditor", _SE(js_cc_scene_Camera_syncCameraEditor)); 
     cls->defineFunction("update", _SE(js_cc_scene_Camera_update)); 
     cls->defineFunction("changeTargetWindow", _SE(js_cc_scene_Camera_changeTargetWindow)); 
     cls->defineFunction("setViewportInOrientedSpace", _SE(js_cc_scene_Camera_setViewportInOrientedSpace)); 
