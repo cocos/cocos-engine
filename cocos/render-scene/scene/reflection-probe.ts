@@ -58,7 +58,7 @@ export class ReflectionProbe {
     public realtimePlanarTexture: RenderTexture | null = null;
 
     protected _resolution = 512;
-    protected _clearFlag:number = ProbeClearFlag.SKYBOX;
+    protected _clearFlag: number = ProbeClearFlag.SKYBOX;
     protected _backgroundColor = new Color(0, 0, 0, 255);
     protected _visibility = CAMERA_DEFAULT_MASK;
     protected _probeType = ProbeType.CUBE;
@@ -242,7 +242,7 @@ export class ReflectionProbe {
         return this._boundingBox;
     }
 
-    set cameraNode (node:Node) {
+    set cameraNode (node: Node) {
         this._cameraNode = node;
     }
     get cameraNode () {
@@ -278,7 +278,7 @@ export class ReflectionProbe {
         this._probeId = id;
     }
 
-    public initialize (node: Node, cameraNode:Node) {
+    public initialize (node: Node, cameraNode: Node) {
         this._node = node;
         this._cameraNode = cameraNode;
         const pos = this.node.getWorldPosition();
@@ -311,6 +311,7 @@ export class ReflectionProbe {
         if (!this.realtimePlanarTexture) {
             const canvasSize = cclegacy.view.getDesignResolutionSize();
             this.realtimePlanarTexture = this._createTargetTexture(canvasSize.width, canvasSize.height);
+            cclegacy.internal.reflectionProbeManager.updatePlanarMap(this, this.realtimePlanarTexture.getGFXTexture());
         }
         this._syncCameraParams(sourceCamera);
         this._transformReflectionCamera(sourceCamera);
@@ -398,7 +399,7 @@ export class ReflectionProbe {
         this.camera.resize(camera.width, camera.height);
     }
 
-    private _createCamera (cameraNode:Node) {
+    private _createCamera (cameraNode: Node) {
         const root = cclegacy.director.root;
         if (!this._camera) {
             this._camera = (cclegacy.director.root).createCamera();
