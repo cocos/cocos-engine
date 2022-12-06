@@ -2,6 +2,7 @@
 const fs = require('fs');
 const path = require('path');
 const utils = require('./utils');
+const { trackEventWithTimer } = require('../utils/metrics');
 
 exports.listeners = {
     async 'change-dump'(event) {
@@ -1276,6 +1277,12 @@ const Elements = {
                                     uuid,
                                     component: data.cid,
                                 });
+                            }
+                            if (data.name) {
+                                trackEventWithTimer('laber', `A100000_${data.name}`);
+                                if (data.name === 'cc.LODGroup') {
+                                    trackEventWithTimer('LOD', 'A100000');
+                                }
                             }
 
                             Editor.Message.send('scene', 'snapshot');
