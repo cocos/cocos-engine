@@ -131,7 +131,7 @@ export class ReflectionProbe extends Component {
                 if (lastSizeIsNoExist) {
                     this._size.set(ReflectionProbe.DEFAULT_CUBE_SIZE);
                 }
-                this.probe.switchProbeType(value);
+                this.probe.switchProbeType(value, null);
                 if (EDITOR) {
                     this._objFlags |= CCObject.Flags.IsRotationLocked;
                 }
