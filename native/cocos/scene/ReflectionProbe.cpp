@@ -97,6 +97,14 @@ void ReflectionProbe::renderPlanarReflection(const Camera* sourceCamera) {
     _needRender = true;
 }
 
+void ReflectionProbe::switchProbeType(int32_t type, const Camera* sourceCamera) {
+    if (type == static_cast<uint32_t>(ProbeType::CUBE)) {
+        _needRender = false;
+    } else if (sourceCamera != nullptr) {
+        renderPlanarReflection(sourceCamera);
+    }
+}
+
 void ReflectionProbe::transformReflectionCamera(const Camera* sourceCamera) {
     float offset = Vec3::dot(_node->getWorldPosition(), Vec3::UNIT_Y);
     _cameraWorldPos = reflect(sourceCamera->getNode()->getWorldPosition(), Vec3::UNIT_Y, offset);
