@@ -291,7 +291,7 @@ void Scheduler::unscheduleAllForTarget(void *target) {
 }
 
 void Scheduler::resumeTarget(void *target) {
-    CC_ASSERT(target != nullptr);
+    CC_ASSERT_NOT_NULL(target);
 
     // custom selectors
     auto iter = _hashForTimers.find(target);
@@ -301,7 +301,7 @@ void Scheduler::resumeTarget(void *target) {
 }
 
 void Scheduler::pauseTarget(void *target) {
-    CC_ASSERT(target != nullptr);
+    CC_ASSERT_NOT_NULL(target);
 
     // custom selectors
     auto iter = _hashForTimers.find(target);
@@ -311,7 +311,7 @@ void Scheduler::pauseTarget(void *target) {
 }
 
 bool Scheduler::isTargetPaused(void *target) {
-    CC_ASSERT(target != nullptr);
+    CC_ASSERT_NOT_NULL(target);
 
     // Custom selectors
     auto iter = _hashForTimers.find(target);

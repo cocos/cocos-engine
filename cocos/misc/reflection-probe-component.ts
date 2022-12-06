@@ -33,7 +33,7 @@ import { ReflectionProbeManager } from '../rendering/reflection-probe-manager';
 import { Component } from '../scene-graph/component';
 import { Layers } from '../scene-graph/layers';
 import { Camera } from './camera-component';
-import { Node } from '../scene-graph';
+import { Node, TransformBit } from '../scene-graph';
 import { ProbeClearFlag, ProbeType } from '../render-scene/scene/reflection-probe';
 
 export enum ProbeResolution {
@@ -132,7 +132,7 @@ export class ReflectionProbe extends Component {
                 if (EDITOR) {
                     this._objFlags |= CCObject.Flags.IsRotationLocked;
                 }
-                ReflectionProbeManager.probeManager.updatePlanarMap(this.probe, null);
+                ReflectionProbeManager.probeManager.clearPlanarReflectionMap(this.probe);
             } else {
                 if (lastSizeIsNoExist) {
                     this._size.set(ReflectionProbe.DEFAULT_PLANER_SIZE);
@@ -151,6 +151,7 @@ export class ReflectionProbe extends Component {
             }
             this._lastSize.set(lastSize);
             this.size = this._size;
+            ReflectionProbeManager.probeManager.onUpdateProbes(true);
         }
     }
     get probeType () {
@@ -249,9 +250,11 @@ export class ReflectionProbe extends Component {
      */
     set previewSphere (val: Node) {
         this._previewSphere = val;
-        this.probe.previewSphere = val;
-        if (this._previewSphere) {
-            ReflectionProbeManager.probeManager.updatePreviewSphere(this.probe);
+        if (this.probe) {
+            this.probe.previewSphere = val;
+            if (this._previewSphere) {
+                ReflectionProbeManager.probeManager.updatePreviewSphere(this.probe);
+            }
         }
     }
 
@@ -265,7 +268,9 @@ export class ReflectionProbe extends Component {
      */
     set previewPlane (val: Node) {
         this._previewPlane = val;
-        this.probe.previewPlane = val;
+        if (this.probe) {
+            this.probe.previewPlane = val;
+        }
     }
 
     get previewPlane () {
@@ -291,8 +296,8 @@ export class ReflectionProbe extends Component {
 
     public start () {
         if (this._sourceCamera && this.probeType === ProbeType.PLANAR) {
-            ReflectionProbeManager.probeManager.updateUsePlanarModels(this.probe);
             this.probe.renderPlanarReflection(this.sourceCamera.camera);
+            ReflectionProbeManager.probeManager.filterModelsForPlanarReflection();
         }
     }
 
@@ -317,9 +322,13 @@ export class ReflectionProbe extends Component {
                     }
                 }
             }
-            this.probe.updateBoundingBox();
-            ReflectionProbeManager.probeManager.updateUseCubeModels(this.probe);
-            ReflectionProbeManager.probeManager.updateUsePlanarModels(this.probe);
+
+            if (this.node.hasChangedFlags) {
+                this.probe.updateBoundingBox();
+            }
+            if (this.node.hasChangedFlags & TransformBit.POSITION) {
+                ReflectionProbeManager.probeManager.onUpdateProbes(true);
+            }
         }
     }
 

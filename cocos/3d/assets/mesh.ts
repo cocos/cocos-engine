@@ -891,7 +891,6 @@ export class Mesh extends Asset {
         // merge index buffer
         let idxCount = 0;
         let idxStride = 2;
-        let vertBatchCount = 0;
         let ibView: Uint8Array | Uint16Array | Uint32Array;
         let srcIBView: Uint8Array | Uint16Array | Uint32Array;
         let dstIBView: Uint8Array | Uint16Array | Uint32Array;
@@ -906,6 +905,7 @@ export class Mesh extends Asset {
                 vertexBundelIndices: prim.vertexBundelIndices,
             };
 
+            let vertBatchCount = 0;
             for (const bundleIdx of prim.vertexBundelIndices) {
                 vertBatchCount = Math.max(vertBatchCount, this._struct.vertexBundles[bundleIdx].view.count);
             }

@@ -42,7 +42,7 @@ Vec3 LightProbeSampler::uniformSampleSphere(float u1, float u2) {
 }
 
 ccstd::vector<Vec3> LightProbeSampler::uniformSampleSphereAll(uint32_t sampleCount) {
-    CC_ASSERT(sampleCount > 0U);
+    CC_ASSERT_GT(sampleCount, 0U);
 
     const auto uCount1 = static_cast<uint32_t>(std::sqrt(sampleCount));
     const auto uCount2 = uCount1;

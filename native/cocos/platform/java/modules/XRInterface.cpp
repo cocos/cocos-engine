@@ -976,7 +976,7 @@ void XRInterface::loadAssetsImage(const std::string &imageInfo) {
         return;
     }
     auto engine = app->getEngine();
-    CC_ASSERT(engine != nullptr);
+    CC_ASSERT_NOT_NULL(engine);
     engine->getScheduler()->performFunctionInCocosThread([=]() {
         xr::XRTrackingImageData candidateImage;
         candidateImage.friendlyName = imageName;

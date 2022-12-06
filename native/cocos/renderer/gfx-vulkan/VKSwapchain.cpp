@@ -138,7 +138,7 @@ void CCVKSwapchain::doInit(const SwapchainInfo &info) {
                     case VK_FORMAT_R8G8B8A8_UNORM: colorFmt = Format::RGBA8; break;
                     case VK_FORMAT_R8G8B8A8_SRGB: colorFmt = Format::SRGB8_A8; break;
                     case VK_FORMAT_R5G6B5_UNORM_PACK16: colorFmt = Format::R5G6B5; break;
-                    default: CC_ASSERT(false); break;
+                    default: CC_ABORT(); break;
                 }
             }
         }

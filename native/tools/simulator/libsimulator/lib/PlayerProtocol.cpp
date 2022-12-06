@@ -31,7 +31,7 @@ PLAYER_NS_BEGIN
 PlayerProtocol *PlayerProtocol::_instance = nullptr;
 
 PlayerProtocol::PlayerProtocol() {
-    CC_ASSERT(_instance == nullptr); // Can not create more player instance.
+    CC_ASSERT_NULL(_instance); // Can not create more player instance.
     _instance = this;
 }
 

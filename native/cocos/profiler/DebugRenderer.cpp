@@ -248,8 +248,6 @@ void DebugRenderer::render(gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdB
         return;
     }
 
-    _buffer->update();
-
     const auto &pass = sceneData->getDebugRendererPass();
     const auto &shader = sceneData->getDebugRendererShader();
 
@@ -283,6 +281,12 @@ void DebugRenderer::destroy() {
 
     for (auto &iter : _fonts) {
         CC_SAFE_DELETE(iter.font);
+    }
+}
+
+void DebugRenderer::update() {
+    if (_buffer) {
+        _buffer->update();
     }
 }
 

@@ -158,7 +158,7 @@ GLenum mapGLInternalFormat(Format format) {
         case Format::ASTC_SRGBA_12X12: return GL_COMPRESSED_SRGB8_ALPHA8_ASTC_12x12_KHR;
 
         default: {
-            CC_ASSERT(false);
+            CC_ABORT();
             return GL_NONE;
         }
     }
@@ -282,7 +282,7 @@ GLenum mapGLFormat(Format format) {
         case Format::ASTC_SRGBA_12X12: return GL_COMPRESSED_SRGB8_ALPHA8_ASTC_12x12_KHR;
 
         default: {
-            CC_ASSERT(false);
+            CC_ABORT();
             return GL_NONE;
         }
     }
@@ -317,7 +317,7 @@ GLenum mapGLType(Type type) {
         case Type::SAMPLER3D: return GL_SAMPLER_3D;
         case Type::SAMPLER_CUBE: return GL_SAMPLER_CUBE;
         default: {
-            CC_ASSERT(false);
+            CC_ABORT();
             return GL_NONE;
         }
     }
@@ -355,7 +355,7 @@ Type mapType(GLenum glType) {
         case GL_SAMPLER_3D: return Type::SAMPLER3D;
         case GL_SAMPLER_CUBE: return Type::SAMPLER_CUBE;
         default: {
-            CC_ASSERT(false);
+            CC_ABORT();
             return Type::UNKNOWN;
         }
     }
@@ -484,7 +484,7 @@ GLenum formatToGLType(Format format) {
             return GL_UNSIGNED_BYTE;
 
         default: {
-            CC_ASSERT(false);
+            CC_ABORT();
             return GL_NONE;
         }
     }
@@ -662,7 +662,7 @@ void cmdFuncGLES3CreateBuffer(GLES3Device *device, GLES3GPUBuffer *gpuBuffer) {
         gpuBuffer->buffer = static_cast<uint8_t *>(CC_MALLOC(gpuBuffer->size));
         gpuBuffer->glTarget = GL_NONE;
     } else {
-        CC_ASSERT(false);
+        CC_ABORT();
         gpuBuffer->glTarget = GL_NONE;
     }
 }
@@ -794,7 +794,7 @@ void cmdFuncGLES3ResizeBuffer(GLES3Device *device, GLES3GPUBuffer *gpuBuffer) {
         gpuBuffer->buffer = static_cast<uint8_t *>(CC_MALLOC(gpuBuffer->size));
         gpuBuffer->glTarget = GL_NONE;
     } else {
-        CC_ASSERT(false);
+        CC_ABORT();
         gpuBuffer->glTarget = GL_NONE;
     }
 }
@@ -853,7 +853,7 @@ void cmdFuncGLES3CreateTexture(GLES3Device *device, GLES3GPUTexture *gpuTexture)
                 break;
             }
             default:
-                CC_ASSERT(false);
+                CC_ABORT();
                 break;
         }
     } else {
@@ -921,7 +921,7 @@ void cmdFuncGLES3CreateTexture(GLES3Device *device, GLES3GPUTexture *gpuTexture)
                 break;
             }
             default:
-                CC_ASSERT(false);
+                CC_ABORT();
                 break;
         }
     }
@@ -976,7 +976,7 @@ void cmdFuncGLES3ResizeTexture(GLES3Device *device, GLES3GPUTexture *gpuTexture)
                 break;
             }
             default:
-                CC_ASSERT(false);
+                CC_ABORT();
                 break;
         }
     }
@@ -1055,7 +1055,7 @@ void cmdFuncGLES3CreateShader(GLES3Device *device, GLES3GPUShader *gpuShader) {
                 break;
             }
             default: {
-                CC_ASSERT(false);
+                CC_ABORT();
                 return;
             }
         }
@@ -2880,7 +2880,7 @@ void cmdFuncGLES3UpdateBuffer(GLES3Device *device, GLES3GPUBuffer *gpuBuffer, co
                 break;
             }
             default:
-                CC_ASSERT(false);
+                CC_ABORT();
                 break;
         }
     }
@@ -3130,7 +3130,7 @@ void cmdFuncGLES3CopyBuffersToTexture(GLES3Device *device, const uint8_t *const 
             break;
         }
         default:
-            CC_ASSERT(false);
+            CC_ABORT();
             break;
     }
 

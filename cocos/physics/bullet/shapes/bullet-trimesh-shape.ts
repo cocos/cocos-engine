@@ -31,7 +31,6 @@ import { cocos2BulletVec3, cocos2BulletTriMesh } from '../bullet-utils';
 import { ITrimeshShape } from '../../spec/i-physics-shape';
 import { BulletCache } from '../bullet-cache';
 import { bt, EBulletType } from '../instantiated';
-import { BulletTriangleMesh } from '../bullet-triangle-mesh';
 
 export class BulletTrimeshShape extends BulletShape implements ITrimeshShape {
     private static _mapTrimesh2btBVHMeshShape = {};
@@ -74,7 +73,6 @@ export class BulletTrimeshShape extends BulletShape implements ITrimeshShape {
     }
 
     private refBtTriangleMesh: Bullet.ptr = 0;
-    private triangleMesh!: BulletTriangleMesh;
 
     onComponentSet () {
         this.setMesh(this.collider.mesh);
@@ -82,7 +80,6 @@ export class BulletTrimeshShape extends BulletShape implements ITrimeshShape {
 
     onDestroy () {
         if (this.refBtTriangleMesh) {  bt._safe_delete(this.refBtTriangleMesh, EBulletType.EBulletTypeTriangleMesh); }
-        if (this.triangleMesh) { this.triangleMesh.reference = false; }
         super.onDestroy();
     }
 
@@ -95,11 +92,8 @@ export class BulletTrimeshShape extends BulletShape implements ITrimeshShape {
     }
 
     private _getBtTriangleMesh (mesh: Mesh): Bullet.ptr {
-        this.triangleMesh = BulletTriangleMesh.getBulletTriangleMesh(mesh.hash, mesh);
-        if (!this.triangleMesh.bulletTriangleMeshInternal) {
-            console.warn('BulletTrimeshShape::_getBtTriangleMesh() return null');
-        }
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-        return this.triangleMesh.bulletTriangleMeshInternal;
+        this.refBtTriangleMesh = bt.TriangleMesh_new();
+        cocos2BulletTriMesh(this.refBtTriangleMesh, mesh);
+        return this.refBtTriangleMesh;
     }
 }

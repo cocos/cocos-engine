@@ -146,7 +146,7 @@ void ObjectWrap::unref() {
     }
     CC_ASSERT(!persistent().IsEmpty());
     CC_ASSERT(!persistent().IsWeak());
-    CC_ASSERT(_refs > 0);
+    CC_ASSERT_GT(_refs, 0);
     if (--_refs == 0) {
         makeWeak();
     }
@@ -162,7 +162,7 @@ void ObjectWrap::weakCallback(const v8::WeakCallbackInfo<Object> &data) {
     if (wrap->_finalizeCb != nullptr) {
         wrap->_finalizeCb(seObj);
     } else {
-        CC_ASSERT(false);
+        CC_ABORT();
     }
 }
 

@@ -84,16 +84,16 @@
             }
 
             cbs.onKeyboardConfirm = function (res) {
-                delegate._editBoxEditingReturn();
+                res && res.value ? delegate._editBoxEditingReturn(res.value) : delegate._editBoxEditingReturn();
                 let cbs = self._eventListeners;
                 cbs.onKeyboardComplete && cbs.onKeyboardComplete();
             }
 
-            cbs.onKeyboardComplete = function () {
+            cbs.onKeyboardComplete = function (res) {
                 self._editing = false;
                 _currentEditBoxImpl = null;
                 self._unregisterKeyboardEvent();
-                delegate._editBoxEditingDidEnded();
+                res && res.value ? delegate._editBoxEditingDidEnded(res.value) : delegate._editBoxEditingDidEnded();
             }
 
             __globalAdapter.onKeyboardInput(cbs.onKeyboardInput);

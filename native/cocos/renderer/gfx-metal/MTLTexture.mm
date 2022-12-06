@@ -79,7 +79,7 @@ void CCMTLTexture::doInit(const TextureInfo &info) {
             nil,
             &CVMTLTextureCache);
 
-        CC_ASSERT(cvret == kCVReturnSuccess); // Failed to create Metal texture cache.
+        CC_ASSERT_EQ(cvret, kCVReturnSuccess); // Failed to create Metal texture cache.
 
         _convertedFormat = mu::convertGFXPixelFormat(_info.format);
         MTLPixelFormat mtlFormat = mu::toMTLPixelFormat(_convertedFormat);
@@ -93,7 +93,7 @@ void CCMTLTexture::doInit(const TextureInfo &info) {
             _info.layerCount,
             &CVMTLTexture);
 
-        CC_ASSERT(cvret == kCVReturnSuccess); // Failed to create CoreVideo Metal texture from image.
+        CC_ASSERT_EQ(cvret, kCVReturnSuccess); // Failed to create CoreVideo Metal texture from image.
 
         _mtlTexture = CVMetalTextureGetTexture(CVMTLTexture);
 
@@ -114,7 +114,7 @@ void CCMTLTexture::doInit(const TextureInfo &info) {
             nil,
             &CVMTLTextureCache);
 
-        CC_ASSERT(cvret == kCVReturnSuccess); // Failed to create Metal texture cache.
+        CC_ASSERT_EQ(cvret, kCVReturnSuccess); // Failed to create Metal texture cache.
 
         _convertedFormat = mu::convertGFXPixelFormat(_info.format);
         MTLPixelFormat mtlFormat = mu::toMTLPixelFormat(_convertedFormat);
@@ -128,7 +128,7 @@ void CCMTLTexture::doInit(const TextureInfo &info) {
             0,
             &CVMTLTexture);
 
-        CC_ASSERT(cvret == kCVReturnSuccess); // Failed to create CoreVideo Metal texture from image.
+        CC_ASSERT_EQ(cvret, kCVReturnSuccess); // Failed to create CoreVideo Metal texture from image.
 
         _mtlTexture = CVMetalTextureGetTexture(CVMTLTexture);
 
@@ -210,7 +210,7 @@ bool CCMTLTexture::createMTLTexture() {
                                                                           mipmapped:NO];
             break;
         default:
-            CC_ASSERT(false);
+            CC_ABORT();
             break;
     }
 

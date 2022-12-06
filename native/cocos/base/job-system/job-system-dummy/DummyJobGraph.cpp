@@ -47,7 +47,7 @@ void DummyGraphNode::reset() {
 }
 
 void DummyGraphNode::succeed(DummyGraphNode *other) {
-    CC_ASSERT(this != other);
+    CC_ASSERT_NE(this, other);
     // Run after other
     this->_predecessors.emplace(other);
     other->_successors.emplace(this);
@@ -59,7 +59,7 @@ void DummyGraphNode::precede(DummyGraphNode *other) {
 }
 
 void DummyGraphNode::allocChunk() {
-    CC_ASSERT(freeList == nullptr);
+    CC_ASSERT_NULL(freeList);
     freeList = ccnew DummyGraphNode[DUMMY_GRAPH_NODE_CHUNK_SIZE]();
     allocatedChunks.emplace_back(freeList);
     for (auto i = 0; i < DUMMY_GRAPH_NODE_CHUNK_SIZE - 1; i++) {

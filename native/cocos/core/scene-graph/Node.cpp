@@ -76,13 +76,13 @@ Node::~Node() {
 
 void Node::onBatchCreated(bool dontChildPrefab) {
     // onBatchCreated was implemented in TS, so code should never go here.
-    CC_ASSERT(false);
+    CC_ABORT();
     emit<BatchCreated>(dontChildPrefab);
 }
 
 Node *Node::instantiate(Node *cloned, bool isSyncedNode) {
     if (!cloned) {
-        CC_ASSERT(false);
+        CC_ABORT();
         // TODO(): cloned = legacyCC.instantiate._clone(this, this);
         return nullptr;
     }
@@ -476,7 +476,7 @@ void Node::updateWorldTransformRecursive(uint32_t &dirtyBits) { // NOLINT(misc-n
             Mat4::fromRTS(_localRotation, _localPosition, _localScale, &_worldMatrix);
             Mat4::multiply(parent->_worldMatrix, _worldMatrix, &_worldMatrix);
             const bool rotChanged = dirtyBits & static_cast<uint32_t>(TransformBit::ROTATION);
-            Quaternion *rotTmp =  rotChanged ? &_worldRotation : nullptr;
+            Quaternion *rotTmp = rotChanged ? &_worldRotation : nullptr;
             Mat4::toRTS(_worldMatrix, rotTmp, nullptr, &_worldScale);
         }
     } else {
@@ -549,7 +549,6 @@ void Node::setWorldPosition(float x, float y, float z) {
 
     if (_eventMask & TRANSFORM_ON) {
         emit<TransformChanged>(TransformBit::POSITION);
-
     }
 }
 
@@ -570,13 +569,13 @@ void Node::setWorldRotation(float x, float y, float z, float w) {
 
     _eulerDirty = true;
 
+    notifyLocalRotationUpdated();
+
     invalidateChildren(TransformBit::ROTATION);
 
     if (_eventMask & TRANSFORM_ON) {
         emit<TransformChanged>(TransformBit::ROTATION);
     }
-
-    notifyLocalRotationUpdated();
 }
 
 const Quaternion &Node::getWorldRotation() const { // NOLINT(misc-no-recursion)
@@ -585,10 +584,10 @@ const Quaternion &Node::getWorldRotation() const { // NOLINT(misc-no-recursion)
 }
 
 void Node::setWorldScale(float x, float y, float z) {
-    Vec3 oldWorldScale = _worldScale;
-    _worldScale.set(x, y, z);
     if (_parent != nullptr) {
-        _parent->updateWorldTransform();
+        updateWorldTransform(); // ensure reentryability
+        Vec3 oldWorldScale = _worldScale;
+        _worldScale.set(x, y, z);
         Mat3 localRS;
         Mat3 localRotInv;
         Mat4 worldMatrixTmp = _worldMatrix;
@@ -600,14 +599,15 @@ void Node::setWorldScale(float x, float y, float z) {
         // convert to Matrix 3 x 3
         Mat3::fromMat4(tmpLocalTransform, &localRS);
         Mat3::fromQuat(_localRotation.getConjugated(), &localRotInv);
-        // remove rotation part of the local matrix 
-        Mat3::multiply(localRS, localRotInv, &localRS);
+        // remove rotation part of the local matrix
+        Mat3::multiply(localRotInv, localRS, &localRS);
 
         // extract scaling part from local matrix
         _localScale.x = Vec3{localRS.m[0], localRS.m[1], localRS.m[2]}.length();
         _localScale.y = Vec3{localRS.m[3], localRS.m[4], localRS.m[5]}.length();
         _localScale.z = Vec3{localRS.m[6], localRS.m[7], localRS.m[8]}.length();
     } else {
+        _worldScale.set(x, y, z);
         _localScale = _worldScale;
     }
 

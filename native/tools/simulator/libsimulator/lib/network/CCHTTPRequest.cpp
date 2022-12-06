@@ -114,19 +114,19 @@ const string HTTPRequest::getRequestUrl(void) {
 }
 
 void HTTPRequest::addRequestHeader(const char *header) {
-    CC_ASSERT(_state == kCCHTTPRequestStateIdle);
+    CC_ASSERT_EQ(_state, kCCHTTPRequestStateIdle);
     CC_ASSERT(header);
     _headers.push_back(string(header));
 }
 
 void HTTPRequest::addPOSTValue(const char *key, const char *value) {
-    CC_ASSERT(_state == kCCHTTPRequestStateIdle);
+    CC_ASSERT_EQ(_state, kCCHTTPRequestStateIdle);
     CC_ASSERT(key);
     _postFields[string(key)] = string(value ? value : "");
 }
 
 void HTTPRequest::setPOSTData(const char *data) {
-    CC_ASSERT(_state == kCCHTTPRequestStateIdle);
+    CC_ASSERT_EQ(_state, kCCHTTPRequestStateIdle);
     CC_ASSERT(data);
     _postFields.clear();
     curl_easy_setopt(_curl, CURLOPT_POST, 1L);
@@ -151,17 +151,17 @@ void HTTPRequest::addFormContents(const char *name, const char *value) {
 }
 
 void HTTPRequest::setCookieString(const char *cookie) {
-    CC_ASSERT(_state == kCCHTTPRequestStateIdle);
+    CC_ASSERT_EQ(_state, kCCHTTPRequestStateIdle);
     curl_easy_setopt(_curl, CURLOPT_COOKIE, cookie ? cookie : "");
 }
 
 const string HTTPRequest::getCookieString(void) {
-    CC_ASSERT(_state == kCCHTTPRequestStateCompleted);
+    CC_ASSERT_EQ(_state, kCCHTTPRequestStateCompleted);
     return _responseCookies;
 }
 
 void HTTPRequest::setAcceptEncoding(int acceptEncoding) {
-    CC_ASSERT(_state == kCCHTTPRequestStateIdle);
+    CC_ASSERT_EQ(_state, kCCHTTPRequestStateIdle);
     switch (acceptEncoding) {
         case kCCHTTPRequestAcceptEncodingGzip:
             curl_easy_setopt(_curl, CURLOPT_ACCEPT_ENCODING, "gzip");
@@ -177,13 +177,13 @@ void HTTPRequest::setAcceptEncoding(int acceptEncoding) {
 }
 
 void HTTPRequest::setTimeout(int timeout) {
-    CC_ASSERT(_state == kCCHTTPRequestStateIdle);
+    CC_ASSERT_EQ(_state, kCCHTTPRequestStateIdle);
     curl_easy_setopt(_curl, CURLOPT_CONNECTTIMEOUT, timeout);
     curl_easy_setopt(_curl, CURLOPT_TIMEOUT, timeout);
 }
 
 bool HTTPRequest::start(void) {
-    CC_ASSERT(_state == kCCHTTPRequestStateIdle);
+    CC_ASSERT_EQ(_state, kCCHTTPRequestStateIdle);
 
     _state = kCCHTTPRequestStateInProgress;
     _curlState = kCCHTTPRequestCURLStateBusy;
@@ -236,12 +236,12 @@ int HTTPRequest::getState(void) {
 }
 
 int HTTPRequest::getResponseStatusCode(void) {
-    CC_ASSERT(_state == kCCHTTPRequestStateCompleted);
+    CC_ASSERT_EQ(_state, kCCHTTPRequestStateCompleted);
     return _responseCode;
 }
 
 const HTTPRequestHeaders &HTTPRequest::getResponseHeaders(void) {
-    CC_ASSERT(_state == kCCHTTPRequestStateCompleted);
+    CC_ASSERT_EQ(_state, kCCHTTPRequestStateCompleted);
     return _responseHeaders;
 }
 
@@ -254,12 +254,12 @@ const string HTTPRequest::getResponseHeadersString() {
 }
 
 const string HTTPRequest::getResponseString(void) {
-    CC_ASSERT(_state == kCCHTTPRequestStateCompleted);
+    CC_ASSERT_EQ(_state, kCCHTTPRequestStateCompleted);
     return string(_responseBuffer ? static_cast<char *>(_responseBuffer) : "");
 }
 
 void *HTTPRequest::getResponseData(void) {
-    CC_ASSERT(_state == kCCHTTPRequestStateCompleted);
+    CC_ASSERT_EQ(_state, kCCHTTPRequestStateCompleted);
     void *buff = malloc(_responseDataLength);
     memcpy(buff, _responseBuffer, _responseDataLength);
     return buff;
@@ -267,7 +267,7 @@ void *HTTPRequest::getResponseData(void) {
 
 #if CC_LUA_ENGINE_ENABLED > 0
 LUA_STRING HTTPRequest::getResponseDataLua(void) {
-    CC_ASSERT(_state == kCCHTTPRequestStateCompleted);
+    CC_ASSERT_EQ(_state, kCCHTTPRequestStateCompleted);
     LuaStack *stack = LuaEngine::getInstance()->getLuaStack();
     stack->clean();
     stack->pushString(static_cast<char *>(_responseBuffer), (int)_responseDataLength);
@@ -276,12 +276,12 @@ LUA_STRING HTTPRequest::getResponseDataLua(void) {
 #endif
 
 int HTTPRequest::getResponseDataLength(void) {
-    CC_ASSERT(_state == kCCHTTPRequestStateCompleted);
+    CC_ASSERT_EQ(_state, kCCHTTPRequestStateCompleted);
     return (int)_responseDataLength;
 }
 
 size_t HTTPRequest::saveResponseData(const char *filename) {
-    CC_ASSERT(_state == kCCHTTPRequestStateCompleted);
+    CC_ASSERT_EQ(_state, kCCHTTPRequestStateCompleted);
 
     FILE *fp = fopen(filename, "wb");
     CC_ASSERT(fp);

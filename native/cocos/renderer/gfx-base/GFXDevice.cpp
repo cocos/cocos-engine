@@ -190,7 +190,7 @@ const Texture *DefaultResource::getTexture(TextureType type) const {
         case TextureType::TEX2D_ARRAY:
             return _texture2DArray;
         default:
-            CC_ASSERT(false);
+            CC_ABORT();
             return nullptr;
     }
 }

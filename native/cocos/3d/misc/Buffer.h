@@ -66,7 +66,7 @@ void writeBuffer(DataView &target,
                             target.setUint32(y, static_cast<uint32_t>(data[info.count * iSeg + iComponent]));
                             break;
                         default:
-                            CC_ASSERT(false);
+                            CC_ABORT();
                             break;
                     }
                     break;
@@ -83,7 +83,7 @@ void writeBuffer(DataView &target,
                             target.setInt32(y, static_cast<int32_t>(data[info.count * iSeg + iComponent]));
                             break;
                         default:
-                            CC_ASSERT(false);
+                            CC_ABORT();
                             break;
                     }
                     break;
@@ -100,12 +100,12 @@ void writeBuffer(DataView &target,
                             target.setFloat32(y, static_cast<float>(data[info.count * iSeg + iComponent]));
                             break;
                         default:
-                            CC_ASSERT(false);
+                            CC_ABORT();
                             break;
                     }
                     break;
                 default:
-                    CC_ASSERT(false);
+                    CC_ABORT();
                     break;
             }
         }

@@ -673,7 +673,7 @@ export class Layout extends Component {
      * ```
      */
     public updateLayout (force = false) {
-        if ((this._layoutDirty || force) && this.node.children.length > 0) {
+        if (this._layoutDirty || force) {
             this._doLayout();
             this._layoutDirty = false;
         }

@@ -30,7 +30,7 @@ public:
      * 获取形状的类型。
      */
     inline ShapeEnum getType() const {
-        CC_ASSERT(_type != ShapeEnum::SHAPE_BAD); // shape is not initialized
+        CC_ASSERT_NE(_type, ShapeEnum::SHAPE_BAD); // shape is not initialized
         return _type;
     }
     inline void setType(ShapeEnum type) { _type = type; }
