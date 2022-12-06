@@ -499,6 +499,9 @@ cocos_source_files(
     cocos/gi/light-probe/PolynomialSolver.h
     cocos/gi/light-probe/SH.cpp
     cocos/gi/light-probe/SH.h
+    cocos/gi/light-probe/tetgen.cpp
+    cocos/gi/light-probe/tetgen.h
+    cocos/gi/light-probe/predicates.cpp
 )
 
 ############ main
