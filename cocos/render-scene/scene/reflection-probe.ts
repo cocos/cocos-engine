@@ -317,10 +317,10 @@ export class ReflectionProbe {
         this._needRender = true;
     }
 
-    public switchProbeType (type: number, sourceCamera?: Camera) {
+    public switchProbeType (type: number, sourceCamera: Camera | null) {
         if (type === ProbeType.CUBE) {
             this._needRender = false;
-        } else if (sourceCamera !== undefined) {
+        } else if (sourceCamera !== null) {
             this.renderPlanarReflection(sourceCamera);
         }
     }
