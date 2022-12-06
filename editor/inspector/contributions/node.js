@@ -1499,6 +1499,12 @@ exports.methods = {
                                         path: '__comps__',
                                         index,
                                     });
+                                    if (
+                                        nodeDump.__comps__[index].type &&
+                                        (nodeDump.__comps__[index].type === 'cc.ParticleSystem' || nodeDump.__comps__[index].type === 'cc.ParticleSystem2D')
+                                    ) {
+                                        trackEventWithTimer('particleSystem', 'A100015');
+                                    }
                                 }
                             }
                         }
