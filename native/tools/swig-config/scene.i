@@ -530,6 +530,7 @@ using namespace cc;
 %attribute(cc::scene::ReflectionProbe, cc::gfx::Color&, backgroundColor, getBackgroundColor, setBackgroundColor);
 %attribute(cc::scene::ReflectionProbe, uint32_t, visibility, getVisibility, setVisibility);
 %attribute(cc::scene::ReflectionProbe, cc::Vec3&, size, getBoudingSize, setBoudingSize);
+%attribute(cc::scene::ReflectionProbe, cc::geometry::AABB *, boundingBox, getBoundingBox);
 
 
 
