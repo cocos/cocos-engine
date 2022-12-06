@@ -113,6 +113,8 @@ public:
 
     void updatePlanarTexture(const scene::RenderScene* scene);
 
+    bool validate() const { return false; }
+
     void destroy();
 
 private:
