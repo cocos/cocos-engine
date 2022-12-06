@@ -364,7 +364,7 @@ struct IPassInfoFull final { // cjh } : public IPassInfo {
     // IPassInfo
     ccstd::string program; // auto-generated from 'vert' and 'frag'
     ccstd::optional<MacroRecord> embeddedMacros;
-    index_t propertyIndex{CC_INVALID_INDEX};
+    ccstd::optional<index_t> propertyIndex; // NOTE: needs to use ccstd::optional<> since jsb should return 'undefined' instead of '-1' to avoid wrong value checking logic.
     ccstd::optional<ccstd::string> switch_;
     ccstd::optional<PassPropertyInfoMap> properties;
 

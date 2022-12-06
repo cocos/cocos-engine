@@ -362,4 +362,34 @@ MaterialProperty toMaterialProperty(gfx::Type type, const ccstd::vector<float> &
     return ret;
 }
 
+bool macroRecordAsBool(const MacroRecord::mapped_type &v) {
+    if (ccstd::holds_alternative<bool>(v)) {
+        return ccstd::get<bool>(v);
+    }
+
+    if (ccstd::holds_alternative<int32_t>(v)) {
+        return ccstd::get<int32_t>(v);
+    }
+
+    if (ccstd::holds_alternative<ccstd::string>(v)) {
+        return ccstd::get<ccstd::string>(v) == "true";
+    }
+    return false;
+}
+
+ccstd::string macroRecordAsString(const MacroRecord::mapped_type &v) {
+    if (ccstd::holds_alternative<ccstd::string>(v)) {
+        return ccstd::get<ccstd::string>(v);
+    }
+
+    if (ccstd::holds_alternative<bool>(v)) {
+        return ccstd::get<bool>(v) ? "1" : "0";
+    }
+
+    if (ccstd::holds_alternative<int32_t>(v)) {
+        return std::to_string(ccstd::get<int32_t>(v));
+    }
+    return "";
+}
+
 }; // namespace cc
