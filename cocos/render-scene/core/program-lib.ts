@@ -233,7 +233,6 @@ function replaceFragmentLocation (
     const locHolderRegStr = `layout\\(location = ([^\\)]+)\\)\\s+${inOrOut}.*?\\s(\\w+)[;,\\)]`;
     const locHolderReg = new RegExp(locHolderRegStr, 'g');
 
-    const locSet = new Set<number>();
     // layout(location = 3) in mediump vec3 v_normal;
     // 3
     // v_normal
@@ -246,16 +245,10 @@ function replaceFragmentLocation (
             if (inOrOut === 'in') {
                 // {...fragment_in} === {...vertex_out}
                 location = attrMap.get(attrName) || 0;
-            } else {
-                // no check on (vertex out)/(frament in/out)
-                while (locSet.has(location)) {
-                    location++;
-                }
-            }
-            locSet.add(location);
 
-            const locInstStr = locHolder[0].replace(locHolder[1], `${location}`);
-            code = code.replace(locHolder[0], locInstStr);
+                const locInstStr = locHolder[0].replace(locHolder[1], `${location}`);
+                code = code.replace(locHolder[0], locInstStr);
+            }
         }
         locHolder = locHolderReg.exec(source);
     }
@@ -279,7 +272,6 @@ export function flattenShaderLocation (
         code = replaceVertexMutableLocation(code, tmpl, macroInfo, 'out', attrMap);
     } else if (shaderStage === 'frag') {
         code = replaceFragmentLocation(code, 'in', attrMap);
-        code = replaceFragmentLocation(code, 'out', attrMap);
     } else {
         // error
     }
@@ -588,11 +580,11 @@ class ProgramLib {
 
 export function getDeviceShaderVersion (device: Device) {
     switch (device.gfxAPI) {
-    case API.GLES2:
-    case API.WEBGL: return 'glsl1';
-    case API.GLES3:
-    case API.WEBGL2: return 'glsl3';
-    default: return 'glsl4';
+        case API.GLES2:
+        case API.WEBGL: return 'glsl1';
+        case API.GLES3:
+        case API.WEBGL2: return 'glsl3';
+        default: return 'glsl4';
     }
 }
 

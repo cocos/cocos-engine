@@ -130,6 +130,9 @@ export class RenderQueue {
             const pass = subModel.passes[passIdx];
             const shader = subModel.shaders[passIdx];
             const pso = PipelineStateManager.getOrCreatePipelineState(device, pass, shader, renderPass, inputAssembler);
+            if (pso.shader.name === 'builtin-particle|builtin/internal/particle-vs-legacy:lpvs_main|tinted-fs:add|CC_RENDER_MODE4|CC_INSTANCE_PARTICLE1') {
+                console.log('222');
+            }
             cmdBuff.bindPipelineState(pso);
             cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, pass.descriptorSet);
             cmdBuff.bindDescriptorSet(SetIndex.LOCAL, subModel.descriptorSet);
@@ -146,14 +149,14 @@ export function convertRenderQueue (desc: RenderQueueDesc) {
     }
     let sortFunc: (a: IRenderPass, b: IRenderPass) => number = opaqueCompareFn;
     switch (desc.sortMode) {
-    case RenderQueueSortMode.BACK_TO_FRONT:
-        sortFunc = transparentCompareFn;
-        break;
-    case RenderQueueSortMode.FRONT_TO_BACK:
-        sortFunc = opaqueCompareFn;
-        break;
-    default:
-        break;
+        case RenderQueueSortMode.BACK_TO_FRONT:
+            sortFunc = transparentCompareFn;
+            break;
+        case RenderQueueSortMode.FRONT_TO_BACK:
+            sortFunc = opaqueCompareFn;
+            break;
+        default:
+            break;
     }
 
     return new RenderQueue({

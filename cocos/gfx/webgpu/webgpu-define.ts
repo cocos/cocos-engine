@@ -563,6 +563,9 @@ WEBGPU && promiseForWebGPUInstantiation.then(() => {
     const createShader = Device.prototype.createShader;
     Device.prototype.createShader = function (shaderInfo: ShaderInfo) {
         const spvDatas: any = [];
+        if (shaderInfo.name === 'builtin-particle|builtin/internal/particle-vs-legacy:lpvs_main|tinted-fs:add|CC_RENDER_MODE4|CC_INSTANCE_PARTICLE1') {
+            console.log('111');
+        }
         for (let i = 0; i < shaderInfo.stages.length; ++i) {
             shaderInfo.stages[i].source = seperateCombinedSamplerTexture(shaderInfo.stages[i].source);
             const stageStr = shaderInfo.stages[i].stage === ShaderStageFlagBit.VERTEX ? 'vertex'
