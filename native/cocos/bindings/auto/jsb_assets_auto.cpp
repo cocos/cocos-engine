@@ -8140,6 +8140,43 @@ static bool js_cc_IPropertyInfo_linear_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_IPropertyInfo_linear_get) 
 
+static bool js_cc_IPropertyInfo_editor_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::IPropertyInfo *arg1 = (cc::IPropertyInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::IPropertyInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg1->editor, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_IPropertyInfo_editor_set) 
+
+static bool js_cc_IPropertyInfo_editor_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::IPropertyInfo *arg1 = (cc::IPropertyInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::IPropertyInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= nativevalue_to_se(arg1->editor, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(arg1->editor, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_IPropertyInfo_editor_get) 
+
 static bool js_new_cc_IPropertyInfo(se::State& s) // NOLINT(readability-identifier-naming)
 {
     CC_UNUSED bool ok = true;
@@ -8205,6 +8242,12 @@ bool sevalue_to_native(const se::Value &from, cc::IPropertyInfo * to, se::Object
     }
     
     
+    json->getProperty("editor", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->editor), ctx);
+    }
+    
+    
     return ok;
 }
 
@@ -8217,6 +8260,7 @@ bool js_register_cc_IPropertyInfo(se::Object* obj) {
     cls->defineProperty("samplerHash", _SE(js_cc_IPropertyInfo_samplerHash_get), _SE(js_cc_IPropertyInfo_samplerHash_set)); 
     cls->defineProperty("value", _SE(js_cc_IPropertyInfo_value_get), _SE(js_cc_IPropertyInfo_value_set)); 
     cls->defineProperty("linear", _SE(js_cc_IPropertyInfo_linear_get), _SE(js_cc_IPropertyInfo_linear_set)); 
+    cls->defineProperty("editor", _SE(js_cc_IPropertyInfo_editor_get), _SE(js_cc_IPropertyInfo_editor_set)); 
     
     
     
