@@ -4408,6 +4408,39 @@ static bool js_cc_ISystemWindowInfo_flags_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_ISystemWindowInfo_flags_get) 
 
+static bool js_cc_ISystemWindowInfo_windowId_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::ISystemWindowInfo *arg1 = (cc::ISystemWindowInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::ISystemWindowInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg1->windowId, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_ISystemWindowInfo_windowId_set) 
+
+static bool js_cc_ISystemWindowInfo_windowId_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::ISystemWindowInfo *arg1 = (cc::ISystemWindowInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::ISystemWindowInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= nativevalue_to_se(arg1->windowId, s.rval(), s.thisObject()); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_ISystemWindowInfo_windowId_get) 
+
 static bool js_cc_ISystemWindowInfo_externalHandle_set(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -4513,6 +4546,12 @@ bool sevalue_to_native(const se::Value &from, cc::ISystemWindowInfo * to, se::Ob
     }
     
     
+    json->getProperty("windowId", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->windowId), ctx);
+    }
+    
+    
     json->getProperty("externalHandle", &field, true);
     if (!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->externalHandle), ctx);
@@ -4533,6 +4572,7 @@ bool js_register_cc_ISystemWindowInfo(se::Object* obj) {
     cls->defineProperty("width", _SE(js_cc_ISystemWindowInfo_width_get), _SE(js_cc_ISystemWindowInfo_width_set)); 
     cls->defineProperty("height", _SE(js_cc_ISystemWindowInfo_height_get), _SE(js_cc_ISystemWindowInfo_height_set)); 
     cls->defineProperty("flags", _SE(js_cc_ISystemWindowInfo_flags_get), _SE(js_cc_ISystemWindowInfo_flags_set)); 
+    cls->defineProperty("windowId", _SE(js_cc_ISystemWindowInfo_windowId_get), _SE(js_cc_ISystemWindowInfo_windowId_set)); 
     cls->defineProperty("externalHandle", _SE(js_cc_ISystemWindowInfo_externalHandle_get), _SE(js_cc_ISystemWindowInfo_externalHandle_set)); 
     
     

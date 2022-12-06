@@ -628,6 +628,7 @@ using namespace cc;
   
 
 #define cc_scene_Camera_systemWindowId_get(self_) self_->getSystemWindowId()
+#define cc_scene_Camera_systemWindowId_set(self_, val_) self_->setSystemWindowId(val_)
   
 
 #define cc_scene_Camera_cameraUsage_get(self_) self_->getCameraUsage()
@@ -22757,6 +22758,27 @@ static bool js_cc_scene_Camera_geometryRenderer_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_scene_Camera_geometryRenderer_get) 
 
+static bool js_cc_scene_Camera_systemWindowId_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::Camera *arg1 = (cc::scene::Camera *) NULL ;
+    uint32_t arg2 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::Camera>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    
+    cc_scene_Camera_systemWindowId_set(arg1,SWIG_STD_MOVE(arg2));
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_scene_Camera_systemWindowId_set) 
+
 static bool js_cc_scene_Camera_systemWindowId_get(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -22855,7 +22877,7 @@ bool js_register_cc_scene_Camera(se::Object* obj) {
     cls->defineProperty("node", _SE(js_cc_scene_Camera_node_get), _SE(js_cc_scene_Camera_node_set)); 
     cls->defineProperty("surfaceTransform", _SE(js_cc_scene_Camera_surfaceTransform_get), nullptr); 
     cls->defineProperty("geometryRenderer", _SE(js_cc_scene_Camera_geometryRenderer_get), nullptr); 
-    cls->defineProperty("systemWindowId", _SE(js_cc_scene_Camera_systemWindowId_get), nullptr); 
+    cls->defineProperty("systemWindowId", _SE(js_cc_scene_Camera_systemWindowId_get), _SE(js_cc_scene_Camera_systemWindowId_set)); 
     cls->defineProperty("cameraUsage", _SE(js_cc_scene_Camera_cameraUsage_get), _SE(js_cc_scene_Camera_cameraUsage_set)); 
     
     cls->defineFunction("initialize", _SE(js_cc_scene_Camera_initialize)); 

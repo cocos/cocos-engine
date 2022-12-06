@@ -436,6 +436,15 @@ void Camera::updateAspect(bool oriented) {
     _isProjDirty = true;
 }
 
+void Camera::setSystemWindowId(uint32_t windowId) {
+    const auto &renderWindows = Root::getInstance()->getWindows();
+    for (const auto &window : renderWindows) {
+        if (windowId == window->getSwapchain()->getWindowId()) {
+            changeTargetWindow(window);
+        }
+    }
+}
+
 void Camera::setViewport(const Rect &val) {
     debug::warnID(8302);
     setViewportInOrientedSpace(val);

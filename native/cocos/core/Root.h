@@ -78,6 +78,7 @@ public:
 
     // @minggo IRootInfo seems is not use, and how to return Promise?
     void initialize(gfx::Swapchain *swapchain);
+    inline bool isInitialized() {return _isInitialized;}
     void destroy();
 
     /**
@@ -329,6 +330,7 @@ private:
     uint32_t _fixedFPS{0};
     bool _useDeferredPipeline{false};
     bool _usesCustomPipeline{true};
+    bool _isInitialized{false};
     IXRInterface *_xr{nullptr};
     events::WindowDestroy::Listener _windowDestroyListener;
     events::WindowRecreated::Listener _windowRecreatedListener;

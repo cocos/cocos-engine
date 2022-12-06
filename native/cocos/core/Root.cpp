@@ -93,6 +93,7 @@ void Root::initialize(gfx::Swapchain * /*swapchain*/) {
     uint32_t maxJoints = (_device->getCapabilities().maxVertexUniformVectors - usedUBOVectorCount) / 3;
     maxJoints = maxJoints < 256 ? maxJoints : 256;
     pipeline::localDescriptorSetLayoutResizeMaxJoints(maxJoints);
+    _isInitialized = true;
 }
 
 render::Pipeline *Root::getCustomPipeline() const {
@@ -377,17 +378,6 @@ void Root::frameMoveBegin() {
 void Root::frameMoveProcess(bool isNeedUpdateScene, int32_t totalFrames) {
     for (const auto &window : _renderWindows) {
         window->extractRenderCameras(_cameraList);
-    }
-
-    if (!_cameraList.empty()) {
-        for (const auto &camera : _cameraList) {
-            int windowId = camera->getSystemWindowId();
-            for (const auto &window: _renderWindows) {
-                if (window != camera->getWindow() && windowId == window->getSwapchain()->getWindowId()) {
-                    camera->changeTargetWindow(window);
-                }
-            }
-        }
     }
 
     if (_pipelineRuntime != nullptr && !_cameraList.empty()) {
