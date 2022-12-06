@@ -32,6 +32,7 @@ export * from './framework';
 
 export * from './lights';
 export * from './skinned-mesh-renderer';
+export * from './reflection-probe';
 export {
     utils,
 };
