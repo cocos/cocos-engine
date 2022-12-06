@@ -226,7 +226,7 @@ export class Root {
      * @en Whether the built-in deferred pipeline is used.
      * @zh 是否启用内置延迟渲染管线
      */
-    public get useDeferredPipeline () : boolean {
+    public get useDeferredPipeline (): boolean {
         return this._useDeferredPipeline;
     }
 
@@ -460,6 +460,7 @@ export class Root {
      * @param deltaTime @en The delta time since last update. @zh 距离上一帧间隔时间
      */
     public frameMove (deltaTime: number) {
+        const { director, Director } = cclegacy;
         this._frameTime = deltaTime;
 
         /*
@@ -497,7 +498,8 @@ export class Root {
         if (this._pipeline && cameraList.length > 0) {
             this._device.acquire([deviceManager.swapchain]);
             const scenes = this._scenes;
-            const stamp = cclegacy.director.getTotalFrames();
+            const stamp = director.getTotalFrames();
+
             if (this._batcher) {
                 this._batcher.update();
                 this._batcher.uploadBuffers();
@@ -507,14 +509,15 @@ export class Root {
                 scenes[i].update(stamp);
             }
 
-            cclegacy.director.emit(cclegacy.Director.EVENT_BEFORE_COMMIT);
+            director.emit(Director.EVENT_BEFORE_COMMIT);
             cameraList.sort((a: Camera, b: Camera) => a.priority - b.priority);
 
             for (let i = 0; i < cameraList.length; ++i) {
                 cameraList[i].geometryRenderer?.update();
             }
-            cclegacy.director.emit(cclegacy.Director.EVENT_BEFORE_RENDER);
+            director.emit(Director.EVENT_BEFORE_RENDER);
             this._pipeline.render(cameraList);
+            director.emit(Director.EVENT_AFTER_RENDER);
             this._device.present();
         }
 
