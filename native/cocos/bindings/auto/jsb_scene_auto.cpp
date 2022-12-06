@@ -24135,6 +24135,34 @@ static bool js_cc_scene_ReflectionProbe_renderPlanarReflection(se::State& s)
 }
 SE_BIND_FUNC(js_cc_scene_ReflectionProbe_renderPlanarReflection) 
 
+static bool js_cc_scene_ReflectionProbe_switchProbeType(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::ReflectionProbe *arg1 = (cc::scene::ReflectionProbe *) NULL ;
+    int32_t arg2 ;
+    cc::scene::Camera *arg3 = (cc::scene::Camera *) NULL ;
+    
+    if(argc != 2) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::scene::ReflectionProbe>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    ok &= sevalue_to_native(args[1], &arg3, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    (arg1)->switchProbeType(arg2,(cc::scene::Camera const *)arg3);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_scene_ReflectionProbe_switchProbeType) 
+
 static bool js_cc_scene_ReflectionProbe_reflect_static(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -24487,6 +24515,7 @@ bool js_register_cc_scene_ReflectionProbe(se::Object* obj) {
     cls->defineFunction("syncCameraParams", _SE(js_cc_scene_ReflectionProbe_syncCameraParams)); 
     cls->defineFunction("transformReflectionCamera", _SE(js_cc_scene_ReflectionProbe_transformReflectionCamera)); 
     cls->defineFunction("renderPlanarReflection", _SE(js_cc_scene_ReflectionProbe_renderPlanarReflection)); 
+    cls->defineFunction("switchProbeType", _SE(js_cc_scene_ReflectionProbe_switchProbeType)); 
     cls->defineFunction("updatePlanarTexture", _SE(js_cc_scene_ReflectionProbe_updatePlanarTexture)); 
     cls->defineFunction("destroy", _SE(js_cc_scene_ReflectionProbe_destroy)); 
     

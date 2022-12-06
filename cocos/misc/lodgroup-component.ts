@@ -24,7 +24,7 @@
  */
 import { EDITOR, JSB } from 'internal:constants';
 import { ccclass, editable, executeInEditMode, menu, serializable, type } from 'cc.decorator';
-import { Vec3, Mat4, geometry } from '../core';
+import { Vec3, Mat4, geometry, CCInteger, CCFloat } from '../core';
 import { Node } from '../scene-graph/node';
 import { Component } from '../scene-graph/component';
 import { Mesh, MeshRenderer } from '../3d';
@@ -64,7 +64,7 @@ export class LOD {
      * @en Minimum percentage of screen usage for the current lod in effect, range in [0, 1]
      * @zh 本层级生效时，占用屏幕的最小百分比, 取值范围[0, 1]
      */
-    @type(Number)
+    @type(CCFloat)
     get screenUsagePercentage () : number { return this._screenUsagePercentage; }
     set screenUsagePercentage (val: number) {
         this._screenUsagePercentage = val;
@@ -108,7 +108,7 @@ export class LOD {
      * @zh 获取所有模型的三角形总数
      */
     @editable
-    @type([Number])
+    @type([CCInteger])
     get triangleCount () : number[] {
         const tris: number[] = [];
         this._renderers.forEach((meshRenderer: MeshRenderer | null) => {
@@ -269,7 +269,7 @@ export class LODGroup extends Component {
      * @en Set current AABB's size.
      * @zh 设置当前包围盒的大小
      */
-    @type(Number)
+    @type(CCFloat)
     set objectSize (val: number) {
         this._objectSize = val;
         this._lodGroup.objectSize = val;
