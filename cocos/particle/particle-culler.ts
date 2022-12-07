@@ -32,6 +32,7 @@ import { particleEmitZAxis } from './particle-general-function';
 import { IParticleSystemRenderer } from './renderer/particle-system-renderer-base';
 import { Mesh } from '../3d';
 import type { ParticleSystem } from './particle-system';
+import { ParticleUtils } from './particle-utils';
 
 const _node_mat = new Mat4();
 const _node_parent_inv = new Mat4();
@@ -203,7 +204,7 @@ export class ParticleCuller {
         });
 
         if (ps.simulationSpace === Space.Local) {
-            const r:Quat = ps.node.getRotation();
+            const r: Quat = ps.node.getRotation();
             Mat4.fromQuat(this._localMat, r);
             this._localMat.transpose(); // just consider rotation, use transpose as invert
         }
@@ -218,8 +219,10 @@ export class ParticleCuller {
             p.remainingLifetime -= dt;
             Vec3.set(p.animatedVelocity, 0, 0, 0);
 
+            const rand = ParticleUtils.isCurveTwoValues(ps.gravityModifier) ? pseudoRandom(p.randomSeed) : 0;
+
             if (ps.simulationSpace === Space.Local) {
-                const gravityFactor = -ps.gravityModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, pseudoRandom(p.randomSeed))! * 9.8 * dt;
+                const gravityFactor = -ps.gravityModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, rand)! * 9.8 * dt;
                 this._gravity.x = 0.0;
                 this._gravity.y = gravityFactor;
                 this._gravity.z = 0.0;
@@ -236,7 +239,7 @@ export class ParticleCuller {
                 }
             } else {
                 // apply gravity.
-                p.velocity.y -= ps.gravityModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, pseudoRandom(p.randomSeed))! * 9.8 * dt;
+                p.velocity.y -= ps.gravityModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, rand)! * 9.8 * dt;
             }
 
             Vec3.copy(p.ultimateVelocity, p.velocity);
@@ -289,7 +292,7 @@ export class ParticleCuller {
 
     public calculatePositions () {
         this._emit(this._particleSystem.capacity, 0, this._particlesAll);
-        const rand = pseudoRandom(randomRangeInt(0, bits.INT_MAX));
+        const rand = ParticleUtils.isCurveTwoValues(this._particleSystem.startLifetime) ? pseudoRandom(randomRangeInt(0, bits.INT_MAX)) : 0;
         this._updateParticles(0, this._particlesAll);
         this._calculateBounding(true);
         this._updateParticles(this._particleSystem.startLifetime.evaluate(0, rand), this._particlesAll);

@@ -29,7 +29,8 @@ import { Space, ModuleRandSeed } from '../enum';
 import { calculateTransform } from '../particle-general-function';
 import CurveRange from './curve-range';
 
-import { ParticleModuleBase, PARTICLE_MODULE_NAME } from '../particle';
+import { Particle, ParticleModuleBase, PARTICLE_MODULE_NAME } from '../particle';
+import { ParticleUtils } from '../particle-utils';
 
 const FORCE_OVERTIME_RAND_OFFSET = ModuleRandSeed.FORCE;
 
@@ -108,9 +109,16 @@ export default class ForceOvertimeModule extends ParticleModuleBase {
         this.needTransform = calculateTransform(space, this.space, worldTransform, this.rotation);
     }
 
-    public animate (p, dt) {
+    public animate (p: Particle, dt) {
         const normalizedTime = 1 - p.remainingLifetime / p.startLifetime;
-        const force = Vec3.set(_temp_v3, this.x.evaluate(normalizedTime, pseudoRandom(p.randomSeed + FORCE_OVERTIME_RAND_OFFSET))!, this.y.evaluate(normalizedTime, pseudoRandom(p.randomSeed + FORCE_OVERTIME_RAND_OFFSET))!, this.z.evaluate(normalizedTime, pseudoRandom(p.randomSeed + FORCE_OVERTIME_RAND_OFFSET))!);
+        const randX = ParticleUtils.isCurveTwoValues(this.x) ? pseudoRandom(p.randomSeed + FORCE_OVERTIME_RAND_OFFSET) : 0;
+        const randY = ParticleUtils.isCurveTwoValues(this.y) ? pseudoRandom(p.randomSeed + FORCE_OVERTIME_RAND_OFFSET) : 0;
+        const randZ = ParticleUtils.isCurveTwoValues(this.z) ? pseudoRandom(p.randomSeed + FORCE_OVERTIME_RAND_OFFSET) : 0;
+
+        const force = Vec3.set(_temp_v3,
+            this.x.evaluate(normalizedTime, randX)!,
+            this.y.evaluate(normalizedTime, randY)!,
+            this.z.evaluate(normalizedTime, randZ)!);
         if (this.needTransform) {
             Vec3.transformQuat(force, force, this.rotation);
         }
