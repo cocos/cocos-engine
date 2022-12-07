@@ -694,6 +694,12 @@ export class Skeleton extends UIRenderer {
         const uiTrans = this.node._uiProps.uiTransformComp!;
         if (skeletonData.width != null && skeletonData.height != null) {
             uiTrans.setContentSize(skeletonData.width, skeletonData.height);
+            if (skeletonData.x !== null && skeletonData.width !== 0) {
+                uiTrans.anchorX = Math.abs(skeletonData.x) / skeletonData.width;
+            } 
+            if (skeletonData.y !== null && skeletonData.width !== 0) {
+                uiTrans.anchorY = Math.abs(skeletonData.y) / skeletonData.height;
+            }
         }
 
         if (!EDITOR || legacyCC.GAME_VIEW) {
