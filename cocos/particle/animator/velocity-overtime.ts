@@ -118,12 +118,16 @@ export default class VelocityOvertimeModule extends ParticleModuleBase {
 
     public animate (p: Particle, dt: number) {
         const normalizedTime = 1 - p.remainingLifetime / p.startLifetime;
-        const vel = Vec3.set(_temp_v3, this.x.evaluate(normalizedTime, pseudoRandom(p.randomSeed ^ VELOCITY_X_OVERTIME_RAND_OFFSET))!, this.y.evaluate(normalizedTime, pseudoRandom(p.randomSeed ^ VELOCITY_Y_OVERTIME_RAND_OFFSET))!, this.z.evaluate(normalizedTime, pseudoRandom(p.randomSeed ^ VELOCITY_Z_OVERTIME_RAND_OFFSET))!);
+        const vel = Vec3.set(_temp_v3,
+            this.x.evaluate(normalizedTime, p.randomSeed ^ VELOCITY_X_OVERTIME_RAND_OFFSET, true)!,
+            this.y.evaluate(normalizedTime, p.randomSeed ^ VELOCITY_Y_OVERTIME_RAND_OFFSET, true)!,
+            this.z.evaluate(normalizedTime, p.randomSeed ^ VELOCITY_Z_OVERTIME_RAND_OFFSET, true)!);
         if (this.needTransform) {
             Vec3.transformQuat(vel, vel, this.rotation);
         }
         Vec3.add(p.animatedVelocity, p.animatedVelocity, vel);
         Vec3.add(p.ultimateVelocity, p.velocity, p.animatedVelocity);
-        Vec3.multiplyScalar(p.ultimateVelocity, p.ultimateVelocity, this.speedModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, pseudoRandom(p.randomSeed + VELOCITY_X_OVERTIME_RAND_OFFSET))!);
+        Vec3.multiplyScalar(p.ultimateVelocity, p.ultimateVelocity,
+            this.speedModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, p.randomSeed + VELOCITY_X_OVERTIME_RAND_OFFSET, true)!);
     }
 }

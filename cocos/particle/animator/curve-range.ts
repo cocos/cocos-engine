@@ -25,7 +25,7 @@
 
 import { ccclass } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
-import { lerp, RealCurve, CCClass, geometry, Enum } from '../../core';
+import { lerp, RealCurve, CCClass, geometry, Enum, pseudoRandom } from '../../core';
 import { PixelFormat, Filter, WrapMode } from '../../asset/assets/asset-enum';
 import { Texture2D, ImageAsset } from '../../asset/assets';
 
@@ -52,7 +52,7 @@ export default class CurveRange  {
     /**
      * @zh 当mode为Curve时，spline创建1个RealCurve，当mode为TwoCurves时，splineMax创建1个RealCurve,splineMin创建一个RealCurve
      */
-    set mode (mode:number) {
+    set mode (mode: number) {
         this._mode = mode;
         switch (mode) {
         case Mode.Constant:
@@ -76,17 +76,17 @@ export default class CurveRange  {
     /**
      * @zh 当mode为Curve时，使用的曲线。
      */
-    public declare spline:RealCurve;
+    public declare spline: RealCurve;
 
     /**
      * @zh 当mode为TwoCurves时，使用的曲线下限。
      */
-    public declare splineMin:RealCurve;
+    public declare splineMin: RealCurve;
 
     /**
      * @zh 当mode为TwoCurves时，使用的曲线上限。
      */
-    public declare splineMax:RealCurve;
+    public declare splineMax: RealCurve;
 
     /**
      * @zh 当mode为Curve时，使用的曲线。
@@ -162,7 +162,7 @@ export default class CurveRange  {
         }
     }
 
-    public evaluate (time: number, rndRatio: number) {
+    public evaluate (time: number, rndRatio: number, random?: boolean) {
         switch (this.mode) {
         default:
         case Mode.Constant:
@@ -170,8 +170,14 @@ export default class CurveRange  {
         case Mode.Curve:
             return this.spline.evaluate(time) * this.multiplier;
         case Mode.TwoCurves:
+            if (random) {
+                rndRatio = pseudoRandom(rndRatio);
+            }
             return lerp(this.splineMin.evaluate(time), this.splineMax.evaluate(time), rndRatio) * this.multiplier;
         case Mode.TwoConstants:
+            if (random) {
+                rndRatio = pseudoRandom(rndRatio);
+            }
             return lerp(this.constantMin, this.constantMax, rndRatio);
         }
     }
@@ -287,7 +293,7 @@ function updateTexture (tex: Texture2D | null, data, width, height): Texture2D {
     return tex;
 }
 
-export function packCurveRangeZ (tex: Texture2D | null, data: Float32Array | null, samples:number, cr: CurveRange, discrete?: boolean) {
+export function packCurveRangeZ (tex: Texture2D | null, data: Float32Array | null, samples: number, cr: CurveRange, discrete?: boolean) {
     const height = evaluateHeight(cr);
     const len = samples * height * 4;
     if (data === null || data.length !== len) {
@@ -314,7 +320,7 @@ export function packCurveRangeZ (tex: Texture2D | null, data: Float32Array | nul
     }
     return { texture: updateTexture(tex, data, samples, height), texdata: data };
 }
-export function packCurveRangeN (tex: Texture2D | null, data: Float32Array | null, samples:number, cr: CurveRange, discrete?: boolean) {
+export function packCurveRangeN (tex: Texture2D | null, data: Float32Array | null, samples: number, cr: CurveRange, discrete?: boolean) {
     const height = evaluateHeight(cr);
     const len = samples * height * 4;
     if (data === null || data.length !== len) {
