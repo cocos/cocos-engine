@@ -1,0 +1,85 @@
+// For Vertex Animation Texture (VAT)
+#include <common/math/transform>
+#include <common/texture/texture-misc>
+
+float CalculateVATAnimUV(out vec2 deltaV, float frameCount, float animSpeed)
+{
+  float thisFrame = fract(animSpeed * cc_time.x);
+  thisFrame = floor(thisFrame * frameCount);
+  float thisFrameDeltaV = thisFrame / frameCount;
+  float nextFrameDeltaV = (thisFrame + 1.0) / frameCount;
+  deltaV = vec2(thisFrameDeltaV, nextFrameDeltaV);
+  float frameLerp = fract(thisFrame * frameCount);
+  return frameLerp;
+}
+
+
+
+// public functions
+float VATCalculateFrameCount(vec2 lutTexResolution, float meshVertexCount)
+{
+    float lineCountPerFrame = ceil(meshVertexCount / lutTexResolution.x);
+    return floor(lutTexResolution.y / lineCountPerFrame);
+}
+
+float VATGetAnimUV(out vec2 thisFrameUV, out vec2 nextFrameUV, vec2 meshUV, float frameCount, float animSpeed)
+{
+  vec2 frameDeltaV;
+  float frameLerp = CalculateVATAnimUV(frameDeltaV, frameCount, animSpeed);
+  thisFrameUV = meshUV + vec2(0.0, frameDeltaV.x);
+  nextFrameUV = meshUV + vec2(0.0, frameDeltaV.y);
+  return frameLerp;
+}
+// LUT
+float VATGetAnimUV(out vec2 thisFrameUV, out vec2 nextFrameUV, vec2 meshUV, float frameCount, float animSpeed, sampler2D lutTexture)
+{
+  vec2 frameDeltaV;
+  float frameLerp = CalculateVATAnimUV(frameDeltaV, frameCount, animSpeed);
+  float precisionValue = 255.0; //导出LDR选255，HDR选2048
+  vec4 thisFramelookUpValue = texture(lutTexture, meshUV + vec2(0.0, frameDeltaV.x));
+  thisFrameUV = thisFramelookUpValue.xz + thisFramelookUpValue.yw / precisionValue;
+  vec4 nextFramelookUpValue = texture(lutTexture, meshUV + vec2(0.0, frameDeltaV.y));
+  nextFrameUV = nextFramelookUpValue.xz + nextFramelookUpValue.yw / precisionValue;
+  return frameLerp;
+}
+
+#define VAT_UNITY_COORDINATE_SCALE 100.0
+vec3 VATGetLocalPosition(vec2 thisFrameUV, sampler2D vatPositionTexture, sampler2D vatPositionSignTexture)
+{
+  vec3 thisFramePos = SampleTextureExr(vatPositionTexture, vatPositionSignTexture, thisFrameUV);
+  return thisFramePos / VAT_UNITY_COORDINATE_SCALE;
+}
+vec3 VATGetLocalNormal(vec2 thisFrameUV, sampler2D vatRotationTexture, sampler2D vatRotationSignTexture, sampler2D vatRotationAlphaTexture)
+{
+  vec4 thisFrameData = SampleTextureExrWithAlpha(vatRotationTexture, vatRotationSignTexture, vatRotationAlphaTexture, thisFrameUV);
+  vec3 normal = vec3(0.0, 1.0, 0.0);
+  rotateVecFromQuat(normal, thisFrameData);
+  return normal;
+}
+
+// for smooth animation
+vec3 VATGetLocalPosition(vec2 thisFrameUV, vec2 nextFrameUV, float frameLerp, sampler2D vatPositionTexture, sampler2D vatPositionSignTexture)
+{
+  vec3 thisFramePos = SampleTextureExr(vatPositionTexture, vatPositionSignTexture, thisFrameUV);
+  vec3 nextFramePos = SampleTextureExr(vatPositionTexture, vatPositionSignTexture, nextFrameUV);
+  return mix(thisFramePos, nextFramePos, frameLerp) / VAT_UNITY_COORDINATE_SCALE;
+}
+vec3 VATGetLocalNormal(vec2 thisFrameUV, vec2 nextFrameUV, float frameLerp, sampler2D vatRotationTexture, sampler2D vatRotationSignTexture, sampler2D vatRotationAlphaTexture)
+{
+  vec4 thisFrameData = SampleTextureExrWithAlpha(vatRotationTexture, vatRotationSignTexture, vatRotationAlphaTexture, thisFrameUV);
+  vec4 nextFrameData = SampleTextureExrWithAlpha(vatRotationTexture, vatRotationSignTexture, vatRotationAlphaTexture, nextFrameUV);
+  vec4 data = mix(thisFrameData, nextFrameData, frameLerp);
+
+  vec3 normal = vec3(0.0, 1.0, 0.0);
+  rotateVecFromQuat(normal, data);
+  return normal;
+}
+
+// calculate water plane uv
+vec2 VATCalculatePlaneUV(vec3 vatBoundingBoxMin, vec3 vatBoundingBoxMax, vec3 localPos)
+{
+  // bounding box is unscaled
+  vec3 size = vatBoundingBoxMax - vatBoundingBoxMin;
+  vec3 coef = (localPos * VAT_UNITY_COORDINATE_SCALE - vatBBMin.xyz) / size;
+  return coef.xz;
+}

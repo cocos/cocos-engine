@@ -808,6 +808,7 @@ SE_BIND_FUNC(js_cc_WebView_setBackgroundTransparent)
 bool js_register_cc_WebView(se::Object* obj) {
     auto* cls = se::Class::create("WebView", obj, nullptr, nullptr); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     cls->defineFunction("destroy", _SE(js_cc_WebView_destroy)); 
     cls->defineFunction("setJavascriptInterfaceScheme", _SE(js_cc_WebView_setJavascriptInterfaceScheme)); 

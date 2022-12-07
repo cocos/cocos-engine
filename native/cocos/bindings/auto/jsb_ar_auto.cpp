@@ -1070,6 +1070,7 @@ SE_BIND_FUNC(js_cc_ar_ARModule_enableFaceTracking)
 bool js_register_cc_ar_ARModule(se::Object* obj) {
     auto* cls = se::Class::create("ARModule", obj, nullptr, _SE(js_new_cc_ar_ARModule)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     cls->defineFunction("config", _SE(js_cc_ar_ARModule_config)); 
     cls->defineFunction("getSupportMask", _SE(js_cc_ar_ARModule_getSupportMask)); 

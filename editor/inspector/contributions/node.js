@@ -2,6 +2,7 @@
 const fs = require('fs');
 const path = require('path');
 const utils = require('./utils');
+const { trackEventWithTimer } = require('../utils/metrics');
 
 exports.listeners = {
     async 'change-dump'(event) {
@@ -1277,6 +1278,9 @@ const Elements = {
                                     component: data.cid,
                                 });
                             }
+                            if (data.name) {
+                                trackEventWithTimer('laber', `A100000_${data.name}`);
+                            }
 
                             Editor.Message.send('scene', 'snapshot');
                         },
@@ -1490,6 +1494,10 @@ exports.methods = {
                                         path: '__comps__',
                                         index,
                                     });
+
+                                    if (nodeDump.__comps__[index].type) {
+                                        trackEventWithTimer('laber', `A100001_${nodeDump.__comps__[index].type}`);
+                                    }
                                 }
                             }
                         }
