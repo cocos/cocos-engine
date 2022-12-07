@@ -373,6 +373,7 @@ bool sevalue_to_native(const se::Value &from, cc::MeshBufferLayout * to, se::Obj
 bool js_register_cc_MeshBufferLayout(se::Object* obj) {
     auto* cls = se::Class::create("MeshBufferLayout", obj, nullptr, _SE(js_new_cc_MeshBufferLayout)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("byteOffset", _SE(js_cc_MeshBufferLayout_byteOffset_get), _SE(js_cc_MeshBufferLayout_byteOffset_set)); 
     cls->defineProperty("vertexOffset", _SE(js_cc_MeshBufferLayout_vertexOffset_get), _SE(js_cc_MeshBufferLayout_vertexOffset_set)); 
     cls->defineProperty("indexOffset", _SE(js_cc_MeshBufferLayout_indexOffset_get), _SE(js_cc_MeshBufferLayout_indexOffset_set)); 
@@ -656,6 +657,7 @@ SE_BIND_PROP_GET(js_cc_UIMeshBuffer_iData_get)
 bool js_register_cc_UIMeshBuffer(se::Object* obj) {
     auto* cls = se::Class::create("UIMeshBuffer", obj, nullptr, _SE(js_new_cc_UIMeshBuffer)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("vData", _SE(js_cc_UIMeshBuffer_vData_get), _SE(js_cc_UIMeshBuffer_vData_set)); 
     cls->defineProperty("iData", _SE(js_cc_UIMeshBuffer_iData_get), _SE(js_cc_UIMeshBuffer_iData_set)); 
     
@@ -856,6 +858,7 @@ bool sevalue_to_native(const se::Value &from, cc::Render2dLayout * to, se::Objec
 bool js_register_cc_Render2dLayout(se::Object* obj) {
     auto* cls = se::Class::create("Render2dLayout", obj, nullptr, _SE(js_new_cc_Render2dLayout)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("position", _SE(js_cc_Render2dLayout_position_get), _SE(js_cc_Render2dLayout_position_set)); 
     cls->defineProperty("uv", _SE(js_cc_Render2dLayout_uv_get), _SE(js_cc_Render2dLayout_uv_set)); 
     cls->defineProperty("color", _SE(js_cc_Render2dLayout_color_get), _SE(js_cc_Render2dLayout_color_set)); 
@@ -1005,6 +1008,7 @@ bool sevalue_to_native(const se::Value &from, cc::LocalDSBF * to, se::Object *ct
 bool js_register_cc_LocalDSBF(se::Object* obj) {
     auto* cls = se::Class::create("LocalDSBF", obj, nullptr, _SE(js_new_cc_LocalDSBF)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("ds", _SE(js_cc_LocalDSBF_ds_get), _SE(js_cc_LocalDSBF_ds_set)); 
     cls->defineProperty("uboBuf", _SE(js_cc_LocalDSBF_uboBuf_get), _SE(js_cc_LocalDSBF_uboBuf_set)); 
     
@@ -2064,6 +2068,7 @@ SE_BIND_PROP_GET(js_cc_RenderDrawInfo_stride_get)
 bool js_register_cc_RenderDrawInfo(se::Object* obj) {
     auto* cls = se::Class::create("RenderDrawInfo", obj, nullptr, _SE(js_new_cc_RenderDrawInfo)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("bufferId", _SE(js_cc_RenderDrawInfo_bufferId_get), _SE(js_cc_RenderDrawInfo_bufferId_set)); 
     cls->defineProperty("accId", _SE(js_cc_RenderDrawInfo_accId_get), _SE(js_cc_RenderDrawInfo_accId_set)); 
     cls->defineProperty("vertexOffset", _SE(js_cc_RenderDrawInfo_vertexOffset_get), _SE(js_cc_RenderDrawInfo_vertexOffset_set)); 
@@ -2517,6 +2522,7 @@ bool sevalue_to_native(const se::Value &from, cc::EntityAttrLayout * to, se::Obj
 bool js_register_cc_EntityAttrLayout(se::Object* obj) {
     auto* cls = se::Class::create("EntityAttrLayout", obj, nullptr, _SE(js_new_cc_EntityAttrLayout)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("localOpacity", _SE(js_cc_EntityAttrLayout_localOpacity_get), _SE(js_cc_EntityAttrLayout_localOpacity_set)); 
     cls->defineProperty("colorR", _SE(js_cc_EntityAttrLayout_colorR_get), _SE(js_cc_EntityAttrLayout_colorR_set)); 
     cls->defineProperty("colorG", _SE(js_cc_EntityAttrLayout_colorG_get), _SE(js_cc_EntityAttrLayout_colorG_set)); 
@@ -3216,6 +3222,7 @@ SE_BIND_PROP_GET(js_cc_RenderEntity_stencilStage_get)
 bool js_register_cc_RenderEntity(se::Object* obj) {
     auto* cls = se::Class::create("RenderEntity", obj, nullptr, _SE(js_new_cc_RenderEntity)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("node", _SE(js_cc_RenderEntity_node_get), _SE(js_cc_RenderEntity_node_set)); 
     cls->defineProperty("renderTransform", _SE(js_cc_RenderEntity_renderTransform_get), _SE(js_cc_RenderEntity_renderTransform_set)); 
     cls->defineProperty("staticDrawInfoSize", _SE(js_cc_RenderEntity_staticDrawInfoSize_get), _SE(js_cc_RenderEntity_staticDrawInfoSize_set)); 
@@ -3485,6 +3492,7 @@ SE_BIND_FUNC(js_cc_UIModelProxy_attachNode)
 bool js_register_cc_UIModelProxy(se::Object* obj) {
     auto* cls = se::Class::create("UIModelProxy", obj, nullptr, _SE(js_new_cc_UIModelProxy)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     cls->defineFunction("initModel", _SE(js_cc_UIModelProxy_initModel)); 
     cls->defineFunction("activeSubModels", _SE(js_cc_UIModelProxy_activeSubModels)); 
@@ -3800,6 +3808,7 @@ SE_BIND_FUNC(js_cc_Batcher2d_handlePostRender)
 bool js_register_cc_Batcher2d(se::Object* obj) {
     auto* cls = se::Class::create("Batcher2d", obj, nullptr, _SE(js_new_Batcher2d)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     cls->defineFunction("syncMeshBuffersToNative", _SE(js_cc_Batcher2d_syncMeshBuffersToNative)); 
     cls->defineFunction("initialize", _SE(js_cc_Batcher2d_initialize)); 
