@@ -28,7 +28,7 @@ import { lerp, pseudoRandom, repeat, Enum } from '../../core';
 import { Particle, ParticleModuleBase, PARTICLE_MODULE_NAME } from '../particle';
 import CurveRange from './curve-range';
 import { ModuleRandSeed } from '../enum';
-import { ParticleUtils } from '../particle-utils';
+import { isCurveTwoValues } from '../particle-general-function';
 
 const TEXTURE_ANIMATION_RAND_OFFSET = ModuleRandSeed.TEXTURE;
 
@@ -241,8 +241,8 @@ export default class TextureAnimationModule extends ParticleModuleBase {
 
     public animate (p: Particle, dt: number) {
         const normalizedTime = 1 - p.remainingLifetime / p.startLifetime;
-        const randStart = ParticleUtils.isCurveTwoValues(this.startFrame) ? pseudoRandom(p.randomSeed + TEXTURE_ANIMATION_RAND_OFFSET) : 0;
-        const randFrame = ParticleUtils.isCurveTwoValues(this.frameOverTime) ? pseudoRandom(p.randomSeed + TEXTURE_ANIMATION_RAND_OFFSET) : 0;
+        const randStart = isCurveTwoValues(this.startFrame) ? pseudoRandom(p.randomSeed + TEXTURE_ANIMATION_RAND_OFFSET) : 0;
+        const randFrame = isCurveTwoValues(this.frameOverTime) ? pseudoRandom(p.randomSeed + TEXTURE_ANIMATION_RAND_OFFSET) : 0;
         const startFrame = this.startFrame.evaluate(normalizedTime, randStart)! / (this.numTilesX * this.numTilesY);
         if (this.animation === Animation.WholeSheet) {
             p.frameIndex = repeat(this.cycleCount * (this.frameOverTime.evaluate(normalizedTime, randFrame)! + startFrame), 1);

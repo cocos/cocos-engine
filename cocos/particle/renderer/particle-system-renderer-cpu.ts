@@ -38,7 +38,7 @@ import { Camera } from '../../render-scene/scene/camera';
 import { Pass } from '../../render-scene';
 import { ParticleNoise } from '../noise';
 import { NoiseModule } from '../animator/noise-module';
-import { ParticleUtils } from '../particle-utils';
+import { isCurveTwoValues } from '../particle-general-function';
 
 const _tempAttribUV = new Vec3();
 const _tempWorldTrans = new Mat4();
@@ -394,7 +394,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
                 continue;
             }
 
-            const rand = ParticleUtils.isCurveTwoValues(ps.gravityModifier) ? pseudoRandom(p.randomSeed) : 0;
+            const rand = isCurveTwoValues(ps.gravityModifier) ? pseudoRandom(p.randomSeed) : 0;
 
             if (ps.simulationSpace === Space.Local) {
                 const gravityFactor = -ps.gravityModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, rand)! * 9.8 * dt;

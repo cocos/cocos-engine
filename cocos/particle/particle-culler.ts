@@ -28,11 +28,10 @@ import { Node } from '../scene-graph/node';
 import { TransformBit } from '../scene-graph/node-enum';
 import { RenderMode, Space } from './enum';
 import { approx, EPSILON, Mat4, pseudoRandom, Quat, randomRangeInt, Vec3, Vec4, geometry, bits } from '../core';
-import { particleEmitZAxis } from './particle-general-function';
+import { isCurveTwoValues, particleEmitZAxis } from './particle-general-function';
 import { IParticleSystemRenderer } from './renderer/particle-system-renderer-base';
 import { Mesh } from '../3d';
 import type { ParticleSystem } from './particle-system';
-import { ParticleUtils } from './particle-utils';
 
 const _node_mat = new Mat4();
 const _node_parent_inv = new Mat4();
@@ -219,7 +218,7 @@ export class ParticleCuller {
             p.remainingLifetime -= dt;
             Vec3.set(p.animatedVelocity, 0, 0, 0);
 
-            const rand = ParticleUtils.isCurveTwoValues(ps.gravityModifier) ? pseudoRandom(p.randomSeed) : 0;
+            const rand = isCurveTwoValues(ps.gravityModifier) ? pseudoRandom(p.randomSeed) : 0;
 
             if (ps.simulationSpace === Space.Local) {
                 const gravityFactor = -ps.gravityModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, rand)! * 9.8 * dt;
@@ -292,7 +291,7 @@ export class ParticleCuller {
 
     public calculatePositions () {
         this._emit(this._particleSystem.capacity, 0, this._particlesAll);
-        const rand = ParticleUtils.isCurveTwoValues(this._particleSystem.startLifetime) ? pseudoRandom(randomRangeInt(0, bits.INT_MAX)) : 0;
+        const rand = isCurveTwoValues(this._particleSystem.startLifetime) ? pseudoRandom(randomRangeInt(0, bits.INT_MAX)) : 0;
         this._updateParticles(0, this._particlesAll);
         this._calculateBounding(true);
         this._updateParticles(this._particleSystem.startLifetime.evaluate(0, rand), this._particlesAll);

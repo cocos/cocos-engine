@@ -29,7 +29,7 @@ import { Mat4, pseudoRandom, Quat, Vec3 } from '../../core';
 import { Particle, ParticleModuleBase, PARTICLE_MODULE_NAME } from '../particle';
 import CurveRange from './curve-range';
 import { ModuleRandSeed, RenderMode } from '../enum';
-import { ParticleUtils } from '../particle-utils';
+import { isCurveTwoValues } from '../particle-general-function';
 
 const ROTATION_OVERTIME_RAND_OFFSET = ModuleRandSeed.ROTATION;
 
@@ -124,14 +124,14 @@ export default class RotationOvertimeModule extends ParticleModuleBase {
 
     public animate (p: Particle, dt: number) {
         const normalizedTime = 1 - p.remainingLifetime / p.startLifetime;
-        const randZ = ParticleUtils.isCurveTwoValues(this.z) ? pseudoRandom(p.randomSeed + ROTATION_OVERTIME_RAND_OFFSET) : 0;
+        const randZ = isCurveTwoValues(this.z) ? pseudoRandom(p.randomSeed + ROTATION_OVERTIME_RAND_OFFSET) : 0;
         const renderMode = p.particleSystem.processor.getInfo().renderMode;
 
         if ((!this._separateAxes) || (renderMode === RenderMode.VerticalBillboard || renderMode === RenderMode.HorizontalBillboard)) {
             Quat.fromEuler(p.deltaQuat, 0, 0, this.z.evaluate(normalizedTime, randZ)! * dt * Particle.R2D);
         } else {
-            const randX = ParticleUtils.isCurveTwoValues(this.x) ? pseudoRandom(p.randomSeed + ROTATION_OVERTIME_RAND_OFFSET) : 0;
-            const randY = ParticleUtils.isCurveTwoValues(this.y) ? pseudoRandom(p.randomSeed + ROTATION_OVERTIME_RAND_OFFSET) : 0;
+            const randX = isCurveTwoValues(this.x) ? pseudoRandom(p.randomSeed + ROTATION_OVERTIME_RAND_OFFSET) : 0;
+            const randY = isCurveTwoValues(this.y) ? pseudoRandom(p.randomSeed + ROTATION_OVERTIME_RAND_OFFSET) : 0;
             Quat.fromEuler(p.deltaQuat, this.x.evaluate(normalizedTime, randX)! * dt * Particle.R2D, this.y.evaluate(normalizedTime, randY)! * dt * Particle.R2D, this.z.evaluate(normalizedTime, randZ)! * dt * Particle.R2D);
         }
 

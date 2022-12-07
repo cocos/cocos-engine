@@ -67,35 +67,6 @@ export class ParticleUtils {
         }
     }
 
-    /**
-     * @en judge if the CurveRange use TwoCurves or TwoConstants
-     * @zh 判断粒子的CurveRange是否使用了 TwoCurves 或者 TwoConstants
-     */
-    public static isCurveTwoValues (curve: CurveRange): boolean {
-        const Mode = CurveRange.Mode;
-        switch (curve.mode) {
-        case Mode.TwoCurves:
-        case Mode.TwoConstants:
-            return true;
-        default:
-            return false;
-        }
-    }
-    /**
-     * @en judge if the GradientRange TwoValues use TwoGradients or TwoColors
-     * @zh 判断粒子的 GradientRange 是否使用了 TwoGradients 或者 TwoColors
-     */
-    public static isGradientTwoValues (color: GradientRange): boolean {
-        const Mode = GradientRange.Mode;
-        switch (color.mode) {
-        case Mode.TwoGradients:
-        case Mode.TwoColors:
-            return true;
-        default:
-            return false;
-        }
-    }
-
     private static particleSystemPool: Map<string, Pool<CCObject>> = new Map<string, Pool<CCObject>>();
     private static registeredSceneEvent = false;
 
