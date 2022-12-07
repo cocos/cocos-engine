@@ -281,7 +281,7 @@ using namespace cc;
 %attribute_writeonly(cc::Node, Mat4&, matrix, setMatrix);
 %attribute(cc::Node, uint32_t, hasChangedFlags, getChangedFlags, setChangedFlags);
 %attribute(cc::Node, bool, _persistNode, isPersistNode, setPersistNode);
-%attribute(cc::Node, cc::MobilityMode, mobility, getMobility, setMobility);
+%attribute(cc::Node, cc::MobilityMode, _mobility, getMobility, setMobility);
 
 %attribute(cc::scene::Ambient, cc::Vec4&, skyColor, getSkyColor, setSkyColor);
 %attribute(cc::scene::Ambient, float, skyIllum, getSkyIllum, setSkyIllum);
@@ -448,6 +448,7 @@ using namespace cc;
 %attribute(cc::scene::Model, cc::scene::Model::Type, type, getType, setType);
 %attribute(cc::scene::Model, bool, isDynamicBatching, isDynamicBatching, setDynamicBatching);
 %attribute(cc::scene::Model, uint32_t, priority, getPriority, setPriority);
+%attribute(cc::scene::Model, int32_t, tetrahedronIndex, getTetrahedronIndex, setTetrahedronIndex);
 %attribute(cc::scene::Model, bool, useLightProbe, getUseLightProbe, setUseLightProbe);
 %attribute(cc::scene::Model, bool, bakeToReflectionProbe, getBakeToReflectionProbe, setBakeToReflectionProbe);
 %attribute(cc::scene::Model, uint32_t, reflectionProbeType, getReflectionProbeType, setReflectionProbeType);
