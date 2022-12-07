@@ -47,6 +47,10 @@
 
 #include "tetgen.h"
 
+#pragma warning(push)
+#pragma warning(disable : 4101)
+#pragma warning(disable : 4477)
+
 //== io_cxx ==================================================================//
 //                                                                            //
 //                                                                            //
@@ -36565,3 +36569,4 @@ void tetrahedralize(char *switches, tetgenio *in, tetgenio *out,
 //                                                                            //
 //== main_cxx ================================================================//
 
+#pragma warning(pop)
