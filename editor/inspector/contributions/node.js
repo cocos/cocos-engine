@@ -1280,21 +1280,6 @@ const Elements = {
                             }
                             if (data.name) {
                                 trackEventWithTimer('laber', `A100000_${data.name}`);
-                                switch (data.name) {
-                                    case 'cc.LODGroup':
-                                        trackEventWithTimer('LOD', 'A100000');
-                                        break;
-                                    case 'cc.ParticleSystem':
-                                    case 'cc.ParticleSystem2D':
-                                        trackEventWithTimer('particleSystem', 'A100012');
-                                        break;
-                                    case 'cc.LightProbeGroup':
-                                        trackEventWithTimer('bakingSystem', 'A100004');
-                                        break;
-                                    case 'cc.ReflectionProbe':
-                                        trackEventWithTimer('bakingSystem', 'A100012');
-                                        break;
-                                }
                             }
 
                             Editor.Message.send('scene', 'snapshot');
@@ -1511,18 +1496,7 @@ exports.methods = {
                                     });
 
                                     if (nodeDump.__comps__[index].type) {
-                                        switch (nodeDump.__comps__[index].type) {
-                                            case 'cc.ParticleSystem':
-                                            case 'cc.ParticleSystem2D':
-                                                trackEventWithTimer('particleSystem', 'A100015');
-                                                break;
-                                            case 'cc.LightProbeGroup':
-                                                trackEventWithTimer('bakingSystem', 'A100011');
-                                                break;
-                                            case 'cc.ReflectionProbe':
-                                                trackEventWithTimer('bakingSystem', 'A100016');
-                                                break;
-                                        }
+                                        trackEventWithTimer('laber', `A100001_${nodeDump.__comps__[index].type}`);
                                     }
                                 }
                             }
