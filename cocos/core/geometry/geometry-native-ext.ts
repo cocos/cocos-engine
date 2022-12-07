@@ -70,6 +70,7 @@ function cacheUnderlyingData (ctor: Constructor) {
 
 /**
  * linear layout info of JSB attributes
+ *   stored at static field `__nativeFields__`
  * see: `DESC_UNDERLINE_DATA_*` in file jsb_geometry_manual.cpp
  */
 interface FieldDesc {
@@ -82,6 +83,7 @@ interface FieldDesc {
  * define accessor for attr, read/write directly to the underlyingData as Float32Array[1]
  */
 const defineAttrFloat = (kls: Constructor, attr: string) => {
+    // __nativeFields__ is defined in jsb_geometry_manual.cpp
     const desc: FieldDesc = (kls as any).__nativeFields__[attr];
     const cacheKey = `_$_${attr}`;
     console.assert(desc.fieldSize === 4, `field ${attr} size ${desc.fieldSize}`);
@@ -96,6 +98,9 @@ const defineAttrFloat = (kls: Constructor, attr: string) => {
             return this[cacheKey][0];
         },
         set (v: number) {
+            if (this[cacheKey] === undefined) {
+                this[cacheKey] = new Float32Array(this._arraybuffer(), desc.fieldOffset, 1);
+            }
             this[cacheKey][0] = v;
         },
     });
@@ -105,6 +110,7 @@ const defineAttrFloat = (kls: Constructor, attr: string) => {
  *  define accessor for attr, read/write directly to the underlyingData as Int32Array[1]
  */
 const defineAttrInt = (kls: Constructor, attr: string) => {
+    // __nativeFields__ is defined in jsb_geometry_manual.cpp
     const desc: FieldDesc = (kls as any).__nativeFields__[attr];
     if (!desc) {
         console.error(`attr ${attr} not defined in class ${kls.toString()}`);
@@ -122,6 +128,9 @@ const defineAttrInt = (kls: Constructor, attr: string) => {
             return this[cacheKey][0];
         },
         set (v: number) {
+            if (this[cacheKey] === undefined) {
+                this[cacheKey] = new Int32Array(this._arraybuffer(), desc.fieldOffset, 1);
+            }
             this[cacheKey][0] = v;
         },
     });
