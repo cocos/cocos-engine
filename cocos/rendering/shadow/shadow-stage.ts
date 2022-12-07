@@ -72,6 +72,7 @@ export class ShadowStage extends RenderStage {
     private _light: Light | null = null;
     private _globalDS: DescriptorSet | null = null;
     private _level = 0;
+    private _isShadowMapCleared = false;
 
     public destroy () {
         this._shadowFrameBuffer = null;
@@ -82,7 +83,7 @@ export class ShadowStage extends RenderStage {
     }
 
     public clearFramebuffer (camera: Camera) {
-        if (!this._light || !this._shadowFrameBuffer) { return; }
+        if (!this._light || !this._shadowFrameBuffer || this._isShadowMapCleared) { return; }
 
         colors[0].w = camera.clearColor.w;
         const pipeline = this._pipeline as ForwardPipeline;
@@ -101,6 +102,7 @@ export class ShadowStage extends RenderStage {
         cmdBuff.beginRenderPass(renderPass, this._shadowFrameBuffer, this._renderArea,
             colors, camera.clearDepth, camera.clearStencil);
         cmdBuff.endRenderPass();
+        this._isShadowMapCleared = true;
     }
 
     public render (camera: Camera) {
@@ -157,10 +159,12 @@ export class ShadowStage extends RenderStage {
         this._additiveShadowQueue.recordCommandBuffer(device, renderPass, cmdBuff);
 
         cmdBuff.endRenderPass();
+        this._isShadowMapCleared = false;
     }
 
     public activate (pipeline: ForwardPipeline, flow: ShadowFlow) {
         super.activate(pipeline, flow);
         this._additiveShadowQueue = new RenderShadowMapBatchedQueue(pipeline);
+        this._isShadowMapCleared = false;
     }
 }
