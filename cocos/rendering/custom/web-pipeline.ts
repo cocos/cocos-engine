@@ -884,6 +884,18 @@ export class WebPipeline implements Pipeline {
             >= (WebPipeline.CSM_UNIFORM_VECTORS + WebPipeline.GLOBAL_UNIFORM_VECTORS);
         this.setMacroBool('CC_SUPPORT_CASCADED_SHADOW_MAP', this.pipelineSceneData.csmSupported);
 
+        // 0: CC_SHADOW_NONE, 1: CC_SHADOW_PLANAR, 2: CC_SHADOW_MAP
+        this.setMacroInt('CC_SHADOW_TYPE', 0);
+
+        // 0: PCFType.HARD, 1: PCFType.SOFT, 2: PCFType.SOFT_2X, 3: PCFType.SOFT_4X
+        this.setMacroInt('CC_DIR_SHADOW_PCF_TYPE', PCFType.HARD);
+
+        // 0: CC_DIR_LIGHT_SHADOW_NONE, 1: CC_DIR_LIGHT_SHADOW_UNIFORM, 2: CC_DIR_LIGHT_SHADOW_CASCADED, 3: CC_DIR_LIGHT_SHADOW_VARIANCE
+        this.setMacroInt('CC_DIR_LIGHT_SHADOW_TYPE', 0);
+
+        // 0: CC_CASCADED_LAYERS_TRANSITION_OFF, 1: CC_CASCADED_LAYERS_TRANSITION_ON
+        this.setMacroBool('CC_CASCADED_LAYERS_TRANSITION',  false);
+
         // enable the deferred pipeline
         if (this.usesDeferredPipeline) {
             this.setMacroInt('CC_PIPELINE_TYPE', 1);

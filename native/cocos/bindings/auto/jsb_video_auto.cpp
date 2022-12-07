@@ -455,6 +455,7 @@ SE_BIND_FUNC(js_cc_VideoPlayer_setFrame)
 bool js_register_cc_VideoPlayer(se::Object* obj) {
     auto* cls = se::Class::create("VideoPlayer", obj, nullptr, _SE(js_new_cc_VideoPlayer)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     cls->defineFunction("destroy", _SE(js_cc_VideoPlayer_destroy)); 
     cls->defineFunction("setURL", _SE(js_cc_VideoPlayer_setURL)); 

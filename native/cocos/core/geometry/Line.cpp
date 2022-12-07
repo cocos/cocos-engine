@@ -48,8 +48,7 @@ Line *Line::set(Line *out,
     return out;
 }
 
-Line::Line(float sx, float sy, float sz, float ex, float ey, float ez) {
-    setType(ShapeEnum::SHAPE_LINE);
+Line::Line(float sx, float sy, float sz, float ex, float ey, float ez) : ShapeBase(ShapeEnum::SHAPE_LINE) {
     s = {sx, sy, sz};
     e = {ex, ey, ez};
 }

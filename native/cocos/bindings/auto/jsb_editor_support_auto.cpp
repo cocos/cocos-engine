@@ -339,6 +339,7 @@ bool sevalue_to_native(const se::Value &from, cc::middleware::Color4B * to, se::
 bool js_register_cc_middleware_Color4B(se::Object* obj) {
     auto* cls = se::Class::create("Color4B", obj, nullptr, _SE(js_new_Color4B)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("r", _SE(js_cc_middleware_Color4B_r_get), _SE(js_cc_middleware_Color4B_r_set)); 
     cls->defineProperty("g", _SE(js_cc_middleware_Color4B_g_get), _SE(js_cc_middleware_Color4B_g_set)); 
     cls->defineProperty("b", _SE(js_cc_middleware_Color4B_b_get), _SE(js_cc_middleware_Color4B_b_set)); 
@@ -633,6 +634,7 @@ bool sevalue_to_native(const se::Value &from, cc::middleware::Color4F * to, se::
 bool js_register_cc_middleware_Color4F(se::Object* obj) {
     auto* cls = se::Class::create("Color4F", obj, nullptr, _SE(js_new_Color4F)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("r", _SE(js_cc_middleware_Color4F_r_get), _SE(js_cc_middleware_Color4F_r_set)); 
     cls->defineProperty("g", _SE(js_cc_middleware_Color4F_g_get), _SE(js_cc_middleware_Color4F_g_set)); 
     cls->defineProperty("b", _SE(js_cc_middleware_Color4F_b_get), _SE(js_cc_middleware_Color4F_b_set)); 
@@ -780,6 +782,7 @@ bool sevalue_to_native(const se::Value &from, cc::middleware::Tex2F * to, se::Ob
 bool js_register_cc_middleware_Tex2F(se::Object* obj) {
     auto* cls = se::Class::create("Tex2F", obj, nullptr, _SE(js_new_cc_middleware_Tex2F)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("u", _SE(js_cc_middleware_Tex2F_u_get), _SE(js_cc_middleware_Tex2F_u_set)); 
     cls->defineProperty("v", _SE(js_cc_middleware_Tex2F_v_get), _SE(js_cc_middleware_Tex2F_v_set)); 
     
@@ -975,6 +978,7 @@ bool sevalue_to_native(const se::Value &from, cc::middleware::V3F_T2F_C4B * to, 
 bool js_register_cc_middleware_V3F_T2F_C4B(se::Object* obj) {
     auto* cls = se::Class::create("V3F_T2F_C4B", obj, nullptr, _SE(js_new_cc_middleware_V3F_T2F_C4B)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("vertex", _SE(js_cc_middleware_V3F_T2F_C4B_vertex_get), _SE(js_cc_middleware_V3F_T2F_C4B_vertex_set)); 
     cls->defineProperty("texCoord", _SE(js_cc_middleware_V3F_T2F_C4B_texCoord_get), _SE(js_cc_middleware_V3F_T2F_C4B_texCoord_set)); 
     cls->defineProperty("color", _SE(js_cc_middleware_V3F_T2F_C4B_color_get), _SE(js_cc_middleware_V3F_T2F_C4B_color_set)); 
@@ -1214,6 +1218,7 @@ bool sevalue_to_native(const se::Value &from, cc::middleware::V3F_T2F_C4B_C4B * 
 bool js_register_cc_middleware_V3F_T2F_C4B_C4B(se::Object* obj) {
     auto* cls = se::Class::create("V3F_T2F_C4B_C4B", obj, nullptr, _SE(js_new_cc_middleware_V3F_T2F_C4B_C4B)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("vertex", _SE(js_cc_middleware_V3F_T2F_C4B_C4B_vertex_get), _SE(js_cc_middleware_V3F_T2F_C4B_C4B_vertex_set)); 
     cls->defineProperty("texCoord", _SE(js_cc_middleware_V3F_T2F_C4B_C4B_texCoord_get), _SE(js_cc_middleware_V3F_T2F_C4B_C4B_texCoord_set)); 
     cls->defineProperty("color", _SE(js_cc_middleware_V3F_T2F_C4B_C4B_color_get), _SE(js_cc_middleware_V3F_T2F_C4B_C4B_color_set)); 
@@ -1442,6 +1447,7 @@ bool sevalue_to_native(const se::Value &from, cc::middleware::Triangles * to, se
 bool js_register_cc_middleware_Triangles(se::Object* obj) {
     auto* cls = se::Class::create("Triangles", obj, nullptr, _SE(js_new_cc_middleware_Triangles)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("verts", _SE(js_cc_middleware_Triangles_verts_get), _SE(js_cc_middleware_Triangles_verts_set)); 
     cls->defineProperty("indices", _SE(js_cc_middleware_Triangles_indices_get), _SE(js_cc_middleware_Triangles_indices_set)); 
     cls->defineProperty("vertCount", _SE(js_cc_middleware_Triangles_vertCount_get), _SE(js_cc_middleware_Triangles_vertCount_set)); 
@@ -1670,6 +1676,7 @@ bool sevalue_to_native(const se::Value &from, cc::middleware::TwoColorTriangles 
 bool js_register_cc_middleware_TwoColorTriangles(se::Object* obj) {
     auto* cls = se::Class::create("TwoColorTriangles", obj, nullptr, _SE(js_new_cc_middleware_TwoColorTriangles)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("verts", _SE(js_cc_middleware_TwoColorTriangles_verts_get), _SE(js_cc_middleware_TwoColorTriangles_verts_set)); 
     cls->defineProperty("indices", _SE(js_cc_middleware_TwoColorTriangles_indices_get), _SE(js_cc_middleware_TwoColorTriangles_indices_set)); 
     cls->defineProperty("vertCount", _SE(js_cc_middleware_TwoColorTriangles_vertCount_get), _SE(js_cc_middleware_TwoColorTriangles_vertCount_set)); 
@@ -1924,6 +1931,7 @@ bool sevalue_to_native(const se::Value &from, cc::middleware::Texture2D::TexPara
 bool js_register_cc_middleware_Texture2D_TexParams(se::Object* obj) {
     auto* cls = se::Class::create({"Texture2D", "TexParams"}, obj, nullptr, _SE(js_new_cc_middleware_Texture2D_TexParams)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("minFilter", _SE(js_cc_middleware_Texture2D_TexParams_minFilter_get), _SE(js_cc_middleware_Texture2D_TexParams_minFilter_set)); 
     cls->defineProperty("magFilter", _SE(js_cc_middleware_Texture2D_TexParams_magFilter_get), _SE(js_cc_middleware_Texture2D_TexParams_magFilter_set)); 
     cls->defineProperty("wrapS", _SE(js_cc_middleware_Texture2D_TexParams_wrapS_get), _SE(js_cc_middleware_Texture2D_TexParams_wrapS_set)); 
@@ -2165,6 +2173,7 @@ SE_BIND_FUNC(js_cc_middleware_Texture2D_getRealTexture)
 bool js_register_cc_middleware_Texture2D(se::Object* obj) {
     auto* cls = se::Class::create("Texture2D", obj, nullptr, _SE(js_new_cc_middleware_Texture2D)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     cls->defineFunction("getPixelsWide", _SE(js_cc_middleware_Texture2D_getPixelsWide)); 
     cls->defineFunction("getPixelsHigh", _SE(js_cc_middleware_Texture2D_getPixelsHigh)); 
@@ -2464,6 +2473,7 @@ SE_BIND_FUNC(js_cc_middleware_SpriteFrame_setTexture)
 bool js_register_cc_middleware_SpriteFrame(se::Object* obj) {
     auto* cls = se::Class::create("SpriteFrame", obj, nullptr, _SE(js_new_cc_middleware_SpriteFrame)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     cls->defineFunction("initWithTexture", _SE(js_cc_middleware_SpriteFrame_initWithTexture)); 
     cls->defineFunction("getTexture", _SE(js_cc_middleware_SpriteFrame_getTexture)); 
@@ -2576,6 +2586,7 @@ SE_BIND_FUNC(js_cc_middleware_SharedBufferManager_getSharedBuffer)
 bool js_register_cc_middleware_SharedBufferManager(se::Object* obj) {
     auto* cls = se::Class::create("SharedBufferManager", obj, nullptr, _SE(js_new_cc_middleware_SharedBufferManager)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     cls->defineFunction("setResizeCallback", _SE(js_cc_middleware_SharedBufferManager_setResizeCallback)); 
     cls->defineFunction("getSharedBuffer", _SE(js_cc_middleware_SharedBufferManager_getSharedBuffer)); 
@@ -2657,6 +2668,7 @@ SE_BIND_FUNC(js_cc_middleware_IMiddleware_render)
 bool js_register_cc_middleware_IMiddleware(se::Object* obj) {
     auto* cls = se::Class::create("IMiddleware", obj, nullptr, nullptr); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     cls->defineFunction("update", _SE(js_cc_middleware_IMiddleware_update)); 
     cls->defineFunction("render", _SE(js_cc_middleware_IMiddleware_render)); 
@@ -3097,6 +3109,7 @@ SE_BIND_PROP_GET(js_cc_middleware_MiddlewareManager_isUpdating_get)
 bool js_register_cc_middleware_MiddlewareManager(se::Object* obj) {
     auto* cls = se::Class::create("MiddlewareManager", obj, nullptr, _SE(js_new_cc_middleware_MiddlewareManager)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("isRendering", _SE(js_cc_middleware_MiddlewareManager_isRendering_get), _SE(js_cc_middleware_MiddlewareManager_isRendering_set)); 
     cls->defineProperty("isUpdating", _SE(js_cc_middleware_MiddlewareManager_isUpdating_get), _SE(js_cc_middleware_MiddlewareManager_isUpdating_set)); 
     

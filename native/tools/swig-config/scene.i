@@ -78,7 +78,6 @@ using namespace cc;
 
 %ignore cc::Node::setRTSInternal;
 %ignore cc::Node::setRTS;
-%ignore cc::scene::Camera::syncCameraEditor;
 //FIXME: These methods binding code will generate SwigValueWrapper type which is not supported now.
 %ignore cc::scene::SubModel::getInstancedAttributeBlock;
 %ignore cc::scene::SubModel::getInstancedWorldMatrixIndex;
@@ -143,7 +142,6 @@ using namespace cc;
 %ignore cc::scene::Camera::screenToWorld;
 %ignore cc::scene::Camera::worldToScreen;
 %ignore cc::scene::Camera::worldMatrixToScreen;
-%ignore cc::scene::Camera::syncCameraEditor;
 %ignore cc::scene::Camera::getMatView;
 %ignore cc::scene::Camera::getMatProj;
 %ignore cc::scene::Camera::getMatProjInv;
@@ -332,6 +330,7 @@ using namespace cc;
 %attribute(cc::scene::DirectionalLight, float, csmLayerLambda, getCSMLayerLambda, setCSMLayerLambda);
 %attribute(cc::scene::DirectionalLight, cc::scene::CSMOptimizationMode, csmOptimizationMode, getCSMOptimizationMode, setCSMOptimizationMode);
 %attribute(cc::scene::DirectionalLight, bool, csmLayersTransition, getCSMLayersTransition, setCSMLayersTransition);
+%attribute(cc::scene::DirectionalLight, float, csmTransitionRange, getCSMTransitionRange, setCSMTransitionRange);
 
 %attribute(cc::scene::SpotLight, cc::Vec3&, position, getPosition);
 %attribute(cc::scene::SpotLight, float, range, getRange, setRange);
@@ -506,18 +505,21 @@ using namespace cc;
 %attribute(cc::scene::FogInfo, float, fogTop, getFogTop, setFogTop);
 %attribute(cc::scene::FogInfo, float, fogRange, getFogRange, setFogRange);
 
-%attribute(cc::scene::SkyboxInfo, TextureCube*, _envmap, getEnvmapForJS, setEnvmapForJS);
+%attribute(cc::scene::SkyboxInfo, cc::TextureCube*, _envmap, getEnvmapForJS, setEnvmapForJS);
 %attribute(cc::scene::SkyboxInfo, bool, applyDiffuseMap, isApplyDiffuseMap, setApplyDiffuseMap);
 %attribute(cc::scene::SkyboxInfo, bool, enabled, isEnabled, setEnabled);
 %attribute(cc::scene::SkyboxInfo, bool, useIBL, isUseIBL, setUseIBL);
 %attribute(cc::scene::SkyboxInfo, bool, useHDR, isUseHDR, setUseHDR);
-%attribute(cc::scene::SkyboxInfo, TextureCube*, envmap, getEnvmap, setEnvmap);
-%attribute(cc::scene::SkyboxInfo, TextureCube*, diffuseMap, getDiffuseMap, setDiffuseMap);
+%attribute(cc::scene::SkyboxInfo, cc::TextureCube*, envmap, getEnvmap, setEnvmap);
+%attribute(cc::scene::SkyboxInfo, cc::TextureCube*, diffuseMap, getDiffuseMap, setDiffuseMap);
+%attribute(cc::scene::SkyboxInfo, cc::TextureCube*, reflectionMap, getReflectionMap, setReflectionMap);
+%attribute(cc::scene::SkyboxInfo, cc::Material*, skyboxMaterial, getSkyboxMaterial, setSkyboxMaterial);
+%attribute(cc::scene::SkyboxInfo, float, rotationAngle, getRotationAngle, setRotationAngle);
 %attribute(cc::scene::SkyboxInfo, cc::scene::EnvironmentLightingType, envLightingType, getEnvLightingType, setEnvLightingType);
 
 %attribute(cc::scene::OctreeInfo, bool, enabled, isEnabled, setEnabled);
-%attribute(cc::scene::OctreeInfo, Vec3&, minPos, getMinPos, setMinPos);
-%attribute(cc::scene::OctreeInfo, Vec3&, maxPos, getMaxPos, setMaxPos);
+%attribute(cc::scene::OctreeInfo, cc::Vec3&, minPos, getMinPos, setMinPos);
+%attribute(cc::scene::OctreeInfo, cc::Vec3&, maxPos, getMaxPos, setMaxPos);
 %attribute(cc::scene::OctreeInfo, uint32_t, depth, getDepth, setDepth);
 
 %attribute(cc::Scene, bool, autoReleaseAssets, isAutoReleaseAssets, setAutoReleaseAssets);
@@ -527,7 +529,8 @@ using namespace cc;
 %attribute(cc::scene::ReflectionProbe, cc::gfx::ClearFlagBit, clearFlag, getClearFlag, setClearFlag);
 %attribute(cc::scene::ReflectionProbe, cc::gfx::Color&, backgroundColor, getBackgroundColor, setBackgroundColor);
 %attribute(cc::scene::ReflectionProbe, uint32_t, visibility, getVisibility, setVisibility);
-%attribute(cc::scene::ReflectionProbe, Vec3&, size, getBoudingSize, setBoudingSize);
+%attribute(cc::scene::ReflectionProbe, cc::Vec3&, size, getBoudingSize, setBoudingSize);
+%attribute(cc::scene::ReflectionProbe, cc::geometry::AABB *, boundingBox, getBoundingBox);
 
 
 

@@ -32,6 +32,8 @@ export * from './framework';
 
 export * from './lights';
 export * from './skinned-mesh-renderer';
+export * from './lod';
+
 export {
     utils,
 };

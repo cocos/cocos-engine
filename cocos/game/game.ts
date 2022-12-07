@@ -780,7 +780,7 @@ export class Game extends EventTarget {
                 return this.onPostSubsystemInitDelegate.dispatch();
             })
             .then(() => {
-                log(`Cocos Creator v${VERSION}`);
+                console.log(`Cocos Creator v${VERSION}`);
                 this.emit(Game.EVENT_ENGINE_INITED);
                 this._engineInited = true;
             })

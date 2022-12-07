@@ -567,6 +567,7 @@ int AndroidPlatform::init() {
 void AndroidPlatform::onDestroy() {
     UniversalPlatform::onDestroy();
     unregisterAllInterfaces();
+    JniHelper::onDestroy();
     CC_SAFE_DELETE(_inputProxy)
 }
 

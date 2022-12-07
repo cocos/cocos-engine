@@ -229,7 +229,7 @@ public:
      *  @param[in] setter The native callback for setter.
      *  @return true if succeed, otherwise false.
      */
-    bool defineProperty(const char *name, v8::AccessorNameGetterCallback getter, v8::AccessorNameSetterCallback setter);
+    bool defineProperty(const char *name, v8::FunctionCallback getter, v8::FunctionCallback setter);
 
     bool defineOwnProperty(const char *name, const se::Value &value, bool writable = true, bool enumerable = true, bool configurable = true);
 

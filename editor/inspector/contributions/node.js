@@ -1640,7 +1640,7 @@ exports.methods = {
                     async click() {
                         Editor.Clipboard.write('_dump_node_', {
                             type: dump.type,
-                            attrs: ['position', 'rotation', 'scale', 'layer'],
+                            attrs: ['position', 'rotation', 'scale', 'mobility', 'layer'],
                             dump: JSON.parse(JSON.stringify(dump)),
                         });
                     },
@@ -1769,7 +1769,7 @@ exports.methods = {
                 },
                 {
                     label: Editor.I18n.t('ENGINE.menu.reset_node_scale'),
-                    enabled: !dump.rotation.readonly && JSON.stringify(dump.scale.value) !== JSON.stringify(dump.scale.default),
+                    enabled: !dump.scale.readonly && JSON.stringify(dump.scale.value) !== JSON.stringify(dump.scale.default),
                     async click() {
                         Editor.Message.send('scene', 'snapshot');
 
@@ -1777,6 +1777,22 @@ exports.methods = {
                             await Editor.Message.request('scene', 'reset-property', {
                                 uuid,
                                 path: 'scale',
+                            });
+                        }
+
+                        Editor.Message.send('scene', 'snapshot');
+                    },
+                },
+                {
+                    label: Editor.I18n.t('ENGINE.menu.reset_node_mobility'),
+                    enabled: !dump.mobility.readonly && JSON.stringify(dump.mobility.value) !== JSON.stringify(dump.mobility.default),
+                    async click() {
+                        Editor.Message.send('scene', 'snapshot');
+
+                        for (const uuid of uuidList) {
+                            await Editor.Message.request('scene', 'reset-property', {
+                                uuid,
+                                path: 'mobility',
                             });
                         }
 

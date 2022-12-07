@@ -193,6 +193,7 @@ SE_BIND_FINALIZE_FUNC(js_delete_cc_AudioProfile)
 bool js_register_cc_AudioProfile(se::Object* obj) {
     auto* cls = se::Class::create("AudioProfile", obj, nullptr, _SE(js_new_cc_AudioProfile)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("name", _SE(js_cc_AudioProfile_name_get), _SE(js_cc_AudioProfile_name_set)); 
     cls->defineProperty("maxInstances", _SE(js_cc_AudioProfile_maxInstances_get), _SE(js_cc_AudioProfile_maxInstances_set)); 
     cls->defineProperty("minDelay", _SE(js_cc_AudioProfile_minDelay_get), _SE(js_cc_AudioProfile_minDelay_set)); 
@@ -1145,6 +1146,7 @@ SE_BIND_FINALIZE_FUNC(js_delete_cc_AudioEngine)
 bool js_register_cc_AudioEngine(se::Object* obj) {
     auto* cls = se::Class::create("AudioEngine", obj, nullptr, _SE(js_new_cc_AudioEngine)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     
     cls->defineStaticProperty("INVALID_AUDIO_ID", _SE(js_cc_AudioEngine_INVALID_AUDIO_ID_get), nullptr); 

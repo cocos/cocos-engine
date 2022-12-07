@@ -70,38 +70,38 @@ void TextureValidator::doInit(const TextureInfo &info) {
     switch (info.type) {
         case TextureType::TEX2D: {
             if (std::max(info.width, info.height) > DeviceValidator::getInstance()->getCapabilities().maxTextureSize) {
-                CC_ASSERT(false);
+                CC_ABORT();
             }
             break;
         }
         case TextureType::TEX1D_ARRAY: {
             if (std::min(info.width, info.height) > 1 || std::max(info.width, info.height) > DeviceValidator::getInstance()->getCapabilities().maxTextureSize
                 || info.layerCount > DeviceValidator::getInstance()->getCapabilities().maxArrayTextureLayers) {
-                CC_ASSERT(false);
+                CC_ABORT();
             }
             break;
         }
         case TextureType::TEX2D_ARRAY: {
             if (std::max(info.width, info.height) > DeviceValidator::getInstance()->getCapabilities().maxTextureSize
                 || info.layerCount > DeviceValidator::getInstance()->getCapabilities().maxArrayTextureLayers) {
-                CC_ASSERT(false);
+                CC_ABORT();
             }
             break;
         }
         case TextureType::CUBE: {
             if (std::max(info.width, info.height) > DeviceValidator::getInstance()->getCapabilities().maxCubeMapTextureSize || info.layerCount != 6) {
-                CC_ASSERT(false);
+                CC_ABORT();
             }
             break;
         }
         case TextureType::TEX3D: {
             if (std::max(std::max(info.width, info.height), info.depth) > DeviceValidator::getInstance()->getCapabilities().maxCubeMapTextureSize) {
-                CC_ASSERT(false);
+                CC_ABORT();
             }
             break;
         }
         default: {
-            CC_ASSERT(false);
+            CC_ABORT();
             break;
         }
     }

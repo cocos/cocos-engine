@@ -326,7 +326,7 @@ void GLES2CommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, c
 }
 
 void GLES2CommandBuffer::execute(CommandBuffer *const *cmdBuffs, uint32_t count) {
-    CC_ASSERT(false); // Command 'execute' must be recorded in primary command buffers.
+    CC_ABORT(); // Command 'execute' must be recorded in primary command buffers.
 
     for (uint32_t i = 0; i < count; ++i) {
         auto *cmdBuff = static_cast<GLES2CommandBuffer *>(cmdBuffs[i]);

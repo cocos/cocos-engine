@@ -105,8 +105,10 @@ void PhysXEventManager::refreshPairs() {
     for (auto iter = getTriggerPairs().begin(); iter != getTriggerPairs().end();) {
         uintptr_t wrapperPtrShapeA = PhysXWorld::getInstance().getWrapperPtrWithObjectID(iter->get()->shapeA);
         uintptr_t wrapperPtrShapeB = PhysXWorld::getInstance().getWrapperPtrWithObjectID(iter->get()->shapeB);
-        if (wrapperPtrShapeA == 0 || wrapperPtrShapeB == 0)
-            return;
+        if (wrapperPtrShapeA == 0 || wrapperPtrShapeB == 0) {
+            iter = getTriggerPairs().erase(iter);
+            continue;
+        }
 
         const auto &selfIter = getPxShapeMap().find(reinterpret_cast<uintptr_t>(&(reinterpret_cast<PhysXShape *>(wrapperPtrShapeA)->getShape())));
         const auto &otherIter = getPxShapeMap().find(reinterpret_cast<uintptr_t>(&(reinterpret_cast<PhysXShape *>(wrapperPtrShapeB)->getShape())));

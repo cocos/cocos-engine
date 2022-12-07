@@ -79,9 +79,9 @@ public:
     }
 
     Ptr slice(uint32_t begin, uint32_t end) {
-        CC_ASSERT(end > begin);
-        CC_ASSERT(begin < _byteLength);
-        CC_ASSERT(end <= _byteLength);
+        CC_ASSERT_GT(end, begin);
+        CC_ASSERT_LT(begin, _byteLength);
+        CC_ASSERT_LE(end, _byteLength);
         uint32_t newBufByteLength = (end - begin);
         Ptr buffer = ccnew ArrayBuffer(newBufByteLength);
         memcpy(buffer->getData(), _data + begin, newBufByteLength);

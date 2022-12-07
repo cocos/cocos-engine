@@ -40,6 +40,7 @@
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_assets_manual.h"
 #include "cocos/bindings/manual/jsb_cocos_manual.h"
+#include "cocos/bindings/manual/jsb_geometry_manual.h"
 #include "cocos/bindings/manual/jsb_conversions.h"
 #include "cocos/bindings/manual/jsb_gfx_manual.h"
 #include "cocos/bindings/manual/jsb_global.h"
@@ -143,6 +144,7 @@ bool jsb_register_all_modules() {
     se->addRegisterCallback(register_all_pipeline);
     se->addRegisterCallback(register_all_pipeline_manual);
     se->addRegisterCallback(register_all_geometry);
+    se->addRegisterCallback(register_all_geometry_manual);
     se->addRegisterCallback(register_all_scene);
     se->addRegisterCallback(register_all_gi);
     se->addRegisterCallback(register_all_scene_manual);

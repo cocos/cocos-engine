@@ -177,7 +177,7 @@ void Frustum::updatePlanes() {
     planes[5]->define(vertices[7], vertices[5], vertices[6]);
 }
 
-Frustum::Frustum() {
+Frustum::Frustum():ShapeBase(ShapeEnum::SHAPE_FRUSTUM) {
     init();
 }
 
@@ -207,7 +207,6 @@ Frustum &Frustum::operator=(const Frustum &rhs) {
 }
 
 void Frustum::init() {
-    setType(ShapeEnum::SHAPE_FRUSTUM);
     for (size_t i = 0; i < planes.size(); ++i) { // NOLINT(modernize-loop-convert)
         planes[i] = ccnew Plane();
         planes[i]->addRef();

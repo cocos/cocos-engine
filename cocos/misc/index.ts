@@ -33,4 +33,3 @@ export { PrefabLink } from './prefab-link';
 export { ReflectionProbe } from './reflection-probe-component';
 /** deprecated */
 export * from './deprecated';
-export { LOD, LODGroup } from './lodgroup-component';

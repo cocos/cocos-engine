@@ -122,6 +122,7 @@ static bool js_root_registerListeners(se::State &s) // NOLINT(readability-identi
 
     DISPATCH_EVENT_TO_JS_ARGS_0(cc::Root::BeforeCommit, _onDirectorBeforeCommit);
     DISPATCH_EVENT_TO_JS_ARGS_0(cc::Root::BeforeRender, _onDirectorBeforeRender);
+    DISPATCH_EVENT_TO_JS_ARGS_0(cc::Root::AfterRender, _onDirectorAfterRender);
 
     return true;
 }
@@ -663,7 +664,7 @@ static bool js_Model_setInstancedAttribute(se::State &s) // NOLINT(readability-i
 
                     default:
                         // FIXME:
-                        CC_ASSERT(false); // NOLINT
+                        CC_ABORT(); 
                         break;
                 }
                 return true;

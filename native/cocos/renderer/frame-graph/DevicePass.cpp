@@ -69,7 +69,7 @@ DevicePass::DevicePass(const FrameGraph &graph, ccstd::vector<PassNode *> const 
     auto depthNewIndex = gfx::INVALID_BINDING;
     for (uint32_t id = 0; id != attachments.size(); ++id) {
         if (attachments[id].desc.usage != RenderTargetAttachment::Usage::COLOR) {
-            CC_ASSERT(depthIndex == gfx::INVALID_BINDING);
+            CC_ASSERT_EQ(depthIndex, gfx::INVALID_BINDING);
             depthIndex = id;
             depthNewIndex = static_cast<uint32_t>(attachments.size() - 1);
         }
@@ -150,7 +150,7 @@ void DevicePass::passDependency(gfx::RenderPassInfo &rpInfo) {
                     textureBarriers.emplace_back(static_cast<gfx::TextureBarrier *>(res.first));
                     textures.emplace_back(static_cast<gfx::Texture *>(res.second));
                 } else {
-                    CC_ASSERT(false);
+                    CC_ABORT();
                 }
             }
 
@@ -177,7 +177,7 @@ void DevicePass::passDependency(gfx::RenderPassInfo &rpInfo) {
                     textureBarriers.emplace_back(static_cast<gfx::TextureBarrier *>(res.first));
                     textures.emplace_back(static_cast<gfx::Texture *>(res.second));
                 } else {
-                    CC_ASSERT(false);
+                    CC_ABORT();
                 }
             }
         };

@@ -26,6 +26,7 @@ import { Node } from './node';
 import { applyTargetOverrides, expandNestedPrefabInstanceNode } from "./prefab/utils";
 import { assert } from "../core/platform/debug";
 import { updateChildrenForDeserialize } from '../core/utils/jsb-utils';
+import { SceneGlobals } from './scene-globals';
 
 export const Scene = jsb.Scene;
 export type Scene = jsb.Scene;
@@ -134,7 +135,7 @@ sceneProto._activate = function (active: boolean) {
 const SceneProto = Scene.prototype;
 const globalsDescriptor = Object.getOwnPropertyDescriptor(SceneProto, 'globals');
 editable(SceneProto, 'globals', globalsDescriptor);
-editable(SceneProto, 'autoReleaseAssets');
-serializable(SceneProto, 'autoReleaseAssets');
-serializable(SceneProto, '_globals');
+editable(SceneProto, 'autoReleaseAssets', () => false);
+serializable(SceneProto, 'autoReleaseAssets', () => false);
+serializable(SceneProto, '_globals', () => new SceneGlobals());
 ccclass('cc.Scene')(Scene);

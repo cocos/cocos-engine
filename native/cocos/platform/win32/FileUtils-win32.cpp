@@ -73,7 +73,13 @@ static void _checkPath() {
 }
 
 FileUtils *createFileUtils() {
-    return ccnew FileUtilsWin32();
+    // TODO(qgh):In the simulator, it will be called twice. So the judgment here is to prevent memory leaks.
+    // But this is equivalent to using a singleton pattern,
+    // which is not consistent with the current design and will be optimized later.
+    if (!FileUtils::getInstance()) {
+        return ccnew FileUtilsWin32();
+    }
+    return FileUtils::getInstance();
 }
 
 FileUtilsWin32::FileUtilsWin32() {

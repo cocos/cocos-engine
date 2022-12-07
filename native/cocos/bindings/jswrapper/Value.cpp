@@ -465,12 +465,12 @@ double Value::toDouble() const {
 }
 
 bool Value::toBoolean() const {
-    CC_ASSERT(_type == Type::Boolean);
+    CC_ASSERT_EQ(_type, Type::Boolean);
     return _u._boolean;
 }
 
 const ccstd::string &Value::toString() const {
-    CC_ASSERT(_type == Type::String);
+    CC_ASSERT_EQ(_type, Type::String);
     return *_u._string;
 }
 
@@ -493,7 +493,7 @@ ccstd::string Value::toStringForce() const {
     } else if (_type == Type::Undefined) {
         ss << "undefined";
     } else {
-        CC_ASSERT(false);
+        CC_ABORT();
         ss << "[[BadValueType]]";
     }
     return ss.str();
