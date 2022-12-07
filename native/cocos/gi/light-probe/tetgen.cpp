@@ -47,6 +47,10 @@
 
 #include "tetgen.h"
 
+#ifdef __clang__
+    #pragma clang diagnostic ignored "-Wshorten-64-to-32"
+#endif
+
 #pragma warning(push)
 #pragma warning(disable : 4101)
 #pragma warning(disable : 4477)
