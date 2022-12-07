@@ -52,7 +52,7 @@
 // To compile TetGen as a library instead of an executable program, define
 //   the TETLIBRARY symbol.
 
-// #define TETLIBRARY
+#define TETLIBRARY
 
 
 // TetGen default uses the double-precision (64 bit) for a real number.
