@@ -22,7 +22,8 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-import { ccclass, serializable, EDITOR, TEST } from 'cc.decorator';
+import { ccclass, serializable } from 'cc.decorator';
+import { TEST, EDITOR } from 'internal:constants';
 import { deviceManager } from '../../gfx';
 import { cclegacy } from '../../core';
 import { Filter, PixelFormat, WrapMode } from './asset-enum';
