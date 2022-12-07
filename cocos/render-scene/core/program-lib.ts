@@ -186,6 +186,7 @@ function replaceVertexMutableLocation (
             let location = 0;
             // only vertexshader input is checked
             if (inOrOut === 'in') {
+                const targetStr = source.slice(0, locHolder.index);
                 // attrInfo?.defines store defines need to be satisfied
                 // macroInfo stores value of defines
                 // '!CC_USE_XXX' starts with a '!' is inverse condition.
@@ -198,7 +199,42 @@ function replaceVertexMutableLocation (
                     if (v) {
                         res = !(v.value === '0' || v.value === 'false' || v.value === 'FALSE');
                     }
-                    return inverseCond ? !res : res;
+                    res = inverseCond ? !res : res;
+                    if (res) {
+                        // #if CC_RENDER_MODE == xx ......
+                        // 'CC_RENDER_MODE == 1' or ' CC_RENDER_MODE == 1 ||  CC_RENDER_MODE == 4'
+                        const lastIfRegStr = `[\\n|\\s]+#(?:if|elif)(.*?${defStr}.*?(?:(?!#if|#elif).)*)[\\n|\\s]+$`;
+                        const lastIfReg = new RegExp(lastIfRegStr, 'g');
+                        const lastIfRes = lastIfReg.exec(targetStr);
+                        if (lastIfRes) {
+                            const evalStr = lastIfRes[1];
+                            const evalORElements = evalStr.split('||');
+                            // simple grammar, no parenthesses support yet.
+                            const evalRes = evalORElements.some((eleOrTestStr) => {
+                                const evalANDElements = eleOrTestStr.split('&&');
+                                return evalANDElements.every((eleAndTestStr) => {
+                                    let evalEleRes = true;
+                                    if (eleAndTestStr.includes('==')) {
+                                        const opVars = eleAndTestStr.split('==');
+                                        if ((opVars[0] as any).replaceAll(' ', '') === defStr) {
+                                            evalEleRes = (opVars[1] as any).replaceAll(' ', '') === v!.value;
+                                        }
+                                    } else if (eleAndTestStr.includes('!=')) {
+                                        const opVars = eleAndTestStr.split('!=');
+                                        if ((opVars[0] as any).replaceAll(' ', '') === defStr) {
+                                            evalEleRes = (opVars[1] as any).replaceAll(' ', '') !== v!.value;
+                                        }
+                                    } else {
+                                        // no compare just define or not
+                                        // expect to be true
+                                    }
+                                    return evalEleRes;
+                                });
+                            });
+                            res = res && evalRes;
+                        }
+                    }
+                    return res;
                 });
             }
 
