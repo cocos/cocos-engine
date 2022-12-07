@@ -199,14 +199,7 @@ export class Camera {
      * @zh 相机关联的渲染窗口
      */
     set window (val) {
-        this._window = val;
-
-        if (this._window) {
-            this._width = this._window.width;
-            this._height = this._window.height;
-            this._updateAspect(false);
-            this.isWindowSize = true;
-        }
+        this.changeTargetWindow(val);
     }
     get window () {
         return this._window!;
@@ -359,7 +352,7 @@ export class Camera {
      * @en Clearing flags of the camera, specifies which part of the framebuffer will be actually cleared every frame.
      * @zh 相机的缓冲清除标志位，指定帧缓冲的哪部分要每帧清除。
      */
-    get clearFlag () : ClearFlags {
+    get clearFlag (): ClearFlags {
         return this._clearFlag;
     }
     set clearFlag (flag: ClearFlags) {
@@ -384,7 +377,7 @@ export class Camera {
      * @en Clearing depth of the camera.
      * @zh 相机的深度缓冲默认值。
      */
-    get clearDepth () : number {
+    get clearDepth (): number {
         return this._clearDepth;
     }
     set clearDepth (depth: number) {
@@ -395,7 +388,7 @@ export class Camera {
      * @en Clearing stencil of the camera.
      * @zh 相机的模板缓冲默认值。
      */
-    get clearStencil () : number {
+    get clearStencil (): number {
         return this._clearStencil;
     }
     set clearStencil (stencil: number) {
@@ -861,7 +854,7 @@ export class Camera {
         return this._geometryRenderer;
     }
 
-    get cameraType () : CameraType {
+    get cameraType (): CameraType {
         return this._cameraType;
     }
 
@@ -869,7 +862,7 @@ export class Camera {
         this._cameraType = type;
     }
 
-    get trackingType () : TrackingType {
+    get trackingType (): TrackingType {
         return this._trackingType;
     }
 
@@ -877,7 +870,7 @@ export class Camera {
         this._trackingType = type;
     }
 
-    get cameraUsage () : CameraUsage {
+    get cameraUsage (): CameraUsage {
         return this._usage;
     }
 

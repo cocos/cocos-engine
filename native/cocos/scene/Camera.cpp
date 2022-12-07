@@ -147,14 +147,6 @@ void Camera::setFixedSize(uint32_t width, uint32_t height) {
     _isWindowSize = false;
 }
 
-void Camera::setWindow(RenderWindow *window) {
-    _window = window;
-    _width = window->getWidth();
-    _height = window->getHeight();
-    updateAspect(false);
-    _isWindowSize = true;
-}
-
 // Editor specific gizmo camera logic
 void Camera::syncCameraEditor(const Camera *camera) {
 #if CC_EDITOR

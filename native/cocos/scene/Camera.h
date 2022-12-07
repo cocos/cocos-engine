@@ -276,7 +276,7 @@ public:
     }
     inline const geometry::Frustum &getFrustum() const { return *_frustum; }
 
-    void setWindow(RenderWindow *val);
+    inline void setWindow(RenderWindow *val) { changeTargetWindow(val); }
     inline RenderWindow *getWindow() const { return _window; }
 
     inline void setForward(const Vec3 &val) { _forward = val; }
