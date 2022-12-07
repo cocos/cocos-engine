@@ -1,4 +1,4 @@
-import legacyCC from '../predefine';
+import { legacyCC } from './core/global-exports';
 import { DataPoolManager } from './3d/skeletal-animation/data-pool-manager';
 import { Device, deviceManager } from './gfx';
 import { DebugView } from './rendering/debug-view';
@@ -183,6 +183,10 @@ rootProto._onDirectorBeforeCommit = function () {
 
 rootProto._onDirectorBeforeRender = function () {
     legacyCC.director.emit(legacyCC.Director.EVENT_BEFORE_RENDER);
+};
+
+rootProto._onDirectorAfterRender = function () {
+    legacyCC.director.emit(legacyCC.Director.EVENT_AFTER_RENDER);
 };
 
 const oldFrameMove = rootProto.frameMove;

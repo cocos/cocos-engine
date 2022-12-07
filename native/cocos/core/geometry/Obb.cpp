@@ -70,8 +70,7 @@ OBB::OBB(float cx, float cy, float cz,
          float hw, float hh, float hl,
          float ox1, float ox2, float ox3,
          float oy1, float oy2, float oy3,
-         float oz1, float oz2, float oz3) {
-    setType(ShapeEnum::SHAPE_OBB);
+         float oz1, float oz2, float oz3) : ShapeBase(ShapeEnum::SHAPE_OBB) {
     center = {cx, cy, cz};
     halfExtents = {hw, hh, hl};
     orientation = {ox1, ox2, ox3, oy1, oy2, oy3, oz1, oz2, oz3};

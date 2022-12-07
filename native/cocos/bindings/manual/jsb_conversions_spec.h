@@ -619,7 +619,4 @@ bool sevalue_to_native(const se::Value &from, cc::physics::TrimeshDesc *to, se::
 bool sevalue_to_native(const se::Value &from, cc::physics::HeightFieldDesc *to, se::Object *ctx);
 bool sevalue_to_native(const se::Value &from, cc::physics::RaycastOptions *to, se::Object *ctx);
 
-bool nativevalue_to_se(const cc::geometry::AABB &from, se::Value &to, se::Object *ctx);
-bool nativevalue_to_se(const cc::geometry::Sphere &from, se::Value &to, se::Object *ctx);
-
 #endif //USE_PHYSICS_PHYSX

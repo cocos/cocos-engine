@@ -106,6 +106,9 @@ export class ReflectionProbe extends Component {
     set size (value) {
         this._size.set(value);
         this.probe.size = this._size;
+        if (this.probe) {
+            ReflectionProbeManager.probeManager.onUpdateProbes(true);
+        }
     }
     @type(Vec3)
     get size () {
@@ -151,7 +154,6 @@ export class ReflectionProbe extends Component {
             }
             this._lastSize.set(lastSize);
             this.size = this._size;
-            ReflectionProbeManager.probeManager.onUpdateProbes(true);
         }
     }
     get probeType () {
@@ -238,6 +240,7 @@ export class ReflectionProbe extends Component {
     set cubemap (val: TextureCube | null) {
         this._cubemap = val;
         this.probe.cubemap = val;
+        ReflectionProbeManager.probeManager.onUpdateProbes(true);
     }
 
     get probe () {

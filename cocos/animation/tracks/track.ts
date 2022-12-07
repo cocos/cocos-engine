@@ -562,7 +562,7 @@ export abstract class SingleChannelTrack<TCurve extends Curve> extends Track {
     }
 
     @serializable
-    private _channel: Channel<TCurve> = new Channel<TCurve>(this.createCurve());
+    private _channel: Channel<TCurve>;
 }
 
 class SingleChannelTrackEval<TCurve extends Curve> implements TrackEval {
