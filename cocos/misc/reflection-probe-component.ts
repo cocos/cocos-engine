@@ -154,7 +154,6 @@ export class ReflectionProbe extends Component {
             }
             this._lastSize.set(lastSize);
             this.size = this._size;
-            ReflectionProbeManager.probeManager.onUpdateProbes(true);
         }
     }
     get probeType () {
@@ -241,6 +240,7 @@ export class ReflectionProbe extends Component {
     set cubemap (val: TextureCube | null) {
         this._cubemap = val;
         this.probe.cubemap = val;
+        ReflectionProbeManager.probeManager.onUpdateProbes(true);
     }
 
     get probe () {
