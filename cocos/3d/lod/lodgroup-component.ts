@@ -24,12 +24,12 @@
  */
 import { EDITOR, JSB } from 'internal:constants';
 import { ccclass, editable, executeInEditMode, menu, serializable, type } from 'cc.decorator';
-import { Vec3, Mat4, geometry, CCInteger, CCFloat } from '../core';
-import { Node } from '../scene-graph/node';
-import { Component } from '../scene-graph/component';
-import { Mesh, MeshRenderer } from '../3d';
-import { scene } from '../render-scene';
-import { NodeEventType } from '../scene-graph/node-event';
+import { Vec3, Mat4, geometry, CCInteger, CCFloat } from '../../core';
+import { Node } from '../../scene-graph/node';
+import { Component } from '../../scene-graph/component';
+import { Mesh, MeshRenderer } from '../../3d';
+import { scene } from '../../render-scene';
+import { NodeEventType } from '../../scene-graph/node-event';
 
 // Ratio of objects occupying the screen
 const DEFAULT_SCREEN_OCCUPATION: number[] = [0.25, 0.125, 0.0625];
