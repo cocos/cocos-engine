@@ -511,7 +511,7 @@ export class Pass {
                 return false;
             }
             this._shader = program.shader;
-            this._pipelineLayout = programLib.getPipelineLayout(this._phaseID, this._programName);
+            this._pipelineLayout = programLib.getPipelineLayout(this.device, this._phaseID, this._programName);
         } else {
             const shader = programLib.getGFXShader(this._device, this._programName, this._defines, pipeline);
             if (!shader) {
@@ -790,7 +790,7 @@ export class Pass {
 
         if (cclegacy.rendering && cclegacy.rendering.enableEffectImport) {
             this._pipelineLayout = (cclegacy.rendering.programLib as ProgramLibrary)
-                .getPipelineLayout(this._phaseID, this._programName);
+                .getPipelineLayout(this.device, this._phaseID, this._programName);
         } else {
             this._pipelineLayout = programLib.getTemplateInfo(this._programName).pipelineLayout;
         }
