@@ -532,10 +532,10 @@ WEBGPU && promiseForWebGPUInstantiation.then(() => {
         if (isNanIndex !== -1) {
             // getPrecision(isNanIndex);
             functionDefs += `\n
-            bool isNan(${precisionKeyWord} float val) {
-                return (val < 0.0 || 0.0 < val || val == 0.0) ? false : true;
-            }
-            \n`;
+             bool isNan(${precisionKeyWord} float val) {
+                 return (val < 0.0 || 0.0 < val || val == 0.0) ? false : true;
+             }
+             \n`;
             code = code.replace(/isnan\(/gi, 'isNan(');
         }
 
@@ -543,10 +543,10 @@ WEBGPU && promiseForWebGPUInstantiation.then(() => {
         if (isInfIndex !== -1) {
             // getPrecision(isInfIndex);
             functionDefs += `\n
-            bool isInf(${precisionKeyWord} float x) {
-                return x == x * 2.0 && x != 0.0;
-            }
-            \n`;
+             bool isInf(${precisionKeyWord} float x) {
+                 return x == x * 2.0 && x != 0.0;
+             }
+             \n`;
             code = code.replace(/isinf\(/gi, 'isInf(');
         }
 
@@ -563,9 +563,6 @@ WEBGPU && promiseForWebGPUInstantiation.then(() => {
     const createShader = Device.prototype.createShader;
     Device.prototype.createShader = function (shaderInfo: ShaderInfo) {
         const spvDatas: any = [];
-        if (shaderInfo.name === 'builtin-particle|builtin/internal/particle-vs-legacy:lpvs_main|tinted-fs:add|CC_RENDER_MODE4|CC_INSTANCE_PARTICLE1') {
-            console.log('111');
-        }
         for (let i = 0; i < shaderInfo.stages.length; ++i) {
             shaderInfo.stages[i].source = seperateCombinedSamplerTexture(shaderInfo.stages[i].source);
             const stageStr = shaderInfo.stages[i].stage === ShaderStageFlagBit.VERTEX ? 'vertex'
