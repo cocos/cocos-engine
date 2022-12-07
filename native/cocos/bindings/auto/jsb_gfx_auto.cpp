@@ -20100,6 +20100,7 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::FormatInfo * to, se::Obje
 bool js_register_cc_gfx_FormatInfo(se::Object* obj) {
     auto* cls = se::Class::create("FormatInfo", obj, nullptr, _SE(js_new_cc_gfx_FormatInfo)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("name", _SE(js_cc_gfx_FormatInfo_name_get), _SE(js_cc_gfx_FormatInfo_name_set)); 
     cls->defineProperty("size", _SE(js_cc_gfx_FormatInfo_size_get), _SE(js_cc_gfx_FormatInfo_size_set)); 
     cls->defineProperty("count", _SE(js_cc_gfx_FormatInfo_count_get), _SE(js_cc_gfx_FormatInfo_count_set)); 
