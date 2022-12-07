@@ -184,7 +184,7 @@ void Sphere::mergeAABB(const AABB *aabb) {
     mergePoint(maxPos);
 }
 
-int Sphere::spherePlane(const Plane &plane) {
+int Sphere::spherePlane(const Plane &plane) const {
     const auto dot = cc::Vec3::dot(plane.n, _center);
     const auto r = _radius * plane.n.length();
     if (dot + r < plane.d) {

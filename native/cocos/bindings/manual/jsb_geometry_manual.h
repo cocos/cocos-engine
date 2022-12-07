@@ -29,4 +29,4 @@ namespace se {
 class Object;
 }
 
-bool register_all_geometry_manual(se::Object *obj);
+bool register_all_geometry_manual(se::Object *obj); // NOLINT

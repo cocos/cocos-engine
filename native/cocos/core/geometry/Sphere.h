@@ -138,7 +138,7 @@ public:
     inline void merge(const Frustum &frustum) { mergeFrustum(frustum); }
     bool interset(const Frustum &frustum) const;
     int interset(const Plane &plane) const;
-    int spherePlane(const Plane &plane);
+    int spherePlane(const Plane &plane) const;
     bool sphereFrustum(const Frustum &frustum) const;
 
     /**
