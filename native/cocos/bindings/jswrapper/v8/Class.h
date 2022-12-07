@@ -31,6 +31,8 @@
 #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8
 
     #include "Base.h"
+    #include "../Value.h"
+    #include "../Define.h"
 
 namespace se {
 
@@ -51,9 +53,9 @@ public:
          *  @return A class instance used for creating relevant native binding objects.
          *  @note Don't need to delete the pointer return by this method, it's managed internally.
          */
-    static Class *create(const ccstd::string &clsName, se::Object *parent, Object *parentProto, v8::FunctionCallback ctor, void *data = nullptr);
+    static Class *create(const ccstd::string &clsName, Object *parent, Object *parentProto, v8::FunctionCallback ctor, void *data = nullptr);
 
-    static Class *create(const std::initializer_list<const char *> &classPath, se::Object *parent, Object *parentProto, v8::FunctionCallback ctor, void *data = nullptr);
+    static Class *create(const std::initializer_list<const char *> &classPath, Object *parent, Object *parentProto, v8::FunctionCallback ctor, void *data = nullptr);
 
     /**
          *  @brief Defines a member function with a callback. Each objects created by class will have this function property.
@@ -94,6 +96,16 @@ public:
          *  @return true if succeed, otherwise false.
          */
     bool defineStaticProperty(const char *name, v8::FunctionCallback getter, v8::FunctionCallback setter, void *data = nullptr);
+
+    /**
+     *  @brief Defines a static property with a value. Only JavaScript constructor object will have this property.
+     *  @param[in] name A null-terminated UTF8 string containing the property name.
+     *  @param[in] value A value to be set on the constructor.
+     *  @param[in] attribute An attribute to describe the property.
+     *  @return true if succeed, otherwise false.
+     */
+    bool defineStaticProperty(const char *name, const Value &value, PropertyAttribute attribute = PropertyAttribute::NONE);
+
 
     /**
          *  @brief Defines the finalize function with a callback.
