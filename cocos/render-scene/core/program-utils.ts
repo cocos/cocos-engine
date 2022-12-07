@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 import { EffectAsset } from '../../asset/assets/effect-asset';
-import { Attribute, GetTypeSize, ShaderInfo } from '../../gfx/base/define';
+import { Attribute, GetTypeSize, ShaderInfo, Uniform } from '../../gfx/base/define';
 import { genHandle, MacroRecord } from './pass-utils';
 import { IProgramInfo } from './program-lib';
 
@@ -114,8 +114,8 @@ export function getVariantKey (programInfo: IProgramInfo, defines: MacroRecord) 
     return `${key.toString(16)}|${programInfo.hash}`;
 }
 
-export function getSize (block: EffectAsset.IBlockInfo) {
-    return block.members.reduce((s, m) => s + GetTypeSize(m.type) * m.count, 0);
+export function getSize (blockMembers: Uniform[]) {
+    return blockMembers.reduce((s, m) => s + GetTypeSize(m.type) * m.count, 0);
 }
 
 export function genHandles (tmpl: EffectAsset.IShaderInfo | ShaderInfo) {

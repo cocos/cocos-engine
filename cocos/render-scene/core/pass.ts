@@ -72,7 +72,7 @@ const _bufferViewInfo = new BufferViewInfo(null!);
 
 const _dsInfo = new DescriptorSetInfo(null!);
 
-const _materialSet = 2;
+const _materialSet = 1;
 
 export enum BatchingSchemes {
     NONE = 0,
@@ -123,7 +123,13 @@ export class Pass {
         if (info.primitive !== undefined) { pass._primitive = info.primitive; }
         if (info.stage !== undefined) { pass._stage = info.stage; }
         if (info.dynamicStates !== undefined) { pass._dynamicStates = info.dynamicStates; }
-        if (info.phase !== undefined) { pass._phase = getPhaseID(info.phase); }
+        if (info.phase !== undefined) {
+            if (cclegacy.rendering && cclegacy.rendering.enableEffectImport) {
+                pass._phase = cclegacy.rendering.getCustomPhaseName(info.phase);
+            } else {
+                pass._phase = getPhaseID(info.phase);
+            }
+        }
 
         const bs = pass._bs;
         if (info.blendState) {
@@ -635,12 +641,14 @@ export class Pass {
             lastSize = size;
         }
         // create gfx buffer resource
-        const totalSize = startOffsets[startOffsets.length - 1] + lastSize;
-        if (totalSize) {
-            // https://bugs.chromium.org/p/chromium/issues/detail?id=988988
-            _bufferInfo.size = Math.ceil(totalSize / 16) * 16;
-            this._rootBuffer = device.createBuffer(_bufferInfo);
-            this._rootBlock = new ArrayBuffer(totalSize);
+        if (lastSize !== 0) {
+            const totalSize = startOffsets[startOffsets.length - 1] + lastSize;
+            if (totalSize) {
+                // https://bugs.chromium.org/p/chromium/issues/detail?id=988988
+                _bufferInfo.size = Math.ceil(totalSize / 16) * 16;
+                this._rootBuffer = device.createBuffer(_bufferInfo);
+                this._rootBlock = new ArrayBuffer(totalSize);
+            }
         }
         // create buffer views
         for (let i = 0, count = 0; i < blocks.length; i++) {
@@ -666,9 +674,9 @@ export class Pass {
     protected _doInit (info: IPassInfoFull, copyDefines = false): void {
         this._priority = RenderPriority.DEFAULT;
         this._stage = RenderPassStage.DEFAULT;
-        this._phase = getPhaseID('default');
         if (cclegacy.rendering && cclegacy.rendering.enableEffectImport) {
             const r = cclegacy.rendering;
+            this._phase = r.getCustomPhaseName(info.phase);
             this._passID = r.getCustomPassID(info.pass);
             if (this._passID === r.INVALID_ID) {
                 console.error(`Invalid render pass, program: ${info.program}`);
@@ -679,6 +687,8 @@ export class Pass {
                 console.error(`Invalid render phase, program: ${info.program}`);
                 return;
             }
+        } else {
+            this._phase = getPhaseID('default');
         }
         this._primitive = PrimitiveMode.TRIANGLE_LIST;
 

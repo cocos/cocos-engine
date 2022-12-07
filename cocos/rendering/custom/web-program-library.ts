@@ -37,7 +37,7 @@ import { getCustomPassID, getCustomPhaseID, getOrCreateDescriptorSetLayout, getE
 import { assert } from '../../core/platform/debug';
 
 const INVALID_ID = 0xFFFFFFFF;
-const _descriptorSetIndex = [3, 2, 1, 0];
+const _descriptorSetIndex = [2, 1, 3, 0];
 
 function getBitCount (cnt: number) {
     return Math.ceil(Math.log2(Math.max(cnt, 2)));
@@ -110,7 +110,7 @@ function populateMixedShaderInfo (
                 if (block.stageFlags !== visibility) {
                     continue;
                 }
-                blockSizes.push(getSize(block));
+                blockSizes.push(getSize(block.members));
                 shaderInfo.blocks.push(
                     new UniformBlock(set, binding, block.name,
                         block.members.map((m) => new Uniform(m.name, m.type, m.count)),
@@ -209,7 +209,7 @@ function populateMergedShaderInfo (valueNames: string[],
                     console.error(`Failed to find uniform block ${block.descriptorID} in layout`);
                     continue;
                 }
-                blockSizes.push(0);
+                blockSizes.push(getSize(uniformBlock.members));
                 shaderInfo.blocks.push(
                     new UniformBlock(set, binding, valueNames[block.descriptorID],
                         uniformBlock.members.map((m) => new Uniform(m.name, m.type, m.count)),
@@ -288,7 +288,7 @@ function populateShaderInfo (
 ) {
     for (let i = 0; i < descriptorInfo.blocks.length; i++) {
         const block = descriptorInfo.blocks[i];
-        blockSizes.push(getSize(block));
+        blockSizes.push(getSize(block.members));
         shaderInfo.blocks.push(new UniformBlock(set, block.binding, block.name,
             block.members.map((m) => new Uniform(m.name, m.type, m.count)), 1)); // effect compiler guarantees block count = 1
     }
@@ -361,7 +361,6 @@ function makeShaderInfo (
                 populateMergedShaderInfo(lg.valueNames, perBatch.descriptorSetLayoutData,
                     _descriptorSetIndex[UpdateFrequency.PER_BATCH], shaderInfo, blockSizes);
             }
-            console.error('Shader program data does not match effect data');
         } else {
             const batchLayout = phaseLayouts.descriptorSets.get(UpdateFrequency.PER_BATCH);
             if (batchLayout) {
@@ -415,7 +414,7 @@ function buildProgramData (
         const perBatch = makeDescriptorSetLayoutData(lg,
             UpdateFrequency.PER_BATCH,
             _descriptorSetIndex[UpdateFrequency.PER_BATCH],
-            srcShaderInfo[UpdateFrequency.PER_BATCH]);
+            srcShaderInfo.descriptors[UpdateFrequency.PER_BATCH]);
         const setData =  new DescriptorSetData(perBatch);
         initializeDescriptorSetLayoutInfo(setData.descriptorSetLayoutData,
             setData.descriptorSetLayoutInfo);
@@ -425,7 +424,7 @@ function buildProgramData (
         const perInstance = makeDescriptorSetLayoutData(lg,
             UpdateFrequency.PER_INSTANCE,
             _descriptorSetIndex[UpdateFrequency.PER_INSTANCE],
-            srcShaderInfo[UpdateFrequency.PER_INSTANCE]);
+            srcShaderInfo.descriptors[UpdateFrequency.PER_INSTANCE]);
         const setData =  new DescriptorSetData(perInstance);
         initializeDescriptorSetLayoutInfo(setData.descriptorSetLayoutData,
             setData.descriptorSetLayoutInfo);
@@ -436,7 +435,7 @@ function buildProgramData (
     phase.shaderPrograms.push(programData);
 }
 
-function getOrCreateProgramDescriptorSetLayout (device:Device,
+function getOrCreateProgramDescriptorSetLayout (device: Device,
     lg: LayoutGraphData, phaseID: number,
     programName: string, rate: UpdateFrequency): DescriptorSetLayout {
     assert(rate < UpdateFrequency.PER_PHASE);
@@ -458,7 +457,7 @@ function getOrCreateProgramDescriptorSetLayout (device:Device,
     return layout.descriptorSetLayout;
 }
 
-function getProgramDescriptorSetLayout (device:Device,
+function getProgramDescriptorSetLayout (device: Device,
     lg: LayoutGraphData, phaseID: number,
     programName: string, rate: UpdateFrequency): DescriptorSetLayout | null {
     assert(rate < UpdateFrequency.PER_PHASE);

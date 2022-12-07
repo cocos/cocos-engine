@@ -23,6 +23,7 @@
  THE SOFTWARE.
  */
 
+import { EDITOR } from 'internal:constants';
 import { Pipeline, PipelineBuilder } from './pipeline';
 import { WebPipeline } from './web-pipeline';
 import { buildDeferredLayout, buildForwardLayout } from './effect';
@@ -46,7 +47,7 @@ export * from './types';
 export * from './pipeline';
 export * from './archive';
 
-export const enableEffectImport = false;
+export const enableEffectImport = !EDITOR;
 export const programLib: ProgramLibrary = new WebProgramLibrary(defaultLayoutGraph);
 
 export function createCustomPipeline (): Pipeline {
@@ -107,4 +108,14 @@ export function getCustomPassID (name: string | undefined): number {
 
 export function getCustomPhaseID (passID: number, name: string | number | undefined): number {
     return getCustomPhaseIDImpl(defaultLayoutGraph, passID, name);
+}
+
+export function getCustomPhaseName (passID: number, name: string | number | undefined): string {
+    if (typeof name === 'number') {
+        return name.toString();
+    } else if (typeof name === 'string') {
+        return name;
+    } else {
+        return 'default';
+    }
 }
