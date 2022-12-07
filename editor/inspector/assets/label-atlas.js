@@ -63,8 +63,8 @@ exports.$ = {
 const Elements = {
     spriteFrame: {
         ready() {
-            this.$.spriteFrame.addEventListener('confirm', () => {
-                this.change.call(this, 'spriteFrameUuid');
+            this.$.spriteFrame.addEventListener('confirm', (event) => {
+                this.change.call(this, 'spriteFrameUuid', event);
                 this.dispatch('snapshot');
             });
         },
