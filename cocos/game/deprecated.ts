@@ -23,11 +23,11 @@
  THE SOFTWARE.
  */
 
-import { assetManager } from '../asset/asset-manager';
-import { ISceneInfo } from '../asset/asset-manager/config';
 import { removeProperty, markAsWarning, replaceProperty } from '../core/utils/x-deprecated';
 import { Director, director } from './director';
 import { game } from './game';
+import { assetManager } from '../asset/asset-manager';
+import type { ISceneInfo } from '../asset/asset-manager/config';
 
 // Director
 
