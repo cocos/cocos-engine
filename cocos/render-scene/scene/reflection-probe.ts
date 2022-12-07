@@ -311,6 +311,7 @@ export class ReflectionProbe {
         if (!this.realtimePlanarTexture) {
             const canvasSize = cclegacy.view.getDesignResolutionSize();
             this.realtimePlanarTexture = this._createTargetTexture(canvasSize.width, canvasSize.height);
+            cclegacy.internal.reflectionProbeManager.updatePlanarMap(this, this.realtimePlanarTexture.getGFXTexture());
         }
         this._syncCameraParams(sourceCamera);
         this._transformReflectionCamera(sourceCamera);

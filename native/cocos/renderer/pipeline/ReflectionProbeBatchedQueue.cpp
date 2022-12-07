@@ -78,8 +78,12 @@ void ReflectionProbeBatchedQueue::gatherRenderObjects(const scene::Camera *camer
         const auto *node = model->getNode();
         if (!node) continue;
         if (((node->getLayer() & REFLECTION_PROBE_DEFAULT_MASK) == node->getLayer())
-            || (REFLECTION_PROBE_DEFAULT_MASK & static_cast<uint32_t>(model->getVisFlags()))) {
-            add(model);
+            || (REFLECTION_PROBE_DEFAULT_MASK & static_cast<uint32_t>(model->getVisFlags()))) {      
+            if (model->getWorldBounds()) {
+                if (model->getWorldBounds()->aabbFrustum(probe->getCamera()->getFrustum())) {
+                    add(model);
+                }
+            }
         }
     }
 

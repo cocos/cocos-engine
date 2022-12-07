@@ -78,7 +78,6 @@ export class ReflectionProbeFlow extends RenderFlow {
             if (probe.probeType === ProbeType.PLANAR) {
                 probeStage.setUsageInfo(probe, probe.realtimePlanarTexture!.window!.framebuffer);
                 probeStage.render(camera);
-                cclegacy.internal.reflectionProbeManager.updatePlanarMap(probe, probe.realtimePlanarTexture!.getGFXTexture());
             } else {
                 for (let faceIdx = 0; faceIdx < 6; faceIdx++) {
                     //update camera dirction

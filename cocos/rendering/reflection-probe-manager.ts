@@ -349,6 +349,20 @@ export class ReflectionProbeManager {
             const p = this._useCubeModels.get(key);
             if (p !== undefined && p === probe) {
                 this._useCubeModels.delete(key);
+                const meshRender = key.node.getComponent(MeshRenderer);
+                if (meshRender) {
+                    meshRender.updateProbeCubemap(null);
+                }
+            }
+        }
+        for (const key of this._usePlanarModels.keys()) {
+            const p = this._usePlanarModels.get(key);
+            if (p !== undefined && p === probe) {
+                this._usePlanarModels.delete(key);
+                const meshRender = key.node.getComponent(MeshRenderer);
+                if (meshRender) {
+                    meshRender.updateProbePlanarMap(null);
+                }
             }
         }
     }
