@@ -605,14 +605,16 @@ export class DescriptorBlockData {
 }
 
 export class DescriptorSetLayoutData {
-    constructor (slot = 0xFFFFFFFF, capacity = 0) {
+    constructor (slot = 0xFFFFFFFF, capacity = 0, descriptorBlocks: DescriptorBlockData[] = [], uniformBlocks: Map<number, UniformBlock> = new Map<number, UniformBlock>()) {
         this.slot = slot;
         this.capacity = capacity;
+        this.descriptorBlocks = descriptorBlocks;
+        this.uniformBlocks = uniformBlocks;
     }
     slot: number;
     capacity: number;
-    readonly descriptorBlocks: DescriptorBlockData[] = [];
-    readonly uniformBlocks: Map<number, UniformBlock> = new Map<number, UniformBlock>();
+    readonly descriptorBlocks: DescriptorBlockData[];
+    readonly uniformBlocks: Map<number, UniformBlock>;
 }
 
 export class DescriptorSetData {

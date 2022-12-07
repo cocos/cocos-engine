@@ -351,7 +351,7 @@ struct DescriptorSetLayoutData {
     }
 
     DescriptorSetLayoutData(const allocator_type& alloc) noexcept; // NOLINT
-    DescriptorSetLayoutData(uint32_t slotIn, uint32_t capacityIn, const allocator_type& alloc) noexcept;
+    DescriptorSetLayoutData(uint32_t slotIn, uint32_t capacityIn, ccstd::pmr::vector<DescriptorBlockData> descriptorBlocksIn, ccstd::pmr::unordered_map<NameLocalID, gfx::UniformBlock> uniformBlocksIn, const allocator_type& alloc) noexcept;
     DescriptorSetLayoutData(DescriptorSetLayoutData&& rhs, const allocator_type& alloc);
 
     DescriptorSetLayoutData(DescriptorSetLayoutData&& rhs) noexcept = default;

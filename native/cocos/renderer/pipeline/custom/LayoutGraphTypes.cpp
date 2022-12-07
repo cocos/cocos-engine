@@ -136,11 +136,11 @@ DescriptorSetLayoutData::DescriptorSetLayoutData(const allocator_type& alloc) no
 : descriptorBlocks(alloc),
   uniformBlocks(alloc) {}
 
-DescriptorSetLayoutData::DescriptorSetLayoutData(uint32_t slotIn, uint32_t capacityIn, const allocator_type& alloc) noexcept // NOLINT
+DescriptorSetLayoutData::DescriptorSetLayoutData(uint32_t slotIn, uint32_t capacityIn, ccstd::pmr::vector<DescriptorBlockData> descriptorBlocksIn, ccstd::pmr::unordered_map<NameLocalID, gfx::UniformBlock> uniformBlocksIn, const allocator_type& alloc) noexcept // NOLINT
 : slot(slotIn),
   capacity(capacityIn),
-  descriptorBlocks(alloc),
-  uniformBlocks(alloc) {}
+  descriptorBlocks(std::move(descriptorBlocksIn), alloc),
+  uniformBlocks(std::move(uniformBlocksIn), alloc) {}
 
 DescriptorSetLayoutData::DescriptorSetLayoutData(DescriptorSetLayoutData&& rhs, const allocator_type& alloc)
 : slot(rhs.slot),

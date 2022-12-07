@@ -25,15 +25,15 @@
 
 /* eslint-disable max-len */
 import { EffectAsset } from '../../asset/assets';
-import { Attribute, DescriptorSetLayout, Device, MemoryAccessBit, PipelineLayout, Shader, ShaderInfo, ShaderStage, ShaderStageFlagBit, Uniform, UniformBlock, UniformInputAttachment, UniformSampler, UniformSamplerTexture, UniformStorageBuffer, UniformStorageImage, UniformTexture } from '../../gfx';
+import { Attribute, DescriptorSetLayout, DescriptorSetLayoutBinding, DescriptorSetLayoutInfo, DescriptorType, Device, MemoryAccessBit, PipelineLayout, Shader, ShaderInfo, ShaderStage, ShaderStageFlagBit, Uniform, UniformBlock, UniformInputAttachment, UniformSampler, UniformSamplerTexture, UniformStorageBuffer, UniformStorageImage, UniformTexture } from '../../gfx';
 import { genHandles, getActiveAttributes, getShaderInstanceName, getSize, getVariantKey, prepareDefines } from '../../render-scene/core/program-utils';
 import { getDeviceShaderVersion, MacroRecord } from '../../render-scene';
 import { IProgramInfo } from '../../render-scene/core/program-lib';
-import { DescriptorSetLayoutData, LayoutGraphData, LayoutGraphDataValue, PipelineLayoutData } from './layout-graph';
+import { DescriptorSetData, DescriptorSetLayoutData, LayoutGraphData, LayoutGraphDataValue, PipelineLayoutData, RenderPhaseData, ShaderProgramData } from './layout-graph';
 import { ProgramLibrary, ProgramProxy } from './private';
 import { DescriptorTypeOrder, UpdateFrequency } from './types';
 import { ProgramGroup, ProgramHost, ProgramInfo, ProgramLibraryData } from './web-types';
-import { getCustomPassID, getCustomPhaseID, getDescriptorSetLayout } from './layout-graph-utils';
+import { getCustomPassID, getCustomPhaseID, getDescriptorSetLayout, getEmptyDescriptorSetLayout, initializeDescriptorSetLayoutInfo, makeDescriptorSetLayoutData } from './layout-graph-utils';
 import { assert } from '../../core/platform/debug';
 
 const INVALID_ID = 0xFFFFFFFF;
@@ -335,7 +335,7 @@ function makeShaderInfo (
     passLayouts: PipelineLayoutData,
     phaseLayouts: PipelineLayoutData,
     srcShaderInfo: EffectAsset.IShaderInfo,
-    mergeHighFrequency: boolean,
+    programData: ShaderProgramData | null,
 ): [ShaderInfo, Array<number>] {
     const shaderInfo = new ShaderInfo();
     const blockSizes = new Array<number>();
@@ -355,30 +355,37 @@ function makeShaderInfo (
     }
     { // batch
         const batchInfo = srcShaderInfo.descriptors[UpdateFrequency.PER_BATCH];
-        if (mergeHighFrequency) {
+        if (programData) {
+            const perBatch = programData.layout.descriptorSets.get(UpdateFrequency.PER_BATCH);
+            if (perBatch) {
+                populateMergedShaderInfo(lg.valueNames, perBatch.descriptorSetLayoutData,
+                    _descriptorSetIndex[UpdateFrequency.PER_BATCH], shaderInfo, blockSizes);
+            }
+            console.error('Shader program data does not match effect data');
+        } else {
             const batchLayout = phaseLayouts.descriptorSets.get(UpdateFrequency.PER_BATCH);
             if (batchLayout) {
                 populateMixedShaderInfo(batchLayout.descriptorSetLayoutData,
                     batchInfo, _descriptorSetIndex[UpdateFrequency.PER_BATCH],
                     shaderInfo, blockSizes);
             }
-        } else {
-            populateShaderInfo(batchInfo,
-                _descriptorSetIndex[UpdateFrequency.PER_BATCH], shaderInfo, blockSizes);
         }
     }
     { // instance
         const instanceInfo = srcShaderInfo.descriptors[UpdateFrequency.PER_INSTANCE];
-        if (mergeHighFrequency) {
+        if (programData) {
+            const perInstance = programData.layout.descriptorSets.get(UpdateFrequency.PER_INSTANCE);
+            if (perInstance) {
+                populateMergedShaderInfo(lg.valueNames, perInstance.descriptorSetLayoutData,
+                    _descriptorSetIndex[UpdateFrequency.PER_INSTANCE], shaderInfo, blockSizes);
+            }
+        } else {
             const instanceLayout = phaseLayouts.descriptorSets.get(UpdateFrequency.PER_INSTANCE);
             if (instanceLayout) {
                 populateMixedShaderInfo(instanceLayout.descriptorSetLayoutData,
                     instanceInfo, _descriptorSetIndex[UpdateFrequency.PER_INSTANCE],
                     shaderInfo, blockSizes);
             }
-        } else {
-            populateShaderInfo(instanceInfo,
-                _descriptorSetIndex[UpdateFrequency.PER_INSTANCE], shaderInfo, blockSizes);
         }
     }
     shaderInfo.stages.push(new ShaderStage(ShaderStageFlagBit.VERTEX, ''));
@@ -397,6 +404,56 @@ class WebProgramProxy implements ProgramProxy {
         return this.host.program;
     }
     host: ProgramHost;
+}
+
+function buildProgramData (
+    programName: string,
+    srcShaderInfo: EffectAsset.IShaderInfo,
+    lg: LayoutGraphData, phase: RenderPhaseData, programData: ShaderProgramData,
+) {
+    {
+        const perBatch = makeDescriptorSetLayoutData(lg,
+            UpdateFrequency.PER_BATCH,
+            _descriptorSetIndex[UpdateFrequency.PER_BATCH],
+            srcShaderInfo[UpdateFrequency.PER_BATCH]);
+        const setData =  new DescriptorSetData(perBatch);
+        initializeDescriptorSetLayoutInfo(setData.descriptorSetLayoutData,
+            setData.descriptorSetLayoutInfo);
+        programData.layout.descriptorSets.set(UpdateFrequency.PER_BATCH, setData);
+    }
+    {
+        const perInstance = makeDescriptorSetLayoutData(lg,
+            UpdateFrequency.PER_INSTANCE,
+            _descriptorSetIndex[UpdateFrequency.PER_INSTANCE],
+            srcShaderInfo[UpdateFrequency.PER_INSTANCE]);
+        const setData =  new DescriptorSetData(perInstance);
+        initializeDescriptorSetLayoutInfo(setData.descriptorSetLayoutData,
+            setData.descriptorSetLayoutInfo);
+        programData.layout.descriptorSets.set(UpdateFrequency.PER_INSTANCE, setData);
+    }
+    const shaderID = phase.shaderPrograms.length;
+    phase.shaderIndex.set(programName, shaderID);
+    phase.shaderPrograms.push(programData);
+}
+
+function getProgramDescriptorSetLayout (device:Device,
+    lg: LayoutGraphData, phaseID: number, programName: string, rate: UpdateFrequency) {
+    const phase = lg.getRenderPhase(phaseID);
+    const programID = phase.shaderIndex.get(programName);
+    if (programID === undefined) {
+        return getEmptyDescriptorSetLayout();
+    }
+    const programData = phase.shaderPrograms[programID];
+    const layout = programData.layout.descriptorSets.get(rate);
+    if (layout === undefined) {
+        return getEmptyDescriptorSetLayout();
+    }
+    if (layout.descriptorSetLayout) {
+        return layout.descriptorSetLayout;
+    }
+    layout.descriptorSetLayout = device.createDescriptorSetLayout(layout.descriptorSetLayoutInfo);
+
+    return layout.descriptorSetLayout;
 }
 
 export class WebProgramLibrary extends ProgramLibraryData implements ProgramLibrary {
@@ -456,9 +513,17 @@ export class WebProgramLibrary extends ProgramLibraryData implements ProgramLibr
                 // build program
                 const programInfo = makeProgramInfo(effect.name, srcShaderInfo);
 
+                // collect program descriptors
+                let programData: ShaderProgramData | null = null;
+                if (!this.mergeHighFrequency) {
+                    const phase = lg.getRenderPhase(phaseID);
+                    programData = new ShaderProgramData();
+                    buildProgramData(programName, srcShaderInfo, lg, phase, programData);
+                }
+
                 // shaderInfo and blockSizes
                 const [shaderInfo, blockSizes] = makeShaderInfo(lg, passLayout, phaseLayout,
-                    srcShaderInfo, this.mergeHighFrequency);
+                    srcShaderInfo, programData);
 
                 if (this.mergeHighFrequency) {
                     // overwrite programInfo
@@ -568,15 +633,23 @@ export class WebProgramLibrary extends ProgramLibraryData implements ProgramLibr
         // create
         return new WebProgramProxy(host);
     }
-    getMaterialDescriptorSetLayout (phaseID: number): DescriptorSetLayout {
-        assert(phaseID !== INVALID_ID);
-        const passID = this.layoutGraph.getParent(phaseID);
-        return getDescriptorSetLayout(this.layoutGraph, passID, phaseID, UpdateFrequency.PER_BATCH);
+    getMaterialDescriptorSetLayout (device: Device, phaseID: number, programName: string): DescriptorSetLayout {
+        if (this.mergeHighFrequency) {
+            assert(phaseID !== INVALID_ID);
+            const passID = this.layoutGraph.getParent(phaseID);
+            return getDescriptorSetLayout(this.layoutGraph, passID, phaseID, UpdateFrequency.PER_BATCH);
+        }
+        return getProgramDescriptorSetLayout(device, this.layoutGraph,
+            phaseID, programName, UpdateFrequency.PER_BATCH);
     }
-    getLocalDescriptorSetLayout (phaseID: number): DescriptorSetLayout {
-        assert(phaseID !== INVALID_ID);
-        const passID = this.layoutGraph.getParent(phaseID);
-        return getDescriptorSetLayout(this.layoutGraph, passID, phaseID, UpdateFrequency.PER_INSTANCE);
+    getLocalDescriptorSetLayout (device: Device, phaseID: number, programName: string): DescriptorSetLayout {
+        if (this.mergeHighFrequency) {
+            assert(phaseID !== INVALID_ID);
+            const passID = this.layoutGraph.getParent(phaseID);
+            return getDescriptorSetLayout(this.layoutGraph, passID, phaseID, UpdateFrequency.PER_INSTANCE);
+        }
+        return getProgramDescriptorSetLayout(device, this.layoutGraph,
+            phaseID, programName, UpdateFrequency.PER_INSTANCE);
     }
     getBlockSizes (phaseID: number, programName: string): number[] {
         assert(phaseID !== INVALID_ID);
@@ -606,7 +679,7 @@ export class WebProgramLibrary extends ProgramLibraryData implements ProgramLibr
         }
         return info.handleMap;
     }
-    getPipelineLayout (phaseID: number): PipelineLayout {
+    getPipelineLayout (phaseID: number, programName: string): PipelineLayout {
         assert(phaseID !== INVALID_ID);
         const layout = this.layoutGraph.getRenderPhase(phaseID);
         return layout.pipelineLayout!;

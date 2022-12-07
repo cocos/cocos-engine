@@ -511,7 +511,7 @@ export class Pass {
                 return false;
             }
             this._shader = program.shader;
-            this._pipelineLayout = programLib.getPipelineLayout(this._phaseID);
+            this._pipelineLayout = programLib.getPipelineLayout(this._phaseID, this._programName);
         } else {
             const shader = programLib.getGFXShader(this._device, this._programName, this._defines, pipeline);
             if (!shader) {
@@ -702,7 +702,7 @@ export class Pass {
         // init descriptor set
         if (cclegacy.rendering && cclegacy.rendering.enableEffectImport) {
             _dsInfo.layout = (cclegacy.rendering.programLib as ProgramLibrary)
-                .getMaterialDescriptorSetLayout(this._phaseID);
+                .getMaterialDescriptorSetLayout(this._device, this._phaseID, info.program);
         } else {
             _dsInfo.layout = programLib.getDescriptorSetLayout(this._device, info.program);
         }
@@ -790,7 +790,7 @@ export class Pass {
 
         if (cclegacy.rendering && cclegacy.rendering.enableEffectImport) {
             this._pipelineLayout = (cclegacy.rendering.programLib as ProgramLibrary)
-                .getPipelineLayout(this._phaseID);
+                .getPipelineLayout(this._phaseID, this._programName);
         } else {
             this._pipelineLayout = programLib.getTemplateInfo(this._programName).pipelineLayout;
         }
@@ -809,7 +809,7 @@ export class Pass {
     get localSetLayout (): DescriptorSetLayout {
         if (cclegacy.rendering && cclegacy.rendering.enableEffectImport) {
             return (cclegacy.rendering.programLib as ProgramLibrary)
-                .getLocalDescriptorSetLayout(this._phaseID);
+                .getLocalDescriptorSetLayout(this._device, this._phaseID, this._programName);
         } else {
             return programLib.getDescriptorSetLayout(this._device, this._programName, true);
         }

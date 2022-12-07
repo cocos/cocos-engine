@@ -925,6 +925,20 @@ export class LayoutGraphInfo {
     }
 }
 
+function sortDescriptorBlocks<T> (lhs: [string, T], rhs: [string, T]): number {
+    const lhsIndex: DescriptorBlockIndex = JSON.parse(lhs[0]);
+    const rhsIndex: DescriptorBlockIndex = JSON.parse(rhs[0]);
+    const lhsValue = lhsIndex.updateFrequency * 10000
+        + lhsIndex.parameterType * 1000
+        + lhsIndex.descriptorType * 100
+        + lhsIndex.visibility;
+    const rhsValue = rhsIndex.updateFrequency * 10000
+        + rhsIndex.parameterType * 1000
+        + rhsIndex.descriptorType * 100
+        + rhsIndex.visibility;
+    return lhsValue - rhsValue;
+}
+
 function buildLayoutGraphDataImpl (graph: LayoutGraph, builder: LayoutGraphBuilder) {
     for (const v of graph.vertices()) {
         const db = graph.getDescriptors(v);
@@ -961,21 +975,7 @@ function buildLayoutGraphDataImpl (graph: LayoutGraph, builder: LayoutGraphBuild
             break;
         }
 
-        const flattenedBlocks = Array.from(db.blocks).sort(
-            (lhs: [string, DescriptorBlock], rhs: [string, DescriptorBlock]) => {
-                const lhsIndex: DescriptorBlockIndex = JSON.parse(lhs[0]);
-                const rhsIndex: DescriptorBlockIndex = JSON.parse(rhs[0]);
-                const lhsValue = lhsIndex.updateFrequency * 10000
-                    + lhsIndex.parameterType * 1000
-                    + lhsIndex.descriptorType * 100
-                    + lhsIndex.visibility;
-                const rhsValue = rhsIndex.updateFrequency * 10000
-                    + rhsIndex.parameterType * 1000
-                    + rhsIndex.descriptorType * 100
-                    + rhsIndex.visibility;
-                return lhsValue - rhsValue;
-            },
-        );
+        const flattenedBlocks = Array.from(db.blocks).sort(sortDescriptorBlocks);
 
         flattenedBlocks.forEach((value: [string, DescriptorBlock]) => {
             const key = value[0];
@@ -999,6 +999,17 @@ function buildLayoutGraphDataImpl (graph: LayoutGraph, builder: LayoutGraphBuild
             }
         });
     }
+}
+
+function getDescriptorID (lg: LayoutGraphData, name: string): number {
+    const nameID = lg.attributeIndex.get(name);
+    if (nameID === undefined) {
+        const newID = lg.valueNames.length;
+        lg.attributeIndex.set(name, newID);
+        lg.valueNames.push(name);
+        return newID;
+    }
+    return nameID;
 }
 
 class LayoutGraphBuilder2 implements LayoutGraphBuilder {
@@ -1043,17 +1054,6 @@ class LayoutGraphBuilder2 implements LayoutGraphBuilder {
         }
         return data;
     }
-    private getDescriptorID (name: string): number {
-        const lg = this.lg;
-        const nameID = lg.attributeIndex.get(name);
-        if (nameID === undefined) {
-            const newID = lg.valueNames.length;
-            lg.attributeIndex.set(name, newID);
-            lg.valueNames.push(name);
-            return newID;
-        }
-        return nameID;
-    }
     addDescriptorBlock (nodeID: number, index: DescriptorBlockIndex, block: Readonly<DescriptorBlockFlattened>): void {
         if (block.capacity <= 0) {
             console.error('empty block');
@@ -1084,7 +1084,7 @@ class LayoutGraphBuilder2 implements LayoutGraphBuilder {
         for (let j = 0; j < block.descriptors.length; ++j) {
             const name: string = block.descriptorNames[j];
             const d: Descriptor = block.descriptors[j];
-            const nameID = this.getDescriptorID(name);
+            const nameID = getDescriptorID(lg, name);
             const data = new DescriptorData(nameID, d.type, d.count);
             dstBlock.descriptors.push(data);
         }
@@ -1095,7 +1095,7 @@ class LayoutGraphBuilder2 implements LayoutGraphBuilder {
         const ppl: PipelineLayoutData = g.getLayout(nodeID);
         const setData = this.getDescriptorSetData(ppl, index.updateFrequency);
         const layout = setData.descriptorSetLayoutData;
-        const nameID = this.getDescriptorID(name);
+        const nameID = getDescriptorID(g, name);
         layout.uniformBlocks.set(nameID, uniformBlock);
     }
     reserveDescriptorBlock (nodeID: number, index: DescriptorBlockIndex, block: DescriptorBlockFlattened): void {
@@ -1140,7 +1140,134 @@ export function printLayoutGraphData (g: LayoutGraphData): string {
     return visitor.oss;
 }
 
-function initializeDescriptorSetLayoutInfo (layoutData: DescriptorSetLayoutData,
+function getDescriptorBlockData (map: Map<string, DescriptorBlockData>, index: DescriptorBlockIndex): DescriptorBlockData {
+    const key = JSON.stringify(index);
+    const block = map.get(key);
+    if (block) {
+        return block;
+    }
+    const newBlock = new DescriptorBlockData(index.descriptorType, index.visibility, 0);
+    map.set(key, newBlock);
+    return newBlock;
+}
+
+export function makeDescriptorSetLayoutData (lg: LayoutGraphData,
+    rate: UpdateFrequency, set:number,
+    descriptors: EffectAsset.IDescriptorInfo): DescriptorSetLayoutData {
+    const map = new Map<string, DescriptorBlockData>();
+    const uniformBlocks: Map<number, UniformBlock> = new Map<number, UniformBlock>();
+    for (let i = 0; i < descriptors.blocks.length; i++) {
+        const cb = descriptors.blocks[i];
+        const block = getDescriptorBlockData(map, {
+            updateFrequency: rate,
+            parameterType: ParameterType.TABLE,
+            descriptorType: DescriptorTypeOrder.UNIFORM_BUFFER,
+            visibility: cb.stageFlags,
+        });
+        const nameID = getDescriptorID(lg, cb.name);
+        block.descriptors.push(new DescriptorData(nameID, Type.UNKNOWN, 1));
+        // add uniform buffer
+        uniformBlocks.set(nameID, new UniformBlock(set, 0xFFFFFFFF, cb.name, cb.members, 1));
+    }
+    for (let i = 0; i < descriptors.samplerTextures.length; i++) {
+        const samplerTexture = descriptors.samplerTextures[i];
+        const block = getDescriptorBlockData(map, {
+            updateFrequency: rate,
+            parameterType: ParameterType.TABLE,
+            descriptorType: DescriptorTypeOrder.SAMPLER_TEXTURE,
+            visibility: samplerTexture.stageFlags,
+        });
+        const nameID = getDescriptorID(lg, samplerTexture.name);
+        block.descriptors.push(new DescriptorData(nameID, samplerTexture.type, samplerTexture.count));
+    }
+    for (let i = 0; i < descriptors.samplers.length; i++) {
+        const sampler = descriptors.samplers[i];
+        const block = getDescriptorBlockData(map, {
+            updateFrequency: rate,
+            parameterType: ParameterType.TABLE,
+            descriptorType: DescriptorTypeOrder.SAMPLER,
+            visibility: sampler.stageFlags,
+        });
+        const nameID = getDescriptorID(lg, sampler.name);
+        block.descriptors.push(new DescriptorData(nameID, Type.SAMPLER, sampler.count));
+    }
+    for (let i = 0; i < descriptors.textures.length; i++) {
+        const texture = descriptors.textures[i];
+        const block = getDescriptorBlockData(map, {
+            updateFrequency: rate,
+            parameterType: ParameterType.TABLE,
+            descriptorType: DescriptorTypeOrder.TEXTURE,
+            visibility: texture.stageFlags,
+        });
+        const nameID = getDescriptorID(lg, texture.name);
+        block.descriptors.push(new DescriptorData(nameID, texture.type, texture.count));
+    }
+    for (let i = 0; i < descriptors.buffers.length; i++) {
+        const buffer = descriptors.buffers[i];
+        const block = getDescriptorBlockData(map, {
+            updateFrequency: rate,
+            parameterType: ParameterType.TABLE,
+            descriptorType: DescriptorTypeOrder.STORAGE_BUFFER,
+            visibility: buffer.stageFlags,
+        });
+        const nameID = getDescriptorID(lg, buffer.name);
+        block.descriptors.push(new DescriptorData(nameID, Type.UNKNOWN, 1));
+    }
+    for (let i = 0; i < descriptors.images.length; i++) {
+        const image = descriptors.images[i];
+        const block = getDescriptorBlockData(map, {
+            updateFrequency: rate,
+            parameterType: ParameterType.TABLE,
+            descriptorType: DescriptorTypeOrder.STORAGE_IMAGE,
+            visibility: image.stageFlags,
+        });
+        const nameID = getDescriptorID(lg, image.name);
+        block.descriptors.push(new DescriptorData(nameID, image.type, image.count));
+    }
+    for (let i = 0; i < descriptors.subpassInputs.length; i++) {
+        const subpassInput = descriptors.subpassInputs[i];
+        const block = getDescriptorBlockData(map, {
+            updateFrequency: rate,
+            parameterType: ParameterType.TABLE,
+            descriptorType: DescriptorTypeOrder.INPUT_ATTACHMENT,
+            visibility: subpassInput.stageFlags,
+        });
+        const nameID = getDescriptorID(lg, subpassInput.name);
+        block.descriptors.push(new DescriptorData(nameID, Type.UNKNOWN, subpassInput.count));
+    }
+
+    // sort blocks
+    const flattenedBlocks = Array.from(map).sort(sortDescriptorBlocks);
+    const data = new DescriptorSetLayoutData(set, 0);
+    // calculate bindings
+    let capacity = 0;
+    for (const [key, block] of flattenedBlocks) {
+        const index = JSON.parse(key) as DescriptorBlockIndex;
+        block.offset = capacity;
+        for (const d of block.descriptors) {
+            if (index.descriptorType === DescriptorTypeOrder.UNIFORM_BUFFER) {
+                // update uniform buffer binding
+                const ub = uniformBlocks.get(d.descriptorID);
+                if (!ub) {
+                    console.error(`Uniform block not found for ${d.descriptorID}`);
+                    continue;
+                }
+                assert(ub.binding === 0xFFFFFFFF);
+                ub.binding = block.capacity;
+                // add uniform buffer to output
+                data.uniformBlocks.set(d.descriptorID, ub);
+            }
+            // update block capacity
+            block.capacity += d.count;
+        }
+        // increate total capacity
+        capacity += block.capacity;
+        data.descriptorBlocks.push(block);
+    }
+    return data;
+}
+
+export function initializeDescriptorSetLayoutInfo (layoutData: DescriptorSetLayoutData,
     info: DescriptorSetLayoutInfo): void {
     for (let i = 0; i < layoutData.descriptorBlocks.length; ++i) {
         const block = layoutData.descriptorBlocks[i];
@@ -1214,6 +1341,10 @@ export function terminateLayoutGraphData (lg: LayoutGraphData) {
         }
     }
     _emptyDescriptorSetLayout.destroy();
+}
+
+export function getEmptyDescriptorSetLayout (): DescriptorSetLayout {
+    return _emptyDescriptorSetLayout;
 }
 
 export function getDescriptorSetLayout (lg: LayoutGraphData,

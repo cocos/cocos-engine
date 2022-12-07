@@ -42,9 +42,9 @@ export interface ProgramProxy {
 export interface ProgramLibrary {
     addEffect (effectAsset: EffectAsset): void;
     getKey (phaseID: number, programName: string, defines: MacroRecord): string;
-    getPipelineLayout (phaseID: number): PipelineLayout;
-    getMaterialDescriptorSetLayout (phaseID: number): DescriptorSetLayout;
-    getLocalDescriptorSetLayout (phaseID: number): DescriptorSetLayout;
+    getPipelineLayout (phaseID: number, programName: string): PipelineLayout;
+    getMaterialDescriptorSetLayout (device: Device, phaseID: number, programName: string): DescriptorSetLayout;
+    getLocalDescriptorSetLayout (device: Device, phaseID: number, programName: string): DescriptorSetLayout;
     getProgramInfo (phaseID: number, programName: string): IProgramInfo;
     getShaderInfo (phaseID: number, programName: string): ShaderInfo;
     getProgramVariant (device: Device, phaseID: number, name: string, defines: MacroRecord, key: string | null): ProgramProxy | null;
