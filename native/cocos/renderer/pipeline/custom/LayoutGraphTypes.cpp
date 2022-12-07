@@ -198,7 +198,8 @@ ShaderProgramData::ShaderProgramData(const allocator_type& alloc) noexcept
 : layout(alloc) {}
 
 ShaderProgramData::ShaderProgramData(ShaderProgramData&& rhs, const allocator_type& alloc)
-: layout(std::move(rhs.layout), alloc) {}
+: layout(std::move(rhs.layout), alloc),
+  pipelineLayout(std::move(rhs.pipelineLayout)) {}
 
 RenderStageData::RenderStageData(const allocator_type& alloc) noexcept
 : descriptorVisibility(alloc) {}

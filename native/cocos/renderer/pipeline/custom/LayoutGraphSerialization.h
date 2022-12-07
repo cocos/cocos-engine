@@ -269,10 +269,12 @@ inline void load(InputArchive& ar, EffectData& v) {
 
 inline void save(OutputArchive& ar, const ShaderProgramData& v) {
     save(ar, v.layout);
+    // skip, pipelineLayout: IntrusivePtr<gfx::PipelineLayout>
 }
 
 inline void load(InputArchive& ar, ShaderProgramData& v) {
     load(ar, v.layout);
+    // skip, pipelineLayout: IntrusivePtr<gfx::PipelineLayout>
 }
 
 inline void save(OutputArchive& ar, const RenderStageData& v) {

@@ -487,6 +487,7 @@ struct ShaderProgramData {
     ShaderProgramData& operator=(ShaderProgramData const& rhs) = delete;
 
     PipelineLayoutData layout;
+    IntrusivePtr<gfx::PipelineLayout> pipelineLayout;
 };
 
 struct RenderStageData {

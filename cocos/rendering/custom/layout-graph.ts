@@ -652,6 +652,7 @@ export class EffectData {
 
 export class ShaderProgramData {
     readonly layout: PipelineLayoutData = new PipelineLayoutData();
+    /*refcount*/ pipelineLayout: PipelineLayout | null = null;
 }
 
 export class RenderStageData {
@@ -1562,10 +1563,12 @@ export function loadEffectData (ar: InputArchive, v: EffectData) {
 
 export function saveShaderProgramData (ar: OutputArchive, v: ShaderProgramData) {
     savePipelineLayoutData(ar, v.layout);
+    // skip, v.pipelineLayout: PipelineLayout
 }
 
 export function loadShaderProgramData (ar: InputArchive, v: ShaderProgramData) {
     loadPipelineLayoutData(ar, v.layout);
+    // skip, v.pipelineLayout: PipelineLayout
 }
 
 export function saveRenderStageData (ar: OutputArchive, v: RenderStageData) {

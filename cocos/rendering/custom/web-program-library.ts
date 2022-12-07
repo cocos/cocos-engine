@@ -25,7 +25,7 @@
 
 /* eslint-disable max-len */
 import { EffectAsset } from '../../asset/assets';
-import { Attribute, DescriptorSetLayout, DescriptorSetLayoutBinding, DescriptorSetLayoutInfo, DescriptorType, Device, MemoryAccessBit, PipelineLayout, Shader, ShaderInfo, ShaderStage, ShaderStageFlagBit, Uniform, UniformBlock, UniformInputAttachment, UniformSampler, UniformSamplerTexture, UniformStorageBuffer, UniformStorageImage, UniformTexture } from '../../gfx';
+import { Attribute, DescriptorSetLayout, DescriptorSetLayoutBinding, DescriptorSetLayoutInfo, DescriptorType, Device, MemoryAccessBit, PipelineLayout, PipelineLayoutInfo, Shader, ShaderInfo, ShaderStage, ShaderStageFlagBit, Uniform, UniformBlock, UniformInputAttachment, UniformSampler, UniformSamplerTexture, UniformStorageBuffer, UniformStorageImage, UniformTexture } from '../../gfx';
 import { genHandles, getActiveAttributes, getShaderInstanceName, getSize, getVariantKey, prepareDefines } from '../../render-scene/core/program-utils';
 import { getDeviceShaderVersion, MacroRecord } from '../../render-scene';
 import { IProgramInfo } from '../../render-scene/core/program-lib';
@@ -33,7 +33,7 @@ import { DescriptorSetData, DescriptorSetLayoutData, LayoutGraphData, LayoutGrap
 import { ProgramLibrary, ProgramProxy } from './private';
 import { DescriptorTypeOrder, UpdateFrequency } from './types';
 import { ProgramGroup, ProgramHost, ProgramInfo, ProgramLibraryData } from './web-types';
-import { getCustomPassID, getCustomPhaseID, getDescriptorSetLayout, getEmptyDescriptorSetLayout, initializeDescriptorSetLayoutInfo, makeDescriptorSetLayoutData } from './layout-graph-utils';
+import { getCustomPassID, getCustomPhaseID, getOrCreateDescriptorSetLayout, getEmptyDescriptorSetLayout, getEmptyPipelineLayout, initializeDescriptorSetLayoutInfo, makeDescriptorSetLayoutData, getDescriptorSetLayout } from './layout-graph-utils';
 import { assert } from '../../core/platform/debug';
 
 const INVALID_ID = 0xFFFFFFFF;
@@ -436,8 +436,10 @@ function buildProgramData (
     phase.shaderPrograms.push(programData);
 }
 
-function getProgramDescriptorSetLayout (device:Device,
-    lg: LayoutGraphData, phaseID: number, programName: string, rate: UpdateFrequency) {
+function getOrCreateProgramDescriptorSetLayout (device:Device,
+    lg: LayoutGraphData, phaseID: number,
+    programName: string, rate: UpdateFrequency): DescriptorSetLayout {
+    assert(rate < UpdateFrequency.PER_PHASE);
     const phase = lg.getRenderPhase(phaseID);
     const programID = phase.shaderIndex.get(programName);
     if (programID === undefined) {
@@ -447,6 +449,28 @@ function getProgramDescriptorSetLayout (device:Device,
     const layout = programData.layout.descriptorSets.get(rate);
     if (layout === undefined) {
         return getEmptyDescriptorSetLayout();
+    }
+    if (layout.descriptorSetLayout) {
+        return layout.descriptorSetLayout;
+    }
+    layout.descriptorSetLayout = device.createDescriptorSetLayout(layout.descriptorSetLayoutInfo);
+
+    return layout.descriptorSetLayout;
+}
+
+function getProgramDescriptorSetLayout (device:Device,
+    lg: LayoutGraphData, phaseID: number,
+    programName: string, rate: UpdateFrequency): DescriptorSetLayout | null {
+    assert(rate < UpdateFrequency.PER_PHASE);
+    const phase = lg.getRenderPhase(phaseID);
+    const programID = phase.shaderIndex.get(programName);
+    if (programID === undefined) {
+        return null;
+    }
+    const programData = phase.shaderPrograms[programID];
+    const layout = programData.layout.descriptorSets.get(rate);
+    if (layout === undefined) {
+        return null;
     }
     if (layout.descriptorSetLayout) {
         return layout.descriptorSetLayout;
@@ -525,10 +549,8 @@ export class WebProgramLibrary extends ProgramLibraryData implements ProgramLibr
                 const [shaderInfo, blockSizes] = makeShaderInfo(lg, passLayout, phaseLayout,
                     srcShaderInfo, programData);
 
-                if (this.mergeHighFrequency) {
-                    // overwrite programInfo
-                    overwriteProgramBlockInfo(shaderInfo, programInfo);
-                }
+                // overwrite programInfo
+                overwriteProgramBlockInfo(shaderInfo, programInfo);
 
                 // handle map
                 const handleMap = genHandles(shaderInfo);
@@ -637,18 +659,18 @@ export class WebProgramLibrary extends ProgramLibraryData implements ProgramLibr
         if (this.mergeHighFrequency) {
             assert(phaseID !== INVALID_ID);
             const passID = this.layoutGraph.getParent(phaseID);
-            return getDescriptorSetLayout(this.layoutGraph, passID, phaseID, UpdateFrequency.PER_BATCH);
+            return getOrCreateDescriptorSetLayout(this.layoutGraph, passID, phaseID, UpdateFrequency.PER_BATCH);
         }
-        return getProgramDescriptorSetLayout(device, this.layoutGraph,
+        return getOrCreateProgramDescriptorSetLayout(device, this.layoutGraph,
             phaseID, programName, UpdateFrequency.PER_BATCH);
     }
     getLocalDescriptorSetLayout (device: Device, phaseID: number, programName: string): DescriptorSetLayout {
         if (this.mergeHighFrequency) {
             assert(phaseID !== INVALID_ID);
             const passID = this.layoutGraph.getParent(phaseID);
-            return getDescriptorSetLayout(this.layoutGraph, passID, phaseID, UpdateFrequency.PER_INSTANCE);
+            return getOrCreateDescriptorSetLayout(this.layoutGraph, passID, phaseID, UpdateFrequency.PER_INSTANCE);
         }
-        return getProgramDescriptorSetLayout(device, this.layoutGraph,
+        return getOrCreateProgramDescriptorSetLayout(device, this.layoutGraph,
             phaseID, programName, UpdateFrequency.PER_INSTANCE);
     }
     getBlockSizes (phaseID: number, programName: string): number[] {
@@ -679,9 +701,48 @@ export class WebProgramLibrary extends ProgramLibraryData implements ProgramLibr
         }
         return info.handleMap;
     }
-    getPipelineLayout (phaseID: number, programName: string): PipelineLayout {
-        assert(phaseID !== INVALID_ID);
-        const layout = this.layoutGraph.getRenderPhase(phaseID);
-        return layout.pipelineLayout!;
+    getPipelineLayout (device: Device, phaseID: number, programName: string): PipelineLayout {
+        if (this.mergeHighFrequency) {
+            assert(phaseID !== INVALID_ID);
+            const layout = this.layoutGraph.getRenderPhase(phaseID);
+            return layout.pipelineLayout!;
+        }
+        const lg = this.layoutGraph;
+        const phase = lg.getRenderPhase(phaseID);
+        const programID = phase.shaderIndex.get(programName);
+        if (programID === undefined) {
+            return getEmptyPipelineLayout();
+        }
+        const programData = phase.shaderPrograms[programID];
+        if (programData.pipelineLayout) {
+            return programData.pipelineLayout;
+        }
+
+        // get pass
+        const passID = lg.getParent(phaseID);
+        if (passID === lg.nullVertex()) {
+            return getEmptyPipelineLayout();
+        }
+
+        // craete pipeline layout
+        const info = new PipelineLayoutInfo();
+        const passSet = getDescriptorSetLayout(this.layoutGraph, passID, phaseID, UpdateFrequency.PER_PASS);
+        if (passSet) {
+            info.setLayouts.push(passSet);
+        }
+        const phaseSet = getDescriptorSetLayout(this.layoutGraph, passID, phaseID, UpdateFrequency.PER_PHASE);
+        if (phaseSet) {
+            info.setLayouts.push(phaseSet);
+        }
+        const batchSet = getProgramDescriptorSetLayout(device, lg, phaseID, programName, UpdateFrequency.PER_BATCH);
+        if (batchSet) {
+            info.setLayouts.push(batchSet);
+        }
+        const instanceSet = getProgramDescriptorSetLayout(device, lg, phaseID, programName, UpdateFrequency.PER_INSTANCE);
+        if (instanceSet) {
+            info.setLayouts.push(instanceSet);
+        }
+        programData.pipelineLayout = device.createPipelineLayout(info);
+        return programData.pipelineLayout;
     }
 }

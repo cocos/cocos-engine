@@ -26,7 +26,7 @@
 /* eslint-disable max-len */
 import { EffectAsset } from '../../asset/assets';
 import { assert } from '../../core';
-import { DescriptorSetLayout, DescriptorSetLayoutBinding, DescriptorSetLayoutInfo, DescriptorType, Device, PipelineLayoutInfo, ShaderStageFlagBit, Type, Uniform, UniformBlock } from '../../gfx';
+import { DescriptorSetLayout, DescriptorSetLayoutBinding, DescriptorSetLayoutInfo, DescriptorType, Device, PipelineLayout, PipelineLayoutInfo, ShaderStageFlagBit, Type, Uniform, UniformBlock } from '../../gfx';
 import { DefaultVisitor, depthFirstSearch, GraphColor, MutableVertexPropertyMap } from './graph';
 import { DescriptorBlockData, DescriptorData, DescriptorDB, DescriptorSetData, DescriptorSetLayoutData, LayoutGraph, LayoutGraphData, LayoutGraphDataValue, LayoutGraphValue, PipelineLayoutData, RenderPhase, RenderPhaseData, RenderStageData, ShaderProgramData } from './layout-graph';
 import { LayoutGraphBuilder } from './pipeline';
@@ -1287,6 +1287,7 @@ export function initializeDescriptorSetLayoutInfo (layoutData: DescriptorSetLayo
 }
 
 let _emptyDescriptorSetLayout: DescriptorSetLayout;
+let _emptyPipelineLayout: PipelineLayout;
 
 function populatePipelineLayoutInfo (layout: PipelineLayoutData,
     rate: UpdateFrequency, info: PipelineLayoutInfo) {
@@ -1301,6 +1302,7 @@ function populatePipelineLayoutInfo (layout: PipelineLayoutData,
 export function initializeLayoutGraphData (device: Device, lg: LayoutGraphData) {
     // create descriptor sets
     _emptyDescriptorSetLayout = device.createDescriptorSetLayout(new DescriptorSetLayoutInfo());
+    _emptyPipelineLayout = device.createPipelineLayout(new PipelineLayoutInfo());
     for (const v of lg.vertices()) {
         const layoutData = lg.getLayout(v);
         for (const [_, set] of layoutData.descriptorSets) {
@@ -1340,6 +1342,7 @@ export function terminateLayoutGraphData (lg: LayoutGraphData) {
             }
         }
     }
+    _emptyPipelineLayout.destroy();
     _emptyDescriptorSetLayout.destroy();
 }
 
@@ -1347,7 +1350,11 @@ export function getEmptyDescriptorSetLayout (): DescriptorSetLayout {
     return _emptyDescriptorSetLayout;
 }
 
-export function getDescriptorSetLayout (lg: LayoutGraphData,
+export function getEmptyPipelineLayout (): PipelineLayout {
+    return _emptyPipelineLayout;
+}
+
+export function getOrCreateDescriptorSetLayout (lg: LayoutGraphData,
     passID: number, phaseID: number, rate: UpdateFrequency): DescriptorSetLayout {
     if (rate < UpdateFrequency.PER_PASS) {
         const phaseData = lg.getLayout(phaseID);
@@ -1375,6 +1382,36 @@ export function getDescriptorSetLayout (lg: LayoutGraphData,
         return data.descriptorSetLayout;
     }
     return _emptyDescriptorSetLayout;
+}
+
+export function getDescriptorSetLayout (lg: LayoutGraphData,
+    passID: number, phaseID: number, rate: UpdateFrequency): DescriptorSetLayout | null {
+    if (rate < UpdateFrequency.PER_PASS) {
+        const phaseData = lg.getLayout(phaseID);
+        const data = phaseData.descriptorSets.get(rate);
+        if (data) {
+            if (!data.descriptorSetLayout) {
+                console.error('descriptor set layout not initialized');
+                return null;
+            }
+            return data.descriptorSetLayout;
+        }
+        return null;
+    }
+
+    assert(rate === UpdateFrequency.PER_PASS);
+    assert(passID === lg.getParent(phaseID));
+
+    const passData = lg.getLayout(passID);
+    const data = passData.descriptorSets.get(rate);
+    if (data) {
+        if (!data.descriptorSetLayout) {
+            console.error('descriptor set layout not initialized');
+            return null;
+        }
+        return data.descriptorSetLayout;
+    }
+    return null;
 }
 
 const _emptyDescriptorSetLayoutData = new DescriptorSetLayoutData();
