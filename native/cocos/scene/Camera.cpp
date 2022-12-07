@@ -206,10 +206,22 @@ void Camera::update(bool forceUpdate /*false*/) {
 
     if (_xr) {
         xr::XREye wndXREye = _xr->getXREyeByRenderWindow(_window);
-        if (wndXREye != xr::XREye::NONE && _proj == CameraProjection::PERSPECTIVE && _xr->getXRConfig(xr::XRConfigKey::SESSION_RUNNING).getBool()) {
+        if (wndXREye != xr::XREye::NONE && _xr->getXRConfig(xr::XRConfigKey::SESSION_RUNNING).getBool()) {
             // xr flow
-            const auto &projFloat = _xr->getXRViewProjectionData(static_cast<uint32_t>(wndXREye), _nearClip, _farClip);
-            std::memcpy(_matProj.m, projFloat.data(), sizeof(float) * 16);
+            if (_proj == CameraProjection::PERSPECTIVE) {
+                const auto &projFloat = _xr->getXRViewProjectionData(static_cast<uint32_t>(wndXREye), _nearClip, _farClip);
+                std::memcpy(_matProj.m, projFloat.data(), sizeof(float) * 16);
+            } else {
+                const auto &xrFov = _xr->getXREyeFov(static_cast<uint32_t>(wndXREye));
+                const float left = _orthoHeight * tanf(xrFov[0]);
+                const float right = _orthoHeight* tanf(xrFov[1]);
+                const float bottom = _orthoHeight* tanf(xrFov[2]);
+                const float top = _orthoHeight* tanf(xrFov[3]);
+                const float projectionSignY = _device->getCapabilities().clipSpaceSignY;
+                Mat4::createOrthographicOffCenter(left, right, bottom, top, _nearClip, _farClip,
+                                                  _device->getCapabilities().clipSpaceMinZ, projectionSignY,
+                                                  static_cast<int>(orientation), &_matProj);
+            }
             _matProjInv = _matProj.getInversed();
             viewProjDirty = true;
         }
@@ -382,7 +394,7 @@ Mat4 Camera::worldMatrixToScreen(const Mat4 &worldMatrix, uint32_t width, uint32
 
 /**
 * @en Calculate and set oblique view frustum projection matrix.
-* @zh 计算并设置斜视锥体投影矩阵 
+* @zh 计算并设置斜视锥体投影矩阵
 * @param clipPlane clip plane in camera space
 */
 void Camera::calculateObliqueMat(const Vec4& viewSpacePlane) {
