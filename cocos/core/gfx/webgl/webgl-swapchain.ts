@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { ALIPAY, RUNTIME_BASED, BYTEDANCE, WECHAT, LINKSURE, QTT, COCOSPLAY, HUAWEI, EDITOR, VIVO } from 'internal:constants';
+import { ALIPAY, RUNTIME_BASED, BYTEDANCE, WECHAT, LINKSURE, QTT, COCOSPLAY, HUAWEI, EDITOR, VIVO, TAOBAO } from 'internal:constants';
 import { systemInfo } from 'pal/system-info';
 import { macro } from '../../platform/macro';
 import { warnID, warn, debug } from '../../platform/debug';
@@ -174,6 +174,14 @@ export function getExtensions (gl: WebGLRenderingContext) {
         // compressedTexSubImage2D too
         if (WECHAT) {
             res.noCompressedTexSubImage2D = true;
+        }
+
+        // HACK: for HUAWEI devices
+        if (TAOBAO && systemInfo.os === OS.ANDROID) {
+            res.OES_texture_half_float = { HALF_FLOAT_OES: 36193 };
+            res.OES_texture_half_float_linear = {};
+            res.OES_texture_float = {};
+            res.OES_texture_float_linear = {};
         }
     }
 
