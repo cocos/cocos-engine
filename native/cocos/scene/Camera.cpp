@@ -214,9 +214,9 @@ void Camera::update(bool forceUpdate /*false*/) {
             } else {
                 const auto &xrFov = _xr->getXREyeFov(static_cast<uint32_t>(wndXREye));
                 const float left = _orthoHeight * tanf(xrFov[0]);
-                const float right = _orthoHeight* tanf(xrFov[1]);
-                const float bottom = _orthoHeight* tanf(xrFov[2]);
-                const float top = _orthoHeight* tanf(xrFov[3]);
+                const float right = _orthoHeight * tanf(xrFov[1]);
+                const float bottom = _orthoHeight * tanf(xrFov[2]);
+                const float top = _orthoHeight * tanf(xrFov[3]);
                 const float projectionSignY = _device->getCapabilities().clipSpaceSignY;
                 Mat4::createOrthographicOffCenter(left, right, bottom, top, _nearClip, _farClip,
                                                   _device->getCapabilities().clipSpaceMinZ, projectionSignY,
