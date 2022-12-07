@@ -29,7 +29,6 @@ import { Director, director } from '../game/director';
 import { Node } from '../scene-graph';
 import { ParticleSystem } from './particle-system';
 import CurveRange from './animator/curve-range';
-import Gradient from './animator/gradient';
 import GradientRange from './animator/gradient-range';
 
 export class ParticleUtils {
