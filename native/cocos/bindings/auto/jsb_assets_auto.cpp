@@ -8140,6 +8140,43 @@ static bool js_cc_IPropertyInfo_linear_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_IPropertyInfo_linear_get) 
 
+static bool js_cc_IPropertyInfo_editor_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::IPropertyInfo *arg1 = (cc::IPropertyInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::IPropertyInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg1->editor, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_IPropertyInfo_editor_set) 
+
+static bool js_cc_IPropertyInfo_editor_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::IPropertyInfo *arg1 = (cc::IPropertyInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::IPropertyInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= nativevalue_to_se(arg1->editor, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(arg1->editor, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_IPropertyInfo_editor_get) 
+
 static bool js_new_cc_IPropertyInfo(se::State& s) // NOLINT(readability-identifier-naming)
 {
     CC_UNUSED bool ok = true;
@@ -8205,6 +8242,12 @@ bool sevalue_to_native(const se::Value &from, cc::IPropertyInfo * to, se::Object
     }
     
     
+    json->getProperty("editor", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->editor), ctx);
+    }
+    
+    
     return ok;
 }
 
@@ -8217,6 +8260,7 @@ bool js_register_cc_IPropertyInfo(se::Object* obj) {
     cls->defineProperty("samplerHash", _SE(js_cc_IPropertyInfo_samplerHash_get), _SE(js_cc_IPropertyInfo_samplerHash_set)); 
     cls->defineProperty("value", _SE(js_cc_IPropertyInfo_value_get), _SE(js_cc_IPropertyInfo_value_set)); 
     cls->defineProperty("linear", _SE(js_cc_IPropertyInfo_linear_get), _SE(js_cc_IPropertyInfo_linear_set)); 
+    cls->defineProperty("editor", _SE(js_cc_IPropertyInfo_editor_get), _SE(js_cc_IPropertyInfo_editor_set)); 
     
     
     
@@ -11526,6 +11570,7 @@ static bool js_cc_IPassInfoFull_propertyIndex_set(se::State& s)
     SE_PRECONDITION2(ok, false, "Error processing arguments"); 
     
     
+    
     return true;
 }
 SE_BIND_PROP_SET(js_cc_IPassInfoFull_propertyIndex_set) 
@@ -11538,7 +11583,10 @@ static bool js_cc_IPassInfoFull_propertyIndex_get(se::State& s)
     arg1 = SE_THIS_OBJECT<cc::IPassInfoFull>(s);
     if (nullptr == arg1) return true;
     
-    ok &= nativevalue_to_se(arg1->propertyIndex, s.rval(), s.thisObject()); 
+    ok &= nativevalue_to_se(arg1->propertyIndex, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(arg1->propertyIndex, s.thisObject(), s.rval());
+    
     
     
     return true;
@@ -12242,6 +12290,43 @@ static bool js_cc_IBlockInfo_stageFlags_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_IBlockInfo_stageFlags_get) 
 
+static bool js_cc_IBlockInfo_defines_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::IBlockInfo *arg1 = (cc::IBlockInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::IBlockInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg1->defines, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_IBlockInfo_defines_set) 
+
+static bool js_cc_IBlockInfo_defines_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::IBlockInfo *arg1 = (cc::IBlockInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::IBlockInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= nativevalue_to_se(arg1->defines, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(arg1->defines, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_IBlockInfo_defines_get) 
+
 static bool js_new_cc_IBlockInfo(se::State& s) // NOLINT(readability-identifier-naming)
 {
     CC_UNUSED bool ok = true;
@@ -12301,6 +12386,12 @@ bool sevalue_to_native(const se::Value &from, cc::IBlockInfo * to, se::Object *c
     }
     
     
+    json->getProperty("defines", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->defines), ctx);
+    }
+    
+    
     return ok;
 }
 
@@ -12312,6 +12403,7 @@ bool js_register_cc_IBlockInfo(se::Object* obj) {
     cls->defineProperty("name", _SE(js_cc_IBlockInfo_name_get), _SE(js_cc_IBlockInfo_name_set)); 
     cls->defineProperty("members", _SE(js_cc_IBlockInfo_members_get), _SE(js_cc_IBlockInfo_members_set)); 
     cls->defineProperty("stageFlags", _SE(js_cc_IBlockInfo_stageFlags_get), _SE(js_cc_IBlockInfo_stageFlags_set)); 
+    cls->defineProperty("defines", _SE(js_cc_IBlockInfo_defines_get), _SE(js_cc_IBlockInfo_defines_set)); 
     
     
     
@@ -12513,6 +12605,43 @@ static bool js_cc_ISamplerTextureInfo_stageFlags_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_ISamplerTextureInfo_stageFlags_get) 
 
+static bool js_cc_ISamplerTextureInfo_defines_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::ISamplerTextureInfo *arg1 = (cc::ISamplerTextureInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::ISamplerTextureInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg1->defines, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_ISamplerTextureInfo_defines_set) 
+
+static bool js_cc_ISamplerTextureInfo_defines_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::ISamplerTextureInfo *arg1 = (cc::ISamplerTextureInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::ISamplerTextureInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= nativevalue_to_se(arg1->defines, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(arg1->defines, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_ISamplerTextureInfo_defines_get) 
+
 static bool js_new_cc_ISamplerTextureInfo(se::State& s) // NOLINT(readability-identifier-naming)
 {
     CC_UNUSED bool ok = true;
@@ -12578,6 +12707,12 @@ bool sevalue_to_native(const se::Value &from, cc::ISamplerTextureInfo * to, se::
     }
     
     
+    json->getProperty("defines", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->defines), ctx);
+    }
+    
+    
     return ok;
 }
 
@@ -12590,6 +12725,7 @@ bool js_register_cc_ISamplerTextureInfo(se::Object* obj) {
     cls->defineProperty("type", _SE(js_cc_ISamplerTextureInfo_type_get), _SE(js_cc_ISamplerTextureInfo_type_set)); 
     cls->defineProperty("count", _SE(js_cc_ISamplerTextureInfo_count_get), _SE(js_cc_ISamplerTextureInfo_count_set)); 
     cls->defineProperty("stageFlags", _SE(js_cc_ISamplerTextureInfo_stageFlags_get), _SE(js_cc_ISamplerTextureInfo_stageFlags_set)); 
+    cls->defineProperty("defines", _SE(js_cc_ISamplerTextureInfo_defines_get), _SE(js_cc_ISamplerTextureInfo_defines_set)); 
     
     
     
@@ -14583,6 +14719,80 @@ static bool js_cc_IDefineInfo_defaultVal_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_IDefineInfo_defaultVal_get) 
 
+static bool js_cc_IDefineInfo_defines_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::IDefineInfo *arg1 = (cc::IDefineInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::IDefineInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg1->defines, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_IDefineInfo_defines_set) 
+
+static bool js_cc_IDefineInfo_defines_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::IDefineInfo *arg1 = (cc::IDefineInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::IDefineInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= nativevalue_to_se(arg1->defines, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(arg1->defines, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_IDefineInfo_defines_get) 
+
+static bool js_cc_IDefineInfo_editor_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::IDefineInfo *arg1 = (cc::IDefineInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::IDefineInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg1->editor, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_IDefineInfo_editor_set) 
+
+static bool js_cc_IDefineInfo_editor_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::IDefineInfo *arg1 = (cc::IDefineInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::IDefineInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= nativevalue_to_se(arg1->editor, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(arg1->editor, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_IDefineInfo_editor_get) 
+
 static bool js_new_cc_IDefineInfo(se::State& s) // NOLINT(readability-identifier-naming)
 {
     CC_UNUSED bool ok = true;
@@ -14648,6 +14858,18 @@ bool sevalue_to_native(const se::Value &from, cc::IDefineInfo * to, se::Object *
     }
     
     
+    json->getProperty("defines", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->defines), ctx);
+    }
+    
+    
+    json->getProperty("editor", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->editor), ctx);
+    }
+    
+    
     return ok;
 }
 
@@ -14660,6 +14882,8 @@ bool js_register_cc_IDefineInfo(se::Object* obj) {
     cls->defineProperty("range", _SE(js_cc_IDefineInfo_range_get), _SE(js_cc_IDefineInfo_range_set)); 
     cls->defineProperty("options", _SE(js_cc_IDefineInfo_options_get), _SE(js_cc_IDefineInfo_options_set)); 
     cls->defineProperty("defaultVal", _SE(js_cc_IDefineInfo_defaultVal_get), _SE(js_cc_IDefineInfo_defaultVal_set)); 
+    cls->defineProperty("defines", _SE(js_cc_IDefineInfo_defines_get), _SE(js_cc_IDefineInfo_defines_set)); 
+    cls->defineProperty("editor", _SE(js_cc_IDefineInfo_editor_get), _SE(js_cc_IDefineInfo_editor_set)); 
     
     
     
@@ -16813,117 +17037,6 @@ static bool js_cc_EffectAsset_hideInEditor_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_EffectAsset_hideInEditor_get) 
 
-static bool js_cc_EffectAsset__techniques_set(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::EffectAsset *arg1 = (cc::EffectAsset *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::EffectAsset>(s);
-    if (nullptr == arg1) return true;
-    
-    ok &= sevalue_to_native(args[0], &arg1->_techniques, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_SET(js_cc_EffectAsset__techniques_set) 
-
-static bool js_cc_EffectAsset__techniques_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::EffectAsset *arg1 = (cc::EffectAsset *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::EffectAsset>(s);
-    if (nullptr == arg1) return true;
-    
-    ok &= nativevalue_to_se(arg1->_techniques, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "Error processing arguments");
-    SE_HOLD_RETURN_VALUE(arg1->_techniques, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_EffectAsset__techniques_get) 
-
-static bool js_cc_EffectAsset__shaders_set(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::EffectAsset *arg1 = (cc::EffectAsset *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::EffectAsset>(s);
-    if (nullptr == arg1) return true;
-    
-    ok &= sevalue_to_native(args[0], &arg1->_shaders, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_SET(js_cc_EffectAsset__shaders_set) 
-
-static bool js_cc_EffectAsset__shaders_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::EffectAsset *arg1 = (cc::EffectAsset *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::EffectAsset>(s);
-    if (nullptr == arg1) return true;
-    
-    ok &= nativevalue_to_se(arg1->_shaders, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "Error processing arguments");
-    SE_HOLD_RETURN_VALUE(arg1->_shaders, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_EffectAsset__shaders_get) 
-
-static bool js_cc_EffectAsset__combinations_set(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::EffectAsset *arg1 = (cc::EffectAsset *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::EffectAsset>(s);
-    if (nullptr == arg1) return true;
-    
-    ok &= sevalue_to_native(args[0], &arg1->_combinations, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_SET(js_cc_EffectAsset__combinations_set) 
-
-static bool js_cc_EffectAsset__combinations_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::EffectAsset *arg1 = (cc::EffectAsset *) NULL ;
-    
-    arg1 = SE_THIS_OBJECT<cc::EffectAsset>(s);
-    if (nullptr == arg1) return true;
-    
-    ok &= nativevalue_to_se(arg1->_combinations, s.rval(), s.thisObject() /*ctx*/);
-    SE_PRECONDITION2(ok, false, "Error processing arguments");
-    SE_HOLD_RETURN_VALUE(arg1->_combinations, s.thisObject(), s.rval());
-    
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_EffectAsset__combinations_get) 
-
 static bool js_cc_EffectAsset_techniques_set(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -17054,9 +17167,6 @@ bool js_register_cc_EffectAsset(se::Object* obj) {
     auto* cls = se::Class::create("EffectAsset", obj, __jsb_cc_Asset_proto, _SE(js_new_cc_EffectAsset)); 
     
     cls->defineProperty("hideInEditor", _SE(js_cc_EffectAsset_hideInEditor_get), _SE(js_cc_EffectAsset_hideInEditor_set)); 
-    cls->defineProperty("_techniques", _SE(js_cc_EffectAsset__techniques_get), _SE(js_cc_EffectAsset__techniques_set)); 
-    cls->defineProperty("_shaders", _SE(js_cc_EffectAsset__shaders_get), _SE(js_cc_EffectAsset__shaders_set)); 
-    cls->defineProperty("_combinations", _SE(js_cc_EffectAsset__combinations_get), _SE(js_cc_EffectAsset__combinations_set)); 
     cls->defineProperty("techniques", _SE(js_cc_EffectAsset_techniques_get), _SE(js_cc_EffectAsset_techniques_set)); 
     cls->defineProperty("shaders", _SE(js_cc_EffectAsset_shaders_get), _SE(js_cc_EffectAsset_shaders_set)); 
     cls->defineProperty("combinations", _SE(js_cc_EffectAsset_combinations_get), _SE(js_cc_EffectAsset_combinations_set)); 

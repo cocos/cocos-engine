@@ -221,6 +221,8 @@ matProto.getProperty = function (name: string, passIdx?: number) {
         }
 
         return arr || val;
+    } else if (val === null || val === undefined) {
+        return null;
     }
 
     let ret;
@@ -266,11 +268,6 @@ materialProto._ctor = function () {
     this._passes = [];
 
     this._registerPassesUpdatedListener();
-    // _initializerDefineProperty(_this, "_effectAsset", _descriptor$d, _assertThisInitialized(_this));
-    // _initializerDefineProperty(_this, "_techIdx", _descriptor2$9, _assertThisInitialized(_this));
-    // _initializerDefineProperty(_this, "_defines", _descriptor3$7, _assertThisInitialized(_this));
-    // _initializerDefineProperty(_this, "_states", _descriptor4$6, _assertThisInitialized(_this));
-    // _initializerDefineProperty(_this, "_props", _descriptor5$4, _assertThisInitialized(_this));
     this._isCtorCalled = true;
 };
 

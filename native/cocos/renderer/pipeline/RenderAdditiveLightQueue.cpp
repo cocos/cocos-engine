@@ -231,6 +231,8 @@ void RenderAdditiveLightQueue::addRenderQueue(scene::SubModel *subModel, const s
                     lightPass.dynamicOffsets[i] = _lightBufferStride * lightIdx;
                 } break;
             }
+        } else {
+            lightPass.dynamicOffsets.clear();
         }
     }
 

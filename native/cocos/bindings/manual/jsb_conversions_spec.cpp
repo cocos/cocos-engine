@@ -928,6 +928,43 @@ bool sevalue_to_native(const se::Value &from, cc::IPreCompileInfoValueType *to, 
 }
 
 // NOLINTNEXTLINE(readability-identifier-naming)
+bool sevalue_to_native(const se::Value &from, cc::IPropertyEditorValueType *to, se::Object *ctx) {
+    bool ret = true;
+    switch (from.getType()) {
+        case se::Value::Type::String: {
+            ccstd::string str;
+            ret = sevalue_to_native(from, &str, ctx);
+            *to = std::move(str);
+        }
+            break;
+        case se::Value::Type::Boolean: {
+            bool v{false};
+            ret = sevalue_to_native(from, &v, ctx);
+            *to = v;
+        }
+            break;
+        case se::Value::Type::Number: {
+            float v{0.F};
+            ret = sevalue_to_native(from, &v, ctx);
+            *to = v;
+        }
+            break;
+        case se::Value::Type::Object: {
+            CC_ASSERT_TRUE(from.toObject()->isArray());
+            ccstd::vector<float> v;
+            ret = sevalue_to_native(from, &v, ctx);
+            *to = std::move(v);
+        }
+            break;
+        default:
+            *to = {};
+            break;
+    }
+
+    return ret;
+}
+
+// NOLINTNEXTLINE(readability-identifier-naming)
 bool sevalue_to_native(const se::Value &from, ccstd::variant<ccstd::vector<float>, ccstd::string> *to, se::Object * /*ctx*/) {
     if (from.isObject() && from.toObject()->isArray()) {
         uint32_t len = 0;

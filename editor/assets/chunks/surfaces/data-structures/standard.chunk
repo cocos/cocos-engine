@@ -13,9 +13,12 @@ struct SurfacesMaterialData
 
   // for advanced PBR
   vec3 worldTangent, worldBinormal;
+  float ior;
+  
 #if CC_SURFACES_LIGHTING_ANISOTROPIC
   float anisotropyShape;
 #endif
+  
 #if CC_SURFACES_LIGHTING_TRANSMITTENCE
   vec4 transmittenceParams;
 #endif

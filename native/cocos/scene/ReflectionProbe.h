@@ -96,7 +96,7 @@ public:
      * @zh probe绑定的节点
      */
     inline Node* getNode() { return _node; }
-    inline Camera* getCamera() { return _camera; }
+    inline const Camera* getCamera() const { return _camera; }
     inline bool needRender() const { return _needRender; }
     inline const geometry::AABB* getBoundingBox() const { return _boundingBox; }
 
@@ -108,11 +108,14 @@ public:
     void syncCameraParams(const Camera* camera);
     void transformReflectionCamera(const Camera* sourceCamera);
     void renderPlanarReflection(const Camera* camera);
+    void switchProbeType(int32_t type, const Camera* sourceCamera);
     static Vec3 reflect(const Vec3& point, const Vec3& normal, float offset);
 
     void updatePlanarTexture(const scene::RenderScene* scene);
 
     void destroy();
+
+    inline bool validate() const { return _cubemap != nullptr; }
 
 private:
     IntrusivePtr<cc::RenderTexture> _realtimePlanarTexture{nullptr};

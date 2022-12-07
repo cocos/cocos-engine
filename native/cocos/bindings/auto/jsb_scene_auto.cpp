@@ -1096,6 +1096,9 @@ using namespace cc;
 #define cc_scene_ReflectionProbe_size_set(self_, val_) self_->setBoudingSize(val_)
   
 
+#define cc_scene_ReflectionProbe_boundingBox_get(self_) self_->getBoundingBox()
+  
+
 
 static bool js_cc_hasFlag__SWIG_1(se::State& s)
 {
@@ -21196,6 +21199,30 @@ static bool js_cc_scene_Camera_setFixedSize(se::State& s)
 }
 SE_BIND_FUNC(js_cc_scene_Camera_setFixedSize) 
 
+static bool js_cc_scene_Camera_syncCameraEditor(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::Camera *arg1 = (cc::scene::Camera *) NULL ;
+    cc::scene::Camera *arg2 = (cc::scene::Camera *) NULL ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::scene::Camera>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    (arg1)->syncCameraEditor((cc::scene::Camera const *)arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_scene_Camera_syncCameraEditor) 
+
 static bool js_cc_scene_Camera_update__SWIG_0(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -22804,6 +22831,7 @@ bool js_register_cc_scene_Camera(se::Object* obj) {
     cls->defineFunction("detachFromScene", _SE(js_cc_scene_Camera_detachFromScene)); 
     cls->defineFunction("resize", _SE(js_cc_scene_Camera_resize)); 
     cls->defineFunction("setFixedSize", _SE(js_cc_scene_Camera_setFixedSize)); 
+    cls->defineFunction("syncCameraEditor", _SE(js_cc_scene_Camera_syncCameraEditor)); 
     cls->defineFunction("update", _SE(js_cc_scene_Camera_update)); 
     cls->defineFunction("changeTargetWindow", _SE(js_cc_scene_Camera_changeTargetWindow)); 
     cls->defineFunction("setViewportInOrientedSpace", _SE(js_cc_scene_Camera_setViewportInOrientedSpace)); 
@@ -23910,7 +23938,7 @@ static bool js_cc_scene_ReflectionProbe_getCamera(se::State& s)
     }
     arg1 = SE_THIS_OBJECT<cc::scene::ReflectionProbe>(s);
     if (nullptr == arg1) return true;
-    result = (cc::scene::Camera *)(arg1)->getCamera();
+    result = (cc::scene::Camera *)((cc::scene::ReflectionProbe const *)arg1)->getCamera();
     
     ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
     SE_PRECONDITION2(ok, false, "Error processing arguments");
@@ -23943,31 +23971,6 @@ static bool js_cc_scene_ReflectionProbe_needRender(se::State& s)
     return true;
 }
 SE_BIND_FUNC(js_cc_scene_ReflectionProbe_needRender) 
-
-static bool js_cc_scene_ReflectionProbe_getBoundingBox(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::scene::ReflectionProbe *arg1 = (cc::scene::ReflectionProbe *) NULL ;
-    cc::geometry::AABB *result = 0 ;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::scene::ReflectionProbe>(s);
-    if (nullptr == arg1) return true;
-    result = (cc::geometry::AABB *)((cc::scene::ReflectionProbe const *)arg1)->getBoundingBox();
-    
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_scene_ReflectionProbe_getBoundingBox) 
 
 static bool js_cc_scene_ReflectionProbe_setCameraNode(se::State& s)
 {
@@ -24135,6 +24138,34 @@ static bool js_cc_scene_ReflectionProbe_renderPlanarReflection(se::State& s)
 }
 SE_BIND_FUNC(js_cc_scene_ReflectionProbe_renderPlanarReflection) 
 
+static bool js_cc_scene_ReflectionProbe_switchProbeType(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::ReflectionProbe *arg1 = (cc::scene::ReflectionProbe *) NULL ;
+    int32_t arg2 ;
+    cc::scene::Camera *arg3 = (cc::scene::Camera *) NULL ;
+    
+    if(argc != 2) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::scene::ReflectionProbe>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    ok &= sevalue_to_native(args[1], &arg3, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    (arg1)->switchProbeType(arg2,(cc::scene::Camera const *)arg3);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_scene_ReflectionProbe_switchProbeType) 
+
 static bool js_cc_scene_ReflectionProbe_reflect_static(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -24221,6 +24252,29 @@ static bool js_cc_scene_ReflectionProbe_destroy(se::State& s)
     return true;
 }
 SE_BIND_FUNC(js_cc_scene_ReflectionProbe_destroy) 
+
+static bool js_cc_scene_ReflectionProbe_validate(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::ReflectionProbe *arg1 = (cc::scene::ReflectionProbe *) NULL ;
+    bool result;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::scene::ReflectionProbe>(s);
+    if (nullptr == arg1) return true;
+    result = (bool)((cc::scene::ReflectionProbe const *)arg1)->validate();
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_scene_ReflectionProbe_validate) 
 
 static bool js_cc_scene_ReflectionProbe_probeType_set(se::State& s)
 {
@@ -24464,6 +24518,25 @@ static bool js_cc_scene_ReflectionProbe_size_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_scene_ReflectionProbe_size_get) 
 
+static bool js_cc_scene_ReflectionProbe_boundingBox_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::scene::ReflectionProbe *arg1 = (cc::scene::ReflectionProbe *) NULL ;
+    cc::geometry::AABB *result = 0 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::ReflectionProbe>(s);
+    if (nullptr == arg1) return true;
+    result = (cc::geometry::AABB *)cc_scene_ReflectionProbe_boundingBox_get(arg1);
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_scene_ReflectionProbe_boundingBox_get) 
+
 bool js_register_cc_scene_ReflectionProbe(se::Object* obj) {
     auto* cls = se::Class::create("ReflectionProbe", obj, nullptr, _SE(js_new_cc_scene_ReflectionProbe)); 
     
@@ -24473,13 +24546,13 @@ bool js_register_cc_scene_ReflectionProbe(se::Object* obj) {
     cls->defineProperty("backgroundColor", _SE(js_cc_scene_ReflectionProbe_backgroundColor_get), _SE(js_cc_scene_ReflectionProbe_backgroundColor_set)); 
     cls->defineProperty("visibility", _SE(js_cc_scene_ReflectionProbe_visibility_get), _SE(js_cc_scene_ReflectionProbe_visibility_set)); 
     cls->defineProperty("size", _SE(js_cc_scene_ReflectionProbe_size_get), _SE(js_cc_scene_ReflectionProbe_size_set)); 
+    cls->defineProperty("boundingBox", _SE(js_cc_scene_ReflectionProbe_boundingBox_get), nullptr); 
     
     cls->defineFunction("initialize", _SE(js_cc_scene_ReflectionProbe_initialize)); 
     cls->defineFunction("getProbeId", _SE(js_cc_scene_ReflectionProbe_getProbeId)); 
     cls->defineFunction("getNode", _SE(js_cc_scene_ReflectionProbe_getNode)); 
     cls->defineFunction("getCamera", _SE(js_cc_scene_ReflectionProbe_getCamera)); 
     cls->defineFunction("needRender", _SE(js_cc_scene_ReflectionProbe_needRender)); 
-    cls->defineFunction("getBoundingBox", _SE(js_cc_scene_ReflectionProbe_getBoundingBox)); 
     cls->defineFunction("setCameraNode", _SE(js_cc_scene_ReflectionProbe_setCameraNode)); 
     cls->defineFunction("getCameraNode", _SE(js_cc_scene_ReflectionProbe_getCameraNode)); 
     cls->defineFunction("getRealtimePlanarTexture", _SE(js_cc_scene_ReflectionProbe_getRealtimePlanarTexture)); 
@@ -24487,8 +24560,10 @@ bool js_register_cc_scene_ReflectionProbe(se::Object* obj) {
     cls->defineFunction("syncCameraParams", _SE(js_cc_scene_ReflectionProbe_syncCameraParams)); 
     cls->defineFunction("transformReflectionCamera", _SE(js_cc_scene_ReflectionProbe_transformReflectionCamera)); 
     cls->defineFunction("renderPlanarReflection", _SE(js_cc_scene_ReflectionProbe_renderPlanarReflection)); 
+    cls->defineFunction("switchProbeType", _SE(js_cc_scene_ReflectionProbe_switchProbeType)); 
     cls->defineFunction("updatePlanarTexture", _SE(js_cc_scene_ReflectionProbe_updatePlanarTexture)); 
     cls->defineFunction("destroy", _SE(js_cc_scene_ReflectionProbe_destroy)); 
+    cls->defineFunction("validate", _SE(js_cc_scene_ReflectionProbe_validate)); 
     
     
     cls->defineStaticFunction("reflect", _SE(js_cc_scene_ReflectionProbe_reflect_static)); 
