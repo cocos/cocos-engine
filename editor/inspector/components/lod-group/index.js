@@ -4,6 +4,7 @@ const { join } = require('path');
 
 const lodItem = require('./lod-item');
 const multiLodGroup = require('./multi-lod-group');
+const { trackEventWithTimer } = require('../../utils/metrics');
 
 module.paths.push(join(Editor.App.path, 'node_modules'));
 const Vue = require('vue/dist/vue.min.js');
@@ -239,6 +240,7 @@ exports.ready = function() {
                     name: 'recalculateBounds',
                     args: [],
                 });
+                trackEventWithTimer('LOD', 'A100002');
             },
             resetObjectSize() {
                 const that = this;
@@ -247,6 +249,7 @@ exports.ready = function() {
                     name: 'resetObjectSize',
                     args: [],
                 });
+                trackEventWithTimer('LOD', 'A100003');
             },
             updateLODs(operator, index) {
                 const that = this;
@@ -260,12 +263,14 @@ exports.ready = function() {
                     const preValue = LODs[index].value.screenUsagePercentage.value;
                     const nextValue = LODs[index + 1] ? LODs[index + 1].value.screenUsagePercentage.value : 0;
                     Editor.Message.request('scene', 'lod-insert', that.dump.value.uuid.value, index + 1, (preValue + nextValue) / 2, null);
+                    trackEventWithTimer('LOD', 'A100005');
                 } else if (operator === 'delete') {
                     if (LODs.length === 1) {
                         console.warn('At least one LOD, Can\'t delete any more');
                         return;
                     }
                     Editor.Message.request('scene', 'lod-erase', that.dump.value.uuid.value, index);
+                    trackEventWithTimer('LOD', 'A100006');
                 }
             },
         },
