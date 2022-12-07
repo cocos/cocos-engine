@@ -151,6 +151,8 @@ void Camera::setWindow(RenderWindow *window) {
     _window = window;
     _width = window->getWidth();
     _height = window->getHeight();
+    updateAspect(false);
+    _isWindowSize = true;
 }
 
 // Editor specific gizmo camera logic
@@ -388,7 +390,7 @@ Mat4 Camera::worldMatrixToScreen(const Mat4 &worldMatrix, uint32_t width, uint32
 
 /**
 * @en Calculate and set oblique view frustum projection matrix.
-* @zh 计算并设置斜视锥体投影矩阵 
+* @zh 计算并设置斜视锥体投影矩阵
 * @param clipPlane clip plane in camera space
 */
 void Camera::calculateObliqueMat(const Vec4& viewSpacePlane) {

@@ -200,6 +200,13 @@ export class Camera {
      */
     set window (val) {
         this._window = val;
+
+        if (this._window) {
+            this._width = this._window.width;
+            this._height = this._window.height;
+            this._updateAspect(false);
+            this.isWindowSize = true;
+        }
     }
     get window () {
         return this._window!;
