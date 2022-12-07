@@ -1280,10 +1280,20 @@ const Elements = {
                             }
                             if (data.name) {
                                 trackEventWithTimer('laber', `A100000_${data.name}`);
-                                if (data.name === 'cc.LODGroup') {
-                                    trackEventWithTimer('LOD', 'A100000');
-                                } else if (data.name === 'cc.ParticleSystem' || data.name === 'cc.ParticleSystem2D') {
-                                    trackEventWithTimer('particleSystem', 'A100012');
+                                switch (data.name) {
+                                    case 'cc.LODGroup':
+                                        trackEventWithTimer('LOD', 'A100000');
+                                        break;
+                                    case 'cc.ParticleSystem':
+                                    case 'cc.ParticleSystem2D':
+                                        trackEventWithTimer('particleSystem', 'A100012');
+                                        break;
+                                    case 'cc.LightProbeGroup':
+                                        trackEventWithTimer('bakingSystem', 'A100004');
+                                        break;
+                                    case 'cc.ReflectionProbe':
+                                        trackEventWithTimer('bakingSystem', 'A100012');
+                                        break;
                                 }
                             }
 
@@ -1499,11 +1509,20 @@ exports.methods = {
                                         path: '__comps__',
                                         index,
                                     });
-                                    if (
-                                        nodeDump.__comps__[index].type &&
-                                        (nodeDump.__comps__[index].type === 'cc.ParticleSystem' || nodeDump.__comps__[index].type === 'cc.ParticleSystem2D')
-                                    ) {
-                                        trackEventWithTimer('particleSystem', 'A100015');
+
+                                    if (nodeDump.__comps__[index].type) {
+                                        switch (nodeDump.__comps__[index].type) {
+                                            case 'cc.ParticleSystem':
+                                            case 'cc.ParticleSystem2D':
+                                                trackEventWithTimer('particleSystem', 'A100015');
+                                                break;
+                                            case 'cc.LightProbeGroup':
+                                                trackEventWithTimer('bakingSystem', 'A100011');
+                                                break;
+                                            case 'cc.ReflectionProbe':
+                                                trackEventWithTimer('bakingSystem', 'A100016');
+                                                break;
+                                        }
                                     }
                                 }
                             }
