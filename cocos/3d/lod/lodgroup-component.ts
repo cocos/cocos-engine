@@ -24,12 +24,13 @@
  */
 import { EDITOR, JSB } from 'internal:constants';
 import { ccclass, editable, executeInEditMode, menu, serializable, type } from 'cc.decorator';
-import { Vec3, Mat4, geometry, CCInteger, CCFloat } from '../core';
-import { Node } from '../scene-graph/node';
-import { Component } from '../scene-graph/component';
-import { Mesh, MeshRenderer } from '../3d';
-import { scene } from '../render-scene';
-import { NodeEventType } from '../scene-graph/node-event';
+import { Vec3, Mat4, geometry, CCInteger, CCFloat } from '../../core';
+import { Node } from '../../scene-graph/node';
+import { Component } from '../../scene-graph/component';
+import { MeshRenderer } from '../framework/mesh-renderer';
+import { Mesh } from '../assets/mesh';
+import { scene } from '../../render-scene';
+import { NodeEventType } from '../../scene-graph/node-event';
 
 // Ratio of objects occupying the screen
 const DEFAULT_SCREEN_OCCUPATION: number[] = [0.25, 0.125, 0.0625];
@@ -65,7 +66,7 @@ export class LOD {
      * @zh 本层级生效时，占用屏幕的最小百分比, 取值范围[0, 1]
      */
     @type(CCFloat)
-    get screenUsagePercentage () : number { return this._screenUsagePercentage; }
+    get screenUsagePercentage (): number { return this._screenUsagePercentage; }
     set screenUsagePercentage (val: number) {
         this._screenUsagePercentage = val;
         this._LODData.screenUsagePercentage = val;
@@ -109,7 +110,7 @@ export class LOD {
      */
     @editable
     @type([CCInteger])
-    get triangleCount () : number[] {
+    get triangleCount (): number[] {
         const tris: number[] = [];
         this._renderers.forEach((meshRenderer: MeshRenderer | null) => {
             let count = 0;
@@ -130,7 +131,7 @@ export class LOD {
      * @en Get the number of LOD.
      * @zh 获取LOD的数量
      */
-    get rendererCount () : number { return this._renderers.length; }
+    get rendererCount (): number { return this._renderers.length; }
 
     /**
       * @engineInternal
@@ -257,13 +258,13 @@ export class LODGroup extends Component {
      * @en Obtain the center point of AABB composed of all models
      * @zh 获取所有模型组成的AABB的中心点
      */
-    get localBoundaryCenter () : Readonly<Vec3> { return this._localBoundaryCenter.clone(); }
+    get localBoundaryCenter (): Readonly<Vec3> { return this._localBoundaryCenter.clone(); }
 
     /**
      * @en Obtain LOD level numbers.
      * @zh 获取LOD层级数
      */
-    get lodCount () : number { return this._LODs.length; }
+    get lodCount (): number { return this._LODs.length; }
 
     /**
      * @en Set current AABB's size.
@@ -286,7 +287,7 @@ export class LODGroup extends Component {
      * @zh 获取 LOD 数组
      */
     @type([LOD])
-    get LODs () : readonly LOD[] {
+    get LODs (): readonly LOD[] {
         return this._LODs;
     }
 
@@ -365,7 +366,7 @@ export class LODGroup extends Component {
      * @param index @en Index of the erased lod, range in [0, lodCount]. @zh 被删除对象索引, 取值范围[0, lodCount]
      * @returns @en Erased lod. @zh 被删除的对象
      */
-    public eraseLOD (index: number) : LOD | null {
+    public eraseLOD (index: number): LOD | null {
         if (index < 0 || index >= this.lodCount) {
             console.warn('eraseLOD error, index out of range');
             return null;
