@@ -19674,6 +19674,400 @@ bool js_register_cc_gfx_QueryPoolInfo(se::Object* obj) {
 }
 
 
+se::Class* __jsb_cc_gfx_FormatInfo_class = nullptr;
+se::Object* __jsb_cc_gfx_FormatInfo_proto = nullptr;
+SE_DECLARE_FINALIZE_FUNC(js_delete_cc_gfx_FormatInfo) 
+
+static bool js_cc_gfx_FormatInfo_name_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::gfx::FormatInfo *arg1 = (cc::gfx::FormatInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gfx::FormatInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg1->name, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_gfx_FormatInfo_name_set) 
+
+static bool js_cc_gfx_FormatInfo_name_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::gfx::FormatInfo *arg1 = (cc::gfx::FormatInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gfx::FormatInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= nativevalue_to_se(arg1->name, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(arg1->name, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_gfx_FormatInfo_name_get) 
+
+static bool js_cc_gfx_FormatInfo_size_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::gfx::FormatInfo *arg1 = (cc::gfx::FormatInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gfx::FormatInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg1->size, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_gfx_FormatInfo_size_set) 
+
+static bool js_cc_gfx_FormatInfo_size_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::gfx::FormatInfo *arg1 = (cc::gfx::FormatInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gfx::FormatInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= nativevalue_to_se(arg1->size, s.rval(), s.thisObject()); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_gfx_FormatInfo_size_get) 
+
+static bool js_cc_gfx_FormatInfo_count_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::gfx::FormatInfo *arg1 = (cc::gfx::FormatInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gfx::FormatInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg1->count, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_gfx_FormatInfo_count_set) 
+
+static bool js_cc_gfx_FormatInfo_count_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::gfx::FormatInfo *arg1 = (cc::gfx::FormatInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gfx::FormatInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= nativevalue_to_se(arg1->count, s.rval(), s.thisObject()); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_gfx_FormatInfo_count_get) 
+
+static bool js_cc_gfx_FormatInfo_type_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::gfx::FormatInfo *arg1 = (cc::gfx::FormatInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gfx::FormatInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg1->type, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_gfx_FormatInfo_type_set) 
+
+static bool js_cc_gfx_FormatInfo_type_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::gfx::FormatInfo *arg1 = (cc::gfx::FormatInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gfx::FormatInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= nativevalue_to_se(arg1->type, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(arg1->type, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_gfx_FormatInfo_type_get) 
+
+static bool js_cc_gfx_FormatInfo_hasAlpha_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::gfx::FormatInfo *arg1 = (cc::gfx::FormatInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gfx::FormatInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg1->hasAlpha);
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_gfx_FormatInfo_hasAlpha_set) 
+
+static bool js_cc_gfx_FormatInfo_hasAlpha_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::gfx::FormatInfo *arg1 = (cc::gfx::FormatInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gfx::FormatInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= nativevalue_to_se(arg1->hasAlpha, s.rval(), s.thisObject());
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_gfx_FormatInfo_hasAlpha_get) 
+
+static bool js_cc_gfx_FormatInfo_hasDepth_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::gfx::FormatInfo *arg1 = (cc::gfx::FormatInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gfx::FormatInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg1->hasDepth);
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_gfx_FormatInfo_hasDepth_set) 
+
+static bool js_cc_gfx_FormatInfo_hasDepth_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::gfx::FormatInfo *arg1 = (cc::gfx::FormatInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gfx::FormatInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= nativevalue_to_se(arg1->hasDepth, s.rval(), s.thisObject());
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_gfx_FormatInfo_hasDepth_get) 
+
+static bool js_cc_gfx_FormatInfo_hasStencil_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::gfx::FormatInfo *arg1 = (cc::gfx::FormatInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gfx::FormatInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg1->hasStencil);
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_gfx_FormatInfo_hasStencil_set) 
+
+static bool js_cc_gfx_FormatInfo_hasStencil_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::gfx::FormatInfo *arg1 = (cc::gfx::FormatInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gfx::FormatInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= nativevalue_to_se(arg1->hasStencil, s.rval(), s.thisObject());
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_gfx_FormatInfo_hasStencil_get) 
+
+static bool js_cc_gfx_FormatInfo_isCompressed_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::gfx::FormatInfo *arg1 = (cc::gfx::FormatInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gfx::FormatInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg1->isCompressed);
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_gfx_FormatInfo_isCompressed_set) 
+
+static bool js_cc_gfx_FormatInfo_isCompressed_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::gfx::FormatInfo *arg1 = (cc::gfx::FormatInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gfx::FormatInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= nativevalue_to_se(arg1->isCompressed, s.rval(), s.thisObject());
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_gfx_FormatInfo_isCompressed_get) 
+
+static bool js_new_cc_gfx_FormatInfo(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    
+    cc::gfx::FormatInfo *result;
+    result = (cc::gfx::FormatInfo *)new cc::gfx::FormatInfo();
+    
+    
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    s.thisObject()->setPrivateObject(ptr);
+    return true;
+}
+SE_BIND_CTOR(js_new_cc_gfx_FormatInfo, __jsb_cc_gfx_FormatInfo_class, js_delete_cc_gfx_FormatInfo)
+
+static bool js_delete_cc_gfx_FormatInfo(se::State& s)
+{
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_delete_cc_gfx_FormatInfo) 
+
+template<>
+bool sevalue_to_native(const se::Value &from, cc::gfx::FormatInfo * to, se::Object *ctx)
+{
+    assert(from.isObject());
+    se::Object *json = from.toObject();
+    auto* data = reinterpret_cast<cc::gfx::FormatInfo*>(json->getPrivateData());
+    if (data) {
+        *to = *data;
+        return true;
+    }
+    se::Value field;
+    bool ok = true;
+    
+    json->getProperty("name", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->name), ctx);
+    }
+    
+    
+    json->getProperty("size", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->size), ctx);
+    }
+    
+    
+    json->getProperty("count", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->count), ctx);
+    }
+    
+    
+    json->getProperty("type", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->type), ctx);
+    }
+    
+    
+    json->getProperty("hasAlpha", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->hasAlpha), ctx);
+    }
+    
+    
+    json->getProperty("hasDepth", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->hasDepth), ctx);
+    }
+    
+    
+    json->getProperty("hasStencil", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->hasStencil), ctx);
+    }
+    
+    
+    json->getProperty("isCompressed", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->isCompressed), ctx);
+    }
+    
+    
+    return ok;
+}
+
+
+bool js_register_cc_gfx_FormatInfo(se::Object* obj) {
+    auto* cls = se::Class::create("FormatInfo", obj, nullptr, _SE(js_new_cc_gfx_FormatInfo)); 
+    
+    cls->defineProperty("name", _SE(js_cc_gfx_FormatInfo_name_get), _SE(js_cc_gfx_FormatInfo_name_set)); 
+    cls->defineProperty("size", _SE(js_cc_gfx_FormatInfo_size_get), _SE(js_cc_gfx_FormatInfo_size_set)); 
+    cls->defineProperty("count", _SE(js_cc_gfx_FormatInfo_count_get), _SE(js_cc_gfx_FormatInfo_count_set)); 
+    cls->defineProperty("type", _SE(js_cc_gfx_FormatInfo_type_get), _SE(js_cc_gfx_FormatInfo_type_set)); 
+    cls->defineProperty("hasAlpha", _SE(js_cc_gfx_FormatInfo_hasAlpha_get), _SE(js_cc_gfx_FormatInfo_hasAlpha_set)); 
+    cls->defineProperty("hasDepth", _SE(js_cc_gfx_FormatInfo_hasDepth_get), _SE(js_cc_gfx_FormatInfo_hasDepth_set)); 
+    cls->defineProperty("hasStencil", _SE(js_cc_gfx_FormatInfo_hasStencil_get), _SE(js_cc_gfx_FormatInfo_hasStencil_set)); 
+    cls->defineProperty("isCompressed", _SE(js_cc_gfx_FormatInfo_isCompressed_get), _SE(js_cc_gfx_FormatInfo_isCompressed_set)); 
+    
+    
+    
+    
+    
+    cls->defineFinalizeFunction(_SE(js_delete_cc_gfx_FormatInfo));
+    
+    
+    cls->install();
+    JSBClassType::registerClass<cc::gfx::FormatInfo>(cls);
+    
+    __jsb_cc_gfx_FormatInfo_proto = cls->getProto();
+    __jsb_cc_gfx_FormatInfo_class = cls;
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
+
 se::Class* __jsb_cc_gfx_MemoryStatus_class = nullptr;
 se::Object* __jsb_cc_gfx_MemoryStatus_proto = nullptr;
 SE_DECLARE_FINALIZE_FUNC(js_delete_cc_gfx_MemoryStatus) 
@@ -27968,6 +28362,7 @@ bool register_all_gfx(se::Object* obj) {
     js_register_cc_gfx_CommandBufferInfo(ns); 
     js_register_cc_gfx_QueueInfo(ns); 
     js_register_cc_gfx_QueryPoolInfo(ns); 
+    js_register_cc_gfx_FormatInfo(ns); 
     js_register_cc_gfx_MemoryStatus(ns); 
     js_register_cc_gfx_DynamicStencilStates(ns); 
     js_register_cc_gfx_DynamicStates(ns); 
