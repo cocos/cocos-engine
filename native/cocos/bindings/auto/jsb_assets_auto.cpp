@@ -320,6 +320,7 @@ bool sevalue_to_native(const se::Value &from, cc::Error * to, se::Object *ctx)
 bool js_register_cc_Error(se::Object* obj) {
     auto* cls = se::Class::create("Error", obj, nullptr, _SE(js_new_cc_Error)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("msg", _SE(js_cc_Error_msg_get), _SE(js_cc_Error_msg_set)); 
     
     
@@ -471,6 +472,7 @@ bool sevalue_to_native(const se::Value &from, cc::BoundingBox * to, se::Object *
 bool js_register_cc_BoundingBox(se::Object* obj) {
     auto* cls = se::Class::create("BoundingBox", obj, nullptr, _SE(js_new_cc_BoundingBox)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("min", _SE(js_cc_BoundingBox_min_get), _SE(js_cc_BoundingBox_min_set)); 
     cls->defineProperty("max", _SE(js_cc_BoundingBox_max_get), _SE(js_cc_BoundingBox_max_set)); 
     
@@ -617,6 +619,7 @@ bool sevalue_to_native(const se::Value &from, cc::VertexIdChannel * to, se::Obje
 bool js_register_cc_VertexIdChannel(se::Object* obj) {
     auto* cls = se::Class::create("VertexIdChannel", obj, nullptr, _SE(js_new_cc_VertexIdChannel)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("stream", _SE(js_cc_VertexIdChannel_stream_get), _SE(js_cc_VertexIdChannel_stream_set)); 
     cls->defineProperty("index", _SE(js_cc_VertexIdChannel_index_get), _SE(js_cc_VertexIdChannel_index_set)); 
     
@@ -881,6 +884,7 @@ bool sevalue_to_native(const se::Value &from, cc::NativeDep * to, se::Object *ct
 bool js_register_cc_NativeDep(se::Object* obj) {
     auto* cls = se::Class::create("NativeDep", obj, nullptr, _SE(js_new_NativeDep)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("uuid", _SE(js_cc_NativeDep_uuid_get), _SE(js_cc_NativeDep_uuid_set)); 
     cls->defineProperty("ext", _SE(js_cc_NativeDep_ext_get), _SE(js_cc_NativeDep_ext_set)); 
     cls->defineProperty("__isNative__", _SE(js_cc_NativeDep___isNative___get), _SE(js_cc_NativeDep___isNative___set)); 
@@ -1027,6 +1031,7 @@ bool sevalue_to_native(const se::Value &from, cc::IGeometryOptions * to, se::Obj
 bool js_register_cc_IGeometryOptions(se::Object* obj) {
     auto* cls = se::Class::create("IGeometryOptions", obj, nullptr, _SE(js_new_cc_IGeometryOptions)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("includeNormal", _SE(js_cc_IGeometryOptions_includeNormal_get), _SE(js_cc_IGeometryOptions_includeNormal_set)); 
     cls->defineProperty("includeUV", _SE(js_cc_IGeometryOptions_includeUV_get), _SE(js_cc_IGeometryOptions_includeUV_set)); 
     
@@ -1179,6 +1184,7 @@ bool sevalue_to_native(const se::Value &from, cc::CustomAttribute * to, se::Obje
 bool js_register_cc_CustomAttribute(se::Object* obj) {
     auto* cls = se::Class::create("CustomAttribute", obj, nullptr, _SE(js_new_cc_CustomAttribute)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("attr", _SE(js_cc_CustomAttribute_attr_get), _SE(js_cc_CustomAttribute_attr_set)); 
     cls->defineProperty("values", _SE(js_cc_CustomAttribute_values_get), _SE(js_cc_CustomAttribute_values_set)); 
     
@@ -1804,6 +1810,7 @@ bool sevalue_to_native(const se::Value &from, cc::IGeometry * to, se::Object *ct
 bool js_register_cc_IGeometry(se::Object* obj) {
     auto* cls = se::Class::create("IGeometry", obj, nullptr, _SE(js_new_cc_IGeometry)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("positions", _SE(js_cc_IGeometry_positions_get), _SE(js_cc_IGeometry_positions_set)); 
     cls->defineProperty("normals", _SE(js_cc_IGeometry_normals_get), _SE(js_cc_IGeometry_normals_set)); 
     cls->defineProperty("uvs", _SE(js_cc_IGeometry_uvs_get), _SE(js_cc_IGeometry_uvs_set)); 
@@ -1967,6 +1974,7 @@ bool sevalue_to_native(const se::Value &from, cc::DynamicCustomAttribute * to, s
 bool js_register_cc_DynamicCustomAttribute(se::Object* obj) {
     auto* cls = se::Class::create("DynamicCustomAttribute", obj, nullptr, _SE(js_new_cc_DynamicCustomAttribute)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("attr", _SE(js_cc_DynamicCustomAttribute_attr_get), _SE(js_cc_DynamicCustomAttribute_attr_set)); 
     cls->defineProperty("values", _SE(js_cc_DynamicCustomAttribute_values_get), _SE(js_cc_DynamicCustomAttribute_values_set)); 
     
@@ -2549,6 +2557,7 @@ bool sevalue_to_native(const se::Value &from, cc::IDynamicGeometry * to, se::Obj
 bool js_register_cc_IDynamicGeometry(se::Object* obj) {
     auto* cls = se::Class::create("IDynamicGeometry", obj, nullptr, _SE(js_new_cc_IDynamicGeometry)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("positions", _SE(js_cc_IDynamicGeometry_positions_get), _SE(js_cc_IDynamicGeometry_positions_set)); 
     cls->defineProperty("normals", _SE(js_cc_IDynamicGeometry_normals_get), _SE(js_cc_IDynamicGeometry_normals_set)); 
     cls->defineProperty("uvs", _SE(js_cc_IDynamicGeometry_uvs_get), _SE(js_cc_IDynamicGeometry_uvs_set)); 
@@ -3102,6 +3111,7 @@ SE_BIND_PROP_GET(js_cc_Asset_isDefault_get)
 bool js_register_cc_Asset(se::Object* obj) {
     auto* cls = se::Class::create("Asset", obj, __jsb_cc_CCObject_proto, _SE(js_new_cc_Asset)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("_native", _SE(js_cc_Asset__native_get), _SE(js_cc_Asset__native_set)); 
     cls->defineProperty("_nativeUrl", _SE(js_cc_Asset__nativeUrl_get), _SE(js_cc_Asset__nativeUrl_set)); 
     cls->defineProperty("_uuid", _SE(js_cc_Asset__uuid_get), _SE(js_cc_Asset__uuid_set)); 
@@ -3959,6 +3969,7 @@ SE_BIND_PROP_GET(js_cc_TextureBase_height_get)
 bool js_register_cc_TextureBase(se::Object* obj) {
     auto* cls = se::Class::create("TextureBase", obj, __jsb_cc_Asset_proto, _SE(js_new_cc_TextureBase)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("_format", _SE(js_cc_TextureBase__format_get), _SE(js_cc_TextureBase__format_set)); 
     cls->defineProperty("_minFilter", _SE(js_cc_TextureBase__minFilter_get), _SE(js_cc_TextureBase__minFilter_set)); 
     cls->defineProperty("_magFilter", _SE(js_cc_TextureBase__magFilter_get), _SE(js_cc_TextureBase__magFilter_set)); 
@@ -4353,6 +4364,7 @@ SE_BIND_PROP_GET(js_cc_SimpleTexture_mipmapLevel_get)
 bool js_register_cc_SimpleTexture(se::Object* obj) {
     auto* cls = se::Class::create("SimpleTexture", obj, __jsb_cc_TextureBase_proto, nullptr); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("mipmapLevel", _SE(js_cc_SimpleTexture_mipmapLevel_get), nullptr); 
     
     cls->defineFunction("updateImage", _SE(js_cc_SimpleTexture_updateImage)); 
@@ -4512,6 +4524,7 @@ bool sevalue_to_native(const se::Value &from, cc::ITexture2DSerializeData * to, 
 bool js_register_cc_ITexture2DSerializeData(se::Object* obj) {
     auto* cls = se::Class::create("ITexture2DSerializeData", obj, nullptr, _SE(js_new_cc_ITexture2DSerializeData)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("base", _SE(js_cc_ITexture2DSerializeData_base_get), _SE(js_cc_ITexture2DSerializeData_base_set)); 
     cls->defineProperty("mipmaps", _SE(js_cc_ITexture2DSerializeData_mipmaps_get), _SE(js_cc_ITexture2DSerializeData_mipmaps_set)); 
     
@@ -4830,6 +4843,7 @@ bool sevalue_to_native(const se::Value &from, cc::ITexture2DCreateInfo * to, se:
 bool js_register_cc_ITexture2DCreateInfo(se::Object* obj) {
     auto* cls = se::Class::create("ITexture2DCreateInfo", obj, nullptr, _SE(js_new_cc_ITexture2DCreateInfo)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("width", _SE(js_cc_ITexture2DCreateInfo_width_get), _SE(js_cc_ITexture2DCreateInfo_width_set)); 
     cls->defineProperty("height", _SE(js_cc_ITexture2DCreateInfo_height_get), _SE(js_cc_ITexture2DCreateInfo_height_set)); 
     cls->defineProperty("format", _SE(js_cc_ITexture2DCreateInfo_format_get), _SE(js_cc_ITexture2DCreateInfo_format_set)); 
@@ -5432,6 +5446,7 @@ SE_BIND_FUNC(js_cc_Texture2D_getGfxTextureViewCreateInfo)
 bool js_register_cc_Texture2D(se::Object* obj) {
     auto* cls = se::Class::create("Texture2D", obj, __jsb_cc_SimpleTexture_proto, _SE(js_new_cc_Texture2D)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     cls->defineFunction("getMipmaps", _SE(js_cc_Texture2D_getMipmaps)); 
     cls->defineFunction("getMipmapsUuids", _SE(js_cc_Texture2D_getMipmapsUuids)); 
@@ -5767,6 +5782,7 @@ bool sevalue_to_native(const se::Value &from, cc::ITextureCubeMipmap * to, se::O
 bool js_register_cc_ITextureCubeMipmap(se::Object* obj) {
     auto* cls = se::Class::create("ITextureCubeMipmap", obj, nullptr, _SE(js_new_cc_ITextureCubeMipmap)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("front", _SE(js_cc_ITextureCubeMipmap_front_get), _SE(js_cc_ITextureCubeMipmap_front_set)); 
     cls->defineProperty("back", _SE(js_cc_ITextureCubeMipmap_back_get), _SE(js_cc_ITextureCubeMipmap_back_set)); 
     cls->defineProperty("left", _SE(js_cc_ITextureCubeMipmap_left_get), _SE(js_cc_ITextureCubeMipmap_left_set)); 
@@ -6095,6 +6111,7 @@ bool sevalue_to_native(const se::Value &from, cc::ITextureCubeSerializeMipmapDat
 bool js_register_cc_ITextureCubeSerializeMipmapData(se::Object* obj) {
     auto* cls = se::Class::create("ITextureCubeSerializeMipmapData", obj, nullptr, _SE(js_new_cc_ITextureCubeSerializeMipmapData)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("front", _SE(js_cc_ITextureCubeSerializeMipmapData_front_get), _SE(js_cc_ITextureCubeSerializeMipmapData_front_set)); 
     cls->defineProperty("back", _SE(js_cc_ITextureCubeSerializeMipmapData_back_get), _SE(js_cc_ITextureCubeSerializeMipmapData_back_set)); 
     cls->defineProperty("left", _SE(js_cc_ITextureCubeSerializeMipmapData_left_get), _SE(js_cc_ITextureCubeSerializeMipmapData_left_set)); 
@@ -6365,6 +6382,7 @@ bool sevalue_to_native(const se::Value &from, cc::MipmapAtlasLayoutInfo * to, se
 bool js_register_cc_MipmapAtlasLayoutInfo(se::Object* obj) {
     auto* cls = se::Class::create("MipmapAtlasLayoutInfo", obj, nullptr, _SE(js_new_cc_MipmapAtlasLayoutInfo)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("left", _SE(js_cc_MipmapAtlasLayoutInfo_left_get), _SE(js_cc_MipmapAtlasLayoutInfo_left_set)); 
     cls->defineProperty("top", _SE(js_cc_MipmapAtlasLayoutInfo_top_get), _SE(js_cc_MipmapAtlasLayoutInfo_top_set)); 
     cls->defineProperty("width", _SE(js_cc_MipmapAtlasLayoutInfo_width_get), _SE(js_cc_MipmapAtlasLayoutInfo_width_set)); 
@@ -6520,6 +6538,7 @@ bool sevalue_to_native(const se::Value &from, cc::TextureCubeMipmapAtlasInfo * t
 bool js_register_cc_TextureCubeMipmapAtlasInfo(se::Object* obj) {
     auto* cls = se::Class::create("TextureCubeMipmapAtlasInfo", obj, nullptr, _SE(js_new_cc_TextureCubeMipmapAtlasInfo)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("atlas", _SE(js_cc_TextureCubeMipmapAtlasInfo_atlas_get), _SE(js_cc_TextureCubeMipmapAtlasInfo_atlas_set)); 
     cls->defineProperty("layout", _SE(js_cc_TextureCubeMipmapAtlasInfo_layout_get), _SE(js_cc_TextureCubeMipmapAtlasInfo_layout_set)); 
     
@@ -6797,6 +6816,7 @@ bool sevalue_to_native(const se::Value &from, cc::TextureCubeSerializeData * to,
 bool js_register_cc_TextureCubeSerializeData(se::Object* obj) {
     auto* cls = se::Class::create("TextureCubeSerializeData", obj, nullptr, _SE(js_new_cc_TextureCubeSerializeData)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("base", _SE(js_cc_TextureCubeSerializeData_base_get), _SE(js_cc_TextureCubeSerializeData_base_set)); 
     cls->defineProperty("rgbe", _SE(js_cc_TextureCubeSerializeData_rgbe_get), _SE(js_cc_TextureCubeSerializeData_rgbe_set)); 
     cls->defineProperty("mipmapMode", _SE(js_cc_TextureCubeSerializeData_mipmapMode_get), _SE(js_cc_TextureCubeSerializeData_mipmapMode_set)); 
@@ -7313,6 +7333,7 @@ SE_BIND_PROP_GET(js_cc_TextureCube_isRGBE_get)
 bool js_register_cc_TextureCube(se::Object* obj) {
     auto* cls = se::Class::create("TextureCube", obj, __jsb_cc_SimpleTexture_proto, _SE(js_new_cc_TextureCube)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("_mipmapMode", _SE(js_cc_TextureCube__mipmapMode_get), _SE(js_cc_TextureCube__mipmapMode_set)); 
     cls->defineProperty("isRGBE", _SE(js_cc_TextureCube_isRGBE_get), _SE(js_cc_TextureCube_isRGBE_set)); 
     
@@ -7559,6 +7580,7 @@ bool sevalue_to_native(const se::Value &from, cc::IRenderTextureCreateInfo * to,
 bool js_register_cc_IRenderTextureCreateInfo(se::Object* obj) {
     auto* cls = se::Class::create("IRenderTextureCreateInfo", obj, nullptr, _SE(js_new_cc_IRenderTextureCreateInfo)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("name", _SE(js_cc_IRenderTextureCreateInfo_name_get), _SE(js_cc_IRenderTextureCreateInfo_name_set)); 
     cls->defineProperty("width", _SE(js_cc_IRenderTextureCreateInfo_width_get), _SE(js_cc_IRenderTextureCreateInfo_width_set)); 
     cls->defineProperty("height", _SE(js_cc_IRenderTextureCreateInfo_height_get), _SE(js_cc_IRenderTextureCreateInfo_height_set)); 
@@ -7818,6 +7840,7 @@ SE_BIND_PROP_GET(js_cc_RenderTexture_window_get)
 bool js_register_cc_RenderTexture(se::Object* obj) {
     auto* cls = se::Class::create("RenderTexture", obj, __jsb_cc_TextureBase_proto, _SE(js_new_cc_RenderTexture)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("window", _SE(js_cc_RenderTexture_window_get), nullptr); 
     
     cls->defineFunction("initialize", _SE(js_cc_RenderTexture_initialize)); 
@@ -7935,6 +7958,7 @@ SE_BIND_PROP_GET(js_cc_BufferAsset__nativeAsset_get)
 bool js_register_cc_BufferAsset(se::Object* obj) {
     auto* cls = se::Class::create("BufferAsset", obj, __jsb_cc_Asset_proto, _SE(js_new_cc_BufferAsset)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("_nativeAsset", _SE(js_cc_BufferAsset__nativeAsset_get), _SE(js_cc_BufferAsset__nativeAsset_set)); 
     
     cls->defineFunction("buffer", _SE(js_cc_BufferAsset_buffer)); 
@@ -8255,6 +8279,7 @@ bool sevalue_to_native(const se::Value &from, cc::IPropertyInfo * to, se::Object
 bool js_register_cc_IPropertyInfo(se::Object* obj) {
     auto* cls = se::Class::create("IPropertyInfo", obj, nullptr, _SE(js_new_cc_IPropertyInfo)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("type", _SE(js_cc_IPropertyInfo_type_get), _SE(js_cc_IPropertyInfo_type_set)); 
     cls->defineProperty("handleInfo", _SE(js_cc_IPropertyInfo_handleInfo_get), _SE(js_cc_IPropertyInfo_handleInfo_set)); 
     cls->defineProperty("samplerHash", _SE(js_cc_IPropertyInfo_samplerHash_get), _SE(js_cc_IPropertyInfo_samplerHash_set)); 
@@ -8895,6 +8920,7 @@ bool sevalue_to_native(const se::Value &from, cc::RasterizerStateInfo * to, se::
 bool js_register_cc_RasterizerStateInfo(se::Object* obj) {
     auto* cls = se::Class::create("RasterizerStateInfo", obj, nullptr, _SE(js_new_cc_RasterizerStateInfo)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("isDiscard", _SE(js_cc_RasterizerStateInfo_isDiscard_get), _SE(js_cc_RasterizerStateInfo_isDiscard_set)); 
     cls->defineProperty("isFrontFaceCCW", _SE(js_cc_RasterizerStateInfo_isFrontFaceCCW_get), _SE(js_cc_RasterizerStateInfo_isFrontFaceCCW_set)); 
     cls->defineProperty("depthBiasEnabled", _SE(js_cc_RasterizerStateInfo_depthBiasEnabled_get), _SE(js_cc_RasterizerStateInfo_depthBiasEnabled_set)); 
@@ -9844,6 +9870,7 @@ bool sevalue_to_native(const se::Value &from, cc::DepthStencilStateInfo * to, se
 bool js_register_cc_DepthStencilStateInfo(se::Object* obj) {
     auto* cls = se::Class::create("DepthStencilStateInfo", obj, nullptr, _SE(js_new_cc_DepthStencilStateInfo)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("depthTest", _SE(js_cc_DepthStencilStateInfo_depthTest_get), _SE(js_cc_DepthStencilStateInfo_depthTest_set)); 
     cls->defineProperty("depthWrite", _SE(js_cc_DepthStencilStateInfo_depthWrite_get), _SE(js_cc_DepthStencilStateInfo_depthWrite_set)); 
     cls->defineProperty("stencilTestFront", _SE(js_cc_DepthStencilStateInfo_stencilTestFront_get), _SE(js_cc_DepthStencilStateInfo_stencilTestFront_set)); 
@@ -10327,6 +10354,7 @@ bool sevalue_to_native(const se::Value &from, cc::BlendTargetInfo * to, se::Obje
 bool js_register_cc_BlendTargetInfo(se::Object* obj) {
     auto* cls = se::Class::create("BlendTargetInfo", obj, nullptr, _SE(js_new_cc_BlendTargetInfo)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("blend", _SE(js_cc_BlendTargetInfo_blend_get), _SE(js_cc_BlendTargetInfo_blend_set)); 
     cls->defineProperty("blendSrc", _SE(js_cc_BlendTargetInfo_blendSrc_get), _SE(js_cc_BlendTargetInfo_blendSrc_set)); 
     cls->defineProperty("blendDst", _SE(js_cc_BlendTargetInfo_blendDst_get), _SE(js_cc_BlendTargetInfo_blendDst_set)); 
@@ -10627,6 +10655,7 @@ bool sevalue_to_native(const se::Value &from, cc::BlendStateInfo * to, se::Objec
 bool js_register_cc_BlendStateInfo(se::Object* obj) {
     auto* cls = se::Class::create("BlendStateInfo", obj, nullptr, _SE(js_new_cc_BlendStateInfo)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("isA2C", _SE(js_cc_BlendStateInfo_isA2C_get), _SE(js_cc_BlendStateInfo_isA2C_set)); 
     cls->defineProperty("isIndepend", _SE(js_cc_BlendStateInfo_isIndepend_get), _SE(js_cc_BlendStateInfo_isIndepend_set)); 
     cls->defineProperty("blendColor", _SE(js_cc_BlendStateInfo_blendColor_get), _SE(js_cc_BlendStateInfo_blendColor_set)); 
@@ -11154,6 +11183,7 @@ bool sevalue_to_native(const se::Value &from, cc::IPassStates * to, se::Object *
 bool js_register_cc_IPassStates(se::Object* obj) {
     auto* cls = se::Class::create("IPassStates", obj, nullptr, _SE(js_new_IPassStates)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("priority", _SE(js_cc_IPassStates_priority_get), _SE(js_cc_IPassStates_priority_set)); 
     cls->defineProperty("primitive", _SE(js_cc_IPassStates_primitive_get), _SE(js_cc_IPassStates_primitive_set)); 
     cls->defineProperty("stage", _SE(js_cc_IPassStates_stage_get), _SE(js_cc_IPassStates_stage_set)); 
@@ -11955,6 +11985,7 @@ bool sevalue_to_native(const se::Value &from, cc::IPassInfoFull * to, se::Object
 bool js_register_cc_IPassInfoFull(se::Object* obj) {
     auto* cls = se::Class::create("IPassInfoFull", obj, nullptr, _SE(js_new_IPassInfoFull)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("priority", _SE(js_cc_IPassInfoFull_priority_get), _SE(js_cc_IPassInfoFull_priority_set)); 
     cls->defineProperty("primitive", _SE(js_cc_IPassInfoFull_primitive_get), _SE(js_cc_IPassInfoFull_primitive_set)); 
     cls->defineProperty("stage", _SE(js_cc_IPassInfoFull_stage_get), _SE(js_cc_IPassInfoFull_stage_set)); 
@@ -12121,6 +12152,7 @@ bool sevalue_to_native(const se::Value &from, cc::ITechniqueInfo * to, se::Objec
 bool js_register_cc_ITechniqueInfo(se::Object* obj) {
     auto* cls = se::Class::create("ITechniqueInfo", obj, nullptr, _SE(js_new_cc_ITechniqueInfo)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("passes", _SE(js_cc_ITechniqueInfo_passes_get), _SE(js_cc_ITechniqueInfo_passes_set)); 
     cls->defineProperty("name", _SE(js_cc_ITechniqueInfo_name_get), _SE(js_cc_ITechniqueInfo_name_set)); 
     
@@ -12399,6 +12431,7 @@ bool sevalue_to_native(const se::Value &from, cc::IBlockInfo * to, se::Object *c
 bool js_register_cc_IBlockInfo(se::Object* obj) {
     auto* cls = se::Class::create("IBlockInfo", obj, nullptr, _SE(js_new_cc_IBlockInfo)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("binding", _SE(js_cc_IBlockInfo_binding_get), _SE(js_cc_IBlockInfo_binding_set)); 
     cls->defineProperty("name", _SE(js_cc_IBlockInfo_name_get), _SE(js_cc_IBlockInfo_name_set)); 
     cls->defineProperty("members", _SE(js_cc_IBlockInfo_members_get), _SE(js_cc_IBlockInfo_members_set)); 
@@ -12720,6 +12753,7 @@ bool sevalue_to_native(const se::Value &from, cc::ISamplerTextureInfo * to, se::
 bool js_register_cc_ISamplerTextureInfo(se::Object* obj) {
     auto* cls = se::Class::create("ISamplerTextureInfo", obj, nullptr, _SE(js_new_cc_ISamplerTextureInfo)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("binding", _SE(js_cc_ISamplerTextureInfo_binding_get), _SE(js_cc_ISamplerTextureInfo_binding_set)); 
     cls->defineProperty("name", _SE(js_cc_ISamplerTextureInfo_name_get), _SE(js_cc_ISamplerTextureInfo_name_set)); 
     cls->defineProperty("type", _SE(js_cc_ISamplerTextureInfo_type_get), _SE(js_cc_ISamplerTextureInfo_type_set)); 
@@ -13039,6 +13073,7 @@ bool sevalue_to_native(const se::Value &from, cc::ITextureInfo * to, se::Object 
 bool js_register_cc_ITextureInfo(se::Object* obj) {
     auto* cls = se::Class::create("ITextureInfo", obj, nullptr, _SE(js_new_cc_ITextureInfo)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("set", _SE(js_cc_ITextureInfo_set_get), _SE(js_cc_ITextureInfo_set_set)); 
     cls->defineProperty("binding", _SE(js_cc_ITextureInfo_binding_get), _SE(js_cc_ITextureInfo_binding_set)); 
     cls->defineProperty("name", _SE(js_cc_ITextureInfo_name_get), _SE(js_cc_ITextureInfo_name_set)); 
@@ -13315,6 +13350,7 @@ bool sevalue_to_native(const se::Value &from, cc::ISamplerInfo * to, se::Object 
 bool js_register_cc_ISamplerInfo(se::Object* obj) {
     auto* cls = se::Class::create("ISamplerInfo", obj, nullptr, _SE(js_new_cc_ISamplerInfo)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("set", _SE(js_cc_ISamplerInfo_set_get), _SE(js_cc_ISamplerInfo_set_set)); 
     cls->defineProperty("binding", _SE(js_cc_ISamplerInfo_binding_get), _SE(js_cc_ISamplerInfo_binding_set)); 
     cls->defineProperty("name", _SE(js_cc_ISamplerInfo_name_get), _SE(js_cc_ISamplerInfo_name_set)); 
@@ -13553,6 +13589,7 @@ bool sevalue_to_native(const se::Value &from, cc::IBufferInfo * to, se::Object *
 bool js_register_cc_IBufferInfo(se::Object* obj) {
     auto* cls = se::Class::create("IBufferInfo", obj, nullptr, _SE(js_new_cc_IBufferInfo)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("binding", _SE(js_cc_IBufferInfo_binding_get), _SE(js_cc_IBufferInfo_binding_set)); 
     cls->defineProperty("name", _SE(js_cc_IBufferInfo_name_get), _SE(js_cc_IBufferInfo_name_set)); 
     cls->defineProperty("memoryAccess", _SE(js_cc_IBufferInfo_memoryAccess_get), _SE(js_cc_IBufferInfo_memoryAccess_set)); 
@@ -13873,6 +13910,7 @@ bool sevalue_to_native(const se::Value &from, cc::IImageInfo * to, se::Object *c
 bool js_register_cc_IImageInfo(se::Object* obj) {
     auto* cls = se::Class::create("IImageInfo", obj, nullptr, _SE(js_new_cc_IImageInfo)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("binding", _SE(js_cc_IImageInfo_binding_get), _SE(js_cc_IImageInfo_binding_set)); 
     cls->defineProperty("name", _SE(js_cc_IImageInfo_name_get), _SE(js_cc_IImageInfo_name_set)); 
     cls->defineProperty("type", _SE(js_cc_IImageInfo_type_get), _SE(js_cc_IImageInfo_type_set)); 
@@ -14149,6 +14187,7 @@ bool sevalue_to_native(const se::Value &from, cc::IInputAttachmentInfo * to, se:
 bool js_register_cc_IInputAttachmentInfo(se::Object* obj) {
     auto* cls = se::Class::create("IInputAttachmentInfo", obj, nullptr, _SE(js_new_cc_IInputAttachmentInfo)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("set", _SE(js_cc_IInputAttachmentInfo_set_get), _SE(js_cc_IInputAttachmentInfo_set_set)); 
     cls->defineProperty("binding", _SE(js_cc_IInputAttachmentInfo_binding_get), _SE(js_cc_IInputAttachmentInfo_binding_set)); 
     cls->defineProperty("name", _SE(js_cc_IInputAttachmentInfo_name_get), _SE(js_cc_IInputAttachmentInfo_name_set)); 
@@ -14505,6 +14544,7 @@ bool sevalue_to_native(const se::Value &from, cc::IAttributeInfo * to, se::Objec
 bool js_register_cc_IAttributeInfo(se::Object* obj) {
     auto* cls = se::Class::create("IAttributeInfo", obj, nullptr, _SE(js_new_cc_IAttributeInfo)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("name", _SE(js_cc_IAttributeInfo_name_get), _SE(js_cc_IAttributeInfo_name_set)); 
     cls->defineProperty("format", _SE(js_cc_IAttributeInfo_format_get), _SE(js_cc_IAttributeInfo_format_set)); 
     cls->defineProperty("isNormalized", _SE(js_cc_IAttributeInfo_isNormalized_get), _SE(js_cc_IAttributeInfo_isNormalized_set)); 
@@ -14877,6 +14917,7 @@ bool sevalue_to_native(const se::Value &from, cc::IDefineInfo * to, se::Object *
 bool js_register_cc_IDefineInfo(se::Object* obj) {
     auto* cls = se::Class::create("IDefineInfo", obj, nullptr, _SE(js_new_cc_IDefineInfo)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("name", _SE(js_cc_IDefineInfo_name_get), _SE(js_cc_IDefineInfo_name_set)); 
     cls->defineProperty("type", _SE(js_cc_IDefineInfo_type_get), _SE(js_cc_IDefineInfo_type_set)); 
     cls->defineProperty("range", _SE(js_cc_IDefineInfo_range_get), _SE(js_cc_IDefineInfo_range_set)); 
@@ -15034,6 +15075,7 @@ bool sevalue_to_native(const se::Value &from, cc::IBuiltin * to, se::Object *ctx
 bool js_register_cc_IBuiltin(se::Object* obj) {
     auto* cls = se::Class::create("IBuiltin", obj, nullptr, _SE(js_new_cc_IBuiltin)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("name", _SE(js_cc_IBuiltin_name_get), _SE(js_cc_IBuiltin_name_set)); 
     cls->defineProperty("defines", _SE(js_cc_IBuiltin_defines_get), _SE(js_cc_IBuiltin_defines_set)); 
     
@@ -15272,6 +15314,7 @@ bool sevalue_to_native(const se::Value &from, cc::IBuiltinInfo * to, se::Object 
 bool js_register_cc_IBuiltinInfo(se::Object* obj) {
     auto* cls = se::Class::create("IBuiltinInfo", obj, nullptr, _SE(js_new_cc_IBuiltinInfo)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("buffers", _SE(js_cc_IBuiltinInfo_buffers_get), _SE(js_cc_IBuiltinInfo_buffers_set)); 
     cls->defineProperty("blocks", _SE(js_cc_IBuiltinInfo_blocks_get), _SE(js_cc_IBuiltinInfo_blocks_set)); 
     cls->defineProperty("samplerTextures", _SE(js_cc_IBuiltinInfo_samplerTextures_get), _SE(js_cc_IBuiltinInfo_samplerTextures_set)); 
@@ -15469,6 +15512,7 @@ bool sevalue_to_native(const se::Value &from, cc::IBuiltins * to, se::Object *ct
 bool js_register_cc_IBuiltins(se::Object* obj) {
     auto* cls = se::Class::create("IBuiltins", obj, nullptr, _SE(js_new_cc_IBuiltins)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("globals", _SE(js_cc_IBuiltins_globals_get), _SE(js_cc_IBuiltins_globals_set)); 
     cls->defineProperty("locals", _SE(js_cc_IBuiltins_locals_get), _SE(js_cc_IBuiltins_locals_set)); 
     cls->defineProperty("statistics", _SE(js_cc_IBuiltins_statistics_get), _SE(js_cc_IBuiltins_statistics_set)); 
@@ -15877,6 +15921,7 @@ bool sevalue_to_native(const se::Value &from, cc::IDescriptorInfo * to, se::Obje
 bool js_register_cc_IDescriptorInfo(se::Object* obj) {
     auto* cls = se::Class::create("IDescriptorInfo", obj, nullptr, _SE(js_new_cc_IDescriptorInfo)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("rate", _SE(js_cc_IDescriptorInfo_rate_get), _SE(js_cc_IDescriptorInfo_rate_set)); 
     cls->defineProperty("blocks", _SE(js_cc_IDescriptorInfo_blocks_get), _SE(js_cc_IDescriptorInfo_blocks_set)); 
     cls->defineProperty("samplerTextures", _SE(js_cc_IDescriptorInfo_samplerTextures_get), _SE(js_cc_IDescriptorInfo_samplerTextures_set)); 
@@ -16035,6 +16080,7 @@ bool sevalue_to_native(const se::Value &from, cc::IShaderSource * to, se::Object
 bool js_register_cc_IShaderSource(se::Object* obj) {
     auto* cls = se::Class::create("IShaderSource", obj, nullptr, _SE(js_new_cc_IShaderSource)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("vert", _SE(js_cc_IShaderSource_vert_get), _SE(js_cc_IShaderSource_vert_set)); 
     cls->defineProperty("frag", _SE(js_cc_IShaderSource_frag_get), _SE(js_cc_IShaderSource_frag_set)); 
     
@@ -16778,6 +16824,7 @@ bool sevalue_to_native(const se::Value &from, cc::IShaderInfo * to, se::Object *
 bool js_register_cc_IShaderInfo(se::Object* obj) {
     auto* cls = se::Class::create("IShaderInfo", obj, nullptr, _SE(js_new_cc_IShaderInfo)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("name", _SE(js_cc_IShaderInfo_name_get), _SE(js_cc_IShaderInfo_name_set)); 
     cls->defineProperty("hash", _SE(js_cc_IShaderInfo_hash_get), _SE(js_cc_IShaderInfo_hash_set)); 
     cls->defineProperty("glsl4", _SE(js_cc_IShaderInfo_glsl4_get), _SE(js_cc_IShaderInfo_glsl4_set)); 
@@ -17166,6 +17213,7 @@ SE_BIND_PROP_GET(js_cc_EffectAsset_combinations_get)
 bool js_register_cc_EffectAsset(se::Object* obj) {
     auto* cls = se::Class::create("EffectAsset", obj, __jsb_cc_Asset_proto, _SE(js_new_cc_EffectAsset)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("hideInEditor", _SE(js_cc_EffectAsset_hideInEditor_get), _SE(js_cc_EffectAsset_hideInEditor_set)); 
     cls->defineProperty("techniques", _SE(js_cc_EffectAsset_techniques_get), _SE(js_cc_EffectAsset_techniques_set)); 
     cls->defineProperty("shaders", _SE(js_cc_EffectAsset_shaders_get), _SE(js_cc_EffectAsset_shaders_set)); 
@@ -17406,6 +17454,7 @@ bool sevalue_to_native(const se::Value &from, cc::IMemoryImageSource * to, se::O
 bool js_register_cc_IMemoryImageSource(se::Object* obj) {
     auto* cls = se::Class::create("IMemoryImageSource", obj, nullptr, _SE(js_new_cc_IMemoryImageSource)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("width", _SE(js_cc_IMemoryImageSource_width_get), _SE(js_cc_IMemoryImageSource_width_set)); 
     cls->defineProperty("height", _SE(js_cc_IMemoryImageSource_height_get), _SE(js_cc_IMemoryImageSource_height_set)); 
     cls->defineProperty("format", _SE(js_cc_IMemoryImageSource_format_get), _SE(js_cc_IMemoryImageSource_format_set)); 
@@ -17760,6 +17809,7 @@ SE_BIND_PROP_GET(js_cc_ImageAsset_url_get)
 bool js_register_cc_ImageAsset(se::Object* obj) {
     auto* cls = se::Class::create("ImageAsset", obj, __jsb_cc_Asset_proto, _SE(js_new_cc_ImageAsset)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("format", _SE(js_cc_ImageAsset_format_get), _SE(js_cc_ImageAsset_format_set)); 
     cls->defineProperty("url", _SE(js_cc_ImageAsset_url_get), _SE(js_cc_ImageAsset_url_set)); 
     
@@ -17867,6 +17917,7 @@ SE_BIND_FUNC(js_cc_SceneAsset_setScene)
 bool js_register_cc_SceneAsset(se::Object* obj) {
     auto* cls = se::Class::create("SceneAsset", obj, __jsb_cc_Asset_proto, _SE(js_new_cc_SceneAsset)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     cls->defineFunction("getScene", _SE(js_cc_SceneAsset_getScene)); 
     cls->defineFunction("setScene", _SE(js_cc_SceneAsset_setScene)); 
@@ -17953,6 +18004,7 @@ SE_BIND_PROP_GET(js_cc_TextAsset_text_get)
 bool js_register_cc_TextAsset(se::Object* obj) {
     auto* cls = se::Class::create("TextAsset", obj, __jsb_cc_Asset_proto, _SE(js_new_cc_TextAsset)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("text", _SE(js_cc_TextAsset_text_get), _SE(js_cc_TextAsset_text_set)); 
     
     
@@ -18231,6 +18283,7 @@ bool sevalue_to_native(const se::Value &from, cc::IMaterialInfo * to, se::Object
 bool js_register_cc_IMaterialInfo(se::Object* obj) {
     auto* cls = se::Class::create("IMaterialInfo", obj, nullptr, _SE(js_new_cc_IMaterialInfo)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("effectAsset", _SE(js_cc_IMaterialInfo_effectAsset_get), _SE(js_cc_IMaterialInfo_effectAsset_set)); 
     cls->defineProperty("effectName", _SE(js_cc_IMaterialInfo_effectName_get), _SE(js_cc_IMaterialInfo_effectName_set)); 
     cls->defineProperty("technique", _SE(js_cc_IMaterialInfo_technique_get), _SE(js_cc_IMaterialInfo_technique_set)); 
@@ -20947,6 +21000,7 @@ SE_BIND_PROP_GET(js_cc_Material_parent_get)
 bool js_register_cc_Material(se::Object* obj) {
     auto* cls = se::Class::create("Material", obj, __jsb_cc_Asset_proto, _SE(js_new_cc_Material)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("_effectAsset", _SE(js_cc_Material__effectAsset_get), _SE(js_cc_Material__effectAsset_set)); 
     cls->defineProperty("_techIdx", _SE(js_cc_Material__techIdx_get), _SE(js_cc_Material__techIdx_set)); 
     cls->defineProperty("_defines", _SE(js_cc_Material__defines_get), _SE(js_cc_Material__defines_set)); 
@@ -21226,6 +21280,7 @@ bool sevalue_to_native(const se::Value &from, cc::IGeometricInfo * to, se::Objec
 bool js_register_cc_IGeometricInfo(se::Object* obj) {
     auto* cls = se::Class::create("IGeometricInfo", obj, nullptr, _SE(js_new_cc_IGeometricInfo)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("positions", _SE(js_cc_IGeometricInfo_positions_get), _SE(js_cc_IGeometricInfo_positions_set)); 
     cls->defineProperty("indices", _SE(js_cc_IGeometricInfo_indices_get), _SE(js_cc_IGeometricInfo_indices_set)); 
     cls->defineProperty("doubleSided", _SE(js_cc_IGeometricInfo_doubleSided_get), _SE(js_cc_IGeometricInfo_doubleSided_set)); 
@@ -21417,6 +21472,7 @@ bool sevalue_to_native(const se::Value &from, cc::IFlatBuffer * to, se::Object *
 bool js_register_cc_IFlatBuffer(se::Object* obj) {
     auto* cls = se::Class::create("IFlatBuffer", obj, nullptr, _SE(js_new_cc_IFlatBuffer)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("stride", _SE(js_cc_IFlatBuffer_stride_get), _SE(js_cc_IFlatBuffer_stride_set)); 
     cls->defineProperty("count", _SE(js_cc_IFlatBuffer_count_get), _SE(js_cc_IFlatBuffer_count_set)); 
     cls->defineProperty("buffer", _SE(js_cc_IFlatBuffer_buffer_get), _SE(js_cc_IFlatBuffer_buffer_set)); 
@@ -22151,6 +22207,7 @@ SE_BIND_PROP_GET(js_cc_RenderingSubMesh_primitiveMode_get)
 bool js_register_cc_RenderingSubMesh(se::Object* obj) {
     auto* cls = se::Class::create("RenderingSubMesh", obj, nullptr, _SE(js_new_RenderingSubMesh)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("mesh", _SE(js_cc_RenderingSubMesh_mesh_get), _SE(js_cc_RenderingSubMesh_mesh_set)); 
     cls->defineProperty("subMeshIdx", _SE(js_cc_RenderingSubMesh_subMeshIdx_get), _SE(js_cc_RenderingSubMesh_subMeshIdx_set)); 
     cls->defineProperty("flatBuffers", _SE(js_cc_RenderingSubMesh_flatBuffers_get), _SE(js_cc_RenderingSubMesh_flatBuffers_set)); 
@@ -22348,6 +22405,7 @@ SE_BIND_FUNC(js_cc_BuiltinResMgr_getAsset)
 bool js_register_cc_BuiltinResMgr(se::Object* obj) {
     auto* cls = se::Class::create("BuiltinResMgr", obj, nullptr, _SE(js_new_cc_BuiltinResMgr)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     cls->defineFunction("initBuiltinRes", _SE(js_cc_BuiltinResMgr_initBuiltinRes)); 
     cls->defineFunction("isInitialized", _SE(js_cc_BuiltinResMgr_isInitialized)); 
@@ -22577,6 +22635,7 @@ bool sevalue_to_native(const se::Value &from, cc::IMeshBufferView * to, se::Obje
 bool js_register_cc_IMeshBufferView(se::Object* obj) {
     auto* cls = se::Class::create("IMeshBufferView", obj, nullptr, _SE(js_new_cc_IMeshBufferView)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("offset", _SE(js_cc_IMeshBufferView_offset_get), _SE(js_cc_IMeshBufferView_offset_set)); 
     cls->defineProperty("length", _SE(js_cc_IMeshBufferView_length_get), _SE(js_cc_IMeshBufferView_length_set)); 
     cls->defineProperty("count", _SE(js_cc_IMeshBufferView_count_get), _SE(js_cc_IMeshBufferView_count_set)); 
@@ -22688,6 +22747,7 @@ bool sevalue_to_native(const se::Value &from, cc::MorphTarget * to, se::Object *
 bool js_register_cc_MorphTarget(se::Object* obj) {
     auto* cls = se::Class::create("MorphTarget", obj, nullptr, _SE(js_new_cc_MorphTarget)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("displacements", _SE(js_cc_MorphTarget_displacements_get), _SE(js_cc_MorphTarget_displacements_set)); 
     
     
@@ -22882,6 +22942,7 @@ bool sevalue_to_native(const se::Value &from, cc::SubMeshMorph * to, se::Object 
 bool js_register_cc_SubMeshMorph(se::Object* obj) {
     auto* cls = se::Class::create("SubMeshMorph", obj, nullptr, _SE(js_new_cc_SubMeshMorph)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("attributes", _SE(js_cc_SubMeshMorph_attributes_get), _SE(js_cc_SubMeshMorph_attributes_set)); 
     cls->defineProperty("targets", _SE(js_cc_SubMeshMorph_targets_get), _SE(js_cc_SubMeshMorph_targets_set)); 
     cls->defineProperty("weights", _SE(js_cc_SubMeshMorph_weights_get), _SE(js_cc_SubMeshMorph_weights_set)); 
@@ -23078,6 +23139,7 @@ bool sevalue_to_native(const se::Value &from, cc::Morph * to, se::Object *ctx)
 bool js_register_cc_Morph(se::Object* obj) {
     auto* cls = se::Class::create("Morph", obj, nullptr, _SE(js_new_cc_Morph)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("subMeshMorphs", _SE(js_cc_Morph_subMeshMorphs_get), _SE(js_cc_Morph_subMeshMorphs_set)); 
     cls->defineProperty("weights", _SE(js_cc_Morph_weights_get), _SE(js_cc_Morph_weights_set)); 
     cls->defineProperty("targetNames", _SE(js_cc_Morph_targetNames_get), _SE(js_cc_Morph_targetNames_set)); 
@@ -23221,6 +23283,7 @@ SE_BIND_FUNC(js_cc_MorphRenderingInstance_destroy)
 bool js_register_cc_MorphRenderingInstance(se::Object* obj) {
     auto* cls = se::Class::create("MorphRenderingInstance", obj, nullptr, nullptr); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     cls->defineFunction("setWeights", _SE(js_cc_MorphRenderingInstance_setWeights)); 
     cls->defineFunction("adaptPipelineState", _SE(js_cc_MorphRenderingInstance_adaptPipelineState)); 
@@ -23281,6 +23344,7 @@ SE_BIND_FUNC(js_cc_MorphRendering_createInstance)
 bool js_register_cc_MorphRendering(se::Object* obj) {
     auto* cls = se::Class::create("MorphRendering", obj, nullptr, nullptr); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     cls->defineFunction("createInstance", _SE(js_cc_MorphRendering_createInstance)); 
     
@@ -23342,6 +23406,7 @@ SE_BIND_FINALIZE_FUNC(js_delete_cc_StdMorphRendering)
 bool js_register_cc_StdMorphRendering(se::Object* obj) {
     auto* cls = se::Class::create("StdMorphRendering", obj, __jsb_cc_MorphRendering_proto, _SE(js_new_cc_StdMorphRendering)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     
     
@@ -23569,6 +23634,7 @@ bool sevalue_to_native(const se::Value &from, cc::Mesh::IVertexBundle * to, se::
 bool js_register_cc_Mesh_IVertexBundle(se::Object* obj) {
     auto* cls = se::Class::create({"Mesh", "IVertexBundle"}, obj, nullptr, _SE(js_new_cc_Mesh_IVertexBundle)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("_padding", _SE(js_cc_Mesh_IVertexBundle__padding_get), _SE(js_cc_Mesh_IVertexBundle__padding_set)); 
     cls->defineProperty("view", _SE(js_cc_Mesh_IVertexBundle_view_get), _SE(js_cc_Mesh_IVertexBundle_view_set)); 
     cls->defineProperty("attributes", _SE(js_cc_Mesh_IVertexBundle_attributes_get), _SE(js_cc_Mesh_IVertexBundle_attributes_set)); 
@@ -23808,6 +23874,7 @@ bool sevalue_to_native(const se::Value &from, cc::Mesh::ISubMesh * to, se::Objec
 bool js_register_cc_Mesh_ISubMesh(se::Object* obj) {
     auto* cls = se::Class::create({"Mesh", "ISubMesh"}, obj, nullptr, _SE(js_new_cc_Mesh_ISubMesh)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("vertexBundelIndices", _SE(js_cc_Mesh_ISubMesh_vertexBundelIndices_get), _SE(js_cc_Mesh_ISubMesh_vertexBundelIndices_set)); 
     cls->defineProperty("primitiveMode", _SE(js_cc_Mesh_ISubMesh_primitiveMode_get), _SE(js_cc_Mesh_ISubMesh_primitiveMode_set)); 
     cls->defineProperty("indexView", _SE(js_cc_Mesh_ISubMesh_indexView_get), _SE(js_cc_Mesh_ISubMesh_indexView_set)); 
@@ -23996,6 +24063,7 @@ bool sevalue_to_native(const se::Value &from, cc::Mesh::IDynamicInfo * to, se::O
 bool js_register_cc_Mesh_IDynamicInfo(se::Object* obj) {
     auto* cls = se::Class::create({"Mesh", "IDynamicInfo"}, obj, nullptr, _SE(js_new_cc_Mesh_IDynamicInfo)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("maxSubMeshes", _SE(js_cc_Mesh_IDynamicInfo_maxSubMeshes_get), _SE(js_cc_Mesh_IDynamicInfo_maxSubMeshes_set)); 
     cls->defineProperty("maxSubMeshVertices", _SE(js_cc_Mesh_IDynamicInfo_maxSubMeshVertices_get), _SE(js_cc_Mesh_IDynamicInfo_maxSubMeshVertices_set)); 
     cls->defineProperty("maxSubMeshIndices", _SE(js_cc_Mesh_IDynamicInfo_maxSubMeshIndices_get), _SE(js_cc_Mesh_IDynamicInfo_maxSubMeshIndices_set)); 
@@ -24149,6 +24217,7 @@ bool sevalue_to_native(const se::Value &from, cc::Mesh::IDynamicStruct * to, se:
 bool js_register_cc_Mesh_IDynamicStruct(se::Object* obj) {
     auto* cls = se::Class::create({"Mesh", "IDynamicStruct"}, obj, nullptr, _SE(js_new_cc_Mesh_IDynamicStruct)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("info", _SE(js_cc_Mesh_IDynamicStruct_info_get), _SE(js_cc_Mesh_IDynamicStruct_info_set)); 
     cls->defineProperty("bounds", _SE(js_cc_Mesh_IDynamicStruct_bounds_get), _SE(js_cc_Mesh_IDynamicStruct_bounds_set)); 
     
@@ -24620,6 +24689,7 @@ bool sevalue_to_native(const se::Value &from, cc::Mesh::IStruct * to, se::Object
 bool js_register_cc_Mesh_IStruct(se::Object* obj) {
     auto* cls = se::Class::create({"Mesh", "IStruct"}, obj, nullptr, _SE(js_new_cc_Mesh_IStruct)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("vertexBundles", _SE(js_cc_Mesh_IStruct_vertexBundles_get), _SE(js_cc_Mesh_IStruct_vertexBundles_set)); 
     cls->defineProperty("primitives", _SE(js_cc_Mesh_IStruct_primitives_get), _SE(js_cc_Mesh_IStruct_primitives_set)); 
     cls->defineProperty("minPosition", _SE(js_cc_Mesh_IStruct_minPosition_get), _SE(js_cc_Mesh_IStruct_minPosition_set)); 
@@ -24781,6 +24851,7 @@ bool sevalue_to_native(const se::Value &from, cc::Mesh::ICreateInfo * to, se::Ob
 bool js_register_cc_Mesh_ICreateInfo(se::Object* obj) {
     auto* cls = se::Class::create({"Mesh", "ICreateInfo"}, obj, nullptr, _SE(js_new_cc_Mesh_ICreateInfo)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("struct", _SE(js_cc_Mesh_ICreateInfo_cpp_keyword_struct_get), _SE(js_cc_Mesh_ICreateInfo_cpp_keyword_struct_set)); 
     cls->defineProperty("data", _SE(js_cc_Mesh_ICreateInfo_data_get), _SE(js_cc_Mesh_ICreateInfo_data_set)); 
     
@@ -25745,6 +25816,7 @@ SE_BIND_PROP_GET(js_cc_Mesh_allowDataAccess_get)
 bool js_register_cc_Mesh(se::Object* obj) {
     auto* cls = se::Class::create("Mesh", obj, __jsb_cc_Asset_proto, _SE(js_new_cc_Mesh)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("morphRendering", _SE(js_cc_Mesh_morphRendering_get), _SE(js_cc_Mesh_morphRendering_set)); 
     cls->defineProperty("_hash", _SE(js_cc_Mesh__hash_get), nullptr); 
     cls->defineProperty("hash", _SE(js_cc_Mesh_hash_get), nullptr); 
@@ -26078,6 +26150,7 @@ SE_BIND_PROP_GET(js_cc_Skeleton_inverseBindposes_get)
 bool js_register_cc_Skeleton(se::Object* obj) {
     auto* cls = se::Class::create("Skeleton", obj, __jsb_cc_Asset_proto, _SE(js_new_cc_Skeleton)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("joints", _SE(js_cc_Skeleton_joints_get), _SE(js_cc_Skeleton_joints_set)); 
     cls->defineProperty("_joints", _SE(js_cc_Skeleton__joints_get), _SE(js_cc_Skeleton__joints_set)); 
     cls->defineProperty("hash", _SE(js_cc_Skeleton_hash_get), _SE(js_cc_Skeleton_hash_set)); 
@@ -26193,6 +26266,7 @@ bool sevalue_to_native(const se::Value &from, cc::ICreateMeshOptions * to, se::O
 bool js_register_cc_ICreateMeshOptions(se::Object* obj) {
     auto* cls = se::Class::create("ICreateMeshOptions", obj, nullptr, _SE(js_new_cc_ICreateMeshOptions)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("calculateBounds", _SE(js_cc_ICreateMeshOptions_calculateBounds_get), _SE(js_cc_ICreateMeshOptions_calculateBounds_set)); 
     
     
@@ -26378,6 +26452,7 @@ bool sevalue_to_native(const se::Value &from, cc::ICreateDynamicMeshOptions * to
 bool js_register_cc_ICreateDynamicMeshOptions(se::Object* obj) {
     auto* cls = se::Class::create("ICreateDynamicMeshOptions", obj, nullptr, _SE(js_new_cc_ICreateDynamicMeshOptions)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("maxSubMeshes", _SE(js_cc_ICreateDynamicMeshOptions_maxSubMeshes_get), _SE(js_cc_ICreateDynamicMeshOptions_maxSubMeshes_set)); 
     cls->defineProperty("maxSubMeshVertices", _SE(js_cc_ICreateDynamicMeshOptions_maxSubMeshVertices_get), _SE(js_cc_ICreateDynamicMeshOptions_maxSubMeshVertices_set)); 
     cls->defineProperty("maxSubMeshIndices", _SE(js_cc_ICreateDynamicMeshOptions_maxSubMeshIndices_get), _SE(js_cc_ICreateDynamicMeshOptions_maxSubMeshIndices_set)); 
@@ -26826,6 +26901,7 @@ SE_BIND_FINALIZE_FUNC(js_delete_cc_MeshUtils)
 bool js_register_cc_MeshUtils(se::Object* obj) {
     auto* cls = se::Class::create("MeshUtils", obj, nullptr, _SE(js_new_cc_MeshUtils)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     
     

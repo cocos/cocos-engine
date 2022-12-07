@@ -356,6 +356,7 @@ bool sevalue_to_native(const se::Value &from, cc::gi::Vertex * to, se::Object *c
 bool js_register_cc_gi_Vertex(se::Object* obj) {
     auto* cls = se::Class::create("Vertex", obj, nullptr, _SE(js_new_Vertex)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("coefficients", _SE(js_cc_gi_Vertex_coefficients_get), _SE(js_cc_gi_Vertex_coefficients_set)); 
     cls->defineProperty("position", _SE(js_cc_gi_Vertex_position_get), _SE(js_cc_gi_Vertex_position_set)); 
     cls->defineProperty("normal", _SE(js_cc_gi_Vertex_normal_get), _SE(js_cc_gi_Vertex_normal_set)); 
@@ -553,6 +554,7 @@ bool sevalue_to_native(const se::Value &from, cc::gi::CircumSphere * to, se::Obj
 bool js_register_cc_gi_CircumSphere(se::Object* obj) {
     auto* cls = se::Class::create("CircumSphere", obj, nullptr, _SE(js_new_cc_gi_CircumSphere)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("radiusSquared", _SE(js_cc_gi_CircumSphere_radiusSquared_get), _SE(js_cc_gi_CircumSphere_radiusSquared_set)); 
     cls->defineProperty("center", _SE(js_cc_gi_CircumSphere_center_get), _SE(js_cc_gi_CircumSphere_center_set)); 
     
@@ -1183,6 +1185,7 @@ bool sevalue_to_native(const se::Value &from, cc::gi::Tetrahedron * to, se::Obje
 bool js_register_cc_gi_Tetrahedron(se::Object* obj) {
     auto* cls = se::Class::create("Tetrahedron", obj, nullptr, _SE(js_new_Tetrahedron)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("invalid", _SE(js_cc_gi_Tetrahedron_invalid_get), _SE(js_cc_gi_Tetrahedron_invalid_set)); 
     cls->defineProperty("vertex0", _SE(js_cc_gi_Tetrahedron_vertex0_get), _SE(js_cc_gi_Tetrahedron_vertex0_set)); 
     cls->defineProperty("vertex1", _SE(js_cc_gi_Tetrahedron_vertex1_get), _SE(js_cc_gi_Tetrahedron_vertex1_set)); 
@@ -1326,6 +1329,7 @@ SE_BIND_FUNC(js_cc_gi_Delaunay_build)
 bool js_register_cc_gi_Delaunay(se::Object* obj) {
     auto* cls = se::Class::create("Delaunay", obj, nullptr, _SE(js_new_cc_gi_Delaunay)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     cls->defineFunction("getProbes", _SE(js_cc_gi_Delaunay_getProbes)); 
     cls->defineFunction("getTetrahedrons", _SE(js_cc_gi_Delaunay_getTetrahedrons)); 
@@ -1706,6 +1710,7 @@ SE_BIND_FINALIZE_FUNC(js_delete_cc_gi_LightProbesData)
 bool js_register_cc_gi_LightProbesData(se::Object* obj) {
     auto* cls = se::Class::create("LightProbesData", obj, nullptr, _SE(js_new_cc_gi_LightProbesData)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("_probes", _SE(js_cc_gi_LightProbesData__probes_get), _SE(js_cc_gi_LightProbesData__probes_set)); 
     cls->defineProperty("_tetrahedrons", _SE(js_cc_gi_LightProbesData__tetrahedrons_get), _SE(js_cc_gi_LightProbesData__tetrahedrons_set)); 
     cls->defineProperty("probes", _SE(js_cc_gi_LightProbesData_probes_get), _SE(js_cc_gi_LightProbesData_probes_set)); 
@@ -2380,6 +2385,7 @@ SE_BIND_PROP_GET(js_cc_gi_LightProbes_data_get)
 bool js_register_cc_gi_LightProbes(se::Object* obj) {
     auto* cls = se::Class::create("LightProbes", obj, nullptr, _SE(js_new_cc_gi_LightProbes)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("_giScale", _SE(js_cc_gi_LightProbes__giScale_get), _SE(js_cc_gi_LightProbes__giScale_set)); 
     cls->defineProperty("_giSamples", _SE(js_cc_gi_LightProbes__giSamples_get), _SE(js_cc_gi_LightProbes__giSamples_set)); 
     cls->defineProperty("_bounces", _SE(js_cc_gi_LightProbes__bounces_get), _SE(js_cc_gi_LightProbes__bounces_set)); 
@@ -3227,6 +3233,7 @@ SE_BIND_PROP_GET(js_cc_gi_LightProbeInfo_data_get)
 bool js_register_cc_gi_LightProbeInfo(se::Object* obj) {
     auto* cls = se::Class::create("LightProbeInfo", obj, nullptr, _SE(js_new_cc_gi_LightProbeInfo)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("_giScale", _SE(js_cc_gi_LightProbeInfo__giScale_get), _SE(js_cc_gi_LightProbeInfo__giScale_set)); 
     cls->defineProperty("_giSamples", _SE(js_cc_gi_LightProbeInfo__giSamples_get), _SE(js_cc_gi_LightProbeInfo__giSamples_set)); 
     cls->defineProperty("_bounces", _SE(js_cc_gi_LightProbeInfo__bounces_get), _SE(js_cc_gi_LightProbeInfo__bounces_set)); 

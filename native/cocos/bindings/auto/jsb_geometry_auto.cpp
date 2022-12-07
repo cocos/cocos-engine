@@ -141,6 +141,7 @@ SE_BIND_FINALIZE_FUNC(js_delete_cc_geometry_ShapeBase)
 bool js_register_cc_geometry_ShapeBase(se::Object* obj) {
     auto* cls = se::Class::create("ShapeBase", obj, nullptr, _SE(js_new_cc_geometry_ShapeBase)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     cls->defineFunction("getType", _SE(js_cc_geometry_ShapeBase_getType)); 
     cls->defineFunction("setType", _SE(js_cc_geometry_ShapeBase_setType)); 
@@ -463,6 +464,7 @@ SE_BIND_PROP_GET(js_cc_geometry_AABB_halfExtents_get)
 bool js_register_cc_geometry_AABB(se::Object* obj) {
     auto* cls = se::Class::create("AABB", obj, __jsb_cc_geometry_ShapeBase_proto, _SE(js_new_AABB)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("center", _SE(js_cc_geometry_AABB_center_get), _SE(js_cc_geometry_AABB_center_set)); 
     cls->defineProperty("halfExtents", _SE(js_cc_geometry_AABB_halfExtents_get), _SE(js_cc_geometry_AABB_halfExtents_set)); 
     
@@ -1119,6 +1121,7 @@ SE_BIND_FUNC(js_cc_geometry_Line_length)
 bool js_register_cc_geometry_Line(se::Object* obj) {
     auto* cls = se::Class::create("Line", obj, __jsb_cc_geometry_ShapeBase_proto, _SE(js_new_Line)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("s", _SE(js_cc_geometry_Line_s_get), _SE(js_cc_geometry_Line_s_set)); 
     cls->defineProperty("e", _SE(js_cc_geometry_Line_e_get), _SE(js_cc_geometry_Line_e_set)); 
     
@@ -1929,6 +1932,7 @@ SE_BIND_FINALIZE_FUNC(js_delete_cc_geometry_Plane)
 bool js_register_cc_geometry_Plane(se::Object* obj) {
     auto* cls = se::Class::create("Plane", obj, __jsb_cc_geometry_ShapeBase_proto, _SE(js_new_Plane)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("n", _SE(js_cc_geometry_Plane_n_get), _SE(js_cc_geometry_Plane_n_set)); 
     cls->defineProperty("d", _SE(js_cc_geometry_Plane_d_get), _SE(js_cc_geometry_Plane_d_set)); 
     
@@ -2443,6 +2447,7 @@ SE_BIND_PROP_GET(js_cc_geometry_Frustum_planes_get)
 bool js_register_cc_geometry_Frustum(se::Object* obj) {
     auto* cls = se::Class::create("Frustum", obj, __jsb_cc_geometry_ShapeBase_proto, _SE(js_new_Frustum)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("vertices", _SE(js_cc_geometry_Frustum_vertices_get), _SE(js_cc_geometry_Frustum_vertices_set)); 
     cls->defineProperty("planes", _SE(js_cc_geometry_Frustum_planes_get), _SE(js_cc_geometry_Frustum_planes_set)); 
     
@@ -2963,6 +2968,7 @@ SE_BIND_FUNC(js_cc_geometry_Capsule_transform)
 bool js_register_cc_geometry_Capsule(se::Object* obj) {
     auto* cls = se::Class::create("Capsule", obj, __jsb_cc_geometry_ShapeBase_proto, _SE(js_new_Capsule)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("radius", _SE(js_cc_geometry_Capsule_radius_get), _SE(js_cc_geometry_Capsule_radius_set)); 
     cls->defineProperty("halfHeight", _SE(js_cc_geometry_Capsule_halfHeight_get), _SE(js_cc_geometry_Capsule_halfHeight_set)); 
     cls->defineProperty("axis", _SE(js_cc_geometry_Capsule_axis_get), _SE(js_cc_geometry_Capsule_axis_set)); 
@@ -4095,6 +4101,7 @@ SE_BIND_FUNC(js_cc_geometry_Sphere_setScale)
 bool js_register_cc_geometry_Sphere(se::Object* obj) {
     auto* cls = se::Class::create("Sphere", obj, __jsb_cc_geometry_ShapeBase_proto, _SE(js_new_Sphere)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     cls->defineFunction("getRadius", _SE(js_cc_geometry_Sphere_getRadius)); 
     cls->defineFunction("getCenter", _SE(js_cc_geometry_Sphere_getCenter)); 
@@ -5296,6 +5303,7 @@ SE_BIND_FINALIZE_FUNC(js_delete_cc_geometry_Triangle)
 bool js_register_cc_geometry_Triangle(se::Object* obj) {
     auto* cls = se::Class::create("Triangle", obj, __jsb_cc_geometry_ShapeBase_proto, _SE(js_new_Triangle)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("a", _SE(js_cc_geometry_Triangle_a_get), _SE(js_cc_geometry_Triangle_a_set)); 
     cls->defineProperty("b", _SE(js_cc_geometry_Triangle_b_get), _SE(js_cc_geometry_Triangle_b_set)); 
     cls->defineProperty("c", _SE(js_cc_geometry_Triangle_c_get), _SE(js_cc_geometry_Triangle_c_set)); 
@@ -6108,6 +6116,7 @@ SE_BIND_FINALIZE_FUNC(js_delete_cc_geometry_Ray)
 bool js_register_cc_geometry_Ray(se::Object* obj) {
     auto* cls = se::Class::create("Ray", obj, __jsb_cc_geometry_ShapeBase_proto, _SE(js_new_Ray)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("o", _SE(js_cc_geometry_Ray_o_get), _SE(js_cc_geometry_Ray_o_set)); 
     cls->defineProperty("d", _SE(js_cc_geometry_Ray_d_get), _SE(js_cc_geometry_Ray_d_set)); 
     
@@ -6951,6 +6960,7 @@ SE_BIND_FUNC(js_cc_geometry_Spline_getPoints)
 bool js_register_cc_geometry_Spline(se::Object* obj) {
     auto* cls = se::Class::create("Spline", obj, __jsb_cc_geometry_ShapeBase_proto, _SE(js_new_Spline)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     cls->defineFunction("setMode", _SE(js_cc_geometry_Spline_setMode)); 
     cls->defineFunction("getMode", _SE(js_cc_geometry_Spline_getMode)); 
