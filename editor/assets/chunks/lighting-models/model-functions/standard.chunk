@@ -55,15 +55,15 @@ void CCSurfacesLightingCalculateEnvironment(out vec3 lightingDiffuse, out vec3 l
     vec3 R = CalculateRefractDirection(lightingData.N, lightingData.V, lightingData.NoV, lightingData.ior);
     float roughness = lightingData.specularParam;
     
-  #if CC_USE_IBL
-    envSpec = EnvReflection(tex, R, roughness, cc_ambientGround.w);
-  #endif
-
   #if USE_REFLECTION_PROBE
     #if USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_CUBE
       envSpec = EnvReflection(cc_reflectionProbeCubemap, R, roughness, cc_ambientGround.w);
     #endif
     //todo: planar refraction from scene color
+  #endif
+
+  #if CC_USE_IBL && USE_REFLECTION_PROBE != REFLECTION_PROBE_TYPE_CUBE
+    envSpec = EnvReflection(tex, R, roughness, cc_ambientGround.w);
   #endif
 
   return envSpec * lightIntensity;
