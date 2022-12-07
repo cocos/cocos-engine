@@ -1,7 +1,7 @@
-/*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+/****************************************************************************
+ Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
 
- https://www.cocos.com/
+ http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -21,30 +21,12 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+****************************************************************************/
 
-import * as distance from './distance';
+#pragma once
 
-import './deprecated';
+namespace se {
+class Object;
+}
 
-import './geometry-native-ext';
-
-export { default as enums } from './enums';
-export { distance };
-export { default as intersect } from './intersect';
-export { Line } from './line';
-export { Plane } from './plane';
-export { Ray } from './ray';
-export { Triangle } from './triangle';
-export { Sphere } from './sphere';
-export { AABB } from './aabb';
-export { OBB } from './obb';
-export { Capsule } from './capsule';
-export { Frustum } from './frustum';
-export { Keyframe, AnimationCurve, WrapModeMask } from './curve';
-export { SplineMode, Spline } from './spline';
-export * from './spec';
-export * from './deprecated-3.0.0';
-
-// engine internal exports
-export { constructLegacyCurveAndConvert, OptimizedKey, evalOptCurve } from './curve';
+bool register_all_geometry_manual(se::Object *obj); // NOLINT

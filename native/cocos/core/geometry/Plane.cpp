@@ -48,8 +48,7 @@ Plane *Plane::set(Plane *out, float nx, float ny, float nz, float d) {
     return out;
 }
 
-Plane::Plane(float nx, float ny, float nz, float d) {
-    setType(ShapeEnum::SHAPE_PLANE);
+Plane::Plane(float nx, float ny, float nz, float d):Plane() {
     n = {nx, ny, nz};
     this->d = d;
 }
