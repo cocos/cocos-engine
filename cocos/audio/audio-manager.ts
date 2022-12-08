@@ -108,16 +108,14 @@ export class AudioManager {
             info.audio.stop();
         });
         this._audioPlayerInfoList.forEach((info) => {
-            // eslint-disable-next-line no-void
-            void info.audio.pause();
+            info.audio.pause().catch((e) => {});
         });
     }
 
     public resume () {
         // onShotAudio can not be resumed
         this._audioPlayerInfoList.forEach((info) => {
-            // eslint-disable-next-line no-void
-            void info.audio.play();
+            info.audio.play().catch((e) => {});
         });
     }
 }
