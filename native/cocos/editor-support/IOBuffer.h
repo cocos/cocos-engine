@@ -179,7 +179,7 @@ public:
         return _outRange;
     }
 
-    inline int checkSpace(std::size_t needSize, bool needCopy = false, bool ratioExpand = true) {
+    inline int checkSpace(std::size_t needSize, bool needCopy = false) {
         auto needLen = _curPos + needSize;
         auto isFull = 0;
         if (_maxSize > 0 && needLen > _maxSize) {
@@ -192,11 +192,8 @@ public:
             _curPos = 0;
         }
         if (_bufferSize < needLen) {
-            std::size_t fitSize = needLen;
-            if (ratioExpand) {
-                int len = static_cast<int>(needLen);
-                fitSize = static_cast<std::size_t>(floorf(1.25F * len));
-            }
+            int len = static_cast<int>(needLen);
+            std::size_t fitSize = static_cast<std::size_t>(floorf(1.25F * len));
             resize(fitSize, needCopy);
             if (_resizeCallback) {
                 _resizeCallback();

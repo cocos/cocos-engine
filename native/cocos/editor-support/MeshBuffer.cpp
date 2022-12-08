@@ -103,7 +103,9 @@ void MeshBuffer::uploadIB() {
 
     auto *rIB = _ibArr[_bufferPos];
     rIB->reset();
-    rIB->checkSpace(_ib.length(), false, false);
+    if (rIB->getCapacity() < length) {
+        rIB->resize(length, false);
+    }
     rIB->writeBytes(reinterpret_cast<const char *>(_ib.getBuffer()), _ib.length());
     auto *uiMeshBuffer = _uiMeshBufferArr[_bufferPos];
     uiMeshBuffer->setIData(reinterpret_cast<uint16_t *>(rIB->getBuffer()));
