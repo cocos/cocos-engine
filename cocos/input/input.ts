@@ -45,7 +45,7 @@ export interface IEventDispatcher {
      * @param event
      * @returns Whether dispatch to next event dispatcher
      */
-    dispatchEvent (event: Event): boolean;
+    dispatchEvent(event: Event): boolean;
 }
 
 class InputEventDispatcher implements IEventDispatcher {
@@ -288,8 +288,13 @@ export class Input {
         const length = this._eventDispatcherList.length;
         for (let i = 0; i < length; ++i) {
             const dispatcher = this._eventDispatcherList[i];
-            if (!dispatcher.dispatchEvent(event)) {
-                break;
+            try {
+                if (!dispatcher.dispatchEvent(event)) {
+                    break;
+                }
+            } catch (e) {
+                console.error(`Error occurs in an event listener: ${event.type}`);
+                console.error(e);
             }
         }
     }
