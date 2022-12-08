@@ -136,9 +136,9 @@ export function randomSign () {
 }
 
 /**
-     * @en judge if the CurveRange use TwoCurves or TwoConstants
-     * @zh 判断粒子的CurveRange是否使用了 TwoCurves 或者 TwoConstants
-     */
+ * @en judge if the CurveRange use TwoCurves or TwoConstants
+ * @zh 判断粒子的CurveRange是否使用了 TwoCurves 或者 TwoConstants
+ */
 export function isCurveTwoValues (curve: CurveRange): boolean {
     const Mode = CurveRange.Mode;
     switch (curve.mode) {
@@ -150,9 +150,9 @@ export function isCurveTwoValues (curve: CurveRange): boolean {
     }
 }
 /**
-     * @en judge if the GradientRange TwoValues use TwoGradients or TwoColors
-     * @zh 判断粒子的 GradientRange 是否使用了 TwoGradients 或者 TwoColors
-     */
+ * @en judge if the GradientRange TwoValues use TwoGradients or TwoColors
+ * @zh 判断粒子的 GradientRange 是否使用了 TwoGradients 或者 TwoColors
+ */
 export function isGradientTwoValues (color: GradientRange): boolean {
     const Mode = GradientRange.Mode;
     switch (color.mode) {
