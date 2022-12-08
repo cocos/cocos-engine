@@ -337,8 +337,7 @@ native_ptr_to_seval(T &v_ref, se::Value *ret, bool *isReturnCachedValue = nullpt
             cc_tmp_set_private_data(obj, v);
 
             se::Value property;
-            bool found = false;
-            found = obj->getProperty("_ctor", &property);
+            bool found = obj->getProperty("_ctor", &property);
             if (found) property.toObject()->call(se::EmptyValueArray, obj);
 
             if (isReturnCachedValue != nullptr) {
@@ -378,8 +377,7 @@ bool native_ptr_to_rooted_seval( // NOLINT(readability-identifier-naming)
             obj->setRawPrivateData(v);
 
             se::Value property;
-            bool found = false;
-            found = obj->getProperty("_ctor", &property);
+            bool found = obj->getProperty("_ctor", &property);
             if (found) property.toObject()->call(se::EmptyValueArray, obj);
 
             if (isReturnCachedValue != nullptr) {
@@ -419,8 +417,7 @@ bool native_ptr_to_seval(T *vp, se::Class *cls, se::Value *ret, bool *isReturnCa
             cc_tmp_set_private_data(obj, v);
 
             se::Value property;
-            bool found = false;
-            found = obj->getProperty("_ctor", &property);
+            bool found = obj->getProperty("_ctor", &property);
             if (found) property.toObject()->call(se::EmptyValueArray, obj);
 
             if (isReturnCachedValue != nullptr) {

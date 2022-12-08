@@ -129,8 +129,7 @@ SE_HOT void jsbConstructorWrapper(const v8::FunctionCallbackInfo<v8::Value> &v8a
         SE_LOGE("[ERROR] Failed to invoke %s\n", funcName);
     }
     se::Value property;
-    bool found = false;
-    found = thisObject->getProperty("_ctor", &property);
+    bool found = thisObject->getProperty("_ctor", &property);
     if (found) property.toObject()->call(args, thisObject);
 }
 
