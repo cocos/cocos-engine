@@ -94,6 +94,7 @@ export class SplashScreen {
     private textHeight = 24; // line height
     private textXTrans = 1 / 2;// Percent
     private textYExtraTrans = 32;// px
+    private textExpandSize = 4;// px
 
     private scaleSize = 1;
 
@@ -133,7 +134,7 @@ export class SplashScreen {
             this.initLayout();
 
             this.initWaterMark();
-            const BGPromise = new Promise<void>((resolve, reject) => {
+            const bgPromise = new Promise<void>((resolve, reject) => {
                 this.bgImage = new Image();
                 this.bgImage.onload = () => {
                     this.initBG();
@@ -144,7 +145,7 @@ export class SplashScreen {
                 };
                 this.bgImage.src = this.settings.bgBase64;
             });
-            const LogoPromise =  new Promise<void>((resolve, reject) => {
+            const logoPromise =  new Promise<void>((resolve, reject) => {
                 this.logoImage = new Image();
                 this.logoImage.onload = () => {
                     this.initLogo();
@@ -155,7 +156,7 @@ export class SplashScreen {
                 };
                 this.logoImage.src = this.settings.base64src;
             });
-            return Promise.all([BGPromise, LogoPromise]);
+            return Promise.all([bgPromise, logoPromise]);
         }
         return Promise.resolve([]);
     }
@@ -212,7 +213,7 @@ export class SplashScreen {
             this.logoYTrans = 2 / 3;// Percent
 
             this.textSize = 12; // font size
-            this.textHeight = 12 + 4; // line height
+            this.textHeight = this.textSize + this.textExpandSize; // line height
             this.textXTrans = 1 / 2;// Percent
             this.textYExtraTrans = 16;// px
         } else {
@@ -225,7 +226,7 @@ export class SplashScreen {
             this.logoYTrans = 1 / 6 + 2.5 / 6;// Percent
 
             this.textSize = 24; // font size
-            this.textHeight = 24 + 4; // line height
+            this.textHeight = this.textSize + this.textExpandSize; // line height
             this.textXTrans = 1 / 2;// Percent
             this.textYExtraTrans = 32;// px
         }
