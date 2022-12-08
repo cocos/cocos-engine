@@ -163,13 +163,12 @@ void ReflectionProbeBatchedQueue::recordCommandBuffer(gfx::Device *device, gfx::
     if (_batchedQueue) _batchedQueue->clear();
 }
 void ReflectionProbeBatchedQueue::resetMacro() const {
-    for (size_t i = 0; i < _rgbeSubModels.size(); i++) {
-        auto *subModel = const_cast<scene::SubModel *>(_rgbeSubModels[i]);
+    for (const auto &subModel : _rgbeSubModels) {
         auto patches = const_cast<ccstd::vector<cc::scene::IMacroPatch> &>(subModel->getPatches());
         for (auto iter = patches.begin(); iter != patches.end(); iter++) {
             if (iter->name == CC_USE_RGBE_OUTPUT) {
                 patches.erase(iter);
-                subModel->onMacroPatchesStateChanged(patches);
+                const_cast<scene::SubModel*>(subModel)->onMacroPatchesStateChanged(patches);
                 break;
             }
         }
