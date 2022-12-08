@@ -125,6 +125,8 @@ void UIModelProxy::destroy() {
         subMesh = nullptr;
     }
     _graphicsUseSubMeshes.clear();
+
+    _models.clear();
 }
 
 void UIModelProxy::clear() {
@@ -146,6 +148,10 @@ void UIModelProxy::attachDrawInfo() {
 
 void UIModelProxy::attachNode(Node* node) {
     _node = node;
+}
+
+void UIModelProxy::clearModels() {
+    _models.clear();
 }
 
 } // namespace cc
