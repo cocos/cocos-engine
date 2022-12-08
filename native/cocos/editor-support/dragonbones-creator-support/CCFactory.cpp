@@ -129,6 +129,19 @@ DragonBonesData *CCFactory::parseDragonBonesDataByPath(const std::string &filePa
     return nullptr;
 }
 
+DragonBonesData *CCFactory::getDragonBonesDataByUUID(const std::string &uuid) {
+    DragonBonesData *bonesData = nullptr;
+    for (auto it = _dragonBonesDataMap.begin(); it != _dragonBonesDataMap.end();) {
+        if (it->first.find(uuid) != std::string::npos) {
+            bonesData = it->second;
+            break;
+        } else {
+            it++;
+        }
+    }
+    return bonesData;
+}
+
 void CCFactory::removeDragonBonesDataByUUID(const std::string &uuid, bool disposeData) {
     for (auto it = _dragonBonesDataMap.begin(); it != _dragonBonesDataMap.end();) {
         if (it->first.find(uuid) != std::string::npos) {

@@ -105,12 +105,6 @@ const cacheManager = require('./jsb-cache-manager');
         _changeSkin.call(this, armatrue, skinData, exclude);
     };
 
-    factoryProto.getDragonBonesDataByUUID = function (uuid) {
-        const armatureKey = `${uuid}`;
-        const dragonBonesData = this.getDragonBonesData(armatureKey);
-        return dragonBonesData;
-    };
-
     dragonBones.CCFactory.getInstance = function () {
         return dragonBones.CCFactory.getFactory();
     };
@@ -314,14 +308,8 @@ const cacheManager = require('./jsb-cache-manager');
             const rawData = JSON.parse(this.dragonBonesJson);
             this._uuid = rawData.name;
         }
-
-        let armatureKey;
-        if (atlasUUID) {
-          armatureKey = `${this._uuid}#${atlasUUID}`;
-        } else {
-          armatureKey = `${this._uuid}`;
-        }
-
+        
+        const armatureKey = `${this._uuid}#${atlasUUID}`;
         const dragonBonesData = this._factory.getDragonBonesData(armatureKey);
         if (dragonBonesData) return armatureKey;
 
