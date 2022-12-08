@@ -176,7 +176,8 @@ export function getExtensions (gl: WebGLRenderingContext) {
             res.noCompressedTexSubImage2D = true;
         }
 
-        // HACK: on Taobao Android, some devices can't query texture float extension correctly, especially Huawei devices.
+        // HACK: on Taobao Android, some devices can't query texture float extension correctly, especially Huawei devices
+        // the query interface returns null.
         if (TAOBAO && systemInfo.os === OS.ANDROID) {
             res.OES_texture_half_float = { HALF_FLOAT_OES: 36193 };
             res.OES_texture_half_float_linear = {};
