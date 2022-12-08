@@ -23,7 +23,7 @@
  THE SOFTWARE.
 ****************************************************************************/
 #include "plugins/bus/EventBus.h"
-#include <cassert>
+#include "base/Macros.h"
 #include <cstring>
 #include <unordered_map>
 
@@ -52,7 +52,7 @@ EventBus *EventBus::acquire(BusType type) {
 }
 
 void EventBus::addListener(Listener *listener) {
-    assert(std::find(_listeners.begin(), _listeners.end(), listener) != _listeners.end());
+    CC_ASSERT(std::find(_listeners.begin(), _listeners.end(), listener) == _listeners.end());
     _listeners.emplace_back(listener);
 }
 
