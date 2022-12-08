@@ -799,7 +799,7 @@ Re-run `node genbindings.js`, the error should have gone.
 
 #### Don't add `const` 
 
-In the above sample, `%arg(std::map<std::string, std::string>&)` is used as a C++ type in %attribue directive. You may consider to add a `const` prefix before `std::map` like `%arg(const std::map<std::string, std::string>&)`. If you do that, you will make a readyonly `config` property which only binds `MyNewClass::getConfig`. That's obviously not what we expect. If we need a readonly property, just don't assign a `set` function. 
+In the above sample, `%arg(std::map<std::string, std::string>&)` is used as a C++ data type in %attribue directive. You may consider to add a `const` prefix before `std::map` like `%arg(const std::map<std::string, std::string>&)`. If you do that, you will make a readyonly `config` property which only binds `MyNewClass::getConfig`. That's obviously not what we expect. If we need a readonly property, just don't assign a `set` function. 
 
 ```c++
 // Don't assign setConfig means the property doesn't need a setter.
