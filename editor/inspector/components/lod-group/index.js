@@ -231,6 +231,7 @@ exports.ready = function() {
             updateDump(dump) {
                 const that = this;
                 that.$refs['lod-dump'].dump = dump;
+                that.$refs['lod-dump'].dispatch('confirm-dump');
                 that.$refs['lod-dump'].dispatch('change-dump');
             },
             recalculateBounds() {
@@ -272,6 +273,7 @@ exports.ready = function() {
                     Editor.Message.request('scene', 'lod-erase', that.dump.value.uuid.value, index);
                     trackEventWithTimer('LOD', 'A100006');
                 }
+                Editor.Message.send('scene', 'snapshot');
             },
         },
     });
