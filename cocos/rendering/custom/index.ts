@@ -110,7 +110,7 @@ export function getCustomPhaseID (passID: number, name: string | number | undefi
     return getCustomPhaseIDImpl(defaultLayoutGraph, passID, name);
 }
 
-export function getCustomPhaseName (passID: number, name: string | number | undefined): string {
+export function getCustomPhaseName (name: string | number | undefined): string {
     if (typeof name === 'number') {
         return name.toString();
     } else if (typeof name === 'string') {
