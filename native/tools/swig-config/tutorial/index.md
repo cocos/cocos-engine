@@ -1,16 +1,16 @@
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents** 
+**Table of Contents**
 
 - [The Tutorial of Swig Workflow in Cocos Creator](#the-tutorial-of-swig-workflow-in-cocos-creator)
-  - [How to Bind a New Module in Engine](#how-to-bind-a-new-module-in-engine)
-    - [Add a new module interface file](#add-a-new-module-interface-file)
-    - [Modify swig-config.js](#modify-swig-configjs)
-    - [Generate bindings](#generate-bindings)
-    - [Modify `engine/native/cocos/CMakeLists.txt`](#modify-enginenativecocoscmakeliststxt)
-    - [Register the new module to Script Engine](#register-the-new-module-to-script-engine)
-  - [How to Bind a New Module in Developer's Project](#how-to-bind-a-new-module-in-developers-project)
-    - [Bind a simple class](#bind-a-simple-class)
+  * [How to Bind a New Module in Engine](#how-to-bind-a-new-module-in-engine)
+    + [Add a new module interface file](#add-a-new-module-interface-file)
+    + [Modify swig-config.js](#modify-swig-configjs)
+    + [Generate bindings](#generate-bindings)
+    + [Modify `engine/native/cocos/CMakeLists.txt`](#modify-enginenativecocoscmakeliststxt)
+    + [Register the new module to Script Engine](#register-the-new-module-to-script-engine)
+  * [How to Bind a New Module in Developer's Project](#how-to-bind-a-new-module-in-developers-project)
+    + [Bind a simple class](#bind-a-simple-class)
       - [Create a simple class](#create-a-simple-class)
       - [Write an interface file](#write-an-interface-file)
       - [Write a swig config file](#write-a-swig-config-file)
@@ -20,14 +20,20 @@
       - [Register the new module to Script Engine](#register-the-new-module-to-script-engine-1)
       - [Test binding](#test-binding)
       - [Section Conclusion](#section-conclusion)
-    - [Import depended header files](#import-depended-header-files)
-    - [Ignore classes, methods, properties](#ignore-classes-methods-properties)
+    + [Import depended header files](#import-depended-header-files)
+    + [Ignore classes, methods, properties](#ignore-classes-methods-properties)
       - [Ignore classes](#ignore-classes)
       - [Ignore methods and properties](#ignore-methods-and-properties)
-    - [Rename classes, methods, properties](#rename-classes-methods-properties)
-    - [Define attributes which bind C++ getter and setter as a JS property](#define-attributes-which-bind-c-getter-and-setter-as-a-js-property)
-    - [Configure C++ modules in .i file](#configure-c-modules-in-i-file)
-    - [Multiple swig modules configuration](#multiple-swig-modules-configuration)
+    + [Rename classes, methods, properties](#rename-classes-methods-properties)
+    + [Define an attribute](#define-an-attribute)
+      - [Usage](#usage)
+      - [Demo](#demo)
+      - [%attribute_writeonly directive](#%25attribute_writeonly--directive)
+      - [Reference type](#reference-type)
+      - [%arg() directive](#%25arg-directive)
+      - [Don't add `const`](#dont-add-const)
+    + [Configure C++ modules in .i file](#configure-c-modules-in-i-file)
+    + [Multiple swig modules configuration](#multiple-swig-modules-configuration)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -610,26 +616,28 @@ Build and run project, get log:
 17:53:28 [DEBUG]: ==> hello MyObject::methodToBeRenamed
 ```
 
-### Define attributes which bind C++ getter and setter as a JS property
+### Define an attribute
 
-### Usage
+`%attribute` directive is used for bind C++ getter and setter functions as a JS property.
+
+#### Usage
 
 1. Define an attribute (JS property) without setter
 
    ```c++
-   %attribute(your_namespace::your_class_name, cpp_member_variable_type, js_property_name, cpp_getter_name)
+   %attribute(your_namespace::your_class_name, cpp_member_variable_type, js_property_name, cpp_getter_function_name)
    ```
 
 2. Define an attribute (JS property) with getter and setter
 
    ```c++
-   %attribute(your_namespace::your_class_name, cpp_member_variable_type, js_property_name, cpp_getter_name, cpp_setter_name)
+   %attribute(your_namespace::your_class_name, cpp_member_variable_type, js_property_name, cpp_getter_function_name, cpp_setter_function_name)
    ```
 
 3. Define an attribute (JS property) without getter
 
    ```c++
-   %attribute_writeonly(your_namespace::your_class_name, cpp_member_variable_type, js_property_name, cpp_setter_name)
+   %attribute_writeonly(your_namespace::your_class_name, cpp_member_variable_type, js_property_name, cpp_setter_function_name)
    ```
 
 #### Demo
@@ -725,7 +733,7 @@ In `native/tools/swig-config/cocos.i`, there are:
 %attribute_writeonly(cc::ICanvasRenderingContext2D, ccstd::string&, font, setFont);
 ```
 
-This is the similar functionality like which in JS:
+This is the similar functionality in JS:
 
 ```javascript
 Object.defineProperty(MyNewClass.prototype, 'width', {
