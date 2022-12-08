@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { EDITOR, PREVIEW, TAOBAO } from 'internal:constants';
+import { EDITOR, TAOBAO } from 'internal:constants';
 import { Material } from '../asset/assets/material';
 import { clamp01, Mat4, Vec2, Settings, settings, sys, cclegacy, easing } from '../core';
 import {
@@ -83,8 +83,10 @@ export class SplashScreen {
     private bgWidth = 1920;
     private bgHeight = 1080;
     private bgRatio = 16 / 9;
-    private logoWidth = 140;
-    private logoHeight = 200;
+    private logoWidthTemp = 140;
+    private logoHeightTemp = 200;
+    private logoWidth = 0;
+    private logoHeight = 0;
     private logoXTrans = 1 / 2;// Percent
     private logoYTrans = 1 / 6 + 2.5 / 6;// Percent
 
@@ -92,6 +94,7 @@ export class SplashScreen {
     private textHeight = 24; // line height
     private textXTrans = 1 / 2;// Percent
     private textYExtraTrans = 32;// px
+    private textExpandSize = 4;// px
 
     private scaleSize = 1;
 
@@ -107,7 +110,7 @@ export class SplashScreen {
         return this._curTime;
     }
 
-    public init (): Promise<void> | undefined {
+    public init (): Promise<void[]> | undefined {
         this.settings = {
             displayRatio: settings.querySettings<number>(Settings.Category.SPLASH_SCREEN, 'displayRatio') ?? 0.4,
             totalTime: settings.querySettings<number>(Settings.Category.SPLASH_SCREEN, 'totalTime') ?? 3000,
@@ -131,7 +134,7 @@ export class SplashScreen {
             this.initLayout();
 
             this.initWaterMark();
-            return new Promise<void>((resolve, reject) => {
+            const bgPromise = new Promise<void>((resolve, reject) => {
                 this.bgImage = new Image();
                 this.bgImage.onload = () => {
                     this.initBG();
@@ -141,7 +144,8 @@ export class SplashScreen {
                     reject();
                 };
                 this.bgImage.src = this.settings.bgBase64;
-
+            });
+            const logoPromise =  new Promise<void>((resolve, reject) => {
                 this.logoImage = new Image();
                 this.logoImage.onload = () => {
                     this.initLogo();
@@ -152,8 +156,9 @@ export class SplashScreen {
                 };
                 this.logoImage.src = this.settings.base64src;
             });
+            return Promise.all([bgPromise, logoPromise]);
         }
-        return Promise.resolve();
+        return Promise.resolve([]);
     }
 
     private preInit () {
@@ -202,26 +207,26 @@ export class SplashScreen {
             this.bgWidth = 812;
             this.bgHeight = 375;
 
-            this.logoWidth = 70;
-            this.logoHeight = 100;
+            this.logoWidthTemp = 70;
+            this.logoHeightTemp = 100;
             this.logoXTrans = 1 / 2;// Percent
             this.logoYTrans = 2 / 3;// Percent
 
             this.textSize = 12; // font size
-            this.textHeight = 12; // line height
+            this.textHeight = this.textSize + this.textExpandSize; // line height
             this.textXTrans = 1 / 2;// Percent
             this.textYExtraTrans = 16;// px
         } else {
             this.bgWidth = 1920;
             this.bgHeight = 1080;
 
-            this.logoWidth = 140;
-            this.logoHeight = 200;
+            this.logoWidthTemp = 140;
+            this.logoHeightTemp = 200;
             this.logoXTrans = 1 / 2;// Percent
             this.logoYTrans = 1 / 6 + 2.5 / 6;// Percent
 
             this.textSize = 24; // font size
-            this.textHeight = 24; // line height
+            this.textHeight = this.textSize + this.textExpandSize; // line height
             this.textXTrans = 1 / 2;// Percent
             this.textYExtraTrans = 32;// px
         }
@@ -277,8 +282,8 @@ export class SplashScreen {
         // update logo uniform
         scaleX = 1;
         scaleY = 1;
-        scaleX = this.logoWidth * this.scaleSize;
-        scaleY = this.logoHeight * this.scaleSize;
+        scaleX = this.logoWidth * this.scaleSize * settings.displayRatio;
+        scaleY = this.logoHeight * this.scaleSize * settings.displayRatio;
         const logoYTrans = dh * this.logoYTrans;
 
         this.logoMat.setProperty('resolution', v2_0.set(dw, dh), 0);
@@ -293,7 +298,8 @@ export class SplashScreen {
             const watermarkTW = this.watermarkTexture.width; const watermarkTH = this.watermarkTexture.height;
             scaleX = watermarkTW;
             scaleY = watermarkTH;
-            const textYTrans = logoYTrans - (this.logoHeight * 0.5 + this.textYExtraTrans) * this.scaleSize - watermarkTH * 0.5;
+            const textYTrans = logoYTrans - (this.logoHeight * 0.5 * settings.displayRatio + this.textYExtraTrans)
+             * this.scaleSize - watermarkTH * 0.5;
             this.watermarkMat.setProperty('resolution', v2_0.set(dw, dh), 0);
             this.watermarkMat.setProperty('scale', v2_0.set(scaleX, scaleY), 0);
             this.watermarkMat.setProperty('translate', v2_0.set(dw * this.textXTrans, textYTrans), 0);
@@ -372,17 +378,30 @@ export class SplashScreen {
         region.texExtent.height = this.logoImage.height;
         region.texExtent.depth = 1;
         device.copyTexImagesToTexture([this.logoImage], this.logoTexture, [region]);
+
+        const logoRatio = this.logoImage.width / this.logoImage.height;
+        if (logoRatio < 1) {
+            this.logoWidth = this.logoWidthTemp;
+            this.logoHeight = this.logoWidthTemp / logoRatio;
+        } else {
+            this.logoWidth = this.logoHeightTemp * logoRatio;
+            this.logoHeight = this.logoHeightTemp;
+        }
     }
 
     private initWaterMark () {
         // create texture from image
         const watermarkImg = document.createElement('canvas');
-        watermarkImg.width = 330; watermarkImg.height = this.textHeight * this.scaleSize;
+        watermarkImg.height = this.textHeight * this.scaleSize;
         watermarkImg.style.width = `${watermarkImg.width}`;
         watermarkImg.style.height = `${watermarkImg.height}`;
+
+        const text = 'Created with Cocos';
         const ctx = watermarkImg.getContext('2d')!;
         ctx.font = `${this.textSize * this.scaleSize}px Arial`; ctx.textBaseline = 'top'; ctx.textAlign = 'center'; ctx.fillStyle = '#707070';
-        const text = 'Created with Cocos';
+        const textLength = ctx.measureText(text).width + 10;
+        watermarkImg.width = textLength; // Tips: Set canvas width will clean context style
+        ctx.font = `${this.textSize * this.scaleSize}px Arial`; ctx.textBaseline = 'top'; ctx.textAlign = 'center'; ctx.fillStyle = '#707070';
         ctx.fillText(text, watermarkImg.width / 2, 0);
         const region = new BufferTextureCopy();
         region.texExtent.width = watermarkImg.width;
