@@ -437,6 +437,8 @@ void Camera::updateAspect(bool oriented) {
 }
 
 void Camera::setSystemWindowId(uint32_t windowId) {
+    _systemWindowId = windowId;
+    detachCamera();
     const auto &renderWindows = Root::getInstance()->getWindows();
     for (const auto &window : renderWindows) {
         if (windowId == window->getSwapchain()->getWindowId()) {
