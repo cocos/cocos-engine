@@ -1,5 +1,7 @@
 'use strict';
 
+const { trackEventWithTimer } = require('../../utils/metrics');
+
 exports.template = `
 <div>
     <ui-prop ref="multi-lod-dump" type="dump"></ui-prop>
@@ -94,6 +96,7 @@ exports.methods = {
             lod[index] && (lod[index].value.screenUsagePercentage.value = event.target.value / 100);
         });
         that.updateDump(that.dump.value.LODs);
+        trackEventWithTimer('LOD', 'A100011');
     },
     resetMultiObjectSize() {
         const that = this;
@@ -104,6 +107,7 @@ exports.methods = {
                 args: [],
             });
         });
+        trackEventWithTimer('LOD', 'A100010');
     },
     updateDump(dump) {
         const that = this;
