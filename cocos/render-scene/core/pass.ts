@@ -28,10 +28,10 @@ import { Root } from '../../root';
 import { TextureBase } from '../../asset/assets/texture-base';
 import { builtinResMgr } from '../../asset/asset-manager/builtin-res-mgr';
 import { getPhaseID } from '../../rendering/pass-phase';
-import { murmurhash2_32_gc, errorID, assertID } from '../../core';
+import { murmurhash2_32_gc, errorID, assertID, cclegacy } from '../../core';
 import { BufferUsageBit, DynamicStateFlagBit, DynamicStateFlags, Feature, GetTypeSize, MemoryUsageBit, PrimitiveMode, Type, Color,
     BlendState, BlendTarget, Buffer, BufferInfo, BufferViewInfo, DepthStencilState, DescriptorSet,
-    DescriptorSetInfo, DescriptorSetLayout, Device, RasterizerState, Sampler, Texture, Shader, PipelineLayout, deviceManager,
+    DescriptorSetInfo, DescriptorSetLayout, Device, RasterizerState, Sampler, Texture, Shader, PipelineLayout, deviceManager, UniformBlock,
 } from '../../gfx';
 import { EffectAsset } from '../../asset/assets/effect-asset';
 import { IProgramInfo, programLib } from './program-lib';
@@ -41,6 +41,7 @@ import { MacroRecord, MaterialProperty, customizeType, getBindingFromHandle, get
 import { RenderPassStage, RenderPriority } from '../../rendering/define';
 import { InstancedBuffer } from '../../rendering/instanced-buffer';
 import { BatchedBuffer } from '../../rendering/batched-buffer';
+import { ProgramLibrary } from '../../rendering/custom/private';
 
 export interface IPassInfoFull extends EffectAsset.IPassInfo {
     // generated part
@@ -70,6 +71,8 @@ const _bufferInfo = new BufferInfo(
 const _bufferViewInfo = new BufferViewInfo(null!);
 
 const _dsInfo = new DescriptorSetInfo(null!);
+
+const _materialSet = 1;
 
 export enum BatchingSchemes {
     NONE = 0,
@@ -120,7 +123,13 @@ export class Pass {
         if (info.primitive !== undefined) { pass._primitive = info.primitive; }
         if (info.stage !== undefined) { pass._stage = info.stage; }
         if (info.dynamicStates !== undefined) { pass._dynamicStates = info.dynamicStates; }
-        if (info.phase !== undefined) { pass._phase = getPhaseID(info.phase); }
+        if (info.phase !== undefined) {
+            if (cclegacy.rendering && cclegacy.rendering.enableEffectImport) {
+                pass._phase = cclegacy.rendering.completePhaseName(info.phase);
+            } else {
+                pass._phase = getPhaseID(info.phase);
+            }
+        }
 
         const bs = pass._bs;
         if (info.blendState) {
@@ -147,7 +156,14 @@ export class Pass {
      * @param hPass Handle of the pass info used to compute hash value.
      */
     public static getPassHash (pass: Pass): number {
-        const shaderKey = programLib.getKey(pass.program, pass.defines);
+        let shaderKey = '';
+        if (cclegacy.rendering && cclegacy.rendering.enableEffectImport) {
+            const key = (cclegacy.rendering.programLib as ProgramLibrary)
+                .getKey(pass._phaseID, pass.program, pass.defines);
+            shaderKey = `${pass._phaseID.toString()},${key}`;
+        } else {
+            shaderKey = programLib.getKey(pass.program, pass.defines);
+        }
         let res = `${shaderKey},${pass._primitive},${pass._dynamicStates}`;
         res += serializeBlendState(pass._bs);
         res += serializeDepthStencilState(pass._dss);
@@ -180,6 +196,8 @@ export class Pass {
     protected _priority: RenderPriority = RenderPriority.DEFAULT;
     protected _stage: RenderPassStage = RenderPassStage.DEFAULT;
     protected _phase = getPhaseID('default');
+    protected _passID = 0xFFFFFFFF;
+    protected _phaseID = 0xFFFFFFFF;
     protected _primitive: PrimitiveMode = PrimitiveMode.TRIANGLE_LIST;
     protected _batchingScheme: BatchingSchemes = BatchingSchemes.NONE;
     protected _dynamicStates: DynamicStateFlagBit = DynamicStateFlagBit.NONE;
@@ -483,12 +501,32 @@ export class Pass {
      */
     public tryCompile (): boolean {
         const { pipeline } = this._root;
-        if (!pipeline) { return false; }
+        if (!pipeline) {
+            return false;
+        }
         this._syncBatchingScheme();
-        const shader = programLib.getGFXShader(this._device, this._programName, this._defines, pipeline);
-        if (!shader) { console.warn(`create shader ${this._programName} failed`); return false; }
-        this._shader = shader;
-        this._pipelineLayout = programLib.getTemplateInfo(this._programName).pipelineLayout;
+
+        if (cclegacy.rendering && cclegacy.rendering.enableEffectImport) {
+            const programLib = cclegacy.rendering.programLib as ProgramLibrary;
+            const program = programLib.getProgramVariant(
+                this._device, this._phaseID, this._programName, this._defines,
+            );
+            if (!program) {
+                console.warn(`create shader ${this._programName} failed`);
+                return false;
+            }
+            this._shader = program.shader;
+            this._pipelineLayout = programLib.getPipelineLayout(this.device, this._phaseID, this._programName);
+        } else {
+            const shader = programLib.getGFXShader(this._device, this._programName, this._defines, pipeline);
+            if (!shader) {
+                console.warn(`create shader ${this._programName} failed`);
+                return false;
+            }
+            this._shader = shader;
+            this._pipelineLayout = programLib.getTemplateInfo(this._programName).pipelineLayout;
+        }
+
         this._hash = Pass.getPassHash(this);
         return true;
     }
@@ -523,7 +561,16 @@ export class Pass {
             this._defines[patch.name] = patch.value;
         }
 
-        const shader = programLib.getGFXShader(this._device, this._programName, this._defines, pipeline);
+        let shader: Shader | null = null;
+        if (cclegacy.rendering && cclegacy.rendering.enableEffectImport) {
+            const program = (cclegacy.rendering.programLib as ProgramLibrary)
+                .getProgramVariant(this._device, this._phaseID, this._programName, this._defines);
+            if (program) {
+                shader = program.shader;
+            }
+        } else {
+            shader = programLib.getGFXShader(this._device, this._programName, this._defines, pipeline);
+        }
 
         for (let i = 0; i < patches.length; i++) {
             const patch = patches[i];
@@ -546,28 +593,85 @@ export class Pass {
     protected _doInit (info: IPassInfoFull, copyDefines = false): void {
         this._priority = RenderPriority.DEFAULT;
         this._stage = RenderPassStage.DEFAULT;
-        this._phase = getPhaseID('default');
+        if (cclegacy.rendering && cclegacy.rendering.enableEffectImport) {
+            const r = cclegacy.rendering;
+            this._phase = r.completePhaseName(info.phase);
+            this._passID = r.getPassID(info.pass);
+            if (this._passID === r.INVALID_ID) {
+                console.error(`Invalid render pass, program: ${info.program}`);
+                return;
+            }
+            this._phaseID = r.getPhaseID(this._passID, info.phase);
+            if (this._phaseID === r.INVALID_ID) {
+                console.error(`Invalid render phase, program: ${info.program}`);
+                return;
+            }
+        } else {
+            this._phase = getPhaseID('default');
+        }
         this._primitive = PrimitiveMode.TRIANGLE_LIST;
 
         this._passIndex = info.passIndex;
         this._propertyIndex = info.propertyIndex !== undefined ? info.propertyIndex : info.passIndex;
         this._programName = info.program;
         this._defines = copyDefines ? ({ ...info.defines }) : info.defines;
-        this._shaderInfo = programLib.getTemplate(info.program);
+        if (cclegacy.rendering && cclegacy.rendering.enableEffectImport) {
+            this._shaderInfo = (cclegacy.rendering.programLib as ProgramLibrary)
+                .getProgramInfo(this._phaseID, this._programName);
+        } else {
+            this._shaderInfo = programLib.getTemplate(info.program);
+        }
         this._properties = info.properties || this._properties;
 
+        // init gfx
         const device = this._device;
         Pass.fillPipelineInfo(this, info);
         if (info.stateOverrides) { Pass.fillPipelineInfo(this, info.stateOverrides); }
 
         // init descriptor set
-        _dsInfo.layout = programLib.getDescriptorSetLayout(this._device, info.program);
+        if (cclegacy.rendering && cclegacy.rendering.enableEffectImport) {
+            _dsInfo.layout = (cclegacy.rendering.programLib as ProgramLibrary)
+                .getMaterialDescriptorSetLayout(this._device, this._phaseID, info.program);
+        } else {
+            _dsInfo.layout = programLib.getDescriptorSetLayout(this._device, info.program);
+        }
         this._descriptorSet = this._device.createDescriptorSet(_dsInfo);
 
         // calculate total size required
         const blocks = this._shaderInfo.blocks;
-        const tmplInfo = programLib.getTemplateInfo(info.program);
-        const { blockSizes, handleMap } = tmplInfo;
+        let blockSizes: number[];
+        let handleMap: Record<string, number>;
+        if (cclegacy.rendering && cclegacy.rendering.enableEffectImport) {
+            const programLib = (cclegacy.rendering.programLib as ProgramLibrary);
+            blockSizes = programLib.getBlockSizes(this._phaseID, this._programName);
+            handleMap = programLib.getHandleMap(this._phaseID, this._programName);
+        } else {
+            const tmplInfo = programLib.getTemplateInfo(info.program);
+            blockSizes = tmplInfo.blockSizes;
+            handleMap = tmplInfo.handleMap;
+        }
+
+        // build uniform blocks
+        if (cclegacy.rendering && cclegacy.rendering.enableEffectImport) {
+            const programLib = (cclegacy.rendering.programLib as ProgramLibrary);
+            const shaderInfo = programLib.getShaderInfo(this._phaseID, this.program);
+            this._buildMaterialUniformBlocks(device, shaderInfo.blocks, blockSizes);
+        } else {
+            this._buildUniformBlocks(device, blocks, blockSizes);
+        }
+
+        // store handles
+        const directHandleMap = this._propertyHandleMap = handleMap;
+        const indirectHandleMap: Record<string, number> = {};
+        for (const name in this._properties) {
+            const prop = this._properties[name];
+            if (!prop.handleInfo) { continue; }
+            indirectHandleMap[name] = this.getHandle.apply(this, prop.handleInfo)!;
+        }
+        Object.assign(directHandleMap, indirectHandleMap);
+    }
+
+    private _buildUniformBlocks (device: Device, blocks: EffectAsset.IBlockInfo[], blockSizes: number[]) {
         const alignment = device.capabilities.uboOffsetAlignment;
         const startOffsets: number[] = [];
         let lastSize = 0; let lastOffset = 0;
@@ -600,15 +704,51 @@ export class Pass {
             this._blocksInt[binding] = new Int32Array(this._blocks[binding].buffer, this._blocks[binding].byteOffset, this._blocks[binding].length);
             this._descriptorSet.bindBuffer(binding, bufferView);
         }
-        // store handles
-        const directHandleMap = this._propertyHandleMap = handleMap;
-        const indirectHandleMap: Record<string, number> = {};
-        for (const name in this._properties) {
-            const prop = this._properties[name];
-            if (!prop.handleInfo) { continue; }
-            indirectHandleMap[name] = this.getHandle.apply(this, prop.handleInfo)!;
+    }
+
+    private _buildMaterialUniformBlocks (device: Device, blocks: UniformBlock[], blockSizes: number[]) {
+        const alignment = device.capabilities.uboOffsetAlignment;
+        const startOffsets: number[] = [];
+        let lastSize = 0; let lastOffset = 0;
+        for (let i = 0; i < blocks.length; i++) {
+            const block = blocks[i];
+            if (block.set !== _materialSet) {
+                continue;
+            }
+            const size = blockSizes[i];
+            startOffsets.push(lastOffset);
+            lastOffset += Math.ceil(size / alignment) * alignment;
+            lastSize = size;
         }
-        Object.assign(directHandleMap, indirectHandleMap);
+        // create gfx buffer resource
+        if (lastSize !== 0) {
+            const totalSize = startOffsets[startOffsets.length - 1] + lastSize;
+            if (totalSize) {
+                // https://bugs.chromium.org/p/chromium/issues/detail?id=988988
+                _bufferInfo.size = Math.ceil(totalSize / 16) * 16;
+                this._rootBuffer = device.createBuffer(_bufferInfo);
+                this._rootBlock = new ArrayBuffer(totalSize);
+            }
+        }
+        // create buffer views
+        for (let i = 0, count = 0; i < blocks.length; i++) {
+            const block = blocks[i];
+            if (block.set !== _materialSet) {
+                continue;
+            }
+            const { binding } = blocks[i];
+            const size = blockSizes[i];
+            _bufferViewInfo.buffer = this._rootBuffer!;
+            _bufferViewInfo.offset = startOffsets[count++];
+            _bufferViewInfo.range = Math.ceil(size / 16) * 16;
+            const bufferView = this._buffers[binding] = device.createBuffer(_bufferViewInfo);
+            // non-builtin UBO data pools, note that the effect compiler
+            // guarantees these bindings to be consecutive, starting from 0 and non-array-typed
+            this._blocks[binding] = new Float32Array(this._rootBlock!, _bufferViewInfo.offset,
+                size / Float32Array.BYTES_PER_ELEMENT);
+            this._blocksInt[binding] = new Int32Array(this._blocks[binding].buffer, this._blocks[binding].byteOffset, this._blocks[binding].length);
+            this._descriptorSet.bindBuffer(binding, bufferView);
+        }
     }
 
     protected _syncBatchingScheme (): void {
@@ -635,6 +775,8 @@ export class Pass {
         this._priority = target.priority;
         this._stage = target.stage;
         this._phase = target.phase;
+        this._phaseID = target._phaseID;
+        this._passID = target._passID;
         this._batchingScheme = target.batchingScheme;
         this._primitive = target.primitive;
         this._dynamicStates = target.dynamicStates;
@@ -655,7 +797,12 @@ export class Pass {
 
         this._shader = target._shader;
 
-        this._pipelineLayout = programLib.getTemplateInfo(this._programName).pipelineLayout;
+        if (cclegacy.rendering && cclegacy.rendering.enableEffectImport) {
+            this._pipelineLayout = (cclegacy.rendering.programLib as ProgramLibrary)
+                .getPipelineLayout(this.device, this._phaseID, this._programName);
+        } else {
+            this._pipelineLayout = programLib.getTemplateInfo(this._programName).pipelineLayout;
+        }
         this._hash = target._hash ^ hashFactor;
     }
 
@@ -668,7 +815,14 @@ export class Pass {
     get root (): Root { return this._root; }
     get device (): Device { return this._device; }
     get shaderInfo (): IProgramInfo { return this._shaderInfo; }
-    get localSetLayout (): DescriptorSetLayout { return programLib.getDescriptorSetLayout(this._device, this._programName, true); }
+    get localSetLayout (): DescriptorSetLayout {
+        if (cclegacy.rendering && cclegacy.rendering.enableEffectImport) {
+            return (cclegacy.rendering.programLib as ProgramLibrary)
+                .getLocalDescriptorSetLayout(this._device, this._phaseID, this._programName);
+        } else {
+            return programLib.getDescriptorSetLayout(this._device, this._programName, true);
+        }
+    }
     get program (): string { return this._programName; }
     get properties (): Record<string, EffectAsset.IPropertyInfo> { return this._properties; }
     get defines (): Record<string, string | number | boolean> { return this._defines; }

@@ -7,6 +7,9 @@ void main()
   CCSurfacesVertexAnimation(In);
   In.position.xyz = SurfacesVertexModifyLocalPos(In);
   In.normal.xyz = SurfacesVertexModifyLocalNormal(In);
+  #if CC_SURFACES_USE_TANGENT_SPACE
+    In.tangent = SurfacesVertexModifyLocalTangent(In);
+  #endif    
 
   // World Space
   CCSurfacesVertexWorldTransform(In);

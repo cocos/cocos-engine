@@ -446,6 +446,11 @@ export class TerrainBlock {
     public update () {
         this._updateMaterial(false);
 
+        if (this._renderable._model && this.lightmap !== this._renderable._lightmap) {
+            this._renderable._lightmap = this.lightmap;
+            this._renderable._model?.updateLightingmap(this.lightmap, this.lightmapUVParam);
+        }
+
         const useNormalMap = this._terrain.useNormalMap;
         const usePBR = this._terrain.usePBR;
 
@@ -586,11 +591,6 @@ export class TerrainBlock {
             if (usePBR) {
                 mtl.setProperty('roughness', roughness);
                 mtl.setProperty('metallic', metallic);
-            }
-
-            if (this._renderable._model && this.lightmap !== this._renderable._lightmap) {
-                this._renderable._lightmap = this.lightmap;
-                this._renderable._model?.updateLightingmap(this.lightmap, this.lightmapUVParam);
             }
         }
     }
@@ -809,9 +809,15 @@ export class TerrainBlock {
     }
 
     public _getMaterialDefines (nlayers: number): MacroRecord {
+        let lightmapMacroValue = 1; /*static*/
+        if (this._terrain.node && this._terrain.node.scene) {
+            if (this._terrain.node.scene.globals.bakedWithStationaryMainLight) {
+                lightmapMacroValue = 2; /*stationary*/
+            }
+        }
         return {
             LAYERS: nlayers + 1,
-            CC_USE_LIGHTMAP: this.lightmap !== null ? 1 : 0,
+            CC_USE_LIGHTMAP: this.lightmap !== null ? lightmapMacroValue : 0,
             USE_NORMALMAP: this._terrain.useNormalMap ? 1 : 0,
             USE_PBR: this._terrain.usePBR ? 1 : 0,
             // CC_RECEIVE_SHADOW: this._terrain.receiveShadow ? 1 : 0,
@@ -828,6 +834,9 @@ export class TerrainBlock {
             if (this.lightmap !== null) {
                 this.lightmap.setWrapMode(WrapMode.CLAMP_TO_BORDER, WrapMode.CLAMP_TO_BORDER);
             }
+
+            this._renderable._lightmap = this.lightmap;
+            this._renderable._model?.updateLightingmap(this.lightmap, this.lightmapUVParam);
         }
     }
 

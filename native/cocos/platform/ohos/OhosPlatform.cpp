@@ -32,9 +32,11 @@
 #include "platform/java/modules/Battery.h"
 #include "platform/java/modules/Network.h"
 #include "platform/java/modules/SystemWindow.h"
+#include "platform/java/modules/SystemWindowManager.h"
 #include "platform/java/modules/Vibrator.h"
 #include "platform/ohos/OhosPlatform.h"
 
+#include "base/memory/Memory.h"
 namespace cc {
 OhosPlatform::OhosPlatform() {
     _jniNativeGlue = JNI_NATIVE_GLUE();
@@ -46,7 +48,7 @@ int OhosPlatform::init() {
     registerInterface(std::make_shared<Network>());
     registerInterface(std::make_shared<Screen>());
     registerInterface(std::make_shared<System>());
-    registerInterface(std::make_shared<SystemWindow>());
+    registerInterface(std::make_shared<SystemWindowManager>());
     registerInterface(std::make_shared<Vibrator>());
     return 0;
 }
@@ -91,6 +93,10 @@ void OhosPlatform::pollEvent() {
         std::this_thread::yield();
     }
     _jniNativeGlue->flushTasksOnGameThread();
+}
+
+ISystemWindow *OhosPlatform::createNativeWindow(uint32_t windowId, void *externalHandle) {
+    return ccnew SystemWindow(windowId, externalHandle);
 }
 
 }; // namespace cc

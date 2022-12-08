@@ -32,6 +32,7 @@ import { isCurveTwoValues, particleEmitZAxis } from './particle-general-function
 import { IParticleSystemRenderer } from './renderer/particle-system-renderer-base';
 import { Mesh } from '../3d';
 import type { ParticleSystem } from './particle-system';
+import { Mode } from './animator/curve-range';
 
 const _node_mat = new Mat4();
 const _node_parent_inv = new Mat4();
@@ -218,27 +219,30 @@ export class ParticleCuller {
             p.remainingLifetime -= dt;
             Vec3.set(p.animatedVelocity, 0, 0, 0);
 
-            const rand = isCurveTwoValues(ps.gravityModifier) ? pseudoRandom(p.randomSeed) : 0;
+            // apply gravity when both the mode is not Constant and the value is not 0.
+            const useGravity = (ps.gravityModifier.mode !== Mode.Constant || ps.gravityModifier.constant !== 0);
+            if (useGravity) {
+                const rand = isCurveTwoValues(ps.gravityModifier) ? pseudoRandom(p.randomSeed) : 0;
+                if (ps.simulationSpace === Space.Local) {
+                    const gravityFactor = -ps.gravityModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, rand)! * 9.8 * dt;
+                    this._gravity.x = 0.0;
+                    this._gravity.y = gravityFactor;
+                    this._gravity.z = 0.0;
+                    this._gravity.w = 1.0;
+                    if (!approx(gravityFactor, 0.0, EPSILON)) {
+                        if (ps.node.parent) {
+                            this._gravity = this._gravity.transformMat4(_node_parent_inv);
+                        }
+                        this._gravity = this._gravity.transformMat4(this._localMat);
 
-            if (ps.simulationSpace === Space.Local) {
-                const gravityFactor = -ps.gravityModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, rand)! * 9.8 * dt;
-                this._gravity.x = 0.0;
-                this._gravity.y = gravityFactor;
-                this._gravity.z = 0.0;
-                this._gravity.w = 1.0;
-                if (!approx(gravityFactor, 0.0, EPSILON)) {
-                    if (ps.node.parent) {
-                        this._gravity = this._gravity.transformMat4(_node_parent_inv);
+                        p.velocity.x += this._gravity.x;
+                        p.velocity.y += this._gravity.y;
+                        p.velocity.z += this._gravity.z;
                     }
-                    this._gravity = this._gravity.transformMat4(this._localMat);
-
-                    p.velocity.x += this._gravity.x;
-                    p.velocity.y += this._gravity.y;
-                    p.velocity.z += this._gravity.z;
-                }
-            } else {
+                } else {
                 // apply gravity.
-                p.velocity.y -= ps.gravityModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, rand)! * 9.8 * dt;
+                    p.velocity.y -= ps.gravityModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, rand)! * 9.8 * dt;
+                }
             }
 
             Vec3.copy(p.ultimateVelocity, p.velocity);

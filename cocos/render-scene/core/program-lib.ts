@@ -27,15 +27,16 @@ import * as env from 'internal:constants';
 import { EffectAsset } from '../../asset/assets/effect-asset';
 import { SetIndex, IDescriptorSetLayoutInfo, globalDescriptorSetLayout, localDescriptorSetLayout } from '../../rendering/define';
 import { PipelineRuntime } from '../../rendering/custom/pipeline';
-import { genHandle, MacroRecord } from './pass-utils';
+import { MacroRecord } from './pass-utils';
 import {
     PipelineLayoutInfo, Device, Attribute, UniformBlock, ShaderInfo,
     Uniform, ShaderStage, DESCRIPTOR_SAMPLER_TYPE, DESCRIPTOR_BUFFER_TYPE,
     DescriptorSetLayout, DescriptorSetLayoutBinding, DescriptorSetLayoutInfo,
-    DescriptorType, GetTypeSize, ShaderStageFlagBit, API, UniformSamplerTexture, PipelineLayout,
+    DescriptorType, ShaderStageFlagBit, API, UniformSamplerTexture, PipelineLayout,
     Shader, UniformStorageBuffer, UniformStorageImage, UniformSampler, UniformTexture, UniformInputAttachment,
 } from '../../gfx';
-import { getActiveAttributes, getShaderInstanceName, getVariantKey, IMacroInfo, prepareDefines } from './program-utils';
+import { genHandles, getActiveAttributes, getShaderInstanceName, getSize,
+    getVariantKey, IMacroInfo, populateMacros, prepareDefines } from './program-utils';
 import { debug, cclegacy } from '../../core';
 
 const _dsLayoutInfo = new DescriptorSetLayoutInfo();
@@ -61,10 +62,6 @@ export interface IProgramInfo extends EffectAsset.IShaderInfo {
     defines: IDefineRecord[];
     constantMacros: string;
     uber: boolean; // macro number exceeds default limits, will fallback to string hash
-}
-
-function getBitCount (cnt: number) {
-    return Math.ceil(Math.log2(Math.max(cnt, 2)));
 }
 
 function insertBuiltinBindings (
@@ -99,31 +96,6 @@ function insertBuiltinBindings (
     }
     Array.prototype.unshift.apply(tmplInfo.shaderInfo.samplerTextures, tempSamplerTextures);
     if (outBindings) outBindings.sort((a, b) => a.binding - b.binding);
-}
-
-function getSize (block: EffectAsset.IBlockInfo) {
-    return block.members.reduce((s, m) => s + GetTypeSize(m.type) * m.count, 0);
-}
-
-function genHandles (tmpl: IProgramInfo) {
-    const handleMap: Record<string, number> = {};
-    // block member handles
-    for (let i = 0; i < tmpl.blocks.length; i++) {
-        const block = tmpl.blocks[i];
-        const members = block.members;
-        let offset = 0;
-        for (let j = 0; j < members.length; j++) {
-            const uniform = members[j];
-            handleMap[uniform.name] = genHandle(block.binding, uniform.type, uniform.count, offset);
-            offset += (GetTypeSize(uniform.type) >> 2) * uniform.count; // assumes no implicit padding, which is guaranteed by effect compiler
-        }
-    }
-    // samplerTexture handles
-    for (let i = 0; i < tmpl.samplerTextures.length; i++) {
-        const samplerTexture = tmpl.samplerTextures[i];
-        handleMap[samplerTexture.name] = genHandle(samplerTexture.binding, samplerTexture.type, samplerTexture.count);
-    }
-    return handleMap;
 }
 
 // find those location which won't be affected by defines, and replace by ascending order of existing slot if location > 15
@@ -346,30 +318,10 @@ class ProgramLib {
         const curTmpl = this._templates[shader.name];
         if (curTmpl && curTmpl.hash === shader.hash) { return curTmpl; }
         const tmpl = ({ ...shader }) as IProgramInfo;
-        // calculate option mask offset
-        let offset = 0;
-        for (let i = 0; i < tmpl.defines.length; i++) {
-            const def = tmpl.defines[i];
-            let cnt = 1;
-            if (def.type === 'number') {
-                const range = def.range!;
-                cnt = getBitCount(range[1] - range[0] + 1); // inclusive on both ends
-                def._map = (value: number) => value - range[0];
-            } else if (def.type === 'string') {
-                cnt = getBitCount(def.options!.length);
-                def._map = (value: any) => Math.max(0, def.options!.findIndex((s) => s === value));
-            } else if (def.type === 'boolean') {
-                def._map = (value: any) => (value ? 1 : 0);
-            }
-            def._offset = offset;
-            offset += cnt;
-        }
-        if (offset > 31) { tmpl.uber = true; }
-        // generate constant macros
-        tmpl.constantMacros = '';
-        for (const key in tmpl.builtins.statistics) {
-            tmpl.constantMacros += `#define ${key} ${tmpl.builtins.statistics[key]}\n`;
-        }
+
+        // update defines and constant macros
+        populateMacros(tmpl);
+
         // store it
         this._templates[shader.name] = tmpl;
         if (!this._templateInfos[tmpl.hash]) {
@@ -380,7 +332,7 @@ class ProgramLib {
             tmplInfo.blockSizes = []; tmplInfo.bindings = [];
             for (let i = 0; i < tmpl.blocks.length; i++) {
                 const block = tmpl.blocks[i];
-                tmplInfo.blockSizes.push(getSize(block));
+                tmplInfo.blockSizes.push(getSize(block.members));
                 tmplInfo.bindings.push(new DescriptorSetLayoutBinding(block.binding,
                     DescriptorType.UNIFORM_BUFFER, 1, block.stageFlags));
                 tmplInfo.shaderInfo.blocks.push(new UniformBlock(SetIndex.MATERIAL, block.binding, block.name,
