@@ -23,10 +23,10 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-
+import { default as assetManager, AssetManager } from './asset-manager';
 import './editor-path-replace';
 
-export { default as assetManager, AssetManager } from './asset-manager';
+export { assetManager, AssetManager };
 export { resources } from './bundle';
 export * from './deprecated';
 export * from './builtin-res-mgr';
