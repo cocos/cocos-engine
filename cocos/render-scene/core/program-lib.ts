@@ -355,7 +355,7 @@ class ProgramLib {
             tmplInfo.blockSizes = []; tmplInfo.bindings = [];
             for (let i = 0; i < tmpl.blocks.length; i++) {
                 const block = tmpl.blocks[i];
-                tmplInfo.blockSizes.push(getSize(block));
+                tmplInfo.blockSizes.push(getSize(block.members));
                 tmplInfo.bindings.push(new DescriptorSetLayoutBinding(block.binding,
                     DescriptorType.UNIFORM_BUFFER, 1, block.stageFlags));
                 tmplInfo.shaderInfo.blocks.push(new UniformBlock(SetIndex.MATERIAL, block.binding, block.name,
