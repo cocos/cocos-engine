@@ -136,11 +136,11 @@ DescriptorSetLayoutData::DescriptorSetLayoutData(const allocator_type& alloc) no
 : descriptorBlocks(alloc),
   uniformBlocks(alloc) {}
 
-DescriptorSetLayoutData::DescriptorSetLayoutData(uint32_t slotIn, uint32_t capacityIn, const allocator_type& alloc) noexcept // NOLINT
+DescriptorSetLayoutData::DescriptorSetLayoutData(uint32_t slotIn, uint32_t capacityIn, ccstd::pmr::vector<DescriptorBlockData> descriptorBlocksIn, ccstd::pmr::unordered_map<NameLocalID, gfx::UniformBlock> uniformBlocksIn, const allocator_type& alloc) noexcept // NOLINT
 : slot(slotIn),
   capacity(capacityIn),
-  descriptorBlocks(alloc),
-  uniformBlocks(alloc) {}
+  descriptorBlocks(std::move(descriptorBlocksIn), alloc),
+  uniformBlocks(std::move(uniformBlocksIn), alloc) {}
 
 DescriptorSetLayoutData::DescriptorSetLayoutData(DescriptorSetLayoutData&& rhs, const allocator_type& alloc)
 : slot(rhs.slot),
@@ -198,7 +198,8 @@ ShaderProgramData::ShaderProgramData(const allocator_type& alloc) noexcept
 : layout(alloc) {}
 
 ShaderProgramData::ShaderProgramData(ShaderProgramData&& rhs, const allocator_type& alloc)
-: layout(std::move(rhs.layout), alloc) {}
+: layout(std::move(rhs.layout), alloc),
+  pipelineLayout(std::move(rhs.pipelineLayout)) {}
 
 RenderStageData::RenderStageData(const allocator_type& alloc) noexcept
 : descriptorVisibility(alloc) {}
@@ -214,7 +215,8 @@ RenderPhaseData::RenderPhaseData(const allocator_type& alloc) noexcept
 RenderPhaseData::RenderPhaseData(RenderPhaseData&& rhs, const allocator_type& alloc)
 : rootSignature(std::move(rhs.rootSignature), alloc),
   shaderPrograms(std::move(rhs.shaderPrograms), alloc),
-  shaderIndex(std::move(rhs.shaderIndex), alloc) {}
+  shaderIndex(std::move(rhs.shaderIndex), alloc),
+  pipelineLayout(std::move(rhs.pipelineLayout)) {}
 
 LayoutGraphData::LayoutGraphData(const allocator_type& alloc) noexcept
 : _vertices(alloc),
@@ -228,6 +230,7 @@ LayoutGraphData::LayoutGraphData(const allocator_type& alloc) noexcept
   constantIndex(alloc),
   shaderLayoutIndex(alloc),
   effects(alloc),
+  constantMacros(alloc),
   pathIndex(alloc) {}
 
 LayoutGraphData::LayoutGraphData(LayoutGraphData&& rhs, const allocator_type& alloc)
@@ -242,6 +245,7 @@ LayoutGraphData::LayoutGraphData(LayoutGraphData&& rhs, const allocator_type& al
   constantIndex(std::move(rhs.constantIndex), alloc),
   shaderLayoutIndex(std::move(rhs.shaderLayoutIndex), alloc),
   effects(std::move(rhs.effects), alloc),
+  constantMacros(std::move(rhs.constantMacros), alloc),
   pathIndex(std::move(rhs.pathIndex), alloc) {}
 
 // ContinuousContainer

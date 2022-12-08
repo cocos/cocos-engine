@@ -103,13 +103,6 @@ export class EffectSettings {
         });
     }
 
-    applyBindings () {
-        if (!this._data || !legacyCC.rendering || !legacyCC.rendering.enableEffectImport) {
-            return;
-        }
-        legacyCC.rendering.deserializeLayoutGraph(this._data);
-    }
-
     /**
      * @zh
      * 覆盖一部分配置数据。
@@ -152,6 +145,10 @@ export class EffectSettings {
     }
 
     queryBuffer (): ArrayBuffer | null {
+        return this._data;
+    }
+
+    get data (): ArrayBuffer | null {
         return this._data;
     }
 
