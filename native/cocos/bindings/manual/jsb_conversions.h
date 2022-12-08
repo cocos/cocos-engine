@@ -349,48 +349,6 @@ native_ptr_to_seval(T &v_ref, se::Value *ret, bool *isReturnCachedValue = nullpt
 }
 
 template <typename T>
-bool native_ptr_to_rooted_seval( // NOLINT(readability-identifier-naming)
-    typename std::enable_if<!std::is_base_of<cc::RefCounted, T>::value, T>::type *v,
-    se::Value *ret, bool *isReturnCachedValue = nullptr) {
-    CC_ASSERT_NOT_NULL(ret);
-    if (v == nullptr) {
-        ret->setNull();
-        return true;
-    }
-
-    se::Class *cls = JSBClassType::findClass(v);
-    se::NativePtrToObjectMap::filter(v, cls)
-        .forEach(
-            [&](se::Object *foundObj) {
-                ret->setObject(foundObj);
-                CC_ASSERT(foundObj->isRooted());
-                if (isReturnCachedValue != nullptr) {
-                    *isReturnCachedValue = true;
-                }
-                // CC_LOG_DEBUG("return cached object: %s, se::Object:%p, native: %p", typeid(*v).name(), obj, v);
-            })
-        .orElse([&]() {
-            // If we couldn't find native object in map, then the native object is created from native code. e.g. TMXLayer::getTileAt
-            CC_ASSERT_NOT_NULL(cls);
-            auto *obj = se::Object::createObjectWithClass(cls);
-            obj->root();
-            obj->setRawPrivateData(v);
-
-            se::Value property;
-            bool found = obj->getProperty("_ctor", &property);
-            if (found) property.toObject()->call(se::EmptyValueArray, obj);
-
-            if (isReturnCachedValue != nullptr) {
-                *isReturnCachedValue = false;
-            }
-            // CC_LOG_DEBUGWARN("WARNING: non-Ref type: (%s) isn't catched!", typeid(*v).name());
-            ret->setObject(obj);
-        });
-
-    return true;
-}
-
-template <typename T>
 bool native_ptr_to_seval(T *vp, se::Class *cls, se::Value *ret, bool *isReturnCachedValue = nullptr) { // NOLINT(readability-identifier-naming)
     using DecayT = typename std::decay<typename std::remove_const<T>::type>::type;
     auto *v = const_cast<DecayT *>(vp);
@@ -439,15 +397,7 @@ bool native_ptr_to_seval(T *vp, se::Value *ret, bool *isReturnCachedValue = null
     }
 
     se::Class *cls = JSBClassType::findClass(v);
-    if (cls != nullptr) {
-        return native_ptr_to_seval<T>(vp, cls, ret, isReturnCachedValue);
-    } else {
-        ret->setNull();
-        if (isReturnCachedValue != nullptr) {
-            *isReturnCachedValue = false;
-        }
-    }
-    return true;
+    return native_ptr_to_seval<T>(vp, cls, ret, isReturnCachedValue);
 }
 template <typename T>
 bool std_vector_to_seval(const ccstd::vector<T> &v, se::Value *ret) { // NOLINT(readability-identifier-naming)
