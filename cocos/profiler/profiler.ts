@@ -89,8 +89,8 @@ const _constants = {
     fontSize: 23,
     quadHeight: 0.4,
     segmentsPerLine: 8,
-    textureWidth: 256,
-    textureHeight: 256,
+    textureWidth: 280,
+    textureHeight: 280,
 };
 
 export class Profiler extends System {
