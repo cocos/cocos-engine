@@ -55,9 +55,9 @@ FileUtils *createFileUtils() {
     return ccnew FileUtilsAndroid();
 }
 
-void FileUtilsAndroid::setassetmanager(AAssetManager *a) {
+void FileUtilsAndroid::setAssetManager(AAssetManager *a) {
     if (nullptr == a) {
-        LOGD("setassetmanager : received unexpected nullptr parameter");
+        LOGD("setAssetManager : received unexpected nullptr parameter");
         return;
     }
 

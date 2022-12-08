@@ -99,6 +99,7 @@ export declare class NativeUIModelProxy {
     updateModels(model);
     attachDrawInfo();
     attachNode(node);
+    clearModels();
 }
 
 export declare class NativeStencilManager {

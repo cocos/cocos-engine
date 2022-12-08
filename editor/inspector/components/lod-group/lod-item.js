@@ -152,6 +152,7 @@ exports.methods = {
         const that = this;
         that.$refs['lod-item-dump'].dump = dump;
         that.$refs['lod-item-dump'].dispatch('change-dump');
+        that.$refs['lod-item-dump'].dispatch('confirm-dump');
     },
     updateLODs(operator) {
         const that = this;

@@ -446,6 +446,11 @@ export class TerrainBlock {
     public update () {
         this._updateMaterial(false);
 
+        if (this._renderable._model && this.lightmap !== this._renderable._lightmap) {
+            this._renderable._lightmap = this.lightmap;
+            this._renderable._model?.updateLightingmap(this.lightmap, this.lightmapUVParam);
+        }
+
         const useNormalMap = this._terrain.useNormalMap;
         const usePBR = this._terrain.usePBR;
 
@@ -586,11 +591,6 @@ export class TerrainBlock {
             if (usePBR) {
                 mtl.setProperty('roughness', roughness);
                 mtl.setProperty('metallic', metallic);
-            }
-
-            if (this._renderable._model && this.lightmap !== this._renderable._lightmap) {
-                this._renderable._lightmap = this.lightmap;
-                this._renderable._model?.updateLightingmap(this.lightmap, this.lightmapUVParam);
             }
         }
     }
@@ -834,6 +834,9 @@ export class TerrainBlock {
             if (this.lightmap !== null) {
                 this.lightmap.setWrapMode(WrapMode.CLAMP_TO_BORDER, WrapMode.CLAMP_TO_BORDER);
             }
+
+            this._renderable._lightmap = this.lightmap;
+            this._renderable._model?.updateLightingmap(this.lightmap, this.lightmapUVParam);
         }
     }
 

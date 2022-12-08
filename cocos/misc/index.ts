@@ -30,6 +30,5 @@ export { ModelRenderer } from './model-renderer';
 export { Renderer } from './renderer';
 export { MissingScript } from './missing-script';
 export { PrefabLink } from './prefab-link';
-export { ReflectionProbe } from './reflection-probe-component';
 /** deprecated */
 export * from './deprecated';

@@ -28,6 +28,7 @@
 #include "platform/interfaces/modules/Device.h"
 #include "platform/java/jni/JniHelper.h"
 #include "platform/java/jni/glue/JniNativeGlue.h"
+#include "platform/java/modules/SystemWindow.h"
 
 extern "C" {
 // NOLINTNEXTLINE
@@ -46,4 +47,24 @@ JNIEXPORT void JNICALL Java_com_cocos_lib_CocosOrientationHelper_nativeOnOrienta
     // run callbacks in game thread?
     cc::events::Orientation::broadcast(orientation);
 }
+
+JNIEXPORT void JNICALL Java_com_cocos_lib_CocosAbilitySlice_onOrientationChangedNative(JNIEnv *env, jobject obj, jint orientation, jint width, jint height) { //NOLINT JNI function name
+    static jint pOrientation = 0;
+    static jint pWidth = 0;
+    static jint pHeight = 0;
+    if (pOrientation != orientation || pWidth != width || pHeight != height) {
+        cc::WindowEvent ev;
+        // TODO(qgh):The windows ID needs to be passed down from the jave, which is currently using the main window.
+        ev.windowId = cc::ISystemWindow::mainWindowId;
+        ev.type = cc::WindowEvent::Type::SIZE_CHANGED;
+        ev.width = width;
+        ev.height = height;
+        cc::events::WindowEvent::broadcast(ev);
+        pOrientation = orientation;
+        pHeight = height;
+        pWidth = width;
+    }
+}
+
+
 }
