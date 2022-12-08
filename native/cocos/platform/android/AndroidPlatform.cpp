@@ -530,7 +530,7 @@ int AndroidPlatform::init() {
         JniHelper::getEnv();
         xr->initialize(JniHelper::getJavaVM(), getActivity());
     }
-    cc::FileUtilsAndroid::setassetmanager(_app->activity->assetManager);
+    cc::FileUtilsAndroid::setAssetManager(_app->activity->assetManager);
     _inputProxy = ccnew GameInputProxy(this);
     _inputProxy->registerAppEventCallback([this](int32_t cmd) {
         if (APP_CMD_START == cmd || APP_CMD_INIT_WINDOW == cmd) {

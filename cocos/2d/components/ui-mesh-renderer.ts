@@ -70,8 +70,7 @@ export class UIMeshRenderer extends Component {
 
     //nativeObj
     private declare _UIModelNativeProxy: NativeUIModelProxy;
-    protected declare _renderEntity : RenderEntity;
-    private modelCount = 0;
+    protected declare _renderEntity: RenderEntity;
     public _dirtyVersion = -1;
     public _internalId = -1;
 
@@ -156,13 +155,13 @@ export class UIMeshRenderer extends Component {
                 const models = this._modelComponent._collectModels();
                 // @ts-expect-error: UIMeshRenderer do not attachToScene
                 this._modelComponent._detachFromScene(); // JSB
-                if (models.length !== this.modelCount) {
-                    for (let i = this.modelCount; i < models.length; i++) {
-                        this._uploadRenderData(i);
-                        this._UIModelNativeProxy.updateModels(models[i]);
-                    }
+                // clear models
+                this._UIModelNativeProxy.clearModels();
+                this._renderEntity.clearDynamicRenderDrawInfos();
+                for (let i = 0; i < models.length; i++) {
+                    this._uploadRenderData(i);
+                    this._UIModelNativeProxy.updateModels(models[i]);
                 }
-                this.modelCount = models.length;
                 this._UIModelNativeProxy.attachDrawInfo();
             }
         }
@@ -193,10 +192,7 @@ export class UIMeshRenderer extends Component {
     public update () {
         if (JSB) {
             if (this._modelComponent) {
-                const models = this._modelComponent._collectModels();
-                if (models.length !== this.modelCount) {
-                    this.markForUpdateRenderData();
-                }
+                this.markForUpdateRenderData();
             }
         }
         this._fitUIRenderQueue();
