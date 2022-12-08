@@ -115,6 +115,10 @@ void setVibrateJNI(float duration) {
     JniHelper::callStaticVoidMethod(JCLS_HELPER, "vibrate", duration);
 }
 
+void setKeepScreenOnJNI(bool isEnabled) {
+    return JniHelper::callStaticVoidMethod(JCLS_HELPER, "setKeepScreenOn", isEnabled);
+}
+
 void finishActivity() {
     JniHelper::callStaticVoidMethod(JCLS_HELPER, "finishActivity");
 }
