@@ -58,17 +58,7 @@ export class b2RigidBody2D implements IRigidBody2D {
         this.setActive(false);
     }
 
-    _registerNodeEvents () {
-        const node = this.rigidBody.node;
-        node.on(NodeEventType.TRANSFORM_CHANGED, this._onNodeTransformChanged, this);
-    }
-
-    _unregisterNodeEvents () {
-        const node = this.rigidBody.node;
-        node.off(NodeEventType.TRANSFORM_CHANGED, this._onNodeTransformChanged, this);
-    }
-
-    _onNodeTransformChanged (type) {
+    nodeTransformChanged (type) {
         if (PhysicsSystem2D.instance.stepping) {
             return;
         }
@@ -92,8 +82,6 @@ export class b2RigidBody2D implements IRigidBody2D {
             return;
         }
 
-        this._registerNodeEvents();
-
         (PhysicsSystem2D.instance.physicsWorld as b2PhysicsWorld).addBody(this);
 
         this._inited = true;
@@ -103,7 +91,6 @@ export class b2RigidBody2D implements IRigidBody2D {
         if (!this._inited) return;
 
         (PhysicsSystem2D.instance.physicsWorld as b2PhysicsWorld).removeBody(this);
-        this._unregisterNodeEvents();
 
         this._inited = false;
     }
@@ -122,6 +109,11 @@ export class b2RigidBody2D implements IRigidBody2D {
 
         const b2Rotation = b2body.GetAngle();
         b2body.SetAngularVelocity((this._animatedAngle - b2Rotation) * timeStep);
+    }
+
+    syncSceneToPhysics () {
+        const dirty = this._rigidBody.node.hasChangedFlags;
+        if (dirty) { this.nodeTransformChanged(dirty); }
     }
 
     syncPositionToPhysics (enableAnimated = false) {
