@@ -102,6 +102,24 @@ export class AudioManager {
             this.removePlaying(audioInfoToDiscard.audio);
         }
     }
+
+    public pause () {
+        this._oneShotAudioInfoList.forEach((info) => {
+            info.audio.stop();
+        });
+        this._audioPlayerInfoList.forEach((info) => {
+            // eslint-disable-next-line no-void
+            void info.audio.pause();
+        });
+    }
+
+    public resume () {
+        // onShotAudio can not be resumed
+        this._audioPlayerInfoList.forEach((info) => {
+            // eslint-disable-next-line no-void
+            void info.audio.play();
+        });
+    }
 }
 
 export const audioManager = new AudioManager();
