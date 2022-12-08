@@ -219,7 +219,7 @@ export class Canvas extends RenderRoot2D {
                 this._cameraComponent.orthoHeight = visibleRect.height / 2;
             } else {
                 const size = screen.windowSize;
-                this._cameraComponent.orthoHeight = size.height / view.getScaleY() / 2;
+                this._cameraComponent.orthoHeight = size.width / view.getScaleX() / 2;
             }
 
             this.node.getWorldPosition(_worldPos);
