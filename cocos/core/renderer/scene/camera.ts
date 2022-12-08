@@ -746,10 +746,8 @@ export class Camera {
                 Mat4.perspective(this._matProj, this._fov, this._aspect, this._nearClip, this._farClip,
                     this._fovAxis === CameraFOVAxis.VERTICAL, this._device.capabilities.clipSpaceMinZ, projectionSignY, orientation);
             } else {
-                // const x = this._orthoHeight * this._aspect;
-                // const y = this._orthoHeight;
-                const x = this._orthoHeight;// * this._aspect;
-                const y = this._orthoHeight * (1 / this._aspect);
+                const x = this._orthoHeight * this._aspect;
+                const y = this._orthoHeight;
                 Mat4.ortho(this._matProj, -x, x, -y, y, this._nearClip, this._farClip,
                     this._device.capabilities.clipSpaceMinZ, projectionSignY, orientation);
             }
