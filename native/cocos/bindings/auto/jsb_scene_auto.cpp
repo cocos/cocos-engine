@@ -233,8 +233,8 @@ using namespace cc;
 #define cc_Node__persistNode_set(self_, val_) self_->setPersistNode(val_)
   
 
-#define cc_Node__mobility_get(self_) self_->getMobility()
-#define cc_Node__mobility_set(self_, val_) self_->setMobility(val_)
+#define cc_Node_mobility_get(self_) self_->getMobility()
+#define cc_Node_mobility_set(self_, val_) self_->setMobility(val_)
   
 
 #define cc_scene_Ambient_skyColor_get(self_) self_->getSkyColor()
@@ -3698,6 +3698,43 @@ static bool js_cc_Node__parentInternal_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_Node__parentInternal_get) 
 
+static bool js_cc_Node__mobility_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::Node *arg1 = (cc::Node *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::Node>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg1->_mobility, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_Node__mobility_set) 
+
+static bool js_cc_Node__mobility_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::Node *arg1 = (cc::Node *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::Node>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= nativevalue_to_se(arg1->_mobility, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(arg1->_mobility, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_Node__mobility_get) 
+
 static bool js_cc_Node_uuid_get(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -3852,7 +3889,7 @@ static bool js_cc_Node__persistNode_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_Node__persistNode_get) 
 
-static bool js_cc_Node__mobility_set(se::State& s)
+static bool js_cc_Node_mobility_set(se::State& s)
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
@@ -3866,14 +3903,14 @@ static bool js_cc_Node__mobility_set(se::State& s)
     ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
     SE_PRECONDITION2(ok, false, "Error processing arguments"); 
     
-    cc_Node__mobility_set(arg1,arg2);
+    cc_Node_mobility_set(arg1,arg2);
     
     
     return true;
 }
-SE_BIND_PROP_SET(js_cc_Node__mobility_set) 
+SE_BIND_PROP_SET(js_cc_Node_mobility_set) 
 
-static bool js_cc_Node__mobility_get(se::State& s)
+static bool js_cc_Node_mobility_get(se::State& s)
 {
     CC_UNUSED bool ok = true;
     cc::Node *arg1 = (cc::Node *) NULL ;
@@ -3881,7 +3918,7 @@ static bool js_cc_Node__mobility_get(se::State& s)
     
     arg1 = SE_THIS_OBJECT<cc::Node>(s);
     if (nullptr == arg1) return true;
-    result = (cc::MobilityMode)cc_Node__mobility_get(arg1);
+    result = (cc::MobilityMode)cc_Node_mobility_get(arg1);
     
     ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
@@ -3891,7 +3928,7 @@ static bool js_cc_Node__mobility_get(se::State& s)
     
     return true;
 }
-SE_BIND_PROP_GET(js_cc_Node__mobility_get) 
+SE_BIND_PROP_GET(js_cc_Node_mobility_get) 
 
 bool js_register_cc_Node(se::Object* obj) {
     auto* cls = se::Class::create("Node", obj, __jsb_cc_CCObject_proto, _SE(js_new_Node)); 
@@ -3900,12 +3937,13 @@ bool js_register_cc_Node(se::Object* obj) {
     cls->defineProperty("onSiblingIndexChanged", _SE(js_cc_Node_onSiblingIndexChanged_get), _SE(js_cc_Node_onSiblingIndexChanged_set)); 
     cls->defineProperty("_id", _SE(js_cc_Node__id_get), _SE(js_cc_Node__id_set)); 
     cls->defineProperty("_parentInternal", _SE(js_cc_Node__parentInternal_get), _SE(js_cc_Node__parentInternal_set)); 
+    cls->defineProperty("_mobility", _SE(js_cc_Node__mobility_get), _SE(js_cc_Node__mobility_set)); 
     cls->defineProperty("uuid", _SE(js_cc_Node_uuid_get), nullptr); 
     cls->defineProperty("angle", _SE(js_cc_Node_angle_get), _SE(js_cc_Node_angle_set)); 
     cls->defineProperty("matrix", nullptr, _SE(js_cc_Node_matrix_set)); 
     cls->defineProperty("hasChangedFlags", _SE(js_cc_Node_hasChangedFlags_get), _SE(js_cc_Node_hasChangedFlags_set)); 
     cls->defineProperty("_persistNode", _SE(js_cc_Node__persistNode_get), _SE(js_cc_Node__persistNode_set)); 
-    cls->defineProperty("_mobility", _SE(js_cc_Node__mobility_get), _SE(js_cc_Node__mobility_set)); 
+    cls->defineProperty("mobility", _SE(js_cc_Node_mobility_get), _SE(js_cc_Node_mobility_set)); 
     
     cls->defineFunction("onPostActivated", _SE(js_cc_Node_onPostActivated)); 
     cls->defineFunction("setParent", _SE(js_cc_Node_setParent)); 

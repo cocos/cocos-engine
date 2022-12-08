@@ -1062,17 +1062,6 @@ Object.defineProperty(nodeProto, '_static', {
     },
 });
 
-Object.defineProperty(nodeProto, 'mobility', {
-    configurable: true,
-    enumerable: true,
-    get () {
-        return this._mobility;
-    },
-    set (v) {
-        this._mobility = v;
-    },
-});
-
 Object.defineProperty(nodeProto, 'forward', {
     configurable: true,
     enumerable: true,
