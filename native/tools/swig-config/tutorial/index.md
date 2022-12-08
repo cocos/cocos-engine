@@ -748,13 +748,13 @@ Object.defineProperty(MyNewClass.prototype, 'width', {
 
 #### Reference type
 
-If C++ `get` and `set` function return reference type, don't forget to add `&` suffix in %attribute or %attribute_writeonly directives. The following `ccstd::string&` is an example.
+If C++ `get` function returns a reference data type or `set` function accesses a reference data type , don't forget to add `&` suffix in %attribute or %attribute_writeonly directives. The following `ccstd::string&` is an example.
 
 ```c++
 %attribute_writeonly(cc::ICanvasRenderingContext2D, ccstd::string&, fillStyle, setFillStyle);
 ```
 
-If `&` is missing, temporary `ccstd::string` objects will be created while binding functions are invoked.
+If `&` is missing, a temporary `ccstd::string` instance will be created while the binding function is invoked.
 
 #### %arg() directive
 
