@@ -234,11 +234,13 @@ nodeProto.removeComponent = function (component) {
 };
 
 const REGISTERED_EVENT_MASK_TRANSFORM_CHANGED = (1 << 0);
-const REGISTERED_EVENT_MASK_PARENT_CHANGED = (1 << 1);
-const REGISTERED_EVENT_MASK_LAYER_CHANGED = (1 << 2);
-const REGISTERED_EVENT_MASK_CHILD_REMOVED_CHANGED = (1 << 3);
-const REGISTERED_EVENT_MASK_CHILD_ADDED_CHANGED = (1 << 4);
-const REGISTERED_EVENT_MASK_SIBLING_ORDER_CHANGED_CHANGED = (1 << 5);
+const REGISTERED_EVENT_MASK_ANCESTOR_TRANSFORM_CHANGED = (1 << 1);
+const REGISTERED_EVENT_MASK_PARENT_CHANGED = (1 << 2);
+const REGISTERED_EVENT_MASK_MOBILITY_CHANGED = (1 << 3);
+const REGISTERED_EVENT_MASK_LAYER_CHANGED = (1 << 4);
+const REGISTERED_EVENT_MASK_CHILD_REMOVED_CHANGED = (1 << 5);
+const REGISTERED_EVENT_MASK_CHILD_ADDED_CHANGED = (1 << 6);
+const REGISTERED_EVENT_MASK_SIBLING_ORDER_CHANGED_CHANGED = (1 << 7);
 
 nodeProto.on = function (type, callback, target, useCapture: any = false) {
     switch (type) {
@@ -249,10 +251,23 @@ nodeProto.on = function (type, callback, target, useCapture: any = false) {
                 this._registeredNodeEventTypeMask |= REGISTERED_EVENT_MASK_TRANSFORM_CHANGED;
             }
             break;
+        case NodeEventType.ANCESTOR_TRANSFORM_CHANGED:
+            this._eventMask |= TRANSFORM_ON;
+            if (!(this._registeredNodeEventTypeMask & REGISTERED_EVENT_MASK_ANCESTOR_TRANSFORM_CHANGED)) {
+                this._registerOnAncestorTransformChanged();
+                this._registeredNodeEventTypeMask |= REGISTERED_EVENT_MASK_ANCESTOR_TRANSFORM_CHANGED;
+            }
+            break;
         case NodeEventType.PARENT_CHANGED:
             if (!(this._registeredNodeEventTypeMask & REGISTERED_EVENT_MASK_PARENT_CHANGED)) {
                 this._registerOnParentChanged();
                 this._registeredNodeEventTypeMask |= REGISTERED_EVENT_MASK_PARENT_CHANGED;
+            }
+            break;
+        case NodeEventType.MOBILITY_CHANGED:
+            if (!(this._registeredNodeEventTypeMask & REGISTERED_EVENT_MASK_MOBILITY_CHANGED)) {
+                this._registerOnMobilityChanged();
+                this._registeredNodeEventTypeMask |= REGISTERED_EVENT_MASK_MOBILITY_CHANGED;
             }
             break;
         case NodeEventType.LAYER_CHANGED:
@@ -293,6 +308,9 @@ nodeProto.off = function (type: string, callback?, target?, useCapture = false) 
     if (!hasListeners) {
         switch (type) {
             case NodeEventType.TRANSFORM_CHANGED:
+                this._eventMask &= ~TRANSFORM_ON;
+                break;
+            case NodeEventType.ANCESTOR_TRANSFORM_CHANGED:
                 this._eventMask &= ~TRANSFORM_ON;
                 break;
             default:
@@ -385,6 +403,10 @@ nodeProto._onTransformChanged = function (transformType) {
     this.emit(NodeEventType.TRANSFORM_CHANGED, transformType);
 };
 
+nodeProto._onAncestorTransformChanged = function (transformType) {
+    this.emit(NodeEventType.ANCESTOR_TRANSFORM_CHANGED, transformType);
+};
+
 nodeProto._onParentChanged = function (oldParent) {
     this.emit(NodeEventType.PARENT_CHANGED, oldParent);
 };
@@ -412,6 +434,10 @@ nodeProto._onDestroyComponents = function () {
         // TO DO
         comps[i]._destroyImmediate();
     }
+};
+
+nodeProto._onMobilityChanged = function () {
+    this.emit(NodeEventType.MOBILITY_CHANGED);
 };
 
 nodeProto._onLayerChanged = function (layer) {
@@ -1033,17 +1059,6 @@ Object.defineProperty(nodeProto, '_static', {
     },
     set (v) {
         this._sharedUint8Arr[2] = (v ? 1 : 0);
-    },
-});
-
-Object.defineProperty(nodeProto, 'mobility', {
-    configurable: true,
-    enumerable: true,
-    get () {
-        return this._mobility;
-    },
-    set (v) {
-        this._mobility = v;
     },
 });
 
