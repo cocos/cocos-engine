@@ -138,3 +138,34 @@ export function genHandles (tmpl: EffectAsset.IShaderInfo | ShaderInfo) {
     }
     return handleMap;
 }
+
+function getBitCount (cnt: number) {
+    return Math.ceil(Math.log2(Math.max(cnt, 2)));
+}
+
+export function populateMacros (tmpl: IProgramInfo) {
+    // calculate option mask offset
+    let offset = 0;
+    for (let i = 0; i < tmpl.defines.length; i++) {
+        const def = tmpl.defines[i];
+        let cnt = 1;
+        if (def.type === 'number') {
+            const range = def.range!;
+            cnt = getBitCount(range[1] - range[0] + 1); // inclusive on both ends
+            def._map = (value: number) => value - range[0];
+        } else if (def.type === 'string') {
+            cnt = getBitCount(def.options!.length);
+            def._map = (value: any) => Math.max(0, def.options!.findIndex((s) => s === value));
+        } else if (def.type === 'boolean') {
+            def._map = (value: any) => (value ? 1 : 0);
+        }
+        def._offset = offset;
+        offset += cnt;
+    }
+    if (offset > 31) { tmpl.uber = true; }
+    // generate constant macros
+    tmpl.constantMacros = '';
+    for (const key in tmpl.builtins.statistics) {
+        tmpl.constantMacros += `#define ${key} ${tmpl.builtins.statistics[key]}\n`;
+    }
+}

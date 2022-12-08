@@ -26,7 +26,7 @@
 /* eslint-disable max-len */
 import { EffectAsset } from '../../asset/assets';
 import { Attribute, DescriptorSetLayout, Device, MemoryAccessBit, PipelineLayout, PipelineLayoutInfo, Shader, ShaderInfo, ShaderStage, ShaderStageFlagBit, Uniform, UniformBlock, UniformInputAttachment, UniformSampler, UniformSamplerTexture, UniformStorageBuffer, UniformStorageImage, UniformTexture } from '../../gfx';
-import { genHandles, getActiveAttributes, getShaderInstanceName, getSize, getVariantKey, prepareDefines } from '../../render-scene/core/program-utils';
+import { genHandles, getActiveAttributes, getShaderInstanceName, getSize, getVariantKey, populateMacros, prepareDefines } from '../../render-scene/core/program-utils';
 import { getDeviceShaderVersion, MacroRecord } from '../../render-scene';
 import { IProgramInfo } from '../../render-scene/core/program-lib';
 import { DescriptorSetData, DescriptorSetLayoutData, LayoutGraphData, LayoutGraphDataValue, PipelineLayoutData, RenderPhaseData, ShaderProgramData } from './layout-graph';
@@ -39,39 +39,12 @@ import { assert } from '../../core/platform/debug';
 const INVALID_ID = 0xFFFFFFFF;
 const _setIndex = [2, 1, 3, 0];
 
-function getBitCount (cnt: number) {
-    return Math.ceil(Math.log2(Math.max(cnt, 2)));
-}
-
 function makeProgramInfo (effectName: string, shader: EffectAsset.IShaderInfo): IProgramInfo {
     const programInfo = { ...shader } as IProgramInfo;
     programInfo.effectName = effectName;
 
-    // calculate option mask offset
-    let offset = 0;
-    for (const def of programInfo.defines) {
-        let cnt = 1;
-        if (def.type === 'number') {
-            const range = def.range!;
-            cnt = getBitCount(range[1] - range[0] + 1); // inclusive on both ends
-            def._map = (value: number) => value - range[0];
-        } else if (def.type === 'string') {
-            cnt = getBitCount(def.options!.length);
-            def._map = (value: any) => Math.max(0, def.options!.findIndex((s) => s === value));
-        } else if (def.type === 'boolean') {
-            def._map = (value: any) => (value ? 1 : 0);
-        }
-        def._offset = offset;
-        offset += cnt;
-    }
-    if (offset > 31) {
-        programInfo.uber = true;
-    }
-    // generate constant macros
-    programInfo.constantMacros = '';
-    for (const key in shader.builtins.statistics) {
-        programInfo.constantMacros += `#define ${key} ${shader.builtins.statistics[key]}\n`;
-    }
+    populateMacros(programInfo);
+
     return programInfo;
 }
 

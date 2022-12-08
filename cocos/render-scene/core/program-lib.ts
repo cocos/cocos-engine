@@ -35,7 +35,8 @@ import {
     DescriptorType, ShaderStageFlagBit, API, UniformSamplerTexture, PipelineLayout,
     Shader, UniformStorageBuffer, UniformStorageImage, UniformSampler, UniformTexture, UniformInputAttachment,
 } from '../../gfx';
-import { genHandles, getActiveAttributes, getShaderInstanceName, getSize, getVariantKey, IMacroInfo, prepareDefines } from './program-utils';
+import { genHandles, getActiveAttributes, getShaderInstanceName, getSize,
+    getVariantKey, IMacroInfo, populateMacros, prepareDefines } from './program-utils';
 import { debug, cclegacy } from '../../core';
 
 const _dsLayoutInfo = new DescriptorSetLayoutInfo();
@@ -61,10 +62,6 @@ export interface IProgramInfo extends EffectAsset.IShaderInfo {
     defines: IDefineRecord[];
     constantMacros: string;
     uber: boolean; // macro number exceeds default limits, will fallback to string hash
-}
-
-function getBitCount (cnt: number) {
-    return Math.ceil(Math.log2(Math.max(cnt, 2)));
 }
 
 function insertBuiltinBindings (
@@ -321,30 +318,10 @@ class ProgramLib {
         const curTmpl = this._templates[shader.name];
         if (curTmpl && curTmpl.hash === shader.hash) { return curTmpl; }
         const tmpl = ({ ...shader }) as IProgramInfo;
-        // calculate option mask offset
-        let offset = 0;
-        for (let i = 0; i < tmpl.defines.length; i++) {
-            const def = tmpl.defines[i];
-            let cnt = 1;
-            if (def.type === 'number') {
-                const range = def.range!;
-                cnt = getBitCount(range[1] - range[0] + 1); // inclusive on both ends
-                def._map = (value: number) => value - range[0];
-            } else if (def.type === 'string') {
-                cnt = getBitCount(def.options!.length);
-                def._map = (value: any) => Math.max(0, def.options!.findIndex((s) => s === value));
-            } else if (def.type === 'boolean') {
-                def._map = (value: any) => (value ? 1 : 0);
-            }
-            def._offset = offset;
-            offset += cnt;
-        }
-        if (offset > 31) { tmpl.uber = true; }
-        // generate constant macros
-        tmpl.constantMacros = '';
-        for (const key in tmpl.builtins.statistics) {
-            tmpl.constantMacros += `#define ${key} ${tmpl.builtins.statistics[key]}\n`;
-        }
+
+        // update defines and constant macros
+        populateMacros(tmpl);
+
         // store it
         this._templates[shader.name] = tmpl;
         if (!this._templateInfos[tmpl.hash]) {
