@@ -671,25 +671,6 @@ export class Pass {
         Object.assign(directHandleMap, indirectHandleMap);
     }
 
-    protected _syncBatchingScheme (): void {
-        if (this._defines.USE_INSTANCING) {
-            if (this._device.hasFeature(Feature.INSTANCED_ARRAYS)) {
-                this._batchingScheme = BatchingSchemes.INSTANCING;
-            } else {
-                this._defines.USE_INSTANCING = false;
-                this._batchingScheme = BatchingSchemes.NONE;
-            }
-        } else if (this._defines.USE_BATCHING) {
-            this._batchingScheme = BatchingSchemes.VB_MERGING;
-        } else {
-            this._batchingScheme = BatchingSchemes.NONE;
-        }
-    }
-
-    private _getBlockView (type: Type, binding: number) {
-        return type < Type.FLOAT ? this._blocksInt[binding] : this._blocks[binding];
-    }
-
     private _buildUniformBlocks (device: Device, blocks: EffectAsset.IBlockInfo[], blockSizes: number[]) {
         const alignment = device.capabilities.uboOffsetAlignment;
         const startOffsets: number[] = [];
@@ -768,6 +749,25 @@ export class Pass {
             this._blocksInt[binding] = new Int32Array(this._blocks[binding].buffer, this._blocks[binding].byteOffset, this._blocks[binding].length);
             this._descriptorSet.bindBuffer(binding, bufferView);
         }
+    }
+
+    protected _syncBatchingScheme (): void {
+        if (this._defines.USE_INSTANCING) {
+            if (this._device.hasFeature(Feature.INSTANCED_ARRAYS)) {
+                this._batchingScheme = BatchingSchemes.INSTANCING;
+            } else {
+                this._defines.USE_INSTANCING = false;
+                this._batchingScheme = BatchingSchemes.NONE;
+            }
+        } else if (this._defines.USE_BATCHING) {
+            this._batchingScheme = BatchingSchemes.VB_MERGING;
+        } else {
+            this._batchingScheme = BatchingSchemes.NONE;
+        }
+    }
+
+    private _getBlockView (type: Type, binding: number) {
+        return type < Type.FLOAT ? this._blocksInt[binding] : this._blocks[binding];
     }
 
     // Only for UI
