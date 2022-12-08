@@ -217,7 +217,7 @@ struct Tetrahedron {
 
 class Delaunay {
 public:
-    Delaunay(ccstd::vector<Vertex> &probes) : _probes(probes) {}
+    explicit Delaunay(ccstd::vector<Vertex> &probes) : _probes(probes) {}
     ~Delaunay() = default;
 
     ccstd::vector<Tetrahedron> build();
