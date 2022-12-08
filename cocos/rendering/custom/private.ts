@@ -41,6 +41,7 @@ export interface ProgramProxy {
 
 export interface ProgramLibrary {
     addEffect (effectAsset: EffectAsset): void;
+    precompileEffect (device: Device, effectAsset: EffectAsset): void;
     getKey (phaseID: number, programName: string, defines: MacroRecord): string;
     getPipelineLayout (device: Device, phaseID: number, programName: string): PipelineLayout;
     getMaterialDescriptorSetLayout (device: Device, phaseID: number, programName: string): DescriptorSetLayout;

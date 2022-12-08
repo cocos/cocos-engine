@@ -507,8 +507,7 @@ export class Pass {
         this._syncBatchingScheme();
 
         if (cclegacy.rendering && cclegacy.rendering.enableEffectImport) {
-            const r = cclegacy.rendering;
-            const programLib = r.programLib as ProgramLibrary;
+            const programLib = cclegacy.rendering.programLib as ProgramLibrary;
             const program = programLib.getProgramVariant(
                 this._device, this._phaseID, this._programName, this._defines,
             );

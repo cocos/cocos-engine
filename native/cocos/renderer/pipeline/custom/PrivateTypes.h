@@ -62,6 +62,7 @@ public:
     virtual ~ProgramLibrary() noexcept = default;
 
     virtual void addEffect(EffectAsset *effectAsset) = 0;
+    virtual void precompileEffect(gfx::Device *device, EffectAsset *effectAsset) = 0;
     virtual ccstd::pmr::string getKey(uint32_t phaseID, const ccstd::pmr::string &programName, const MacroRecord &defines) const = 0;
     virtual const gfx::PipelineLayout &getPipelineLayout(gfx::Device *device, uint32_t phaseID, const ccstd::pmr::string &programName) const = 0;
     virtual const gfx::DescriptorSetLayout &getMaterialDescriptorSetLayout(gfx::Device *device, uint32_t phaseID, const ccstd::pmr::string &programName) const = 0;

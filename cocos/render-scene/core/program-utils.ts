@@ -169,3 +169,16 @@ export function populateMacros (tmpl: IProgramInfo) {
         tmpl.constantMacros += `#define ${key} ${tmpl.builtins.statistics[key]}\n`;
     }
 }
+
+export function getCombinationDefines (combination: EffectAsset.IPreCompileInfo) {
+    const defines = Object.keys(combination).reduce((out, name) => out.reduce((acc, cur) => {
+        const choices = combination[name];
+        for (let i = 0; i < choices.length; ++i) {
+            const defines = { ...cur };
+            defines[name] = choices[i];
+            acc.push(defines);
+        }
+        return acc;
+    }, [] as MacroRecord[]), [{}] as MacroRecord[]);
+    return defines;
+}

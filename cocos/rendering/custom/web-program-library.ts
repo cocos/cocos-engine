@@ -26,7 +26,7 @@
 /* eslint-disable max-len */
 import { EffectAsset } from '../../asset/assets';
 import { Attribute, DescriptorSetLayout, Device, MemoryAccessBit, PipelineLayout, PipelineLayoutInfo, Shader, ShaderInfo, ShaderStage, ShaderStageFlagBit, Uniform, UniformBlock, UniformInputAttachment, UniformSampler, UniformSamplerTexture, UniformStorageBuffer, UniformStorageImage, UniformTexture } from '../../gfx';
-import { genHandles, getActiveAttributes, getShaderInstanceName, getSize, getVariantKey, populateMacros, prepareDefines } from '../../render-scene/core/program-utils';
+import { genHandles, getActiveAttributes, getCombinationDefines, getShaderInstanceName, getSize, getVariantKey, populateMacros, prepareDefines } from '../../render-scene/core/program-utils';
 import { getDeviceShaderVersion, MacroRecord } from '../../render-scene';
 import { IProgramInfo } from '../../render-scene/core/program-lib';
 import { DescriptorSetData, DescriptorSetLayoutData, LayoutGraphData, LayoutGraphDataValue, PipelineLayoutData, RenderPhaseData, ShaderProgramData } from './layout-graph';
@@ -452,6 +452,41 @@ function getProgramDescriptorSetLayout (device: Device,
     return layout.descriptorSetLayout;
 }
 
+function getEffectShader (lg: LayoutGraphData, effect: EffectAsset,
+    pass: EffectAsset.IPassInfo): [number, number, EffectAsset.IShaderInfo | null, number] {
+    const programName = pass.program;
+    const passID = getCustomPassID(lg, pass.pass);
+    if (passID === INVALID_ID) {
+        console.error(`Invalid render pass, program: ${programName}`);
+        return [INVALID_ID, INVALID_ID, null, INVALID_ID];
+    }
+    const phaseID = getCustomPhaseID(lg, passID, pass.phase);
+    if (phaseID === INVALID_ID) {
+        console.error(`Invalid render phase, program: ${programName}`);
+        return [passID, INVALID_ID, null, INVALID_ID];
+    }
+    let srcShaderInfo: EffectAsset.IShaderInfo | null = null;
+    let shaderID = INVALID_ID;
+    for (let i = 0; i < effect.shaders.length; ++i) {
+        const shaderInfo = effect.shaders[i];
+        if (shaderInfo.name === programName) {
+            srcShaderInfo = shaderInfo;
+            shaderID = i;
+            break;
+        }
+    }
+    return [passID, phaseID, srcShaderInfo, shaderID];
+}
+
+function validateShaderInfo (srcShaderInfo: EffectAsset.IShaderInfo): number {
+    // source shader info
+    if (srcShaderInfo.descriptors === undefined) {
+        console.error(`No descriptors in shader: ${srcShaderInfo.name}, please reimport ALL effects`);
+        return 1;
+    }
+    return 0;
+}
+
 export class WebProgramLibrary extends ProgramLibraryData implements ProgramLibrary {
     constructor (lg: LayoutGraphData) {
         super(lg);
@@ -466,19 +501,13 @@ export class WebProgramLibrary extends ProgramLibraryData implements ProgramLibr
         for (const tech of effect.techniques) {
             for (const pass of tech.passes) {
                 const programName = pass.program;
-                // pass
-                const passID = getCustomPassID(this.layoutGraph, pass.pass);
-                if (passID === INVALID_ID) {
-                    console.error(`Invalid render pass, program: ${programName}`);
+                const [passID, phaseID, srcShaderInfo] = getEffectShader(lg, effect, pass);
+                if (srcShaderInfo === null || validateShaderInfo(srcShaderInfo)) {
+                    console.error(`program: ${programName} not found`);
                     continue;
                 }
+                assert(passID !== INVALID_ID && phaseID !== INVALID_ID);
                 const passLayout = lg.getLayout(passID);
-                // phase
-                const phaseID = getCustomPhaseID(this.layoutGraph, passID, pass.phase);
-                if (phaseID === INVALID_ID) {
-                    console.error(`Invalid render phase, program: ${programName}`);
-                    continue;
-                }
                 const phaseLayout = lg.getLayout(phaseID);
 
                 // programs
@@ -488,23 +517,6 @@ export class WebProgramLibrary extends ProgramLibraryData implements ProgramLibr
                     this.phases.set(phaseID, group);
                 }
                 const phasePrograms = group.programInfos;
-
-                // source shader info
-                let srcShaderInfo: EffectAsset.IShaderInfo | null = null;
-                for (const shaderInfo of effect.shaders) {
-                    if (shaderInfo.name === programName) {
-                        srcShaderInfo = shaderInfo;
-                        break;
-                    }
-                }
-                if (!srcShaderInfo) {
-                    console.error(`program: ${programName} not found`);
-                    continue;
-                }
-                if (srcShaderInfo.descriptors === undefined) {
-                    console.error(`No descriptors in shader: ${programName}, please reimport ALL effects`);
-                    continue;
-                }
 
                 // build program
                 const programInfo = makeProgramInfo(effect.name, srcShaderInfo);
@@ -539,7 +551,30 @@ export class WebProgramLibrary extends ProgramLibraryData implements ProgramLibr
             }
         }
     }
-
+    precompileEffect (device: Device, effect: EffectAsset): void {
+        const lg = this.layoutGraph;
+        for (const tech of effect.techniques) {
+            for (const pass of tech.passes) {
+                const programName = pass.program;
+                const [passID, phaseID, srcShaderInfo, shaderID] = getEffectShader(lg, effect, pass);
+                if (srcShaderInfo === null || validateShaderInfo(srcShaderInfo)) {
+                    console.error(`program: ${programName} not valid`);
+                    continue;
+                }
+                assert(passID !== INVALID_ID && phaseID !== INVALID_ID && shaderID !== INVALID_ID);
+                const combination = effect.combinations[shaderID];
+                if (!combination) {
+                    continue;
+                }
+                const defines = getCombinationDefines(combination);
+                defines.forEach(
+                    (defines) => this.getProgramVariant(
+                        device, phaseID, programName, defines,
+                    ),
+                );
+            }
+        }
+    }
     getProgramInfo (phaseID: number, programName: string): IProgramInfo {
         assert(phaseID !== INVALID_ID);
         const group = this.phases.get(phaseID)!;
