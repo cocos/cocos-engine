@@ -133,6 +133,7 @@ protected:
     float* _addedPlanesInfo{nullptr};
     float* _updatedPlanesInfo{nullptr};
     float* _removedPlanesInfo{nullptr};
+    float* _planePolygon{nullptr};
 
     float* _sceneMeshVertices{nullptr};
     int* _sceneMeshIndices{nullptr};
