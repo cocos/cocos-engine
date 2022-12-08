@@ -82,8 +82,6 @@ export class b2RigidBody2D implements IRigidBody2D {
             return;
         }
 
-        //this._registerNodeEvents();
-
         (PhysicsSystem2D.instance.physicsWorld as b2PhysicsWorld).addBody(this);
 
         this._inited = true;
@@ -93,7 +91,6 @@ export class b2RigidBody2D implements IRigidBody2D {
         if (!this._inited) return;
 
         (PhysicsSystem2D.instance.physicsWorld as b2PhysicsWorld).removeBody(this);
-        //this._unregisterNodeEvents();
 
         this._inited = false;
     }
