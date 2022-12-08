@@ -125,7 +125,7 @@ export class Pass {
         if (info.dynamicStates !== undefined) { pass._dynamicStates = info.dynamicStates; }
         if (info.phase !== undefined) {
             if (cclegacy.rendering && cclegacy.rendering.enableEffectImport) {
-                pass._phase = cclegacy.rendering.getCustomPhaseName(info.phase);
+                pass._phase = cclegacy.rendering.completePhaseName(info.phase);
             } else {
                 pass._phase = getPhaseID(info.phase);
             }
@@ -595,13 +595,13 @@ export class Pass {
         this._stage = RenderPassStage.DEFAULT;
         if (cclegacy.rendering && cclegacy.rendering.enableEffectImport) {
             const r = cclegacy.rendering;
-            this._phase = r.getCustomPhaseName(info.phase);
-            this._passID = r.getCustomPassID(info.pass);
+            this._phase = r.completePhaseName(info.phase);
+            this._passID = r.getPassID(info.pass);
             if (this._passID === r.INVALID_ID) {
                 console.error(`Invalid render pass, program: ${info.program}`);
                 return;
             }
-            this._phaseID = r.getCustomPhaseID(this._passID, info.phase);
+            this._phaseID = r.getPhaseID(this._passID, info.phase);
             if (this._phaseID === r.INVALID_ID) {
                 console.error(`Invalid render phase, program: ${info.program}`);
                 return;

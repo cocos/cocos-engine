@@ -83,15 +83,15 @@ export function destroy () {
     // noop
 }
 
-export function getCustomPassID (name: string | undefined): number {
+export function getPassID (name: string | undefined): number {
     return INVALID_ID;
 }
 
-export function getCustomPhaseID (passID: number, name: string | number | undefined): number {
+export function getPhaseID (passID: number, name: string | number | undefined): number {
     return INVALID_ID;
 }
 
-export function getCustomPhaseName (name: string | number | undefined): string {
+export function completePhaseName (name: string | number | undefined): string {
     if (typeof name === 'number') {
         return name.toString();
     } else if (typeof name === 'string') {

@@ -33,8 +33,7 @@ import { LayoutGraphData, loadLayoutGraphData } from './layout-graph';
 import { BinaryInputArchive } from './binary-archive';
 import { WebProgramLibrary } from './web-program-library';
 import { Device } from '../../gfx';
-import { initializeLayoutGraphData, terminateLayoutGraphData,
-    getCustomPassID as getCustomPassIDImpl, getCustomPhaseID as getCustomPhaseIDImpl } from './layout-graph-utils';
+import { initializeLayoutGraphData, terminateLayoutGraphData, getCustomPassID, getCustomPhaseID } from './layout-graph-utils';
 import { ProgramLibrary } from './private';
 
 let _pipeline: WebPipeline | null = null;
@@ -101,15 +100,15 @@ export function destroy () {
     terminateLayoutGraphData(defaultLayoutGraph);
 }
 
-export function getCustomPassID (name: string | undefined): number {
-    return getCustomPassIDImpl(defaultLayoutGraph, name);
+export function getPassID (name: string | undefined): number {
+    return getCustomPassID(defaultLayoutGraph, name);
 }
 
-export function getCustomPhaseID (passID: number, name: string | number | undefined): number {
-    return getCustomPhaseIDImpl(defaultLayoutGraph, passID, name);
+export function getPhaseID (passID: number, name: string | number | undefined): number {
+    return getCustomPhaseID(defaultLayoutGraph, passID, name);
 }
 
-export function getCustomPhaseName (name: string | number | undefined): string {
+export function completePhaseName (name: string | number | undefined): string {
     if (typeof name === 'number') {
         return name.toString();
     } else if (typeof name === 'string') {

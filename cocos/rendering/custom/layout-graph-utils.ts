@@ -1152,7 +1152,7 @@ function getDescriptorBlockData (map: Map<string, DescriptorBlockData>, index: D
 }
 
 export function makeDescriptorSetLayoutData (lg: LayoutGraphData,
-    rate: UpdateFrequency, set:number,
+    rate: UpdateFrequency, set: number,
     descriptors: EffectAsset.IDescriptorInfo): DescriptorSetLayoutData {
     const map = new Map<string, DescriptorBlockData>();
     const uniformBlocks: Map<number, UniformBlock> = new Map<number, UniformBlock>();
