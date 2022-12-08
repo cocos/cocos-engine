@@ -198,7 +198,7 @@ Audio.State = {
         }
         let self = this;
         this._src && this._src._ensureLoaded(function () {
-            self._bindEnded();
+            self._bindEnded(self._onendedSecond);
             self._element.play();
             self._state = Audio.State.PLAYING;
         });
@@ -457,10 +457,6 @@ let WebAudioElement = function (buffer, audio) {
         this.playedLength %= this._buffer.duration;
         let audio = this._currentSource;
         if (audio) {
-            if(audio.onended){
-                audio.onended._binded = false;
-                audio.onended = null;
-            }
             audio.stop(0);
         }
         this._currentSource = null;
