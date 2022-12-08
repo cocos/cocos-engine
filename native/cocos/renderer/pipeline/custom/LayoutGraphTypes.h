@@ -41,6 +41,7 @@
 #include "cocos/base/std/hash/hash.h"
 #include "cocos/renderer/gfx-base/GFXDescriptorSet.h"
 #include "cocos/renderer/gfx-base/GFXDescriptorSetLayout.h"
+#include "cocos/renderer/gfx-base/GFXPipelineLayout.h"
 #include "cocos/renderer/pipeline/custom/GraphTypes.h"
 #include "cocos/renderer/pipeline/custom/LayoutGraphFwd.h"
 #include "cocos/renderer/pipeline/custom/Map.h"
@@ -305,13 +306,18 @@ inline bool operator!=(const NameLocalID& lhs, const NameLocalID& rhs) noexcept 
 
 struct DescriptorData {
     DescriptorData() = default;
-    DescriptorData(NameLocalID descriptorIDIn, uint32_t countIn) noexcept
+    DescriptorData(NameLocalID descriptorIDIn, gfx::Type typeIn, uint32_t countIn) noexcept
     : descriptorID(descriptorIDIn),
+      type(typeIn),
       count(countIn) {}
+    DescriptorData(NameLocalID descriptorIDIn, gfx::Type typeIn) noexcept
+    : descriptorID(descriptorIDIn),
+      type(typeIn) {}
     DescriptorData(NameLocalID descriptorIDIn) noexcept // NOLINT
     : descriptorID(descriptorIDIn) {}
 
     NameLocalID descriptorID;
+    gfx::Type type{gfx::Type::UNKNOWN};
     uint32_t count{1};
 };
 
@@ -345,7 +351,7 @@ struct DescriptorSetLayoutData {
     }
 
     DescriptorSetLayoutData(const allocator_type& alloc) noexcept; // NOLINT
-    DescriptorSetLayoutData(uint32_t slotIn, uint32_t capacityIn, const allocator_type& alloc) noexcept;
+    DescriptorSetLayoutData(uint32_t slotIn, uint32_t capacityIn, ccstd::pmr::vector<DescriptorBlockData> descriptorBlocksIn, ccstd::pmr::unordered_map<NameLocalID, gfx::UniformBlock> uniformBlocksIn, const allocator_type& alloc) noexcept;
     DescriptorSetLayoutData(DescriptorSetLayoutData&& rhs, const allocator_type& alloc);
 
     DescriptorSetLayoutData(DescriptorSetLayoutData&& rhs) noexcept = default;
@@ -481,6 +487,7 @@ struct ShaderProgramData {
     ShaderProgramData& operator=(ShaderProgramData const& rhs) = delete;
 
     PipelineLayoutData layout;
+    IntrusivePtr<gfx::PipelineLayout> pipelineLayout;
 };
 
 struct RenderStageData {
@@ -517,6 +524,7 @@ struct RenderPhaseData {
     ccstd::pmr::string rootSignature;
     ccstd::pmr::vector<ShaderProgramData> shaderPrograms;
     PmrTransparentMap<ccstd::pmr::string, uint32_t> shaderIndex;
+    IntrusivePtr<gfx::PipelineLayout> pipelineLayout;
 };
 
 struct LayoutGraphData {
@@ -691,6 +699,7 @@ struct LayoutGraphData {
     PmrFlatMap<ccstd::pmr::string, NameLocalID> constantIndex;
     PmrFlatMap<ccstd::pmr::string, uint32_t> shaderLayoutIndex;
     PmrFlatMap<ccstd::pmr::string, EffectData> effects;
+    ccstd::pmr::string constantMacros;
     // Path
     PmrTransparentMap<ccstd::pmr::string, vertex_descriptor> pathIndex;
 };

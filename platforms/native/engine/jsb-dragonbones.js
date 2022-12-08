@@ -469,7 +469,11 @@ const cacheManager = require('./jsb-cache-manager');
         this._nativeDisplay.setRenderEntity(this._renderEntity.nativeObj);
 
         this.attachUtil.init(this);
-
+        if (this._armature) {
+            const armatureData = this._armature.armatureData;
+            const aabb = armatureData.aABB;
+            this.node._uiProps.uiTransformComp.setContentSize(aabb.width, aabb.height);
+        }
         if (this.animationName) {
             this.playAnimation(this.animationName, this.playTimes);
         }

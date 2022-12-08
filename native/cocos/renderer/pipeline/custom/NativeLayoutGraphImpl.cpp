@@ -99,7 +99,7 @@ void NativeLayoutGraphBuilder::addDescriptorBlock(
             CC_ENSURES(added);
         }
         const auto &nameID = iter->second;
-        dstBlock.descriptors.emplace_back(nameID, d.count);
+        dstBlock.descriptors.emplace_back(nameID, gfx::Type::UNKNOWN, d.count);
     }
     // update layout
     layout.capacity += block.capacity;
