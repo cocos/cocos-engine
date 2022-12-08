@@ -2,7 +2,7 @@
 // target_namespace means the name exported to JS, could be same as which in other modules
 // audio at the last means the suffix of binding function name, different modules should use unique name
 // Note: doesn't support number prefix
-%module(target_namespace="jsb") audio
+%module(target_namespace="jsb") audio_graph
 
 // Insert code at the beginning of generated header file (.h)
 %insert(header_file) %{

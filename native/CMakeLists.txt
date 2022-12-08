@@ -3252,6 +3252,7 @@ if(APPLE)
         "-framework GameController"
         "-framework Accelerate"
         "-framework Metal"
+        "-framework OpenAL"
         "-framework MetalKit"
         "-framework QuartzCore"
         "-framework MetalPerformanceShaders"

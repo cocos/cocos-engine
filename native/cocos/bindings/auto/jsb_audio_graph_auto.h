@@ -49,7 +49,7 @@
 
 
 
-bool register_all_audio(se::Object* obj);
+bool register_all_audio_graph(se::Object* obj);
 
 
 JSB_REGISTER_OBJECT_TYPE(cc::AudioContextOptions);

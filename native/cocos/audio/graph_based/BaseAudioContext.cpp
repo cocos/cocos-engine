@@ -30,6 +30,9 @@ AudioBuffer* BaseAudioContext::decodeAudioDataFromUrl(const ccstd::string& url) 
 AudioDestinationNode* BaseAudioContext::getDestination() {
     return _dest;
 }
+SourceNode* BaseAudioContext::createSourceNode(AudioBuffer* buffer = nullptr) {
+    return new SourceNode(this, buffer);
+}
 // bool BaseAudioContext::retainNode(AudioNode* node) {
 //     auto itr = std::find(_nodes.begin(), _nodes.end(), node);
 //     if (itr == _nodes.end()) {

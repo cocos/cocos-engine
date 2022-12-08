@@ -59,6 +59,7 @@
 
 #if CC_USE_AUDIO
     #include "cocos/bindings/auto/jsb_audio_auto.h"
+    #include "cocos/bindings/auto/jsb_audio_graph_auto.h"
     #include "cocos/bindings/manual/jsb_audio_manual.h"
 #endif
 
@@ -161,6 +162,7 @@ bool jsb_register_all_modules() {
 
 #if CC_USE_AUDIO
     se->addRegisterCallback(register_all_audio);
+    se->addRegisterCallback(register_all_audio_graph);
     se->addRegisterCallback(register_all_audio_manual);
 #endif
 

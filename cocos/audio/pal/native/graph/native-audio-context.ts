@@ -16,7 +16,7 @@ jsb.SourceNode.prototype.onEnded = function (callback: ()=>void) {
     this.setOnEnded(callback);
 };
 export type CCSourceNode = jsb.SourceNode;
-export type CCAudioContext = jsb.AudioContext;
+export const CCAudioContext = jsb.AudioContext;
 export type CCAudioNode = jsb.AudioNode;
 export type CCAudioBuffer = jsb.AudioBuffer;
 export type CCDestinationNode = jsb.AudioDestinationNode;

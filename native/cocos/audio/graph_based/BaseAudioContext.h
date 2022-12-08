@@ -56,6 +56,7 @@ public:
     AudioBuffer* createBuffer(uint32_t numOfChannels = 1, uint32_t length = 0, float sampleRate = 44100);
     StereoPannerNode* createStereoPanner();
     GainNode* createGain();
+    SourceNode* createSourceNode(AudioBuffer* buffer);
     //PannerNode* createPanner();
     //bool decodeAudioData();// Implement in TS?
     std::shared_ptr<lab::AudioContext> getInnerContext() { return _ctx; }
