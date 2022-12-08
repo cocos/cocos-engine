@@ -231,8 +231,8 @@ exports.ready = function() {
             updateDump(dump) {
                 const that = this;
                 that.$refs['lod-dump'].dump = dump;
-                that.$refs['lod-dump'].dispatch('confirm-dump');
                 that.$refs['lod-dump'].dispatch('change-dump');
+                that.$refs['lod-dump'].dispatch('confirm-dump');
             },
             recalculateBounds() {
                 const that = this;

@@ -112,8 +112,8 @@ exports.methods = {
     updateDump(dump) {
         const that = this;
         that.$refs['multi-lod-dump'].dump = dump;
-        that.$refs['multi-lod-dump'].dispatch('confirm-dump');
         that.$refs['multi-lod-dump'].dispatch('change-dump');
+        that.$refs['multi-lod-dump'].dispatch('confirm-dump');
     },
     calculateMultiRange(range, index) {
         const that = this;
