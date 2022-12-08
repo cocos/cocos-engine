@@ -1,4 +1,4 @@
-import { trackEventWithTimer } from '../utils/metrics';
+const { trackEventWithTimer } = require('../utils/metrics');
 
 exports.template = `
 <div class="light-probe-group">
