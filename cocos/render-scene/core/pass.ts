@@ -34,7 +34,7 @@ import { BufferUsageBit, DynamicStateFlagBit, DynamicStateFlags, Feature, GetTyp
     DescriptorSetInfo, DescriptorSetLayout, Device, RasterizerState, Sampler, Texture, Shader, PipelineLayout, deviceManager, UniformBlock,
 } from '../../gfx';
 import { EffectAsset } from '../../asset/assets/effect-asset';
-import { IProgramInfo, ITemplateInfo, programLib } from './program-lib';
+import { IProgramInfo, programLib } from './program-lib';
 import { MacroRecord, MaterialProperty, customizeType, getBindingFromHandle, getDefaultFromType, getStringFromType,
     getOffsetFromHandle, getTypeFromHandle, type2reader, type2writer, getCountFromHandle, type2validator,
 } from './pass-utils';

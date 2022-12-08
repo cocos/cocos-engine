@@ -25,7 +25,7 @@
 
 /* eslint-disable max-len */
 import { EffectAsset } from '../../asset/assets';
-import { Attribute, DescriptorSetLayout, DescriptorSetLayoutBinding, DescriptorSetLayoutInfo, DescriptorType, Device, MemoryAccessBit, PipelineLayout, PipelineLayoutInfo, Shader, ShaderInfo, ShaderStage, ShaderStageFlagBit, Uniform, UniformBlock, UniformInputAttachment, UniformSampler, UniformSamplerTexture, UniformStorageBuffer, UniformStorageImage, UniformTexture } from '../../gfx';
+import { Attribute, DescriptorSetLayout, Device, MemoryAccessBit, PipelineLayout, PipelineLayoutInfo, Shader, ShaderInfo, ShaderStage, ShaderStageFlagBit, Uniform, UniformBlock, UniformInputAttachment, UniformSampler, UniformSamplerTexture, UniformStorageBuffer, UniformStorageImage, UniformTexture } from '../../gfx';
 import { genHandles, getActiveAttributes, getShaderInstanceName, getSize, getVariantKey, prepareDefines } from '../../render-scene/core/program-utils';
 import { getDeviceShaderVersion, MacroRecord } from '../../render-scene';
 import { IProgramInfo } from '../../render-scene/core/program-lib';
@@ -37,7 +37,7 @@ import { getCustomPassID, getCustomPhaseID, getOrCreateDescriptorSetLayout, getE
 import { assert } from '../../core/platform/debug';
 
 const INVALID_ID = 0xFFFFFFFF;
-const _descriptorSetIndex = [2, 1, 3, 0];
+const _setIndex = [2, 1, 3, 0];
 
 function getBitCount (cnt: number) {
     return Math.ceil(Math.log2(Math.max(cnt, 2)));
@@ -76,7 +76,7 @@ function makeProgramInfo (effectName: string, shader: EffectAsset.IShaderInfo): 
 }
 
 function overwriteProgramBlockInfo (shaderInfo: ShaderInfo, programInfo: IProgramInfo) {
-    const set = _descriptorSetIndex[UpdateFrequency.PER_BATCH];
+    const set = _setIndex[UpdateFrequency.PER_BATCH];
     for (const block of programInfo.blocks) {
         let found = false;
         for (const src of shaderInfo.blocks) {
@@ -343,14 +343,14 @@ function makeShaderInfo (
         const passLayout = passLayouts.descriptorSets.get(UpdateFrequency.PER_PASS);
         if (passLayout) {
             populateMergedShaderInfo(lg.valueNames, passLayout.descriptorSetLayoutData,
-                _descriptorSetIndex[UpdateFrequency.PER_PASS], shaderInfo, blockSizes);
+                _setIndex[UpdateFrequency.PER_PASS], shaderInfo, blockSizes);
         }
     }
     { // phase
         const phaseLayout = phaseLayouts.descriptorSets.get(UpdateFrequency.PER_PHASE);
         if (phaseLayout) {
             populateMergedShaderInfo(lg.valueNames, phaseLayout.descriptorSetLayoutData,
-                _descriptorSetIndex[UpdateFrequency.PER_PHASE], shaderInfo, blockSizes);
+                _setIndex[UpdateFrequency.PER_PHASE], shaderInfo, blockSizes);
         }
     }
     { // batch
@@ -359,13 +359,13 @@ function makeShaderInfo (
             const perBatch = programData.layout.descriptorSets.get(UpdateFrequency.PER_BATCH);
             if (perBatch) {
                 populateMergedShaderInfo(lg.valueNames, perBatch.descriptorSetLayoutData,
-                    _descriptorSetIndex[UpdateFrequency.PER_BATCH], shaderInfo, blockSizes);
+                    _setIndex[UpdateFrequency.PER_BATCH], shaderInfo, blockSizes);
             }
         } else {
             const batchLayout = phaseLayouts.descriptorSets.get(UpdateFrequency.PER_BATCH);
             if (batchLayout) {
                 populateMixedShaderInfo(batchLayout.descriptorSetLayoutData,
-                    batchInfo, _descriptorSetIndex[UpdateFrequency.PER_BATCH],
+                    batchInfo, _setIndex[UpdateFrequency.PER_BATCH],
                     shaderInfo, blockSizes);
             }
         }
@@ -376,13 +376,13 @@ function makeShaderInfo (
             const perInstance = programData.layout.descriptorSets.get(UpdateFrequency.PER_INSTANCE);
             if (perInstance) {
                 populateMergedShaderInfo(lg.valueNames, perInstance.descriptorSetLayoutData,
-                    _descriptorSetIndex[UpdateFrequency.PER_INSTANCE], shaderInfo, blockSizes);
+                    _setIndex[UpdateFrequency.PER_INSTANCE], shaderInfo, blockSizes);
             }
         } else {
             const instanceLayout = phaseLayouts.descriptorSets.get(UpdateFrequency.PER_INSTANCE);
             if (instanceLayout) {
                 populateMixedShaderInfo(instanceLayout.descriptorSetLayoutData,
-                    instanceInfo, _descriptorSetIndex[UpdateFrequency.PER_INSTANCE],
+                    instanceInfo, _setIndex[UpdateFrequency.PER_INSTANCE],
                     shaderInfo, blockSizes);
             }
         }
@@ -413,7 +413,7 @@ function buildProgramData (
     {
         const perBatch = makeDescriptorSetLayoutData(lg,
             UpdateFrequency.PER_BATCH,
-            _descriptorSetIndex[UpdateFrequency.PER_BATCH],
+            _setIndex[UpdateFrequency.PER_BATCH],
             srcShaderInfo.descriptors[UpdateFrequency.PER_BATCH]);
         const setData =  new DescriptorSetData(perBatch);
         initializeDescriptorSetLayoutInfo(setData.descriptorSetLayoutData,
@@ -423,7 +423,7 @@ function buildProgramData (
     {
         const perInstance = makeDescriptorSetLayoutData(lg,
             UpdateFrequency.PER_INSTANCE,
-            _descriptorSetIndex[UpdateFrequency.PER_INSTANCE],
+            _setIndex[UpdateFrequency.PER_INSTANCE],
             srcShaderInfo.descriptors[UpdateFrequency.PER_INSTANCE]);
         const setData =  new DescriptorSetData(perInstance);
         initializeDescriptorSetLayoutInfo(setData.descriptorSetLayoutData,
