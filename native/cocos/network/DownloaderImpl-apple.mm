@@ -108,8 +108,8 @@ IDownloadTask *DownloaderApple::createCoTask(std::shared_ptr<const DownloadTask>
         NSString *requesetURL = [NSString stringWithFormat:@"%s", task->requestURL.c_str()];
         NSString *savaPath = [NSString stringWithFormat:@"%s", (cc::FileUtils::getInstance()->getWritablePath() + "resumeData.plist").c_str()];
         NSDictionary *dict = [NSDictionary dictionaryWithContentsOfFile:savaPath];
-        NSString *hasResumData = [dict objectForKey:requesetURL];
-        if ([hasResumData isEqual: @"YES"]) {
+        NSString *hasResumeData = [dict objectForKey:requesetURL];
+        if ([hasResumeData isEqual: @"YES"]) {
                 CC_CURRENT_ENGINE()->getScheduler()->schedule([=](float dt) mutable {
                     coTask->downloadTask = [impl createDownloadTask:task];
                 },this , 0, 0, 0.1F, false, task->requestURL);
