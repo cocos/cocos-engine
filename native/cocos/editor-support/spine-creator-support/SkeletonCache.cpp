@@ -319,7 +319,7 @@ void SkeletonCache::renderAnimationFrame(AnimationData *animationData) {
             _clipper->clipEnd(*slot);
             continue;
         }
-        spine::Color slotColor = slot->getColor();
+        const spine::Color& slotColor = slot->getColor();
         // Early exit if slot is invisible
         if (slotColor.a == 0) {
             _clipper->clipEnd(*slot);
@@ -415,15 +415,15 @@ void SkeletonCache::renderAnimationFrame(AnimationData *animationData) {
             darkColor.a = 0;
         }
 
-        finalColor.r = static_cast<uint8_t>(round(color.r));
-        finalColor.g = static_cast<uint8_t>(round(color.g));
-        finalColor.b = static_cast<uint8_t>(round(color.b));
-        finalColor.a = static_cast<uint8_t>(round(color.a));
+        finalColor.r = static_cast<uint8_t>(std::round(color.r));
+        finalColor.g = static_cast<uint8_t>(std::round(color.g));
+        finalColor.b = static_cast<uint8_t>(std::round(color.b));
+        finalColor.a = static_cast<uint8_t>(std::round(color.a));
 
-        finalDardk.r = static_cast<uint8_t>(round(darkColor.r));
-        finalDardk.g = static_cast<uint8_t>(round(darkColor.g));
-        finalDardk.b = static_cast<uint8_t>(round(darkColor.b));
-        finalDardk.a = static_cast<uint8_t>(round(darkColor.a));
+        finalDardk.r = static_cast<uint8_t>(std::round(darkColor.r));
+        finalDardk.g = static_cast<uint8_t>(std::round(darkColor.g));
+        finalDardk.b = static_cast<uint8_t>(std::round(darkColor.b));
+        finalDardk.a = static_cast<uint8_t>(std::round(darkColor.a));
 
         if (preColor != color || preDarkColor != darkColor) {
             preColor = color;
