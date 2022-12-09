@@ -623,7 +623,7 @@ const Elements = {
     header: {
         ready() {
             const panel = this;
-            panel.$.active.addEventListener('confirm', (event) => {
+            panel.$.active.addEventListener('change', (event) => {
                 const value = event.target.value;
                 const dump = event.target.dump;
 
@@ -635,7 +635,9 @@ const Elements = {
                     });
                 }
                 panel.$.active.dispatch('change-dump');
-                panel.$.active.dispatch('confirm-dump');
+            });
+            panel.$.active.addEventListener('confirm', () => {
+                panel.snapshotLock = false;
             });
 
             panel.$.name.addEventListener('change', (event) => {
@@ -652,7 +654,7 @@ const Elements = {
                 panel.$.name.dispatch('change-dump');
             });
             panel.$.name.addEventListener('confirm', () => {
-                panel.$.name.dispatch('confirm-dump');
+                panel.snapshotLock = false;
             });
         },
         update() {
@@ -673,12 +675,15 @@ const Elements = {
             } else {
 
                 if (panel.dumps && panel.dumps.length > 1) {
-                    if (panel.dumps.some((dump) => dump.active.value !== panel.dump.active.value)) {
-                        activeInvalid = true;
+                    // when changing, stop validating
+                    if (!panel.$.active.hasAttribute('focused')) {
+                        if (panel.dumps.some((dump) => dump.active.value !== panel.dump.active.value)) {
+                            activeInvalid = true;
+                        }
                     }
 
-                    // 在输入中的时候不做数据校验
-                    if (!panel.$.name.$input.matches(':focus')) {
+                    // when changing, stop validating
+                    if (!panel.$.name.hasAttribute('focused')) {
                         if (panel.dumps.some((dump) => dump.name.value !== panel.dump.name.value)) {
                             nameInvalid = true;
                         }
