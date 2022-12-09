@@ -13775,7 +13775,7 @@ static bool js_cc_scene_Model__updateLocalSHDescriptors(se::State& s)
 }
 SE_BIND_FUNC(js_cc_scene_Model__updateLocalSHDescriptors) 
 
-static bool js_cc_scene_Model_updateWorldBoundDescriptors(se::State& s)
+static bool js_cc_scene_Model__updateWorldBoundDescriptors(se::State& s)
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
@@ -13801,7 +13801,7 @@ static bool js_cc_scene_Model_updateWorldBoundDescriptors(se::State& s)
     
     return true;
 }
-SE_BIND_FUNC(js_cc_scene_Model_updateWorldBoundDescriptors) 
+SE_BIND_FUNC(js_cc_scene_Model__updateWorldBoundDescriptors) 
 
 static bool js_cc_scene_Model_createBoundingShape(se::State& s)
 {
@@ -15526,7 +15526,7 @@ bool js_register_cc_scene_Model(se::Object* obj) {
     cls->defineFunction("updateUBOs", _SE(js_cc_scene_Model_updateUBOs)); 
     cls->defineFunction("_updateLocalDescriptors", _SE(js_cc_scene_Model__updateLocalDescriptors)); 
     cls->defineFunction("_updateLocalSHDescriptors", _SE(js_cc_scene_Model__updateLocalSHDescriptors)); 
-    cls->defineFunction("updateWorldBoundDescriptors", _SE(js_cc_scene_Model_updateWorldBoundDescriptors)); 
+    cls->defineFunction("_updateWorldBoundDescriptors", _SE(js_cc_scene_Model__updateWorldBoundDescriptors)); 
     cls->defineFunction("createBoundingShape", _SE(js_cc_scene_Model_createBoundingShape)); 
     cls->defineFunction("initialize", _SE(js_cc_scene_Model_initialize)); 
     cls->defineFunction("initLightingmap", _SE(js_cc_scene_Model_initLightingmap)); 
