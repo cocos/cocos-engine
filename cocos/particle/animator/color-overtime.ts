@@ -28,6 +28,7 @@ import { pseudoRandom } from '../../core';
 import { Particle, PARTICLE_MODULE_NAME, ParticleModuleBase } from '../particle';
 import GradientRange from './gradient-range';
 import { ModuleRandSeed } from '../enum';
+import { isGradientTwoValues } from '../particle-general-function';
 
 const COLOR_OVERTIME_RAND_OFFSET = ModuleRandSeed.COLOR;
 
@@ -61,6 +62,7 @@ export default class ColorOvertimeModule extends ParticleModuleBase {
 
     public animate (particle: Particle) {
         particle.color.set(particle.startColor);
-        particle.color.multiply(this.color.evaluate(1.0 - particle.remainingLifetime / particle.startLifetime, pseudoRandom(particle.randomSeed + COLOR_OVERTIME_RAND_OFFSET)));
+        const rand = isGradientTwoValues(this.color) ? pseudoRandom(particle.randomSeed + COLOR_OVERTIME_RAND_OFFSET) : 0;
+        particle.color.multiply(this.color.evaluate(1.0 - particle.remainingLifetime / particle.startLifetime, rand));
     }
 }

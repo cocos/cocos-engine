@@ -335,6 +335,10 @@ export class Root {
         this._curWindow = null;
         this._mainWindow = null;
         this.dataPoolManager.clear();
+
+        if (cclegacy.rendering) {
+            cclegacy.rendering.destroy();
+        }
     }
 
     /**

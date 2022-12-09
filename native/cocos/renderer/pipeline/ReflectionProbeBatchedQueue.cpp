@@ -40,9 +40,17 @@
 #include "scene/Camera.h"
 #include "scene/ReflectionProbe.h"
 #include "scene/Skybox.h"
+#include "scene/Define.h"
 namespace cc {
 namespace pipeline {
-const static uint32_t REFLECTION_PROBE_DEFAULT_MASK = ~static_cast<uint32_t>(LayerList::UI_2D) & ~static_cast<uint32_t>(LayerList::PROFILER) & ~static_cast<uint32_t>(LayerList::UI_3D);
+const static uint32_t REFLECTION_PROBE_DEFAULT_MASK = ~static_cast<uint32_t>(LayerList::UI_2D)
+    & ~static_cast<uint32_t>(LayerList::PROFILER)
+    & ~static_cast<uint32_t>(LayerList::UI_3D)
+    & ~static_cast<uint32_t>(LayerList::GIZMOS)
+    & ~static_cast<uint32_t>(LayerList::SCENE_GIZMO)
+    & ~static_cast<uint32_t>(LayerList::EDITOR);
+const ccstd::string CC_USE_RGBE_OUTPUT = "CC_USE_RGBE_OUTPUT";
+const cc::scene::IMacroPatch MACRO_PATCH_RGBE_OUTPUT{ CC_USE_RGBE_OUTPUT, true};
 ReflectionProbeBatchedQueue::ReflectionProbeBatchedQueue(RenderPipeline *pipeline)
 : _phaseID(getPhaseID("default")), _phaseReflectMapID(getPhaseID("reflect-map")) {
     _pipeline = pipeline;
@@ -95,6 +103,7 @@ void ReflectionProbeBatchedQueue::clear() {
     _subModels.clear();
     _shaders.clear();
     _passes.clear();
+    _rgbeSubModels.clear();
     if (_instancedQueue) _instancedQueue->clear();
     if (_batchedQueue) _batchedQueue->clear();
 }
@@ -114,6 +123,13 @@ void ReflectionProbeBatchedQueue::add(const scene::Model *model) {
         auto *pass = subModel->getPass(passIdx);
         const auto batchingScheme = pass->getBatchingScheme();
 
+        if (!bUseReflectPass) {      
+            auto patches = const_cast<ccstd::vector<cc::scene::IMacroPatch> &>(subModel->getPatches());
+            patches.emplace_back(MACRO_PATCH_RGBE_OUTPUT);
+            subModel->onMacroPatchesStateChanged(patches);
+            _rgbeSubModels.emplace_back(subModel);
+        }
+
         if (batchingScheme == scene::BatchingSchemes::INSTANCING) {
             auto *instancedBuffer = subModel->getPass(passIdx)->getInstancedBuffer();
             instancedBuffer->merge(subModel, passIdx);
@@ -123,11 +139,6 @@ void ReflectionProbeBatchedQueue::add(const scene::Model *model) {
             batchedBuffer->merge(subModel, passIdx, model);
             _batchedQueue->add(batchedBuffer);
         } else { // standard draw
-            if (!bUseReflectPass) {
-                auto &defines = pass->getDefines();
-                defines["CC_USE_RGBE_OUTPUT"] = true;
-                subModel->onPipelineStateChanged();
-            }
             _subModels.emplace_back(subModel);
             _shaders.emplace_back(subModel->getShader(passIdx));
             _passes.emplace_back(pass);
@@ -157,12 +168,15 @@ void ReflectionProbeBatchedQueue::recordCommandBuffer(gfx::Device *device, gfx::
     if (_batchedQueue) _batchedQueue->clear();
 }
 void ReflectionProbeBatchedQueue::resetMacro() const {
-    for (size_t i = 0; i < _subModels.size(); i++) {
-        const auto *subModel = const_cast<scene::SubModel *>(_subModels[i]);
-        auto *pass = _passes[i];
-        auto &defines = pass->getDefines();
-        defines["CC_USE_RGBE_OUTPUT"] = false;
-        const_cast<cc::scene::SubModel *>(subModel)->onPipelineStateChanged();
+    for (const auto &subModel : _rgbeSubModels) {
+        auto patches = const_cast<ccstd::vector<cc::scene::IMacroPatch> &>(subModel->getPatches());
+        for (auto iter = patches.begin(); iter != patches.end(); iter++) {
+            if (iter->name == CC_USE_RGBE_OUTPUT) {
+                patches.erase(iter);
+                const_cast<scene::SubModel*>(subModel)->onMacroPatchesStateChanged(patches);
+                break;
+            }
+        }
     }
 }
 

@@ -1,6 +1,5 @@
 /*
- Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -23,10 +22,5 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-import './asset-manager';
-import './editor-path-replace';
 
-export { default as assetManager, AssetManager } from './asset-manager';
-export { resources } from './bundle';
-export * from './deprecated';
-export * from './builtin-res-mgr';
+export { ReflectionProbe } from './reflection-probe-component';

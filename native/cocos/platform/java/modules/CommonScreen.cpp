@@ -60,7 +60,8 @@ float CommonScreen::getDevicePixelRatio() const {
 void CommonScreen::setKeepScreenOn(bool keepScreenOn) {
     // JniHelper::callStaticVoidMethod(JCLS_HELPER, "setKeepScreenOn", value);
     //    ANativeActivity_setWindowFlags(JniHelper::getAndroidApp()->activity, AWINDOW_FLAG_KEEP_SCREEN_ON, 0);
-    CC_UNUSED_PARAM(keepScreenOn);
+    //CC_UNUSED_PARAM(keepScreenOn);
+    return setKeepScreenOnJNI(keepScreenOn);
 }
 
 IScreen::Orientation CommonScreen::getDeviceOrientation() const {

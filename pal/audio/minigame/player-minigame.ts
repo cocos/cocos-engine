@@ -86,7 +86,6 @@ export class AudioPlayerMinigame implements OperationQueueable {
             this._state = AudioState.PLAYING;
             eventTarget.emit(AudioEvent.PLAYED);
             if (this._needSeek) {
-                this._needSeek = false;
                 this.seek(this._cacheTime).catch((e) => {});
             }
         };
@@ -109,6 +108,10 @@ export class AudioPlayerMinigame implements OperationQueueable {
             // Reset all properties
             this._resetSeekCache();
             eventTarget.emit(AudioEvent.STOPPED);
+            const currentTime = this._innerAudioContext ? this._innerAudioContext.currentTime : 0;
+            if (currentTime !== 0) {
+                this._innerAudioContext.seek(0);
+            }
         };
         innerAudioContext.onStop(this._onStop);
         this._onSeeked = () => {
@@ -116,7 +119,11 @@ export class AudioPlayerMinigame implements OperationQueueable {
             this._seeking = false;
             if (this._needSeek) {
                 this._needSeek = false;
-                this.seek(this._cacheTime).catch((e) => {});
+                if (this._cacheTime.toFixed(3) !== this._innerAudioContext.currentTime.toFixed(3)) {
+                    this.seek(this._cacheTime).catch((e) => {});
+                } else {
+                    this._needSeek = false;
+                }
             }
 
             // TaoBao iOS: After calling pause or stop, when seek is called, it will automatically play and call onPlay.
@@ -257,7 +264,7 @@ export class AudioPlayerMinigame implements OperationQueueable {
         return this._innerAudioContext.duration;
     }
     get currentTime (): number {
-        if (this._state !== AudioState.PLAYING) {
+        if (this._state !== AudioState.PLAYING || this._needSeek || this._seeking) {
             return this._cacheTime;
         }
         return this._innerAudioContext.currentTime;

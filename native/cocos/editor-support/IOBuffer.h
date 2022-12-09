@@ -187,11 +187,13 @@ public:
             if (_fullCallback) {
                 _fullCallback();
             }
+        }
+        if (!needCopy) {
             _curPos = 0;
         }
-
         if (_bufferSize < needLen) {
-            std::size_t fitSize = static_cast<std::size_t>(ceil(static_cast<float>(needLen) / float(MIN_TYPE_ARRAY_SIZE))) * MIN_TYPE_ARRAY_SIZE;
+            int len = static_cast<int>(needLen);
+            std::size_t fitSize = static_cast<std::size_t>(floorf(1.25F * len));
             resize(fitSize, needCopy);
             if (_resizeCallback) {
                 _resizeCallback();

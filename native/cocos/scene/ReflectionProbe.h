@@ -103,6 +103,12 @@ public:
     inline void setCameraNode(Node* val) { _cameraNode = val; }
     inline Node* getCameraNode()const { return _cameraNode; }
 
+    inline void setPreviewSphere(Node* val) { _previewSphere = val; }
+    inline const Node* getPreviewSphere() const { return _previewSphere; }
+
+    inline void setPreviewPlane(Node* val) { _previewPlane = val; }
+    inline const Node* getPreviewPlane() const { return _previewPlane; }
+
     inline RenderTexture* getRealtimePlanarTexture() const { return _realtimePlanarTexture; }
     void updateBoundingBox();
     void syncCameraParams(const Camera* camera);
@@ -150,6 +156,8 @@ private:
     IntrusivePtr<Node> _node;
 
     IntrusivePtr<Node> _cameraNode;
+    IntrusivePtr<Node> _previewSphere;
+    IntrusivePtr<Node> _previewPlane;
 
     /**
      * @en The AABB bounding box and probe only render the objects inside the bounding box.

@@ -29,7 +29,7 @@
 
       #if CC_SURFACES_LIGHTING_TRANSMIT_SPECULAR
         vec3 transmitSpecularLighting;
-        CCSurfacesLightingCalculateDirectTransmitSpecular(transmitSpecularLighting, lightingData, cc_ambientSky.w);
+        CCSurfacesLightingCalculateDirectTransmitSpecular(transmitSpecularLighting, lightingData, cc_lightColor[i]);
       #endif
 
         float shadow = 1.0;

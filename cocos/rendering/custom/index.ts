@@ -25,25 +25,28 @@
 
 import { Pipeline, PipelineBuilder } from './pipeline';
 import { WebPipeline } from './web-pipeline';
-import { buildDeferredLayout, buildForwardLayout, replacePerBatchOrInstanceShaderInfo } from './effect';
+import { buildDeferredLayout, buildForwardLayout } from './effect';
 import { macro } from '../../core/platform/macro';
 import { DeferredPipelineBuilder, ForwardPipelineBuilder } from './builtin-pipelines';
 import { CustomPipelineBuilder, NativePipelineBuilder } from './custom-pipeline';
 import { LayoutGraphData, loadLayoutGraphData } from './layout-graph';
 import { BinaryInputArchive } from './binary-archive';
-import { EffectAsset } from '../../asset/assets/effect-asset';
 import { WebProgramLibrary } from './web-program-library';
+import { Device } from '../../gfx';
+import { initializeLayoutGraphData, terminateLayoutGraphData, getCustomPassID, getCustomPhaseID } from './layout-graph-utils';
+import { ProgramLibrary } from './private';
 
 let _pipeline: WebPipeline | null = null;
 
+export const INVALID_ID = 0xFFFFFFFF;
 const defaultLayoutGraph = new LayoutGraphData();
-const programLib = new WebProgramLibrary(defaultLayoutGraph);
 
 export * from './types';
 export * from './pipeline';
 export * from './archive';
 
 export const enableEffectImport = false;
+export const programLib: ProgramLibrary = new WebProgramLibrary(defaultLayoutGraph);
 
 export function createCustomPipeline (): Pipeline {
     const layoutGraph = enableEffectImport ? defaultLayoutGraph : new LayoutGraphData();
@@ -61,7 +64,6 @@ export function createCustomPipeline (): Pipeline {
     }
 
     _pipeline = ppl;
-    programLib.constantMacros = ppl.constantMacros;
     return ppl;
 }
 
@@ -88,12 +90,30 @@ function addCustomBuiltinPipelines (map: Map<string, PipelineBuilder>) {
 
 addCustomBuiltinPipelines(customPipelineBuilderMap);
 
-export function deserializeLayoutGraph (arrayBuffer: ArrayBuffer) {
+export function init (device: Device, arrayBuffer: ArrayBuffer) {
     const readBinaryData = new BinaryInputArchive(arrayBuffer);
     loadLayoutGraphData(readBinaryData, defaultLayoutGraph);
+    initializeLayoutGraphData(device, defaultLayoutGraph);
 }
 
-export function replaceShaderInfo (asset: EffectAsset) {
-    const stageName = 'default';
-    replacePerBatchOrInstanceShaderInfo(defaultLayoutGraph, asset, stageName);
+export function destroy () {
+    terminateLayoutGraphData(defaultLayoutGraph);
+}
+
+export function getPassID (name: string | undefined): number {
+    return getCustomPassID(defaultLayoutGraph, name);
+}
+
+export function getPhaseID (passID: number, name: string | number | undefined): number {
+    return getCustomPhaseID(defaultLayoutGraph, passID, name);
+}
+
+export function completePhaseName (name: string | number | undefined): string {
+    if (typeof name === 'number') {
+        return name.toString();
+    } else if (typeof name === 'string') {
+        return name;
+    } else {
+        return 'default';
+    }
 }

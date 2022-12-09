@@ -47,6 +47,7 @@ export interface PipelineRuntime {
     destroy (): boolean;
     render (cameras: Camera[]): void;
     readonly device: Device;
+    readonly macros: MacroRecord;
     readonly globalDSManager: GlobalDSManager;
     readonly descriptorSetLayout: DescriptorSetLayout;
     readonly descriptorSet: DescriptorSet;
@@ -63,8 +64,6 @@ export interface PipelineRuntime {
     setMacroInt (name: string, value: number): void;
     setMacroBool (name: string, value: boolean): void;
     onGlobalPipelineStateChanged (): void;
-
-    readonly macros: MacroRecord;
 }
 
 export interface RenderNode {

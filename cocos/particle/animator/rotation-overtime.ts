@@ -29,6 +29,7 @@ import { Mat4, pseudoRandom, Quat, Vec3 } from '../../core';
 import { Particle, ParticleModuleBase, PARTICLE_MODULE_NAME } from '../particle';
 import CurveRange from './curve-range';
 import { ModuleRandSeed, RenderMode } from '../enum';
+import { isCurveTwoValues } from '../particle-general-function';
 
 const ROTATION_OVERTIME_RAND_OFFSET = ModuleRandSeed.ROTATION;
 
@@ -101,10 +102,10 @@ export default class RotationOvertimeModule extends ParticleModuleBase {
 
     public name = PARTICLE_MODULE_NAME.ROTATION;
 
-    private _startMat:Mat4 = new Mat4();
-    private _matRot:Mat4 = new Mat4();
-    private _quatRot:Quat = new Quat();
-    private _otherEuler:Vec3 = new Vec3();
+    private _startMat: Mat4 = new Mat4();
+    private _matRot: Mat4 = new Mat4();
+    private _quatRot: Quat = new Quat();
+    private _otherEuler: Vec3 = new Vec3();
 
     private _processRotation (p: Particle, r2d: number) {
         // Same as the particle-vs-legacy.chunk glsl statemants
@@ -123,13 +124,15 @@ export default class RotationOvertimeModule extends ParticleModuleBase {
 
     public animate (p: Particle, dt: number) {
         const normalizedTime = 1 - p.remainingLifetime / p.startLifetime;
-        const rotationRand = pseudoRandom(p.randomSeed + ROTATION_OVERTIME_RAND_OFFSET);
+        const randZ = isCurveTwoValues(this.z) ? pseudoRandom(p.randomSeed + ROTATION_OVERTIME_RAND_OFFSET) : 0;
         const renderMode = p.particleSystem.processor.getInfo().renderMode;
 
         if ((!this._separateAxes) || (renderMode === RenderMode.VerticalBillboard || renderMode === RenderMode.HorizontalBillboard)) {
-            Quat.fromEuler(p.deltaQuat, 0, 0, this.z.evaluate(normalizedTime, rotationRand)! * dt * Particle.R2D);
+            Quat.fromEuler(p.deltaQuat, 0, 0, this.z.evaluate(normalizedTime, randZ)! * dt * Particle.R2D);
         } else {
-            Quat.fromEuler(p.deltaQuat, this.x.evaluate(normalizedTime, rotationRand)! * dt * Particle.R2D, this.y.evaluate(normalizedTime, rotationRand)! * dt * Particle.R2D, this.z.evaluate(normalizedTime, rotationRand)! * dt * Particle.R2D);
+            const randX = isCurveTwoValues(this.x) ? pseudoRandom(p.randomSeed + ROTATION_OVERTIME_RAND_OFFSET) : 0;
+            const randY = isCurveTwoValues(this.y) ? pseudoRandom(p.randomSeed + ROTATION_OVERTIME_RAND_OFFSET) : 0;
+            Quat.fromEuler(p.deltaQuat, this.x.evaluate(normalizedTime, randX)! * dt * Particle.R2D, this.y.evaluate(normalizedTime, randY)! * dt * Particle.R2D, this.z.evaluate(normalizedTime, randZ)! * dt * Particle.R2D);
         }
 
         // Rotation-overtime combine with start rotation, after that we get quat from the mat

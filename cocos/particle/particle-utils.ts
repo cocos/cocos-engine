@@ -28,6 +28,8 @@ import { CCObject, Pool } from '../core';
 import { Director, director } from '../game/director';
 import { Node } from '../scene-graph';
 import { ParticleSystem } from './particle-system';
+import CurveRange from './animator/curve-range';
+import GradientRange from './animator/gradient-range';
 
 export class ParticleUtils {
     /**
@@ -64,6 +66,7 @@ export class ParticleUtils {
             (ps).stop();
         }
     }
+
     private static particleSystemPool: Map<string, Pool<CCObject>> = new Map<string, Pool<CCObject>>();
     private static registeredSceneEvent = false;
 

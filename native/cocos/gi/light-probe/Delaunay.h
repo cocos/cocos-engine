@@ -217,13 +217,10 @@ struct Tetrahedron {
 
 class Delaunay {
 public:
-    Delaunay() = default;
+    explicit Delaunay(ccstd::vector<Vertex> &probes) : _probes(probes) {}
     ~Delaunay() = default;
 
-    inline const ccstd::vector<Vertex> &getProbes() const { return _probes; }
-    inline const ccstd::vector<Tetrahedron> &getTetrahedrons() const { return _tetrahedrons; }
-
-    ccstd::vector<Tetrahedron> build(const ccstd::vector<Vertex> &probes);
+    ccstd::vector<Tetrahedron> build();
 
 private:
     void reset();
@@ -238,13 +235,14 @@ private:
     void computeTetrahedronMatrix(Tetrahedron &tetrahedron);
     void computeOuterCellMatrix(Tetrahedron &tetrahedron);
 
-    ccstd::vector<Vertex> _probes;
+    ccstd::vector<Vertex> &_probes;
     ccstd::vector<Tetrahedron> _tetrahedrons;
 
     ccstd::vector<Triangle> _triangles;
     ccstd::vector<Edge> _edges;
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(Delaunay);
+    friend class Tetrahedron;
 };
 
 } // namespace gi

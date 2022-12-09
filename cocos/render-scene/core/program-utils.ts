@@ -24,8 +24,8 @@
 ****************************************************************************/
 
 import { EffectAsset } from '../../asset/assets/effect-asset';
-import { Attribute } from '../../gfx/base/define';
-import { MacroRecord } from './pass-utils';
+import { Attribute, GetTypeSize, ShaderInfo, Uniform } from '../../gfx/base/define';
+import { genHandle, MacroRecord } from './pass-utils';
 import { IProgramInfo } from './program-lib';
 
 export interface IMacroInfo {
@@ -112,4 +112,73 @@ export function getVariantKey (programInfo: IProgramInfo, defines: MacroRecord) 
         key |= mapped << offset;
     }
     return `${key.toString(16)}|${programInfo.hash}`;
+}
+
+export function getSize (blockMembers: Uniform[]) {
+    return blockMembers.reduce((s, m) => s + GetTypeSize(m.type) * m.count, 0);
+}
+
+export function genHandles (tmpl: EffectAsset.IShaderInfo | ShaderInfo) {
+    const handleMap: Record<string, number> = {};
+    // block member handles
+    for (let i = 0; i < tmpl.blocks.length; i++) {
+        const block = tmpl.blocks[i];
+        const members = block.members;
+        let offset = 0;
+        for (let j = 0; j < members.length; j++) {
+            const uniform = members[j];
+            handleMap[uniform.name] = genHandle(block.binding, uniform.type, uniform.count, offset);
+            offset += (GetTypeSize(uniform.type) >> 2) * uniform.count; // assumes no implicit padding, which is guaranteed by effect compiler
+        }
+    }
+    // samplerTexture handles
+    for (let i = 0; i < tmpl.samplerTextures.length; i++) {
+        const samplerTexture = tmpl.samplerTextures[i];
+        handleMap[samplerTexture.name] = genHandle(samplerTexture.binding, samplerTexture.type, samplerTexture.count);
+    }
+    return handleMap;
+}
+
+function getBitCount (cnt: number) {
+    return Math.ceil(Math.log2(Math.max(cnt, 2)));
+}
+
+export function populateMacros (tmpl: IProgramInfo) {
+    // calculate option mask offset
+    let offset = 0;
+    for (let i = 0; i < tmpl.defines.length; i++) {
+        const def = tmpl.defines[i];
+        let cnt = 1;
+        if (def.type === 'number') {
+            const range = def.range!;
+            cnt = getBitCount(range[1] - range[0] + 1); // inclusive on both ends
+            def._map = (value: number) => value - range[0];
+        } else if (def.type === 'string') {
+            cnt = getBitCount(def.options!.length);
+            def._map = (value: any) => Math.max(0, def.options!.findIndex((s) => s === value));
+        } else if (def.type === 'boolean') {
+            def._map = (value: any) => (value ? 1 : 0);
+        }
+        def._offset = offset;
+        offset += cnt;
+    }
+    if (offset > 31) { tmpl.uber = true; }
+    // generate constant macros
+    tmpl.constantMacros = '';
+    for (const key in tmpl.builtins.statistics) {
+        tmpl.constantMacros += `#define ${key} ${tmpl.builtins.statistics[key]}\n`;
+    }
+}
+
+export function getCombinationDefines (combination: EffectAsset.IPreCompileInfo) {
+    const defines = Object.keys(combination).reduce((out, name) => out.reduce((acc, cur) => {
+        const choices = combination[name];
+        for (let i = 0; i < choices.length; ++i) {
+            const defines = { ...cur };
+            defines[name] = choices[i];
+            acc.push(defines);
+        }
+        return acc;
+    }, [] as MacroRecord[]), [{}] as MacroRecord[]);
+    return defines;
 }
