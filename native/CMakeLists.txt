@@ -444,6 +444,7 @@ cocos_source_files(
     cocos/base/StringPool.h
     cocos/base/StringUtil.cpp
     cocos/base/StringUtil.h
+    cocos/base/TemplateUtils.h
     cocos/base/ThreadPool.cpp
     cocos/base/ThreadPool.h
     cocos/base/TypeDef.h
