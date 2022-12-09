@@ -111,6 +111,33 @@ export function getGfxDescriptorType (type: DescriptorTypeOrder): DescriptorType
     }
 }
 
+export function getDescriptorTypeOrder (type: DescriptorType): DescriptorTypeOrder {
+    switch (type) {
+    case DescriptorType.UNIFORM_BUFFER:
+        return DescriptorTypeOrder.UNIFORM_BUFFER;
+    case DescriptorType.DYNAMIC_UNIFORM_BUFFER:
+        return DescriptorTypeOrder.DYNAMIC_UNIFORM_BUFFER;
+    case DescriptorType.SAMPLER_TEXTURE:
+        return DescriptorTypeOrder.SAMPLER_TEXTURE;
+    case DescriptorType.SAMPLER:
+        return DescriptorTypeOrder.SAMPLER;
+    case DescriptorType.TEXTURE:
+        return DescriptorTypeOrder.TEXTURE;
+    case DescriptorType.STORAGE_BUFFER:
+        return DescriptorTypeOrder.STORAGE_BUFFER;
+    case DescriptorType.DYNAMIC_STORAGE_BUFFER:
+        return DescriptorTypeOrder.DYNAMIC_STORAGE_BUFFER;
+    case DescriptorType.STORAGE_IMAGE:
+        return DescriptorTypeOrder.STORAGE_IMAGE;
+    case DescriptorType.INPUT_ATTACHMENT:
+        return DescriptorTypeOrder.INPUT_ATTACHMENT;
+    case DescriptorType.UNKNOWN:
+    default:
+        console.error('DescriptorTypeOrder not found');
+        return DescriptorTypeOrder.INPUT_ATTACHMENT;
+    }
+}
+
 export function getCustomPassID (lg: LayoutGraphData, name: string | undefined): number {
     return lg.locateChild(lg.nullVertex(), name || 'default');
 }
@@ -1001,7 +1028,7 @@ function buildLayoutGraphDataImpl (graph: LayoutGraph, builder: LayoutGraphBuild
     }
 }
 
-function getDescriptorID (lg: LayoutGraphData, name: string): number {
+export function getDescriptorID (lg: LayoutGraphData, name: string): number {
     const nameID = lg.attributeIndex.get(name);
     if (nameID === undefined) {
         const newID = lg.valueNames.length;
@@ -1436,4 +1463,17 @@ export function getDescriptorSetLayoutData (lg: LayoutGraphData,
         return data.descriptorSetLayoutData;
     }
     return _emptyDescriptorSetLayoutData;
+}
+
+export function getOrCreateDescriptorBlockData (data: DescriptorSetLayoutData,
+    type: DescriptorType, vis: ShaderStageFlagBit): DescriptorBlockData {
+    const order = getDescriptorTypeOrder(type);
+    for (const block of data.descriptorBlocks) {
+        if (block.type === order && block.visibility === vis) {
+            return block;
+        }
+    }
+    const block = new DescriptorBlockData(order, vis);
+    data.descriptorBlocks.push(block);
+    return block;
 }
