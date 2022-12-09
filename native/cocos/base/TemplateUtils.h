@@ -1,7 +1,5 @@
 /****************************************************************************
- Copyright (c) 2010 cocos2d-x.org
- Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -28,6 +26,17 @@
 
 namespace cc {
 
+/* overloaded is used in ccstd::visit a variant value. For example:
+
+    ccstd::variant<ccstd::monostate, int, bool, float> value;
+    ccstd::visit(cc::overloaded{
+        [](auto& v) {
+            // Do something with v
+        },
+        [](ccstd::monostate&) {} // Do nothing if value isn't initialized
+    }, value);
+ 
+ */
 template<class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
 template<class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
 

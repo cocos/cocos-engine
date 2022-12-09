@@ -630,16 +630,15 @@ bool sevalue_to_native(const se::Value &from, ccstd::array<uint8_t, CNT> *to, se
 
 template <typename T>
 bool sevalue_to_native(const se::Value &from, ccstd::variant<ccstd::monostate, T, ccstd::vector<T>> *to, se::Object *ctx) { // NOLINT
-    se::Object *array = from.toObject();
     bool ok = false;
-    if (array->isArray()) {
+    if (from.isObject() && from.toObject()->isArray()) {
         ccstd::vector<T> result;
         ok = sevalue_to_native(from, &result, ctx);
         if (ok) {
             *to = std::move(result);
         }
     } else {
-        T result;
+        T result{};
         ok = sevalue_to_native(from, &result, ctx);
         if (ok) {
             *to = std::move(result);
