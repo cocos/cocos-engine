@@ -60,8 +60,8 @@ public:
     };
 
     struct ColorData {
-        cc::middleware::Color4F finalColor;
-        cc::middleware::Color4F darkColor;
+        cc::middleware::Color4B finalColor;
+        cc::middleware::Color4B darkColor;
         int vertexFloatOffset = 0;
     };
 
