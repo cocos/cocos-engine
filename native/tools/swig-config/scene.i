@@ -536,6 +536,7 @@ using namespace cc;
 %attribute(cc::scene::ReflectionProbe, cc::Node*, previewSphere, getPreviewSphere, setPreviewSphere);
 %attribute(cc::scene::ReflectionProbe, cc::Node*, previewPlane, getPreviewPlane, setPreviewPlane);
 
+%attribute(cc::SceneGlobals, bool, bakedWithStationaryMainLight, getBakedWithStationaryMainLight, setBakedWithStationaryMainLight);
 
 
 // ----- Import Section ------
