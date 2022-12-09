@@ -44,8 +44,11 @@ let Audio = function (src) {
 
     const self = this;
     this._onended = function () {
-        self._state = Audio.State.STOPPED;
-        self.emit('ended');
+        if(self.paused){
+            self._state = Audio.State.STOPPED;
+            self.emit('ended');
+
+        }
     };
     this._onendedSecond = function () {
         self._unbindEnded(self._onendedSecond);
@@ -198,7 +201,7 @@ Audio.State = {
         }
         let self = this;
         this._src && this._src._ensureLoaded(function () {
-            self._bindEnded(self._onendedSecond);
+            self._bindEnded();
             self._element.play();
             self._state = Audio.State.PLAYING;
         });
@@ -248,7 +251,9 @@ Audio.State = {
             // setCurrentTime would fire 'ended' event
             // so we need to change the callback to rebind ended callback after setCurrentTime
             self._unbindEnded();
-            self._bindEnded(self._onendedSecond);
+            self._bindEnded(function(){
+                self._bindEnded();
+            });
             self._element.currentTime = num;
         });
     };
