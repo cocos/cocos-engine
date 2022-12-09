@@ -29,7 +29,7 @@ import { Attribute, DescriptorSetLayout, DESCRIPTOR_BUFFER_TYPE, DESCRIPTOR_SAMP
 import { genHandles, getActiveAttributes, getCombinationDefines, getShaderInstanceName, getSize, getVariantKey, populateMacros, prepareDefines } from '../../render-scene/core/program-utils';
 import { getDeviceShaderVersion, MacroRecord } from '../../render-scene';
 import { IProgramInfo } from '../../render-scene/core/program-lib';
-import { DescriptorBlockData, DescriptorData, DescriptorSetData, DescriptorSetLayoutData, LayoutGraphData, LayoutGraphDataValue, PipelineLayoutData, RenderPhaseData, ShaderProgramData } from './layout-graph';
+import { DescriptorBlockData, DescriptorData, DescriptorSetData, DescriptorSetLayoutData, LayoutGraphData, LayoutGraphDataValue, PipelineLayoutData, RenderPhaseData, ShaderProgramData, UniformBlockData } from './layout-graph';
 import { ProgramLibrary, ProgramProxy } from './private';
 import { DescriptorTypeOrder, UpdateFrequency } from './types';
 import { ProgramGroup, ProgramHost, ProgramInfo, ProgramLibraryData } from './web-types';
@@ -422,9 +422,9 @@ function getDescriptorNameAndType (source: IDescriptorSetLayoutInfo, binding: nu
         if (v.binding === binding) {
             assert(v.name === name);
             let type = Type.UNKNOWN;
-            if (v instanceof (UniformSamplerTexture)) {
+            if (v instanceof UniformSamplerTexture) {
                 type = v.type;
-            } else if (v instanceof (UniformStorageImage)) {
+            } else if (v instanceof UniformStorageImage) {
                 type = v.type;
             }
             return [v.name, type];
@@ -445,6 +445,10 @@ function makeLocalDescriptorSetLayoutData (lg: LayoutGraphData,
         block.offset = b.binding;
         block.descriptors.push(new DescriptorData(nameID, type, b.count));
         data.descriptorBlocks.push(block);
+        const v = source.layouts[name];
+        if (v instanceof UniformBlock) {
+            data.uniformBlocks.set(nameID, v);
+        }
     }
     return data;
 }
