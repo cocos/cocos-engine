@@ -43,6 +43,7 @@ import { IBundleOptions } from '../asset/asset-manager/shared';
 import { ICustomJointTextureLayout } from '../3d/skeletal-animation/skeletal-animation-utils';
 import { IPhysicsConfig } from '../physics/framework/physics-config';
 import { effectSettings } from '../core/effect-settings';
+import { audioManager } from '../audio/audio-manager';
 
 /**
  * @zh
@@ -559,6 +560,7 @@ export class Game extends EventTarget {
         if (this._paused) { return; }
         this._paused = true;
         this._pacer?.stop();
+        audioManager.pause();
     }
 
     /**
@@ -572,6 +574,7 @@ export class Game extends EventTarget {
         input._clearEvents();
         this._paused = false;
         this._pacer?.start();
+        audioManager.resume();
     }
 
     /**

@@ -43,7 +43,12 @@
 #include "scene/Define.h"
 namespace cc {
 namespace pipeline {
-const static uint32_t REFLECTION_PROBE_DEFAULT_MASK = ~static_cast<uint32_t>(LayerList::UI_2D) & ~static_cast<uint32_t>(LayerList::PROFILER) & ~static_cast<uint32_t>(LayerList::UI_3D);
+const static uint32_t REFLECTION_PROBE_DEFAULT_MASK = ~static_cast<uint32_t>(LayerList::UI_2D)
+    & ~static_cast<uint32_t>(LayerList::PROFILER)
+    & ~static_cast<uint32_t>(LayerList::UI_3D)
+    & ~static_cast<uint32_t>(LayerList::GIZMOS)
+    & ~static_cast<uint32_t>(LayerList::SCENE_GIZMO)
+    & ~static_cast<uint32_t>(LayerList::EDITOR);
 const ccstd::string CC_USE_RGBE_OUTPUT = "CC_USE_RGBE_OUTPUT";
 const cc::scene::IMacroPatch MACRO_PATCH_RGBE_OUTPUT{ CC_USE_RGBE_OUTPUT, true};
 ReflectionProbeBatchedQueue::ReflectionProbeBatchedQueue(RenderPipeline *pipeline)

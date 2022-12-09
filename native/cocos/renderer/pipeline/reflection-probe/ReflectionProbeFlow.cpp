@@ -64,7 +64,7 @@ void ReflectionProbeFlow::render(scene::Camera *camera) {
     const auto *sceneData = _pipeline->getPipelineSceneData();
     const auto probes = scene::ReflectionProbeManager::getInstance()->getAllProbes();
     for (auto * probe : probes) {
-        if (probe->needRender()) {
+        if (probe->needRender() && probe->getProbeType() == scene::ReflectionProbe::ProbeType::PLANAR) {
             renderStage(camera, probe);
         }
     }

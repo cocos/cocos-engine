@@ -30,7 +30,7 @@
 #include "core/platform/Debug.h"
 #include "math/Mat3.h"
 #define CC_USE_TETGEN 1
-#ifdef CC_USE_TETGEN
+#if CC_USE_TETGEN
     #include "tetgen.h"
 #endif
 
@@ -57,7 +57,7 @@ Tetrahedron::Tetrahedron(const Delaunay *delaunay, int32_t v0, int32_t v1, int32
 : vertex0(v0), vertex1(v1), vertex2(v2), vertex3(v3) {
     // inner tetrahedron
     if (v3 >= 0) {
-        const auto &probes = delaunay->getProbes();
+        const auto &probes = delaunay->_probes;
         const auto &p0 = probes[vertex0].position;
         const auto &p1 = probes[vertex1].position;
         const auto &p2 = probes[vertex2].position;
@@ -66,15 +66,13 @@ Tetrahedron::Tetrahedron(const Delaunay *delaunay, int32_t v0, int32_t v1, int32
     }
 }
 
-ccstd::vector<Tetrahedron> Delaunay::build(const ccstd::vector<Vertex> &probes) {
-    _probes = probes;
-
+ccstd::vector<Tetrahedron> Delaunay::build() {
     reset();
     tetrahedralize();
     computeAdjacency();
     computeMatrices();
 
-    return _tetrahedrons;
+    return std::move(_tetrahedrons);
 }
 
 void Delaunay::reset() {
@@ -83,7 +81,7 @@ void Delaunay::reset() {
     _edges.clear();
 }
 
-#ifdef CC_USE_TETGEN
+#if CC_USE_TETGEN
 void Delaunay::tetrahedralize() {
     tetgenio in;
     tetgenio out;

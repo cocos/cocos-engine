@@ -24,6 +24,8 @@
  */
 
 import { Mat4, Quat, random, randomRange, randomRangeInt, Vec2, Vec3, bits } from '../core/math';
+import CurveRange from './animator/curve-range';
+import GradientRange from './animator/gradient-range';
 import { Space } from './enum';
 
 export const particleEmitZAxis = new Vec3(0, 0, -1);
@@ -131,4 +133,33 @@ export function randomSign () {
         sgn++;
     }
     return bits.sign(sgn);
+}
+
+/**
+ * @en judge if the CurveRange use TwoCurves or TwoConstants
+ * @zh 判断粒子的CurveRange是否使用了 TwoCurves 或者 TwoConstants
+ */
+export function isCurveTwoValues (curve: CurveRange): boolean {
+    const Mode = CurveRange.Mode;
+    switch (curve.mode) {
+    case Mode.TwoCurves:
+    case Mode.TwoConstants:
+        return true;
+    default:
+        return false;
+    }
+}
+/**
+ * @en judge if the GradientRange TwoValues use TwoGradients or TwoColors
+ * @zh 判断粒子的 GradientRange 是否使用了 TwoGradients 或者 TwoColors
+ */
+export function isGradientTwoValues (color: GradientRange): boolean {
+    const Mode = GradientRange.Mode;
+    switch (color.mode) {
+    case Mode.TwoGradients:
+    case Mode.TwoColors:
+        return true;
+    default:
+        return false;
+    }
 }

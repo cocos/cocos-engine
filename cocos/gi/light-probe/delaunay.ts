@@ -250,7 +250,7 @@ export class Tetrahedron {
 
         // inner tetrahedron
         if (v3 >= 0) {
-            const probes = delaunay.getProbes();
+            const probes = delaunay._probes;
             const p0 = probes[this.vertex0].position;
             const p1 = probes[this.vertex1].position;
             const p2 = probes[this.vertex2].position;
@@ -278,18 +278,17 @@ export class Tetrahedron {
 }
 
 export class Delaunay {
-    private _probes: Vertex[] = [];
+    public _probes: Vertex[] = [];
     private _tetrahedrons: Tetrahedron[] = [];
 
     private _triangles: Triangle[] = [];
     private _edges: Edge[] = [];
 
-    public getProbes () { return this._probes; }
-    public getTetrahedrons () { return this._tetrahedrons; }
-
-    public build (probes: Vertex[]) {
+    public constructor (probes: Vertex[]) {
         this._probes = probes;
+    }
 
+    public build () {
         this.reset();
         this.tetrahedralize();
         this.computeAdjacency();

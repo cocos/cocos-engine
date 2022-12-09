@@ -38,6 +38,7 @@ import { Camera } from '../../render-scene/scene/camera';
 import { Pass } from '../../render-scene';
 import { ParticleNoise } from '../noise';
 import { NoiseModule } from '../animator/noise-module';
+import { isCurveTwoValues } from '../particle-general-function';
 import { Mode } from '../animator/curve-range';
 
 const _tempAttribUV = new Vec3();
@@ -397,9 +398,10 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
             // apply gravity when both the mode is not Constant and the value is not 0.
             const useGravity = (ps.gravityModifier.mode !== Mode.Constant || ps.gravityModifier.constant !== 0);
             if (useGravity) {
+                const rand = isCurveTwoValues(ps.gravityModifier) ? pseudoRandom(p.randomSeed) : 0;
                 if (ps.simulationSpace === Space.Local) {
                     const time = 1 - p.remainingLifetime / p.startLifetime;
-                    const gravityFactor = -ps.gravityModifier.evaluate(time, pseudoRandom(p.randomSeed))! * 9.8 * dt;
+                    const gravityFactor = -ps.gravityModifier.evaluate(time, rand)! * 9.8 * dt;
                     this._gravity.x = 0.0;
                     this._gravity.y = gravityFactor;
                     this._gravity.z = 0.0;
@@ -416,7 +418,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
                     }
                 } else {
                     // apply gravity.
-                    p.velocity.y -= ps.gravityModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, pseudoRandom(p.randomSeed))! * 9.8 * dt;
+                    p.velocity.y -= ps.gravityModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, rand)! * 9.8 * dt;
                 }
             }
             Vec3.copy(p.ultimateVelocity, p.velocity);
