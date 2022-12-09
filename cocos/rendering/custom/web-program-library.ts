@@ -33,7 +33,7 @@ import { DescriptorBlockData, DescriptorData, DescriptorSetData, DescriptorSetLa
 import { ProgramLibrary, ProgramProxy } from './private';
 import { DescriptorTypeOrder, UpdateFrequency } from './types';
 import { ProgramGroup, ProgramHost, ProgramInfo, ProgramLibraryData } from './web-types';
-import { getCustomPassID, getCustomPhaseID, getOrCreateDescriptorSetLayout, getEmptyDescriptorSetLayout, getEmptyPipelineLayout, initializeDescriptorSetLayoutInfo, makeDescriptorSetLayoutData, getDescriptorSetLayout, getOrCreateDescriptorBlockData, getDescriptorID } from './layout-graph-utils';
+import { getCustomPassID, getCustomPhaseID, getOrCreateDescriptorSetLayout, getEmptyDescriptorSetLayout, getEmptyPipelineLayout, initializeDescriptorSetLayoutInfo, makeDescriptorSetLayoutData, getDescriptorSetLayout, getOrCreateDescriptorBlockData, getDescriptorID, getDescriptorTypeOrder } from './layout-graph-utils';
 import { assert } from '../../core/platform/debug';
 import { IDescriptorSetLayoutInfo, localDescriptorSetLayout } from '../define';
 
@@ -434,30 +434,17 @@ function getDescriptorNameAndType (source: IDescriptorSetLayoutInfo, binding: nu
     return ['', Type.UNKNOWN];
 }
 
-function getDescriptorBlockEndPos (block: DescriptorBlockData) {
-    let offset = block.offset;
-    for (const d of block.descriptors) {
-        offset += d.count;
-    }
-    return offset;
-}
-
 function makeLocalDescriptorSetLayoutData (lg: LayoutGraphData,
     source: IDescriptorSetLayoutInfo): DescriptorSetLayoutData {
     const data = new DescriptorSetLayoutData();
     for (const b of source.bindings) {
-        const block = getOrCreateDescriptorBlockData(data, b.descriptorType, b.stageFlags);
         const [name, type] = getDescriptorNameAndType(source, b.binding);
         const nameID = getDescriptorID(lg, name);
-        if (block.descriptors.length === 0) {
-            block.offset = b.binding;
-        } else {
-            const endPos = getDescriptorBlockEndPos(block);
-            if (endPos !== b.binding) {
-                console.error('Descriptor binding inconsistent');
-            }
-        }
+        const order = getDescriptorTypeOrder(b.descriptorType);
+        const block = new DescriptorBlockData(order, b.stageFlags, b.count);
+        block.offset = b.binding;
         block.descriptors.push(new DescriptorData(nameID, type, b.count));
+        data.descriptorBlocks.push(block);
     }
     return data;
 }
