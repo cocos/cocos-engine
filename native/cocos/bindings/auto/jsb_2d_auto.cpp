@@ -3489,6 +3489,26 @@ static bool js_cc_UIModelProxy_attachNode(se::State& s)
 }
 SE_BIND_FUNC(js_cc_UIModelProxy_attachNode) 
 
+static bool js_cc_UIModelProxy_clearModels(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::UIModelProxy *arg1 = (cc::UIModelProxy *) NULL ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::UIModelProxy>(s);
+    if (nullptr == arg1) return true;
+    (arg1)->clearModels();
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_UIModelProxy_clearModels) 
+
 bool js_register_cc_UIModelProxy(se::Object* obj) {
     auto* cls = se::Class::create("UIModelProxy", obj, nullptr, _SE(js_new_cc_UIModelProxy)); 
     
@@ -3503,6 +3523,7 @@ bool js_register_cc_UIModelProxy(se::Object* obj) {
     cls->defineFunction("updateModels", _SE(js_cc_UIModelProxy_updateModels)); 
     cls->defineFunction("attachDrawInfo", _SE(js_cc_UIModelProxy_attachDrawInfo)); 
     cls->defineFunction("attachNode", _SE(js_cc_UIModelProxy_attachNode)); 
+    cls->defineFunction("clearModels", _SE(js_cc_UIModelProxy_clearModels)); 
     
     
     
