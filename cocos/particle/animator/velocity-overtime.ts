@@ -27,7 +27,7 @@ import { ccclass, tooltip, displayOrder, range, type, serializable } from 'cc.de
 import { Mat4, pseudoRandom, Quat, Vec3 } from '../../core';
 import { Space, ModuleRandSeed } from '../enum';
 import { Particle, ParticleModuleBase, PARTICLE_MODULE_NAME } from '../particle';
-import { calculateTransform } from '../particle-general-function';
+import { calculateTransform, isCurveTwoValues } from '../particle-general-function';
 import CurveRange from './curve-range';
 
 const VELOCITY_X_OVERTIME_RAND_OFFSET = ModuleRandSeed.VELOCITY_X;
@@ -118,12 +118,21 @@ export default class VelocityOvertimeModule extends ParticleModuleBase {
 
     public animate (p: Particle, dt: number) {
         const normalizedTime = 1 - p.remainingLifetime / p.startLifetime;
-        const vel = Vec3.set(_temp_v3, this.x.evaluate(normalizedTime, pseudoRandom(p.randomSeed ^ VELOCITY_X_OVERTIME_RAND_OFFSET))!, this.y.evaluate(normalizedTime, pseudoRandom(p.randomSeed ^ VELOCITY_Y_OVERTIME_RAND_OFFSET))!, this.z.evaluate(normalizedTime, pseudoRandom(p.randomSeed ^ VELOCITY_Z_OVERTIME_RAND_OFFSET))!);
+        const randX = isCurveTwoValues(this.x) ? pseudoRandom(p.randomSeed ^ VELOCITY_X_OVERTIME_RAND_OFFSET) : 0;
+        const randY = isCurveTwoValues(this.y) ? pseudoRandom(p.randomSeed ^ VELOCITY_Y_OVERTIME_RAND_OFFSET) : 0;
+        const randZ = isCurveTwoValues(this.z) ? pseudoRandom(p.randomSeed ^ VELOCITY_Z_OVERTIME_RAND_OFFSET) : 0;
+        const randSpeed = isCurveTwoValues(this.speedModifier) ? pseudoRandom(p.randomSeed + VELOCITY_X_OVERTIME_RAND_OFFSET) : 0;
+
+        const vel = Vec3.set(_temp_v3,
+            this.x.evaluate(normalizedTime, randX)!,
+            this.y.evaluate(normalizedTime, randY)!,
+            this.z.evaluate(normalizedTime, randZ)!);
         if (this.needTransform) {
             Vec3.transformQuat(vel, vel, this.rotation);
         }
         Vec3.add(p.animatedVelocity, p.animatedVelocity, vel);
         Vec3.add(p.ultimateVelocity, p.velocity, p.animatedVelocity);
-        Vec3.multiplyScalar(p.ultimateVelocity, p.ultimateVelocity, this.speedModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, pseudoRandom(p.randomSeed + VELOCITY_X_OVERTIME_RAND_OFFSET))!);
+        Vec3.multiplyScalar(p.ultimateVelocity, p.ultimateVelocity,
+            this.speedModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, randSpeed)!);
     }
 }

@@ -21,9 +21,25 @@ float CalculateAngleAttenuation(vec3 spotLightDir, vec3 L, float cosAngleOuter)
   return GetAngleAtt(L, spotLightDir, litAngleScale, litAngleOffset);
 }
 
+// return unnormalized vector, support oppo-side
+// V from pixel to camera
 vec3 CalculateRefractDirection(vec3 N, vec3 V, float NoV, float ior)
 {
-  float sinB = sqrt(1.0 - NoV*NoV) / ior;
-  vec3 X = normalize(-V + N * NoV);
-  return -N + X * sinB;
+  float NoVAbs = abs(NoV);
+  // two sided
+  float sideSign = NoV < 0.0 ? -1.0 : 1.0;
+  N *= sideSign;
+  NoV *= sideSign;
+  float sinB = sqrt(1.0 - NoVAbs*NoVAbs) / ior;
+  vec3 X = normalize(-V + N * NoVAbs);
+  vec3 R = -N + X * sinB;
+  return R;
+}
+
+vec3 CalculateReflectDirection(vec3 N, vec3 V, float NoV)
+{
+  // two sided
+  float sideSign = NoV < 0.0 ? -1.0 : 1.0;
+  N *= sideSign;
+  return reflect(-V, N);
 }

@@ -1103,6 +1103,14 @@ using namespace cc;
 #define cc_scene_ReflectionProbe_boundingBox_get(self_) self_->getBoundingBox()
   
 
+#define cc_scene_ReflectionProbe_previewSphere_get(self_) self_->getPreviewSphere()
+#define cc_scene_ReflectionProbe_previewSphere_set(self_, val_) self_->setPreviewSphere(val_)
+  
+
+#define cc_scene_ReflectionProbe_previewPlane_get(self_) self_->getPreviewPlane()
+#define cc_scene_ReflectionProbe_previewPlane_set(self_, val_) self_->setPreviewPlane(val_)
+  
+
 
 static bool js_cc_hasFlag__SWIG_1(se::State& s)
 {
@@ -24565,6 +24573,84 @@ static bool js_cc_scene_ReflectionProbe_boundingBox_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_scene_ReflectionProbe_boundingBox_get) 
 
+static bool js_cc_scene_ReflectionProbe_previewSphere_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::ReflectionProbe *arg1 = (cc::scene::ReflectionProbe *) NULL ;
+    cc::Node *arg2 = (cc::Node *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::ReflectionProbe>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    cc_scene_ReflectionProbe_previewSphere_set(arg1,arg2);
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_scene_ReflectionProbe_previewSphere_set) 
+
+static bool js_cc_scene_ReflectionProbe_previewSphere_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::scene::ReflectionProbe *arg1 = (cc::scene::ReflectionProbe *) NULL ;
+    cc::Node *result = 0 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::ReflectionProbe>(s);
+    if (nullptr == arg1) return true;
+    result = (cc::Node *)cc_scene_ReflectionProbe_previewSphere_get(arg1);
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_scene_ReflectionProbe_previewSphere_get) 
+
+static bool js_cc_scene_ReflectionProbe_previewPlane_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::ReflectionProbe *arg1 = (cc::scene::ReflectionProbe *) NULL ;
+    cc::Node *arg2 = (cc::Node *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::ReflectionProbe>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    cc_scene_ReflectionProbe_previewPlane_set(arg1,arg2);
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_scene_ReflectionProbe_previewPlane_set) 
+
+static bool js_cc_scene_ReflectionProbe_previewPlane_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::scene::ReflectionProbe *arg1 = (cc::scene::ReflectionProbe *) NULL ;
+    cc::Node *result = 0 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::ReflectionProbe>(s);
+    if (nullptr == arg1) return true;
+    result = (cc::Node *)cc_scene_ReflectionProbe_previewPlane_get(arg1);
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_scene_ReflectionProbe_previewPlane_get) 
+
 bool js_register_cc_scene_ReflectionProbe(se::Object* obj) {
     auto* cls = se::Class::create("ReflectionProbe", obj, nullptr, _SE(js_new_cc_scene_ReflectionProbe)); 
     
@@ -24576,6 +24662,8 @@ bool js_register_cc_scene_ReflectionProbe(se::Object* obj) {
     cls->defineProperty("visibility", _SE(js_cc_scene_ReflectionProbe_visibility_get), _SE(js_cc_scene_ReflectionProbe_visibility_set)); 
     cls->defineProperty("size", _SE(js_cc_scene_ReflectionProbe_size_get), _SE(js_cc_scene_ReflectionProbe_size_set)); 
     cls->defineProperty("boundingBox", _SE(js_cc_scene_ReflectionProbe_boundingBox_get), nullptr); 
+    cls->defineProperty("previewSphere", _SE(js_cc_scene_ReflectionProbe_previewSphere_get), _SE(js_cc_scene_ReflectionProbe_previewSphere_set)); 
+    cls->defineProperty("previewPlane", _SE(js_cc_scene_ReflectionProbe_previewPlane_get), _SE(js_cc_scene_ReflectionProbe_previewPlane_set)); 
     
     cls->defineFunction("initialize", _SE(js_cc_scene_ReflectionProbe_initialize)); 
     cls->defineFunction("getProbeId", _SE(js_cc_scene_ReflectionProbe_getProbeId)); 

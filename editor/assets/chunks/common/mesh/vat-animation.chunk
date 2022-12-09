@@ -66,12 +66,12 @@ vec3 VATGetLocalPosition(vec2 thisFrameUV, sampler2D vatPositionTexture, sampler
   vec3 thisFramePos = SampleTextureExr(vatPositionTexture, vatPositionSignTexture, thisFrameUV);
   return thisFramePos * VAT_UNITY_TO_COCOS_COORDINATE_SCALE;
 }
-vec3 VATGetLocalNormal(vec2 thisFrameUV, sampler2D vatRotationTexture, sampler2D vatRotationSignTexture, sampler2D vatRotationAlphaTexture)
+// meshNormal is up-axis for fluid
+vec3 VATGetLocalNormal(vec3 meshNormal, vec2 thisFrameUV, sampler2D vatRotationTexture, sampler2D vatRotationSignTexture, sampler2D vatRotationAlphaTexture)
 {
   vec4 thisFrameData = SampleTextureExrWithAlpha(vatRotationTexture, vatRotationSignTexture, vatRotationAlphaTexture, thisFrameUV);
-  vec3 normal = vec3(0.0, 1.0, 0.0);
-  rotateVecFromQuat(normal, thisFrameData);
-  return normal;
+  rotateVecFromQuat(meshNormal, thisFrameData);
+  return meshNormal;
 }
 
 // for smooth animation
@@ -81,21 +81,20 @@ vec3 VATGetLocalPosition(vec2 thisFrameUV, vec2 nextFrameUV, float frameLerp, sa
   vec3 nextFramePos = SampleTextureExr(vatPositionTexture, vatPositionSignTexture, nextFrameUV);
   return mix(thisFramePos, nextFramePos, frameLerp) * VAT_UNITY_TO_COCOS_COORDINATE_SCALE;
 }
-vec3 VATGetLocalNormal(vec2 thisFrameUV, vec2 nextFrameUV, float frameLerp, sampler2D vatRotationTexture, sampler2D vatRotationSignTexture, sampler2D vatRotationAlphaTexture)
+vec3 VATGetLocalNormal(vec3 meshNormal, vec2 thisFrameUV, vec2 nextFrameUV, float frameLerp, sampler2D vatRotationTexture, sampler2D vatRotationSignTexture, sampler2D vatRotationAlphaTexture)
 {
   vec4 thisFrameData = SampleTextureExrWithAlpha(vatRotationTexture, vatRotationSignTexture, vatRotationAlphaTexture, thisFrameUV);
   vec4 nextFrameData = SampleTextureExrWithAlpha(vatRotationTexture, vatRotationSignTexture, vatRotationAlphaTexture, nextFrameUV);
   vec4 data = mix(thisFrameData, nextFrameData, frameLerp);
 
-  vec3 normal = vec3(0.0, 1.0, 0.0);
-  rotateVecFromQuat(normal, data);
-  return normal;
+  rotateVecFromQuat(meshNormal, data);
+  return meshNormal;
 }
 
 // calculate simulation voxel coordinates
 vec3 VATCalculateFluidVoxelUV(vec3 vatBoundingBoxMin, vec3 vatBoundingBoxMax, vec3 localPos)
 {
-  // bounding box is unscaled
+  // bounding box in exported json is unscaled
   vatBoundingBoxMin *= VAT_UNITY_TO_COCOS_COORDINATE_SCALE;
   vatBoundingBoxMax *= VAT_UNITY_TO_COCOS_COORDINATE_SCALE;
   

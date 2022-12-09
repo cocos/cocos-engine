@@ -145,12 +145,13 @@ vec4 CCSurfacesShading(in SurfacesMaterialData surfaceData, in LightingResult li
 
 #if CC_FORWARD_ADD
   // shadow and fresnel has already been applied with common flow
-  color.xyz += lightingResult.directDiffuse * lightingResult.diffuseColorWithLighting;
+  color.xyz += lightingResult.directDiffuse * lightingResult.diffuseColorWithLighting
     + lightingResult.directSpecular * lightingResult.specularColorWithLighting;
   #if CC_SURFACES_LIGHTING_TRANSMIT_SPECULAR
-    + lightingResult.directTransmitSpecular * lightingResult.specularColorWithLighting;
+    + lightingResult.directTransmitSpecular * lightingResult.specularColorWithLighting
   #endif
-
+  ;
+  
 #else
   float fresnel = 1.0;
   #if CC_SURFACES_LIGHTING_USE_FRESNEL
@@ -161,7 +162,7 @@ vec4 CCSurfacesShading(in SurfacesMaterialData surfaceData, in LightingResult li
     ( lightingResult.directDiffuse * lightingResult.diffuseColorWithLighting
     + lightingResult.directSpecular * lightingResult.specularColorWithLighting * fresnel
   #if CC_SURFACES_LIGHTING_TRANSMIT_SPECULAR
-    + lightingResult.directTransmitSpecular * lightingResult.specularColorWithLighting * (1.0 - fresnel);
+    + lightingResult.directTransmitSpecular * lightingResult.specularColorWithLighting * (1.0 - fresnel)
   #endif
   #if CC_SURFACES_LIGHTING_TRT
     + lightingResult.directTRT * lightingResult.specularColorWithLighting
@@ -179,7 +180,7 @@ vec4 CCSurfacesShading(in SurfacesMaterialData surfaceData, in LightingResult li
     ( lightingResult.environmentDiffuse * lightingResult.diffuseColorWithLighting
     + lightingResult.environmentSpecular * lightingResult.specularColorWithLighting * fresnel
   #if CC_SURFACES_LIGHTING_TRANSMIT_SPECULAR
-    + lightingResult.environmentTransmitSpecular * lightingResult.specularColorWithLighting * (1.0 - fresnel);
+    + lightingResult.environmentTransmitSpecular * lightingResult.specularColorWithLighting * (1.0 - fresnel)
   #endif
   #if CC_SURFACES_LIGHTING_TRT
     + lightingResult.environmentTRT * lightingResult.specularColorWithLighting
