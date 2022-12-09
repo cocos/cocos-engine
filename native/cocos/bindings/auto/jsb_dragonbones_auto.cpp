@@ -12461,6 +12461,38 @@ static bool js_dragonBones_CCFactory_getDragonBones(se::State& s)
 }
 SE_BIND_FUNC(js_dragonBones_CCFactory_getDragonBones) 
 
+static bool js_dragonBones_CCFactory_getDragonBonesDataByUUID(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    dragonBones::CCFactory *arg1 = (dragonBones::CCFactory *) NULL ;
+    std::string *arg2 = 0 ;
+    std::string temp2 ;
+    dragonBones::DragonBonesData *result = 0 ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<dragonBones::CCFactory>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    arg2 = &temp2;
+    
+    result = (dragonBones::DragonBonesData *)(arg1)->getDragonBonesDataByUUID((std::string const &)*arg2);
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_dragonBones_CCFactory_getDragonBonesDataByUUID) 
+
 static bool js_dragonBones_CCFactory_removeTextureAtlasDataByIndex(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -12739,6 +12771,7 @@ bool js_register_dragonBones_CCFactory(se::Object* obj) {
     cls->defineFunction("setTimeScale", _SE(js_dragonBones_CCFactory_setTimeScale)); 
     cls->defineFunction("getTimeScale", _SE(js_dragonBones_CCFactory_getTimeScale)); 
     cls->defineFunction("getDragonBones", _SE(js_dragonBones_CCFactory_getDragonBones)); 
+    cls->defineFunction("getDragonBonesDataByUUID", _SE(js_dragonBones_CCFactory_getDragonBonesDataByUUID)); 
     cls->defineFunction("removeTextureAtlasDataByIndex", _SE(js_dragonBones_CCFactory_removeTextureAtlasDataByIndex)); 
     cls->defineFunction("removeDragonBonesDataByUUID", _SE(js_dragonBones_CCFactory_removeDragonBonesDataByUUID)); 
     cls->defineFunction("getTextureAtlasDataByIndex", _SE(js_dragonBones_CCFactory_getTextureAtlasDataByIndex)); 
