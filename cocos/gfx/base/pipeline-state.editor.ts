@@ -231,7 +231,6 @@ export class BlendTargetEditor extends BlendTarget {
     public blendColorMask = ColorMask.ALL;
 }
 
-// description of pipeline-state.ts class BlendState
 @ccclass('BlendState')
 export class BlendStateEditor extends BlendState {
     @serializable
@@ -264,7 +263,6 @@ export class BlendStateEditor extends BlendState {
     }
 }
 
-// description of pipeline-state.ts class IPassStates
 @ccclass('PassStates')
 export class PassStatesEditor implements EffectAsset.IPassStates {
     @serializable
