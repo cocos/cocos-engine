@@ -629,18 +629,23 @@ bool sevalue_to_native(const se::Value &from, ccstd::array<uint8_t, CNT> *to, se
 }
 
 template <typename T>
-bool sevalue_to_native(const se::Value &from, ccstd::variant<T, ccstd::vector<T>> *to, se::Object *ctx) { // NOLINT
+bool sevalue_to_native(const se::Value &from, ccstd::variant<ccstd::monostate, T, ccstd::vector<T>> *to, se::Object *ctx) { // NOLINT
     se::Object *array = from.toObject();
+    bool ok = false;
     if (array->isArray()) {
         ccstd::vector<T> result;
-        sevalue_to_native(from, &result, ctx);
-        *to = std::move(result);
+        ok = sevalue_to_native(from, &result, ctx);
+        if (ok) {
+            *to = std::move(result);
+        }
     } else {
         T result;
-        sevalue_to_native(from, &result, ctx);
-        *to = result;
+        ok = sevalue_to_native(from, &result, ctx);
+        if (ok) {
+            *to = std::move(result);
+        }
     }
-    return true;
+    return ok;
 }
 
 ////////////////// TypedArray
