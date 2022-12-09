@@ -966,26 +966,6 @@ bool sevalue_to_native(const se::Value &from, cc::IPropertyValue *to, se::Object
 }
 
 // NOLINTNEXTLINE(readability-identifier-naming)
-bool sevalue_to_native(const se::Value &from, cc::MaterialPropertyVariant *to, se::Object *ctx) {
-    bool ok = false;
-    if (from.isObject() && from.toObject()->isArray()) {
-        cc::MaterialPropertyList propertyList{};
-        ok = sevalue_to_native(from, &propertyList, ctx);
-        if (ok) {
-            *to = std::move(propertyList);
-        }
-    } else {
-        cc::MaterialProperty property;
-        ok = sevalue_to_native(from, &property, ctx);
-        if (ok) {
-            *to = std::move(property);
-        }
-    }
-
-    return true;
-}
-
-// NOLINTNEXTLINE(readability-identifier-naming)
 bool sevalue_to_native(const se::Value &from, cc::ArrayBuffer *to, se::Object * /*ctx*/) {
     CC_ASSERT(from.isObject());
     to->setJSArrayBuffer(from.toObject());

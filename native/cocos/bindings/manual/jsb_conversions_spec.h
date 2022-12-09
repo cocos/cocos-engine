@@ -370,7 +370,6 @@ inline bool sevalue_to_native(const se::Value & /*from*/, ccstd::monostate * /*t
     // nothing todo
     return false;
 }
-bool sevalue_to_native(const se::Value &from, cc::MaterialPropertyVariant *to, se::Object *ctx); // NOLINT(readability-identifier-naming)
 
 //////////////////////// scene info
 bool sevalue_to_native(const se::Value &from, cc::scene::FogInfo *, se::Object * /*ctx*/);     // NOLINT(readability-identifier-naming)
