@@ -65,7 +65,7 @@ vec3 SampleEnvironmentSpecular(samplerCube tex, in LightingIntermediateData ligh
     #if CC_SURFACES_LIGHTING_ANISOTROPIC && !CC_SURFACES_LIGHTING_ANISOTROPIC_ENVCONVOLUTION_COUNT
       vec3 R = GetAnisotropicReflect(roughness, lightingData.anisotropyShape, lightingData.V, lightingData.N, lightingData.T, lightingData.B);
     #else
-      vec3 R = reflect(-lightingData.V, lightingData.N);
+      vec3 R = CalculateReflectDirection(lightingData.N, lightingData.V, lightingData.NoV);
     #endif
 
     #if CC_SURFACES_LIGHTING_ANISOTROPIC && CC_SURFACES_LIGHTING_ANISOTROPIC_ENVCONVOLUTION_COUNT
@@ -118,7 +118,7 @@ vec3 CalculateEnvironmentSpecular(in LightingIntermediateData lightingData, floa
   #if CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_CUBE
     envSpec = SampleEnvironmentSpecular(cc_reflectionProbeCubemap, lightingData, cc_ambientGround.w);
   #elif CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_PLANAR
-    vec3 R = normalize(reflect(-lightingData.V, lightingData.N));
+    vec3 R = normalize(CalculateReflectDirection(lightingData.N, lightingData.V, lightingData.NoV));
     vec3 worldPos;
     HIGHP_VALUE_FROM_STRUCT_DEFINED(worldPos, lightingData.worldPosition);
     vec2 screenUV = GetPlanarReflectScreenUV(worldPos, cc_matViewProj, cc_cameraPos.w, lightingData.V, R);
