@@ -138,6 +138,16 @@ static void registerOnTransformChanged(cc::Node *node, se::Object *jsObject) {
         });
 }
 
+static void registerOnAncestorTransformChanged(cc::Node *node, se::Object *jsObject) {
+    node->on<cc::Node::AncestorTransformChanged>(
+        [jsObject](cc::Node * /* emitter*/, cc::TransformBit transformBit) {
+            se::AutoHandleScope hs;
+            se::Value arg0;
+            nativevalue_to_se(transformBit, arg0);
+            se::ScriptEngine::getInstance()->callFunction(jsObject, "_onAncestorTransformChanged", 1, &arg0);
+        });
+}
+
 static void registerOnParentChanged(cc::Node *node, se::Object *jsObject) {
     node->on<cc::Node::ParentChanged>(
         [jsObject](cc::Node * /*emitter*/, cc::Node *oldParent) {
@@ -145,6 +155,14 @@ static void registerOnParentChanged(cc::Node *node, se::Object *jsObject) {
             se::Value arg0;
             nativevalue_to_se(oldParent, arg0);
             se::ScriptEngine::getInstance()->callFunction(jsObject, "_onParentChanged", 1, &arg0);
+        });
+}
+
+static void registerOnMobilityChanged(cc::Node *node, se::Object *jsObject) {
+    node->on<cc::Node::MobilityChanged>(
+        [jsObject](cc::Node * /*emitter*/) {
+            se::AutoHandleScope hs;
+            se::ScriptEngine::getInstance()->callFunction(jsObject, "_onMobilityChanged", 0, nullptr);
         });
 }
 
@@ -327,6 +345,18 @@ static bool js_scene_Node_registerOnTransformChanged(se::State &s) // NOLINT(rea
 }
 SE_BIND_FUNC(js_scene_Node_registerOnTransformChanged) // NOLINT(readability-identifier-naming)
 
+static bool js_scene_Node_registerOnAncestorTransformChanged(se::State &s) // NOLINT(readability-identifier-naming)
+{
+    auto *cobj = SE_THIS_OBJECT<cc::Node>(s);
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+
+    auto *jsObject = s.thisObject();
+
+    registerOnAncestorTransformChanged(cobj, jsObject);
+    return true;
+}
+SE_BIND_FUNC(js_scene_Node_registerOnAncestorTransformChanged) // NOLINT(readability-identifier-naming)
+
 static bool js_scene_Node_registerOnParentChanged(se::State &s) // NOLINT(readability-identifier-naming)
 {
     auto *cobj = SE_THIS_OBJECT<cc::Node>(s);
@@ -338,6 +368,18 @@ static bool js_scene_Node_registerOnParentChanged(se::State &s) // NOLINT(readab
     return true;
 }
 SE_BIND_FUNC(js_scene_Node_registerOnParentChanged) // NOLINT(readability-identifier-naming)
+
+static bool js_scene_Node_registerOnMobilityChanged(se::State &s) // NOLINT(readability-identifier-naming)
+{
+    auto *cobj = SE_THIS_OBJECT<cc::Node>(s);
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+
+    auto *jsObject = s.thisObject();
+
+    registerOnMobilityChanged(cobj, jsObject);
+    return true;
+}
+SE_BIND_FUNC(js_scene_Node_registerOnMobilityChanged) // NOLINT(readability-identifier-naming)
 
 static bool js_scene_Node_registerOnLayerChanged(se::State &s) // NOLINT(readability-identifier-naming)
 {
@@ -803,7 +845,9 @@ bool register_all_scene_manual(se::Object *obj) // NOLINT(readability-identifier
     __jsb_cc_Node_proto->defineFunction("_registerListeners", _SE(js_scene_Node_registerListeners));
 
     __jsb_cc_Node_proto->defineFunction("_registerOnTransformChanged", _SE(js_scene_Node_registerOnTransformChanged));
+    __jsb_cc_Node_proto->defineFunction("_registerOnAncestorTransformChanged", _SE(js_scene_Node_registerOnAncestorTransformChanged));
     __jsb_cc_Node_proto->defineFunction("_registerOnParentChanged", _SE(js_scene_Node_registerOnParentChanged));
+    __jsb_cc_Node_proto->defineFunction("_registerOnMobilityChanged", _SE(js_scene_Node_registerOnMobilityChanged));
     __jsb_cc_Node_proto->defineFunction("_registerOnLayerChanged", _SE(js_scene_Node_registerOnLayerChanged));
     __jsb_cc_Node_proto->defineFunction("_registerOnChildRemoved", _SE(js_scene_Node_registerOnChildRemoved));
     __jsb_cc_Node_proto->defineFunction("_registerOnChildAdded", _SE(js_scene_Node_registerOnChildAdded));

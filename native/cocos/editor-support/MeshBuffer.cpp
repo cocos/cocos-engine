@@ -48,7 +48,7 @@ MeshBuffer::MeshBuffer(int vertexFormat)
 MeshBuffer::MeshBuffer(int vertexFormat, size_t indexSize, size_t vertexSize)
 : _vertexFormat(vertexFormat), _ib(indexSize), _vb(vertexSize * vertexFormat * sizeof(float)) {
     _vb.setMaxSize(MAX_VERTEX_BUFFER_SIZE * _vertexFormat * sizeof(float));
-    _ib.setMaxSize(INIT_INDEX_BUFFER_SIZE);
+    _ib.setMaxSize(100 * INIT_INDEX_BUFFER_SIZE);
     _vb.setFullCallback([this] {
         uploadVB();
         uploadIB();
@@ -103,6 +103,9 @@ void MeshBuffer::uploadIB() {
 
     auto *rIB = _ibArr[_bufferPos];
     rIB->reset();
+    if (rIB->getCapacity() < length) {
+        rIB->resize(length, false);
+    }
     rIB->writeBytes(reinterpret_cast<const char *>(_ib.getBuffer()), _ib.length());
     auto *uiMeshBuffer = _uiMeshBufferArr[_bufferPos];
     uiMeshBuffer->setIData(reinterpret_cast<uint16_t *>(rIB->getBuffer()));

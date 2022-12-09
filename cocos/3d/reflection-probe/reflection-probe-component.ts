@@ -24,17 +24,17 @@
  */
 import { ccclass, executeInEditMode, menu, playOnFocus, serializable, tooltip, type, visible } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
-import { CCObject, Color, Enum, size, Vec3 } from '../core';
+import { CCObject, Color, Enum, size, Vec3 } from '../../core';
 
-import { TextureCube } from '../asset/assets';
-import { scene } from '../render-scene';
-import { CAMERA_DEFAULT_MASK } from '../rendering/define';
-import { ReflectionProbeManager } from '../rendering/reflection-probe-manager';
-import { Component } from '../scene-graph/component';
-import { Layers } from '../scene-graph/layers';
-import { Camera } from './camera-component';
-import { Node, TransformBit } from '../scene-graph';
-import { ProbeClearFlag, ProbeType } from '../render-scene/scene/reflection-probe';
+import { TextureCube } from '../../asset/assets';
+import { scene } from '../../render-scene';
+import { CAMERA_DEFAULT_MASK } from '../../rendering/define';
+import { ReflectionProbeManager } from '../../rendering/reflection-probe-manager';
+import { Component } from '../../scene-graph/component';
+import { Layers } from '../../scene-graph/layers';
+import { Camera } from '../../misc/camera-component';
+import { Node, TransformBit } from '../../scene-graph';
+import { ProbeClearFlag, ProbeType } from '../../render-scene/scene/reflection-probe';
 
 export enum ProbeResolution {
     /**

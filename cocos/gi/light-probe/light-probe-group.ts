@@ -236,8 +236,7 @@ export class LightProbeGroup extends Component {
             return;
         }
 
-        const updateTet = !this.node.scene.globals.lightProbeInfo.isUniqueNode();
         this.node.updateWorldTransform();
-        this.onProbeChanged(updateTet);
+        this.onProbeChanged(false);
     }
 }

@@ -34,13 +34,24 @@ import { LayoutGraphData } from './layout-graph';
 import { IProgramInfo } from '../../render-scene/core/program-lib';
 
 export class ProgramInfo {
-    constructor (programInfo: IProgramInfo, shaderInfo: ShaderInfo) {
+    constructor (
+        programInfo: IProgramInfo,
+        shaderInfo: ShaderInfo,
+        attributes: Attribute[],
+        blockSizes: number[],
+        handleMap: Record<string, number>,
+    ) {
         this.programInfo = programInfo;
         this.shaderInfo = shaderInfo;
+        this.attributes = attributes;
+        this.blockSizes = blockSizes;
+        this.handleMap = handleMap;
     }
     readonly programInfo: IProgramInfo;
     readonly shaderInfo: ShaderInfo;
-    readonly attributes: Attribute[] = [];
+    readonly attributes: Attribute[];
+    readonly blockSizes: number[];
+    readonly handleMap: Record<string, number>;
 }
 
 export class ProgramHost {
@@ -61,4 +72,5 @@ export class ProgramLibraryData {
     }
     /*pointer*/ layoutGraph: LayoutGraphData;
     readonly phases: Map<number, ProgramGroup> = new Map<number, ProgramGroup>();
+    mergeHighFrequency = false;
 }

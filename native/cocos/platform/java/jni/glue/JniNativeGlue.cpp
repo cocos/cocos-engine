@@ -31,6 +31,9 @@
 #include "platform/java/jni/JniImp.h"
 #include "platform/java/jni/glue/MessagePipe.h"
 #include "platform/java/jni/log.h"
+#include "platform/java/modules/SystemWindow.h"
+#include "platform/java/modules/SystemWindowManager.h"
+#include "application/ApplicationManager.h"
 
 namespace cc {
 JniNativeGlue::~JniNativeGlue() = default;
@@ -214,16 +217,25 @@ void JniNativeGlue::engineHandleCmd(JniCommand cmd) {
     // Handle CMD here if needed.
     switch (cmd) {
         case JniCommand::JNI_CMD_INIT_WINDOW: {
-            if (!isWindowInitialized) {
-                isWindowInitialized = true;
-                return;
-            }
-            // FIXME: getWindowId
-            events::WindowRecreated::broadcast((uint32_t)(uintptr_t)getWindowHandle()); // NOLINT
+            if (isWindowInitialized) {
+			    return;
+            } 
+			isWindowInitialized = true;
+            // cc::CustomEvent event;
+            // event.name = EVENT_RECREATE_WINDOW;
+            // event.args->ptrVal = reinterpret_cast<void*>(getWindowHandle());
+            ISystemWindowInfo info;
+            info.width = getWidth();
+            info.height = getHeight();
+            info.externalHandle = getWindowHandle();
+            BasePlatform* platform = cc::BasePlatform::getPlatform();
+            auto *windowMgr = platform->getInterface<SystemWindowManager>();
+            CC_ASSERT(windowMgr != nullptr);
+            windowMgr->createWindow(info);
+            events::WindowRecreated::broadcast(ISystemWindow::mainWindowId);
         } break;
         case JniCommand::JNI_CMD_TERM_WINDOW: {
-            // FIXME: getWindowId
-            events::WindowDestroy::broadcast((uint32_t)(uintptr_t)getWindowHandle()); // NOLINT
+            events::WindowDestroy::broadcast(ISystemWindow::mainWindowId);
         } break;
         case JniCommand::JNI_CMD_RESUME: {
             events::WindowChanged::broadcast(WindowEvent::Type::SHOW);

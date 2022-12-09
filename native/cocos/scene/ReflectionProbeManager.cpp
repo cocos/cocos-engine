@@ -45,7 +45,9 @@ void ReflectionProbeManager::registerProbe(scene::ReflectionProbe* probe) {
 }
 void ReflectionProbeManager::unRegisterProbe(scene::ReflectionProbe* probe) {
     const auto iter = std::find(_probes.begin(), _probes.end(), probe);
-    _probes.erase(iter);
+    if (iter != _probes.end()) {
+        _probes.erase(iter);
+    }
 }
 
 } // namespace scene

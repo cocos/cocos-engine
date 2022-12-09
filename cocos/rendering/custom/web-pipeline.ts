@@ -830,6 +830,7 @@ export class WebPipeline implements Pipeline {
         const jointUniformCapacity = UBOSkinning.JOINT_UNIFORM_CAPACITY;
         str += `#define CC_JOINT_UNIFORM_CAPACITY ${jointUniformCapacity}\n`;
         this._constantMacros = str;
+        this._layoutGraph.constantMacros = this._constantMacros;
     }
     public setCustomPipelineName (name: string) {
         this._customPipelineName = name;
