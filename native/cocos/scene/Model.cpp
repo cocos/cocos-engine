@@ -28,6 +28,8 @@
 #include "core/Root.h"
 #include "core/TypedArray.h"
 #include "core/assets/Material.h"
+#include "core/scene-graph/Scene.h"
+#include "core/scene-graph/SceneGlobals.h"
 #include "gfx-base/GFXTexture.h"
 #include "gi/light-probe/LightProbe.h"
 #include "gi/light-probe/SH.h"
@@ -62,6 +64,8 @@ const cc::gfx::SamplerInfo LIGHTMAP_SAMPLER_WITH_MIP_HASH{
 const ccstd::vector<cc::scene::IMacroPatch> SHADOW_MAP_PATCHES{{"CC_RECEIVE_SHADOW", true}};
 const ccstd::vector<cc::scene::IMacroPatch> LIGHT_PROBE_PATCHES{{"CC_USE_LIGHT_PROBE", true}};
 const ccstd::string CC_USE_REFLECTION_PROBE = "CC_USE_REFLECTION_PROBE";
+const ccstd::vector<cc::scene::IMacroPatch> STATIC_LIGHTMAP_PATHES{{"CC_USE_LIGHTMAP", 1}};
+const ccstd::vector<cc::scene::IMacroPatch> STATIONARY_LIGHTMAP_PATHES{{"CC_USE_LIGHTMAP", 2}};
 } // namespace
 
 namespace cc {
@@ -429,6 +433,23 @@ ccstd::vector<IMacroPatch> Model::getMacroPatches(index_t subModelIndex) {
     }
 
     patches.push_back({CC_USE_REFLECTION_PROBE, _reflectionProbeType});
+
+    if (_lightmap != nullptr) {
+        bool stationary = false;
+        if (getNode() != nullptr && getNode()->getScene() != nullptr) {
+            stationary = getNode()->getScene()->getSceneGlobals()->getBakedWithStationaryMainLight();
+        }
+
+        if (stationary) {
+            for (const auto &patch : STATIONARY_LIGHTMAP_PATHES) {
+                patches.push_back(patch);
+            }
+        } else {
+            for (const auto &patch : STATIC_LIGHTMAP_PATHES) {
+                patches.push_back(patch);
+            }
+        }
+    }
 
     return patches;
 }
