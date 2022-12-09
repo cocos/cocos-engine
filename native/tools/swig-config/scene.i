@@ -532,6 +532,8 @@ using namespace cc;
 %attribute(cc::scene::ReflectionProbe, uint32_t, visibility, getVisibility, setVisibility);
 %attribute(cc::scene::ReflectionProbe, cc::Vec3&, size, getBoudingSize, setBoudingSize);
 %attribute(cc::scene::ReflectionProbe, cc::geometry::AABB *, boundingBox, getBoundingBox);
+%attribute(cc::scene::ReflectionProbe, cc::Node*, previewSphere, getPreviewSphere, setPreviewSphere);
+%attribute(cc::scene::ReflectionProbe, cc::Node*, previewPlane, getPreviewPlane, setPreviewPlane);
 
 
 
