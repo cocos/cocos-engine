@@ -300,7 +300,7 @@ const cacheManager = require('./jsb-cache-manager');
     const dbAsset = cc.internal.DragonBonesAsset.prototype;
 
     dbAsset.init = function (factory, atlasUUID) {
-        this._factory = factory;
+        this._factory = factory || dragonBones.CCFactory.getInstance();
 
         // If create by manual, uuid is empty.
         // Only support json format, if remote load dbbin, must set uuid by manual.
@@ -308,7 +308,7 @@ const cacheManager = require('./jsb-cache-manager');
             const rawData = JSON.parse(this.dragonBonesJson);
             this._uuid = rawData.name;
         }
-
+        
         const armatureKey = `${this._uuid}#${atlasUUID}`;
         const dragonBonesData = this._factory.getDragonBonesData(armatureKey);
         if (dragonBonesData) return armatureKey;
