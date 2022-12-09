@@ -99,7 +99,7 @@ void SceneGlobals::setLightProbeInfo(gi::LightProbeInfo *info) {
     _lightProbeInfo = info;
 }
 
-void SceneGlobals::setbakedWithStationaryMainLight(bool value) {
+void SceneGlobals::setBakedWithStationaryMainLight(bool value) {
     _bakedWithStationaryMainLight = value;
 }
 
