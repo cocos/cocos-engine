@@ -623,7 +623,7 @@ const Elements = {
     header: {
         ready() {
             const panel = this;
-            panel.$.active.addEventListener('change', (event) => {
+            panel.$.active.addEventListener('confirm', (event) => {
                 const value = event.target.value;
                 const dump = event.target.dump;
 
@@ -635,6 +635,7 @@ const Elements = {
                     });
                 }
                 panel.$.active.dispatch('change-dump');
+                panel.$.active.dispatch('confirm-dump');
             });
 
             panel.$.name.addEventListener('change', (event) => {
@@ -649,6 +650,9 @@ const Elements = {
                     });
                 }
                 panel.$.name.dispatch('change-dump');
+            });
+            panel.$.name.addEventListener('confirm', () => {
+                panel.$.name.dispatch('confirm-dump');
             });
         },
         update() {
@@ -667,13 +671,17 @@ const Elements = {
                 activeDisabled = true;
                 nameDisabled = true;
             } else {
+
                 if (panel.dumps && panel.dumps.length > 1) {
                     if (panel.dumps.some((dump) => dump.active.value !== panel.dump.active.value)) {
                         activeInvalid = true;
                     }
 
-                    if (panel.dumps.some((dump) => dump.name.value !== panel.dump.name.value)) {
-                        nameInvalid = true;
+                    // 在输入中的时候不做数据校验
+                    if (!panel.$.name.$input.matches(':focus')) {
+                        if (panel.dumps.some((dump) => dump.name.value !== panel.dump.name.value)) {
+                            nameInvalid = true;
+                        }
                     }
                 }
             }
