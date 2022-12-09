@@ -158,6 +158,7 @@ function replaceVertexMutableLocation (
             let location = 0;
             // only vertexshader input is checked
             if (inOrOut === 'in') {
+                const targetStr = source.slice(0, locHolder.index);
                 // attrInfo?.defines store defines need to be satisfied
                 // macroInfo stores value of defines
                 // '!CC_USE_XXX' starts with a '!' is inverse condition.
@@ -170,7 +171,42 @@ function replaceVertexMutableLocation (
                     if (v) {
                         res = !(v.value === '0' || v.value === 'false' || v.value === 'FALSE');
                     }
-                    return inverseCond ? !res : res;
+                    res = inverseCond ? !res : res;
+                    if (res) {
+                        // #if CC_RENDER_MODE == xx ......
+                        // 'CC_RENDER_MODE == 1' or ' CC_RENDER_MODE == 1 ||  CC_RENDER_MODE == 4'
+                        const lastIfRegStr = `[\\n|\\s]+#(?:if|elif)(.*?${defStr}.*?(?:(?!#if|#elif).)*)[\\n|\\s]+$`;
+                        const lastIfReg = new RegExp(lastIfRegStr, 'g');
+                        const lastIfRes = lastIfReg.exec(targetStr);
+                        if (lastIfRes) {
+                            const evalStr = lastIfRes[1];
+                            const evalORElements = evalStr.split('||');
+                            // simple grammar, no parenthesses support yet.
+                            const evalRes = evalORElements.some((eleOrTestStr) => {
+                                const evalANDElements = eleOrTestStr.split('&&');
+                                return evalANDElements.every((eleAndTestStr) => {
+                                    let evalEleRes = true;
+                                    if (eleAndTestStr.includes('==')) {
+                                        const opVars = eleAndTestStr.split('==');
+                                        if ((opVars[0] as any).replaceAll(' ', '') === defStr) {
+                                            evalEleRes = (opVars[1] as any).replaceAll(' ', '') === v!.value;
+                                        }
+                                    } else if (eleAndTestStr.includes('!=')) {
+                                        const opVars = eleAndTestStr.split('!=');
+                                        if ((opVars[0] as any).replaceAll(' ', '') === defStr) {
+                                            evalEleRes = (opVars[1] as any).replaceAll(' ', '') !== v!.value;
+                                        }
+                                    } else {
+                                        // no compare just define or not
+                                        // expect to be true
+                                    }
+                                    return evalEleRes;
+                                });
+                            });
+                            res = res && evalRes;
+                        }
+                    }
+                    return res;
                 });
             }
 
@@ -205,7 +241,6 @@ function replaceFragmentLocation (
     const locHolderRegStr = `layout\\(location = ([^\\)]+)\\)\\s+${inOrOut}.*?\\s(\\w+)[;,\\)]`;
     const locHolderReg = new RegExp(locHolderRegStr, 'g');
 
-    const locSet = new Set<number>();
     // layout(location = 3) in mediump vec3 v_normal;
     // 3
     // v_normal
@@ -218,16 +253,10 @@ function replaceFragmentLocation (
             if (inOrOut === 'in') {
                 // {...fragment_in} === {...vertex_out}
                 location = attrMap.get(attrName) || 0;
-            } else {
-                // no check on (vertex out)/(frament in/out)
-                while (locSet.has(location)) {
-                    location++;
-                }
-            }
-            locSet.add(location);
 
-            const locInstStr = locHolder[0].replace(locHolder[1], `${location}`);
-            code = code.replace(locHolder[0], locInstStr);
+                const locInstStr = locHolder[0].replace(locHolder[1], `${location}`);
+                code = code.replace(locHolder[0], locInstStr);
+            }
         }
         locHolder = locHolderReg.exec(source);
     }
@@ -251,7 +280,6 @@ export function flattenShaderLocation (
         code = replaceVertexMutableLocation(code, tmpl, macroInfo, 'out', attrMap);
     } else if (shaderStage === 'frag') {
         code = replaceFragmentLocation(code, 'in', attrMap);
-        code = replaceFragmentLocation(code, 'out', attrMap);
     } else {
         // error
     }
