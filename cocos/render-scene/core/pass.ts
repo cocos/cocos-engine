@@ -838,6 +838,8 @@ export class Pass {
     get primitive (): PrimitiveMode { return this._primitive; }
     get stage (): RenderPassStage { return this._stage; }
     get phase (): number { return this._phase; }
+    get passID (): number { return this._passID; }
+    get phaseID (): number { return this._phaseID; }
     get rasterizerState (): RasterizerState { return this._rs; }
     get depthStencilState (): DepthStencilState { return this._dss; }
     get blendState (): BlendState { return this._bs; }
