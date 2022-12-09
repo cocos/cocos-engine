@@ -1111,7 +1111,7 @@ bool sevalue_to_native(const se::Value &from, cc::IBArray *to, se::Object * /*ct
         [&](auto &typedArray) {
             typedArray.setJSTypedArray(from.toObject());
         },
-        [](ccstd::monostate&) {}
+        [](ccstd::monostate& /*unused*/) {}
     },
                  *to);
 

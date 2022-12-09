@@ -239,7 +239,7 @@ float narrowphase(float *minDis, const Float32Array &vb, const IBArray &ib, gfx:
         [](const auto &arr) {
             return arr.length();
         },
-        [](const ccstd::monostate&) {
+        [](const ccstd::monostate& /*unused*/) {
             return static_cast<uint32_t>(0);
         }
     },
@@ -292,7 +292,7 @@ float narrowphase(float *minDis, const Float32Array &vb, const IBArray &ib, gfx:
             }
         }
         return *minDis;
-    }, [](const ccstd::monostate&){ return 0.F; }},
+    }, [](const ccstd::monostate& /*unused*/){ return 0.F; }},
                         ib);
 }
 } // namespace

@@ -54,7 +54,7 @@ int32_t DataView::readInt(ReaderVariant &readerVariant, uint32_t offset) {
         [offset, this](auto &reader) {
             return static_cast<int32_t>((this->*reader)(offset));
         },
-        [](ccstd::monostate&){ return 0; }
+        [](ccstd::monostate& /*unused*/){ return 0; }
     },
                         readerVariant);
 }
