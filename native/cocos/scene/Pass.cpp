@@ -335,7 +335,7 @@ void Pass::resetUniform(const ccstd::string &name) {
     const uint32_t ofs = Pass::getOffsetFromHandle(handle);
     const uint32_t count = Pass::getCountFromHandle(handle);
     auto &block = _blocks[binding];
-    IPropertyValue givenDefaultOpt;
+    ccstd::optional<IPropertyValue> givenDefaultOpt;
     auto iter = _properties.find(name);
     if (iter != _properties.end()) {
         givenDefaultOpt = iter->second.value;
