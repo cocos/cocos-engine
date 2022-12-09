@@ -40,6 +40,7 @@ import { IDescriptorSetLayoutInfo, localDescriptorSetLayout } from '../define';
 const INVALID_ID = 0xFFFFFFFF;
 const _setIndex = [2, 1, 3, 0];
 
+// make IProgramInfo from IShaderInfo
 function makeProgramInfo (effectName: string, shader: EffectAsset.IShaderInfo): IProgramInfo {
     const programInfo = { ...shader } as IProgramInfo;
     programInfo.effectName = effectName;
@@ -49,6 +50,7 @@ function makeProgramInfo (effectName: string, shader: EffectAsset.IShaderInfo): 
     return programInfo;
 }
 
+// overwrite IProgramInfo using gfx.ShaderInfo
 function overwriteProgramBlockInfo (shaderInfo: ShaderInfo, programInfo: IProgramInfo) {
     const set = _setIndex[UpdateFrequency.PER_BATCH];
     for (const block of programInfo.blocks) {
@@ -69,7 +71,8 @@ function overwriteProgramBlockInfo (shaderInfo: ShaderInfo, programInfo: IProgra
     }
 }
 
-function populateMixedShaderInfo (
+// add descriptor to size-reserved descriptor set
+function populateGroupedShaderInfo (
     layout: DescriptorSetLayoutData,
     descriptorInfo: EffectAsset.IDescriptorInfo,
     set: number, shaderInfo: ShaderInfo, blockSizes: number[],
@@ -170,6 +173,7 @@ function populateMixedShaderInfo (
     }
 }
 
+// add merged descriptor to gfx.ShaderInfo
 function populateMergedShaderInfo (valueNames: string[],
     layout: DescriptorSetLayoutData,
     set: number, shaderInfo: ShaderInfo, blockSizes: number[]) {
@@ -256,6 +260,7 @@ function populateMergedShaderInfo (valueNames: string[],
     }
 }
 
+// add descriptor from effect to gfx.ShaderInfo
 function populateShaderInfo (
     descriptorInfo: EffectAsset.IDescriptorInfo,
     set: number, shaderInfo: ShaderInfo, blockSizes: number[],
@@ -304,6 +309,7 @@ function populateShaderInfo (
     }
 }
 
+// add fixed local descriptors to gfx.ShaderInfo
 function populateLocalShaderInfo (
     target: EffectAsset.IDescriptorInfo,
     source: IDescriptorSetLayoutInfo, shaderInfo: ShaderInfo, blockSizes: number[],
@@ -335,6 +341,7 @@ function populateLocalShaderInfo (
     }
 }
 
+// make gfx.ShaderInfo
 function makeShaderInfo (
     lg: LayoutGraphData,
     passLayouts: PipelineLayoutData,
@@ -370,7 +377,7 @@ function makeShaderInfo (
         } else {
             const batchLayout = phaseLayouts.descriptorSets.get(UpdateFrequency.PER_BATCH);
             if (batchLayout) {
-                populateMixedShaderInfo(batchLayout.descriptorSetLayoutData,
+                populateGroupedShaderInfo(batchLayout.descriptorSetLayoutData,
                     batchInfo, _setIndex[UpdateFrequency.PER_BATCH],
                     shaderInfo, blockSizes);
             }
@@ -391,7 +398,7 @@ function makeShaderInfo (
         } else {
             const instanceLayout = phaseLayouts.descriptorSets.get(UpdateFrequency.PER_INSTANCE);
             if (instanceLayout) {
-                populateMixedShaderInfo(instanceLayout.descriptorSetLayoutData,
+                populateGroupedShaderInfo(instanceLayout.descriptorSetLayoutData,
                     instanceInfo, _setIndex[UpdateFrequency.PER_INSTANCE],
                     shaderInfo, blockSizes);
             }
@@ -415,7 +422,7 @@ class WebProgramProxy implements ProgramProxy {
     host: ProgramHost;
 }
 
-// function
+// find name and type from local descriptor set info
 function getDescriptorNameAndType (source: IDescriptorSetLayoutInfo, binding: number): [string, Type] {
     for (const name in source.layouts) {
         const v = source.layouts[name];
@@ -434,6 +441,7 @@ function getDescriptorNameAndType (source: IDescriptorSetLayoutInfo, binding: nu
     return ['', Type.UNKNOWN];
 }
 
+// make DescriptorSetLayoutData from local descriptor set info
 function makeLocalDescriptorSetLayoutData (lg: LayoutGraphData,
     source: IDescriptorSetLayoutInfo): DescriptorSetLayoutData {
     const data = new DescriptorSetLayoutData();
@@ -453,6 +461,7 @@ function makeLocalDescriptorSetLayoutData (lg: LayoutGraphData,
     return data;
 }
 
+// make descriptor sets for ShaderProgramData (PerBatch, PerInstance)
 function buildProgramData (
     programName: string,
     srcShaderInfo: EffectAsset.IShaderInfo,
@@ -504,6 +513,7 @@ function buildProgramData (
     phase.shaderPrograms.push(programData);
 }
 
+// get or create PerProgram gfx.DescriptorSetLayout
 function getOrCreateProgramDescriptorSetLayout (device: Device,
     lg: LayoutGraphData, phaseID: number,
     programName: string, rate: UpdateFrequency): DescriptorSetLayout {
@@ -526,6 +536,7 @@ function getOrCreateProgramDescriptorSetLayout (device: Device,
     return layout.descriptorSetLayout;
 }
 
+// get PerProgram gfx.DescriptorSetLayout
 function getProgramDescriptorSetLayout (device: Device,
     lg: LayoutGraphData, phaseID: number,
     programName: string, rate: UpdateFrequency): DescriptorSetLayout | null {
@@ -548,6 +559,7 @@ function getProgramDescriptorSetLayout (device: Device,
     return layout.descriptorSetLayout;
 }
 
+// find shader program in LayoutGraphData
 function getEffectShader (lg: LayoutGraphData, effect: EffectAsset,
     pass: EffectAsset.IPassInfo): [number, number, EffectAsset.IShaderInfo | null, number] {
     const programName = pass.program;
@@ -574,6 +586,7 @@ function getEffectShader (lg: LayoutGraphData, effect: EffectAsset,
     return [passID, phaseID, srcShaderInfo, shaderID];
 }
 
+// valid IShaderInfo is compatible
 function validateShaderInfo (srcShaderInfo: EffectAsset.IShaderInfo): number {
     // source shader info
     if (srcShaderInfo.descriptors === undefined) {
@@ -592,6 +605,7 @@ export class WebProgramLibrary extends ProgramLibraryData implements ProgramLibr
             }
         }
     }
+    // add effect to database
     addEffect (effect: EffectAsset): void {
         const lg = this.layoutGraph;
         for (const tech of effect.techniques) {
@@ -647,6 +661,7 @@ export class WebProgramLibrary extends ProgramLibraryData implements ProgramLibr
             }
         }
     }
+    // precompile effect
     precompileEffect (device: Device, effect: EffectAsset): void {
         const lg = this.layoutGraph;
         for (const tech of effect.techniques) {
@@ -671,6 +686,7 @@ export class WebProgramLibrary extends ProgramLibraryData implements ProgramLibr
             }
         }
     }
+    // get IProgramInfo
     getProgramInfo (phaseID: number, programName: string): IProgramInfo {
         assert(phaseID !== INVALID_ID);
         const group = this.phases.get(phaseID)!;
@@ -678,13 +694,14 @@ export class WebProgramLibrary extends ProgramLibraryData implements ProgramLibr
         return info.programInfo;
     }
 
+    // get gfx.ShaderInfo
     getShaderInfo (phaseID: number, programName: string): ShaderInfo {
         assert(phaseID !== INVALID_ID);
         const group = this.phases.get(phaseID)!;
         const info = group.programInfos.get(programName)!;
         return info.shaderInfo;
     }
-
+    // get shader key
     getKey (phaseID: number, programName: string, defines: MacroRecord): string {
         assert(phaseID !== INVALID_ID);
         // get phase
@@ -701,7 +718,7 @@ export class WebProgramLibrary extends ProgramLibraryData implements ProgramLibr
         }
         return getVariantKey(info.programInfo, defines);
     }
-
+    // get program variant
     getProgramVariant (device: Device, phaseID: number, name: string, defines: MacroRecord, key: string | null = null): ProgramProxy | null {
         assert(phaseID !== INVALID_ID);
         // get phase
@@ -758,6 +775,7 @@ export class WebProgramLibrary extends ProgramLibraryData implements ProgramLibr
         // create
         return new WebProgramProxy(host);
     }
+    // get material descriptor set layout
     getMaterialDescriptorSetLayout (device: Device, phaseID: number, programName: string): DescriptorSetLayout {
         if (this.mergeHighFrequency) {
             assert(phaseID !== INVALID_ID);
@@ -767,6 +785,7 @@ export class WebProgramLibrary extends ProgramLibraryData implements ProgramLibr
         return getOrCreateProgramDescriptorSetLayout(device, this.layoutGraph,
             phaseID, programName, UpdateFrequency.PER_BATCH);
     }
+    // get local descriptor set layout
     getLocalDescriptorSetLayout (device: Device, phaseID: number, programName: string): DescriptorSetLayout {
         if (this.mergeHighFrequency) {
             assert(phaseID !== INVALID_ID);
@@ -776,6 +795,7 @@ export class WebProgramLibrary extends ProgramLibraryData implements ProgramLibr
         return getOrCreateProgramDescriptorSetLayout(device, this.layoutGraph,
             phaseID, programName, UpdateFrequency.PER_INSTANCE);
     }
+    // get related uniform block sizes
     getBlockSizes (phaseID: number, programName: string): number[] {
         assert(phaseID !== INVALID_ID);
         const group = this.phases.get(phaseID);
@@ -790,6 +810,7 @@ export class WebProgramLibrary extends ProgramLibraryData implements ProgramLibr
         }
         return info.blockSizes;
     }
+    // get property handle map
     getHandleMap (phaseID: number, programName: string): Record<string, number> {
         assert(phaseID !== INVALID_ID);
         const group = this.phases.get(phaseID);
@@ -804,6 +825,7 @@ export class WebProgramLibrary extends ProgramLibraryData implements ProgramLibr
         }
         return info.handleMap;
     }
+    // get shader pipeline layout
     getPipelineLayout (device: Device, phaseID: number, programName: string): PipelineLayout {
         if (this.mergeHighFrequency) {
             assert(phaseID !== INVALID_ID);

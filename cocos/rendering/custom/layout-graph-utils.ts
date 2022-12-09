@@ -32,6 +32,7 @@ import { DescriptorBlockData, DescriptorData, DescriptorDB, DescriptorSetData, D
 import { LayoutGraphBuilder } from './pipeline';
 import { UpdateFrequency, getUpdateFrequencyName, getDescriptorTypeOrderName, Descriptor, DescriptorBlock, DescriptorBlockFlattened, DescriptorBlockIndex, DescriptorTypeOrder, ParameterType } from './types';
 
+// get name of gfx.Type
 function getGfxTypeName (type: Type): string {
     switch (type) {
     case Type.UNKNOWN: return 'Unknown';
@@ -85,6 +86,7 @@ function getGfxTypeName (type: Type): string {
     }
 }
 
+// get DescriptorType from DescriptorTypeOrder
 export function getGfxDescriptorType (type: DescriptorTypeOrder): DescriptorType {
     switch (type) {
     case DescriptorTypeOrder.UNIFORM_BUFFER:
@@ -111,6 +113,7 @@ export function getGfxDescriptorType (type: DescriptorTypeOrder): DescriptorType
     }
 }
 
+// get DescriptorTypeOrder from DescriptorType
 export function getDescriptorTypeOrder (type: DescriptorType): DescriptorTypeOrder {
     switch (type) {
     case DescriptorType.UNIFORM_BUFFER:
@@ -138,10 +141,12 @@ export function getDescriptorTypeOrder (type: DescriptorType): DescriptorTypeOrd
     }
 }
 
+// find passID using name
 export function getCustomPassID (lg: LayoutGraphData, name: string | undefined): number {
     return lg.locateChild(lg.nullVertex(), name || 'default');
 }
 
+// find phaseID using passID and phase name
 export function getCustomPhaseID (lg: LayoutGraphData, passID: number, name: string | number | undefined): number {
     if (name === undefined) {
         return lg.locateChild(passID, 'default');
@@ -152,10 +157,12 @@ export function getCustomPhaseID (lg: LayoutGraphData, passID: number, name: str
     return lg.locateChild(passID, name);
 }
 
+// check ShaderStageFlagBit has certain bits
 function hasFlag (flags: ShaderStageFlagBit, flagToTest: ShaderStageFlagBit): boolean {
     return (flags & flagToTest) !== 0;
 }
 
+// get name of visibility
 function getVisibilityName (stage: ShaderStageFlagBit): string {
     let count = 0;
     let str = '';
@@ -204,6 +211,7 @@ function getVisibilityName (stage: ShaderStageFlagBit): string {
     return str;
 }
 
+// print LayoutGraphData
 export class PrintVisitor extends DefaultVisitor {
     discoverVertex (u: number, g: LayoutGraphData) {
         const ppl: PipelineLayoutData = g.getLayout(u);
@@ -275,14 +283,17 @@ export class PrintVisitor extends DefaultVisitor {
     oss = '';
 }
 
+// text tools, indent 4 spaces
 function indent (space: string): string {
     return `${space}    `;
 }
 
+// text tools, unindent 4 spaces
 function unindent (space: string): string {
     return space.substring(0, space.length > 4 ? space.length - 4 : 0);
 }
 
+// flatten DescriptorBlock to DescriptorBlockFlattened
 function convertDescriptorBlock (block: DescriptorBlock): DescriptorBlockFlattened {
     const flattened = new DescriptorBlockFlattened();
 
@@ -318,6 +329,7 @@ function convertDescriptorBlock (block: DescriptorBlock): DescriptorBlockFlatten
     return flattened;
 }
 
+// cache of descriptor blocks
 class DescriptorCounter {
     public addDescriptor (key: string, name: string, count: number) {
         // key is DescriptorBlockIndex
@@ -337,6 +349,7 @@ class DescriptorCounter {
     readonly inspector = new Map<string, Array<string>>();
 }
 
+// print LayoutGraph (not LayoutGraphData)
 class LayoutGraphPrintVisitor extends DefaultVisitor {
     discoverVertex (v: number, g: LayoutGraph) {
         const info: DescriptorDB = g.getDescriptors(v);
@@ -391,6 +404,7 @@ class LayoutGraphPrintVisitor extends DefaultVisitor {
     oss = '';
 }
 
+// get pass name from effect
 function getPassName (pass: EffectAsset.IPassInfo): string {
     if (pass.pass === undefined) {
         return 'default';
@@ -398,6 +412,7 @@ function getPassName (pass: EffectAsset.IPassInfo): string {
     return pass.pass;
 }
 
+// get phase name from effect
 function getPhaseName (pass: EffectAsset.IPassInfo): string {
     if (pass.phase === undefined) {
         return 'default';
@@ -408,6 +423,7 @@ function getPhaseName (pass: EffectAsset.IPassInfo): string {
     return pass.phase;
 }
 
+// key of Visibility
 export class VisibilityIndex {
     constructor (
         updateFrequency = UpdateFrequency.PER_INSTANCE,
@@ -423,6 +439,7 @@ export class VisibilityIndex {
     descriptorType: DescriptorTypeOrder;
 }
 
+// descriptors of same visibility
 export class VisibilityBlock {
     public mergeVisibility (name: string, vis: ShaderStageFlagBit) {
         // for each descriptor, merge visibility
@@ -445,6 +462,7 @@ export class VisibilityBlock {
     descriptors = new Map<string, ShaderStageFlagBit>();
 }
 
+// visibility database of phase
 export class VisibilityDB {
     public getBlock (index: VisibilityIndex): VisibilityBlock {
         const key = JSON.stringify(index);
@@ -458,6 +476,7 @@ export class VisibilityDB {
     blocks = new Map<string, VisibilityBlock>();
 }
 
+// visibility database of pass
 export class VisibilityPass {
     public getPhase (phaseName: string): VisibilityDB {
         const phase = this.phases.get(phaseName);
@@ -543,6 +562,7 @@ export class VisibilityGraph {
     passes = new Map<string, VisibilityPass>();
 }
 
+// graph coloring help class
 class VectorGraphColorMap implements MutableVertexPropertyMap<GraphColor> {
     constructor (sz: number) {
         this.colors = new Array<GraphColor>(sz);
@@ -556,6 +576,7 @@ class VectorGraphColorMap implements MutableVertexPropertyMap<GraphColor> {
     readonly colors: Array<GraphColor>;
 }
 
+// class to layout all descriptors
 export class LayoutGraphInfo {
     constructor (visg: VisibilityGraph) {
         this.visg = visg;
@@ -952,6 +973,7 @@ export class LayoutGraphInfo {
     }
 }
 
+// sort descriptorBlocks using DescriptorBlockIndex
 function sortDescriptorBlocks<T> (lhs: [string, T], rhs: [string, T]): number {
     const lhsIndex: DescriptorBlockIndex = JSON.parse(lhs[0]);
     const rhsIndex: DescriptorBlockIndex = JSON.parse(rhs[0]);
@@ -966,6 +988,7 @@ function sortDescriptorBlocks<T> (lhs: [string, T], rhs: [string, T]): number {
     return lhsValue - rhsValue;
 }
 
+// build LayoutGraphData
 function buildLayoutGraphDataImpl (graph: LayoutGraph, builder: LayoutGraphBuilder) {
     for (const v of graph.vertices()) {
         const db = graph.getDescriptors(v);
@@ -1028,6 +1051,7 @@ function buildLayoutGraphDataImpl (graph: LayoutGraph, builder: LayoutGraphBuild
     }
 }
 
+// get descriptor nameID from name
 export function getDescriptorID (lg: LayoutGraphData, name: string): number {
     const nameID = lg.attributeIndex.get(name);
     if (nameID === undefined) {
@@ -1039,6 +1063,7 @@ export function getDescriptorID (lg: LayoutGraphData, name: string): number {
     return nameID;
 }
 
+// LayoutGraphData builder
 class LayoutGraphBuilder2 implements LayoutGraphBuilder {
     public constructor (lg: LayoutGraphData) {
         this.lg = lg;
@@ -1167,6 +1192,7 @@ export function printLayoutGraphData (g: LayoutGraphData): string {
     return visitor.oss;
 }
 
+// lookup DescriptorBlockData from Map
 function getDescriptorBlockData (map: Map<string, DescriptorBlockData>, index: DescriptorBlockIndex): DescriptorBlockData {
     const key = JSON.stringify(index);
     const block = map.get(key);
@@ -1178,6 +1204,7 @@ function getDescriptorBlockData (map: Map<string, DescriptorBlockData>, index: D
     return newBlock;
 }
 
+// make DescriptorSetLayoutData from effect directly
 export function makeDescriptorSetLayoutData (lg: LayoutGraphData,
     rate: UpdateFrequency, set: number,
     descriptors: EffectAsset.IDescriptorInfo): DescriptorSetLayoutData {
@@ -1294,6 +1321,7 @@ export function makeDescriptorSetLayoutData (lg: LayoutGraphData,
     return data;
 }
 
+// fill DescriptorSetLayoutInfo from DescriptorSetLayoutData
 export function initializeDescriptorSetLayoutInfo (layoutData: DescriptorSetLayoutData,
     info: DescriptorSetLayoutInfo): void {
     for (let i = 0; i < layoutData.descriptorBlocks.length; ++i) {
@@ -1326,6 +1354,7 @@ function populatePipelineLayoutInfo (layout: PipelineLayoutData,
     }
 }
 
+// initialize layout graph module
 export function initializeLayoutGraphData (device: Device, lg: LayoutGraphData) {
     // create descriptor sets
     _emptyDescriptorSetLayout = device.createDescriptorSetLayout(new DescriptorSetLayoutInfo());
@@ -1360,6 +1389,7 @@ export function initializeLayoutGraphData (device: Device, lg: LayoutGraphData) 
     }
 }
 
+// terminate layout graph module
 export function terminateLayoutGraphData (lg: LayoutGraphData) {
     for (const v of lg.vertices()) {
         const layoutData = lg.getLayout(v);
@@ -1373,14 +1403,17 @@ export function terminateLayoutGraphData (lg: LayoutGraphData) {
     _emptyDescriptorSetLayout.destroy();
 }
 
+// get empty descriptor set layout
 export function getEmptyDescriptorSetLayout (): DescriptorSetLayout {
     return _emptyDescriptorSetLayout;
 }
 
+// get empty pipeline layout
 export function getEmptyPipelineLayout (): PipelineLayout {
     return _emptyPipelineLayout;
 }
 
+// get descriptor set from LayoutGraphData (not from ProgramData)
 export function getOrCreateDescriptorSetLayout (lg: LayoutGraphData,
     passID: number, phaseID: number, rate: UpdateFrequency): DescriptorSetLayout {
     if (rate < UpdateFrequency.PER_PASS) {
@@ -1411,6 +1444,7 @@ export function getOrCreateDescriptorSetLayout (lg: LayoutGraphData,
     return _emptyDescriptorSetLayout;
 }
 
+// getDescriptorSetLayout from LayoutGraphData
 export function getDescriptorSetLayout (lg: LayoutGraphData,
     passID: number, phaseID: number, rate: UpdateFrequency): DescriptorSetLayout | null {
     if (rate < UpdateFrequency.PER_PASS) {
@@ -1443,6 +1477,7 @@ export function getDescriptorSetLayout (lg: LayoutGraphData,
 
 const _emptyDescriptorSetLayoutData = new DescriptorSetLayoutData();
 
+// getDescriptorSetLayoutData from LayoutGraphData
 export function getDescriptorSetLayoutData (lg: LayoutGraphData,
     passID: number, phaseID: number, rate: UpdateFrequency): DescriptorSetLayoutData {
     if (rate < UpdateFrequency.PER_PASS) {
@@ -1465,6 +1500,7 @@ export function getDescriptorSetLayoutData (lg: LayoutGraphData,
     return _emptyDescriptorSetLayoutData;
 }
 
+// get or create DescriptorBlockData from DescriptorSetLayoutData
 export function getOrCreateDescriptorBlockData (data: DescriptorSetLayoutData,
     type: DescriptorType, vis: ShaderStageFlagBit): DescriptorBlockData {
     const order = getDescriptorTypeOrder(type);
