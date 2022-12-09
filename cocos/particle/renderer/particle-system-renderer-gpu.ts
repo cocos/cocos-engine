@@ -268,7 +268,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
             const cameraLst: Camera[]|undefined = this._particleSystem.node.scene.renderScene?.cameras;
             if (cameraLst !== undefined) {
                 for (let i = 0; i < cameraLst?.length; ++i) {
-                    const camera:Camera = cameraLst[i];
+                    const camera: Camera = cameraLst[i];
                     // eslint-disable-next-line max-len
                     const checkCamera: boolean = (!EDITOR || cclegacy.GAME_VIEW) ? (camera.visibility & this._particleSystem.node.layer) === this._particleSystem.node.layer : camera.name === 'Editor Camera';
                     if (checkCamera) {
@@ -373,7 +373,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         let enable = false;
         // force
         const forceModule = this._particleSystem._forceOvertimeModule;
-        enable = forceModule && forceModule.enable;
+        enable = forceModule ? forceModule.enable : false;
         this._defines[FORCE_OVER_TIME_MODULE_ENABLE] = enable;
         if (enable) {
             const packed = packCurveRangeXYZ(this._forceTexture, this._forceData, _sample_num, forceModule.x, forceModule.y, forceModule.z);
@@ -391,7 +391,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
 
         // velocity
         const velocityModule = this._particleSystem._velocityOvertimeModule;
-        enable = velocityModule && velocityModule.enable;
+        enable = velocityModule ? velocityModule.enable : false;
         this._defines[VELOCITY_OVER_TIME_MODULE_ENABLE] = enable;
         if (enable) {
             const packed = packCurveRangeXYZW(this._velocityTexture, this._velocityData, _sample_num, velocityModule.x, velocityModule.y,
@@ -410,7 +410,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
 
         // color module
         const colorModule = this._particleSystem._colorOverLifetimeModule;
-        enable = colorModule && colorModule.enable;
+        enable = colorModule ? colorModule.enable : false;
         this._defines[COLOR_OVER_TIME_MODULE_ENABLE] = enable;
         if (enable) {
             const packed = packGradientRange(this._colorTexture, this._colorData, _sample_num, colorModule.color);
@@ -426,7 +426,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
 
         // rotation module
         const roationModule = this._particleSystem._rotationOvertimeModule;
-        enable = roationModule && roationModule.enable;
+        enable = roationModule ? roationModule.enable : false;
         this._defines[ROTATION_OVER_TIME_MODULE_ENABLE] = enable;
         if (enable) {
             let packed;
@@ -450,7 +450,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
 
         // size module
         const sizeModule = this._particleSystem._sizeOvertimeModule;
-        enable = sizeModule && sizeModule.enable;
+        enable = sizeModule ? sizeModule.enable : false;
         this._defines[SIZE_OVER_TIME_MODULE_ENABLE] = enable;
         if (enable) {
             let packed;
@@ -473,7 +473,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
 
         // texture module
         const textureModule = this._particleSystem._textureAnimationModule;
-        enable = textureModule && textureModule.enable;
+        enable = textureModule ? textureModule.enable : false;
         this._defines[TEXTURE_ANIMATION_MODULE_ENABLE] = enable;
         if (enable) {
             // eslint-disable-next-line max-len
