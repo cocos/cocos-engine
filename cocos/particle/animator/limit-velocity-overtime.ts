@@ -28,7 +28,7 @@ import { lerp, pseudoRandom, Vec3, Mat4, Quat } from '../../core';
 import { Space, ModuleRandSeed } from '../enum';
 import { Particle, ParticleModuleBase, PARTICLE_MODULE_NAME } from '../particle';
 import CurveRange from './curve-range';
-import { calculateTransform } from '../particle-general-function';
+import { calculateTransform, isCurveTwoValues } from '../particle-general-function';
 
 const LIMIT_VELOCITY_RAND_OFFSET = ModuleRandSeed.LIMIT;
 
@@ -150,9 +150,13 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
         const normalizedTime = 1 - p.remainingLifetime / p.startLifetime;
         const dampedVel = _temp_v3;
         if (this.separateAxes) {
-            Vec3.set(_temp_v3_1, this.limitX.evaluate(normalizedTime, pseudoRandom(p.randomSeed + LIMIT_VELOCITY_RAND_OFFSET))!,
-                this.limitY.evaluate(normalizedTime, pseudoRandom(p.randomSeed + LIMIT_VELOCITY_RAND_OFFSET))!,
-                this.limitZ.evaluate(normalizedTime, pseudoRandom(p.randomSeed + LIMIT_VELOCITY_RAND_OFFSET))!);
+            const randX = isCurveTwoValues(this.limitX) ? pseudoRandom(p.randomSeed + LIMIT_VELOCITY_RAND_OFFSET) : 0;
+            const randY = isCurveTwoValues(this.limitY) ? pseudoRandom(p.randomSeed + LIMIT_VELOCITY_RAND_OFFSET) : 0;
+            const randZ = isCurveTwoValues(this.limitZ) ? pseudoRandom(p.randomSeed + LIMIT_VELOCITY_RAND_OFFSET) : 0;
+            Vec3.set(_temp_v3_1,
+                this.limitX.evaluate(normalizedTime, randX)!,
+                this.limitY.evaluate(normalizedTime, randY)!,
+                this.limitZ.evaluate(normalizedTime, randZ)!);
             if (this.needTransform) {
                 Vec3.transformQuat(_temp_v3_1, _temp_v3_1, this.rotation);
             }
@@ -162,7 +166,9 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
                 dampenBeyondLimit(p.ultimateVelocity.z, _temp_v3_1.z, this.dampen));
         } else {
             Vec3.normalize(dampedVel, p.ultimateVelocity);
-            Vec3.multiplyScalar(dampedVel, dampedVel, dampenBeyondLimit(p.ultimateVelocity.length(), this.limit.evaluate(normalizedTime, pseudoRandom(p.randomSeed + LIMIT_VELOCITY_RAND_OFFSET))!, this.dampen));
+            const rand = isCurveTwoValues(this.limit) ? pseudoRandom(p.randomSeed + LIMIT_VELOCITY_RAND_OFFSET) : 0;
+            Vec3.multiplyScalar(dampedVel, dampedVel,
+                dampenBeyondLimit(p.ultimateVelocity.length(), this.limit.evaluate(normalizedTime, rand)!, this.dampen));
         }
         Vec3.copy(p.ultimateVelocity, dampedVel);
         Vec3.copy(p.velocity, p.ultimateVelocity);
