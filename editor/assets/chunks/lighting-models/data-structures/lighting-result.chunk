@@ -14,7 +14,7 @@ struct LightingResult
 #endif
 #if CC_SURFACES_LIGHTING_TRANSMIT_SPECULAR
   vec3 directTransmitSpecular;
-  vec3 directEnvironmentSpecular;
+  vec3 environmentTransmitSpecular;
 #endif
 #if CC_SURFACES_LIGHTING_TRANSMITTENCE
   vec3 transmittence;

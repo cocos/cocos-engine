@@ -33,7 +33,7 @@ void CCSurfacesLightingCalculateEnvironment(out vec3 lightingDiffuse, out vec3 l
 #if CC_SURFACES_LIGHTING_USE_FRESNEL
   float CCSurfaceLightingCalculateFresnel(in LightingIntermediateData lightingData)
   {
-    return CalculateFresnelCoefficient(lightingData.ior, lightingData.NoVSat);
+    return CalculateFresnelCoefficient(lightingData.ior, abs(lightingData.NoV)); //NoVSat for single side, and NoVAbs for two sided
   }
 #endif
 
@@ -41,6 +41,7 @@ void CCSurfacesLightingCalculateEnvironment(out vec3 lightingDiffuse, out vec3 l
   // do not support planar reflection and anisotropy
   void CCSurfacesLightingCalculateDirectTransmitSpecular(out vec3 lightingSpecular, in LightingIntermediateData lightingData, in vec4 lightSourceColorAndIntensity)
   {
+    float roughness = lightingData.specularParam;
     vec3 irradiance = vec3(lightingData.NoLSat) * lightSourceColorAndIntensity.rgb * lightSourceColorAndIntensity.w;
 
     vec3 R = CalculateRefractDirection(lightingData.N, lightingData.V, lightingData.NoV, lightingData.ior);
@@ -63,10 +64,10 @@ void CCSurfacesLightingCalculateEnvironment(out vec3 lightingDiffuse, out vec3 l
   #endif
 
   #if CC_USE_IBL && USE_REFLECTION_PROBE != REFLECTION_PROBE_TYPE_CUBE
-    envSpec = EnvReflection(tex, R, roughness, cc_ambientGround.w);
+    envSpec = EnvReflection(cc_environment, R, roughness, cc_ambientGround.w);
   #endif
 
-  return envSpec * lightIntensity;
+    lightingSpecular = envSpec * lightIntensity;
   }
 #endif
 

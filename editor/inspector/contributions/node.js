@@ -636,6 +636,9 @@ const Elements = {
                 }
                 panel.$.active.dispatch('change-dump');
             });
+            panel.$.active.addEventListener('confirm', () => {
+                panel.snapshotLock = false;
+            });
 
             panel.$.name.addEventListener('change', (event) => {
                 const value = event.target.value;
@@ -649,6 +652,9 @@ const Elements = {
                     });
                 }
                 panel.$.name.dispatch('change-dump');
+            });
+            panel.$.name.addEventListener('confirm', () => {
+                panel.snapshotLock = false;
             });
         },
         update() {
@@ -667,13 +673,20 @@ const Elements = {
                 activeDisabled = true;
                 nameDisabled = true;
             } else {
+
                 if (panel.dumps && panel.dumps.length > 1) {
-                    if (panel.dumps.some((dump) => dump.active.value !== panel.dump.active.value)) {
-                        activeInvalid = true;
+                    // when changing, stop validating
+                    if (!panel.$.active.hasAttribute('focused')) {
+                        if (panel.dumps.some((dump) => dump.active.value !== panel.dump.active.value)) {
+                            activeInvalid = true;
+                        }
                     }
 
-                    if (panel.dumps.some((dump) => dump.name.value !== panel.dump.name.value)) {
-                        nameInvalid = true;
+                    // when changing, stop validating
+                    if (!panel.$.name.hasAttribute('focused')) {
+                        if (panel.dumps.some((dump) => dump.name.value !== panel.dump.name.value)) {
+                            nameInvalid = true;
+                        }
                     }
                 }
             }

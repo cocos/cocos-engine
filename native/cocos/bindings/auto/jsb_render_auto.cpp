@@ -71,6 +71,9 @@ using namespace cc::render;
 #define cc_render_PipelineRuntime_device_get(self_) self_->getDevice()
   
 
+#define cc_render_PipelineRuntime_macros_get(self_) self_->getMacros()
+  
+
 #define cc_render_PipelineRuntime_globalDSManager_get(self_) self_->getGlobalDSManager()
   
 
@@ -98,9 +101,6 @@ using namespace cc::render;
 
 #define cc_render_PipelineRuntime_shadingScale_get(self_) self_->getShadingScale()
 #define cc_render_PipelineRuntime_shadingScale_set(self_, val_) self_->setShadingScale(val_)
-  
-
-#define cc_render_PipelineRuntime_macros_get(self_) self_->getMacros()
   
 
 #define cc_render_RenderNode_name_get(self_) self_->getName()
@@ -431,6 +431,25 @@ static bool js_cc_render_PipelineRuntime_device_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_render_PipelineRuntime_device_get) 
 
+static bool js_cc_render_PipelineRuntime_macros_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::render::PipelineRuntime *arg1 = (cc::render::PipelineRuntime *) NULL ;
+    cc::MacroRecord *result = 0 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::render::PipelineRuntime>(s);
+    if (nullptr == arg1) return true;
+    result = (cc::MacroRecord *) &cc_render_PipelineRuntime_macros_get(arg1);
+    
+    ok &= nativevalue_to_se(*result, s.rval(), s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(*result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_render_PipelineRuntime_macros_get) 
+
 static bool js_cc_render_PipelineRuntime_globalDSManager_get(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -643,30 +662,12 @@ static bool js_cc_render_PipelineRuntime_shadingScale_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_render_PipelineRuntime_shadingScale_get) 
 
-static bool js_cc_render_PipelineRuntime_macros_get(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::render::PipelineRuntime *arg1 = (cc::render::PipelineRuntime *) NULL ;
-    cc::MacroRecord *result = 0 ;
-    
-    arg1 = SE_THIS_OBJECT<cc::render::PipelineRuntime>(s);
-    if (nullptr == arg1) return true;
-    result = (cc::MacroRecord *) &cc_render_PipelineRuntime_macros_get(arg1);
-    
-    ok &= nativevalue_to_se(*result, s.rval(), s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments");
-    SE_HOLD_RETURN_VALUE(*result, s.thisObject(), s.rval()); 
-    
-    
-    return true;
-}
-SE_BIND_PROP_GET(js_cc_render_PipelineRuntime_macros_get) 
-
 bool js_register_cc_render_PipelineRuntime(se::Object* obj) {
     auto* cls = se::Class::create("PipelineRuntime", obj, nullptr, nullptr); 
     
     cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("device", _SE(js_cc_render_PipelineRuntime_device_get), nullptr); 
+    cls->defineProperty("macros", _SE(js_cc_render_PipelineRuntime_macros_get), nullptr); 
     cls->defineProperty("globalDSManager", _SE(js_cc_render_PipelineRuntime_globalDSManager_get), nullptr); 
     cls->defineProperty("descriptorSetLayout", _SE(js_cc_render_PipelineRuntime_descriptorSetLayout_get), nullptr); 
     cls->defineProperty("descriptorSet", _SE(js_cc_render_PipelineRuntime_descriptorSet_get), nullptr); 
@@ -676,7 +677,6 @@ bool js_register_cc_render_PipelineRuntime(se::Object* obj) {
     cls->defineProperty("profiler", _SE(js_cc_render_PipelineRuntime_profiler_get), _SE(js_cc_render_PipelineRuntime_profiler_set)); 
     cls->defineProperty("geometryRenderer", _SE(js_cc_render_PipelineRuntime_geometryRenderer_get), nullptr); 
     cls->defineProperty("shadingScale", _SE(js_cc_render_PipelineRuntime_shadingScale_get), _SE(js_cc_render_PipelineRuntime_shadingScale_set)); 
-    cls->defineProperty("macros", _SE(js_cc_render_PipelineRuntime_macros_get), nullptr); 
     
     cls->defineFunction("activate", _SE(js_cc_render_PipelineRuntime_activate)); 
     cls->defineFunction("destroy", _SE(js_cc_render_PipelineRuntime_destroy)); 
