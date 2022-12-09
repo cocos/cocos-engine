@@ -40,6 +40,7 @@ import { Pass } from '../../core/renderer';
 import { ParticleNoise } from '../noise';
 import { NoiseModule } from '../animator/noise-module';
 import { legacyCC } from '../../core/global-exports';
+import { ParticleSOA } from '../particle-soa';
 
 const _tempAttribUV = new Vec3();
 const _tempWorldTrans = new Mat4();
@@ -146,7 +147,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
     private _defaultMat: Material | null = null;
     private _node_scale: Vec4;
     private _attrs: any[];
-    private _particles: RecyclePool | null = null;
+    private _particles = new ParticleSOA();
     private _defaultTrailMat: Material | null = null;
     private _updateList: Map<string, IParticleModule> = new Map<string, IParticleModule>();
     private _animateList: Map<string, IParticleModule> = new Map<string, IParticleModule>();
@@ -185,7 +186,6 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
     public onInit (ps: Component) {
         super.onInit(ps);
 
-        this._particles = new RecyclePool(() => new Particle(this), 16);
         this._setVertexAttrib();
         this._setFillFunc();
         this._initModuleList();
@@ -198,7 +198,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
 
     public clear () {
         super.clear();
-        this._particles!.reset();
+        this._particles.clear();
         if (this._particleSystem._trailModule) {
             this._particleSystem._trailModule.clear();
         }
@@ -214,15 +214,14 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
     }
 
     public onDestroy (): void {
-        this._particles?.destroy();
         super.onDestroy();
     }
 
     public getFreeParticle (): Particle | null {
-        if (this._particles!.length >= this._particleSystem.capacity) {
+        if (this._particles.count >= this._particleSystem.capacity) {
             return null;
         }
-        return this._particles!.add() as Particle;
+        return this._particles.add() as Particle;
     }
 
     public getDefaultTrailMaterial (): any {
@@ -351,7 +350,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
     public updateParticles (dt: number) {
         const ps = this._particleSystem;
         if (!ps) {
-            return this._particles!.length;
+            return this._particles.length;
         }
         ps.node.getWorldMatrix(_tempWorldTrans);
         const mat: Material | null = ps.getMaterialInstance(0) || this._defaultMat;
@@ -380,8 +379,8 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
             _tempParentInverse.invert();
         }
 
-        for (let i = 0; i < this._particles!.length; ++i) {
-            const p = this._particles!.data[i];
+        for (let i = 0; i < this._particles.length; ++i) {
+            const p = this._particles.data[i];
             p.remainingLifetime -= dt;
             Vec3.set(p.animatedVelocity, 0, 0, 0);
 
@@ -389,7 +388,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
                 if (trailEnable) {
                     trailModule.removeParticle(p);
                 }
-                this._particles!.removeAt(i);
+                this._particles.removeAt(i);
                 --i;
                 continue;
             }
@@ -427,8 +426,8 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
             }
         }
 
-        this._model!.enabled = this._particles!.length > 0;
-        return this._particles!.length;
+        this._model!.enabled = this._particles.length > 0;
+        return this._particles.length;
     }
 
     public getNoisePreview (out: number[], width: number, height: number) {
@@ -444,8 +443,8 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
     public updateRenderData () {
         // update vertex buffer
         let idx = 0;
-        for (let i = 0; i < this._particles!.length; ++i) {
-            const p = this._particles!.data[i];
+        for (let i = 0; i < this._particles.length; ++i) {
+            const p = this._particles.data[i];
             let fi = 0;
             const textureModule = this._particleSystem._textureAnimationModule;
             if (textureModule && textureModule.enable) {
@@ -458,11 +457,11 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
 
     public beforeRender () {
         // because we use index buffer, per particle index count = 6.
-        this._model!.updateIA(this._particles!.length);
+        this._model!.updateIA(this._particles.length);
     }
 
     public getParticleCount (): number {
-        return this._particles!.length;
+        return this._particles.length;
     }
 
     public onMaterialModified (index: number, material: Material) {
