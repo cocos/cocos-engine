@@ -6,6 +6,7 @@ import { EventTarget } from '../../../cocos/core/event/event-target';
 import { Size } from '../../../cocos/core/math';
 import { Orientation } from '../enum-type';
 import legacyCC from '../../../predefine';
+import { settings, Settings } from '../../../cocos/core/settings';
 
 interface ICachedStyle {
     width: string;
@@ -237,6 +238,9 @@ class ScreenAdapter extends EventTarget {
         }
     }
     private get _windowType (): WindowType {
+        if (settings.querySettings(Settings.Category.RENDERING, 'renderMode') === 3) {
+            return WindowType.Unknown;
+        }
         if (this.isFullScreen) {
             return WindowType.Fullscreen;
         }
