@@ -99,7 +99,7 @@ class ExoticNodeAnimation {
         if (!transformHandle) {
             return null;
         }
-        return new ExoticNodeAnimationEvaluatorX(
+        return new ExoticNodeAnimationAGEvaluation(
             transformHandle,
             this._position,
             this._rotation,
@@ -708,7 +708,7 @@ export class ExoticTrsAGEvaluation {
     constructor (nodeAnimations: ExoticNodeAnimation[], context: AnimationClipGraphBindingContext) {
         this._nodeEvaluations = nodeAnimations.map(
             (nodeAnimation) => nodeAnimation.createEvaluatorForAnimationGraph(context),
-        ).filter((x) => !!x) as ExoticNodeAnimationEvaluatorX[];
+        ).filter((x) => !!x) as ExoticNodeAnimationAGEvaluation[];
     }
 
     public destroy () {
@@ -723,10 +723,10 @@ export class ExoticTrsAGEvaluation {
         });
     }
 
-    private _nodeEvaluations: ExoticNodeAnimationEvaluatorX[];
+    private _nodeEvaluations: ExoticNodeAnimationAGEvaluation[];
 }
 
-class ExoticNodeAnimationEvaluatorX {
+class ExoticNodeAnimationAGEvaluation {
     constructor (
         transformHandle: TransformHandle,
         position: ExoticVec3Track | null,
