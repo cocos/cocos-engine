@@ -77,7 +77,7 @@ export class BuiltinPhysicsWorld implements IPhysicsWorld {
 
     updateShapeGroup (shape: BuiltinShape2D) {
         this.removeShape(shape);
-        if (shape.collider.enabled) {
+        if (shape.collider.enabledInHierarchy) {
             this.addShape(shape);
         }
     }
