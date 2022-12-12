@@ -333,6 +333,9 @@ export class ReflectionProbe extends Component {
                 ReflectionProbeManager.probeManager.onUpdateProbes(true);
             }
         }
+        if (this.sourceCamera && this.sourceCamera.node.hasChangedFlags & TransformBit.TRS) {
+            this.probe.renderPlanarReflection(this.sourceCamera.camera);
+        }
     }
 
     /**
