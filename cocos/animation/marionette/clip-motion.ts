@@ -10,6 +10,7 @@ import { calculateDeltaPose, Pose } from '../core/pose';
 import { AnimationGraphEvaluationContext, AnimationGraphLayerWideBindingContext } from './animation-graph-context';
 import { WrappedInfo } from '../types';
 import { WrapModeMask } from '../../core/geometry';
+import { AnimationClipAGEvaluation } from './animation-graph-animation-clip-binding';
 
 const { ccclass, type } = _decorator;
 
@@ -146,10 +147,10 @@ class ClipMotionEval implements MotionEval {
      * Actual clip used. Will be equal to `this._originalClip` if not being override.
      */
     private declare _clip: AnimationClip;
-    private declare _clipEval: ReturnType<AnimationClip['createAGEvaluation']>;
+    private declare _clipEval: AnimationClipAGEvaluation;
     private _clipEmbeddedPlayerEval: ReturnType<AnimationClip['createEmbeddedPlayerEvaluator']> | null = null;
     private _wrapInfo = new WrappedInfo();
-    private _baseClipEval: ReturnType<AnimationClip['createAGEvaluation']> | null = null;
+    private _baseClipEval: AnimationClipAGEvaluation | null = null;
     private _duration = 0.0;
 
     private _setClip (clip: AnimationClip, context: AnimationGraphLayerWideBindingContext) {
@@ -163,7 +164,7 @@ class ClipMotionEval implements MotionEval {
         this._duration = clip.speed === 0.0
             ? 0.0
             : clip.duration / clip.speed; // TODO, a test for `clip.speed === 0` is required!
-        const clipEval = clip.createAGEvaluation(context.up);
+        const clipEval = new AnimationClipAGEvaluation(clip, context.up);
         this._clipEval = clipEval;
         if (clip.containsAnyEmbeddedPlayer()) {
             this._clipEmbeddedPlayerEval = clip.createEmbeddedPlayerEvaluator(context.up.origin);
@@ -171,7 +172,7 @@ class ClipMotionEval implements MotionEval {
         if (context.additive) {
             const additiveSettings = clip[additiveSettingsTag];
             const baseClip = additiveSettings.base ?? clip;
-            this._baseClipEval = baseClip.createAGEvaluation(context.up);
+            this._baseClipEval = new AnimationClipAGEvaluation(baseClip, context.up);
         }
     }
 }

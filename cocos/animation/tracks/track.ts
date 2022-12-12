@@ -11,9 +11,8 @@ import { PoseOutput } from '../pose-output';
 import { ComponentPath, HierarchyPath, isPropertyPath, TargetPath } from '../target-path';
 import { IValueProxyFactory } from '../value-proxy';
 import { Range } from './utils';
-import { AnimationClipGraphBindingContext, bindPoseTransform } from '../marionette/animation-graph-animation-clip-binding';
 
-const normalizedFollowTag = Symbol('NormalizedFollow');
+export const normalizedFollowTag = Symbol('NormalizedFollow');
 
 const parseTrsPathTag = Symbol('ConvertAsTrsPath');
 
@@ -301,7 +300,7 @@ export class TrackBinding {
     @serializable
     public proxy: IValueProxyFactory | undefined;
 
-    private static _animationFunctions = new WeakMap<Constructor, Map<string | number, { getValue:() => any, setValue:(val: any) => void}>>();
+    private static _animationFunctions = new WeakMap<Constructor, Map<string | number, { getValue:() => any, setValue: (val: any) => void}>>();
 
     public parseTrsPath () {
         if (this.proxy) {
@@ -381,52 +380,6 @@ export class TrackBinding {
         }
     }
 
-    public createRuntimeBindingAG (bindContext: AnimationClipGraphBindingContext) {
-        const {
-            origin,
-        } = bindContext;
-        const { path, proxy } = this;
-        const nPaths = path.length;
-        const iLastPath = nPaths - 1;
-
-        if (nPaths !== 0 && (path.isPropertyAt(iLastPath) || path.isElementAt(iLastPath)) && !proxy) {
-            const lastPropertyKey = path.isPropertyAt(iLastPath)
-                ? path.parsePropertyAt(iLastPath)
-                : path.parseElementAt(iLastPath);
-            const resultTarget = path[normalizedFollowTag](origin, 0, nPaths - 1) as any;
-            if (resultTarget === null) {
-                return null;
-            }
-
-            if (resultTarget instanceof Node && isTrsPropertyName(lastPropertyKey)) {
-                const transformPath = (() => {
-                    const segments = [] as string[];
-                    let node: Node | null = resultTarget;
-                    for (; node && node !== origin; node = node.parent) {
-                        segments.unshift(node.name);
-                    }
-                    if (node === origin) {
-                        return segments.join('/');
-                    } else {
-                        return undefined;
-                    }
-                })();
-                if (typeof transformPath === 'string') {
-                    const transformHandle = bindContext.bindTransform(transformPath);
-                    if (!transformHandle) {
-                        return undefined;
-                    }
-                    return bindPoseTransform(transformHandle, lastPropertyKey);
-                }
-            }
-        }
-
-        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        // TODO: here should be resolved before this can be landed.
-        error(`Animation graph currently only supports (bone) transform animations.`);
-        return undefined;
-    }
-
     public isMaskedOff (mask: AnimationMask) {
         const trsPath = this.parseTrsPath();
         if (!trsPath) {
@@ -446,7 +399,7 @@ export class TrackBinding {
     }
 }
 
-function isTrsPropertyName (name: string | number): name is 'position' | 'rotation' | 'scale' | 'eulerAngles' {
+export function isTrsPropertyName (name: string | number): name is 'position' | 'rotation' | 'scale' | 'eulerAngles' {
     return name === 'position' || name === 'rotation' || name === 'scale' || name === 'eulerAngles';
 }
 

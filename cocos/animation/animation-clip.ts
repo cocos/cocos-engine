@@ -39,12 +39,11 @@ import { createEvalSymbol } from './define';
 import { UntypedTrack, UntypedTrackRefine } from './tracks/untyped-track';
 import { Range } from './tracks/utils';
 import { ObjectTrack } from './tracks/object-track';
-import type { ExoticAnimation, ExoticTrsAGEvaluation } from './exotic-animation/exotic-animation';
+import type { ExoticAnimation } from './exotic-animation/exotic-animation';
 import './exotic-animation/exotic-animation';
 import type { AnimationMask } from './marionette/animation-mask';
 import { getGlobalAnimationManager } from './global-animation-manager';
 import { EmbeddedPlayableState, EmbeddedPlayer } from './embedded-player/embedded-player';
-import { AnimationClipGraphBindingContext, AGAnimationClipEvaluation, AGTrackEvaluation } from './marionette/animation-graph-animation-clip-binding';
 
 export declare namespace AnimationClip {
     export interface IEvent {
@@ -397,47 +396,6 @@ export class AnimationClip extends Asset {
         return this._createEvalWithBinder(target, binder, context.rootMotion);
     }
 
-    public createAGEvaluation (context: AnimationClipGraphBindingContext) {
-        if (this._legacyDataDirty) {
-            this._legacyDataDirty = false;
-            this.syncLegacyData();
-        }
-
-        const trackEvaluations: AGTrackEvaluation<unknown>[] = [];
-        let exoticAnimationEvaluation: ExoticTrsAGEvaluation | undefined;
-
-        const { _tracks: tracks } = this;
-        const nTracks = tracks.length;
-        for (let iTrack = 0; iTrack < nTracks; ++iTrack) {
-            const track = tracks[iTrack];
-            if (track instanceof UntypedTrack) {
-                // Untyped track is not supported in AG.
-                continue;
-            }
-            if (Array.from(track.channels()).every(({ curve }) => curve.keyFramesCount === 0)) {
-                continue;
-            }
-            const trackRuntimeBinding = this._bindTrackAG(track, context);
-            if (!trackRuntimeBinding) {
-                continue;
-            }
-            const trackSampler = track[createEvalSymbol]();
-            const trackEvaluation = new AGTrackEvaluation(trackRuntimeBinding, trackSampler);
-            trackEvaluations.push(trackEvaluation);
-        }
-
-        if (this._exoticAnimation) {
-            exoticAnimationEvaluation = this._exoticAnimation.createEvaluatorForAnimationGraph(context);
-        }
-
-        const evaluation = new AGAnimationClipEvaluation(
-            trackEvaluations,
-            exoticAnimationEvaluation,
-        );
-
-        return evaluation;
-    }
-
     public destroy () {
         if (cclegacy.director.root?.dataPoolManager) {
             (cclegacy.director.root.dataPoolManager).releaseAnimationClip(this);
@@ -700,6 +658,16 @@ export class AnimationClip extends Asset {
         this._embeddedPlayers.length = 0;
     }
 
+    /**
+     * @internal
+     */
+    public __trySyncLegacyData () {
+        if (this._legacyDataDirty) {
+            this._legacyDataDirty = false;
+            this.syncLegacyData();
+        }
+    }
+
     @serializable
     private _duration = 0;
 
@@ -734,23 +702,6 @@ export class AnimationClip extends Asset {
         ratios: [],
         eventGroups: [],
     };
-
-    private _bindTrackAG (track: Track, bindContext: AnimationClipGraphBindingContext) {
-        const trackBinding = track[trackBindingTag];
-        const trackTarget = trackBinding.createRuntimeBindingAG(bindContext);
-        if (DEBUG && !trackTarget) {
-            // If we got a null track target here, we should already have warn logged,
-            // To elaborate on error details, we warn here as well.
-            // Note: if in the future this log appears alone,
-            // it must be a BUG which break promise by above statement.
-            warnID(
-                3937,
-                this.name,
-                bindContext.origin.name,
-            );
-        }
-        return trackTarget ?? undefined;
-    }
 
     private _createEvalWithBinder (target: unknown, binder: Binder, rootMotionOptions: RootMotionOptions | undefined) {
         if (this._legacyDataDirty) {

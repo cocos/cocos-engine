@@ -1,10 +1,14 @@
-import { Quat, Vec3 } from '../../core';
+import { DEBUG } from 'internal:constants';
+import { error, Quat, Vec3, warnID } from '../../core';
 import { assertIsTrue } from '../../core/data/utils/asserts';
 import { Node } from '../../scene-graph/node';
+import { AnimationClip, exoticAnimationTag } from '../animation-clip';
 import { TransformHandle } from '../core/animation-handle';
 import { Pose } from '../core/pose';
-import { ExoticTrsAGEvaluation as AGExoticTrsEvaluation } from '../exotic-animation/exotic-animation';
-import { TrackEval } from '../tracks/track';
+import { createEvalSymbol } from '../define';
+import { ExoticTrsAGEvaluation } from '../exotic-animation/exotic-animation';
+import { isTrsPropertyName, normalizedFollowTag, Track, TrackBinding, trackBindingTag, TrackEval } from '../tracks/track';
+import { UntypedTrack } from '../tracks/untyped-track';
 
 /**
  * This module contains utilities to marry animation clip with animation graph.
@@ -12,9 +16,9 @@ import { TrackEval } from '../tracks/track';
  * A typical workflow is:
  *
  * At initial, an animation clip is bound to animation graph in `AnimationClipGraphBindingContext`,
- * an `AGAnimationClipEvaluation` is created after this phase to track the evaluation.
+ * an `AnimationClipAGEvaluation` is created after this phase to track the evaluation.
  *
- * Then at each frame, `AGAnimationClipEvaluation.evaluate()` is called,
+ * Then at each frame, `AnimationClipAGEvaluation.evaluate()` is called,
  * passed with the current `AnimationClipGraphEvaluationContext`.
  * The evaluation context gives the pose that need to be filled,
  * then animation clip emplaces sampled animation data into the pose.
@@ -156,7 +160,7 @@ class PoseScaleBinding extends PoseBindingBase implements PoseBinding<Vec3> {
  * @returns The pose binding.
  */
 // eslint-disable-next-line consistent-return
-export function bindPoseTransform (
+function bindPoseTransform (
     transformHandle: TransformHandle,
     propertyKey: 'position' | 'rotation' | 'scale' | 'eulerAngles',
 ): PoseBinding<unknown> {
@@ -177,7 +181,7 @@ export function bindPoseTransform (
 /**
  * Describes the evaluation of a animation clip track in sense of animation graph.
  */
-export class AGTrackEvaluation<TValue> {
+class AGTrackEvaluation<TValue> {
     constructor (binding: PoseBinding<TValue>, trackEvaluation: TrackEval<TValue>) {
         this._binding = binding;
         this._trackSampler = trackEvaluation;
@@ -200,14 +204,108 @@ export class AGTrackEvaluation<TValue> {
     private _trackSampler: TrackEval<TValue>;
 }
 
+function bindTrackAG (animationClip: AnimationClip, track: Track, bindContext: AnimationClipGraphBindingContext) {
+    const trackBinding = track[trackBindingTag];
+    const trackTarget = createRuntimeBindingAG(trackBinding, bindContext);
+    if (DEBUG && !trackTarget) {
+        // If we got a null track target here, we should already have warn logged,
+        // To elaborate on error details, we warn here as well.
+        // Note: if in the future this log appears alone,
+        // it must be a BUG which break promise by above statement.
+        warnID(
+            3937,
+            animationClip.name,
+            bindContext.origin.name,
+        );
+    }
+    return trackTarget ?? undefined;
+}
+
+function createRuntimeBindingAG (track: TrackBinding, bindContext: AnimationClipGraphBindingContext) {
+    const {
+        origin,
+    } = bindContext;
+    const { path, proxy } = track;
+    const nPaths = path.length;
+    const iLastPath = nPaths - 1;
+
+    if (nPaths !== 0 && (path.isPropertyAt(iLastPath) || path.isElementAt(iLastPath)) && !proxy) {
+        const lastPropertyKey = path.isPropertyAt(iLastPath)
+            ? path.parsePropertyAt(iLastPath)
+            : path.parseElementAt(iLastPath);
+        const resultTarget = path[normalizedFollowTag](origin, 0, nPaths - 1);
+        if (resultTarget === null) {
+            return null;
+        }
+
+        if (resultTarget instanceof Node && isTrsPropertyName(lastPropertyKey)) {
+            const transformPath = (() => {
+                const segments = [] as string[];
+                let node: Node | null = resultTarget;
+                for (; node && node !== origin; node = node.parent) {
+                    segments.unshift(node.name);
+                }
+                if (node === origin) {
+                    return segments.join('/');
+                } else {
+                    return undefined;
+                }
+            })();
+            if (typeof transformPath === 'string') {
+                const transformHandle = bindContext.bindTransform(transformPath);
+                if (!transformHandle) {
+                    return undefined;
+                }
+                return bindPoseTransform(transformHandle, lastPropertyKey);
+            }
+        }
+    }
+
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    // TODO: here should be resolved before this can be landed.
+    error(`Animation graph currently only supports (bone) transform animations.`);
+    return undefined;
+}
+
 /**
  * Describes the evaluation of a animation clip in sense of animation graph.
  */
-export class AGAnimationClipEvaluation {
+export class AnimationClipAGEvaluation {
     constructor (
-        trackEvaluations: AGTrackEvaluation<any>[],
-        exoticAnimationEvaluation: AGExoticTrsEvaluation | undefined,
+        clip: AnimationClip,
+        context: AnimationClipGraphBindingContext,
     ) {
+        clip.__trySyncLegacyData();
+
+        const trackEvaluations: AGTrackEvaluation<unknown>[] = [];
+        let exoticAnimationEvaluation: ExoticTrsAGEvaluation | undefined;
+
+        const {
+            tracks,
+            [exoticAnimationTag]: exoticAnimation,
+        } = clip;
+
+        for (const track of tracks) {
+            if (track instanceof UntypedTrack) {
+            // Untyped track is not supported in AG.
+                continue;
+            }
+            if (Array.from(track.channels()).every(({ curve }) => curve.keyFramesCount === 0)) {
+                continue;
+            }
+            const trackRuntimeBinding = bindTrackAG(clip, track, context);
+            if (!trackRuntimeBinding) {
+                continue;
+            }
+            const trackSampler = track[createEvalSymbol]();
+            const trackEvaluation = new AGTrackEvaluation(trackRuntimeBinding, trackSampler);
+            trackEvaluations.push(trackEvaluation);
+        }
+
+        if (exoticAnimation) {
+            exoticAnimationEvaluation = exoticAnimation.createEvaluatorForAnimationGraph(context);
+        }
+
         this._trackEvaluations = trackEvaluations;
         this._exoticAnimationEvaluation = exoticAnimationEvaluation;
     }
@@ -247,5 +345,5 @@ export class AGAnimationClipEvaluation {
 
     private _trackEvaluations: AGTrackEvaluation<any>[] = [];
 
-    private _exoticAnimationEvaluation: AGExoticTrsEvaluation | undefined;
+    private _exoticAnimationEvaluation: ExoticTrsAGEvaluation | undefined;
 }
