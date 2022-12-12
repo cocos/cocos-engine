@@ -235,22 +235,6 @@ void CCVKSwapchain::doInit(const SwapchainInfo &info) {
     auto *window = CC_GET_SYSTEM_WINDOW(_windowId);
     auto viewSize = window->getViewSize();
     checkSwapchainStatus(viewSize.width, viewSize.height);
-
-    // Android Game Frame Pacing:swappy
-    #if CC_SWAPPY_ENABLED
-    int32_t fps = cc::BasePlatform::getPlatform()->getFps();
-
-    uint64_t frameRefreshIntervalNS;
-    auto *platform = static_cast<AndroidPlatform *>(cc::BasePlatform::getPlatform());
-    SwappyVk_initAndGetRefreshCycleDuration(static_cast<JNIEnv *>(platform->getEnv()),
-                                            static_cast<jobject>(platform->getActivity()),
-                                            gpuContext->physicalDevice,
-                                            gpuDevice->vkDevice,
-                                            _gpuSwapchain->vkSwapchain,
-                                            &frameRefreshIntervalNS);
-    SwappyVk_setSwapIntervalNS(gpuDevice->vkDevice, _gpuSwapchain->vkSwapchain, fps ? 1000000000L / fps : frameRefreshIntervalNS);
-    SwappyVk_setWindow(gpuDevice->vkDevice, _gpuSwapchain->vkSwapchain, static_cast<ANativeWindow *>(info.windowHandle));
-    #endif
 #else
     checkSwapchainStatus();
 #endif
@@ -413,6 +397,27 @@ bool CCVKSwapchain::checkSwapchainStatus(uint32_t width, uint32_t height) {
 
     _gpuSwapchain->lastPresentResult = VK_SUCCESS;
 
+    // Android Game Frame Pacing:swappy
+#if CC_SWAPPY_ENABLED
+
+    auto *gpuDevice = CCVKDevice::getInstance()->gpuDevice();
+    const auto *gpuContext = CCVKDevice::getInstance()->gpuContext();
+    int32_t fps = cc::BasePlatform::getPlatform()->getFps();
+
+    uint64_t frameRefreshIntervalNS;
+    auto *platform = static_cast<AndroidPlatform *>(cc::BasePlatform::getPlatform());
+    auto *window = CC_GET_SYSTEM_WINDOW(_windowId);
+    void *windowHandle = reinterpret_cast<void *>(window->getWindowHandle());
+    SwappyVk_initAndGetRefreshCycleDuration(static_cast<JNIEnv *>(platform->getEnv()),
+                                            static_cast<jobject>(platform->getActivity()),
+                                            gpuContext->physicalDevice,
+                                            gpuDevice->vkDevice,
+                                            _gpuSwapchain->vkSwapchain,
+                                            &frameRefreshIntervalNS);
+    SwappyVk_setSwapIntervalNS(gpuDevice->vkDevice, _gpuSwapchain->vkSwapchain, fps ? 1000000000L / fps : frameRefreshIntervalNS);
+    SwappyVk_setWindow(gpuDevice->vkDevice, _gpuSwapchain->vkSwapchain, static_cast<ANativeWindow *>(windowHandle));
+#endif
+
     return true;
 }
 
@@ -454,10 +459,6 @@ void CCVKSwapchain::doCreateSurface(void *windowHandle) { // NOLINT
     checkSwapchainStatus(viewSize.width, viewSize.height);
 #else
     checkSwapchainStatus();
-#endif
-#if CC_SWAPPY_ENABLED
-    auto *gpuDevice = CCVKDevice::getInstance()->gpuDevice();
-    SwappyVk_setWindow(gpuDevice->vkDevice, _gpuSwapchain->vkSwapchain, static_cast<ANativeWindow *>(windowHandle));
 #endif
 }
 
