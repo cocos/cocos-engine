@@ -89,6 +89,7 @@ public:
     void activate(gfx::Device *device, const DebugRendererInfo &info = DebugRendererInfo());
     void render(gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff, pipeline::PipelineSceneData *sceneData);
     void destroy();
+    void update();
 
     void addText(const ccstd::string &text, const Vec2 &screenPos);
     void addText(const ccstd::string &text, const Vec2 &screenPos, const DebugTextInfo &info);

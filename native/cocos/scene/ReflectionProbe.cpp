@@ -97,8 +97,16 @@ void ReflectionProbe::renderPlanarReflection(const Camera* sourceCamera) {
     _needRender = true;
 }
 
+void ReflectionProbe::switchProbeType(int32_t type, const Camera* sourceCamera) {
+    if (type == static_cast<uint32_t>(ProbeType::CUBE)) {
+        _needRender = false;
+    } else if (sourceCamera != nullptr) {
+        renderPlanarReflection(sourceCamera);
+    }
+}
+
 void ReflectionProbe::transformReflectionCamera(const Camera* sourceCamera) {
-    int32_t offset = Vec3::dot(_node->getWorldPosition(), Vec3::UNIT_Y);
+    float offset = Vec3::dot(_node->getWorldPosition(), Vec3::UNIT_Y);
     _cameraWorldPos = reflect(sourceCamera->getNode()->getWorldPosition(), Vec3::UNIT_Y, offset);
     _cameraNode->setWorldPosition(_cameraWorldPos);
 
@@ -116,9 +124,17 @@ void ReflectionProbe::transformReflectionCamera(const Camera* sourceCamera) {
     Quaternion::fromViewUp(_forward, _up, &_cameraWorldRotation);
     _cameraNode->setWorldRotation(_cameraWorldRotation);
     _camera->update(true);
+
+    // Transform the plane from world space to reflection camera space use the inverse transpose matrix
+    Vec4 viewSpaceProbe{ Vec3::UNIT_Y.x, Vec3::UNIT_Y.y, Vec3::UNIT_Y.z, -Vec3::dot(Vec3::UNIT_Y, _node->getWorldPosition()) };
+    Mat4 matView = _camera->getMatView();
+    matView.inverse();
+    matView.transpose();
+    matView.transformVector(&viewSpaceProbe);
+    _camera->calculateObliqueMat(viewSpaceProbe);
 }
 
-Vec3 ReflectionProbe::reflect(const Vec3& point, const Vec3& normal, int32_t offset) {
+Vec3 ReflectionProbe::reflect(const Vec3& point, const Vec3& normal, float offset) {
     Vec3 n = normal;
     n.normalize();
     float dist = Vec3::dot(n, point) - offset;

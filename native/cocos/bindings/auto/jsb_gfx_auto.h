@@ -565,6 +565,15 @@ template<>
 bool sevalue_to_native(const se::Value &from, cc::gfx::QueryPoolInfo * to, se::Object *ctx);
 
 
+JSB_REGISTER_OBJECT_TYPE(cc::gfx::FormatInfo);
+extern se::Object *__jsb_cc_gfx_FormatInfo_proto; // NOLINT
+extern se::Class * __jsb_cc_gfx_FormatInfo_class; // NOLINT
+
+
+template<>
+bool sevalue_to_native(const se::Value &from, cc::gfx::FormatInfo * to, se::Object *ctx);
+
+
 JSB_REGISTER_OBJECT_TYPE(cc::gfx::MemoryStatus);
 extern se::Object *__jsb_cc_gfx_MemoryStatus_proto; // NOLINT
 extern se::Class * __jsb_cc_gfx_MemoryStatus_class; // NOLINT

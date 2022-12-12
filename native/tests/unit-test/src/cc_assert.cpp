@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -21,20 +21,42 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
-****************************************************************************/
+ ****************************************************************************/
+#include "gtest/gtest.h"
 
-#pragma once
-
-#include <cstdint>
 #include "base/Macros.h"
 
-namespace cc {
+namespace {
+bool compile_assertions(bool returns) {
+    if (returns) return true;
 
-class TouchEvent;
+    CC_ASSERT(true);
+    CC_ASSERT(1 == 1);
+    CC_ASSERT_TRUE(true);
+    CC_ASSERT_FALSE(false);
+    CC_ASSERT_EQ(1, 3 / 3);
+    CC_ASSERT_NE(1, 4);
 
-class View {
-public:
-    static void engineHandleCmd(int cmd);
-};
+    CC_ASSERTF(true, "hello");
+    CC_ASSERTF(true, "hello %s", "world");
+    CC_ASSERTF_EQ(1, 1, "hello");
+    CC_ASSERTF_EQ(1, 1, "hello %s", "world");
 
-} // namespace cc
+    CC_ASSERTF_NE(1, 1, "hello");
+    CC_ASSERTF_NE(1, 1, "hello %s", "world");
+    CC_ASSERTF_NULL(nullptr, "hello");
+    CC_ASSERTF_NOT_NULL(nullptr, "hello");
+    CC_ASSERTF_EQ(1, 1, "hello %s", "world");
+    CC_ASSERTF_NE(1, 1, "hello %s", "world");
+
+    CC_ABORT();
+    CC_ABORTF("hello");
+    CC_ABORTF("hello %s", "world");
+
+    return false;
+}
+} // namespace
+
+TEST(CC_ASSERT, test_compile) {
+    EXPECT_EQ(compile_assertions(true), true);
+}

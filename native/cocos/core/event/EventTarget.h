@@ -394,7 +394,7 @@ public:
                 if (!sameAddr && strcmp(handle->getEventName(), TgtEvent::EVENT_NAME)) {
                     // different event should not shared a same typeid.
                     CC_LOG_ERROR("Event '%s' and '%s' shared the same TypeID(), for event declaration of subclasses, please use DECLARE_TARGET_EVENT_BEGIN_OFFSET()", TgtEvent::EVENT_NAME, handle->getEventName());
-                    CC_ASSERT(false);
+                    CC_ABORT();
                 }
 #endif
                 static_cast<_handler_function_type *>(handle)->apply(self, eventObj);
@@ -409,7 +409,7 @@ public:
                 if (!sameAddr && strcmp(handle->getEventName(), TgtEvent::EVENT_NAME)) {
                     // different event should not shared a same typeid.
                     CC_LOG_ERROR("Event '%s' and '%s' shared the same TypeID(), for event declaration of subclasses, please use DECLARE_TARGET_EVENT_BEGIN_OFFSET()", TgtEvent::EVENT_NAME, handle->getEventName());
-                    CC_ASSERT(false);
+                    CC_ABORT();
                 }
 #endif
                 static_cast<_handler_function_type *>(handle)->apply(self, eventObj);

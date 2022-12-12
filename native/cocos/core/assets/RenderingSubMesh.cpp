@@ -274,7 +274,7 @@ const gfx::BufferList &RenderingSubMesh::getJointMappedBuffers() {
                     if (iter != idxMap.end()) {
                         return static_cast<int32_t>(iter - idxMap.begin());
                     }
-                    CC_ASSERT(false);
+                    CC_ABORT();
                     return -1;
                 },
                 jointFormat, jointOffset, bundle.view.length, bundle.view.stride, &dataView);

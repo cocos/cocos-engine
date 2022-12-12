@@ -33,6 +33,8 @@ import { MacroRecord } from '../../render-scene/core/pass-utils';
 import { programLib } from '../../render-scene/core/program-lib';
 import { Asset } from './asset';
 import { cclegacy, warnID } from '../../core';
+import { ProgramLibrary } from '../../rendering/custom/private';
+import { getCombinationDefines } from '../../render-scene/core/program-utils';
 
 export declare namespace EffectAsset {
     export interface IPropertyInfo {
@@ -300,28 +302,27 @@ export class EffectAsset extends Asset {
      */
     public onLoaded () {
         if (cclegacy.rendering && cclegacy.rendering.enableEffectImport) {
-            cclegacy.rendering.replaceShaderInfo(this);
+            (cclegacy.rendering.programLib as ProgramLibrary).addEffect(this);
+        } else {
+            programLib.register(this);
         }
-        programLib.register(this);
         EffectAsset.register(this);
         if (!EDITOR || cclegacy.GAME_VIEW) { cclegacy.game.once(cclegacy.Game.EVENT_RENDERER_INITED, this._precompile, this); }
     }
 
     protected _precompile () {
+        if (cclegacy.rendering && cclegacy.rendering.enableEffectImport) {
+            (cclegacy.rendering.programLib as ProgramLibrary).precompileEffect(deviceManager.gfxDevice, this);
+            return;
+        }
         const root = cclegacy.director.root as Root;
         for (let i = 0; i < this.shaders.length; i++) {
             const shader = this.shaders[i];
             const combination = this.combinations[i];
-            if (!combination) { continue; }
-            const defines = Object.keys(combination).reduce((out, name) => out.reduce((acc, cur) => {
-                const choices = combination[name];
-                for (let i = 0; i < choices.length; ++i) {
-                    const defines = { ...cur };
-                    defines[name] = choices[i];
-                    acc.push(defines);
-                }
-                return acc;
-            }, [] as MacroRecord[]), [{}] as MacroRecord[]);
+            if (!combination) {
+                continue;
+            }
+            const defines = getCombinationDefines(combination);
             defines.forEach(
                 (defines) => programLib.getGFXShader(deviceManager.gfxDevice, shader.name, defines, root.pipeline),
             );

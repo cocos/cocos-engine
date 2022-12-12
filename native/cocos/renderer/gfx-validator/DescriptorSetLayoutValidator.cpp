@@ -70,10 +70,10 @@ void DescriptorSetLayoutValidator::doInit(const DescriptorSetLayoutInfo &info) {
     uint32_t lastType{0};
     for (const auto &binding : bindings) {
         CC_ASSERT(binding.binding != INVALID_BINDING);
-        CC_ASSERT(binding.descriptorType != DescriptorType::UNKNOWN);
+        CC_ASSERT_NE(binding.descriptorType, DescriptorType::UNKNOWN);
         CC_ASSERT(math::isPowerOfTwo(toNumber(binding.descriptorType)));
         CC_ASSERT(binding.count);
-        CC_ASSERT(binding.stageFlags != ShaderStageFlagBit::NONE);
+        CC_ASSERT_NE(binding.stageFlags, ShaderStageFlagBit::NONE);
         for (const Sampler *sampler : binding.immutableSamplers) {
             CC_ASSERT(sampler);
         }
@@ -90,7 +90,7 @@ void DescriptorSetLayoutValidator::doInit(const DescriptorSetLayoutInfo &info) {
          */
         uint32_t type{DESCRIPTOR_TYPE_ORDERS[utils::getBitPosition(toNumber(binding.descriptorType))]};
         // deffered pipeline issue: https://github.com/cocos/cocos-engine/pull/10701
-        // CC_ASSERT(lastType <= type);
+        // CC_ASSERT_LE(lastType, type);
         lastType = type;
         ++_typeCounts[type];
     }

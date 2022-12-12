@@ -161,7 +161,7 @@ cclegacy.Mesh = jsb.Mesh;
 
 // handle meta data, it is generated automatically
 const MeshProto = Mesh.prototype;
-serializable(MeshProto, '_struct');
-serializable(MeshProto, '_hash');
-serializable(MeshProto, '_allowDataAccess');
+serializable(MeshProto, '_struct', () => { return { vertexBundles: [], primitives: [] } });
+serializable(MeshProto, '_hash', () => 0);
+serializable(MeshProto, '_allowDataAccess', () => true);
 ccclass('cc.Mesh')(Mesh);

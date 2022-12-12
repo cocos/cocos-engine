@@ -252,6 +252,8 @@ export class PhysicsSystem2D extends Eventify(System) {
 
         director.emit(Director.EVENT_BEFORE_PHYSICS);
 
+        this.physicsWorld.syncSceneToPhysics();
+
         this._steping = true;
 
         const fixedTimeStep = this._fixedTimeStep;

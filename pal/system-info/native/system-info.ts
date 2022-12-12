@@ -92,7 +92,7 @@ class SystemInfo extends EventTarget {
             [Feature.EVENT_GAMEPAD]: true,
             [Feature.EVENT_HANDLE]: this.isXR,
             [Feature.EVENT_HMD]: this.isXR,
-            [Feature.EVENT_HANDSET]: (typeof xr !== 'undefined' && typeof xr.ARModule !== 'undefined'),
+            [Feature.EVENT_HANDHELD]: (typeof xr !== 'undefined' && typeof xr.ARModule !== 'undefined'),
         };
 
         this._initPromise = [];

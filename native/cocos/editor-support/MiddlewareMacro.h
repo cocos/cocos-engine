@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 #pragma once
-// index buffer init capacity 8 * vertex size
+// index buffer init capacity. IB_SCALE = 4
 #define INIT_INDEX_BUFFER_SIZE 524280
 // max vertex buffer size
 #define MAX_VERTEX_BUFFER_SIZE 65535

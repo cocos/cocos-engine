@@ -65,7 +65,7 @@ bool js_gfx_Device_copyBuffersToTexture(se::State &s) { // NOLINT(readability-id
                             ok = obj->getTypedArrayData(&ptr, &dataLength);
                             SE_PRECONDITION2(ok, false, "getTypedArrayData failed!");
                         } else {
-                            CC_ASSERT(false);
+                            CC_ABORT();
                         }
                     } else {
                         ptr = reinterpret_cast<uint8_t *>(value.asPtr()); // NOLINT(performance-no-int-to-ptr) script engine bad API design
@@ -119,7 +119,7 @@ bool js_gfx_Device_copyTextureToBuffers(se::State &s) { // NOLINT(readability-id
                             ok = obj->getTypedArrayData(&ptr, &dataLength);
                             SE_PRECONDITION2(ok, false, "getTypedArrayData failed!");
                         } else {
-                            CC_ASSERT(false);
+                            CC_ABORT();
                         }
                     } else {
                         ptr = reinterpret_cast<uint8_t *>(value.asPtr()); // NOLINT(performance-no-int-to-ptr) script engine bad API design
@@ -172,12 +172,12 @@ bool js_gfx_Device_copyTexImagesToTexture(se::State &s) { // NOLINT(readability-
                             value.toObject()->getArrayBufferData(&buffer, &dataLength);
                         } else {
                             auto *dataHolder = static_cast<cc::JSBNativeDataHolder *>(value.toObject()->getPrivateData());
-                            CC_ASSERT(dataHolder != nullptr);
+                            CC_ASSERT_NOT_NULL(dataHolder);
                             buffer = dataHolder->getData();
                         }
                         arg0[i] = buffer;
                     } else {
-                        CC_ASSERT(false);
+                        CC_ABORT();
                     }
                 }
             }
@@ -465,7 +465,7 @@ static bool js_gfx_CommandBuffer_copyBuffersToTexture(se::State &s) { // NOLINT(
                         ok = obj->getTypedArrayData(&ptr, &dataLength);
                         SE_PRECONDITION2(ok, false, "getTypedArrayData failed!");
                     } else {
-                        CC_ASSERT(false);
+                        CC_ABORT();
                     }
                     arg0[i] = ptr;
                 }

@@ -57,7 +57,7 @@ public:
     virtual const char *getName() const = 0;
     virtual void *getRaw() const = 0;
     virtual void allowDestroyInGC() const {
-        CC_ASSERT(false);
+        CC_ABORT();
     }
     virtual void tryAllowDestroyInGC() const {}
 
@@ -131,17 +131,8 @@ public:
 
 private:
     cc::IntrusivePtr<T> _ptr;
-
     friend TypedPrivateObject<T>;
 };
-
-template <typename T>
-inline typename std::enable_if_t<std::is_destructible<T>::value, void> cctryDelete(T *t) {
-    delete t;
-}
-template <typename T>
-inline typename std::enable_if_t<!std::is_destructible<T>::value, void> cctryDelete(T *t) {
-}
 
 template <typename T>
 class RawRefPrivateObject final : public TypedPrivateObject<T> {
@@ -150,13 +141,13 @@ public:
     explicit RawRefPrivateObject(T *p) : _ptr(p) {}
     ~RawRefPrivateObject() override {
         static_assert(!std::is_same<T, void>::value, "void is not allowed!");
-        if (_allowGC) {
-            cctryDelete(_ptr);
+        if constexpr (std::is_destructible<T>::value) {
+            if (_allowGC) {
+                delete _ptr;
+            }
         }
         _ptr = nullptr;
     }
-
-    // bool *getValidAddr() { return &_validate; }
 
     void allowDestroyInGC() const override {
         _allowGC = true;
@@ -185,7 +176,7 @@ inline std::shared_ptr<T> TypedPrivateObject<T>::share() {
     if (isSharedPtr()) {
         return reinterpret_cast<SharedPtrPrivateObject<T> *>(this)->getData();
     }
-    CC_ASSERT(false);
+    CC_ABORT();
     return std::shared_ptr<T>(nullptr);
 }
 template <typename T>

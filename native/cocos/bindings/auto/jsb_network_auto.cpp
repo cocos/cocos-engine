@@ -240,6 +240,7 @@ SE_BIND_FINALIZE_FUNC(js_delete_cc_network_DownloadTask)
 bool js_register_cc_network_DownloadTask(se::Object* obj) {
     auto* cls = se::Class::create("DownloadTask", obj, nullptr, _SE(js_new_cc_network_DownloadTask)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("identifier", _SE(js_cc_network_DownloadTask_identifier_get), _SE(js_cc_network_DownloadTask_identifier_set)); 
     cls->defineProperty("requestURL", _SE(js_cc_network_DownloadTask_requestURL_get), _SE(js_cc_network_DownloadTask_requestURL_set)); 
     cls->defineProperty("storagePath", _SE(js_cc_network_DownloadTask_storagePath_get), _SE(js_cc_network_DownloadTask_storagePath_set)); 
@@ -436,6 +437,7 @@ bool sevalue_to_native(const se::Value &from, cc::network::DownloaderHints * to,
 bool js_register_cc_network_DownloaderHints(se::Object* obj) {
     auto* cls = se::Class::create("DownloaderHints", obj, nullptr, _SE(js_new_cc_network_DownloaderHints)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("countOfMaxProcessingTasks", _SE(js_cc_network_DownloaderHints_countOfMaxProcessingTasks_get), _SE(js_cc_network_DownloaderHints_countOfMaxProcessingTasks_set)); 
     cls->defineProperty("timeoutInSeconds", _SE(js_cc_network_DownloaderHints_timeoutInSeconds_get), _SE(js_cc_network_DownloaderHints_timeoutInSeconds_set)); 
     cls->defineProperty("tempFileNameSuffix", _SE(js_cc_network_DownloaderHints_tempFileNameSuffix_get), _SE(js_cc_network_DownloaderHints_tempFileNameSuffix_set)); 
@@ -754,6 +756,7 @@ SE_BIND_PROP_SET(js_cc_network_Downloader_onProgress_set)
 bool js_register_cc_network_Downloader(se::Object* obj) {
     auto* cls = se::Class::create("Downloader", obj, nullptr, _SE(js_new_Downloader)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("onDataTaskSuccess", _SE(js_cc_network_Downloader_onDataTaskSuccess_get), _SE(js_cc_network_Downloader_onDataTaskSuccess_set)); 
     cls->defineProperty("onFileTaskSuccess", _SE(js_cc_network_Downloader_onFileTaskSuccess_get), _SE(js_cc_network_Downloader_onFileTaskSuccess_set)); 
     cls->defineProperty("onTaskProgress", _SE(js_cc_network_Downloader_onTaskProgress_get), _SE(js_cc_network_Downloader_onTaskProgress_set)); 

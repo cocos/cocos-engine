@@ -23,14 +23,15 @@
  THE SOFTWARE.
 */
 
-import { EDITOR, TEST } from 'internal:constants';
+import { EDITOR, TEST, WECHAT } from 'internal:constants';
 import { ccclass, serializable } from 'cc.decorator';
-import { TextureType, TextureInfo, TextureViewInfo } from '../../gfx';
+import { TextureType, TextureInfo, TextureViewInfo, BufferTextureCopy } from '../../gfx';
 import { ImageAsset } from './image-asset';
 import { PresumedGFXTextureInfo, PresumedGFXTextureViewInfo, SimpleTexture } from './simple-texture';
 import { ITexture2DCreateInfo, Texture2D } from './texture-2d';
 import { legacyCC } from '../../core/global-exports';
-import { js } from '../../core';
+import { js, sys } from '../../core';
+import { OS } from '../../../pal/system-info/enum-type';
 
 export type ITextureCubeCreateInfo = ITexture2DCreateInfo;
 /**
@@ -185,6 +186,12 @@ export class TextureCube extends SimpleTexture {
         }
         const imageAtlasAsset: ImageAsset = this._mipmapAtlas.atlas.front;
         if (!imageAtlasAsset.data) {
+            return;
+        }
+        //In ios wechat mini-game platform drawImage and getImageData can not get correct data,so upload to gfxTexture than use readPixels to get data
+        //The performance of upload to gfxTexture and readPixels is not good, so only use this way in the ios wechat mini-game platform
+        if (WECHAT && sys.os === OS.IOS) {
+            this._uploadAtlas();
             return;
         }
         const faceAtlas = this._mipmapAtlas.atlas;
@@ -490,6 +497,49 @@ export class TextureCube extends SimpleTexture {
         texViewInfo.layerCount = 6;
         Object.assign(texViewInfo, presumed);
         return texViewInfo;
+    }
+
+    protected _uploadAtlas () {
+        const layout = this._mipmapAtlas!.layout;
+        const mip0Layout = layout[0];
+        this.reset({
+            width: mip0Layout.width,
+            height: mip0Layout.height,
+            format: this._mipmapAtlas!.atlas.front.format,
+            mipmapLevel: layout.length,
+        });
+
+        _forEachFace(this._mipmapAtlas!.atlas, (face, faceIndex) => {
+            const tex = new Texture2D();
+            tex.image = face;
+            tex.reset({
+                width: face.width,
+                height: face.height,
+                format: face.format,
+            });
+            tex.uploadData(face.data!);
+
+            for (let i = 0; i < layout.length; i++) {
+                const layoutInfo = layout[i];
+
+                const buffer = new Uint8Array(4 * layoutInfo.width * layoutInfo.height);
+                const region = new BufferTextureCopy();
+                region.texOffset.x = layoutInfo.left;
+                region.texOffset.y = layoutInfo.top;
+                region.texExtent.width = layoutInfo.width;
+                region.texExtent.height = layoutInfo.height;
+
+                this._getGFXDevice()!.copyTextureToBuffers(tex.getGFXTexture()!, [buffer], [region]);
+                const bufferAsset = new ImageAsset({
+                    _data: buffer,
+                    _compressed: face.isCompressed,
+                    width: layoutInfo.width,
+                    height: layoutInfo.height,
+                    format: face.format,
+                });
+                this._assignImage(bufferAsset, layoutInfo.level, faceIndex);
+            }
+        });
     }
 
     public initDefault (uuid?: string) {

@@ -1,4 +1,4 @@
-import { ALIPAY, BAIDU, BYTEDANCE, COCOSPLAY, HUAWEI, LINKSURE, OPPO, QTT, VIVO, WECHAT, XIAOMI, DEBUG, EDITOR, TEST } from 'internal:constants';
+import { ALIPAY, BAIDU, BYTEDANCE, COCOSPLAY, HUAWEI, LINKSURE, OPPO, QTT, VIVO, WECHAT, XIAOMI, DEBUG, TEST, TAOBAO } from 'internal:constants';
 import { minigame } from 'pal/minigame';
 import { IFeatureMap } from 'pal/system-info';
 import { EventTarget } from '../../../cocos/core/event';
@@ -14,6 +14,8 @@ if (WECHAT) {
     currentPlatform = Platform.XIAOMI_QUICK_GAME;
 } else if (ALIPAY) {
     currentPlatform = Platform.ALIPAY_MINI_GAME;
+} else if (TAOBAO) {
+    currentPlatform = Platform.TAOBAO_CREATIVE_APP;
 } else if (BYTEDANCE) {
     currentPlatform = Platform.BYTEDANCE_MINI_GAME;
 } else if (OPPO) {
@@ -113,7 +115,7 @@ class SystemInfo extends EventTarget {
             [Feature.EVENT_GAMEPAD]: false,
             [Feature.EVENT_HANDLE]: this.isXR,
             [Feature.EVENT_HMD]: this.isXR,
-            [Feature.EVENT_HANDSET]: false,
+            [Feature.EVENT_HANDHELD]: false,
         };
 
         this._initPromise = [];
@@ -133,6 +135,11 @@ class SystemInfo extends EventTarget {
 
     private _supportsWebp (): Promise<boolean> {
         return new Promise<boolean>((resolve, reject) => {
+            // HACK: webp base64 doesn't support on Wechat Android, which reports some internal error log.
+            if (WECHAT && this.os === OS.ANDROID) {
+                resolve(false);
+                return;
+            }
             try {
                 const img = document.createElement('img');
                 const timer = setTimeout(() => {
@@ -182,7 +189,7 @@ class SystemInfo extends EventTarget {
         return minigame.getBatteryInfoSync().level / 100;
     }
     public triggerGC (): void {
-        minigame.triggerGC();
+        minigame.triggerGC?.();
     }
     public openURL (url: string): void {
         if (DEBUG) {

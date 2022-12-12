@@ -1,0 +1,104 @@
+#include <common/math/transform>
+#include <common/texture/texture-misc>
+
+// Vertex Animation Texture (VAT), baked physically simulation result for rigid-body, soft-body and fluid
+
+// Houdini export settings:
+    // 1. Select Unity mode (Y-axis is up and position scale is 0.01), otherwise animation will become crack
+    // 2. Select LDR
+    // 3. Do not check paddle, two-position textures and pack normals
+    // 4. Export json for numOfFrames(frameCount)
+
+// Cocos import settings:
+    // 1. LUT texture should set filter to "nearest" and uncheck "fix alpha transparency"
+
+#define VAT_UNITY_TO_COCOS_COORDINATE_SCALE 0.01
+#define VAT_LUT_PRECISION_VALUE_LDR 255.0
+#define VAT_LUT_PRECISION_VALUE_HDR 2048.0
+
+float CalculateVATAnimationUV(out vec2 deltaV, float frameCount, float animSpeed, float elapseTime)
+{
+  float thisFrame = fract(animSpeed * elapseTime);
+  thisFrame = floor(thisFrame * frameCount);
+  float thisFrameDeltaV = thisFrame / frameCount;
+  float nextFrameDeltaV = (thisFrame + 1.0) / frameCount;
+  deltaV = vec2(thisFrameDeltaV, nextFrameDeltaV);
+  float frameLerp = fract(thisFrame * frameCount);
+  return frameLerp;
+}
+
+
+
+///////////////////////////////////////////// public functions
+// auto calculation frame count for fluid
+float VATCalculateFrameCount(vec2 lutTexResolution, float meshVertexCount)
+{
+    float lineCountPerFrame = ceil(meshVertexCount / lutTexResolution.x);
+    return floor(lutTexResolution.y / lineCountPerFrame);
+}
+
+// meshUV use texCoord0 for fluid
+// meshUV use texCoord1 for rigid-body and soft-body
+float VATGetAnimUV(out vec2 thisFrameUV, out vec2 nextFrameUV, vec2 meshUV, float frameCount, float animSpeed, float elapseTime)
+{
+  vec2 frameDeltaV;
+  float frameLerp = CalculateVATAnimationUV(frameDeltaV, frameCount, animSpeed, elapseTime);
+  thisFrameUV = meshUV + vec2(0.0, frameDeltaV.x);
+  nextFrameUV = meshUV + vec2(0.0, frameDeltaV.y);
+  return frameLerp;
+}
+// VAT with LUT, fluid only
+float VATGetAnimUV(out vec2 thisFrameUV, out vec2 nextFrameUV, vec2 meshUV, float frameCount, float animSpeed, float elapseTime, sampler2D lutTexture)
+{
+  vec2 frameDeltaV;
+  float frameLerp = CalculateVATAnimationUV(frameDeltaV, frameCount, animSpeed, elapseTime);
+  vec4 thisFramelookUpValue = texture(lutTexture, meshUV + vec2(0.0, frameDeltaV.x));
+  thisFrameUV = thisFramelookUpValue.xz + thisFramelookUpValue.yw / VAT_LUT_PRECISION_VALUE_LDR;
+  vec4 nextFramelookUpValue = texture(lutTexture, meshUV + vec2(0.0, frameDeltaV.y));
+  nextFrameUV = nextFramelookUpValue.xz + nextFramelookUpValue.yw / VAT_LUT_PRECISION_VALUE_LDR;
+  return frameLerp;
+}
+
+// return absolute position for fluid
+// return position offset for rigid-body and soft-body
+vec3 VATGetLocalPosition(vec2 thisFrameUV, sampler2D vatPositionTexture, sampler2D vatPositionSignTexture)
+{
+  vec3 thisFramePos = SampleTextureExr(vatPositionTexture, vatPositionSignTexture, thisFrameUV);
+  return thisFramePos * VAT_UNITY_TO_COCOS_COORDINATE_SCALE;
+}
+// meshNormal is up-axis for fluid
+vec3 VATGetLocalNormal(vec3 meshNormal, vec2 thisFrameUV, sampler2D vatRotationTexture, sampler2D vatRotationSignTexture, sampler2D vatRotationAlphaTexture)
+{
+  vec4 thisFrameData = SampleTextureExrWithAlpha(vatRotationTexture, vatRotationSignTexture, vatRotationAlphaTexture, thisFrameUV);
+  rotateVecFromQuat(meshNormal, thisFrameData);
+  return meshNormal;
+}
+
+// for smooth animation
+vec3 VATGetLocalPosition(vec2 thisFrameUV, vec2 nextFrameUV, float frameLerp, sampler2D vatPositionTexture, sampler2D vatPositionSignTexture)
+{
+  vec3 thisFramePos = SampleTextureExr(vatPositionTexture, vatPositionSignTexture, thisFrameUV);
+  vec3 nextFramePos = SampleTextureExr(vatPositionTexture, vatPositionSignTexture, nextFrameUV);
+  return mix(thisFramePos, nextFramePos, frameLerp) * VAT_UNITY_TO_COCOS_COORDINATE_SCALE;
+}
+vec3 VATGetLocalNormal(vec3 meshNormal, vec2 thisFrameUV, vec2 nextFrameUV, float frameLerp, sampler2D vatRotationTexture, sampler2D vatRotationSignTexture, sampler2D vatRotationAlphaTexture)
+{
+  vec4 thisFrameData = SampleTextureExrWithAlpha(vatRotationTexture, vatRotationSignTexture, vatRotationAlphaTexture, thisFrameUV);
+  vec4 nextFrameData = SampleTextureExrWithAlpha(vatRotationTexture, vatRotationSignTexture, vatRotationAlphaTexture, nextFrameUV);
+  vec4 data = mix(thisFrameData, nextFrameData, frameLerp);
+
+  rotateVecFromQuat(meshNormal, data);
+  return meshNormal;
+}
+
+// calculate simulation voxel coordinates
+vec3 VATCalculateFluidVoxelUV(vec3 vatBoundingBoxMin, vec3 vatBoundingBoxMax, vec3 localPos)
+{
+  // bounding box in exported json is unscaled
+  vatBoundingBoxMin *= VAT_UNITY_TO_COCOS_COORDINATE_SCALE;
+  vatBoundingBoxMax *= VAT_UNITY_TO_COCOS_COORDINATE_SCALE;
+  
+  vec3 size = vatBoundingBoxMax - vatBoundingBoxMin;
+  vec3 coef = (localPos - vatBoundingBoxMin) / size;
+  return coef;
+}

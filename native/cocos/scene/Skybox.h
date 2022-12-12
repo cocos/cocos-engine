@@ -147,6 +147,9 @@ public:
         return _envmapHDR;
     }
 
+    void setRotationAngle(float val);
+    inline float getRotationAngle() const { return _rotationAngle; }
+
     /**
      * @en The optional diffusion convolution map used in tandem with IBL
      * @zh 使用的漫反射卷积图
@@ -164,6 +167,10 @@ public:
     TextureCube *getDiffuseMap() const;
 
     void setReflectionMap(TextureCube *val);
+    TextureCube* getReflectionMap() const;
+
+    void setSkyboxMaterial(Material *val);
+    inline Material *getSkyboxMaterial() const { return _editableMaterial; }
 
     void activate(Skybox *resource);
 

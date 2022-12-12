@@ -1,4 +1,4 @@
-/*
+/****************************************************************************
  Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
@@ -21,32 +21,12 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
-*/
+****************************************************************************/
 
-import { HandsetInputDevice } from 'pal/input';
-import { Event } from './event';
-import { SystemEventTypeUnion } from '../event-enum';
+#pragma once
 
-/**
- * @en
- * The Handset event.
- *
- * @zh
- * 手持设备事件。
- */
-export class EventHandset extends Event {
-    /**
-     * @en The handset device which trigger the current handset event
-     * @zh 触发当前手持设备事件的手持设备
-     */
-    public handsetInputDevice: HandsetInputDevice;
-
-    /**
-     * @param eventType - The type of the event
-     * @param handsetInputDevice - The handset device which trigger the current handset event
-     */
-    constructor (eventType: SystemEventTypeUnion, handsetInputDevice: HandsetInputDevice) {
-        super(eventType, false);
-        this.handsetInputDevice = handsetInputDevice;
-    }
+namespace se {
+class Object;
 }
+
+bool register_all_geometry_manual(se::Object *obj); // NOLINT

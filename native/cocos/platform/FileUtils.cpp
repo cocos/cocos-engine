@@ -926,49 +926,49 @@ void FileUtils::listFilesRecursively(const ccstd::string &dirPath, ccstd::vector
 // windows os implement should override in platform specific FileUtiles class
 bool FileUtils::isDirectoryExistInternal(const ccstd::string &dirPath) const {
     // FileUtils not support isDirectoryExistInternal.
-    CC_ASSERT(false);
+    CC_ABORT();
     return false;
 }
 
 bool FileUtils::createDirectory(const ccstd::string &path) {
     // FileUtils not support createDirectory.
-    CC_ASSERT(false);
+    CC_ABORT();
     return false;
 }
 
 bool FileUtils::removeDirectory(const ccstd::string &path) {
     // FileUtils not support removeDirectory.
-    CC_ASSERT(false);
+    CC_ABORT();
     return false;
 }
 
 bool FileUtils::removeFile(const ccstd::string &path) {
     // FileUtils not support removeFile.
-    CC_ASSERT(false);
+    CC_ABORT();
     return false;
 }
 
 bool FileUtils::renameFile(const ccstd::string &oldfullpath, const ccstd::string &newfullpath) {
     // FileUtils not support renameFile.
-    CC_ASSERT(false);
+    CC_ABORT();
     return false;
 }
 
 bool FileUtils::renameFile(const ccstd::string &path, const ccstd::string &oldname, const ccstd::string &name) {
     // FileUtils not support renameFile.
-    CC_ASSERT(false);
+    CC_ABORT();
     return false;
 }
 
 ccstd::string FileUtils::getSuitableFOpen(const ccstd::string &filenameUtf8) const {
     // getSuitableFOpen should be override by platform FileUtils
-    CC_ASSERT(false);
+    CC_ABORT();
     return filenameUtf8;
 }
 
 long FileUtils::getFileSize(const ccstd::string &filepath) {
     // getFileSize should be override by platform FileUtils
-    CC_ASSERT(false);
+    CC_ABORT();
     return 0;
 }
 

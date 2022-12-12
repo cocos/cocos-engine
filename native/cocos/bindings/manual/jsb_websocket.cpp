@@ -373,12 +373,12 @@ static bool webSocketSend(se::State &s) {
                 ok = dataObj->getTypedArrayData(&ptr, &length);
                 SE_PRECONDITION2(ok, false, "getTypedArrayData failed!");
             } else {
-                CC_ASSERT(false);
+                CC_ABORT();
             }
 
             cobj->send(ptr, static_cast<unsigned int>(length));
         } else {
-            CC_ASSERT(false);
+            CC_ABORT();
         }
 
         return true;
@@ -405,7 +405,7 @@ static bool webSocketClose(se::State &s) {
             sevalue_to_native(args[0], &reasonString);
             cobj->closeAsync(1005, reasonString);
         } else {
-            CC_ASSERT(false);
+            CC_ABORT();
         }
     } else if (argc == 2) {
         if (args[0].isNumber()) {
@@ -419,7 +419,7 @@ static bool webSocketClose(se::State &s) {
                 sevalue_to_native(args[0], &reasonCode);
                 cobj->closeAsync(reasonCode, "no_reason");
             } else {
-                CC_ASSERT(false);
+                CC_ABORT();
             }
         } else if (args[0].isNullOrUndefined()) {
             if (args[1].isString()) {
@@ -429,14 +429,14 @@ static bool webSocketClose(se::State &s) {
             } else if (args[1].isNullOrUndefined()) {
                 cobj->closeAsync();
             } else {
-                CC_ASSERT(false);
+                CC_ABORT();
             }
         } else {
-            CC_ASSERT(false);
+            CC_ABORT();
         }
     } else {
         SE_REPORT_ERROR("wrong number of arguments: %d, was expecting <=2", argc);
-        CC_ASSERT(false);
+        CC_ABORT();
     }
     // Attach current WebSocket instance to global object to prevent WebSocket instance
     // being garbage collected after "ws.close(); ws = null;"

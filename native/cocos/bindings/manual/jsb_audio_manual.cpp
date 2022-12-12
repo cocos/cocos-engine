@@ -10,7 +10,7 @@
 
 // NOLINTNEXTLINE(readability-identifier-naming)
 static bool PCMHeader_to_seval(PCMHeader& header, se::Value* ret) {
-    CC_ASSERT(ret != nullptr);
+    CC_ASSERT_NOT_NULL(ret);
     se::HandleObject obj(se::Object::createPlainObject());
     obj->setProperty("totalFrames", se::Value(header.totalFrames));
     obj->setProperty("sampleRate", se::Value(header.sampleRate));

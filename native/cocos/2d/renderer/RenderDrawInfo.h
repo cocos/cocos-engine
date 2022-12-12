@@ -178,23 +178,23 @@ public:
     }
 
     inline scene::Model* getModel() const {
-        CC_ASSERT(_drawInfoAttrs._drawInfoType == RenderDrawInfoType::MODEL);
+        CC_ASSERT_EQ(_drawInfoAttrs._drawInfoType, RenderDrawInfoType::MODEL);
         return _model;
     }
 
     inline void setModel(scene::Model* model) {
-        CC_ASSERT(_drawInfoAttrs._drawInfoType == RenderDrawInfoType::MODEL);
+        CC_ASSERT_EQ(_drawInfoAttrs._drawInfoType, RenderDrawInfoType::MODEL);
         if (_drawInfoAttrs._drawInfoType == RenderDrawInfoType::MODEL) {
             _model = model;
         }
     }
 
     inline Node* getSubNode() const {
-        CC_ASSERT(_drawInfoAttrs._drawInfoType == RenderDrawInfoType::SUB_NODE);
+        CC_ASSERT_EQ(_drawInfoAttrs._drawInfoType, RenderDrawInfoType::SUB_NODE);
         return _subNode;
     }
     inline void setSubNode(Node* node) {
-        CC_ASSERT(_drawInfoAttrs._drawInfoType == RenderDrawInfoType::SUB_NODE);
+        CC_ASSERT_EQ(_drawInfoAttrs._drawInfoType, RenderDrawInfoType::SUB_NODE);
         _subNode = node;
     }
 

@@ -29,6 +29,10 @@
 #include "base/Log.h"
 #include "core/platform/Debug.h"
 #include "math/Mat3.h"
+#define CC_USE_TETGEN 1
+#if CC_USE_TETGEN
+    #include "tetgen.h"
+#endif
 
 namespace cc {
 namespace gi {
@@ -53,7 +57,7 @@ Tetrahedron::Tetrahedron(const Delaunay *delaunay, int32_t v0, int32_t v1, int32
 : vertex0(v0), vertex1(v1), vertex2(v2), vertex3(v3) {
     // inner tetrahedron
     if (v3 >= 0) {
-        const auto &probes = delaunay->getProbes();
+        const auto &probes = delaunay->_probes;
         const auto &p0 = probes[vertex0].position;
         const auto &p1 = probes[vertex1].position;
         const auto &p2 = probes[vertex2].position;
@@ -62,15 +66,13 @@ Tetrahedron::Tetrahedron(const Delaunay *delaunay, int32_t v0, int32_t v1, int32
     }
 }
 
-ccstd::vector<Tetrahedron> Delaunay::build(const ccstd::vector<Vertex> &probes) {
-    _probes = probes;
-
+ccstd::vector<Tetrahedron> Delaunay::build() {
     reset();
     tetrahedralize();
     computeAdjacency();
     computeMatrices();
 
-    return _tetrahedrons;
+    return std::move(_tetrahedrons);
 }
 
 void Delaunay::reset() {
@@ -79,6 +81,51 @@ void Delaunay::reset() {
     _edges.clear();
 }
 
+#if CC_USE_TETGEN
+void Delaunay::tetrahedralize() {
+    tetgenio in;
+    tetgenio out;
+
+    in.numberofpoints = static_cast<int32_t>(_probes.size());
+    in.pointlist = new REAL[_probes.size() * 3];
+
+    constexpr float minFloat = std::numeric_limits<float>::min();
+    constexpr float maxFloat = std::numeric_limits<float>::max();
+
+    Vec3 minPos = {maxFloat, maxFloat, maxFloat};
+    Vec3 maxPos = {minFloat, minFloat, minFloat};
+
+    for (auto i = 0; i < _probes.size(); i++) {
+        const auto &position = _probes[i].position;
+
+        in.pointlist[i * 3 + 0] = position.x;
+        in.pointlist[i * 3 + 1] = position.y;
+        in.pointlist[i * 3 + 2] = position.z;
+
+        minPos.x = std::min(minPos.x, position.x);
+        maxPos.x = std::max(maxPos.x, position.x);
+
+        minPos.y = std::min(minPos.y, position.y);
+        maxPos.y = std::max(maxPos.y, position.y);
+
+        minPos.z = std::min(minPos.z, position.z);
+        maxPos.z = std::max(maxPos.z, position.z);
+    }
+
+    const Vec3 center = (maxPos + minPos) * 0.5F;
+
+    tetgenbehavior options;
+    options.neighout = 0;
+    options.quiet = 1;
+    ::tetrahedralize(&options, &in, &out);
+
+    for (auto i = 0; i < out.numberoftetrahedra; i++) {
+        _tetrahedrons.emplace_back(this, out.tetrahedronlist[i * 4], out.tetrahedronlist[i * 4 + 1], out.tetrahedronlist[i * 4 + 2], out.tetrahedronlist[i * 4 + 3]);
+    }
+
+    reorder(center);
+}
+#else
 void Delaunay::tetrahedralize() {
     // get probe count first
     const auto probeCount = _probes.size();
@@ -106,6 +153,7 @@ void Delaunay::tetrahedralize() {
 
     reorder(center);
 }
+#endif
 
 Vec3 Delaunay::initTetrahedron() {
     constexpr float minFloat = std::numeric_limits<float>::min();
@@ -210,7 +258,7 @@ void Delaunay::addProbe(int32_t vertexIndex) {
 void Delaunay::reorder(const Vec3 &center) {
     // The tetrahedron in the middle is placed at the front of the vector
     std::sort(_tetrahedrons.begin(), _tetrahedrons.end(), [center](Tetrahedron &a, Tetrahedron &b) {
-        return a.sphere.center.distanceSquared(center) <= b.sphere.center.distanceSquared(center);
+        return a.sphere.center.distanceSquared(center) < b.sphere.center.distanceSquared(center);
     });
 }
 

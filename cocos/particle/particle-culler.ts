@@ -28,10 +28,11 @@ import { Node } from '../scene-graph/node';
 import { TransformBit } from '../scene-graph/node-enum';
 import { RenderMode, Space } from './enum';
 import { approx, EPSILON, Mat4, pseudoRandom, Quat, randomRangeInt, Vec3, Vec4, geometry, bits } from '../core';
-import { particleEmitZAxis } from './particle-general-function';
+import { isCurveTwoValues, particleEmitZAxis } from './particle-general-function';
 import { IParticleSystemRenderer } from './renderer/particle-system-renderer-base';
 import { Mesh } from '../3d';
 import type { ParticleSystem } from './particle-system';
+import { Mode } from './animator/curve-range';
 
 const _node_mat = new Mat4();
 const _node_parent_inv = new Mat4();
@@ -203,7 +204,7 @@ export class ParticleCuller {
         });
 
         if (ps.simulationSpace === Space.Local) {
-            const r:Quat = ps.node.getRotation();
+            const r: Quat = ps.node.getRotation();
             Mat4.fromQuat(this._localMat, r);
             this._localMat.transpose(); // just consider rotation, use transpose as invert
         }
@@ -218,25 +219,30 @@ export class ParticleCuller {
             p.remainingLifetime -= dt;
             Vec3.set(p.animatedVelocity, 0, 0, 0);
 
-            if (ps.simulationSpace === Space.Local) {
-                const gravityFactor = -ps.gravityModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, pseudoRandom(p.randomSeed))! * 9.8 * dt;
-                this._gravity.x = 0.0;
-                this._gravity.y = gravityFactor;
-                this._gravity.z = 0.0;
-                this._gravity.w = 1.0;
-                if (!approx(gravityFactor, 0.0, EPSILON)) {
-                    if (ps.node.parent) {
-                        this._gravity = this._gravity.transformMat4(_node_parent_inv);
-                    }
-                    this._gravity = this._gravity.transformMat4(this._localMat);
+            // apply gravity when both the mode is not Constant and the value is not 0.
+            const useGravity = (ps.gravityModifier.mode !== Mode.Constant || ps.gravityModifier.constant !== 0);
+            if (useGravity) {
+                const rand = isCurveTwoValues(ps.gravityModifier) ? pseudoRandom(p.randomSeed) : 0;
+                if (ps.simulationSpace === Space.Local) {
+                    const gravityFactor = -ps.gravityModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, rand)! * 9.8 * dt;
+                    this._gravity.x = 0.0;
+                    this._gravity.y = gravityFactor;
+                    this._gravity.z = 0.0;
+                    this._gravity.w = 1.0;
+                    if (!approx(gravityFactor, 0.0, EPSILON)) {
+                        if (ps.node.parent) {
+                            this._gravity = this._gravity.transformMat4(_node_parent_inv);
+                        }
+                        this._gravity = this._gravity.transformMat4(this._localMat);
 
-                    p.velocity.x += this._gravity.x;
-                    p.velocity.y += this._gravity.y;
-                    p.velocity.z += this._gravity.z;
-                }
-            } else {
+                        p.velocity.x += this._gravity.x;
+                        p.velocity.y += this._gravity.y;
+                        p.velocity.z += this._gravity.z;
+                    }
+                } else {
                 // apply gravity.
-                p.velocity.y -= ps.gravityModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, pseudoRandom(p.randomSeed))! * 9.8 * dt;
+                    p.velocity.y -= ps.gravityModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, rand)! * 9.8 * dt;
+                }
             }
 
             Vec3.copy(p.ultimateVelocity, p.velocity);
@@ -289,7 +295,7 @@ export class ParticleCuller {
 
     public calculatePositions () {
         this._emit(this._particleSystem.capacity, 0, this._particlesAll);
-        const rand = pseudoRandom(randomRangeInt(0, bits.INT_MAX));
+        const rand = isCurveTwoValues(this._particleSystem.startLifetime) ? pseudoRandom(randomRangeInt(0, bits.INT_MAX)) : 0;
         this._updateParticles(0, this._particlesAll);
         this._calculateBounding(true);
         this._updateParticles(this._particleSystem.startLifetime.evaluate(0, rand), this._particlesAll);

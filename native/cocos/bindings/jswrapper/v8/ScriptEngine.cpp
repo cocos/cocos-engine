@@ -221,8 +221,15 @@ public:
         ccstd::string flags;
         // NOTICE: spaces are required between flags
         flags.append(" --expose-gc-as=" EXPOSE_GC);
-        flags.append(" --no-flush-bytecode --no-lazy"); // for bytecode support
-                                                        // flags.append(" --trace-gc"); // v8 trace gc
+        // for bytecode support
+        flags.append(" --no-flush-bytecode --no-lazy");
+        // v8 trace gc
+        // flags.append(" --trace-gc");
+
+        // NOTICE: should be remove flag --no-turbo-escape after upgrade v8 to 10.x
+        // https://github.com/cocos/cocos-engine/issues/13342
+        flags.append(" --no-turbo-escape");
+
         #if (CC_PLATFORM == CC_PLATFORM_IOS)
         flags.append(" --jitless");
         #endif
@@ -815,11 +822,11 @@ bool ScriptEngine::isValid() const {
 bool ScriptEngine::evalString(const char *script, uint32_t length /* = 0 */, Value *ret /* = nullptr */, const char *fileName /* = nullptr */) {
     if (_engineThreadId != std::this_thread::get_id()) {
         // `evalString` should run in main thread
-        CC_ASSERT(false);
+        CC_ABORT();
         return false;
     }
 
-    CC_ASSERT(script != nullptr);
+    CC_ASSERT_NOT_NULL(script);
     if (length == 0) {
         length = static_cast<uint32_t>(strlen(script));
     }

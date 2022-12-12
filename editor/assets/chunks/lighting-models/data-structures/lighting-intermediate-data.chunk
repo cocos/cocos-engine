@@ -15,9 +15,12 @@ struct LightingIntermediateData
 
   // material data
   float specularParam; // roughness or specular power
+  float ior;
+
 #if CC_SURFACES_LIGHTING_ANISOTROPIC
   float anisotropyShape;
 #endif
+
 #if CC_SURFACES_LIGHTING_TRANSMITTENCE
   vec4 shadowPosAndDepth; //xy: shadowmap uv, z: camera depth from pixel LVP, w: camera depth from shadowmap
   vec4 transmittenceParams; //zw: min/max DepthWS for shadowmap and 0 means disable shadow transmit,  x: transmit coef, y: additional transmit depth mask, 可补充shadowmap cover不到的地方，也可以在minmax屏蔽掉shadowmap之后给专门的薄片穿透

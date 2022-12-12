@@ -94,7 +94,7 @@ struct ToonSurface {
       clamp(1.0 + (s.baseStep - s.baseFeather - NL) / s.baseFeather, 0.0, 1.0));
 
     float specularWeight = 1.0 - pow(s.specular.a, 5.0);
-    float specularMask = step(specularWeight, NH);
+    float specularMask = step(specularWeight + EPSILON_LOWP, NH);
     vec3 specular = s.specular.rgb * specularMask;
 
     vec3 dirlightContrib = diffuse + specular;

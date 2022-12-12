@@ -45,7 +45,7 @@ BasePlatform* BasePlatform::_currentPlatform = nullptr;
 
 BasePlatform::BasePlatform() {
     // Only one platform can be initialized.
-    CC_ASSERT(_currentPlatform == nullptr);
+    CC_ASSERT_NULL(_currentPlatform);
     _currentPlatform = this;
 }
 
@@ -77,7 +77,7 @@ BasePlatform* BasePlatform::getPlatform() {
         return _currentPlatform;
     }
     createDefaultPlatform();
-    CC_ASSERT(_currentPlatform != nullptr);
+    CC_ASSERT_NOT_NULL(_currentPlatform);
     return _currentPlatform;
 }
 

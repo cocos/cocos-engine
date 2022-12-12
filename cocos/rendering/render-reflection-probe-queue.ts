@@ -98,7 +98,7 @@ export class RenderReflectionProbeQueue {
         for (let i = 0; i < models.length; i++) {
             const model = models[i];
             // filter model by view visibility
-            if (model.enabled && model.node && model.bakeToReflectionProbe) {
+            if (model.enabled && model.node && model.worldBounds && model.bakeToReflectionProbe) {
                 if (probe.probeType === ProbeType.CUBE) {
                     if ((((visibility & model.node.layer) === model.node.layer) || (visibility & model.visFlags))
                         && geometry.intersect.aabbWithAABB(model.worldBounds, probe.boundingBox!)) {
@@ -106,7 +106,9 @@ export class RenderReflectionProbeQueue {
                     }
                 } else if (((model.node.layer & REFLECTION_PROBE_DEFAULT_MASK) === model.node.layer)
                     || (REFLECTION_PROBE_DEFAULT_MASK & model.visFlags)) {
-                    this.add(model);
+                    if (geometry.intersect.aabbFrustum(model.worldBounds, probe.camera.frustum)) {
+                        this.add(model);
+                    }
                 }
             }
         }

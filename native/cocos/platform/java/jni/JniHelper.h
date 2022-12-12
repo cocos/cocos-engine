@@ -76,6 +76,7 @@ public:
     static JNIEnv *getEnv();
     static jobject getActivity();
     static void init(JNIEnv *env, jobject activity);
+    static void onDestroy();
 
     //NOLINTNEXTLINE
     static bool getStaticMethodInfo(JniMethodInfo &methodInfo,

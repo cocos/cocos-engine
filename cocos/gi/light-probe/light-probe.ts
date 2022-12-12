@@ -76,8 +76,8 @@ export class LightProbesData {
     }
 
     public updateTetrahedrons () {
-        const delaunay = new Delaunay();
-        this._tetrahedrons = delaunay.build(this._probes);
+        const delaunay = new Delaunay(this._probes);
+        this._tetrahedrons = delaunay.build();
     }
 
     public getInterpolationSHCoefficients (tetIndex: number, weights: Vec4, coefficients: Vec3[]) {

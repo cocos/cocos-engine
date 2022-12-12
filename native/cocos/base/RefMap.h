@@ -204,7 +204,7 @@ public:
      * @param object The object to be inserted.
      */
     void insert(const K &key, V object) {
-        CC_ASSERT(object != nullptr);
+        CC_ASSERT_NOT_NULL(object);
         object->addRef();
         erase(key);
         _data.insert(std::make_pair(key, object));

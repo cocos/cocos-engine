@@ -26,6 +26,10 @@ export class DeferredPipelineBuilder implements PipelineBuilder {
             if (!camera.scene) {
                 continue;
             }
+            if (EDITOR) {
+                buildForwardPass(camera, ppl, false);
+                continue;
+            }
             // GBuffer Pass
             const gBufferInfo = buildGBufferPass(camera, ppl);
             // Lighting Pass

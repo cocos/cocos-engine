@@ -96,23 +96,32 @@ public:
      * @zh probe绑定的节点
      */
     inline Node* getNode() { return _node; }
-    inline Camera* getCamera() { return _camera; }
+    inline const Camera* getCamera() const { return _camera; }
     inline bool needRender() const { return _needRender; }
     inline const geometry::AABB* getBoundingBox() const { return _boundingBox; }
 
     inline void setCameraNode(Node* val) { _cameraNode = val; }
     inline Node* getCameraNode()const { return _cameraNode; }
 
+    inline void setPreviewSphere(Node* val) { _previewSphere = val; }
+    inline const Node* getPreviewSphere() const { return _previewSphere; }
+
+    inline void setPreviewPlane(Node* val) { _previewPlane = val; }
+    inline const Node* getPreviewPlane() const { return _previewPlane; }
+
     inline RenderTexture* getRealtimePlanarTexture() const { return _realtimePlanarTexture; }
     void updateBoundingBox();
     void syncCameraParams(const Camera* camera);
     void transformReflectionCamera(const Camera* sourceCamera);
     void renderPlanarReflection(const Camera* camera);
-    static Vec3 reflect(const Vec3& point, const Vec3& normal, int32_t offset);
+    void switchProbeType(int32_t type, const Camera* sourceCamera);
+    static Vec3 reflect(const Vec3& point, const Vec3& normal, float offset);
 
     void updatePlanarTexture(const scene::RenderScene* scene);
 
     void destroy();
+
+    inline bool validate() const { return _cubemap != nullptr; }
 
 private:
     IntrusivePtr<cc::RenderTexture> _realtimePlanarTexture{nullptr};
@@ -147,6 +156,8 @@ private:
     IntrusivePtr<Node> _node;
 
     IntrusivePtr<Node> _cameraNode;
+    IntrusivePtr<Node> _previewSphere;
+    IntrusivePtr<Node> _previewPlane;
 
     /**
      * @en The AABB bounding box and probe only render the objects inside the bounding box.

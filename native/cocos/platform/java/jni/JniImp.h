@@ -37,6 +37,7 @@ extern void copyTextToClipboardJNI(const ccstd::string &text);
 extern ccstd::string getDeviceModelJNI();
 extern int getDPIJNI();
 extern void setVibrateJNI(float duration);
+extern void setKeepScreenOnJNI(bool isEnabled);
 extern int getNetworkTypeJNI();
 extern float *getSafeAreaEdgeJNI();
 extern int getDeviceRotationJNI();
