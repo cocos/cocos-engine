@@ -73,7 +73,7 @@
     #include "cocos/bindings/manual/JavaScriptJavaBridge.h"
 #endif
 
-#if (CC_PLATFORM == CC_PLATFORM_IOS || CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS)
+#if (CC_PLATFORM == CC_PLATFORM_IOS || CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS || CC_PLATFORM == CC_PLATFORM_OPENHARMONY)
 
     #if CC_USE_VIDEO
         #include "cocos/bindings/auto/jsb_video_auto.h"
@@ -184,7 +184,7 @@ bool jsb_register_all_modules() {
     se->addRegisterCallback(register_all_physics);
 #endif
 
-#if (CC_PLATFORM == CC_PLATFORM_IOS || CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS)
+#if (CC_PLATFORM == CC_PLATFORM_IOS || CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS || CC_PLATFORM == CC_PLATFORM_OPENHARMONY)
 
     #if CC_USE_VIDEO
     se->addRegisterCallback(register_all_video);

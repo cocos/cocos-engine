@@ -39,7 +39,6 @@ namespace cc {
 namespace {
 se::Value g_textInputCallback;
 
-
 void getTextInputCallback() {
     if (!g_textInputCallback.isUndefined())
         return;
@@ -66,7 +65,6 @@ void callJSFunc(const ccstd::string &type, const ccstd::string &text) {
 }
 
 } // namespace
-
 
 napi_ref OpenHarmonyEditBox::showEditBoxFunction;
 napi_ref OpenHarmonyEditBox::hideEditBoxFunction;
@@ -136,11 +134,11 @@ napi_value OpenHarmonyEditBox::hide() {
 Implementation of EditBox.
 ************************************************************************/
 void EditBox::show(const EditBox::ShowInfo &showInfo) {
-    OpenHarmonyEditBox::show(showInfo.defaultValue);
+   NapiHelper::postMessageToUIThread("showEditBox", showInfo.defaultValue.c_str());
 }
 
 void EditBox::hide() {
-    OpenHarmonyEditBox::hide();
+    NapiHelper::postMessageToUIThread("hideEditBox", "");
 }
 
 bool EditBox::complete() {
