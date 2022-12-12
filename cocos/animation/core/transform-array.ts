@@ -1,6 +1,6 @@
 import { Vec3 } from '../../core/math/vec3';
 import { Quat } from '../../core/math/quat';
-import { Transform } from './Transform';
+import { Transform } from './transform';
 
 const TRANSFORM_STRIDE_IN_FLOATS = 10;
 
