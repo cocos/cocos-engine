@@ -4,6 +4,16 @@ import { TransformArray } from './transform-array';
 
 const MAX_POSE_PER_PAGE = 8;
 
+const allocationInfoTag = Symbol('PoseAllocator');
+
+type PagedPose = Pose & {
+    [allocationInfoTag]: AllocationInfo;
+};
+
+function isPagedPose (pose: Pose): pose is PagedPose {
+    return allocationInfoTag in pose;
+}
+
 export class PoseAllocator {
     constructor (transformCount: number, metaValueCount: number) {
         this._transformCount = transformCount;
@@ -22,7 +32,7 @@ export class PoseAllocator {
             const page = pages[iPage];
             const pose = page.tryAllocate();
             if (pose) {
-                pose.pageIndex = iPage;
+                pose[allocationInfoTag].pageIndex = iPage;
                 return pose;
             }
         }
@@ -30,10 +40,10 @@ export class PoseAllocator {
     }
 
     public destroyPose (pose: Pose) {
-        assertIsTrue(pose instanceof PagedPose);
+        assertIsTrue(isPagedPose(pose));
         const { _pages: pages } = this;
         const nPages = pages.length;
-        const pageIndex = pose.pageIndex;
+        const pageIndex = pose[allocationInfoTag].pageIndex;
         assertIsTrue(pageIndex >= 0 && pageIndex < nPages);
         const page = pages[pageIndex];
         page.deallocate(pose);
@@ -54,16 +64,12 @@ export class PoseAllocator {
         this._pages.push(page);
         const pose = page.tryAllocate();
         assertIsTrue(pose); // Shall not fail
-        pose.pageIndex = pageIndex;
+        pose[allocationInfoTag].pageIndex = pageIndex;
         return pose;
     }
 }
 
-class PagedPose extends Pose {
-    constructor (transforms: TransformArray, metaValues: Float64Array) {
-        super(transforms, metaValues);
-    }
-
+class AllocationInfo {
     get pageIndex () {
         return this._id >> POSE_INDEX_BITS;
     }
@@ -112,14 +118,14 @@ class PosePage {
         }
         assertIsTrue(idlePoseIndex >= 0 && idlePoseIndex < poses.length);
         const pose = poses[idlePoseIndex] ??= this._createPose(idlePoseIndex);
-        pose.poseIndex = idlePoseIndex;
+        pose[allocationInfoTag].poseIndex = idlePoseIndex;
         this._idleFlags &= ~(1 << idlePoseIndex);
         return pose;
     }
 
     public deallocate (pose: PagedPose) {
         const { _poses: poses } = this;
-        const poseIndex = pose.poseIndex;
+        const poseIndex = pose[allocationInfoTag].poseIndex;
         assertIsTrue(poseIndex >= 0 && poseIndex < poses.length);
         assertIsTrue(poses[poseIndex] === pose);
         // Set as idle
@@ -138,7 +144,9 @@ class PosePage {
             + Float64Array.BYTES_PER_ELEMENT * this._metaValueCount) * index;
         const transforms = new TransformArray(this._buffer, baseOffset, this._transformCount);
         const metaValues = new Float64Array(this._buffer, baseOffset + transformsByteLength, this._metaValueCount);
-        return new PagedPose(transforms, metaValues);
+        const pose = Pose.__create(transforms, metaValues);
+        pose[allocationInfoTag] = new AllocationInfo();
+        return pose as PagedPose;
     }
 }
 
