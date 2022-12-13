@@ -77,10 +77,7 @@ public class CocosSensorHandler implements SensorEventListener {
     }
 
     public void disable() {
-        if (mEnableSensor) {
-            if (null == mSensorManager) {
-                return;
-            }
+        if (mEnableSensor && null != mSensorManager) {
             this.mSensorManager.unregisterListener(this);
         }
     }
