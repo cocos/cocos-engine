@@ -44,6 +44,12 @@ export struct EditBoxDialog {
             }
             this.inputMessage = value;
           })
+          .onSubmit((value) => {
+            if (this.accept) {
+              this.accept(this.inputMessage);
+            }
+            this.controller.close();
+          })
         Blank(8).width(16)
         Button('完成').onClick(() => {
           if (this.accept) {

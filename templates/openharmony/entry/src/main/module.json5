@@ -35,6 +35,31 @@
           }
         ]
       }
+    ],
+    "requestPermissions": [
+      {
+        "name": 'ohos.permission.INTERNET'
+      },
+      {
+        "name": "ohos.permission.ACCELEROMETER",
+        "reason": "$string:permissions_label",
+        "usedScene": {
+          "abilities": [
+            "MainAbility"
+          ],
+          "when": "inuse"
+        }
+      },
+      {
+        "name": "ohos.permission.GYROSCOPE",
+        "reason": "$string:permissions_label",
+        "usedScene": {
+          "abilities": [
+            "MainAbility"
+          ],
+          "when": "inuse"
+        }
+      }
     ]
   }
 }

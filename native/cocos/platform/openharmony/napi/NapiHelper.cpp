@@ -31,8 +31,11 @@
 #include "bindings/jswrapper/SeApi.h"
 #include "ui/edit-box/EditBox-openharmony.h"
 
+#include "ui/webview/WebViewImpl-openharmony.h"
+
 namespace cc {
 const int32_t kMaxStringLen = 512;
+
 // Must be the same as the value called by js
 enum ContextType {
     APP_LIFECYCLE = 0,
@@ -43,8 +46,47 @@ enum ContextType {
     WORKER_INIT,
     ENGINE_UTILS,
     EDITBOX_UTILS,
-    UV_ASYNC_SEND
+    WEBVIEW_UTILS,
+    UV_ASYNC_SEND,
 };
+NapiHelper::PostMessage2UIThreadCb NapiHelper::_postMsg2UIThreadCb;
+
+static bool js_set_PostMessage2UIThreadCallback(se::State& s) {
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        do {
+            if (args[0].isObject() && args[0].toObject()->isFunction()) {
+                //se::Value jsThis(s.thisObject());
+                se::Value jsFunc(args[0]);
+                //jsThis.toObject()->attachObject(jsFunc.toObject());
+                auto * thisObj = s.thisObject();
+                NapiHelper::_postMsg2UIThreadCb = [=](const std::string larg0, const se::Value& larg1) -> void {
+                    se::ScriptEngine::getInstance()->clearException();
+                    se::AutoHandleScope hs;
+                    CC_UNUSED bool ok = true;
+                    se::ValueArray args;
+                    args.resize(2);
+                    ok &= nativevalue_to_se(larg0, args[0], nullptr /*ctx*/);
+                    CC_ASSERT(ok);
+                    args[1] = larg1;
+                    //ok &= nativevalue_to_se(larg1, args[1], nullptr /*ctx*/);
+                    se::Value rval;
+                    se::Object* funcObj = jsFunc.toObject();
+                    bool succeed = funcObj->call(args, thisObj, &rval);
+                    if (!succeed) {
+                        se::ScriptEngine::getInstance()->clearException();
+                    }
+                };
+            }
+        } while(false);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_set_PostMessage2UIThreadCallback);
 
 // NAPI Interface
 napi_value NapiHelper::getContext(napi_env env, napi_callback_info info) {
@@ -74,7 +116,7 @@ napi_value NapiHelper::getContext(napi_env env, napi_callback_info info) {
     NAPI_CALL(env, napi_create_object(env, &exports));
     switch (value) {
         case APP_LIFECYCLE: {
-            // Register app lifecycle 
+            // Register app lifecycle
             napi_property_descriptor desc[] = {
                 DECLARE_NAPI_FUNCTION("onCreate", NapiHelper::napiOnCreate),
                 DECLARE_NAPI_FUNCTION("onShow", NapiHelper::napiOnShow),
@@ -101,8 +143,10 @@ napi_value NapiHelper::getContext(napi_env env, napi_callback_info info) {
             NAPI_CALL(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(desc[0]), desc));
         } break;
         case WORKER_INIT: {
+            se::ScriptEngine::setEnv(env);
             napi_property_descriptor desc[] = {
                 DECLARE_NAPI_FUNCTION("workerInit", NapiHelper::napiWorkerInit),
+                DECLARE_NAPI_FUNCTION("setPostMessageFunction", _SE(js_set_PostMessage2UIThreadCallback)),
             };
             NAPI_CALL(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(desc[0]), desc));
         } break;
@@ -114,29 +158,20 @@ napi_value NapiHelper::getContext(napi_env env, napi_callback_info info) {
             NAPI_CALL(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(desc[0]), desc));
         }
         case EDITBOX_UTILS: {
-            #if CC_USE_EDITBOX
-            napi_property_descriptor desc[] = {
-                DECLARE_NAPI_FUNCTION("setShowEditBoxFunction", OpenHarmonyEditBox::napiSetShowEditBoxFunction),
-                DECLARE_NAPI_FUNCTION("setHideEditBoxFunction", OpenHarmonyEditBox::napiSetHideEditBoxFunction),
-                DECLARE_NAPI_FUNCTION("onTextChange", OpenHarmonyEditBox::napiOnTextChange),
-                DECLARE_NAPI_FUNCTION("onComplete", OpenHarmonyEditBox::napiOnComplete),
-            };
-            #else
-            // When openharmony starts, the callback of editbox will be set. If this callback is not set, an exception will be caused.
-            napi_property_descriptor desc[] = {
-                DECLARE_NAPI_FUNCTION("setShowEditBoxFunction", NapiHelper::napiNoImplementation),
-                DECLARE_NAPI_FUNCTION("setHideEditBoxFunction", NapiHelper::napiNoImplementation),
-                DECLARE_NAPI_FUNCTION("onTextChange", NapiHelper::napiNoImplementation),
-                DECLARE_NAPI_FUNCTION("onComplete", NapiHelper::napiNoImplementation),
-            };
-            #endif
-            NAPI_CALL(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(desc[0]), desc));
+            std::vector<napi_property_descriptor> desc;
+            OpenHarmonyEditBox::GetInterfaces(desc);
+            NAPI_CALL(env, napi_define_properties(env, exports, desc.size(), desc.data()));
         }
         case UV_ASYNC_SEND: {
             napi_property_descriptor desc[] = {
                 DECLARE_NAPI_FUNCTION("send", NapiHelper::napiASend),
             };
             NAPI_CALL(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(desc[0]), desc));
+        } break;
+        case WEBVIEW_UTILS: {
+            std::vector<napi_property_descriptor> desc;
+            OpenHarmonyWebView::GetInterfaces(desc);
+            NAPI_CALL(env, napi_define_properties(env, exports, desc.size(), desc.data()));
         } break;
         default:
             LOGE("unknown type");
@@ -240,7 +275,7 @@ napi_value NapiHelper::napiWritablePathInit(napi_env env, napi_callback_info inf
     size_t      argc = 1;
     napi_value  args[1];
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, nullptr, nullptr));
-    
+
     napi_status status;
     char   buffer[kMaxStringLen];
     size_t result = 0;
@@ -253,9 +288,4 @@ napi_value NapiHelper::napiASend(napi_env env, napi_callback_info info) {
     OpenHarmonyPlatform::getInstance()->triggerMessageSignal();
     return nullptr;
 }
-
-napi_value NapiHelper::napiNoImplementation(napi_env env, napi_callback_info info) {
-    return nullptr;
-}
-
 }

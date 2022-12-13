@@ -28,6 +28,7 @@ import { WorkerManager } from '../cocos/WorkerManager'
 import { ContextType } from "../common/Constants"
 import featureAbility from '@ohos.ability.featureAbility'
 import { EditBoxDialog } from '../components/EditBoxDialog'
+import { ViewInfo, CocosWebView } from '../components/CocosWebView'
 const nativePageLifecycle = nativerender.getContext(ContextType.JSPAGE_LIFECYCLE);
 const engineUtils = nativerender.getContext(ContextType.ENGINE_UTILS);
 
@@ -35,6 +36,10 @@ const engineUtils = nativerender.getContext(ContextType.ENGINE_UTILS);
 @Component
 struct Index {
   @State showMessage: string = ''
+  @State viewArray: ViewInfo[] = [];
+  //private index: number = 0;
+  private indexMap: Map<number, number> = new Map;
+
   cocosWorker = WorkerManager.getInstance().getWorker();
   dialogController: CustomDialogController = new CustomDialogController({
     builder: EditBoxDialog({
@@ -48,7 +53,9 @@ struct Index {
         this.cocosWorker.postMessage({ type: 'onComplete', data: msg })
       },
     }),
-
+    cancel: () => {
+      this.cocosWorker.postMessage({ type: 'onComplete', data: this.showMessage })
+    },
     autoCancel: true,
     alignment: DialogAlignment.Bottom,
     customStyle: true,
@@ -69,13 +76,81 @@ struct Index {
           this.dialogController.close()
           break;
         }
+        case "createWebView": {
+          this.viewArray.push(new ViewInfo(0, 0, 0, 0, data.data))
+          this.indexMap.set(data.data, this.viewArray.length - 1);
+          break;
+        }
+        case "removeWebView": {
+          if (this.viewArray.length > 0) {
+            this.viewArray.splice(this.indexMap.get(data.data), 1)
+          }
+          break;
+        }
+        case "loadUrl": {
+          var web = data.data;
+          var index = this.indexMap.get(web.tag);
+          this.viewArray[index].controller.loadUrl({url: web.url});
+          break;
+        }
+        case "loadHTMLString": {
+          var web = data.data;
+          var index = this.indexMap.get(web.tag);
+          this.viewArray[index].controller.loadData({data: web.contents, mimeType:"text/html",encoding:"UTF-8", baseUrl:web.baseUrl});
+          break;
+        }
+        case "loadData": {
+          var web = data.data;
+          var index = this.indexMap.get(web.tag);
+          this.viewArray[index].controller.loadData({data: web.contents, mimeType:web.mimeType,encoding:web.encoding, baseUrl:web.baseUrl});
+          break;
+        }
+        case "evaluateJS": {
+          var web = data.data;
+          var index = this.indexMap.get(web.tag)
+          this.viewArray[index].controller.runJavaScript({
+            script: web.jsContents
+          });
+          break;
+        }
+        case "reload": {
+          var index = this.indexMap.get(data.data);
+          this.viewArray[index].controller.refresh();
+          break;
+        }
+        case "stopLoading": {
+          var index = this.indexMap.get(data.data);
+          this.viewArray[index].controller.stop();
+          break;
+        }
+        case "goForward": {
+          var index = this.indexMap.get(data.data);
+          this.viewArray[index].controller.forward();
+          break;
+        }
+        case "goBack": {
+          var index = this.indexMap.get(data.data);
+          this.viewArray[index].controller.backward();
+          break;
+        }
+        case "setWebViewRect": {
+          var web = data.data;
+          var index = this.indexMap.get(web.tag);
+          this.viewArray[index].x = px2vp(web.x);
+          this.viewArray[index].y = px2vp(web.y);
+          this.viewArray[index].w = px2vp(web.w);
+          this.viewArray[index].h = px2vp(web.h);
+        }
+        case "setVisible":
+          var web = data.data;
+          var index = this.indexMap.get(web.tag);
+          this.viewArray[index].visible = web.visible;
+          break;
         default: {
 
         }
       }
     }
-//  this.cocosWorker.postMessage({type: "JSPageLifecycle", data: "aboutToAppear"});
-//  nativePageLifecycle.aboutToAppear();
   }
 
   aboutToDisappear(): void {
@@ -104,6 +179,10 @@ struct Index {
         .onDestroy(() => {
           console.log('cocos onDestroy')
         })
+
+        ForEach(this.viewArray, (item: ViewInfo, index: number) => {
+            CocosWebView({ viewInfo: this.viewArray[index] })
+        }, item => item.viewTag)
     }
     .width('100%')
     .height('100%')

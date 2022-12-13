@@ -11,6 +11,10 @@
     {
       "name": "MainAbility_desc",
       "value": "description"
+    },
+    {
+      "name": "permissions_label",
+      "value": "label"
     }
   ]
 }

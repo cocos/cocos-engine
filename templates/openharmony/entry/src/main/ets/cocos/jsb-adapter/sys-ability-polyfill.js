@@ -72,9 +72,15 @@ window.getDeviceOrientation = function () {
     return displayClass.rotation;
 }
 
-let sDeviceMotionValues = {};
+function radiansToDegrees(radians)  {
+    var pi = Math.PI;
+    return radians * (180/pi);
+}
+
+
+let sDeviceMotionValues = [];
 try {
-    sensor.on(sensor.SensorId.ACCELEROMETER, function (data) {
+    sensor.on(sensor.SensorType.SENSOR_TYPE_ID_ACCELEROMETER, function (data) {
         sDeviceMotionValues[0] = data.x;
         sDeviceMotionValues[1] = data.y;
         sDeviceMotionValues[2] = data.z;
@@ -88,7 +94,9 @@ try {
 }
 
 try {
-    sensor.on(sensor.SensorId.LINEAR_ACCELEROMETER,function(data){
+    // TODO(qgh):Must pass values, macros have been renamed and can cause problems with linear sensors
+    //sensor.on(sensor.SensorType.SENSOR_TYPE_ID_LINEAR_ACCELEROMETER,function(data){
+    sensor.on(258,function(data){
         sDeviceMotionValues[3] = data.x;
         sDeviceMotionValues[4] = data.y;
         sDeviceMotionValues[5] = data.z;
@@ -101,18 +109,59 @@ try {
     sDeviceMotionValues[5] = 0;
 }
 try {
-    sensor.on(sensor.SensorId.GYROSCOPE,function(data){
-        sDeviceMotionValues[6] = data.x;
-        sDeviceMotionValues[7] = data.y;
-        sDeviceMotionValues[8] = data.z;
+    sensor.on(sensor.SensorType.SENSOR_TYPE_ID_GYROSCOPE,function(data){
+        sDeviceMotionValues[6] = radiansToDegrees(data.x);
+        sDeviceMotionValues[7] = radiansToDegrees(data.y);
+        sDeviceMotionValues[8] = radiansToDegrees(data.z);
     },
         {interval: 10000000000}
     );
 } catch (err) {
+    sDeviceMotionValues[6] = 0;
     sDeviceMotionValues[7] = 0;
     sDeviceMotionValues[8] = 0;
-    sDeviceMotionValues[9] = 0;
 }
+// Keep this, in the master branch, this interface has been replaced.
+//try {
+//    sensor.on(sensor.SensorId.ACCELEROMETER, function (data) {
+//        sDeviceMotionValues[0] = data.x;
+//        sDeviceMotionValues[1] = data.y;
+//        sDeviceMotionValues[2] = data.z;
+//    },
+//        { interval: 10000000000 }
+//    );
+//} catch (err) {
+//    sDeviceMotionValues[0] = 0;
+//    sDeviceMotionValues[1] = 0;
+//    sDeviceMotionValues[2] = 0;
+//}
+//
+//try {
+//    sensor.on(sensor.SensorId.LINEAR_ACCELEROMETER,function(data){
+//        sDeviceMotionValues[3] = data.x;
+//        sDeviceMotionValues[4] = data.y;
+//        sDeviceMotionValues[5] = data.z;
+//    },
+//        {interval: 10000000000}
+//    );
+//} catch (err) {
+//    sDeviceMotionValues[3] = 0;
+//    sDeviceMotionValues[4] = 0;
+//    sDeviceMotionValues[5] = 0;
+//}
+//try {
+//    sensor.on(sensor.SensorId.GYROSCOPE,function(data){
+//        sDeviceMotionValues[6] = data.x;
+//        sDeviceMotionValues[7] = data.y;
+//        sDeviceMotionValues[8] = data.z;
+//    },
+//        {interval: 10000000000}
+//    );
+//} catch (err) {
+//    sDeviceMotionValues[7] = 0;
+//    sDeviceMotionValues[8] = 0;
+//    sDeviceMotionValues[9] = 0;
+//}
 
 window.getDeviceMotionValue = function () {
     return sDeviceMotionValues;

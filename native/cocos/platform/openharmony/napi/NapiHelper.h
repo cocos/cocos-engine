@@ -35,7 +35,6 @@ class NapiHelper {
 public:
 
     static napi_value getContext(napi_env env, napi_callback_info info);
-
     // APP Lifecycle
     static napi_value napiOnCreate(napi_env env, napi_callback_info info);
     static napi_value napiOnShow(napi_env env, napi_callback_info info);
@@ -78,9 +77,22 @@ public:
         SE_PRECONDITION2(ok, nullptr, "Error processing arguments");
         return nullptr;
     }
-    static napi_value napiNoImplementation(napi_env env, napi_callback_info info);
+    static napi_value napiSetPostMessageFunction(napi_env env, napi_callback_info info);
     // Napi export
     static bool exportFunctions(napi_env env, napi_value exports);
+
+    template<typename T>
+    static void postMessageToUIThread(const std::string& type, T param) {
+    if (_postMsg2UIThreadCb) {
+        CC_UNUSED bool ok = true;
+        se::Value value;
+        ok &= nativevalue_to_se(param, value, nullptr /*ctx*/);
+        _postMsg2UIThreadCb(type, value);
+    }
+}
+public:
+    using PostMessage2UIThreadCb = std::function<void(const std::string&, const se::Value&)>;
+    static PostMessage2UIThreadCb _postMsg2UIThreadCb;
 };
 
 }

@@ -31,6 +31,7 @@ export enum ContextType {
     WORKER_INIT,
     ENGINE_UTILS,
     EDITBOX_UTILS,
+    WEBVIEW_UTILS,
     UV_ASYNC_SEND,
 }
 

@@ -32,8 +32,8 @@ namespace cc {
 
 class OpenHarmonyEditBox : public EditBox {
 public:
-    static napi_value napiSetShowEditBoxFunction(napi_env env, napi_callback_info info);
-    static napi_value napiSetHideEditBoxFunction(napi_env env, napi_callback_info info);
+    static void GetInterfaces(std::vector<napi_property_descriptor>& descriptors);
+    
     static napi_value napiOnComplete(napi_env env, napi_callback_info info);
     static napi_value napiOnTextChange(napi_env env, napi_callback_info info);
 
