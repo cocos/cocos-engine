@@ -84,6 +84,8 @@ void Model::initialize() {
     _enabled = true;
     _visFlags = Layers::Enum::NONE;
     _inited = true;
+    _bakeToReflectionProbe = true;
+    _reflectionProbeType = 0;
 }
 
 void Model::destroy() {
