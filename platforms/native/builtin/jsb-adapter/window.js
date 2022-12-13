@@ -32,12 +32,12 @@ function inject () {
     window.__engineGlobal__.FileReader = require('./FileReader');
     window.__engineGlobal__.FontFace = require('./FontFace');
     window.__engineGlobal__.FontFaceSet = require('./FontFaceSet');
-    window.__engineGlobal__.EventTarget = require('./EventTarget');
-    window.__engineGlobal__.Event = window.Event || require('./Event');
-    window.__engineGlobal__.TouchEvent = require('./TouchEvent');
-    window.__engineGlobal__.MouseEvent = require('./MouseEvent');
-    window.__engineGlobal__.KeyboardEvent = require('./KeyboardEvent');
-    window.__engineGlobal__.DeviceMotionEvent = require('./DeviceMotionEvent');
+    window.EventTarget = window.__engineGlobal__.EventTarget = require('./EventTarget');
+    window.Event = window.__engineGlobal__.Event = window.Event || require('./Event');
+    window.TouchEvent = window.__engineGlobal__.TouchEvent = require('./TouchEvent');
+    window.MouseEvent = window.__engineGlobal__.MouseEvent = require('./MouseEvent');
+    window.KeyboardEvent = window.__engineGlobal__.KeyboardEvent = require('./KeyboardEvent');
+    window.DeviceMotionEvent = window.__engineGlobal__.DeviceMotionEvent = require('./DeviceMotionEvent');
 
     // ES6
     const m_fetch = require('./fetch');
