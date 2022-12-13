@@ -16,7 +16,7 @@ class FileReader extends EventTarget {
 
 	// Starts reading the contents of the specified Blob, once finished, the result attribute contains a data: URL representing the file's data.
 	readAsDataURL(blob) {
-		this.result = 'data:image/png;base64,' + window.btoa(blob);
+		this.result = 'data:image/png;base64,' + window.__engineGlobal__.btoa(blob);
 		var event = new Event('load');
 		this.dispatchEvent(event);
 	}

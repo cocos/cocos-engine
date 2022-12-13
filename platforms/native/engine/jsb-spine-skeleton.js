@@ -26,10 +26,10 @@ const cacheManager = require('./jsb-cache-manager');
 
 // @ts-expect-error jsb polyfills
 (function () {
-    if (window.spine === undefined || window.middleware === undefined) return;
+    if (window.__engineGlobal__.spine === undefined || window.__engineGlobal__.middleware === undefined) return;
     if (cc.internal.SpineSkeletonData === undefined) return;
-    const spine = window.spine;
-    const middleware = window.middleware;
+    const spine = window.__engineGlobal__.spine;
+    const middleware = window.__engineGlobal__.middleware;
 
     middleware.generateGetSet(spine);
 

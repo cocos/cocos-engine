@@ -56,7 +56,7 @@ function downloadScript (url, options, onComplete) {
     if (loadedScripts[url]) return onComplete && onComplete();
 
     download(url, function (src, options, onComplete) {
-        window.require(src);
+        window.__engineGlobal__.require(src);
         loadedScripts[url] = true;
         onComplete && onComplete(null);
     }, options, options.onFileProgress, onComplete);

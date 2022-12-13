@@ -56,13 +56,13 @@ deviceProto.copyTexImagesToTexture = function (texImages, texture, regions) {
 
 const oldDeviceCreateSwapchainFunc = deviceProto.createSwapchain;
 deviceProto.createSwapchain = function (info) {
-    info.windowHandle = window.windowHandler;
+    info.windowHandle = window.__engineGlobal__.windowHandler;
     return oldDeviceCreateSwapchainFunc.call(this, info);
 };
 
 const oldSwapchainInitializeFunc = swapchainProto.initialize;
 swapchainProto.initialize = function (info) {
-    info.windowHandle = window.windowHandler;
+    info.windowHandle = window.__engineGlobal__.windowHandler;
     oldSwapchainInitializeFunc.call(this, info);
 };
 

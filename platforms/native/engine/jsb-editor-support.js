@@ -25,8 +25,8 @@
 
 // @ts-expect-error jsb polyfills
 (function () {
-    if (!window.middleware) return;
-    const middleware = window.middleware;
+    if (!window.__engineGlobal__.middleware) return;
+    const middleware = window.__engineGlobal__.middleware;
     const middlewareMgr = middleware.MiddlewareManager.getInstance();
     let reference = 0;
     const director = cc.director;
@@ -63,11 +63,11 @@
         middleware.reset();
 
         //const batcher2D = director.root.batcher2D;
-        if (window.dragonBones) {
+        if (window.__engineGlobal__.dragonBones) {
             const armaSystem = cc.internal.ArmatureSystem.getInstance();
             armaSystem.prepareRenderData();
         }
-        if (window.spine) {
+        if (window.__engineGlobal__.spine) {
             const skeletonSystem = cc.internal.SpineSkeletonSystem.getInstance();
             skeletonSystem.prepareRenderData();
         }

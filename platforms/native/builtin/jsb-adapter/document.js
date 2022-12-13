@@ -45,8 +45,8 @@ class Document extends Node {
   }
 
   getElementById(id) {
-    if (id === window.__canvas.id || id === 'canvas') {
-      return window.__canvas
+    if (id === window.__engineGlobal__.__canvas.id || id === 'canvas') {
+      return window.__engineGlobal__.__canvas
     }
     return new HTMLElement(id);
   }
@@ -57,7 +57,7 @@ class Document extends Node {
     } else if (tagName === 'body') {
       return [document.body]
     } else if (tagName === 'canvas') {
-      return [window.__canvas]
+      return [window.__engineGlobal__.__canvas]
     }
     return [new HTMLElement(tagName)]
   }
@@ -68,7 +68,7 @@ class Document extends Node {
     } else if (tagName === 'body') {
       return [document.body]
     } else if (tagName === 'canvas') {
-      return [window.__canvas]
+      return [window.__engineGlobal__.__canvas]
     }
     return [new HTMLElement(tagName)]
   }
@@ -79,9 +79,9 @@ class Document extends Node {
     } else if (query === 'body') {
       return document.body
     } else if (query === 'canvas') {
-      return window.__canvas
+      return window.__engineGlobal__.__canvas
     } else if (query === `#${window.__canvas.id}`) {
-      return window.__canvas
+      return window.__engineGlobal__.__canvas
     }
     return new HTMLElement(query);
   }
@@ -92,7 +92,7 @@ class Document extends Node {
     } else if (query === 'body') {
       return [document.body]
     } else if (query === 'canvas') {
-      return [window.__canvas]
+      return [window.__engineGlobal__.__canvas]
     } else if (query.startsWith('script[type="systemjs-importmap"]')) {
       return HTMLScriptElement._getAllScriptElementsSystemJSImportType();
     }
@@ -105,7 +105,7 @@ class Document extends Node {
   }
 
   elementFromPoint() {
-      return window.canvas;
+      return window.__engineGlobal__.canvas;
   }
 
   createEvent(type) {

@@ -1,56 +1,56 @@
 function inject () {
-    window.ontouchstart = null;
-    window.ontouchmove = null;
-    window.ontouchend = null;
-    window.ontouchcancel = null;
+    window.__engineGlobal__.ontouchstart = null;
+    window.__engineGlobal__.ontouchmove = null;
+    window.__engineGlobal__.ontouchend = null;
+    window.__engineGlobal__.ontouchcancel = null;
 
-    window.pageXOffset = window.pageYOffset = window.clientTop = window.clientLeft = 0;
-    window.outerWidth = window.innerWidth;
-    window.outerHeight = window.innerHeight;
-    window.clientWidth = window.innerWidth;
-    window.clientHeight = window.innerHeight;
+    window.__engineGlobal__.pageXOffset = window.__engineGlobal__.pageYOffset = window.__engineGlobal__.clientTop = window.__engineGlobal__.clientLeft = 0;
+    window.__engineGlobal__.outerWidth = window.__engineGlobal__.innerWidth;
+    window.__engineGlobal__.outerHeight = window.__engineGlobal__.innerHeight;
+    window.__engineGlobal__.clientWidth = window.__engineGlobal__.innerWidth;
+    window.__engineGlobal__.clientHeight = window.__engineGlobal__.innerHeight;
     if (!__EDITOR__) {
-        window.top = window.parent = window;
-        window.location = require('./location');
-        window.document = require('./document');
-        window.navigator = require('./navigator');
+        window.__engineGlobal__.top = window.__engineGlobal__.parent = window;
+        window.__engineGlobal__.location = require('./location');
+        window.__engineGlobal__.document = require('./document');
+        window.__engineGlobal__.navigator = require('./navigator');
     }
 
-    window.CanvasRenderingContext2D = require('./CanvasRenderingContext2D');
-    window.Element = require('./Element');
-    window.HTMLElement = require('./HTMLElement');
-    window.HTMLCanvasElement = require('./HTMLCanvasElement');
-    window.HTMLImageElement = require('./HTMLImageElement');
-    window.HTMLMediaElement = require('./HTMLMediaElement');
-    window.HTMLVideoElement = require('./HTMLVideoElement');
-    window.HTMLScriptElement = require('./HTMLScriptElement');
-    window.__canvas = new HTMLCanvasElement();
-    window.__canvas._width = window.innerWidth;
-    window.__canvas._height = window.innerHeight;
+    window.__engineGlobal__.CanvasRenderingContext2D = require('./CanvasRenderingContext2D');
+    window.__engineGlobal__.Element = require('./Element');
+    window.__engineGlobal__.HTMLElement = require('./HTMLElement');
+    window.__engineGlobal__.HTMLCanvasElement = require('./HTMLCanvasElement');
+    window.__engineGlobal__.HTMLImageElement = require('./HTMLImageElement');
+    window.__engineGlobal__.HTMLMediaElement = require('./HTMLMediaElement');
+    window.__engineGlobal__.HTMLVideoElement = require('./HTMLVideoElement');
+    window.__engineGlobal__.HTMLScriptElement = require('./HTMLScriptElement');
+    window.__engineGlobal__.__canvas = new HTMLCanvasElement();
+    window.__engineGlobal__.__canvas._width = window.__engineGlobal__.innerWidth;
+    window.__engineGlobal__.__canvas._height = window.__engineGlobal__.innerHeight;
 
-    window.Image = require('./Image');
-    window.FileReader = require('./FileReader');
-    window.FontFace = require('./FontFace');
-    window.FontFaceSet = require('./FontFaceSet');
-    window.EventTarget = require('./EventTarget');
-    window.Event = window.Event || require('./Event');
-    window.TouchEvent = require('./TouchEvent');
-    window.MouseEvent = require('./MouseEvent');
-    window.KeyboardEvent = require('./KeyboardEvent');
-    window.DeviceMotionEvent = require('./DeviceMotionEvent');
+    window.__engineGlobal__.Image = require('./Image');
+    window.__engineGlobal__.FileReader = require('./FileReader');
+    window.__engineGlobal__.FontFace = require('./FontFace');
+    window.__engineGlobal__.FontFaceSet = require('./FontFaceSet');
+    window.__engineGlobal__.EventTarget = require('./EventTarget');
+    window.__engineGlobal__.Event = window.Event || require('./Event');
+    window.__engineGlobal__.TouchEvent = require('./TouchEvent');
+    window.__engineGlobal__.MouseEvent = require('./MouseEvent');
+    window.__engineGlobal__.KeyboardEvent = require('./KeyboardEvent');
+    window.__engineGlobal__.DeviceMotionEvent = require('./DeviceMotionEvent');
 
     // ES6
     const m_fetch = require('./fetch');
-    window.fetch = m_fetch.fetch;
-    window.Headers = m_fetch.Headers;
-    window.Request = m_fetch.Request;
-    window.Response = m_fetch.Response;
+    window.__engineGlobal__.fetch = m_fetch.fetch;
+    window.__engineGlobal__.Headers = m_fetch.Headers;
+    window.__engineGlobal__.Request = m_fetch.Request;
+    window.__engineGlobal__.Response = m_fetch.Response;
 
     // const PORTRAIT = 0;
     // const LANDSCAPE_LEFT = -90;
     // const PORTRAIT_UPSIDE_DOWN = 180;
     // const LANDSCAPE_RIGHT = 90;
-    window.orientation = jsb.device.getDeviceOrientation();
+    window.__engineGlobal__.orientation = jsb.device.getDeviceOrientation();
 
     // window.devicePixelRatio is readonly
     if (!__EDITOR__) {
@@ -64,36 +64,36 @@ function inject () {
         });
     }
 
-    window.screen = {
+    window.__engineGlobal__.screen = {
         availTop: 0,
         availLeft: 0,
-        availHeight: window.innerWidth,
-        availWidth: window.innerHeight,
+        availHeight: window.__engineGlobal__.innerWidth,
+        availWidth: window.__engineGlobal__.innerHeight,
         colorDepth: 8,
         pixelDepth: 8,
         left: 0,
         top: 0,
-        width: window.innerWidth,
-        height: window.innerHeight,
+        width: window.__engineGlobal__.innerWidth,
+        height: window.__engineGlobal__.innerHeight,
         orientation: { //FIXME:cjh
             type: 'portrait-primary', // portrait-primary, portrait-secondary, landscape-primary, landscape-secondary
         },
         onorientationchange (event) {},
     };
 
-    window.addEventListener = function (eventName, listener, options) {
-        window.__canvas.addEventListener(eventName, listener, options);
+    window.__engineGlobal__.addEventListener = function (eventName, listener, options) {
+        window.__engineGlobal__.__canvas.addEventListener(eventName, listener, options);
     };
 
-    window.removeEventListener = function (eventName, listener, options) {
-        window.__canvas.removeEventListener(eventName, listener, options);
+    window.__engineGlobal__.removeEventListener = function (eventName, listener, options) {
+        window.__engineGlobal__.__canvas.removeEventListener(eventName, listener, options);
     };
 
-    window.dispatchEvent = function (event) {
-        window.__canvas.dispatchEvent(event);
+    window.__engineGlobal__.dispatchEvent = function (event) {
+        window.__engineGlobal__.__canvas.dispatchEvent(event);
     };
 
-    window.getComputedStyle = function (element) {
+    window.__engineGlobal__.getComputedStyle = function (element) {
         return {
            position: 'absolute',
            left: '0px',
@@ -102,34 +102,34 @@ function inject () {
         };
     };
 
-    window.resize = function (width, height) {
-        window.innerWidth = width;
-        window.innerHeight = height;
-        window.outerWidth = window.innerWidth;
-        window.outerHeight = window.innerHeight;
-        window.__canvas._width = window.innerWidth;
-        window.__canvas._height = window.innerHeight;
-        window.screen.availWidth = window.innerWidth;
-        window.screen.availHeight = window.innerHeight;
-        window.screen.width = window.innerWidth;
-        window.screen.height = window.innerHeight;
-        window.clientWidth = window.innerWidth;
-        window.clientHeight = window.innerHeight;
+    window.__engineGlobal__.resize = function (width, height) {
+        window.__engineGlobal__.innerWidth = width;
+        window.__engineGlobal__.innerHeight = height;
+        window.__engineGlobal__.outerWidth = window.__engineGlobal__.innerWidth;
+        window.__engineGlobal__.outerHeight = window.__engineGlobal__.innerHeight;
+        window.__engineGlobal__.__canvas._width = window.__engineGlobal__.innerWidth;
+        window.__engineGlobal__.__canvas._height = window.innerHeight;
+        window.__engineGlobal__.screen.availWidth = window.__engineGlobal__.innerWidth;
+        window.__engineGlobal__.screen.availHeight = window.__engineGlobal__.innerHeight;
+        window.__engineGlobal__.screen.width = window.__engineGlobal__.innerWidth;
+        window.__engineGlobal__.screen.height = window.__engineGlobal__.innerHeight;
+        window.__engineGlobal__.clientWidth = window.__engineGlobal__.innerWidth;
+        window.__engineGlobal__.clientHeight = window.__engineGlobal__.innerHeight;
         // emit resize consistent with web behavior
         const resizeEvent = new Event('resize');
         resizeEvent._target = window;
-        window.dispatchEvent(resizeEvent);
+        window.__engineGlobal__.dispatchEvent(resizeEvent);
     };
 
-    window.focus = function () {};
-    window.scroll = function () {};
+    window.__engineGlobal__.focus = function () {};
+    window.__engineGlobal__.scroll = function () {};
 
-    window._isInjected = true;
+    window.__engineGlobal__._isInjected = true;
 }
 
-if (!window._isInjected) {
+if (!window.__engineGlobal__._isInjected) {
     inject();
 }
 if (!__EDITOR__) {
-    window.localStorage = sys.localStorage;
+    window.__engineGlobal__.localStorage = sys.localStorage;
 }

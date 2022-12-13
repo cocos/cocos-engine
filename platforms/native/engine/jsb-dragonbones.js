@@ -26,11 +26,11 @@ const cacheManager = require('./jsb-cache-manager');
 
 // @ts-expect-error jsb polyfills
 (function () {
-    if (window.dragonBones === undefined || window.middleware === undefined) return;
+    if (window.__engineGlobal__.dragonBones === undefined || window.__engineGlobal__.middleware === undefined) return;
     const ArmatureDisplayComponent = cc.internal.ArmatureDisplay;
     if (ArmatureDisplayComponent === undefined) return;
-    const dragonBones = window.dragonBones;
-    const middleware = window.middleware;
+    const dragonBones = window.__engineGlobal__.dragonBones;
+    const middleware = window.__engineGlobal__.middleware;
 
     // dragonbones global time scale.
     Object.defineProperty(dragonBones, 'timeScale', {

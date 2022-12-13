@@ -1,14 +1,15 @@
 jsb.device = jsb.Device; // cc namespace will be reset to {} in creator, use jsb namespace instead.
 
+window.__engineGlobal__ = {};
 const { btoa, atob } = require('./base64/base64.min');
-window.btoa = btoa;
-window.atob = atob;
+window.__engineGlobal__.btoa = btoa;
+window.__engineGlobal__.atob = atob;
 const { Blob, URL } = require('./Blob');
-window.Blob = Blob;
-window.URL = URL;
-window.DOMParser = require('./xmldom/dom-parser').DOMParser;
+window.__engineGlobal__.Blob = Blob;
+window.__engineGlobal__.URL = URL;
+window.__engineGlobal__.DOMParser = require('./xmldom/dom-parser').DOMParser;
 
-window.__EDITOR__ = window.process && ('electron' in window.process.versions);
+window.__engineGlobal__.__EDITOR__ = window.process && ('electron' in window.process.versions);
 require('./jsb_prepare');
 require('./jsb-adapter');
 require('./jsb_audioengine');
@@ -19,23 +20,23 @@ let _requestAnimationFrameID = 0;
 let _requestAnimationFrameCallbacks = {};
 let _firstTick = true;
 
-window.requestAnimationFrame = function(cb) {
+window.__engineGlobal__.requestAnimationFrame = function(cb) {
     let id = ++_requestAnimationFrameID;
     _requestAnimationFrameCallbacks[id] = cb;
     return id;
 };
 
-window.cancelAnimationFrame = function(id) {
+window.__engineGlobal__.cancelAnimationFrame = function(id) {
     delete _requestAnimationFrameCallbacks[id];
 };
 
 function tick(nowMilliSeconds) {
     if (_firstTick) {
         _firstTick = false;
-        if (window.onload) {
+        if (window.__engineGlobal__.onload) {
             var event = new Event('load');
             event._target = window;
-            window.onload(event);
+            window.__engineGlobal__.onload(event);
         }
     }
     fireTimeout(nowMilliSeconds);
@@ -108,20 +109,20 @@ function createTimeoutInfo(prevFuncArgs, isRepeat) {
     return info.id;
 }
 
-window.setTimeout = function(cb) {
+window.__engineGlobal__.setTimeout = function(cb) {
     return createTimeoutInfo(arguments, false);
 };
 
-window.clearTimeout = function(id) {
+window.__engineGlobal__.clearTimeout = function(id) {
     delete _timeoutInfos[id];
 };
 
-window.setInterval = function(cb) {
+window.__engineGlobal__.setInterval = function(cb) {
     return createTimeoutInfo(arguments, true);
 };
 
-window.clearInterval = window.clearTimeout;
-window.alert = console.error.bind(console);
+window.__engineGlobal__.clearInterval = window.__engineGlobal__.clearTimeout;
+window.__engineGlobal__.alert = console.error.bind(console);
 
 // File utils (Temporary, won't be accessible)
 if (typeof jsb.FileUtils !== 'undefined') {
@@ -139,7 +140,7 @@ XMLHttpRequest.prototype.removeEventListener = function(eventName, listener, opt
 
 // SocketIO
 if (window.SocketIO) {
-    window.io = window.SocketIO;
+    window.__engineGlobal__.io = window.SocketIO;
     SocketIO.prototype._Emit = SocketIO.prototype.emit;
     SocketIO.prototype.emit = function (uri, delegate) {
         if (typeof delegate === 'object') {
@@ -149,7 +150,7 @@ if (window.SocketIO) {
     };
 }
 
-window.gameTick = tick;
+window.__engineGlobal__.gameTick = tick;
 
 // generate get set function
 jsb.generateGetSet = function (moduleObj) {

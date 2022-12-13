@@ -21,7 +21,7 @@ class Element extends Node {
     }
 
     getBoundingClientRect() {
-        return new DOMRect(0, 0, window.innerWidth, window.innerHeight);
+        return new DOMRect(0, 0, window.__engineGlobal__.innerWidth, window.__engineGlobal__.innerHeight);
     }
 
     // attrName is a string that names the attribute to be removed from element.

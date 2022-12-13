@@ -4,7 +4,7 @@ class Node extends EventTarget {
   constructor() {
     super()
     this.childNodes = []
-    this.parentNode = window.__canvas;
+    this.parentNode = window.__engineGlobal__.__canvas;
   }
 
   appendChild(node) {

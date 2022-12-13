@@ -106,11 +106,11 @@ class HTMLCanvasElement extends HTMLElement {
     }
 
     get clientWidth () {
-        return window.innerWidth;
+        return window.__engineGlobal__.innerWidth;
     }
 
     get clientHeight () {
-        return window.innerHeight;
+        return window.__engineGlobal__.innerHeight;
     }
 
     get data () {
@@ -121,7 +121,7 @@ class HTMLCanvasElement extends HTMLElement {
     }
 
     getBoundingClientRect () {
-        return new DOMRect(0, 0, window.innerWidth, window.innerHeight);
+        return new DOMRect(0, 0, window.__engineGlobal__.innerWidth, window.__engineGlobal__.innerHeight);
     }
 
     requestPointerLock () {
