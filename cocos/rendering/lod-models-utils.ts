@@ -162,7 +162,9 @@ export class LODModelsCachedUtils {
 
     public static clearCachedLODModels () {
         cameraStateMap.forEach((value, camera) => {
-            camera.node.off(NodeEventType.TRANSFORM_CHANGED, onCameraTransformChanged);
+            if (camera.node) { // preview's camera maybe detached from scene
+                camera.node.off(NodeEventType.TRANSFORM_CHANGED, onCameraTransformChanged);
+            }
         });
         cameraStateMap.clear();
         lodGroupStateMap.forEach((lodInfos, key) => {
