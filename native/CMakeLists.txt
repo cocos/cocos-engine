@@ -2743,12 +2743,14 @@ if(ANDROID)
 elseif(OPENHARMONY)
     if(USE_EDIT_BOX)
         cocos_source_files(
+                        cocos/ui/edit-box/EditBox-openharmony.h
                         cocos/ui/edit-box/EditBox-openharmony.cpp
     )
     endif()
     if(USE_WEBVIEW)
     cocos_source_files(
         cocos/ui/webview/WebViewImpl-java.h
+        cocos/ui/webview/WebViewImpl-openharmony.h
         cocos/ui/webview/WebViewImpl-openharmony.cpp
     )
 endif()
