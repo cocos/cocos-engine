@@ -398,11 +398,12 @@ Mat4 Camera::worldMatrixToScreen(const Mat4 &worldMatrix, uint32_t width, uint32
 * @param clipPlane clip plane in camera space
 */
 void Camera::calculateObliqueMat(const Vec4& viewSpacePlane) {
+    float clipSpaceMinZ = _device->getCapabilities().clipSpaceMinZ;
     Vec4 far{math::sgn(viewSpacePlane.x), math::sgn(viewSpacePlane.y), 1.F, 0.F};
 
     _matProjInv.transformVector(&far);
 
-    const Vec4 m4 = {_matProj.m[3], _matProj.m[7], 0.F, _matProj.m[15]};
+    const Vec4 m4 = {_matProj.m[3], _matProj.m[7], clipSpaceMinZ, _matProj.m[15]};
     const float scale = 2.F / Vec4::dot(viewSpacePlane, far);
     const Vec4 newViewSpaceNearPlane = viewSpacePlane * scale;
 
