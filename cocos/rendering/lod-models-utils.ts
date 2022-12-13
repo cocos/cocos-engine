@@ -57,13 +57,13 @@ const lodGroupStateMap = new Map<Camera, Map<LODGroup, LODInfo>>();
  */
 const cameraStateMap = new Map<Camera, boolean>();
 
-function onCameraTransformChanged (camera: Camera) {
-    cameraStateMap.set(camera, true);
+function onCameraTransformChanged (this: Camera) {
+    cameraStateMap.set(this, true);
 }
 
-function onNodeTransformChanged (lodGroup: LODGroup) {
+function onNodeTransformChanged (this: LODGroup) {
     lodGroupStateMap.forEach((value, key) => {
-        const info = value.get(lodGroup);
+        const info = value.get(this);
         if (info) {
             info.needUpdate = true;
         }
