@@ -68,7 +68,7 @@ void LODModelsCachedUtils::updateCachedLODModels(const scene::RenderScene *scene
     if (cameraStateMap.count(camera) == 0) {
         isCameraTransformChanged = true;
         std::get<1>(cameraStateMap[camera]) = camera->getNode()->on<cc::Node::AncestorTransformChanged>(
-            [camera](cc::Node * /* emitter*/, cc::TransformBit transformBit) {
+            [camera](cc::Node * /* emitter*/, cc::TransformBit  /*transformBit*/) {
                 std::get<0>(cameraStateMap[camera]) = true;
             });
     }
@@ -81,7 +81,7 @@ void LODModelsCachedUtils::updateCachedLODModels(const scene::RenderScene *scene
             auto &lodInfo = lodInfoMap[lodGroup];
             if (!lodInfoExist) {
                 lodInfo.eventId = lodGroup->getNode()->on<cc::Node::AncestorTransformChanged>(
-                    [lodGroup](cc::Node * /* emitter*/, cc::TransformBit transformBit) {
+                    [lodGroup](cc::Node * /* emitter*/, cc::TransformBit  /*transformBit*/) {
                         for (auto &cameraKV : lodGroupStateMap) {
                             cameraKV.second[lodGroup].needUpdate = true;
                         }
@@ -120,7 +120,8 @@ void LODModelsCachedUtils::updateCachedLODModels(const scene::RenderScene *scene
                 int8_t visIndex = lodGroup->getVisibleLODLevel(camera);
                 if (visIndex == lodInfo.visibleLevel && visIndex != -1) {
                     continue; // do nothing
-                } else if (visIndex != lodInfo.visibleLevel) {
+                }
+                if (visIndex != lodInfo.visibleLevel) {
                     lodInfo.visibleLevel = visIndex;
                     for (auto index = 0; index < lodGroup->getLodCount(); index++) {
                         const auto &lod = lodGroup->getLodDataArray()[index];
