@@ -6,7 +6,6 @@ interface CachedAudioBufferData {
     usedCount: number,
     audioBuffer: CCAudioBuffer,
 }
-export const defaultContext = new jsb.AudioContext();
 /**
  * This is a manager to manage the cache of audio buffer for web audio and dom audio.
  */
@@ -58,13 +57,13 @@ export class CCAudioBufferManager {
             delete this._audioBufferDataMap[url];
         }
     }
-    public loadBuffer (url: string, ctx?: CCAudioContext): Promise<CCAudioBuffer> {
+    public loadBuffer (url: string, ctx: CCAudioContext): Promise<CCAudioBuffer> {
         return new Promise((resolve, reject) => {
             const cachedbuffer = this.getCache(url);
             if (cachedbuffer) {
                 resolve(cachedbuffer);
             }
-            (ctx || defaultContext).decodeAudioData(url).then((buffer) => {
+            (ctx).decodeAudioData(url).then((buffer) => {
                 this.addCache(url, buffer);
                 resolve(buffer);
             }).catch(reject);

@@ -134,6 +134,10 @@
 #define cc_SourceNode_loop_set(self_, val_) self_->setLoop(val_)
   
 
+#define cc_SourceNode_volume_get(self_) self_->getVolume()
+#define cc_SourceNode_volume_set(self_, val_) self_->setVolume(val_)
+  
+
 #define cc_SourceNode_currentTime_get(self_) self_->getCurrentTime()
 #define cc_SourceNode_currentTime_set(self_, val_) self_->setCurrentTime(val_)
   
@@ -3399,53 +3403,6 @@ static bool js_cc_SourceNode_stop(se::State& s)
 }
 SE_BIND_FUNC(js_cc_SourceNode_stop) 
 
-static bool js_cc_SourceNode_setVolume(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::SourceNode *arg1 = (cc::SourceNode *) NULL ;
-    float arg2 ;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::SourceNode>(s);
-    if (nullptr == arg1) return true;
-    
-    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
-    (arg1)->setVolume(arg2);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_SourceNode_setVolume) 
-
-static bool js_cc_SourceNode_getVolume(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::SourceNode *arg1 = (cc::SourceNode *) NULL ;
-    float result;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::SourceNode>(s);
-    if (nullptr == arg1) return true;
-    result = (float)(arg1)->getVolume();
-    
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject()); 
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_SourceNode_getVolume) 
-
 static bool js_cc_SourceNode_setBuffer(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -3557,6 +3514,43 @@ static bool js_cc_SourceNode_loop_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_SourceNode_loop_get) 
 
+static bool js_cc_SourceNode_volume_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::SourceNode *arg1 = (cc::SourceNode *) NULL ;
+    float arg2 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::SourceNode>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    cc_SourceNode_volume_set(arg1,arg2);
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_SourceNode_volume_set) 
+
+static bool js_cc_SourceNode_volume_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::SourceNode *arg1 = (cc::SourceNode *) NULL ;
+    float result;
+    
+    arg1 = SE_THIS_OBJECT<cc::SourceNode>(s);
+    if (nullptr == arg1) return true;
+    result = (float)cc_SourceNode_volume_get(arg1);
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject()); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_SourceNode_volume_get) 
+
 static bool js_cc_SourceNode_currentTime_set(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -3641,14 +3635,13 @@ bool js_register_cc_SourceNode(se::Object* obj) {
     auto* cls = se::Class::create("SourceNode", obj, __jsb_cc_AudioNode_proto, _SE(js_new_SourceNode)); 
     
     cls->defineProperty("loop", _SE(js_cc_SourceNode_loop_get), _SE(js_cc_SourceNode_loop_set)); 
+    cls->defineProperty("volume", _SE(js_cc_SourceNode_volume_get), _SE(js_cc_SourceNode_volume_set)); 
     cls->defineProperty("currentTime", _SE(js_cc_SourceNode_currentTime_get), _SE(js_cc_SourceNode_currentTime_set)); 
     cls->defineProperty("playbackRate", _SE(js_cc_SourceNode_playbackRate_get), _SE(js_cc_SourceNode_playbackRate_set)); 
     
     cls->defineFunction("start", _SE(js_cc_SourceNode_start)); 
     cls->defineFunction("pause", _SE(js_cc_SourceNode_pause)); 
     cls->defineFunction("stop", _SE(js_cc_SourceNode_stop)); 
-    cls->defineFunction("setVolume", _SE(js_cc_SourceNode_setVolume)); 
-    cls->defineFunction("getVolume", _SE(js_cc_SourceNode_getVolume)); 
     cls->defineFunction("setBuffer", _SE(js_cc_SourceNode_setBuffer)); 
     cls->defineFunction("getBuffer", _SE(js_cc_SourceNode_getBuffer)); 
     cls->defineFunction("setOnEnded", _SE(js_cc_SourceNode_setOnEnded)); 

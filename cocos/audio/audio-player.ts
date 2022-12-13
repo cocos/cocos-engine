@@ -60,7 +60,7 @@ export class AudioPlayer extends DynamicPath<AudioState, AudioAction> implements
             this._sourceNode = audioContextManager.defaultContext.createSourceNode(buffer);
         } else {
             this._sourceNode = audioContextManager.defaultContext.createSourceNode();
-            audioBufferManager.loadBuffer(clip.nativeUrl).then((buffer) => {
+            audioBufferManager.loadBuffer(clip.nativeUrl, audioContextManager.defaultContext).then((buffer) => {
                 this._sourceNode.buffer = buffer;
             }).catch(() => {
                 console.error(`buffer load failed with no reason`);
@@ -92,7 +92,7 @@ export class AudioPlayer extends DynamicPath<AudioState, AudioAction> implements
             this._sourceNode.buffer = buffer;
             audioBufferManager.retainCache(clip.nativeUrl);
         } else {
-            audioBufferManager.loadBuffer(clip.nativeUrl).then((buffer) => {
+            audioBufferManager.loadBuffer(clip.nativeUrl, audioContextManager.defaultContext).then((buffer) => {
                 this._sourceNode.buffer = buffer;
 
                 audioBufferManager.retainCache(clip.nativeUrl);

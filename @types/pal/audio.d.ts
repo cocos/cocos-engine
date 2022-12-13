@@ -272,7 +272,7 @@ declare module 'pal/audio' {
         public getCache (url: string): CCAudioBuffer | undefined;
 
         public tryReleasingCache (url: string);
-        public loadBuffer (url: string, ctx?: CCAudioContext): Promise<CCAudioBuffer>;
+        public loadBuffer (url: string, ctx: CCAudioContext): Promise<CCAudioBuffer>;
     }
     export const audioBufferManager: CCAudioBufferManager;
 }

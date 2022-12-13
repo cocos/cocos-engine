@@ -129,6 +129,7 @@
 %attribute(cc::StereoPannerNode, cc::AudioParam*, pan, getPan);
 // SourceNode
 %attribute(cc::SourceNode, bool, loop, getLoop, setLoop);
+%attribute(cc::SourceNode, float, volume, getVolume, setVolume);
 %attribute(cc::SourceNode, float, currentTime, getCurrentTime, setCurrentTime);
 %attribute(cc::SourceNode, float, playbackRate, getPlaybackRate, setPlaybackRate);
 
