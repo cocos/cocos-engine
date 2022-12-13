@@ -1,6 +1,5 @@
 /****************************************************************************
- Copyright (c) 2014-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -32,11 +31,10 @@
 
 #include "platform/FileUtils.h"
 #include "platform/openharmony/napi/NapiHelper.h"
+#include "WebViewImpl-openharmony.h"
 #include "cocos/base/Log.h"
 
-static const ccstd::string CLASS_NAME = "com/cocos/lib/CocosWebViewHelper";
-
-static const ccstd::string S_DEFAULT_BASE_URL = "file:///android_asset/";
+static const ccstd::string S_DEFAULT_BASE_URL = "file:///openharmony_asset/";
 static const ccstd::string S_SD_ROOT_BASE_URL = "file://";
 
 static ccstd::string getFixedBaseUrl(const ccstd::string &baseUrl) {
@@ -64,7 +62,7 @@ static ccstd::string getFixedBaseUrl(const ccstd::string &baseUrl) {
 
 ccstd::string getUrlStringByFileName(const ccstd::string &fileName) {
     // LOGD("error: %s,%d",__func__,__LINE__);
-    const ccstd::string basePath("file:///android_asset/");
+    const ccstd::string basePath(S_DEFAULT_BASE_URL);
     ccstd::string fullPath = cc::FileUtils::getInstance()->fullPathForFilename(fileName);
     const ccstd::string assetsPath("assets/");
 
@@ -80,7 +78,7 @@ ccstd::string getUrlStringByFileName(const ccstd::string &fileName) {
 }
 
 namespace cc {
-static int32_t kWebViewTag = 1;
+static int32_t kWebViewTag = 0;
 static ccstd::unordered_map<int, WebViewImpl *> sWebViewImpls;
 
 WebViewImpl::WebViewImpl(WebView *webView) : _viewTag(-1),
@@ -97,8 +95,7 @@ WebViewImpl::~WebViewImpl() {
 
 void WebViewImpl::destroy() {
     if (_viewTag != -1) {
-        //JniHelper::callStaticVoidMethod(CLASS_NAME, "removeWebView", _viewTag);
-        NapiHelper::postMessageToUIThread("removeWebView", "");
+        NapiHelper::postMessageToUIThread("removeWebView", _viewTag);
         auto iter = sWebViewImpls.find(_viewTag);
         if (iter != sWebViewImpls.end()) {
             sWebViewImpls.erase(iter);
@@ -111,44 +108,44 @@ void WebViewImpl::loadData(const Data &data, const ccstd::string &mimeType,
                            const ccstd::string &encoding, const ccstd::string &baseURL) {
     ccstd::string dataString(reinterpret_cast<char *>(data.getBytes()),
                              static_cast<unsigned int>(data.getSize()));
-    // cc::Value val;
-    // val.asValueVector().push_back(cc::Value(dataString));
-    // val.asValueVector().push_back(cc::Value(mimeType));
-    // val.asValueVector().push_back(cc::Value(encoding));
-    // val.asValueVector().push_back(cc::Value(baseURL));
-    std::vector<std::string> val;
-    val.push_back(dataString);
-    val.push_back(mimeType);
-    val.push_back(encoding);
-    val.push_back(baseURL);
-    NapiHelper::postMessageToUIThread("loadData", val);
+    ccstd::unordered_map<ccstd::string, cc::Value> vals;
+    vals.insert(std::make_pair("tag", _viewTag));
+    vals.insert(std::make_pair("contents", cc::Value(dataString)));
+    vals.insert(std::make_pair("mimeType", mimeType));
+    vals.insert(std::make_pair("encoding", encoding));
+    vals.insert(std::make_pair("baseUrl", baseURL));
+    NapiHelper::postMessageToUIThread("loadData", vals);
 }
 
 void WebViewImpl::loadHTMLString(const ccstd::string &string, const ccstd::string &baseURL) {
-    NapiHelper::postMessageToUIThread("loadHTMLString", baseURL.c_str());
+    ccstd::unordered_map<ccstd::string, cc::Value> vals;
+    vals.insert(std::make_pair("tag", _viewTag));
+    vals.insert(std::make_pair("contents", cc::Value(string)));
+    vals.insert(std::make_pair("baseUrl", baseURL));
+    NapiHelper::postMessageToUIThread("loadHTMLString", vals);
 }
 
 void WebViewImpl::loadURL(const ccstd::string &url) {
-    // std::vector<std::string> val;
-    // val.push_back("dataString");
-    // val.push_back("mimeType");
-    // val.push_back("encoding");
-    // val.push_back("baseURL");
-    // NapiHelper::postMessageToUIThread("setJavascriptInterfaceScheme", val);
-    NapiHelper::postMessageToUIThread("loadUrl", url.c_str());
+    ccstd::unordered_map<ccstd::string, cc::Value> vals;
+    vals.insert(std::make_pair("tag", _viewTag));
+    vals.insert(std::make_pair("url", url));
+    NapiHelper::postMessageToUIThread("loadUrl", vals);
 }
 
 void WebViewImpl::loadFile(const ccstd::string &fileName) {
     auto fullPath = getUrlStringByFileName(fileName);
-    NapiHelper::postMessageToUIThread("loadUrl", fullPath.c_str());
+    ccstd::unordered_map<ccstd::string, cc::Value> vals;
+    vals.insert(std::make_pair("tag", _viewTag));
+    vals.insert(std::make_pair("url", fullPath));
+    NapiHelper::postMessageToUIThread("loadUrl", vals);
 }
 
 void WebViewImpl::stopLoading() {
-    NapiHelper::postMessageToUIThread("stopLoading", "");
+    NapiHelper::postMessageToUIThread("stopLoading", _viewTag);
 }
 
 void WebViewImpl::reload() {
-    NapiHelper::postMessageToUIThread("reload", "");
+    NapiHelper::postMessageToUIThread("reload", _viewTag);
 }
 
 bool WebViewImpl::canGoBack() {
@@ -162,11 +159,11 @@ bool WebViewImpl::canGoForward() {
 }
 
 void WebViewImpl::goBack() {
-    NapiHelper::postMessageToUIThread("goBack", "");
+    NapiHelper::postMessageToUIThread("goBack", _viewTag);
 }
 
 void WebViewImpl::goForward() {
-     NapiHelper::postMessageToUIThread("goForward", "");
+     NapiHelper::postMessageToUIThread("goForward", _viewTag);
 }
 
 void WebViewImpl::setJavascriptInterfaceScheme(const ccstd::string &scheme) {
@@ -174,11 +171,14 @@ void WebViewImpl::setJavascriptInterfaceScheme(const ccstd::string &scheme) {
 }
 
 void WebViewImpl::evaluateJS(const ccstd::string &js) {
-    NapiHelper::postMessageToUIThread("evaluateJS", js.c_str());
+    ccstd::unordered_map<ccstd::string, cc::Value> vals;
+    vals.insert(std::make_pair("tag", _viewTag));
+    vals.insert(std::make_pair("jsContents", js));
+    NapiHelper::postMessageToUIThread("evaluateJS", vals);
 }
 
 void WebViewImpl::setScalesPageToFit(bool scalesPageToFit) {
-    NapiHelper::postMessageToUIThread("setScalesPageToFit", "");
+    NapiHelper::postMessageToUIThread("setScalesPageToFit", _viewTag);
 }
 
 bool WebViewImpl::shouldStartLoading(int viewTag, const ccstd::string &url) {
@@ -187,7 +187,6 @@ bool WebViewImpl::shouldStartLoading(int viewTag, const ccstd::string &url) {
     if (it != sWebViewImpls.end()) {
         auto webView = it->second->_webView;
         if (webView->_onShouldStartLoading) {
-            LOGE("recv msg : 3 %{public}d", viewTag);
             allowLoad = webView->_onShouldStartLoading(webView, url);
         }
     }
@@ -199,7 +198,6 @@ void WebViewImpl::didFinishLoading(int viewTag, const ccstd::string &url) {
     if (it != sWebViewImpls.end()) {
         auto webView = it->second->_webView;
         if (webView->_onDidFinishLoading) {
-            LOGE("recv msg : 33 %{public}d", viewTag);
             webView->_onDidFinishLoading(webView, url);
         }
     }
@@ -226,12 +224,21 @@ void WebViewImpl::onJsCallback(int viewTag, const ccstd::string &message) {
 }
 
 void WebViewImpl::setVisible(bool visible) {
-    NapiHelper::postMessageToUIThread("setVisible", visible);
+    ccstd::unordered_map<ccstd::string, cc::Value> vals;
+    vals.insert(std::make_pair("tag", _viewTag));
+    vals.insert(std::make_pair("visible", visible));
+    NapiHelper::postMessageToUIThread("setVisible", vals);
 }
 
 void WebViewImpl::setFrame(float x, float y, float width, float height) {
-    cc::Rect rect(x, y, width, height);
-    NapiHelper::postMessageToUIThread("setWebViewRect", rect);
+    //cc::Rect rect(x, y, width, height);
+    ccstd::unordered_map<ccstd::string, cc::Value> vals;
+    vals.insert(std::make_pair("tag", _viewTag));
+    vals.insert(std::make_pair("x", x));
+    vals.insert(std::make_pair("y", y));
+    vals.insert(std::make_pair("w", width));
+    vals.insert(std::make_pair("h", height));
+    NapiHelper::postMessageToUIThread("setWebViewRect", vals);
 }
 
 void WebViewImpl::setBounces(bool bounces) {
@@ -241,5 +248,87 @@ void WebViewImpl::setBounces(bool bounces) {
 void WebViewImpl::setBackgroundTransparent(bool isTransparent) {
     // TODO(qgh):OpenHarmony is not supported at this time
 }
+
+void OpenHarmonyWebView::GetInterfaces(std::vector<napi_property_descriptor> &descriptors) {
+    descriptors = {
+        DECLARE_NAPI_FUNCTION("shouldStartLoading", OpenHarmonyWebView::napiShouldStartLoading),
+        DECLARE_NAPI_FUNCTION("finishLoading", OpenHarmonyWebView::napiFinishLoading),
+        DECLARE_NAPI_FUNCTION("failLoading", OpenHarmonyWebView::napiFailLoading),
+        DECLARE_NAPI_FUNCTION("jsCallback", OpenHarmonyWebView::napiJsCallback),
+    };
+}
+
+napi_value OpenHarmonyWebView::napiShouldStartLoading(napi_env env, napi_callback_info info) {
+    size_t      argc = 2;
+    napi_value  args[2];
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, nullptr, nullptr));
+    
+    se::ValueArray seArgs;
+    seArgs.reserve(2);   
+    se::internal::jsToSeArgs(argc, args, &seArgs);
+
+    int32_t viewTag;
+    sevalue_to_native(seArgs[0], &viewTag, nullptr);
+
+    std::string url;
+    sevalue_to_native(seArgs[1], &url, nullptr);
+    WebViewImpl::shouldStartLoading(viewTag, url);
+    return nullptr;
+}
+
+napi_value OpenHarmonyWebView::napiFinishLoading(napi_env env, napi_callback_info info) {
+    size_t      argc = 2;
+    napi_value  args[2];
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, nullptr, nullptr));
+    
+    se::ValueArray seArgs;
+    seArgs.reserve(2);   
+    se::internal::jsToSeArgs(argc, args, &seArgs);
+
+    int32_t viewTag;
+    sevalue_to_native(seArgs[0], &viewTag, nullptr);
+
+    std::string url;
+    sevalue_to_native(seArgs[1], &url, nullptr);
+    WebViewImpl::didFinishLoading(viewTag, url);
+    return nullptr;
+}
+
+napi_value OpenHarmonyWebView::napiFailLoading(napi_env env, napi_callback_info info) {
+    size_t      argc = 2;
+    napi_value  args[2];
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, nullptr, nullptr));
+    
+    se::ValueArray seArgs;
+    seArgs.reserve(2);   
+    se::internal::jsToSeArgs(argc, args, &seArgs);
+
+    int32_t viewTag;
+    sevalue_to_native(seArgs[0], &viewTag, nullptr);
+
+    std::string url;
+    sevalue_to_native(seArgs[1], &url, nullptr);
+    WebViewImpl::didFailLoading(viewTag, url);
+    return nullptr;
+}
+
+napi_value OpenHarmonyWebView::napiJsCallback(napi_env env, napi_callback_info info) {
+    size_t      argc = 2;
+    napi_value  args[2];
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, nullptr, nullptr));
+    
+    se::ValueArray seArgs;
+    seArgs.reserve(2);   
+    se::internal::jsToSeArgs(argc, args, &seArgs);
+
+    int32_t viewTag;
+    sevalue_to_native(seArgs[0], &viewTag, nullptr);
+
+    std::string url;
+    sevalue_to_native(seArgs[1], &url, nullptr);
+    WebViewImpl::onJsCallback(viewTag, url);
+    return nullptr;
+}
+
 
 } //namespace cc

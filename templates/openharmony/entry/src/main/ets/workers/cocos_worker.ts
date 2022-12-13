@@ -34,12 +34,13 @@ nativeContext.workerInit()
 const parentPort = worker.parentPort;
 
 const nativeEditBox = nativerender.getContext(ContextType.EDITBOX_UTILS);
-nativeEditBox.setShowEditBoxFunction((msg: string) => {
-    parentPort.postMessage({ type: 'showEditBox', data: msg });
-});
-nativeEditBox.setHideEditBoxFunction(() => {
-    parentPort.postMessage({ type: 'hideEditBox', data: '' });
-})
+const nativeWebView = nativerender.getContext(ContextType.WEBVIEW_UTILS);
+
+nativeContext.postMessage = function(msgType: string, msgData:string) {
+    parentPort.postMessage({ type: msgType, data: msgData });
+}
+
+nativeContext.setPostMessageFunction.call(nativeContext, nativeContext.postMessage)
 
 var renderContext: any = undefined;
 parentPort.onmessage = function(e) {
@@ -61,8 +62,18 @@ parentPort.onmessage = function(e) {
         case "onComplete":
             nativeEditBox.onComplete(data.data);
             break;
+        case "onPageBegin":
+            nativeWebView.shouldStartLoading(data.data.viewTag, data.data.url);
+            break;
+        case "onPageEnd":
+            nativeWebView.finishLoading(data.data.viewTag, data.data.url);
+            break;
+        case "onErrorReceive":
+            nativeWebView.failLoading(data.data.viewTag, data.data.url);
+            break;
         default:
-            console.error("cocos worker: message type unknown")
+            console.error("cocos worker: message type unknown");
+            break;
     }
 }
 

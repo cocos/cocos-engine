@@ -30,7 +30,8 @@
 #include "platform/openharmony/FileUtils-OpenHarmony.h"
 #include "bindings/jswrapper/SeApi.h"
 #include "ui/edit-box/EditBox-openharmony.h"
-#include "ui/webview/WebViewImpl-java.h"
+
+#include "ui/webview/WebViewImpl-openharmony.h"
 
 namespace cc {
 const int32_t kMaxStringLen = 512;
@@ -157,23 +158,9 @@ napi_value NapiHelper::getContext(napi_env env, napi_callback_info info) {
             NAPI_CALL(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(desc[0]), desc));
         }
         case EDITBOX_UTILS: {
-            #if CC_USE_EDITBOX
-            napi_property_descriptor desc[] = {
-                DECLARE_NAPI_FUNCTION("setShowEditBoxFunction", OpenHarmonyEditBox::napiSetShowEditBoxFunction),
-                DECLARE_NAPI_FUNCTION("setHideEditBoxFunction", OpenHarmonyEditBox::napiSetHideEditBoxFunction),
-                DECLARE_NAPI_FUNCTION("onTextChange", OpenHarmonyEditBox::napiOnTextChange),
-                DECLARE_NAPI_FUNCTION("onComplete", OpenHarmonyEditBox::napiOnComplete),
-            };
-            #else
-            // When openharmony starts, the callback of editbox will be set. If this callback is not set, an exception will be caused.
-            napi_property_descriptor desc[] = {
-                DECLARE_NAPI_FUNCTION("setShowEditBoxFunction", NapiHelper::napiNoImplementation),
-                DECLARE_NAPI_FUNCTION("setHideEditBoxFunction", NapiHelper::napiNoImplementation),
-                DECLARE_NAPI_FUNCTION("onTextChange", NapiHelper::napiNoImplementation),
-                DECLARE_NAPI_FUNCTION("onComplete", NapiHelper::napiNoImplementation),
-            };
-            #endif
-            NAPI_CALL(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(desc[0]), desc));
+            std::vector<napi_property_descriptor> desc;
+            OpenHarmonyEditBox::GetInterfaces(desc);
+            NAPI_CALL(env, napi_define_properties(env, exports, desc.size(), desc.data()));
         }
         case UV_ASYNC_SEND: {
             napi_property_descriptor desc[] = {
@@ -182,13 +169,9 @@ napi_value NapiHelper::getContext(napi_env env, napi_callback_info info) {
             NAPI_CALL(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(desc[0]), desc));
         } break;
         case WEBVIEW_UTILS: {
-            napi_property_descriptor desc[] = {
-                DECLARE_NAPI_FUNCTION("shouldStartLoading", NapiHelper::napiShouldStartLoading),
-                DECLARE_NAPI_FUNCTION("finishLoading", NapiHelper::napiFinishLoading),
-                DECLARE_NAPI_FUNCTION("failLoading", NapiHelper::napiFailLoading),
-                DECLARE_NAPI_FUNCTION("jsCallback", NapiHelper::napiJsCallback),
-            };
-            NAPI_CALL(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(desc[0]), desc));
+            std::vector<napi_property_descriptor> desc;
+            OpenHarmonyWebView::GetInterfaces(desc);
+            NAPI_CALL(env, napi_define_properties(env, exports, desc.size(), desc.data()));
         } break;
         default:
             LOGE("unknown type");
@@ -298,79 +281,6 @@ napi_value NapiHelper::napiWritablePathInit(napi_env env, napi_callback_info inf
     size_t result = 0;
     NODE_API_CALL(status, env, napi_get_value_string_utf8(env, args[0], buffer, kMaxStringLen, &result));
     FileUtilsOpenHarmony::_ohWritablePath = std::string(buffer);
-    return nullptr;
-}
-
-
-napi_value NapiHelper::napiShouldStartLoading(napi_env env, napi_callback_info info) {
-    size_t      argc = 2;
-    napi_value  args[2];
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, nullptr, nullptr));
-    
-    se::ValueArray seArgs;
-    seArgs.reserve(2);   
-    se::internal::jsToSeArgs(argc, args, &seArgs);
-
-    int32_t viewTag;
-    sevalue_to_native(seArgs[0], &viewTag, nullptr);
-
-    std::string url;
-    sevalue_to_native(seArgs[1], &url, nullptr);
-    WebViewImpl::shouldStartLoading(viewTag, url);
-    return nullptr;
-}
-
-napi_value NapiHelper::napiFinishLoading(napi_env env, napi_callback_info info) {
-    size_t      argc = 2;
-    napi_value  args[2];
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, nullptr, nullptr));
-    
-    se::ValueArray seArgs;
-    seArgs.reserve(2);   
-    se::internal::jsToSeArgs(argc, args, &seArgs);
-
-    int32_t viewTag;
-    sevalue_to_native(seArgs[0], &viewTag, nullptr);
-
-    std::string url;
-    sevalue_to_native(seArgs[1], &url, nullptr);
-    WebViewImpl::didFinishLoading(viewTag, url);
-    return nullptr;
-}
-
-napi_value NapiHelper::napiFailLoading(napi_env env, napi_callback_info info) {
-    size_t      argc = 2;
-    napi_value  args[2];
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, nullptr, nullptr));
-    
-    se::ValueArray seArgs;
-    seArgs.reserve(2);   
-    se::internal::jsToSeArgs(argc, args, &seArgs);
-
-    int32_t viewTag;
-    sevalue_to_native(seArgs[0], &viewTag, nullptr);
-
-    std::string url;
-    sevalue_to_native(seArgs[1], &url, nullptr);
-    WebViewImpl::didFailLoading(viewTag, url);
-    return nullptr;
-}
-
-napi_value NapiHelper::napiJsCallback(napi_env env, napi_callback_info info) {
-    size_t      argc = 2;
-    napi_value  args[2];
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, nullptr, nullptr));
-    
-    se::ValueArray seArgs;
-    seArgs.reserve(2);   
-    se::internal::jsToSeArgs(argc, args, &seArgs);
-
-    int32_t viewTag;
-    sevalue_to_native(seArgs[0], &viewTag, nullptr);
-
-    std::string url;
-    sevalue_to_native(seArgs[1], &url, nullptr);
-    WebViewImpl::onJsCallback(viewTag, url);
     return nullptr;
 }
 

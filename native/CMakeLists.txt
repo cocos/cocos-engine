@@ -102,7 +102,7 @@ if(OPENHARMONY AND OHOS)
 endif()
 
 ## disable videoplay on non-mobile platforms
-if(NOT ANDROID AND NOT IOS AND NOT OHOS)
+if(NOT ANDROID AND NOT IOS AND NOT OHOS AND NOT OPENHARMONY)
     set(USE_VIDEO OFF)
     set(USE_WEBVIEW OFF)
 endif()
@@ -111,8 +111,6 @@ if(OPENHARMONY) # TODO:May be removed later
     set(USE_SE_V8 OFF)
     set(USE_SE_NAPI ON)
     set(USE_VIDEO OFF)
-    set(USE_AUDIO ON)
-    set(USE_WEBVIEW OFF)
 endif()
 
 ## disable middleware when dragonbones and spine are disabled
@@ -2748,6 +2746,12 @@ elseif(OPENHARMONY)
                         cocos/ui/edit-box/EditBox-openharmony.cpp
     )
     endif()
+    if(USE_WEBVIEW)
+    cocos_source_files(
+        cocos/ui/webview/WebViewImpl-java.h
+        cocos/ui/webview/WebViewImpl-openharmony.cpp
+    )
+endif()
 elseif(OHOS)
     if(USE_EDIT_BOX)
         cocos_source_files(

@@ -23,40 +23,21 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "platform/openharmony/modules/Accelerometer.h"
+#pragma once
+
 #include "platform/openharmony/napi/NapiHelper.h"
+#include "cocos/bindings/jswrapper/SeApi.h"
+#include "ui/webview/WebViewImpl-java.h"
+
 namespace cc {
 
-void Accelerometer::setAccelerometerEnabled(bool isEnabled) {
-    //setAccelerometerEnabledJNI(isEnabled);
-}
+class OpenHarmonyWebView {
+public:
+    static void GetInterfaces(std::vector<napi_property_descriptor>& descriptors);
+    static napi_value napiShouldStartLoading(napi_env env, napi_callback_info info);
+    static napi_value napiFinishLoading(napi_env env, napi_callback_info info);
+    static napi_value napiFailLoading(napi_env env, napi_callback_info info);
+    static napi_value napiJsCallback(napi_env env, napi_callback_info info);
+};
 
-void Accelerometer::setAccelerometerInterval(float interval) {
-    //setAccelerometerIntervalJNI(interval);
-}
-
-const Accelerometer::MotionValue &Accelerometer::getDeviceMotionValue() {
-
-    ccstd::vector<float>  v;
-    NapiHelper::napiCallFunction<std::vector<float> >("getDeviceMotionValue", &v);
-    static MotionValue motionValue;
-    if (!v.empty()) {
-        
-        motionValue.accelerationIncludingGravityX = v[0];
-        motionValue.accelerationIncludingGravityY = v[1];
-        motionValue.accelerationIncludingGravityZ = v[2];
-
-        motionValue.accelerationX = v[3];
-        motionValue.accelerationY = v[4];
-        motionValue.accelerationZ = v[5];
-
-        motionValue.rotationRateAlpha = v[6];
-        motionValue.rotationRateBeta = v[7];
-        motionValue.rotationRateGamma = v[8];
-    } else {
-        memset(&motionValue, 0, sizeof(motionValue));
-    }
-    return motionValue;
-}
-
-} // namespace cc
+} //namespace cc

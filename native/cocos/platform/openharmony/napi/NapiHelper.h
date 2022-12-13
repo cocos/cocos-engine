@@ -54,11 +54,6 @@ public:
     static napi_value napiWritablePathInit(napi_env env, napi_callback_info info);
     static napi_value napiResourceManagerInit(napi_env env, napi_callback_info info);
 
-    static napi_value napiShouldStartLoading(napi_env env, napi_callback_info info);
-    static napi_value napiFinishLoading(napi_env env, napi_callback_info info);
-    static napi_value napiFailLoading(napi_env env, napi_callback_info info);
-    static napi_value napiJsCallback(napi_env env, napi_callback_info info);
-
     template <class ReturnType>
     static napi_value napiCallFunction(const std::string& functionName, ReturnType* value) {
         if (!se::ScriptEngine::getInstance()->isValid()) {
@@ -83,7 +78,6 @@ public:
         return nullptr;
     }
     static napi_value napiSetPostMessageFunction(napi_env env, napi_callback_info info);
-    static napi_value napiNoImplementation(napi_env env, napi_callback_info info);
     // Napi export
     static bool exportFunctions(napi_env env, napi_value exports);
 
