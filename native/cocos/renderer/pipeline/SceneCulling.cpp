@@ -172,7 +172,7 @@ void sceneCulling(const RenderPipeline *pipeline, scene::Camera *camera) {
         for (const auto &model : scene->getModels()) {
             // filter model by view visibility
             if (model->isEnabled()) {
-                if (LODModelsCachedUtils::isLODModelCulled(model)) {
+                if (LODModelsCachedUtils::isLODModelCulled(camera, model)) {
                     continue;
                 }
 
@@ -199,7 +199,7 @@ void sceneCulling(const RenderPipeline *pipeline, scene::Camera *camera) {
         models.reserve(scene->getModels().size() / 4);
         octree->queryVisibility(camera, camera->getFrustum(), false, models);
         for (const auto &model : models) {
-            if (LODModelsCachedUtils::isLODModelCulled(model)) {
+            if (LODModelsCachedUtils::isLODModelCulled(camera, model)) {
                 continue;
             }
             sceneData->addRenderObject(genRenderObject(model, camera));
@@ -208,7 +208,7 @@ void sceneCulling(const RenderPipeline *pipeline, scene::Camera *camera) {
         for (const auto &model : scene->getModels()) {
             // filter model by view visibility
             if (model->isEnabled()) {
-                if (LODModelsCachedUtils::isLODModelCulled(model)) {
+                if (LODModelsCachedUtils::isLODModelCulled(camera, model)) {
                     continue;
                 }
                 const auto visibility = camera->getVisibility();
@@ -236,7 +236,6 @@ void sceneCulling(const RenderPipeline *pipeline, scene::Camera *camera) {
             }
         }
     }
-    LODModelsCachedUtils::clearCachedLODModels();
 
     csmLayers = nullptr;
 }

@@ -119,7 +119,7 @@ export class WebSceneTask implements SceneTask {
 
             // filter model by view visibility
             if (model.enabled) {
-                if (LODModelsCachedUtils.isLODModelCulled(model)) {
+                if (LODModelsCachedUtils.isLODModelCulled(camera, model)) {
                     continue;
                 }
 
@@ -139,7 +139,6 @@ export class WebSceneTask implements SceneTask {
                 }
             }
         }
-        LODModelsCachedUtils.clearCachedLODModels();
     }
 
     public start (): void {

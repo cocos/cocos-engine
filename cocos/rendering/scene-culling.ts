@@ -160,7 +160,7 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
     function enqueueRenderObject (model: Model) {
         // filter model by view visibility
         if (model.enabled) {
-            if (LODModelsCachedUtils.isLODModelCulled(model)) {
+            if (LODModelsCachedUtils.isLODModelCulled(camera, model)) {
                 return;
             }
 
@@ -185,5 +185,4 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
     for (let i = 0; i < models.length; i++) {
         enqueueRenderObject(models[i]);
     }
-    LODModelsCachedUtils.clearCachedLODModels();
 }

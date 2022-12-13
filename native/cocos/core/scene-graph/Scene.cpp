@@ -29,6 +29,7 @@
 #include "core/Root.h"
 //#include "core/scene-graph/NodeActivator.h"
 #include "engine/EngineEvents.h"
+#include "renderer/pipeline/LODModelsUtil.h"
 
 namespace cc {
 
@@ -98,6 +99,7 @@ void Scene::onBatchCreated(bool dontSyncChildPrefab) {
 }
 
 bool Scene::destroy() {
+    pipeline::LODModelsCachedUtils::clearCachedLODModels();
     bool success = Super::destroy();
     if (success) {
         for (auto &child : _children) {

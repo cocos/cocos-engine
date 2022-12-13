@@ -67,10 +67,9 @@ void PlanarShadowQueue::gatherShadowPasses(scene::Camera *camera, gfx::CommandBu
         return;
     }
 
-    LODModelsCachedUtils::updateCachedLODModels(scene, camera);
     const auto &models = scene->getModels();
     for (const auto &model : models) {
-        if (LODModelsCachedUtils::isLODModelCulled(model)) {
+        if (LODModelsCachedUtils::isLODModelCulled(camera, model)) {
             continue;
         }
         if (!model->isEnabled() || !model->isCastShadow() || !model->getNode()) {
@@ -81,7 +80,6 @@ void PlanarShadowQueue::gatherShadowPasses(scene::Camera *camera, gfx::CommandBu
             _castModels.emplace_back(model);
         }
     }
-    LODModelsCachedUtils::clearCachedLODModels();
 
     const auto &passes = *shadowInfo->getInstancingMaterial()->getPasses();
     InstancedBuffer *instancedBuffer = passes[0]->getInstancedBuffer();
