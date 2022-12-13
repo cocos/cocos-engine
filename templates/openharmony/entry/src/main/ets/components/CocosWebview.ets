@@ -34,21 +34,20 @@ enum ViewType {
 export class ViewInfo {
   // todo: 待兼容
   public viewType: ViewType = ViewType.WEBVIEW;
-  // 位置
+  // position
   public x: number = 0;
   public y: number = 0;
-  // 显示大小
+  // size
   public w: number = 0;
   public h: number = 0;
   // url
   public url: string = ''
-  // 组件标签
+  // tag
   public viewTag: string = ''
-  // 是否显示
+  // Whether to display
   public visible: boolean = true
   /*
-    * 控制器： https://gitee.com/openharmony/docs/blob/master/zh-cn/application-dev/reference/arkui-ts/ts-basic-components-web.md#webcontroller
-    * 控制页面前进、后退、加载网页
+   * doc : https://gitee.com/openharmony/docs/blob/master/zh-cn/application-dev/reference/arkui-ts/ts-basic-components-web.md#webcontroller
    */
   public controller: WebController = new WebController()
 
