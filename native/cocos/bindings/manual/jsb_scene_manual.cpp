@@ -281,12 +281,11 @@ static bool js_scene_Node_registerListeners(se::State &s) // NOLINT(readability-
     SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     auto *jsObject = s.thisObject();
-    se::Value jsThisVal(jsObject);
 #define NODE_DISPATCH_EVENT_TO_JS(eventType, jsFuncName)                                      \
     cobj->on<eventType>(                                                                      \
-        [jsThisVal](cc::Node * /*emitter*/) {                                                  \
+        [jsObject](cc::Node * /*emitter*/) {                                                  \
             se::AutoHandleScope scope;                                                        \
-            se::ScriptEngine::getInstance()->callFunction(jsThisVal.toObject(), #jsFuncName, 0, nullptr); \
+            se::ScriptEngine::getInstance()->callFunction(jsObject, #jsFuncName, 0, nullptr); \
         });
 
     registerOnActiveNode(cobj, jsObject);

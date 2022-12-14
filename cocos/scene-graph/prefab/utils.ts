@@ -451,7 +451,8 @@ export function applyNodeAndComponentId (prefabInstanceNode: Node, rootId: strin
         const child = children[i];
         // @ts-expect-error private member access
         const prefabInfo = child._prefab!;
-        const fileId = prefabInfo?.instance ? prefabInfo.instance.fileId : prefabInfo.fileId;
+        const fileId = prefabInfo?.instance ? prefabInfo.instance.fileId : prefabInfo?.fileId;
+        if (!fileId) continue;
         // @ts-expect-error private member access
         child._id = `${rootId}${fileId}`;
 
