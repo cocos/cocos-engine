@@ -117,6 +117,7 @@ void LODModelsCachedUtils::updateCachedLODModels(const scene::RenderScene *scene
             }
 
             if (isCameraTransformChanged || lodInfo.needUpdate) {
+                lodInfo.needUpdate = false;
                 int8_t visIndex = lodGroup->getVisibleLODLevel(camera);
                 if (visIndex == lodInfo.visibleLevel && visIndex != -1) {
                     continue; // do nothing

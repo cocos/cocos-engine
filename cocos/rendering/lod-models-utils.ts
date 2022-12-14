@@ -129,6 +129,7 @@ export class LODModelsCachedUtils {
                 }
 
                 if (isCameraTransformChanged || lodInfo.needUpdate) {
+                    lodInfo.needUpdate = false;
                     const visIndex = lodGroup.getVisibleLODLevel(camera);
                     if (visIndex === lodInfo.visibleLevel && visIndex !== -1) {
                         continue;//do nothing
