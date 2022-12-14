@@ -80,7 +80,9 @@
 
         #if CC_SURFACES_LIGHTING_TRT
           vec3 TRTLighting;
-          CCSurfacesLightingCalculateDirectTRT(TRTLighting, lightingData, cc_lightColor[i]);
+          LightingIntermediateData lightingDataTRT;
+          CCSurfacesGetLightingIntermediateDataTRT(lightingDataTRT, lightingData, surfaceData);
+          CCSurfacesLightingCalculateDirectTRT(TRTLighting, lightingDataTRT, cc_lightColor[i]);
           lightingResult.directTRT += TRTLighting;
         #endif
       }
