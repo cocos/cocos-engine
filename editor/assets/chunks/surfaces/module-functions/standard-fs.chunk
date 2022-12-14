@@ -185,6 +185,9 @@ vec4 CCSurfacesShading(in SurfacesMaterialData surfaceData, in LightingResult li
   #if CC_SURFACES_LIGHTING_TRANSMIT_SPECULAR
     + lightingResult.directTransmitSpecular * lightingResult.specularColorWithLighting * (1.0 - fresnel)
   #endif
+  #if CC_SURFACES_LIGHTING_TRANSMITTENCE
+    + lightingResult.directTransmittence
+  #endif
   #if CC_SURFACES_LIGHTING_TRT
     + lightingResult.directTRT * lightingResult.specularColorWithLighting
   #endif
@@ -202,6 +205,9 @@ vec4 CCSurfacesShading(in SurfacesMaterialData surfaceData, in LightingResult li
     + lightingResult.environmentSpecular * lightingResult.specularColorWithLighting * fresnel
   #if CC_SURFACES_LIGHTING_TRANSMIT_SPECULAR
     + lightingResult.environmentTransmitSpecular * lightingResult.specularColorWithLighting * (1.0 - fresnel)
+  #endif
+  #if CC_SURFACES_LIGHTING_TRANSMITTENCE
+    + lightingResult.environmentTransmittence
   #endif
   #if CC_SURFACES_LIGHTING_TRT
     + lightingResult.environmentTRT * lightingResult.specularColorWithLighting
