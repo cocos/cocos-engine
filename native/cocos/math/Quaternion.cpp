@@ -344,42 +344,42 @@ void Quaternion::toEuler(const Quaternion &q, bool outerZ, Vec3 *out) {
 void Quaternion::fromMat3(const Mat3 &m, Quaternion *out) {
     CC_ASSERT(out);
     float m00 = m.m[0];
-    float m03 = m.m[1];
-    float m06 = m.m[2];
     float m01 = m.m[3];
-    float m04 = m.m[4];
-    float m07 = m.m[5];
     float m02 = m.m[6];
-    float m05 = m.m[7];
-    float m08 = m.m[8];
-    float trace = m00 + m04 + m08;
+    float m10 = m.m[1];
+    float m11 = m.m[4];
+    float m12 = m.m[7];
+    float m20 = m.m[2];
+    float m21 = m.m[5];
+    float m22 = m.m[8];
+    float trace = m00 + m11 + m22;
     if (trace > 0) {
         const float s = 0.5F / sqrtf(trace + 1.F);
         out->w = 0.25F / s;
-        out->x = (m05 - m07) * s;
-        out->y = (m06 - m02) * s;
-        out->z = (m01 - m03) * s;
-    } else if ((m00 > m04) && (m00 > m08)) {
+        out->x = (m21 - m12) * s;
+        out->y = (m02 - m20) * s;
+        out->z = (m10 - m01) * s;
+    } else if ((m00 > m11) && (m00 > m22)) {
         //m00 - m04 - m08 consistent with ts engine, otherwise y-axis rotation greater than 90 degrees will not get the correct result
-        const float s = 2.F * sqrtf(1.F + m00 - m04 - m08);
+        const float s = 2.F * sqrtf(1.F + m00 - m11 - m22);
 
-        out->w = (m05 - m07) / s;
+        out->w = (m21 - m12) / s;
         out->x = 0.25F * s;
-        out->y = (m03 + m01) / s;
-        out->z = (m06 + m02) / s;
-    } else if (m04 > m08) {
-        const float s = 2.F * sqrtf(1.F + m04 - m00 - m08);
+        out->y = (m01 + m10) / s;
+        out->z = (m02 + m20) / s;
+    } else if (m11 > m22) {
+        const float s = 2.F * sqrtf(1.F + m11 - m00 - m22);
 
-        out->w = (m06 - m02) / s;
-        out->x = (m03 + m01) / s;
+        out->w = (m02 - m20) / s;
+        out->x = (m01 + m10) / s;
         out->y = 0.25F * s;
-        out->z = (m07 + m05) / s;
+        out->z = (m12 + m21) / s;
     } else {
-        const float s = 2.F * sqrtf(1.F + m08 - m00 - m04);
+        const float s = 2.F * sqrtf(1.F + m22 - m00 - m11);
 
-        out->w = (m01 - m03) / s;
-        out->x = (m06 + m02) / s;
-        out->y = (m07 + m05) / s;
+        out->w = (m10 - m01) / s;
+        out->x = (m02 + m20) / s;
+        out->y = (m12 + m21) / s;
         out->z = 0.25F * s;
     }
 }
