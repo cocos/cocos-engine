@@ -29,12 +29,7 @@ struct LightingIntermediateData
   vec4 shadowPosAndDepth; //xy: shadowmap uv, z: camera depth from pixel LVP, w: camera depth from shadowmap
   vec4 transmittenceParams; //zw: min/max DepthWS for shadowmap transmit and 0 means disable shadow transmit, x: transmit irradiance apply shadow, y: additional transmit depth mask, 可补充shadowmap cover不到的地方，也可以在minmax屏蔽掉shadowmap之后给专门的薄片穿透
 #endif
-  // #if CC_SURFACES_LIGHTING_SPECULAR_2ND
-  // float specularParam2nd, specularIntensity2nd, specularRotation2nd; // for hair
-  // vec3 specularColor2nd;
-  // #endif
   // #if CC_SURFACES_LIGHTING_CLEAR_COAT
-  // float ior;
   // float roughnessClearCoat; // for clear coat or multi-layer pbr
   // #endif
 };
