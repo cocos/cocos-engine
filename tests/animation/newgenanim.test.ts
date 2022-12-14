@@ -4196,6 +4196,122 @@ describe('NewGen Anim', () => {
                 clip.addTrack(track);
             }
         });
+
+        test(`Bugfix: clip overriding only introduce new nodes`, () => {
+            // This was a bug found during development which is not covered by
+            // "How clip overriding affect the set of animated node"...
+            const fixture = {
+                initialValues: [
+                    6.,
+                    5.,
+                    -2.6,
+                    10.,
+                ],
+
+                /** Each matrix element E describe the animation value of node(row) at clip(column). */
+                animations: [
+                    /* ---------------------------------------------------------------- */
+                    /*           clip0     |  clip1     |   clip2      |  clip3         */
+                    /* node0 */  [7.,          8.,           8.8,         9.0           ],
+                    /* node1 */  [3.3,         -2.3,         5.,          6.            ],
+                    /* node2 */  [undefined,   undefined,    -2.4,        -3.1          ],
+                    /* node3 */  [9.,          -2.,          6.6,         7.            ],
+                ] as const,
+
+                blendRate: 0.4,
+
+                manualValue: 0.3,
+            };
+
+            // Construct the nodes. Initialize them with initial values.
+            const root = new Node();
+            const nodes = Array.from({ length: fixture.animations.length }, (_, nodeIndex) => {
+                const node = new Node(`Node${nodeIndex}`);
+                node.parent = root;
+                node.setPosition(fixture.initialValues[nodeIndex], 0.0, 0.0);
+                return node;
+            });
+            const getCurrentValue = () => nodes.reduce((result, node, nodeIndex) => {
+                result[`node${nodeIndex}`] = node.position.x;
+                return result;
+            }, {} as Record<string, number>);
+
+            // Construct the clips.
+            const clips = Array.from({ length: fixture.animations[0].length }, (_, clipIndex) => {
+                const clip = new AnimationClip();
+                clip.enableTrsBlending = true;
+                clip.duration = 1.0;
+                for (let iNodeIndex = 0; iNodeIndex < nodes.length; ++iNodeIndex) {
+                    const animationValue = fixture.animations[iNodeIndex][clipIndex];
+                    if (typeof animationValue !== 'undefined') {
+                        addConstantAnimation(clip, nodes[iNodeIndex].name, animationValue);
+                    }
+                }
+                return clip;
+            });
+
+            // Construct a simple graph which blend two clips motion at fixed rate.
+            // The two clips are initially the [clip0, clip1].
+            const animationGraph = new AnimationGraph();
+            const layer = animationGraph.addLayer();
+            const motionState = layer.stateMachine.addMotion();
+            const blend = motionState.motion = new AnimationBlend1D();
+            blend.param.variable = 't';
+            animationGraph.addFloat(blend.param.variable, fixture.blendRate);
+            blend.items = [
+                (() => {
+                    const item = new AnimationBlend1D.Item();
+                    item.threshold = 0.0;
+                    const clipMotion = new ClipMotion(); clipMotion.clip = clips[0];
+                    item.motion = clipMotion;
+                    return item;
+                })(),
+                (() => {
+                    const item = new AnimationBlend1D.Item();
+                    item.threshold = 1.0;
+                    const clipMotion = new ClipMotion(); clipMotion.clip = clips[1];
+                    item.motion = clipMotion;
+                    return item;
+                })(),
+            ];
+            layer.stateMachine.connect(layer.stateMachine.entryState, motionState);
+
+            const { graphEval, newGenAnim: animationController } = createAnimationGraphEval2(animationGraph, root);
+            const graphUpdater = new GraphUpdater(graphEval);
+
+            const toBeAround = (value: number) =>
+                expect.toBeAround(value, DEFAULT_AROUND_NUM_DIGITS);
+
+            // Before override.
+            graphUpdater.step(0.2);
+            expect(getCurrentValue()).toMatchObject({
+                node0: toBeAround(lerp(fixture.animations[0][0], fixture.animations[0][1], fixture.blendRate)),
+                node1: toBeAround(lerp(fixture.animations[1][0], fixture.animations[1][1], fixture.blendRate)),
+                node2: toBeAround(fixture.initialValues[2]),
+                node3: toBeAround(lerp(fixture.animations[3][0], fixture.animations[3][1], fixture.blendRate)),
+            });
+
+            // Apply override.
+            animationController.overrideClips_experimental(new Map([
+                [clips[0], clips[2]],
+                [clips[1], clips[3]],
+            ]));
+            graphUpdater.step(0.3);
+            expect(getCurrentValue()).toMatchObject({
+                node0: toBeAround(lerp(fixture.animations[0][2], fixture.animations[0][3], fixture.blendRate)),
+                node1: toBeAround(lerp(fixture.animations[1][2], fixture.animations[1][3], fixture.blendRate)),
+                node2: toBeAround(lerp(fixture.animations[2][2], fixture.animations[2][3], fixture.blendRate)),
+                node3: toBeAround(lerp(fixture.animations[3][2], fixture.animations[3][3], fixture.blendRate)),
+            });
+
+            function addConstantAnimation(clip: AnimationClip, path: string, value: number) {
+                const track = new VectorTrack();
+                track.componentsCount = 3;
+                track.path.toHierarchy(path).toProperty('position');
+                track.channels()[0].curve.assignSorted([[0.0, value]]);
+                clip.addTrack(track);
+            }
+        });
     });
 
     describe(`Additive layers`, () => {

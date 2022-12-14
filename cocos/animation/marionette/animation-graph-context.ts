@@ -329,6 +329,8 @@ export class AnimationGraphPoseLayoutMaintainer {
     @checkBindStatus(false)
     public startBind () {
         this._bindStarted = true;
+        this._transformCountBeforeBind = this._transformRecords.length;
+        this._metaValueCountBeforeBind = this._metaValueRecords.length;
     }
 
     @checkBindStatus(true)
@@ -341,8 +343,8 @@ export class AnimationGraphPoseLayoutMaintainer {
         let changeFlags = 0;
 
         // Detect changes in transforms.
-        const transformRecordCountChanged = trimRecords(transformRecords);
-        if (transformRecordCountChanged) {
+        trimRecords(transformRecords);
+        if (transformRecords.length !== this._transformCountBeforeBind) {
             changeFlags |= LayoutChangeFlag.TRANSFORM_COUNT;
             // If the transform's count is changed, we only sync orders.
             const nRecords = transformRecords.length;
@@ -367,8 +369,8 @@ export class AnimationGraphPoseLayoutMaintainer {
         }
 
         // Detect changes in meta values.
-        const metaValueRecordCountChanged = trimRecords(metaValueRecords);
-        if (metaValueRecordCountChanged) {
+        trimRecords(metaValueRecords);
+        if (metaValueRecords.length !== this._metaValueCountBeforeBind) {
             changeFlags |= LayoutChangeFlag.META_VALUE_COUNT;
         }
 
@@ -389,6 +391,9 @@ export class AnimationGraphPoseLayoutMaintainer {
                     }
                 }
             });
+
+            this._transformCountBeforeBind = -1;
+            this._metaValueCountBeforeBind = -1;
         }
 
         return changeFlags;
@@ -399,6 +404,8 @@ export class AnimationGraphPoseLayoutMaintainer {
     private _transformRecords: TransformRecord[] = [];
 
     private _bindStarted = false;
+    private _transformCountBeforeBind = -1;
+    private _metaValueCountBeforeBind = -1;
 }
 
 interface AnimationRecord<THandle extends { index: number; }> {
@@ -450,7 +457,7 @@ function trimRecords<TRecord extends AnimationRecord<any>> (records: TRecord[]) 
     });
     assertIsTrue(nUsedRecords <= records.length);
     if (nUsedRecords === records.length) {
-        return false;
+        return;
     }
     // Reassign indices.
     for (let iRecord = 0; iRecord < nUsedRecords; ++iRecord) {
@@ -461,7 +468,6 @@ function trimRecords<TRecord extends AnimationRecord<any>> (records: TRecord[]) 
         records.slice(nUsedRecords).forEach((record) => record.refs = -1);
     }
     records.splice(nUsedRecords, records.length - nUsedRecords);
-    return true;
 }
 
 export const defaultTransformsTag = Symbol('[[DefaultTransforms]]');
