@@ -557,6 +557,7 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::Size * to, se::Object *ct
 bool js_register_cc_gfx_Size(se::Object* obj) {
     auto* cls = se::Class::create("Size", obj, nullptr, _SE(js_new_cc_gfx_Size)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("x", _SE(js_cc_gfx_Size_x_get), _SE(js_cc_gfx_Size_x_set)); 
     cls->defineProperty("y", _SE(js_cc_gfx_Size_y_get), _SE(js_cc_gfx_Size_y_set)); 
     cls->defineProperty("z", _SE(js_cc_gfx_Size_z_get), _SE(js_cc_gfx_Size_z_set)); 
@@ -1619,6 +1620,7 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::DeviceCaps * to, se::Obje
 bool js_register_cc_gfx_DeviceCaps(se::Object* obj) {
     auto* cls = se::Class::create("DeviceCaps", obj, nullptr, _SE(js_new_cc_gfx_DeviceCaps)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("maxVertexAttributes", _SE(js_cc_gfx_DeviceCaps_maxVertexAttributes_get), _SE(js_cc_gfx_DeviceCaps_maxVertexAttributes_set)); 
     cls->defineProperty("maxVertexUniformVectors", _SE(js_cc_gfx_DeviceCaps_maxVertexUniformVectors_get), _SE(js_cc_gfx_DeviceCaps_maxVertexUniformVectors_set)); 
     cls->defineProperty("maxFragmentUniformVectors", _SE(js_cc_gfx_DeviceCaps_maxFragmentUniformVectors_get), _SE(js_cc_gfx_DeviceCaps_maxFragmentUniformVectors_set)); 
@@ -1747,6 +1749,7 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::DeviceOptions * to, se::O
 bool js_register_cc_gfx_DeviceOptions(se::Object* obj) {
     auto* cls = se::Class::create("DeviceOptions", obj, nullptr, _SE(js_new_cc_gfx_DeviceOptions)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("enableBarrierDeduce", _SE(js_cc_gfx_DeviceOptions_enableBarrierDeduce_get), _SE(js_cc_gfx_DeviceOptions_enableBarrierDeduce_set)); 
     
     
@@ -1961,6 +1964,7 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::Offset * to, se::Object *
 bool js_register_cc_gfx_Offset(se::Object* obj) {
     auto* cls = se::Class::create("Offset", obj, nullptr, _SE(js_new_cc_gfx_Offset)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("x", _SE(js_cc_gfx_Offset_x_get), _SE(js_cc_gfx_Offset_x_set)); 
     cls->defineProperty("y", _SE(js_cc_gfx_Offset_y_get), _SE(js_cc_gfx_Offset_y_set)); 
     cls->defineProperty("z", _SE(js_cc_gfx_Offset_z_get), _SE(js_cc_gfx_Offset_z_set)); 
@@ -2219,6 +2223,7 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::Rect * to, se::Object *ct
 bool js_register_cc_gfx_Rect(se::Object* obj) {
     auto* cls = se::Class::create("Rect", obj, nullptr, _SE(js_new_cc_gfx_Rect)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("x", _SE(js_cc_gfx_Rect_x_get), _SE(js_cc_gfx_Rect_x_set)); 
     cls->defineProperty("y", _SE(js_cc_gfx_Rect_y_get), _SE(js_cc_gfx_Rect_y_set)); 
     cls->defineProperty("width", _SE(js_cc_gfx_Rect_width_get), _SE(js_cc_gfx_Rect_width_set)); 
@@ -2440,6 +2445,7 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::Extent * to, se::Object *
 bool js_register_cc_gfx_Extent(se::Object* obj) {
     auto* cls = se::Class::create("Extent", obj, nullptr, _SE(js_new_cc_gfx_Extent)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("width", _SE(js_cc_gfx_Extent_width_get), _SE(js_cc_gfx_Extent_width_set)); 
     cls->defineProperty("height", _SE(js_cc_gfx_Extent_height_get), _SE(js_cc_gfx_Extent_height_set)); 
     cls->defineProperty("depth", _SE(js_cc_gfx_Extent_depth_get), _SE(js_cc_gfx_Extent_depth_set)); 
@@ -2660,6 +2666,7 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::TextureSubresLayers * to,
 bool js_register_cc_gfx_TextureSubresLayers(se::Object* obj) {
     auto* cls = se::Class::create("TextureSubresLayers", obj, nullptr, _SE(js_new_cc_gfx_TextureSubresLayers)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("mipLevel", _SE(js_cc_gfx_TextureSubresLayers_mipLevel_get), _SE(js_cc_gfx_TextureSubresLayers_mipLevel_set)); 
     cls->defineProperty("baseArrayLayer", _SE(js_cc_gfx_TextureSubresLayers_baseArrayLayer_get), _SE(js_cc_gfx_TextureSubresLayers_baseArrayLayer_set)); 
     cls->defineProperty("layerCount", _SE(js_cc_gfx_TextureSubresLayers_layerCount_get), _SE(js_cc_gfx_TextureSubresLayers_layerCount_set)); 
@@ -2920,6 +2927,7 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::TextureSubresRange * to, 
 bool js_register_cc_gfx_TextureSubresRange(se::Object* obj) {
     auto* cls = se::Class::create("TextureSubresRange", obj, nullptr, _SE(js_new_cc_gfx_TextureSubresRange)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("baseMipLevel", _SE(js_cc_gfx_TextureSubresRange_baseMipLevel_get), _SE(js_cc_gfx_TextureSubresRange_baseMipLevel_set)); 
     cls->defineProperty("levelCount", _SE(js_cc_gfx_TextureSubresRange_levelCount_get), _SE(js_cc_gfx_TextureSubresRange_levelCount_set)); 
     cls->defineProperty("baseArrayLayer", _SE(js_cc_gfx_TextureSubresRange_baseArrayLayer_get), _SE(js_cc_gfx_TextureSubresRange_baseArrayLayer_set)); 
@@ -3236,6 +3244,7 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::TextureCopy * to, se::Obj
 bool js_register_cc_gfx_TextureCopy(se::Object* obj) {
     auto* cls = se::Class::create("TextureCopy", obj, nullptr, _SE(js_new_cc_gfx_TextureCopy)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("srcSubres", _SE(js_cc_gfx_TextureCopy_srcSubres_get), _SE(js_cc_gfx_TextureCopy_srcSubres_set)); 
     cls->defineProperty("srcOffset", _SE(js_cc_gfx_TextureCopy_srcOffset_get), _SE(js_cc_gfx_TextureCopy_srcOffset_set)); 
     cls->defineProperty("dstSubres", _SE(js_cc_gfx_TextureCopy_dstSubres_get), _SE(js_cc_gfx_TextureCopy_dstSubres_set)); 
@@ -3596,6 +3605,7 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::TextureBlit * to, se::Obj
 bool js_register_cc_gfx_TextureBlit(se::Object* obj) {
     auto* cls = se::Class::create("TextureBlit", obj, nullptr, _SE(js_new_cc_gfx_TextureBlit)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("srcSubres", _SE(js_cc_gfx_TextureBlit_srcSubres_get), _SE(js_cc_gfx_TextureBlit_srcSubres_set)); 
     cls->defineProperty("srcOffset", _SE(js_cc_gfx_TextureBlit_srcOffset_get), _SE(js_cc_gfx_TextureBlit_srcOffset_set)); 
     cls->defineProperty("srcExtent", _SE(js_cc_gfx_TextureBlit_srcExtent_get), _SE(js_cc_gfx_TextureBlit_srcExtent_set)); 
@@ -3948,6 +3958,7 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::BufferTextureCopy * to, s
 bool js_register_cc_gfx_BufferTextureCopy(se::Object* obj) {
     auto* cls = se::Class::create("BufferTextureCopy", obj, nullptr, _SE(js_new_cc_gfx_BufferTextureCopy)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("buffOffset", _SE(js_cc_gfx_BufferTextureCopy_buffOffset_get), _SE(js_cc_gfx_BufferTextureCopy_buffOffset_set)); 
     cls->defineProperty("buffStride", _SE(js_cc_gfx_BufferTextureCopy_buffStride_get), _SE(js_cc_gfx_BufferTextureCopy_buffStride_set)); 
     cls->defineProperty("buffTexHeight", _SE(js_cc_gfx_BufferTextureCopy_buffTexHeight_get), _SE(js_cc_gfx_BufferTextureCopy_buffTexHeight_set)); 
@@ -4287,6 +4298,7 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::Viewport * to, se::Object
 bool js_register_cc_gfx_Viewport(se::Object* obj) {
     auto* cls = se::Class::create("Viewport", obj, nullptr, _SE(js_new_cc_gfx_Viewport)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("left", _SE(js_cc_gfx_Viewport_left_get), _SE(js_cc_gfx_Viewport_left_set)); 
     cls->defineProperty("top", _SE(js_cc_gfx_Viewport_top_get), _SE(js_cc_gfx_Viewport_top_set)); 
     cls->defineProperty("width", _SE(js_cc_gfx_Viewport_width_get), _SE(js_cc_gfx_Viewport_width_set)); 
@@ -4546,6 +4558,7 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::Color * to, se::Object *c
 bool js_register_cc_gfx_Color(se::Object* obj) {
     auto* cls = se::Class::create("Color", obj, nullptr, _SE(js_new_cc_gfx_Color)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("x", _SE(js_cc_gfx_Color_x_get), _SE(js_cc_gfx_Color_x_set)); 
     cls->defineProperty("y", _SE(js_cc_gfx_Color_y_get), _SE(js_cc_gfx_Color_y_set)); 
     cls->defineProperty("z", _SE(js_cc_gfx_Color_z_get), _SE(js_cc_gfx_Color_z_set)); 
@@ -4991,6 +5004,7 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::BindingMappingInfo * to, 
 bool js_register_cc_gfx_BindingMappingInfo(se::Object* obj) {
     auto* cls = se::Class::create("BindingMappingInfo", obj, nullptr, _SE(js_new_cc_gfx_BindingMappingInfo)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("maxBlockCounts", _SE(js_cc_gfx_BindingMappingInfo_maxBlockCounts_get), _SE(js_cc_gfx_BindingMappingInfo_maxBlockCounts_set)); 
     cls->defineProperty("maxSamplerTextureCounts", _SE(js_cc_gfx_BindingMappingInfo_maxSamplerTextureCounts_get), _SE(js_cc_gfx_BindingMappingInfo_maxSamplerTextureCounts_set)); 
     cls->defineProperty("maxSamplerCounts", _SE(js_cc_gfx_BindingMappingInfo_maxSamplerCounts_get), _SE(js_cc_gfx_BindingMappingInfo_maxSamplerCounts_set)); 
@@ -5299,6 +5313,7 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::SwapchainInfo * to, se::O
 bool js_register_cc_gfx_SwapchainInfo(se::Object* obj) {
     auto* cls = se::Class::create("SwapchainInfo", obj, nullptr, _SE(js_new_cc_gfx_SwapchainInfo)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("windowId", _SE(js_cc_gfx_SwapchainInfo_windowId_get), _SE(js_cc_gfx_SwapchainInfo_windowId_set)); 
     cls->defineProperty("windowHandle", _SE(js_cc_gfx_SwapchainInfo_windowHandle_get), _SE(js_cc_gfx_SwapchainInfo_windowHandle_set)); 
     cls->defineProperty("vsyncMode", _SE(js_cc_gfx_SwapchainInfo_vsyncMode_get), _SE(js_cc_gfx_SwapchainInfo_vsyncMode_set)); 
@@ -5444,6 +5459,7 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::DeviceInfo * to, se::Obje
 bool js_register_cc_gfx_DeviceInfo(se::Object* obj) {
     auto* cls = se::Class::create("DeviceInfo", obj, nullptr, _SE(js_new_cc_gfx_DeviceInfo)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("bindingMappingInfo", _SE(js_cc_gfx_DeviceInfo_bindingMappingInfo_get), _SE(js_cc_gfx_DeviceInfo_bindingMappingInfo_set)); 
     
     cls->defineFunction("copy", _SE(js_cc_gfx_DeviceInfo_copy)); 
@@ -5751,6 +5767,7 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::BufferInfo * to, se::Obje
 bool js_register_cc_gfx_BufferInfo(se::Object* obj) {
     auto* cls = se::Class::create("BufferInfo", obj, nullptr, _SE(js_new_cc_gfx_BufferInfo)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("usage", _SE(js_cc_gfx_BufferInfo_usage_get), _SE(js_cc_gfx_BufferInfo_usage_set)); 
     cls->defineProperty("memUsage", _SE(js_cc_gfx_BufferInfo_memUsage_get), _SE(js_cc_gfx_BufferInfo_memUsage_set)); 
     cls->defineProperty("size", _SE(js_cc_gfx_BufferInfo_size_get), _SE(js_cc_gfx_BufferInfo_size_set)); 
@@ -5974,6 +5991,7 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::BufferViewInfo * to, se::
 bool js_register_cc_gfx_BufferViewInfo(se::Object* obj) {
     auto* cls = se::Class::create("BufferViewInfo", obj, nullptr, _SE(js_new_cc_gfx_BufferViewInfo)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("buffer", _SE(js_cc_gfx_BufferViewInfo_buffer_get), _SE(js_cc_gfx_BufferViewInfo_buffer_set)); 
     cls->defineProperty("offset", _SE(js_cc_gfx_BufferViewInfo_offset_get), _SE(js_cc_gfx_BufferViewInfo_offset_set)); 
     cls->defineProperty("range", _SE(js_cc_gfx_BufferViewInfo_range_get), _SE(js_cc_gfx_BufferViewInfo_range_set)); 
@@ -6353,6 +6371,7 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::DrawInfo * to, se::Object
 bool js_register_cc_gfx_DrawInfo(se::Object* obj) {
     auto* cls = se::Class::create("DrawInfo", obj, nullptr, _SE(js_new_cc_gfx_DrawInfo)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("vertexCount", _SE(js_cc_gfx_DrawInfo_vertexCount_get), _SE(js_cc_gfx_DrawInfo_vertexCount_set)); 
     cls->defineProperty("firstVertex", _SE(js_cc_gfx_DrawInfo_firstVertex_get), _SE(js_cc_gfx_DrawInfo_firstVertex_set)); 
     cls->defineProperty("indexCount", _SE(js_cc_gfx_DrawInfo_indexCount_get), _SE(js_cc_gfx_DrawInfo_indexCount_set)); 
@@ -6658,6 +6677,7 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::DispatchInfo * to, se::Ob
 bool js_register_cc_gfx_DispatchInfo(se::Object* obj) {
     auto* cls = se::Class::create("DispatchInfo", obj, nullptr, _SE(js_new_cc_gfx_DispatchInfo)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("groupCountX", _SE(js_cc_gfx_DispatchInfo_groupCountX_get), _SE(js_cc_gfx_DispatchInfo_groupCountX_set)); 
     cls->defineProperty("groupCountY", _SE(js_cc_gfx_DispatchInfo_groupCountY_get), _SE(js_cc_gfx_DispatchInfo_groupCountY_set)); 
     cls->defineProperty("groupCountZ", _SE(js_cc_gfx_DispatchInfo_groupCountZ_get), _SE(js_cc_gfx_DispatchInfo_groupCountZ_set)); 
@@ -6803,6 +6823,7 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::IndirectBuffer * to, se::
 bool js_register_cc_gfx_IndirectBuffer(se::Object* obj) {
     auto* cls = se::Class::create("IndirectBuffer", obj, nullptr, _SE(js_new_cc_gfx_IndirectBuffer)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("drawInfos", _SE(js_cc_gfx_IndirectBuffer_drawInfos_get), _SE(js_cc_gfx_IndirectBuffer_drawInfos_set)); 
     
     cls->defineFunction("copy", _SE(js_cc_gfx_IndirectBuffer_copy)); 
@@ -7356,6 +7377,7 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::TextureInfo * to, se::Obj
 bool js_register_cc_gfx_TextureInfo(se::Object* obj) {
     auto* cls = se::Class::create("TextureInfo", obj, nullptr, _SE(js_new_cc_gfx_TextureInfo)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("type", _SE(js_cc_gfx_TextureInfo_type_get), _SE(js_cc_gfx_TextureInfo_type_set)); 
     cls->defineProperty("usage", _SE(js_cc_gfx_TextureInfo_usage_get), _SE(js_cc_gfx_TextureInfo_usage_set)); 
     cls->defineProperty("format", _SE(js_cc_gfx_TextureInfo_format_get), _SE(js_cc_gfx_TextureInfo_format_set)); 
@@ -7751,6 +7773,7 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::TextureViewInfo * to, se:
 bool js_register_cc_gfx_TextureViewInfo(se::Object* obj) {
     auto* cls = se::Class::create("TextureViewInfo", obj, nullptr, _SE(js_new_cc_gfx_TextureViewInfo)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("texture", _SE(js_cc_gfx_TextureViewInfo_texture_get), _SE(js_cc_gfx_TextureViewInfo_texture_set)); 
     cls->defineProperty("type", _SE(js_cc_gfx_TextureViewInfo_type_get), _SE(js_cc_gfx_TextureViewInfo_type_set)); 
     cls->defineProperty("format", _SE(js_cc_gfx_TextureViewInfo_format_get), _SE(js_cc_gfx_TextureViewInfo_format_set)); 
@@ -8196,6 +8219,7 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::SamplerInfo * to, se::Obj
 bool js_register_cc_gfx_SamplerInfo(se::Object* obj) {
     auto* cls = se::Class::create("SamplerInfo", obj, nullptr, _SE(js_new_cc_gfx_SamplerInfo)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("minFilter", _SE(js_cc_gfx_SamplerInfo_minFilter_get), _SE(js_cc_gfx_SamplerInfo_minFilter_set)); 
     cls->defineProperty("magFilter", _SE(js_cc_gfx_SamplerInfo_magFilter_get), _SE(js_cc_gfx_SamplerInfo_magFilter_set)); 
     cls->defineProperty("mipFilter", _SE(js_cc_gfx_SamplerInfo_mipFilter_get), _SE(js_cc_gfx_SamplerInfo_mipFilter_set)); 
@@ -8427,6 +8451,7 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::Uniform * to, se::Object 
 bool js_register_cc_gfx_Uniform(se::Object* obj) {
     auto* cls = se::Class::create("Uniform", obj, nullptr, _SE(js_new_cc_gfx_Uniform)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("name", _SE(js_cc_gfx_Uniform_name_get), _SE(js_cc_gfx_Uniform_name_set)); 
     cls->defineProperty("type", _SE(js_cc_gfx_Uniform_type_get), _SE(js_cc_gfx_Uniform_type_set)); 
     cls->defineProperty("count", _SE(js_cc_gfx_Uniform_count_get), _SE(js_cc_gfx_Uniform_count_set)); 
@@ -8733,6 +8758,7 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::UniformBlock * to, se::Ob
 bool js_register_cc_gfx_UniformBlock(se::Object* obj) {
     auto* cls = se::Class::create("UniformBlock", obj, nullptr, _SE(js_new_cc_gfx_UniformBlock)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("set", _SE(js_cc_gfx_UniformBlock_set_get), _SE(js_cc_gfx_UniformBlock_set_set)); 
     cls->defineProperty("binding", _SE(js_cc_gfx_UniformBlock_binding_get), _SE(js_cc_gfx_UniformBlock_binding_set)); 
     cls->defineProperty("name", _SE(js_cc_gfx_UniformBlock_name_get), _SE(js_cc_gfx_UniformBlock_name_set)); 
@@ -9041,6 +9067,7 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::UniformSamplerTexture * t
 bool js_register_cc_gfx_UniformSamplerTexture(se::Object* obj) {
     auto* cls = se::Class::create("UniformSamplerTexture", obj, nullptr, _SE(js_new_cc_gfx_UniformSamplerTexture)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("set", _SE(js_cc_gfx_UniformSamplerTexture_set_get), _SE(js_cc_gfx_UniformSamplerTexture_set_set)); 
     cls->defineProperty("binding", _SE(js_cc_gfx_UniformSamplerTexture_binding_get), _SE(js_cc_gfx_UniformSamplerTexture_binding_set)); 
     cls->defineProperty("name", _SE(js_cc_gfx_UniformSamplerTexture_name_get), _SE(js_cc_gfx_UniformSamplerTexture_name_set)); 
@@ -9306,6 +9333,7 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::UniformSampler * to, se::
 bool js_register_cc_gfx_UniformSampler(se::Object* obj) {
     auto* cls = se::Class::create("UniformSampler", obj, nullptr, _SE(js_new_cc_gfx_UniformSampler)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("set", _SE(js_cc_gfx_UniformSampler_set_get), _SE(js_cc_gfx_UniformSampler_set_set)); 
     cls->defineProperty("binding", _SE(js_cc_gfx_UniformSampler_binding_get), _SE(js_cc_gfx_UniformSampler_binding_set)); 
     cls->defineProperty("name", _SE(js_cc_gfx_UniformSampler_name_get), _SE(js_cc_gfx_UniformSampler_name_set)); 
@@ -9613,6 +9641,7 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::UniformTexture * to, se::
 bool js_register_cc_gfx_UniformTexture(se::Object* obj) {
     auto* cls = se::Class::create("UniformTexture", obj, nullptr, _SE(js_new_cc_gfx_UniformTexture)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("set", _SE(js_cc_gfx_UniformTexture_set_get), _SE(js_cc_gfx_UniformTexture_set_set)); 
     cls->defineProperty("binding", _SE(js_cc_gfx_UniformTexture_binding_get), _SE(js_cc_gfx_UniformTexture_binding_set)); 
     cls->defineProperty("name", _SE(js_cc_gfx_UniformTexture_name_get), _SE(js_cc_gfx_UniformTexture_name_set)); 
@@ -9964,6 +9993,7 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::UniformStorageImage * to,
 bool js_register_cc_gfx_UniformStorageImage(se::Object* obj) {
     auto* cls = se::Class::create("UniformStorageImage", obj, nullptr, _SE(js_new_cc_gfx_UniformStorageImage)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("set", _SE(js_cc_gfx_UniformStorageImage_set_get), _SE(js_cc_gfx_UniformStorageImage_set_set)); 
     cls->defineProperty("binding", _SE(js_cc_gfx_UniformStorageImage_binding_get), _SE(js_cc_gfx_UniformStorageImage_binding_set)); 
     cls->defineProperty("name", _SE(js_cc_gfx_UniformStorageImage_name_get), _SE(js_cc_gfx_UniformStorageImage_name_set)); 
@@ -10273,6 +10303,7 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::UniformStorageBuffer * to
 bool js_register_cc_gfx_UniformStorageBuffer(se::Object* obj) {
     auto* cls = se::Class::create("UniformStorageBuffer", obj, nullptr, _SE(js_new_cc_gfx_UniformStorageBuffer)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("set", _SE(js_cc_gfx_UniformStorageBuffer_set_get), _SE(js_cc_gfx_UniformStorageBuffer_set_set)); 
     cls->defineProperty("binding", _SE(js_cc_gfx_UniformStorageBuffer_binding_get), _SE(js_cc_gfx_UniformStorageBuffer_binding_set)); 
     cls->defineProperty("name", _SE(js_cc_gfx_UniformStorageBuffer_name_get), _SE(js_cc_gfx_UniformStorageBuffer_name_set)); 
@@ -10538,6 +10569,7 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::UniformInputAttachment * 
 bool js_register_cc_gfx_UniformInputAttachment(se::Object* obj) {
     auto* cls = se::Class::create("UniformInputAttachment", obj, nullptr, _SE(js_new_cc_gfx_UniformInputAttachment)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("set", _SE(js_cc_gfx_UniformInputAttachment_set_get), _SE(js_cc_gfx_UniformInputAttachment_set_set)); 
     cls->defineProperty("binding", _SE(js_cc_gfx_UniformInputAttachment_binding_get), _SE(js_cc_gfx_UniformInputAttachment_binding_set)); 
     cls->defineProperty("name", _SE(js_cc_gfx_UniformInputAttachment_name_get), _SE(js_cc_gfx_UniformInputAttachment_name_set)); 
@@ -10725,6 +10757,7 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::ShaderStage * to, se::Obj
 bool js_register_cc_gfx_ShaderStage(se::Object* obj) {
     auto* cls = se::Class::create("ShaderStage", obj, nullptr, _SE(js_new_cc_gfx_ShaderStage)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("stage", _SE(js_cc_gfx_ShaderStage_stage_get), _SE(js_cc_gfx_ShaderStage_stage_set)); 
     cls->defineProperty("source", _SE(js_cc_gfx_ShaderStage_source_get), _SE(js_cc_gfx_ShaderStage_source_set)); 
     
@@ -11068,6 +11101,7 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::Attribute * to, se::Objec
 bool js_register_cc_gfx_Attribute(se::Object* obj) {
     auto* cls = se::Class::create("Attribute", obj, nullptr, _SE(js_new_cc_gfx_Attribute)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("name", _SE(js_cc_gfx_Attribute_name_get), _SE(js_cc_gfx_Attribute_name_set)); 
     cls->defineProperty("format", _SE(js_cc_gfx_Attribute_format_get), _SE(js_cc_gfx_Attribute_format_set)); 
     cls->defineProperty("isNormalized", _SE(js_cc_gfx_Attribute_isNormalized_get), _SE(js_cc_gfx_Attribute_isNormalized_set)); 
@@ -11601,6 +11635,7 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::ShaderInfo * to, se::Obje
 bool js_register_cc_gfx_ShaderInfo(se::Object* obj) {
     auto* cls = se::Class::create("ShaderInfo", obj, nullptr, _SE(js_new_cc_gfx_ShaderInfo)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("name", _SE(js_cc_gfx_ShaderInfo_name_get), _SE(js_cc_gfx_ShaderInfo_name_set)); 
     cls->defineProperty("stages", _SE(js_cc_gfx_ShaderInfo_stages_get), _SE(js_cc_gfx_ShaderInfo_stages_set)); 
     cls->defineProperty("attributes", _SE(js_cc_gfx_ShaderInfo_attributes_get), _SE(js_cc_gfx_ShaderInfo_attributes_set)); 
@@ -11876,6 +11911,7 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::InputAssemblerInfo * to, 
 bool js_register_cc_gfx_InputAssemblerInfo(se::Object* obj) {
     auto* cls = se::Class::create("InputAssemblerInfo", obj, nullptr, _SE(js_new_cc_gfx_InputAssemblerInfo)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("attributes", _SE(js_cc_gfx_InputAssemblerInfo_attributes_get), _SE(js_cc_gfx_InputAssemblerInfo_attributes_set)); 
     cls->defineProperty("vertexBuffers", _SE(js_cc_gfx_InputAssemblerInfo_vertexBuffers_get), _SE(js_cc_gfx_InputAssemblerInfo_vertexBuffers_set)); 
     cls->defineProperty("indexBuffer", _SE(js_cc_gfx_InputAssemblerInfo_indexBuffer_get), _SE(js_cc_gfx_InputAssemblerInfo_indexBuffer_set)); 
@@ -12230,6 +12266,7 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::ColorAttachment * to, se:
 bool js_register_cc_gfx_ColorAttachment(se::Object* obj) {
     auto* cls = se::Class::create("ColorAttachment", obj, nullptr, _SE(js_new_cc_gfx_ColorAttachment)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("format", _SE(js_cc_gfx_ColorAttachment_format_get), _SE(js_cc_gfx_ColorAttachment_format_set)); 
     cls->defineProperty("sampleCount", _SE(js_cc_gfx_ColorAttachment_sampleCount_get), _SE(js_cc_gfx_ColorAttachment_sampleCount_set)); 
     cls->defineProperty("loadOp", _SE(js_cc_gfx_ColorAttachment_loadOp_get), _SE(js_cc_gfx_ColorAttachment_loadOp_set)); 
@@ -12672,6 +12709,7 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::DepthStencilAttachment * 
 bool js_register_cc_gfx_DepthStencilAttachment(se::Object* obj) {
     auto* cls = se::Class::create("DepthStencilAttachment", obj, nullptr, _SE(js_new_cc_gfx_DepthStencilAttachment)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("format", _SE(js_cc_gfx_DepthStencilAttachment_format_get), _SE(js_cc_gfx_DepthStencilAttachment_format_set)); 
     cls->defineProperty("sampleCount", _SE(js_cc_gfx_DepthStencilAttachment_sampleCount_get), _SE(js_cc_gfx_DepthStencilAttachment_sampleCount_set)); 
     cls->defineProperty("depthLoadOp", _SE(js_cc_gfx_DepthStencilAttachment_depthLoadOp_get), _SE(js_cc_gfx_DepthStencilAttachment_depthLoadOp_set)); 
@@ -13115,6 +13153,7 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::SubpassInfo * to, se::Obj
 bool js_register_cc_gfx_SubpassInfo(se::Object* obj) {
     auto* cls = se::Class::create("SubpassInfo", obj, nullptr, _SE(js_new_cc_gfx_SubpassInfo)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("inputs", _SE(js_cc_gfx_SubpassInfo_inputs_get), _SE(js_cc_gfx_SubpassInfo_inputs_set)); 
     cls->defineProperty("colors", _SE(js_cc_gfx_SubpassInfo_colors_get), _SE(js_cc_gfx_SubpassInfo_colors_set)); 
     cls->defineProperty("resolves", _SE(js_cc_gfx_SubpassInfo_resolves_get), _SE(js_cc_gfx_SubpassInfo_resolves_set)); 
@@ -13585,6 +13624,7 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::SubpassDependency * to, s
 bool js_register_cc_gfx_SubpassDependency(se::Object* obj) {
     auto* cls = se::Class::create("SubpassDependency", obj, nullptr, _SE(js_new_cc_gfx_SubpassDependency)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("srcSubpass", _SE(js_cc_gfx_SubpassDependency_srcSubpass_get), _SE(js_cc_gfx_SubpassDependency_srcSubpass_set)); 
     cls->defineProperty("dstSubpass", _SE(js_cc_gfx_SubpassDependency_dstSubpass_get), _SE(js_cc_gfx_SubpassDependency_dstSubpass_set)); 
     cls->defineProperty("generalBarrier", _SE(js_cc_gfx_SubpassDependency_generalBarrier_get), _SE(js_cc_gfx_SubpassDependency_generalBarrier_set)); 
@@ -13863,6 +13903,7 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::RenderPassInfo * to, se::
 bool js_register_cc_gfx_RenderPassInfo(se::Object* obj) {
     auto* cls = se::Class::create("RenderPassInfo", obj, nullptr, _SE(js_new_cc_gfx_RenderPassInfo)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("colorAttachments", _SE(js_cc_gfx_RenderPassInfo_colorAttachments_get), _SE(js_cc_gfx_RenderPassInfo_colorAttachments_set)); 
     cls->defineProperty("depthStencilAttachment", _SE(js_cc_gfx_RenderPassInfo_depthStencilAttachment_get), _SE(js_cc_gfx_RenderPassInfo_depthStencilAttachment_set)); 
     cls->defineProperty("subpasses", _SE(js_cc_gfx_RenderPassInfo_subpasses_get), _SE(js_cc_gfx_RenderPassInfo_subpasses_set)); 
@@ -14133,6 +14174,7 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::GeneralBarrierInfo * to, 
 bool js_register_cc_gfx_GeneralBarrierInfo(se::Object* obj) {
     auto* cls = se::Class::create("GeneralBarrierInfo", obj, nullptr, _SE(js_new_cc_gfx_GeneralBarrierInfo)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("prevAccesses", _SE(js_cc_gfx_GeneralBarrierInfo_prevAccesses_get), _SE(js_cc_gfx_GeneralBarrierInfo_prevAccesses_set)); 
     cls->defineProperty("nextAccesses", _SE(js_cc_gfx_GeneralBarrierInfo_nextAccesses_get), _SE(js_cc_gfx_GeneralBarrierInfo_nextAccesses_set)); 
     cls->defineProperty("type", _SE(js_cc_gfx_GeneralBarrierInfo_type_get), _SE(js_cc_gfx_GeneralBarrierInfo_type_set)); 
@@ -14645,6 +14687,7 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::TextureBarrierInfo * to, 
 bool js_register_cc_gfx_TextureBarrierInfo(se::Object* obj) {
     auto* cls = se::Class::create("TextureBarrierInfo", obj, nullptr, _SE(js_new_cc_gfx_TextureBarrierInfo)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("prevAccesses", _SE(js_cc_gfx_TextureBarrierInfo_prevAccesses_get), _SE(js_cc_gfx_TextureBarrierInfo_prevAccesses_set)); 
     cls->defineProperty("nextAccesses", _SE(js_cc_gfx_TextureBarrierInfo_nextAccesses_get), _SE(js_cc_gfx_TextureBarrierInfo_nextAccesses_set)); 
     cls->defineProperty("type", _SE(js_cc_gfx_TextureBarrierInfo_type_get), _SE(js_cc_gfx_TextureBarrierInfo_type_set)); 
@@ -15083,6 +15126,7 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::BufferBarrierInfo * to, s
 bool js_register_cc_gfx_BufferBarrierInfo(se::Object* obj) {
     auto* cls = se::Class::create("BufferBarrierInfo", obj, nullptr, _SE(js_new_cc_gfx_BufferBarrierInfo)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("prevAccesses", _SE(js_cc_gfx_BufferBarrierInfo_prevAccesses_get), _SE(js_cc_gfx_BufferBarrierInfo_prevAccesses_set)); 
     cls->defineProperty("nextAccesses", _SE(js_cc_gfx_BufferBarrierInfo_nextAccesses_get), _SE(js_cc_gfx_BufferBarrierInfo_nextAccesses_set)); 
     cls->defineProperty("type", _SE(js_cc_gfx_BufferBarrierInfo_type_get), _SE(js_cc_gfx_BufferBarrierInfo_type_set)); 
@@ -15313,6 +15357,7 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::FramebufferInfo * to, se:
 bool js_register_cc_gfx_FramebufferInfo(se::Object* obj) {
     auto* cls = se::Class::create("FramebufferInfo", obj, nullptr, _SE(js_new_cc_gfx_FramebufferInfo)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("renderPass", _SE(js_cc_gfx_FramebufferInfo_renderPass_get), _SE(js_cc_gfx_FramebufferInfo_renderPass_set)); 
     cls->defineProperty("colorTextures", _SE(js_cc_gfx_FramebufferInfo_colorTextures_get), _SE(js_cc_gfx_FramebufferInfo_colorTextures_set)); 
     cls->defineProperty("depthStencilTexture", _SE(js_cc_gfx_FramebufferInfo_depthStencilTexture_get), _SE(js_cc_gfx_FramebufferInfo_depthStencilTexture_set)); 
@@ -15622,6 +15667,7 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::DescriptorSetLayoutBindin
 bool js_register_cc_gfx_DescriptorSetLayoutBinding(se::Object* obj) {
     auto* cls = se::Class::create("DescriptorSetLayoutBinding", obj, nullptr, _SE(js_new_cc_gfx_DescriptorSetLayoutBinding)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("binding", _SE(js_cc_gfx_DescriptorSetLayoutBinding_binding_get), _SE(js_cc_gfx_DescriptorSetLayoutBinding_binding_set)); 
     cls->defineProperty("descriptorType", _SE(js_cc_gfx_DescriptorSetLayoutBinding_descriptorType_get), _SE(js_cc_gfx_DescriptorSetLayoutBinding_descriptorType_set)); 
     cls->defineProperty("count", _SE(js_cc_gfx_DescriptorSetLayoutBinding_count_get), _SE(js_cc_gfx_DescriptorSetLayoutBinding_count_set)); 
@@ -15767,6 +15813,7 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::DescriptorSetLayoutInfo *
 bool js_register_cc_gfx_DescriptorSetLayoutInfo(se::Object* obj) {
     auto* cls = se::Class::create("DescriptorSetLayoutInfo", obj, nullptr, _SE(js_new_cc_gfx_DescriptorSetLayoutInfo)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("bindings", _SE(js_cc_gfx_DescriptorSetLayoutInfo_bindings_get), _SE(js_cc_gfx_DescriptorSetLayoutInfo_bindings_set)); 
     
     cls->defineFunction("copy", _SE(js_cc_gfx_DescriptorSetLayoutInfo_copy)); 
@@ -15906,6 +15953,7 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::DescriptorSetInfo * to, s
 bool js_register_cc_gfx_DescriptorSetInfo(se::Object* obj) {
     auto* cls = se::Class::create("DescriptorSetInfo", obj, nullptr, _SE(js_new_cc_gfx_DescriptorSetInfo)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("layout", _SE(js_cc_gfx_DescriptorSetInfo_layout_get), _SE(js_cc_gfx_DescriptorSetInfo_layout_set)); 
     
     cls->defineFunction("copy", _SE(js_cc_gfx_DescriptorSetInfo_copy)); 
@@ -16047,6 +16095,7 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::PipelineLayoutInfo * to, 
 bool js_register_cc_gfx_PipelineLayoutInfo(se::Object* obj) {
     auto* cls = se::Class::create("PipelineLayoutInfo", obj, nullptr, _SE(js_new_cc_gfx_PipelineLayoutInfo)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("setLayouts", _SE(js_cc_gfx_PipelineLayoutInfo_setLayouts_get), _SE(js_cc_gfx_PipelineLayoutInfo_setLayouts_set)); 
     
     cls->defineFunction("copy", _SE(js_cc_gfx_PipelineLayoutInfo_copy)); 
@@ -16188,6 +16237,7 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::InputState * to, se::Obje
 bool js_register_cc_gfx_InputState(se::Object* obj) {
     auto* cls = se::Class::create("InputState", obj, nullptr, _SE(js_new_cc_gfx_InputState)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("attributes", _SE(js_cc_gfx_InputState_attributes_get), _SE(js_cc_gfx_InputState_attributes_set)); 
     
     cls->defineFunction("copy", _SE(js_cc_gfx_InputState_copy)); 
@@ -16791,6 +16841,7 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::RasterizerState * to, se:
 bool js_register_cc_gfx_RasterizerState(se::Object* obj) {
     auto* cls = se::Class::create("RasterizerState", obj, nullptr, _SE(js_new_cc_gfx_RasterizerState)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("isDiscard", _SE(js_cc_gfx_RasterizerState_isDiscard_get), _SE(js_cc_gfx_RasterizerState_isDiscard_set)); 
     cls->defineProperty("polygonMode", _SE(js_cc_gfx_RasterizerState_polygonMode_get), _SE(js_cc_gfx_RasterizerState_polygonMode_set)); 
     cls->defineProperty("shadeModel", _SE(js_cc_gfx_RasterizerState_shadeModel_get), _SE(js_cc_gfx_RasterizerState_shadeModel_set)); 
@@ -17708,6 +17759,7 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::DepthStencilState * to, s
 bool js_register_cc_gfx_DepthStencilState(se::Object* obj) {
     auto* cls = se::Class::create("DepthStencilState", obj, nullptr, _SE(js_new_cc_gfx_DepthStencilState)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("depthTest", _SE(js_cc_gfx_DepthStencilState_depthTest_get), _SE(js_cc_gfx_DepthStencilState_depthTest_set)); 
     cls->defineProperty("depthWrite", _SE(js_cc_gfx_DepthStencilState_depthWrite_get), _SE(js_cc_gfx_DepthStencilState_depthWrite_set)); 
     cls->defineProperty("depthFunc", _SE(js_cc_gfx_DepthStencilState_depthFunc_get), _SE(js_cc_gfx_DepthStencilState_depthFunc_set)); 
@@ -18186,6 +18238,7 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::BlendTarget * to, se::Obj
 bool js_register_cc_gfx_BlendTarget(se::Object* obj) {
     auto* cls = se::Class::create("BlendTarget", obj, nullptr, _SE(js_new_cc_gfx_BlendTarget)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("blend", _SE(js_cc_gfx_BlendTarget_blend_get), _SE(js_cc_gfx_BlendTarget_blend_set)); 
     cls->defineProperty("blendSrc", _SE(js_cc_gfx_BlendTarget_blendSrc_get), _SE(js_cc_gfx_BlendTarget_blendSrc_set)); 
     cls->defineProperty("blendDst", _SE(js_cc_gfx_BlendTarget_blendDst_get), _SE(js_cc_gfx_BlendTarget_blendDst_set)); 
@@ -18530,6 +18583,7 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::BlendState * to, se::Obje
 bool js_register_cc_gfx_BlendState(se::Object* obj) {
     auto* cls = se::Class::create("BlendState", obj, nullptr, _SE(js_new_cc_gfx_BlendState)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("isA2C", _SE(js_cc_gfx_BlendState_isA2C_get), _SE(js_cc_gfx_BlendState_isA2C_set)); 
     cls->defineProperty("isIndepend", _SE(js_cc_gfx_BlendState_isIndepend_get), _SE(js_cc_gfx_BlendState_isIndepend_set)); 
     cls->defineProperty("blendColor", _SE(js_cc_gfx_BlendState_blendColor_get), _SE(js_cc_gfx_BlendState_blendColor_set)); 
@@ -19098,6 +19152,7 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::PipelineStateInfo * to, s
 bool js_register_cc_gfx_PipelineStateInfo(se::Object* obj) {
     auto* cls = se::Class::create("PipelineStateInfo", obj, nullptr, _SE(js_new_cc_gfx_PipelineStateInfo)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("shader", _SE(js_cc_gfx_PipelineStateInfo_shader_get), _SE(js_cc_gfx_PipelineStateInfo_shader_set)); 
     cls->defineProperty("pipelineLayout", _SE(js_cc_gfx_PipelineStateInfo_pipelineLayout_get), _SE(js_cc_gfx_PipelineStateInfo_pipelineLayout_set)); 
     cls->defineProperty("renderPass", _SE(js_cc_gfx_PipelineStateInfo_renderPass_get), _SE(js_cc_gfx_PipelineStateInfo_renderPass_set)); 
@@ -19290,6 +19345,7 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::CommandBufferInfo * to, s
 bool js_register_cc_gfx_CommandBufferInfo(se::Object* obj) {
     auto* cls = se::Class::create("CommandBufferInfo", obj, nullptr, _SE(js_new_cc_gfx_CommandBufferInfo)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("queue", _SE(js_cc_gfx_CommandBufferInfo_queue_get), _SE(js_cc_gfx_CommandBufferInfo_queue_set)); 
     cls->defineProperty("type", _SE(js_cc_gfx_CommandBufferInfo_type_get), _SE(js_cc_gfx_CommandBufferInfo_type_set)); 
     
@@ -19432,6 +19488,7 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::QueueInfo * to, se::Objec
 bool js_register_cc_gfx_QueueInfo(se::Object* obj) {
     auto* cls = se::Class::create("QueueInfo", obj, nullptr, _SE(js_new_cc_gfx_QueueInfo)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("type", _SE(js_cc_gfx_QueueInfo_type_get), _SE(js_cc_gfx_QueueInfo_type_set)); 
     
     cls->defineFunction("copy", _SE(js_cc_gfx_QueueInfo_copy)); 
@@ -19652,6 +19709,7 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::QueryPoolInfo * to, se::O
 bool js_register_cc_gfx_QueryPoolInfo(se::Object* obj) {
     auto* cls = se::Class::create("QueryPoolInfo", obj, nullptr, _SE(js_new_cc_gfx_QueryPoolInfo)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("type", _SE(js_cc_gfx_QueryPoolInfo_type_get), _SE(js_cc_gfx_QueryPoolInfo_type_set)); 
     cls->defineProperty("maxQueryObjects", _SE(js_cc_gfx_QueryPoolInfo_maxQueryObjects_get), _SE(js_cc_gfx_QueryPoolInfo_maxQueryObjects_set)); 
     cls->defineProperty("forceWait", _SE(js_cc_gfx_QueryPoolInfo_forceWait_get), _SE(js_cc_gfx_QueryPoolInfo_forceWait_set)); 
@@ -19669,6 +19727,401 @@ bool js_register_cc_gfx_QueryPoolInfo(se::Object* obj) {
     
     __jsb_cc_gfx_QueryPoolInfo_proto = cls->getProto();
     __jsb_cc_gfx_QueryPoolInfo_class = cls;
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
+
+se::Class* __jsb_cc_gfx_FormatInfo_class = nullptr;
+se::Object* __jsb_cc_gfx_FormatInfo_proto = nullptr;
+SE_DECLARE_FINALIZE_FUNC(js_delete_cc_gfx_FormatInfo) 
+
+static bool js_cc_gfx_FormatInfo_name_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::gfx::FormatInfo *arg1 = (cc::gfx::FormatInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gfx::FormatInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg1->name, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_gfx_FormatInfo_name_set) 
+
+static bool js_cc_gfx_FormatInfo_name_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::gfx::FormatInfo *arg1 = (cc::gfx::FormatInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gfx::FormatInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= nativevalue_to_se(arg1->name, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(arg1->name, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_gfx_FormatInfo_name_get) 
+
+static bool js_cc_gfx_FormatInfo_size_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::gfx::FormatInfo *arg1 = (cc::gfx::FormatInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gfx::FormatInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg1->size, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_gfx_FormatInfo_size_set) 
+
+static bool js_cc_gfx_FormatInfo_size_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::gfx::FormatInfo *arg1 = (cc::gfx::FormatInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gfx::FormatInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= nativevalue_to_se(arg1->size, s.rval(), s.thisObject()); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_gfx_FormatInfo_size_get) 
+
+static bool js_cc_gfx_FormatInfo_count_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::gfx::FormatInfo *arg1 = (cc::gfx::FormatInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gfx::FormatInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg1->count, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_gfx_FormatInfo_count_set) 
+
+static bool js_cc_gfx_FormatInfo_count_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::gfx::FormatInfo *arg1 = (cc::gfx::FormatInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gfx::FormatInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= nativevalue_to_se(arg1->count, s.rval(), s.thisObject()); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_gfx_FormatInfo_count_get) 
+
+static bool js_cc_gfx_FormatInfo_type_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::gfx::FormatInfo *arg1 = (cc::gfx::FormatInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gfx::FormatInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg1->type, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_gfx_FormatInfo_type_set) 
+
+static bool js_cc_gfx_FormatInfo_type_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::gfx::FormatInfo *arg1 = (cc::gfx::FormatInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gfx::FormatInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= nativevalue_to_se(arg1->type, s.rval(), s.thisObject() /*ctx*/);
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(arg1->type, s.thisObject(), s.rval());
+    
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_gfx_FormatInfo_type_get) 
+
+static bool js_cc_gfx_FormatInfo_hasAlpha_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::gfx::FormatInfo *arg1 = (cc::gfx::FormatInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gfx::FormatInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg1->hasAlpha);
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_gfx_FormatInfo_hasAlpha_set) 
+
+static bool js_cc_gfx_FormatInfo_hasAlpha_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::gfx::FormatInfo *arg1 = (cc::gfx::FormatInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gfx::FormatInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= nativevalue_to_se(arg1->hasAlpha, s.rval(), s.thisObject());
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_gfx_FormatInfo_hasAlpha_get) 
+
+static bool js_cc_gfx_FormatInfo_hasDepth_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::gfx::FormatInfo *arg1 = (cc::gfx::FormatInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gfx::FormatInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg1->hasDepth);
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_gfx_FormatInfo_hasDepth_set) 
+
+static bool js_cc_gfx_FormatInfo_hasDepth_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::gfx::FormatInfo *arg1 = (cc::gfx::FormatInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gfx::FormatInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= nativevalue_to_se(arg1->hasDepth, s.rval(), s.thisObject());
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_gfx_FormatInfo_hasDepth_get) 
+
+static bool js_cc_gfx_FormatInfo_hasStencil_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::gfx::FormatInfo *arg1 = (cc::gfx::FormatInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gfx::FormatInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg1->hasStencil);
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_gfx_FormatInfo_hasStencil_set) 
+
+static bool js_cc_gfx_FormatInfo_hasStencil_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::gfx::FormatInfo *arg1 = (cc::gfx::FormatInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gfx::FormatInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= nativevalue_to_se(arg1->hasStencil, s.rval(), s.thisObject());
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_gfx_FormatInfo_hasStencil_get) 
+
+static bool js_cc_gfx_FormatInfo_isCompressed_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::gfx::FormatInfo *arg1 = (cc::gfx::FormatInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gfx::FormatInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg1->isCompressed);
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_gfx_FormatInfo_isCompressed_set) 
+
+static bool js_cc_gfx_FormatInfo_isCompressed_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::gfx::FormatInfo *arg1 = (cc::gfx::FormatInfo *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::gfx::FormatInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= nativevalue_to_se(arg1->isCompressed, s.rval(), s.thisObject());
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_gfx_FormatInfo_isCompressed_get) 
+
+static bool js_new_cc_gfx_FormatInfo(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    
+    cc::gfx::FormatInfo *result;
+    result = (cc::gfx::FormatInfo *)new cc::gfx::FormatInfo();
+    
+    
+    auto *ptr = JSB_MAKE_PRIVATE_OBJECT_WITH_INSTANCE(result);
+    s.thisObject()->setPrivateObject(ptr);
+    return true;
+}
+SE_BIND_CTOR(js_new_cc_gfx_FormatInfo, __jsb_cc_gfx_FormatInfo_class, js_delete_cc_gfx_FormatInfo)
+
+static bool js_delete_cc_gfx_FormatInfo(se::State& s)
+{
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_delete_cc_gfx_FormatInfo) 
+
+template<>
+bool sevalue_to_native(const se::Value &from, cc::gfx::FormatInfo * to, se::Object *ctx)
+{
+    assert(from.isObject());
+    se::Object *json = from.toObject();
+    auto* data = reinterpret_cast<cc::gfx::FormatInfo*>(json->getPrivateData());
+    if (data) {
+        *to = *data;
+        return true;
+    }
+    se::Value field;
+    bool ok = true;
+    
+    json->getProperty("name", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->name), ctx);
+    }
+    
+    
+    json->getProperty("size", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->size), ctx);
+    }
+    
+    
+    json->getProperty("count", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->count), ctx);
+    }
+    
+    
+    json->getProperty("type", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->type), ctx);
+    }
+    
+    
+    json->getProperty("hasAlpha", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->hasAlpha), ctx);
+    }
+    
+    
+    json->getProperty("hasDepth", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->hasDepth), ctx);
+    }
+    
+    
+    json->getProperty("hasStencil", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->hasStencil), ctx);
+    }
+    
+    
+    json->getProperty("isCompressed", &field, true);
+    if (!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->isCompressed), ctx);
+    }
+    
+    
+    return ok;
+}
+
+
+bool js_register_cc_gfx_FormatInfo(se::Object* obj) {
+    auto* cls = se::Class::create("FormatInfo", obj, nullptr, _SE(js_new_cc_gfx_FormatInfo)); 
+    
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
+    cls->defineProperty("name", _SE(js_cc_gfx_FormatInfo_name_get), _SE(js_cc_gfx_FormatInfo_name_set)); 
+    cls->defineProperty("size", _SE(js_cc_gfx_FormatInfo_size_get), _SE(js_cc_gfx_FormatInfo_size_set)); 
+    cls->defineProperty("count", _SE(js_cc_gfx_FormatInfo_count_get), _SE(js_cc_gfx_FormatInfo_count_set)); 
+    cls->defineProperty("type", _SE(js_cc_gfx_FormatInfo_type_get), _SE(js_cc_gfx_FormatInfo_type_set)); 
+    cls->defineProperty("hasAlpha", _SE(js_cc_gfx_FormatInfo_hasAlpha_get), _SE(js_cc_gfx_FormatInfo_hasAlpha_set)); 
+    cls->defineProperty("hasDepth", _SE(js_cc_gfx_FormatInfo_hasDepth_get), _SE(js_cc_gfx_FormatInfo_hasDepth_set)); 
+    cls->defineProperty("hasStencil", _SE(js_cc_gfx_FormatInfo_hasStencil_get), _SE(js_cc_gfx_FormatInfo_hasStencil_set)); 
+    cls->defineProperty("isCompressed", _SE(js_cc_gfx_FormatInfo_isCompressed_get), _SE(js_cc_gfx_FormatInfo_isCompressed_set)); 
+    
+    
+    
+    
+    
+    cls->defineFinalizeFunction(_SE(js_delete_cc_gfx_FormatInfo));
+    
+    
+    cls->install();
+    JSBClassType::registerClass<cc::gfx::FormatInfo>(cls);
+    
+    __jsb_cc_gfx_FormatInfo_proto = cls->getProto();
+    __jsb_cc_gfx_FormatInfo_class = cls;
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
@@ -19832,6 +20285,7 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::MemoryStatus * to, se::Ob
 bool js_register_cc_gfx_MemoryStatus(se::Object* obj) {
     auto* cls = se::Class::create("MemoryStatus", obj, nullptr, _SE(js_new_cc_gfx_MemoryStatus)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("bufferSize", _SE(js_cc_gfx_MemoryStatus_bufferSize_get), _SE(js_cc_gfx_MemoryStatus_bufferSize_set)); 
     cls->defineProperty("textureSize", _SE(js_cc_gfx_MemoryStatus_textureSize_get), _SE(js_cc_gfx_MemoryStatus_textureSize_set)); 
     
@@ -20051,6 +20505,7 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::DynamicStencilStates * to
 bool js_register_cc_gfx_DynamicStencilStates(se::Object* obj) {
     auto* cls = se::Class::create("DynamicStencilStates", obj, nullptr, _SE(js_new_cc_gfx_DynamicStencilStates)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("writeMask", _SE(js_cc_gfx_DynamicStencilStates_writeMask_get), _SE(js_cc_gfx_DynamicStencilStates_writeMask_set)); 
     cls->defineProperty("compareMask", _SE(js_cc_gfx_DynamicStencilStates_compareMask_get), _SE(js_cc_gfx_DynamicStencilStates_compareMask_set)); 
     cls->defineProperty("reference", _SE(js_cc_gfx_DynamicStencilStates_reference_get), _SE(js_cc_gfx_DynamicStencilStates_reference_set)); 
@@ -20600,6 +21055,7 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::DynamicStates * to, se::O
 bool js_register_cc_gfx_DynamicStates(se::Object* obj) {
     auto* cls = se::Class::create("DynamicStates", obj, nullptr, _SE(js_new_cc_gfx_DynamicStates)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("viewport", _SE(js_cc_gfx_DynamicStates_viewport_get), _SE(js_cc_gfx_DynamicStates_viewport_set)); 
     cls->defineProperty("scissor", _SE(js_cc_gfx_DynamicStates_scissor_get), _SE(js_cc_gfx_DynamicStates_scissor_set)); 
     cls->defineProperty("blendConstant", _SE(js_cc_gfx_DynamicStates_blendConstant_get), _SE(js_cc_gfx_DynamicStates_blendConstant_set)); 
@@ -20747,6 +21203,7 @@ SE_BIND_PROP_GET(js_cc_gfx_GFXObject_typedID_get)
 bool js_register_cc_gfx_GFXObject(se::Object* obj) {
     auto* cls = se::Class::create("GFXObject", obj, nullptr, _SE(js_new_cc_gfx_GFXObject)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("objectType", _SE(js_cc_gfx_GFXObject_objectType_get), nullptr); 
     cls->defineProperty("objectID", _SE(js_cc_gfx_GFXObject_objectID_get), nullptr); 
     cls->defineProperty("typedID", _SE(js_cc_gfx_GFXObject_typedID_get), nullptr); 
@@ -20991,6 +21448,7 @@ SE_BIND_PROP_GET(js_cc_gfx_Buffer_flags_get)
 bool js_register_cc_gfx_Buffer(se::Object* obj) {
     auto* cls = se::Class::create("Buffer", obj, __jsb_cc_gfx_GFXObject_proto, nullptr); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("usage", _SE(js_cc_gfx_Buffer_usage_get), nullptr); 
     cls->defineProperty("memUsage", _SE(js_cc_gfx_Buffer_memUsage_get), nullptr); 
     cls->defineProperty("stride", _SE(js_cc_gfx_Buffer_stride_get), nullptr); 
@@ -22382,6 +22840,7 @@ SE_BIND_PROP_GET(js_cc_gfx_CommandBuffer_numTris_get)
 bool js_register_cc_gfx_CommandBuffer(se::Object* obj) {
     auto* cls = se::Class::create("CommandBuffer", obj, __jsb_cc_gfx_GFXObject_proto, nullptr); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("type", _SE(js_cc_gfx_CommandBuffer_type_get), nullptr); 
     cls->defineProperty("queue", _SE(js_cc_gfx_CommandBuffer_queue_get), nullptr); 
     cls->defineProperty("numDrawCalls", _SE(js_cc_gfx_CommandBuffer_numDrawCalls_get), nullptr); 
@@ -23098,6 +23557,7 @@ SE_BIND_PROP_GET(js_cc_gfx_DescriptorSet_layout_get)
 bool js_register_cc_gfx_DescriptorSet(se::Object* obj) {
     auto* cls = se::Class::create("DescriptorSet", obj, __jsb_cc_gfx_GFXObject_proto, nullptr); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("layout", _SE(js_cc_gfx_DescriptorSet_layout_get), nullptr); 
     
     cls->defineFunction("initialize", _SE(js_cc_gfx_DescriptorSet_initialize)); 
@@ -23257,6 +23717,7 @@ SE_BIND_PROP_GET(js_cc_gfx_DescriptorSetLayout_bindings_get)
 bool js_register_cc_gfx_DescriptorSetLayout(se::Object* obj) {
     auto* cls = se::Class::create("DescriptorSetLayout", obj, __jsb_cc_gfx_GFXObject_proto, nullptr); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("bindings", _SE(js_cc_gfx_DescriptorSetLayout_bindings_get), nullptr); 
     
     cls->defineFunction("initialize", _SE(js_cc_gfx_DescriptorSetLayout_initialize)); 
@@ -23427,6 +23888,7 @@ SE_BIND_PROP_GET(js_cc_gfx_Framebuffer_depthStencilTexture_get)
 bool js_register_cc_gfx_Framebuffer(se::Object* obj) {
     auto* cls = se::Class::create("Framebuffer", obj, __jsb_cc_gfx_GFXObject_proto, nullptr); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("renderPass", _SE(js_cc_gfx_Framebuffer_renderPass_get), nullptr); 
     cls->defineProperty("colorTextures", _SE(js_cc_gfx_Framebuffer_colorTextures_get), nullptr); 
     cls->defineProperty("depthStencilTexture", _SE(js_cc_gfx_Framebuffer_depthStencilTexture_get), nullptr); 
@@ -23912,6 +24374,7 @@ SE_BIND_PROP_GET(js_cc_gfx_InputAssembler_firstInstance_get)
 bool js_register_cc_gfx_InputAssembler(se::Object* obj) {
     auto* cls = se::Class::create("InputAssembler", obj, __jsb_cc_gfx_GFXObject_proto, nullptr); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("vertexBuffers", _SE(js_cc_gfx_InputAssembler_vertexBuffers_get), nullptr); 
     cls->defineProperty("attributes", _SE(js_cc_gfx_InputAssembler_attributes_get), nullptr); 
     cls->defineProperty("indexBuffer", _SE(js_cc_gfx_InputAssembler_indexBuffer_get), nullptr); 
@@ -24030,6 +24493,7 @@ SE_BIND_FUNC(js_cc_gfx_PipelineLayout_getSetLayouts)
 bool js_register_cc_gfx_PipelineLayout(se::Object* obj) {
     auto* cls = se::Class::create("PipelineLayout", obj, __jsb_cc_gfx_GFXObject_proto, nullptr); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     cls->defineFunction("initialize", _SE(js_cc_gfx_PipelineLayout_initialize)); 
     cls->defineFunction("destroy", _SE(js_cc_gfx_PipelineLayout_destroy)); 
@@ -24316,6 +24780,7 @@ SE_BIND_PROP_GET(js_cc_gfx_PipelineState_renderPass_get)
 bool js_register_cc_gfx_PipelineState(se::Object* obj) {
     auto* cls = se::Class::create("PipelineState", obj, __jsb_cc_gfx_GFXObject_proto, nullptr); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("shader", _SE(js_cc_gfx_PipelineState_shader_get), nullptr); 
     cls->defineProperty("primitive", _SE(js_cc_gfx_PipelineState_primitive_get), nullptr); 
     cls->defineProperty("bindPoint", _SE(js_cc_gfx_PipelineState_bindPoint_get), nullptr); 
@@ -24534,6 +24999,7 @@ SE_BIND_FUNC(js_cc_gfx_QueryPool_getForceWait)
 bool js_register_cc_gfx_QueryPool(se::Object* obj) {
     auto* cls = se::Class::create("QueryPool", obj, __jsb_cc_gfx_GFXObject_proto, nullptr); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     cls->defineFunction("initialize", _SE(js_cc_gfx_QueryPool_initialize)); 
     cls->defineFunction("destroy", _SE(js_cc_gfx_QueryPool_destroy)); 
@@ -24707,6 +25173,7 @@ SE_BIND_PROP_GET(js_cc_gfx_Queue_type_get)
 bool js_register_cc_gfx_Queue(se::Object* obj) {
     auto* cls = se::Class::create("Queue", obj, __jsb_cc_gfx_GFXObject_proto, nullptr); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("type", _SE(js_cc_gfx_Queue_type_get), nullptr); 
     
     cls->defineFunction("initialize", _SE(js_cc_gfx_Queue_initialize)); 
@@ -24939,6 +25406,7 @@ SE_BIND_PROP_GET(js_cc_gfx_RenderPass_hash_get)
 bool js_register_cc_gfx_RenderPass(se::Object* obj) {
     auto* cls = se::Class::create("RenderPass", obj, __jsb_cc_gfx_GFXObject_proto, nullptr); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("hash", _SE(js_cc_gfx_RenderPass_hash_get), nullptr); 
     
     cls->defineFunction("initialize", _SE(js_cc_gfx_RenderPass_initialize)); 
@@ -25245,6 +25713,7 @@ SE_BIND_PROP_GET(js_cc_gfx_Shader_samplers_get)
 bool js_register_cc_gfx_Shader(se::Object* obj) {
     auto* cls = se::Class::create("Shader", obj, __jsb_cc_gfx_GFXObject_proto, nullptr); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("name", _SE(js_cc_gfx_Shader_name_get), nullptr); 
     cls->defineProperty("stages", _SE(js_cc_gfx_Shader_stages_get), nullptr); 
     cls->defineProperty("attributes", _SE(js_cc_gfx_Shader_attributes_get), nullptr); 
@@ -25602,6 +26071,7 @@ SE_BIND_PROP_GET(js_cc_gfx_Swapchain_depthStencilTexture_get)
 bool js_register_cc_gfx_Swapchain(se::Object* obj) {
     auto* cls = se::Class::create("Swapchain", obj, __jsb_cc_gfx_GFXObject_proto, nullptr); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("width", _SE(js_cc_gfx_Swapchain_width_get), nullptr); 
     cls->defineProperty("height", _SE(js_cc_gfx_Swapchain_height_get), nullptr); 
     cls->defineProperty("surfaceTransform", _SE(js_cc_gfx_Swapchain_surfaceTransform_get), nullptr); 
@@ -26035,6 +26505,7 @@ SE_BIND_PROP_GET(js_cc_gfx_Texture_hash_get)
 bool js_register_cc_gfx_Texture(se::Object* obj) {
     auto* cls = se::Class::create("Texture", obj, __jsb_cc_gfx_GFXObject_proto, nullptr); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("info", _SE(js_cc_gfx_Texture_info_get), nullptr); 
     cls->defineProperty("viewInfo", _SE(js_cc_gfx_Texture_viewInfo_get), nullptr); 
     cls->defineProperty("width", _SE(js_cc_gfx_Texture_width_get), nullptr); 
@@ -26188,6 +26659,7 @@ SE_BIND_FINALIZE_FUNC(js_delete_cc_gfx_GeneralBarrier)
 bool js_register_cc_gfx_GeneralBarrier(se::Object* obj) {
     auto* cls = se::Class::create("GeneralBarrier", obj, __jsb_cc_gfx_GFXObject_proto, _SE(js_new_cc_gfx_GeneralBarrier)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     cls->defineFunction("getInfo", _SE(js_cc_gfx_GeneralBarrier_getInfo)); 
     cls->defineFunction("getHash", _SE(js_cc_gfx_GeneralBarrier_getHash)); 
@@ -26347,6 +26819,7 @@ SE_BIND_FINALIZE_FUNC(js_delete_cc_gfx_Sampler)
 bool js_register_cc_gfx_Sampler(se::Object* obj) {
     auto* cls = se::Class::create("Sampler", obj, __jsb_cc_gfx_GFXObject_proto, _SE(js_new_cc_gfx_Sampler)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("info", _SE(js_cc_gfx_Sampler_info_get), nullptr); 
     cls->defineProperty("hash", _SE(js_cc_gfx_Sampler_hash_get), nullptr); 
     
@@ -26490,6 +26963,7 @@ SE_BIND_FINALIZE_FUNC(js_delete_cc_gfx_TextureBarrier)
 bool js_register_cc_gfx_TextureBarrier(se::Object* obj) {
     auto* cls = se::Class::create("TextureBarrier", obj, __jsb_cc_gfx_GFXObject_proto, _SE(js_new_cc_gfx_TextureBarrier)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     cls->defineFunction("getInfo", _SE(js_cc_gfx_TextureBarrier_getInfo)); 
     cls->defineFunction("getHash", _SE(js_cc_gfx_TextureBarrier_getHash)); 
@@ -26604,6 +27078,7 @@ SE_BIND_FINALIZE_FUNC(js_delete_cc_gfx_BufferBarrier)
 bool js_register_cc_gfx_BufferBarrier(se::Object* obj) {
     auto* cls = se::Class::create("BufferBarrier", obj, __jsb_cc_gfx_GFXObject_proto, nullptr); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     cls->defineFunction("getInfo", _SE(js_cc_gfx_BufferBarrier_getInfo)); 
     cls->defineFunction("getHash", _SE(js_cc_gfx_BufferBarrier_getHash)); 
@@ -27730,6 +28205,7 @@ SE_BIND_PROP_GET(js_cc_gfx_Device_capabilities_get)
 bool js_register_cc_gfx_Device(se::Object* obj) {
     auto* cls = se::Class::create("Device", obj, nullptr, nullptr); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("gfxAPI", _SE(js_cc_gfx_Device_gfxAPI_get), nullptr); 
     cls->defineProperty("deviceName", _SE(js_cc_gfx_Device_deviceName_get), nullptr); 
     cls->defineProperty("memoryStatus", _SE(js_cc_gfx_Device_memoryStatus_get), nullptr); 
@@ -27878,6 +28354,7 @@ SE_BIND_FINALIZE_FUNC(js_delete_cc_gfx_DeviceManager)
 bool js_register_cc_gfx_DeviceManager(se::Object* obj) {
     auto* cls = se::Class::create("DeviceManager", obj, nullptr, _SE(js_new_cc_gfx_DeviceManager)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     
     
@@ -27968,6 +28445,7 @@ bool register_all_gfx(se::Object* obj) {
     js_register_cc_gfx_CommandBufferInfo(ns); 
     js_register_cc_gfx_QueueInfo(ns); 
     js_register_cc_gfx_QueryPoolInfo(ns); 
+    js_register_cc_gfx_FormatInfo(ns); 
     js_register_cc_gfx_MemoryStatus(ns); 
     js_register_cc_gfx_DynamicStencilStates(ns); 
     js_register_cc_gfx_DynamicStates(ns); 

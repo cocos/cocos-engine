@@ -179,7 +179,7 @@ public:
     void detachFromScene();
     void resize(uint32_t width, uint32_t height);
     void setFixedSize(uint32_t width, uint32_t height);
-    void syncCameraEditor(const Camera &camera);
+    void syncCameraEditor(const Camera *camera);
     void update(bool forceUpdate = false); // for lazy eval situations like the in-editor preview
     void changeTargetWindow(RenderWindow *window);
 
@@ -365,6 +365,7 @@ public:
     inline bool isCullingEnabled() const { return _isCullingEnabled; }
     inline void setCullingEnable(bool val) { _isCullingEnabled = val; }
 
+    void calculateObliqueMat(const Vec4& viewSpacePlane);
 protected:
     void setExposure(float ev100);
 

@@ -52,25 +52,37 @@ void decideProfilerCamera(const ccstd::vector<scene::Camera *> &cameras) {
 }
 
 void renderProfiler(gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff, scene::Model *profiler, const scene::Camera *camera) {
-    if (profiler && profiler->isEnabled() && camera == profilerCamera) {
-        const auto &submodel = profiler->getSubModels()[0];
-        auto *pass = submodel->getPass(0);
-        auto *ia = submodel->getInputAssembler();
-        auto *pso = PipelineStateManager::getOrCreatePipelineState(pass, submodel->getShader(0), ia, renderPass);
-
-        gfx::Viewport profilerViewport;
-        gfx::Rect profilerScissor;
-        profilerViewport.width = profilerScissor.width = camera->getWindow()->getWidth();
-        profilerViewport.height = profilerScissor.height = camera->getWindow()->getHeight();
-        cmdBuff->setViewport(profilerViewport);
-        cmdBuff->setScissor(profilerScissor);
-
-        cmdBuff->bindPipelineState(pso);
-        cmdBuff->bindDescriptorSet(materialSet, pass->getDescriptorSet());
-        cmdBuff->bindDescriptorSet(localSet, submodel->getDescriptorSet());
-        cmdBuff->bindInputAssembler(ia);
-        cmdBuff->draw(ia);
+    if (!profiler || !profiler->isEnabled()) {
+        return;
     }
+
+#if CC_EDITOR
+    if (!(camera->getVisibility() & static_cast<uint32_t>(pipeline::LayerList::PROFILER))) {
+            return;
+    }
+#else
+    if (camera != profilerCamera) {
+        return;
+    }
+#endif
+
+    const auto &submodel = profiler->getSubModels()[0];
+    auto *pass = submodel->getPass(0);
+    auto *ia = submodel->getInputAssembler();
+    auto *pso = PipelineStateManager::getOrCreatePipelineState(pass, submodel->getShader(0), ia, renderPass);
+
+    gfx::Viewport profilerViewport;
+    gfx::Rect profilerScissor;
+    profilerViewport.width = profilerScissor.width = camera->getWindow()->getWidth();
+    profilerViewport.height = profilerScissor.height = camera->getWindow()->getHeight();
+    cmdBuff->setViewport(profilerViewport);
+    cmdBuff->setScissor(profilerScissor);
+
+    cmdBuff->bindPipelineState(pso);
+    cmdBuff->bindDescriptorSet(materialSet, pass->getDescriptorSet());
+    cmdBuff->bindDescriptorSet(localSet, submodel->getDescriptorSet());
+    cmdBuff->bindInputAssembler(ia);
+    cmdBuff->draw(ia);
 }
 
 #if CC_USE_DEBUG_RENDERER

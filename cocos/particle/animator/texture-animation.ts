@@ -28,6 +28,7 @@ import { lerp, pseudoRandom, repeat, Enum } from '../../core';
 import { Particle, ParticleModuleBase, PARTICLE_MODULE_NAME } from '../particle';
 import CurveRange from './curve-range';
 import { ModuleRandSeed } from '../enum';
+import { isCurveTwoValues } from '../particle-general-function';
 
 const TEXTURE_ANIMATION_RAND_OFFSET = ModuleRandSeed.TEXTURE;
 
@@ -240,20 +241,22 @@ export default class TextureAnimationModule extends ParticleModuleBase {
 
     public animate (p: Particle, dt: number) {
         const normalizedTime = 1 - p.remainingLifetime / p.startLifetime;
-        const startFrame = this.startFrame.evaluate(normalizedTime, pseudoRandom(p.randomSeed + TEXTURE_ANIMATION_RAND_OFFSET))! / (this.numTilesX * this.numTilesY);
+        const randStart = isCurveTwoValues(this.startFrame) ? pseudoRandom(p.randomSeed + TEXTURE_ANIMATION_RAND_OFFSET) : 0;
+        const randFrame = isCurveTwoValues(this.frameOverTime) ? pseudoRandom(p.randomSeed + TEXTURE_ANIMATION_RAND_OFFSET) : 0;
+        const startFrame = this.startFrame.evaluate(normalizedTime, randStart)! / (this.numTilesX * this.numTilesY);
         if (this.animation === Animation.WholeSheet) {
-            p.frameIndex = repeat(this.cycleCount * (this.frameOverTime.evaluate(normalizedTime, pseudoRandom(p.randomSeed + TEXTURE_ANIMATION_RAND_OFFSET))! + startFrame), 1);
+            p.frameIndex = repeat(this.cycleCount * (this.frameOverTime.evaluate(normalizedTime, randFrame)! + startFrame), 1);
         } else if (this.animation === Animation.SingleRow) {
             const rowLength = 1 / this.numTilesY;
             if (this.randomRow) {
-                const f = repeat(this.cycleCount * (this.frameOverTime.evaluate(normalizedTime, pseudoRandom(p.randomSeed + TEXTURE_ANIMATION_RAND_OFFSET))! + startFrame), 1);
+                const f = repeat(this.cycleCount * (this.frameOverTime.evaluate(normalizedTime, randFrame)! + startFrame), 1);
                 const from = p.startRow * rowLength;
                 const to = from + rowLength;
                 p.frameIndex = lerp(from, to, f);
             } else {
                 const from = this.rowIndex * rowLength;
                 const to = from + rowLength;
-                p.frameIndex = lerp(from, to, repeat(this.cycleCount * (this.frameOverTime.evaluate(normalizedTime, pseudoRandom(p.randomSeed + TEXTURE_ANIMATION_RAND_OFFSET))! + startFrame), 1));
+                p.frameIndex = lerp(from, to, repeat(this.cycleCount * (this.frameOverTime.evaluate(normalizedTime, randFrame)! + startFrame), 1));
             }
         }
     }

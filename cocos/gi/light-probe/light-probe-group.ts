@@ -167,7 +167,10 @@ export class LightProbeGroup extends Component {
             return;
         }
 
-        this.node.scene.globals.lightProbeInfo.addNode(this.node);
+        const changed = this.node.scene.globals.lightProbeInfo.addNode(this.node);
+        if (changed) {
+            this.node.scene.globals.lightProbeInfo.syncData(this.node, this.probes);
+        }
     }
 
     public onEnable () {
@@ -233,8 +236,7 @@ export class LightProbeGroup extends Component {
             return;
         }
 
-        const updateTet = !this.node.scene.globals.lightProbeInfo.isUniqueNode();
         this.node.updateWorldTransform();
-        this.onProbeChanged(updateTet);
+        this.onProbeChanged(false);
     }
 }

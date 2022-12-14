@@ -268,7 +268,7 @@ void PipelineUBO::updateShadowUBOView(const RenderPipeline *pipeline, ccstd::arr
                         const float shadowProjInfos[4] = {matShadowProj.m[00], matShadowProj.m[05], 1.0F / matShadowProj.m[00], 1.0F / matShadowProj.m[05]};
                         memcpy(cv.data() + UBOCSM::CSM_PROJ_INFO_LEVELS_OFFSET + i * 4, &shadowProjInfos, sizeof(shadowProjInfos));
                     }
-                    const float csmInfo[4] = {scene::DirectionalLight::CSM_TRANSITION_RANGE, 0.0F, 0.0F, 0.0F};
+                    const float csmInfo[4] = {mainLight->getCSMTransitionRange(), 0.0F, 0.0F, 0.0F};
                     memcpy(cv.data() + UBOCSM::CSM_SPLITS_INFO_OFFSET, &csmInfo, sizeof(csmInfo));
 
                     const float shadowNFLSInfos[4] = {0.1F, mainLight->getShadowDistance(), 0.0F, 1.0F - mainLight->getShadowSaturation()};

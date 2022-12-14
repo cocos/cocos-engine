@@ -41,12 +41,12 @@ effectAssetProto._ctor = function () {
 
 // handle meta data, it is generated automatically
 const EffectAssetProto = EffectAsset.prototype;
-editable(EffectAssetProto, 'techniques');
-serializable(EffectAssetProto, 'techniques');
-editable(EffectAssetProto, 'shaders');
-serializable(EffectAssetProto, 'shaders');
-editable(EffectAssetProto, 'combinations');
-serializable(EffectAssetProto, 'combinations');
-editorOnly(EffectAssetProto, 'hideInEditor');
-serializable(EffectAssetProto, 'hideInEditor');
+editable(EffectAssetProto, 'techniques', () => []);
+serializable(EffectAssetProto, 'techniques', () => []);
+editable(EffectAssetProto, 'shaders', () => []);
+serializable(EffectAssetProto, 'shaders', () => []);
+editable(EffectAssetProto, 'combinations', () => []);
+serializable(EffectAssetProto, 'combinations', () => []);
+editorOnly(EffectAssetProto, 'hideInEditor', () => false);
+serializable(EffectAssetProto, 'hideInEditor', () => false);
 ccclass('cc.EffectAsset')(EffectAsset);

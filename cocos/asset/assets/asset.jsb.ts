@@ -40,6 +40,7 @@ applyMixins(jsb.Asset, [CallbacksInvoker, jsbUtils.ExtraEventMethods]);
 const assetProto: any = jsb.Asset.prototype;
 
 assetProto._ctor = function () {
+    this.loaded = true; // deprecated in v3.3
     this._ref = 0;
     this.__nativeRefs = {};
     this.__jsb_ref_id = undefined;
@@ -122,7 +123,7 @@ cclegacy.Asset = jsb.Asset;
 
 // handle meta data, it is generated automatically
 const AssetProto = Asset.prototype;
-serializable(AssetProto, '_native');
+serializable(AssetProto, '_native', () => '');
 const _nativeAssetDescriptor = Object.getOwnPropertyDescriptor(AssetProto, '_nativeAsset');
 _decorator.property(AssetProto, '_nativeAsset', _nativeAssetDescriptor);
 ccclass('cc.Asset')(Asset);

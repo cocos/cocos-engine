@@ -456,8 +456,6 @@ private:
     void tryConvertVertexData();
 
     void initDefault(const ccstd::optional<ccstd::string> &uuid) override;
-    bool validate() const override;
-
     void releaseData();
 
     static TypedArray createTypedArrayWithGFXFormat(gfx::Format format, uint32_t count);

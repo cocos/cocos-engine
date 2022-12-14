@@ -56,13 +56,16 @@ public:
 private:
     static RenderStageInfo initInfo;
 
-    gfx::Rect _renderArea;
-    gfx::DescriptorSet *_globalDS = nullptr;
-    const scene::Light *_light = nullptr;
-    gfx::Framebuffer *_framebuffer = nullptr;
+    bool _isShadowMapCleared{false};
+
     uint32_t _level;
 
-    ShadowMapBatchedQueue *_additiveShadowQueue = nullptr;
+    gfx::DescriptorSet *_globalDS{nullptr};
+    const scene::Light *_light{nullptr};
+    gfx::Framebuffer *_framebuffer{nullptr};
+    ShadowMapBatchedQueue *_additiveShadowQueue{nullptr};
+
+    gfx::Rect _renderArea;
 };
 
 } // namespace pipeline

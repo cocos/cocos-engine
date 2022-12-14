@@ -226,7 +226,7 @@ export class Root {
      * @en Whether the built-in deferred pipeline is used.
      * @zh 是否启用内置延迟渲染管线
      */
-    public get useDeferredPipeline () : boolean {
+    public get useDeferredPipeline (): boolean {
         return this._useDeferredPipeline;
     }
 
@@ -335,6 +335,10 @@ export class Root {
         this._curWindow = null;
         this._mainWindow = null;
         this.dataPoolManager.clear();
+
+        if (cclegacy.rendering) {
+            cclegacy.rendering.destroy();
+        }
     }
 
     /**
@@ -359,6 +363,7 @@ export class Root {
      * @returns The setup is successful or not
      */
     public setRenderPipeline (rppl?: RenderPipeline): boolean {
+        const { internal, director, rendering } = cclegacy;
         //-----------------------------------------------
         // prepare classic pipeline
         //-----------------------------------------------
@@ -382,8 +387,8 @@ export class Root {
         //-----------------------------------------------
         // choose pipeline
         //-----------------------------------------------
-        if (macro.CUSTOM_PIPELINE_NAME !== '' && cclegacy.rendering && this.usesCustomPipeline) {
-            this._customPipeline = cclegacy.rendering.createCustomPipeline();
+        if (macro.CUSTOM_PIPELINE_NAME !== '' && rendering && this.usesCustomPipeline) {
+            this._customPipeline = rendering.createCustomPipeline();
             isCreateDefaultPipeline = true;
             this._pipeline = this._customPipeline!;
         } else {
@@ -408,14 +413,14 @@ export class Root {
         //-----------------------------------------------
         // pipeline initialization completed
         //-----------------------------------------------
-        const scene = cclegacy.director.getScene();
+        const scene = director.getScene();
         if (scene) {
             scene.globals.activate();
         }
 
         this.onGlobalPipelineStateChanged();
-        if (!this._batcher && cclegacy.internal.Batcher2D) {
-            this._batcher = new cclegacy.internal.Batcher2D(this);
+        if (!this._batcher && internal.Batcher2D) {
+            this._batcher = new internal.Batcher2D(this);
             if (!this._batcher!.initialize()) {
                 this.destroy();
                 return false;
@@ -460,6 +465,7 @@ export class Root {
      * @param deltaTime @en The delta time since last update. @zh 距离上一帧间隔时间
      */
     public frameMove (deltaTime: number) {
+        const { director, Director } = cclegacy;
         this._frameTime = deltaTime;
 
         /*
@@ -497,7 +503,8 @@ export class Root {
         if (this._pipeline && cameraList.length > 0) {
             this._device.acquire([deviceManager.swapchain]);
             const scenes = this._scenes;
-            const stamp = cclegacy.director.getTotalFrames();
+            const stamp = director.getTotalFrames();
+
             if (this._batcher) {
                 this._batcher.update();
                 this._batcher.uploadBuffers();
@@ -507,14 +514,15 @@ export class Root {
                 scenes[i].update(stamp);
             }
 
-            cclegacy.director.emit(cclegacy.Director.EVENT_BEFORE_COMMIT);
+            director.emit(Director.EVENT_BEFORE_COMMIT);
             cameraList.sort((a: Camera, b: Camera) => a.priority - b.priority);
 
             for (let i = 0; i < cameraList.length; ++i) {
                 cameraList[i].geometryRenderer?.update();
             }
-            cclegacy.director.emit(cclegacy.Director.EVENT_BEFORE_RENDER);
+            director.emit(Director.EVENT_BEFORE_RENDER);
             this._pipeline.render(cameraList);
+            director.emit(Director.EVENT_AFTER_RENDER);
             this._device.present();
         }
 

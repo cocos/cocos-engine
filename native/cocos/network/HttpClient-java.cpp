@@ -601,7 +601,7 @@ void HttpClient::processResponse(HttpResponse *response, char *responseMessage) 
         HttpRequest::Type::PUT != requestType &&
         HttpRequest::Type::HEAD != requestType &&
         HttpRequest::Type::DELETE != requestType) {
-        CC_ASSERT(false);
+        CC_ABORT();
         return;
     }
 

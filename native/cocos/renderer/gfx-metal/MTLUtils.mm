@@ -52,7 +52,7 @@ EShLanguage getShaderStage(ShaderStageFlagBit type) {
         case ShaderStageFlagBit::FRAGMENT: return EShLangFragment;
         case ShaderStageFlagBit::COMPUTE: return EShLangCompute;
         default: {
-            CC_ASSERT(false);
+            CC_ABORT();
             return EShLangVertex;
         }
     }
@@ -64,7 +64,7 @@ glslang::EShTargetClientVersion getClientVersion(int vulkanMinorVersion) {
         case 1: return glslang::EShTargetVulkan_1_1;
         case 2: return glslang::EShTargetVulkan_1_2;
         default: {
-            CC_ASSERT(false);
+            CC_ABORT();
             return glslang::EShTargetVulkan_1_0;
         }
     }
@@ -76,7 +76,7 @@ glslang::EShTargetLanguageVersion getTargetVersion(int vulkanMinorVersion) {
         case 1: return glslang::EShTargetSpv_1_3;
         case 2: return glslang::EShTargetSpv_1_5;
         default: {
-            CC_ASSERT(false);
+            CC_ABORT();
             return glslang::EShTargetSpv_1_0;
         }
     }
@@ -808,7 +808,7 @@ MTLPrimitiveType mu::toMTLPrimitiveType(PrimitiveMode mode) {
         }
         default: {
             //TODO: how to support these mode?
-            CC_ASSERT(false);
+            CC_ABORT();
             return MTLPrimitiveTypeTriangle;
         }
     }

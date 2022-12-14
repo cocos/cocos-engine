@@ -40,7 +40,6 @@ using namespace cc::render;
 //  1. 'Ignore Section' should be placed before attribute definition and %import/%include
 //  2. namespace is needed
 //
-%ignore cc::render::PipelineRuntime::getMacros;
 %ignore cc::render::PipelineRuntime::setValue;
 %ignore cc::render::PipelineRuntime::isOcclusionQueryEnabled;
 %ignore cc::render::PipelineRuntime::resetRenderQueue;
@@ -88,6 +87,7 @@ using namespace cc::render;
 //  4. 'Attribute Section' should be placed before 'Import Section' and 'Include Section'
 //
 %attribute(cc::render::PipelineRuntime, cc::gfx::Device*, device, getDevice);
+%attribute(cc::render::PipelineRuntime, cc::MacroRecord&, macros, getMacros);
 %attribute(cc::render::PipelineRuntime, cc::pipeline::GlobalDSManager*, globalDSManager, getGlobalDSManager);
 %attribute(cc::render::PipelineRuntime, cc::gfx::DescriptorSetLayout*, descriptorSetLayout, getDescriptorSetLayout);
 %attribute(cc::render::PipelineRuntime, cc::gfx::DescriptorSet*, descriptorSet, getDescriptorSet);

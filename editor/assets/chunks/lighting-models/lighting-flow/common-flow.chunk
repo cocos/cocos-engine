@@ -21,7 +21,17 @@
   
         vec3 diffuseLighting, specularLighting;
         CCSurfacesLightingCalculateDirect(diffuseLighting, specularLighting, lightingData, cc_lightColor[i]);
-        
+
+        float fresnel = 1.0;
+      #if CC_SURFACES_LIGHTING_USE_FRESNEL
+        fresnel = lightingResult.fresnel = CCSurfaceLightingCalculateFresnel(lightingData);
+      #endif
+
+      #if CC_SURFACES_LIGHTING_TRANSMIT_SPECULAR
+        vec3 transmitSpecularLighting;
+        CCSurfacesLightingCalculateDirectTransmitSpecular(transmitSpecularLighting, lightingData, cc_lightColor[i]);
+      #endif
+
         float shadow = 1.0;
       #if CC_RECEIVE_SHADOW && CC_SHADOW_TYPE == CC_SHADOW_MAP
         if (cc_lightPos[i].w > 0.0 && cc_lightSizeRangeAngle[i].w > 0.0) {
@@ -54,8 +64,11 @@
         float multiplier = distAtt * angleAtt * shadow;
 
         lightingResult.directDiffuse += diffuseLighting * multiplier;
-        lightingResult.directSpecular += specularLighting * multiplier;
+        lightingResult.directSpecular += specularLighting * multiplier * fresnel;
 
+        #if CC_SURFACES_LIGHTING_TRANSMIT_SPECULAR
+          lightingResult.directTransmitSpecular += transmitSpecularLighting * multiplier * (1.0 - fresnel);
+        #endif
         #if CC_SURFACES_LIGHTING_TRANSMITTENCE
           lightingResult.transmittence = CCSurfacesLightingCalculateDirectTransmittence(lightingResult, lightingData, cc_lightColor[i]);
         #endif
@@ -122,6 +135,15 @@
 
       // apply SSR, local probe & global probe
       CCSurfacesLightingCalculateEnvironment(lightingResult.environmentDiffuse, lightingResult.environmentSpecular, lightingData, cc_ambientSky.w);
+
+      #if CC_SURFACES_LIGHTING_USE_FRESNEL
+        lightingResult.fresnel = CCSurfaceLightingCalculateFresnel(lightingData);
+      #endif
+
+      #if CC_SURFACES_LIGHTING_TRANSMIT_SPECULAR
+        CCSurfacesLightingCalculateDirectTransmitSpecular(lightingResult.directTransmitSpecular, lightingData, cc_mainLitColor);
+        CCSurfacesLightingCalculateEnvironmentTransmitSpecular(lightingResult.environmentTransmitSpecular, lightingData, cc_ambientSky.w);
+      #endif
       
       #if CC_SURFACES_LIGHTING_TRANSMITTENCE
         lightingResult.transmittence = CCSurfacesLightingCalculateDirectTransmittence(lightingResult, lightingData, cc_mainLitColor);
@@ -143,6 +165,11 @@
       #if CC_ENABLE_CLUSTERED_LIGHT_CULLING
         //#include <legacy/shading-cluster-additive>
       #endif
+
+      // user-defined lighting model
+      #ifdef CC_SURFACES_LIGHTING_MODIFY_FINAL_RESULT
+        SurfacesLightingModifyFinalResult(lightingResult, lightingData, surfaceData);
+      #endif      
     }
   #endif
 #endif

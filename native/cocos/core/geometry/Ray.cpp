@@ -40,8 +40,7 @@ Ray *Ray::set(Ray *out, float ox, float oy,
 }
 
 Ray::Ray(float ox, float oy, float oz,
-         float dx, float dy, float dz) {
-    setType(ShapeEnum::SHAPE_RAY);
+         float dx, float dy, float dz) : ShapeBase(ShapeEnum::SHAPE_RAY) {
     o = {ox, oy, oz};
     d = {dx, dy, dz};
 }

@@ -229,8 +229,7 @@ export class b2PhysicsWorld implements IPhysicsWorld {
     syncSceneToPhysics () {
         const bodies = this._bodies;
         for (let i = 0; i < bodies.length; i++) {
-            bodies[i].syncRotationToPhysics();
-            bodies[i].syncPositionToPhysics();
+            bodies[i].syncSceneToPhysics();
         }
     }
 

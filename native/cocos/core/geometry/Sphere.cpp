@@ -97,8 +97,7 @@ Sphere *Sphere::mergeAABB(Sphere *out, const Sphere &s, const AABB &a) {
     return out;
 }
 
-Sphere::Sphere(float cx, float cy, float cz, float radius) {
-    setType(ShapeEnum::SHAPE_SPHERE);
+Sphere::Sphere(float cx, float cy, float cz, float radius):ShapeBase(ShapeEnum::SHAPE_SPHERE) {
     _center = {cx, cy, cz};
     _radius = radius;
 }
@@ -185,7 +184,7 @@ void Sphere::mergeAABB(const AABB *aabb) {
     mergePoint(maxPos);
 }
 
-int Sphere::spherePlane(const Plane &plane) {
+int Sphere::spherePlane(const Plane &plane) const {
     const auto dot = cc::Vec3::dot(plane.n, _center);
     const auto r = _radius * plane.n.length();
     if (dot + r < plane.d) {

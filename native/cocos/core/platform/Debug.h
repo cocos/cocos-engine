@@ -218,7 +218,7 @@ void assertID(bool condition, uint32_t id, Args... optionalParams) {
     int size = sizeof...(optionalParams);
     ccstd::any arr[] = {0, unpackParams(optionalParams)...};
     printLog(DebugMode::INFO, msg, arr, size);
-    CC_ASSERT(false);
+    CC_ABORT();
 }
 
 void _throw(); // NOLINT // throw is a reserved word

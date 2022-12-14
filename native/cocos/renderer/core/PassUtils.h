@@ -113,4 +113,7 @@ bool overrideMacros(MacroRecord &target, const MacroRecord &source);
 
 MaterialProperty toMaterialProperty(gfx::Type type, const ccstd::vector<float> &vec);
 
+bool macroRecordAsBool(const MacroRecord::mapped_type &v);
+ccstd::string macroRecordAsString(const MacroRecord::mapped_type &v);
+
 } // namespace cc

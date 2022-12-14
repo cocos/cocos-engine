@@ -168,6 +168,7 @@ module.exports = {
         shadowOrthoSize: '固定区域大小，该值越大则阴影精度越低',
         shadowAdvancedOptions: '阴影高级选项',
         csmLayersTransition: '是否开启级联阴影层级过渡（提升质量，降低性能）',
+        csmTransitionRange: '级联阴影层级过渡范围(NDC空间: 取值范围为 0 ~ 1)',
     },
     model: {
         shadow_receiving_model: '阴影接受方式',

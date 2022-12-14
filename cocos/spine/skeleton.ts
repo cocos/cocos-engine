@@ -161,7 +161,6 @@ export class Skeleton extends UIRenderer {
     public static AnimationCacheMode = AnimationCacheMode;
     get drawList () { return this._drawList; }
 
-    @override
     protected _updateBuiltinMaterial (): Material {
         const material = builtinResMgr.get<Material>('default-spine-material');
         return material;
@@ -180,7 +179,6 @@ export class Skeleton extends UIRenderer {
         this.markForUpdateRenderData();
     }
 
-    @override
     protected updateMaterial () {
         let mat;
         if (this._customMaterial) mat = this._customMaterial;

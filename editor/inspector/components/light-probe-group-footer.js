@@ -1,3 +1,5 @@
+const { trackEventWithTimer } = require('../utils/metrics');
+
 exports.template = `
 <div class="light-probe-group">
     <ui-button class="box">Edit Area Box</ui-button>
@@ -72,12 +74,15 @@ exports.ready = function() {
                 });
             }
 
+            trackEventWithTimer('bakingSystem', 'A100006');
+
             Editor.Message.send('scene', 'snapshot');
         }
     });
 
     panel.$.edit.addEventListener('confirm', async () => {
         await Editor.Message.request('scene', 'toggle-light-probe-edit-mode', !panel.sceneProbeMode);
+        trackEventWithTimer('bakingSystem', 'A100008');
     });
 
     panel.changeProbeModeBind = panel.changeProbeMode.bind(panel);
@@ -85,6 +90,7 @@ exports.ready = function() {
 
     panel.$.box.addEventListener('confirm', async () => {
         await Editor.Message.request('scene', 'toggle-light-probe-bounding-box-edit-mode', !panel.sceneProbeBoxMode);
+        trackEventWithTimer('bakingSystem', 'A100007');
     });
 
     panel.changeProbeBoxModeBind = panel.changeProbeBoxMode.bind(panel);

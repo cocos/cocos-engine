@@ -55,12 +55,15 @@ public:
     Matrix getCameraProjectionMatrix() const;
     TexCoords getCameraTexCoords() const;
 
+    void enableCameraAutoFocus(bool enable) const;
+    void enableCameraDepth(bool enable) const;
     void setDisplayGeometry(uint32_t rotation, uint32_t width, uint32_t height) const;
     void setCameraClip(float near, float far) const;
     void setCameraTextureName(int id) const;
     void* getCameraTextureRef() const;
     uint8_t* getCameraDepthBuffer() const;
 
+    void enableLightEstimate(bool enable) const;
     LightVal getMainLightDirection() const;
     LightVal getMainLightIntensity() const;
 
@@ -97,7 +100,7 @@ public:
     // image recognition & tracking
     void enableImageTracking(bool enable) const;
     void addImageToLib(const std::string& name) const;
-    void addImageToLibWithSize(const std::string& name, float withInMeters) const;
+    void addImageToLibWithSize(const std::string& name, float widthInMeters) const;
     void setImageMaxTrackingNumber(int number) const;
     float* getAddedImagesInfo() const;
     float* getUpdatedImagesInfo() const;

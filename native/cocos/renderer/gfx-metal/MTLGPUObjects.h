@@ -267,7 +267,7 @@ public:
     }
 
     void clear(uint8_t currentFrameIndex) {
-        CC_ASSERT(currentFrameIndex < MAX_FRAMES_IN_FLIGHT);
+        CC_ASSERT_LT(currentFrameIndex, MAX_FRAMES_IN_FLIGHT);
         while (!_releaseQueue[currentFrameIndex].empty()) {
             auto &&gcFunc = _releaseQueue[currentFrameIndex].front();
             gcFunc();
