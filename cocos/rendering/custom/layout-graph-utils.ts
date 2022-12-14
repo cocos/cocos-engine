@@ -32,6 +32,8 @@ import { DescriptorBlockData, DescriptorData, DescriptorDB, DescriptorSetData, D
 import { LayoutGraphBuilder } from './pipeline';
 import { UpdateFrequency, getUpdateFrequencyName, getDescriptorTypeOrderName, Descriptor, DescriptorBlock, DescriptorBlockFlattened, DescriptorBlockIndex, DescriptorTypeOrder, ParameterType } from './types';
 
+export const INVALID_ID = 0xFFFFFFFF;
+
 // get name of gfx.Type
 function getGfxTypeName (type: Type): string {
     switch (type) {
@@ -1312,6 +1314,11 @@ export function makeDescriptorSetLayoutData (lg: LayoutGraphData,
                 data.uniformBlocks.set(d.descriptorID, ub);
             }
             // update block capacity
+            const binding = data.bindingMap.get(d.descriptorID);
+            if (binding !== undefined) {
+                console.error(`Duplicated descriptor ${d.descriptorID}`);
+            }
+            data.bindingMap.set(d.descriptorID, block.offset + block.capacity);
             block.capacity += d.count;
         }
         // increate total capacity
@@ -1475,31 +1482,6 @@ export function getDescriptorSetLayout (lg: LayoutGraphData,
     return null;
 }
 
-const _emptyDescriptorSetLayoutData = new DescriptorSetLayoutData();
-
-// getDescriptorSetLayoutData from LayoutGraphData
-export function getDescriptorSetLayoutData (lg: LayoutGraphData,
-    passID: number, phaseID: number, rate: UpdateFrequency): DescriptorSetLayoutData {
-    if (rate < UpdateFrequency.PER_PASS) {
-        const phaseData = lg.getLayout(phaseID);
-        const data = phaseData.descriptorSets.get(rate);
-        if (data !== undefined) {
-            return data.descriptorSetLayoutData;
-        }
-        return _emptyDescriptorSetLayoutData;
-    }
-
-    assert(rate === UpdateFrequency.PER_PASS);
-    assert(passID === lg.getParent(phaseID));
-
-    const passData = lg.getLayout(passID);
-    const data = passData.descriptorSets.get(rate);
-    if (data) {
-        return data.descriptorSetLayoutData;
-    }
-    return _emptyDescriptorSetLayoutData;
-}
-
 // get or create DescriptorBlockData from DescriptorSetLayoutData
 export function getOrCreateDescriptorBlockData (data: DescriptorSetLayoutData,
     type: DescriptorType, vis: ShaderStageFlagBit): DescriptorBlockData {
@@ -1512,4 +1494,85 @@ export function getOrCreateDescriptorBlockData (data: DescriptorSetLayoutData,
     const block = new DescriptorBlockData(order, vis);
     data.descriptorBlocks.push(block);
     return block;
+}
+
+export function getProgramID (lg: LayoutGraphData, phaseID: number, programName: string): number {
+    assert(phaseID !== lg.nullVertex());
+    const phase = lg.getRenderPhase(phaseID);
+    const programID = phase.shaderIndex.get(programName);
+    if (programID === undefined) {
+        return INVALID_ID;
+    }
+    return programID;
+}
+
+export function getDescriptorNameID (lg: LayoutGraphData, name: string): number {
+    const nameID = lg.attributeIndex.get(name);
+    if (nameID === undefined) {
+        return INVALID_ID;
+    }
+    return nameID;
+}
+
+export function getDescriptorName (lg: LayoutGraphData, nameID: number): string {
+    if (nameID >= lg.valueNames.length) {
+        return '';
+    }
+    return lg.valueNames[nameID];
+}
+
+export function getPerPassDescriptorSetLayoutData (lg: LayoutGraphData,
+    passID: number): DescriptorSetLayoutData | null {
+    assert(passID !== lg.nullVertex());
+    const node = lg.getLayout(passID);
+    const set = node.descriptorSets.get(UpdateFrequency.PER_PASS);
+    if (set === undefined) {
+        return null;
+    }
+    return set.descriptorSetLayoutData;
+}
+
+export function getPerPhaseDescriptorSetLayoutData (lg: LayoutGraphData,
+    phaseID: number): DescriptorSetLayoutData | null {
+    assert(phaseID !== lg.nullVertex());
+    const node = lg.getLayout(phaseID);
+    const set = node.descriptorSets.get(UpdateFrequency.PER_PHASE);
+    if (set === undefined) {
+        return null;
+    }
+    return set.descriptorSetLayoutData;
+}
+
+export function getPerBatchDescriptorSetLayoutData (lg: LayoutGraphData,
+    phaseID: number, programID): DescriptorSetLayoutData | null {
+    assert(phaseID !== lg.nullVertex());
+    const phase = lg.getRenderPhase(phaseID);
+    assert(programID < phase.shaderPrograms.length);
+    const program = phase.shaderPrograms[programID];
+    const set = program.layout.descriptorSets.get(UpdateFrequency.PER_BATCH);
+    if (set === undefined) {
+        return null;
+    }
+    return set.descriptorSetLayoutData;
+}
+
+export function getPerInstanceDescriptorSetLayoutData (lg: LayoutGraphData,
+    phaseID: number, programID): DescriptorSetLayoutData | null {
+    assert(phaseID !== lg.nullVertex());
+    const phase = lg.getRenderPhase(phaseID);
+    assert(programID < phase.shaderPrograms.length);
+    const program = phase.shaderPrograms[programID];
+    const set = program.layout.descriptorSets.get(UpdateFrequency.PER_INSTANCE);
+    if (set === undefined) {
+        return null;
+    }
+    return set.descriptorSetLayoutData;
+}
+
+export function getBinding (layout: DescriptorSetLayoutData, nameID: number) {
+    const binding = layout.bindingMap.get(nameID);
+    if (binding === undefined) {
+        return 0xFFFFFFFF;
+    }
+    return binding;
 }

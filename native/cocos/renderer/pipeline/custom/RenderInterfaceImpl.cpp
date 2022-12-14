@@ -31,6 +31,14 @@ namespace cc {
 
 namespace render {
 
+void Factory::init(gfx::Device* deviceIn, const ccstd::vector<unsigned char>& bufferIn) {
+
+}
+
+void Factory::destroy() {
+
+}
+
 Pipeline* Factory::createPipeline() {
     return ccnew NativePipeline(boost::container::pmr::get_default_resource());
 }

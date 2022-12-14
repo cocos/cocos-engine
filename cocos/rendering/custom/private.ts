@@ -52,4 +52,7 @@ export interface ProgramLibrary {
     getProgramVariant (device: Device, phaseID: number, name: string, defines: MacroRecord/*, null*/): ProgramProxy | null;
     getBlockSizes (phaseID: number, programName: string): number[];
     getHandleMap (phaseID: number, programName: string): Record<string, number>;
+    getProgramID (phaseID: number, programName: string): number;
+    getDescriptorNameID (name: string): number;
+    getDescriptorName (nameID: number): string;
 }

@@ -33,11 +33,10 @@ import { DescriptorBlockData, DescriptorData, DescriptorSetData, DescriptorSetLa
 import { ProgramLibrary, ProgramProxy } from './private';
 import { DescriptorTypeOrder, UpdateFrequency } from './types';
 import { ProgramGroup, ProgramHost, ProgramInfo, ProgramLibraryData } from './web-types';
-import { getCustomPassID, getCustomPhaseID, getOrCreateDescriptorSetLayout, getEmptyDescriptorSetLayout, getEmptyPipelineLayout, initializeDescriptorSetLayoutInfo, makeDescriptorSetLayoutData, getDescriptorSetLayout, getOrCreateDescriptorBlockData, getDescriptorID, getDescriptorTypeOrder } from './layout-graph-utils';
+import { getCustomPassID, getCustomPhaseID, getOrCreateDescriptorSetLayout, getEmptyDescriptorSetLayout, getEmptyPipelineLayout, initializeDescriptorSetLayoutInfo, makeDescriptorSetLayoutData, getDescriptorSetLayout, getOrCreateDescriptorBlockData, getDescriptorID, getDescriptorTypeOrder, getProgramID, getDescriptorNameID, getDescriptorName, INVALID_ID } from './layout-graph-utils';
 import { assert } from '../../core/platform/debug';
 import { IDescriptorSetLayoutInfo, localDescriptorSetLayout } from '../define';
 
-const INVALID_ID = 0xFFFFFFFF;
 const _setIndex = [2, 1, 3, 0];
 
 // make IProgramInfo from IShaderInfo
@@ -453,6 +452,11 @@ function makeLocalDescriptorSetLayoutData (lg: LayoutGraphData,
         block.offset = b.binding;
         block.descriptors.push(new DescriptorData(nameID, type, b.count));
         data.descriptorBlocks.push(block);
+        const binding = data.bindingMap.get(nameID);
+        if (binding !== undefined) {
+            console.error(`duplicate descriptor name '${name}'`);
+        }
+        data.bindingMap.set(nameID, b.binding);
         const v = source.layouts[name];
         if (v instanceof UniformBlock) {
             data.uniformBlocks.set(nameID, v);
@@ -869,5 +873,14 @@ export class WebProgramLibrary extends ProgramLibraryData implements ProgramLibr
         }
         programData.pipelineLayout = device.createPipelineLayout(info);
         return programData.pipelineLayout;
+    }
+    getProgramID (phaseID: number, programName: string): number {
+        return getProgramID(this.layoutGraph, phaseID, programName);
+    }
+    getDescriptorNameID (name: string): number {
+        return getDescriptorNameID(this.layoutGraph, name);
+    }
+    getDescriptorName (nameID: number): string {
+        return getDescriptorName(this.layoutGraph, nameID);
     }
 }

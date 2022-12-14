@@ -202,6 +202,7 @@ inline void save(OutputArchive& ar, const DescriptorSetLayoutData& v) {
     save(ar, v.capacity);
     save(ar, v.descriptorBlocks);
     save(ar, v.uniformBlocks);
+    save(ar, v.bindingMap);
 }
 
 inline void load(InputArchive& ar, DescriptorSetLayoutData& v) {
@@ -209,6 +210,7 @@ inline void load(InputArchive& ar, DescriptorSetLayoutData& v) {
     load(ar, v.capacity);
     load(ar, v.descriptorBlocks);
     load(ar, v.uniformBlocks);
+    load(ar, v.bindingMap);
 }
 
 inline void save(OutputArchive& ar, const DescriptorSetData& v) {

@@ -327,6 +327,8 @@ public:
 
 class Factory {
 public:
+    static void init(gfx::Device* deviceIn, const ccstd::vector<unsigned char>& bufferIn);
+    static void destroy();
     static Pipeline *createPipeline();
 };
 
