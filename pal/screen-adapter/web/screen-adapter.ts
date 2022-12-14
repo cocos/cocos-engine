@@ -6,7 +6,6 @@ import { EventTarget } from '../../../cocos/core/event/event-target';
 import { Size } from '../../../cocos/core/math';
 import { Orientation } from '../enum-type';
 import legacyCC from '../../../predefine';
-import { settings, Settings } from '../../../cocos/core/settings';
 
 interface ICachedStyle {
     width: string;
@@ -158,6 +157,7 @@ class ScreenAdapter extends EventTarget {
     private _orientationChangeTimeoutId = -1;
     private _cachedFrameSize = new Size(0, 0); // cache before enter fullscreen.
     private _exactFitScreen = false;
+    private _isHeadlessMode = false;
     private _fn = {} as IScreenFunctionName;
     // Function mapping for cross browser support
     private _fnGroup = [
@@ -238,7 +238,7 @@ class ScreenAdapter extends EventTarget {
         }
     }
     private get _windowType (): WindowType {
-        if (settings.querySettings(Settings.Category.RENDERING, 'renderMode') === 3) {
+        if (this._isHeadlessMode) {
             return WindowType.Unknown;
         }
         if (this.isFullScreen) {
@@ -302,6 +302,7 @@ class ScreenAdapter extends EventTarget {
         this._cbToUpdateFrameBuffer = cbToRebuildFrameBuffer;
         this.orientation = orientationMap[options.configOrientation];
         this._exactFitScreen = options.exactFitScreen;
+        this._isHeadlessMode = options.isHeadlessMode;
         this._resizeFrame();
     }
 
