@@ -560,7 +560,7 @@ export class RichText extends Component {
         }
     }
 
-    /**
+   /**
     * @engineInternal
     */
     protected splitLongStringApproximatelyIn2048 (text: string, styleIndex: number) {
@@ -583,7 +583,7 @@ export class RichText extends Component {
                 if (thisPartSize.x < 2048) {
                     partStringArr.push(multilineTexts[i]);
                 } else {
-                    const thisPartSplitResultArr =  this.splitLongStringOver2048(multilineTexts[i], styleIndex);
+                    const thisPartSplitResultArr = this.splitLongStringOver2048(multilineTexts[i], styleIndex);
                     partStringArr.push(...thisPartSplitResultArr);
                 }
             }
@@ -594,7 +594,7 @@ export class RichText extends Component {
     /**
     * @engineInternal
     */
-    protected splitLongStringOver2048 (text: string, styleIndex: number) {
+    protected splitLongStringOver2048(text: string, styleIndex: number) {
         const partStringArr: string[] = [];
         const longStr = text;
 
@@ -665,28 +665,24 @@ export class RichText extends Component {
                 }
             }
 
-            // curStart and curEnd can be float since they are like positions of pointer,
-            // but step must be integer because we split the complete characters of which the unit is integer.
-            // it is reasonable that using the length of this result to estimate the next result.
             partStringArr.push(curString);
-            const partStep = curString.length;
-            curStart = curEnd;
-            curEnd += partStep;
 
-            curString = longStr.substring(curStart, curEnd);
+            // update the left part string & size
             leftString = longStr.substring(curEnd);
             leftStringSize = this._calculateSize(styleIndex, leftString);
-
             leftTryTimes--;
 
             // Exit: If the left part string size is less than 2048, the method will finish.
             if (leftStringSize.x < 2048) {
-                curStart = text.length;
-                curEnd = text.length;
-                curString = leftString;
-                partStringArr.push(curString);
+                partStringArr.push(leftString);
                 break;
             } else {
+                // curStart and curEnd can be float since they are like positions of pointer,
+                // but step must be integer because we split the complete characters of which the unit is integer.
+                // it is reasonable that using the length of this result to estimate the next result.
+                const partStep = curString.length;
+                curStart = curEnd;
+                curEnd += partStep;
                 curStringSize = this._calculateSize(styleIndex, curString);
             }
         }
