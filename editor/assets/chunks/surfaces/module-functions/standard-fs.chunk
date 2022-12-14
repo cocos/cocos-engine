@@ -177,13 +177,13 @@ vec4 CCSurfacesShading(in SurfacesMaterialData surfaceData, in LightingResult li
   ;
   
 #else
-  float fresnel = lightingResult.fresnel;
+  float invFresnel = 1.0 - lightingResult.fresnel;
   
   color.xyz +=
     ( lightingResult.directDiffuse * lightingResult.diffuseColorWithLighting
-    + lightingResult.directSpecular * lightingResult.specularColorWithLighting * fresnel
+    + lightingResult.directSpecular * lightingResult.specularColorWithLighting * lightingResult.fresnel
   #if CC_SURFACES_LIGHTING_TRANSMIT_SPECULAR
-    + lightingResult.directTransmitSpecular * lightingResult.specularColorWithLighting * (1.0 - fresnel)
+    + lightingResult.directTransmitSpecular * lightingResult.specularColorWithLighting * invFresnel
   #endif
   #if CC_SURFACES_LIGHTING_TRANSMITTENCE
     + lightingResult.directTransmittence
@@ -202,9 +202,9 @@ vec4 CCSurfacesShading(in SurfacesMaterialData surfaceData, in LightingResult li
 
   color.xyz +=
     ( lightingResult.environmentDiffuse * lightingResult.diffuseColorWithLighting
-    + lightingResult.environmentSpecular * lightingResult.specularColorWithLighting * fresnel
+    + lightingResult.environmentSpecular * lightingResult.specularColorWithLighting * lightingResult.fresnel
   #if CC_SURFACES_LIGHTING_TRANSMIT_SPECULAR
-    + lightingResult.environmentTransmitSpecular * lightingResult.specularColorWithLighting * (1.0 - fresnel)
+    + lightingResult.environmentTransmitSpecular * lightingResult.specularColorWithLighting * invFresnel
   #endif
   #if CC_SURFACES_LIGHTING_TRANSMITTENCE
     + lightingResult.environmentTransmittence
