@@ -78,7 +78,7 @@ export class LODModelsCachedUtils {
         let isCameraTransformChanged = cameraStateMap.get(camera);
         if (isCameraTransformChanged === undefined) {
             isCameraTransformChanged = true;
-            camera.node.on(NodeEventType.TRANSFORM_CHANGED, onCameraTransformChanged, camera);
+            camera.node.on(NodeEventType.ANCESTOR_TRANSFORM_CHANGED, onCameraTransformChanged, camera);
         }
         let visibleModels = visibleModelsByAnyLODGroup.get(camera);
         if (visibleModels === undefined) {
@@ -98,7 +98,7 @@ export class LODModelsCachedUtils {
                 if (!lodInfo) {
                     lodInfo = new LODInfo();
                     lodInfoMap.set(lodGroup, lodInfo);
-                    lodGroup.node.on(NodeEventType.TRANSFORM_CHANGED, onNodeTransformChanged, lodGroup);
+                    lodGroup.node.on(NodeEventType.ANCESTOR_TRANSFORM_CHANGED, onNodeTransformChanged, lodGroup);
                 }
 
                 const LODLevels = lodGroup.getLockedLODLevels();
@@ -164,13 +164,13 @@ export class LODModelsCachedUtils {
     public static clearCachedLODModels () {
         cameraStateMap.forEach((value, camera) => {
             if (camera.node) { // preview's camera maybe detached from scene
-                camera.node.off(NodeEventType.TRANSFORM_CHANGED, onCameraTransformChanged);
+                camera.node.off(NodeEventType.ANCESTOR_TRANSFORM_CHANGED, onCameraTransformChanged);
             }
         });
         cameraStateMap.clear();
         lodGroupStateMap.forEach((lodInfos, key) => {
             lodInfos.forEach((info, lodGroup) => {
-                lodGroup.node.off(NodeEventType.TRANSFORM_CHANGED, onNodeTransformChanged);
+                lodGroup.node.off(NodeEventType.ANCESTOR_TRANSFORM_CHANGED, onNodeTransformChanged);
             });
         });
         lodGroupStateMap.clear();

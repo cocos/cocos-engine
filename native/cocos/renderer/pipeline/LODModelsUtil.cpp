@@ -33,10 +33,12 @@
 namespace cc {
 namespace pipeline {
 
+namespace {
+
 struct LODInfo {
     int8_t visibleLevel{-1};
     bool needUpdate{true};
-    Node::AncestorTransformChanged::EventID eventId;
+    Node::AncestorTransformChanged::EventID eventId{};
 };
 
 /**
@@ -63,6 +65,8 @@ ccstd::unordered_map<const scene::Camera *, ccstd::unordered_map<const scene::LO
  */
 ccstd::unordered_map<const scene::Camera *, std::tuple<bool, Node::AncestorTransformChanged::EventID>> cameraStateMap;
 
+} // namespace
+
 void LODModelsCachedUtils::updateCachedLODModels(const scene::RenderScene *scene, const scene::Camera *camera) {
     bool isCameraTransformChanged = false;
     if (cameraStateMap.count(camera) == 0) {
@@ -77,7 +81,7 @@ void LODModelsCachedUtils::updateCachedLODModels(const scene::RenderScene *scene
 
     for (const auto &lodGroup : scene->getLODGroups()) {
         if (lodGroup->isEnabled()) {
-            bool lodInfoExist = lodInfoMap.find(lodGroup) != lodInfoMap.end();
+            bool lodInfoExist = lodInfoMap.count(lodGroup) > 0;
             auto &lodInfo = lodInfoMap[lodGroup];
             if (!lodInfoExist) {
                 lodInfo.eventId = lodGroup->getNode()->on<cc::Node::AncestorTransformChanged>(
