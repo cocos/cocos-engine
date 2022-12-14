@@ -43,3 +43,28 @@ vec3 CalculateReflectDirection(vec3 N, vec3 V, float NoV)
   N *= sideSign;
   return reflect(-V, N);
 }
+
+// for bumped planar reflection
+vec3 CalculatePlanarReflectPositionOnPlane(vec3 N, vec3 V, vec3 worldPos, vec4 plane, vec3 cameraPos, float probeReflectedDepth)
+{
+  float distPixelToPlane = -dot(plane, vec4(worldPos, 1.0));
+  // bring plane to worldPos, avoid artifacts when reflected point away from plane (do not bring worldPos to plane)
+  plane.w += distPixelToPlane;
+  float distCameraToPlane = abs(-dot(plane, vec4(cameraPos, 1.0)));
+  vec3 planeN = plane.xyz;
+  vec3 virtualCameraPos = cameraPos - 2.0 * distCameraToPlane * planeN;
+  /*support for two-sided reflections
+  float sideSignPlaneN = dot(planeN, V) < 0.0 ? -1.0 : 1.0;
+  float sideSignN = dot(N, V) < 0.0 ? -1.0 : 1.0;
+  planeN *= sideSignPlaneN;
+  N *= sideSignN;*/
+  vec3 bumpedR = normalize(reflect(-V, N)); //R'  
+
+  // actually reflected pos alone bumpedR direction, avoid tracing by specified a fake depth
+  vec3 reflectedPointPos = worldPos + probeReflectedDepth * bumpedR;
+  vec3 virtualCameraToReflectedPoint = normalize(reflectedPointPos - virtualCameraPos);
+
+  // the ray from virtual camera to reflected point, will intersect with plane on P'
+  float y = distCameraToPlane / max(EPSILON_LOWP, dot(planeN, virtualCameraToReflectedPoint));
+  return virtualCameraPos + y * virtualCameraToReflectedPoint;
+}

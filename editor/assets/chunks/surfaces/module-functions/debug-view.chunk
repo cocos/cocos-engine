@@ -100,7 +100,8 @@ vec4 CCSurfacesDebugDisplayInvalidInputData(vec4 color, vec3 data)
 #if CC_USE_DEBUG_VIEW == CC_SURFACES_DEBUG_VIEW_SINGLE
   bool CCSurfacesDebugViewLightingResult(inout vec4 color, in LightingResult lightingResult)
   {
-      bool isDebugMatched = false;
+    // display origin data while not matched, otherwise display tone-mapped sRGB color
+    bool isDebugMatched = false;
     if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_DIRECT_DIFFUSE))
     {
         color.rgb = lightingResult.directDiffuse * lightingResult.diffuseColorWithLighting;
@@ -152,14 +153,59 @@ vec4 CCSurfacesDebugDisplayInvalidInputData(vec4 color, vec3 data)
     if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_AO))
     {
         color.rgb = vec3(lightingResult.ao);
-        isDebugMatched = true;
+        isDebugMatched = false;
     }
     
     if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_SHADOW))
     {
         color.rgb = vec3(lightingResult.shadow);
-        isDebugMatched = true;
+        isDebugMatched = false;
     }
+
+    if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_FRESNEL))
+    {
+        color.rgb = vec3(lightingResult.fresnel);
+        isDebugMatched = false;
+    }
+
+  #if CC_SURFACES_LIGHTING_TRANSMIT_SPECULAR
+    if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_TRANSMIT_DIRECT_SPECULAR))
+    {
+        color.rgb = lightingResult.directTransmitSpecular;
+        isDebugMatched = false;
+    }
+    if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_TRANSMIT_ENV_SPECULAR))
+    {
+        color.rgb = lightingResult.environmentTransmitSpecular;
+        isDebugMatched = false;
+    }
+  #endif
+
+  #if CC_SURFACES_LIGHTING_TRANSMITTENCE
+    if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_TRANSMIT_DIRECT_DIFFUSE))
+    {
+        color.rgb = lightingResult.directTransmittence;
+        isDebugMatched = false;
+    }
+    if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_TRANSMIT_ENV_DIFFUSE))
+    {
+        color.rgb = lightingResult.environmentTransmittence;
+        isDebugMatched = false;
+    }
+  #endif
+
+  #if CC_SURFACES_LIGHTING_TRT
+    if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_TRT_DIRECT))
+    {
+        color.rgb = lightingResult.directTRT;
+        isDebugMatched = false;
+    }
+    if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_TRT_ENVIRONMENT))
+    {
+        color.rgb = lightingResult.environmentTRT;
+        isDebugMatched = false;
+    }
+  #endif
 
     return isDebugMatched;
   }

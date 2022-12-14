@@ -34,8 +34,11 @@ void CCSurfacesFragmentGetMaterialData(inout SurfacesMaterialData surfaceData)
   surfaceData.metallic = pbr.z;
   surfaceData.specularIntensity = pbr.w;
 
+#if CC_SURFACES_LIGHTING_TRANSMIT_SPECULAR || CC_SURFACES_LIGHTING_TRANSMITTENCE
+  SurfacesFragmentModifyTransmitParams(surfaceData.transmitParams, surfaceData.inScatteringColorAndIntensity);
+#endif
 #if CC_SURFACES_LIGHTING_TRANSMITTENCE
-  surfaceData.transmittenceParams =SurfacesFragmentModifytransmittenceParamss();
+  surfaceData.transmittenceParams = SurfacesFragmentModifyTransmittenceParams();
 #endif
 #if CC_SURFACES_LIGHTING_TRT
   vec4 trt = SurfacesFragmentModifyTRTParams();
@@ -94,13 +97,18 @@ void CCSurfacesInitializeLightingIntermediateData(inout LightingIntermediateData
   );
   lightingData.specularParam = surfaceData.roughness;
   lightingData.ior = surfaceData.ior;
+
+#if CC_SURFACES_LIGHTING_TRANSMIT_SPECULAR || CC_SURFACES_LIGHTING_TRANSMITTENCE
+  lightingData.inScatteringColorAndIntensity = surfaceData.inScatteringColorAndIntensity;
+  lightingData.transmitParams = surfaceData.transmitParams;
+#endif
+#if CC_SURFACES_LIGHTING_TRANSMITTENCE
+  lightingData.transmittenceParams = surfaceData.transmittenceParams;
+#endif
 }
 void CCSurfacesLightingCalculateIntermediateData_PerLight(inout LightingIntermediateData lightingData, in SurfacesMaterialData surfaceData, vec3 lightDirWithDist)
 {
   CCSurfacesLightingGetIntermediateData_PerLight(lightingData, lightDirWithDist);
-#if CC_SURFACES_LIGHTING_TRANSMITTENCE
-  lightingData.transmittenceParams = surfaceData.transmittenceParams;
-#endif
 }
 
 // pass original lightingData, get TRT lightingData
@@ -113,11 +121,27 @@ void CCSurfacesGetLightingIntermediateDataTRT(out LightingIntermediateData light
 #endif
 
 
-// Copy material data to lighting results
+// Copy material data to lighting results for base pass
 void CCSurfacesInitializeLightingResult(inout LightingResult lightingResult, in SurfacesMaterialData surfaceData)
 {
   lightingResult.ao = surfaceData.ao;
   lightingResult.emissive = surfaceData.emissive;
+}
+
+// Init accumulated lighting results for additive pass
+void CCSurfacesInitializeLightingResult(inout LightingResult lightingResult)
+{
+  lightingResult.directDiffuse = lightingResult.directSpecular = vec3(0.0);
+
+#if CC_SURFACES_LIGHTING_TRANSMIT_SPECULAR
+  lightingResult.directTransmitSpecular = vec3(0.0);
+#endif
+#if CC_SURFACES_LIGHTING_TRANSMITTENCE
+  lightingResult.directTransmittence = vec3(0.0);
+#endif
+#if CC_SURFACES_LIGHTING_TRT
+  lightingResult.directTRT = vec3(0.0);
+#endif
 }
 
 
@@ -153,11 +177,8 @@ vec4 CCSurfacesShading(in SurfacesMaterialData surfaceData, in LightingResult li
   ;
   
 #else
-  float fresnel = 1.0;
-  #if CC_SURFACES_LIGHTING_USE_FRESNEL
-    fresnel = lightingResult.fresnel;
-  #endif
-
+  float fresnel = lightingResult.fresnel;
+  
   color.xyz +=
     ( lightingResult.directDiffuse * lightingResult.diffuseColorWithLighting
     + lightingResult.directSpecular * lightingResult.specularColorWithLighting * fresnel
@@ -245,6 +266,10 @@ void CCSurfacesDebugViewSurfaceData(inout vec4 color, in SurfacesMaterialData su
     }
     if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_SPECULAR_INTENSITY)) {
         scalar = surfaceData.specularIntensity;
+        color = vec4(scalar, scalar, scalar, 1.0);
+    }
+    if (IS_DEBUG_VIEW_SINGLE_MODE(CC_SURFACES_DEBUG_VIEW_IOR)) {
+        scalar = surfaceData.ior;
         color = vec4(scalar, scalar, scalar, 1.0);
     }
 }

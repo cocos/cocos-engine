@@ -21,9 +21,13 @@ struct LightingIntermediateData
   float anisotropyShape;
 #endif
 
+#if CC_SURFACES_LIGHTING_TRANSMIT_SPECULAR || CC_SURFACES_LIGHTING_TRANSMITTENCE
+  vec4 inScatteringColorAndIntensity;
+  vec4 transmitParams; //x: extinction coef   y: transmit distance(water depth, leaf thickness) zw: scatter parameters for in-scattering
+#endif
 #if CC_SURFACES_LIGHTING_TRANSMITTENCE
   vec4 shadowPosAndDepth; //xy: shadowmap uv, z: camera depth from pixel LVP, w: camera depth from shadowmap
-  vec4 transmittenceParams; //zw: min/max DepthWS for shadowmap and 0 means disable shadow transmit,  x: transmit coef, y: additional transmit depth mask, 可补充shadowmap cover不到的地方，也可以在minmax屏蔽掉shadowmap之后给专门的薄片穿透
+  vec4 transmittenceParams; //zw: min/max DepthWS for shadowmap transmit and 0 means disable shadow transmit, x: transmit irradiance apply shadow, y: additional transmit depth mask, 可补充shadowmap cover不到的地方，也可以在minmax屏蔽掉shadowmap之后给专门的薄片穿透
 #endif
   // #if CC_SURFACES_LIGHTING_SPECULAR_2ND
   // float specularParam2nd, specularIntensity2nd, specularRotation2nd; // for hair
@@ -60,6 +64,10 @@ void CCSurfacesLightingGetIntermediateData_PerPixel(inout LightingIntermediateDa
 
 #if CC_SURFACES_LIGHTING_ANISOTROPIC
   data.anisotropyShape = anisotropyShape;
+#endif
+#if CC_SURFACES_LIGHTING_TRANSMIT_SPECULAR || CC_SURFACES_LIGHTING_TRANSMITTENCE
+  data.inScatteringColorAndIntensity = vec4(0.0);
+  data.transmitParams = vec4(0.0);
 #endif
 #if CC_SURFACES_LIGHTING_TRANSMITTENCE
   data.shadowPosAndDepth = vec4(0.0, 0.0, 999999.0, 999999.0);
