@@ -16,7 +16,12 @@ declare module 'pal/screen-adapter' {
          * Determine whether the game frame exact fits the screen.
          * Now it only works on Web platform.
          */
-        exactFitScreen: boolean,
+        exactFitScreen: boolean;
+
+        /**
+         * Determine whether use headless renderer, which means do not support some screen operations.
+         */
+        isHeadlessMode: boolean;
     }
 
     class ScreenAdapter {
