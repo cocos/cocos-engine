@@ -24,17 +24,16 @@
  */
 
 import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
-import { pseudoRandom } from '../../core/math';
-import { Particle, PARTICLE_MODULE_NAME, ParticleModuleBase } from '../particle';
+import { Color, pseudoRandom } from '../../core/math';
+import { Particle, PARTICLE_MODULE_NAME, ParticleModule } from '../particle';
 import GradientRange from './gradient-range';
 import { ModuleRandSeed } from '../enum';
+import { ParticleSOA } from '../particle-soa';
 
 const COLOR_OVERTIME_RAND_OFFSET = ModuleRandSeed.COLOR;
 
 @ccclass('cc.ColorOvertimeModule')
-export default class ColorOvertimeModule extends ParticleModuleBase {
-    @serializable
-    _enable = false;
+export default class ColorOvertimeModule extends ParticleModule {
     /**
      * @zh 是否启用。
      */
@@ -44,10 +43,7 @@ export default class ColorOvertimeModule extends ParticleModuleBase {
     }
 
     public set enable (val) {
-        if (this._enable === val) return;
         this._enable = val;
-        if (!this.target) return;
-        this.target.enableModule(this.name, val, this);
     }
 
     /**
@@ -58,9 +54,53 @@ export default class ColorOvertimeModule extends ParticleModuleBase {
     @displayOrder(1)
     public color = new GradientRange();
     public name = PARTICLE_MODULE_NAME.COLOR;
+    @serializable
+    private _enable = false;
 
-    public animate (particle: Particle) {
-        particle.color.set(particle.startColor);
-        particle.color.multiply(this.color.evaluate(1.0 - particle.remainingLifetime / particle.startLifetime, pseudoRandom(particle.randomSeed + COLOR_OVERTIME_RAND_OFFSET)));
+    public update (particles: ParticleSOA) {
+        const count = particles.count;
+        const tempColor = new Color();
+        if (this.color.mode === GradientRange.Mode.Color) {
+            const color = this.color.color;
+            const { startColor, color: dest } = particles;
+            for (let i = 0; i < count; i++) {
+                Color.fromUint32(tempColor, startColor[i]);
+                dest[i] = Color.toUint32(tempColor.multiply(color));
+            }
+        } else if (this.color.mode === GradientRange.Mode.Gradient) {
+            const color = this.color.gradient;
+            const { startColor, color: dest, normalizedAliveTime } = particles;
+            for (let i = 0; i < count; i++) {
+                Color.fromUint32(tempColor, startColor[i]);
+                dest[i] = Color.toUint32(tempColor.multiply(color.evaluate(normalizedAliveTime[i])));
+            }
+        } else if (this.color.mode === GradientRange.Mode.RandomColor) {
+            const color = this.color.gradient;
+            const { startColor, color: dest } = particles;
+            for (let i = 0; i < count; i++) {
+                Color.fromUint32(tempColor, startColor[i]);
+                dest[i] = Color.toUint32(tempColor.multiply(color.randomColor()));
+            }
+        } else if (this.color.mode === GradientRange.Mode.TwoColors) {
+            const tempColor2 = new Color();
+            const { colorMax, colorMin } = this.color;
+            const { startColor, color: dest, randomSeed } = particles;
+            for (let i = 0; i < count; i++) {
+                Color.fromUint32(tempColor, startColor[i]);
+                dest[i] = Color.toUint32(tempColor.multiply(Color.lerp(tempColor2, colorMin,
+                    colorMax, pseudoRandom(randomSeed[i] + COLOR_OVERTIME_RAND_OFFSET))));
+            }
+        } else {
+            const tempColor2 = new Color();
+            const { gradientMin, gradientMax } = this.color;
+            const { startColor, color: dest, randomSeed, normalizedAliveTime } = particles;
+            for (let i = 0; i < count; i++) {
+                Color.fromUint32(tempColor, startColor[i]);
+                dest[i] = Color.toUint32(tempColor.multiply(Color.lerp(tempColor2,
+                    gradientMin.evaluate(normalizedAliveTime[i]),
+                    gradientMax.evaluate(normalizedAliveTime[i]),
+                    pseudoRandom(randomSeed[i] + COLOR_OVERTIME_RAND_OFFSET))));
+            }
+        }
     }
 }

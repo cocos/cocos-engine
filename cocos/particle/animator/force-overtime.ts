@@ -48,10 +48,7 @@ export default class ForceOvertimeModule extends ParticleModuleBase {
     }
 
     public set enable (val) {
-        if (this._enable === val) return;
         this._enable = val;
-        if (!this.target) return;
-        this.target.enableModule(this.name, val, this);
     }
 
     /**
@@ -104,7 +101,6 @@ export default class ForceOvertimeModule extends ParticleModuleBase {
         super();
         this.rotation = new Quat();
         this.needTransform = false;
-        this.needUpdate = true;
     }
 
     public update (space, worldTransform) {

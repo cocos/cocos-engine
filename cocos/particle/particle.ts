@@ -24,6 +24,7 @@
  */
 
 import { Color, Vec3, Mat4, Quat } from '../core/math';
+import { ParticleSOA } from './particle-soa';
 import { ParticleSystem } from './particle-system';
 import { IParticleSystemRenderer } from './renderer/particle-system-renderer-base';
 
@@ -136,27 +137,7 @@ export const PARTICLE_MODULE_PROPERTY = [
     '_noiseModule',
     '_trailModule',
 ];
-
-export interface IParticleModule {
-    target: IParticleSystemRenderer | null;
-    needUpdate: boolean;
-    needAnimate: boolean;
-    name: string;
-    bindTarget (target: any): void;
-    update (space: number, trans: Mat4): void;
-    animate (p: Particle, dt?: number): void;
-}
-
-export abstract class ParticleModuleBase implements IParticleModule {
-    public target:IParticleSystemRenderer | null = null;
-    public needUpdate = false;
-    public needAnimate = true;
-
-    public bindTarget (target: IParticleSystemRenderer) {
-        this.target = target;
-    }
-
-    public update (space: number, trans: Mat4) {}
+export abstract class ParticleModule {
+    public update (particles: ParticleSOA) {}
     public abstract name: string;
-    public abstract animate (p: Particle, dt?: number): void;
 }

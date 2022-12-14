@@ -28,10 +28,11 @@ import { Attribute, deviceManager, Feature } from '../../core/gfx';
 import ParticleBatchModel from '../models/particle-batch-model';
 import ParticleSystemRenderer from './particle-system-renderer-data';
 import { Material } from '../../core/assets';
-import { Particle, IParticleModule } from '../particle';
+import { Particle } from '../particle';
 import { RenderMode } from '../enum';
 import { legacyCC } from '../../core/global-exports';
 import { Pass } from '../../core/renderer';
+import { ParticleHandle } from '../particle-soa';
 
 export interface IParticleSystemRenderer {
     onInit (ps: Component): void;
@@ -50,14 +51,13 @@ export interface IParticleSystemRenderer {
     onMaterialModified (index: number, material: Material): void;
     onRebuildPSO (index: number, material: Material) : void;
     getParticleCount (): number;
-    getFreeParticle (): Particle | null;
+    getFreeParticle (): ParticleHandle;
     setNewParticle (p: Particle): void;
     getDefaultMaterial(): Material | null;
     updateRotation (pass: Pass | null): void;
     updateScale (pass: Pass | null): void;
     updateParticles (dt: number): number;
     updateRenderData (): void;
-    enableModule (name: string, val: boolean, pm: IParticleModule): void;
     updateTrailMaterial (): void;
     getDefaultTrailMaterial (): any;
     beforeRender (): void;
@@ -157,7 +157,7 @@ export abstract class ParticleSystemRendererBase implements IParticleSystemRende
     public updateTrailMaterial () {}
     public getDefaultTrailMaterial () { return null; }
     public abstract getParticleCount () : number;
-    public abstract getFreeParticle (): Particle | null;
+    public abstract getFreeParticle (): ParticleHandle;
     public abstract onMaterialModified (index: number, material: Material) : void;
     public abstract onRebuildPSO (index: number, material: Material) : void;
     public abstract updateVertexAttrib (): void;
@@ -169,7 +169,6 @@ export abstract class ParticleSystemRendererBase implements IParticleSystemRende
     public abstract updateScale (pass: Pass | null): void;
     public abstract updateParticles (dt: number): number;
     public abstract updateRenderData (): void;
-    public abstract enableModule (name: string, val: boolean, pm: IParticleModule): void;
     public abstract beforeRender (): void;
     public abstract setUseInstance (value: boolean): void;
     public abstract getNoisePreview (out: number[], width: number, height: number): void;

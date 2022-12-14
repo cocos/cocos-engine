@@ -28,10 +28,10 @@ import { CCFloat, CCInteger } from '../../core';
 import { range, rangeStep, slide, visible } from '../../core/data/decorators/editable';
 import { Vec3 } from '../../core/math';
 import { ParticleNoise } from '../noise';
-import { Particle, PARTICLE_MODULE_NAME, ParticleModuleBase } from '../particle';
+import { Particle, PARTICLE_MODULE_NAME, ParticleModule } from '../particle';
 
 @ccclass('cc.NoiseModule')
-export class NoiseModule extends ParticleModuleBase {
+export class NoiseModule extends ParticleModule {
     @serializable
     _enable = false;
     /**
@@ -43,10 +43,7 @@ export class NoiseModule extends ParticleModuleBase {
     }
 
     public set enable (val) {
-        if (this._enable === val) return;
         this._enable = val;
-        if (!this.target) return;
-        this.target.enableModule(this.name, val, this);
     }
 
     @type(CCFloat)

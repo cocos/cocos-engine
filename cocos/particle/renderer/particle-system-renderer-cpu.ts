@@ -32,7 +32,7 @@ import { RecyclePool } from '../../core/memop';
 import { MaterialInstance, IMaterialInstanceInfo } from '../../core/renderer/core/material-instance';
 import { MacroRecord } from '../../core/renderer/core/pass-utils';
 import { AlignmentSpace, RenderMode, Space } from '../enum';
-import { Particle, IParticleModule, PARTICLE_MODULE_ORDER, PARTICLE_MODULE_NAME } from '../particle';
+import { Particle, ParticleModule, PARTICLE_MODULE_ORDER, PARTICLE_MODULE_NAME } from '../particle';
 import { ParticleSystemRendererBase } from './particle-system-renderer-base';
 import { Component } from '../../core';
 import { Camera } from '../../core/renderer/scene/camera';
@@ -40,7 +40,9 @@ import { Pass } from '../../core/renderer';
 import { ParticleNoise } from '../noise';
 import { NoiseModule } from '../animator/noise-module';
 import { legacyCC } from '../../core/global-exports';
-import { ParticleSOA } from '../particle-soa';
+import { INVALID_HANDLE, ParticleSOA } from '../particle-soa';
+
+type ParticleHandle = number;
 
 const _tempAttribUV = new Vec3();
 const _tempWorldTrans = new Mat4();
@@ -217,11 +219,11 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         super.onDestroy();
     }
 
-    public getFreeParticle (): Particle | null {
+    public getFreeParticle (): ParticleHandle {
         if (this._particles.count >= this._particleSystem.capacity) {
-            return null;
+            return INVALID_HANDLE;
         }
-        return this._particles.add() as Particle;
+        return this._particles.addParticle();
     }
 
     public getDefaultTrailMaterial (): any {
@@ -253,31 +255,6 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
                 this._runAnimateList.push(p);
             }
         }
-    }
-
-    public enableModule (name: string, val: boolean, pm: IParticleModule) {
-        if (val) {
-            if (pm.needUpdate) {
-                this._updateList[pm.name] = pm;
-            }
-
-            if (pm.needAnimate) {
-                this._animateList[pm.name] = pm;
-            }
-        } else {
-            delete this._animateList[name];
-            delete this._updateList[name];
-        }
-        // reorder
-        this._runAnimateList.length = 0;
-        for (let i = 0, len = PARTICLE_MODULE_ORDER.length; i < len; i++) {
-            const p = this._animateList[PARTICLE_MODULE_ORDER[i]];
-            if (p) {
-                this._runAnimateList.push(p);
-            }
-        }
-
-        this.updateMaterialParams();
     }
 
     public updateAlignSpace (space) {
@@ -348,9 +325,10 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
     private noise: ParticleNoise = new ParticleNoise();
 
     public updateParticles (dt: number) {
+        this.updateMaterialParams();
         const ps = this._particleSystem;
         if (!ps) {
-            return this._particles.length;
+            return this._particles.count;
         }
         ps.node.getWorldMatrix(_tempWorldTrans);
         const mat: Material | null = ps.getMaterialInstance(0) || this._defaultMat;
@@ -378,10 +356,9 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
             ps.node.parent.getWorldMatrix(_tempParentInverse);
             _tempParentInverse.invert();
         }
-
-        for (let i = 0; i < this._particles.length; ++i) {
-            const p = this._particles.data[i];
-            p.remainingLifetime -= dt;
+        const { normalizedAliveTime } = this._particles;
+        for (let i = 0, length = this._particles.count; i < length; ++i) {
+            normalizedAliveTime[i] -= dt;
             Vec3.set(p.animatedVelocity, 0, 0, 0);
 
             if (p.remainingLifetime < 0.0) {
@@ -392,42 +369,42 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
                 --i;
                 continue;
             }
-
-            if (ps.simulationSpace === Space.Local) {
-                const gravityFactor = -ps.gravityModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, pseudoRandom(p.randomSeed))! * 9.8 * dt;
-                this._gravity.x = 0.0;
-                this._gravity.y = gravityFactor;
-                this._gravity.z = 0.0;
-                this._gravity.w = 1.0;
-                if (!approx(gravityFactor, 0.0, EPSILON)) {
-                    if (ps.node.parent) {
-                        this._gravity = this._gravity.transformMat4(_tempParentInverse);
-                    }
-                    this._gravity = this._gravity.transformMat4(this._localMat);
-
-                    p.velocity.x += this._gravity.x;
-                    p.velocity.y += this._gravity.y;
-                    p.velocity.z += this._gravity.z;
-                }
-            } else {
-                // apply gravity.
-                p.velocity.y -= ps.gravityModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, pseudoRandom(p.randomSeed))! * 9.8 * dt;
-            }
-
-            Vec3.copy(p.ultimateVelocity, p.velocity);
-
-            this._runAnimateList.forEach((value) => {
-                value.animate(p, dt);
-            });
-
-            Vec3.scaleAndAdd(p.position, p.position, p.ultimateVelocity, dt); // apply velocity.
-            if (trailEnable) {
-                trailModule.animate(p, dt);
-            }
         }
 
-        this._model!.enabled = this._particles.length > 0;
-        return this._particles.length;
+        if (ps.simulationSpace === Space.Local) {
+            const gravityFactor = -ps.gravityModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, pseudoRandom(p.randomSeed))! * 9.8 * dt;
+            this._gravity.x = 0.0;
+            this._gravity.y = gravityFactor;
+            this._gravity.z = 0.0;
+            this._gravity.w = 1.0;
+            if (!approx(gravityFactor, 0.0, EPSILON)) {
+                if (ps.node.parent) {
+                    this._gravity = this._gravity.transformMat4(_tempParentInverse);
+                }
+                this._gravity = this._gravity.transformMat4(this._localMat);
+
+                p.velocity.x += this._gravity.x;
+                p.velocity.y += this._gravity.y;
+                p.velocity.z += this._gravity.z;
+            }
+        } else {
+            // apply gravity.
+            p.velocity.y -= ps.gravityModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, pseudoRandom(p.randomSeed))! * 9.8 * dt;
+        }
+
+        Vec3.copy(p.ultimateVelocity, p.velocity);
+
+        this._runAnimateList.forEach((value) => {
+            value.animate(p, dt);
+        });
+
+        Vec3.scaleAndAdd(p.position, p.position, p.ultimateVelocity, dt); // apply velocity.
+        if (trailEnable) {
+            trailModule.animate(p, dt);
+        }
+
+        this._model!.enabled = this._particles.count > 0;
+        return this._particles.count;
     }
 
     public getNoisePreview (out: number[], width: number, height: number) {

@@ -26,16 +26,14 @@
 
 import { ccclass, tooltip, displayOrder, range, type, radian, serializable, visible } from 'cc.decorator';
 import { Mat4, pseudoRandom, Quat, Vec4, Vec3 } from '../../core/math';
-import { Particle, ParticleModuleBase, PARTICLE_MODULE_NAME } from '../particle';
+import { Particle, ParticleModule, PARTICLE_MODULE_NAME } from '../particle';
 import CurveRange from './curve-range';
 import { ModuleRandSeed, RenderMode } from '../enum';
 
 const ROTATION_OVERTIME_RAND_OFFSET = ModuleRandSeed.ROTATION;
 
 @ccclass('cc.RotationOvertimeModule')
-export default class RotationOvertimeModule extends ParticleModuleBase {
-    @serializable
-    _enable = false;
+export default class RotationOvertimeModule extends ParticleModule {
     /**
      * @zh 是否启用。
      */
@@ -45,14 +43,13 @@ export default class RotationOvertimeModule extends ParticleModuleBase {
     }
 
     public set enable (val) {
-        if (this._enable === val) return;
         this._enable = val;
-        if (!this.target) return;
-        this.target.enableModule(this.name, val, this);
     }
 
     @serializable
     private _separateAxes = false;
+    @serializable
+    private _enable = false;
 
     /**
      * @zh 是否三个轴分开设定旋转（暂不支持）。

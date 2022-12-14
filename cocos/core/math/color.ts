@@ -243,6 +243,15 @@ export class Color extends ValueType {
         return out;
     }
 
+    public static fromUint32<Out extends IColorLike> (out: Out, uint32: number) {
+        out._val = uint32;
+        return out;
+    }
+
+    public static toUint32<Out extends IColorLike> (out: Out): number {
+        return out._val;
+    }
+
     /**
      * @en Check whether the two given colors are identical
      * @zh 颜色等价判断

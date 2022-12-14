@@ -26,7 +26,7 @@
 import { ccclass, tooltip, displayOrder, type, formerlySerializedAs, serializable, range } from 'cc.decorator';
 import { lerp, pseudoRandom, repeat } from '../../core/math';
 import { Enum } from '../../core/value-types';
-import { Particle, ParticleModuleBase, PARTICLE_MODULE_NAME } from '../particle';
+import { Particle, ParticleModule, PARTICLE_MODULE_NAME } from '../particle';
 import CurveRange from './curve-range';
 import { ModuleRandSeed } from '../enum';
 
@@ -65,15 +65,15 @@ const Animation = Enum({
 });
 
 @ccclass('cc.TextureAnimationModule')
-export default class TextureAnimationModule extends ParticleModuleBase {
+export default class TextureAnimationModule extends ParticleModule {
     @serializable
     private _enable = false;
-
     @formerlySerializedAs('numTilesX')
     private _numTilesX = 0;
-
     @formerlySerializedAs('numTilesY')
     private _numTilesY = 0;
+    @serializable
+    private _mode = Mode.Grid;
 
     /**
      * @zh 是否启用。
@@ -84,15 +84,8 @@ export default class TextureAnimationModule extends ParticleModuleBase {
     }
 
     set enable (val) {
-        if (this._enable === val) return;
         this._enable = val;
-        if (!this.target) return;
-        this.target.updateMaterialParams();
-        this.target.enableModule(this.name, val, this);
     }
-
-    @type(Mode)
-    private _mode = Mode.Grid;
 
     /**
      * @zh 设定粒子贴图动画的类型（暂只支持 Grid 模式）[[Mode]]。
@@ -120,10 +113,7 @@ export default class TextureAnimationModule extends ParticleModuleBase {
     }
 
     set numTilesX (val) {
-        if (this._numTilesX !== val) {
-            this._numTilesX = val;
-            this.target!.updateMaterialParams();
-        }
+        this._numTilesX = val;
     }
 
     /**
@@ -136,10 +126,7 @@ export default class TextureAnimationModule extends ParticleModuleBase {
     }
 
     set numTilesY (val) {
-        if (this._numTilesY !== val) {
-            this._numTilesY = val;
-            this.target!.updateMaterialParams();
-        }
+        this._numTilesY = val;
     }
 
     /**
