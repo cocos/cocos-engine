@@ -161,16 +161,6 @@ export enum NodeEventType {
 
     /**
      * @en
-     * The event type for position, rotation, scale changed of ancestor nodes including current node.
-     * Use the type parameter as `Node.TransformBit` to check which part is changed
-     *
-     * @zh
-     * 祖先或当前节点改变位置、旋转或缩放事件。如果具体需要判断是哪一个事件，可通过判断回调的第一个参数类型是 `Node.TransformBit` 中的哪一个来获取
-     */
-    ANCESTOR_TRANSFORM_CHANGED = 'ancestor-transform-changed',
-
-    /**
-     * @en
      * The event occur when mobility changed.
      * @zh
      * 当可移动性改变时触发的事件

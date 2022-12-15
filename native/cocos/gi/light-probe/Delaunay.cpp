@@ -48,7 +48,7 @@ void CircumSphere::init(const Vec3 &p0, const Vec3 &p1, const Vec3 &p2, const Ve
 #else
     Mat3 mat(p1.x - p0.x, p2.x - p0.x, p3.x - p0.x,
              p1.y - p0.y, p2.y - p0.y, p3.y - p0.y,
-             p1.z - p0.z, p2.z - p0.z, p3.z - p0.z);;
+             p1.z - p0.z, p2.z - p0.z, p3.z - p0.z);
 #endif
     mat.inverse();
     mat.transpose();

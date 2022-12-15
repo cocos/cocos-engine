@@ -182,7 +182,6 @@ export class LightProbeGroup extends Component {
             return;
         }
 
-        this.node.on(NodeEventType.ANCESTOR_TRANSFORM_CHANGED, this.onAncestorTransformChanged, this);
         const changed = this.node.scene.globals.lightProbeInfo.addNode(this.node);
         if (changed) {
             this.onProbeChanged();
@@ -202,7 +201,6 @@ export class LightProbeGroup extends Component {
         if (changed) {
             this.onProbeChanged();
         }
-        this.node.off(NodeEventType.ANCESTOR_TRANSFORM_CHANGED, this.onAncestorTransformChanged, this);
     }
 
     public generateLightProbes () {
@@ -229,14 +227,5 @@ export class LightProbeGroup extends Component {
         if (emitEvent) {
             this.node.emit(NodeEventType.LIGHT_PROBE_CHANGED);
         }
-    }
-
-    private onAncestorTransformChanged () {
-        if (!this.node) {
-            return;
-        }
-
-        this.node.updateWorldTransform();
-        this.onProbeChanged(false);
     }
 }

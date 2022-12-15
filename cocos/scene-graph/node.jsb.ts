@@ -234,13 +234,12 @@ nodeProto.removeComponent = function (component) {
 };
 
 const REGISTERED_EVENT_MASK_TRANSFORM_CHANGED = (1 << 0);
-const REGISTERED_EVENT_MASK_ANCESTOR_TRANSFORM_CHANGED = (1 << 1);
-const REGISTERED_EVENT_MASK_PARENT_CHANGED = (1 << 2);
-const REGISTERED_EVENT_MASK_MOBILITY_CHANGED = (1 << 3);
-const REGISTERED_EVENT_MASK_LAYER_CHANGED = (1 << 4);
-const REGISTERED_EVENT_MASK_CHILD_REMOVED_CHANGED = (1 << 5);
-const REGISTERED_EVENT_MASK_CHILD_ADDED_CHANGED = (1 << 6);
-const REGISTERED_EVENT_MASK_SIBLING_ORDER_CHANGED_CHANGED = (1 << 7);
+const REGISTERED_EVENT_MASK_PARENT_CHANGED = (1 << 1);
+const REGISTERED_EVENT_MASK_MOBILITY_CHANGED = (1 << 2);
+const REGISTERED_EVENT_MASK_LAYER_CHANGED = (1 << 3);
+const REGISTERED_EVENT_MASK_CHILD_REMOVED_CHANGED = (1 << 4);
+const REGISTERED_EVENT_MASK_CHILD_ADDED_CHANGED = (1 << 5);
+const REGISTERED_EVENT_MASK_SIBLING_ORDER_CHANGED_CHANGED = (1 << 6);
 
 nodeProto.on = function (type, callback, target, useCapture: any = false) {
     switch (type) {
@@ -249,13 +248,6 @@ nodeProto.on = function (type, callback, target, useCapture: any = false) {
             if (!(this._registeredNodeEventTypeMask & REGISTERED_EVENT_MASK_TRANSFORM_CHANGED)) {
                 this._registerOnTransformChanged();
                 this._registeredNodeEventTypeMask |= REGISTERED_EVENT_MASK_TRANSFORM_CHANGED;
-            }
-            break;
-        case NodeEventType.ANCESTOR_TRANSFORM_CHANGED:
-            this._eventMask |= TRANSFORM_ON;
-            if (!(this._registeredNodeEventTypeMask & REGISTERED_EVENT_MASK_ANCESTOR_TRANSFORM_CHANGED)) {
-                this._registerOnAncestorTransformChanged();
-                this._registeredNodeEventTypeMask |= REGISTERED_EVENT_MASK_ANCESTOR_TRANSFORM_CHANGED;
             }
             break;
         case NodeEventType.PARENT_CHANGED:
@@ -308,9 +300,6 @@ nodeProto.off = function (type: string, callback?, target?, useCapture = false) 
     if (!hasListeners) {
         switch (type) {
             case NodeEventType.TRANSFORM_CHANGED:
-                this._eventMask &= ~TRANSFORM_ON;
-                break;
-            case NodeEventType.ANCESTOR_TRANSFORM_CHANGED:
                 this._eventMask &= ~TRANSFORM_ON;
                 break;
             default:
@@ -401,10 +390,6 @@ nodeProto._registerIfAttached = !EDITOR ? undefined : function (this: Node, atta
 
 nodeProto._onTransformChanged = function (transformType) {
     this.emit(NodeEventType.TRANSFORM_CHANGED, transformType);
-};
-
-nodeProto._onAncestorTransformChanged = function (transformType) {
-    this.emit(NodeEventType.ANCESTOR_TRANSFORM_CHANGED, transformType);
 };
 
 nodeProto._onParentChanged = function (oldParent) {
