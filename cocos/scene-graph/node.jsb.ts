@@ -404,7 +404,6 @@ nodeProto._onTransformChanged = function (transformType) {
 };
 
 nodeProto._onAncestorTransformChanged = function (transformType) {
-    // this.emit(NodeEventType.ANCESTOR_TRANSFORM_CHANGED, transformType);
 };
 
 nodeProto._onParentChanged = function (oldParent) {
