@@ -28,6 +28,7 @@
 #include <cstdint>
 #include <numeric>
 #include <ostream>
+#include "ProgramUtils.h"
 #include "base/Log.h"
 #include "core/assets/EffectAsset.h"
 #include "renderer/gfx-base/GFXDevice.h"
@@ -36,10 +37,6 @@
 namespace cc {
 
 namespace {
-
-int32_t getBitCount(int32_t cnt) {
-    return std::ceil(std::log2(std::max(cnt, 2))); // std::max checks number types
-}
 
 ccstd::string mapDefine(const IDefineInfo &info, const ccstd::optional<MacroRecord::mapped_type> &def) {
     if (info.type == "boolean") {
@@ -292,65 +289,7 @@ IProgramInfo *ProgramLib::define(IShaderInfo &shader) {
     IProgramInfo &tmpl = _templates[shader.name];
     tmpl.copyFrom(shader);
 
-    // calculate option mask offset
-    int32_t offset = 0;
-    for (auto &def : tmpl.defines) {
-        int32_t cnt = 1;
-        if (def.type == "number") {
-            auto &range = def.range.value();
-            cnt = getBitCount(range[1] - range[0] + 1); // inclusive on both ends
-            def.map = [=](const MacroValue &value) -> int32_t {
-                if (ccstd::holds_alternative<int32_t>(value)) {
-                    return ccstd::get<int32_t>(value) - range[0];
-                }
-                if (ccstd::holds_alternative<bool>(value)) {
-                    return (ccstd::get<bool>(value) ? 1 : 0) - range[0];
-                }
-                CC_ABORT(); // We only support macro with int32_t type now.
-                return 0;
-            };
-        } else if (def.type == "string") {
-            cnt = getBitCount(static_cast<int32_t>(def.options.value().size()));
-            def.map = [=](const MacroValue &value) -> int32_t {
-                const auto *pValue = ccstd::get_if<ccstd::string>(&value);
-                if (pValue != nullptr) {
-                    auto idx = static_cast<int32_t>(std::find(def.options.value().begin(), def.options.value().end(), *pValue) - def.options.value().begin());
-                    return std::max(0, idx);
-                }
-                return 0;
-            };
-        } else if (def.type == "boolean") {
-            def.map = [](const MacroValue &value) -> int32_t {
-                const auto *pBool = ccstd::get_if<bool>(&value);
-                if (pBool != nullptr) {
-                    return *pBool ? 1 : 0;
-                }
-                const auto *pInt = ccstd::get_if<int32_t>(&value);
-                if (pInt != nullptr) {
-                    return *pInt ? 1 : 0;
-                }
-                const auto *pString = ccstd::get_if<ccstd::string>(&value);
-                if (pString != nullptr) {
-                    return *pString != "0" || !(*pString).empty() ? 1 : 0;
-                }
-                return 0;
-            };
-        }
-        def.offset = offset;
-        offset += cnt;
-    }
-    if (offset > 31) {
-        tmpl.uber = true;
-    }
-    // generate constant macros
-    {
-        tmpl.constantMacros.clear();
-        std::stringstream ss;
-        for (auto &key : tmpl.builtins.statistics) {
-            ss << "#define " << key.first << " " << key.second << std::endl;
-        }
-        tmpl.constantMacros = ss.str();
-    }
+    render::populateMacros(tmpl);
 
     if (_templateInfos.count(tmpl.hash) == 0) {
         ITemplateInfo tmplInfo{};
