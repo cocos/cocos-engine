@@ -41,6 +41,9 @@ import { InputFlag, InputMode, KeyboardReturnType } from './types';
 import { EditBoxImplBase } from './edit-box-impl-base';
 import { BrowserType, OS } from '../../../pal/system-info/enum-type';
 
+const engineGlobal = typeof globalThis.jsb !== 'undefined' ? (typeof jsb.window !== 'undefined' ? jsb.window : window) : window;
+const document = engineGlobal.document;
+
 // https://segmentfault.com/q/1010000002914610
 const SCROLLY = 40;
 const LEFT_PADDING = 2;

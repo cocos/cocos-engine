@@ -31,6 +31,8 @@
 
 import { getError, logID } from '../core';
 
+const engineGlobal = typeof globalThis.jsb !== 'undefined' ? (typeof jsb.window !== 'undefined' ? jsb.window : window) : window;
+
 interface IFile {
     type: string,
     values: any[],
@@ -252,7 +254,7 @@ export class TiffReader {
      * @returns {*}
      */
     parseTIFF (tiffData, canvas) {
-        canvas = canvas || document.createElement('canvas');
+        canvas = canvas || engineGlobal.document.createElement('canvas');
 
         this._tiffData = tiffData;
         this._canvas = canvas;

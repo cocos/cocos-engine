@@ -38,6 +38,8 @@ export interface ISharedLabelData {
 
 let _canvasPool: CanvasPool;
 
+const engineGlobal = typeof globalThis.jsb !== 'undefined' ? (typeof jsb.window !== 'undefined' ? jsb.window : window) : window;
+
 export class CanvasPool {
     static getInstance (): CanvasPool {
         if (!_canvasPool) {
@@ -50,7 +52,7 @@ export class CanvasPool {
         let data = this.pool.pop();
 
         if (!data) {
-            const canvas = document.createElement('canvas');
+            const canvas = engineGlobal.document.createElement('canvas');
             const context = canvas.getContext('2d');
             data = {
                 canvas,

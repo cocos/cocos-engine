@@ -33,6 +33,9 @@ import { VideoPlayerImpl } from './video-player-impl';
 import { ClearFlagBit } from '../gfx';
 import { BrowserType, OS } from '../../pal/system-info/enum-type';
 
+const engineGlobal = typeof globalThis.jsb !== 'undefined' ? (typeof jsb.window !== 'undefined' ? jsb.window : window) : window;
+const document = engineGlobal.document;
+
 const MIN_ZINDEX = -(2 ** 15);
 
 const _mat4_temp = mat4();
@@ -48,7 +51,7 @@ export class VideoPlayerImplWeb extends VideoPlayerImpl {
         super(component);
     }
 
-    protected addListener (type: string, handler: (e: Event)=> void) {
+    protected addListener (type: string, handler: (e: Event) => void) {
         if (!this._video) {
             return;
         }

@@ -28,6 +28,9 @@ import { EDITOR, JSB, DEV, DEBUG } from 'internal:constants';
 import debugInfos from '../../../DebugInfos';
 import { legacyCC } from '../global-exports';
 
+const engineGlobal = typeof globalThis.jsb !== 'undefined' ? (typeof jsb.window !== 'undefined' ? jsb.window : window) : window;
+const document = engineGlobal.document;
+
 const ERROR_MAP_URL = 'https://github.com/cocos-creator/engine/blob/develop/EngineErrorMap.md';
 
 // The html element displays log in web page (DebugMode.INFO_FOR_WEB_PAGE)
@@ -148,11 +151,11 @@ export function _resetDebugSetting (mode: DebugMode) {
                 logDivStyle.position = 'absolute';
                 logDivStyle.top = logDivStyle.left = '0';
 
-                logList = document.createElement('textarea');
+                logList = document.createElement('textarea') as HTMLTextAreaElement;
                 logList.setAttribute('rows', '20');
                 logList.setAttribute('cols', '30');
                 logList.setAttribute('disabled', 'true');
-                const logListStyle = logList.style;
+                const logListStyle = (logList as any).style;
                 logListStyle.backgroundColor = 'transparent';
                 logListStyle.borderBottom = '1px solid #cccccc';
                 logListStyle.borderTopWidth = logListStyle.borderLeftWidth = logListStyle.borderRightWidth = '0px';

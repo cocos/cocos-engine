@@ -30,6 +30,9 @@ import { CompleteCallback, IDownloadParseOptions } from '../asset/asset-manager/
 import { log } from '../core/platform/debug';
 import { VideoClip } from './assets/video-clip';
 
+const engineGlobal = typeof globalThis.jsb !== 'undefined' ? (typeof jsb.window !== 'undefined' ? jsb.window : window) : window;
+const document = engineGlobal.document;
+
 // eslint-disable-next-line consistent-return
 export function downloadVideo (url: string, options: IDownloadParseOptions, onComplete: CompleteCallback) {
     const video = document.createElement('video');

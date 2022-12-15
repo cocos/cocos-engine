@@ -265,16 +265,14 @@ void Engine::tick() {
 
         ++_totalFrames;
 
-// iOS/macOS use its own fps limitation algorithm.
-#if !CC_EDITOR /// FIXME: temperal modification
-    #if (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_OHOS) || (defined(CC_SERVER_MODE) && (CC_PLATFORM == CC_PLATFORM_MAC_OSX))
+        // iOS/macOS use its own fps limitation algorithm.
+#if (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_OHOS) || (defined(CC_SERVER_MODE) && (CC_PLATFORM == CC_PLATFORM_MAC_OSX))
         if (dtNS < static_cast<double>(_prefererredNanosecondsPerFrame)) {
             CC_PROFILE(EngineSleep);
             std::this_thread::sleep_for(
                 std::chrono::nanoseconds(_prefererredNanosecondsPerFrame - static_cast<int64_t>(dtNS)));
             dtNS = static_cast<double>(_prefererredNanosecondsPerFrame);
         }
-    #endif
 #endif
 
         prevTime = std::chrono::steady_clock::now();

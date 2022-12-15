@@ -32,6 +32,8 @@ import { PixelFormat } from './asset-enum';
 import { warnID, macro, sys, cclegacy } from '../../core';
 import { Enum } from '../../core/value-types/enum';
 
+const engineGlobal = typeof globalThis.jsb !== 'undefined' ? (typeof jsb.window !== 'undefined' ? jsb.window : window) : window;
+
 // Compress mipmap constants
 const COMPRESSED_HEADER_LENGTH = 4;
 const COMPRESSED_MIPMAP_DATA_SIZE_LENGTH = 4;
@@ -522,7 +524,7 @@ export class ImageAsset extends Asset {
      * @zh 此图像资源是 mipmap 时，获取每层数据大小。
      * @engineInternal
      */
-    get mipmapLevelDataSize () : number[] | undefined {
+    get mipmapLevelDataSize (): number[] | undefined {
         return (this._nativeData as IMemoryImageSource).mipmapLevelDataSize;
     }
 
@@ -691,7 +693,7 @@ export class ImageAsset extends Asset {
     public initDefault (uuid?: string) {
         super.initDefault(uuid);
         if (!ImageAsset._sharedPlaceHolderCanvas) {
-            const canvas = document.createElement('canvas');
+            const canvas = engineGlobal.document.createElement('canvas');
             const context = canvas.getContext('2d')!;
             const l = canvas.width = canvas.height = 2;
             context.fillStyle = '#ff00ff';

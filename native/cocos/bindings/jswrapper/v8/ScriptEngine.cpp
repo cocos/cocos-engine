@@ -537,7 +537,7 @@ bool ScriptEngine::postInit() {
 
     _globalObj = Object::_createJSObject(nullptr, _isolate->GetCurrentContext()->Global());
     _globalObj->root();
-    // _globalObj->setProperty("window", Value(_globalObj));
+    _globalObj->setProperty("window", Value(_globalObj));
 
     #if !CC_EDITOR
     se::Value consoleVal;

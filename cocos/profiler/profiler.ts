@@ -39,6 +39,8 @@ import { Root } from '../root';
 import { PipelineRuntime } from '../rendering/custom/pipeline';
 import { director } from '../game';
 
+const engineGlobal = typeof globalThis.jsb !== 'undefined' ? (typeof jsb.window !== 'undefined' ? jsb.window : window) : window;
+
 const _characters = '0123456789. ';
 
 const _average = 500;
@@ -129,7 +131,7 @@ export class Profiler extends System {
     constructor () {
         super();
         if (!TEST) {
-            this._canvas = document.createElement('canvas');
+            this._canvas = engineGlobal.document.createElement('canvas') as HTMLCanvasElement;
             this._ctx = this._canvas.getContext('2d')!;
             this._canvasArr.push(this._canvas);
         }

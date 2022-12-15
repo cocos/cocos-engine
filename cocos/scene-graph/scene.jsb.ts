@@ -123,7 +123,7 @@ sceneProto._activate = function (active: boolean) {
     }
     legacyCC.director._nodeActivator.activateNode(this, active);
     // The test environment does not currently support the renderer
-    if (!TEST) {
+    if (!TEST || EDITOR) {
         this._globals.activate(this);
         if (this._renderScene) {
             this._renderScene.activate();

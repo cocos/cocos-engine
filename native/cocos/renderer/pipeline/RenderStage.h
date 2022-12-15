@@ -58,11 +58,16 @@ public:
     virtual bool initialize(const RenderStageInfo &info);
 
     virtual void destroy();
-    virtual void render(scene::Camera *camera) = 0;
+    
+    // should not be pure virtual, since it will be instantiated in inspector
+    virtual void render(scene::Camera *camera) {} 
 
     inline const ccstd::string &getName() const { return _name; }
+    inline void setName(ccstd::string &name) { _name = name; }
     inline uint32_t getPriority() const { return _priority; }
+    inline void setPriority(uint32_t priority) { _priority = priority; }
     inline uint32_t getTag() const { return _tag; }
+    inline void setTag(uint32_t tag) { _tag = tag; }
     inline RenderFlow *getFlow() const { return _flow; }
 
 protected:

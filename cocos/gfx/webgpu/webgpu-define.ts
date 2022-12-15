@@ -36,6 +36,9 @@ import {
     DeviceInfo, BufferTextureCopy, ShaderInfo, ShaderStageFlagBit, TextureViewInfo, TextureInfo, DrawInfo, BufferViewInfo, BufferInfo, BufferUsageBit, IndirectBuffer,
 } from '../base/define';
 
+const engineGlobal = typeof globalThis.jsb !== 'undefined' ? (typeof jsb.window !== 'undefined' ? jsb.window : window) : window;
+
+
 WEBGPU && promiseForWebGPUInstantiation.then(() => {
     const originDeviceInitializeFunc = Device.prototype.initialize;
     Device.prototype.initialize = function (info: DeviceInfo) {
@@ -170,7 +173,7 @@ WEBGPU && promiseForWebGPUInstantiation.then(() => {
                 buffers[i] = data;
             } else if (texImages[i] instanceof HTMLImageElement || texImages[i] instanceof ImageBitmap) {
                 const img = texImages[i];
-                const canvas = document.createElement('canvas');
+                const canvas = engineGlobal.document.createElement('canvas');
                 canvas.width = img.width;
                 canvas.height = img.height;
                 const ctx = canvas.getContext('2d');

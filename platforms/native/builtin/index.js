@@ -211,3 +211,29 @@ for (const key in jsbWindow) {
         console.log(`[web-adapter] skip window.${key}`);
     }
 }
+// track image creation
+
+const oldcreateElement = globalThis.document.createElement;
+globalThis.document.createElement = function (tag) {
+    if (tag === 'img') {
+        try {
+            throw new Error(`call document.createElement('img')`);
+        } catch (e) {
+            console.error(e);
+            console.error(e.stack);
+        }
+    }
+    return oldcreateElement.apply(globalThis.document, arguments);
+};
+
+// const oldImage = globalThis.Image;
+// globalThis.Image = function () {
+//     try {
+//         throw new Error(`call new Image`);
+//     } catch (e) {
+//         console.error(e);
+//         console.error(e.stack);
+//     }
+//     oldImage.apply(this, arguments);
+// };
+// globalThis.Image.prototype = oldImage.prototype;

@@ -48,8 +48,8 @@ RenderStageInfo GbufferStage::initInfo = {
     "GbufferStage",
     static_cast<uint32_t>(DeferredStagePriority::GBUFFER),
     static_cast<uint32_t>(RenderFlowTag::SCENE),
-    {{false, RenderQueueSortMode::FRONT_TO_BACK, {"default"}},
-     {true, RenderQueueSortMode::BACK_TO_FRONT, {"default", "planarShadow"}}}};
+    {ccnew RenderQueueDesc{false, RenderQueueSortMode::FRONT_TO_BACK, {"default"}},
+     ccnew RenderQueueDesc{true, RenderQueueSortMode::BACK_TO_FRONT, {"default", "planarShadow"}}}};
 const RenderStageInfo &GbufferStage::getInitializeInfo() { return GbufferStage::initInfo; }
 
 GbufferStage::GbufferStage() {
@@ -70,9 +70,9 @@ void GbufferStage::activate(RenderPipeline *pipeline, RenderFlow *flow) {
     RenderStage::activate(pipeline, flow);
 
     for (const auto &descriptor : _renderQueueDescriptors) {
-        uint32_t phase = convertPhase(descriptor.stages);
-        RenderQueueSortFunc sortFunc = convertQueueSortFunc(descriptor.sortMode);
-        RenderQueueCreateInfo info = {descriptor.isTransparent, phase, sortFunc};
+        uint32_t phase = convertPhase(descriptor->stages);
+        RenderQueueSortFunc sortFunc = convertQueueSortFunc(descriptor->sortMode);
+        RenderQueueCreateInfo info = {descriptor->isTransparent, phase, sortFunc};
         _renderQueues.emplace_back(ccnew RenderQueue(_pipeline, std::move(info), true));
     }
     _planarShadowQueue = ccnew PlanarShadowQueue(_pipeline);

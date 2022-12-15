@@ -11,12 +11,12 @@ function inject () {
     jsbWindow.outerHeight = jsbWindow.innerHeight;
     jsbWindow.clientWidth = jsbWindow.innerWidth;
     jsbWindow.clientHeight = jsbWindow.innerHeight;
-    if (!__EDITOR__) {
+    // if (!__EDITOR__) {
         jsbWindow.top = jsbWindow.parent = jsbWindow;
         jsbWindow.location = require('./location');
         jsbWindow.document = require('./document');
         jsbWindow.navigator = require('./navigator');
-    }
+    // }
 
     jsbWindow.CanvasRenderingContext2D = require('./CanvasRenderingContext2D');
     jsbWindow.Element = require('./Element');

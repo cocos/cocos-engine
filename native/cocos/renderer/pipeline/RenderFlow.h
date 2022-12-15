@@ -56,8 +56,13 @@ public:
     virtual void destroy();
 
     inline const ccstd::string &getName() const { return _name; }
+    inline void setName(ccstd::string &name) { _name = name; }
     inline uint32_t getPriority() const { return _priority; }
+    inline void setPriority(uint32_t priority) { _priority = priority; }
     inline uint32_t getTag() const { return _tag; }
+    inline void setTag(uint32_t tag) { _tag = tag; }
+    inline const RenderStageList &getStages() const { return _stages; }
+    inline void setStages(const RenderStageList &stages) { _stages = stages; }
     RenderStage *getRenderstageByName(const ccstd::string &name) const;
 
 protected:

@@ -55,7 +55,7 @@ RenderStageInfo PostProcessStage::initInfo = {
     STAGE_NAME,
     static_cast<uint32_t>(DeferredStagePriority::POSTPROCESS),
     0,
-    {{true, RenderQueueSortMode::BACK_TO_FRONT, {"default"}}},
+    {ccnew RenderQueueDesc{true, RenderQueueSortMode::BACK_TO_FRONT, {"default"}}},
 };
 const RenderStageInfo &PostProcessStage::getInitializeInfo() { return PostProcessStage::initInfo; }
 
@@ -77,12 +77,12 @@ void PostProcessStage::activate(RenderPipeline *pipeline, RenderFlow *flow) {
 
     for (const auto &descriptor : _renderQueueDescriptors) {
         uint32_t phase = 0;
-        for (const auto &stage : descriptor.stages) {
+        for (const auto &stage : descriptor->stages) {
             phase |= getPhaseID(stage);
         }
 
         std::function<int(const RenderPass &, const RenderPass &)> sortFunc = opaqueCompareFn;
-        switch (descriptor.sortMode) {
+        switch (descriptor->sortMode) {
             case RenderQueueSortMode::BACK_TO_FRONT:
                 sortFunc = transparentCompareFn;
                 break;
@@ -92,7 +92,7 @@ void PostProcessStage::activate(RenderPipeline *pipeline, RenderFlow *flow) {
                 break;
         }
 
-        RenderQueueCreateInfo info = {descriptor.isTransparent, phase, sortFunc};
+        RenderQueueCreateInfo info = {descriptor->isTransparent, phase, sortFunc};
         _renderQueues.emplace_back(ccnew RenderQueue(_pipeline, std::move(info)));
     }
 }

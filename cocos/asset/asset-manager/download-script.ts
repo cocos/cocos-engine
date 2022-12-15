@@ -26,6 +26,9 @@
 import { getError } from '../../core';
 import { CompleteCallback, IBundleOptions } from './shared';
 
+const engineGlobal = typeof globalThis.jsb !== 'undefined' ? (typeof jsb.window !== 'undefined' ? jsb.window : window) : window;
+const document = engineGlobal.document;
+
 const downloaded = {};
 
 export default function downloadScript (

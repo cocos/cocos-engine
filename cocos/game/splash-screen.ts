@@ -34,6 +34,8 @@ import {
 import { PipelineStateManager } from '../rendering';
 import { SetIndex } from '../rendering/define';
 
+const engineGlobal = typeof globalThis.jsb !== 'undefined' ? (typeof jsb.window !== 'undefined' ? jsb.window : window) : window;
+
 const v2_0 = new Vec2();
 type SplashEffectType = 'default' | 'custom' | 'off';
 type WatermarkLocationType = 'default' | 'topLeft' | 'topRight' | 'topCenter' | 'bottomLeft' | 'bottomCenter' | 'bottomRight';
@@ -392,7 +394,7 @@ export class SplashScreen {
 
     private initWaterMark () {
         // create texture from image
-        const watermarkImg = document.createElement('canvas');
+        const watermarkImg = engineGlobal.document.createElement('canvas');
         watermarkImg.height = this.textHeight * this.scaleSize;
         watermarkImg.style.width = `${watermarkImg.width}`;
         watermarkImg.style.height = `${watermarkImg.height}`;

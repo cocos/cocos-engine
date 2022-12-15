@@ -30,6 +30,9 @@ import downloader from '../../asset/asset-manager/downloader';
 import factory from '../../asset/asset-manager/factory';
 import { TTFFont } from '../assets/ttf-font';
 
+const engineGlobal = typeof globalThis.jsb !== 'undefined' ? (typeof jsb.window !== 'undefined' ? jsb.window : window) : window;
+const document = engineGlobal.document;
+
 interface IFontLoadHandle {
     fontFamilyName: string;
     refWidth: number;
@@ -116,7 +119,6 @@ function nativeCheckFontLoaded (start: number, font: string, callback: CompleteC
             if (now - start >= _timeout) {
                 reject();
             } else {
-                // @ts-expect-error see https://developer.mozilla.org/en-US/docs/Web/API/Document/fonts
                 document.fonts.load(`40px ${font}`).then((fonts) => {
                     if (fonts.length >= 1) {
                         resolve();
@@ -152,7 +154,6 @@ function nativeCheckFontLoaded (start: number, font: string, callback: CompleteC
 
 export function loadFont (url: string, options: IDownloadParseOptions, onComplete: CompleteCallback) {
     const fontFamilyName = getFontFamily(url);
-
     // Already loaded fonts
     if (_fontFaces[fontFamilyName]) {
         onComplete(null, fontFamilyName);
