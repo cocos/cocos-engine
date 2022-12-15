@@ -31,7 +31,7 @@ import {
     CommandBufferType,
     StencilFace,
     BufferSource, CommandBufferInfo,
-    BufferTextureCopy, Color, Rect, Viewport, DrawInfo, DynamicStates,
+    BufferTextureCopy, Color, Rect, Viewport, DrawInfo, DynamicStates, TextureBlit, Filter,
 } from '../base/define';
 import { Framebuffer } from '../base/framebuffer';
 import { InputAssembler } from '../base/input-assembler';
@@ -44,6 +44,7 @@ import {
     WebGL2Cmd,
     WebGL2CmdBeginRenderPass,
     WebGL2CmdBindStates,
+    WebGL2CmdBlitTexture,
     WebGL2CmdCopyBufferToTexture,
     WebGL2CmdDraw,
     WebGL2CmdPackage,
@@ -400,6 +401,12 @@ export class WebGL2CommandBuffer extends CommandBuffer {
                 this.cmdPackage.copyBufferToTextureCmds.push(cmd);
             }
 
+            for (let c = 0; c < webGL2CmdBuff.cmdPackage.blitTextureCmds.length; ++c) {
+                const cmd = webGL2CmdBuff.cmdPackage.blitTextureCmds.array[c];
+                ++cmd.refCount;
+                this.cmdPackage.blitTextureCmds.push(cmd);
+            }
+
             this.cmdPackage.cmds.concat(webGL2CmdBuff.cmdPackage.cmds.array);
 
             this._numDrawCalls += webGL2CmdBuff._numDrawCalls;
@@ -425,5 +432,18 @@ export class WebGL2CommandBuffer extends CommandBuffer {
         this.cmdPackage.cmds.push(WebGL2Cmd.BIND_STATES);
 
         this._isStateInvalied = false;
+    }
+
+    public blitTexture (srcTexture: Readonly<Texture>, dstTexture: Texture, regions: Readonly<TextureBlit []>, filter: Filter): void {
+        const blitTextureCmd = this._cmdAllocator.blitTextureCmdPool.alloc(WebGL2CmdBlitTexture);
+        blitTextureCmd.srcTexture = (srcTexture as WebGL2Texture).gpuTexture;
+        blitTextureCmd.dstTexture = (dstTexture as WebGL2Texture).gpuTexture;
+        blitTextureCmd.regions = regions as TextureBlit[];
+        blitTextureCmd.filter = filter;
+
+        ++this._numDrawCalls;
+
+        this.cmdPackage.blitTextureCmds.push(blitTextureCmd);
+        this.cmdPackage.cmds.push(WebGL2Cmd.BLIT_TEXTURE);
     }
 }
