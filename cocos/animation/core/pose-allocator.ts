@@ -1,3 +1,4 @@
+import { TEST } from 'internal:constants';
 import { assertIsTrue } from '../../core/data/utils/asserts';
 import { Pose } from './pose';
 import { TransformArray } from './transform-array';
@@ -14,6 +15,8 @@ function isPagedPose (pose: Pose): pose is PagedPose {
     return allocationInfoTag in pose;
 }
 
+const POSE_ALLOCATOR_DEBUG_FULL = TEST;
+
 export class PoseAllocator {
     constructor (transformCount: number, metaValueCount: number) {
         this._transformCount = transformCount;
@@ -28,15 +31,32 @@ export class PoseAllocator {
         ++this._allocatedCount;
         const { _pages: pages } = this;
         const nPages = pages.length;
-        for (let iPage = 0; iPage < nPages; ++iPage) {
+
+        // Debug check our promise on `this._foremostPossibleFreePage`.
+        if (POSE_ALLOCATOR_DEBUG_FULL) {
+            for (let iPage = 0; iPage < this._foremostPossibleFreePage; ++iPage) {
+                const page = pages[iPage];
+                assertIsTrue(page.freeCount === 0);
+            }
+        }
+
+        for (let iPage = this._foremostPossibleFreePage; iPage < nPages; ++iPage) {
             const page = pages[iPage];
             const pose = page.tryAllocate();
             if (pose) {
                 pose[allocationInfoTag].pageIndex = iPage;
+                if (page.freeCount === 0) {
+                    // Only step one, even the next page is not free.
+                    ++this._foremostPossibleFreePage;
+                }
                 return pose;
             }
         }
-        return this._allocatePoseInNewPage();
+
+        const pose = this._allocatePoseInNewPage();
+        // Update the flag, no matter if its capacity is 1.
+        this._foremostPossibleFreePage = pose[allocationInfoTag].pageIndex;
+        return pose;
     }
 
     public destroyPose (pose: Pose) {
@@ -48,6 +68,13 @@ export class PoseAllocator {
         const page = pages[pageIndex];
         page.deallocate(pose);
         --this._allocatedCount;
+
+        // If the destruction performed on former page,
+        // update the flag so that next allocation find from this.
+        if (pageIndex < this._foremostPossibleFreePage) {
+            assertIsTrue(page.freeCount > 0);
+            this._foremostPossibleFreePage = pageIndex;
+        }
     }
 
     private _transformCount = 0;
@@ -57,6 +84,13 @@ export class PoseAllocator {
     private _pages: PosePage[] = [];
 
     private _allocatedCount = 0;
+
+    /**
+     * Index of the page that:
+     * - All former pages are busy.
+     * - This page and the following pages're possible having free location to allocate.
+     */
+    private _foremostPossibleFreePage = 0;
 
     private _allocatePoseInNewPage (): PagedPose {
         const page = new PosePage(this._transformCount, this._metaValueCount, 4);
@@ -104,10 +138,15 @@ class PosePage {
             + Float64Array.BYTES_PER_ELEMENT * _metaValueCount) * _capacity;
         this._buffer = new ArrayBuffer(byteLength);
         this._poses = new Array(_capacity).fill(null);
+        this._freeCount = _capacity;
     }
 
     get capacity () {
         return this._capacity;
+    }
+
+    get freeCount () {
+        return this._freeCount;
     }
 
     public tryAllocate (): PagedPose | null {
@@ -120,6 +159,8 @@ class PosePage {
         const pose = poses[idlePoseIndex] ??= this._createPose(idlePoseIndex);
         pose[allocationInfoTag].poseIndex = idlePoseIndex;
         this._idleFlags &= ~(1 << idlePoseIndex);
+        assertIsTrue(this._freeCount > 0);
+        --this._freeCount;
         return pose;
     }
 
@@ -130,6 +171,8 @@ class PosePage {
         assertIsTrue(poses[poseIndex] === pose);
         // Set as idle
         this._idleFlags |= (1 << poseIndex);
+        assertIsTrue(this._freeCount < this._capacity);
+        ++this._freeCount;
     }
 
     private _buffer: ArrayBuffer;
@@ -137,6 +180,8 @@ class PosePage {
     private _idleFlags = 0xF;
 
     private _poses: (PagedPose | null)[];
+
+    private _freeCount = 0;
 
     private _createPose (index: number) {
         const transformsByteLength = TransformArray.BYTES_PER_ELEMENT * this._transformCount;
