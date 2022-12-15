@@ -3786,6 +3786,51 @@ se::Class* __jsb_cc_render_Factory_class = nullptr;
 se::Object* __jsb_cc_render_Factory_proto = nullptr;
 SE_DECLARE_FINALIZE_FUNC(js_delete_cc_render_Factory) 
 
+static bool js_cc_render_Factory_init_static(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    gfx::Device *arg1 = (gfx::Device *) NULL ;
+    ccstd::vector< unsigned char > *arg2 = 0 ;
+    ccstd::vector< unsigned char > temp2 ;
+    
+    if(argc != 2) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+        return false;
+    }
+    
+    ok &= sevalue_to_native(args[0], &arg1, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    ok &= sevalue_to_native(args[1], &temp2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    arg2 = &temp2;
+    
+    cc::render::Factory::init(arg1,(ccstd::vector< unsigned char > const &)*arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_render_Factory_init_static) 
+
+static bool js_cc_render_Factory_destroy_static(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    cc::render::Factory::destroy();
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_render_Factory_destroy_static) 
+
 static bool js_cc_render_Factory_createPipeline_static(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -3837,6 +3882,8 @@ bool js_register_cc_render_Factory(se::Object* obj) {
     
     
     
+    cls->defineStaticFunction("init", _SE(js_cc_render_Factory_init_static)); 
+    cls->defineStaticFunction("destroy", _SE(js_cc_render_Factory_destroy_static)); 
     cls->defineStaticFunction("createPipeline", _SE(js_cc_render_Factory_createPipeline_static)); 
     
     

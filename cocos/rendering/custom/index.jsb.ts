@@ -76,11 +76,11 @@ function addCustomBuiltinPipelines (map: Map<string, PipelineBuilder>) {
 addCustomBuiltinPipelines(customPipelineBuilderMap);
 
 export function init (device: Device, arrayBuffer: ArrayBuffer) {
-    // noop
+    render.Factory.init(device, arrayBuffer);
 }
 
 export function destroy () {
-    // noop
+    render.Factory.destroy();
 }
 
 export function getPassID (name: string | undefined): number {

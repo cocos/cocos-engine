@@ -26,17 +26,27 @@
 #include "NativePipelineTypes.h"
 #include "RenderInterfaceTypes.h"
 #include "boost/container/pmr/global_resource.hpp"
+#include "GslUtils.h"
 
 namespace cc {
 
 namespace render {
 
-void Factory::init(gfx::Device* deviceIn, const ccstd::vector<unsigned char>& bufferIn) {
+namespace {
 
+struct RenderingModule {
+};
+
+std::unique_ptr<RenderingModule> sRenderingModule;
+
+} // namespace
+
+void Factory::init(gfx::Device* deviceIn, const ccstd::vector<unsigned char>& bufferIn) {
+    CC_EXPECTS(false);
 }
 
 void Factory::destroy() {
-
+    sRenderingModule.reset();
 }
 
 Pipeline* Factory::createPipeline() {
