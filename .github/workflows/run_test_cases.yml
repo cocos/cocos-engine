@@ -72,6 +72,14 @@ jobs:
           git branch ${{ steps.parse_pr.outputs.pr_base_ref }}
           git fetch origin pull/${{ steps.get_pr.outputs.pr_number }}/head:pull-${{ steps.get_pr.outputs.pr_number }}
           git merge --ff -s recursive --no-verify -m "PR Test" origin/${{ steps.parse_pr.outputs.pr_base_ref }} pull-${{ steps.get_pr.outputs.pr_number }}
+
+      - name: Generate bindings
+        run: |
+          cd ./native/tools/swig-config
+          echo "Create auto-generated jsbinding glue codes."
+          node genbindings.js &&
+          git status
+          
       - name: npm install
         run: |
           npm -v
@@ -159,6 +167,12 @@ jobs:
           git branch ${{ steps.parse_pr.outputs.pr_base_ref }}
           git fetch origin pull/${{ steps.get_pr.outputs.pr_number }}/head:pull-${{ steps.get_pr.outputs.pr_number }}
           git merge --ff -s recursive --no-verify -m "PR Test" origin/${{ steps.parse_pr.outputs.pr_base_ref }} pull-${{ steps.get_pr.outputs.pr_number }}
+      - name: Generate bindings
+        run: |
+          cd ./native/tools/swig-config
+          echo "Create auto-generated jsbinding glue codes."
+          node genbindings.js &&
+          git status
       - name: npm install
         run: |
           npm -v
