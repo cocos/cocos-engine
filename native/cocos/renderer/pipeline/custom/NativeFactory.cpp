@@ -23,10 +23,13 @@
  THE SOFTWARE.
 ****************************************************************************/
 
+#include <sstream>
 #include "NativePipelineTypes.h"
 #include "RenderInterfaceTypes.h"
-#include "boost/container/pmr/global_resource.hpp"
 #include "GslUtils.h"
+#include "pipeline/custom/LayoutGraphTypes.h"
+#include "LayoutGraphSerialization.h"
+#include "BinaryArchive.h"
 
 namespace cc {
 
@@ -38,16 +41,16 @@ NativeRenderingModule* sRenderingModule = nullptr;;
 
 } // namespace
 
-uint32_t NativeRenderingModule::getPassID(const ccstd::string &name) const {
-    return LayoutGraphData::null_vertex();
-}
-
-uint32_t NativeRenderingModule::getPhaseID(uint32_t passID, const ccstd::string &name) const {
-    return LayoutGraphData::null_vertex();
-}
-
 RenderingModule* Factory::init(gfx::Device* deviceIn, const ccstd::vector<unsigned char>& bufferIn) {
-    sRenderingModule = new NativeRenderingModule();
+    std::ignore = deviceIn;
+
+    LayoutGraphData data(boost::container::pmr::get_default_resource());
+    std::string buffer(bufferIn.begin(), bufferIn.end());
+    std::istringstream iss(buffer, std::ios::binary);
+    BinaryInputArchive ar(iss, boost::container::pmr::get_default_resource());
+    load(ar, data);
+
+    sRenderingModule = ccnew NativeRenderingModule();
     return sRenderingModule;
 }
 

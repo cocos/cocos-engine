@@ -108,6 +108,9 @@ NativeRenderContext::NativeRenderContext(const allocator_type& alloc) noexcept
 : renderPasses(alloc),
   resourceGroups(alloc) {}
 
+NativeProgramLibrary::NativeProgramLibrary(const allocator_type& alloc) noexcept
+: layoutGraph(alloc) {}
+
 } // namespace render
 
 } // namespace cc

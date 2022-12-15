@@ -21,7 +21,7 @@ ccstd::string NativeRasterPassBuilder::getName() const {
 }
 
 void NativeRasterPassBuilder::setName(const ccstd::string &name) {
-    get(RenderGraph::Name, *renderGraph, passID) = std::string_view(name);
+    get(RenderGraph::Name, *renderGraph, passID) = std::string_view{name};
 }
 
 void NativeRasterPassBuilder::addRasterView(const ccstd::string &name, const RasterView &view) {
@@ -51,7 +51,7 @@ ccstd::string NativeRasterQueueBuilder::getName() const {
 }
 
 void NativeRasterQueueBuilder::setName(const ccstd::string &name) {
-    get(RenderGraph::Name, *renderGraph, queueID) = std::string_view(name);
+    get(RenderGraph::Name, *renderGraph, queueID) = std::string_view{name};
 }
 
 void NativeRasterQueueBuilder::addSceneOfCamera(scene::Camera *camera, LightInfo light, SceneFlags sceneFlags) {
@@ -364,7 +364,7 @@ ccstd::string NativeComputeQueueBuilder::getName() const {
 }
 
 void NativeComputeQueueBuilder::setName(const ccstd::string &name) {
-    get(RenderGraph::Name, *renderGraph, queueID) = std::string_view(name);
+    get(RenderGraph::Name, *renderGraph, queueID) = std::string_view{name};
 }
 
 void NativeComputeQueueBuilder::addDispatch(const ccstd::string &shader, uint32_t threadGroupCountX, uint32_t threadGroupCountY, uint32_t threadGroupCountZ) {
@@ -443,7 +443,7 @@ ccstd::string NativeComputePassBuilder::getName() const {
 }
 
 void NativeComputePassBuilder::setName(const ccstd::string &name) {
-    get(RenderGraph::Name, *renderGraph, passID) = std::string_view(name);
+    get(RenderGraph::Name, *renderGraph, passID) = std::string_view{name};
 }
 
 void NativeComputePassBuilder::addComputeView(const ccstd::string &name, const ComputeView &view) {
@@ -534,7 +534,7 @@ ccstd::string NativeMovePassBuilder::getName() const {
 }
 
 void NativeMovePassBuilder::setName(const ccstd::string &name) {
-    get(RenderGraph::Name, *renderGraph, passID) = std::string_view(name);
+    get(RenderGraph::Name, *renderGraph, passID) = std::string_view{name};
 }
 
 void NativeMovePassBuilder::addPair(const MovePair &pair) {
@@ -547,7 +547,7 @@ ccstd::string NativeCopyPassBuilder::getName() const {
 }
 
 void NativeCopyPassBuilder::setName(const ccstd::string &name) {
-    get(RenderGraph::Name, *renderGraph, passID) = std::string_view(name);
+    get(RenderGraph::Name, *renderGraph, passID) = std::string_view{name};
 }
 
 void NativeCopyPassBuilder::addPair(const CopyPair &pair) {

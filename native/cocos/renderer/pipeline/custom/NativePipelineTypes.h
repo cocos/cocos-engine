@@ -504,6 +504,13 @@ public:
 
 class NativeProgramLibrary final : public ProgramLibrary {
 public:
+    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
+    allocator_type get_allocator() const noexcept { // NOLINT
+        return {layoutGraph.get_allocator().resource()};
+    }
+
+    NativeProgramLibrary(const allocator_type& alloc) noexcept; // NOLINT
+
     void addEffect(EffectAsset *effectAsset) override;
     void precompileEffect(gfx::Device *device, EffectAsset *effectAsset) override;
     ccstd::pmr::string getKey(uint32_t phaseID, const ccstd::pmr::string &programName, const MacroRecord &defines) const override;
@@ -518,14 +525,20 @@ public:
     uint32_t getProgramID(uint32_t phaseID, const ccstd::pmr::string &programName) override;
     uint32_t getDescriptorNameID(const ccstd::pmr::string &name) override;
     const ccstd::pmr::string &getDescriptorName(uint32_t nameID) override;
+
+    LayoutGraphData layoutGraph;
 };
 
 class NativeRenderingModule final : public RenderingModule {
 public:
+    NativeRenderingModule() = default;
+    NativeRenderingModule(std::shared_ptr<NativeProgramLibrary> programLibraryIn) noexcept // NOLINT
+    : programLibrary(std::move(programLibraryIn)) {}
 
     uint32_t getPassID(const ccstd::string &name) const override;
     uint32_t getPhaseID(uint32_t passID, const ccstd::string &name) const override;
-    std::unique_ptr<NativeProgramLibrary> programLibrary;
+
+    std::shared_ptr<NativeProgramLibrary> programLibrary;
 };
 
 } // namespace render
