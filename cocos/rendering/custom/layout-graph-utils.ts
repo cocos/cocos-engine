@@ -1054,7 +1054,7 @@ function buildLayoutGraphDataImpl (graph: LayoutGraph, builder: LayoutGraphBuild
 }
 
 // get descriptor nameID from name
-export function getDescriptorID (lg: LayoutGraphData, name: string): number {
+export function getOrCreateDescriptorID (lg: LayoutGraphData, name: string): number {
     const nameID = lg.attributeIndex.get(name);
     if (nameID === undefined) {
         const newID = lg.valueNames.length;
@@ -1138,7 +1138,7 @@ class LayoutGraphBuilder2 implements LayoutGraphBuilder {
         for (let j = 0; j < block.descriptors.length; ++j) {
             const name: string = block.descriptorNames[j];
             const d: Descriptor = block.descriptors[j];
-            const nameID = getDescriptorID(lg, name);
+            const nameID = getOrCreateDescriptorID(lg, name);
             const data = new DescriptorData(nameID, d.type, d.count);
             dstBlock.descriptors.push(data);
         }
@@ -1149,7 +1149,7 @@ class LayoutGraphBuilder2 implements LayoutGraphBuilder {
         const ppl: PipelineLayoutData = g.getLayout(nodeID);
         const setData = this.getDescriptorSetData(ppl, index.updateFrequency);
         const layout = setData.descriptorSetLayoutData;
-        const nameID = getDescriptorID(g, name);
+        const nameID = getOrCreateDescriptorID(g, name);
         layout.uniformBlocks.set(nameID, uniformBlock);
     }
     reserveDescriptorBlock (nodeID: number, index: DescriptorBlockIndex, block: DescriptorBlockFlattened): void {
@@ -1220,7 +1220,7 @@ export function makeDescriptorSetLayoutData (lg: LayoutGraphData,
             descriptorType: DescriptorTypeOrder.UNIFORM_BUFFER,
             visibility: cb.stageFlags,
         });
-        const nameID = getDescriptorID(lg, cb.name);
+        const nameID = getOrCreateDescriptorID(lg, cb.name);
         block.descriptors.push(new DescriptorData(nameID, Type.UNKNOWN, 1));
         // add uniform buffer
         uniformBlocks.set(nameID, new UniformBlock(set, 0xFFFFFFFF, cb.name, cb.members, 1));
@@ -1233,7 +1233,7 @@ export function makeDescriptorSetLayoutData (lg: LayoutGraphData,
             descriptorType: DescriptorTypeOrder.SAMPLER_TEXTURE,
             visibility: samplerTexture.stageFlags,
         });
-        const nameID = getDescriptorID(lg, samplerTexture.name);
+        const nameID = getOrCreateDescriptorID(lg, samplerTexture.name);
         block.descriptors.push(new DescriptorData(nameID, samplerTexture.type, samplerTexture.count));
     }
     for (let i = 0; i < descriptors.samplers.length; i++) {
@@ -1244,7 +1244,7 @@ export function makeDescriptorSetLayoutData (lg: LayoutGraphData,
             descriptorType: DescriptorTypeOrder.SAMPLER,
             visibility: sampler.stageFlags,
         });
-        const nameID = getDescriptorID(lg, sampler.name);
+        const nameID = getOrCreateDescriptorID(lg, sampler.name);
         block.descriptors.push(new DescriptorData(nameID, Type.SAMPLER, sampler.count));
     }
     for (let i = 0; i < descriptors.textures.length; i++) {
@@ -1255,7 +1255,7 @@ export function makeDescriptorSetLayoutData (lg: LayoutGraphData,
             descriptorType: DescriptorTypeOrder.TEXTURE,
             visibility: texture.stageFlags,
         });
-        const nameID = getDescriptorID(lg, texture.name);
+        const nameID = getOrCreateDescriptorID(lg, texture.name);
         block.descriptors.push(new DescriptorData(nameID, texture.type, texture.count));
     }
     for (let i = 0; i < descriptors.buffers.length; i++) {
@@ -1266,7 +1266,7 @@ export function makeDescriptorSetLayoutData (lg: LayoutGraphData,
             descriptorType: DescriptorTypeOrder.STORAGE_BUFFER,
             visibility: buffer.stageFlags,
         });
-        const nameID = getDescriptorID(lg, buffer.name);
+        const nameID = getOrCreateDescriptorID(lg, buffer.name);
         block.descriptors.push(new DescriptorData(nameID, Type.UNKNOWN, 1));
     }
     for (let i = 0; i < descriptors.images.length; i++) {
@@ -1277,7 +1277,7 @@ export function makeDescriptorSetLayoutData (lg: LayoutGraphData,
             descriptorType: DescriptorTypeOrder.STORAGE_IMAGE,
             visibility: image.stageFlags,
         });
-        const nameID = getDescriptorID(lg, image.name);
+        const nameID = getOrCreateDescriptorID(lg, image.name);
         block.descriptors.push(new DescriptorData(nameID, image.type, image.count));
     }
     for (let i = 0; i < descriptors.subpassInputs.length; i++) {
@@ -1288,7 +1288,7 @@ export function makeDescriptorSetLayoutData (lg: LayoutGraphData,
             descriptorType: DescriptorTypeOrder.INPUT_ATTACHMENT,
             visibility: subpassInput.stageFlags,
         });
-        const nameID = getDescriptorID(lg, subpassInput.name);
+        const nameID = getOrCreateDescriptorID(lg, subpassInput.name);
         block.descriptors.push(new DescriptorData(nameID, Type.UNKNOWN, subpassInput.count));
     }
 

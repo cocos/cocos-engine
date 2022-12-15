@@ -1144,7 +1144,7 @@ inline void removePathImpl(LayoutGraph::vertex_descriptor u, LayoutGraph& g) noe
     // notice: here we use ccstd::string, not std::pmr::string
     // we do not want to increase the memory of g
     auto pathName = getPath(u, g);
-    auto iter     = g.pathIndex.find(std::string_view(pathName));
+    auto iter = g.pathIndex.find(std::string_view{pathName});
     CC_EXPECTS(iter != g.pathIndex.end());
     g.pathIndex.erase(iter);
     for (auto&& nvp : g.pathIndex) {
@@ -1844,7 +1844,7 @@ inline void removePathImpl(LayoutGraphData::vertex_descriptor u, LayoutGraphData
     // notice: here we use ccstd::string, not std::pmr::string
     // we do not want to increase the memory of g
     auto pathName = getPath(u, g);
-    auto iter     = g.pathIndex.find(std::string_view(pathName));
+    auto iter = g.pathIndex.find(std::string_view{pathName});
     CC_EXPECTS(iter != g.pathIndex.end());
     g.pathIndex.erase(iter);
     for (auto&& nvp : g.pathIndex) {

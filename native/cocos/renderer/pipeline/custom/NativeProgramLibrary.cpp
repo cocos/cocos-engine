@@ -26,10 +26,12 @@
 #include <stdexcept>
 #include <tuple>
 #include "NativePipelineTypes.h"
-#include "base/Log.h"
-#include "core/assets/EffectAsset.h"
-#include "pipeline/custom/LayoutGraphGraphs.h"
-#include "pipeline/custom/LayoutGraphTypes.h"
+#include "ProgramLib.h"
+#include "ProgramUtils.h"
+#include "cocos/base/Log.h"
+#include "cocos/core/assets/EffectAsset.h"
+#include "cocos/renderer/pipeline/custom/LayoutGraphGraphs.h"
+#include "cocos/renderer/pipeline/custom/LayoutGraphTypes.h"
 
 namespace cc {
 
@@ -87,10 +89,32 @@ int validateShaderInfo(const IShaderInfo &srcShaderInfo) {
     return 0;
 }
 
+IProgramInfo makeProgramInfo(const ccstd::string &effectName, const IShaderInfo &shader) {
+    IProgramInfo programInfo;
+    programInfo.copyFrom(shader);
+    programInfo.effectName = effectName;
+
+    populateMacros(programInfo);
+
+    return programInfo;
+}
+
+ShaderProgramData &buildProgramData(
+    const ccstd::string &programName,
+    const IShaderInfo &srcShaderInfo,
+    const LayoutGraphData &lg,
+    RenderPhaseData &phase,
+    bool fixedLocal) {
+    auto shaderID = static_cast<uint32_t>(phase.shaderPrograms.size());
+    phase.shaderIndex.emplace(programName, shaderID);
+
+    return phase.shaderPrograms.emplace_back();
+}
+
 } // namespace
 
 void NativeProgramLibrary::addEffect(EffectAsset *effectAssetIn) {
-    const auto &lg = layoutGraph;
+    auto &lg = layoutGraph;
     const auto &effect = *effectAssetIn;
     for (const auto &tech : effect._techniques) {
         for (const auto &pass : tech.passes) {
@@ -105,6 +129,7 @@ void NativeProgramLibrary::addEffect(EffectAsset *effectAssetIn) {
             const auto &passLayout = get(LayoutGraphData::Layout, lg, passID);
             const auto &phaseLayout = get(LayoutGraphData::Layout, lg, phaseID);
 
+            // programs
             auto iter = this->phases.find(phaseID);
             if (iter == this->phases.end()) {
                 iter = this->phases.emplace(std::piecewise_construct,
@@ -113,6 +138,15 @@ void NativeProgramLibrary::addEffect(EffectAsset *effectAssetIn) {
                            .first;
             }
             const auto &phasePrograms = iter->second.programInfos;
+
+            // build program
+            auto programInfo = makeProgramInfo(effect._name, *srcShaderInfo);
+
+            // collect program descriptors
+            ShaderProgramData *programData = nullptr;
+            if (!mergeHighFrequency) {
+                auto &phase = get(RenderPhaseTag{}, phaseID, lg);
+            }
         }
     }
 }

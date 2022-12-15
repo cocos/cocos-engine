@@ -29,11 +29,11 @@ import { Attribute, DescriptorSetLayout, DESCRIPTOR_BUFFER_TYPE, DESCRIPTOR_SAMP
 import { genHandles, getActiveAttributes, getCombinationDefines, getShaderInstanceName, getSize, getVariantKey, populateMacros, prepareDefines } from '../../render-scene/core/program-utils';
 import { getDeviceShaderVersion, MacroRecord } from '../../render-scene';
 import { IProgramInfo } from '../../render-scene/core/program-lib';
-import { DescriptorBlockData, DescriptorData, DescriptorSetData, DescriptorSetLayoutData, LayoutGraphData, LayoutGraphDataValue, PipelineLayoutData, RenderPhaseData, ShaderProgramData, UniformBlockData } from './layout-graph';
+import { DescriptorBlockData, DescriptorData, DescriptorSetData, DescriptorSetLayoutData, LayoutGraphData, LayoutGraphDataValue, PipelineLayoutData, RenderPhaseData, ShaderProgramData } from './layout-graph';
 import { ProgramLibrary, ProgramProxy } from './private';
 import { DescriptorTypeOrder, UpdateFrequency } from './types';
 import { ProgramGroup, ProgramHost, ProgramInfo } from './web-types';
-import { getCustomPassID, getCustomPhaseID, getOrCreateDescriptorSetLayout, getEmptyDescriptorSetLayout, getEmptyPipelineLayout, initializeDescriptorSetLayoutInfo, makeDescriptorSetLayoutData, getDescriptorSetLayout, getOrCreateDescriptorBlockData, getDescriptorID, getDescriptorTypeOrder, getProgramID, getDescriptorNameID, getDescriptorName, INVALID_ID } from './layout-graph-utils';
+import { getCustomPassID, getCustomPhaseID, getOrCreateDescriptorSetLayout, getEmptyDescriptorSetLayout, getEmptyPipelineLayout, initializeDescriptorSetLayoutInfo, makeDescriptorSetLayoutData, getDescriptorSetLayout, getOrCreateDescriptorID, getDescriptorTypeOrder, getProgramID, getDescriptorNameID, getDescriptorName, INVALID_ID } from './layout-graph-utils';
 import { assert } from '../../core/platform/debug';
 import { IDescriptorSetLayoutInfo, localDescriptorSetLayout } from '../define';
 
@@ -446,7 +446,7 @@ function makeLocalDescriptorSetLayoutData (lg: LayoutGraphData,
     const data = new DescriptorSetLayoutData();
     for (const b of source.bindings) {
         const [name, type] = getDescriptorNameAndType(source, b.binding);
-        const nameID = getDescriptorID(lg, name);
+        const nameID = getOrCreateDescriptorID(lg, name);
         const order = getDescriptorTypeOrder(b.descriptorType);
         const block = new DescriptorBlockData(order, b.stageFlags, b.count);
         block.offset = b.binding;
@@ -477,14 +477,14 @@ function buildProgramData (
             UpdateFrequency.PER_BATCH,
             _setIndex[UpdateFrequency.PER_BATCH],
             srcShaderInfo.descriptors[UpdateFrequency.PER_BATCH]);
-        const setData =  new DescriptorSetData(perBatch);
+        const setData = new DescriptorSetData(perBatch);
         initializeDescriptorSetLayoutInfo(setData.descriptorSetLayoutData,
             setData.descriptorSetLayoutInfo);
         programData.layout.descriptorSets.set(UpdateFrequency.PER_BATCH, setData);
     }
     if (fixedLocal) {
         const perInstance = makeLocalDescriptorSetLayoutData(lg, localDescriptorSetLayout);
-        const setData =  new DescriptorSetData(perInstance);
+        const setData = new DescriptorSetData(perInstance);
         initializeDescriptorSetLayoutInfo(setData.descriptorSetLayoutData,
             setData.descriptorSetLayoutInfo);
         if (localDescriptorSetLayout.bindings.length !== setData.descriptorSetLayoutInfo.bindings.length) {
@@ -507,7 +507,7 @@ function buildProgramData (
             UpdateFrequency.PER_INSTANCE,
             _setIndex[UpdateFrequency.PER_INSTANCE],
             srcShaderInfo.descriptors[UpdateFrequency.PER_INSTANCE]);
-        const setData =  new DescriptorSetData(perInstance);
+        const setData = new DescriptorSetData(perInstance);
         initializeDescriptorSetLayoutInfo(setData.descriptorSetLayoutData,
             setData.descriptorSetLayoutInfo);
         programData.layout.descriptorSets.set(UpdateFrequency.PER_INSTANCE, setData);
@@ -752,7 +752,7 @@ export class WebProgramLibrary implements ProgramLibrary {
         // prepare variant
         const macroArray = prepareDefines(defines, programInfo.defines);
         const prefix = this.layoutGraph.constantMacros + programInfo.constantMacros
-        + macroArray.reduce((acc, cur) => `${acc}#define ${cur.name} ${cur.value}\n`, '');
+            + macroArray.reduce((acc, cur) => `${acc}#define ${cur.name} ${cur.value}\n`, '');
 
         let src = programInfo.glsl3;
         const deviceShaderVersion = getDeviceShaderVersion(device);
