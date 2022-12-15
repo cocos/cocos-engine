@@ -76,6 +76,7 @@ private:
 
     ccstd::vector<Subpass> _subpasses{};
     ccstd::vector<Attachment> _attachments{};
+    ccstd::vector<Attachment> _msrt{}; // multisample render targets 
     uint16_t _usedRenderTargetSlotMask{0};
     DevicePassResourceTable _resourceTable;
 

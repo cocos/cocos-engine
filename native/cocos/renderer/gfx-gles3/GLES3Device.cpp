@@ -50,7 +50,7 @@
 
 // when capturing GLES commands (RENDERDOC_HOOK_EGL=1, default value)
 // renderdoc doesn't support this extension during replay
-#define ALLOW_MULTISAMPLED_RENDER_TO_TEXTURE_ON_DESKTOP 0
+#define ALLOW_MULTISAMPLED_RENDER_TO_TEXTURE_ON_DESKTOP 1
 
 namespace cc {
 namespace gfx {

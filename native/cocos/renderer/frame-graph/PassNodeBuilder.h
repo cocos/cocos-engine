@@ -49,6 +49,7 @@ public:
     TypedHandle<ResourceType> write(TypedHandle<ResourceType> const &output) const noexcept;
     TextureHandle write(const TextureHandle &output, uint8_t mipmapLevel, uint8_t faceId, uint8_t arrayPosition, const RenderTargetAttachment::Descriptor &attachmentDesc) const noexcept;
     TextureHandle write(const TextureHandle &output, const RenderTargetAttachment::Descriptor &attachmentDesc) const noexcept;
+    auto writeToMSAA(const TextureHandle &output, const RenderTargetAttachment::Descriptor &attachmentDesc) const noexcept -> const std::tuple<TextureHandle, TextureHandle>;
 
     inline void sideEffect() const noexcept;
     inline void subpass(bool end = false, bool clearActionIgnorable = true) const noexcept;

@@ -120,6 +120,27 @@ DevicePass::DevicePass(const FrameGraph &graph, ccstd::vector<PassNode *> const 
     for (PassNode *const passNode : subpassNodes) {
         _resourceTable.extract(graph, passNode, renderTargets);
     }
+
+    uint32_t depthOffset = depthNewIndex == gfx::INVALID_BINDING ? 0 : 1;
+    for (size_t i = 0; i < subpassNodes.size(); ++i) {
+        const auto &passNode = subpassNodes[i]; 
+        for (auto &attachment : passNode->_attachments) {
+            if (attachment.desc.resolveSource != Handle::UNINITIALIZED) {
+                const ResourceNode &resourceNode = graph.getResourceNode(attachment.textureHandle);
+                CC_ASSERT(resourceNode.virtualResource);
+
+                gfx::Texture *resource = static_cast<ResourceEntry<Texture> *>(resourceNode.virtualResource)->getDeviceResource();
+                CC_ASSERT(resource);
+
+                _attachments.emplace_back();
+                _attachments.back().attachment = attachment;
+                _attachments.back().renderTarget = resource;
+
+                // _subpasses[i].desc.colors.emplace_back(_attachments.size() - 1 - depthOffset);
+                _subpasses[i].desc.resolves.emplace_back(_attachments.size() - 1 - depthOffset);
+            }
+        }
+    }
 }
 
 void DevicePass::passDependency(gfx::RenderPassInfo &rpInfo) {
@@ -271,6 +292,11 @@ void DevicePass::append(const FrameGraph &graph, const PassNode *passNode, ccstd
 
 void DevicePass::append(const FrameGraph &graph, const RenderTargetAttachment &attachment,
                         ccstd::vector<RenderTargetAttachment> *attachments, gfx::SubpassInfo *subpass, const ccstd::vector<Handle> &reads) {
+    // later put resolved targets at the end
+    if (attachment.desc.resolveSource != Handle::UNINITIALIZED) {
+        //_resolves.emplace_back(attachment);
+        return;
+    }
     RenderTargetAttachment::Usage usage{attachment.desc.usage};
     uint32_t slot{attachment.desc.slot};
     if (attachment.desc.usage == RenderTargetAttachment::Usage::COLOR) {
@@ -382,6 +408,7 @@ void DevicePass::begin(gfx::CommandBuffer *cmdBuff) {
             attachmentInfo.storeOp = attachElem.attachment.storeOp;
             attachmentInfo.barrier = gfx::Device::getInstance()->getGeneralBarrier({attachElem.attachment.desc.beginAccesses, attachElem.attachment.desc.endAccesses});
             attachmentInfo.isGeneralLayout = attachElem.attachment.isGeneralLayout;
+            attachmentInfo.sampleCount = attachElem.attachment.desc.samples;
             fboInfo.colorTextures.push_back(attachElem.renderTarget);
             clearColors.emplace_back(attachElem.attachment.desc.clearColor);
         } else {
@@ -393,6 +420,7 @@ void DevicePass::begin(gfx::CommandBuffer *cmdBuff) {
             attachmentInfo.stencilStoreOp = attachElem.attachment.storeOp;
             attachmentInfo.barrier = gfx::Device::getInstance()->getGeneralBarrier({attachElem.attachment.desc.beginAccesses, attachElem.attachment.desc.endAccesses});
             attachmentInfo.isGeneralLayout = attachElem.attachment.isGeneralLayout;
+            attachmentInfo.sampleCount = attachElem.attachment.desc.samples;
             fboInfo.depthStencilTexture = attachElem.renderTarget;
             clearDepth = attachElem.attachment.desc.clearDepth;
             clearStencil = attachElem.attachment.desc.clearStencil;

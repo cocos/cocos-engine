@@ -162,6 +162,9 @@ void ForwardStage::render(scene::Camera *camera) {
     _batchedQueue->uploadBuffers(cmdBuff);
     _additiveLightQueue->gatherLightPasses(camera, cmdBuff);
     _planarShadowQueue->gatherShadowPasses(camera, cmdBuff);
+
+    static constexpr bool msaaRT{true};
+    framegraph::StringHandle outputTexHandle;
     auto forwardSetup = [&](framegraph::PassNodeBuilder &builder, RenderData &data) {
         if (hasFlag(static_cast<gfx::ClearFlags>(camera->getClearFlag()), gfx::ClearFlagBit::COLOR)) {
             _clearColors[0].x = camera->getClearColor().x;
@@ -172,6 +175,7 @@ void ForwardStage::render(scene::Camera *camera) {
         // color
 // for inserting ar background before forward stage
 #if CC_USE_AR_MODULE
+        outputTexHandle = RenderPipeline::fgStrHandleOutColorTexture;
         framegraph::RenderTargetAttachment::Descriptor colorAttachmentInfo;
         colorAttachmentInfo.usage = framegraph::RenderTargetAttachment::Usage::COLOR;
         colorAttachmentInfo.clearColor = _clearColors[0];
@@ -188,7 +192,7 @@ void ForwardStage::render(scene::Camera *camera) {
             if (shadingScale != 1.F) {
                 colorTexInfo.usage |= gfx::TextureUsageBit::TRANSFER_SRC;
             }
-            data.outputTex = builder.create(RenderPipeline::fgStrHandleOutColorTexture, colorTexInfo);
+            data.outputTex = builder.create(outputTexHandle, colorTexInfo);
 
             if (!hasFlag(clearFlags, gfx::ClearFlagBit::COLOR)) {
                 if (hasFlag(clearFlags, static_cast<gfx::ClearFlagBit>(skyboxFlag))) {
@@ -200,16 +204,10 @@ void ForwardStage::render(scene::Camera *camera) {
         } else {
             colorAttachmentInfo.loadOp = gfx::LoadOp::LOAD;
         }
+        colorAttachmentInfo.beginAccesses = colorAttachmentInfo.endAccesses = gfx::AccessFlagBit::COLOR_ATTACHMENT_WRITE;
+
+        data.outputTex = builder.write(data.outputTex, colorAttachmentInfo);
 #else
-        framegraph::Texture::Descriptor colorTexInfo;
-        colorTexInfo.format = sceneData->isHDR() ? gfx::Format::RGBA16F : gfx::Format::RGBA8;
-        colorTexInfo.usage = gfx::TextureUsageBit::COLOR_ATTACHMENT;
-        colorTexInfo.width = static_cast<uint32_t>(static_cast<float>(camera->getWindow()->getWidth()) * shadingScale);
-        colorTexInfo.height = static_cast<uint32_t>(static_cast<float>(camera->getWindow()->getHeight()) * shadingScale);
-        if (shadingScale != 1.F) {
-            colorTexInfo.usage |= gfx::TextureUsageBit::TRANSFER_SRC;
-        }
-        data.outputTex = builder.create(RenderPipeline::fgStrHandleOutColorTexture, colorTexInfo);
         framegraph::RenderTargetAttachment::Descriptor colorAttachmentInfo;
         colorAttachmentInfo.usage = framegraph::RenderTargetAttachment::Usage::COLOR;
         colorAttachmentInfo.clearColor = _clearColors[0];
@@ -222,12 +220,44 @@ void ForwardStage::render(scene::Camera *camera) {
                 colorAttachmentInfo.loadOp = gfx::LoadOp::LOAD;
             }
         }
-#endif
-
         colorAttachmentInfo.beginAccesses = colorAttachmentInfo.endAccesses = gfx::AccessFlagBit::COLOR_ATTACHMENT_WRITE;
 
-        data.outputTex = builder.write(data.outputTex, colorAttachmentInfo);
-        builder.writeToBlackboard(RenderPipeline::fgStrHandleOutColorTexture, data.outputTex);
+        framegraph::Texture::Descriptor colorTexInfo;
+        colorTexInfo.format = sceneData->isHDR() ? gfx::Format::RGBA16F : gfx::Format::RGBA8;
+        colorTexInfo.usage = gfx::TextureUsageBit::COLOR_ATTACHMENT;
+        colorTexInfo.width = static_cast<uint32_t>(static_cast<float>(camera->getWindow()->getWidth()) * shadingScale);
+        colorTexInfo.height = static_cast<uint32_t>(static_cast<float>(camera->getWindow()->getHeight()) * shadingScale);
+        if (shadingScale != 1.F) {
+            colorTexInfo.usage |= gfx::TextureUsageBit::TRANSFER_SRC;
+        }
+        auto resolveTex = builder.create(RenderPipeline::fgStrHandleOutColorTexture, colorTexInfo);
+        
+        if constexpr (msaaRT) {
+            using TempType = decltype(colorAttachmentInfo.resolveSource);
+            outputTexHandle = framegraph::FrameGraph::stringToHandle("MSAARenderTargetButWillBeResolvedLater");
+
+            framegraph::Texture::Descriptor colorMSAATexInfo = colorTexInfo;
+            colorMSAATexInfo.samples = gfx::SampleCount::MULTIPLE_QUALITY;
+            auto msaaTex = builder.create(outputTexHandle, colorMSAATexInfo);
+
+            colorAttachmentInfo.resolveSource = msaaTex;
+            colorAttachmentInfo.resolveTarget = TempType{TempType::UNINITIALIZED};
+            resolveTex = builder.write(resolveTex, colorAttachmentInfo);
+
+            colorAttachmentInfo.resolveTarget = resolveTex;
+            colorAttachmentInfo.resolveSource = TempType{TempType::UNINITIALIZED};
+            colorAttachmentInfo.samples = gfx::SampleCount::MULTIPLE_QUALITY;
+            data.outputTex = builder.write(msaaTex, colorAttachmentInfo);
+
+            //resolveNextGen
+            builder.writeToBlackboard(RenderPipeline::fgStrHandleOutColorTexture, resolveTex);
+        } else {
+            outputTexHandle = RenderPipeline::fgStrHandleOutColorTexture;
+            data.outputTex = builder.write(resolveTex, colorAttachmentInfo);
+        }
+
+#endif
+        builder.writeToBlackboard(outputTexHandle, data.outputTex);
         // depth
         gfx::TextureInfo depthTexInfo{
             gfx::TextureType::TEX2D,
@@ -256,7 +286,11 @@ void ForwardStage::render(scene::Camera *camera) {
     };
 
     auto offset = _pipeline->getPipelineUBO()->getCurrentCameraUBOOffset();
-    auto forwardExec = [this, camera, offset, pipeline](const RenderData & /*data*/, const framegraph::DevicePassResourceTable &table) {
+    auto forwardExec = [this, camera, offset, pipeline](const RenderData & data, const framegraph::DevicePassResourceTable &table) {
+        //if constexpr (msaaRT) {
+        //    //table.getRead(data.resolveColor);
+        //    table.getWrite(data.resolveColor);
+        //}
         auto *renderPass = table.getRenderPass();
         auto *cmdBuff = _pipeline->getCommandBuffers()[0];
         cmdBuff->bindDescriptorSet(globalSet, _pipeline->getDescriptorSet(), 1, &offset);

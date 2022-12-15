@@ -1630,7 +1630,7 @@ static GLES3GPUSwapchain *getSwapchainIfExists(const ccstd::vector<GLES3GPUTextu
                 ++offscreenCount;
             }
         }
-        CC_ASSERT(!offscreenCount || offscreenCount == count);
+        //CC_ASSERT( !offscreenCount || offscreenCount == count);
     }
     return swapchain;
 }
@@ -1639,7 +1639,7 @@ static void doCreateFramebufferInstance(GLES3Device *device, GLES3GPUFramebuffer
                                         uint32_t depthStencil, GLES3GPUFramebuffer::Framebuffer *outFBO,
                                         const uint32_t *resolves = nullptr, uint32_t depthStencilResolve = INVALID_BINDING) {
     GLES3GPUSwapchain *swapchain{getSwapchainIfExists(gpuFBO->gpuColorViews, colors.data(), colors.size())};
-    if (!swapchain) {
+    if (!swapchain || colors.size() > 1) {
         const GLES3GPUTextureView *depthStencilTextureView = nullptr;
         if (depthStencil != INVALID_BINDING) {
             depthStencilTextureView = depthStencil < gpuFBO->gpuColorViews.size()
