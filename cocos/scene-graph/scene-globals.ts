@@ -1072,7 +1072,7 @@ export class LightProbeInfo {
      * @zh GI乘数
      */
     @editable
-    @range([0.01, 100, 1])
+    @range([0, 100, 1])
     @type(CCFloat)
     @tooltip('i18n:light_probe.giScale')
     @displayName('GIScale')
