@@ -24,11 +24,12 @@
 ****************************************************************************/
 
 #pragma once
-#include <cocos/renderer/pipeline/custom/Utility.h>
 #include <boost/container/flat_set.hpp>
 #include <boost/container/pmr/flat_set.hpp>
 #include <set>
 #include <unordered_set>
+#include "cocos/base/std/hash/hash_fwd.hpp"
+#include "cocos/renderer/pipeline/custom/details/Utility.h"
 
 // for std::less<> the transparent comparator
 // see https://stackoverflow.com/questions/20317413/what-are-transparent-comparators

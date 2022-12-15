@@ -1,12 +1,12 @@
 #include <boost/graph/depth_first_search.hpp>
 #include <boost/graph/filtered_graph.hpp>
-#include "GraphView.h"
 #include "LayoutGraphGraphs.h"
 #include "NativePipelineGraphs.h"
 #include "NativePipelineTypes.h"
 #include "RenderGraphGraphs.h"
 #include "RenderGraphNames.h"
 #include "details/DebugUtils.h"
+#include "details/GraphView.h"
 #include "gfx-base/GFXDef-common.h"
 #include "pipeline/custom/RenderCommonTypes.h"
 #include "pipeline/custom/RenderGraphFwd.h"

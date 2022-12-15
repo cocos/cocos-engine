@@ -24,11 +24,11 @@
 ****************************************************************************/
 
 #pragma once
-#include "base/std/container/map.h"
-#include "base/std/container/string.h"
-#include "base/std/container/vector.h"
-#include "bindings/manual/jsb_conversions.h"
-#include "renderer/pipeline/custom/Map.h"
+#include "cocos/base/std/container/map.h"
+#include "cocos/base/std/container/string.h"
+#include "cocos/base/std/container/vector.h"
+#include "cocos/bindings/manual/jsb_conversions.h"
+#include "cocos/renderer/pipeline/custom/details/Map.h"
 
 template <typename T, typename allocator>
 inline bool nativevalue_to_se( // NOLINT(readability-identifier-naming)

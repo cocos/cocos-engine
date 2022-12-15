@@ -27,12 +27,12 @@
 #include "LayoutGraphNames.h"
 #include "LayoutGraphTypes.h"
 #include "NativePipelineGraphs.h"
-#include "Pmr.h"
-#include "Range.h"
 #include "RenderCommonNames.h"
 #include "cocos/renderer/gfx-base/GFXDevice.h"
 #include "details/DebugUtils.h"
 #include "details/GslUtils.h"
+#include "details/Pmr.h"
+#include "details/Range.h"
 
 namespace cc {
 

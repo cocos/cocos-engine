@@ -37,9 +37,9 @@
 #include "cocos/renderer/gfx-base/GFXRenderPass.h"
 #include "cocos/renderer/pipeline/GlobalDescriptorSetManager.h"
 #include "cocos/renderer/pipeline/custom/LayoutGraphTypes.h"
-#include "cocos/renderer/pipeline/custom/Map.h"
 #include "cocos/renderer/pipeline/custom/NativeFwd.h"
 #include "cocos/renderer/pipeline/custom/RenderInterfaceTypes.h"
+#include "cocos/renderer/pipeline/custom/details/Map.h"
 
 namespace cc {
 

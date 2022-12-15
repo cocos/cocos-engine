@@ -30,11 +30,11 @@
 #include <boost/optional.hpp>
 #include <memory>
 #include <type_traits>
-#include "base/memory/Memory.h"
-#include "base/std/container/list.h"
-#include "base/std/container/string.h"
-#include "base/std/variant.h"
-#include "renderer/pipeline/custom/Overload.h"
+#include "cocos/base/memory/Memory.h"
+#include "cocos/base/std/container/list.h"
+#include "cocos/base/std/container/string.h"
+#include "cocos/base/std/variant.h"
+#include "cocos/renderer/pipeline/custom/details/Overload.h"
 
 namespace boost {
 

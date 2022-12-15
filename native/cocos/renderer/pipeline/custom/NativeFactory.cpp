@@ -30,7 +30,7 @@
 #include "RenderInterfaceTypes.h"
 #include "details/GslUtils.h"
 #include "pipeline/custom/LayoutGraphTypes.h"
-#include "pipeline/custom/Pmr.h"
+#include "pipeline/custom/details/Pmr.h"
 
 namespace cc {
 
