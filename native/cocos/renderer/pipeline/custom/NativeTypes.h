@@ -91,8 +91,8 @@ struct ProgramGroup {
     ProgramGroup& operator=(ProgramGroup&& rhs) = default;
     ProgramGroup& operator=(ProgramGroup const& rhs) = default;
 
-    PmrUnorderedMap<ccstd::pmr::string, ProgramInfo> programInfos;
-    PmrUnorderedMap<ccstd::pmr::string, ProgramHost> programHosts;
+    PmrFlatMap<ccstd::pmr::string, ProgramInfo> programInfos;
+    PmrFlatMap<ccstd::pmr::string, ProgramHost> programHosts;
 };
 
 } // namespace render
