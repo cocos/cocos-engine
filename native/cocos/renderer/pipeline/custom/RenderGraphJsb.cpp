@@ -31,9 +31,9 @@
 // clang-format off
 #include "cocos/bindings/auto/jsb_gfx_auto.h"
 #include "cocos/bindings/auto/jsb_scene_auto.h"
-#include "cocos/renderer/pipeline/custom/JsbConversion.h"
 #include "cocos/renderer/pipeline/custom/RenderGraphJsb.h"
 #include "cocos/renderer/pipeline/custom/RenderGraphTypes.h"
+#include "cocos/renderer/pipeline/custom/details/JsbConversion.h"
 
 bool nativevalue_to_se(const cc::render::ClearView &from, se::Value &to, se::Object *ctx) { // NOLINT
     se::HandleObject obj(se::Object::createPlainObject());
