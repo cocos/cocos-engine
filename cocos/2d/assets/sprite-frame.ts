@@ -1241,12 +1241,9 @@ export class SpriteFrame extends Asset {
             this._packable = false;
             return;
         }
-        let CanvasElement: any;
-        if (typeof jsb.window !== 'undefined') {
-            CanvasElement = jsb.window.HTMLCanvasElement;
-        } else {
-            CanvasElement = globalThis.HTMLCanvasElement;
-        }
+        const engineGlobal = typeof globalThis.jsb !== 'undefined' ? (typeof jsb.window !== 'undefined' ? jsb.window : globalThis) : globalThis;
+        const CanvasElement = engineGlobal.HTMLCanvasElement;
+
         if (texture.image && texture.image instanceof CanvasElement) {
             this._packable = true;
         }

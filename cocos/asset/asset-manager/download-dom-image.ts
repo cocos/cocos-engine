@@ -27,14 +27,14 @@
 import { getError } from '../../core';
 import { CompleteCallback, IDownloadParseOptions } from './shared';
 
-const jsbWindow = typeof globalThis.jsb !== 'undefined' ? (typeof jsb.window !== 'undefined' ? jsb.window : window) : window;
+const engineGlobal = typeof globalThis.jsb !== 'undefined' ? (typeof jsb.window !== 'undefined' ? jsb.window : window) : window;
 
 export default function downloadDomImage (
     url: string,
     options: IDownloadParseOptions,
     onComplete: CompleteCallback<HTMLImageElement>,
 ): HTMLImageElement {
-    const img = new jsbWindow.Image();
+    const img = new engineGlobal.Image();
 
     if (window.location.protocol !== 'file:') {
         img.crossOrigin = 'anonymous';
