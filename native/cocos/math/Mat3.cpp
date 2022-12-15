@@ -37,9 +37,10 @@ Mat3::Mat3() {
     *this = IDENTITY;
 }
 
-Mat3::Mat3(float m11, float m12, float m13, float m21, float m22, float m23,
-           float m31, float m32, float m33) {
-    set(m11, m12, m13, m21, m22, m23, m31, m32, m33);
+Mat3::Mat3(float m00, float m01, float m02,
+           float m10, float m11, float m12,
+           float m20, float m21, float m22) {
+    set(m00, m01, m02, m10, m11, m12, m20, m21, m22);
 }
 
 Mat3::Mat3(const float *mat) {
@@ -50,16 +51,18 @@ Mat3::Mat3(const Mat3 &copy) {
     memcpy(m, copy.m, MATRIX3_SIZE);
 }
 
-void Mat3::set(float m11, float m12, float m13, float m21, float m22, float m23, float m31, float m32, float m33) {
-    m[0] = m11;
-    m[1] = m21;
-    m[2] = m31;
-    m[3] = m12;
-    m[4] = m22;
-    m[5] = m32;
-    m[6] = m13;
-    m[7] = m23;
-    m[8] = m33;
+void Mat3::set(float m00, float m01, float m02,
+               float m10, float m11, float m12,
+               float m20, float m21, float m22) {
+    m[0] = m00;
+    m[1] = m10;
+    m[2] = m20;
+    m[3] = m01;
+    m[4] = m11;
+    m[5] = m21;
+    m[6] = m02;
+    m[7] = m12;
+    m[8] = m22;
 }
 
 void Mat3::set(const float *mat) {
