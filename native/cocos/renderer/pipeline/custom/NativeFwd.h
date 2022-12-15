@@ -28,39 +28,23 @@
  * The following section is auto-generated.
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
  */
-/* eslint-disable max-len */
-import { Attribute, Shader, ShaderInfo } from '../../gfx';
-import { IProgramInfo } from '../../render-scene/core/program-lib';
+// clang-format off
+#pragma once
+#include "cocos/base/std/variant.h"
+#include "cocos/renderer/core/ProgramLib.h"
+#include "cocos/renderer/pipeline/custom/LayoutGraphFwd.h"
+#include "cocos/renderer/pipeline/custom/RenderInterfaceFwd.h"
 
-export class ProgramInfo {
-    constructor (
-        programInfo: IProgramInfo,
-        shaderInfo: ShaderInfo,
-        attributes: Attribute[],
-        blockSizes: number[],
-        handleMap: Record<string, number>,
-    ) {
-        this.programInfo = programInfo;
-        this.shaderInfo = shaderInfo;
-        this.attributes = attributes;
-        this.blockSizes = blockSizes;
-        this.handleMap = handleMap;
-    }
-    readonly programInfo: IProgramInfo;
-    readonly shaderInfo: ShaderInfo;
-    readonly attributes: Attribute[];
-    readonly blockSizes: number[];
-    readonly handleMap: Record<string, number>;
-}
+namespace cc {
 
-export class ProgramHost {
-    constructor (program: Shader) {
-        this.program = program;
-    }
-    /*refcount*/ program: Shader;
-}
+namespace render {
 
-export class ProgramGroup {
-    readonly programInfos: Map<string, ProgramInfo> = new Map<string, ProgramInfo>();
-    readonly programHosts: Map<string, ProgramHost> = new Map<string, ProgramHost>();
-}
+struct ProgramInfo;
+struct ProgramHost;
+struct ProgramGroup;
+
+} // namespace render
+
+} // namespace cc
+
+// clang-format on

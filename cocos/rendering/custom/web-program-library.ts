@@ -32,7 +32,7 @@ import { IProgramInfo } from '../../render-scene/core/program-lib';
 import { DescriptorBlockData, DescriptorData, DescriptorSetData, DescriptorSetLayoutData, LayoutGraphData, LayoutGraphDataValue, PipelineLayoutData, RenderPhaseData, ShaderProgramData, UniformBlockData } from './layout-graph';
 import { ProgramLibrary, ProgramProxy } from './private';
 import { DescriptorTypeOrder, UpdateFrequency } from './types';
-import { ProgramGroup, ProgramHost, ProgramInfo, ProgramLibraryData } from './web-types';
+import { ProgramGroup, ProgramHost, ProgramInfo } from './web-types';
 import { getCustomPassID, getCustomPhaseID, getOrCreateDescriptorSetLayout, getEmptyDescriptorSetLayout, getEmptyPipelineLayout, initializeDescriptorSetLayoutInfo, makeDescriptorSetLayoutData, getDescriptorSetLayout, getOrCreateDescriptorBlockData, getDescriptorID, getDescriptorTypeOrder, getProgramID, getDescriptorNameID, getDescriptorName, INVALID_ID } from './layout-graph-utils';
 import { assert } from '../../core/platform/debug';
 import { IDescriptorSetLayoutInfo, localDescriptorSetLayout } from '../define';
@@ -600,9 +600,9 @@ function validateShaderInfo (srcShaderInfo: EffectAsset.IShaderInfo): number {
     return 0;
 }
 
-export class WebProgramLibrary extends ProgramLibraryData implements ProgramLibrary {
+export class WebProgramLibrary implements ProgramLibrary {
     constructor (lg: LayoutGraphData) {
-        super(lg);
+        this.layoutGraph = lg;
         for (const v of lg.vertices()) {
             if (lg.holds(LayoutGraphDataValue.RenderPhase, v)) {
                 this.phases.set(v, new ProgramGroup());
@@ -883,4 +883,8 @@ export class WebProgramLibrary extends ProgramLibraryData implements ProgramLibr
     getDescriptorName (nameID: number): string {
         return getDescriptorName(this.layoutGraph, nameID);
     }
+    layoutGraph: LayoutGraphData;
+    readonly phases: Map<number, ProgramGroup> = new Map<number, ProgramGroup>();
+    mergeHighFrequency = false;
+    fixedLocal = true;
 }

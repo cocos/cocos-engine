@@ -37,8 +37,9 @@
 #include "cocos/renderer/gfx-base/GFXRenderPass.h"
 #include "cocos/renderer/pipeline/GlobalDescriptorSetManager.h"
 #include "cocos/renderer/pipeline/InstancedBuffer.h"
-#include "cocos/renderer/pipeline/custom/LayoutGraphTypes.h"
+#include "cocos/renderer/pipeline/custom/Map.h"
 #include "cocos/renderer/pipeline/custom/NativePipelineFwd.h"
+#include "cocos/renderer/pipeline/custom/NativeTypes.h"
 #include "cocos/renderer/pipeline/custom/PrivateTypes.h"
 #include "cocos/renderer/pipeline/custom/RenderGraphTypes.h"
 #include "cocos/renderer/pipeline/custom/Set.h"
@@ -527,6 +528,9 @@ public:
     const ccstd::pmr::string &getDescriptorName(uint32_t nameID) override;
 
     LayoutGraphData layoutGraph;
+    PmrFlatMap<uint32_t, ProgramGroup> phases;
+    bool mergeHighFrequency{false};
+    bool fixedLocal{true};
 };
 
 class NativeRenderingModule final : public RenderingModule {

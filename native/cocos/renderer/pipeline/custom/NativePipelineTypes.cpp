@@ -109,7 +109,8 @@ NativeRenderContext::NativeRenderContext(const allocator_type& alloc) noexcept
   resourceGroups(alloc) {}
 
 NativeProgramLibrary::NativeProgramLibrary(const allocator_type& alloc) noexcept
-: layoutGraph(alloc) {}
+: layoutGraph(alloc),
+  phases(alloc) {}
 
 } // namespace render
 

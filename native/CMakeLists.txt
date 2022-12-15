@@ -1339,6 +1339,7 @@ cocos_source_files(
                  cocos/renderer/pipeline/custom/LayoutGraphTypes.h
                  cocos/renderer/pipeline/custom/NativeExecutor.cpp
                  cocos/renderer/pipeline/custom/NativeFactory.cpp
+                 cocos/renderer/pipeline/custom/NativeFwd.h
                  cocos/renderer/pipeline/custom/NativeLayoutGraph.cpp
                  cocos/renderer/pipeline/custom/NativePipeline.cpp
                  cocos/renderer/pipeline/custom/NativePipelineFwd.h
@@ -1349,6 +1350,8 @@ cocos_source_files(
                  cocos/renderer/pipeline/custom/NativeRenderGraph.cpp
                  cocos/renderer/pipeline/custom/NativeRenderQueue.cpp
                  cocos/renderer/pipeline/custom/NativeRenderingModule.cpp
+                 cocos/renderer/pipeline/custom/NativeTypes.cpp
+                 cocos/renderer/pipeline/custom/NativeTypes.h
                  cocos/renderer/pipeline/custom/PrivateFwd.h
                  cocos/renderer/pipeline/custom/PrivateTypes.cpp
                  cocos/renderer/pipeline/custom/PrivateTypes.h
