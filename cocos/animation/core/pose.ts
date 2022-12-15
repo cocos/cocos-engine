@@ -70,6 +70,7 @@ export class TransformFilter {
 
 export function blendPoseInto (target: Pose, source: Readonly<Pose>, alpha: number, transformFilter: TransformFilter | undefined = undefined) {
     blendTransformsInto(target.transforms, source.transforms, alpha, transformFilter);
+    blendMetaValuesInto(target.metaValues, source.metaValues, alpha);
 }
 
 export function blendTransformsInto (

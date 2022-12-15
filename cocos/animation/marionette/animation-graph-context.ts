@@ -474,7 +474,7 @@ export const defaultTransformsTag = Symbol('[[DefaultTransforms]]');
 
 export class AnimationGraphEvaluationContext {
     constructor (layout: PoseLayout) {
-        this._poseAllocator = new PoseAllocator(layout.transformCount, layout.transformCount);
+        this._poseAllocator = new PoseAllocator(layout.transformCount, layout.metaValueCount);
         this[defaultTransformsTag] = new TransformArray(layout.transformCount);
     }
 
