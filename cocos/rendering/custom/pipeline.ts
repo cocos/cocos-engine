@@ -189,5 +189,10 @@ export interface PipelineBuilder {
     setup (cameras: Camera[], pipeline: Pipeline): void;
 }
 
+export interface RenderingModule {
+    getPassID (name: string): number;
+    getPhaseID (passID: number, name: string): number;
+}
+
 export class Factory {
 }
