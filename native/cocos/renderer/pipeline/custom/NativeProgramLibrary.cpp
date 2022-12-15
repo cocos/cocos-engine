@@ -23,8 +23,11 @@
  THE SOFTWARE.
 ****************************************************************************/
 
+#include <boost/container/pmr/memory_resource.hpp>
 #include <stdexcept>
 #include <tuple>
+#include <utility>
+#include "LayoutGraphUtils.h"
 #include "NativePipelineTypes.h"
 #include "ProgramLib.h"
 #include "ProgramUtils.h"
@@ -38,6 +41,12 @@ namespace cc {
 namespace render {
 
 namespace {
+
+constexpr uint32_t SET_INDEX[4] = {2, 1, 3, 0};
+
+constexpr uint32_t setIndex(UpdateFrequency rate) {
+    return SET_INDEX[static_cast<uint32_t>(rate)];
+}
 
 constexpr auto INVALID_ID = LayoutGraphData::null_vertex();
 
@@ -102,13 +111,34 @@ IProgramInfo makeProgramInfo(const ccstd::string &effectName, const IShaderInfo 
 ShaderProgramData &buildProgramData(
     const ccstd::string &programName,
     const IShaderInfo &srcShaderInfo,
-    const LayoutGraphData &lg,
+    LayoutGraphData &lg,
     RenderPhaseData &phase,
-    bool fixedLocal) {
+    bool fixedLocal,
+    boost::container::pmr::memory_resource *scratch) {
+    std::ignore = fixedLocal;
     auto shaderID = static_cast<uint32_t>(phase.shaderPrograms.size());
     phase.shaderIndex.emplace(programName, shaderID);
+    auto &programData = phase.shaderPrograms.emplace_back();
 
-    return phase.shaderPrograms.emplace_back();
+    {
+        auto res = programData.layout.descriptorSets.emplace(
+            std::piecewise_construct,
+            std::forward_as_tuple(UpdateFrequency::PER_BATCH),
+            std::forward_as_tuple());
+        CC_ENSURES(res.second);
+
+        auto &setData = res.first->second;
+
+        makeDescriptorSetLayoutData(
+            lg, UpdateFrequency::PER_BATCH,
+            setIndex(UpdateFrequency::PER_BATCH),
+            srcShaderInfo.descriptors[static_cast<uint32_t>(UpdateFrequency::PER_BATCH)],
+            setData.descriptorSetLayoutData, scratch);
+        initializeDescriptorSetLayoutInfo(
+            setData.descriptorSetLayoutData, setData.descriptorSetLayoutInfo);
+    }
+
+    return programData;
 }
 
 } // namespace

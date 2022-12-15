@@ -33,12 +33,18 @@ namespace cc {
 
 namespace render {
 
+gfx::DescriptorType getGfxDescriptorType(DescriptorTypeOrder type);
+
 NameLocalID getOrCreateDescriptorID(LayoutGraphData& lg, std::string_view name);
 
 void makeDescriptorSetLayoutData(
     const LayoutGraphData& lg, UpdateFrequency rate, uint32_t set,
     const IDescriptorInfo& descriptors, DescriptorSetLayoutData& data,
     boost::container::pmr::memory_resource* scratch);
+
+void initializeDescriptorSetLayoutInfo(
+    const DescriptorSetLayoutData& layoutData,
+    gfx::DescriptorSetLayoutInfo& info);
 
 } // namespace render
 

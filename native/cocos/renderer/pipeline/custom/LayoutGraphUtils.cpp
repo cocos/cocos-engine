@@ -26,6 +26,7 @@
 #include "LayoutGraphUtils.h"
 #include <tuple>
 #include <utility>
+#include "cocos/base/Log.h"
 #include "cocos/base/std/container/string.h"
 #include "cocos/renderer/gfx-base/GFXDef-common.h"
 #include "cocos/renderer/pipeline/custom/LayoutGraphTypes.h"
@@ -39,7 +40,7 @@ namespace render {
 namespace {
 
 DescriptorBlockData& getDescriptorBlockData(
-    PmrTransparentMap<DescriptorBlockIndex, DescriptorBlockData>& map,
+    PmrFlatMap<DescriptorBlockIndex, DescriptorBlockData>& map,
     const DescriptorBlockIndex& index) {
     auto iter = map.find(index);
     if (iter != map.end()) {
@@ -56,6 +57,32 @@ DescriptorBlockData& getDescriptorBlockData(
 
 } // namespace
 
+gfx::DescriptorType getGfxDescriptorType(DescriptorTypeOrder type) {
+    switch (type) {
+        case DescriptorTypeOrder::UNIFORM_BUFFER:
+            return gfx::DescriptorType::UNIFORM_BUFFER;
+        case DescriptorTypeOrder::DYNAMIC_UNIFORM_BUFFER:
+            return gfx::DescriptorType::DYNAMIC_UNIFORM_BUFFER;
+        case DescriptorTypeOrder::SAMPLER_TEXTURE:
+            return gfx::DescriptorType::SAMPLER_TEXTURE;
+        case DescriptorTypeOrder::SAMPLER:
+            return gfx::DescriptorType::SAMPLER;
+        case DescriptorTypeOrder::TEXTURE:
+            return gfx::DescriptorType::TEXTURE;
+        case DescriptorTypeOrder::STORAGE_BUFFER:
+            return gfx::DescriptorType::STORAGE_BUFFER;
+        case DescriptorTypeOrder::DYNAMIC_STORAGE_BUFFER:
+            return gfx::DescriptorType::DYNAMIC_STORAGE_BUFFER;
+        case DescriptorTypeOrder::STORAGE_IMAGE:
+            return gfx::DescriptorType::STORAGE_IMAGE;
+        case DescriptorTypeOrder::INPUT_ATTACHMENT:
+            return gfx::DescriptorType::INPUT_ATTACHMENT;
+        default:
+            CC_LOG_ERROR("DescriptorType not found");
+            return gfx::DescriptorType::INPUT_ATTACHMENT;
+    }
+}
+
 NameLocalID getOrCreateDescriptorID(LayoutGraphData& lg, std::string_view name) {
     auto iter = lg.attributeIndex.find(name);
     if (iter != lg.attributeIndex.end()) {
@@ -68,16 +95,20 @@ NameLocalID getOrCreateDescriptorID(LayoutGraphData& lg, std::string_view name) 
 }
 
 void makeDescriptorSetLayoutData(
-    LayoutGraphData& lg, UpdateFrequency rate, uint32_t set,
-    const IDescriptorInfo& descriptors, DescriptorSetLayoutData& data,
+    LayoutGraphData& lg,
+    UpdateFrequency rate, uint32_t set, const IDescriptorInfo& descriptors,
+    DescriptorSetLayoutData& data,
     boost::container::pmr::memory_resource* scratch) {
-    PmrTransparentMap<DescriptorBlockIndex, DescriptorBlockData> map(scratch);
-    PmrMap<NameLocalID, gfx::UniformBlock> uniformBlocks(scratch);
+    PmrFlatMap<DescriptorBlockIndex, DescriptorBlockData> map(scratch);
+    PmrFlatMap<NameLocalID, gfx::UniformBlock> uniformBlocks(scratch);
     for (const auto& cb : descriptors.blocks) {
         auto& block = getDescriptorBlockData(
             map, DescriptorBlockIndex{
-                     rate, ParameterType::TABLE,
-                     DescriptorTypeOrder::UNIFORM_BUFFER, cb.stageFlags});
+                     rate,
+                     ParameterType::TABLE,
+                     DescriptorTypeOrder::UNIFORM_BUFFER,
+                     cb.stageFlags,
+                 });
 
         const auto nameID = getOrCreateDescriptorID(lg, cb.name);
         block.descriptors.emplace_back(nameID, gfx::Type::UNKNOWN, 1);
@@ -86,6 +117,123 @@ void makeDescriptorSetLayoutData(
             std::piecewise_construct,
             std::forward_as_tuple(nameID),
             std::forward_as_tuple(gfx::UniformBlock{set, 0xFFFFFFFF, cb.name, cb.members, 1}));
+    }
+    for (const auto& samplerTexture : descriptors.samplerTextures) {
+        auto& block = getDescriptorBlockData(
+            map, DescriptorBlockIndex{
+                     rate,
+                     ParameterType::TABLE,
+                     DescriptorTypeOrder::SAMPLER_TEXTURE,
+                     samplerTexture.stageFlags,
+                 });
+        const auto nameID = getOrCreateDescriptorID(lg, samplerTexture.name);
+        block.descriptors.emplace_back(nameID, samplerTexture.type, samplerTexture.count);
+    }
+    for (const auto& sampler : descriptors.samplers) {
+        auto& block = getDescriptorBlockData(
+            map, DescriptorBlockIndex{
+                     rate,
+                     ParameterType::TABLE,
+                     DescriptorTypeOrder::SAMPLER,
+                     sampler.stageFlags,
+                 });
+        const auto nameID = getOrCreateDescriptorID(lg, sampler.name);
+        block.descriptors.emplace_back(nameID, gfx::Type::SAMPLER, sampler.count);
+    }
+    for (const auto& texture : descriptors.textures) {
+        auto& block = getDescriptorBlockData(
+            map, DescriptorBlockIndex{
+                     rate,
+                     ParameterType::TABLE,
+                     DescriptorTypeOrder::TEXTURE,
+                     texture.stageFlags,
+                 });
+        const auto nameID = getOrCreateDescriptorID(lg, texture.name);
+        block.descriptors.emplace_back(nameID, texture.type, texture.count);
+    }
+    for (const auto& buffer : descriptors.buffers) {
+        auto& block = getDescriptorBlockData(
+            map, DescriptorBlockIndex{
+                     rate,
+                     ParameterType::TABLE,
+                     DescriptorTypeOrder::STORAGE_BUFFER,
+                     buffer.stageFlags,
+                 });
+        const auto nameID = getOrCreateDescriptorID(lg, buffer.name);
+        block.descriptors.emplace_back(nameID, gfx::Type::UNKNOWN, 1);
+    }
+    for (const auto& image : descriptors.images) {
+        auto& block = getDescriptorBlockData(
+            map, DescriptorBlockIndex{
+                     rate,
+                     ParameterType::TABLE,
+                     DescriptorTypeOrder::STORAGE_IMAGE,
+                     image.stageFlags,
+                 });
+        const auto nameID = getOrCreateDescriptorID(lg, image.name);
+        block.descriptors.emplace_back(nameID, image.type, image.count);
+    }
+    for (const auto& subpassInput : descriptors.subpassInputs) {
+        auto& block = getDescriptorBlockData(
+            map, DescriptorBlockIndex{
+                     rate,
+                     ParameterType::TABLE,
+                     DescriptorTypeOrder::INPUT_ATTACHMENT,
+                     subpassInput.stageFlags,
+                 });
+        const auto nameID = getOrCreateDescriptorID(lg, subpassInput.name);
+        block.descriptors.emplace_back(nameID, gfx::Type::UNKNOWN, subpassInput.count);
+    }
+
+    // calculate bindings
+    uint32_t capacity = 0;
+    for (auto&& [index, block] : map) {
+        block.offset = capacity;
+        for (const auto& d : block.descriptors) {
+            if (index.descriptorType == DescriptorTypeOrder::UNIFORM_BUFFER) {
+                // update uniform buffer binding
+                auto iter = uniformBlocks.find(d.descriptorID);
+                if (iter == uniformBlocks.end()) {
+                    CC_LOG_ERROR("Uniform block not found");
+                    continue;
+                }
+                auto& ub = iter->second;
+                assert(ub.binding == 0xFFFFFFFF);
+                ub.binding = block.capacity;
+                // add uniform buffer to output
+                data.uniformBlocks.emplace(d.descriptorID, std::move(ub));
+            }
+            // update block capacity
+            auto iter = data.bindingMap.find(d.descriptorID);
+            if (iter != data.bindingMap.end()) {
+                CC_LOG_ERROR("Duplicated descriptor name: %s", lg.valueNames[d.descriptorID.value].c_str());
+                continue;
+            }
+            data.bindingMap.emplace(d.descriptorID, block.offset + block.capacity);
+            block.capacity += d.count;
+        }
+        // increate total capacity
+        capacity += block.capacity;
+        data.descriptorBlocks.emplace_back(std::move(block));
+    }
+}
+
+void initializeDescriptorSetLayoutInfo(
+    const DescriptorSetLayoutData& layoutData,
+    gfx::DescriptorSetLayoutInfo& info) {
+    for (const auto& block : layoutData.descriptorBlocks) {
+        auto slot = block.offset;
+        for (const auto& d : block.descriptors) {
+            auto& binding = info.bindings.emplace_back();
+            binding.binding = slot;
+            binding.descriptorType = getGfxDescriptorType(block.type);
+            binding.count = d.count;
+            binding.stageFlags = block.visibility;
+            binding.immutableSamplers = {};
+
+            // update slot
+            slot += d.count;
+        }
     }
 }
 
