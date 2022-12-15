@@ -59,8 +59,33 @@ float VATGetAnimUV(out vec2 thisFrameUV, out vec2 nextFrameUV, vec2 meshUV, floa
   return frameLerp;
 }
 
+void VATGetLocalPositionRigidBody(inout vec3 meshLocalPos, inout vec3 meshLocalNormal, inout vec3 meshLocalTangent, vec3 vatBoundingBoxMin, vec3 vatBoundingBoxMax, vec2 thisFrameUV, sampler2D vatColorTexture, sampler2D vatPositionTexture, sampler2D vatPositionSignTexture, sampler2D vatRotationTexture, sampler2D vatRotationSignTexture, sampler2D vatRotationAlphaTexture)
+{
+  // bounding box in exported json is unscaled
+  vatBoundingBoxMin *= VAT_UNITY_TO_COCOS_COORDINATE_SCALE;
+  vatBoundingBoxMax *= VAT_UNITY_TO_COCOS_COORDINATE_SCALE;
+  vec3 size = vatBoundingBoxMax - vatBoundingBoxMin;
+
+  // pivot
+  vec3 pivot = SampleTextureExr(vatColorTexture, thisFrameUV).xzy * VAT_UNITY_TO_COCOS_COORDINATE_SCALE;
+  pivot = pivot * size + vatBoundingBoxMin;
+
+  pivot = vec3(0.0);
+  
+  vec3 originPos = meshLocalPos - pivot;
+  
+  vec4 quat = SampleTextureExrWithAlpha(vatRotationTexture, vatRotationSignTexture, vatRotationAlphaTexture, thisFrameUV);
+  // quat = quat * 2.0 - vec4(1.0);
+  vec3 rotatedPos = originPos;
+  // rotateVecFromQuat(rotatedPos, quat);
+  rotatedPos = originPos + 2.0 * cross(quat.xyz, cross(quat.xyz, originPos) + quat.w * originPos);
+
+  vec3 animateOffset = SampleTextureExr(vatPositionTexture, vatPositionSignTexture, thisFrameUV) * VAT_UNITY_TO_COCOS_COORDINATE_SCALE;
+  meshLocalPos += rotatedPos + animateOffset * vec3(-1.0, 1.0, 1.0);
+}
+
 // return absolute position for fluid
-// return position offset for rigid-body and soft-body
+// return position offset for soft-body
 vec3 VATGetLocalPosition(vec2 thisFrameUV, sampler2D vatPositionTexture, sampler2D vatPositionSignTexture)
 {
   vec3 thisFramePos = SampleTextureExr(vatPositionTexture, vatPositionSignTexture, thisFrameUV);
