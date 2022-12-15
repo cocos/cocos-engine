@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include <stdexcept>
+#include <tuple>
 #include "NativePipelineTypes.h"
 #include "base/Log.h"
 #include "core/assets/EffectAsset.h"
@@ -104,7 +105,14 @@ void NativeProgramLibrary::addEffect(EffectAsset *effectAssetIn) {
             const auto &passLayout = get(LayoutGraphData::Layout, lg, passID);
             const auto &phaseLayout = get(LayoutGraphData::Layout, lg, phaseID);
 
-            // auto iter =
+            auto iter = this->phases.find(phaseID);
+            if (iter == this->phases.end()) {
+                iter = this->phases.emplace(std::piecewise_construct,
+                                            std::forward_as_tuple(phaseID),
+                                            std::forward_as_tuple())
+                           .first;
+            }
+            const auto &phasePrograms = iter->second.programInfos;
         }
     }
 }

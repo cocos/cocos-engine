@@ -1313,7 +1313,7 @@ cocos_source_files(
                  cocos/renderer/pipeline/helper/Utils.cpp
                  cocos/renderer/pipeline/custom/BinaryArchive.h
                  cocos/renderer/pipeline/custom/FrameGraphDispatcher.cpp
-                 cocos/renderer/pipeline/custom/SerializationUtils.h
+                 cocos/renderer/pipeline/custom/details/SerializationUtils.h
                  cocos/renderer/pipeline/custom/test/test.h
                  cocos/renderer/pipeline/custom/NativeDefaultScene.cpp
                  cocos/renderer/pipeline/custom/NativeResourceGraph.cpp
