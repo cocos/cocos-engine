@@ -25,6 +25,7 @@
 
 import { EffectAsset } from '../../asset/assets/effect-asset';
 import { Attribute, GetTypeSize, ShaderInfo, Uniform } from '../../gfx/base/define';
+import { UBOSkinning } from '../../rendering/define';
 import { genHandle, MacroRecord } from './pass-utils';
 import { IProgramInfo } from './program-lib';
 
@@ -114,8 +115,20 @@ export function getVariantKey (programInfo: IProgramInfo, defines: MacroRecord) 
     return `${key.toString(16)}|${programInfo.hash}`;
 }
 
+function getUniformSize (prevSize: number, m: Uniform) {
+    if (m.count) {
+        return prevSize + GetTypeSize(m.type) * m.count;
+    } else {
+        if (m.name === 'cc_joints') {
+            return prevSize + GetTypeSize(m.type) * UBOSkinning.LAYOUT.members[0].count;
+        }
+        console.error(`uniform '${m.name}' must have a count`);
+    }
+    return prevSize;
+}
+
 export function getSize (blockMembers: Uniform[]) {
-    return blockMembers.reduce((s, m) => s + GetTypeSize(m.type) * m.count, 0);
+    return blockMembers.reduce(getUniformSize, 0);
 }
 
 export function genHandles (tmpl: EffectAsset.IShaderInfo | ShaderInfo) {
