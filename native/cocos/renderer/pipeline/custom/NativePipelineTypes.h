@@ -39,8 +39,8 @@
 #include "cocos/renderer/pipeline/InstancedBuffer.h"
 #include "cocos/renderer/pipeline/custom/LayoutGraphTypes.h"
 #include "cocos/renderer/pipeline/custom/NativePipelineFwd.h"
+#include "cocos/renderer/pipeline/custom/PrivateTypes.h"
 #include "cocos/renderer/pipeline/custom/RenderGraphTypes.h"
-#include "cocos/renderer/pipeline/custom/RenderInterfaceTypes.h"
 #include "cocos/renderer/pipeline/custom/Set.h"
 
 namespace cc {
@@ -500,6 +500,32 @@ public:
     LayoutGraphData layoutGraph;
     ResourceGraph resourceGraph;
     RenderGraph renderGraph;
+};
+
+class NativeProgramLibrary final : public ProgramLibrary {
+public:
+    void addEffect(EffectAsset *effectAsset) override;
+    void precompileEffect(gfx::Device *device, EffectAsset *effectAsset) override;
+    ccstd::pmr::string getKey(uint32_t phaseID, const ccstd::pmr::string &programName, const MacroRecord &defines) const override;
+    const gfx::PipelineLayout &getPipelineLayout(gfx::Device *device, uint32_t phaseID, const ccstd::pmr::string &programName) const override;
+    const gfx::DescriptorSetLayout &getMaterialDescriptorSetLayout(gfx::Device *device, uint32_t phaseID, const ccstd::pmr::string &programName) const override;
+    const gfx::DescriptorSetLayout &getLocalDescriptorSetLayout(gfx::Device *device, uint32_t phaseID, const ccstd::pmr::string &programName) const override;
+    const IProgramInfo &getProgramInfo(uint32_t phaseID, const ccstd::pmr::string &programName) const override;
+    const gfx::ShaderInfo &getShaderInfo(uint32_t phaseID, const ccstd::pmr::string &programName) const override;
+    ProgramProxy *getProgramVariant(gfx::Device *device, uint32_t phaseID, const ccstd::string &name, const MacroRecord &defines, const ccstd::pmr::string *key) const override;
+    const ccstd::pmr::vector<unsigned> &getBlockSizes(uint32_t phaseID, const ccstd::pmr::string &programName) const override;
+    const Record<ccstd::string, uint32_t> &getHandleMap(uint32_t phaseID, const ccstd::pmr::string &programName) const override;
+    uint32_t getProgramID(uint32_t phaseID, const ccstd::pmr::string &programName) override;
+    uint32_t getDescriptorNameID(const ccstd::pmr::string &name) override;
+    const ccstd::pmr::string &getDescriptorName(uint32_t nameID) override;
+};
+
+class NativeRenderingModule final : public RenderingModule {
+public:
+
+    uint32_t getPassID(const ccstd::string &name) const override;
+    uint32_t getPhaseID(uint32_t passID, const ccstd::string &name) const override;
+    std::unique_ptr<NativeProgramLibrary> programLibrary;
 };
 
 } // namespace render

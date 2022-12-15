@@ -340,10 +340,9 @@ public:
 
 class Factory {
 public:
-    static void init(gfx::Device* deviceIn, const ccstd::vector<unsigned char>& bufferIn);
-    static void destroy();
+    static RenderingModule* init(gfx::Device* deviceIn, const ccstd::vector<unsigned char>& bufferIn);
+    static void destroy(RenderingModule* renderingModule) noexcept;
     static Pipeline *createPipeline();
-    static RenderingModule* getRenderingModule();
 };
 
 } // namespace render

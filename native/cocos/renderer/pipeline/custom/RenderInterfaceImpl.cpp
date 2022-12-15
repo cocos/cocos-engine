@@ -34,19 +34,28 @@ namespace render {
 
 namespace {
 
-struct RenderingModule {
-};
-
-std::unique_ptr<RenderingModule> sRenderingModule;
+NativeRenderingModule* sRenderingModule = nullptr;;
 
 } // namespace
 
-void Factory::init(gfx::Device* deviceIn, const ccstd::vector<unsigned char>& bufferIn) {
-    CC_EXPECTS(false);
+uint32_t NativeRenderingModule::getPassID(const ccstd::string &name) const {
+    return LayoutGraphData::null_vertex();
 }
 
-void Factory::destroy() {
-    sRenderingModule.reset();
+uint32_t NativeRenderingModule::getPhaseID(uint32_t passID, const ccstd::string &name) const {
+    return LayoutGraphData::null_vertex();
+}
+
+RenderingModule* Factory::init(gfx::Device* deviceIn, const ccstd::vector<unsigned char>& bufferIn) {
+    sRenderingModule = new NativeRenderingModule();
+    return sRenderingModule;
+}
+
+void Factory::destroy(RenderingModule* renderingModule) noexcept {
+    auto* ptr = dynamic_cast<NativeRenderingModule*>(renderingModule);
+    if (ptr) {
+        ptr->programLibrary.reset();
+    }
 }
 
 Pipeline* Factory::createPipeline() {
