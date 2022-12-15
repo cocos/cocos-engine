@@ -974,7 +974,7 @@ void NativePipeline::executeRenderGraph(const RenderGraph& rg) {
     auto& ppl = *this;
     auto* scratch = &ppl.unsyncPool;
 
-    //CC_LOG_INFO(rg.print(scratch).c_str());
+    // CC_LOG_INFO(rg.print(scratch).c_str());
 
     RenderGraphContextCleaner contextCleaner(ppl.nativeContext);
     ResourceCleaner cleaner(ppl.resourceGraph);

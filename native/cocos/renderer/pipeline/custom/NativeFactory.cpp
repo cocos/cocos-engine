@@ -24,12 +24,13 @@
 ****************************************************************************/
 
 #include <sstream>
+#include "BinaryArchive.h"
+#include "GslUtils.h"
+#include "LayoutGraphSerialization.h"
 #include "NativePipelineTypes.h"
 #include "RenderInterfaceTypes.h"
-#include "GslUtils.h"
 #include "pipeline/custom/LayoutGraphTypes.h"
-#include "LayoutGraphSerialization.h"
-#include "BinaryArchive.h"
+#include "pipeline/custom/Pmr.h"
 
 namespace cc {
 
@@ -37,20 +38,24 @@ namespace render {
 
 namespace {
 
-NativeRenderingModule* sRenderingModule = nullptr;;
+NativeRenderingModule* sRenderingModule = nullptr;
 
 } // namespace
 
 RenderingModule* Factory::init(gfx::Device* deviceIn, const ccstd::vector<unsigned char>& bufferIn) {
     std::ignore = deviceIn;
 
-    LayoutGraphData data(boost::container::pmr::get_default_resource());
-    std::string buffer(bufferIn.begin(), bufferIn.end());
-    std::istringstream iss(buffer, std::ios::binary);
-    BinaryInputArchive ar(iss, boost::container::pmr::get_default_resource());
-    load(ar, data);
+    std::shared_ptr<NativeProgramLibrary> ptr(
+        allocatePmrUniquePtr<NativeProgramLibrary>(
+            boost::container::pmr::get_default_resource()));
+    {
+        std::string buffer(bufferIn.begin(), bufferIn.end());
+        std::istringstream iss(buffer, std::ios::binary);
+        BinaryInputArchive ar(iss, boost::container::pmr::get_default_resource());
+        load(ar, ptr->layoutGraph);
+    }
 
-    sRenderingModule = ccnew NativeRenderingModule();
+    sRenderingModule = ccnew NativeRenderingModule(std::move(ptr));
     return sRenderingModule;
 }
 

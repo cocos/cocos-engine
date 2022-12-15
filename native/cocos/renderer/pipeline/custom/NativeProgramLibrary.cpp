@@ -6,23 +6,22 @@ namespace cc {
 namespace render {
 
 void NativeProgramLibrary::addEffect(EffectAsset *effectAsset) {
-
 }
 
 void NativeProgramLibrary::precompileEffect(gfx::Device *device, EffectAsset *effectAsset) {
-
 }
 
-ccstd::pmr::string NativeProgramLibrary::getKey(uint32_t phaseID,
-    const ccstd::pmr::string &programName, const MacroRecord &defines) const {
+ccstd::pmr::string NativeProgramLibrary::getKey(
+    uint32_t phaseID, const ccstd::pmr::string &programName,
+    const MacroRecord &defines) const {
     std::ignore = phaseID;
     std::ignore = programName;
     std::ignore = defines;
     return {};
 }
 
-const gfx::PipelineLayout &NativeProgramLibrary::getPipelineLayout(gfx::Device *device,
-    uint32_t phaseID, const ccstd::pmr::string &programName) const {
+const gfx::PipelineLayout &NativeProgramLibrary::getPipelineLayout(
+    gfx::Device *device, uint32_t phaseID, const ccstd::pmr::string &programName) const {
     std::ignore = device;
     std::ignore = phaseID;
     std::ignore = programName;
@@ -45,23 +44,23 @@ const gfx::DescriptorSetLayout &NativeProgramLibrary::getLocalDescriptorSetLayou
     throw std::runtime_error("not implemented");
 }
 
-const IProgramInfo &NativeProgramLibrary::getProgramInfo(uint32_t phaseID,
-    const ccstd::pmr::string &programName) const {
+const IProgramInfo &NativeProgramLibrary::getProgramInfo(
+    uint32_t phaseID, const ccstd::pmr::string &programName) const {
     std::ignore = phaseID;
     std::ignore = programName;
     throw std::runtime_error("not implemented");
 }
 
-const gfx::ShaderInfo &NativeProgramLibrary::getShaderInfo(uint32_t phaseID,
-    const ccstd::pmr::string &programName) const {
+const gfx::ShaderInfo &NativeProgramLibrary::getShaderInfo(
+    uint32_t phaseID, const ccstd::pmr::string &programName) const {
     std::ignore = phaseID;
     std::ignore = programName;
     throw std::runtime_error("not implemented");
 }
 
-ProgramProxy *NativeProgramLibrary::getProgramVariant(gfx::Device *device,
-    uint32_t phaseID, const ccstd::string &name, const MacroRecord &defines,
-    const ccstd::pmr::string *key) const {
+ProgramProxy *NativeProgramLibrary::getProgramVariant(
+    gfx::Device *device, uint32_t phaseID, const ccstd::string &name,
+    const MacroRecord &defines, const ccstd::pmr::string *key) const {
     std::ignore = device;
     std::ignore = phaseID;
     std::ignore = name;
@@ -84,8 +83,8 @@ const Record<ccstd::string, uint32_t> &NativeProgramLibrary::getHandleMap(
     throw std::runtime_error("not implemented");
 }
 
-uint32_t NativeProgramLibrary::getProgramID(uint32_t phaseID,
-    const ccstd::pmr::string &programName) {
+uint32_t NativeProgramLibrary::getProgramID(
+    uint32_t phaseID, const ccstd::pmr::string &programName) {
     std::ignore = phaseID;
     std::ignore = programName;
     throw std::runtime_error("not implemented");

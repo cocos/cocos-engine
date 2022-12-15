@@ -34,7 +34,6 @@
 #include "RenderCommonNames.h"
 #include "cocos/renderer/gfx-base/GFXDevice.h"
 
-
 namespace cc {
 
 namespace render {
