@@ -27,7 +27,6 @@
 
 #include <functional>
 #include "base/Ptr.h"
-#include "base/RefCounted.h"
 #include "base/TypeDef.h"
 #include "base/Value.h"
 #include "renderer/gfx-base/GFXDef.h"
@@ -159,16 +158,12 @@ enum class CC_DLL RenderQueueSortMode {
 };
 CC_ENUM_CONVERSION_OPERATOR(RenderQueueSortMode)
 
-class CC_DLL RenderQueueDesc : public RefCounted {
-public:
-    RenderQueueDesc() = default;
-    RenderQueueDesc(bool isTransparent, RenderQueueSortMode sortMode, const ccstd::vector<ccstd::string> &stages) // NOLINT
-    : isTransparent(isTransparent), sortMode(sortMode), stages(stages) {}
+struct CC_DLL RenderQueueDesc {
     bool isTransparent = false;
     RenderQueueSortMode sortMode = RenderQueueSortMode::FRONT_TO_BACK;
     ccstd::vector<ccstd::string> stages;
 };
-using RenderQueueDescList = ccstd::vector<IntrusivePtr<RenderQueueDesc>>;
+using RenderQueueDescList = ccstd::vector<RenderQueueDesc>;
 
 uint32_t getPhaseID(const ccstd::string &phase);
 
@@ -402,7 +397,7 @@ struct CC_DLL UBOSH {
 };
 
 enum class CC_DLL ForwardStagePriority {
-    AR = 5,
+    AR      = 5,
     FORWARD = 10,
     UI = 20
 };
@@ -548,8 +543,8 @@ enum class LayerList : uint32_t {
 CC_ENUM_CONVERSION_OPERATOR(LayerList)
 
 const uint32_t CAMERA_DEFAULT_MASK = ~static_cast<uint32_t>(LayerList::UI_2D) & ~static_cast<uint32_t>(LayerList::PROFILER);
-// constexpr CAMERA_DEFAULT_MASK = Layers.makeMaskExclude([Layers.BitMask.UI_2D, Layers.BitMask.GIZMOS, Layers.BitMask.EDITOR,
-//                                                            Layers.BitMask.SCENE_GIZMO, Layers.BitMask.PROFILER]);
+//constexpr CAMERA_DEFAULT_MASK = Layers.makeMaskExclude([Layers.BitMask.UI_2D, Layers.BitMask.GIZMOS, Layers.BitMask.EDITOR,
+//                                                           Layers.BitMask.SCENE_GIZMO, Layers.BitMask.PROFILER]);
 
 uint32_t nextPow2(uint32_t val);
 

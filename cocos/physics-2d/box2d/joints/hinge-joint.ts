@@ -52,8 +52,8 @@ export class b2HingeJoint extends b2Joint implements IHingeJoint {
         def.motorSpeed = toRadian(comp.motorSpeed);
 
         def.enableLimit = comp.enableLimit;
-        def.lowerAngle = toRadian(comp.lowerAngle);
-        def.upperAngle = toRadian(comp.upperAngle);
+        def.lowerAngle = comp.lowerAngle;
+        def.upperAngle = comp.upperAngle;
         return def;
     }
 }

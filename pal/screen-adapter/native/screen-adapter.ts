@@ -29,8 +29,8 @@ class ScreenAdapter extends EventTarget {
     public get windowSize (): Size {
         const dpr = this.devicePixelRatio;
         // NOTE: fix precision issue on Metal render end.
-        const roundWidth = Math.round(window.innerWidth);
-        const roundHeight = Math.round(window.innerHeight);
+        const roundWidth = Math.round(jsb.window.innerWidth);
+        const roundHeight = Math.round(jsb.window.innerHeight);
         return new Size(roundWidth * dpr, roundHeight * dpr);
     }
     public set windowSize (size: Size) {

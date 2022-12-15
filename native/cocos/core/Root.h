@@ -70,7 +70,6 @@ class Root final {
     TARGET_EVENT_ARG0(BeforeCommit)
     TARGET_EVENT_ARG0(BeforeRender)
     TARGET_EVENT_ARG0(AfterRender)
-    TARGET_EVENT_ARG0(PipelineChanged)
     DECLARE_TARGET_EVENT_END()
 public:
     static Root *getInstance(); // cjh todo: put Root Managerment to Director class.

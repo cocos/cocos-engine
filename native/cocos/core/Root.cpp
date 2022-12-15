@@ -34,7 +34,6 @@
 #if CC_USE_DEBUG_RENDERER
     #include "profiler/DebugRenderer.h"
 #endif
-#include "engine/EngineEvents.h"
 #include "profiler/Profiler.h"
 #include "renderer/gfx-base/GFXDevice.h"
 #include "renderer/gfx-base/GFXSwapchain.h"
@@ -48,7 +47,7 @@
 #include "scene/Camera.h"
 #include "scene/DirectionalLight.h"
 #include "scene/SpotLight.h"
-
+#include "engine/EngineEvents.h"
 
 namespace cc {
 
@@ -333,10 +332,6 @@ bool Root::setRenderPipeline(pipeline::RenderPipeline *rppl /* = nullptr*/) {
     //        scene->getSceneGlobals()->activate();
     //    }
 
-#if CC_EDITOR
-    emit<PipelineChanged>();
-#endif
-
     onGlobalPipelineStateChanged();
 
     if (_batcher == nullptr) {
@@ -570,9 +565,9 @@ void Root::doXRFrameMove(int32_t totalFrames) {
             }
 
             frameMoveBegin();
-            // condition1: mainwindow has left camera && right camera,
-            // but we only need left/right camera when in left/right eye loop
-            // condition2: main camera draw twice
+            //condition1: mainwindow has left camera && right camera,
+            //but we only need left/right camera when in left/right eye loop
+            //condition2: main camera draw twice
             for (const auto &window : _renderWindows) {
                 if (window->getSwapchain()) {
                     // not rt

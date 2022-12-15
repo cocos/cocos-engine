@@ -113,11 +113,11 @@ export class DeviceManager {
         if (this._renderType === RenderType.WEBGL) {
             const deviceInfo = new DeviceInfo(bindingMappingInfo);
 
-            if (JSB && window.gfx) {
+            if (JSB && (globalThis as any).gfx) {
                 this._gfxDevice = gfx.DeviceManager.create(deviceInfo);
             } else {
-                let useWebGL2 = (!!window.WebGL2RenderingContext);
-                const userAgent = window.navigator.userAgent.toLowerCase();
+                let useWebGL2 = (!!globalThis.WebGL2RenderingContext);
+                const userAgent = globalThis.navigator.userAgent.toLowerCase();
                 if (userAgent.indexOf('safari') !== -1 && userAgent.indexOf('chrome') === -1
                     || sys.browserType === BrowserType.UC // UC browser implementation doesn't conform to WebGL2 standard
                 ) {

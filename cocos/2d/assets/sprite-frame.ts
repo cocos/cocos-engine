@@ -463,7 +463,7 @@ export class SpriteFrame extends Asset {
 
     set _textureSource (value: TextureBase) {
         // Optimization for build
-        if (window.Build) {
+        if (globalThis.Build) {
             this._texture = value;
             return;
         }
@@ -553,7 +553,7 @@ export class SpriteFrame extends Asset {
      */
     public uv: number[] = [];
 
-    public unbiasUV:number[] = [];
+    public unbiasUV: number[] = [];
 
     /**
      * @en UV for sliced 9 vertices
@@ -1241,8 +1241,13 @@ export class SpriteFrame extends Asset {
             this._packable = false;
             return;
         }
-
-        if (texture.image && texture.image instanceof HTMLCanvasElement) {
+        let CanvasElement: any;
+        if (typeof jsb.window !== 'undefined') {
+            CanvasElement = jsb.window.HTMLCanvasElement;
+        } else {
+            CanvasElement = globalThis.HTMLCanvasElement;
+        }
+        if (texture.image && texture.image instanceof CanvasElement) {
             this._packable = true;
         }
     }

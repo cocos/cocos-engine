@@ -10382,7 +10382,6 @@ static bool js_cc_scene_SkyboxInfo__envmapHDR_set(se::State& s)
     SE_PRECONDITION2(ok, false, "Error processing arguments"); 
     
     
-    
     return true;
 }
 SE_BIND_PROP_SET(js_cc_scene_SkyboxInfo__envmapHDR_set) 
@@ -10395,10 +10394,9 @@ static bool js_cc_scene_SkyboxInfo__envmapHDR_get(se::State& s)
     arg1 = SE_THIS_OBJECT<cc::scene::SkyboxInfo>(s);
     if (nullptr == arg1) return true;
     
-    ok &= nativevalue_to_se(arg1->_envmapHDR, s.rval(), s.thisObject() /*ctx*/);
+    ok &= nativevalue_to_se(arg1->_envmapHDR, s.rval(), s.thisObject());
     SE_PRECONDITION2(ok, false, "Error processing arguments");
-    SE_HOLD_RETURN_VALUE(arg1->_envmapHDR, s.thisObject(), s.rval());
-    
+    SE_HOLD_RETURN_VALUE(arg1->_envmapHDR, s.thisObject(), s.rval()); 
     
     
     return true;
@@ -10419,7 +10417,6 @@ static bool js_cc_scene_SkyboxInfo__envmapLDR_set(se::State& s)
     SE_PRECONDITION2(ok, false, "Error processing arguments"); 
     
     
-    
     return true;
 }
 SE_BIND_PROP_SET(js_cc_scene_SkyboxInfo__envmapLDR_set) 
@@ -10432,10 +10429,9 @@ static bool js_cc_scene_SkyboxInfo__envmapLDR_get(se::State& s)
     arg1 = SE_THIS_OBJECT<cc::scene::SkyboxInfo>(s);
     if (nullptr == arg1) return true;
     
-    ok &= nativevalue_to_se(arg1->_envmapLDR, s.rval(), s.thisObject() /*ctx*/);
+    ok &= nativevalue_to_se(arg1->_envmapLDR, s.rval(), s.thisObject());
     SE_PRECONDITION2(ok, false, "Error processing arguments");
-    SE_HOLD_RETURN_VALUE(arg1->_envmapLDR, s.thisObject(), s.rval());
-    
+    SE_HOLD_RETURN_VALUE(arg1->_envmapLDR, s.thisObject(), s.rval()); 
     
     
     return true;
@@ -10456,7 +10452,6 @@ static bool js_cc_scene_SkyboxInfo__diffuseMapHDR_set(se::State& s)
     SE_PRECONDITION2(ok, false, "Error processing arguments"); 
     
     
-    
     return true;
 }
 SE_BIND_PROP_SET(js_cc_scene_SkyboxInfo__diffuseMapHDR_set) 
@@ -10469,10 +10464,9 @@ static bool js_cc_scene_SkyboxInfo__diffuseMapHDR_get(se::State& s)
     arg1 = SE_THIS_OBJECT<cc::scene::SkyboxInfo>(s);
     if (nullptr == arg1) return true;
     
-    ok &= nativevalue_to_se(arg1->_diffuseMapHDR, s.rval(), s.thisObject() /*ctx*/);
+    ok &= nativevalue_to_se(arg1->_diffuseMapHDR, s.rval(), s.thisObject());
     SE_PRECONDITION2(ok, false, "Error processing arguments");
-    SE_HOLD_RETURN_VALUE(arg1->_diffuseMapHDR, s.thisObject(), s.rval());
-    
+    SE_HOLD_RETURN_VALUE(arg1->_diffuseMapHDR, s.thisObject(), s.rval()); 
     
     
     return true;
@@ -10493,7 +10487,6 @@ static bool js_cc_scene_SkyboxInfo__diffuseMapLDR_set(se::State& s)
     SE_PRECONDITION2(ok, false, "Error processing arguments"); 
     
     
-    
     return true;
 }
 SE_BIND_PROP_SET(js_cc_scene_SkyboxInfo__diffuseMapLDR_set) 
@@ -10506,10 +10499,9 @@ static bool js_cc_scene_SkyboxInfo__diffuseMapLDR_get(se::State& s)
     arg1 = SE_THIS_OBJECT<cc::scene::SkyboxInfo>(s);
     if (nullptr == arg1) return true;
     
-    ok &= nativevalue_to_se(arg1->_diffuseMapLDR, s.rval(), s.thisObject() /*ctx*/);
+    ok &= nativevalue_to_se(arg1->_diffuseMapLDR, s.rval(), s.thisObject());
     SE_PRECONDITION2(ok, false, "Error processing arguments");
-    SE_HOLD_RETURN_VALUE(arg1->_diffuseMapLDR, s.thisObject(), s.rval());
-    
+    SE_HOLD_RETURN_VALUE(arg1->_diffuseMapLDR, s.thisObject(), s.rval()); 
     
     
     return true;
@@ -10530,7 +10522,6 @@ static bool js_cc_scene_SkyboxInfo__reflectionHDR_set(se::State& s)
     SE_PRECONDITION2(ok, false, "Error processing arguments"); 
     
     
-    
     return true;
 }
 SE_BIND_PROP_SET(js_cc_scene_SkyboxInfo__reflectionHDR_set) 
@@ -10543,10 +10534,9 @@ static bool js_cc_scene_SkyboxInfo__reflectionHDR_get(se::State& s)
     arg1 = SE_THIS_OBJECT<cc::scene::SkyboxInfo>(s);
     if (nullptr == arg1) return true;
     
-    ok &= nativevalue_to_se(arg1->_reflectionHDR, s.rval(), s.thisObject() /*ctx*/);
+    ok &= nativevalue_to_se(arg1->_reflectionHDR, s.rval(), s.thisObject());
     SE_PRECONDITION2(ok, false, "Error processing arguments");
-    SE_HOLD_RETURN_VALUE(arg1->_reflectionHDR, s.thisObject(), s.rval());
-    
+    SE_HOLD_RETURN_VALUE(arg1->_reflectionHDR, s.thisObject(), s.rval()); 
     
     
     return true;
@@ -10567,7 +10557,6 @@ static bool js_cc_scene_SkyboxInfo__reflectionLDR_set(se::State& s)
     SE_PRECONDITION2(ok, false, "Error processing arguments"); 
     
     
-    
     return true;
 }
 SE_BIND_PROP_SET(js_cc_scene_SkyboxInfo__reflectionLDR_set) 
@@ -10580,10 +10569,9 @@ static bool js_cc_scene_SkyboxInfo__reflectionLDR_get(se::State& s)
     arg1 = SE_THIS_OBJECT<cc::scene::SkyboxInfo>(s);
     if (nullptr == arg1) return true;
     
-    ok &= nativevalue_to_se(arg1->_reflectionLDR, s.rval(), s.thisObject() /*ctx*/);
+    ok &= nativevalue_to_se(arg1->_reflectionLDR, s.rval(), s.thisObject());
     SE_PRECONDITION2(ok, false, "Error processing arguments");
-    SE_HOLD_RETURN_VALUE(arg1->_reflectionLDR, s.thisObject(), s.rval());
-    
+    SE_HOLD_RETURN_VALUE(arg1->_reflectionLDR, s.thisObject(), s.rval()); 
     
     
     return true;

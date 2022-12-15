@@ -123,6 +123,7 @@ export class SplashScreen {
         };
         this._curTime = 0;
 
+        const engineGlobal = typeof globalThis.jsb !== 'undefined' ? (typeof jsb.window !== 'undefined' ? jsb.window : window) : window;
         // TODO: Image can't load with base64 data on Taobao platform.
         if (EDITOR || TAOBAO || this.settings.base64src === '' || this.settings.totalTime <= 0) {
             this.settings.totalTime = 0;
@@ -135,26 +136,26 @@ export class SplashScreen {
 
             this.initWaterMark();
             const bgPromise = new Promise<void>((resolve, reject) => {
-                this.bgImage = new Image();
-                this.bgImage.onload = () => {
+                this.bgImage = new engineGlobal.Image();
+                (this.bgImage as any).onload = () => {
                     this.initBG();
                     resolve();
                 };
-                this.bgImage.onerror = () => {
+                (this.bgImage as any).onerror = () => {
                     reject();
                 };
-                this.bgImage.src = this.settings.bgBase64;
+                (this.bgImage as any).src = this.settings.bgBase64;
             });
             const logoPromise =  new Promise<void>((resolve, reject) => {
-                this.logoImage = new Image();
-                this.logoImage.onload = () => {
+                this.logoImage = new engineGlobal.Image();
+                (this.logoImage as any).onload = () => {
                     this.initLogo();
                     resolve();
                 };
-                this.logoImage.onerror = () => {
+                (this.logoImage as any).onerror = () => {
                     reject();
                 };
-                this.logoImage.src = this.settings.base64src;
+                (this.logoImage as any).src = this.settings.base64src;
             });
             return Promise.all([bgPromise, logoPromise]);
         }
