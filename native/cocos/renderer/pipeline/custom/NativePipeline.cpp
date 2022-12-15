@@ -30,8 +30,6 @@
 #include <tuple>
 #include <type_traits>
 #include <utility>
-#include "DebugUtils.h"
-#include "GslUtils.h"
 #include "LayoutGraphFwd.h"
 #include "LayoutGraphGraphs.h"
 #include "LayoutGraphNames.h"
@@ -62,6 +60,8 @@
 #include "cocos/renderer/pipeline/RenderPipeline.h"
 #include "cocos/scene/RenderScene.h"
 #include "cocos/scene/RenderWindow.h"
+#include "details/DebugUtils.h"
+#include "details/GslUtils.h"
 
 #if CC_USE_DEBUG_RENDERER
     #include "profiler/DebugRenderer.h"

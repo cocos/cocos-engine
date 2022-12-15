@@ -51,9 +51,9 @@
 #include "gfx-base/states/GFXBufferBarrier.h"
 #include "gfx-base/states/GFXTextureBarrier.h"
 #include "math/Vec2.h"
-#include "pipeline/custom/GslUtils.h"
 #include "pipeline/custom/RenderCommonFwd.h"
 #include "pipeline/custom/RenderGraphTypes.h"
+#include "pipeline/custom/details/GslUtils.h"
 
 namespace cc {
 
@@ -184,7 +184,7 @@ bool tryAddEdge(uint32_t srcVertex, uint32_t dstVertex, Graph &graph);
 
 // for transive_closure.hpp line 231
 inline RelationGraph::vertex_descriptor add_vertex(RelationGraph &g) { // NOLINT
-    thread_local uint32_t count = 0; // unused
+    thread_local uint32_t count = 0;                                   // unused
     return add_vertex(g, count++);
 }
 

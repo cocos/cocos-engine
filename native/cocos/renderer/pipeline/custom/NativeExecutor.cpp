@@ -4,7 +4,6 @@
 #include "FGDispatcherGraphs.h"
 #include "GraphTypes.h"
 #include "GraphView.h"
-#include "GslUtils.h"
 #include "NativePipelineFwd.h"
 #include "NativePipelineTypes.h"
 #include "Pmr.h"
@@ -23,6 +22,7 @@
 #include "cocos/scene/Pass.h"
 #include "cocos/scene/RenderScene.h"
 #include "cocos/scene/Skybox.h"
+#include "details/GslUtils.h"
 
 namespace cc {
 

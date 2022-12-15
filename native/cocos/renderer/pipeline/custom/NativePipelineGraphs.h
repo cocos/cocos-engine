@@ -33,7 +33,6 @@
 #include <string_view>
 #include <tuple>
 #include "cocos/renderer/pipeline/custom/GraphImpl.h"
-#include "cocos/renderer/pipeline/custom/GslUtils.h"
 #include "cocos/renderer/pipeline/custom/NativePipelineTypes.h"
 #include "cocos/renderer/pipeline/custom/Overload.h"
 #include "cocos/renderer/pipeline/custom/PathUtils.h"

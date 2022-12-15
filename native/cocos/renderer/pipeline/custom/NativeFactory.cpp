@@ -25,10 +25,10 @@
 
 #include <sstream>
 #include "BinaryArchive.h"
-#include "GslUtils.h"
 #include "LayoutGraphSerialization.h"
 #include "NativePipelineTypes.h"
 #include "RenderInterfaceTypes.h"
+#include "details/GslUtils.h"
 #include "pipeline/custom/LayoutGraphTypes.h"
 #include "pipeline/custom/Pmr.h"
 

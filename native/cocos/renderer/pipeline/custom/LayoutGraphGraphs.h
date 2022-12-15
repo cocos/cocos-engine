@@ -33,7 +33,6 @@
 #include <string_view>
 #include <tuple>
 #include "cocos/renderer/pipeline/custom/GraphImpl.h"
-#include "cocos/renderer/pipeline/custom/GslUtils.h"
 #include "cocos/renderer/pipeline/custom/LayoutGraphTypes.h"
 #include "cocos/renderer/pipeline/custom/Overload.h"
 #include "cocos/renderer/pipeline/custom/PathUtils.h"
@@ -1203,14 +1202,14 @@ inline void remove_vertex_value_impl(const LayoutGraph::VertexHandle& h, LayoutG
     ccstd::visit(
         overload(
             [&](const impl::ValueHandle<RenderStageTag, vertex_descriptor>& h) {
-                g.stages.erase(g.stages.begin() + std::ptrdiff_t(h.value));
+                g.stages.erase(g.stages.begin() + static_cast<std::ptrdiff_t>(h.value));
                 if (h.value == g.stages.size()) {
                     return;
                 }
                 impl::reindexVectorHandle<RenderStageTag>(g._vertices, h.value);
             },
             [&](const impl::ValueHandle<RenderPhaseTag, vertex_descriptor>& h) {
-                g.phases.erase(g.phases.begin() + std::ptrdiff_t(h.value));
+                g.phases.erase(g.phases.begin() + static_cast<std::ptrdiff_t>(h.value));
                 if (h.value == g.phases.size()) {
                     return;
                 }
@@ -1226,8 +1225,8 @@ inline void remove_vertex(LayoutGraph::vertex_descriptor u, LayoutGraph& g) noex
     impl::removeVectorVertex(const_cast<LayoutGraph&>(g), u, LayoutGraph::directed_category{});
 
     // remove components
-    g.names.erase(g.names.begin() + std::ptrdiff_t(u));
-    g.descriptors.erase(g.descriptors.begin() + std::ptrdiff_t(u));
+    g.names.erase(g.names.begin() + static_cast<std::ptrdiff_t>(u));
+    g.descriptors.erase(g.descriptors.begin() + static_cast<std::ptrdiff_t>(u));
 }
 
 // MutablePropertyGraph(Vertex)
@@ -1903,14 +1902,14 @@ inline void remove_vertex_value_impl(const LayoutGraphData::VertexHandle& h, Lay
     ccstd::visit(
         overload(
             [&](const impl::ValueHandle<RenderStageTag, vertex_descriptor>& h) {
-                g.stages.erase(g.stages.begin() + std::ptrdiff_t(h.value));
+                g.stages.erase(g.stages.begin() + static_cast<std::ptrdiff_t>(h.value));
                 if (h.value == g.stages.size()) {
                     return;
                 }
                 impl::reindexVectorHandle<RenderStageTag>(g._vertices, h.value);
             },
             [&](const impl::ValueHandle<RenderPhaseTag, vertex_descriptor>& h) {
-                g.phases.erase(g.phases.begin() + std::ptrdiff_t(h.value));
+                g.phases.erase(g.phases.begin() + static_cast<std::ptrdiff_t>(h.value));
                 if (h.value == g.phases.size()) {
                     return;
                 }
@@ -1926,9 +1925,9 @@ inline void remove_vertex(LayoutGraphData::vertex_descriptor u, LayoutGraphData&
     impl::removeVectorVertex(const_cast<LayoutGraphData&>(g), u, LayoutGraphData::directed_category{});
 
     // remove components
-    g.names.erase(g.names.begin() + std::ptrdiff_t(u));
-    g.updateFrequencies.erase(g.updateFrequencies.begin() + std::ptrdiff_t(u));
-    g.layouts.erase(g.layouts.begin() + std::ptrdiff_t(u));
+    g.names.erase(g.names.begin() + static_cast<std::ptrdiff_t>(u));
+    g.updateFrequencies.erase(g.updateFrequencies.begin() + static_cast<std::ptrdiff_t>(u));
+    g.layouts.erase(g.layouts.begin() + static_cast<std::ptrdiff_t>(u));
 }
 
 // MutablePropertyGraph(Vertex)

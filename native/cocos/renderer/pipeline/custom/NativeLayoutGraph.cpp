@@ -23,8 +23,6 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "DebugUtils.h"
-#include "GslUtils.h"
 #include "LayoutGraphGraphs.h"
 #include "LayoutGraphNames.h"
 #include "LayoutGraphTypes.h"
@@ -33,6 +31,8 @@
 #include "Range.h"
 #include "RenderCommonNames.h"
 #include "cocos/renderer/gfx-base/GFXDevice.h"
+#include "details/DebugUtils.h"
+#include "details/GslUtils.h"
 
 namespace cc {
 

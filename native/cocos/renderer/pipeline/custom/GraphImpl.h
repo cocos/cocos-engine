@@ -31,7 +31,7 @@
 #include "base/std/container/vector.h"
 #include "base/std/variant.h"
 #include "renderer/pipeline/custom/GraphTypes.h"
-#include "renderer/pipeline/custom/GslUtils.h"
+#include "renderer/pipeline/custom/details/GslUtils.h"
 
 namespace cc {
 
