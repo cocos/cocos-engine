@@ -141,13 +141,13 @@ export class AnimationBlendEval implements MotionEval {
                     const t = childWeight / sumWeight;
                     blendPoseInto(finalPose, childOutput, t);
                 }
-                context.deletePose(childOutput);
+                context.popPose();
             }
         }
         if (finalPose) {
             return finalPose;
         }
-        return context.createDefaultedPose();
+        return context.pushDefaultedPose();
     }
 
     public overrideClips (overrides: ReadonlyClipOverrideMap, context: AnimationGraphLayerWideBindingContext): void {

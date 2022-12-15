@@ -23,7 +23,8 @@ class AnimationGraphPartialPreviewer {
     public evaluate() {
         const { _evaluationContext: evaluationContext } = this;
         const pose = this.doEvaluate(evaluationContext);
-        this._poseLayoutMaintainer.apply(pose ?? evaluationContext.createDefaultedPose());
+        this._poseLayoutMaintainer.apply(pose ?? evaluationContext.pushDefaultedPose());
+        evaluationContext.popPose();
     }
 
     public addVariable(id: string, type: VariableType, value: Value) {
@@ -88,6 +89,9 @@ class AnimationGraphPartialPreviewer {
 
         poseLayoutMaintainer.fetchDefaultTransforms(evaluationContext[defaultTransformsTag]);
 
+        if (this._evaluationContext) {
+            this._evaluationContext.destroy();
+        }
         this._evaluationContext = evaluationContext;
     }
 }
@@ -134,7 +138,7 @@ export class MotionPreviewer extends AnimationGraphPartialPreviewer {
             _motionEval: motionEval,
         } = this;
         if (!motionEval) {
-            return context.createDefaultedPose();
+            return context.pushDefaultedPose();
         }
         return motionEval.sample(this._time / motionEval.duration, context);
     }
@@ -261,7 +265,7 @@ export class TransitionPreviewer extends AnimationGraphPartialPreviewer {
         } = this;
 
         if (!source || !target) {
-            return null;
+            return context.pushDefaultedPose();
         }
 
         const sourceDuration = source.duration;
@@ -288,6 +292,7 @@ export class TransitionPreviewer extends AnimationGraphPartialPreviewer {
                 const sourcePose = source.sample(time / sourceDuration, context);
                 const targetPose = target.sample(transitionTime / targetDuration, context);
                 blendPoseInto(sourcePose, targetPose, transitionRatio);
+                context.popPose();
                 return sourcePose;
             }
         }
@@ -381,7 +386,7 @@ class MotionEvalRecord {
     }
 
     public sample(progress: number, context: AnimationGraphEvaluationContext) {
-        return this._port?.evaluate(progress, context) ?? context.createDefaultedPose();
+        return this._port?.evaluate(progress, context) ?? context.pushDefaultedPose();
     }
 
     public getWeightsRecursive(weight: number): Iterable<[RuntimeID, number]> {

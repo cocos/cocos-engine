@@ -79,6 +79,10 @@ export class AnimationGraphEval {
         this._initializeContexts();
     }
 
+    public destroy () {
+        this._evaluationContext.destroy();
+    }
+
     public get layerCount () {
         return this._layerEvaluations.length;
     }
@@ -90,18 +94,18 @@ export class AnimationGraphEval {
             _poseLayoutMaintainer: poseLayoutMaintainer,
         } = this;
 
-        const finalPose = evaluationContext.createDefaultedPose();
+        const finalPose = evaluationContext.pushDefaultedPose();
         const nLayers = layerEvaluations.length;
         for (let iLayer = 0; iLayer < nLayers; ++iLayer) {
             const layerEval = layerEvaluations[iLayer];
-            const layerPose = layerEval.update(deltaTime, evaluationContext) ?? evaluationContext.createDefaultedPose();
+            const layerPose = layerEval.update(deltaTime, evaluationContext) ?? evaluationContext.pushDefaultedPose();
             const layerActualWeight = layerEval.weight * layerEval.passthroughWeight;
             if (layerEval.additive) {
                 applyDeltaPose(finalPose, layerPose, layerActualWeight, layerEval.transformFilter);
             } else {
                 blendPoseInto(finalPose, layerPose, layerActualWeight, layerEval.transformFilter);
             }
-            evaluationContext.deletePose(layerPose);
+            evaluationContext.popPose();
         }
 
         if (this._hasAutoTrigger) {
@@ -116,7 +120,7 @@ export class AnimationGraphEval {
         }
 
         poseLayoutMaintainer.apply(finalPose);
-        evaluationContext.deletePose(finalPose);
+        evaluationContext.popPose();
 
         if (DEBUG) {
             assertIsTrue(evaluationContext.allocatedPoseCount === 0, `Pose leaked.`);
@@ -254,6 +258,7 @@ export class AnimationGraphEval {
                 transformCount: poseLayoutMaintainer.transformCount,
                 metaValueCount: poseLayoutMaintainer.metaValueCount,
             });
+            this._evaluationContext.destroy();
             this._evaluationContext = evaluationContext;
             evaluationContextRecreated = true;
         }
@@ -844,11 +849,11 @@ class LayerEval {
             return this._sampleSource(context);
         } else {
             this.passthroughWeight = 1.0;
-            const sourcePose = this._sampleSource(context) ?? context.createDefaultedPose();
+            const sourcePose = this._sampleSource(context) ?? context.pushDefaultedPose();
             if (currentTransitionToNode && currentTransitionToNode.kind === NodeKind.animation) {
-                const destPose = currentTransitionToNode.sampleToPort(context) ?? context.createDefaultedPose();
+                const destPose = currentTransitionToNode.sampleToPort(context) ?? context.pushDefaultedPose();
                 blendPoseInto(sourcePose, destPose, transitionAlpha);
-                context.deletePose(destPose);
+                context.popPose();
                 return sourcePose;
             } else {
                 return sourcePose;
@@ -1906,7 +1911,7 @@ class TransitionSnapshotEval extends StateEval {
                 weight: snapshotWeight,
             } = queue[iQueuedMotions];
             // Here implies: motions added to snapshot should have been switched from "target" to "source".
-            const queuedMotionPose = motion.sampleFromPort(context) ?? context.createDefaultedPose();
+            const queuedMotionPose = motion.sampleFromPort(context) ?? context.pushDefaultedPose();
             sumWeight += snapshotWeight;
             if (!finalPose) {
                 finalPose = queuedMotionPose;
@@ -1915,10 +1920,10 @@ class TransitionSnapshotEval extends StateEval {
                     const t = snapshotWeight / sumWeight;
                     blendPoseInto(finalPose, queuedMotionPose, t);
                 }
-                context.deletePose(queuedMotionPose);
+                context.popPose();
             }
         }
-        return finalPose ?? context.createDefaultedPose();
+        return finalPose ?? context.pushDefaultedPose();
     }
 
     public clear () {

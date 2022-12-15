@@ -1,201 +1,102 @@
-import { TEST } from 'internal:constants';
 import { assertIsTrue } from '../../core/data/utils/asserts';
 import { Pose } from './pose';
 import { TransformArray } from './transform-array';
-
-const MAX_POSE_PER_PAGE = 8;
-
-const allocationInfoTag = Symbol('PoseAllocator');
-
-type PagedPose = Pose & {
-    [allocationInfoTag]: AllocationInfo;
-};
-
-function isPagedPose (pose: Pose): pose is PagedPose {
-    return allocationInfoTag in pose;
-}
-
-const POSE_ALLOCATOR_DEBUG_FULL = TEST;
+import { SharedStackBasedAllocator, SharedStackBasedAllocatorManager } from './shared-stack-based-allocator';
 
 export class PoseAllocator {
     constructor (transformCount: number, metaValueCount: number) {
         this._transformCount = transformCount;
         this._metaValueCount = metaValueCount;
+
+        const poseBytes = calculateRequiredBytes(
+            transformCount,
+            metaValueCount,
+            1,
+        );
+
+        this._memoryAllocator = globalPosePageMemoryAllocatorManager.createAllocator(poseBytes);
+    }
+
+    public destroy () {
+        assertIsTrue(this._allocatedCount === 0, `Can not destroy the allocator since it's not empty.`);
+
+        for (let iPose = 0; iPose < this._poses.length; ++iPose) {
+            this._memoryAllocator.pop();
+        }
+
+        this._poses.length = 0;
+
+        return this._memoryAllocator.destroy();
     }
 
     public get allocatedCount () {
         return this._allocatedCount;
     }
 
-    public allocatePose (): Pose {
+    public push (): Pose {
+        // Lock the allocator when pushing first pose.
+        if (this._allocatedCount === 0) {
+            this._memoryAllocator.debugLock();
+        }
+
+        if (this._allocatedCount === this._poses.length) {
+            this._allocateNewPose();
+            assertIsTrue(this._allocatedCount < this._poses.length);
+        }
+
+        const pose = this._poses[this._allocatedCount];
+
         ++this._allocatedCount;
-        const { _pages: pages } = this;
-        const nPages = pages.length;
 
-        // Debug check our promise on `this._foremostPossibleFreePage`.
-        if (POSE_ALLOCATOR_DEBUG_FULL) {
-            for (let iPage = 0; iPage < this._foremostPossibleFreePage; ++iPage) {
-                const page = pages[iPage];
-                assertIsTrue(page.freeCount === 0);
-            }
-        }
-
-        for (let iPage = this._foremostPossibleFreePage; iPage < nPages; ++iPage) {
-            const page = pages[iPage];
-            const pose = page.tryAllocate();
-            if (pose) {
-                pose[allocationInfoTag].pageIndex = iPage;
-                if (page.freeCount === 0) {
-                    // Only step one, even the next page is not free.
-                    ++this._foremostPossibleFreePage;
-                }
-                return pose;
-            }
-        }
-
-        const pose = this._allocatePoseInNewPage();
-        // Update the flag, no matter if its capacity is 1.
-        this._foremostPossibleFreePage = pose[allocationInfoTag].pageIndex;
         return pose;
     }
 
-    public destroyPose (pose: Pose) {
-        assertIsTrue(isPagedPose(pose));
-        const { _pages: pages } = this;
-        const nPages = pages.length;
-        const pageIndex = pose[allocationInfoTag].pageIndex;
-        assertIsTrue(pageIndex >= 0 && pageIndex < nPages);
-        const page = pages[pageIndex];
-        page.deallocate(pose);
+    public pop () {
+        assertIsTrue(this.allocatedCount > 0, `PoseAllocator: push/pop does not match.`);
+
         --this._allocatedCount;
 
-        // If the destruction performed on former page,
-        // update the flag so that next allocation find from this.
-        if (pageIndex < this._foremostPossibleFreePage) {
-            assertIsTrue(page.freeCount > 0);
-            this._foremostPossibleFreePage = pageIndex;
+        // Unlock the allocator while popping last pose.
+        if (this._allocatedCount === 0) {
+            this._memoryAllocator.debugUnlock();
         }
+
+        // Note: we don't actually free the pose -- only destroy() will free the pose.
+        // This does not cause big problem since all pose allocators share the same stack memory.
     }
 
-    private _transformCount = 0;
+    private _poses: Pose[] = [];
 
-    private _metaValueCount = 0;
+    private declare readonly _transformCount: number;
 
-    private _pages: PosePage[] = [];
+    private declare readonly _metaValueCount: number;
 
     private _allocatedCount = 0;
 
-    /**
-     * Index of the page that:
-     * - All former pages are busy.
-     * - This page and the following pages're possible having free location to allocate.
-     */
-    private _foremostPossibleFreePage = 0;
+    private _memoryAllocator: SharedStackBasedAllocator;
 
-    private _allocatePoseInNewPage (): PagedPose {
-        const page = new PosePage(this._transformCount, this._metaValueCount, 4);
-        const pageIndex = this._pages.length;
-        this._pages.push(page);
-        const pose = page.tryAllocate();
-        assertIsTrue(pose); // Shall not fail
-        pose[allocationInfoTag].pageIndex = pageIndex;
-        return pose;
-    }
-}
-
-class AllocationInfo {
-    get pageIndex () {
-        return this._id >> POSE_INDEX_BITS;
-    }
-
-    set pageIndex (value) {
-        this._id &= POSE_INDEX_MASK;
-        this._id |= (value << POSE_INDEX_BITS);
-    }
-
-    get poseIndex () {
-        return this._id & POSE_INDEX_MASK;
-    }
-
-    set poseIndex (value) {
-        this._id &= ~POSE_INDEX_MASK;
-        this._id |= value;
-    }
-
-    /**
-     * ((page index) << POSE_INDEX_BITS) + (pose index into page)
-     */
-    private _id = -1;
-}
-
-const POSE_INDEX_MASK = 0b111;
-const POSE_INDEX_BITS = 3;
-assertIsTrue(POSE_INDEX_MASK + 1 >= MAX_POSE_PER_PAGE);
-
-class PosePage {
-    constructor (private _transformCount: number, private _metaValueCount: number, private _capacity: number) {
-        const byteLength = (TransformArray.BYTES_PER_ELEMENT * _transformCount
-            + Float64Array.BYTES_PER_ELEMENT * _metaValueCount) * _capacity;
-        this._buffer = new ArrayBuffer(byteLength);
-        this._poses = new Array(_capacity).fill(null);
-        this._freeCount = _capacity;
-    }
-
-    get capacity () {
-        return this._capacity;
-    }
-
-    get freeCount () {
-        return this._freeCount;
-    }
-
-    public tryAllocate (): PagedPose | null {
-        const { _poses: poses, _idleFlags: idleFlags, _capacity: capacity } = this;
-        const idlePoseIndex = findRightmostSetBit(idleFlags);
-        if (idlePoseIndex >= capacity) {
-            return null;
-        }
-        assertIsTrue(idlePoseIndex >= 0 && idlePoseIndex < poses.length);
-        const pose = poses[idlePoseIndex] ??= this._createPose(idlePoseIndex);
-        pose[allocationInfoTag].poseIndex = idlePoseIndex;
-        this._idleFlags &= ~(1 << idlePoseIndex);
-        assertIsTrue(this._freeCount > 0);
-        --this._freeCount;
-        return pose;
-    }
-
-    public deallocate (pose: PagedPose) {
-        const { _poses: poses } = this;
-        const poseIndex = pose[allocationInfoTag].poseIndex;
-        assertIsTrue(poseIndex >= 0 && poseIndex < poses.length);
-        assertIsTrue(poses[poseIndex] === pose);
-        // Set as idle
-        this._idleFlags |= (1 << poseIndex);
-        assertIsTrue(this._freeCount < this._capacity);
-        ++this._freeCount;
-    }
-
-    private _buffer: ArrayBuffer;
-
-    private _idleFlags = 0xF;
-
-    private _poses: (PagedPose | null)[];
-
-    private _freeCount = 0;
-
-    private _createPose (index: number) {
+    private _allocateNewPose () {
+        const slice = this._memoryAllocator.push();
         const transformsByteLength = TransformArray.BYTES_PER_ELEMENT * this._transformCount;
-        const baseOffset = (transformsByteLength
-            + Float64Array.BYTES_PER_ELEMENT * this._metaValueCount) * index;
-        const transforms = new TransformArray(this._buffer, baseOffset, this._transformCount);
-        const metaValues = new Float64Array(this._buffer, baseOffset + transformsByteLength, this._metaValueCount);
+        const baseOffset = slice.byteOffset;
+        const transforms = new TransformArray(slice.buffer, baseOffset, this._transformCount);
+        const metaValues = new Float64Array(slice.buffer, baseOffset + transformsByteLength, this._metaValueCount);
         const pose = Pose.__create(transforms, metaValues);
-        pose[allocationInfoTag] = new AllocationInfo();
-        return pose as PagedPose;
+        this._poses.push(pose);
     }
 }
 
-function findRightmostSetBit (bits: number) {
-    // Math.log(2) === -Infinity
-    return bits === 0 ? Infinity : Math.log2(bits & -bits);
+function calculateRequiredBytes (
+    transformCount: number,
+    metaValueCount: number,
+    capacity: number,
+) {
+    return (TransformArray.BYTES_PER_ELEMENT * transformCount
+        + Float64Array.BYTES_PER_ELEMENT * metaValueCount) * capacity;
 }
+
+const PAGE_SIZE = calculateRequiredBytes(128, 10, 4);
+
+const globalPosePageMemoryAllocatorManager = new SharedStackBasedAllocatorManager([
+    PAGE_SIZE,
+]);

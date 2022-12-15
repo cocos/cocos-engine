@@ -478,6 +478,10 @@ export class AnimationGraphEvaluationContext {
         this[defaultTransformsTag] = new TransformArray(layout.transformCount);
     }
 
+    public destroy () {
+        this._poseAllocator.destroy();
+    }
+
     /**
      * @engineInternal
      */
@@ -487,29 +491,29 @@ export class AnimationGraphEvaluationContext {
         return this._poseAllocator.allocatedCount;
     }
 
-    public createDefaultedPose () {
-        const pose = this._poseAllocator.allocatePose();
+    public pushDefaultedPose () {
+        const pose = this._poseAllocator.push();
         pose.transforms.set(this[defaultTransformsTag]);
         pose.metaValues.fill(0.0);
         return pose;
     }
 
-    public createZeroPose () {
-        const pose = this._poseAllocator.allocatePose();
+    public pushZeroPose () {
+        const pose = this._poseAllocator.push();
         pose.transforms.fillZero();
         pose.metaValues.fill(0.0);
         return pose;
     }
 
-    public duplicatePose (src: Pose) {
-        const pose = this._poseAllocator.allocatePose();
+    public pushDuplicatedPose (src: Pose) {
+        const pose = this._poseAllocator.push();
         pose.transforms.set(src.transforms);
         pose.metaValues.set(src.metaValues);
         return pose;
     }
 
-    public deletePose (pose: Pose) {
-        this._poseAllocator.destroyPose(pose);
+    public popPose () {
+        this._poseAllocator.pop();
     }
 
     private _poseAllocator: PoseAllocator;
