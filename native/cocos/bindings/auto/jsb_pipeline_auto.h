@@ -53,6 +53,8 @@
 #include "renderer/pipeline/PipelineSceneData.h"
 #include "renderer/pipeline/BatchedBuffer.h"
 #include "renderer/pipeline/GeometryRenderer.h"
+#include "renderer/pipeline/reflection-probe/ReflectionProbeFlow.h"
+#include "renderer/pipeline/reflection-probe/ReflectionProbeStage.h"
 
 
 
@@ -148,10 +150,6 @@ bool sevalue_to_native(const se::Value &from, cc::pipeline::RenderQueueCreateInf
 JSB_REGISTER_OBJECT_TYPE(cc::pipeline::RenderQueueDesc);
 extern se::Object *__jsb_cc_pipeline_RenderQueueDesc_proto; // NOLINT
 extern se::Class * __jsb_cc_pipeline_RenderQueueDesc_class; // NOLINT
-
-
-template<>
-bool sevalue_to_native(const se::Value &from, cc::pipeline::RenderQueueDesc * to, se::Object *ctx);
 
 
 JSB_REGISTER_OBJECT_TYPE(cc::pipeline::UBOLocalBatched);
@@ -598,4 +596,14 @@ extern se::Object *__jsb_cc_pipeline_GeometryRenderer_proto; // NOLINT
 extern se::Class * __jsb_cc_pipeline_GeometryRenderer_class; // NOLINT
 
 #endif // CC_USE_GEOMETRY_RENDERER
+
+JSB_REGISTER_OBJECT_TYPE(cc::pipeline::ReflectionProbeFlow);
+extern se::Object *__jsb_cc_pipeline_ReflectionProbeFlow_proto; // NOLINT
+extern se::Class * __jsb_cc_pipeline_ReflectionProbeFlow_class; // NOLINT
+
+
+JSB_REGISTER_OBJECT_TYPE(cc::pipeline::ReflectionProbeStage);
+extern se::Object *__jsb_cc_pipeline_ReflectionProbeStage_proto; // NOLINT
+extern se::Class * __jsb_cc_pipeline_ReflectionProbeStage_class; // NOLINT
+
 // clang-format on

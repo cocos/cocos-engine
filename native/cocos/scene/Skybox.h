@@ -179,18 +179,18 @@ public:
     // @serializable
     // @type(TextureCube)
     // @formerlySerializedAs('_envmap')
-    TextureCube *_envmapHDR{nullptr};
+    IntrusivePtr<TextureCube> _envmapHDR{nullptr};
     // @serializable
     // @type(TextureCube)
-    TextureCube *_envmapLDR{nullptr};
+    IntrusivePtr<TextureCube> _envmapLDR{nullptr};
     // @serializable
     // @type(TextureCube)
-    TextureCube *_diffuseMapHDR{nullptr};
+    IntrusivePtr<TextureCube> _diffuseMapHDR{nullptr};
     // @serializable
     // @type(TextureCube)
-    TextureCube *_diffuseMapLDR{nullptr};
-    TextureCube *_reflectionHDR{nullptr};
-    TextureCube *_reflectionLDR{nullptr};
+    IntrusivePtr<TextureCube> _diffuseMapLDR{nullptr};
+    IntrusivePtr<TextureCube> _reflectionHDR{nullptr};
+    IntrusivePtr<TextureCube> _reflectionLDR{nullptr};
     // @serializable
     bool _enabled{false};
     // @serializable
