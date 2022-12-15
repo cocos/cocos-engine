@@ -455,40 +455,40 @@ export class Quat extends ValueType {
      */
     public static fromMat3<Out extends IQuatLike> (out: Out, m: Mat3) {
         const {
-            m00, m03: m01, m06: m02,
-            m01: m10, m04: m11, m07: m12,
-            m02: m20, m05: m21, m08: m22,
+            m00, m03, m06,
+            m01, m04, m07,
+            m02, m05, m08,
         } = m;
 
-        const trace = m00 + m11 + m22;
+        const trace = m00 + m04 + m08;
 
         if (trace > 0) {
             const s = 0.5 / Math.sqrt(trace + 1.0);
 
             out.w = 0.25 / s;
-            out.x = (m21 - m12) * s;
-            out.y = (m02 - m20) * s;
-            out.z = (m10 - m01) * s;
-        } else if ((m00 > m11) && (m00 > m22)) {
-            const s = 2.0 * Math.sqrt(1.0 + m00 - m11 - m22);
+            out.x = (m05 - m07) * s;
+            out.y = (m06 - m02) * s;
+            out.z = (m01 - m03) * s;
+        } else if ((m00 > m04) && (m00 > m08)) {
+            const s = 2.0 * Math.sqrt(1.0 + m00 - m04 - m08);
 
-            out.w = (m21 - m12) / s;
+            out.w = (m05 - m07) / s;
             out.x = 0.25 * s;
-            out.y = (m01 + m10) / s;
-            out.z = (m02 + m20) / s;
-        } else if (m11 > m22) {
-            const s = 2.0 * Math.sqrt(1.0 + m11 - m00 - m22);
+            out.y = (m03 + m01) / s;
+            out.z = (m06 + m02) / s;
+        } else if (m04 > m08) {
+            const s = 2.0 * Math.sqrt(1.0 + m04 - m00 - m08);
 
-            out.w = (m02 - m20) / s;
-            out.x = (m01 + m10) / s;
+            out.w = (m06 - m02) / s;
+            out.x = (m03 + m01) / s;
             out.y = 0.25 * s;
-            out.z = (m12 + m21) / s;
+            out.z = (m07 + m05) / s;
         } else {
-            const s = 2.0 * Math.sqrt(1.0 + m22 - m00 - m11);
+            const s = 2.0 * Math.sqrt(1.0 + m08 - m00 - m04);
 
-            out.w = (m10 - m01) / s;
-            out.x = (m02 + m20) / s;
-            out.y = (m12 + m21) / s;
+            out.w = (m01 - m03) / s;
+            out.x = (m06 + m02) / s;
+            out.y = (m07 + m05) / s;
             out.z = 0.25 * s;
         }
 
