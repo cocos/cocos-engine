@@ -125,11 +125,6 @@ export class AudioPlayerMinigame implements OperationQueueable {
                     this._needSeek = false;
                 }
             }
-
-            // TaoBao iOS: After calling pause or stop, when seek is called, it will automatically play and call onPlay.
-            if (TAOBAO && systemInfo.os === OS.IOS && (this._state === AudioState.PAUSED || this._state === AudioState.STOPPED)) {
-                innerAudioContext.pause();
-            }
         };
         innerAudioContext.onSeeked(this._onSeeked);
         this._onEnded = () => {
@@ -207,11 +202,6 @@ export class AudioPlayerMinigame implements OperationQueueable {
                 innerAudioContext.offError(fail);
             }
             function success () {
-                // TaoBao Android: Audio is loaded after play, onCanplay will also be called.
-                if (TAOBAO && systemInfo.os === OS.ANDROID) {
-                    innerAudioContext.pause();
-                    innerAudioContext.seek(0);
-                }
                 clearEvent();
                 clearTimeout(timer);
                 resolve(innerAudioContext);
@@ -224,12 +214,6 @@ export class AudioPlayerMinigame implements OperationQueueable {
             }
             innerAudioContext.onCanplay(success);
             innerAudioContext.onError(fail);
-
-            // TaoBao Android: Audio is loaded after play, onCanplay will also be called.
-            if (TAOBAO && systemInfo.os === OS.ANDROID) {
-                innerAudioContext.autoplay = true;
-                innerAudioContext.volume = 0;
-            }
             innerAudioContext.src = url;
         });
     }
