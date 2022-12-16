@@ -3,7 +3,7 @@ import { IRigidBody2D } from '../spec/i-rigid-body';
 import { RigidBody2D } from '../framework/components/rigid-body-2d';
 import { PhysicsSystem2D } from '../framework/physics-system';
 import { b2PhysicsWorld } from './physics-world';
-import { Vec2, toRadian, Vec3, IVec2Like, toDegree } from '../../core';
+import { Vec2, toRadian, Vec3, Quat, IVec2Like, toDegree } from '../../core';
 import { PHYSICS_2D_PTM_RATIO, ERigidBody2DType } from '../framework/physics-types';
 
 import { Node } from '../../scene-graph/node';
@@ -144,7 +144,11 @@ export class b2RigidBody2D implements IRigidBody2D {
         const b2body = this._body;
         if (!b2body) return;
 
-        const rotation = toRadian(this._rigidBody.node.eulerAngles.z);
+        const rot = this._rigidBody.node.worldRotation;
+        const euler = new Vec3();
+        Quat.toEuler(euler, rot);
+        const rotation = toRadian(euler.z);
+
         const bodyType = this._rigidBody.type;
         if (bodyType === ERigidBody2DType.Animated && enableAnimated) {
             this._animatedAngle = rotation;
