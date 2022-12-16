@@ -31,7 +31,7 @@ const bufferProto = gfx.Buffer.prototype;
 const textureProto = gfx.Texture.prototype;
 const descriptorSetProto = gfx.DescriptorSet.prototype;
 
-const jsbWindow = jsb.window;
+const jsbWindow = require('../jsbWindow');
 ///////////////////////////// handle different paradigms /////////////////////////////
 
 const oldCopyTexImagesToTextureFunc = deviceProto.copyTexImagesToTexture;

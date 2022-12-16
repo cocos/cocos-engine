@@ -6,7 +6,7 @@ const HTMLScriptElement = require('./HTMLScriptElement');
 const Node = require('./Node');
 const FontFaceSet = require('./FontFaceSet');
 
-const jsbWindow = globalThis.jsb.window;
+const jsbWindow = require('../../jsbWindow');
 
 class Document extends Node {
   constructor () {

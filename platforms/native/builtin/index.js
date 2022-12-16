@@ -1,6 +1,6 @@
 globalThis.__EDITOR__ = globalThis.process && ('electron' in globalThis.process.versions);
 
-const jsbWindow = globalThis.jsb.window = globalThis.jsb.window || {}; //TODO(PatriceJiang):
+const jsbWindow = require('../jsbWindow');
 
 jsb.device = jsb.Device; // cc namespace will be reset to {} in creator, use jsb namespace instead.
 
@@ -199,9 +199,6 @@ jsb.generateGetSet = function (moduleObj) {
     }
 };
 
-// promise polyfill relies on setTimeout implementation
-require('./promise.min');
-
 for (const key in jsbWindow) {
     if (globalThis[key] === undefined) {
         globalThis[key] = jsbWindow[key];
@@ -211,29 +208,10 @@ for (const key in jsbWindow) {
         console.log(`[web-adapter] skip window.${key}`);
     }
 }
-// track image creation
 
-const oldcreateElement = globalThis.document.createElement;
-globalThis.document.createElement = function (tag) {
-    if (tag === 'img') {
-        try {
-            throw new Error(`call document.createElement('img')`);
-        } catch (e) {
-            console.error(e);
-            console.error(e.stack);
-        }
-    }
-    return oldcreateElement.apply(globalThis.document, arguments);
-};
+if (typeof globalThis.window === 'undefined') {
+    globalThis.window = globalThis;
+}
 
-// const oldImage = globalThis.Image;
-// globalThis.Image = function () {
-//     try {
-//         throw new Error(`call new Image`);
-//     } catch (e) {
-//         console.error(e);
-//         console.error(e.stack);
-//     }
-//     oldImage.apply(this, arguments);
-// };
-// globalThis.Image.prototype = oldImage.prototype;
+// promise polyfill relies on setTimeout implementation
+require('./promise.min');

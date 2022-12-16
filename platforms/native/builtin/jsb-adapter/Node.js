@@ -1,6 +1,6 @@
 const EventTarget = require('./EventTarget');
+const jsbWindow = require('../../jsbWindow');
 
-const jsbWindow = globalThis.jsb.window;
 class Node extends EventTarget {
   constructor () {
     super();

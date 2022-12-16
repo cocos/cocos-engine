@@ -29,8 +29,8 @@ import { CompleteCallback, IDownloadParseOptions } from '../../asset/asset-manag
 import downloader from '../../asset/asset-manager/downloader';
 import factory from '../../asset/asset-manager/factory';
 import { TTFFont } from '../assets/ttf-font';
+import { engineGlobal } from '../../core/global-exports';
 
-const engineGlobal = typeof globalThis.jsb !== 'undefined' ? (typeof jsb.window !== 'undefined' ? jsb.window : window) : window;
 const document = engineGlobal.document;
 
 interface IFontLoadHandle {
@@ -56,9 +56,9 @@ const useNativeCheck = (() => {
     let nativeCheck: boolean;
     return (): boolean => {
         if (nativeCheck === undefined) {
-            if ('FontFace' in window) {
-                const match = /Gecko.*Firefox\/(\d+)/.exec(window.navigator.userAgent);
-                const safari10Match = /OS X.*Version\/10\..*Safari/.exec(window.navigator.userAgent) && /Apple/.exec(window.navigator.vendor);
+            if ('FontFace' in engineGlobal) {
+                const match = /Gecko.*Firefox\/(\d+)/.exec(engineGlobal.navigator.userAgent);
+                const safari10Match = /OS X.*Version\/10\..*Safari/.exec(engineGlobal.navigator.userAgent) && /Apple/.exec(engineGlobal.navigator.vendor);
 
                 if (match) {
                     nativeCheck = parseInt(match[1], 10) > 42;

@@ -32,8 +32,8 @@ import { EventType, READY_STATE } from './video-player-enums';
 import { VideoPlayerImpl } from './video-player-impl';
 import { ClearFlagBit } from '../gfx';
 import { BrowserType, OS } from '../../pal/system-info/enum-type';
+import { engineGlobal } from '../core/global-exports';
 
-const engineGlobal = typeof globalThis.jsb !== 'undefined' ? (typeof jsb.window !== 'undefined' ? jsb.window : window) : window;
 const document = engineGlobal.document;
 
 const MIN_ZINDEX = -(2 ** 15);
@@ -72,7 +72,7 @@ export class VideoPlayerImplWeb extends VideoPlayerImpl {
         if (this.video) {
             const promise = this.video.play();
             // the play API can only be initiated by user gesture.
-            if (window.Promise && promise instanceof Promise) {
+            if (engineGlobal.Promise && promise instanceof Promise) {
                 // eslint-disable-next-line @typescript-eslint/no-floating-promises
                 promise.catch((error) => {
                     // Auto-play was prevented

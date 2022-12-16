@@ -30,6 +30,7 @@ import { PixelFormat } from '../../../asset/assets/asset-enum';
 import { BufferTextureCopy } from '../../../gfx';
 import { safeMeasureText, BASELINE_RATIO, MIDDLE_RATIO, getBaselineOffset } from '../../utils/text-utils';
 import { director, Director } from '../../../game/director';
+import { engineGlobal } from '../../../core/global-exports';
 
 export interface ISharedLabelData {
     canvas: HTMLCanvasElement;
@@ -37,8 +38,6 @@ export interface ISharedLabelData {
 }
 
 let _canvasPool: CanvasPool;
-
-const engineGlobal = typeof globalThis.jsb !== 'undefined' ? (typeof jsb.window !== 'undefined' ? jsb.window : window) : window;
 
 export class CanvasPool {
     static getInstance (): CanvasPool {
@@ -134,7 +133,7 @@ class LetterTexture {
     constructor (char: string, labelInfo: ILabelInfo) {
         this.char = char;
         this.labelInfo = labelInfo;
-        this.hash = char.charCodeAt(0) + labelInfo.hash;
+        this.hash = `${char.charCodeAt(0)}${labelInfo.hash}`;
     }
 
     public updateRenderData () {

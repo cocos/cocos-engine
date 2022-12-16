@@ -1,7 +1,6 @@
 const Element = require('./Element');
 const { noop } = require('./util');
-
-const jsbWindow = globalThis.jsb.window;
+const jsbWindow = require('../../jsbWindow');
 
 class HTMLElement extends Element {
   constructor (tagName = '') {

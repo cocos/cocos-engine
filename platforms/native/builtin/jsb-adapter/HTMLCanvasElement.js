@@ -2,8 +2,7 @@ const HTMLElement = require('./HTMLElement');
 const ImageData = require('./ImageData');
 const DOMRect = require('./DOMRect');
 const CanvasRenderingContext2D = require('./CanvasRenderingContext2D');
-
-const jsbWindow = globalThis.jsb.window;
+const jsbWindow = require('../../jsbWindow');
 
 const clamp = function (value) {
     value = Math.round(value);

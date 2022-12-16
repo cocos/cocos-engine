@@ -40,8 +40,8 @@ import { tabIndexUtil } from './tabIndexUtil';
 import { InputFlag, InputMode, KeyboardReturnType } from './types';
 import { EditBoxImplBase } from './edit-box-impl-base';
 import { BrowserType, OS } from '../../../pal/system-info/enum-type';
+import { engineGlobal } from '../../core/global-exports';
 
-const engineGlobal = typeof globalThis.jsb !== 'undefined' ? (typeof jsb.window !== 'undefined' ? jsb.window : window) : window;
 const document = engineGlobal.document;
 
 // https://segmentfault.com/q/1010000002914610
@@ -244,7 +244,7 @@ export class EditBoxImpl extends EditBoxImplBase {
 
     private _adjustWindowScroll () {
         setTimeout(() => {
-            if (window.scrollY < SCROLLY) {
+            if (engineGlobal.scrollY < SCROLLY) {
                 this._edTxt!.scrollIntoView({ block: 'start', inline: 'nearest', behavior: 'smooth' });
             }
         }, DELAY_TIME);
@@ -253,14 +253,14 @@ export class EditBoxImpl extends EditBoxImplBase {
     private _scrollBackWindow () {
         setTimeout(() => {
             if (sys.browserType === BrowserType.WECHAT && sys.os === OS.IOS) {
-                if (window.top) {
-                    window.top.scrollTo(0, 0);
+                if (engineGlobal.top) {
+                    engineGlobal.top.scrollTo(0, 0);
                 }
 
                 return;
             }
 
-            window.scrollTo(0, 0);
+            engineGlobal.scrollTo(0, 0);
         }, DELAY_TIME);
     }
 

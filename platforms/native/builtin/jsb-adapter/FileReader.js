@@ -1,7 +1,6 @@
 const EventTarget = require('./EventTarget');
 const Event = require('./Event');
-
-const jsbWindow = globalThis.jsb.window;
+const jsbWindow = require('../../jsbWindow');
 
 class FileReader extends EventTarget {
 	construct () {

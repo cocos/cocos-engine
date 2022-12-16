@@ -1,7 +1,6 @@
 const Node = require('./Node');
 const DOMRect = require('./DOMRect');
-
-const jsbWindow = globalThis.jsb.window;
+const jsbWindow = require('../../jsbWindow');
 
 class Element extends Node {
     constructor () {

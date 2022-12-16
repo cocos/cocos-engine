@@ -42,8 +42,7 @@ import codec from '../../external/compression/ZipUtils';
 import { IBatcher } from '../2d/renderer/i-batcher';
 import { assetManager, builtinResMgr } from '../asset/asset-manager';
 import { PositionType, EmitterMode, DURATION_INFINITY, START_RADIUS_EQUAL_TO_END_RADIUS, START_SIZE_EQUAL_TO_END_SIZE } from './define';
-
-const engineGlobal = typeof globalThis.jsb !== 'undefined' ? (typeof jsb.window !== 'undefined' ? jsb.window : window) : window;
+import { engineGlobal } from '../core/global-exports';
 
 /**
  * Image formats

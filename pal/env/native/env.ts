@@ -6,7 +6,7 @@ const document = engineGlobal.document;
 export function findCanvas (): { frame: HTMLDivElement, container: HTMLDivElement, canvas: HTMLCanvasElement } {
     const container = document.createElement('div');
     const frame = document.documentElement as HTMLDivElement;
-    const canvas = window.__canvas;
+    const canvas = engineGlobal.__canvas;
     return { frame, canvas, container };
 }
 

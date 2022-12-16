@@ -30,8 +30,7 @@
  */
 
 import { getError, logID } from '../core';
-
-const engineGlobal = typeof globalThis.jsb !== 'undefined' ? (typeof jsb.window !== 'undefined' ? jsb.window : window) : window;
+import { engineGlobal } from '../core/global-exports';
 
 interface IFile {
     type: string,

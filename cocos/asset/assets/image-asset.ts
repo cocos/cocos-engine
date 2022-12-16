@@ -30,9 +30,8 @@ import { Device, Format, FormatFeatureBit, deviceManager } from '../../gfx';
 import { Asset } from './asset';
 import { PixelFormat } from './asset-enum';
 import { warnID, macro, sys, cclegacy } from '../../core';
+import { engineGlobal } from '../../core/global-exports';
 import { Enum } from '../../core/value-types/enum';
-
-const engineGlobal = typeof globalThis.jsb !== 'undefined' ? (typeof jsb.window !== 'undefined' ? jsb.window : window) : window;
 
 // Compress mipmap constants
 const COMPRESSED_HEADER_LENGTH = 4;

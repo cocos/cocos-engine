@@ -29,8 +29,8 @@ import factory from '../asset/asset-manager/factory';
 import { CompleteCallback, IDownloadParseOptions } from '../asset/asset-manager/shared';
 import { log } from '../core/platform/debug';
 import { VideoClip } from './assets/video-clip';
+import { engineGlobal } from '../core/global-exports';
 
-const engineGlobal = typeof globalThis.jsb !== 'undefined' ? (typeof jsb.window !== 'undefined' ? jsb.window : window) : window;
 const document = engineGlobal.document;
 
 // eslint-disable-next-line consistent-return

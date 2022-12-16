@@ -36,7 +36,7 @@ import {
     DeviceInfo, BufferTextureCopy, ShaderInfo, ShaderStageFlagBit, TextureViewInfo, TextureInfo, DrawInfo, BufferViewInfo, BufferInfo, BufferUsageBit, IndirectBuffer,
 } from '../base/define';
 
-const engineGlobal = typeof globalThis.jsb !== 'undefined' ? (typeof jsb.window !== 'undefined' ? jsb.window : window) : window;
+import { engineGlobal } from '../../core/global-exports';
 
 
 WEBGPU && promiseForWebGPUInstantiation.then(() => {

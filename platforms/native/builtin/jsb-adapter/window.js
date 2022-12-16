@@ -1,4 +1,4 @@
-const jsbWindow = globalThis.jsb.window;
+const jsbWindow = require('../../jsbWindow');
 
 function inject () {
     jsbWindow.ontouchstart = null;

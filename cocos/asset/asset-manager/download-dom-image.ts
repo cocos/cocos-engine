@@ -25,9 +25,8 @@
  */
 
 import { getError } from '../../core';
+import { engineGlobal } from '../../core/global-exports';
 import { CompleteCallback, IDownloadParseOptions } from './shared';
-
-const engineGlobal = typeof globalThis.jsb !== 'undefined' ? (typeof jsb.window !== 'undefined' ? jsb.window : window) : window;
 
 export default function downloadDomImage (
     url: string,
@@ -36,7 +35,7 @@ export default function downloadDomImage (
 ): HTMLImageElement {
     const img = new engineGlobal.Image();
 
-    if (window.location.protocol !== 'file:') {
+    if (engineGlobal.location.protocol !== 'file:') {
         img.crossOrigin = 'anonymous';
     }
 

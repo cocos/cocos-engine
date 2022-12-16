@@ -24,9 +24,9 @@
  */
 
 import { getError } from '../../core';
+import { engineGlobal } from '../../core/global-exports';
 import { CompleteCallback, IBundleOptions } from './shared';
 
-const engineGlobal = typeof globalThis.jsb !== 'undefined' ? (typeof jsb.window !== 'undefined' ? jsb.window : window) : window;
 const document = engineGlobal.document;
 
 const downloaded = {};
@@ -44,7 +44,7 @@ export default function downloadScript (
 
     const script = document.createElement('script');
 
-    if (window.location.protocol !== 'file:') {
+    if (engineGlobal.location.protocol !== 'file:') {
         script.crossOrigin = 'anonymous';
     }
 

@@ -26,9 +26,8 @@
 /* eslint-disable no-console */
 import { EDITOR, JSB, DEV, DEBUG } from 'internal:constants';
 import debugInfos from '../../../DebugInfos';
-import { legacyCC } from '../global-exports';
+import { legacyCC, engineGlobal } from '../global-exports';
 
-const engineGlobal = typeof globalThis.jsb !== 'undefined' ? (typeof jsb.window !== 'undefined' ? jsb.window : window) : window;
 const document = engineGlobal.document;
 
 const ERROR_MAP_URL = 'https://github.com/cocos-creator/engine/blob/develop/EngineErrorMap.md';
@@ -151,7 +150,7 @@ export function _resetDebugSetting (mode: DebugMode) {
                 logDivStyle.position = 'absolute';
                 logDivStyle.top = logDivStyle.left = '0';
 
-                logList = document.createElement('textarea') as HTMLTextAreaElement;
+                logList = document.createElement('textarea');
                 logList.setAttribute('rows', '20');
                 logList.setAttribute('cols', '30');
                 logList.setAttribute('disabled', 'true');

@@ -30,8 +30,8 @@ import { WebViewImpl } from './web-view-impl';
 import { game } from '../game';
 import { mat4 } from '../core/math';
 import { contains } from '../core/utils/misc';
+import { engineGlobal } from '../core/global-exports';
 
-const engineGlobal = typeof globalThis.jsb !== 'undefined' ? (typeof jsb.window !== 'undefined' ? jsb.window : window) : window;
 const document = engineGlobal.document;
 
 const _mat4_temp = mat4();

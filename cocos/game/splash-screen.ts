@@ -33,8 +33,7 @@ import {
 } from '../gfx';
 import { PipelineStateManager } from '../rendering';
 import { SetIndex } from '../rendering/define';
-
-const engineGlobal = typeof globalThis.jsb !== 'undefined' ? (typeof jsb.window !== 'undefined' ? jsb.window : window) : window;
+import { engineGlobal } from '../core/global-exports';
 
 const v2_0 = new Vec2();
 type SplashEffectType = 'default' | 'custom' | 'off';
@@ -125,7 +124,6 @@ export class SplashScreen {
         };
         this._curTime = 0;
 
-        const engineGlobal = typeof globalThis.jsb !== 'undefined' ? (typeof jsb.window !== 'undefined' ? jsb.window : window) : window;
         // TODO: Image can't load with base64 data on Taobao platform.
         if (EDITOR || TAOBAO || this.settings.base64src === '' || this.settings.totalTime <= 0) {
             this.settings.totalTime = 0;
