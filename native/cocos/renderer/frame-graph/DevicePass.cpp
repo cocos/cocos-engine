@@ -136,8 +136,12 @@ DevicePass::DevicePass(const FrameGraph &graph, ccstd::vector<PassNode *> const 
                 _attachments.back().attachment = attachment;
                 _attachments.back().renderTarget = resource;
 
-                // _subpasses[i].desc.colors.emplace_back(_attachments.size() - 1 - depthOffset);
-                _subpasses[i].desc.resolves.emplace_back(_attachments.size() - 1 - depthOffset);
+                if (attachment.desc.usage == RenderTargetAttachment::Usage::COLOR) {
+                    _subpasses[i].desc.resolves.emplace_back(_attachments.size() - 1 - depthOffset);
+                } else {
+                    _subpasses[i].desc.depthStencilResolve = _attachments.size() - 1;
+                }
+
             }
         }
     }
@@ -294,7 +298,6 @@ void DevicePass::append(const FrameGraph &graph, const RenderTargetAttachment &a
                         ccstd::vector<RenderTargetAttachment> *attachments, gfx::SubpassInfo *subpass, const ccstd::vector<Handle> &reads) {
     // later put resolved targets at the end
     if (attachment.desc.resolveSource != Handle::UNINITIALIZED) {
-        //_resolves.emplace_back(attachment);
         return;
     }
     RenderTargetAttachment::Usage usage{attachment.desc.usage};
@@ -413,6 +416,8 @@ void DevicePass::begin(gfx::CommandBuffer *cmdBuff) {
             clearColors.emplace_back(attachElem.attachment.desc.clearColor);
         } else {
             auto &attachmentInfo = rpInfo.depthStencilAttachment;
+            if (attachElem.attachment.desc.usage == RenderTargetAttachment::Usage::DEPTH_STENCIL_RESOLVE)
+                continue;
             attachmentInfo.format = attachment->getFormat();
             attachmentInfo.depthLoadOp = attachElem.attachment.desc.loadOp;
             attachmentInfo.stencilLoadOp = attachElem.attachment.desc.loadOp;

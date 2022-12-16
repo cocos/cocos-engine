@@ -36,10 +36,11 @@ struct RenderTargetAttachment final {
     using SampleCount = gfx::SampleCount;
 
     enum class Usage : uint8_t {
-        COLOR,
+        COLOR, // or color resolve
         DEPTH,
         STENCIL,
         DEPTH_STENCIL,
+        DEPTH_STENCIL_RESOLVE, // depth/stencil or depth-stencil resolve
     };
 
     struct Descriptor final {
@@ -62,7 +63,7 @@ struct RenderTargetAttachment final {
         inline bool operator()(const RenderTargetAttachment &a1, const RenderTargetAttachment &a2) const noexcept;
     };
 
-    static constexpr uint8_t DEPTH_STENCIL_SLOT_START{13};
+    static constexpr uint8_t DEPTH_STENCIL_SLOT_START{12};
 
     TextureHandle textureHandle{};
     Descriptor desc;
