@@ -1852,12 +1852,10 @@ export class ScrollView extends ViewGroup {
             handleInputDevice = event.handleInputDevice;
         }
         let value;
-        if (!this.enabledInHierarchy) {
+        if (!this.enabledInHierarchy || this._hoverIn === XrhoverType.NONE) {
             return;
         }
-        if (this._hoverIn === XrhoverType.NONE) {
-            return;
-        } else if (this._hoverIn === XrhoverType.LEFT) {
+        if (this._hoverIn === XrhoverType.LEFT) {
             value = handleInputDevice.leftStick.getValue();
             if (!value.equals(Vec2.ZERO)) {
                 this._xrThumbStickMove(value);
