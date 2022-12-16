@@ -251,8 +251,8 @@ export class NoiseModule extends ParticleModule {
         Vec3.add(particle.position, particle.position, noisePosition.multiplyScalar(dt));
     }
 
-    public getNoisePreview (out: number[], ps, width: number, height: number) {
-        this.noise.setTime(ps.time);
+    public getNoisePreview (out: number[], time, width: number, height: number) {
+        this.noise.setTime(time);
         this.noise.setSpeed(this.noiseSpeedX, this.noiseSpeedY, this.noiseSpeedZ);
         this.noise.setFrequency(this.noiseFrequency);
         this.noise.setAbs(this.remapX, this.remapY, this.remapZ);

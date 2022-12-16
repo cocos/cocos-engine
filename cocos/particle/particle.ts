@@ -26,6 +26,7 @@
 import { Color, Vec3, Mat4, Quat } from '../core/math';
 import { ParticleUpdateContext } from './particle-update-context';
 import { ParticleSystem } from './particle-system';
+import { ParticleSOAData } from './particle-soa-data';
 
 export class Particle {
     public static INDENTIFY_NEG_QUAT = 10;
@@ -139,5 +140,5 @@ export const PARTICLE_MODULE_PROPERTY = [
 export abstract class ParticleModule {
     public abstract get enable (): boolean;
     public abstract set enable (val: boolean);
-    public abstract update (particleUpdateContext: ParticleUpdateContext);
+    public abstract update (particles: ParticleSOAData, particleUpdateContext: ParticleUpdateContext);
 }

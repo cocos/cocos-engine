@@ -127,6 +127,12 @@ export class ParticleSOAData {
         this._velocityZ[handle] = val.z;
     }
 
+    addAnimatedVelocityAt (val: Vec3, handle: number) {
+        this._animatedVelocityX[handle] = val.x;
+        this._animatedVelocityY[handle] = val.y;
+        this._animatedVelocityZ[handle] = val.z;
+    }
+
     getVelocityChannel (chanel: SOADataChannel) {
         switch (chanel) {
         case SOADataChannel.X:

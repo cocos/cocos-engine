@@ -28,6 +28,8 @@ import { pseudoRandom, Vec3 } from '../../core/math';
 import { Particle, ParticleModule } from '../particle';
 import CurveRange from './curve-range';
 import { ModuleRandSeed } from '../enum';
+import { ParticleSOAData } from '../particle-soa-data';
+import { ParticleUpdateContext } from '../particle-update-context';
 
 const SIZE_OVERTIME_RAND_OFFSET = ModuleRandSeed.SIZE;
 
@@ -99,6 +101,10 @@ export default class SizeOvertimeModule extends ParticleModule {
 
     @serializable
     private _enable = false;
+
+    public update (particles: ParticleSOAData, context: ParticleUpdateContext) {
+
+    }
 
     public animate (particle: Particle, dt: number) {
         if (!this.separateAxes) {

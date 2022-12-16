@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { IParticleModule, Particle, PARTICLE_MODULE_ORDER } from './particle';
+import { ParticleModule, Particle, PARTICLE_MODULE_ORDER } from './particle';
 import { Node } from '../core/scene-graph/node';
 import { TransformBit } from '../core/scene-graph/node-enum';
 import { RenderMode, Space } from './enum';
