@@ -105,7 +105,10 @@ export class ReflectionProbe extends Component {
      * @zh
      * 获取或设置包围盒的大小。
      */
-    set size (value) {
+    set size (value: Vec3) {
+        if (value.x < 0) value.x = 0;
+        if (value.y < 0) value.y = 0;
+        if (value.z < 0) value.z = 0;
         this._size.set(value);
         this.probe.size = this._size;
         if (this.probe) {
