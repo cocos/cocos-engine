@@ -323,7 +323,7 @@ function populateLocalShaderInfo (
             continue;
         }
         blockSizes.push(getSize(block.members));
-        shaderInfo.blocks.push(new UniformBlock(set, block.binding, block.name,
+        shaderInfo.blocks.push(new UniformBlock(set, binding.binding, block.name,
             block.members.map((m) => new Uniform(m.name, m.type, m.count)), 1)); // effect compiler guarantees block count = 1
     }
     for (let i = 0; i < target.samplerTextures.length; i++) {
@@ -335,7 +335,7 @@ function populateLocalShaderInfo (
             continue;
         }
         shaderInfo.samplerTextures.push(new UniformSamplerTexture(
-            set, samplerTexture.binding, samplerTexture.name, samplerTexture.type, samplerTexture.count,
+            set, binding.binding, samplerTexture.name, samplerTexture.type, samplerTexture.count,
         ));
     }
 }
