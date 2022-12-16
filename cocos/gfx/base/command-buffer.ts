@@ -37,7 +37,7 @@ import {
     StencilFace,
     CommandBufferType,
     CommandBufferInfo,
-    BufferTextureCopy, Color, Rect, Viewport, DrawInfo,
+    BufferTextureCopy, Color, Rect, Viewport, DrawInfo, Filter, TextureBlit,
 } from './define';
 import { GeneralBarrier } from './states/general-barrier';
 import { TextureBarrier } from './states/texture-barrier';
@@ -268,4 +268,15 @@ export abstract class CommandBuffer extends GFXObject {
         buffers?: Readonly<Buffer[]>,
         textureBarriers?: Readonly<TextureBarrier[]>,
         textures?: Readonly<Texture[]>): void;
+
+    /**
+     * @en blit data from regions of source texture to regions of destination texture.
+     * @zh 将数据从源纹理的区域拷贝到目标纹理的区域。
+     *
+     * @param srcTexture The source texture.
+     * @param dstTexture The destination texture.
+     * @param regions The region descriptions.
+     * @param filter The filter to use.
+     */
+    public abstract blitTexture(srcTexture: Readonly<Texture>, dstTexture: Texture, regions: Readonly<TextureBlit []>, filter: Filter): void;
 }

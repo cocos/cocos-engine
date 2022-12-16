@@ -27,6 +27,7 @@ import { CachedArray } from '../../core';
 import {
     WebGLCmdBeginRenderPass,
     WebGLCmdBindStates,
+    WebGLCmdBlitTexture,
     WebGLCmdCopyBufferToTexture,
     WebGLCmdDraw,
     WebGLCmdObject,
@@ -109,6 +110,7 @@ export class WebGLCommandAllocator {
     public drawCmdPool: WebGLCommandPool<WebGLCmdDraw>;
     public updateBufferCmdPool: WebGLCommandPool<WebGLCmdUpdateBuffer>;
     public copyBufferToTextureCmdPool: WebGLCommandPool<WebGLCmdCopyBufferToTexture>;
+    public blitTextureCmdPool: WebGLCommandPool<WebGLCmdBlitTexture>;
 
     constructor () {
         this.beginRenderPassCmdPool = new WebGLCommandPool(WebGLCmdBeginRenderPass, 1);
@@ -116,6 +118,7 @@ export class WebGLCommandAllocator {
         this.drawCmdPool = new WebGLCommandPool(WebGLCmdDraw, 1);
         this.updateBufferCmdPool = new WebGLCommandPool(WebGLCmdUpdateBuffer, 1);
         this.copyBufferToTextureCmdPool = new WebGLCommandPool(WebGLCmdCopyBufferToTexture, 1);
+        this.blitTextureCmdPool = new WebGLCommandPool(WebGLCmdBlitTexture, 1);
     }
 
     public clearCmds (cmdPackage: WebGLCmdPackage) {
@@ -144,6 +147,11 @@ export class WebGLCommandAllocator {
             cmdPackage.copyBufferToTextureCmds.clear();
         }
 
+        if (cmdPackage.blitTextureCmds.length) {
+            this.blitTextureCmdPool.freeCmds(cmdPackage.blitTextureCmds);
+            cmdPackage.blitTextureCmds.clear();
+        }
+
         cmdPackage.cmds.clear();
     }
 
@@ -153,5 +161,6 @@ export class WebGLCommandAllocator {
         this.drawCmdPool.release();
         this.updateBufferCmdPool.release();
         this.copyBufferToTextureCmdPool.release();
+        this.blitTextureCmdPool.release();
     }
 }
