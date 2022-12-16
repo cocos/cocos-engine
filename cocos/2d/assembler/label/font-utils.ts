@@ -30,6 +30,7 @@ import { PixelFormat } from '../../../asset/assets/asset-enum';
 import { BufferTextureCopy } from '../../../gfx';
 import { safeMeasureText, BASELINE_RATIO, MIDDLE_RATIO, getBaselineOffset } from '../../utils/text-utils';
 import { director, Director } from '../../../game/director';
+import { ccwindow } from '../../../core/global-exports';
 
 export interface ISharedLabelData {
     canvas: HTMLCanvasElement;
@@ -50,7 +51,7 @@ export class CanvasPool {
         let data = this.pool.pop();
 
         if (!data) {
-            const canvas = document.createElement('canvas');
+            const canvas = ccwindow.document.createElement('canvas');
             const context = canvas.getContext('2d');
             data = {
                 canvas,
@@ -132,7 +133,7 @@ class LetterTexture {
     constructor (char: string, labelInfo: ILabelInfo) {
         this.char = char;
         this.labelInfo = labelInfo;
-        this.hash = char.charCodeAt(0) + labelInfo.hash;
+        this.hash = `${char.charCodeAt(0)}${labelInfo.hash}`;
     }
 
     public updateRenderData () {

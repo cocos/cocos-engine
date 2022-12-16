@@ -511,8 +511,16 @@ WEBSOCKET_DEFINE_READONLY_INT_FIELD(Websocket_OPEN, static_cast<int>(cc::network
 WEBSOCKET_DEFINE_READONLY_INT_FIELD(Websocket_CLOSING, static_cast<int>(cc::network::WebSocket::State::CLOSING))
 WEBSOCKET_DEFINE_READONLY_INT_FIELD(Websocket_CLOSED, static_cast<int>(cc::network::WebSocket::State::CLOSED))
 
-bool register_all_websocket(se::Object *obj) { // NOLINT (readability-identifier-naming)
-    se::Class *cls = se::Class::create("WebSocket", obj, nullptr, _SE(webSocketConstructor));
+bool register_all_websocket(se::Object *global) { // NOLINT (readability-identifier-naming)
+    se::Value nsVal;
+    if (!global->getProperty("jsb", &nsVal, true))
+    {
+        se::HandleObject jsobj(se::Object::createPlainObject());
+        nsVal.setObject(jsobj);
+        global->setProperty("jsb", nsVal);
+    }
+    se::Object* ns = nsVal.toObject();
+    se::Class *cls = se::Class::create("WebSocket", ns, nullptr, _SE(webSocketConstructor));
     cls->defineFinalizeFunction(_SE(webSocketFinalize));
 
     cls->defineFunction("send", _SE(webSocketSend));
@@ -528,7 +536,7 @@ bool register_all_websocket(se::Object *obj) { // NOLINT (readability-identifier
     cls->install();
 
     se::Value tmp;
-    obj->getProperty("WebSocket", &tmp);
+    ns->getProperty("WebSocket", &tmp);
     tmp.toObject()->defineProperty("CONNECTING", _SE(Websocket_CONNECTING), nullptr);
     tmp.toObject()->defineProperty("CLOSING", _SE(Websocket_CLOSING), nullptr);
     tmp.toObject()->defineProperty("OPEN", _SE(Websocket_OPEN), nullptr);

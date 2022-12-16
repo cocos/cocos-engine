@@ -26,7 +26,9 @@
 /* eslint-disable no-console */
 import { EDITOR, JSB, DEV, DEBUG } from 'internal:constants';
 import debugInfos from '../../../DebugInfos';
-import { legacyCC } from '../global-exports';
+import { legacyCC, ccwindow } from '../global-exports';
+
+const ccdocument = ccwindow.document;
 
 const ERROR_MAP_URL = 'https://github.com/cocos-creator/engine/blob/develop/EngineErrorMap.md';
 
@@ -139,7 +141,7 @@ export function _resetDebugSetting (mode: DebugMode) {
             }
 
             if (!logList) {
-                const logDiv = document.createElement('Div');
+                const logDiv = ccdocument.createElement('Div');
                 logDiv.setAttribute('id', 'logInfoDiv');
                 logDiv.setAttribute('width', '200');
                 logDiv.setAttribute('height', legacyCC.game.canvas.height);
@@ -148,7 +150,7 @@ export function _resetDebugSetting (mode: DebugMode) {
                 logDivStyle.position = 'absolute';
                 logDivStyle.top = logDivStyle.left = '0';
 
-                logList = document.createElement('textarea');
+                logList = ccdocument.createElement('textarea');
                 logList.setAttribute('rows', '20');
                 logList.setAttribute('cols', '30');
                 logList.setAttribute('disabled', 'true');

@@ -662,8 +662,7 @@ void cmdFuncGLES2CreateTexture(GLES2Device *device, GLES2GPUTexture *gpuTexture)
             }
             case TextureType::TEX2D_ARRAY: {
                 gpuTexture->glTarget = GL_TEXTURE_3D;
-                CC_ASSERT((std::max(std::max(gpuTexture->width, gpuTexture->height), gpuTexture->arrayLayer) <= device->getCapabilities().max3DTextureSize)
-                    && "cmdFuncGLES2CreateTexture: texture2DArray's dimension is too large");
+                CC_ASSERT((std::max(std::max(gpuTexture->width, gpuTexture->height), gpuTexture->arrayLayer) <= device->getCapabilities().max3DTextureSize) && "cmdFuncGLES2CreateTexture: texture2DArray's dimension is too large");
                 GL_CHECK(glGenTextures(1, &gpuTexture->glTexture));
                 if (gpuTexture->size > 0) {
                     GLuint &glTexture = device->stateCache()->glTextures[device->stateCache()->texUint];
@@ -3179,6 +3178,9 @@ void GLES2GPUBlitManager::draw(GLES2GPUTexture *gpuTextureSrc, GLES2GPUTexture *
     GLES2Device *device = GLES2Device::getInstance();
     auto &descriptor = _gpuDescriptorSet.gpuDescriptors.back();
 
+    glViewport(0, 0, static_cast<int>(gpuTextureDst->width), static_cast<int>(gpuTextureDst->height));
+    glScissor(0, 0, static_cast<int>(gpuTextureDst->width), static_cast<int>(gpuTextureDst->height));
+
     descriptor.gpuTexture = gpuTextureSrc;
     descriptor.gpuSampler = filter == Filter::POINT ? &_gpuPointSampler : &_gpuLinearSampler;
     for (uint32_t i = 0U; i < count; ++i) {
@@ -3204,6 +3206,11 @@ void GLES2GPUBlitManager::draw(GLES2GPUTexture *gpuTextureSrc, GLES2GPUTexture *
         cmdFuncGLES2BindState(device, &_gpuPipelineState, &_gpuInputAssembler, &gpuDescriptorSet);
         cmdFuncGLES2Draw(device, _drawInfo);
     }
+
+    const auto &origViewport = device->stateCache()->viewport;
+    const auto &origScissor = device->stateCache()->scissor;
+    glViewport(origViewport.left, origViewport.top, static_cast<int>(origViewport.width), static_cast<int>(origViewport.height));
+    glScissor(origScissor.x, origScissor.y, static_cast<int>(origScissor.width), static_cast<int>(origScissor.height));
 }
 
 void GLES2GPUFramebufferHub::update(GLES2GPUTexture *texture) {

@@ -25,29 +25,29 @@
 import { sys } from "../core";
 import { NATIVE } from 'internal:constants';
 const globalJsb = globalThis.jsb ?? {};
-if( NATIVE ){
+if (NATIVE) {
     Object.defineProperty(globalJsb, 'reflection', {
-        get () {
+        get() {
             if (globalJsb.__bridge !== undefined) return globalJsb.__bridge;
             if (globalThis.JavascriptJavaBridge && (sys.os === sys.OS.ANDROID || sys.os === sys.OS.OHOS)) {
                 globalJsb.__bridge = new globalThis.JavascriptJavaBridge();
             } else if (globalThis.JavaScriptObjCBridge && (sys.os === sys.OS.IOS || sys.os === sys.OS.OSX)) {
                 globalJsb.__bridge = new globalThis.JavaScriptObjCBridge();
-            } else   {
+            } else {
                 globalJsb.__bridge = null;
             }
             return globalJsb.__bridge;
         },
         enumerable: true,
         configurable: true,
-        set (value) {
+        set(value) {
             globalJsb.__bridge = value;
         },
     });
     Object.defineProperty(globalJsb, 'bridge', {
-        get () {
+        get() {
             if (globalJsb.__ccbridge !== undefined) return globalJsb.__ccbridge;
-            if (window.ScriptNativeBridge && sys.os === sys.OS.ANDROID || sys.os === sys.OS.IOS || sys.os === sys.OS.OSX || sys.os === sys.OS.OHOS) {
+            if (globalThis.ScriptNativeBridge && sys.os === sys.OS.ANDROID || sys.os === sys.OS.IOS || sys.os === sys.OS.OSX || sys.os === sys.OS.OHOS) {
                 globalJsb.__ccbridge = new ScriptNativeBridge();
             } else {
                 globalJsb.__ccbridge = null;
@@ -56,13 +56,13 @@ if( NATIVE ){
         },
         enumerable: true,
         configurable: true,
-        set (value) {
+        set(value) {
             globalJsb.__ccbridge = value;
         },
     });
     const JsbBridgeWrapper = {
         eventMap: new Map(),
-        addNativeEventListener (eventName, listener) {
+        addNativeEventListener(eventName, listener) {
             if (!this.eventMap.get(eventName)) {
                 this.eventMap.set(eventName, []);
             }
@@ -71,13 +71,13 @@ if( NATIVE ){
                 arr.push(listener);
             }
         },
-        dispatchEventToNative (eventName, arg) {
+        dispatchEventToNative(eventName, arg) {
             globalJsb.bridge.sendToNative(eventName, arg);
         },
-        removeAllListenersForEvent (eventName) {
+        removeAllListenersForEvent(eventName) {
             return this.eventMap.delete(eventName);
         },
-        removeNativeEventListener (eventName, listener) {
+        removeNativeEventListener(eventName, listener) {
             const arr = this.eventMap.get(eventName);
             if (!arr) {
                 return false;
@@ -90,10 +90,10 @@ if( NATIVE ){
             }
             return true;
         },
-        removeAllListeners () {
+        removeAllListeners() {
             this.eventMap.clear();
         },
-        triggerEvent (eventName, arg) {
+        triggerEvent(eventName, arg) {
             const arr = this.eventMap.get(eventName);
             if (!arr) {
                 console.error(`${eventName} does not exist`);
@@ -102,12 +102,12 @@ if( NATIVE ){
             arr.map((listener) => listener.call(null, arg));
         },
     };
-    
+
     Object.defineProperty(globalJsb, 'jsbBridgeWrapper', {
-        get () {
+        get() {
             if (globalJsb.__JsbBridgeWrapper !== undefined) return globalJsb.__JsbBridgeWrapper;
-    
-            if (window.ScriptNativeBridge && sys.os === sys.OS.ANDROID || sys.os === sys.OS.IOS || sys.os === sys.OS.OSX || sys.os === sys.OS.OHOS) {
+
+            if (globalThis.ScriptNativeBridge && sys.os === sys.OS.ANDROID || sys.os === sys.OS.IOS || sys.os === sys.OS.OSX || sys.os === sys.OS.OHOS) {
                 globalJsb.__JsbBridgeWrapper = JsbBridgeWrapper;
                 globalJsb.bridge.onNative = (methodName, arg1) => {
                     console.log(`Trigger event: ${methodName} with argeter: ${arg1}`);
@@ -120,21 +120,21 @@ if( NATIVE ){
         },
         enumerable: true,
         configurable: true,
-        set (value) {
+        set(value) {
             globalJsb.__JsbBridgeWrapper = value;
         },
     });
     const originSaveImageData = globalJsb.saveImageData;
     globalJsb.saveImageData = (data: Uint8Array, width: number, height: number, filePath: string) => {
-            return new Promise<void>((resolve, reject) => {
-                originSaveImageData(data, width, height, filePath, (isSuccess) => {
-                    if (isSuccess) {
-                        resolve();
-                    } else {
-                        reject();
-                    }
-                })
-            });
+        return new Promise<void>((resolve, reject) => {
+            originSaveImageData(data, width, height, filePath, (isSuccess) => {
+                if (isSuccess) {
+                    resolve();
+                } else {
+                    reject();
+                }
+            })
+        });
     }
 }
 
