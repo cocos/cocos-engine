@@ -29,16 +29,17 @@ import { Space, ModuleRandSeed } from '../enum';
 import { calculateTransform } from '../particle-general-function';
 import CurveRange from './curve-range';
 
-import { ParticleModuleBase, PARTICLE_MODULE_NAME } from '../particle';
+import { ParticleModule, PARTICLE_MODULE_NAME } from '../particle';
+import { Enum } from '../../core';
+import { ParticleUpdateContext } from '../particle-update-context';
+import { ParticleSOAData } from '../particle-soa-data';
 
 const FORCE_OVERTIME_RAND_OFFSET = ModuleRandSeed.FORCE;
 
 const _temp_v3 = new Vec3();
 
 @ccclass('cc.ForceOvertimeModule')
-export default class ForceOvertimeModule extends ParticleModuleBase {
-    @serializable
-    _enable = false;
+export default class ForceOvertimeModule extends ParticleModule {
     /**
      * @zh 是否启用。
      */
@@ -84,36 +85,51 @@ export default class ForceOvertimeModule extends ParticleModuleBase {
     /**
      * @zh 加速度计算时采用的坐标系 [[Space]]。
      */
-    @type(Space)
+    @type(Enum(Space))
     @serializable
     @displayOrder(1)
     @tooltip('i18n:forceOvertimeModule.space')
-    public space = Space.Local;
+    public space = Space.LOCAL;
 
     // TODO:currently not supported
     public randomized = false;
 
     private rotation: Quat;
-    private needTransform: boolean;
-    public name = PARTICLE_MODULE_NAME.FORCE;
+    @serializable
+    private _enable = false;
 
     constructor () {
         super();
         this.rotation = new Quat();
-        this.needTransform = false;
     }
 
-    public update (space, worldTransform) {
-        this.needTransform = calculateTransform(space, this.space, worldTransform, this.rotation);
-    }
-
-    public animate (p, dt) {
-        const normalizedTime = 1 - p.remainingLifetime / p.startLifetime;
-        const force = Vec3.set(_temp_v3, this.x.evaluate(normalizedTime, pseudoRandom(p.randomSeed + FORCE_OVERTIME_RAND_OFFSET))!, this.y.evaluate(normalizedTime, pseudoRandom(p.randomSeed + FORCE_OVERTIME_RAND_OFFSET))!, this.z.evaluate(normalizedTime, pseudoRandom(p.randomSeed + FORCE_OVERTIME_RAND_OFFSET))!);
-        if (this.needTransform) {
-            Vec3.transformQuat(force, force, this.rotation);
+    public update (particles: ParticleSOAData, context: ParticleUpdateContext) {
+        const needTransform = calculateTransform(context.simulationSpace, this.space, context.worldTransform, this.rotation);
+        const dt = context.deltaTime;
+        const { count, normalizedAliveTime, randomSeed } = particles;
+        if (needTransform) {
+            for (let i = 0; i < count; i++) {
+                const normalizedTime = normalizedAliveTime[i];
+                const seed = randomSeed[i] + FORCE_OVERTIME_RAND_OFFSET;
+                const force = Vec3.set(_temp_v3,
+                    this.x.evaluate(normalizedTime, pseudoRandom(seed)),
+                    this.y.evaluate(normalizedTime, pseudoRandom(seed)),
+                    this.z.evaluate(normalizedTime, pseudoRandom(seed)));
+                Vec3.transformQuat(force, force, this.rotation);
+                force.multiplyScalar(dt);
+                particles.addVelocityAt(force, i);
+            }
+        } else {
+            for (let i = 0; i < count; i++) {
+                const normalizedTime = normalizedAliveTime[i];
+                const seed = randomSeed[i] + FORCE_OVERTIME_RAND_OFFSET;
+                const force = Vec3.set(_temp_v3,
+                    this.x.evaluate(normalizedTime, pseudoRandom(seed)),
+                    this.y.evaluate(normalizedTime, pseudoRandom(seed)),
+                    this.z.evaluate(normalizedTime, pseudoRandom(seed)));
+                force.multiplyScalar(dt);
+                particles.addVelocityAt(force, i);
+            }
         }
-        Vec3.scaleAndAdd(p.velocity, p.velocity, force, dt);
-        Vec3.copy(p.ultimateVelocity, p.velocity);
     }
 }

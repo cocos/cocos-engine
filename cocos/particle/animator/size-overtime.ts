@@ -25,16 +25,14 @@
 
 import { ccclass, tooltip, displayOrder, type, serializable, range, visible } from 'cc.decorator';
 import { pseudoRandom, Vec3 } from '../../core/math';
-import { Particle, ParticleModuleBase, PARTICLE_MODULE_NAME } from '../particle';
+import { Particle, ParticleModule } from '../particle';
 import CurveRange from './curve-range';
 import { ModuleRandSeed } from '../enum';
 
 const SIZE_OVERTIME_RAND_OFFSET = ModuleRandSeed.SIZE;
 
 @ccclass('cc.SizeOvertimeModule')
-export default class SizeOvertimeModule extends ParticleModuleBase {
-    @serializable
-    _enable = false;
+export default class SizeOvertimeModule extends ParticleModule {
     /**
      * @zh 是否启用。
      */
@@ -44,10 +42,7 @@ export default class SizeOvertimeModule extends ParticleModuleBase {
     }
 
     public set enable (val) {
-        if (this._enable === val) return;
         this._enable = val;
-        if (!this.target) return;
-        this.target.enableModule(this.name, val, this);
     }
 
     /**
@@ -102,7 +97,8 @@ export default class SizeOvertimeModule extends ParticleModuleBase {
     @visible(function (this: SizeOvertimeModule): boolean { return this.separateAxes; })
     public z = new CurveRange();
 
-    public name = PARTICLE_MODULE_NAME.SIZE;
+    @serializable
+    private _enable = false;
 
     public animate (particle: Particle, dt: number) {
         if (!this.separateAxes) {

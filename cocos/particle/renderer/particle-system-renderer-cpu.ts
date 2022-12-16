@@ -40,7 +40,7 @@ import { Pass } from '../../core/renderer';
 import { ParticleNoise } from '../noise';
 import { NoiseModule } from '../animator/noise-module';
 import { legacyCC } from '../../core/global-exports';
-import { INVALID_HANDLE, ParticleSOA } from '../particle-soa';
+import { INVALID_HANDLE, ParticleSOAData } from '../particle-soa-data';
 
 type ParticleHandle = number;
 
@@ -149,11 +149,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
     private _defaultMat: Material | null = null;
     private _node_scale: Vec4;
     private _attrs: any[];
-    private _particles = new ParticleSOA();
     private _defaultTrailMat: Material | null = null;
-    private _updateList: Map<string, IParticleModule> = new Map<string, IParticleModule>();
-    private _animateList: Map<string, IParticleModule> = new Map<string, IParticleModule>();
-    private _runAnimateList: IParticleModule[] = new Array<IParticleModule>();
     private _fillDataFunc: any = null;
     private _uScaleHandle = 0;
     private _uLenHandle = 0;
@@ -190,7 +186,6 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
 
         this._setVertexAttrib();
         this._setFillFunc();
-        this._initModuleList();
         this._initModel();
         this.updateMaterialParams();
         this.updateTrailMaterial();
@@ -233,30 +228,6 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
     public setNewParticle (p: Particle) {
     }
 
-    private _initModuleList () {
-        _anim_module.forEach((val) => {
-            const pm = this._particleSystem[val];
-            if (pm && pm.enable) {
-                if (pm.needUpdate) {
-                    this._updateList[pm.name] = pm;
-                }
-
-                if (pm.needAnimate) {
-                    this._animateList[pm.name] = pm;
-                }
-            }
-        });
-
-        // reorder
-        this._runAnimateList.length = 0;
-        for (let i = 0, len = PARTICLE_MODULE_ORDER.length; i < len; i++) {
-            const p = this._animateList[PARTICLE_MODULE_ORDER[i]];
-            if (p) {
-                this._runAnimateList.push(p);
-            }
-        }
-    }
-
     public updateAlignSpace (space) {
         this._alignSpace = space;
     }
@@ -265,147 +236,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         return this._defaultMat;
     }
 
-    public updateRotation (pass: Pass | null) {
-        if (pass) {
-            this.doUpdateRotation(pass);
-        }
-    }
-
-    private doUpdateRotation (pass) {
-        const mode = this._renderInfo!.renderMode;
-        if (mode !== RenderMode.Mesh && this._alignSpace === AlignmentSpace.View) {
-            return;
-        }
-
-        if (this._alignSpace === AlignmentSpace.Local) {
-            this._particleSystem.node.getRotation(_node_rot);
-        } else if (this._alignSpace === AlignmentSpace.World) {
-            this._particleSystem.node.getWorldRotation(_node_rot);
-        } else if (this._alignSpace === AlignmentSpace.View) {
-            // Quat.fromEuler(_node_rot, 0.0, 0.0, 0.0);
-            _node_rot.set(0.0, 0.0, 0.0, 1.0);
-            const cameraLst: Camera[]|undefined = this._particleSystem.node.scene.renderScene?.cameras;
-            if (cameraLst !== undefined) {
-                for (let i = 0; i < cameraLst?.length; ++i) {
-                    const camera:Camera = cameraLst[i];
-                    // eslint-disable-next-line max-len
-                    const checkCamera: boolean = (!EDITOR || legacyCC.GAME_VIEW) ? (camera.visibility & this._particleSystem.node.layer) === this._particleSystem.node.layer : camera.name === 'Editor Camera';
-                    if (checkCamera) {
-                        Quat.fromViewUp(_node_rot, camera.forward);
-                        break;
-                    }
-                }
-            }
-        } else {
-            _node_rot.set(0.0, 0.0, 0.0, 1.0);
-        }
-        pass.setUniform(this._uNodeRotHandle, _node_rot);
-    }
-
-    public updateScale (pass: Pass | null) {
-        if (pass) {
-            this.doUpdateScale(pass);
-        }
-    }
-
-    private doUpdateScale (pass) {
-        switch (this._particleSystem.scaleSpace) {
-        case Space.Local:
-            this._particleSystem.node.getScale(this._node_scale);
-            break;
-        case Space.World:
-            this._particleSystem.node.getWorldScale(this._node_scale);
-            break;
-        default:
-            break;
-        }
-        pass.setUniform(this._uScaleHandle, this._node_scale);
-    }
-
     private noise: ParticleNoise = new ParticleNoise();
-
-    public updateParticles (dt: number) {
-        this.updateMaterialParams();
-        const ps = this._particleSystem;
-        if (!ps) {
-            return this._particles.count;
-        }
-        ps.node.getWorldMatrix(_tempWorldTrans);
-        const mat: Material | null = ps.getMaterialInstance(0) || this._defaultMat;
-        const pass = mat!.passes[0];
-        this.doUpdateScale(pass);
-        this.doUpdateRotation(pass);
-
-        this._updateList.forEach((value: IParticleModule, key: string) => {
-            value.update(ps._simulationSpace, _tempWorldTrans);
-        });
-
-        const trailModule = ps._trailModule;
-        const trailEnable = trailModule && trailModule.enable;
-        if (trailEnable) {
-            trailModule.update();
-        }
-
-        if (ps.simulationSpace === Space.Local) {
-            const r:Quat = ps.node.getRotation();
-            Mat4.fromQuat(this._localMat, r);
-            this._localMat.transpose(); // just consider rotation, use transpose as invert
-        }
-
-        if (ps.node.parent) {
-            ps.node.parent.getWorldMatrix(_tempParentInverse);
-            _tempParentInverse.invert();
-        }
-        const { normalizedAliveTime } = this._particles;
-        for (let i = 0, length = this._particles.count; i < length; ++i) {
-            normalizedAliveTime[i] -= dt;
-            Vec3.set(p.animatedVelocity, 0, 0, 0);
-
-            if (p.remainingLifetime < 0.0) {
-                if (trailEnable) {
-                    trailModule.removeParticle(p);
-                }
-                this._particles.removeAt(i);
-                --i;
-                continue;
-            }
-        }
-
-        if (ps.simulationSpace === Space.Local) {
-            const gravityFactor = -ps.gravityModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, pseudoRandom(p.randomSeed))! * 9.8 * dt;
-            this._gravity.x = 0.0;
-            this._gravity.y = gravityFactor;
-            this._gravity.z = 0.0;
-            this._gravity.w = 1.0;
-            if (!approx(gravityFactor, 0.0, EPSILON)) {
-                if (ps.node.parent) {
-                    this._gravity = this._gravity.transformMat4(_tempParentInverse);
-                }
-                this._gravity = this._gravity.transformMat4(this._localMat);
-
-                p.velocity.x += this._gravity.x;
-                p.velocity.y += this._gravity.y;
-                p.velocity.z += this._gravity.z;
-            }
-        } else {
-            // apply gravity.
-            p.velocity.y -= ps.gravityModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, pseudoRandom(p.randomSeed))! * 9.8 * dt;
-        }
-
-        Vec3.copy(p.ultimateVelocity, p.velocity);
-
-        this._runAnimateList.forEach((value) => {
-            value.animate(p, dt);
-        });
-
-        Vec3.scaleAndAdd(p.position, p.position, p.ultimateVelocity, dt); // apply velocity.
-        if (trailEnable) {
-            trailModule.animate(p, dt);
-        }
-
-        this._model!.enabled = this._particles.count > 0;
-        return this._particles.count;
-    }
 
     public getNoisePreview (out: number[], width: number, height: number) {
         this._runAnimateList.forEach((value) => {
@@ -420,7 +251,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
     public updateRenderData () {
         // update vertex buffer
         let idx = 0;
-        for (let i = 0; i < this._particles.length; ++i) {
+        for (let i = 0; i < this._particles.count; ++i) {
             const p = this._particles.data[i];
             let fi = 0;
             const textureModule = this._particleSystem._textureAnimationModule;
@@ -434,11 +265,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
 
     public beforeRender () {
         // because we use index buffer, per particle index count = 6.
-        this._model!.updateIA(this._particles.length);
-    }
-
-    public getParticleCount (): number {
-        return this._particles.length;
+        this._model!.updateIA(this._particles.count);
     }
 
     public onMaterialModified (index: number, material: Material) {
@@ -471,80 +298,6 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         } else {
             this._fillDataFunc = this._fillNormalData;
         }
-    }
-
-    private _fillMeshData (p: Particle, idx: number, fi: number) {
-        const i = idx / 4;
-        this._attrs[0] = p.position;
-        _tempAttribUV.z = fi;
-        this._attrs[1] = _tempAttribUV;
-        this._attrs[2] = p.size;
-        this._attrs[3] = p.rotation;
-        this._attrs[4] = p.color._val;
-        this._model!.addParticleVertexData(i, this._attrs);
-    }
-
-    private _fillStrecthedData (p: Particle, idx: number, fi: number) {
-        if (!this._useInstance) {
-            for (let j = 0; j < 4; ++j) { // four verts per particle.
-                this._attrs[0] = p.position;
-                _tempAttribUV.x = _uvs[2 * j];
-                _tempAttribUV.y = _uvs[2 * j + 1];
-                _tempAttribUV.z = fi;
-                this._attrs[1] = _tempAttribUV;
-                this._attrs[2] = p.size;
-                this._attrs[3] = p.rotation;
-                this._attrs[4] = p.color._val;
-                this._attrs[5] = p.ultimateVelocity;
-                this._attrs[6] = null;
-                this._model!.addParticleVertexData(idx++, this._attrs);
-            }
-        } else {
-            this._fillStrecthedDataIns(p, idx, fi);
-        }
-    }
-
-    private _fillStrecthedDataIns (p: Particle, idx: number, fi: number) {
-        const i = idx / 4;
-        this._attrs[0] = p.position;
-        _tempAttribUV.z = fi;
-        this._attrs[1] = _tempAttribUV;
-        this._attrs[2] = p.size;
-        this._attrs[3] = p.rotation;
-        this._attrs[4] = p.color._val;
-        this._attrs[5] = p.ultimateVelocity;
-        this._model!.addParticleVertexData(i, this._attrs);
-    }
-
-    private _fillNormalData (p: Particle, idx: number, fi: number) {
-        if (!this._useInstance) {
-            for (let j = 0; j < 4; ++j) { // four verts per particle.
-                this._attrs[0] = p.position;
-                _tempAttribUV.x = _uvs[2 * j];
-                _tempAttribUV.y = _uvs[2 * j + 1];
-                _tempAttribUV.z = fi;
-                this._attrs[1] = _tempAttribUV;
-                this._attrs[2] = p.size;
-                this._attrs[3] = p.rotation;
-                this._attrs[4] = p.color._val;
-                this._attrs[5] = null;
-                this._model!.addParticleVertexData(idx++, this._attrs);
-            }
-        } else {
-            this._fillNormalDataIns(p, idx, fi);
-        }
-    }
-
-    private _fillNormalDataIns (p: Particle, idx: number, fi: number) {
-        const i = idx / 4;
-        this._attrs[0] = p.position;
-        _tempAttribUV.z = fi;
-        this._attrs[1] = _tempAttribUV;
-        this._attrs[2] = p.size;
-        this._attrs[3] = p.rotation;
-        this._attrs[4] = p.color._val;
-        this._attrs[5] = null;
-        this._model!.addParticleVertexData(i, this._attrs);
     }
 
     public updateVertexAttrib () {
@@ -597,119 +350,5 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         default:
             this._vertAttrs = _vertex_attrs_ins.slice();
         }
-    }
-
-    public updateMaterialParams () {
-        if (!this._particleSystem) {
-            return;
-        }
-
-        const ps = this._particleSystem;
-        const shareMaterial = ps.sharedMaterial;
-        if (shareMaterial != null) {
-            const effectName = shareMaterial._effectAsset._name;
-            this._renderInfo!.mainTexture = shareMaterial.getProperty('mainTexture', 0);
-        }
-
-        if (ps.sharedMaterial == null && this._defaultMat == null) {
-            _matInsInfo.parent = builtinResMgr.get<Material>('default-particle-material');
-            _matInsInfo.owner = this._particleSystem;
-            _matInsInfo.subModelIdx = 0;
-            this._defaultMat = new MaterialInstance(_matInsInfo);
-            _matInsInfo.parent = null!;
-            _matInsInfo.owner = null!;
-            _matInsInfo.subModelIdx = 0;
-            if (this._renderInfo!.mainTexture !== null) {
-                this._defaultMat.setProperty('mainTexture', this._renderInfo!.mainTexture);
-            }
-        }
-        const mat: Material = ps.getMaterialInstance(0) || this._defaultMat;
-        if (ps._simulationSpace === Space.World) {
-            this._defines[CC_USE_WORLD_SPACE] = true;
-        } else {
-            this._defines[CC_USE_WORLD_SPACE] = false;
-        }
-
-        const pass = mat.passes[0];
-        this._uScaleHandle = pass.getHandle('scale');
-        this._uLenHandle = pass.getHandle('frameTile_velLenScale');
-        this._uNodeRotHandle = pass.getHandle('nodeRotation');
-
-        const renderMode = this._renderInfo!.renderMode;
-        const vlenScale = this._frameTile_velLenScale;
-        if (renderMode === RenderMode.Billboard) {
-            this._defines[CC_RENDER_MODE] = RENDER_MODE_BILLBOARD;
-        } else if (renderMode === RenderMode.StrecthedBillboard) {
-            this._defines[CC_RENDER_MODE] = RENDER_MODE_STRETCHED_BILLBOARD;
-            vlenScale.z = this._renderInfo!.velocityScale;
-            vlenScale.w = this._renderInfo!.lengthScale;
-        } else if (renderMode === RenderMode.HorizontalBillboard) {
-            this._defines[CC_RENDER_MODE] = RENDER_MODE_HORIZONTAL_BILLBOARD;
-        } else if (renderMode === RenderMode.VerticalBillboard) {
-            this._defines[CC_RENDER_MODE] = RENDER_MODE_VERTICAL_BILLBOARD;
-        } else if (renderMode === RenderMode.Mesh) {
-            this._defines[CC_RENDER_MODE] = RENDER_MODE_MESH;
-        } else {
-            console.warn(`particle system renderMode ${renderMode} not support.`);
-        }
-        const textureModule = ps._textureAnimationModule;
-        if (textureModule && textureModule.enable) {
-            Vec4.copy(this._tmp_velLenScale, vlenScale); // fix textureModule switch bug
-            Vec2.set(this._tmp_velLenScale, textureModule.numTilesX, textureModule.numTilesY);
-            pass.setUniform(this._uLenHandle, this._tmp_velLenScale);
-        } else {
-            pass.setUniform(this._uLenHandle, vlenScale);
-        }
-
-        let enable = false;
-        const roationModule = this._particleSystem._rotationOvertimeModule;
-        enable = roationModule && roationModule.enable;
-        this._defines[ROTATION_OVER_TIME_MODULE_ENABLE] = enable;
-        this._defines[INSTANCE_PARTICLE] = this._useInstance;
-
-        mat.recompileShaders(this._defines);
-        if (this._model) {
-            this._model.updateMaterial(mat);
-        }
-    }
-
-    public updateTrailMaterial () {
-        if (!this._particleSystem) {
-            return;
-        }
-        const ps = this._particleSystem;
-        const trailModule = ps._trailModule;
-        if (trailModule && trailModule.enable) {
-            if (ps.simulationSpace === Space.World || trailModule.space === Space.World) {
-                this._trailDefines[CC_USE_WORLD_SPACE] = true;
-            } else {
-                this._trailDefines[CC_USE_WORLD_SPACE] = false;
-            }
-            let mat = ps.getMaterialInstance(1);
-            if (mat === null && this._defaultTrailMat === null) {
-                _matInsInfo.parent = builtinResMgr.get<Material>('default-trail-material');
-                _matInsInfo.owner = this._particleSystem;
-                _matInsInfo.subModelIdx = 1;
-                this._defaultTrailMat = new MaterialInstance(_matInsInfo);
-                _matInsInfo.parent = null!;
-                _matInsInfo.owner = null!;
-                _matInsInfo.subModelIdx = 0;
-            }
-            mat = mat || this._defaultTrailMat;
-            mat.recompileShaders(this._trailDefines);
-            trailModule.updateMaterial();
-        }
-    }
-
-    public setUseInstance (value: boolean) {
-        if (this._useInstance === value) {
-            return;
-        }
-        this._useInstance = value;
-        if (this._model) {
-            this._model.useInstance = value;
-            this._model.doDestroy();
-        }
-        this.updateRenderMode();
     }
 }

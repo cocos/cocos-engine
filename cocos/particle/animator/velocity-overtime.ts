@@ -24,10 +24,13 @@
  */
 
 import { ccclass, tooltip, displayOrder, range, type, serializable } from 'cc.decorator';
+import { Enum } from '../../core';
 import { Mat4, pseudoRandom, Quat, Vec3 } from '../../core/math';
 import { Space, ModuleRandSeed } from '../enum';
-import { Particle, ParticleModuleBase, PARTICLE_MODULE_NAME } from '../particle';
+import { ParticleModule } from '../particle';
 import { calculateTransform } from '../particle-general-function';
+import { ParticleSOAData } from '../particle-soa-data';
+import { ParticleUpdateContext } from '../particle-update-context';
 import CurveRange from './curve-range';
 
 const VELOCITY_X_OVERTIME_RAND_OFFSET = ModuleRandSeed.VELOCITY_X;
@@ -37,7 +40,7 @@ const VELOCITY_Z_OVERTIME_RAND_OFFSET = ModuleRandSeed.VELOCITY_Z;
 const _temp_v3 = new Vec3();
 
 @ccclass('cc.VelocityOvertimeModule')
-export default class VelocityOvertimeModule extends ParticleModuleBase {
+export default class VelocityOvertimeModule extends ParticleModule {
     @serializable
     _enable = false;
     /**
@@ -49,7 +52,6 @@ export default class VelocityOvertimeModule extends ParticleModuleBase {
     }
 
     public set enable (val) {
-        if (this._enable === val) return;
         this._enable = val;
     }
 
@@ -96,36 +98,44 @@ export default class VelocityOvertimeModule extends ParticleModuleBase {
     /**
      * @zh 速度计算时采用的坐标系[[Space]]。
      */
-    @type(Space)
+    @type(Enum(Space))
     @serializable
     @displayOrder(1)
     @tooltip('i18n:velocityOvertimeModule.space')
-    public space = Space.Local;
+    public space = Space.LOCAL;
 
     private rotation: Quat;
-    private needTransform: boolean;
-    public name = PARTICLE_MODULE_NAME.VELOCITY;
 
     constructor () {
         super();
         this.rotation = new Quat();
         this.speedModifier.constant = 1;
-        this.needTransform = false;
-        this.needUpdate = true;
     }
 
-    public update (space: number, worldTransform: Mat4) {
-        this.needTransform = calculateTransform(space, this.space, worldTransform, this.rotation);
-    }
-
-    public animate (p: Particle, dt: number) {
-        const normalizedTime = 1 - p.remainingLifetime / p.startLifetime;
-        const vel = Vec3.set(_temp_v3, this.x.evaluate(normalizedTime, pseudoRandom(p.randomSeed ^ VELOCITY_X_OVERTIME_RAND_OFFSET))!, this.y.evaluate(normalizedTime, pseudoRandom(p.randomSeed ^ VELOCITY_Y_OVERTIME_RAND_OFFSET))!, this.z.evaluate(normalizedTime, pseudoRandom(p.randomSeed ^ VELOCITY_Z_OVERTIME_RAND_OFFSET))!);
-        if (this.needTransform) {
-            Vec3.transformQuat(vel, vel, this.rotation);
+    public update (particles: ParticleSOAData, context: ParticleUpdateContext) {
+        const needTransform = calculateTransform(context.simulationSpace, this.space, context.worldTransform, this.rotation);
+        const { count, normalizedAliveTime, randomSeed } = particles;
+        if (needTransform) {
+            for (let i = 0; i < count; i++) {
+                const normalizedTime = normalizedAliveTime[i];
+                const seed = randomSeed[i];
+                const velocity = Vec3.set(_temp_v3,
+                    this.x.evaluate(normalizedTime, pseudoRandom(seed + VELOCITY_X_OVERTIME_RAND_OFFSET)),
+                    this.y.evaluate(normalizedTime, pseudoRandom(seed + VELOCITY_Y_OVERTIME_RAND_OFFSET)),
+                    this.z.evaluate(normalizedTime, pseudoRandom(seed + VELOCITY_Z_OVERTIME_RAND_OFFSET)));
+                Vec3.transformQuat(velocity, velocity, this.rotation);
+                particles.addAnimatedVelocityAt(velocity, i);
+            }
+        } else {
+            for (let i = 0; i < count; i++) {
+                const normalizedTime = normalizedAliveTime[i];
+                const seed = randomSeed[i] + VELOCITY_X_OVERTIME_RAND_OFFSET;
+                const velocity = Vec3.set(_temp_v3,
+                    this.x.evaluate(normalizedTime, pseudoRandom(seed)),
+                    this.y.evaluate(normalizedTime, pseudoRandom(seed)),
+                    this.z.evaluate(normalizedTime, pseudoRandom(seed)));
+                particles.addAnimatedVelocityAt(velocity, i);
+            }
         }
-        Vec3.add(p.animatedVelocity, p.animatedVelocity, vel);
-        Vec3.add(p.ultimateVelocity, p.velocity, p.animatedVelocity);
-        Vec3.multiplyScalar(p.ultimateVelocity, p.ultimateVelocity, this.speedModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, pseudoRandom(p.randomSeed + VELOCITY_X_OVERTIME_RAND_OFFSET))!);
     }
 }

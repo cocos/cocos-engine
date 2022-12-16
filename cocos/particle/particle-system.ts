@@ -56,6 +56,8 @@ import { Camera } from '../core/renderer/scene';
 import { ParticleCuller } from './particle-culler';
 import { NoiseModule } from './animator/noise-module';
 import { CCBoolean, CCFloat } from '../core';
+import { INVALID_HANDLE, ParticleHandle, ParticleSOAData } from './particle-soa-data';
+import ParticleSystemRendererCPU from './renderer/particle-system-renderer-cpu';
 
 const _world_mat = new Mat4();
 const _world_rol = new Quat();
@@ -81,9 +83,9 @@ export class ParticleSystem extends ModelRenderer {
     public set capacity (val) {
         this._capacity = Math.floor(val > 0 ? val : 0);
         // @ts-expect-error private property access
-        if (this.processor && this.processor._model) {
+        if (this._processor && this._processor._model) {
             // @ts-expect-error private property access
-            this.processor._model.setCapacity(this._capacity);
+            this._processor._model.setCapacity(this._capacity);
         }
     }
 
@@ -100,7 +102,7 @@ export class ParticleSystem extends ModelRenderer {
     @serializable
     @displayOrder(9)
     @tooltip('i18n:particle_system.scaleSpace')
-    public scaleSpace = Space.Local;
+    public scaleSpace = Space.LOCAL;
 
     @serializable
     @displayOrder(10)
@@ -256,9 +258,9 @@ export class ParticleSystem extends ModelRenderer {
     set simulationSpace (val) {
         if (val !== this._simulationSpace) {
             this._simulationSpace = val;
-            if (this.processor) {
-                this.processor.updateMaterialParams();
-                this.processor.updateTrailMaterial();
+            if (this._processor) {
+                this._processor.updateMaterialParams();
+                this._processor.updateTrailMaterial();
             }
         }
     }
@@ -466,9 +468,6 @@ export class ParticleSystem extends ModelRenderer {
         superMaterials.set.call(this, val);
     }
 
-    // color over lifetime module
-    @type(ColorOverLifetimeModule)
-    _colorOverLifetimeModule: ColorOverLifetimeModule | null = null;
     /**
      * @zh 颜色控制模块。
      */
@@ -476,23 +475,9 @@ export class ParticleSystem extends ModelRenderer {
     @displayOrder(23)
     @tooltip('i18n:particle_system.colorOverLifetimeModule')
     public get colorOverLifetimeModule () {
-        if (EDITOR && !legacyCC.GAME_VIEW) {
-            if (!this._colorOverLifetimeModule) {
-                this._colorOverLifetimeModule = new ColorOverLifetimeModule();
-                this._colorOverLifetimeModule.bindTarget(this.processor);
-            }
-        }
         return this._colorOverLifetimeModule;
     }
 
-    public set colorOverLifetimeModule (val) {
-        if (!val) return;
-        this._colorOverLifetimeModule = val;
-    }
-
-    // shape module
-    @type(ShapeModule)
-    _shapeModule: ShapeModule | null = null;
     /**
      * @zh 粒子发射器模块。
      */
@@ -500,23 +485,9 @@ export class ParticleSystem extends ModelRenderer {
     @displayOrder(17)
     @tooltip('i18n:particle_system.shapeModule')
     public get shapeModule () {
-        if (EDITOR && !legacyCC.GAME_VIEW) {
-            if (!this._shapeModule) {
-                this._shapeModule = new ShapeModule();
-                this._shapeModule.onInit(this);
-            }
-        }
         return this._shapeModule;
     }
 
-    public set shapeModule (val) {
-        if (!val) return;
-        this._shapeModule = val;
-    }
-
-    // size over lifetime module
-    @type(SizeOvertimeModule)
-    _sizeOvertimeModule: SizeOvertimeModule | null = null;
     /**
      * @zh 粒子大小模块。
      */
@@ -524,23 +495,9 @@ export class ParticleSystem extends ModelRenderer {
     @displayOrder(21)
     @tooltip('i18n:particle_system.sizeOvertimeModule')
     public get sizeOvertimeModule () {
-        if (EDITOR && !legacyCC.GAME_VIEW) {
-            if (!this._sizeOvertimeModule) {
-                this._sizeOvertimeModule = new SizeOvertimeModule();
-                this._sizeOvertimeModule.bindTarget(this.processor);
-            }
-        }
         return this._sizeOvertimeModule;
     }
 
-    public set sizeOvertimeModule (val) {
-        if (!val) return;
-        this._sizeOvertimeModule = val;
-    }
-
-    // velocity overtime module
-    @type(VelocityOvertimeModule)
-    _velocityOvertimeModule: VelocityOvertimeModule | null = null;
     /**
      * @zh 粒子速度模块。
      */
@@ -548,23 +505,9 @@ export class ParticleSystem extends ModelRenderer {
     @displayOrder(18)
     @tooltip('i18n:particle_system.velocityOvertimeModule')
     public get velocityOvertimeModule () {
-        if (EDITOR && !legacyCC.GAME_VIEW) {
-            if (!this._velocityOvertimeModule) {
-                this._velocityOvertimeModule = new VelocityOvertimeModule();
-                this._velocityOvertimeModule.bindTarget(this.processor);
-            }
-        }
         return this._velocityOvertimeModule;
     }
 
-    public set velocityOvertimeModule (val) {
-        if (!val) return;
-        this._velocityOvertimeModule = val;
-    }
-
-    // force overTime module
-    @type(ForceOvertimeModule)
-    _forceOvertimeModule: ForceOvertimeModule | null = null;
     /**
      * @zh 粒子加速度模块。
      */
@@ -572,23 +515,8 @@ export class ParticleSystem extends ModelRenderer {
     @displayOrder(19)
     @tooltip('i18n:particle_system.forceOvertimeModule')
     public get forceOvertimeModule () {
-        if (EDITOR && !legacyCC.GAME_VIEW) {
-            if (!this._forceOvertimeModule) {
-                this._forceOvertimeModule = new ForceOvertimeModule();
-                this._forceOvertimeModule.bindTarget(this.processor);
-            }
-        }
         return this._forceOvertimeModule;
     }
-
-    public set forceOvertimeModule (val) {
-        if (!val) return;
-        this._forceOvertimeModule = val;
-    }
-
-    // limit velocity overtime module
-    @type(LimitVelocityOvertimeModule)
-    _limitVelocityOvertimeModule: LimitVelocityOvertimeModule | null = null;
 
     /**
      * @zh 粒子限制速度模块（只支持 CPU 粒子）。
@@ -597,23 +525,9 @@ export class ParticleSystem extends ModelRenderer {
     @displayOrder(20)
     @tooltip('i18n:particle_system.limitVelocityOvertimeModule')
     public get limitVelocityOvertimeModule () {
-        if (EDITOR && !legacyCC.GAME_VIEW) {
-            if (!this._limitVelocityOvertimeModule) {
-                this._limitVelocityOvertimeModule = new LimitVelocityOvertimeModule();
-                this._limitVelocityOvertimeModule.bindTarget(this.processor);
-            }
-        }
         return this._limitVelocityOvertimeModule;
     }
 
-    public set limitVelocityOvertimeModule (val) {
-        if (!val) return;
-        this._limitVelocityOvertimeModule = val;
-    }
-
-    // rotation overtime module
-    @type(RotationOvertimeModule)
-    _rotationOvertimeModule: RotationOvertimeModule | null = null;
     /**
      * @zh 粒子旋转模块。
      */
@@ -621,23 +535,9 @@ export class ParticleSystem extends ModelRenderer {
     @displayOrder(22)
     @tooltip('i18n:particle_system.rotationOvertimeModule')
     public get rotationOvertimeModule () {
-        if (EDITOR && !legacyCC.GAME_VIEW) {
-            if (!this._rotationOvertimeModule) {
-                this._rotationOvertimeModule = new RotationOvertimeModule();
-                this._rotationOvertimeModule.bindTarget(this.processor);
-            }
-        }
         return this._rotationOvertimeModule;
     }
 
-    public set rotationOvertimeModule (val) {
-        if (!val) return;
-        this._rotationOvertimeModule = val;
-    }
-
-    // texture animation module
-    @type(TextureAnimationModule)
-    _textureAnimationModule: TextureAnimationModule | null = null;
     /**
      * @zh 贴图动画模块。
      */
@@ -645,44 +545,15 @@ export class ParticleSystem extends ModelRenderer {
     @displayOrder(24)
     @tooltip('i18n:particle_system.textureAnimationModule')
     public get textureAnimationModule () {
-        if (EDITOR && !legacyCC.GAME_VIEW) {
-            if (!this._textureAnimationModule) {
-                this._textureAnimationModule = new TextureAnimationModule();
-                this._textureAnimationModule.bindTarget(this.processor);
-            }
-        }
         return this._textureAnimationModule;
     }
-
-    public set textureAnimationModule (val) {
-        if (!val) return;
-        this._textureAnimationModule = val;
-    }
-
-    // noise module
-    @type(NoiseModule)
-    private _noiseModule: NoiseModule | null = null;
 
     @type(NoiseModule)
     @displayOrder(24)
     public get noiseModule () {
-        if (EDITOR) {
-            if (!this._noiseModule) {
-                this._noiseModule = new NoiseModule();
-                this._noiseModule.bindTarget(this.processor);
-            }
-        }
         return this._noiseModule;
     }
 
-    public set noiseModule (val) {
-        if (!val) return;
-        this._noiseModule = val;
-    }
-
-    // trail module
-    @type(TrailModule)
-    _trailModule: TrailModule | null = null;
     /**
      * @zh 粒子轨迹模块。
      */
@@ -690,19 +561,7 @@ export class ParticleSystem extends ModelRenderer {
     @displayOrder(25)
     @tooltip('i18n:particle_system.trailModule')
     public get trailModule () {
-        if (EDITOR && !legacyCC.GAME_VIEW) {
-            if (!this._trailModule) {
-                this._trailModule = new TrailModule();
-                this._trailModule.onInit(this);
-                this._trailModule.onEnable();
-            }
-        }
         return this._trailModule;
-    }
-
-    public set trailModule (val) {
-        if (!val) return;
-        this._trailModule = val;
     }
 
     // particle system renderer
@@ -712,9 +571,37 @@ export class ParticleSystem extends ModelRenderer {
     @tooltip('i18n:particle_system.renderer')
     public renderer: ParticleSystemRenderer = new ParticleSystemRenderer();
 
-    /**
-     * @ignore
-     */
+    // color over lifetime module
+    @type(ColorOverLifetimeModule)
+    private _colorOverLifetimeModule = new ColorOverLifetimeModule();
+    // shape module
+    @type(ShapeModule)
+    private _shapeModule = new ShapeModule();
+    // size over lifetime module
+    @type(SizeOvertimeModule)
+    private _sizeOvertimeModule = new SizeOvertimeModule();
+    // velocity overtime module
+    @type(VelocityOvertimeModule)
+    private _velocityOvertimeModule = new VelocityOvertimeModule();
+    // force overTime module
+    @type(ForceOvertimeModule)
+    private _forceOvertimeModule = new ForceOvertimeModule();
+    // limit velocity overtime module
+    @type(LimitVelocityOvertimeModule)
+    private _limitVelocityOvertimeModule = new LimitVelocityOvertimeModule();
+    // rotation overtime module
+    @type(RotationOvertimeModule)
+    private _rotationOvertimeModule = new RotationOvertimeModule();
+    // texture animation module
+    @type(TextureAnimationModule)
+    private _textureAnimationModule = new TextureAnimationModule();
+    // noise module
+    @type(NoiseModule)
+    private _noiseModule = new NoiseModule();
+    // trail module
+    @type(TrailModule)
+    private _trailModule: TrailModule = new TrailModule();
+
     private _isPlaying: boolean;
     private _isPaused: boolean;
     private _isStopped: boolean;
@@ -733,11 +620,7 @@ export class ParticleSystem extends ModelRenderer {
     private _curPos: Vec3 | null;
     private _isCulled: boolean;
     private _isSimulating: boolean;
-
-    private _customData1: Vec2;
-    private _customData2: Vec2;
-
-    private _subEmitters: any[]; // array of { emitter: ParticleSystem, type: 'birth', 'collision' or 'death'}
+    private _particles = new ParticleSOAData();
 
     private _needAttach: boolean;
 
@@ -748,9 +631,9 @@ export class ParticleSystem extends ModelRenderer {
     private _capacity = 100;
 
     @serializable
-    private _simulationSpace = Space.Local;
+    private _simulationSpace = Space.LOCAL;
 
-    public processor: IParticleSystemRenderer = null!;
+    private _processor = new ParticleSystemRendererCPU(this);
 
     constructor () {
         super();
@@ -780,11 +663,6 @@ export class ParticleSystem extends ModelRenderer {
         this._curPos = null;
         this._isCulled = false;
         this._isSimulating = true;
-
-        this._customData1 = new Vec2();
-        this._customData2 = new Vec2();
-
-        this._subEmitters = []; // array of { emitter: ParticleSystem, type: 'birth', 'collision' or 'death'}
     }
 
     public onFocusInEditor () {
@@ -794,11 +672,11 @@ export class ParticleSystem extends ModelRenderer {
     public onLoad () {
         // HACK, TODO
         this.renderer.onInit(this);
+        this._processor.onInit(this);
         if (this._shapeModule) this._shapeModule.onInit(this);
         if (this._trailModule && !this.renderer.useGPU) {
             this._trailModule.onInit(this);
         }
-        this.bindModule();
         this._resetPosition();
 
         // this._system.add(this);
@@ -807,62 +685,13 @@ export class ParticleSystem extends ModelRenderer {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _onMaterialModified (index: number, material: Material) {
-        if (this.processor !== null) {
-            this.processor.onMaterialModified(index, material);
-        }
-    }
-
-    /**
-     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
-     */
-    public _onRebuildPSO (index: number, material: Material) {
-        this.processor.onRebuildPSO(index, material);
-    }
-
-    /**
-     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
-     */
     public _collectModels (): scene.Model[] {
         this._models.length = 0;
-        this._models.push((this.processor as any)._model);
+        this._models.push((this._processor as any)._model);
         if (this._trailModule && this._trailModule.enable && (this._trailModule as any)._trailModel) {
             this._models.push((this._trailModule as any)._trailModel);
         }
         return this._models;
-    }
-
-    protected _attachToScene () {
-        this.processor.attachToScene();
-        if (this._trailModule && this._trailModule.enable) {
-            this._trailModule._attachToScene();
-        }
-    }
-
-    protected _detachFromScene () {
-        this.processor.detachFromScene();
-        if (this._trailModule && this._trailModule.enable) {
-            this._trailModule._detachFromScene();
-        }
-        if (this._boundingBox) {
-            this._boundingBox = null;
-        }
-        if (this._culler) {
-            this._culler.clear();
-            this._culler.destroy();
-            this._culler = null;
-        }
-    }
-
-    public bindModule () {
-        if (this._colorOverLifetimeModule) this._colorOverLifetimeModule.bindTarget(this.processor);
-        if (this._sizeOvertimeModule) this._sizeOvertimeModule.bindTarget(this.processor);
-        if (this._rotationOvertimeModule) this._rotationOvertimeModule.bindTarget(this.processor);
-        if (this._forceOvertimeModule) this._forceOvertimeModule.bindTarget(this.processor);
-        if (this._limitVelocityOvertimeModule) this._limitVelocityOvertimeModule.bindTarget(this.processor);
-        if (this._velocityOvertimeModule) this._velocityOvertimeModule.bindTarget(this.processor);
-        if (this._textureAnimationModule) this._textureAnimationModule.bindTarget(this.processor);
-        if (this._noiseModule) this._noiseModule.bindTarget(this.processor);
     }
 
     // TODO: Fast forward current particle system by simulating particles over given period of time, then pause it.
@@ -896,8 +725,8 @@ export class ParticleSystem extends ModelRenderer {
             this._trailModule.play();
         }
 
-        if (this.processor) {
-            const model = this.processor.getModel();
+        if (this._processor) {
+            const model = this._processor.getModel();
             if (model) {
                 model.enabled = this.enabledInHierarchy;
             }
@@ -966,7 +795,7 @@ export class ParticleSystem extends ModelRenderer {
      */
     public clear () {
         if (this.enabledInHierarchy) {
-            this.processor.clear();
+            this._processor.clear();
             if (this._trailModule) this._trailModule.clear();
         }
         this._calculateBounding(false);
@@ -976,31 +805,20 @@ export class ParticleSystem extends ModelRenderer {
      * @zh 获取当前粒子数量
      */
     public getParticleCount () {
-        return this.processor.getParticleCount();
-    }
-
-    /**
-     * @ignore
-     */
-    public setCustomData1 (x, y) {
-        Vec2.set(this._customData1, x, y);
-    }
-
-    public setCustomData2 (x, y) {
-        Vec2.set(this._customData2, x, y);
+        return this._particles.count;
     }
 
     protected onDestroy () {
         this.stop();
-        if (this.processor.getModel()?.scene) {
-            this.processor.detachFromScene();
+        if (this._processor.getModel()?.scene) {
+            this._processor.detachFromScene();
             if (this._trailModule && this._trailModule.enable) {
                 this._trailModule._detachFromScene();
             }
         }
         legacyCC.director.off(legacyCC.Director.EVENT_BEFORE_COMMIT, this.beforeRender, this);
         // this._system.remove(this);
-        this.processor.onDestroy();
+        this._processor.onDestroy();
         if (this._trailModule) this._trailModule.destroy();
         if (this._culler) {
             this._culler.clear();
@@ -1015,12 +833,12 @@ export class ParticleSystem extends ModelRenderer {
         if (this.playOnAwake && (!EDITOR || legacyCC.GAME_VIEW)) {
             this.play();
         }
-        this.processor.onEnable();
+        this._processor.onEnable();
         if (this._trailModule) this._trailModule.onEnable();
     }
     protected onDisable () {
         legacyCC.director.off(legacyCC.Director.EVENT_BEFORE_COMMIT, this.beforeRender, this);
-        this.processor.onDisable();
+        this._processor.onDisable();
         if (this._trailModule) this._trailModule.onDisable();
         if (this._boundingBox) {
             this._boundingBox = null;
@@ -1129,7 +947,7 @@ export class ParticleSystem extends ModelRenderer {
                     this._isSimulating = false;
                 }
                 if (!this._isCulled) {
-                    this.processor.detachFromScene();
+                    this._processor.detachFromScene();
                     this._isCulled = true;
                 }
                 if (this._trailModule && this._trailModule.enable) {
@@ -1163,17 +981,17 @@ export class ParticleSystem extends ModelRenderer {
             this._emit(scaledDeltaTime);
 
             // simulation, update particles.
-            if (this.processor.updateParticles(scaledDeltaTime) === 0 && !this._isEmitting) {
+            if (this._processor.updateParticles(scaledDeltaTime) === 0 && !this._isEmitting) {
                 this.stop();
             }
         } else {
-            const mat: Material | null = this.getMaterialInstance(0) || this.processor.getDefaultMaterial();
+            const mat: Material | null = this.getMaterialInstance(0) || this._processor.getDefaultMaterial();
             const pass = mat!.passes[0];
-            this.processor.updateRotation(pass);
-            this.processor.updateScale(pass);
+            this._processor.updateRotation(pass);
+            this._processor.updateScale(pass);
         }
         // update render data
-        this.processor.updateRenderData();
+        this._processor.updateRenderData();
 
         // update trail
         if (this._trailModule && this._trailModule.enable) {
@@ -1183,8 +1001,8 @@ export class ParticleSystem extends ModelRenderer {
         if (this._needAttach) { // Check whether this particle model should be reattached
             if (this.getParticleCount() > 0) {
                 if (!this._isCulled) {
-                    if (!this.processor.getModel()?.scene) {
-                        this.processor.attachToScene();
+                    if (!this._processor.getModel()?.scene) {
+                        this._processor.attachToScene();
                     }
                     if (this._trailModule && this._trailModule.enable) {
                         if (!this._trailModule.getModel()?.scene) {
@@ -1199,29 +1017,29 @@ export class ParticleSystem extends ModelRenderer {
 
     protected beforeRender () {
         if (!this._isPlaying) return;
-        this.processor.beforeRender();
+        this._processor.beforeRender();
         if (this._trailModule && this._trailModule.enable) {
             this._trailModule.beforeRender();
         }
 
         if (this.getParticleCount() <= 0) {
-            if (this.processor.getModel()?.scene) {
-                this.processor.detachFromScene();
+            if (this._processor.getModel()?.scene) {
+                this._processor.detachFromScene();
                 if (this._trailModule && this._trailModule.enable) {
                     this._trailModule._detachFromScene();
                 }
                 this._needAttach = false;
             }
-        } else if (!this.processor.getModel()?.scene) {
+        } else if (!this._processor.getModel()?.scene) {
             this._needAttach = true;
         }
     }
 
     protected _onVisibilityChange (val) {
         // @ts-expect-error private property access
-        if (this.processor._model) {
+        if (this._processor._model) {
             // @ts-expect-error private property access
-            this.processor._model.visFlags = val;
+            this._processor._model.visFlags = val;
         }
     }
 
@@ -1242,7 +1060,7 @@ export class ParticleSystem extends ModelRenderer {
         }
 
         for (let i = 0; i < count; ++i) {
-            const particle = this.processor.getFreeParticle();
+            const particle = this._processor.getFreeParticle();
             if (particle === null) {
                 return;
             }
@@ -1302,7 +1120,7 @@ export class ParticleSystem extends ModelRenderer {
             particle.randomSeed = randomRangeInt(0, 233280);
             particle.loopCount++;
 
-            this.processor.setNewParticle(particle);
+            this._processor.setNewParticle(particle);
         } // end of particles forLoop.
     }
 
@@ -1316,7 +1134,7 @@ export class ParticleSystem extends ModelRenderer {
         for (let i = 0; i < cnt; ++i) {
             this._time += dt;
             this._emit(dt);
-            this.processor.updateParticles(dt);
+            this._processor.updateParticles(dt);
         }
     }
 
@@ -1363,25 +1181,92 @@ export class ParticleSystem extends ModelRenderer {
         }
     }
 
+    private simulate () {
+        this.updateMaterialParams();
+        const ps = this._particleSystem;
+        if (!ps) {
+            return this._particles.count;
+        }
+        ps.node.getWorldMatrix(_tempWorldTrans);
+        const mat: Material | null = ps.getMaterialInstance(0) || this._defaultMat;
+        const pass = mat!.passes[0];
+        this.doUpdateScale(pass);
+        this.doUpdateRotation(pass);
+
+        this._updateList.forEach((value: IParticleModule, key: string) => {
+            value.update(ps._simulationSpace, _tempWorldTrans);
+        });
+
+        const trailModule = ps._trailModule;
+        const trailEnable = trailModule && trailModule.enable;
+        if (trailEnable) {
+            trailModule.update();
+        }
+
+        if (ps.simulationSpace === Space.Local) {
+            const r:Quat = ps.node.getRotation();
+            Mat4.fromQuat(this._localMat, r);
+            this._localMat.transpose(); // just consider rotation, use transpose as invert
+        }
+
+        if (ps.node.parent) {
+            ps.node.parent.getWorldMatrix(_tempParentInverse);
+            _tempParentInverse.invert();
+        }
+        const { normalizedAliveTime } = this._particles;
+        for (let i = 0, length = this._particles.count; i < length; ++i) {
+            normalizedAliveTime[i] -= dt;
+            Vec3.set(p.animatedVelocity, 0, 0, 0);
+
+            if (p.remainingLifetime < 0.0) {
+                if (trailEnable) {
+                    trailModule.removeParticle(p);
+                }
+                this._particles.removeAt(i);
+                --i;
+                continue;
+            }
+        }
+
+        if (ps.simulationSpace === Space.Local) {
+            const gravityFactor = -ps.gravityModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, pseudoRandom(p.randomSeed))! * 9.8 * dt;
+            this._gravity.x = 0.0;
+            this._gravity.y = gravityFactor;
+            this._gravity.z = 0.0;
+            this._gravity.w = 1.0;
+            if (!approx(gravityFactor, 0.0, EPSILON)) {
+                if (ps.node.parent) {
+                    this._gravity = this._gravity.transformMat4(_tempParentInverse);
+                }
+                this._gravity = this._gravity.transformMat4(this._localMat);
+
+                p.velocity.x += this._gravity.x;
+                p.velocity.y += this._gravity.y;
+                p.velocity.z += this._gravity.z;
+            }
+        } else {
+            // apply gravity.
+            p.velocity.y -= ps.gravityModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, pseudoRandom(p.randomSeed))! * 9.8 * dt;
+        }
+
+        Vec3.copy(p.ultimateVelocity, p.velocity);
+
+        this._runAnimateList.forEach((value) => {
+            value.animate(p, dt);
+        });
+
+        Vec3.scaleAndAdd(p.position, p.position, p.ultimateVelocity, dt); // apply velocity.
+        if (trailEnable) {
+            trailModule.animate(p, dt);
+        }
+
+        this._model!.enabled = this._particles.count > 0;
+        return this._particles.count;
+    }
+
     private _resetPosition () {
         this.node.getWorldPosition(this._oldWPos);
         Vec3.copy(this._curWPos, this._oldWPos);
-    }
-
-    private addSubEmitter (subEmitter) {
-        this._subEmitters.push(subEmitter);
-    }
-
-    private removeSubEmitter (idx) {
-        this._subEmitters.splice(this._subEmitters.indexOf(idx), 1);
-    }
-
-    private addBurst (burst) {
-        this.bursts.push(burst);
-    }
-
-    private removeBurst (idx) {
-        this.bursts.splice(this.bursts.indexOf(idx), 1);
     }
 
     private getBoundingX () {
@@ -1443,6 +1328,13 @@ export class ParticleSystem extends ModelRenderer {
         return this._time;
     }
 
+    public getFreeParticle (): ParticleHandle {
+        if (this._particles.count >= this.capacity) {
+            return INVALID_HANDLE;
+        }
+        return this._particles.addParticle();
+    }
+
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
@@ -1453,9 +1345,7 @@ export class ParticleSystem extends ModelRenderer {
 
     public getNoisePreview (width: number, height: number): number[] {
         const out: number[] = [];
-        if (this.processor) {
-            this.processor.getNoisePreview(out, width, height);
-        }
+        this.noiseModule.getNoisePreview(out, this.time, width, height);
         return out;
     }
 }

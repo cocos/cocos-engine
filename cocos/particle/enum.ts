@@ -25,65 +25,130 @@
 
 import { Enum } from '../core/value-types';
 
-export const Space = Enum({
-    World: 0,
-    Local: 1,
-    Custom: 2,
-});
+export enum Space {
+    WORLD,
+    /**
+     * @deprecated since 3.8, please use Space.WORLD instead
+     */
+    World = WORLD,
+
+    LOCAL,
+    /**
+     * @deprecated since 3.8, please use Space.LOCAL instead
+     */
+    Local = LOCAL,
+
+    CUSTOM,
+    /**
+     * @deprecated since 3.8, please use Space.CUSTOM instead
+     */
+    Custom = CUSTOM,
+}
 
 /**
  * @en Particle emitter culling mode
  * @zh 粒子的剔除模式。
  * @enum ParticleSystem.CullingMode
  */
-export const CullingMode = Enum({
-    Pause: 0,
-    PauseAndCatchup: 1,
-    AlwaysSimulate: 2,
-});
+export enum CullingMode {
+    PAUSE,
+    /**
+     * @deprecated since 3.8, please use CullingMode.PAUSE instead
+     */
+    Pause = PAUSE,
+
+    PAUSE_AND_CATCHUP,
+    /**
+     * @deprecated since 3.8, please use CullingMode.PAUSE_AND_CATCHUP instead
+     */
+    PauseAndCatchup = PAUSE_AND_CATCHUP,
+
+    ALWAYS_SIMULATE,
+    /**
+     * @deprecated since 3.8, please use CullingMode.ALWAYS_SIMULATE instead
+     */
+    AlwaysSimulate = ALWAYS_SIMULATE,
+}
 
 /**
  * @en Particle emitter alignment space
  * @zh 粒子的对齐模式。
  * @enum ParticleSystemRenderer.AlignmentSpace
  */
-export const AlignmentSpace = Enum({
-    World: 0,
-    Local: 1,
-    View: 2,
-});
+export enum AlignmentSpace {
+    WORLD,
+    /**
+     * @deprecated since 3.8, please use AlignmentSpace.WORLD instead
+     */
+    World = WORLD,
+
+    LOCAL,
+    /**
+     * @deprecated since 3.8, please use AlignmentSpace.LOCAL instead
+     */
+    Local = LOCAL,
+
+    VIEW,
+    /**
+     * @deprecated since 3.8, please use AlignmentSpace.VIEW instead
+     */
+    View = VIEW,
+}
 
 /**
  * 粒子的生成模式。
  * @enum ParticleSystemRenderer.RenderMode
  */
-export const RenderMode = Enum({
-
+export enum RenderMode {
     /**
      * 粒子始终面向摄像机。
      */
-    Billboard: 0,
+    BILLBOARD,
+    /**
+     * @deprecated since v3.8, please use RenderMode.BILLBOARD instead
+     */
+    Billboard = BILLBOARD,
 
     /**
      * 粒子始终面向摄像机但会根据参数进行拉伸。
      */
-    StrecthedBillboard: 1,
+    STRETCHED_BILLBOARD,
+
+    /**
+     * @deprecated since v3.8, please use RenderMode.STRETCHED_BILLBOARD instead
+     */
+    StrecthedBillboard = STRETCHED_BILLBOARD,
 
     /**
      * 粒子始终与 XZ 平面平行。
      */
-    HorizontalBillboard: 2,
+    HORIZONTAL_BILLBOARD,
+
+    /**
+     * @deprecated since v3.8, please use RenderMode.HORIZONTAL_BILLBOARD instead
+     */
+    HorizontalBillboard = HORIZONTAL_BILLBOARD,
 
     /**
      * 粒子始终与 Y 轴平行且朝向摄像机。
      */
-    VerticalBillboard: 3,
+    VERTICAL_BILLBOARD,
+
+    /**
+     * @deprecated since v3.8, please use RenderMode.VERTICAL_BILLBOARD instead
+     */
+    VerticalBillboard = VERTICAL_BILLBOARD,
 
     /**
      * 粒子保持模型本身状态。
      */
-    Mesh: 4,
-});
+    MESH,
+
+    /**
+     * @deprecated since v3.8, please use RenderMode.MESH instead
+     */
+    Mesh = MESH,
+}
 
 /**
  * 粒子发射器类型。

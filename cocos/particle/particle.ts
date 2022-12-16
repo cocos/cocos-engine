@@ -24,9 +24,8 @@
  */
 
 import { Color, Vec3, Mat4, Quat } from '../core/math';
-import { ParticleSOA } from './particle-soa';
+import { ParticleUpdateContext } from './particle-update-context';
 import { ParticleSystem } from './particle-system';
-import { IParticleSystemRenderer } from './renderer/particle-system-renderer-base';
 
 export class Particle {
     public static INDENTIFY_NEG_QUAT = 10;
@@ -138,6 +137,7 @@ export const PARTICLE_MODULE_PROPERTY = [
     '_trailModule',
 ];
 export abstract class ParticleModule {
-    public update (particles: ParticleSOA) {}
-    public abstract name: string;
+    public abstract get enable (): boolean;
+    public abstract set enable (val: boolean);
+    public abstract update (particleUpdateContext: ParticleUpdateContext);
 }
