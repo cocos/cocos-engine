@@ -195,3 +195,16 @@ export function getCombinationDefines (combination: EffectAsset.IPreCompileInfo)
     }, [] as MacroRecord[]), [{}] as MacroRecord[]);
     return defines;
 }
+
+export function addEffectDefaultProperties (effect: EffectAsset) {
+    for (let i = 0; i < effect.techniques.length; i++) {
+        const tech = effect.techniques[i];
+        for (let j = 0; j < tech.passes.length; j++) {
+            const pass = tech.passes[j];
+            // grab default property declaration if there is none
+            if (pass.propertyIndex !== undefined && pass.properties === undefined) {
+                pass.properties = tech.passes[pass.propertyIndex].properties;
+            }
+        }
+    }
+}
