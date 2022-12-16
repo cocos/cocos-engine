@@ -268,6 +268,10 @@ Message *MessageQueue::readMessage() noexcept {
     return msg;
 }
 
+MessageQueue::~MessageQueue() {
+    recycleMemoryChunk(_writer.currentMemoryChunk);
+}
+
 void MessageQueue::consumerThreadLoop() noexcept {
     while (!_reader.terminateConsumerThread) {
         AutoReleasePool autoReleasePool;
