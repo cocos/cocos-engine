@@ -17,7 +17,6 @@
 #include "cocos/renderer/gfx-base/GFXDef-common.h"
 #include "cocos/renderer/gfx-base/GFXDevice.h"
 #include "cocos/renderer/pipeline/InstancedBuffer.h"
-#include "cocos/renderer/pipeline/LODModelsUtil.h"
 #include "cocos/scene/Model.h"
 #include "cocos/scene/Octree.h"
 #include "cocos/scene/Pass.h"
@@ -844,7 +843,7 @@ void octreeCulling(
         if (!model.isEnabled()) {
             continue;
         }
-        if (pipeline::LODModelsCachedUtils::isLODModelCulled(&camera, &model)) {
+        if (scene->isCulledByLod(&camera, &model)) {
             continue;
         }
         if (any(queue.sceneFlags & SceneFlags::SHADOW_CASTER) && model.isCastShadow()) {
@@ -863,7 +862,7 @@ void octreeCulling(
     for (const auto& pModel : models) {
         const auto& model = *pModel;
         CC_EXPECTS(!isPointInstance(model));
-        if (pipeline::LODModelsCachedUtils::isLODModelCulled(&camera, &model)) {
+        if (scene->isCulledByLod(&camera, &model)) {
             continue;
         }
         addRenderObject(camera, model, queue);
@@ -882,7 +881,7 @@ void frustumCulling(
             continue;
         }
         // filter model by view visibility
-        if (pipeline::LODModelsCachedUtils::isLODModelCulled(&camera, &model)) {
+        if (scene->isCulledByLod(&camera, &model)) {
             continue;
         }
         const auto visibility = camera.getVisibility();

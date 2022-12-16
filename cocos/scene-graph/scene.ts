@@ -33,7 +33,6 @@ import { legacyCC } from '../core/global-exports';
 import { Component } from './component';
 import { SceneGlobals } from './scene-globals';
 import { applyTargetOverrides, expandNestedPrefabInstanceNode } from './prefab/utils';
-import { LODModelsCachedUtils } from '../rendering/lod-models-utils';
 
 /**
  * @en
@@ -101,7 +100,6 @@ export class Scene extends Node {
      * @zh 销毁当前场景中的所有节点，这个操作不会销毁资源
      */
     public destroy () {
-        LODModelsCachedUtils.clearCachedLODModels();
         const success = CCObject.prototype.destroy.call(this);
         if (success) {
             const children = this._children;

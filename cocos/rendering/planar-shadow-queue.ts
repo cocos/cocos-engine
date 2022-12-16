@@ -33,7 +33,6 @@ import { ShadowType } from '../render-scene/scene/shadows';
 import { Layers } from '../scene-graph/layers';
 import { PipelineRuntime } from './custom/pipeline';
 import { BatchingSchemes } from '../render-scene/core/pass';
-import { LODModelsCachedUtils } from './lod-models-utils';
 
 const _ab = new geometry.AABB();
 
@@ -63,7 +62,7 @@ export class PlanarShadowQueue {
         const models = scene.models;
         for (let i = 0; i < models.length; i++) {
             const model = models[i];
-            if (LODModelsCachedUtils.isLODModelCulled(camera, model)) {
+            if (scene.isCulledByLod(camera, model)) {
                 continue;
             }
             if (model.enabled && model.node && model.castShadow) { this._castModels.push(model); }

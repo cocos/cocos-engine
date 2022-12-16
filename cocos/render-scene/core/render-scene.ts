@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 import { Root } from '../../root';
-import { Node } from '../../scene-graph';
+import { Node, NodeEventType } from '../../scene-graph';
 import { Camera } from '../scene/camera';
 import { DirectionalLight } from '../scene/directional-light';
 import { Model } from '../scene/model';
@@ -133,7 +133,7 @@ export class RenderScene {
      * @en All LOD groups of the render scene
      * @zh 渲染场景管理的所有 LOD 组
      */
-    get lodGroups () : readonly LODGroup[] { return this._lodGroups; }
+    get lodGroups (): readonly LODGroup[] { return this._lodGroups; }
 
     private _root: Root;
     private _name = '';
@@ -146,6 +146,7 @@ export class RenderScene {
     private _spotLights: SpotLight[] = [];
     private _mainLight: DirectionalLight | null = null;
     private _modelId = 0;
+    private _lodStateCache: LodStateCache = null!;
 
     /**
      * Register the creation function of the render scene to root.
@@ -166,6 +167,7 @@ export class RenderScene {
      */
     public initialize (info: IRenderSceneInfo): boolean {
         this._name = info.name;
+        this._lodStateCache = new LodStateCache(this);
         return true;
     }
 
@@ -202,6 +204,7 @@ export class RenderScene {
                 model.updateUBOs(stamp);
             }
         }
+        this._lodStateCache.updateLodState();
     }
 
     /**
@@ -214,6 +217,11 @@ export class RenderScene {
         this.removeSpotLights();
         this.removeModels();
         this.removeLODGroups();
+        this._lodStateCache.clearCache();
+    }
+
+    public isCulledByLod (camera: Camera, model: Model) {
+        return this._lodStateCache.isLodModelCulled(camera, model);
     }
 
     /**
@@ -223,6 +231,7 @@ export class RenderScene {
     public addCamera (cam: Camera) {
         cam.attachToScene(this);
         this._cameras.push(cam);
+        this._lodStateCache.onCameraAdded(cam);
     }
 
     /**
@@ -234,6 +243,7 @@ export class RenderScene {
             if (this._cameras[i] === camera) {
                 this._cameras.splice(i, 1);
                 camera.detachFromScene();
+                this._lodStateCache.onCameraRemoved(camera);
                 return;
             }
         }
@@ -246,6 +256,7 @@ export class RenderScene {
     public removeCameras () {
         for (const camera of this._cameras) {
             camera.detachFromScene();
+            this._lodStateCache.onCameraRemoved(camera);
         }
         this._cameras.splice(0);
     }
@@ -395,6 +406,7 @@ export class RenderScene {
     public removeModel (model: Model) {
         for (let i = 0; i < this._models.length; ++i) {
             if (this._models[i] === model) {
+                this._lodStateCache.onModelRemoved(model);
                 model.detachFromScene();
                 this._models.splice(i, 1);
 
@@ -409,6 +421,7 @@ export class RenderScene {
      */
     public removeModels () {
         for (const m of this._models) {
+            this._lodStateCache.onModelRemoved(m);
             m.detachFromScene();
             m.destroy();
         }
@@ -461,6 +474,7 @@ export class RenderScene {
     addLODGroup (lodGroup: LODGroup) {
         this._lodGroups.push(lodGroup);
         lodGroup.attachToScene(this);
+        this._lodStateCache.onLodGroupAdded(lodGroup);
     }
 
     /**
@@ -474,6 +488,7 @@ export class RenderScene {
         if (index >= 0) {
             this._lodGroups.splice(index, 1);
             lodGroup.detachFromScene();
+            this._lodStateCache.onLodGroupRemoved(lodGroup);
         }
     }
 
@@ -483,6 +498,9 @@ export class RenderScene {
      * @zh 删除所有LOD 组。
      */
     removeLODGroups () {
+        for (const group of this._lodGroups) {
+            this._lodStateCache.onLodGroupRemoved(group);
+        }
         this._lodGroups.length = 0;
     }
 
@@ -504,4 +522,240 @@ export class RenderScene {
     public generateModelId (): number {
         return this._modelId++;
     }
+}
+
+class ModelInfo {
+    ownerLodLevel = -1;
+    lodGroup: LODGroup = null!;
+}
+
+class NodeTransformState {
+    needUpdate = true;
+    transformCallback: AnyFunction = null!;
+}
+
+class LodStateCache {
+    constructor (scene: RenderScene) {
+        this._renderScene = scene;
+    }
+
+    onCameraAdded (camera: Camera) {
+        let needRegisterChanged = false;
+        for (const lodGroupState of this._lodGroupStateMap) {
+            if (this.isLodGroupVisibleByCamera(lodGroupState[0], camera)) {
+                needRegisterChanged = true;
+                break;
+            }
+        }
+
+        if (needRegisterChanged) {
+            this.registerCameraChange(camera);
+        }
+    }
+
+    onCameraRemoved (camera: Camera) {
+        if (this._cameraStateMap.has(camera)) {
+            const transformState = this._cameraStateMap.get(camera);
+            if (transformState?.transformCallback) {
+                camera.node.off(NodeEventType.ANCESTOR_TRANSFORM_CHANGED, transformState.transformCallback);
+            }
+        }
+    }
+
+    onLodGroupAdded (lodGroup: LODGroup) {
+        const transformState = new NodeTransformState();
+        transformState.transformCallback = () => {
+            const state = this._lodGroupStateMap.get(lodGroup);
+            if (state) {
+                state.needUpdate = true;
+            }
+        };
+        this._lodGroupStateMap.set(lodGroup, transformState);
+
+        lodGroup.node.on(NodeEventType.ANCESTOR_TRANSFORM_CHANGED, transformState.transformCallback);
+        this._vecAddedLodGroup.push(lodGroup);
+
+        for (const camera of this._renderScene.cameras) {
+            if (this._cameraStateMap.has(camera)) {
+                continue;
+            }
+            if (this.isLodGroupVisibleByCamera(lodGroup, camera)) {
+                this.registerCameraChange(camera);
+            }
+        }
+    }
+
+    onLodGroupRemoved (lodGroup: LODGroup) {
+        if (!this._lodGroupStateMap.has(lodGroup)) {
+            return;
+        }
+        const transformState = this._lodGroupStateMap.get(lodGroup);
+        if (transformState?.transformCallback) {
+            lodGroup.node.off(NodeEventType.ANCESTOR_TRANSFORM_CHANGED, transformState.transformCallback);
+        }
+
+        for (let index = 0; index < lodGroup.lodCount; index++) {
+            const lod = lodGroup.lodDataArray[index];
+            for (const model of lod.models) {
+                this._modelsByAnyLODGroup.delete(model);
+            }
+        }
+    }
+
+    onModelRemoved (model: Model) {
+        if (this._modelsByAnyLODGroup.has(model)) {
+            this._modelsByAnyLODGroup.delete(model);
+        }
+    }
+
+    updateLodState () {
+        //insert vecAddedLodGroup's model into modelsByAnyLODGroup
+        for (const addedLodGroup of this._vecAddedLodGroup) {
+            for (let index = 0; index < addedLodGroup.lodCount; index++) {
+                const lod = addedLodGroup.lodDataArray[index];
+                for (const model of lod.models) {
+                    let modelInfo = this._modelsByAnyLODGroup.get(model);
+                    if (!modelInfo) {
+                        modelInfo = new ModelInfo();
+                    }
+                    modelInfo.ownerLodLevel = index;
+                    modelInfo.lodGroup = addedLodGroup;
+                    this._modelsByAnyLODGroup.set(model, modelInfo);
+                }
+            }
+        }
+        this._vecAddedLodGroup.length = 0;
+
+        //update current visible lod index
+        for (const lodGroup of this._renderScene.lodGroups) {
+            if (lodGroup.enabled) {
+                const lodLevels = lodGroup.getLockedLODLevels();
+                const count = lodLevels.length;
+                // count == 0 will return to standard LOD processing.
+                if (count > 0) {
+                    const transformState = this._lodGroupStateMap.get(lodGroup);
+                    if (transformState) {
+                        transformState.needUpdate = true;
+                    }
+                    continue;
+                }
+
+                for (const cameraState of this._cameraStateMap) {
+                    const camState = cameraState[1];
+                    const lodState = this._lodGroupStateMap.get(lodGroup);
+                    if (camState.needUpdate || lodState?.needUpdate) {
+                        let visibleMap = this._visibleLodLevelsByAnyLODGroup.get(cameraState[0]);
+                        if (!visibleMap) {
+                            visibleMap =  new Map<LODGroup, number>();
+                            this._visibleLodLevelsByAnyLODGroup.set(cameraState[0], visibleMap);
+                        }
+                        visibleMap.set(lodGroup, lodGroup.getVisibleLODLevel(cameraState[0]));
+                    }
+                }
+
+                const lodState = this._lodGroupStateMap.get(lodGroup);
+                if (lodState?.needUpdate) {
+                    lodState.needUpdate = false;
+                }
+            }
+
+            this._cameraStateMap.forEach((state: NodeTransformState, camera: Camera) => {
+                state.needUpdate = false;
+            });
+        }
+    }
+
+    isLodModelCulled (camera: Camera, model: Model) {
+        if (!this._modelsByAnyLODGroup.has(model)) {
+            return false;
+        }
+        if (!this._visibleLodLevelsByAnyLODGroup.has(camera)) {
+            return true;
+        }
+
+        const modelInfo = this._modelsByAnyLODGroup.get(model);
+        if (!modelInfo) {
+            return false;
+        }
+
+        const lodGroup = modelInfo.lodGroup;
+        const visibleLodLevels = lodGroup.getLockedLODLevels();
+        if (visibleLodLevels.length > 0) {
+            for (const index of visibleLodLevels) {
+                if (modelInfo.ownerLodLevel === index) {
+                    return !(model.node && model.node.active);
+                }
+            }
+
+            return true;
+        }
+
+        const lodGroupMap = this._visibleLodLevelsByAnyLODGroup.get(camera);
+        if (!lodGroupMap) {
+            return false;
+        }
+        if (modelInfo.ownerLodLevel === lodGroupMap.get(lodGroup)) {
+            return !(model.node && model.node.active);
+        }
+
+        return true;
+    }
+
+    clearCache () {
+        this._cameraStateMap.clear();
+        this._lodGroupStateMap.clear();
+        this._modelsByAnyLODGroup.clear();
+        this._visibleLodLevelsByAnyLODGroup.clear();
+        this._vecAddedLodGroup.length = 0;
+    }
+
+    private isLodGroupVisibleByCamera (lodGroup: LODGroup, camera: Camera): boolean {
+        const layer = lodGroup.node.layer;
+        return (camera.visibility & layer) === layer;
+    }
+
+    private registerCameraChange (camera: Camera) {
+        const transformState = new NodeTransformState();
+        transformState.transformCallback = () => {
+            const state = this._cameraStateMap.get(camera);
+            if (state) {
+                state.needUpdate = true;
+            }
+        };
+        this._cameraStateMap.set(camera, transformState);
+
+        camera.node.on(NodeEventType.ANCESTOR_TRANSFORM_CHANGED, transformState.transformCallback);
+    }
+
+    private _renderScene: RenderScene = null!;
+
+    /**
+     * @zh LOD使用的model集合；可能包含多个LODGroup的每一级LOD
+     * @en Collection of mods used by LODs; may contain multiple LODGs for each level of LOD.
+     */
+    private _modelsByAnyLODGroup: Map<Model, ModelInfo> = new Map<Model, ModelInfo>();
+
+    /**
+      * @zh 指定相机下，LODGroup使用哪一级的LOD
+      * @en Specify which level of LOD is used by the LODGroup under the camera.
+      */
+    private _visibleLodLevelsByAnyLODGroup: Map<Camera, Map<LODGroup, number>> = new Map<Camera, Map<LODGroup, number>>();
+
+    /**
+      * @zh 某个LODGroup的当前状态，是否需要更新等
+      * @en Specify the current status of a LODGroup, whether it needs to be updated, etc.
+      */
+    private _lodGroupStateMap: Map<LODGroup, NodeTransformState> = new Map<LODGroup, NodeTransformState>();
+
+    /**
+      * @zh 指定相机的状态是否出现变化, 这里主要记录transform是否出现变化
+      * @en Specify whether the state of the camera has changed or not, here it is mainly recorded whether the transform has changed or not.
+      */
+    private _cameraStateMap: Map<Camera, NodeTransformState> = new Map<Camera, NodeTransformState>();
+
+    /**
+      * @zh 上一帧添加的lodgroup
+      * @en The lodgroup added in the previous frame.
+      */
+    private _vecAddedLodGroup: Array<LODGroup> = new Array<LODGroup>();
 }
