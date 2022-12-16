@@ -3195,15 +3195,15 @@ export function WebGL2CmdFuncBlitTexture (
     }
 
     if (src.glTexture) {
-        gl.framebufferTexture2D(gl.FRAMEBUFFER, srcAttachment, src.glTarget, src.glTexture, srcMip);
+        gl.framebufferTexture2D(gl.READ_FRAMEBUFFER, srcAttachment, src.glTarget, src.glTexture, srcMip);
     } else {
-        gl.framebufferRenderbuffer(gl.FRAMEBUFFER, srcAttachment, gl.RENDERBUFFER, src.glRenderbuffer);
+        gl.framebufferRenderbuffer(gl.READ_FRAMEBUFFER, srcAttachment, gl.RENDERBUFFER, src.glRenderbuffer);
     }
 
     if (dst.glTexture) {
-        gl.framebufferTexture2D(gl.FRAMEBUFFER, dstAttachment, dst.glTarget, dst.glTexture, dstMip);
+        gl.framebufferTexture2D(gl.DRAW_FRAMEBUFFER, dstAttachment, dst.glTarget, dst.glTexture, dstMip);
     } else {
-        gl.framebufferRenderbuffer(gl.FRAMEBUFFER, dstAttachment, gl.RENDERBUFFER, dst.glRenderbuffer);
+        gl.framebufferRenderbuffer(gl.DRAW_FRAMEBUFFER, dstAttachment, gl.RENDERBUFFER, dst.glRenderbuffer);
     }
 
     for (let i = 0; i < regionIndices.length; i++) {
@@ -3211,12 +3211,12 @@ export function WebGL2CmdFuncBlitTexture (
 
         if (src.glTexture && srcMip !== region.srcSubres.mipLevel) {
             srcMip = region.srcSubres.mipLevel;
-            gl.framebufferTexture2D(gl.FRAMEBUFFER, srcAttachment, src.glTarget, src.glTexture, srcMip);
+            gl.framebufferTexture2D(gl.READ_FRAMEBUFFER, srcAttachment, src.glTarget, src.glTexture, srcMip);
         }
 
         if (dst.glTexture && dstMip !== region.dstSubres.mipLevel) {
             dstMip = region.dstSubres.mipLevel;
-            gl.framebufferTexture2D(gl.FRAMEBUFFER, dstAttachment, dst.glTarget, dst.glTexture, dstMip);
+            gl.framebufferTexture2D(gl.DRAW_FRAMEBUFFER, dstAttachment, dst.glTarget, dst.glTexture, dstMip);
         }
 
         gl.blitFramebuffer(
