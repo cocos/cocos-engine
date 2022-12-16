@@ -678,18 +678,6 @@ export class ParticleSystem extends ModelRenderer {
         // this._system.add(this);
     }
 
-    /**
-     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
-     */
-    public _collectModels (): scene.Model[] {
-        this._models.length = 0;
-        this._models.push((this._processor as any)._model);
-        if (this._trailModule && this._trailModule.enable && (this._trailModule as any)._trailModel) {
-            this._models.push((this._trailModule as any)._trailModel);
-        }
-        return this._models;
-    }
-
     // TODO: Fast forward current particle system by simulating particles over given period of time, then pause it.
     // simulate(time, withChildren, restart, fixedTimeStep) {
 

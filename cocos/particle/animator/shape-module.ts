@@ -26,7 +26,7 @@
 import { ccclass, tooltip, displayOrder, type, formerlySerializedAs, serializable, visible, range } from 'cc.decorator';
 import { Mat4, Quat, Vec2, Vec3, clamp, pingPong, random, randomRange, repeat, toDegree, toRadian } from '../../core/math';
 
-import CurveRange from '../animator/curve-range';
+import CurveRange from './curve-range';
 import { ArcMode, EmitLocation, ShapeType } from '../enum';
 import { fixedAngleUnitVector2, particleEmitZAxis, randomPointBetweenCircleAtFixedAngle, randomPointBetweenSphere,
     randomPointInCube, randomSign, randomSortArray, randomUnitVector } from '../particle-general-function';
@@ -35,7 +35,7 @@ import { ParticleSystem } from '../particle-system';
 const _intermediVec = new Vec3(0, 0, 0);
 const _intermediArr: number[] = [];
 const _unitBoxExtent = new Vec3(0.5, 0.5, 0.5);
-function getShapeTypeEnumName(enumValue: number): keyof typeof ShapeType {
+function getShapeTypeEnumName (enumValue: number): keyof typeof ShapeType {
     let enumName = '';
     for (const key in ShapeType) {
         if (ShapeType[key] === enumValue) {
@@ -97,7 +97,7 @@ export default class ShapeModule {
         const enumName = getShapeTypeEnumName(this.shapeType);
         return subset.includes(enumName);
     })
-    get arc() {
+    get arc () {
         return toDegree(this._arc);
     }
 
@@ -116,7 +116,7 @@ export default class ShapeModule {
         const enumName = getShapeTypeEnumName(this.shapeType);
         return subset.includes(enumName);
     })
-    get angle() {
+    get angle () {
         return Math.round(toDegree(this._angle) * 100) / 100;
     }
 

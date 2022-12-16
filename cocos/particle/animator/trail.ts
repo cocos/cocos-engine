@@ -35,7 +35,7 @@ import { scene } from '../../core/renderer';
 import CurveRange from './curve-range';
 import GradientRange from './gradient-range';
 import { Space, TextureMode, TrailMode } from '../enum';
-import { Particle } from '../particle';
+import { Particle, ParticleModule } from '../particle';
 import { legacyCC } from '../../core/global-exports';
 import { TransformBit } from '../../core/scene-graph/node-enum';
 import { warnID } from '../../core';
@@ -166,7 +166,7 @@ class TrailSegment {
 }
 
 @ccclass('cc.TrailModule')
-export default class TrailModule {
+export default class TrailModule extends ParticleModule {
     /**
      * 是否启用。
      */
@@ -341,6 +341,7 @@ export default class TrailModule {
     private _material: Material | null = null;
 
     constructor () {
+        super();
         this._iaInfo = new IndirectBuffer([new DrawInfo()]);
 
         this._vertAttrs = [
@@ -620,22 +621,6 @@ export default class TrailModule {
         if (this._trailModel) {
             this._trailModel.enabled = this.ibOffset > 0;
         }
-    }
-
-    public updateIA (count: number) {
-        const subModels = this._trailModel && this._trailModel.subModels;
-        if (subModels && subModels.length > 0) {
-            const subModel = subModels[0];
-            subModel.inputAssembler.vertexBuffers[0].update(this._vbF32!);
-            subModel.inputAssembler.indexBuffer!.update(this._iBuffer!);
-            this._iaInfo.drawInfos[0].firstIndex = 0;
-            this._iaInfo.drawInfos[0].indexCount = count;
-            this._iaInfoBuffer!.update(this._iaInfo);
-        }
-    }
-
-    public beforeRender () {
-        this.updateIA(this.ibOffset);
     }
 
     private _createModel () {

@@ -27,10 +27,11 @@ import { ccclass, tooltip, displayOrder, type, serializable, disallowAnimation, 
 import { Mesh } from '../3d';
 import { Material, Texture2D } from '../core/assets';
 import { AlignmentSpace, RenderMode, Space } from './enum';
-import { Attribute, AttributeName, Device, Feature, Format, FormatFeatureBit, FormatInfos } from '../core/gfx';
+import { Attribute, AttributeName, Device, deviceManager, Feature, Format, FormatFeatureBit, FormatInfos } from '../core/gfx';
 import { legacyCC } from '../core/global-exports';
 import { errorID, Mat4, ModelRenderer, Vec2, Vec4, warnID } from '../core';
-import { MacroRecord } from '../core/renderer';
+import { MacroRecord, scene } from '../core/renderer';
+import ParticleBatchModel from './models/particle-batch-model';
 
 const CC_USE_WORLD_SPACE = 'CC_USE_WORLD_SPACE';
 
@@ -117,12 +118,12 @@ export default class ParticleSystemRenderer extends ModelRenderer {
         }
         this._renderMode = val;
         if (this._particleSystem) {
-            this._particleSystem.processor.updateRenderMode();
+            this.updateRenderMode();
         }
     }
 
     /**
-     * @zh 在粒子生成方式为 StrecthedBillboard 时,对粒子在运动方向上按速度大小进行拉伸。
+     * @zh 在粒子生成方式为 StretchedBillboard 时,对粒子在运动方向上按速度大小进行拉伸。
      */
     @displayOrder(1)
     @tooltip('i18n:particleSystemRenderer.velocityScale')
@@ -132,14 +133,12 @@ export default class ParticleSystemRenderer extends ModelRenderer {
 
     public set velocityScale (val) {
         this._velocityScale = val;
-        if (this._particleSystem) {
-            this._particleSystem.processor.updateMaterialParams();
-        }
+        this.updateMaterialParams();
         // this._updateModel();
     }
 
     /**
-     * @zh 在粒子生成方式为 StrecthedBillboard 时,对粒子在运动方向上按粒子大小进行拉伸。
+     * @zh 在粒子生成方式为 StretchedBillboard 时,对粒子在运动方向上按粒子大小进行拉伸。
      */
     @displayOrder(2)
     @tooltip('i18n:particleSystemRenderer.lengthScale')
@@ -149,10 +148,7 @@ export default class ParticleSystemRenderer extends ModelRenderer {
 
     public set lengthScale (val) {
         this._lengthScale = val;
-        if (this._particleSystem) {
-            this._particleSystem.processor.updateMaterialParams();
-        }
-        // this._updateModel();
+        this.updateMaterialParams();
     }
 
     @type(RenderMode)
@@ -176,7 +172,6 @@ export default class ParticleSystemRenderer extends ModelRenderer {
     private _node_scale: Vec4;
     private _attrs: any[];
     private _defaultTrailMat: Material | null = null;
-    private _fillDataFunc: any = null;
     private _uScaleHandle = 0;
     private _uLenHandle = 0;
     private _uNodeRotHandle = 0;
@@ -290,20 +285,24 @@ export default class ParticleSystemRenderer extends ModelRenderer {
     @visible(function (this: ParticleSystemRenderer): boolean { return !this._useGPU; })
     @tooltip('i18n:particleSystemRenderer.trailMaterial')
     public get trailMaterial () {
-        if (!this._particleSystem) {
-            return null;
-        }
-        return this._particleSystem.getMaterial(1) as Material;
+        return this.getMaterial(1) as Material;
     }
 
     public set trailMaterial (val: Material | null) {
-        if (this._particleSystem) {
-            this._particleSystem.setMaterial(val, 1);
-        }
+        this.setMaterial(val, 1);
     }
 
-    @serializable
-    private _mainTexture: Texture2D | null = null;
+    /**
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     */
+    public _collectModels (): scene.Model[] {
+        this._models.length = 0;
+        this._models.push((this._processor as any)._model);
+        if (this._trailModule && this._trailModule.enable && (this._trailModule as any)._trailModel) {
+            this._models.push((this._trailModule as any)._trailModel);
+        }
+        return this._models;
+    }
 
     public get mainTexture () {
         return this._mainTexture;
@@ -312,9 +311,6 @@ export default class ParticleSystemRenderer extends ModelRenderer {
     public set mainTexture (val) {
         this._mainTexture = val;
     }
-
-    @serializable
-    private _useGPU = false;
 
     @displayOrder(10)
     @tooltip('i18n:particleSystemRenderer.useGPU')
@@ -342,16 +338,26 @@ export default class ParticleSystemRenderer extends ModelRenderer {
         this._particleSystem.processor.updateAlignSpace(this._alignSpace);
     }
 
-    @serializable
-    private _alignSpace = AlignmentSpace.View;
-
     public static AlignmentSpace = AlignmentSpace;
 
-    private _particleSystem: any = null!; // ParticleSystem
+    @serializable
+    private _alignSpace = AlignmentSpace.View;
+    @serializable
+    private _useGPU = false;
+    @serializable
+    private _mainTexture: Texture2D | null = null;
+    protected _model: ParticleBatchModel | null = null;
+    protected _renderInfo: ParticleSystemRenderer | null = null;
+    protected _vertAttrs: Attribute[] = [];
+    protected _useInstance: boolean;
 
     constructor () {
         super();
-
+        if (!deviceManager.gfxDevice.hasFeature(Feature.INSTANCED_ARRAYS)) {
+            this._useInstance = false;
+        } else {
+            this._useInstance = true;
+        }
         this._frameTile_velLenScale = new Vec4(1, 1, 0, 0);
         this._tmp_velLenScale = this._frameTile_velLenScale.clone();
         this._node_scale = new Vec4();
@@ -367,6 +373,66 @@ export default class ParticleSystemRenderer extends ModelRenderer {
             CC_USE_WORLD_SPACE: true,
             // CC_DRAW_WIRE_FRAME: true,   // <wireframe debug>
         };
+    }
+
+    public onEnable () {
+        if (!this._particleSystem) {
+            return;
+        }
+        this.attachToScene();
+        const model = this._model;
+        if (model) {
+            model.node = model.transform = this._particleSystem.node;
+        }
+    }
+
+    public onDisable () {
+        this.detachFromScene();
+    }
+
+    public onDestroy () {
+        if (this._model) {
+            legacyCC.director.root.destroyModel(this._model);
+            this._model = null;
+        }
+    }
+
+    public attachToScene () {
+        if (this._model) {
+            if (this._model.scene) {
+                this.detachFromScene();
+            }
+            this._particleSystem._getRenderScene().addModel(this._model);
+        }
+    }
+
+    public detachFromScene () {
+        if (this._model && this._model.scene) {
+            this._model.scene.removeModel(this._model);
+        }
+    }
+
+    public setVertexAttributes () {
+        if (this._model) {
+            this.updateVertexAttrib();
+            this._model.setVertexAttributes(this._renderInfo!.renderMode === RenderMode.Mesh ? this._renderInfo!.mesh : null, this._vertAttrs);
+        }
+    }
+
+    public clear () {
+        if (this._model) this._model.enabled = false;
+    }
+
+    public getModel () {
+        return this._model;
+    }
+
+    protected _initModel () {
+        if (!this._model) {
+            this._model = legacyCC.director.root.createModel(ParticleBatchModel);
+            this._model!.setCapacity(this._particleSystem.capacity);
+            this._model!.visFlags = this._particleSystem.visibility;
+        }
     }
 
     // internal function
@@ -514,6 +580,15 @@ export default class ParticleSystemRenderer extends ModelRenderer {
         }
         // because we use index buffer, per particle index count = 6.
         this._model!.updateIA(this._particles.count);
+        const subModels = this._trailModel && this._trailModel.subModels;
+        if (subModels && subModels.length > 0) {
+            const subModel = subModels[0];
+            subModel.inputAssembler.vertexBuffers[0].update(this._vbF32!);
+            subModel.inputAssembler.indexBuffer!.update(this._iBuffer!);
+            this._iaInfo.drawInfos[0].firstIndex = 0;
+            this._iaInfo.drawInfos[0].indexCount = count;
+            this._iaInfoBuffer!.update(this._iaInfo);
+        }
     }
 
     private _fillStrecthedData (p: Particle, idx: number, fi: number) {
