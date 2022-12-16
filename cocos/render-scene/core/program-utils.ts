@@ -25,7 +25,7 @@
 
 import { EffectAsset } from '../../asset/assets/effect-asset';
 import { Attribute, GetTypeSize, ShaderInfo, Uniform } from '../../gfx/base/define';
-import { UBOSkinning } from '../../rendering/define';
+import { UBOForwardLight, UBOSkinning } from '../../rendering/define';
 import { genHandle, MacroRecord } from './pass-utils';
 import { IProgramInfo } from './program-lib';
 
@@ -115,12 +115,20 @@ export function getVariantKey (programInfo: IProgramInfo, defines: MacroRecord) 
     return `${key.toString(16)}|${programInfo.hash}`;
 }
 
+const defaultUniformSizes = new Map<string, number>();
+defaultUniformSizes.set('cc_joints', UBOSkinning.LAYOUT.members[0].count);
+defaultUniformSizes.set('cc_lightPos', UBOForwardLight.LIGHTS_PER_PASS);
+defaultUniformSizes.set('cc_lightColor', UBOForwardLight.LIGHTS_PER_PASS);
+defaultUniformSizes.set('cc_lightSizeRangeAngle', UBOForwardLight.LIGHTS_PER_PASS);
+defaultUniformSizes.set('cc_lightDir', UBOForwardLight.LIGHTS_PER_PASS);
+
 function getUniformSize (prevSize: number, m: Uniform) {
     if (m.count) {
         return prevSize + GetTypeSize(m.type) * m.count;
     } else {
-        if (m.name === 'cc_joints') {
-            return prevSize + GetTypeSize(m.type) * UBOSkinning.LAYOUT.members[0].count;
+        const count = defaultUniformSizes.get(m.name);
+        if (count !== undefined) {
+            return prevSize + GetTypeSize(m.type) * count;
         }
         console.error(`uniform '${m.name}' must have a count`);
     }
