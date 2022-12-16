@@ -65,8 +65,8 @@ minigame.isSupportLandscape();
 
 // #region Audio
 const polyfilledCreateInnerAudio = createInnerAudioContextPolyfill(my, {
-    onPause: false,
     onPlay: true,  // Fix: onPlay won't execute.
+    onPause: true,  // NOTE: calling pause() twice onPause won't execute twice.
     onStop: false,
     onSeek: false,
 }, true);

@@ -318,11 +318,6 @@ export class AudioPlayerMinigame implements OperationQueueable {
             } else {
                 this._eventTarget.once(AudioEvent.PAUSED, resolve);
                 this._innerAudioContext.pause();
-
-                // TaoBao: After calling pause or stop, when pause is called, onPause will not respond.
-                if (TAOBAO && (this._state === AudioState.PAUSED || this._state === AudioState.STOPPED)) {
-                    this._onPause();
-                }
             }
         });
     }
