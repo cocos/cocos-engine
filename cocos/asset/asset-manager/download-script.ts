@@ -24,7 +24,10 @@
  */
 
 import { getError } from '../../core';
+import { ccwindow } from '../../core/global-exports';
 import { CompleteCallback, IBundleOptions } from './shared';
+
+const ccdocument = ccwindow.document;
 
 const downloaded = {};
 
@@ -39,9 +42,9 @@ export default function downloadScript (
         return null;
     }
 
-    const script = document.createElement('script');
+    const script = ccdocument.createElement('script');
 
-    if (window.location.protocol !== 'file:') {
+    if (ccwindow.location.protocol !== 'file:') {
         script.crossOrigin = 'anonymous';
     }
 
@@ -64,6 +67,6 @@ export default function downloadScript (
 
     script.addEventListener('load', loadHandler, false);
     script.addEventListener('error', errorHandler, false);
-    document.body.appendChild(script);
+    ccdocument.body.appendChild(script);
     return script;
 }

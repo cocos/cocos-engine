@@ -1,6 +1,7 @@
 import { legacyCC } from './core/global-exports';
 import { DataPoolManager } from './3d/skeletal-animation/data-pool-manager';
 import { Device, deviceManager } from './gfx';
+import { EDITOR } from "internal:constants";
 import { DebugView } from './rendering/debug-view';
 import { buildDeferredLayout, buildForwardLayout } from './rendering/custom/effect';
 import { settings, Settings, warnID, Pool, macro } from './core';
@@ -59,7 +60,7 @@ Object.defineProperty(rootProto, 'dataPoolManager', {
 Object.defineProperty(rootProto, 'pipelineEvent', {
     configurable: true,
     enumerable: true,
-    get () {
+    get() {
         return this._pipelineEvent;
     }
 });
@@ -67,19 +68,19 @@ Object.defineProperty(rootProto, 'pipelineEvent', {
 Object.defineProperty(rootProto, 'debugView', {
     configurable: true,
     enumerable: true,
-    get () {
+    get() {
         return this._debugView;
     }
 });
 
 class DummyPipelineEvent {
-    on (type: any, callback: any, target?: any, once?: boolean) {}
-    once (type: any, callback: any, target?: any) {}
-    off (type: any, callback?: any, target?: any) {}
-    emit (type: any, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any) {}
-    targetOff (typeOrTarget: any) {}
-    removeAll (typeOrTarget: any) {}
-    hasEventListener (type: any, callback?: any, target?: any): boolean { return false; }
+    on(type: any, callback: any, target?: any, once?: boolean) { }
+    once(type: any, callback: any, target?: any) { }
+    off(type: any, callback?: any, target?: any) { }
+    emit(type: any, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any) { }
+    targetOff(typeOrTarget: any) { }
+    removeAll(typeOrTarget: any) { }
+    hasEventListener(type: any, callback?: any, target?: any): boolean { return false; }
 }
 
 rootProto._ctor = function (device: Device) {
@@ -161,17 +162,17 @@ rootProto.recycleLight = function (l) {
         p.free(l);
         if (l.scene) {
             switch (l.type) {
-            case LightType.DIRECTIONAL:
-                l.scene.removeDirectionalLight(l);
-                break;
-            case LightType.SPHERE:
-                l.scene.removeSphereLight(l);
-                break;
-            case LightType.SPOT:
-                l.scene.removeSpotLight(l);
-                break;
-            default:
-                break;
+                case LightType.DIRECTIONAL:
+                    l.scene.removeDirectionalLight(l);
+                    break;
+                case LightType.SPHERE:
+                    l.scene.removeSphereLight(l);
+                    break;
+                case LightType.SPOT:
+                    l.scene.removeSpotLight(l);
+                    break;
+                default:
+                    break;
             }
         }
     }
@@ -188,6 +189,13 @@ rootProto._onDirectorBeforeRender = function () {
 rootProto._onDirectorAfterRender = function () {
     legacyCC.director.emit(legacyCC.Director.EVENT_AFTER_RENDER);
 };
+
+rootProto._onDirectorPipelineChanged = function () {
+    const scene = legacyCC.director.getScene();
+    if (scene) {
+        scene._activate();
+    }
+}
 
 const oldFrameMove = rootProto.frameMove;
 rootProto.frameMove = function (deltaTime: number) {
@@ -215,7 +223,6 @@ rootProto.setRenderPipeline = function (pipeline) {
         }
         ppl = oldSetPipeline.call(this, pipeline);
     }
-
     this._createBatcher2D();
     return ppl;
 }

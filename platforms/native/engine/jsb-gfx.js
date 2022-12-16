@@ -31,6 +31,7 @@ const bufferProto = gfx.Buffer.prototype;
 const textureProto = gfx.Texture.prototype;
 const descriptorSetProto = gfx.DescriptorSet.prototype;
 
+const jsbWindow = require('../jsbWindow');
 ///////////////////////////// handle different paradigms /////////////////////////////
 
 const oldCopyTexImagesToTextureFunc = deviceProto.copyTexImagesToTexture;
@@ -39,10 +40,10 @@ deviceProto.copyTexImagesToTexture = function (texImages, texture, regions) {
     if (texImages) {
         for (let i = 0; i < texImages.length; ++i) {
             const texImage = texImages[i];
-            if (texImage instanceof HTMLCanvasElement) {
+            if (texImage instanceof jsbWindow.HTMLCanvasElement) {
                 // Refer to HTMLCanvasElement and ImageData implementation
                 images.push(texImage._data.data);
-            } else if (texImage instanceof HTMLImageElement) {
+            } else if (texImage instanceof jsbWindow.HTMLImageElement) {
                 // Refer to HTMLImageElement implementation
                 images.push(texImage._data);
             } else {
@@ -56,13 +57,13 @@ deviceProto.copyTexImagesToTexture = function (texImages, texture, regions) {
 
 const oldDeviceCreateSwapchainFunc = deviceProto.createSwapchain;
 deviceProto.createSwapchain = function (info) {
-    info.windowHandle = window.windowHandler;
+    info.windowHandle = jsbWindow.windowHandler;
     return oldDeviceCreateSwapchainFunc.call(this, info);
 };
 
 const oldSwapchainInitializeFunc = swapchainProto.initialize;
 swapchainProto.initialize = function (info) {
-    info.windowHandle = window.windowHandler;
+    info.windowHandle = jsbWindow.windowHandler;
     oldSwapchainInitializeFunc.call(this, info);
 };
 

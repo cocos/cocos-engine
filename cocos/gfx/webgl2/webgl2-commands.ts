@@ -27,12 +27,7 @@ import {
     BufferUsageBit, ColorMask, CullMode, DynamicStateFlagBit, Filter, Format, TextureType, Type, FormatInfo,
     FormatInfos, FormatSize, LoadOp, MemoryUsageBit, SampleCount, ShaderStageFlagBit, TextureFlagBit,
     Color, Rect, BufferTextureCopy, BufferSource, DrawInfo, IndirectBuffer, UniformBlock, DynamicStates,
-    UniformSamplerTexture,
-    alignTo,
-    Extent,
-    formatAlignment,
-    getTypedArrayConstructor,
-    Offset,
+    UniformSamplerTexture, alignTo, Extent, formatAlignment, getTypedArrayConstructor, Offset, TextureBlit,
 } from '../base/define';
 import { WebGL2EXT } from './webgl2-define';
 import { WebGL2CommandAllocator } from './webgl2-command-allocator';
@@ -627,6 +622,7 @@ export enum WebGL2Cmd {
     DRAW,
     UPDATE_BUFFER,
     COPY_BUFFER_TO_TEXTURE,
+    BLIT_TEXTURE,
     COUNT,
 }
 
@@ -721,6 +717,23 @@ export class WebGL2CmdCopyBufferToTexture extends WebGL2CmdObject {
     }
 }
 
+export class WebGL2CmdBlitTexture extends WebGL2CmdObject {
+    public srcTexture: IWebGL2GPUTexture | null = null;
+    public dstTexture: IWebGL2GPUTexture | null = null;
+    public regions: TextureBlit[] = [];
+    public filter: Filter = Filter.LINEAR;
+
+    constructor () {
+        super(WebGL2Cmd.BLIT_TEXTURE);
+    }
+
+    public clear () {
+        this.srcTexture = null;
+        this.dstTexture = null;
+        this.regions.length = 0;
+    }
+}
+
 export class WebGL2CmdPackage {
     public cmds: CachedArray<WebGL2Cmd> = new CachedArray(1);
     public beginRenderPassCmds: CachedArray<WebGL2CmdBeginRenderPass> = new CachedArray(1);
@@ -728,6 +741,7 @@ export class WebGL2CmdPackage {
     public drawCmds: CachedArray<WebGL2CmdDraw> = new CachedArray(1);
     public updateBufferCmds: CachedArray<WebGL2CmdUpdateBuffer> = new CachedArray(1);
     public copyBufferToTextureCmds: CachedArray<WebGL2CmdCopyBufferToTexture> = new CachedArray(1);
+    public blitTextureCmds: CachedArray<WebGL2CmdBlitTexture> = new CachedArray(1);
 
     public clearCmds (allocator: WebGL2CommandAllocator) {
         if (this.beginRenderPassCmds.length) {
@@ -753,6 +767,11 @@ export class WebGL2CmdPackage {
         if (this.copyBufferToTextureCmds.length) {
             allocator.copyBufferToTextureCmdPool.freeCmds(this.copyBufferToTextureCmds);
             this.copyBufferToTextureCmds.clear();
+        }
+
+        if (this.blitTextureCmds.length) {
+            allocator.blitTextureCmdPool.freeCmds(this.blitTextureCmds);
+            this.blitTextureCmds.clear();
         }
 
         this.cmds.clear();
@@ -2707,6 +2726,11 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2Device, cmdPackage: WebG
             WebGL2CmdFuncCopyBuffersToTexture(device, cmd5.buffers, cmd5.gpuTexture as IWebGL2GPUTexture, cmd5.regions);
             break;
         }
+        case WebGL2Cmd.BLIT_TEXTURE: {
+            const cmd6 = cmdPackage.blitTextureCmds.array[cmdId];
+            WebGL2CmdFuncBlitTexture(device, cmd6.srcTexture as IWebGL2GPUTexture, cmd6.dstTexture as IWebGL2GPUTexture, cmd6.regions, cmd6.filter);
+            break;
+        }
         default:
         } // switch
     } // for
@@ -3102,5 +3126,113 @@ export function WebGL2CmdFuncBlitFramebuffer (
 
     if (rebindFBO) {
         gl.bindFramebuffer(gl.FRAMEBUFFER, device.stateCache.glFramebuffer);
+    }
+}
+
+export function WebGL2CmdFuncBlitTexture (
+    device: WebGL2Device,
+    src: Readonly<IWebGL2GPUTexture>,
+    dst: IWebGL2GPUTexture,
+    regions: Readonly<TextureBlit[]>,
+    filter: Filter,
+) {
+    const { gl } = device;
+    const cache = device.stateCache;
+    const blitManager = device.blitManager;
+    if (!blitManager) {
+        return;
+    }
+
+    // logic different from native, because framebuffer-map is not implemented in webgl2
+    const glFilter = (filter === Filter.LINEAR || filter === Filter.ANISOTROPIC) ? gl.LINEAR : gl.NEAREST;
+
+    const srcFramebuffer = blitManager.srcFramebuffer;
+    const dstFramebuffer = blitManager.dstFramebuffer;
+    const origReadFBO = cache.glReadFramebuffer;
+    const origDrawFBO = cache.glFramebuffer;
+
+    let srcMip = regions[0].srcSubres.mipLevel;
+    let dstMip = regions[0].dstSubres.mipLevel;
+
+    const blitInfo = (formatInfo: FormatInfo) => {
+        let mask = 0;
+        let attachment = gl.COLOR_ATTACHMENT0;
+
+        if (formatInfo.hasStencil) {
+            attachment = gl.DEPTH_STENCIL_ATTACHMENT;
+        } else if (formatInfo.hasDepth) {
+            attachment = gl.DEPTH_ATTACHMENT;
+        }
+
+        if (formatInfo.hasDepth || formatInfo.hasStencil) {
+            if (formatInfo.hasDepth) {
+                mask |= gl.DEPTH_BUFFER_BIT;
+            }
+            if (formatInfo.hasStencil) {
+                mask |= gl.STENCIL_BUFFER_BIT;
+            }
+        } else {
+            mask |= gl.COLOR_BUFFER_BIT;
+        }
+
+        return { mask, attachment };
+    };
+
+    const regionIndices = regions.map((_, i) => i);
+    regionIndices.sort((a, b) => regions[a].srcSubres.mipLevel - regions[b].srcSubres.mipLevel);
+
+    const { mask: srcMask, attachment: srcAttachment } = blitInfo(FormatInfos[src.format]);
+    const { mask: dstMask, attachment: dstAttachment } = blitInfo(FormatInfos[dst.format]);
+
+    if (cache.glReadFramebuffer !== srcFramebuffer) {
+        gl.bindFramebuffer(gl.READ_FRAMEBUFFER, srcFramebuffer);
+        cache.glReadFramebuffer = srcFramebuffer;
+    }
+
+    if (cache.glFramebuffer !== dstFramebuffer) {
+        gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, dstFramebuffer);
+        cache.glFramebuffer = dstFramebuffer;
+    }
+
+    if (src.glTexture) {
+        gl.framebufferTexture2D(gl.READ_FRAMEBUFFER, srcAttachment, src.glTarget, src.glTexture, srcMip);
+    } else {
+        gl.framebufferRenderbuffer(gl.READ_FRAMEBUFFER, srcAttachment, gl.RENDERBUFFER, src.glRenderbuffer);
+    }
+
+    if (dst.glTexture) {
+        gl.framebufferTexture2D(gl.DRAW_FRAMEBUFFER, dstAttachment, dst.glTarget, dst.glTexture, dstMip);
+    } else {
+        gl.framebufferRenderbuffer(gl.DRAW_FRAMEBUFFER, dstAttachment, gl.RENDERBUFFER, dst.glRenderbuffer);
+    }
+
+    for (let i = 0; i < regionIndices.length; i++) {
+        const region = regions[regionIndices[i]];
+
+        if (src.glTexture && srcMip !== region.srcSubres.mipLevel) {
+            srcMip = region.srcSubres.mipLevel;
+            gl.framebufferTexture2D(gl.READ_FRAMEBUFFER, srcAttachment, src.glTarget, src.glTexture, srcMip);
+        }
+
+        if (dst.glTexture && dstMip !== region.dstSubres.mipLevel) {
+            dstMip = region.dstSubres.mipLevel;
+            gl.framebufferTexture2D(gl.DRAW_FRAMEBUFFER, dstAttachment, dst.glTarget, dst.glTexture, dstMip);
+        }
+
+        gl.blitFramebuffer(
+            region.srcOffset.x, region.srcOffset.y, region.srcOffset.x + region.srcExtent.width, region.srcOffset.y + region.srcExtent.height,
+            region.dstOffset.x, region.dstOffset.y, region.dstOffset.x + region.dstExtent.width, region.dstOffset.y + region.dstExtent.height,
+            srcMask, glFilter,
+        );
+    }
+
+    // restore fbo state
+    if (cache.glReadFramebuffer !== origReadFBO) {
+        gl.bindFramebuffer(gl.READ_FRAMEBUFFER, origReadFBO);
+        cache.glReadFramebuffer = origReadFBO;
+    }
+    if (cache.glFramebuffer !== origDrawFBO) {
+        gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, origDrawFBO);
+        cache.glFramebuffer = origDrawFBO;
     }
 }

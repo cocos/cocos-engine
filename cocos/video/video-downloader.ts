@@ -29,11 +29,14 @@ import factory from '../asset/asset-manager/factory';
 import { CompleteCallback, IDownloadParseOptions } from '../asset/asset-manager/shared';
 import { log } from '../core/platform/debug';
 import { VideoClip } from './assets/video-clip';
+import { ccwindow } from '../core/global-exports';
+
+const ccdocument = ccwindow.document;
 
 // eslint-disable-next-line consistent-return
 export function downloadVideo (url: string, options: IDownloadParseOptions, onComplete: CompleteCallback) {
-    const video = document.createElement('video');
-    const source = document.createElement('source');
+    const video = ccdocument.createElement('video');
+    const source = ccdocument.createElement('source');
     video.appendChild(source);
 
     const req = new XMLHttpRequest();

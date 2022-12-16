@@ -31,6 +31,7 @@ import './asset';
 
 export type ImageAsset = jsb.ImageAsset;
 export const ImageAsset = jsb.ImageAsset;
+const jsbWindow = jsb.window;
 
 export interface IMemoryImageSource {
     _data: ArrayBufferView | null;
@@ -58,7 +59,7 @@ function isNativeImage (imageSource: ImageSource): imageSource is (HTMLImageElem
         return false;
     }
 
-    return imageSource instanceof HTMLImageElement || imageSource instanceof HTMLCanvasElement || isImageBitmap(imageSource);
+    return imageSource instanceof jsbWindow.HTMLImageElement || imageSource instanceof jsbWindow.HTMLCanvasElement || isImageBitmap(imageSource);
 }
 
 const imageAssetProto = ImageAsset.prototype;
@@ -88,7 +89,7 @@ Object.defineProperty(imageAssetProto, '_nativeAsset', {
         return this._nativeData;
     },
     set (value: ImageSource) {
-        if (!(value instanceof HTMLElement) && !isImageBitmap(value)) {
+        if (!(value instanceof jsbWindow.HTMLElement) && !isImageBitmap(value)) {
             // @ts-expect-error internal API usage
             value.format = value.format || this.format;
         }
@@ -116,19 +117,22 @@ imageAssetProto._setRawAsset = function (filename: string, inLibrary = true) {
     }
 };
 
+
 imageAssetProto.reset = function (data: ImageSource) {
     this._nativeData = data;
 
-    if (!(data instanceof HTMLElement)) {
+    if (!(data instanceof jsbWindow.HTMLElement)) {
         // @ts-expect-error internal api usage
-        this.format = data.format;
+        if(data.format !== undefined) {
+            this.format = (data as any).format;
+        }
     }
     this._syncDataToNative();
 };
 
 const superDestroy = jsb.Asset.prototype.destroy;
 imageAssetProto.destroy = function () {
-    if(this.data && this.data instanceof HTMLImageElement) {
+    if(this.data && this.data instanceof jsbWindow.HTMLImageElement) {
         this.data.src = '';
         this._setRawAsset('');
         this.data.destroy();
@@ -163,16 +167,20 @@ imageAssetProto._syncDataToNative = function () {
     this.setHeight(this._height);
     this.url = this.nativeUrl;
 
-    if (data instanceof HTMLCanvasElement) {
+    if (data instanceof jsbWindow.HTMLCanvasElement) {
         this.setData(data._data.data);
     }
-    else if (data instanceof HTMLImageElement) {
+    else if (data instanceof jsbWindow.HTMLImageElement) {
         this.setData(data._data);
         if (data._mipmapLevelDataSize){
             this.setMipmapLevelDataSize(data._mipmapLevelDataSize);
         }
     }
     else {
+        if(!this._nativeData._data){
+            console.error(`[ImageAsset] setData bad argument ${this._nativeData}`);
+            return;
+        }
         this.setData(this._nativeData._data);
         if (this._nativeData.mipmapLevelDataSize) {
             this.setMipmapLevelDataSize(this._nativeData.mipmapLevelDataSize);

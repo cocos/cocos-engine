@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
@@ -23,26 +23,9 @@
  THE SOFTWARE.
  */
 
-import CANNON from '@cocos/cannon';
-import '../cocos/physics/cannon/instantiate';
+declare var nr:any;
 
-if (globalThis) globalThis.CANNON = CANNON;
-
-// polyfill config
-(CANNON as any).CC_CONFIG = {
-    numSegmentsCone: 12,
-    numSegmentsCylinder: 12,
-    ignoreSelfBody: true,
-    correctInelastic: 3,
-};
-
-// overwrite
-(CANNON as any).ArrayCollisionMatrix.prototype.reset = function reset () {
-    for (const key in this.matrix) {
-        delete this.matrix[key];
-    }
-};
-
-(CANNON.Ray as any).perBodyFilter = function (r: CANNON.Ray, b: CANNON.Body) {
-    return ((r as any).collisionFilterMask & b.collisionFilterGroup) !== 0;
-};
+import { legacyCC } from '../core/global-exports';
+export const RenderStage = nr.RenderStage;
+// Do not delete, for the class detection of editor
+legacyCC.RenderStage = RenderStage;

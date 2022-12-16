@@ -57,7 +57,7 @@ static bool js_assets_ImageAsset_setData(se::State &s) // NOLINT(readability-ide
                 data = dataHolder->getData();
             }
         } else {
-            CC_ABORT();
+            CC_ABORTF("setData with '%s'", args[0].toStringForce().c_str());
         }
         cobj->setData(data);
         return true;

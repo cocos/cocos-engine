@@ -25,6 +25,7 @@
  */
 
 import { getError } from '../../core';
+import { ccwindow } from '../../core/global-exports';
 import { CompleteCallback, IDownloadParseOptions } from './shared';
 
 export default function downloadDomImage (
@@ -32,9 +33,9 @@ export default function downloadDomImage (
     options: IDownloadParseOptions,
     onComplete: CompleteCallback<HTMLImageElement>,
 ): HTMLImageElement {
-    const img = new Image();
+    const img = new ccwindow.Image();
 
-    if (window.location.protocol !== 'file:') {
+    if (ccwindow.location.protocol !== 'file:') {
         img.crossOrigin = 'anonymous';
     }
 

@@ -34,6 +34,7 @@ import { Swapchain } from '../base/swapchain';
 import { IWebGLExtensions, WebGLDeviceManager } from './webgl-define';
 import { macro, warnID, warn, debug } from '../../core';
 import { BrowserType, OS } from '../../../pal/system-info/enum-type';
+import { IWebGLBlitManager } from './webgl-gpu-objects';
 
 const eventWebGLContextLost = 'webglcontextlost';
 
@@ -219,6 +220,10 @@ export class WebGLSwapchain extends Swapchain {
         return this._extensions as IWebGLExtensions;
     }
 
+    get blitManager () {
+        return this._blitManager!;
+    }
+
     public stateCache: WebGLStateCache = new WebGLStateCache();
     public cmdAllocator: WebGLCommandAllocator = new WebGLCommandAllocator();
     public nullTex2D: WebGLTexture = null!;
@@ -227,6 +232,7 @@ export class WebGLSwapchain extends Swapchain {
     private _canvas: HTMLCanvasElement | null = null;
     private _webGLContextLostHandler: ((event: Event) => void) | null = null;
     private _extensions: IWebGLExtensions | null = null;
+    private _blitManager: IWebGLBlitManager | null = null;
 
     public initialize (info: Readonly<SwapchainInfo>) {
         this._canvas = info.windowHandle;
@@ -310,6 +316,7 @@ export class WebGLSwapchain extends Swapchain {
             [nullTexBuff, nullTexBuff, nullTexBuff, nullTexBuff, nullTexBuff, nullTexBuff],
             this.nullTexCube, [nullTexRegion],
         );
+        this._blitManager = new IWebGLBlitManager();
     }
 
     public destroy (): void {
@@ -326,6 +333,11 @@ export class WebGLSwapchain extends Swapchain {
         if (this.nullTexCube) {
             this.nullTexCube.destroy();
             this.nullTexCube = null!;
+        }
+
+        if (this._blitManager) {
+            this._blitManager.destroy();
+            this._blitManager = null!;
         }
 
         this._extensions = null;
