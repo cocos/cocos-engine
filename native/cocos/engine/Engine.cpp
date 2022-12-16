@@ -264,7 +264,8 @@ void Engine::tick() {
         ++_totalFrames;
 
         // iOS/macOS use its own fps limitation algorithm.
-#if (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_OHOS) || (defined(CC_SERVER_MODE) && (CC_PLATFORM == CC_PLATFORM_MAC_OSX))
+        // Windows for Editor should not sleep,because Editor call tick function synchronously
+#if (CC_PLATFORM == CC_PLATFORM_ANDROID || (CC_PLATFORM == CC_PLATFORM_WINDOWS && !defined(CC_EDITOR)) || CC_PLATFORM == CC_PLATFORM_OHOS) || (defined(CC_SERVER_MODE) && (CC_PLATFORM == CC_PLATFORM_MAC_OSX))
         if (dtNS < static_cast<double>(_prefererredNanosecondsPerFrame)) {
             CC_PROFILE(EngineSleep);
             std::this_thread::sleep_for(
