@@ -281,14 +281,6 @@ export class AudioPlayerMinigame implements OperationQueueable {
     @enqueueOperation
     seek (time: number): Promise<void> {
         return new Promise((resolve) => {
-            // TaoBao Android: After calling stop, when seek is called, it will not play and response onEnded.
-            // Disable calling seek and play after calling stop on TaoBao Android.
-            if (TAOBAO  && systemInfo.os === OS.ANDROID && this._state === AudioState.STOPPED) {
-                console.warn('Failed to call seek.');
-                resolve();
-                return;
-            }
-
             // KNOWN ISSUES: on Baidu: currentTime returns without numbers on decimal places
             if (this._state === AudioState.PLAYING && !this._seeking) {
                 time = clamp(time, 0, this.duration);
@@ -324,20 +316,17 @@ export class AudioPlayerMinigame implements OperationQueueable {
 
     @enqueueOperation
     stop (): Promise<void> {
+        // NOTE: on Taobao, it is designed that innerAudioContext is useless after calling stop.
+        // so we implement stop as pase + seek.
+        if (TAOBAO) {
+            this._innerAudioContext.pause();
+            this._innerAudioContext.seek(0);
+            this._onStop?.();
+            return Promise.resolve();
+        }
         return new Promise((resolve) => {
             this._eventTarget.once(AudioEvent.STOPPED, resolve);
-
-            // TaoBao iOS: After calling stop, when stop is called, onStop will not respond.
-            // TaoBao iOS: After callsing pause, when stop is called, onStop will sometimes not respond.
-            if (TAOBAO && systemInfo.os === OS.IOS) {
-                const cacheTime = this.currentTime;
-                this._innerAudioContext.stop();
-                if (this._state === AudioState.STOPPED || ((this._state === AudioState.PAUSED && cacheTime === this.currentTime))) {
-                    this._onStop();
-                }
-            } else {
-                this._innerAudioContext.stop();
-            }
+            this._innerAudioContext.stop();
         });
     }
 
