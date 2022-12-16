@@ -115,18 +115,18 @@ export function getVariantKey (programInfo: IProgramInfo, defines: MacroRecord) 
     return `${key.toString(16)}|${programInfo.hash}`;
 }
 
-const defaultUniformSizes = new Map<string, number>();
-defaultUniformSizes.set('cc_joints', UBOSkinning.LAYOUT.members[0].count);
-defaultUniformSizes.set('cc_lightPos', UBOForwardLight.LIGHTS_PER_PASS);
-defaultUniformSizes.set('cc_lightColor', UBOForwardLight.LIGHTS_PER_PASS);
-defaultUniformSizes.set('cc_lightSizeRangeAngle', UBOForwardLight.LIGHTS_PER_PASS);
-defaultUniformSizes.set('cc_lightDir', UBOForwardLight.LIGHTS_PER_PASS);
+const defaultUniformCounts = new Map<string, number>();
+defaultUniformCounts.set('cc_joints', UBOSkinning.LAYOUT.members[0].count);
+defaultUniformCounts.set('cc_lightPos', UBOForwardLight.LIGHTS_PER_PASS);
+defaultUniformCounts.set('cc_lightColor', UBOForwardLight.LIGHTS_PER_PASS);
+defaultUniformCounts.set('cc_lightSizeRangeAngle', UBOForwardLight.LIGHTS_PER_PASS);
+defaultUniformCounts.set('cc_lightDir', UBOForwardLight.LIGHTS_PER_PASS);
 
 function getUniformSize (prevSize: number, m: Uniform) {
     if (m.count) {
         return prevSize + GetTypeSize(m.type) * m.count;
     } else {
-        const count = defaultUniformSizes.get(m.name);
+        const count = defaultUniformCounts.get(m.name);
         if (count !== undefined) {
             return prevSize + GetTypeSize(m.type) * count;
         }
