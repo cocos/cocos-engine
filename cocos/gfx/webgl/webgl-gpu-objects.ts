@@ -526,6 +526,9 @@ export class IWebGLBlitManager {
         const stateCache = device.stateCache;
         const origFramebuffer = stateCache.glFramebuffer;
 
+        gl.viewport(0, 0, gpuTextureDst.width, gpuTextureDst.height);
+        gl.scissor(0, 0, gpuTextureDst.width, gpuTextureDst.height);
+
         if (!this._uniformBuffer || !this._gpuUniformBuffer || !this._gpuPipelineState
             || !this._gpuInputAssembler || !this._gpuDescriptorSet || !this._drawInfo) {
             return;
@@ -591,5 +594,11 @@ export class IWebGLBlitManager {
             device.gl.bindFramebuffer(device.gl.FRAMEBUFFER, origFramebuffer);
             stateCache.glFramebuffer = origFramebuffer;
         }
+        // restore viewport
+        const origViewport = stateCache.viewport;
+        gl.viewport(origViewport.left, origViewport.top, origViewport.width, origViewport.height);
+        // restore scissor
+        const origScissor = stateCache.scissorRect;
+        gl.scissor(origScissor.x, origScissor.y, origScissor.width, origScissor.height);
     }
 }
