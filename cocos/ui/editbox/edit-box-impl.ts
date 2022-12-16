@@ -40,9 +40,9 @@ import { tabIndexUtil } from './tabIndexUtil';
 import { InputFlag, InputMode, KeyboardReturnType } from './types';
 import { EditBoxImplBase } from './edit-box-impl-base';
 import { BrowserType, OS } from '../../../pal/system-info/enum-type';
-import { engineGlobal } from '../../core/global-exports';
+import { ccwindow } from '../../core/global-exports';
 
-const document = engineGlobal.document;
+const ccdocument = ccwindow.document;
 
 // https://segmentfault.com/q/1010000002914610
 const SCROLLY = 40;
@@ -172,18 +172,18 @@ export class EditBoxImpl extends EditBoxImplBase {
 
     private _createInput () {
         this._isTextArea = false;
-        this._edTxt = document.createElement('input');
+        this._edTxt = ccdocument.createElement('input');
     }
 
     private _createTextArea () {
         this._isTextArea = true;
-        this._edTxt = document.createElement('textarea');
+        this._edTxt = ccdocument.createElement('textarea');
     }
 
     private _addDomToGameContainer () {
         if (game.container && this._edTxt) {
             game.container.appendChild(this._edTxt);
-            document.head.appendChild(this._placeholderStyleSheet!);
+            ccdocument.head.appendChild(this._placeholderStyleSheet!);
         }
     }
 
@@ -192,9 +192,9 @@ export class EditBoxImpl extends EditBoxImplBase {
         if (hasElem && this._edTxt) {
             game.container!.removeChild(this._edTxt);
         }
-        const hasStyleSheet = contains(document.head, this._placeholderStyleSheet);
+        const hasStyleSheet = contains(ccdocument.head, this._placeholderStyleSheet);
         if (hasStyleSheet) {
-            document.head.removeChild(this._placeholderStyleSheet!);
+            ccdocument.head.removeChild(this._placeholderStyleSheet!);
         }
 
         this._edTxt = null;
@@ -244,7 +244,7 @@ export class EditBoxImpl extends EditBoxImplBase {
 
     private _adjustWindowScroll () {
         setTimeout(() => {
-            if (engineGlobal.scrollY < SCROLLY) {
+            if (ccwindow.scrollY < SCROLLY) {
                 this._edTxt!.scrollIntoView({ block: 'start', inline: 'nearest', behavior: 'smooth' });
             }
         }, DELAY_TIME);
@@ -253,14 +253,14 @@ export class EditBoxImpl extends EditBoxImplBase {
     private _scrollBackWindow () {
         setTimeout(() => {
             if (sys.browserType === BrowserType.WECHAT && sys.os === OS.IOS) {
-                if (engineGlobal.top) {
-                    engineGlobal.top.scrollTo(0, 0);
+                if (ccwindow.top) {
+                    ccwindow.top.scrollTo(0, 0);
                 }
 
                 return;
             }
 
-            engineGlobal.scrollTo(0, 0);
+            ccwindow.scrollTo(0, 0);
         }, DELAY_TIME);
     }
 
@@ -431,7 +431,7 @@ export class EditBoxImpl extends EditBoxImplBase {
             elem.style.overflowY = 'scroll';
         }
 
-        this._placeholderStyleSheet = document.createElement('style');
+        this._placeholderStyleSheet = ccdocument.createElement('style');
     }
 
     private _updateStyleSheet () {

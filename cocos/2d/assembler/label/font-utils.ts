@@ -30,7 +30,7 @@ import { PixelFormat } from '../../../asset/assets/asset-enum';
 import { BufferTextureCopy } from '../../../gfx';
 import { safeMeasureText, BASELINE_RATIO, MIDDLE_RATIO, getBaselineOffset } from '../../utils/text-utils';
 import { director, Director } from '../../../game/director';
-import { engineGlobal } from '../../../core/global-exports';
+import { ccwindow } from '../../../core/global-exports';
 
 export interface ISharedLabelData {
     canvas: HTMLCanvasElement;
@@ -51,7 +51,7 @@ export class CanvasPool {
         let data = this.pool.pop();
 
         if (!data) {
-            const canvas = engineGlobal.document.createElement('canvas');
+            const canvas = ccwindow.document.createElement('canvas');
             const context = canvas.getContext('2d');
             data = {
                 canvas,

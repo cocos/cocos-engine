@@ -33,7 +33,7 @@ import {
 } from '../gfx';
 import { PipelineStateManager } from '../rendering';
 import { SetIndex } from '../rendering/define';
-import { engineGlobal } from '../core/global-exports';
+import { ccwindow } from '../core/global-exports';
 
 const v2_0 = new Vec2();
 type SplashEffectType = 'default' | 'custom' | 'off';
@@ -136,7 +136,7 @@ export class SplashScreen {
 
             this.initWaterMark();
             const bgPromise = new Promise<void>((resolve, reject) => {
-                this.bgImage = new engineGlobal.Image();
+                this.bgImage = new ccwindow.Image();
                 this.bgImage.onload = () => {
                     this.initBG();
                     resolve();
@@ -147,7 +147,7 @@ export class SplashScreen {
                 this.bgImage.src = this.settings.bgBase64;
             });
             const logoPromise = new Promise<void>((resolve, reject) => {
-                this.logoImage = new engineGlobal.Image();
+                this.logoImage = new ccwindow.Image();
                 this.logoImage.onload = () => {
                     this.initLogo();
                     resolve();
@@ -392,7 +392,7 @@ export class SplashScreen {
 
     private initWaterMark() {
         // create texture from image
-        const watermarkImg = engineGlobal.document.createElement('canvas');
+        const watermarkImg = ccwindow.document.createElement('canvas');
         watermarkImg.height = this.textHeight * this.scaleSize;
         watermarkImg.style.width = `${watermarkImg.width}`;
         watermarkImg.style.height = `${watermarkImg.height}`;

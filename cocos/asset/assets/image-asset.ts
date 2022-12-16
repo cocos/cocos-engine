@@ -30,7 +30,7 @@ import { Device, Format, FormatFeatureBit, deviceManager } from '../../gfx';
 import { Asset } from './asset';
 import { PixelFormat } from './asset-enum';
 import { warnID, macro, sys, cclegacy } from '../../core';
-import { engineGlobal } from '../../core/global-exports';
+import { ccwindow } from '../../core/global-exports';
 import { Enum } from '../../core/value-types/enum';
 
 // Compress mipmap constants
@@ -692,7 +692,7 @@ export class ImageAsset extends Asset {
     public initDefault (uuid?: string) {
         super.initDefault(uuid);
         if (!ImageAsset._sharedPlaceHolderCanvas) {
-            const canvas = engineGlobal.document.createElement('canvas');
+            const canvas = ccwindow.document.createElement('canvas');
             const context = canvas.getContext('2d')!;
             const l = canvas.width = canvas.height = 2;
             context.fillStyle = '#ff00ff';

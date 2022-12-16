@@ -36,7 +36,7 @@ import { dynamicAtlasManager } from '../utils/dynamic-atlas/atlas-manager';
 import { Mesh } from '../../3d/assets/mesh';
 import { createMesh } from '../../3d/misc';
 import { Attribute, AttributeName, Format, PrimitiveMode } from '../../gfx';
-import { engineGlobal } from '../../core/global-exports';
+import { ccwindow } from '../../core/global-exports';
 
 const INSET_LEFT = 0;
 const INSET_TOP = 1;
@@ -1242,7 +1242,7 @@ export class SpriteFrame extends Asset {
             this._packable = false;
             return;
         }
-        const CanvasElement = engineGlobal.HTMLCanvasElement;
+        const CanvasElement = ccwindow.HTMLCanvasElement;
 
         if (texture.image && texture.image instanceof CanvasElement) {
             this._packable = true;

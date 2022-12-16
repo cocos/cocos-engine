@@ -30,7 +30,7 @@
  */
 
 import { getError, logID } from '../core';
-import { engineGlobal } from '../core/global-exports';
+import { ccwindow } from '../core/global-exports';
 
 interface IFile {
     type: string,
@@ -253,7 +253,7 @@ export class TiffReader {
      * @returns {*}
      */
     parseTIFF (tiffData, canvas) {
-        canvas = canvas || engineGlobal.document.createElement('canvas');
+        canvas = canvas || ccwindow.document.createElement('canvas');
 
         this._tiffData = tiffData;
         this._canvas = canvas;

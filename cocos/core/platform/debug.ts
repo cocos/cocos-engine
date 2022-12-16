@@ -26,9 +26,9 @@
 /* eslint-disable no-console */
 import { EDITOR, JSB, DEV, DEBUG } from 'internal:constants';
 import debugInfos from '../../../DebugInfos';
-import { legacyCC, engineGlobal } from '../global-exports';
+import { legacyCC, ccwindow } from '../global-exports';
 
-const document = engineGlobal.document;
+const ccdocument = ccwindow.document;
 
 const ERROR_MAP_URL = 'https://github.com/cocos-creator/engine/blob/develop/EngineErrorMap.md';
 
@@ -49,7 +49,7 @@ let ccAssert = (condition: any, message?: any, ...optionalParams: any[]) => {
 
 let ccDebug = ccLog;
 
-function formatString(message?: any, ...optionalParams: any[]) {
+function formatString (message?: any, ...optionalParams: any[]) {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return legacyCC.js.formatStr.apply(null, [message].concat(optionalParams));
 }
@@ -61,7 +61,7 @@ function formatString(message?: any, ...optionalParams: any[]) {
  * @param optionalParams - JavaScript objects with which to replace substitution strings within msg.
  * This gives you additional control over the format of the output.
  */
-export function log(message?: any, ...optionalParams: any[]) {
+export function log (message?: any, ...optionalParams: any[]) {
     return ccLog(message, ...optionalParams);
 }
 
@@ -78,7 +78,7 @@ export function log(message?: any, ...optionalParams: any[]) {
  * @param optionalParams - JavaScript objects with which to replace substitution strings within msg.
  * This gives you additional control over the format of the output.
  */
-export function warn(message?: any, ...optionalParams: any[]) {
+export function warn (message?: any, ...optionalParams: any[]) {
     return ccWarn(message, ...optionalParams);
 }
 
@@ -95,7 +95,7 @@ export function warn(message?: any, ...optionalParams: any[]) {
  * @param optionalParams - JavaScript objects with which to replace substitution strings within msg.
  * This gives you additional control over the format of the output.
  */
-export function error(message?: any, ...optionalParams: any[]) {
+export function error (message?: any, ...optionalParams: any[]) {
     return ccError(message, ...optionalParams);
 }
 
@@ -109,7 +109,7 @@ export function error(message?: any, ...optionalParams: any[]) {
  * @param optionalParams - JavaScript objects with which to replace substitution strings within msg.
  * This gives you additional control over the format of the output.
  */
-export function assert(value: any, message?: string, ...optionalParams: any[]): asserts value {
+export function assert (value: any, message?: string, ...optionalParams: any[]): asserts value {
     return ccAssert(value, message, ...optionalParams);
 }
 
@@ -117,14 +117,14 @@ export function assert(value: any, message?: string, ...optionalParams: any[]): 
  * @en Outputs a message at the "debug" log level.
  * @zh 输出一条“调试”日志等级的消息。
  */
-export function debug(...data: any[]) {
+export function debug (...data: any[]) {
     return ccDebug(...data);
 }
 
 /**
  * @engineInternal
  */
-export function _resetDebugSetting(mode: DebugMode) {
+export function _resetDebugSetting (mode: DebugMode) {
     // reset
     ccLog = ccWarn = ccError = ccAssert = ccDebug = () => {
     };
@@ -141,7 +141,7 @@ export function _resetDebugSetting(mode: DebugMode) {
             }
 
             if (!logList) {
-                const logDiv = document.createElement('Div');
+                const logDiv = ccdocument.createElement('Div');
                 logDiv.setAttribute('id', 'logInfoDiv');
                 logDiv.setAttribute('width', '200');
                 logDiv.setAttribute('height', legacyCC.game.canvas.height);
@@ -150,7 +150,7 @@ export function _resetDebugSetting(mode: DebugMode) {
                 logDivStyle.position = 'absolute';
                 logDivStyle.top = logDivStyle.left = '0';
 
-                logList = document.createElement('textarea');
+                logList = ccdocument.createElement('textarea');
                 logList.setAttribute('rows', '20');
                 logList.setAttribute('cols', '30');
                 logList.setAttribute('disabled', 'true');
@@ -256,7 +256,7 @@ export function _resetDebugSetting(mode: DebugMode) {
     }
 }
 
-export function _throw(error_: any) {
+export function _throw (error_: any) {
     if (EDITOR) {
         return error(error_);
     } else {
@@ -270,7 +270,7 @@ export function _throw(error_: any) {
     }
 }
 
-function getTypedFormatter(type: 'Log' | 'Warning' | 'Error' | 'Assert') {
+function getTypedFormatter (type: 'Log' | 'Warning' | 'Error' | 'Assert') {
     return (id: number, ...args: any[]) => {
         const msg = DEBUG ? (debugInfos[id] || 'unknown id') : `${type} ${id}, please go to ${ERROR_MAP_URL}#${id} to see details.`;
         if (args.length === 0) {
@@ -282,22 +282,22 @@ function getTypedFormatter(type: 'Log' | 'Warning' | 'Error' | 'Assert') {
 }
 
 const logFormatter = getTypedFormatter('Log');
-export function logID(id: number, ...optionalParams: any[]) {
+export function logID (id: number, ...optionalParams: any[]) {
     log(logFormatter(id, ...optionalParams));
 }
 
 const warnFormatter = getTypedFormatter('Warning');
-export function warnID(id: number, ...optionalParams: any[]) {
+export function warnID (id: number, ...optionalParams: any[]) {
     warn(warnFormatter(id, ...optionalParams));
 }
 
 const errorFormatter = getTypedFormatter('Error');
-export function errorID(id: number, ...optionalParams: any[]) {
+export function errorID (id: number, ...optionalParams: any[]) {
     error(errorFormatter(id, ...optionalParams));
 }
 
 const assertFormatter = getTypedFormatter('Assert');
-export function assertID(condition: any, id: number, ...optionalParams: any[]) {
+export function assertID (condition: any, id: number, ...optionalParams: any[]) {
     if (condition) {
         return;
     }
@@ -362,7 +362,7 @@ export enum DebugMode {
  * @en Gets error message with the error id and possible parameters.
  * @zh 通过 error id 和必要的参数来获取错误信息。
  */
-export function getError(errorId: number, ...param: any[]): string {
+export function getError (errorId: number, ...param: any[]): string {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return errorFormatter(errorId, ...param);
 }
@@ -372,7 +372,7 @@ export function getError(errorId: number, ...param: any[]): string {
  * @zh 是否显示 FPS 信息和部分调试信息。
  * @deprecated Since v3.6, Please use profiler.isShowingStates instead
  */
-export function isDisplayStats(): boolean {
+export function isDisplayStats (): boolean {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return legacyCC.profiler ? legacyCC.profiler.isShowingStats() : false;
 }
@@ -382,7 +382,7 @@ export function isDisplayStats(): boolean {
  * @zh 设置是否在左下角显示 FPS 和部分调试。
  * @deprecated Since v3.6, Please use profiler.showStats instead
  */
-export function setDisplayStats(displayStats: boolean) {
+export function setDisplayStats (displayStats: boolean) {
     if (legacyCC.profiler) {
         displayStats ? legacyCC.profiler.showStats() : legacyCC.profiler.hideStats();
     }

@@ -36,7 +36,7 @@ import {
     DeviceInfo, BufferTextureCopy, ShaderInfo, ShaderStageFlagBit, TextureViewInfo, TextureInfo, DrawInfo, BufferViewInfo, BufferInfo, BufferUsageBit, IndirectBuffer,
 } from '../base/define';
 
-import { engineGlobal } from '../../core/global-exports';
+import { ccwindow } from '../../core/global-exports';
 
 
 WEBGPU && promiseForWebGPUInstantiation.then(() => {
@@ -173,7 +173,7 @@ WEBGPU && promiseForWebGPUInstantiation.then(() => {
                 buffers[i] = data;
             } else if (texImages[i] instanceof HTMLImageElement || texImages[i] instanceof ImageBitmap) {
                 const img = texImages[i];
-                const canvas = engineGlobal.document.createElement('canvas');
+                const canvas = ccwindow.document.createElement('canvas');
                 canvas.width = img.width;
                 canvas.height = img.height;
                 const ctx = canvas.getContext('2d');
