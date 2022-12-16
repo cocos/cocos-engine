@@ -42,12 +42,11 @@ import SizeOvertimeModule from './animator/size-overtime';
 import TextureAnimationModule from './animator/texture-animation';
 import VelocityOvertimeModule from './animator/velocity-overtime';
 import Burst from './burst';
-import ShapeModule from './emitter/shape-module';
+import ShapeModule from './animator/shape-module';
 import { CullingMode, Space } from './enum';
 import { particleEmitZAxis } from './particle-general-function';
-import ParticleSystemRenderer from './renderer/particle-system-renderer-data';
-import TrailModule from './renderer/trail';
-import { IParticleSystemRenderer } from './renderer/particle-system-renderer-base';
+import ParticleSystemRenderer from './particle-system-renderer';
+import TrailModule from './animator/trail';
 import { PARTICLE_MODULE_PROPERTY } from './particle';
 import { legacyCC } from '../core/global-exports';
 import { TransformBit } from '../core/scene-graph/node-enum';
@@ -57,7 +56,6 @@ import { ParticleCuller } from './particle-culler';
 import { NoiseModule } from './animator/noise-module';
 import { CCBoolean, CCFloat } from '../core';
 import { INVALID_HANDLE, ParticleHandle, ParticleSOAData } from './particle-soa-data';
-import ParticleSystemRendererCPU from './renderer/particle-system-renderer-cpu';
 
 const _world_mat = new Mat4();
 const _world_rol = new Quat();
@@ -600,7 +598,7 @@ export class ParticleSystem extends ModelRenderer {
     private _noiseModule = new NoiseModule();
     // trail module
     @type(TrailModule)
-    private _trailModule: TrailModule = new TrailModule();
+    private _trailModule = new TrailModule();
 
     private _isPlaying: boolean;
     private _isPaused: boolean;
@@ -632,8 +630,6 @@ export class ParticleSystem extends ModelRenderer {
 
     @serializable
     private _simulationSpace = Space.LOCAL;
-
-    private _processor = new ParticleSystemRendererCPU(this);
 
     constructor () {
         super();
@@ -1015,26 +1011,6 @@ export class ParticleSystem extends ModelRenderer {
         }
     }
 
-    protected beforeRender () {
-        if (!this._isPlaying) return;
-        this._processor.beforeRender();
-        if (this._trailModule && this._trailModule.enable) {
-            this._trailModule.beforeRender();
-        }
-
-        if (this.getParticleCount() <= 0) {
-            if (this._processor.getModel()?.scene) {
-                this._processor.detachFromScene();
-                if (this._trailModule && this._trailModule.enable) {
-                    this._trailModule._detachFromScene();
-                }
-                this._needAttach = false;
-            }
-        } else if (!this._processor.getModel()?.scene) {
-            this._needAttach = true;
-        }
-    }
-
     protected _onVisibilityChange (val) {
         // @ts-expect-error private property access
         if (this._processor._model) {
@@ -1054,7 +1030,7 @@ export class ParticleSystem extends ModelRenderer {
             this._needRefresh = false;
         }
 
-        if (this._simulationSpace === Space.World) {
+        if (this._simulationSpace === Space.WORLD) {
             this.node.getWorldMatrix(_world_mat);
             this.node.getWorldRotation(_world_rol);
         }
@@ -1193,17 +1169,13 @@ export class ParticleSystem extends ModelRenderer {
         this.doUpdateScale(pass);
         this.doUpdateRotation(pass);
 
-        this._updateList.forEach((value: IParticleModule, key: string) => {
-            value.update(ps._simulationSpace, _tempWorldTrans);
-        });
-
-        const trailModule = ps._trailModule;
+        const trailModule = this._trailModule;
         const trailEnable = trailModule && trailModule.enable;
         if (trailEnable) {
             trailModule.update();
         }
 
-        if (ps.simulationSpace === Space.Local) {
+        if (ps.simulationSpace === Space.LOCAL) {
             const r:Quat = ps.node.getRotation();
             Mat4.fromQuat(this._localMat, r);
             this._localMat.transpose(); // just consider rotation, use transpose as invert
@@ -1228,7 +1200,7 @@ export class ParticleSystem extends ModelRenderer {
             }
         }
 
-        if (ps.simulationSpace === Space.Local) {
+        if (ps.simulationSpace === Space.LOCAL) {
             const gravityFactor = -ps.gravityModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, pseudoRandom(p.randomSeed))! * 9.8 * dt;
             this._gravity.x = 0.0;
             this._gravity.y = gravityFactor;

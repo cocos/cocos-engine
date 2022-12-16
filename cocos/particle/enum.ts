@@ -154,16 +154,26 @@ export enum RenderMode {
  * 粒子发射器类型。
  * @enum shapeModule.ShapeType
  */
-export const ShapeType = Enum({
+export enum ShapeType {
     /**
      * 立方体类型粒子发射器。
      */
-    Box: 0,
+    BOX,
+
+    /**
+     * @deprecated since v3.8, please use ShapeType.BOX instead
+     */
+    Box = BOX,
 
     /**
      * 圆形粒子发射器。
      */
-    Circle: 1,
+    CIRCLE,
+
+    /**
+     * @deprecated since v3.8, please use ShapeType.CIRCLE instead
+     */
+    Circle = CIRCLE,
 
     /**
      * 圆锥体粒子发射器。
