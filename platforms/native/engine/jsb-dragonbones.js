@@ -26,11 +26,11 @@ const cacheManager = require('./jsb-cache-manager');
 
 // @ts-expect-error jsb polyfills
 (function () {
-    if (window.dragonBones === undefined || window.middleware === undefined) return;
+    if (globalThis.dragonBones === undefined || globalThis.middleware === undefined) return;
     const ArmatureDisplayComponent = cc.internal.ArmatureDisplay;
     if (ArmatureDisplayComponent === undefined) return;
-    const dragonBones = window.dragonBones;
-    const middleware = window.middleware;
+    const dragonBones = globalThis.dragonBones;
+    const middleware = globalThis.middleware;
 
     // dragonbones global time scale.
     Object.defineProperty(dragonBones, 'timeScale', {
@@ -308,7 +308,7 @@ const cacheManager = require('./jsb-cache-manager');
             const rawData = JSON.parse(this.dragonBonesJson);
             this._uuid = rawData.name;
         }
-        
+
         const armatureKey = `${this._uuid}#${atlasUUID}`;
         const dragonBonesData = this._factory.getDragonBonesData(armatureKey);
         if (dragonBonesData) return armatureKey;

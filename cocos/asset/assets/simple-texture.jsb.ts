@@ -34,6 +34,8 @@ declare const jsb: any;
 export type SimpleTexture = jsb.SimpleTexture;
 export const SimpleTexture: any = jsb.SimpleTexture;
 
+const jsbWindow = jsb.window;
+
 SimpleTexture.Filter = Filter;
 SimpleTexture.PixelFormat = PixelFormat;
 SimpleTexture.WrapMode = WrapMode;
@@ -42,10 +44,10 @@ const simpleTextureProto = jsb.SimpleTexture.prototype;
 const oldUpdateDataFunc = simpleTextureProto.uploadData;
 simpleTextureProto.uploadData = function (source, level = 0, arrayIndex = 0) {
     let data;
-    if (source instanceof HTMLCanvasElement) {
+    if (source instanceof jsbWindow.HTMLCanvasElement) {
         // @ts-ignore
         data = source.data;
-    } else if (source instanceof HTMLImageElement) {
+    } else if (source instanceof jsbWindow.HTMLImageElement) {
         // @ts-ignore
         data = source._data;
     } else if (ArrayBuffer.isView(source)) {

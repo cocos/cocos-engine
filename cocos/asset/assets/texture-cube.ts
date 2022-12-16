@@ -29,7 +29,7 @@ import { TextureType, TextureInfo, TextureViewInfo, BufferTextureCopy } from '..
 import { ImageAsset } from './image-asset';
 import { PresumedGFXTextureInfo, PresumedGFXTextureViewInfo, SimpleTexture } from './simple-texture';
 import { ITexture2DCreateInfo, Texture2D } from './texture-2d';
-import { legacyCC } from '../../core/global-exports';
+import { legacyCC, ccwindow } from '../../core/global-exports';
 import { js, sys } from '../../core';
 import { OS } from '../../../pal/system-info/enum-type';
 
@@ -198,10 +198,10 @@ export class TextureCube extends SimpleTexture {
         const layout = this._mipmapAtlas.layout;
         const mip0Layout = layout[0];
 
-        const ctx = Object.assign(document.createElement('canvas'), {
+        const ctx = Object.assign(ccwindow.document.createElement('canvas'), {
             width: imageAtlasAsset.width,
             height: imageAtlasAsset.height,
-        }).getContext('2d');
+        }).getContext('2d')!;
 
         this.reset({
             width: mip0Layout.width,
@@ -213,10 +213,10 @@ export class TextureCube extends SimpleTexture {
         for (let j = 0; j < layout.length; j++) {
             const layoutInfo = layout[j];
             _forEachFace(faceAtlas, (face, faceIndex) => {
-                ctx!.clearRect(0, 0, imageAtlasAsset.width, imageAtlasAsset.height);
+                ctx.clearRect(0, 0, imageAtlasAsset.width, imageAtlasAsset.height);
                 const drawImg = face.data as HTMLImageElement;
-                ctx!.drawImage(drawImg, 0, 0);
-                const rawData = ctx!.getImageData(layoutInfo.left, layoutInfo.top, layoutInfo.width, layoutInfo.height);
+                ctx.drawImage(drawImg, 0, 0);
+                const rawData = ctx.getImageData(layoutInfo.left, layoutInfo.top, layoutInfo.width, layoutInfo.height);
 
                 const bufferAsset = new ImageAsset({
                     _data: rawData.data,

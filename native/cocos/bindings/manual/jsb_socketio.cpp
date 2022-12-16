@@ -88,7 +88,7 @@ public:
             return;
         }
 
-        if(!se::NativePtrToObjectMap::contains(client)) {// IDEA: client probably be a new value with the same address as the old one, it may cause undefined result.
+        if (!se::NativePtrToObjectMap::contains(client)) { // IDEA: client probably be a new value with the same address as the old one, it may cause undefined result.
             return;
         }
 
@@ -320,8 +320,15 @@ static bool SocketIO_close(se::State &s) { // NOLINT(readability-identifier-nami
 }
 SE_BIND_FUNC(SocketIO_close) // NOLINT(readability-identifier-naming)
 
-bool register_all_socketio(se::Object *obj) {
-    se::Class *cls = se::Class::create("SocketIO", obj, nullptr, nullptr);
+bool register_all_socketio(se::Object *global) {
+    se::Value nsVal;
+    if (!global->getProperty("jsb", &nsVal, true)) {
+        se::HandleObject jsobj(se::Object::createPlainObject());
+        nsVal.setObject(jsobj);
+        global->setProperty("jsb", nsVal);
+    }
+    se::Object *ns = nsVal.toObject();
+    se::Class *cls = se::Class::create("SocketIO", ns, nullptr, nullptr);
     cls->defineFinalizeFunction(_SE(SocketIO_finalize));
 
     cls->defineProperty("tag", _SE(SocketIO_prop_getTag), _SE(SocketIO_prop_setTag));
@@ -336,7 +343,7 @@ bool register_all_socketio(se::Object *obj) {
     JSBClassType::registerClass<cc::network::SocketIO>(cls);
 
     se::Value ctorVal;
-    obj->getProperty("SocketIO", &ctorVal);
+    ns->getProperty("SocketIO", &ctorVal);
     ctorVal.toObject()->defineFunction("connect", _SE(SocketIO_connect));
     ctorVal.toObject()->defineFunction("close", _SE(SocketIO_close));
 

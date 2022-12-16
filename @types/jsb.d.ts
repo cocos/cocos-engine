@@ -10,6 +10,8 @@
  */
 declare namespace jsb {
 
+    let window: any;
+
     type AccelerationXYZ = number;
     type AccelerationIncludingGravityXYZ = number;
     type RotationRateAlpha = number;

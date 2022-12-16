@@ -24,8 +24,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-'use strict';
-
 const cacheManager = require('./jsb-cache-manager');
 const { downloadFile, readText, readArrayBuffer, readJson, getUserDataPath, initJsbDownloader } = require('./jsb-fs-utils');
 
@@ -35,12 +33,12 @@ const parser = cc.assetManager.parser;
 const presets = cc.assetManager.presets;
 downloader.maxConcurrency = 30;
 downloader.maxRequestsPerFrame = 60;
-presets['preload'].maxConcurrency = 15;
-presets['preload'].maxRequestsPerFrame = 30;
-presets['scene'].maxConcurrency = 32;
-presets['scene'].maxRequestsPerFrame = 64;
-presets['bundle'].maxConcurrency = 32;
-presets['bundle'].maxRequestsPerFrame = 64;
+presets.preload.maxConcurrency = 15;
+presets.preload.maxRequestsPerFrame = 30;
+presets.scene.maxConcurrency = 32;
+presets.scene.maxRequestsPerFrame = 64;
+presets.bundle.maxConcurrency = 32;
+presets.bundle.maxRequestsPerFrame = 64;
 let suffix = 0;
 
 const failureMap = {};
@@ -55,56 +53,51 @@ function downloadScript (url, options, onComplete) {
 
     if (loadedScripts[url]) return onComplete && onComplete();
 
-    download(url, function (src, options, onComplete) {
-        window.require(src);
+    download(url, (src, options, onComplete) => {
+        globalThis.require(src);
         loadedScripts[url] = true;
         onComplete && onComplete(null);
     }, options, options.onFileProgress, onComplete);
 }
 
 function download (url, func, options, onFileProgress, onComplete) {
-    var result = transformUrl(url, options);
+    const result = transformUrl(url, options);
     if (result.inLocal) {
         func(result.url, options, onComplete);
-    }
-    else if (result.inCache) {
-        cacheManager.updateLastTime(url)
-        func(result.url, options, function (err, data) {
+    } else if (result.inCache) {
+        cacheManager.updateLastTime(url);
+        func(result.url, options, (err, data) => {
             if (err) {
                 cacheManager.removeCache(url);
             }
             onComplete(err, data);
         });
-    }
-    else {
-        var time = Date.now();
-        var storagePath = '';
-        var failureRecord = failureMap[url];
+    } else {
+        const time = Date.now();
+        let storagePath = '';
+        const failureRecord = failureMap[url];
         if (failureRecord) {
             storagePath = failureRecord.storagePath;
-        }
-        else if (options.__cacheBundleRoot__) {
+        } else if (options.__cacheBundleRoot__) {
             storagePath = `${options.__cacheBundleRoot__}/${time}${suffix++}${cc.path.extname(url)}`;
-        }
-        else {
+        } else {
             storagePath = `${time}${suffix++}${cc.path.extname(url)}`;
         }
-        downloadFile(url, `${cacheManager.cacheDir}/${storagePath}`, options.header, onFileProgress, function (err, path) {
+        downloadFile(url, `${cacheManager.cacheDir}/${storagePath}`, options.header, onFileProgress, (err, path) => {
             if (err) {
                 if (failureRecord) {
                     failureRecord.retryCount++;
                     if (failureRecord.retryCount >= maxRetryCountFromBreakpoint) {
                         delete failureMap[url];
                     }
-                }
-                else {
+                } else {
                     failureMap[url] = { retryCount: 0, storagePath };
                 }
                 onComplete(err, null);
                 return;
             }
             delete failureMap[url];
-            func(path, options, function (err, data) {
+            func(path, options, (err, data) => {
                 if (!err) {
                     cacheManager.cacheFile(url, storagePath, options.__cacheBundleRoot__);
                 }
@@ -115,21 +108,19 @@ function download (url, func, options, onFileProgress, onComplete) {
 }
 
 function transformUrl (url, options) {
-    var inLocal = false;
-    var inCache = false;
+    let inLocal = false;
+    let inCache = false;
     if (REGEX.test(url)) {
         if (options.reload) {
             return { url };
-        }
-        else {
-            var cache = cacheManager.getCache(url);
+        } else {
+            const cache = cacheManager.getCache(url);
             if (cache) {
                 inCache = true;
                 url = cache;
             }
         }
-    }
-    else {
+    } else {
         inLocal = true;
     }
     return { url, inLocal, inCache };
@@ -144,18 +135,18 @@ function downloadAsset (url, options, onComplete) {
 }
 
 function _getFontFamily (fontHandle) {
-    var ttfIndex = fontHandle.lastIndexOf(".ttf");
+    const ttfIndex = fontHandle.lastIndexOf('.ttf');
     if (ttfIndex === -1) return fontHandle;
 
-    var slashPos = fontHandle.lastIndexOf("/");
-    var fontFamilyName;
+    const slashPos = fontHandle.lastIndexOf('/');
+    let fontFamilyName;
     if (slashPos === -1) {
-        fontFamilyName = fontHandle.substring(0, ttfIndex) + "_LABEL";
+        fontFamilyName = `${fontHandle.substring(0, ttfIndex)}_LABEL`;
     } else {
-        fontFamilyName = fontHandle.substring(slashPos + 1, ttfIndex) + "_LABEL";
+        fontFamilyName = `${fontHandle.substring(slashPos + 1, ttfIndex)}_LABEL`;
     }
     if (fontFamilyName.indexOf(' ') !== -1) {
-        fontFamilyName = '"' + fontFamilyName + '"';
+        fontFamilyName = `"${fontFamilyName}"`;
     }
     return fontFamilyName;
 }
@@ -178,37 +169,33 @@ function parseArrayBuffer (url, options, onComplete) {
 
 function downloadJson (url, options, onComplete) {
     download(url, parseJson, options, options.onFileProgress, onComplete);
-} 
+}
 
 function downloadBundle (nameOrUrl, options, onComplete) {
-    let bundleName = cc.path.basename(nameOrUrl);
-    var version = options.version || downloader.bundleVers[bundleName];
+    const bundleName = cc.path.basename(nameOrUrl);
+    const version = options.version || downloader.bundleVers[bundleName];
     let url;
     if (REGEX.test(nameOrUrl) || nameOrUrl.startsWith(getUserDataPath())) {
         url = nameOrUrl;
         cacheManager.makeBundleFolder(bundleName);
-    }
-    else {
-        if (downloader.remoteBundles.indexOf(bundleName) !== -1) {
+    } else if (downloader.remoteBundles.indexOf(bundleName) !== -1) {
             url = `${downloader.remoteServerAddress}remote/${bundleName}`;
             cacheManager.makeBundleFolder(bundleName);
-        }
-        else {
+        } else {
             url = `assets/${bundleName}`;
         }
-    }
-    var config = `${url}/cc.config.${version ? version + '.': ''}json`;
+    const config = `${url}/cc.config.${version ? `${version}.` : ''}json`;
     options.__cacheBundleRoot__ = bundleName;
-    downloadJson(config, options, function (err, response) {
+    downloadJson(config, options, (err, response) => {
         if (err) {
             return onComplete(err, null);
         }
-        let out = response;
-        out && (out.base = url + '/');
+        const out = response;
+        out && (out.base = `${url}/`);
 
         if (out.hasPreloadScript) {
-            var js = `${url}/index.${version ? version + '.' : ''}${out.encrypted ? 'jsc' : `js`}`;
-            downloadScript(js, options, function (err) {
+            const js = `${url}/index.${version ? `${version}.` : ''}${out.encrypted ? 'jsc' : `js`}`;
+            downloadScript(js, options, (err) => {
                 if (err) {
                     return onComplete(err, null);
                 }
@@ -218,7 +205,7 @@ function downloadBundle (nameOrUrl, options, onComplete) {
             onComplete(null, out);
         }
     });
-};
+}
 
 const downloadCCON = (url, options, onComplete) => {
     downloadJson(url, options, (err, json) => {
@@ -265,23 +252,23 @@ function downloadArrayBuffer (url, options, onComplete) {
 }
 
 function loadFont (url, options, onComplete) {
-    let fontFamilyName = _getFontFamily(url);
+    const fontFamilyName = _getFontFamily(url);
 
-    let fontFace = new FontFace(fontFamilyName, "url('" + url + "')");
+    const fontFace = new FontFace(fontFamilyName, `url('${url}')`);
     document.fonts.add(fontFace);
 
     fontFace.load();
-    fontFace.loaded.then(function() {
+    fontFace.loaded.then(() => {
         onComplete(null, fontFamilyName);
-    }, function () {
+    }, () => {
         cc.warnID(4933, fontFamilyName);
         onComplete(null, fontFamilyName);
     });
 }
 
 const originParsePlist = parser.parsePlist;
-let parsePlist = function (url, options, onComplete) {
-    readText(url, function (err, file) {
+const parsePlist = function (url, options, onComplete) {
+    readText(url, (err, file) => {
         if (err) return onComplete(err);
         originParsePlist(file, options, onComplete);
     });
@@ -294,7 +281,7 @@ parser.parsePlist = parsePlist;
 downloader.downloadScript = downloadScript;
 
 function loadAudioPlayer (url, options, onComplete) {
-    cc.AudioPlayer.load(url).then(player => {
+    cc.AudioPlayer.load(url).then((player) => {
         const audioMeta = {
             player,
             url,
@@ -302,35 +289,35 @@ function loadAudioPlayer (url, options, onComplete) {
             type: player.type,
         };
         onComplete(null, audioMeta);
-    }).catch(err => {
+    }).catch((err) => {
         onComplete(err);
     });
 }
 
 downloader.register({
     // JS
-    '.js' : downloadScript,
-    '.jsc' : downloadScript,
+    '.js': downloadScript,
+    '.jsc': downloadScript,
 
     // Images
-    '.png' : downloadAsset,
-    '.jpg' : downloadAsset,
-    '.bmp' : downloadAsset,
-    '.jpeg' : downloadAsset,
-    '.gif' : downloadAsset,
-    '.ico' : downloadAsset,
-    '.tiff' : downloadAsset,
-    '.webp' : downloadAsset,
-    '.image' : downloadAsset,
-    '.pvr' : downloadAsset,
-    '.pkm' : downloadAsset,
+    '.png': downloadAsset,
+    '.jpg': downloadAsset,
+    '.bmp': downloadAsset,
+    '.jpeg': downloadAsset,
+    '.gif': downloadAsset,
+    '.ico': downloadAsset,
+    '.tiff': downloadAsset,
+    '.webp': downloadAsset,
+    '.image': downloadAsset,
+    '.pvr': downloadAsset,
+    '.pkm': downloadAsset,
     '.astc': downloadAsset,
 
     // Audio
-    '.mp3' : downloadAsset,
-    '.ogg' : downloadAsset,
-    '.wav' : downloadAsset,
-    '.m4a' : downloadAsset,
+    '.mp3': downloadAsset,
+    '.ogg': downloadAsset,
+    '.wav': downloadAsset,
+    '.m4a': downloadAsset,
 
     '.ccon': downloadCCON,
     '.cconb': downloadCCONB,
@@ -344,93 +331,93 @@ downloader.register({
     '.rm': downloadAsset,
     '.rmvb': downloadAsset,
     // Text
-    '.txt' : downloadAsset,
-    '.xml' : downloadAsset,
-    '.vsh' : downloadAsset,
-    '.fsh' : downloadAsset,
-    '.atlas' : downloadAsset,
+    '.txt': downloadAsset,
+    '.xml': downloadAsset,
+    '.vsh': downloadAsset,
+    '.fsh': downloadAsset,
+    '.atlas': downloadAsset,
 
-    '.tmx' : downloadAsset,
-    '.tsx' : downloadAsset,
-    '.fnt' : downloadAsset,
-    '.plist' : downloadAsset,
+    '.tmx': downloadAsset,
+    '.tsx': downloadAsset,
+    '.fnt': downloadAsset,
+    '.plist': downloadAsset,
 
-    '.json' : downloadJson,
-    '.ExportJson' : downloadAsset,
+    '.json': downloadJson,
+    '.ExportJson': downloadAsset,
 
-    '.binary' : downloadAsset,
-    '.bin' : downloadAsset,
+    '.binary': downloadAsset,
+    '.bin': downloadAsset,
     '.dbbin': downloadAsset,
     '.skel': downloadAsset,
 
     // Font
-    '.font' : downloadAsset,
-    '.eot' : downloadAsset,
-    '.ttf' : downloadAsset,
-    '.woff' : downloadAsset,
-    '.svg' : downloadAsset,
-    '.ttc' : downloadAsset,
+    '.font': downloadAsset,
+    '.eot': downloadAsset,
+    '.ttf': downloadAsset,
+    '.woff': downloadAsset,
+    '.svg': downloadAsset,
+    '.ttc': downloadAsset,
 
-    'bundle': downloadBundle,
-    'default': downloadText
+    bundle: downloadBundle,
+    default: downloadText,
 });
 
 parser.register({
-    
+
     // Images
-    '.png' : downloader.downloadDomImage,
-    '.jpg' : downloader.downloadDomImage,
-    '.bmp' : downloader.downloadDomImage,
-    '.jpeg' : downloader.downloadDomImage,
-    '.gif' : downloader.downloadDomImage,
-    '.ico' : downloader.downloadDomImage,
-    '.tiff' : downloader.downloadDomImage,
-    '.webp' : downloader.downloadDomImage,
-    '.image' : downloader.downloadDomImage,
+    '.png': downloader.downloadDomImage,
+    '.jpg': downloader.downloadDomImage,
+    '.bmp': downloader.downloadDomImage,
+    '.jpeg': downloader.downloadDomImage,
+    '.gif': downloader.downloadDomImage,
+    '.ico': downloader.downloadDomImage,
+    '.tiff': downloader.downloadDomImage,
+    '.webp': downloader.downloadDomImage,
+    '.image': downloader.downloadDomImage,
 
     // Audio
-    '.mp3' : loadAudioPlayer,
-    '.ogg' : loadAudioPlayer,
-    '.wav' : loadAudioPlayer,
-    '.m4a' : loadAudioPlayer,
+    '.mp3': loadAudioPlayer,
+    '.ogg': loadAudioPlayer,
+    '.wav': loadAudioPlayer,
+    '.m4a': loadAudioPlayer,
 
     // compressed texture
     '.pvr': downloader.downloadDomImage,
     '.pkm': downloader.downloadDomImage,
     '.astc': downloader.downloadDomImage,
 
-    '.binary' : parseArrayBuffer,
-    '.bin' : parseArrayBuffer,
+    '.binary': parseArrayBuffer,
+    '.bin': parseArrayBuffer,
     '.dbbin': parseArrayBuffer,
     '.skel': parseArrayBuffer,
 
     // Text
-    '.txt' : parseText,
-    '.xml' : parseText,
-    '.vsh' : parseText,
-    '.fsh' : parseText,
-    '.atlas' : parseText,
-    '.tmx' : parseText,
-    '.tsx' : parseText,
-    '.fnt' : parseText,
+    '.txt': parseText,
+    '.xml': parseText,
+    '.vsh': parseText,
+    '.fsh': parseText,
+    '.atlas': parseText,
+    '.tmx': parseText,
+    '.tsx': parseText,
+    '.fnt': parseText,
 
-    '.plist' : parsePlist,
+    '.plist': parsePlist,
 
     // Font
-    '.font' : loadFont,
-    '.eot' : loadFont,
-    '.ttf' : loadFont,
-    '.woff' : loadFont,
-    '.svg' : loadFont,
-    '.ttc' : loadFont,
+    '.font': loadFont,
+    '.eot': loadFont,
+    '.ttf': loadFont,
+    '.woff': loadFont,
+    '.svg': loadFont,
+    '.ttc': loadFont,
 
-    '.ExportJson' : parseJson,
+    '.ExportJson': parseJson,
 });
 
-cc.assetManager.transformPipeline.append(function (task) {
-    var input = task.output = task.input;
-    for (var i = 0, l = input.length; i < l; i++) {
-        var item = input[i];
+cc.assetManager.transformPipeline.append((task) => {
+    const input = task.output = task.input;
+    for (let i = 0, l = input.length; i < l; i++) {
+        const item = input[i];
         if (item.config) {
             item.options.__cacheBundleRoot__ = item.config.name;
         }
@@ -442,7 +429,7 @@ cc.assetManager.transformPipeline.append(function (task) {
     }
 });
 
-var originInit = cc.assetManager.init;
+const originInit = cc.assetManager.init;
 cc.assetManager.init = function (options) {
     originInit.call(cc.assetManager, options);
     const jsbDownloaderMaxTasks = cc.settings.querySettings('assets', 'jsbDownloaderMaxTasks');
