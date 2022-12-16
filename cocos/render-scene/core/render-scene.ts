@@ -557,7 +557,11 @@ class LodStateCache {
         if (this._cameraStateMap.has(camera)) {
             const transformState = this._cameraStateMap.get(camera);
             if (transformState?.transformCallback) {
-                camera.node.off(NodeEventType.ANCESTOR_TRANSFORM_CHANGED, transformState.transformCallback);
+                camera.node.off(NodeEventType.TRANSFORM_CHANGED, transformState.transformCallback, this);
+                const parentNode = camera.node.getParent();
+                if (parentNode) {
+                    parentNode.off(NodeEventType.TRANSFORM_CHANGED, transformState.transformCallback, this);
+                }
             }
         }
     }
@@ -572,7 +576,11 @@ class LodStateCache {
         };
         this._lodGroupStateMap.set(lodGroup, transformState);
 
-        lodGroup.node.on(NodeEventType.ANCESTOR_TRANSFORM_CHANGED, transformState.transformCallback);
+        lodGroup.node.on(NodeEventType.TRANSFORM_CHANGED, transformState.transformCallback, this);
+        const parentNode = lodGroup.node.getParent();
+        if (parentNode) {
+            parentNode.on(NodeEventType.TRANSFORM_CHANGED, transformState.transformCallback, this);
+        }
         this._vecAddedLodGroup.push(lodGroup);
 
         for (const camera of this._renderScene.cameras) {
@@ -591,7 +599,11 @@ class LodStateCache {
         }
         const transformState = this._lodGroupStateMap.get(lodGroup);
         if (transformState?.transformCallback) {
-            lodGroup.node.off(NodeEventType.ANCESTOR_TRANSFORM_CHANGED, transformState.transformCallback);
+            lodGroup.node.off(NodeEventType.TRANSFORM_CHANGED, transformState.transformCallback, this);
+            const parentNode = lodGroup.node.getParent();
+            if (parentNode) {
+                parentNode.off(NodeEventType.TRANSFORM_CHANGED, transformState.transformCallback, this);
+            }
         }
 
         for (let index = 0; index < lodGroup.lodCount; index++) {
@@ -629,20 +641,19 @@ class LodStateCache {
         //update current visible lod index
         for (const lodGroup of this._renderScene.lodGroups) {
             if (lodGroup.enabled) {
+                const lodState = this._lodGroupStateMap.get(lodGroup);
                 const lodLevels = lodGroup.getLockedLODLevels();
                 const count = lodLevels.length;
                 // count == 0 will return to standard LOD processing.
                 if (count > 0) {
-                    const transformState = this._lodGroupStateMap.get(lodGroup);
-                    if (transformState) {
-                        transformState.needUpdate = true;
+                    if (lodState) {
+                        lodState.needUpdate = true;
                     }
                     continue;
                 }
 
                 for (const cameraState of this._cameraStateMap) {
                     const camState = cameraState[1];
-                    const lodState = this._lodGroupStateMap.get(lodGroup);
                     if (camState.needUpdate || lodState?.needUpdate) {
                         let visibleMap = this._visibleLodLevelsByAnyLODGroup.get(cameraState[0]);
                         if (!visibleMap) {
@@ -653,7 +664,6 @@ class LodStateCache {
                     }
                 }
 
-                const lodState = this._lodGroupStateMap.get(lodGroup);
                 if (lodState?.needUpdate) {
                     lodState.needUpdate = false;
                 }
@@ -724,7 +734,11 @@ class LodStateCache {
         };
         this._cameraStateMap.set(camera, transformState);
 
-        camera.node.on(NodeEventType.ANCESTOR_TRANSFORM_CHANGED, transformState.transformCallback);
+        camera.node.on(NodeEventType.TRANSFORM_CHANGED, transformState.transformCallback, this);
+        const parentNode = camera.node.getParent();
+        if (parentNode) {
+            parentNode.on(NodeEventType.TRANSFORM_CHANGED, transformState.transformCallback, this);
+        }
     }
 
     private _renderScene: RenderScene = null!;

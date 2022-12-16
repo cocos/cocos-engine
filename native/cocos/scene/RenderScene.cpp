@@ -54,6 +54,12 @@ public:
         const LODGroup *lodGroup{nullptr};
     };
 
+    struct NodeTransformState {
+        Node::TransformChanged::EventID curEventId{};
+        Node::TransformChanged::EventID parentEventId{};
+        bool needUpdate{true};
+    };
+
     LodStateCache(RenderScene* scene) : renderScene(scene) {};
     ~LodStateCache() = default;
 
@@ -92,13 +98,13 @@ private:
      * @zh 某个LODGroup的当前状态，是否需要更新等
      * @en Specify the current status of a LODGroup, whether it needs to be updated, etc.
      */
-    ccstd::unordered_map<const LODGroup *, std::tuple<bool, Node::AncestorTransformChanged::EventID>> lodGroupStateMap;
+    ccstd::unordered_map<const LODGroup *, NodeTransformState> lodGroupStateMap;
 
     /**
      * @zh 指定相机的状态是否出现变化, 这里主要记录transform是否出现变化
      * @en Specify whether the state of the camera has changed or not, here it is mainly recorded whether the transform has changed or not.
      */
-    ccstd::unordered_map<const Camera *, std::tuple<bool, Node::AncestorTransformChanged::EventID>> cameraStateMap;
+    ccstd::unordered_map<const Camera *, NodeTransformState> cameraStateMap;
 
     /**
      * @zh 上一帧添加的lodgroup
@@ -354,10 +360,18 @@ bool LodStateCache::isLodGroupVisibleByCamera(const LODGroup *lodGroup, const Ca
 }
 
 void LodStateCache::registerCameraChange(const Camera *camera) {
-    std::get<1>(cameraStateMap[camera]) = camera->getNode()->on<cc::Node::AncestorTransformChanged>(
+    auto &cameraState = cameraStateMap[camera];
+    cameraState.curEventId = camera->getNode()->on<cc::Node::TransformChanged>(
             [camera, this](cc::Node * /* emitter*/, cc::TransformBit /*transformBit*/) {
-                std::get<0>(cameraStateMap[camera]) = true;
+                cameraStateMap[camera].needUpdate = true;
             });
+    auto *parent = camera->getNode()->getParent();
+    if (parent) {
+        cameraState.parentEventId = parent->on<cc::Node::TransformChanged>(
+                [camera, this](cc::Node * /* emitter*/, cc::TransformBit /*transformBit*/) {
+                    cameraStateMap[camera].needUpdate = true;
+                });
+    }
 }
 
 void LodStateCache::onCameraAdded(const Camera *camera) {
@@ -378,15 +392,26 @@ void LodStateCache::onCameraRemoved(const Camera *camera) {
     if (cameraStateMap.count(camera) == 0) {
         return;
     }
-    camera->getNode()->off(std::get<1>(cameraStateMap[camera]));
+    camera->getNode()->off(cameraStateMap[camera].curEventId);
+    auto *parent = camera->getNode()->getParent();
+    if (parent) {
+        parent->off(cameraStateMap[camera].parentEventId);
+    }
 }
 
 void LodStateCache::onLodGroupAdded(const LODGroup *lodGroup) {
-    std::get<1>(lodGroupStateMap[lodGroup]) = lodGroup->getNode()->on<cc::Node::AncestorTransformChanged>(
+    auto &groupState = lodGroupStateMap[lodGroup];
+    groupState.curEventId = lodGroup->getNode()->on<cc::Node::TransformChanged>(
         [lodGroup, this](cc::Node * /* emitter*/, cc::TransformBit /*transformBit*/) {
-            std::get<0>(lodGroupStateMap[lodGroup]) = true;
+            lodGroupStateMap[lodGroup].needUpdate = true;
         });
-    std::get<0>(lodGroupStateMap[lodGroup]) = true;
+    auto *parent = lodGroup->getNode()->getParent();
+    if (parent) {
+        groupState.parentEventId = parent->on<cc::Node::TransformChanged>(
+                [lodGroup, this](cc::Node * /* emitter*/, cc::TransformBit /*transformBit*/) {
+                    lodGroupStateMap[lodGroup].needUpdate = true;
+                });
+    }
     vecAddedLodGroup.push_back(lodGroup);
 
     for (const auto &camera : renderScene->getCameras()) {
@@ -403,7 +428,11 @@ void LodStateCache::onLodGroupRemoved(const LODGroup *lodGroup) {
     if (lodGroupStateMap.count(lodGroup) == 0) {
         return;
     }
-    lodGroup->getNode()->off(std::get<1>(lodGroupStateMap[lodGroup]));
+    lodGroup->getNode()->off(lodGroupStateMap[lodGroup].curEventId);
+    auto *parent = lodGroup->getNode()->getParent();
+    if (parent) {
+        parent->off(lodGroupStateMap[lodGroup].parentEventId);
+    }
 
     for (auto index = 0; index < lodGroup->getLodCount(); index++) {
         const auto &lod = lodGroup->getLodDataArray()[index];
@@ -437,28 +466,29 @@ void LodStateCache::updateLodState() {
     for (const auto &lodGroup : renderScene->getLODGroups()) {
         if (lodGroup->isEnabled()) {
             const auto &lodLevels = lodGroup->getLockedLODLevels();
+            auto &groupState = lodGroupStateMap[lodGroup];
             uint8_t count = lodLevels.size();
             // count == 0 will return to standard LOD processing.
             if (count > 0) {
-                std::get<0>(lodGroupStateMap[lodGroup]) = true;
+                groupState.needUpdate = true;
                 continue;
             }
 
             for (const auto &cameraState : cameraStateMap) {
-                bool isCameraTransformChanged = std::get<0>(cameraState.second);
-                auto needUpdate = std::get<0>(lodGroupStateMap[lodGroup]);
+                bool isCameraTransformChanged = cameraState.second.needUpdate;
+                auto needUpdate = groupState.needUpdate;
                 if (isCameraTransformChanged || needUpdate) {
                     visibleLodLevelsByAnyLODGroup[cameraState.first][lodGroup] = lodGroup->getVisibleLODLevel(cameraState.first);
                 }
             }
 
-            if (std::get<0>(lodGroupStateMap[lodGroup])) {
-                std::get<0>(lodGroupStateMap[lodGroup]) = false;
+            if (groupState.needUpdate) {
+                groupState.needUpdate = false;
             }
         }
 
         for (auto &cameraState : cameraStateMap) {
-            std::get<0>(cameraState.second) = false;
+            cameraState.second.needUpdate = false;
         }
     }
 }

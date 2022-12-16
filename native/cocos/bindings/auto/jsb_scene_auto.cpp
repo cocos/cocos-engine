@@ -19331,6 +19331,37 @@ static bool js_cc_scene_RenderScene_removeLODGroup(se::State& s)
 }
 SE_BIND_FUNC(js_cc_scene_RenderScene_removeLODGroup) 
 
+static bool js_cc_scene_RenderScene_isCulledByLod(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::RenderScene *arg1 = (cc::scene::RenderScene *) NULL ;
+    cc::scene::Camera *arg2 = (cc::scene::Camera *) NULL ;
+    cc::scene::Model *arg3 = (cc::scene::Model *) NULL ;
+    bool result;
+    
+    if(argc != 2) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::scene::RenderScene>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    ok &= sevalue_to_native(args[1], &arg3, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    result = (bool)((cc::scene::RenderScene const *)arg1)->isCulledByLod((cc::scene::Camera const *)arg2,(cc::scene::Model const *)arg3);
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_scene_RenderScene_isCulledByLod) 
+
 static bool js_cc_scene_RenderScene_unsetMainLight(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -19882,6 +19913,7 @@ bool js_register_cc_scene_RenderScene(se::Object* obj) {
     cls->defineFunction("removeCameras", _SE(js_cc_scene_RenderScene_removeCameras)); 
     cls->defineFunction("addLODGroup", _SE(js_cc_scene_RenderScene_addLODGroup)); 
     cls->defineFunction("removeLODGroup", _SE(js_cc_scene_RenderScene_removeLODGroup)); 
+    cls->defineFunction("isCulledByLod", _SE(js_cc_scene_RenderScene_isCulledByLod)); 
     cls->defineFunction("unsetMainLight", _SE(js_cc_scene_RenderScene_unsetMainLight)); 
     cls->defineFunction("addDirectionalLight", _SE(js_cc_scene_RenderScene_addDirectionalLight)); 
     cls->defineFunction("removeDirectionalLight", _SE(js_cc_scene_RenderScene_removeDirectionalLight)); 
