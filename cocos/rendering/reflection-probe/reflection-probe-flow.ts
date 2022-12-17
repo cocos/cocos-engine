@@ -59,6 +59,9 @@ export class ReflectionProbeFlow extends RenderFlow {
     }
 
     public render (camera: Camera) {
+        if (!cclegacy.internal.reflectionProbeManager) {
+            return;
+        }
         const probes = cclegacy.internal.reflectionProbeManager.getProbes();
         for (let i = 0; i < probes.length; i++) {
             if (probes[i].needRender) {

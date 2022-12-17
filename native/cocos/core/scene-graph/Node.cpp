@@ -525,7 +525,6 @@ void Node::invalidateChildren(TransformBit dirtyBit) { // NOLINT(misc-no-recursi
     if (isValid() && (dirtyFlags & hasChangedFlags & curDirtyBit) != curDirtyBit) {
         setDirtyFlag(dirtyFlags | curDirtyBit);
         setChangedFlags(hasChangedFlags | curDirtyBit);
-        emit<AncestorTransformChanged>(dirtyBit);
 
         for (Node *child : getChildren()) {
             child->invalidateChildren(dirtyBit | TransformBit::POSITION);

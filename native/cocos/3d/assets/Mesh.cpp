@@ -1095,7 +1095,7 @@ void Mesh::updateSubMesh(index_t primitiveIndex, const IDynamicGeometry &geometr
         const auto *srcBuffer = (stride == sizeof(uint16_t)) ? geometry.indices16.value().buffer()->getData() + geometry.indices16.value().byteOffset()
                                                              : geometry.indices32.value().buffer()->getData() + geometry.indices32.value().byteOffset();
         auto *indexBuffer = subMesh->getIndexBuffer();
-        CC_ASSERT_LE(indexCount ,info.maxSubMeshIndices);
+        CC_ASSERT_LE(indexCount, info.maxSubMeshIndices);
 
         if (updateSize > 0U) {
             std::memcpy(dstBuffer, srcBuffer, updateSize);
@@ -1257,10 +1257,6 @@ gfx::BufferList Mesh::createVertexBuffers(gfx::Device *gfxDevice, ArrayBuffer *d
 void Mesh::initDefault(const ccstd::optional<ccstd::string> &uuid) {
     Super::initDefault(uuid);
     reset({});
-}
-
-bool Mesh::validate() const {
-    return !_renderingSubMeshes.empty() && !_data.empty();
 }
 
 void Mesh::setAllowDataAccess(bool allowDataAccess) {

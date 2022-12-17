@@ -29,6 +29,9 @@ import { CompleteCallback, IDownloadParseOptions } from '../../asset/asset-manag
 import downloader from '../../asset/asset-manager/downloader';
 import factory from '../../asset/asset-manager/factory';
 import { TTFFont } from '../assets/ttf-font';
+import { ccwindow } from '../../core/global-exports';
+
+const ccdocument = ccwindow.document;
 
 interface IFontLoadHandle {
     fontFamilyName: string;
@@ -53,9 +56,9 @@ const useNativeCheck = (() => {
     let nativeCheck: boolean;
     return (): boolean => {
         if (nativeCheck === undefined) {
-            if ('FontFace' in window) {
-                const match = /Gecko.*Firefox\/(\d+)/.exec(window.navigator.userAgent);
-                const safari10Match = /OS X.*Version\/10\..*Safari/.exec(window.navigator.userAgent) && /Apple/.exec(window.navigator.vendor);
+            if ('FontFace' in ccwindow) {
+                const match = /Gecko.*Firefox\/(\d+)/.exec(ccwindow.navigator.userAgent);
+                const safari10Match = /OS X.*Version\/10\..*Safari/.exec(ccwindow.navigator.userAgent) && /Apple/.exec(ccwindow.navigator.vendor);
 
                 if (match) {
                     nativeCheck = parseInt(match[1], 10) > 42;
@@ -116,8 +119,7 @@ function nativeCheckFontLoaded (start: number, font: string, callback: CompleteC
             if (now - start >= _timeout) {
                 reject();
             } else {
-                // @ts-expect-error see https://developer.mozilla.org/en-US/docs/Web/API/Document/fonts
-                document.fonts.load(`40px ${font}`).then((fonts) => {
+                (ccdocument as any).fonts.load(`40px ${font}`).then((fonts) => {
                     if (fonts.length >= 1) {
                         resolve();
                     } else {
@@ -152,7 +154,6 @@ function nativeCheckFontLoaded (start: number, font: string, callback: CompleteC
 
 export function loadFont (url: string, options: IDownloadParseOptions, onComplete: CompleteCallback) {
     const fontFamilyName = getFontFamily(url);
-
     // Already loaded fonts
     if (_fontFaces[fontFamilyName]) {
         onComplete(null, fontFamilyName);
@@ -160,7 +161,7 @@ export function loadFont (url: string, options: IDownloadParseOptions, onComplet
     }
 
     if (!_canvasContext) {
-        const labelCanvas = document.createElement('canvas');
+        const labelCanvas = ccdocument.createElement('canvas');
         labelCanvas.width = 100;
         labelCanvas.height = 100;
         _canvasContext = labelCanvas.getContext('2d');
@@ -171,7 +172,7 @@ export function loadFont (url: string, options: IDownloadParseOptions, onComplet
     const refWidth = safeMeasureText(_canvasContext!, _testString, fontDesc);
 
     // Setup font face style
-    const fontStyle = document.createElement('style');
+    const fontStyle = ccdocument.createElement('style');
     fontStyle.type = 'text/css';
     let fontStr = '';
     if (Number.isNaN(fontFamilyName)) {
@@ -181,17 +182,17 @@ export function loadFont (url: string, options: IDownloadParseOptions, onComplet
     }
     fontStr += `url("${url}");`;
     fontStyle.textContent = `${fontStr}}`;
-    document.body.appendChild(fontStyle);
+    ccdocument.body.appendChild(fontStyle);
 
     // Preload font with div
-    const preloadDiv = document.createElement('div');
+    const preloadDiv = ccdocument.createElement('div');
     const divStyle = preloadDiv.style;
     divStyle.fontFamily = fontFamilyName;
     preloadDiv.innerHTML = '.';
     divStyle.position = 'absolute';
     divStyle.left = '-100px';
     divStyle.top = '-100px';
-    document.body.appendChild(preloadDiv);
+    ccdocument.body.appendChild(preloadDiv);
 
     if (useNativeCheck()) {
         nativeCheckFontLoaded(Date.now(), fontFamilyName, onComplete);

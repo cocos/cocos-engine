@@ -531,7 +531,7 @@ serializable(LightProbeInfoProto, '_showConvex', () => false);
 serializable(LightProbeInfoProto, '_data', () => null);
 
 const lightProbeGIScaleDescriptor = Object.getOwnPropertyDescriptor(LightProbeInfoProto, 'giScale');
-range([0.01, 100, 1])(LightProbeInfoProto, 'giScale', lightProbeGIScaleDescriptor)
+range([0, 100, 1])(LightProbeInfoProto, 'giScale', lightProbeGIScaleDescriptor)
 type(CCFloat)(LightProbeInfoProto, 'giScale', lightProbeGIScaleDescriptor)
 displayName('GIScale')(LightProbeInfoProto, 'giScale', lightProbeGIScaleDescriptor)
 tooltip('i18n:light_probe.giScale')(LightProbeInfoProto, 'giScale', lightProbeGIScaleDescriptor);

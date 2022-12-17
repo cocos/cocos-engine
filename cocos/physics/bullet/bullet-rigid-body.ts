@@ -184,8 +184,11 @@ export class BulletRigidBody implements IRigidBody {
         bt.CollisionObject_activate(this.impl, force);
     }
 
-    sleep (): any {
-        return bt.RigidBody_wantsSleeping(this.impl);
+    sleep (): void {
+        const state = bt.CollisionObject_getActivationState(this.impl);
+        if (state !== btCollisionObjectStates.DISABLE_DEACTIVATION && state !== btCollisionObjectStates.DISABLE_SIMULATION) {
+            bt.CollisionObject_forceActivationState(this.impl, btCollisionObjectStates.ISLAND_SLEEPING);
+        }
     }
 
     setSleepThreshold (v: number): void {

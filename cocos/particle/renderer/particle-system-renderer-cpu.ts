@@ -693,7 +693,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
 
         let enable = false;
         const roationModule = this._particleSystem._rotationOvertimeModule;
-        enable = roationModule && roationModule.enable;
+        enable = roationModule ? roationModule.enable : false;
         this._defines[ROTATION_OVER_TIME_MODULE_ENABLE] = enable;
         this._defines[INSTANCE_PARTICLE] = this._useInstance;
 

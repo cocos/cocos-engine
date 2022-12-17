@@ -36,6 +36,7 @@ import { dynamicAtlasManager } from '../utils/dynamic-atlas/atlas-manager';
 import { Mesh } from '../../3d/assets/mesh';
 import { createMesh } from '../../3d/misc';
 import { Attribute, AttributeName, Format, PrimitiveMode } from '../../gfx';
+import { ccwindow } from '../../core/global-exports';
 
 const INSET_LEFT = 0;
 const INSET_TOP = 1;
@@ -463,7 +464,7 @@ export class SpriteFrame extends Asset {
 
     set _textureSource (value: TextureBase) {
         // Optimization for build
-        if (window.Build) {
+        if (globalThis.Build) {
             this._texture = value;
             return;
         }
@@ -553,7 +554,7 @@ export class SpriteFrame extends Asset {
      */
     public uv: number[] = [];
 
-    public unbiasUV:number[] = [];
+    public unbiasUV: number[] = [];
 
     /**
      * @en UV for sliced 9 vertices
@@ -1241,8 +1242,9 @@ export class SpriteFrame extends Asset {
             this._packable = false;
             return;
         }
+        const CanvasElement = ccwindow.HTMLCanvasElement;
 
-        if (texture.image && texture.image instanceof HTMLCanvasElement) {
+        if (texture.image && texture.image instanceof CanvasElement) {
             this._packable = true;
         }
     }

@@ -48,8 +48,7 @@ export * from './skeleton';
 export * from './skeleton-data';
 export * from './assembler';
 
-declare const window: any;
-export const spine = window.spine;
+export const spine = globalThis.spine;
 export const VertexEffectDelegate = spine.VertexEffectDelegate;
 
 /**

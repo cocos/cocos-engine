@@ -1379,7 +1379,11 @@ SE_BIND_PROP_GET(JSB_process_get_argv)
 bool jsb_register_global_variables(se::Object *global) { // NOLINT
     gThreadPool = LegacyThreadPool::newFixedThreadPool(3);
 
+#if CC_EDITOR
+    global->defineFunction("__require", _SE(require));
+#else
     global->defineFunction("require", _SE(require));
+#endif
     global->defineFunction("requireModule", _SE(moduleRequire));
 
     getOrCreatePlainObject_r("jsb", global, &__jsbObj);

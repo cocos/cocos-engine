@@ -86,7 +86,7 @@ RenderStageInfo BloomStage::initInfo = {
     BLOOM_STAGE_NAME,
     static_cast<uint32_t>(DeferredStagePriority::BLOOM),
     0,
-    {{true, RenderQueueSortMode::BACK_TO_FRONT, {"default"}}},
+    {ccnew RenderQueueDesc{true, RenderQueueSortMode::BACK_TO_FRONT, {"default"}}},
 };
 const RenderStageInfo &BloomStage::getInitializeInfo() { return BloomStage::initInfo; }
 

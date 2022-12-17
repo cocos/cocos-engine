@@ -270,9 +270,9 @@ void LightingStage::activate(RenderPipeline *pipeline, RenderFlow *flow) {
     auto *const device = pipeline->getDevice();
 
     for (const auto &descriptor : _renderQueueDescriptors) {
-        uint32_t phase = convertPhase(descriptor.stages);
-        RenderQueueSortFunc sortFunc = convertQueueSortFunc(descriptor.sortMode);
-        RenderQueueCreateInfo info = {descriptor.isTransparent, phase, sortFunc};
+        uint32_t phase = convertPhase(descriptor->stages);
+        RenderQueueSortFunc sortFunc = convertQueueSortFunc(descriptor->sortMode);
+        RenderQueueCreateInfo info = {descriptor->isTransparent, phase, sortFunc};
         _renderQueues.emplace_back(ccnew RenderQueue(_pipeline, std::move(info), true));
     }
 

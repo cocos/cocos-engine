@@ -32,6 +32,9 @@ import { EventType, READY_STATE } from './video-player-enums';
 import { VideoPlayerImpl } from './video-player-impl';
 import { ClearFlagBit } from '../gfx';
 import { BrowserType, OS } from '../../pal/system-info/enum-type';
+import { ccwindow } from '../core/global-exports';
+
+const ccdocument = ccwindow.document;
 
 const MIN_ZINDEX = -(2 ** 15);
 
@@ -48,7 +51,7 @@ export class VideoPlayerImplWeb extends VideoPlayerImpl {
         super(component);
     }
 
-    protected addListener (type: string, handler: (e: Event)=> void) {
+    protected addListener (type: string, handler: (e: Event) => void) {
         if (!this._video) {
             return;
         }
@@ -69,7 +72,7 @@ export class VideoPlayerImplWeb extends VideoPlayerImpl {
         if (this.video) {
             const promise = this.video.play();
             // the play API can only be initiated by user gesture.
-            if (window.Promise && promise instanceof Promise) {
+            if (ccwindow.Promise && promise instanceof Promise) {
                 // eslint-disable-next-line @typescript-eslint/no-floating-promises
                 promise.catch((error) => {
                     // Auto-play was prevented
@@ -250,7 +253,7 @@ export class VideoPlayerImplWeb extends VideoPlayerImpl {
     }
 
     public createVideoPlayer (url: string) {
-        const video = this._video = document.createElement('video');
+        const video = this._video = ccdocument.createElement('video');
         video.className = 'cocosVideo';
         video.style.visibility = 'hidden';
         video.style.position = 'absolute';
@@ -266,7 +269,7 @@ export class VideoPlayerImplWeb extends VideoPlayerImpl {
         video.setAttribute('playsinline', '');
         this._bindDomEvent();
         game.container!.appendChild(video);
-        const source = document.createElement('source');
+        const source = ccdocument.createElement('source');
         video.appendChild(source);
         source.src = url;
     }

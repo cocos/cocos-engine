@@ -59,3 +59,13 @@ _global.CocosEngine = legacyCC.ENGINE_VERSION = engineVersion;
 _global.cc = legacyCC;
 
 export { engineVersion as VERSION };
+
+const ccwindow: typeof window = typeof globalThis.jsb !== 'undefined' ? (typeof jsb.window !== 'undefined' ? jsb.window : globalThis) : globalThis;
+
+/**
+ * @en
+ * It is jsb.window in native mode, otherwise it is the window object in the web context.
+ * @zh
+ * 原生环境下为 jsb.window, 引擎为模拟部分 web 环境所提供. Web 环境这个变量是 window 对象.
+ */
+export { ccwindow };
