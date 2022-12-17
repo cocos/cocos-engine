@@ -98,6 +98,7 @@ public:
     inline Node* getNode() { return _node; }
     inline const Camera* getCamera() const { return _camera; }
     inline bool needRender() const { return _needRender; }
+    inline void setNeedRender(bool b) { _needRender = b; }
     inline const geometry::AABB* getBoundingBox() const { return _boundingBox; }
 
     inline void setCameraNode(Node* val) { _cameraNode = val; }
@@ -123,7 +124,14 @@ public:
 
     inline bool validate() const { return _cubemap != nullptr; }
 
+    void initBakedTextures();
+    void captureCubemap();
+
+    inline const ccstd::vector<IntrusivePtr<cc::RenderTexture>>& getBakedCubeTextures() { return bakedCubeTextures; }
+    void resetCameraParams();
+    void updateCameraDir(int32_t faceIdx);
 private:
+    ccstd::vector<IntrusivePtr<cc::RenderTexture>> bakedCubeTextures;
     IntrusivePtr<cc::RenderTexture> _realtimePlanarTexture{nullptr};
 
     int32_t _resolution = 512;

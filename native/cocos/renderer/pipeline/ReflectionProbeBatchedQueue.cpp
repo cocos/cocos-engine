@@ -41,6 +41,7 @@
 #include "scene/ReflectionProbe.h"
 #include "scene/Skybox.h"
 #include "scene/Define.h"
+#include "core/geometry/Intersect.h"
 namespace cc {
 namespace pipeline {
 const static uint32_t REFLECTION_PROBE_DEFAULT_MASK = ~static_cast<uint32_t>(LayerList::UI_2D)
@@ -84,12 +85,21 @@ void ReflectionProbeBatchedQueue::gatherRenderObjects(const scene::Camera *camer
     }
     for (const auto &model : scene->getModels()) {
         const auto *node = model->getNode();
-        if (!node) continue;
-        if (((node->getLayer() & REFLECTION_PROBE_DEFAULT_MASK) == node->getLayer())
-            || (REFLECTION_PROBE_DEFAULT_MASK & static_cast<uint32_t>(model->getVisFlags()))) {      
-            if (model->getWorldBounds()) {
-                if (model->getWorldBounds()->aabbFrustum(probe->getCamera()->getFrustum())) {
+        if (!node || !model->isEnabled() || !model->getWorldBounds() || !model->getBakeToReflectionProbe()) continue;
+        uint32_t visibility = probe->getCamera()->getVisibility();
+        if (probe->getProbeType() == scene::ReflectionProbe::ProbeType::CUBE) {
+            if (((visibility & node->getLayer()) == node->getLayer()) ||
+                (visibility & static_cast<uint32_t>(model->getVisFlags()))) {
+                if (aabbWithAABB(*model->getWorldBounds(), *probe->getBoundingBox())) {
                     add(model);
+                }
+            }
+        } else {
+            if (((node->getLayer() & REFLECTION_PROBE_DEFAULT_MASK) == node->getLayer()) || (REFLECTION_PROBE_DEFAULT_MASK & static_cast<uint32_t>(model->getVisFlags()))) {
+                if (model->getWorldBounds()) {
+                    if (model->getWorldBounds()->aabbFrustum(probe->getCamera()->getFrustum())) {
+                        add(model);
+                    }
                 }
             }
         }

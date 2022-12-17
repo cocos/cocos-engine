@@ -30,6 +30,18 @@
 #include "scene/ReflectionProbeManager.h"
 namespace cc {
 namespace scene {
+    // right left up down front back
+    const Vec3 cameraDir[6] =
+    {
+        Vec3(0, -90, 0),
+        Vec3(0, 90, 0),
+
+        Vec3(90, 0, 0),
+        Vec3(-90, 0, 0),
+
+        Vec3(0, 0, 0),
+        Vec3(0, 180, 0)
+    };
 ReflectionProbe::ReflectionProbe(int32_t id) {
     _probeId = id;
     scene::ReflectionProbeManager::getInstance()->registerProbe(this);
@@ -184,7 +196,59 @@ void ReflectionProbe::destroy() {
         _realtimePlanarTexture->destroy();
         _realtimePlanarTexture = nullptr;
     }
+    for (const auto& rt : bakedCubeTextures) {
+        rt->destroy();
+    }
+    bakedCubeTextures.clear();
+
     scene::ReflectionProbeManager::getInstance()->unRegisterProbe(this);
+}
+
+void ReflectionProbe::initBakedTextures() {
+    if (bakedCubeTextures.size() == 0) {
+        for (size_t i = 0; i < 6; i++) {
+            auto* rt = ccnew RenderTexture();
+            IRenderTextureCreateInfo info;
+            info.name = "capture";
+            info.height = _resolution;
+            info.width = _resolution;
+            rt->initialize(info);
+            bakedCubeTextures.push_back(rt);
+        }
+    }
+}
+void ReflectionProbe::resetCameraParams() {
+    _camera->setProjectionType(CameraProjection::PERSPECTIVE);
+    _camera->setOrthoHeight(10.0);
+    _camera->setNearClip(1.0);
+    _camera->setFarClip(1000.0);
+    _camera->setFov(static_cast<float>(mathutils::toRadian(90.0)));
+    _camera->setPriority(0);
+    _camera->resize(_resolution, _resolution);
+    _camera->setVisibility(_visibility);
+
+    _camera->setClearColor(_backgroundColor);
+    _camera->setClearDepth(1.0);
+    _camera->setClearStencil(0.0);
+    _camera->setClearFlag(_clearFlag);
+
+    _camera->setAperture(CameraAperture::F16_0);
+    _camera->setShutter(CameraShutter::D125);
+    _camera->setIso(CameraISO::ISO100);
+
+    _cameraNode->setWorldPosition(_node->getWorldPosition());
+    _cameraNode->setWorldRotation(_node->getWorldRotation());
+    _camera->update(true);
+}
+void ReflectionProbe::captureCubemap() {
+    initBakedTextures();
+    resetCameraParams();
+    _needRender = true;
+}
+
+void ReflectionProbe::updateCameraDir(int32_t faceIdx) {
+    _cameraNode->setRotationFromEuler(cameraDir[faceIdx]);
+    _camera->update(true);
 }
 
 } // namespace scene

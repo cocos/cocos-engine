@@ -535,6 +535,7 @@ using namespace cc;
 %attribute(cc::scene::ReflectionProbe, cc::geometry::AABB *, boundingBox, getBoundingBox);
 %attribute(cc::scene::ReflectionProbe, cc::Node*, previewSphere, getPreviewSphere, setPreviewSphere);
 %attribute(cc::scene::ReflectionProbe, cc::Node*, previewPlane, getPreviewPlane, setPreviewPlane);
+%attribute(cc::scene::ReflectionProbe, ccstd::vector<cc::IntrusivePtr<cc::RenderTexture>> &, bakedCubeTextures, getBakedCubeTextures);
 
 %attribute(cc::SceneGlobals, bool, bakedWithStationaryMainLight, getBakedWithStationaryMainLight, setBakedWithStationaryMainLight);
 
