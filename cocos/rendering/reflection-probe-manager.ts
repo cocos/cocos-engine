@@ -301,6 +301,20 @@ export class ReflectionProbeManager {
     }
 
     /**
+     * @en Update the preview plane of the Reflection Probe planar mode.
+     * @zh 更新反射探针预览平面
+     */
+    public updatePreviewPlane (probe: ReflectionProbe) {
+        if (!probe || !probe.previewPlane) return;
+        const meshRender = probe.previewPlane.getComponent(MeshRenderer);
+        if (meshRender) {
+            if (probe.realtimePlanarTexture) {
+                this.updatePlanarMap(probe, probe.realtimePlanarTexture.getGFXTexture());
+            }
+        }
+    }
+
+    /**
      * @en
      * select the probe with the nearest distance.
      * @zh
