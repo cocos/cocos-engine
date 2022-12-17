@@ -880,12 +880,12 @@ export class MeshRenderer extends ModelRenderer {
     }
 
     protected onReflectionProbeChanged () {
+        this._updateUseReflectionProbe();
         if (this.bakeSettings.reflectionProbe === ReflectionProbeType.BAKED_CUBEMAP) {
             cclegacy.internal.reflectionProbeManager.updateUseCubeModels(this._model);
         } else if (this.bakeSettings.reflectionProbe === ReflectionProbeType.PLANAR_REFLECTION) {
             cclegacy.internal.reflectionProbeManager.updateUsePlanarModels(this._model);
         }
-        this._updateUseReflectionProbe();
     }
 
     protected onBakeToReflectionProbeChanged () {
