@@ -650,14 +650,14 @@ export class MeshRenderer extends ModelRenderer {
         this._onUpdateLightingmap();
     }
 
-    public updateProbeCubemap (cubeMap: TextureCube | null) {
-        if (this.bakeSettings._probeCubemap === cubeMap) {
+    public updateProbeCubemap (cubeMap: TextureCube | null, useDefault?: boolean) {
+        if (this.bakeSettings._probeCubemap && this.bakeSettings._probeCubemap === cubeMap) {
             return;
         }
         this.bakeSettings._probeCubemap = cubeMap;
         if (this.model !== null) {
             let cubeMap = this.bakeSettings._probeCubemap;
-            if (!cubeMap && this.node.scene) {
+            if (!cubeMap && this.node.scene && !useDefault) {
                 cubeMap = this.node.scene._globals.skybox.envmap;
             }
             this.model.updateReflctionProbeCubemap(cubeMap);
