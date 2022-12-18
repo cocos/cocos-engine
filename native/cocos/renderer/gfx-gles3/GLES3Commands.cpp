@@ -1653,8 +1653,26 @@ static void doCreateFramebufferInstance(GLES3Device *device, GLES3GPUFramebuffer
                                                  : gpuFBO->gpuDepthStencilView;
         }
 
-        outFBO->framebuffer.initialize(doCreateFramebuffer(device, gpuFBO->gpuColorViews, colors.data(), utils::toUint(colors.size()),
-                                                           depthStencilTextureView, resolves, depthStencilResolveTextureView, &outFBO->resolveMask));
+
+        GLES3GPUFramebuffer::GLFramebufferInfo fbInfo;
+        auto wIter = std::min_element(gpuFBO->gpuColorViews.begin(), gpuFBO->gpuColorViews.end(), [](const GLES3GPUTextureView *lhs, const GLES3GPUTextureView *rhs) { return lhs->gpuTexture->width < rhs->gpuTexture->width; });
+        auto hIter = std::min_element(gpuFBO->gpuColorViews.begin(), gpuFBO->gpuColorViews.end(), [](const GLES3GPUTextureView *lhs, const GLES3GPUTextureView *rhs) { return lhs->gpuTexture->height < rhs->gpuTexture->height; });
+        fbInfo.width = hIter == gpuFBO->gpuColorViews.end() ? 0 : (*wIter)->gpuTexture->width;
+        fbInfo.height = wIter == gpuFBO->gpuColorViews.end() ? 0 : (*hIter)->gpuTexture->height;
+        if (gpuFBO->gpuDepthStencilView) {
+            auto dsWidth = gpuFBO->gpuDepthStencilView->gpuTexture->width;
+            auto dsHeight = gpuFBO->gpuDepthStencilView->gpuTexture->height;
+            fbInfo.width = gpuFBO->gpuColorViews.empty() ? dsWidth : std::min(fbInfo.width, dsWidth);
+            fbInfo.height = gpuFBO->gpuColorViews.empty() ? dsWidth : std::min(fbInfo.height, dsHeight);
+        }
+
+        fbInfo.glFramebuffer = device->framebufferCacheMap()->getFramebufferByHash(gpuFBO);
+        if (fbInfo.glFramebuffer == 0) {
+            fbInfo = doCreateFramebuffer(device, gpuFBO->gpuColorViews, colors.data(), utils::toUint(colors.size()),
+                                                           depthStencilTextureView, resolves, depthStencilResolveTextureView, &outFBO->resolveMask);
+        }
+
+        outFBO->framebuffer.initialize(fbInfo);
         if (outFBO->resolveMask) {
             size_t resolveCount = outFBO->resolveMask & GL_COLOR_BUFFER_BIT ? utils::toUint(colors.size()) : 0U;
             GLES3GPUSwapchain *resolveSwapchain{getSwapchainIfExists(gpuFBO->gpuColorViews, resolves, resolveCount)};
@@ -1664,6 +1682,8 @@ static void doCreateFramebufferInstance(GLES3Device *device, GLES3GPUFramebuffer
                 outFBO->resolveFramebuffer.initialize(resolveSwapchain);
             }
         }
+
+
     } else {
         outFBO->framebuffer.initialize(swapchain);
     }
@@ -1696,12 +1716,15 @@ void cmdFuncGLES3CreateFramebuffer(GLES3Device *device, GLES3GPUFramebuffer *gpu
             gpuFBO->uberColorAttachmentIndices.push_back(i);
         }
         doCreateFramebufferInstance(device, gpuFBO, gpuFBO->uberColorAttachmentIndices, gpuFBO->uberDepthStencil, &gpuFBO->uberInstance);
+        device->framebufferCacheMap()->cacheByHash(gpuFBO, gpuFBO->uberInstance.framebuffer.getFramebuffer());
     } else {
         for (const auto &subpass : gpuFBO->gpuRenderPass->subpasses) {
             gpuFBO->instances.emplace_back();
             auto &fboInst = gpuFBO->instances.back();
             doCreateFramebufferInstance(device, gpuFBO, subpass.colors, subpass.depthStencil, &fboInst,
                                         subpass.resolves.empty() ? nullptr : subpass.resolves.data(), subpass.depthStencilResolve);
+
+            device->framebufferCacheMap()->cacheByHash(gpuFBO, fboInst.framebuffer.getFramebuffer());
         }
     }
 }
@@ -1727,7 +1750,11 @@ void cmdFuncGLES3DestroyFramebuffer(GLES3Device *device, GLES3GPUFramebuffer *gp
     for (auto &instance : gpuFBO->instances) {
         instance.framebuffer.destroy(cache, framebufferCacheMap);
         instance.resolveFramebuffer.destroy(cache, framebufferCacheMap);
+        framebufferCacheMap->removeCache(gpuFBO, instance.framebuffer.getFramebuffer());
     }
+
+    framebufferCacheMap->removeCache(gpuFBO, gpuFBO->uberInstance.framebuffer.getFramebuffer());
+
     gpuFBO->instances.clear();
 
     gpuFBO->uberInstance.framebuffer.destroy(cache, framebufferCacheMap);

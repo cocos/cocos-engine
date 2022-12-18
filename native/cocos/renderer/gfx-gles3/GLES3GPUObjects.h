@@ -621,6 +621,58 @@ public:
         return cacheMap[glResource][mipLevel].glFramebuffer;
     }
 
+    GLuint getFramebufferByHash(GLES3GPUFramebuffer* gpuFrameBuffer) {
+        auto *ds = gpuFrameBuffer->gpuDepthStencilView;
+        const auto &colors = gpuFrameBuffer->gpuColorViews;
+        ccstd::hash_t seed{0};
+        if (ds) {
+            seed = static_cast<uint32_t>(colors.size()) + 1;
+            ccstd::hash_combine(seed, ds);
+        } else {
+            seed = static_cast<uint32_t>(colors.size());
+        }
+        for (auto *colorTexture : colors) {
+            ccstd::hash_combine(seed, colorTexture);
+        }
+        auto iter = _multiAttachmentMap.find(seed);
+        return iter == _multiAttachmentMap.end() ? 0 : iter->second;
+    }
+
+    void cacheByHash(GLES3GPUFramebuffer *gpuFrameBuffer, GLuint glFBO) {
+        auto *ds = gpuFrameBuffer->gpuDepthStencilView;
+        const auto &colors = gpuFrameBuffer->gpuColorViews;
+        ccstd::hash_t seed{0};
+        if (ds) {
+            seed = static_cast<uint32_t>(colors.size()) + 1;
+            ccstd::hash_combine(seed, ds);
+        } else {
+            seed = static_cast<uint32_t>(colors.size());
+        }
+        for (auto *colorTexture : colors) {
+            ccstd::hash_combine(seed, colorTexture);
+        }
+        _multiAttachmentMap[seed] = glFBO;
+    }
+
+    void removeCache(GLES3GPUFramebuffer *gpuFrameBuffer, GLuint glFBO) {
+        auto *ds = gpuFrameBuffer->gpuDepthStencilView;
+        const auto &colors = gpuFrameBuffer->gpuColorViews;
+        ccstd::hash_t seed{0};
+        if (ds) {
+            seed = static_cast<uint32_t>(colors.size()) + 1;
+            ccstd::hash_combine(seed, ds);
+        } else {
+            seed = static_cast<uint32_t>(colors.size());
+        }
+        for (auto *colorTexture : colors) {
+            ccstd::hash_combine(seed, colorTexture);
+        }
+        auto iter = _multiAttachmentMap.find(seed);
+        if (iter != _multiAttachmentMap.end()) {
+            _multiAttachmentMap.erase(iter);
+        }
+    }
+
     void onTextureDestroy(const GLES3GPUTexture *gpuTexture) {
         bool isTexture = gpuTexture->glTexture;
         GLuint glResource = isTexture ? gpuTexture->glTexture : gpuTexture->glRenderbuffer;
@@ -650,6 +702,7 @@ private:
     using CacheMap = ccstd::unordered_map<GLuint, ccstd::vector<FramebufferRecord>>;
     CacheMap _renderbufferMap; // renderbuffer -> mip level -> framebuffer
     CacheMap _textureMap;      // texture -> mip level -> framebuffer
+    ccstd::unordered_map<size_t, GLuint> _multiAttachmentMap;
 };
 
 class GLES3GPUFramebufferHub final {
