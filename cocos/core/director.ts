@@ -135,6 +135,12 @@ export class Director extends EventTarget {
     public static readonly EVENT_BEFORE_UPDATE = 'director_before_update';
 
     /**
+     * @en The event which will be triggered at the time that particle system update.
+     * @zh 粒子系统开始更新时的事件
+     */
+    public static readonly EVENT_UPDATE_PARTICLE = 'director_update_particle';
+
+    /**
      * @en The event which will be triggered after engine and components update logic.
      * @zh 将在引擎和组件 “update” 逻辑之后所触发的事件。
      * @event Director.EVENT_AFTER_UPDATE
@@ -713,6 +719,8 @@ export class Director extends EventTarget {
                 for (let i = 0; i < this._systems.length; ++i) {
                     this._systems[i].postUpdate(dt);
                 }
+
+                this.emit(Director.EVENT_UPDATE_PARTICLE);
             }
 
             this.emit(Director.EVENT_BEFORE_DRAW);

@@ -35,6 +35,34 @@ export type ParticleHandle = number;
 
 export const INVALID_HANDLE = -1;
 
+export class TrailSegment {
+    public x = 0;
+    public y = 0;
+    public z = 0;
+    public timeStamp = 0;
+
+    set (x: number, y: number, z: number, timeStamp: number) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+        this.timeStamp = timeStamp;
+    }
+
+    fromArray (array: Float32Array, offset: number) {
+        this.x = array[offset];
+        this.y = array[offset + 1];
+        this.z = array[offset + 2];
+        this.timeStamp = array[offset + 3];
+    }
+
+    toArray (array: Float32Array, offset: number) {
+        array[offset] = this.x;
+        array[offset + 1] = this.y;
+        array[offset + 2] = this.z;
+        array[offset + 3] = this.timeStamp;
+    }
+}
+
 export class ParticleSOAData {
     private _count = 0;
     private _capacity = 16;
@@ -68,6 +96,17 @@ export class ParticleSOAData {
     private _invStartLifeTime = new Float32Array(this._capacity);
     private _normalizedAliveTime = new Float32Array(this._capacity);
     private _frameIndex = new Uint16Array(this._capacity);
+    // trail
+    // One trail segment contains 4 float: x, y, z, timestamp
+    private _trailSegmentStride = 4;
+    private _trailSegmentCapacityPerParticle = 16;
+    // It's a ring buffer of trail segment per particle
+    private _trailSegments = new Float32Array(this._capacity * this._trailSegmentCapacityPerParticle * this._trailSegmentStride);
+    // include first trail segment
+    private _startTrailSegmentIndices = new Uint16Array(this._capacity);
+    // exclude last trail segment
+    private _endTrailSegmentIndices = new Uint16Array(this._capacity);
+    private _trailSegmentNumbers = new Uint16Array(this._capacity);
 
     get count () {
         return this._count;
@@ -108,26 +147,26 @@ export class ParticleSOAData {
         return this._velocityZ;
     }
 
-    getVelocityAt (out: Vec3, handle: number) {
+    getVelocityAt (out: Vec3, handle: ParticleHandle) {
         out.x = this._velocityX[handle];
         out.y = this._velocityY[handle];
         out.z = this._velocityZ[handle];
         return out;
     }
 
-    addVelocityAt (deltaVelocity: Vec3, handle: number) {
+    addVelocityAt (deltaVelocity: Vec3, handle: ParticleHandle) {
         this._velocityX[handle] += deltaVelocity.x;
         this._velocityY[handle] += deltaVelocity.y;
         this._velocityZ[handle] += deltaVelocity.z;
     }
 
-    setVelocityAt (val: Vec3, handle: number) {
+    setVelocityAt (val: Vec3, handle: ParticleHandle) {
         this._velocityX[handle] = val.x;
         this._velocityY[handle] = val.y;
         this._velocityZ[handle] = val.z;
     }
 
-    addAnimatedVelocityAt (val: Vec3, handle: number) {
+    addAnimatedVelocityAt (val: Vec3, handle: ParticleHandle) {
         this._animatedVelocityX[handle] = val.x;
         this._animatedVelocityY[handle] = val.y;
         this._animatedVelocityZ[handle] = val.z;
@@ -286,12 +325,12 @@ export class ParticleSOAData {
         return this._startColor;
     }
 
-    getStartColorAt (out: Color, handle: number) {
+    getStartColorAt (out: Color, handle: ParticleHandle) {
         Color.fromUint32(out, this._startColor[handle]);
         return out;
     }
 
-    setStartColorAt (color: Color, handle: number) {
+    setStartColorAt (color: Color, handle: ParticleHandle) {
         this._startColor[handle] = Color.toUint32(color);
     }
 
@@ -299,12 +338,12 @@ export class ParticleSOAData {
         return this._color;
     }
 
-    getColorAt (out: Color, handle: number) {
+    getColorAt (out: Color, handle: ParticleHandle) {
         Color.fromUint32(out, this._color[handle]);
         return out;
     }
 
-    setColorAt (color: Color, handle: number) {
+    setColorAt (color: Color, handle: ParticleHandle) {
         this._color[handle] = Color.toUint32(color);
     }
 
@@ -322,6 +361,87 @@ export class ParticleSOAData {
 
     get frameIndex () {
         return this._frameIndex;
+    }
+
+    get trailSegmentCapacityPerParticle () {
+        return this._trailSegmentCapacityPerParticle;
+    }
+
+    get trailSegmentNumbers () {
+        return this._trailSegmentNumbers;
+    }
+
+    addTrailSegment (handle: ParticleHandle) {
+        if (this._trailSegmentNumbers[handle] >= this._trailSegmentCapacityPerParticle) {
+            this.reserveTrailSegment(this._trailSegmentCapacityPerParticle * 2);
+        }
+        this._endTrailSegmentIndices[handle] = (this._endTrailSegmentIndices[handle] + 1) % this._trailSegmentCapacityPerParticle;
+        const num = this._trailSegmentNumbers[handle];
+        this._trailSegmentNumbers[handle]++;
+        return num;
+    }
+
+    reserveTrailSegment (trailSegmentCapacity: number) {
+        if (this._trailSegmentCapacityPerParticle === trailSegmentCapacity) {
+            return;
+        }
+        if (this._trailSegmentCapacityPerParticle < trailSegmentCapacity) {
+            const newTrailSegments = new Float32Array(trailSegmentCapacity * this._trailSegmentStride * this._capacity);
+            const tempTrailSegment = new TrailSegment();
+            for (let i = 0; i < this._count; i++) {
+                const num = this._trailSegmentNumbers[i];
+                for (let j = 0; j < num; j++) {
+                    this.getTrailSegmentAt(i, j, tempTrailSegment).toArray(newTrailSegments,
+                        (i * trailSegmentCapacity + j) * this._trailSegmentStride);
+                }
+                this._endTrailSegmentIndices[i] = num;
+            }
+            this._startTrailSegmentIndices.fill(0);
+            this._trailSegments = newTrailSegments;
+        } else {
+            const newTrailSegments = new Float32Array(trailSegmentCapacity * this._trailSegmentStride * this._capacity);
+            const tempTrailSegment = new TrailSegment();
+            for (let i = 0; i < this._count; i++) {
+                const num = Math.min(this._trailSegmentNumbers[i], trailSegmentCapacity);
+                for (let j = 0; j < num; j++) {
+                    this.getTrailSegmentAt(i, j, tempTrailSegment).toArray(newTrailSegments,
+                        (i * trailSegmentCapacity + j) * this._trailSegmentStride);
+                }
+                this._trailSegmentNumbers[i] = num;
+                this._endTrailSegmentIndices[i] = num;
+            }
+            this._startTrailSegmentIndices.fill(0);
+            this._trailSegments = newTrailSegments;
+        }
+        this._trailSegmentCapacityPerParticle = trailSegmentCapacity;
+    }
+
+    removeTrailSegment (handle: ParticleHandle) {
+        this._startTrailSegmentIndices[handle] = (this._startTrailSegmentIndices[handle] + 1) % this._trailSegmentCapacityPerParticle;
+        this._trailSegmentNumbers[handle]--;
+    }
+
+    setTrailSegmentAt (handle: ParticleHandle, trailIndex: number, trailSegment: TrailSegment) {
+        const offset = (handle * this._trailSegmentCapacityPerParticle + this._startTrailSegmentIndices[handle] + trailIndex)
+            % this._trailSegmentCapacityPerParticle * this._trailSegmentStride;
+        this._trailSegments[offset] = trailSegment.x;
+        this._trailSegments[offset + 1] = trailSegment.y;
+        this._trailSegments[offset + 2] = trailSegment.z;
+        this._trailSegments[offset + 3] = trailSegment.timeStamp;
+    }
+
+    getTrailSegmentAt (handle: ParticleHandle, trailIndex: number, out: TrailSegment) {
+        const offset = (handle * this._trailSegmentCapacityPerParticle + this._startTrailSegmentIndices[handle] + trailIndex)
+            % this._trailSegmentCapacityPerParticle * this._trailSegmentStride;
+        out.x = this._trailSegments[offset];
+        out.y = this._trailSegments[offset + 1];
+        out.z = this._trailSegments[offset + 2];
+        out.timeStamp = this._trailSegments[offset + 3];
+        return out;
+    }
+
+    getTrailSegmentNumberAt (handle: ParticleHandle) {
+        return this._trailSegmentNumbers[handle];
     }
 
     addParticle (): ParticleHandle {
@@ -366,6 +486,14 @@ export class ParticleSOAData {
         this._invStartLifeTime[handle] = this._invStartLifeTime[lastParticle];
         this._normalizedAliveTime[handle] = this._normalizedAliveTime[lastParticle];
         this._frameIndex[handle] = this._frameIndex[lastParticle];
+        const num = this._trailSegmentNumbers[lastParticle];
+        const tempTrailSegment = new TrailSegment();
+        for (let i = 0; i < num; i++) {
+            this.setTrailSegmentAt(handle, i, this.getTrailSegmentAt(lastParticle, i, tempTrailSegment));
+        }
+        this._startTrailSegmentIndices[handle] = this._startTrailSegmentIndices[lastParticle];
+        this._endTrailSegmentIndices[handle] = this._endTrailSegmentIndices[lastParticle];
+        this._trailSegmentNumbers[handle] = this._trailSegmentNumbers[lastParticle];
         this._count -= 1;
     }
 
@@ -403,6 +531,10 @@ export class ParticleSOAData {
         const oldInvStartLifeTime = this._invStartLifeTime;
         const oldNormalizedAliveTime = this._normalizedAliveTime;
         const oldFrameIndex = this._frameIndex;
+        const oldTrailSegmentNumbers = this._trailSegmentNumbers;
+        const oldStartTrailSegmentIndices = this._startTrailSegmentIndices;
+        const oldEndTrailSegmentIndices = this._endTrailSegmentIndices;
+        const oldTrailSegments = this._trailSegments;
         if (shouldGrow) {
             this._positionX = new Float32Array(capacity);
             this._positionX.set(oldPositionX);
@@ -464,6 +596,14 @@ export class ParticleSOAData {
             this._normalizedAliveTime.set(oldNormalizedAliveTime);
             this._frameIndex = new Uint16Array(capacity);
             this._frameIndex.set(oldFrameIndex);
+            this._trailSegmentNumbers = new Uint16Array(capacity);
+            this._trailSegmentNumbers.set(oldTrailSegmentNumbers);
+            this._startTrailSegmentIndices = new Uint16Array(capacity);
+            this._startTrailSegmentIndices.set(oldStartTrailSegmentIndices);
+            this._endTrailSegmentIndices = new Uint16Array(capacity);
+            this._endTrailSegmentIndices.set(oldEndTrailSegmentIndices);
+            this._trailSegments = new Float32Array(capacity * this._trailSegmentCapacityPerParticle * this._trailSegmentStride);
+            this._trailSegments.set(oldTrailSegments);
         } else {
             if (this._count > capacity) {
                 this._count = capacity;
@@ -498,6 +638,10 @@ export class ParticleSOAData {
             this._invStartLifeTime = oldInvStartLifeTime.slice(0, capacity);
             this._normalizedAliveTime = oldNormalizedAliveTime.slice(0, capacity);
             this._frameIndex = oldFrameIndex.slice(0, capacity);
+            this._trailSegmentNumbers = oldTrailSegmentNumbers.slice(0, capacity);
+            this._startTrailSegmentIndices = oldStartTrailSegmentIndices.slice(0, capacity);
+            this._endTrailSegmentIndices = oldEndTrailSegmentIndices.slice(0, capacity);
+            this._trailSegments = oldTrailSegments.slice(0, capacity * this._trailSegmentCapacityPerParticle * this._trailSegmentStride);
         }
     }
 

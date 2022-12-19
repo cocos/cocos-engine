@@ -27,10 +27,10 @@ import { ccclass, tooltip, displayOrder, type, serializable, disallowAnimation, 
 import { Mesh } from '../3d';
 import { Material, Texture2D } from '../core/assets';
 import { AlignmentSpace, RenderMode, Space } from './enum';
-import { Attribute, AttributeName, Device, deviceManager, Feature, Format, FormatFeatureBit, FormatInfos } from '../core/gfx';
+import { Attribute, AttributeName, BufferInfo, BufferUsageBit, Device, deviceManager, DrawInfo, Feature, Format, FormatFeatureBit, FormatInfos, IndirectBuffer, MemoryUsageBit } from '../core/gfx';
 import { legacyCC } from '../core/global-exports';
-import { errorID, Mat4, ModelRenderer, Vec2, Vec4, warnID } from '../core';
-import { MacroRecord, scene } from '../core/renderer';
+import { builtinResMgr, director, errorID, Mat4, ModelRenderer, Quat, RenderingSubMesh, Vec2, Vec4, warnID } from '../core';
+import { MacroRecord, MaterialInstance, Pass, scene } from '../core/renderer';
 import ParticleBatchModel from './models/particle-batch-model';
 
 const CC_USE_WORLD_SPACE = 'CC_USE_WORLD_SPACE';
@@ -101,7 +101,7 @@ const _vertex_attrs_mesh_ins = [
 ];
 
 @ccclass('cc.ParticleSystemRenderer')
-export default class ParticleSystemRenderer extends ModelRenderer {
+export class ParticleSystemRenderer extends ModelRenderer {
     /**
      * @zh 设定粒子生成模式。
      */
@@ -164,6 +164,7 @@ export default class ParticleSystemRenderer extends ModelRenderer {
     @serializable
     private _mesh: Mesh | null = null;
 
+    private _iaInfo: IndirectBuffer;
     private _defines: MacroRecord;
     private _trailDefines: MacroRecord;
     private _frameTile_velLenScale: Vec4;
@@ -178,6 +179,7 @@ export default class ParticleSystemRenderer extends ModelRenderer {
     private _inited = false;
     private _localMat = new Mat4();
     private _gravity = new Vec4();
+    private _subMeshData: RenderingSubMesh | null = null;
 
     /**
      * @zh 粒子发射的模型。
@@ -205,75 +207,12 @@ export default class ParticleSystemRenderer extends ModelRenderer {
     @visible(false)
     @tooltip('i18n:particleSystemRenderer.particleMaterial')
     public get particleMaterial () {
-        if (!this._particleSystem) {
-            return null;
-        }
-        return this._particleSystem.getMaterial(0) as Material;
+        return this.getMaterial(0) as Material;
     }
 
     public set particleMaterial (val: Material | null) {
-        if (this._particleSystem) {
-            this._particleSystem.setMaterial(val, 0);
-        }
+        this.setMaterial(val, 0);
     }
-
-    /**
-     * @en particle cpu material
-     * @zh 粒子使用的cpu材质。
-     */
-    @type(Material)
-    @displayOrder(8)
-    @disallowAnimation
-    @visible(function (this: ParticleSystemRenderer): boolean { return !this._useGPU; })
-    public get cpuMaterial () {
-        return this._cpuMaterial;
-    }
-
-    public set cpuMaterial (val: Material | null) {
-        if (val === null) {
-            return;
-        } else {
-            const effectName = val.effectName;
-            if (effectName.indexOf('particle') === -1 || effectName.indexOf('particle-gpu') !== -1) {
-                warnID(6035);
-                return;
-            }
-        }
-        this._cpuMaterial = val;
-        this.particleMaterial = this._cpuMaterial;
-    }
-
-    @serializable
-    private _cpuMaterial: Material | null = null;
-
-    /**
-     * @en particle gpu material
-     * @zh 粒子使用的gpu材质。
-     */
-    @type(Material)
-    @displayOrder(8)
-    @disallowAnimation
-    @visible(function (this: ParticleSystemRenderer): boolean { return this._useGPU; })
-    public get gpuMaterial () {
-        return this._gpuMaterial;
-    }
-
-    public set gpuMaterial (val: Material | null) {
-        if (val === null) {
-            return;
-        } else {
-            const effectName = val.effectName;
-            if (effectName.indexOf('particle-gpu') === -1) {
-                warnID(6035);
-                return;
-            }
-        }
-        this._gpuMaterial = val;
-        this.particleMaterial = this._gpuMaterial;
-    }
-
-    @serializable
-    private _gpuMaterial: Material | null = null;
 
     /**
      * @en particle trail material
@@ -282,7 +221,6 @@ export default class ParticleSystemRenderer extends ModelRenderer {
     @type(Material)
     @displayOrder(9)
     @disallowAnimation
-    @visible(function (this: ParticleSystemRenderer): boolean { return !this._useGPU; })
     @tooltip('i18n:particleSystemRenderer.trailMaterial')
     public get trailMaterial () {
         return this.getMaterial(1) as Material;
@@ -297,9 +235,9 @@ export default class ParticleSystemRenderer extends ModelRenderer {
      */
     public _collectModels (): scene.Model[] {
         this._models.length = 0;
-        this._models.push((this._processor as any)._model);
-        if (this._trailModule && this._trailModule.enable && (this._trailModule as any)._trailModel) {
-            this._models.push((this._trailModule as any)._trailModel);
+        this._models.push(this._model!);
+        if (this._trailModel) {
+            this._models.push(this._trailModel);
         }
         return this._models;
     }
@@ -310,16 +248,6 @@ export default class ParticleSystemRenderer extends ModelRenderer {
 
     public set mainTexture (val) {
         this._mainTexture = val;
-    }
-
-    @displayOrder(10)
-    @tooltip('i18n:particleSystemRenderer.useGPU')
-    public get useGPU () {
-        return this._useGPU;
-    }
-
-    public set useGPU (val) {
-        this._useGPU = val;
     }
 
     /**
@@ -335,7 +263,6 @@ export default class ParticleSystemRenderer extends ModelRenderer {
 
     public set alignSpace (val) {
         this._alignSpace = val;
-        this._particleSystem.processor.updateAlignSpace(this._alignSpace);
     }
 
     public static AlignmentSpace = AlignmentSpace;
@@ -343,10 +270,9 @@ export default class ParticleSystemRenderer extends ModelRenderer {
     @serializable
     private _alignSpace = AlignmentSpace.View;
     @serializable
-    private _useGPU = false;
-    @serializable
     private _mainTexture: Texture2D | null = null;
-    protected _model: ParticleBatchModel | null = null;
+    private _model: ParticleBatchModel | null = null;
+    private _trailModel: scene.Model | null = null;
     protected _renderInfo: ParticleSystemRenderer | null = null;
     protected _vertAttrs: Attribute[] = [];
     protected _useInstance: boolean;
@@ -373,6 +299,19 @@ export default class ParticleSystemRenderer extends ModelRenderer {
             CC_USE_WORLD_SPACE: true,
             // CC_DRAW_WIRE_FRAME: true,   // <wireframe debug>
         };
+        this._iaInfo = new IndirectBuffer([new DrawInfo()]);
+
+        this._vertAttrs = [
+            new Attribute(AttributeName.ATTR_POSITION, Format.RGB32F),   // xyz:position
+            new Attribute(AttributeName.ATTR_TEX_COORD, Format.RGBA32F), // x:index y:size zw:texcoord
+            // new Attribute(AttributeName.ATTR_TEX_COORD2, Format.RGB32F), // <wireframe debug>
+            new Attribute(AttributeName.ATTR_TEX_COORD1, Format.RGB32F), // xyz:velocity
+            new Attribute(AttributeName.ATTR_COLOR, Format.RGBA8, true),
+        ];
+        this._vertSize = 0;
+        for (const a of this._vertAttrs) {
+            this._vertSize += FormatInfos[a.format].size;
+        }
     }
 
     public onEnable () {
@@ -382,7 +321,7 @@ export default class ParticleSystemRenderer extends ModelRenderer {
         this.attachToScene();
         const model = this._model;
         if (model) {
-            model.node = model.transform = this._particleSystem.node;
+            model.node = model.transform = this.node;
         }
     }
 
@@ -392,8 +331,18 @@ export default class ParticleSystemRenderer extends ModelRenderer {
 
     public onDestroy () {
         if (this._model) {
+            this._model.detachFromScene();
             legacyCC.director.root.destroyModel(this._model);
             this._model = null;
+        }
+        if (this._trailModel) {
+            this._trailModel.detachFromScene();
+            legacyCC.director.root.destroyModel(this._trailModel);
+            this._model = null;
+        }
+        if (this._subMeshData) {
+            this._subMeshData.destroy();
+            this._subMeshData = null;
         }
     }
 
@@ -402,7 +351,7 @@ export default class ParticleSystemRenderer extends ModelRenderer {
             if (this._model.scene) {
                 this.detachFromScene();
             }
-            this._particleSystem._getRenderScene().addModel(this._model);
+            this._getRenderScene().addModel(this._model);
         }
     }
 
@@ -435,8 +384,16 @@ export default class ParticleSystemRenderer extends ModelRenderer {
         }
     }
 
+    public update () {
+
+    }
+
     // internal function
     public updateRenderData () {
+        this._model!.setCapacity(this.ps.capacity);
+        this.updateMaterialParams();
+        this.updateTrailMaterial();
+
         // update vertex buffer
         let idx = 0;
         if (this.renderMode === RenderMode.Mesh) {
@@ -473,6 +430,8 @@ export default class ParticleSystemRenderer extends ModelRenderer {
                 this._fillNormalData(p, idx, fi);
             }
         }
+
+        this.updateTrailRenderData();
     }
 
     public updateMaterialParams () {
@@ -480,33 +439,32 @@ export default class ParticleSystemRenderer extends ModelRenderer {
             return;
         }
 
+        const mat: Material | null = this.getMaterialInstance(0) || this._defaultMat;
+        const pass = mat!.passes[0];
+
         const ps = this._particleSystem;
         const shareMaterial = ps.sharedMaterial;
         if (shareMaterial != null) {
             const effectName = shareMaterial._effectAsset._name;
-            this._renderInfo!.mainTexture = shareMaterial.getProperty('mainTexture', 0);
+            this.mainTexture = shareMaterial.getProperty('mainTexture', 0);
         }
 
         if (ps.sharedMaterial == null && this._defaultMat == null) {
-            _matInsInfo.parent = builtinResMgr.get<Material>('default-particle-material');
-            _matInsInfo.owner = this._particleSystem;
-            _matInsInfo.subModelIdx = 0;
-            this._defaultMat = new MaterialInstance(_matInsInfo);
-            _matInsInfo.parent = null!;
-            _matInsInfo.owner = null!;
-            _matInsInfo.subModelIdx = 0;
-            if (this._renderInfo!.mainTexture !== null) {
-                this._defaultMat.setProperty('mainTexture', this._renderInfo!.mainTexture);
+            this._defaultMat = new MaterialInstance({
+                parent: builtinResMgr.get<Material>('default-particle-material'),
+                owner: this,
+                subModelIdx: 0,
+            });
+            if (this.mainTexture !== null) {
+                this._defaultMat.setProperty('mainTexture', this.mainTexture);
             }
         }
-        const mat: Material = ps.getMaterialInstance(0) || this._defaultMat;
         if (ps._simulationSpace === Space.World) {
             this._defines[CC_USE_WORLD_SPACE] = true;
         } else {
             this._defines[CC_USE_WORLD_SPACE] = false;
         }
 
-        const pass = mat.passes[0];
         this._uScaleHandle = pass.getHandle('scale');
         this._uLenHandle = pass.getHandle('frameTile_velLenScale');
         this._uNodeRotHandle = pass.getHandle('nodeRotation');
@@ -588,6 +546,134 @@ export default class ParticleSystemRenderer extends ModelRenderer {
             this._iaInfo.drawInfos[0].firstIndex = 0;
             this._iaInfo.drawInfos[0].indexCount = count;
             this._iaInfoBuffer!.update(this._iaInfo);
+        }
+    }
+
+    private _fillVertexBuffer (trailSeg: ITrailElement, colorModifer: Color, indexOffset: number,
+        xTexCoord: number, trailEleIdx: number, indexSet: number) {
+        this._vbF32![this.vbOffset++] = trailSeg.position.x;
+        this._vbF32![this.vbOffset++] = trailSeg.position.y;
+        this._vbF32![this.vbOffset++] = trailSeg.position.z;
+        this._vbF32![this.vbOffset++] = trailSeg.direction;
+        this._vbF32![this.vbOffset++] = trailSeg.width;
+        this._vbF32![this.vbOffset++] = xTexCoord;
+        this._vbF32![this.vbOffset++] = 0;
+        // this._vbF32![this.vbOffset++] = barycentric[_bcIdx++];  // <wireframe debug>
+        // this._vbF32![this.vbOffset++] = barycentric[_bcIdx++];
+        // this._vbF32![this.vbOffset++] = barycentric[_bcIdx++];
+        // _bcIdx %= 9;
+        this._vbF32![this.vbOffset++] = trailSeg.velocity.x;
+        this._vbF32![this.vbOffset++] = trailSeg.velocity.y;
+        this._vbF32![this.vbOffset++] = trailSeg.velocity.z;
+        _temp_color.set(trailSeg.color);
+        _temp_color.multiply(colorModifer);
+        this._vbUint32![this.vbOffset++] = _temp_color._val;
+        this._vbF32![this.vbOffset++] = trailSeg.position.x;
+        this._vbF32![this.vbOffset++] = trailSeg.position.y;
+        this._vbF32![this.vbOffset++] = trailSeg.position.z;
+        this._vbF32![this.vbOffset++] = 1 - trailSeg.direction;
+        this._vbF32![this.vbOffset++] = trailSeg.width;
+        this._vbF32![this.vbOffset++] = xTexCoord;
+        this._vbF32![this.vbOffset++] = 1;
+        // this._vbF32![this.vbOffset++] = barycentric[_bcIdx++];  // <wireframe debug>
+        // this._vbF32![this.vbOffset++] = barycentric[_bcIdx++];
+        // this._vbF32![this.vbOffset++] = barycentric[_bcIdx++];
+        // _bcIdx %= 9;
+        this._vbF32![this.vbOffset++] = trailSeg.velocity.x;
+        this._vbF32![this.vbOffset++] = trailSeg.velocity.y;
+        this._vbF32![this.vbOffset++] = trailSeg.velocity.z;
+        this._vbUint32![this.vbOffset++] = _temp_color._val;
+        if (indexSet & PRE_TRIANGLE_INDEX) {
+            this._iBuffer![this.ibOffset++] = indexOffset + 2 * trailEleIdx;
+            this._iBuffer![this.ibOffset++] = indexOffset + 2 * trailEleIdx - 1;
+            this._iBuffer![this.ibOffset++] = indexOffset + 2 * trailEleIdx + 1;
+        }
+        if (indexSet & NEXT_TRIANGLE_INDEX) {
+            this._iBuffer![this.ibOffset++] = indexOffset + 2 * trailEleIdx;
+            this._iBuffer![this.ibOffset++] = indexOffset + 2 * trailEleIdx + 1;
+            this._iBuffer![this.ibOffset++] = indexOffset + 2 * trailEleIdx + 2;
+        }
+    }
+
+    public updateTrailRenderData () {
+        this.vbOffset = 0;
+        this.ibOffset = 0;
+        for (const p of this._particleTrail.keys()) {
+            const trailSeg = this._particleTrail.get(p)!;
+            if (trailSeg.start === -1) {
+                continue;
+            }
+            const indexOffset = this.vbOffset * 4 / this._vertSize;
+            const end = trailSeg.start >= trailSeg.end ? trailSeg.end + trailSeg.trailElements.length : trailSeg.end;
+            const trailNum = end - trailSeg.start;
+            // const lastSegRatio = vec3.distance(trailSeg.getTailElement()!.position, p.position) / this._minParticleDistance;
+            const textCoordSeg = 1 / (trailNum /* - 1 + lastSegRatio */);
+            const startSegEle = trailSeg.trailElements[trailSeg.start];
+            this._fillVertexBuffer(startSegEle, this.colorOverTrail.evaluate(1, 1), indexOffset, 1, 0, NEXT_TRIANGLE_INDEX);
+            for (let i = trailSeg.start + 1; i < end; i++) {
+                const segEle = trailSeg.trailElements[i % trailSeg.trailElements.length];
+                const j = i - trailSeg.start;
+                this._fillVertexBuffer(segEle, this.colorOverTrail.evaluate(1 - j / trailNum, 1),
+                    indexOffset, 1 - j * textCoordSeg, j, PRE_TRIANGLE_INDEX | NEXT_TRIANGLE_INDEX);
+            }
+            if (this._needTransform) {
+                Vec3.transformMat4(_temp_trailEle.position, p.position, _temp_xform);
+            } else {
+                Vec3.copy(_temp_trailEle.position, p.position);
+            }
+
+            // refresh particle node position to update emit position
+            const trailModel = this._trailModel;
+            if (trailModel) {
+                trailModel.node.invalidateChildren(TransformBit.POSITION);
+            }
+
+            if (trailNum === 1 || trailNum === 2) {
+                const lastSecondTrail = trailSeg.getElement(trailSeg.end - 1)!;
+                Vec3.subtract(lastSecondTrail.velocity, _temp_trailEle.position, lastSecondTrail.position);
+                this._vbF32![this.vbOffset - this._vertSize / 4 - 4] = lastSecondTrail.velocity.x;
+                this._vbF32![this.vbOffset - this._vertSize / 4 - 3] = lastSecondTrail.velocity.y;
+                this._vbF32![this.vbOffset - this._vertSize / 4 - 2] = lastSecondTrail.velocity.z;
+                this._vbF32![this.vbOffset - 4] = lastSecondTrail.velocity.x;
+                this._vbF32![this.vbOffset - 3] = lastSecondTrail.velocity.y;
+                this._vbF32![this.vbOffset - 2] = lastSecondTrail.velocity.z;
+                Vec3.subtract(_temp_trailEle.velocity, _temp_trailEle.position, lastSecondTrail.position);
+                this._checkDirectionReverse(_temp_trailEle, lastSecondTrail);
+            } else if (trailNum > 2) {
+                const lastSecondTrail = trailSeg.getElement(trailSeg.end - 1)!;
+                const lastThirdTrail = trailSeg.getElement(trailSeg.end - 2)!;
+                Vec3.subtract(_temp_vec3, lastThirdTrail.position, lastSecondTrail.position);
+                Vec3.subtract(_temp_vec3_1, _temp_trailEle.position, lastSecondTrail.position);
+                Vec3.normalize(_temp_vec3, _temp_vec3);
+                Vec3.normalize(_temp_vec3_1, _temp_vec3_1);
+                Vec3.subtract(lastSecondTrail.velocity, _temp_vec3_1, _temp_vec3);
+                Vec3.normalize(lastSecondTrail.velocity, lastSecondTrail.velocity);
+                this._checkDirectionReverse(lastSecondTrail, lastThirdTrail);
+                // refresh last trail segment data
+                this.vbOffset -= this._vertSize / 4 * 2;
+                this.ibOffset -= 6;
+                // _bcIdx = (_bcIdx - 6 + 9) % 9;  // <wireframe debug>
+                this._fillVertexBuffer(lastSecondTrail, this.colorOverTrail.evaluate(textCoordSeg, 1), indexOffset,
+                    textCoordSeg, trailNum - 1, PRE_TRIANGLE_INDEX | NEXT_TRIANGLE_INDEX);
+                Vec3.subtract(_temp_trailEle.velocity, _temp_trailEle.position, lastSecondTrail.position);
+                Vec3.normalize(_temp_trailEle.velocity, _temp_trailEle.velocity);
+                this._checkDirectionReverse(_temp_trailEle, lastSecondTrail);
+            }
+            if (this.widthFromParticle) {
+                _temp_trailEle.width = p.size.x * this.widthRatio.evaluate(0, 1)!;
+            } else {
+                _temp_trailEle.width = this.widthRatio.evaluate(0, 1)!;
+            }
+            _temp_trailEle.color = p.color;
+
+            if (Vec3.equals(_temp_trailEle.velocity, Vec3.ZERO)) {
+                this.ibOffset -= 3;
+            } else {
+                this._fillVertexBuffer(_temp_trailEle, this.colorOverTrail.evaluate(0, 1), indexOffset, 0, trailNum, PRE_TRIANGLE_INDEX);
+            }
+        }
+        if (this._trailModel) {
+            this._trailModel.enabled = this.ibOffset > 0;
         }
     }
 
@@ -678,7 +764,10 @@ export default class ParticleSystemRenderer extends ModelRenderer {
             }
             mat = mat || this._defaultTrailMat;
             mat.recompileShaders(this._trailDefines);
-            trailModule.updateMaterial();
+            const trailMaterial = this.getMaterialInstance(1) || this._defaultTrailMat;
+            if (this._trailModel) {
+                this._trailModel.setSubModelMaterial(0, trailMaterial!);
+            }
         }
     }
 
@@ -695,7 +784,6 @@ export default class ParticleSystemRenderer extends ModelRenderer {
     }
 
     onInit (ps) {
-        this.create(ps);
         this.cpuMaterial = this.particleMaterial;
     }
 
@@ -711,16 +799,6 @@ export default class ParticleSystemRenderer extends ModelRenderer {
         }
     }
 
-    public onRebuildPSO (index: number, material: Material) {
-        if (this._model && index === 0) {
-            this._model.setSubModelMaterial(0, material);
-        }
-        const trailModule = this._particleSystem._trailModule;
-        if (trailModule && trailModule._trailModel && index === 1) {
-            trailModule._trailModel.setSubModelMaterial(0, material);
-        }
-    }
-
     public _onMaterialModified (index: number, material: Material) {
         if (this._processor !== null) {
             this._processor.onMaterialModified(index, material);
@@ -728,7 +806,12 @@ export default class ParticleSystemRenderer extends ModelRenderer {
     }
 
     public _onRebuildPSO (index: number, material: Material) {
-        this._processor.onRebuildPSO(index, material);
+        if (this._model && index === 0) {
+            this._model.setSubModelMaterial(0, material);
+        }
+        if (this._trailModel && index === 1) {
+            this._trailModel.setSubModelMaterial(0, material);
+        }
     }
 
     public updateRotation (pass: Pass | null) {
@@ -748,14 +831,6 @@ export default class ParticleSystemRenderer extends ModelRenderer {
         this._processor.detachFromScene();
         if (this._trailModule && this._trailModule.enable) {
             this._trailModule._detachFromScene();
-        }
-        if (this._boundingBox) {
-            this._boundingBox = null;
-        }
-        if (this._culler) {
-            this._culler.clear();
-            this._culler.destroy();
-            this._culler = null;
         }
     }
 
@@ -811,35 +886,86 @@ export default class ParticleSystemRenderer extends ModelRenderer {
         }
     }
 
+    private rebuild () {
+        const device: Device = director.root!.device;
+        const vertexBuffer = device.createBuffer(new BufferInfo(
+            BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
+            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
+            this._vertSize * (this._trailNum + 1) * 2,
+            this._vertSize,
+        ));
+        const vBuffer: ArrayBuffer = new ArrayBuffer(this._vertSize * (this._trailNum + 1) * 2);
+        this._vbF32 = new Float32Array(vBuffer);
+        this._vbUint32 = new Uint32Array(vBuffer);
+        vertexBuffer.update(vBuffer);
+
+        const indexBuffer = device.createBuffer(new BufferInfo(
+            BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
+            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
+            Math.max(1, this._trailNum) * 6 * Uint16Array.BYTES_PER_ELEMENT,
+            Uint16Array.BYTES_PER_ELEMENT,
+        ));
+        this._iBuffer = new Uint16Array(Math.max(1, this._trailNum) * 6);
+        indexBuffer.update(this._iBuffer);
+
+        this._iaInfoBuffer = device.createBuffer(new BufferInfo(
+            BufferUsageBit.INDIRECT,
+            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
+            DRAW_INFO_SIZE,
+            DRAW_INFO_SIZE,
+        ));
+        this._iaInfo.drawInfos[0].vertexCount = (this._trailNum + 1) * 2;
+        this._iaInfo.drawInfos[0].indexCount = this._trailNum * 6;
+        this._iaInfoBuffer.update(this._iaInfo);
+
+        this._subMeshData = new RenderingSubMesh([vertexBuffer], this._vertAttrs, PrimitiveMode.TRIANGLE_LIST, indexBuffer, this._iaInfoBuffer);
+
+        const trailModel = this._trailModel;
+        if (trailModel && this._material) {
+            trailModel.node = trailModel.transform = this._particleSystem.node;
+            trailModel.visFlags = this.node.layer;
+            trailModel.initSubModel(0, this._subMeshData, this._material);
+            trailModel.enabled = true;
+        }
+    }
+
+    private _createModel () {
+        if (this._trailModel) {
+            return;
+        }
+
+        this._trailModel = legacyCC.director.root.createModel(scene.Model);
+    }
+
     private doUpdateRotation (pass) {
         const mode = this.renderMode;
         if (mode !== RenderMode.Mesh && this._alignSpace === AlignmentSpace.View) {
             return;
         }
-
+        const rotation = new Quat();
         if (this._alignSpace === AlignmentSpace.Local) {
-            this._particleSystem.node.getRotation(_node_rot);
+            this.node.getRotation(rotation);
         } else if (this._alignSpace === AlignmentSpace.World) {
-            this._particleSystem.node.getWorldRotation(_node_rot);
+            this.node.getWorldRotation(rotation);
         } else if (this._alignSpace === AlignmentSpace.View) {
             // Quat.fromEuler(_node_rot, 0.0, 0.0, 0.0);
-            _node_rot.set(0.0, 0.0, 0.0, 1.0);
-            const cameraLst: Camera[]|undefined = this._particleSystem.node.scene.renderScene?.cameras;
+            rotation.set(0.0, 0.0, 0.0, 1.0);
+            const cameraLst: Camera[]| undefined = this.node.scene.renderScene?.cameras;
             if (cameraLst !== undefined) {
                 for (let i = 0; i < cameraLst?.length; ++i) {
                     const camera:Camera = cameraLst[i];
                     // eslint-disable-next-line max-len
-                    const checkCamera: boolean = (!EDITOR || legacyCC.GAME_VIEW) ? (camera.visibility & this._particleSystem.node.layer) === this._particleSystem.node.layer : camera.name === 'Editor Camera';
+                    const checkCamera: boolean = (!EDITOR || legacyCC.GAME_VIEW) ? (camera.visibility & this.node.layer) === this._particleSystem.node.layer : camera.name === 'Editor Camera';
                     if (checkCamera) {
-                        Quat.fromViewUp(_node_rot, camera.forward);
+                        Quat.fromViewUp(rotation, camera.forward);
                         break;
                     }
                 }
             }
         } else {
-            _node_rot.set(0.0, 0.0, 0.0, 1.0);
+            rotation.set(0.0, 0.0, 0.0, 1.0);
         }
-        pass.setUniform(this._uNodeRotHandle, _node_rot);
+        pass.setUniform(this._uNodeRotHandle, rotation);
     }
 
     public updateScale (pass: Pass | null) {
