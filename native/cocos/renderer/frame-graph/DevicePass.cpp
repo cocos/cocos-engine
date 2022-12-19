@@ -121,9 +121,10 @@ DevicePass::DevicePass(const FrameGraph &graph, ccstd::vector<PassNode *> const 
         _resourceTable.extract(graph, passNode, renderTargets);
     }
 
-    uint32_t depthOffset = depthNewIndex == gfx::INVALID_BINDING ? 0 : 1;
+    Attachment dsResolve;
+    std::vector<gfx::SubpassInfo*> dsInvolved;
     for (size_t i = 0; i < subpassNodes.size(); ++i) {
-        const auto &passNode = subpassNodes[i]; 
+        const auto &passNode = subpassNodes[i];
         for (auto &attachment : passNode->_attachments) {
             if (attachment.desc.resolveSource != Handle::UNINITIALIZED) {
                 const ResourceNode &resourceNode = graph.getResourceNode(attachment.textureHandle);
@@ -131,19 +132,27 @@ DevicePass::DevicePass(const FrameGraph &graph, ccstd::vector<PassNode *> const 
 
                 gfx::Texture *resource = static_cast<ResourceEntry<Texture> *>(resourceNode.virtualResource)->getDeviceResource();
                 CC_ASSERT(resource);
-
-                _attachments.emplace_back();
-                _attachments.back().attachment = attachment;
-                _attachments.back().renderTarget = resource;
-
+                
                 if (attachment.desc.usage == RenderTargetAttachment::Usage::COLOR) {
-                    _subpasses[i].desc.resolves.emplace_back(_attachments.size() - 1 - depthOffset);
+                    _attachments.emplace_back();
+                    _attachments.back().attachment = attachment;
+                    _attachments.back().renderTarget = resource;
+                    _subpasses[i].desc.resolves.emplace_back(_attachments.size() - 1);
                 } else {
-                    _subpasses[i].desc.depthStencilResolve = _attachments.size() - 1;
+                    dsResolve.attachment = attachment;
+                    dsResolve.renderTarget = resource;
+                    dsInvolved.emplace_back(&_subpasses[i].desc);
                 }
-
             }
         }
+    }
+    if(dsResolve.renderTarget) {
+        _attachments.emplace_back(dsResolve);
+        auto dsMSAAIter = _attachments.begin();
+        std::advance(dsMSAAIter, depthNewIndex);
+        auto dsResolveIter = _attachments.end() - 1;
+        std::iter_swap(dsMSAAIter, dsResolveIter);
+        std::for_each(dsInvolved.begin(), dsInvolved.end(), [depthNewIndex](auto& desc){ desc->depthStencilResolve = depthNewIndex; });
     }
 }
 
@@ -298,6 +307,8 @@ void DevicePass::append(const FrameGraph &graph, const RenderTargetAttachment &a
                         ccstd::vector<RenderTargetAttachment> *attachments, gfx::SubpassInfo *subpass, const ccstd::vector<Handle> &reads) {
     // later put resolved targets at the end
     if (attachment.desc.resolveSource != Handle::UNINITIALIZED) {
+        if(attachment.desc.usage == RenderTargetAttachment::Usage::DEPTH_STENCIL_RESOLVE)
+            _usedRenderTargetSlotMask |= 1 << 15;
         return;
     }
     RenderTargetAttachment::Usage usage{attachment.desc.usage};
@@ -401,9 +412,13 @@ void DevicePass::begin(gfx::CommandBuffer *cmdBuff) {
         }
     }
 
+    bool hasDSResolve = _usedRenderTargetSlotMask & (1 << 15);
+    
+    Attachment dsAttachment;
     for (const auto &attachElem : _attachments) {
         gfx::Texture *attachment = attachElem.renderTarget;
-        if (attachElem.attachment.desc.usage == RenderTargetAttachment::Usage::COLOR) {
+        if (attachElem.attachment.desc.usage == RenderTargetAttachment::Usage::COLOR ||
+            (attachElem.attachment.desc.usage == RenderTargetAttachment::Usage::DEPTH_STENCIL_RESOLVE)) {
             rpInfo.colorAttachments.emplace_back();
             auto &attachmentInfo = rpInfo.colorAttachments.back();
             attachmentInfo.format = attachment->getFormat();
@@ -416,8 +431,6 @@ void DevicePass::begin(gfx::CommandBuffer *cmdBuff) {
             clearColors.emplace_back(attachElem.attachment.desc.clearColor);
         } else {
             auto &attachmentInfo = rpInfo.depthStencilAttachment;
-            if (attachElem.attachment.desc.usage == RenderTargetAttachment::Usage::DEPTH_STENCIL_RESOLVE)
-                continue;
             attachmentInfo.format = attachment->getFormat();
             attachmentInfo.depthLoadOp = attachElem.attachment.desc.loadOp;
             attachmentInfo.stencilLoadOp = attachElem.attachment.desc.loadOp;
