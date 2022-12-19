@@ -388,7 +388,7 @@ export class Vec3 extends ValueType {
      * from normalized `from` to normalized `to`,
      * then scaled by linear interpolation of lengths from `from` to `to`.
      */
-    public static slerp= ((): <Out extends IVec3Like>(out: Out, from: Readonly<IVec3Like>, to: Readonly<IVec3Like>, t: number) => Out => {
+    public static slerp = ((): <Out extends IVec3Like>(out: Out, from: Readonly<IVec3Like>, to: Readonly<IVec3Like>, t: number) => Out => {
         const cacheV1 = new Vec3();
         const cacheV2 = new Vec3();
         const cacheV3 = new Vec3();
@@ -747,6 +747,40 @@ export class Vec3 extends ValueType {
         cosine = clamp(cosine, -1.0, 1.0);
         return Math.acos(cosine);
     }
+
+    /**
+     * @zh 计算 `a`、`b` 两向量之间的有符号夹角。
+     *
+     * 不妨假设 `a`、`b` 是钟表上的两根指针，其中 `a` 指向 12 点整，`normal` 是任何从钟表正面指出的向量。
+     * 当 `b` **逆时针** 从 12 点走到 6 点的过程中，它们的角度变化范围为 (0°, 180°)；
+     * 当 `b` **顺时针** 从 12 点走到 6 点的过程中，它们的角度变化范围为 (0°, -180°)。
+     *
+     * 反之，如果 `normal` 是任何从钟表反面指出的向量，两种范围将对调。
+     *
+     * @en Calculates the signed angle between the two vectors `a`, `b`.
+     *
+     * Suppose that `a` and `b` are two hands on a clock, where pointing at 12 o'clock,
+     * and `normal` is arbitrary vector pointing out from the dial side of the clock.
+     * As `b` goes counterclockwise from 12 o'clock to 6 o'clock, their angle varies in the range (0°, 180°);
+     * As `b` goes clockwise from 12 o'clock to 6 o'clock, their angle varies in the range (0°, -180°).
+     *
+     * Instead, if `normal` is arbitrary vector pointing out from the opposite side of the clock,
+     * the two ranges would swap.
+     *
+     * @param a @zh 向量 `a`。 @en The vector `a`.
+     * @param b @zh 向量 `b`。 @en The vector `b`.
+     * @param normal @zh 参考向量。 @en The reference vector.
+     * @returns @zh 向量 `a` 和 `b` 之间的有符号夹角。 @en The signed angle between `a`, `b`.
+     */
+    public static signedAngle = (() => {
+        const cacheCross = new Vec3();
+        return (a: Readonly<IVec3Like>, b: Readonly<IVec3Like>, normal: Readonly<IVec3Like>): number => {
+            const angle = Vec3.angle(a, b);
+            const cross = Vec3.cross(cacheCross, a, b);
+            const dot = Vec3.dot(cross, normal);
+            return dot < 0 ? -angle : angle;
+        };
+    })();
 
     /**
      * @en Calculates the projection vector on the specified plane

@@ -1,5 +1,5 @@
 import { log } from '../../test.log';
-import { Vec3 } from '../../../cocos/core/math/vec3';
+import { v3, Vec3 } from '../../../cocos/core/math/vec3';
 import { Mat3 } from '../../../cocos/core/math/mat3';
 import { Mat4 } from '../../../cocos/core/math/mat4';
 import { Quat } from '../../../cocos/core/math/quat';
@@ -234,5 +234,100 @@ describe('Test Vec3', () => {
 
             return result;
         };
+    });
+
+    test(`Signed angle`, () => {
+        const MATCH_NUM_DIGITS = 6;
+    
+        // If either of the input vector is zero,
+        // the result is equal to `Vec3.angle()`(ie. 0),
+        // in despite of what "normal" is.
+        assertsResult_zero(Vec3.ZERO, Vec3.ZERO, Vec3.ZERO);
+        assertsResult_zero(Vec3.ZERO, Vec3.ZERO, v3(4., 5., 6.));
+        assertsResult_zero(Vec3.ZERO, v3(1., 2., -3.), Vec3.ZERO);
+        assertsResult_zero(v3(1., 2., -3.), Vec3.ZERO, Vec3.ZERO);
+        assertsResult_zero(v3(1., 2., -3.), Vec3.ZERO, v3(4., 5., 6.));
+
+        // If the input vectors are co-linear,
+        // the result has positive sign.
+        // in despite of what "normal" is.
+        {
+            const a = v3(1, 2, 3);
+            const normal = v3(7, -1, 0.618);
+
+            { // b is in same dir.
+                const b = Vec3.multiplyScalar(v3(), a, 3);
+                assertsResult_zero(a, b, Vec3.ZERO);
+                assertsResult_zero(a, b, normal);
+                assertsResult_zero(a, b, Vec3.negate(v3(), normal));
+                assertsResult_zero(a, b, Vec3.multiplyScalar(v3(), a, -1.0086));
+                assertsResult_zero(a, b, Vec3.multiplyScalar(v3(), a, 1.0086));
+            }
+            
+            { // b is in opposite dir.
+                const b = Vec3.multiplyScalar(v3(), a, -4);
+                assertsResult_positiveSign(a, b, Vec3.ZERO);
+                assertsResult_positiveSign(a, b, normal);
+                assertsResult_positiveSign(a, b, Vec3.negate(v3(), normal));
+                assertsResult_positiveSign(a, b, Vec3.multiplyScalar(v3(), a, -1.0086));
+                assertsResult_positiveSign(a, b, Vec3.multiplyScalar(v3(), a, 1.0086));
+            }
+        }
+
+        // If normal is zero, the result has positive sign.
+        assertsResult_positiveSign(v3(1., 2., -3.), v3(7, -1, 0.618), Vec3.ZERO);
+
+        // If normal is co-linear with either input vector,
+        // the result is **indeterminate**, but it is equal to either ±`Vec3.angle()`.
+        {
+            const a = v3(1, 2, 3);
+            const b = v3(7, -1, 0.618);
+            // Theses result positive.
+            assertsResult_positiveSign(a, b, Vec3.multiplyScalar(v3(), a, -1.5));
+            assertsResult_positiveSign(a, b, Vec3.multiplyScalar(v3(), a, 1.5));
+            assertsResult_positiveSign(a, b, Vec3.multiplyScalar(v3(), b, -1.5));
+            // This results negative.
+            assertsResult_negativeSign(a, b, Vec3.multiplyScalar(v3(), b, 1.5));
+        }
+        
+        /**
+         * Otherwise, asserts neither two of them are co-linear and neither of them is zero vector.
+         * 
+         * Let $N$ to be normal of plane decided by $a$ and $b$,
+         * where $N$ is at the side so that it has the minimal angle between the input normal.
+         * Let $angle$ be the unsigned angle between $a$ and $b$.
+         * Around $N$, following the right hand rule, if $a$ can rotate to $b$ in positive $angle$ angle, then the result is $angle$.
+         * Otherwise, the result is $-angle$.
+         */
+        const _SPEC = undefined;
+        {
+            const a = v3(1, 2, 3);
+            const b = v3(7, -1, 0.618);
+            const c = v3(-9, -3, -9);
+
+            assertsResult_positiveSign(a, b, c);
+            assertsResult_negativeSign(a, b, Vec3.negate(v3(), c));
+        }
+
+        function assertsResult_positiveSign(a: Readonly<Vec3>, b: Readonly<Vec3>, normal: Readonly<Vec3>) {
+            const result = assertsResult_basic(a, b, normal);
+            expect(result).toBeGreaterThan(0);
+        }
+
+        function assertsResult_negativeSign(a: Readonly<Vec3>, b: Readonly<Vec3>, normal: Readonly<Vec3>) {
+            const result = assertsResult_basic(a, b, normal);
+            expect(result).toBeLessThan(0);
+        }
+
+        function assertsResult_zero(a: Readonly<Vec3>, b: Readonly<Vec3>, normal: Readonly<Vec3>) {
+            const result = assertsResult_basic(a, b, normal);
+            expect(result).toStrictEqual(0);
+        }
+
+        function assertsResult_basic(a: Readonly<Vec3>, b: Readonly<Vec3>, normal: Readonly<Vec3>) {
+            const result = Vec3.signedAngle(a, b, normal);
+            expect(Math.abs(result)).toBeCloseTo(Vec3.angle(a, b), MATCH_NUM_DIGITS);
+            return result;
+        }
     });
 });
