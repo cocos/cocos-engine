@@ -117,10 +117,6 @@ DevicePass::DevicePass(const FrameGraph &graph, ccstd::vector<PassNode *> const 
         renderTargets.emplace_back(resource);
     }
 
-    for (PassNode *const passNode : subpassNodes) {
-        _resourceTable.extract(graph, passNode, renderTargets);
-    }
-
     Attachment dsResolve;
     std::vector<gfx::SubpassInfo*> dsInvolved;
     for (size_t i = 0; i < subpassNodes.size(); ++i) {
@@ -132,7 +128,9 @@ DevicePass::DevicePass(const FrameGraph &graph, ccstd::vector<PassNode *> const 
 
                 gfx::Texture *resource = static_cast<ResourceEntry<Texture> *>(resourceNode.virtualResource)->getDeviceResource();
                 CC_ASSERT(resource);
-                
+
+                renderTargets.emplace_back(resource);
+
                 if (attachment.desc.usage == RenderTargetAttachment::Usage::COLOR) {
                     _attachments.emplace_back();
                     _attachments.back().attachment = attachment;
@@ -153,6 +151,10 @@ DevicePass::DevicePass(const FrameGraph &graph, ccstd::vector<PassNode *> const 
         auto dsResolveIter = _attachments.end() - 1;
         std::iter_swap(dsMSAAIter, dsResolveIter);
         std::for_each(dsInvolved.begin(), dsInvolved.end(), [depthNewIndex](auto& desc){ desc->depthStencilResolve = depthNewIndex; });
+    }
+
+    for (PassNode *const passNode : subpassNodes) {
+        _resourceTable.extract(graph, passNode, renderTargets);
     }
 }
 
