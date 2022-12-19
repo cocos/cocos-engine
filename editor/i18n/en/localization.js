@@ -935,6 +935,14 @@ module.exports = {
             label: "Custom Render Pipeline (Experimental)",
             description: "Enable custom render pipeline",
         },
+        _experimental_animation_internals: {
+            label: "(Experimental)Animation Internals",
+            description:
+                '(Experimental)Export animation internal interfaces.' +
+                'Interfaces exported by this feature might be used by certain external libraries that are tightly related to engine. ' +
+                'These interfaces are highly coupled with engine editions, undocumented, and ' +
+                'no compatibilities are guaranteed.',
+        },
     },
     renderable_2d: {
         srcBlendFactor: 'Specifies the source blend mode, <br>it will clone a new material object.',

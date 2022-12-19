@@ -916,6 +916,12 @@ module.exports = {
             label: "自定义渲染管线（实验）",
             description: "启用自定义渲染管线。",
         },
+        _experimental_animation_internals: {
+            label: "（实验性）内部动画接口",
+            description: "（实验性）导出内部动画接口。" +
+                '此功能导出的接口可能会被某些与引擎紧密相关的外部库使用。' +
+                '这些接口和引擎版本高度耦合，无明确文档并不保证任何兼容性。',
+        },
     },
     renderable_2d: {
         srcBlendFactor: '指定源的混合模式，这会克隆一个新的材质对象，注意这带来的性能和内存损耗',
