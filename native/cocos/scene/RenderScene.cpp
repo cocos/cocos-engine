@@ -54,24 +54,23 @@ public:
         const LODGroup *lodGroup{nullptr};
     };
 
-    struct NodeTransformState {
-        Node::TransformChanged::EventID curEventId{};
-        Node::TransformChanged::EventID parentEventId{};
+    struct LODInfo {
+        int8_t visibleLevel{-1};
         bool needUpdate{true};
     };
 
-    LodStateCache(RenderScene* scene) : renderScene(scene) {};
-    ~LodStateCache() = default;
+    explicit LodStateCache(RenderScene* scene) : _renderScene(scene) {};
+    ~LodStateCache() override = default;
 
-    void onCameraAdded(const Camera *camera);
+    void addCamera(const Camera *camera);
 
-    void onCameraRemoved(const Camera *camera);
+    void removeCamera(const Camera *camera);
 
-    void onLodGroupAdded(const LODGroup *lodGroup);
+    void addLodGroup(const LODGroup *lodGroup);
 
-    void onLodGroupRemoved(const LODGroup *lodGroup);
+    void removeLodGroup(const LODGroup *lodGroup);
 
-    void onModelRemoved(const Model *model);
+    void removeModel(const Model *model);
 
     void updateLodState();
 
@@ -80,39 +79,25 @@ public:
     void clearCache();
 
 private:
-    bool isLodGroupVisibleByCamera(const LODGroup *lodGroup, const Camera *camera);
-    void registerCameraChange(const Camera *camera);
     /**
-     * @zh LOD使用的model集合；可能包含多个LODGroup的每一级LOD
-     * @en Collection of mods used by LODs; may contain multiple LODGs for each level of LOD.
+     * @zh LOD使用的model集合；包含每个LODGroup的每一级LOD
+     * @en The collection of models used by LOD; Each LOD of each LODGroup.
      */
-    ccstd::unordered_map<const Model *, ModelInfo> modelsByAnyLODGroup;
+    ccstd::unordered_map<const Model *, ModelInfo> _modelsIncludeByLODGroup;
 
     /**
      * @zh 指定相机下，LODGroup使用哪一级的LOD
      * @en Specify which level of LOD is used by the LODGroup under the camera.
      */
-    ccstd::unordered_map<const Camera *, ccstd::unordered_map<const LODGroup *, int8_t>> visibleLodLevelsByAnyLODGroup;
-
-    /**
-     * @zh 某个LODGroup的当前状态，是否需要更新等
-     * @en Specify the current status of a LODGroup, whether it needs to be updated, etc.
-     */
-    ccstd::unordered_map<const LODGroup *, NodeTransformState> lodGroupStateMap;
-
-    /**
-     * @zh 指定相机的状态是否出现变化, 这里主要记录transform是否出现变化
-     * @en Specify whether the state of the camera has changed or not, here it is mainly recorded whether the transform has changed or not.
-     */
-    ccstd::unordered_map<const Camera *, NodeTransformState> cameraStateMap;
+    ccstd::unordered_map<const Camera *, ccstd::unordered_map<const LODGroup *, LODInfo>> _visibleLodLevelsByAnyLODGroup;
 
     /**
      * @zh 上一帧添加的lodgroup
      * @en The lodgroup added in the previous frame.
      */
-    ccstd::vector<const LODGroup *> vecAddedLodGroup;
+    ccstd::vector<const LODGroup *> _vecAddedLodGroup;
 
-    RenderScene *renderScene{nullptr};
+    RenderScene *_renderScene{nullptr};
 };
 
 RenderScene::RenderScene() = default;
@@ -126,20 +111,20 @@ void RenderScene::activate() {
 
 bool RenderScene::initialize(const IRenderSceneInfo &info) {
     _name = info.name;
-    _lodStateCache = new LodStateCache(this);
+    _lodStateCache = ccnew LodStateCache(this);
     return true;
 }
 
 void RenderScene::addLODGroup(LODGroup *group) {
     group->attachToScene(this);
     _lodGroups.emplace_back(group);
-    _lodStateCache->onLodGroupAdded(group);
+    _lodStateCache->addLodGroup(group);
 }
 
 void RenderScene::removeLODGroup(LODGroup *group) {
     auto iter = std::find(_lodGroups.begin(), _lodGroups.end(), group);
     if (iter != _lodGroups.end()) {
-        _lodStateCache->onLodGroupRemoved(group);
+        _lodStateCache->removeLodGroup(group);
         group->detachFromScene();
         _lodGroups.erase(iter);
     } else {
@@ -149,7 +134,7 @@ void RenderScene::removeLODGroup(LODGroup *group) {
 
 void RenderScene::removeLODGroups() {
     for (const auto &group : _lodGroups) {
-        _lodStateCache->onLodGroupRemoved(group);
+        _lodStateCache->removeLodGroup(group);
         group->detachFromScene();
     }
     _lodGroups.clear();
@@ -202,13 +187,13 @@ void RenderScene::destroy() {
 void RenderScene::addCamera(Camera *camera) {
     camera->attachToScene(this);
     _cameras.emplace_back(camera);
-    _lodStateCache->onCameraAdded(camera);
+    _lodStateCache->addCamera(camera);
 }
 
 void RenderScene::removeCamera(Camera *camera) {
     auto iter = std::find(_cameras.begin(), _cameras.end(), camera);
     if (iter != _cameras.end()) {
-        _lodStateCache->onCameraRemoved(camera);
+        _lodStateCache->removeCamera(camera);
         (*iter)->detachFromScene();
         _cameras.erase(iter);
     }
@@ -216,7 +201,7 @@ void RenderScene::removeCamera(Camera *camera) {
 
 void RenderScene::removeCameras() {
     for (const auto &camera : _cameras) {
-        _lodStateCache->onCameraRemoved(camera);
+        _lodStateCache->removeCamera(camera);
         camera->detachFromScene();
         camera->destroy();
     }
@@ -306,7 +291,7 @@ void RenderScene::removeModel(Model *model) {
         if (_octree && _octree->isEnabled()) {
             _octree->remove(*iter);
         }
-        _lodStateCache->onModelRemoved(model);
+        _lodStateCache->removeModel(model);
         model->detachFromScene();
         _models.erase(iter);
     } else {
@@ -319,7 +304,7 @@ void RenderScene::removeModels() {
         if (_octree && _octree->isEnabled()) {
             _octree->remove(model);
         }
-        _lodStateCache->onModelRemoved(model);
+        _lodStateCache->removeModel(model);
         model->detachFromScene();
         CC_SAFE_DESTROY(model);
     }
@@ -354,159 +339,112 @@ void RenderScene::onGlobalPipelineStateChanged() {
     }
 }
 
-bool LodStateCache::isLodGroupVisibleByCamera(const LODGroup *lodGroup, const Camera *camera) {
-    auto layer = lodGroup->getNode()->getLayer();
-    return (camera->getVisibility() & layer) == layer;
-}
-
-void LodStateCache::registerCameraChange(const Camera *camera) {
-    auto &cameraState = cameraStateMap[camera];
-    cameraState.curEventId = camera->getNode()->on<cc::Node::TransformChanged>(
-            [camera, this](cc::Node * /* emitter*/, cc::TransformBit /*transformBit*/) {
-                cameraStateMap[camera].needUpdate = true;
-            });
-    auto *parent = camera->getNode()->getParent();
-    if (parent) {
-        cameraState.parentEventId = parent->on<cc::Node::TransformChanged>(
-                [camera, this](cc::Node * /* emitter*/, cc::TransformBit /*transformBit*/) {
-                    cameraStateMap[camera].needUpdate = true;
-                });
-    }
-}
-
-void LodStateCache::onCameraAdded(const Camera *camera) {
-    bool needRegisterChanged = false;
-    for (const auto &lodGroupState : lodGroupStateMap) {
-        if (isLodGroupVisibleByCamera(lodGroupState.first, camera)) {
-            needRegisterChanged = true;
+void LodStateCache::addCamera(const Camera *camera) {
+    for (const auto &lodGroup : _renderScene->getLODGroups()) {
+        auto layer = lodGroup->getNode()->getLayer();
+        if ((camera->getVisibility() & layer) == layer) {
+            if (_visibleLodLevelsByAnyLODGroup.count(camera) == 0) {
+                _visibleLodLevelsByAnyLODGroup[camera] = {};
+            }
             break;
         }
     }
+}
 
-    if (needRegisterChanged) {
-        registerCameraChange(camera);
+void LodStateCache::removeCamera(const Camera *camera) {
+    if (_visibleLodLevelsByAnyLODGroup.count(camera) != 0) {
+        _visibleLodLevelsByAnyLODGroup.erase(camera);
     }
 }
 
-void LodStateCache::onCameraRemoved(const Camera *camera) {
-    if (cameraStateMap.count(camera) == 0) {
-        return;
-    }
-    camera->getNode()->off(cameraStateMap[camera].curEventId);
-    auto *parent = camera->getNode()->getParent();
-    if (parent) {
-        parent->off(cameraStateMap[camera].parentEventId);
-    }
-}
+void LodStateCache::addLodGroup(const LODGroup *lodGroup) {
+    _vecAddedLodGroup.push_back(lodGroup);
 
-void LodStateCache::onLodGroupAdded(const LODGroup *lodGroup) {
-    auto &groupState = lodGroupStateMap[lodGroup];
-    groupState.curEventId = lodGroup->getNode()->on<cc::Node::TransformChanged>(
-        [lodGroup, this](cc::Node * /* emitter*/, cc::TransformBit /*transformBit*/) {
-            lodGroupStateMap[lodGroup].needUpdate = true;
-        });
-    auto *parent = lodGroup->getNode()->getParent();
-    if (parent) {
-        groupState.parentEventId = parent->on<cc::Node::TransformChanged>(
-                [lodGroup, this](cc::Node * /* emitter*/, cc::TransformBit /*transformBit*/) {
-                    lodGroupStateMap[lodGroup].needUpdate = true;
-                });
-    }
-    vecAddedLodGroup.push_back(lodGroup);
-
-    for (const auto &camera : renderScene->getCameras()) {
-        if (cameraStateMap.count(camera)) {
+    for (const auto &camera : _renderScene->getCameras()) {
+        if (_visibleLodLevelsByAnyLODGroup.count(camera)) {
             continue;
         }
-        if (isLodGroupVisibleByCamera(lodGroup, camera)) {
-            registerCameraChange(camera);
+        auto layer = lodGroup->getNode()->getLayer();
+        if ((camera->getVisibility() & layer) == layer) {
+            _visibleLodLevelsByAnyLODGroup[camera] = {};
         }
     }
 }
 
-void LodStateCache::onLodGroupRemoved(const LODGroup *lodGroup) {
-    if (lodGroupStateMap.count(lodGroup) == 0) {
-        return;
-    }
-    lodGroup->getNode()->off(lodGroupStateMap[lodGroup].curEventId);
-    auto *parent = lodGroup->getNode()->getParent();
-    if (parent) {
-        parent->off(lodGroupStateMap[lodGroup].parentEventId);
-    }
-
+void LodStateCache::removeLodGroup(const LODGroup *lodGroup) {
     for (auto index = 0; index < lodGroup->getLodCount(); index++) {
         const auto &lod = lodGroup->getLodDataArray()[index];
         for (const auto &model : lod->getModels()) {
-            modelsByAnyLODGroup.erase(model);
+            _modelsIncludeByLODGroup.erase(model);
         }
     }
 }
 
-void LodStateCache::onModelRemoved(const Model *model) {
-    if (modelsByAnyLODGroup.count(model) != 0) {
-        modelsByAnyLODGroup.erase(model);
+void LodStateCache::removeModel(const Model *model) {
+    if (_modelsIncludeByLODGroup.count(model) != 0) {
+        _modelsIncludeByLODGroup.erase(model);
     }
 }
 
 void LodStateCache::updateLodState() {
-    //insert vecAddedLodGroup's model into modelsByAnyLODGroup
-    for (const auto &addedLodGroup : vecAddedLodGroup) {
-        for (auto index = 0; index < addedLodGroup->getLodCount(); index++) {
+    //insert vecAddedLodGroup's model into modelsIncludeByLODGroup
+    for (const auto &addedLodGroup : _vecAddedLodGroup) {
+        for (uint8_t index = 0; index < addedLodGroup->getLodCount(); index++) {
             const auto &lod = addedLodGroup->getLodDataArray()[index];
             for (const auto &model : lod->getModels()) {
-                auto &modelInfo = modelsByAnyLODGroup[model];
+                auto &modelInfo = _modelsIncludeByLODGroup[model];
                 modelInfo.ownerLodLevel = index;
                 modelInfo.lodGroup = addedLodGroup;
             }
         }
     }
-    vecAddedLodGroup.clear();
+    _vecAddedLodGroup.clear();
 
     //update current visible lod index
-    for (const auto &lodGroup : renderScene->getLODGroups()) {
+    for (const auto &lodGroup : _renderScene->getLODGroups()) {
         if (lodGroup->isEnabled()) {
             const auto &lodLevels = lodGroup->getLockedLODLevels();
-            auto &groupState = lodGroupStateMap[lodGroup];
-            uint8_t count = lodLevels.size();
             // count == 0 will return to standard LOD processing.
-            if (count > 0) {
-                groupState.needUpdate = true;
+            if (!lodLevels.empty()) {
+                if (lodGroup->getNode()->getChangedFlags() > 0) {
+                    for (auto &visibleCamera : _visibleLodLevelsByAnyLODGroup) {
+                        visibleCamera.second[lodGroup].needUpdate = true;
+                    }
+                }
                 continue;
             }
 
-            for (const auto &cameraState : cameraStateMap) {
-                bool isCameraTransformChanged = cameraState.second.needUpdate;
-                auto needUpdate = groupState.needUpdate;
-                if (isCameraTransformChanged || needUpdate) {
-                    visibleLodLevelsByAnyLODGroup[cameraState.first][lodGroup] = lodGroup->getVisibleLODLevel(cameraState.first);
+            for (auto &visibleCamera : _visibleLodLevelsByAnyLODGroup) {
+                auto cameraChangeFlags = visibleCamera.first->getNode()->getChangedFlags();
+                auto lodGroupChangeFlags = lodGroup->getNode()->getChangedFlags();
+                auto &lodInfo = visibleCamera.second[lodGroup];
+                if (cameraChangeFlags > 0 || lodGroupChangeFlags > 0 || lodInfo.needUpdate) {
+                    if (lodInfo.needUpdate) {
+                        lodInfo.needUpdate = false;
+                    }
+                    lodInfo.visibleLevel = lodGroup->getVisibleLODLevel(visibleCamera.first);
                 }
             }
-
-            if (groupState.needUpdate) {
-                groupState.needUpdate = false;
-            }
-        }
-
-        for (auto &cameraState : cameraStateMap) {
-            cameraState.second.needUpdate = false;
         }
     }
 }
 
 bool LodStateCache::isLodModelCulled(const Camera *camera, const Model *model) {
-    if (modelsByAnyLODGroup.count(model) == 0) {
+    const auto &itModel = _modelsIncludeByLODGroup.find(model);
+    if (itModel == _modelsIncludeByLODGroup.end()) {
         return false;
     }
-    if (visibleLodLevelsByAnyLODGroup.count(camera) == 0) {
+    const auto &itCamera = _visibleLodLevelsByAnyLODGroup.find(camera);
+    if (itCamera == _visibleLodLevelsByAnyLODGroup.end()) {
         return true;
     }
 
-    const auto &modelInfo = modelsByAnyLODGroup[model];
+    const auto &modelInfo = (*itModel).second;
     const auto *lodGroup = modelInfo.lodGroup;
 
     const auto &visibleLodLevels = lodGroup->getLockedLODLevels();
-    if (visibleLodLevels.size() > 0) {
-        for (uint8_t index : visibleLodLevels) {
+    if (!visibleLodLevels.empty()) {
+        for (int8_t index : visibleLodLevels) {
             if (modelInfo.ownerLodLevel == index) {
                 return !(model->getNode() && model->getNode()->isActive());
             }
@@ -515,21 +453,18 @@ bool LodStateCache::isLodModelCulled(const Camera *camera, const Model *model) {
         return true;
     }
 
-    const auto &lodGroupMap = visibleLodLevelsByAnyLODGroup[camera];
-    if (modelInfo.ownerLodLevel == lodGroupMap.at(lodGroup)) {
+    const auto &lodGroupMap = (*itCamera).second;
+    if (modelInfo.ownerLodLevel == lodGroupMap.at(lodGroup).visibleLevel) {
         return !(model->getNode() && model->getNode()->isActive());
     }
-
 
     return true;
 }
 
 void LodStateCache::clearCache() {
-    cameraStateMap.clear();
-    lodGroupStateMap.clear();
-    modelsByAnyLODGroup.clear();
-    visibleLodLevelsByAnyLODGroup.clear();
-    vecAddedLodGroup.clear();
+    _modelsIncludeByLODGroup.clear();
+    _visibleLodLevelsByAnyLODGroup.clear();
+    _vecAddedLodGroup.clear();
 }
 
 } // namespace scene

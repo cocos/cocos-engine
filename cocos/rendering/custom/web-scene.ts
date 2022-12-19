@@ -114,7 +114,7 @@ export class WebSceneTask implements SceneTask {
 
             // filter model by view visibility
             if (model.enabled) {
-                if (scene?.isCulledByLod(camera, model)) {
+                if (scene && scene.isCulledByLod(camera, model)) {
                     continue;
                 }
 

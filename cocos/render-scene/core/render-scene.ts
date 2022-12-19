@@ -231,7 +231,7 @@ export class RenderScene {
     public addCamera (cam: Camera) {
         cam.attachToScene(this);
         this._cameras.push(cam);
-        this._lodStateCache.onCameraAdded(cam);
+        this._lodStateCache.addCamera(cam);
     }
 
     /**
@@ -243,7 +243,7 @@ export class RenderScene {
             if (this._cameras[i] === camera) {
                 this._cameras.splice(i, 1);
                 camera.detachFromScene();
-                this._lodStateCache.onCameraRemoved(camera);
+                this._lodStateCache.removeCamera(camera);
                 return;
             }
         }
@@ -256,7 +256,7 @@ export class RenderScene {
     public removeCameras () {
         for (const camera of this._cameras) {
             camera.detachFromScene();
-            this._lodStateCache.onCameraRemoved(camera);
+            this._lodStateCache.removeCamera(camera);
         }
         this._cameras.splice(0);
     }
@@ -406,7 +406,7 @@ export class RenderScene {
     public removeModel (model: Model) {
         for (let i = 0; i < this._models.length; ++i) {
             if (this._models[i] === model) {
-                this._lodStateCache.onModelRemoved(model);
+                this._lodStateCache.removeModel(model);
                 model.detachFromScene();
                 this._models.splice(i, 1);
 
@@ -421,7 +421,7 @@ export class RenderScene {
      */
     public removeModels () {
         for (const m of this._models) {
-            this._lodStateCache.onModelRemoved(m);
+            this._lodStateCache.removeModel(m);
             m.detachFromScene();
             m.destroy();
         }
@@ -474,7 +474,7 @@ export class RenderScene {
     addLODGroup (lodGroup: LODGroup) {
         this._lodGroups.push(lodGroup);
         lodGroup.attachToScene(this);
-        this._lodStateCache.onLodGroupAdded(lodGroup);
+        this._lodStateCache.addLodGroup(lodGroup);
     }
 
     /**
@@ -488,7 +488,7 @@ export class RenderScene {
         if (index >= 0) {
             this._lodGroups.splice(index, 1);
             lodGroup.detachFromScene();
-            this._lodStateCache.onLodGroupRemoved(lodGroup);
+            this._lodStateCache.removeLodGroup(lodGroup);
         }
     }
 
@@ -499,7 +499,7 @@ export class RenderScene {
      */
     removeLODGroups () {
         for (const group of this._lodGroups) {
-            this._lodStateCache.onLodGroupRemoved(group);
+            this._lodStateCache.removeLodGroup(group);
         }
         this._lodGroups.length = 0;
     }
@@ -529,6 +529,11 @@ class ModelInfo {
     lodGroup: LODGroup = null!;
 }
 
+class LODInfo {
+    visibleLevel = -1;
+    needUpdate = true;
+}
+
 class NodeTransformState {
     needUpdate = true;
     transformCallback: AnyFunction = null!;
@@ -539,84 +544,51 @@ class LodStateCache {
         this._renderScene = scene;
     }
 
-    onCameraAdded (camera: Camera) {
-        let needRegisterChanged = false;
-        for (const lodGroupState of this._lodGroupStateMap) {
-            if (this.isLodGroupVisibleByCamera(lodGroupState[0], camera)) {
-                needRegisterChanged = true;
+    addCamera (camera: Camera) {
+        const needRegisterChanged = false;
+        for (const lodGroup of this._renderScene.lodGroups) {
+            const layer = lodGroup.node.layer;
+            if ((camera.visibility & layer) === layer) {
+                if (!this._visibleLodLevelsByAnyLODGroup.has(camera)) {
+                    this._visibleLodLevelsByAnyLODGroup.set(camera, new Map<LODGroup, LODInfo>());
+                }
                 break;
             }
         }
+    }
 
-        if (needRegisterChanged) {
-            this.registerCameraChange(camera);
+    removeCamera (camera: Camera) {
+        if (this._visibleLodLevelsByAnyLODGroup.has(camera)) {
+            this._visibleLodLevelsByAnyLODGroup.delete(camera);
         }
     }
 
-    onCameraRemoved (camera: Camera) {
-        if (this._cameraStateMap.has(camera)) {
-            const transformState = this._cameraStateMap.get(camera);
-            if (transformState?.transformCallback) {
-                camera.node.off(NodeEventType.TRANSFORM_CHANGED, transformState.transformCallback, this);
-                const parentNode = camera.node.getParent();
-                if (parentNode) {
-                    parentNode.off(NodeEventType.TRANSFORM_CHANGED, transformState.transformCallback, this);
-                }
-            }
-        }
-    }
-
-    onLodGroupAdded (lodGroup: LODGroup) {
-        const transformState = new NodeTransformState();
-        transformState.transformCallback = () => {
-            const state = this._lodGroupStateMap.get(lodGroup);
-            if (state) {
-                state.needUpdate = true;
-            }
-        };
-        this._lodGroupStateMap.set(lodGroup, transformState);
-
-        lodGroup.node.on(NodeEventType.TRANSFORM_CHANGED, transformState.transformCallback, this);
-        const parentNode = lodGroup.node.getParent();
-        if (parentNode) {
-            parentNode.on(NodeEventType.TRANSFORM_CHANGED, transformState.transformCallback, this);
-        }
+    addLodGroup (lodGroup: LODGroup) {
         this._vecAddedLodGroup.push(lodGroup);
 
         for (const camera of this._renderScene.cameras) {
-            if (this._cameraStateMap.has(camera)) {
+            if (this._visibleLodLevelsByAnyLODGroup.has(camera)) {
                 continue;
             }
-            if (this.isLodGroupVisibleByCamera(lodGroup, camera)) {
-                this.registerCameraChange(camera);
+            const layer = lodGroup.node.layer;
+            if ((camera.visibility & layer) === layer) {
+                this._visibleLodLevelsByAnyLODGroup.set(camera, new Map<LODGroup, LODInfo>());
             }
         }
     }
 
-    onLodGroupRemoved (lodGroup: LODGroup) {
-        if (!this._lodGroupStateMap.has(lodGroup)) {
-            return;
-        }
-        const transformState = this._lodGroupStateMap.get(lodGroup);
-        if (transformState?.transformCallback) {
-            lodGroup.node.off(NodeEventType.TRANSFORM_CHANGED, transformState.transformCallback, this);
-            const parentNode = lodGroup.node.getParent();
-            if (parentNode) {
-                parentNode.off(NodeEventType.TRANSFORM_CHANGED, transformState.transformCallback, this);
-            }
-        }
-
+    removeLodGroup (lodGroup: LODGroup) {
         for (let index = 0; index < lodGroup.lodCount; index++) {
             const lod = lodGroup.lodDataArray[index];
             for (const model of lod.models) {
-                this._modelsByAnyLODGroup.delete(model);
+                this._modelsIncludeByLODGroup.delete(model);
             }
         }
     }
 
-    onModelRemoved (model: Model) {
-        if (this._modelsByAnyLODGroup.has(model)) {
-            this._modelsByAnyLODGroup.delete(model);
+    removeModel (model: Model) {
+        if (this._modelsIncludeByLODGroup.has(model)) {
+            this._modelsIncludeByLODGroup.delete(model);
         }
     }
 
@@ -626,13 +598,13 @@ class LodStateCache {
             for (let index = 0; index < addedLodGroup.lodCount; index++) {
                 const lod = addedLodGroup.lodDataArray[index];
                 for (const model of lod.models) {
-                    let modelInfo = this._modelsByAnyLODGroup.get(model);
+                    let modelInfo = this._modelsIncludeByLODGroup.get(model);
                     if (!modelInfo) {
                         modelInfo = new ModelInfo();
                     }
                     modelInfo.ownerLodLevel = index;
                     modelInfo.lodGroup = addedLodGroup;
-                    this._modelsByAnyLODGroup.set(model, modelInfo);
+                    this._modelsIncludeByLODGroup.set(model, modelInfo);
                 }
             }
         }
@@ -641,49 +613,52 @@ class LodStateCache {
         //update current visible lod index
         for (const lodGroup of this._renderScene.lodGroups) {
             if (lodGroup.enabled) {
-                const lodState = this._lodGroupStateMap.get(lodGroup);
                 const lodLevels = lodGroup.getLockedLODLevels();
                 const count = lodLevels.length;
                 // count == 0 will return to standard LOD processing.
                 if (count > 0) {
-                    if (lodState) {
-                        lodState.needUpdate = true;
+                    const dirtyFlags = lodGroup.node.hasChangedFlags;
+                    if (dirtyFlags > 0) {
+                        for (const visibleCamera of this._visibleLodLevelsByAnyLODGroup) {
+                            let lodInfo = visibleCamera[1].get(lodGroup);
+                            if (!lodInfo) {
+                                lodInfo = new LODInfo();
+                                visibleCamera[1].set(lodGroup, lodInfo);
+                            }
+                            lodInfo.needUpdate = true;
+                        }
                     }
                     continue;
                 }
 
-                for (const cameraState of this._cameraStateMap) {
-                    const camState = cameraState[1];
-                    if (camState.needUpdate || lodState?.needUpdate) {
-                        let visibleMap = this._visibleLodLevelsByAnyLODGroup.get(cameraState[0]);
-                        if (!visibleMap) {
-                            visibleMap =  new Map<LODGroup, number>();
-                            this._visibleLodLevelsByAnyLODGroup.set(cameraState[0], visibleMap);
+                for (const visibleCamera of this._visibleLodLevelsByAnyLODGroup) {
+                    let lodInfo = visibleCamera[1].get(lodGroup);
+                    if (!lodInfo) {
+                        lodInfo = new LODInfo();
+                        visibleCamera[1].set(lodGroup, lodInfo);
+                    }
+                    const cameraChangeFlags = visibleCamera[0].node.hasChangedFlags;
+                    const lodChangeFlags = lodGroup.node.hasChangedFlags;
+                    if (cameraChangeFlags > 0 || lodChangeFlags > 0 || lodInfo.needUpdate) {
+                        if (lodInfo.needUpdate) {
+                            lodInfo.needUpdate = false;
                         }
-                        visibleMap.set(lodGroup, lodGroup.getVisibleLODLevel(cameraState[0]));
+                        lodInfo.visibleLevel = lodGroup.getVisibleLODLevel(visibleCamera[0]);
                     }
                 }
-
-                if (lodState?.needUpdate) {
-                    lodState.needUpdate = false;
-                }
             }
-
-            this._cameraStateMap.forEach((state: NodeTransformState, camera: Camera) => {
-                state.needUpdate = false;
-            });
         }
     }
 
     isLodModelCulled (camera: Camera, model: Model) {
-        if (!this._modelsByAnyLODGroup.has(model)) {
+        if (!this._modelsIncludeByLODGroup.has(model)) {
             return false;
         }
         if (!this._visibleLodLevelsByAnyLODGroup.has(camera)) {
             return true;
         }
 
-        const modelInfo = this._modelsByAnyLODGroup.get(model);
+        const modelInfo = this._modelsIncludeByLODGroup.get(model);
         if (!modelInfo) {
             return false;
         }
@@ -704,7 +679,8 @@ class LodStateCache {
         if (!lodGroupMap) {
             return false;
         }
-        if (modelInfo.ownerLodLevel === lodGroupMap.get(lodGroup)) {
+        const lodInfo = lodGroupMap.get(lodGroup);
+        if (lodInfo && lodInfo.visibleLevel === modelInfo.ownerLodLevel) {
             return !(model.node && model.node.active);
         }
 
@@ -712,9 +688,7 @@ class LodStateCache {
     }
 
     clearCache () {
-        this._cameraStateMap.clear();
-        this._lodGroupStateMap.clear();
-        this._modelsByAnyLODGroup.clear();
+        this._modelsIncludeByLODGroup.clear();
         this._visibleLodLevelsByAnyLODGroup.clear();
         this._vecAddedLodGroup.length = 0;
     }
@@ -724,48 +698,19 @@ class LodStateCache {
         return (camera.visibility & layer) === layer;
     }
 
-    private registerCameraChange (camera: Camera) {
-        const transformState = new NodeTransformState();
-        transformState.transformCallback = () => {
-            const state = this._cameraStateMap.get(camera);
-            if (state) {
-                state.needUpdate = true;
-            }
-        };
-        this._cameraStateMap.set(camera, transformState);
-
-        camera.node.on(NodeEventType.TRANSFORM_CHANGED, transformState.transformCallback, this);
-        const parentNode = camera.node.getParent();
-        if (parentNode) {
-            parentNode.on(NodeEventType.TRANSFORM_CHANGED, transformState.transformCallback, this);
-        }
-    }
-
     private _renderScene: RenderScene = null!;
 
     /**
-     * @zh LOD使用的model集合；可能包含多个LODGroup的每一级LOD
-     * @en Collection of mods used by LODs; may contain multiple LODGs for each level of LOD.
+     * @zh LOD使用的model集合；包含每个LODGroup的每一级LOD
+     * @en The collection of models used by LOD; Each LOD of each LODGroup.
      */
-    private _modelsByAnyLODGroup: Map<Model, ModelInfo> = new Map<Model, ModelInfo>();
+    private _modelsIncludeByLODGroup: Map<Model, ModelInfo> = new Map<Model, ModelInfo>();
 
     /**
       * @zh 指定相机下，LODGroup使用哪一级的LOD
       * @en Specify which level of LOD is used by the LODGroup under the camera.
       */
-    private _visibleLodLevelsByAnyLODGroup: Map<Camera, Map<LODGroup, number>> = new Map<Camera, Map<LODGroup, number>>();
-
-    /**
-      * @zh 某个LODGroup的当前状态，是否需要更新等
-      * @en Specify the current status of a LODGroup, whether it needs to be updated, etc.
-      */
-    private _lodGroupStateMap: Map<LODGroup, NodeTransformState> = new Map<LODGroup, NodeTransformState>();
-
-    /**
-      * @zh 指定相机的状态是否出现变化, 这里主要记录transform是否出现变化
-      * @en Specify whether the state of the camera has changed or not, here it is mainly recorded whether the transform has changed or not.
-      */
-    private _cameraStateMap: Map<Camera, NodeTransformState> = new Map<Camera, NodeTransformState>();
+    private _visibleLodLevelsByAnyLODGroup: Map<Camera, Map<LODGroup, LODInfo>> = new Map<Camera, Map<LODGroup, LODInfo>>();
 
     /**
       * @zh 上一帧添加的lodgroup
