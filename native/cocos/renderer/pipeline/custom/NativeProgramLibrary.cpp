@@ -234,6 +234,107 @@ ShaderProgramData &buildProgramData(
     return programData;
 }
 
+void populateMergedShaderInfo(
+    const ccstd::pmr::vector<ccstd::pmr::string> &valueNames,
+    const DescriptorSetLayoutData &layout, uint32_t set,
+    gfx::ShaderInfo &shaderInfo, ccstd::pmr::vector<uint32_t> &blockSizes) {
+    for (const auto &descriptorBlock : layout.descriptorBlocks) {
+        auto binding = descriptorBlock.offset;
+        // switch (descriptorBlock.type) {
+        //     case DescriptorTypeOrder::UNIFORM_BUFFER:
+        //         for (const auto &block : descriptorBlock.descriptors) {
+        //             auto iter = layout.uniformBlocks.find(block.descriptorID);
+
+        //             if (iter == layout.uniformBlocks.end()) {
+        //                 CC_LOG_ERROR("Failed to find uniform block in layout");
+        //                 continue;
+        //             }
+        //             const auto &uniformBlock = iter->second;
+
+        //             blockSizes.emplace_back(getSize(uniformBlock.members));
+        //             shaderInfo.blocks.push(
+        //                 new UniformBlock(set, binding, valueNames[block.descriptorID],
+        //                                  uniformBlock.members.map((m) = > new Uniform(m.name, m.type, m.count)),
+        //                                  1), // count is always 1 for UniformBlock
+        //             );
+        //             ++binding;
+        //         }
+        //         if (binding != = descriptorBlock.offset + descriptorBlock.capacity) {
+        //         console.error(`Uniform buffer binding mismatch for set ${
+        //                 set}`);
+        //         }
+        //         break;
+        //     case DescriptorTypeOrder::DYNAMIC_UNIFORM_BUFFER:
+        //         // not implemented yet
+        //         break;
+        //     case DescriptorTypeOrder::SAMPLER_TEXTURE:
+        //         for (const auto &tex : descriptorBlock.descriptors) {
+        //         shaderInfo.samplerTextures.push(new UniformSamplerTexture(
+        //             set, binding, valueNames[tex.descriptorID], tex.type, tex.count, ));
+        //         ++binding;
+        //         }
+        //         break;
+        //     case DescriptorTypeOrder::SAMPLER:
+        //         for (const auto &sampler : descriptorBlock.descriptors) {
+        //         shaderInfo.samplers.push(new UniformSampler(
+        //             set, binding, valueNames[sampler.descriptorID], sampler.count, ));
+        //         ++binding;
+        //         }
+        //         break;
+        //     case DescriptorTypeOrder::TEXTURE:
+        //         for (const auto &texture : descriptorBlock.descriptors) {
+        //         shaderInfo.textures.push(new UniformTexture(
+        //             set, binding, valueNames[texture.descriptorID], texture.type, texture.count, ));
+        //         ++binding;
+        //         }
+        //         break;
+        //     case DescriptorTypeOrder::STORAGE_BUFFER:
+        //         for (const auto &buffer : descriptorBlock.descriptors) {
+        //         shaderInfo.buffers.push(new UniformStorageBuffer(
+        //             set, binding, valueNames[buffer.descriptorID], 1,
+        //             MemoryAccessBit.READ_WRITE /*buffer.memoryAccess*/,
+        //             )); // effect compiler guarantees buffer count = 1
+        //         ++binding;
+        //         }
+        //         break;
+        //     case DescriptorTypeOrder::DYNAMIC_STORAGE_BUFFER:
+        //         // not implemented yet
+        //         break;
+        //     case DescriptorTypeOrder::STORAGE_IMAGE:
+        //         for (const auto &image : descriptorBlock.descriptors) {
+        //         shaderInfo.images.push(new UniformStorageImage(
+        //             set, binding, valueNames[image.descriptorID], image.type, image.count,
+        //             MemoryAccessBit.READ_WRITE /*image.memoryAccess*/, ));
+        //         ++binding;
+        //         }
+        //         break;
+        //     case DescriptorTypeOrder::INPUT_ATTACHMENT:
+        //         for (const auto &subpassInput : descriptorBlock.descriptors) {
+        //         shaderInfo.subpassInputs.push(new UniformInputAttachment(
+        //             set, binding, valueNames[subpassInput.descriptorID], subpassInput.count, ));
+        //         ++binding;
+        //         }
+        //         break;
+        //     default:
+        // }
+    }
+}
+
+void makeShaderInfo(
+    LayoutGraphData &lg,
+    const PipelineLayoutData &passLayouts, // NOLINT(bugprone-easily-swappable-parameters)
+    const PipelineLayoutData &phaseLayouts,
+    const IShaderInfo &srcShaderInfo,
+    const ShaderProgramData *programData,
+    bool fixedLocal,
+    gfx::ShaderInfo &shaderInfo, ccstd::pmr::vector<uint32_t> &blockSizes) {
+    { // pass
+        auto iter = passLayouts.descriptorSets.find(UpdateFrequency::PER_PASS);
+        if (iter != passLayouts.descriptorSets.end()) {
+        }
+    }
+}
+
 } // namespace
 
 void NativeProgramLibrary::addEffect(EffectAsset *effectAssetIn) {

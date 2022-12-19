@@ -39,13 +39,16 @@ DescriptorTypeOrder getDescriptorTypeOrder(gfx::DescriptorType type);
 NameLocalID getOrCreateDescriptorID(LayoutGraphData& lg, std::string_view name);
 
 void makeDescriptorSetLayoutData(
-    const LayoutGraphData& lg, UpdateFrequency rate, uint32_t set,
-    const IDescriptorInfo& descriptors, DescriptorSetLayoutData& data,
+    LayoutGraphData& lg,
+    UpdateFrequency rate, uint32_t set, const IDescriptorInfo& descriptors,
+    DescriptorSetLayoutData& data,
     boost::container::pmr::memory_resource* scratch);
 
 void initializeDescriptorSetLayoutInfo(
     const DescriptorSetLayoutData& layoutData,
     gfx::DescriptorSetLayoutInfo& info);
+
+uint32_t getSize(ccstd::vector<cc::gfx::Uniform>& blockMembers);
 
 } // namespace render
 

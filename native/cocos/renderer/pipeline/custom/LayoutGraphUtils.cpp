@@ -264,6 +264,35 @@ void initializeDescriptorSetLayoutInfo(
     }
 }
 
+namespace {
+
+const ccstd::unordered_map<ccstd::string, uint32_t> DEFAULT_UNIFORM_COUNTS{
+    {"cc_joints", pipeline::UBOSkinning::layout.members[0].count},
+    {"cc_lightPos", pipeline::UBOForwardLight::LIGHTS_PER_PASS},
+    {"cc_lightColor", pipeline::UBOForwardLight::LIGHTS_PER_PASS},
+    {"cc_lightSizeRangeAngle", pipeline::UBOForwardLight::LIGHTS_PER_PASS},
+    {"cc_lightDir", pipeline::UBOForwardLight::LIGHTS_PER_PASS},
+};
+
+} // namespace
+
+uint32_t getSize(ccstd::vector<cc::gfx::Uniform>& blockMembers) {
+    uint32_t prevSize = 0;
+    for (const auto& m : blockMembers) {
+        if (m.count) {
+            prevSize += getTypeSize(m.type) * m.count;
+            continue;
+        }
+        auto iter = DEFAULT_UNIFORM_COUNTS.find(m.name);
+        if (iter != DEFAULT_UNIFORM_COUNTS.end()) {
+            prevSize += getTypeSize(m.type) * iter->second;
+            continue;
+        }
+        CC_LOG_ERROR("Invalid uniform count: %s", m.name.c_str());
+    }
+    return prevSize;
+}
+
 } // namespace render
 
 } // namespace cc
