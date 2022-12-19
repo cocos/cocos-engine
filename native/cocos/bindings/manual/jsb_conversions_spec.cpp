@@ -21,7 +21,8 @@
 
 #include <sstream>
 #include "base/Value.h"
-#include "cocos/base/DeferredReleasePool.h"
+#include "base/DeferredReleasePool.h"
+#include "base/TemplateUtils.h"
 #include "cocos/base/RefMap.h"
 #include "cocos/base/RefVector.h"
 #include "cocos/core/TypedArray.h"
@@ -56,28 +57,6 @@
         return true;                                                         \
     }
 
-template <class... Fs>
-struct overloaded;
-
-template <class F0, class... Fs>
-struct overloaded<F0, Fs...> : F0, overloaded<Fs...> {
-    overloaded(F0 f0, Fs... rest) : F0(f0), overloaded<Fs...>(rest...) {} // NOLINT(google-explicit-constructor)
-
-    using F0::operator();
-    using overloaded<Fs...>::operator();
-};
-
-template <class F0>
-struct overloaded<F0> : F0 {
-    overloaded(F0 f0) : F0(f0) {} // NOLINT(google-explicit-constructor)
-
-    using F0::operator();
-};
-
-template <class... Fs>
-auto make_overloaded(Fs... fs) { // NOLINT(readability-identifier-naming)
-    return overloaded<Fs...>(fs...);
-}
 
 template <typename A, typename T, typename F>
 typename std::enable_if<std::is_member_function_pointer<F>::value, bool>::type
@@ -714,18 +693,20 @@ bool sevalue_to_native(const se::Value &from, cc::scene::SkyboxInfo *to, se::Obj
     return true;
 }
 
-// ccstd::variant<int32_t, bool, ccstd::string>;
 // NOLINTNEXTLINE(readability-identifier-naming)
 bool sevalue_to_native(const se::Value &from, cc::MacroValue *to, se::Object * /*ctx*/) {
+    bool ret = true;
     if (from.isBoolean()) {
         *to = from.toBoolean();
     } else if (from.isNumber()) {
         *to = from.toInt32(); // NOTE: We only support macro with int32_t type now.
     } else if (from.isString()) {
         *to = from.toString();
+    } else {
+        ret = false;
     }
 
-    return true;
+    return ret;
 }
 
 // NOLINTNEXTLINE(readability-identifier-naming)
@@ -960,7 +941,7 @@ bool sevalue_to_native(const se::Value &from, cc::IPropertyEditorValueType *to, 
 }
 
 // NOLINTNEXTLINE(readability-identifier-naming)
-bool sevalue_to_native(const se::Value &from, ccstd::variant<ccstd::vector<float>, ccstd::string> *to, se::Object * /*ctx*/) {
+bool sevalue_to_native(const se::Value &from, cc::IPropertyValue *to, se::Object * /*ctx*/) {
     if (from.isObject() && from.toObject()->isArray()) {
         uint32_t len = 0;
         bool ok = from.toObject()->getArrayLength(&len);
@@ -981,26 +962,6 @@ bool sevalue_to_native(const se::Value &from, ccstd::variant<ccstd::vector<float
     } else {
         CC_ABORT();
     }
-    return true;
-}
-
-// NOLINTNEXTLINE(readability-identifier-naming)
-bool sevalue_to_native(const se::Value &from, ccstd::variant<ccstd::monostate, cc::MaterialProperty, cc::MaterialPropertyList> *to, se::Object *ctx) {
-    bool ok = false;
-    if (from.isObject() && from.toObject()->isArray()) {
-        cc::MaterialPropertyList propertyList{};
-        ok = sevalue_to_native(from, &propertyList, ctx);
-        if (ok) {
-            *to = std::move(propertyList);
-        }
-    } else {
-        cc::MaterialProperty property;
-        ok = sevalue_to_native(from, &property, ctx);
-        if (ok) {
-            *to = std::move(property);
-        }
-    }
-
     return true;
 }
 
@@ -1134,19 +1095,23 @@ bool sevalue_to_native(const se::Value &from, cc::TypedArray *to, se::Object * /
         }
     }
 
-    ccstd::visit(make_overloaded(
-                     [&](auto &typedArray) {
-                         typedArray.setJSTypedArray(from.toObject());
-                     },
-                     [](ccstd::monostate /*unused*/) {}),
+    ccstd::visit(cc::overloaded{
+        [&](auto &typedArray) {
+            typedArray.setJSTypedArray(from.toObject());
+        },
+        [](ccstd::monostate& /*unused*/) {}
+    },
                  *to);
     return true;
 }
 
 // NOLINTNEXTLINE(readability-identifier-naming)
 bool sevalue_to_native(const se::Value &from, cc::IBArray *to, se::Object * /*ctx*/) {
-    ccstd::visit([&](auto &typedArray) {
-        typedArray.setJSTypedArray(from.toObject());
+    ccstd::visit(cc::overloaded{
+        [&](auto &typedArray) {
+            typedArray.setJSTypedArray(from.toObject());
+        },
+        [](ccstd::monostate& /*unused*/) {}
     },
                  *to);
 
