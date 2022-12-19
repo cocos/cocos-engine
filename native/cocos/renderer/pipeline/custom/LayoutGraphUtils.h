@@ -34,6 +34,7 @@ namespace cc {
 namespace render {
 
 gfx::DescriptorType getGfxDescriptorType(DescriptorTypeOrder type);
+DescriptorTypeOrder getDescriptorTypeOrder(gfx::DescriptorType type);
 
 NameLocalID getOrCreateDescriptorID(LayoutGraphData& lg, std::string_view name);
 

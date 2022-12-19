@@ -83,6 +83,33 @@ gfx::DescriptorType getGfxDescriptorType(DescriptorTypeOrder type) {
     }
 }
 
+DescriptorTypeOrder getDescriptorTypeOrder(gfx::DescriptorType type) {
+    switch (type) {
+        case gfx::DescriptorType::UNIFORM_BUFFER:
+            return DescriptorTypeOrder::UNIFORM_BUFFER;
+        case gfx::DescriptorType::DYNAMIC_UNIFORM_BUFFER:
+            return DescriptorTypeOrder::DYNAMIC_UNIFORM_BUFFER;
+        case gfx::DescriptorType::SAMPLER_TEXTURE:
+            return DescriptorTypeOrder::SAMPLER_TEXTURE;
+        case gfx::DescriptorType::SAMPLER:
+            return DescriptorTypeOrder::SAMPLER;
+        case gfx::DescriptorType::TEXTURE:
+            return DescriptorTypeOrder::TEXTURE;
+        case gfx::DescriptorType::STORAGE_BUFFER:
+            return DescriptorTypeOrder::STORAGE_BUFFER;
+        case gfx::DescriptorType::DYNAMIC_STORAGE_BUFFER:
+            return DescriptorTypeOrder::DYNAMIC_STORAGE_BUFFER;
+        case gfx::DescriptorType::STORAGE_IMAGE:
+            return DescriptorTypeOrder::STORAGE_IMAGE;
+        case gfx::DescriptorType::INPUT_ATTACHMENT:
+            return DescriptorTypeOrder::INPUT_ATTACHMENT;
+        case gfx::DescriptorType::UNKNOWN:
+        default:
+            CC_LOG_ERROR("DescriptorTypeOrder not found");
+            return DescriptorTypeOrder::INPUT_ATTACHMENT;
+    }
+}
+
 NameLocalID getOrCreateDescriptorID(LayoutGraphData& lg, std::string_view name) {
     auto iter = lg.attributeIndex.find(name);
     if (iter != lg.attributeIndex.end()) {

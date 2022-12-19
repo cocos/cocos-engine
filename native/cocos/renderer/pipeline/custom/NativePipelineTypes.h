@@ -529,6 +529,7 @@ public:
 
     LayoutGraphData layoutGraph;
     PmrFlatMap<uint32_t, ProgramGroup> phases;
+    boost::container::pmr::unsynchronized_pool_resource unsycPool;
     bool mergeHighFrequency{false};
     bool fixedLocal{true};
 };
