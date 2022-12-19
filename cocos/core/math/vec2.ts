@@ -266,8 +266,12 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * @en Sets the normalized vector to the out vector
-     * @zh 归一化向量
+     * @zh 归一化指定向量。
+     * @en Normalizes the specified vector.
+     * @out @zh 结果向量。@en Result vector.
+     * @param a @zh 输入向量。@en Input vector.
+     * @note @zh 如果输入向量 **精确** 等于零向量，结果也将设为零向量。
+     * @en If the input vector is **EXACTLY** zero vector, the result will also be set to zero vector.
      */
     public static normalize <Out extends IVec2Like, Vec2Like extends IVec2Like> (out: Out, a: Vec2Like) {
         const x = a.x;
@@ -277,6 +281,9 @@ export class Vec2 extends ValueType {
             len = 1 / Math.sqrt(len);
             out.x = x * len;
             out.y = y * len;
+        } else {
+            out.x = 0.0;
+            out.y = 0.0;
         }
         return out;
     }
@@ -302,7 +309,7 @@ export class Vec2 extends ValueType {
      */
     public static cross <Out extends IVec2Like> (out: Vec3, a: Out, b: Out): Vec3;
 
-    public static cross (out: IVec2Like | Vec3, a: IVec2Like, b?: IVec2Like) : number | Vec3 {
+    public static cross (out: IVec2Like | Vec3, a: IVec2Like, b?: IVec2Like): number | Vec3 {
         if (out instanceof Vec3) {
             out.x = out.y = 0;
             out.z = a.x * b!.y - a.y * b!.x;

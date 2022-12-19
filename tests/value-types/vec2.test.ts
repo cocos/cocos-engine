@@ -1,4 +1,4 @@
-import { Vec2 } from '../../cocos/core/math/vec2';
+import { v2, Vec2 } from '../../cocos/core/math/vec2';
 
 test('basic test', function () {
     let vec1 = new Vec2(5, 6);
@@ -34,4 +34,35 @@ test('misc', function(){
     let mag = Math.sqrt(vec1.x * vec1.x + vec1.y * vec1.y);
     let result = new Vec2(vec1.x / mag, vec1.y / mag);
     expect(vec1).toStrictEqual(result);
+});
+
+test(`Normalization`, () => {
+    const t = (input: Readonly<Vec2>) => {
+        const result = new Vec2(NaN, NaN);
+        expect(Vec2.normalize(result, input)).toBe(result);
+        return result;
+    };
+
+    expect(t(v2(1., 2.))).toMatchObject({
+        x: 0.4472135954999579,
+        y: 0.8944271909999159,
+    });
+
+    // Normalize exactly zero vector gives zero vector.
+    expect(t(v2(0., 0.))).toMatchObject({
+        x: 0.,
+        y: 0.,
+    });
+
+    // Even the input vector is very close to zero vector, the result is far from zero vector.
+    expect(t(v2(1e-20, 0.))).toMatchObject({
+        x: 1.,
+        y: 0.,
+    });
+
+    // This once was a bug because the lack of assignment to result if the input vector is zero.
+    expect(Vec2.normalize(v2(2., 4.,), v2(0., 0.))).toMatchObject({
+        x: 0.,
+        y: 0.,
+    });
 });

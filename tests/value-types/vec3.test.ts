@@ -1,6 +1,7 @@
 import { lerp, toRadian } from '../../cocos/core/math/utils';
-import { Vec3 } from '../../cocos/core/math/vec3';
+import { v3, Vec3 } from '../../cocos/core/math/vec3';
 import { clampf } from '../../cocos/core/utils/misc';
+import '../utils/matchers/value-type-asymmetric-matchers';
 
 test('basic test', function () {
     const vec3 = new Vec3(1, 2, 3);
@@ -133,4 +134,39 @@ test('Slerp', () => {
             radius * Math.sin(theta) * Math.sin(phi),
         );
     }
+});
+
+test(`Normalization`, () => {
+    const t = (input: Readonly<Vec3>) => {
+        const result = new Vec3(NaN, NaN, NaN);
+        expect(Vec3.normalize(result, input)).toBe(result);
+        return result;
+    };
+
+    expect(t(v3(1., 2., 3.))).toMatchObject({
+        x: 0.2672612419124244,
+        y: 0.5345224838248488,
+        z: 0.8017837257372732,
+    });
+
+    // Normalize exactly zero vector gives zero vector.
+    expect(t(v3(0., 0., 0.))).toMatchObject({
+        x: 0.,
+        y: 0.,
+        z: 0.,
+    });
+
+    // Even the input vector is very close to zero vector, the result is far from zero vector.
+    expect(t(v3(1e-20, 0., 0.))).toMatchObject({
+        x: 1.,
+        y: 0.,
+        z: 0.,
+    });
+
+    // This once was a bug because the lack of assignment to result if the input vector is zero.
+    expect(Vec3.normalize(v3(2., 4., 6.), v3(0., 0., 0.))).toMatchObject({
+        x: 0.,
+        y: 0.,
+        z: 0.,
+    });
 });

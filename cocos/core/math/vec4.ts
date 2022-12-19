@@ -314,8 +314,12 @@ export class Vec4 extends ValueType {
     }
 
     /**
-     * @en Sets the normalized vector to the out vector
-     * @zh 归一化向量
+     * @zh 归一化指定向量。
+     * @en Normalizes the specified vector.
+     * @out @zh 结果向量。@en Result vector.
+     * @param a @zh 输入向量。@en Input vector.
+     * @note @zh 如果输入向量 **精确** 等于零向量，结果也将设为零向量。
+     * @en If the input vector is **EXACTLY** zero vector, the result will also be set to zero vector.
      */
     public static normalize <Out extends IVec4Like> (out: Out, a: Out) {
         const x = a.x;
@@ -329,6 +333,11 @@ export class Vec4 extends ValueType {
             out.y = y * len;
             out.z = z * len;
             out.w = w * len;
+        } else {
+            out.x = 0.0;
+            out.y = 0.0;
+            out.z = 0.0;
+            out.w = 0.0;
         }
         return out;
     }
