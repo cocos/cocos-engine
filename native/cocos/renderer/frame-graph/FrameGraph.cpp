@@ -227,6 +227,13 @@ void FrameGraph::cull() {
             CC_ASSERT(handle.isValid());
             ++_resourceNodes[handle].readerCount;
         }
+
+        for (const auto &attachment : passNode->_attachments) {
+            CC_ASSERT(attachment.textureHandle.isValid());
+            if (attachment.desc.resolveTarget.isValid()) {
+                ++_resourceNodes[attachment.textureHandle].readerCount;
+            }
+        }
     }
 
     static ccstd::vector<const ResourceNode *> stack;
@@ -266,50 +273,18 @@ void FrameGraph::cull() {
 }
 
 void FrameGraph::computeResourceLifetime() {
-    // msaaTex -> resolveTex / resolveTex -> msaaTex
-    ccstd::unordered_multimap<Handle, Handle, typename Handle::Hasher> linkedResource;
     for (const auto &passNode : _passNodes) {
         if (passNode->_refCount == 0) {
             continue;
         }
 
-        for (const auto &attachment : passNode->_attachments) {
-            Handle handle;
-            if (attachment.desc.resolveSource != Handle::UNINITIALIZED) {
-                handle = attachment.desc.resolveSource;
-            }
-            if (attachment.desc.resolveTarget != Handle::UNINITIALIZED) {
-                handle = attachment.desc.resolveTarget;
-            }
-            if (handle != Handle::UNINITIALIZED) {
-                linkedResource.emplace(attachment.textureHandle, handle);
-                linkedResource.emplace(handle, attachment.textureHandle);
-            }
-        }
-
         for (const Handle handle : passNode->_reads) {
             _resourceNodes[handle].virtualResource->updateLifetime(passNode.get());
-
-            if (linkedResource.count(handle)) {
-                auto range = linkedResource.equal_range(handle);
-                for (auto iter = range.first; iter != range.second; ++iter) {
-                    _resourceNodes[iter->second].virtualResource->updateLifetime(passNode.get());
-                }
-            }
         }
 
         for (const Handle handle : passNode->_writes) {
             _resourceNodes[handle].virtualResource->updateLifetime(passNode.get());
             ++_resourceNodes[handle].virtualResource->_writerCount;
-
-             if (linkedResource.count(handle)) {
-                auto range = linkedResource.equal_range(handle);
-                for (auto iter = range.first; iter != range.second; ++iter) {
-                    const auto &linkHandle = iter->second;
-                    _resourceNodes[linkHandle].virtualResource->updateLifetime(passNode.get());
-                    ++_resourceNodes[linkHandle].virtualResource->_writerCount;
-                }
-            }
         }
 
         std::sort(passNode->_attachments.begin(), passNode->_attachments.end(), RenderTargetAttachment::Sorter());
@@ -505,7 +480,7 @@ void FrameGraph::generateDevicePasses() {
 // https://dreampuf.github.io/GraphvizOnline/
 void FrameGraph::exportGraphViz(const ccstd::string &path) {
     std::ofstream out(path, std::ios::out | std::ios::binary);
-    //out.imbue(std::locale("chs", std::locale::ctype));
+    // out.imbue(std::locale("chs", std::locale::ctype));
 
     if (out.fail()) {
         return;
