@@ -54,7 +54,12 @@ function downloadScript (url, options, onComplete) {
     if (loadedScripts[url]) return onComplete && onComplete();
 
     download(url, (src, options, onComplete) => {
-        globalThis.require(src);
+        if (__EDITOR__) {
+            // in editor mode,require is from electron,__require is from engine
+            globalThis.__require(src);
+        } else {
+            globalThis.require(src);
+        }
         loadedScripts[url] = true;
         onComplete && onComplete(null);
     }, options, options.onFileProgress, onComplete);

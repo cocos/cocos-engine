@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -22,40 +22,25 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 ****************************************************************************/
-
 #pragma once
 
-#include <cstdint>
-#include "base/std/container/string.h"
-#include "base/std/optional.h"
-#include "core/TypedArray.h"
 namespace cc {
 
-using MeshWeightsType = ccstd::vector<float>;
+/* overloaded is used in ccstd::visit a variant value. For example:
 
-/**
- * @en Array views for index buffer
- * @zh 允许存储索引的数组视图
+    ccstd::variant<ccstd::monostate, int, bool, float> value;
+    ccstd::visit(cc::overloaded{
+        [](auto& v) {
+            // Do something with v
+        },
+        [](ccstd::monostate&) {} // Do nothing if value isn't initialized
+    }, value);
+
  */
-using IBArray = ccstd::variant<ccstd::monostate, Uint8Array, Uint16Array, Uint32Array>;
+    
+// https://stackoverflow.com/questions/69915380/what-does-templateclass-ts-struct-overloaded-ts-using-tsoperator
+// https://en.cppreference.com/w/cpp/language/class_template_argument_deduction
+template<class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
+template<class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
 
-template <typename T>
-T getIBArrayValue(const IBArray &arr, uint32_t idx) {
-#define IBARRAY_GET_VALUE(type)               \
-    do {                                      \
-        auto *p = ccstd::get_if<type>(&arr);  \
-        if (p != nullptr) {                   \
-            return static_cast<T>((*p)[idx]); \
-        }                                     \
-    } while (false)
-
-    IBARRAY_GET_VALUE(Uint16Array);
-    IBARRAY_GET_VALUE(Uint32Array);
-    IBARRAY_GET_VALUE(Uint8Array);
-
-#undef IBARRAY_GET_VALUE
-
-    return 0;
 }
-
-} // namespace cc

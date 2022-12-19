@@ -97,13 +97,18 @@ export class ReflectionProbe extends Component {
     protected _previewSphere: Node | null = null;
     protected _previewPlane: Node | null = null;
 
+    protected _sourceCameraPos = new Vec3(0, 0, 0);
+
     /**
      * @en
      * Gets or sets the size of the box
      * @zh
      * 获取或设置包围盒的大小。
      */
-    set size (value) {
+    set size (value: Vec3) {
+        if (value.x < 0) value.x = 0;
+        if (value.y < 0) value.y = 0;
+        if (value.z < 0) value.z = 0;
         this._size.set(value);
         this.probe.size = this._size;
         if (this.probe) {
@@ -333,8 +338,12 @@ export class ReflectionProbe extends Component {
                 ReflectionProbeManager.probeManager.onUpdateProbes(true);
             }
         }
-        if (this.probeType === ProbeType.PLANAR && this.sourceCamera && (this.sourceCamera.node.hasChangedFlags & TransformBit.TRS)) {
-            this.probe.renderPlanarReflection(this.sourceCamera.camera);
+        if (this.probeType === ProbeType.PLANAR && this.sourceCamera) {
+            if ((this.sourceCamera.node.hasChangedFlags & TransformBit.TRS)
+            || !this._sourceCameraPos.equals(this.sourceCamera.node.getWorldPosition())) {
+                this._sourceCameraPos = this.sourceCamera.node.getWorldPosition();
+                this.probe.renderPlanarReflection(this.sourceCamera.camera);
+            }
         }
     }
 
