@@ -147,6 +147,9 @@ public:
         return _envmapHDR;
     }
 
+    void setRotationAngle(float val);
+    inline float getRotationAngle() const { return _rotationAngle; }
+
     /**
      * @en The optional diffusion convolution map used in tandem with IBL
      * @zh 使用的漫反射卷积图
@@ -164,6 +167,10 @@ public:
     TextureCube *getDiffuseMap() const;
 
     void setReflectionMap(TextureCube *val);
+    TextureCube* getReflectionMap() const;
+
+    void setSkyboxMaterial(Material *val);
+    inline Material *getSkyboxMaterial() const { return _editableMaterial; }
 
     void activate(Skybox *resource);
 
@@ -172,18 +179,18 @@ public:
     // @serializable
     // @type(TextureCube)
     // @formerlySerializedAs('_envmap')
-    TextureCube *_envmapHDR{nullptr};
+    IntrusivePtr<TextureCube> _envmapHDR{nullptr};
     // @serializable
     // @type(TextureCube)
-    TextureCube *_envmapLDR{nullptr};
+    IntrusivePtr<TextureCube> _envmapLDR{nullptr};
     // @serializable
     // @type(TextureCube)
-    TextureCube *_diffuseMapHDR{nullptr};
+    IntrusivePtr<TextureCube> _diffuseMapHDR{nullptr};
     // @serializable
     // @type(TextureCube)
-    TextureCube *_diffuseMapLDR{nullptr};
-    TextureCube *_reflectionHDR{nullptr};
-    TextureCube *_reflectionLDR{nullptr};
+    IntrusivePtr<TextureCube> _diffuseMapLDR{nullptr};
+    IntrusivePtr<TextureCube> _reflectionHDR{nullptr};
+    IntrusivePtr<TextureCube> _reflectionLDR{nullptr};
     // @serializable
     bool _enabled{false};
     // @serializable

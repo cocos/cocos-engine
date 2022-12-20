@@ -28,6 +28,7 @@
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_global.h"
 #include "cocos/platform/interfaces/modules/ISystemWindow.h"
+#include "cocos/platform/interfaces/modules/ISystemWindowManager.h"
 
 #include <stdlib.h>
 #include <windows.h>
@@ -54,7 +55,7 @@ HWND getCurrentWindowHwnd() {
     if (!CC_CURRENT_APPLICATION()) {
         return nullptr;
     }
-    ISystemWindow *systemWindowIntf = CC_GET_PLATFORM_INTERFACE(ISystemWindow);
+    ISystemWindow *systemWindowIntf = CC_GET_MAIN_SYSTEM_WINDOW();
     if (!systemWindowIntf) {
         return nullptr;
     }
@@ -238,17 +239,17 @@ void EditBox::show(const EditBox::ShowInfo &showInfo) {
     SetFocus(g_hwndEditBox);
 
     SendMessage(g_hwndEditBox, EM_SETSEL, (WPARAM)0, (LPARAM)index);
-    // int height = CC_GET_PLATFORM_INTERFACE(ISystemWindow)->kheight;
+    // int height = CC_GET_MAIN_SYSTEM_WINDOW()->kheight;
     CHARFORMAT2 cf;
     RECT rect;
 
     GetWindowRect(getCurrentWindowHwnd(), &rect);
-    float WindowRatio = (float)(rect.bottom - rect.top) / (float)CC_GET_PLATFORM_INTERFACE(ISystemWindow)->getViewSize().height;
+    float WindowRatio = (float)(rect.bottom - rect.top) / (float)CC_GET_MAIN_SYSTEM_WINDOW()->getViewSize().height;
     float JsFontRatio = float(showInfo.fontSize) / 5;
     /** A probale way to calculate the increase of font size
      * OriginalSize + Increase = OriginalSize * Ratio_of_js_fontSize * Ratio_of_window
      * Default value : OriginalSize = 8, Ratio_of_js_fontSize = showInfo.fontSize /5,
-     * Ratio_of_window = (float)height / (float)CC_GET_PLATFORM_INTERFACE(ISystemWindow)->getViewSize().height
+     * Ratio_of_window = (float)height / (float)CC_GET_MAIN_SYSTEM_WINDOW()->getViewSize().height
      * thus Increase was calculated.
      */
     int fsize = (float)(JsFontRatio + 8) * WindowRatio - 8;

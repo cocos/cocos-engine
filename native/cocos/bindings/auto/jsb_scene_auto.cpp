@@ -813,6 +813,10 @@ using namespace cc;
 #define cc_scene_Model_priority_set(self_, val_) self_->setPriority(val_)
   
 
+#define cc_scene_Model_tetrahedronIndex_get(self_) self_->getTetrahedronIndex()
+#define cc_scene_Model_tetrahedronIndex_set(self_, val_) self_->setTetrahedronIndex(val_)
+  
+
 #define cc_scene_Model_useLightProbe_get(self_) self_->getUseLightProbe()
 #define cc_scene_Model_useLightProbe_set(self_, val_) self_->setUseLightProbe(val_)
   
@@ -1036,6 +1040,18 @@ using namespace cc;
 #define cc_scene_SkyboxInfo_diffuseMap_set(self_, val_) self_->setDiffuseMap(val_)
   
 
+#define cc_scene_SkyboxInfo_reflectionMap_get(self_) self_->getReflectionMap()
+#define cc_scene_SkyboxInfo_reflectionMap_set(self_, val_) self_->setReflectionMap(val_)
+  
+
+#define cc_scene_SkyboxInfo_skyboxMaterial_get(self_) self_->getSkyboxMaterial()
+#define cc_scene_SkyboxInfo_skyboxMaterial_set(self_, val_) self_->setSkyboxMaterial(val_)
+  
+
+#define cc_scene_SkyboxInfo_rotationAngle_get(self_) self_->getRotationAngle()
+#define cc_scene_SkyboxInfo_rotationAngle_set(self_, val_) self_->setRotationAngle(val_)
+  
+
 #define cc_scene_SkyboxInfo_envLightingType_get(self_) self_->getEnvLightingType()
 #define cc_scene_SkyboxInfo_envLightingType_set(self_, val_) self_->setEnvLightingType(val_)
   
@@ -1082,6 +1098,21 @@ using namespace cc;
 
 #define cc_scene_ReflectionProbe_size_get(self_) self_->getBoudingSize()
 #define cc_scene_ReflectionProbe_size_set(self_, val_) self_->setBoudingSize(val_)
+  
+
+#define cc_scene_ReflectionProbe_boundingBox_get(self_) self_->getBoundingBox()
+  
+
+#define cc_scene_ReflectionProbe_previewSphere_get(self_) self_->getPreviewSphere()
+#define cc_scene_ReflectionProbe_previewSphere_set(self_, val_) self_->setPreviewSphere(val_)
+  
+
+#define cc_scene_ReflectionProbe_previewPlane_get(self_) self_->getPreviewPlane()
+#define cc_scene_ReflectionProbe_previewPlane_set(self_, val_) self_->setPreviewPlane(val_)
+  
+
+#define cc_SceneGlobals_bakedWithStationaryMainLight_get(self_) self_->getBakedWithStationaryMainLight()
+#define cc_SceneGlobals_bakedWithStationaryMainLight_set(self_, val_) self_->setBakedWithStationaryMainLight(val_)
   
 
 
@@ -1298,6 +1329,7 @@ SE_BIND_FUNC(js_cc_Layers_makeMaskExclude_static)
 bool js_register_cc_Layers(se::Object* obj) {
     auto* cls = se::Class::create("Layers", obj, nullptr, nullptr); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     
     
@@ -1628,6 +1660,7 @@ SE_BIND_FINALIZE_FUNC(js_delete_cc_Node_UserData)
 bool js_register_cc_Node_UserData(se::Object* obj) {
     auto* cls = se::Class::create({"Node", "UserData"}, obj, nullptr, nullptr); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     
     
@@ -3912,6 +3945,7 @@ SE_BIND_PROP_GET(js_cc_Node_mobility_get)
 bool js_register_cc_Node(se::Object* obj) {
     auto* cls = se::Class::create("Node", obj, __jsb_cc_CCObject_proto, _SE(js_new_Node)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("onSiblingIndexChanged", _SE(js_cc_Node_onSiblingIndexChanged_get), _SE(js_cc_Node_onSiblingIndexChanged_set)); 
     cls->defineProperty("_id", _SE(js_cc_Node__id_get), _SE(js_cc_Node__id_set)); 
     cls->defineProperty("_parentInternal", _SE(js_cc_Node__parentInternal_get), _SE(js_cc_Node__parentInternal_set)); 
@@ -4279,6 +4313,7 @@ SE_BIND_PROP_GET(js_cc_Scene_autoReleaseAssets_get)
 bool js_register_cc_Scene(se::Object* obj) {
     auto* cls = se::Class::create("Scene", obj, __jsb_cc_Node_proto, _SE(js_new_Scene)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("autoReleaseAssets", _SE(js_cc_Scene_autoReleaseAssets_get), _SE(js_cc_Scene_autoReleaseAssets_set)); 
     
     cls->defineFunction("getRenderScene", _SE(js_cc_Scene_getRenderScene)); 
@@ -4648,9 +4683,48 @@ static bool js_cc_SceneGlobals_setLightProbeInfo(se::State& s)
 }
 SE_BIND_FUNC(js_cc_SceneGlobals_setLightProbeInfo) 
 
+static bool js_cc_SceneGlobals_bakedWithStationaryMainLight_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::SceneGlobals *arg1 = (cc::SceneGlobals *) NULL ;
+    bool arg2 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::SceneGlobals>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2);
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    cc_SceneGlobals_bakedWithStationaryMainLight_set(arg1,arg2);
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_SceneGlobals_bakedWithStationaryMainLight_set) 
+
+static bool js_cc_SceneGlobals_bakedWithStationaryMainLight_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::SceneGlobals *arg1 = (cc::SceneGlobals *) NULL ;
+    bool result;
+    
+    arg1 = SE_THIS_OBJECT<cc::SceneGlobals>(s);
+    if (nullptr == arg1) return true;
+    result = (bool)cc_SceneGlobals_bakedWithStationaryMainLight_get(arg1);
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_SceneGlobals_bakedWithStationaryMainLight_get) 
+
 bool js_register_cc_SceneGlobals(se::Object* obj) {
     auto* cls = se::Class::create("SceneGlobals", obj, nullptr, _SE(js_new_cc_SceneGlobals)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
+    cls->defineProperty("bakedWithStationaryMainLight", _SE(js_cc_SceneGlobals_bakedWithStationaryMainLight_get), _SE(js_cc_SceneGlobals_bakedWithStationaryMainLight_set)); 
     
     cls->defineFunction("activate", _SE(js_cc_SceneGlobals_activate)); 
     cls->defineFunction("getAmbientInfo", _SE(js_cc_SceneGlobals_getAmbientInfo)); 
@@ -4926,6 +5000,7 @@ bool sevalue_to_native(const se::Value &from, cc::DebugViewConfig * to, se::Obje
 bool js_register_cc_DebugViewConfig(se::Object* obj) {
     auto* cls = se::Class::create("DebugViewConfig", obj, nullptr, _SE(js_new_cc_DebugViewConfig)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("singleMode", _SE(js_cc_DebugViewConfig_singleMode_get), _SE(js_cc_DebugViewConfig_singleMode_set)); 
     cls->defineProperty("compositeModeBitCount", _SE(js_cc_DebugViewConfig_compositeModeBitCount_get), _SE(js_cc_DebugViewConfig_compositeModeBitCount_set)); 
     cls->defineProperty("compositeModeValue", _SE(js_cc_DebugViewConfig_compositeModeValue_get), _SE(js_cc_DebugViewConfig_compositeModeValue_set)); 
@@ -6052,6 +6127,7 @@ SE_BIND_PROP_GET(js_cc_Root_cameraList_get)
 bool js_register_cc_Root(se::Object* obj) {
     auto* cls = se::Class::create("Root", obj, nullptr, _SE(js_new_cc_Root)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("device", _SE(js_cc_Root_device_get), _SE(js_cc_Root_device_set)); 
     cls->defineProperty("_device", _SE(js_cc_Root__device_get), _SE(js_cc_Root__device_set)); 
     cls->defineProperty("mainWindow", _SE(js_cc_Root_mainWindow_get), nullptr); 
@@ -6242,6 +6318,7 @@ bool sevalue_to_native(const se::Value &from, cc::scene::IMacroPatch * to, se::O
 bool js_register_cc_scene_IMacroPatch(se::Object* obj) {
     auto* cls = se::Class::create("IMacroPatch", obj, nullptr, _SE(js_new_cc_scene_IMacroPatch)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("name", _SE(js_cc_scene_IMacroPatch_name_get), _SE(js_cc_scene_IMacroPatch_name_set)); 
     cls->defineProperty("value", _SE(js_cc_scene_IMacroPatch_value_get), _SE(js_cc_scene_IMacroPatch_value_set)); 
     
@@ -6832,6 +6909,7 @@ SE_BIND_PROP_GET(js_cc_scene_Light_visibility_get)
 bool js_register_cc_scene_Light(se::Object* obj) {
     auto* cls = se::Class::create("Light", obj, nullptr, _SE(js_new_cc_scene_Light)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("baked", _SE(js_cc_scene_Light_baked_get), _SE(js_cc_scene_Light_baked_set)); 
     cls->defineProperty("color", _SE(js_cc_scene_Light_color_get), _SE(js_cc_scene_Light_color_set)); 
     cls->defineProperty("useColorTemperature", _SE(js_cc_scene_Light_useColorTemperature_get), _SE(js_cc_scene_Light_useColorTemperature_set)); 
@@ -7021,6 +7099,7 @@ SE_BIND_FINALIZE_FUNC(js_delete_cc_scene_LODData)
 bool js_register_cc_scene_LODData(se::Object* obj) {
     auto* cls = se::Class::create("LODData", obj, nullptr, _SE(js_new_cc_scene_LODData)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("screenUsagePercentage", _SE(js_cc_scene_LODData_screenUsagePercentage_get), _SE(js_cc_scene_LODData_screenUsagePercentage_set)); 
     cls->defineProperty("models", _SE(js_cc_scene_LODData_models_get), nullptr); 
     
@@ -7509,6 +7588,7 @@ SE_BIND_PROP_GET(js_cc_scene_LODGroup_scene_get)
 bool js_register_cc_scene_LODGroup(se::Object* obj) {
     auto* cls = se::Class::create("LODGroup", obj, nullptr, _SE(js_new_cc_scene_LODGroup)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("lodCount", _SE(js_cc_scene_LODGroup_lodCount_get), nullptr); 
     cls->defineProperty("enabled", _SE(js_cc_scene_LODGroup_enabled_get), _SE(js_cc_scene_LODGroup_enabled_set)); 
     cls->defineProperty("localBoundaryCenter", _SE(js_cc_scene_LODGroup_localBoundaryCenter_get), _SE(js_cc_scene_LODGroup_localBoundaryCenter_set)); 
@@ -8017,6 +8097,7 @@ SE_BIND_PROP_GET(js_cc_scene_Fog_colorArray_get)
 bool js_register_cc_scene_Fog(se::Object* obj) {
     auto* cls = se::Class::create("Fog", obj, nullptr, _SE(js_new_cc_scene_Fog)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("enabled", _SE(js_cc_scene_Fog_enabled_get), _SE(js_cc_scene_Fog_enabled_set)); 
     cls->defineProperty("accurate", _SE(js_cc_scene_Fog_accurate_get), _SE(js_cc_scene_Fog_accurate_set)); 
     cls->defineProperty("fogColor", _SE(js_cc_scene_Fog_fogColor_get), _SE(js_cc_scene_Fog_fogColor_set)); 
@@ -8853,6 +8934,7 @@ SE_BIND_PROP_GET(js_cc_scene_FogInfo_fogRange_get)
 bool js_register_cc_scene_FogInfo(se::Object* obj) {
     auto* cls = se::Class::create("FogInfo", obj, nullptr, _SE(js_new_cc_scene_FogInfo)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("_type", _SE(js_cc_scene_FogInfo__type_get), _SE(js_cc_scene_FogInfo__type_set)); 
     cls->defineProperty("_fogColor", _SE(js_cc_scene_FogInfo__fogColor_get), _SE(js_cc_scene_FogInfo__fogColor_set)); 
     cls->defineProperty("_enabled", _SE(js_cc_scene_FogInfo__enabled_get), _SE(js_cc_scene_FogInfo__enabled_set)); 
@@ -9527,6 +9609,7 @@ SE_BIND_PROP_GET(js_cc_scene_ShadowsInfo_shadowMapSize_get)
 bool js_register_cc_scene_ShadowsInfo(se::Object* obj) {
     auto* cls = se::Class::create("ShadowsInfo", obj, nullptr, _SE(js_new_cc_scene_ShadowsInfo)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("_enabled", _SE(js_cc_scene_ShadowsInfo__enabled_get), _SE(js_cc_scene_ShadowsInfo__enabled_set)); 
     cls->defineProperty("_type", _SE(js_cc_scene_ShadowsInfo__type_get), _SE(js_cc_scene_ShadowsInfo__type_set)); 
     cls->defineProperty("_normal", _SE(js_cc_scene_ShadowsInfo__normal_get), _SE(js_cc_scene_ShadowsInfo__normal_set)); 
@@ -10195,6 +10278,7 @@ SE_BIND_PROP_GET(js_cc_scene_Shadows_instancingMaterial_get)
 bool js_register_cc_scene_Shadows(se::Object* obj) {
     auto* cls = se::Class::create("Shadows", obj, nullptr, _SE(js_new_cc_scene_Shadows)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("enabled", _SE(js_cc_scene_Shadows_enabled_get), _SE(js_cc_scene_Shadows_enabled_set)); 
     cls->defineProperty("type", _SE(js_cc_scene_Shadows_type_get), _SE(js_cc_scene_Shadows_type_set)); 
     cls->defineProperty("normal", _SE(js_cc_scene_Shadows_normal_get), _SE(js_cc_scene_Shadows_normal_set)); 
@@ -10260,30 +10344,6 @@ static bool js_delete_cc_scene_SkyboxInfo(se::State& s)
 }
 SE_BIND_FINALIZE_FUNC(js_delete_cc_scene_SkyboxInfo) 
 
-static bool js_cc_scene_SkyboxInfo_setReflectionMap(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::scene::SkyboxInfo *arg1 = (cc::scene::SkyboxInfo *) NULL ;
-    cc::TextureCube *arg2 = (cc::TextureCube *) NULL ;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::scene::SkyboxInfo>(s);
-    if (nullptr == arg1) return true;
-    
-    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
-    (arg1)->setReflectionMap(arg2);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_scene_SkyboxInfo_setReflectionMap) 
-
 static bool js_cc_scene_SkyboxInfo_activate(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -10322,6 +10382,7 @@ static bool js_cc_scene_SkyboxInfo__envmapHDR_set(se::State& s)
     SE_PRECONDITION2(ok, false, "Error processing arguments"); 
     
     
+    
     return true;
 }
 SE_BIND_PROP_SET(js_cc_scene_SkyboxInfo__envmapHDR_set) 
@@ -10334,9 +10395,10 @@ static bool js_cc_scene_SkyboxInfo__envmapHDR_get(se::State& s)
     arg1 = SE_THIS_OBJECT<cc::scene::SkyboxInfo>(s);
     if (nullptr == arg1) return true;
     
-    ok &= nativevalue_to_se(arg1->_envmapHDR, s.rval(), s.thisObject());
+    ok &= nativevalue_to_se(arg1->_envmapHDR, s.rval(), s.thisObject() /*ctx*/);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
-    SE_HOLD_RETURN_VALUE(arg1->_envmapHDR, s.thisObject(), s.rval()); 
+    SE_HOLD_RETURN_VALUE(arg1->_envmapHDR, s.thisObject(), s.rval());
+    
     
     
     return true;
@@ -10357,6 +10419,7 @@ static bool js_cc_scene_SkyboxInfo__envmapLDR_set(se::State& s)
     SE_PRECONDITION2(ok, false, "Error processing arguments"); 
     
     
+    
     return true;
 }
 SE_BIND_PROP_SET(js_cc_scene_SkyboxInfo__envmapLDR_set) 
@@ -10369,9 +10432,10 @@ static bool js_cc_scene_SkyboxInfo__envmapLDR_get(se::State& s)
     arg1 = SE_THIS_OBJECT<cc::scene::SkyboxInfo>(s);
     if (nullptr == arg1) return true;
     
-    ok &= nativevalue_to_se(arg1->_envmapLDR, s.rval(), s.thisObject());
+    ok &= nativevalue_to_se(arg1->_envmapLDR, s.rval(), s.thisObject() /*ctx*/);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
-    SE_HOLD_RETURN_VALUE(arg1->_envmapLDR, s.thisObject(), s.rval()); 
+    SE_HOLD_RETURN_VALUE(arg1->_envmapLDR, s.thisObject(), s.rval());
+    
     
     
     return true;
@@ -10392,6 +10456,7 @@ static bool js_cc_scene_SkyboxInfo__diffuseMapHDR_set(se::State& s)
     SE_PRECONDITION2(ok, false, "Error processing arguments"); 
     
     
+    
     return true;
 }
 SE_BIND_PROP_SET(js_cc_scene_SkyboxInfo__diffuseMapHDR_set) 
@@ -10404,9 +10469,10 @@ static bool js_cc_scene_SkyboxInfo__diffuseMapHDR_get(se::State& s)
     arg1 = SE_THIS_OBJECT<cc::scene::SkyboxInfo>(s);
     if (nullptr == arg1) return true;
     
-    ok &= nativevalue_to_se(arg1->_diffuseMapHDR, s.rval(), s.thisObject());
+    ok &= nativevalue_to_se(arg1->_diffuseMapHDR, s.rval(), s.thisObject() /*ctx*/);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
-    SE_HOLD_RETURN_VALUE(arg1->_diffuseMapHDR, s.thisObject(), s.rval()); 
+    SE_HOLD_RETURN_VALUE(arg1->_diffuseMapHDR, s.thisObject(), s.rval());
+    
     
     
     return true;
@@ -10427,6 +10493,7 @@ static bool js_cc_scene_SkyboxInfo__diffuseMapLDR_set(se::State& s)
     SE_PRECONDITION2(ok, false, "Error processing arguments"); 
     
     
+    
     return true;
 }
 SE_BIND_PROP_SET(js_cc_scene_SkyboxInfo__diffuseMapLDR_set) 
@@ -10439,9 +10506,10 @@ static bool js_cc_scene_SkyboxInfo__diffuseMapLDR_get(se::State& s)
     arg1 = SE_THIS_OBJECT<cc::scene::SkyboxInfo>(s);
     if (nullptr == arg1) return true;
     
-    ok &= nativevalue_to_se(arg1->_diffuseMapLDR, s.rval(), s.thisObject());
+    ok &= nativevalue_to_se(arg1->_diffuseMapLDR, s.rval(), s.thisObject() /*ctx*/);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
-    SE_HOLD_RETURN_VALUE(arg1->_diffuseMapLDR, s.thisObject(), s.rval()); 
+    SE_HOLD_RETURN_VALUE(arg1->_diffuseMapLDR, s.thisObject(), s.rval());
+    
     
     
     return true;
@@ -10462,6 +10530,7 @@ static bool js_cc_scene_SkyboxInfo__reflectionHDR_set(se::State& s)
     SE_PRECONDITION2(ok, false, "Error processing arguments"); 
     
     
+    
     return true;
 }
 SE_BIND_PROP_SET(js_cc_scene_SkyboxInfo__reflectionHDR_set) 
@@ -10474,9 +10543,10 @@ static bool js_cc_scene_SkyboxInfo__reflectionHDR_get(se::State& s)
     arg1 = SE_THIS_OBJECT<cc::scene::SkyboxInfo>(s);
     if (nullptr == arg1) return true;
     
-    ok &= nativevalue_to_se(arg1->_reflectionHDR, s.rval(), s.thisObject());
+    ok &= nativevalue_to_se(arg1->_reflectionHDR, s.rval(), s.thisObject() /*ctx*/);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
-    SE_HOLD_RETURN_VALUE(arg1->_reflectionHDR, s.thisObject(), s.rval()); 
+    SE_HOLD_RETURN_VALUE(arg1->_reflectionHDR, s.thisObject(), s.rval());
+    
     
     
     return true;
@@ -10497,6 +10567,7 @@ static bool js_cc_scene_SkyboxInfo__reflectionLDR_set(se::State& s)
     SE_PRECONDITION2(ok, false, "Error processing arguments"); 
     
     
+    
     return true;
 }
 SE_BIND_PROP_SET(js_cc_scene_SkyboxInfo__reflectionLDR_set) 
@@ -10509,9 +10580,10 @@ static bool js_cc_scene_SkyboxInfo__reflectionLDR_get(se::State& s)
     arg1 = SE_THIS_OBJECT<cc::scene::SkyboxInfo>(s);
     if (nullptr == arg1) return true;
     
-    ok &= nativevalue_to_se(arg1->_reflectionLDR, s.rval(), s.thisObject());
+    ok &= nativevalue_to_se(arg1->_reflectionLDR, s.rval(), s.thisObject() /*ctx*/);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
-    SE_HOLD_RETURN_VALUE(arg1->_reflectionLDR, s.thisObject(), s.rval()); 
+    SE_HOLD_RETURN_VALUE(arg1->_reflectionLDR, s.thisObject(), s.rval());
+    
     
     
     return true;
@@ -10991,6 +11063,121 @@ static bool js_cc_scene_SkyboxInfo_diffuseMap_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_scene_SkyboxInfo_diffuseMap_get) 
 
+static bool js_cc_scene_SkyboxInfo_reflectionMap_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::SkyboxInfo *arg1 = (cc::scene::SkyboxInfo *) NULL ;
+    cc::TextureCube *arg2 = (cc::TextureCube *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::SkyboxInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    cc_scene_SkyboxInfo_reflectionMap_set(arg1,arg2);
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_scene_SkyboxInfo_reflectionMap_set) 
+
+static bool js_cc_scene_SkyboxInfo_reflectionMap_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::scene::SkyboxInfo *arg1 = (cc::scene::SkyboxInfo *) NULL ;
+    cc::TextureCube *result = 0 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::SkyboxInfo>(s);
+    if (nullptr == arg1) return true;
+    result = (cc::TextureCube *)cc_scene_SkyboxInfo_reflectionMap_get(arg1);
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_scene_SkyboxInfo_reflectionMap_get) 
+
+static bool js_cc_scene_SkyboxInfo_skyboxMaterial_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::SkyboxInfo *arg1 = (cc::scene::SkyboxInfo *) NULL ;
+    cc::Material *arg2 = (cc::Material *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::SkyboxInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    cc_scene_SkyboxInfo_skyboxMaterial_set(arg1,arg2);
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_scene_SkyboxInfo_skyboxMaterial_set) 
+
+static bool js_cc_scene_SkyboxInfo_skyboxMaterial_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::scene::SkyboxInfo *arg1 = (cc::scene::SkyboxInfo *) NULL ;
+    cc::Material *result = 0 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::SkyboxInfo>(s);
+    if (nullptr == arg1) return true;
+    result = (cc::Material *)cc_scene_SkyboxInfo_skyboxMaterial_get(arg1);
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_scene_SkyboxInfo_skyboxMaterial_get) 
+
+static bool js_cc_scene_SkyboxInfo_rotationAngle_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::SkyboxInfo *arg1 = (cc::scene::SkyboxInfo *) NULL ;
+    float arg2 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::SkyboxInfo>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    cc_scene_SkyboxInfo_rotationAngle_set(arg1,arg2);
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_scene_SkyboxInfo_rotationAngle_set) 
+
+static bool js_cc_scene_SkyboxInfo_rotationAngle_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::scene::SkyboxInfo *arg1 = (cc::scene::SkyboxInfo *) NULL ;
+    float result;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::SkyboxInfo>(s);
+    if (nullptr == arg1) return true;
+    result = (float)cc_scene_SkyboxInfo_rotationAngle_get(arg1);
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject()); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_scene_SkyboxInfo_rotationAngle_get) 
+
 static bool js_cc_scene_SkyboxInfo_envLightingType_set(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -11035,6 +11222,7 @@ SE_BIND_PROP_GET(js_cc_scene_SkyboxInfo_envLightingType_get)
 bool js_register_cc_scene_SkyboxInfo(se::Object* obj) {
     auto* cls = se::Class::create("SkyboxInfo", obj, nullptr, _SE(js_new_cc_scene_SkyboxInfo)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("_envmapHDR", _SE(js_cc_scene_SkyboxInfo__envmapHDR_get), _SE(js_cc_scene_SkyboxInfo__envmapHDR_set)); 
     cls->defineProperty("_envmapLDR", _SE(js_cc_scene_SkyboxInfo__envmapLDR_get), _SE(js_cc_scene_SkyboxInfo__envmapLDR_set)); 
     cls->defineProperty("_diffuseMapHDR", _SE(js_cc_scene_SkyboxInfo__diffuseMapHDR_get), _SE(js_cc_scene_SkyboxInfo__diffuseMapHDR_set)); 
@@ -11054,9 +11242,11 @@ bool js_register_cc_scene_SkyboxInfo(se::Object* obj) {
     cls->defineProperty("useHDR", _SE(js_cc_scene_SkyboxInfo_useHDR_get), _SE(js_cc_scene_SkyboxInfo_useHDR_set)); 
     cls->defineProperty("envmap", _SE(js_cc_scene_SkyboxInfo_envmap_get), _SE(js_cc_scene_SkyboxInfo_envmap_set)); 
     cls->defineProperty("diffuseMap", _SE(js_cc_scene_SkyboxInfo_diffuseMap_get), _SE(js_cc_scene_SkyboxInfo_diffuseMap_set)); 
+    cls->defineProperty("reflectionMap", _SE(js_cc_scene_SkyboxInfo_reflectionMap_get), _SE(js_cc_scene_SkyboxInfo_reflectionMap_set)); 
+    cls->defineProperty("skyboxMaterial", _SE(js_cc_scene_SkyboxInfo_skyboxMaterial_get), _SE(js_cc_scene_SkyboxInfo_skyboxMaterial_set)); 
+    cls->defineProperty("rotationAngle", _SE(js_cc_scene_SkyboxInfo_rotationAngle_get), _SE(js_cc_scene_SkyboxInfo_rotationAngle_set)); 
     cls->defineProperty("envLightingType", _SE(js_cc_scene_SkyboxInfo_envLightingType_get), _SE(js_cc_scene_SkyboxInfo_envLightingType_set)); 
     
-    cls->defineFunction("setReflectionMap", _SE(js_cc_scene_SkyboxInfo_setReflectionMap)); 
     cls->defineFunction("activate", _SE(js_cc_scene_SkyboxInfo_activate)); 
     
     
@@ -11616,6 +11806,7 @@ SE_BIND_PROP_GET(js_cc_scene_Skybox_diffuseMap_get)
 bool js_register_cc_scene_Skybox(se::Object* obj) {
     auto* cls = se::Class::create("Skybox", obj, nullptr, _SE(js_new_cc_scene_Skybox)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("model", _SE(js_cc_scene_Skybox_model_get), nullptr); 
     cls->defineProperty("enabled", _SE(js_cc_scene_Skybox_enabled_get), _SE(js_cc_scene_Skybox_enabled_set)); 
     cls->defineProperty("useHDR", _SE(js_cc_scene_Skybox_useHDR_get), _SE(js_cc_scene_Skybox_useHDR_set)); 
@@ -12475,6 +12666,7 @@ SE_BIND_PROP_GET(js_cc_scene_DirectionalLight_csmTransitionRange_get)
 bool js_register_cc_scene_DirectionalLight(se::Object* obj) {
     auto* cls = se::Class::create("DirectionalLight", obj, __jsb_cc_scene_Light_proto, _SE(js_new_cc_scene_DirectionalLight)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("direction", _SE(js_cc_scene_DirectionalLight_direction_get), _SE(js_cc_scene_DirectionalLight_direction_set)); 
     cls->defineProperty("illuminance", _SE(js_cc_scene_DirectionalLight_illuminance_get), _SE(js_cc_scene_DirectionalLight_illuminance_set)); 
     cls->defineProperty("illuminanceHDR", _SE(js_cc_scene_DirectionalLight_illuminanceHDR_get), _SE(js_cc_scene_DirectionalLight_illuminanceHDR_set)); 
@@ -13029,6 +13221,7 @@ SE_BIND_PROP_GET(js_cc_scene_SpotLight_size_get)
 bool js_register_cc_scene_SpotLight(se::Object* obj) {
     auto* cls = se::Class::create("SpotLight", obj, __jsb_cc_scene_Light_proto, _SE(js_new_cc_scene_SpotLight)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("position", _SE(js_cc_scene_SpotLight_position_get), nullptr); 
     cls->defineProperty("range", _SE(js_cc_scene_SpotLight_range_get), _SE(js_cc_scene_SpotLight_range_set)); 
     cls->defineProperty("luminance", _SE(js_cc_scene_SpotLight_luminance_get), _SE(js_cc_scene_SpotLight_luminance_set)); 
@@ -13337,6 +13530,7 @@ SE_BIND_PROP_GET(js_cc_scene_SphereLight_aabb_get)
 bool js_register_cc_scene_SphereLight(se::Object* obj) {
     auto* cls = se::Class::create("SphereLight", obj, __jsb_cc_scene_Light_proto, _SE(js_new_cc_scene_SphereLight)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("position", _SE(js_cc_scene_SphereLight_position_get), _SE(js_cc_scene_SphereLight_position_set)); 
     cls->defineProperty("size", _SE(js_cc_scene_SphereLight_size_get), _SE(js_cc_scene_SphereLight_size_set)); 
     cls->defineProperty("range", _SE(js_cc_scene_SphereLight_range_get), _SE(js_cc_scene_SphereLight_range_set)); 
@@ -13635,7 +13829,7 @@ static bool js_cc_scene_Model__updateLocalSHDescriptors(se::State& s)
 }
 SE_BIND_FUNC(js_cc_scene_Model__updateLocalSHDescriptors) 
 
-static bool js_cc_scene_Model_updateWorldBoundDescriptors(se::State& s)
+static bool js_cc_scene_Model__updateWorldBoundDescriptors(se::State& s)
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
@@ -13661,7 +13855,7 @@ static bool js_cc_scene_Model_updateWorldBoundDescriptors(se::State& s)
     
     return true;
 }
-SE_BIND_FUNC(js_cc_scene_Model_updateWorldBoundDescriptors) 
+SE_BIND_FUNC(js_cc_scene_Model__updateWorldBoundDescriptors) 
 
 static bool js_cc_scene_Model_createBoundingShape(se::State& s)
 {
@@ -14272,53 +14466,6 @@ static bool js_cc_scene_Model_setBounds(se::State& s)
     return true;
 }
 SE_BIND_FUNC(js_cc_scene_Model_setBounds) 
-
-static bool js_cc_scene_Model_getTetrahedronIndex(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::scene::Model *arg1 = (cc::scene::Model *) NULL ;
-    int32_t result;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::scene::Model>(s);
-    if (nullptr == arg1) return true;
-    result = ((cc::scene::Model const *)arg1)->getTetrahedronIndex();
-    
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject()); 
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_scene_Model_getTetrahedronIndex) 
-
-static bool js_cc_scene_Model_setTetrahedronIndex(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::scene::Model *arg1 = (cc::scene::Model *) NULL ;
-    int32_t arg2 ;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::scene::Model>(s);
-    if (nullptr == arg1) return true;
-    
-    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
-    (arg1)->setTetrahedronIndex(arg2);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_scene_Model_setTetrahedronIndex) 
 
 static bool js_cc_scene_Model_showTetrahedron(se::State& s)
 {
@@ -15243,6 +15390,43 @@ static bool js_cc_scene_Model_priority_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_scene_Model_priority_get) 
 
+static bool js_cc_scene_Model_tetrahedronIndex_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::Model *arg1 = (cc::scene::Model *) NULL ;
+    int32_t arg2 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::Model>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    cc_scene_Model_tetrahedronIndex_set(arg1,SWIG_STD_MOVE(arg2));
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_scene_Model_tetrahedronIndex_set) 
+
+static bool js_cc_scene_Model_tetrahedronIndex_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::scene::Model *arg1 = (cc::scene::Model *) NULL ;
+    int32_t result;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::Model>(s);
+    if (nullptr == arg1) return true;
+    result = cc_scene_Model_tetrahedronIndex_get(arg1);
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject()); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_scene_Model_tetrahedronIndex_get) 
+
 static bool js_cc_scene_Model_useLightProbe_set(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -15358,6 +15542,7 @@ SE_BIND_PROP_GET(js_cc_scene_Model_reflectionProbeType_get)
 bool js_register_cc_scene_Model(se::Object* obj) {
     auto* cls = se::Class::create("Model", obj, nullptr, _SE(js_new_cc_scene_Model)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("scene", _SE(js_cc_scene_Model_scene_get), _SE(js_cc_scene_Model_scene_set)); 
     cls->defineProperty("_subModels", _SE(js_cc_scene_Model__subModels_get), nullptr); 
     cls->defineProperty("subModels", _SE(js_cc_scene_Model_subModels_get), nullptr); 
@@ -15381,6 +15566,7 @@ bool js_register_cc_scene_Model(se::Object* obj) {
     cls->defineProperty("type", _SE(js_cc_scene_Model_type_get), _SE(js_cc_scene_Model_type_set)); 
     cls->defineProperty("isDynamicBatching", _SE(js_cc_scene_Model_isDynamicBatching_get), _SE(js_cc_scene_Model_isDynamicBatching_set)); 
     cls->defineProperty("priority", _SE(js_cc_scene_Model_priority_get), _SE(js_cc_scene_Model_priority_set)); 
+    cls->defineProperty("tetrahedronIndex", _SE(js_cc_scene_Model_tetrahedronIndex_get), _SE(js_cc_scene_Model_tetrahedronIndex_set)); 
     cls->defineProperty("useLightProbe", _SE(js_cc_scene_Model_useLightProbe_get), _SE(js_cc_scene_Model_useLightProbe_set)); 
     cls->defineProperty("bakeToReflectionProbe", _SE(js_cc_scene_Model_bakeToReflectionProbe_get), _SE(js_cc_scene_Model_bakeToReflectionProbe_set)); 
     cls->defineProperty("reflectionProbeType", _SE(js_cc_scene_Model_reflectionProbeType_get), _SE(js_cc_scene_Model_reflectionProbeType_set)); 
@@ -15394,7 +15580,7 @@ bool js_register_cc_scene_Model(se::Object* obj) {
     cls->defineFunction("updateUBOs", _SE(js_cc_scene_Model_updateUBOs)); 
     cls->defineFunction("_updateLocalDescriptors", _SE(js_cc_scene_Model__updateLocalDescriptors)); 
     cls->defineFunction("_updateLocalSHDescriptors", _SE(js_cc_scene_Model__updateLocalSHDescriptors)); 
-    cls->defineFunction("updateWorldBoundDescriptors", _SE(js_cc_scene_Model_updateWorldBoundDescriptors)); 
+    cls->defineFunction("_updateWorldBoundDescriptors", _SE(js_cc_scene_Model__updateWorldBoundDescriptors)); 
     cls->defineFunction("createBoundingShape", _SE(js_cc_scene_Model_createBoundingShape)); 
     cls->defineFunction("initialize", _SE(js_cc_scene_Model_initialize)); 
     cls->defineFunction("initLightingmap", _SE(js_cc_scene_Model_initLightingmap)); 
@@ -15420,8 +15606,6 @@ bool js_register_cc_scene_Model(se::Object* obj) {
     cls->defineFunction("detachFromScene", _SE(js_cc_scene_Model_detachFromScene)); 
     cls->defineFunction("setLocalSHBuffer", _SE(js_cc_scene_Model_setLocalSHBuffer)); 
     cls->defineFunction("setBounds", _SE(js_cc_scene_Model_setBounds)); 
-    cls->defineFunction("getTetrahedronIndex", _SE(js_cc_scene_Model_getTetrahedronIndex)); 
-    cls->defineFunction("setTetrahedronIndex", _SE(js_cc_scene_Model_setTetrahedronIndex)); 
     cls->defineFunction("showTetrahedron", _SE(js_cc_scene_Model_showTetrahedron)); 
     cls->defineFunction("getLocalSHBuffer", _SE(js_cc_scene_Model_getLocalSHBuffer)); 
     cls->defineFunction("getLocalSHData", _SE(js_cc_scene_Model_getLocalSHData)); 
@@ -15619,6 +15803,7 @@ bool sevalue_to_native(const se::Value &from, cc::scene::InstancedAttributeBlock
 bool js_register_cc_scene_InstancedAttributeBlock(se::Object* obj) {
     auto* cls = se::Class::create("IInstancedAttributeBlock", obj, nullptr, _SE(js_new_cc_scene_InstancedAttributeBlock)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("buffer", _SE(js_cc_scene_IInstancedAttributeBlock_buffer_get), _SE(js_cc_scene_IInstancedAttributeBlock_buffer_set)); 
     cls->defineProperty("views", _SE(js_cc_scene_IInstancedAttributeBlock_views_get), _SE(js_cc_scene_IInstancedAttributeBlock_views_set)); 
     cls->defineProperty("attributes", _SE(js_cc_scene_IInstancedAttributeBlock_attributes_get), _SE(js_cc_scene_IInstancedAttributeBlock_attributes_set)); 
@@ -16457,6 +16642,7 @@ SE_BIND_PROP_GET(js_cc_scene_SubModel_planarShader_get)
 bool js_register_cc_scene_SubModel(se::Object* obj) {
     auto* cls = se::Class::create("SubModel", obj, nullptr, _SE(js_new_cc_scene_SubModel)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("passes", _SE(js_cc_scene_SubModel_passes_get), _SE(js_cc_scene_SubModel_passes_set)); 
     cls->defineProperty("shaders", _SE(js_cc_scene_SubModel_shaders_get), _SE(js_cc_scene_SubModel_shaders_set)); 
     cls->defineProperty("subMesh", _SE(js_cc_scene_SubModel_subMesh_get), _SE(js_cc_scene_SubModel_subMesh_set)); 
@@ -16626,6 +16812,7 @@ bool sevalue_to_native(const se::Value &from, cc::scene::PassDynamicsValue * to,
 bool js_register_cc_scene_PassDynamicsValue(se::Object* obj) {
     auto* cls = se::Class::create("PassDynamicsValue", obj, nullptr, _SE(js_new_cc_scene_PassDynamicsValue)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("dirty", _SE(js_cc_scene_PassDynamicsValue_dirty_get), _SE(js_cc_scene_PassDynamicsValue_dirty_set)); 
     cls->defineProperty("value", _SE(js_cc_scene_PassDynamicsValue_value_get), _SE(js_cc_scene_PassDynamicsValue_value_set)); 
     
@@ -16813,6 +17000,7 @@ bool sevalue_to_native(const se::Value &from, cc::scene::IBlockRef * to, se::Obj
 bool js_register_cc_scene_IBlockRef(se::Object* obj) {
     auto* cls = se::Class::create("IBlockRef", obj, nullptr, _SE(js_new_cc_scene_IBlockRef)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("data", _SE(js_cc_scene_IBlockRef_data_get), _SE(js_cc_scene_IBlockRef_data_set)); 
     cls->defineProperty("count", _SE(js_cc_scene_IBlockRef_count_get), _SE(js_cc_scene_IBlockRef_count_set)); 
     cls->defineProperty("offset", _SE(js_cc_scene_IBlockRef_offset_get), _SE(js_cc_scene_IBlockRef_offset_set)); 
@@ -18576,6 +18764,7 @@ SE_BIND_PROP_GET(js_cc_scene_Pass_pipelineLayout_get)
 bool js_register_cc_scene_Pass(se::Object* obj) {
     auto* cls = se::Class::create("Pass", obj, nullptr, _SE(js_new_Pass)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("root", _SE(js_cc_scene_Pass_root_get), nullptr); 
     cls->defineProperty("device", _SE(js_cc_scene_Pass_device_get), nullptr); 
     cls->defineProperty("shaderInfo", _SE(js_cc_scene_Pass_shaderInfo_get), nullptr); 
@@ -18775,6 +18964,7 @@ bool sevalue_to_native(const se::Value &from, cc::scene::IRaycastResult * to, se
 bool js_register_cc_scene_IRaycastResult(se::Object* obj) {
     auto* cls = se::Class::create("IRaycastResult", obj, nullptr, _SE(js_new_cc_scene_IRaycastResult)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("node", _SE(js_cc_scene_IRaycastResult_node_get), _SE(js_cc_scene_IRaycastResult_node_set)); 
     cls->defineProperty("distance", _SE(js_cc_scene_IRaycastResult_distance_get), _SE(js_cc_scene_IRaycastResult_distance_set)); 
     
@@ -18884,6 +19074,7 @@ bool sevalue_to_native(const se::Value &from, cc::scene::IRenderSceneInfo * to, 
 bool js_register_cc_scene_IRenderSceneInfo(se::Object* obj) {
     auto* cls = se::Class::create("IRenderSceneInfo", obj, nullptr, _SE(js_new_cc_scene_IRenderSceneInfo)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("name", _SE(js_cc_scene_IRenderSceneInfo_name_get), _SE(js_cc_scene_IRenderSceneInfo_name_set)); 
     
     
@@ -19674,6 +19865,7 @@ SE_BIND_PROP_GET(js_cc_scene_RenderScene_lodGroups_get)
 bool js_register_cc_scene_RenderScene(se::Object* obj) {
     auto* cls = se::Class::create("RenderScene", obj, nullptr, _SE(js_new_cc_scene_RenderScene)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("name", _SE(js_cc_scene_RenderScene_name_get), nullptr); 
     cls->defineProperty("cameras", _SE(js_cc_scene_RenderScene_cameras_get), nullptr); 
     cls->defineProperty("sphereLights", _SE(js_cc_scene_RenderScene_sphereLights_get), nullptr); 
@@ -19978,6 +20170,7 @@ bool sevalue_to_native(const se::Value &from, cc::scene::IRenderWindowInfo * to,
 bool js_register_cc_scene_IRenderWindowInfo(se::Object* obj) {
     auto* cls = se::Class::create("IRenderWindowInfo", obj, nullptr, _SE(js_new_cc_scene_IRenderWindowInfo)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("title", _SE(js_cc_scene_IRenderWindowInfo_title_get), _SE(js_cc_scene_IRenderWindowInfo_title_set)); 
     cls->defineProperty("width", _SE(js_cc_scene_IRenderWindowInfo_width_get), _SE(js_cc_scene_IRenderWindowInfo_width_set)); 
     cls->defineProperty("height", _SE(js_cc_scene_IRenderWindowInfo_height_get), _SE(js_cc_scene_IRenderWindowInfo_height_set)); 
@@ -20320,6 +20513,7 @@ SE_BIND_PROP_GET(js_cc_scene_RenderWindow_swapchain_get)
 bool js_register_cc_scene_RenderWindow(se::Object* obj) {
     auto* cls = se::Class::create("RenderWindow", obj, nullptr, _SE(js_new_cc_scene_RenderWindow)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("width", _SE(js_cc_scene_RenderWindow_width_get), nullptr); 
     cls->defineProperty("height", _SE(js_cc_scene_RenderWindow_height_get), nullptr); 
     cls->defineProperty("framebuffer", _SE(js_cc_scene_RenderWindow_framebuffer_get), nullptr); 
@@ -20820,6 +21014,7 @@ bool sevalue_to_native(const se::Value &from, cc::scene::ICameraInfo * to, se::O
 bool js_register_cc_scene_ICameraInfo(se::Object* obj) {
     auto* cls = se::Class::create("ICameraInfo", obj, nullptr, _SE(js_new_cc_scene_ICameraInfo)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("name", _SE(js_cc_scene_ICameraInfo_name_get), _SE(js_cc_scene_ICameraInfo_name_set)); 
     cls->defineProperty("node", _SE(js_cc_scene_ICameraInfo_node_get), _SE(js_cc_scene_ICameraInfo_node_set)); 
     cls->defineProperty("projection", _SE(js_cc_scene_ICameraInfo_projection_get), _SE(js_cc_scene_ICameraInfo_projection_set)); 
@@ -21090,6 +21285,30 @@ static bool js_cc_scene_Camera_setFixedSize(se::State& s)
     return true;
 }
 SE_BIND_FUNC(js_cc_scene_Camera_setFixedSize) 
+
+static bool js_cc_scene_Camera_syncCameraEditor(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::Camera *arg1 = (cc::scene::Camera *) NULL ;
+    cc::scene::Camera *arg2 = (cc::scene::Camera *) NULL ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::scene::Camera>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    (arg1)->syncCameraEditor((cc::scene::Camera const *)arg2);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_scene_Camera_syncCameraEditor) 
 
 static bool js_cc_scene_Camera_update__SWIG_0(se::State& s)
 {
@@ -22654,6 +22873,7 @@ SE_BIND_PROP_GET(js_cc_scene_Camera_cameraUsage_get)
 bool js_register_cc_scene_Camera(se::Object* obj) {
     auto* cls = se::Class::create("Camera", obj, nullptr, _SE(js_new_cc_scene_Camera)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("iso", _SE(js_cc_scene_Camera_iso_get), _SE(js_cc_scene_Camera_iso_set)); 
     cls->defineProperty("isoValue", _SE(js_cc_scene_Camera_isoValue_get), nullptr); 
     cls->defineProperty("ec", _SE(js_cc_scene_Camera_ec_get), _SE(js_cc_scene_Camera_ec_set)); 
@@ -22699,6 +22919,7 @@ bool js_register_cc_scene_Camera(se::Object* obj) {
     cls->defineFunction("detachFromScene", _SE(js_cc_scene_Camera_detachFromScene)); 
     cls->defineFunction("resize", _SE(js_cc_scene_Camera_resize)); 
     cls->defineFunction("setFixedSize", _SE(js_cc_scene_Camera_setFixedSize)); 
+    cls->defineFunction("syncCameraEditor", _SE(js_cc_scene_Camera_syncCameraEditor)); 
     cls->defineFunction("update", _SE(js_cc_scene_Camera_update)); 
     cls->defineFunction("changeTargetWindow", _SE(js_cc_scene_Camera_changeTargetWindow)); 
     cls->defineFunction("setViewportInOrientedSpace", _SE(js_cc_scene_Camera_setViewportInOrientedSpace)); 
@@ -23008,6 +23229,7 @@ SE_BIND_PROP_GET(js_cc_scene_Ambient_mipmapCount_get)
 bool js_register_cc_scene_Ambient(se::Object* obj) {
     auto* cls = se::Class::create("Ambient", obj, nullptr, _SE(js_new_cc_scene_Ambient)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("skyColor", _SE(js_cc_scene_Ambient_skyColor_get), _SE(js_cc_scene_Ambient_skyColor_set)); 
     cls->defineProperty("skyIllum", _SE(js_cc_scene_Ambient_skyIllum_get), _SE(js_cc_scene_Ambient_skyIllum_set)); 
     cls->defineProperty("groundAlbedo", _SE(js_cc_scene_Ambient_groundAlbedo_get), _SE(js_cc_scene_Ambient_groundAlbedo_set)); 
@@ -23644,6 +23866,7 @@ SE_BIND_PROP_GET(js_cc_scene_AmbientInfo_groundLightingColor_get)
 bool js_register_cc_scene_AmbientInfo(se::Object* obj) {
     auto* cls = se::Class::create("AmbientInfo", obj, nullptr, _SE(js_new_cc_scene_AmbientInfo)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("_skyColorHDR", _SE(js_cc_scene_AmbientInfo__skyColorHDR_get), _SE(js_cc_scene_AmbientInfo__skyColorHDR_set)); 
     cls->defineProperty("_skyIllumHDR", _SE(js_cc_scene_AmbientInfo__skyIllumHDR_get), _SE(js_cc_scene_AmbientInfo__skyIllumHDR_set)); 
     cls->defineProperty("_groundAlbedoHDR", _SE(js_cc_scene_AmbientInfo__groundAlbedoHDR_get), _SE(js_cc_scene_AmbientInfo__groundAlbedoHDR_set)); 
@@ -23805,7 +24028,7 @@ static bool js_cc_scene_ReflectionProbe_getCamera(se::State& s)
     }
     arg1 = SE_THIS_OBJECT<cc::scene::ReflectionProbe>(s);
     if (nullptr == arg1) return true;
-    result = (cc::scene::Camera *)(arg1)->getCamera();
+    result = (cc::scene::Camera *)((cc::scene::ReflectionProbe const *)arg1)->getCamera();
     
     ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
     SE_PRECONDITION2(ok, false, "Error processing arguments");
@@ -23838,31 +24061,6 @@ static bool js_cc_scene_ReflectionProbe_needRender(se::State& s)
     return true;
 }
 SE_BIND_FUNC(js_cc_scene_ReflectionProbe_needRender) 
-
-static bool js_cc_scene_ReflectionProbe_getBoundingBox(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::scene::ReflectionProbe *arg1 = (cc::scene::ReflectionProbe *) NULL ;
-    cc::geometry::AABB *result = 0 ;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::scene::ReflectionProbe>(s);
-    if (nullptr == arg1) return true;
-    result = (cc::geometry::AABB *)((cc::scene::ReflectionProbe const *)arg1)->getBoundingBox();
-    
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_scene_ReflectionProbe_getBoundingBox) 
 
 static bool js_cc_scene_ReflectionProbe_setCameraNode(se::State& s)
 {
@@ -24030,6 +24228,34 @@ static bool js_cc_scene_ReflectionProbe_renderPlanarReflection(se::State& s)
 }
 SE_BIND_FUNC(js_cc_scene_ReflectionProbe_renderPlanarReflection) 
 
+static bool js_cc_scene_ReflectionProbe_switchProbeType(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::ReflectionProbe *arg1 = (cc::scene::ReflectionProbe *) NULL ;
+    int32_t arg2 ;
+    cc::scene::Camera *arg3 = (cc::scene::Camera *) NULL ;
+    
+    if(argc != 2) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::scene::ReflectionProbe>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    ok &= sevalue_to_native(args[1], &arg3, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    (arg1)->switchProbeType(arg2,(cc::scene::Camera const *)arg3);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_scene_ReflectionProbe_switchProbeType) 
+
 static bool js_cc_scene_ReflectionProbe_reflect_static(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -24116,6 +24342,29 @@ static bool js_cc_scene_ReflectionProbe_destroy(se::State& s)
     return true;
 }
 SE_BIND_FUNC(js_cc_scene_ReflectionProbe_destroy) 
+
+static bool js_cc_scene_ReflectionProbe_validate(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::ReflectionProbe *arg1 = (cc::scene::ReflectionProbe *) NULL ;
+    bool result;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::scene::ReflectionProbe>(s);
+    if (nullptr == arg1) return true;
+    result = (bool)((cc::scene::ReflectionProbe const *)arg1)->validate();
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_scene_ReflectionProbe_validate) 
 
 static bool js_cc_scene_ReflectionProbe_probeType_set(se::State& s)
 {
@@ -24359,22 +24608,122 @@ static bool js_cc_scene_ReflectionProbe_size_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_scene_ReflectionProbe_size_get) 
 
+static bool js_cc_scene_ReflectionProbe_boundingBox_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::scene::ReflectionProbe *arg1 = (cc::scene::ReflectionProbe *) NULL ;
+    cc::geometry::AABB *result = 0 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::ReflectionProbe>(s);
+    if (nullptr == arg1) return true;
+    result = (cc::geometry::AABB *)cc_scene_ReflectionProbe_boundingBox_get(arg1);
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_scene_ReflectionProbe_boundingBox_get) 
+
+static bool js_cc_scene_ReflectionProbe_previewSphere_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::ReflectionProbe *arg1 = (cc::scene::ReflectionProbe *) NULL ;
+    cc::Node *arg2 = (cc::Node *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::ReflectionProbe>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    cc_scene_ReflectionProbe_previewSphere_set(arg1,arg2);
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_scene_ReflectionProbe_previewSphere_set) 
+
+static bool js_cc_scene_ReflectionProbe_previewSphere_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::scene::ReflectionProbe *arg1 = (cc::scene::ReflectionProbe *) NULL ;
+    cc::Node *result = 0 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::ReflectionProbe>(s);
+    if (nullptr == arg1) return true;
+    result = (cc::Node *)cc_scene_ReflectionProbe_previewSphere_get(arg1);
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_scene_ReflectionProbe_previewSphere_get) 
+
+static bool js_cc_scene_ReflectionProbe_previewPlane_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::ReflectionProbe *arg1 = (cc::scene::ReflectionProbe *) NULL ;
+    cc::Node *arg2 = (cc::Node *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::ReflectionProbe>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    cc_scene_ReflectionProbe_previewPlane_set(arg1,arg2);
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_scene_ReflectionProbe_previewPlane_set) 
+
+static bool js_cc_scene_ReflectionProbe_previewPlane_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::scene::ReflectionProbe *arg1 = (cc::scene::ReflectionProbe *) NULL ;
+    cc::Node *result = 0 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::scene::ReflectionProbe>(s);
+    if (nullptr == arg1) return true;
+    result = (cc::Node *)cc_scene_ReflectionProbe_previewPlane_get(arg1);
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_scene_ReflectionProbe_previewPlane_get) 
+
 bool js_register_cc_scene_ReflectionProbe(se::Object* obj) {
     auto* cls = se::Class::create("ReflectionProbe", obj, nullptr, _SE(js_new_cc_scene_ReflectionProbe)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("probeType", _SE(js_cc_scene_ReflectionProbe_probeType_get), _SE(js_cc_scene_ReflectionProbe_probeType_set)); 
     cls->defineProperty("resolution", _SE(js_cc_scene_ReflectionProbe_resolution_get), _SE(js_cc_scene_ReflectionProbe_resolution_set)); 
     cls->defineProperty("clearFlag", _SE(js_cc_scene_ReflectionProbe_clearFlag_get), _SE(js_cc_scene_ReflectionProbe_clearFlag_set)); 
     cls->defineProperty("backgroundColor", _SE(js_cc_scene_ReflectionProbe_backgroundColor_get), _SE(js_cc_scene_ReflectionProbe_backgroundColor_set)); 
     cls->defineProperty("visibility", _SE(js_cc_scene_ReflectionProbe_visibility_get), _SE(js_cc_scene_ReflectionProbe_visibility_set)); 
     cls->defineProperty("size", _SE(js_cc_scene_ReflectionProbe_size_get), _SE(js_cc_scene_ReflectionProbe_size_set)); 
+    cls->defineProperty("boundingBox", _SE(js_cc_scene_ReflectionProbe_boundingBox_get), nullptr); 
+    cls->defineProperty("previewSphere", _SE(js_cc_scene_ReflectionProbe_previewSphere_get), _SE(js_cc_scene_ReflectionProbe_previewSphere_set)); 
+    cls->defineProperty("previewPlane", _SE(js_cc_scene_ReflectionProbe_previewPlane_get), _SE(js_cc_scene_ReflectionProbe_previewPlane_set)); 
     
     cls->defineFunction("initialize", _SE(js_cc_scene_ReflectionProbe_initialize)); 
     cls->defineFunction("getProbeId", _SE(js_cc_scene_ReflectionProbe_getProbeId)); 
     cls->defineFunction("getNode", _SE(js_cc_scene_ReflectionProbe_getNode)); 
     cls->defineFunction("getCamera", _SE(js_cc_scene_ReflectionProbe_getCamera)); 
     cls->defineFunction("needRender", _SE(js_cc_scene_ReflectionProbe_needRender)); 
-    cls->defineFunction("getBoundingBox", _SE(js_cc_scene_ReflectionProbe_getBoundingBox)); 
     cls->defineFunction("setCameraNode", _SE(js_cc_scene_ReflectionProbe_setCameraNode)); 
     cls->defineFunction("getCameraNode", _SE(js_cc_scene_ReflectionProbe_getCameraNode)); 
     cls->defineFunction("getRealtimePlanarTexture", _SE(js_cc_scene_ReflectionProbe_getRealtimePlanarTexture)); 
@@ -24382,8 +24731,10 @@ bool js_register_cc_scene_ReflectionProbe(se::Object* obj) {
     cls->defineFunction("syncCameraParams", _SE(js_cc_scene_ReflectionProbe_syncCameraParams)); 
     cls->defineFunction("transformReflectionCamera", _SE(js_cc_scene_ReflectionProbe_transformReflectionCamera)); 
     cls->defineFunction("renderPlanarReflection", _SE(js_cc_scene_ReflectionProbe_renderPlanarReflection)); 
+    cls->defineFunction("switchProbeType", _SE(js_cc_scene_ReflectionProbe_switchProbeType)); 
     cls->defineFunction("updatePlanarTexture", _SE(js_cc_scene_ReflectionProbe_updatePlanarTexture)); 
     cls->defineFunction("destroy", _SE(js_cc_scene_ReflectionProbe_destroy)); 
+    cls->defineFunction("validate", _SE(js_cc_scene_ReflectionProbe_validate)); 
     
     
     cls->defineStaticFunction("reflect", _SE(js_cc_scene_ReflectionProbe_reflect_static)); 
@@ -24463,6 +24814,7 @@ SE_BIND_PROP_GET(js_cc_PassInstance_parent_get)
 bool js_register_cc_PassInstance(se::Object* obj) {
     auto* cls = se::Class::create("PassInstance", obj, __jsb_cc_scene_Pass_proto, _SE(js_new_cc_PassInstance)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("parent", _SE(js_cc_PassInstance_parent_get), nullptr); 
     
     
@@ -24608,6 +24960,7 @@ bool sevalue_to_native(const se::Value &from, cc::IMaterialInstanceInfo * to, se
 bool js_register_cc_IMaterialInstanceInfo(se::Object* obj) {
     auto* cls = se::Class::create("IMaterialInstanceInfo", obj, nullptr, _SE(js_new_cc_IMaterialInstanceInfo)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("parent", _SE(js_cc_IMaterialInstanceInfo_parent_get), _SE(js_cc_IMaterialInstanceInfo_parent_set)); 
     cls->defineProperty("subModelIdx", _SE(js_cc_IMaterialInstanceInfo_subModelIdx_get), _SE(js_cc_IMaterialInstanceInfo_subModelIdx_set)); 
     
@@ -24860,6 +25213,7 @@ SE_BIND_FINALIZE_FUNC(js_delete_cc_MaterialInstance)
 bool js_register_cc_MaterialInstance(se::Object* obj) {
     auto* cls = se::Class::create("MaterialInstance", obj, __jsb_cc_Material_proto, _SE(js_new_cc_MaterialInstance)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     cls->defineFunction("recompileShaders", _SE(js_cc_MaterialInstance_recompileShaders)); 
     cls->defineFunction("overridePipelineStates", _SE(js_cc_MaterialInstance_overridePipelineStates)); 
@@ -24935,6 +25289,7 @@ SE_BIND_FUNC(js_cc_MorphModel_setMorphRendering)
 bool js_register_cc_MorphModel(se::Object* obj) {
     auto* cls = se::Class::create("MorphModel", obj, __jsb_cc_scene_Model_proto, _SE(js_new_cc_MorphModel)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     cls->defineFunction("setMorphRendering", _SE(js_cc_MorphModel_setMorphRendering)); 
     
@@ -25015,6 +25370,7 @@ SE_BIND_FUNC(js_cc_SkinningModel_bindSkeleton)
 bool js_register_cc_SkinningModel(se::Object* obj) {
     auto* cls = se::Class::create("SkinningModel", obj, __jsb_cc_MorphModel_proto, _SE(js_new_cc_SkinningModel)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     cls->defineFunction("bindSkeleton", _SE(js_cc_SkinningModel_bindSkeleton)); 
     
@@ -25262,6 +25618,7 @@ SE_BIND_FUNC(js_cc_BakedSkinningModel_setUploadedAnimForJS)
 bool js_register_cc_BakedSkinningModel(se::Object* obj) {
     auto* cls = se::Class::create("BakedSkinningModel", obj, __jsb_cc_MorphModel_proto, _SE(js_new_cc_BakedSkinningModel)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     cls->defineFunction("updateInstancedJointTextureInfo", _SE(js_cc_BakedSkinningModel_updateInstancedJointTextureInfo)); 
     cls->defineFunction("bindSkeleton", _SE(js_cc_BakedSkinningModel_bindSkeleton)); 
@@ -25414,6 +25771,7 @@ bool sevalue_to_native(const se::Value &from, cc::IDefineRecord * to, se::Object
 bool js_register_cc_IDefineRecord(se::Object* obj) {
     auto* cls = se::Class::create("IDefineRecord", obj, __jsb_cc_IDefineInfo_proto, _SE(js_new_cc_IDefineRecord)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("map", _SE(js_cc_IDefineRecord_map_get), _SE(js_cc_IDefineRecord_map_set)); 
     cls->defineProperty("offset", _SE(js_cc_IDefineRecord_offset_get), _SE(js_cc_IDefineRecord_offset_set)); 
     
@@ -25605,6 +25963,7 @@ bool sevalue_to_native(const se::Value &from, cc::IMacroInfo * to, se::Object *c
 bool js_register_cc_IMacroInfo(se::Object* obj) {
     auto* cls = se::Class::create("IMacroInfo", obj, nullptr, _SE(js_new_cc_IMacroInfo)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("name", _SE(js_cc_IMacroInfo_name_get), _SE(js_cc_IMacroInfo_name_set)); 
     cls->defineProperty("value", _SE(js_cc_IMacroInfo_value_get), _SE(js_cc_IMacroInfo_value_set)); 
     cls->defineProperty("isDefault", _SE(js_cc_IMacroInfo_isDefault_get), _SE(js_cc_IMacroInfo_isDefault_set)); 
@@ -25867,6 +26226,7 @@ bool sevalue_to_native(const se::Value &from, cc::IProgramInfo * to, se::Object 
 bool js_register_cc_IProgramInfo(se::Object* obj) {
     auto* cls = se::Class::create("IProgramInfo", obj, __jsb_cc_IShaderInfo_proto, _SE(js_new_cc_IProgramInfo)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("effectName", _SE(js_cc_IProgramInfo_effectName_get), _SE(js_cc_IProgramInfo_effectName_set)); 
     cls->defineProperty("defines", _SE(js_cc_IProgramInfo_defines_get), _SE(js_cc_IProgramInfo_defines_set)); 
     cls->defineProperty("constantMacros", _SE(js_cc_IProgramInfo_constantMacros_get), _SE(js_cc_IProgramInfo_constantMacros_set)); 
@@ -26382,6 +26742,7 @@ SE_BIND_FUNC(js_cc_ProgramLib_getGFXShader)
 bool js_register_cc_ProgramLib(se::Object* obj) {
     auto* cls = se::Class::create("ProgramLib", obj, nullptr, _SE(js_new_cc_ProgramLib)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     cls->defineFunction("register", _SE(js_cc_ProgramLib_cpp_keyword_register)); 
     cls->defineFunction("define", _SE(js_cc_ProgramLib_define)); 
@@ -26763,6 +27124,7 @@ SE_BIND_PROP_GET(js_cc_scene_OctreeInfo_depth_get)
 bool js_register_cc_scene_OctreeInfo(se::Object* obj) {
     auto* cls = se::Class::create("OctreeInfo", obj, nullptr, _SE(js_new_cc_scene_OctreeInfo)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("_enabled", _SE(js_cc_scene_OctreeInfo__enabled_get), _SE(js_cc_scene_OctreeInfo__enabled_set)); 
     cls->defineProperty("_minPos", _SE(js_cc_scene_OctreeInfo__minPos_get), _SE(js_cc_scene_OctreeInfo__minPos_set)); 
     cls->defineProperty("_maxPos", _SE(js_cc_scene_OctreeInfo__maxPos_get), _SE(js_cc_scene_OctreeInfo__maxPos_set)); 
@@ -27130,6 +27492,7 @@ bool sevalue_to_native(const se::Value &from, cc::scene::BBox * to, se::Object *
 bool js_register_cc_scene_BBox(se::Object* obj) {
     auto* cls = se::Class::create("BBox", obj, nullptr, _SE(js_new_BBox)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("min", _SE(js_cc_scene_BBox_min_get), _SE(js_cc_scene_BBox_min_set)); 
     cls->defineProperty("max", _SE(js_cc_scene_BBox_max_get), _SE(js_cc_scene_BBox_max_set)); 
     
@@ -27160,6 +27523,7 @@ SE_DECLARE_FINALIZE_FUNC(js_delete_cc_scene_OctreeNode)
 bool js_register_cc_scene_OctreeNode(se::Object* obj) {
     auto* cls = se::Class::create("OctreeNode", obj, nullptr, nullptr); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     
     
@@ -27583,6 +27947,7 @@ SE_BIND_FUNC(js_cc_scene_Octree_queryVisibility)
 bool js_register_cc_scene_Octree(se::Object* obj) {
     auto* cls = se::Class::create("Octree", obj, nullptr, _SE(js_new_cc_scene_Octree)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     cls->defineFunction("initialize", _SE(js_cc_scene_Octree_initialize)); 
     cls->defineFunction("setEnabled", _SE(js_cc_scene_Octree_setEnabled)); 

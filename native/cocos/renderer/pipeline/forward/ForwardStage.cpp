@@ -52,8 +52,8 @@ RenderStageInfo ForwardStage::initInfo = {
     "ForwardStage",
     static_cast<uint32_t>(ForwardStagePriority::FORWARD),
     static_cast<uint32_t>(RenderFlowTag::SCENE),
-    {{false, RenderQueueSortMode::FRONT_TO_BACK, {"default"}},
-     {true, RenderQueueSortMode::BACK_TO_FRONT, {"default", "planarShadow"}}}};
+    {new RenderQueueDesc{false, RenderQueueSortMode::FRONT_TO_BACK, {"default"}},
+     new RenderQueueDesc{true, RenderQueueSortMode::BACK_TO_FRONT, {"default", "planarShadow"}}}};
 const RenderStageInfo &ForwardStage::getInitializeInfo() { return ForwardStage::initInfo; }
 
 ForwardStage::ForwardStage() {
@@ -75,9 +75,9 @@ void ForwardStage::activate(RenderPipeline *pipeline, RenderFlow *flow) {
     RenderStage::activate(pipeline, flow);
 
     for (const auto &descriptor : _renderQueueDescriptors) {
-        uint32_t phase = convertPhase(descriptor.stages);
-        RenderQueueSortFunc sortFunc = convertQueueSortFunc(descriptor.sortMode);
-        RenderQueueCreateInfo info = {descriptor.isTransparent, phase, sortFunc};
+        uint32_t phase = convertPhase(descriptor->stages);
+        RenderQueueSortFunc sortFunc = convertQueueSortFunc(descriptor->sortMode);
+        RenderQueueCreateInfo info = {descriptor->isTransparent, phase, sortFunc};
         _renderQueues.emplace_back(ccnew RenderQueue(_pipeline, std::move(info), true));
     }
 

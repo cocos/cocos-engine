@@ -27,6 +27,7 @@ import { CachedArray } from '../../core';
 import {
     WebGL2CmdBeginRenderPass,
     WebGL2CmdBindStates,
+    WebGL2CmdBlitTexture,
     WebGL2CmdCopyBufferToTexture,
     WebGL2CmdDraw,
     WebGL2CmdObject,
@@ -109,6 +110,7 @@ export class WebGL2CommandAllocator {
     public drawCmdPool: WebGL2CommandPool<WebGL2CmdDraw>;
     public updateBufferCmdPool: WebGL2CommandPool<WebGL2CmdUpdateBuffer>;
     public copyBufferToTextureCmdPool: WebGL2CommandPool<WebGL2CmdCopyBufferToTexture>;
+    public blitTextureCmdPool: WebGL2CommandPool<WebGL2CmdBlitTexture>;
 
     constructor () {
         this.beginRenderPassCmdPool = new WebGL2CommandPool(WebGL2CmdBeginRenderPass, 1);
@@ -116,6 +118,7 @@ export class WebGL2CommandAllocator {
         this.drawCmdPool = new WebGL2CommandPool(WebGL2CmdDraw, 1);
         this.updateBufferCmdPool = new WebGL2CommandPool(WebGL2CmdUpdateBuffer, 1);
         this.copyBufferToTextureCmdPool = new WebGL2CommandPool(WebGL2CmdCopyBufferToTexture, 1);
+        this.blitTextureCmdPool = new WebGL2CommandPool(WebGL2CmdBlitTexture, 1);
     }
 
     public clearCmds (cmdPackage: WebGL2CmdPackage) {
@@ -144,6 +147,11 @@ export class WebGL2CommandAllocator {
             cmdPackage.copyBufferToTextureCmds.clear();
         }
 
+        if (cmdPackage.blitTextureCmds.length) {
+            this.blitTextureCmdPool.freeCmds(cmdPackage.blitTextureCmds);
+            cmdPackage.blitTextureCmds.clear();
+        }
+
         cmdPackage.cmds.clear();
     }
 
@@ -153,5 +161,6 @@ export class WebGL2CommandAllocator {
         this.drawCmdPool.release();
         this.updateBufferCmdPool.release();
         this.copyBufferToTextureCmdPool.release();
+        this.blitTextureCmdPool.release();
     }
 }

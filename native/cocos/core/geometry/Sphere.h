@@ -109,10 +109,10 @@ public:
     static Sphere *mergeAABB(Sphere *out, const Sphere &s, const AABB &a);
     explicit Sphere(float cx = 0, float cy = 0, float cz = 0, float radius = 1.0F);
 
-    Sphere(const Sphere &) = delete;
+    Sphere(const Sphere &) = default;
     Sphere(Sphere &&) = delete;
     ~Sphere() override = default;
-    Sphere &operator=(const Sphere &) = delete;
+    Sphere &operator=(const Sphere &) = default;
     Sphere &operator=(Sphere &&) = delete;
 
     inline float getRadius() const { return _radius; }
@@ -138,7 +138,7 @@ public:
     inline void merge(const Frustum &frustum) { mergeFrustum(frustum); }
     bool interset(const Frustum &frustum) const;
     int interset(const Plane &plane) const;
-    int spherePlane(const Plane &plane);
+    int spherePlane(const Plane &plane) const;
     bool sphereFrustum(const Frustum &frustum) const;
 
     /**
@@ -193,7 +193,7 @@ public:
         out->_radius = _radius * mathutils::maxComponent(scale);
     }
 
-private:
+// private: // make public for js bindings
     float _radius{-1.0};
     Vec3 _center;
 };

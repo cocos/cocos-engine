@@ -429,6 +429,7 @@ cocos_source_files(
     cocos/base/IndexHandle.h
     cocos/base/Locked.h
     cocos/base/Macros.h
+    cocos/base/Assertf.h
     cocos/base/Object.h
     cocos/base/Ptr.h
     cocos/base/Random.h
@@ -443,6 +444,7 @@ cocos_source_files(
     cocos/base/StringPool.h
     cocos/base/StringUtil.cpp
     cocos/base/StringUtil.h
+    cocos/base/TemplateUtils.h
     cocos/base/ThreadPool.cpp
     cocos/base/ThreadPool.h
     cocos/base/TypeDef.h
@@ -498,6 +500,9 @@ cocos_source_files(
     cocos/gi/light-probe/PolynomialSolver.h
     cocos/gi/light-probe/SH.cpp
     cocos/gi/light-probe/SH.h
+    cocos/gi/light-probe/tetgen.cpp
+    cocos/gi/light-probe/tetgen.h
+    cocos/gi/light-probe/predicates.cpp
 )
 
 ############ main
@@ -2474,6 +2479,8 @@ cocos_source_files(
             cocos/bindings/manual/jsb_classtype.h
             cocos/bindings/manual/jsb_cocos_manual.cpp
             cocos/bindings/manual/jsb_cocos_manual.h
+            cocos/bindings/manual/jsb_geometry_manual.cpp
+            cocos/bindings/manual/jsb_geometry_manual.h
             cocos/bindings/manual/jsb_conversions.h
             cocos/bindings/manual/jsb_conversions_spec.cpp
             cocos/bindings/manual/jsb_conversions_spec.h

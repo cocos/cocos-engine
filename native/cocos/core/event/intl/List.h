@@ -32,7 +32,7 @@ namespace intl {
 template <typename ListNode>
 bool listAppend(ListNode **head, ListNode *newNode) {
     if (newNode->next != nullptr || newNode->prev != nullptr) {
-        CC_ASSERT(false);
+        CC_ABORT();
         return false;
     }
     if (*head == nullptr) {
@@ -53,7 +53,7 @@ bool listAppend(ListNode **head, ListNode *newNode) {
 template <typename ListNode>
 bool detachFromList(ListNode **head, ListNode *node) {
     if (*head == nullptr || node->prev == nullptr || node->next == nullptr) {
-        CC_ASSERT(false);
+        CC_ABORT();
         return false;
     }
     if (node->prev == node && node->next == node) { // the only node

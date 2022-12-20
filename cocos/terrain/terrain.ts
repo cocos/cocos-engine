@@ -45,7 +45,7 @@ import { TerrainLod, TerrainLodKey, TERRAIN_LOD_LEVELS, TERRAIN_LOD_MAX_DISTANCE
 import { TerrainAsset, TerrainLayerInfo, TERRAIN_HEIGHT_BASE, TERRAIN_HEIGHT_FACTORY,
     TERRAIN_BLOCK_TILE_COMPLEXITY, TERRAIN_BLOCK_VERTEX_SIZE, TERRAIN_BLOCK_VERTEX_COMPLEXITY,
     TERRAIN_MAX_LAYER_COUNT, TERRAIN_HEIGHT_FMIN, TERRAIN_HEIGHT_FMAX, TERRAIN_MAX_BLEND_LAYERS, TERRAIN_DATA_VERSION5 } from './terrain-asset';
-import { CCBoolean, CCFloat } from '../core';
+import { CCFloat } from '../core';
 import { PipelineEventType } from '../rendering';
 import { Node } from '../scene-graph';
 
@@ -446,6 +446,11 @@ export class TerrainBlock {
     public update () {
         this._updateMaterial(false);
 
+        if (this._renderable._model && this.lightmap !== this._renderable._lightmap) {
+            this._renderable._lightmap = this.lightmap;
+            this._renderable._model?.updateLightingmap(this.lightmap, this.lightmapUVParam);
+        }
+
         const useNormalMap = this._terrain.useNormalMap;
         const usePBR = this._terrain.usePBR;
 
@@ -586,11 +591,6 @@ export class TerrainBlock {
             if (usePBR) {
                 mtl.setProperty('roughness', roughness);
                 mtl.setProperty('metallic', metallic);
-            }
-
-            if (this._renderable._model && this.lightmap !== this._renderable._lightmap) {
-                this._renderable._lightmap = this.lightmap;
-                this._renderable._model?.updateLightingmap(this.lightmap, this.lightmapUVParam);
             }
         }
     }
@@ -809,9 +809,15 @@ export class TerrainBlock {
     }
 
     public _getMaterialDefines (nlayers: number): MacroRecord {
+        let lightmapMacroValue = 1; /*static*/
+        if (this._terrain.node && this._terrain.node.scene) {
+            if (this._terrain.node.scene.globals.bakedWithStationaryMainLight) {
+                lightmapMacroValue = 2; /*stationary*/
+            }
+        }
         return {
             LAYERS: nlayers + 1,
-            CC_USE_LIGHTMAP: this.lightmap !== null ? 1 : 0,
+            CC_USE_LIGHTMAP: this.lightmap !== null ? lightmapMacroValue : 0,
             USE_NORMALMAP: this._terrain.useNormalMap ? 1 : 0,
             USE_PBR: this._terrain.usePBR ? 1 : 0,
             // CC_RECEIVE_SHADOW: this._terrain.receiveShadow ? 1 : 0,
@@ -828,6 +834,9 @@ export class TerrainBlock {
             if (this.lightmap !== null) {
                 this.lightmap.setWrapMode(WrapMode.CLAMP_TO_BORDER, WrapMode.CLAMP_TO_BORDER);
             }
+
+            this._renderable._lightmap = this.lightmap;
+            this._renderable._model?.updateLightingmap(this.lightmap, this.lightmapUVParam);
         }
     }
 
@@ -1152,22 +1161,18 @@ export class Terrain extends Component {
     @disallowAnimation
     protected _lightmapInfos: TerrainBlockLightmapInfo[] = [];
 
-    @type(CCBoolean)
     @serializable
     @disallowAnimation
     protected _receiveShadow = false;
 
-    @type(CCBoolean)
     @serializable
     @disallowAnimation
     protected _useNormalmap = false;
 
-    @type(CCBoolean)
     @serializable
     @disallowAnimation
     protected _usePBR = false;
 
-    @type(CCBoolean)
     @serializable
     @disallowAnimation
     protected _lodEnable = false;

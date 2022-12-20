@@ -25,14 +25,14 @@
 
 import { Buffer } from '../base/buffer';
 import { CommandBuffer } from '../base/command-buffer';
-import { BufferSource, DrawInfo, BufferTextureCopy, Color, Rect, BufferUsageBit, Viewport } from '../base/define';
+import { BufferSource, DrawInfo, BufferTextureCopy, Color, Rect, BufferUsageBit, Viewport, TextureBlit, Filter } from '../base/define';
 import { Framebuffer } from '../base/framebuffer';
 import { InputAssembler } from '../base/input-assembler';
 import { Texture } from '../base/texture';
 import { WebGLBuffer } from './webgl-buffer';
 import { WebGLCommandBuffer } from './webgl-command-buffer';
 import {
-    WebGLCmdFuncBeginRenderPass, WebGLCmdFuncBindStates, WebGLCmdFuncCopyBuffersToTexture,
+    WebGLCmdFuncBeginRenderPass, WebGLCmdFuncBindStates, WebGLCmdFuncBlitTexture, WebGLCmdFuncCopyBuffersToTexture,
     WebGLCmdFuncDraw, WebGLCmdFuncExecuteCmds, WebGLCmdFuncUpdateBuffer } from './webgl-commands';
 import { WebGLFramebuffer } from './webgl-framebuffer';
 import { WebGLTexture } from './webgl-texture';
@@ -66,7 +66,7 @@ export class WebGLPrimaryCommandBuffer extends WebGLCommandBuffer {
 
             const info = 'drawInfo' in infoOrAssembler ? infoOrAssembler.drawInfo : infoOrAssembler;
 
-            WebGLCmdFuncDraw(WebGLDeviceManager.instance, info as DrawInfo);
+            WebGLCmdFuncDraw(WebGLDeviceManager.instance, info);
 
             ++this._numDrawCalls;
             this._numInstances += info.instanceCount;
@@ -169,5 +169,11 @@ export class WebGLPrimaryCommandBuffer extends WebGLCommandBuffer {
         WebGLCmdFuncBindStates(WebGLDeviceManager.instance, this._curGPUPipelineState, this._curGPUInputAssembler,
             this._curGPUDescriptorSets, this._curDynamicOffsets, this._curDynamicStates);
         this._isStateInvalied = false;
+    }
+
+    public blitTexture (srcTexture: Readonly<Texture>, dstTexture: Texture, regions: Readonly<TextureBlit []>, filter: Filter): void {
+        const gpuTextureSrc = (srcTexture as WebGLTexture).gpuTexture;
+        const gpuTextureDst = (dstTexture as WebGLTexture).gpuTexture;
+        WebGLCmdFuncBlitTexture(WebGLDeviceManager.instance, gpuTextureSrc, gpuTextureDst, regions, filter);
     }
 }

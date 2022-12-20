@@ -327,7 +327,7 @@ void GLES3CommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Tex
 }
 
 void GLES3CommandBuffer::execute(CommandBuffer *const *cmdBuffs, uint32_t count) {
-    CC_ASSERT(false); // Command 'execute' must be recorded in primary command buffers.
+    CC_ABORT(); // Command 'execute' must be recorded in primary command buffers.
 
     for (uint32_t i = 0; i < count; ++i) {
         auto *cmdBuff = static_cast<GLES3CommandBuffer *>(cmdBuffs[i]);

@@ -263,8 +263,12 @@ const Vec3 *Mesh::getMaxPosition() const {
 ccstd::hash_t Mesh::getHash() {
     if (_hash == 0U) {
         ccstd::hash_t seed = 666;
-        ccstd::hash_range(seed, _data.buffer()->getData(), _data.buffer()->getData() + _data.length());
-        _hash = seed;
+        if (_data.buffer()) {
+            ccstd::hash_range(seed, _data.buffer()->getData(), _data.buffer()->getData() + _data.length());
+            _hash = seed;
+        } else {
+            ccstd::hash_combine<ccstd::hash_t>(_hash, seed);
+        }
     }
 
     return _hash;
@@ -1071,7 +1075,7 @@ void Mesh::updateSubMesh(index_t primitiveIndex, const IDynamicGeometry &geometr
         auto *dstBuffer = _data.buffer()->getData() + bundle.view.offset;
         const auto *srcBuffer = vertices.buffer()->getData() + vertices.byteOffset();
         auto *vertexBuffer = subMesh->getVertexBuffers()[index];
-        CC_ASSERT(vertexCount <= info.maxSubMeshVertices);
+        CC_ASSERT_LE(vertexCount, info.maxSubMeshVertices);
 
         if (updateSize > 0U) {
             std::memcpy(dstBuffer, srcBuffer, updateSize);
@@ -1091,7 +1095,7 @@ void Mesh::updateSubMesh(index_t primitiveIndex, const IDynamicGeometry &geometr
         const auto *srcBuffer = (stride == sizeof(uint16_t)) ? geometry.indices16.value().buffer()->getData() + geometry.indices16.value().byteOffset()
                                                              : geometry.indices32.value().buffer()->getData() + geometry.indices32.value().byteOffset();
         auto *indexBuffer = subMesh->getIndexBuffer();
-        CC_ASSERT(indexCount <= info.maxSubMeshIndices);
+        CC_ASSERT_LE(indexCount, info.maxSubMeshIndices);
 
         if (updateSize > 0U) {
             std::memcpy(dstBuffer, srcBuffer, updateSize);
@@ -1167,7 +1171,7 @@ void Mesh::tryConvertVertexData() {
         const uint32_t stride = view.stride;
         uint32_t dstStride = stride;
 
-        CC_ASSERT(count * stride == length);
+        CC_ASSERT_EQ(count * stride == length);
 
         checkAttributesNeedConvert(orignalAttributes, attributes, attributeIndicsNeedConvert, dstStride);
         if (attributeIndicsNeedConvert.empty()) {
@@ -1214,7 +1218,7 @@ void Mesh::tryConvertVertexData() {
                         convertRGBA32FToRGBA16F(pValue, pDst);
                     } break;
                     default:
-                        CC_ASSERT(false);
+                        CC_ABORT();
                         break;
                 }
 
@@ -1223,7 +1227,7 @@ void Mesh::tryConvertVertexData() {
                 srcIndex += formatInfo.size;
             }
 
-            CC_ASSERT(wroteBytes == dstStride);
+            CC_ASSERT_EQ(wroteBytes, dstStride);
         }
 
         // update stride & length
@@ -1253,10 +1257,6 @@ gfx::BufferList Mesh::createVertexBuffers(gfx::Device *gfxDevice, ArrayBuffer *d
 void Mesh::initDefault(const ccstd::optional<ccstd::string> &uuid) {
     Super::initDefault(uuid);
     reset({});
-}
-
-bool Mesh::validate() const {
-    return !_renderingSubMeshes.empty() && !_data.empty();
 }
 
 void Mesh::setAllowDataAccess(bool allowDataAccess) {

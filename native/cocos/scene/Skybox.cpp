@@ -150,6 +150,13 @@ TextureCube *SkyboxInfo::getEnvmap() const {
     return isHDR ? _envmapHDR : _envmapLDR;
 }
 
+void SkyboxInfo::setRotationAngle(float val) {
+    _rotationAngle = val;
+    if (_resource != nullptr) {
+        _resource->setRotationAngle(_rotationAngle);
+    }
+}
+
 void SkyboxInfo::setDiffuseMap(TextureCube *val) {
     const bool isHDR = Root::getInstance()->getPipeline()->getPipelineSceneData()->isHDR();
     if (isHDR) {
@@ -178,6 +185,21 @@ void SkyboxInfo::setReflectionMap(TextureCube *val) {
 
     if (_resource) {
         _resource->setReflectionMaps(_reflectionHDR, _reflectionLDR);
+    }
+}
+
+TextureCube* SkyboxInfo::getReflectionMap() const {
+    const bool isHDR = Root::getInstance()->getPipeline()->getPipelineSceneData()->isHDR();
+    if (isHDR) {
+        return _reflectionHDR;
+    }
+    return _reflectionLDR;
+}
+
+void SkyboxInfo::setSkyboxMaterial(Material *val) {
+    _editableMaterial = val;
+    if (_resource != nullptr) {
+        _resource->setSkyboxMaterial(val);
     }
 }
 

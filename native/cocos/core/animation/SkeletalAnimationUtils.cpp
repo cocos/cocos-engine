@@ -51,7 +51,7 @@ Mat4 getWorldMatrix(IJointTransform *transform, int32_t stamp) {
         transform = stack[--i];
         stack[i] = nullptr;
         const auto *node = transform->node;
-        CC_ASSERT(node != nullptr);
+        CC_ASSERT_NOT_NULL(node);
         Mat4::fromRTS(node->getRotation(), node->getPosition(), node->getScale(), &transform->local);
         if (res != nullptr) {
             Mat4::multiply(*res, transform->local, &transform->world);

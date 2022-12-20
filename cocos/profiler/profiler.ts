@@ -38,6 +38,7 @@ import { preTransforms, System, sys, cclegacy, Settings, settings } from '../cor
 import { Root } from '../root';
 import { PipelineRuntime } from '../rendering/custom/pipeline';
 import { director } from '../game';
+import { ccwindow } from '../core/global-exports';
 
 const _characters = '0123456789. ';
 
@@ -66,6 +67,7 @@ interface IProfilerState {
     logic: ICounterOption;
     physics: ICounterOption;
     render: ICounterOption;
+    present: ICounterOption;
     textureMemory: ICounterOption;
     bufferMemory: ICounterOption;
 }
@@ -79,6 +81,7 @@ const _profileInfo = {
     logic: { desc: 'Game Logic (ms)', min: 0, max: 50, average: _average, color: '#080' },
     physics: { desc: 'Physics (ms)', min: 0, max: 50, average: _average },
     render: { desc: 'Renderer (ms)', min: 0, max: 50, average: _average, color: '#f90' },
+    present: { desc: 'Present (ms)', min: 0, max: 50, average: _average, color: '#f90' },
     textureMemory: { desc: 'GFX Texture Mem(M)' },
     bufferMemory: { desc: 'GFX Buffer Mem(M)' },
 };
@@ -87,8 +90,8 @@ const _constants = {
     fontSize: 23,
     quadHeight: 0.4,
     segmentsPerLine: 8,
-    textureWidth: 256,
-    textureHeight: 256,
+    textureWidth: 280,
+    textureHeight: 280,
 };
 
 export class Profiler extends System {
@@ -102,7 +105,6 @@ export class Profiler extends System {
     private _rootNode: Node | null = null;
     private _device: Device | null = null;
     private _swapchain: Swapchain | null = null;
-    private _pipeline: PipelineRuntime = null!;
     private _meshRenderer: MeshRenderer = null!;
     private readonly _canvas: HTMLCanvasElement | null = null;
     private readonly _ctx: CanvasRenderingContext2D | null = null;
@@ -128,7 +130,7 @@ export class Profiler extends System {
     constructor () {
         super();
         if (!TEST) {
-            this._canvas = document.createElement('canvas');
+            this._canvas = ccwindow.document.createElement('canvas');
             this._ctx = this._canvas.getContext('2d')!;
             this._canvasArr.push(this._canvas);
         }
@@ -158,7 +160,8 @@ export class Profiler extends System {
             cclegacy.director.off(cclegacy.Director.EVENT_BEFORE_PHYSICS, this.beforePhysics, this);
             cclegacy.director.off(cclegacy.Director.EVENT_AFTER_PHYSICS, this.afterPhysics, this);
             cclegacy.director.off(cclegacy.Director.EVENT_BEFORE_DRAW, this.beforeDraw, this);
-            cclegacy.director.off(cclegacy.Director.EVENT_AFTER_DRAW, this.afterDraw, this);
+            cclegacy.director.off(cclegacy.Director.EVENT_AFTER_RENDER, this.afterRender, this);
+            cclegacy.director.off(cclegacy.Director.EVENT_AFTER_DRAW, this.afterPresent, this);
             this._showFPS = false;
             director.root!.pipeline.profiler = null;
             cclegacy.game.config.showFPS = false;
@@ -171,7 +174,6 @@ export class Profiler extends System {
                 const root = cclegacy.director.root as Root;
                 this._device = deviceManager.gfxDevice;
                 this._swapchain = root.mainWindow!.swapchain;
-                this._pipeline = root.pipeline;
             }
 
             this.generateCanvas();
@@ -188,7 +190,8 @@ export class Profiler extends System {
             cclegacy.director.on(cclegacy.Director.EVENT_BEFORE_PHYSICS, this.beforePhysics, this);
             cclegacy.director.on(cclegacy.Director.EVENT_AFTER_PHYSICS, this.afterPhysics, this);
             cclegacy.director.on(cclegacy.Director.EVENT_BEFORE_DRAW, this.beforeDraw, this);
-            cclegacy.director.on(cclegacy.Director.EVENT_AFTER_DRAW, this.afterDraw, this);
+            cclegacy.director.on(cclegacy.Director.EVENT_AFTER_RENDER, this.afterRender, this);
+            cclegacy.director.on(cclegacy.Director.EVENT_AFTER_DRAW, this.afterPresent, this);
 
             this._showFPS = true;
             this._canvasDone = true;
@@ -411,15 +414,24 @@ export class Profiler extends System {
         (this._stats.render.counter as PerfCounter).start(now);
     }
 
-    public afterDraw () {
+    public afterRender () {
         if (!this._stats || !this._inited) {
             return;
         }
         const now = performance.now();
+        (this._stats.render.counter as PerfCounter).end(now);
+        (this._stats.present.counter as PerfCounter).start(now);
+    }
 
+    public afterPresent () {
+        if (!this._stats || !this._inited) {
+            return;
+        }
+
+        const now = performance.now();
         (this._stats.frame.counter as PerfCounter).end(now);
         (this._stats.fps.counter as PerfCounter).frame(now);
-        (this._stats.render.counter as PerfCounter).end(now);
+        (this._stats.present.counter as PerfCounter).end(now);
 
         if (now - this.lastTime < _average) {
             return;

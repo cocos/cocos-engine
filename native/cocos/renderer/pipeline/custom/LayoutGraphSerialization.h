@@ -171,11 +171,13 @@ inline void load(InputArchive& ar, NameLocalID& v) {
 
 inline void save(OutputArchive& ar, const DescriptorData& v) {
     save(ar, v.descriptorID);
+    save(ar, v.type);
     save(ar, v.count);
 }
 
 inline void load(InputArchive& ar, DescriptorData& v) {
     load(ar, v.descriptorID);
+    load(ar, v.type);
     load(ar, v.count);
 }
 
@@ -267,10 +269,12 @@ inline void load(InputArchive& ar, EffectData& v) {
 
 inline void save(OutputArchive& ar, const ShaderProgramData& v) {
     save(ar, v.layout);
+    // skip, pipelineLayout: IntrusivePtr<gfx::PipelineLayout>
 }
 
 inline void load(InputArchive& ar, ShaderProgramData& v) {
     load(ar, v.layout);
+    // skip, pipelineLayout: IntrusivePtr<gfx::PipelineLayout>
 }
 
 inline void save(OutputArchive& ar, const RenderStageData& v) {
@@ -285,12 +289,14 @@ inline void save(OutputArchive& ar, const RenderPhaseData& v) {
     save(ar, v.rootSignature);
     save(ar, v.shaderPrograms);
     save(ar, v.shaderIndex);
+    // skip, pipelineLayout: IntrusivePtr<gfx::PipelineLayout>
 }
 
 inline void load(InputArchive& ar, RenderPhaseData& v) {
     load(ar, v.rootSignature);
     load(ar, v.shaderPrograms);
     load(ar, v.shaderIndex);
+    // skip, pipelineLayout: IntrusivePtr<gfx::PipelineLayout>
 }
 
 inline void save(OutputArchive& ar, const LayoutGraphData& g) {

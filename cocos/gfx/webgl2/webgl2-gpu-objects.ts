@@ -30,6 +30,7 @@ import {
     ColorAttachment, DepthStencilAttachment, UniformBlock, UniformSamplerTexture, DescriptorSetLayoutBinding,
 } from '../base/define';
 import { BlendState, DepthStencilState, RasterizerState } from '../base/pipeline-state';
+import { WebGL2DeviceManager } from './webgl2-define';
 import { WebGL2Device } from './webgl2-device';
 
 export class WebGL2IndirectDrawInfos {
@@ -190,7 +191,7 @@ export interface IWebGL2GPUSampler {
     glWrapT: GLenum;
     glWrapR: GLenum;
 
-    getGLSampler (device: WebGL2Device, minLod: number, maxLod: number) : WebGLSampler;
+    getGLSampler (device: WebGL2Device, minLod: number, maxLod: number): WebGLSampler;
 }
 
 export interface IWebGL2GPUInput {
@@ -320,4 +321,29 @@ export interface IWebGL2GPUInputAssembler {
     glAttribs: IWebGL2Attrib[];
     glIndexType: GLenum;
     glVAOs: Map<WebGLProgram, WebGLVertexArrayObject>;
+}
+
+export class IWebGL2BlitManager {
+    private _srcFramebuffer: WebGLFramebuffer | null;
+    private _dstFramebuffer: WebGLFramebuffer | null;
+
+    get srcFramebuffer () {
+        return this._srcFramebuffer;
+    }
+
+    get dstFramebuffer () {
+        return this._dstFramebuffer;
+    }
+
+    constructor () {
+        const { gl } = WebGL2DeviceManager.instance;
+        this._srcFramebuffer = gl.createFramebuffer();
+        this._dstFramebuffer = gl.createFramebuffer();
+    }
+
+    destroy () {
+        const { gl } = WebGL2DeviceManager.instance;
+        gl.deleteFramebuffer(this._srcFramebuffer);
+        gl.deleteFramebuffer(this._dstFramebuffer);
+    }
 }

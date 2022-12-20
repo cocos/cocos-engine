@@ -64,8 +64,8 @@ void BufferValidator::doInit(const BufferInfo &info) {
     CC_ASSERT(!isInited());
     _inited = true;
 
-    CC_ASSERT(info.usage != BufferUsageBit::NONE);
-    CC_ASSERT(info.memUsage != MemoryUsageBit::NONE);
+    CC_ASSERT_NE(info.usage, BufferUsageBit::NONE);
+    CC_ASSERT_NE(info.memUsage, MemoryUsageBit::NONE);
     CC_ASSERT(info.size);
     CC_ASSERT(info.size / info.stride * info.stride == info.size);
 
@@ -75,7 +75,7 @@ void BufferValidator::doInit(const BufferInfo &info) {
 
     if (hasFlag(info.usage, BufferUsageBit::VERTEX) && !info.stride) {
         // Invalid stride for vertex buffer.
-        CC_ASSERT(false);
+        CC_ABORT();
     }
 
     /////////// execute ///////////
@@ -153,7 +153,7 @@ void BufferValidator::update(const void *buffer, uint32_t size) {
         for (size_t i = 1U; i < drawInfoCount; ++i) {
             if ((++drawInfo)->indexCount > 0 != isIndexed) {
                 // Inconsistent indirect draw infos on using index buffer.
-                CC_ASSERT(false);
+                CC_ABORT();
             }
         }
     }

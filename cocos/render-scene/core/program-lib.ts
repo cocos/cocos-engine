@@ -27,15 +27,16 @@ import * as env from 'internal:constants';
 import { EffectAsset } from '../../asset/assets/effect-asset';
 import { SetIndex, IDescriptorSetLayoutInfo, globalDescriptorSetLayout, localDescriptorSetLayout } from '../../rendering/define';
 import { PipelineRuntime } from '../../rendering/custom/pipeline';
-import { genHandle, MacroRecord } from './pass-utils';
+import { MacroRecord } from './pass-utils';
 import {
     PipelineLayoutInfo, Device, Attribute, UniformBlock, ShaderInfo,
     Uniform, ShaderStage, DESCRIPTOR_SAMPLER_TYPE, DESCRIPTOR_BUFFER_TYPE,
     DescriptorSetLayout, DescriptorSetLayoutBinding, DescriptorSetLayoutInfo,
-    DescriptorType, GetTypeSize, ShaderStageFlagBit, API, UniformSamplerTexture, PipelineLayout,
+    DescriptorType, ShaderStageFlagBit, API, UniformSamplerTexture, PipelineLayout,
     Shader, UniformStorageBuffer, UniformStorageImage, UniformSampler, UniformTexture, UniformInputAttachment,
 } from '../../gfx';
-import { getActiveAttributes, getShaderInstanceName, getVariantKey, IMacroInfo, prepareDefines } from './program-utils';
+import { genHandles, getActiveAttributes, getShaderInstanceName, getSize,
+    getVariantKey, IMacroInfo, populateMacros, prepareDefines } from './program-utils';
 import { debug, cclegacy } from '../../core';
 
 const _dsLayoutInfo = new DescriptorSetLayoutInfo();
@@ -61,10 +62,6 @@ export interface IProgramInfo extends EffectAsset.IShaderInfo {
     defines: IDefineRecord[];
     constantMacros: string;
     uber: boolean; // macro number exceeds default limits, will fallback to string hash
-}
-
-function getBitCount (cnt: number) {
-    return Math.ceil(Math.log2(Math.max(cnt, 2)));
 }
 
 function insertBuiltinBindings (
@@ -99,31 +96,6 @@ function insertBuiltinBindings (
     }
     Array.prototype.unshift.apply(tmplInfo.shaderInfo.samplerTextures, tempSamplerTextures);
     if (outBindings) outBindings.sort((a, b) => a.binding - b.binding);
-}
-
-function getSize (block: EffectAsset.IBlockInfo) {
-    return block.members.reduce((s, m) => s + GetTypeSize(m.type) * m.count, 0);
-}
-
-function genHandles (tmpl: IProgramInfo) {
-    const handleMap: Record<string, number> = {};
-    // block member handles
-    for (let i = 0; i < tmpl.blocks.length; i++) {
-        const block = tmpl.blocks[i];
-        const members = block.members;
-        let offset = 0;
-        for (let j = 0; j < members.length; j++) {
-            const uniform = members[j];
-            handleMap[uniform.name] = genHandle(block.binding, uniform.type, uniform.count, offset);
-            offset += (GetTypeSize(uniform.type) >> 2) * uniform.count; // assumes no implicit padding, which is guaranteed by effect compiler
-        }
-    }
-    // samplerTexture handles
-    for (let i = 0; i < tmpl.samplerTextures.length; i++) {
-        const samplerTexture = tmpl.samplerTextures[i];
-        handleMap[samplerTexture.name] = genHandle(samplerTexture.binding, samplerTexture.type, samplerTexture.count);
-    }
-    return handleMap;
 }
 
 // find those location which won't be affected by defines, and replace by ascending order of existing slot if location > 15
@@ -186,6 +158,7 @@ function replaceVertexMutableLocation (
             let location = 0;
             // only vertexshader input is checked
             if (inOrOut === 'in') {
+                const targetStr = source.slice(0, locHolder.index);
                 // attrInfo?.defines store defines need to be satisfied
                 // macroInfo stores value of defines
                 // '!CC_USE_XXX' starts with a '!' is inverse condition.
@@ -198,7 +171,42 @@ function replaceVertexMutableLocation (
                     if (v) {
                         res = !(v.value === '0' || v.value === 'false' || v.value === 'FALSE');
                     }
-                    return inverseCond ? !res : res;
+                    res = inverseCond ? !res : res;
+                    if (res) {
+                        // #if CC_RENDER_MODE == xx ......
+                        // 'CC_RENDER_MODE == 1' or ' CC_RENDER_MODE == 1 ||  CC_RENDER_MODE == 4'
+                        const lastIfRegStr = `[\\n|\\s]+#(?:if|elif)(.*?${defStr}.*?(?:(?!#if|#elif).)*)[\\n|\\s]+$`;
+                        const lastIfReg = new RegExp(lastIfRegStr, 'g');
+                        const lastIfRes = lastIfReg.exec(targetStr);
+                        if (lastIfRes) {
+                            const evalStr = lastIfRes[1];
+                            const evalORElements = evalStr.split('||');
+                            // simple grammar, no parenthesses support yet.
+                            const evalRes = evalORElements.some((eleOrTestStr) => {
+                                const evalANDElements = eleOrTestStr.split('&&');
+                                return evalANDElements.every((eleAndTestStr) => {
+                                    let evalEleRes = true;
+                                    if (eleAndTestStr.includes('==')) {
+                                        const opVars = eleAndTestStr.split('==');
+                                        if ((opVars[0] as any).replaceAll(' ', '') === defStr) {
+                                            evalEleRes = (opVars[1] as any).replaceAll(' ', '') === v!.value;
+                                        }
+                                    } else if (eleAndTestStr.includes('!=')) {
+                                        const opVars = eleAndTestStr.split('!=');
+                                        if ((opVars[0] as any).replaceAll(' ', '') === defStr) {
+                                            evalEleRes = (opVars[1] as any).replaceAll(' ', '') !== v!.value;
+                                        }
+                                    } else {
+                                        // no compare just define or not
+                                        // expect to be true
+                                    }
+                                    return evalEleRes;
+                                });
+                            });
+                            res = res && evalRes;
+                        }
+                    }
+                    return res;
                 });
             }
 
@@ -233,7 +241,6 @@ function replaceFragmentLocation (
     const locHolderRegStr = `layout\\(location = ([^\\)]+)\\)\\s+${inOrOut}.*?\\s(\\w+)[;,\\)]`;
     const locHolderReg = new RegExp(locHolderRegStr, 'g');
 
-    const locSet = new Set<number>();
     // layout(location = 3) in mediump vec3 v_normal;
     // 3
     // v_normal
@@ -246,16 +253,10 @@ function replaceFragmentLocation (
             if (inOrOut === 'in') {
                 // {...fragment_in} === {...vertex_out}
                 location = attrMap.get(attrName) || 0;
-            } else {
-                // no check on (vertex out)/(frament in/out)
-                while (locSet.has(location)) {
-                    location++;
-                }
-            }
-            locSet.add(location);
 
-            const locInstStr = locHolder[0].replace(locHolder[1], `${location}`);
-            code = code.replace(locHolder[0], locInstStr);
+                const locInstStr = locHolder[0].replace(locHolder[1], `${location}`);
+                code = code.replace(locHolder[0], locInstStr);
+            }
         }
         locHolder = locHolderReg.exec(source);
     }
@@ -279,7 +280,6 @@ export function flattenShaderLocation (
         code = replaceVertexMutableLocation(code, tmpl, macroInfo, 'out', attrMap);
     } else if (shaderStage === 'frag') {
         code = replaceFragmentLocation(code, 'in', attrMap);
-        code = replaceFragmentLocation(code, 'out', attrMap);
     } else {
         // error
     }
@@ -346,30 +346,10 @@ class ProgramLib {
         const curTmpl = this._templates[shader.name];
         if (curTmpl && curTmpl.hash === shader.hash) { return curTmpl; }
         const tmpl = ({ ...shader }) as IProgramInfo;
-        // calculate option mask offset
-        let offset = 0;
-        for (let i = 0; i < tmpl.defines.length; i++) {
-            const def = tmpl.defines[i];
-            let cnt = 1;
-            if (def.type === 'number') {
-                const range = def.range!;
-                cnt = getBitCount(range[1] - range[0] + 1); // inclusive on both ends
-                def._map = (value: number) => value - range[0];
-            } else if (def.type === 'string') {
-                cnt = getBitCount(def.options!.length);
-                def._map = (value: any) => Math.max(0, def.options!.findIndex((s) => s === value));
-            } else if (def.type === 'boolean') {
-                def._map = (value: any) => (value ? 1 : 0);
-            }
-            def._offset = offset;
-            offset += cnt;
-        }
-        if (offset > 31) { tmpl.uber = true; }
-        // generate constant macros
-        tmpl.constantMacros = '';
-        for (const key in tmpl.builtins.statistics) {
-            tmpl.constantMacros += `#define ${key} ${tmpl.builtins.statistics[key]}\n`;
-        }
+
+        // update defines and constant macros
+        populateMacros(tmpl);
+
         // store it
         this._templates[shader.name] = tmpl;
         if (!this._templateInfos[tmpl.hash]) {
@@ -380,7 +360,7 @@ class ProgramLib {
             tmplInfo.blockSizes = []; tmplInfo.bindings = [];
             for (let i = 0; i < tmpl.blocks.length; i++) {
                 const block = tmpl.blocks[i];
-                tmplInfo.blockSizes.push(getSize(block));
+                tmplInfo.blockSizes.push(getSize(block.members));
                 tmplInfo.bindings.push(new DescriptorSetLayoutBinding(block.binding,
                     DescriptorType.UNIFORM_BUFFER, 1, block.stageFlags));
                 tmplInfo.shaderInfo.blocks.push(new UniformBlock(SetIndex.MATERIAL, block.binding, block.name,

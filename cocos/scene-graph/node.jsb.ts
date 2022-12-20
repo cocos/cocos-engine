@@ -235,10 +235,11 @@ nodeProto.removeComponent = function (component) {
 
 const REGISTERED_EVENT_MASK_TRANSFORM_CHANGED = (1 << 0);
 const REGISTERED_EVENT_MASK_PARENT_CHANGED = (1 << 1);
-const REGISTERED_EVENT_MASK_LAYER_CHANGED = (1 << 2);
-const REGISTERED_EVENT_MASK_CHILD_REMOVED_CHANGED = (1 << 3);
-const REGISTERED_EVENT_MASK_CHILD_ADDED_CHANGED = (1 << 4);
-const REGISTERED_EVENT_MASK_SIBLING_ORDER_CHANGED_CHANGED = (1 << 5);
+const REGISTERED_EVENT_MASK_MOBILITY_CHANGED = (1 << 2);
+const REGISTERED_EVENT_MASK_LAYER_CHANGED = (1 << 3);
+const REGISTERED_EVENT_MASK_CHILD_REMOVED_CHANGED = (1 << 4);
+const REGISTERED_EVENT_MASK_CHILD_ADDED_CHANGED = (1 << 5);
+const REGISTERED_EVENT_MASK_SIBLING_ORDER_CHANGED_CHANGED = (1 << 6);
 
 nodeProto.on = function (type, callback, target, useCapture: any = false) {
     switch (type) {
@@ -253,6 +254,12 @@ nodeProto.on = function (type, callback, target, useCapture: any = false) {
             if (!(this._registeredNodeEventTypeMask & REGISTERED_EVENT_MASK_PARENT_CHANGED)) {
                 this._registerOnParentChanged();
                 this._registeredNodeEventTypeMask |= REGISTERED_EVENT_MASK_PARENT_CHANGED;
+            }
+            break;
+        case NodeEventType.MOBILITY_CHANGED:
+            if (!(this._registeredNodeEventTypeMask & REGISTERED_EVENT_MASK_MOBILITY_CHANGED)) {
+                this._registerOnMobilityChanged();
+                this._registeredNodeEventTypeMask |= REGISTERED_EVENT_MASK_MOBILITY_CHANGED;
             }
             break;
         case NodeEventType.LAYER_CHANGED:
@@ -412,6 +419,10 @@ nodeProto._onDestroyComponents = function () {
         // TO DO
         comps[i]._destroyImmediate();
     }
+};
+
+nodeProto._onMobilityChanged = function () {
+    this.emit(NodeEventType.MOBILITY_CHANGED);
 };
 
 nodeProto._onLayerChanged = function (layer) {
@@ -1036,17 +1047,6 @@ Object.defineProperty(nodeProto, '_static', {
     },
 });
 
-Object.defineProperty(nodeProto, 'mobility', {
-    configurable: true,
-    enumerable: true,
-    get () {
-        return this._mobility;
-    },
-    set (v) {
-        this._mobility = v;
-    },
-});
-
 Object.defineProperty(nodeProto, 'forward', {
     configurable: true,
     enumerable: true,
@@ -1390,6 +1390,7 @@ const angleDescriptor = Object.getOwnPropertyDescriptor(NodeProto, 'angle');
 editable(NodeProto, 'angle', angleDescriptor);
 const mobilityDescriptor = Object.getOwnPropertyDescriptor(NodeProto, 'mobility');
 editable(NodeProto, 'mobility', mobilityDescriptor);
+type(MobilityMode)(NodeProto, 'mobility', mobilityDescriptor);
 const layerDescriptor = Object.getOwnPropertyDescriptor(NodeProto, 'layer');
 editable(NodeProto, 'layer', layerDescriptor);
 

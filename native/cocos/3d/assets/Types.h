@@ -37,7 +37,7 @@ using MeshWeightsType = ccstd::vector<float>;
  * @en Array views for index buffer
  * @zh 允许存储索引的数组视图
  */
-using IBArray = ccstd::variant<Uint8Array, Uint16Array, Uint32Array>;
+using IBArray = ccstd::variant<ccstd::monostate, Uint8Array, Uint16Array, Uint32Array>;
 
 template <typename T>
 T getIBArrayValue(const IBArray &arr, uint32_t idx) {

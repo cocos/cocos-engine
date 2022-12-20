@@ -34,7 +34,9 @@ import { RenderPass } from '../base/render-pass';
 import { GeneralBarrier } from '../base/states/general-barrier';
 import { TextureBarrier } from '../base/states/texture-barrier';
 import { BufferBarrier } from '../base/states/buffer-barrier';
-import { StencilFace, BufferSource, CommandBufferInfo, BufferTextureCopy, Color, Rect, Viewport, DrawInfo } from '../base/define';
+import { StencilFace, BufferSource, CommandBufferInfo, BufferTextureCopy, Color,
+    Rect, Viewport, DrawInfo, TextureBlit, Filter,
+} from '../base/define';
 
 export class EmptyCommandBuffer extends CommandBuffer {
     public initialize (info: Readonly<CommandBufferInfo>) {
@@ -66,4 +68,5 @@ export class EmptyCommandBuffer extends CommandBuffer {
         buffers?: Readonly<Buffer[]>,
         textureBarriers?: Readonly<TextureBarrier[]>,
         textures?: Readonly<Texture[]>) {}
+    public blitTexture (srcTexture: Readonly<Texture>, dstTexture: Texture, regions: Readonly<TextureBlit []>, filter: Filter): void {}
 }

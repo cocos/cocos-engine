@@ -424,8 +424,8 @@ int ZipUtils::inflateCCZFile(const char *path, unsigned char **out) {
 }
 
 void ZipUtils::setPvrEncryptionKeyPart(int index, unsigned int value) {
-    CC_ASSERT(index >= 0);
-    CC_ASSERT(index <= 3);
+    CC_ASSERT_GE(index, 0);
+    CC_ASSERT_LE(index, 3);
 
     if (ZipUtils::encryptedPvrKeyParts[index] != value) {
         ZipUtils::encryptedPvrKeyParts[index] = value;

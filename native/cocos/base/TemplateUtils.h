@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -22,19 +22,25 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 ****************************************************************************/
-
 #pragma once
-
-#include <cstdint>
-#include "base/Macros.h"
 
 namespace cc {
 
-class TouchEvent;
+/* overloaded is used in ccstd::visit a variant value. For example:
 
-class View {
-public:
-    static void engineHandleCmd(int cmd);
-};
+    ccstd::variant<ccstd::monostate, int, bool, float> value;
+    ccstd::visit(cc::overloaded{
+        [](auto& v) {
+            // Do something with v
+        },
+        [](ccstd::monostate&) {} // Do nothing if value isn't initialized
+    }, value);
 
-} // namespace cc
+ */
+    
+// https://stackoverflow.com/questions/69915380/what-does-templateclass-ts-struct-overloaded-ts-using-tsoperator
+// https://en.cppreference.com/w/cpp/language/class_template_argument_deduction
+template<class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
+template<class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
+
+}

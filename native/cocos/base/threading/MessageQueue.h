@@ -96,7 +96,7 @@ public:
     static constexpr uint32_t MEMORY_CHUNK_SIZE = 4096 * 16;
 
     MessageQueue();
-    ~MessageQueue() = default;
+    ~MessageQueue();
     MessageQueue(MessageQueue const &) = delete;
     MessageQueue(MessageQueue &&) = delete;
     MessageQueue &operator=(MessageQueue const &) = delete;

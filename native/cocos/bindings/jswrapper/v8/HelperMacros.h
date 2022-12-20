@@ -198,7 +198,7 @@ void jsbSetterWrapper(const v8::FunctionCallbackInfo<v8::Value>&,
             do {                                                                                                            \
                 if (!(cond)) {                                                                                              \
                     selogMessage(cc::LogLevel::ERR, "[SE_ASSERT]", (" (%s, %d): " fmt), __FILE__, __LINE__, ##__VA_ARGS__); \
-                    CC_ASSERT(false);                                                                                       \
+                    CC_ABORT();                                                                                       \
                 }                                                                                                           \
             } while (false)
 

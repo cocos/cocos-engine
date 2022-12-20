@@ -1561,14 +1561,14 @@ struct QueryPoolInfo {
 };
 
 struct FormatInfo {
-    const ccstd::string name;
-    const uint32_t size{0};
-    const uint32_t count{0};
-    const FormatType type{FormatType::NONE};
-    const bool hasAlpha{false};
-    const bool hasDepth{false};
-    const bool hasStencil{false};
-    const bool isCompressed{false};
+    ccstd::string name;
+    uint32_t size{0};
+    uint32_t count{0};
+    FormatType type{FormatType::NONE};
+    bool hasAlpha{false};
+    bool hasDepth{false};
+    bool hasStencil{false};
+    bool isCompressed{false};
 };
 
 struct MemoryStatus {

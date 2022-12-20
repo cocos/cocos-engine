@@ -29,15 +29,27 @@
 #include "base/Log.h"
 #include "core/platform/Debug.h"
 #include "math/Mat3.h"
+#define CC_USE_TETGEN 1
+#if CC_USE_TETGEN
+    #include "tetgen.h"
+#endif
+
+#define FIX_TS_NATIVE_INCOMPATIBLE 0
 
 namespace cc {
 namespace gi {
 
 void CircumSphere::init(const Vec3 &p0, const Vec3 &p1, const Vec3 &p2, const Vec3 &p3) {
     // calculate circumsphere of 4 points in R^3 space.
+#if FIX_TS_NATIVE_INCOMPATIBLE
     Mat3 mat(p1.x - p0.x, p1.y - p0.y, p1.z - p0.z,
              p2.x - p0.x, p2.y - p0.y, p2.z - p0.z,
              p3.x - p0.x, p3.y - p0.y, p3.z - p0.z);
+#else
+    Mat3 mat(p1.x - p0.x, p2.x - p0.x, p3.x - p0.x,
+             p1.y - p0.y, p2.y - p0.y, p3.y - p0.y,
+             p1.z - p0.z, p2.z - p0.z, p3.z - p0.z);
+#endif
     mat.inverse();
     mat.transpose();
 
@@ -53,7 +65,7 @@ Tetrahedron::Tetrahedron(const Delaunay *delaunay, int32_t v0, int32_t v1, int32
 : vertex0(v0), vertex1(v1), vertex2(v2), vertex3(v3) {
     // inner tetrahedron
     if (v3 >= 0) {
-        const auto &probes = delaunay->getProbes();
+        const auto &probes = delaunay->_probes;
         const auto &p0 = probes[vertex0].position;
         const auto &p1 = probes[vertex1].position;
         const auto &p2 = probes[vertex2].position;
@@ -62,15 +74,13 @@ Tetrahedron::Tetrahedron(const Delaunay *delaunay, int32_t v0, int32_t v1, int32
     }
 }
 
-ccstd::vector<Tetrahedron> Delaunay::build(const ccstd::vector<Vertex> &probes) {
-    _probes = probes;
-
+ccstd::vector<Tetrahedron> Delaunay::build() {
     reset();
     tetrahedralize();
     computeAdjacency();
     computeMatrices();
 
-    return _tetrahedrons;
+    return std::move(_tetrahedrons);
 }
 
 void Delaunay::reset() {
@@ -79,6 +89,51 @@ void Delaunay::reset() {
     _edges.clear();
 }
 
+#if CC_USE_TETGEN
+void Delaunay::tetrahedralize() {
+    tetgenio in;
+    tetgenio out;
+
+    in.numberofpoints = static_cast<int32_t>(_probes.size());
+    in.pointlist = new REAL[_probes.size() * 3];
+
+    constexpr float minFloat = std::numeric_limits<float>::min();
+    constexpr float maxFloat = std::numeric_limits<float>::max();
+
+    Vec3 minPos = {maxFloat, maxFloat, maxFloat};
+    Vec3 maxPos = {minFloat, minFloat, minFloat};
+
+    for (auto i = 0; i < _probes.size(); i++) {
+        const auto &position = _probes[i].position;
+
+        in.pointlist[i * 3 + 0] = position.x;
+        in.pointlist[i * 3 + 1] = position.y;
+        in.pointlist[i * 3 + 2] = position.z;
+
+        minPos.x = std::min(minPos.x, position.x);
+        maxPos.x = std::max(maxPos.x, position.x);
+
+        minPos.y = std::min(minPos.y, position.y);
+        maxPos.y = std::max(maxPos.y, position.y);
+
+        minPos.z = std::min(minPos.z, position.z);
+        maxPos.z = std::max(maxPos.z, position.z);
+    }
+
+    const Vec3 center = (maxPos + minPos) * 0.5F;
+
+    tetgenbehavior options;
+    options.neighout = 0;
+    options.quiet = 1;
+    ::tetrahedralize(&options, &in, &out);
+
+    for (auto i = 0; i < out.numberoftetrahedra; i++) {
+        _tetrahedrons.emplace_back(this, out.tetrahedronlist[i * 4], out.tetrahedronlist[i * 4 + 1], out.tetrahedronlist[i * 4 + 2], out.tetrahedronlist[i * 4 + 3]);
+    }
+
+    reorder(center);
+}
+#else
 void Delaunay::tetrahedralize() {
     // get probe count first
     const auto probeCount = _probes.size();
@@ -106,6 +161,7 @@ void Delaunay::tetrahedralize() {
 
     reorder(center);
 }
+#endif
 
 Vec3 Delaunay::initTetrahedron() {
     constexpr float minFloat = std::numeric_limits<float>::min();
@@ -325,10 +381,17 @@ void Delaunay::computeTetrahedronMatrix(Tetrahedron &tetrahedron) {
     const auto &p2 = _probes[tetrahedron.vertex2].position;
     const auto &p3 = _probes[tetrahedron.vertex3].position;
 
+#if FIX_TS_NATIVE_INCOMPATIBLE
     tetrahedron.matrix.set(
         p0.x - p3.x, p1.x - p3.x, p2.x - p3.x,
         p0.y - p3.y, p1.y - p3.y, p2.y - p3.y,
         p0.z - p3.z, p1.z - p3.z, p2.z - p3.z);
+#else
+    tetrahedron.matrix.set(
+        p0.x - p3.x, p0.y - p3.y, p0.z - p3.z,
+        p1.x - p3.x, p1.y - p3.y, p1.z - p3.z,
+        p2.x - p3.x, p2.y - p3.y, p2.z - p3.z);
+#endif
     tetrahedron.matrix.inverse();
     tetrahedron.matrix.transpose();
 }
@@ -387,7 +450,11 @@ void Delaunay::computeOuterCellMatrix(Tetrahedron &tetrahedron) {
     }
 
     // transpose the matrix
+#if FIX_TS_NATIVE_INCOMPATIBLE
     tetrahedron.matrix.set(m[0], m[1], m[2], m[3], m[4], m[5], m[6], m[7], m[8]);
+#else
+    tetrahedron.matrix.set(m[0], m[3], m[6], m[1], m[4], m[7], m[2], m[5], m[8]);
+#endif
 
     // last column of mat3x4
     tetrahedron.offset.set(m[9], m[10], m[11]);

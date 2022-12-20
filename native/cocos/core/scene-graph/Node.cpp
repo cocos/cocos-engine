@@ -76,13 +76,13 @@ Node::~Node() {
 
 void Node::onBatchCreated(bool dontChildPrefab) {
     // onBatchCreated was implemented in TS, so code should never go here.
-    CC_ASSERT(false);
+    CC_ABORT();
     emit<BatchCreated>(dontChildPrefab);
 }
 
 Node *Node::instantiate(Node *cloned, bool isSyncedNode) {
     if (!cloned) {
-        CC_ASSERT(false);
+        CC_ABORT();
         // TODO(): cloned = legacyCC.instantiate._clone(this, this);
         return nullptr;
     }
@@ -525,7 +525,6 @@ void Node::invalidateChildren(TransformBit dirtyBit) { // NOLINT(misc-no-recursi
     if (isValid() && (dirtyFlags & hasChangedFlags & curDirtyBit) != curDirtyBit) {
         setDirtyFlag(dirtyFlags | curDirtyBit);
         setChangedFlags(hasChangedFlags | curDirtyBit);
-        emit<AncestorTransformChanged>(dirtyBit);
 
         for (Node *child : getChildren()) {
             child->invalidateChildren(dirtyBit | TransformBit::POSITION);

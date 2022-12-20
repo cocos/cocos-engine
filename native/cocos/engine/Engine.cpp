@@ -82,9 +82,11 @@ bool setCanvasCallback(se::Object * /*global*/) {
 
     std::stringstream ss;
     {
-        ss << "window.innerWidth = " << static_cast<int>(viewSize.width / dpr) << ";";
-        ss << "window.innerHeight = " << static_cast<int>(viewSize.height / dpr) << ";";
-        ss << "window.windowHandler = ";
+        ss << "globalThis.jsb = globalThis.jsb || {}; " << std::endl;
+        ss << "jsb.window = jsb.window || {}; " << std::endl;
+        ss << "jsb.window.innerWidth = " << static_cast<int>(viewSize.width / dpr) << ";" << std::endl;
+        ss << "jsb.window.innerHeight = " << static_cast<int>(viewSize.height / dpr) << ";" << std::endl;
+        ss << "jsb.window.windowHandler = ";
         if (sizeof(handler) == 8) { // use bigint
             ss << static_cast<uint64_t>(handler) << "n;";
         }
@@ -168,7 +170,7 @@ void Engine::destroy() {
     delete _debugRenderer;
 #endif
 
-    //TODO(): Delete some global objects.
+    // TODO(): Delete some global objects.
 #if CC_USE_DEBUG_RENDERER
     // FreeTypeFontFace is only used in DebugRenderer now, so use CC_USE_DEBUG_RENDERER macro temporarily
     FreeTypeFontFace::destroyFreeType();
@@ -243,7 +245,7 @@ void Engine::setPreferredFramesPerSecond(int fps) {
     }
     BasePlatform *platform = BasePlatform::getPlatform();
     platform->setFps(fps);
-    _prefererredNanosecondsPerFrame = static_cast<long>(1.0 / fps * NANOSECONDS_PER_SECOND); //NOLINT(google-runtime-int)
+    _prefererredNanosecondsPerFrame = static_cast<long>(1.0 / fps * NANOSECONDS_PER_SECOND); // NOLINT(google-runtime-int)
 }
 
 void Engine::tick() {
@@ -264,7 +266,8 @@ void Engine::tick() {
         ++_totalFrames;
 
         // iOS/macOS use its own fps limitation algorithm.
-#if (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_OHOS) || (defined(CC_SERVER_MODE) && (CC_PLATFORM == CC_PLATFORM_MAC_OSX))
+        // Windows for Editor should not sleep,because Editor call tick function synchronously
+#if (CC_PLATFORM == CC_PLATFORM_ANDROID || (CC_PLATFORM == CC_PLATFORM_WINDOWS && !defined(CC_EDITOR)) || CC_PLATFORM == CC_PLATFORM_OHOS) || (defined(CC_SERVER_MODE) && (CC_PLATFORM == CC_PLATFORM_MAC_OSX))
         if (dtNS < static_cast<double>(_prefererredNanosecondsPerFrame)) {
             CC_PROFILE(EngineSleep);
             std::this_thread::sleep_for(

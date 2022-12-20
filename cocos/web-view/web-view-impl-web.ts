@@ -30,6 +30,9 @@ import { WebViewImpl } from './web-view-impl';
 import { game } from '../game';
 import { mat4 } from '../core/math';
 import { contains } from '../core/utils/misc';
+import { ccwindow } from '../core/global-exports';
+
+const ccdocument = ccwindow.document;
 
 const _mat4_temp = mat4();
 
@@ -65,7 +68,7 @@ export class WebViewImplWeb extends WebViewImpl {
     }
 
     public createWebView () {
-        const wrapper = document.createElement('div');
+        const wrapper = ccdocument.createElement('div');
         this._wrapper = wrapper;
         wrapper.id = 'webview-wrapper';
         wrapper.style['-webkit-overflow'] = 'auto';
@@ -77,7 +80,7 @@ export class WebViewImplWeb extends WebViewImpl {
         wrapper.style['-webkit-transform-origin'] = '0px 100% 0px';
         game.container!.appendChild(wrapper);
 
-        const webview = document.createElement('iframe');
+        const webview = ccdocument.createElement('iframe');
         this._webview = webview;
         webview.id = 'webview';
         webview.style.border = 'none';

@@ -36,6 +36,9 @@ import {
     DeviceInfo, BufferTextureCopy, ShaderInfo, ShaderStageFlagBit, TextureViewInfo, TextureInfo, DrawInfo, BufferViewInfo, BufferInfo, BufferUsageBit, IndirectBuffer,
 } from '../base/define';
 
+import { ccwindow } from '../../core/global-exports';
+
+
 WEBGPU && promiseForWebGPUInstantiation.then(() => {
     const originDeviceInitializeFunc = Device.prototype.initialize;
     Device.prototype.initialize = function (info: DeviceInfo) {
@@ -170,7 +173,7 @@ WEBGPU && promiseForWebGPUInstantiation.then(() => {
                 buffers[i] = data;
             } else if (texImages[i] instanceof HTMLImageElement || texImages[i] instanceof ImageBitmap) {
                 const img = texImages[i];
-                const canvas = document.createElement('canvas');
+                const canvas = ccwindow.document.createElement('canvas');
                 canvas.width = img.width;
                 canvas.height = img.height;
                 const ctx = canvas.getContext('2d');
@@ -532,10 +535,10 @@ WEBGPU && promiseForWebGPUInstantiation.then(() => {
         if (isNanIndex !== -1) {
             // getPrecision(isNanIndex);
             functionDefs += `\n
-            bool isNan(${precisionKeyWord} float val) {
-                return (val < 0.0 || 0.0 < val || val == 0.0) ? false : true;
-            }
-            \n`;
+             bool isNan(${precisionKeyWord} float val) {
+                 return (val < 0.0 || 0.0 < val || val == 0.0) ? false : true;
+             }
+             \n`;
             code = code.replace(/isnan\(/gi, 'isNan(');
         }
 
@@ -543,10 +546,10 @@ WEBGPU && promiseForWebGPUInstantiation.then(() => {
         if (isInfIndex !== -1) {
             // getPrecision(isInfIndex);
             functionDefs += `\n
-            bool isInf(${precisionKeyWord} float x) {
-                return x == x * 2.0 && x != 0.0;
-            }
-            \n`;
+             bool isInf(${precisionKeyWord} float x) {
+                 return x == x * 2.0 && x != 0.0;
+             }
+             \n`;
             code = code.replace(/isinf\(/gi, 'isInf(');
         }
 

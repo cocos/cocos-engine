@@ -115,7 +115,7 @@ GLenum mapGLFormat(Format format) {
         case Format::ASTC_SRGBA_12X12: return GL_COMPRESSED_SRGB8_ALPHA8_ASTC_12x12_KHR;
 
         default: {
-            CC_ASSERT(false);
+            CC_ABORT();
             return GL_NONE;
         }
     }
@@ -167,7 +167,7 @@ GLenum mapGLType(Type type) {
         case Type::SAMPLER3D: return GL_SAMPLER_3D_OES;
         case Type::SAMPLER_CUBE: return GL_SAMPLER_CUBE;
         default: {
-            CC_ASSERT(false);
+            CC_ABORT();
             return GL_NONE;
         }
     }
@@ -195,7 +195,7 @@ Type mapType(GLenum glType) {
         case GL_SAMPLER_3D_OES: return Type::SAMPLER3D;
         case GL_SAMPLER_CUBE: return Type::SAMPLER_CUBE;
         default: {
-            CC_ASSERT(false);
+            CC_ABORT();
             return Type::UNKNOWN;
         }
     }
@@ -316,7 +316,7 @@ GLenum formatToGLType(Format format) {
             return GL_UNSIGNED_BYTE;
 
         default: {
-            CC_ASSERT(false);
+            CC_ABORT();
             return GL_NONE;
         }
     }
@@ -348,7 +348,7 @@ uint32_t glTypeSize(GLenum glType) {
         case GL_INT_SAMPLER_CUBE_MAP_ARRAY_OES:
         case GL_UNSIGNED_INT_SAMPLER_CUBE_MAP_ARRAY_OES: return 4;
         default: {
-            CC_ASSERT(false);
+            CC_ABORT();
             return 0;
         }
     }
@@ -473,7 +473,7 @@ void cmdFuncGLES2CreateBuffer(GLES2Device *device, GLES2GPUBuffer *gpuBuffer) {
         gpuBuffer->buffer = static_cast<uint8_t *>(CC_MALLOC(gpuBuffer->size));
         gpuBuffer->glTarget = GL_NONE;
     } else {
-        CC_ASSERT(false);
+        CC_ABORT();
         gpuBuffer->glTarget = GL_NONE;
     }
 }
@@ -566,7 +566,7 @@ void cmdFuncGLES2ResizeBuffer(GLES2Device *device, GLES2GPUBuffer *gpuBuffer) {
         gpuBuffer->buffer = static_cast<uint8_t *>(CC_MALLOC(gpuBuffer->size));
         gpuBuffer->glTarget = GL_NONE;
     } else {
-        CC_ASSERT(false);
+        CC_ABORT();
         gpuBuffer->glTarget = GL_NONE;
     }
 }
@@ -620,7 +620,7 @@ void cmdFuncGLES2CreateTexture(GLES2Device *device, GLES2GPUTexture *gpuTexture)
                 break;
             }
             default:
-                CC_ASSERT(false);
+                CC_ABORT();
                 break;
         }
     } else {
@@ -662,8 +662,7 @@ void cmdFuncGLES2CreateTexture(GLES2Device *device, GLES2GPUTexture *gpuTexture)
             }
             case TextureType::TEX2D_ARRAY: {
                 gpuTexture->glTarget = GL_TEXTURE_3D;
-                CC_ASSERT((std::max(std::max(gpuTexture->width, gpuTexture->height), gpuTexture->arrayLayer) <= device->getCapabilities().max3DTextureSize)
-                    && "cmdFuncGLES2CreateTexture: texture2DArray's dimension is too large");
+                CC_ASSERT((std::max(std::max(gpuTexture->width, gpuTexture->height), gpuTexture->arrayLayer) <= device->getCapabilities().max3DTextureSize) && "cmdFuncGLES2CreateTexture: texture2DArray's dimension is too large");
                 GL_CHECK(glGenTextures(1, &gpuTexture->glTexture));
                 if (gpuTexture->size > 0) {
                     GLuint &glTexture = device->stateCache()->glTextures[device->stateCache()->texUint];
@@ -780,7 +779,7 @@ void cmdFuncGLES2CreateTexture(GLES2Device *device, GLES2GPUTexture *gpuTexture)
                 break;
             }
             default:
-                CC_ASSERT(false);
+                CC_ABORT();
                 break;
         }
     }
@@ -953,7 +952,7 @@ void cmdFuncGLES2ResizeTexture(GLES2Device *device, GLES2GPUTexture *gpuTexture)
                 break;
             }
             default:
-                CC_ASSERT(false);
+                CC_ABORT();
                 break;
         }
     } else {
@@ -974,7 +973,7 @@ void cmdFuncGLES2ResizeTexture(GLES2Device *device, GLES2GPUTexture *gpuTexture)
                 break;
             }
             default:
-                CC_ASSERT(false);
+                CC_ABORT();
                 break;
         }
     }
@@ -1033,7 +1032,7 @@ void cmdFuncGLES2CreateShader(GLES2Device *device, GLES2GPUShader *gpuShader) {
                 break;
             }
             default: {
-                CC_ASSERT(false);
+                CC_ABORT();
                 return;
             }
         }
@@ -2699,7 +2698,7 @@ void cmdFuncGLES2UpdateBuffer(GLES2Device *device, GLES2GPUBuffer *gpuBuffer, co
                 break;
             }
             default:
-                CC_ASSERT(false);
+                CC_ABORT();
                 break;
         }
     }
@@ -2943,7 +2942,7 @@ void cmdFuncGLES2CopyBuffersToTexture(GLES2Device *device, const uint8_t *const 
             break;
         }
         default:
-            CC_ASSERT(false);
+            CC_ABORT();
             break;
     }
 
@@ -3179,6 +3178,9 @@ void GLES2GPUBlitManager::draw(GLES2GPUTexture *gpuTextureSrc, GLES2GPUTexture *
     GLES2Device *device = GLES2Device::getInstance();
     auto &descriptor = _gpuDescriptorSet.gpuDescriptors.back();
 
+    glViewport(0, 0, static_cast<int>(gpuTextureDst->width), static_cast<int>(gpuTextureDst->height));
+    glScissor(0, 0, static_cast<int>(gpuTextureDst->width), static_cast<int>(gpuTextureDst->height));
+
     descriptor.gpuTexture = gpuTextureSrc;
     descriptor.gpuSampler = filter == Filter::POINT ? &_gpuPointSampler : &_gpuLinearSampler;
     for (uint32_t i = 0U; i < count; ++i) {
@@ -3204,6 +3206,11 @@ void GLES2GPUBlitManager::draw(GLES2GPUTexture *gpuTextureSrc, GLES2GPUTexture *
         cmdFuncGLES2BindState(device, &_gpuPipelineState, &_gpuInputAssembler, &gpuDescriptorSet);
         cmdFuncGLES2Draw(device, _drawInfo);
     }
+
+    const auto &origViewport = device->stateCache()->viewport;
+    const auto &origScissor = device->stateCache()->scissor;
+    glViewport(origViewport.left, origViewport.top, static_cast<int>(origViewport.width), static_cast<int>(origViewport.height));
+    glScissor(origScissor.x, origScissor.y, static_cast<int>(origScissor.width), static_cast<int>(origScissor.height));
 }
 
 void GLES2GPUFramebufferHub::update(GLES2GPUTexture *texture) {

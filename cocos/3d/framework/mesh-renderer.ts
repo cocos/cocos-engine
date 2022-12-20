@@ -650,13 +650,23 @@ export class MeshRenderer extends ModelRenderer {
         this._onUpdateLightingmap();
     }
 
-    public updateProbeCubemap (cubeMap: TextureCube | null) {
+    public updateProbeCubemap (cubeMap: TextureCube | null, useDefaultTexture?: boolean) {
+        if (this.bakeSettings._probeCubemap && this.bakeSettings._probeCubemap === cubeMap) {
+            return;
+        }
         this.bakeSettings._probeCubemap = cubeMap;
         if (this.model !== null) {
-            this.model.updateReflctionProbeCubemap(this.bakeSettings._probeCubemap);
+            let cubeMap = this.bakeSettings._probeCubemap;
+            if (!cubeMap && this.node.scene && !useDefaultTexture) {
+                cubeMap = this.node.scene._globals.skybox.envmap;
+            }
+            this.model.updateReflctionProbeCubemap(cubeMap);
         }
     }
     public updateProbePlanarMap (planarMap: Texture | null) {
+        if (this.bakeSettings._probePlanarmap === planarMap) {
+            return;
+        }
         this.bakeSettings._probePlanarmap = planarMap;
         if (this.model !== null) {
             this.model.updateReflctionProbePlanarMap(this.bakeSettings._probePlanarmap);
@@ -666,7 +676,11 @@ export class MeshRenderer extends ModelRenderer {
     protected _updateReflectionProbeTexture () {
         if (this.model === null) return;
         if (this.bakeSettings.reflectionProbe === ReflectionProbeType.BAKED_CUBEMAP) {
-            this.model.updateReflctionProbeCubemap(this.bakeSettings._probeCubemap);
+            let cubeMap = this.bakeSettings._probeCubemap;
+            if (!cubeMap && this.node.scene) {
+                cubeMap = this.node.scene._globals.skybox.envmap;
+            }
+            this.model.updateReflctionProbeCubemap(cubeMap);
             this.model.updateReflctionProbePlanarMap(null);
         } else if (this.bakeSettings.reflectionProbe === ReflectionProbeType.PLANAR_REFLECTION) {
             this.model.updateReflctionProbePlanarMap(this.bakeSettings._probePlanarmap);
@@ -867,6 +881,11 @@ export class MeshRenderer extends ModelRenderer {
 
     protected onReflectionProbeChanged () {
         this._updateUseReflectionProbe();
+        if (this.bakeSettings.reflectionProbe === ReflectionProbeType.BAKED_CUBEMAP) {
+            cclegacy.internal.reflectionProbeManager.updateUseCubeModels(this._model);
+        } else if (this.bakeSettings.reflectionProbe === ReflectionProbeType.PLANAR_REFLECTION) {
+            cclegacy.internal.reflectionProbeManager.updateUsePlanarModels(this._model);
+        }
     }
 
     protected onBakeToReflectionProbeChanged () {

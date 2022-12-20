@@ -1,9 +1,12 @@
 declare const require: (path: string) =>  Promise<void>;
 
+const ccwindow = typeof globalThis.jsb !== 'undefined' ? (typeof jsb.window !== 'undefined' ? jsb.window : window) : window;
+const ccdocument = ccwindow.document;
+
 export function findCanvas (): { frame: HTMLDivElement, container: HTMLDivElement, canvas: HTMLCanvasElement } {
-    const container = document.createElement('div');
-    const frame = document.documentElement as HTMLDivElement;
-    const canvas = window.__canvas;
+    const container = ccdocument.createElement('div');
+    const frame = ccdocument.documentElement as HTMLDivElement;
+    const canvas = ccwindow.__canvas;
     return { frame, canvas, container };
 }
 

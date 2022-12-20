@@ -32,7 +32,7 @@
 cc::IOSPlatform *_platform = nullptr;
 - (void)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     _platform = dynamic_cast<cc::IOSPlatform *>(cc::BasePlatform::getPlatform());
-    CC_ASSERT(_platform != nullptr);
+    CC_ASSERT_NOT_NULL(_platform);
     
     // Create main system window
     CGRect bounds = [[UIScreen mainScreen] bounds];

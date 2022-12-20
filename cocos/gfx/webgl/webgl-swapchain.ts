@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { ALIPAY, RUNTIME_BASED, BYTEDANCE, WECHAT, LINKSURE, QTT, COCOSPLAY, HUAWEI, EDITOR, VIVO } from 'internal:constants';
+import { ALIPAY, RUNTIME_BASED, BYTEDANCE, WECHAT, LINKSURE, QTT, COCOSPLAY, HUAWEI, EDITOR, VIVO, TAOBAO } from 'internal:constants';
 import { systemInfo } from 'pal/system-info';
 import { WebGLCommandAllocator } from './webgl-command-allocator';
 import { WebGLStateCache } from './webgl-state-cache';
@@ -34,6 +34,7 @@ import { Swapchain } from '../base/swapchain';
 import { IWebGLExtensions, WebGLDeviceManager } from './webgl-define';
 import { macro, warnID, warn, debug } from '../../core';
 import { BrowserType, OS } from '../../../pal/system-info/enum-type';
+import { IWebGLBlitManager } from './webgl-gpu-objects';
 
 const eventWebGLContextLost = 'webglcontextlost';
 
@@ -174,6 +175,15 @@ export function getExtensions (gl: WebGLRenderingContext) {
         if (WECHAT) {
             res.noCompressedTexSubImage2D = true;
         }
+
+        // HACK: on Taobao Android, some devices can't query texture float extension correctly, especially Huawei devices
+        // the query interface returns null.
+        if (TAOBAO && systemInfo.os === OS.ANDROID) {
+            res.OES_texture_half_float = { HALF_FLOAT_OES: 36193 };
+            res.OES_texture_half_float_linear = {};
+            res.OES_texture_float = {};
+            res.OES_texture_float_linear = {};
+        }
     }
 
     if (res.OES_vertex_array_object) {
@@ -210,6 +220,10 @@ export class WebGLSwapchain extends Swapchain {
         return this._extensions as IWebGLExtensions;
     }
 
+    get blitManager () {
+        return this._blitManager!;
+    }
+
     public stateCache: WebGLStateCache = new WebGLStateCache();
     public cmdAllocator: WebGLCommandAllocator = new WebGLCommandAllocator();
     public nullTex2D: WebGLTexture = null!;
@@ -218,6 +232,7 @@ export class WebGLSwapchain extends Swapchain {
     private _canvas: HTMLCanvasElement | null = null;
     private _webGLContextLostHandler: ((event: Event) => void) | null = null;
     private _extensions: IWebGLExtensions | null = null;
+    private _blitManager: IWebGLBlitManager | null = null;
 
     public initialize (info: Readonly<SwapchainInfo>) {
         this._canvas = info.windowHandle;
@@ -301,6 +316,7 @@ export class WebGLSwapchain extends Swapchain {
             [nullTexBuff, nullTexBuff, nullTexBuff, nullTexBuff, nullTexBuff, nullTexBuff],
             this.nullTexCube, [nullTexRegion],
         );
+        this._blitManager = new IWebGLBlitManager();
     }
 
     public destroy (): void {
@@ -317,6 +333,11 @@ export class WebGLSwapchain extends Swapchain {
         if (this.nullTexCube) {
             this.nullTexCube.destroy();
             this.nullTexCube = null!;
+        }
+
+        if (this._blitManager) {
+            this._blitManager.destroy();
+            this._blitManager = null!;
         }
 
         this._extensions = null;

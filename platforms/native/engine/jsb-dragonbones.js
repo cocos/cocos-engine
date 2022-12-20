@@ -26,11 +26,11 @@ const cacheManager = require('./jsb-cache-manager');
 
 // @ts-expect-error jsb polyfills
 (function () {
-    if (window.dragonBones === undefined || window.middleware === undefined) return;
+    if (globalThis.dragonBones === undefined || globalThis.middleware === undefined) return;
     const ArmatureDisplayComponent = cc.internal.ArmatureDisplay;
     if (ArmatureDisplayComponent === undefined) return;
-    const dragonBones = window.dragonBones;
-    const middleware = window.middleware;
+    const dragonBones = globalThis.dragonBones;
+    const middleware = globalThis.middleware;
 
     // dragonbones global time scale.
     Object.defineProperty(dragonBones, 'timeScale', {
@@ -300,7 +300,7 @@ const cacheManager = require('./jsb-cache-manager');
     const dbAsset = cc.internal.DragonBonesAsset.prototype;
 
     dbAsset.init = function (factory, atlasUUID) {
-        this._factory = factory;
+        this._factory = factory || dragonBones.CCFactory.getInstance();
 
         // If create by manual, uuid is empty.
         // Only support json format, if remote load dbbin, must set uuid by manual.
@@ -469,7 +469,11 @@ const cacheManager = require('./jsb-cache-manager');
         this._nativeDisplay.setRenderEntity(this._renderEntity.nativeObj);
 
         this.attachUtil.init(this);
-
+        if (this._armature) {
+            const armatureData = this._armature.armatureData;
+            const aabb = armatureData.aABB;
+            this.node._uiProps.uiTransformComp.setContentSize(aabb.width, aabb.height);
+        }
         if (this.animationName) {
             this.playAnimation(this.animationName, this.playTimes);
         }

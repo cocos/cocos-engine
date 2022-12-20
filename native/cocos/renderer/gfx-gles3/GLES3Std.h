@@ -48,7 +48,7 @@
             GLenum err = glGetError();                               \
             if (err != GL_NO_ERROR) {                                \
                 CC_LOG_ERROR("%s returned GL error: 0x%x", #x, err); \
-                CC_ASSERT(false);                                    \
+                CC_ABORT();                                    \
             }                                                        \
         } while (0)
     #define EGL_CHECK(x)                                              \
@@ -57,7 +57,7 @@
             EGLint err = eglGetError();                               \
             if (err != EGL_SUCCESS) {                                 \
                 CC_LOG_ERROR("%s returned EGL error: 0x%x", #x, err); \
-                CC_ASSERT(false);                                     \
+                CC_ABORT();                                     \
             }                                                         \
         } while (0)
 #else

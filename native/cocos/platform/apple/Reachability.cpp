@@ -162,7 +162,7 @@ Reachability::~Reachability() {
 }
 
 void Reachability::onReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkReachabilityFlags flags, void *info) {
-    CC_ASSERT(info != nullptr);
+    CC_ASSERT_NOT_NULL(info);
 
     cc::Reachability *thiz = reinterpret_cast<cc::Reachability *>(info);
     if (thiz->_callback != nullptr) {
@@ -194,7 +194,7 @@ void Reachability::stopNotifier() {
 }
 
 bool Reachability::isConnectionRequired() const {
-    CC_ASSERT(_reachabilityRef != nullptr);
+    CC_ASSERT_NOT_NULL(_reachabilityRef);
     SCNetworkReachabilityFlags flags;
 
     if (SCNetworkReachabilityGetFlags(_reachabilityRef, &flags)) {
@@ -205,7 +205,7 @@ bool Reachability::isConnectionRequired() const {
 }
 
 Reachability::NetworkStatus Reachability::getCurrentReachabilityStatus() const {
-    CC_ASSERT(_reachabilityRef != nullptr);
+    CC_ASSERT_NOT_NULL(_reachabilityRef);
     NetworkStatus returnValue = NetworkStatus::NOT_REACHABLE;
     SCNetworkReachabilityFlags flags;
 

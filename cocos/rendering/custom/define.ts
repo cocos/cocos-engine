@@ -6,7 +6,6 @@ import { AccessType, AttachmentType, ComputeView, LightInfo, QueueHint, RasterVi
 import { Vec4, macro, geometry, toRadian, cclegacy } from '../../core';
 import { Material } from '../../asset/assets';
 import { SRGBToLinear } from '../pipeline-funcs';
-import { ReflectionProbeManager } from '../reflection-probe-manager';
 import { RenderWindow } from '../../render-scene/core/render-window';
 
 // Anti-aliasing type, other types will be gradually added in the future
@@ -604,7 +603,7 @@ export function buildShadowPass (passName: Readonly<string>,
 export function buildReflectionProbePasss (camera: Camera,
     ppl: Pipeline,
     isOffScreen: boolean) {
-    const probes = ReflectionProbeManager.probeManager.getProbes();
+    const probes = cclegacy.internal.reflectionProbeManager.getProbes();
     if (probes.length === 0) {
         return;
     }

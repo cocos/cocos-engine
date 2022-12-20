@@ -91,7 +91,10 @@ JNIEXPORT void JNICALL Java_com_cocos_lib_CocosSurfaceView_destructNative(JNIEnv
 }
 
 JNIEXPORT void JNICALL Java_com_cocos_lib_CocosSurfaceView_onSizeChangedNative(JNIEnv * /*env*/, jobject /*thiz*/, jint windowId, jint width, jint height) { // NOLINT JNI function name
-    cc::events::Resize::broadcast(width, height, windowId);
+    auto func = [width, height, windowId]() -> void {
+        cc::events::Resize::broadcast(width, height, windowId);
+    };
+    CC_CURRENT_ENGINE()->getScheduler()->performFunctionInCocosThread(func);
 }
 
 JNIEXPORT void JNICALL Java_com_cocos_lib_CocosSurfaceView_onSurfaceRedrawNeededNative(JNIEnv * /*env*/, jobject /*thiz*/, jlong handle) { // NOLINT JNI function name

@@ -155,8 +155,8 @@ exports.methods = {
                     canvas.width = width;
                     canvas.height = height;
 
-                    panel.glPreview.initGL(canvas, { width, height });
-                    panel.glPreview.resizeGL(width, height);
+                    await panel.glPreview.initGL(canvas, { width, height });
+                    await panel.glPreview.resizeGL(width, height);
                 }
 
                 const info = await panel.glPreview.queryPreviewData({
@@ -164,7 +164,7 @@ exports.methods = {
                     height: canvas.height,
                 });
 
-                panel.glPreview.drawGL(info.buffer, info.width, info.height);
+                panel.glPreview.drawGL(info);
             } catch (e) {
                 console.warn(e);
             }
@@ -177,7 +177,7 @@ exports.methods = {
     },
 };
 
-exports.ready = function() {
+exports.ready = function () {
     for (const prop in Elements) {
         const element = Elements[prop];
         if (element.ready) {
@@ -186,7 +186,7 @@ exports.ready = function() {
     }
 };
 
-exports.update = function(assetList, metaList) {
+exports.update = function (assetList, metaList) {
     this.assetList = assetList;
     this.metaList = metaList;
     this.asset = assetList[0];
@@ -200,7 +200,7 @@ exports.update = function(assetList, metaList) {
     }
 };
 
-exports.close = function() {
+exports.close = function () {
     for (const prop in Elements) {
         const element = Elements[prop];
         if (element.close) {
