@@ -112,7 +112,7 @@ scene::RenderWindow *Root::createRenderWindowFromSystemWindow(ISystemWindow *win
     gfx::SwapchainInfo info;
     info.width = static_cast<uint32_t>(size.width);
     info.height = static_cast<uint32_t>(size.height);
-    info.windowHandle = reinterpret_cast<void *>(handle);
+    info.windowHandle = reinterpret_cast<void *>(handle);  // NOLINT
     info.windowId = window->getWindowId();
 
     gfx::Swapchain *swapchain = gfx::Device::getInstance()->createSwapchain(info);
@@ -167,7 +167,7 @@ void Root::destroy() {
     //    this.dataPoolManager.clear();
 }
 
-void Root::resize(uint32_t width, uint32_t height, uint32_t windowId) {
+void Root::resize(uint32_t width, uint32_t height, uint32_t windowId) { // NOLINT
     for (const auto &window : _renderWindows) {
         auto *swapchain = window->getSwapchain();
         if (swapchain && (swapchain->getWindowId() == windowId)) {
@@ -435,7 +435,7 @@ void Root::frameMoveEnd() {
     }
 }
 
-void Root::frameMove(float deltaTime, int32_t totalFrames) {
+void Root::frameMove(float deltaTime, int32_t totalFrames) { // NOLINT
     CCObject::deferredDestroy();
 
     _frameTime = deltaTime;

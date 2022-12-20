@@ -282,7 +282,7 @@ export class UITransform extends Component {
      * node.setContentSize(new Size(100, 100));
      * ```
      */
-    public setContentSize(size: Size) : void;
+    public setContentSize(size: Size): void;
 
     /**
      * @en
@@ -299,7 +299,7 @@ export class UITransform extends Component {
      * node.setContentSize(100, 100);
      * ```
      */
-    public setContentSize(width: number, height: number) : void;
+    public setContentSize(width: number, height: number): void;
 
     public setContentSize (size: Size | number, height?: number) {
         const locContentSize = this._contentSize;
@@ -618,8 +618,8 @@ export class UITransform extends Component {
      */
     public getBoundingBoxToWorld () {
         if (this.node.parent) {
-            this.node.parent.getWorldMatrix(_worldMatrix);
-            return this.getBoundingBoxTo(_worldMatrix);
+            const m = this.node.parent.getWorldMatrix();
+            return this.getBoundingBoxTo(m);
         }
         return this.getBoundingBox();
     }
@@ -650,7 +650,7 @@ export class UITransform extends Component {
         rect.transformMat4(_worldMatrix);
 
         // query child's BoundingBox
-        if (!this.node.children) {
+        if (!this.node.children || this.node.children.length === 0) {
             return rect;
         }
 
@@ -730,7 +730,7 @@ export class UITransform extends Component {
     private static _sortChildrenSibling (node) {
         const siblings = node.children;
         if (siblings) {
-            siblings.sort((a:Node, b:Node) => {
+            siblings.sort((a: Node, b: Node) => {
                 const aComp = a._uiProps.uiTransformComp;
                 const bComp = b._uiProps.uiTransformComp;
                 const ca = aComp ? aComp._priority : 0;

@@ -42,14 +42,15 @@ export abstract class BulletShape implements IBaseShape {
     }
 
     setMaterial (v: PhysicsMaterial | null) {
-        if (!this._isTrigger && this._isEnabled && v) {
+        const v1 = (v == null) ? PhysicsSystem.instance.defaultMaterial : v;
+        if (!this._isTrigger && this._isEnabled) {
             if (this._compound) {
-                if (!ccMaterialBooks[v._uuid]) ccMaterialBooks[v._uuid] = bt.ccMaterial_new();
-                const mat = ccMaterialBooks[v._uuid];
-                bt.ccMaterial_set(mat, v.restitution, v.friction, v.rollingFriction, v.spinningFriction);
+                if (!ccMaterialBooks[v1._uuid]) ccMaterialBooks[v1._uuid] = bt.ccMaterial_new();
+                const mat = ccMaterialBooks[v1._uuid];
+                bt.ccMaterial_set(mat, v1.restitution, v1.friction, v1.rollingFriction, v1.spinningFriction);
                 bt.CollisionShape_setMaterial(this._impl, mat);
             } else {
-                bt.CollisionObject_setMaterial(this._sharedBody.body, v.restitution, v.friction, v.rollingFriction, v.spinningFriction);
+                bt.CollisionObject_setMaterial(this._sharedBody.body, v1.restitution, v1.friction, v1.rollingFriction, v1.spinningFriction);
             }
         }
     }

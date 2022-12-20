@@ -50,7 +50,7 @@ export class PhysXSphereShape extends PhysXShape implements ISphereShape {
 
     onComponentSet () {
         this.updateGeometry();
-        const pxmat = this.getSharedMaterial(this.collider.sharedMaterial!);
+        const pxmat = this.getSharedMaterial(this.collider.sharedMaterial);
         this._impl = PhysXInstance.physics.createShape(PhysXSphereShape.SPHERE_GEOMETRY, pxmat, true, this._flags);
     }
 

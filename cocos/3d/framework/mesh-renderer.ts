@@ -650,14 +650,14 @@ export class MeshRenderer extends ModelRenderer {
         this._onUpdateLightingmap();
     }
 
-    public updateProbeCubemap (cubeMap: TextureCube | null) {
-        if (this.bakeSettings._probeCubemap === cubeMap) {
+    public updateProbeCubemap (cubeMap: TextureCube | null, useDefaultTexture?: boolean) {
+        if (this.bakeSettings._probeCubemap && this.bakeSettings._probeCubemap === cubeMap) {
             return;
         }
         this.bakeSettings._probeCubemap = cubeMap;
         if (this.model !== null) {
             let cubeMap = this.bakeSettings._probeCubemap;
-            if (!cubeMap && this.node.scene) {
+            if (!cubeMap && this.node.scene && !useDefaultTexture) {
                 cubeMap = this.node.scene._globals.skybox.envmap;
             }
             this.model.updateReflctionProbeCubemap(cubeMap);
@@ -880,12 +880,12 @@ export class MeshRenderer extends ModelRenderer {
     }
 
     protected onReflectionProbeChanged () {
+        this._updateUseReflectionProbe();
         if (this.bakeSettings.reflectionProbe === ReflectionProbeType.BAKED_CUBEMAP) {
             cclegacy.internal.reflectionProbeManager.updateUseCubeModels(this._model);
         } else if (this.bakeSettings.reflectionProbe === ReflectionProbeType.PLANAR_REFLECTION) {
             cclegacy.internal.reflectionProbeManager.updateUsePlanarModels(this._model);
         }
-        this._updateUseReflectionProbe();
     }
 
     protected onBakeToReflectionProbeChanged () {
