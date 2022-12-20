@@ -1928,17 +1928,17 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         let l = 0;
         let cur: this;
         let children: this[];
-        let hasChangedFlags = 0;
+        // let hasChangedFlags = 0;
         const childDirtyBit = dirtyBit | TransformBit.POSITION;
 
         dirtyNodes[0] = this;
 
         while (i >= 0) {
             cur = dirtyNodes[i--];
-            hasChangedFlags = cur.hasChangedFlags;
-            if (cur.isValid && (cur._dirtyFlags & hasChangedFlags & dirtyBit) !== dirtyBit) {
+            // hasChangedFlags = cur.hasChangedFlags;
+            if (cur.isValid && (cur._dirtyFlags & dirtyBit) !== dirtyBit) {
                 cur._dirtyFlags |= dirtyBit;
-                cur.hasChangedFlags = hasChangedFlags | dirtyBit;
+                cur.hasChangedFlags |= dirtyBit;
 
                 children = cur._children;
                 l = children.length;
@@ -1971,7 +1971,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
             child = dirtyNodes[--i];
             dirtyBits |= child._dirtyFlags;
             if (cur) {
-                if (dirtyBits & TransformBit.POSITION) {
+                if (dirtyBits === TransformBit.POSITION) {
                     Vec3.transformMat4(child._pos, child._lpos, cur._mat);
                     child._mat.m12 = child._pos.x;
                     child._mat.m13 = child._pos.y;

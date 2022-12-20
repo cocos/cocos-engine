@@ -398,6 +398,9 @@ Node *Node::getChildByPath(const ccstd::string &path) const {
 
 //
 void Node::setPositionInternal(float x, float y, float z, bool calledFromJS) {
+    if (_localPosition.x == x && _localPosition.y == y && _localPosition.z == z) {
+        return;
+    }
     _localPosition.set(x, y, z);
     invalidateChildren(TransformBit::POSITION);
 
@@ -411,6 +414,9 @@ void Node::setPositionInternal(float x, float y, float z, bool calledFromJS) {
 }
 
 void Node::setRotationInternal(float x, float y, float z, float w, bool calledFromJS) {
+    if (_localRotation.x == x && _localRotation.y == y && _localRotation.z == z && _localRotation.w == w) {
+        return;
+    }
     _localRotation.set(x, y, z, w);
     _eulerDirty = true;
 
@@ -438,6 +444,9 @@ void Node::setRotationFromEuler(float x, float y, float z) {
 }
 
 void Node::setScaleInternal(float x, float y, float z, bool calledFromJS) {
+    if (_localScale.x == x && _localScale.y == y && _localScale.z == z) {
+        return;
+    }
     _localScale.set(x, y, z);
 
     invalidateChildren(TransformBit::SCALE);
@@ -466,7 +475,7 @@ void Node::updateWorldTransformRecursive(uint32_t &dirtyBits) { // NOLINT(misc-n
     }
     dirtyBits |= currDirtyBits;
     if (parent) {
-        if (dirtyBits & static_cast<uint32_t>(TransformBit::POSITION)) {
+        if (dirtyBits == static_cast<uint32_t>(TransformBit::POSITION)) {
             _worldPosition.transformMat4(_localPosition, parent->_worldMatrix);
             _worldMatrix.m[12] = _worldPosition.x;
             _worldMatrix.m[13] = _worldPosition.y;
@@ -520,11 +529,10 @@ Mat4 Node::getWorldRT() {
 
 void Node::invalidateChildren(TransformBit dirtyBit) { // NOLINT(misc-no-recursion)
     auto curDirtyBit{static_cast<uint32_t>(dirtyBit)};
-    const uint32_t hasChangedFlags = getChangedFlags();
     const uint32_t dirtyFlags = getDirtyFlag();
-    if (isValid() && (dirtyFlags & hasChangedFlags & curDirtyBit) != curDirtyBit) {
+    if (isValid() && (dirtyFlags & curDirtyBit) != curDirtyBit) {
         setDirtyFlag(dirtyFlags | curDirtyBit);
-        setChangedFlags(hasChangedFlags | curDirtyBit);
+        setChangedFlags(getChangedFlags() | curDirtyBit);
 
         for (Node *child : getChildren()) {
             child->invalidateChildren(dirtyBit | TransformBit::POSITION);
@@ -533,6 +541,9 @@ void Node::invalidateChildren(TransformBit dirtyBit) { // NOLINT(misc-no-recursi
 }
 
 void Node::setWorldPosition(float x, float y, float z) {
+    if (_worldPosition.x == x && _worldPosition.y == y && _worldPosition.z == z) {
+        return;
+    }
     _worldPosition.set(x, y, z);
     if (_parent) {
         _parent->updateWorldTransform();
@@ -557,6 +568,7 @@ const Vec3 &Node::getWorldPosition() const {
 }
 
 void Node::setWorldRotation(float x, float y, float z, float w) {
+    // TODO(PatriceJiang): updateWorldTransform
     _worldRotation.set(x, y, z, w);
     if (_parent) {
         _parent->updateWorldTransform();
@@ -585,6 +597,9 @@ const Quaternion &Node::getWorldRotation() const { // NOLINT(misc-no-recursion)
 void Node::setWorldScale(float x, float y, float z) {
     if (_parent != nullptr) {
         updateWorldTransform(); // ensure reentryability
+        if (_worldScale.x == x && _worldScale.y == y && _worldScale.z == z) {
+            return;
+        }
         Vec3 oldWorldScale = _worldScale;
         _worldScale.set(x, y, z);
         Mat3 localRS;
@@ -606,6 +621,9 @@ void Node::setWorldScale(float x, float y, float z) {
         _localScale.y = Vec3{localRS.m[3], localRS.m[4], localRS.m[5]}.length();
         _localScale.z = Vec3{localRS.m[6], localRS.m[7], localRS.m[8]}.length();
     } else {
+        if (_worldScale.x == x && _worldScale.y == y && _worldScale.z == z) {
+            return;
+        }
         _worldScale.set(x, y, z);
         _localScale = _worldScale;
     }
