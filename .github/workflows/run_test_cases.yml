@@ -1,7 +1,7 @@
 name: run test cases
 
 on: 
-  pull_request_target:
+  pull_request:
   issue_comment:
     types: [created, edited]
 
@@ -78,7 +78,7 @@ jobs:
         run: |
           EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`
           PRECLONE_EXTERNAL="E:/preclone/cocos-engine-external"
-          if [! -d $PRECLONE_EXTERNAL ];
+          if [! -d $PRECLONE_EXTERNAL ]; then
               mkdir -p $PRECLONE_EXTERNAL
               git clone https://github.com/cocos/cocos-engine-external $PRECLONE_EXTERNAL
           fi
@@ -186,7 +186,7 @@ jobs:
         run: |
           EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`
           PRECLONE_EXTERNAL="/Users/admin/Documents/actions-runner/preclone/"
-          if [! -d $PRECLONE_EXTERNAL ];
+          if [! -d $PRECLONE_EXTERNAL ]; then
               mkdir -p $PRECLONE_EXTERNAL
               git clone https://github.com/cocos/cocos-engine-external $PRECLONE_EXTERNAL
           fi
