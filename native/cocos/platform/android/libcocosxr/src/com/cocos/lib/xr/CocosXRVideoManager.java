@@ -218,12 +218,15 @@ public class CocosXRVideoManager {
     private void processVideoEvent(String eventData) {
         VideoEventData videoEventData = new VideoEventData(eventData);
         if (videoEventData.eventId == VIDEO_EVENT_PREPARE) {
-            if (!xrVideoPlayerHashMap.containsKey(videoEventData.videoPlayerHandleKey)) {
-                CocosXRVideoPlayer videoPlayer = new CocosXRVideoPlayer(activityWeakReference, videoEventData.videoPlayerHandleKey, videoEventData.eventName);
+            CocosXRVideoPlayer videoPlayer = xrVideoPlayerHashMap.get(videoEventData.videoPlayerHandleKey);
+            if (videoPlayer == null) {
+                videoPlayer = new CocosXRVideoPlayer(activityWeakReference, videoEventData.videoPlayerHandleKey, videoEventData.eventName);
+                videoPlayer.prepare(videoEventData);
                 xrVideoPlayerHashMap.put(videoEventData.videoPlayerHandleKey, videoPlayer);
+            } else {
+                videoPlayer.prepare(videoEventData);
             }
 
-            xrVideoPlayerHashMap.get(videoEventData.videoPlayerHandleKey).prepare(videoEventData);
             if (videoGLThread == null) {
                 videoGLThread = new CocosXRVideoGLThread();
                 videoGLThread.start();

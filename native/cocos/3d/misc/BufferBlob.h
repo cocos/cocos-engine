@@ -41,7 +41,7 @@ public:
     ArrayBuffer::Ptr getCombined();
 
 private:
-    ccstd::vector<ccstd::variant<ArrayBuffer::Ptr, uint32_t>> _arrayBufferOrPaddings;
+    ccstd::vector<ccstd::variant<ccstd::monostate, ArrayBuffer::Ptr, uint32_t>> _arrayBufferOrPaddings;
     uint32_t _length{0};
 };
 

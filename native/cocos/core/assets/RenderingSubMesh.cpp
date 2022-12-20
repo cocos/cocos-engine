@@ -270,9 +270,11 @@ const gfx::BufferList &RenderingSubMesh::getJointMappedBuffers() {
 
             mapBuffer(
                 dataView, [&](const DataVariant &cur, uint32_t /*idx*/, const DataView & /*view*/) -> DataVariant {
-                    auto iter = std::find(idxMap.begin(), idxMap.end(), ccstd::get<0>(cur));
-                    if (iter != idxMap.end()) {
-                        return static_cast<int32_t>(iter - idxMap.begin());
+                    if (ccstd::holds_alternative<int32_t>(cur)) {
+                        auto iter = std::find(idxMap.begin(), idxMap.end(), ccstd::get<int32_t>(cur));
+                        if (iter != idxMap.end()) {
+                            return static_cast<int32_t>(iter - idxMap.begin());
+                        }
                     }
                     CC_ABORT();
                     return -1;

@@ -278,6 +278,9 @@ export class ReflectionProbe extends Component {
         this._previewPlane = val;
         if (this.probe) {
             this.probe.previewPlane = val;
+            if (this._previewPlane) {
+                ReflectionProbeManager.probeManager.updatePreviewPlane(this.probe);
+            }
         }
     }
 
