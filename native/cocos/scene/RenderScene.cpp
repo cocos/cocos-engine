@@ -379,6 +379,9 @@ void LodStateCache::removeLodGroup(const LODGroup *lodGroup) {
             _modelsIncludeByLODGroup.erase(model);
         }
     }
+    for (auto &visibleCamera : _visibleLodLevelsByAnyLODGroup) {
+        visibleCamera.second.erase(lodGroup);
+    }
 }
 
 void LodStateCache::removeModel(const Model *model) {

@@ -580,6 +580,9 @@ class LodStateCache {
                 this._modelsIncludeByLODGroup.delete(model);
             }
         }
+        for (const visibleCamera of this._visibleLodLevelsByAnyLODGroup) {
+            visibleCamera[1].delete(lodGroup);
+        }
     }
 
     removeModel (model: Model) {
