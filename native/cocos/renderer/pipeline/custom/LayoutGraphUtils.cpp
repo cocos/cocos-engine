@@ -276,7 +276,7 @@ const ccstd::unordered_map<ccstd::string, uint32_t> DEFAULT_UNIFORM_COUNTS{
 
 } // namespace
 
-uint32_t getSize(ccstd::vector<cc::gfx::Uniform>& blockMembers) {
+uint32_t getSize(const ccstd::vector<gfx::Uniform>& blockMembers) {
     uint32_t prevSize = 0;
     for (const auto& m : blockMembers) {
         if (m.count) {

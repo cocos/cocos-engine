@@ -48,7 +48,7 @@ void initializeDescriptorSetLayoutInfo(
     const DescriptorSetLayoutData& layoutData,
     gfx::DescriptorSetLayoutInfo& info);
 
-uint32_t getSize(ccstd::vector<cc::gfx::Uniform>& blockMembers);
+uint32_t getSize(const ccstd::vector<gfx::Uniform>& blockMembers);
 
 } // namespace render
 
