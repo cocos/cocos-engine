@@ -23,7 +23,7 @@
 #pragma once
 
 #include <algorithm>
-
+#include <set>
 #include "base/Macros.h"
 #include "base/std/container/unordered_map.h"
 #include "gfx-base/GFXDef-common.h"
@@ -621,7 +621,7 @@ public:
         return cacheMap[glResource][mipLevel].glFramebuffer;
     }
 
-    GLuint getFramebufferByHash(GLES3GPUFramebuffer* gpuFrameBuffer) {
+    GLuint getFramebufferByHash(GLES3GPUFramebuffer *gpuFrameBuffer) {
         auto *ds = gpuFrameBuffer->gpuDepthStencilView;
         const auto &colors = gpuFrameBuffer->gpuColorViews;
         ccstd::hash_t seed{0};
@@ -673,6 +673,23 @@ public:
         }
     }
 
+    bool isZombieObject(GLuint glFBO) {
+        return _zombieObject.find(glFBO) != _zombieObject.end();
+    }
+
+    void recordZombie(GLuint glFBO) {
+        if (glFBO) {
+            _zombieObject.emplace(glFBO);
+        }
+    }
+
+    void removeZombie(GLuint glFBO) {
+        auto iter = _zombieObject.find(glFBO);
+        if (iter != _zombieObject.end()) {
+            _zombieObject.erase(iter);
+        }
+    }
+
     void onTextureDestroy(const GLES3GPUTexture *gpuTexture) {
         bool isTexture = gpuTexture->glTexture;
         GLuint glResource = isTexture ? gpuTexture->glTexture : gpuTexture->glRenderbuffer;
@@ -703,6 +720,7 @@ private:
     CacheMap _renderbufferMap; // renderbuffer -> mip level -> framebuffer
     CacheMap _textureMap;      // texture -> mip level -> framebuffer
     ccstd::unordered_map<size_t, GLuint> _multiAttachmentMap;
+    std::set<GLuint> _zombieObject;
 };
 
 class GLES3GPUFramebufferHub final {
