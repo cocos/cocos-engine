@@ -34,6 +34,30 @@ int32_t getBitCount(int32_t cnt) {
     return std::ceil(std::log2(std::max(cnt, 2))); // std::max checks number types
 }
 
+template <class ShaderInfoT>
+ccstd::unordered_map<ccstd::string, uint32_t> genHandlesImpl(const ShaderInfoT &tmpl) {
+    Record<ccstd::string, uint32_t> handleMap{};
+    // block member handles
+    for (const auto &block : tmpl.blocks) {
+        const auto members = block.members;
+        uint32_t offset = 0;
+        for (const auto &uniform : members) {
+            handleMap[uniform.name] = genHandle(block.binding,
+                                                uniform.type,
+                                                uniform.count,
+                                                offset);
+            offset += (getTypeSize(uniform.type) >> 2) * uniform.count; // assumes no implicit padding, which is guaranteed by effect compiler
+        }
+    }
+    // samplerTexture handles
+    for (const auto &samplerTexture : tmpl.samplerTextures) {
+        handleMap[samplerTexture.name] = genHandle(samplerTexture.binding,
+                                                   samplerTexture.type,
+                                                   samplerTexture.count);
+    }
+    return handleMap;
+}
+
 } // namespace
 
 void populateMacros(IProgramInfo &tmpl) {
@@ -96,6 +120,14 @@ void populateMacros(IProgramInfo &tmpl) {
         }
         tmpl.constantMacros = ss.str();
     }
+}
+
+ccstd::unordered_map<ccstd::string, uint32_t> genHandles(const IProgramInfo &tmpl) {
+    return genHandlesImpl(tmpl);
+}
+
+ccstd::unordered_map<ccstd::string, uint32_t> genHandles(const gfx::ShaderInfo &tmpl) {
+    return genHandlesImpl(tmpl);
 }
 
 } // namespace render

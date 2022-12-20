@@ -32,6 +32,9 @@ namespace render {
 
 void populateMacros(IProgramInfo& tmpl);
 
+ccstd::unordered_map<ccstd::string, uint32_t> genHandles(const IProgramInfo& tmpl);
+ccstd::unordered_map<ccstd::string, uint32_t> genHandles(const gfx::ShaderInfo& tmpl);
+
 } // namespace render
 
 } // namespace cc

@@ -486,8 +486,7 @@ void populateLocalShaderInfo(
     const pipeline::DescriptorSetLayoutInfos &source,
     gfx::ShaderInfo &shaderInfo, ccstd::pmr::vector<uint32_t> &blockSizes) {
     const auto set = setIndex(UpdateFrequency::PER_INSTANCE);
-    for (auto i = 0; i < target.blocks.size(); i++) {
-        const auto &block = target.blocks[i];
+    for (const auto &block : target.blocks) {
         auto blockIter = source.blocks.find(block.name);
         if (blockIter == source.blocks.end()) {
             continue;
@@ -505,22 +504,44 @@ void populateLocalShaderInfo(
             continue;
         }
 
-        // const auto &binding = *pBinding;
-        // blockSizes.push(getSize(block.members));
-        // shaderInfo.blocks.push(new UniformBlock(set, binding.binding, block.name,
-        //                                         block.members.map((m) = > new Uniform(m.name, m.type, m.count)), 1)); // effect compiler guarantees block count = 1
+        const auto &binding = *pBinding;
+        blockSizes.emplace_back(getSize(block.members));
+        shaderInfo.blocks.emplace_back(
+            gfx::UniformBlock{
+                set,
+                binding.binding,
+                block.name,
+                block.members,
+                1,
+            }); // effect compiler guarantees block count = 1
     }
-    // for (let i = 0; i < target.samplerTextures.length; i++) {
-    //     const samplerTexture = target.samplerTextures[i];
-    //     const info = source.layouts[samplerTexture.name] as UniformSamplerTexture;
-    //     const binding = info && source.bindings.find((bd) = > bd.binding == = info.binding);
-    //     if (!info || !binding || !(binding.descriptorType & DESCRIPTOR_SAMPLER_TYPE)) {
-    //         console.warn(`builtin samplerTexture '${samplerTexture.name}' not available !`);
-    //         continue;
-    //     }
-    //     shaderInfo.samplerTextures.push(new UniformSamplerTexture(
-    //         set, binding.binding, samplerTexture.name, samplerTexture.type, samplerTexture.count, ));
-    // }
+    for (const auto &samplerTexture : target.samplerTextures) {
+        auto iter = source.samplers.find(samplerTexture.name);
+        if (iter == source.samplers.end()) {
+            CC_LOG_ERROR("builtin sampler not available !");
+            continue;
+        }
+        const auto &info = iter->second;
+
+        const gfx::DescriptorSetLayoutBinding *pBinding = nullptr;
+        for (const auto &b : source.bindings) {
+            if (b.binding == info.binding) {
+                pBinding = &b;
+            }
+        }
+        if (!pBinding || !(pBinding->descriptorType & gfx::DESCRIPTOR_SAMPLER_TYPE)) {
+            CC_LOG_ERROR("builtin sampler not available !");
+            continue;
+        }
+        const auto &binding = *pBinding;
+        shaderInfo.samplerTextures.emplace_back(gfx::UniformSamplerTexture{
+            set,
+            binding.binding,
+            samplerTexture.name,
+            samplerTexture.type,
+            samplerTexture.count,
+        });
+    }
 }
 
 void makeShaderInfo(
@@ -601,6 +622,27 @@ void makeShaderInfo(
     }
 }
 
+// overwrite IProgramInfo using gfx.ShaderInfo
+void overwriteProgramBlockInfo(const gfx::ShaderInfo &shaderInfo, IProgramInfo &programInfo) {
+    const auto set = setIndex(UpdateFrequency::PER_BATCH);
+    for (auto &block : programInfo.blocks) {
+        auto found = false;
+        for (const auto &src : shaderInfo.blocks) {
+            if (src.set != set) {
+                continue;
+            }
+            if (src.name == block.name) {
+                block.binding = src.binding;
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            CC_LOG_ERROR("block not found in shaderInfo");
+        }
+    }
+}
+
 } // namespace
 
 void NativeProgramLibrary::addEffect(EffectAsset *effectAssetIn) {
@@ -629,7 +671,8 @@ void NativeProgramLibrary::addEffect(EffectAsset *effectAssetIn) {
                                             std::forward_as_tuple())
                            .first;
             }
-            const auto &phasePrograms = iter->second.programInfos;
+            auto &phasePrograms = iter->second.programInfos;
+            auto alloc = phasePrograms.get_allocator();
 
             // build program
             auto programInfo = makeProgramInfo(effect._name, srcShaderInfo);
@@ -642,6 +685,41 @@ void NativeProgramLibrary::addEffect(EffectAsset *effectAssetIn) {
             }
 
             // shaderInfo and blockSizes
+            gfx::ShaderInfo shaderInfo;
+            ccstd::pmr::vector<uint32_t> blockSizes(alloc);
+            makeShaderInfo(lg, passLayout, phaseLayout, srcShaderInfo, programData,
+                           fixedLocal, shaderInfo, blockSizes);
+
+            // overwrite programInfo
+            overwriteProgramBlockInfo(shaderInfo, programInfo);
+
+            // handle map
+            auto handleMap = genHandles(shaderInfo);
+
+            // attributes
+            ccstd::pmr::vector<gfx::Attribute> attributes(alloc);
+            for (const auto &attr : programInfo.attributes) {
+                attributes.emplace_back(gfx::Attribute{
+                    attr.name,
+                    attr.format,
+                    attr.isNormalized,
+                    0,
+                    attr.isInstanced,
+                    attr.location,
+                });
+            }
+
+            // create programInfo
+            auto res = phasePrograms.emplace(
+                std::piecewise_construct,
+                std::forward_as_tuple(srcShaderInfo.name),
+                std::forward_as_tuple(
+                    std::move(programInfo),
+                    std::move(shaderInfo),
+                    std::move(attributes),
+                    std::move(blockSizes),
+                    std::move(handleMap)));
+            CC_ENSURES(res.second);
         }
     }
 }

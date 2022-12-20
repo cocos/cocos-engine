@@ -145,29 +145,6 @@ int32_t getSize(const IBlockInfo &block) {
     return s;
 }
 
-auto genHandles(const IProgramInfo &tmpl) {
-    Record<ccstd::string, uint32_t> handleMap{};
-    // block member handles
-    for (const auto &block : tmpl.blocks) {
-        const auto members = block.members;
-        uint32_t offset = 0;
-        for (const auto &uniform : members) {
-            handleMap[uniform.name] = genHandle(block.binding,
-                                                uniform.type,
-                                                uniform.count,
-                                                offset);
-            offset += (getTypeSize(uniform.type) >> 2) * uniform.count; // assumes no implicit padding, which is guaranteed by effect compiler
-        }
-    }
-    // samplerTexture handles
-    for (const auto &samplerTexture : tmpl.samplerTextures) {
-        handleMap[samplerTexture.name] = genHandle(samplerTexture.binding,
-                                                   samplerTexture.type,
-                                                   samplerTexture.count);
-    }
-    return handleMap;
-}
-
 bool dependencyCheck(const ccstd::vector<ccstd::string> &dependencies, const MacroRecord &defines) {
     for (const auto &d : dependencies) { // NOLINT(readability-use-anyofallof)
         if (d[0] == '!') {               // negative dependency
@@ -439,7 +416,7 @@ IProgramInfo *ProgramLib::define(IShaderInfo &shader) {
         auto &fragmentShaderInfo = tmplInfo.shaderInfo.stages.back();
         fragmentShaderInfo.stage = gfx::ShaderStageFlagBit::FRAGMENT;
         fragmentShaderInfo.source = "";
-        tmplInfo.handleMap = genHandles(tmpl);
+        tmplInfo.handleMap = render::genHandles(tmpl);
         tmplInfo.setLayouts = {};
 
         _templateInfos[tmpl.hash] = tmplInfo;
