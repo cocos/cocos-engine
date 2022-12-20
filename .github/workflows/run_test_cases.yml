@@ -73,6 +73,17 @@ jobs:
           git fetch origin pull/${{ steps.get_pr.outputs.pr_number }}/head:pull-${{ steps.get_pr.outputs.pr_number }}
           git merge --ff -s recursive --no-verify -m "PR Test" origin/${{ steps.parse_pr.outputs.pr_base_ref }} pull-${{ steps.get_pr.outputs.pr_number }}
 
+      - name: Download external libraries
+        shell: bash
+        run: |
+          EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`
+          if [ ! -d native/external ]; then
+              git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos/cocos-engine-external native/external
+          else
+              echo "Directory native/external is already exists"
+              git fetch --all
+              git checkout -f $EXT_VERSION
+          fi
       - name: Generate bindings
         run: |
           cd ./native/tools/swig-config
@@ -167,6 +178,17 @@ jobs:
           git branch ${{ steps.parse_pr.outputs.pr_base_ref }}
           git fetch origin pull/${{ steps.get_pr.outputs.pr_number }}/head:pull-${{ steps.get_pr.outputs.pr_number }}
           git merge --ff -s recursive --no-verify -m "PR Test" origin/${{ steps.parse_pr.outputs.pr_base_ref }} pull-${{ steps.get_pr.outputs.pr_number }}
+      - name: Download external libraries
+        shell: bash
+        run: |
+          EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`
+          if [ ! -d native/external ]; then
+              git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos/cocos-engine-external native/external
+          else
+              echo "Directory native/external is already exists"
+              git fetch --all
+              git checkout -f $EXT_VERSION
+          fi
       - name: Generate bindings
         run: |
           cd ./native/tools/swig-config
