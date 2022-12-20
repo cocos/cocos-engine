@@ -77,13 +77,16 @@ jobs:
         shell: bash
         run: |
           EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`
-          if [ ! -d native/external ]; then
-              git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos/cocos-engine-external native/external
-          else
-              echo "Directory native/external is already exists"
-              git fetch --all
-              git checkout -f $EXT_VERSION
+          PRECLONE_EXTERNAL="E:/preclone/cocos-engine-external"
+          if [! -d $PRECLONE_EXTERNAL ];
+              mkdir -p $PRECLONE_EXTERNAL
+              git clone https://github.com/cocos/cocos-engine-external $PRECLONE_EXTERNAL
           fi
+          if [ ! -d native/external ]; then
+              mkdir native/external
+          fi
+          git -C $PRECLONE_EXTERNAL fetch --all --prune
+          git -C $PRECLONE_EXTERNAL archive --format=tar $EXT_VERSION | tar -C native/external -xf -
       - name: Generate bindings
         run: |
           cd ./native/tools/swig-config
@@ -182,13 +185,16 @@ jobs:
         shell: bash
         run: |
           EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`
-          if [ ! -d native/external ]; then
-              git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos/cocos-engine-external native/external
-          else
-              echo "Directory native/external is already exists"
-              git fetch --all
-              git checkout -f $EXT_VERSION
+          PRECLONE_EXTERNAL="/Users/admin/Documents/actions-runner/preclone/"
+          if [! -d $PRECLONE_EXTERNAL ];
+              mkdir -p $PRECLONE_EXTERNAL
+              git clone https://github.com/cocos/cocos-engine-external $PRECLONE_EXTERNAL
           fi
+          if [ ! -d native/external ]; then
+              mkdir native/external
+          fi
+          git -C $PRECLONE_EXTERNAL fetch --all --prune
+          git -C $PRECLONE_EXTERNAL archive --format=tar $EXT_VERSION | tar -C native/external -xf -
       - name: Generate bindings
         run: |
           cd ./native/tools/swig-config
