@@ -79,11 +79,6 @@ export class ParticleSystem extends Component {
 
     public set capacity (val) {
         this._capacity = Math.floor(val > 0 ? val : 0);
-        // @ts-expect-error private property access
-        if (this._processor && this._processor._model) {
-            // @ts-expect-error private property access
-            this._processor._model.setCapacity(this._capacity);
-        }
     }
 
     /**
@@ -332,10 +327,6 @@ export class ParticleSystem extends Component {
     get renderCulling () {
         return this._renderCulling;
     }
-
-    @serializable
-    private _renderCulling = false;
-
     /**
      * @en Particle culling mode option. Includes pause, pause and catchup, always simulate.
      * @zh 粒子剔除模式选择。包括暂停模拟，暂停以后快进继续以及不间断模拟。
@@ -350,9 +341,6 @@ export class ParticleSystem extends Component {
     set cullingMode (value: number) {
         this._cullingMode = value;
     }
-
-    @serializable
-    _cullingMode = CullingMode.Pause;
 
     public static CullingMode = CullingMode;
 
@@ -376,9 +364,6 @@ export class ParticleSystem extends Component {
         this.setBoundingX(value);
     }
 
-    @serializable
-    private _aabbHalfX = 0;
-
     /**
      * @en Particle bounding box half height.
      * @zh 粒子包围盒半高。
@@ -398,9 +383,6 @@ export class ParticleSystem extends Component {
     set aabbHalfY (value: number) {
         this.setBoundingY(value);
     }
-
-    @serializable
-    private _aabbHalfY = 0;
 
     /**
      * @en Particle bounding box half depth.
@@ -422,9 +404,6 @@ export class ParticleSystem extends Component {
         this.setBoundingZ(value);
     }
 
-    @serializable
-    private _aabbHalfZ = 0;
-
     /**
      * @en Culling module data before serialize.
      * @zh 序列化之前剔除不需要的模块数据。
@@ -438,10 +417,6 @@ export class ParticleSystem extends Component {
     set dataCulling (value: boolean) {
         this._dataCulling = value;
     }
-
-    @serializable
-    @formerlySerializedAs('enableCulling')
-    private _dataCulling = false;
 
     /**
      * @zh 颜色控制模块。
@@ -577,6 +552,21 @@ export class ParticleSystem extends Component {
     @serializable
     private _trailModule = new TrailModule();
 
+    @serializable
+    private _renderCulling = false;
+
+    @serializable
+    private _cullingMode = CullingMode.Pause;
+
+    @serializable
+    private _aabbHalfX = 0;
+    @serializable
+    private _aabbHalfY = 0;
+    @serializable
+    private _aabbHalfZ = 0;
+    @serializable
+    @formerlySerializedAs('enableCulling')
+    private _dataCulling = false;
     private _isPlaying: boolean;
     private _isPaused: boolean;
     private _isStopped: boolean;

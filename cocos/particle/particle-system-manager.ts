@@ -70,3 +70,4 @@ export class ParticleSystemManager extends System {
 }
 
 export const particleSystemManager = new ParticleSystemManager();
+director.registerSystem('particle-system', particleSystemManager, 0);

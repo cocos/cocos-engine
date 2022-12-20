@@ -385,9 +385,9 @@ export class ParticleSOAData {
         if (this._trailSegmentCapacityPerParticle === trailSegmentCapacity) {
             return;
         }
+        const newTrailSegments = new Float32Array(trailSegmentCapacity * this._trailSegmentStride * this._capacity);
+        const tempTrailSegment = new TrailSegment();
         if (this._trailSegmentCapacityPerParticle < trailSegmentCapacity) {
-            const newTrailSegments = new Float32Array(trailSegmentCapacity * this._trailSegmentStride * this._capacity);
-            const tempTrailSegment = new TrailSegment();
             for (let i = 0; i < this._count; i++) {
                 const num = this._trailSegmentNumbers[i];
                 for (let j = 0; j < num; j++) {
@@ -396,8 +396,6 @@ export class ParticleSOAData {
                 }
                 this._endTrailSegmentIndices[i] = num;
             }
-            this._startTrailSegmentIndices.fill(0);
-            this._trailSegments = newTrailSegments;
         } else {
             const newTrailSegments = new Float32Array(trailSegmentCapacity * this._trailSegmentStride * this._capacity);
             const tempTrailSegment = new TrailSegment();
@@ -410,9 +408,9 @@ export class ParticleSOAData {
                 this._trailSegmentNumbers[i] = num;
                 this._endTrailSegmentIndices[i] = num;
             }
-            this._startTrailSegmentIndices.fill(0);
-            this._trailSegments = newTrailSegments;
         }
+        this._startTrailSegmentIndices.fill(0);
+        this._trailSegments = newTrailSegments;
         this._trailSegmentCapacityPerParticle = trailSegmentCapacity;
     }
 
