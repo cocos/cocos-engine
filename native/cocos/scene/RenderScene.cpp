@@ -98,6 +98,12 @@ private:
      */
     ccstd::vector<const LODGroup *> _vecAddedLodGroup;
 
+    /**
+     * @zh 记录LODGroup强制使用哪几级lod
+     * @en Record which lod level the LODGroup forces to use.
+     */
+    ccstd::unordered_map<const LODGroup *, ccstd::vector<uint8_t>> _forceLodLevels;
+
     RenderScene *_renderScene{nullptr};
 };
 
@@ -412,8 +418,51 @@ void LodStateCache::updateLodState() {
             if (!lodLevels.empty()) {
                 if (lodGroup->getNode()->getChangedFlags() > 0) {
                     for (auto &visibleCamera : _visibleLodLevelsByAnyLODGroup) {
-                        visibleCamera.second[lodGroup].needUpdate = true;
+                        auto &lodInfo = visibleCamera.second[lodGroup];
+                        lodInfo.needUpdate = true;
                     }
+                } else {
+                    bool changed = false;
+                    const auto &lockLevels = _forceLodLevels.find(lodGroup);
+                    if (lockLevels == _forceLodLevels.end()) {
+                        changed = true;
+                        _forceLodLevels.emplace(lodGroup, lodLevels);
+                    } else {
+                        auto &lockArray = lockLevels->second;
+                        changed = lockArray.size() != lodLevels.size();
+                        if (!changed) {
+                            for (auto index = 0; index < lockArray.size(); index ++) {
+                                if (lockArray[index] != lodLevels[index]) {
+                                    changed = true;
+                                    lockArray.clear();
+                                    lockArray.insert(lockArray.begin(), lodLevels.begin(), lodLevels.end());
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                    if (changed) {
+                        const auto &lockArray = _forceLodLevels[lodGroup];
+                        for (auto index = 0; index < lodGroup->getLodCount(); index++) {
+                            const auto &lod = lodGroup->getLodDataArray()[index];
+                            for (const auto &model : lod->getModels()) {
+                                auto &modelInfo = _modelsIncludeByLODGroup[model];
+                                modelInfo.visibleCameras.clear();
+                                if (model->getNode() && model->getNode()->isActive()) {
+                                    for (auto visibleIndex : lockArray) {
+                                        if (modelInfo.ownerLodLevel == visibleIndex) {
+                                            for (auto &visibleCamera : _visibleLodLevelsByAnyLODGroup) {
+                                                modelInfo.visibleCameras.emplace(visibleCamera.first, true);
+                                            }
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
                 }
                 continue;
             }
@@ -435,6 +484,11 @@ void LodStateCache::updateLodState() {
                     }
                 }
             }
+            if (_forceLodLevels.count(lodGroup) != 0) {
+                _forceLodLevels.erase(lodGroup);
+                hasUpdated = true;
+            }
+
             if (hasUpdated) {
                 for (auto index = 0; index < lodGroup->getLodCount(); index++) {
                     const auto &lod = lodGroup->getLodDataArray()[index];
@@ -461,24 +515,12 @@ bool LodStateCache::isLodModelCulled(const Camera *camera, const Model *model) {
         return false;
     }
 
-    const auto &modelInfo = itModel->second;
-    const auto *lodGroup = modelInfo.lodGroup;
-    if (lodGroup->getLockedLODLevels().empty()) {
-        auto &visibleCamera = modelInfo.visibleCameras;
-        return visibleCamera.count(camera) == 0;
-    }
-
-    const auto &visibleLodLevels = lodGroup->getLockedLODLevels();
-    for (int8_t index : visibleLodLevels) {
-        if (modelInfo.ownerLodLevel == index) {
-            return !(model->getNode() && model->getNode()->isActive());
-        }
-    }
-
-    return true;
+    const auto &visibleCamera = itModel->second.visibleCameras;
+    return visibleCamera.count(camera) == 0;
 }
 
 void LodStateCache::clearCache() {
+    _forceLodLevels.clear();
     _modelsIncludeByLODGroup.clear();
     _visibleLodLevelsByAnyLODGroup.clear();
     _vecAddedLodGroup.clear();
