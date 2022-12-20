@@ -187,6 +187,7 @@ jobs:
           EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`
           PRECLONE_EXTERNAL="/Users/admin/Documents/actions-runner/preclone/"
           if [! -d $PRECLONE_EXTERNAL ]; then
+              echo "create directory $PRECLONE_EXTERNAL"
               mkdir -p $PRECLONE_EXTERNAL
               git clone https://github.com/cocos/cocos-engine-external $PRECLONE_EXTERNAL
           fi
