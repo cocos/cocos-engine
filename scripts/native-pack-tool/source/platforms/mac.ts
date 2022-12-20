@@ -64,8 +64,9 @@ export class MacPackTool extends MacOSPackTool {
             cp.stdout.on('data', (data) => {
                 console.log(`[open app] ${data}`);
             });
-            cp.stderr.on(`data`, (data) => {
+            cp.stderr.on('data', (data) => {
                 console.error(`[open app error] ${data}`);
+                reject(new Error(`[open app error] ${data}`));
             });
             cp.on('close', (code, sig) => {
                 console.log(`${app} exit with ${code}, sig: ${sig}`);
