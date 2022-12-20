@@ -100,7 +100,7 @@ void Batcher2d::fillBuffersAndMergeBatches() {
         walk(rootNode, 1);
         generateBatch(_currEntity, _currDrawInfo);
 
-        auto const scene = rootNode->getScene()->getRenderScene();
+        const auto scene = rootNode->getScene()->getRenderScene();
         size_t const count = _batches.size();
         for (size_t i = index; i < count; i++) {
             scene->addBatch(_batches.at(i));
