@@ -58,10 +58,6 @@ void GLES3Texture::doInit(const TextureInfo & /*info*/) {
     _gpuTexture->isPowerOf2 = math::isPowerOfTwo(_info.width) && math::isPowerOfTwo(_info.height);
     _gpuTexture->glTexture = static_cast<GLuint>(reinterpret_cast<size_t>(_info.externalRes));
 
-    if (_gpuTexture->samples == SampleCount::MULTIPLE_QUALITY) {
-        CC_LOG_INFO("fd");
-    }
-
     cmdFuncGLES3CreateTexture(GLES3Device::getInstance(), _gpuTexture);
 
     if (!_gpuTexture->memoryless) {

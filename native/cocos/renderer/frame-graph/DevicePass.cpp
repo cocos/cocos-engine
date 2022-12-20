@@ -118,11 +118,11 @@ DevicePass::DevicePass(const FrameGraph &graph, ccstd::vector<PassNode *> const 
     }
 
     Attachment dsResolve;
-    std::vector<gfx::SubpassInfo*> dsInvolved;
+    std::vector<gfx::SubpassInfo *> dsInvolved;
     for (size_t i = 0; i < subpassNodes.size(); ++i) {
         const auto &passNode = subpassNodes[i];
         for (auto &attachment : passNode->_attachments) {
-            if (attachment.desc.resolveSource != Handle::UNINITIALIZED) {
+            if (attachment.desc.resolveSource.isValid()) {
                 const ResourceNode &resourceNode = graph.getResourceNode(attachment.textureHandle);
                 CC_ASSERT(resourceNode.virtualResource);
 
@@ -144,13 +144,13 @@ DevicePass::DevicePass(const FrameGraph &graph, ccstd::vector<PassNode *> const 
             }
         }
     }
-    if(dsResolve.renderTarget) {
+    if (dsResolve.renderTarget) {
         _attachments.emplace_back(dsResolve);
         auto dsMSAAIter = _attachments.begin();
         std::advance(dsMSAAIter, depthNewIndex);
         auto dsResolveIter = _attachments.end() - 1;
         std::iter_swap(dsMSAAIter, dsResolveIter);
-        std::for_each(dsInvolved.begin(), dsInvolved.end(), [depthNewIndex](auto& desc){ desc->depthStencilResolve = depthNewIndex; });
+        std::for_each(dsInvolved.begin(), dsInvolved.end(), [depthNewIndex](auto &desc) { desc->depthStencilResolve = depthNewIndex; });
     }
 
     for (PassNode *const passNode : subpassNodes) {
@@ -308,9 +308,10 @@ void DevicePass::append(const FrameGraph &graph, const PassNode *passNode, ccstd
 void DevicePass::append(const FrameGraph &graph, const RenderTargetAttachment &attachment,
                         ccstd::vector<RenderTargetAttachment> *attachments, gfx::SubpassInfo *subpass, const ccstd::vector<Handle> &reads) {
     // later put resolved targets at the end
-    if (attachment.desc.resolveSource != Handle::UNINITIALIZED) {
-        if(attachment.desc.usage == RenderTargetAttachment::Usage::DEPTH_STENCIL_RESOLVE)
+    if (attachment.desc.resolveSource.isValid()) {
+        if (attachment.desc.usage == RenderTargetAttachment::Usage::DEPTH_STENCIL_RESOLVE) {
             _usedRenderTargetSlotMask |= 1 << 15;
+        }
         return;
     }
     RenderTargetAttachment::Usage usage{attachment.desc.usage};
@@ -415,7 +416,6 @@ void DevicePass::begin(gfx::CommandBuffer *cmdBuff) {
     }
 
     bool hasDSResolve = _usedRenderTargetSlotMask & (1 << 15);
-    
     Attachment dsAttachment;
     for (const auto &attachElem : _attachments) {
         gfx::Texture *attachment = attachElem.renderTarget;

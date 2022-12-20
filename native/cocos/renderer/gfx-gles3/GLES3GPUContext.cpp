@@ -23,6 +23,7 @@
 ****************************************************************************/
 
 #include <thread>
+#include "GFXExternalDefines.h"
 #include "GLES3GPUObjects.h"
 #include "base/StringUtil.h"
 
@@ -109,8 +110,8 @@ bool GLES3GPUContext::initialize(GLES3GPUStateCache *stateCache, GLES3GPUConstan
 
     EGL_CHECK(eglBindAPI(EGL_OPENGL_ES_API));
 
-    bool msaaEnabled{false};
-    bool qualityPreferred{false};
+    bool msaaEnabled{MSAA_SWAPCHAIN};
+    bool qualityPreferred{true};
 
     EGLint redSize{8};
     EGLint greenSize{8};

@@ -59,13 +59,6 @@ TextureHandle PassNodeBuilder::write(const TextureHandle &output, const RenderTa
     return write(output, 0, 0, 0, attachmentDesc);
 }
 
-auto PassNodeBuilder::writeToMSAA(const TextureHandle &output, const RenderTargetAttachment::Descriptor &attachmentDesc) const noexcept -> const std::tuple<TextureHandle, TextureHandle> {
-    auto msaaHandle = write(output, 0, 0, 0, attachmentDesc);
-    auto resolve = static_cast<TextureHandle>(_passNode.write(_graph, attachmentDesc.resolveTarget));
-    
-    return std::tie(msaaHandle, resolve  );
-}
-
 void PassNodeBuilder::writeToBlackboard(const StringHandle &name, const Handle &handle) const noexcept {
     _graph.getBlackboard().put(name, handle);
 }

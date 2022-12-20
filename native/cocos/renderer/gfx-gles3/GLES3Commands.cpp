@@ -1630,7 +1630,7 @@ static GLES3GPUSwapchain *getSwapchainIfExists(const ccstd::vector<GLES3GPUTextu
                 ++offscreenCount;
             }
         }
-        //CC_ASSERT( !offscreenCount || offscreenCount == count);
+        CC_ASSERT(!offscreenCount || offscreenCount == count);
     }
     return swapchain;
 }
@@ -1653,7 +1653,6 @@ static void doCreateFramebufferInstance(GLES3Device *device, GLES3GPUFramebuffer
                                                  : gpuFBO->gpuDepthStencilView;
         }
 
-
         GLES3GPUFramebuffer::GLFramebufferInfo fbInfo;
         auto wIter = std::min_element(gpuFBO->gpuColorViews.begin(), gpuFBO->gpuColorViews.end(), [](const GLES3GPUTextureView *lhs, const GLES3GPUTextureView *rhs) { return lhs->gpuTexture->width < rhs->gpuTexture->width; });
         auto hIter = std::min_element(gpuFBO->gpuColorViews.begin(), gpuFBO->gpuColorViews.end(), [](const GLES3GPUTextureView *lhs, const GLES3GPUTextureView *rhs) { return lhs->gpuTexture->height < rhs->gpuTexture->height; });
@@ -1669,7 +1668,7 @@ static void doCreateFramebufferInstance(GLES3Device *device, GLES3GPUFramebuffer
         fbInfo.glFramebuffer = device->framebufferCacheMap()->getFramebufferByHash(gpuFBO);
         if (fbInfo.glFramebuffer == 0) {
             fbInfo = doCreateFramebuffer(device, gpuFBO->gpuColorViews, colors.data(), utils::toUint(colors.size()),
-                                                           depthStencilTextureView, resolves, depthStencilResolveTextureView, &outFBO->resolveMask);
+                                         depthStencilTextureView, resolves, depthStencilResolveTextureView, &outFBO->resolveMask);
         }
 
         outFBO->framebuffer.initialize(fbInfo);
@@ -1682,8 +1681,6 @@ static void doCreateFramebufferInstance(GLES3Device *device, GLES3GPUFramebuffer
                 outFBO->resolveFramebuffer.initialize(resolveSwapchain);
             }
         }
-
-
     } else {
         outFBO->framebuffer.initialize(swapchain);
     }

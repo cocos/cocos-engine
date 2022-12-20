@@ -90,6 +90,7 @@ void PassNode::createRenderTargetAttachment(RenderTargetAttachment &&attachment)
             // msaa attachment slot
             attachment.desc.slot = (RenderTargetAttachment::DEPTH_STENCIL_SLOT_START + static_cast<uint8_t>(attachment.desc.usage) - 1);
         } else {
+            // depth stencil resolve slot is the highest bit.
             attachment.desc.slot = (RenderTargetAttachment::DEPTH_STENCIL_SLOT_START + static_cast<uint8_t>(RenderTargetAttachment::Usage::DEPTH_STENCIL_RESOLVE) - 1);
         }
     }
