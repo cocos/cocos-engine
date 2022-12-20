@@ -97,10 +97,11 @@ void Batcher2d::syncRootNodesToNative(ccstd::vector<Node*>&& rootNodes) {
 void Batcher2d::fillBuffersAndMergeBatches() {
     size_t index = 0;
     for (auto* rootNode : _rootNodeArr) {
+        // _batches will add by generateBatch
         walk(rootNode, 1);
         generateBatch(_currEntity, _currDrawInfo);
 
-        const auto scene = rootNode->getScene()->getRenderScene();
+        auto *scene = rootNode->getScene()->getRenderScene();
         size_t const count = _batches.size();
         for (size_t i = index; i < count; i++) {
             scene->addBatch(_batches.at(i));
