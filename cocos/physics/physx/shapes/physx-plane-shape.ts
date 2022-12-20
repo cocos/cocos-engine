@@ -64,7 +64,7 @@ export class PhysXPlaneShape extends PhysXShape implements IPlaneShape {
 
     onComponentSet (): void {
         const co = this.collider;
-        const pxmat = this.getSharedMaterial(co.sharedMaterial!);
+        const pxmat = this.getSharedMaterial(co.sharedMaterial);
         this._impl = PhysXInstance.physics.createShape(PhysXPlaneShape.PLANE_GEOMETRY, pxmat, true, this._flags);
         this.setCenter();
     }
