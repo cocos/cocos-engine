@@ -66,11 +66,14 @@ export class MacPackTool extends MacOSPackTool {
             });
             cp.stderr.on('data', (data) => {
                 console.error(`[open app error] ${data}`);
-                reject(new Error(`[open app error] ${data}`));
             });
             cp.on('close', (code, sig) => {
                 console.log(`${app} exit with ${code}, sig: ${sig}`);
-                resolve();
+                if (code !== 0) {
+                    reject(`[open app error] Child process exit width code ${code}`);
+                } else {
+                    resolve();
+                }
             });
             cp.on('exit', (code, sig) => {
                 resolve();
