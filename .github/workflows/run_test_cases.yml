@@ -1,7 +1,7 @@
 name: run test cases
 
 on: 
-  pull_request:
+  pull_request_target:
   issue_comment:
     types: [created, edited]
 
@@ -76,15 +76,19 @@ jobs:
       - name: Download external libraries
         shell: bash
         run: |
+          set -x
           EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`
           PRECLONE_EXTERNAL="E:/preclone/cocos-engine-external"
-          if [! -d $PRECLONE_EXTERNAL ]; then
+          if [ ! -d $PRECLONE_EXTERNAL ]; then
               mkdir -p $PRECLONE_EXTERNAL
               git clone https://github.com/cocos/cocos-engine-external $PRECLONE_EXTERNAL
+          else
+              echo "directory $PRECLONE_EXTERNAL is ready"
           fi
           if [ ! -d native/external ]; then
               mkdir native/external
           fi
+          git -C $PRECLONE_EXTERNAL reset --hard
           git -C $PRECLONE_EXTERNAL fetch --all --prune
           git -C $PRECLONE_EXTERNAL archive --format=tar $EXT_VERSION | tar -C native/external -xf -
       - name: Generate bindings
@@ -184,16 +188,22 @@ jobs:
       - name: Download external libraries
         shell: bash
         run: |
+          set -x
           EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`
-          PRECLONE_EXTERNAL="/Users/admin/Documents/actions-runner/preclone/"
-          if [! -d $PRECLONE_EXTERNAL ]; then
+          PRECLONE_EXTERNAL="/Users/admin/Documents/actions-runner/preclone/cocos-engine-external"
+          if [ ! -d $PRECLONE_EXTERNAL ]; then
               echo "create directory $PRECLONE_EXTERNAL"
+              # remove all sub-folders 
+              rm -rf /Users/admin/Documents/actions-runner/preclone
               mkdir -p $PRECLONE_EXTERNAL
               git clone https://github.com/cocos/cocos-engine-external $PRECLONE_EXTERNAL
+          else
+              echo "directory $PRECLONE_EXTERNAL is ready"
           fi
           if [ ! -d native/external ]; then
               mkdir native/external
           fi
+          git -C $PRECLONE_EXTERNAL reset --hard
           git -C $PRECLONE_EXTERNAL fetch --all --prune
           git -C $PRECLONE_EXTERNAL archive --format=tar $EXT_VERSION | tar -C native/external -xf -
       - name: Generate bindings
