@@ -47,6 +47,15 @@ ReflectionProbe::ReflectionProbe(int32_t id) {
     scene::ReflectionProbeManager::getInstance()->registerProbe(this);
 }
 
+void ReflectionProbe::setResolution(int32_t resolution) {
+    if (_resolution != resolution) {
+        for (const auto& rt : _bakedCubeTextures) {
+            rt->resize(resolution, resolution);
+        }
+        _resolution = resolution;
+    }
+}
+
 void ReflectionProbe::initialize(Node* probeNode, Node* cameraNode) {
     _node = probeNode;
     _cameraNode = cameraNode;
@@ -100,6 +109,7 @@ void ReflectionProbe::syncCameraParams(const Camera* camera) {
     _camera->setClearFlag(camera->getClearFlag());
     _camera->setClearColor(camera->getClearColor());
     _camera->setPriority(camera->getPriority() - 1);
+    _camera->resize(camera->getWidth(), camera->getHeight());
 }
 
 void ReflectionProbe::renderPlanarReflection(const Camera* sourceCamera) {
@@ -196,16 +206,16 @@ void ReflectionProbe::destroy() {
         _realtimePlanarTexture->destroy();
         _realtimePlanarTexture = nullptr;
     }
-    for (const auto& rt : bakedCubeTextures) {
+    for (const auto& rt : _bakedCubeTextures) {
         rt->destroy();
     }
-    bakedCubeTextures.clear();
+    _bakedCubeTextures.clear();
 
     scene::ReflectionProbeManager::getInstance()->unRegisterProbe(this);
 }
 
 void ReflectionProbe::initBakedTextures() {
-    if (bakedCubeTextures.size() == 0) {
+    if (_bakedCubeTextures.size() == 0) {
         for (size_t i = 0; i < 6; i++) {
             auto* rt = ccnew RenderTexture();
             IRenderTextureCreateInfo info;
@@ -213,7 +223,7 @@ void ReflectionProbe::initBakedTextures() {
             info.height = _resolution;
             info.width = _resolution;
             rt->initialize(info);
-            bakedCubeTextures.push_back(rt);
+            _bakedCubeTextures.push_back(rt);
         }
     }
 }
@@ -224,6 +234,9 @@ void ReflectionProbe::resetCameraParams() {
     _camera->setFarClip(1000.0);
     _camera->setFov(static_cast<float>(mathutils::toRadian(90.0)));
     _camera->setPriority(0);
+    if (!_bakedCubeTextures.empty()) {
+        _camera->changeTargetWindow(_bakedCubeTextures[0]->getWindow());
+    }
     _camera->resize(_resolution, _resolution);
     _camera->setVisibility(_visibility);
 
@@ -249,6 +262,33 @@ void ReflectionProbe::captureCubemap() {
 void ReflectionProbe::updateCameraDir(int32_t faceIdx) {
     _cameraNode->setRotationFromEuler(cameraDir[faceIdx]);
     _camera->update(true);
+}
+
+Vec2 ReflectionProbe::renderArea() const {
+    if (_probeType == ProbeType::PLANAR) {
+        return Vec2(_realtimePlanarTexture->getWidth(), _realtimePlanarTexture->getHeight());
+    } else {
+        return Vec2(_resolution, _resolution);
+    }
+}
+
+gfx::Color ReflectionProbe::packBackgroundColor(const gfx::Color& srcColor) {
+    Vec3 rgb = Vec3(srcColor.x, srcColor.y, srcColor.z);
+    float maxComp = std::max(std::max(rgb.x, rgb.y), rgb.z);
+    float e = 128.F;
+    if (maxComp > 0.0001) {
+        e = std::log(maxComp) / std::log(1.1);
+        e = std::ceil(e);
+        e = std::clamp(e + 128.F, 0.F, 255.F);
+    }
+    float sc = 1.F / std::pow(1.1, e - 128.F);
+    Vec3 encode = std::clamp(rgb * sc, Vec3(0.F, 0.F, 0.F), Vec3(1.F, 1.F, 1.F));
+    encode *= 255.F;
+    Vec3 fVec3 = Vec3(std::floor(encode.x), std::floor(encode.y), std::floor(encode.z));
+    Vec3 sub = encode - fVec3;
+    Vec3 stepVec3 = sub < Vec3(0.5F, 0.5F, 0.5F) ? Vec3(0.5F, 0.5F, 0.5F) : sub;
+    Vec3 encode_rounded = fVec3 + stepVec3;
+    return gfx::Color{encode_rounded.x / 255.F, encode_rounded.y / 255.F, encode_rounded.z / 255.F, e / 255.F};
 }
 
 } // namespace scene
