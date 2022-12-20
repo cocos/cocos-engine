@@ -59,7 +59,7 @@ export default function fetch (task: Task, done: CompleteCallbackNoData) {
 
         packManager.load(item, task.options, (err, data) => {
             if (err) {
-                if (!task.isFinish) {
+                if (!task.isFinished) {
                     if (!cclegacy.assetManager.force || firstTask) {
                         error(err.message, err.stack);
                         progress.canInvoke = false;
@@ -71,7 +71,7 @@ export default function fetch (task: Task, done: CompleteCallbackNoData) {
                         }
                     }
                 }
-            } else if (!task.isFinish) {
+            } else if (!task.isFinished) {
                 item.file = data;
                 task.output.push(item);
                 if (!item.isNative) {
@@ -86,7 +86,7 @@ export default function fetch (task: Task, done: CompleteCallbackNoData) {
             cb();
         });
     }, () => {
-        if (task.isFinish) {
+        if (task.isFinished) {
             clear(task, true);
             task.dispatch('error');
             return;

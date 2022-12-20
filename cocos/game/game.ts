@@ -177,7 +177,7 @@ export interface IGameConfig {
      * 是否让游戏外框对齐到屏幕上，目前只在 web 平台生效
      * @deprecated Since v3.6, Please use ```overrideSettings: { Settings.Category.SCREEN: { 'exactFitScreen': true }}``` to set this.
      */
-    exactFitScreen: boolean,
+    exactFitScreen?: boolean,
 }
 
 /**

@@ -210,12 +210,12 @@ export class Pipeline {
     public sync (task: Task): any {
         const pipes = this.pipes;
         if (pipes.length === 0) { return null; }
-        task.isFinish = false;
+        task.isFinished = false;
         for (let i = 0, l = pipes.length; i < l;) {
             const pipe = pipes[i] as ISyncPipe;
             const result = pipe(task);
             if (result) {
-                task.isFinish = true;
+                task.isFinished = true;
                 return result;
             }
             i++;
@@ -224,7 +224,7 @@ export class Pipeline {
                 task.output = null;
             }
         }
-        task.isFinish = true;
+        task.isFinished = true;
         return task.output as unknown;
     }
 
@@ -250,7 +250,7 @@ export class Pipeline {
     public async (task: Task): void {
         const pipes = this.pipes;
         if (pipes.length === 0) { return; }
-        task.isFinish = false;
+        task.isFinished = false;
         this._flow(0, task);
     }
 
@@ -258,7 +258,7 @@ export class Pipeline {
         const pipe = this.pipes[index];
         pipe(task, (result) => {
             if (result) {
-                task.isFinish = true;
+                task.isFinished = true;
                 task.dispatch('complete', result);
             } else {
                 index++;
@@ -268,7 +268,7 @@ export class Pipeline {
                     task.output = null;
                     this._flow(index, task);
                 } else {
-                    task.isFinish = true;
+                    task.isFinished = true;
                     task.dispatch('complete', result, task.output);
                 }
             }

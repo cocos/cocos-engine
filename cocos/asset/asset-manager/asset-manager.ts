@@ -167,11 +167,17 @@ export class AssetManager {
     public assets: ICache<Asset> = assets;
 
     /**
-     * @internal only using in L10N for now
+     * @engineInternal only using in L10N for now
      */
     public readonly assetsOverrideMap = assetsOverrideMap;
 
+    /**
+     * @engineInternal
+     */
     public generalImportBase = '';
+    /**
+     * @engineInternal
+     */
     public generalNativeBase = '';
 
     /**
@@ -215,10 +221,10 @@ export class AssetManager {
 
     /**
      * @en
-     * Manage all downloading task
+     * The downloader used by `assetManager`. Manage all downloading task.
      *
      * @zh
-     * 管理所有下载任务
+     * assetManager 所使用的下载器，管理所有下载任务。
      *
      */
     public downloader = downloader;
@@ -316,13 +322,14 @@ export class AssetManager {
 
     /**
      * @en
-     * Initialize assetManager with options
+     * Initialize assetManager with options.
+     * This method will be called automatically when the engine starts, you should not call this method manually at any time.
      *
      * @zh
-     * 初始化资源管理器
+     * 初始化资源管理器，引擎在启动时，将会自动调用此方法，你不应该在任何时候手动调用此方法。
      *
      * @param options - the configuration
-     *
+     * @engineInternal
      */
     public init (options: IAssetManagerOptions = {}) {
         const server = options.server || settings.querySettings(Settings.Category.ASSETS, 'server') || '';
@@ -356,10 +363,10 @@ export class AssetManager {
 
     /**
      * @en
-     * Get the bundle which has been loaded
+     * Get the bundle which has been loaded with the name of bundle.
      *
      * @zh
-     * 获取已加载的分包
+     * 通过包名称获取已加载的分包。
      *
      * @param name - The name of bundle
      * @return - The loaded bundle
@@ -512,9 +519,13 @@ export class AssetManager {
     /**
      * @en
      * Load remote asset with url, such as audio, image, text and so on.
+     * Note that loadRemote uses the suffix in the url to determine how to load the resource.
+     * If you pass in a url without the suffix information, you need to specify the `ext` parameter
+     * in the `options` to indicate how you want the resource loaded. See the third example below.
      *
      * @zh
-     * 使用 url 加载远程资源，例如音频，图片，文本等等。
+     * 使用 url 加载远程资源，例如音频，图片，文本等等。需要注意的是 `loadRemote` 是通过 url 中的后缀名判断以何种方式加载该资源，
+     * 如果你传入的 url 中没有携带后缀信息，你需要额外指定 `options` 中的 `ext` 参数来表明你需要何种方式加载该资源。请参考下面的第三个示例。
      *
      * @param url - The url of asset
      * @param options - Some optional parameters
@@ -556,10 +567,10 @@ export class AssetManager {
 
     /**
      * @en
-     * load bundle
+     * load bundle with name or url of bundle.
      *
      * @zh
-     * 加载资源包
+     * 通过包名称或 url 加载资源包
      *
      * @param nameOrUrl - The name or root path of bundle
      * @param options - Some optional paramter, same like downloader.downloadFile
@@ -658,7 +669,7 @@ export class AssetManager {
      * @param json
      * @param options
      * @param onComplete
-     * @private
+     * @internal
      */
     public loadWithJson<T extends Asset> (
         json: Record<string, any>,

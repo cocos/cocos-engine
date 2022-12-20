@@ -37,13 +37,17 @@ export interface ITaskOption {
 
 /**
  * @en
- * Task is used to run in the pipeline for some effect
+ * Tasks are the smallest unit of data running in the pipeline, You can create a task and pass in the input information,
+ * and then get the output of that task after it has been executed in the pipeline to use.
  *
  * @zh
- * 任务用于在管线中运行以达成某种效果
+ * 任务是在管线中运行的最小数据单位，你可以创建一个任务并传入输入信息，在经过管线执行后获取该任务的输出来使用。
  *
  */
 export default class Task {
+    /**
+     * @engineInternal
+     */
     public static MAX_DEAD_NUM = 500;
 
     /**
@@ -85,7 +89,7 @@ export default class Task {
      * The id of task
      *
      * @zh
-     * 任务id
+     * 任务 id
      *
      */
     public id: number = Task._taskId++;
@@ -122,69 +126,80 @@ export default class Task {
 
     /**
      * @en
-     * The source of task
+     * The source data of task.
      *
      * @zh
-     * 任务的源
+     * 任务的源数据。
      *
      */
     public source: any = null;
 
     /**
      * @en
-     * The output of task
+     * The output of task.
      *
      * @zh
-     * 任务的输出
+     * 任务的输出。
      */
     public output: any = null;
 
     /**
      * @en
-     * The input of task
+     * The input of task.
      *
      * @zh
-     * 任务的输入
+     * 任务的输入。
      *
      */
     public input: any = null;
 
     /**
      * @en
-     * The progression of task
+     * The progression of task.
      *
      * @zh
-     * 任务的进度
+     * 任务的进度。
      *
      */
     public progress: any = null;
 
     /**
      * @en
-     * Custom options
+     * Custom options.
      *
      * @zh
-     * 自定义参数
+     * 自定义参数。
      *
      */
     public options: Record<string, any> | null = null;
 
     /**
-     * @en
-     * Whether or not this task is completed
-     *
-     * @zh
-     * 此任务是否已经完成
-     *
+     * @deprecated Typo. Since v3.7, please us [[Task.isFinished]] instead.
      */
-    public isFinish = true;
+    public get isFinish () {
+        return this.isFinished;
+    }
+
+    public set isFinish (val: boolean) {
+        this.isFinished = val;
+    }
 
     /**
      * @en
-     * Create a new Task
+     * Whether or not this task is completed.
      *
      * @zh
-     * 创建一个任务
+     * 此任务是否已经完成。
+     *
+     */
+    public isFinished = true;
+
+    /**
+     * @en
+     * Create a new Task.
+     *
+     * @zh
+     * 创建一个任务。
      *
      * @param options - Some optional paramters
      * @param options.onComplete - Callback when the task is completed, if the pipeline is synchronous, onComplete is unnecessary.
@@ -200,10 +215,10 @@ export default class Task {
 
     /**
      * @en
-     * Set parameters of this task
+     * Set parameters of this task.
      *
      * @zh
-     * 设置任务的参数
+     * 设置任务的参数。
      *
      * @param options - Some optional parameters
      * @param options.onComplete - Callback when the task is completed, if the pipeline is synchronous, onComplete is unnecessary.
@@ -214,7 +229,7 @@ export default class Task {
      * @param options.options - Custom parameters
      *
      * @example
-     * var task = new Task();
+     * const task = new Task();
      * task.set({input: ['test'], onComplete: (err, result) => console.log(err), onProgress: (finish, total) => console.log(finish / total)});
      *
      */
@@ -231,10 +246,10 @@ export default class Task {
 
     /**
      * @en
-     * Dispatch event
+     * Dispatch event with any parameters.
      *
      * @zh
-     * 发布事件
+     * 分发事件，可以传递任意参数。
      *
      * @param event - The event name
      * @param param1 - Parameter 1
@@ -243,9 +258,9 @@ export default class Task {
      * @param param4 - Parameter 4
      *
      * @example
-     * var task = Task.create();
-     * Task.onComplete = (msg) => console.log(msg);
-     * Task.dispatch('complete', 'hello world');
+     * const task = Task.create();
+     * task.onComplete = (msg) => console.log(msg);
+     * task.dispatch('complete', 'hello world');
      *
      */
     public dispatch (event: string, param1?: any, param2?: any, param3?: any, param4?: any): void {
@@ -277,10 +292,10 @@ export default class Task {
 
     /**
      * @en
-     * Recycle this for reuse
+     * Recycle this for reuse.
      *
      * @zh
-     * 回收 task 用于复用
+     * 回收 task 用于复用。
      *
      */
     public recycle (): void {

@@ -27,19 +27,19 @@ import Config, { IAssetInfo } from './config';
 
 /**
  * @en
- * A collection of information about a request
+ * A collection of information about a request.
  *
  * @zh
- * 请求的相关信息集合
+ * 请求的相关信息集合。
  *
  */
 export default class RequestItem {
     /**
      * @en
-     * The id of request, combined from uuid and isNative
+     * The id of request, combined from uuid and isNative.
      *
      * @zh
-     * 请求的 id, 由 uuid 和 isNative 组合而成
+     * 请求的 id, 由 uuid 和 isNative 组合而成。
      */
     get id (): string {
         if (!this._id) {
@@ -48,6 +48,9 @@ export default class RequestItem {
         return this._id;
     }
 
+    /**
+     * @engineInternal
+     */
     public static MAX_DEAD_NUM = 500;
 
     /**
@@ -83,6 +86,9 @@ export default class RequestItem {
      */
     public uuid = '';
 
+    /**
+     * @engineInternal only used for L10N asset replacement.
+     */
     public overrideUuid = '';
 
     /**

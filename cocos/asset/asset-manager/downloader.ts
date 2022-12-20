@@ -166,6 +166,13 @@ const downloadBundle = (nameOrUrl: string, options: IBundleOptions, onComplete: 
  *
  */
 export class Downloader {
+    public static get instance () {
+        if (!Downloader._instance) {
+            Downloader._instance = new Downloader();
+        }
+        return Downloader._instance;
+    }
+
     /**
      * @en
      * The maximum number of concurrent when downloading
@@ -205,10 +212,15 @@ export class Downloader {
      * 失败重试次数
      *
      * @property maxRetryCount
-     * @type {Number}
      */
     public maxRetryCount = BUILD ? 3 : 0;
 
+    /**
+     * Whether to automatically add a timestamp after the url.
+     * This function is mainly used to prevent the browser from using cache under the editor.
+     * You should not adjust this behavior at runtime.
+     * @internal
+     */
     public appendTimeStamp = !!EDITOR;
 
     public limited = !EDITOR;
@@ -223,6 +235,10 @@ export class Downloader {
      */
     public retryInterval = 2000;
 
+    /**
+     * The md5 hash version of all bundles.
+     * @internal
+     */
     public bundleVers: Record<string, string> | null = null;
 
     public remoteBundles: string[] = [];
@@ -296,6 +312,7 @@ export class Downloader {
     private _checkNextPeriod = false;
     private _remoteServerAddress = '';
     private _maxInterval = 1 / 30;
+    private static _instance: Downloader;
 
     public init (remoteServerAddress = '', bundleVers: Record<string, string> = {}, remoteBundles: string[] = []) {
         this._downloading.clear();
@@ -443,6 +460,8 @@ export class Downloader {
         cclegacy.assetManager.loadBundle(name, null, completeCallback);
     }
 
+    private constructor () {}
+
     private _updateTime () {
         const now = performance.now();
         // use deltaTime as interval
@@ -483,6 +502,6 @@ export class Downloader {
     }
 }
 
-const downloader = new Downloader();
+const downloader = Downloader.instance;
 
 export default downloader;

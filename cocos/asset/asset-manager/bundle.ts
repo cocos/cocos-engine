@@ -45,7 +45,7 @@ export default class Bundle {
 
     /**
      * for internal use
-     * @private
+     * @engineInternal
      */
     public get config (): Config {
         return this._config;
