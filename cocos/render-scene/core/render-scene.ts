@@ -527,16 +527,12 @@ export class RenderScene {
 class ModelInfo {
     ownerLodLevel = -1;
     lodGroup: LODGroup = null!;
+    visibleCameras: Map<Camera, boolean> = new Map<Camera, boolean>();
 }
 
 class LODInfo {
     visibleLevel = -1;
     needUpdate = true;
-}
-
-class NodeTransformState {
-    needUpdate = true;
-    transformCallback: AnyFunction = null!;
 }
 
 class LodStateCache {
@@ -631,6 +627,7 @@ class LodStateCache {
                     continue;
                 }
 
+                let hasUpdated = false;
                 for (const visibleCamera of this._visibleLodLevelsByAnyLODGroup) {
                     let lodInfo = visibleCamera[1].get(lodGroup);
                     if (!lodInfo) {
@@ -643,7 +640,35 @@ class LodStateCache {
                         if (lodInfo.needUpdate) {
                             lodInfo.needUpdate = false;
                         }
-                        lodInfo.visibleLevel = lodGroup.getVisibleLODLevel(visibleCamera[0]);
+                        const index = lodGroup.getVisibleLODLevel(visibleCamera[0]);
+                        if (index !== lodInfo.visibleLevel) {
+                            lodInfo.visibleLevel = index;
+                            hasUpdated = true;
+                        }
+                    }
+                }
+
+                if (hasUpdated) {
+                    for (let index = 0; index < lodGroup.lodCount; index++) {
+                        const lod = lodGroup.lodDataArray[index];
+                        for (const model of lod.models) {
+                            const modelInfo = this._modelsIncludeByLODGroup.get(model);
+                            if (modelInfo) {
+                                modelInfo.visibleCameras.clear();
+                                if (model.node && model.node.active) {
+                                    this._visibleLodLevelsByAnyLODGroup.forEach((lodMap, camera) => {
+                                        let visibleLevel = -1;
+                                        const lodInfo = lodMap.get(lodGroup);
+                                        if (lodInfo) {
+                                            visibleLevel = lodInfo.visibleLevel;
+                                        }
+                                        if (modelInfo.ownerLodLevel === visibleLevel) {
+                                            modelInfo.visibleCameras.set(camera, true);
+                                        }
+                                    });
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -654,10 +679,6 @@ class LodStateCache {
         if (!this._modelsIncludeByLODGroup.has(model)) {
             return false;
         }
-        if (!this._visibleLodLevelsByAnyLODGroup.has(camera)) {
-            return true;
-        }
-
         const modelInfo = this._modelsIncludeByLODGroup.get(model);
         if (!modelInfo) {
             return false;
@@ -675,16 +696,7 @@ class LodStateCache {
             return true;
         }
 
-        const lodGroupMap = this._visibleLodLevelsByAnyLODGroup.get(camera);
-        if (!lodGroupMap) {
-            return false;
-        }
-        const lodInfo = lodGroupMap.get(lodGroup);
-        if (lodInfo && lodInfo.visibleLevel === modelInfo.ownerLodLevel) {
-            return !(model.node && model.node.active);
-        }
-
-        return true;
+        return !modelInfo.visibleCameras.has(camera);
     }
 
     clearCache () {

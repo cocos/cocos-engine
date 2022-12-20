@@ -52,6 +52,7 @@ public:
     struct ModelInfo {
         int8_t ownerLodLevel{-1};
         const LODGroup *lodGroup{nullptr};
+        ccstd::unordered_map<const Camera*, bool> visibleCameras;
     };
 
     struct LODInfo {
@@ -414,6 +415,7 @@ void LodStateCache::updateLodState() {
                 continue;
             }
 
+            bool hasUpdated = false;
             for (auto &visibleCamera : _visibleLodLevelsByAnyLODGroup) {
                 auto cameraChangeFlags = visibleCamera.first->getNode()->getChangedFlags();
                 auto lodGroupChangeFlags = lodGroup->getNode()->getChangedFlags();
@@ -422,7 +424,28 @@ void LodStateCache::updateLodState() {
                     if (lodInfo.needUpdate) {
                         lodInfo.needUpdate = false;
                     }
-                    lodInfo.visibleLevel = lodGroup->getVisibleLODLevel(visibleCamera.first);
+
+                    int8_t index = lodGroup->getVisibleLODLevel(visibleCamera.first);
+                    if (index != lodInfo.visibleLevel) {
+                        lodInfo.visibleLevel = index;
+                        hasUpdated = true;
+                    }
+                }
+            }
+            if (hasUpdated) {
+                for (auto index = 0; index < lodGroup->getLodCount(); index++) {
+                    const auto &lod = lodGroup->getLodDataArray()[index];
+                    for (const auto &model : lod->getModels()) {
+                        auto &modelInfo = _modelsIncludeByLODGroup[model];
+                        modelInfo.visibleCameras.clear();
+                        if (model->getNode() && model->getNode()->isActive()) {
+                            for (auto &visibleCamera : _visibleLodLevelsByAnyLODGroup) {
+                                if (modelInfo.ownerLodLevel == visibleCamera.second[lodGroup].visibleLevel) {
+                                    modelInfo.visibleCameras.emplace(visibleCamera.first, true);
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -434,28 +457,19 @@ bool LodStateCache::isLodModelCulled(const Camera *camera, const Model *model) {
     if (itModel == _modelsIncludeByLODGroup.end()) {
         return false;
     }
-    const auto &itCamera = _visibleLodLevelsByAnyLODGroup.find(camera);
-    if (itCamera == _visibleLodLevelsByAnyLODGroup.end()) {
-        return true;
-    }
 
-    const auto &modelInfo = (*itModel).second;
+    const auto &modelInfo = itModel->second;
     const auto *lodGroup = modelInfo.lodGroup;
+    if (lodGroup->getLockedLODLevels().empty()) {
+        auto &visibleCamera = modelInfo.visibleCameras;
+        return visibleCamera.count(camera) == 0;
+    }
 
     const auto &visibleLodLevels = lodGroup->getLockedLODLevels();
-    if (!visibleLodLevels.empty()) {
-        for (int8_t index : visibleLodLevels) {
-            if (modelInfo.ownerLodLevel == index) {
-                return !(model->getNode() && model->getNode()->isActive());
-            }
+    for (int8_t index : visibleLodLevels) {
+        if (modelInfo.ownerLodLevel == index) {
+            return !(model->getNode() && model->getNode()->isActive());
         }
-
-        return true;
-    }
-
-    const auto &lodGroupMap = (*itCamera).second;
-    if (modelInfo.ownerLodLevel == lodGroupMap.at(lodGroup).visibleLevel) {
-        return !(model->getNode() && model->getNode()->isActive());
     }
 
     return true;
