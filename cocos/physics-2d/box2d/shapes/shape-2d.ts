@@ -62,7 +62,9 @@ export class b2Shape2D implements IBaseShape {
 
     apply () {
         this._destroy();
-        this._init();
+        if (this.collider.enabledInHierarchy) {
+            this._init();
+        }
     }
 
     get worldAABB (): Readonly<Rect> {
