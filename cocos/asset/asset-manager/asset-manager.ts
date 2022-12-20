@@ -123,7 +123,8 @@ export class AssetManager {
      *
      * @zh
      * 正常加载管线
-     *
+     * @internal
+     * @deprecated Since v3.7, this interface is engine internal interface.
      */
     public pipeline: Pipeline = pipeline.append(preprocess).append(load);
 
@@ -281,12 +282,24 @@ export class AssetManager {
 
     public factory = factory;
 
+    /**
+     * @engineInternal
+     */
     public preprocessPipe: IPipe = preprocess;
 
+    /**
+     * @engineInternal
+     */
     public fetchPipe: IPipe = fetch;
 
+    /**
+     * @engineInternal
+     */
     public loadPipe: IPipe = load;
 
+    /**
+     * @engineInternal
+     */
     public references = references;
 
     private _releaseManager = releaseManager;

@@ -44,7 +44,7 @@ export default class Bundle {
     private _config: Config = new Config();
 
     /**
-     * for internal use
+     * for internal use.
      * @engineInternal
      */
     public get config (): Config {
@@ -53,10 +53,10 @@ export default class Bundle {
 
     /**
      * @en
-     * The name of this bundle
+     * The name of this bundle.
      *
      * @zh
-     * 此 bundle 的名称
+     * 此 bundle 的名称。
      *
      */
     public get name (): string {
@@ -65,10 +65,10 @@ export default class Bundle {
 
     /**
      * @en
-     * The dependency of this bundle
+     * The dependent bundles of this bundle.
      *
      * @zh
-     * 此 bundle 的依赖
+     * 此 bundle 的依赖包。
      *
      */
     public get deps (): string[] {

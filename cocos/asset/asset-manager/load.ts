@@ -67,7 +67,7 @@ export default function load (task: Task, done: CompleteCallbackNoData) {
             options,
             progress,
             onComplete: (err, result) => {
-                if (err && !task.isFinish) {
+                if (err && !task.isFinished) {
                     if (!cclegacy.assetManager.force || firstTask) {
                         if (BUILD) {
                             error(err.message, err.stack);
@@ -88,7 +88,7 @@ export default function load (task: Task, done: CompleteCallbackNoData) {
     }, () => {
         options!.__exclude__ = null;
 
-        if (task.isFinish) {
+        if (task.isFinished) {
             clear(task, true);
             task.dispatch('error');
             return;

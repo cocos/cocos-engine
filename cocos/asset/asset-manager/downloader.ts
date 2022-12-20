@@ -243,6 +243,10 @@ export class Downloader {
 
     public remoteBundles: string[] = [];
 
+    /**
+     * The md5 hash version of all bundles.
+     * @internal
+     */
     public downloadDomImage = downloadDomImage;
 
     public downloadDomAudio: DownloadHandler | null = null;

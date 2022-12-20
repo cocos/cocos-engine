@@ -96,9 +96,8 @@ export function getUrlWithUuid (uuid: string, options?: { [k: string]: any, isNa
  * @zh
  * 检查资源类型是否是场景
  *
- * @method isScene
- * @param {*} asset - asset
- * @returns {boolean} - whether or not type is SceneAsset
+ * @param asset - asset
+ * @returns - whether or not type is SceneAsset
  *
  */
 export function isScene (asset) {
