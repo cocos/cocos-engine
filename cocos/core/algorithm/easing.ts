@@ -27,7 +27,7 @@
 
 /**
  * @en Not any easing effect.
- * @zh 没有任何缓动效果
+ * @zh 没有任何缓动效果。
  */
 export function constant () {
     return 0;

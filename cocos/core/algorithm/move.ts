@@ -10,7 +10,7 @@ import { assertsArrayIndex } from '../data/utils/asserts';
  * @param last @en The end of the original range. @zh 移动区间的结束坐标。
  * @engineInternal
  */
-export function rotate<T> (array: T[], first: number, last: number) {
+export function shift<T> (array: T[], first: number, last: number) {
     assertsArrayIndex(array, first);
     assertsArrayIndex(array, last);
     if (first === last) {
