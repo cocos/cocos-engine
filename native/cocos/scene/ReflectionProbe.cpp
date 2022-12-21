@@ -81,7 +81,7 @@ void ReflectionProbe::initialize(Node* probeNode, Node* cameraNode) {
 
     _camera->setNearClip(1.0);
     _camera->setFarClip(1000.0);
-    _camera->setClearColor(packBackgroundColor(_backgroundColor));
+    _camera->setClearColor(_backgroundColor);
     _camera->setClearDepth(1.0);
     _camera->setClearStencil(0.0);
     _camera->setClearFlag(_clearFlag);
@@ -107,7 +107,7 @@ void ReflectionProbe::syncCameraParams(const Camera* camera) {
     _camera->setFov(camera->getFov());
     _camera->setVisibility(camera->getVisibility());
     _camera->setClearFlag(camera->getClearFlag());
-    _camera->setClearColor(packBackgroundColor(camera->getClearColor()));
+    _camera->setClearColor(camera->getClearColor());
     _camera->setPriority(camera->getPriority() - 1);
     _camera->changeTargetWindow(_realtimePlanarTexture->getWindow());
     _camera->resize(camera->getWidth(), camera->getHeight());
@@ -117,6 +117,7 @@ void ReflectionProbe::renderPlanarReflection(const Camera* sourceCamera) {
     if (!sourceCamera) return;
     syncCameraParams(sourceCamera);
     transformReflectionCamera(sourceCamera);
+    packBackgroundColor();
     _needRender = true;
 }
 
@@ -241,7 +242,7 @@ void ReflectionProbe::resetCameraParams() {
     _camera->resize(_resolution, _resolution);
     _camera->setVisibility(_visibility);
 
-    _camera->setClearColor(packBackgroundColor(_backgroundColor));
+    _camera->setClearColor(_backgroundColor);
     _camera->setClearDepth(1.0);
     _camera->setClearStencil(0.0);
     _camera->setClearFlag(_clearFlag);
@@ -257,6 +258,7 @@ void ReflectionProbe::resetCameraParams() {
 void ReflectionProbe::captureCubemap() {
     initBakedTextures();
     resetCameraParams();
+    packBackgroundColor();
     _needRender = true;
 }
 
@@ -273,8 +275,8 @@ Vec2 ReflectionProbe::renderArea() const {
     }
 }
 
-gfx::Color ReflectionProbe::packBackgroundColor(const gfx::Color& srcColor) {
-    Vec3 rgb = Vec3(srcColor.x, srcColor.y, srcColor.z);
+void ReflectionProbe::packBackgroundColor() {
+    Vec3 rgb = Vec3(_camera->getClearColor().x, _camera->getClearColor().y, _camera->getClearColor().z);
     float maxComp = std::max(std::max(rgb.x, rgb.y), rgb.z);
     float e = 128.F;
     if (maxComp > 0.0001) {
@@ -289,7 +291,8 @@ gfx::Color ReflectionProbe::packBackgroundColor(const gfx::Color& srcColor) {
     Vec3 sub = encode - fVec3;
     Vec3 stepVec3 = sub < Vec3(0.5F, 0.5F, 0.5F) ? Vec3(0.5F, 0.5F, 0.5F) : sub;
     Vec3 encode_rounded = fVec3 + stepVec3;
-    return gfx::Color{encode_rounded.x / 255.F, encode_rounded.y / 255.F, encode_rounded.z / 255.F, e / 255.F};
+    gfx::Color rgbe = gfx::Color{encode_rounded.x / 255.F, encode_rounded.y / 255.F, encode_rounded.z / 255.F, e / 255.F};
+    _camera->setClearColor(rgbe);
 }
 
 } // namespace scene

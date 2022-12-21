@@ -117,6 +117,9 @@ public:
     inline void setPreviewPlane(Node* val) { _previewPlane = val; }
     inline const Node* getPreviewPlane() const { return _previewPlane; }
 
+    inline void setCubemap(cc::TextureCube* cubeMap) { _cubemap = cubeMap; }
+    inline const cc::TextureCube* getCubemap() { return _cubemap; }
+
     inline RenderTexture* getRealtimePlanarTexture() const { return _realtimePlanarTexture; }
     void updateBoundingBox();
     void syncCameraParams(const Camera* camera);
@@ -138,7 +141,7 @@ public:
     void resetCameraParams();
     void updateCameraDir(int32_t faceIdx);
     Vec2 renderArea() const;
-    static gfx::Color packBackgroundColor(const gfx::Color& srcColor);
+    void packBackgroundColor();
     private:
     ccstd::vector<IntrusivePtr<cc::RenderTexture>> _bakedCubeTextures;
     IntrusivePtr<cc::RenderTexture> _realtimePlanarTexture{nullptr};
