@@ -54,13 +54,30 @@ namespace scene {
 class LodStateCache : public RefCounted {
 public:
     struct ModelInfo {
+        /**
+         * @zh model 所属的 LOD 层级
+         * @en LOD level of the model。
+         */
         int8_t ownerLodLevel{-1};
         const LODGroup *lodGroup{nullptr};
+        /**
+         * @zh model 能被相机看到的容器
+         * @en The model can be seen by the camera container.
+         */
         ccstd::unordered_map<const Camera*, bool> visibleCameras;
     };
 
     struct LODInfo {
-        int8_t visibleLevel{-1};
+        /**
+         * @zh lodGroup 使用的层级
+         * @en Level used by lodGroup.
+         */
+        int8_t usedLevel{-1};
+
+        /**
+         * @zh lodGroup 所在节点出现 transform 变化的标记
+         * @en The node where the lodGroup is located is marked with a transform change.
+         */
         bool transformDirty{true};
     };
 
@@ -459,8 +476,8 @@ void LodStateCache::updateLodState() {
                     }
 
                     int8_t index = lodGroup->getVisibleLODLevel(visibleCamera.first);
-                    if (index != lodInfo.visibleLevel) {
-                        lodInfo.visibleLevel = index;
+                    if (index != lodInfo.usedLevel) {
+                        lodInfo.usedLevel = index;
                         hasUpdated = true;
                     }
                 }
@@ -480,7 +497,7 @@ void LodStateCache::updateLodState() {
                         modelInfo.visibleCameras.clear();
                         if (model->getNode() && model->getNode()->isActive()) {
                             for (auto &visibleCamera : _lodStateInCamera) {
-                                if (modelInfo.ownerLodLevel == visibleCamera.second[lodGroup].visibleLevel) {
+                                if (modelInfo.ownerLodLevel == visibleCamera.second[lodGroup].usedLevel) {
                                     modelInfo.visibleCameras.emplace(visibleCamera.first, true);
                                 }
                             }

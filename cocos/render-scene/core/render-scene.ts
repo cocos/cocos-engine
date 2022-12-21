@@ -525,13 +525,29 @@ export class RenderScene {
 }
 
 class ModelInfo {
+    /**
+     * @zh model 所属的 LOD 层级
+     * @en LOD level of the model。
+     */
     ownerLodLevel = -1;
     lodGroup: LODGroup = null!;
+    /**
+     * @zh model 能被相机看到的容器
+     * @en The model can be seen by the camera container.
+     */
     visibleCameras: Map<Camera, boolean> = new Map<Camera, boolean>();
 }
 
 class LODInfo {
-    visibleLevel = -1;
+    /**
+     * @zh lodGroup 使用的层级
+     * @en Level used by lodGroup.
+     */
+    usedLevel = -1;
+    /**
+     * @zh lodGroup 所在节点出现 transform 变化的标记
+     * @en The node where the lodGroup is located is marked with a transform change.
+     */
     transformDirty = true;
 }
 
@@ -677,8 +693,8 @@ class LodStateCache {
                             lodInfo.transformDirty = false;
                         }
                         const index = lodGroup.getVisibleLODLevel(visibleCamera[0]);
-                        if (index !== lodInfo.visibleLevel) {
-                            lodInfo.visibleLevel = index;
+                        if (index !== lodInfo.usedLevel) {
+                            lodInfo.usedLevel = index;
                             hasUpdated = true;
                         }
                     }
@@ -702,7 +718,7 @@ class LodStateCache {
                                         let visibleLevel = -1;
                                         const lodInfo = lodMap.get(lodGroup);
                                         if (lodInfo) {
-                                            visibleLevel = lodInfo.visibleLevel;
+                                            visibleLevel = lodInfo.usedLevel;
                                         }
                                         if (modelInfo.ownerLodLevel === visibleLevel) {
                                             modelInfo.visibleCameras.set(camera, true);
