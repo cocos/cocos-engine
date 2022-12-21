@@ -47,6 +47,7 @@ class DirectionalLight;
 class LODGroup;
 class SphereLight;
 class SpotLight;
+class LodStateCache;
 
 struct IRaycastResult {
     Node *node{nullptr};
@@ -75,6 +76,7 @@ public:
     void addLODGroup(LODGroup *group);
     void removeLODGroup(LODGroup *group);
     void removeLODGroups();
+    bool isCulledByLod(const Camera *camera, const Model *model) const;
 
     void unsetMainLight(DirectionalLight *dl);
     void addDirectionalLight(DirectionalLight *dl);
@@ -116,6 +118,7 @@ private:
     ccstd::string _name;
     uint64_t _modelId{0};
     IntrusivePtr<DirectionalLight> _mainLight;
+    IntrusivePtr<LodStateCache> _lodStateCache;
     ccstd::vector<IntrusivePtr<Model>> _models;
     ccstd::vector<IntrusivePtr<Camera>> _cameras;
     ccstd::vector<IntrusivePtr<DirectionalLight>> _directionalLights;

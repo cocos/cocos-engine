@@ -26,7 +26,6 @@
 #include "base/std/container/array.h"
 
 #include "Define.h"
-#include "LODModelsUtil.h"
 #include "PipelineSceneData.h"
 #include "RenderPipeline.h"
 #include "SceneCulling.h"
@@ -165,14 +164,12 @@ void sceneCulling(const RenderPipeline *pipeline, scene::Camera *camera) {
         }
     }
 
-    LODModelsCachedUtils::updateCachedLODModels(scene, camera);
-
     const scene::Octree *octree = scene->getOctree();
     if (octree && octree->isEnabled()) {
         for (const auto &model : scene->getModels()) {
             // filter model by view visibility
             if (model->isEnabled()) {
-                if (LODModelsCachedUtils::isLODModelCulled(model)) {
+                if (scene->isCulledByLod(camera, model)) {
                     continue;
                 }
 
@@ -199,7 +196,7 @@ void sceneCulling(const RenderPipeline *pipeline, scene::Camera *camera) {
         models.reserve(scene->getModels().size() / 4);
         octree->queryVisibility(camera, camera->getFrustum(), false, models);
         for (const auto &model : models) {
-            if (LODModelsCachedUtils::isLODModelCulled(model)) {
+            if (scene->isCulledByLod(camera, model)) {
                 continue;
             }
             sceneData->addRenderObject(genRenderObject(model, camera));
@@ -208,7 +205,7 @@ void sceneCulling(const RenderPipeline *pipeline, scene::Camera *camera) {
         for (const auto &model : scene->getModels()) {
             // filter model by view visibility
             if (model->isEnabled()) {
-                if (LODModelsCachedUtils::isLODModelCulled(model)) {
+                if (scene->isCulledByLod(camera, model)) {
                     continue;
                 }
                 const auto visibility = camera->getVisibility();
@@ -236,7 +233,6 @@ void sceneCulling(const RenderPipeline *pipeline, scene::Camera *camera) {
             }
         }
     }
-    LODModelsCachedUtils::clearCachedLODModels();
 
     csmLayers = nullptr;
 }
