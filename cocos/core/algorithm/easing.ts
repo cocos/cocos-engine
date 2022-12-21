@@ -82,7 +82,7 @@ export function cubicIn (k: number) {
 }
 
 /**
- * @en Starts quickly and the decelerates.
+ * @en Starts quickly and decelerates.
  * Refer to [this doc](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html) for graphic feature.
  * @zh 起动迅速，减速慢。具体效果可以参考[该文档](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html)。
  */
@@ -112,7 +112,7 @@ export function quartIn (k: number) {
 }
 
 /**
- * @en Starts quickly and the decelerates.
+ * @en Starts quickly and decelerates.
  * Refer to [this doc](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html) for graphic feature.
  * @zh 起动迅速，减速慢。具体效果可以参考[该文档](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html)。
  */
@@ -142,7 +142,7 @@ export function quintIn (k: number) {
 }
 
 /**
- * @en Starts quickly and the decelerates.
+ * @en Starts quickly and decelerates.
  * Refer to [this doc](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html) for graphic feature.
  * @zh 起动迅速，减速慢。具体效果可以参考[该文档](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html)。
  */
@@ -202,7 +202,7 @@ export function expoIn (k: number) {
 }
 
 /**
- * @en Starts quickly and the decelerates.
+ * @en Starts quickly and decelerates.
  * Refer to [this doc](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html) for graphic feature.
  * @zh 起动迅速，减速慢。具体效果可以参考[该文档](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html)。
  */
@@ -238,7 +238,7 @@ export function circIn (k: number) {
 }
 
 /**
- * @en Starts quickly and the decelerates.
+ * @en Starts quickly and decelerates.
  * Refer to [this doc](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html) for graphic feature.
  * @zh 起动迅速，减速慢。具体效果可以参考[该文档](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html)。
  */

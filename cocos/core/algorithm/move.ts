@@ -18,11 +18,11 @@ export function shift<T> (array: T[], first: number, last: number) {
         return array;
     }
     const element = array[first];
-    if (first < last) { // Shift right
+    if (first < last) { // Shift left.
         for (let iElement = first + 1; iElement <= last; ++iElement) {
             array[iElement - 1] = array[iElement];
         }
-    } else { // Shift left
+    } else { // Shift right.
         for (let iElement = first; iElement !== last; --iElement) {
             array[iElement] = array[iElement - 1];
         }
