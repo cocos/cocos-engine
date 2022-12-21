@@ -36,17 +36,17 @@ import { ScalableContainer } from './scalable-container';
 export class CachedArray<T> extends ScalableContainer {
     /**
      * @en
-     * The array which stores actual content
+     * The array which stores actual content.
      * @zh
-     * 实际存储数据内容的数组
+     * 实际存储数据内容的数组。
      */
     public array: T[];
 
     /**
      * @en
-     * The actual count of data object
+     * The actual count of data object.
      * @zh
-     * 实际数据内容数量
+     * 实际存储的元素数量。
      */
     public length = 0;
 
@@ -54,8 +54,13 @@ export class CachedArray<T> extends ScalableContainer {
     private _initSize = 0;
 
     /**
-     * @param length Initial length
-     * @param compareFn Comparison function for sorting
+     * @en Constructor. @zh 构造函数。
+     * @param length @en Initial length of the CachedArray. @zh CachedArray 的初始长度。
+     * @param compareFn @en Function used to determine the order of the elements. It is expected to return
+     * a negative value if the first argument is less than the second argument, zero if they're equal, and a positive
+     * value otherwise. If omitted, the elements are sorted in ascending, ASCII character order.
+     * @zh 用来确定元素顺序的函数。如果第一个参数小于第二个参数，它应该返回一个负值，如果它们相等，则返回0，否则返回一个正值。
+     * 如果省略，元素将按 ASCII 字符升序排序。
      */
     constructor (length: number, compareFn?: (a: T, b: T) => number) {
         super();
@@ -67,10 +72,10 @@ export class CachedArray<T> extends ScalableContainer {
 
     /**
      * @en
-     * Push an element to the end of the array
+     * Push an element to the end of the array.
      * @zh
-     * 向数组末尾添加一个元素
-     * @param item The item to be added
+     * 向数组末尾添加一个元素。
+     * @param item @en The item to be added. @zh 被添加到数组的元素。
      */
     public push (item: T) {
         this.array[this.length++] = item;
@@ -80,8 +85,9 @@ export class CachedArray<T> extends ScalableContainer {
      * @en
      * Pop the last element in the array. The [[length]] will reduce, but the internal array will keep its size.
      * @zh
-     * 弹出数组最后一个元素，CachedArray 的 [[length]] 会减少，但是内部数组的实际长度不变
-     * @return The last element.
+     * 弹出数组最后一个元素，CachedArray 的 [[length]] 会减少，但是内部数组的实际长度不变。
+     * @return @en The last element of this CachedArray. If CachedArray is empty, will return undefined.
+     * @zh 数组的最后一个元素。如果数组为空，将返回 undefined。
      */
     public pop (): T | undefined {
         return this.array[--this.length];
@@ -89,11 +95,12 @@ export class CachedArray<T> extends ScalableContainer {
 
     /**
      * @en
-     * Get the element at the specified index of the array
+     * Get the element at the specified index of the array.
      * @zh
-     * 得到数组中指定位置的元素
-     * @param idx The index of the requested element
-     * @return The element at given index
+     * 获取数组中指定位置的元素。
+     * @param idx @en The index of the requested element. @zh 用于获取数组元素的索引。
+     * @return @en The element at given index. If idx not in [0, length) or array is empty, will return undefined.
+     * @zh 数组下标对应的元素。如果 idx 超出 [0, length），或者数组是空的，将返回 undefined。
      */
     public get (idx: number): T | undefined {
         return this.array[idx];
