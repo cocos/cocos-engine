@@ -25,6 +25,7 @@
 #include <thread>
 #include "GLES2GPUObjects.h"
 #include "base/StringUtil.h"
+#include "GFXExternalDefines.h"
 
 #if CC_SWAPPY_ENABLED
     #include "swappy/swappyGL.h"
@@ -109,8 +110,8 @@ bool GLES2GPUContext::initialize(GLES2GPUStateCache *stateCache, GLES2GPUConstan
 
     EGL_CHECK(eglBindAPI(EGL_OPENGL_ES_API));
 
-    bool msaaEnabled{false};
-    bool qualityPreferred{false};
+    bool msaaEnabled{MSAA_SWAPCHAIN};
+    bool qualityPreferred{true};
 
     EGLint redSize{8};
     EGLint greenSize{8};
@@ -304,7 +305,7 @@ void GLES2GPUContext::makeCurrent(const GLES2GPUSwapchain *drawSwapchain, const 
 void GLES2GPUContext::present(const GLES2GPUSwapchain *swapchain) {
 #if CC_SWAPPY_ENABLED
     if (swapchain->swappyEnabled) {
-        //fallback to normal eglswap if swappy_swap failed
+        // fallback to normal eglswap if swappy_swap failed
         if (SwappyGL_swap(eglDisplay, swapchain->eglSurface)) {
             return;
         }

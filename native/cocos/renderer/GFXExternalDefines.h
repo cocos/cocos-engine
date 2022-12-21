@@ -43,11 +43,15 @@ static constexpr bool MOVE_TO_SWAPCHAIN{true};
     #endif
 #else
 static constexpr bool MSAA_RT{false};
-static constexpr bool MSAA_SWAPCHAIN{true};
+static constexpr bool MSAA_SWAPCHAIN{false};
 static constexpr bool MOVE_TO_SWAPCHAIN{true};
 #endif
 
 #if defined(CC_USE_GLES3) || defined(CC_USE_GLES2)
 static_assert(!(MSAA_RT && MOVE_TO_SWAPCHAIN));
+    #ifdef CC_USE_GLES2
+// present in frame graph performs a fbo(rbo) -> fbo(default)
+// gles2 no blitFramebuffer, same time read from render buffer is not allowed
+static_assert(MOVE_TO_SWAPCHAIN);
+    #endif
 #endif
-
