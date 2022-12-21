@@ -218,7 +218,7 @@ void ReflectionProbe::destroy() {
 
 void ReflectionProbe::initBakedTextures() {
     if (_bakedCubeTextures.empty()) {
-        for (size_t i = 0; i < 6; i++) {
+        for (uint32_t i = 0; i < 6; i++) {
             auto* rt = ccnew RenderTexture();
             IRenderTextureCreateInfo info;
             info.name = "capture";
@@ -231,10 +231,10 @@ void ReflectionProbe::initBakedTextures() {
 }
 void ReflectionProbe::resetCameraParams() {
     _camera->setProjectionType(CameraProjection::PERSPECTIVE);
-    _camera->setOrthoHeight(10.0);
-    _camera->setNearClip(1.0);
-    _camera->setFarClip(1000.0);
-    _camera->setFov(static_cast<float>(mathutils::toRadian(90.0)));
+    _camera->setOrthoHeight(10.F);
+    _camera->setNearClip(1.F);
+    _camera->setFarClip(1000.F);
+    _camera->setFov(static_cast<float>(mathutils::toRadian(90.F)));
     _camera->setPriority(0);
     if (!_bakedCubeTextures.empty()) {
         _camera->changeTargetWindow(_bakedCubeTextures[0]->getWindow());
@@ -243,8 +243,8 @@ void ReflectionProbe::resetCameraParams() {
     _camera->setVisibility(_visibility);
 
     _camera->setClearColor(_backgroundColor);
-    _camera->setClearDepth(1.0);
-    _camera->setClearStencil(0.0);
+    _camera->setClearDepth(1.F);
+    _camera->setClearStencil(0.F);
     _camera->setClearFlag(_clearFlag);
 
     _camera->setAperture(CameraAperture::F16_0);
