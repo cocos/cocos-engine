@@ -231,14 +231,15 @@ void ForwardStage::render(scene::Camera *camera) {
         if (shadingScale != 1.F) {
             colorTexInfo.usage |= gfx::TextureUsageBit::TRANSFER_SRC;
         }
-
+        auto sampleCount = gfx::SampleCount::ONE;
         if constexpr (msaaRT) {
+            sampleCount = gfx::SampleCount::MULTIPLE_BALANCE;
             colorTexInfo.usage = gfx::TextureUsageBit::TRANSFER_SRC | gfx::TextureUsageBit::COLOR_ATTACHMENT;
             auto resolveTex = builder.create(RenderPipeline::fgStrHandleOutColorTexture, colorTexInfo);
             outputTexHandle = framegraph::FrameGraph::stringToHandle("colormsaa");
 
             framegraph::Texture::Descriptor colorMSAATexInfo = colorTexInfo;
-            colorMSAATexInfo.samples = gfx::SampleCount::MULTIPLE_QUALITY;
+            colorMSAATexInfo.samples = sampleCount;
             colorMSAATexInfo.usage = gfx::TextureUsageBit::COLOR_ATTACHMENT;
             auto msaaTex = builder.create(outputTexHandle, colorMSAATexInfo);
 
@@ -248,7 +249,7 @@ void ForwardStage::render(scene::Camera *camera) {
 
             colorAttachmentInfo.resolveTarget = resolveTex;
             colorAttachmentInfo.resolveSource = cc::framegraph::TextureHandle{};
-            colorAttachmentInfo.samples = gfx::SampleCount::MULTIPLE_QUALITY;
+            colorAttachmentInfo.samples = sampleCount;
             data.outputTex = builder.write(msaaTex, colorAttachmentInfo);
 
             builder.writeToBlackboard(RenderPipeline::fgStrHandleOutColorTexture, resolveTex);
@@ -261,6 +262,7 @@ void ForwardStage::render(scene::Camera *camera) {
 
 #endif
         builder.writeToBlackboard(outputTexHandle, data.outputTex);
+
         // depth
         gfx::TextureInfo depthTexInfo{
             gfx::TextureType::TEX2D,
@@ -271,7 +273,7 @@ void ForwardStage::render(scene::Camera *camera) {
             gfx::TextureFlags::NONE,
             1,
             1,
-            gfx::SampleCount::ONE,
+            sampleCount,
         };
 
         framegraph::RenderTargetAttachment::Descriptor depthAttachmentInfo;
@@ -280,42 +282,20 @@ void ForwardStage::render(scene::Camera *camera) {
         depthAttachmentInfo.clearStencil = camera->getClearStencil();
         depthAttachmentInfo.beginAccesses = gfx::AccessFlagBit::DEPTH_STENCIL_ATTACHMENT_WRITE;
         depthAttachmentInfo.endAccesses = gfx::AccessFlagBit::DEPTH_STENCIL_ATTACHMENT_WRITE;
-        depthAttachmentInfo.samples = gfx::SampleCount::ONE;
+        depthAttachmentInfo.samples = sampleCount;
 #if !CC_USE_AR_MODULE
         if (static_cast<gfx::ClearFlagBit>(clearFlags & gfx::ClearFlagBit::DEPTH_STENCIL) != gfx::ClearFlagBit::DEPTH_STENCIL && (!hasFlag(clearFlags, gfx::ClearFlagBit::DEPTH) || !hasFlag(clearFlags, gfx::ClearFlagBit::STENCIL))) {
             depthAttachmentInfo.loadOp = gfx::LoadOp::LOAD;
         }
 #endif
 
-        auto depthHandle = framegraph::FrameGraph::stringToHandle("depthmsaa");
-
-        if (msaaRT) {
-            gfx::TextureInfo depthMSAATexInfo{depthTexInfo};
-            depthMSAATexInfo.samples = gfx::SampleCount::MULTIPLE_QUALITY;
-            auto depthMSAA = builder.create(depthHandle, depthMSAATexInfo);
-
-            depthAttachmentInfo.usage = framegraph::RenderTargetAttachment::Usage::DEPTH_STENCIL_RESOLVE;
-            depthAttachmentInfo.resolveSource = depthMSAA;
-            depthAttachmentInfo.resolveTarget = cc::framegraph::TextureHandle{};
-            auto resolveDepth = builder.create(RenderPipeline::fgStrHandleOutDepthTexture, depthTexInfo);
-            resolveDepth = builder.write(resolveDepth, depthAttachmentInfo);
-
-            framegraph::RenderTargetAttachment::Descriptor depthMSAAAttachmentInfo{depthAttachmentInfo};
-            depthMSAAAttachmentInfo.samples = gfx::SampleCount::MULTIPLE_QUALITY;
-            depthMSAAAttachmentInfo.resolveTarget = resolveDepth;
-            depthMSAAAttachmentInfo.resolveSource = cc::framegraph::TextureHandle{};
-            depthMSAAAttachmentInfo.usage = framegraph::RenderTargetAttachment::Usage::DEPTH_STENCIL;
-            data.depth = builder.write(depthMSAA, depthMSAAAttachmentInfo);
-
-        } else {
-            depthAttachmentInfo.usage = framegraph::RenderTargetAttachment::Usage::DEPTH_STENCIL;
-            depthHandle = RenderPipeline::fgStrHandleOutDepthTexture;
-            data.depth = builder.create(RenderPipeline::fgStrHandleOutDepthTexture, depthTexInfo);
-            data.depth = builder.write(data.depth, depthAttachmentInfo);
-        }
+        auto depthHandle = RenderPipeline::fgStrHandleOutDepthTexture;
+        depthAttachmentInfo.usage = framegraph::RenderTargetAttachment::Usage::DEPTH_STENCIL;
+        data.depth = builder.create(RenderPipeline::fgStrHandleOutDepthTexture, depthTexInfo);
+        data.depth = builder.write(data.depth, depthAttachmentInfo);
+        
 
         builder.writeToBlackboard(depthHandle, data.depth);
-
         builder.setViewport(pipeline->getViewport(camera), pipeline->getScissor(camera));
     };
 

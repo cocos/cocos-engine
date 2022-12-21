@@ -86,13 +86,7 @@ void PassNode::createRenderTargetAttachment(RenderTargetAttachment &&attachment)
         } else {
             CC_ASSERT((_usedRenderTargetSlotMask & (1 << (RenderTargetAttachment::DEPTH_STENCIL_SLOT_START + static_cast<uint8_t>(attachment.desc.usage) - 1))) == 0);
         }
-        if (attachment.desc.samples > gfx::SampleCount::ONE) {
-            // msaa attachment slot
-            attachment.desc.slot = (RenderTargetAttachment::DEPTH_STENCIL_SLOT_START + static_cast<uint8_t>(attachment.desc.usage) - 1);
-        } else {
-            // depth stencil resolve slot is the highest bit.
-            attachment.desc.slot = (RenderTargetAttachment::DEPTH_STENCIL_SLOT_START + static_cast<uint8_t>(RenderTargetAttachment::Usage::DEPTH_STENCIL_RESOLVE) - 1);
-        }
+        attachment.desc.slot = (RenderTargetAttachment::DEPTH_STENCIL_SLOT_START + static_cast<uint8_t>(attachment.desc.usage) - 1);
     }
 
     CC_ASSERT((_usedRenderTargetSlotMask & (1 << attachment.desc.slot)) == 0);

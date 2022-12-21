@@ -104,6 +104,7 @@ DevicePass::DevicePass(const FrameGraph &graph, ccstd::vector<PassNode *> const 
 
     ccstd::vector<const gfx::Texture *> renderTargets;
 
+    bool hasDepthStencil{false};
     for (auto &attachment : attachments) {
         const ResourceNode &resourceNode = graph.getResourceNode(attachment.textureHandle);
         CC_ASSERT(resourceNode.virtualResource);
@@ -115,6 +116,8 @@ DevicePass::DevicePass(const FrameGraph &graph, ccstd::vector<PassNode *> const 
         _attachments.back().attachment = attachment;
         _attachments.back().renderTarget = resource;
         renderTargets.emplace_back(resource);
+
+        hasDepthStencil |= attachment.desc.usage != RenderTargetAttachment::Usage::COLOR;
     }
 
     Attachment dsResolve;
@@ -135,22 +138,12 @@ DevicePass::DevicePass(const FrameGraph &graph, ccstd::vector<PassNode *> const 
                     _attachments.emplace_back();
                     _attachments.back().attachment = attachment;
                     _attachments.back().renderTarget = resource;
-                    _subpasses[i].desc.resolves.emplace_back(_attachments.size() - 1);
-                } else {
-                    dsResolve.attachment = attachment;
-                    dsResolve.renderTarget = resource;
-                    dsInvolved.emplace_back(&_subpasses[i].desc);
+                    // no depthStencil resolve and depth/stencil attachment will be record separately in another property
+                    uint8_t dsOffset = hasDepthStencil ? 1 : 0;
+                    _subpasses[i].desc.resolves.emplace_back(_attachments.size() - 1 - dsOffset);
                 }
             }
         }
-    }
-    if (dsResolve.renderTarget) {
-        _attachments.emplace_back(dsResolve);
-        auto dsMSAAIter = _attachments.begin();
-        std::advance(dsMSAAIter, depthNewIndex);
-        auto dsResolveIter = _attachments.end() - 1;
-        std::iter_swap(dsMSAAIter, dsResolveIter);
-        std::for_each(dsInvolved.begin(), dsInvolved.end(), [depthNewIndex](auto &desc) { desc->depthStencilResolve = depthNewIndex; });
     }
 
     for (PassNode *const passNode : subpassNodes) {
@@ -309,9 +302,6 @@ void DevicePass::append(const FrameGraph &graph, const RenderTargetAttachment &a
                         ccstd::vector<RenderTargetAttachment> *attachments, gfx::SubpassInfo *subpass, const ccstd::vector<Handle> &reads) {
     // later put resolved targets at the end
     if (attachment.desc.resolveSource.isValid()) {
-        if (attachment.desc.usage == RenderTargetAttachment::Usage::DEPTH_STENCIL_RESOLVE) {
-            _usedRenderTargetSlotMask |= 1 << 15;
-        }
         return;
     }
     RenderTargetAttachment::Usage usage{attachment.desc.usage};
@@ -415,12 +405,10 @@ void DevicePass::begin(gfx::CommandBuffer *cmdBuff) {
         }
     }
 
-    bool hasDSResolve = _usedRenderTargetSlotMask & (1 << 15);
     Attachment dsAttachment;
     for (const auto &attachElem : _attachments) {
         gfx::Texture *attachment = attachElem.renderTarget;
-        if (attachElem.attachment.desc.usage == RenderTargetAttachment::Usage::COLOR ||
-            (attachElem.attachment.desc.usage == RenderTargetAttachment::Usage::DEPTH_STENCIL_RESOLVE)) {
+        if (attachElem.attachment.desc.usage == RenderTargetAttachment::Usage::COLOR) {
             rpInfo.colorAttachments.emplace_back();
             auto &attachmentInfo = rpInfo.colorAttachments.back();
             attachmentInfo.format = attachment->getFormat();
