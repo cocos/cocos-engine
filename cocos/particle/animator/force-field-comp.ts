@@ -24,10 +24,9 @@
 */
 
 import { ccclass, displayOrder, serializable, type } from '../../core/data/decorators';
-import { Component } from '../../scene-graph';
 import CurveRange from './curve-range';
 import ForceField from './force-field';
-import { Mat4 } from '../../core';
+import { Component, Mat4 } from '../../core';
 import { ShapeType } from '../enum';
 
 const _tempWorldTrans = new Mat4();
