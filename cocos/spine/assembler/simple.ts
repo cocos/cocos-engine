@@ -102,7 +102,6 @@ let _needColor: boolean;
 let _vertexEffect: spine.VertexEffect | null = null;
 let _currentMaterial: MaterialInstance | null = null;
 let _currentTexture: Texture2D | null = null;
-const _inv255 = 1.0 / 255.0;
 
 function _getSlotMaterial (blendMode: spine.BlendMode) {
     let src: BlendFactor;
@@ -813,7 +812,7 @@ function cacheTraverse (worldMat: Mat4 | null) {
         // Update color
         if (_needColor) {
             // handle color
-            // tip: step of frameColorOffset should fix with vertex attributes, (xyzuvrgbargba--xyuvcc)
+            // tip: step of frameColorOffset should fix with vertex attributes, (xyzuvrcc--xyuvcc)
             let frameColorOffset = frameVFOffset / 7 * 6;
             for (let ii = frameVFOffset, iEnd = frameVFOffset + segVFCount; ii < iEnd; ii += _perVertexSize, frameColorOffset += 6) {
                 if (frameColorOffset >= maxVFOffset) {
