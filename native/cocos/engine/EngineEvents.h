@@ -293,6 +293,14 @@ public:
     Type type{Type::UNKNOWN}; // NOLINT(modernize-use-nullptr)
 };
 
+
+enum class ScriptEngineEvent{
+    BEFORE_INIT,
+    AFTER_INIT,
+    BEFORE_CLEANUP,
+    AFTER_CLEANUP,
+};
+
 namespace events {
 DECLARE_EVENT_BUS(Engine)
 
@@ -313,5 +321,6 @@ DECLARE_BUS_EVENT_ARG1(Orientation, Engine, int)
 DECLARE_BUS_EVENT_ARG0(RestartVM, Engine)
 DECLARE_BUS_EVENT_ARG0(Close, Engine)
 DECLARE_BUS_EVENT_ARG0(SceneLoad, Engine)
+DECLARE_BUS_EVENT_ARG1(ScriptEngine, Engine, ScriptEngineEvent)
 } // namespace events
 } // namespace cc

@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "ScriptEngine.h"
+#include "engine/EngineEvents.h"
 
 #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8
 
@@ -575,7 +576,11 @@ bool ScriptEngine::postInit() {
 
     _isValid = true;
 
+
+    // @deprecated since 3.7.0
     cc::plugin::send(cc::plugin::BusType::SCRIPT_ENGINE, cc::plugin::ScriptEngineEvent::POST_INIT);
+
+    cc::events::ScriptEngine::broadcast(cc::ScriptEngineEvent::AFTER_INIT);
 
     for (const auto &hook : _afterInitHookArray) {
         hook();
@@ -595,6 +600,8 @@ bool ScriptEngine::init(v8::Isolate *isolate) {
     ++_vmId;
 
     _engineThreadId = std::this_thread::get_id();
+
+    cc::events::ScriptEngine::broadcast(cc::ScriptEngineEvent::BEFORE_INIT);
 
     for (const auto &hook : _beforeInitHookArray) {
         hook();
@@ -628,6 +635,8 @@ void ScriptEngine::cleanup() {
 
     SE_LOGD("ScriptEngine::cleanup begin ...\n");
     _isInCleanup = true;
+
+    cc::events::ScriptEngine::broadcast(cc::ScriptEngineEvent::BEFORE_CLEANUP);
 
     {
         AutoHandleScope hs;
@@ -696,6 +705,7 @@ void ScriptEngine::cleanup() {
     NativePtrToObjectMap::destroy();
     _gcFuncValue.setUndefined();
     _gcFunc = nullptr;
+    cc::events::ScriptEngine::broadcast(cc::ScriptEngineEvent::AFTER_CLEANUP);
     SE_LOGD("ScriptEngine::cleanup end ...\n");
 }
 
