@@ -281,7 +281,7 @@ void ARBackground::render(cc::scene::Camera *camera, gfx::RenderPass *renderPass
     if (apiState < 0) return;
 
 #if CC_PLATFORM == CC_PLATFORM_ANDROID
-    if (!_setTexFlag) {
+    if (armodule->getTexInitFlag()) {
         gfx::SamplerInfo samplerInfo;
         auto *sampler = _device->getSampler(samplerInfo);
         armodule->setCameraTextureName(static_cast<int>(_glTex));
@@ -299,10 +299,10 @@ void ARBackground::render(cc::scene::Camera *camera, gfx::RenderPass *renderPass
         _descriptorSet->bindTexture(1, backgroundTex);
         _descriptorSet->update();
 
-        _setTexFlag = true;
+        armodule->resetTexInitFlag();
     }
 #elif CC_PLATFORM == CC_PLATFORM_MAC_IOS
-    if (!_setTexFlag) {
+    if (armodule->getTexInitFlag()) {
         auto *pixelBuffer = armodule->getCameraTextureRef();
         if (pixelBuffer != nullptr) {
             gfx::SamplerInfo samplerInfo;
@@ -336,7 +336,7 @@ void ARBackground::render(cc::scene::Camera *camera, gfx::RenderPass *renderPass
             _descriptorSet->bindBuffer(2, _ycbcrTransferBuffer);
             _descriptorSet->update();
 
-            _setTexFlag = true;
+            armodule->resetTexInitFlag();
         }
     }
 #endif
@@ -396,11 +396,11 @@ T &ARBackground::getAppropriateShaderSource(ShaderSources<T> &sources) {
 void ARBackground::destroy() {
     CC_SAFE_DESTROY_AND_DELETE(_shader);
     CC_SAFE_DESTROY_AND_DELETE(_vertexBuffer);
-#if CC_PLATFORM == CC_PLATFORM_ANDROID    
+#if CC_PLATFORM == CC_PLATFORM_ANDROID
     CC_SAFE_DESTROY_AND_DELETE(_uniformBuffer);
 #elif CC_PLATFORM == CC_PLATFORM_MAC_IOS
     CC_SAFE_DESTROY_AND_DELETE(_ycbcrTransferBuffer);
-#endif 
+#endif
     CC_SAFE_DESTROY_AND_DELETE(_inputAssembler);
     CC_SAFE_DESTROY_AND_DELETE(_descriptorSetLayout);
     CC_SAFE_DESTROY_AND_DELETE(_descriptorSet);
