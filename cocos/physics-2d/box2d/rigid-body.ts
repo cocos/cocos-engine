@@ -83,6 +83,7 @@ export class b2RigidBody2D implements IRigidBody2D {
         }
 
         (PhysicsSystem2D.instance.physicsWorld as b2PhysicsWorld).addBody(this);
+        this.setActive(false);
 
         this._inited = true;
     }
