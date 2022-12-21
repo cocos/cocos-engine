@@ -29,8 +29,8 @@ import { Component } from '../core/components';
 import { Vec3, Vec2, Vec4 } from '../core/math';
 import { LineModel } from './models/line-model';
 import { builtinResMgr } from '../core/builtin';
-import CurveRange from './animator/curve-range';
-import GradientRange from './animator/gradient-range';
+import CurveRange from './modules/curve-range';
+import GradientRange from './gradient-range';
 import { legacyCC } from '../core/global-exports';
 import { IMaterialInstanceInfo, MaterialInstance } from '../core/renderer/core/material-instance';
 
@@ -74,11 +74,11 @@ export class Line extends Component {
     @type(Material)
     @displayOrder(1)
     @tooltip('i18n:line.material')
-    get material() {
+    get material () {
         return this._material;
     }
 
-    set material(val) {
+    set material (val) {
         this._material = val;
     }
 

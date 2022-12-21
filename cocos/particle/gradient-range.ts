@@ -25,12 +25,12 @@
 
 import { ccclass, type, serializable, editable } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
-import { Color } from '../../core/math';
-import { Enum } from '../../core/value-types';
+import { Color } from '../core/math';
+import { Enum } from '../core/value-types';
 import Gradient, { AlphaKey, ColorKey } from './gradient';
-import { Texture2D } from '../../core';
-import { PixelFormat, Filter, WrapMode } from '../../core/assets/asset-enum';
-import { legacyCC } from '../../core/global-exports';
+import { Texture2D } from '../core';
+import { PixelFormat, Filter, WrapMode } from '../core/assets/asset-enum';
+import { legacyCC } from '../core/global-exports';
 
 const SerializableTable = EDITOR && [
     ['_mode', 'color'],
@@ -49,7 +49,7 @@ const Mode = Enum({
 });
 
 @ccclass('cc.GradientRange')
-export default class GradientRange {
+export class GradientRange {
     /**
      * @zh 渐变色类型 [[Mode]]。
      */

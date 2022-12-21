@@ -193,9 +193,7 @@ export class ParticleSystemRenderer extends ModelRenderer {
 
     public set mesh (val) {
         this._mesh = val;
-        if (this._particleSystem) {
-            this._particleSystem.processor.setVertexAttributes();
-        }
+        this.setVertexAttributes();
     }
 
     /**
@@ -922,7 +920,7 @@ export class ParticleSystemRenderer extends ModelRenderer {
 
         const trailModel = this._trailModel;
         if (trailModel && this._material) {
-            trailModel.node = trailModel.transform = this._particleSystem.node;
+            trailModel.node = trailModel.transform = this.node;
             trailModel.visFlags = this.node.layer;
             trailModel.initSubModel(0, this._subMeshData, this._material);
             trailModel.enabled = true;
@@ -977,10 +975,10 @@ export class ParticleSystemRenderer extends ModelRenderer {
     private doUpdateScale (pass) {
         switch (this._particleSystem.scaleSpace) {
         case Space.Local:
-            this._particleSystem.node.getScale(this._node_scale);
+            this.node.getScale(this._node_scale);
             break;
         case Space.World:
-            this._particleSystem.node.getWorldScale(this._node_scale);
+            this.node.getWorldScale(this._node_scale);
             break;
         default:
             break;

@@ -26,8 +26,8 @@
 import { ccclass, tooltip, displayOrder, range, type, serializable, visible } from 'cc.decorator';
 import { lerp, pseudoRandom, Vec3, Mat4, Quat } from '../../core/math';
 import { Space, ModuleRandSeed } from '../enum';
-import { Particle, ParticleModuleBase, PARTICLE_MODULE_NAME } from '../particle';
-import CurveRange from './curve-range';
+import { Particle, ParticleModule } from '../particle';
+import { CurveRange } from '../curve-range';
 import { calculateTransform } from '../particle-general-function';
 
 const LIMIT_VELOCITY_RAND_OFFSET = ModuleRandSeed.LIMIT;
@@ -36,9 +36,11 @@ const _temp_v3 = new Vec3();
 const _temp_v3_1 = new Vec3();
 
 @ccclass('cc.LimitVelocityOvertimeModule')
-export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
-    @serializable
-    _enable = false;
+export class LimitVelocityOvertimeModule extends ParticleModule {
+    public get name (): string {
+        return 'limitModule';
+    }
+
     /**
      * @zh 是否启用。
      */
@@ -48,7 +50,6 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
     }
 
     public set enable (val) {
-        if (this._enable === val) return;
         this._enable = val;
     }
 
@@ -133,9 +134,10 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
     public drag = null;
     public multiplyDragByParticleSize = false;
     public multiplyDragByParticleVelocity = false;
-    public name = PARTICLE_MODULE_NAME.LIMIT;
     private rotation: Quat;
     private needTransform: boolean;
+    @serializable
+    private _enable = false;
 
     constructor () {
         super();
@@ -144,7 +146,7 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
         this.needUpdate = true;
     }
 
-    public update (space: number, worldTransform: Mat4) {
+    public onUpdate (space: number, worldTransform: Mat4) {
         this.needTransform = calculateTransform(space, this.space, worldTransform, this.rotation);
     }
 

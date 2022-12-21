@@ -24,149 +24,28 @@
  */
 
 import { ccclass, tooltip, displayOrder, type, serializable, range } from 'cc.decorator';
-import { Material } from '../../core/assets/material';
-import { RenderingSubMesh } from '../../core/assets/rendering-sub-mesh';
-import { director } from '../../core/director';
-import { AttributeName, BufferUsageBit, Format, FormatInfos, MemoryUsageBit, PrimitiveMode,
-    Device, Attribute, Buffer, IndirectBuffer, BufferInfo, DrawInfo, DRAW_INFO_SIZE } from '../../core/gfx';
 import { Color, Mat4, Quat, toRadian, Vec3 } from '../../core/math';
-import { Pool } from '../../core/memop';
-import { scene } from '../../core/renderer';
-import CurveRange from './curve-range';
-import GradientRange from './gradient-range';
+import { CurveRange } from '../curve-range';
+import { GradientRange } from '../gradient-range';
 import { Space, TextureMode, TrailMode } from '../enum';
 import { Particle, ParticleModule } from '../particle';
-import { legacyCC } from '../../core/global-exports';
-import { TransformBit } from '../../core/scene-graph/node-enum';
-import { warnID } from '../../core';
 
 const PRE_TRIANGLE_INDEX = 1;
 const NEXT_TRIANGLE_INDEX = 1 << 2;
 const DIRECTION_THRESHOLD = Math.cos(toRadian(100));
 
-const _temp_trailEle = { position: new Vec3(), velocity: new Vec3() } as ITrailElement;
 const _temp_quat = new Quat();
 const _temp_xform = new Mat4();
 const _temp_vec3 = new Vec3();
 const _temp_vec3_1 = new Vec3();
 const _temp_color = new Color();
 
-// const barycentric = [1, 0, 0, 0, 1, 0, 0, 0, 1]; // <wireframe debug>
-
-// let _bcIdx = 0; // <wireframe debug>
-
-interface ITrailElement {
-    position: Vec3;
-    lifetime: number;
-    width: number;
-    velocity: Vec3;
-    direction: number; // if one element's direction differs from the previous one,it means the trail's direction reverse.
-    color: Color;
-}
-
-// the valid element is in [start,end) range.if start equals -1,it represents the array is empty.
-class TrailSegment {
-    public start: number;
-    public end: number;
-    public trailElements: ITrailElement[];
-
-    constructor (maxTrailElementNum: number) {
-        this.start = -1;
-        this.end = -1;
-        this.trailElements = [];
-        while (maxTrailElementNum--) {
-            this.trailElements.push({
-                position: new Vec3(),
-                lifetime: 0,
-                width: 0,
-                velocity: new Vec3(),
-                direction: 0,
-                color: new Color(),
-            });
-        }
-    }
-
-    public getElement (idx: number) {
-        if (this.start === -1) {
-            return null;
-        }
-        if (idx < 0) {
-            idx = (idx + this.trailElements.length) % this.trailElements.length;
-        }
-        if (idx >= this.trailElements.length) {
-            idx %= this.trailElements.length;
-        }
-        return this.trailElements[idx];
-    }
-
-    public addElement (): ITrailElement | null {
-        if (this.trailElements.length === 0) {
-            return null;
-        }
-        if (this.start === -1) {
-            this.start = 0;
-            this.end = 1;
-            return this.trailElements[0];
-        }
-        if (this.start === this.end) {
-            this.trailElements.splice(this.end, 0, {
-                position: new Vec3(),
-                lifetime: 0,
-                width: 0,
-                velocity: new Vec3(),
-                direction: 0,
-                color: new Color(),
-            });
-            this.start++;
-            this.start %= this.trailElements.length;
-        }
-        const newEleLoc = this.end++;
-        this.end %= this.trailElements.length;
-        return this.trailElements[newEleLoc];
-    }
-
-    // eslint-disable-next-line max-len
-    public iterateElement (target: TrailModule, f: (target: TrailModule, e: ITrailElement, p: Particle, dt: number) => boolean, p: Particle, dt: number) {
-        const end = this.start >= this.end ? this.end + this.trailElements.length : this.end;
-        for (let i = this.start; i < end; i++) {
-            if (f(target, this.trailElements[i % this.trailElements.length], p, dt)) {
-                this.start++;
-                this.start %= this.trailElements.length;
-            }
-        }
-        if (this.start === end) {
-            this.start = -1;
-            this.end = -1;
-        }
-    }
-
-    public count () {
-        if (this.start < this.end) {
-            return this.end - this.start;
-        } else {
-            return this.trailElements.length + this.end - this.start;
-        }
-    }
-
-    public clear () {
-        this.start = -1;
-        this.end = -1;
-    }
-
-    // <debug>
-    // public _print () {
-    //     let msg = String();
-    //     this.iterateElement(this, (target: object, e: ITrailElement, p: Particle, dt: number) => {
-    //         msg += 'pos:' + e.position.toString() + ' lifetime:' + e.lifetime + ' dir:' + e.direction +
-    //                ' velocity:' + e.velocity.toString() + '\n';
-    //         return false;
-    //     }, null, 0);
-    //     console.log(msg);
-    // }
-}
-
 @ccclass('cc.TrailModule')
-export default class TrailModule extends ParticleModule {
+export class TrailModule extends ParticleModule {
+    public get name (): string {
+        return 'trailModule';
+    }
+
     /**
      * 是否启用。
      */
@@ -178,9 +57,6 @@ export default class TrailModule extends ParticleModule {
     public set enable (val) {
         this._enable = val;
     }
-
-    @serializable
-    private _enable = false;
 
     /**
      * 设定粒子生成轨迹的方式。
@@ -201,9 +77,6 @@ export default class TrailModule extends ParticleModule {
     @tooltip('i18n:trailSegment.lifeTime')
     public lifeTime = new CurveRange();
 
-    @serializable
-    private _minParticleDistance = 0.1;
-
     /**
      * 每个轨迹粒子之间的最小间距。
      */
@@ -215,7 +88,6 @@ export default class TrailModule extends ParticleModule {
 
     public set minParticleDistance (val) {
         this._minParticleDistance = val;
-        this._minSquaredDistance = val * val;
     }
 
     @type(Space)
@@ -279,51 +151,13 @@ export default class TrailModule extends ParticleModule {
     /**
      * 轨迹设定时的坐标系。
      */
-    @type(Space)
+    @serializable
     private _space = Space.World;
-
-    private _minSquaredDistance = 0;
-    private _trailSegments: Pool<TrailSegment> | null = null;
-    private _particleTrail: Map<Particle, TrailSegment>;
+    @serializable
+    private _enable = false;
     private _needTransform = false;
-
-    constructor () {
-        super();
-        this._particleTrail = new Map<Particle, TrailSegment>();
-    }
-
-    public onInit (ps) {
-        this._particleSystem = ps;
-        this.minParticleDistance = this._minParticleDistance;
-        let burstCount = 0;
-        const psTime = ps.startLifetime.getMax();
-        const psRate = ps.rateOverTime.getMax();
-        const duration = ps.duration;
-        for (let i = 0, len = ps.bursts.length; i < len; i++) {
-            const b = ps.bursts[i];
-            burstCount += b.getMaxCount(ps) * Math.ceil(psTime / duration);
-        }
-        if (this.lifeTime.getMax() < 1.0) {
-            warnID(6036);
-        }
-        this._trailNum = Math.ceil(psTime * Math.ceil(this.lifeTime.getMax()) * 60 * (psRate * duration + burstCount));
-        this._trailSegments = new Pool(() => new TrailSegment(10), Math.ceil(psRate * duration), (obj: TrailSegment) => obj.trailElements.length = 0);
-        if (this._enable) {
-            this.enable = this._enable;
-        }
-    }
-
-    public clear () {
-        if (this.enable) {
-            const trailIter = this._particleTrail.values();
-            let trail = trailIter.next();
-            while (!trail.done) {
-                trail.value.clear();
-                trail = trailIter.next();
-            }
-            this._particleTrail.clear();
-        }
-    }
+    @serializable
+    private _minParticleDistance = 0.1;
 
     public update () {
         this._trailLifetime = this.lifeTime.evaluate(this._particleSystem._time, 1)!;
@@ -403,15 +237,6 @@ export default class TrailModule extends ParticleModule {
             lastSeg.color.set(p.color);
         } else {
             lastSeg.color.set(this.colorOvertime.evaluate(0, 1));
-        }
-    }
-
-    public removeParticle (p: Particle) {
-        const trail = this._particleTrail.get(p);
-        if (trail && this._trailSegments) {
-            trail.clear();
-            this._trailSegments.free(trail);
-            this._particleTrail.delete(p);
         }
     }
 

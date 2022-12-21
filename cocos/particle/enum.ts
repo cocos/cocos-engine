@@ -178,18 +178,30 @@ export enum ShapeType {
     /**
      * 圆锥体粒子发射器。
      */
-    Cone: 2,
+    CONE,
+    /**
+     * @deprecated since v3.8, please use ShapeType.CONE instead
+     */
+    Cone = CONE,
 
     /**
      * 球体粒子发射器。
      */
-    Sphere: 3,
+    SPHERE,
+    /**
+     * @deprecated since v3.8, please use ShapeType.SPHERE instead
+     */
+    Sphere = SPHERE,
 
     /**
      * 半球体粒子发射器。
      */
-    Hemisphere: 4,
-});
+    HEMISPHERE,
+    /**
+     * @deprecated since v3.8, please use ShapeType.HEMISPHERE instead
+     */
+    Hemisphere = HEMISPHERE,
+}
 
 /**
  * 粒子从发射器的哪个部位发射。

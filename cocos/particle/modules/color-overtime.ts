@@ -26,7 +26,7 @@
 import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
 import { Color, pseudoRandom } from '../../core/math';
 import { ParticleModule } from '../particle';
-import GradientRange from './gradient-range';
+import { GradientRange } from '../gradient-range';
 import { ModuleRandSeed } from '../enum';
 import { ParticleSOAData } from '../particle-soa-data';
 import { ParticleUpdateContext } from '../particle-update-context';
@@ -34,7 +34,11 @@ import { ParticleUpdateContext } from '../particle-update-context';
 const COLOR_OVERTIME_RAND_OFFSET = ModuleRandSeed.COLOR;
 
 @ccclass('cc.ColorOvertimeModule')
-export default class ColorOvertimeModule extends ParticleModule {
+export class ColorOvertimeModule extends ParticleModule {
+    public get name (): string {
+        return 'colorModule';
+    }
+
     /**
      * @zh 是否启用。
      */
@@ -58,7 +62,7 @@ export default class ColorOvertimeModule extends ParticleModule {
     @serializable
     private _enable = false;
 
-    public update (particles: ParticleSOAData, context: ParticleUpdateContext) {
+    public onUpdate (particles: ParticleSOAData, context: ParticleUpdateContext) {
         const count = particles.count;
         const tempColor = new Color();
         if (this.color.mode === GradientRange.Mode.Color) {

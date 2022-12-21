@@ -34,7 +34,11 @@ import { ParticleUpdateContext } from '../particle-update-context';
 const SIZE_OVERTIME_RAND_OFFSET = ModuleRandSeed.SIZE;
 
 @ccclass('cc.SizeOvertimeModule')
-export default class SizeOvertimeModule extends ParticleModule {
+export class SizeOvertimeModule extends ParticleModule {
+    public get name (): string {
+        return 'sizeModule';
+    }
+
     /**
      * @zh 是否启用。
      */

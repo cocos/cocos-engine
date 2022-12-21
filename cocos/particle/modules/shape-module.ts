@@ -31,6 +31,9 @@ import { ArcMode, EmitLocation, ShapeType } from '../enum';
 import { fixedAngleUnitVector2, particleEmitZAxis, randomPointBetweenCircleAtFixedAngle, randomPointBetweenSphere,
     randomPointInCube, randomSign, randomSortArray, randomUnitVector } from '../particle-general-function';
 import { ParticleSystem } from '../particle-system';
+import { ParticleModule } from '../particle';
+import { ParticleSOAData } from '../particle-soa-data';
+import { ParticleUpdateContext } from '../particle-update-context';
 
 const _intermediVec = new Vec3(0, 0, 0);
 const _intermediArr: number[] = [];
@@ -47,7 +50,11 @@ function getShapeTypeEnumName (enumValue: number): keyof typeof ShapeType {
 }
 
 @ccclass('cc.ShapeModule')
-export default class ShapeModule {
+export class ShapeModule extends ParticleModule {
+    public get name (): string {
+        return 'shapeModule';
+    }
+
     /**
      * @zh 粒子发射器位置。
      */
@@ -357,6 +364,10 @@ export default class ShapeModule {
         this.particleSystem = ps;
         this.constructMat();
         this.lastTime = this.particleSystem._time;
+    }
+
+    public update (particles: ParticleSOAData, particleUpdateContext: ParticleUpdateContext) {
+        throw new Error('Method not implemented.');
     }
 
     public emit (p) {

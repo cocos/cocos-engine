@@ -25,11 +25,10 @@
 
 import { ccclass, type, serializable, editable, formerlySerializedAs } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
-import { lerp } from '../../core/math';
-import { Enum } from '../../core/value-types';
-import { AnimationCurve, constructLegacyCurveAndConvert } from '../../core/geometry/curve';
-import { Texture2D, ImageAsset, RealCurve, CCClass } from '../../core';
-import { PixelFormat, Filter, WrapMode } from '../../core/assets/asset-enum';
+import { lerp } from '../core/math';
+import { Enum } from '../core/value-types';
+import { constructLegacyCurveAndConvert } from '../core/geometry/curve';
+import { RealCurve, CCClass } from '../core';
 
 const setClassAttr = CCClass.Attr.setClassAttr;
 
@@ -48,7 +47,7 @@ export const Mode = Enum({
 });
 // TODO: can not remove ccclass for now, we need ccclass specified deserialization to handle deserialization of RealCurve
 @ccclass('cc.CurveRange')
-export default class CurveRange  {
+export class CurveRange  {
     public static Mode = Mode;
 
     /**
@@ -70,45 +69,6 @@ export default class CurveRange  {
      * @zh 当mode为TwoCurves时，使用的曲线上限。
      */
     public splineMax = constructLegacyCurveAndConvert();
-
-    /**
-     * @zh 当mode为Curve时，使用的曲线。
-     * @deprecated Since V3.3. Use `spline` instead.
-     */
-    get curve () {
-        return this._curve ??= new AnimationCurve(this.spline);
-    }
-
-    set curve (value) {
-        this._curve = value;
-        this.spline = value._internalCurve;
-    }
-
-    /**
-     * @zh 当mode为TwoCurves时，使用的曲线下限。
-     * @deprecated Since V3.3. Use `splineMin` instead.
-     */
-    get curveMin () {
-        return this._curveMin ??= new AnimationCurve(this.splineMin);
-    }
-
-    set curveMin (value) {
-        this._curveMin = value;
-        this.splineMin = value._internalCurve;
-    }
-
-    /**
-     * @zh 当mode为TwoCurves时，使用的曲线上限。
-     * @deprecated Since V3.3. Use `splineMax` instead.
-     */
-    get curveMax () {
-        return this._curveMax ??= new AnimationCurve(this.splineMax);
-    }
-
-    set curveMax (value) {
-        this._curveMax = value;
-        this.splineMax = value._internalCurve;
-    }
 
     /**
      * @zh 当mode为Constant时，曲线的值。
@@ -169,10 +129,6 @@ export default class CurveRange  {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return SerializableTable[this.mode];
     }
-
-    private declare _curve: AnimationCurve | undefined;
-    private declare _curveMin: AnimationCurve | undefined;
-    private declare _curveMax: AnimationCurve | undefined;
 }
 
 CCClass.fastDefine('cc.CurveRange', CurveRange, {

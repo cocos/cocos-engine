@@ -29,6 +29,8 @@ import { Enum } from '../../core/value-types';
 import { Particle, ParticleModule, PARTICLE_MODULE_NAME } from '../particle';
 import CurveRange from './curve-range';
 import { ModuleRandSeed } from '../enum';
+import { ParticleSOAData } from '../particle-soa-data';
+import { ParticleUpdateContext } from '../particle-update-context';
 
 const TEXTURE_ANIMATION_RAND_OFFSET = ModuleRandSeed.TEXTURE;
 
@@ -65,15 +67,10 @@ const Animation = Enum({
 });
 
 @ccclass('cc.TextureAnimationModule')
-export default class TextureAnimationModule extends ParticleModule {
-    @serializable
-    private _enable = false;
-    @formerlySerializedAs('numTilesX')
-    private _numTilesX = 0;
-    @formerlySerializedAs('numTilesY')
-    private _numTilesY = 0;
-    @serializable
-    private _mode = Mode.Grid;
+export class TextureAnimationModule extends ParticleModule {
+    public get name (): string {
+        return 'textureModule';
+    }
 
     /**
      * @zh 是否启用。
@@ -166,9 +163,6 @@ export default class TextureAnimationModule extends ParticleModule {
     @tooltip('i18n:textureAnimationModule.cycleCount')
     public cycleCount = 0;
 
-    @serializable
-    private _flipU = 0;
-
     /**
      * @ignore
      */
@@ -180,9 +174,6 @@ export default class TextureAnimationModule extends ParticleModule {
         console.error('particle texture animation\'s flipU is not supported!');
     }
 
-    @serializable
-    private _flipV = 0;
-
     get flipV () {
         return this._flipV;
     }
@@ -190,9 +181,6 @@ export default class TextureAnimationModule extends ParticleModule {
     set flipV (val) {
         console.error('particle texture animation\'s flipV is not supported!');
     }
-
-    @serializable
-    private _uvChannelMask = -1;
 
     get uvChannelMask () {
         return this._uvChannelMask;
@@ -222,8 +210,27 @@ export default class TextureAnimationModule extends ParticleModule {
 
     public name = PARTICLE_MODULE_NAME.TEXTURE;
 
+    @serializable
+    private _flipU = 0;
+    @serializable
+    private _enable = false;
+    @formerlySerializedAs('numTilesX')
+    private _numTilesX = 0;
+    @formerlySerializedAs('numTilesY')
+    private _numTilesY = 0;
+    @serializable
+    private _mode = Mode.Grid;
+    @serializable
+    private _flipV = 0;
+    @serializable
+    private _uvChannelMask = -1;
+
     public init (p: Particle) {
         p.startRow = Math.floor(Math.random() * this.numTilesY);
+    }
+
+    public update (particles: ParticleSOAData, particleUpdateContext: ParticleUpdateContext) {
+        throw new Error('Method not implemented.');
     }
 
     public animate (p: Particle, dt: number) {

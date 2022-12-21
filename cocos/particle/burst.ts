@@ -25,7 +25,7 @@
 
 import { ccclass, type, serializable, editable, range } from 'cc.decorator';
 import { repeat } from '../core/math';
-import CurveRange from './animator/curve-range';
+import { CurveRange } from './curve-range';
 
 @ccclass('cc.Burst')
 export default class Burst {

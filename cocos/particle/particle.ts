@@ -102,43 +102,14 @@ export class Particle {
         this.localMat.identity();
     }
 }
-
-export const PARTICLE_MODULE_NAME = {
-    COLOR: 'colorModule',
-    FORCE: 'forceModule',
-    LIMIT: 'limitModule',
-    ROTATION: 'rotationModule',
-    SIZE: 'sizeModule',
-    VELOCITY: 'velocityModule',
-    TEXTURE: 'textureModule',
-    NOISE: 'noiseModule',
-};
-
-export const PARTICLE_MODULE_ORDER = [
-    'sizeModule',
-    'colorModule',
-    'forceModule',
-    'velocityModule',
-    'limitModule',
-    'rotationModule',
-    'textureModule',
-    'noiseModule',
-];
-
-export const PARTICLE_MODULE_PROPERTY = [
-    '_colorOverLifetimeModule',
-    '_shapeModule',
-    '_sizeOvertimeModule',
-    '_velocityOvertimeModule',
-    '_forceOvertimeModule',
-    '_limitVelocityOvertimeModule',
-    '_rotationOvertimeModule',
-    '_textureAnimationModule',
-    '_noiseModule',
-    '_trailModule',
-];
 export abstract class ParticleModule {
     public abstract get enable (): boolean;
     public abstract set enable (val: boolean);
-    public abstract update (particles: ParticleSOAData, particleUpdateContext: ParticleUpdateContext);
+    public abstract get name (): string;
+    public onLoad () {}
+    public onUpdate (particles: ParticleSOAData, particleUpdateContext: ParticleUpdateContext) {}
+    public onDestroy () {}
+    public onPlay () {}
+    public onStop () {}
+    public onPause () {}
 }

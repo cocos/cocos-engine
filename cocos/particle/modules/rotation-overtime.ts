@@ -26,14 +26,18 @@
 
 import { ccclass, tooltip, displayOrder, range, type, radian, serializable, visible } from 'cc.decorator';
 import { Mat4, pseudoRandom, Quat, Vec4, Vec3 } from '../../core/math';
-import { Particle, ParticleModule, PARTICLE_MODULE_NAME } from '../particle';
-import CurveRange from './curve-range';
+import { Particle, ParticleModule } from '../particle';
+import { CurveRange } from '../curve-range';
 import { ModuleRandSeed, RenderMode } from '../enum';
 
 const ROTATION_OVERTIME_RAND_OFFSET = ModuleRandSeed.ROTATION;
 
 @ccclass('cc.RotationOvertimeModule')
-export default class RotationOvertimeModule extends ParticleModule {
+export class RotationOvertimeModule extends ParticleModule {
+    public get name (): string {
+        return 'rotationModule';
+    }
+
     /**
      * @zh 是否启用。
      */

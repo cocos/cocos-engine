@@ -24,7 +24,7 @@
  */
 
 import { Director, director, game, js } from '../core';
-import { System } from '../core/components';
+import System from '../core/components/system';
 import { ParticleSystem } from './particle-system';
 import { ParticleSystemRenderer } from './particle-system-renderer';
 

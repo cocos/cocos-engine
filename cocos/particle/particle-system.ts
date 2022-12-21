@@ -26,34 +26,29 @@
 // eslint-disable-next-line max-len
 import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displayOrder, type, range, displayName, formerlySerializedAs, override, radian, serializable, visible, requireComponent } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
-import { Renderer } from '../core/components/renderer';
-import { ModelRenderer } from '../core/components/model-renderer';
-import { Material } from '../core/assets/material';
 import { Mat4, pseudoRandom, Quat, randomRangeInt, Vec2, Vec3 } from '../core/math';
 import { INT_MAX } from '../core/math/bits';
-import { scene } from '../core/renderer';
-import ColorOverLifetimeModule from './animator/color-overtime';
-import CurveRange, { Mode } from './animator/curve-range';
-import ForceOvertimeModule from './animator/force-overtime';
-import GradientRange from './animator/gradient-range';
-import LimitVelocityOvertimeModule from './animator/limit-velocity-overtime';
-import RotationOvertimeModule from './animator/rotation-overtime';
-import SizeOvertimeModule from './animator/size-overtime';
-import TextureAnimationModule from './animator/texture-animation';
-import VelocityOvertimeModule from './animator/velocity-overtime';
-import Burst from './burst';
-import ShapeModule from './animator/shape-module';
+import { ColorOvertimeModule } from './modules/color-overtime';
+import { InitializationModule } from './modules/initialization';
+import { CurveRange, Mode } from './curve-range';
+import { ForceOvertimeModule } from './modules/force-overtime';
+import { LimitVelocityOvertimeModule } from './modules/limit-velocity-overtime';
+import { RotationOvertimeModule } from './modules/rotation-overtime';
+import { SizeOvertimeModule } from './modules/size-overtime';
+import { TextureAnimationModule } from './modules/texture-animation';
+import { VelocityOvertimeModule } from './modules/velocity-overtime';
+import { EmissionModule } from './modules/emission';
+import { ShapeModule } from './modules/shape-module';
 import { CullingMode, Space } from './enum';
 import { particleEmitZAxis } from './particle-general-function';
 import { ParticleSystemRenderer } from './particle-system-renderer';
-import TrailModule from './animator/trail';
-import { PARTICLE_MODULE_PROPERTY } from './particle';
+import { TrailModule } from './modules/trail';
 import { legacyCC } from '../core/global-exports';
 import { TransformBit } from '../core/scene-graph/node-enum';
 import { AABB, intersect } from '../core/geometry';
 import { Camera } from '../core/renderer/scene';
 import { ParticleCuller } from './particle-culler';
-import { NoiseModule } from './animator/noise-module';
+import { NoiseModule } from './modules/noise';
 import { CCBoolean, CCFloat, Component } from '../core';
 import { INVALID_HANDLE, ParticleHandle, ParticleSOAData } from './particle-soa-data';
 
@@ -81,108 +76,11 @@ export class ParticleSystem extends Component {
         this._capacity = Math.floor(val > 0 ? val : 0);
     }
 
-    /**
-     * @zh 粒子初始颜色。
-     */
-    @type(GradientRange)
-    @serializable
-    @displayOrder(8)
-    @tooltip('i18n:particle_system.startColor')
-    public startColor = new GradientRange();
-
     @type(Space)
     @serializable
     @displayOrder(9)
     @tooltip('i18n:particle_system.scaleSpace')
     public scaleSpace = Space.LOCAL;
-
-    @serializable
-    @displayOrder(10)
-    @tooltip('i18n:particle_system.startSize3D')
-    public startSize3D = false;
-
-    /**
-     * @zh 粒子初始大小。
-     */
-    @formerlySerializedAs('startSize')
-    @range([0, 1])
-    @type(CurveRange)
-    @displayOrder(10)
-    @tooltip('i18n:particle_system.startSizeX')
-    public startSizeX = new CurveRange();
-
-    /**
-     * @zh 粒子初始大小。
-     */
-    @type(CurveRange)
-    @serializable
-    @range([0, 1])
-    @displayOrder(10)
-    @tooltip('i18n:particle_system.startSizeY')
-    @visible(function (this: ParticleSystem): boolean { return this.startSize3D; })
-    public startSizeY = new CurveRange();
-
-    /**
-     * @zh 粒子初始大小。
-     */
-    @type(CurveRange)
-    @serializable
-    @range([0, 1])
-    @displayOrder(10)
-    @tooltip('i18n:particle_system.startSizeZ')
-    @visible(function (this: ParticleSystem): boolean { return this.startSize3D; })
-    public startSizeZ = new CurveRange();
-
-    /**
-     * @zh 粒子初始速度。
-     */
-    @type(CurveRange)
-    @serializable
-    @range([-1, 1])
-    @displayOrder(11)
-    @tooltip('i18n:particle_system.startSpeed')
-    public startSpeed = new CurveRange();
-
-    @serializable
-    @displayOrder(12)
-    @tooltip('i18n:particle_system.startRotation3D')
-    public startRotation3D = false;
-
-    /**
-     * @zh 粒子初始旋转角度。
-     */
-    @type(CurveRange)
-    @serializable
-    @range([-1, 1])
-    @radian
-    @displayOrder(12)
-    @tooltip('i18n:particle_system.startRotationX')
-    @visible(function (this: ParticleSystem): boolean { return this.startRotation3D; })
-    public startRotationX = new CurveRange();
-
-    /**
-     * @zh 粒子初始旋转角度。
-     */
-    @type(CurveRange)
-    @serializable
-    @range([-1, 1])
-    @radian
-    @displayOrder(12)
-    @tooltip('i18n:particle_system.startRotationY')
-    @visible(function (this: ParticleSystem): boolean { return this.startRotation3D; })
-    public startRotationY = new CurveRange();
-
-    /**
-     * @zh 粒子初始旋转角度。
-     */
-    @type(CurveRange)
-    @formerlySerializedAs('startRotation')
-    @range([-1, 1])
-    @radian
-    @displayOrder(12)
-    @tooltip('i18n:particle_system.startRotationZ')
-    @visible(function (this: ParticleSystem): boolean { return this.startRotation3D; })
-    public startRotationZ = new CurveRange();
 
     /**
      * @zh 粒子系统开始运行后，延迟粒子发射的时间。
@@ -193,16 +91,6 @@ export class ParticleSystem extends Component {
     @displayOrder(6)
     @tooltip('i18n:particle_system.startDelay')
     public startDelay = new CurveRange();
-
-    /**
-     * @zh 粒子生命周期。
-     */
-    @type(CurveRange)
-    @serializable
-    @range([0, 1])
-    @displayOrder(7)
-    @tooltip('i18n:particle_system.startLifetime')
-    public startLifetime = new CurveRange();
 
     /**
      * @zh 粒子系统运行时间。
@@ -266,46 +154,6 @@ export class ParticleSystem extends Component {
     @displayOrder(2)
     @tooltip('i18n:particle_system.playOnAwake')
     public playOnAwake = true;
-
-    /**
-     * @zh 粒子受重力影响的重力系数。
-     */
-    @type(CurveRange)
-    @serializable
-    @range([-1, 1])
-    @displayOrder(13)
-    @tooltip('i18n:particle_system.gravityModifier')
-    public gravityModifier = new CurveRange();
-
-    // emission module
-    /**
-     * @zh 每秒发射的粒子数。
-     */
-    @type(CurveRange)
-    @serializable
-    @range([0, 1])
-    @displayOrder(14)
-    @tooltip('i18n:particle_system.rateOverTime')
-    public rateOverTime = new CurveRange();
-
-    /**
-     * @zh 每移动单位距离发射的粒子数。
-     */
-    @type(CurveRange)
-    @serializable
-    @range([0, 1])
-    @displayOrder(15)
-    @tooltip('i18n:particle_system.rateOverDistance')
-    public rateOverDistance = new CurveRange();
-
-    /**
-     * @zh 设定在指定时间发射指定数量的粒子的 burst 的数量。
-     */
-    @type([Burst])
-    @serializable
-    @displayOrder(16)
-    @tooltip('i18n:particle_system.bursts')
-    public bursts: Burst[] = [];
 
     /**
      * @en Enable particle culling switch. Open it to enable particle culling. If enabled will generate emitter bounding box and emitters outside the frustum will be culled.
@@ -418,10 +266,20 @@ export class ParticleSystem extends Component {
         this._dataCulling = value;
     }
 
+    @type(InitializationModule)
+    public get initializationModule () {
+        return this._initializationModule;
+    }
+
+    @type(EmissionModule)
+    public get emissionModule () {
+        return this._emissionModule;
+    }
+
     /**
      * @zh 颜色控制模块。
      */
-    @type(ColorOverLifetimeModule)
+    @type(ColorOvertimeModule)
     @displayOrder(23)
     @tooltip('i18n:particle_system.colorOverLifetimeModule')
     public get colorOverLifetimeModule () {
@@ -514,16 +372,20 @@ export class ParticleSystem extends Component {
         return this._trailModule;
     }
 
-    // particle system renderer
     @type(ParticleSystemRenderer)
-    @serializable
     @displayOrder(26)
     @tooltip('i18n:particle_system.renderer')
-    public renderer: ParticleSystemRenderer = new ParticleSystemRenderer();
+    public get renderer () {
+        return this.getComponent(ParticleSystemRenderer) as ParticleSystemRenderer;
+    }
 
+    @serializable
+    private _emissionModule = new EmissionModule();
+    @serializable
+    private _initializationModule = new InitializationModule();
     // color over lifetime module
     @serializable
-    private _colorOverLifetimeModule = new ColorOverLifetimeModule();
+    private _colorOverLifetimeModule = new ColorOvertimeModule();
     // shape module
     @serializable
     private _shapeModule = new ShapeModule();
@@ -574,8 +436,6 @@ export class ParticleSystem extends Component {
     private _needRefresh: boolean;
 
     private _time: number;  // playback position in seconds.
-    private _emitRateTimeCounter: number;
-    private _emitRateDistanceCounter: number;
     private _oldWPos: Vec3;
     private _curWPos: Vec3;
 
@@ -598,12 +458,6 @@ export class ParticleSystem extends Component {
 
     constructor () {
         super();
-
-        this.rateOverTime.constant = 10;
-        this.startLifetime.constant = 5;
-        this.startSizeX.constant = 1;
-        this.startSpeed.constant = 5;
-
         // internal status
         this._isPlaying = false;
         this._isPaused = false;
@@ -612,8 +466,6 @@ export class ParticleSystem extends Component {
         this._needRefresh = true;
 
         this._time = 0.0;  // playback position in seconds.
-        this._emitRateTimeCounter = 0.0;
-        this._emitRateDistanceCounter = 0.0;
         this._oldWPos = new Vec3();
         this._curWPos = new Vec3();
 
@@ -624,21 +476,6 @@ export class ParticleSystem extends Component {
         this._isCulled = false;
         this._isSimulating = true;
     }
-
-    public onLoad () {
-        if (this._shapeModule) this._shapeModule.onInit(this);
-        if (this._trailModule && !this.renderer.useGPU) {
-            this._trailModule.onInit(this);
-        }
-        this._resetPosition();
-
-        // this._system.add(this);
-    }
-
-    // TODO: Fast forward current particle system by simulating particles over given period of time, then pause it.
-    // simulate(time, withChildren, restart, fixedTimeStep) {
-
-    // }
 
     /**
      * @en play particle system
@@ -654,8 +491,6 @@ export class ParticleSystem extends Component {
 
         this._isPlaying = true;
         this._isEmitting = true;
-
-        this._resetPosition();
 
         // prewarm
         if (this._prewarm) {
@@ -706,17 +541,11 @@ export class ParticleSystem extends Component {
         }
 
         this._time = 0.0;
-        this._emitRateTimeCounter = 0.0;
-        this._emitRateDistanceCounter = 0.0;
 
         this._isStopped = true;
 
         // if stop emit modify the refresh flag to true
         this._needRefresh = true;
-
-        for (const burst of this.bursts) {
-            burst.reset();
-        }
     }
 
     /**
@@ -878,9 +707,6 @@ export class ParticleSystem extends Component {
         if (this._isPlaying) {
             this._time += scaledDeltaTime;
 
-            // Execute emission
-            this._emit(scaledDeltaTime);
-
             // simulation, update particles.
             if (this.updateParticles(scaledDeltaTime) === 0 && !this._isEmitting) {
                 this.stop();
@@ -903,69 +729,6 @@ export class ParticleSystem extends Component {
             this.node.getWorldMatrix(_world_mat);
             this.node.getWorldRotation(_world_rol);
         }
-
-        for (let i = 0; i < count; ++i) {
-            const particle = this.getFreeParticle();
-            if (particle === INVALID_HANDLE) {
-                return;
-            }
-            particle.reset();
-
-            const rand = pseudoRandom(randomRangeInt(0, INT_MAX));
-
-            if (this._shapeModule && this._shapeModule.enable) {
-                this._shapeModule.emit(particle);
-            } else {
-                Vec3.set(particle.position, 0, 0, 0);
-                Vec3.copy(particle.velocity, particleEmitZAxis);
-            }
-
-            if (this._textureAnimationModule && this._textureAnimationModule.enable) {
-                this._textureAnimationModule.init(particle);
-            }
-
-            const curveStartSpeed = this.startSpeed.evaluate(loopDelta, rand)!;
-            Vec3.multiplyScalar(particle.velocity, particle.velocity, curveStartSpeed);
-
-            if (this._simulationSpace === Space.World) {
-                Vec3.transformMat4(particle.position, particle.position, _world_mat);
-                Vec3.transformQuat(particle.velocity, particle.velocity, _world_rol);
-            }
-
-            Vec3.copy(particle.ultimateVelocity, particle.velocity);
-            // apply startRotation.
-            if (this.startRotation3D) {
-                // eslint-disable-next-line max-len
-                particle.startEuler.set(this.startRotationX.evaluate(loopDelta, rand), this.startRotationY.evaluate(loopDelta, rand), this.startRotationZ.evaluate(loopDelta, rand));
-            } else {
-                particle.startEuler.set(0, 0, this.startRotationZ.evaluate(loopDelta, rand));
-            }
-            particle.rotation.set(particle.startEuler);
-
-            // apply startSize.
-            if (this.startSize3D) {
-                Vec3.set(particle.startSize, this.startSizeX.evaluate(loopDelta, rand)!,
-                    this.startSizeY.evaluate(loopDelta, rand)!,
-                    this.startSizeZ.evaluate(loopDelta, rand)!);
-            } else {
-                Vec3.set(particle.startSize, this.startSizeX.evaluate(loopDelta, rand)!, 1, 1);
-                particle.startSize.y = particle.startSize.x;
-            }
-            Vec3.copy(particle.size, particle.startSize);
-
-            // apply startColor.
-            particle.startColor.set(this.startColor.evaluate(loopDelta, rand));
-            particle.color.set(particle.startColor);
-
-            // apply startLifetime.
-            particle.startLifetime = this.startLifetime.evaluate(loopDelta, rand)! + dt;
-            particle.remainingLifetime = particle.startLifetime;
-
-            particle.randomSeed = randomRangeInt(0, 233280);
-            particle.loopCount++;
-
-            this._processor.setNewParticle(particle);
-        } // end of particles forLoop.
     }
 
     // initialize particle system as though it had already completed a full cycle.
@@ -977,123 +740,33 @@ export class ParticleSystem extends Component {
 
         for (let i = 0; i < cnt; ++i) {
             this._time += dt;
-            this._emit(dt);
             this.updateParticles(dt);
         }
     }
 
     // internal function
-    private _emit (dt) {
-        // emit particles.
-        const startDelay = this.startDelay.evaluate(0, 1)!;
-        if (this._time > startDelay) {
-            if (this._time > (this.duration + startDelay)) {
-                // this._time = startDelay; // delay will not be applied from the second loop.(Unity)
-                // this._emitRateTimeCounter = 0.0;
-                // this._emitRateDistanceCounter = 0.0;
-                if (!this.loop) {
-                    this._isEmitting = false;
-                }
-            }
-
-            if (!this._isEmitting) return;
-
-            // emit by rateOverTime
-            this._emitRateTimeCounter += this.rateOverTime.evaluate(this._time / this.duration, 1)! * dt;
-            if (this._emitRateTimeCounter > 1) {
-                const emitNum = Math.floor(this._emitRateTimeCounter);
-                this._emitRateTimeCounter -= emitNum;
-                this.emit(emitNum, dt);
-            }
-
-            // emit by rateOverDistance
-            this.node.getWorldPosition(this._curWPos);
-            const distance = Vec3.distance(this._curWPos, this._oldWPos);
-            Vec3.copy(this._oldWPos, this._curWPos);
-            this._emitRateDistanceCounter += distance * this.rateOverDistance.evaluate(this._time / this.duration, 1)!;
-
-            if (this._emitRateDistanceCounter > 1) {
-                const emitNum = Math.floor(this._emitRateDistanceCounter);
-                this._emitRateDistanceCounter -= emitNum;
-                this.emit(emitNum, dt);
-            }
-
-            // bursts
-            for (const burst of this.bursts) {
-                burst.update(this, dt);
-            }
-        }
-    }
 
     private updateParticles (deltaTime: number) {
-        this.node.getWorldMatrix(_tempWorldTrans);
-
-        const trailModule = this._trailModule;
-        const trailEnable = trailModule && trailModule.enable;
-        if (trailEnable) {
-            trailModule.update();
-        }
-
-        if (this.simulationSpace === Space.LOCAL) {
-            const r:Quat = this.node.getRotation();
-            Mat4.fromQuat(this._localMat, r);
-            this._localMat.transpose(); // just consider rotation, use transpose as invert
-        }
-
-        if (this.node.parent) {
-            this.node.parent.getWorldMatrix(_tempParentInverse);
-            _tempParentInverse.invert();
-        }
-        const { normalizedAliveTime } = this._particles;
+        const { normalizedAliveTime, invStartLifeTime, animatedVelocityX, animatedVelocityY, animatedVelocityZ } = this._particles;
         for (let i = 0, length = this._particles.count; i < length; ++i) {
-            normalizedAliveTime[i] -= deltaTime;
-            Vec3.set(p.animatedVelocity, 0, 0, 0);
+            normalizedAliveTime[i] += deltaTime * invStartLifeTime[i];
 
-            if (p.remainingLifetime < 0.0) {
+            animatedVelocityX[i] = 0;
+            animatedVelocityY[i] = 0;
+            animatedVelocityZ[i] = 0;
+
+            if (normalizedAliveTime[i] > 1) {
                 this._particles.removeParticle(i);
                 --i;
                 continue;
             }
         }
 
-        if (ps.simulationSpace === Space.LOCAL) {
-            const gravityFactor = -this.gravityModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, pseudoRandom(p.randomSeed))! * 9.8 * dt;
-            this._gravity.x = 0.0;
-            this._gravity.y = gravityFactor;
-            this._gravity.z = 0.0;
-            this._gravity.w = 1.0;
-            if (!approx(gravityFactor, 0.0, EPSILON)) {
-                if (this.node.parent) {
-                    this._gravity = this._gravity.transformMat4(_tempParentInverse);
-                }
-                this._gravity = this._gravity.transformMat4(this._localMat);
-
-                p.velocity.x += this._gravity.x;
-                p.velocity.y += this._gravity.y;
-                p.velocity.z += this._gravity.z;
-            }
-        } else {
-            // apply gravity.
-            p.velocity.y -= ps.gravityModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, pseudoRandom(p.randomSeed))! * 9.8 * dt;
-        }
-
         Vec3.copy(p.ultimateVelocity, p.velocity);
 
-        this._runAnimateList.forEach((value) => {
-            value.animate(p, dt);
-        });
-
         Vec3.scaleAndAdd(p.position, p.position, p.ultimateVelocity, dt); // apply velocity.
-        if (trailEnable) {
-            trailModule.animate(p, dt);
-        }
 
         return this._particles.count;
-    }
-
-    private _resetPosition () {
-        this.node.getWorldPosition(this._oldWPos);
-        Vec3.copy(this._curWPos, this._oldWPos);
     }
 
     private getBoundingX () {
@@ -1160,14 +833,6 @@ export class ParticleSystem extends Component {
             return INVALID_HANDLE;
         }
         return this._particles.addParticle();
-    }
-
-    /**
-     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
-     */
-    public _onBeforeSerialize (props) {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-        return this.dataCulling ? props.filter((p) => !PARTICLE_MODULE_PROPERTY.includes(p) || (this[p] && this[p].enable)) : props;
     }
 
     public getNoisePreview (width: number, height: number): number[] {

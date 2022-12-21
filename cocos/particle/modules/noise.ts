@@ -28,12 +28,16 @@ import { CCFloat, CCInteger } from '../../core';
 import { range, rangeStep, slide, visible } from '../../core/data/decorators/editable';
 import { Vec3 } from '../../core/math';
 import { ParticleNoise } from '../noise';
-import { Particle, PARTICLE_MODULE_NAME, ParticleModule } from '../particle';
+import { Particle, ParticleModule } from '../particle';
+import { ParticleSOAData } from '../particle-soa-data';
+import { ParticleUpdateContext } from '../particle-update-context';
 
 @ccclass('cc.NoiseModule')
 export class NoiseModule extends ParticleModule {
-    @serializable
-    _enable = false;
+    public get name (): string {
+        return 'noiseModule';
+    }
+
     /**
      * @zh 是否启用。
      */
@@ -56,8 +60,6 @@ export class NoiseModule extends ParticleModule {
     set strengthX (value: number) {
         this._strengthX = value;
     }
-    @serializable
-    private _strengthX = 10;
 
     @type(CCFloat)
     @range([0, 100])
@@ -69,8 +71,6 @@ export class NoiseModule extends ParticleModule {
     set strengthY (value: number) {
         this._strengthY = value;
     }
-    @serializable
-    private _strengthY = 10;
 
     @type(CCFloat)
     @range([0, 100])
@@ -82,8 +82,6 @@ export class NoiseModule extends ParticleModule {
     set strengthZ (value: number) {
         this._strengthZ = value;
     }
-    @serializable
-    private _strengthZ = 10;
 
     @type(CCFloat)
     @range([0, 100])
@@ -95,8 +93,6 @@ export class NoiseModule extends ParticleModule {
     set noiseSpeedX (value: number) {
         this._noiseSpeedX = value;
     }
-    @serializable
-    private _noiseSpeedX = 0;
 
     @type(CCFloat)
     @range([0, 100])
@@ -108,8 +104,6 @@ export class NoiseModule extends ParticleModule {
     set noiseSpeedY (value: number) {
         this._noiseSpeedY = value;
     }
-    @serializable
-    private _noiseSpeedY = 0;
 
     @type(CCFloat)
     @range([0, 100])
@@ -121,8 +115,6 @@ export class NoiseModule extends ParticleModule {
     set noiseSpeedZ (value: number) {
         this._noiseSpeedZ = value;
     }
-    @serializable
-    private _noiseSpeedZ = 0;
 
     @type(CCFloat)
     @range([0, 100])
@@ -135,8 +127,6 @@ export class NoiseModule extends ParticleModule {
     set noiseFrequency (value: number) {
         this._noiseFrequency = value;
     }
-    @serializable
-    private _noiseFrequency = 1;
 
     @visible(false)
     @type(CCFloat)
@@ -150,8 +140,6 @@ export class NoiseModule extends ParticleModule {
     set remapX (value: number) {
         this._remapX = value;
     }
-    @serializable
-    private _remapX = 0;
 
     @visible(false)
     @type(CCFloat)
@@ -165,8 +153,6 @@ export class NoiseModule extends ParticleModule {
     set remapY (value: number) {
         this._remapY = value;
     }
-    @serializable
-    private _remapY = 0;
 
     @visible(false)
     @type(CCFloat)
@@ -180,8 +166,6 @@ export class NoiseModule extends ParticleModule {
     set remapZ (value: number) {
         this._remapZ = value;
     }
-    @serializable
-    private _remapZ = 0;
 
     @type(CCInteger)
     @range([1, 4])
@@ -194,8 +178,6 @@ export class NoiseModule extends ParticleModule {
     set octaves (value: number) {
         this._octaves = value;
     }
-    @serializable
-    private _octaves = 1;
 
     // eslint-disable-next-line func-names
     @visible(function (this: NoiseModule) { return this._octaves > 1; })
@@ -209,8 +191,6 @@ export class NoiseModule extends ParticleModule {
     set octaveMultiplier (value: number) {
         this._octaveMultiplier = value;
     }
-    @serializable
-    private _octaveMultiplier = 0.5;
 
     // eslint-disable-next-line func-names
     @visible(function (this: NoiseModule) { return this._octaves > 1; })
@@ -224,14 +204,38 @@ export class NoiseModule extends ParticleModule {
     set octaveScale (value: number) {
         this._octaveScale = value;
     }
+
+    public readonly name = 'noise';
+    @serializable
+    private _strengthX = 10;
+    @serializable
+    private _strengthY = 10;
+    @serializable
+    private _strengthZ = 10;
+    @serializable
+    private _noiseSpeedX = 0;
+    @serializable
+    private _noiseSpeedY = 0;
+    @serializable
+    private _noiseSpeedZ = 0;
+    @serializable
+    private _noiseFrequency = 1;
+    @serializable
+    private _remapX = 0;
+    @serializable
+    private _remapY = 0;
+    @serializable
+    private _octaves = 1;
     @serializable
     private _octaveScale = 2;
-
-    public name = PARTICLE_MODULE_NAME.NOISE;
-
+    @serializable
+    private _octaveMultiplier = 0.5;
+    @serializable
+    private _remapZ = 0;
     private noise: ParticleNoise = new ParticleNoise();
-
     private samplePosition: Vec3 = new Vec3();
+    @serializable
+    private _enable = false;
 
     public animate (particle: Particle, dt: number) {
         this.noise.setTime(particle.particleSystem.time);
@@ -249,6 +253,10 @@ export class NoiseModule extends ParticleModule {
         const noisePosition: Vec3 = this.noise.getResult();
         noisePosition.multiply3f(Math.random(), Math.random(), Math.random());
         Vec3.add(particle.position, particle.position, noisePosition.multiplyScalar(dt));
+    }
+
+    public update (particles: ParticleSOAData, particleUpdateContext: ParticleUpdateContext) {
+        throw new Error('Method not implemented.');
     }
 
     public getNoisePreview (out: number[], time, width: number, height: number) {
