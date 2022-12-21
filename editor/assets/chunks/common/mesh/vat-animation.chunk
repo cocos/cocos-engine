@@ -5,7 +5,7 @@
 
 // Houdini VAT Plugin Version:
     // 1. Soft-body and fluids use 3.0, Select Unity mode, otherwise animation will become crack
-    // 2. Rigid-body and fluids use 2.0, Select UE mode with initialize settings, needs export json for numOfFrames(frameCount) and max/min values
+    // 2. Rigid-body use 2.0, Select UE mode with initialize settings, needs export json for numOfFrames(frameCount) and max/min values
 
 // Houdini misc export settings:
     // 1. Select LDR
