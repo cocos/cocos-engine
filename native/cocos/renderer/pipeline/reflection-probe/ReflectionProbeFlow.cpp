@@ -79,7 +79,7 @@ void ReflectionProbeFlow::renderStage(scene::Camera *camera, scene::ReflectionPr
             reflectionProbeStage->render(camera);
             probe->updatePlanarTexture(camera->getScene());
         } else {
-            for (size_t faceIdx = 0; faceIdx < 6; faceIdx++) {
+            for (uint32_t faceIdx = 0; faceIdx < 6; faceIdx++) {
                 //update camera dirction
                 probe->updateCameraDir(faceIdx);
                 RenderTexture* rt = probe->getBakedCubeTextures()[faceIdx];
