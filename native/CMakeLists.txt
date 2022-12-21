@@ -1251,8 +1251,6 @@ cocos_source_files(
                  cocos/renderer/pipeline/Define.cpp
                  cocos/renderer/pipeline/GlobalDescriptorSetManager.h
                  cocos/renderer/pipeline/GlobalDescriptorSetManager.cpp
-                 cocos/renderer/pipeline/LODModelsUtil.cpp
-                 cocos/renderer/pipeline/LODModelsUtil.h
                  cocos/renderer/pipeline/InstancedBuffer.cpp
                  cocos/renderer/pipeline/InstancedBuffer.h
                  cocos/renderer/pipeline/PipelineStateManager.cpp

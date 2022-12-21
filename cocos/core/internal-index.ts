@@ -32,7 +32,7 @@ export { override } from './data/decorators/override';
 export { formerlySerializedAs, serializable } from './data/decorators/serializable';
 
 export * from './algorithm/binary-search';
-export { move } from './algorithm/move';
+export { shift } from './algorithm/move';
 
 export { garbageCollectionManager } from './data/garbage-collection';
 export { GCObject } from './data/gc-object';
