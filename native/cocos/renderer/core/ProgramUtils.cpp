@@ -130,6 +130,40 @@ ccstd::unordered_map<ccstd::string, uint32_t> genHandles(const gfx::ShaderInfo &
     return genHandlesImpl(tmpl);
 }
 
+ccstd::string getVariantKey(const IProgramInfo &tmpl, const MacroRecord &defines) {
+    const auto &tmplDefs = tmpl.defines;
+    if (tmpl.uber) {
+        std::stringstream key;
+        for (const auto &tmplDef : tmplDefs) {
+            auto itDef = defines.find(tmplDef.name);
+            if (itDef == defines.end() || !tmplDef.map) {
+                continue;
+            }
+            const auto &value = itDef->second;
+            auto mapped = tmplDef.map(value);
+            auto offset = tmplDef.offset;
+            key << offset << mapped << "|";
+        }
+        ccstd::string ret{key.str() + std::to_string(tmpl.hash)};
+        return ret;
+    }
+    uint32_t key = 0;
+    std::stringstream ss;
+    for (const auto &tmplDef : tmplDefs) {
+        auto itDef = defines.find(tmplDef.name);
+        if (itDef == defines.end() || !tmplDef.map) {
+            continue;
+        }
+        const auto &value = itDef->second;
+        auto mapped = tmplDef.map(value);
+        auto offset = tmplDef.offset;
+        key |= (mapped << offset);
+    }
+    ss << std::hex << key << "|" << std::to_string(tmpl.hash);
+    ccstd::string ret{ss.str()};
+    return ret;
+}
+
 } // namespace render
 
 } // namespace cc

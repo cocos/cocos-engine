@@ -33,10 +33,13 @@
 #include "ProgramUtils.h"
 #include "cocos/base/Log.h"
 #include "cocos/core/assets/EffectAsset.h"
+#include "cocos/renderer/core/ProgramUtils.h"
 #include "cocos/renderer/gfx-base/GFXDef-common.h"
 #include "cocos/renderer/pipeline/Define.h"
 #include "cocos/renderer/pipeline/custom/LayoutGraphGraphs.h"
 #include "cocos/renderer/pipeline/custom/LayoutGraphTypes.h"
+#include "gfx-base/GFXDescriptorSetLayout.h"
+#include "pipeline/custom/details/GslUtils.h"
 
 namespace cc {
 
@@ -643,7 +646,136 @@ void overwriteProgramBlockInfo(const gfx::ShaderInfo &shaderInfo, IProgramInfo &
     }
 }
 
+gfx::DescriptorSetLayout *getDescriptorSetLayout(
+    const LayoutGraphData &lg,
+    uint32_t passID, uint32_t phaseID, UpdateFrequency rate) { // NOLINT(bugprone-easily-swappable-parameters)
+    if (rate < UpdateFrequency::PER_PASS) {
+        const auto &phaseData = get(LayoutGraphData::Layout, lg, phaseID);
+        auto iter = phaseData.descriptorSets.find(rate);
+        if (iter != phaseData.descriptorSets.end()) {
+            const auto &data = iter->second;
+            if (!data.descriptorSetLayout) {
+                CC_LOG_ERROR("descriptor set layout not initialized");
+                return nullptr;
+            }
+            return data.descriptorSetLayout;
+        }
+        return nullptr;
+    }
+
+    CC_EXPECTS(rate == UpdateFrequency::PER_PASS);
+    CC_EXPECTS(passID == parent(phaseID, lg));
+
+    const auto &passData = get(LayoutGraphData::Layout, lg, passID);
+    auto iter = passData.descriptorSets.find(rate);
+    if (iter != passData.descriptorSets.end()) {
+        const auto &data = iter->second;
+        if (!data.descriptorSetLayout) {
+            CC_LOG_ERROR("descriptor set layout not initialized");
+            return nullptr;
+        }
+        return data.descriptorSetLayout;
+    }
+    return nullptr;
+}
+
+gfx::DescriptorSetLayout *getProgramDescriptorSetLayout(
+    gfx::Device *device,
+    LayoutGraphData &lg, uint32_t phaseID,
+    const ccstd::pmr::string &programName, UpdateFrequency rate) {
+    CC_EXPECTS(rate < UpdateFrequency::PER_PHASE);
+    auto &phase = get(RenderPhaseTag{}, phaseID, lg);
+    const auto iter = phase.shaderIndex.find(programName);
+    if (iter == phase.shaderIndex.end()) {
+        return nullptr;
+    }
+    const auto programID = iter->second;
+    auto &programData = phase.shaderPrograms.at(programID);
+
+    auto iter2 = programData.layout.descriptorSets.find(rate);
+    if (iter2 == programData.layout.descriptorSets.end()) {
+        return nullptr;
+    }
+    auto &layout = iter2->second;
+    if (layout.descriptorSetLayout) {
+        return layout.descriptorSetLayout;
+    }
+    layout.descriptorSetLayout = device->createDescriptorSetLayout(layout.descriptorSetLayoutInfo);
+    return layout.descriptorSetLayout;
+}
+
+// get descriptor set from LayoutGraphData (not from ProgramData)
+const gfx::DescriptorSetLayout &getOrCreateDescriptorSetLayout(
+    const NativeProgramLibrary &lib,
+    const LayoutGraphData &lg,
+    uint32_t passID, uint32_t phaseID, UpdateFrequency rate) { // NOLINT(bugprone-easily-swappable-parameters)
+    if (rate < UpdateFrequency::PER_PASS) {
+        const auto &phaseData = get(LayoutGraphData::Layout, lg, phaseID);
+        auto iter = phaseData.descriptorSets.find(rate);
+        if (iter != phaseData.descriptorSets.end()) {
+            const auto &data = iter->second;
+            if (!data.descriptorSetLayout) {
+                CC_LOG_ERROR("descriptor set layout not initialized");
+                return *lib.emptyDescriptorSetLayout;
+            }
+            return *data.descriptorSetLayout;
+        }
+        return *lib.emptyDescriptorSetLayout;
+    }
+
+    CC_EXPECTS(rate == UpdateFrequency::PER_PASS);
+    CC_EXPECTS(passID == parent(phaseID, lg));
+
+    const auto &passData = get(LayoutGraphData::Layout, lg, passID);
+    const auto iter = passData.descriptorSets.find(rate);
+    if (iter != passData.descriptorSets.end()) {
+        const auto &data = iter->second;
+        if (!data.descriptorSetLayout) {
+            CC_LOG_ERROR("descriptor set layout not initialized");
+            return *lib.emptyDescriptorSetLayout;
+        }
+        return *data.descriptorSetLayout;
+    }
+    return *lib.emptyDescriptorSetLayout;
+}
+
+// get or create PerProgram gfx.DescriptorSetLayout
+const gfx::DescriptorSetLayout &getOrCreateProgramDescriptorSetLayout(
+    const NativeProgramLibrary &lib,
+    gfx::Device *device,
+    LayoutGraphData &lg, uint32_t phaseID,
+    const ccstd::pmr::string &programName, UpdateFrequency rate) {
+    CC_EXPECTS(rate < UpdateFrequency::PER_PHASE);
+    auto &phase = get(RenderPhaseTag{}, phaseID, lg);
+    const auto iter = phase.shaderIndex.find(programName);
+    if (iter == phase.shaderIndex.end()) {
+        return *lib.emptyDescriptorSetLayout;
+    }
+    const auto programID = iter->second;
+    auto &programData = phase.shaderPrograms.at(programID);
+    const auto iter2 = programData.layout.descriptorSets.find(rate);
+    if (iter2 == programData.layout.descriptorSets.end()) {
+        return *lib.emptyDescriptorSetLayout;
+    }
+    auto &layout = iter2->second;
+    if (layout.descriptorSetLayout) {
+        return *layout.descriptorSetLayout;
+    }
+    layout.descriptorSetLayout = device->createDescriptorSetLayout(layout.descriptorSetLayoutInfo);
+    return *layout.descriptorSetLayout;
+}
+
 } // namespace
+
+void NativeProgramLibrary::init(gfx::Device *device) {
+    emptyDescriptorSetLayout = device->createDescriptorSetLayout({});
+    emptyPipelineLayout = device->createPipelineLayout({});
+}
+
+void NativeProgramLibrary::destroy() {
+    emptyDescriptorSetLayout.reset();
+    emptyPipelineLayout.reset();
+}
 
 void NativeProgramLibrary::addEffect(EffectAsset *effectAssetIn) {
     auto &lg = layoutGraph;
@@ -725,39 +857,97 @@ void NativeProgramLibrary::addEffect(EffectAsset *effectAssetIn) {
 }
 
 void NativeProgramLibrary::precompileEffect(gfx::Device *device, EffectAsset *effectAsset) {
+    // noop
 }
 
-ccstd::pmr::string NativeProgramLibrary::getKey(
+ccstd::string NativeProgramLibrary::getKey(
     uint32_t phaseID, const ccstd::pmr::string &programName,
     const MacroRecord &defines) const {
-    std::ignore = phaseID;
-    std::ignore = programName;
-    std::ignore = defines;
-    return {};
+    auto iter = phases.find(phaseID);
+    if (iter == phases.end()) {
+        CC_LOG_ERROR("phase not found");
+        return "";
+    }
+    const auto &phase = iter->second;
+    auto iter2 = phase.programInfos.find(programName);
+    if (iter2 == phase.programInfos.end()) {
+        CC_LOG_ERROR("program not found");
+        return "";
+    }
+    const auto &info = iter2->second;
+    return getVariantKey(info.programInfo, defines);
 }
 
 const gfx::PipelineLayout &NativeProgramLibrary::getPipelineLayout(
-    gfx::Device *device, uint32_t phaseID, const ccstd::pmr::string &programName) const {
-    std::ignore = device;
-    std::ignore = phaseID;
-    std::ignore = programName;
-    throw std::runtime_error("not implemented");
+    gfx::Device *device, uint32_t phaseID, const ccstd::pmr::string &programName) {
+    if (mergeHighFrequency) {
+        CC_EXPECTS(phaseID != LayoutGraphData::null_vertex());
+        const auto &layout = get(RenderPhaseTag{}, phaseID, layoutGraph);
+        return *layout.pipelineLayout;
+    }
+    auto &lg = layoutGraph;
+    auto &phase = get(RenderPhaseTag{}, phaseID, lg);
+    const auto iter = phase.shaderIndex.find(programName);
+    if (iter == phase.shaderIndex.end()) {
+        return *emptyPipelineLayout;
+    }
+    const auto programID = iter->second;
+    auto &programData = phase.shaderPrograms.at(programID);
+    if (programData.pipelineLayout) {
+        return *programData.pipelineLayout;
+    }
+
+    // get pass
+    const auto passID = parent(phaseID, lg);
+    if (passID == LayoutGraphData::null_vertex()) {
+        return *emptyPipelineLayout;
+    }
+    // create pipeline layout
+    gfx::PipelineLayoutInfo info{};
+    auto *passSet = getDescriptorSetLayout(lg, passID, phaseID, UpdateFrequency::PER_PASS);
+    if (passSet) {
+        info.setLayouts.emplace_back(passSet);
+    }
+    auto *phaseSet = getDescriptorSetLayout(lg, passID, phaseID, UpdateFrequency::PER_PHASE);
+    if (phaseSet) {
+        info.setLayouts.emplace_back(phaseSet);
+    }
+    auto *batchSet = getProgramDescriptorSetLayout(
+        device, lg, phaseID, programName, UpdateFrequency::PER_BATCH);
+    if (batchSet) {
+        info.setLayouts.emplace_back(batchSet);
+    }
+    auto *instanceSet = getProgramDescriptorSetLayout(
+        device, lg, phaseID, programName, UpdateFrequency::PER_INSTANCE);
+    if (instanceSet) {
+        info.setLayouts.emplace_back(instanceSet);
+    }
+    programData.pipelineLayout = device->createPipelineLayout(info);
+    return *programData.pipelineLayout;
 }
 
 const gfx::DescriptorSetLayout &NativeProgramLibrary::getMaterialDescriptorSetLayout(
-    gfx::Device *device, uint32_t phaseID, const ccstd::pmr::string &programName) const {
-    std::ignore = device;
-    std::ignore = phaseID;
-    std::ignore = programName;
-    throw std::runtime_error("not implemented");
+    gfx::Device *device, uint32_t phaseID, const ccstd::pmr::string &programName) {
+    if (mergeHighFrequency) {
+        CC_EXPECTS(phaseID != LayoutGraphData::null_vertex());
+        const auto passID = parent(phaseID, layoutGraph);
+        return getOrCreateDescriptorSetLayout(
+            *this, layoutGraph, passID, phaseID, UpdateFrequency::PER_BATCH);
+    }
+    return getOrCreateProgramDescriptorSetLayout(
+        *this, device, layoutGraph, phaseID, programName, UpdateFrequency::PER_BATCH);
 }
 
 const gfx::DescriptorSetLayout &NativeProgramLibrary::getLocalDescriptorSetLayout(
-    gfx::Device *device, uint32_t phaseID, const ccstd::pmr::string &programName) const {
-    std::ignore = device;
-    std::ignore = phaseID;
-    std::ignore = programName;
-    throw std::runtime_error("not implemented");
+    gfx::Device *device, uint32_t phaseID, const ccstd::pmr::string &programName) {
+    if (mergeHighFrequency) {
+        CC_EXPECTS(phaseID != LayoutGraphData::null_vertex());
+        const auto passID = parent(phaseID, layoutGraph);
+        return getOrCreateDescriptorSetLayout(
+            *this, layoutGraph, passID, phaseID, UpdateFrequency::PER_INSTANCE);
+    }
+    return getOrCreateProgramDescriptorSetLayout(
+        *this, device, layoutGraph, phaseID, programName, UpdateFrequency::PER_INSTANCE);
 }
 
 const IProgramInfo &NativeProgramLibrary::getProgramInfo(

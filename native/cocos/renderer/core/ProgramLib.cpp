@@ -479,37 +479,7 @@ ccstd::string ProgramLib::getKey(const ccstd::string &name, const MacroRecord &d
     auto itTpl = _templates.find(name);
     CC_ASSERT(itTpl != _templates.end());
     auto &tmpl = itTpl->second;
-    auto &tmplDefs = tmpl.defines;
-    if (tmpl.uber) {
-        std::stringstream key;
-        for (auto &tmplDef : tmplDefs) {
-            auto itDef = defines.find(tmplDef.name);
-            if (itDef == defines.end() || !tmplDef.map) {
-                continue;
-            }
-            const auto &value = itDef->second;
-            auto mapped = tmplDef.map(value);
-            auto offset = tmplDef.offset;
-            key << offset << mapped << "|";
-        }
-        ccstd::string ret{key.str() + std::to_string(tmpl.hash)};
-        return ret;
-    }
-    uint32_t key = 0;
-    std::stringstream ss;
-    for (auto &tmplDef : tmplDefs) {
-        auto itDef = defines.find(tmplDef.name);
-        if (itDef == defines.end() || !tmplDef.map) {
-            continue;
-        }
-        const auto &value = itDef->second;
-        auto mapped = tmplDef.map(value);
-        auto offset = tmplDef.offset;
-        key |= (mapped << offset);
-    }
-    ss << std::hex << key << "|" << std::to_string(tmpl.hash);
-    ccstd::string ret{ss.str()};
-    return ret;
+    return render::getVariantKey(tmpl, defines);
 }
 
 void ProgramLib::destroyShaderByDefines(const MacroRecord &defines) {
