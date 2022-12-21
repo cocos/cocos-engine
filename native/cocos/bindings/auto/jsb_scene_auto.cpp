@@ -7272,6 +7272,49 @@ static bool js_cc_scene_LODGroup_lockLODLevels(se::State& s)
 }
 SE_BIND_FUNC(js_cc_scene_LODGroup_lockLODLevels) 
 
+static bool js_cc_scene_LODGroup_isLockLevelChanged(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::LODGroup *arg1 = (cc::scene::LODGroup *) NULL ;
+    bool result;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::scene::LODGroup>(s);
+    if (nullptr == arg1) return true;
+    result = (bool)(arg1)->isLockLevelChanged();
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_scene_LODGroup_isLockLevelChanged) 
+
+static bool js_cc_scene_LODGroup_resetLockChangeFlag(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::scene::LODGroup *arg1 = (cc::scene::LODGroup *) NULL ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::scene::LODGroup>(s);
+    if (nullptr == arg1) return true;
+    (arg1)->resetLockChangeFlag();
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_scene_LODGroup_resetLockChangeFlag) 
+
 static bool js_cc_scene_LODGroup_clearLODs(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -7602,6 +7645,8 @@ bool js_register_cc_scene_LODGroup(se::Object* obj) {
     cls->defineFunction("getVisibleLODLevel", _SE(js_cc_scene_LODGroup_getVisibleLODLevel)); 
     cls->defineFunction("getLockedLODLevels", _SE(js_cc_scene_LODGroup_getLockedLODLevels)); 
     cls->defineFunction("lockLODLevels", _SE(js_cc_scene_LODGroup_lockLODLevels)); 
+    cls->defineFunction("isLockLevelChanged", _SE(js_cc_scene_LODGroup_isLockLevelChanged)); 
+    cls->defineFunction("resetLockChangeFlag", _SE(js_cc_scene_LODGroup_resetLockChangeFlag)); 
     cls->defineFunction("clearLODs", _SE(js_cc_scene_LODGroup_clearLODs)); 
     cls->defineFunction("insertLOD", _SE(js_cc_scene_LODGroup_insertLOD)); 
     cls->defineFunction("updateLOD", _SE(js_cc_scene_LODGroup_updateLOD)); 

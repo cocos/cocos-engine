@@ -88,6 +88,17 @@ float LODGroup::getWorldSpaceSize() const {
 }
 
 void LODGroup::lockLODLevels(ccstd::vector<int> &levels) {
+    if (levels.size() != _vecLockedLevels.size()) {
+        _isLockLevelChanged = true;
+    } else {
+        auto size = levels.size();
+        for (int index = 0; index < size; index++) {
+            if (levels[index] != _vecLockedLevels[index]) {
+                _isLockLevelChanged = true;
+                break;
+            }
+        }
+    }
     _vecLockedLevels.clear();
     _vecLockedLevels.insert(_vecLockedLevels.begin(), levels.begin(), levels.end());
 }
