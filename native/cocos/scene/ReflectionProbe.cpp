@@ -81,7 +81,7 @@ void ReflectionProbe::initialize(Node* probeNode, Node* cameraNode) {
 
     _camera->setNearClip(1.0);
     _camera->setFarClip(1000.0);
-    _camera->setClearColor(_backgroundColor);
+    _camera->setClearColor(packBackgroundColor(_backgroundColor));
     _camera->setClearDepth(1.0);
     _camera->setClearStencil(0.0);
     _camera->setClearFlag(_clearFlag);
@@ -107,8 +107,9 @@ void ReflectionProbe::syncCameraParams(const Camera* camera) {
     _camera->setFov(camera->getFov());
     _camera->setVisibility(camera->getVisibility());
     _camera->setClearFlag(camera->getClearFlag());
-    _camera->setClearColor(camera->getClearColor());
+    _camera->setClearColor(packBackgroundColor(camera->getClearColor()));
     _camera->setPriority(camera->getPriority() - 1);
+    _camera->changeTargetWindow(_realtimePlanarTexture->getWindow());
     _camera->resize(camera->getWidth(), camera->getHeight());
 }
 
@@ -240,7 +241,7 @@ void ReflectionProbe::resetCameraParams() {
     _camera->resize(_resolution, _resolution);
     _camera->setVisibility(_visibility);
 
-    _camera->setClearColor(_backgroundColor);
+    _camera->setClearColor(packBackgroundColor(_backgroundColor));
     _camera->setClearDepth(1.0);
     _camera->setClearStencil(0.0);
     _camera->setClearFlag(_clearFlag);

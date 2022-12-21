@@ -76,6 +76,7 @@ public:
      */
     inline void setBackgroundColor(gfx::Color& val) {
         _backgroundColor = val;
+        _camera->setClearColor(val);
         
     }
     inline const gfx::Color& getBackgroundColor() const { return _backgroundColor; }

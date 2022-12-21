@@ -78,7 +78,7 @@ void ReflectionProbeBatchedQueue::gatherRenderObjects(const scene::Camera *camer
     const scene::Skybox *skyBox = sceneData->getSkybox();
     const scene::RenderScene *const scene = camera->getScene();
 
-    if (static_cast<uint32_t>(camera->getClearFlag()) & skyboxFlag) {
+    if (static_cast<uint32_t>(probe->getCamera()->getClearFlag()) & skyboxFlag) {
         if (skyBox != nullptr && skyBox->isEnabled() && skyBox->getModel()) {
             add(skyBox->getModel());
         }

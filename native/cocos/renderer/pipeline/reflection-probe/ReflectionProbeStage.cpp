@@ -74,7 +74,10 @@ void ReflectionProbeStage::render(scene::Camera *camera) {
     _renderArea.width = _probe->renderArea().x;
     _renderArea.height = _probe->renderArea().y;
 
-    _clearColors[0] = scene::ReflectionProbe::packBackgroundColor(_probe->getCamera()->getClearColor());
+    if (hasFlag(static_cast<gfx::ClearFlags>(_probe->getCamera()->getClearFlag()), gfx::ClearFlagBit::COLOR)) {
+        _clearColors[0] = _probe->getCamera()->getClearColor();
+    }
+    
     auto *renderPass = _framebuffer->getRenderPass();
 
     cmdBuffer->beginRenderPass(renderPass, _framebuffer, _renderArea,
