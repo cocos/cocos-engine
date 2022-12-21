@@ -151,6 +151,7 @@ void WebViewImpl::reload() {
 }
 
 bool WebViewImpl::canGoBack() {
+    // TODO(qgh):OpenHarmony does not support this interface.
     //bool isCanGoBack = false;
     //NapiHelper::postSyncMessageToUIThread("canGoBack", _viewTag, &isCanGoBack);
     //return isCanGoBack;
@@ -158,6 +159,7 @@ bool WebViewImpl::canGoBack() {
 }
 
 bool WebViewImpl::canGoForward() {
+    // TODO(qgh):OpenHarmony does not support this interface.
     //bool isCanGoForward = false;
     //NapiHelper::postSyncMessageToUIThread("canGoForward", _viewTag, &isCanGoForward);
     //return isCanGoForward;

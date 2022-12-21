@@ -73,10 +73,10 @@ struct Index {
       var data = e.data;
       var msg = data.data;
       var result;
-      switch (msg.msgName) {
+      switch (msg.name) {
         // EditBox
         case "showEditBox": {
-          this.showMessage = msg.msgParam
+          this.showMessage = msg.param
           this.dialogController.open()
           break;
         }
@@ -87,36 +87,36 @@ struct Index {
         }
         // WebView
         case "createWebView": {
-          this.webViewArray.push(new WebViewInfo(0, 0, 0, 0, msg.msgParam))
-          this.webViewIndexMap.set(msg.msgParam, this.webViewArray.length - 1);
+          this.webViewArray.push(new WebViewInfo(0, 0, 0, 0, msg.param))
+          this.webViewIndexMap.set(msg.param, this.webViewArray.length - 1);
           break;
         }
         case "removeWebView": {
           if (this.webViewArray.length > 0) {
-            this.webViewArray.splice(this.webViewIndexMap.get(msg.msgParam), 1)
+            this.webViewArray.splice(this.webViewIndexMap.get(msg.param), 1)
           }
           break;
         }
         case "loadUrl": {
-          var web = msg.msgParam;
+          var web = msg.param;
           var index = this.webViewIndexMap.get(web.tag);
           this.webViewArray[index].controller.loadUrl({url: web.url});
           break;
         }
         case "loadHTMLString": {
-          var web = msg.msgParam;
+          var web = msg.param;
           var index = this.webViewIndexMap.get(web.tag);
           this.webViewArray[index].controller.loadData({data: web.contents, mimeType:"text/html",encoding:"UTF-8", baseUrl:web.baseUrl});
           break;
         }
         case "loadData": {
-          var web = msg.msgParam;
+          var web = msg.param;
           var index = this.webViewIndexMap.get(web.tag);
           this.webViewArray[index].controller.loadData({data: web.contents, mimeType:web.mimeType,encoding:web.encoding, baseUrl:web.baseUrl});
           break;
         }
         case "evaluateJS": {
-          var web = msg.msgParam;
+          var web = msg.param;
           var index = this.webViewIndexMap.get(web.tag)
           this.webViewArray[index].controller.runJavaScript({
             script: web.jsContents
@@ -124,37 +124,37 @@ struct Index {
           break;
         }
         case "reload": {
-          var index = this.webViewIndexMap.get(msg.msgParam);
+          var index = this.webViewIndexMap.get(msg.param);
           this.webViewArray[index].controller.refresh();
           break;
         }
         case "stopLoading": {
-          var index = this.webViewIndexMap.get(msg.msgParam);
+          var index = this.webViewIndexMap.get(msg.param);
           this.webViewArray[index].controller.stop();
           break;
         }
         case "canGoForward": {
-          var index = this.webViewIndexMap.get(msg.msgParam);
+          var index = this.webViewIndexMap.get(msg.param);
           result = this.webViewArray[index].controller.accessForward();
           break;
         }
         case "canGoBack": {
-          var index = this.webViewIndexMap.get(msg.msgParam);
+          var index = this.webViewIndexMap.get(msg.param);
           result = this.webViewArray[index].controller.accessBackward();
           break;
         }
         case "goForward": {
-          var index = this.webViewIndexMap.get(msg.msgParam);
+          var index = this.webViewIndexMap.get(msg.param);
           this.webViewArray[index].controller.forward();
           break;
         }
         case "goBack": {
-          var index = this.webViewIndexMap.get(msg.msgParam);
+          var index = this.webViewIndexMap.get(msg.param);
           this.webViewArray[index].controller.backward();
           break;
         }
         case "setWebViewRect": {
-          var web = msg.msgParam;
+          var web = msg.param;
           var index = this.webViewIndexMap.get(web.tag);
           this.webViewArray[index].x = px2vp(web.x);
           this.webViewArray[index].y = px2vp(web.y);
@@ -162,79 +162,79 @@ struct Index {
           this.webViewArray[index].h = px2vp(web.h);
         }
         case "setVisible":
-          var web = msg.msgParam;
+          var web = msg.param;
           var index = this.webViewIndexMap.get(web.tag);
           this.webViewArray[index].visible = web.visible;
           break;
-        // WebView
+        // video
         case "createVideo":
-          this.videoArray.push(new VideoInfo(0, 0, 0, 0, msg.msgParam))
-          this.videoIndexMap.set(msg.msgParam, this.videoArray.length - 1);
+          this.videoArray.push(new VideoInfo(0, 0, 0, 0, msg.param))
+          this.videoIndexMap.set(msg.param, this.videoArray.length - 1);
           break;
         case "removeVideo":
           if (this.videoArray.length > 0) {
-            this.videoArray.splice(this.videoIndexMap.get(msg.msgParam), 1)
+            this.videoArray.splice(this.videoIndexMap.get(msg.param), 1)
           }
           break;
         case "setVideoUrl":
-          var web = msg.msgParam;
-          var index = this.videoIndexMap.get(web.tag);
-          this.videoArray[index].url = web.url;
+          var video = msg.param;
+          var index = this.videoIndexMap.get(video.tag);
+          this.videoArray[index].url = video.url;
           break;
         case "setVideoRect": {
-          var web = msg.msgParam;
-          var index = this.videoIndexMap.get(web.tag);
-          this.videoArray[index].x = px2vp(web.x);
-          this.videoArray[index].y = px2vp(web.y);
-          this.videoArray[index].w = px2vp(web.w);
-          this.videoArray[index].h = px2vp(web.h);
+          var video = msg.param;
+          var index = this.videoIndexMap.get(video.tag);
+          this.videoArray[index].x = px2vp(video.x);
+          this.videoArray[index].y = px2vp(video.y);
+          this.videoArray[index].w = px2vp(video.w);
+          this.videoArray[index].h = px2vp(video.h);
           break;
         }
         case "startVideo": {
-          var index = this.videoIndexMap.get(msg.msgParam);
+          var index = this.videoIndexMap.get(msg.param);
           this.videoArray[index].controller.start();
           break;
         }
         case "pauseVideo" : {
-          var index = this.videoIndexMap.get(msg.msgParam);
+          var index = this.videoIndexMap.get(msg.param);
           this.videoArray[index].controller.pause();
           break;
         }
         case "stopVideo" : {
-          var index = this.videoIndexMap.get(msg.msgParam);
+          var index = this.videoIndexMap.get(msg.param);
           this.videoArray[index].controller.stop();
           break;
         }
         case "resumeVideo": {
-          var index = this.videoIndexMap.get(msg.msgParam);
+          var index = this.videoIndexMap.get(msg.param);
           this.videoArray[index].controller.start();
           break;
         }
         case "getVideoDuration": {
-          var index = this.videoIndexMap.get(msg.msgParam);
+          var index = this.videoIndexMap.get(msg.param);
           result = this.videoArray[index].duration;
           break;
         }
         case "seekVideoTo" : {
-          var web = msg.msgParam;
-          var index = this.videoIndexMap.get(web.tag);
-          this.videoArray[index].controller.setCurrentTime(web.time);
+          var video = msg.param;
+          var index = this.videoIndexMap.get(video.tag);
+          this.videoArray[index].controller.setCurrentTime(video.time);
           break;
         }
         case "setVideoVisible" : {
-          var web = msg.msgParam;
-          var index = this.videoIndexMap.get(web.tag);
-          this.videoArray[index].visible = web.visible;
+          var video = msg.param;
+          var index = this.videoIndexMap.get(video.tag);
+          this.videoArray[index].visible = video.visible;
           break;
         }
         case "setFullScreenEnabled": {
-          var web = msg.msgParam;
-          var index = this.videoIndexMap.get(web.tag);
-          this.videoArray[index].isFullScreen = web.fullScreen;
+          var video = msg.param;
+          var index = this.videoIndexMap.get(video.tag);
+          this.videoArray[index].isFullScreen = video.fullScreen;
           break;
         }
         case "currentTime": {
-          var index = this.videoIndexMap.get(msg.msgParam);
+          var index = this.videoIndexMap.get(msg.param);
           result = this.videoArray[index].currentTime;
         }
         default: {

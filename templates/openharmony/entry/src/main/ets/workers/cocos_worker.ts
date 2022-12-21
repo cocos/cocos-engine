@@ -57,7 +57,7 @@ var renderContext: any = undefined;
 uiPort._messageHandle = function(e) {
     var data = e.data;
     var msg = data.data;
-    switch(msg.msgName) {
+    switch(msg.name) {
         case "onXCLoad":
             const renderContext = nativerender.getContext(ContextType.NATIVE_RENDER_API);
             renderContext.nativeEngineInit();
@@ -73,31 +73,31 @@ uiPort._messageHandle = function(e) {
             renderContext.nativeEngineStart();
             break;
         case "onTextInput":
-            nativeEditBox.onTextChange(msg.msgParam);
+            nativeEditBox.onTextChange(msg.param);
             break;
         case "onComplete":
-            nativeEditBox.onComplete(msg.msgParam);
+            nativeEditBox.onComplete(msg.param);
             break;
         case "onPageBegin":
-            nativeWebView.shouldStartLoading(msg.msgParam.viewTag, msg.msgParam.url);
+            nativeWebView.shouldStartLoading(msg.param.viewTag, msg.param.url);
             break;
         case "onPageEnd":
-            nativeWebView.finishLoading(msg.msgParam.viewTag, msg.msgParam.url);
+            nativeWebView.finishLoading(msg.param.viewTag, msg.param.url);
             break;
         case "onErrorReceive":
-            nativeWebView.failLoading(msg.msgParam.viewTag, msg.msgParam.url);
+            nativeWebView.failLoading(msg.param.viewTag, msg.param.url);
             break;
         case "onVideoEvent":
             // For native Implementation
-//            if(msg.msgParam.args != undefined || msg.msgParam.args != null) {
-//                //nativeVideo.onEvents(msg.msgParam.videoTag, msg.msgParam.videoEvent, msg.msgParam.args);
+//            if(msg.param.args != undefined || msg.param.args != null) {
+//                //nativeVideo.onEvents(msg.param.videoTag, msg.param.videoEvent, msg.param.args);
 //            } else {
-//                //nativeVideo.onEvents(msg.msgParam.videoTag, msg.msgParam.videoEvent);
+//                //nativeVideo.onEvents(msg.param.videoTag, msg.param.videoEvent);
 //            }
             // @ts-ignore
             if(window.oh && typeof window.oh.onVideoEvent === "function") {
                 // @ts-ignore
-                window.oh.onVideoEvent(msg.msgParam.videoTag, msg.msgParam.videoEvent, msg.msgParam.args);
+                window.oh.onVideoEvent(msg.param.videoTag, msg.param.videoEvent, msg.param.args);
             }
 
             break;

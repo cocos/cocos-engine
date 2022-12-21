@@ -2708,7 +2708,7 @@ if(USE_EDIT_BOX)
     )
 endif()
 
-if(NOT OPENHARMONY AND (ANDROID OR IOS OR OHOS))# TODO:May be removed later
+if(OPENHARMONY OR ANDROID OR IOS OR OHOS)
     if(USE_VIDEO)
         cocos_source_files(
                          cocos/ui/videoplayer/VideoPlayer.h
@@ -2753,13 +2753,13 @@ elseif(OPENHARMONY)
             cocos/ui/webview/WebViewImpl-openharmony.cpp
         )
     endif()
-    # if(USE_VIDEO)
+    if(USE_VIDEO)
     #    openharmony's video adaptation in ts.
-    #    cocos_source_files(
-    #        cocos/ui/videoplayer/VideoPlayer-openharmony.cpp
-    #        cocos/ui/videoplayer/VideoPlayer-openharmony.h
-    #    )
-    # endif()
+	     cocos_source_files(
+            cocos/ui/videoplayer/VideoPlayer-openharmony.cpp
+            cocos/ui/videoplayer/VideoPlayer-openharmony.h
+        )
+    endif()
 elseif(OHOS)
     if(USE_EDIT_BOX)
         cocos_source_files(

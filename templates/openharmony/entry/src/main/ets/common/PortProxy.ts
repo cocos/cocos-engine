@@ -35,12 +35,12 @@ export class PortProxy {
 
     constructor (port) {
         this.port = port;
-        this.port.onmessage = this.onMessage.bind(this)
+        this.port.onmessage = this.onMessage.bind(this);
     }
 
     public onMessage(e) {
         let data = e['data'];
-        if(data.type != "syncResult") {
+        if(data.type != "syncResult" && this._messageHandle) {
             this._messageHandle(e);
         } else if(data.type == "syncResult") {
             const {id, response} = data.data;
@@ -57,14 +57,14 @@ export class PortProxy {
         }
     }
     public postMessage(msgName: string, msgData:any) {
-        this.port.postMessage({type:"async", data:{msgName:msgName, msgParam:msgData}});
+        this.port.postMessage({type:"async", data:{name:msgName, param:msgData}});
     }
 
     public postSyncMessage(msgName: string, msgData:any) {
         const id = this.autoId++;
         return new Promise((resolve, reject) => {
             const message = {
-                type:"sync", data:{cbId:id, msgName:msgName, msgParam:msgData}
+                type:"sync", data:{cbId:id, name:msgName, param:msgData}
             }
             this.port.postMessage(message);
             this.actionHandleMap[id] = (response) => {
