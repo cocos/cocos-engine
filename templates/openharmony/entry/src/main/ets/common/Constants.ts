@@ -32,6 +32,7 @@ export enum ContextType {
     ENGINE_UTILS,
     EDITBOX_UTILS,
     WEBVIEW_UTILS,
+    VIDEO_UTILS,
     UV_ASYNC_SEND,
 }
 

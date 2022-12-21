@@ -28,7 +28,10 @@ import { WorkerManager } from '../cocos/WorkerManager'
 import { ContextType } from "../common/Constants"
 import featureAbility from '@ohos.ability.featureAbility'
 import { EditBoxDialog } from '../components/EditBoxDialog'
-import { ViewInfo, CocosWebView } from '../components/CocosWebView'
+import { WebViewInfo, CocosWebView } from '../components/CocosWebView'
+import { VideoInfo, CocosVideoPlayer } from '../components/CocosVideoPlayer'
+
+import {PortProxy} from '../common/PortProxy'
 const nativePageLifecycle = nativerender.getContext(ContextType.JSPAGE_LIFECYCLE);
 const engineUtils = nativerender.getContext(ContextType.ENGINE_UTILS);
 
@@ -36,25 +39,27 @@ const engineUtils = nativerender.getContext(ContextType.ENGINE_UTILS);
 @Component
 struct Index {
   @State showMessage: string = ''
-  @State viewArray: ViewInfo[] = [];
+  @State webViewArray: WebViewInfo[] = [];
+  @State videoArray:VideoInfo[] = [];
   //private index: number = 0;
-  private indexMap: Map<number, number> = new Map;
-
-  cocosWorker = WorkerManager.getInstance().getWorker();
+  private webViewIndexMap: Map<number, number> = new Map;
+  private videoIndexMap: Map<number, number> = new Map;
+   
+  private workPort : PortProxy = new PortProxy(WorkerManager.getInstance().getWorker());
   dialogController: CustomDialogController = new CustomDialogController({
     builder: EditBoxDialog({
       showMessage: this.showMessage,
       onTextChange: (msg: string) => {
         this.showMessage = msg;
-        this.cocosWorker.postMessage({ type: 'onTextInput', data: msg })
+        this.workPort.postMessage('onTextInput', msg)
       },
       accept: (msg: string) => {
         this.showMessage = msg;
-        this.cocosWorker.postMessage({ type: 'onComplete', data: msg })
+        this.workPort.postMessage('onComplete', msg)
       },
     }),
     cancel: () => {
-      this.cocosWorker.postMessage({ type: 'onComplete', data: this.showMessage })
+      this.workPort.postMessage('onComplete', this.showMessage)
     },
     autoCancel: true,
     alignment: DialogAlignment.Bottom,
@@ -63,11 +68,15 @@ struct Index {
 
   aboutToAppear(): void  {
     console.log('[LIFECYCLE-Index] cocos aboutToAppear');
-    this.cocosWorker.onmessage = (e) => {
-      let data = e['data']
-      switch (data.type) {
+    this.workPort._messageHandle = (e) => {
+      //let data = e['data'];
+      var data = e.data;
+      var msg = data.data;
+      var result;
+      switch (msg.msgName) {
+        // EditBox
         case "showEditBox": {
-          this.showMessage = data.data
+          this.showMessage = msg.msgParam
           this.dialogController.open()
           break;
         }
@@ -76,79 +85,164 @@ struct Index {
           this.dialogController.close()
           break;
         }
+        // WebView
         case "createWebView": {
-          this.viewArray.push(new ViewInfo(0, 0, 0, 0, data.data))
-          this.indexMap.set(data.data, this.viewArray.length - 1);
+          this.webViewArray.push(new WebViewInfo(0, 0, 0, 0, msg.msgParam))
+          this.webViewIndexMap.set(msg.msgParam, this.webViewArray.length - 1);
           break;
         }
         case "removeWebView": {
-          if (this.viewArray.length > 0) {
-            this.viewArray.splice(this.indexMap.get(data.data), 1)
+          if (this.webViewArray.length > 0) {
+            this.webViewArray.splice(this.webViewIndexMap.get(msg.msgParam), 1)
           }
           break;
         }
         case "loadUrl": {
-          var web = data.data;
-          var index = this.indexMap.get(web.tag);
-          this.viewArray[index].controller.loadUrl({url: web.url});
+          var web = msg.msgParam;
+          var index = this.webViewIndexMap.get(web.tag);
+          this.webViewArray[index].controller.loadUrl({url: web.url});
           break;
         }
         case "loadHTMLString": {
-          var web = data.data;
-          var index = this.indexMap.get(web.tag);
-          this.viewArray[index].controller.loadData({data: web.contents, mimeType:"text/html",encoding:"UTF-8", baseUrl:web.baseUrl});
+          var web = msg.msgParam;
+          var index = this.webViewIndexMap.get(web.tag);
+          this.webViewArray[index].controller.loadData({data: web.contents, mimeType:"text/html",encoding:"UTF-8", baseUrl:web.baseUrl});
           break;
         }
         case "loadData": {
-          var web = data.data;
-          var index = this.indexMap.get(web.tag);
-          this.viewArray[index].controller.loadData({data: web.contents, mimeType:web.mimeType,encoding:web.encoding, baseUrl:web.baseUrl});
+          var web = msg.msgParam;
+          var index = this.webViewIndexMap.get(web.tag);
+          this.webViewArray[index].controller.loadData({data: web.contents, mimeType:web.mimeType,encoding:web.encoding, baseUrl:web.baseUrl});
           break;
         }
         case "evaluateJS": {
-          var web = data.data;
-          var index = this.indexMap.get(web.tag)
-          this.viewArray[index].controller.runJavaScript({
+          var web = msg.msgParam;
+          var index = this.webViewIndexMap.get(web.tag)
+          this.webViewArray[index].controller.runJavaScript({
             script: web.jsContents
           });
           break;
         }
         case "reload": {
-          var index = this.indexMap.get(data.data);
-          this.viewArray[index].controller.refresh();
+          var index = this.webViewIndexMap.get(msg.msgParam);
+          this.webViewArray[index].controller.refresh();
           break;
         }
         case "stopLoading": {
-          var index = this.indexMap.get(data.data);
-          this.viewArray[index].controller.stop();
+          var index = this.webViewIndexMap.get(msg.msgParam);
+          this.webViewArray[index].controller.stop();
+          break;
+        }
+        case "canGoForward": {
+          var index = this.webViewIndexMap.get(msg.msgParam);
+          result = this.webViewArray[index].controller.accessForward();
+          break;
+        }
+        case "canGoBack": {
+          var index = this.webViewIndexMap.get(msg.msgParam);
+          result = this.webViewArray[index].controller.accessBackward();
           break;
         }
         case "goForward": {
-          var index = this.indexMap.get(data.data);
-          this.viewArray[index].controller.forward();
+          var index = this.webViewIndexMap.get(msg.msgParam);
+          this.webViewArray[index].controller.forward();
           break;
         }
         case "goBack": {
-          var index = this.indexMap.get(data.data);
-          this.viewArray[index].controller.backward();
+          var index = this.webViewIndexMap.get(msg.msgParam);
+          this.webViewArray[index].controller.backward();
           break;
         }
         case "setWebViewRect": {
-          var web = data.data;
-          var index = this.indexMap.get(web.tag);
-          this.viewArray[index].x = px2vp(web.x);
-          this.viewArray[index].y = px2vp(web.y);
-          this.viewArray[index].w = px2vp(web.w);
-          this.viewArray[index].h = px2vp(web.h);
+          var web = msg.msgParam;
+          var index = this.webViewIndexMap.get(web.tag);
+          this.webViewArray[index].x = px2vp(web.x);
+          this.webViewArray[index].y = px2vp(web.y);
+          this.webViewArray[index].w = px2vp(web.w);
+          this.webViewArray[index].h = px2vp(web.h);
         }
         case "setVisible":
-          var web = data.data;
-          var index = this.indexMap.get(web.tag);
-          this.viewArray[index].visible = web.visible;
+          var web = msg.msgParam;
+          var index = this.webViewIndexMap.get(web.tag);
+          this.webViewArray[index].visible = web.visible;
           break;
+        // WebView
+        case "createVideo":
+          this.videoArray.push(new VideoInfo(0, 0, 0, 0, msg.msgParam))
+          this.videoIndexMap.set(msg.msgParam, this.videoArray.length - 1);
+          break;
+        case "removeVideo":
+          if (this.videoArray.length > 0) {
+            this.videoArray.splice(this.videoIndexMap.get(msg.msgParam), 1)
+          }
+          break;
+        case "setVideoUrl":
+          var web = msg.msgParam;
+          var index = this.videoIndexMap.get(web.tag);
+          this.videoArray[index].url = web.url;
+          break;
+        case "setVideoRect": {
+          var web = msg.msgParam;
+          var index = this.videoIndexMap.get(web.tag);
+          this.videoArray[index].x = px2vp(web.x);
+          this.videoArray[index].y = px2vp(web.y);
+          this.videoArray[index].w = px2vp(web.w);
+          this.videoArray[index].h = px2vp(web.h);
+          break;
+        }
+        case "startVideo": {
+          var index = this.videoIndexMap.get(msg.msgParam);
+          this.videoArray[index].controller.start();
+          break;
+        }
+        case "pauseVideo" : {
+          var index = this.videoIndexMap.get(msg.msgParam);
+          this.videoArray[index].controller.pause();
+          break;
+        }
+        case "stopVideo" : {
+          var index = this.videoIndexMap.get(msg.msgParam);
+          this.videoArray[index].controller.stop();
+          break;
+        }
+        case "resumeVideo": {
+          var index = this.videoIndexMap.get(msg.msgParam);
+          this.videoArray[index].controller.start();
+          break;
+        }
+        case "getVideoDuration": {
+          var index = this.videoIndexMap.get(msg.msgParam);
+          result = this.videoArray[index].duration;
+          break;
+        }
+        case "seekVideoTo" : {
+          var web = msg.msgParam;
+          var index = this.videoIndexMap.get(web.tag);
+          this.videoArray[index].controller.setCurrentTime(web.time);
+          break;
+        }
+        case "setVideoVisible" : {
+          var web = msg.msgParam;
+          var index = this.videoIndexMap.get(web.tag);
+          this.videoArray[index].visible = web.visible;
+          break;
+        }
+        case "setFullScreenEnabled": {
+          var web = msg.msgParam;
+          var index = this.videoIndexMap.get(web.tag);
+          this.videoArray[index].isFullScreen = web.fullScreen;
+          break;
+        }
+        case "currentTime": {
+          var index = this.videoIndexMap.get(msg.msgParam);
+          result = this.videoArray[index].currentTime;
+        }
         default: {
 
         }
+      }
+      if (result != null || result != undefined) {
+        this.workPort.postReturnMessage(data, result);
       }
     }
   }
@@ -174,14 +268,18 @@ struct Index {
       XComponent({ id: 'xcomponentId', type: 'surface', libraryname: 'cocos'})
         .onLoad((context) => {
           // Set the cache directory in the ts layer.
-          this.cocosWorker.postMessage({type: "onXCLoad", data: "XComponent"});
+          this.workPort.postMessage("onXCLoad", "XComponent");
         })
         .onDestroy(() => {
           console.log('cocos onDestroy')
         })
 
-        ForEach(this.viewArray, (item: ViewInfo, index: number) => {
-            CocosWebView({ viewInfo: this.viewArray[index] })
+        ForEach(this.webViewArray, (item: WebViewInfo, index: number) => {
+            CocosWebView({ viewInfo: this.webViewArray[index], workPort: this.workPort})
+        }, item => item.viewTag)
+
+        ForEach(this.videoArray, (item: VideoInfo, index: number) => {
+          CocosVideoPlayer({ videoInfo: this.videoArray[index], workPort: this.workPort})
         }, item => item.viewTag)
     }
     .width('100%')

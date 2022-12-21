@@ -81,18 +81,35 @@ public:
     // Napi export
     static bool exportFunctions(napi_env env, napi_value exports);
 
-    template<typename T>
-    static void postMessageToUIThread(const std::string& type, T param) {
-    if (_postMsg2UIThreadCb) {
+    template <typename ParamType>
+    static void postMessageToUIThread(const std::string& type, ParamType param) {
+        if (!_postMsg2UIThreadCb) {
+            return;
+        }
         CC_UNUSED bool ok = true;
         se::Value value;
         ok &= nativevalue_to_se(param, value, nullptr /*ctx*/);
         _postMsg2UIThreadCb(type, value);
     }
-}
+
+    template <typename ParamType, typename ResType>
+    static void postSyncMessageToUIThread(const std::string& type, ParamType param, ResType* res) {
+        if (!_postSyncMsg2UIThreadCb) {
+            return;
+        }
+        CC_UNUSED bool ok = true;
+        se::Value value;
+        ok &= nativevalue_to_se(param, value, nullptr /*ctx*/);
+        se::Value seOut;
+        _postSyncMsg2UIThreadCb(type, value, &seOut);
+        sevalue_to_native(seOut, res, nullptr);
+    }
+
 public:
     using PostMessage2UIThreadCb = std::function<void(const std::string&, const se::Value&)>;
     static PostMessage2UIThreadCb _postMsg2UIThreadCb;
+    using PostSyncMessage2UIThreadCb = std::function<void(const std::string&, const se::Value&, se::Value*)>;
+    static PostSyncMessage2UIThreadCb _postSyncMsg2UIThreadCb;
 };
 
 }

@@ -86,7 +86,6 @@ WebViewImpl::WebViewImpl(WebView *webView) : _viewTag(-1),
     _viewTag = kWebViewTag++;
     NapiHelper::postMessageToUIThread("createWebView", _viewTag);
     sWebViewImpls[_viewTag] = this;
-    LOGE("recv msg : 2 %{public}d", _viewTag);
 }
 
 WebViewImpl::~WebViewImpl() {
@@ -130,6 +129,9 @@ void WebViewImpl::loadURL(const ccstd::string &url) {
     vals.insert(std::make_pair("tag", _viewTag));
     vals.insert(std::make_pair("url", url));
     NapiHelper::postMessageToUIThread("loadUrl", vals);
+
+    //canGoBack();
+    //canGoForward();
 }
 
 void WebViewImpl::loadFile(const ccstd::string &fileName) {
@@ -149,13 +151,17 @@ void WebViewImpl::reload() {
 }
 
 bool WebViewImpl::canGoBack() {
-    // TODO(qgh):OpenHarmony does not support this interface.
-    return true;
+    //bool isCanGoBack = false;
+    //NapiHelper::postSyncMessageToUIThread("canGoBack", _viewTag, &isCanGoBack);
+    //return isCanGoBack;
+	return true;
 }
 
 bool WebViewImpl::canGoForward() {
-    // TODO(qgh):OpenHarmony does not support this interface.
-    return true;
+    //bool isCanGoForward = false;
+    //NapiHelper::postSyncMessageToUIThread("canGoForward", _viewTag, &isCanGoForward);
+    //return isCanGoForward;
+	return true;
 }
 
 void WebViewImpl::goBack() {
