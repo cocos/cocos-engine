@@ -130,9 +130,9 @@ class Screen {
      * If failed to request fullscreen, another attempt will be made to request fullscreen the next time a user interaction occurs.
      * @zh 尝试使当前节点进入全屏模式，很多浏览器不允许程序触发这样的行为，必须在一个用户交互回调中才会生效。
      * 如果进入全屏失败，会在下一次用户发生交互时，再次尝试进入全屏。
-     * @param element The element to request full screen state
-     * @param onFullScreenChange callback function when full screen state changed
-     * @param onFullScreenError callback function when full screen error
+     * @param element @zh 请求全屏状态的html元素 @en The element to request full screen state
+     * @param onFullScreenChange @zh 全屏状态改变的回调函数 @en callback function when full screen state changed
+     * @param onFullScreenError @zh 全屏错误的回调函数 @en callback function when full screen error
      * @return {Promise|undefined}
      * @deprecated since v3.3, please use `screen.requestFullScreen(): Promise<void>` instead.
      */
@@ -143,6 +143,9 @@ class Screen {
      * If failed to request fullscreen, another attempt will be made to request fullscreen the next time a user interaction occurs.
      * @zh 尝试使当前屏幕进入全屏模式，很多浏览器不允许程序触发这样的行为，必须在一个用户交互回调中才会生效。
      * 如果进入全屏失败，会在下一次用户发生交互时，再次尝试进入全屏。
+     * @param element @zh 请求全屏状态的html元素 @en The element to request full screen state
+     * @param onFullScreenChange @zh 全屏状态改变的回调函数 @en callback function when full screen state changed
+     * @param onFullScreenError @zh 全屏错误的回调函数 @en callback function when full screen error
      * @return {Promise}
      */
     public requestFullScreen (): Promise<void>;
@@ -172,8 +175,8 @@ class Screen {
     /**
      * @en Automatically request full screen during the next touch/click event
      * @zh 自动监听触摸、鼠标事件并在下一次事件触发时尝试进入全屏模式
-     * @param element The element to request full screen state
-     * @param onFullScreenChange callback function when full screen state changed
+     * @param element @zh 请求全屏状态的html元素 @en The element to request full screen state
+     * @param onFullScreenChange @zh 全屏状态改变的回调函数 @en callback function when full screen state changed
      *
      * @deprecated since v3.3, please use screen.requestFullScreen() instead.
      */

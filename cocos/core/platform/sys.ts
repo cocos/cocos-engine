@@ -56,6 +56,7 @@ export const sys = {
      * Returns if the specified platform related feature is supported.
      * @zh
      * 返回指定的平台相关的特性是否支持。
+     * @param feature @zh 特性 @en Feature
      */
     hasFeature (feature: sys.Feature): boolean {
         return systemInfo.hasFeature(feature);
@@ -248,7 +249,7 @@ export const sys = {
      * In native engine, it will return true if the JS object and the correspond native object are both valid
      * @zh 检查一个对象是否非空或在原生平台有效，
      * 在 Web 平台，只要对象非空或非 Undefined 就会返回 true，在原生平台，我们会检查当前 JS 对象和其绑定的原生对象是否都有效
-     * @param obj The object to be checked
+     * @param obj @zh 校验的对象，@en The object to be checked
      */
     isObjectValid (obj: any): boolean {
         if (obj === null || obj === undefined) {
@@ -284,6 +285,7 @@ export const sys = {
     /**
      * @en Try to open a url in browser, may not work in some platforms
      * @zh 尝试打开一个 web 页面，并非在所有平台都有效
+     * @param url @zh 访问的链接 @en Visited links.
      */
     openURL (url) {
         systemInfo.openURL(url);
