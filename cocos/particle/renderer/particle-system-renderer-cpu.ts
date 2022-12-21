@@ -385,6 +385,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
             return this._particles!.length;
         }
         ps.node.getWorldMatrix(_tempWorldTrans);
+        Mat4.invert(_tempWorldInv, _tempWorldTrans);
         const mat: Material | null = ps.getMaterialInstance(0) || this._defaultMat;
         const pass = mat!.passes[0];
         this.doUpdateScale(pass);
