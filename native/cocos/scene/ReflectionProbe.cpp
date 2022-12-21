@@ -290,8 +290,7 @@ void ReflectionProbe::packBackgroundColor() {
     Vec3 sub = encode - fVec3;
     Vec3 stepVec3 = sub < Vec3(0.5F, 0.5F, 0.5F) ? Vec3(0.5F, 0.5F, 0.5F) : sub;
     Vec3 encodeRounded = fVec3 + stepVec3;
-    gfx::Color rgbe = gfx::Color{encodeRounded.x / 255.F, encodeRounded.y / 255.F, encodeRounded.z / 255.F, e / 255.F};
-    _camera->setClearColor(rgbe);
+    _camera->setClearColor(gfx::Color{encodeRounded.x / 255.F, encodeRounded.y / 255.F, encodeRounded.z / 255.F, e / 255.F});
 }
 
 } // namespace scene
