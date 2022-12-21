@@ -42,6 +42,9 @@ static constexpr bool MSAA_SWAPCHAIN{false};
 static constexpr bool MOVE_TO_SWAPCHAIN{false};
     #endif
 #else
+
+// note Metal requires resolve target has same format as msaa texture,
+// if you try to resolve to swapchain, make sure msaa texture format consistent with swapchain.
 static constexpr bool MSAA_RT{false};
 static constexpr bool MSAA_SWAPCHAIN{false};
 static constexpr bool MOVE_TO_SWAPCHAIN{true};
