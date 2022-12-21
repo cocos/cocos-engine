@@ -38,7 +38,7 @@ export class LODData {
 
     private _models: Model[] = [];
 
-    get models () : readonly Model[] {
+    get models (): readonly Model[] {
         return this._models;
     }
 
@@ -85,7 +85,9 @@ export class LODGroup {
     /**
      * For editor only, users maybe operate several LOD's object
      */
-    protected _lockedLODLevelVec : number[] = [];
+    protected _lockedLODLevelVec: number[] = [];
+
+    private _isLockLevelChanged = false;
 
     constructor () {
         this._device = deviceManager.gfxDevice;
@@ -93,7 +95,7 @@ export class LODGroup {
 
     set localBoundaryCenter (val: Vec3) {  this._localBoundaryCenter.set(val); }
 
-    get localBoundaryCenter () : Readonly<Vec3> { return this._localBoundaryCenter.clone(); }
+    get localBoundaryCenter (): Readonly<Vec3> { return this._localBoundaryCenter.clone(); }
 
     get lodCount () { return this._lodDataArray.length; }
 
@@ -103,7 +105,7 @@ export class LODGroup {
 
     get objectSize () { return this._objectSize; }
 
-    get lodDataArray () : readonly LODData[] { return this._lodDataArray; }
+    get lodDataArray (): readonly LODData[] { return this._lodDataArray; }
     attachToScene (scene: RenderScene) {
         this.scene = scene;
     }
@@ -114,6 +116,14 @@ export class LODGroup {
 
     lockLODLevels (lockLev: number[]) {
         this._lockedLODLevelVec = lockLev;
+    }
+
+    isLockLevelChanged (): boolean {
+        return this._isLockLevelChanged;
+    }
+
+    resetLockChangeFlag () {
+        this._isLockLevelChanged = false;
     }
 
     getLockedLODLevels (): readonly number[] {

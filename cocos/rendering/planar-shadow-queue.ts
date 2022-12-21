@@ -33,13 +33,12 @@ import { ShadowType } from '../render-scene/scene/shadows';
 import { Layers } from '../scene-graph/layers';
 import { PipelineRuntime } from './custom/pipeline';
 import { BatchingSchemes } from '../render-scene/core/pass';
-import { LODModelsCachedUtils } from './lod-models-utils';
 
 const _ab = new geometry.AABB();
 
 export class PlanarShadowQueue {
     private _pendingSubModels: SubModel[] = [];
-    private _castModels:Model[] = [];
+    private _castModels: Model[] = [];
     private _instancedQueue = new RenderInstancedQueue();
     private _pipeline: PipelineRuntime;
 
@@ -60,16 +59,14 @@ export class PlanarShadowQueue {
         const shadowVisible =  (camera.visibility & Layers.BitMask.DEFAULT) !== 0;
         if (!scene.mainLight || !shadowVisible) { return; }
 
-        LODModelsCachedUtils.updateCachedLODModels(scene, camera);
         const models = scene.models;
         for (let i = 0; i < models.length; i++) {
             const model = models[i];
-            if (LODModelsCachedUtils.isLODModelCulled(model)) {
+            if (scene.isCulledByLod(camera, model)) {
                 continue;
             }
             if (model.enabled && model.node && model.castShadow) { this._castModels.push(model); }
         }
-        LODModelsCachedUtils.clearCachedLODModels();
 
         const instancedBuffer = shadows.instancingMaterial.passes[0].getInstancedBuffer();
         this._instancedQueue.queue.add(instancedBuffer);

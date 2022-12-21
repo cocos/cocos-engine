@@ -61,20 +61,18 @@ export class CannonShape implements IBaseShape {
     get sharedBody (): CannonSharedBody { return this._sharedBody; }
 
     setMaterial (mat: PhysicsMaterial | null) {
-        if (mat == null) {
-            (this._shape.material as unknown) = null;
-        } else {
-            if (CannonShape.idToMaterial[mat.id] == null) {
-                CannonShape.idToMaterial[mat.id] = new CANNON.Material(mat.id as any);
-            }
+        const mat1 = (mat == null) ? PhysicsSystem.instance.defaultMaterial : mat;
 
-            this._shape.material = CannonShape.idToMaterial[mat.id];
-            const smat = this._shape.material;
-            smat.friction = mat.friction;
-            smat.restitution = mat.restitution;
-            const coef = (CANNON as any).CC_CONFIG.correctInelastic;
-            (smat as any).correctInelastic = smat.restitution === 0 ? coef : 0;
+        if (CannonShape.idToMaterial[mat1.id] == null) {
+            CannonShape.idToMaterial[mat1.id] = new CANNON.Material(mat1.id as any);
         }
+
+        this._shape.material = CannonShape.idToMaterial[mat1.id];
+        const smat = this._shape.material;
+        smat.friction = mat1.friction;
+        smat.restitution = mat1.restitution;
+        const coef = (CANNON as any).CC_CONFIG.correctInelastic;
+        (smat as any).correctInelastic = smat.restitution === 0 ? coef : 0;
     }
 
     setAsTrigger (v: boolean) {

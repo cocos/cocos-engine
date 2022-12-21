@@ -44,6 +44,7 @@ ARModule::ARModule() {
 #if CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_MAC_IOS
     _impl = std::make_unique<ARAPIImpl>();
     arModuleInstance.reset(this);
+    _texInitFlag = true;
 #endif
 }
 
@@ -134,6 +135,13 @@ void* ARModule::getCameraTextureRef() const {
 
 uint8_t* ARModule::getCameraDepthBuffer() const {
     return _impl->getCameraDepthBuffer();
+}
+
+bool ARModule::getTexInitFlag() const {
+    return _texInitFlag;
+}
+void ARModule::resetTexInitFlag() {
+    _texInitFlag = false;
 }
 
 void ARModule::enableLightEstimate(bool enable) const {

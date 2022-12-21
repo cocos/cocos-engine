@@ -26,7 +26,6 @@
 #include "base/std/container/array.h"
 
 #include "Define.h"
-#include "LODModelsUtil.h"
 #include "InstancedBuffer.h"
 #include "PipelineSceneData.h"
 #include "PipelineStateManager.h"
@@ -67,10 +66,9 @@ void PlanarShadowQueue::gatherShadowPasses(scene::Camera *camera, gfx::CommandBu
         return;
     }
 
-    LODModelsCachedUtils::updateCachedLODModels(scene, camera);
     const auto &models = scene->getModels();
     for (const auto &model : models) {
-        if (LODModelsCachedUtils::isLODModelCulled(model)) {
+        if (scene->isCulledByLod(camera, model)) {
             continue;
         }
         if (!model->isEnabled() || !model->isCastShadow() || !model->getNode()) {
@@ -81,7 +79,6 @@ void PlanarShadowQueue::gatherShadowPasses(scene::Camera *camera, gfx::CommandBu
             _castModels.emplace_back(model);
         }
     }
-    LODModelsCachedUtils::clearCachedLODModels();
 
     const auto &passes = *shadowInfo->getInstancingMaterial()->getPasses();
     InstancedBuffer *instancedBuffer = passes[0]->getInstancedBuffer();
