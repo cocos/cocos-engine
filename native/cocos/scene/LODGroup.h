@@ -85,7 +85,7 @@ public:
 
     inline const ccstd::vector<uint8_t>& getLockedLODLevels() const { return _vecLockedLevels; }
     void lockLODLevels(ccstd::vector<int> &levels);
-    inline bool isLockLevelChanged() { return _isLockLevelChanged; }
+    inline bool isLockLevelChanged() const { return _isLockLevelChanged; }
     inline void resetLockChangeFlag() { _isLockLevelChanged = false; }
 
 
