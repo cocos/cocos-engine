@@ -256,7 +256,7 @@ void VATGetLocalPositionRigidBody30_UE(inout vec3 meshLocalPos, inout vec3 meshL
   meshLocalNormal = preSkinnedNorm.xzy;
   meshLocalTangent = preSkinnedTangent.xzy;
 }
-void VATGetLocalPositionRigidBody30_CocosYUp(inout vec3 meshLocalPos, inout vec3 meshLocalNormal, inout vec3 meshLocalTangent, in vec2 meshUV2, in vec2 meshUV3, vec2 thisFrameUV, sampler2D vatPositionTexture, sampler2D vatPositionSignTexture, sampler2D vatPositionAlphaTexture, sampler2D vatRotationTexture, sampler2D vatRotationSignTexture, sampler2D vatRotationAlphaTexture)
+void VATGetLocalPositionRigidBody30_Cocos(inout vec3 meshLocalPos, inout vec3 meshLocalNormal, inout vec3 meshLocalTangent, in vec2 meshUV2, in vec2 meshUV3, vec2 thisFrameUV, sampler2D vatPositionTexture, sampler2D vatPositionSignTexture, sampler2D vatPositionAlphaTexture, sampler2D vatRotationTexture, sampler2D vatRotationSignTexture, sampler2D vatRotationAlphaTexture)
 {
   // input
   vec3 preSkinnedPos = meshLocalPos.xyz / VAT_FBX_TO_COCOS_COORDINATE_SCALE;
