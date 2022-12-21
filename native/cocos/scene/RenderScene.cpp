@@ -61,23 +61,18 @@ public:
         int8_t ownerLodLevel{-1};
         const LODGroup *lodGroup{nullptr};
         /**
-         * @zh model 能被相机看到的容器
-         * @en The model can be seen by the camera container.
+         * @zh model 能被看到的相机列表
+         * @en List of cameras that model can be seen.
          */
         ccstd::unordered_map<const Camera*, bool> visibleCameras;
     };
 
     struct LODInfo {
         /**
-         * @zh lodGroup 使用的层级
-         * @en Level used by lodGroup.
+         * @zh 当前使用哪一级的 LOD, -1 表示没有层级被使用
+         * @en Which level of LOD is currently in use, -1 means no levels are used
          */
         int8_t usedLevel{-1};
-
-        /**
-         * @zh lodGroup 所在节点出现 transform 变化的标记
-         * @en The node where the lodGroup is located is marked with a transform change.
-         */
         bool transformDirty{true};
     };
 
@@ -114,8 +109,8 @@ private:
     ccstd::unordered_map<const Camera *, ccstd::unordered_map<const LODGroup *, LODInfo>> _lodStateInCamera;
 
     /**
-     * @zh 上一帧添加的lodgroup
-     * @en The lodgroup added in the previous frame.
+     * @zh 上一帧添加的LODGroup
+     * @en The LODGroup added in the previous frame.
      */
     ccstd::vector<const LODGroup *> _newAddedLodGroupVec;
 
@@ -430,7 +425,7 @@ void LodStateCache::updateLodState() {
     for (const auto &lodGroup : _renderScene->getLODGroups()) {
         if (lodGroup->isEnabled()) {
             const auto &lodLevels = lodGroup->getLockedLODLevels();
-            // lodLevels is not empty, indicating that the user is forced to use certain layers of lod
+            // lodLevels is not empty, indicating that the user force to use certain layers of LOD
             if (!lodLevels.empty()) {
                 //Update the dirty flag to make it easier to update the visible index of lod after lifting the forced use of lod.
                 if (lodGroup->getNode()->getChangedFlags() > 0) {

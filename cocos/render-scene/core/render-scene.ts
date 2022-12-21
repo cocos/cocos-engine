@@ -532,22 +532,18 @@ class ModelInfo {
     ownerLodLevel = -1;
     lodGroup: LODGroup = null!;
     /**
-     * @zh model 能被相机看到的容器
-     * @en The model can be seen by the camera container.
+     * @zh model 能被看到的相机列表
+     * @en List of cameras that model can be seen.
      */
     visibleCameras: Map<Camera, boolean> = new Map<Camera, boolean>();
 }
 
 class LODInfo {
     /**
-     * @zh lodGroup 使用的层级
-     * @en Level used by lodGroup.
+     * @zh 当前使用哪一级的 LOD, -1 表示没有层级被使用
+     * @en Which level of LOD is currently in use, -1 means no levels are used
      */
     usedLevel = -1;
-    /**
-     * @zh lodGroup 所在节点出现 transform 变化的标记
-     * @en The node where the lodGroup is located is marked with a transform change.
-     */
     transformDirty = true;
 }
 
@@ -636,7 +632,7 @@ class LodStateCache {
             if (lodGroup.enabled) {
                 const lodLevels = lodGroup.getLockedLODLevels();
                 const count = lodLevels.length;
-                // count > 0, indicating that the user is forced to use certain layers of lod
+                // count > 0, indicating that the user force to use certain layers of lod
                 if (count > 0) {
                     //Update the dirty flag to make it easier to update the visible index of lod after lifting the forced use of lod.
                     if (lodGroup.node.hasChangedFlags > 0) {
