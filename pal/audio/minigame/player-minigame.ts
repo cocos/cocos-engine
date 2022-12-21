@@ -124,7 +124,6 @@ export class AudioPlayerMinigame implements OperationQueueable {
                 } else {
                     this._needSeek = false;
                 }
-                }
             }
         };
         innerAudioContext.onSeeked(this._onSeeked);
