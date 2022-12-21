@@ -1145,15 +1145,6 @@ export class ScrollView extends ViewGroup {
             this._topBoundary = this._bottomBoundary + viewTrans.height;
 
             this._moveContentToTopLeft(viewTrans.contentSize);
-            this._updateScrollBarState();
-
-            // to avoid size changed and auto-spring-back after touching end.
-            const boundary = this._getHowMuchOutOfBoundary();
-            // if the _outOfBoundaryAmount !== Vec3.zero, the content will roll after touching end
-            // we should release this rolling event in advance in order to avoid  the weird rolling after touching end
-            if (boundary.x !== 0 || boundary.y !== 0) {
-                this._moveContent(boundary);
-            }
         }
     }
 
@@ -1430,7 +1421,7 @@ export class ScrollView extends ViewGroup {
             const outOfBoundary = this._getHowMuchOutOfBoundary();
             _tempVec3.set(this._getContentPosition());
             _tempVec3.add(outOfBoundary);
-            this._content.setPosition(_tempVec3);
+            this._setContentPosition(_tempVec3);
             this._updateScrollBar(Vec2.ZERO);
         }
     }
@@ -1861,12 +1852,10 @@ export class ScrollView extends ViewGroup {
             handleInputDevice = event.handleInputDevice;
         }
         let value;
-        if (!this.enabledInHierarchy) {
+        if (!this.enabledInHierarchy || this._hoverIn === XrhoverType.NONE) {
             return;
         }
-        if (this._hoverIn === XrhoverType.NONE) {
-            return;
-        } else if (this._hoverIn === XrhoverType.LEFT) {
+        if (this._hoverIn === XrhoverType.LEFT) {
             value = handleInputDevice.leftStick.getValue();
             if (!value.equals(Vec2.ZERO)) {
                 this._xrThumbStickMove(value);

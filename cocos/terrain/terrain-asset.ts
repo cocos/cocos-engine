@@ -450,6 +450,8 @@ export class TerrainAsset extends Asset {
 
         // geometry info
         this.tileSize = stream.readFloat();
+        this.tileSize = Math.floor(this.tileSize * 100) / 100.0;
+
         stream.readIntArray(this._blockCount);
         this.weightMapSize = stream.readInt16();
         this.lightMapSize = stream.readInt16();

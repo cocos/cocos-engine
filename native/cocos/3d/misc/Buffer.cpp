@@ -53,7 +53,7 @@ ccstd::string getDataViewType(const gfx::FormatInfo &info) {
 
 } // namespace
 
-using DataVariant = ccstd::variant<int32_t, float>;
+using DataVariant = ccstd::variant<ccstd::monostate, int32_t, float>;
 using MapBufferCallback = std::function<DataVariant(const DataVariant &cur, uint32_t idx, const DataView &view)>;
 
 DataView mapBuffer(DataView &target,
@@ -102,11 +102,21 @@ DataView mapBuffer(DataView &target,
             const uint32_t y = x + componentBytesLength * iComponent;
             if (isFloat) {
                 float cur = target.getFloat32(y);
-                out->setFloat32(y, ccstd::get<1>(callback(cur, iComponent, target)));
+                auto dataVariant = callback(cur, iComponent, target);
+                if (ccstd::holds_alternative<float>(dataVariant)) {
+                    out->setFloat32(y, ccstd::get<float>(dataVariant));
+                } else {
+                    CC_LOG_ERROR("mapBuffer, wrong data type, expect float");
+                }
             } else {
                 int32_t cur = target.readInt(intReader, y);
                 // iComponent is usually more useful than y
-                (target.*intWritter)(y, ccstd::get<0>(callback(cur, iComponent, target)));
+                auto dataVariant = callback(cur, iComponent, target);
+                if (ccstd::holds_alternative<int32_t>(dataVariant)) {
+                    (target.*intWritter)(y, ccstd::get<int32_t>(dataVariant));
+                } else {
+                    CC_LOG_ERROR("mapBuffer, wrong data type, expect int32_t");
+                }
             }
         }
     }

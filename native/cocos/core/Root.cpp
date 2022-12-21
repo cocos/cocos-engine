@@ -34,6 +34,7 @@
 #if CC_USE_DEBUG_RENDERER
     #include "profiler/DebugRenderer.h"
 #endif
+#include "engine/EngineEvents.h"
 #include "profiler/Profiler.h"
 #include "renderer/gfx-base/GFXDevice.h"
 #include "renderer/gfx-base/GFXSwapchain.h"
@@ -47,7 +48,7 @@
 #include "scene/Camera.h"
 #include "scene/DirectionalLight.h"
 #include "scene/SpotLight.h"
-#include "engine/EngineEvents.h"
+
 
 namespace cc {
 
@@ -111,7 +112,7 @@ scene::RenderWindow *Root::createRenderWindowFromSystemWindow(ISystemWindow *win
     gfx::SwapchainInfo info;
     info.width = static_cast<uint32_t>(size.width);
     info.height = static_cast<uint32_t>(size.height);
-    info.windowHandle = reinterpret_cast<void *>(handle);
+    info.windowHandle = reinterpret_cast<void *>(handle);  // NOLINT
     info.windowId = window->getWindowId();
 
     gfx::Swapchain *swapchain = gfx::Device::getInstance()->createSwapchain(info);
@@ -166,7 +167,7 @@ void Root::destroy() {
     //    this.dataPoolManager.clear();
 }
 
-void Root::resize(uint32_t width, uint32_t height, uint32_t windowId) {
+void Root::resize(uint32_t width, uint32_t height, uint32_t windowId) { // NOLINT
     for (const auto &window : _renderWindows) {
         auto *swapchain = window->getSwapchain();
         if (swapchain && (swapchain->getWindowId() == windowId)) {
@@ -332,6 +333,10 @@ bool Root::setRenderPipeline(pipeline::RenderPipeline *rppl /* = nullptr*/) {
     //        scene->getSceneGlobals()->activate();
     //    }
 
+#if CC_EDITOR
+    emit<PipelineChanged>();
+#endif
+
     onGlobalPipelineStateChanged();
 
     if (_batcher == nullptr) {
@@ -430,7 +435,7 @@ void Root::frameMoveEnd() {
     }
 }
 
-void Root::frameMove(float deltaTime, int32_t totalFrames) {
+void Root::frameMove(float deltaTime, int32_t totalFrames) { // NOLINT
     CCObject::deferredDestroy();
 
     _frameTime = deltaTime;
@@ -565,9 +570,9 @@ void Root::doXRFrameMove(int32_t totalFrames) {
             }
 
             frameMoveBegin();
-            //condition1: mainwindow has left camera && right camera,
-            //but we only need left/right camera when in left/right eye loop
-            //condition2: main camera draw twice
+            // condition1: mainwindow has left camera && right camera,
+            // but we only need left/right camera when in left/right eye loop
+            // condition2: main camera draw twice
             for (const auto &window : _renderWindows) {
                 if (window->getSwapchain()) {
                     // not rt

@@ -31,7 +31,6 @@ import { IRenderObject, UBOShadow } from './define';
 import { ShadowType, CSMOptimizationMode } from '../render-scene/scene/shadows';
 import { PipelineSceneData } from './pipeline-scene-data';
 import { ShadowLayerVolume } from './shadow/csm-layers';
-import { LODModelsCachedUtils } from './lod-models-utils';
 
 const _tempVec3 = new Vec3();
 const _sphere = geometry.Sphere.create(0, 0, 0, 1);
@@ -160,7 +159,7 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
     function enqueueRenderObject (model: Model) {
         // filter model by view visibility
         if (model.enabled) {
-            if (LODModelsCachedUtils.isLODModelCulled(model)) {
+            if (scene.isCulledByLod(camera, model)) {
                 return;
             }
 
@@ -181,9 +180,7 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
         }
     }
 
-    LODModelsCachedUtils.updateCachedLODModels(scene, camera);
     for (let i = 0; i < models.length; i++) {
         enqueueRenderObject(models[i]);
     }
-    LODModelsCachedUtils.clearCachedLODModels();
 }

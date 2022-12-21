@@ -157,6 +157,7 @@ class ScreenAdapter extends EventTarget {
     private _orientationChangeTimeoutId = -1;
     private _cachedFrameSize = new Size(0, 0); // cache before enter fullscreen.
     private _exactFitScreen = false;
+    private _isHeadlessMode = false;
     private _fn = {} as IScreenFunctionName;
     // Function mapping for cross browser support
     private _fnGroup = [
@@ -237,6 +238,9 @@ class ScreenAdapter extends EventTarget {
         }
     }
     private get _windowType (): WindowType {
+        if (this._isHeadlessMode) {
+            return WindowType.Unknown;
+        }
         if (this.isFullScreen) {
             return WindowType.Fullscreen;
         }
@@ -298,6 +302,7 @@ class ScreenAdapter extends EventTarget {
         this._cbToUpdateFrameBuffer = cbToRebuildFrameBuffer;
         this.orientation = orientationMap[options.configOrientation];
         this._exactFitScreen = options.exactFitScreen;
+        this._isHeadlessMode = options.isHeadlessMode;
         this._resizeFrame();
     }
 

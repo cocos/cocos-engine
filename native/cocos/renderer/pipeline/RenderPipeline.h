@@ -80,7 +80,9 @@ public:
     virtual void onGlobalPipelineStateChanged();
 
     inline const RenderFlowList &getFlows() const { return _flows; }
+    inline void setFlows(const RenderFlowList &flows) { _flows = flows; }
     inline uint32_t getTag() const { return _tag; }
+    inline void setTag(uint32_t tag) { _tag = tag; }
     inline const ccstd::unordered_map<ccstd::string, InternalBindingInst> &getGlobalBindings() const { return _globalBindings; }
     inline const MacroRecord &getMacros() const { return _macros; }
     inline void setValue(const ccstd::string &name, int32_t value) { _macros[name] = value; }
@@ -142,8 +144,8 @@ public:
     inline void resetRenderQueue(bool reset) { _resetRenderQueue = reset; }
     inline bool isRenderQueueReset() const { return _resetRenderQueue; }
 
-    render::PipelineRuntime* getPipelineRuntime() const { return _pipelineRuntime; }
-    void setPipelineRuntime(render::PipelineRuntime* pipelineRuntime) {
+    render::PipelineRuntime *getPipelineRuntime() const { return _pipelineRuntime; }
+    void setPipelineRuntime(render::PipelineRuntime *pipelineRuntime) {
         _pipelineRuntime = pipelineRuntime;
     }
 
@@ -202,7 +204,8 @@ protected:
 
     bool _resetRenderQueue{true};
 
-    render::PipelineRuntime* _pipelineRuntime{nullptr};
+    render::PipelineRuntime *_pipelineRuntime{nullptr};
+
 };
 
 } // namespace pipeline

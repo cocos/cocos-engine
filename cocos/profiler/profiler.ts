@@ -38,6 +38,7 @@ import { preTransforms, System, sys, cclegacy, Settings, settings } from '../cor
 import { Root } from '../root';
 import { PipelineRuntime } from '../rendering/custom/pipeline';
 import { director } from '../game';
+import { ccwindow } from '../core/global-exports';
 
 const _characters = '0123456789. ';
 
@@ -129,7 +130,7 @@ export class Profiler extends System {
     constructor () {
         super();
         if (!TEST) {
-            this._canvas = document.createElement('canvas');
+            this._canvas = ccwindow.document.createElement('canvas');
             this._ctx = this._canvas.getContext('2d')!;
             this._canvasArr.push(this._canvas);
         }

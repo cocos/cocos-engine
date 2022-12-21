@@ -192,6 +192,7 @@ using namespace cc;
 %rename(_initLocalSHDescriptors) cc::scene::Model::initLocalSHDescriptors;
 %rename(_updateLocalSHDescriptors) cc::scene::Model::updateLocalSHDescriptors;
 %rename(_updateInstancedAttributes) cc::scene::Model::updateInstancedAttributes;
+%rename(_updateWorldBoundDescriptors) cc::scene::Model::updateWorldBoundDescriptors;
 
 %rename(_load) cc::Scene::load;
 %rename(_activate) cc::Scene::activate;
@@ -535,6 +536,7 @@ using namespace cc;
 %attribute(cc::scene::ReflectionProbe, cc::Node*, previewSphere, getPreviewSphere, setPreviewSphere);
 %attribute(cc::scene::ReflectionProbe, cc::Node*, previewPlane, getPreviewPlane, setPreviewPlane);
 
+%attribute(cc::SceneGlobals, bool, bakedWithStationaryMainLight, getBakedWithStationaryMainLight, setBakedWithStationaryMainLight);
 
 
 // ----- Import Section ------

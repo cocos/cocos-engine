@@ -321,6 +321,8 @@ void GLES2CommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, c
     cmd->count = count;
     cmd->filter = filter;
 
+    ++_numDrawCalls; // blit is also seen as draw call in GLES2
+
     _curCmdPackage->blitTextureCmds.push(cmd);
     _curCmdPackage->cmds.push(GLESCmdType::BLIT_TEXTURE);
 }
@@ -374,7 +376,7 @@ void GLES2CommandBuffer::execute(CommandBuffer *const *cmdBuffs, uint32_t count)
         // current cmd allocator strategy will not work here: (but it doesn't matter anyways)
         // allocators are designed to only free the cmds they allocated
         // but here we are essentially ��transfering' the owner ship
-        //cmdBuff->_cmdAllocator->clearCmds(cmdPackage);
+        // cmdBuff->_cmdAllocator->clearCmds(cmdPackage);
     }
 }
 

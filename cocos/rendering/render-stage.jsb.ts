@@ -1,7 +1,7 @@
-/****************************************************************************
+/*
  Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -21,24 +21,11 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
-****************************************************************************/
+ */
 
-#pragma once
+declare var nr:any;
 
-namespace cc {
-namespace scene {
-class Model;
-class Camera;
-class RenderScene;
-} // namespace scene
-
-namespace pipeline {
-
-class LODModelsCachedUtils {
-public:
-    static void updateCachedLODModels(const scene::RenderScene *scene, const scene::Camera *camera);
-    static bool isLODModelCulled(const scene::Model *model);
-    static void clearCachedLODModels();
-};
-} // namespace pipeline
-} // namespace cc
+import { legacyCC } from '../core/global-exports';
+export const RenderStage = nr.RenderStage;
+// Do not delete, for the class detection of editor
+legacyCC.RenderStage = RenderStage;

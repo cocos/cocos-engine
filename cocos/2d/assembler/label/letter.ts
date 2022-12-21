@@ -38,7 +38,9 @@ const tempColor = new Color(255, 255, 255, 255);
  */
 export const letter = {
     createData (comp: Label) {
-        return comp.requestRenderData();
+        const renderData = comp.requestRenderData();
+        renderData.resize(0, 0);
+        return renderData;
     },
 
     fillBuffers (comp: Label, renderer: IBatcher) {

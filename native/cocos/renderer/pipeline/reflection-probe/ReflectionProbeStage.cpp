@@ -47,8 +47,8 @@ const RenderStageInfo &ReflectionProbeStage::getInitializeInfo() { return Reflec
 
 bool ReflectionProbeStage::initialize(const RenderStageInfo &info) {
     RenderStage::initialize(info);
-    RenderQueueDesc descriptor = {true, RenderQueueSortMode::BACK_TO_FRONT, {"default"}};
-    _renderQueueDescriptors.emplace_back(std::move(descriptor));
+    auto *descriptor = ccnew RenderQueueDesc{true, RenderQueueSortMode::BACK_TO_FRONT, {"default"}};
+    _renderQueueDescriptors.emplace_back(descriptor);
 
     return true;
 }

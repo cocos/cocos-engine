@@ -1,6 +1,6 @@
 import { IMiniGame, SystemInfo } from 'pal/minigame';
 import { Orientation } from '../screen-adapter/enum-type';
-import { cloneObject, versionCompare } from '../utils';
+import { cloneObject, createInnerAudioContextPolyfill, versionCompare } from '../utils';
 import { Language } from '../system-info/enum-type';
 
 //taobao IDE language   ("Chinese")
@@ -64,8 +64,14 @@ minigame.isSupportLandscape = function () {
 minigame.isSupportLandscape();
 
 // #region Audio
+const polyfilledCreateInnerAudio = createInnerAudioContextPolyfill(my, {
+    onPlay: true,  // Fix: onPlay won't execute.
+    onPause: true,  // NOTE: calling pause() twice onPause won't execute twice.
+    onStop: false,
+    onSeek: false,
+}, true);
 minigame.createInnerAudioContext = function (): InnerAudioContext {
-    const audio: InnerAudioContext = my.createInnerAudioContext();
+    const audio: InnerAudioContext = polyfilledCreateInnerAudio();
     // @ts-expect-error InnerAudioContext has onCanPlay
     audio.onCanplay = audio.onCanPlay.bind(audio);
     // @ts-expect-error InnerAudioContext has onCanPlay
