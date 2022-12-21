@@ -121,17 +121,17 @@ vec3 VATCalculateFluidVoxelUV(vec3 vatBoundingBoxMin, vec3 vatBoundingBoxMax, ve
 void VATGetLocalPositionRigidBody20(inout vec3 meshLocalPos, inout vec3 meshLocalNormal, inout vec3 meshLocalTangent, in vec4 meshVertexColor, vec2 thisFrameUV, float pivMax, float pivMin, float posMax, float posMin, sampler2D vatPositionTexture, sampler2D vatPositionSignTexture, sampler2D vatPositionAlphaTexture, sampler2D vatRotationTexture, sampler2D vatRotationSignTexture, sampler2D vatRotationAlphaTexture)
 {  
   // pivot
-  float expand = pivMax - pivMin;
-  float expand1 = posMax - posMin;
+  float pivExpand = pivMax - pivMin;
+  float posExpand = posMax - posMin;
 
-  vec3 pivot = meshVertexColor.rgb;
-  pivot.xyz *= expand;
+  vec3 pivot = meshVertexColor.xyz;
+  pivot.xyz *= pivExpand;
   pivot.xyz += vec3(pivMin);
     
   // anim pos
   vec3 posData = SampleTextureExr(vatPositionTexture, vatPositionSignTexture, thisFrameUV);
   vec3 texturePos = posData;
-  texturePos.xyz *= expand1;
+  texturePos.xyz *= posExpand;
   texturePos.xyz += posMin;
 
   // rotate pos
@@ -143,7 +143,7 @@ void VATGetLocalPositionRigidBody20(inout vec3 meshLocalPos, inout vec3 meshLoca
   rotatedPos = 2.0 * cross(quat.xyz, cross(quat.xyz, originPos.xyz) + quat.w * originPos.xyz);
 
   // result
-  meshLocalPos = pivot + originPos + rotatedPos + texturePos;
+  meshLocalPos = meshLocalPos + rotatedPos + texturePos;
   rotateVecFromQuat(meshLocalNormal, quat);
   rotateVecFromQuat(meshLocalTangent, quat);
 }
@@ -202,7 +202,7 @@ void VATGetLocalPositionRigidBody30(inout vec3 meshLocalPos, inout vec3 meshLoca
 
   if(isZUp)
     pivot.xyz = pivot.xzy / VAT_FBX_TO_COCOS_COORDINATE_SCALE;
-  pivot = meshLocalPos - pivot;
+  vec3 originPos = meshLocalPos - pivot;
   
   // rotation offset
   vec4 posData = SampleTextureExrWithAlpha(vatPositionTexture, vatPositionSignTexture, vatPositionAlphaTexture, thisFrameUV);
@@ -234,10 +234,10 @@ void VATGetLocalPositionRigidBody30(inout vec3 meshLocalPos, inout vec3 meshLoca
   // quat = quat.xzyw;
 
   vec3 rotatedPos;
-  rotatedPos = 2.0 * cross(quat.xyz, cross(quat.xyz, pivot.xyz) + quat.w * pivot.xyz);
+  rotatedPos = 2.0 * cross(quat.xyz, cross(quat.xyz, originPos.xyz) + quat.w * originPos.xyz);
 
   // result
-  meshLocalPos = pivot + rotatedPos + posData.xyz;
+  meshLocalPos = originPos + rotatedPos + posData.xyz;
   meshLocalNormal = 2.0 * cross(quat.xyz, cross(quat.xyz, meshLocalNormal.xyz)+ quat.w * meshLocalNormal.xyz);
   meshLocalTangent = 2.0 * cross(quat.xyz, cross(quat.xyz, meshLocalTangent.xyz)+ quat.w * meshLocalTangent.xyz);
 }
