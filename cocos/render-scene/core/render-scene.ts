@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 import { Root } from '../../root';
-import { Node, NodeEventType } from '../../scene-graph';
+import { Node } from '../../scene-graph';
 import { Camera } from '../scene/camera';
 import { DirectionalLight } from '../scene/directional-light';
 import { Model } from '../scene/model';
