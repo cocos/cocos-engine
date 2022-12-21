@@ -190,6 +190,20 @@ export default class CurveRange  {
         }
     }
 
+    public getMaxAbs (): number {
+        switch (this.mode) {
+        default:
+        case Mode.Constant:
+            return this.constant;
+        case Mode.Curve:
+            return this.multiplier;
+        case Mode.TwoConstants:
+            return Math.max(Math.abs(this.constantMax), Math.abs(this.constantMin));
+        case Mode.TwoCurves:
+            return this.multiplier;
+        }
+    }
+
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */

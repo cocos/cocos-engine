@@ -44,6 +44,7 @@ import { legacyCC } from '../../core/global-exports';
 
 const _tempAttribUV = new Vec3();
 const _tempWorldTrans = new Mat4();
+const _tempWorldInv = new Mat4();
 const _tempParentInverse = new Mat4();
 const _node_rot = new Quat();
 const _node_euler = new Vec3();
@@ -383,6 +384,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
             return this._particles!.length;
         }
         ps.node.getWorldMatrix(_tempWorldTrans);
+        Mat4.invert(_tempWorldInv, _tempWorldTrans);
         const mat: Material | null = ps.getMaterialInstance(0) || this._defaultMat;
         const pass = mat!.passes[0];
         this.doUpdateScale(pass);
@@ -439,6 +441,11 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
                 } else {
                     // apply gravity.
                     p.velocity.y -= ps.gravityModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, pseudoRandom(p.randomSeed))! * 9.8 * dt;
+                }
+
+                for (let f = 0; f < ps.getForceFields().length; ++f) {
+                    const ff = ps.getForceFields()[f];
+                    ff.field.update(p, dt, _tempWorldTrans, _tempWorldInv);
                 }
 
                 Vec3.copy(p.ultimateVelocity, p.velocity);
