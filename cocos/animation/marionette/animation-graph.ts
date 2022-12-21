@@ -1,6 +1,6 @@
 import { ccclass, serializable } from 'cc.decorator';
 import { DEBUG } from 'internal:constants';
-import { js, clamp, assertIsNonNullable, assertIsTrue, EditorExtendable, shift } from '../../core';
+import { js, clamp, assertIsNonNullable, assertIsTrue, EditorExtendable, rotate } from '../../core';
 import { MotionEval, MotionEvalContext } from './motion';
 import type { Condition } from './condition';
 import { OwnedBy, assertsOwnedBy, own, markAsDangling, ownerSymbol } from './ownership';
@@ -577,7 +577,7 @@ export class StateMachine extends EditorExtendable {
         }
         // eslint-disable-next-line no-lone-blocks
         { // 2. Adjust the order in outgoing array.
-            shift(outgoings, iAdjusting, iNew);
+            rotate(outgoings, iAdjusting, iNew);
         }
     }
 
@@ -900,7 +900,7 @@ export class AnimationGraph extends AnimationGraphLike implements AnimationGraph
      * @param newIndex
      */
     public moveLayer (index: number, newIndex: number) {
-        shift(this._layers, index, newIndex);
+        rotate(this._layers, index, newIndex);
     }
 
     /**
