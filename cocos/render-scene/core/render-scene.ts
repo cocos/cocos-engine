@@ -535,6 +535,11 @@ class LODInfo {
     transformDirty = true;
 }
 
+/**
+ * @zh 管理LODGroup的使用状态，包含使用层级及其上的model可见相机列表；便于判断当前model是否被LODGroup裁剪
+ * @en Manage the usage status of LODGroup, including the usage level and the list of visible cameras on its models;
+ * easy to determine whether the current mod is cropped by LODGroup。
+ */
 class LodStateCache {
     constructor (scene: RenderScene) {
         this._renderScene = scene;
@@ -545,8 +550,8 @@ class LodStateCache {
         for (const lodGroup of this._renderScene.lodGroups) {
             const layer = lodGroup.node.layer;
             if ((camera.visibility & layer) === layer) {
-                if (!this._visibleLodLevelsByAnyLODGroup.has(camera)) {
-                    this._visibleLodLevelsByAnyLODGroup.set(camera, new Map<LODGroup, LODInfo>());
+                if (!this._lodStateInCamera.has(camera)) {
+                    this._lodStateInCamera.set(camera, new Map<LODGroup, LODInfo>());
                 }
                 break;
             }
@@ -554,21 +559,21 @@ class LodStateCache {
     }
 
     removeCamera (camera: Camera) {
-        if (this._visibleLodLevelsByAnyLODGroup.has(camera)) {
-            this._visibleLodLevelsByAnyLODGroup.delete(camera);
+        if (this._lodStateInCamera.has(camera)) {
+            this._lodStateInCamera.delete(camera);
         }
     }
 
     addLodGroup (lodGroup: LODGroup) {
-        this._vecAddedLodGroup.push(lodGroup);
+        this._newAddedLodGroupVec.push(lodGroup);
 
         for (const camera of this._renderScene.cameras) {
-            if (this._visibleLodLevelsByAnyLODGroup.has(camera)) {
+            if (this._lodStateInCamera.has(camera)) {
                 continue;
             }
             const layer = lodGroup.node.layer;
             if ((camera.visibility & layer) === layer) {
-                this._visibleLodLevelsByAnyLODGroup.set(camera, new Map<LODGroup, LODInfo>());
+                this._lodStateInCamera.set(camera, new Map<LODGroup, LODInfo>());
             }
         }
     }
@@ -577,47 +582,49 @@ class LodStateCache {
         for (let index = 0; index < lodGroup.lodCount; index++) {
             const lod = lodGroup.lodDataArray[index];
             for (const model of lod.models) {
-                this._modelsIncludeByLODGroup.delete(model);
+                this._modelsInLODGroup.delete(model);
             }
         }
-        for (const visibleCamera of this._visibleLodLevelsByAnyLODGroup) {
+        for (const visibleCamera of this._lodStateInCamera) {
             visibleCamera[1].delete(lodGroup);
         }
     }
 
     removeModel (model: Model) {
-        if (this._modelsIncludeByLODGroup.has(model)) {
-            this._modelsIncludeByLODGroup.delete(model);
+        if (this._modelsInLODGroup.has(model)) {
+            this._modelsInLODGroup.delete(model);
         }
     }
 
+    // Update list of visible cameras on _modelsInLODGroup and update lod usage level under specified camera.
     updateLodState () {
         //insert vecAddedLodGroup's model into modelsByAnyLODGroup
-        for (const addedLodGroup of this._vecAddedLodGroup) {
+        for (const addedLodGroup of this._newAddedLodGroupVec) {
             for (let index = 0; index < addedLodGroup.lodCount; index++) {
                 const lod = addedLodGroup.lodDataArray[index];
                 for (const model of lod.models) {
-                    let modelInfo = this._modelsIncludeByLODGroup.get(model);
+                    let modelInfo = this._modelsInLODGroup.get(model);
                     if (!modelInfo) {
                         modelInfo = new ModelInfo();
                     }
                     modelInfo.ownerLodLevel = index;
                     modelInfo.lodGroup = addedLodGroup;
-                    this._modelsIncludeByLODGroup.set(model, modelInfo);
+                    this._modelsInLODGroup.set(model, modelInfo);
                 }
             }
         }
-        this._vecAddedLodGroup.length = 0;
+        this._newAddedLodGroupVec.length = 0;
 
-        //update current visible lod index
+        //update current visible lod index & model's visible cameras list
         for (const lodGroup of this._renderScene.lodGroups) {
             if (lodGroup.enabled) {
                 const lodLevels = lodGroup.getLockedLODLevels();
                 const count = lodLevels.length;
-                // count == 0 will return to standard LOD processing.
+                // count > 0, indicating that the user is forced to use certain layers of lod
                 if (count > 0) {
+                    //Update the dirty flag to make it easier to update the visible index of lod after lifting the forced use of lod.
                     if (lodGroup.node.hasChangedFlags > 0) {
-                        for (const visibleCamera of this._visibleLodLevelsByAnyLODGroup) {
+                        for (const visibleCamera of this._lodStateInCamera) {
                             let lodInfo = visibleCamera[1].get(lodGroup);
                             if (!lodInfo) {
                                 lodInfo = new LODInfo();
@@ -626,12 +633,13 @@ class LodStateCache {
                             lodInfo.transformDirty = true;
                         }
                     }
+                    //Update the visible camera list of all models on lodGroup when the visible level changes.
                     if (lodGroup.isLockLevelChanged()) {
                         lodGroup.resetLockChangeFlag();
                         for (let index = 0; index < lodGroup.lodCount; index++) {
                             const lod = lodGroup.lodDataArray[index];
                             for (const model of lod.models) {
-                                const modelInfo = this._modelsIncludeByLODGroup.get(model);
+                                const modelInfo = this._modelsInLODGroup.get(model);
                                 if (!modelInfo) {
                                     continue;
                                 }
@@ -639,7 +647,7 @@ class LodStateCache {
                                 if (model.node && model.node.active) {
                                     for (const visibleIndex of lodLevels) {
                                         if (modelInfo.ownerLodLevel === visibleIndex) {
-                                            for (const visibleCamera of this._visibleLodLevelsByAnyLODGroup) {
+                                            for (const visibleCamera of this._lodStateInCamera) {
                                                 modelInfo.visibleCameras.set(visibleCamera[0], true);
                                             }
                                             break;
@@ -650,51 +658,56 @@ class LodStateCache {
                         }
                     }
                     continue;
-                } else {
-                    let hasUpdated = false;
-                    for (const visibleCamera of this._visibleLodLevelsByAnyLODGroup) {
-                        let lodInfo = visibleCamera[1].get(lodGroup);
-                        if (!lodInfo) {
-                            lodInfo = new LODInfo();
-                            visibleCamera[1].set(lodGroup, lodInfo);
-                        }
-                        const cameraChangeFlags = visibleCamera[0].node.hasChangedFlags;
-                        const lodChangeFlags = lodGroup.node.hasChangedFlags;
-                        if (cameraChangeFlags > 0 || lodChangeFlags > 0 || lodInfo.transformDirty) {
-                            if (lodInfo.transformDirty) {
-                                lodInfo.transformDirty = false;
-                            }
-                            const index = lodGroup.getVisibleLODLevel(visibleCamera[0]);
-                            if (index !== lodInfo.visibleLevel) {
-                                lodInfo.visibleLevel = index;
-                                hasUpdated = true;
-                            }
-                        }
-                    }
+                }
 
-                    if (lodGroup.isLockLevelChanged()) {
-                        lodGroup.resetLockChangeFlag();
-                        hasUpdated = true;
+                //Normal Process, no LOD is forced.
+                let hasUpdated = false;
+                for (const visibleCamera of this._lodStateInCamera) {
+                    let lodInfo = visibleCamera[1].get(lodGroup);
+                    if (!lodInfo) {
+                        lodInfo = new LODInfo();
+                        visibleCamera[1].set(lodGroup, lodInfo);
                     }
-                    if (hasUpdated) {
-                        for (let index = 0; index < lodGroup.lodCount; index++) {
-                            const lod = lodGroup.lodDataArray[index];
-                            for (const model of lod.models) {
-                                const modelInfo = this._modelsIncludeByLODGroup.get(model);
-                                if (modelInfo) {
-                                    modelInfo.visibleCameras.clear();
-                                    if (model.node && model.node.active) {
-                                        this._visibleLodLevelsByAnyLODGroup.forEach((lodMap, camera) => {
-                                            let visibleLevel = -1;
-                                            const lodInfo = lodMap.get(lodGroup);
-                                            if (lodInfo) {
-                                                visibleLevel = lodInfo.visibleLevel;
-                                            }
-                                            if (modelInfo.ownerLodLevel === visibleLevel) {
-                                                modelInfo.visibleCameras.set(camera, true);
-                                            }
-                                        });
-                                    }
+                    const cameraChangeFlags = visibleCamera[0].node.hasChangedFlags;
+                    const lodChangeFlags = lodGroup.node.hasChangedFlags;
+                    // Changes in the camera matrix or changes in the matrix of the node where lodGroup is located or
+                    // the transformDirty marker is true, etc. All need to recalculate the visible level of LOD.
+                    if (cameraChangeFlags > 0 || lodChangeFlags > 0 || lodInfo.transformDirty) {
+                        if (lodInfo.transformDirty) {
+                            lodInfo.transformDirty = false;
+                        }
+                        const index = lodGroup.getVisibleLODLevel(visibleCamera[0]);
+                        if (index !== lodInfo.visibleLevel) {
+                            lodInfo.visibleLevel = index;
+                            hasUpdated = true;
+                        }
+                    }
+                }
+
+                //The LOD of the last frame is forced to be used, the list of visible cameras of modelInfo needs to be updated.
+                if (lodGroup.isLockLevelChanged()) {
+                    lodGroup.resetLockChangeFlag();
+                    hasUpdated = true;
+                }
+                //Update the visible camera list of all models on lodGroup.
+                if (hasUpdated) {
+                    for (let index = 0; index < lodGroup.lodCount; index++) {
+                        const lod = lodGroup.lodDataArray[index];
+                        for (const model of lod.models) {
+                            const modelInfo = this._modelsInLODGroup.get(model);
+                            if (modelInfo) {
+                                modelInfo.visibleCameras.clear();
+                                if (model.node && model.node.active) {
+                                    this._lodStateInCamera.forEach((lodMap, camera) => {
+                                        let visibleLevel = -1;
+                                        const lodInfo = lodMap.get(lodGroup);
+                                        if (lodInfo) {
+                                            visibleLevel = lodInfo.visibleLevel;
+                                        }
+                                        if (modelInfo.ownerLodLevel === visibleLevel) {
+                                            modelInfo.visibleCameras.set(camera, true);
+                                        }
+                                    });
                                 }
                             }
                         }
@@ -705,7 +718,7 @@ class LodStateCache {
     }
 
     isLodModelCulled (camera: Camera, model: Model) {
-        const modelInfo = this._modelsIncludeByLODGroup.get(model);
+        const modelInfo = this._modelsInLODGroup.get(model);
         if (!modelInfo) {
             return false;
         }
@@ -714,9 +727,9 @@ class LodStateCache {
     }
 
     clearCache () {
-        this._modelsIncludeByLODGroup.clear();
-        this._visibleLodLevelsByAnyLODGroup.clear();
-        this._vecAddedLodGroup.length = 0;
+        this._modelsInLODGroup.clear();
+        this._lodStateInCamera.clear();
+        this._newAddedLodGroupVec.length = 0;
     }
 
     private isLodGroupVisibleByCamera (lodGroup: LODGroup, camera: Camera): boolean {
@@ -730,17 +743,17 @@ class LodStateCache {
      * @zh LOD使用的model集合；包含每个LODGroup的每一级LOD
      * @en The collection of models used by LOD; Each LOD of each LODGroup.
      */
-    private _modelsIncludeByLODGroup: Map<Model, ModelInfo> = new Map<Model, ModelInfo>();
+    private _modelsInLODGroup: Map<Model, ModelInfo> = new Map<Model, ModelInfo>();
 
     /**
       * @zh 指定相机下，LODGroup使用哪一级的LOD
       * @en Specify which level of LOD is used by the LODGroup under the camera.
       */
-    private _visibleLodLevelsByAnyLODGroup: Map<Camera, Map<LODGroup, LODInfo>> = new Map<Camera, Map<LODGroup, LODInfo>>();
+    private _lodStateInCamera: Map<Camera, Map<LODGroup, LODInfo>> = new Map<Camera, Map<LODGroup, LODInfo>>();
 
     /**
       * @zh 上一帧添加的lodgroup
       * @en The lodgroup added in the previous frame.
       */
-    private _vecAddedLodGroup: Array<LODGroup> = new Array<LODGroup>();
+    private _newAddedLodGroupVec: Array<LODGroup> = new Array<LODGroup>();
 }
