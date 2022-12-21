@@ -5,7 +5,7 @@ import { Pose, TransformFilter } from '../core/pose';
 import { PoseAllocator } from '../core/pose-allocator';
 import { TransformArray } from '../core/transform-array';
 import { TransformHandle, MetaValueHandle } from '../core/animation-handle';
-import { Transform } from '../core/transform';
+import { Transform, ZERO_DELTA_TRANSFORM } from '../core/transform';
 import { VarInstance } from './variable';
 import { AnimationMask } from './animation-mask';
 import { error } from '../../core';
@@ -498,9 +498,9 @@ export class AnimationGraphEvaluationContext {
         return pose;
     }
 
-    public pushZeroPose () {
+    public pushZeroDeltaPose () {
         const pose = this._poseAllocator.push();
-        pose.transforms.fillZero();
+        pose.transforms.fill(ZERO_DELTA_TRANSFORM);
         pose.metaValues.fill(0.0);
         return pose;
     }

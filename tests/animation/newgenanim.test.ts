@@ -1,7 +1,7 @@
 
 import { lerp, Vec3, warnID } from '../../cocos/core';
 import { AnimationBlend1D, AnimationBlend2D, Condition, InvalidTransitionError, VariableNotDefinedError, ClipMotion, AnimationBlendDirect, VariableType, AnimationMask, AnimationGraphVariant } from '../../cocos/animation/marionette/asset-creation';
-import { AnimationGraph, StateMachine, Transition, isAnimationTransition, AnimationTransition, TransitionInterruptionSource, State } from '../../cocos/animation/marionette/animation-graph';
+import { AnimationGraph, StateMachine, Transition, isAnimationTransition, AnimationTransition, TransitionInterruptionSource, State, Layer } from '../../cocos/animation/marionette/animation-graph';
 import { VariableTypeMismatchedError } from '../../cocos/animation/marionette/errors';
 import { AnimationGraphEval, MotionStateStatus, ClipStatus } from '../../cocos/animation/marionette/graph-eval';
 import { createGraphFromDescription } from '../../cocos/animation/marionette/__tmp__/graph-from-description';
@@ -4874,6 +4874,95 @@ describe('NewGen Anim', () => {
                 ]);
                 clip.addTrack(track);
             }
+        });
+
+        describe(`Additive nullish motion`, () => {
+            /**
+             * 
+             * ### Spec
+             * 
+             * In everywhere of an additive layer, if a motion is required but it is not specified,
+             * it's as if there is a "nullish motion" specified at that place.
+             * The nullish motion yields "zero delta pose", that's, it takes no any animation effect when applying additive operation.
+             * 
+             * Besides, if the layer is not in a motion state, the layer yields "zero delta pose" too.
+             */
+            const _spec = undefined;
+
+            test(`The whole additive layer is nullish`, () => {
+                const observer = new SingleRealValueObserver(6.);
+                const graph = new AnimationGraph();
+                const layer = graph.addLayer();
+                layer.additive = true;
+
+                // Adds a motion to "hold the pose" but don't connect to it.
+                const holderState = layer.stateMachine.addMotion();
+                holderState.motion = new ConstantRealValueAnimationFixture(2.).createMotion(observer.getCreateMotionContext());
+
+                const graphEval = createAnimationGraphEval(graph, observer.root);
+                const graphUpdater = new GraphUpdater(graphEval);
+                graphUpdater.step(0.2);
+                expect(observer.value).toBeCloseTo(6.);
+            });
+
+            test(`Run into a nullish motion state`, () => {
+                const observer = new SingleRealValueObserver(6.);
+                const graph = new AnimationGraph();
+                const layer = graph.addLayer();
+                layer.additive = true;
+
+                // Adds a motion to "hold the pose" but don't connect to it.
+                const holderState = layer.stateMachine.addMotion();
+                holderState.motion = new ConstantRealValueAnimationFixture(2.).createMotion(observer.getCreateMotionContext());
+
+                const nullMotionState = layer.stateMachine.addMotion();
+                layer.stateMachine.connect(layer.stateMachine.entryState, nullMotionState);
+
+                const graphEval = createAnimationGraphEval(graph, observer.root);
+                const graphUpdater = new GraphUpdater(graphEval);
+                graphUpdater.step(0.2);
+                expect(observer.value).toBeCloseTo(6.);
+            });
+
+            test(`Run into a transition, either of the source or destination state is nullish`, () => {
+                const fixture = {
+                    initial_value: 6.,
+                    source_animation: new LinearRealValueAnimationFixture(1., 2., 3.),
+                    transition_duration: 0.3,
+                };
+
+                const observer = new SingleRealValueObserver(fixture.initial_value);
+                const graph = new AnimationGraph();
+                const layer = graph.addLayer();
+                layer.additive = true;
+
+                // Adds a motion to "hold the pose" but don't connect to it.
+                const holderState = layer.stateMachine.addMotion();
+                holderState.motion = new ConstantRealValueAnimationFixture(2.).createMotion(observer.getCreateMotionContext());
+
+                const sourceState = layer.stateMachine.addMotion();
+                sourceState.motion = fixture.source_animation.createMotion(observer.getCreateMotionContext());
+                layer.stateMachine.connect(layer.stateMachine.entryState, sourceState);
+
+                const nullDestinationState = layer.stateMachine.addMotion();
+
+                const transition = layer.stateMachine.connect(sourceState, nullDestinationState);
+                transition.duration = fixture.transition_duration;
+                transition.exitConditionEnabled = true;
+                transition.exitCondition = 0.0;
+
+                const graphEval = createAnimationGraphEval(graph, observer.root);
+                const graphUpdater = new GraphUpdater(graphEval);
+                graphUpdater.step(0.2);
+
+                expect(observer.value).toBeCloseTo(fixture.initial_value +
+                    lerp(
+                        fixture.source_animation.getExpectedAdditive(0.2),
+                        0.0, // Because destination state is nullish, it's as if it's "zero delta pose".
+                        0.2 / fixture.transition_duration,
+                    ),
+                );
+            })
         });
     });
 

@@ -98,7 +98,7 @@ export class AnimationGraphEval {
         const nLayers = layerEvaluations.length;
         for (let iLayer = 0; iLayer < nLayers; ++iLayer) {
             const layerEval = layerEvaluations[iLayer];
-            const layerPose = layerEval.update(deltaTime, evaluationContext) ?? evaluationContext.pushDefaultedPose();
+            const layerPose = layerEval.update(deltaTime, evaluationContext);
             const layerActualWeight = layerEval.weight * layerEval.passthroughWeight;
             if (layerEval.additive) {
                 applyDeltaPose(finalPose, layerPose, layerActualWeight, layerEval.transformFilter);
@@ -446,13 +446,17 @@ class LayerEval {
         return this._currentNode === this._topLevelExit;
     }
 
-    public update (deltaTime: number, context: AnimationGraphEvaluationContext): Pose | null {
+    public update (deltaTime: number, context: AnimationGraphEvaluationContext): Pose {
         if (!this.exited) {
             this._transitionAlpha = 0.0;
             this._eval(deltaTime);
-            return this._sample(context);
+            const sampled = this._sample(context);
+            if (sampled) {
+                return sampled;
+            }
+            // fallthrough
         }
-        return null;
+        return this._pushNullishPose(context);
     }
 
     public getCurrentStateStatus (): Readonly<MotionStateStatus> | null {
@@ -849,9 +853,9 @@ class LayerEval {
             return this._sampleSource(context);
         } else {
             this.passthroughWeight = 1.0;
-            const sourcePose = this._sampleSource(context) ?? context.pushDefaultedPose();
+            const sourcePose = this._sampleSource(context) ?? this._pushNullishPose(context);
             if (currentTransitionToNode && currentTransitionToNode.kind === NodeKind.animation) {
-                const destPose = currentTransitionToNode.sampleToPort(context) ?? context.pushDefaultedPose();
+                const destPose = currentTransitionToNode.sampleToPort(context) ?? this._pushNullishPose(context);
                 blendPoseInto(sourcePose, destPose, transitionAlpha);
                 context.popPose();
                 return sourcePose;
@@ -872,6 +876,12 @@ class LayerEval {
             return currentNode.sample(context);
         }
         return null;
+    }
+
+    private _pushNullishPose (context: AnimationGraphEvaluationContext) {
+        return this.additive
+            ? context.pushZeroDeltaPose()
+            : context.pushDefaultedPose();
     }
 
     /**

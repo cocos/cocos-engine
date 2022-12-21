@@ -226,3 +226,11 @@ const deltaQuat = (() => {
         return Quat.multiply(out, to, fromInv);
     };
 })();
+
+export const ZERO_DELTA_TRANSFORM = Object.freeze((() => {
+    const transform = new Transform();
+    transform.position = Vec3.ZERO;
+    transform.rotation = Quat.IDENTITY;
+    transform.scale = Vec3.ZERO;
+    return transform;
+})());
