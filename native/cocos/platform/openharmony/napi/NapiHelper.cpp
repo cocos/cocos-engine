@@ -46,7 +46,6 @@ enum ContextType {
     ENGINE_UTILS,
     EDITBOX_UTILS,
     WEBVIEW_UTILS,
-    VIDEO_UTILS,
     UV_ASYNC_SEND,
 };
 NapiHelper::PostMessage2UIThreadCb NapiHelper::_postMsg2UIThreadCb;
@@ -207,12 +206,6 @@ napi_value NapiHelper::getContext(napi_env env, napi_callback_info info) {
             OpenHarmonyWebView::GetInterfaces(desc);
             NAPI_CALL(env, napi_define_properties(env, exports, desc.size(), desc.data()));
         } break;
-        // openharmony's video adaptation in ts
-        // case VIDEO_UTILS: {
-        //     std::vector<napi_property_descriptor> desc;
-        //     VideoOpenHarmony::GetInterfaces(desc);
-        //     NAPI_CALL(env, napi_define_properties(env, exports, desc.size(), desc.data()));
-        // } break;
         case UV_ASYNC_SEND: {
             napi_property_descriptor desc[] = {
                 DECLARE_NAPI_FUNCTION("send", NapiHelper::napiASend),
