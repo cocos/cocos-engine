@@ -34,8 +34,6 @@ nativeContext.workerInit()
 
 const nativeEditBox = nativerender.getContext(ContextType.EDITBOX_UTILS);
 const nativeWebView = nativerender.getContext(ContextType.WEBVIEW_UTILS);
-// For native Implementation
-//const nativeVideo = nativerender.getContext(ContextType.VIDEO_UTILS);
 
 let uiPort = new PortProxy(worker.parentPort);
 nativeContext.postMessage = function(msgType: string, msgData:string) {
@@ -46,8 +44,6 @@ nativeContext.postSyncMessage = async function(msgType: string, msgData:string) 
     const result = await uiPort.postSyncMessage(msgType, msgData);
     return result;
 }
-
-//window.oh.postSyncMessage = nativeContext.postSyncMessage;
 
 // The purpose of this is to avoid being GC
 nativeContext.setPostMessageFunction.call(nativeContext, nativeContext.postMessage)
@@ -88,18 +84,11 @@ uiPort._messageHandle = function(e) {
             nativeWebView.failLoading(msg.param.viewTag, msg.param.url);
             break;
         case "onVideoEvent":
-            // For native Implementation
-//            if(msg.param.args != undefined || msg.param.args != null) {
-//                //nativeVideo.onEvents(msg.param.videoTag, msg.param.videoEvent, msg.param.args);
-//            } else {
-//                //nativeVideo.onEvents(msg.param.videoTag, msg.param.videoEvent);
-//            }
             // @ts-ignore
             if(window.oh && typeof window.oh.onVideoEvent === "function") {
                 // @ts-ignore
                 window.oh.onVideoEvent(msg.param.videoTag, msg.param.videoEvent, msg.param.args);
             }
-
             break;
         default:
             console.error("cocos worker: message type unknown");
