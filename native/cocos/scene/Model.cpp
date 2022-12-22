@@ -201,6 +201,7 @@ void Model::updateUBOs(uint32_t stamp) {
         _localBuffer->write(mat4, sizeof(float) * pipeline::UBOLocal::MAT_WORLD_IT_OFFSET);
         _localBuffer->write(_lightmapUVParam, sizeof(float) * pipeline::UBOLocal::LIGHTINGMAP_UVPARAM);
         _localBuffer->write(_shadowBias, sizeof(float) * (pipeline::UBOLocal::LOCAL_SHADOW_BIAS));
+        _localBuffer->write(_reflectionProbeId, sizeof(float) * (pipeline::UBOLocal::LOCAL_SHADOW_BIAS + 2));
 
         _localBuffer->update();
         const bool enableOcclusionQuery = Root::getInstance()->getPipeline()->isOcclusionQueryEnabled();

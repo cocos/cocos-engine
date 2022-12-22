@@ -1,0 +1,32 @@
+void GetPlanarReflectionProbeData(out vec4 plane, out float planarReflectionDepthScale)
+{
+    #if USE_INSTANCING
+      float uv_y = FSInput_reflectionProbeId / cc_probeInfo.x;
+      vec4 texData1 = texture(cc_reflectionProbeDataMap, vec2(0.25, uv_y));
+      vec4 texData2 = texture(cc_reflectionProbeDataMap, vec2(0.75, uv_y));
+      vec3 data1 = unpackRGBE(texData1);
+      vec3 data2 = unpackRGBE(texData2);
+      plane.xyz = data1;
+      plane.w = data2.x;
+      planarReflectionDepthScale = data2.y;
+    #else
+      plane = cc_reflectionProbeData;
+      planarReflectionDepthScale = cc_localShadowBias.z;
+    #endif
+}
+
+void GetCubeReflectionProbeData(out vec3 centerPos, out float boxSize)
+{
+    #if USE_INSTANCING
+      float uv_y = FSInput_reflectionProbeId / cc_probeInfo.x;
+      vec4 texData1 = texture(cc_reflectionProbeDataMap, vec2(0.25, uv_y));
+      vec4 texData2 = texture(cc_reflectionProbeDataMap, vec2(0.75, uv_y));
+      vec3 data1 = unpackRGBE(texData1);
+      vec3 data2 = unpackRGBE(texData2);
+      centerPos = data1;
+      boxSize = data2.x;
+    #else
+      centerPos = cc_reflectionProbeData.xyz;
+      boxSize = cc_reflectionProbeData.w;
+    #endif
+}

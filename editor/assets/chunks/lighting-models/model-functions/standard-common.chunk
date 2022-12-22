@@ -117,7 +117,13 @@ vec3 CalculateEnvironmentSpecular(in LightingIntermediateData lightingData, floa
 #if CC_USE_REFLECTION_PROBE
   #if CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_CUBE
     envSpec = SampleEnvironmentSpecular(cc_reflectionProbeCubemap, lightingData, cc_ambientGround.w);
+    vec3 centerPos;
+    float boxSize;
+    GetCubeReflectionProbeData(centerPos, boxSize);
   #elif CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_PLANAR
+    vec4 plane;
+    float planarReflectionDepthScale;
+    GetPlanarReflectionProbeData(plane, planarReflectionDepthScale);
     vec3 R = normalize(CalculateReflectDirection(lightingData.N, lightingData.V, lightingData.NoV));
     vec3 worldPos;
     HIGHP_VALUE_FROM_STRUCT_DEFINED(worldPos, lightingData.worldPosition);

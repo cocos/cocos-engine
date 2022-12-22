@@ -318,6 +318,9 @@ export class MeshRenderer extends ModelRenderer {
     @serializable
     protected _shadowNormalBias = 0;
 
+    @serializable
+    protected _reflectionProbeId = 0;
+
     // @serializable
     private _subMeshShapesWeights: number[][] = [];
 
@@ -336,7 +339,7 @@ export class MeshRenderer extends ModelRenderer {
     set shadowBias (val) {
         this._shadowBias = val;
         this._updateShadowBias();
-        this._onUpdateLocalShadowBias();
+        this._onUpdateLocalShadowBiasAndProbeId();
     }
 
     /**
@@ -354,7 +357,7 @@ export class MeshRenderer extends ModelRenderer {
     set shadowNormalBias (val) {
         this._shadowNormalBias = val;
         this._updateShadowNormalBias();
-        this._onUpdateLocalShadowBias();
+        this._onUpdateLocalShadowBiasAndProbeId();
     }
 
     /**
@@ -517,7 +520,7 @@ export class MeshRenderer extends ModelRenderer {
         this._updateShadowNormalBias();
         this._updateBakeToReflectionProbe();
         this._updateUseReflectionProbe();
-        this._onUpdateLocalShadowBias();
+        this._onUpdateLocalShadowBiasAndProbeId();
         this._updateUseLightProbe();
         this._attachToScene();
     }
@@ -708,7 +711,7 @@ export class MeshRenderer extends ModelRenderer {
             this._updateUseLightProbe();
             this._updateModelParams();
             this._onUpdateLightingmap();
-            this._onUpdateLocalShadowBias();
+            this._onUpdateLocalShadowBiasAndProbeId();
             this._updateUseReflectionProbe();
         }
     }
@@ -785,14 +788,17 @@ export class MeshRenderer extends ModelRenderer {
         ]);
     }
 
-    protected _onUpdateLocalShadowBias () {
+    protected _onUpdateLocalShadowBiasAndProbeId () {
         if (this.model !== null) {
             this.model.updateLocalShadowBias();
+            this.model.updateReflectionProbeId();
         }
 
-        this.setInstancedAttribute('a_localShadowBias', [
+        this.setInstancedAttribute('a_localShadowBiasAndProbeId', [
             this._shadowBias,
             this._shadowNormalBias,
+            this._reflectionProbeId,
+            0.0,
         ]);
     }
 
@@ -806,7 +812,7 @@ export class MeshRenderer extends ModelRenderer {
         this._model.isDynamicBatching = this._isBatchingEnabled();
         this._model.setSubModelMaterial(idx, material);
         this._onUpdateLightingmap();
-        this._onUpdateLocalShadowBias();
+        this._onUpdateLocalShadowBiasAndProbeId();
         this._updateReflectionProbeTexture();
     }
 

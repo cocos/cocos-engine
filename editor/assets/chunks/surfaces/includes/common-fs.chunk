@@ -61,6 +61,9 @@
 #if CC_USE_LIGHT_PROBE
   #include <builtin/functionalities/sh>
 #endif
+#if CC_USE_REFLECTION_PROBE
+  #include <builtin/functionalities/probe>
+#endif
 
 // Uniform should depend on system macro, not surface macro
 #if CC_USE_LIGHTMAP && !CC_FORWARD_ADD

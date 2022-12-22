@@ -5,5 +5,6 @@ layout(set = 2, binding = 0) uniform CCLocal {
   highp mat4 cc_matWorld;
   highp mat4 cc_matWorldIT;
   highp vec4 cc_lightingMapUVParam;
-  highp vec4 cc_localShadowBias; // x:shadow bias, y:shadow normal bias.
+  highp vec4 cc_localShadowBias; // x:shadow bias, y:shadow normal bias, z:planar reflection depth scale
+  highp vec4 cc_reflectionProbeData; // xyzw: plane or xyz: cubecenter, w: boxsize
 };
