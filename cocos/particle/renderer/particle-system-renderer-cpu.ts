@@ -41,6 +41,7 @@ import { Pass } from '../../core/renderer';
 import { ParticleNoise } from '../noise';
 import { NoiseModule } from '../animator/noise-module';
 import { legacyCC } from '../../core/global-exports';
+import { ForceFieldComp } from '../animator/force-field-comp';
 
 const _tempAttribUV = new Vec3();
 const _tempWorldTrans = new Mat4();
@@ -384,11 +385,15 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
             return this._particles!.length;
         }
         ps.node.getWorldMatrix(_tempWorldTrans);
-        Mat4.invert(_tempWorldInv, _tempWorldTrans);
         const mat: Material | null = ps.getMaterialInstance(0) || this._defaultMat;
         const pass = mat!.passes[0];
         this.doUpdateScale(pass);
         this.doUpdateRotation(pass);
+
+        const forceFields = ps.node.scene.getComponents(ForceFieldComp);
+        if (forceFields.length > 0) {
+            Mat4.invert(_tempWorldInv, _tempWorldTrans);
+        }
 
         this._updateList.forEach((value: IParticleModule, key: string) => {
             value.update(ps._simulationSpace, _tempWorldTrans);
@@ -443,8 +448,8 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
                     p.velocity.y -= ps.gravityModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, pseudoRandom(p.randomSeed))! * 9.8 * dt;
                 }
 
-                for (let f = 0; f < ps.getForceFields().length; ++f) {
-                    const ff = ps.getForceFields()[f];
+                for (let f = 0; f < forceFields.length; ++f) {
+                    const ff = forceFields[f];
                     ff.field.update(p, dt, _tempWorldTrans, _tempWorldInv);
                 }
 
