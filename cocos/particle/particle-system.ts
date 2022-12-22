@@ -55,7 +55,6 @@ import { AABB, intersect } from '../core/geometry';
 import { Camera } from '../core/renderer/scene';
 import { ParticleCuller } from './particle-culler';
 import { NoiseModule } from './animator/noise-module';
-import { ForceFieldComp } from './animator/force-field-comp'
 import { CCBoolean, CCFloat, CCObject, Node } from '../core';
 
 const _world_mat = new Mat4();
@@ -1014,8 +1013,6 @@ export class ParticleSystem extends ModelRenderer {
 
     public processor: IParticleSystemRenderer = null!;
 
-    private _forcefields: ForceFieldComp[];
-
     constructor () {
         super();
 
@@ -1054,22 +1051,6 @@ export class ParticleSystem extends ModelRenderer {
         this._trigged = false;
 
         this._particle = null;
-        this._forcefields = [];
-    }
-
-    public getForceFields () {
-        return this._forcefields;
-    }
-
-    public addForce (field: ForceFieldComp) {
-        this._forcefields.push(field);
-    }
-
-    public removeForce (field: ForceFieldComp) {
-        const index = this._forcefields.indexOf(field);
-        if (index > -1) {
-            this._forcefields.splice(index, 1);
-        }
     }
 
     public onFocusInEditor () {
