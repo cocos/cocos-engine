@@ -46,6 +46,14 @@ namespace cc {
 
 namespace render {
 
+const ccstd::string &NativeProgramProxy::getName() const noexcept {
+    return shader->getName();
+}
+
+gfx::Shader *NativeProgramProxy::getShader() const noexcept {
+    return shader;
+}
+
 namespace {
 
 constexpr uint32_t SET_INDEX[4] = {2, 1, 3, 0};
