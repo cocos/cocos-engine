@@ -37,7 +37,7 @@ export * from './pipeline';
 export * from './archive';
 
 export const INVALID_ID = 0xFFFFFFFF;
-export const enableEffectImport = true;
+export const enableEffectImport = false;
 
 let _renderModule: RenderingModule;
 
