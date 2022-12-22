@@ -26,20 +26,20 @@
 #pragma once
 
 // Conditions outside GFX module better defined here.
+namespace cc {
 
 #if CC_EDITOR
     #if defined(CC_USE_GLES3) || defined(CC_USE_GLES2)
-// by enabling this render target texture is mltisampled
+// by enabling this render target texture is multisampled
 static constexpr bool MSAA_RT{false};
 // by enabling this use egl config onscreen msaa
 static constexpr bool MSAA_SWAPCHAIN{true};
 // by enabling this rendertarget is able to `move` to swapchain
 static constexpr bool MOVE_TO_SWAPCHAIN{true};
     #else
-static constexpr bool MSAA_RT{false};
+static constexpr bool MSAA_RT{true};
 static constexpr bool MSAA_SWAPCHAIN{false};
-// gl msaa rt needs a resolve target, while gl swapchain is memoryless(default fbo not a texture target), so move is banned.
-static constexpr bool MOVE_TO_SWAPCHAIN{true};
+static constexpr bool MOVE_TO_SWAPCHAIN{false};
     #endif
 #else
 static constexpr bool MSAA_RT{false};
@@ -48,6 +48,8 @@ static constexpr bool MOVE_TO_SWAPCHAIN{true};
 #endif
 
 #if defined(CC_USE_GLES3) || defined(CC_USE_GLES2)
+// gl msaa rt needs a resolve target, while gl swapchain is memoryless(default fbo not a texture target),
+// so move is banned when msaa_rt is ON.
 static_assert(!(MSAA_RT && MOVE_TO_SWAPCHAIN));
     #ifdef CC_USE_GLES2
 // present in frame graph performs a fbo(rbo) -> fbo(default)
@@ -55,3 +57,5 @@ static_assert(!(MSAA_RT && MOVE_TO_SWAPCHAIN));
 static_assert(MOVE_TO_SWAPCHAIN ^ MSAA_RT);
     #endif
 #endif
+
+} // namespace cc
