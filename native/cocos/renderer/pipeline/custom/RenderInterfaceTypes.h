@@ -325,8 +325,23 @@ public:
     virtual void setup(const ccstd::vector<scene::Camera*> &cameras, Pipeline *pipeline) = 0;
 };
 
+class RenderingModule {
+public:
+    RenderingModule() noexcept = default;
+    RenderingModule(RenderingModule&& rhs) = delete;
+    RenderingModule(RenderingModule const& rhs) = delete;
+    RenderingModule& operator=(RenderingModule&& rhs) = delete;
+    RenderingModule& operator=(RenderingModule const& rhs) = delete;
+    virtual ~RenderingModule() noexcept = default;
+
+    virtual uint32_t getPassID(const ccstd::string &name) const = 0;
+    virtual uint32_t getPhaseID(uint32_t passID, const ccstd::string &name) const = 0;
+};
+
 class Factory {
 public:
+    static RenderingModule* init(gfx::Device* deviceIn, const ccstd::vector<unsigned char>& bufferIn);
+    static void destroy(RenderingModule* renderingModule) noexcept;
     static Pipeline *createPipeline();
 };
 

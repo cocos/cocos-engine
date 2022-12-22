@@ -30,7 +30,7 @@
  */
 /* eslint-disable max-len */
 import { getPhaseID, InstancedBuffer, PipelineStateManager } from '..';
-import { assert } from '../../core';
+import { assert, cclegacy } from '../../core';
 import intersect from '../../core/geometry/intersect';
 import { Sphere } from '../../core/geometry/sphere';
 import { AccessFlagBit, Attribute, Buffer, BufferInfo, BufferUsageBit, BufferViewInfo, Color, ColorAttachment, CommandBuffer, DepthStencilAttachment, DescriptorSet, DescriptorSetInfo, Device, deviceManager, Format, Framebuffer,
@@ -40,13 +40,11 @@ import { legacyCC } from '../../core/global-exports';
 import { Vec3 } from '../../core/math/vec3';
 import { Vec4 } from '../../core/math/vec4';
 import { BatchingSchemes } from '../../render-scene';
-import { DirectionalLight } from '../../render-scene/scene';
 import { Camera } from '../../render-scene/scene/camera';
-import { LightType } from '../../render-scene/scene/light';
-import { CSMLevel, ShadowType } from '../../render-scene/scene/shadows';
+import { ShadowType } from '../../render-scene/scene/shadows';
 import { Root } from '../../root';
 import { BatchedBuffer } from '../batched-buffer';
-import { SetIndex, UBODeferredLight, UBOForwardLight, UBOLocal } from '../define';
+import { isEnableEffect, SetIndex, UBODeferredLight, UBOForwardLight, UBOLocal } from '../define';
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { PipelineInputAssemblerData } from '../render-pipeline';
 import { LayoutGraphData, PipelineLayoutData, RenderPhaseData, RenderStageData } from './layout-graph';
@@ -65,7 +63,7 @@ import { renderProfiler } from '../pipeline-funcs';
 import { PlanarShadowQueue } from '../planar-shadow-queue';
 import { DefaultVisitor, depthFirstSearch, ReferenceGraphView } from './graph';
 import { VectorGraphColorMap } from './effect';
-import { getRenderArea } from './define';
+import { getDescBindingFromName, getRenderArea, updateGlobalDescBinding } from './define';
 import { RenderReflectionProbeQueue } from '../render-reflection-probe-queue';
 import { ReflectionProbeManager } from '../reflection-probe-manager';
 
@@ -371,6 +369,7 @@ class BlitDesc {
 
             const deferredLitsBufView = device.createBuffer(new BufferViewInfo(this._lightVolumeBuffer, 0, totalSize));
             this._lightBufferData = new Float32Array(totalSize / Float32Array.BYTES_PER_ELEMENT);
+            const binding = isEnableEffect() ? getDescBindingFromName('CCForwardLight') : UBOForwardLight.BINDING;
             this._stageDesc.bindBuffer(UBOForwardLight.BINDING, deferredLitsBufView);
         }
         const _localUBO = device.createBuffer(new BufferInfo(
@@ -389,7 +388,7 @@ class DeviceRenderQueue {
     private _postSceneTasks: DevicePostSceneTask[] = [];
     private _devicePass: DeviceRenderPass;
     private _hint: QueueHint =  QueueHint.NONE;
-    private _phaseID = getPhaseID('default');
+    private _phaseID: number = getPhaseID('default');
     private _renderPhase: RenderPhaseData | null = null;
     protected _transversal: DeviceSceneTransversal | null = null;
     get phaseID (): number { return this._phaseID; }
@@ -402,6 +401,7 @@ class DeviceRenderQueue {
     get queueId () { return this._queueId; }
     constructor (devicePass: DeviceRenderPass) {
         this._devicePass = devicePass;
+        if (isEnableEffect()) this._phaseID = cclegacy.rendering.getPhaseID(devicePass.passID, 'default');
         this._sceneVisitor = new WebSceneVisitor(this._devicePass.context.commandBuffer,
             this._devicePass.context.pipeline.pipelineSceneData);
     }
@@ -455,7 +455,7 @@ class DeviceRenderQueue {
 
 class SubmitInfo {
     public instances = new Set<InstancedBuffer>();
-    public renderInstanceQueue : InstancedBuffer[] = [];
+    public renderInstanceQueue: InstancedBuffer[] = [];
     public batches = new Set<BatchedBuffer>();
     public opaqueList: RenderInfo[] = [];
     public transparentList: RenderInfo[] = [];
@@ -534,6 +534,7 @@ class DeviceRenderPass {
     protected _deviceQueues: DeviceRenderQueue[] = [];
     protected _clearDepth = 1;
     protected _clearStencil = 0;
+    protected _passID: number;
     protected _context: ExecutorContext;
     protected _viewport: Viewport | null = null;
     private _rasterInfo: RasterPassInfo;
@@ -543,6 +544,7 @@ class DeviceRenderPass {
         this._context = context;
         this._rasterInfo = passInfo;
         const device = context.device;
+        this._passID = cclegacy.rendering.getPassID(this._context.renderGraph.getLayout(passInfo.id));
         const depthStencilAttachment = new DepthStencilAttachment();
         depthStencilAttachment.format = Format.DEPTH_STENCIL;
         depthStencilAttachment.depthLoadOp = LoadOp.DISCARD;
@@ -636,6 +638,7 @@ class DeviceRenderPass {
             swapchain ? [swapchain.colorTexture] : colorTexs,
             swapchain ? swapchain.depthStencilTexture : depthTex));
     }
+    get passID (): number { return this._passID; }
     get renderLayout () { return this._layout; }
     get context () { return this._context; }
     get renderPass () { return this._renderPass; }
@@ -669,7 +672,7 @@ class DeviceRenderPass {
         const layoutData = layout.descriptorSets.get(UpdateFrequency.PER_PASS)!;
         return layoutData;
     }
-    genQuadVertexData (surfaceTransform: SurfaceTransform, renderArea: Rect) : Float32Array {
+    genQuadVertexData (surfaceTransform: SurfaceTransform, renderArea: Rect): Float32Array {
         const vbData = new Float32Array(4 * 4);
 
         const minX = renderArea.x / this._context.width;
@@ -905,7 +908,7 @@ class DevicePreSceneTask extends WebSceneTask {
                 for (const subModel of subModels) {
                     const passes = subModel.passes;
                     for (const p of passes) {
-                        if (p.phase !== this._currentQueue.phaseID) continue;
+                        if (((isEnableEffect()) ? p.phaseID : p.phase) !== this._currentQueue.phaseID) continue;
                         const batchingScheme = p.batchingScheme;
                         if (batchingScheme === BatchingSchemes.INSTANCING) {
                             const instancedBuffer = p.getInstancedBuffer();
@@ -961,8 +964,10 @@ class DevicePreSceneTask extends WebSceneTask {
         const pass = subModel.passes[passIdx];
         const shader = subModel.shaders[passIdx];
         const currTransparent = pass.blendState.targets[0].blend;
-        const phases = getPhaseID('default') | getPhaseID('planarShadow');
-        if (currTransparent !== isTransparent || !(pass.phase & (isTransparent ? phases : this._currentQueue.phaseID))) {
+        const passId = this._currentQueue.devicePass.passID;
+        const phase = isEnableEffect() ? cclegacy.rendering.getPhaseID(passId, 'default') | cclegacy.rendering.getPhaseID(passId, 'planarShadow')
+            : getPhaseID('default') | getPhaseID('planarShadow');
+        if (currTransparent !== isTransparent || !(pass.phaseID & (isTransparent ? phase : this._currentQueue.phaseID))) {
             return;
         }
         const hash = (0 << 30) | pass.priority << 16 | subModel.priority << 8 | passIdx;
@@ -1022,57 +1027,8 @@ class DevicePreSceneTask extends WebSceneTask {
             && this.graphScene.scene!.flags & SceneFlags.SHADOW_CASTER;
     }
 
-    private _bindDescValue (desc: DescriptorSet, binding: number, value) {
-        if (value instanceof Buffer) {
-            desc.bindBuffer(binding, value);
-        } else if (value instanceof Texture) {
-            desc.bindTexture(binding, value);
-        } else if (value instanceof Sampler) {
-            desc.bindSampler(binding, value);
-        }
-    }
-
-    private _bindGlobalDesc (context: ExecutorContext, binding: number, value) {
-        const layoutData = this._currentQueue.devicePass.getGlobalDescData(context)!;
-        this._bindDescValue(layoutData.descriptorSet!, binding, value);
-    }
-
-    private _bindDescriptor (context: ExecutorContext, descId: number, value) {
-        const layoutData = this._currentQueue.devicePass.getGlobalDescData(context)!;
-        // find descriptor binding
-        for (const block of layoutData.descriptorSetLayoutData.descriptorBlocks) {
-            for (let i = 0; i !== block.descriptors.length; ++i) {
-                if (descId === block.descriptors[i].descriptorID) {
-                    this._bindGlobalDesc(context, block.offset + i, value);
-                }
-            }
-        }
-    }
-
     protected _updateGlobal (context: ExecutorContext, data: RenderData) {
-        const constants = data.constants;
-        const samplers = data.samplers;
-        const textures = data.textures;
-        const device = context.root.device;
-        for (const [key, value] of constants) {
-            let buffer = context.pipeline.descriptorSet.getBuffer(key);
-            let haveBuff = true;
-            if (!buffer) {
-                buffer = device.createBuffer(new BufferInfo(BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
-                    MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
-                    value.length * 4,
-                    value.length * 4));
-                haveBuff = false;
-            }
-            buffer.update(new Float32Array(value));
-            if (!haveBuff) this._bindDescriptor(context, key, buffer);
-        }
-        for (const [key, value] of textures) {
-            this._bindDescriptor(context, key, value);
-        }
-        for (const [key, value] of samplers) {
-            this._bindDescriptor(context, key, value);
-        }
+        updateGlobalDescBinding(context.pipeline, data);
         context.pipeline.descriptorSet.update();
     }
 
@@ -1222,7 +1178,7 @@ class DeviceSceneTask extends WebSceneTask {
             const count = batch.shaders.length;
             for (let j = 0; j < count; j++) {
                 const pass = batch.passes[j];
-                if (pass.phase !== this._currentQueue.phaseID) continue;
+                if (((isEnableEffect()) ? pass.phaseID : pass.phase) !== this._currentQueue.phaseID) continue;
                 const shader = batch.shaders[j];
                 const inputAssembler: any = batch.inputAssembler!;
                 const pso = PipelineStateManager.getOrCreatePipelineState(deviceManager.gfxDevice, pass, shader, this._renderPass, inputAssembler);

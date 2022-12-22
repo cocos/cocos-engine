@@ -37,13 +37,13 @@
 #include "FGDispatcherTypes.h"
 #include "LayoutGraphGraphs.h"
 #include "LayoutGraphTypes.h"
-#include "Range.h"
 #include "RenderGraphGraphs.h"
 #include "base/Log.h"
 #include "boost/graph/depth_first_search.hpp"
 #include "boost/graph/hawick_circuits.hpp"
 #include "boost/graph/visitors.hpp"
 #include "boost/lexical_cast.hpp"
+#include "details/Range.h"
 #include "gfx-base/GFXBarrier.h"
 #include "gfx-base/GFXDef-common.h"
 #include "gfx-base/GFXDef.h"
@@ -51,9 +51,9 @@
 #include "gfx-base/states/GFXBufferBarrier.h"
 #include "gfx-base/states/GFXTextureBarrier.h"
 #include "math/Vec2.h"
-#include "pipeline/custom/GslUtils.h"
 #include "pipeline/custom/RenderCommonFwd.h"
 #include "pipeline/custom/RenderGraphTypes.h"
+#include "pipeline/custom/details/GslUtils.h"
 
 namespace cc {
 
@@ -184,7 +184,7 @@ bool tryAddEdge(uint32_t srcVertex, uint32_t dstVertex, Graph &graph);
 
 // for transive_closure.hpp line 231
 inline RelationGraph::vertex_descriptor add_vertex(RelationGraph &g) { // NOLINT
-    thread_local uint32_t count = 0; // unused
+    thread_local uint32_t count = 0;                                   // unused
     return add_vertex(g, count++);
 }
 

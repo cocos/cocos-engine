@@ -30,7 +30,6 @@
  */
 /* eslint-disable max-len */
 import { Attribute, Shader, ShaderInfo } from '../../gfx';
-import { LayoutGraphData } from './layout-graph';
 import { IProgramInfo } from '../../render-scene/core/program-lib';
 
 export class ProgramInfo {
@@ -58,19 +57,10 @@ export class ProgramHost {
     constructor (program: Shader) {
         this.program = program;
     }
-    readonly program: Shader;
+    /*refcount*/ program: Shader;
 }
 
 export class ProgramGroup {
     readonly programInfos: Map<string, ProgramInfo> = new Map<string, ProgramInfo>();
     readonly programHosts: Map<string, ProgramHost> = new Map<string, ProgramHost>();
-}
-
-export class ProgramLibraryData {
-    constructor (layoutGraph: LayoutGraphData) {
-        this.layoutGraph = layoutGraph;
-    }
-    /*pointer*/ layoutGraph: LayoutGraphData;
-    readonly phases: Map<number, ProgramGroup> = new Map<number, ProgramGroup>();
-    mergeHighFrequency = false;
 }

@@ -755,4 +755,8 @@ export function supportsR32FloatTexture (device: Device) {
         && !(device.gfxAPI === API.WEBGL); // wegl 1  Single-channel float type is not supported under webgl1, so it is excluded
 }
 
+export function isEnableEffect (): boolean {
+    return !!(cclegacy.rendering && cclegacy.rendering.enableEffectImport);
+}
+
 /* eslint-enable max-len */

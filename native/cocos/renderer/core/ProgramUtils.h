@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -23,13 +23,19 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-/**
- * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
- * The following section is auto-generated.
- * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
- */
-// clang-format off
-#include "RenderCommonReflection.h"
-#include "RenderCommonTypes.h"
+#pragma once
+#include "cocos/renderer/core/ProgramLib.h"
 
-// clang-format on
+namespace cc {
+
+namespace render {
+
+void populateMacros(IProgramInfo& tmpl);
+
+ccstd::unordered_map<ccstd::string, uint32_t> genHandles(const IProgramInfo& tmpl);
+ccstd::unordered_map<ccstd::string, uint32_t> genHandles(const gfx::ShaderInfo& tmpl);
+ccstd::string getVariantKey(const IProgramInfo& tmpl, const MacroRecord& defines);
+
+} // namespace render
+
+} // namespace cc

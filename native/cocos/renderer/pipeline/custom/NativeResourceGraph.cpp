@@ -24,10 +24,10 @@
 ****************************************************************************/
 
 #include "NativePipelineTypes.h"
-#include "Range.h"
 #include "RenderGraphGraphs.h"
 #include "RenderGraphTypes.h"
 #include "cocos/renderer/gfx-base/GFXDevice.h"
+#include "details/Range.h"
 #include "gfx-base/GFXDef-common.h"
 #include "pipeline/custom/RenderCommonFwd.h"
 

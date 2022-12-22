@@ -3782,9 +3782,162 @@ bool js_register_cc_render_PipelineBuilder(se::Object* obj) {
 }
 
 
+se::Class* __jsb_cc_render_RenderingModule_class = nullptr;
+se::Object* __jsb_cc_render_RenderingModule_proto = nullptr;
+SE_DECLARE_FINALIZE_FUNC(js_delete_cc_render_RenderingModule) 
+
+static bool js_delete_cc_render_RenderingModule(se::State& s)
+{
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_delete_cc_render_RenderingModule) 
+
+static bool js_cc_render_RenderingModule_getPassID(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::render::RenderingModule *arg1 = (cc::render::RenderingModule *) NULL ;
+    ccstd::string *arg2 = 0 ;
+    ccstd::string temp2 ;
+    uint32_t result;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::render::RenderingModule>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &temp2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    arg2 = &temp2;
+    
+    result = ((cc::render::RenderingModule const *)arg1)->getPassID((ccstd::string const &)*arg2);
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject()); 
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_render_RenderingModule_getPassID) 
+
+static bool js_cc_render_RenderingModule_getPhaseID(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::render::RenderingModule *arg1 = (cc::render::RenderingModule *) NULL ;
+    uint32_t arg2 ;
+    ccstd::string *arg3 = 0 ;
+    ccstd::string temp3 ;
+    uint32_t result;
+    
+    if(argc != 2) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::render::RenderingModule>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    
+    
+    ok &= sevalue_to_native(args[1], &temp3, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    arg3 = &temp3;
+    
+    result = ((cc::render::RenderingModule const *)arg1)->getPhaseID(arg2,(ccstd::string const &)*arg3);
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject()); 
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_render_RenderingModule_getPhaseID) 
+
+bool js_register_cc_render_RenderingModule(se::Object* obj) {
+    auto* cls = se::Class::create("RenderingModule", obj, nullptr, nullptr); 
+    
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
+    
+    cls->defineFunction("getPassID", _SE(js_cc_render_RenderingModule_getPassID)); 
+    cls->defineFunction("getPhaseID", _SE(js_cc_render_RenderingModule_getPhaseID)); 
+    
+    
+    
+    
+    cls->defineFinalizeFunction(_SE(js_delete_cc_render_RenderingModule));
+    
+    
+    cls->install();
+    JSBClassType::registerClass<cc::render::RenderingModule>(cls);
+    
+    __jsb_cc_render_RenderingModule_proto = cls->getProto();
+    __jsb_cc_render_RenderingModule_class = cls;
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
+
 se::Class* __jsb_cc_render_Factory_class = nullptr;
 se::Object* __jsb_cc_render_Factory_proto = nullptr;
 SE_DECLARE_FINALIZE_FUNC(js_delete_cc_render_Factory) 
+
+static bool js_cc_render_Factory_init_static(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    gfx::Device *arg1 = (gfx::Device *) NULL ;
+    ccstd::vector< unsigned char > *arg2 = 0 ;
+    ccstd::vector< unsigned char > temp2 ;
+    cc::render::RenderingModule *result = 0 ;
+    
+    if(argc != 2) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+        return false;
+    }
+    
+    ok &= sevalue_to_native(args[0], &arg1, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    
+    ok &= sevalue_to_native(args[1], &temp2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    arg2 = &temp2;
+    
+    result = (cc::render::RenderingModule *)cc::render::Factory::init(arg1,(ccstd::vector< unsigned char > const &)*arg2);
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_render_Factory_init_static) 
+
+static bool js_cc_render_Factory_destroy_static(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::render::RenderingModule *arg1 = (cc::render::RenderingModule *) NULL ;
+    
+    if(argc != 1) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+        return false;
+    }
+    
+    ok &= sevalue_to_native(args[0], &arg1, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    cc::render::Factory::destroy(arg1);
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_render_Factory_destroy_static) 
 
 static bool js_cc_render_Factory_createPipeline_static(se::State& s)
 {
@@ -3837,6 +3990,8 @@ bool js_register_cc_render_Factory(se::Object* obj) {
     
     
     
+    cls->defineStaticFunction("init", _SE(js_cc_render_Factory_init_static)); 
+    cls->defineStaticFunction("destroy", _SE(js_cc_render_Factory_destroy_static)); 
     cls->defineStaticFunction("createPipeline", _SE(js_cc_render_Factory_createPipeline_static)); 
     
     
@@ -3881,6 +4036,7 @@ bool register_all_render(se::Object* obj) {
     js_register_cc_render_LayoutGraphBuilder(ns); 
     js_register_cc_render_Pipeline(ns); 
     js_register_cc_render_PipelineBuilder(ns); 
+    js_register_cc_render_RenderingModule(ns); 
     js_register_cc_render_Factory(ns); 
     
     /* Register global variables & global functions */

@@ -24,56 +24,31 @@
 ****************************************************************************/
 
 #pragma once
-#include <memory>
-#include "boost/container/pmr/global_resource.hpp"
-#include "boost/container/pmr/polymorphic_allocator.hpp"
-#include "boost/container/pmr/unsynchronized_pool_resource.hpp"
+#include <boost/container/pmr/memory_resource.hpp>
+#include "cocos/core/assets/EffectAsset.h"
+#include "cocos/renderer/pipeline/custom/LayoutGraphTypes.h"
+#include "cocos/renderer/pipeline/custom/RenderCommonTypes.h"
 
 namespace cc {
 
 namespace render {
 
-template <class T>
-struct PmrDeallocator {
-    void operator()(T* ptr) noexcept {
-        mAllocator.deallocate(ptr, 1);
-    }
-    boost::container::pmr::polymorphic_allocator<T> mAllocator;
-};
+gfx::DescriptorType getGfxDescriptorType(DescriptorTypeOrder type);
+DescriptorTypeOrder getDescriptorTypeOrder(gfx::DescriptorType type);
 
-template <class T, class... Args>
-[[nodiscard]] T*
-newPmr(boost::container::pmr::memory_resource* mr, Args&&... args) {
-    boost::container::pmr::polymorphic_allocator<T> alloc(mr);
+NameLocalID getOrCreateDescriptorID(LayoutGraphData& lg, std::string_view name);
 
-    std::unique_ptr<T, PmrDeallocator<T>> ptr{
-        alloc.allocate(1), PmrDeallocator<T>{alloc}};
+void makeDescriptorSetLayoutData(
+    LayoutGraphData& lg,
+    UpdateFrequency rate, uint32_t set, const IDescriptorInfo& descriptors,
+    DescriptorSetLayoutData& data,
+    boost::container::pmr::memory_resource* scratch);
 
-    // construct, might throw
-    alloc.construct(ptr.get(), std::forward<Args>(args)...);
+void initializeDescriptorSetLayoutInfo(
+    const DescriptorSetLayoutData& layoutData,
+    gfx::DescriptorSetLayoutInfo& info);
 
-    return ptr.release();
-}
-
-struct PmrDeleter {
-    template <class T>
-    void operator()(T* ptr) const noexcept {
-        if (ptr) {
-            boost::container::pmr::polymorphic_allocator<T> alloc(ptr->get_allocator());
-            ptr->~T();
-            alloc.deallocate(ptr, 1);
-        }
-    }
-};
-
-template <class T>
-using PmrUniquePtr = std::unique_ptr<T, PmrDeleter>;
-
-template <class T, class... Args>
-PmrUniquePtr<T>
-allocatePmrUniquePtr(const boost::container::pmr::polymorphic_allocator<std::byte>& alloc, Args&&... args) {
-    return PmrUniquePtr<T>(newPmr<T>(alloc.resource(), std::forward<Args>(args)...));
-}
+uint32_t getSize(const ccstd::vector<gfx::Uniform>& blockMembers);
 
 } // namespace render
 

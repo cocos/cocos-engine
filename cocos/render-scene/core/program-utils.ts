@@ -25,6 +25,7 @@
 
 import { EffectAsset } from '../../asset/assets/effect-asset';
 import { Attribute, GetTypeSize, ShaderInfo, Uniform } from '../../gfx/base/define';
+import { UBOForwardLight, UBOSkinning } from '../../rendering/define';
 import { genHandle, MacroRecord } from './pass-utils';
 import { IProgramInfo } from './program-lib';
 
@@ -114,8 +115,28 @@ export function getVariantKey (programInfo: IProgramInfo, defines: MacroRecord) 
     return `${key.toString(16)}|${programInfo.hash}`;
 }
 
+const defaultUniformCounts = new Map<string, number>();
+defaultUniformCounts.set('cc_joints', UBOSkinning.LAYOUT.members[0].count);
+defaultUniformCounts.set('cc_lightPos', UBOForwardLight.LIGHTS_PER_PASS);
+defaultUniformCounts.set('cc_lightColor', UBOForwardLight.LIGHTS_PER_PASS);
+defaultUniformCounts.set('cc_lightSizeRangeAngle', UBOForwardLight.LIGHTS_PER_PASS);
+defaultUniformCounts.set('cc_lightDir', UBOForwardLight.LIGHTS_PER_PASS);
+
+function getUniformSize (prevSize: number, m: Uniform) {
+    if (m.count) {
+        return prevSize + GetTypeSize(m.type) * m.count;
+    } else {
+        const count = defaultUniformCounts.get(m.name);
+        if (count !== undefined) {
+            return prevSize + GetTypeSize(m.type) * count;
+        }
+        console.error(`uniform '${m.name}' must have a count`);
+    }
+    return prevSize;
+}
+
 export function getSize (blockMembers: Uniform[]) {
-    return blockMembers.reduce((s, m) => s + GetTypeSize(m.type) * m.count, 0);
+    return blockMembers.reduce(getUniformSize, 0);
 }
 
 export function genHandles (tmpl: EffectAsset.IShaderInfo | ShaderInfo) {
@@ -181,4 +202,17 @@ export function getCombinationDefines (combination: EffectAsset.IPreCompileInfo)
         return acc;
     }, [] as MacroRecord[]), [{}] as MacroRecord[]);
     return defines;
+}
+
+export function addEffectDefaultProperties (effect: EffectAsset) {
+    for (let i = 0; i < effect.techniques.length; i++) {
+        const tech = effect.techniques[i];
+        for (let j = 0; j < tech.passes.length; j++) {
+            const pass = tech.passes[j];
+            // grab default property declaration if there is none
+            if (pass.propertyIndex !== undefined && pass.properties === undefined) {
+                pass.properties = tech.passes[pass.propertyIndex].properties;
+            }
+        }
+    }
 }

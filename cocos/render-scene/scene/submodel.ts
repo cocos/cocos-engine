@@ -24,10 +24,12 @@
  */
 
 import { RenderingSubMesh } from '../../asset/assets/rendering-sub-mesh';
-import { RenderPriority, UNIFORM_REFLECTION_TEXTURE_BINDING, UNIFORM_REFLECTION_STORAGE_BINDING, INST_MAT_WORLD, INST_SH, UBOSH } from '../../rendering/define';
+import { RenderPriority, UNIFORM_REFLECTION_TEXTURE_BINDING, UNIFORM_REFLECTION_STORAGE_BINDING,
+    INST_MAT_WORLD, INST_SH, UBOSH, isEnableEffect } from '../../rendering/define';
 import { BatchingSchemes, IMacroPatch, Pass } from '../core/pass';
 import { DescriptorSet, DescriptorSetInfo, Device, InputAssembler, Texture, TextureType, TextureUsageBit, TextureInfo,
-    Format, Sampler, Filter, Address, Shader, SamplerInfo, deviceManager, Attribute, Feature, FormatInfos, getTypedArrayConstructor } from '../../gfx';
+    Format, Sampler, Filter, Address, Shader, SamplerInfo, deviceManager,
+    Attribute, Feature, FormatInfos, getTypedArrayConstructor } from '../../gfx';
 import { errorID, Mat4, cclegacy } from '../../core';
 import { getPhaseID } from '../../rendering/pass-phase';
 import { Root } from '../../root';
@@ -196,7 +198,7 @@ export class SubModel {
      * @en Get or set instance matrix id, access by sub model
      * @zh 获取或者设置硬件实例化中的矩阵索引，通过子模型访问
      */
-    set instancedWorldMatrixIndex (val : number) {
+    set instancedWorldMatrixIndex (val: number) {
         this._instancedWorldMatrixIndex = val;
     }
     get instancedWorldMatrixIndex () {
@@ -207,7 +209,7 @@ export class SubModel {
      * @en Get or set instance SH id, access by sub model
      * @zh 获取或者设置硬件实例化中的球谐索引，通过子模型访问
      */
-    set instancedSHIndex (val : number) {
+    set instancedSHIndex (val: number) {
         this._instancedSHIndex = val;
     }
     get instancedSHIndex () {
@@ -260,9 +262,10 @@ export class SubModel {
         }
 
         this.priority = RenderPriority.DEFAULT;
-
+        const r = cclegacy.rendering;
         // initialize resources for reflection material
-        if (passes[0].phase === getPhaseID('reflection')) {
+        if (((!r || !r.enableEffectImport) && passes[0].phase === getPhaseID('reflection'))
+        || (isEnableEffect() && passes[0].phaseID === r.getPhaseID(r.getPassID('default'), 'reflection'))) {
             let texWidth = root.mainWindow!.width;
             let texHeight = root.mainWindow!.height;
             const minSize = 512;

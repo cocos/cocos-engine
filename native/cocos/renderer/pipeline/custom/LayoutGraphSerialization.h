@@ -29,12 +29,12 @@
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
  */
 #pragma once
-#include <cocos/renderer/pipeline/custom/LayoutGraphGraphs.h>
 #include "cocos/renderer/pipeline/custom/ArchiveTypes.h"
+#include "cocos/renderer/pipeline/custom/LayoutGraphGraphs.h"
 #include "cocos/renderer/pipeline/custom/LayoutGraphTypes.h"
-#include "cocos/renderer/pipeline/custom/Range.h"
 #include "cocos/renderer/pipeline/custom/RenderCommonSerialization.h"
-#include "cocos/renderer/pipeline/custom/SerializationUtils.h"
+#include "cocos/renderer/pipeline/custom/details/Range.h"
+#include "cocos/renderer/pipeline/custom/details/SerializationUtils.h"
 
 namespace cc {
 
@@ -202,6 +202,7 @@ inline void save(OutputArchive& ar, const DescriptorSetLayoutData& v) {
     save(ar, v.capacity);
     save(ar, v.descriptorBlocks);
     save(ar, v.uniformBlocks);
+    save(ar, v.bindingMap);
 }
 
 inline void load(InputArchive& ar, DescriptorSetLayoutData& v) {
@@ -209,6 +210,7 @@ inline void load(InputArchive& ar, DescriptorSetLayoutData& v) {
     load(ar, v.capacity);
     load(ar, v.descriptorBlocks);
     load(ar, v.uniformBlocks);
+    load(ar, v.bindingMap);
 }
 
 inline void save(OutputArchive& ar, const DescriptorSetData& v) {

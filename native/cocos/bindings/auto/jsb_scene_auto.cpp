@@ -7286,7 +7286,7 @@ static bool js_cc_scene_LODGroup_isLockLevelChanged(se::State& s)
     }
     arg1 = SE_THIS_OBJECT<cc::scene::LODGroup>(s);
     if (nullptr == arg1) return true;
-    result = (bool)(arg1)->isLockLevelChanged();
+    result = (bool)((cc::scene::LODGroup const *)arg1)->isLockLevelChanged();
     
     ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
     

@@ -1,4 +1,5 @@
-import { ClearFlagBit, Color, Format, LoadOp, Rect, StoreOp, Viewport } from '../../gfx';
+import { BufferInfo, Buffer, BufferUsageBit, ClearFlagBit, Color, DescriptorSet,
+    Format, LoadOp, MemoryUsageBit, Rect, Sampler, StoreOp, Texture, Viewport } from '../../gfx';
 import { Camera, CSMLevel, DirectionalLight, Light, LightType, ReflectionProbe, ShadowType, SKYBOX_FLAG, SpotLight } from '../../render-scene/scene';
 import { supportsR32FloatTexture } from '../define';
 import { Pipeline } from './pipeline';
@@ -7,6 +8,9 @@ import { Vec4, macro, geometry, toRadian, cclegacy } from '../../core';
 import { Material } from '../../asset/assets';
 import { SRGBToLinear } from '../pipeline-funcs';
 import { RenderWindow } from '../../render-scene/core/render-window';
+import { RenderData } from './render-graph';
+import { WebPipeline } from './web-pipeline';
+import { DescriptorBlockData, DescriptorSetData } from './layout-graph';
 
 // Anti-aliasing type, other types will be gradually added in the future
 export enum AntiAliasing {
@@ -1066,4 +1070,99 @@ export function updateCameraUBO (setter: any, camera: Readonly<Camera>, ppl: Rea
     // eslint-disable-next-line max-len
     setter.setVec4('cc_screenScale', new Vec4(sceneData.shadingScale, sceneData.shadingScale, 1.0 / sceneData.shadingScale, 1.0 / sceneData.shadingScale));
     setter.setVec4('cc_exposure', new Vec4(camera.exposure, 1.0 / camera.exposure, sceneData.isHDR ? 1.0 : 0.0, 1.0 / Camera.standardExposureValue));
+}
+
+function bindDescValue (desc: DescriptorSet, binding: number, value) {
+    if (value instanceof Buffer) {
+        desc.bindBuffer(binding, value);
+    } else if (value instanceof Texture) {
+        desc.bindTexture(binding, value);
+    } else if (value instanceof Sampler) {
+        desc.bindSampler(binding, value);
+    }
+}
+
+function bindGlobalDesc (pipeline: Pipeline, binding: number, value) {
+    bindDescValue(pipeline.descriptorSet, binding, value);
+}
+
+function getDescBinding (descId, descData: DescriptorSetData): number {
+    const layoutData = descData;
+    // find descriptor binding
+    for (const block of layoutData.descriptorSetLayoutData.descriptorBlocks) {
+        for (let i = 0; i !== block.descriptors.length; ++i) {
+            if (descId === block.descriptors[i].descriptorID) {
+                return block.offset + i;
+            }
+        }
+    }
+    return -1;
+}
+
+export function getDescBindingFromName (bindingName: string) {
+    const pipeline = cclegacy.director.root.pipeline as WebPipeline;
+    const layoutGraph = pipeline.layoutGraph;
+    const vertIds = layoutGraph.vertices();
+    const descId = layoutGraph.attributeIndex.get(bindingName);
+    let currDesData;
+    for (const i of vertIds) {
+        const layout = layoutGraph.getLayout(i);
+        for (const [k, descData] of layout.descriptorSets) {
+            const layoutData = descData.descriptorSetLayoutData;
+            const blocks = layoutData.descriptorBlocks;
+            for (const b of blocks) {
+                for (const ds of b.descriptors) {
+                    if (ds.descriptorID === descId) {
+                        currDesData = descData;
+                        return getDescBinding(descId, currDesData);
+                    }
+                }
+            }
+        }
+    }
+    return -1;
+}
+
+function applyGlobalDescBinding (pipeline: Pipeline, data: RenderData, isUpdate = false) {
+    const constants = data.constants;
+    const samplers = data.samplers;
+    const textures = data.textures;
+    const device = cclegacy.director.root.device;
+    const currPip = pipeline as WebPipeline;
+    for (const [key, value] of constants) {
+        const bindId = getDescBinding(key, currPip.globalDescriptorSetData);
+        let buffer = pipeline.descriptorSet.getBuffer(bindId);
+        let haveBuff = true;
+        if (!buffer && !isUpdate) {
+            buffer = device.createBuffer(new BufferInfo(BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
+                MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
+                value.length * 4,
+                value.length * 4));
+            haveBuff = false;
+        }
+        if (isUpdate) buffer.update(new Float32Array(value));
+        if (!haveBuff) bindGlobalDesc(pipeline, bindId, buffer);
+    }
+    for (const [key, value] of textures) {
+        const bindId = getDescBinding(key, currPip.globalDescriptorSetData);
+        const tex = pipeline.descriptorSet.getTexture(bindId);
+        if (!tex || isUpdate) {
+            bindGlobalDesc(pipeline, bindId, value);
+        }
+    }
+    for (const [key, value] of samplers) {
+        const bindId = getDescBinding(key, currPip.globalDescriptorSetData);
+        const sampler = pipeline.descriptorSet.getSampler(bindId);
+        if (!sampler || isUpdate) {
+            bindGlobalDesc(pipeline, bindId, value);
+        }
+    }
+}
+
+export function initGlobalDescBinding (pipeline: Pipeline, data: RenderData) {
+    applyGlobalDescBinding(pipeline, data);
+}
+
+export function updateGlobalDescBinding (pipeline: Pipeline, data: RenderData) {
+    applyGlobalDescBinding(pipeline, data, true);
 }

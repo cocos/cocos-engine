@@ -23,13 +23,23 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-/**
- * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
- * The following section is auto-generated.
- * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
- */
-// clang-format off
-#include "LayoutGraphReflection.h"
-#include "LayoutGraphTypes.h"
+#include "NativePipelineTypes.h"
 
-// clang-format on
+namespace cc {
+
+namespace render {
+
+uint32_t NativeRenderingModule::getPassID(const ccstd::string &name) const {
+    std::ignore = name;
+    return LayoutGraphData::null_vertex();
+}
+
+uint32_t NativeRenderingModule::getPhaseID(uint32_t passID, const ccstd::string &name) const {
+    std::ignore = passID;
+    std::ignore = name;
+    return LayoutGraphData::null_vertex();
+}
+
+} // namespace render
+
+} // namespace cc

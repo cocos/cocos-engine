@@ -134,19 +134,22 @@ DescriptorBlockData::DescriptorBlockData(DescriptorBlockData const& rhs, const a
 
 DescriptorSetLayoutData::DescriptorSetLayoutData(const allocator_type& alloc) noexcept
 : descriptorBlocks(alloc),
-  uniformBlocks(alloc) {}
+  uniformBlocks(alloc),
+  bindingMap(alloc) {}
 
-DescriptorSetLayoutData::DescriptorSetLayoutData(uint32_t slotIn, uint32_t capacityIn, ccstd::pmr::vector<DescriptorBlockData> descriptorBlocksIn, ccstd::pmr::unordered_map<NameLocalID, gfx::UniformBlock> uniformBlocksIn, const allocator_type& alloc) noexcept // NOLINT
+DescriptorSetLayoutData::DescriptorSetLayoutData(uint32_t slotIn, uint32_t capacityIn, ccstd::pmr::vector<DescriptorBlockData> descriptorBlocksIn, ccstd::pmr::unordered_map<NameLocalID, gfx::UniformBlock> uniformBlocksIn, PmrFlatMap<NameLocalID, uint32_t> bindingMapIn, const allocator_type& alloc) noexcept // NOLINT
 : slot(slotIn),
   capacity(capacityIn),
   descriptorBlocks(std::move(descriptorBlocksIn), alloc),
-  uniformBlocks(std::move(uniformBlocksIn), alloc) {}
+  uniformBlocks(std::move(uniformBlocksIn), alloc),
+  bindingMap(std::move(bindingMapIn), alloc) {}
 
 DescriptorSetLayoutData::DescriptorSetLayoutData(DescriptorSetLayoutData&& rhs, const allocator_type& alloc)
 : slot(rhs.slot),
   capacity(rhs.capacity),
   descriptorBlocks(std::move(rhs.descriptorBlocks), alloc),
-  uniformBlocks(std::move(rhs.uniformBlocks), alloc) {}
+  uniformBlocks(std::move(rhs.uniformBlocks), alloc),
+  bindingMap(std::move(rhs.bindingMap), alloc) {}
 
 DescriptorSetData::DescriptorSetData(const allocator_type& alloc) noexcept
 : descriptorSetLayoutData(alloc) {}

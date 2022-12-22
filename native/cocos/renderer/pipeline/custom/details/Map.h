@@ -28,8 +28,8 @@
 #include <boost/container/pmr/flat_map.hpp>
 #include <map>
 #include <unordered_map>
-#include "cocos/renderer/pipeline/custom/Pmr.h"
-#include "cocos/renderer/pipeline/custom/Utility.h"
+#include "cocos/renderer/pipeline/custom/details/Pmr.h"
+#include "cocos/renderer/pipeline/custom/details/Utility.h"
 
 // for std::less<> the transparent comparator
 // see https://stackoverflow.com/questions/20317413/what-are-transparent-comparators

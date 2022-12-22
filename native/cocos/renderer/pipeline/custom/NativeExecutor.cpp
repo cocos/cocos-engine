@@ -2,17 +2,10 @@
 #include <boost/graph/filtered_graph.hpp>
 #include <variant>
 #include "FGDispatcherGraphs.h"
-#include "GraphTypes.h"
-#include "GraphView.h"
-#include "GslUtils.h"
 #include "NativePipelineFwd.h"
 #include "NativePipelineTypes.h"
-#include "Pmr.h"
-#include "Range.h"
-#include "RenderCommonFwd.h"
 #include "RenderGraphGraphs.h"
 #include "RenderGraphTypes.h"
-#include "Set.h"
 #include "cocos/renderer/gfx-base/GFXBarrier.h"
 #include "cocos/renderer/gfx-base/GFXDef-common.h"
 #include "cocos/renderer/gfx-base/GFXDevice.h"
@@ -22,6 +15,9 @@
 #include "cocos/scene/Pass.h"
 #include "cocos/scene/RenderScene.h"
 #include "cocos/scene/Skybox.h"
+#include "details/GraphView.h"
+#include "details/GslUtils.h"
+#include "details/Range.h"
 
 namespace cc {
 
@@ -971,7 +967,7 @@ void NativePipeline::executeRenderGraph(const RenderGraph& rg) {
     auto& ppl = *this;
     auto* scratch = &ppl.unsyncPool;
 
-    //CC_LOG_INFO(rg.print(scratch).c_str());
+    // CC_LOG_INFO(rg.print(scratch).c_str());
 
     RenderGraphContextCleaner contextCleaner(ppl.nativeContext);
     ResourceCleaner cleaner(ppl.resourceGraph);

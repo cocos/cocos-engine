@@ -365,6 +365,7 @@ struct IPassInfoFull final { // cjh } : public IPassInfo {
     ccstd::optional<BlendStateInfo> blendState;
     ccstd::optional<gfx::DynamicStateFlags> dynamicStates;
     ccstd::optional<ccstd::string> phase;
+    ccstd::optional<ccstd::string> pass;
     // IPassInfo
     ccstd::string program; // auto-generated from 'vert' and 'frag'
     ccstd::optional<MacroRecord> embeddedMacros;
@@ -535,7 +536,7 @@ struct IShaderInfo {
     ccstd::vector<IBufferInfo> buffers;
     ccstd::vector<IImageInfo> images;
     ccstd::vector<IInputAttachmentInfo> subpassInputs;
-    // ccstd::vector<IDescriptorInfo> descriptors;
+    ccstd::vector<IDescriptorInfo> descriptors;
 
     const IShaderSource *getSource(const ccstd::string &version) const {
         if (version == "glsl1") return &glsl1;

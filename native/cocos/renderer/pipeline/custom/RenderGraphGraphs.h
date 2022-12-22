@@ -32,11 +32,10 @@
 #pragma once
 #include <string_view>
 #include <tuple>
-#include "cocos/renderer/pipeline/custom/GraphImpl.h"
-#include "cocos/renderer/pipeline/custom/GslUtils.h"
-#include "cocos/renderer/pipeline/custom/Overload.h"
-#include "cocos/renderer/pipeline/custom/PathUtils.h"
 #include "cocos/renderer/pipeline/custom/RenderGraphTypes.h"
+#include "cocos/renderer/pipeline/custom/details/GraphImpl.h"
+#include "cocos/renderer/pipeline/custom/details/Overload.h"
+#include "cocos/renderer/pipeline/custom/details/PathUtils.h"
 
 namespace cc {
 
@@ -210,49 +209,49 @@ inline void remove_vertex_value_impl(const ResourceGraph::VertexHandle& h, Resou
     ccstd::visit(
         overload(
             [&](const impl::ValueHandle<ManagedTag, vertex_descriptor>& h) {
-                g.resources.erase(g.resources.begin() + std::ptrdiff_t(h.value));
+                g.resources.erase(g.resources.begin() + static_cast<std::ptrdiff_t>(h.value));
                 if (h.value == g.resources.size()) {
                     return;
                 }
                 impl::reindexVectorHandle<ManagedTag>(g._vertices, h.value);
             },
             [&](const impl::ValueHandle<ManagedBufferTag, vertex_descriptor>& h) {
-                g.managedBuffers.erase(g.managedBuffers.begin() + std::ptrdiff_t(h.value));
+                g.managedBuffers.erase(g.managedBuffers.begin() + static_cast<std::ptrdiff_t>(h.value));
                 if (h.value == g.managedBuffers.size()) {
                     return;
                 }
                 impl::reindexVectorHandle<ManagedBufferTag>(g._vertices, h.value);
             },
             [&](const impl::ValueHandle<ManagedTextureTag, vertex_descriptor>& h) {
-                g.managedTextures.erase(g.managedTextures.begin() + std::ptrdiff_t(h.value));
+                g.managedTextures.erase(g.managedTextures.begin() + static_cast<std::ptrdiff_t>(h.value));
                 if (h.value == g.managedTextures.size()) {
                     return;
                 }
                 impl::reindexVectorHandle<ManagedTextureTag>(g._vertices, h.value);
             },
             [&](const impl::ValueHandle<PersistentBufferTag, vertex_descriptor>& h) {
-                g.buffers.erase(g.buffers.begin() + std::ptrdiff_t(h.value));
+                g.buffers.erase(g.buffers.begin() + static_cast<std::ptrdiff_t>(h.value));
                 if (h.value == g.buffers.size()) {
                     return;
                 }
                 impl::reindexVectorHandle<PersistentBufferTag>(g._vertices, h.value);
             },
             [&](const impl::ValueHandle<PersistentTextureTag, vertex_descriptor>& h) {
-                g.textures.erase(g.textures.begin() + std::ptrdiff_t(h.value));
+                g.textures.erase(g.textures.begin() + static_cast<std::ptrdiff_t>(h.value));
                 if (h.value == g.textures.size()) {
                     return;
                 }
                 impl::reindexVectorHandle<PersistentTextureTag>(g._vertices, h.value);
             },
             [&](const impl::ValueHandle<FramebufferTag, vertex_descriptor>& h) {
-                g.framebuffers.erase(g.framebuffers.begin() + std::ptrdiff_t(h.value));
+                g.framebuffers.erase(g.framebuffers.begin() + static_cast<std::ptrdiff_t>(h.value));
                 if (h.value == g.framebuffers.size()) {
                     return;
                 }
                 impl::reindexVectorHandle<FramebufferTag>(g._vertices, h.value);
             },
             [&](const impl::ValueHandle<SwapchainTag, vertex_descriptor>& h) {
-                g.swapchains.erase(g.swapchains.begin() + std::ptrdiff_t(h.value));
+                g.swapchains.erase(g.swapchains.begin() + static_cast<std::ptrdiff_t>(h.value));
                 if (h.value == g.swapchains.size()) {
                     return;
                 }
@@ -279,11 +278,11 @@ inline void remove_vertex(ResourceGraph::vertex_descriptor u, ResourceGraph& g) 
     impl::removeVectorVertex(const_cast<ResourceGraph&>(g), u, ResourceGraph::directed_category{});
 
     // remove components
-    g.names.erase(g.names.begin() + std::ptrdiff_t(u));
-    g.descs.erase(g.descs.begin() + std::ptrdiff_t(u));
-    g.traits.erase(g.traits.begin() + std::ptrdiff_t(u));
-    g.states.erase(g.states.begin() + std::ptrdiff_t(u));
-    g.samplerInfo.erase(g.samplerInfo.begin() + std::ptrdiff_t(u));
+    g.names.erase(g.names.begin() + static_cast<std::ptrdiff_t>(u));
+    g.descs.erase(g.descs.begin() + static_cast<std::ptrdiff_t>(u));
+    g.traits.erase(g.traits.begin() + static_cast<std::ptrdiff_t>(u));
+    g.states.erase(g.states.begin() + static_cast<std::ptrdiff_t>(u));
+    g.samplerInfo.erase(g.samplerInfo.begin() + static_cast<std::ptrdiff_t>(u));
 }
 
 // MutablePropertyGraph(Vertex)
@@ -674,8 +673,8 @@ inline void remove_vertex(SubpassGraph::vertex_descriptor u, SubpassGraph& g) no
     impl::removeVectorVertex(const_cast<SubpassGraph&>(g), u, SubpassGraph::directed_category{});
 
     // remove components
-    g.names.erase(g.names.begin() + std::ptrdiff_t(u));
-    g.subpasses.erase(g.subpasses.begin() + std::ptrdiff_t(u));
+    g.names.erase(g.names.begin() + static_cast<std::ptrdiff_t>(u));
+    g.subpasses.erase(g.subpasses.begin() + static_cast<std::ptrdiff_t>(u));
 }
 
 // MutablePropertyGraph(Vertex)
@@ -3692,84 +3691,84 @@ inline void remove_vertex_value_impl(const RenderGraph::VertexHandle& h, RenderG
     ccstd::visit(
         overload(
             [&](const impl::ValueHandle<RasterTag, vertex_descriptor>& h) {
-                g.rasterPasses.erase(g.rasterPasses.begin() + std::ptrdiff_t(h.value));
+                g.rasterPasses.erase(g.rasterPasses.begin() + static_cast<std::ptrdiff_t>(h.value));
                 if (h.value == g.rasterPasses.size()) {
                     return;
                 }
                 impl::reindexVectorHandle<RasterTag>(g._vertices, h.value);
             },
             [&](const impl::ValueHandle<ComputeTag, vertex_descriptor>& h) {
-                g.computePasses.erase(g.computePasses.begin() + std::ptrdiff_t(h.value));
+                g.computePasses.erase(g.computePasses.begin() + static_cast<std::ptrdiff_t>(h.value));
                 if (h.value == g.computePasses.size()) {
                     return;
                 }
                 impl::reindexVectorHandle<ComputeTag>(g._vertices, h.value);
             },
             [&](const impl::ValueHandle<CopyTag, vertex_descriptor>& h) {
-                g.copyPasses.erase(g.copyPasses.begin() + std::ptrdiff_t(h.value));
+                g.copyPasses.erase(g.copyPasses.begin() + static_cast<std::ptrdiff_t>(h.value));
                 if (h.value == g.copyPasses.size()) {
                     return;
                 }
                 impl::reindexVectorHandle<CopyTag>(g._vertices, h.value);
             },
             [&](const impl::ValueHandle<MoveTag, vertex_descriptor>& h) {
-                g.movePasses.erase(g.movePasses.begin() + std::ptrdiff_t(h.value));
+                g.movePasses.erase(g.movePasses.begin() + static_cast<std::ptrdiff_t>(h.value));
                 if (h.value == g.movePasses.size()) {
                     return;
                 }
                 impl::reindexVectorHandle<MoveTag>(g._vertices, h.value);
             },
             [&](const impl::ValueHandle<PresentTag, vertex_descriptor>& h) {
-                g.presentPasses.erase(g.presentPasses.begin() + std::ptrdiff_t(h.value));
+                g.presentPasses.erase(g.presentPasses.begin() + static_cast<std::ptrdiff_t>(h.value));
                 if (h.value == g.presentPasses.size()) {
                     return;
                 }
                 impl::reindexVectorHandle<PresentTag>(g._vertices, h.value);
             },
             [&](const impl::ValueHandle<RaytraceTag, vertex_descriptor>& h) {
-                g.raytracePasses.erase(g.raytracePasses.begin() + std::ptrdiff_t(h.value));
+                g.raytracePasses.erase(g.raytracePasses.begin() + static_cast<std::ptrdiff_t>(h.value));
                 if (h.value == g.raytracePasses.size()) {
                     return;
                 }
                 impl::reindexVectorHandle<RaytraceTag>(g._vertices, h.value);
             },
             [&](const impl::ValueHandle<QueueTag, vertex_descriptor>& h) {
-                g.renderQueues.erase(g.renderQueues.begin() + std::ptrdiff_t(h.value));
+                g.renderQueues.erase(g.renderQueues.begin() + static_cast<std::ptrdiff_t>(h.value));
                 if (h.value == g.renderQueues.size()) {
                     return;
                 }
                 impl::reindexVectorHandle<QueueTag>(g._vertices, h.value);
             },
             [&](const impl::ValueHandle<SceneTag, vertex_descriptor>& h) {
-                g.scenes.erase(g.scenes.begin() + std::ptrdiff_t(h.value));
+                g.scenes.erase(g.scenes.begin() + static_cast<std::ptrdiff_t>(h.value));
                 if (h.value == g.scenes.size()) {
                     return;
                 }
                 impl::reindexVectorHandle<SceneTag>(g._vertices, h.value);
             },
             [&](const impl::ValueHandle<BlitTag, vertex_descriptor>& h) {
-                g.blits.erase(g.blits.begin() + std::ptrdiff_t(h.value));
+                g.blits.erase(g.blits.begin() + static_cast<std::ptrdiff_t>(h.value));
                 if (h.value == g.blits.size()) {
                     return;
                 }
                 impl::reindexVectorHandle<BlitTag>(g._vertices, h.value);
             },
             [&](const impl::ValueHandle<DispatchTag, vertex_descriptor>& h) {
-                g.dispatches.erase(g.dispatches.begin() + std::ptrdiff_t(h.value));
+                g.dispatches.erase(g.dispatches.begin() + static_cast<std::ptrdiff_t>(h.value));
                 if (h.value == g.dispatches.size()) {
                     return;
                 }
                 impl::reindexVectorHandle<DispatchTag>(g._vertices, h.value);
             },
             [&](const impl::ValueHandle<ClearTag, vertex_descriptor>& h) {
-                g.clearViews.erase(g.clearViews.begin() + std::ptrdiff_t(h.value));
+                g.clearViews.erase(g.clearViews.begin() + static_cast<std::ptrdiff_t>(h.value));
                 if (h.value == g.clearViews.size()) {
                     return;
                 }
                 impl::reindexVectorHandle<ClearTag>(g._vertices, h.value);
             },
             [&](const impl::ValueHandle<ViewportTag, vertex_descriptor>& h) {
-                g.viewports.erase(g.viewports.begin() + std::ptrdiff_t(h.value));
+                g.viewports.erase(g.viewports.begin() + static_cast<std::ptrdiff_t>(h.value));
                 if (h.value == g.viewports.size()) {
                     return;
                 }
@@ -3785,10 +3784,10 @@ inline void remove_vertex(RenderGraph::vertex_descriptor u, RenderGraph& g) noex
     impl::removeVectorVertex(const_cast<RenderGraph&>(g), u, RenderGraph::directed_category{});
 
     // remove components
-    g.names.erase(g.names.begin() + std::ptrdiff_t(u));
-    g.layoutNodes.erase(g.layoutNodes.begin() + std::ptrdiff_t(u));
-    g.data.erase(g.data.begin() + std::ptrdiff_t(u));
-    g.valid.erase(g.valid.begin() + std::ptrdiff_t(u));
+    g.names.erase(g.names.begin() + static_cast<std::ptrdiff_t>(u));
+    g.layoutNodes.erase(g.layoutNodes.begin() + static_cast<std::ptrdiff_t>(u));
+    g.data.erase(g.data.begin() + static_cast<std::ptrdiff_t>(u));
+    g.valid.erase(g.valid.begin() + static_cast<std::ptrdiff_t>(u));
 }
 
 // MutablePropertyGraph(Vertex)
