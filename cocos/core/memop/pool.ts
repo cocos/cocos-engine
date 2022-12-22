@@ -48,7 +48,7 @@ export class Pool<T> extends ScalableContainer {
      * the pool is overloaded.
      * @zh 对象池的初始大小。当对象池扩容时，也会使用该值。
      * @param dtor @en The finalizer of element, it's invoked when this Pool is destroyed or shrunk if
-     * it is a valid.
+     * it is valid.
      * @zh 元素的析构器。如果存在的话，当对象池销毁或者缩容时，会使用该析构器。
      */
     constructor (ctor: () => T, elementsPerBatch: number, dtor?: (obj: T) => void) {
@@ -104,8 +104,8 @@ export class Pool<T> extends ScalableContainer {
     }
 
     /**
-     * @en Try to shrink the object pool.
-     * @zh 尝试缩容对象池。
+     * @en Try to shrink the object pool to reduce memory usage.
+     * @zh 尝试缩容对象池，以释放内存。
      */
     public tryShrink () {
         if (this._nextAvail >> 1 > this._elementsPerBatch) {

@@ -112,8 +112,8 @@ export class RecyclePool<T = any> extends ScalableContainer {
     }
 
     /**
-     * @en Destroy the object pool. Should resize again if want to reuse the recycle pool.
-     * @zh 销毁对象池。后续如果还想使用的话，需要先扩容。
+     * @en Destroy the object pool. Please don't use it any more after it is destroyed.
+     * @zh 销毁对象池。销毁后不能继续使用。
      */
     public destroy () {
         if (this._dtor) {
