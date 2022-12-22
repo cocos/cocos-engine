@@ -972,7 +972,7 @@ ProgramProxy *NativeProgramLibrary::getProgramVariant(
         return nullptr;
     }
     const auto &phase = iter->second;
-    auto iter2 = phase.programInfos.find(name);
+    auto iter2 = phase.programInfos.find(std::string_view{name});
     if (iter2 == phase.programInfos.end()) {
         CC_LOG_ERROR("program not found");
         return nullptr;
