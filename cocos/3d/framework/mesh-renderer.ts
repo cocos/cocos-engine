@@ -798,7 +798,7 @@ export class MeshRenderer extends ModelRenderer {
             this._shadowBias,
             this._shadowNormalBias,
             this._reflectionProbeId,
-            0.0,
+            0.0, //yangcheng: this.visibility & XXX,
         ]);
     }
 
