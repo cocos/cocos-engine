@@ -26,7 +26,7 @@ import { fastRemoveAt } from '../utils/array';
 import { ScalableContainer } from './scalable-container';
 
 /**
- * @en ContainerManager is a sequence container that stores ScalableContainer.
+ * @en ContainerManager is a sequence container that stores ScalableContainers.
  * It will shrink all managed ScalableContainer in a fixed interval.
  */
 class ContainerManager {
@@ -38,8 +38,8 @@ class ContainerManager {
     public shrinkTimeSpan = 5;
 
     /**
-     * @en Add a ScalableContainer instance. Will add the same ScalableContainer instance once.
-     * @param pool The ScalableContainer instance to add.
+     * @en Add a ScalableContainer. Will add the same ScalableContainer instance once.
+     * @param pool @en The ScalableContainer to add.
      */
     addContainer (pool: ScalableContainer) {
         if (pool._poolHandle !== -1) return;
@@ -48,9 +48,8 @@ class ContainerManager {
     }
 
     /**
-     *
-     * @param pool
-     * @returns
+     * @en Remove a ScalableContainer.
+     * @param pool @en The ScalableContainer to remove.
      */
     removeContainer (pool: ScalableContainer) {
         if (pool._poolHandle === -1) return;
@@ -59,12 +58,19 @@ class ContainerManager {
         pool._poolHandle = -1;
     }
 
+    /**
+     * @en Try to shrink all managed ScalableContainers.
+     */
     tryShrink () {
         for (let i = 0; i < this._pools.length; i++) {
             this._pools[i].tryShrink();
         }
     }
 
+    /**
+     * @en An update function invoked every frame.
+     * @param dt @en Delta time of frame interval in secondes.
+     */
     update (dt: number) {
         this._lastShrinkPassed += dt;
         if (this._lastShrinkPassed > this.shrinkTimeSpan) {
@@ -74,4 +80,7 @@ class ContainerManager {
     }
 }
 
+/**
+ * @en A global ContainerManager instance.
+ */
 export const containerManager = new ContainerManager();
