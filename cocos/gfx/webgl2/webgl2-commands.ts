@@ -429,6 +429,16 @@ export function GFXFormatToWebGLFormat (format: Format, gl: WebGL2RenderingConte
     }
 }
 
+export function GFXSampleToGLSample (sampleCount: SampleCount): GLsizei {
+    switch (sampleCount) {
+    case SampleCount.ONE: return 1;
+    case SampleCount.MULTIPLE_PERFORMANCE: return 2;
+    case SampleCount.MULTIPLE_BALANCE: return 4;
+    case SampleCount.MULTIPLE_QUALITY: return 8;
+    default: return 1;
+    }
+}
+
 function GFXTypeToWebGLType (type: Type, gl: WebGL2RenderingContext): GLenum {
     switch (type) {
     case Type.BOOL: return gl.BOOL;
@@ -613,6 +623,57 @@ const WebGLBlendFactors: GLenum[] = [
     0x8003, // WebGLRenderingContext.CONSTANT_ALPHA,
     0x8004, // WebGLRenderingContext.ONE_MINUS_CONSTANT_ALPHA,
 ];
+
+function generateDefaultResolveTexture (device: WebGL2Device, gpuTexture: IWebGL2GPUTexture) {
+    const { gl } = device;
+
+    const resolveTxture = gl.createTexture();
+    const glTexUnit = device.stateCache.glTexUnits[device.stateCache.texUnit];
+    if (glTexUnit.glTexture !== resolveTxture) {
+        gl.bindTexture(gl.TEXTURE_2D, resolveTxture);
+    }
+
+    gl.texStorage2D(gl.TEXTURE_2D, 1, gpuTexture.glInternalFmt, gpuTexture.width, gpuTexture.height);
+    gpuTexture.resolve.glTexture = resolveTxture;
+
+    if (glTexUnit.glTexture !== resolveTxture) {
+        gl.bindTexture(gl.TEXTURE_2D, glTexUnit.glTexture);
+    }
+}
+
+function resolve (device: WebGL2Device, gpuTexture: IWebGL2GPUTexture) {
+    if (gpuTexture.samples !== SampleCount.ONE && gpuTexture.glRenderbuffer) {
+        const { gl } = device;
+        if (!gpuTexture.glTexture) {
+            generateDefaultResolveTexture(device, gpuTexture);
+        }
+
+        const cache = device.stateCache;
+        const blitManager = device.blitManager!;
+
+        if (cache.glReadFramebuffer !== blitManager.srcFramebuffer) {
+            gl.bindFramebuffer(gl.READ_FRAMEBUFFER, blitManager.srcFramebuffer);
+        }
+        if (cache.glFramebuffer !== blitManager.dstFramebuffer) {
+            gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, blitManager.dstFramebuffer);
+        }
+
+        gl.framebufferRenderbuffer(gl.READ_FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.RENDERBUFFER, gpuTexture.glRenderbuffer);
+        gl.framebufferTexture2D(gl.DRAW_FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, gpuTexture.resolve.glTexture, 0);
+
+        const w = gpuTexture.width;
+        const h = gpuTexture.height;
+        gl.blitFramebuffer(0, 0, w, h, 0, 0, w, h, gl.COLOR_BUFFER_BIT, gl.LINEAR);
+
+        if (cache.glReadFramebuffer !== blitManager.srcFramebuffer) {
+            gl.bindFramebuffer(gl.READ_FRAMEBUFFER, cache.glReadFramebuffer);
+        }
+        if (cache.glFramebuffer !== blitManager.dstFramebuffer) {
+            gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, cache.glFramebuffer);
+        }
+        gpuTexture.resolve.dirty = false;
+    }
+}
 
 export enum WebGL2Cmd {
     BEGIN_RENDER_PASS,
@@ -1094,9 +1155,10 @@ export function WebGL2CmdFuncCreateTexture (device: WebGL2Device, gpuTexture: IW
                     device.stateCache.glRenderbuffer = gpuTexture.glRenderbuffer;
                 }
 
-                gl.renderbufferStorageMultisample(gl.RENDERBUFFER, gpuTexture.samples,
+                gl.renderbufferStorageMultisample(gl.RENDERBUFFER, GFXSampleToGLSample(gpuTexture.samples),
                     gpuTexture.glInternalFmt, gpuTexture.width, gpuTexture.height);
             }
+            gpuTexture.resolve = { glTexture: null, dirty: true };
         }
         break;
     }
@@ -1232,6 +1294,23 @@ export function WebGL2CmdFuncDestroyTexture (device: WebGL2Device, gpuTexture: I
             glRenderbuffer = null;
         }
         gpuTexture.glRenderbuffer = null;
+
+        if (gpuTexture.resolve.glTexture) {
+            const glTexUnits = device.stateCache.glTexUnits;
+            let texUnit = device.stateCache.texUnit;
+            gl.deleteTexture(gpuTexture.resolve.glTexture);
+            for (let i = 0; i < glTexUnits.length; ++i) {
+                if (glTexUnits[i].glTexture === gpuTexture.resolve.glTexture) {
+                    gl.activeTexture(gl.TEXTURE0 + i);
+                    texUnit = i;
+                    gl.bindTexture(gpuTexture.glTarget, null);
+                    glTexUnits[i].glTexture = null;
+                }
+            }
+            device.stateCache.texUnit = texUnit;
+            gpuTexture.resolve.glTexture = null;
+            gpuTexture.resolve.dirty = true;
+        }
     }
 }
 
@@ -1254,9 +1333,8 @@ export function WebGL2CmdFuncResizeTexture (device: WebGL2Device, gpuTexture: IW
             errorID(9100, maxSize, device.capabilities.maxTextureSize);
         }
 
+        const glTexUnit = device.stateCache.glTexUnits[device.stateCache.texUnit];
         if (gpuTexture.samples === SampleCount.ONE) {
-            const glTexUnit = device.stateCache.glTexUnits[device.stateCache.texUnit];
-
             if (glTexUnit.glTexture !== gpuTexture.glTexture) {
                 gl.bindTexture(gl.TEXTURE_2D, gpuTexture.glTexture);
                 glTexUnit.glTexture = gpuTexture.glTexture;
@@ -1281,8 +1359,19 @@ export function WebGL2CmdFuncResizeTexture (device: WebGL2Device, gpuTexture: IW
                 device.stateCache.glRenderbuffer = gpuTexture.glRenderbuffer;
             }
 
-            gl.renderbufferStorageMultisample(gl.RENDERBUFFER, gpuTexture.samples,
+            gl.renderbufferStorageMultisample(gl.RENDERBUFFER, GFXSampleToGLSample(gpuTexture.samples),
                 gpuTexture.glInternalFmt, gpuTexture.width, gpuTexture.height);
+
+            if (gpuTexture.resolve.glTexture) {
+                gl.deleteTexture(gpuTexture.resolve.glTexture);
+                if (glTexUnit.glTexture === gpuTexture.resolve.glTexture) {
+                    gl.bindTexture(gpuTexture.glTarget, null);
+                    glTexUnit.glTexture = null;
+                }
+
+                gpuTexture.resolve.glTexture = null;
+                gpuTexture.resolve.dirty = true;
+            }
         }
         break;
     }
@@ -2411,6 +2500,11 @@ export function WebGL2CmdFuncBindStates (
                         }
                         if (gpuTexture.glTexture) {
                             gl.bindTexture(gpuTexture.glTarget, gpuTexture.glTexture);
+                        } else if (gpuTexture.glRenderbuffer) {
+                            if (gpuTexture.resolve.dirty) {
+                                resolve(device, gpuTexture);
+                            }
+                            gl.bindTexture(gl.TEXTURE_2D, gpuTexture.resolve.glTexture);
                         } else {
                             gl.bindTexture(gpuTexture.glTarget, device.nullTex2D.gpuTexture.glTexture);
                         }
@@ -2844,6 +2938,9 @@ export function WebGL2CmdFuncCopyBuffersToTexture (
     gpuTexture: IWebGL2GPUTexture,
     regions: Readonly<BufferTextureCopy[]>,
 ) {
+    if (gpuTexture.samples !== SampleCount.ONE) {
+        console.error('Trying to copy buffer to multisampled textures!');
+    }
     const { gl } = device;
     const glTexUnit = device.stateCache.glTexUnits[device.stateCache.texUnit];
     if (glTexUnit.glTexture !== gpuTexture.glTexture) {
@@ -3073,19 +3170,39 @@ export function WebGL2CmdFuncCopyTextureToBuffers (
 ) {
     const { gl } = device;
     const cache = device.stateCache;
+    const blitManager = device.blitManager!;
 
-    const framebuffer = gl.createFramebuffer();
-    gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+    if (cache.glReadFramebuffer !== blitManager.srcFramebuffer) {
+        gl.bindFramebuffer(gl.READ_FRAMEBUFFER, blitManager.srcFramebuffer);
+    }
+
     let x = 0;
     let y = 0;
     let w = 1;
     let h = 1;
 
+    const srcMultiSampled = gpuTexture.samples !== SampleCount.ONE;
+
     switch (gpuTexture.glTarget) {
     case gl.TEXTURE_2D: {
         for (let k = 0; k < regions.length; k++) {
             const region = regions[k];
-            gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gpuTexture.glTarget, gpuTexture.glTexture, region.texSubres.mipLevel);
+            if (srcMultiSampled) {
+                gl.framebufferRenderbuffer(
+                    gl.READ_FRAMEBUFFER,
+                    gl.COLOR_ATTACHMENT0,
+                    gl.RENDERBUFFER,
+                    gpuTexture.glRenderbuffer,
+                );
+            } else {
+                gl.framebufferTexture2D(
+                    gl.READ_FRAMEBUFFER,
+                    gl.COLOR_ATTACHMENT0,
+                    gpuTexture.glTarget,
+                    gpuTexture.glTexture,
+                    region.texSubres.mipLevel,
+                );
+            }
             x = region.texOffset.x;
             y = region.texOffset.y;
             w = region.texExtent.width;
@@ -3098,9 +3215,10 @@ export function WebGL2CmdFuncCopyTextureToBuffers (
         console.error('Unsupported GL texture type, copy texture to buffers failed.');
     }
     }
-    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-    cache.glFramebuffer = null;
-    gl.deleteFramebuffer(framebuffer);
+
+    if (cache.glReadFramebuffer !== blitManager.srcFramebuffer) {
+        gl.bindFramebuffer(gl.READ_FRAMEBUFFER, cache.glReadFramebuffer);
+    }
 }
 
 export function WebGL2CmdFuncBlitFramebuffer (
@@ -3115,11 +3233,8 @@ export function WebGL2CmdFuncBlitFramebuffer (
 
     if (device.stateCache.glReadFramebuffer !== src.glFramebuffer) {
         gl.bindFramebuffer(gl.READ_FRAMEBUFFER, src.glFramebuffer);
-        device.stateCache.glReadFramebuffer = src.glFramebuffer;
     }
-
-    const rebindFBO = (dst.glFramebuffer !== device.stateCache.glFramebuffer);
-    if (rebindFBO) {
+    if (dst.glFramebuffer !== device.stateCache.glFramebuffer) {
         gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, dst.glFramebuffer);
     }
 
@@ -3143,8 +3258,17 @@ export function WebGL2CmdFuncBlitFramebuffer (
         mask, glFilter,
     );
 
-    if (rebindFBO) {
-        gl.bindFramebuffer(gl.FRAMEBUFFER, device.stateCache.glFramebuffer);
+    dst.gpuColorViews.forEach((view) => {
+        if (view.gpuTexture.samples !== SampleCount.ONE) {
+            view.gpuTexture.resolve.dirty = true;
+        }
+    });
+
+    if (device.stateCache.glReadFramebuffer !== src.glFramebuffer) {
+        gl.bindFramebuffer(gl.READ_FRAMEBUFFER, device.stateCache.glReadFramebuffer);
+    }
+    if (device.stateCache.glFramebuffer !== dst.glFramebuffer) {
+        gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, device.stateCache.glFramebuffer);
     }
 }
 
@@ -3223,6 +3347,9 @@ export function WebGL2CmdFuncBlitTexture (
         gl.framebufferTexture2D(gl.DRAW_FRAMEBUFFER, dstAttachment, dst.glTarget, dst.glTexture, dstMip);
     } else {
         gl.framebufferRenderbuffer(gl.DRAW_FRAMEBUFFER, dstAttachment, gl.RENDERBUFFER, dst.glRenderbuffer);
+        if (dst.samples !== SampleCount.ONE) {
+            dst.resolve.dirty = true;
+        }
     }
 
     for (let i = 0; i < regionIndices.length; i++) {

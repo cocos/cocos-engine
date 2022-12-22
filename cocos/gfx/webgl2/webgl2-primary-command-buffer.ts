@@ -24,7 +24,7 @@
 
 import { Buffer } from '../base/buffer';
 import { CommandBuffer } from '../base/command-buffer';
-import { BufferUsageBit, BufferTextureCopy, Color, Rect, BufferSource, DrawInfo, Viewport, TextureBlit, Filter } from '../base/define';
+import { BufferUsageBit, BufferTextureCopy, Color, Rect, BufferSource, DrawInfo, Viewport, TextureBlit, Filter, SampleCount } from '../base/define';
 import { Framebuffer } from '../base/framebuffer';
 import { InputAssembler } from '../base/input-assembler';
 import { Texture } from '../base/texture';
@@ -38,8 +38,11 @@ import { WebGL2Texture } from './webgl2-texture';
 import { RenderPass } from '../base/render-pass';
 import { WebGL2RenderPass } from './webgl2-render-pass';
 import { WebGL2DeviceManager } from './webgl2-define';
+import { IWebGL2GPUFramebuffer } from './webgl2-gpu-objects';
 
 export class WebGL2PrimaryCommandBuffer extends WebGL2CommandBuffer {
+    protected _curFramebuffer: IWebGL2GPUFramebuffer | null = null;
+
     public beginRenderPass (
         renderPass: RenderPass,
         framebuffer: Framebuffer,
@@ -55,6 +58,17 @@ export class WebGL2PrimaryCommandBuffer extends WebGL2CommandBuffer {
             renderArea, clearColors, clearDepth, clearStencil,
         );
         this._isInRenderPass = true;
+        this._curFramebuffer = (framebuffer as WebGL2Framebuffer).gpuFramebuffer;
+    }
+
+    public endRenderPass () {
+        // invalidate resolve texture if msaa texture is written.
+        this._curFramebuffer?.gpuColorViews.forEach((view) => {
+            if (view.gpuTexture.samples !== SampleCount.ONE) {
+                view.gpuTexture.resolve.dirty = true;
+            }
+        });
+        this._isInRenderPass = false;
     }
 
     public draw (infoOrAssembler: Readonly<DrawInfo> | Readonly<InputAssembler>) {
