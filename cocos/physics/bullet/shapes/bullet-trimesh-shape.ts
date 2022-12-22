@@ -31,10 +31,10 @@ import { cocos2BulletVec3, cocos2BulletTriMesh } from '../bullet-utils';
 import { ITrimeshShape } from '../../spec/i-physics-shape';
 import { BulletCache } from '../bullet-cache';
 import { bt, EBulletType } from '../instantiated';
+import { BulletBvhTriangleMeshShape } from '../bullet-bvh-triangle-mesh-shape';
 
 export class BulletTrimeshShape extends BulletShape implements ITrimeshShape {
-    private static _mapTrimesh2btBVHMeshShape = {};
-
+    private btBVHMeshShape;
     public get collider () {
         return this._collider as MeshCollider;
     }
@@ -51,14 +51,9 @@ export class BulletTrimeshShape extends BulletShape implements ITrimeshShape {
                 if (this.collider.convex) {
                     const btTriangleMesh = this._getBtTriangleMesh(mesh);
                     this._impl = bt.ConvexTriangleMeshShape_new(btTriangleMesh);
-                } else if (BulletTrimeshShape._mapTrimesh2btBVHMeshShape[mesh.hash] == null) { // triangle mesh and bvh is not built
-                    const btTriangleMesh = this._getBtTriangleMesh(mesh);
-                    const bvhTrimesh = bt.BvhTriangleMeshShape_new(btTriangleMesh, true, true);
-                    BulletTrimeshShape._mapTrimesh2btBVHMeshShape[mesh.hash] = bvhTrimesh;
-                    this._impl = bt.ScaledBvhTriangleMeshShape_new(bvhTrimesh, 1, 1, 1);
-                } else if (BulletTrimeshShape._mapTrimesh2btBVHMeshShape[mesh.hash]) { // triangle mesh and bvh is already built
-                    const bvhMeshShapePtr = BulletTrimeshShape._mapTrimesh2btBVHMeshShape[mesh.hash];
-                    this._impl = bt.ScaledBvhTriangleMeshShape_new(bvhMeshShapePtr, 1, 1, 1);
+                } else {
+                    this.btBVHMeshShape = BulletBvhTriangleMeshShape.getBulletBvhTriangleMeshShape(mesh.hash, mesh);
+                    this._impl = bt.ScaledBvhTriangleMeshShape_new(this.btBVHMeshShape.bulletBvhTriangleMeshShapePtr, 1, 1, 1);
                 }
                 const bt_v3 = BulletCache.instance.BT_V3_0;
                 cocos2BulletVec3(bt_v3, this._collider.node.worldScale);
@@ -80,11 +75,12 @@ export class BulletTrimeshShape extends BulletShape implements ITrimeshShape {
     }
 
     onDestroy () {
-        //do not delete refBtTriangleMesh of triangle mesh, it might be shared by multiple (Scaled)BvhTriangleMeshShape
         if (this.collider.convex) {
             if (this.refBtTriangleMesh) {
                 bt._safe_delete(this.refBtTriangleMesh, EBulletType.EBulletTypeTriangleMesh);
             }
+        } else if (this.btBVHMeshShape) {
+            this.btBVHMeshShape.reference = false;
         }
         super.onDestroy();
     }
