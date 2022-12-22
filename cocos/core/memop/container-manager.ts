@@ -25,17 +25,33 @@
 import { fastRemoveAt } from '../utils/array';
 import { ScalableContainer } from './scalable-container';
 
+/**
+ * @en ContainerManager is a sequence container that stores ScalableContainer.
+ * It will shrink all managed ScalableContainer in a fixed interval.
+ */
 class ContainerManager {
     private _pools: ScalableContainer[] = [];
     private _lastShrinkPassed = 0;
+    /**
+     * @en Shrink interval in seconds.
+     */
     public shrinkTimeSpan = 5;
 
+    /**
+     * @en Add a ScalableContainer instance. Will add the same ScalableContainer instance once.
+     * @param pool The ScalableContainer instance to add.
+     */
     addContainer (pool: ScalableContainer) {
         if (pool._poolHandle !== -1) return;
         pool._poolHandle = this._pools.length;
         this._pools.push(pool);
     }
 
+    /**
+     *
+     * @param pool
+     * @returns
+     */
     removeContainer (pool: ScalableContainer) {
         if (pool._poolHandle === -1) return;
         this._pools[this._pools.length - 1]._poolHandle = pool._poolHandle;
