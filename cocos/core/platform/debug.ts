@@ -102,7 +102,7 @@ export function error (message?: any, ...optionalParams: any[]) {
  * @zh
  * 对检查测试条件进行检查，如果条件不为 true 则输出错误消息
  * @param value @zh 需要检查的条件 @en The condition to check on
- * @param message @zh 包含零个或多个多个需要替换的JavaScript字符串。@en A JavaScript string containing zero or more substitution strings.
+ * @param message @zh 包含零个或多个需要替换的JavaScript字符串。@en A JavaScript string containing zero or more substitution strings.
  * @param optionalParams  @zh 用来替换在message中需要替换的JavaScript对象，@en JavaScript objects with which to replace substitution strings within msg.
  * This gives you additional control over the format of the output.
  */
