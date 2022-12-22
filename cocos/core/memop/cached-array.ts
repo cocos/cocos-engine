@@ -86,7 +86,7 @@ export class CachedArray<T> extends ScalableContainer {
      * Pop the last element in the array. The [[length]] will reduce, but the internal array will keep its size.
      * @zh
      * 弹出数组最后一个元素，CachedArray 的 [[length]] 会减少，但是内部数组的实际长度不变。
-     * @return @en The last element of this CachedArray. If CachedArray is empty, will return undefined.
+     * @returns @en The last element of this CachedArray. If CachedArray is empty, will return undefined.
      * @zh 数组的最后一个元素。如果数组为空，将返回 undefined。
      */
     public pop (): T | undefined {
@@ -99,7 +99,7 @@ export class CachedArray<T> extends ScalableContainer {
      * @zh
      * 获取数组中指定位置的元素。
      * @param idx @en The index of the requested element. @zh 用于获取数组元素的索引。
-     * @return @en The element at given index. If idx not in [0, [[length]]) or array is empty, will return undefined.
+     * @returns @en The element at given index. If idx not in [0, [[length]]) or array is empty, will return undefined.
      * @zh 数组下标对应的元素。如果 idx 超出 [0, [[length]]），或者数组是空的，将返回 undefined。
      */
     public get (idx: number): T | undefined {
@@ -182,7 +182,7 @@ export class CachedArray<T> extends ScalableContainer {
      * @en Returns the first index that compares equal to val.
      * @zh 返回在数组中找到的第一个和 val 相等的元素的索引。
      * @param val @en Value to search for. @zh 搜索的值。
-     * @return The index to the first element that compares equal to val. If no elements match, returns -1.
+     * @returns The index to the first element that compares equal to val. If no elements match, returns -1.
      * @zh 第一个和 val 相等的元素的索引。如果没找到，将返回 -1。
      */
     public indexOf (val: T) {
