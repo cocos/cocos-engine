@@ -58,6 +58,7 @@ class DefaultForwardLightingTransversal;
 struct ResourceGroup;
 struct NativeRenderContext;
 class NativePipeline;
+class NativeProgramProxy;
 class NativeProgramLibrary;
 class NativeRenderingModule;
 

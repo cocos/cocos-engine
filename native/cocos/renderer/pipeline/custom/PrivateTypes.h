@@ -39,14 +39,14 @@ namespace cc {
 
 namespace render {
 
-class ProgramProxy {
+class ProgramProxy : public RefCounted {
 public:
     ProgramProxy() noexcept = default;
     ProgramProxy(ProgramProxy&& rhs) = delete;
     ProgramProxy(ProgramProxy const& rhs) = delete;
     ProgramProxy& operator=(ProgramProxy&& rhs) = delete;
     ProgramProxy& operator=(ProgramProxy const& rhs) = delete;
-    virtual ~ProgramProxy() noexcept = default;
+    ~ProgramProxy() noexcept override = default;
 
     virtual const ccstd::string &getName() const noexcept = 0;
     virtual gfx::Shader *getShader() const noexcept = 0;

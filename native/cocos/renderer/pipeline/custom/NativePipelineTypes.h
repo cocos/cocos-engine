@@ -503,6 +503,18 @@ public:
     RenderGraph renderGraph;
 };
 
+class NativeProgramProxy final : public ProgramProxy {
+public:
+    NativeProgramProxy() = default;
+    NativeProgramProxy(IntrusivePtr<gfx::Shader> shaderIn) noexcept // NOLINT
+    : shader(std::move(shaderIn)) {}
+
+    const ccstd::string &getName() const noexcept override;
+    gfx::Shader *getShader() const noexcept override;
+
+    IntrusivePtr<gfx::Shader> shader;
+};
+
 class NativeProgramLibrary final : public ProgramLibrary {
 public:
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;

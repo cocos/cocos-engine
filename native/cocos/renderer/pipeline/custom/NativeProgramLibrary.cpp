@@ -39,6 +39,7 @@
 #include "cocos/renderer/pipeline/custom/LayoutGraphGraphs.h"
 #include "cocos/renderer/pipeline/custom/LayoutGraphTypes.h"
 #include "gfx-base/GFXDescriptorSetLayout.h"
+#include "pipeline/custom/PrivateTypes.h"
 #include "pipeline/custom/details/GslUtils.h"
 
 namespace cc {
@@ -952,21 +953,49 @@ const gfx::DescriptorSetLayout &NativeProgramLibrary::getLocalDescriptorSetLayou
 
 const IProgramInfo &NativeProgramLibrary::getProgramInfo(
     uint32_t phaseID, const ccstd::pmr::string &programName) const {
-    std::ignore = phaseID;
-    std::ignore = programName;
-    throw std::runtime_error("not implemented");
+    const auto &group = phases.at(phaseID);
+    return group.programInfos.at(programName).programInfo;
 }
 
 const gfx::ShaderInfo &NativeProgramLibrary::getShaderInfo(
     uint32_t phaseID, const ccstd::pmr::string &programName) const {
-    std::ignore = phaseID;
-    std::ignore = programName;
-    throw std::runtime_error("not implemented");
+    const auto &group = phases.at(phaseID);
+    return group.programInfos.at(programName).shaderInfo;
 }
 
 ProgramProxy *NativeProgramLibrary::getProgramVariant(
     gfx::Device *device, uint32_t phaseID, const ccstd::string &name,
-    const MacroRecord &defines, const ccstd::pmr::string *key) const {
+    const MacroRecord &defines, const ccstd::pmr::string *key0) const {
+    auto iter = phases.find(phaseID);
+    if (iter == phases.end()) {
+        CC_LOG_ERROR("phase not found");
+        return nullptr;
+    }
+    const auto &phase = iter->second;
+    auto iter2 = phase.programInfos.find(name);
+    if (iter2 == phase.programInfos.end()) {
+        CC_LOG_ERROR("program not found");
+        return nullptr;
+    }
+    const auto &info = iter2->second;
+
+    const auto &programInfo = info.programInfo;
+
+    std::string_view key;
+    ccstd::string key1;
+
+    if (key0 == nullptr) {
+        key1 = getVariantKey(programInfo, defines);
+        key = key1;
+    } else {
+        key = *key0;
+    }
+
+    auto iter3 = phase.programHosts.find(key);
+    if (iter3 != phase.programHosts.end()) {
+        return new NativeProgramProxy(iter3->second.program);
+    }
+
     std::ignore = device;
     std::ignore = phaseID;
     std::ignore = name;
