@@ -50,12 +50,13 @@ export class ForceFieldComp extends Component {
     }
 
     get shape () {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return this._shape;
     }
 
     @serializable
     @displayOrder(8)
-    private _startRange: number = 0;
+    private _startRange = 0;
 
     set startRange (value) {
         this._startRange = value;
@@ -68,7 +69,7 @@ export class ForceFieldComp extends Component {
 
     @serializable
     @displayOrder(9)
-    private _endRange: number = 1;
+    private _endRange = 1;
 
     set endRange (value) {
         this._endRange = value;
@@ -83,7 +84,7 @@ export class ForceFieldComp extends Component {
     @serializable
     @displayOrder(0)
     public directionX = new CurveRange();
-    
+
     @type(CurveRange)
     @serializable
     @displayOrder(1)
@@ -101,7 +102,7 @@ export class ForceFieldComp extends Component {
 
     @serializable
     @displayOrder(10)
-    private _gravityFocus: number = 0;
+    private _gravityFocus = 0;
 
     set gravityFocus (value) {
         this._gravityFocus = value;
@@ -116,15 +117,15 @@ export class ForceFieldComp extends Component {
     @serializable
     @displayOrder(4)
     public rotationSpeed = new CurveRange();
-    
+
     @type(CurveRange)
     @serializable
     @displayOrder(5)
     public rotationAttraction = new CurveRange();
-    
+
     @serializable
     @displayOrder(11)
-    private _rotationRandomnessX: number = 0;
+    private _rotationRandomnessX = 0;
 
     set rotationRandomnessX (value) {
         this._rotationRandomnessX = value;
@@ -137,7 +138,7 @@ export class ForceFieldComp extends Component {
 
     @serializable
     @displayOrder(12)
-    private _rotationRandomnessY: number = 0;
+    private _rotationRandomnessY = 0;
 
     set rotationRandomnessY (value) {
         this._rotationRandomnessY = value;
@@ -155,7 +156,7 @@ export class ForceFieldComp extends Component {
 
     @serializable
     @displayOrder(13)
-    private _multiplyDragByParticleSize: boolean = true;
+    private _multiplyDragByParticleSize = true;
 
     set multiplyDragByParticleSize (value) {
         this._multiplyDragByParticleSize = value;
@@ -168,7 +169,7 @@ export class ForceFieldComp extends Component {
 
     @serializable
     @displayOrder(14)
-    private _multiplyDragByParticleVelocity: boolean = true;
+    private _multiplyDragByParticleVelocity = true;
 
     set multiplyDragByParticleVelocity (value) {
         this._multiplyDragByParticleVelocity = value;

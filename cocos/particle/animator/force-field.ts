@@ -62,7 +62,7 @@ export default class ForceField {
     private _rotationSpeedCache: CurveRange | undefined;
     private _rotationAttractionCache: CurveRange | undefined;
     private _dragCache: CurveRange | undefined;
-    
+
     private _directionFactor: Vec3;
     private _gravityFactor: number;
     private _rotationSpeedFactor: number;
@@ -250,7 +250,7 @@ export default class ForceField {
         this._toForceOriginal.set(this._toForce);
 
         let distanceFromCenter = 0.0;
-        if (this._mode == ShapeType.Box) {
+        if (this._mode === ShapeType.Box) {
             distanceFromCenter = Math.max(Math.abs(this._toForce.x), Math.max(Math.abs(this._toForce.y), Math.abs(this._toForce.z)));
         } else {
             distanceFromCenter = this._toForce.length();
@@ -319,8 +319,8 @@ export default class ForceField {
                 this._rotationAttractionFactor = outsideVolume ? 0.0 : this._rotationAttractionFactor;
                 Vec3.multiplyScalar(this._toForceTangent, this._toForceTangent, this._rotationSpeedFactor);
 
-                p.velocity.add3f((this._toForceTangent.x - p.velocity.x) * this._rotationAttractionFactor, 
-                    (this._toForceTangent.y - p.velocity.y) * this._rotationAttractionFactor, 
+                p.velocity.add3f((this._toForceTangent.x - p.velocity.x) * this._rotationAttractionFactor,
+                    (this._toForceTangent.y - p.velocity.y) * this._rotationAttractionFactor,
                     (this._toForceTangent.z - p.velocity.z) * this._rotationAttractionFactor);
             }
         }
