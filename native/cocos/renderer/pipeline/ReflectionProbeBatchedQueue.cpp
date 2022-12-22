@@ -85,21 +85,20 @@ void ReflectionProbeBatchedQueue::gatherRenderObjects(const scene::Camera *camer
     }
     for (const auto &model : scene->getModels()) {
         const auto *node = model->getNode();
-        if (!node || !model->isEnabled() || !model->getWorldBounds() || !model->getBakeToReflectionProbe()) continue;
+        const auto *worldBounds = model->getWorldBounds();
+        if (!node || !model->isEnabled() || !worldBounds || !model->getBakeToReflectionProbe()) continue;
         uint32_t visibility = probe->getCamera()->getVisibility();
         if (probe->getProbeType() == scene::ReflectionProbe::ProbeType::CUBE) {
             if (((visibility & node->getLayer()) == node->getLayer()) ||
                 (visibility & static_cast<uint32_t>(model->getVisFlags()))) {
-                if (aabbWithAABB(*model->getWorldBounds(), *probe->getBoundingBox())) {
+                if (aabbWithAABB(*worldBounds, *probe->getBoundingBox())) {
                     add(model);
                 }
             }
         } else {
             if (((node->getLayer() & REFLECTION_PROBE_DEFAULT_MASK) == node->getLayer()) || (REFLECTION_PROBE_DEFAULT_MASK & static_cast<uint32_t>(model->getVisFlags()))) {
-                if (model->getWorldBounds()) {
-                    if (model->getWorldBounds()->aabbFrustum(probe->getCamera()->getFrustum())) {
-                        add(model);
-                    }
+                if (worldBounds->aabbFrustum(probe->getCamera()->getFrustum())) {
+                    add(model);
                 }
             }
         }

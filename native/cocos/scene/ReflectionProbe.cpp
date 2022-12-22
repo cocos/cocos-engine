@@ -30,18 +30,14 @@
 #include "scene/ReflectionProbeManager.h"
 namespace cc {
 namespace scene {
-    // right left up down front back
-    const Vec3 CAMERA_DIR[6] =
-    {
-        Vec3(0, -90, 0),
-        Vec3(0, 90, 0),
-
-        Vec3(90, 0, 0),
-        Vec3(-90, 0, 0),
-
-        Vec3(0, 0, 0),
-        Vec3(0, 180, 0)
-    };
+// right left up down front back
+const std::array<Vec3, 6> CAMERA_DIR{
+    Vec3(0, -90, 0),
+    Vec3(0, 90, 0),
+    Vec3(90, 0, 0),
+    Vec3(-90, 0, 0),
+    Vec3(0, 0, 0),
+    Vec3(0, 180, 0)};
 ReflectionProbe::ReflectionProbe(int32_t id) {
     _probeId = id;
     scene::ReflectionProbeManager::getInstance()->registerProbe(this);
@@ -267,7 +263,7 @@ void ReflectionProbe::updateCameraDir(int32_t faceIdx) {
     _camera->update(true);
 }
 
-Vec2 ReflectionProbe::renderArea() const {
+Vec2 ReflectionProbe::getRenderArea() const {
     if (_probeType == ProbeType::PLANAR) {
         return Vec2(_realtimePlanarTexture->getWidth(), _realtimePlanarTexture->getHeight());
     }
@@ -275,7 +271,7 @@ Vec2 ReflectionProbe::renderArea() const {
 }
 
 void ReflectionProbe::packBackgroundColor() {
-    Vec3 rgb = Vec3(_camera->getClearColor().x, _camera->getClearColor().y, _camera->getClearColor().z);
+    Vec3 rgb{_camera->getClearColor().x, _camera->getClearColor().y, _camera->getClearColor().z};
     float maxComp = std::max(std::max(rgb.x, rgb.y), rgb.z);
     float e = 128.F;
     if (maxComp > 0.0001) {
@@ -284,12 +280,12 @@ void ReflectionProbe::packBackgroundColor() {
         e = std::clamp(e + 128.F, 0.F, 255.F);
     }
     float sc = 1.F / std::pow(1.1F, e - 128.F);
-    Vec3 encode = std::clamp(rgb * sc, Vec3(0.F, 0.F, 0.F), Vec3(1.F, 1.F, 1.F));
+    Vec3 encode{std::clamp(rgb * sc, Vec3(0.F, 0.F, 0.F), Vec3(1.F, 1.F, 1.F))};
     encode *= 255.F;
-    Vec3 fVec3 = Vec3(std::floor(encode.x), std::floor(encode.y), std::floor(encode.z));
-    Vec3 sub = encode - fVec3;
+    Vec3 fVec3{std::floor(encode.x), std::floor(encode.y), std::floor(encode.z)};
+    Vec3 sub(encode - fVec3);
     Vec3 stepVec3 = sub < Vec3(0.5F, 0.5F, 0.5F) ? Vec3(0.5F, 0.5F, 0.5F) : sub;
-    Vec3 encodeRounded = fVec3 + stepVec3;
+    Vec3 encodeRounded(fVec3 + stepVec3);
     _camera->setClearColor(gfx::Color{encodeRounded.x / 255.F, encodeRounded.y / 255.F, encodeRounded.z / 255.F, e / 255.F});
 }
 
