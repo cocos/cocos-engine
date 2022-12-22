@@ -23,6 +23,7 @@
  THE SOFTWARE.
 */
 
+import { boolean } from '../data/decorators';
 import { logID } from '../platform/debug';
 
 export { default as MutableForwardIterator } from './mutable-forward-iterator';
