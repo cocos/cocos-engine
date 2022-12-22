@@ -1258,6 +1258,7 @@ export class UniformBlock {
         public name: string = '',
         public members: Uniform[] = [],
         public count: number = 0,
+        public flattened: number = 0,
     ) {}
 
     public copy (info: Readonly<UniformBlock>) {
@@ -1266,6 +1267,7 @@ export class UniformBlock {
         this.name = info.name;
         deepCopy(this.members, info.members, Uniform);
         this.count = info.count;
+        this.flattened = info.flattened;
         return this;
     }
 }
@@ -1279,6 +1281,7 @@ export class UniformSamplerTexture {
         public name: string = '',
         public type: Type = Type.UNKNOWN,
         public count: number = 0,
+        public flattened: number = 0,
     ) {}
 
     public copy (info: Readonly<UniformSamplerTexture>) {
@@ -1287,6 +1290,7 @@ export class UniformSamplerTexture {
         this.name = info.name;
         this.type = info.type;
         this.count = info.count;
+        this.flattened = info.flattened;
         return this;
     }
 }
@@ -1299,6 +1303,7 @@ export class UniformSampler {
         public binding: number = 0,
         public name: string = '',
         public count: number = 0,
+        public flattened: number = 0,
     ) {}
 
     public copy (info: Readonly<UniformSampler>) {
@@ -1306,6 +1311,7 @@ export class UniformSampler {
         this.binding = info.binding;
         this.name = info.name;
         this.count = info.count;
+        this.flattened = info.flattened;
         return this;
     }
 }
@@ -1319,6 +1325,7 @@ export class UniformTexture {
         public name: string = '',
         public type: Type = Type.UNKNOWN,
         public count: number = 0,
+        public flattened: number = 0,
     ) {}
 
     public copy (info: Readonly<UniformTexture>) {
@@ -1327,6 +1334,7 @@ export class UniformTexture {
         this.name = info.name;
         this.type = info.type;
         this.count = info.count;
+        this.flattened = info.flattened;
         return this;
     }
 }
@@ -1341,6 +1349,7 @@ export class UniformStorageImage {
         public type: Type = Type.UNKNOWN,
         public count: number = 0,
         public memoryAccess: MemoryAccess = MemoryAccessBit.READ_WRITE,
+        public flattened: number = 0,
     ) {}
 
     public copy (info: Readonly<UniformStorageImage>) {
@@ -1350,6 +1359,7 @@ export class UniformStorageImage {
         this.type = info.type;
         this.count = info.count;
         this.memoryAccess = info.memoryAccess;
+        this.flattened = info.flattened;
         return this;
     }
 }
@@ -1363,6 +1373,7 @@ export class UniformStorageBuffer {
         public name: string = '',
         public count: number = 0,
         public memoryAccess: MemoryAccess = MemoryAccessBit.READ_WRITE,
+        public flattened: number = 0,
     ) {}
 
     public copy (info: Readonly<UniformStorageBuffer>) {
@@ -1371,6 +1382,7 @@ export class UniformStorageBuffer {
         this.name = info.name;
         this.count = info.count;
         this.memoryAccess = info.memoryAccess;
+        this.flattened = info.flattened;
         return this;
     }
 }
@@ -1383,6 +1395,7 @@ export class UniformInputAttachment {
         public binding: number = 0,
         public name: string = '',
         public count: number = 0,
+        public flattened: number = 0,
     ) {}
 
     public copy (info: Readonly<UniformInputAttachment>) {
@@ -1390,6 +1403,7 @@ export class UniformInputAttachment {
         this.binding = info.binding;
         this.name = info.name;
         this.count = info.count;
+        this.flattened = info.flattened;
         return this;
     }
 }
