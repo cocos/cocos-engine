@@ -544,51 +544,18 @@ public:
     }
 
     GLuint getFramebufferByHash(GLES2GPUFramebuffer *gpuFrameBuffer) {
-        auto *ds = gpuFrameBuffer->gpuDepthStencilTexture;
-        const auto &colors = gpuFrameBuffer->gpuColorTextures;
-        ccstd::hash_t seed{0};
-        if (ds) {
-            seed = static_cast<uint32_t>(colors.size()) + 1;
-            ccstd::hash_combine(seed, ds);
-        } else {
-            seed = static_cast<uint32_t>(colors.size());
-        }
-        for (auto *colorTexture : colors) {
-            ccstd::hash_combine(seed, colorTexture);
-        }
+        auto seed = hashFramebuffer(gpuFrameBuffer);
         auto iter = _multiAttachmentMap.find(seed);
         return iter == _multiAttachmentMap.end() ? 0 : iter->second;
     }
 
     void cacheByHash(GLES2GPUFramebuffer *gpuFrameBuffer, GLuint glFBO) {
-        auto *ds = gpuFrameBuffer->gpuDepthStencilTexture;
-        const auto &colors = gpuFrameBuffer->gpuColorTextures;
-        ccstd::hash_t seed{0};
-        if (ds) {
-            seed = static_cast<uint32_t>(colors.size()) + 1;
-            ccstd::hash_combine(seed, ds);
-        } else {
-            seed = static_cast<uint32_t>(colors.size());
-        }
-        for (auto *colorTexture : colors) {
-            ccstd::hash_combine(seed, colorTexture);
-        }
+        auto seed = hashFramebuffer(gpuFrameBuffer);
         _multiAttachmentMap[seed] = glFBO;
     }
 
     void removeCache(GLES2GPUFramebuffer *gpuFrameBuffer, GLuint glFBO) {
-        auto *ds = gpuFrameBuffer->gpuDepthStencilTexture;
-        const auto &colors = gpuFrameBuffer->gpuColorTextures;
-        ccstd::hash_t seed{0};
-        if (ds) {
-            seed = static_cast<uint32_t>(colors.size()) + 1;
-            ccstd::hash_combine(seed, ds);
-        } else {
-            seed = static_cast<uint32_t>(colors.size());
-        }
-        for (auto *colorTexture : colors) {
-            ccstd::hash_combine(seed, colorTexture);
-        }
+        auto seed = hashFramebuffer(gpuFrameBuffer);
         auto iter = _multiAttachmentMap.find(seed);
         if (iter != _multiAttachmentMap.end()) {
             _multiAttachmentMap.erase(iter);
@@ -631,6 +598,28 @@ public:
     }
 
 private:
+    ccstd::hash_t hashFramebuffer(const GLES2GPUFramebuffer const *gpuFrameBuffer) {
+        auto *ds = gpuFrameBuffer->gpuDepthStencilTexture;
+        const auto &colors = gpuFrameBuffer->gpuColorTextures;
+        ccstd::hash_t seed{0};
+        if (ds) {
+            seed = (static_cast<uint32_t>(colors.size()) + 1) * 4;
+            ccstd::hash_combine(seed, ds);
+            ccstd::hash_combine(seed, ds->glTarget);
+            ccstd::hash_combine(seed, ds->glRenderbuffer);
+            ccstd::hash_combine(seed, ds->glTexture);
+        } else {
+            seed = static_cast<uint32_t>(colors.size()) * 4;
+        }
+        for (auto *colorTexture : colors) {
+            ccstd::hash_combine(seed, colorTexture);
+            ccstd::hash_combine(seed, colorTexture->glTarget);
+            ccstd::hash_combine(seed, colorTexture->glRenderbuffer);
+            ccstd::hash_combine(seed, colorTexture->glTexture);
+        }
+        return seed;
+    }
+
     GLES2GPUStateCache *_cache = nullptr;
 
     struct FramebufferRecord {
