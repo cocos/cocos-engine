@@ -45,8 +45,8 @@ export class Pool<T> extends ScalableContainer {
      * @param ctor @en The allocator of elements in pool, it's invoked directly without `new` in Pool.
      * @zh 元素的构造器，Pool 内部使用该构造器直接创建实例。
      * @param elementsPerBatch @en Initial pool size, this size will also be the incremental size when
-     * the pool is overloaded. Should be a positive integer.
-     * @zh 对象池的初始大小。当对象池扩容时，也会使用该值。必须是个正整数。
+     * the pool is overloaded.
+     * @zh 对象池的初始大小。当对象池扩容时，也会使用该值。
      * @param dtor @en The finalizer of element, it's invoked when this Pool is destroyed or shrunk if
      * it is a valid.
      * @zh 元素的析构器。如果存在的话，当对象池销毁或者缩容时，会使用该析构器。
@@ -95,7 +95,7 @@ export class Pool<T> extends ScalableContainer {
      * @en Put multiple objects back into the object pool.
      * @zh 将一组对象放回对象池中。
      * @param objs @en An array of objects to be put back into the pool.
-     * @zh 返回对象池中的一组对象。
+     * @zh 放回对象池中的一组对象。
      */
     public freeArray (objs: T[]) {
         this._freePool.length = this._nextAvail + 1;
