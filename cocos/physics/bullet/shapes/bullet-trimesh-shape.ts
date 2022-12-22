@@ -48,10 +48,11 @@ export class BulletTrimeshShape extends BulletShape implements ITrimeshShape {
         } else {
             const mesh = v;
             if (mesh && mesh.renderingSubMeshes.length > 0) {
-                const btTriangleMesh = this._getBtTriangleMesh(mesh);
                 if (this.collider.convex) {
+                    const btTriangleMesh = this._getBtTriangleMesh(mesh);
                     this._impl = bt.ConvexTriangleMeshShape_new(btTriangleMesh);
                 } else if (BulletTrimeshShape._mapTrimesh2btBVHMeshShape[mesh.hash] == null) { // triangle mesh and bvh is not built
+                    const btTriangleMesh = this._getBtTriangleMesh(mesh);
                     const bvhTrimesh = bt.BvhTriangleMeshShape_new(btTriangleMesh, true, true);
                     BulletTrimeshShape._mapTrimesh2btBVHMeshShape[mesh.hash] = bvhTrimesh;
                     this._impl = bt.ScaledBvhTriangleMeshShape_new(bvhTrimesh, 1, 1, 1);
@@ -79,7 +80,12 @@ export class BulletTrimeshShape extends BulletShape implements ITrimeshShape {
     }
 
     onDestroy () {
-        if (this.refBtTriangleMesh) {  bt._safe_delete(this.refBtTriangleMesh, EBulletType.EBulletTypeTriangleMesh); }
+        //do not delete refBtTriangleMesh of triangle mesh, it might be shared by multiple (Scaled)BvhTriangleMeshShape
+        if (this.collider.convex) {
+            if (this.refBtTriangleMesh) {
+                bt._safe_delete(this.refBtTriangleMesh, EBulletType.EBulletTypeTriangleMesh);
+            }
+        }
         super.onDestroy();
     }
 
