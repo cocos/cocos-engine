@@ -31,7 +31,6 @@
 #include "bindings/jswrapper/SeApi.h"
 #include "ui/edit-box/EditBox-openharmony.h"
 #include "ui/webview/WebViewImpl-openharmony.h"
-#include "ui/videoplayer/VideoPlayer-openharmony.h"
 
 namespace cc {
 const int32_t kMaxStringLen = 512;

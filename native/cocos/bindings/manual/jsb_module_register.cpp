@@ -74,9 +74,10 @@
 #endif
 
 #if (CC_PLATFORM == CC_PLATFORM_IOS || CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS || CC_PLATFORM == CC_PLATFORM_OPENHARMONY)
-
-    #if CC_USE_VIDEO
-        #include "cocos/bindings/auto/jsb_video_auto.h"
+    #if(CC_PLATFORM != CC_PLATFORM_OPENHARMONY)
+        #if CC_USE_VIDEO
+            #include "cocos/bindings/auto/jsb_video_auto.h"
+    #endif
     #endif
 
     #if CC_USE_WEBVIEW
@@ -185,9 +186,10 @@ bool jsb_register_all_modules() {
 #endif
 
 #if (CC_PLATFORM == CC_PLATFORM_IOS || CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS || CC_PLATFORM == CC_PLATFORM_OPENHARMONY)
-
-    #if CC_USE_VIDEO
-    se->addRegisterCallback(register_all_video);
+    #if(CC_PLATFORM != CC_PLATFORM_OPENHARMONY)
+        #if CC_USE_VIDEO
+        se->addRegisterCallback(register_all_video);
+    #endif
     #endif
 
     #if CC_USE_WEBVIEW
