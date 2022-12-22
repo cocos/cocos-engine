@@ -64,7 +64,7 @@ void ReflectionProbeFlow::render(scene::Camera *camera) {
     const auto *sceneData = _pipeline->getPipelineSceneData();
     const auto probes = scene::ReflectionProbeManager::getInstance()->getAllProbes();
     for (auto * probe : probes) {
-        if (probe->needRender() && probe->getProbeType() == scene::ReflectionProbe::ProbeType::PLANAR) {
+        if (probe->needRender()) {
             renderStage(camera, probe);
         }
     }
@@ -72,11 +72,26 @@ void ReflectionProbeFlow::render(scene::Camera *camera) {
 
 void ReflectionProbeFlow::renderStage(scene::Camera *camera, scene::ReflectionProbe *probe) {
     for (auto &stage : _stages) {
-        auto * framebuffer = probe->getRealtimePlanarTexture()->getWindow()->getFramebuffer();
-        auto *reflectionProbeStage = static_cast<ReflectionProbeStage *>(stage.get());
-        reflectionProbeStage->setUsage(framebuffer, probe);
-        reflectionProbeStage->render(camera);
-        probe->updatePlanarTexture(camera->getScene());
+        if (probe->getProbeType() == scene::ReflectionProbe::ProbeType::PLANAR) {
+            auto * framebuffer = probe->getRealtimePlanarTexture()->getWindow()->getFramebuffer();
+            auto *reflectionProbeStage = static_cast<ReflectionProbeStage *>(stage.get());
+            reflectionProbeStage->setUsage(framebuffer, probe);
+            reflectionProbeStage->render(camera);
+            probe->updatePlanarTexture(camera->getScene());
+        } else {
+            //render the 6 faces of the cubemap
+            for (uint32_t faceIdx = 0; faceIdx < 6; faceIdx++) {
+                //update camera dirction
+                probe->updateCameraDir(faceIdx);
+                RenderTexture* rt = probe->getBakedCubeTextures()[faceIdx];
+                auto *reflectionProbeStage = static_cast<ReflectionProbeStage *>(stage.get());
+                reflectionProbeStage->setUsage(rt->getWindow()->getFramebuffer(), probe);
+                reflectionProbeStage->render(camera);
+            }
+            probe->setNeedRender(false);
+
+        }
+
     }
 }
 

@@ -58,20 +58,27 @@ public:
     }
     inline ProbeType getProbeType() const { return _probeType; }
     inline int32_t getProbeId() const { return _probeId; }
-    inline void setResolution(int32_t resolution) { _resolution = resolution; }
+    void setResolution(int32_t resolution);
     inline int32_t getResolution() const { return _resolution; }
     /**
      * @en Clearing flags of the camera, specifies which part of the framebuffer will be actually cleared every frame.
      * @zh 相机的缓冲清除标志位，指定帧缓冲的哪部分要每帧清除。
      */
-    inline void setClearFlag(gfx::ClearFlagBit value) { _clearFlag = value; }
+    inline void setClearFlag(gfx::ClearFlagBit value) {
+        _clearFlag = value;
+        _camera->setClearFlag(_clearFlag);
+    }
     inline gfx::ClearFlagBit getClearFlag() const { return _clearFlag; }
 
     /**
      * @en Clearing color of the camera.
      * @zh 相机的颜色缓冲默认值。
      */
-    inline void setBackgroundColor(gfx::Color& val) { _backgroundColor = val; }
+    inline void setBackgroundColor(gfx::Color& val) {
+        _backgroundColor = val;
+        _camera->setClearColor(val);
+        
+    }
     inline const gfx::Color& getBackgroundColor() const { return _backgroundColor; }
 
     /**
@@ -98,6 +105,7 @@ public:
     inline Node* getNode() { return _node; }
     inline const Camera* getCamera() const { return _camera; }
     inline bool needRender() const { return _needRender; }
+    inline void setNeedRender(bool b) { _needRender = b; }
     inline const geometry::AABB* getBoundingBox() const { return _boundingBox; }
 
     inline void setCameraNode(Node* val) { _cameraNode = val; }
@@ -108,6 +116,9 @@ public:
 
     inline void setPreviewPlane(Node* val) { _previewPlane = val; }
     inline const Node* getPreviewPlane() const { return _previewPlane; }
+
+    inline void setCubeMap(cc::TextureCube* cubeMap) { _cubemap = cubeMap; }
+    inline const cc::TextureCube* getCubeMap() const { return _cubemap; }
 
     inline RenderTexture* getRealtimePlanarTexture() const { return _realtimePlanarTexture; }
     void updateBoundingBox();
@@ -120,13 +131,24 @@ public:
     void updatePlanarTexture(const scene::RenderScene* scene);
 
     void destroy();
+    void enable();
+    void disable();
 
     inline bool validate() const { return _cubemap != nullptr; }
 
+    void initBakedTextures();
+    void captureCubemap();
+
+    inline const ccstd::vector<IntrusivePtr<cc::RenderTexture>>& getBakedCubeTextures() const { return _bakedCubeTextures; }
+    void resetCameraParams();
+    void updateCameraDir(int32_t faceIdx);
+    Vec2 getRenderArea() const;
+    void packBackgroundColor();
 private:
+    ccstd::vector<IntrusivePtr<cc::RenderTexture>> _bakedCubeTextures;
     IntrusivePtr<cc::RenderTexture> _realtimePlanarTexture{nullptr};
 
-    int32_t _resolution = 512;
+    int32_t _resolution = 256;
     gfx::ClearFlagBit _clearFlag = gfx::ClearFlagBit::NONE;
     gfx::Color _backgroundColor{1.0, 1.0, 1.0, 1.0};
     int32_t _visibility = 0;
