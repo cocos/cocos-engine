@@ -61,6 +61,7 @@ _global.cc = legacyCC;
 export { engineVersion as VERSION };
 
 const ccwindow: typeof window = typeof globalThis.jsb !== 'undefined' ? (typeof jsb.window !== 'undefined' ? jsb.window : globalThis) : globalThis;
+_global.ccwindow = ccwindow;
 
 /**
  * @en

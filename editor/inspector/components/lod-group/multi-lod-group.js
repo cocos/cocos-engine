@@ -29,7 +29,7 @@ exports.template = `
                 :min="calculateMultiRange('min', index)"
                 :max="calculateMultiRange('max', index)"
                 :invalid="screenSize === 'invalid'"
-                :value="screenSize === 'invalid' ? null : screenSize * 100"
+                :value="screenSize === 'invalid' ? null : Editor.Utils.Math.multi(screenSize, 100)"
                 @confirm="onMultiScreenSizeConfirm($event, index)"
             ></ui-num-input>
         </ui-prop>
@@ -93,7 +93,7 @@ exports.methods = {
     onMultiScreenSizeConfirm(event, index) {
         const that = this;
         that.dump.value.LODs.values.forEach((lod) => {
-            lod[index] && (lod[index].value.screenUsagePercentage.value = event.target.value / 100);
+            lod[index] && (lod[index].value.screenUsagePercentage.value = Editor.Utils.Math.divide(event.target.value, 100));
         });
         that.updateDump(that.dump.value.LODs);
         trackEventWithTimer('LOD', 'A100011');
@@ -125,7 +125,7 @@ exports.methods = {
                     min = multiLods[index + 1].value.screenUsagePercentage.value;
                 }
             }
-            return min * 100;
+            return Editor.Utils.Math.multi(min, 100);
         } else if (range === 'max') {
             let max = that.dump.value.LODs.values[0][index - 1] ? that.dump.value.LODs.values[0][index - 1].value.screenUsagePercentage.value : null;
             if (max) {
@@ -135,7 +135,7 @@ exports.methods = {
                         max = multiLods[index - 1].value.screenUsagePercentage.value;
                     }
                 }
-                return max * 100;
+                return Editor.Utils.Math.multi(max, 100);
             }
         }
         return null;
