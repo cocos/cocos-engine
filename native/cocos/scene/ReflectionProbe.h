@@ -131,6 +131,8 @@ public:
     void updatePlanarTexture(const scene::RenderScene* scene);
 
     void destroy();
+    void enable();
+    void disable();
 
     inline bool validate() const { return _cubemap != nullptr; }
 

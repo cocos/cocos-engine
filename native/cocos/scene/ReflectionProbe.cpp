@@ -40,7 +40,6 @@ const std::array<Vec3, 6> CAMERA_DIR{
     Vec3(0, 180, 0)};
 ReflectionProbe::ReflectionProbe(int32_t id) {
     _probeId = id;
-    scene::ReflectionProbeManager::getInstance()->registerProbe(this);
 }
 
 void ReflectionProbe::setResolution(int32_t resolution) {
@@ -208,7 +207,12 @@ void ReflectionProbe::destroy() {
         rt->destroy();
     }
     _bakedCubeTextures.clear();
+}
 
+void ReflectionProbe::enable() {
+    scene::ReflectionProbeManager::getInstance()->registerProbe(this);
+}
+void ReflectionProbe::disable() {
     scene::ReflectionProbeManager::getInstance()->unRegisterProbe(this);
 }
 

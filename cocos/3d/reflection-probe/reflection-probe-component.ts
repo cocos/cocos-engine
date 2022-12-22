@@ -298,10 +298,16 @@ export class ReflectionProbe extends Component {
         if (EDITOR || this.probeType === ProbeType.PLANAR) {
             ReflectionProbeManager.probeManager.register(this._probe!);
         }
+        if (this._probe) {
+            this._probe.enable();
+        }
     }
     onDisable () {
         if (EDITOR || this.probeType === ProbeType.PLANAR) {
             ReflectionProbeManager.probeManager.unregister(this._probe!);
+        }
+        if (this._probe) {
+            this._probe.disable();
         }
     }
 
