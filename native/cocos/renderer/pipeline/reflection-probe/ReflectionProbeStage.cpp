@@ -66,15 +66,17 @@ void ReflectionProbeStage::render(scene::Camera *camera) {
     auto *cmdBuffer = _pipeline->getCommandBuffers()[0];
 
     _reflectionProbeBatchedQueue->gatherRenderObjects(camera, cmdBuffer, _probe);
-
     _pipeline->getPipelineUBO()->updateCameraUBO(_probe->getCamera(), camera->getScene());
 
     _renderArea.x = 0;
     _renderArea.y = 0;
-    _renderArea.width = _probe->getRealtimePlanarTexture()->getWidth();
-    _renderArea.height = _probe->getRealtimePlanarTexture()->getHeight();
+    _renderArea.width = _probe->getRenderArea().x;
+    _renderArea.height = _probe->getRenderArea().y;
 
-    _clearColors[0] = _probe->getCamera()->getClearColor();
+    if (hasFlag(static_cast<gfx::ClearFlags>(_probe->getCamera()->getClearFlag()), gfx::ClearFlagBit::COLOR)) {
+        _clearColors[0] = _probe->getCamera()->getClearColor();
+    }
+    
     auto *renderPass = _framebuffer->getRenderPass();
 
     cmdBuffer->beginRenderPass(renderPass, _framebuffer, _renderArea,

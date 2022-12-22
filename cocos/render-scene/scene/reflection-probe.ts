@@ -361,6 +361,10 @@ export class ReflectionProbe {
             this.realtimePlanarTexture = null;
         }
     }
+    public enable () {
+    }
+    public disable () {
+    }
 
     public updateCameraDir (faceIdx: number) {
         this.cameraNode.setRotationFromEuler(cameraDir[faceIdx]);
