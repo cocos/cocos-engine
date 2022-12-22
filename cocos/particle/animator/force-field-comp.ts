@@ -28,6 +28,7 @@ import CurveRange from './curve-range';
 import ForceField from './force-field';
 import { Component, Mat4 } from '../../core';
 import { ShapeType } from '../enum';
+import { forceFieldManager } from '../force-field-manager';
 
 const _tempWorldTrans = new Mat4();
 
@@ -196,5 +197,13 @@ export class ForceFieldComp extends Component {
         this._field.rotationSpeedCache = this.rotationSpeed;
         this._field.rotationAttractionCache = this.rotationAttraction;
         this._field.dragCache = this.drag;
+    }
+
+    protected onEnable () {
+        forceFieldManager.addForceField(this);
+    }
+
+    protected onDisable () {
+        forceFieldManager.removeForceField(this);
     }
 }

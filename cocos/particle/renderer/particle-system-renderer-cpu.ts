@@ -42,6 +42,7 @@ import { ParticleNoise } from '../noise';
 import { NoiseModule } from '../animator/noise-module';
 import { legacyCC } from '../../core/global-exports';
 import { ForceFieldComp } from '../animator/force-field-comp';
+import { forceFieldManager } from '../force-field-manager';
 
 const _tempAttribUV = new Vec3();
 const _tempWorldTrans = new Mat4();
@@ -390,7 +391,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         this.doUpdateScale(pass);
         this.doUpdateRotation(pass);
 
-        const forceFields = ps.node.scene.getComponents(ForceFieldComp);
+        const forceFields = forceFieldManager.forceFields;
         if (forceFields.length > 0) {
             Mat4.invert(_tempWorldInv, _tempWorldTrans);
         }
