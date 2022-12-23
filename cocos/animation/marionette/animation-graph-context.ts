@@ -191,7 +191,7 @@ export class AnimationGraphPoseLayoutMaintainer {
         const transformIndex = transformRecords.findIndex((transformRecord) => transformRecord.node === node);
         if (transformIndex >= 0) {
             const transformRecord = transformRecords[transformIndex];
-            ++transformRecord.refs;
+            ++transformRecord.refCount;
             return transformRecord.handle;
         }
 
@@ -227,7 +227,7 @@ export class AnimationGraphPoseLayoutMaintainer {
         const metaValueIndex = metaValueRecords.findIndex((record) => record.name === name);
         if (metaValueIndex >= 0) {
             const metaValueRecord = metaValueRecords[metaValueIndex];
-            ++metaValueRecord.refs;
+            ++metaValueRecord.refCount;
             return metaValueRecord.handle;
         } else {
             const newMetaValueIndex = metaValueRecords.length;
@@ -311,8 +311,8 @@ export class AnimationGraphPoseLayoutMaintainer {
     public _destroyTransformHandle (index: number) {
         assertIsTrue(index >= 0 && index < this._transformRecords.length, `Invalid transform handle.`);
         const record = this._transformRecords[index];
-        assertIsTrue(record.refs > 0, `Something work wrong: refs mismatch.`);
-        --record.refs;
+        assertIsTrue(record.refCount > 0, `Something work wrong: refCount mismatch.`);
+        --record.refCount;
     }
 
     /**
@@ -322,8 +322,8 @@ export class AnimationGraphPoseLayoutMaintainer {
     public _destroyMetaValueHandle (index: number) {
         assertIsTrue(index >= 0 && index < this._metaValueRecords.length, `Invalid meta value handle.`);
         const record = this._metaValueRecords[index];
-        assertIsTrue(record.refs > 0, `Something work wrong: refs mismatch.`);
-        --record.refs;
+        assertIsTrue(record.refCount > 0, `Something work wrong: refCount mismatch.`);
+        --record.refCount;
     }
 
     @checkBindStatus(false)
@@ -411,7 +411,7 @@ export class AnimationGraphPoseLayoutMaintainer {
 interface AnimationRecord<THandle extends { index: number; }> {
     handle: THandle;
 
-    refs: number;
+    refCount: number;
 }
 
 class TransformRecord implements AnimationRecord<TransformHandleInternal> {
@@ -428,7 +428,7 @@ class TransformRecord implements AnimationRecord<TransformHandleInternal> {
     /** The order of the transform. */
     public order = -1;
 
-    public refs = 1;
+    public refCount = 1;
 
     public readonly handle: TransformHandleInternal;
 
@@ -443,7 +443,7 @@ class MetaValueRecord implements AnimationRecord<MetaValueHandleInternal> {
         this.name = name;
     }
 
-    public refs = 1;
+    public refCount = 1;
 
     public readonly handle: MetaValueHandleInternal;
 
@@ -452,8 +452,8 @@ class MetaValueRecord implements AnimationRecord<MetaValueHandleInternal> {
 
 function trimRecords<TRecord extends AnimationRecord<any>> (records: TRecord[]) {
     const nUsedRecords = partition(records, (record) => {
-        assertIsTrue(record.refs >= 0);
-        return record.refs > 0;
+        assertIsTrue(record.refCount >= 0);
+        return record.refCount > 0;
     });
     assertIsTrue(nUsedRecords <= records.length);
     if (nUsedRecords === records.length) {
@@ -465,7 +465,7 @@ function trimRecords<TRecord extends AnimationRecord<any>> (records: TRecord[]) 
     }
     // Trim the array.
     if (DEBUG) {
-        records.slice(nUsedRecords).forEach((record) => record.refs = -1);
+        records.slice(nUsedRecords).forEach((record) => record.refCount = -1);
     }
     records.splice(nUsedRecords, records.length - nUsedRecords);
 }
