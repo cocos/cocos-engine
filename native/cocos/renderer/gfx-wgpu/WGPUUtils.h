@@ -395,8 +395,7 @@ static WGPUShaderStageFlags toWGPUShaderStageFlag(ShaderStageFlagBit flag) {
 
 // TODO_Zeqiang: more flexible strategy
 static uint32_t toWGPUSampleCount(SampleCount sampleCount) {
-    // TODO_Zeqiang: msaa
-    return 1;
+    // per the spec: descriptor.sampleCount must be either 1 or 4
     switch (sampleCount) {
         case SampleCount::ONE:
             return 1;

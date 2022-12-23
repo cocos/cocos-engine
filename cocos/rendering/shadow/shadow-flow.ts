@@ -208,7 +208,7 @@ export class ShadowFlow extends RenderFlow {
             colorAttachment.format = format;
             colorAttachment.loadOp = LoadOp.CLEAR; // should clear color attachment
             colorAttachment.storeOp = StoreOp.STORE;
-            colorAttachment.sampleCount = 1;
+            colorAttachment.sampleCount = SampleCount.ONE;
 
             const depthStencilAttachment = new DepthStencilAttachment();
             depthStencilAttachment.format = Format.DEPTH_STENCIL;
@@ -216,7 +216,7 @@ export class ShadowFlow extends RenderFlow {
             depthStencilAttachment.depthStoreOp = StoreOp.DISCARD;
             depthStencilAttachment.stencilLoadOp = LoadOp.CLEAR;
             depthStencilAttachment.stencilStoreOp = StoreOp.DISCARD;
-            depthStencilAttachment.sampleCount = 1;
+            depthStencilAttachment.sampleCount = SampleCount.ONE;
 
             const renderPassInfo = new RenderPassInfo([colorAttachment], depthStencilAttachment);
             this._shadowRenderPass = device.createRenderPass(renderPassInfo);
