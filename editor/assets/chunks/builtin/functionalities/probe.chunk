@@ -1,32 +1,38 @@
-void GetPlanarReflectionProbeData(out vec4 plane, out float planarReflectionDepthScale, float probeId)
+void GetPlanarReflectionProbeData(out vec4 plane, out float planarReflectionDepthScale, out float mipCount, float probeId)
 {
     #if USE_INSTANCING
       float uv_y = probeId / cc_probeInfo.x;
-      vec4 texData1 = texture(cc_reflectionProbeDataMap, vec2(0.25, uv_y));
-      vec4 texData2 = texture(cc_reflectionProbeDataMap, vec2(0.75, uv_y));
+      vec4 texData1 = texture(cc_reflectionProbeDataMap, vec2(0.166666667, uv_y));
+      vec4 texData2 = texture(cc_reflectionProbeDataMap, vec2(0.5, uv_y));
       vec3 data1 = unpackRGBE(texData1);
       vec3 data2 = unpackRGBE(texData2);
       plane.xyz = data1;
       plane.w = data2.x;
       planarReflectionDepthScale = data2.y;
+      mipCount = data2.z;
     #else
       plane = cc_reflectionProbeData1;
       planarReflectionDepthScale = cc_reflectionProbeData2.x;
+      mipCount = cc_reflectionProbeData2.w;
     #endif
 }
 
-void GetCubeReflectionProbeData(out vec3 centerPos, out vec3 boxSize, float probeId)
+void GetCubeReflectionProbeData(out vec3 centerPos, out vec3 boxHalfSize, out float mipCount, float probeId)
 {
     #if USE_INSTANCING
       float uv_y = probeId / cc_probeInfo.x;
-      vec4 texData1 = texture(cc_reflectionProbeDataMap, vec2(0.25, uv_y));
-      vec4 texData2 = texture(cc_reflectionProbeDataMap, vec2(0.75, uv_y));
+      vec4 texData1 = texture(cc_reflectionProbeDataMap, vec2(0.166666667, uv_y));
+      vec4 texData2 = texture(cc_reflectionProbeDataMap, vec2(0.5, uv_y));
+      vec4 texData3 = texture(cc_reflectionProbeDataMap, vec2(0.666666667, uv_y));
       vec3 data1 = unpackRGBE(texData1);
       vec3 data2 = unpackRGBE(texData2);
+      vec3 data3 = unpackRGBE(texData3);
       centerPos = data1;
-      boxSize = data2;
+      boxHalfSize = data2;
+      mipCount = data3.x;
     #else
       centerPos = cc_reflectionProbeData1.xyz;
-      boxSize = cc_reflectionProbeData2.xyz;
+      boxHalfSize = cc_reflectionProbeData2.xyz;
+      mipCount = cc_reflectionProbeData2.w;
     #endif
 }

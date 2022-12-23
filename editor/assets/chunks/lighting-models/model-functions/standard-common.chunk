@@ -80,6 +80,30 @@ vec3 SampleEnvironmentSpecular(samplerCube tex, in LightingIntermediateData ligh
     return envSpec;
 }
 
+vec3 SampleEnvironmentSpecular(samplerCube tex, in LightingIntermediateData lightingData, float mipCount, vec3 worldPos, vec3 cubeCenterPos, vec3 boxHalfSize)
+{
+    vec3 envSpec = vec3(0.0);
+    float roughness = lightingData.specularParam;
+    #if CC_SURFACES_LIGHTING_ANISOTROPIC && !CC_SURFACES_LIGHTING_ANISOTROPIC_ENVCONVOLUTION_COUNT
+      vec3 R = GetAnisotropicReflect(roughness, lightingData.anisotropyShape, lightingData.V, lightingData.N, lightingData.T, lightingData.B);
+    #else
+      vec3 R = CalculateReflectDirection(lightingData.N, lightingData.V, lightingData.NoV);
+    #endif
+
+    // R = CalculateBoxProjectedDirection(R, worldPos, cubeCenterPos, boxHalfSize);
+
+    #if CC_SURFACES_LIGHTING_ANISOTROPIC && CC_SURFACES_LIGHTING_ANISOTROPIC_ENVCONVOLUTION_COUNT
+      envSpec = EnvAnisotropicReflection(tex, R, roughness, mipCount, lightingData.anisotropyShape, lightingData.V, lightingData.N, lightingData.T, lightingData.B);
+    #else
+      #if CC_SURFACES_USE_REFLECTION_DENOISE && !CC_IBL_CONVOLUTED
+        envSpec = EnvReflectionWithMipFiltering(normalize(R), roughness, mipCount, 0.6);
+      #else
+        envSpec = EnvReflection(tex, R, roughness, mipCount);
+      #endif
+    #endif
+    return envSpec;
+}
+
 
 vec3 CalculateEnvironmentDiffuse(in LightingIntermediateData lightingData, float lightIntensity)
 {
@@ -115,18 +139,19 @@ vec3 CalculateEnvironmentSpecular(in LightingIntermediateData lightingData, floa
   vec3 envSpec = vec3(0.0);
 
 #if CC_USE_REFLECTION_PROBE
-  #if CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_CUBE
-    envSpec = SampleEnvironmentSpecular(cc_reflectionProbeCubemap, lightingData, cc_ambientGround.w);
-    vec3 centerPos;
-    vec3 boxSize;
-    GetCubeReflectionProbeData(centerPos, boxSize, FSInput_reflectionProbeId);
-  #elif CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_PLANAR
-    vec4 plane;
-    float planarReflectionDepthScale;
-    GetPlanarReflectionProbeData(plane, planarReflectionDepthScale, FSInput_reflectionProbeId);
-    vec3 R = normalize(CalculateReflectDirection(lightingData.N, lightingData.V, lightingData.NoV));
     vec3 worldPos;
     HIGHP_VALUE_FROM_STRUCT_DEFINED(worldPos, lightingData.worldPosition);
+
+  #if CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_CUBE
+    vec3 centerPos, boxHalfSize;
+    float mipCount;
+    GetCubeReflectionProbeData(centerPos, boxHalfSize, mipCount, FSInput_reflectionProbeId);
+    envSpec = SampleEnvironmentSpecular(cc_reflectionProbeCubemap, lightingData, cc_ambientGround.w, worldPos, centerPos, boxHalfSize);
+  #elif CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_PLANAR
+    vec4 plane;
+    float planarReflectionDepthScale, mipCount;
+    GetPlanarReflectionProbeData(plane, planarReflectionDepthScale, mipCount, FSInput_reflectionProbeId);
+    vec3 R = normalize(CalculateReflectDirection(lightingData.N, lightingData.V, lightingData.NoV));
     vec2 screenUV = GetPlanarReflectScreenUV(worldPos, cc_matViewProj, cc_cameraPos.w, lightingData.V, R);
     envSpec = fragTextureLod(cc_reflectionProbePlanarMap, screenUV, cc_ambientGround.w).xyz;
   #endif

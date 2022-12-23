@@ -68,3 +68,14 @@ vec3 CalculatePlanarReflectPositionOnPlane(vec3 N, vec3 V, vec3 worldPos, vec4 p
   float y = distCameraToPlane / max(EPSILON_LOWP, dot(planeN, virtualCameraToReflectedPoint));
   return virtualCameraPos + y * virtualCameraToReflectedPoint;
 }
+
+// fix cubemap direction with box projection
+// return unnormalized vector
+vec3 CalculateBoxProjectedDirection(vec3 R, vec3 worldPos, vec3 cubeCenterPos, vec3 cubeBoxHalfSize)
+{
+  // find point P which intersected with cube from O alone R
+  vec3 projectedLength = cubeBoxHalfSize / (abs(R) + EPSILON);
+  vec3 P = R * min(min(projectedLength.x, projectedLength.y), projectedLength.z);
+  // fix direction with offset
+  return R + (worldPos - cubeCenterPos);
+}
