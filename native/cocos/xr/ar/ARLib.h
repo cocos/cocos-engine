@@ -88,7 +88,7 @@ public:
     void enableSceneMesh(bool enable) override;
     float* getAddedSceneMesh() override;
     float* getUpdatedSceneMesh() override;
-    int* getRemovedSceneMesh() override;
+    float* getRemovedSceneMesh() override;
     int* requireSceneMesh() override;
     float* getSceneMeshVertices(int meshRef) override;
     int* getSceneMeshTriangleIndices(int meshRef) override;

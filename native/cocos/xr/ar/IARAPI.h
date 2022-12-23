@@ -89,7 +89,7 @@ public:
     virtual void enableSceneMesh(bool enable) = 0;
     virtual float* getAddedSceneMesh() = 0;
     virtual float* getUpdatedSceneMesh() = 0;
-    virtual int* getRemovedSceneMesh() = 0;
+    virtual float* getRemovedSceneMesh() = 0;
     virtual int* requireSceneMesh() = 0;
     virtual float* getSceneMeshVertices(int id) = 0;
     virtual int* getSceneMeshTriangleIndices(int id) = 0;

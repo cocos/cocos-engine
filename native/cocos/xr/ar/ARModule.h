@@ -62,6 +62,8 @@ public:
     void setCameraTextureName(int id) const;
     void* getCameraTextureRef() const;
     uint8_t* getCameraDepthBuffer() const;
+    bool getTexInitFlag() const;
+    void resetTexInitFlag();
 
     void enableLightEstimate(bool enable) const;
     LightVal getMainLightDirection() const;
@@ -91,7 +93,7 @@ public:
     void enableSceneMesh(bool enable) const;
     float* getAddedSceneMesh() const;
     float* getUpdatedSceneMesh() const;
-    int* getRemovedSceneMesh() const;
+    float* getRemovedSceneMesh() const;
     int* requireSceneMesh() const;
     float* getSceneMeshVertices(int meshRef) const;
     int* getSceneMeshTriangleIndices(int meshRef) const;
@@ -123,6 +125,7 @@ public:
 private:
     std::unique_ptr<IARAPI> _impl;
     std::string _cameraId;
+    bool _texInitFlag{false};
 };
 
 static std::unique_ptr<ARModule> arModuleInstance;
