@@ -794,11 +794,12 @@ export class MeshRenderer extends ModelRenderer {
             this.model.updateReflectionProbeId();
         }
 
+        //xubin: 保证使用reflectionProbe时也要触发添加此属性
         this.setInstancedAttribute('a_localShadowBiasAndProbeId', [
             this._shadowBias,
             this._shadowNormalBias,
             this._reflectionProbeId,
-            0.0, //yangcheng: this.visibility & XXX,
+            0.0, //yangcheng: this.visibility & dirlight.visibility,
         ]);
     }
 

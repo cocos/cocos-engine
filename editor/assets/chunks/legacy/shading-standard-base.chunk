@@ -17,6 +17,7 @@
 
 #if CC_USE_REFLECTION_PROBE
   #include <builtin/uniforms/cc-reflection-probe>
+  #include <builtin/functionalities/probe>
 #endif
 #if CC_USE_LIGHT_PROBE
 #include <legacy/sh-fs>
@@ -101,6 +102,10 @@ struct StandardSurface {
   #if CC_RECEIVE_SHADOW
     vec2 shadowBias;
   #endif
+  #if CC_RECEIVE_SHADOW || CC_USE_REFLECTION_PROBE
+    float reflectionProbeId;
+  #endif
+  float visibilityForDirLight;
 };
 
 vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
@@ -119,7 +124,7 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
 
   float shadow = 1.0;
   #if CC_RECEIVE_SHADOW && CC_SHADOW_TYPE == CC_SHADOW_MAP
-    if (NL > 0.0 && cc_mainLitDir.w > 0.0) {
+    if (NL > 0.0 && cc_mainLitDir.w > 0.0 && s.visibilityForDirLight) {
       if (cc_shadowLPNNInfo.w > 0.0) {
         #if CC_DIR_LIGHT_SHADOW_TYPE == CC_DIR_LIGHT_SHADOW_CASCADED
           shadow = CCCSMFactorBase(position, N, s.shadowBias);
@@ -151,19 +156,21 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
   
   #if CC_USE_LIGHTMAP != LIGHT_MAP_TYPE_ALL_IN_ONE
     float NV = max(abs(dot(N, V)), 0.0);
-    specular = BRDFApprox(specular, s.roughness, NV);
-  
-    vec3 H = normalize(L + V);
-    float NH = max(dot(N, H), 0.0);
-    vec3 lightingColor = NL * cc_mainLitColor.rgb * cc_mainLitColor.w;
-    vec3 diffuseContrib = diffuse / PI;
-  
-    // Cook-Torrance Microfacet Specular BRDF
-    vec3 specularContrib = specular * CalcSpecular(s.roughness, NH, H, N);
-    vec3 dirlightContrib = (diffuseContrib + specularContrib);
-  
-    dirlightContrib *= shadow;
-    finalColor += lightingColor * dirlightContrib;
+    if (s.visibilityForDirLight > 0.0) {
+      specular = BRDFApprox(specular, s.roughness, NV);
+
+      vec3 H = normalize(L + V);
+      float NH = max(dot(N, H), 0.0);
+      vec3 lightingColor = NL * cc_mainLitColor.rgb * cc_mainLitColor.w;
+      vec3 diffuseContrib = diffuse / PI;
+
+      // Cook-Torrance Microfacet Specular BRDF
+      vec3 specularContrib = specular * CalcSpecular(s.roughness, NH, H, N);
+      vec3 dirlightContrib = (diffuseContrib + specularContrib);
+
+      dirlightContrib *= shadow;
+      finalColor += lightingColor * dirlightContrib;
+    }
   #endif
 
   float fAmb = 0.5 - N.y * 0.5;
@@ -203,8 +210,15 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
     vec4 probe = vec4(0.0);
     vec3 R = normalize(reflect(-V, N));
     #if CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_CUBE
+      vec3 centerPos;
+      float boxSize;
+      GetCubeReflectionProbeData(centerPos, boxSize, s.reflectionProbeId);
       probe = fragTextureLod(cc_reflectionProbeCubemap, R, s.roughness * (cc_ambientGround.w - 1.0));
     #elif CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_PLANAR
+      vec4 plane;
+      float planarReflectionDepthScale;
+      GetPlanarReflectionProbeData(plane, planarReflectionDepthScale, s.reflectionProbeId);
+      // vec3 R = normalize(CalculateReflectDirection(N, V, NV));
       vec2 screenUV = GetPlanarReflectScreenUV(s.position, cc_matViewProj, cc_cameraPos.w, V, R);
       probe = texture(cc_reflectionProbePlanarMap, screenUV);
     #endif
