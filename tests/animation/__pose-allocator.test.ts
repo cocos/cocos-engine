@@ -138,10 +138,10 @@ describe(`Pose allocator`, () => {
             monitor.clear();
             allocator.pop();
 
-            expect(allocator.empty);
+            expect(allocator.isEmpty);
 
             allocator.destroy();
-            expect(manager.empty).toBe(true);
+            expect(manager.isEmpty).toBe(true);
         });
 
         test(`Zero length allocator`, () => {
@@ -294,7 +294,7 @@ describe(`Pose allocator`, () => {
             allocator3.pop();
             [allocator1, allocator2, allocator3].forEach((allocator) => allocator.destroy());
             expect(monitor.allocatedBytes).toBe(0);
-            expect(manager.empty).toBe(true);
+            expect(manager.isEmpty).toBe(true);
 
             expect(manager.createAllocator(4).push().buffer).not.toBe(buffer);
             expect(monitor.allocatedBytes).toBe(16);

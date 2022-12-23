@@ -140,7 +140,7 @@ class SharedStackBasedAllocator {
         this._slicesPerPage = slicesPerPage;
     }
 
-    public get empty () {
+    public get isEmpty () {
         return this._slices.length === 0;
     }
 
@@ -241,7 +241,7 @@ export class SharedStackBasedAllocatorManager {
         assertIsTrue(_thresholds.every((v, i, arr) => i === 0 || v > arr[i - 1]));
     }
 
-    public get empty () {
+    public get isEmpty () {
         return this._stacks.size === 0;
     }
 
