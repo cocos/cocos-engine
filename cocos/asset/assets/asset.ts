@@ -77,12 +77,24 @@ export class Asset extends Eventify(CCObject) {
     public loaded = true;
 
     /**
+     * @en
+     * The UUID of this asset.
+     *
+     * @zh
+     * 资源的 UUID。
+     *
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public declare _uuid: string;
 
     /**
-     * @internal
+     * @en
+     * Indicates whether this asset is a default asset.
+     *
+     * @zh
+     * 表明此资源是否是默认资源
+     *
+     * @deprecated Since v3.7, this is an internal engine interface and you should not call this interface under any circumstances.
      */
     public declare isDefault: boolean;
 
@@ -97,8 +109,14 @@ export class Asset extends Eventify(CCObject) {
      */
     @serializable
     public _native = '';
+
     /**
-     * @internal
+     * @en
+     * Path to native dependency.
+     * @zh
+     * 原生依赖的路径。
+     *
+     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _nativeUrl = '';
 
@@ -107,7 +125,7 @@ export class Asset extends Eventify(CCObject) {
 
     /**
      * @en
-     * Returns the url of this asset's native object, if none it will returns an empty string.
+     * Returns the url of this asset's native object, if none it will  an empty string.
      * @zh
      * 返回该资源对应的目标平台资源的 URL，如果没有将返回一个空字符串。
      * @readOnly
@@ -189,7 +207,7 @@ export class Asset extends Eventify(CCObject) {
      * 否则，返回空字符串。<br>
      * 子类可能会覆盖此方法。
      * @method toString
-     * @return {String}
+     * @return @en String representation of this asset. @zh 此资源的字符串表示。
      */
     public toString () {
         return this.nativeUrl;
@@ -235,7 +253,15 @@ export class Asset extends Eventify(CCObject) {
     public createNode? (callback: CreateNodeCallback): void;
 
     /**
-     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     * @en
+     * Get native dependency information.
+     *
+     * @zh
+     * 获取原生依赖信息。
+     *
+     * @return @en The native dependency information. @zh 原生依赖信息。
+     *
+     * @deprecated Since v3.7, this is an internal engine interface and you should not call this interface under any circumstances.
      */
     public get _nativeDep () {
         if (this._native) {
@@ -246,10 +272,12 @@ export class Asset extends Eventify(CCObject) {
 
     /**
      * @en
-     * The number of reference
+     * Current number of references to this asset.
      *
      * @zh
-     * 引用的数量
+     * 当前该资源被引用的数量。
+     *
+     * @ @en The number of references to this asset. @zh 被引用的数量。
      */
     public get refCount (): number {
         return this._ref;
@@ -257,12 +285,13 @@ export class Asset extends Eventify(CCObject) {
 
     /**
      * @en
-     * Add references of asset
+     * Add references of asset. This will prevent resources from being automatically recycled.
+     * When you no longer need to hold the resource, you need to using [[decRef]] to decrease the refCount.
      *
      * @zh
-     * 增加资源的引用
+     * 增加资源的引用。这将阻止资源被自动释放。当你不再需要持有该资源时，你需要调用 [[decRef]] 来减少引用计数。
      *
-     * @return itself
+     * @return @en The resource itself. @zh 此资源本身。
      *
      */
     public addRef (): Asset {
@@ -275,9 +304,9 @@ export class Asset extends Eventify(CCObject) {
      * Reduce references of asset and it will be auto released when refCount equals 0.
      *
      * @zh
-     * 减少资源的引用并尝试进行自动释放。
+     * 减少资源的引用，如果引用数量为 0，则将自动释放该资源。
      *
-     * @return itself
+     * @return @en The resource itself. @zh 此资源本身。
      *
      */
     public decRef (autoRelease = true): Asset {
@@ -290,17 +319,52 @@ export class Asset extends Eventify(CCObject) {
         return this;
     }
 
+    /**
+     * @en
+     * A callback after the resource is loaded that you can use to initialize the asset's internal data.
+     *
+     * @zh
+     * 资源加载后的回调，你可以用于初始化资源的内部数据。
+     *
+     * @deprecated Since v3.7, this is an internal engine interface and you should not call this interface under any circumstances.
+     */
     public onLoaded () {}
 
+    /**
+     * @en
+     * Initialize to default asset.
+     *
+     * @zh
+     * 初始化为默认资源
+     *
+     * @deprecated Since v3.7, this is an internal engine interface and you should not call this interface under any circumstances.
+     */
     public initDefault (uuid?: string) {
         if (uuid) { this._uuid = uuid; }
         this.isDefault = true;
     }
 
+    /**
+     * @en
+     * Used to verify this asset is an available resource.
+     *
+     * @zh
+     * 用于验证此资源是否为可用资源
+     *
+     * @return @zh 是否是可用资源。@en Whether this asset is available or not.
+     * @deprecated Since v3.7, this is an internal engine interface and you should not call this interface under any circumstances.
+     */
     public validate (): boolean {
         return true;
     }
 
+    /**
+     * @en
+     * Destroy this asset and its internal data.
+     *
+     * @zh
+     * 销毁此资源以及其内部数据。
+     */
     public destroy () {
         debug(getError(12101, this._uuid));
         return super.destroy();

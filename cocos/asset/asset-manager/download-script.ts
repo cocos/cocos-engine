@@ -25,7 +25,6 @@
 
 import { getError } from '../../core';
 import { ccwindow } from '../../core/global-exports';
-import { CompleteCallback, IBundleOptions } from './shared';
 
 const ccdocument = ccwindow.document;
 
@@ -33,8 +32,8 @@ const downloaded = {};
 
 export default function downloadScript (
     url: string,
-    options: IBundleOptions,
-    onComplete: CompleteCallback,
+    options: Record<string, any>,
+    onComplete: ((err: Error | null, data?: any | null) => void),
 ): HTMLScriptElement | null {
     // no need to load script again
     if (downloaded[url]) {

@@ -70,7 +70,7 @@ export class RenderTexture extends TextureBase {
     /**
      * @en Initialize the render texture. Using IRenderTextureCreateInfo.
      * @zh 初始化渲染贴图。设置渲染贴图的名称、尺寸、渲染通道信息。
-     * @param info @en The create info of render texture @zh 渲染贴图的创建信息
+     * @param info @en The create info of render texture. @zh 渲染贴图的创建信息。
      */
     public initialize (info: IRenderTextureCreateInfo) {
         this._name = info.name || '';
@@ -82,7 +82,7 @@ export class RenderTexture extends TextureBase {
     /**
      * @en Reset the render texture. User may change the name, size or render pass info of the render texture.
      * @zh 重新初始化渲染贴图。用户可以更改渲染贴图的名称、尺寸、渲染通道信息。
-     * @param info @en The create info of render texture @zh 渲染贴图的创建信息
+     * @param info @en The create info of render texture. @zh 渲染贴图的创建信息。
      */
     public reset (info: IRenderTextureCreateInfo) { // to be consistent with other assets
         this.initialize(info);
@@ -103,10 +103,10 @@ export class RenderTexture extends TextureBase {
     }
 
     /**
-     * @en Resize the render texture
-     * @zh 修改渲染贴图的尺寸
-     * @param width The pixel width, the range is from 1 to 2048
-     * @param height The pixel height, the range is from 1 to 2048
+     * @en Resize the render texture.
+     * @zh 修改渲染贴图的尺寸。
+     * @param width @en The pixel width to resize to, the range is from 1 to 2048. @zh 需要调整到的像素宽度，范围为 1-2048。
+     * @param height @en The pixel height to resize to, the range is from 1 to 2048. @zh 需要调整到的像素高度，范围为 1-2048。
      */
     public resize (width: number, height: number) {
         this._width = Math.floor(clamp(width, 1, 2048));
@@ -140,16 +140,17 @@ export class RenderTexture extends TextureBase {
 
     // To be compatible with material property interface
     /**
-     * @en Gets the related [[gfx.Texture]] resource, it's also the color attachment for the render window
-     * @zh 获取渲染贴图的 GFX 资源，同时也是渲染窗口所指向的颜色缓冲贴图资源
+     * @en Gets the related [[gfx.Texture]] resource, it's also the color attachment for the render window.
+     * @zh 获取渲染贴图的 GFX 资源，同时也是渲染窗口所指向的颜色缓冲贴图资源。
+     * @return @en The low level gfx texture. @zh 底层的 gfx 贴图。
      */
     public getGFXTexture (): Texture | null {
         return this._window && this._window.framebuffer.colorTextures[0];
     }
 
     /**
-     * @en Callback function after render texture is loaded in [[CCLoader]]. Initialize the render texture.
-     * @zh 通过 [[CCLoader]] 加载完成时的回调，初始化渲染贴图。
+     * @en Callback function after render texture is loaded in [[AssetManager]]. Initialize the render texture.
+     * @zh 通过 [[AssetManager]] 加载完成时的回调，初始化渲染贴图。
      */
     public onLoaded () {
         this._initWindow();
@@ -158,7 +159,8 @@ export class RenderTexture extends TextureBase {
     /**
      * @en Implementation of the render texture initialization.
      * @zh 初始化渲染贴图的具体实现。
-     * @param info @en The create info of render texture @zh 渲染贴图的创建信息
+     * @param info @en The create info of render texture. @zh 渲染贴图的创建信息。
+     * @engineInternal
      */
     protected _initWindow (info?: IRenderTextureCreateInfo) {
         const root = cclegacy.director.root as Root;
@@ -183,8 +185,9 @@ export class RenderTexture extends TextureBase {
 
     /**
      * @en Initialize the render texture with uuid. The default size is 1x1.
-     * @zh 初始化渲染贴图。使用uuid进行初始化，贴图的尺寸为 1x1。
-     * @param uuid @en asset uuid @zh 资源 uuid
+     * @zh 初始化渲染贴图。使用 uuid 进行初始化，贴图的尺寸为 1x1。
+     * @param uuid @en asset uuid. @zh 资源 uuid。
+     * @deprecated Since v3.7, this is an internal engine interface and you should not call this interface under any circumstances.
      */
     public initDefault (uuid?: string) {
         super.initDefault(uuid);
@@ -195,20 +198,21 @@ export class RenderTexture extends TextureBase {
     /**
      * @en Validate the correctness of the render texture.
      * @zh 验证渲染贴图的正确性。
+     * @deprecated Since v3.7, this is an internal engine interface and you should not call this interface under any circumstances.
      */
     public validate () {
         return this.width >= 1 && this.width <= 2048 && this.height >= 1 && this.height <= 2048;
     }
 
     /**
-     * @en Read pixel buffer from render texture @zh 从 render texture 读取像素数据
+     * @en Read pixel buffer from render texture. @zh 从 render texture 读取像素数据。
      * @param x @en The location on x axis @zh 起始位置X轴坐标
      * @param y @en The location on y axis @zh 起始位置Y轴坐标
      * @param width @en The pixel width @zh 像素宽度
      * @param height @en The pixel height @zh 像素高度
      * @param buffer @en The buffer to hold pixel data @zh 像素缓存
      */
-    public readPixels (x = 0, y = 0, width?: number, height?: number, buffer?: Uint8Array) : Uint8Array | null {
+    public readPixels (x = 0, y = 0, width?: number, height?: number, buffer?: Uint8Array): Uint8Array | null {
         width = width || this.width;
         height = height || this.height;
         const gfxTexture = this.getGFXTexture();

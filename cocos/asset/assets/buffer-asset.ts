@@ -27,6 +27,13 @@ import { ccclass, override } from 'cc.decorator';
 import { assertIsNonNullable, cclegacy } from '../../core';
 import { Asset } from './asset';
 
+/**
+ * @en
+ * `BufferAsset` is a class of resources whose internal data is a section of memory buffer
+ * that you can access through the [[BufferAsset.buffer]] function.
+ * @zh
+ * `BufferAsset` 是一类资源，其内部数据是一段内存缓冲，你可以通过 [[BufferAsset.buffer]] 函数获取其内部数据。
+ */
 @ccclass('cc.BufferAsset')
 export class BufferAsset extends Asset {
     private _buffer: ArrayBuffer | null = null;
@@ -49,7 +56,7 @@ export class BufferAsset extends Asset {
     /**
      * @zh 获取此资源中的缓冲数据。
      * @en Get the ArrayBuffer data of this asset.
-     * @returns @en The ArrayBuffer. @zh 缓冲数据。
+     * @return @en The ArrayBuffer. @zh 缓冲数据。
      */
     public buffer () {
         assertIsNonNullable(this._buffer);

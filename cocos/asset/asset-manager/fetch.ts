@@ -27,11 +27,11 @@ import { Asset } from '../assets';
 import { error, cclegacy } from '../../core';
 import packManager from './pack-manager';
 import RequestItem from './request-item';
-import { assets, CompleteCallbackNoData, fetchPipeline } from './shared';
+import { assets, fetchPipeline } from './shared';
 import Task from './task';
 import { clear, forEach, getDepends } from './utilities';
 
-export default function fetch (task: Task, done: CompleteCallbackNoData) {
+export default function fetch (task: Task, done: ((err?: Error | null) => void)) {
     let firstTask = false;
     if (!task.progress) {
         task.progress = { finish: 0, total: task.input.length, canInvoke: true };

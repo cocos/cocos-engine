@@ -29,46 +29,46 @@ import Cache from './cache';
 import downloadDomImage from './download-dom-image';
 import downloadFile from './download-file';
 import downloadScript from './download-script';
-import { CompleteCallback, CompleteCallbackNoData, IBundleOptions, IDownloadParseOptions, files } from './shared';
+import { files } from './shared';
 import { retry, RetryFunction, urlAppendTimestamp } from './utilities';
 import { IConfigOption } from './config';
 import { CCON, parseCCONJson, decodeCCONBinary } from '../../serialization/ccon';
 
-export type DownloadHandler = (url: string, options: IDownloadParseOptions, onComplete: CompleteCallback) => void;
+export type DownloadHandler = (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)) => void;
 
 interface IDownloadRequest {
     id: string;
     priority: number;
     url: string;
-    options: IDownloadParseOptions;
-    done: CompleteCallback;
+    options: Record<string, any>;
+    done: ((err: Error | null, data?: any | null) => void);
     handler: DownloadHandler;
 }
 
 const REGEX = /^(?:\w+:\/\/|\.+\/).+/;
 
-const downloadImage = (url: string, options: IDownloadParseOptions, onComplete: CompleteCallback) => {
+const downloadImage = (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)) => {
     // if createImageBitmap is valid, we can transform blob to ImageBitmap. Otherwise, just use HTMLImageElement to load
     const func = sys.hasFeature(sys.Feature.IMAGE_BITMAP) && cclegacy.assetManager.allowImageBitmap ? downloadBlob : downloadDomImage;
     func(url, options, onComplete);
 };
 
-const downloadBlob = (url: string, options: IDownloadParseOptions, onComplete: CompleteCallback) => {
+const downloadBlob = (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)) => {
     options.xhrResponseType = 'blob';
     downloadFile(url, options, options.onFileProgress, onComplete);
 };
 
-const downloadJson = (url: string, options: IDownloadParseOptions, onComplete: CompleteCallback<Record<string, any>>) => {
+const downloadJson = (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: Record<string, any> | null) => void)) => {
     options.xhrResponseType = 'json';
     downloadFile(url, options, options.onFileProgress, onComplete);
 };
 
-const downloadArrayBuffer = (url: string, options: IDownloadParseOptions, onComplete: CompleteCallback) => {
+const downloadArrayBuffer = (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)) => {
     options.xhrResponseType = 'arraybuffer';
     downloadFile(url, options, options.onFileProgress, onComplete);
 };
 
-const downloadCCON = (url: string, options: IDownloadParseOptions, onComplete: CompleteCallback<CCON>) => {
+const downloadCCON = (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: CCON | null) => void)) => {
     downloadJson(url, options, (err, json) => {
         if (err) {
             onComplete(err);
@@ -93,7 +93,7 @@ const downloadCCON = (url: string, options: IDownloadParseOptions, onComplete: C
     });
 };
 
-const downloadCCONB = (url: string, options: IDownloadParseOptions, onComplete: CompleteCallback<CCON>) => {
+const downloadCCONB = (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: CCON | null) => void)) => {
     downloadArrayBuffer(url, options, (err, arrayBuffer: ArrayBuffer) => {
         if (err) {
             onComplete(err);
@@ -108,12 +108,12 @@ const downloadCCONB = (url: string, options: IDownloadParseOptions, onComplete: 
     });
 };
 
-const downloadText = (url: string, options: IDownloadParseOptions, onComplete: CompleteCallback) => {
+const downloadText = (url: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)) => {
     options.xhrResponseType = 'text';
     downloadFile(url, options, options.onFileProgress, onComplete);
 };
 
-const downloadBundle = (nameOrUrl: string, options: IBundleOptions, onComplete: CompleteCallback) => {
+const downloadBundle = (nameOrUrl: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)) => {
     const bundleName = path.basename(nameOrUrl);
     let url = nameOrUrl;
     if (!REGEX.test(url)) {
@@ -303,7 +303,7 @@ export class Downloader {
         default: downloadText,
     };
 
-    private _downloading = new Cache<CompleteCallback[]>();
+    private _downloading = new Cache<((err: Error | null, data?: any | null) => void)[]>();
     private _queue: IDownloadRequest[] = [];
     private _queueDirty = false;
     // the number of loading thread
@@ -379,7 +379,7 @@ export class Downloader {
      * download('http://example.com/test.tga', '.tga', { onFileProgress: (loaded, total) => console.log(loaded/total) },
      *      onComplete: (err) => console.log(err));
      */
-    public download (id: string, url: string, type: string, options: IDownloadParseOptions, onComplete: CompleteCallback): void {
+    public download (id: string, url: string, type: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)): void {
         // if it is downloaded, don't download again
         const file = files.get(id);
         if (file) {
@@ -419,7 +419,7 @@ export class Downloader {
             // refresh
             this._updateTime();
 
-            const done: CompleteCallback = (err, data) => {
+            const done: ((err: Error | null, data?: any | null) => void) = (err, data) => {
                 // when finish downloading, update _totalNum
                 this._totalNum--;
                 this._handleQueueInNextFrame(maxConcurrency, maxRequestsPerFrame);
@@ -442,7 +442,7 @@ export class Downloader {
         // when retry finished, invoke callbacks
         const finale = (err, result) => {
             if (!err) { files.add(id, result); }
-            const callbacks = this._downloading.remove(id) as CompleteCallback[];
+            const callbacks = this._downloading.remove(id) as ((err: Error | null, data?: any | null) => void)[];
             for (let i = 0, l = callbacks.length; i < l; i++) {
                 callbacks[i](err, result);
             }
@@ -460,7 +460,7 @@ export class Downloader {
      *
      * @deprecated loader.downloader.loadSubpackage is deprecated, please use AssetManager.loadBundle instead
      */
-    public loadSubpackage (name: string, completeCallback?: CompleteCallbackNoData) {
+    public loadSubpackage (name: string, completeCallback?: ((err?: Error | null) => void)) {
         cclegacy.assetManager.loadBundle(name, null, completeCallback);
     }
 

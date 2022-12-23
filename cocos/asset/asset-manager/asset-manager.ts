@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 /*
  Copyright (c) 2019-2020 Xiamen Yaji Software Co., Ltd.
 
@@ -42,15 +43,8 @@ import preprocess from './preprocess';
 import releaseManager from './release-manager';
 import RequestItem from './request-item';
 import {
-    CompleteCallbackWithData,
-    ProgressCallback,
-    IBundleOptions,
-    IOptions,
-    IRemoteOptions,
     presets,
-    Request,
     references,
-    IJsonAssetOptions,
     assets, BuiltinBundleName, bundles, fetchPipeline, files, parsed, pipeline, transformPipeline, assetsOverrideMap } from './shared';
 
 import Task from './task';
@@ -113,57 +107,54 @@ export interface IAssetManagerOptions {
  * All member can be accessed with `assetManager`.
  *
  * @zh
- * 此模块管理资源的行为和信息，包括加载，释放等，这是一个单例，所有成员能够通过 `assetManager` 调用
- *
+ * 此模块管理资源的行为和信息，包括加载，释放等，这是一个单例，所有成员能够通过 `assetManager` 调用。
  */
 export class AssetManager {
     /**
      * @en
-     * Normal loading pipeline
+     * Normal loading pipeline.
      *
      * @zh
-     * 正常加载管线
-     * @internal
-     * @deprecated Since v3.7, this interface is engine internal interface.
+     * 正常加载管线。
      */
     public pipeline: Pipeline = pipeline.append(preprocess).append(load);
 
     /**
      * @en
-     * Fetching pipeline
+     * Fetching pipeline.
      *
      * @zh
-     * 下载管线
+     * 下载管线。
      *
      */
     public fetchPipeline: Pipeline = fetchPipeline.append(preprocess).append(fetch);
 
     /**
      * @en
-     * Url transformer
+     * Url transformer.
      *
      * @zh
-     * Url 转换器
+     * Url 转换器。
      *
      */
     public transformPipeline: Pipeline = transformPipeline.append(parse).append(replaceOverrideAsset).append(combine);
 
     /**
      * @en
-     * The collection of bundle which is already loaded, you can remove cache with [[removeBundle]]
+     * The collection of bundle which is already loaded, you can remove cache with [[removeBundle]].
      *
      * @zh
-     * 已加载 bundle 的集合， 你能通过 [[removeBundle]] 来移除缓存
+     * 已加载 bundle 的集合， 你能通过 [[removeBundle]] 来移除缓存。
      *
      */
     public bundles: ICache<Bundle> = bundles;
 
     /**
      * @en
-     * The collection of asset which is already loaded, you can remove cache with [[releaseAsset]]
+     * The collection of asset which is already loaded, you can remove cache with [[releaseAsset]].
      *
      * @zh
-     * 已加载资源的集合， 你能通过 [[releaseAsset]] 来移除缓存
+     * 已加载资源的集合， 你能通过 [[releaseAsset]] 来移除缓存。
      */
     public assets: ICache<Asset> = assets;
 
@@ -280,6 +271,9 @@ export class AssetManager {
      */
     public presets = presets;
 
+    /**
+     * @engineInternal
+     */
     public factory = factory;
 
     /**
@@ -303,9 +297,7 @@ export class AssetManager {
     public references = references;
 
     private _releaseManager = releaseManager;
-
     private _files = files;
-
     private _parsed = parsed;
     private _parsePipeline = BUILD ? null : new Pipeline('parse existing json', [this.loadPipe]);
     private _projectBundles: string[] = [];
@@ -381,8 +373,8 @@ export class AssetManager {
      * @zh
      * 通过包名称获取已加载的分包。
      *
-     * @param name - The name of bundle
-     * @return - The loaded bundle
+     * @param name @en The name of bundle. @zh 资源包的名称。
+     * @return @en The loaded bundle. @zh 已加载的资源包。
      *
      * @example
      * // ${project}/assets/test1
@@ -398,15 +390,13 @@ export class AssetManager {
     /**
      * @en
      * Remove this bundle. NOTE: The asset within this bundle will not be released automatically,
-     * you can call [[AssetManager.Bundle.releaseAll]] manually before remove it if you need
+     * you can call [[AssetManager.Bundle.releaseAll]] manually before remove it if you need.
      *
      * @zh
-     * 移除此包, 注意：这个包内的资源不会自动释放, 如果需要的话你可以在摧毁之前手动调用 [[AssetManager.Bundle.releaseAll]] 进行释放
+     * 移除此包, 注意：这个包内的资源不会自动释放, 如果需要的话你可以在摧毁之前手动调用 [[AssetManager.Bundle.releaseAll]] 进行释放。
      *
-     * @param bundle - The bundle to be removed
+     * @param bundle @en The bundle to be removed. @zh 准备移除的 Bundle。
      *
-     * @typescript
-     * removeBundle(bundle: AssetManager.Bundle): void
      */
     public removeBundle (bundle: Bundle) {
         bundle._destroy();
@@ -415,29 +405,26 @@ export class AssetManager {
 
     /**
      * @en
-     * General interface used to load assets with a progression callback and a complete callback. You can achieve almost all
-     * effect you want with combination of `requests` and `options`.It is highly recommended that you use more simple API,
-     * such as `load`, `loadDir` etc. Every custom parameter in `options` will be distribute to each of `requests`. if request
-     * already has same one, the parameter in request will be given priority. Besides, if request has dependencies, `options`
-     * will distribute to dependencies too. Every custom parameter in `requests` will be transferred to handler of `downloader`
-     * and `parser` as `options`. You can register you own handler downloader or parser to collect these custom parameters for some effect.
+     * General interface used to load assets with a progression callback and a complete callback.
+     * It is highly recommended that you use more simple API, such as `load`, `loadDir` etc. You can pass
+     * some additional data via the `options` parameter, and the parameters in `options` will affect this loading.
+     * The optional parameter will be transferred to handler of `downloader` and `parser` as `options`. You can
+     * register you own handler downloader or parser to collect these custom parameters for some effect.
      *
-     * Reserved Keyword: `uuid`, `url`, `path`, `dir`, `scene`, `type`, `priority`, `preset`, `audioLoadMode`, `ext`,
+     * Additional parameter reserved Keywords: `uuid`, `url`, `path`, `dir`, `scene`, `type`, `priority`, `preset`, `audioLoadMode`, `ext`,
      * `bundle`, `onFileProgress`, `maxConcurrency`, `maxRequestsPerFrame`, `maxRetryCount`, `version`, `xhrResponseType`,
      * `xhrWithCredentials`, `xhrMimeType`, `xhrTimeout`, `xhrHeader`, `reloadAsset`, `cacheAsset`, `cacheEnabled`,
-     * Please DO NOT use these words as custom options!
+     * Please DO NOT use these words as your own options!
      *
      * @zh
-     * 通用加载资源接口，可传入进度回调以及完成回调，通过组合 `request` 和 `options` 参数，几乎可以实现和扩展所有想要的加载效果。非常建议
-     * 你使用更简单的API，例如 `load`、`loadDir` 等。`options` 中的自定义参数将会分发到 `requests` 的每一项中，如果request中已存在同名的
-     * 参数则以 `requests` 中为准，同时如果有其他依赖资源，则 `options` 中的参数会继续向依赖项中分发。request中的自定义参数都会以 `options`
-     * 形式传入加载流程中的 `downloader`, `parser` 的方法中, 你可以扩展 `downloader`, `parser` 收集参数完成想实现的效果。
+     * 通用加载资源接口，可传入进度回调以及完成回调，建议你使用更简单的API，例如 `load`、`loadDir` 等。你可以通过 `options` 参数额外传递一些数据，`options` 中的参数将会影响本次加载。
+     * 额外参数会传入加载流程中的 `downloader`, `parser` 的处理方法中, 你可以扩展 `downloader`, `parser` 收集参数完成想实现的效果。
      *
-     * 保留关键字: `uuid`, `url`, `path`, `dir`, `scene`, `type`, `priority`, `preset`, `audioLoadMode`, `ext`, `bundle`, `onFileProgress`,
+     * 额外参数保留关键字: `uuid`, `url`, `path`, `dir`, `scene`, `type`, `priority`, `preset`, `audioLoadMode`, `ext`, `bundle`, `onFileProgress`,
      *  `maxConcurrency`, `maxRequestsPerFrame`, `maxRetryCount`, `version`, `xhrResponseType`, `xhrWithCredentials`, `xhrMimeType`, `xhrTimeout`, `xhrHeader`,
-     *  `reloadAsset`, `cacheAsset`, `cacheEnabled`, 请不要使用这些字段为自定义参数!
+     *  `reloadAsset`, `cacheAsset`, `cacheEnabled`, 请不要使用这些字段为你自己的参数!
      *
-     * @param requests - The request you want to load
+     * @param requests @en The request you want to load. @zh 你需要加载的资源。
      * @param options - Optional parameters
      * @param onProgress - Callback invoked when progression change
      * @param onProgress.finished - The number of the items that are already completed
@@ -453,7 +440,7 @@ export class AssetManager {
      * assetManager.loadAny([{ uuid: '0cbZa5Y71CTZAccaIFluuZ'}, {url: 'http://example.com/a.png'}], (err, assets) => log(assets));
      * assetManager.downloader.register('.asset', (url, options, onComplete) => {
      *      url += '?userName=' + options.userName + "&password=" + options.password;
-     *      assetManager.downloader.downloadFile(url, null, onComplete);
+     *      // other logic.
      * });
      * assetManager.parser.register('.asset', (file, options, onComplete) => {
      *      var json = JSON.parse(file);
@@ -461,20 +448,20 @@ export class AssetManager {
      *      var model = json[options.model];
      *      onComplete(null, {skin, model});
      * });
-     * assetManager.loadAny({ url: 'http://example.com/my.asset', skin: 'xxx', model: 'xxx', userName: 'xxx', password: 'xxx' });
+     * assetManager.loadAny({ url: 'http://example.com/my.asset' }, { skin: 'xxx', model: 'xxx', userName: 'xxx', password: 'xxx' });
      *
      */
-    public loadAny (requests: Request, options: IOptions | null, onProgress: ProgressCallback | null, onComplete: CompleteCallbackWithData | null): void;
-    public loadAny (requests: Request, onProgress: ProgressCallback | null, onComplete: CompleteCallbackWithData | null): void;
-    public loadAny (requests: Request, options: IOptions | null, onComplete?: CompleteCallbackWithData | null): void;
-    public loadAny<T extends Asset> (requests: string, onComplete?: CompleteCallbackWithData<T> | null): void;
-    public loadAny<T extends Asset> (requests: string[], onComplete?: CompleteCallbackWithData<T[]> | null): void;
-    public loadAny (requests: Request, onComplete?: CompleteCallbackWithData | null): void;
+    public loadAny (requests: string | string[] | Record<string, any> | Array<Record<string, any>>, options: Record<string, any> | null, onProgress: ((finished: number, total: number, item: RequestItem) => void) | null, onComplete: ((err: Error | null, data: any) => void) | null): void;
+    public loadAny (requests: string | string[] | Record<string, any> | Array<Record<string, any>>, onProgress: ((finished: number, total: number, item: RequestItem) => void) | null, onComplete: ((err: Error | null, data: any) => void) | null): void;
+    public loadAny (requests: string | string[] | Record<string, any> | Array<Record<string, any>>, options: Record<string, any> | null, onComplete?: ((err: Error | null, data: any) => void) | null): void;
+    public loadAny<T extends Asset> (requests: string, onComplete?: ((err: Error | null, data: T) => void) | null): void;
+    public loadAny<T extends Asset> (requests: string[], onComplete?: ((err: Error | null, data: T[]) => void) | null): void;
+    public loadAny (requests: string | string[] | Record<string, any> | Array<Record<string, any>>, onComplete?: ((err: Error | null, data: any) => void) | null): void;
     public loadAny (
-        requests: Request,
-        options?: IOptions | ProgressCallback | CompleteCallbackWithData | null,
-        onProgress?: ProgressCallback | CompleteCallbackWithData | null,
-        onComplete?: CompleteCallbackWithData | null,
+        requests: string | string[] | Record<string, any> | Array<Record<string, any>>,
+        options?: Record<string, any> | ((finished: number, total: number, item: RequestItem) => void) | ((err: Error | null, data: any) => void) | null,
+        onProgress?: ((finished: number, total: number, item: RequestItem) => void) | ((err: Error | null, data: any) => void) | null,
+        onComplete?: ((err: Error | null, data: any) => void) | null,
     ) {
         const { options: opts, onProgress: onProg, onComplete: onComp } = parseParameters(options, onProgress, onComplete);
         opts.preset = opts.preset || 'default';
@@ -509,18 +496,18 @@ export class AssetManager {
      *
      */
     public preloadAny (
-        requests: Request,
-        options: IOptions | null,
-        onProgress: ProgressCallback | null,
-        onComplete: CompleteCallbackWithData<RequestItem[]>|null): void;
-    public preloadAny (requests: Request, onProgress: ProgressCallback | null, onComplete: CompleteCallbackWithData<RequestItem[]> | null): void;
-    public preloadAny (requests: Request, options: IOptions | null, onComplete?: CompleteCallbackWithData<RequestItem[]> | null): void;
-    public preloadAny (requests: Request, onComplete?: CompleteCallbackWithData<RequestItem[]> | null): void;
+        requests: string | string[] | Record<string, any> | Array<Record<string, any>>,
+        options: Record<string, any> | null,
+        onProgress: ((finished: number, total: number, item: RequestItem) => void) | null,
+        onComplete: ((err: Error | null, data: RequestItem[]) => void)|null): void;
+    public preloadAny (requests: string | string[] | Record<string, any> | Array<Record<string, any>>, onProgress: ((finished: number, total: number, item: RequestItem) => void) | null, onComplete: ((err: Error | null, data: RequestItem[]) => void) | null): void;
+    public preloadAny (requests: string | string[] | Record<string, any> | Array<Record<string, any>>, options: Record<string, any> | null, onComplete?: ((err: Error | null, data: RequestItem[]) => void) | null): void;
+    public preloadAny (requests: string | string[] | Record<string, any> | Array<Record<string, any>>, onComplete?: ((err: Error | null, data: RequestItem[]) => void) | null): void;
     public preloadAny (
-        requests: Request,
-        options?: IOptions | ProgressCallback | CompleteCallbackWithData<RequestItem[]> | null,
-        onProgress?: ProgressCallback | CompleteCallbackWithData<RequestItem[]> | null,
-        onComplete?: CompleteCallbackWithData<RequestItem[]> | null,
+        requests: string | string[] | Record<string, any> | Array<Record<string, any>>,
+        options?: Record<string, any> | ((finished: number, total: number, item: RequestItem) => void) | ((err: Error | null, data: RequestItem[]) => void) | null,
+        onProgress?: ((finished: number, total: number, item: RequestItem) => void) | ((err: Error | null, data: RequestItem[]) => void) | null,
+        onComplete?: ((err: Error | null, data: RequestItem[]) => void) | null,
     ) {
         const { options: opts, onProgress: onProg, onComplete: onComp } = parseParameters(options, onProgress, onComplete);
         opts.preset = opts.preset || 'preload';
@@ -540,13 +527,16 @@ export class AssetManager {
      * 使用 url 加载远程资源，例如音频，图片，文本等等。需要注意的是 `loadRemote` 是通过 url 中的后缀名判断以何种方式加载该资源，
      * 如果你传入的 url 中没有携带后缀信息，你需要额外指定 `options` 中的 `ext` 参数来表明你需要何种方式加载该资源。请参考下面的第三个示例。
      *
-     * @param url - The url of asset
-     * @param options - Some optional parameters
-     * @param options.audioLoadMode - Indicate which mode audio you want to load
-     * @param options.ext - If the url does not have a extension name, you can specify one manually.
-     * @param onComplete - Callback invoked when finish loading
-     * @param onComplete.err - The error occurred in loading process.
-     * @param onComplete.asset - The loaded texture
+     * @param url @en The url of asset. @zh 资源的 URL 链接。
+     * @param options @en Some optional parameters. @zh 一些可选参数。
+     * @param options.ext
+     * @en If the url does not have a extension name, you can specify one manually. This will affect the way asset are loaded.
+     * @zh 如果 URL 链接中没有包含扩展名，你可以手动指定一个扩展名。这将会影响资源的加载方式。
+     * @param onComplete @en Callback invoked when finish loading. @zh 当完成加载时触发的回调函数。
+     * @param onComplete.err @en The error occurred in loading process. @zh 记在过程中出现的错误。
+     * @param onComplete.asset
+     * @en The loaded asset. If there is an error in the loading process, this asset will be null.
+     * @zh 加载好的资源，如果加载过程出现了错误，资源将会 null。
      *
      * @example
      * assetManager.loadRemote('http://www.cloud.com/test1.jpg', (err, texture) => console.log(err));
@@ -554,10 +544,10 @@ export class AssetManager {
      * assetManager.loadRemote('http://www.cloud.com/test3', { ext: '.png' }, (err, texture) => console.log(err));
      *
      */
-    public loadRemote<T extends Asset> (url: string, options: IRemoteOptions | null, onComplete?: CompleteCallbackWithData<T> | null): void;
-    public loadRemote<T extends Asset> (url: string, onComplete?: CompleteCallbackWithData<T> | null): void;
-    public loadRemote<T extends Asset> (url: string, options?: IRemoteOptions | CompleteCallbackWithData<T> | null, onComplete?: CompleteCallbackWithData<T> | null) {
-        const { options: opts, onComplete: onComp } = parseParameters<CompleteCallbackWithData<T>>(options, undefined, onComplete);
+    public loadRemote<T extends Asset> (url: string, options: { [k: string]: any, ext?: string } | null, onComplete?: ((err: Error | null, data: T) => void) | null): void;
+    public loadRemote<T extends Asset> (url: string, onComplete?: ((err: Error | null, data: T) => void) | null): void;
+    public loadRemote<T extends Asset> (url: string, options?: { [k: string]: any, ext?: string } | ((err: Error | null, data: T) => void) | null, onComplete?: ((err: Error | null, data: T) => void) | null) {
+        const { options: opts, onComplete: onComp } = parseParameters<((err: Error | null, data: T) => void)>(options, undefined, onComplete);
 
         if (!opts.reloadAsset && this.assets.has(url)) {
             asyncify(onComp)(null, this.assets.get(url));
@@ -583,7 +573,7 @@ export class AssetManager {
      * load bundle with name or url of bundle.
      *
      * @zh
-     * 通过包名称或 url 加载资源包
+     * 通过包名称或 url 加载资源包。
      *
      * @param nameOrUrl - The name or root path of bundle
      * @param options - Some optional paramter, same like downloader.downloadFile
@@ -596,10 +586,10 @@ export class AssetManager {
      * loadBundle('http://localhost:8080/test', null, (err, bundle) => console.log(err));
      *
      */
-    public loadBundle (nameOrUrl: string, options: IBundleOptions | null, onComplete?: CompleteCallbackWithData<Bundle> | null): void;
-    public loadBundle (nameOrUrl: string, onComplete?: CompleteCallbackWithData<Bundle> | null): void;
-    public loadBundle (nameOrUrl: string, options?: IBundleOptions | CompleteCallbackWithData<Bundle> | null, onComplete?: CompleteCallbackWithData<Bundle> | null) {
-        const { options: opts, onComplete: onComp } = parseParameters<CompleteCallbackWithData<Bundle>>(options, undefined, onComplete);
+    public loadBundle (nameOrUrl: string, options: { [k: string]: any, version?: string } | null, onComplete?: ((err: Error | null, data: Bundle) => void) | null): void;
+    public loadBundle (nameOrUrl: string, onComplete?: ((err: Error | null, data: Bundle) => void) | null): void;
+    public loadBundle (nameOrUrl: string, options?: { [k: string]: any, version?: string } | ((err: Error | null, data: Bundle) => void) | null, onComplete?: ((err: Error | null, data: Bundle) => void) | null) {
+        const { options: opts, onComplete: onComp } = parseParameters<((err: Error | null, data: Bundle) => void)>(options, undefined, onComplete);
 
         const bundleName = path.basename(nameOrUrl);
 
@@ -636,7 +626,7 @@ export class AssetManager {
      * 比如说，当你释放一个 texture 资源，这个 texture 和它的 gl 贴图数据都会被释放。
      * 注意，这个函数可能会导致资源贴图或资源所依赖的贴图不可用，如果场景中存在节点仍然依赖同样的贴图，它们可能会变黑并报 GL 错误。
      *
-     * @param asset - The asset to be released
+     * @param asset @en The asset to be released. @zh 被释放的资源。
      *
      * @example
      * // release a texture which is no longer need
@@ -652,7 +642,7 @@ export class AssetManager {
      * Release all unused assets. Refer to [[releaseAsset]] for detailed information.
      *
      * @zh
-     * 释放所有没有用到的资源。详细信息请参考 [[releaseAsset]]
+     * 释放所有没有用到的资源。详细信息请参考 [[releaseAsset]]。
      *
      * @engineInternal
      *
@@ -668,7 +658,7 @@ export class AssetManager {
      * Release all assets. Refer to [[releaseAsset]] for detailed information.
      *
      * @zh
-     * 释放所有资源。详细信息请参考 [[releaseAsset]]
+     * 释放所有资源。详细信息请参考 [[releaseAsset]]。
      *
      */
     public releaseAll () {
@@ -686,21 +676,21 @@ export class AssetManager {
      */
     public loadWithJson<T extends Asset> (
         json: Record<string, any>,
-        options: IJsonAssetOptions | null,
-        onProgress: ProgressCallback | null,
-        onComplete: CompleteCallbackWithData<T> | null): void;
-    public loadWithJson<T extends Asset> (json: Record<string, any>, onProgress: ProgressCallback | null, onComplete: CompleteCallbackWithData<T> | null): void;
-    public loadWithJson<T extends Asset> (json: Record<string, any>, options: IJsonAssetOptions | null, onComplete?: CompleteCallbackWithData<T> | null): void;
-    public loadWithJson<T extends Asset> (json: Record<string, any>, onComplete?: CompleteCallbackWithData<T> | null): void;
+        options: Record<string, any> | null,
+        onProgress: ((finished: number, total: number, item: RequestItem) => void) | null,
+        onComplete: ((err: Error | null, data: T) => void) | null): void;
+    public loadWithJson<T extends Asset> (json: Record<string, any>, onProgress: ((finished: number, total: number, item: RequestItem) => void) | null, onComplete: ((err: Error | null, data: T) => void) | null): void;
+    public loadWithJson<T extends Asset> (json: Record<string, any>, options: Record<string, any> | null, onComplete?: ((err: Error | null, data: T) => void) | null): void;
+    public loadWithJson<T extends Asset> (json: Record<string, any>, onComplete?: ((err: Error | null, data: T) => void) | null): void;
     public loadWithJson<T extends Asset> (
         json: Record<string, any>,
-        options?: IJsonAssetOptions | CompleteCallbackWithData<T> | null,
-        onProgress?: ProgressCallback | CompleteCallbackWithData<T> | null,
-        onComplete?: CompleteCallbackWithData<T> | null,
+        options?: Record<string, any> | ((err: Error | null, data: T) => void) | null,
+        onProgress?: ((finished: number, total: number, item: RequestItem) => void) | ((err: Error | null, data: T) => void) | null,
+        onComplete?: ((err: Error | null, data: T) => void) | null,
     ) {
         if (BUILD) { throw new Error('Only valid in Editor'); }
 
-        const { options: opts, onProgress: onProg, onComplete: onComp } = parseParameters<CompleteCallbackWithData<T>>(options, onProgress, onComplete);
+        const { options: opts, onProgress: onProg, onComplete: onComp } = parseParameters<((err: Error | null, data: T) => void)>(options, onProgress, onComplete);
 
         const item = RequestItem.create();
         item.isNative = false;
@@ -739,7 +729,14 @@ export declare namespace AssetManager {
     export { RequestItem };
     export { Bundle };
     export { BuiltinBundleName };
+    export { CacheManager };
 }
 
-export default cclegacy.assetManager = new AssetManager();
+/**
+ * @en `assetManager` is a global singleton instance of [[AssetManager]].
+ * The engine uses `assetManager` to manage all asset and asset bundle, including loading, releasing, etc.
+ * @zh `assetManager` 为 [[AssetManager]] 的全局单例，引擎使用 `assetManager` 来完成所有资源和资源包的管理工作，包括加载，释放等。
+ */
+const assetManager = cclegacy.assetManager = new AssetManager();
+export default assetManager;
 cclegacy.AssetManager = AssetManager;

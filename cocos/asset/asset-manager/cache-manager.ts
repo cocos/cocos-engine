@@ -101,8 +101,8 @@ export default abstract class CacheManager {
      * @zh
      * 通过原始 url 获取缓存后的路径
      *
-     * @param originUrl
-     * @returns The cached path
+     * @param originUrl @en The origin url of file. @zh 文件的原始 url。
+     * @returns @en The path where the file is cached. @zh 该文件所缓存的路径。
      */
     public abstract getCache (originUrl: string): string;
 
@@ -113,38 +113,39 @@ export default abstract class CacheManager {
      * @zh
      * 通过原始 url 获取临时文件的路径，此方法只在小游戏平台有效
      *
-     * @param originUrl
-     * @returns The temp path
+     * @param originUrl @en The origin url of file. @zh 文件的原始 url。
+     * @returns @en The temporary path where the file is stored. @zh 该文件所存储的临时路径。
      */
     public abstract getTemp (originUrl: string): string;
 
     /**
      * @en
-     * Clear all caches, please use with caution, If necessary, we recommend using it before the game is launched
+     * Clear all caches, please use with caution, If necessary, we recommend using it before the game is launched.
      *
      * @zh
-     * 清空所有缓存，请谨慎使用，如果必要的话，我们建议在游戏启动之前使用
+     * 清空所有缓存，请谨慎使用，如果必要的话，我们建议在游戏启动之前使用。
      *
      */
     public abstract clearCache (): void;
 
     /**
      * @en
-     * Clear part of caches with LRU strategy
+     * Clear part of caches with LRU strategy.
      *
      * @zh
-     * 使用 LRU 策略清空部分缓存
+     * 使用 LRU 策略清空部分缓存。
      *
      */
     public abstract clearLRU (): void;
 
     /**
      * @en
-     * Remove cache with origin url
+     * Remove cache with origin url.
      *
      * @zh
-     * 通过原始 url 移除缓存
+     * 通过原始 url 移除缓存。
      *
+     * @param originUrl @en The origin url to remove from cache. @zh 要从缓存中移除的原始 url。
      */
     public abstract removeCache (originUrl: string): void;
 }

@@ -29,22 +29,22 @@ import Cache from './cache';
 import deserialize from './deserialize';
 import { isScene } from './helper';
 import plistParser from './plist-parser';
-import { CompleteCallback, IDownloadParseOptions, files, parsed } from './shared';
+import { files, parsed } from './shared';
 import { CCON } from '../../serialization/ccon';
 import { Asset } from '../assets';
 
-export type ParseHandler = (file: any, options: IDownloadParseOptions, onComplete: CompleteCallback) => void;
+export type ParseHandler = (file: any, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)) => void;
 
 /**
  * @en
  * Parse the downloaded file, it's a singleton, all member can be accessed with `assetManager.parser`
  *
  * @zh
- * 解析已下载的文件，parser 是一个单例, 所有成员能通过 `assetManaager.parser` 访问
+ * 解析已下载的文件，parser 是一个单例, 所有成员能通过 `assetManager.parser` 访问
  *
  */
 export class Parser {
-    private _parsing = new Cache<CompleteCallback[]>();
+    private _parsing = new Cache<((err: Error | null, data?: any | null) => void)[]>();
 
     private _parsers: Record<string, ParseHandler> = {
         '.png': this.parseImage,
@@ -68,7 +68,7 @@ export class Parser {
         '.cconb': this.parseImport,
     };
 
-    public parseImage (file: HTMLImageElement | Blob, options: IDownloadParseOptions, onComplete: CompleteCallback<HTMLImageElement|ImageBitmap>) {
+    public parseImage (file: HTMLImageElement | Blob, options: Record<string, any>, onComplete: ((err: Error | null, data?: HTMLImageElement | ImageBitmap | null) => void)) {
         if (file instanceof HTMLImageElement) {
             onComplete(null, file);
             return;
@@ -80,7 +80,7 @@ export class Parser {
         });
     }
 
-    public parsePVRTex (file: ArrayBuffer | ArrayBufferView, options: IDownloadParseOptions, onComplete: CompleteCallback<IMemoryImageSource>) {
+    public parsePVRTex (file: ArrayBuffer | ArrayBufferView, options: Record<string, any>, onComplete: ((err: Error | null, data?: IMemoryImageSource | null) => void)) {
         let err: Error | null = null;
         let out: IMemoryImageSource | null = null;
         try {
@@ -92,7 +92,7 @@ export class Parser {
         onComplete(err, out);
     }
 
-    public parsePKMTex (file: ArrayBuffer | ArrayBufferView, options: IDownloadParseOptions, onComplete: CompleteCallback<IMemoryImageSource>) {
+    public parsePKMTex (file: ArrayBuffer | ArrayBufferView, options: Record<string, any>, onComplete: ((err: Error | null, data?: IMemoryImageSource | null) => void)) {
         let err: Error | null = null;
         let out: IMemoryImageSource | null = null;
         try {
@@ -104,7 +104,7 @@ export class Parser {
         onComplete(err, out);
     }
 
-    public parseASTCTex (file: ArrayBuffer | ArrayBufferView, options: IDownloadParseOptions, onComplete: CompleteCallback<IMemoryImageSource>) {
+    public parseASTCTex (file: ArrayBuffer | ArrayBufferView, options: Record<string, any>, onComplete: ((err: Error | null, data?: IMemoryImageSource | null) => void)) {
         let err: Error | null = null;
         let out: IMemoryImageSource | null = null;
         try {
@@ -116,14 +116,14 @@ export class Parser {
         onComplete(err, out);
     }
 
-    public parsePlist (file: string, options: IDownloadParseOptions, onComplete: CompleteCallback) {
+    public parsePlist (file: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)) {
         let err: Error | null = null;
         const result = plistParser.parse(file);
         if (!result) { err = new Error('parse failed'); }
         onComplete(err, result);
     }
 
-    public parseImport (file: Record<string, any> | CCON, options: IDownloadParseOptions, onComplete: CompleteCallback<Asset>) {
+    public parseImport (file: Record<string, any> | CCON, options: Record<string, any>, onComplete: ((err: Error | null, data?: Asset | null) => void)) {
         if (!file) {
             onComplete(new Error(`The json file of asset ${options.__uuid__ as string} is empty or missing`));
             return;
@@ -192,7 +192,7 @@ export class Parser {
      * });
      *
      */
-    public parse (id: string, file: any, type: string, options: IDownloadParseOptions, onComplete: CompleteCallback): void {
+    public parse (id: string, file: any, type: string, options: Record<string, any>, onComplete: ((err: Error | null, data?: any | null) => void)): void {
         const parsedAsset = parsed.get(id);
         if (parsedAsset) {
             onComplete(null, parsedAsset);

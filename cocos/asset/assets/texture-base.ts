@@ -51,7 +51,7 @@ export class TextureBase extends Asset {
     }
 
     /**
-     * @en Pixel width of the texture
+     * @en Pixel width of the texture.
      * @zh 此贴图的像素宽度。
      */
     public get width (): number {
@@ -59,7 +59,7 @@ export class TextureBase extends Asset {
     }
 
     /**
-     * @en Pixel height of the texture
+     * @en Pixel height of the texture.
      * @zh 此贴图的像素高度。
      */
     public get height (): number {
@@ -68,47 +68,77 @@ export class TextureBase extends Asset {
 
     /**
      * @en The pixel format enum.
-     * @zh 像素格式枚举类型
+     * @zh 像素格式枚举类型。
      */
     public static PixelFormat = PixelFormat;
 
     /**
      * @en The wrap mode enum.
-     * @zh 环绕模式枚举类型
+     * @zh 环绕模式枚举类型。
      */
     public static WrapMode = WrapMode;
 
     /**
-     * @en The texture filter mode enum
-     * @zh 纹理过滤模式枚举类型
+     * @en The texture filter mode enum.
+     * @zh 纹理过滤模式枚举类型。
      */
     public static Filter = Filter;
 
+    /**
+     * @engineInternal
+     */
     @serializable
     protected _format = PixelFormat.RGBA8888;
 
+    /**
+     * @engineInternal
+     */
     @serializable
     protected _minFilter = Filter.LINEAR;
 
+    /**
+     * @engineInternal
+     */
     @serializable
     protected _magFilter = Filter.LINEAR;
 
+    /**
+     * @engineInternal
+     */
     @serializable
     protected _mipFilter = Filter.NONE;
 
+    /**
+     * @engineInternal
+     */
     @serializable
     protected _wrapS = WrapMode.REPEAT;
 
+    /**
+     * @engineInternal
+     */
     @serializable
     protected _wrapT = WrapMode.REPEAT;
 
+    /**
+     * @engineInternal
+     */
     @serializable
     protected _wrapR = WrapMode.REPEAT;
 
+    /**
+     * @engineInternal
+     */
     @serializable
     protected _anisotropy = 0;
 
+    /**
+     * @engineInternal
+     */
     protected _width = 1;
+    /**
+     * @engineInternal
+     */
     protected _height = 1;
 
     private _id: string;
@@ -128,9 +158,9 @@ export class TextureBase extends Asset {
     }
 
     /**
-     * @en Gets the id of the texture
+     * @en Gets the id of the texture.
      * @zh 获取标识符。
-     * @returns The id
+     * @returns @en The id of this texture. @zh 此贴图的 id。
      */
     public getId () {
         return this._id;

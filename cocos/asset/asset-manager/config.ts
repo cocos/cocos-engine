@@ -27,7 +27,6 @@ import { Asset } from '../assets';
 import { js, cclegacy } from '../../core';
 import Cache from './cache';
 import { decodeUuid, normalize } from './helper';
-import { AssetType } from './shared';
 
 export interface IConfigOption {
     importBase: string;
@@ -62,7 +61,7 @@ export interface IPackInfo extends IAssetInfo {
 
 export interface IAddressableInfo extends IAssetInfo {
     path: string;
-    ctor: AssetType;
+    ctor: Constructor<Asset>;
 }
 
 export interface ISceneInfo extends IAssetInfo {
@@ -200,7 +199,7 @@ export default class Config {
         }
     }
 
-    public getInfoWithPath (path: string, type?: AssetType | null): IAddressableInfo | null {
+    public getInfoWithPath (path: string, type?: Constructor<Asset> | null): IAddressableInfo | null {
         if (!path) {
             return null;
         }
@@ -221,7 +220,7 @@ export default class Config {
         return null;
     }
 
-    public getDirWithPath (path: string, type?: AssetType | null, out?: IAddressableInfo[]): IAddressableInfo[] {
+    public getDirWithPath (path: string, type?: Constructor<Asset> | null, out?: IAddressableInfo[]): IAddressableInfo[] {
         path = normalize(path);
         if (path[path.length - 1] === '/') {
             path = path.slice(0, -1);

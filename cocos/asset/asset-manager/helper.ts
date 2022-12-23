@@ -24,7 +24,7 @@
  */
 import { cclegacy, error } from '../../core';
 import RequestItem from './request-item';
-import { bundles, Request, IOptions, transformPipeline } from './shared';
+import { bundles, transformPipeline } from './shared';
 import Task from './task';
 
 const _uuidRegex = /.*[/\\][0-9a-fA-F]{2}[/\\]([0-9a-fA-F-@]{8,}).*/;
@@ -127,7 +127,7 @@ export function normalize (url: string): string {
     return url;
 }
 
-export function transform (input: Request, options?: IOptions | null): string | string[] {
+export function transform (input: string | string[] | Record<string, any> | Array<Record<string, any>>, options?: Record<string, any> | null): string | string[] {
     const subTask = Task.create({ input, options });
     const urls: string[] = [];
     try {

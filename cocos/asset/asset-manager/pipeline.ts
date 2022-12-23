@@ -24,19 +24,18 @@
  */
 
 import { warnID } from '../../core';
-import { CompleteCallbackNoData } from './shared';
 import Task from './task';
 
-export type IAsyncPipe = (task: Task, done: CompleteCallbackNoData) => void;
+export type IAsyncPipe = (task: Task, done: ((err?: Error | null) => void)) => void;
 export type ISyncPipe = (task: Task) => Error | void;
 export type IPipe = IAsyncPipe | ISyncPipe;
 
 /**
  * @en
- * Pipeline can execute the task for some effect.
+ * The loading pipeline can complete the loading task by executing a series of phases. [[AssetManager]] uses it to load all assets.
  *
  * @zh
- * 管线能执行任务达到某个效果
+ * 加载管线能通过执行一系列阶段来完成加载任务。[[AssetManager]] 使用其来加载所有资源。
  *
  */
 export class Pipeline {
@@ -44,30 +43,30 @@ export class Pipeline {
 
     /**
      * @en
-     * The id of pipeline
+     * The unique id of this pipeline.
      *
      * @zh
-     * 管线的 id
+     * 管线的唯一 id。
      *
      */
     public id: number = Pipeline._pipelineId++;
 
     /**
      * @en
-     * The name of pipeline
+     * The name of this pipeline.
      *
      * @zh
-     * 管线的名字
+     * 此管线的名称。
      *
      */
     public name = '';
 
     /**
      * @en
-     * All pipes of pipeline
+     * All pipes of this pipeline.
      *
      * @zh
-     * 所有的管道
+     * 此管线的所有管道。
      *
      */
     public pipes: IPipe[] = [];
@@ -79,9 +78,11 @@ export class Pipeline {
      * @zh
      * 创建一个管线
      *
-     * @param name - The name of pipeline
-     * @param funcs - The array of pipe, every pipe must be function which take two parameters,
-     * the first is a `Task` flowed in pipeline, the second is complete callback
+     * @param name - @en The name of pipeline. @zh 管线的名称。
+     * @param funcs
+     * @en The array of pipes to create pipeline, every pipe must be function which take two parameters,
+     * the first is a `Task` flowed in pipeline, the second is complete callback.
+     * @zh 用于创建管线的管道数组，每个管道必须是一个接受两个参数的方法，第一个参数为任务 [[Task]], 第二个参数为完成回调。
      *
      * @example
      * const pipeline = new Pipeline('download', [

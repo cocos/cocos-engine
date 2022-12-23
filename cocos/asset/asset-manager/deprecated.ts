@@ -34,9 +34,10 @@ import downloader from './downloader';
 import { getUuidFromURL, transform } from './helper';
 import parser from './parser';
 import releaseManager from './release-manager';
-import { assets, BuiltinBundleName, bundles, ProgressCallback, CompleteCallback } from './shared';
+import { assets, BuiltinBundleName, bundles } from './shared';
 import { parseLoadResArgs, setDefaultProgressCallback } from './utilities';
 import factory from './factory';
+import RequestItem from './request-item';
 
 const ImageFmts = ['.png', '.jpg', '.bmp', '.jpeg', '.gif', '.ico', '.tiff', '.webp', '.image', '.pvr', '.pkm', '.astc'];
 const AudioFmts = ['.mp3', '.ogg', '.wav', '.m4a'];
@@ -93,7 +94,7 @@ export class CCLoader {
      *
      * @deprecated since v3.0, loader.onProgress is deprecated, please transfer onProgress to API as a parameter
      */
-    public set onProgress (val: ProgressCallback) {
+    public set onProgress (val: ((finished: number, total: number, item: RequestItem) => void)) {
         setDefaultProgressCallback(val);
     }
 
@@ -582,7 +583,7 @@ export class CCLoader {
      * @param extMap Handlers for corresponding type in a map
      * @deprecated since v3.0 loader.addDownloadHandlers is deprecated, please use assetManager.downloader.register instead
      */
-    public addDownloadHandlers (extMap: Record<string, (item: { url: string }, cb: CompleteCallback) => void>) {
+    public addDownloadHandlers (extMap: Record<string, (item: { url: string }, cb: ((err: Error | null, data?: any | null) => void)) => void>) {
         const handler = Object.create(null);
         for (const type in extMap) {
             const func = extMap[type];
@@ -606,7 +607,7 @@ export class CCLoader {
      * @param extMap Handlers for corresponding type in a map
      * @deprecated since v3.0 loader.addLoadHandlers is deprecated, please use assetManager.parser.register instead
      */
-    public addLoadHandlers (extMap: Record<string, ({ content: any }, cb: CompleteCallback) => void>) {
+    public addLoadHandlers (extMap: Record<string, ({ content: any }, cb: ((err: Error | null, data?: any | null) => void)) => void>) {
         const handler = Object.create(null);
         for (const type in extMap) {
             const func = extMap[type];
@@ -880,7 +881,7 @@ export const AssetLibrary = {
      * @param {Asset} options.existingAsset - 加载现有资源，此参数仅在编辑器中可用。
      * @deprecated since v3.0 AssetLibrary.loadAsset is deprecated, please use assetManager.loadAny instead
      */
-    loadAsset (uuid: string, callback: CompleteCallback, options?) {
+    loadAsset (uuid: string, callback: ((err: Error | null, data?: any | null) => void), options?) {
         assetManager.loadAny(uuid, callback);
     },
 };

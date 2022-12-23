@@ -29,7 +29,7 @@ import packManager from './pack-manager';
 import parser from './parser';
 import { Pipeline } from './pipeline';
 import RequestItem from './request-item';
-import { CompleteCallbackNoData, assets, files, parsed, pipeline } from './shared';
+import { assets, files, parsed, pipeline } from './shared';
 import Task from './task';
 import { cache, checkCircleReference, clear, forEach, gatherAsset, getDepends, setProperties } from './utilities';
 import { nativeDependMap, onLoadedInvokedMap } from './depend-maps';
@@ -44,10 +44,10 @@ interface ILoadingRequest {
     content: Asset;
     finish: boolean;
     err?: Error | null;
-    callbacks: Array<{ done: CompleteCallbackNoData; item: RequestItem }>;
+    callbacks: Array<{ done: ((err?: Error | null) => void); item: RequestItem }>;
 }
 
-export default function load (task: Task, done: CompleteCallbackNoData) {
+export default function load (task: Task, done: ((err?: Error | null) => void)) {
     let firstTask = false;
     if (!task.progress) {
         task.progress = { finish: 0, total: task.input.length, canInvoke: true };
@@ -174,7 +174,7 @@ const loadOneAssetPipeline = new Pipeline('loadOneAsset', [
     },
 ]);
 
-function loadDepends (task: Task, asset: Asset, done: CompleteCallbackNoData) {
+function loadDepends (task: Task, asset: Asset, done: ((err?: Error | null) => void)) {
     const { input: item, progress } = task;
     const { uuid, id, options, config } = item as RequestItem;
     const { cacheAsset } = options;
