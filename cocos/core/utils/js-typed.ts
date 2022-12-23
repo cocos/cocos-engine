@@ -35,13 +35,20 @@ const classIdTag = '__cid__';
 
 /**
  * @en
- * Check the object whether is number or not
- * If a number is created by using 'new Number(10086)', the typeof it will be "object"...
- * Then you can use this function if you care about this case.
+ * Checks if an object is `number`.
  * @zh
- * 检查对象是否是 number 类型，如果通过 'new Number(10086)' 创建了一个数字，则使用 typeof 判断此数字时，将返回 'object' 类型，此时你可以通过此方法来进行判断
- * @param object object to be checked
- * @return whether this object is number or not
+ * 检查对象是否是 number 类型。
+ * @param object @en The object to check. @zh 要检查的对象。
+ * @returns @en True if it is a number primitive or a `Number` instance, false else.
+ * @zh 如果该对象是基础数字类型或者是 `Number` 实例，返回 `true`；否则返回 `false`。
+ * @example
+ * ```ts
+ * var obj = 10;
+ * isNumber(obj); // returns true
+ *
+ * obj = new Number(10);
+ * isNumber(obj); // returns true
+ * ```
  */
 export function isNumber (object: any) {
     return typeof object === 'number' || object instanceof Number;
@@ -49,13 +56,20 @@ export function isNumber (object: any) {
 
 /**
  * @en
- * Check the object whether is string or not.
- * If a string is created by using 'new String("blabla")', the typeof it will be "object"...
- * Then you can use this function if you care about this case.
+ * Checks if an object is `string`.
  * @zh
- * 检查对象是否是 string 类型，如果通过 'new String("blabla")' 创建了一个字符串，则使用 typeof 判断此字符串时，将返回 'object' 类型，此时你可以通过此方法来进行判断
- * @param object object to be checked
- * @return whether this object is string or not
+ * 检查对象是否是 string 类型。
+ * @param object @en The object to check. @zh 要检查的对象。
+ * @returns @en True if it is a string primitive or a `String` instance, false else.
+ * @zh 如果该对象是基础字符串类型或者是 `String` 实例，返回 `true`；否则返回 `false`。
+ * @example
+ * ```ts
+ * var obj = "it is a string";
+ * isString(obj); // returns true
+ *
+ * obj = new String("it is a string");
+ * isString(obj); // returns true
+ * ```
  */
 export function isString (object: any) {
     return typeof object === 'string' || object instanceof String;
@@ -63,11 +77,13 @@ export function isString (object: any) {
 
 /**
  * @en
- * Checks if the object `obj` does not have one or more enumerable properties (including properties from proto chain).
+ * Checks if an object is empty object. If an object does not have any enumerable property
+ * (including properties inherits from prototype chains), then it is an empty object.
  * @zh
- * 检查此对象是否为空对象
- * @param obj The object.
- * @returns The result. Note that if the `obj` is not of type `'object'`, `true` is returned.
+ * 检查对象是否为空对象。空对象的定义是：没有任何可被枚举的属性（包括从原型链继承的属性）的对象。
+ * @param obj @en The object to check. @zh 要检查的对象。
+ * @returns @en True if it is not an empty object or not an object, false else.
+ * @zh 如果不是空对象或者不是一个对象，返回 `true`；否则返回 `false`。
  */
 export function isEmptyObject (obj: any) {
     for (const key in obj) {
@@ -77,14 +93,15 @@ export function isEmptyObject (obj: any) {
 }
 
 /**
- * @en
- * Define value, just help to call Object.defineProperty.<br>
- * The configurable will be true.
- * @zh
- * 定义值，帮助调用 Object.defineProperty.
- * 该属性默认可读写
- * @param [writable=false]
- * @param [enumerable=false]
+ * @en A helper function to add a property to an object, or modifies attributes
+ * of an existing property. The property is configurable.
+ * @zh 为对象添加属性或者修改已有属性的辅助函数。该属性是可配置的。
+ * @param object @en The object to add or modify attributes. @zh 要添加或者修改属性的对象。
+ * @param propertyName @en The property name to add or modify. @zh 要添加或修改的属性名。
+ * @param value_ @en The property value to add or new value to replace a existing attribute.
+ * @zh 要添加的属性值，或者取代现有属性的新值。
+ * @param writable @en If the property is writable. @zh 属性是否可写。
+ * @param enumerable @en If the property is enumerable. @zh 属性是否可列举。
  */
 export const value = (() => {
     const descriptor: PropertyDescriptor = {
@@ -103,13 +120,14 @@ export const value = (() => {
 })();
 
 /**
- * @en
- * Define get set accessor, just help to call Object.defineProperty(...).
- * @zh
- * 定义 get set 访问器，帮助调用 Object.defineProperty()
- * @param [setter=null]
- * @param [enumerable=false]
- * @param [configurable=false]
+ * @en A helper function to add or modify `get`, `set`, `enumerable` or `configurable` of a property.
+ * @zh 添加或修改属性的 `get`, `set`, `enumerable` 或者 `configurable`。
+ * @param object @en The object to add or modify attributes. @zh 要添加或者修改属性的对象。
+ * @param propertyName @en The property name to add or modify. @zh 要添加或修改的属性名。
+ * @param getter @en The getter of a property. @zh 属性的获取函数。
+ * @param setter @en The setter of a property. @zh 属性的设置函数。
+ * @param enumerable @en If the property is enumerable. @zh 属性是否可列举。
+ * @param configurable @en If the property is configurable. @zh 属性是否可配置。
  */
 export const getset = (() => {
     const descriptor: PropertyDescriptor = {
@@ -133,12 +151,13 @@ export const getset = (() => {
 })();
 
 /**
- * @en
- * Define get accessor, just help to call Object.defineProperty(...).
- * @zh
- * 定义 get 访问器，帮助调用 Object.defineProperty()
- * @param [enumerable=false]
- * @param [configurable=false]
+ * @en A helper function to add or modify `get`, `enumerable` or `configurable` of a property.
+ * @zh 添加或修改属性的 `get`, `enumerable` 或者 `configurable`。
+ * @param object @en The object to add or modify attributes. @zh 要添加或者修改属性的对象。
+ * @param propertyName @en The property name to add or modify. @zh 要添加或修改的属性名。
+ * @param getter @en The getter of a property. @zh 属性的获取函数。
+ * @param enumerable @en If the property is enumerable. @zh 属性是否可列举。
+ * @param configurable @en If the property is configurable. @zh 属性是否可配置。
  */
 export const get = (() => {
     const descriptor: PropertyDescriptor = {
@@ -156,12 +175,13 @@ export const get = (() => {
 })();
 
 /**
- * @en
- * Define set accessor, just help to call Object.defineProperty(...)
- * @zh
- * 定义 set 访问器，帮助调用 Object.defineProperty
- * @param [enumerable=false]
- * @param [configurable=false]
+ * @en A helper function to add or modify `get`, `enumerable` or `configurable` of a property.
+ * @zh 添加或修改属性的 `get`, `enumerable` 或者 `configurable`。
+ * @param object @en The object to add or modify attributes. @zh 要添加或者修改属性的对象。
+ * @param propertyName @en The property name to add or modify. @zh 要添加或修改的属性名。
+ * @param setter @en The setter of a property. @zh 属性的设置函数。
+ * @param enumerable @en If the property is enumerable. @zh 属性是否可列举。
+ * @param configurable @en If the property is configurable. @zh 属性是否可配置。
  */
 export const set = (() => {
     const descriptor: PropertyDescriptor = {
