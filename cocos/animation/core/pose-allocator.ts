@@ -81,7 +81,7 @@ export class PoseAllocator {
         const baseOffset = slice.byteOffset;
         const transforms = new TransformArray(slice.buffer, baseOffset, this._transformCount);
         const metaValues = new Float64Array(slice.buffer, baseOffset + transformsByteLength, this._metaValueCount);
-        const pose = Pose.__create(transforms, metaValues);
+        const pose = Pose._create(transforms, metaValues);
         this._poses.push(pose);
     }
 }

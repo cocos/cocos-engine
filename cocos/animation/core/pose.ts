@@ -17,7 +17,7 @@ export class Pose {
     /**
      * @internal
      */
-    public static __create (transforms: TransformArray, metaValues: Float64Array) {
+    public static _create (transforms: TransformArray, metaValues: Float64Array) {
         return new Pose(transforms, metaValues);
     }
 }
