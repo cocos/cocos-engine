@@ -39,6 +39,13 @@
 const getUint8ForString = String.prototype.charCodeAt;
 function getUint8ForArray (this: Uint8Array, idx: number) { return this[idx]; }
 
+/**
+ * @en JS Implementation of MurmurHash2. Original implementation is http://github.com/garycourt/murmurhash-js.
+ * @zh MurmurHash2 的 JS 实现。原始实现是 http://github.com/garycourt/murmurhash-js 。
+ * @param input @en ASCII string or a Uint8Array to be hashed. @zh 希望被哈希的 ASCII 字符串或者 Uint8Array.
+ * @param seed @en Hash seed. Should be a positive integer. @zh 哈希种子。必须是个正整数。
+ * @returns @en 32-bit positive integer hash. @zh 32位正整数哈希值。
+ */
 export function murmurhash2_32_gc (input: string | Uint8Array, seed: number) {
     let l = input.length;
     let h = seed ^ l;
@@ -62,10 +69,15 @@ export function murmurhash2_32_gc (input: string | Uint8Array, seed: number) {
     }
 
     switch (l) {
-    case 3: h ^= (getUint8.call(input, i + 2) & 0xff) << 16;
-    case 2: h ^= (getUint8.call(input, i + 1) & 0xff) << 8;
-    case 1: h ^= (getUint8.call(input, i) & 0xff);
+    case 3: h ^= (getUint8.call(input, i + 2) & 0xff) << 16; break;
+    case 2: h ^= (getUint8.call(input, i + 1) & 0xff) << 8; break;
+    case 1:
+        h ^= (getUint8.call(input, i) & 0xff);
         h = (((h & 0xffff) * 0x5bd1e995) + ((((h >>> 16) * 0x5bd1e995) & 0xffff) << 16));
+        break;
+    default:
+        // do nothing, just make VSCode happy.
+        break;
     }
 
     h ^= h >>> 13;

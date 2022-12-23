@@ -28,7 +28,7 @@
  * Searches the **ascending sorted** array for an element and returns the index of that element.
  * @param array The array to search in.
  * @param value The value to search.
- * @return The index of the searched element in the sorted array, if found;
+ * @returns The index of the searched element in the sorted array, if found;
  * otherwise, returns the complement of the index of the next element greater than the element to be searched or,
  * returns the complement of array's length if no element is greater than the element to be searched or the array is empty.
  * @engineInternal
@@ -42,7 +42,7 @@ export function binarySearch (array: number[], value: number) {
  * @param array The array to search in.
  * @param value The value to search.
  * @param EPSILON The epsilon to compare the numbers. Default to `1e-6`.
- * @return The index of the searched element in the sorted array, if found;
+ * @returns The index of the searched element in the sorted array, if found;
  * otherwise, returns the complement of the index of the next element greater than the element to be searched or,
  * returns the complement of array's length if no element is greater than the element to be searched or the array is empty.
  * @engineInternal
@@ -69,7 +69,7 @@ export function binarySearchEpsilon (array: Readonly<ArrayLike<number>>, value: 
  * @param array The array to search in.
  * @param value The value to search.
  * @param lessThan Comparison function object which returns ​true if the first argument is less than the second.
- * @return The index of the searched element in the sorted array, if found;
+ * @returns The index of the searched element in the sorted array, if found;
  * otherwise, returns the complement of the index of the next element greater than the searching element or,
  * returns the complement of array's length if no element is greater than the searching element or the array is empty.
  * @engineInternal
