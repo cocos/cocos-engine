@@ -111,6 +111,7 @@ uint32_t NativePipeline::addRenderTexture(const ccstd::string &name, gfx::Format
     desc.textureFlags = gfx::TextureFlagBit::NONE;
     desc.flags = ResourceFlags::COLOR_ATTACHMENT | ResourceFlags::INPUT_ATTACHMENT | ResourceFlags::SAMPLED;
 
+
     CC_EXPECTS(renderWindow);
 
     if (!renderWindow->getSwapchain()) {
