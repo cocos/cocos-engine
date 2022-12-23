@@ -2,11 +2,13 @@ import { Joint2D } from './joint-2d';
 import { ISliderJoint } from '../../../spec/i-physics-joint';
 import { EJoint2DType } from '../../physics-types';
 import { Vec2, IVec2Like, toDegree, _decorator } from '../../../../core';
+import { help, tooltip } from '../../../../core/data/decorators';
 
 const tempVec2 = new Vec2();
 const { ccclass, menu, property } = _decorator;
 
 @ccclass('cc.SliderJoint2D')
+@help('i18n:cc.Joint2D')
 @menu('Physics2D/Joints/SliderJoint2D')
 export class SliderJoint2D extends Joint2D {
     TYPE = EJoint2DType.SLIDER;
@@ -16,6 +18,7 @@ export class SliderJoint2D extends Joint2D {
      * @zh 滑动的方向
      */
     @property
+    @tooltip('i18n:physics2d.joint.angle')
     get angle (): number {
         if (this._autoCalcAngle) {
             if (this.connectedBody) {
@@ -36,6 +39,7 @@ export class SliderJoint2D extends Joint2D {
      * @zh 根据连接的两个刚体自动计算滑动方向
      */
     @property
+    @tooltip('i18n:physics2d.joint.autoCalcAngle')
     get autoCalcAngle (): boolean {
         return this._autoCalcAngle;
     }
@@ -50,6 +54,7 @@ export class SliderJoint2D extends Joint2D {
      * 是否开启关节马达？
      */
     @property
+    @tooltip('i18n:physics2d.joint.enableMotor')
     get enableMotor (): boolean {
         return this._enableMotor;
     }
@@ -64,6 +69,7 @@ export class SliderJoint2D extends Joint2D {
      * 可以施加到刚体的最大力。
      */
     @property
+    @tooltip('i18n:physics2d.joint.maxMotorForce')
     get maxMotorForce (): number {
         return this._maxMotorForce;
     }
@@ -81,6 +87,7 @@ export class SliderJoint2D extends Joint2D {
      * 期望的马达速度。
      */
     @property
+    @tooltip('i18n:physics2d.joint.motorSpeed')
     get motorSpeed (): number {
         return this._motorSpeed;
     }
@@ -98,6 +105,7 @@ export class SliderJoint2D extends Joint2D {
      * 是否开启关节的距离限制？
      */
     @property
+    @tooltip('i18n:physics2d.joint.enableLimit')
     get enableLimit (): boolean {
         return this._enableLimit;
     }
@@ -112,6 +120,7 @@ export class SliderJoint2D extends Joint2D {
      * 刚体能够移动的最小值
      */
     @property
+    @tooltip('i18n:physics2d.joint.lowerLimit')
     get lowerLimit (): number {
         return this._lowerLimit;
     }
@@ -129,6 +138,7 @@ export class SliderJoint2D extends Joint2D {
      * 刚体能够移动的最大值
      */
     @property
+    @tooltip('i18n:physics2d.joint.upperLimit')
     get upperLimit (): number {
         return this._upperLimit;
     }

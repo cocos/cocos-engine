@@ -1,5 +1,5 @@
 import { EDITOR } from 'internal:constants';
-import { Vec2, _decorator, cclegacy } from '../../../../core';
+import { Vec2, _decorator, cclegacy, tooltip } from '../../../../core';
 import { RigidBody2D } from '../rigid-body-2d';
 import { IJoint2D } from '../../../spec/i-physics-joint';
 import { EJoint2DType } from '../../physics-types';
@@ -11,15 +11,19 @@ const { ccclass, type, property } = _decorator;
 @ccclass('cc.Joint2D')
 export class Joint2D extends Component {
     @property
+    @tooltip('i18n:physics2d.joint.anchor')
     anchor = new Vec2();
 
     @property
+    @tooltip('i18n:physics2d.joint.connectedAnchor')
     connectedAnchor = new Vec2();
 
     @property
+    @tooltip('i18n:physics2d.joint.collideConnected')
     collideConnected = false;
 
     @type(RigidBody2D)
+    @tooltip('i18n:physics2d.joint.connectedBody')
     connectedBody: RigidBody2D | null = null;
 
     _body: RigidBody2D | null = null
