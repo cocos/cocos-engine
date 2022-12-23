@@ -32,7 +32,7 @@ const NonUuidMark = '.';
  * ID generator for runtime.
  *
  * @zh
- * 运行时 ID 生成器
+ * 运行时 ID 生成器。
  */
 export class IDGenerator {
     /**
