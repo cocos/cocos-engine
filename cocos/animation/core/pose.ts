@@ -9,7 +9,7 @@ export class Pose {
 
     readonly metaValues: Float64Array;
 
-    protected constructor (transforms: TransformArray, metaValues: Float64Array) {
+    private constructor (transforms: TransformArray, metaValues: Float64Array) {
         this.transforms = transforms;
         this.metaValues = metaValues;
     }
