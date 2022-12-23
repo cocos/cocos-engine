@@ -93,7 +93,7 @@ public:
     void enableSceneMesh(bool enable) const;
     float* getAddedSceneMesh() const;
     float* getUpdatedSceneMesh() const;
-    int* getRemovedSceneMesh() const;
+    float* getRemovedSceneMesh() const;
     int* requireSceneMesh() const;
     float* getSceneMeshVertices(int meshRef) const;
     int* getSceneMeshTriangleIndices(int meshRef) const;

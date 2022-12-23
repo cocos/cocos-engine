@@ -226,7 +226,7 @@ float* ARModule::getUpdatedSceneMesh() const {
     return _impl->getUpdatedSceneMesh();
 }
 
-int* ARModule::getRemovedSceneMesh() const {
+float* ARModule::getRemovedSceneMesh() const {
     return _impl->getRemovedSceneMesh();
 }
 
