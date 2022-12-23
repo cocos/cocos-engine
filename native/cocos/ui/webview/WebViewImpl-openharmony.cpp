@@ -86,7 +86,6 @@ WebViewImpl::WebViewImpl(WebView *webView) : _viewTag(-1),
     _viewTag = kWebViewTag++;
     NapiHelper::postMessageToUIThread("createWebView", _viewTag);
     sWebViewImpls[_viewTag] = this;
-    LOGE("recv msg : 2 %{public}d", _viewTag);
 }
 
 WebViewImpl::~WebViewImpl() {

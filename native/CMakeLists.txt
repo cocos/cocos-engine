@@ -110,7 +110,6 @@ endif()
 if(OPENHARMONY) # TODO:May be removed later
     set(USE_SE_V8 OFF)
     set(USE_SE_NAPI ON)
-    set(USE_VIDEO OFF)
 endif()
 
 ## disable middleware when dragonbones and spine are disabled
@@ -2709,7 +2708,7 @@ if(USE_EDIT_BOX)
     )
 endif()
 
-if(NOT OPENHARMONY AND (ANDROID OR IOS OR OHOS))# TODO:May be removed later
+if(NOT OPENHARMONY AND (ANDROID OR IOS OR OHOS))
     if(USE_VIDEO)
         cocos_source_files(
                          cocos/ui/videoplayer/VideoPlayer.h
@@ -2748,12 +2747,12 @@ elseif(OPENHARMONY)
     )
     endif()
     if(USE_WEBVIEW)
-    cocos_source_files(
-        cocos/ui/webview/WebViewImpl-java.h
-        cocos/ui/webview/WebViewImpl-openharmony.h
-        cocos/ui/webview/WebViewImpl-openharmony.cpp
-    )
-endif()
+        cocos_source_files(
+            cocos/ui/webview/WebViewImpl-java.h
+            cocos/ui/webview/WebViewImpl-openharmony.h
+            cocos/ui/webview/WebViewImpl-openharmony.cpp
+        )
+    endif()
 elseif(OHOS)
     if(USE_EDIT_BOX)
         cocos_source_files(

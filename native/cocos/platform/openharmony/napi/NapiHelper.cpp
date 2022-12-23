@@ -30,7 +30,6 @@
 #include "platform/openharmony/FileUtils-OpenHarmony.h"
 #include "bindings/jswrapper/SeApi.h"
 #include "ui/edit-box/EditBox-openharmony.h"
-
 #include "ui/webview/WebViewImpl-openharmony.h"
 
 namespace cc {
@@ -50,6 +49,7 @@ enum ContextType {
     UV_ASYNC_SEND,
 };
 NapiHelper::PostMessage2UIThreadCb NapiHelper::_postMsg2UIThreadCb;
+NapiHelper::PostSyncMessage2UIThreadCb NapiHelper::_postSyncMsg2UIThreadCb;
 
 static bool js_set_PostMessage2UIThreadCallback(se::State& s) {
     const auto& args = s.args();
@@ -87,6 +87,43 @@ static bool js_set_PostMessage2UIThreadCallback(se::State& s) {
     return false;
 }
 SE_BIND_FUNC(js_set_PostMessage2UIThreadCallback);
+
+static bool js_set_PostSyncMessage2UIThreadCallback(se::State& s) {
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        do {
+            if (args[0].isObject() && args[0].toObject()->isFunction()) {
+                //se::Value jsThis(s.thisObject());
+                se::Value jsFunc(args[0]);
+                //jsThis.toObject()->attachObject(jsFunc.toObject());
+                auto * thisObj = s.thisObject();
+                NapiHelper::_postSyncMsg2UIThreadCb = [=](const std::string larg0, const se::Value& larg1, se::Value* res) -> void {
+                    se::ScriptEngine::getInstance()->clearException();
+                    se::AutoHandleScope hs;
+                    CC_UNUSED bool ok = true;
+                    se::ValueArray args;
+                    args.resize(2);
+                    ok &= nativevalue_to_se(larg0, args[0], nullptr /*ctx*/);
+                    CC_ASSERT(ok);
+                    args[1] = larg1;
+                    //ok &= nativevalue_to_se(larg1, args[1], nullptr /*ctx*/);
+                    //se::Value rval;
+                    se::Object* funcObj = jsFunc.toObject();
+                    bool succeed = funcObj->call(args, thisObj, res);
+                    if (!succeed) {
+                        se::ScriptEngine::getInstance()->clearException();
+                    }
+                };
+            }
+        } while(false);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_set_PostSyncMessage2UIThreadCallback);
 
 // NAPI Interface
 napi_value NapiHelper::getContext(napi_env env, napi_callback_info info) {
@@ -147,6 +184,7 @@ napi_value NapiHelper::getContext(napi_env env, napi_callback_info info) {
             napi_property_descriptor desc[] = {
                 DECLARE_NAPI_FUNCTION("workerInit", NapiHelper::napiWorkerInit),
                 DECLARE_NAPI_FUNCTION("setPostMessageFunction", _SE(js_set_PostMessage2UIThreadCallback)),
+                DECLARE_NAPI_FUNCTION("setPostSyncMessageFunction", _SE(js_set_PostSyncMessage2UIThreadCallback)),
             };
             NAPI_CALL(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(desc[0]), desc));
         } break;
@@ -162,16 +200,17 @@ napi_value NapiHelper::getContext(napi_env env, napi_callback_info info) {
             OpenHarmonyEditBox::GetInterfaces(desc);
             NAPI_CALL(env, napi_define_properties(env, exports, desc.size(), desc.data()));
         }
+
+        case WEBVIEW_UTILS: {
+            std::vector<napi_property_descriptor> desc;
+            OpenHarmonyWebView::GetInterfaces(desc);
+            NAPI_CALL(env, napi_define_properties(env, exports, desc.size(), desc.data()));
+        } break;
         case UV_ASYNC_SEND: {
             napi_property_descriptor desc[] = {
                 DECLARE_NAPI_FUNCTION("send", NapiHelper::napiASend),
             };
             NAPI_CALL(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(desc[0]), desc));
-        } break;
-        case WEBVIEW_UTILS: {
-            std::vector<napi_property_descriptor> desc;
-            OpenHarmonyWebView::GetInterfaces(desc);
-            NAPI_CALL(env, napi_define_properties(env, exports, desc.size(), desc.data()));
         } break;
         default:
             LOGE("unknown type");

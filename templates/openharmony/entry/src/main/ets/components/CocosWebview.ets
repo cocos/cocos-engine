@@ -23,17 +23,9 @@
  THE SOFTWARE.
 ****************************************************************************/
 import { WorkerManager } from '../cocos/WorkerManager'
-
-enum ViewType {
-  NONE,
-  WEBVIEW,
-  VIDEPPLAYER
-}
-
+import { PortProxy } from '../common/PortProxy'
 @Observed
-export class ViewInfo {
-  // todo: 待兼容
-  public viewType: ViewType = ViewType.WEBVIEW;
+export class WebViewInfo {
   // position
   public x: number = 0;
   public y: number = 0;
@@ -62,8 +54,8 @@ export class ViewInfo {
 
 @Component
 export struct CocosWebView {
-  @ObjectLink viewInfo: ViewInfo;
-  cocosWorker = WorkerManager.getInstance().getWorker();
+  @ObjectLink viewInfo: WebViewInfo;
+  public workPort: PortProxy;
   build() {
     Web({ src: this.viewInfo.url, controller: this.viewInfo.controller })
       .position({ x: this.viewInfo.x, y: this.viewInfo.y })
@@ -71,16 +63,16 @@ export struct CocosWebView {
       .height(this.viewInfo.h)
       .border({ width: 1 })
       .onPageBegin((event) => {
-        this.cocosWorker.postMessage({type:"onPageBegin", data:{viewTag:this.viewInfo.viewTag, url:event.url}});
+        this.workPort.postMessage("onPageBegin", {viewTag:this.viewInfo.viewTag, url:event.url});
       })
       .onPageEnd((event) => {
-        this.cocosWorker.postMessage({type:"onPageEnd", data:{viewTag:this.viewInfo.viewTag, url:event.url}})
+        this.workPort.postMessage("onPageEnd", {viewTag:this.viewInfo.viewTag, url:event.url})
       })
       .onErrorReceive((event) => {
-        this.cocosWorker.postMessage({type:"onErrorReceive", data:{viewTag:this.viewInfo.viewTag, url:this.viewInfo.url}})
+        this.workPort.postMessage("onErrorReceive", {viewTag:this.viewInfo.viewTag, url:this.viewInfo.url})
       })
       .onHttpErrorReceive((event) => {
-        this.cocosWorker.postMessage({type:"onErrorReceive", data:{viewTag:this.viewInfo.viewTag, url:this.viewInfo.url}})
+        this.workPort.postMessage("onErrorReceive", {viewTag:this.viewInfo.viewTag, url:this.viewInfo.url})
       })
   }
 }

@@ -27,25 +27,33 @@ import worker from '@ohos.worker';
 import nativerender from "libcocos.so";
 import { ContextType } from "../common/Constants"
 import { launchEngine } from '../cocos/game'
+import {PortProxy} from '../common/PortProxy.ts'
 
 const nativeContext = nativerender.getContext(ContextType.WORKER_INIT);
 nativeContext.workerInit()
 
-const parentPort = worker.parentPort;
-
 const nativeEditBox = nativerender.getContext(ContextType.EDITBOX_UTILS);
 const nativeWebView = nativerender.getContext(ContextType.WEBVIEW_UTILS);
 
+let uiPort = new PortProxy(worker.parentPort);
 nativeContext.postMessage = function(msgType: string, msgData:string) {
-    parentPort.postMessage({ type: msgType, data: msgData });
+    uiPort.postMessage(msgType, msgData);
 }
 
+nativeContext.postSyncMessage = async function(msgType: string, msgData:string) {
+    const result = await uiPort.postSyncMessage(msgType, msgData);
+    return result;
+}
+
+// The purpose of this is to avoid being GC
 nativeContext.setPostMessageFunction.call(nativeContext, nativeContext.postMessage)
+nativeContext.setPostSyncMessageFunction.call(nativeContext, nativeContext.postSyncMessage)
 
 var renderContext: any = undefined;
-parentPort.onmessage = function(e) {
+uiPort._messageHandle = function(e) {
     var data = e.data;
-    switch(data.type) {
+    var msg = data.data;
+    switch(msg.name) {
         case "onXCLoad":
             const renderContext = nativerender.getContext(ContextType.NATIVE_RENDER_API);
             renderContext.nativeEngineInit();
@@ -54,22 +62,33 @@ parentPort.onmessage = function(e) {
             }).catch(e => {
                 console.error('launch CC engien failed');
             });
+           // @ts-ignore
+            window.oh.postMessage = nativeContext.postMessage;
+           // @ts-ignore
+            window.oh.postSyncMessage = nativeContext.postSyncMessage;
             renderContext.nativeEngineStart();
             break;
         case "onTextInput":
-            nativeEditBox.onTextChange(data.data);
+            nativeEditBox.onTextChange(msg.param);
             break;
         case "onComplete":
-            nativeEditBox.onComplete(data.data);
+            nativeEditBox.onComplete(msg.param);
             break;
         case "onPageBegin":
-            nativeWebView.shouldStartLoading(data.data.viewTag, data.data.url);
+            nativeWebView.shouldStartLoading(msg.param.viewTag, msg.param.url);
             break;
         case "onPageEnd":
-            nativeWebView.finishLoading(data.data.viewTag, data.data.url);
+            nativeWebView.finishLoading(msg.param.viewTag, msg.param.url);
             break;
         case "onErrorReceive":
-            nativeWebView.failLoading(data.data.viewTag, data.data.url);
+            nativeWebView.failLoading(msg.param.viewTag, msg.param.url);
+            break;
+        case "onVideoEvent":
+            // @ts-ignore
+            if(window.oh && typeof window.oh.onVideoEvent === "function") {
+                // @ts-ignore
+                window.oh.onVideoEvent(msg.param.videoTag, msg.param.videoEvent, msg.param.args);
+            }
             break;
         default:
             console.error("cocos worker: message type unknown");
