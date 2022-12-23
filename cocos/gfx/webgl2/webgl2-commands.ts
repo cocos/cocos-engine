@@ -1759,20 +1759,7 @@ export function WebGL2CmdFuncCreateShader (device: WebGL2Device, gpuShader: IWeb
     const glActiveSamplerLocations: WebGLUniformLocation[] = [];
     const texUnitCacheMap = device.stateCache.texUnitCacheMap;
 
-    if (enableEffectImport) {
-        for (let i = 0; i < gpuShader.samplerTextures.length; ++i) {
-            const sampler = gpuShader.samplerTextures[i];
-            const glLoc = gl.getUniformLocation(gpuShader.glProgram, sampler.name);
-            // wEcHAT just returns { id: -1 } for non-existing names /eyerolling
-            if (glLoc && (glLoc as any).id !== -1) {
-                glActiveSamplers.push(gpuShader.glSamplerTextures[i]);
-                glActiveSamplerLocations.push(glLoc);
-            }
-            if (texUnitCacheMap[sampler.name] === undefined) {
-                texUnitCacheMap[sampler.name] = sampler.flattened % device.capabilities.maxTextureUnits;
-            }
-        }
-    } else {
+    if (!enableEffectImport) {
         let flexibleSetBaseOffset = 0;
         for (let i = 0; i < gpuShader.blocks.length; ++i) {
             if (gpuShader.blocks[i].set === device.bindingMappings.flexibleSet) {
@@ -1794,6 +1781,19 @@ export function WebGL2CmdFuncCreateShader (device: WebGL2Device, gpuShader: IWeb
                 if (sampler.set === device.bindingMappings.flexibleSet) { binding -= flexibleSetBaseOffset; }
                 texUnitCacheMap[sampler.name] = binding % device.capabilities.maxTextureUnits;
                 arrayOffset += sampler.count - 1;
+            }
+        }
+    } else {
+        for (let i = 0; i < gpuShader.samplerTextures.length; ++i) {
+            const sampler = gpuShader.samplerTextures[i];
+            const glLoc = gl.getUniformLocation(gpuShader.glProgram, sampler.name);
+            // wEcHAT just returns { id: -1 } for non-existing names /eyerolling
+            if (glLoc && (glLoc as any).id !== -1) {
+                glActiveSamplers.push(gpuShader.glSamplerTextures[i]);
+                glActiveSamplerLocations.push(glLoc);
+            }
+            if (texUnitCacheMap[sampler.name] === undefined) {
+                texUnitCacheMap[sampler.name] = sampler.flattened % device.capabilities.maxTextureUnits;
             }
         }
     }

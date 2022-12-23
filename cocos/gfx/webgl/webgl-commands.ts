@@ -1461,25 +1461,14 @@ export function WebGLCmdFuncCreateShader (device: WebGLDevice, gpuShader: IWebGL
     const { bindingMappings } = device;
     const { texUnitCacheMap } = device.stateCache;
 
-    if (cclegacy.rendering && cclegacy.rendering.enableEffectImport) {
-        for (let i = 0; i < gpuShader.samplerTextures.length; ++i) {
-            const sampler = gpuShader.samplerTextures[i];
-            const glLoc = gl.getUniformLocation(gpuShader.glProgram, sampler.name);
-            if (device.extensions.isLocationActive(glLoc)) {
-                glActiveSamplers.push(gpuShader.glSamplerTextures[i]);
-                glActiveSamplerLocations.push(glLoc);
-            }
-            if (texUnitCacheMap[sampler.name] === undefined) {
-                texUnitCacheMap[sampler.name] = sampler.flattened;
-            }
-        }
-    } else {
+    if (!(cclegacy.rendering && cclegacy.rendering.enableEffectImport)) {
         let flexibleSetBaseOffset = 0;
         for (let i = 0; i < gpuShader.blocks.length; ++i) {
             if (gpuShader.blocks[i].set === bindingMappings.flexibleSet) {
                 flexibleSetBaseOffset++;
             }
         }
+
         let arrayOffset = 0;
         for (let i = 0; i < gpuShader.samplerTextures.length; ++i) {
             const sampler = gpuShader.samplerTextures[i];
@@ -1493,6 +1482,18 @@ export function WebGLCmdFuncCreateShader (device: WebGLDevice, gpuShader: IWebGL
                 if (sampler.set === bindingMappings.flexibleSet) { binding -= flexibleSetBaseOffset; }
                 texUnitCacheMap[sampler.name] = binding % device.capabilities.maxTextureUnits;
                 arrayOffset += sampler.count - 1;
+            }
+        }
+    } else {
+        for (let i = 0; i < gpuShader.samplerTextures.length; ++i) {
+            const sampler = gpuShader.samplerTextures[i];
+            const glLoc = gl.getUniformLocation(gpuShader.glProgram, sampler.name);
+            if (device.extensions.isLocationActive(glLoc)) {
+                glActiveSamplers.push(gpuShader.glSamplerTextures[i]);
+                glActiveSamplerLocations.push(glLoc);
+            }
+            if (texUnitCacheMap[sampler.name] === undefined) {
+                texUnitCacheMap[sampler.name] = sampler.flattened;
             }
         }
     }
