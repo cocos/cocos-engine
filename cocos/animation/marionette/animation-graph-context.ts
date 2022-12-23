@@ -29,13 +29,13 @@ import { partition } from '../../core/algorithm/partition';
  * When an override-clip request is fired, the binding phase is performed again.
  */
 
-function findBoneByNameRecurse (from: Node, name: string): Node | null {
+function findBoneByNameRecursively (from: Node, name: string): Node | null {
     if (from.name === name) {
         return from;
     }
     const nChildren = from.children.length;
     for (let iChild = 0; iChild < nChildren; ++iChild) {
-        const found = findBoneByNameRecurse(from.children[iChild], name);
+        const found = findBoneByNameRecursively(from.children[iChild], name);
         if (found) {
             return found;
         }
@@ -83,7 +83,7 @@ export class AnimationGraphBindingContext {
     }
 
     public bindTransformByName (bone: string): TransformHandle | null {
-        const boneNode = findBoneByNameRecurse(this._origin, bone);
+        const boneNode = findBoneByNameRecursively(this._origin, bone);
         if (!boneNode) {
             return null;
         }
@@ -91,7 +91,7 @@ export class AnimationGraphBindingContext {
     }
 
     public getBoneChildren (bone: string): string[] {
-        const boneNode = findBoneByNameRecurse(this._origin, bone);
+        const boneNode = findBoneByNameRecursively(this._origin, bone);
         if (!boneNode) {
             return [];
         }
