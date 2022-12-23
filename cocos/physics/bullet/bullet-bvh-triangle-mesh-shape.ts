@@ -27,40 +27,47 @@ import { bt, EBulletType } from './instantiated';
 import { Mesh } from '../../3d/assets';
 import { cocos2BulletTriMesh } from './bullet-utils';
 
-export class BulletTriangleMesh {
-    private static readonly BulletTriangleMeshMap = new Map<number, BulletTriangleMesh>();
+export class BulletBvhTriangleMeshShape {
+    private static readonly BulletBvhTriangleMeshShapeMap = new Map<number, BulletBvhTriangleMeshShape>();
 
-    static getBulletTriangleMesh (key: number, mesh: Mesh) {
-        let newTriangleMesh!: BulletTriangleMesh;//Bullet.ptr;
-        if (BulletTriangleMesh.BulletTriangleMeshMap.has(key)) { //can be improved
-            newTriangleMesh = BulletTriangleMesh.BulletTriangleMeshMap.get(key)!;
+    public static getBulletBvhTriangleMeshShape (key: number, mesh: Mesh) {
+        let newBulletBvhTriangleMeshShape!: BulletBvhTriangleMeshShape;
+        if (BulletBvhTriangleMeshShape.BulletBvhTriangleMeshShapeMap.has(key)) { //can be improved
+            newBulletBvhTriangleMeshShape = BulletBvhTriangleMeshShape.BulletBvhTriangleMeshShapeMap.get(key)!;
+            newBulletBvhTriangleMeshShape.reference = true;
         } else {
-            newTriangleMesh = new BulletTriangleMesh(key);
-            cocos2BulletTriMesh(newTriangleMesh.bulletTriangleMeshInternal, mesh);
-            BulletTriangleMesh.BulletTriangleMeshMap.set(key, newTriangleMesh);
+            newBulletBvhTriangleMeshShape = new BulletBvhTriangleMeshShape(key, mesh);
+            BulletBvhTriangleMeshShape.BulletBvhTriangleMeshShapeMap.set(key, newBulletBvhTriangleMeshShape);
         }
-        return newTriangleMesh;
+        return newBulletBvhTriangleMeshShape;
     }
 
     private readonly key: number;
     private ref = 0;
-    bulletTriangleMeshInternal : Bullet.ptr;
+    public bulletBvhTriangleMeshShapePtr: Bullet.ptr;
+    private btTriangleMeshPtr: Bullet.ptr = 0;
 
-    set reference (v: boolean) {
+    public set reference (v: boolean) {
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         v ? this.ref++ : this.ref--;
         if (this.ref === 0) { this.destroy(); }
     }
 
-    private constructor (key: number) {
+    private constructor (key: number, mesh: Mesh) {
+        this.reference = true;
         this.key = key;
-        this.bulletTriangleMeshInternal = bt.TriangleMesh_new();
+        this.btTriangleMeshPtr = bt.TriangleMesh_new();
+        cocos2BulletTriMesh(this.btTriangleMeshPtr, mesh);
+        this.bulletBvhTriangleMeshShapePtr = bt.BvhTriangleMeshShape_new(this.btTriangleMeshPtr, true, true);
     }
 
     private destroy () {
-        if (this.bulletTriangleMeshInternal) {
-            bt._safe_delete(EBulletType.EBulletTypeTriangleMesh, this.bulletTriangleMeshInternal);
+        if (this.bulletBvhTriangleMeshShapePtr) {
+            bt._safe_delete(EBulletType.EBulletTypeCollisionShape, this.bulletBvhTriangleMeshShapePtr);
         }
-        BulletTriangleMesh.BulletTriangleMeshMap.delete(this.key);
+        if (this.btTriangleMeshPtr) {
+            bt._safe_delete(EBulletType.EBulletTypeTriangleMesh, this.btTriangleMeshPtr);
+        }
+        BulletBvhTriangleMeshShape.BulletBvhTriangleMeshShapeMap.delete(this.key);
     }
 }
