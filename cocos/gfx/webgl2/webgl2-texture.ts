@@ -136,7 +136,7 @@ export class WebGL2Texture extends Texture {
         }
     }
 
-    public getGLTextureHandle () : number {
+    public getGLTextureHandle (): number {
         const gpuTexture = this._gpuTexture;
         if (!gpuTexture) {
             return 0;
