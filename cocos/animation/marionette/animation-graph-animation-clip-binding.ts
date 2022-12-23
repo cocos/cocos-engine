@@ -316,9 +316,13 @@ export class AnimationClipAGEvaluation {
     public destroy () {
         this._exoticAnimationEvaluation?.destroy();
 
-        this._trackEvaluations.forEach((trackEvaluation) => {
-            trackEvaluation.destroy();
-        });
+        const {
+            _trackEvaluations: trackEvaluations,
+        } = this;
+        const nTrackEvaluations = trackEvaluations.length;
+        for (let iNodeEvaluation = 0; iNodeEvaluation < nTrackEvaluations; ++iNodeEvaluation) {
+            trackEvaluations[iNodeEvaluation].destroy();
+        }
     }
 
     /**
@@ -334,8 +338,9 @@ export class AnimationClipAGEvaluation {
 
         const pose = context;
 
-        for (const trackEvaluation of trackEvaluations) {
-            trackEvaluation.evaluate(time, pose);
+        const nTrackEvaluations = trackEvaluations.length;
+        for (let iNodeEvaluation = 0; iNodeEvaluation < nTrackEvaluations; ++iNodeEvaluation) {
+            trackEvaluations[iNodeEvaluation].evaluate(time, pose);
         }
 
         if (exoticAnimationEvaluation) {

@@ -712,15 +712,19 @@ export class ExoticTrsAGEvaluation {
     }
 
     public destroy () {
-        this._nodeEvaluations.forEach((nodeEvaluation) => {
-            nodeEvaluation.destroy();
-        });
+        const { _nodeEvaluations: nodeEvaluations } = this;
+        const nNodeEvaluations = nodeEvaluations.length;
+        for (let iNodeEvaluation = 0; iNodeEvaluation < nNodeEvaluations; ++iNodeEvaluation) {
+            nodeEvaluations[iNodeEvaluation].destroy();
+        }
     }
 
     public evaluate (time: number, pose: Pose) {
-        this._nodeEvaluations.forEach((nodeEvaluator) => {
-            nodeEvaluator.evaluate(time, pose);
-        });
+        const { _nodeEvaluations: nodeEvaluations } = this;
+        const nNodeEvaluations = nodeEvaluations.length;
+        for (let iNodeEvaluation = 0; iNodeEvaluation < nNodeEvaluations; ++iNodeEvaluation) {
+            nodeEvaluations[iNodeEvaluation].evaluate(time, pose);
+        }
     }
 
     private _nodeEvaluations: ExoticNodeAnimationAGEvaluation[];
