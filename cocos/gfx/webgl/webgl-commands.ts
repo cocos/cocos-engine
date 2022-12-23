@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { debug, error, errorID, CachedArray } from '../../core';
+import { debug, error, errorID, CachedArray, cclegacy } from '../../core';
 import { WebGLCommandAllocator } from './webgl-command-allocator';
 import { WebGLEXT } from './webgl-define';
 import { WebGLDevice } from './webgl-device';
