@@ -1513,13 +1513,24 @@ class PreRenderVisitor extends BaseRenderVisitor implements RenderGraphVisitor {
     raster (pass: RasterPass) {
         if (!this.rg.getValid(this.passID)) return;
         const devicePasses = this.context.devicePasses;
-        const passHash = stringify(pass);
-        this.currPass = devicePasses.get(passHash);
-        if (!this.currPass) {
-            this.currPass = new DeviceRenderPass(this.context, new RasterPassInfo(this.passID, pass));
-            devicePasses.set(passHash, this.currPass);
+        if (pass.versionName === '') {
+            const passHash = stringify(pass);
+            this.currPass = devicePasses.get(passHash);
+            if (!this.currPass) {
+                this.currPass = new DeviceRenderPass(this.context, new RasterPassInfo(this.passID, pass));
+                devicePasses.set(passHash, this.currPass);
+            } else {
+                this.currPass.resetResource(this.passID, pass);
+            }
         } else {
-            this.currPass.resetResource(this.passID, pass);
+            const passHash = pass.versionName;
+            this.currPass = devicePasses.get(passHash);
+            if (!this.currPass || this.currPass.version !== pass.version) {
+                this.currPass = new DeviceRenderPass(this.context, new RasterPassInfo(this.passID, pass));
+                devicePasses.set(passHash, this.currPass);
+            } else {
+                this.currPass.resetResource(this.passID, pass);
+            }
         }
     }
     compute (value: ComputePass) {}
@@ -1571,7 +1582,9 @@ class PostRenderVisitor extends BaseRenderVisitor implements RenderGraphVisitor 
     }
     raster (pass: RasterPass) {
         const devicePasses = this.context.devicePasses;
-        const passHash = stringify(pass);
+        const passHash = pass.versionName === ''
+            ? stringify(pass)
+            : pass.versionName;
         const currPass = devicePasses.get(passHash);
         if (!currPass) return;
         this.currPass = currPass;

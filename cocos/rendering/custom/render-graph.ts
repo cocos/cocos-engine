@@ -1025,6 +1025,8 @@ export class RasterPass {
     width = 0;
     height = 0;
     readonly viewport: Viewport = new Viewport();
+    versionName = '';
+    version = 0;
 }
 
 export class ComputePass {
