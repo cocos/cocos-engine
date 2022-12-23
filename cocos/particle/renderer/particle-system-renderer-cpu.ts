@@ -41,9 +41,12 @@ import { Pass } from '../../core/renderer';
 import { ParticleNoise } from '../noise';
 import { NoiseModule } from '../animator/noise-module';
 import { legacyCC } from '../../core/global-exports';
+import { ForceFieldComp } from '../animator/force-field-comp';
+import { forceFieldManager } from '../force-field-manager';
 
 const _tempAttribUV = new Vec3();
 const _tempWorldTrans = new Mat4();
+const _tempWorldInv = new Mat4();
 const _tempParentInverse = new Mat4();
 const _node_rot = new Quat();
 const _node_euler = new Vec3();
@@ -388,6 +391,11 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         this.doUpdateScale(pass);
         this.doUpdateRotation(pass);
 
+        const forceFields = forceFieldManager.forceFields;
+        if (forceFields.length > 0) {
+            Mat4.invert(_tempWorldInv, _tempWorldTrans);
+        }
+
         this._updateList.forEach((value: IParticleModule, key: string) => {
             value.update(ps._simulationSpace, _tempWorldTrans);
         });
@@ -439,6 +447,11 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
                 } else {
                     // apply gravity.
                     p.velocity.y -= ps.gravityModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, pseudoRandom(p.randomSeed))! * 9.8 * dt;
+                }
+
+                for (let f = 0; f < forceFields.length; ++f) {
+                    const ff = forceFields[f];
+                    ff.field.update(p, dt, _tempWorldTrans, _tempWorldInv);
                 }
 
                 Vec3.copy(p.ultimateVelocity, p.velocity);
