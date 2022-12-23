@@ -12,8 +12,8 @@ export class CircleCollider2D extends Collider2D {
     private _radius = 1;
 
     /**
-     * @en Circle radius
-     * @zh 圆形半径
+     * @en Circle radius.
+     * @zh 圆形半径。
      */
     @property
     get radius () {

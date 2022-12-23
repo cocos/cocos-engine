@@ -38,7 +38,7 @@ export class DistanceJoint2D extends Joint2D {
      * @en
      * Auto calculate the distance between the connected two rigid bodies.
      * @zh
-     * 自动计算关节连接的两个刚体间的距离
+     * 自动计算关节连接的两个刚体间的距离。
      */
     @property
     get autoCalcDistance () {

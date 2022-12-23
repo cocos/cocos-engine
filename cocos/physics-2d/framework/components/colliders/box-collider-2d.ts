@@ -12,8 +12,8 @@ export class BoxCollider2D extends Collider2D {
     private _size = new Size(1, 1);
 
     /**
-     * @en Box size
-     * @zh 包围盒大小
+     * @en Box size.
+     * @zh 包围盒大小。
      */
     @property
     get size () {
@@ -24,8 +24,8 @@ export class BoxCollider2D extends Collider2D {
     }
 
     /**
-     * @en Get world points
-     * @zh 世界坐标下 BoX 的四个点
+     * @en Get world points.
+     * @zh 世界坐标下 BoX 的四个点。
      */
     get worldPoints (): readonly Readonly<Vec2>[] {
         if (this._shape) {

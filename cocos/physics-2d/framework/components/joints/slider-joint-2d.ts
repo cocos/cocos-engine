@@ -12,8 +12,8 @@ export class SliderJoint2D extends Joint2D {
     TYPE = EJoint2DType.SLIDER;
 
     /**
-     * @en Slide direction
-     * @zh 滑动的方向
+     * @en Slide direction.
+     * @zh 滑动的方向。
      */
     @property
     get angle (): number {
@@ -32,8 +32,8 @@ export class SliderJoint2D extends Joint2D {
     }
 
     /**
-     * @en Auto calculate slide direction according to the slide direction
-     * @zh 根据连接的两个刚体自动计算滑动方向
+     * @en Auto calculate slide direction according to the slide direction.
+     * @zh 根据连接的两个刚体自动计算滑动方向。
      */
     @property
     get autoCalcAngle (): boolean {
@@ -109,7 +109,7 @@ export class SliderJoint2D extends Joint2D {
      * @en
      * The lower joint limit.
      * @zh
-     * 刚体能够移动的最小值
+     * 刚体能够移动的最小值。
      */
     @property
     get lowerLimit (): number {
@@ -126,7 +126,7 @@ export class SliderJoint2D extends Joint2D {
      * @en
      * The lower joint limit.
      * @zh
-     * 刚体能够移动的最大值
+     * 刚体能够移动的最大值。
      */
     @property
     get upperLimit (): number {

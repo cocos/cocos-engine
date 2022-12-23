@@ -11,8 +11,8 @@ export class WheelJoint2D extends Joint2D {
     TYPE = EJoint2DType.WHEEL;
 
     /**
-     * @en Wheel susspension direction
-     * @zh 轮子震动方向
+     * @en Wheel susspension direction.
+     * @zh 轮子震动方向。
      */
     @property
     get angle (): number {

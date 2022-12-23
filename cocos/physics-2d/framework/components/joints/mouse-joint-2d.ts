@@ -56,9 +56,9 @@ export class MouseJoint2D extends Joint2D {
 
     /**
      * @en
-     * The maximum force
+     * The maximum force.
      * @zh
-     * 最大阻力值
+     * 最大阻力值。
      */
     @property
     get maxForce (): number {

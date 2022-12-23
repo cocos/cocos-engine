@@ -27,12 +27,15 @@ import { IVec2Like } from '../../../core';
 
 //https://github.com/x6ud/poly-partition-js
 
-/// <summary>
-/// Decompose the polygon into several convex polygon using Hertel-Mehlhorn algorithm.
-/// If the polygon is already convex, it will return the original polygon.
-/// </summary>
-/// <param name="polygon"></param>
-/// <returns></returns>
+/**
+* @en
+* Decompose the polygon into several convex polygon using Hertel-Mehlhorn algorithm.
+* If the polygon is already convex, it will return the original polygon.
+* @zh
+* 使用Hertel-Mehlhorn算法将输入多边形拆分成多个凸多边形。如果输入多边形是凸多边形，将返回原多边形。
+* @param polygon @en one polygon @zh 一个多边形
+* @return @en polygon array @zh 多边形数组
+*/
 export function ConvexPartition (polygon: IVec2Like[]) {
     // We force it to CCW as it is a precondition in this algorithm.
     ForceCounterClockWise(polygon);
@@ -49,7 +52,7 @@ export function ConvexPartition (polygon: IVec2Like[]) {
         return [polygon];
     }
 
-    const ret : IVec2Like[][] = [];
+    const ret: IVec2Like[][] = [];
     const triangles = Triangulate(polygon);
     if (!triangles) return null;
     for (; triangles.length;) {
@@ -84,7 +87,7 @@ export function ConvexPartition (polygon: IVec2Like[]) {
                 continue;
             }
             // merge triangle
-            const newPoly : IVec2Like[] = [];
+            const newPoly: IVec2Like[] = [];
             for (let i = (iPoly + 1) % polyLen; i !== iPoly; i = (i + 1) % polyLen) {
                 newPoly.push(poly[i]);
             }
@@ -142,7 +145,7 @@ function ForceCounterClockWise (vertices: IVec2Like[]) {
     }
 }
 
-function updateVertex (vertex : Vertex, vertices : Vertex[]) {
+function updateVertex (vertex: Vertex, vertices: Vertex[]) {
     if (!vertex.shouldUpdate) {
         return;
     }
@@ -204,7 +207,7 @@ function updateVertex (vertex : Vertex, vertices : Vertex[]) {
     }
 }
 
-function removeCollinearOrDuplicate (start : Vertex) {
+function removeCollinearOrDuplicate (start: Vertex) {
     for (let curr = start, end = start; ;) {
         if (equals(curr.point!, curr.next!.point!)
             || area(curr.prev!.point!, curr.point!, curr.next!.point!) === 0) {
