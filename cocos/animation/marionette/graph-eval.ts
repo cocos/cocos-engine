@@ -421,7 +421,7 @@ class LayerEval {
         this.weight = layer.weight;
         this.additive = isAdditiveLayer;
         const myContext: AnimationGraphLayerWideBindingContext = {
-            up: context,
+            outerContext: context,
             additive: isAdditiveLayer,
         };
         const { entry, exit } = this._addStateMachine(
@@ -532,7 +532,7 @@ class LayerEval {
         const { _motionStates: motionStates } = this;
         const nMotionStates = motionStates.length;
         const myContext: AnimationGraphLayerWideBindingContext = {
-            up: context,
+            outerContext: context,
             additive: this.additive,
         };
         for (let iMotionState = 0; iMotionState < nMotionStates; ++iMotionState) {
@@ -676,7 +676,7 @@ class LayerEval {
                     toNode = nodeEval;
                 }
 
-                const conditions = outgoing.conditions.map((condition) => condition[createEval](context.up));
+                const conditions = outgoing.conditions.map((condition) => condition[createEval](context.outerContext));
 
                 const transitionEval: TransitionEval = {
                     conditions,
@@ -1701,7 +1701,7 @@ export class MotionStateEval extends StateEval {
 
         if (node.speedMultiplierEnabled && node.speedMultiplier) {
             const speedMultiplierVarName = node.speedMultiplier;
-            const varInstance = context.up.getVar(speedMultiplierVarName);
+            const varInstance = context.outerContext.getVar(speedMultiplierVarName);
             if (validateVariableExistence(varInstance, speedMultiplierVarName)) {
                 validateVariableType(varInstance.type, VariableType.FLOAT, speedMultiplierVarName);
                 varInstance.bind(this._setSpeedMultiplier, this);

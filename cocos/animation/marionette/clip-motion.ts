@@ -164,15 +164,15 @@ class ClipMotionEval implements MotionEval {
         this._duration = clip.speed === 0.0
             ? 0.0
             : clip.duration / clip.speed; // TODO, a test for `clip.speed === 0` is required!
-        const clipEval = new AnimationClipAGEvaluation(clip, context.up);
+        const clipEval = new AnimationClipAGEvaluation(clip, context.outerContext);
         this._clipEval = clipEval;
         if (clip.containsAnyEmbeddedPlayer()) {
-            this._clipEmbeddedPlayerEval = clip.createEmbeddedPlayerEvaluator(context.up.origin);
+            this._clipEmbeddedPlayerEval = clip.createEmbeddedPlayerEvaluator(context.outerContext.origin);
         }
         if (context.additive) {
             const additiveSettings = clip[additiveSettingsTag];
             const baseClip = additiveSettings.base ?? clip;
-            this._baseClipEval = new AnimationClipAGEvaluation(baseClip, context.up);
+            this._baseClipEval = new AnimationClipAGEvaluation(baseClip, context.outerContext);
         }
     }
 }

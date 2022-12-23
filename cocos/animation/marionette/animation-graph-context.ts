@@ -53,9 +53,9 @@ export interface AnimationGraphLayerWideBindingContext {
     additive: boolean;
 
     /**
-     * The upper binding context.
+     * The outer binding context.
      */
-    up: AnimationGraphBindingContext;
+    outerContext: AnimationGraphBindingContext;
 }
 
 export type VarRegistry = Record<string, VarInstance>;

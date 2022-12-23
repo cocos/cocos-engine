@@ -60,7 +60,7 @@ export class AnimationBlendDirect extends AnimationBlend {
         for (let iItem = 0; iItem < this._items.length; ++iItem) {
             const item = this._items[iItem];
             const initialValue = bindOr(
-                context.up,
+                context.outerContext,
                 item.weight,
                 VariableType.FLOAT,
                 myEval.setInput,

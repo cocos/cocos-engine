@@ -60,7 +60,7 @@ export class AnimationBlend1D extends AnimationBlend {
             context, clipOverrides, this, this._items, this._items.map(({ threshold }) => threshold), 0.0,
         );
         const initialValue = bindOr(
-            context.up,
+            context.outerContext,
             this.param,
             VariableType.FLOAT,
             evaluation.setInput,

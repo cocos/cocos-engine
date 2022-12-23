@@ -16,7 +16,7 @@ class SharedMemoryPage {
 }
 
 class PagedStack {
-    constructor (private _up: SharedStackBasedAllocatorManager, private _pageSize: number) {
+    constructor (private _manager: SharedStackBasedAllocatorManager, private _pageSize: number) {
     }
 
     get pageSize () {
@@ -98,9 +98,9 @@ class PagedStack {
         assertIsTrue(this._allocatorCount > 0);
         --this._allocatorCount;
 
-        // If we no longer have allocator, notify up layer for possible further cleanup.
+        // If we no longer have allocator, notify manager for possible further cleanup.
         if (this._allocatorCount === 0) {
-            this._up[onStackPurgedTag](this);
+            this._manager[onStackPurgedTag](this);
         }
     }
 

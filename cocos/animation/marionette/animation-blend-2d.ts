@@ -82,7 +82,7 @@ export class AnimationBlend2D extends AnimationBlend {
             [0.0, 0.0],
         );
         const initialValueX = bindOr(
-            context.up,
+            context.outerContext,
             this.paramX,
             VariableType.FLOAT,
             evaluation.setInput,
@@ -90,7 +90,7 @@ export class AnimationBlend2D extends AnimationBlend {
             0,
         );
         const initialValueY = bindOr(
-            context.up,
+            context.outerContext,
             this.paramY,
             VariableType.FLOAT,
             evaluation.setInput,
