@@ -221,7 +221,7 @@ export const sys = {
     /**
      * @en Get the network type of current device, return `sys.NetworkType.LAN` if failure.
      * @zh 获取当前设备的网络类型, 如果网络类型无法获取，默认将返回 `sys.NetworkType.LAN`。
-     * @return @zh 返回 LAN 或 WWAN。 @en Retuan to LAN or WWAN.
+     * @returns - LAN or WWAN.
      */
     getNetworkType (): NetworkType {
         return systemInfo.networkType;
