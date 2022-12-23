@@ -163,9 +163,9 @@ static bool js_ar_ARModule_getRemovedSceneMesh(se::State& s)
     const auto& args = s.args();
     size_t argc = args.size();
     if (argc == 0) {
-        int* buffer = cobj->getRemovedSceneMesh();
+        float* buffer = cobj->getRemovedSceneMesh();
         int len = cobj->getInfoLength();
-        se::HandleObject meshesInfo{se::Object::createTypedArray(se::Object::TypedArrayType::UINT32, buffer, sizeof(float) * len)};
+        se::HandleObject meshesInfo{se::Object::createTypedArray(se::Object::TypedArrayType::FLOAT32, buffer, sizeof(float) * len)};
         s.rval().setObject(meshesInfo);
         return true;
     }
