@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2022 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
@@ -36,15 +36,20 @@ export class Pool<T> extends ScalableContainer {
     private _ctor: () => T;
     private _elementsPerBatch: number;
     private _nextAvail: number;
-    private _freepool: T[] = [];
+    private _freePool: T[] = [];
     private _dtor: ((obj: T) => void) | null;
 
     /**
-     * @en Constructor with the allocator of elements and initial pool size
-     * @zh 使用元素的构造器和初始大小的构造函数
-     * @param ctor The allocator of elements in pool, it's invoked directly without `new`
-     * @param elementsPerBatch Initial pool size, this size will also be the incremental size when the pool is overloaded
-     * @param dtor The finalizer of element, it's invoked when this container is destroyed or shrunk
+     * @en Constructor with the allocator of elements and initial pool size.
+     * @zh 使用元素的构造器和初始大小的构造函数。
+     * @param ctor @en The allocator of elements in pool, it's invoked directly without `new` in Pool.
+     * @zh 元素的构造器，Pool 内部使用该构造器直接创建实例。
+     * @param elementsPerBatch @en Initial pool size, this size will also be the incremental size when
+     * the pool is overloaded.
+     * @zh 对象池的初始大小。当对象池扩容时，也会使用该值。
+     * @param dtor @en The finalizer of element, it's invoked when this Pool is destroyed or shrunk if
+     * it is valid.
+     * @zh 元素的析构器。如果存在的话，当对象池销毁或者缩容时，会使用该析构器。
      */
     constructor (ctor: () => T, elementsPerBatch: number, dtor?: (obj: T) => void) {
         super();
@@ -54,56 +59,63 @@ export class Pool<T> extends ScalableContainer {
         this._nextAvail = this._elementsPerBatch - 1;
 
         for (let i = 0; i < this._elementsPerBatch; ++i) {
-            this._freepool.push(ctor());
+            this._freePool.push(ctor());
         }
     }
 
     /**
      * @en Take an object out of the object pool.
      * @zh 从对象池中取出一个对象。
-     * @return An object ready for use. This function always return an object.
+     * @returns @en An object ready for use. This function always returns an object.
+     * @zh 该函数总是返回一个可用的对象。
      */
     public alloc (): T {
         if (this._nextAvail < 0) {
-            this._freepool.length = this._elementsPerBatch;
+            this._freePool.length = this._elementsPerBatch;
             for (let i = 0; i < this._elementsPerBatch; i++) {
-                this._freepool[i] = this._ctor();
+                this._freePool[i] = this._ctor();
             }
             this._nextAvail = this._elementsPerBatch - 1;
         }
 
-        return this._freepool[this._nextAvail--];
+        return this._freePool[this._nextAvail--];
     }
 
     /**
      * @en Put an object back into the object pool.
      * @zh 将一个对象放回对象池中。
-     * @param obj The object to be put back into the pool
+     * @param obj @en The object to be put back into the pool.
+     * @zh 放回对象池中的对象。
      */
     public free (obj: T) {
-        this._freepool[++this._nextAvail] = obj;
+        this._freePool[++this._nextAvail] = obj;
     }
 
     /**
      * @en Put multiple objects back into the object pool.
      * @zh 将一组对象放回对象池中。
-     * @param objs An array of objects to be put back into the pool
+     * @param objs @en An array of objects to be put back into the pool.
+     * @zh 放回对象池中的一组对象。
      */
     public freeArray (objs: T[]) {
-        this._freepool.length = this._nextAvail + 1;
-        Array.prototype.push.apply(this._freepool, objs);
+        this._freePool.length = this._nextAvail + 1;
+        Array.prototype.push.apply(this._freePool, objs);
         this._nextAvail += objs.length;
     }
 
+    /**
+     * @en Try to shrink the object pool to reduce memory usage.
+     * @zh 尝试缩容对象池，以释放内存。
+     */
     public tryShrink () {
         if (this._nextAvail >> 1 > this._elementsPerBatch) {
             if (this._dtor) {
                 for (let i = this._nextAvail >> 1; i <= this._nextAvail; i++) {
-                    this._dtor(this._freepool[i]);
+                    this._dtor(this._freePool[i]);
                 }
             }
-            this._freepool.length = this._nextAvail >> 1;
-            this._nextAvail = this._freepool.length - 1;
+            this._freePool.length = this._nextAvail >> 1;
+            this._nextAvail = this._freePool.length - 1;
         }
     }
 
@@ -117,10 +129,10 @@ export class Pool<T> extends ScalableContainer {
         const readDtor = dtor || this._dtor;
         if (readDtor) {
             for (let i = 0; i <= this._nextAvail; i++) {
-                readDtor(this._freepool[i]);
+                readDtor(this._freePool[i]);
             }
         }
-        this._freepool.length = 0;
+        this._freePool.length = 0;
         this._nextAvail = -1;
         super.destroy();
     }
