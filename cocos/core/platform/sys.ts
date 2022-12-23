@@ -56,7 +56,7 @@ export const sys = {
      * Returns if the specified platform related feature is supported.
      * @zh
      * 返回指定的平台相关的特性是否支持。
-     * @param feature @zh 系统的特性。 @en Features of the system.
+     * @param feature @zh 系统的特性。 @en Feature of the system.
      */
     hasFeature (feature: sys.Feature): boolean {
         return systemInfo.hasFeature(feature);
@@ -221,7 +221,7 @@ export const sys = {
     /**
      * @en Get the network type of current device, return `sys.NetworkType.LAN` if failure.
      * @zh 获取当前设备的网络类型, 如果网络类型无法获取，默认将返回 `sys.NetworkType.LAN`。
-     * @returns LAN or WWAN.
+     * @return @zh 返回 LAN 或 WWAN。 @en Retuan to LAN or WWAN.
      */
     getNetworkType (): NetworkType {
         return systemInfo.networkType;
@@ -250,7 +250,7 @@ export const sys = {
      * In native engine, it will return true if the JS object and the correspond native object are both valid
      * @zh 检查一个对象是否非空或在原生平台有效，
      * 在 Web 平台，只要对象非空或非 Undefined 就会返回 true，在原生平台，我们会检查当前 JS 对象和其绑定的原生对象是否都有效。
-     * @param obj @zh 校验的对象。@en The object to be checked
+     * @param obj @zh 校验的对象。@en The object to be checked.
      */
     isObjectValid (obj: any): boolean {
         if (obj === null || obj === undefined) {

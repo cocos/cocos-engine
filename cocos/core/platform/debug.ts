@@ -48,9 +48,9 @@ let ccAssert = (condition: any, message?: any, ...optionalParams: any[]) => {
 let ccDebug = ccLog;
 
 /**
- * @en Formatting strings.
+ * @en Format a string.
  * @zh 格式化字符串。
- * @param message @zh 包含零个或多个需要替换的JavaScript字符串。@en JavaScript string containing zero or more substitution strings.
+ * @param message @zh 包含零个或多个需要替换的JavaScript字符串。@en JavaScript objects to replace substitution strings in msg.
  * @param optionalParams  @zh 用来替换在message中需要替换的JavaScript对象。@en JavaScript objects with which to replace substitution strings within msg.
  */
 function formatString (message?: any, ...optionalParams: any[]) {
@@ -61,7 +61,7 @@ function formatString (message?: any, ...optionalParams: any[]) {
 /**
  * @en Outputs a message to the Cocos Creator Console (editor) or Web Console (runtime). This gives you additional control over the format of the output.
  * @zh 输出一条消息到 Cocos Creator 编辑器的 Console 或运行时 Web 端的 Console 中。这为你提供了对输出格式的额外控制。
- * @param message @zh 包含零个或多个需要替换的JavaScript字符串。@en JavaScript string containing zero or more substitution strings.
+ * @param message @zh 包含零个或多个需要替换的JavaScript字符串。@en JavaScript objects to replace substitution strings in msg.
  * @param optionalParams  @zh 用来替换在message中需要替换的JavaScript对象。@en JavaScript objects with which to replace substitution strings within msg.
  */
 export function log (message?: any, ...optionalParams: any[]) {
@@ -77,7 +77,7 @@ export function log (message?: any, ...optionalParams: any[]) {
  * 输出警告消息到 Cocos Creator 编辑器的 Console 或运行时 Web 端的 Console 中。<br/>
  * - 在 Cocos Creator 中，警告信息显示是黄色的。<br/>
  * - 在 Chrome 中，警告信息有着黄色的图标以及黄色的消息文本。<br/>
- * @param message @zh 包含零个或多个需要替换的JavaScript字符串。@en JavaScript string containing zero or more substitution strings.
+ * @param message @zh 包含零个或多个需要替换的JavaScript字符串。@en JavaScript objects to replace substitution strings in msg.
  * @param optionalParams  @zh 用来替换在message中需要替换的JavaScript对象。@en JavaScript objects with which to replace substitution strings within msg.
  * This gives you additional control over the format of the output.
  */
@@ -94,7 +94,7 @@ export function warn (message?: any, ...optionalParams: any[]) {
  * 输出错误消息到 Cocos Creator 编辑器的 Console 或运行时页面端的 Console 中。<br/>
  * - 在 Cocos Creator 中，错误信息显示是红色的。<br/>
  * - 在 Chrome 中，错误信息有红色的图标以及红色的消息文本。<br/>
- * @param message @zh 包含零个或多个需要替换的JavaScript字符串。@en JavaScript string containing zero or more substitution strings.
+ * @param message @zh 包含零个或多个需要替换的JavaScript字符串。@en JavaScript objects to replace substitution strings in msg.
  * @param optionalParams  @zh 用来替换在message中需要替换的JavaScript对象。@en JavaScript objects with which to replace substitution strings within msg.
  * This gives you additional control over the format of the output.
  */
@@ -108,7 +108,7 @@ export function error (message?: any, ...optionalParams: any[]) {
  * @zh
  * 对检查测试条件进行检查，如果条件不为 true 则输出错误消息
  * @param value @zh 需要检查的条件。 @en The condition to check on.
- * @param message @zh 包含零个或多个需要替换的JavaScript字符串。@en JavaScript string containing zero or more substitution strings.
+ * @param message @zh 包含零个或多个需要替换的JavaScript字符串。@en JavaScript objects to replace substitution strings in msg.
  * @param optionalParams  @zh 用来替换在message中需要替换的JavaScript对象。@en JavaScript objects with which to replace substitution strings within msg.
  * This gives you additional control over the format of the output.
  */
@@ -366,7 +366,7 @@ export enum DebugMode {
  * @en Gets error message with the error id and possible parameters.
  * @zh 通过 error id 和必要的参数来获取错误信息。
  * @param errorId @zh 错误的ID。@en Error id.
- * @param param @zh 输出日志。@en Output Log.
+ * @param param @zh 输出日志。@en Output log.
  */
 export function getError (errorId: number, ...param: any[]): string {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
@@ -386,7 +386,7 @@ export function isDisplayStats (): boolean {
 /**
  * @en Sets whether display the FPS and debug informations on the bottom-left corner.
  * @zh 设置是否在左下角显示 FPS 和部分调试。
- * @deprecated @zh 从v3.6开始不再支持，请使用 profiler.showStats 替换。@en Since v3.6, Please use profiler.showStats instead
+ * @deprecated @zh 从v3.6开始不再支持，请使用 profiler.showStats 替换。@en Since v3.6, Please use profiler.showStats instead.
  */
 export function setDisplayStats (displayStats: boolean) {
     if (legacyCC.profiler) {

@@ -28,7 +28,7 @@ import { Rect } from '../math';
 import { legacyCC } from '../global-exports';
 
 /**
- * @zh `visibleRect` is a singleton object which defines the actual visible rect of the current view
+ * @zh `visibleRect` is a singleton object which defines the actual visible rect of the current view.
  * @en `visibleRect` 是一个定义当前视图的实际可见矩形的单例对象。
  * @engineInternal
  */
@@ -101,7 +101,7 @@ export const visibleRect = {
 
     /**
      * @zh 初始化函数。
-     * @en Initialization functions.
+     * @en Initialization function.
      * @param visibleRect_ @zh 当前视图的实际可见区域。@en The actual visible area of the current view.
      * @NOTE: @zh 必须是有效的区域。例如区域大小不能为负数。@en It must be a valid region. For example, the region size cannot be negative.
      */
