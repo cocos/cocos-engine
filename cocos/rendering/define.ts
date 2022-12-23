@@ -379,8 +379,9 @@ export class UBOLocal {
     public static readonly MAT_WORLD_IT_OFFSET = UBOLocal.MAT_WORLD_OFFSET + 16;
     public static readonly LIGHTINGMAP_UVPARAM = UBOLocal.MAT_WORLD_IT_OFFSET + 16;
     public static readonly LOCAL_SHADOW_BIAS = UBOLocal.LIGHTINGMAP_UVPARAM + 4;
-    public static readonly REFLECTION_PROBE_DATA = UBOLocal.LOCAL_SHADOW_BIAS + 4;
-    public static readonly COUNT = UBOLocal.REFLECTION_PROBE_DATA + 4;
+    public static readonly REFLECTION_PROBE_DATA1 = UBOLocal.LOCAL_SHADOW_BIAS + 4;
+    public static readonly REFLECTION_PROBE_DATA2 = UBOLocal.REFLECTION_PROBE_DATA1 + 4;
+    public static readonly COUNT = UBOLocal.REFLECTION_PROBE_DATA2 + 4;
     public static readonly SIZE = UBOLocal.COUNT * 4;
 
     public static readonly NAME = 'CCLocal';
@@ -391,6 +392,8 @@ export class UBOLocal {
         new Uniform('cc_matWorldIT', Type.MAT4, 1),
         new Uniform('cc_lightingMapUVParam', Type.FLOAT4, 1),
         new Uniform('cc_localShadowBias', Type.FLOAT4, 1),
+        new Uniform('cc_reflectionProbeData1', Type.FLOAT4, 1),
+        new Uniform('cc_reflectionProbeData2', Type.FLOAT4, 1),
     ], 1);
 }
 localDescriptorSetLayout.layouts[UBOLocal.NAME] = UBOLocal.LAYOUT;

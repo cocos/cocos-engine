@@ -965,7 +965,7 @@ export class Model {
      */
     public updateReflectionProbeId () {
         const sv = this._localData;
-        //xubin: update Id and REFLECTION_PROBE_DATA
+        //xubin: update Id and REFLECTION_PROBE_DATA1/2
         sv[UBOLocal.LOCAL_SHADOW_BIAS + 2] = this._reflectionProbeId;
         //yangcheng: update visibility for dirlight
         sv[UBOLocal.LOCAL_SHADOW_BIAS + 3] = 0;

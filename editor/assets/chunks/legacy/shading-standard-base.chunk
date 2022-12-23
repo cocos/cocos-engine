@@ -211,7 +211,7 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
     vec3 R = normalize(reflect(-V, N));
     #if CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_CUBE
       vec3 centerPos;
-      float boxSize;
+      vec3 boxSize;
       GetCubeReflectionProbeData(centerPos, boxSize, s.reflectionProbeId);
       probe = fragTextureLod(cc_reflectionProbeCubemap, R, s.roughness * (cc_ambientGround.w - 1.0));
     #elif CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_PLANAR

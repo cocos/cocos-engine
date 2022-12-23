@@ -10,12 +10,12 @@ void GetPlanarReflectionProbeData(out vec4 plane, out float planarReflectionDept
       plane.w = data2.x;
       planarReflectionDepthScale = data2.y;
     #else
-      plane = cc_reflectionProbeData;
-      planarReflectionDepthScale = cc_localShadowBias.z;
+      plane = cc_reflectionProbeData1;
+      planarReflectionDepthScale = cc_reflectionProbeData2.x;
     #endif
 }
 
-void GetCubeReflectionProbeData(out vec3 centerPos, out float boxSize, float probeId)
+void GetCubeReflectionProbeData(out vec3 centerPos, out vec3 boxSize, float probeId)
 {
     #if USE_INSTANCING
       float uv_y = probeId / cc_probeInfo.x;
@@ -24,9 +24,9 @@ void GetCubeReflectionProbeData(out vec3 centerPos, out float boxSize, float pro
       vec3 data1 = unpackRGBE(texData1);
       vec3 data2 = unpackRGBE(texData2);
       centerPos = data1;
-      boxSize = data2.x;
+      boxSize = data2;
     #else
-      centerPos = cc_reflectionProbeData.xyz;
-      boxSize = cc_reflectionProbeData.w;
+      centerPos = cc_reflectionProbeData1.xyz;
+      boxSize = cc_reflectionProbeData2.xyz;
     #endif
 }

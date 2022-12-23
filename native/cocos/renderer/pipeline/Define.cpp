@@ -204,7 +204,8 @@ const gfx::UniformBlock UBOLocal::LAYOUT = {
         {"cc_matWorldIT", gfx::Type::MAT4, 1},
         {"cc_lightingMapUVParam", gfx::Type::FLOAT4, 1},
         {"cc_localShadowBias", gfx::Type::FLOAT4, 1},
-        {"cc_reflectionProbeData", gfx::Type::FLOAT4, 1},
+        {"cc_reflectionProbeData1", gfx::Type::FLOAT4, 1},
+        {"cc_reflectionProbeData2", gfx::Type::FLOAT4, 1},
     },
     1,
 };

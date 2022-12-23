@@ -118,7 +118,7 @@ vec3 CalculateEnvironmentSpecular(in LightingIntermediateData lightingData, floa
   #if CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_CUBE
     envSpec = SampleEnvironmentSpecular(cc_reflectionProbeCubemap, lightingData, cc_ambientGround.w);
     vec3 centerPos;
-    float boxSize;
+    vec3 boxSize;
     GetCubeReflectionProbeData(centerPos, boxSize, FSInput_reflectionProbeId);
   #elif CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_PLANAR
     vec4 plane;
