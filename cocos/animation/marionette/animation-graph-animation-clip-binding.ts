@@ -275,7 +275,7 @@ export class AnimationClipAGEvaluation {
         clip: AnimationClip,
         context: AnimationClipGraphBindingContext,
     ) {
-        clip.__trySyncLegacyData();
+        clip._trySyncLegacyData();
 
         const trackEvaluations: AGTrackEvaluation<unknown>[] = [];
         let exoticAnimationEvaluation: ExoticTrsAGEvaluation | undefined;

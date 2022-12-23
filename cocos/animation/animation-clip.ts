@@ -661,7 +661,7 @@ export class AnimationClip extends Asset {
     /**
      * @internal
      */
-    public __trySyncLegacyData () {
+    public _trySyncLegacyData () {
         if (this._legacyDataDirty) {
             this._legacyDataDirty = false;
             this.syncLegacyData();
