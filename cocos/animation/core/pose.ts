@@ -1,3 +1,4 @@
+import { DEBUG } from 'internal:constants';
 import { lerp } from '../../core';
 import { assertIsTrue } from '../../core/data/utils/asserts';
 import { Transform, __applyDeltaTransform, __calculateDeltaTransform } from './transform';
@@ -23,11 +24,17 @@ export class Pose {
 
 export class TransformFilter {
     constructor (involvedTransforms: readonly number[]) {
-        this._involvedTransforms = new Uint32Array(involvedTransforms);
+        if (DEBUG) {
+            assertIsTrue(
+                involvedTransforms.every((transformIndex) => transformIndex < (2 ** 16)),
+                'The number of transforms exceeds the max allowed(2 ** 16)',
+            );
+        }
+        this._involvedTransforms = new Uint16Array(involvedTransforms);
     }
 
     get involvedTransforms () {
-        return this._involvedTransforms as Readonly<Uint32Array>;
+        return this._involvedTransforms as Readonly<Uint16Array>;
     }
 
     /**
@@ -65,7 +72,7 @@ export class TransformFilter {
      * this._involvedTransformIntervals = intervals.slice(0, nIntervals * 2);
      * ```
      */
-    private declare _involvedTransforms: Uint32Array;
+    private declare _involvedTransforms: Uint16Array;
 }
 
 export function blendPoseInto (target: Pose, source: Readonly<Pose>, alpha: number, transformFilter: TransformFilter | undefined = undefined) {
