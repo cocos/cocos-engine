@@ -25,10 +25,10 @@
 
 #pragma once
 
-#include <cocos/renderer/pipeline/custom/GslUtils.h>
 #include <boost/algorithm/string/predicate.hpp>
 #include <string_view>
-#include "base/std/container/array.h"
+#include "cocos/base/std/container/array.h"
+#include "cocos/renderer/pipeline/custom/details/GslUtils.h"
 
 namespace cc {
 

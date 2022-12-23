@@ -41,6 +41,7 @@
 #include "scene/ReflectionProbe.h"
 #include "scene/Skybox.h"
 #include "scene/Define.h"
+#include "core/geometry/Intersect.h"
 namespace cc {
 namespace pipeline {
 const static uint32_t REFLECTION_PROBE_DEFAULT_MASK = ~static_cast<uint32_t>(LayerList::UI_2D)
@@ -77,18 +78,26 @@ void ReflectionProbeBatchedQueue::gatherRenderObjects(const scene::Camera *camer
     const scene::Skybox *skyBox = sceneData->getSkybox();
     const scene::RenderScene *const scene = camera->getScene();
 
-    if (static_cast<uint32_t>(camera->getClearFlag()) & skyboxFlag) {
+    if (static_cast<uint32_t>(probe->getCamera()->getClearFlag()) & skyboxFlag) {
         if (skyBox != nullptr && skyBox->isEnabled() && skyBox->getModel()) {
             add(skyBox->getModel());
         }
     }
     for (const auto &model : scene->getModels()) {
         const auto *node = model->getNode();
-        if (!node) continue;
-        if (((node->getLayer() & REFLECTION_PROBE_DEFAULT_MASK) == node->getLayer())
-            || (REFLECTION_PROBE_DEFAULT_MASK & static_cast<uint32_t>(model->getVisFlags()))) {      
-            if (model->getWorldBounds()) {
-                if (model->getWorldBounds()->aabbFrustum(probe->getCamera()->getFrustum())) {
+        const auto *worldBounds = model->getWorldBounds();
+        if (!node || !model->isEnabled() || !worldBounds || !model->getBakeToReflectionProbe()) continue;
+        uint32_t visibility = probe->getCamera()->getVisibility();
+        if (probe->getProbeType() == scene::ReflectionProbe::ProbeType::CUBE) {
+            if (((visibility & node->getLayer()) == node->getLayer()) ||
+                (visibility & static_cast<uint32_t>(model->getVisFlags()))) {
+                if (aabbWithAABB(*worldBounds, *probe->getBoundingBox())) {
+                    add(model);
+                }
+            }
+        } else {
+            if (((node->getLayer() & REFLECTION_PROBE_DEFAULT_MASK) == node->getLayer()) || (REFLECTION_PROBE_DEFAULT_MASK & static_cast<uint32_t>(model->getVisFlags()))) {
+                if (worldBounds->aabbFrustum(probe->getCamera()->getFrustum())) {
                     add(model);
                 }
             }

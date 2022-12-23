@@ -29,49 +29,22 @@
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
  */
 // clang-format off
-#include "cocos/bindings/auto/jsb_gfx_auto.h"
-#include "cocos/bindings/auto/jsb_scene_auto.h"
-#include "cocos/renderer/pipeline/custom/JsbConversion.h"
-#include "cocos/renderer/pipeline/custom/RenderGraphJsb.h"
-#include "cocos/renderer/pipeline/custom/RenderGraphTypes.h"
+#pragma once
+#include "cocos/base/std/variant.h"
+#include "cocos/renderer/core/ProgramLib.h"
+#include "cocos/renderer/pipeline/custom/LayoutGraphFwd.h"
+#include "cocos/renderer/pipeline/custom/RenderInterfaceFwd.h"
 
-bool nativevalue_to_se(const cc::render::ClearView &from, se::Value &to, se::Object *ctx) { // NOLINT
-    se::HandleObject obj(se::Object::createPlainObject());
-    se::Value        tmp;
+namespace cc {
 
-    nativevalue_to_se(from.slotName, tmp, ctx);
-    obj->setProperty("slotName", tmp);
+namespace render {
 
-    nativevalue_to_se(from.clearFlags, tmp, ctx);
-    obj->setProperty("clearFlags", tmp);
+struct ProgramInfo;
+struct ProgramHost;
+struct ProgramGroup;
 
-    nativevalue_to_se(from.clearColor, tmp, ctx);
-    obj->setProperty("clearColor", tmp);
+} // namespace render
 
-    to.setObject(obj);
-    return true;
-}
-
-template <>
-bool sevalue_to_native<cc::render::ClearView>(const se::Value &from, cc::render::ClearView *to, se::Object *ctx) { // NOLINT
-    SE_PRECONDITION2(from.isObject(), false, " Convert parameter to ClearView failed !");
-
-    auto *obj = const_cast<se::Object *>(from.toObject());
-    bool ok = true;
-    se::Value field;
-    obj->getProperty("slotName", &field, true);
-    if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->slotName), ctx);
-    }
-    obj->getProperty("clearFlags", &field, true);
-    if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->clearFlags), ctx);
-    }
-    obj->getProperty("clearColor", &field, true);
-    if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->clearColor), ctx);
-    }
-    return ok;
-}
+} // namespace cc
 
 // clang-format on

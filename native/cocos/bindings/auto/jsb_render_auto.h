@@ -119,6 +119,11 @@ extern se::Object *__jsb_cc_render_PipelineBuilder_proto; // NOLINT
 extern se::Class * __jsb_cc_render_PipelineBuilder_class; // NOLINT
 
 
+JSB_REGISTER_OBJECT_TYPE(cc::render::RenderingModule);
+extern se::Object *__jsb_cc_render_RenderingModule_proto; // NOLINT
+extern se::Class * __jsb_cc_render_RenderingModule_class; // NOLINT
+
+
 JSB_REGISTER_OBJECT_TYPE(cc::render::Factory);
 extern se::Object *__jsb_cc_render_Factory_proto; // NOLINT
 extern se::Class * __jsb_cc_render_Factory_class; // NOLINT

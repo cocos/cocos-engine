@@ -42,11 +42,11 @@
 #include "cocos/renderer/gfx-base/GFXDescriptorSet.h"
 #include "cocos/renderer/gfx-base/GFXDescriptorSetLayout.h"
 #include "cocos/renderer/gfx-base/GFXPipelineLayout.h"
-#include "cocos/renderer/pipeline/custom/GraphTypes.h"
 #include "cocos/renderer/pipeline/custom/LayoutGraphFwd.h"
-#include "cocos/renderer/pipeline/custom/Map.h"
 #include "cocos/renderer/pipeline/custom/RenderCommonTypes.h"
-#include "cocos/renderer/pipeline/custom/Set.h"
+#include "cocos/renderer/pipeline/custom/details/GraphTypes.h"
+#include "cocos/renderer/pipeline/custom/details/Map.h"
+#include "cocos/renderer/pipeline/custom/details/Set.h"
 
 namespace cc {
 
@@ -304,6 +304,11 @@ inline bool operator!=(const NameLocalID& lhs, const NameLocalID& rhs) noexcept 
     return !(lhs == rhs);
 }
 
+inline bool operator<(const NameLocalID& lhs, const NameLocalID& rhs) noexcept {
+    return std::forward_as_tuple(lhs.value) <
+           std::forward_as_tuple(rhs.value);
+}
+
 struct DescriptorData {
     DescriptorData() = default;
     DescriptorData(NameLocalID descriptorIDIn, gfx::Type typeIn, uint32_t countIn) noexcept
@@ -351,7 +356,7 @@ struct DescriptorSetLayoutData {
     }
 
     DescriptorSetLayoutData(const allocator_type& alloc) noexcept; // NOLINT
-    DescriptorSetLayoutData(uint32_t slotIn, uint32_t capacityIn, ccstd::pmr::vector<DescriptorBlockData> descriptorBlocksIn, ccstd::pmr::unordered_map<NameLocalID, gfx::UniformBlock> uniformBlocksIn, const allocator_type& alloc) noexcept;
+    DescriptorSetLayoutData(uint32_t slotIn, uint32_t capacityIn, ccstd::pmr::vector<DescriptorBlockData> descriptorBlocksIn, ccstd::pmr::unordered_map<NameLocalID, gfx::UniformBlock> uniformBlocksIn, PmrFlatMap<NameLocalID, uint32_t> bindingMapIn, const allocator_type& alloc) noexcept;
     DescriptorSetLayoutData(DescriptorSetLayoutData&& rhs, const allocator_type& alloc);
 
     DescriptorSetLayoutData(DescriptorSetLayoutData&& rhs) noexcept = default;
@@ -363,6 +368,7 @@ struct DescriptorSetLayoutData {
     uint32_t capacity{0};
     ccstd::pmr::vector<DescriptorBlockData> descriptorBlocks;
     ccstd::pmr::unordered_map<NameLocalID, gfx::UniformBlock> uniformBlocks;
+    PmrFlatMap<NameLocalID, uint32_t> bindingMap;
 };
 
 struct DescriptorSetData {

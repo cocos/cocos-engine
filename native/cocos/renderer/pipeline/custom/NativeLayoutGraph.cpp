@@ -23,17 +23,16 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "DebugUtils.h"
-#include "GslUtils.h"
 #include "LayoutGraphGraphs.h"
 #include "LayoutGraphNames.h"
 #include "LayoutGraphTypes.h"
 #include "NativePipelineGraphs.h"
-#include "Pmr.h"
-#include "Range.h"
 #include "RenderCommonNames.h"
 #include "cocos/renderer/gfx-base/GFXDevice.h"
-
+#include "details/DebugUtils.h"
+#include "details/GslUtils.h"
+#include "details/Pmr.h"
+#include "details/Range.h"
 
 namespace cc {
 
@@ -87,7 +86,7 @@ void NativeLayoutGraphBuilder::addDescriptorBlock(
     for (const auto &pairD : block.descriptors) {
         const auto &name = pairD.first;
         const auto &d = pairD.second;
-        auto iter = g.attributeIndex.find(std::string_view(name));
+        auto iter = g.attributeIndex.find(std::string_view{name});
         if (iter == g.attributeIndex.end()) {
             auto attrID = gsl::narrow_cast<uint32_t>(g.valueNames.size());
             g.valueNames.emplace_back(name);
@@ -109,7 +108,7 @@ void NativeLayoutGraphBuilder::addUniformBlock(uint32_t nodeID, const Descriptor
     auto &g = *data;
     auto &ppl = get(LayoutGraphData::Layout, g, nodeID);
     auto &layout = ppl.descriptorSets[index.updateFrequency].descriptorSetLayoutData;
-    auto iter = g.attributeIndex.find(std::string_view(name));
+    auto iter = g.attributeIndex.find(std::string_view{name});
     if (iter == g.attributeIndex.end()) {
         auto attrID = gsl::narrow_cast<uint32_t>(g.valueNames.size());
         g.valueNames.emplace_back(name);

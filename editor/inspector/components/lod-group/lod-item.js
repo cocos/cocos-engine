@@ -28,7 +28,7 @@ exports.template = `
                     :ref="screenUsagePercentageRef"
                     :min="minScreenUsagePercentage"
                     :max="maxScreenUsagePercentage"
-                    :value="data.value.screenUsagePercentage.value * 100"
+                    :value="Editor.Utils.Math.multi(data.value.screenUsagePercentage.value, 100)"
                     @confirm="onScreenSizeConfirm($event)">
                 </ui-num-input>
                 <ui-button @confirm="applyCameraSize" tooltip="i18n:ENGINE.components.lod.applyCameraSizeTip">
@@ -100,8 +100,8 @@ exports.watch = {
                 const LODs = obj.value.LODs.value;
                 const min = LODs[that.index + 1] ? LODs[that.index + 1].value.screenUsagePercentage.value : 0;
                 const max = LODs[that.index - 1] ? LODs[that.index - 1].value.screenUsagePercentage.value : null;
-                that.minScreenUsagePercentage = min * 100;
-                that.maxScreenUsagePercentage = max ? max * 100 : null;
+                that.minScreenUsagePercentage = Editor.Utils.Math.multi(min, 100);
+                that.maxScreenUsagePercentage = max ? Editor.Utils.Math.multi(max, 100) : null;
             }
             that.$nextTick(() => {
                 that.data = obj.value.LODs.value[that.index];
@@ -128,7 +128,7 @@ exports.methods = {
         if (!that.enableUpdateScreenUsagePercentage) {
             return;
         }
-        that.data.value.screenUsagePercentage.value = event.target.value / 100;
+        that.data.value.screenUsagePercentage.value = Editor.Utils.Math.divide(event.target.value, 100);
         that.updateDump(that.data.value.screenUsagePercentage);
         trackEventWithTimer('LOD', 'A100009');
     },
@@ -163,8 +163,8 @@ exports.methods = {
         const that = this;
         let size = await Editor.Message.request('scene', 'lod-apply-current-camera-size', that.dump.value.uuid.value);
         if (that.$refs[that.screenUsagePercentageRef]) {
-            const min = that.$refs[that.screenUsagePercentageRef].min / 100 || 0;
-            const max = that.$refs[that.screenUsagePercentageRef].max ? that.$refs[that.screenUsagePercentageRef].max / 100 : null;
+            const min = Editor.Utils.Math.divide(that.$refs[that.screenUsagePercentageRef].min, 100) || 0;
+            const max = that.$refs[that.screenUsagePercentageRef].max ? Editor.Utils.Math.divide(that.$refs[that.screenUsagePercentageRef].max, 100) : null;
             if (size < min) {
                 size = min;
                 console.log(Editor.I18n.t('ENGINE.components.lod.applyCameraSizeLessThanMinimum'));

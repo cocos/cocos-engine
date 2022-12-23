@@ -8,7 +8,7 @@ import { assertsArrayIndex } from '../data/utils/asserts';
  * @param array @en The array to be rotated. @zh 被修改的数组。
  * @param first @en The beginning of the original range. @zh 移动区间的起始坐标。
  * @param last @en The end of the original range. @zh 移动区间的结束坐标。
- * @return @en The input array. @zh 输入的数组。
+ * @returns @en The input array. @zh 输入的数组。
  * @engineInternal
  */
 export function shift<T> (array: T[], first: number, last: number) {

@@ -34,7 +34,7 @@ import { programLib } from '../../render-scene/core/program-lib';
 import { Asset } from './asset';
 import { cclegacy, warnID } from '../../core';
 import { ProgramLibrary } from '../../rendering/custom/private';
-import { getCombinationDefines } from '../../render-scene/core/program-utils';
+import { addEffectDefaultProperties, getCombinationDefines } from '../../render-scene/core/program-utils';
 
 export declare namespace EffectAsset {
     export interface IPropertyInfo {
@@ -302,6 +302,7 @@ export class EffectAsset extends Asset {
      */
     public onLoaded () {
         if (cclegacy.rendering && cclegacy.rendering.enableEffectImport) {
+            addEffectDefaultProperties(this);
             (cclegacy.rendering.programLib as ProgramLibrary).addEffect(this);
         } else {
             programLib.register(this);

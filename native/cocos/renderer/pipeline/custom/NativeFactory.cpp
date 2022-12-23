@@ -23,45 +23,53 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#pragma once
-
-#include "boost/mp11/algorithm.hpp"
-#include "cocos/base/std/variant.h"
-
-#include <type_traits>
-#include <utility>
+#include <sstream>
+#include "BinaryArchive.h"
+#include "LayoutGraphSerialization.h"
+#include "NativePipelineTypes.h"
+#include "RenderInterfaceTypes.h"
+#include "details/GslUtils.h"
+#include "pipeline/custom/LayoutGraphTypes.h"
+#include "pipeline/custom/details/Pmr.h"
 
 namespace cc {
 
-// https://stackoverflow.com/questions/50510122/stdvariant-with-overloaded-lambdas-alternative-with-msvc
+namespace render {
 
-template <class... Ts>
-struct Overloaded {}; // NOLINT
+namespace {
 
-template <class T0>
-struct Overloaded<T0> : T0 {
-    using T0::operator();
-    Overloaded(T0 t0) // NOLINT
-    : T0(std::move(t0)) {}
-};
+NativeRenderingModule* sRenderingModule = nullptr;
 
-template <class T0, class T1, class... Ts>
-struct Overloaded<T0, T1, Ts...> : T0, Overloaded<T1, Ts...> {
-    using T0::operator();
-    using Overloaded<T1, Ts...>::operator();
-    Overloaded(T0 t0, T1 t1, Ts... ts)
-    : T0(std::move(t0)), Overloaded<T1, Ts...>(std::move(t1), std::move(ts)...) {}
-};
+} // namespace
 
-template <class... Ts>
-Overloaded<Ts...> overload(Ts... ts) {
-    return {std::move(ts)...};
+RenderingModule* Factory::init(gfx::Device* deviceIn, const ccstd::vector<unsigned char>& bufferIn) {
+    std::ignore = deviceIn;
+
+    std::shared_ptr<NativeProgramLibrary> ptr(
+        allocatePmrUniquePtr<NativeProgramLibrary>(
+            boost::container::pmr::get_default_resource()));
+    {
+        std::string buffer(bufferIn.begin(), bufferIn.end());
+        std::istringstream iss(buffer, std::ios::binary);
+        BinaryInputArchive ar(iss, boost::container::pmr::get_default_resource());
+        load(ar, ptr->layoutGraph);
+    }
+
+    sRenderingModule = ccnew NativeRenderingModule(std::move(ptr));
+    return sRenderingModule;
 }
 
-template <typename V>
-auto variantFromIndex(size_t index) -> V { // NOLINT
-    return boost::mp11::mp_with_index<boost::mp11::mp_size<V>>(index,
-                                                               [](auto i) { return V(ccstd::in_place_index<i>); });
+void Factory::destroy(RenderingModule* renderingModule) noexcept {
+    auto* ptr = dynamic_cast<NativeRenderingModule*>(renderingModule);
+    if (ptr) {
+        ptr->programLibrary.reset();
+    }
 }
+
+Pipeline* Factory::createPipeline() {
+    return ccnew NativePipeline(boost::container::pmr::get_default_resource());
+}
+
+} // namespace render
 
 } // namespace cc

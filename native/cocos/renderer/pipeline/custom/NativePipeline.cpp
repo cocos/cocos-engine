@@ -30,16 +30,12 @@
 #include <tuple>
 #include <type_traits>
 #include <utility>
-#include "DebugUtils.h"
-#include "GslUtils.h"
 #include "LayoutGraphFwd.h"
 #include "LayoutGraphGraphs.h"
 #include "LayoutGraphNames.h"
 #include "LayoutGraphTypes.h"
 #include "NativePipelineFwd.h"
 #include "NativePipelineTypes.h"
-#include "Pmr.h"
-#include "Range.h"
 #include "RenderCommonTypes.h"
 #include "RenderGraphGraphs.h"
 #include "RenderGraphTypes.h"
@@ -62,6 +58,8 @@
 #include "cocos/renderer/pipeline/RenderPipeline.h"
 #include "cocos/scene/RenderScene.h"
 #include "cocos/scene/RenderWindow.h"
+#include "details/DebugUtils.h"
+#include "details/GslUtils.h"
 
 #if CC_USE_DEBUG_RENDERER
     #include "profiler/DebugRenderer.h"
@@ -343,7 +341,7 @@ LayoutGraphBuilder *NativePipeline::getLayoutGraphBuilder() {
 }
 
 gfx::DescriptorSetLayout *NativePipeline::getDescriptorSetLayout(const ccstd::string &shaderName, UpdateFrequency freq) {
-    auto iter = layoutGraph.shaderLayoutIndex.find(std::string_view(shaderName));
+    auto iter = layoutGraph.shaderLayoutIndex.find(std::string_view{shaderName});
     if (iter != layoutGraph.shaderLayoutIndex.end()) {
         const auto &layouts = get(LayoutGraphData::Layout, layoutGraph, iter->second).descriptorSets;
         auto iter2 = layouts.find(freq);

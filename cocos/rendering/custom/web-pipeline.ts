@@ -52,6 +52,7 @@ import { CustomPipelineBuilder } from './custom-pipeline';
 import { decideProfilerCamera } from '../pipeline-funcs';
 import { DebugViewCompositeType } from '../debug-view';
 import { getUBOTypeCount } from './utils';
+import { initGlobalDescBinding } from './define';
 
 export class WebSetter {
     constructor (data: RenderData, lg: LayoutGraphData) {
@@ -524,6 +525,7 @@ export class WebRasterQueueBuilder extends WebSetter implements RasterQueueBuild
             setShadowUBOView(this, camera);
         }
         setTextureUBOView(this, camera, this._pipeline);
+        initGlobalDescBinding(cclegacy.director.root.pipeline, this._data);
     }
     addScene (sceneName: string, sceneFlags = SceneFlags.NONE): void {
         const sceneData = new SceneData(sceneName, sceneFlags);
@@ -550,6 +552,7 @@ export class WebRasterQueueBuilder extends WebSetter implements RasterQueueBuild
             setShadowUBOView(this, camera);
         }
         setTextureUBOView(this, camera, this._pipeline);
+        initGlobalDescBinding(cclegacy.director.root.pipeline, this._data);
     }
     clearRenderTarget (name: string, color: Color = new Color()) {
         this._renderGraph.addVertex<RenderGraphValue.Clear>(
@@ -856,7 +859,7 @@ export class WebPipeline implements Pipeline {
         return this._combineSignY;
     }
 
-    public globalDescriptorSetData () {
+    get globalDescriptorSetData () {
         return this._globalDescSetData;
     }
 
@@ -1147,6 +1150,7 @@ export class WebPipeline implements Pipeline {
         );
         const result = new WebRasterPassBuilder(data, this._renderGraph!, this._layoutGraph, vertID, pass, this._pipelineSceneData);
         this._updateRasterPassConstants(result, width, height);
+        initGlobalDescBinding(cclegacy.director.root.pipeline, data);
         return result;
     }
     public getDescriptorSetLayout (shaderName: string, freq: UpdateFrequency): DescriptorSetLayout {
@@ -1165,6 +1169,7 @@ export class WebPipeline implements Pipeline {
     get layoutGraph () {
         return this._layoutGraph;
     }
+
     protected _updateRasterPassConstants (setter: WebSetter, width: number, height: number) {
         const director = cclegacy.director;
         const root = director.root;

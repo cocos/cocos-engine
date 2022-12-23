@@ -605,16 +605,24 @@ export class DescriptorBlockData {
 }
 
 export class DescriptorSetLayoutData {
-    constructor (slot = 0xFFFFFFFF, capacity = 0, descriptorBlocks: DescriptorBlockData[] = [], uniformBlocks: Map<number, UniformBlock> = new Map<number, UniformBlock>()) {
+    constructor (
+        slot = 0xFFFFFFFF,
+        capacity = 0,
+        descriptorBlocks: DescriptorBlockData[] = [],
+        uniformBlocks: Map<number, UniformBlock> = new Map<number, UniformBlock>(),
+        bindingMap: Map<number, number> = new Map<number, number>(),
+    ) {
         this.slot = slot;
         this.capacity = capacity;
         this.descriptorBlocks = descriptorBlocks;
         this.uniformBlocks = uniformBlocks;
+        this.bindingMap = bindingMap;
     }
     slot: number;
     capacity: number;
     readonly descriptorBlocks: DescriptorBlockData[];
     readonly uniformBlocks: Map<number, UniformBlock>;
+    readonly bindingMap: Map<number, number>;
 }
 
 export class DescriptorSetData {
@@ -1420,6 +1428,11 @@ export function saveDescriptorSetLayoutData (ar: OutputArchive, v: DescriptorSet
         ar.writeNumber(k1);
         saveUniformBlock(ar, v1);
     }
+    ar.writeNumber(v.bindingMap.size); // Map<number, number>
+    for (const [k1, v1] of v.bindingMap) {
+        ar.writeNumber(k1);
+        ar.writeNumber(v1);
+    }
 }
 
 export function loadDescriptorSetLayoutData (ar: InputArchive, v: DescriptorSetLayoutData) {
@@ -1439,6 +1452,12 @@ export function loadDescriptorSetLayoutData (ar: InputArchive, v: DescriptorSetL
         const v1 = new UniformBlock();
         loadUniformBlock(ar, v1);
         v.uniformBlocks.set(k1, v1);
+    }
+    sz = ar.readNumber(); // Map<number, number>
+    for (let i1 = 0; i1 !== sz; ++i1) {
+        const k1 = ar.readNumber();
+        const v1 = ar.readNumber();
+        v.bindingMap.set(k1, v1);
     }
 }
 

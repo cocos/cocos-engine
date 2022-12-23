@@ -29,38 +29,48 @@
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
  */
 // clang-format off
-#pragma once
-#include "cocos/base/std/variant.h"
-#include "cocos/renderer/pipeline/InstancedBuffer.h"
-#include "cocos/renderer/pipeline/custom/NativeFwd.h"
-#include "cocos/renderer/pipeline/custom/PrivateFwd.h"
-#include "cocos/renderer/pipeline/custom/RenderGraphFwd.h"
+#include "NativeTypes.h"
 
 namespace cc {
 
 namespace render {
 
-class NativeLayoutGraphBuilder;
-class NativeRasterQueueBuilder;
-class NativeRasterPassBuilder;
-class NativeComputeQueueBuilder;
-class NativeComputePassBuilder;
-class NativeMovePassBuilder;
-class NativeCopyPassBuilder;
-class NativeSceneTransversal;
-struct PersistentRenderPassAndFramebuffer;
-struct RenderInstancingQueue;
-struct DrawInstance;
-struct RenderDrawQueue;
-struct NativeRenderQueue;
-class DefaultSceneVisitor;
-class DefaultForwardLightingTransversal;
-struct ResourceGroup;
-struct NativeRenderContext;
-class NativePipeline;
-class NativeProgramProxy;
-class NativeProgramLibrary;
-class NativeRenderingModule;
+ProgramInfo::ProgramInfo(const allocator_type& alloc) noexcept
+: attributes(alloc),
+  blockSizes(alloc) {}
+
+ProgramInfo::ProgramInfo(IProgramInfo programInfoIn, gfx::ShaderInfo shaderInfoIn, ccstd::pmr::vector<gfx::Attribute> attributesIn, ccstd::pmr::vector<unsigned> blockSizesIn, Record<ccstd::string, uint32_t> handleMapIn, const allocator_type& alloc) noexcept
+: programInfo(std::move(programInfoIn)),
+  shaderInfo(std::move(shaderInfoIn)),
+  attributes(std::move(attributesIn), alloc),
+  blockSizes(std::move(blockSizesIn), alloc),
+  handleMap(std::move(handleMapIn)) {}
+
+ProgramInfo::ProgramInfo(ProgramInfo&& rhs, const allocator_type& alloc)
+: programInfo(std::move(rhs.programInfo)),
+  shaderInfo(std::move(rhs.shaderInfo)),
+  attributes(std::move(rhs.attributes), alloc),
+  blockSizes(std::move(rhs.blockSizes), alloc),
+  handleMap(std::move(rhs.handleMap)) {}
+
+ProgramInfo::ProgramInfo(ProgramInfo const& rhs, const allocator_type& alloc)
+: programInfo(rhs.programInfo),
+  shaderInfo(rhs.shaderInfo),
+  attributes(rhs.attributes, alloc),
+  blockSizes(rhs.blockSizes, alloc),
+  handleMap(rhs.handleMap) {}
+
+ProgramGroup::ProgramGroup(const allocator_type& alloc) noexcept
+: programInfos(alloc),
+  programHosts(alloc) {}
+
+ProgramGroup::ProgramGroup(ProgramGroup&& rhs, const allocator_type& alloc)
+: programInfos(std::move(rhs.programInfos), alloc),
+  programHosts(std::move(rhs.programHosts), alloc) {}
+
+ProgramGroup::ProgramGroup(ProgramGroup const& rhs, const allocator_type& alloc)
+: programInfos(rhs.programInfos, alloc),
+  programHosts(rhs.programHosts, alloc) {}
 
 } // namespace render
 

@@ -28,10 +28,10 @@
 #include <boost/graph/properties.hpp>
 #include <boost/iterator/iterator_adaptor.hpp>
 #include <functional>
-#include "base/std/container/vector.h"
-#include "base/std/variant.h"
-#include "renderer/pipeline/custom/GraphTypes.h"
-#include "renderer/pipeline/custom/GslUtils.h"
+#include "cocos/base/std/container/vector.h"
+#include "cocos/base/std/variant.h"
+#include "cocos/renderer/pipeline/custom/details/GraphTypes.h"
+#include "cocos/renderer/pipeline/custom/details/GslUtils.h"
 
 namespace cc {
 

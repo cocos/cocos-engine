@@ -23,16 +23,56 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "NativePipelineTypes.h"
-#include "RenderInterfaceTypes.h"
-#include "boost/container/pmr/global_resource.hpp"
+#pragma once
+#include <boost/container/pmr/global_resource.hpp>
+#include <boost/container/pmr/polymorphic_allocator.hpp>
+#include <boost/container/pmr/unsynchronized_pool_resource.hpp>
+#include <memory>
 
 namespace cc {
 
 namespace render {
 
-Pipeline* Factory::createPipeline() {
-    return ccnew NativePipeline(boost::container::pmr::get_default_resource());
+template <class T>
+struct PmrDeallocator {
+    void operator()(T* ptr) noexcept {
+        mAllocator.deallocate(ptr, 1);
+    }
+    boost::container::pmr::polymorphic_allocator<T> mAllocator;
+};
+
+template <class T, class... Args>
+[[nodiscard]] T*
+newPmr(boost::container::pmr::memory_resource* mr, Args&&... args) {
+    boost::container::pmr::polymorphic_allocator<T> alloc(mr);
+
+    std::unique_ptr<T, PmrDeallocator<T>> ptr{
+        alloc.allocate(1), PmrDeallocator<T>{alloc}};
+
+    // construct, might throw
+    alloc.construct(ptr.get(), std::forward<Args>(args)...);
+
+    return ptr.release();
+}
+
+struct PmrDeleter {
+    template <class T>
+    void operator()(T* ptr) const noexcept {
+        if (ptr) {
+            boost::container::pmr::polymorphic_allocator<T> alloc(ptr->get_allocator());
+            ptr->~T();
+            alloc.deallocate(ptr, 1);
+        }
+    }
+};
+
+template <class T>
+using PmrUniquePtr = std::unique_ptr<T, PmrDeleter>;
+
+template <class T, class... Args>
+PmrUniquePtr<T>
+allocatePmrUniquePtr(const boost::container::pmr::polymorphic_allocator<std::byte>& alloc, Args&&... args) {
+    return PmrUniquePtr<T>(newPmr<T>(alloc.resource(), std::forward<Args>(args)...));
 }
 
 } // namespace render

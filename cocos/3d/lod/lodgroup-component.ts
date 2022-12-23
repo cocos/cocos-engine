@@ -33,7 +33,7 @@ import { scene } from '../../render-scene';
 import { NodeEventType } from '../../scene-graph/node-event';
 
 // Ratio of objects occupying the screen
-const DEFAULT_SCREEN_OCCUPATION: number[] = [0.25, 0.125, 0.0625];
+const DEFAULT_SCREEN_OCCUPATION: number[] = [0.25, 0.125, 0.01];
 
 export type ModelAddedCallback = () => void;
 @ccclass('cc.LOD')
@@ -342,6 +342,9 @@ export class LODGroup extends Component {
                 screenUsagePercentage = (preLod.screenUsagePercentage + nextLod.screenUsagePercentage) / 2;
             } else if (preLod && !nextLod) { // insert at last position
                 screenUsagePercentage = preLod.screenUsagePercentage / 2;
+                if (screenUsagePercentage > 0.01) {
+                    screenUsagePercentage = 0.01;
+                }
             } else if (nextLod && !preLod) {
                 //insert at first position
                 screenUsagePercentage = nextLod.screenUsagePercentage;

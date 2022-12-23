@@ -25,7 +25,7 @@
 
 declare const render: any;
 
-import { Pipeline, PipelineBuilder } from './pipeline';
+import { Pipeline, PipelineBuilder, RenderingModule } from './pipeline';
 import { buildDeferredLayout, buildForwardLayout } from './effect';
 import { macro } from '../../core/platform/macro';
 import { DeferredPipelineBuilder, ForwardPipelineBuilder } from './builtin-pipelines';
@@ -38,6 +38,8 @@ export * from './archive';
 
 export const INVALID_ID = 0xFFFFFFFF;
 export const enableEffectImport = false;
+
+let _renderModule: RenderingModule;
 
 export function createCustomPipeline (): Pipeline {
     const ppl = render.Factory.createPipeline();
@@ -76,19 +78,28 @@ function addCustomBuiltinPipelines (map: Map<string, PipelineBuilder>) {
 addCustomBuiltinPipelines(customPipelineBuilderMap);
 
 export function init (device: Device, arrayBuffer: ArrayBuffer) {
-    // noop
+    _renderModule = render.Factory.init(device, arrayBuffer);
 }
 
 export function destroy () {
-    // noop
+    render.Factory.destroy(_renderModule);
 }
 
 export function getPassID (name: string | undefined): number {
-    return INVALID_ID;
+    if (name === undefined) {
+        return _renderModule.getPassID('default');
+    }
+    return _renderModule.getPassID(name);
 }
 
 export function getPhaseID (passID: number, name: string | number | undefined): number {
-    return INVALID_ID;
+    if (name === undefined) {
+        return _renderModule.getPhaseID(passID, 'default');
+    }
+    if (typeof(name) === 'number') {
+        return _renderModule.getPhaseID(passID, name.toString());
+    }
+    return _renderModule.getPhaseID(passID, name);
 }
 
 export function completePhaseName (name: string | number | undefined): string {
