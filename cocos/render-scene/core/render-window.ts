@@ -36,7 +36,7 @@ export interface IRenderWindowInfo {
     height: number;
     renderPassInfo: RenderPassInfo;
     swapchain?: Swapchain;
-    antiAliasing?: true;
+    antiAliasing?: false;
 }
 
 const orientationMap: Record<Orientation, SurfaceTransform> = {

@@ -72,6 +72,7 @@ export class WebGL2Texture extends Texture {
                 samples: texInfo.samples,
                 flags: texInfo.flags,
                 isPowerOf2: this._isPowerOf2,
+                resolve: { glTexture: null, dirty: false },
 
                 glTarget: 0,
                 glInternalFmt: 0,

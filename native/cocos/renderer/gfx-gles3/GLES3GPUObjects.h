@@ -677,7 +677,7 @@ public:
     }
 
 private:
-    ccstd::hash_t hashFramebuffer(const GLES3GPUFramebuffer const *gpuFrameBuffer) {
+    ccstd::hash_t hashFramebuffer(const GLES3GPUFramebuffer *gpuFrameBuffer) {
         auto *ds = gpuFrameBuffer->gpuDepthStencilView;
         const auto &colors = gpuFrameBuffer->gpuColorViews;
         ccstd::hash_t seed{0};
