@@ -353,6 +353,14 @@ function setFlattenedBinding (setOffsets: number[],
     }
 }
 
+function getIDescriptorSetLayoutInfoCapacity (info: IDescriptorSetLayoutInfo): number {
+    let capacity = 0;
+    for (const binding of info.bindings) {
+        capacity += binding.count;
+    }
+    return capacity;
+}
+
 function calculateFlattenedBinding (
     descriptorSets: (DescriptorSetLayoutData | null)[],
     fixedInstanceDescriptorSetLayout: IDescriptorSetLayoutInfo | null,
@@ -362,7 +370,7 @@ function calculateFlattenedBinding (
     const phaseCapacity = descriptorSets[UpdateFrequency.PER_PHASE]?.capacity || 0;
     // const batchCapacity = descriptorSets[UpdateFrequency.PER_BATCH]?.capacity || 0; // dynamic size
     const instanceCapacity = fixedInstanceDescriptorSetLayout
-        ? fixedInstanceDescriptorSetLayout.bindings.length
+        ? getIDescriptorSetLayoutInfoCapacity(fixedInstanceDescriptorSetLayout)
         : (descriptorSets[UpdateFrequency.PER_INSTANCE]?.capacity || 0);
 
     const passOffset = 0;
