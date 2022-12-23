@@ -387,6 +387,10 @@ export class Sprite extends UIRenderer {
         }
     }
 
+    /**
+     * @en Grayscale mode
+     * @zh 是否以灰度模式渲染
+     */
     @editable
     @displayOrder(5)
     @tooltip('i18n:sprite.gray_scale')
@@ -432,9 +436,25 @@ export class Sprite extends UIRenderer {
         }
     }
 
+    /**
+     * @en Enum for fill type.
+     * @zh 填充类型。
+     */
     public static FillType = FillType;
+    /**
+     * @en Enum for sprite type.
+     * @zh Sprite 类型。
+     */
     public static Type = SpriteType;
+    /**
+     * @en Sprite Size can track trimmed size, raw size or none.
+     * @zh 精灵尺寸调整模式。
+     */
     public static SizeMode = SizeMode;
+    /**
+     * @en Event types for sprite
+     * @zh sprite 的事件类型
+     */
     public static EventType = EventType;
 
     @serializable
@@ -503,8 +523,6 @@ export class Sprite extends UIRenderer {
      *
      * @zh
      * 精灵图集内的精灵替换
-     *
-     * @returns
      */
     public changeSpriteFrameFromAtlas (name: string) {
         if (!this._atlas) {
@@ -515,6 +533,10 @@ export class Sprite extends UIRenderer {
         this.spriteFrame = sprite;
     }
 
+    /**
+     * @internal
+     * @deprecated Since v3.7
+     */
     public changeMaterialForDefine () {
         let texture;
         const lastInstanceMaterialType = this._instanceMaterialType;

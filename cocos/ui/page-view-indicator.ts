@@ -136,6 +136,11 @@ export class PageViewIndicator extends Component {
         this._cellSize = value;
     }
 
+    /**
+     * @en Enum for PageView Indicator direction.
+     * @zh 页面视图指示器的摆放方向
+     * @enum PageViewIndicator.Direction
+     */
     public static Direction = Direction;
 
     /**

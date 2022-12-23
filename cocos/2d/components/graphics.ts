@@ -201,20 +201,6 @@ export class Graphics extends UIRenderer {
         this._color.set(value);
     }
 
-    get srcBlendFactor () {
-        return this._srcBlendFactor;
-    }
-
-    set srcBlendFactor (value) {
-    }
-
-    get dstBlendFactor () {
-        return this._dstBlendFactor;
-    }
-
-    set dstBlendFactor (value) {
-    }
-
     public static LineJoin = LineJoin;
     public static LineCap = LineCap;
     public impl: Impl | null = null;
@@ -241,7 +227,11 @@ export class Graphics extends UIRenderer {
     private _graphicsUseSubMeshes: RenderingSubMesh[] = [];
 
     //nativeObj
-    protected declare _graphicsNativeProxy:NativeUIModelProxy;
+    protected declare _graphicsNativeProxy: NativeUIModelProxy;
+    /**
+     * @internal
+     * @deprecated since v3.7.0
+     */
     get graphicsNativeProxy () {
         return this._graphicsNativeProxy;
     }
@@ -281,7 +271,7 @@ export class Graphics extends UIRenderer {
     public onDestroy () {
         this._sceneGetter = null;
         if (JSB) {
-            this.graphicsNativeProxy.destroy();
+            this._graphicsNativeProxy.destroy();
             this.model = null;
         } else {
             if (this.model) {
@@ -633,6 +623,10 @@ export class Graphics extends UIRenderer {
         }
     }
 
+    /**
+     * @internal
+     * @deprecated since v3.7
+     */
     public activeSubModel (idx: number) {
         if (!this.model) {
             warnID(4500, this.node.name);
@@ -731,6 +725,10 @@ export class Graphics extends UIRenderer {
         }
     }
 
+    /**
+     * @internal
+     * @deprecated since v3.7
+     */
     public updateRenderer () {
         super.updateRenderer();
         if (JSB) {

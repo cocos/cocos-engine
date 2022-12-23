@@ -397,6 +397,10 @@ export class ScrollView extends ViewGroup {
     @tooltip('i18n:scrollview.scrollEvents')
     public scrollEvents: ComponentEventHandler[] = [];
 
+    /**
+     * @en The display view in the scroll view component
+     * @zh scroll view 组件中的显示区域
+     */
     get view () {
         const parent = this._content && this._content.parent;
         if (!parent) {

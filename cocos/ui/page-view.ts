@@ -219,8 +219,20 @@ export class PageView extends ScrollView {
         return this._curPageIdx;
     }
 
+    /**
+     * @en Enum for Page View Size Mode.
+     * @zh 页面视图每个页面统一的大小类型
+     */
     public static SizeMode = SizeMode;
+    /**
+     * @en Enum for Page View Direction.
+     * @zh 页面视图滚动类型
+     */
     public static Direction = Direction;
+    /**
+     * @en Enum for Page View event.
+     * @zh 页面视图事件枚举
+     */
     public static EventType = extendsEnum(EventType, ScrollEventType);
 
     /**
@@ -238,6 +250,12 @@ export class PageView extends ScrollView {
     @tooltip('i18n:pageview.autoPageTurningThreshold')
     public autoPageTurningThreshold = 100;
 
+    /**
+     * @en
+     * The vertical scrollbar reference.
+     * @zh
+     * 垂直滚动的 ScrollBar。
+     */
     @type(ScrollBar)
     @override
     @visible(false)
@@ -249,6 +267,12 @@ export class PageView extends ScrollView {
         super.verticalScrollBar = value;
     }
 
+    /**
+     * @en
+     * The horizontal scrollbar reference.
+     * @zh
+     * 水平滚动的 ScrollBar。
+     */
     @type(ScrollBar)
     @override
     @visible(false)
@@ -260,21 +284,47 @@ export class PageView extends ScrollView {
         super.horizontalScrollBar = value;
     }
 
+    /**
+     * @en
+     * Enable horizontal scroll.
+     * @zh
+     * 是否开启水平滚动。
+     */
     @override
     @serializable
     @visible(false)
     public horizontal = true;
 
+    /**
+     * @en
+     * Enable vertical scroll.
+     * @zh
+     * 是否开启垂直滚动。
+     */
     @override
     @serializable
     @visible(false)
     public vertical = true;
 
+    /**
+     * @en
+     * If cancelInnerEvents is set to true, the scroll behavior will cancel touch events on inner content nodes
+     * It's set to true by default.
+     * @zh
+     * 如果这个属性被设置为 true，那么滚动行为会取消子节点上注册的触摸事件，默认被设置为 true。<br/>
+     * 注意，子节点上的 touchstart 事件仍然会触发，触点移动距离非常短的情况下 touchmove 和 touchend 也不会受影响。
+     */
     @override
     @serializable
     @visible(false)
     public cancelInnerEvents = true;
 
+    /**
+     * @en
+     * ScrollView events callback.
+     * @zh
+     * 滚动视图的事件回调函数。
+     */
     @type([ComponentEventHandler])
     @serializable
     @override

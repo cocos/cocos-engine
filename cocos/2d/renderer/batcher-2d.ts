@@ -54,6 +54,8 @@ const _dsInfo = new DescriptorSetInfo(null!);
 const m4_1 = new Mat4();
 
 /**
+ * @en
+ * UI render flow
  * @zh
  * UI 渲染流程
  */
@@ -120,12 +122,12 @@ export class Batcher2D implements IBatcher {
     // DescriptorSet Cache Map
     private _descriptorSetCache = new DescriptorSetCache();
 
-    private _meshDataArray :MeshRenderData[] = [];
+    private _meshDataArray: MeshRenderData[] = [];
 
     // mask use
-    private _maskClearModel :Model | null = null;
-    private _maskClearMtl :Material | null = null;
-    private _maskModelMesh :RenderingSubMesh | null = null;
+    private _maskClearModel: Model | null = null;
+    private _maskClearMtl: Material | null = null;
+    private _maskModelMesh: RenderingSubMesh | null = null;
 
     constructor (private _root: Root) {
         this.device = _root.device;
@@ -929,7 +931,7 @@ export class Batcher2D implements IBatcher {
     //sync mesh buffer to naive
     public syncMeshBuffersToNative (accId: number, buffers: MeshBuffer[]) {
         if (JSB) {
-            const nativeBuffers:NativeUIMeshBuffer[] = [];
+            const nativeBuffers: NativeUIMeshBuffer[] = [];
             buffers.forEach((x) => {
                 nativeBuffers.push(x.nativeObj);
             });

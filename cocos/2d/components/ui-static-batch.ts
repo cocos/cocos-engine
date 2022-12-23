@@ -45,6 +45,9 @@ import { director } from '../../game';
  * 该组件放在所有需要被静态合批的节点对象的根节点上，子节点放置对象必须是精灵和文本，其余对象不参与静态合批。
  * 用户必须通过手动方式启用收集静态合批数据[[markAsDirty]]，否则合批方式仍然采用动态合批（采集数据的流程相同）。此后渲染的内容是采用收集到的合批渲染数据，子节点的任何修改将不再有效。
  * 注意：子节点下不要放置 Mask，Graphics，以及 UI 模型或者粒子之类对象，否则会在启用完静态合批后跳过渲染。
+ *
+ * @internal
+ * @deprecated Since v3.4.1
  */
 @ccclass('cc.UIStaticBatch')
 @help('i18n:cc.UIStaticBatch')

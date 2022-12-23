@@ -28,7 +28,11 @@ import { Material } from '../../asset/assets';
 import { UIRenderer } from '../framework/ui-renderer';
 import { UIMeshRenderer } from '../components/ui-mesh-renderer';
 
-// Stage types
+/**
+ * @en Stencil stage types enum
+ * @zh 模板状态类型枚举
+ * @deprecated since v3.7
+ */
 export enum Stage {
     // Stencil disabled
     DISABLED = 0,
@@ -46,6 +50,11 @@ export enum Stage {
     ENTER_LEVEL_INVERTED = 6,
 }
 
+/**
+ * @en Native stencil buffer format enum
+ * @zh 原生模板缓冲格式枚举
+ * @deprecated since v3.7
+ */
 export enum StencilSharedBufferView {
     stencilTest,
     func,
@@ -58,6 +67,11 @@ export enum StencilSharedBufferView {
     count,
 }
 
+/**
+ * @en Stencil state manager，user use may cause state misalignment
+ * @zh 模板状态管理器，用户使用可能会造成状态错乱
+ * @deprecated since v3.7
+ */
 export class StencilManager {
     public static sharedManager: StencilManager | null = null;
     private _maskStack: any[] = [];
@@ -72,31 +86,61 @@ export class StencilManager {
         ref: 1,
     };
 
-    private _stage:Stage = Stage.DISABLED;
+    private _stage: Stage = Stage.DISABLED;
+    /**
+     * @en Stencil stage
+     * @zh 模板缓冲阶段
+     * @deprecated since v3.7
+     */
     get stage () {
         return this._stage;
     }
-    set stage (val:Stage) {
+    set stage (val: Stage) {
         this._stage = val;
     }
 
+    /**
+     * @en Stencil pattern
+     * @zh 模板缓冲样式
+     * @deprecated since v3.7
+     */
     get pattern () {
         return this._stencilPattern;
     }
 
+    /**
+     * @en Add mask nesting
+     * @zh 添加mask嵌套
+     * @deprecated since v3.7
+     */
     public pushMask (mask: any) {
         this._maskStack.push(mask);
     }
 
+    /**
+     * @en clear stencil stage
+     * @zh 清空模板状态
+     * @deprecated since v3.7
+     */
     public clear (comp: UIRenderer | UIMeshRenderer) {
         const isInverted = (comp.stencilStage !== Stage.ENTER_LEVEL);
         return isInverted ? Stage.CLEAR_INVERTED : Stage.CLEAR;
     }
 
+    /**
+     * @en Open stencil stage to enabled
+     * @zh 开启模板状态
+     * @deprecated since v3.7
+     */
     public enableMask () {
         this.stage = Stage.ENABLED;
     }
 
+    /**
+     * @en exit stencil
+     * @zh 退出模板状态
+     * @deprecated since v3.7
+     */
     public exitMask () {
         if (this._maskStack.length === 0) {
             // cc.errorID(9001);
@@ -110,15 +154,25 @@ export class StencilManager {
         }
     }
 
+    /**
+     * @en Get write mask count
+     * @zh 获取写入模板缓冲的位数
+     * @deprecated since v3.7
+     */
     public getWriteMask () {
         return 1 << (this._maskStack.length - 1);
     }
 
+    /**
+     * @en Get write mask count when exit
+     * @zh 获取退出时模板缓冲的位数
+     * @deprecated since v3.7
+     */
     public getExitWriteMask () {
         return 1 << this._maskStack.length;
     }
 
-    public getStencilRef () {
+    private getStencilRef () {
         let result = 0;
         for (let i = 0; i < this._maskStack.length; ++i) {
             result += (0x00000001 << i);
@@ -126,10 +180,20 @@ export class StencilManager {
         return result;
     }
 
+    /**
+     * @en Get mask nesting count
+     * @zh 获取mask嵌套数量
+     * @deprecated since v3.7
+     */
     public getMaskStackSize () {
         return this._maskStack.length;
     }
 
+    /**
+     * @en Reset stencil stage
+     * @zh 重置模板状态
+     * @deprecated since v3.7
+     */
     public reset () {
         // reset stack and stage
         this._maskStack.length = 0;
@@ -146,6 +210,11 @@ export class StencilManager {
     private stencilStateMap = new Map<number, DepthStencilState>();
     private stencilStateMapWithDepth = new Map<number, DepthStencilState>();
 
+    /**
+     * @en Get stencil stage
+     * @zh 获取模板状态
+     * @deprecated since v3.7
+     */
     public getStencilStage (stage: Stage, mat?: Material) {
         let key = 0;
         let depthTest = false;
@@ -196,6 +265,11 @@ export class StencilManager {
         return depthStencilState;
     }
 
+    /**
+     * @en Get stencil hash
+     * @zh 获取模板状态的哈希值
+     * @deprecated since v3.7
+     */
     public getStencilHash (stage: Stage) {
         return (stage << 8) | this._maskStack.length;
     }

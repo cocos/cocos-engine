@@ -24,11 +24,11 @@
  */
 
 import {
-    CanvasPool,
+    CanvasPool, // Todo: Remove
     graphicsAssembler,
     labelAssembler,
     spriteAssembler,
-    earcut,
+    earcut, // Todo: Remove
 } from './assembler';
 import { RenderData, MeshRenderData } from './renderer/render-data';
 import { MeshBuffer } from './renderer/mesh-buffer';
@@ -47,20 +47,20 @@ export * from './renderer/deprecated';
 export * from './utils';
 
 export {
-    MeshBuffer,
+    MeshBuffer, // Todo: Remove
     StencilManager,
-    CanvasPool,
-    spriteAssembler,
-    labelAssembler,
-    graphicsAssembler,
-    earcut,
+    CanvasPool, // Todo: Remove
+    spriteAssembler, // use less
+    labelAssembler, // use less
+    graphicsAssembler, // use less
+    earcut, // Todo: Remove
 };
 
 cclegacy.UI = {
-    MeshBuffer,
-    spriteAssembler,
-    graphicsAssembler,
-    labelAssembler,
+    MeshBuffer, // use less
+    spriteAssembler, // use less
+    graphicsAssembler, // use less
+    labelAssembler, // use less
     RenderData,
     MeshRenderData,
 };

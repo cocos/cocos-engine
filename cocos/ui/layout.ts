@@ -609,11 +609,35 @@ export class Layout extends Component {
         this._doLayoutDirty();
     }
 
+    /**
+     * @en Layout type.
+     * @zh 布局类型。
+     */
     public static Type = Type;
+    /**
+     * @en Vertical layout direction.
+     * @zh 垂直方向布局方式。
+     */
     public static VerticalDirection = VerticalDirection;
+    /**
+     * @en Horizontal layout direction.
+     * @zh 水平方向布局方式。
+     */
     public static HorizontalDirection = HorizontalDirection;
+    /**
+     * @en Layout Resize Mode.
+     * @zh 缩放模式。
+     */
     public static ResizeMode = ResizeMode;
+    /**
+     * @en Grid Layout start axis direction.
+     * @zh 布局轴向，只用于 GRID 布局。
+     */
     public static AxisDirection = AxisDirection;
+    /**
+     * @en Layout constraint.
+     * @zh 布局约束。
+     */
     public static Constraint = Constraint;
 
     @serializable

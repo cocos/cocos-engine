@@ -118,16 +118,19 @@ export class UIRenderer extends Renderer {
      * @en The blend factor enums
      * @zh 混合模式枚举类型
      * @see [[gfx.BlendFactor]]
+     * @internal
      */
     public static BlendState = BlendFactor;
     /**
      * @en The render data assembler
      * @zh 渲染数据组装器
+     * @internal
      */
     public static Assembler: IAssemblerManager = null!;
     /**
      * @en The post render data assembler
      * @zh 后置渲染数据组装器
+     * @internal
      */
     public static PostAssembler: IAssemblerManager | null = null;
 
@@ -199,6 +202,7 @@ export class UIRenderer extends Renderer {
     protected _renderData: RenderData | null = null;
     /**
      * @internal
+     * @deprecated Since v3.7
      */
     get renderData () {
         return this._renderData;
@@ -206,6 +210,7 @@ export class UIRenderer extends Renderer {
 
     /**
      * @internal
+     * @deprecated Since v3.7
      */
     get useVertexOpacity () {
         return this._useVertexOpacity;
@@ -213,6 +218,7 @@ export class UIRenderer extends Renderer {
 
     /**
      * @internal
+     * @deprecated Since v3.7
      * @en The component stencil stage (please do not any modification directly on this object)
      * @zh 组件模板缓冲状态 (注意：请不要直接修改它的值)
      */
@@ -254,17 +260,27 @@ export class UIRenderer extends Renderer {
 
     /**
      * @internal
+     * @deprecated Since v3.7
      */
     public _dirtyVersion = -1;
     /**
      * @internal
+     * @deprecated Since v3.7
      */
     public _internalId = -1;
 
+    /**
+     * @internal
+     * @deprecated Since v3.7
+     */
     get batcher () {
         return director.root!.batcher2D;
     }
 
+    /**
+     * @internal
+     * @deprecated Since v3.7
+     */
     get renderEntity () {
         if (DEBUG) {
             assert(this._renderEntity, 'this._renderEntity should not be invalid');
@@ -371,7 +387,10 @@ export class UIRenderer extends Renderer {
         this._renderData = null;
     }
 
-    // test code: to replace prev part updateAssembler
+    /**
+     * @internal
+     * @deprecated Since v3.7
+     */
     public updateRenderer () {
         if (this._assembler) {
             this._assembler.updateRenderData(this);
@@ -380,7 +399,10 @@ export class UIRenderer extends Renderer {
         this._renderEntity.enabled = this._renderFlag;
     }
 
-    // test code: to replace after part updateAssembler
+    /**
+     * @internal
+     * @deprecated Since v3.7
+     */
     public fillBuffers (render: IBatcher) {
         if (this._renderFlag) {
             this._render(render);
@@ -445,6 +467,10 @@ export class UIRenderer extends Renderer {
         }
     }
 
+    /**
+     * @internal
+     * @deprecated Since v3.7
+     */
     // for common
     public static setEntityColorDirtyRecursively (node: Node, dirty: boolean) {
         const render = node._uiProps.uiComp as UIRenderer;
@@ -462,18 +488,30 @@ export class UIRenderer extends Renderer {
         }
     }
 
+    /**
+     * @internal
+     * @deprecated Since v3.7
+     */
     public setEntityColor (color: Color) {
         if (JSB) {
             this._renderEntity.color = color;
         }
     }
 
+    /**
+     * @internal
+     * @deprecated Since v3.7
+     */
     public setEntityOpacity (opacity: number) {
         if (JSB) {
             this._renderEntity.localOpacity = opacity;
         }
     }
 
+    /**
+     * @internal
+     * @deprecated Since v3.7
+     */
     public setEntityEnabled (enabled: boolean) {
         if (JSB) {
             this._renderEntity.enabled = enabled;
@@ -481,6 +519,7 @@ export class UIRenderer extends Renderer {
     }
 
     /**
+     * @internal
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _updateBlendFunc () {
@@ -555,12 +594,20 @@ export class UIRenderer extends Renderer {
 
     protected _flushAssembler?(): void;
 
+    /**
+     * @internal
+     * @deprecated Since v3.7
+     */
     public setNodeDirty () {
         if (this.renderData) {
             this.renderData.nodeDirty = true;
         }
     }
 
+    /**
+     * @internal
+     * @deprecated Since v3.7
+     */
     public setTextureDirty () {
         if (this.renderData) {
             this.renderData.textureDirty = true;

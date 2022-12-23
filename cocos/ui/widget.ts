@@ -1014,6 +1014,9 @@ export class Widget extends Component {
     }
 }
 
+/**
+ * @deprecated since v3.7
+ */
 export declare namespace Widget {
     export type AlignMode = EnumAlias<typeof AlignMode>;
 }

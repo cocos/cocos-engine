@@ -249,6 +249,10 @@ export class DynamicAtlasManager extends System {
     }
 }
 
+/**
+ * @en Dynamic Atlas Manager，use to auto merge atlas
+ * @zh 动态合图管理器，用于引擎的自动合图功能
+ */
 export const dynamicAtlasManager: DynamicAtlasManager = DynamicAtlasManager.instance = new DynamicAtlasManager();
 
 director.registerSystem('dynamicAtlasManager', dynamicAtlasManager, 0);

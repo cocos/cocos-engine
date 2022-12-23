@@ -303,10 +303,29 @@ export class EditBox extends Component {
         }
     }
 
+    /**
+     * @deprecated since v3.7
+     */
     public static _EditBoxImpl = EditBoxImplBase;
+    /**
+     * @en Keyboard Return Type
+     * @zh 键盘的返回键类型
+     */
     public static KeyboardReturnType = KeyboardReturnType;
+    /**
+     * @en Defines some flag bits for setting text display and text formatting
+     * @zh 定义了一些用于设置文本显示和文本格式化的标志位
+     */
     public static InputFlag = InputFlag;
+    /**
+     * @en Input Mode
+     * @zh 输入模式
+     */
     public static InputMode = InputMode;
+    /**
+     * @en Keyboard event enumeration
+     * @zh 键盘的事件枚举
+     */
     public static EventType = EventType;
     /**
      * @en
@@ -788,46 +807,6 @@ export class EditBox extends Component {
 if (typeof window === 'object' && typeof document === 'object' && !MINIGAME && !JSB && !RUNTIME_BASED) {
     EditBox._EditBoxImpl = EditBoxImpl;
 }
-
-/**
- * @en
- * Note: This event is emitted from the node to which the component belongs.
- * @zh
- * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
- * @event editing-did-began
- * @param {Event.EventCustom} event
- * @param {EditBox} editbox - The EditBox component.
- */
-
-/**
- * @en
- * Note: This event is emitted from the node to which the component belongs.
- * @zh
- * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
- * @event editing-did-ended
- * @param {Event.EventCustom} event
- * @param {EditBox} editbox - The EditBox component.
- */
-
-/**
- * @en
- * Note: This event is emitted from the node to which the component belongs.
- * @zh
- * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
- * @event text-changed
- * @param {Event.EventCustom} event
- * @param {EditBox} editbox - The EditBox component.
- */
-
-/**
- * @en
- * Note: This event is emitted from the node to which the component belongs.
- * @zh
- * 注意：此事件是从该组件所属的 Node 上面派发出来的，需要用 node.on 来监听。
- * @event editing-return
- * @param {Event.EventCustom} event
- * @param {EditBox} editbox - The EditBox component.
- */
 
 /**
  * @en if you don't need the EditBox and it isn't in any running Scene, you should

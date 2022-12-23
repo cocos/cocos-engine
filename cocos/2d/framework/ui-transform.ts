@@ -63,7 +63,6 @@ export class UITransform extends Component {
      */
     @displayOrder(0)
     @tooltip('i18n:ui_transform.content_size')
-    // @constget
     get contentSize (): Readonly<Size> {
         return this._contentSize;
     }
@@ -88,6 +87,12 @@ export class UITransform extends Component {
         this._markRenderDataDirty();
     }
 
+    /**
+     * @en
+     * component width
+     * @zh
+     * 组件宽度
+     */
     get width () {
         return this._contentSize.width;
     }
@@ -112,6 +117,12 @@ export class UITransform extends Component {
         this._markRenderDataDirty();
     }
 
+    /**
+     * @en
+     * component height
+     * @zh
+     * 组件高度
+     */
     get height () {
         return this._contentSize.height;
     }
@@ -160,6 +171,13 @@ export class UITransform extends Component {
         this._markRenderDataDirty();
     }
 
+    /**
+     * @en
+     * The x-axis anchor of the node.
+     *
+     * @zh
+     * 锚点位置的 X 坐标
+     */
     get anchorX () {
         return this._anchorPoint.x;
     }
@@ -174,6 +192,13 @@ export class UITransform extends Component {
         this._markRenderDataDirty();
     }
 
+    /**
+     * @en
+     * The y-axis anchor of the node.
+     *
+     * @zh
+     * 锚点位置的 Y 坐标
+     */
     get anchorY () {
         return this._anchorPoint.y;
     }
@@ -195,7 +220,7 @@ export class UITransform extends Component {
      *
      * @zh
      * 渲染先后顺序，按照广度渲染排列，按同级节点下进行一次排列。
-     * @deprecated
+     * @deprecated Since v3.1
      */
     get priority () {
         return this._priority;
@@ -742,6 +767,11 @@ export class UITransform extends Component {
         }
     }
 
+    /**
+     * @internal
+     * @deprecated Since v3.7
+     * @engineInternal
+     */
     public static _sortSiblings () {
         UITransform.priorityChangeNodeMap.forEach((node, ID) => {
             UITransform._sortChildrenSibling(node);
@@ -751,6 +781,11 @@ export class UITransform extends Component {
         UITransform.priorityChangeNodeMap.clear();
     }
 
+    /**
+     * @internal
+     * @deprecated Since v3.7
+     * @engineInternal
+     */
     public static _cleanChangeMap () {
         UITransform.priorityChangeNodeMap.clear();
     }

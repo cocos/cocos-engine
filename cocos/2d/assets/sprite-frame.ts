@@ -50,6 +50,10 @@ enum MeshType {
     POLYGON = 1, // Todo: Polygon mode need add
 }
 
+/**
+ * @internal
+ * @deprecated since v3.7
+ */
 export interface IUV {
     u: number;
     v: number;
@@ -462,6 +466,10 @@ export class SpriteFrame extends Asset {
         return this._texture.height;
     }
 
+    /**
+     * @internal
+     * @deprecated since v3.7
+     */
     set _textureSource (value: TextureBase) {
         // Optimization for build
         if (globalThis.Build) {
@@ -500,6 +508,10 @@ export class SpriteFrame extends Asset {
         this._calculateUV();
     }
 
+    /**
+     * @en Sets whether sprite can be packed into dynamic atlas.
+     * @zh 设置精灵是否允许参与自动合图。
+     */
     get packable () {
         return this._packable;
     }
@@ -507,6 +519,10 @@ export class SpriteFrame extends Asset {
         this._packable = value;
     }
 
+    /**
+     * @en Original info before packed to dynamic atlas,includes texture and width and height.Before packed to dynamic atlas is null.
+     * @zh 精灵自动合图之前的原始 texture 和宽高信息。在参与自动合图之前此值为 null。
+     */
     get original () {
         return this._original;
     }
@@ -537,6 +553,7 @@ export class SpriteFrame extends Asset {
 
     /**
      * @internal
+     * @deprecated since v3.7
      */
     get trimmedBorder () {
         return this._trimmedBorder;
@@ -554,6 +571,10 @@ export class SpriteFrame extends Asset {
      */
     public uv: number[] = [];
 
+    /**
+     * @internal
+     * @deprecated since v3.7
+     */
     public unbiasUV: number[] = [];
 
     /**
@@ -631,6 +652,7 @@ export class SpriteFrame extends Asset {
      * @zh
      * 返回是否已加载精灵帧。
      *
+     * @internal
      * @deprecated since v3.3
      */
     public textureLoaded () {
@@ -642,6 +664,7 @@ export class SpriteFrame extends Asset {
      * Returns whether the sprite frame is rotated in the texture.
      * @zh
      * 获取 SpriteFrame 是否旋转。
+     * @internal
      * @deprecated since v1.2, please use [[rotated]] instead
      */
     public isRotated () {
@@ -654,6 +677,7 @@ export class SpriteFrame extends Asset {
      * @zh
      * 设置 SpriteFrame 是否旋转。
      * @param value
+     * @internal
      * @deprecated since v1.2, please use [[rotated]] instead
      */
     public setRotated (rotated: boolean) {
@@ -665,6 +689,7 @@ export class SpriteFrame extends Asset {
      * If it's an atlas texture, a transparent pixel area is proposed for the actual mapping of the current texture.
      * @zh 获取 SpriteFrame 的纹理矩形区域。
      * 如果是一个 atlas 的贴图，则为当前贴图的实际剔除透明像素区域。
+     * @internal
      * @deprecated since v1.2, please use [[rect]]
      */
     public getRect (out?: Rect) {
@@ -679,6 +704,7 @@ export class SpriteFrame extends Asset {
     /**
      * @en Sets the rect of the sprite frame in the texture.
      * @zh 设置 SpriteFrame 的纹理矩形区域。
+     * @internal
      * @deprecated since v1.2, please use [[rect]]
      */
     public setRect (rect: Rect) {
@@ -688,6 +714,7 @@ export class SpriteFrame extends Asset {
     /**
      * @en Returns the original size before trimmed.
      * @zh 获取修剪前的原始大小。
+     * @internal
      * @deprecated since v1.2, please use [[originalSize]]
      */
     public getOriginalSize (out?: Size) {
@@ -703,6 +730,7 @@ export class SpriteFrame extends Asset {
      * @en Sets the original size before trimmed.
      * @zh 设置修剪前的原始大小。
      * @param size The new original size
+     * @internal
      * @deprecated since v1.2, please use [[originalSize]]
      */
     public setOriginalSize (size: Size) {
@@ -713,6 +741,7 @@ export class SpriteFrame extends Asset {
      * @en Returns the offset of the frame
      * @zh 获取偏移量。
      * @param out The output offset object
+     * @internal
      * @deprecated since v1.2, please use [[offset]]
      */
     public getOffset (out?: Vec2) {
@@ -728,6 +757,7 @@ export class SpriteFrame extends Asset {
      * @en Sets the offset of the frame
      * @zh 设置偏移量。
      * @param offset The new offset
+     * @internal
      * @deprecated since v1.2, please use [[offset]]
      */
     public setOffset (offset: Vec2) {
@@ -770,6 +800,7 @@ export class SpriteFrame extends Asset {
      * @en Resets the sprite frame data
      * @zh 重置 SpriteFrame 数据。
      * @param info SpriteFrame initialization information
+     * @param clearData clear Data before initialization
      */
     public reset (info?: ISpriteFrameInitInfo, clearData = false) {
         let calUV = false;
@@ -839,7 +870,7 @@ export class SpriteFrame extends Asset {
     /**
      * @en Check whether the rect of the sprite frame is out of the texture boundary
      * @zh 判断精灵计算的矩形区域是否越界。
-     * @param texture
+     * @param texture Texture resources for sprite frame
      */
     public checkRect (texture: TextureBase) {
         const rect = this._rect;
@@ -903,6 +934,7 @@ export class SpriteFrame extends Asset {
 
     /**
      * Calculate UV for sliced
+     * @internal
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _calculateSlicedUV () {
@@ -969,6 +1001,7 @@ export class SpriteFrame extends Asset {
 
     /**
      * Calculate UV
+     * @internal
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _calculateUV () {
@@ -1193,6 +1226,7 @@ export class SpriteFrame extends Asset {
     }
 
     /**
+     * @internal
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _setDynamicAtlasFrame (frame) {
@@ -1211,6 +1245,7 @@ export class SpriteFrame extends Asset {
     }
 
     /**
+     * @internal
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _resetDynamicAtlasFrame () {
@@ -1223,6 +1258,7 @@ export class SpriteFrame extends Asset {
     }
 
     /**
+     * @internal
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _checkPackable () {
@@ -1375,6 +1411,10 @@ export class SpriteFrame extends Asset {
         }
     }
 
+    /**
+     * @en clone a sprite frame
+     * @zh 克隆当前 sprite frame
+     */
     public clone (): SpriteFrame {
         const sp = new SpriteFrame();
         const v = this.vertices;
@@ -1434,10 +1474,19 @@ export class SpriteFrame extends Asset {
         }
     }
 
+    /**
+     * @en complete loading callback
+     * @zh 加载完成回调
+     */
     public onLoaded () {
         this._calcTrimmedBorder();
     }
 
+    /**
+     * @en default init
+     * @zh 默认初始化
+     * @param uuid @en asset uuid @zh 资源 uuid
+     */
     public initDefault (uuid?: string) {
         super.initDefault(uuid);
         const texture = new Texture2D();
@@ -1446,6 +1495,10 @@ export class SpriteFrame extends Asset {
         this._calculateUV();
     }
 
+    /**
+     * @en Check whether the skeleton is validate
+     * @zh 检查当前 sprite frame 对象是否是有效的
+     */
     public validate () {
         return this._texture && this._rect && this._rect.width !== 0 && this._rect.height !== 0;
     }

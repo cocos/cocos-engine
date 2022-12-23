@@ -262,6 +262,11 @@ function updateAlignment (node: Node) {
     }
 }
 
+/**
+ * @en widget Manager， use to align widget
+ * @zh widget 管理器，用于对齐操作
+ * @deprecated Since v3.7
+ */
 export const widgetManager = cclegacy._widgetManager = {
     isAligning: false,
     _nodesOrderDirty: false,

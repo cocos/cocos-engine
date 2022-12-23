@@ -145,6 +145,10 @@ export class ToggleContainer extends Component {
         }
     }
 
+    /**
+     * @en Ensure toggles state valid
+     * @zh 确保 toggles 状态有效
+     */
     public ensureValidState () {
         const toggles = this.toggleItems;
         if (!this._allowSwitchOff && !this.anyTogglesChecked() && toggles.length !== 0) {

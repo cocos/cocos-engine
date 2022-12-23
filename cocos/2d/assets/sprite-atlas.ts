@@ -47,13 +47,17 @@ interface ISpriteFrameList {
  */
 @ccclass('cc.SpriteAtlas')
 export class SpriteAtlas extends Asset {
+    /**
+     * @en All sprite frames in the sprite atlas
+     * @zh 精灵图集中的所有精灵。
+     */
     @serializable
     @editable
     public spriteFrames: ISpriteFrameList = js.createMap();
 
     /**
      * @en Get the [[Texture2D]] asset of the atlas.
-     * @zh 获取精灵图集的贴图。请注意，由于结构调整优化，在 v1.1 版本之前，此函数的返回值为 imageAsset，在 v1.1 版本之后修正为 texture，想要获取 imageAsset 可使用 getTexture().image 获取
+     * @zh 获取精灵图集的贴图。
      * @returns The texture2d asset
      */
     public getTexture () {
@@ -101,6 +105,7 @@ export class SpriteAtlas extends Asset {
     }
 
     /**
+     * @internal
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _serialize (ctxForExporting: any): any {
@@ -124,6 +129,7 @@ export class SpriteAtlas extends Asset {
     }
 
     /**
+     * @internal
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _deserialize (serializeData: any, handle: any) {

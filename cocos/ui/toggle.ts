@@ -92,6 +92,9 @@ export class Toggle extends Button {
         this._checkMark = value;
     }
 
+    /**
+     * @deprecated since v3.7
+     */
     set _resizeToTarget (value: boolean) {
         if (value) {
             this._resizeNodeToTargetNode();
@@ -109,6 +112,10 @@ export class Toggle extends Button {
         return null;
     }
 
+    /**
+     * @en Enum for toggle event.
+     * @zh toggle 事件枚举
+     */
     public static EventType = extendsEnum(EventType, ButtonEventType);
 
     /**
@@ -150,7 +157,9 @@ export class Toggle extends Button {
         }
     }
 
-    //
+    /**
+     * @deprecated since v3.7
+     */
     public playEffect () {
         if (this._checkMark) {
             this._checkMark.node.active = this._isChecked;
