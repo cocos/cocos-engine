@@ -142,8 +142,7 @@ CCProgram standard-vs %{
       #if USE_INSTANCING
         v_shadowBiasAndProbeId.zw = a_localShadowBiasAndProbeId.zw;
       #else
-        v_shadowBiasAndProbeId.z = 0.0;
-        v_shadowBiasAndProbeId.w = cc_localShadowBias.w;
+        v_shadowBiasAndProbeId.zw = vec2(0.0);
       #endif
     #endif
 
@@ -267,11 +266,6 @@ CCProgram standard-fs %{
     #endif
     #if CC_USE_REFLECTION_PROBE
       s.reflectionProbeId = v_shadowBiasAndProbeId.z;
-    #endif
-    #if CC_RECEIVE_SHADOW || CC_USE_REFLECTION_PROBE
-      s.visibilityForDirLight = v_shadowBiasAndProbeId.w;
-    #else
-      s.visibilityForDirLight = 1.0;
     #endif
 
 

@@ -52,12 +52,6 @@ void CCSurfacesGetFragmentInput(out SurfacesStandardFragmentInput fsInput)
   #define FSInput_reflectionProbeId v_shadowBiasAndProbeId.z
 #endif
 
-#if CC_RECEIVE_SHADOW || CC_USE_REFLECTION_PROBE
-  #define FSInput_visibilityForDirLight v_shadowBiasAndProbeId.w
-#else
-  #define FSInput_visibilityForDirLight 1.0
-#endif
-
 #if CC_USE_FOG != CC_FOG_NONE && !CC_USE_ACCURATE_FOG
   #define FSInput_fogFactor v_fogFactor
 #endif

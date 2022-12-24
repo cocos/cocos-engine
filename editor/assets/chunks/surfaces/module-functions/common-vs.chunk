@@ -46,7 +46,6 @@ void CCSurfacesVertexOutput(in SurfacesStandardVertexIntermediate In)
 
 #if CC_RECEIVE_SHADOW
   VSOutput_shadowBias = In.shadowBiasAndProbeId.xy;
-  VSOutput_visibilityForDirLight = In.shadowBiasAndProbeId.w;
 #endif
 
 #if CC_USE_REFLECTION_PROBE
@@ -132,10 +131,8 @@ void CCSurfacesVertexTransferShadow(inout SurfacesStandardVertexIntermediate In)
     In.shadowBiasAndProbeId.xy = vec2(cc_shadowWHPBInfo.w, cc_shadowLPNNInfo.z);
     #if USE_INSTANCING
       In.shadowBiasAndProbeId.xy += a_localShadowBiasAndProbeId.xy;
-      In.shadowBiasAndProbeId.w = a_localShadowBiasAndProbeId.w;
     #else
       In.shadowBiasAndProbeId.xy += cc_localShadowBias.xy;
-      In.shadowBiasAndProbeId.w = cc_localShadowBias.w;
     #endif
   #endif
   

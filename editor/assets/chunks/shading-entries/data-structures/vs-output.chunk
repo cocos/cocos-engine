@@ -32,7 +32,6 @@
 
 #if CC_RECEIVE_SHADOW
   #define VSOutput_shadowBias v_shadowBiasAndProbeId.xy
-  #define VSOutput_visibilityForDirLight v_shadowBiasAndProbeId.w
 #endif
 #if CC_USE_REFLECTION_PROBE
   #define VSOutput_reflectionProbeId v_shadowBiasAndProbeId.z

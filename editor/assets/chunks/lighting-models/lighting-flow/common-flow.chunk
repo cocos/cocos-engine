@@ -100,8 +100,8 @@
 
       // CCSurfacesLightingCalculateShadow:
       lightingResult.shadow = 1.0;
-      #if CC_RECEIVE_SHADOW && CC_SHADOW_TYPE == CC_SHADOW_MAP
-        if (cc_mainLitDir.w > 0.0 && FSInput_visibilityForDirLight > 0.0) {
+      #if CC_RECEIVE_SHADOW && CC_SHADOW_TYPE == CC_SHADOW_MAP && CC_ENABLE_DIRECTIONAL_LIGHT
+        if (cc_mainLitDir.w > 0.0) {
           vec4 shadowPos = vec4(0.0), shadowNDCPosWithBias = vec4(0.0);
           if (CCSurfacesLightingEnableShadow(lightingData.NoL)) {
             if (cc_shadowLPNNInfo.w > 0.0) {
@@ -142,10 +142,10 @@
       // dynamic & stationary dir light
       lightingResult.directDiffuse = lightingResult.directSpecular = vec3(0.0);
       #if CC_SURFACES_USE_LIGHT_MAP != LIGHT_MAP_TYPE_ALL_IN_ONE && !CC_FORWARD_ADD
-        if (FSInput_visibilityForDirLight > 0.0) {
+        #if CC_ENABLE_DIRECTIONAL_LIGHT
           CCSurfacesLightingCalculateColorWithLighting(lightingResult.diffuseColorWithLighting, lightingResult.specularColorWithLighting, surfaceData, lightingData);  
           CCSurfacesLightingCalculateDirect(lightingResult.directDiffuse, lightingResult.directSpecular, lightingData, cc_mainLitColor);
-        }
+        #endif
       #endif
 
       // apply SSR, local probe & global probe

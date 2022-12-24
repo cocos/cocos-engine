@@ -105,7 +105,6 @@ struct StandardSurface {
   #if CC_RECEIVE_SHADOW || CC_USE_REFLECTION_PROBE
     float reflectionProbeId;
   #endif
-  float visibilityForDirLight;
 };
 
 vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
@@ -123,8 +122,8 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
   float NL = max(dot(N, L), 0.0);
 
   float shadow = 1.0;
-  #if CC_RECEIVE_SHADOW && CC_SHADOW_TYPE == CC_SHADOW_MAP
-    if (NL > 0.0 && cc_mainLitDir.w > 0.0 && s.visibilityForDirLight) {
+  #if CC_RECEIVE_SHADOW && CC_SHADOW_TYPE == CC_SHADOW_MAP && CC_ENABLE_DIRECTIONAL_LIGHT
+    if (NL > 0.0 && cc_mainLitDir.w > 0.0) {
       if (cc_shadowLPNNInfo.w > 0.0) {
         #if CC_DIR_LIGHT_SHADOW_TYPE == CC_DIR_LIGHT_SHADOW_CASCADED
           shadow = CCCSMFactorBase(position, N, s.shadowBias);
@@ -156,7 +155,8 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
   
   #if CC_USE_LIGHTMAP != LIGHT_MAP_TYPE_ALL_IN_ONE
     float NV = max(abs(dot(N, V)), 0.0);
-    if (s.visibilityForDirLight > 0.0) {
+    //yangcheng: add macros for visilibity && mainlight.visibility
+    #if CC_ENABLE_DIRECTIONAL_LIGHT
       specular = BRDFApprox(specular, s.roughness, NV);
 
       vec3 H = normalize(L + V);
@@ -170,7 +170,7 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
 
       dirlightContrib *= shadow;
       finalColor += lightingColor * dirlightContrib;
-    }
+    #endif
   #endif
 
   float fAmb = 0.5 - N.y * 0.5;
