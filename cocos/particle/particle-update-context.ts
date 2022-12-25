@@ -24,12 +24,15 @@
  */
 
 import { Space } from './enum';
-import { Mat4 } from '../core';
+import { Mat4, Quat } from '../core';
 
 export class ParticleUpdateContext {
+    public accumulatedTime = 0;
     public deltaTime = 0;
     public simulationSpace = Space.LOCAL;
     public worldTransform = new Mat4();
+    public worldRotation = new Quat();
+    public isEmitting = true;
 
     constructor () {
 

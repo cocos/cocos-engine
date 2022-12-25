@@ -26,7 +26,7 @@
 import { ccclass, tooltip, displayOrder, type, formerlySerializedAs, serializable, visible, range } from 'cc.decorator';
 import { Mat4, Quat, Vec2, Vec3, clamp, pingPong, random, randomRange, repeat, toDegree, toRadian } from '../../core/math';
 
-import CurveRange from './curve-range';
+import { CurveRange } from '../curve-range';
 import { ArcMode, EmitLocation, ShapeType } from '../enum';
 import { fixedAngleUnitVector2, particleEmitZAxis, randomPointBetweenCircleAtFixedAngle, randomPointBetweenSphere,
     randomPointInCube, randomSign, randomSortArray, randomUnitVector } from '../particle-general-function';

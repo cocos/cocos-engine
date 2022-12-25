@@ -26,8 +26,8 @@
 import { ccclass, tooltip, displayOrder, type, formerlySerializedAs, serializable, range } from 'cc.decorator';
 import { lerp, pseudoRandom, repeat } from '../../core/math';
 import { Enum } from '../../core/value-types';
-import { Particle, ParticleModule, PARTICLE_MODULE_NAME } from '../particle';
-import CurveRange from './curve-range';
+import { Particle, ParticleModule } from '../particle';
+import { CurveRange } from '../curve-range';
 import { ModuleRandSeed } from '../enum';
 import { ParticleSOAData } from '../particle-soa-data';
 import { ParticleUpdateContext } from '../particle-update-context';
@@ -207,8 +207,6 @@ export class TextureAnimationModule extends ParticleModule {
     @displayOrder(6)
     @tooltip('i18n:textureAnimationModule.rowIndex')
     public rowIndex = 0;
-
-    public name = PARTICLE_MODULE_NAME.TEXTURE;
 
     @serializable
     private _flipU = 0;

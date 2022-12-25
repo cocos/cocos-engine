@@ -26,7 +26,7 @@
 import { ccclass, tooltip, displayOrder, type, serializable, range, visible } from 'cc.decorator';
 import { pseudoRandom, Vec3 } from '../../core/math';
 import { Particle, ParticleModule } from '../particle';
-import CurveRange from './curve-range';
+import { CurveRange } from '../curve-range';
 import { ModuleRandSeed } from '../enum';
 import { ParticleSOAData } from '../particle-soa-data';
 import { ParticleUpdateContext } from '../particle-update-context';

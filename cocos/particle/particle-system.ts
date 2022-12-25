@@ -39,6 +39,7 @@ import { TextureAnimationModule } from './modules/texture-animation';
 import { VelocityOvertimeModule } from './modules/velocity-overtime';
 import { EmissionModule } from './modules/emission';
 import { ShapeModule } from './modules/shape-module';
+import { ParticleUpdateContext } from './particle-update-context';
 import { CullingMode, Space } from './enum';
 import { particleEmitZAxis } from './particle-general-function';
 import { ParticleSystemRenderer } from './particle-system-renderer';
@@ -429,23 +430,22 @@ export class ParticleSystem extends Component {
     @serializable
     @formerlySerializedAs('enableCulling')
     private _dataCulling = false;
-    private _isPlaying: boolean;
-    private _isPaused: boolean;
-    private _isStopped: boolean;
-    private _isEmitting: boolean;
-    private _needRefresh: boolean;
+    private _isPlaying = false;
+    private _isPaused = false;
+    private _isStopped = true;
+    private _isEmitting = false;
+    private _needRefresh = true;
+    private _isCulled = false;
+    private _isSimulating = true;
 
-    private _time: number;  // playback position in seconds.
-    private _oldWPos: Vec3;
-    private _curWPos: Vec3;
+    private _time = 0;  // playback position in seconds.
 
-    private _boundingBox: AABB | null;
-    private _culler: ParticleCuller | null;
-    private _oldPos: Vec3 | null;
-    private _curPos: Vec3 | null;
-    private _isCulled: boolean;
-    private _isSimulating: boolean;
+    private _boundingBox: AABB | null = null;
+    private _culler: ParticleCuller | null = null;
+    private _oldPos: Vec3 | null = null;
+    private _curPos: Vec3 | null = null;
     private _particles = new ParticleSOAData();
+    private _particleUpdateContext = new ParticleUpdateContext();
 
     @serializable
     private _prewarm = false;
@@ -455,27 +455,6 @@ export class ParticleSystem extends Component {
 
     @serializable
     private _simulationSpace = Space.LOCAL;
-
-    constructor () {
-        super();
-        // internal status
-        this._isPlaying = false;
-        this._isPaused = false;
-        this._isStopped = true;
-        this._isEmitting = false;
-        this._needRefresh = true;
-
-        this._time = 0.0;  // playback position in seconds.
-        this._oldWPos = new Vec3();
-        this._curWPos = new Vec3();
-
-        this._boundingBox = null;
-        this._culler = null;
-        this._oldPos = null;
-        this._curPos = null;
-        this._isCulled = false;
-        this._isSimulating = true;
-    }
 
     /**
      * @en play particle system
@@ -747,7 +726,14 @@ export class ParticleSystem extends Component {
     // internal function
 
     private updateParticles (deltaTime: number) {
-        const { normalizedAliveTime, invStartLifeTime, animatedVelocityX, animatedVelocityY, animatedVelocityZ } = this._particles;
+        const particleUpdateContext = this._particleUpdateContext;
+        particleUpdateContext.accumulatedTime += deltaTime;
+        particleUpdateContext.deltaTime = deltaTime;
+        particleUpdateContext.simulationSpace = this.simulationSpace;
+        particleUpdateContext.worldTransform.set(this.node.worldMatrix);
+        particleUpdateContext.worldRotation.set(this.node.worldRotation);
+
+        const { normalizedAliveTime, invStartLifeTime, animatedVelocityX, animatedVelocityY, animatedVelocityZ, ve } = this._particles;
         for (let i = 0, length = this._particles.count; i < length; ++i) {
             normalizedAliveTime[i] += deltaTime * invStartLifeTime[i];
 
@@ -760,6 +746,22 @@ export class ParticleSystem extends Component {
                 --i;
                 continue;
             }
+        }
+
+        const startDelay = this.startDelay.evaluate(0, 1)!;
+        if (this._time > startDelay) {
+            if (this._time > (this.duration + startDelay)) {
+                if (!this.loop) {
+                    this._isEmitting = false;
+                }
+            }
+        }
+        particleUpdateContext.isEmitting = this._isEmitting;
+
+        this._emissionModule.onUpdate(this._particles, particleUpdateContext);
+
+        for (let i = 0, length = this._particles.count; i < length; ++i) {
+
         }
 
         Vec3.copy(p.ultimateVelocity, p.velocity);
