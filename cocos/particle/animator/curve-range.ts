@@ -50,6 +50,7 @@ export default class CurveRange  {
     public static Mode = Mode;
 
     /**
+     * @en Spline will create a RealCurve when mode is curve. A RealCurve will be created for each spline(SplineMin & SplineMax) when mode is TwoCurves
      * @zh 当mode为Curve时，spline创建1个RealCurve，当mode为TwoCurves时，splineMax创建1个RealCurve,splineMin创建一个RealCurve
      */
     set mode (mode:number) {
@@ -74,21 +75,25 @@ export default class CurveRange  {
         return this._mode;
     }
     /**
+     * @en Use spline when mode is curve
      * @zh 当mode为Curve时，使用的曲线。
      */
     public declare spline:RealCurve;
 
     /**
+     * @en Min spline when mode is TwoCurves
      * @zh 当mode为TwoCurves时，使用的曲线下限。
      */
     public declare splineMin:RealCurve;
 
     /**
+     * @en Max spline when mode is TwoCurves
      * @zh 当mode为TwoCurves时，使用的曲线上限。
      */
     public declare splineMax:RealCurve;
 
     /**
+     * @en Get/Set the curve when use curve mode
      * @zh 当mode为Curve时，使用的曲线。
      * @deprecated Since V3.3. Use `spline` instead.
      */
@@ -102,6 +107,7 @@ export default class CurveRange  {
     }
 
     /**
+     * @en Get/Set min curve when use TwoCurves mode
      * @zh 当mode为TwoCurves时，使用的曲线下限。
      * @deprecated Since V3.3. Use `splineMin` instead.
      */
@@ -115,6 +121,7 @@ export default class CurveRange  {
     }
 
     /**
+     * @en Get/Set max curve when use TwoCurves mode
      * @zh 当mode为TwoCurves时，使用的曲线上限。
      * @deprecated Since V3.3. Use `splineMax` instead.
      */
@@ -128,26 +135,31 @@ export default class CurveRange  {
     }
 
     /**
+     * @en Constant value when use constant mode
      * @zh 当mode为Constant时，曲线的值。
      */
     public constant = 0;
 
     /**
-     * @zh 当mode为TwoConstants时，曲线的上限。
+     * @en Constant min value when use TwoConstants mode
+     * @zh 当mode为TwoConstants时，曲线的下限。
      */
     public constantMin = 0;
 
     /**
-     * @zh 当mode为TwoConstants时，曲线的下限。
+     * @en Constant max value when use TwoConstants mode
+     * @zh 当mode为TwoConstants时，曲线的上限。
      */
     public constantMax = 0;
 
     /**
+     * @en Mulitplier used to evaluate spline
      * @zh 应用于曲线插值的系数。
      */
     public multiplier = 1;
 
     /**
+     * @en Curve mode to use
      * @zh 曲线类型[[Mode]]。
      */
     private _mode = Mode.Constant;

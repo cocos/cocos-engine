@@ -49,6 +49,7 @@ const Mode = Enum({
 @ccclass('cc.GradientRange')
 export default class GradientRange {
     /**
+     * @en Get/Set color gradient mode to use
      * @zh 渐变色类型 [[Mode]]。
      */
     @type(Mode)
@@ -73,6 +74,7 @@ export default class GradientRange {
     public static Mode = Mode;
 
     /**
+     * @en Color value when use color mode
      * @zh 当mode为Color时的颜色。
      */
     @serializable
@@ -80,6 +82,7 @@ export default class GradientRange {
     public color = Color.WHITE.clone();
 
     /**
+     * @en Min color value when use TwoColors mode
      * @zh 当mode为TwoColors时的颜色下限。
      */
     @serializable
@@ -87,6 +90,7 @@ export default class GradientRange {
     public colorMin = Color.WHITE.clone();
 
     /**
+     * @en Max color value when use TwoColors mode
      * @zh 当mode为TwoColors时的颜色上限。
      */
     @serializable
@@ -94,18 +98,21 @@ export default class GradientRange {
     public colorMax = Color.WHITE.clone();
 
     /**
+     * @en Gradient value when use gradient mode
      * @zh 当mode为Gradient时的颜色渐变。
      */
     @type(Gradient)
     public gradient = new Gradient();
 
     /**
+     * @en Gradient min value when use TwoGradients
      * @zh 当mode为TwoGradients时的颜色渐变下限。
      */
     @type(Gradient)
     public gradientMin = new Gradient();
 
     /**
+     * @en Gradient max value when use TwoGradients
      * @zh 当mode为TwoGradients时的颜色渐变上限。
      */
     @type(Gradient)

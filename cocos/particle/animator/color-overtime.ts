@@ -37,6 +37,7 @@ export default class ColorOvertimeModule extends ParticleModuleBase {
     @serializable
     _enable = false;
     /**
+     * @en Enable or disable this module
      * @zh 是否启用。
      */
     @displayOrder(0)
@@ -52,7 +53,8 @@ export default class ColorOvertimeModule extends ParticleModuleBase {
     }
 
     /**
-     * @zh 颜色随时间变化的参数，各个 key 之间线性差值变化。
+     * @en Change color over time. Evaluate by key interpolation 
+     * @zh 颜色随时间变化的参数，各个 key 之间线性插值变化。
      */
     @type(GradientRange)
     @serializable
