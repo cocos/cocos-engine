@@ -32,15 +32,15 @@ import { Node } from '../scene-graph';
 const tempMat4 = new Mat4();
 
 /**
- * @en Attach node tool
- * @zh 挂点工具类
+ * @en Attach node tool.
+ * @zh 挂点工具类。
  * @class sp.AttachUtil
  */
 export class AttachUtil {
     protected _inited = false;
-    protected _skeleton:spine.Skeleton|null = null;
-    protected _skeletonNode:Node|null = null;
-    protected _skeletonComp:Skeleton|null = null;
+    protected _skeleton: spine.Skeleton|null = null;
+    protected _skeletonNode: Node|null = null;
+    protected _skeletonComp: Skeleton|null = null;
 
     constructor () {
         this._inited = false;
@@ -48,28 +48,38 @@ export class AttachUtil {
         this._skeletonNode = null;
         this._skeletonComp = null;
     }
-
-    init (skeletonComp:Skeleton) {
+    /**
+     * @en Initialization.
+     * @zh 初始化。
+     * @param skeletonComp @en skeleton object @zh skeleton组件
+     */
+    init (skeletonComp: Skeleton) {
         this._inited = true;
         this._skeleton = skeletonComp._skeleton;
         this._skeletonNode = skeletonComp.node;
         this._skeletonComp = skeletonComp;
     }
-
+    /**
+     * @en reset state and clear data.
+     * @zh 重置状态和清除设置。
+     */
     reset () {
         this._inited = false;
         this._skeleton = null;
         this._skeletonNode = null;
         this._skeletonComp = null;
     }
-
+    /**
+     * @en Synchronized transformation of Nodes mounted on the skeleton bones.
+     * @zh 同步变换挂载在骨骼上的Node。
+     */
     _syncAttachedNode () {
         if (!this._inited) return;
 
         const socketNodes = this._skeletonComp!.socketNodes;
         if (socketNodes.size === 0) return;
 
-        let boneInfos:FrameBoneInfo[]|null = null;
+        let boneInfos: FrameBoneInfo[]|null = null;
         const isCached = this._skeletonComp!.isAnimationCached();
         if (isCached) {
             boneInfos = this._skeletonComp!._curFrame && this._skeletonComp!._curFrame.boneInfos;
@@ -79,7 +89,7 @@ export class AttachUtil {
 
         if (!boneInfos) return;
 
-        const matrixHandle = (node:Node, bone:FrameBoneInfo) => {
+        const matrixHandle = (node: Node, bone: FrameBoneInfo) => {
             const tm = tempMat4;
             tm.m00 = bone.a;
             tm.m01 = bone.c;

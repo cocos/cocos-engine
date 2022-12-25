@@ -50,7 +50,10 @@ export class SkeletonData extends Asset {
     @serializable
     public _skeletonJson: spine.SkeletonJson | null = null;
 
-    // use by jsb
+    /**
+     * @internal
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
     get skeletonJsonStr (): string {
         if (this._skeletonJson) {
             return JSON.stringify(this._skeletonJson);
@@ -79,7 +82,9 @@ export class SkeletonData extends Asset {
         }
     }
 
-    /**
+    /*
+     * @en a atlas text description.
+     * @zh atlas文本描述。
      * @property {String} atlasText
      */
     get atlasText () {
@@ -91,8 +96,8 @@ export class SkeletonData extends Asset {
     }
 
     /**
-     * @en Texture array
-     * @zh 纹理数组
+     * @en Texture array.
+     * @zh 纹理数组。
      * @property {Texture2D[]} textures
      */
 
@@ -101,6 +106,8 @@ export class SkeletonData extends Asset {
     public textures: Texture2D[] = [];
 
     /**
+     * @en Texture name array.
+     * @zh 纹理名称数组。
      * @property {String[]} textureNames
      * @private
      */
@@ -154,8 +161,10 @@ export class SkeletonData extends Asset {
         this.reset();
     }
 
-    // PUBLIC
-
+    /**
+     * @internal
+     * @deprecated since v3.7.0, this is an engine private interface that will be removed in the future.
+     */
     public createNode (callback: (err: Error|null, node: Node) => void) {
         const node = new Node(this.name);
         const skeleton = node.addComponent('cc.Skeleton') as Skeleton;
@@ -163,7 +172,10 @@ export class SkeletonData extends Asset {
 
         return callback(null, node);
     }
-
+    /**
+     * @en reset skeleton data state.
+     * @zh 数据重置。
+     */
     public reset () {
         this._skeletonCache = null;
         this._atlasCache = null;
@@ -172,7 +184,10 @@ export class SkeletonData extends Asset {
             this._animsEnum = null;
         }
     }
-
+    /**
+     * @en reset skeleton skin and animation enumeration.
+     * @zh 重置皮肤和动画枚举。
+     */
     public resetEnums () {
         if (EDITOR && !legacyCC.GAME_VIEW) {
             this._skinsEnum = null;
@@ -225,7 +240,9 @@ export class SkeletonData extends Asset {
     }
 
     // EDITOR functions
-
+    /**
+     * @internal since v3.7.0, this is an engine private function.
+     */
     public getSkinsEnum () {
         if (this._skinsEnum /* && Object.keys(this._skinsEnum).length > 0 */) {
             return this._skinsEnum;
@@ -242,7 +259,9 @@ export class SkeletonData extends Asset {
         }
         return null;
     }
-
+    /**
+     * @internal since v3.7.0, this is an engine private function.
+     */
     public getAnimsEnum () {
         if (this._animsEnum && Object.keys(this._animsEnum).length > 1) {
             return this._animsEnum;
@@ -259,13 +278,16 @@ export class SkeletonData extends Asset {
         }
         return null;
     }
-
+    /**
+     * @en Destroy skeleton data.
+     * @zh 销毁skeleton data。
+     */
     public destroy () {
         SkeletonCache.sharedCache.removeSkeleton(this._uuid);
         return super.destroy();
     }
-    // PRIVATE
 
+    // PRIVATE
     private _getTexture (line: string) {
         const names = this.textureNames;
         for (let i = 0; i < names.length; i++) {

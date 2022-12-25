@@ -54,9 +54,9 @@ export { spine };
 
 /**
  * @en
- * The attachment type of spine. It contains three type: REGION(0), BOUNDING_BOX(1), MESH(2) and SKINNED_MESH
+ * The attachment type of spine. It contains three type: REGION(0), BOUNDING_BOX(1), MESH(2) and SKINNED_MESH.
  * @zh
- * Attachment 类型枚举。类型包括 REGION，BOUNDING_BOX，MESH，SKINNED_MESH
+ * Attachment 类型枚举。类型包括 REGION，BOUNDING_BOX，MESH，SKINNED_MESH。
  */
 export enum ATTACHMENT_TYPE {
     REGION = 0,

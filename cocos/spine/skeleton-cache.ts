@@ -26,8 +26,16 @@
 import { TrackEntryListeners } from './track-entry-listeners';
 import spine from './lib/spine-core.js';
 import { Texture2D } from '../asset/assets';
-// Permit max cache time, unit is second.
+
+/**
+ * @en Permit max cache time, unit is second.
+ * @zh 最大缓存动画时长。
+ */
 const MaxCacheTime = 30;
+/**
+ * @en The duration of each frame of animation.
+ * @zh 每帧动画时长。
+ */
 const FrameTime = 1 / 60;
 
 /**
@@ -65,6 +73,9 @@ const _finalColor = new spine.Color(1, 1, 1, 1);
 const _darkColor = new spine.Color(1, 1, 1, 1);
 const _quadTriangles = [0, 1, 2, 2, 3, 0];
 
+/**
+ * @internal since v3.7
+ */
 export interface SkeletonCacheItemInfo {
     skeleton: spine.Skeleton;
     clipper: spine.SkeletonClipping;
@@ -73,7 +84,10 @@ export interface SkeletonCacheItemInfo {
     curAnimationCache: AnimationCache | null;
     animationsCache: { [key: string]: AnimationCache };
 }
-
+/**
+ * @en FrameColor contains light color，dark color and a offset.
+ * @zh 缓存帧颜色结构包括light和dark颜色以及偏移。
+ */
 export interface FrameColor {
     fr: number;
     fg: number;
@@ -85,7 +99,10 @@ export interface FrameColor {
     da: number;
     vfOffset: number;
 }
-
+/**
+ * @en Bone information includes a 2D matrix and X and Y coordinates.
+ * @zh 骨骼信息包括2维矩阵和X，Y坐标。
+ */
 export interface FrameSegment {
     indexCount: number;
     vfCount: number;
@@ -93,7 +110,10 @@ export interface FrameSegment {
     tex?: Texture2D;
     blendMode?: spine.BlendMode;
 }
-
+/**
+ * @en Bone information includes a 2D matrix and X and Y coordinates.
+ * @zh 骨骼信息包括2维矩阵和X，Y坐标。
+ */
 export interface FrameBoneInfo extends spine.Bone {
     a: number;
     b: number;
@@ -102,7 +122,10 @@ export interface FrameBoneInfo extends spine.Bone {
     worldX: number;
     worldY: number;
 }
-
+/**
+ * @en Animation frame data includes segmented frame data, colors, bone information, vertices, and indices.
+ * @zh 动画帧数据包括分段帧数据，颜色，骨骼信息，顶点和索引。
+ */
 export interface AnimationFrame {
     segments: FrameSegment[];
     colors: FrameColor[];
@@ -111,7 +134,10 @@ export interface AnimationFrame {
     indices: Uint16Array;
 }
 
-// Cache all frames in an animation
+/**
+ * @en Cache all frames in an animation.
+ * @zh 缓存所有动画帧。
+ */
 export class AnimationCache {
     public frames: AnimationFrame[] = [];
     public totalTime = 0;
@@ -221,7 +247,11 @@ export class AnimationCache {
             this.unbind(this._skeletonInfo!.listener);
         }
     }
-
+    /**
+     * @en Cache update to specified frame.
+     * @zh 缓冲帧更新至指定帧。
+     * @param toFrameIdx @en frame index @zh 帧下标
+     */
     public updateToFrame (toFrameIdx?: number) {
         if (!this._inited) return;
 
@@ -247,25 +277,35 @@ export class AnimationCache {
 
         this.end();
     }
-
+    /**
+     * @internal since v3.7.0, this is an engine private function.
+     */
     public isInited () {
         return this._inited;
     }
-
+    /**
+     * @internal since v3.7.0, this is an engine private function.
+     */
     public isInvalid () {
         return this._invalid;
     }
-
+    /**
+     * @internal since v3.7.0, this is an engine private function.
+     */
     public invalidAllFrame () {
         this.isCompleted = false;
         this._invalid = true;
     }
-
+    /**
+     * @internal since v3.7.0, this is an engine private function.
+     */
     public updateAllFrame () {
         this.invalidAllFrame();
         this.updateToFrame();
     }
-
+    /**
+     * @internal since v3.7.0, this is an engine private function.
+     */
     public enableCacheAttachedInfo () {
         if (!this._enableCacheAttachedInfo) {
             this._enableCacheAttachedInfo = true;
@@ -273,7 +313,8 @@ export class AnimationCache {
         }
     }
 
-    public fillVertices (skeletonColor: spine.Color, attachmentColor: spine.Color, slotColor: spine.Color, clipper: spine.SkeletonClipping, slot: spine.Slot) {
+    protected fillVertices (skeletonColor: spine.Color, attachmentColor: spine.Color,
+        slotColor: spine.Color, clipper: spine.SkeletonClipping, slot: spine.Slot) {
         _tempa = slotColor.a * attachmentColor.a * skeletonColor.a * 255;
         _tempr = attachmentColor.r * skeletonColor.r * 255;
         _tempg = attachmentColor.g * skeletonColor.g * 255;
@@ -600,15 +641,14 @@ export class AnimationCache {
 
         clipper.clipEnd();
     }
-
-    // private _setVerticeColor (colorI32: number, buffer: Float32Array, offset: number) {
-    //     buffer[offset] = (colorI32 & 0xff) / 255.0;
-    //     buffer[offset + 1] = ((colorI32 >> 8) & 0xff) / 255.0;
-    //     buffer[offset + 2] = ((colorI32 >> 16) & 0xff) / 255.0;
-    //     buffer[offset + 3] = ((colorI32 >> 24) & 0xff) / 255.0;
-    // }
 }
 
+/**
+ * @en When setting Animation cache mode as shared_cache or private_cache,
+ * SkeletonCache cached all animation frames and render data.
+ * @zh Skeleton组件使用cached模式时，将使用SkeletonCache对象缓存动画帧，
+ * 并使用SkeletonCache对象更新动画。
+ */
 class SkeletonCache {
     public static readonly FrameTime = FrameTime;
     public static sharedCache = new SkeletonCache();
@@ -621,16 +661,22 @@ class SkeletonCache {
         this._animationPool = {};
         this._skeletonCache = {};
     }
-
+    /**
+     * @internal since v3.7.0, this is an engine private function.
+     */
     public enablePrivateMode () {
         this._privateMode = true;
     }
-
+    /**
+     * @internal since v3.7.0, this is an engine private function.
+     */
     public clear () {
         this._animationPool = {};
         this._skeletonCache = {};
     }
-
+    /**
+     * @internal since v3.7.0, this is an engine private function.
+     */
     public removeSkeleton (uuid: string) {
         const skeletonInfo = this._skeletonCache[uuid];
         if (!skeletonInfo) return;
@@ -646,7 +692,9 @@ class SkeletonCache {
 
         delete this._skeletonCache[uuid];
     }
-
+    /**
+     * @internal since v3.7.0, this is an engine private function.
+     */
     public getSkeletonCache (uuid: string, skeletonData: spine.SkeletonData) {
         let skeletonInfo = this._skeletonCache[uuid];
         if (!skeletonInfo) {
@@ -671,6 +719,9 @@ class SkeletonCache {
         return skeletonInfo;
     }
 
+    /**
+     * @internal since v3.7.0, this is an engine private function.
+     */
     public getAnimationCache (uuid: string, animationName: string) {
         const skeletonInfo = this._skeletonCache[uuid];
         if (!skeletonInfo) return null;
@@ -679,6 +730,9 @@ class SkeletonCache {
         return animationsCache[animationName];
     }
 
+    /**
+     * @internal since v3.7.0, this is an engine private function.
+     */
     public invalidAnimationCache (uuid: string) {
         const skeletonInfo = this._skeletonCache[uuid];
         const skeleton = skeletonInfo && skeletonInfo.skeleton;
@@ -691,6 +745,9 @@ class SkeletonCache {
         }
     }
 
+    /**
+     * @internal since v3.7.0, this is an engine private function.
+     */
     public initAnimationCache (uuid: string, animationName: string): null | AnimationCache {
         if (!animationName) return null;
         const skeletonInfo = this._skeletonCache[uuid];
@@ -720,6 +777,9 @@ class SkeletonCache {
         return animationCache;
     }
 
+    /**
+     * @internal since v3.7.0, this is an engine private function.
+     */
     public updateAnimationCache (uuid: string, animationName: string): void {
         if (animationName) {
             const animationCache = this.initAnimationCache(uuid, animationName);

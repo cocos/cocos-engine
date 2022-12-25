@@ -3,7 +3,9 @@ import { Skeleton } from '../skeleton';
 import { simple } from './simple';
 
 // Inline all type switch to avoid jit deoptimization during inlined function change
-
+/**
+ * @internal since v3.7.0 this is an engine private object.
+ */
 export const simpleSpineAssembler: IAssemblerManager = {
     getAssembler () {
         return simple;
