@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
@@ -30,13 +30,13 @@ export enum EventType {
      */
     NONE = 'none',
     /**
-     * @en Web page Load completed.
-     * @zh 网页加载完成
+     * @en Web page is loading.
+     * @zh 网页加载中
      */
     LOADING = 'loading',
     /**
-     * @en Web page is loading.
-     * @zh 网页加载中
+     * @en Web page Load completed.
+     * @zh 网页加载完成
      */
     LOADED = 'loaded',
     /**

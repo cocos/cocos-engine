@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
@@ -25,7 +25,7 @@
 
 /**
  * @en Enum for video resource type.
- * @zh 视频来源
+ * @zh 视频资源类型枚举。
  */
 import { Enum } from '../core/value-types';
 
@@ -53,7 +53,7 @@ export enum EventType {
      */
     NONE = 'none',
     /**
-     * @en The video is playing.
+     * @en The video is playing
      * @zh 视频播放中
      */
     PLAYING = 'playing',
@@ -68,7 +68,7 @@ export enum EventType {
      */
     STOPPED = 'stopped',
     /**
-     * @en End of video
+     * @en Video playback complete
      * @zh 视频播放完毕
      */
     COMPLETED = 'completed',
@@ -83,22 +83,42 @@ export enum EventType {
      */
     READY_TO_PLAY = 'ready-to-play',
     /**
-     * @en Video Trigger Error
+     * @en Errors triggered while processing video
      * @zh 处理视频时触发的错误
      */
     ERROR = 'error',
 
     /**
-     * @en Video clicked
+     * @en Video is clicked
      * @zh 视频被点击
      */
     CLICKED = 'clicked',
 }
 
 export enum READY_STATE {
-    HAVE_NOTHING,      // 没有关于音频/视频是否就绪的信息
-    HAVE_METADATA,     // 关于音频/视频就绪的元数据
-    HAVE_CURRENT_DATA, // 关于当前播放位置的数据是可用的，但没有足够的数据来播放下一帧/毫秒
-    HAVE_FUTURE_DATA,  // 当前及至少下一帧的数据是可用的
-    HAVE_ENOUGH_DATA   // 可用数据足以开始播放
+    /**
+     * @en No information about whether audio/video is ready
+     * @zh 没有关于音频/视频是否就绪的信息
+     */
+    HAVE_NOTHING,
+    /**
+     * @en Metadata about audio/video ready
+     * @zh 关于音频/视频就绪的元数据
+     */
+    HAVE_METADATA,
+    /**
+     * @en Data is available for the current playback position, but not enough data to play the next frame/ms
+     * @zh 当前播放位置的数据可用，但没有足够的数据来播放下一帧/毫秒
+     */
+    HAVE_CURRENT_DATA,
+    /**
+     * @en Data for the current and at least the next frame is available
+     * @zh 当前及至少下一帧的数据是可用的
+     */
+    HAVE_FUTURE_DATA,
+    /**
+     * @en Available data is enough to start playback
+     * @zh 可用数据足以开始播放
+     */
+    HAVE_ENOUGH_DATA
 }

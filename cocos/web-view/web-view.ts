@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
@@ -34,10 +34,9 @@ import type { WebViewImpl  } from './web-view-impl';
 
 /**
  * @en
- * WebView is a component for display web pages in the game.
- * Because different platforms have different authorization,
- * API and control methods for WebView component.
- * And have not yet formed a unified standard, only Web, iOS, and Android platforms are currently supported.
+ * WebView component, used to display web pages in the game.
+ * Since different platforms have different authorizations, APIs, and control methods for WebView components, there is no unified standard yet.
+ * So currently only Web, iOS, and Android platforms are supported.
  * @zh
  * WebView 组件，用于在游戏中显示网页。
  * 由于不同平台对于 WebView 组件的授权、API、控制方式都不同，还没有形成统一的标准，所以目前只支持 Web、iOS 和 Android 平台。
@@ -78,7 +77,7 @@ export class WebView extends Component {
 
     /**
      * @en
-     * The webview's event callback , it will be triggered when certain webview event occurs.
+     * The webview's event callback, it will be triggered after the loading is completed or when the loading error occurs.
      * @zh
      * WebView 的回调事件，当网页加载过程中，加载完成后或者加载出错时都会回调此函数
      */
@@ -100,7 +99,7 @@ export class WebView extends Component {
 
     /**
      * @en
-     * Get current audio state.
+     * Get the current webview state.
      * @zh
      * 获取当前网页视图状态。
      */
@@ -111,7 +110,7 @@ export class WebView extends Component {
 
     /**
      * @en
-     * Set javascript interface scheme (see also setOnJSCallback). <br>
+     * Set javascript interface scheme (see also setOnJSCallback).
      * Note: Supports only on the Android and iOS. For HTML5, please refer to the official documentation.<br>
      * Please refer to the official documentation for more details.
      * @zh
