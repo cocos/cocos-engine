@@ -23,50 +23,20 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "View.h"
-#include "engine/EngineEvents.h"
-#include "platform/Application.h"
-#include "platform/ohos//jni/JniCocosAbility.h"
-#include "platform/ohos/jni/AbilityConsts.h"
-
-// NOLINTNEXTLINE
-using namespace cc::ohos;
+/**
+ * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
+ * The following section is auto-generated.
+ * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
+ */
+// clang-format off
+#include "PrivateTypes.h"
 
 namespace cc {
 
-void View::engineHandleCmd(int cmd) {
-    static bool isWindowInitialized = false;
-    // Handle CMD here if needed.
-    switch (cmd) {
-        case ABILITY_CMD_INIT_WINDOW:
-            if (!isWindowInitialized) {
-                isWindowInitialized = true;
-                return;
-            } else {
-                // FIXME: getWindowId
-                events::WindowRecreated::broadcast((uint32_t)(uintptr_t)cocosApp.pendingWindow);
-            }
-            break;
-        case ABILITY_CMD_TERM_WINDOW: {
-            // FIXME: getWindowId
-            events::WindowDestroy::broadcast((uint32_t)(uintptr_t)cocosApp.pendingWindow);
-        } break;
-        case ABILITY_CMD_RESUME:
-            if (Application::getInstance()) {
-                Application::getInstance()->onResume();
-            }
-            break;
-        case ABILITY_CMD_PAUSE:
-            if (Application::getInstance()) {
-                Application::getInstance()->onPause();
-            }
-            break;
-        case ABILITY_CMD_LOW_MEMORY:
-            events::LowMemory::broadcast();
-            break;
-        default:
-            break;
-    }
-}
+namespace render {
+
+} // namespace render
 
 } // namespace cc
+
+// clang-format on

@@ -432,6 +432,7 @@ module.exports = {
         reset_node_position: '重置节点坐标位置',
         reset_node_rotation: '重置节点旋转角度',
         reset_node_scale: '重置节点缩放比例',
+        reset_node_mobility: '重置节点可移动性',
 
         copy_node_value: '复制节点的值',
         paste_node_value: '粘贴节点的值',

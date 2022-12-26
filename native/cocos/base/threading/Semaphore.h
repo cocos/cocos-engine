@@ -37,7 +37,7 @@ public:
 
     void wait() noexcept;
     void signal(int count = 1) noexcept;
-    void signalAll() noexcept { CC_ASSERT(false); } // NOLINT(readability-convert-member-functions-to-static)
+    void signalAll() noexcept { CC_ABORT(); } // NOLINT(readability-convert-member-functions-to-static)
 
 private:
     moodycamel::details::Semaphore _semaphore;

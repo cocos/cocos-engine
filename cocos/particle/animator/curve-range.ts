@@ -24,6 +24,7 @@
  */
 
 import { ccclass } from 'cc.decorator';
+import { EDITOR } from 'internal:constants';
 import { lerp, RealCurve, CCClass, geometry, Enum } from '../../core';
 import { PixelFormat, Filter, WrapMode } from '../../asset/assets/asset-enum';
 import { Texture2D, ImageAsset } from '../../asset/assets';
@@ -49,24 +50,43 @@ export default class CurveRange  {
     public static Mode = Mode;
 
     /**
-     * @zh 曲线类型[[Mode]]。
+     * @zh 当mode为Curve时，spline创建1个RealCurve，当mode为TwoCurves时，splineMax创建1个RealCurve,splineMin创建一个RealCurve
      */
-    public mode = Mode.Constant;
-
+    set mode (mode:number) {
+        this._mode = mode;
+        switch (mode) {
+        case Mode.Constant:
+            break;
+        case Mode.TwoConstants:
+            break;
+        case Mode.Curve:
+            if (!this.spline) this.spline = geometry.constructLegacyCurveAndConvert();
+            break;
+        case Mode.TwoCurves:
+            if (!this.splineMax) this.splineMax = geometry.constructLegacyCurveAndConvert();
+            if (!this.splineMin) this.splineMin = geometry.constructLegacyCurveAndConvert();
+            break;
+        default:
+            break;
+        }
+    }
+    get mode () {
+        return this._mode;
+    }
     /**
      * @zh 当mode为Curve时，使用的曲线。
      */
-    public spline = geometry.constructLegacyCurveAndConvert();
+    public declare spline:RealCurve;
 
     /**
      * @zh 当mode为TwoCurves时，使用的曲线下限。
      */
-    public splineMin = geometry.constructLegacyCurveAndConvert();
+    public declare splineMin:RealCurve;
 
     /**
      * @zh 当mode为TwoCurves时，使用的曲线上限。
      */
-    public splineMax = geometry.constructLegacyCurveAndConvert();
+    public declare splineMax:RealCurve;
 
     /**
      * @zh 当mode为Curve时，使用的曲线。
@@ -127,8 +147,19 @@ export default class CurveRange  {
      */
     public multiplier = 1;
 
-    constructor () {
+    /**
+     * @zh 曲线类型[[Mode]]。
+     */
+    private _mode = Mode.Constant;
 
+    constructor () {
+        /* Only create RealCurves in Editor, in order to show the Splines in Editor,
+        in RunTime the RealCurves will only be created when it is in Curve mode*/
+        if (EDITOR) {
+            this.spline = geometry.constructLegacyCurveAndConvert();
+            this.splineMin = geometry.constructLegacyCurveAndConvert();
+            this.splineMax = geometry.constructLegacyCurveAndConvert();
+        }
     }
 
     public evaluate (time: number, rndRatio: number) {

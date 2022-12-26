@@ -53,12 +53,15 @@ public:
     virtual Matrix getCameraProjectionMatrix() = 0;
     virtual TexCoords getCameraTexCoords() = 0;
 
+    virtual void enableCameraAutoFocus(bool enable) = 0;
+    virtual void enableCameraDepth(bool enable) = 0;
     virtual void setDisplayGeometry(uint32_t rotation, uint32_t width, uint32_t height) = 0;
     virtual void setCameraClip(float near, float far) = 0;
     virtual void setCameraTextureName(int id) = 0;
     virtual void* getCameraTextureRef() = 0;
     virtual uint8_t* getCameraDepthBuffer() = 0;
 
+    virtual void enableLightEstimate(bool enable) = 0;
     virtual LightVal getMainLightDirection() = 0;
     virtual LightVal getMainLightIntensity() = 0;
 
@@ -95,7 +98,7 @@ public:
     // image recognition & tracking
     virtual void enableImageTracking(bool enable) = 0;
     virtual void addImageToLib(const std::string& name) = 0;
-    virtual void addImageToLibWithSize(const std::string& name, float withInMeters) = 0;
+    virtual void addImageToLibWithSize(const std::string& name, float widthInMeters) = 0;
     virtual void setImageMaxTrackingNumber(int number) = 0;
     virtual float* getAddedImagesInfo() = 0;
     virtual float* getUpdatedImagesInfo() = 0;

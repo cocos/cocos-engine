@@ -295,7 +295,7 @@ ccstd::vector<MacroRecord> EffectAsset::generateRecords(const ccstd::string &key
             ret.emplace_back(record);
         }
     } else {
-        CC_ASSERT(false);
+        CC_ABORT();
     }
 
     return ret;
@@ -325,7 +325,7 @@ ccstd::vector<MacroRecord> EffectAsset::insertInfoValue(const ccstd::vector<Macr
                 ret.emplace_back(tmpRecord);
             }
         } else {
-            CC_ASSERT(false);
+            CC_ABORT();
         }
     }
 

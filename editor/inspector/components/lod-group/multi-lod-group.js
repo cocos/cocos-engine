@@ -1,12 +1,14 @@
 'use strict';
 
+const { trackEventWithTimer } = require('../../utils/metrics');
+
 exports.template = `
 <div>
     <ui-prop ref="multi-lod-dump" type="dump"></ui-prop>
     <ui-prop>
         <ui-label slot="label" value="Object Size"></ui-label>
         <div class="object-size-content" slot="content">
-            <ui-num-input min="0" max="1" step="0.01" preci="2"
+            <ui-num-input min="0" step="0.01"
                 :invalid="multiObjectSizeInvalid"
                 :value="multiObjectSizeInvalid && dump.value && dump.value.objectSize ? null : dump.value.objectSize.values[0]"
                 @confirm="onMultiObjectSizeConfirm($event)"
@@ -94,6 +96,7 @@ exports.methods = {
             lod[index] && (lod[index].value.screenUsagePercentage.value = event.target.value / 100);
         });
         that.updateDump(that.dump.value.LODs);
+        trackEventWithTimer('LOD', 'A100011');
     },
     resetMultiObjectSize() {
         const that = this;
@@ -104,11 +107,13 @@ exports.methods = {
                 args: [],
             });
         });
+        trackEventWithTimer('LOD', 'A100010');
     },
     updateDump(dump) {
         const that = this;
         that.$refs['multi-lod-dump'].dump = dump;
         that.$refs['multi-lod-dump'].dispatch('change-dump');
+        that.$refs['multi-lod-dump'].dispatch('confirm-dump');
     },
     calculateMultiRange(range, index) {
         const that = this;

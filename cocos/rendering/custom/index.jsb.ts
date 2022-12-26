@@ -30,12 +30,13 @@ import { buildDeferredLayout, buildForwardLayout } from './effect';
 import { macro } from '../../core/platform/macro';
 import { DeferredPipelineBuilder, ForwardPipelineBuilder } from './builtin-pipelines';
 import { CustomPipelineBuilder, NativePipelineBuilder } from './custom-pipeline';
-import { EffectAsset } from '../../asset/assets/effect-asset';
+import { Device } from '../../gfx';
 
 export * from './types';
 export * from './pipeline';
 export * from './archive';
 
+export const INVALID_ID = 0xFFFFFFFF;
 export const enableEffectImport = false;
 
 export function createCustomPipeline (): Pipeline {
@@ -74,10 +75,28 @@ function addCustomBuiltinPipelines (map: Map<string, PipelineBuilder>) {
 
 addCustomBuiltinPipelines(customPipelineBuilderMap);
 
-export function deserializeLayoutGraph (arrayBuffer: ArrayBuffer) {
+export function init (device: Device, arrayBuffer: ArrayBuffer) {
     // noop
 }
 
-export function replaceShaderInfo (asset: EffectAsset) {
+export function destroy () {
     // noop
+}
+
+export function getPassID (name: string | undefined): number {
+    return INVALID_ID;
+}
+
+export function getPhaseID (passID: number, name: string | number | undefined): number {
+    return INVALID_ID;
+}
+
+export function completePhaseName (name: string | number | undefined): string {
+    if (typeof name === 'number') {
+        return name.toString();
+    } else if (typeof name === 'string') {
+        return name;
+    } else {
+        return 'default';
+    }
 }

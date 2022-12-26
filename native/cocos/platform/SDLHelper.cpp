@@ -377,7 +377,7 @@ uintptr_t SDLHelper::getWindowHandle(SDL_Window *window) {
 #elif (CC_PLATFORM == CC_PLATFORM_LINUX)
     return reinterpret_cast<uintptr_t>(wmInfo.info.x11.window);
 #endif
-    CC_ASSERT(false);
+    CC_ABORT();
     return 0;
 }
 

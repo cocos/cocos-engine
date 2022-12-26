@@ -268,7 +268,12 @@ export const sys = {
         str += `language : ${this.language}\r\n`;
         str += `browserType : ${this.browserType}\r\n`;
         str += `browserVersion : ${this.browserVersion}\r\n`;
-        str += `capabilities : ${JSON.stringify(this.capabilities)}\r\n`;
+        str += `supports webp: ${sys.hasFeature(Feature.WEBP)}\r\n`;
+        str += `supports bitmap: ${sys.hasFeature(Feature.IMAGE_BITMAP)}\r\n`;
+        str += `supports touches: ${sys.hasFeature(Feature.INPUT_TOUCH)}\r\n`;
+        str += `supports mouse: ${sys.hasFeature(Feature.EVENT_MOUSE)}\r\n`;
+        str += `supports keyboard: ${sys.hasFeature(Feature.EVENT_KEYBOARD)}\r\n`;
+        str += `supports accelerometer: ${sys.hasFeature(Feature.EVENT_ACCELEROMETER)}\r\n`;
         str += `os : ${this.os}\r\n`;
         str += `osVersion : ${this.osVersion}\r\n`;
         str += `platform : ${this.platform}\r\n`;
@@ -318,17 +323,6 @@ export const sys = {
                     this.__isWebIOS14OrIPadOS14Env = (sys.os === OS.IOS || sys.os === OS.OSX) && systemInfo.isBrowser
             && /(OS 14)|(Version\/14)/.test(window.navigator.userAgent);
                 }
-
-                this.capabilities = {
-                    canvas: true,
-                    opengl: true,
-                    webp: systemInfo.hasFeature(Feature.WEBP),
-                    imageBitmap: systemInfo.hasFeature(Feature.IMAGE_BITMAP),
-                    touches: systemInfo.hasFeature(Feature.INPUT_TOUCH),
-                    mouse: systemInfo.hasFeature(Feature.EVENT_MOUSE),
-                    keyboard: systemInfo.hasFeature(Feature.EVENT_KEYBOARD),
-                    accelerometer: systemInfo.hasFeature(Feature.EVENT_ACCELEROMETER),
-                };
             });
     },
 

@@ -37,7 +37,7 @@ ccstd::vector<Vec3> AutoPlacement::generate(const PlacementInfo &info) {
         case PlaceMethod::ADAPTIVE:
             return doGenerateAdaptive(info);
         default:
-            CC_ASSERT(false);
+            CC_ABORT();
     }
 
     return {};

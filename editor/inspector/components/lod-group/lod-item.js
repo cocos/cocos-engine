@@ -1,5 +1,7 @@
 'use strict';
 
+const { trackEventWithTimer } = require('../../utils/metrics');
+
 exports.template = `
 <ui-section :cache-expand="cacheExpandId">
     <header class="header" slot="header">
@@ -128,6 +130,7 @@ exports.methods = {
         }
         that.data.value.screenUsagePercentage.value = event.target.value / 100;
         that.updateDump(that.data.value.screenUsagePercentage);
+        trackEventWithTimer('LOD', 'A100009');
     },
     onMeshConfirm(event, meshIndex) {
         const that = this;
@@ -138,8 +141,10 @@ exports.methods = {
         const that = this;
         if (operator === 'insert') {
             that.data.value.renderers.value.push(that.data.value.renderers.elementTypeData);
+            trackEventWithTimer('LOD', 'A100007');
         } else if (operator === 'delete') {
             that.data.value.renderers.value.pop();
+            trackEventWithTimer('LOD', 'A100008');
         }
         that.updateDump(that.data.value.renderers);
     },
@@ -147,6 +152,7 @@ exports.methods = {
         const that = this;
         that.$refs['lod-item-dump'].dump = dump;
         that.$refs['lod-item-dump'].dispatch('change-dump');
+        that.$refs['lod-item-dump'].dispatch('confirm-dump');
     },
     updateLODs(operator) {
         const that = this;
@@ -169,6 +175,7 @@ exports.methods = {
         }
         that.data.value.screenUsagePercentage.value = size;
         that.updateDump(that.data.value.screenUsagePercentage);
+        trackEventWithTimer('LOD', 'A100004');
     },
     handleTriangleLabel(meshIndex) {
         const that = this;

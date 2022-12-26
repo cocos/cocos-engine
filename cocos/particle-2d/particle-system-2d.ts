@@ -24,8 +24,10 @@
  THE SOFTWARE.
  */
 
-import { ccclass, editable, type, displayOrder, menu,
-    executeInEditMode, serializable, playOnFocus, tooltip, visible, formerlySerializedAs } from 'cc.decorator';
+import {
+    ccclass, editable, type, displayOrder, menu,
+    executeInEditMode, serializable, playOnFocus, tooltip, visible, formerlySerializedAs, override,
+} from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { UIRenderer } from '../2d/framework/ui-renderer';
 import { Color, Vec2, warnID, errorID, error, path, cclegacy  } from '../core';
@@ -337,6 +339,7 @@ export class ParticleSystem2D extends UIRenderer {
         this._startColorVar.a = val.a;
     }
 
+    @override
     @visible(() => false)
     set color (value) {
     }

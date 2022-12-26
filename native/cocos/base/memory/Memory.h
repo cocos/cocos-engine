@@ -47,7 +47,7 @@ public:
         void *ptr = _aligned_malloc(count, alignment);
 #else
         // alignment is not multiple of sizeof(void*)
-        CC_ASSERT(alignment % sizeof(void *) == 0);
+        CC_ASSERT_ZERO(alignment % sizeof(void *));
         void *ptr = nullptr;
         posix_memalign(&ptr, alignment, count);
 #endif

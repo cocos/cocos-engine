@@ -154,6 +154,10 @@
 #define cc_RenderEntity_node_set(self_, val_) self_->setNode(val_)
   
 
+#define cc_RenderEntity_renderTransform_get(self_) self_->getRenderTransform()
+#define cc_RenderEntity_renderTransform_set(self_, val_) self_->setRenderTransform(val_)
+  
+
 #define cc_RenderEntity_staticDrawInfoSize_get(self_) self_->getStaticDrawInfoSize()
 #define cc_RenderEntity_staticDrawInfoSize_set(self_, val_) self_->setStaticDrawInfoSize(val_)
   
@@ -369,6 +373,7 @@ bool sevalue_to_native(const se::Value &from, cc::MeshBufferLayout * to, se::Obj
 bool js_register_cc_MeshBufferLayout(se::Object* obj) {
     auto* cls = se::Class::create("MeshBufferLayout", obj, nullptr, _SE(js_new_cc_MeshBufferLayout)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("byteOffset", _SE(js_cc_MeshBufferLayout_byteOffset_get), _SE(js_cc_MeshBufferLayout_byteOffset_set)); 
     cls->defineProperty("vertexOffset", _SE(js_cc_MeshBufferLayout_vertexOffset_get), _SE(js_cc_MeshBufferLayout_vertexOffset_set)); 
     cls->defineProperty("indexOffset", _SE(js_cc_MeshBufferLayout_indexOffset_get), _SE(js_cc_MeshBufferLayout_indexOffset_set)); 
@@ -652,6 +657,7 @@ SE_BIND_PROP_GET(js_cc_UIMeshBuffer_iData_get)
 bool js_register_cc_UIMeshBuffer(se::Object* obj) {
     auto* cls = se::Class::create("UIMeshBuffer", obj, nullptr, _SE(js_new_cc_UIMeshBuffer)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("vData", _SE(js_cc_UIMeshBuffer_vData_get), _SE(js_cc_UIMeshBuffer_vData_set)); 
     cls->defineProperty("iData", _SE(js_cc_UIMeshBuffer_iData_get), _SE(js_cc_UIMeshBuffer_iData_set)); 
     
@@ -852,6 +858,7 @@ bool sevalue_to_native(const se::Value &from, cc::Render2dLayout * to, se::Objec
 bool js_register_cc_Render2dLayout(se::Object* obj) {
     auto* cls = se::Class::create("Render2dLayout", obj, nullptr, _SE(js_new_cc_Render2dLayout)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("position", _SE(js_cc_Render2dLayout_position_get), _SE(js_cc_Render2dLayout_position_set)); 
     cls->defineProperty("uv", _SE(js_cc_Render2dLayout_uv_get), _SE(js_cc_Render2dLayout_uv_set)); 
     cls->defineProperty("color", _SE(js_cc_Render2dLayout_color_get), _SE(js_cc_Render2dLayout_color_set)); 
@@ -1001,6 +1008,7 @@ bool sevalue_to_native(const se::Value &from, cc::LocalDSBF * to, se::Object *ct
 bool js_register_cc_LocalDSBF(se::Object* obj) {
     auto* cls = se::Class::create("LocalDSBF", obj, nullptr, _SE(js_new_cc_LocalDSBF)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("ds", _SE(js_cc_LocalDSBF_ds_get), _SE(js_cc_LocalDSBF_ds_set)); 
     cls->defineProperty("uboBuf", _SE(js_cc_LocalDSBF_uboBuf_get), _SE(js_cc_LocalDSBF_uboBuf_set)); 
     
@@ -2060,6 +2068,7 @@ SE_BIND_PROP_GET(js_cc_RenderDrawInfo_stride_get)
 bool js_register_cc_RenderDrawInfo(se::Object* obj) {
     auto* cls = se::Class::create("RenderDrawInfo", obj, nullptr, _SE(js_new_cc_RenderDrawInfo)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("bufferId", _SE(js_cc_RenderDrawInfo_bufferId_get), _SE(js_cc_RenderDrawInfo_bufferId_set)); 
     cls->defineProperty("accId", _SE(js_cc_RenderDrawInfo_accId_get), _SE(js_cc_RenderDrawInfo_accId_set)); 
     cls->defineProperty("vertexOffset", _SE(js_cc_RenderDrawInfo_vertexOffset_get), _SE(js_cc_RenderDrawInfo_vertexOffset_set)); 
@@ -2513,6 +2522,7 @@ bool sevalue_to_native(const se::Value &from, cc::EntityAttrLayout * to, se::Obj
 bool js_register_cc_EntityAttrLayout(se::Object* obj) {
     auto* cls = se::Class::create("EntityAttrLayout", obj, nullptr, _SE(js_new_cc_EntityAttrLayout)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("localOpacity", _SE(js_cc_EntityAttrLayout_localOpacity_get), _SE(js_cc_EntityAttrLayout_localOpacity_set)); 
     cls->defineProperty("colorR", _SE(js_cc_EntityAttrLayout_colorR_get), _SE(js_cc_EntityAttrLayout_colorR_set)); 
     cls->defineProperty("colorG", _SE(js_cc_EntityAttrLayout_colorG_get), _SE(js_cc_EntityAttrLayout_colorG_set)); 
@@ -2805,55 +2815,6 @@ static bool js_cc_RenderEntity_setUseLocal(se::State& s)
 }
 SE_BIND_FUNC(js_cc_RenderEntity_setUseLocal) 
 
-static bool js_cc_RenderEntity_getRenderTransform(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::RenderEntity *arg1 = (cc::RenderEntity *) NULL ;
-    cc::Node *result = 0 ;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::RenderEntity>(s);
-    if (nullptr == arg1) return true;
-    result = (cc::Node *)((cc::RenderEntity const *)arg1)->getRenderTransform();
-    
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments");
-    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_RenderEntity_getRenderTransform) 
-
-static bool js_cc_RenderEntity_setRenderTransform(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::RenderEntity *arg1 = (cc::RenderEntity *) NULL ;
-    cc::Node *arg2 = (cc::Node *) NULL ;
-    
-    if(argc != 1) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::RenderEntity>(s);
-    if (nullptr == arg1) return true;
-    
-    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
-    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
-    (arg1)->setRenderTransform(arg2);
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_RenderEntity_setRenderTransform) 
-
 static bool js_cc_RenderEntity_getStaticRenderDrawInfo(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -3143,6 +3104,45 @@ static bool js_cc_RenderEntity_node_get(se::State& s)
 }
 SE_BIND_PROP_GET(js_cc_RenderEntity_node_get) 
 
+static bool js_cc_RenderEntity_renderTransform_set(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::RenderEntity *arg1 = (cc::RenderEntity *) NULL ;
+    cc::Node *arg2 = (cc::Node *) NULL ;
+    
+    arg1 = SE_THIS_OBJECT<cc::RenderEntity>(s);
+    if (nullptr == arg1) return true;
+    
+    ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments"); 
+    cc_RenderEntity_renderTransform_set(arg1,arg2);
+    
+    
+    return true;
+}
+SE_BIND_PROP_SET(js_cc_RenderEntity_renderTransform_set) 
+
+static bool js_cc_RenderEntity_renderTransform_get(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::RenderEntity *arg1 = (cc::RenderEntity *) NULL ;
+    cc::Node *result = 0 ;
+    
+    arg1 = SE_THIS_OBJECT<cc::RenderEntity>(s);
+    if (nullptr == arg1) return true;
+    result = (cc::Node *)cc_RenderEntity_renderTransform_get(arg1);
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval()); 
+    
+    
+    return true;
+}
+SE_BIND_PROP_GET(js_cc_RenderEntity_renderTransform_get) 
+
 static bool js_cc_RenderEntity_staticDrawInfoSize_set(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -3222,7 +3222,9 @@ SE_BIND_PROP_GET(js_cc_RenderEntity_stencilStage_get)
 bool js_register_cc_RenderEntity(se::Object* obj) {
     auto* cls = se::Class::create("RenderEntity", obj, nullptr, _SE(js_new_cc_RenderEntity)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     cls->defineProperty("node", _SE(js_cc_RenderEntity_node_get), _SE(js_cc_RenderEntity_node_set)); 
+    cls->defineProperty("renderTransform", _SE(js_cc_RenderEntity_renderTransform_get), _SE(js_cc_RenderEntity_renderTransform_set)); 
     cls->defineProperty("staticDrawInfoSize", _SE(js_cc_RenderEntity_staticDrawInfoSize_get), _SE(js_cc_RenderEntity_staticDrawInfoSize_set)); 
     cls->defineProperty("stencilStage", _SE(js_cc_RenderEntity_stencilStage_get), _SE(js_cc_RenderEntity_stencilStage_set)); 
     
@@ -3236,8 +3238,6 @@ bool js_register_cc_RenderEntity(se::Object* obj) {
     cls->defineFunction("getIsMaskInverted", _SE(js_cc_RenderEntity_getIsMaskInverted)); 
     cls->defineFunction("getUseLocal", _SE(js_cc_RenderEntity_getUseLocal)); 
     cls->defineFunction("setUseLocal", _SE(js_cc_RenderEntity_setUseLocal)); 
-    cls->defineFunction("getRenderTransform", _SE(js_cc_RenderEntity_getRenderTransform)); 
-    cls->defineFunction("setRenderTransform", _SE(js_cc_RenderEntity_setRenderTransform)); 
     cls->defineFunction("getStaticRenderDrawInfo", _SE(js_cc_RenderEntity_getStaticRenderDrawInfo)); 
     cls->defineFunction("getStaticRenderDrawInfos", _SE(js_cc_RenderEntity_getStaticRenderDrawInfos)); 
     cls->defineFunction("getEntitySharedBufferForJS", _SE(js_cc_RenderEntity_getEntitySharedBufferForJS)); 
@@ -3489,9 +3489,30 @@ static bool js_cc_UIModelProxy_attachNode(se::State& s)
 }
 SE_BIND_FUNC(js_cc_UIModelProxy_attachNode) 
 
+static bool js_cc_UIModelProxy_clearModels(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::UIModelProxy *arg1 = (cc::UIModelProxy *) NULL ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::UIModelProxy>(s);
+    if (nullptr == arg1) return true;
+    (arg1)->clearModels();
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_UIModelProxy_clearModels) 
+
 bool js_register_cc_UIModelProxy(se::Object* obj) {
     auto* cls = se::Class::create("UIModelProxy", obj, nullptr, _SE(js_new_cc_UIModelProxy)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     cls->defineFunction("initModel", _SE(js_cc_UIModelProxy_initModel)); 
     cls->defineFunction("activeSubModels", _SE(js_cc_UIModelProxy_activeSubModels)); 
@@ -3502,6 +3523,7 @@ bool js_register_cc_UIModelProxy(se::Object* obj) {
     cls->defineFunction("updateModels", _SE(js_cc_UIModelProxy_updateModels)); 
     cls->defineFunction("attachDrawInfo", _SE(js_cc_UIModelProxy_attachDrawInfo)); 
     cls->defineFunction("attachNode", _SE(js_cc_UIModelProxy_attachNode)); 
+    cls->defineFunction("clearModels", _SE(js_cc_UIModelProxy_clearModels)); 
     
     
     
@@ -3807,6 +3829,7 @@ SE_BIND_FUNC(js_cc_Batcher2d_handlePostRender)
 bool js_register_cc_Batcher2d(se::Object* obj) {
     auto* cls = se::Class::create("Batcher2d", obj, nullptr, _SE(js_new_Batcher2d)); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     cls->defineFunction("syncMeshBuffersToNative", _SE(js_cc_Batcher2d_syncMeshBuffersToNative)); 
     cls->defineFunction("initialize", _SE(js_cc_Batcher2d_initialize)); 

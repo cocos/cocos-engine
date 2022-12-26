@@ -24,7 +24,7 @@
  THE SOFTWARE.
 */
 
-import { DEBUG, EDITOR, NATIVE, PREVIEW, TEST } from 'internal:constants';
+import { BUILD, DEBUG, EDITOR, HTML5, JSB, NATIVE, PREVIEW, RUNTIME_BASED, TEST, WEBGPU, TAOBAO } from 'internal:constants';
 import { systemInfo } from 'pal/system-info';
 import { findCanvas, loadJsFile } from 'pal/env';
 import { Pacer } from 'pal/pacer';
@@ -43,6 +43,7 @@ import { IBundleOptions } from '../asset/asset-manager/shared';
 import { ICustomJointTextureLayout } from '../3d/skeletal-animation/skeletal-animation-utils';
 import { IPhysicsConfig } from '../physics/framework/physics-config';
 import { effectSettings } from '../core/effect-settings';
+import { audioManager } from '../audio/audio-manager';
 
 /**
  * @zh
@@ -559,6 +560,7 @@ export class Game extends EventTarget {
         if (this._paused) { return; }
         this._paused = true;
         this._pacer?.stop();
+        audioManager.pause();
     }
 
     /**
@@ -572,6 +574,7 @@ export class Game extends EventTarget {
         input._clearEvents();
         this._paused = false;
         this._pacer?.start();
+        audioManager.resume();
     }
 
     /**
@@ -754,7 +757,16 @@ export class Game extends EventTarget {
             })
             .then(() => effectSettings.init(config.effectSettingsPath))
             .then(() => {
-                effectSettings.applyBindings();
+                // initialize custom render pipeline
+                if (!cclegacy.rendering || !cclegacy.rendering.enableEffectImport) {
+                    return;
+                }
+                const data = effectSettings.data;
+                if (data === null) {
+                    console.error('Effect settings not found, effects will not be imported.');
+                    return;
+                }
+                cclegacy.rendering.init(deviceManager.gfxDevice, data);
             })
             .then(() => {
                 if (DEBUG) {
@@ -771,7 +783,7 @@ export class Game extends EventTarget {
                 return this.onPostSubsystemInitDelegate.dispatch();
             })
             .then(() => {
-                log(`Cocos Creator v${VERSION}`);
+                console.log(`Cocos Creator v${VERSION}`);
                 this.emit(Game.EVENT_ENGINE_INITED);
                 this._engineInited = true;
             })

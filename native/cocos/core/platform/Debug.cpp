@@ -88,36 +88,44 @@ void printLog(DebugMode mode, const ccstd::string &fmt, ccstd::any *arr, int par
         if (pos != ccstd::string::npos && pos != (msg.length() - 1) && (msg[pos + 1] == 'd' || msg[pos + 1] == 's' || msg[pos + 1] == 'f')) {
             needToReplace = true;
         }
-
-        if (arr[i].type() == typeid(const ccstd::string)) {
-            const ccstd::string s = ccstd::any_cast<const ccstd::string>(arr[i]);
+        const auto &elemTypeId = arr[i].type();
+        if (elemTypeId == typeid(const ccstd::string)) {
+            const auto s = ccstd::any_cast<const ccstd::string>(arr[i]);
             if (needToReplace) {
                 msg.replace(pos, 2, s);
             } else {
                 msg += " " + s;
             }
-        } else if (arr[i].type() == typeid(ccstd::string)) {
-            ccstd::string s = ccstd::any_cast<ccstd::string>(arr[i]);
+        } else if (elemTypeId == typeid(ccstd::string)) {
+            auto s = ccstd::any_cast<ccstd::string>(arr[i]);
             if (needToReplace) {
                 msg.replace(pos, 2, s);
             } else {
                 msg += " " + s;
             }
-        } else if (arr[i].type() == typeid(int)) {
+        } else if (elemTypeId == typeid(int)) {
             int value = ccstd::any_cast<int>(arr[i]);
             if (needToReplace) {
                 msg.replace(pos, 2, std::to_string(value));
             } else {
                 msg += " " + std::to_string(value);
             }
-        } else if (arr[i].type() == typeid(float)) {
+        } else if (elemTypeId == typeid(unsigned int)) {
+            auto value = ccstd::any_cast<unsigned int>(arr[i]);
+            if (needToReplace) {
+                msg.replace(pos, 2, std::to_string(value));
+            } else {
+                msg += " " + std::to_string(value);
+            }
+
+        } else if (elemTypeId == typeid(float)) {
             auto value = ccstd::any_cast<float>(arr[i]);
             if (needToReplace) {
                 msg.replace(pos, 2, std::to_string(value));
             } else {
                 msg += " " + std::to_string(value);
             }
-        } else if (arr[i].type() == typeid(const char *)) {
+        } else if (elemTypeId == typeid(const char *)) {
             ccstd::string s = ccstd::any_cast<const char *>(arr[i]);
             if (needToReplace) {
                 msg.replace(pos, 2, s);
@@ -125,7 +133,8 @@ void printLog(DebugMode mode, const ccstd::string &fmt, ccstd::any *arr, int par
                 msg += " " + s;
             }
         } else {
-            CC_LOG_ERROR("unsupport params data type");
+            CC_LOG_ERROR("DebugInfos: unsupport params data type: '%s'", elemTypeId.name());
+            CC_LOG_ERROR(" fmt: \"%s\", parameter index: %d", fmt.c_str(), i);
             return;
         }
     }
@@ -134,4 +143,4 @@ void printLog(DebugMode mode, const ccstd::string &fmt, ccstd::any *arr, int par
 }
 
 } // namespace debug
-} //namespace cc
+} // namespace cc

@@ -27,7 +27,6 @@ import { Vec2 } from './vec2';
 import { Vec4 } from './vec4';
 import { Quat } from './quat';
 import { Color } from './color';
-import { ccclass } from '../data/decorators';
 
 const defineAttr = (proto, name, offset) => {
     Object.defineProperty(proto, name, {
@@ -55,7 +54,7 @@ enum MathType {
     COLOR,
 }
 
-function extendType (proto:any, parentProto:any,  typ: MathType) {
+function extendType (proto: any, parentProto: any, typ: MathType) {
     proto._data = function () {
         if (!this.__data) {
             this.__data = new Float32Array(this.underlyingData());
@@ -64,6 +63,20 @@ function extendType (proto:any, parentProto:any,  typ: MathType) {
     };
     Object.setPrototypeOf(proto, parentProto);
     Object.defineProperty(proto, 'type', { configurable: true, enumerable: true, writable: false, value: typ });
+}
+
+function inheritCCClass (ctor: Constructor, parentCtor: Constructor) {
+    for (const attrName of ['__cid__', '__classname__']) {
+        Object.defineProperty(ctor.prototype, attrName, {
+            value: parentCtor.prototype[attrName],
+            writable: false,
+            enumerable: false,
+            configurable: true,
+        });
+    }
+    for (const staticKey of ['__attrs__', '__props__', '__values__']) {
+        ctor[staticKey] = parentCtor[staticKey];
+    }
 }
 
 if (NATIVE) {
@@ -107,11 +120,11 @@ if (NATIVE) {
     Object.setPrototypeOf(jsb.Color.prototype, Color.prototype);
     Object.defineProperty(jsb.Color.prototype, 'type', { configurable: true, enumerable: true, writable: false, value: MathType.COLOR });
 
-    ccclass('cc.Vec4')(jsb.Vec4);
-    ccclass('cc.Vec3')(jsb.Vec3);
-    ccclass('cc.Vec2')(jsb.Vec2);
-    ccclass('cc.Mat4')(jsb.Mat4);
-    ccclass('cc.Mat3')(jsb.Mat3);
-    ccclass('cc.Color')(jsb.Color);
-    ccclass('cc.Quat')(jsb.Quat);
+    inheritCCClass(jsb.Vec4, Vec4);
+    inheritCCClass(jsb.Vec3, Vec3);
+    inheritCCClass(jsb.Vec2, Vec2);
+    inheritCCClass(jsb.Mat4, Mat4);
+    inheritCCClass(jsb.Mat3, Mat3);
+    inheritCCClass(jsb.Color, Color);
+    inheritCCClass(jsb.Quat, Quat);
 }

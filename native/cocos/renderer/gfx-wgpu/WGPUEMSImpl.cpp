@@ -67,7 +67,7 @@ std::vector<T> vecFromJSArray_local(const val& v) {
     return rv;
 }
 
-#define UNREACHABLE_CONDITION CC_ASSERT(false);
+#define UNREACHABLE_CONDITION CC_ABORT();
 
 #define NUMARGS(...) (sizeof((int[]){__VA_ARGS__}) / sizeof(int))
 

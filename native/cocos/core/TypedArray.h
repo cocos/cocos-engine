@@ -179,7 +179,7 @@ public:
     }
 
     TypedArrayTemp slice(uint32_t start, uint32_t end) {
-        CC_ASSERT(end > start);
+        CC_ASSERT_GT(end, start);
         CC_ASSERT(start < (_byteLength / BYTES_PER_ELEMENT));
         CC_ASSERT(end <= (_byteLength / BYTES_PER_ELEMENT));
         uint32_t newBufByteLength = (end - start) * BYTES_PER_ELEMENT;
@@ -307,7 +307,7 @@ typename std::enable_if_t<!std::is_same<T, SrcType>::value, void> TypedArrayTemp
     uint32_t srcByteOffset = array.byteOffset();
     uint32_t srcCount = array.length();
     uint32_t remainCount = (_byteEndPos - dstByteOffset) / BYTES_PER_ELEMENT;
-    CC_ASSERT(srcCount <= remainCount);
+    CC_ASSERT_LE(srcCount, remainCount);
     for (uint32_t i = 0; i < srcCount; ++i) {
         (*this)[offset + i] = reinterpret_cast<T>(array[i]);
     }

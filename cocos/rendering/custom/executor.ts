@@ -772,6 +772,13 @@ class DeviceRenderPass {
         let framebuffer: Framebuffer | null = null;
         const colTextures: Texture[] = [];
         let depTexture = this._framebuffer.depthStencilTexture;
+        for (const cv of this._rasterInfo.pass.computeViews) {
+            this._applyRenderLayout(cv);
+        }
+        // update the layout descriptorSet
+        if (this.renderLayout && this.renderLayout.descriptorSet) {
+            this.renderLayout.descriptorSet.update();
+        }
         for (const [resName, rasterV] of this._rasterInfo.pass.rasterViews) {
             const deviceTex = this.context.deviceTextures.get(resName)!;
             const resGraph = this.context.resourceGraph;

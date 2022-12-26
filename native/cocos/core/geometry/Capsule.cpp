@@ -40,7 +40,7 @@ void Capsule::updateLocalCenter() {
             ellipseCenter1 = {0, 0, -halfHeight};
             break;
         default:
-            CC_ASSERT(false);
+            CC_ABORT();
     }
 }
 } // namespace geometry

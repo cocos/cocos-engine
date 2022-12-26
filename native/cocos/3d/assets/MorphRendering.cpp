@@ -258,7 +258,7 @@ Vec4TextureFactory createVec4TextureFactory(gfx::Device *gfxDevice, uint32_t vec
     uint32_t width = 0;
     uint32_t height = 0;
     bestSizeToHavePixels(pixelRequired, &width, &height);
-    CC_ASSERT(width * height >= pixelRequired);
+    CC_ASSERT_GE(width * height , pixelRequired);
 
     Vec4TextureFactory ret;
     ret.width = width;
@@ -302,7 +302,7 @@ public:
     }
 
     void setWeights(const ccstd::vector<float> &weights) {
-        CC_ASSERT(weights.size() == _targetCount);
+        CC_ASSERT_EQ(weights.size(), _targetCount);
         for (size_t iWeight = 0; iWeight < weights.size(); ++iWeight) {
             _localBuffer->setFloat32(static_cast<uint32_t>(pipeline::UBOMorph::OFFSET_OF_WEIGHTS + 4 * iWeight), weights[iWeight]);
         }

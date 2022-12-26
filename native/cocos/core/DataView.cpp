@@ -73,8 +73,8 @@ void DataView::assign(ArrayBuffer *buffer, uint32_t byteOffset) {
 }
 
 void DataView::assign(ArrayBuffer *buffer, uint32_t byteOffset, uint32_t byteLength) {
-    CC_ASSERT(buffer != nullptr);
-    CC_ASSERT(byteLength > 0);
+    CC_ASSERT_NOT_NULL(buffer);
+    CC_ASSERT_GT(byteLength, 0);
     _buffer = buffer;
     _byteOffset = byteOffset;
     _byteEndPos = byteLength + byteOffset;
@@ -85,7 +85,7 @@ void DataView::assign(ArrayBuffer *buffer, uint32_t byteOffset, uint32_t byteLen
 
 uint8_t DataView::getUint8(uint32_t offset) const {
     offset += _byteOffset;
-    CC_ASSERT(offset < _byteEndPos);
+    CC_ASSERT_LT(offset, _byteEndPos);
 
     return _data[offset];
 }
@@ -106,7 +106,7 @@ uint32_t DataView::getUint32(uint32_t offset) const {
 
 int8_t DataView::getInt8(uint32_t offset) const {
     offset += _byteOffset;
-    CC_ASSERT(offset < _byteEndPos);
+    CC_ASSERT_LT(offset, _byteEndPos);
 
     return static_cast<int8_t>(_data[offset]);
 }
@@ -134,7 +134,7 @@ float DataView::getFloat32(uint32_t offset) const {
 
 void DataView::setUint8(uint32_t offset, uint8_t value) {
     offset += _byteOffset;
-    CC_ASSERT(offset < _byteEndPos);
+    CC_ASSERT_LT(offset, _byteEndPos);
 
     _data[offset] = value;
 }
@@ -155,7 +155,7 @@ void DataView::setUint32(uint32_t offset, uint32_t value) {
 
 void DataView::setInt8(uint32_t offset, int8_t value) {
     offset += _byteOffset;
-    CC_ASSERT(offset < _byteEndPos);
+    CC_ASSERT_LT(offset, _byteEndPos);
 
     *reinterpret_cast<int8_t *>(_data + offset) = value;
 }

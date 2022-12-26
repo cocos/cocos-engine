@@ -181,28 +181,27 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
       #endif
     #endif
 
-    vec3 R = normalize(reflect(-V, N));
+    #if !CC_USE_REFLECTION_PROBE
+      vec3 R = normalize(reflect(-V, N));
 
-    vec3 rotationDir = RotationVecFromAxisY(R.xyz, cc_surfaceTransform.z, cc_surfaceTransform.w);
-    #if USE_REFLECTION_DENOISE && !CC_IBL_CONVOLUTED
-      env = GetEnvReflectionWithMipFiltering(rotationDir, s.roughness, cc_ambientGround.w, 0.6, vec2(0.0));
-    #else
-      vec4 envmap = fragTextureLod(cc_environment, rotationDir, s.roughness * (cc_ambientGround.w - 1.0));
-
-      #if CC_USE_IBL == IBL_RGBE || CC_USE_REFLECTION_PROBE != REFLECTION_PROBE_TYPE_NONE
-        env = unpackRGBE(envmap);
+      vec3 rotationDir = RotationVecFromAxisY(R.xyz, cc_surfaceTransform.z, cc_surfaceTransform.w);
+      #if USE_REFLECTION_DENOISE && !CC_IBL_CONVOLUTED
+        env = GetEnvReflectionWithMipFiltering(rotationDir, s.roughness, cc_ambientGround.w, 0.6, vec2(0.0));
       #else
-        env = SRGBToLinear(envmap.rgb);
+        vec4 envmap = fragTextureLod(cc_environment, rotationDir, s.roughness * (cc_ambientGround.w - 1.0));
+
+        #if CC_USE_IBL == IBL_RGBE
+          env = unpackRGBE(envmap);
+        #else
+          env = SRGBToLinear(envmap.rgb);
+          #endif
       #endif
     #endif
-
   #endif
 
   #if CC_USE_REFLECTION_PROBE
     vec4 probe = vec4(0.0);
-    #if !CC_USE_IBL
-      vec3 R = normalize(reflect(-V, N));
-    #endif
+    vec3 R = normalize(reflect(-V, N));
     #if CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_CUBE
       probe = fragTextureLod(cc_reflectionProbeCubemap, R, s.roughness * (cc_ambientGround.w - 1.0));
     #elif CC_USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_PLANAR

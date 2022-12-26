@@ -531,6 +531,8 @@ export class Model {
         this.enabled = true;
         this.visFlags = Layers.Enum.NONE;
         this._inited = true;
+        this._bakeToReflectionProbe = true;
+        this._reflectionProbeType = 0;
     }
 
     /**

@@ -657,7 +657,7 @@ void CCVKCommandBuffer::pipelineBarrier(const GeneralBarrier *barrier, const Buf
                                          &eventInfo,
                                          nullptr,
                                          &event);
-            CC_ASSERT(res == VK_SUCCESS);
+            CC_ASSERT_EQ(res, VK_SUCCESS);
         }
         vkCmdSetEvent(_gpuCommandBuffer->vkCommandBuffer, event, stageMask);
         _barrierEvents.insert({obj, event});

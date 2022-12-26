@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -25,16 +25,8 @@
 
 #pragma once
 
-#include <cstdint>
-#include "base/Macros.h"
+namespace se {
+class Object;
+}
 
-namespace cc {
-
-class TouchEvent;
-
-class View {
-public:
-    static void engineHandleCmd(int cmd);
-};
-
-} // namespace cc
+bool register_all_geometry_manual(se::Object *obj); // NOLINT

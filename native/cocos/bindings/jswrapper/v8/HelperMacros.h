@@ -106,11 +106,10 @@ void jsbConstructorWrapper(const v8::FunctionCallbackInfo<v8::Value> &,
                            se_finalize_ptr finalizeCb,
                            se::Class *,
                            const char *);
-void jsbGetterWrapper(const v8::PropertyCallbackInfo<v8::Value> &,
+void jsbGetterWrapper(const v8::FunctionCallbackInfo<v8::Value>&,
                       se_function_ptr,
                       const char *);
-void jsbSetterWrapper(v8::Local<v8::Value>,
-                      const v8::PropertyCallbackInfo<void> &,
+void jsbSetterWrapper(const v8::FunctionCallbackInfo<v8::Value>&,
                       se_function_ptr,
                       const char *);
 
@@ -167,7 +166,7 @@ void jsbSetterWrapper(v8::Local<v8::Value>,
         }
 
     #define SE_BIND_PROP_GET_IMPL(funcName, postFix)                                                                              \
-        void funcName##postFix##Registry(v8::Local<v8::Name> /*_property*/, const v8::PropertyCallbackInfo<v8::Value> &_v8args) { \
+        void funcName##postFix##Registry(const v8::FunctionCallbackInfo<v8::Value>& _v8args) { \
             JsbInvokeScope(#funcName);                                                                                            \
             jsbGetterWrapper(_v8args, funcName, #funcName);                                                                       \
         }
@@ -176,9 +175,9 @@ void jsbSetterWrapper(v8::Local<v8::Value>,
     #define SE_BIND_FUNC_AS_PROP_GET(funcName) SE_BIND_PROP_GET_IMPL(funcName, _asGetter)
 
     #define SE_BIND_PROP_SET_IMPL(funcName, postFix)                                                                                                      \
-        void funcName##postFix##Registry(v8::Local<v8::Name> /*_property*/, v8::Local<v8::Value> _value, const v8::PropertyCallbackInfo<void> &_v8args) { \
+        void funcName##postFix##Registry(const v8::FunctionCallbackInfo<v8::Value>& _v8args) { \
             JsbInvokeScope(#funcName);                                                                                                                    \
-            jsbSetterWrapper(_value, _v8args, funcName, #funcName);                                                                                       \
+            jsbSetterWrapper(_v8args, funcName, #funcName);                                                                                       \
         }
 
     #define SE_BIND_PROP_SET(funcName)         SE_BIND_PROP_SET_IMPL(funcName, )
@@ -199,7 +198,7 @@ void jsbSetterWrapper(v8::Local<v8::Value>,
             do {                                                                                                            \
                 if (!(cond)) {                                                                                              \
                     selogMessage(cc::LogLevel::ERR, "[SE_ASSERT]", (" (%s, %d): " fmt), __FILE__, __LINE__, ##__VA_ARGS__); \
-                    CC_ASSERT(false);                                                                                       \
+                    CC_ABORT();                                                                                       \
                 }                                                                                                           \
             } while (false)
 

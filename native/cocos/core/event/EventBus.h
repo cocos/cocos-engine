@@ -30,6 +30,7 @@
 #include <type_traits>
 
 #include "base/std/container/vector.h"
+#include "base/Log.h"
 #include "core/memop/Pool.h"
 #include "intl/EventIntl.h"
 #include "intl/List.h"
@@ -163,7 +164,7 @@ public:
         if (_callback && _enabled) {
             _callback(std::forward<ARGS>(args)...);
         } else {
-            std::cerr << "[ERROR] listener has no bound function or disabled!" << std::endl;
+            CC_LOG_DEBUG("EventBus[%s] has no listener found!", BUS_NAME);
         }
     }
 

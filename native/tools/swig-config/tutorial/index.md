@@ -1,16 +1,16 @@
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents** 
+**Table of Contents**
 
 - [The Tutorial of Swig Workflow in Cocos Creator](#the-tutorial-of-swig-workflow-in-cocos-creator)
-  - [How to Bind a New Module in Engine](#how-to-bind-a-new-module-in-engine)
-    - [Add a new module interface file](#add-a-new-module-interface-file)
-    - [Modify swig-config.js](#modify-swig-configjs)
-    - [Generate bindings](#generate-bindings)
-    - [Modify `engine/native/cocos/CMakeLists.txt`](#modify-enginenativecocoscmakeliststxt)
-    - [Register the new module to Script Engine](#register-the-new-module-to-script-engine)
-  - [How to Bind a New Module in Developer's Project](#how-to-bind-a-new-module-in-developers-project)
-    - [Bind a simple class](#bind-a-simple-class)
+  * [How to Bind a New Module in Engine](#how-to-bind-a-new-module-in-engine)
+    + [Add a new module interface file](#add-a-new-module-interface-file)
+    + [Modify swig-config.js](#modify-swig-configjs)
+    + [Generate bindings](#generate-bindings)
+    + [Modify `engine/native/cocos/CMakeLists.txt`](#modify-enginenativecocoscmakeliststxt)
+    + [Register the new module to Script Engine](#register-the-new-module-to-script-engine)
+  * [How to Bind a New Module in Developer's Project](#how-to-bind-a-new-module-in-developers-project)
+    + [Bind a simple class](#bind-a-simple-class)
       - [Create a simple class](#create-a-simple-class)
       - [Write an interface file](#write-an-interface-file)
       - [Write a swig config file](#write-a-swig-config-file)
@@ -20,14 +20,20 @@
       - [Register the new module to Script Engine](#register-the-new-module-to-script-engine-1)
       - [Test binding](#test-binding)
       - [Section Conclusion](#section-conclusion)
-    - [Import depended header files](#import-depended-header-files)
-    - [Ignore classes, methods, properties](#ignore-classes-methods-properties)
+    + [Import depended header files](#import-depended-header-files)
+    + [Ignore classes, methods, properties](#ignore-classes-methods-properties)
       - [Ignore classes](#ignore-classes)
       - [Ignore methods and properties](#ignore-methods-and-properties)
-    - [Rename classes, methods, properties](#rename-classes-methods-properties)
-    - [Define attributes which bind C++ getter and setter as a JS property](#define-attributes-which-bind-c-getter-and-setter-as-a-js-property)
-    - [Configure C++ modules in .i file](#configure-c-modules-in-i-file)
-    - [Multiple swig modules configuration](#multiple-swig-modules-configuration)
+    + [Rename classes, methods, properties](#rename-classes-methods-properties)
+    + [Define an attribute](#define-an-attribute)
+      - [Usage](#usage)
+      - [Demo](#demo)
+      - [%attribute_writeonly directive](#%25attribute_writeonly--directive)
+      - [Reference type](#reference-type)
+      - [%arg() directive](#%25arg-directive)
+      - [Don't add `const`](#dont-add-const)
+    + [Configure C++ modules in .i file](#configure-c-modules-in-i-file)
+    + [Multiple swig modules configuration](#multiple-swig-modules-configuration)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -610,7 +616,31 @@ Build and run project, get log:
 17:53:28 [DEBUG]: ==> hello MyObject::methodToBeRenamed
 ```
 
-### Define attributes which bind C++ getter and setter as a JS property
+### Define an attribute
+
+`%attribute` directive is used for bind C++ getter and setter functions as a JS property.
+
+#### Usage
+
+1. Define an attribute (JS property) without setter
+
+   ```c++
+   %attribute(your_namespace::your_class_name, cpp_member_variable_type, js_property_name, cpp_getter_function_name)
+   ```
+
+2. Define an attribute (JS property) with getter and setter
+
+   ```c++
+   %attribute(your_namespace::your_class_name, cpp_member_variable_type, js_property_name, cpp_getter_function_name, cpp_setter_function_name)
+   ```
+
+3. Define an attribute (JS property) without getter
+
+   ```c++
+   %attribute_writeonly(your_namespace::your_class_name, cpp_member_variable_type, js_property_name, cpp_setter_function_name)
+   ```
+
+#### Demo
 
 To demonstrate, we add two new methods for MyObject class.
 
@@ -688,6 +718,95 @@ Build and run project
 18:09:53 [DEBUG]: ==> setType: v: 888 // Cool, C++ setType is invoked
 18:09:53 [DEBUG]: D/ JS: ==> new: myObj.type: 888 // Cool, C++ getType is invoked, 888 is return from C++
 ```
+
+#### %attribute_writeonly  directive
+
+`%attribute_writeonly` directive is an extension we added in swig  `Cocos` backend, it's used for the purpose that C++ class only has a `set` function and there isn't a `get` function.
+
+In `native/tools/swig-config/cocos.i`, there are:
+
+```c++
+%attribute_writeonly(cc::ICanvasRenderingContext2D, float, width, setWidth);
+%attribute_writeonly(cc::ICanvasRenderingContext2D, float, height, setHeight);
+%attribute_writeonly(cc::ICanvasRenderingContext2D, float, lineWidth, setLineWidth);
+%attribute_writeonly(cc::ICanvasRenderingContext2D, ccstd::string&, fillStyle, setFillStyle);
+%attribute_writeonly(cc::ICanvasRenderingContext2D, ccstd::string&, font, setFont);
+```
+
+This is the similar functionality in JS:
+
+```javascript
+Object.defineProperty(MyNewClass.prototype, 'width', {
+  configurable: true,
+  enumerable: true,
+  set(v) {
+    this._width = v;
+  },
+	// No get() for property
+});
+```
+
+#### Reference type
+
+If C++ `get` function returns a reference data type or `set` function accesses a reference data type , don't forget to add `&` suffix in %attribute or %attribute_writeonly directives. The following `ccstd::string&` is an example.
+
+```c++
+%attribute_writeonly(cc::ICanvasRenderingContext2D, ccstd::string&, fillStyle, setFillStyle);
+```
+
+If `&` is missing, a temporary `ccstd::string` instance will be created while the binding function is invoked.
+
+#### %arg() directive
+
+Sometimes, the type of C++ variable is a describled by C++ template, for instance:
+
+```c++
+class MyNewClass {
+  public:
+		const std::map<std::string, std::string>& getConfig() const { return _config; }
+  	void setConfig(const std::map<std::string, std::string> &config) { _config = config; }
+  private:
+  	std::map<std::string, std::string> _config;
+};
+```
+
+We may write an `%attribute` in `.i` file like:
+
+```c++
+%attribute(MyNewClass, std::map<std::string, std::string>&, config, getConfig, setConfig);
+```
+
+You will get an error while invoking `node genbindings.js`.
+
+```
+Error: Macro '%attribute_custom' expects 7 arguments
+```
+
+This is because `swig` doesn't know how to deal with comma (`,`) in `std::map<std::string, std::string>&`, it will split it to two parts:
+
+1. std::map<std::string
+2. std::string>&
+
+Therefore, this line of %attribute directive will be parsed with 6 arguments instead of 5.
+
+To avoid making `swig` confused, we need to use `%arg` directive to tell `swig` that `std::map<std::string, std::string>&` is a whole thing.
+
+```c++
+%attribute(MyNewClass, %arg(std::map<std::string, std::string>&), config, getConfig, setConfig);
+```
+
+Re-run `node genbindings.js`, the error should have gone.
+
+#### Don't add `const` 
+
+In the above sample, `%arg(std::map<std::string, std::string>&)` is used as a C++ data type in %attribue directive. You may consider to add a `const` prefix before `std::map` like `%arg(const std::map<std::string, std::string>&)`. If you do that, you will make a readyonly `config` property which only binds `MyNewClass::getConfig`. That's obviously not what we expect. If we need a readonly property, just don't assign a `set` function. 
+
+```c++
+// Don't assign setConfig means the property doesn't need a setter.
+%attribute(MyNewClass, %arg(std::map<std::string, std::string>&), config, getConfig); 
+```
+
+So to keep things simple, never add `const` prefix while writing a `%attribute` directive.
 
 ### Configure C++ modules in .i file
 

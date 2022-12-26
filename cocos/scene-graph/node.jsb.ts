@@ -27,7 +27,7 @@ import { Component } from './component';
 import { NodeEventType } from './node-event';
 import { CCObject } from '../core/data/object';
 import { NodeUIProperties } from './node-ui-properties';
-import { NodeSpace, TransformBit } from './node-enum';
+import { MobilityMode, NodeSpace, TransformBit } from './node-enum';
 import { Mat4, Quat, Vec3 } from '../core/math';
 import { Layers } from './layers';
 import { editorExtrasTag, SerializationContext, SerializationOutput, serializeTag } from '../core/data';
@@ -234,11 +234,13 @@ nodeProto.removeComponent = function (component) {
 };
 
 const REGISTERED_EVENT_MASK_TRANSFORM_CHANGED = (1 << 0);
-const REGISTERED_EVENT_MASK_PARENT_CHANGED = (1 << 1);
-const REGISTERED_EVENT_MASK_LAYER_CHANGED = (1 << 2);
-const REGISTERED_EVENT_MASK_CHILD_REMOVED_CHANGED = (1 << 3);
-const REGISTERED_EVENT_MASK_CHILD_ADDED_CHANGED = (1 << 4);
-const REGISTERED_EVENT_MASK_SIBLING_ORDER_CHANGED_CHANGED = (1 << 5);
+const REGISTERED_EVENT_MASK_ANCESTOR_TRANSFORM_CHANGED = (1 << 1);
+const REGISTERED_EVENT_MASK_PARENT_CHANGED = (1 << 2);
+const REGISTERED_EVENT_MASK_MOBILITY_CHANGED = (1 << 3);
+const REGISTERED_EVENT_MASK_LAYER_CHANGED = (1 << 4);
+const REGISTERED_EVENT_MASK_CHILD_REMOVED_CHANGED = (1 << 5);
+const REGISTERED_EVENT_MASK_CHILD_ADDED_CHANGED = (1 << 6);
+const REGISTERED_EVENT_MASK_SIBLING_ORDER_CHANGED_CHANGED = (1 << 7);
 
 nodeProto.on = function (type, callback, target, useCapture: any = false) {
     switch (type) {
@@ -249,10 +251,23 @@ nodeProto.on = function (type, callback, target, useCapture: any = false) {
                 this._registeredNodeEventTypeMask |= REGISTERED_EVENT_MASK_TRANSFORM_CHANGED;
             }
             break;
+        case NodeEventType.ANCESTOR_TRANSFORM_CHANGED:
+            this._eventMask |= TRANSFORM_ON;
+            if (!(this._registeredNodeEventTypeMask & REGISTERED_EVENT_MASK_ANCESTOR_TRANSFORM_CHANGED)) {
+                this._registerOnAncestorTransformChanged();
+                this._registeredNodeEventTypeMask |= REGISTERED_EVENT_MASK_ANCESTOR_TRANSFORM_CHANGED;
+            }
+            break;
         case NodeEventType.PARENT_CHANGED:
             if (!(this._registeredNodeEventTypeMask & REGISTERED_EVENT_MASK_PARENT_CHANGED)) {
                 this._registerOnParentChanged();
                 this._registeredNodeEventTypeMask |= REGISTERED_EVENT_MASK_PARENT_CHANGED;
+            }
+            break;
+        case NodeEventType.MOBILITY_CHANGED:
+            if (!(this._registeredNodeEventTypeMask & REGISTERED_EVENT_MASK_MOBILITY_CHANGED)) {
+                this._registerOnMobilityChanged();
+                this._registeredNodeEventTypeMask |= REGISTERED_EVENT_MASK_MOBILITY_CHANGED;
             }
             break;
         case NodeEventType.LAYER_CHANGED:
@@ -293,6 +308,9 @@ nodeProto.off = function (type: string, callback?, target?, useCapture = false) 
     if (!hasListeners) {
         switch (type) {
             case NodeEventType.TRANSFORM_CHANGED:
+                this._eventMask &= ~TRANSFORM_ON;
+                break;
+            case NodeEventType.ANCESTOR_TRANSFORM_CHANGED:
                 this._eventMask &= ~TRANSFORM_ON;
                 break;
             default:
@@ -385,6 +403,10 @@ nodeProto._onTransformChanged = function (transformType) {
     this.emit(NodeEventType.TRANSFORM_CHANGED, transformType);
 };
 
+nodeProto._onAncestorTransformChanged = function (transformType) {
+    this.emit(NodeEventType.ANCESTOR_TRANSFORM_CHANGED, transformType);
+};
+
 nodeProto._onParentChanged = function (oldParent) {
     this.emit(NodeEventType.PARENT_CHANGED, oldParent);
 };
@@ -412,6 +434,10 @@ nodeProto._onDestroyComponents = function () {
         // TO DO
         comps[i]._destroyImmediate();
     }
+};
+
+nodeProto._onMobilityChanged = function () {
+    this.emit(NodeEventType.MOBILITY_CHANGED);
 };
 
 nodeProto._onLayerChanged = function (layer) {
@@ -789,6 +815,17 @@ nodeProto.getWorldRS = function getWorldRS (out?: Mat4): Mat4 {
     return out;
 };
 
+Object.defineProperty(nodeProto, 'name', {
+    configurable: true,
+    enumerable: true,
+    get(): string {
+        return this._name;
+    },
+    set(v: string) {
+        this._name = v;
+    }
+});
+
 Object.defineProperty(nodeProto, 'position', {
     configurable: true,
     enumerable: true,
@@ -1022,17 +1059,6 @@ Object.defineProperty(nodeProto, '_static', {
     },
     set (v) {
         this._sharedUint8Arr[2] = (v ? 1 : 0);
-    },
-});
-
-Object.defineProperty(nodeProto, 'mobility', {
-    configurable: true,
-    enumerable: true,
-    get () {
-        return this._mobility;
-    },
-    set (v) {
-        this._mobility = v;
     },
 });
 
@@ -1362,23 +1388,24 @@ const activeInHierarchyDescriptor = Object.getOwnPropertyDescriptor(NodeProto, '
 editable(NodeProto, 'activeInHierarchy', activeInHierarchyDescriptor);
 const parentDescriptor = Object.getOwnPropertyDescriptor(NodeProto, 'parent');
 editable(NodeProto, 'parent', parentDescriptor);
-serializable(NodeProto, '_parent');
-serializable(NodeProto, '_children');
-serializable(NodeProto, '_active');
-serializable(NodeProto, '_components');
-serializable(NodeProto, '_prefab');
-serializable(NodeProto, '_lpos');
-serializable(NodeProto, '_lrot');
-serializable(NodeProto, '_lscale');
-serializable(NodeProto, '_mobility');
-serializable(NodeProto, '_layer');
-serializable(NodeProto, '_euler');
+serializable(NodeProto, '_parent', () => null);
+serializable(NodeProto, '_children', () => []);
+serializable(NodeProto, '_active', () => true);
+serializable(NodeProto, '_components', () => []);
+serializable(NodeProto, '_prefab', () => null);
+serializable(NodeProto, '_lpos', () => new Vec3());
+serializable(NodeProto, '_lrot', () => new Quat());
+serializable(NodeProto, '_lscale', () => new Vec3(1, 1, 1));
+serializable(NodeProto, '_mobility', () => MobilityMode.Static);
+serializable(NodeProto, '_layer', () => Layers.Enum.DEFAULT);
+serializable(NodeProto, '_euler', () => new Vec3());
 const eulerAnglesDescriptor = Object.getOwnPropertyDescriptor(NodeProto, 'eulerAngles');
 type(Vec3)(NodeProto, 'eulerAngles', eulerAnglesDescriptor);
 const angleDescriptor = Object.getOwnPropertyDescriptor(NodeProto, 'angle');
 editable(NodeProto, 'angle', angleDescriptor);
 const mobilityDescriptor = Object.getOwnPropertyDescriptor(NodeProto, 'mobility');
 editable(NodeProto, 'mobility', mobilityDescriptor);
+type(MobilityMode)(NodeProto, 'mobility', mobilityDescriptor);
 const layerDescriptor = Object.getOwnPropertyDescriptor(NodeProto, 'layer');
 editable(NodeProto, 'layer', layerDescriptor);
 

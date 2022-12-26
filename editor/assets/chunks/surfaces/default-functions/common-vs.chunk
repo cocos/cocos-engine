@@ -12,6 +12,15 @@ vec3 SurfacesVertexModifyLocalNormal(in SurfacesStandardVertexIntermediate In)
 }
 #endif
 
+#ifndef CC_SURFACES_VERTEX_MODIFY_LOCAL_TANGENT
+  #if CC_SURFACES_USE_TANGENT_SPACE
+  vec4 SurfacesVertexModifyLocalTangent(in SurfacesStandardVertexIntermediate In)
+    {
+      return In.tangent;
+    }
+  #endif
+#endif
+
 #ifndef CC_SURFACES_VERTEX_MODIFY_WORLD_POS
 vec3 SurfacesVertexModifyWorldPos(in SurfacesStandardVertexIntermediate In)
 {

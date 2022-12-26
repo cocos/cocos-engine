@@ -9,6 +9,9 @@ void CCSurfacesFragmentGetMaterialData(inout SurfacesMaterialData surfaceData)
 
   surfaceData.worldNormal = SurfacesFragmentModifyWorldNormal();
   SurfacesFragmentModifyWorldTangentAndBinormal(surfaceData.worldTangent, surfaceData.worldBinormal, surfaceData.worldNormal);
+  
+  surfaceData.ior = SurfacesFragmentModifyIOR();
+
 #if CC_SURFACES_LIGHTING_ANISOTROPIC
   float isRotation;
   vec4 anisotropyParams = SurfacesFragmentModifyAnisotropyParams(isRotation);
@@ -90,6 +93,7 @@ void CCSurfacesInitializeLightingIntermediateData(inout LightingIntermediateData
 #endif
   );
   lightingData.specularParam = surfaceData.roughness;
+  lightingData.ior = surfaceData.ior;
 }
 void CCSurfacesLightingCalculateIntermediateData_PerLight(inout LightingIntermediateData lightingData, in SurfacesMaterialData surfaceData, vec3 lightDirWithDist)
 {
@@ -138,13 +142,28 @@ void CCSurfacesInitializeLightingResult(inout LightingResult lightingResult, in 
 vec4 CCSurfacesShading(in SurfacesMaterialData surfaceData, in LightingResult lightingResult)
 {
   vec4 color = vec4(0.0, 0.0, 0.0, surfaceData.baseColor.a);
+
 #if CC_FORWARD_ADD
-  color.xyz += lightingResult.directDiffuse * lightingResult.diffuseColorWithLighting;
-  color.xyz += lightingResult.directSpecular * lightingResult.specularColorWithLighting;
+  // shadow and fresnel has already been applied with common flow
+  color.xyz += lightingResult.directDiffuse * lightingResult.diffuseColorWithLighting
+    + lightingResult.directSpecular * lightingResult.specularColorWithLighting;
+  #if CC_SURFACES_LIGHTING_TRANSMIT_SPECULAR
+    + lightingResult.directTransmitSpecular * lightingResult.specularColorWithLighting
+  #endif
+  ;
+  
 #else
+  float fresnel = 1.0;
+  #if CC_SURFACES_LIGHTING_USE_FRESNEL
+    fresnel = lightingResult.fresnel;
+  #endif
+
   color.xyz +=
     ( lightingResult.directDiffuse * lightingResult.diffuseColorWithLighting
-    + lightingResult.directSpecular * lightingResult.specularColorWithLighting
+    + lightingResult.directSpecular * lightingResult.specularColorWithLighting * fresnel
+  #if CC_SURFACES_LIGHTING_TRANSMIT_SPECULAR
+    + lightingResult.directTransmitSpecular * lightingResult.specularColorWithLighting * (1.0 - fresnel)
+  #endif
   #if CC_SURFACES_LIGHTING_TRT
     + lightingResult.directTRT * lightingResult.specularColorWithLighting
   #endif
@@ -159,15 +178,19 @@ vec4 CCSurfacesShading(in SurfacesMaterialData surfaceData, in LightingResult li
 
   color.xyz +=
     ( lightingResult.environmentDiffuse * lightingResult.diffuseColorWithLighting
-    + lightingResult.environmentSpecular * lightingResult.specularColorWithLighting)
+    + lightingResult.environmentSpecular * lightingResult.specularColorWithLighting * fresnel
+  #if CC_SURFACES_LIGHTING_TRANSMIT_SPECULAR
+    + lightingResult.environmentTransmitSpecular * lightingResult.specularColorWithLighting * (1.0 - fresnel)
+  #endif
   #if CC_SURFACES_LIGHTING_TRT
     + lightingResult.environmentTRT * lightingResult.specularColorWithLighting
   #endif
+    )
     * lightingResult.ao;
 
   color.xyz += lightingResult.emissive;
 #endif
-  
+ 
   return color;
 }
 

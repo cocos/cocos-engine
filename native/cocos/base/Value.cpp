@@ -641,32 +641,32 @@ ccstd::string Value::asString() const {
 }
 
 ValueVector &Value::asValueVector() {
-    CC_ASSERT(_type == Type::VECTOR);
+    CC_ASSERT_EQ(_type, Type::VECTOR);
     return *_field.vectorVal;
 }
 
 const ValueVector &Value::asValueVector() const {
-    CC_ASSERT(_type == Type::VECTOR);
+    CC_ASSERT_EQ(_type, Type::VECTOR);
     return *_field.vectorVal;
 }
 
 ValueMap &Value::asValueMap() {
-    CC_ASSERT(_type == Type::MAP);
+    CC_ASSERT_EQ(_type, Type::MAP);
     return *_field.mapVal;
 }
 
 const ValueMap &Value::asValueMap() const {
-    CC_ASSERT(_type == Type::MAP);
+    CC_ASSERT_EQ(_type, Type::MAP);
     return *_field.mapVal;
 }
 
 ValueMapIntKey &Value::asIntKeyMap() {
-    CC_ASSERT(_type == Type::INT_KEY_MAP);
+    CC_ASSERT_EQ(_type, Type::INT_KEY_MAP);
     return *_field.intKeyMapVal;
 }
 
 const ValueMapIntKey &Value::asIntKeyMap() const {
-    CC_ASSERT(_type == Type::INT_KEY_MAP);
+    CC_ASSERT_EQ(_type, Type::INT_KEY_MAP);
     return *_field.intKeyMapVal;
 }
 
@@ -746,7 +746,7 @@ static ccstd::string visit(const Value &v, int depth) { //NOLINT[misc-no-recursi
             ret << visitMap(v.asIntKeyMap(), depth);
             break;
         default:
-            CC_ASSERT(false);
+            CC_ABORT();
             break;
     }
 

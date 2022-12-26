@@ -407,8 +407,6 @@ export function expandPrefabInstanceNode (node: Node, recursively = false) {
                 });
             }
         }
-        // nested prefab children's id will be the same: 3dtask#12511
-        // applyNodeAndComponentId(node, node.uuid);
 
         const targetMap: Record<string, any | Node | Component> = {};
         prefabInstance.targetMap = targetMap;
@@ -434,48 +432,33 @@ export function expandNestedPrefabInstanceNode (node: Node) {
     if (prefabInfo && prefabInfo.nestedPrefabInstanceRoots) {
         prefabInfo.nestedPrefabInstanceRoots.forEach((instanceNode: Node) => {
             expandPrefabInstanceNode(instanceNode);
-            applyPrefabInstanceIds(instanceNode);
+            // when expanding the prefab,it's children will be change,so need to apply after expanded
+            // @ts-expect-error private member access
+            applyNodeAndComponentId(instanceNode, instanceNode._prefab?.instance?.fileId);
         });
     }
 }
 
-export function applyNodeAndComponentId (node: Node, rootId: string) {
-    const { components, children } = node;
+// make sure prefab instance's children id is fixed
+export function applyNodeAndComponentId (prefabInstanceNode: Node, rootId: string) {
+    const { components, children } = prefabInstanceNode;
     for (let i = 0; i < components.length; i++) {
         const comp = components[i];
-        comp._id = `${rootId}${comp.__prefab?.fileId}`;
+        const fileID = comp.__prefab?.fileId ?? '';
+        comp._id = `${rootId}${fileID}`;
     }
     for (let i = 0; i < children.length; i++) {
         const child = children[i];
         // @ts-expect-error private member access
-        child._id = `${rootId}${child._prefab?.fileId}`;
-        applyNodeAndComponentId(child, rootId);
-    }
-}
+        const prefabInfo = child._prefab!;
+        const fileId = prefabInfo?.instance ? prefabInfo.instance.fileId : prefabInfo?.fileId;
+        if (!fileId) continue;
+        // @ts-expect-error private member access
+        child._id = `${rootId}${fileId}`;
 
-export function applyPrefabInstanceIds (node: Node) {
-    // @ts-expect-error private member access
-    const prefab = node._prefab;
-    if (prefab?.instance?.ids) {
-        const ids: string[] = prefab.instance.ids;
-        const idsLength: number = ids.length;
-        if (idsLength === 0) return;
-        let index = 0;
-        let childrenCount = 0;
-        let matched = true;
-        node.walk((child) => {
-            childrenCount++;
-            matched = index < idsLength;
-            // @ts-expect-error private member access
-            child._id = matched ? ids[index++] : child._id;
-            child.components.forEach((component) => {
-                childrenCount++;
-                matched = index < idsLength;
-                component._id = matched ? ids[index++] : component._id;
-            });
-        });
-        if (!matched) {
-            warn(`node:${node.name} applyPrefabInstanceIds failed:${childrenCount} id expected,only have ${idsLength}`);
+        // ignore prefab instance,because it will be apply in 'nestedPrefabInstanceRoots' for loop;
+        if (!prefabInfo?.instance) {
+            applyNodeAndComponentId(child, rootId);
         }
     }
 }

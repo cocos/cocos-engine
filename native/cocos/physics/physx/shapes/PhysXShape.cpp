@@ -109,19 +109,25 @@ void PhysXShape::updateEventListener(EShapeFilterFlag flag) {
 }
 
 geometry::AABB &PhysXShape::getAABB() {
-    static geometry::AABB aabb;
+    static IntrusivePtr<geometry::AABB> aabb; // this variable is shared with JS with refcounter
+    if (!aabb) {
+        aabb = new geometry::AABB;
+    }
     if (_mShape) {
         auto bounds = physx::PxShapeExt::getWorldBounds(getShape(), *getSharedBody().getImpl().rigidActor);
-        pxSetVec3Ext(aabb.center, (bounds.maximum + bounds.minimum) / 2);
-        pxSetVec3Ext(aabb.halfExtents, (bounds.maximum - bounds.minimum) / 2);
+        pxSetVec3Ext(aabb->center, (bounds.maximum + bounds.minimum) / 2);
+        pxSetVec3Ext(aabb->halfExtents, (bounds.maximum - bounds.minimum) / 2);
     }
-    return aabb;
+    return *aabb;
 }
 
 geometry::Sphere &PhysXShape::getBoundingSphere() {
-    static geometry::Sphere sphere;
-    if (_mShape) sphere.define(getAABB());
-    return sphere;
+    static IntrusivePtr<geometry::Sphere> sphere; // this variable is shared with JS with refcounter
+    if (!sphere) {
+        sphere = new geometry::Sphere;
+    }
+    if (_mShape) sphere->define(getAABB());
+    return *sphere;
 }
 
 void PhysXShape::updateFilterData(const physx::PxFilterData &data) {

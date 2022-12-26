@@ -70,7 +70,7 @@ Size Size::operator*(float a) const {
 }
 
 Size Size::operator/(float a) const {
-    CC_ASSERT(a != 0);
+    CC_ASSERT_NE(a, 0);
     return Size(this->width / a, this->height / a);
 }
 

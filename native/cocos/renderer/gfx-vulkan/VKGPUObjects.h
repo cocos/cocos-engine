@@ -829,7 +829,7 @@ public:
     IntrusivePtr<CCVKGPUBufferView> alloc(uint32_t size) { return alloc(size, 1U); }
 
     IntrusivePtr<CCVKGPUBufferView> alloc(uint32_t size, uint32_t alignment) {
-        CC_ASSERT(size <= CHUNK_SIZE);
+        CC_ASSERT_LE(size, CHUNK_SIZE);
 
         size_t bufferCount = _pool.size();
         Buffer *buffer = nullptr;

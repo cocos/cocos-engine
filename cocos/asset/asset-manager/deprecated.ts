@@ -25,8 +25,6 @@
 
 import { BUILD } from 'internal:constants';
 import { Asset } from '../assets/asset';
-import { director } from '../../game/director';
-import { game } from '../../game';
 import { getError, macro, path, removeProperty, replaceProperty, cclegacy } from '../../core';
 import Cache from './cache';
 import assetManager, { AssetManager } from './asset-manager';
@@ -38,7 +36,6 @@ import parser from './parser';
 import releaseManager from './release-manager';
 import { assets, BuiltinBundleName, bundles, ProgressCallback, CompleteCallback } from './shared';
 import { parseLoadResArgs, setDefaultProgressCallback } from './utilities';
-import { ISceneInfo } from './config';
 import factory from './factory';
 
 const ImageFmts = ['.png', '.jpg', '.bmp', '.jpeg', '.gif', '.ico', '.tiff', '.webp', '.image', '.pvr', '.pkm', '.astc'];
@@ -985,37 +982,6 @@ replaceProperty(macro, 'macro', [
         target: downloader,
         targetName: 'assetManager.downloader',
         newName: 'maxConcurrency',
-    },
-]);
-
-replaceProperty(director, 'director', [
-    {
-        name: '_getSceneUuid',
-        targetName: 'assetManager.main',
-        newName: 'getSceneInfo',
-        customFunction: (sceneName) => {
-            if (assetManager.main) {
-                return assetManager.main.getSceneInfo(sceneName)?.uuid;
-            }
-            return '';
-        },
-    },
-]);
-
-replaceProperty(game, 'game', [
-    {
-        name: '_sceneInfos',
-        targetName: 'assetManager.main',
-        newName: 'getSceneInfo',
-        customGetter: () => {
-            const scenes: ISceneInfo[] = [];
-            if (assetManager.main) {
-                assetManager.main.config.scenes.forEach((val) => {
-                    scenes.push(val);
-                });
-            }
-            return scenes;
-        },
     },
 ]);
 

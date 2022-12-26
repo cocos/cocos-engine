@@ -97,12 +97,12 @@ void Material::doDestroy() {
 }
 
 void Material::recompileShaders(const MacroRecord & /*overrides*/, index_t /*passIdx*/) {
-    CC_ASSERT(false);
+    CC_ABORT();
     CC_LOG_WARNING("Shaders in material asset '%s' cannot be modified at runtime, please instantiate the material first.", _name.c_str());
 }
 
 void Material::overridePipelineStates(const PassOverrides & /*overrides*/, index_t /*passIdx*/) {
-    CC_ASSERT(false);
+    CC_ABORT();
     CC_LOG_WARNING("Pipeline states in material asset '%s' cannot be modified at runtime, please instantiate the material first.", _name.c_str());
 }
 
@@ -335,8 +335,8 @@ ccstd::vector<IntrusivePtr<scene::Pass>> Material::createPasses() {
         }
         passInfo.stateOverrides = _states[propIdx];
 
-        if (passInfo.propertyIndex != CC_INVALID_INDEX) {
-            utils::mergeToMap(defines, _defines[passInfo.propertyIndex]);
+        if (passInfo.propertyIndex.has_value()) {
+            utils::mergeToMap(defines, _defines[passInfo.propertyIndex.value()]);
         }
 
         if (passInfo.embeddedMacros.has_value()) {
@@ -376,7 +376,7 @@ bool Material::uploadProperty(scene::Pass *pass, const ccstd::string &name, cons
                 } else if (ccstd::holds_alternative<Vec4>(prop)) {
                     srgb = ccstd::get<Vec4>(prop);
                 } else {
-                    CC_ASSERT(false);
+                    CC_ABORT();
                 }
 
                 Vec4 linear;

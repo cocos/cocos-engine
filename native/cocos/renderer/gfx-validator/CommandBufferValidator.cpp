@@ -132,7 +132,7 @@ void CommandBufferValidator::beginRenderPass(RenderPass *renderPass, Framebuffer
     CC_ASSERT(fbo && static_cast<FramebufferValidator *>(fbo)->isInited());
 
     // Command 'endRenderPass' must be recorded in primary command buffers.
-    CC_ASSERT(_type == CommandBufferType::PRIMARY);
+    CC_ASSERT_EQ(_type, CommandBufferType::PRIMARY);
     CC_ASSERT(!_insideRenderPass);
 
     for (size_t i = 0; i < renderPass->getColorAttachments().size(); ++i) {
@@ -194,7 +194,7 @@ void CommandBufferValidator::endRenderPass() {
     CC_ASSERT(isInited());
 
     // Command 'endRenderPass' must be recorded in primary command buffers.
-    CC_ASSERT(_type == CommandBufferType::PRIMARY);
+    CC_ASSERT_EQ(_type, CommandBufferType::PRIMARY);
     CC_ASSERT(_insideRenderPass);
     _insideRenderPass = false;
 
@@ -212,7 +212,7 @@ void CommandBufferValidator::execute(CommandBuffer *const *cmdBuffs, uint32_t co
 
     if (!count) return; // be more lenient on this for now
     // Command 'execute' must be recorded in primary command buffers.
-    CC_ASSERT(_type == CommandBufferType::PRIMARY);
+    CC_ASSERT_EQ(_type, CommandBufferType::PRIMARY);
 
     for (uint32_t i = 0U; i < count; ++i) {
         CC_ASSERT(cmdBuffs[i] && static_cast<CommandBufferValidator *>(cmdBuffs[i])->isInited());
@@ -390,7 +390,7 @@ void CommandBufferValidator::updateBuffer(Buffer *buff, const void *data, uint32
     CC_ASSERT(buff && static_cast<BufferValidator *>(buff)->isInited());
 
     // Command 'updateBuffer' must be recorded in primary command buffers.
-    CC_ASSERT(_type == CommandBufferType::PRIMARY);
+    CC_ASSERT_EQ(_type, CommandBufferType::PRIMARY);
     // Command 'updateBuffer' must be recorded outside render passes.
     CC_ASSERT(!_insideRenderPass);
 
@@ -407,7 +407,7 @@ void CommandBufferValidator::copyBuffersToTexture(const uint8_t *const *buffers,
     CC_ASSERT(texture && static_cast<TextureValidator *>(texture)->isInited());
 
     // Command 'copyBuffersToTexture' must be recorded in primary command buffers.
-    CC_ASSERT(_type == CommandBufferType::PRIMARY);
+    CC_ASSERT_EQ(_type, CommandBufferType::PRIMARY);
     // Command 'copyBuffersToTexture' must be recorded outside render passes.
     CC_ASSERT(!_insideRenderPass);
 

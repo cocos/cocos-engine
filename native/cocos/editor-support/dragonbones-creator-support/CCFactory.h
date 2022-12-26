@@ -239,6 +239,8 @@ public:
         return _dragonBonesInstance;
     }
 
+    DragonBonesData *getDragonBonesDataByUUID(const std::string &uuid);
+
     void removeTextureAtlasDataByIndex(const std::string &name, int textureIndex);
     void removeDragonBonesDataByUUID(const std::string &uuid, bool disposeData = true);
 
