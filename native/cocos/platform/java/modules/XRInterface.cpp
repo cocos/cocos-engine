@@ -231,8 +231,18 @@ void XRInterface::dispatchHandleEventInternal(const xr::XRControllerEvent &xrCon
                     case xr::XRClick::Type::TRIGGER_RIGHT:
                     case xr::XRClick::Type::THUMBSTICK_RIGHT:
                     case xr::XRClick::Type::A:
-                    case xr::XRClick::Type::B: {
+                    case xr::XRClick::Type::B:
+                    case xr::XRClick::Type::START: {
                         controllerInfo->buttonInfos.emplace_back(ControllerInfo::ButtonInfo(stickKeyCode, xrClick->isPress));
+                        break;
+                    }
+                    case xr::XRClick::Type::HOME: {
+                        CC_LOG_INFO("[XRInterface] exit when home click in rokid.");
+#if CC_USE_XR
+                        xr::XrEntry::getInstance()->destroyXrInstance();
+                        xr::XrEntry::destroyInstance();
+#endif
+                        CC_CURRENT_APPLICATION_SAFE()->close();
                         break;
                     }
                     default:
