@@ -131,6 +131,26 @@ nodeProto.getComponents = function (typeOrClassName) {
     return components;
 };
 
+const oldGetChildByName = nodeProto.getChildByName;
+nodeProto.getChildByName = function (name: string): Node | null {
+    // The value of _scene is valid, meaning that the current node is associated with the scene.
+    if (this._scene) {
+        return oldGetChildByName.call(this, name);
+    }
+    //The children property may be constructed from the prefab, so the data is not synchronized to the native side.
+    if (!name) {
+        return null;
+    }
+
+    const locChildren = this._children;
+    for (let i = 0, len = locChildren.length; i < len; i++) {
+        if (locChildren[i]._name === name) {
+            return locChildren[i] as Node;
+        }
+    }
+    return null;
+};
+
 nodeProto.getComponentInChildren = function (typeOrClassName) {
     const constructor = getConstructor(typeOrClassName);
     if (constructor) {

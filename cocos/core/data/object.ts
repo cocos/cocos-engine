@@ -79,13 +79,14 @@ let deferredDestroyTimer = null;
 function compileDestruct (obj, ctor) {
     const shouldSkipId = obj instanceof legacyCC.Node || obj instanceof legacyCC.Component;
     const idToSkip = shouldSkipId ? '_id' : null;
+    const nativeAssetToSkip = JSB ? '_nativeAsset' : null;
 
     let key;
     const propsToReset = {};
     for (key in obj) {
         // eslint-disable-next-line no-prototype-builtins
-        if (obj.hasOwnProperty(key)) {
-            if (key === idToSkip) {
+        if (obj.hasOwnProperty(key) || (JSB && key.startsWith('_') && obj.__lookupGetter__(key) && obj.__lookupSetter__(key))) {
+            if (key === idToSkip || key === nativeAssetToSkip) {
                 continue;
             }
             switch (typeof obj[key]) {
