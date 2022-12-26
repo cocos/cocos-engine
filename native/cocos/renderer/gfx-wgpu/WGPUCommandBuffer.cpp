@@ -778,8 +778,9 @@ void CCWGPUCommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, 
             .z = static_cast<uint32_t>(regions[i].srcSubres.baseArrayLayer),
         };
 
+        auto *srcTexture = srcTex->isTextureView() ? static_cast<CCWGPUTexture *>(srcTex->getViewInfo().texture) : srcTex;
         WGPUImageCopyTexture imageCopyTextureSrc = {
-            .texture = srcTex->gpuTextureObject()->wgpuTexture,
+            .texture = srcTexture->gpuTextureObject()->wgpuTexture,
             .mipLevel = regions[i].srcSubres.mipLevel,
             .origin = srcOrigin,
             .aspect = WGPUTextureAspect_All,
@@ -791,8 +792,9 @@ void CCWGPUCommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, 
             .z = static_cast<uint32_t>(regions[i].dstSubres.baseArrayLayer),
         };
 
+        auto *dstTexture = dstTex->isTextureView() ? static_cast<CCWGPUTexture *>(dstTex->getViewInfo().texture) : dstTex;
         WGPUImageCopyTexture imageCopyTextureDst = {
-            .texture = dstTex->gpuTextureObject()->wgpuTexture,
+            .texture = dstTexture->gpuTextureObject()->wgpuTexture,
             .mipLevel = regions[i].dstSubres.mipLevel,
             .origin = dstOrigin,
             .aspect = WGPUTextureAspect_All,
