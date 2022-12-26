@@ -430,20 +430,24 @@ export class SplashScreen {
             for (let xrEye = 0; xrEye < renderSize; xrEye++) {
                 if (sys.isXR) {
                     xr.entry.renderLoopStart(xrEye);
-                    const xrFov = xr.entry.getEyeFov(xrEye);
-                    const left = Math.tan(xrFov[0]);
-                    const right = Math.tan(xrFov[1]);
-                    const bottom = Math.tan(xrFov[2]);
-                    const top = Math.tan(xrFov[3]);
-                    Mat4.ortho(this.projection, left, right, bottom, top, -1, 1, device.capabilities.clipSpaceMinZ,
-                        device.capabilities.clipSpaceSignY, swapchain.surfaceTransform);
-                    this.bgMat.setProperty('u_projection', this.projection);
-                    this.bgMat.passes[0].update();
-                    this.logoMat.setProperty('u_projection', this.projection);
-                    this.logoMat.passes[0].update();
-                    if (this.watermarkMat) {
-                        this.watermarkMat.setProperty('u_projection', this.projection);
-                        this.watermarkMat.passes[0].update();
+                    const xrConfigDeviceVendor = 13;
+                    const compatibleDevice = 4;
+                    if (xr.entry.getXRIntConfig(xrConfigDeviceVendor) !== compatibleDevice) {
+                        const xrFov = xr.entry.getEyeFov(xrEye);
+                        const left = Math.tan(xrFov[0]);
+                        const right = Math.tan(xrFov[1]);
+                        const bottom = Math.tan(xrFov[2]);
+                        const top = Math.tan(xrFov[3]);
+                        Mat4.ortho(this.projection, left, right, bottom, top, -1, 1, device.capabilities.clipSpaceMinZ,
+                            device.capabilities.clipSpaceSignY, swapchain.surfaceTransform);
+                        this.bgMat.setProperty('u_projection', this.projection);
+                        this.bgMat.passes[0].update();
+                        this.logoMat.setProperty('u_projection', this.projection);
+                        this.logoMat.passes[0].update();
+                        if (this.watermarkMat) {
+                            this.watermarkMat.setProperty('u_projection', this.projection);
+                            this.watermarkMat.passes[0].update();
+                        }
                     }
                 }
 
