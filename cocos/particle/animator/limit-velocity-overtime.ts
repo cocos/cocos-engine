@@ -40,6 +40,7 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
     @serializable
     _enable = false;
     /**
+     * @en Enable this module or not
      * @zh 是否启用。
      */
     @displayOrder(0)
@@ -55,6 +56,7 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
     }
 
     /**
+     * @en Limit velocity on X axis
      * @zh X 轴方向上的速度下限。
      */
     @type(CurveRange)
@@ -67,6 +69,7 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
     public limitX = new CurveRange();
 
     /**
+     * @en Limit velocity on Y axis
      * @zh Y 轴方向上的速度下限。
      */
     @type(CurveRange)
@@ -79,6 +82,7 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
     public limitY = new CurveRange();
 
     /**
+     * @en Limit velocity on Z axis
      * @zh Z 轴方向上的速度下限。
      */
     @type(CurveRange)
@@ -91,6 +95,7 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
     public limitZ = new CurveRange();
 
     /**
+     * @en Velocity limit
      * @zh 速度下限。
      */
     @type(CurveRange)
@@ -103,6 +108,7 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
     public limit = new CurveRange();
 
     /**
+     * @en Dampen velocity every time
      * @zh 当前速度与速度下限的插值。
      */
     @serializable
@@ -111,6 +117,7 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
     public dampen = 3;
 
     /**
+     * @en Limit velocity on separate axis
      * @zh 是否三个轴分开限制。
      */
     @serializable
@@ -119,6 +126,7 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
     public separateAxes = false;
 
     /**
+     * @en Space used to calculate limit velocity
      * @zh 计算速度下限时采用的坐标系 [[Space]]。
      */
     @type(Space)
@@ -142,10 +150,22 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
         this.needUpdate = true;
     }
 
+    /**
+     * @en Update limit velocity module calculate transform
+     * @zh 更新模块，计算坐标变换
+     * @param space @en Limit velocity module update space @zh 模块更新空间
+     * @param worldTransform @en Particle system world transform @zh 粒子系统的世界变换矩阵
+     */
     public update (space: number, worldTransform: Mat4) {
         this.needTransform = calculateTransform(space, this.space, worldTransform, this.rotation);
     }
 
+    /**
+     * @en Apply limit velocity to particle
+     * @zh 作用速度衰减到粒子上
+     * @param p @en Particle to animate @zh 模块需要更新的粒子
+     * @param dt @en Update interval time @zh 粒子系统更新的间隔时间
+     */
     public animate (p: Particle, dt: number) {
         const normalizedTime = 1 - p.remainingLifetime / p.startLifetime;
         const dampedVel = _temp_v3;

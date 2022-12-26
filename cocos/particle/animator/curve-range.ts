@@ -174,6 +174,13 @@ export default class CurveRange  {
         }
     }
 
+    /**
+     * @en Calculate curve value
+     * @zh 计算曲线数值
+     * @param time @en Normalized time to interpolate @zh 用于插值的归一化时间
+     * @param rndRatio @en Random seed @zh 随机种子
+     * @returns @en Curve value @zh 曲线的值
+     */
     public evaluate (time: number, rndRatio: number) {
         switch (this.mode) {
         default:
@@ -188,6 +195,11 @@ export default class CurveRange  {
         }
     }
 
+    /**
+     * @en Get the max value this curve can reach
+     * @zh 获得曲线能达到的最大值
+     * @returns @en Max value of this curve @zh 曲线能达到的最大值
+     */
     public getMax (): number {
         switch (this.mode) {
         default:

@@ -38,6 +38,7 @@ export default class RotationOvertimeModule extends ParticleModuleBase {
     @serializable
     _enable = false;
     /**
+     * @en Enable this module or not
      * @zh 是否启用。
      */
     @displayOrder(0)
@@ -56,7 +57,8 @@ export default class RotationOvertimeModule extends ParticleModuleBase {
     private _separateAxes = false;
 
     /**
-     * @zh 是否三个轴分开设定旋转（暂不支持）。
+     * @en Rotation around separate axis
+     * @zh 是否三个轴分开设定旋转。
      */
     @displayOrder(1)
     @tooltip('i18n:rotationOvertimeModule.separateAxes')
@@ -69,6 +71,7 @@ export default class RotationOvertimeModule extends ParticleModuleBase {
     }
 
     /**
+     * @en Angle around X axis
      * @zh 绕 X 轴设定旋转。
      */
     @type(CurveRange)
@@ -80,6 +83,7 @@ export default class RotationOvertimeModule extends ParticleModuleBase {
     public x = new CurveRange();
 
     /**
+     * @en Angle around Y axis
      * @zh 绕 Y 轴设定旋转。
      */
     @type(CurveRange)
@@ -91,6 +95,7 @@ export default class RotationOvertimeModule extends ParticleModuleBase {
     public y = new CurveRange();
 
     /**
+     * @en Angle around Z axis
      * @zh 绕 Z 轴设定旋转。
      */
     @type(CurveRange)
@@ -122,6 +127,12 @@ export default class RotationOvertimeModule extends ParticleModuleBase {
         }
     }
 
+    /**
+     * @en Apply rotation to particle
+     * @zh 作用旋转到粒子上
+     * @param p @en Particle to animate @zh 模块需要更新的粒子
+     * @param dt @en Update interval time @zh 粒子系统更新的间隔时间
+     */
     public animate (p: Particle, dt: number) {
         const normalizedTime = 1 - p.remainingLifetime / p.startLifetime;
         const randZ = isCurveTwoValues(this.z) ? pseudoRandom(p.randomSeed + ROTATION_OVERTIME_RAND_OFFSET) : 0;

@@ -97,11 +97,21 @@ export default class Gradient {
         this._color = Color.WHITE.clone();
     }
 
+    /**
+     * @en Set color keys array and alpha keys array
+     * @zh 设置颜色和透明度的关键帧列表
+     * @param colorKeys @en Array of color keys @zh 颜色关键帧列表
+     * @param alphaKeys @en Array of alpha keys @zh 透明度关键帧列表
+     */
     public setKeys (colorKeys: ColorKey[], alphaKeys: AlphaKey[]) {
         this.colorKeys = colorKeys;
         this.alphaKeys = alphaKeys;
     }
 
+    /**
+     * @en Sort color keys and alpha keys
+     * @zh 对颜色和透明度的关键帧进行排序
+     */
     public sortKeys () {
         if (this.colorKeys.length > 1) {
             this.colorKeys.sort((a, b) => a.time - b.time);
@@ -111,12 +121,23 @@ export default class Gradient {
         }
     }
 
+    /**
+     * @en Interpolate color and alpha from color and alpha keys
+     * @zh 根据颜色列表插值计算颜色和透明度
+     * @param time @en Normalized time to interpolate @zh 用于插值的归一化时间
+     * @returns @en Interpolated color value @zh 插值过后的颜色值
+     */
     public evaluate (time: number) {
         this.getRGB(time);
         this._color._set_a_unsafe(this.getAlpha(time)!);
         return this._color;
     }
 
+    /**
+     * @en Random generate color and alpha
+     * @zh 随机生成颜色和透明度
+     * @returns @en Randomized color @zh 随机生成的颜色
+     */
     public randomColor () {
         const c = this.colorKeys[Math.trunc(Math.random() * this.colorKeys.length)];
         const a = this.alphaKeys[Math.trunc(Math.random() * this.alphaKeys.length)];

@@ -71,6 +71,10 @@ export default class GradientRange {
         this._mode = m;
     }
 
+    /**
+     * @en Get/Set color gradient mode to use
+     * @zh 渐变色类型 [[Mode]]。
+     */
     public static Mode = Mode;
 
     /**
@@ -123,6 +127,13 @@ export default class GradientRange {
 
     private _color = Color.WHITE.clone();
 
+    /**
+     * @en Calculate gradient value
+     * @zh 计算颜色渐变曲线数值
+     * @param time @en Normalized time to interpolate @zh 用于插值的归一化时间
+     * @param rndRatio @en Random seed @zh 随机种子
+     * @returns @en Gradient value @zh 颜色渐变曲线的值
+     */
     public evaluate (time: number, rndRatio: number) {
         switch (this._mode) {
         case Mode.Color:

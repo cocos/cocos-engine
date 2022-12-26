@@ -62,6 +62,11 @@ export default class ColorOvertimeModule extends ParticleModuleBase {
     public color = new GradientRange();
     public name = PARTICLE_MODULE_NAME.COLOR;
 
+    /**
+     * @en Apply color animation to particle
+     * @zh 作用颜色变换到粒子上
+     * @param particle @en Particle to animate @zh 模块需要更新的粒子
+     */
     public animate (particle: Particle) {
         particle.color.set(particle.startColor);
         const rand = isGradientTwoValues(this.color) ? pseudoRandom(particle.randomSeed + COLOR_OVERTIME_RAND_OFFSET) : 0;
