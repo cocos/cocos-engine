@@ -45,8 +45,8 @@ export declare namespace sys {
 }
 
 /**
- * @en A set of system related variables
- * @zh 一系列系统相关环境变量
+ * @en A set of system related variables.
+ * @zh 一系列系统相关环境变量。
  */
 export const sys = {
     Feature,
@@ -56,6 +56,7 @@ export const sys = {
      * Returns if the specified platform related feature is supported.
      * @zh
      * 返回指定的平台相关的特性是否支持。
+     * @param feature @zh 系统的特性。 @en Feature of the system.
      */
     hasFeature (feature: sys.Feature): boolean {
         return systemInfo.hasFeature(feature);
@@ -63,77 +64,77 @@ export const sys = {
 
     /**
      * @en
-     * Network type enumeration
+     * Network type enumeration.
      * @zh
-     * 网络类型枚举
+     * 网络类型枚举。
      */
     NetworkType,
 
     /**
      * @en
-     * LanguageCode type enumeration
+     * LanguageCode type enumeration.
      * @zh
-     * 语言码类型枚举
+     * 语言码类型枚举。
      */
     Language,
 
     /**
      * @en
-     * OS type enumeration
+     * OS type enumeration.
      * @zh
-     * 操作系统类型枚举
+     * 操作系统类型枚举。
      */
     OS,
 
     /**
      * @en
-     * Platform type enumeration
+     * Platform type enumeration.
      * @zh
-     * 平台类型枚举
+     * 平台类型枚举。
      */
     Platform,
 
     /**
      * @en
-     * Browser type enumeration
+     * Browser type enumeration.
      * @zh
-     * 浏览器类型枚举
+     * 浏览器类型枚举。
      */
     BrowserType,
 
     /**
-     * @en Whether the running platform is native app
-     * @zh 指示运行平台是否是原生平台
+     * @en Whether the running platform is native app.
+     * @zh 指示运行平台是否是原生平台。
      */
     isNative: systemInfo.isNative,
 
     /**
-     * @en Whether the running platform is browser
-     * @zh 指示运行平台是否是浏览器
+     * @en Whether the running platform is browser.
+     * @zh 指示运行平台是否是浏览器。
      */
     isBrowser: systemInfo.isBrowser,
 
     /**
-     * @en Indicate whether the current running context is a mobile system
-     * @zh 指示当前运行平台是否是移动端平台
+     * @en Indicate whether the current running context is a mobile system.
+     * @zh 指示当前运行平台是否是移动端平台。
      */
     isMobile: systemInfo.isMobile,
 
     /**
-     * @en Whether the endianness of current platform is little endian
-     * @zh 当前平台字节顺序是否是小端序
+     * @en Whether the endianness of current platform is little endian.
+     * @zh 当前平台字节顺序是否是小端序。
      */
     isLittleEndian: systemInfo.isLittleEndian,
 
     /**
-     * @en The running platform
-     * @zh 当前运行平台或环境
+     * @en The running platform.
+     * @zh 当前运行平台或环境。
      */
     platform: systemInfo.platform,
 
     /**
-     * @en Indicate the current language of the running system
-     * @zh 指示当前运行环境的语言
+     * @en Indicate the current language of the running system.
+     * @zh 指示当前运行环境的语言。
      */
     language: systemInfo.language,
 
@@ -151,52 +152,52 @@ export const sys = {
     languageCode: systemInfo.nativeLanguage,
 
     /**
-     * @en Indicate the running os name
-     * @zh 指示当前运行系统
+     * @en Indicate the running os name.
+     * @zh 指示当前运行系统。
      */
     os: systemInfo.os,
 
     /**
-     * @en Indicate the running os version string
-     * @zh 指示当前运行系统版本字符串
+     * @en Indicate the running os version string.
+     * @zh 指示当前运行系统版本字符串。
      */
     osVersion: systemInfo.osVersion,
 
     /**
-     * @en Indicate the running os main version
-     * @zh 指示当前系统主版本
+     * @en Indicate the running os main version.
+     * @zh 指示当前系统主版本。
      */
     osMainVersion: systemInfo.osMainVersion,
 
     /**
-     * @en Indicate the running browser type
-     * @zh 指示当前运行的浏览器类型
+     * @en Indicate the running browser type.
+     * @zh 指示当前运行的浏览器类型。
      */
     browserType: systemInfo.browserType,
 
     /**
-     * @en Indicate the running browser version
-     * @zh 指示当前运行的浏览器版本
+     * @en Indicate the running browser version.
+     * @zh 指示当前运行的浏览器版本。
      */
     browserVersion: systemInfo.browserVersion,
 
     /**
-     * @en Whether the running platform is xr app
-     * @zh 指示运行平台是否是XR平台
+     * @en Whether the running platform is xr app.
+     * @zh 指示运行平台是否是XR平台。
      */
     isXR: systemInfo.isXR,
 
     /**
-     * @en Indicate the real pixel resolution of the whole game window
-     * @zh 指示游戏窗口的像素分辨率
+     * @en Indicate the real pixel resolution of the whole game window.
+     * @zh 指示游戏窗口的像素分辨率。
      *
      * @deprecated since v3.4.0, please use screen.windowSize instead.
      */
     windowPixelResolution: screen.windowSize,
 
     /**
-     * @en The capabilities of the current platform
-     * @zh 当前平台的功能可用性
+     * @en The capabilities of the current platform.
+     * @zh 当前平台的功能可用性。
      *
      * @deprecated since v3.4.0, please use sys.hasFeature() instead.
      */
@@ -212,14 +213,15 @@ export const sys = {
     },
 
     /**
-     * @en It is a local storage component based on HTML5 localStorage API, on web platform, it's equal to window.localStorage
-     * @zh HTML5 标准中的 localStorage 的本地存储功能，在 Web 端等价于 window.localStorage
+     * @en It is a local storage component based on HTML5 localStorage API, on web platform, it's equal to window.localStorage.
+     * @zh HTML5 标准中的 localStorage 的本地存储功能，在 Web 端等价于 window.localStorage。
      */
     localStorage: {} as Storage,
 
     /**
      * @en Get the network type of current device, return `sys.NetworkType.LAN` if failure.
-     * @zh 获取当前设备的网络类型, 如果网络类型无法获取，默认将返回 `sys.NetworkType.LAN`
+     * @zh 获取当前设备的网络类型, 如果网络类型无法获取，默认将返回 `sys.NetworkType.LAN`。
+     * @return @zh 返回 LAN 或 WWAN。 @en LAN or WWAN.
      */
     getNetworkType (): NetworkType {
         return systemInfo.networkType;
@@ -227,7 +229,7 @@ export const sys = {
 
     /**
      * @en Get the battery level of current device, return 1.0 if failure.
-     * @zh 获取当前设备的电池电量，如果电量无法获取，默认将返回 1
+     * @zh 获取当前设备的电池电量，如果电量无法获取，默认将返回 1。
      * @return - 0.0 ~ 1.0
      */
     getBatteryLevel (): number {
@@ -235,8 +237,8 @@ export const sys = {
     },
 
     /**
-     * @en Forces the garbage collection, only available in native platforms
-     * @zh 强制进行 JS 内存垃圾回收，尽在原生平台有效
+     * @en Forces the garbage collection, only available in native platforms.
+     * @zh 强制进行 JS 内存垃圾回收，尽在原生平台有效。
      */
     garbageCollect () {
         systemInfo.triggerGC();
@@ -247,8 +249,8 @@ export const sys = {
      * In web engine, it will return true if the object exist
      * In native engine, it will return true if the JS object and the correspond native object are both valid
      * @zh 检查一个对象是否非空或在原生平台有效，
-     * 在 Web 平台，只要对象非空或非 Undefined 就会返回 true，在原生平台，我们会检查当前 JS 对象和其绑定的原生对象是否都有效
-     * @param obj The object to be checked
+     * 在 Web 平台，只要对象非空或非 Undefined 就会返回 true，在原生平台，我们会检查当前 JS 对象和其绑定的原生对象是否都有效。
+     * @param obj @zh 校验的对象。@en The object to be checked.
      */
     isObjectValid (obj: any): boolean {
         if (obj === null || obj === undefined) {
@@ -259,8 +261,8 @@ export const sys = {
     },
 
     /**
-     * @en Dump systemInfo informations
-     * @zh 在控制台打印当前的主要系统信息
+     * @en Dump systemInfo informations.
+     * @zh 在控制台打印当前的主要系统信息。
      */
     dump () {
         let str = '';
@@ -282,8 +284,9 @@ export const sys = {
     },
 
     /**
-     * @en Try to open a url in browser, may not work in some platforms
-     * @zh 尝试打开一个 web 页面，并非在所有平台都有效
+     * @en Try to open a url in browser, may not work in some platforms.
+     * @zh 尝试打开一个 web 页面，并非在所有平台都有效。
+     * @param url @zh 访问的链接。 @en Visited links.
      */
     openURL (url) {
         systemInfo.openURL(url);
@@ -327,15 +330,16 @@ export const sys = {
     },
 
     /**
-     * @en Get the current time in milliseconds
-     * @zh 获取当前时间（毫秒为单位）
+     * @en Get the current time in milliseconds.
+     * @zh 获取当前时间（毫秒为单位）。
      */
     now () {
         return systemInfo.now();
     },
 
     /**
-     * Restart the JS VM, only available in native platforms
+     * @en Restart the JS VM, only available in native platforms.
+     * @zh 重启JS虚拟机，仅仅在原生平台有效。
      * @private
      */
     restartVM () {
@@ -348,7 +352,8 @@ export const sys = {
      * If the screen is not notched, this method returns a Rect of the same size as visibleSize by default.
      * Currently supports Android, iOS and WeChat, ByteDance Mini Game platform.
      * @zh
-     * 返回基于游戏视图坐标系的手机屏幕安全区域（设计分辨率为单位），如果不是异形屏将默认返回一个和 visibleSize 一样大的 Rect。目前支持安卓、iOS 原生平台和微信、字节小游戏平台。
+     * 返回基于游戏视图坐标系的手机屏幕安全区域（设计分辨率为单位），如果不是异形屏将默认返回一个和 visibleSize 一样大的 Rect。
+     * 目前支持安卓、iOS 原生平台和微信、字节小游戏平台。
      * @method getSafeAreaRect
      * @return {Rect}
      */

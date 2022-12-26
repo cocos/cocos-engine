@@ -57,7 +57,7 @@ class Screen {
      * @en the ratio of the resolution in physical pixels to the resolution in CSS pixels for the current display device
      * NOTE: For performance reasons, the engine will limit the maximum value of DPR on some platforms.
      * This property returns the DPR after the engine limit.
-     * @zh 当前显示设备的物理像素分辨率与 CSS 像素分辨率之比
+     * @zh 当前显示设备的物理像素分辨率与 CSS 像素分辨率之比。
      * 注意：出于性能考虑，引擎在一些平台会限制 DPR 的最高值，这个属性返回的是引擎限制后的 DPR。
      */
     public get devicePixelRatio () {
@@ -108,8 +108,8 @@ class Screen {
     // }
 
     /**
-     * @en Whether it supports full screen？
-     * @zh 是否支持全屏？
+     * @en Whether it supports full screen.
+     * @zh 是否支持全屏。
      * @returns {Boolean}
      */
     public get supportsFullScreen (): boolean {
@@ -118,7 +118,7 @@ class Screen {
 
     /**
      * @en Return true if it's in full screen state now.
-     * @zh 当前是否处在全屏状态下
+     * @zh 当前是否处在全屏状态下。
      * @returns {boolean}
      */
     public fullScreen (): boolean {
@@ -131,9 +131,9 @@ class Screen {
      * If failed to request fullscreen, another attempt will be made to request fullscreen the next time a user interaction occurs.
      * @zh 尝试使当前节点进入全屏模式，很多浏览器不允许程序触发这样的行为，必须在一个用户交互回调中才会生效。
      * 如果进入全屏失败，会在下一次用户发生交互时，再次尝试进入全屏。
-     * @param element The element to request full screen state
-     * @param onFullScreenChange callback function when full screen state changed
-     * @param onFullScreenError callback function when full screen error
+     * @param element @zh 请求全屏状态的html元素。 @en The element to request full screen state.
+     * @param onFullScreenChange @zh 全屏状态改变的回调函数。 @en callback function when full screen state changed.
+     * @param onFullScreenError @zh 全屏错误的回调函数。 @en callback function when full screen error.
      * @return {Promise|undefined}
      * @deprecated since v3.3, please use `screen.requestFullScreen(): Promise<void>` instead.
      */
@@ -144,6 +144,9 @@ class Screen {
      * If failed to request fullscreen, another attempt will be made to request fullscreen the next time a user interaction occurs.
      * @zh 尝试使当前屏幕进入全屏模式，很多浏览器不允许程序触发这样的行为，必须在一个用户交互回调中才会生效。
      * 如果进入全屏失败，会在下一次用户发生交互时，再次尝试进入全屏。
+     * @param element @zh 请求全屏状态的html元素。 @en The element to request full screen state.
+     * @param onFullScreenChange @zh 全屏状态改变的回调函数。 @en callback function when full screen state changed.
+     * @param onFullScreenError @zh 全屏错误的回调函数。 @en callback function when full screen error.
      * @return {Promise}
      */
     public requestFullScreen (): Promise<void>;
@@ -163,7 +166,7 @@ class Screen {
 
     /**
      * @en Exit the full mode.
-     * @zh 退出全屏模式
+     * @zh 退出全屏模式。
      * @return {Promise}
      */
     public exitFullScreen (): Promise<any> {
@@ -171,10 +174,10 @@ class Screen {
     }
 
     /**
-     * @en Automatically request full screen during the next touch/click event
-     * @zh 自动监听触摸、鼠标事件并在下一次事件触发时尝试进入全屏模式
-     * @param element The element to request full screen state
-     * @param onFullScreenChange callback function when full screen state changed
+     * @en Automatically request full screen during the next touch/click event.
+     * @zh 自动监听触摸、鼠标事件并在下一次事件触发时尝试进入全屏模式。
+     * @param element @zh 请求全屏状态的html元素。 @en The element to request full screen state.
+     * @param onFullScreenChange @zh 全屏状态改变的回调函数。 @en callback function when full screen state changed.
      *
      * @deprecated since v3.3, please use screen.requestFullScreen() instead.
      */
