@@ -68,7 +68,7 @@ enum class ClearValueType;
 struct ComputeView;
 struct LightInfo;
 
-enum class DescriptorTypeOrder;
+enum class DescriptorTypeOrder : uint32_t;
 
 struct Descriptor;
 struct DescriptorBlock;

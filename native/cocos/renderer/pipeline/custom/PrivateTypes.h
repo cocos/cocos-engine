@@ -41,7 +41,7 @@ namespace render {
 
 class ProgramProxy : public RefCounted {
 public:
-    ProgramProxy() noexcept = default;
+    ProgramProxy() = default;
     ProgramProxy(ProgramProxy&& rhs) = delete;
     ProgramProxy(ProgramProxy const& rhs) = delete;
     ProgramProxy& operator=(ProgramProxy&& rhs) = delete;
