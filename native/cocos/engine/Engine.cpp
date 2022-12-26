@@ -332,6 +332,7 @@ bool Engine::redirectWindowEvent(const WindowEvent &ev) {
         isHandled = true;
     } else if (ev.type == WindowEvent::Type::CLOSE) {
         emit<EngineStatusChange>(ON_CLOSE);
+        events::Close::broadcast();
         isHandled = true;
     } else if (ev.type == WindowEvent::Type::QUIT) {
         // There is no need to process the quit message,
