@@ -58,7 +58,7 @@ export function point_plane (point: Vec3, plane_: Plane) {
  * @param out @en The result of the closest point to store into. @zh 存储最近点的向量。
  * @param point @en The given point. @zh 给定点。
  * @param plane @en The target plane. @zh 平面。
- * @returns @en The reference to the result of the closest point `out`. @zh 最近点 `out` 的引用。
+ * @returns @en The result of the closest point, same as the `out` parameter. @zh 存储最近点的向量，与 `out` 参数为同一个对象。
  */
 export function pt_point_plane (out: Vec3, point: Vec3, plane_: Plane) {
     const t = point_plane(point, plane_);
@@ -73,7 +73,7 @@ export function pt_point_plane (out: Vec3, point: Vec3, plane_: Plane) {
  * @param out @en The result of the closest point to store into. @zh 存储最近点的向量。
  * @param point @en The given point @zh 给定点。
  * @param aabb @en The target AABB to calculate. @zh 轴对齐包围盒。
- * @returns @en The reference to the result of the closest point `out`. @zh 最近点 `out` 的引用。
+ * @returns @en The result of the closest point, same as the `out` parameter. @zh 存储最近点的向量，与 `out` 参数为同一个对象。
  */
 export function pt_point_aabb (out: Vec3, point: Vec3, aabb_: AABB): Vec3 {
     Vec3.copy(out, point);
@@ -98,7 +98,7 @@ export function pt_point_aabb (out: Vec3, point: Vec3, aabb_: AABB): Vec3 {
  * @param out @en The result of the closest point to store into. @zh 存储最近点的向量。
  * @param point @en The given point. @zh 给定点。
  * @param obb @en The target OBB to calculate. @zh 参与计算的方向包围盒。
- * @returns @en The reference to the result of the closest point `out`. @zh 最近点 `out` 的引用。
+ * @returns @en The result of the closest point, same as the `out` parameter. @zh 存储最近点的向量，与 `out` 参数为同一个对象。
  */
 export function pt_point_obb (out: Vec3, point: Vec3, obb_: OBB): Vec3 {
     Vec3.set(X, obb_.orientation.m00, obb_.orientation.m01, obb_.orientation.m02);
