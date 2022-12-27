@@ -148,7 +148,7 @@ export class VideoPlayer extends Component {
      * @en
      * The Video playback rate. The value range is from [0.0 ~ 10.0].
      * @zh
-     * 视频播放时的速率, 值的区间为[]0.0 ~ 10.0]。
+     * 视频播放时的速率, 值的区间为[0.0 ~ 10.0]。
      */
     @slide
     @range([0.0, 10, 1.0])
@@ -167,7 +167,7 @@ export class VideoPlayer extends Component {
      * @en
      * The volume of the video. The value range is from [0.0 ~ 1.0].
      * @zh
-     * 视频的音量[0.0 ~ 1.0]。
+     * 视频的音量. 值的区间为[0.0 ~ 1.0]。
      */
     @slide
     @range([0.0, 1.0, 0.1])
