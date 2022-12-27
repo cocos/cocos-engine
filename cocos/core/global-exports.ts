@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -29,9 +29,9 @@ const _global = typeof window === 'undefined' ? global : window;
 
 /**
  * @en
- * The main namespace of Cocos2d-JS, all engine core classes, functions, properties and constants are defined in this namespace.
+ * The main namespace of Cocos engine, all engine core classes, functions, properties and constants are defined in this namespace.
  * @zh
- * Cocos 引擎的主要命名空间，引擎代码中所有的类，函数，属性和常量都在这个命名空间中定义。
+ * Cocos引擎的主要命名空间，引擎代码中所有的类，函数，属性和常量都在这个命名空间中定义。
  * @deprecated
  */
 export const legacyCC: Record<string, any> & {
@@ -50,9 +50,14 @@ if (DEV) {
 const engineVersion = '3.7.0';
 
 /**
- * The current version of Cocos2d being used.<br/>
- * Please DO NOT remove this String, it is an important flag for bug tracking.<br/>
+ * @en
+ * The current version of Cocos engine.
+ * Please DO NOT remove this String, it is an important flag for bug tracking.
  * If you post a bug to forum, please attach this flag.
+ * @zh
+ * 当前使用的 Cocos 引擎版本。
+ * 请不要删除此字符串，它是错误跟踪的重要标志。
+ * 如果您将错误发布到论坛，请附上此标志。
  */
 _global.CocosEngine = legacyCC.ENGINE_VERSION = engineVersion;
 
@@ -67,6 +72,6 @@ _global.ccwindow = ccwindow;
  * @en
  * It is jsb.window in native mode, otherwise it is the window object in the web context.
  * @zh
- * 原生环境下为 jsb.window, 引擎为模拟部分 web 环境所提供. Web 环境这个变量是 window 对象.
+ * 原生环境下为 jsb.window, 引擎为模拟部分 web 环境所提供. Web 环境这个变量是 window 对象。
  */
 export { ccwindow };
