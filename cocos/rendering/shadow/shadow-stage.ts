@@ -82,6 +82,11 @@ export class ShadowStage extends RenderStage {
         this._additiveShadowQueue?.clear();
     }
 
+    /**
+     * @en
+     * @zh 清理framebuffer
+     * @param camera 被渲染的相机
+     */
     public clearFramebuffer (camera: Camera) {
         if (!this._light || !this._shadowFrameBuffer || this._isShadowMapCleared) { return; }
 
@@ -105,6 +110,11 @@ export class ShadowStage extends RenderStage {
         this._isShadowMapCleared = true;
     }
 
+    /**
+     * @en Rendering stage for shadows rendering
+     * @zh 阴影阶段渲染
+     * @param camera 被渲染的相机
+     */
     public render (camera: Camera) {
         const pipeline = this._pipeline;
         const pipelineSceneData = pipeline.pipelineSceneData;
@@ -162,6 +172,11 @@ export class ShadowStage extends RenderStage {
         this._isShadowMapCleared = false;
     }
 
+    /**
+     * @en Activate the shadow render stage in the given render flow
+     * @zh 为阴影的渲染流程开启当前渲染阶段
+     * @param flow The render flow to activate this render stage
+     */
     public activate (pipeline: ForwardPipeline, flow: ShadowFlow) {
         super.activate(pipeline, flow);
         this._additiveShadowQueue = new RenderShadowMapBatchedQueue(pipeline);

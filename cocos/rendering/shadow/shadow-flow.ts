@@ -61,6 +61,12 @@ export class ShadowFlow extends RenderFlow {
 
     private _shadowRenderPass: RenderPass|null = null;
 
+    /**
+     * @en Initializing the shadow flow
+     * @zh 初始化阴影渲染流程
+     * @param info 渲染流程描述信息
+     * @returns 是否初始化成功
+     */
     public initialize (info: IRenderFlowInfo): boolean {
         super.initialize(info);
         if (this._stages.length === 0) {
@@ -72,6 +78,11 @@ export class ShadowFlow extends RenderFlow {
         return true;
     }
 
+    /**
+     * @en Activate the shadow render flow in the given pipeline
+     * @zh 为阴影的渲染管线开启当前渲染流程
+     * @param pipeline 渲染管线对象
+     */
     public activate (pipeline: RenderPipeline) {
         super.activate(pipeline);
 
@@ -103,6 +114,11 @@ export class ShadowFlow extends RenderFlow {
         pipeline.onGlobalPipelineStateChanged();
     }
 
+    /**
+     * @en Rendering flow for shadows rendering
+     * @zh 阴影流程渲染
+     * @param camera 被渲染的相机
+     */
     public render (camera: Camera) {
         const pipeline = this._pipeline as ForwardPipeline;
         const shadowInfo = pipeline.pipelineSceneData.shadows;
@@ -166,6 +182,10 @@ export class ShadowFlow extends RenderFlow {
         _validLights.length = 0;
     }
 
+    /**
+     * @en Destroying the shadow rendering flow
+     * @zh 销毁阴影渲染流程
+     */
     public destroy () {
         super.destroy();
         if (this._pipeline) {
@@ -195,6 +215,8 @@ export class ShadowFlow extends RenderFlow {
     }
 
     /**
+     * @en Initialize the framebuffer used by the shadow rendering process
+     * @zh 初始化阴影渲染流程所使用的 framebuffer
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _initShadowFrameBuffer  (pipeline: RenderPipeline, light: Light, swapchain: Swapchain) {

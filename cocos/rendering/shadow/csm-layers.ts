@@ -46,6 +46,10 @@ const _shadowPos = new Vec3();
 let _maxLayerPosz = 0.0;
 let _maxLayerFarPlane = 0.0;
 
+/**
+ * @en
+ * @zh 级联阴影单个层级基类
+ */
 export class ShadowLayerVolume {
     protected _shadowObjects: IRenderObject[] = [];
 
@@ -71,12 +75,24 @@ export class ShadowLayerVolume {
         this._lightViewFrustum.accurate = true;
     }
 
+    /**
+     * @en
+     * @zh 获取当前层级
+     */
     get level () { return this._level; }
 
+    /**
+     * @en
+     * @zh 获取当前层级被渲染的阴影对象
+     */
     get shadowObjects () {
         return this._shadowObjects;
     }
 
+    /**
+     * @en
+     * @zh 获取或者设置当前层级相机的最远可视距离
+     */
     get shadowCameraFar () {
         return this._shadowCameraFar;
     }
@@ -84,6 +100,10 @@ export class ShadowLayerVolume {
         this._shadowCameraFar = val;
     }
 
+    /**
+     * @en
+     * @zh 获取或者设置阴影视口矩阵
+     */
     get matShadowView () {
         return this._matShadowView;
     }
@@ -91,6 +111,10 @@ export class ShadowLayerVolume {
         this._matShadowView = val;
     }
 
+    /**
+     * @en
+     * @zh 获取或者设置当前层级投影矩阵
+     */
     get matShadowProj () {
         return this._matShadowProj;
     }
@@ -98,6 +122,10 @@ export class ShadowLayerVolume {
         this._matShadowProj = val;
     }
 
+    /**
+     * @en
+     * @zh 获取或者设置当前层级视口投影矩阵
+     */
     get matShadowViewProj () {
         return this._matShadowViewProj;
     }
@@ -105,38 +133,74 @@ export class ShadowLayerVolume {
         this._matShadowViewProj = val;
     }
 
+    /**
+     * @en
+     * @zh 获取当前层级重新分割后的有效截面体
+     */
     get validFrustum (): Readonly<Frustum> {
         return this._validFrustum;
     }
 
+    /**
+     * @en
+     * @zh 获取当前层级被分割的截面体
+     */
     get splitFrustum (): Readonly<Frustum> {
         return this._splitFrustum;
     }
 
+    /**
+     * @en
+     * @zh 获取当前层级在光空间下分割的截面体
+     */
     get lightViewFrustum (): Readonly<Frustum> {
         return this._lightViewFrustum;
     }
 
+    /**
+     * @en
+     * @zh 获取光照视口下被分割的包围盒
+     */
     get castLightViewBoundingBox (): Readonly<AABB> {
         return this._castLightViewBoundingBox;
     }
 
+    /**---
+     * @en
+     * @zh 复制视口到当前层级下的截面体
+     */
     public copyToValidFrustum (validFrustum: Readonly<Frustum>) {
         Frustum.copy(this._validFrustum, validFrustum);
     }
 
+    /**
+     * @en
+     * @zh 计算有效分割视口下的正交截面体
+     */
     public calculateValidFrustumOrtho (width: number, height: number, near: number, far: number, transform: Mat4) {
         Frustum.createOrtho(this._validFrustum, width, height, near,  far, transform);
     }
 
+    /**
+     * @en
+     * @zh 计算被分割后的截面体
+     */
     public calculateSplitFrustum (camera: Camera, m: Mat4, start: number, end: number) {
         this._splitFrustum.split(start, end, camera.aspect, camera.fov, m);
     }
 
+    /**
+     * @en
+     * @zh 销毁级联阴影对象
+     */
     public destroy () {
         this._shadowObjects.length = 0;
     }
 
+    /**
+     * @en
+     * @zh 计算每个层级的矩阵
+     */
     public createMatrix (dirLight: DirectionalLight, shadowMapWidth: number, onlyForCulling: boolean) {
         const device = cclegacy.director.root.device;
         const invisibleOcclusionRange = dirLight.shadowInvisibleOcclusionRange;
@@ -212,6 +276,11 @@ export class ShadowLayerVolume {
             0.1,  this._shadowCameraFar, _matShadowTrans);
     }
 }
+
+/**
+ * @en
+ * @zh 级联阴影层级类
+ */
 export class CSMShadowLayer extends ShadowLayerVolume {
     protected _splitCameraNear = 0;
     protected _splitCameraFar = 0;
@@ -223,6 +292,10 @@ export class CSMShadowLayer extends ShadowLayerVolume {
         this._calculateAtlas(level);
     }
 
+    /**
+     * @en
+     * @zh 获取或者设置当前层分割相机的近裁剪面
+     */
     get splitCameraNear () {
         return this._splitCameraNear;
     }
@@ -230,6 +303,10 @@ export class CSMShadowLayer extends ShadowLayerVolume {
         this._splitCameraNear = val;
     }
 
+    /**
+     * @en
+     * @zh 获取或者设置当前层分割相机的远裁剪面
+     */
     get splitCameraFar () {
         return this._splitCameraFar;
     }
@@ -237,6 +314,10 @@ export class CSMShadowLayer extends ShadowLayerVolume {
         this._splitCameraFar = val;
     }
 
+    /**
+     * @en
+     * @zh 获取或者设置当前层分割相机的分割系数
+     */
     get csmAtlas () {
         return this._csmAtlas;
     }
@@ -244,6 +325,10 @@ export class CSMShadowLayer extends ShadowLayerVolume {
         this._csmAtlas = val;
     }
 
+    /**
+     * @en
+     * @zh 销毁当前层级
+     */
     public destroy () {
         super.destroy();
     }
@@ -271,18 +356,34 @@ export class CSMLayers {
     protected _specialLayer: ShadowLayerVolume = new ShadowLayerVolume(1);
     protected _shadowDistance = 0;
 
+    /**
+     * @en
+     * @zh 获取所有需要投射阴影的对象
+     */
     get castShadowObjects () {
         return this._castShadowObjects;
     }
 
+    /**
+     * @en
+     * @zh 获取当前层需要投射阴影的对象
+     */
     get layerObjects () {
         return this._layerObjects;
     }
 
+    /**
+     * @en
+     * @zh 获取所有层级
+     */
     get layers () {
         return this._layers;
     }
 
+    /**
+     * @en
+     * @zh 获取特殊层级对象
+     */
     get specialLayer () {
         return this._specialLayer;
     }
@@ -293,6 +394,10 @@ export class CSMLayers {
         }
     }
 
+    /**
+     * @en
+     * @zh 更新所有层级
+     */
     public update (sceneData: PipelineSceneData, camera: Camera) {
         const scene = camera.scene!;
         const dirLight = scene.mainLight;
@@ -318,6 +423,10 @@ export class CSMLayers {
         }
     }
 
+    /**
+     * @en
+     * @zh 销毁级联阴影
+     */
     public destroy () {
         this._castShadowObjects.length = 0;
         for (let i = 0; i < this._layers.length; i++) {
