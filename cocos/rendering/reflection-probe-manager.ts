@@ -56,9 +56,7 @@ export class ReflectionProbeManager {
     private _usePlanarModels = new Map<Model, ReflectionProbe>();
     protected _texture: Texture | null = null;
     constructor () {
-        if (EDITOR) {
-            director.on(Director.EVENT_BEFORE_UPDATE, this.onUpdateProbes, this);
-        }
+        director.on(Director.EVENT_BEFORE_UPDATE, this.onUpdateProbes, this);
     }
 
     public updateDateTexture () {
