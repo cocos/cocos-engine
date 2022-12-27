@@ -45,7 +45,7 @@ const transform_extent_m4 = (out: Vec3, extent: Vec3, m4: Mat4 | Readonly<Mat4>)
 
 /**
   * @en
-  * Basic Geometry: Axis-aligned bounding box, using center and half extents structure. 
+  * Basic Geometry: Axis-aligned bounding box, using center and half extents structure.
   * It's a fairly computationally and memory efficient way of checking whether two 3D objects might be touching.
   * @zh
   * 基础几何：轴对齐包围盒，使用中心点和半长宽高的结构。
@@ -76,7 +76,7 @@ export class AABB {
       * @zh
       * 克隆一个 AABB，其会创建出一个值跟输入参数`a`一样的 AABB 实例。注意，每次调用 `clone` 都会创建出新实例，尽可能使用 `copy` 方法以减小 GC 压力。
       * @param a @zh 克隆的目标。 @en The target object to be cloned.
-      * @returns @zh 克隆出的 AABB。@en The cloned AABB.
+      * @returns @zh 克隆出的 AABB 实例。@en The cloned AABB instance.
       */
     public static clone (a: AABB | Readonly<AABB>) {
         return new AABB(a.center.x, a.center.y, a.center.z,
@@ -256,7 +256,7 @@ export class AABB {
       * Clones this AABB, which will create a new AABB instance with the same value as this AABB. Note that each time `clone` is invoked, a new AABB object will be created, so use `copy` method whenever it could to reduce GC pressure.
       * @zh
       * 克隆一个 AABB，其会创建出一个值跟当前 AABB 一样的实例。注意，每次调用 `clone` 都会创建出新实例，尽可能使用 `copy` 方法以减小 GC 压力。
-      * @returns @zh 克隆的 AABB 实例 @en The cloned AABB instance.
+      * @returns @zh 克隆出的 AABB 实例 @en The cloned AABB instance.
       */
     public clone (): AABB {
         return AABB.clone(this);
