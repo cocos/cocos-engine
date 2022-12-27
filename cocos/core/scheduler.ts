@@ -41,21 +41,9 @@ export interface ISchedulable {
 
 // data structures
 /**
- * @en A list double-linked list used for "updates with priority"
- * @zh 用于“优先更新”的列表
+ * @en A list double-linked list used for "updates with priority".
+ * @zh 用于“优先更新”的列表。
  * @class ListEntry
- * @param target
- * @en target object, which is ISchedulable type, retained by hashUpdateEntry
- * @zh 目标对象, 为ISchedulable类型. 被hashUpdateEntry持有
- * @param priority
- * @en the priority
- * @zh 优先级
- * @param paused
- * @en whether is paused
- * @zh 是否被暂停
- * @param markedForDeletion
- * @en mark for deletion. if true, selector will no longer be called and entry will be removed at end of the next tick
- * @zh 删除标记, 当为true时, selector 将不再被调用，并且entry将在下一个tick结束时被删除
  */
 class ListEntry {
     public static get = (target: ISchedulable, priority: number, paused: boolean, markedForDeletion: boolean) => {
@@ -85,6 +73,22 @@ class ListEntry {
     public paused: boolean;
     public markedForDeletion: boolean;
 
+    /**
+     * @en The constructor of ListEntry.
+     * @zh ListEntry 的构造函数。
+     * @param target
+     * @en Target object, which is ISchedulable type, retained by hashUpdateEntry.
+     * @zh 目标对象, 为ISchedulable类型. 被hashUpdateEntry持有。
+     * @param priority
+     * @en The priority.
+     * @zh 优先级。
+     * @param paused
+     * @en Whether is paused.
+     * @zh 是否被暂停。
+     * @param markedForDeletion
+     * @en Mark for deletion. if true, selector will no longer be called and entry will be removed at end of the next tick.
+     * @zh 删除标记, 当为true时, selector 将不再被调用，并且entry将在下一个tick结束时被删除。
+     */
     constructor (target: ISchedulable, priority: number, paused: boolean, markedForDeletion: boolean) {
         this.target = target;
         this.priority = priority;
@@ -94,13 +98,13 @@ class ListEntry {
 }
 
 /**
- * @en The update entry list
- * @zh 更新条目列表
+ * @en The update entry list.
+ * @zh 更新条目列表。
  * @class HashUpdateEntry
- * @param list @en Which list does it belong to @zh 所属的列表
- * @param entry @en entry in the list @zh 所述的条目
- * @param target @en hash key (retained) @zh 哈希键所对应的目标(被持有的)
- * @param callback @en the callback function @zh 回调函数
+ * @param list @en Which list does it belong to. @zh 所属的列表。
+ * @param entry @en Entry in the list. @zh 所述的条目。
+ * @param target @en Hash key (retained). @zh 哈希键所对应的目标(被持有的)。
+ * @param callback @en The callback function. @zh 所回调的函数。
  */
 class HashUpdateEntry {
     public static get = (list: any, entry: ListEntry, target: ISchedulable, callback: any) => {
@@ -245,25 +249,29 @@ class CallbackTimer {
         return true;
     }
     /**
-     * @return @en returns interval of timer in seconds @zh 返回计时器的时间间隔, 以秒为单位
+     * @en get interval for timer in seconds.
+     * @zh 获取计时器的时间间隔, 以秒为单位。
+     * @returns
+     * @en returns interval of timer in seconds.
+     * @zh 返回计时器的时间间隔, 以秒为单位。
      */
     public getInterval () {
         return this._interval;
     }
     /**
-     * @en Set interval in seconds
-     * @zh 以秒为单位设置时间间隔
+     * @en Set interval in seconds.
+     * @zh 以秒为单位设置时间间隔。
      */
     public setInterval (interval) {
         this._interval = interval;
     }
 
     /**
-     * @en Update function which triggers the timer
-     * @zh 计时更新函数，用来触发计时器
+     * @en Update function which triggers the timer.
+     * @zh 计时更新函数，用来触发计时器。
      * @param dt
-     * @en delta time
-     * @zh 更新间隔时间
+     * @en delta time. The unit is seconds.
+     * @zh 更新间隔时间, 单位是秒。
      */
     public update (dt: number) {
         if (this._elapsed === -1) {
@@ -357,6 +365,8 @@ export class Scheduler extends System {
      * @zh 任何需要用 Scheduler 管理任务的对象主体都应该调用这个方法，并且应该在调用任何 Scheduler API 之前调用这个方法。
      * 这个方法会给对象添加一个 `id` 属性，如果这个属性不存在的话。
      * @param target
+     * @en The target to enable, which type is ISchedulable.
+     * @zh 所作用的对象。类型为ISchedulable。
      */
     public static enableForTarget (target: ISchedulable) {
         let found = false;
@@ -421,10 +431,11 @@ export class Scheduler extends System {
     }
 
     /**
-     * @en 'update' the scheduler. (You should NEVER call this method, unless you know what you are doing.)
+     * @en 'update' the scheduler. (You should  delta time call this method, unless you know what you are doing.)
      * @zh update 调度函数。(不应该直接调用这个方法，除非完全了解这么做的结果)
      * @param dt
-     * @en delta time @zh 更新间隔时间
+     * @en delta time. The unit is seconds.
+     * @zh 更新间隔时间, 单位是秒。
      */
     public update (dt) {
         this._updateHashLocked = true;
@@ -518,31 +529,30 @@ export class Scheduler extends System {
     }
 
     /**
-     * @en
-     * <p>
-     *   The scheduled method will be called every 'interval' seconds.<br/>
-     *   If 'interval' is 0, it will be called every frame, but if so, it recommended to use 'scheduleUpdateForTarget:' instead.<br/>
-     *   If the callback function is already scheduled, then only the interval parameter will be updated without re-scheduling it again.<br/>
-     *   repeat let the action be repeated repeat + 1 times, use `macro.REPEAT_FOREVER` to let the action run continuously<br/>
-     *   delay is the amount of time the action will wait before it'll start. Unit: s<br/>
-     *   If paused is YES, then it won't be called until it is resumed.<br/>
-     * </p>
-     * @zh
-     * 指定回调函数，调用对象等信息来添加一个新的定时器。<br/>
-     * 当时间间隔达到指定值时，设置的回调函数将会被调用。<br/>
-     * 如果 interval 值为 0，那么回调函数每一帧都会被调用，但如果是这样，
-     * 建议使用 scheduleUpdateForTarget 代替。<br/>
-     * 如果回调函数已经被定时器使用，那么只会更新之前定时器的时间间隔参数，不会设置新的定时器。<br/>
-     * repeat 值可以让定时器触发 repeat + 1 次，使用 `macro.REPEAT_FOREVER`
-     * 可以让定时器一直循环触发。<br/>
-     * delay 值指定延迟时间，定时器会在延迟指定的时间之后开始计时，单位: 秒。
-     * 如果 paused 值为 true，那么直到 resume 被调用才开始计时。<br/>
+     * @en Specify the callback, target and other information to schedule a new timer
+     * @zh 指定回调函数，调用对象等信息来规划一个新的定时器。
      * @param callback
+     * @en The specified callback function.
+     * If the callback function is already scheduled, then only the interval parameter will be updated without re-scheduling it again.
+     * @zh 所指定的回调函数。
+     * 如果回调函数已经被定时器使用，那么只会更新之前定时器的时间间隔参数，不会设置新的定时器。
      * @param target
+     * @en The specified target.
+     * @zh 所指定的调用对象。
      * @param interval
+     * @en The scheduled method will be called every 'interval' seconds.
+     * If 'interval' is 0, it will be called every frame, but if so, it recommended to use 'scheduleUpdateForTarget:' instead.
+     * @zh 当时间间隔达到指定值时，设置的回调函数将会被调用。
+     * 如果 interval 值为 0，那么回调函数每一帧都会被调用，但如果是这样，建议使用 scheduleUpdateForTarget 代替。
      * @param [repeat]
+     * @en repeat let the action be repeated repeat + 1 times, use `macro.REPEAT_FOREVER` to let the action run continuously.
+     * @zh repeat 值可以让定时器触发 repeat + 1 次，使用 `macro.REPEAT_FOREVER` 可以让定时器一直循环触发。
      * @param [delay=0]
+     * @en delay is the amount of time the action will wait before it'll start. Unit: s.
+     * @zh delay 值指定延迟时间，定时器会在延迟指定的时间之后开始计时，单位: 秒。
      * @param [paused=false]
+     * @en If paused is YES, then it won't be called until it is resumed.
+     * @zh 如果 paused 值为 true，那么直到 resume 被调用才开始计时。
      */
     public schedule (callback: (dt?: number) => void, target: ISchedulable, interval: number, repeat?: number, delay?: number, paused?: boolean) {
         if (typeof callback !== 'function') {
@@ -609,8 +619,11 @@ export class Scheduler extends System {
      * update 定时器每一帧都会被触发，触发时自动调用指定对象的 "update" 函数。<br>
      * 优先级的值越低，定时器被触发的越早。
      * @param target
+     * @en The target bound to the callback. @zh 回调所绑定的目标对象。
      * @param priority
+     * @en The priority. @zh 优先级。
      * @param paused
+     * @en Whether is paused. @zh 是否被暂停。
      */
     public scheduleUpdate (target: ISchedulable, priority: number, paused: boolean) {
         const targetId = target.uuid || target.id;
@@ -662,8 +675,8 @@ export class Scheduler extends System {
      * @zh
      * 取消指定对象定时器。
      * 如果需要取消 update 定时器，请使用 unscheduleUpdate()。
-     * @param callback @en The callback to be unscheduled @zh 被取消调度的回调
-     * @param target The target bound to the callback. @zh 回调所绑定的目标对象
+     * @param callback @en The callback to be unscheduled @zh 被取消调度的回调。
+     * @param target @en The target bound to the callback. @zh 回调所绑定的目标对象。
      */
     public unschedule (callback, target: ISchedulable) {
         // callback, target
@@ -855,7 +868,7 @@ export class Scheduler extends System {
      * @zh 检查指定的回调函数和回调对象组合是否存在定时器。
      * @param callback @en The callback to check. @zh 指定检测的回调。
      * @param target @en The target of the callback. @zh 回调的目标对象。
-     * @return @en True if the specified callback is invoked, false if not. @zh 返回true如果指定回调被调用, 否则返回false。
+     * @returns @en True if the specified callback is invoked, false if not. @zh 返回true如果指定回调被调用, 否则返回false。
      */
     public isScheduled (callback, target: ISchedulable): boolean {
         // key, target

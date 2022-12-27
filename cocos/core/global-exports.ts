@@ -72,6 +72,6 @@ _global.ccwindow = ccwindow;
  * @en
  * It is jsb.window in native mode, otherwise it is the window object in the web context.
  * @zh
- * 原生环境下为 jsb.window, 引擎为模拟部分 web 环境所提供. Web 环境这个变量是 window 对象.
+ * 原生环境下为 jsb.window, 引擎为模拟部分 web 环境所提供. Web 环境这个变量是 window 对象。
  */
 export { ccwindow };

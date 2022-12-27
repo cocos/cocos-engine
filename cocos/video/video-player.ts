@@ -99,7 +99,7 @@ export class VideoPlayer extends Component {
      * @en
      * The remote URL of video.
      * @zh
-     * 远程视频的 URL
+     * 远程视频的 URL。
      */
     @tooltip('i18n:videoplayer.remoteURL')
     get remoteURL () {
@@ -132,9 +132,9 @@ export class VideoPlayer extends Component {
 
     /**
      * @en
-     * Whether the video start playing automatically after loaded?
+     * Whether the video start playing automatically after loaded.
      * @zh
-     * 视频加载后是否自动开始播放？
+     * 视频加载后是否自动开始播放。
      */
     @tooltip('i18n:videoplayer.playOnAwake')
     get playOnAwake () {
@@ -263,12 +263,12 @@ export class VideoPlayer extends Component {
     /**
      * @en
      * Always at the bottom of the game view.
-     * This property relies on the translucency feature of Canvas, please enable ENABLE_TRANSPARENT_CANVAS in project preferences
+     * This property relies on the translucency feature of Canvas, please enable ENABLE_TRANSPARENT_CANVAS in project preferences.
      * Note: It's only available on the Web platform.
      * Due to the support and limitations of each browser, the effect may not be guaranteed to be consistent.
      * @zh
      * 永远在游戏视图最底层。
-     * 该属性依赖 Canvas 的半透明特性，请在项目偏好设置里开启 ENABLE_TRANSPARENT_CANVAS
+     * 该属性依赖 Canvas 的半透明特性，请在项目偏好设置里开启 ENABLE_TRANSPARENT_CANVAS。
      * 注意：该属性只有在 Web 平台上有效果。由于各浏览器的支持与限制，效果可能无法保证一致。
      */
     @tooltip('i18n:videoplayer.stayOnBottom')
