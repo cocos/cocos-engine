@@ -278,7 +278,7 @@ struct LightInfo {
     uint32_t level{0};
 };
 
-enum class DescriptorTypeOrder : uint32_t {
+enum class DescriptorTypeOrder {
     UNIFORM_BUFFER,
     DYNAMIC_UNIFORM_BUFFER,
     SAMPLER_TEXTURE,
