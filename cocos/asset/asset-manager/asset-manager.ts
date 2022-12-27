@@ -30,8 +30,8 @@ import { error, sys, Settings, settings, path, cclegacy } from '../../core';
 import Bundle from './bundle';
 import Cache, { ICache } from './cache';
 import CacheManager from './cache-manager';
-import dependUtil from './depend-util';
-import downloader from './downloader';
+import dependUtil, { DependUtil } from './depend-util';
+import downloader, { Downloader } from './downloader';
 import factory from './factory';
 import fetch from './fetch';
 import * as helper from './helper';
@@ -50,6 +50,7 @@ import {
 import Task from './task';
 import { combine, parse, replaceOverrideAsset } from './url-transformer';
 import { asyncify, parseParameters } from './utilities';
+import { IAddressableInfo, IAssetInfo, IPackInfo, ISceneInfo } from './config';
 
 /**
  * @zh
@@ -69,33 +70,33 @@ export interface IAssetManagerOptions {
 
     /**
      * @zh
-     * 所有 bundle 的版本信息
+     * 所有 bundle 的版本信息。
      * @en
-     * Version for all bundles
+     * Version for all bundles.
      */
     bundleVers?: Record<string, string>;
 
     /**
      * @zh
-     * 远程服务器地址
+     * 远程服务器地址。
      * @en
-     * Remote server address
+     * Remote server address.
      */
     server?: string;
 
     /**
      * @zh
-     * 配置为子包的 bundle
+     * 配置为子包的 bundle。
      * @en
-     * All subpackages
+     * All subpackages.
      */
     subpackages?: string[];
 
     /**
      * @zh
-     * 配置为远程包的 bundle
+     * 配置为远程包的 bundle。
      * @en
-     * All remote bundles
+     * All remote bundles.
      */
     remoteBundles?: string[];
 
@@ -174,19 +175,19 @@ export class AssetManager {
 
     /**
      * @en
-     * Manage relationship between asset and its dependencies
+     * Manage relationship between asset and its dependencies.
      *
      * @zh
-     * 管理资源依赖关系
+     * 管理资源依赖关系。
      */
     public dependUtil = dependUtil;
 
     /**
      * @en
-     * Whether or not load asset forcibly, if it is true, asset will be loaded regardless of error
+     * Whether or not load asset forcibly, if it is true, asset will be loaded regardless of error.
      *
      * @zh
-     * 是否强制加载资源, 如果为 true ，加载资源将会忽略报错
+     * 是否强制加载资源, 如果为 true ，加载资源将会忽略报错。
      *
      */
     public force = EDITOR || PREVIEW;
@@ -196,17 +197,17 @@ export class AssetManager {
      * Whether to use image bitmap to load image first. If enabled, images loading will become faster but memory usage will increase.
      *
      * @zh
-     * 是否优先使用 image bitmap 来加载图片，启用之后，图片加载速度会更快, 但内存占用会变高，
+     * 是否优先使用 image bitmap 来加载图片，启用之后，图片加载速度会更快, 但内存占用会变高。
      *
      */
     public allowImageBitmap = !sys.isMobile;
 
     /**
      * @en
-     * Some useful function
+     * Some useful functions, such as the conversion between url and uuid.
      *
      * @zh
-     * 一些有用的方法
+     * 一些有用的方法, 例如 url 与 uuid 之间的转换。
      *
      */
     public utils = helper;
@@ -223,30 +224,31 @@ export class AssetManager {
 
     /**
      * @en
-     * Manage all parsing task
+     * Manage all parsing task.
      *
      * @zh
-     * 管理所有解析任务
+     * 管理所有解析任务。
      *
      */
     public parser = parser;
 
     /**
      * @en
-     * Manage all packed asset
+     * Manage all packed asset.
      *
      * @zh
-     * 管理所有合并后的资源
+     * 管理所有合并后的资源。
      *
+     * @deprecated Since v3.7, this is an engine internal interface. You usually don't need to care about how resources are merged and split.
      */
     public packManager = packManager;
 
     /**
      * @en
-     * Whether or not cache the loaded asset
+     * Whether or not cache the loaded asset.
      *
      * @zh
-     * 是否缓存已加载的资源
+     * 是否缓存已加载的资源。
      *
      */
     public cacheAsset = true;
@@ -256,17 +258,17 @@ export class AssetManager {
      * Cache manager is a module which controls all caches downloaded from server in non-web platform.
      *
      * @zh
-     * 缓存管理器是一个模块，在非 WEB 平台上，用于管理所有从服务器上下载下来的缓存
+     * 缓存管理器是一个模块，在非 WEB 平台上，用于管理所有从服务器上下载下来的缓存。
      *
      */
     public cacheManager: CacheManager | null = null;
 
     /**
      * @en
-     * The preset of options
+     * The preset of options.
      *
      * @zh
-     * 可选参数的预设集
+     * 可选参数的预设集。
      *
      */
     public presets = presets;
@@ -301,13 +303,30 @@ export class AssetManager {
     private _parsed = parsed;
     private _parsePipeline = BUILD ? null : new Pipeline('parse existing json', [this.loadPipe]);
     private _projectBundles: string[] = [];
+    private static _instance: AssetManager;
 
     /**
      * @en
-     * The builtin 'main' bundle
+     * A global singleton instance of [[AssetManager]], which you can access directly through [[assetManager]].
      *
      * @zh
-     * 内置 main 包
+     * [[AssetManager]] 的全局单例，你可以直接通过 [[assetManager]] 访问。
+     */
+    static get instance () {
+        if (!this._instance) {
+            this._instance = new AssetManager();
+        }
+        return this._instance;
+    }
+
+    private constructor () {}
+
+    /**
+     * @en
+     * The builtin 'main' bundle.
+     *
+     * @zh
+     * 内置 main 包。
      */
     public get main (): Bundle | null {
         return bundles.get(BuiltinBundleName.MAIN) || null;
@@ -315,10 +334,10 @@ export class AssetManager {
 
     /**
      * @en
-     * The builtin 'resources' bundle
+     * The builtin 'resources' bundle.
      *
      * @zh
-     * 内置 resources 包
+     * 内置 resources 包。
      *
      */
     public get resources (): Bundle | null {
@@ -333,7 +352,7 @@ export class AssetManager {
      * @zh
      * 初始化资源管理器，引擎在启动时，将会自动调用此方法，你不应该在任何时候手动调用此方法。
      *
-     * @param options - the configuration
+     * @param options @en The configuration of asset manager. @zh 资源管理器的配置选项。
      * @engineInternal
      */
     public init (options: IAssetManagerOptions = {}) {
@@ -425,14 +444,16 @@ export class AssetManager {
      *  `reloadAsset`, `cacheAsset`, `cacheEnabled`, 请不要使用这些字段为你自己的参数!
      *
      * @param requests @en The request you want to load. @zh 你需要加载的资源。
-     * @param options - Optional parameters
-     * @param onProgress - Callback invoked when progression change
-     * @param onProgress.finished - The number of the items that are already completed
-     * @param onProgress.total - The total number of the items
-     * @param onProgress.item - The current request item
-     * @param onComplete - Callback invoked when finish loading
-     * @param onComplete.err - The error occurred in loading process.
-     * @param onComplete.data - The loaded content
+     * @param options @en Optional parameters. @zh 可选参数。
+     * @param onProgress @en Callback invoked when the loading progress change. @zh 加载进度发生变化时执行的回调。
+     * @param onProgress.finished
+     * @en The number of request items that have finished loading.
+     * @zh 已经完成加载的资源数量。
+     * @param onProgress.total @en The number of all request items to be loaded. @zh 所有待加载的资源数量。
+     * @param onProgress.item @en The finished request item. @zh 当前完成的加载项。
+     * @param onComplete @en Callback invoked when all assets loaded. @zh 所有资源加载完成后的回调。
+     * @param onComplete.err @en Error message during loading, or null if loaded successfully. @zh 加载过程中的错误信息，如果加载成功则为 null。
+     * @param onComplete.data @en The loaded data, or null if an error occurred during loading. @zh 已加载的数据，如果加载过程中有错误发生，则为 null。
      *
      * @example
      * assetManager.loadAny({url: 'http://example.com/a.png'}, (err, img) => log(img));
@@ -481,15 +502,19 @@ export class AssetManager {
      * 通用预加载资源接口，可传入进度回调以及完成回调，非常建议你使用更简单的 API ，例如 `preloadRes`, `preloadResDir` 等。`preloadAny` 和 `loadAny`
      * 几乎一样，区别在于 `preloadAny` 只会下载资源，不会去解析资源，你需要调用 `assetManager.loadAny(preloadTask)` 来完成资源加载。
      *
-     * @param requests - The request you want to preload
-     * @param options - Optional parameters
-     * @param onProgress - Callback invoked when progression change
-     * @param onProgress.finished - The number of the items that are already completed
-     * @param onProgress.total - The total number of the items
-     * @param onProgress.item - The current request item
-     * @param onComplete - Callback invoked when finish preloading
-     * @param onComplete.err - The error occurred in preloading process.
-     * @param onComplete.items - The preloaded content
+     * @param requests @en The request you want to preload. @zh 你需要预加载的资源。
+     * @param options @en Optional parameters. @zh 可选参数。
+     * @param onProgress @en Callback invoked when the preloading progress change. @zh 预加载进度发生变化时执行的回调。
+     * @param onProgress.finished
+     * @en The number of request items that have finished preloading.
+     * @zh 已经完成加载的资源数量。
+     * @param onProgress.total @en The number of all request items to be preloaded. @zh 所有待预加载的资源数量。
+     * @param onProgress.item @en The finished request item. @zh 当前完成的预加载项。
+     * @param onComplete @en Callback invoked when all assets preloaded. @zh 所有资源预加载完成后的回调。
+     * @param onComplete.err
+     * @en The error occurred in preloading process. Or null if preloaded successfully.
+     * @zh 预加载过程中的发生的错误，如果预加载成功则为 null。
+     * @param onComplete.items @en The preloaded content. @zh 完成预加载的内容。
      *
      * @example
      * assetManager.preloadAny('0cbZa5Y71CTZAccaIFluuZ', (err) => assetManager.loadAny('0cbZa5Y71CTZAccaIFluuZ'));
@@ -533,7 +558,7 @@ export class AssetManager {
      * @en If the url does not have a extension name, you can specify one manually. This will affect the way asset are loaded.
      * @zh 如果 URL 链接中没有包含扩展名，你可以手动指定一个扩展名。这将会影响资源的加载方式。
      * @param onComplete @en Callback invoked when finish loading. @zh 当完成加载时触发的回调函数。
-     * @param onComplete.err @en The error occurred in loading process. @zh 记在过程中出现的错误。
+     * @param onComplete.err @en The error occurred in loading process. Or null if loaded successfully. @zh 加载过程中出现的错误，如果加载成功则为 null。
      * @param onComplete.asset
      * @en The loaded asset. If there is an error in the loading process, this asset will be null.
      * @zh 加载好的资源，如果加载过程出现了错误，资源将会 null。
@@ -570,19 +595,35 @@ export class AssetManager {
 
     /**
      * @en
-     * load bundle with name or url of bundle.
+     * load bundle with name or url of bundle. When you have configured a bundle in your project, you can load the bundle by the name configured in your project.
+     * Or when you put the bundle on the server, you can also load it by the full url address.
+     *
+     * Note: When you load a remote bundle by name, the bundle will be cached locally after download and will continue to use that cache in the future, even if
+     * the version of the bundle file on your server has changed. When you need to load the latest bundle, you can pass an additional `version` parameter in the
+     * optional argument and the asset system will compare this version number with the local cache, if the comparison fails, the asset system will pull
+     * the latest version of the bundle data from the server again.
      *
      * @zh
-     * 通过包名称或 url 加载资源包。
+     * 通过包名称或 url 加载资源包。当你在项目中配置了 Bundle 后，你可以通过项目中配置的名称来加载该 Bundle。
+     * 或者当你将 bundle 放在服务器上时，你也可以通过完整的 url 地址进行加载。
      *
-     * @param nameOrUrl - The name or root path of bundle
-     * @param options - Some optional paramter, same like downloader.downloadFile
-     * @param options.version - The version of this bundle, you can check config.json in this bundle
-     * @param onComplete - Callback when bundle loaded or failed
-     * @param onComplete.err - The occurred error, null indicates success
-     * @param onComplete.bundle - The loaded bundle
+     * 注意：当你用名称加载远程 bundle 时，该 bundle 在下载后将会缓存在本地并在后续持续使用该缓存，即使你服务器上的 bundle 文件版本已经发生变化。当你需要加载
+     * 最新的 bundle 时，你可以在可选参数中额外传入一个 `version` 参数，资源系统将比对此版本号与本地缓存是否一致，如果比对失败，则资源系统将重新从服务器上拉取
+     * 最新版本的 bundle 数据。
+     *
+     * @param nameOrUrl @en The name or root path of bundle. @zh 待加载的 bundle 在项目中的名称或在服务器上的 url 路径。
+     * @param options @en Some optional parameter. @zh 一些可选参数。
+     * @param options.version
+     * @en The version number of the bundle, which you can get in the editor's build system, or directly by looking at the md5 hash value in the `config.json` path in the bundle directory after the build.
+     * @zh bundle 的版本号，你可以在编辑器的构建系统中获取，或者直接查看构建后的 bundle 目录中 config.json 路径中的 md5 hash 值。
+     * @param onComplete @en Callback invoked when bundle loaded or failed. @zh bundle 加载完成的回调。
+     * @param onComplete.err @en The occurred error during the loading, Or null if loaded successfully. @zh 加载过程中发生的错误，如果加载成功则为 null。
+     * @param onComplete.bundle
+     * @en The loaded bundle. If there is an error in the loading process, this bundle will be null.
+     * @zh 加载完成的 bundle。如果加载过程中出现了错误，则为 null。
      *
      * @example
+     * loadBundle('myBundle', (err, bundle) => console.log(bundle));
      * loadBundle('http://localhost:8080/test', null, (err, bundle) => console.log(err));
      *
      */
@@ -730,6 +771,10 @@ export declare namespace AssetManager {
     export { Bundle };
     export { BuiltinBundleName };
     export { CacheManager };
+    export { ICache };
+    export { IAssetInfo, IPackInfo, IAddressableInfo, ISceneInfo };
+    export { DependUtil };
+    export { Downloader };
 }
 
 /**
@@ -737,6 +782,6 @@ export declare namespace AssetManager {
  * The engine uses `assetManager` to manage all asset and asset bundle, including loading, releasing, etc.
  * @zh `assetManager` 为 [[AssetManager]] 的全局单例，引擎使用 `assetManager` 来完成所有资源和资源包的管理工作，包括加载，释放等。
  */
-const assetManager = cclegacy.assetManager = new AssetManager();
+const assetManager = cclegacy.assetManager = AssetManager.instance;
 export default assetManager;
 cclegacy.AssetManager = AssetManager;

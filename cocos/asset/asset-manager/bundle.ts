@@ -97,10 +97,10 @@ export default class Bundle {
      *
      * @param path @en The relative path of asset, such as 'images/a'. @zh 资源的相对路径，例如 `images/a`。
      * @param type @en The constructor of asset, such as  `Texture2D`. @zh 资源的类型，例如 [[Texture2D]]。
-     * @returns The asset info
+     * @returns @en The asset info. @zh 资源的信息。
      *
      * @example
-     * var info = bundle.getInfoWithPath('image/a', Texture2D);
+     * const info = bundle.getInfoWithPath('image/a', Texture2D);
      *
      */
     public getInfoWithPath (path: string, type?: Constructor<Asset> | null): IAddressableInfo | null {
@@ -109,18 +109,20 @@ export default class Bundle {
 
     /**
      * @en
-     * Get all asset's info within specific folder
+     * Get all asset's info within specific folder.
      *
      * @zh
-     * 获取在某个指定文件夹下的所有资源信息
+     * 获取在某个指定文件夹下的所有资源信息。
      *
-     * @param path - The relative path of folder, such as 'images'
-     * @param type - The constructor should be used to filter paths
-     * @param out - The output array
-     * @returns Infos
+     * @param path @en The relative path of folder, such as 'images'. @zh 文件夹的相对路径，例如 `images`。
+     * @param type
+     * @en The asset type, can be used to find the information of the specified type of asset in the directory
+     * @zh 资源的类型，指定后可以用来查找目录下指定类型的资源信息。
+     * @param out @en The output array. @zh 输出数组。
+     * @returns @en Queried asset information. @zh 查询到的资源。
      *
      * @example
-     * var infos = [];
+     * const infos = [];
      * bundle.getDirWithPath('images', Texture2D, infos);
      */
     public getDirWithPath (path: string, type?: Constructor<Asset> | null, out?: IAddressableInfo[]): IAddressableInfo[] {
@@ -129,17 +131,16 @@ export default class Bundle {
 
     /**
      * @en
-     * Get asset's info with uuid
+     * Get asset's info with uuid.
      *
      * @zh
-     * 通过 uuid 获取资源信息
+     * 通过 uuid 获取资源信息。
      *
-     * @method getAssetInfo
-     * @param  uuid - The asset's uuid
-     * @returns info
+     * @param  uuid @en The asset's uuid. @zh 资源的 uuid。
+     * @returns @en The information of asset. @zh 资源的信息。
      *
      * @example
-     * var info = bundle.getAssetInfo('fcmR3XADNLgJ1ByKhqcC5Z');
+     * const info = bundle.getAssetInfo('fcmR3XADNLgJ1ByKhqcC5Z');
      *
      */
     public getAssetInfo (uuid: string): IAssetInfo | null {
@@ -148,17 +149,16 @@ export default class Bundle {
 
     /**
      * @en
-     * Get scene'info with name
+     * Get scene'info with name.
      *
      * @zh
-     * 通过场景名获取场景信息
+     * 通过场景名获取场景信息。
      *
-     * @method getSceneInfo
-     * @param name - The name of scene
-     * @return info
+     * @param name @en The name of scene. @zh 场景名称。
+     * @return @en The information of scene. @zh 场景信息。
      *
      * @example
-     * var info = bundle.getSceneInfo('first.fire');
+     * const info = bundle.getSceneInfo('first.fire');
      *
      */
     public getSceneInfo (name: string): ISceneInfo | null {
@@ -167,10 +167,10 @@ export default class Bundle {
 
     /**
      * @en
-     * Initialize this bundle with options
+     * Initialize this bundle with options.
      *
      * @zh
-     * 初始化此 bundle
+     * 初始化此 bundle。
      *
      * @param options
      * @deprecate Since v3.7, this is an internal engine interface and you should not call this interface under any circumstances.
@@ -183,20 +183,30 @@ export default class Bundle {
 
     /**
      * @en
-     * Load the asset within this bundle by the path which is relative to bundle's path
+     * Load the asset within this bundle by the path which is relative to bundle's path.
      *
      * @zh
-     * 通过相对路径加载分包中的资源。路径是相对分包文件夹路径的相对路径
+     * 通过相对路径加载分包中的资源。路径是相对分包文件夹路径的相对路径。
      *
-     * @param paths - Paths of the target assets.The path is relative to the bundle's folder, extensions must be omitted.
-     * @param type - Only asset of type will be loaded if this argument is supplied.
-     * @param onProgress - Callback invoked when progression change.
-     * @param onProgress.finish - The number of the items that are already completed.
-     * @param onProgress.total - The total number of the items.
-     * @param onProgress.item - The finished request item.
-     * @param onComplete - Callback invoked when all assets loaded.
-     * @param onComplete.error - The error info or null if loaded successfully.
-     * @param onComplete.assets - The loaded assets.
+     * @param paths
+     * @en Paths of the target assets.The path is relative to the bundle's folder, extensions must be omitted.
+     * @zh 需要加载的资源的路径。此路径为工程中相对于 bundle 文件夹的相对路径，路径中请不要带扩展名。
+     * @param type
+     * @en Asset type, if this parameter is passed, the asset of the corresponding type will be found in the assets of the corresponding path to finish loading.
+     * @zh 资源类型，如果传入此参数，则会在对应路径的资源中找到对应类型的资源完成加载。
+     * @param onProgress
+     * @en Callback invoked when the loading progress change.
+     * @zh 加载进度发生变化时执行的回调。
+     * @param onProgress.finish
+     * @en The number of request items that have finished loading.
+     * @zh 已经完成加载的资源数量。
+     * @param onProgress.total
+     * @en The number of all request items to be loaded.
+     * @zh 所有待加载的资源数量。
+     * @param onProgress.item @en The finished request item. @zh 当前完成的加载项。
+     * @param onComplete @en Callback invoked when all assets loaded. @zh 所有资源加载完成后的回调。
+     * @param onComplete.error @en Error message during loading, or null if loaded successfully. @zh 加载过程中的错误信息，如果加载成功则为 null。
+     * @param onComplete.assets @en The loaded asset, or null if an error occurred during loading. @zh 已加载的资源，如果加载过程中有错误发生，则为 null。
      *
      * @example
      * // load the texture (${project}/assets/resources/textures/background.jpg) from resources
@@ -243,21 +253,31 @@ export default class Bundle {
      * Preload the asset within this bundle by the path which is relative to bundle's path.
      * After calling this method, you still need to finish loading by calling `Bundle.load`.
      * It will be totally fine to call `Bundle.load` at any time even if the preloading is not
-     * yet finished
+     * yet finished.
      *
      * @zh
      * 通过相对路径预加载分包中的资源。路径是相对分包文件夹路径的相对路径。调用完后，你仍然需要通过 `Bundle.load` 来完成加载。
      * 就算预加载还没完成，你也可以直接调用 `Bundle.load`。
      *
-     * @param paths - Paths of the target asset.The path is relative to bundle folder, extensions must be omitted.
-     * @param type - Only asset of type will be loaded if this argument is supplied.
-     * @param onProgress - Callback invoked when progression change.
-     * @param onProgress.finish - The number of the items that are already completed.
-     * @param onProgress.total - The total number of the items.
-     * @param onProgress.item - The finished request item.
-     * @param onComplete - Callback invoked when the resource loaded.
-     * @param onComplete.error - The error info or null if loaded successfully.
-     * @param onComplete.items - The preloaded items.
+     * @param paths
+     * @en Paths of the target assets.The path is relative to the bundle's folder, extensions must be omitted.
+     * @zh 需要加载的资源的路径。此路径为工程中相对于 bundle 文件夹的相对路径，路径中请不要带扩展名。
+     * @param type
+     * @en Asset type, if this parameter is passed, the asset of the corresponding type will be found in the assets of the corresponding path to finish preloading.
+     * @zh 资源类型，如果传入此参数，则会在对应路径的资源中找到对应类型的资源完成预加载。
+     * @param onProgress
+     * @en Callback invoked when the preloading progress change.
+     * @zh 预加载进度发生变化时执行的回调。
+     * @param onProgress.finish
+     * @en The number of request items that have finished preloading.
+     * @zh 已经完成预加载的资源数量。
+     * @param onProgress.total
+     * @en The number of all request items to be preloaded.
+     * @zh 所有待预加载的资源数量。
+     * @param onProgress.item @en The finished request item. @zh 当前完成的预加载项。
+     * @param onComplete @en Callback invoked when all assets preloaded. @zh 所有资源预加载完成后的回调。
+     * @param onComplete.error @en Error message during preloading, or null if preloaded successfully. @zh 预加载过程中的错误信息，如果预加载成功则为 null。
+     * @param onComplete.items @en The preloaded items. @zh 预加载项。
      *
      * @example
      * // preload the texture (${project}/assets/resources/textures/background.jpg) from resources
@@ -298,18 +318,23 @@ export default class Bundle {
      * Note: All asset paths in Creator use forward slashes, paths using backslashes will not work.
      *
      * @zh
-     * 加载目标文件夹中的所有资源, 注意：路径中只能使用斜杠，反斜杠将停止工作
+     * 加载目标文件夹中的所有资源, 注意：路径中只能使用斜杠，反斜杠将停止工作。
      *
-     * @param dir - path of the target folder.The path is relative to the bundle folder, extensions must be omitted.
-     * @param type - Only asset of type will be loaded if this argument is supplied.
-     * @param onProgress - Callback invoked when progression change.
-     * @param onProgress.finish - The number of the items that are already completed.
-     * @param onProgress.total - The total number of the items.
-     * @param onProgress.item - The latest request item
-     * @param onComplete - A callback which is called when all assets have been loaded, or an error occurs.
-     * @param onComplete.error - If one of the asset failed, the complete callback is immediately called with the error.
-     *                           If all assets are loaded successfully, error will be null.
-     * @param onComplete.assets - An array of all loaded assets.
+     * @param dir @en The path of the target folder. The path is relative to the bundle folder. @zh 目标文件夹路径，此路径为相对于 bundle 文件夹的路径。
+     * @param type @en The asset type. Only asset of this type will be loaded if this argument is supplied. @zh 资源类型，如果指定了此参数，则只会加载目标文件夹下此类型的资源。
+     * @param onProgress
+     * @en Callback invoked when the loading progress change.
+     * @zh 加载进度发生变化时执行的回调。
+     * @param onProgress.finish
+     * @en The number of request items that have finished loading.
+     * @zh 已经完成加载的资源数量。
+     * @param onProgress.total
+     * @en The number of all request items to be loaded.
+     * @zh 所有待加载的资源数量。
+     * @param onProgress.item @en The finished request item. @zh 当前完成的加载项。
+     * @param onComplete @en Callback invoked when all assets loaded. @zh 所有资源加载完成后的回调。
+     * @param onComplete.error @en Error message during loading, or null if loaded successfully. @zh 加载过程中的错误信息，如果加载成功则为 null。
+     * @param onComplete.assets @en An array of all loaded assets. @zh 完成加载的资源数组。
      *
      * @example
      * // load all audios (resources/audios/)
@@ -346,22 +371,27 @@ export default class Bundle {
      * @en
      * Preload all assets under a folder inside the bundle folder.<br> After calling this method, you still need to
      * finish loading by calling `Bundle.loadDir`.
-     * It will be totally fine to call `Bundle.loadDir` at any time even if the preloading is not yet finished
+     * It will be totally fine to call `Bundle.loadDir` at any time even if the preloading is not yet finished.
      *
      * @zh
      * 预加载目标文件夹中的所有资源。调用完后，你仍然需要通过 `Bundle.loadDir` 来完成加载。
      * 就算预加载还没完成，你也可以直接调用 `Bundle.loadDir`。
      *
-     * @param dir - path of the target folder.The path is relative to the bundle folder, extensions must be omitted.
-     * @param type - Only asset of type will be preloaded if this argument is supplied.
-     * @param onProgress - Callback invoked when progression change.
-     * @param onProgress.finish - The number of the items that are already completed.
-     * @param onProgress.total - The total number of the items.
-     * @param onProgress.item - The latest request item
-     * @param onComplete - A callback which is called when all assets have been loaded, or an error occurs.
-     * @param onComplete.error - If one of the asset failed, the complete callback is immediately called with the error.
-     *                                   If all assets are preloaded successfully, error will be null.
-     * @param onComplete.items - An array of all preloaded items.
+     * @param dir @en The path of the target folder. The path is relative to the bundle folder. @zh 目标文件夹路径，此路径为相对于 bundle 文件夹的路径。
+     * @param type @en The asset type. Only asset of this type will be preloaded if this argument is supplied. @zh 资源类型，如果指定了此参数，则只会预加载目标文件夹下此类型的资源。
+     * @param onProgress
+     * @en Callback invoked when the preloading progress change.
+     * @zh 预加载进度发生变化时执行的回调。
+     * @param onProgress.finish
+     * @en The number of request items that have finished preloading.
+     * @zh 已经完成预加载的资源数量。
+     * @param onProgress.total
+     * @en The number of all request items to be preloaded.
+     * @zh 所有待预加载的资源数量。
+     * @param onProgress.item @en The finished request item. @zh 当前完成的预加载项。
+     * @param onComplete @en Callback invoked when all assets preloaded. @zh 所有资源预加载完成后的回调。
+     * @param onComplete.error @en Error message during preloading, or null if preloaded successfully. @zh 预加载过程中的错误信息，如果预加载成功则为 null。
+     * @param onComplete.items @en The preloaded items. @zh 预加载项。
      *
      * @example
      * // preload all audios (resources/audios/)
@@ -401,15 +431,21 @@ export default class Bundle {
      * @zh
      * 通过场景名称加载分包中的场景资源。
      *
-     * @param sceneName - The name of the scene to load.
-     * @param options - Some optional parameters
-     * @param onProgress - Callback invoked when progression change.
-     * @param onProgress.finish - The number of the items that are already completed.
-     * @param onProgress.total - The total number of the items.
-     * @param onProgress.item - The latest request item
-     * @param onComplete - callback, will be called after scene launched.
-     * @param onComplete.err - The occurred error, null indicetes success
-     * @param onComplete.sceneAsset - The scene asset
+     * @param sceneName @en The name of the scene to be loaded. @zh 待加载的场景名称。
+     * @param options @en Some optional parameters. @zh 可选参数。
+     * @param onProgress
+     * @en Callback invoked when the loading progress change.
+     * @zh 加载进度发生变化时执行的回调。
+     * @param onProgress.finish
+     * @en The number of request items that have finished loading.
+     * @zh 已经完成加载的资源数量。
+     * @param onProgress.total
+     * @en The number of all request items to be loaded.
+     * @zh 所有待加载的资源数量。
+     * @param onProgress.item @en The finished request item. @zh 当前完成的加载项。
+     * @param onComplete @en Callback invoked when the scene loaded. @zh 场景加载完成后的回调。
+     * @param onComplete.error @en Error message during loading, or null if loaded successfully. @zh 加载过程中的错误信息，如果加载成功则为 null。
+     * @param onComplete.sceneAsset @en The scene asset. @zh 加载完成的场景资源。
      *
      * @example
      * bundle1.loadScene('first', (err, sceneAsset) => director.runScene(sceneAsset));
@@ -447,20 +483,26 @@ export default class Bundle {
      * @en
      * Preload the scene asset within this bundle by its name. After calling this method, you still need to finish loading
      * by calling `Bundle.loadScene` or `director.loadScene`.It will be totally fine to call `Bundle.loadDir` at any
-     * time even if the preloading is not yet finished
+     * time even if the preloading is not yet finished.
      *
      * @zh
      * 通过场景名称预加载分包中的场景资源.调用完后，你仍然需要通过 `Bundle.loadScene` 或 `director.loadScene` 来完成加载。
      * 就算预加载还没完成，你也可以直接调用 `Bundle.loadScene` 或 `director.loadScene`。
      *
-     * @param sceneName - The name of the scene to preload.
-     * @param options - Some optional parameters
-     * @param onProgress - callback, will be called when the load progression change.
-     * @param onProgress.finish - The number of the items that are already completed
-     * @param onProgress.total - The total number of the items
-     * @param onProgress.item The latest request item
-     * @param onComplete - callback, will be called after scene loaded.
-     * @param onComplete.error - null or the error object.
+     * @param sceneName @en The name of the scene to be preloaded. @zh 待预加载的场景名称。
+     * @param options  @en Some optional parameters. @zh 可选参数。
+     * @param onProgress
+     * @en Callback invoked when the preloading progress change.
+     * @zh 预加载进度发生变化时执行的回调。
+     * @param onProgress.finish
+     * @en The number of request items that have finished preloading.
+     * @zh 已经完成预加载的资源数量。
+     * @param onProgress.total
+     * @en The number of all request items to be preloaded.
+     * @zh 所有待预加载的资源数量。
+     * @param onProgress.item @en The finished request item. @zh 当前完成的预加载项。
+     * @param onComplete @en Callback invoked when the scene preloaded. @zh 场景预加载完成后的回调。
+     * @param onComplete.error @en Error message during preloading, or null if preloaded successfully. @zh 预加载过程中的错误信息，如果预加载成功则为 null。
      *
      * @example
      * bundle1.preloadScene('first');
@@ -505,9 +547,9 @@ export default class Bundle {
      * 注意：当有多个同名的资产时，你可以通过指定类型来获得具体的资产。
      * 否则将返回与该名称相匹配的第一个资产。
      *
-     * @param path - @en The path of asset. @zh 资源的路径。
-     * @param type - Only asset of type will be returned if this argument is supplied.
-     * @returns - the asset has been cached.
+     * @param path @en The path of asset. @zh 资源的路径。
+     * @param type @en The asset type. Only asset of type will be returned if this argument is supplied. @zh 资源类型，指定后只会返回该类型的资源。
+     * @returns @en The asset has been cached. @zh 已缓存的资源。
      *
      * @example
      * bundle1.get('music/hit', AudioClip);
@@ -536,8 +578,8 @@ export default class Bundle {
      * 注意：当存在多个资源同名时，可以通过指定类型来指定要释放的资源，否则将释放第一个匹配该名称的资源。
 
      *
-     * @param path - @en The path of asset. @zh 资源的路径。
-     * @param type - @en The type of asset. @zh 资源的类型。
+     * @param path @en The path of asset. @zh 资源的路径。
+     * @param type @en The type of asset. @zh 资源的类型。
      *
      * @example
      * // release a texture which is no longer need
@@ -556,14 +598,13 @@ export default class Bundle {
      * Release all unused assets within this bundle. Refer to [[AssetManager.releaseAll]] for detailed information.
      *
      * @zh
-     * 释放此包中的所有没有用到的资源。详细信息请参考 [[AssetManager.releaseAll]]
-     *
-     * @private
+     * 释放此包中的所有没有用到的资源。详细信息请参考 [[AssetManager.releaseAll]]。
      *
      * @example
      * // release all unused asset within bundle1
      * bundle1.releaseUnusedAssets();
      *
+     * @engineInternal
      */
     public releaseUnusedAssets () {
         assets.forEach((asset) => {
@@ -579,7 +620,7 @@ export default class Bundle {
      * Release all assets within this bundle. Refer to [[AssetManager.releaseAll]] for detailed information.
      *
      * @zh
-     * 释放此包中的所有资源。详细信息请参考 [[AssetManager.releaseAll]]
+     * 释放此包中的所有资源。详细信息请参考 [[AssetManager.releaseAll]]。
      *
      * @example
      * // release all asset within bundle1

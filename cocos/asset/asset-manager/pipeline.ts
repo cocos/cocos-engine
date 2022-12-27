@@ -73,10 +73,10 @@ export class Pipeline {
 
     /**
      * @en
-     * Create a new pipeline
+     * Create a new pipeline.
      *
      * @zh
-     * 创建一个管线
+     * 创建一个管线。
      *
      * @param name - @en The name of pipeline. @zh 管线的名称。
      * @param funcs
@@ -111,10 +111,10 @@ export class Pipeline {
 
     /**
      * @en
-     * At specific point insert a new pipe to pipeline
+     * At specific point insert a new pipe to pipeline.
      *
      * @zh
-     * 在某个特定的点为管线插入一个新的 pipe
+     * 在某个特定的点为管线插入一个新的 pipe。
      *
      * @param func - The new pipe
      * @param func.task - The task handled with pipeline will be transferred to this function

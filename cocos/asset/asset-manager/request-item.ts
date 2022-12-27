@@ -55,10 +55,10 @@ export default class RequestItem {
 
     /**
      * @en
-     * Create a new request item from pool
+     * Create a new request item from pool.
      *
      * @zh
-     * 从对象池中创建 requestItem
+     * 从对象池中创建 requestItem。
      *
      * @returns requestItem
      *
@@ -78,10 +78,10 @@ export default class RequestItem {
 
     /**
      * @en
-     * The uuid of request
+     * The uuid of request.
      *
      * @zh
-     * 请求资源的uuid
+     * 请求资源的 uuid。
      *
      */
     public uuid = '';
@@ -93,72 +93,75 @@ export default class RequestItem {
 
     /**
      * @en
-     * The final url of request
+     * The final url of request.
      *
      * @zh
-     * 请求的最终url
+     * 请求的最终 url。
      *
      */
     public url = '';
 
     /**
      * @en
-     * The extension name of asset
+     * The extension name of asset.
      *
      * @zh
-     * 资源的扩展名
+     * 资源的扩展名。
      *
      */
     public ext = '.json';
 
     /**
      * @en
-     * The content of asset
+     * The content of asset.
      *
      * @zh
-     * 资源的内容
+     * 资源的内容。
      *
      */
     public content: any = null;
 
     /**
      * @en
-     * The file of asset
+     * The file of asset.
      *
      * @zh
-     * 资源的文件
+     * 资源的文件。
      *
      */
     public file: any = null;
 
     /**
      * @en
-     * The information of asset
+     * The information of asset.
      *
      * @zh
-     * 资源的相关信息
+     * 资源的相关信息。
      *
      */
     public info: IAssetInfo | null = null;
 
+    /**
+     * @engineInternal
+     */
     public config: Config | null = null;
 
     /**
      * @en
-     * Whether or not it is native asset
+     * Whether or not it is native asset.
      *
      * @zh
-     * 资源是否是原生资源
+     * 资源是否是原生资源。
      *
      */
     public isNative = false;
 
     /**
      * @en
-     * Custom options
+     * Custom options.
      *
      * @zh
-     * 自定义参数
+     * 自定义参数。
      *
      */
     public options: Record<string, any> = Object.create(null);
@@ -167,10 +170,10 @@ export default class RequestItem {
 
     /**
      * @en
-     * Recycle this for reuse
+     * Recycle this for reuse.
      *
      * @zh
-     * 回收 requestItem 用于复用
+     * 回收 requestItem 用于复用。
      *
      */
     public recycle (): void {

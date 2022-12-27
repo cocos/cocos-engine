@@ -52,10 +52,10 @@ export default class Task {
 
     /**
      * @en
-     * Create a new task from pool
+     * Create a new task from pool.
      *
      * @zh
-     * 从对象池中创建 task
+     * 从对象池中创建 task。
      *
      * @static
      * @method create

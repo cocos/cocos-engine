@@ -33,13 +33,13 @@ export { default as decodeUuid } from '../../core/utils/decode-uuid';
 
 /**
  * @en
- * Extract uuid from url
+ * Extract uuid from url.
  *
  * @zh
- * 从 url 中提取 uuid
+ * 从 url 中提取 uuid。
  *
- * @param url - url
- * @returns the uuid parsed from url
+ * @param url @en The url to be converted. @zh 待转换的 url。
+ * @returns @en The uuid parsed from url. @zh url 转换为的 uuid。
  *
  * @example
  * var url = 'res/import/fc/fc991dd7-0033-4b80-9d41-c8a86a702e59.json';
@@ -55,16 +55,16 @@ export function getUuidFromURL (url: string): string {
 
 /**
  * @en
- * Transform uuid to url
+ * Transform uuid to url.
  *
  * @zh
- * 转换 uuid 为 url
+ * 转换 uuid 为 url。
  *
- * @param uuid - The uuid of asset
- * @param options - Some optional parameters
- * @param options.isNative - Indicates whether the path you want is a native resource path
- * @param options.nativeExt - Extension of the native resource path, it is required when isNative is true
- * @returns url
+ * @param uuid @en The uuid of asset. @zh 资源的 uuid。
+ * @param options @en Some optional parameters. @zh 一些可选参数。
+ * @param options.isNative @en Indicates whether the path you want is a native resource path. @zh 需要转换的路径是否是原生资源路径。
+ * @param options.nativeExt @en Extension of the native resource path, it is required when isNative is true. @zh 原生资源路径的扩展名，如果 `isNative` 为 true，则需要。
+ * @returns @en The url converted from uuid. @zh 从 uuid 转换而来的 url.
  *
  * @example
  * // json path, 'assets/main/import/fc/fc991dd7-0033-4b80-9d41-c8a86a702e59.json';
@@ -91,13 +91,13 @@ export function getUrlWithUuid (uuid: string, options?: { [k: string]: any, isNa
 
 /**
  * @en
- * Check if the type of asset is scene
+ * Check if the type of asset is scene.
  *
  * @zh
- * 检查资源类型是否是场景
+ * 检查资源类型是否是场景。
  *
- * @param asset - asset
- * @returns - whether or not type is SceneAsset
+ * @param asset @en The asset to be checked. @zh 待检查的资源。
+ * @returns @en Whether or not type is SceneAsset. @zh 此资源是否是场景资源。
  *
  */
 export function isScene (asset) {
@@ -106,13 +106,13 @@ export function isScene (asset) {
 
 /**
  * @en
- * Normalize url, strip './' and '/'
+ * Normalize url, strip './' and '/'.
  *
  * @zh
- * 标准化 url ，去除 './' 和 '/'
+ * 标准化 url ，去除 './' 和 '/'。
  *
- * @param url - url
- * @returns - The normalized url
+ * @param url @en The url to be normalized. @zh 待标准化的 url。
+ * @returns @en The normalized url. @zh 标准化后的 url。
  */
 export function normalize (url: string): string {
     if (url) {
