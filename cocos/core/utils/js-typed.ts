@@ -335,9 +335,9 @@ const REGEXP_STR = /%s/;
  * @en
  * A string tool to construct a string with format string.
  * @zh
- * 通过格式字符串构造一个字符串。
+ * 根据格式字符串构造一个字符串。
  * @param msg @en A JavaScript string containing zero or more substitution strings (%s).
- * @zh 包含有0个或者多个格式符的字符串。
+ * @zh 包含有 0 个或者多个格式符的字符串。
  * @param subst @en JavaScript objects with which to replace substitution strings within msg.
  * @zh 替换 `msg` 里格式符的表达式。
  * @returns @en A new formatted string. @zh 格式化后的新字符串。
@@ -377,7 +377,7 @@ export function formatStr (msg: string, ...subst: any[]): string {
 
 // see https://github.com/petkaantonov/bluebird/issues/1389
 /**
- * @en Removes the first arguments. @zh 移除第一个参数。
+ * @en Removes the first argument. @zh 移除第一个参数。
  * @returns @en An Array that contains all arguments except the first one.
  * @zh 新的参数数组，该数组不包含第一个参数。
  */

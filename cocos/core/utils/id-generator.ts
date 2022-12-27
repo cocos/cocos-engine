@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2022 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
@@ -73,7 +73,7 @@ export class IDGenerator {
     }
 
     /**
-     * @en Get a unique id. @zh 获取唯一的 id。
+     * @en Gets a unique id. @zh 获取唯一的 id。
      * @returns @en The unique id. It has the form `prefix+id`, for example `scene55`, `scene` is `prefix`, `55` is `id`.
      * @zh 唯一的 id。它的形式是 `prefix+id`，比如 `scene55`，`scene` 是 prefix，`55` 是 `id`。
      */
