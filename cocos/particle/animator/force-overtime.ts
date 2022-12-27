@@ -35,6 +35,16 @@ const FORCE_OVERTIME_RAND_OFFSET = ModuleRandSeed.FORCE;
 
 const _temp_v3 = new Vec3();
 
+/**
+ * @en
+ * This module will apply force to particle over life time.
+ * Open the separateAxes option you can change the force on XYZ axis
+ * Force on every axis is curve so you can modify these curves to see how it animate.
+ * @zh
+ * 本模块用于在粒子生命周期内对粒子施加外力
+ * 打开 separateAxes 就能够修改粒子在三个轴方向的受力大小
+ * 每个轴上的受力大小都是可以用曲线来进行编辑，修改曲线就能够看到粒子受力变化的效果了
+ */
 @ccclass('cc.ForceOvertimeModule')
 export default class ForceOvertimeModule extends ParticleModuleBase {
     @serializable

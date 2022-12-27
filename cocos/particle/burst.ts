@@ -27,6 +27,12 @@ import { ccclass, type, serializable, editable, range } from 'cc.decorator';
 import { repeat } from '../core/math';
 import CurveRange from './animator/curve-range';
 
+/**
+ * @en
+ * A burst is a particle emission event, where a number of particles are all emitted at the same time
+ * @zh
+ * Burst 是粒子的一种发射事件，触发时很多粒子将会同时喷出
+ */
 @ccclass('cc.Burst')
 export default class Burst {
     @serializable

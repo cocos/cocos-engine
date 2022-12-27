@@ -32,6 +32,16 @@ import { isCurveTwoValues } from '../particle-general-function';
 
 const SIZE_OVERTIME_RAND_OFFSET = ModuleRandSeed.SIZE;
 
+/**
+ * @en
+ * This module will modify particle size over life time.
+ * Open the separateAxes option you can change the particle size on XYZ axis (Size on Z axis is invalid for billboard particle)
+ * Size on every axis is curve so you can modify these curves to see how it animate.
+ * @zh
+ * 本模块用于在粒子生命周期内对大小进行改变
+ * 打开 separateAxes 就能够修改粒子在三个轴方向的大小（z轴大小对公告板粒子无效）
+ * 每个轴上的粒子大小都是可以用曲线来进行编辑，修改曲线就能够看到粒子大小变化的效果了
+ */
 @ccclass('cc.SizeOvertimeModule')
 export default class SizeOvertimeModule extends ParticleModuleBase {
     @serializable

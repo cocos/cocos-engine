@@ -33,7 +33,8 @@ import { isCurveTwoValues } from '../particle-general-function';
 const TEXTURE_ANIMATION_RAND_OFFSET = ModuleRandSeed.TEXTURE;
 
 /**
- * 粒子贴图动画类型。
+ * @en Texture animation type
+ * @zh 粒子贴图动画类型。
  * @enum textureAnimationModule.Mode
  */
 const Mode = Enum({
@@ -49,21 +50,30 @@ const Mode = Enum({
 });
 
 /**
- * 贴图动画的播放方式。
+ * @en Mode to play texture animation
+ * @zh 贴图动画的播放方式。
  * @enum textureAnimationModule.Animation
  */
 const Animation = Enum({
     /**
-     * 播放贴图中的所有帧。
+     * @en Play whole sheet of texture
+     * @zh 播放贴图中的所有帧。
      */
     WholeSheet: 0,
 
     /**
-     * 播放贴图中的其中一行动画。
+     * @en Play just one row of texture
+     * @zh 播放贴图中的其中一行动画。
      */
     SingleRow: 1,
 });
 
+/**
+ * @en
+ * Use this module to play frame animation of the particle texture
+ * @zh
+ * 这个模块用于播放粒子纹理带的纹理帧动画
+ */
 @ccclass('cc.TextureAnimationModule')
 export default class TextureAnimationModule extends ParticleModuleBase {
     @serializable

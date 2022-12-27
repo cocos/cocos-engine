@@ -35,6 +35,16 @@ const LIMIT_VELOCITY_RAND_OFFSET = ModuleRandSeed.LIMIT;
 const _temp_v3 = new Vec3();
 const _temp_v3_1 = new Vec3();
 
+/**
+ * @en
+ * This module will damping particle velocity to the limit value over life time.
+ * Open the separateAxes option you can damping the particle velocity on XYZ axis
+ * Limit value on every axis is curve so you can modify these curves to see how it animate.
+ * @zh
+ * 本模块用于在粒子生命周期内对速度进行衰减，速度每次衰减比例为 dampen 持续衰减到极限速度
+ * 打开 separateAxes 就能够修改粒子在三个轴方向的极限速度大小
+ * 每个轴上的粒子极限速度大小都是可以用曲线来进行编辑，修改曲线就能够看到粒子大小变化的效果了
+ */
 @ccclass('cc.LimitVelocityOvertimeModule')
 export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
     @serializable
@@ -108,8 +118,8 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
     public limit = new CurveRange();
 
     /**
-     * @en Dampen velocity every time
-     * @zh 当前速度与速度下限的插值。
+     * @en Dampen velocity percent every time
+     * @zh 速度每次衰减的比例。
      */
     @serializable
     @displayOrder(7)

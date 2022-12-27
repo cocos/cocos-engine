@@ -32,6 +32,12 @@ import { isGradientTwoValues } from '../particle-general-function';
 
 const COLOR_OVERTIME_RAND_OFFSET = ModuleRandSeed.COLOR;
 
+/**
+ * @en
+ * This module will modify particle color over life time. You can set the color gradient to see how it changes.
+ * @zh
+ * 本模块用于在粒子生命周期内对颜色进行改变，可以修改模块下的颜色渐变条来查看粒子颜色渐变效果
+ */
 @ccclass('cc.ColorOvertimeModule')
 export default class ColorOvertimeModule extends ParticleModuleBase {
     @serializable
