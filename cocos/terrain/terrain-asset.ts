@@ -483,8 +483,7 @@ export class TerrainAsset extends Asset {
         // geometry info
         if (this._version >= TERRAIN_DATA_VERSION7) {
             this.tileSize = stream.readDouble();
-        }
-        else {
+        } else {
             this.tileSize = stream.readFloat();
         }
         this.tileSize = Math.floor(this.tileSize * 100) / 100.0;
@@ -534,8 +533,7 @@ export class TerrainAsset extends Asset {
                 this._layerBinaryInfos[i].slot = stream.readInt();
                 if (this._version >= TERRAIN_DATA_VERSION7) {
                     this._layerBinaryInfos[i].tileSize = stream.readDouble();
-                }
-                else {
+                } else {
                     this._layerBinaryInfos[i].tileSize = stream.readFloat();
                 }
 
@@ -545,8 +543,7 @@ export class TerrainAsset extends Asset {
                     if (this._version >= TERRAIN_DATA_VERSION7) {
                         this._layerBinaryInfos[i].roughness = stream.readDouble();
                         this._layerBinaryInfos[i].metallic = stream.readDouble();
-                    }
-                    else {
+                    } else {
                         this._layerBinaryInfos[i].roughness = stream.readFloat();
                         this._layerBinaryInfos[i].metallic = stream.readFloat();
                     }
