@@ -188,3 +188,6 @@ platform-nx
 
 
 **/*~
+
+
+/utils/.cloc
