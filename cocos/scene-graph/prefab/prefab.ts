@@ -25,7 +25,7 @@
 */
 
 import { ccclass, serializable, editable } from 'cc.decorator';
-import { SUPPORT_JIT, ALIPAY, RUNTIME_BASED } from 'internal:constants';
+import { SUPPORT_JIT, ALIPAY, RUNTIME_BASED, JSB } from 'internal:constants';
 import { compile } from '../../serialization/instantiate-jit';
 import { js } from '../../core';
 import { Enum } from '../../core/value-types';
@@ -201,7 +201,9 @@ export class Prefab extends Asset {
         const rootNode = this.data as Node;
         utils.expandNestedPrefabInstanceNode(rootNode);
         utils.applyTargetOverrides(rootNode);
-        updateChildrenForDeserialize(rootNode);
+        if (JSB) {
+            updateChildrenForDeserialize(rootNode);
+        }
     }
 }
 
