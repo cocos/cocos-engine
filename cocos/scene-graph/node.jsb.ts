@@ -181,9 +181,9 @@ nodeProto.addComponent = function (typeOrClassName) {
         throw TypeError(getError(3810));
     }
 
-    // if (EDITOR && (constructor as typeof constructor & { _disallowMultiple?: unknown })._disallowMultiple) {
-    //     this._checkMultipleComp!(constructor);
-    // }
+    if (EDITOR && (constructor as typeof constructor & { _disallowMultiple?: unknown })._disallowMultiple) {
+        this._checkMultipleComp!(constructor);
+    }
 
     // check requirement
 
