@@ -49,6 +49,7 @@ tools
 utils
 cocos/editor-support/spine ${flags.THIRD_PARTY}
 cocos/editor-support/dragonbones ${flags.THIRD_PARTY}
+tools/simulator/libsimulator ${flags.EXCLUDED}
 `
 
 const DIR_3rd = [];
@@ -80,6 +81,8 @@ engine_dirs.split('\n').map(x => x.trim()).filter(x => x.length > 0).forEach((li
         let flag = parts[1];
         if (flag == flags.THIRD_PARTY) {
             DIR_3rd.push(parts[0]);
+            DIR_cocos_exclude.push(parts[0]);
+        } else if (flag == flags.EXCLUDED) {
             DIR_cocos_exclude.push(parts[0]);
         } else {
             console.error(`Unhandled flag ${flag} in "${line}"`);
@@ -129,81 +132,6 @@ function getKeys(o1, o2) {
     return list1;
 }
 
-function resultAdd(r1, r2) {
-    let ret = {};
-    let KL0 = getKeys(r1, r2);
-    for (let k of KL0) {
-        let row = ret[k] = {};
-        if (r1[k] === undefined) {
-            Object.assign(row, r2[k]);
-            continue;
-        }
-        if (r2[k] === undefined) {
-            Object.assign(row, r1[k]);
-            continue;
-        }
-
-        // assign by KL2 fields
-        const f1 = r1[k];
-        const f2 = r2[k];
-        for (let attr in f1) {
-            if (k === 'info' && attr === 'path') {
-                row[attr] = map2array(f1[attr]).concat(map2array(f2[attr]));
-            } else if (typeof f1[attr] === 'number') {
-                row[attr] = f1[attr] + f2[attr];
-            } else {
-                row[attr] = f1[attr];
-            }
-        }
-    }
-    return ret;
-}
-
-function map2array(v) {
-    return (v instanceof Array) ? v : [v];
-}
-
-function negFields(obj) {
-    let ret = {};
-    for (let k in obj) {
-        if (typeof obj[k] === 'number') {
-            ret[k] = -obj[k];
-        } else {
-            ret[k] = obj[k];
-        }
-    }
-    return ret;
-}
-
-function resultSub(r1, r2) {
-    let ret = {};
-    let KL0 = getKeys(r1, r2);
-    for (let k of KL0) {
-        let row = ret[k] = {};
-        if (r1[k] === undefined) {
-            Object.assign(row, negFields(r2[k]));
-            continue;
-        }
-        if (r2[k] === undefined) {
-            Object.assign(row, r1[k]);
-            continue;
-        }
-
-        // assign by KL2 fields
-        const f1 = r1[k];
-        const f2 = r2[k];
-        for (let attr in f1) {
-            if (k === 'info' && attr === 'path') {
-                row[attr] = map2array(f1[attr]).concat(map2array(f2[attr]).map(x=>`!${x}`));
-            } else if (typeof f1[attr] === 'number') {
-                row[attr] = f1[attr] - f2[attr];
-            } else {
-                row[attr] = f1[attr];
-            }
-        }
-    }
-    return ret;
-}
 
 console.log(` ... `);
 
@@ -212,7 +140,7 @@ const getLOC = (attr, lang) => {
 }
 
 const lines = [['目录', 'C/C++', 'Java', 'CMake', 'JS/TS', 'Python', 'SWIG']];
-DIR_cocos_r.concat(DIR_3rd_r).concat(DIR_3rd_ignore_r).forEach(itm=> {
+DIR_cocos_r.concat(DIR_cocos_exclude_r).concat(DIR_3rd_r).concat(DIR_3rd_ignore_r).forEach(itm=> {
     lines.push([itm.info.path, 
         getLOC(itm, 'C') + getLOC(itm, 'C++') +  getLOC(itm, 'C/C++ Header'),
         getLOC(itm, 'Java'),
