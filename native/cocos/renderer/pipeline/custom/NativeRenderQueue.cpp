@@ -1,9 +1,9 @@
 #include <algorithm>
 #include <iterator>
-#include "GslUtils.h"
 #include "NativePipelineTypes.h"
 #include "cocos/renderer/pipeline/Define.h"
 #include "cocos/renderer/pipeline/PipelineStateManager.h"
+#include "details/GslUtils.h"
 
 namespace cc {
 

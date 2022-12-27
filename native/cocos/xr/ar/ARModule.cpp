@@ -44,6 +44,7 @@ ARModule::ARModule() {
 #if CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_MAC_IOS
     _impl = std::make_unique<ARAPIImpl>();
     arModuleInstance.reset(this);
+    _texInitFlag = true;
 #endif
 }
 
@@ -108,6 +109,14 @@ TexCoords ARModule::getCameraTexCoords() const {
     return _impl->getCameraTexCoords();
 }
 
+void ARModule::enableCameraAutoFocus(bool enable) const {
+    _impl->enableCameraAutoFocus(enable);
+}
+
+void ARModule::enableCameraDepth(bool enable) const {
+    _impl->enableCameraDepth(enable);
+}
+
 void ARModule::setDisplayGeometry(uint32_t rotation, uint32_t width, uint32_t height) const {
     _impl->setDisplayGeometry(rotation, width, height);
 }
@@ -126,6 +135,17 @@ void* ARModule::getCameraTextureRef() const {
 
 uint8_t* ARModule::getCameraDepthBuffer() const {
     return _impl->getCameraDepthBuffer();
+}
+
+bool ARModule::getTexInitFlag() const {
+    return _texInitFlag;
+}
+void ARModule::resetTexInitFlag() {
+    _texInitFlag = false;
+}
+
+void ARModule::enableLightEstimate(bool enable) const {
+    _impl->enableLightEstimate(enable);
 }
 
 LightVal ARModule::getMainLightDirection() const {
@@ -206,7 +226,7 @@ float* ARModule::getUpdatedSceneMesh() const {
     return _impl->getUpdatedSceneMesh();
 }
 
-int* ARModule::getRemovedSceneMesh() const {
+float* ARModule::getRemovedSceneMesh() const {
     return _impl->getRemovedSceneMesh();
 }
 
@@ -236,8 +256,8 @@ void ARModule::addImageToLib(const std::string& imageName) const {
     _impl->addImageToLib(imageName);
 }
 
-void ARModule::addImageToLibWithSize(const std::string& imageName, float withInMeters) const {
-    _impl->addImageToLibWithSize(imageName, withInMeters);
+void ARModule::addImageToLibWithSize(const std::string& imageName, float widthInMeters) const {
+    _impl->addImageToLibWithSize(imageName, widthInMeters);
 }
 
 void ARModule::setImageMaxTrackingNumber(int number) const {

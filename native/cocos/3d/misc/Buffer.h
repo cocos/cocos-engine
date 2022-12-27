@@ -66,7 +66,7 @@ void writeBuffer(DataView &target,
                             target.setUint32(y, static_cast<uint32_t>(data[info.count * iSeg + iComponent]));
                             break;
                         default:
-                            CC_ASSERT(false);
+                            CC_ABORT();
                             break;
                     }
                     break;
@@ -83,7 +83,7 @@ void writeBuffer(DataView &target,
                             target.setInt32(y, static_cast<int32_t>(data[info.count * iSeg + iComponent]));
                             break;
                         default:
-                            CC_ASSERT(false);
+                            CC_ABORT();
                             break;
                     }
                     break;
@@ -100,19 +100,19 @@ void writeBuffer(DataView &target,
                             target.setFloat32(y, static_cast<float>(data[info.count * iSeg + iComponent]));
                             break;
                         default:
-                            CC_ASSERT(false);
+                            CC_ABORT();
                             break;
                     }
                     break;
                 default:
-                    CC_ASSERT(false);
+                    CC_ABORT();
                     break;
             }
         }
     }
 }
 
-using DataVariant = ccstd::variant<int32_t, float>;
+using DataVariant = ccstd::variant<ccstd::monostate, int32_t, float>;
 using MapBufferCallback = std::function<DataVariant(const DataVariant &cur, uint32_t idx, const DataView &view)>;
 
 DataView mapBuffer(DataView &target,

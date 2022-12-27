@@ -25,12 +25,12 @@
 */
 
 /**
- * Searches the **sorted** number array for an element and returns the index of that element.
+ * Searches the **ascending sorted** array for an element and returns the index of that element.
  * @param array The array to search in.
  * @param value The value to search.
- * @return The index of the searched element in the sorted array, if one is found;
- * otherwise, a negative number that is the bitwise complement of the index of the next element that is large than the searched value or,
- * if there is no larger element(include the case that the array is empty), the bitwise complement of array's length.
+ * @returns The index of the searched element in the sorted array, if found;
+ * otherwise, returns the complement of the index of the next element greater than the element to be searched or,
+ * returns the complement of array's length if no element is greater than the element to be searched or the array is empty.
  * @engineInternal
  */
 export function binarySearch (array: number[], value: number) {
@@ -38,13 +38,13 @@ export function binarySearch (array: number[], value: number) {
 }
 
 /**
- * Searches the **sorted** number array for an element and returns the index of that element.
+ * Searches the **ascending sorted** number array for an element and returns the index of that element.
  * @param array The array to search in.
  * @param value The value to search.
  * @param EPSILON The epsilon to compare the numbers. Default to `1e-6`.
- * @return The index of the searched element in the sorted array, if one is found;
- * otherwise, a negative number that is the bitwise complement of the index of the next element that is large than the searched value or,
- * if there is no larger element(include the case that the array is empty), the bitwise complement of array's length.
+ * @returns The index of the searched element in the sorted array, if found;
+ * otherwise, returns the complement of the index of the next element greater than the element to be searched or,
+ * returns the complement of array's length if no element is greater than the element to be searched or the array is empty.
  * @engineInternal
  */
 export function binarySearchEpsilon (array: Readonly<ArrayLike<number>>, value: number, EPSILON = 1e-6) {
@@ -65,13 +65,13 @@ export function binarySearchEpsilon (array: Readonly<ArrayLike<number>>, value: 
 }
 
 /**
- * Searches the **sorted** array for an element and returns the index of that element.
+ * Searches the **ascending sorted** array for an element and returns the index of that element.
  * @param array The array to search in.
  * @param value The value to search.
- * @param lessThan The predicate which implements the less than semantic.
- * @return The index of the searched element in the sorted array, if one is found;
- * otherwise, a negative number that is the bitwise complement of the index of the next element that is large than the searched value or,
- * if there is no larger element(include the case that the array is empty), the bitwise complement of array's length.
+ * @param lessThan Comparison function object which returns ​true if the first argument is less than the second.
+ * @returns The index of the searched element in the sorted array, if found;
+ * otherwise, returns the complement of the index of the next element greater than the searching element or,
+ * returns the complement of array's length if no element is greater than the searching element or the array is empty.
  * @engineInternal
  */
 export function binarySearchBy<T, U> (array: T[], value: U, lessThan: (lhs: T, rhs: U) => number) {

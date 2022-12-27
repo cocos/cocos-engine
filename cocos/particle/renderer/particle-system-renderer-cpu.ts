@@ -38,6 +38,8 @@ import { Camera } from '../../render-scene/scene/camera';
 import { Pass } from '../../render-scene';
 import { ParticleNoise } from '../noise';
 import { NoiseModule } from '../animator/noise-module';
+import { isCurveTwoValues } from '../particle-general-function';
+import { Mode } from '../animator/curve-range';
 
 const _tempAttribUV = new Vec3();
 const _tempWorldTrans = new Mat4();
@@ -309,7 +311,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
             const cameraLst: Camera[]|undefined = this._particleSystem.node.scene.renderScene?.cameras;
             if (cameraLst !== undefined) {
                 for (let i = 0; i < cameraLst?.length; ++i) {
-                    const camera:Camera = cameraLst[i];
+                    const camera: Camera = cameraLst[i];
                     // eslint-disable-next-line max-len
                     const checkCamera: boolean = (!EDITOR || cclegacy.GAME_VIEW) ? (camera.visibility & this._particleSystem.node.layer) === this._particleSystem.node.layer : camera.name === 'Editor Camera';
                     if (checkCamera) {
@@ -368,13 +370,13 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         }
 
         if (ps.simulationSpace === Space.Local) {
-            const r:Quat = ps.node.getRotation();
+            const r: Quat = ps.node.getRotation();
             Mat4.fromQuat(this._localMat, r);
             this._localMat.transpose(); // just consider rotation, use transpose as invert
         }
 
         if (ps.node.parent) {
-            const r:Quat = ps.node.parent.getWorldRotation();
+            const r: Quat = ps.node.parent.getWorldRotation();
             Mat4.fromQuat(_tempParentInverse, r);
             _tempParentInverse.transpose();
         }
@@ -393,27 +395,32 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
                 continue;
             }
 
-            if (ps.simulationSpace === Space.Local) {
-                const gravityFactor = -ps.gravityModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, pseudoRandom(p.randomSeed))! * 9.8 * dt;
-                this._gravity.x = 0.0;
-                this._gravity.y = gravityFactor;
-                this._gravity.z = 0.0;
-                this._gravity.w = 1.0;
-                if (!approx(gravityFactor, 0.0, EPSILON)) {
-                    if (ps.node.parent) {
-                        this._gravity = this._gravity.transformMat4(_tempParentInverse);
+            // apply gravity when both the mode is not Constant and the value is not 0.
+            const useGravity = (ps.gravityModifier.mode !== Mode.Constant || ps.gravityModifier.constant !== 0);
+            if (useGravity) {
+                const rand = isCurveTwoValues(ps.gravityModifier) ? pseudoRandom(p.randomSeed) : 0;
+                if (ps.simulationSpace === Space.Local) {
+                    const time = 1 - p.remainingLifetime / p.startLifetime;
+                    const gravityFactor = -ps.gravityModifier.evaluate(time, rand)! * 9.8 * dt;
+                    this._gravity.x = 0.0;
+                    this._gravity.y = gravityFactor;
+                    this._gravity.z = 0.0;
+                    this._gravity.w = 1.0;
+                    if (!approx(gravityFactor, 0.0, EPSILON)) {
+                        if (ps.node.parent) {
+                            this._gravity = this._gravity.transformMat4(_tempParentInverse);
+                        }
+                        this._gravity = this._gravity.transformMat4(this._localMat);
+
+                        p.velocity.x += this._gravity.x;
+                        p.velocity.y += this._gravity.y;
+                        p.velocity.z += this._gravity.z;
                     }
-                    this._gravity = this._gravity.transformMat4(this._localMat);
-
-                    p.velocity.x += this._gravity.x;
-                    p.velocity.y += this._gravity.y;
-                    p.velocity.z += this._gravity.z;
+                } else {
+                    // apply gravity.
+                    p.velocity.y -= ps.gravityModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, rand)! * 9.8 * dt;
                 }
-            } else {
-                // apply gravity.
-                p.velocity.y -= ps.gravityModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, pseudoRandom(p.randomSeed))! * 9.8 * dt;
             }
-
             Vec3.copy(p.ultimateVelocity, p.velocity);
 
             this._runAnimateList.forEach((value) => {
@@ -686,7 +693,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
 
         let enable = false;
         const roationModule = this._particleSystem._rotationOvertimeModule;
-        enable = roationModule && roationModule.enable;
+        enable = roationModule ? roationModule.enable : false;
         this._defines[ROTATION_OVER_TIME_MODULE_ENABLE] = enable;
         this._defines[INSTANCE_PARTICLE] = this._useInstance;
 

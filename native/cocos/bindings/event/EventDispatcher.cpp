@@ -183,7 +183,7 @@ void EventDispatcher::dispatchTouchEvent(const TouchEvent &touchEvent) {
             eventName = "onTouchCancel";
             break;
         default:
-            CC_ASSERT(false);
+            CC_ABORT();
             break;
     }
 
@@ -233,7 +233,7 @@ void EventDispatcher::dispatchMouseEvent(const MouseEvent &mouseEvent) {
             jsFunctionName = "onMouseWheel";
             break;
         default:
-            CC_ASSERT(false);
+            CC_ABORT();
             break;
     }
 
@@ -259,7 +259,7 @@ void EventDispatcher::dispatchKeyboardEvent(const KeyboardEvent &keyboardEvent) 
             eventName = "onKeyUp";
             break;
         default:
-            CC_ASSERT(false);
+            CC_ABORT();
             break;
     }
 
@@ -364,24 +364,7 @@ void EventDispatcher::dispatchResizeEvent(int width, int height, uint32_t window
 }
 
 void EventDispatcher::dispatchOrientationChangeEvent(int orientation) {
-    if (!se::ScriptEngine::getInstance()->isValid()) {
-        return;
-    }
-
-    se::AutoHandleScope scope;
-    CC_ASSERT(inited);
-
-    se::Value func;
-    __jsbObj->getProperty("onOrientationChanged", &func);
-    if (func.isObject() && func.toObject()->isFunction()) {
-        se::Value evtObj;
-        accessCacheArgObj(func.toObject(), &evtObj);
-        evtObj.toObject()->setProperty("orientation", se::Value(orientation));
-
-        se::ValueArray args;
-        args.emplace_back(evtObj);
-        func.toObject()->call(args, nullptr);
-    }
+    //Ts's logic is same as the 'onResize', so remove code here temporary.
 }
 
 void EventDispatcher::dispatchEnterBackgroundEvent() {

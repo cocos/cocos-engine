@@ -28,7 +28,6 @@
 #include <vector>
 #include "DevicePassResourceTable.h"
 #include "gfx-base/GFXBarrier.h"
-#include "pipeline/custom/GslUtils.h"
 
 namespace cc {
 namespace framegraph {

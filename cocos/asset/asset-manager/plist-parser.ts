@@ -34,7 +34,7 @@ import { warnID } from '../../core';
 export class SAXParser {
     private _parser: DOMParser | null = null;
     constructor () {
-        if (window.DOMParser) {
+        if (globalThis.DOMParser) {
             this._parser = new DOMParser();
         }
     }

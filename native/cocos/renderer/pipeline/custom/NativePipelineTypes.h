@@ -37,11 +37,12 @@
 #include "cocos/renderer/gfx-base/GFXRenderPass.h"
 #include "cocos/renderer/pipeline/GlobalDescriptorSetManager.h"
 #include "cocos/renderer/pipeline/InstancedBuffer.h"
-#include "cocos/renderer/pipeline/custom/LayoutGraphTypes.h"
 #include "cocos/renderer/pipeline/custom/NativePipelineFwd.h"
+#include "cocos/renderer/pipeline/custom/NativeTypes.h"
+#include "cocos/renderer/pipeline/custom/PrivateTypes.h"
 #include "cocos/renderer/pipeline/custom/RenderGraphTypes.h"
-#include "cocos/renderer/pipeline/custom/RenderInterfaceTypes.h"
-#include "cocos/renderer/pipeline/custom/Set.h"
+#include "cocos/renderer/pipeline/custom/details/Map.h"
+#include "cocos/renderer/pipeline/custom/details/Set.h"
 
 namespace cc {
 
@@ -500,6 +501,66 @@ public:
     LayoutGraphData layoutGraph;
     ResourceGraph resourceGraph;
     RenderGraph renderGraph;
+};
+
+class NativeProgramProxy final : public ProgramProxy {
+public:
+    NativeProgramProxy() = default;
+    NativeProgramProxy(IntrusivePtr<gfx::Shader> shaderIn) noexcept // NOLINT
+    : shader(std::move(shaderIn)) {}
+
+    const ccstd::string &getName() const noexcept override;
+    gfx::Shader *getShader() const noexcept override;
+
+    IntrusivePtr<gfx::Shader> shader;
+};
+
+class NativeProgramLibrary final : public ProgramLibrary {
+public:
+    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
+    allocator_type get_allocator() const noexcept { // NOLINT
+        return {layoutGraph.get_allocator().resource()};
+    }
+
+    NativeProgramLibrary(const allocator_type& alloc) noexcept; // NOLINT
+
+    void addEffect(EffectAsset *effectAsset) override;
+    void precompileEffect(gfx::Device *device, EffectAsset *effectAsset) override;
+    ccstd::string getKey(uint32_t phaseID, const ccstd::pmr::string &programName, const MacroRecord &defines) const override;
+    const gfx::PipelineLayout &getPipelineLayout(gfx::Device *device, uint32_t phaseID, const ccstd::pmr::string &programName) override;
+    const gfx::DescriptorSetLayout &getMaterialDescriptorSetLayout(gfx::Device *device, uint32_t phaseID, const ccstd::pmr::string &programName) override;
+    const gfx::DescriptorSetLayout &getLocalDescriptorSetLayout(gfx::Device *device, uint32_t phaseID, const ccstd::pmr::string &programName) override;
+    const IProgramInfo &getProgramInfo(uint32_t phaseID, const ccstd::pmr::string &programName) const override;
+    const gfx::ShaderInfo &getShaderInfo(uint32_t phaseID, const ccstd::pmr::string &programName) const override;
+    ProgramProxy *getProgramVariant(gfx::Device *device, uint32_t phaseID, const ccstd::string &name, const MacroRecord &defines, const ccstd::pmr::string *key) const override;
+    const ccstd::pmr::vector<unsigned> &getBlockSizes(uint32_t phaseID, const ccstd::pmr::string &programName) const override;
+    const Record<ccstd::string, uint32_t> &getHandleMap(uint32_t phaseID, const ccstd::pmr::string &programName) const override;
+    uint32_t getProgramID(uint32_t phaseID, const ccstd::pmr::string &programName) override;
+    uint32_t getDescriptorNameID(const ccstd::pmr::string &name) override;
+    const ccstd::pmr::string &getDescriptorName(uint32_t nameID) override;
+
+    void init(gfx::Device* device);
+    void destroy();
+
+    LayoutGraphData layoutGraph;
+    PmrFlatMap<uint32_t, ProgramGroup> phases;
+    boost::container::pmr::unsynchronized_pool_resource unsycPool;
+    bool mergeHighFrequency{false};
+    bool fixedLocal{true};
+    IntrusivePtr<gfx::DescriptorSetLayout> emptyDescriptorSetLayout;
+    IntrusivePtr<gfx::PipelineLayout> emptyPipelineLayout;
+};
+
+class NativeRenderingModule final : public RenderingModule {
+public:
+    NativeRenderingModule() = default;
+    NativeRenderingModule(std::shared_ptr<NativeProgramLibrary> programLibraryIn) noexcept // NOLINT
+    : programLibrary(std::move(programLibraryIn)) {}
+
+    uint32_t getPassID(const ccstd::string &name) const override;
+    uint32_t getPhaseID(uint32_t passID, const ccstd::string &name) const override;
+
+    std::shared_ptr<NativeProgramLibrary> programLibrary;
 };
 
 } // namespace render

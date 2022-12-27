@@ -55,12 +55,17 @@ public:
     Matrix getCameraProjectionMatrix() const;
     TexCoords getCameraTexCoords() const;
 
+    void enableCameraAutoFocus(bool enable) const;
+    void enableCameraDepth(bool enable) const;
     void setDisplayGeometry(uint32_t rotation, uint32_t width, uint32_t height) const;
     void setCameraClip(float near, float far) const;
     void setCameraTextureName(int id) const;
     void* getCameraTextureRef() const;
     uint8_t* getCameraDepthBuffer() const;
+    bool getTexInitFlag() const;
+    void resetTexInitFlag();
 
+    void enableLightEstimate(bool enable) const;
     LightVal getMainLightDirection() const;
     LightVal getMainLightIntensity() const;
 
@@ -88,7 +93,7 @@ public:
     void enableSceneMesh(bool enable) const;
     float* getAddedSceneMesh() const;
     float* getUpdatedSceneMesh() const;
-    int* getRemovedSceneMesh() const;
+    float* getRemovedSceneMesh() const;
     int* requireSceneMesh() const;
     float* getSceneMeshVertices(int meshRef) const;
     int* getSceneMeshTriangleIndices(int meshRef) const;
@@ -97,7 +102,7 @@ public:
     // image recognition & tracking
     void enableImageTracking(bool enable) const;
     void addImageToLib(const std::string& name) const;
-    void addImageToLibWithSize(const std::string& name, float withInMeters) const;
+    void addImageToLibWithSize(const std::string& name, float widthInMeters) const;
     void setImageMaxTrackingNumber(int number) const;
     float* getAddedImagesInfo() const;
     float* getUpdatedImagesInfo() const;
@@ -120,6 +125,7 @@ public:
 private:
     std::unique_ptr<IARAPI> _impl;
     std::string _cameraId;
+    bool _texInitFlag{false};
 };
 
 static std::unique_ptr<ARModule> arModuleInstance;

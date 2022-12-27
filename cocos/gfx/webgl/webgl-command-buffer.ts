@@ -41,8 +41,8 @@ import { WebGLTexture } from './webgl-texture';
 import { RenderPass } from '../base/render-pass';
 import { WebGLRenderPass } from './webgl-render-pass';
 import { BufferUsageBit, CommandBufferType, StencilFace, BufferSource,
-    CommandBufferInfo, BufferTextureCopy, Color, Rect, Viewport, DrawInfo, DynamicStates } from '../base/define';
-import { WebGLCmd, WebGLCmdBeginRenderPass, WebGLCmdBindStates, WebGLCmdCopyBufferToTexture,
+    CommandBufferInfo, BufferTextureCopy, Color, Rect, Viewport, DrawInfo, DynamicStates, TextureBlit, Filter } from '../base/define';
+import { WebGLCmd, WebGLCmdBeginRenderPass, WebGLCmdBindStates, WebGLCmdBlitTexture, WebGLCmdCopyBufferToTexture,
     WebGLCmdDraw, WebGLCmdPackage, WebGLCmdUpdateBuffer } from './webgl-commands';
 import { GeneralBarrier } from '../base/states/general-barrier';
 import { TextureBarrier } from '../base/states/texture-barrier';
@@ -392,6 +392,12 @@ export class WebGLCommandBuffer extends CommandBuffer {
                 this.cmdPackage.copyBufferToTextureCmds.push(cmd);
             }
 
+            for (let c = 0; c < webGLCmdBuff.cmdPackage.blitTextureCmds.length; ++c) {
+                const cmd = webGLCmdBuff.cmdPackage.blitTextureCmds.array[c];
+                ++cmd.refCount;
+                this.cmdPackage.blitTextureCmds.push(cmd);
+            }
+
             this.cmdPackage.cmds.concat(webGLCmdBuff.cmdPackage.cmds.array);
 
             this._numDrawCalls += webGLCmdBuff._numDrawCalls;
@@ -420,5 +426,18 @@ export class WebGLCommandBuffer extends CommandBuffer {
 
             this._isStateInvalied = false;
         }
+    }
+
+    public blitTexture (srcTexture: Readonly<Texture>, dstTexture: Texture, regions: Readonly<TextureBlit []>, filter: Filter): void {
+        const blitTextureCmd = this._cmdAllocator.blitTextureCmdPool.alloc(WebGLCmdBlitTexture);
+        blitTextureCmd.srcTexture = (srcTexture as WebGLTexture).gpuTexture;
+        blitTextureCmd.dstTexture = (dstTexture as WebGLTexture).gpuTexture;
+        blitTextureCmd.regions = regions as TextureBlit[];
+        blitTextureCmd.filter = filter;
+
+        ++this._numDrawCalls; // blit is also seen as draw call in webgl1
+
+        this.cmdPackage.blitTextureCmds.push(blitTextureCmd);
+        this.cmdPackage.cmds.push(WebGLCmd.BLIT_TEXTURE);
     }
 }

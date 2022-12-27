@@ -24,14 +24,13 @@
  */
 import { EDITOR } from 'internal:constants';
 import { Model } from '../render-scene/scene/model';
-import { Camera, SKYBOX_FLAG } from '../render-scene/scene/camera';
+import { Camera, CameraUsage, SKYBOX_FLAG } from '../render-scene/scene/camera';
 import { Vec3, Pool, warnID, geometry, cclegacy } from '../core';
 import { RenderPipeline } from './render-pipeline';
 import { IRenderObject, UBOShadow } from './define';
 import { ShadowType, CSMOptimizationMode } from '../render-scene/scene/shadows';
 import { PipelineSceneData } from './pipeline-scene-data';
 import { ShadowLayerVolume } from './shadow/csm-layers';
-import { LODModelsCachedUtils } from './lod-models-utils';
 
 const _tempVec3 = new Vec3();
 const _sphere = geometry.Sphere.create(0, 0, 0, 1);
@@ -90,32 +89,34 @@ export function shadowCulling (camera: Camera, sceneData: PipelineSceneData, lay
     dirShadowObjects.length = 0;
     const visibility = camera.visibility;
 
-    for (let i = csmLayerObjects.length - 1; i >= 0; i--) {
-        const csmLayerObject = csmLayerObjects.array[i];
-        if (csmLayerObject) {
-            const model = csmLayerObject.model;
-            // filter model by view visibility
-            if (model.enabled) {
-                if (model.node && ((visibility & model.node.layer) === model.node.layer)) {
-                    // shadow render Object
-                    if (dirShadowObjects != null && model.castShadow && model.worldBounds) {
-                        // frustum culling
-                        // eslint-disable-next-line no-lonely-if
-                        const accurate = geometry.intersect.aabbFrustum(model.worldBounds, dirLightFrustum);
-                        if (accurate) {
-                            dirShadowObjects.push(csmLayerObject);
-                            if (layer.level < mainLight.csmLevel) {
-                                if (mainLight.csmOptimizationMode === CSMOptimizationMode.RemoveDuplicates
-                                    && geometry.intersect.aabbFrustumCompletelyInside(model.worldBounds, dirLightFrustum)) {
-                                    csmLayerObjects.fastRemove(i);
-                                }
-                            }
-                        }
-                    }
-                }
+    csmLayerObjects.array.forEach((obj, index) => {
+        if (!obj) {
+            return;
+        }
+        const model = obj.model;
+        if (!model || !model.enabled || !model.node) {
+            return;
+        }
+        if (((visibility & model.node.layer) !== model.node.layer) && !(visibility & model.visFlags)) {
+            return;
+        }
+        if (!model.worldBounds || !model.castShadow) {
+            return;
+        }
+
+        // frustum culling
+        const accurate = geometry.intersect.aabbFrustum(model.worldBounds, dirLightFrustum);
+        if (!accurate) {
+            return;
+        }
+        dirShadowObjects.push(obj);
+        if (layer.level < mainLight.csmLevel) {
+            if (mainLight.csmOptimizationMode === CSMOptimizationMode.RemoveDuplicates
+                    && geometry.intersect.aabbFrustumCompletelyInside(model.worldBounds, dirLightFrustum)) {
+                csmLayerObjects.fastRemove(index);
             }
         }
-    }
+    });
 }
 
 export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
@@ -147,7 +148,7 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
     if ((camera.clearFlag & SKYBOX_FLAG)) {
         if (skybox.enabled && skybox.model) {
             renderObjects.push(getRenderObject(skybox.model, camera));
-        } else if (camera.clearFlag === SKYBOX_FLAG && !EDITOR) {
+        } else if (camera.cameraUsage !== CameraUsage.EDITOR && camera.cameraUsage !== CameraUsage.SCENE_VIEW) {
             cclegacy.warnID(15100, camera.name);
         }
     }
@@ -158,7 +159,7 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
     function enqueueRenderObject (model: Model) {
         // filter model by view visibility
         if (model.enabled) {
-            if (LODModelsCachedUtils.isLODModelCulled(model)) {
+            if (scene.isCulledByLod(camera, model)) {
                 return;
             }
 
@@ -179,9 +180,7 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
         }
     }
 
-    LODModelsCachedUtils.updateCachedLODModels(scene, camera);
     for (let i = 0; i < models.length; i++) {
         enqueueRenderObject(models[i]);
     }
-    LODModelsCachedUtils.clearCachedLODModels();
 }

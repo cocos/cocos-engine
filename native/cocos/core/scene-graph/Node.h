@@ -76,11 +76,10 @@ class Node : public CCObject {
     TARGET_EVENT_ARG1(ChildRemoved, Node *)
     TARGET_EVENT_ARG1(ParentChanged, Node *)
     TARGET_EVENT_ARG0(NodeDestroyed)
+    TARGET_EVENT_ARG0(MobilityChanged)
     TARGET_EVENT_ARG1(LayerChanged, uint32_t)
     TARGET_EVENT_ARG0(SiblingOrderChanged)
     TARGET_EVENT_ARG0(ActiveInHierarchyChanged)
-    TARGET_EVENT_ARG0(MobilityChanged)
-    TARGET_EVENT_ARG1(AncestorTransformChanged, TransformBit)
     TARGET_EVENT_ARG0(Reattach)
     TARGET_EVENT_ARG0(RemovePersistRootNode)
     TARGET_EVENT_ARG0(DestroyComponents)
@@ -486,28 +485,28 @@ public:
     //    template <typename T, typename = std::enable_if_t<std::is_base_of<Component, T>::value>>
     //    static Component *findComponent(Node * /*node*/) {
     //        // cjh TODO:
-    //        CC_ASSERT(false);
+    //        CC_ABORT();
     //        return nullptr;
     //    }
     //
     //    template <typename T, typename = std::enable_if_t<std::is_base_of<Component, T>::value>>
     //    static Component *findComponents(Node * /*node*/, const ccstd::vector<Component *> & /*components*/) {
     //        // cjh TODO:
-    //        CC_ASSERT(false);
+    //        CC_ABORT();
     //        return nullptr;
     //    }
     //
     //    template <typename T, typename = std::enable_if_t<std::is_base_of<Component, T>::value>>
     //    static Component *findChildComponent(const ccstd::vector<Node *> & /*children*/) {
     //        // cjh TODO:
-    //        CC_ASSERT(false);
+    //        CC_ABORT();
     //        return nullptr;
     //    }
     //
     //    template <typename T, typename = std::enable_if_t<std::is_base_of<Component, T>::value>>
     //    static void findChildComponents(const ccstd::vector<Node *> & /*children*/, ccstd::vector<Component *> & /*components*/) {
     //        // cjh TODO:
-    //        CC_ASSERT(false);
+    //        CC_ABORT();
     //    }
     //
     //    template <typename T, typename = std::enable_if_t<std::is_base_of_v<Component, T>, T>>
@@ -542,21 +541,21 @@ public:
     //    template <typename T, typename std::enable_if_t<std::is_base_of<Component, T>::value>>
     //    ccstd::vector<Component *> getComponents() const {
     //        // cjh TODO:
-    //        CC_ASSERT(false);
+    //        CC_ABORT();
     //        return {};
     //    };
     //
     //    template <typename T, typename std::enable_if_t<std::is_base_of<Component, T>::value>>
     //    Component *getComponentInChildren(const T & /*comp*/) const {
     //        // cjh TODO:
-    //        CC_ASSERT(false);
+    //        CC_ABORT();
     //        return nullptr;
     //    }
     //
     //    template <typename T, typename std::enable_if_t<std::is_base_of<Component, T>::value>>
     //    ccstd::vector<Component *> getComponentsInChildren() const {
     //        // cjh TODO:
-    //        CC_ASSERT(false);
+    //        CC_ABORT();
     //        return {};
     //    }
     //

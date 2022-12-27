@@ -373,12 +373,12 @@ static bool webSocketSend(se::State &s) {
                 ok = dataObj->getTypedArrayData(&ptr, &length);
                 SE_PRECONDITION2(ok, false, "getTypedArrayData failed!");
             } else {
-                CC_ASSERT(false);
+                CC_ABORT();
             }
 
             cobj->send(ptr, static_cast<unsigned int>(length));
         } else {
-            CC_ASSERT(false);
+            CC_ABORT();
         }
 
         return true;
@@ -405,7 +405,7 @@ static bool webSocketClose(se::State &s) {
             sevalue_to_native(args[0], &reasonString);
             cobj->closeAsync(1005, reasonString);
         } else {
-            CC_ASSERT(false);
+            CC_ABORT();
         }
     } else if (argc == 2) {
         if (args[0].isNumber()) {
@@ -419,7 +419,7 @@ static bool webSocketClose(se::State &s) {
                 sevalue_to_native(args[0], &reasonCode);
                 cobj->closeAsync(reasonCode, "no_reason");
             } else {
-                CC_ASSERT(false);
+                CC_ABORT();
             }
         } else if (args[0].isNullOrUndefined()) {
             if (args[1].isString()) {
@@ -429,14 +429,14 @@ static bool webSocketClose(se::State &s) {
             } else if (args[1].isNullOrUndefined()) {
                 cobj->closeAsync();
             } else {
-                CC_ASSERT(false);
+                CC_ABORT();
             }
         } else {
-            CC_ASSERT(false);
+            CC_ABORT();
         }
     } else {
         SE_REPORT_ERROR("wrong number of arguments: %d, was expecting <=2", argc);
-        CC_ASSERT(false);
+        CC_ABORT();
     }
     // Attach current WebSocket instance to global object to prevent WebSocket instance
     // being garbage collected after "ws.close(); ws = null;"
@@ -511,8 +511,16 @@ WEBSOCKET_DEFINE_READONLY_INT_FIELD(Websocket_OPEN, static_cast<int>(cc::network
 WEBSOCKET_DEFINE_READONLY_INT_FIELD(Websocket_CLOSING, static_cast<int>(cc::network::WebSocket::State::CLOSING))
 WEBSOCKET_DEFINE_READONLY_INT_FIELD(Websocket_CLOSED, static_cast<int>(cc::network::WebSocket::State::CLOSED))
 
-bool register_all_websocket(se::Object *obj) { // NOLINT (readability-identifier-naming)
-    se::Class *cls = se::Class::create("WebSocket", obj, nullptr, _SE(webSocketConstructor));
+bool register_all_websocket(se::Object *global) { // NOLINT (readability-identifier-naming)
+    se::Value nsVal;
+    if (!global->getProperty("jsb", &nsVal, true))
+    {
+        se::HandleObject jsobj(se::Object::createPlainObject());
+        nsVal.setObject(jsobj);
+        global->setProperty("jsb", nsVal);
+    }
+    se::Object* ns = nsVal.toObject();
+    se::Class *cls = se::Class::create("WebSocket", ns, nullptr, _SE(webSocketConstructor));
     cls->defineFinalizeFunction(_SE(webSocketFinalize));
 
     cls->defineFunction("send", _SE(webSocketSend));
@@ -528,7 +536,7 @@ bool register_all_websocket(se::Object *obj) { // NOLINT (readability-identifier
     cls->install();
 
     se::Value tmp;
-    obj->getProperty("WebSocket", &tmp);
+    ns->getProperty("WebSocket", &tmp);
     tmp.toObject()->defineProperty("CONNECTING", _SE(Websocket_CONNECTING), nullptr);
     tmp.toObject()->defineProperty("CLOSING", _SE(Websocket_CLOSING), nullptr);
     tmp.toObject()->defineProperty("OPEN", _SE(Websocket_OPEN), nullptr);

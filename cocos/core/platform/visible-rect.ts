@@ -28,67 +28,82 @@ import { Rect } from '../math';
 import { legacyCC } from '../global-exports';
 
 /**
- * `visibleRect` is a singleton object which defines the actual visible rect of the current view
+ * @zh `visibleRect` is a singleton object which defines the actual visible rect of the current view.
+ * @en `visibleRect` 是一个定义当前视图的实际可见矩形的单例对象。
  * @engineInternal
  */
 export const visibleRect = {
     /**
-     * Top left coordinate of the screen related to the game scene.
+     * @zh 与游戏场景有关的屏幕左上方坐标。
+     * @en Top left coordinate of the screen related to the game scene.
      */
     topLeft: legacyCC.v2(0, 0),
 
     /**
-     * Top right coordinate of the screen related to the game scene.
+     * @zh 与游戏场景有关的屏幕右上方坐标。
+     * @en Top right coordinate of the screen related to the game scene.
      */
     topRight: legacyCC.v2(0, 0),
 
     /**
-     * Top center coordinate of the screen related to the game scene.
+     * @zh 与游戏场景有关的屏幕上方中心坐标。
+     * @en Top center coordinate of the screen related to the game scene.
      */
     top: legacyCC.v2(0, 0),
 
     /**
-     * Bottom left coordinate of the screen related to the game scene.
+     * @zh 与游戏场景有关的屏幕左下坐标。
+     * @en Bottom left coordinate of the screen related to the game scene.
      */
     bottomLeft: legacyCC.v2(0, 0),
 
     /**
-     * Bottom right coordinate of the screen related to the game scene.
+     * @zh 与游戏场景有关的屏幕右下坐标。
+     * @en Bottom right coordinate of the screen related to the game scene.
      */
     bottomRight: legacyCC.v2(0, 0),
 
     /**
-     * Bottom center coordinate of the screen related to the game scene.
+     * @zh 与游戏场景有关的屏幕下方中心坐标。
+     * @en Bottom center coordinate of the screen related to the game scene.
      */
     bottom: legacyCC.v2(0, 0),
 
     /**
-     * Center coordinate of the screen related to the game scene.
+     * @zh 与游戏场景有关的屏幕中心坐标。
+     * @en Center coordinate of the screen related to the game scene.
      */
     center: legacyCC.v2(0, 0),
 
     /**
-     * Left center coordinate of the screen related to the game scene.
+     * @zh 与游戏场景有关的屏幕左边中心坐标。
+     * @en Left center coordinate of the screen related to the game scene.
      */
     left: legacyCC.v2(0, 0),
 
     /**
-     * Right center coordinate of the screen related to the game scene.
+     * @zh 与游戏场景有关的屏幕右边中心坐标。
+     * @en Right center coordinate of the screen related to the game scene.
      */
     right: legacyCC.v2(0, 0),
 
     /**
-     * Width of the screen.
+     * @zh 屏幕宽度。
+     * @en Width of the screen.
      */
     width: 0,
 
     /**
-     * Height of the screen.
+     * @zh 屏幕高度。
+     * @en Height of the screen.
      */
     height: 0,
 
     /**
-     * initialize
+     * @zh 初始化函数。
+     * @en Initialization function.
+     * @param visibleRect_ @zh 当前视图的实际可见区域。@en The actual visible area of the current view.
+     * @NOTE: @zh 必须是有效的区域。例如区域大小不能为负数。@en It must be a valid region. For example, the region size cannot be negative.
      */
     init (visibleRect_: Rect) {
         const w = this.width = visibleRect_.width;

@@ -32,9 +32,9 @@
 #pragma once
 #include "cocos/base/std/variant.h"
 #include "cocos/renderer/pipeline/InstancedBuffer.h"
-#include "cocos/renderer/pipeline/custom/LayoutGraphFwd.h"
+#include "cocos/renderer/pipeline/custom/NativeFwd.h"
+#include "cocos/renderer/pipeline/custom/PrivateFwd.h"
 #include "cocos/renderer/pipeline/custom/RenderGraphFwd.h"
-#include "cocos/renderer/pipeline/custom/RenderInterfaceFwd.h"
 
 namespace cc {
 
@@ -58,6 +58,9 @@ class DefaultForwardLightingTransversal;
 struct ResourceGroup;
 struct NativeRenderContext;
 class NativePipeline;
+class NativeProgramProxy;
+class NativeProgramLibrary;
+class NativeRenderingModule;
 
 } // namespace render
 

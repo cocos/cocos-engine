@@ -33,10 +33,9 @@
 #include <string_view>
 #include <tuple>
 #include "cocos/renderer/pipeline/custom/FGDispatcherTypes.h"
-#include "cocos/renderer/pipeline/custom/GraphImpl.h"
-#include "cocos/renderer/pipeline/custom/GslUtils.h"
-#include "cocos/renderer/pipeline/custom/Overload.h"
-#include "cocos/renderer/pipeline/custom/PathUtils.h"
+#include "cocos/renderer/pipeline/custom/details/GraphImpl.h"
+#include "cocos/renderer/pipeline/custom/details/Overload.h"
+#include "cocos/renderer/pipeline/custom/details/PathUtils.h"
 
 namespace cc {
 
@@ -220,8 +219,8 @@ inline void remove_vertex(ResourceAccessGraph::vertex_descriptor u, ResourceAcce
     impl::removeVectorVertex(const_cast<ResourceAccessGraph&>(g), u, ResourceAccessGraph::directed_category{});
 
     // remove components
-    g.passID.erase(g.passID.begin() + std::ptrdiff_t(u));
-    g.access.erase(g.access.begin() + std::ptrdiff_t(u));
+    g.passID.erase(g.passID.begin() + static_cast<std::ptrdiff_t>(u));
+    g.access.erase(g.access.begin() + static_cast<std::ptrdiff_t>(u));
 }
 
 // MutablePropertyGraph(Vertex)
@@ -452,7 +451,7 @@ inline void remove_vertex(RelationGraph::vertex_descriptor u, RelationGraph& g) 
     impl::removeVectorVertex(const_cast<RelationGraph&>(g), u, RelationGraph::directed_category{});
 
     // remove components
-    g.descID.erase(g.descID.begin() + std::ptrdiff_t(u));
+    g.descID.erase(g.descID.begin() + static_cast<std::ptrdiff_t>(u));
 }
 
 // MutablePropertyGraph(Vertex)

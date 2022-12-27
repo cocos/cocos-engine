@@ -1,12 +1,14 @@
 'use strict';
 
+const { trackEventWithTimer } = require('../../utils/metrics');
+
 exports.template = `
 <div>
     <ui-prop ref="multi-lod-dump" type="dump"></ui-prop>
     <ui-prop>
         <ui-label slot="label" value="Object Size"></ui-label>
         <div class="object-size-content" slot="content">
-            <ui-num-input min="0" max="1" step="0.01" preci="2"
+            <ui-num-input min="0" step="0.01"
                 :invalid="multiObjectSizeInvalid"
                 :value="multiObjectSizeInvalid && dump.value && dump.value.objectSize ? null : dump.value.objectSize.values[0]"
                 @confirm="onMultiObjectSizeConfirm($event)"
@@ -27,7 +29,7 @@ exports.template = `
                 :min="calculateMultiRange('min', index)"
                 :max="calculateMultiRange('max', index)"
                 :invalid="screenSize === 'invalid'"
-                :value="screenSize === 'invalid' ? null : screenSize * 100"
+                :value="screenSize === 'invalid' ? null : Editor.Utils.Math.multi(screenSize, 100)"
                 @confirm="onMultiScreenSizeConfirm($event, index)"
             ></ui-num-input>
         </ui-prop>
@@ -91,9 +93,10 @@ exports.methods = {
     onMultiScreenSizeConfirm(event, index) {
         const that = this;
         that.dump.value.LODs.values.forEach((lod) => {
-            lod[index] && (lod[index].value.screenUsagePercentage.value = event.target.value / 100);
+            lod[index] && (lod[index].value.screenUsagePercentage.value = Editor.Utils.Math.divide(event.target.value, 100));
         });
         that.updateDump(that.dump.value.LODs);
+        trackEventWithTimer('LOD', 'A100011');
     },
     resetMultiObjectSize() {
         const that = this;
@@ -104,11 +107,13 @@ exports.methods = {
                 args: [],
             });
         });
+        trackEventWithTimer('LOD', 'A100010');
     },
     updateDump(dump) {
         const that = this;
         that.$refs['multi-lod-dump'].dump = dump;
         that.$refs['multi-lod-dump'].dispatch('change-dump');
+        that.$refs['multi-lod-dump'].dispatch('confirm-dump');
     },
     calculateMultiRange(range, index) {
         const that = this;
@@ -120,7 +125,7 @@ exports.methods = {
                     min = multiLods[index + 1].value.screenUsagePercentage.value;
                 }
             }
-            return min * 100;
+            return Editor.Utils.Math.multi(min, 100);
         } else if (range === 'max') {
             let max = that.dump.value.LODs.values[0][index - 1] ? that.dump.value.LODs.values[0][index - 1].value.screenUsagePercentage.value : null;
             if (max) {
@@ -130,7 +135,7 @@ exports.methods = {
                         max = multiLods[index - 1].value.screenUsagePercentage.value;
                     }
                 }
-                return max * 100;
+                return Editor.Utils.Math.multi(max, 100);
             }
         }
         return null;

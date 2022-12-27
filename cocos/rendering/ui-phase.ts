@@ -25,14 +25,19 @@
 
 import { RenderPass } from '../gfx';
 import { PipelineStateManager } from './pipeline-state-manager';
-import { SetIndex } from './define';
+import { isEnableEffect, SetIndex } from './define';
 import { Camera } from '../render-scene/scene/camera';
 import { RenderPipeline } from './render-pipeline';
 import { getPhaseID } from './pass-phase';
+import { cclegacy } from '../core';
 
 export class UIPhase {
     private _phaseID = getPhaseID('default');
     private declare _pipeline: RenderPipeline;
+    constructor () {
+        const r = cclegacy.rendering;
+        if (isEnableEffect()) this._phaseID = r.getPhaseID(r.getPassID('default'), 'default');
+    }
 
     public activate (pipeline: RenderPipeline) {
         this._pipeline = pipeline;

@@ -240,7 +240,7 @@ exports.updatePropByDump = function(panel, dump) {
 
                     if (panel.$groups[id]) {
                         if (!panel.$groups[id].isConnected) {
-                            exports.appendChildByDisplayOrder(panel.$.componentContainer, panel.$groups[id], dump.groups[id].displayOrder);
+                            exports.appendChildByDisplayOrder(panel.$.componentContainer, panel.$groups[id]);
                         }
 
                         if (dump.groups[id].style === 'tab') {
@@ -248,18 +248,18 @@ exports.updatePropByDump = function(panel, dump) {
                         }
                     }
 
-                    exports.appendChildByDisplayOrder(panel.$groups[id].tabs[name], $prop, $prop.displayOrder);
+                    exports.appendChildByDisplayOrder(panel.$groups[id].tabs[name], $prop);
                 } else {
-                    exports.appendChildByDisplayOrder(panel.$.componentContainer, $prop, $prop.displayOrder);
+                    exports.appendChildByDisplayOrder(panel.$.componentContainer, $prop);
                 }
             }
         } else if (!$prop.isConnected || !$prop.parentElement) {
             if (!element || !element.isAppendToParent || element.isAppendToParent.call(panel)) {
                 if (info.group && dump.groups) {
                     const { id = 'default', name } = info.group;
-                    exports.appendChildByDisplayOrder(panel.$groups[id].tabs[name], $prop, $prop.displayOrder);
+                    exports.appendChildByDisplayOrder(panel.$groups[id].tabs[name], $prop);
                 } else {
-                    exports.appendChildByDisplayOrder(panel.$.componentContainer, $prop, $prop.displayOrder);
+                    exports.appendChildByDisplayOrder(panel.$.componentContainer, $prop);
                 }
             }
         }
@@ -339,6 +339,7 @@ exports.createTabGroup = function(dump, panel) {
 
     $group.dump = dump;
     $group.tabs = {};
+    $group.displayOrder = dump.displayOrder;
 
     $group.$header = document.createElement('ui-tab');
     $group.$header.setAttribute('class', 'tab-header');
@@ -423,7 +424,8 @@ exports.appendToTabGroup = function($group, tabName) {
     $group.$header.appendChild($button);
 };
 
-exports.appendChildByDisplayOrder = function(parent, newChild, displayOrder = 0) {
+exports.appendChildByDisplayOrder = function(parent, newChild) {
+    const displayOrder = newChild.displayOrder || 0;
     const children = Array.from(parent.children);
 
     const child = children.find((child) => {

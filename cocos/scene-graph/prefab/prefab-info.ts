@@ -140,10 +140,6 @@ export class PrefabInstance {
     @type([TargetInfo])
     public removedComponents: TargetInfo[] = [];
 
-    // record children's id in prefab asset.
-    @serializable
-    public ids: string[] = [];
-
     public targetMap: Record<string, any | Node | Component> = {};
 
     /**

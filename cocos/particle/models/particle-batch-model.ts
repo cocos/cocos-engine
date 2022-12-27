@@ -245,6 +245,7 @@ export default class ParticleBatchModel extends scene.Model {
     }
 
     private createSubMeshDataInsDynamic (): ArrayBuffer {
+        this._insBuffers.length = 0;
         this.destroySubMeshData();
 
         const vertexBuffer = this._device.createBuffer(new BufferInfo(
@@ -490,7 +491,6 @@ export default class ParticleBatchModel extends scene.Model {
         this._vdataF32![idx++] = p.rotation.x;
         this._vdataF32![idx++] = p.rotation.y;
         this._vdataF32![idx++] = p.rotation.z;
-        this._vdataF32![idx++] = p.randomSeed;
 
         this._vdataF32![idx++] = p.startColor.r / 255.0;
         this._vdataF32![idx++] = p.startColor.g / 255.0;
@@ -501,6 +501,8 @@ export default class ParticleBatchModel extends scene.Model {
         this._vdataF32![idx++] = p.velocity.y;
         this._vdataF32![idx++] = p.velocity.z;
         this._vdataF32![idx++] = p.startLifetime;
+
+        this._vdataF32![idx++] = p.randomSeed;
 
         offset += this._vertAttrsFloatCount;
     }

@@ -53,8 +53,7 @@ export * from './ArmatureDisplay';
 export * from './AttachUtil';
 export * from './assembler';
 
-declare const window: any;
-const dragonBones = window.dragonBones;
+const dragonBones = globalThis.dragonBones;
 
 export const Slot = dragonBones.Slot;
 export const Matrix = dragonBones.Matrix;

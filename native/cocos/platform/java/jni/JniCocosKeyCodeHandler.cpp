@@ -34,6 +34,7 @@
 #include <jni.h>
 #include "engine/EngineEvents.h"
 #include "platform/java/jni/glue/JniNativeGlue.h"
+#include "platform/java/modules/SystemWindow.h"
 
 namespace {
 struct cc::KeyboardEvent keyboardEvent;
@@ -59,8 +60,9 @@ static void dispatchKeyCodeEvent(int keyCode, cc::KeyboardEvent &event) {
     } else {
         keyCode = 0;
     }
+    event.windowId = cc::ISystemWindow::mainWindowId;
     event.key = keyCode;
-    JNI_NATIVE_GLUE()->dispatchEvent(event);
+    cc::events::Keyboard::broadcast(event);
 }
 } // namespace
 

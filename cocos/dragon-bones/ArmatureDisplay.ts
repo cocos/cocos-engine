@@ -623,7 +623,6 @@ export class ArmatureDisplay extends UIRenderer {
         return inst;
     }
 
-    @override
     protected _updateBuiltinMaterial (): Material {
         const material = builtinResMgr.get<Material>('default-spine-material');
         return material;
@@ -642,7 +641,6 @@ export class ArmatureDisplay extends UIRenderer {
         this.markForUpdateRenderData();
     }
 
-    @override
     protected updateMaterial () {
         let mat;
         if (this._customMaterial) mat = this._customMaterial;

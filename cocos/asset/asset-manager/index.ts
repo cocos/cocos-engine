@@ -23,7 +23,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-
+import './asset-manager';
 import './editor-path-replace';
 
 export { default as assetManager, AssetManager } from './asset-manager';

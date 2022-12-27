@@ -24,9 +24,6 @@
 
 package com.cocos.lib;
 
-import android.annotation.SuppressLint;
-import android.content.Context;
-import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.media.AudioManager;
@@ -50,7 +47,6 @@ public class CocosActivity extends GameActivity {
     private static final String TAG = "CocosActivity";
     private CocosWebViewHelper mWebViewHelper = null;
     private CocosVideoHelper mVideoHelper = null;
-    private CocosOrientationHelper mOrientationHelper = null;
 
     private CocosSensorHandler mSensorHandler;
     private List<CocosSurfaceView> mSurfaceViewArray;
@@ -84,11 +80,6 @@ public class CocosActivity extends GameActivity {
         setImmersiveMode();
 
         Utils.hideVirtualButton();
-
-        int orientation = getRequestedOrientation();
-        if (orientation == ActivityInfo.SCREEN_ORIENTATION_SENSOR || orientation == ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE || orientation == ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT) {
-            mOrientationHelper = new CocosOrientationHelper(this);
-        }
     }
 
     private void setImmersiveMode() {
@@ -144,18 +135,12 @@ public class CocosActivity extends GameActivity {
     protected void onPause() {
         super.onPause();
         mSensorHandler.onPause();
-        if (null != mOrientationHelper) {
-            mOrientationHelper.onPause();
-        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         mSensorHandler.onResume();
-        if (null != mOrientationHelper) {
-            mOrientationHelper.onResume();
-        }
         Utils.hideVirtualButton();
         if (CocosAudioFocusManager.isAudioFocusLoss()) {
             CocosAudioFocusManager.registerAudioFocusListener(this);

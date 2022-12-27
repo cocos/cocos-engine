@@ -22,15 +22,22 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-import { _decorator } from "../../core";
+import { _decorator } from '../../core';
+import { Tetrahedron, Vertex } from './delaunay';
 
-const { ccclass, serializable } = _decorator;
+const { ccclass, serializable, type } = _decorator;
 
 export const LightProbes = jsb.LightProbes;
 ccclass('cc.LightProbes')(LightProbes);
 
 export const LightProbesData = jsb.LightProbesData;
 const LightProbesDataProto = LightProbesData.prototype;
-serializable(LightProbesDataProto, '_probes');
-serializable(LightProbesDataProto, '_tetrahedrons');
+
+// @ts-expect-error
+type([Vertex])(LightProbesDataProto, '_probes', () => []);
+serializable(LightProbesDataProto, '_probes', () => []);
+
+// @ts-expect-error
+type([Tetrahedron])(LightProbesDataProto, '_tetrahedrons', () => []);
+serializable(LightProbesDataProto, '_tetrahedrons', () => []);
 ccclass('cc.LightProbesData')(LightProbesData);

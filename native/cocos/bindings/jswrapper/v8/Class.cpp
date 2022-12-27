@@ -75,7 +75,7 @@ Class::Class()
 Class::~Class() = default;
 
 /* static */
-Class *Class::create(const ccstd::string &clsName, se::Object *parent, Object *parentProto, v8::FunctionCallback ctor, void *data) {
+Class *Class::create(const ccstd::string &clsName, Object *parent, Object *parentProto, v8::FunctionCallback ctor, void *data) {
     auto *cls = ccnew Class();
     if (cls != nullptr && !cls->init(clsName, parent, parentProto, ctor, data)) {
         delete cls;
@@ -84,7 +84,7 @@ Class *Class::create(const ccstd::string &clsName, se::Object *parent, Object *p
     return cls;
 }
 
-Class *Class::create(const std::initializer_list<const char *> &classPath, se::Object *parent, Object *parentProto, v8::FunctionCallback ctor, void *data) {
+Class *Class::create(const std::initializer_list<const char *> &classPath, Object *parent, Object *parentProto, v8::FunctionCallback ctor, void *data) {
     se::AutoHandleScope scope;
     se::Object *currentParent = parent;
     se::Value tmp;
@@ -201,16 +201,19 @@ bool Class::defineFunction(const char *name, v8::FunctionCallback func, void *da
     return true;
 }
 
-bool Class::defineProperty(const char *name, v8::AccessorNameGetterCallback getter, v8::AccessorNameSetterCallback setter, void *data) {
+bool Class::defineProperty(const char *name, v8::FunctionCallback getter, v8::FunctionCallback setter, void *data) {
     v8::MaybeLocal<v8::String> jsName = v8::String::NewFromUtf8(__isolate, name, v8::NewStringType::kNormal);
     if (jsName.IsEmpty()) {
         return false;
     }
-    _ctorTemplate.Get(__isolate)->PrototypeTemplate()->SetAccessor(jsName.ToLocalChecked(), getter, setter, createExternal(__isolate, data));
+
+    auto prototypeTemplate = _ctorTemplate.Get(__isolate)->PrototypeTemplate();
+    auto externalData = createExternal(__isolate, data);
+    prototypeTemplate->SetAccessorProperty(jsName.ToLocalChecked(), v8::FunctionTemplate::New(__isolate, getter, externalData), v8::FunctionTemplate::New(__isolate, setter, externalData));
     return true;
 }
 
-bool Class::defineProperty(const std::initializer_list<const char *> &names, v8::AccessorNameGetterCallback getter, v8::AccessorNameSetterCallback setter, void *data) {
+bool Class::defineProperty(const std::initializer_list<const char *> &names, v8::FunctionCallback getter, v8::FunctionCallback setter, void *data) {
     bool ret = true;
     for (const auto *name : names) {
         ret &= defineProperty(name, getter, setter, data);
@@ -227,17 +230,31 @@ bool Class::defineStaticFunction(const char *name, v8::FunctionCallback func, vo
     return true;
 }
 
-bool Class::defineStaticProperty(const char *name, v8::AccessorNameGetterCallback getter, v8::AccessorNameSetterCallback setter, void *data) {
+bool Class::defineStaticProperty(const char *name, v8::FunctionCallback getter, v8::FunctionCallback setter, void *data) {
     v8::MaybeLocal<v8::String> jsName = v8::String::NewFromUtf8(__isolate, name, v8::NewStringType::kNormal);
     if (jsName.IsEmpty()) {
         return false;
     }
-    _ctorTemplate.Get(__isolate)->SetNativeDataProperty(jsName.ToLocalChecked(), getter, setter, createExternal(__isolate, data));
+
+    auto externalData = createExternal(__isolate, data);
+    _ctorTemplate.Get(__isolate)->SetAccessorProperty(jsName.ToLocalChecked(), v8::FunctionTemplate::New(__isolate, getter, externalData), v8::FunctionTemplate::New(__isolate, setter, externalData));
+    return true;
+}
+
+bool Class::defineStaticProperty(const char *name, const Value &value, PropertyAttribute attribute/* = PropertyAttribute::NONE */) {
+    v8::MaybeLocal<v8::String> jsName = v8::String::NewFromUtf8(__isolate, name, v8::NewStringType::kNormal);
+    if (jsName.IsEmpty()) {
+        return false;
+    }
+
+    v8::Local<v8::Value> v8Val;
+    internal::seToJsValue(__isolate, value, &v8Val);
+    _ctorTemplate.Get(__isolate)->Set(jsName.ToLocalChecked(), v8Val, static_cast<v8::PropertyAttribute>(attribute));
     return true;
 }
 
 bool Class::defineFinalizeFunction(V8FinalizeFunc finalizeFunc) {
-    CC_ASSERT(finalizeFunc != nullptr);
+    CC_ASSERT_NOT_NULL(finalizeFunc);
     _finalizeFunc = finalizeFunc;
     return true;
 }

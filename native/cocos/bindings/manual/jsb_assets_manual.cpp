@@ -53,11 +53,11 @@ static bool js_assets_ImageAsset_setData(se::State &s) // NOLINT(readability-ide
                 args[0].toObject()->getArrayBufferData(&data, nullptr);
             } else {
                 auto *dataHolder = static_cast<cc::JSBNativeDataHolder *>(args[0].toObject()->getPrivateData());
-                CC_ASSERT(dataHolder != nullptr);
+                CC_ASSERT_NOT_NULL(dataHolder);
                 data = dataHolder->getData();
             }
         } else {
-            CC_ASSERT(false);
+            CC_ABORTF("setData with '%s'", args[0].toStringForce().c_str());
         }
         cobj->setData(data);
         return true;

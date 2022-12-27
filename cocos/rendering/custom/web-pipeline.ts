@@ -52,6 +52,7 @@ import { CustomPipelineBuilder } from './custom-pipeline';
 import { decideProfilerCamera } from '../pipeline-funcs';
 import { DebugViewCompositeType } from '../debug-view';
 import { getUBOTypeCount } from './utils';
+import { initGlobalDescBinding } from './define';
 
 export class WebSetter {
     constructor (data: RenderData, lg: LayoutGraphData) {
@@ -524,6 +525,7 @@ export class WebRasterQueueBuilder extends WebSetter implements RasterQueueBuild
             setShadowUBOView(this, camera);
         }
         setTextureUBOView(this, camera, this._pipeline);
+        initGlobalDescBinding(cclegacy.director.root.pipeline, this._data);
     }
     addScene (sceneName: string, sceneFlags = SceneFlags.NONE): void {
         const sceneData = new SceneData(sceneName, sceneFlags);
@@ -550,6 +552,7 @@ export class WebRasterQueueBuilder extends WebSetter implements RasterQueueBuild
             setShadowUBOView(this, camera);
         }
         setTextureUBOView(this, camera, this._pipeline);
+        initGlobalDescBinding(cclegacy.director.root.pipeline, this._data);
     }
     clearRenderTarget (name: string, color: Color = new Color()) {
         this._renderGraph.addVertex<RenderGraphValue.Clear>(
@@ -830,6 +833,7 @@ export class WebPipeline implements Pipeline {
         const jointUniformCapacity = UBOSkinning.JOINT_UNIFORM_CAPACITY;
         str += `#define CC_JOINT_UNIFORM_CAPACITY ${jointUniformCapacity}\n`;
         this._constantMacros = str;
+        this._layoutGraph.constantMacros = this._constantMacros;
     }
     public setCustomPipelineName (name: string) {
         this._customPipelineName = name;
@@ -855,7 +859,7 @@ export class WebPipeline implements Pipeline {
         return this._combineSignY;
     }
 
-    public globalDescriptorSetData () {
+    get globalDescriptorSetData () {
         return this._globalDescSetData;
     }
 
@@ -882,6 +886,18 @@ export class WebPipeline implements Pipeline {
         this.pipelineSceneData.csmSupported = this.device.capabilities.maxFragmentUniformVectors
             >= (WebPipeline.CSM_UNIFORM_VECTORS + WebPipeline.GLOBAL_UNIFORM_VECTORS);
         this.setMacroBool('CC_SUPPORT_CASCADED_SHADOW_MAP', this.pipelineSceneData.csmSupported);
+
+        // 0: CC_SHADOW_NONE, 1: CC_SHADOW_PLANAR, 2: CC_SHADOW_MAP
+        this.setMacroInt('CC_SHADOW_TYPE', 0);
+
+        // 0: PCFType.HARD, 1: PCFType.SOFT, 2: PCFType.SOFT_2X, 3: PCFType.SOFT_4X
+        this.setMacroInt('CC_DIR_SHADOW_PCF_TYPE', PCFType.HARD);
+
+        // 0: CC_DIR_LIGHT_SHADOW_NONE, 1: CC_DIR_LIGHT_SHADOW_UNIFORM, 2: CC_DIR_LIGHT_SHADOW_CASCADED, 3: CC_DIR_LIGHT_SHADOW_VARIANCE
+        this.setMacroInt('CC_DIR_LIGHT_SHADOW_TYPE', 0);
+
+        // 0: CC_CASCADED_LAYERS_TRANSITION_OFF, 1: CC_CASCADED_LAYERS_TRANSITION_ON
+        this.setMacroBool('CC_CASCADED_LAYERS_TRANSITION',  false);
 
         // enable the deferred pipeline
         if (this.usesDeferredPipeline) {
@@ -1035,7 +1051,6 @@ export class WebPipeline implements Pipeline {
         desc.format = format;
         desc.flags = ResourceFlags.COLOR_ATTACHMENT | ResourceFlags.SAMPLED;
 
-        assert(isManaged(residency));
         return this._resourceGraph.addVertex<ResourceGraphValue.Managed>(
             ResourceGraphValue.Managed,
             new ManagedResource(),
@@ -1135,6 +1150,7 @@ export class WebPipeline implements Pipeline {
         );
         const result = new WebRasterPassBuilder(data, this._renderGraph!, this._layoutGraph, vertID, pass, this._pipelineSceneData);
         this._updateRasterPassConstants(result, width, height);
+        initGlobalDescBinding(cclegacy.director.root.pipeline, data);
         return result;
     }
     public getDescriptorSetLayout (shaderName: string, freq: UpdateFrequency): DescriptorSetLayout {
@@ -1153,6 +1169,7 @@ export class WebPipeline implements Pipeline {
     get layoutGraph () {
         return this._layoutGraph;
     }
+
     protected _updateRasterPassConstants (setter: WebSetter, width: number, height: number) {
         const director = cclegacy.director;
         const root = director.root;

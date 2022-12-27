@@ -3,7 +3,7 @@ import { IRigidBody2D } from '../spec/i-rigid-body';
 import { RigidBody2D } from '../framework/components/rigid-body-2d';
 import { PhysicsSystem2D } from '../framework/physics-system';
 import { b2PhysicsWorld } from './physics-world';
-import { Vec2, toRadian, Vec3, IVec2Like, toDegree } from '../../core';
+import { Vec2, toRadian, Vec3, Quat, IVec2Like, toDegree } from '../../core';
 import { PHYSICS_2D_PTM_RATIO, ERigidBody2DType } from '../framework/physics-types';
 
 import { Node } from '../../scene-graph/node';
@@ -58,17 +58,7 @@ export class b2RigidBody2D implements IRigidBody2D {
         this.setActive(false);
     }
 
-    _registerNodeEvents () {
-        const node = this.rigidBody.node;
-        node.on(NodeEventType.TRANSFORM_CHANGED, this._onNodeTransformChanged, this);
-    }
-
-    _unregisterNodeEvents () {
-        const node = this.rigidBody.node;
-        node.off(NodeEventType.TRANSFORM_CHANGED, this._onNodeTransformChanged, this);
-    }
-
-    _onNodeTransformChanged (type) {
+    nodeTransformChanged (type) {
         if (PhysicsSystem2D.instance.stepping) {
             return;
         }
@@ -92,9 +82,8 @@ export class b2RigidBody2D implements IRigidBody2D {
             return;
         }
 
-        this._registerNodeEvents();
-
         (PhysicsSystem2D.instance.physicsWorld as b2PhysicsWorld).addBody(this);
+        this.setActive(false);
 
         this._inited = true;
     }
@@ -103,7 +92,6 @@ export class b2RigidBody2D implements IRigidBody2D {
         if (!this._inited) return;
 
         (PhysicsSystem2D.instance.physicsWorld as b2PhysicsWorld).removeBody(this);
-        this._unregisterNodeEvents();
 
         this._inited = false;
     }
@@ -122,6 +110,11 @@ export class b2RigidBody2D implements IRigidBody2D {
 
         const b2Rotation = b2body.GetAngle();
         b2body.SetAngularVelocity((this._animatedAngle - b2Rotation) * timeStep);
+    }
+
+    syncSceneToPhysics () {
+        const dirty = this._rigidBody.node.hasChangedFlags;
+        if (dirty) { this.nodeTransformChanged(dirty); }
     }
 
     syncPositionToPhysics (enableAnimated = false) {
@@ -152,7 +145,11 @@ export class b2RigidBody2D implements IRigidBody2D {
         const b2body = this._body;
         if (!b2body) return;
 
-        const rotation = toRadian(this._rigidBody.node.eulerAngles.z);
+        const rot = this._rigidBody.node.worldRotation;
+        const euler = tempVec3;
+        Quat.toEuler(euler, rot);
+        const rotation = toRadian(euler.z);
+
         const bodyType = this._rigidBody.type;
         if (bodyType === ERigidBody2DType.Animated && enableAnimated) {
             this._animatedAngle = rotation;

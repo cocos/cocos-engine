@@ -67,7 +67,7 @@ struct IMaterialInfo {
      */
     ccstd::optional<uint32_t> technique;
 
-    using DefinesType = ccstd::variant<MacroRecord, ccstd::vector<MacroRecord>>;
+    using DefinesType = ccstd::variant<ccstd::monostate, MacroRecord, ccstd::vector<MacroRecord>>;
     /**
      * @en
      * The shader macro definitions. Default to 0 or the specified value in [[EffectAsset]].
@@ -76,7 +76,7 @@ struct IMaterialInfo {
      */
     ccstd::optional<DefinesType> defines;
 
-    using PassOverridesType = ccstd::variant<PassOverrides, ccstd::vector<PassOverrides>>;
+    using PassOverridesType = ccstd::variant<ccstd::monostate, PassOverrides, ccstd::vector<PassOverrides>>;
     /**
      * @en
      * The override values on top of the pipeline states specified in [[EffectAsset]].

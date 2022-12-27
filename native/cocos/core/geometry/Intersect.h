@@ -412,7 +412,7 @@ template <typename T1, typename T2>
 auto intersects(const T1 & /*a*/, const T2 & /*b*/) {
     static_assert(std::is_base_of<T1, ShapeBase>::value, "type is not base of ShapeBase");
     static_assert(std::is_base_of<T2, ShapeBase>::value, "type is not base of ShapeBase");
-    CC_ASSERT(false); // mismatch
+    CC_ABORT(); // mismatch
 }
 
 #define DECLARE_EXCHANGABLE_INTERSECT(TYPE1, TYPE2, FN)            \

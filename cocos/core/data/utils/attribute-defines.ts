@@ -142,6 +142,12 @@ export interface IExposedAttributes {
      * 转换为弧度
      */
     radian?: boolean;
+
+    /**
+     * @en User custom data, which can be obtained through the `CCClass.attr()` interface.
+     * @zh 用户自定义数据，可以通过 `CCClass.attr()` 接口获取自定义数据。
+     */
+    userData?: Record<string, any>;
 }
 
 export interface IAcceptableAttributes extends IExposedAttributes {

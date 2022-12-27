@@ -18,17 +18,11 @@ void main()  {
       #if CC_USE_DEBUG_VIEW && CC_SURFACES_ENABLE_DEBUG_VIEW
         if (IS_DEBUG_VIEW_MISC_ENABLE_CSM_LAYER_COLORATION)
         {
-            bool transitionArea = false;
-            float ratio = 0.0;
             vec4 csmPos;
             vec4 shadowProjDepthInfo, shadowProjInfo;
             vec3 shadowViewDir0, shadowViewDir1, shadowViewDir2;
             int csmLayer = -1;
-            #if CC_CASCADED_LAYERS_TRANSITION
-              csmLayer = CCGetCSMLevel(transitionArea, ratio, csmPos, shadowProjDepthInfo, shadowProjInfo, shadowViewDir0, shadowViewDir1, shadowViewDir2, surfaceData.worldPos);
-            #else
-              csmLayer = CCGetCSMLevel(csmPos, shadowProjDepthInfo, shadowProjInfo, shadowViewDir0, shadowViewDir1, shadowViewDir2, surfaceData.worldPos);
-            #endif
+            csmLayer = CCGetCSMLevel(csmPos, shadowProjDepthInfo, shadowProjInfo, shadowViewDir0, shadowViewDir1, shadowViewDir2, surfaceData.worldPos);
             bool OutOfRange = csmLayer < 0;
             if (OutOfRange)
                 colDebugCSMLayer = vec3(1.0);
@@ -99,9 +93,10 @@ void main()  {
                 debugColor.rgb = LinearToSRGB(debugColor.rgb);
           }
       }
-
-    fragColorX = debugColor;
-    return;
+    if (IS_DEBUG_VIEW_ENABLE_WITH_CAMERA) {
+      fragColorX = debugColor;
+      return;
+    }
 
   #elif CC_USE_DEBUG_VIEW == CC_SURFACES_DEBUG_VIEW_COMPOSITE_AND_MISC && CC_SURFACES_ENABLE_DEBUG_VIEW
     CCSurfacesDebugViewCompositeLightingResult(lightingResult);

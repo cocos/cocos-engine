@@ -89,7 +89,7 @@ namespace cc { namespace gfx {
 %ignore DeviceManager::isDetachDeviceThread;
 %ignore DeviceManager::getGFXName;
 
-%ignore FormatInfo;
+// %ignore FormatInfo;
 
 %ignore DefaultResource;
 

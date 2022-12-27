@@ -53,12 +53,15 @@ public:
     Matrix getCameraProjectionMatrix() override;
     TexCoords getCameraTexCoords() override;
 
+    void enableCameraAutoFocus(bool enable) override;
+    void enableCameraDepth(bool enable) override;
     void setDisplayGeometry(uint32_t rotation, uint32_t width, uint32_t height) override;
     void setCameraClip(float near, float far) override;
     void setCameraTextureName(int id) override;
     void* getCameraTextureRef() override;
     uint8_t* getCameraDepthBuffer() override;
 
+    void enableLightEstimate(bool enable) override;
     LightVal getMainLightDirection() override;
     LightVal getMainLightIntensity() override;
 
@@ -85,7 +88,7 @@ public:
     void enableSceneMesh(bool enable) override;
     float* getAddedSceneMesh() override;
     float* getUpdatedSceneMesh() override;
-    int* getRemovedSceneMesh() override;
+    float* getRemovedSceneMesh() override;
     int* requireSceneMesh() override;
     float* getSceneMeshVertices(int meshRef) override;
     int* getSceneMeshTriangleIndices(int meshRef) override;
@@ -94,7 +97,7 @@ public:
     // image recognition & tracking
     void enableImageTracking(bool enable) override;
     void addImageToLib(const std::string& imageName) override;
-    void addImageToLibWithSize(const std::string& name, float withInMeters) override;
+    void addImageToLibWithSize(const std::string& name, float widthInMeters) override;
     void setImageMaxTrackingNumber(int number) override;
     float* getAddedImagesInfo() override;
     float* getUpdatedImagesInfo() override;
@@ -130,6 +133,7 @@ protected:
     float* _addedPlanesInfo{nullptr};
     float* _updatedPlanesInfo{nullptr};
     float* _removedPlanesInfo{nullptr};
+    float* _planePolygon{nullptr};
 
     float* _sceneMeshVertices{nullptr};
     int* _sceneMeshIndices{nullptr};

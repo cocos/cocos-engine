@@ -82,7 +82,7 @@ MessageQueue::MemoryAllocator::~MemoryAllocator() noexcept {
 
 void MessageQueue::MemoryAllocator::destroy() noexcept {
     uint8_t *chunk = nullptr;
-    if(_chunkPool.try_dequeue(chunk)) {
+    if (_chunkPool.try_dequeue(chunk)) {
         ::free(chunk);
         _chunkCount.fetch_sub(1, std::memory_order_acq_rel);
     }
@@ -213,7 +213,7 @@ uint8_t *MessageQueue::allocateImpl(uint32_t allocatedSize, uint32_t const reque
     if (_immediateMode) {
         pushMessages();
         pullMessages();
-        CC_ASSERT(_reader.newMessageCount == 2);
+        CC_ASSERT_EQ(_reader.newMessageCount, 2);
         executeMessages();
         executeMessages();
     }
@@ -254,10 +254,10 @@ void MessageQueue::executeMessages() noexcept {
 Message *MessageQueue::readMessage() noexcept {
     while (!hasNewMessage()) { // if empty
         std::unique_lock<std::mutex> lock(_mutex);
-        pullMessages();            // try pulling data from consumer
-        if (!hasNewMessage()) {    // still empty
-            _condVar.wait(lock);   // wait for the producer to wake me up
-            pullMessages();        // pulling again
+        pullMessages();          // try pulling data from consumer
+        if (!hasNewMessage()) {  // still empty
+            _condVar.wait(lock); // wait for the producer to wake me up
+            pullMessages();      // pulling again
         }
     }
 
@@ -266,6 +266,10 @@ Message *MessageQueue::readMessage() noexcept {
     --_reader.newMessageCount;
     CC_ASSERT(msg);
     return msg;
+}
+
+MessageQueue::~MessageQueue() {
+    recycleMemoryChunk(_writer.currentMemoryChunk);
 }
 
 void MessageQueue::consumerThreadLoop() noexcept {

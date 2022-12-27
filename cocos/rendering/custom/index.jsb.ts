@@ -25,18 +25,21 @@
 
 declare const render: any;
 
-import { Pipeline, PipelineBuilder } from './pipeline';
+import { Pipeline, PipelineBuilder, RenderingModule } from './pipeline';
 import { buildDeferredLayout, buildForwardLayout } from './effect';
 import { macro } from '../../core/platform/macro';
 import { DeferredPipelineBuilder, ForwardPipelineBuilder } from './builtin-pipelines';
 import { CustomPipelineBuilder, NativePipelineBuilder } from './custom-pipeline';
-import { EffectAsset } from '../../asset/assets/effect-asset';
+import { Device } from '../../gfx';
 
 export * from './types';
 export * from './pipeline';
 export * from './archive';
 
+export const INVALID_ID = 0xFFFFFFFF;
 export const enableEffectImport = false;
+
+let _renderModule: RenderingModule;
 
 export function createCustomPipeline (): Pipeline {
     const ppl = render.Factory.createPipeline();
@@ -74,10 +77,37 @@ function addCustomBuiltinPipelines (map: Map<string, PipelineBuilder>) {
 
 addCustomBuiltinPipelines(customPipelineBuilderMap);
 
-export function deserializeLayoutGraph (arrayBuffer: ArrayBuffer) {
-    // noop
+export function init (device: Device, arrayBuffer: ArrayBuffer) {
+    _renderModule = render.Factory.init(device, arrayBuffer);
 }
 
-export function replaceShaderInfo (asset: EffectAsset) {
-    // noop
+export function destroy () {
+    render.Factory.destroy(_renderModule);
+}
+
+export function getPassID (name: string | undefined): number {
+    if (name === undefined) {
+        return _renderModule.getPassID('default');
+    }
+    return _renderModule.getPassID(name);
+}
+
+export function getPhaseID (passID: number, name: string | number | undefined): number {
+    if (name === undefined) {
+        return _renderModule.getPhaseID(passID, 'default');
+    }
+    if (typeof(name) === 'number') {
+        return _renderModule.getPhaseID(passID, name.toString());
+    }
+    return _renderModule.getPhaseID(passID, name);
+}
+
+export function completePhaseName (name: string | number | undefined): string {
+    if (typeof name === 'number') {
+        return name.toString();
+    } else if (typeof name === 'string') {
+        return name;
+    } else {
+        return 'default';
+    }
 }

@@ -351,7 +351,7 @@ void CanvasRenderingContext2D::setTextAlign(const ccstd::string &textAlign) {
     } else if (textAlign == "right") {
         _delegate->setTextAlign(TextAlign::RIGHT);
     } else {
-        CC_ASSERT(false);
+        CC_ABORT();
     }
 }
 
@@ -367,7 +367,7 @@ void CanvasRenderingContext2D::setTextBaseline(const ccstd::string &textBaseline
     } else if (textBaseline == "alphabetic") {
         _delegate->setTextBaseline(TextBaseline::ALPHABETIC);
     } else {
-        CC_ASSERT(false);
+        CC_ABORT();
     }
 }
 

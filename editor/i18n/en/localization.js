@@ -171,6 +171,7 @@ module.exports = {
         shadowOrthoSize: 'Fix area size, the larger value, the lower precision of shadows',
         shadowAdvancedOptions: 'shadow advanced options',
         csmLayersTransition: 'Enable or disable CSM layers transition(Improve quality, reduce performance)',
+        csmTransitionRange: 'CSM layers transition range(in NDC space: value range is 0 to 1)',
     },
     model: {
         shadow_receiving_model: 'Shadow receive mode',

@@ -27,6 +27,7 @@
 #include "application/ApplicationManager.h"
 #include "base/TypeDef.h"
 #include "core/Root.h"
+#include "core/scene-graph/Scene.h"
 #include "editor-support/MiddlewareManager.h"
 #include "renderer/pipeline/Define.h"
 #include "scene/Pass.h"
@@ -94,9 +95,18 @@ void Batcher2d::syncRootNodesToNative(ccstd::vector<Node*>&& rootNodes) {
 }
 
 void Batcher2d::fillBuffersAndMergeBatches() {
+    size_t index = 0;
     for (auto* rootNode : _rootNodeArr) {
+        // _batches will add by generateBatch
         walk(rootNode, 1);
         generateBatch(_currEntity, _currDrawInfo);
+
+        auto *scene = rootNode->getScene()->getRenderScene();
+        size_t const count = _batches.size();
+        for (size_t i = index; i < count; i++) {
+            scene->addBatch(_batches.at(i));
+        }
+        index = count;
     }
 }
 
@@ -477,12 +487,6 @@ bool Batcher2d::initialize() {
 void Batcher2d::update() {
     fillBuffersAndMergeBatches();
     resetRenderStates();
-
-    for (const auto& scene : Root::getInstance()->getScenes()) {
-        for (auto* batch : _batches) {
-            scene->addBatch(batch);
-        }
-    }
 }
 
 void Batcher2d::uploadBuffers() {

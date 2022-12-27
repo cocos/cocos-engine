@@ -1,4 +1,5 @@
 #include <common/lighting/brdf>
+#include <common/lighting/bxdf>
 #include <common/lighting/functions>
 #include <lighting-models/model-functions/standard-common>
 
@@ -29,6 +30,46 @@ void CCSurfacesLightingCalculateEnvironment(out vec3 lightingDiffuse, out vec3 l
   lightingSpecular = CalculateEnvironmentSpecular(lightingData, lightIntensity);
 }
 
+#if CC_SURFACES_LIGHTING_USE_FRESNEL
+  float CCSurfaceLightingCalculateFresnel(in LightingIntermediateData lightingData)
+  {
+    return CalculateFresnelCoefficient(lightingData.ior, abs(lightingData.NoV)); //NoVSat for single side, and NoVAbs for two sided
+  }
+#endif
+
+#if CC_SURFACES_LIGHTING_TRANSMIT_SPECULAR
+  // do not support planar reflection and anisotropy
+  void CCSurfacesLightingCalculateDirectTransmitSpecular(out vec3 lightingSpecular, in LightingIntermediateData lightingData, in vec4 lightSourceColorAndIntensity)
+  {
+    float roughness = lightingData.specularParam;
+    vec3 irradiance = vec3(lightingData.NoLSat) * lightSourceColorAndIntensity.rgb * lightSourceColorAndIntensity.w;
+
+    vec3 R = CalculateRefractDirection(lightingData.N, lightingData.V, lightingData.NoV, lightingData.ior);
+    float RoL = dot(lightingData.L, R);
+    float calcSpec = D_GGX(roughness, saturate(RoL));
+    
+    lightingSpecular = irradiance * calcSpec;
+  }
+  void CCSurfacesLightingCalculateEnvironmentTransmitSpecular(out vec3 lightingSpecular, in LightingIntermediateData lightingData, float lightIntensity)
+  {
+    vec3 envSpec = vec3(0.0);
+    vec3 R = CalculateRefractDirection(lightingData.N, lightingData.V, lightingData.NoV, lightingData.ior);
+    float roughness = lightingData.specularParam;
+    
+  #if USE_REFLECTION_PROBE
+    #if USE_REFLECTION_PROBE == REFLECTION_PROBE_TYPE_CUBE
+      envSpec = EnvReflection(cc_reflectionProbeCubemap, R, roughness, cc_ambientGround.w);
+    #endif
+    //todo: planar refraction from scene color
+  #endif
+
+  #if CC_USE_IBL && USE_REFLECTION_PROBE != REFLECTION_PROBE_TYPE_CUBE
+    envSpec = EnvReflection(cc_environment, R, roughness, cc_ambientGround.w);
+  #endif
+
+    lightingSpecular = envSpec * lightIntensity;
+  }
+#endif
 
 #if CC_SURFACES_LIGHTING_TRANSMITTENCE
   vec3 CCSurfacesLightingCalculateDirectTransmittence(in LightingResult lightingResult, in LightingIntermediateData lightingData, in vec4 lightSourceColorAndIntensity)

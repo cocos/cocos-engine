@@ -24,8 +24,10 @@
  THE SOFTWARE.
  */
 
-import { ccclass, editable, type, displayOrder, menu,
-    executeInEditMode, serializable, playOnFocus, tooltip, visible, formerlySerializedAs } from 'cc.decorator';
+import {
+    ccclass, editable, type, displayOrder, menu,
+    executeInEditMode, serializable, playOnFocus, tooltip, visible, formerlySerializedAs, override,
+} from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { UIRenderer } from '../2d/framework/ui-renderer';
 import { Color, Vec2, warnID, errorID, error, path, cclegacy  } from '../core';
@@ -40,6 +42,7 @@ import codec from '../../external/compression/ZipUtils';
 import { IBatcher } from '../2d/renderer/i-batcher';
 import { assetManager, builtinResMgr } from '../asset/asset-manager';
 import { PositionType, EmitterMode, DURATION_INFINITY, START_RADIUS_EQUAL_TO_END_RADIUS, START_SIZE_EQUAL_TO_END_SIZE } from './define';
+import { ccwindow } from '../core/global-exports';
 
 /**
  * Image formats
@@ -337,6 +340,7 @@ export class ParticleSystem2D extends UIRenderer {
         this._startColorVar.a = val.a;
     }
 
+    @override
     @visible(() => false)
     set color (value) {
     }
@@ -979,7 +983,7 @@ export class ParticleSystem2D extends UIRenderer {
                             return false;
                         }
 
-                        const canvasObj = document.createElement('canvas');
+                        const canvasObj = ccwindow.document.createElement('canvas');
                         if (imageFormat === ImageFormat.PNG) {
                             const myPngObj = new PNGReader(buffer);
                             myPngObj.render(canvasObj);

@@ -60,11 +60,15 @@ void SystemWindow::copyTextToClipboard(const ccstd::string &text) {
 
 void SystemWindow::setWindowHandle(void *handle) {
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID)
-    std::lock_guard lock(_handleMutex);
+    //The getWindowHandle interface may have been called earlier, causing _handleMutex to be occupied all the time.
+    bool lockSuccess = _handleMutex.try_lock();
     bool needNotify = _windowHandle == nullptr;
     _windowHandle = handle;
     if (needNotify) {
         _windowHandlePromise.set_value();
+    }
+    if (lockSuccess) {
+        _handleMutex.unlock();
     }
 #else
     _windowHandle = handle;

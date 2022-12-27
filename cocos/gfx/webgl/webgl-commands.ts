@@ -34,8 +34,11 @@ import {
 import {
     BufferUsageBit, ClearFlagBit, ClearFlags, ColorMask, CullMode, Format, BufferTextureCopy, Color, Rect,
     FormatInfos, FormatSize, LoadOp, MemoryUsageBit, ShaderStageFlagBit, UniformSamplerTexture,
-    TextureFlagBit, TextureType, Type, FormatInfo, DynamicStateFlagBit, BufferSource, DrawInfo, IndirectBuffer, DynamicStates, Extent, getTypedArrayConstructor, formatAlignment, Offset, alignTo,
+    TextureFlagBit, TextureType, Type, FormatInfo, DynamicStateFlagBit, BufferSource, DrawInfo,
+    IndirectBuffer, DynamicStates, Extent, getTypedArrayConstructor, formatAlignment, Offset, alignTo,
+    TextureBlit, Filter,
 } from '../base/define';
+import { WebGLStateCache } from './webgl-state-cache';
 
 export function GFXFormatToWebGLType (format: Format, gl: WebGLRenderingContext): GLenum {
     switch (format) {
@@ -439,6 +442,7 @@ export enum WebGLCmd {
     DRAW,
     UPDATE_BUFFER,
     COPY_BUFFER_TO_TEXTURE,
+    BLIT_TEXTURE,
     COUNT,
 }
 
@@ -534,6 +538,23 @@ export class WebGLCmdCopyBufferToTexture extends WebGLCmdObject {
     }
 }
 
+export class WebGLCmdBlitTexture extends WebGLCmdObject {
+    public srcTexture: IWebGLGPUTexture | null = null;
+    public dstTexture: IWebGLGPUTexture | null = null;
+    public regions: TextureBlit[] = [];
+    public filter: Filter = Filter.LINEAR;
+
+    constructor () {
+        super(WebGLCmd.BLIT_TEXTURE);
+    }
+
+    public clear () {
+        this.srcTexture = null;
+        this.dstTexture = null;
+        this.regions.length = 0;
+    }
+}
+
 export class WebGLCmdPackage {
     public cmds: CachedArray<WebGLCmd> = new CachedArray(1);
     public beginRenderPassCmds: CachedArray<WebGLCmdBeginRenderPass> = new CachedArray(1);
@@ -541,6 +562,7 @@ export class WebGLCmdPackage {
     public drawCmds: CachedArray<WebGLCmdDraw> = new CachedArray(1);
     public updateBufferCmds: CachedArray<WebGLCmdUpdateBuffer> = new CachedArray(1);
     public copyBufferToTextureCmds: CachedArray<WebGLCmdCopyBufferToTexture> = new CachedArray(1);
+    public blitTextureCmds: CachedArray<WebGLCmdBlitTexture> = new CachedArray(1);
 
     public clearCmds (allocator: WebGLCommandAllocator) {
         if (this.beginRenderPassCmds.length) {
@@ -566,6 +588,11 @@ export class WebGLCmdPackage {
         if (this.copyBufferToTextureCmds.length) {
             allocator.copyBufferToTextureCmdPool.freeCmds(this.copyBufferToTextureCmds);
             this.copyBufferToTextureCmds.clear();
+        }
+
+        if (this.blitTextureCmds.length) {
+            allocator.blitTextureCmdPool.freeCmds(this.blitTextureCmds);
+            this.blitTextureCmds.clear();
         }
 
         this.cmds.clear();
@@ -2644,6 +2671,11 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLDevice, cmdPackage: WebGLC
             WebGLCmdFuncCopyBuffersToTexture(device, cmd5.buffers, cmd5.gpuTexture as IWebGLGPUTexture, cmd5.regions);
             break;
         }
+        case WebGLCmd.BLIT_TEXTURE: {
+            const cmd6 = cmdPackage.blitTextureCmds.array[cmdId];
+            WebGLCmdFuncBlitTexture(device, cmd6.srcTexture as IWebGLGPUTexture, cmd6.dstTexture as IWebGLGPUTexture, cmd6.regions, cmd6.filter);
+            break;
+        }
         default:
         } // switch
     } // for
@@ -2751,7 +2783,7 @@ export function WebGLCmdFuncCopyBuffersToTexture (
     let n = 0;
     let f = 0;
     const fmtInfo: FormatInfo = FormatInfos[gpuTexture.format];
-    const ArrayBufferCtor : TypedArrayConstructor = getTypedArrayConstructor(fmtInfo);
+    const ArrayBufferCtor: TypedArrayConstructor = getTypedArrayConstructor(fmtInfo);
     const { isCompressed } = fmtInfo;
 
     const blockSize = formatAlignment(gpuTexture.format);
@@ -2777,7 +2809,7 @@ export function WebGLCmdFuncCopyBuffersToTexture (
             const destWidth  = (region.texExtent.width + offset.x === (gpuTexture.width >> mipLevel)) ? region.texExtent.width : extent.width;
             const destHeight = (region.texExtent.height + offset.y === (gpuTexture.height >> mipLevel)) ? region.texExtent.height : extent.height;
 
-            let pixels : ArrayBufferView;
+            let pixels: ArrayBufferView;
             const buffer = buffers[n++];
             if (stride.width === extent.width && stride.height === extent.height) {
                 pixels = new ArrayBufferCtor(buffer.buffer, buffer.byteOffset + region.buffOffset);
@@ -2900,4 +2932,10 @@ export function WebGLCmdFuncCopyTextureToBuffers (
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     cache.glFramebuffer = null;
     gl.deleteFramebuffer(framebuffer);
+}
+
+export function WebGLCmdFuncBlitTexture (device: WebGLDevice,
+    srcTexture: Readonly<IWebGLGPUTexture>, dstTexture: IWebGLGPUTexture, regions: Readonly<TextureBlit []>, filter: Filter) {
+    // logic different from native, because framebuffer map is not implemented in webgl
+    device.blitManager.draw(srcTexture, dstTexture, regions as TextureBlit[], filter);
 }

@@ -30,9 +30,9 @@
  */
 #pragma once
 #include "cocos/renderer/pipeline/custom/ArchiveTypes.h"
-#include "cocos/renderer/pipeline/custom/Range.h"
 #include "cocos/renderer/pipeline/custom/RenderCommonTypes.h"
-#include "cocos/renderer/pipeline/custom/SerializationUtils.h"
+#include "cocos/renderer/pipeline/custom/details/Range.h"
+#include "cocos/renderer/pipeline/custom/details/SerializationUtils.h"
 
 namespace cc {
 

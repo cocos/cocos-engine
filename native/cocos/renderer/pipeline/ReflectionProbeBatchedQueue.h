@@ -74,6 +74,7 @@ private:
     RenderBatchedQueue *_batchedQueue{nullptr};
     uint32_t _phaseID{0};
     uint32_t _phaseReflectMapID{0};
+    ccstd::vector<const scene::SubModel *> _rgbeSubModels;
 };
 
 } // namespace pipeline

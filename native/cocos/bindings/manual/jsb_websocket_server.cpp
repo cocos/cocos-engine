@@ -198,7 +198,7 @@ static bool WebSocketServer_onconnection(se::State &s) { // NOLINT(readability-i
             if (ptr) {
                 auto *sobj = static_cast<se::Object *>(ptr->getData());
                 sobj->unroot();
-                CC_ASSERT(obj == sobj);
+                CC_ASSERT_EQ(obj, sobj);
             }
         });
         se::ValueArray args;
@@ -419,12 +419,12 @@ static bool WebSocketServer_Connection_send(se::State &s) { // NOLINT(readabilit
                 ok = dataObj->getTypedArrayData(&ptr, &length);
                 SE_PRECONDITION2(ok, false, "getTypedArrayData failed!");
             } else {
-                CC_ASSERT(false);
+                CC_ABORT();
             }
 
             cobj->sendBinaryAsync(ptr, static_cast<unsigned int>(length), callback);
         } else {
-            CC_ASSERT(false);
+            CC_ABORT();
         }
 
         return true;
