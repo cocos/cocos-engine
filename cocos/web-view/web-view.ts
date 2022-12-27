@@ -99,7 +99,7 @@ export class WebView extends Component {
 
     /**
      * @en
-     * Get the current webview state.
+     * Gets the current webview state.
      * @zh
      * 获取当前网页视图状态。
      */
@@ -110,12 +110,12 @@ export class WebView extends Component {
 
     /**
      * @en
-     * Set javascript interface scheme (see also setOnJSCallback).
-     * Note: Supports only on the Android and iOS. For HTML5, please refer to the official documentation.<br>
+     * Sets javascript interface scheme (see also setOnJSCallback).
+     * Note: Supports only on the Android and iOS. For HTML5, please refer to the official documentation.
      * Please refer to the official documentation for more details.
      * @zh
-     * 设置 JavaScript 接口方案（与 'setOnJSCallback' 配套使用）。<br>
-     * 注意：只支持 Android 和 iOS ，Web 端用法请前往官方文档查看。<br>
+     * 设置 JavaScript 接口方案（与 'setOnJSCallback' 配套使用）。
+     * 注意：只支持 Android 和 iOS ，Web 端用法请前往官方文档查看。
      * 详情请参阅官方文档
      * @method setJavascriptInterfaceScheme
      * @param {String} scheme

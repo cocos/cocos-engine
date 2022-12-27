@@ -143,8 +143,8 @@ class HashUpdateEntry {
 }
 
 /**
- * @en Hash Element used for "selectors with interval"
- * @zh “用于间隔选择”的哈希元素
+ * @en Hash Element used for "selectors with interval".
+ * @zh “用于间隔选择”的哈希元素。
  * @param timers
  * @param target  hash key (retained)
  * @param timerIndex
@@ -333,7 +333,7 @@ class CallbackTimer {
  * <br>
  * There are 2 different types of callbacks (selectors):<br>
  *     - update callback: the 'update' callback will be called every frame. You can customize the priority.<br>
- *     - custom callback: A custom callback will be called every frame, or with a custom interval of time<br>
+ *     - custom callback: A custom callback will be called every frame, or with a custom interval of time.<br>
  * <br>
  * The 'custom selectors' should be avoided when possible. It is faster,<br>
  * and consumes less memory to use the 'update callback'. *
@@ -529,7 +529,7 @@ export class Scheduler extends System {
     }
 
     /**
-     * @en Specify the callback, target and other information to schedule a new timer
+     * @en Specify the callback, target and other information to schedule a new timer.
      * @zh 指定回调函数，调用对象等信息来规划一个新的定时器。
      * @param callback
      * @en The specified callback function.

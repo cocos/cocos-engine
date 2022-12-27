@@ -146,9 +146,9 @@ export class VideoPlayer extends Component {
 
     /**
      * @en
-     * The Video playback rate. The value range is from (0.0 ~ 10.0).
+     * The Video playback rate. The value range is from [0.0 ~ 10.0].
      * @zh
-     * 视频播放时的速率, 值的区间为（0.0 ~ 10.0）。
+     * 视频播放时的速率, 值的区间为[]0.0 ~ 10.0]。
      */
     @slide
     @range([0.0, 10, 1.0])
@@ -165,9 +165,9 @@ export class VideoPlayer extends Component {
 
     /**
      * @en
-     * The volume of the video. The value range is from (0.0 ~ 1.0).
+     * The volume of the video. The value range is from [0.0 ~ 1.0].
      * @zh
-     * 视频的音量（0.0 ~ 1.0）。
+     * 视频的音量[0.0 ~ 1.0]。
      */
     @slide
     @range([0.0, 1.0, 0.1])
@@ -301,7 +301,7 @@ export class VideoPlayer extends Component {
 
     /**
      * @en
-     * Get the original video object, generally used for user customization.
+     * Gets the original video object, generally used for user customization.
      * @zh
      * 获取原始视频对象，一般用于用户定制。
      */
@@ -311,7 +311,7 @@ export class VideoPlayer extends Component {
 
     /**
      * @en
-     * Get the time progress of the current video playback.
+     * Gets the time progress of the current video playback.
      * @zh
      * 获取当前视频播放的时间进度。
      */
@@ -322,7 +322,7 @@ export class VideoPlayer extends Component {
 
     /**
      * @en
-     * Set the time point when the video starts to play, in seconds.
+     * Sets the time point when the video starts to play, in seconds.
      * @zh
      * 设置视频开始播放的时间点，单位是秒。
      */
@@ -337,7 +337,7 @@ export class VideoPlayer extends Component {
 
     /**
      * @en
-     * Get the audio duration, in seconds.
+     * Gets the audio duration, in seconds.
      * @zh
      * 获取以秒为单位的视频总时长。
      */
@@ -348,7 +348,7 @@ export class VideoPlayer extends Component {
 
     /**
      * @en
-     * Get current audio state.
+     * Gets current audio state.
      * @zh
      * 获取当前视频状态。
      */
