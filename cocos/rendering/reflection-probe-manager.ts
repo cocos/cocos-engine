@@ -28,10 +28,11 @@ import { EDITOR } from 'internal:constants';
 import { MeshRenderer, ReflectionProbeType } from '../3d/framework/mesh-renderer';
 import { Vec3, geometry, cclegacy } from '../core';
 import { director, Director } from '../game';
-import { Texture } from '../gfx';
+import { Address, BufferTextureCopy, deviceManager, Filter, Format, SamplerInfo, Texture, TextureInfo, TextureType, TextureUsageBit } from '../gfx';
 import { Camera, Model } from '../render-scene/scene';
 import { ProbeType, ReflectionProbe } from '../render-scene/scene/reflection-probe';
 import { Layers } from '../scene-graph/layers';
+import { UNIFORM_REFLECTION_PROBE_MAP_BINDING } from './define';
 
 const REFLECTION_PROBE_DEFAULT_MASK = Layers.makeMaskExclude([Layers.BitMask.UI_2D, Layers.BitMask.UI_3D, Layers.BitMask.GIZMOS, Layers.BitMask.EDITOR,
     Layers.BitMask.SCENE_GIZMO, Layers.BitMask.PROFILER, Layers.Enum.IGNORE_RAYCAST]);
@@ -53,11 +54,67 @@ export class ReflectionProbeManager {
      * 场景中所有使用planar类型反射探针的模型
      */
     private _usePlanarModels = new Map<Model, ReflectionProbe>();
-
+    protected _texture: Texture | null = null;
     constructor () {
         if (EDITOR) {
             director.on(Director.EVENT_BEFORE_UPDATE, this.onUpdateProbes, this);
         }
+    }
+
+    public updateDateTexture () {
+        if (this._probes.length === 0) return;
+
+        const dataWidth = 3;
+        if (!this._texture) {
+            this._texture = deviceManager.gfxDevice.createTexture(new TextureInfo(
+                TextureType.TEX2D,
+                TextureUsageBit.SAMPLED | TextureUsageBit.TRANSFER_DST,
+                Format.RGBA32F,
+                dataWidth,
+                this._probes.length,
+            ));
+        } else {
+            this._texture.resize(dataWidth, this._probes.length);
+        }
+
+        const buffer = new Float32Array(4 * dataWidth * this._probes.length);
+        let bufferOffset = 0;
+        for (let i = 0; i < this._probes.length; i++) {
+            //world pos
+            buffer[bufferOffset] = this._probes[i].node.worldPosition.x;
+            buffer[bufferOffset + 1] = this._probes[i].node.worldPosition.y;
+            buffer[bufferOffset + 2] = this._probes[i].node.worldPosition.z;
+            buffer[bufferOffset + 3] = 0;
+            //half box size
+            buffer[bufferOffset + 4] = 1;
+            buffer[bufferOffset + 5] = 1;
+            buffer[bufferOffset + 6] = 0;
+            buffer[bufferOffset + 7] = 0;
+            //mip count
+            buffer[bufferOffset + 8] = 1;
+            buffer[bufferOffset + 9] = 0;
+            buffer[bufferOffset + 10] = 0;
+            buffer[bufferOffset + 11] = 0;
+            bufferOffset += 4 * dataWidth;
+        }
+        const region = new BufferTextureCopy();
+        region.texOffset.x = 0;
+        region.texOffset.y = 0;
+        region.texExtent.width = dataWidth;
+        region.texExtent.height = this._probes.length;
+
+        deviceManager.gfxDevice.copyBuffersToTexture([buffer], this._texture, [region]);
+        const ds = (cclegacy.director.root).pipeline.descriptorSet;
+        const sampler = deviceManager.gfxDevice.getSampler(new SamplerInfo(
+            Filter.LINEAR,
+            Filter.LINEAR,
+            Filter.NONE,
+            Address.CLAMP,
+            Address.CLAMP,
+            Address.CLAMP,
+        ));
+        ds.bindSampler(UNIFORM_REFLECTION_PROBE_MAP_BINDING, sampler);
+        ds.bindTexture(UNIFORM_REFLECTION_PROBE_MAP_BINDING, this._texture);
     }
 
     /**
@@ -116,6 +173,7 @@ export class ReflectionProbeManager {
         const index = this._probes.indexOf(probe);
         if (index === -1) {
             this._probes.push(probe);
+            this.updateDateTexture();
         }
     }
 

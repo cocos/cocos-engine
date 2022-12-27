@@ -316,6 +316,7 @@ export class ReflectionProbe extends Component {
             this.probe.renderPlanarReflection(this.sourceCamera.camera);
             ReflectionProbeManager.probeManager.filterModelsForPlanarReflection();
         }
+        ReflectionProbeManager.probeManager.updateDateTexture();
     }
 
     public onDestroy () {
@@ -345,6 +346,7 @@ export class ReflectionProbe extends Component {
             }
             if (this.node.hasChangedFlags & TransformBit.POSITION) {
                 ReflectionProbeManager.probeManager.onUpdateProbes(true);
+                ReflectionProbeManager.probeManager.updateDateTexture();
             }
         }
         if (this.probeType === ProbeType.PLANAR && this.sourceCamera) {
