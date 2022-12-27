@@ -69,8 +69,11 @@ export function murmurhash2_32_gc (input: string | Uint8Array, seed: number) {
     }
 
     switch (l) {
-    case 3: h ^= (getUint8.call(input, i + 2) & 0xff) << 16; break;
-    case 2: h ^= (getUint8.call(input, i + 1) & 0xff) << 8; break;
+    // Don't break in case 3 and case 2.
+    case 3: h ^= (getUint8.call(input, i + 2) & 0xff) << 16;
+    // eslint-disable-next-line no-fallthrough
+    case 2: h ^= (getUint8.call(input, i + 1) & 0xff) << 8;
+    // eslint-disable-next-line no-fallthrough
     case 1:
         h ^= (getUint8.call(input, i) & 0xff);
         h = (((h & 0xffff) * 0x5bd1e995) + ((((h >>> 16) * 0x5bd1e995) & 0xffff) << 16));
