@@ -39,12 +39,12 @@ const e = new Array(3);
 
 /**
  * @en
- * the distance between a point and a plane
+ * Calculates the distance between a point and a plane.
  * @zh
  * 计算点和平面之间的距离。
- * @param {Vec3} point @en Target point @zh 目标点。
- * @param {Plane} plane @en Target plane @zh 目标平面。
- * @return @en The distance in between @zh 距离。
+ * @param point @en The target point. @zh 目标点。
+ * @param plane @en The target plane. @zh 目标平面。
+ * @returns @en The distance between the point and the plane. @zh 点和平面之间的距离。
  */
 export function point_plane (point: Vec3, plane_: Plane) {
     return Vec3.dot(plane_.n, point) - plane_.d;
@@ -52,13 +52,13 @@ export function point_plane (point: Vec3, plane_: Plane) {
 
 /**
  * @en
- * the closest point on plane to a given point
+ * Calculates the closest point on a plane to a given point.
  * @zh
  * 计算平面上最接近给定点的点。
- * @param out @en The closest point, as a result @zh 最近点。
- * @param point @en The given point @zh 给定点。
- * @param plane @en Target plane @zh 平面。
- * @return @en The closest point, same as out @zh 最近点。
+ * @param out @en The result of the closest point to store into. @zh 存储最近点的向量。
+ * @param point @en The given point. @zh 给定点。
+ * @param plane @en The target plane. @zh 平面。
+ * @returns @en The reference to the result of the closest point `out`. @zh 最近点 `out` 的引用。
  */
 export function pt_point_plane (out: Vec3, point: Vec3, plane_: Plane) {
     const t = point_plane(point, plane_);
@@ -67,13 +67,13 @@ export function pt_point_plane (out: Vec3, point: Vec3, plane_: Plane) {
 
 /**
  * @en
- * the closest point on aabb to a given point
+ * Calculates the closest point on an AABB to a given point.
  * @zh
- * 计算 aabb 上最接近给定点的点。
- * @param {Vec3} out @en The closest point, as a result @zh 最近点。
- * @param {Vec3} point @en The given point @zh 给定点。
- * @param {AABB} aabb @en Target aabb to calculate @zh 轴对齐包围盒。
- * @return {Vec3} @en The closest point, same as out @zh 最近点。
+ * 计算 AABB 上最接近给定点的点。
+ * @param out @en The result of the closest point to store into. @zh 存储最近点的向量。
+ * @param point @en The given point @zh 给定点。
+ * @param aabb @en The target AABB to calculate. @zh 轴对齐包围盒。
+ * @returns @en The reference to the result of the closest point `out`. @zh 最近点 `out` 的引用。
  */
 export function pt_point_aabb (out: Vec3, point: Vec3, aabb_: AABB): Vec3 {
     Vec3.copy(out, point);
@@ -92,13 +92,13 @@ export function pt_point_aabb (out: Vec3, point: Vec3, aabb_: AABB): Vec3 {
 
 /**
  * @en
- * the closest point on obb to a given point
+ * Calculates the closest point on a OBB to a given point.
  * @zh
- * 计算 obb 上最接近给定点的点。
- * @param {Vec3} out @en The closest point, as a result @zh 最近点。
- * @param {Vec3} point @en The given point @zh 给定点。
- * @param {OBB} obb @en Target obb to calculate @zh 方向包围盒。
- * @return {Vec3} @en The closest point, same as out @zh 最近点。
+ * 计算方向包围盒上最接近给定点的点。
+ * @param out @en The result of the closest point to store into. @zh 存储最近点的向量。
+ * @param point @en The given point. @zh 给定点。
+ * @param obb @en The target OBB to calculate. @zh 参与计算的方向包围盒。
+ * @returns @en The reference to the result of the closest point `out`. @zh 最近点 `out` 的引用。
  */
 export function pt_point_obb (out: Vec3, point: Vec3, obb_: OBB): Vec3 {
     Vec3.set(X, obb_.orientation.m00, obb_.orientation.m01, obb_.orientation.m02);
@@ -141,20 +141,20 @@ export function pt_point_obb (out: Vec3, point: Vec3, obb_: OBB): Vec3 {
 
 /**
  * @en
- * Calculate the nearest point on the line, which is from A to B, to the given point
+ * Calculates the closest point on the line, which is from A to B, to the given point.
  * @zh
- * 计算给定点距离线段上最近的一点。线段从A到B。
- * @param out @en The closest point, as a result @zh 最近点
- * @param point @en The given point @zh 给定点
- * @param linePointA @en Point A on the line @zh 线上的某点 A
- * @param linePointB @en Point B on the line @zh 线上的某点 B
+ * 计算给定点距离线段 AB 上最近的一点。
+ * @param out @en The result of the closest point to store into. @zh 存储最近点的向量。
+ * @param point @en The given point. @zh 给定点
+ * @param linePointA @en Point A on the line. @zh 线上的某点 A
+ * @param linePointB @en Point B on the line. @zh 线上的某点 B
  */
 export function pt_point_line (out: Vec3, point: Vec3, linePointA: Vec3, linePointB: Vec3) {
     Vec3.subtract(X, linePointA, linePointB);
     const dir = X;
     const dirSquaredLength = Vec3.lengthSqr(dir);
 
-    if (dirSquaredLength == 0) {
+    if (dirSquaredLength === 0) {
         // The point is at the segment start.
         Vec3.copy(out, linePointA);
     } else {
