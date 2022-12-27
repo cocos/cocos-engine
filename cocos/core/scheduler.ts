@@ -431,7 +431,7 @@ export class Scheduler extends System {
     }
 
     /**
-     * @en 'update' the scheduler. (You should  delta time call this method, unless you know what you are doing.)
+     * @en 'update' the scheduler. (You should NEVER call this method, unless you know what you are doing.)
      * @zh update 调度函数。(不应该直接调用这个方法，除非完全了解这么做的结果)
      * @param dt
      * @en delta time. The unit is seconds.
