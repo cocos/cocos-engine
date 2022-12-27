@@ -33,6 +33,7 @@ import { Asset } from '../../asset/assets/asset';
 import { Node } from '../node';
 import { legacyCC } from '../../core/global-exports';
 import { warnID } from '../../core/platform/debug';
+import { updateChildrenForDeserialize } from '../../core/utils/jsb-utils';
 import * as utils from './utils';
 
 /**
@@ -200,6 +201,7 @@ export class Prefab extends Asset {
         const rootNode = this.data as Node;
         utils.expandNestedPrefabInstanceNode(rootNode);
         utils.applyTargetOverrides(rootNode);
+        updateChildrenForDeserialize(rootNode);
     }
 }
 
