@@ -204,6 +204,10 @@ bool CCMTLPipelineState::createMTLRenderPipelineState() {
     if(ret) ret = createMTLRenderPipeline(descriptor);
     [descriptor release];
 
+    if(!ret) {
+        CC_LOG_ERROR("Failed to create pipeline state, please check if shader/pileinelayout match with each other!");
+    }
+
     return ret;
 }
 
