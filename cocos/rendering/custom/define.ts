@@ -22,7 +22,8 @@
  THE SOFTWARE.
 */
 
-import { BufferInfo, Buffer, BufferUsageBit, ClearFlagBit, Color, DescriptorSet } from '../../gfx';
+import { BufferInfo, Buffer, BufferUsageBit, ClearFlagBit, Color, DescriptorSet, LoadOp,
+    Format, Rect, Sampler, StoreOp, Texture, Viewport, MemoryUsageBit } from '../../gfx';
 import { Camera, CSMLevel, DirectionalLight, Light, LightType, ReflectionProbe, ShadowType, SKYBOX_FLAG, SpotLight } from '../../render-scene/scene';
 import { supportsR32FloatTexture } from '../define';
 import { Pipeline } from './pipeline';
