@@ -125,7 +125,7 @@ public:
      */
     explicit Plane(float nx, float ny, float nz, float d);
 
-    Plane() = default;
+    Plane() : ShapeBase(ShapeEnum::SHAPE_PLANE) {}
     // Plane(const Plane& other) = default;
     // Plane(Plane&& other)      = default;
     // Plane& operator=(const Plane& other) = default;

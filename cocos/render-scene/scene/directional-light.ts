@@ -37,8 +37,6 @@ const _v3 = new Vec3();
  * @zh 渲染场景中的方向光抽象，这是场景中的主光源。作为主光源，每个场景只能有一个方向光，它也包含阴影配置，用来生成实时阴影。
  */
 export class DirectionalLight extends Light {
-    public static readonly CSM_TRANSITION_RANGE = 0.05;
-
     protected _dir: Vec3 = new Vec3(1.0, -1.0, -1.0);
     protected _illuminanceHDR: number = Ambient.SUN_ILLUM;
     protected _illuminanceLDR = 1.0;
@@ -57,8 +55,8 @@ export class DirectionalLight extends Light {
     protected _csmNeedUpdate = false;
     protected _csmLayerLambda = 0.75;
     protected _csmOptimizationMode = CSMOptimizationMode.DisableRotationFix;
-
     protected _csmLayersTransition = false;
+    protected _csmTransitionRange = 0.05;
 
     // fixed area properties
     protected _shadowFixedArea = false;
@@ -300,6 +298,17 @@ export class DirectionalLight extends Light {
     set csmLayersTransition (val) {
         this._csmLayersTransition = val;
         this._activate();
+    }
+
+    /**
+     * @en get or set csm layers transition range
+     * @zh 获取或者设置级联阴影层级过渡范围？
+     */
+    get csmTransitionRange () {
+        return this._csmTransitionRange;
+    }
+    set csmTransitionRange (val) {
+        this._csmTransitionRange = val;
     }
 
     constructor () {

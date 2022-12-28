@@ -220,7 +220,7 @@ bool AudioPlayer::play2d() {
          * So the assert here will trigger this bug as aolSource is reused.
          * Replace OpenAL with AVAudioEngine on V3.6 mightbe helpful
         */
-//        CC_ASSERT(state == AL_PLAYING);
+//        CC_ASSERT_EQ(state, AL_PLAYING);
         _ready = true;
         ret = true;
     } while (false);

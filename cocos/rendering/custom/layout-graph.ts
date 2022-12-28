@@ -30,7 +30,7 @@
  */
 /* eslint-disable max-len */
 import { AddressableGraph, AdjI, AdjacencyGraph, BidirectionalGraph, ComponentGraph, ED, InEI, MutableGraph, MutableReferenceGraph, NamedGraph, OutE, OutEI, PolymorphicGraph, PropertyGraph, PropertyMap, ReferenceGraph, VertexListGraph, directional, findRelative, getPath, parallel, reindexEdgeList, traversal } from './graph';
-import { DescriptorSet, DescriptorSetLayout, DescriptorSetLayoutInfo, ShaderStageFlagBit, Type, UniformBlock } from '../../gfx';
+import { DescriptorSet, DescriptorSetLayout, DescriptorSetLayoutInfo, PipelineLayout, ShaderStageFlagBit, Type, UniformBlock } from '../../gfx';
 import { DescriptorBlock, saveDescriptorBlock, loadDescriptorBlock, DescriptorBlockIndex, saveDescriptorBlockIndex, loadDescriptorBlockIndex, DescriptorTypeOrder, UpdateFrequency } from './types';
 import { OutputArchive, InputArchive } from './archive';
 import { saveUniformBlock, loadUniformBlock, saveDescriptorSetLayoutInfo, loadDescriptorSetLayoutInfo } from './serialization';
@@ -581,11 +581,13 @@ export class UniformBlockData {
 }
 
 export class DescriptorData {
-    constructor (descriptorID = 0, count = 1) {
+    constructor (descriptorID = 0, type: Type = Type.UNKNOWN, count = 1) {
         this.descriptorID = descriptorID;
+        this.type = type;
         this.count = count;
     }
     descriptorID: number;
+    type: Type;
     count: number;
 }
 
@@ -603,14 +605,16 @@ export class DescriptorBlockData {
 }
 
 export class DescriptorSetLayoutData {
-    constructor (slot = 0xFFFFFFFF, capacity = 0) {
+    constructor (slot = 0xFFFFFFFF, capacity = 0, descriptorBlocks: DescriptorBlockData[] = [], uniformBlocks: Map<number, UniformBlock> = new Map<number, UniformBlock>()) {
         this.slot = slot;
         this.capacity = capacity;
+        this.descriptorBlocks = descriptorBlocks;
+        this.uniformBlocks = uniformBlocks;
     }
     slot: number;
     capacity: number;
-    readonly descriptorBlocks: DescriptorBlockData[] = [];
-    readonly uniformBlocks: Map<number, UniformBlock> = new Map<number, UniformBlock>();
+    readonly descriptorBlocks: DescriptorBlockData[];
+    readonly uniformBlocks: Map<number, UniformBlock>;
 }
 
 export class DescriptorSetData {
@@ -648,6 +652,7 @@ export class EffectData {
 
 export class ShaderProgramData {
     readonly layout: PipelineLayoutData = new PipelineLayoutData();
+    /*refcount*/ pipelineLayout: PipelineLayout | null = null;
 }
 
 export class RenderStageData {
@@ -658,6 +663,7 @@ export class RenderPhaseData {
     rootSignature = '';
     readonly shaderPrograms: ShaderProgramData[] = [];
     readonly shaderIndex: Map<string, number> = new Map<string, number>();
+    /*refcount*/ pipelineLayout: PipelineLayout | null = null;
 }
 
 //=================================================================
@@ -853,6 +859,7 @@ export class LayoutGraphData implements BidirectionalGraph
         this.constantIndex.clear();
         this.shaderLayoutIndex.clear();
         this.effects.clear();
+        this.constantMacros = '';
         // ComponentGraph
         this._names.length = 0;
         this._updateFrequencies.length = 0;
@@ -1222,6 +1229,7 @@ export class LayoutGraphData implements BidirectionalGraph
     readonly constantIndex: Map<string, number> = new Map<string, number>();
     readonly shaderLayoutIndex: Map<string, number> = new Map<string, number>();
     readonly effects: Map<string, EffectData> = new Map<string, EffectData>();
+    constantMacros = '';
 }
 
 export function saveDescriptorDB (ar: OutputArchive, v: DescriptorDB) {
@@ -1364,11 +1372,13 @@ export function loadUniformBlockData (ar: InputArchive, v: UniformBlockData) {
 
 export function saveDescriptorData (ar: OutputArchive, v: DescriptorData) {
     ar.writeNumber(v.descriptorID);
+    ar.writeNumber(v.type);
     ar.writeNumber(v.count);
 }
 
 export function loadDescriptorData (ar: InputArchive, v: DescriptorData) {
     v.descriptorID = ar.readNumber();
+    v.type = ar.readNumber();
     v.count = ar.readNumber();
 }
 
@@ -1553,10 +1563,12 @@ export function loadEffectData (ar: InputArchive, v: EffectData) {
 
 export function saveShaderProgramData (ar: OutputArchive, v: ShaderProgramData) {
     savePipelineLayoutData(ar, v.layout);
+    // skip, v.pipelineLayout: PipelineLayout
 }
 
 export function loadShaderProgramData (ar: InputArchive, v: ShaderProgramData) {
     loadPipelineLayoutData(ar, v.layout);
+    // skip, v.pipelineLayout: PipelineLayout
 }
 
 export function saveRenderStageData (ar: OutputArchive, v: RenderStageData) {
@@ -1588,6 +1600,7 @@ export function saveRenderPhaseData (ar: OutputArchive, v: RenderPhaseData) {
         ar.writeString(k1);
         ar.writeNumber(v1);
     }
+    // skip, v.pipelineLayout: PipelineLayout
 }
 
 export function loadRenderPhaseData (ar: InputArchive, v: RenderPhaseData) {
@@ -1606,6 +1619,7 @@ export function loadRenderPhaseData (ar: InputArchive, v: RenderPhaseData) {
         const v1 = ar.readNumber();
         v.shaderIndex.set(k1, v1);
     }
+    // skip, v.pipelineLayout: PipelineLayout
 }
 
 export function saveLayoutGraphData (ar: OutputArchive, g: LayoutGraphData) {

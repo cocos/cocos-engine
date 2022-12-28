@@ -27,26 +27,31 @@
 #include "engine/EngineEvents.h"
 #include "platform/java/jni/JniHelper.h"
 #include "platform/java/jni/glue/JniNativeGlue.h"
+#include "platform/java/modules/SystemWindow.h"
+#include "platform/java/modules/SystemWindowManager.h"
 
 namespace {
-struct cc::TouchEvent touchEvent;
+cc::TouchEvent touchEvent;
 }
 extern "C" {
 //NOLINTNEXTLINE
 JNIEXPORT void JNICALL Java_com_cocos_lib_CocosTouchHandler_handleActionDown(JNIEnv *env, jobject obj, jint id,
                                                                              jfloat x, jfloat y) {
+    // TODO(qgh):The windows ID needs to be passed down from the jave, which is currently using the main window.
+    touchEvent.windowId = cc::ISystemWindow::mainWindowId;
     touchEvent.type = cc::TouchEvent::Type::BEGAN;
     touchEvent.touches.emplace_back(x, y, id);
-    JNI_NATIVE_GLUE()->dispatchTouchEvent(touchEvent);
+    cc::events::Touch::broadcast(touchEvent);
     touchEvent.touches.clear();
 }
 
 //NOLINTNEXTLINE
 JNIEXPORT void JNICALL Java_com_cocos_lib_CocosTouchHandler_handleActionUp(JNIEnv *env, jobject obj, jint id, jfloat x,
                                                                            jfloat y) {
+    touchEvent.windowId = cc::ISystemWindow::mainWindowId;
     touchEvent.type = cc::TouchEvent::Type::ENDED;
     touchEvent.touches.emplace_back(x, y, id);
-    JNI_NATIVE_GLUE()->dispatchTouchEvent(touchEvent);
+    cc::events::Touch::broadcast(touchEvent);
     touchEvent.touches.clear();
 }
 
@@ -56,6 +61,7 @@ JNIEXPORT void JNICALL Java_com_cocos_lib_CocosTouchHandler_handleActionMove(JNI
                                                                              jfloatArray xs,
                                                                              jfloatArray ys) {
     touchEvent.type = cc::TouchEvent::Type::MOVED;
+    touchEvent.windowId = cc::ISystemWindow::mainWindowId;
     int size = env->GetArrayLength(ids);
     jint id[size];
     jfloat x[size];
@@ -67,8 +73,7 @@ JNIEXPORT void JNICALL Java_com_cocos_lib_CocosTouchHandler_handleActionMove(JNI
     for (int i = 0; i < size; i++) {
         touchEvent.touches.emplace_back(x[i], y[i], id[i]);
     }
-
-    JNI_NATIVE_GLUE()->dispatchTouchEvent(touchEvent);
+    cc::events::Touch::broadcast(touchEvent);
     touchEvent.touches.clear();
 }
 
@@ -78,6 +83,7 @@ JNIEXPORT void JNICALL Java_com_cocos_lib_CocosTouchHandler_handleActionCancel(J
                                                                                jfloatArray xs,
                                                                                jfloatArray ys) {
     touchEvent.type = cc::TouchEvent::Type::CANCELLED;
+    touchEvent.windowId = cc::ISystemWindow::mainWindowId;
     int size = env->GetArrayLength(ids);
     jint id[size];
     jfloat x[size];
@@ -89,7 +95,7 @@ JNIEXPORT void JNICALL Java_com_cocos_lib_CocosTouchHandler_handleActionCancel(J
     for (int i = 0; i < size; i++) {
         touchEvent.touches.emplace_back(x[i], y[i], id[i]);
     }
-    JNI_NATIVE_GLUE()->dispatchTouchEvent(touchEvent);
+    cc::events::Touch::broadcast(touchEvent);
     touchEvent.touches.clear();
 }
 }

@@ -190,7 +190,7 @@ fn frag_main() -> @location(0) vec4<f32> {
         clearPassData.pipeline = wgpuDeviceCreateRenderPipeline(wgpuDevice, &pipelineDesc);
     }
 
-    CC_ASSERT(i > 0);
+    CC_ASSERT_GT(i, 0);
     auto cmdBuffCommandEncoder = static_cast<CCWGPUCommandBuffer*>(cmdBuff)->gpuCommandBufferObject()->wgpuCommandEncoder;
     auto commandEncoder = cmdBuffCommandEncoder;
     if (!cmdBuffCommandEncoder) {
@@ -429,7 +429,7 @@ fn frag_main(@location(0) fragUV : vec2<f32>) -> @location(0) vec4<f32> {
     desc.arrayLayerCount = 1;
     desc.aspect = WGPUTextureAspect_All;
 
-    CC_ASSERT(i > 0);
+    CC_ASSERT_GT(i, 0);
     auto cmdBuffCommandEncoder = static_cast<CCWGPUCommandBuffer*>(cmdBuff)->gpuCommandBufferObject()->wgpuCommandEncoder;
     auto commandEncoder = cmdBuffCommandEncoder;
     if (!cmdBuffCommandEncoder) {

@@ -447,7 +447,7 @@ bool JavaScriptJavaBridge::CallInfo::getMethodInfo() {
 }
 
 bool JavaScriptJavaBridge::convertReturnValue(ReturnValue retValue, ValueType type, se::Value *ret) {
-    CC_ASSERT(ret != nullptr);
+    CC_ASSERT_NOT_NULL(ret);
     switch (type) {
         case JavaScriptJavaBridge::ValueType::INTEGER:
             ret->setInt32(retValue.intValue);
@@ -613,7 +613,7 @@ SE_BIND_FUNC(JavaScriptJavaBridge_callStaticMethod)
 
 static bool ScriptNativeBridge_getCallback(se::State &s) { //NOLINT(readability-identifier-naming)
     auto *cobj = static_cast<ScriptNativeBridge *>(s.nativeThisObject());
-    CC_ASSERT(cobj == ScriptNativeBridge::bridgeCxxInstance);
+    CC_ASSERT_EQ(cobj, ScriptNativeBridge::bridgeCxxInstance);
     s.rval() = cobj->jsCb;
     SE_HOLD_RETURN_VALUE(cobj->jsCb, s.thisObject(), s.rval());
     return true;
@@ -622,7 +622,7 @@ SE_BIND_PROP_GET(ScriptNativeBridge_getCallback)
 
 static bool ScriptNativeBridge_setCallback(se::State &s) { //NOLINT(readability-identifier-naming)
     auto *cobj = static_cast<ScriptNativeBridge *>(s.nativeThisObject());
-    CC_ASSERT(cobj == ScriptNativeBridge::bridgeCxxInstance);
+    CC_ASSERT_EQ(cobj, ScriptNativeBridge::bridgeCxxInstance);
     const auto &args = s.args();
     se::Value jsFunc = args[0];
     cobj->jsCb = jsFunc;

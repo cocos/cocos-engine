@@ -69,6 +69,7 @@ class Root final {
     DECLARE_TARGET_EVENT_BEGIN(Root)
     TARGET_EVENT_ARG0(BeforeCommit)
     TARGET_EVENT_ARG0(BeforeRender)
+    TARGET_EVENT_ARG0(AfterRender)
     DECLARE_TARGET_EVENT_END()
 public:
     static Root *getInstance(); // cjh todo: put Root Managerment to Director class.

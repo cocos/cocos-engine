@@ -299,6 +299,15 @@
 %ignore dragonBones::EventObject::data;
 %ignore dragonBones::EventObject::getTypeIndex;
 %ignore dragonBones::EventObject::actionDataToInstance;
+%ignore dragonBones::EventObject::START;
+%ignore dragonBones::EventObject::LOOP_COMPLETE;
+%ignore dragonBones::EventObject::COMPLETE;
+%ignore dragonBones::EventObject::FADE_IN;
+%ignore dragonBones::EventObject::FADE_IN_COMPLETE;
+%ignore dragonBones::EventObject::FADE_OUT;
+%ignore dragonBones::EventObject::FADE_OUT_COMPLETE;
+%ignore dragonBones::EventObject::FRAME_EVENT;
+%ignore dragonBones::EventObject::SOUND_EVENT;
 
 %ignore dragonBones::TextureData::copyFrom;
 %ignore dragonBones::TextureData::rotated;

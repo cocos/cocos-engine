@@ -46,8 +46,8 @@ void LightProbesData::updateProbes(ccstd::vector<Vec3> &points) {
 }
 
 void LightProbesData::updateTetrahedrons() {
-    Delaunay delaunay;
-    _tetrahedrons = delaunay.build(_probes);
+    Delaunay delaunay(_probes);
+    _tetrahedrons = delaunay.build();
 }
 
 bool LightProbesData::getInterpolationSHCoefficients(int32_t tetIndex, const Vec4 &weights, ccstd::vector<Vec3> &coefficients) const {

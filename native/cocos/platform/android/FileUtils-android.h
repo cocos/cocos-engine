@@ -50,7 +50,7 @@ public:
     FileUtilsAndroid();
     ~FileUtilsAndroid() override;
 
-    static void setassetmanager(AAssetManager *a);
+    static void setAssetManager(AAssetManager *a);
     static AAssetManager *getAssetManager() { return assetmanager; }
     static ZipFile *getObbFile() { return obbfile; }
 

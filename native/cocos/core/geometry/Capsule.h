@@ -73,8 +73,7 @@ public:
     Vec3 ellipseCenter0;
     Vec3 ellipseCenter1;
 
-    explicit Capsule(float radius = 0.5, float halfHeight = 0.5, CenterEnum axis = CenterEnum::Y) {
-        this->setType(ShapeEnum::SHAPE_CAPSULE);
+    explicit Capsule(float radius = 0.5, float halfHeight = 0.5, CenterEnum axis = CenterEnum::Y): ShapeBase(ShapeEnum::SHAPE_CAPSULE) {
         this->radius = radius;
         this->halfHeight = halfHeight;
         this->axis = axis;

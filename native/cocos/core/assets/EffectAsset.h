@@ -45,12 +45,16 @@ using IPropertyHandleInfo = std::tuple<ccstd::string, uint32_t, gfx::Type>;
 
 using IPropertyValue = ccstd::optional<ccstd::variant<ccstd::vector<float>, ccstd::string>>;
 
+using IPropertyEditorValueType = ccstd::variant<ccstd::monostate, ccstd::string, bool, float, ccstd::vector<float>>;
+using IPropertyEditorInfo = ccstd::unordered_map<ccstd::string, IPropertyEditorValueType>;
+
 struct IPropertyInfo {
-    int32_t type;                                    // auto-extracted from shader
+    int32_t type{0};                                 // auto-extracted from shader
     ccstd::optional<IPropertyHandleInfo> handleInfo; // auto-generated from 'target'
     ccstd::optional<ccstd::hash_t> samplerHash;      // auto-generated from 'sampler'
     IPropertyValue value;                            // default value
     ccstd::optional<bool> linear;                    // whether to convert the input to linear space first before applying
+    IPropertyEditorInfo editor; // NOTE: used only by editor.
 };
 
 struct IPassInfoFull;
@@ -364,7 +368,7 @@ struct IPassInfoFull final { // cjh } : public IPassInfo {
     // IPassInfo
     ccstd::string program; // auto-generated from 'vert' and 'frag'
     ccstd::optional<MacroRecord> embeddedMacros;
-    index_t propertyIndex{CC_INVALID_INDEX};
+    ccstd::optional<index_t> propertyIndex; // NOTE: needs to use ccstd::optional<> since jsb should return 'undefined' instead of '-1' to avoid wrong value checking logic.
     ccstd::optional<ccstd::string> switch_;
     ccstd::optional<PassPropertyInfoMap> properties;
 
@@ -402,7 +406,10 @@ struct IBlockInfo {
     uint32_t binding{UINT32_MAX};
     ccstd::string name;
     ccstd::vector<gfx::Uniform> members;
+
     gfx::ShaderStageFlags stageFlags{gfx::ShaderStageFlags::NONE};
+
+    ccstd::vector<ccstd::string> defines;
 };
 
 struct ISamplerTextureInfo {
@@ -411,6 +418,7 @@ struct ISamplerTextureInfo {
     gfx::Type type{gfx::Type::UNKNOWN};
     uint32_t count{0};
     gfx::ShaderStageFlags stageFlags{gfx::ShaderStageFlags::NONE};
+    ccstd::vector<ccstd::string> defines; // NOTE: used in Editor only
 };
 
 struct ITextureInfo {
@@ -471,6 +479,8 @@ struct IDefineInfo {
     ccstd::optional<ccstd::vector<int32_t>> range; // cjh number is float?  ?: number[];
     ccstd::optional<ccstd::vector<ccstd::string>> options;
     ccstd::optional<ccstd::string> defaultVal;
+    ccstd::optional<ccstd::vector<ccstd::string>> defines; // NOTE: it's only used in Editor
+    ccstd::optional<ccstd::unordered_map<ccstd::string, bool>> editor; // NOTE: it's only used in Editor
 };
 
 struct IBuiltin {

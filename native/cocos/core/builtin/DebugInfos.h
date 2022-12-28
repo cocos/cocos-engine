@@ -30,6 +30,6 @@
 
 namespace cc {
 
-extern ccstd::unordered_map<int, ccstd::string> debugInfos;
+extern ccstd::unordered_map<uint32_t, ccstd::string> debugInfos;
 
 }

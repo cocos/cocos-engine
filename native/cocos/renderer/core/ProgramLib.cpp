@@ -41,41 +41,15 @@ int32_t getBitCount(int32_t cnt) {
     return std::ceil(std::log2(std::max(cnt, 2))); // std::max checks number types
 }
 
-bool recordAsBool(const MacroRecord::mapped_type &v) {
-    if (ccstd::holds_alternative<bool>(v)) {
-        return ccstd::get<bool>(v);
-    }
-    if (ccstd::holds_alternative<ccstd::string>(v)) {
-        return ccstd::get<ccstd::string>(v) == "true";
-    }
-    if (ccstd::holds_alternative<int32_t>(v)) {
-        return ccstd::get<int32_t>(v);
-    }
-    return false;
-}
-
-ccstd::string recordAsString(const MacroRecord::mapped_type &v) {
-    if (ccstd::holds_alternative<bool>(v)) {
-        return ccstd::get<bool>(v) ? "1" : "0";
-    }
-    if (ccstd::holds_alternative<ccstd::string>(v)) {
-        return ccstd::get<ccstd::string>(v);
-    }
-    if (ccstd::holds_alternative<int32_t>(v)) {
-        return std::to_string(ccstd::get<int32_t>(v));
-    }
-    return "";
-}
-
 ccstd::string mapDefine(const IDefineInfo &info, const ccstd::optional<MacroRecord::mapped_type> &def) {
     if (info.type == "boolean") {
-        return def.has_value() ? (recordAsBool(def.value()) ? "1" : "0") : "0";
+        return def.has_value() ? (macroRecordAsBool(def.value()) ? "1" : "0") : "0";
     }
     if (info.type == "string") {
-        return def.has_value() ? recordAsString(def.value()) : info.options.value()[0];
+        return def.has_value() ? macroRecordAsString(def.value()) : info.options.value()[0];
     }
     if (info.type == "number") {
-        return def.has_value() ? recordAsString(def.value()) : std::to_string(info.range.value()[0]);
+        return def.has_value() ? macroRecordAsString(def.value()) : std::to_string(info.range.value()[0]);
     }
     CC_LOG_WARNING("unknown define type '%s', name: %s", info.type.c_str(), info.name.c_str());
     return "-1"; // should neven happen
@@ -203,7 +177,7 @@ bool dependencyCheck(const ccstd::vector<ccstd::string> &dependencies, const Mac
             if (defines.find(d.substr(1)) != defines.end()) {
                 return false;
             }
-        } else if (defines.count(d) == 0 ? true : !recordAsBool(defines.at(d))) {
+        } else if (defines.count(d) == 0 ? true : !macroRecordAsBool(defines.at(d))) {
             return false;
         }
     }
@@ -302,8 +276,8 @@ void ProgramLib::registerEffect(EffectAsset *effect) {
     for (auto &tech : effect->_techniques) {
         for (auto &pass : tech.passes) {
             // grab default property declaration if there is none
-            if (pass.propertyIndex != CC_INVALID_INDEX && !pass.properties.has_value()) {
-                pass.properties = tech.passes[pass.propertyIndex].properties;
+            if (pass.propertyIndex.has_value() && !pass.properties.has_value()) {
+                pass.properties = tech.passes[pass.propertyIndex.value()].properties;
             }
         }
     }
@@ -332,7 +306,7 @@ IProgramInfo *ProgramLib::define(IShaderInfo &shader) {
                 if (ccstd::holds_alternative<bool>(value)) {
                     return (ccstd::get<bool>(value) ? 1 : 0) - range[0];
                 }
-                CC_ASSERT(false); // We only support macro with int32_t type now.
+                CC_ABORT(); // We only support macro with int32_t type now.
                 return 0;
             };
         } else if (def.type == "string") {
@@ -626,7 +600,7 @@ void ProgramLib::destroyShaderByDefines(const MacroRecord &defines) {
     if (defines.empty()) return;
     ccstd::vector<ccstd::string> defineValues;
     for (const auto &i : defines) {
-        defineValues.emplace_back(i.first + recordAsString(i.second));
+        defineValues.emplace_back(i.first + macroRecordAsString(i.second));
     }
     ccstd::vector<ccstd::string> matchedKeys;
     for (const auto &i : _cache) {

@@ -1043,6 +1043,7 @@ SE_BIND_FINALIZE_FUNC(js_delete_cc_xr_XrEntry)
 bool js_register_cc_xr_XrEntry(se::Object* obj) {
     auto* cls = se::Class::create("XrEntry", obj, nullptr, nullptr); 
     
+    cls->defineStaticProperty("__isJSB", se::Value(true), se::PropertyAttribute::READ_ONLY | se::PropertyAttribute::DONT_ENUM | se::PropertyAttribute::DONT_DELETE);
     
     cls->defineFunction("createXrInstance", _SE(js_cc_xr_XrEntry_createXrInstance)); 
     cls->defineFunction("pauseXrInstance", _SE(js_cc_xr_XrEntry_pauseXrInstance)); 

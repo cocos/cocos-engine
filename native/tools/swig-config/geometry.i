@@ -32,27 +32,6 @@
 //  2. namespace is needed
 //
 %ignore cc::RefCounted;
-%ignore cc::geometry::AABB::getBoundary;
-%ignore cc::geometry::AABB::aabbAabb;
-%ignore cc::geometry::AABB::aabbFrustum;
-%ignore cc::geometry::AABB::aabbPlan;
-%ignore cc::geometry::AABB::merge;
-%ignore cc::geometry::AABB::transform;
-%ignore cc::geometry::AABB::transformExtentM4;
-%ignore cc::geometry::AABB::isValid;
-%ignore cc::geometry::AABB::setValid;
-%ignore cc::geometry::AABB::set;
-%ignore cc::geometry::AABB::fromPoints;
-%ignore cc::geometry::AABB::getCenter;
-%ignore cc::geometry::AABB::setCenter;
-%ignore cc::geometry::AABB::getHalfExtents;
-%ignore cc::geometry::AABB::setHalfExtents;
-
-%ignore cc::geometry::Frustum::update;
-
-%ignore cc::geometry::Ray::computeHit;
-
-%ignore cc::geometry::Sphere::getBoundary;
 
 // ----- Rename Section ------
 // Brief: Classes, methods or attributes needs to be renamed
@@ -67,7 +46,125 @@
 //  1. 'Rename Section' should be placed before attribute definition and %import/%include
 //  2. namespace is needed
 
+namespace cc::geometry {
+%ignore Line::create;
+%ignore Line::length;
+%ignore Line::clone;
+%ignore Line::copy;
+%ignore Line::fromPoints;
+%ignore Line::set;
+%ignore Line::len;
+// %ignore Line::s;
+// %ignore Line::e;
 
+%ignore Plane::setX;
+%ignore Plane::getX; 
+%ignore Plane::setY; 
+%ignore Plane::getY; 
+%ignore Plane::setZ; 
+%ignore Plane::getZ; 
+%ignore Plane::setW; 
+%ignore Plane::getW; 
+%ignore Plane::transform; 
+%ignore Plane::define; 
+%ignore Plane::distance; 
+%ignore Plane::clone; 
+%ignore Plane::create; 
+%ignore Plane::copy; 
+%ignore Plane::fromPoints; 
+%ignore Plane::set; 
+%ignore Plane::fromNormalAndPoint; 
+%ignore Plane::normalize; 
+// %ignore Plane::n; 
+// %ignore Plane::d; 
+
+%ignore Ray::create; 
+%ignore Ray::clone; 
+%ignore Ray::copy; 
+%ignore Ray::fromPoints; 
+%ignore Ray::set; 
+%ignore Ray::computeHit;
+// %ignore Ray::o; 
+// %ignore Ray::d; 
+
+%ignore Triangle::create; 
+%ignore Triangle::clone; 
+%ignore Triangle::copy; 
+%ignore Triangle::fromPoints; 
+%ignore Triangle::set; 
+// %ignore Triangle::a; 
+// %ignore Triangle::b; 
+// %ignore Triangle::c; 
+
+%ignore Sphere::getRadius; 
+%ignore Sphere::getCenter; 
+%ignore Sphere::setCenter; 
+%ignore Sphere::setRadius; 
+%ignore Sphere::clone; 
+%ignore Sphere::copy; 
+%ignore Sphere::define; 
+%ignore Sphere::mergeAABB; 
+%ignore Sphere::mergePoint; 
+%ignore Sphere::mergeFrustum; 
+%ignore Sphere::merge; 
+%ignore Sphere::interset; 
+%ignore Sphere::spherePlane; 
+%ignore Sphere::sphereFrustum; 
+%ignore Sphere::transform; 
+%ignore Sphere::translateAndRotate; 
+%ignore Sphere::setScale; 
+%ignore Sphere::create; 
+%ignore Sphere::fromPoints; 
+%ignore Sphere::set; 
+%ignore Sphere::getBoundary;
+// %ignore Sphere::_center; 
+// %ignore Sphere::_radius; 
+    
+%ignore AABB::aabbPlane; 
+%ignore AABB::contain; 
+%ignore AABB::create; 
+%ignore AABB::toBoundingSphere; 
+%ignore AABB::getBoundary;
+%ignore AABB::aabbAabb;
+%ignore AABB::aabbFrustum;
+%ignore AABB::aabbPlan;
+%ignore AABB::merge;
+%ignore AABB::transform;
+%ignore AABB::transformExtentM4;
+%ignore AABB::isValid;
+%ignore AABB::setValid;
+%ignore AABB::set;
+%ignore AABB::fromPoints;
+%ignore AABB::getCenter;
+%ignore AABB::setCenter;
+%ignore AABB::getHalfExtents;
+%ignore AABB::setHalfExtents;
+// %ignore AABB::center;
+// %ignore AABB::halfExtents;
+
+// %ignore Capsule::radius; 
+// %ignore Capsule::halfHeight; 
+// %ignore Capsule::axis; 
+// %ignore Capsule::center; 
+// %ignore Capsule::rotation; 
+// %ignore Capsule::ellipseCenter0; 
+// %ignore Capsule::ellipseCenter1; 
+%ignore Capsule::transform; 
+
+%ignore Frustum::update;
+%ignore Frustum::transform; 
+%ignore Frustum::createOrtho; 
+%ignore Frustum::split; 
+%ignore Frustum::updatePlanes; 
+%ignore Frustum::setAccurate; 
+%ignore Frustum::createFromAABB; 
+%ignore Frustum::create; 
+%ignore Frustum::clone; 
+%ignore Frustum::copy; 
+// %ignore Frustum::vertices; 
+// %ignore Frustum::planes; 
+
+}
 // ----- Module Macro Section ------
 // Brief: Generated code should be wrapped inside a macro
 // Usage:
@@ -96,6 +193,9 @@
 //  3. If using reference, add '&' suffix for cpp_member_variable_type to avoid generated code using value assignment
 //  4. 'Attribute Section' should be placed before 'Import Section' and 'Include Section'
 //
+
+
+%attribute(cc::geometry::ShapeBase, cc::geometry::ShapeEnum, _type, getType, setType);
 
 // ----- Import Section ------
 // Brief: Import header files which are depended by 'Include Section'

@@ -129,7 +129,7 @@ public:
      * @brief Registration system interface.
      */
     bool registerInterface(const OSInterface::Ptr &osInterface) {
-        CC_ASSERT(osInterface != nullptr);
+        CC_ASSERT_NOT_NULL(osInterface);
         auto it = std::find(_osInterfaces.begin(), _osInterfaces.end(), osInterface);
         if (it != _osInterfaces.end()) {
             CC_LOG_WARNING("Duplicate registration interface");
@@ -142,7 +142,7 @@ public:
      * @brief Unregistration system interface.
      */
     void unregisterInterface(const OSInterface::Ptr &osInterface) {
-        CC_ASSERT(osInterface != nullptr);
+        CC_ASSERT_NOT_NULL(osInterface);
         auto it = std::find(_osInterfaces.begin(), _osInterfaces.end(), osInterface);
         if (it != _osInterfaces.end()) {
             CC_LOG_WARNING("Interface is not registrated");

@@ -249,12 +249,6 @@ function setDefaultValue<T> (
     propertyKey: PropertyKey,
     descriptorOrInitializer: BabelPropertyDecoratorDescriptor | Initializer | undefined,
 ) {
-    // Default values are needed by editor, and now editor run with web version, so don't
-    // have to provide default values.
-    if (JSB) {
-        return;
-    }
-
     if (descriptorOrInitializer) {
         if (typeof descriptorOrInitializer === 'function') {
             propertyStash.default = getDefaultFromInitializer(descriptorOrInitializer);

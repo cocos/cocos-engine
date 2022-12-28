@@ -281,7 +281,7 @@ export class PipelineUBO {
                             cv[UBOCSM.CSM_PROJ_INFO_OFFSET + 2 + 4 * i] = 1.0 / matShadowProj.m00;
                             cv[UBOCSM.CSM_PROJ_INFO_OFFSET + 3 + 4 * i] = 1.0 / matShadowProj.m05;
                         }
-                        _vec4ShadowInfo.set(DirectionalLight.CSM_TRANSITION_RANGE, 0, 0, 0);
+                        _vec4ShadowInfo.set(mainLight.csmTransitionRange, 0, 0, 0);
                         Vec4.toArray(cv, _vec4ShadowInfo, UBOCSM.CSM_SPLITS_INFO_OFFSET);
 
                         _vec4ShadowInfo.set(0.1, mainLight.shadowDistance, 0, 1.0 - mainLight.shadowSaturation);

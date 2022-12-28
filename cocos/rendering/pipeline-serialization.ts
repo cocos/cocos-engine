@@ -113,9 +113,9 @@ export class ColorDesc {
     @serializable
     @editable
     public sampleCount = 1;
-    @type([AccessFlagBit])
+    @type(AccessFlagBit)
     public beginAccesses: AccessFlagBit = AccessFlagBit.NONE;
-    @type([AccessFlagBit])
+    @type(AccessFlagBit)
     public endAccesses: AccessFlagBit = AccessFlagBit.COLOR_ATTACHMENT_WRITE;
 }
 
