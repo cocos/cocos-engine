@@ -24,6 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+const jsbWindow = require('../jsbWindow');
 const cacheManager = require('./jsb-cache-manager');
 const { downloadFile, readText, readArrayBuffer, readJson, getUserDataPath, initJsbDownloader } = require('./jsb-fs-utils');
 
@@ -259,8 +260,8 @@ function downloadArrayBuffer (url, options, onComplete) {
 function loadFont (url, options, onComplete) {
     const fontFamilyName = _getFontFamily(url);
 
-    const fontFace = new FontFace(fontFamilyName, `url('${url}')`);
-    document.fonts.add(fontFace);
+    const fontFace = new jsbWindow.FontFace(fontFamilyName, `url('${url}')`);
+    jsbWindow.document.fonts.add(fontFace);
 
     fontFace.load();
     fontFace.loaded.then(() => {

@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -25,11 +24,10 @@
 
 #include "jsb_ar_manual.h"
 
-#include "bindings/manual/jsb_global.h"
 #include "bindings/auto/jsb_ar_auto.h"
+#include "bindings/manual/jsb_global.h"
 
-static bool js_ar_ARModule_getAddedPlanesInfo(se::State& s)
-{
+static bool js_ar_ARModule_getAddedPlanesInfo(se::State& s) {
     cc::ar::ARModule* cobj = (cc::ar::ARModule*)s.nativeThisObject();
     if (nullptr == cobj) return true;
     const auto& args = s.args();
@@ -50,8 +48,7 @@ static bool js_ar_ARModule_getAddedPlanesInfo(se::State& s)
 
 SE_BIND_FUNC(js_ar_ARModule_getAddedPlanesInfo)
 
-static bool js_ar_ARModule_getUpdatedPlanesInfo(se::State& s)
-{
+static bool js_ar_ARModule_getUpdatedPlanesInfo(se::State& s) {
     cc::ar::ARModule* cobj = (cc::ar::ARModule*)s.nativeThisObject();
     if (nullptr == cobj) return true;
     const auto& args = s.args();
@@ -70,8 +67,7 @@ static bool js_ar_ARModule_getUpdatedPlanesInfo(se::State& s)
 }
 SE_BIND_FUNC(js_ar_ARModule_getUpdatedPlanesInfo)
 
-static bool js_ar_ARModule_getRemovedPlanesInfo(se::State& s)
-{
+static bool js_ar_ARModule_getRemovedPlanesInfo(se::State& s) {
     auto* cobj = SE_THIS_OBJECT<cc::ar::ARModule>(s);
     if (nullptr == cobj) return true;
     const auto& args = s.args();
@@ -90,8 +86,7 @@ static bool js_ar_ARModule_getRemovedPlanesInfo(se::State& s)
 }
 SE_BIND_FUNC(js_ar_ARModule_getRemovedPlanesInfo)
 
-static bool js_ar_ARModule_getPlanePolygon(se::State& s)
-{
+static bool js_ar_ARModule_getPlanePolygon(se::State& s) {
     cc::ar::ARModule* cobj = (cc::ar::ARModule*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_ar_ARModule_getPlanePolygon : Invalid Native Object");
 
@@ -115,8 +110,7 @@ static bool js_ar_ARModule_getPlanePolygon(se::State& s)
 }
 SE_BIND_FUNC(js_ar_ARModule_getPlanePolygon)
 
-static bool js_ar_ARModule_getAddedSceneMesh(se::State& s)
-{
+static bool js_ar_ARModule_getAddedSceneMesh(se::State& s) {
     cc::ar::ARModule* cobj = (cc::ar::ARModule*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_ar_ARModule_getAddedSceneMesh : Invalid Native Object");
 
@@ -135,8 +129,7 @@ static bool js_ar_ARModule_getAddedSceneMesh(se::State& s)
 }
 SE_BIND_FUNC(js_ar_ARModule_getAddedSceneMesh)
 
-static bool js_ar_ARModule_getUpdatedSceneMesh(se::State& s)
-{
+static bool js_ar_ARModule_getUpdatedSceneMesh(se::State& s) {
     cc::ar::ARModule* cobj = (cc::ar::ARModule*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_ar_ARModule_getUpdatedSceneMesh : Invalid Native Object");
 
@@ -155,8 +148,7 @@ static bool js_ar_ARModule_getUpdatedSceneMesh(se::State& s)
 }
 SE_BIND_FUNC(js_ar_ARModule_getUpdatedSceneMesh)
 
-static bool js_ar_ARModule_getRemovedSceneMesh(se::State& s)
-{
+static bool js_ar_ARModule_getRemovedSceneMesh(se::State& s) {
     cc::ar::ARModule* cobj = (cc::ar::ARModule*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_ar_ARModule_getRemovedSceneMesh : Invalid Native Object");
 
@@ -175,8 +167,7 @@ static bool js_ar_ARModule_getRemovedSceneMesh(se::State& s)
 }
 SE_BIND_FUNC(js_ar_ARModule_getRemovedSceneMesh)
 
-static bool js_ar_ARModule_requireSceneMesh(se::State& s)
-{
+static bool js_ar_ARModule_requireSceneMesh(se::State& s) {
     cc::ar::ARModule* cobj = (cc::ar::ARModule*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_ar_ARModule_requireSceneMesh : Invalid Native Object");
 
@@ -195,8 +186,7 @@ static bool js_ar_ARModule_requireSceneMesh(se::State& s)
 }
 SE_BIND_FUNC(js_ar_ARModule_requireSceneMesh)
 
-static bool js_ar_ARModule_getSceneMeshVertices(se::State& s)
-{
+static bool js_ar_ARModule_getSceneMeshVertices(se::State& s) {
     cc::ar::ARModule* cobj = (cc::ar::ARModule*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_ar_ARModule_getSceneMeshVertices : Invalid Native Object");
 
@@ -220,8 +210,7 @@ static bool js_ar_ARModule_getSceneMeshVertices(se::State& s)
 }
 SE_BIND_FUNC(js_ar_ARModule_getSceneMeshVertices)
 
-static bool js_ar_ARModule_getSceneMeshTriangleIndices(se::State& s)
-{
+static bool js_ar_ARModule_getSceneMeshTriangleIndices(se::State& s) {
     cc::ar::ARModule* cobj = (cc::ar::ARModule*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_ar_ARModule_getSceneMeshTriangleIndices : Invalid Native Object");
 
@@ -245,8 +234,7 @@ static bool js_ar_ARModule_getSceneMeshTriangleIndices(se::State& s)
 }
 SE_BIND_FUNC(js_ar_ARModule_getSceneMeshTriangleIndices)
 
-static bool js_ar_ARModule_getAddedImagesInfo(se::State& s)
-{
+static bool js_ar_ARModule_getAddedImagesInfo(se::State& s) {
     cc::ar::ARModule* cobj = (cc::ar::ARModule*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_ar_ARModule_getAddedImagesInfo : Invalid Native Object");
 
@@ -265,8 +253,7 @@ static bool js_ar_ARModule_getAddedImagesInfo(se::State& s)
 }
 SE_BIND_FUNC(js_ar_ARModule_getAddedImagesInfo)
 
-static bool js_ar_ARModule_getUpdatedImagesInfo(se::State& s)
-{
+static bool js_ar_ARModule_getUpdatedImagesInfo(se::State& s) {
     cc::ar::ARModule* cobj = (cc::ar::ARModule*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_ar_ARModule_getUpdatedImagesInfo : Invalid Native Object");
 
@@ -285,8 +272,7 @@ static bool js_ar_ARModule_getUpdatedImagesInfo(se::State& s)
 }
 SE_BIND_FUNC(js_ar_ARModule_getUpdatedImagesInfo)
 
-static bool js_ar_ARModule_getRemovedImagesInfo(se::State& s)
-{
+static bool js_ar_ARModule_getRemovedImagesInfo(se::State& s) {
     cc::ar::ARModule* cobj = (cc::ar::ARModule*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_ar_ARModule_getRemovedImagesInfo : Invalid Native Object");
 
@@ -305,8 +291,7 @@ static bool js_ar_ARModule_getRemovedImagesInfo(se::State& s)
 }
 SE_BIND_FUNC(js_ar_ARModule_getRemovedImagesInfo)
 
-static bool js_ar_ARModule_getAddedObjectsInfo(se::State& s)
-{
+static bool js_ar_ARModule_getAddedObjectsInfo(se::State& s) {
     cc::ar::ARModule* cobj = (cc::ar::ARModule*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_ar_ARModule_getAddedObjectsInfo : Invalid Native Object");
 
@@ -325,8 +310,7 @@ static bool js_ar_ARModule_getAddedObjectsInfo(se::State& s)
 }
 SE_BIND_FUNC(js_ar_ARModule_getAddedObjectsInfo)
 
-static bool js_ar_ARModule_getUpdatedObjectsInfo(se::State& s)
-{
+static bool js_ar_ARModule_getUpdatedObjectsInfo(se::State& s) {
     cc::ar::ARModule* cobj = (cc::ar::ARModule*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_ar_ARModule_getUpdatedObjectsInfo : Invalid Native Object");
 
@@ -345,8 +329,7 @@ static bool js_ar_ARModule_getUpdatedObjectsInfo(se::State& s)
 }
 SE_BIND_FUNC(js_ar_ARModule_getUpdatedObjectsInfo)
 
-static bool js_ar_ARModule_getRemovedObjectsInfo(se::State& s)
-{
+static bool js_ar_ARModule_getRemovedObjectsInfo(se::State& s) {
     cc::ar::ARModule* cobj = (cc::ar::ARModule*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_ar_ARModule_getRemovedObjectsInfo : Invalid Native Object");
 
@@ -365,8 +348,7 @@ static bool js_ar_ARModule_getRemovedObjectsInfo(se::State& s)
 }
 SE_BIND_FUNC(js_ar_ARModule_getRemovedObjectsInfo)
 
-static bool js_ar_ARModule_getAddedFacesInfo(se::State& s)
-{
+static bool js_ar_ARModule_getAddedFacesInfo(se::State& s) {
     auto* cobj = static_cast<cc::ar::ARModule*>(s.nativeThisObject());
     SE_PRECONDITION2(cobj, false, "js_ar_ARModule_getAddedFacesInfo : Invalid Native Object");
 
@@ -385,8 +367,7 @@ static bool js_ar_ARModule_getAddedFacesInfo(se::State& s)
 }
 SE_BIND_FUNC(js_ar_ARModule_getAddedFacesInfo)
 
-static bool js_ar_ARModule_getUpdatedFacesInfo(se::State& s)
-{
+static bool js_ar_ARModule_getUpdatedFacesInfo(se::State& s) {
     cc::ar::ARModule* cobj = (cc::ar::ARModule*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_ar_ARModule_getUpdatedFacesInfo : Invalid Native Object");
 
@@ -405,8 +386,7 @@ static bool js_ar_ARModule_getUpdatedFacesInfo(se::State& s)
 }
 SE_BIND_FUNC(js_ar_ARModule_getUpdatedFacesInfo)
 
-static bool js_ar_ARModule_getRemovedFacesInfo(se::State& s)
-{
+static bool js_ar_ARModule_getRemovedFacesInfo(se::State& s) {
     cc::ar::ARModule* cobj = (cc::ar::ARModule*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_ar_ARModule_getRemovedFacesInfo : Invalid Native Object");
 
@@ -425,8 +405,7 @@ static bool js_ar_ARModule_getRemovedFacesInfo(se::State& s)
 }
 SE_BIND_FUNC(js_ar_ARModule_getRemovedFacesInfo)
 
-static bool js_ar_ARModule_getFaceBlendShapes(se::State& s)
-{
+static bool js_ar_ARModule_getFaceBlendShapes(se::State& s) {
     cc::ar::ARModule* cobj = (cc::ar::ARModule*)s.nativeThisObject();
     SE_PRECONDITION2(cobj, false, "js_ar_ARModule_getFaceBlendShapes : Invalid Native Object");
 
@@ -450,7 +429,7 @@ static bool js_ar_ARModule_getFaceBlendShapes(se::State& s)
 }
 SE_BIND_FUNC(js_ar_ARModule_getFaceBlendShapes)
 
-bool register_all_ar_manual(se::Object *obj) {
+bool register_all_ar_manual(se::Object* obj) {
     __jsb_cc_ar_ARModule_proto->defineFunction("getAddedPlanesInfo", _SE(js_ar_ARModule_getAddedPlanesInfo));
     __jsb_cc_ar_ARModule_proto->defineFunction("getUpdatedPlanesInfo", _SE(js_ar_ARModule_getUpdatedPlanesInfo));
     __jsb_cc_ar_ARModule_proto->defineFunction("getRemovedPlanesInfo", _SE(js_ar_ARModule_getRemovedPlanesInfo));
