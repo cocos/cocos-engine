@@ -204,7 +204,6 @@ protected:
     bool _resetRenderQueue{true};
 
     render::PipelineRuntime *_pipelineRuntime{nullptr};
-
 };
 
 } // namespace pipeline

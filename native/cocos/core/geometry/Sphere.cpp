@@ -96,7 +96,7 @@ Sphere *Sphere::mergeAABB(Sphere *out, const Sphere &s, const AABB &a) {
     return out;
 }
 
-Sphere::Sphere(float cx, float cy, float cz, float radius):ShapeBase(ShapeEnum::SHAPE_SPHERE) {
+Sphere::Sphere(float cx, float cy, float cz, float radius) : ShapeBase(ShapeEnum::SHAPE_SPHERE) {
     _center = {cx, cy, cz};
     _radius = radius;
 }

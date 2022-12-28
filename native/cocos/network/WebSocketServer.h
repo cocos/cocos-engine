@@ -291,7 +291,7 @@ private:
 
 public:
     static int websocketServerCallback(struct lws *wsi, enum lws_callback_reasons reason,
-                                        void *user, void *in, size_t len);
+                                       void *user, void *in, size_t len);
 };
 } // namespace network
 } // namespace cc

@@ -187,7 +187,7 @@ void SkyboxInfo::setReflectionMap(TextureCube *val) {
     }
 }
 
-TextureCube* SkyboxInfo::getReflectionMap() const {
+TextureCube *SkyboxInfo::getReflectionMap() const {
     const bool isHDR = Root::getInstance()->getPipeline()->getPipelineSceneData()->isHDR();
     if (isHDR) {
         return _reflectionHDR;

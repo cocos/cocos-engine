@@ -238,7 +238,7 @@ struct CCVKGPUBufferView : public CCVKGPUDeviceObject {
     uint32_t offset = 0U;
     uint32_t range = 0U;
 
-    uint8_t* mappedData() const {
+    uint8_t *mappedData() const {
         return gpuBuffer->mappedData + offset;
     }
 
@@ -1069,11 +1069,11 @@ public:
     void collect(uint32_t layoutId, VkDescriptorSet set);
     void collect(const CCVKGPUBuffer *buffer);
 
-#define DEFINE_RECYCLE_BIN_COLLECT_FN(_type, typeValue, expr)                           \
+#define DEFINE_RECYCLE_BIN_COLLECT_FN(_type, typeValue, expr)                        \
     void collect(const _type *gpuRes) { /* NOLINT(bugprone-macro-parentheses) N/A */ \
-        Resource &res = emplaceBack();                                                  \
-        res.type = typeValue;                                                           \
-        expr;                                                                           \
+        Resource &res = emplaceBack();                                               \
+        res.type = typeValue;                                                        \
+        expr;                                                                        \
     }
 
     DEFINE_RECYCLE_BIN_COLLECT_FN(CCVKGPURenderPass, RecycledType::RENDER_PASS, res.vkRenderPass = gpuRes->vkRenderPass)
@@ -1153,7 +1153,7 @@ public:
         _ias[buffer].insert(ia);
     }
 
-    void update(CCVKGPUBufferView* oldBuffer, CCVKGPUBufferView* newBuffer) {
+    void update(CCVKGPUBufferView *oldBuffer, CCVKGPUBufferView *newBuffer) {
         auto iter = _ias.find(oldBuffer);
         if (iter != _ias.end()) {
             for (const auto &ia : iter->second) {

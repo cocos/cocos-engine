@@ -57,7 +57,7 @@ void renderProfiler(gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff, sc
 
 #if CC_EDITOR
     if (!(camera->getVisibility() & static_cast<uint32_t>(pipeline::LayerList::PROFILER))) {
-            return;
+        return;
     }
 #else
     if (camera != profilerCamera) {

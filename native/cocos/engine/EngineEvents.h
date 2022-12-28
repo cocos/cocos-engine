@@ -292,8 +292,7 @@ public:
     Type type{Type::UNKNOWN}; // NOLINT(modernize-use-nullptr)
 };
 
-
-enum class ScriptEngineEvent{
+enum class ScriptEngineEvent {
     BEFORE_INIT,
     AFTER_INIT,
     BEFORE_CLEANUP,

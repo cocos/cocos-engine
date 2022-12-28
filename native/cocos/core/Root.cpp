@@ -48,7 +48,6 @@
 #include "scene/DirectionalLight.h"
 #include "scene/SpotLight.h"
 
-
 namespace cc {
 
 namespace {
@@ -111,7 +110,7 @@ scene::RenderWindow *Root::createRenderWindowFromSystemWindow(ISystemWindow *win
     gfx::SwapchainInfo info;
     info.width = static_cast<uint32_t>(size.width);
     info.height = static_cast<uint32_t>(size.height);
-    info.windowHandle = reinterpret_cast<void *>(handle);  // NOLINT
+    info.windowHandle = reinterpret_cast<void *>(handle); // NOLINT
     info.windowId = window->getWindowId();
 
     gfx::Swapchain *swapchain = gfx::Device::getInstance()->createSwapchain(info);

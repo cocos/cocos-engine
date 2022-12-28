@@ -29,9 +29,9 @@
 
 #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8
 
-    #include "Base.h"
-    #include "../Value.h"
     #include "../Define.h"
+    #include "../Value.h"
+    #include "Base.h"
 
 namespace se {
 
@@ -104,7 +104,6 @@ public:
      *  @return true if succeed, otherwise false.
      */
     bool defineStaticProperty(const char *name, const Value &value, PropertyAttribute attribute = PropertyAttribute::NONE);
-
 
     /**
          *  @brief Defines the finalize function with a callback.

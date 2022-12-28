@@ -31,26 +31,21 @@
 #include "RenderBatchedQueue.h"
 #include "RenderInstancedQueue.h"
 #include "core/geometry/AABB.h"
+#include "core/geometry/Intersect.h"
 #include "forward/ForwardPipeline.h"
 #include "gfx-base/GFXCommandBuffer.h"
 #include "gfx-base/GFXDevice.h"
 #include "renderer/core/ProgramLib.h"
-#include "scene/ReflectionProbeManager.h"
 #include "scene/Camera.h"
-#include "scene/ReflectionProbe.h"
-#include "scene/Skybox.h"
 #include "scene/Define.h"
-#include "core/geometry/Intersect.h"
+#include "scene/ReflectionProbe.h"
+#include "scene/ReflectionProbeManager.h"
+#include "scene/Skybox.h"
 namespace cc {
 namespace pipeline {
-const static uint32_t REFLECTION_PROBE_DEFAULT_MASK = ~static_cast<uint32_t>(LayerList::UI_2D)
-    & ~static_cast<uint32_t>(LayerList::PROFILER)
-    & ~static_cast<uint32_t>(LayerList::UI_3D)
-    & ~static_cast<uint32_t>(LayerList::GIZMOS)
-    & ~static_cast<uint32_t>(LayerList::SCENE_GIZMO)
-    & ~static_cast<uint32_t>(LayerList::EDITOR);
+const static uint32_t REFLECTION_PROBE_DEFAULT_MASK = ~static_cast<uint32_t>(LayerList::UI_2D) & ~static_cast<uint32_t>(LayerList::PROFILER) & ~static_cast<uint32_t>(LayerList::UI_3D) & ~static_cast<uint32_t>(LayerList::GIZMOS) & ~static_cast<uint32_t>(LayerList::SCENE_GIZMO) & ~static_cast<uint32_t>(LayerList::EDITOR);
 const ccstd::string CC_USE_RGBE_OUTPUT = "CC_USE_RGBE_OUTPUT";
-const cc::scene::IMacroPatch MACRO_PATCH_RGBE_OUTPUT{ CC_USE_RGBE_OUTPUT, true};
+const cc::scene::IMacroPatch MACRO_PATCH_RGBE_OUTPUT{CC_USE_RGBE_OUTPUT, true};
 ReflectionProbeBatchedQueue::ReflectionProbeBatchedQueue(RenderPipeline *pipeline)
 : _phaseID(getPhaseID("default")), _phaseReflectMapID(getPhaseID("reflect-map")) {
     _pipeline = pipeline;
@@ -131,7 +126,7 @@ void ReflectionProbeBatchedQueue::add(const scene::Model *model) {
         auto *pass = subModel->getPass(passIdx);
         const auto batchingScheme = pass->getBatchingScheme();
 
-        if (!bUseReflectPass) {      
+        if (!bUseReflectPass) {
             auto patches = const_cast<ccstd::vector<cc::scene::IMacroPatch> &>(subModel->getPatches());
             patches.emplace_back(MACRO_PATCH_RGBE_OUTPUT);
             subModel->onMacroPatchesStateChanged(patches);
@@ -181,7 +176,7 @@ void ReflectionProbeBatchedQueue::resetMacro() const {
         for (auto iter = patches.begin(); iter != patches.end(); iter++) {
             if (iter->name == CC_USE_RGBE_OUTPUT) {
                 patches.erase(iter);
-                const_cast<scene::SubModel*>(subModel)->onMacroPatchesStateChanged(patches);
+                const_cast<scene::SubModel *>(subModel)->onMacroPatchesStateChanged(patches);
                 break;
             }
         }

@@ -117,21 +117,21 @@ inline void load(InputArchive& ar, LayoutGraph& g) {
         load(ar, u);
         load(ar, name);
         load(ar, descriptors);
-        switch(id) {
-        case 0: {
-            uint32_t val;
-            load(ar, val);
-            addVertex(std::move(name), std::move(descriptors), val, g, u);
-            break;
-        }
-        case 1: {
-            RenderPhase val(g.get_allocator());
-            load(ar, val);
-            addVertex(std::move(name), std::move(descriptors), std::move(val), g, u);
-            break;
-        }
-        default:
-            throw std::runtime_error("load graph failed");
+        switch (id) {
+            case 0: {
+                uint32_t val;
+                load(ar, val);
+                addVertex(std::move(name), std::move(descriptors), val, g, u);
+                break;
+            }
+            case 1: {
+                RenderPhase val(g.get_allocator());
+                load(ar, val);
+                addVertex(std::move(name), std::move(descriptors), std::move(val), g, u);
+                break;
+            }
+            default:
+                throw std::runtime_error("load graph failed");
         }
     }
 }
@@ -372,21 +372,21 @@ inline void load(InputArchive& ar, LayoutGraphData& g) {
         load(ar, name);
         load(ar, update);
         load(ar, layout);
-        switch(id) {
-        case 0: {
-            RenderStageData val(g.get_allocator());
-            load(ar, val);
-            addVertex(std::move(name), update, std::move(layout), std::move(val), g, u);
-            break;
-        }
-        case 1: {
-            RenderPhaseData val(g.get_allocator());
-            load(ar, val);
-            addVertex(std::move(name), update, std::move(layout), std::move(val), g, u);
-            break;
-        }
-        default:
-            throw std::runtime_error("load graph failed");
+        switch (id) {
+            case 0: {
+                RenderStageData val(g.get_allocator());
+                load(ar, val);
+                addVertex(std::move(name), update, std::move(layout), std::move(val), g, u);
+                break;
+            }
+            case 1: {
+                RenderPhaseData val(g.get_allocator());
+                load(ar, val);
+                addVertex(std::move(name), update, std::move(layout), std::move(val), g, u);
+                break;
+            }
+            default:
+                throw std::runtime_error("load graph failed");
         }
     }
     load(ar, g.valueNames);

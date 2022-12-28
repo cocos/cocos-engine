@@ -24,9 +24,9 @@
 
 #pragma once
 
-#include "platform/UniversalPlatform.h"
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
+#include "platform/UniversalPlatform.h"
 
 @interface AppDelegateBridge : NSObject
 - (float)getPixelRatio;

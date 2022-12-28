@@ -76,7 +76,6 @@ public:
     inline void setBackgroundColor(gfx::Color& val) {
         _backgroundColor = val;
         _camera->setClearColor(val);
-        
     }
     inline const gfx::Color& getBackgroundColor() const { return _backgroundColor; }
 
@@ -108,7 +107,7 @@ public:
     inline const geometry::AABB* getBoundingBox() const { return _boundingBox; }
 
     inline void setCameraNode(Node* val) { _cameraNode = val; }
-    inline Node* getCameraNode()const { return _cameraNode; }
+    inline Node* getCameraNode() const { return _cameraNode; }
 
     inline void setPreviewSphere(Node* val) { _previewSphere = val; }
     inline const Node* getPreviewSphere() const { return _previewSphere; }
@@ -143,6 +142,7 @@ public:
     void updateCameraDir(int32_t faceIdx);
     Vec2 getRenderArea() const;
     void packBackgroundColor();
+
 private:
     ccstd::vector<IntrusivePtr<cc::RenderTexture>> _bakedCubeTextures;
     IntrusivePtr<cc::RenderTexture> _realtimePlanarTexture{nullptr};

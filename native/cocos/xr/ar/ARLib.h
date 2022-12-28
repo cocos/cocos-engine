@@ -33,20 +33,20 @@ class _jobject;
 namespace cc {
 namespace ar {
 
-class ARLib : public IARAPI{
+class ARLib : public IARAPI {
 public:
     ARLib();
     ~ARLib() override;
     void config(int featureMask) override;
     uint32_t getSupportMask() override;
     void start() override;
-    void start(void *env, void *context) override;
+    void start(void* env, void* context) override;
     void resume() override;
-    void resume(void *env, void *context) override;
+    void resume(void* env, void* context) override;
     void pause() override;
     void update() override;
     int getAPIState() override;
-    
+
     Pose getCameraPose() override;
     Matrix getCameraViewMatrix() override;
     Matrix getCameraProjectionMatrix() override;
@@ -115,6 +115,7 @@ public:
     float* getUpdatedFacesInfo() override;
     float* getRemovedFacesInfo() override;
     float* getFaceBlendShapes(int faceRef) override;
+
 protected:
 #if CC_PLATFORM == CC_PLATFORM_ANDROID
     _jobject* _impl{nullptr};
@@ -155,9 +156,9 @@ protected:
     float* _faceBlendShapes{nullptr};
 #elif CC_PLATFORM == CC_PLATFORM_MAC_IOS
     void* _impl{nullptr};
-    
+
     int _infoLength = 0;
-    
+
     void* _plane{nullptr};
     void* _sceneMesh{nullptr};
     void* _imageTracking{nullptr};

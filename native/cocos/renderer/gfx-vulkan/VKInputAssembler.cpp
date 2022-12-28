@@ -78,7 +78,7 @@ void CCVKInputAssembler::doDestroy() {
 
 void CCVKGPUInputAssembler::shutdown() {
     auto *hub = CCVKDevice::getInstance()->gpuIAHub();
-    for (auto& vb : gpuVertexBuffers) {
+    for (auto &vb : gpuVertexBuffers) {
         hub->disengage(this, vb);
     }
     if (gpuIndexBuffer) {

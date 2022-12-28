@@ -30,8 +30,8 @@
 
     #if CC_PLATFORM == CC_PLATFORM_ANDROID
         #define __GNU_SOURCE
+        #include <android/log.h>
         #include <dlfcn.h>
-        #include<android/log.h>
 
 static NewHookType g_new_hooker = nullptr;
 static DeleteHookType g_delete_hooker = nullptr;

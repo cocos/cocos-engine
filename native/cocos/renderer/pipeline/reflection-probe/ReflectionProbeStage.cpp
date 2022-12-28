@@ -27,10 +27,10 @@
 #include "../PipelineUBO.h"
 #include "../ReflectionProbeBatchedQueue.h"
 #include "../RenderPipeline.h"
-#include "scene/ReflectionProbeManager.h"
 #include "profiler/Profiler.h"
 #include "scene/Camera.h"
 #include "scene/ReflectionProbe.h"
+#include "scene/ReflectionProbeManager.h"
 namespace cc {
 namespace pipeline {
 
@@ -75,7 +75,7 @@ void ReflectionProbeStage::render(scene::Camera *camera) {
     if (hasFlag(static_cast<gfx::ClearFlags>(_probe->getCamera()->getClearFlag()), gfx::ClearFlagBit::COLOR)) {
         _clearColors[0] = _probe->getCamera()->getClearColor();
     }
-    
+
     auto *renderPass = _framebuffer->getRenderPass();
 
     cmdBuffer->beginRenderPass(renderPass, _framebuffer, _renderArea,

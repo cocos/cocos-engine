@@ -28,7 +28,6 @@
 
 namespace cc {
 
-
 int SystemWindowManager::init() {
     return 0;
 }

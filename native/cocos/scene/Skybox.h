@@ -166,7 +166,7 @@ public:
     TextureCube *getDiffuseMap() const;
 
     void setReflectionMap(TextureCube *val);
-    TextureCube* getReflectionMap() const;
+    TextureCube *getReflectionMap() const;
 
     void setSkyboxMaterial(Material *val);
     inline Material *getSkyboxMaterial() const { return _editableMaterial; }

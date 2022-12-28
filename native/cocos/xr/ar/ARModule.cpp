@@ -22,14 +22,14 @@
  THE SOFTWARE.
 ****************************************************************************/
 
+#include "ar/ARModule.h"
 #include <stdint.h>
 #include <memory>
 #include "math/Vec3.h"
-#include "ar/ARModule.h"
 
 #if CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_MAC_IOS
     #include "ar/ARLib.h"
-    using ARAPIImpl = cc::ar::ARLib;
+using ARAPIImpl = cc::ar::ARLib;
 #elif CC_PLATFORM == CC_PLATFORM_WINDOWS
     #include "ar/IARAPI.h"
 #endif
@@ -48,7 +48,6 @@ ARModule::ARModule() {
 }
 
 ARModule::~ARModule() {
-
 }
 
 ARModule* ARModule::get() {
@@ -84,11 +83,11 @@ int ARModule::getAPIState() {
     return _impl->getAPIState();
 }
 
-void ARModule::setCameraId(const std::string &id) {
+void ARModule::setCameraId(const std::string& id) {
     _cameraId = id;
 }
 
-const std::string &ARModule::getCameraId() const {
+const std::string& ARModule::getCameraId() const {
     return _cameraId;
 }
 

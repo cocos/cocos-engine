@@ -27,7 +27,6 @@
 #include "base/std/container/unordered_map.h"
 #include "platform/interfaces/modules/ISystemWindowManager.h"
 
-
 namespace cc {
 
 class ISystemWindow;
@@ -37,7 +36,7 @@ public:
     explicit SystemWindowManager() = default;
 
     int init() override;
-    void processEvent(bool* quit) override;
+    void processEvent(bool *quit) override;
 
     ISystemWindow *createWindow(const ISystemWindowInfo &info) override;
     ISystemWindow *getWindow(uint32_t windowId) const override;

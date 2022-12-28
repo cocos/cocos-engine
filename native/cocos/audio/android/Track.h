@@ -25,9 +25,9 @@
 
 #pragma once
 
-#include "audio/android/PcmData.h"
 #include "audio/android/IVolumeProvider.h"
 #include "audio/android/PcmBufferProvider.h"
+#include "audio/android/PcmData.h"
 
 #include <functional>
 #include <mutex>

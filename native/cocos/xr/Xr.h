@@ -30,7 +30,7 @@
 #include "XRCommon.h"
 
 #ifndef XR_USE_GRAPHICS_API_OPENGL_ES
-#define XR_USE_GRAPHICS_API_OPENGL_ES 1
+    #define XR_USE_GRAPHICS_API_OPENGL_ES 1
 #endif
 
 #ifdef XR_USE_GRAPHICS_API_VULKAN
@@ -158,9 +158,9 @@ public:
     virtual void *getXRPointerConfig(int key) = 0;
 
     virtual void getXrPose(cc::xr::XRPose &leftEyePose,
-                         cc::xr::XRPose &rightEyePose,
-                         cc::xr::XRPose &leftControllerPose,
-                         cc::xr::XRPose &rightControllerPose) = 0;
+                           cc::xr::XRPose &rightEyePose,
+                           cc::xr::XRPose &leftControllerPose,
+                           cc::xr::XRPose &rightControllerPose) = 0;
 };
 
 } // namespace xr

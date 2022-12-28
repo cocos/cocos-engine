@@ -51,7 +51,7 @@
 namespace {
 
     // #define AUTO_TEST_CONFIG_FILE "auto-test-config.json" // v1
-    #define AUTO_TEST_CONFIG_FILE "testConfig.json"          // v2
+    #define AUTO_TEST_CONFIG_FILE "testConfig.json" // v2
 
     #define OLD_ATC_KEY_CONFIG "ServerConfig"
     #define OLD_ATC_KEY_IP     "IP"

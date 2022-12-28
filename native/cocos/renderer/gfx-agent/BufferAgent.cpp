@@ -86,8 +86,7 @@ void BufferAgent::doResize(uint32_t size, uint32_t /*count*/) {
         ENQUEUE_MESSAGE_1(
             mq, BufferFreeStagingBuffer,
             stagingBuffer, std::move(_stagingBuffer),
-            {
-            });
+            {});
     }
 
     if (hasFlag(_flags, BufferFlagBit::ENABLE_STAGING_WRITE) || (size > STAGING_BUFFER_THRESHOLD && hasFlag(_memUsage, MemoryUsageBit::HOST))) {

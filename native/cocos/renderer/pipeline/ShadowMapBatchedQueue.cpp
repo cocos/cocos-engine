@@ -86,8 +86,7 @@ void ShadowMapBatchedQueue::gatherLightPasses(const scene::Camera *camera, const
                     geometry::AABB ab;
                     for (const auto &ro : castShadowObjects) {
                         const auto *model = ro.model;
-                        if ((visibility & model->getNode()->getLayer()) != model->getNode()->getLayer()
-                            || !model->isEnabled() || !model->isCastShadow() || !model->getNode()) {
+                        if ((visibility & model->getNode()->getLayer()) != model->getNode()->getLayer() || !model->isEnabled() || !model->isCastShadow() || !model->getNode()) {
                             continue;
                         }
                         if (model->getWorldBounds()) {

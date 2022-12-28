@@ -25,8 +25,8 @@
 
 #define LOG_TAG "Track"
 
-#include "audio/android/cutils/log.h"
 #include "audio/android/Track.h"
+#include "audio/android/cutils/log.h"
 
 #include <math.h>
 

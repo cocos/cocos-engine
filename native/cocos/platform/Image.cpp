@@ -53,8 +53,8 @@ extern "C" {
 #include "base/etc2.h"
 }
 
-#include "base/astc.h"
 #include "base/Compressed.h"
+#include "base/astc.h"
 
 #if CC_USE_WEBP
     #include "webp/decode.h"
@@ -287,7 +287,7 @@ bool Image::initWithImageFile(const ccstd::string &path) {
     return ret;
 }
 
-bool Image::initWithImageData(const unsigned char *data, uint32_t dataLen) {    //NOLINT(misc-no-recursion)
+bool Image::initWithImageData(const unsigned char *data, uint32_t dataLen) { //NOLINT(misc-no-recursion)
     bool ret = false;
     do {
         CC_BREAK_IF(!data || dataLen <= 0);
@@ -883,7 +883,7 @@ bool Image::initWithASTCData(const unsigned char *data, uint32_t dataLen) {
     return true;
 }
 
-bool Image::initWithCompressedMipsData(const unsigned char *data, uint32_t /*dataLen*/) {   //NOLINT(misc-no-recursion)
+bool Image::initWithCompressedMipsData(const unsigned char *data, uint32_t /*dataLen*/) { //NOLINT(misc-no-recursion)
     //check the data
     if (!compressedIsValid(data)) {
         return false;

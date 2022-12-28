@@ -184,7 +184,8 @@ public:
      *  @note The return value (non-null) has to be released manually.
      *  @deprecated Use NativePtrToObjectMap to query the native object.
      */
-    CC_DEPRECATED(3.7) static Object *getObjectWithPtr(void *ptr);
+    CC_DEPRECATED(3.7)
+    static Object *getObjectWithPtr(void *ptr);
 
     /**
      *  @brief Gets a property from an object.

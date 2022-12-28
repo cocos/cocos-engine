@@ -66,7 +66,7 @@ void Texture2D::setMipmaps(const ccstd::vector<IntrusivePtr<ImageAsset>> &value)
     }
 }
 
-void Texture2D::setMipmapParams(const ccstd::vector<IntrusivePtr<ImageAsset>>& value) {
+void Texture2D::setMipmapParams(const ccstd::vector<IntrusivePtr<ImageAsset>> &value) {
     _mipmaps = value;
     setMipmapLevel(static_cast<uint32_t>(_mipmaps.size()));
     if (!_mipmaps.empty()) {

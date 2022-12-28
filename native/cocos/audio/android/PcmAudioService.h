@@ -29,8 +29,8 @@
 #include "audio/android/OpenSLHelper.h"
 #include "audio/android/PcmData.h"
 
-#include <mutex>
 #include <condition_variable>
+#include <mutex>
 
 namespace cc {
 

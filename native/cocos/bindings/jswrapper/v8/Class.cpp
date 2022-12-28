@@ -240,7 +240,7 @@ bool Class::defineStaticProperty(const char *name, v8::FunctionCallback getter, 
     return true;
 }
 
-bool Class::defineStaticProperty(const char *name, const Value &value, PropertyAttribute attribute/* = PropertyAttribute::NONE */) {
+bool Class::defineStaticProperty(const char *name, const Value &value, PropertyAttribute attribute /* = PropertyAttribute::NONE */) {
     v8::MaybeLocal<v8::String> jsName = v8::String::NewFromUtf8(__isolate, name, v8::NewStringType::kNormal);
     if (jsName.IsEmpty()) {
         return false;

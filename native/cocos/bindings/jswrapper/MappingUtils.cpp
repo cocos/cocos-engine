@@ -52,15 +52,18 @@ bool NativePtrToObjectMap::isValid() {
     return __isValid;
 }
 
-CC_DEPRECATED(3.7) NativePtrToObjectMap::Map::iterator NativePtrToObjectMap::find(void *v) {
+CC_DEPRECATED(3.7)
+NativePtrToObjectMap::Map::iterator NativePtrToObjectMap::find(void *v) {
     return __nativePtrToObjectMap->find(v);
 }
 
-CC_DEPRECATED(3.7) NativePtrToObjectMap::Map::iterator NativePtrToObjectMap::begin() {
+CC_DEPRECATED(3.7)
+NativePtrToObjectMap::Map::iterator NativePtrToObjectMap::begin() {
     return __nativePtrToObjectMap->begin();
 }
 
-CC_DEPRECATED(3.7) NativePtrToObjectMap::Map::iterator NativePtrToObjectMap::end() {
+CC_DEPRECATED(3.7)
+NativePtrToObjectMap::Map::iterator NativePtrToObjectMap::end() {
     return __nativePtrToObjectMap->end();
 }
 

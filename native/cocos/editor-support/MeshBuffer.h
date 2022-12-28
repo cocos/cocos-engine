@@ -29,7 +29,7 @@
 #include "base/std/container/vector.h"
 
 namespace cc {
-    class UIMeshBuffer;
+class UIMeshBuffer;
 };
 
 MIDDLEWARE_BEGIN

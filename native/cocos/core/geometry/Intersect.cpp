@@ -27,8 +27,8 @@
 #include <cmath>
 #include <limits>
 #include "3d/assets/Mesh.h"
-#include "base/std/container/array.h"
 #include "base/TemplateUtils.h"
+#include "base/std/container/array.h"
 #include "core/TypedArray.h"
 #include "core/geometry/AABB.h"
 #include "core/geometry/Capsule.h"
@@ -260,63 +260,63 @@ void fillResult(float *minDis, ERaycastMode m, float d, float i0, float i1, floa
 float narrowphase(float *minDis, const Float32Array &vb, const IBArray &ib, gfx::PrimitiveMode pm, const Ray &ray, IRaySubMeshOptions *opt) {
     Triangle tri;
     auto ibSize = ccstd::visit(overloaded{
-        [](const auto &arr) {
-            return arr.length();
-        },
-        [](const ccstd::monostate& /*unused*/) {
-            return static_cast<uint32_t>(0);
-        }
-    },
+                                   [](const auto &arr) {
+                                       return arr.length();
+                                   },
+                                   [](const ccstd::monostate & /*unused*/) {
+                                       return static_cast<uint32_t>(0);
+                                   }},
                                ib);
 
     return ccstd::visit(overloaded{[&](const auto &ib) {
-        if (pm == gfx::PrimitiveMode::TRIANGLE_LIST) {
-            auto cnt = ibSize;
-            for (auto j = 0; j < cnt; j += 3) {
-                auto i0 = ib[j] * 3;
-                auto i1 = ib[j + 1] * 3;
-                auto i2 = ib[j + 2] * 3;
-                tri.a = {vb[i0], vb[i0 + 1], vb[i0 + 2]};
-                tri.b = {vb[i1], vb[i1 + 1], vb[i1 + 2]};
-                tri.c = {vb[i2], vb[i2 + 1], vb[i2 + 2]};
-                auto dist = rayTriangle(ray, tri, opt->doubleSided);
-                if (dist == 0.0F || dist > opt->distance) continue;
-                fillResult(minDis, opt->mode, dist, static_cast<float>(i0), static_cast<float>(i1), static_cast<float>(i2), opt->result);
-                if (opt->mode == ERaycastMode::ANY) return dist;
-            }
-        } else if (pm == gfx::PrimitiveMode::TRIANGLE_STRIP) {
-            auto cnt = ibSize - 2;
-            int32_t rev = 0;
-            for (auto j = 0; j < cnt; j += 1) {
-                auto i0 = ib[j - rev] * 3;
-                auto i1 = ib[j + rev + 1] * 3;
-                auto i2 = ib[j + 2] * 3;
-                tri.a = {vb[i0], vb[i0 + 1], vb[i0 + 2]};
-                tri.b = {vb[i1], vb[i1 + 1], vb[i1 + 2]};
-                tri.c = {vb[i2], vb[i2 + 1], vb[i2 + 2]};
-                rev = ~rev;
-                auto dist = rayTriangle(ray, tri, opt->doubleSided);
-                if (dist == 0.0F || dist > opt->distance) continue;
-                fillResult(minDis, opt->mode, dist, static_cast<float>(i0), static_cast<float>(i1), static_cast<float>(i2), opt->result);
-                if (opt->mode == ERaycastMode::ANY) return dist;
-            }
-        } else if (pm == gfx::PrimitiveMode::TRIANGLE_FAN) {
-            auto cnt = ibSize - 1;
-            auto i0 = ib[0] * 3;
-            tri.a = {vb[i0], vb[i0 + 1], vb[i0 + 2]};
-            for (auto j = 1; j < cnt; j += 1) {
-                auto i1 = ib[j] * 3;
-                auto i2 = ib[j + 1] * 3;
-                tri.b = {vb[i1], vb[i1 + 1], vb[i1 + 2]};
-                tri.c = {vb[i2], vb[i2 + 1], vb[i2 + 2]};
-                auto dist = rayTriangle(ray, tri, opt->doubleSided);
-                if (dist == 0.0 || dist > opt->distance) continue;
-                fillResult(minDis, opt->mode, dist, static_cast<float>(i0), static_cast<float>(i1), static_cast<float>(i2), opt->result);
-                if (opt->mode == ERaycastMode::ANY) return dist;
-            }
-        }
-        return *minDis;
-    }, [](const ccstd::monostate& /*unused*/){ return 0.F; }},
+                                       if (pm == gfx::PrimitiveMode::TRIANGLE_LIST) {
+                                           auto cnt = ibSize;
+                                           for (auto j = 0; j < cnt; j += 3) {
+                                               auto i0 = ib[j] * 3;
+                                               auto i1 = ib[j + 1] * 3;
+                                               auto i2 = ib[j + 2] * 3;
+                                               tri.a = {vb[i0], vb[i0 + 1], vb[i0 + 2]};
+                                               tri.b = {vb[i1], vb[i1 + 1], vb[i1 + 2]};
+                                               tri.c = {vb[i2], vb[i2 + 1], vb[i2 + 2]};
+                                               auto dist = rayTriangle(ray, tri, opt->doubleSided);
+                                               if (dist == 0.0F || dist > opt->distance) continue;
+                                               fillResult(minDis, opt->mode, dist, static_cast<float>(i0), static_cast<float>(i1), static_cast<float>(i2), opt->result);
+                                               if (opt->mode == ERaycastMode::ANY) return dist;
+                                           }
+                                       } else if (pm == gfx::PrimitiveMode::TRIANGLE_STRIP) {
+                                           auto cnt = ibSize - 2;
+                                           int32_t rev = 0;
+                                           for (auto j = 0; j < cnt; j += 1) {
+                                               auto i0 = ib[j - rev] * 3;
+                                               auto i1 = ib[j + rev + 1] * 3;
+                                               auto i2 = ib[j + 2] * 3;
+                                               tri.a = {vb[i0], vb[i0 + 1], vb[i0 + 2]};
+                                               tri.b = {vb[i1], vb[i1 + 1], vb[i1 + 2]};
+                                               tri.c = {vb[i2], vb[i2 + 1], vb[i2 + 2]};
+                                               rev = ~rev;
+                                               auto dist = rayTriangle(ray, tri, opt->doubleSided);
+                                               if (dist == 0.0F || dist > opt->distance) continue;
+                                               fillResult(minDis, opt->mode, dist, static_cast<float>(i0), static_cast<float>(i1), static_cast<float>(i2), opt->result);
+                                               if (opt->mode == ERaycastMode::ANY) return dist;
+                                           }
+                                       } else if (pm == gfx::PrimitiveMode::TRIANGLE_FAN) {
+                                           auto cnt = ibSize - 1;
+                                           auto i0 = ib[0] * 3;
+                                           tri.a = {vb[i0], vb[i0 + 1], vb[i0 + 2]};
+                                           for (auto j = 1; j < cnt; j += 1) {
+                                               auto i1 = ib[j] * 3;
+                                               auto i2 = ib[j + 1] * 3;
+                                               tri.b = {vb[i1], vb[i1 + 1], vb[i1 + 2]};
+                                               tri.c = {vb[i2], vb[i2 + 1], vb[i2 + 2]};
+                                               auto dist = rayTriangle(ray, tri, opt->doubleSided);
+                                               if (dist == 0.0 || dist > opt->distance) continue;
+                                               fillResult(minDis, opt->mode, dist, static_cast<float>(i0), static_cast<float>(i1), static_cast<float>(i2), opt->result);
+                                               if (opt->mode == ERaycastMode::ANY) return dist;
+                                           }
+                                       }
+                                       return *minDis;
+                                   },
+                                   [](const ccstd::monostate & /*unused*/) { return 0.F; }},
                         ib);
 }
 } // namespace

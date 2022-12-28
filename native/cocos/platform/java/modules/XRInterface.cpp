@@ -27,10 +27,10 @@
 #include <unistd.h>
 #include <functional>
 #include <unordered_map>
-#include "base/StringUtil.h"
 #include "android/AndroidPlatform.h"
 #include "base/Log.h"
 #include "base/Macros.h"
+#include "base/StringUtil.h"
 #include "bindings/event/EventDispatcher.h"
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "java/jni/JniHelper.h"
@@ -443,8 +443,8 @@ void XRInterface::initialize(void *javaVM, void *activity) {
             if (value.getInt() == 1) {
                 this->endRenderEyeFrame(key == xr::XRConfigKey::RENDER_EYE_FRAME_LEFT ? 0 : 1);
             }
-        } else if(key == xr::XRConfigKey::IMAGE_TRACKING_CANDIDATEIMAGE && value.isString()) {
-            if(!_gThreadPool) {
+        } else if (key == xr::XRConfigKey::IMAGE_TRACKING_CANDIDATEIMAGE && value.isString()) {
+            if (!_gThreadPool) {
                 _gThreadPool = LegacyThreadPool::newSingleThreadPool();
             }
 

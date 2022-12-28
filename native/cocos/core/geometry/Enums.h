@@ -47,7 +47,6 @@ enum class ShapeEnum {
 
 class ShapeBase : public RefCounted {
 public:
-
     ShapeBase(ShapeEnum type) : _type(type) {}
 
     /**

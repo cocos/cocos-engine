@@ -111,7 +111,7 @@ void AudioCache::readDataTask(unsigned int selfId) {
         }
 
         const uint32_t originalTotalFrames = decoder->getTotalFrames();
-       _bytesPerFrame = decoder->getBytesPerFrame();
+        _bytesPerFrame = decoder->getBytesPerFrame();
         const uint32_t sampleRate = decoder->getSampleRate();
         _channelCount = decoder->getChannelCount();
 

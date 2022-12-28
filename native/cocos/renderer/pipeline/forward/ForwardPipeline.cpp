@@ -28,13 +28,13 @@
 #include "../PipelineUBO.h"
 #include "../SceneCulling.h"
 #include "../helper/Utils.h"
+#include "../reflection-probe/ReflectionProbeFlow.h"
 #include "../shadow/ShadowFlow.h"
 #include "ForwardFlow.h"
 #include "gfx-base/GFXDevice.h"
 #include "profiler/Profiler.h"
 #include "scene/Camera.h"
 #include "scene/RenderScene.h"
-#include "../reflection-probe/ReflectionProbeFlow.h"
 
 namespace cc {
 namespace pipeline {

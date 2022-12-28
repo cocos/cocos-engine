@@ -62,7 +62,8 @@ void setPivotB(float x, float y, float z) override;
 CC_PHYSICS_JOINT_CLASS(FixedJoint)
 void setBreakForce(float force) override;
 void setBreakTorque(float torque) override;
-}; // FixedJoint
+}
+; // FixedJoint
 
 } // namespace physics
 } // namespace cc

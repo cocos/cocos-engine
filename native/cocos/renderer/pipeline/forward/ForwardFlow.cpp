@@ -29,7 +29,7 @@
 #include "profiler/Profiler.h"
 
 #if CC_USE_AR_MODULE
-#include "pipeline/xr/ar/ARStage.h"
+    #include "pipeline/xr/ar/ARStage.h"
 #endif
 
 namespace cc {
@@ -50,11 +50,11 @@ bool ForwardFlow::initialize(const RenderFlowInfo &info) {
     if (_stages.empty()) {
         _isResourceOwner = true;
 
-        #if CC_USE_AR_MODULE
-            auto *arStage = ccnew ARStage;
-            arStage->initialize(ARStage::getInitializeInfo());
-            _stages.emplace_back(arStage);
-        #endif
+#if CC_USE_AR_MODULE
+        auto *arStage = ccnew ARStage;
+        arStage->initialize(ARStage::getInitializeInfo());
+        _stages.emplace_back(arStage);
+#endif
         auto *forwardStage = ccnew ForwardStage;
         forwardStage->initialize(ForwardStage::getInitializeInfo());
         _stages.emplace_back(forwardStage);

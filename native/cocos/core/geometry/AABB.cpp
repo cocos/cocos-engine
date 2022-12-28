@@ -172,8 +172,7 @@ void AABB::transformExtentM4(Vec3 *out, const Vec3 &extent, const Mat4 &m4) {
     out->transformMat3(extent, m3Tmp);
 }
 
-
-AABB::AABB(float px, float py, float pz, float hw, float hh, float hl):AABB() {
+AABB::AABB(float px, float py, float pz, float hw, float hh, float hl) : AABB() {
     setCenter(px, py, pz);
     setHalfExtents(hw, hh, hl);
 }

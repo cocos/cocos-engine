@@ -51,7 +51,7 @@ public:
     void add(const scene::Model *);
     void recordCommandBuffer(gfx::Device *, gfx::RenderPass *, gfx::CommandBuffer *) const;
 
-    void resetMacro()const;
+    void resetMacro() const;
 
     bool isUseReflectMapPass(const scene::SubModel *subModel) const;
 

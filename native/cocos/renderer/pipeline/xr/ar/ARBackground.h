@@ -72,7 +72,7 @@ private:
     gfx::DescriptorSet* _descriptorSet{nullptr};
     gfx::PipelineLayout* _pipelineLayout{nullptr};
     gfx::PipelineState* _pipelineState{nullptr};
-    
+
 #if CC_PLATFORM == CC_PLATFORM_ANDROID
     gfx::Buffer* _uniformBuffer{nullptr};
     GLuint _glTex{0U};

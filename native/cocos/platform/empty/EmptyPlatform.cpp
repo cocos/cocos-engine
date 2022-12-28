@@ -23,7 +23,6 @@
 ****************************************************************************/
 
 #include "platform/empty/EmptyPlatform.h"
-#include "platform/interfaces/OSInterface.h"
 #include "modules/Accelerometer.h"
 #include "modules/Battery.h"
 #include "modules/Network.h"
@@ -31,6 +30,7 @@
 #include "modules/System.h"
 #include "modules/SystemWindow.h"
 #include "modules/Vibrator.h"
+#include "platform/interfaces/OSInterface.h"
 
 #include <chrono>
 #include <thread>

@@ -36,8 +36,8 @@
 #include "base/std/container/deque.h"
 #include "base/std/container/set.h"
 #include "base/std/container/vector.h"
-#include "platform/FileUtils.h"
 #include "network/Downloader.h"
+#include "platform/FileUtils.h"
 
 // **NOTE**
 // In the file:

@@ -310,8 +310,8 @@ void CanvasRenderingContext2D::setFont(const ccstd::string &font) {
         double fontSize = atof(fontSizeStr.c_str());
         bool isBold = font.find("bold", 0) != ccstd::string::npos || font.find("Bold", 0) != ccstd::string::npos;
         bool isItalic = font.find("italic", 0) != ccstd::string::npos || font.find("Italic", 0) != ccstd::string::npos;
-        bool isSmallCaps = font.find("small-caps", 0) != ccstd::string::npos || font.find("Small-Caps") !=ccstd::string::npos;
-        bool isOblique = font.find("oblique", 0) != ccstd::string::npos || font.find("Oblique", 0) != ccstd::string::npos ;
+        bool isSmallCaps = font.find("small-caps", 0) != ccstd::string::npos || font.find("Small-Caps") != ccstd::string::npos;
+        bool isOblique = font.find("oblique", 0) != ccstd::string::npos || font.find("Oblique", 0) != ccstd::string::npos;
         //font-style: italic, oblique, normal
         //font-weight: normal, bold
         //font-variant: normal, small-caps

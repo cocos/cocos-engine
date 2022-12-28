@@ -23,8 +23,8 @@
  THE SOFTWARE.
 ****************************************************************************/
 #include "audio/android/utils/Utils.h"
-#include "platform/BasePlatform.h"
 #include <android_native_app_glue.h>
+#include "platform/BasePlatform.h"
 
 namespace cc {
 

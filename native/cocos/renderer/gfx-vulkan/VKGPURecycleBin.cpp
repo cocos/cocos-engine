@@ -20,13 +20,12 @@ Permission is hereby granted, free of charge, to any person obtaining a copy
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "VKGPUObjects.h"
 #include "VKDevice.h"
+#include "VKGPUObjects.h"
 
 namespace cc {
 namespace gfx {
 void CCVKGPURecycleBin::collect(const cc::gfx::CCVKGPUTexture *texture) {
-
     auto collectHandleFn = [this](VkImage image, VmaAllocation allocation) {
         Resource &res = emplaceBack();
         res.type = RecycledType::TEXTURE;
@@ -49,7 +48,7 @@ void CCVKGPURecycleBin::collect(const cc::gfx::CCVKGPUTextureView *textureView) 
         res.vkImageView = view;
     };
     collectHandleFn(textureView->vkImageView);
-    for (const auto& swapChainView : textureView->swapchainVkImageViews) {
+    for (const auto &swapChainView : textureView->swapchainVkImageViews) {
         collectHandleFn(swapChainView);
     }
 }
@@ -61,13 +60,13 @@ void CCVKGPURecycleBin::collect(const CCVKGPUFramebuffer *frameBuffer) {
         res.vkFramebuffer = fbo;
     };
     collectHandleFn(frameBuffer->vkFramebuffer);
-    for (const auto& fbo : frameBuffer->vkFrameBuffers) {
+    for (const auto &fbo : frameBuffer->vkFrameBuffers) {
         collectHandleFn(fbo);
     }
 }
 
 void CCVKGPURecycleBin::collect(const CCVKGPUDescriptorSet *set) {
-    for (const auto& instance : set->instances) {
+    for (const auto &instance : set->instances) {
         collect(set->layoutID, instance.vkDescriptorSet);
     }
 }

@@ -46,6 +46,6 @@ template <
     class T,
     class Hash = ccstd::hash<Key>,
     class Pred = std::equal_to<Key>>
-using unordered_multimap =std::unordered_multimap<Key, T, Hash, Pred, boost::container::pmr::polymorphic_allocator<std::pair<const Key, T>>>; 
-}
+using unordered_multimap = std::unordered_multimap<Key, T, Hash, Pred, boost::container::pmr::polymorphic_allocator<std::pair<const Key, T>>>;
+} // namespace pmr
 } // namespace ccstd

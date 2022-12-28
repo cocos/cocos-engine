@@ -41,7 +41,6 @@ LODGroup::LODGroup() = default;
 
 LODGroup::~LODGroup() = default;
 
-
 int8_t LODGroup::getVisibleLODLevel(const Camera *camera) const {
     float screenUsagePercentage = getScreenUsagePercentage(camera);
 

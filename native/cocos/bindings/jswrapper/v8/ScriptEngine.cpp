@@ -575,7 +575,6 @@ bool ScriptEngine::postInit() {
 
     _isValid = true;
 
-
     // @deprecated since 3.7.0
     cc::plugin::send(cc::plugin::BusType::SCRIPT_ENGINE, cc::plugin::ScriptEngineEvent::POST_INIT);
 

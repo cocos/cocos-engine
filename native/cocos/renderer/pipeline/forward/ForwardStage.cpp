@@ -179,7 +179,7 @@ void ForwardStage::render(scene::Camera *camera) {
         auto clearFlags = static_cast<gfx::ClearFlagBit>(camera->getClearFlag());
 
         data.outputTex = framegraph::TextureHandle(builder.readFromBlackboard(RenderPipeline::fgStrHandleOutColorTexture));
-        if(!data.outputTex.isValid()) {
+        if (!data.outputTex.isValid()) {
             framegraph::Texture::Descriptor colorTexInfo;
             colorTexInfo.format = sceneData->isHDR() ? gfx::Format::RGBA16F : gfx::Format::RGBA8;
             colorTexInfo.usage = gfx::TextureUsageBit::COLOR_ATTACHMENT;

@@ -37,7 +37,6 @@
 #include "renderer/gfx-base/GFXDef.h"
 #include "renderer/pipeline/Define.h"
 
-
 namespace cc {
 
 using IPropertyHandleInfo = std::tuple<ccstd::string, uint32_t, gfx::Type>;
@@ -53,7 +52,7 @@ struct IPropertyInfo {
     ccstd::optional<ccstd::hash_t> samplerHash;      // auto-generated from 'sampler'
     ccstd::optional<IPropertyValue> value;           // default value
     ccstd::optional<bool> linear;                    // whether to convert the input to linear space first before applying
-    IPropertyEditorInfo editor; // NOTE: used only by editor.
+    IPropertyEditorInfo editor;                      // NOTE: used only by editor.
 };
 
 struct IPassInfoFull;
@@ -479,7 +478,7 @@ struct IDefineInfo {
     ccstd::optional<ccstd::vector<int32_t>> range; // cjh number is float?  ?: number[];
     ccstd::optional<ccstd::vector<ccstd::string>> options;
     ccstd::optional<ccstd::string> defaultVal;
-    ccstd::optional<ccstd::vector<ccstd::string>> defines; // NOTE: it's only used in Editor
+    ccstd::optional<ccstd::vector<ccstd::string>> defines;             // NOTE: it's only used in Editor
     ccstd::optional<ccstd::unordered_map<ccstd::string, bool>> editor; // NOTE: it's only used in Editor
 };
 

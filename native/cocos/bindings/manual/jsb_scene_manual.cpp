@@ -23,8 +23,8 @@
 ****************************************************************************/
 
 #include "jsb_scene_manual.h"
-#include "bindings/auto/jsb_scene_auto.h"
 #include "bindings/auto/jsb_gfx_auto.h"
+#include "bindings/auto/jsb_scene_auto.h"
 #include "core/Root.h"
 #include "core/scene-graph/Node.h"
 #include "scene/Model.h"
@@ -683,7 +683,7 @@ static bool js_Model_setInstancedAttribute(se::State &s) // NOLINT(readability-i
 
                     default:
                         // FIXME:
-                        CC_ABORT(); 
+                        CC_ABORT();
                         break;
                 }
                 return true;
@@ -728,7 +728,7 @@ static bool js_Model_registerListeners(se::State &s) // NOLINT(readability-ident
             se::ScriptEngine::getInstance()->callFunction(thiz, "_updateLocalDescriptors", static_cast<uint32_t>(args.size()), args.data());
         });
 
-    cobj->on<cc::scene::Model::UpdateLocalSHDescriptor>([=](cc::scene::Model * /*emitter*/,index_t subModelIndex, cc::gfx::DescriptorSet *descriptorSet) {
+    cobj->on<cc::scene::Model::UpdateLocalSHDescriptor>([=](cc::scene::Model * /*emitter*/, index_t subModelIndex, cc::gfx::DescriptorSet *descriptorSet) {
         cobj->setCalledFromJS(true);
         se::AutoHandleScope hs;
 
@@ -738,7 +738,7 @@ static bool js_Model_registerListeners(se::State &s) // NOLINT(readability-ident
         se::ScriptEngine::getInstance()->callFunction(thiz, "_updateLocalSHDescriptors", static_cast<uint32_t>(args.size()), args.data());
     });
 
-    cobj->on<cc::scene::Model::UpdateWorldBound>([=](cc::scene::Model * /*emitter*/,index_t subModelIndex, cc::gfx::DescriptorSet *descriptorSet) {
+    cobj->on<cc::scene::Model::UpdateWorldBound>([=](cc::scene::Model * /*emitter*/, index_t subModelIndex, cc::gfx::DescriptorSet *descriptorSet) {
         cobj->setCalledFromJS(true);
         se::AutoHandleScope hs;
 
@@ -748,7 +748,7 @@ static bool js_Model_registerListeners(se::State &s) // NOLINT(readability-ident
         se::ScriptEngine::getInstance()->callFunction(thiz, "_updateWorldBoundDescriptors", static_cast<uint32_t>(args.size()), args.data());
     });
 
-    cobj->on<cc::scene::Model::UpdateInstancedAttributes>([=](cc::scene::Model * /*emitter*/,const ccstd::vector<cc::gfx::Attribute> &attributes, cc::scene::SubModel *subModel) {
+    cobj->on<cc::scene::Model::UpdateInstancedAttributes>([=](cc::scene::Model * /*emitter*/, const ccstd::vector<cc::gfx::Attribute> &attributes, cc::scene::SubModel *subModel) {
         cobj->setCalledFromJS(true);
         se::AutoHandleScope hs;
 

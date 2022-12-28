@@ -24,8 +24,8 @@
 
 #include "MiddlewareManager.h"
 #include <algorithm>
-#include "SeApi.h"
 #include "2d/renderer/Batcher2d.h"
+#include "SeApi.h"
 #include "core/Root.h"
 
 MIDDLEWARE_BEGIN
@@ -121,7 +121,7 @@ void MiddlewareManager::render(float dt) {
         }
 
         uint16_t accID = 65534;
-        auto* batch2d = Root::getInstance()->getBatcher2D();
+        auto *batch2d = Root::getInstance()->getBatcher2D();
         if (it.first == VF_XYZUVCC) {
             accID = 65535;
         }

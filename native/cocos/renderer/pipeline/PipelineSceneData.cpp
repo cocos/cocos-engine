@@ -29,13 +29,13 @@
 #include "gfx-base/GFXDef-common.h"
 #include "gfx-base/GFXDevice.h"
 #include "gfx-base/GFXFramebuffer.h"
+#include "gi/light-probe/LightProbe.h"
 #include "scene/Ambient.h"
 #include "scene/Fog.h"
 #include "scene/Octree.h"
 #include "scene/Pass.h"
 #include "scene/Shadow.h"
 #include "scene/Skybox.h"
-#include "gi/light-probe/LightProbe.h"
 
 namespace cc {
 namespace pipeline {

@@ -31,6 +31,7 @@
 #include "core/TypedArray.h"
 #include "core/assets/RenderingSubMesh.h"
 #include "core/assets/Texture2D.h"
+#include "core/assets/TextureCube.h"
 #include "core/builtin/BuiltinResMgr.h"
 #include "core/event/EventTarget.h"
 #include "core/geometry/AABB.h"
@@ -40,7 +41,6 @@
 #include "renderer/gfx-base/GFXDef-common.h"
 #include "renderer/gfx-base/GFXTexture.h"
 #include "scene/SubModel.h"
-#include "core/assets/TextureCube.h"
 
 namespace cc {
 

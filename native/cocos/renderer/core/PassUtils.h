@@ -85,8 +85,8 @@ using GFXTypeReaderCallback = void (*)(const float *, MaterialProperty &, index_
 using GFXTypeWriterCallback = void (*)(float *, const MaterialProperty &, index_t);
 using GFXTypeValidatorCallback = bool (*)(const MaterialProperty &);
 
-extern const ccstd::unordered_map<gfx::Type, GFXTypeReaderCallback> type2reader; //NOLINT(readability-identifier-naming)
-extern const ccstd::unordered_map<gfx::Type, GFXTypeWriterCallback> type2writer; //NOLINT(readability-identifier-naming)
+extern const ccstd::unordered_map<gfx::Type, GFXTypeReaderCallback> type2reader;       //NOLINT(readability-identifier-naming)
+extern const ccstd::unordered_map<gfx::Type, GFXTypeWriterCallback> type2writer;       //NOLINT(readability-identifier-naming)
 extern const ccstd::unordered_map<gfx::Type, GFXTypeValidatorCallback> type2validator; //NOLINT(readability-identifier-naming)
 
 /**

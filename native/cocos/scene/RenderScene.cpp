@@ -63,7 +63,7 @@ public:
          * @zh model 能被看到的相机列表
          * @en List of cameras that model can be seen.
          */
-        ccstd::unordered_map<const Camera*, bool> visibleCameras;
+        ccstd::unordered_map<const Camera *, bool> visibleCameras;
     };
 
     struct LODInfo {
@@ -75,7 +75,7 @@ public:
         bool transformDirty{true};
     };
 
-    explicit LodStateCache(RenderScene* scene) : _renderScene(scene) {};
+    explicit LodStateCache(RenderScene *scene) : _renderScene(scene){};
     ~LodStateCache() override = default;
 
     void addCamera(const Camera *camera);

@@ -105,19 +105,19 @@ void jsbConstructorWrapper(const v8::FunctionCallbackInfo<v8::Value> &,
                            se_finalize_ptr finalizeCb,
                            se::Class *,
                            const char *);
-void jsbGetterWrapper(const v8::FunctionCallbackInfo<v8::Value>&,
+void jsbGetterWrapper(const v8::FunctionCallbackInfo<v8::Value> &,
                       se_function_ptr,
                       const char *);
-void jsbSetterWrapper(const v8::FunctionCallbackInfo<v8::Value>&,
+void jsbSetterWrapper(const v8::FunctionCallbackInfo<v8::Value> &,
                       se_function_ptr,
                       const char *);
 
     #ifdef __GNUC__
         #define SE_UNUSED __attribute__((unused))
-        #define SE_HOT __attribute__((hot))
+        #define SE_HOT    __attribute__((hot))
     #else
         #define SE_UNUSED
-        #define SE_HOT 
+        #define SE_HOT
     #endif
 
     #define SAFE_INC_REF(obj) \
@@ -158,25 +158,25 @@ void jsbSetterWrapper(const v8::FunctionCallbackInfo<v8::Value>&,
         void funcName##Registry(se::Object *thisObject);
 
     // v8 doesn't need to create a new JSObject in SE_BIND_CTOR while SpiderMonkey needs.
-    #define SE_BIND_CTOR(funcName, cls, finalizeCb)                                                \
-        void funcName##Registry(const v8::FunctionCallbackInfo<v8::Value> &_v8args) {              \
-            JsbInvokeScope(#funcName);                                                             \
+    #define SE_BIND_CTOR(funcName, cls, finalizeCb)                                    \
+        void funcName##Registry(const v8::FunctionCallbackInfo<v8::Value> &_v8args) {  \
+            JsbInvokeScope(#funcName);                                                 \
             jsbConstructorWrapper(_v8args, funcName, _SE(finalizeCb), cls, #funcName); \
         }
 
-    #define SE_BIND_PROP_GET_IMPL(funcName, postFix)                                                                              \
-        void funcName##postFix##Registry(const v8::FunctionCallbackInfo<v8::Value>& _v8args) { \
-            JsbInvokeScope(#funcName);                                                                                            \
-            jsbGetterWrapper(_v8args, funcName, #funcName);                                                                       \
+    #define SE_BIND_PROP_GET_IMPL(funcName, postFix)                                           \
+        void funcName##postFix##Registry(const v8::FunctionCallbackInfo<v8::Value> &_v8args) { \
+            JsbInvokeScope(#funcName);                                                         \
+            jsbGetterWrapper(_v8args, funcName, #funcName);                                    \
         }
 
     #define SE_BIND_PROP_GET(funcName)         SE_BIND_PROP_GET_IMPL(funcName, )
     #define SE_BIND_FUNC_AS_PROP_GET(funcName) SE_BIND_PROP_GET_IMPL(funcName, _asGetter)
 
-    #define SE_BIND_PROP_SET_IMPL(funcName, postFix)                                                                                                      \
-        void funcName##postFix##Registry(const v8::FunctionCallbackInfo<v8::Value>& _v8args) { \
-            JsbInvokeScope(#funcName);                                                                                                                    \
-            jsbSetterWrapper(_v8args, funcName, #funcName);                                                                                       \
+    #define SE_BIND_PROP_SET_IMPL(funcName, postFix)                                           \
+        void funcName##postFix##Registry(const v8::FunctionCallbackInfo<v8::Value> &_v8args) { \
+            JsbInvokeScope(#funcName);                                                         \
+            jsbSetterWrapper(_v8args, funcName, #funcName);                                    \
         }
 
     #define SE_BIND_PROP_SET(funcName)         SE_BIND_PROP_SET_IMPL(funcName, )
@@ -197,7 +197,7 @@ void jsbSetterWrapper(const v8::FunctionCallbackInfo<v8::Value>&,
             do {                                                                                                            \
                 if (!(cond)) {                                                                                              \
                     selogMessage(cc::LogLevel::ERR, "[SE_ASSERT]", (" (%s, %d): " fmt), __FILE__, __LINE__, ##__VA_ARGS__); \
-                    CC_ABORT();                                                                                       \
+                    CC_ABORT();                                                                                             \
                 }                                                                                                           \
             } while (false)
 

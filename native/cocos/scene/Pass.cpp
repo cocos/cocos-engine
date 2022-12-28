@@ -24,6 +24,7 @@
 
 #include "scene/Pass.h"
 #include "base/std/hash/hash.h"
+#include "cocos/bindings/jswrapper/SeApi.h"
 #include "core/Root.h"
 #include "core/assets/TextureBase.h"
 #include "core/builtin/BuiltinResMgr.h"
@@ -36,7 +37,6 @@
 #include "renderer/pipeline/Define.h"
 #include "renderer/pipeline/InstancedBuffer.h"
 #include "scene/Define.h"
-#include "cocos/bindings/jswrapper/SeApi.h"
 
 namespace cc {
 namespace scene {
@@ -346,7 +346,7 @@ void Pass::resetUniform(const ccstd::string &name) {
             const auto &floatArr = ccstd::get<ccstd::vector<float>>(value);
             auto iter = type2writer.find(type);
             if (iter != type2writer.end()) {
-                CC_ASSERT_EQ(floatArr.size() , 2);
+                CC_ASSERT_EQ(floatArr.size(), 2);
                 iter->second(block.data, toMaterialProperty(type, floatArr), static_cast<int32_t>(ofs));
             }
         }

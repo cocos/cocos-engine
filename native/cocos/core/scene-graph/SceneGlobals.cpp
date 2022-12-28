@@ -45,7 +45,7 @@ SceneGlobals::SceneGlobals() {
     _bakedWithStationaryMainLight = false;
 }
 
-void SceneGlobals::activate(Scene* scene) {
+void SceneGlobals::activate(Scene *scene) {
     auto *sceneData = Root::getInstance()->getPipeline()->getPipelineSceneData();
     if (_ambientInfo != nullptr) {
         _ambientInfo->activate(sceneData->getAmbient());

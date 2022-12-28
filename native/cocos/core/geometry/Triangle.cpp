@@ -78,7 +78,7 @@ Triangle *Triangle::set(Triangle *out,
 
 Triangle::Triangle(float ax, float ay, float az,
                    float bx, float by, float bz,
-                   float cx, float cy, float cz): ShapeBase(ShapeEnum::SHAPE_TRIANGLE){
+                   float cx, float cy, float cz) : ShapeBase(ShapeEnum::SHAPE_TRIANGLE) {
     a = {ax, ay, az};
     b = {bx, by, bz};
     c = {cx, cy, cz};

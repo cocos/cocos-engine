@@ -24,8 +24,8 @@
 
 #include <cstring>
 
-#include "base/Utils.h"
 #include "base/Compressed.h"
+#include "base/Utils.h"
 
 // compressed file header
 static const uint32_t COMPRESSED_HEADER_LENGTH = 4;
@@ -58,7 +58,7 @@ uint32_t getChunkSizes(const unsigned char* pFile, uint32_t level) {
 }
 
 unsigned char* getChunk(const unsigned char* pFile, uint32_t level) {
-    unsigned char *dstData = nullptr;
+    unsigned char* dstData = nullptr;
     const auto chunkCount = getChunkNumbers(pFile);
     const auto compressedFileHeaderLength = COMPRESSED_HEADER_LENGTH + COMPRESSED_MIPMAP_LEVEL_COUNT_LENGTH + COMPRESSED_MIPMAP_DATA_SIZE_LENGTH * chunkCount;
 

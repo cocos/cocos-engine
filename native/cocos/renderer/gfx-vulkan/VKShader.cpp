@@ -76,7 +76,7 @@ void CCVKShader::doInit(const ShaderInfo & /*info*/) {
 }
 
 void CCVKShader::doDestroy() {
-    _gpuShader =  nullptr;
+    _gpuShader = nullptr;
 }
 
 void CCVKGPUShader::shutdown() {

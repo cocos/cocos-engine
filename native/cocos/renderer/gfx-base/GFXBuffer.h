@@ -43,8 +43,8 @@ public:
     void destroy();
 
     template <typename T>
-    void write(const T& value, uint32_t offset) const {
-        write(reinterpret_cast<const uint8_t*>(&value), offset, sizeof(T));
+    void write(const T &value, uint32_t offset) const {
+        write(reinterpret_cast<const uint8_t *>(&value), offset, sizeof(T));
     }
 
     void write(const uint8_t *value, uint32_t offset, uint32_t size) const;
@@ -72,7 +72,7 @@ protected:
     static uint8_t *getBufferStagingAddress(Buffer *buffer);
     static void flushBuffer(Buffer *buffer, const uint8_t *data);
 
-    virtual void flush(const uint8_t *data) { update(reinterpret_cast<const void*>(data), _size); }
+    virtual void flush(const uint8_t *data) { update(reinterpret_cast<const void *>(data), _size); }
     virtual uint8_t *getStagingAddress() const { return _data.get(); }
 
     BufferUsage _usage = BufferUsageBit::NONE;

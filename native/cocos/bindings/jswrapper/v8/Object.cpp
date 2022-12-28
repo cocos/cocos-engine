@@ -243,9 +243,9 @@ Object *Object::createExternalArrayBufferObject(void *contents, size_t byteLengt
     Object *obj = nullptr;
     #if CC_EDITOR && CC_PLATFORM == CC_PLATFORM_WINDOWS
     auto nodeBuffer = node::Buffer::New(
-                        __isolate, (char *)contents, byteLength, [](char *data, void *hint) {}, nullptr)
-                        .ToLocalChecked()
-                        .As<v8::TypedArray>();
+                          __isolate, (char *)contents, byteLength, [](char *data, void *hint) {}, nullptr)
+                          .ToLocalChecked()
+                          .As<v8::TypedArray>();
     v8::Local<v8::ArrayBuffer> jsobj = nodeBuffer.As<v8::TypedArray>()->Buffer();
     #else
     std::shared_ptr<v8::BackingStore> backingStore = v8::ArrayBuffer::NewBackingStore(contents, byteLength, freeFunc, freeUserData);

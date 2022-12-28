@@ -24,10 +24,10 @@
 
 #include "HelperMacros.h"
 #include "../State.h"
+#include "../ValueArrayPool.h"
+#include "Object.h"
 #include "ScriptEngine.h"
 #include "Utils.h"
-#include "Object.h"
-#include "../ValueArrayPool.h"
 
 #if defined(RECORD_JSB_INVOKING)
 

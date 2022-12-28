@@ -24,17 +24,17 @@
 
 #include "pipeline/xr/ar/ARStage.h"
 #include "ar/ARModule.h"
-#include "pipeline/xr/ar/ARBackground.h"
-#include "pipeline/Enum.h"
-#include "pipeline/PipelineSceneData.h"
-#include "pipeline/PipelineUBO.h"
-#include "pipeline/forward/ForwardPipeline.h"
 #include "core/scene-graph/Node.h"
 #include "gfx-base/GFXCommandBuffer.h"
 #include "gfx-base/GFXDef-common.h"
 #include "gfx-base/GFXFramebuffer.h"
 #include "gfx-base/GFXTexture.h"
+#include "pipeline/Enum.h"
+#include "pipeline/PipelineSceneData.h"
+#include "pipeline/PipelineUBO.h"
 #include "pipeline/RenderPipeline.h"
+#include "pipeline/forward/ForwardPipeline.h"
+#include "pipeline/xr/ar/ARBackground.h"
 #include "scene/Camera.h"
 #include "scene/RenderWindow.h"
 
@@ -122,7 +122,7 @@ void ARStage::render(scene::Camera *camera) {
 
         data.depth = builder.create(RenderPipeline::fgStrHandleOutDepthTexture, depthTexInfo);
         data.depth = builder.write(data.depth, depthAttachmentInfo);
-        
+
         builder.writeToBlackboard(RenderPipeline::fgStrHandleOutColorTexture, data.outputTex);
         builder.writeToBlackboard(RenderPipeline::fgStrHandleOutDepthTexture, data.depth);
         builder.setViewport(_pipeline->getViewport(camera), _pipeline->getScissor(camera));

@@ -31,15 +31,15 @@
 #if CC_DEBUG && !NDEBUG
 
     #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
-        #define CC_ASSERT_FORMAT(cond, fmt, ...)                                                                     \
-            do {                                                                                                     \
-                if (!(cond)) {                                                                                       \
-                    char message[256] = {0};                                                                         \
-                    wchar_t messageTmp[256] = {0};                                                                   \
+        #define CC_ASSERT_FORMAT(cond, fmt, ...)                                                                                 \
+            do {                                                                                                                 \
+                if (!(cond)) {                                                                                                   \
+                    char message[256] = {0};                                                                                     \
+                    wchar_t messageTmp[256] = {0};                                                                               \
                     snprintf(message, sizeof(message), "CC_ASSERT(%s) failed. " fmt "\n%s", #cond, ##__VA_ARGS__, __FUNCTION__); \
-                    std::copy(message, message + strlen(message), messageTmp);                                       \
-                    _wassert(messageTmp, _CRT_WIDE(__FILE__), (unsigned)__LINE__);                                   \
-                }                                                                                                    \
+                    std::copy(message, message + strlen(message), messageTmp);                                                   \
+                    _wassert(messageTmp, _CRT_WIDE(__FILE__), (unsigned)__LINE__);                                               \
+                }                                                                                                                \
             } while (false)
 
         #define CC_ABORTF(fmt, ...)                                            \
@@ -52,13 +52,13 @@
             } while (false)
 
     #elif (CC_PLATFORM == CC_PLATFORM_ANDROID)
-        #define CC_ASSERT_FORMAT(cond, fmt, ...)                                                \
-            do {                                                                                \
-                if (__builtin_expect(!(cond), 0)) {                                             \
-                    char message[256] = {0};                                                    \
+        #define CC_ASSERT_FORMAT(cond, fmt, ...)                                                            \
+            do {                                                                                            \
+                if (__builtin_expect(!(cond), 0)) {                                                         \
+                    char message[256] = {0};                                                                \
                     snprintf(message, sizeof(message), "CC_ASSERT(%s) failed. " fmt, #cond, ##__VA_ARGS__); \
-                    __assert2(__FILE__, __LINE__, __PRETTY_FUNCTION__, message);                \
-                }                                                                               \
+                    __assert2(__FILE__, __LINE__, __PRETTY_FUNCTION__, message);                            \
+                }                                                                                           \
             } while (false)
         #define CC_ABORTF(fmt, ...)                                          \
             do {                                                             \
@@ -67,19 +67,19 @@
                 __assert2(__FILE__, __LINE__, __PRETTY_FUNCTION__, message); \
             } while (false)
     #elif CC_PLATFORM == CC_PLATFORM_IOS || CC_PLATFORM == CC_PLATFORM_MACOS
-        #define CC_ASSERT_FORMAT(cond, fmt, ...)                                                \
-            do {                                                                                \
-                if (__builtin_expect(!(cond), 0)) {                                             \
-                    char message[256] = {0};                                                    \
+        #define CC_ASSERT_FORMAT(cond, fmt, ...)                                                            \
+            do {                                                                                            \
+                if (__builtin_expect(!(cond), 0)) {                                                         \
+                    char message[256] = {0};                                                                \
                     snprintf(message, sizeof(message), "CC_ASSERT(%s) failed. " fmt, #cond, ##__VA_ARGS__); \
-                    __assert(message, __FILE__, __LINE__);                                      \
-                }                                                                               \
+                    __assert(message, __FILE__, __LINE__);                                                  \
+                }                                                                                           \
             } while (false)
-        #define CC_ABORTF(fmt, ...)                         \
-            do {                                            \
-                char message[256] = {0};                    \
+        #define CC_ABORTF(fmt, ...)                                     \
+            do {                                                        \
+                char message[256] = {0};                                \
                 snprintf(message, sizeof(message), fmt, ##__VA_ARGS__); \
-                __assert(message, __FILE__, __LINE__);      \
+                __assert(message, __FILE__, __LINE__);                  \
             } while (false)
     #else
         #define CC_ASSERT_FORMAT(cond, ...) assert(cond)
@@ -146,8 +146,8 @@
      *  CC_ABORTF("Invalidate state code %d", statusCode);
      *  CC_ABORTF("Should crash in debug mode")
      */
-    #define CC_ABORT()                 abort()
-    #define CC_ASSERT(cond)            _CC_ASSERT_(cond)
+    #define CC_ABORT()      abort()
+    #define CC_ASSERT(cond) _CC_ASSERT_(cond)
 
 #else
     #define CC_ASSERTF(...)                  ((void)0)

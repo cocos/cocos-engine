@@ -233,7 +233,7 @@ bool register_all_spine_manual(se::Object *obj) {
             return;
         }
         // Support Native Spine fo Creator V3.0
-        se::NativePtrToObjectMap::forEach(spineObj, [](se::Object *seObj){
+        se::NativePtrToObjectMap::forEach(spineObj, [](se::Object *seObj) {
             // Unmap native and js object since native object was destroyed.
             // Otherwise, it may trigger 'assertion' in se::Object::setPrivateData later
             // since native obj is already released and the new native object may be assigned with

@@ -138,8 +138,8 @@ void JniHelper::init(JNIEnv *env, jobject activity) {
 }
 
 void JniHelper::onDestroy() {
-    if(JniHelper::sJavaVM) {
-        if(JniHelper::sActivity) {
+    if (JniHelper::sJavaVM) {
+        if (JniHelper::sActivity) {
             cc::JniHelper::getEnv()->DeleteGlobalRef(JniHelper::sActivity);
             JniHelper::sActivity = nullptr;
         }
@@ -198,7 +198,7 @@ jobject JniHelper::getActivity() {
 
 #if CC_PLATFORM == CC_PLATFORM_OHOS
 bool JniHelper::setClassLoaderFrom(jobject activityinstance) {
-    if(!JniHelper::classloader) {
+    if (!JniHelper::classloader) {
         JniMethodInfo getclassloaderMethod;
         if (!JniHelper::getMethodInfoDefaultClassLoader(getclassloaderMethod,
                                                         "ohos/app/AbilityContext",

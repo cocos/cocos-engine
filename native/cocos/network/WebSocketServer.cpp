@@ -590,7 +590,7 @@ ccstd::unordered_map<ccstd::string, ccstd::string> WebSocketServerConnection::ge
 }
 
 int WebSocketServer::websocketServerCallback(struct lws *wsi, enum lws_callback_reasons reason,
-                                              void * /*user*/, void *in, size_t len) {
+                                             void * /*user*/, void *in, size_t len) {
     int ret = 0;
     WebSocketServer *server = nullptr;
     lws_context *ctx = nullptr;

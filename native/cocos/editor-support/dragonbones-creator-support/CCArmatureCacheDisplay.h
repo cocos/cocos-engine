@@ -36,7 +36,7 @@ namespace cc {
 class RenderEntity;
 class RenderDrawInfo;
 class Material;
-};
+}; // namespace cc
 
 DRAGONBONES_NAMESPACE_BEGIN
 
@@ -94,7 +94,7 @@ public:
     cc::RenderDrawInfo *requestDrawInfo(int idx);
     cc::Material *requestMaterial(uint16_t blendSrc, uint16_t blendDst);
     void setMaterial(cc::Material *material);
-    void setRenderEntity(cc::RenderEntity* entity);
+    void setRenderEntity(cc::RenderEntity *entity);
 
 private:
     float _timeScale = 1;
@@ -123,7 +123,7 @@ private:
     cc::RenderEntity *_entity = nullptr;
     cc::Material *_material = nullptr;
     ccstd::vector<cc::RenderDrawInfo *> _drawInfoArray;
-    ccstd::unordered_map<uint32_t, cc::Material*> _materialCaches;
+    ccstd::unordered_map<uint32_t, cc::Material *> _materialCaches;
 };
 
 DRAGONBONES_NAMESPACE_END

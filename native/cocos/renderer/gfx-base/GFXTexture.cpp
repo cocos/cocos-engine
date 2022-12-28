@@ -120,8 +120,7 @@ void Texture::initialize(const SwapchainTextureInfo &info, Texture *out) {
     out->doInit(info);
 }
 
-void Texture::updateTextureInfo(const SwapchainTextureInfo &info, Texture *out)
-{
+void Texture::updateTextureInfo(const SwapchainTextureInfo &info, Texture *out) {
     out->_info.type = TextureType::TEX2D;
     out->_info.format = info.format;
     out->_info.width = info.width;

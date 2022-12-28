@@ -26,11 +26,11 @@
 
 #include "ReflectionProbeStage.h"
 #include "pipeline/PipelineSceneData.h"
-#include "scene/ReflectionProbeManager.h"
 #include "pipeline/RenderPipeline.h"
 #include "profiler/Profiler.h"
 #include "scene/Camera.h"
 #include "scene/ReflectionProbe.h"
+#include "scene/ReflectionProbeManager.h"
 namespace cc {
 namespace pipeline {
 RenderFlowInfo ReflectionProbeFlow::initInfo = {
@@ -62,7 +62,7 @@ void ReflectionProbeFlow::render(scene::Camera *camera) {
     CC_PROFILE(ReflectionProbeFlowRender);
     const auto *sceneData = _pipeline->getPipelineSceneData();
     const auto probes = scene::ReflectionProbeManager::getInstance()->getAllProbes();
-    for (auto * probe : probes) {
+    for (auto *probe : probes) {
         if (probe->needRender()) {
             renderStage(camera, probe);
         }
@@ -72,7 +72,7 @@ void ReflectionProbeFlow::render(scene::Camera *camera) {
 void ReflectionProbeFlow::renderStage(scene::Camera *camera, scene::ReflectionProbe *probe) {
     for (auto &stage : _stages) {
         if (probe->getProbeType() == scene::ReflectionProbe::ProbeType::PLANAR) {
-            auto * framebuffer = probe->getRealtimePlanarTexture()->getWindow()->getFramebuffer();
+            auto *framebuffer = probe->getRealtimePlanarTexture()->getWindow()->getFramebuffer();
             auto *reflectionProbeStage = static_cast<ReflectionProbeStage *>(stage.get());
             reflectionProbeStage->setUsage(framebuffer, probe);
             reflectionProbeStage->render(camera);
@@ -82,15 +82,13 @@ void ReflectionProbeFlow::renderStage(scene::Camera *camera, scene::ReflectionPr
             for (uint32_t faceIdx = 0; faceIdx < 6; faceIdx++) {
                 //update camera dirction
                 probe->updateCameraDir(faceIdx);
-                RenderTexture* rt = probe->getBakedCubeTextures()[faceIdx];
+                RenderTexture *rt = probe->getBakedCubeTextures()[faceIdx];
                 auto *reflectionProbeStage = static_cast<ReflectionProbeStage *>(stage.get());
                 reflectionProbeStage->setUsage(rt->getWindow()->getFramebuffer(), probe);
                 reflectionProbeStage->render(camera);
             }
             probe->setNeedRender(false);
-
         }
-
     }
 }
 

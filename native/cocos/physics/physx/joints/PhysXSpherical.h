@@ -32,7 +32,7 @@ namespace physics {
 class PhysXSpherical final : public PhysXJoint, public IDistanceJoint {
 public:
     PhysXSpherical() : _mPivotA(physx::PxZero),
-                      _mPivotB(physx::PxZero){};
+                       _mPivotB(physx::PxZero){};
 
     ~PhysXSpherical() override = default;
     void setPivotA(float x, float y, float z) override;

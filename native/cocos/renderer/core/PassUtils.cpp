@@ -193,7 +193,6 @@ const ccstd::unordered_map<gfx::Type, GFXTypeWriterCallback> type2writer = {
      }},
 };
 
-
 const ccstd::unordered_map<gfx::Type, GFXTypeValidatorCallback> type2validator = {
     {gfx::Type::UNKNOWN, [](const MaterialProperty & /*v*/) -> bool {
          CC_LOG_ERROR("type2validator unknown type");

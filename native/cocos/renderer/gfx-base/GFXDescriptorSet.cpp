@@ -23,11 +23,11 @@
 ****************************************************************************/
 
 #include "GFXDescriptorSet.h"
-#include "GFXDescriptorSetLayout.h"
 #include "GFXBuffer.h"
+#include "GFXDescriptorSetLayout.h"
+#include "GFXObject.h"
 #include "GFXTexture.h"
 #include "states/GFXSampler.h"
-#include "GFXObject.h"
 
 namespace cc {
 namespace gfx {

@@ -64,6 +64,4 @@ JNIEXPORT void JNICALL Java_com_cocos_lib_CocosAbilitySlice_onOrientationChanged
         pWidth = width;
     }
 }
-
-
 }

@@ -49,14 +49,14 @@ bool gles3wOpen() {
         int times = 1;
         do {
             auto size = MAX_PATH * times++;
-            char *path = static_cast<char*>(CC_MALLOC(size));
+            char *path = static_cast<char *>(CC_MALLOC(size));
             if (path) {
                 GetModuleFileNameA(engine, path, size);
                 dir = path;
             }
             CC_FREE(path);
         } while (GetLastError() == ERROR_INSUFFICIENT_BUFFER);
-        
+
         dir = dir.substr(0, dir.rfind("\\") + 1);
         eglPath = dir + eglPath;
         glesPath = dir + glesPath;

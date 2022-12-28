@@ -144,7 +144,7 @@ void ReflectionProbe::transformReflectionCamera(const Camera* sourceCamera) {
     _camera->update(true);
 
     // Transform the plane from world space to reflection camera space use the inverse transpose matrix
-    Vec4 viewSpaceProbe{ Vec3::UNIT_Y.x, Vec3::UNIT_Y.y, Vec3::UNIT_Y.z, -Vec3::dot(Vec3::UNIT_Y, _node->getWorldPosition()) };
+    Vec4 viewSpaceProbe{Vec3::UNIT_Y.x, Vec3::UNIT_Y.y, Vec3::UNIT_Y.z, -Vec3::dot(Vec3::UNIT_Y, _node->getWorldPosition())};
     Mat4 matView = _camera->getMatView();
     matView.inverse();
     matView.transpose();
@@ -183,7 +183,7 @@ void ReflectionProbe::updatePlanarTexture(const scene::RenderScene* scene) {
                 if (!modelWorldBounds) {
                     continue;
                 }
-                const auto *probeBoundingBox = getBoundingBox();
+                const auto* probeBoundingBox = getBoundingBox();
                 if (modelWorldBounds->aabbAabb(*probeBoundingBox)) {
                     model->updateReflctionProbePlanarMap(_realtimePlanarTexture->getGFXTexture());
                 }

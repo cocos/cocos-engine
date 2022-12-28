@@ -152,7 +152,7 @@ private:
 
     // The ShadowTransformInfo object for 'fixed area shadow' || 'maximum clipping info' || 'CSM layers = 1'.
     ShadowTransformInfo *_specialLayer{nullptr};
-    
+
     float _shadowDistance{0.0F};
 
     ccstd::array<CSMLayerInfo *, 4> _layers{};

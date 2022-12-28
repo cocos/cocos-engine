@@ -22,9 +22,9 @@ Permission is hereby granted, free of charge, to any person obtaining a copy
 
 #pragma once
 
-#include "base/Ptr.h"
-#include "base/Macros.h"
 #include <atomic>
+#include "base/Macros.h"
+#include "base/Ptr.h"
 
 namespace cc {
 namespace gfx {

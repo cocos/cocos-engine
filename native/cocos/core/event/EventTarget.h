@@ -647,8 +647,8 @@ public:
     constexpr static int __counter_offset__ = 0; \
     _DECLARE_TARGET_EVENT_BEGIN(TargetClass)
 
-#define DECLARE_TARGET_EVENT_BEGIN_WITH_PARENTS(TargetClass, ...) \
-    constexpr static int __counter_offset__ = cc::event::intl::TotalEvents<__VA_ARGS__>;          \
+#define DECLARE_TARGET_EVENT_BEGIN_WITH_PARENTS(TargetClass, ...)                        \
+    constexpr static int __counter_offset__ = cc::event::intl::TotalEvents<__VA_ARGS__>; \
     _DECLARE_TARGET_EVENT_BEGIN(TargetClass)
 
 #define DECLARE_TARGET_EVENT_END()                                                                    \

@@ -433,7 +433,7 @@ bool register_all_dragonbones_manual(se::Object *obj) {
         if (!se::NativePtrToObjectMap::isValid()) {
             return;
         }
-        se::NativePtrToObjectMap::forEach(obj, [](se::Object *seObj){
+        se::NativePtrToObjectMap::forEach(obj, [](se::Object *seObj) {
             seObj->setClearMappingInFinalizer(false);
             // Unmap native and js object since native object was destroyed.
             // Otherwise, it may trigger 'assertion' in se::Object::setPrivateData later

@@ -27,23 +27,23 @@ import { TEST } from 'internal:constants';
 import { BASE64_VALUES } from './misc';
 import { legacyCC } from '../global-exports';
 
-const seperator = '@';
+const separator = '@';
 
 const HexChars = '0123456789abcdef'.split('');
 
 const _t = ['', '', '', ''];
 const UuidTemplate = _t.concat(_t, '-', _t, '-', _t, '-', _t, '-', _t, _t, _t);
-const Indices = UuidTemplate.map((x, i) => (x === '-' ? NaN : i)).filter(isFinite);
+const Indices = UuidTemplate.map((x, i) => (x === '-' ? NaN : i)).filter(Number.isFinite);
 
 /**
  * @en
- * Decode uuid, returns the original uuid
+ * Decode base64-compressed uuid.
  *
  * @zh
- * 解码 uuid，返回原始 uuid
+ * 解码用 base64 压缩过的 uuid。
  *
- * @param  base64 - the encoded uuid
- * @returns the original uuid
+ * @param  base64 @en Base-64 compressed uuid. @zh 用 base-64 压缩过的 uuid。
+ * @returns @en Original uuid. @zh 未压缩过的 uuid。
  *
  * @example
  * ```ts
@@ -52,7 +52,7 @@ const Indices = UuidTemplate.map((x, i) => (x === '-' ? NaN : i)).filter(isFinit
  * ```
  */
 export default function decodeUuid (base64: string) {
-    const strs = base64.split(seperator);
+    const strs = base64.split(separator);
     const uuid = strs[0];
     if (uuid.length !== 22) {
         return base64;

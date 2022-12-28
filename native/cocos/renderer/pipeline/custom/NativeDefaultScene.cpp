@@ -40,7 +40,7 @@ void DefaultSceneVisitor::bindInputAssembler(gfx::InputAssembler *ia) {}
 void DefaultSceneVisitor::updateBuffer(gfx::Buffer *buff, const void *data, uint32_t size) {}
 void DefaultSceneVisitor::draw(const gfx::DrawInfo &info) {}
 
-SceneTask* DefaultForwardLightingTransversal::transverse(SceneVisitor *visitor) const {
+SceneTask *DefaultForwardLightingTransversal::transverse(SceneVisitor *visitor) const {
     std::ignore = visitor;
     return nullptr;
 }

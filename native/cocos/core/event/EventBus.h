@@ -28,8 +28,8 @@
 #include <memory>
 #include <type_traits>
 
-#include "base/std/container/vector.h"
 #include "base/Log.h"
+#include "base/std/container/vector.h"
 #include "core/memop/Pool.h"
 #include "intl/EventIntl.h"
 #include "intl/List.h"

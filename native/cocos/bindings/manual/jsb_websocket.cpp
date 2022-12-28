@@ -512,13 +512,12 @@ WEBSOCKET_DEFINE_READONLY_INT_FIELD(Websocket_CLOSED, static_cast<int>(cc::netwo
 
 bool register_all_websocket(se::Object *global) { // NOLINT (readability-identifier-naming)
     se::Value nsVal;
-    if (!global->getProperty("jsb", &nsVal, true))
-    {
+    if (!global->getProperty("jsb", &nsVal, true)) {
         se::HandleObject jsobj(se::Object::createPlainObject());
         nsVal.setObject(jsobj);
         global->setProperty("jsb", nsVal);
     }
-    se::Object* ns = nsVal.toObject();
+    se::Object *ns = nsVal.toObject();
     se::Class *cls = se::Class::create("WebSocket", ns, nullptr, _SE(webSocketConstructor));
     cls->defineFinalizeFunction(_SE(webSocketFinalize));
 

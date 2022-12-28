@@ -751,7 +751,7 @@ static bool register_platform(se::Object * /*obj*/) { // NOLINT(readability-iden
 }
 
 template <typename T>
-static bool bindAsExternalBuffer(se::State &s) {  // NOLINT
+static bool bindAsExternalBuffer(se::State &s) { // NOLINT
     auto *self = SE_THIS_OBJECT<T>(s);
     if (!self) {
         return false;
@@ -791,7 +791,6 @@ static bool js_cc_Quaternion_underlyingData(se::State &s) { // NOLINT
     return bindAsExternalBuffer<cc::Quaternion>(s);
 }
 SE_BIND_FUNC(js_cc_Quaternion_underlyingData)
-
 
 bool register_all_cocos_manual(se::Object *obj) { // NOLINT(readability-identifier-naming)
 

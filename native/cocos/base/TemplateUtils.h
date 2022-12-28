@@ -36,10 +36,12 @@ namespace cc {
     }, value);
 
  */
-    
+
 // https://stackoverflow.com/questions/69915380/what-does-templateclass-ts-struct-overloaded-ts-using-tsoperator
 // https://en.cppreference.com/w/cpp/language/class_template_argument_deduction
-template<class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
-template<class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
+template <class... Ts>
+struct overloaded : Ts... { using Ts::operator()...; };
+template <class... Ts>
+overloaded(Ts...) -> overloaded<Ts...>;
 
-}
+} // namespace cc

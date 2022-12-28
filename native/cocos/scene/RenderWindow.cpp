@@ -24,8 +24,8 @@
 
 #include "scene/RenderWindow.h"
 #include "BasePlatform.h"
-#include "interfaces/modules/ISystemWindowManager.h"
 #include "interfaces/modules/ISystemWindow.h"
+#include "interfaces/modules/ISystemWindowManager.h"
 #include "platform/interfaces/modules/Device.h"
 #include "renderer/gfx-base/GFXDevice.h"
 #include "renderer/gfx-base/GFXFramebuffer.h"

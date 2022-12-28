@@ -257,7 +257,7 @@ Vec4TextureFactory createVec4TextureFactory(gfx::Device *gfxDevice, uint32_t vec
     uint32_t width = 0;
     uint32_t height = 0;
     bestSizeToHavePixels(pixelRequired, &width, &height);
-    CC_ASSERT_GE(width * height , pixelRequired);
+    CC_ASSERT_GE(width * height, pixelRequired);
 
     Vec4TextureFactory ret;
     ret.width = width;

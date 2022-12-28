@@ -43,7 +43,6 @@ public:
      */
     virtual ~OSInterface() = default;
 
-
 private:
     CC_DISALLOW_COPY_MOVE_ASSIGN(OSInterface);
 };

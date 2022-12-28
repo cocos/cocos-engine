@@ -27,11 +27,11 @@
 
 #include <mutex>
 #include "application/ApplicationManager.h"
+#include "base/StringUtil.h"
 #include "base/memory/Memory.h"
 #include "network/Downloader.h"
 #include "platform/java/jni/JniHelper.h"
 #include "platform/java/jni/JniImp.h"
-#include "base/StringUtil.h"
 
 #ifndef JCLS_DOWNLOADER
     #define JCLS_DOWNLOADER "com/cocos/lib/CocosDownloader"

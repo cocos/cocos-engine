@@ -100,7 +100,7 @@ void Batcher2d::fillBuffersAndMergeBatches() {
         walk(rootNode, 1);
         generateBatch(_currEntity, _currDrawInfo);
 
-        auto *scene = rootNode->getScene()->getRenderScene();
+        auto* scene = rootNode->getScene()->getRenderScene();
         size_t const count = _batches.size();
         for (size_t i = index; i < count; i++) {
             scene->addBatch(_batches.at(i));
@@ -274,11 +274,7 @@ CC_FORCE_INLINE void Batcher2d::handleMiddlewareDraw(RenderEntity* entity, Rende
 
     // check for merge draw
     auto enableBatch = !entity->getUseLocal();
-    if (enableBatch && _currTexture == texture && _currMeshBuffer == meshBuffer
-        && !_currEntity->getUseLocal()
-        && material->getHash() == _currMaterial->getHash()
-        && drawInfo->getIndexOffset() == _currDrawInfo->getIndexOffset() + _currDrawInfo->getIbCount()
-        && layer == _currLayer) {
+    if (enableBatch && _currTexture == texture && _currMeshBuffer == meshBuffer && !_currEntity->getUseLocal() && material->getHash() == _currMaterial->getHash() && drawInfo->getIndexOffset() == _currDrawInfo->getIndexOffset() + _currDrawInfo->getIbCount() && layer == _currLayer) {
         auto ibCount = _currDrawInfo->getIbCount();
         _currDrawInfo->setIbCount(ibCount + drawInfo->getIbCount());
     } else {

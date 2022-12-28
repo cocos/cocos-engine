@@ -50,11 +50,10 @@ ccstd::unordered_map<ccstd::string, DataView::IntWritter> DataView::intWritterMa
 
 int32_t DataView::readInt(ReaderVariant &readerVariant, uint32_t offset) {
     return ccstd::visit(overloaded{
-        [offset, this](auto &reader) {
-            return static_cast<int32_t>((this->*reader)(offset));
-        },
-        [](ccstd::monostate& /*unused*/){ return 0; }
-    },
+                            [offset, this](auto &reader) {
+                                return static_cast<int32_t>((this->*reader)(offset));
+                            },
+                            [](ccstd::monostate & /*unused*/) { return 0; }},
                         readerVariant);
 }
 

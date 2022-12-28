@@ -25,6 +25,7 @@
 #include "platform/java/jni/glue/JniNativeGlue.h"
 #include <functional>
 #include <future>
+#include "application/ApplicationManager.h"
 #include "engine/EngineEvents.h"
 #include "platform/BasePlatform.h"
 #include "platform/java/jni/JniImp.h"
@@ -32,7 +33,6 @@
 #include "platform/java/jni/log.h"
 #include "platform/java/modules/SystemWindow.h"
 #include "platform/java/modules/SystemWindowManager.h"
-#include "application/ApplicationManager.h"
 
 namespace cc {
 JniNativeGlue::~JniNativeGlue() = default;
@@ -217,9 +217,9 @@ void JniNativeGlue::engineHandleCmd(JniCommand cmd) {
     switch (cmd) {
         case JniCommand::JNI_CMD_INIT_WINDOW: {
             if (isWindowInitialized) {
-			    return;
-            } 
-			isWindowInitialized = true;
+                return;
+            }
+            isWindowInitialized = true;
             // cc::CustomEvent event;
             // event.name = EVENT_RECREATE_WINDOW;
             // event.args->ptrVal = reinterpret_cast<void*>(getWindowHandle());
@@ -228,7 +228,7 @@ void JniNativeGlue::engineHandleCmd(JniCommand cmd) {
             info.height = getHeight();
             info.externalHandle = getWindowHandle();
             BasePlatform* platform = cc::BasePlatform::getPlatform();
-            auto *windowMgr = platform->getInterface<SystemWindowManager>();
+            auto* windowMgr = platform->getInterface<SystemWindowManager>();
             CC_ASSERT(windowMgr != nullptr);
             windowMgr->createWindow(info);
             events::WindowRecreated::broadcast(ISystemWindow::mainWindowId);

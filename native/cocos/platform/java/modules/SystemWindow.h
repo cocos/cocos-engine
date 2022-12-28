@@ -24,8 +24,8 @@
 
 #pragma once
 
-#include <iostream>
 #include <future>
+#include <iostream>
 #include "platform/interfaces/modules/ISystemWindow.h"
 
 namespace cc {

@@ -57,9 +57,9 @@ public:
     virtual bool initialize(const RenderStageInfo &info);
 
     virtual void destroy();
-    
+
     // should not be pure virtual, since it will be instantiated in inspector
-    virtual void render(scene::Camera *camera) {} 
+    virtual void render(scene::Camera *camera) {}
 
     inline const ccstd::string &getName() const { return _name; }
     inline void setName(ccstd::string &name) { _name = name; }

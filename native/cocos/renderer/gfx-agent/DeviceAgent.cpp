@@ -24,10 +24,10 @@
 
 #include <boost/align/align_up.hpp>
 #include <cstring>
+#include "application/ApplicationManager.h"
 #include "base/Log.h"
 #include "base/threading/MessageQueue.h"
 #include "base/threading/ThreadSafeLinearAllocator.h"
-#include "application/ApplicationManager.h"
 #include "platform/interfaces/modules/IXRInterface.h"
 
 #include "BufferAgent.h"

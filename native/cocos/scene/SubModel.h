@@ -125,6 +125,7 @@ protected:
     std::shared_ptr<ccstd::vector<IntrusivePtr<Pass>>> _passes;
 
     int32_t _reflectionProbeType{0};
+
 private:
     static inline int32_t generateId() {
         static int32_t generator = 0;

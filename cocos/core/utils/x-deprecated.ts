@@ -42,41 +42,41 @@ export function setDefaultLogTimes (times: number): void {
 }
 
 interface IReplacement {
-    /** 废弃属性的名称 */
+    /** Deprecated property name. */
     name: string;
-    /** 警告的次数 */
+    /** Times to print log when accessing deprecated property. */
     logTimes?: number;
-    /** 替换属性的名称 */
+    /** New property name. */
     newName?: string;
-    /** 废弃属性的所属对象 */
+    /** The object to deprecate this property. */
     target?: object;
-    /** 废弃属性的所属对象的名称 */
+    /** The name of the object to deprecate this property. */
     targetName?: string;
-    /** 自定义替换属性（函数） */
+    /** New function to access the property. If it is valid, `customSetter` and `customGetter` will be ignored. */
     customFunction?: Function;
-    /** 自定义替换属性的 setter */
+    /** New setter. */
     customSetter?: (v: any) => void;
-    /** 自定义替换属性的 getter */
+    /** New getter. */
     customGetter?: () => any;
-    /** 额外建议 */
+    /** Property description used in warning log. */
     suggest?: string;
 }
 
 interface IRemoveItem {
-    /** 废弃属性的名称 */
+    /** Removed property name. */
     name: string;
-    /** 警告的次数 */
+    /** Times to print log when accessing removed property. */
     logTimes?: number;
-    /** 额外建议 */
+    /** Property description used in warning log. */
     suggest?: string;
 }
 
 interface IMarkItem {
-    /** 废弃属性的名称 */
+    /** Deprecated property name. */
     name: string;
-    /** 警告的次数 */
+    /** Times to print log when accessing deprecated property. */
     logTimes?: number;
-    /** 额外建议 */
+    /** Property description used in warning log. */
     suggest?: string;
 }
 

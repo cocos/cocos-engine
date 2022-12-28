@@ -120,7 +120,7 @@ private:
     uint32_t _width{0};
     uint32_t _height{0};
 
-    bool _needFreeData{false};     // Should free data if the data is assigned in C++.
+    bool _needFreeData{false}; // Should free data if the data is assigned in C++.
 
     ArrayBuffer::Ptr _arrayBuffer; //minggo: hold the data from ImageSource.
 

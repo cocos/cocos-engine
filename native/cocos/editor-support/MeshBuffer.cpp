@@ -134,7 +134,7 @@ void MeshBuffer::reset() {
 }
 
 void MeshBuffer::addUIMeshBuffer() {
-    UIMeshBuffer* uiMeshBuffer = new UIMeshBuffer();
+    UIMeshBuffer *uiMeshBuffer = new UIMeshBuffer();
     ccstd::vector<gfx::Attribute> attrs;
     if (_vertexFormat == VF_XYZUVC) {
         attrs = ATTRIBUTES_V3F_T2F_C4B;
@@ -146,7 +146,7 @@ void MeshBuffer::addUIMeshBuffer() {
 }
 
 void MeshBuffer::cleanUIMeshBuffer() {
-    for(auto *buf : _uiMeshBufferArr) {
+    for (auto *buf : _uiMeshBufferArr) {
         delete buf;
     }
     _uiMeshBufferArr.clear();
@@ -156,7 +156,7 @@ cc::UIMeshBuffer *MeshBuffer::getUIMeshBuffer() const {
     return _uiMeshBufferArr[_bufferPos];
 }
 
-const ccstd::vector<cc::UIMeshBuffer *>& MeshBuffer::uiMeshBuffers() const {
+const ccstd::vector<cc::UIMeshBuffer *> &MeshBuffer::uiMeshBuffers() const {
     return _uiMeshBufferArr;
 }
 

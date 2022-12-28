@@ -23,8 +23,8 @@
 ****************************************************************************/
 
 #include "core/assets/SceneAsset.h"
-#include "core/scene-graph/Scene.h"
 #include "base/memory/Memory.h"
+#include "core/scene-graph/Scene.h"
 
 namespace cc {
 

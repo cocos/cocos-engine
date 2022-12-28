@@ -192,7 +192,7 @@ public:
         out->_radius = _radius * mathutils::maxComponent(scale);
     }
 
-// private: // make public for js bindings
+    // private: // make public for js bindings
     float _radius{-1.0};
     Vec3 _center;
 };

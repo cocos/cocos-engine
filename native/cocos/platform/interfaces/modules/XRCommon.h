@@ -69,7 +69,7 @@ enum class XRConfigKey {
     PRESENT_ENABLE = 15,
     RENDER_EYE_FRAME_LEFT = 16,
     RENDER_EYE_FRAME_RIGHT = 17,
-    FEATURE_PASSTHROUGH= 18,
+    FEATURE_PASSTHROUGH = 18,
     IMAGE_TRACKING = 19,
     IMAGE_TRACKING_CANDIDATEIMAGE = 20,
     IMAGE_TRACKING_DATA = 21,
@@ -331,16 +331,16 @@ struct XRSwapchain {
 };
 
 struct XRTrackingImageData {
-  std::string friendlyName;
-  uint32_t id;
-  uint8_t *buffer;
-  uint32_t bufferSize;
-  float physicalWidth;
-  float physicalHeight;
-  uint32_t pixelSizeWidth;
-  uint32_t pixelSizeHeight;
-  float posePosition[3];
-  float poseQuaternion[4];
+    std::string friendlyName;
+    uint32_t id;
+    uint8_t *buffer;
+    uint32_t bufferSize;
+    float physicalWidth;
+    float physicalHeight;
+    uint32_t pixelSizeWidth;
+    uint32_t pixelSizeHeight;
+    float posePosition[3];
+    float poseQuaternion[4];
 };
 
 #define GraphicsApiOpenglES   "OpenGLES"

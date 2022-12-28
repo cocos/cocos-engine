@@ -29,7 +29,6 @@
 #include "PrivateObject.h"
 #include "Value.h"
 
-
 namespace se {
 
 class Object;

@@ -33,15 +33,15 @@ namespace se {
  * @note Use the same value as which defined in v8, we convert it to v8::PropertyAttribute directly, so don't change the enum value.
  */
 enum class PropertyAttribute : uint8_t {
-  /** NONE. **/
-  NONE = 0,
-  /** READ_ONLY, i.e., not writable. **/
-  READ_ONLY = 1 << 0,
-  /** DONT_ENUM, i.e., not enumerable. **/
-  DONT_ENUM = 1 << 1,
-  /** DONT_DELETE, i.e., not configurable. **/
-  DONT_DELETE = 1 << 2
+    /** NONE. **/
+    NONE = 0,
+    /** READ_ONLY, i.e., not writable. **/
+    READ_ONLY = 1 << 0,
+    /** DONT_ENUM, i.e., not enumerable. **/
+    DONT_ENUM = 1 << 1,
+    /** DONT_DELETE, i.e., not configurable. **/
+    DONT_DELETE = 1 << 2
 };
 CC_ENUM_BITWISE_OPERATORS(PropertyAttribute);
 
-}
+} // namespace se

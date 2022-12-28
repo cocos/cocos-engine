@@ -105,7 +105,7 @@ void Texture2D::setTexParameters(const TexParams &texParams) {
     }
 }
 
-void Texture2D::setRealTexture(void* texturePtr) {
+void Texture2D::setRealTexture(void *texturePtr) {
     _texturePtr = texturePtr;
 }
 

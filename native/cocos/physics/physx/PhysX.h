@@ -37,6 +37,6 @@
 #include "physics/physx/shapes/PhysXTerrain.h"
 #include "physics/physx/shapes/PhysXTrimesh.h"
 
-#include "physics/physx/joints/PhysXSpherical.h"
-#include "physics/physx/joints/PhysXRevolute.h"
 #include "physics/physx/joints/PhysXFixedJoint.h"
+#include "physics/physx/joints/PhysXRevolute.h"
+#include "physics/physx/joints/PhysXSpherical.h"

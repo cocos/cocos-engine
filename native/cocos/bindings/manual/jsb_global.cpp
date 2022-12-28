@@ -599,7 +599,7 @@ bool jsb_global_load_image(const ccstd::string &path, const se::Value &callbackV
                     retObj->setProperty("data", se::Value(obj));
                     retObj->setProperty("width", se::Value(imgInfo->width));
                     retObj->setProperty("height", se::Value(imgInfo->height));
-                    
+
                     se::Value mipmapLevelDataSizeArr;
                     nativevalue_to_se(imgInfo->mipmapLevelDataSize, mipmapLevelDataSizeArr, nullptr);
                     retObj->setProperty("mipmapLevelDataSize", mipmapLevelDataSizeArr);

@@ -82,11 +82,10 @@ public:
 
     int8_t getVisibleLODLevel(const Camera *camera) const;
 
-    inline const ccstd::vector<uint8_t>& getLockedLODLevels() const { return _vecLockedLevels; }
+    inline const ccstd::vector<uint8_t> &getLockedLODLevels() const { return _vecLockedLevels; }
     void lockLODLevels(ccstd::vector<int> &levels);
     inline bool isLockLevelChanged() const { return _isLockLevelChanged; }
     inline void resetLockChangeFlag() { _isLockLevelChanged = false; }
-
 
     inline uint8_t getLodCount() const { return _vecLODData.size(); }
     inline void clearLODs() { _vecLODData.clear(); }

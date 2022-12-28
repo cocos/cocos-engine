@@ -24,8 +24,8 @@
 
 #include "SystemWindowManager.h"
 #include "platform/BasePlatform.h"
-#include "platform/interfaces/modules/ISystemWindowManager.h"
 #include "platform/empty/modules/SystemWindow.h"
+#include "platform/interfaces/modules/ISystemWindowManager.h"
 
 namespace cc {
 
@@ -33,8 +33,7 @@ int SystemWindowManager::init() {
     return 0;
 }
 
-void SystemWindowManager::processEvent(bool* quit) {
-
+void SystemWindowManager::processEvent(bool *quit) {
 }
 
 ISystemWindow *SystemWindowManager::getWindow(uint32_t windowId) const {

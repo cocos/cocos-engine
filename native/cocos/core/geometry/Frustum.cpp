@@ -176,7 +176,7 @@ void Frustum::updatePlanes() {
     planes[5]->define(vertices[7], vertices[5], vertices[6]);
 }
 
-Frustum::Frustum():ShapeBase(ShapeEnum::SHAPE_FRUSTUM) {
+Frustum::Frustum() : ShapeBase(ShapeEnum::SHAPE_FRUSTUM) {
     init();
 }
 

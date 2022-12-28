@@ -21,7 +21,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 ****************************************************************************/
- #pragma once
+#pragma once
 
 #include "base/Macros.h"
 namespace cc {
@@ -56,7 +56,7 @@ bool detachFromList(ListNode **head, ListNode *node) {
         return false;
     }
     if (node->prev == node && node->next == node) { // the only node
-        CC_ASSERT(node == *head);                      // should be the first
+        CC_ASSERT(node == *head);                   // should be the first
         *head = nullptr;
     } else {
         auto *nextNode = node->next;

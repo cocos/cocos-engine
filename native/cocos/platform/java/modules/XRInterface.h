@@ -28,7 +28,7 @@
 #include "base/ThreadPool.h"
 #include "platform/interfaces/modules/IXRInterface.h"
 #if CC_USE_XR_REMOTE_PREVIEW
-#include "xr/XRRemotePreviewManager.h"
+    #include "xr/XRRemotePreviewManager.h"
 #endif
 namespace se {
 class Object;
@@ -100,12 +100,12 @@ public:
     void bindXREyeWithRenderWindow(void *window, xr::XREye eye) override;
 
 private:
-  void loadAssetsImage(const std::string &imageInfo);
-  void dispatchGamepadEventInternal(const xr::XRControllerEvent &xrControllerEvent);
-  void dispatchHandleEventInternal(const xr::XRControllerEvent &xrControllerEvent);
-  void dispatchHMDEventInternal(const xr::XRControllerEvent &xrControllerEvent);
-  ControllerEvent _controllerEvent;
-  se::Object *_jsPoseEventArray{nullptr};
+    void loadAssetsImage(const std::string &imageInfo);
+    void dispatchGamepadEventInternal(const xr::XRControllerEvent &xrControllerEvent);
+    void dispatchHandleEventInternal(const xr::XRControllerEvent &xrControllerEvent);
+    void dispatchHMDEventInternal(const xr::XRControllerEvent &xrControllerEvent);
+    ControllerEvent _controllerEvent;
+    se::Object *_jsPoseEventArray{nullptr};
 
 #if CC_USE_VULKAN
     PFN_vkGetInstanceProcAddr _vkGetInstanceProcAddr{nullptr};

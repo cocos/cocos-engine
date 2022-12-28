@@ -165,7 +165,7 @@ private:
     void dispatch(EventBase *event);
     void addListener(Listener *);
     void removeListener(Listener *);
-    std::vector<Listener*> _listeners;
+    std::vector<Listener *> _listeners;
 
     friend class Listener;
 };

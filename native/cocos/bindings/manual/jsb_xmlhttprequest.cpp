@@ -959,13 +959,12 @@ SE_BIND_PROP_GET(XMLHttpRequest_getWithCredentials)
 
 bool register_all_xmlhttprequest(se::Object *global) { //NOLINT(readability-identifier-naming)
     se::Value nsVal;
-    if (!global->getProperty("jsb", &nsVal, true))
-    {
+    if (!global->getProperty("jsb", &nsVal, true)) {
         se::HandleObject jsobj(se::Object::createPlainObject());
         nsVal.setObject(jsobj);
         global->setProperty("jsb", nsVal);
     }
-    se::Object* ns = nsVal.toObject();
+    se::Object *ns = nsVal.toObject();
     se::Class *cls = se::Class::create("XMLHttpRequest", ns, nullptr, _SE(XMLHttpRequest_constructor));
     cls->defineFinalizeFunction(_SE(XMLHttpRequest_finalize));
 

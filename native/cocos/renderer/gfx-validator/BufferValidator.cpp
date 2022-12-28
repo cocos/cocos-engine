@@ -204,6 +204,5 @@ uint8_t *BufferValidator::getStagingAddress() const {
     return Buffer::getBufferStagingAddress(_actor);
 }
 
-
 } // namespace gfx
 } // namespace cc

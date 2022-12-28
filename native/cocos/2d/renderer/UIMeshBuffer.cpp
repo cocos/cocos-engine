@@ -48,7 +48,7 @@ void UIMeshBuffer::setIData(uint16_t* iData) {
     _iData = iData;
 }
 
-void UIMeshBuffer::initialize(ccstd::vector<gfx::Attribute> &&attrs, bool needCreateLayout) {
+void UIMeshBuffer::initialize(ccstd::vector<gfx::Attribute>&& attrs, bool needCreateLayout) {
     _attributes = attrs;
     _vertexFormatBytes = getAttributesStride(attrs);
     if (needCreateLayout) {
