@@ -33,8 +33,8 @@ import { IVec2Like } from '../../../core';
 * If the polygon is already convex, it will return the original polygon.
 * @zh
 * 使用Hertel-Mehlhorn算法将输入多边形拆分成多个凸多边形。如果输入多边形是凸多边形，将返回原多边形。
-* @param polygon @en one polygon @zh 一个多边形
-* @return @en polygon array @zh 多边形数组
+* @param polygon @en one polygon. @zh 一个多边形。
+* @return @en polygon array. @zh 多边形数组。
 */
 export function ConvexPartition (polygon: IVec2Like[]) {
     // We force it to CCW as it is a precondition in this algorithm.

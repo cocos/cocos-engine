@@ -1,5 +1,3 @@
-
-
 import { Enum, Vec2 } from '../../core';
 import { Collider2D } from './components/colliders/collider-2d';
 
@@ -63,15 +61,15 @@ Enum(PhysicsGroup);
 
 /**
  * @en Enum for ERaycast2DType.
- * @zh 射线检测类型
- * @enum ERaycast2DType
+ * @zh 射线检测类型。
+ * @enum ERaycast2DType.
  */
 export enum ERaycast2DType {
     /**
      * @en
      * Detects closest collider on the raycast path.
      * @zh
-     * 检测射线路径上最近的碰撞体
+     * 检测射线路径上最近的碰撞体。
      */
     Closest,
     /**

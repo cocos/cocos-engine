@@ -55,13 +55,16 @@ function Copy (i: number, j: number, vertices: IVec2Like[]) {
     return p;
 }
 
-/// <summary>
-/// Decompose the polygon into several smaller non-concave polygon.
-/// If the polygon is already convex, it will return the original polygon, unless it is over Settings.MaxPolygonVertices.
-/// Precondition: Counter Clockwise polygon
-/// </summary>
-/// <param name="vertices"></param>
-/// <returns></returns>
+/**
+* @en
+* Decompose the polygon into several smaller non-concave polygon.
+* If the polygon is already convex, it will return the original polygon, unless it is over Settings.MaxPolygonVertices.
+* Precondition: Counter Clockwise polygon
+* @zh
+* 使用Mark Bayazit算法将输入多边形拆分成多个凸多边形。如果输入多边形是凸多边形，将返回原多边形。要求输入多边形是逆时针的。
+* @param polygon @en one polygon. @zh 一个多边形。
+* @return @en polygon array. @zh 多边形数组。
+*/
 export function ConvexPartition (vertices: IVec2Like[]) {
     // We force it to CCW as it is a precondition in this algorithm.
     ForceCounterClockWise(vertices);

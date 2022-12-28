@@ -51,7 +51,7 @@ export class RelativeJoint2D extends Joint2D {
      * @en
      * The position correction factor in the range [0,1].
      * @zh
-     * 位置矫正系数，范围为 [0, 1]
+     * 位置矫正系数，范围为 [0, 1]。
      */
     @property
     get correctionFactor (): number {
