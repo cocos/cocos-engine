@@ -601,49 +601,6 @@ static bool js_cc_ar_ARModule_getCameraDepthBuffer(se::State& s)
 }
 SE_BIND_FUNC(js_cc_ar_ARModule_getCameraDepthBuffer) 
 
-static bool js_cc_ar_ARModule_getTexInitFlag(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::ar::ARModule *arg1 = (cc::ar::ARModule *) NULL ;
-    bool result;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::ar::ARModule>(s);
-    if (nullptr == arg1) return true;
-    result = (bool)((cc::ar::ARModule const *)arg1)->getTexInitFlag();
-    
-    ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_ar_ARModule_getTexInitFlag) 
-
-static bool js_cc_ar_ARModule_resetTexInitFlag(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-    cc::ar::ARModule *arg1 = (cc::ar::ARModule *) NULL ;
-    
-    if(argc != 0) {
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-        return false;
-    }
-    arg1 = SE_THIS_OBJECT<cc::ar::ARModule>(s);
-    if (nullptr == arg1) return true;
-    (arg1)->resetTexInitFlag();
-    
-    
-    return true;
-}
-SE_BIND_FUNC(js_cc_ar_ARModule_resetTexInitFlag) 
-
 static bool js_cc_ar_ARModule_enableLightEstimate(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -1207,8 +1164,6 @@ bool js_register_cc_ar_ARModule(se::Object* obj) {
     cls->defineFunction("setCameraTextureName", _SE(js_cc_ar_ARModule_setCameraTextureName)); 
     cls->defineFunction("getCameraTextureRef", _SE(js_cc_ar_ARModule_getCameraTextureRef)); 
     cls->defineFunction("getCameraDepthBuffer", _SE(js_cc_ar_ARModule_getCameraDepthBuffer)); 
-    cls->defineFunction("getTexInitFlag", _SE(js_cc_ar_ARModule_getTexInitFlag)); 
-    cls->defineFunction("resetTexInitFlag", _SE(js_cc_ar_ARModule_resetTexInitFlag)); 
     cls->defineFunction("enableLightEstimate", _SE(js_cc_ar_ARModule_enableLightEstimate)); 
     cls->defineFunction("getMainLightDirection", _SE(js_cc_ar_ARModule_getMainLightDirection)); 
     cls->defineFunction("getMainLightIntensity", _SE(js_cc_ar_ARModule_getMainLightIntensity)); 
