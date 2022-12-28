@@ -505,7 +505,7 @@ public:
 class NativeProgramProxy final : public ProgramProxy {
 public:
     NativeProgramProxy() = default;
-    NativeProgramProxy(IntrusivePtr<gfx::Shader> shaderIn) noexcept // NOLINT
+    NativeProgramProxy(IntrusivePtr<gfx::Shader> shaderIn) // NOLINT
     : shader(std::move(shaderIn)) {}
 
     const ccstd::string &getName() const noexcept override;
