@@ -876,6 +876,13 @@ void Node::_setChildren(ccstd::vector<IntrusivePtr<Node>> &&children) {
     _children = std::move(children);
 }
 
+void Node::destruct() {
+    CCObject::destruct();
+    _children.clear();
+    _scene = nullptr;
+    _userData = nullptr;
+}
+
 //
 
 } // namespace cc

@@ -153,6 +153,8 @@ public:
         return false;
     }
 
+    void destruct() override;
+
     inline void destroyAllChildren() {
         for (const auto &child : _children) {
             child->destroy();

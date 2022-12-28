@@ -177,6 +177,8 @@ public:
      */
     inline bool isValid() const;
 
+    virtual void destruct();
+
     /**
      * @en
      * Destroy this Object, and release all its own references to other objects.<br/>

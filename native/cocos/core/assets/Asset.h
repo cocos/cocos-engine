@@ -109,6 +109,8 @@ public:
 
     bool destroy() override;
 
+    void destruct() override;
+
     // SERIALIZATION
 
     /**
