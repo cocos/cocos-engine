@@ -36,7 +36,6 @@ import { RenderWindow } from '../render-scene/core/render-window';
 import { builtinResMgr } from '../asset/asset-manager/builtin-res-mgr';
 import { Texture2D } from '../asset/assets';
 import { DebugViewCompositeType } from './debug-view';
-import { legacyCC } from '../core/global-exports';
 import { getDescBindingFromName } from './custom/define';
 
 const _matShadowView = new Mat4();
@@ -190,6 +189,14 @@ export class PipelineUBO {
         cv[UBOCamera.VIEW_PORT_OFFSET + 3] = sceneData.shadingScale * camera.window.height * camera.viewport.w;
     }
 
+    /**
+     * @en Get pcf transition range
+     * @zh 获取 pcf 过渡范围
+     * @param shadowInfo 阴影信息参数
+     * @param mainLight 主光源
+     * @returns 过渡范围
+     * @engineInternal
+     */
     public static getPCFRadius (shadowInfo: Shadows, mainLight: DirectionalLight): number {
         const shadowMapSize = shadowInfo.size.x;
         switch (mainLight.shadowPcf) {
@@ -206,6 +213,13 @@ export class PipelineUBO {
         return 0.0;
     }
 
+    /**
+     * @en Update information such as the normal distance of planar shadows
+     * @zh 更新平面阴影的法线距离等信息
+     * @param shadowInfo 阴影信息参数
+     * @param shadowUBO 阴影相关的缓冲区对象
+     * @engineInternal
+     */
     public static updatePlanarNormalAndDistance (shadowInfo: Shadows, shadowUBO: Float32Array) {
         Vec3.normalize(_tempVec3, shadowInfo.normal);
         shadowUBO[UBOShadow.PLANAR_NORMAL_DISTANCE_INFO_OFFSET + 0] = _tempVec3.x;
@@ -214,6 +228,14 @@ export class PipelineUBO {
         shadowUBO[UBOShadow.PLANAR_NORMAL_DISTANCE_INFO_OFFSET + 3] = -shadowInfo.distance;
     }
 
+    /**
+     * @en Update information such as shadow uniform buffer object view
+     * @zh 更新阴影相关的缓冲区对象视图
+     * @param pipeline 渲染管线对象
+     * @param shadowBufferView 阴影缓冲区视图
+     * @param csmBufferView 级联阴影缓冲区视图
+     * @param camera 被渲染的相机
+     */
     public static updateShadowUBOView (pipeline: PipelineRuntime, shadowBufferView: Float32Array,
         csmBufferView: Float32Array, camera: Camera) {
         const device = pipeline.device;
@@ -304,6 +326,14 @@ export class PipelineUBO {
         }
     }
 
+    /**
+     * @en Update the shadow buffer object view from the light direction
+     * @zh 更新来自光照方向的阴影缓冲区对象视图
+     * @param pipeline 渲染管线对象
+     * @param shadowBufferView 阴影缓冲区视图
+     * @param light 被渲染的灯光
+     * @param level 级联阴影层级
+     */
     public static updateShadowUBOLightView (pipeline: PipelineRuntime, shadowBufferView: Float32Array, light: Light, level: number) {
         const device = pipeline.device;
         const sceneData = pipeline.pipelineSceneData;
@@ -500,6 +530,11 @@ export class PipelineUBO {
         globalDSManager.update();
     }
 
+    /**
+     * @en Update information such as shadow uniform buffer object view
+     * @zh 更新阴影相关的缓冲区对象视图
+     * @param camera 被渲染的相机
+     */
     public updateShadowUBO (camera: Camera) {
         const sceneData = this._pipeline.pipelineSceneData;
         const shadowInfo = sceneData.shadows;
@@ -520,6 +555,13 @@ export class PipelineUBO {
         cmdBuffer[0].updateBuffer(ds.getBuffer(csmBinding), this._csmUBO);
     }
 
+    /**
+     * @en Update the shadow buffer object view from the light direction
+     * @zh 更新来自光照方向的阴影缓冲区对象视图
+     * @param globalDS 全局的布局描述对象
+     * @param light 被渲染的灯光
+     * @param level 级联阴影层级
+     */
     public updateShadowUBOLight (globalDS: DescriptorSet, light: Light, level = 0) {
         PipelineUBO.updateShadowUBOLightView(this._pipeline, this._shadowUBO, light, level);
         globalDS.bindTexture(UNIFORM_SHADOWMAP_BINDING, builtinResMgr.get<Texture2D>('default-texture').getGFXTexture()!);

@@ -40,6 +40,14 @@ import { shadowCulling } from './scene-culling';
 import { PipelineRuntime } from './custom/pipeline';
 
 let _phaseID = getPhaseID('shadow-caster');
+
+/**
+ * @en Get shadow pass indexes
+ * @zh 获取阴影队列的索引
+ * @param subModels 子模型
+ * @returns 是否有光照队列
+ * @engineInternal
+ */
 function getShadowPassIndex (subModel: SubModel): number {
     const passes = subModel.passes;
     const r = cclegacy.rendering;
@@ -54,8 +62,8 @@ function getShadowPassIndex (subModel: SubModel): number {
 }
 
 /**
- * @zh
- * 阴影渲染队列
+ * @en Shadow map render queue
+ * @zh 阴影渲染队列
  */
 export class RenderShadowMapBatchedQueue {
     private _pipeline: PipelineRuntime;
@@ -71,6 +79,13 @@ export class RenderShadowMapBatchedQueue {
         this._batchedQueue = new RenderBatchedQueue();
     }
 
+    /**
+     * @en Gather shadow passes
+     * @zh 收集阴影队列
+     * @param camera 被渲染的相机
+     * @param light 被渲染的灯光
+     * @param cmdBuff 提交命令对象
+     */
     public gatherLightPasses (camera: Camera, light: Light, cmdBuff: CommandBuffer, level = 0) {
         this.clear();
 
@@ -126,8 +141,8 @@ export class RenderShadowMapBatchedQueue {
     }
 
     /**
-     * @zh
-     * clear light-Batched-Queue
+     * @en Clear shadow map queue
+     * @zh 清除阴影渲染队列
      */
     public clear () {
         this._subModelsArray.length = 0;
@@ -137,6 +152,11 @@ export class RenderShadowMapBatchedQueue {
         this._batchedQueue.clear();
     }
 
+    /**
+     * @en Add model into shadow map queue
+     * @zh 添加模型进入阴影渲染队列
+     * @param model 模型对象
+     */
     public add (model: Model) {
         const subModels = model.subModels;
         for (let j = 0; j < subModels.length; j++) {
@@ -164,8 +184,10 @@ export class RenderShadowMapBatchedQueue {
     }
 
     /**
-     * @zh
-     * record CommandBuffer
+     * @en Gather light passes
+     * @zh 收集光照队列
+     * @param camera 被渲染的相机
+     * @param cmdBuff 提交命令对象
      */
     public recordCommandBuffer (device: Device, renderPass: RenderPass, cmdBuff: CommandBuffer) {
         this._instancedQueue.recordCommandBuffer(device, renderPass, cmdBuff);

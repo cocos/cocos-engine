@@ -83,7 +83,7 @@ export class ShadowStage extends RenderStage {
     }
 
     /**
-     * @en
+     * @en Clear framebuffer
      * @zh 清理framebuffer
      * @param camera 被渲染的相机
      */

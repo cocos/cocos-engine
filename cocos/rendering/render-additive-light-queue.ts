@@ -59,10 +59,26 @@ const _lightIndices: number[] = [];
 const _matShadowView = new Mat4();
 const _matShadowViewProj = new Mat4();
 
+/**
+ * @en Model with sphere light culling
+ * @zh 模型与球面光裁剪
+ * @param light 球面光
+ * @param model 模型
+ * @returns 是否相交
+ * @engineInternal
+ */
 function cullSphereLight (light: SphereLight, model: Model) {
     return !!(model.worldBounds && !geometry.intersect.aabbWithAABB(model.worldBounds, light.aabb));
 }
 
+/**
+ * @en Model with spot light culling
+ * @zh 模型与聚光灯裁剪
+ * @param light 聚光灯
+ * @param model 模型
+ * @returns 是否相交
+ * @engineInternal
+ */
 function cullSpotLight (light: SpotLight, model: Model) {
     return !!(model.worldBounds
         && (!geometry.intersect.aabbWithAABB(model.worldBounds, light.aabb) || !geometry.intersect.aabbFrustum(model.worldBounds, light.frustum)));
@@ -71,6 +87,14 @@ function cullSpotLight (light: SpotLight, model: Model) {
 const phaseName = 'forward-add';
 let _phaseID = getPhaseID(phaseName);
 const _lightPassIndices: number[] = [];
+
+/**
+ * @en Get light pass indexes
+ * @zh 获取光照队列的索引
+ * @param subModels 子模型
+ * @param lightPassIndices 光照队列索引数组
+ * @returns 是否有光照队列
+ */
 function getLightPassIndices (subModels: SubModel[], lightPassIndices: number[]) {
     const r = cclegacy.rendering;
     if (isEnableEffect()) {
@@ -95,6 +119,7 @@ function getLightPassIndices (subModels: SubModel[], lightPassIndices: number[])
 }
 
 /**
+ * @en Stacked light queue
  * @zh 叠加光照队列。
  */
 export class RenderAdditiveLightQueue {
@@ -136,6 +161,10 @@ export class RenderAdditiveLightQueue {
         this._lightBufferData = new Float32Array(this._lightBufferElementCount * this._lightBufferCount);
     }
 
+    /**
+     * @en Clear light queue
+     * @zh 清除光照队列
+     */
     public clear () {
         this._instancedQueue.clear();
         this._batchedQueue.clear();
@@ -154,6 +183,10 @@ export class RenderAdditiveLightQueue {
         this._batchedLightPassPool.lights.length = 0;
     }
 
+    /**
+     * @en Destroy light queue
+     * @zh 销毁光照队列
+     */
     public destroy () {
         const descriptorSetMap = this._pipeline.globalDSManager.descriptorSetMap;
         const keys = descriptorSetMap.keys;
@@ -172,6 +205,12 @@ export class RenderAdditiveLightQueue {
         }
     }
 
+    /**
+     * @en Gather light passes
+     * @zh 收集光照队列
+     * @param camera 被渲染的相机
+     * @param cmdBuff 提交命令对象
+     */
     public gatherLightPasses (camera: Camera, cmdBuff: CommandBuffer) {
         this.clear();
 
@@ -223,6 +262,13 @@ export class RenderAdditiveLightQueue {
         this._batchedQueue.uploadBuffers(cmdBuff);
     }
 
+    /**
+     * @en Record command buffer
+     * @zh 录制命令缓冲对象
+     * @param device 驱动设备
+     * @param renderPass 渲染路径
+     * @param cmdBuff 提交命令对象
+     */
     public recordCommandBuffer (device: Device, renderPass: RenderPass, cmdBuff: CommandBuffer) {
         const globalDSManager: GlobalDSManager = this._pipeline.globalDSManager;
         for (let j = 0; j < this._instancedLightPassPool.lights.length; ++j) {
