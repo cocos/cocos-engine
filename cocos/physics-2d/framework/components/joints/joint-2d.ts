@@ -34,22 +34,52 @@ const { ccclass, type, property } = _decorator;
 
 @ccclass('cc.Joint2D')
 export class Joint2D extends Component {
+    /**
+     * @en
+     * The position of Joint2D in the attached rigid body's local space.
+     * @zh
+     * 在自身刚体的本地空间中，Joint2D的位置。
+     */
     @property
     @tooltip('i18n:physics2d.joint.anchor')
     anchor = new Vec2();
 
+    /**
+     * @en
+     * The position of Joint2D in the connected rigid body's local space.
+     * @zh
+     * 在连接刚体的本地空间中，Joint2D的位置。
+     */
     @property
     @tooltip('i18n:physics2d.joint.connectedAnchor')
     connectedAnchor = new Vec2();
 
+    /**
+     * @en
+     * whether collision is turned on between two rigid bodies connected by a joint.
+     * @zh
+     * 关节连接的两刚体之间是否开启碰撞。
+     */
     @property
     @tooltip('i18n:physics2d.joint.collideConnected')
     collideConnected = false;
 
+    /**
+     * @en
+     * The jointed rigid body, null means link to a static rigid body at the world origin.
+     * @zh
+     * 关节连接的刚体，为空时表示连接到位于世界原点的静态刚体。
+     */
     @type(RigidBody2D)
     @tooltip('i18n:physics2d.joint.connectedBody')
     connectedBody: RigidBody2D | null = null;
 
+    /**
+     * @en
+     * the Joint2D attached rigid-body.
+     * @zh
+     * 关节所绑定的刚体组件。
+     */
     _body: RigidBody2D | null = null
     get body () {
         return this._body;
@@ -61,6 +91,12 @@ export class Joint2D extends Component {
 
     protected _joint: IJoint2D | null = null;
 
+    /**
+     * @en
+     * the type of this joint.
+     * @zh
+     * 此关节的类型。
+     */
     TYPE = EJoint2DType.None;
 
     protected onLoad () {

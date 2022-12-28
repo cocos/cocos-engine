@@ -135,14 +135,14 @@ export class PhysicsSystem2D extends Eventify(System) {
      * @en
      * The velocity iterations for the velocity constraint solver.
      * @zh
-     * 速度更新迭代数
+     * 速度更新迭代数。
      */
     public velocityIterations = 10;
     /**
      * @en
      * The position Iterations for the position constraint solver.
      * @zh
-     * 位置迭代更新数
+     * 位置迭代更新数。
      */
     public positionIterations = 10;
 
@@ -264,7 +264,7 @@ export class PhysicsSystem2D extends Eventify(System) {
     * Perform a simulation of the physics system, which will now be performed automatically on each frame.
     * @zh
     * 执行一次物理系统的模拟，目前将在每帧自动执行一次。
-    * @param deltaTime 与上一次执行相差的时间，目前为每帧消耗时间
+    * @param deltaTime @en time step. @zh 与上一次执行相差的时间，目前为每帧消耗时间。
     */
     postUpdate (deltaTime: number) {
         if (!this._enable) {
@@ -348,10 +348,10 @@ export class PhysicsSystem2D extends Eventify(System) {
      * @zh
      * 检测哪些碰撞体在给定射线的路径上，射线检测将忽略包含起始点的碰撞体。
      * @method rayCast
-     * @param {Vec2} p1 - start point of the raycast
-     * @param {Vec2} p2 - end point of the raycast
-     * @param {RayCastType} type - optional, default is RayCastType.Closest
-     * @param {number} mask - optional, default is 0xffffffff
+     * @param {Vec2} p1 @en start point of the raycast. @zh 射线起点。
+     * @param {Vec2} p2 @en end point of the raycast. @zh 射线终点。
+     * @param {RayCastType} type - @en optional, default is RayCastType.Closest. @zh 可选，默认是RayCastType.Closest。
+     * @param {number} mask - @en optional, default is 0xffffffff. @zh 可选，默认是0xffffffff。
      * @return {[PhysicsRayCastResult]}
      */
     raycast (p1: IVec2Like, p2: IVec2Like, type: ERaycast2DType = ERaycast2DType.Closest, mask = 0xffffffff): readonly Readonly<RaycastResult2D>[] {

@@ -43,7 +43,7 @@ export class RelativeJoint2D extends Joint2D {
      * @en
      * The maximum force can be applied to rigidbody.
      * @zh
-     * 可以应用于刚体的最大的力值
+     * 可以应用于刚体的最大的力值。
      */
     @property
     @tooltip('i18n:physics2d.joint.maxForce')
@@ -61,7 +61,7 @@ export class RelativeJoint2D extends Joint2D {
      * @en
      * The maximum torque can be applied to rigidbody.
      * @zh
-     * 可以应用于刚体的最大扭矩值
+     * 可以应用于刚体的最大扭矩值。
      */
     @property
     @tooltip('i18n:physics2d.joint.maxTorque')
@@ -79,7 +79,7 @@ export class RelativeJoint2D extends Joint2D {
      * @en
      * The position correction factor in the range [0,1].
      * @zh
-     * 位置矫正系数，范围为 [0, 1]
+     * 位置矫正系数，范围为 [0, 1]。
      */
     @property
     @tooltip('i18n:physics2d.joint.correctionFactor')
@@ -97,7 +97,7 @@ export class RelativeJoint2D extends Joint2D {
      * @en
      * The linear offset from connected rigidbody to rigidbody.
      * @zh
-     * 关节另一端的刚体相对于起始端刚体的位置偏移量
+     * 关节另一端的刚体相对于起始端刚体的位置偏移量。
      */
     @property
     @tooltip('i18n:physics2d.joint.linearOffset')
@@ -124,7 +124,7 @@ export class RelativeJoint2D extends Joint2D {
      * @en
      * The angular offset from connected rigidbody to rigidbody.
      * @zh
-     * 关节另一端的刚体相对于起始端刚体的角度偏移量
+     * 关节另一端的刚体相对于起始端刚体的角度偏移量。
      */
     @property
     @tooltip('i18n:physics2d.joint.angularOffset')
@@ -151,7 +151,7 @@ export class RelativeJoint2D extends Joint2D {
      * @en
      * Auto calculate the angularOffset and linearOffset between the connected two rigid bodies.
      * @zh
-     * 自动计算关节连接的两个刚体间的 angularOffset 和 linearOffset
+     * 自动计算关节连接的两个刚体间的 angularOffset 和 linearOffset。
      */
     @property
     @tooltip('i18n:physics2d.joint.autoCalcOffset')

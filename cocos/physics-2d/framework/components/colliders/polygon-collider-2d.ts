@@ -42,8 +42,8 @@ export class PolygonCollider2D extends Collider2D {
     private _points = [new Vec2(-1, -1), new Vec2(1, -1), new Vec2(1, 1), new Vec2(-1, 1)];
 
     /**
-     * @en Polygon points
-     * @zh 多边形顶点数组
+     * @en Polygon points.
+     * @zh 多边形顶点数组。
      */
     @property({ type: Vec2 })
     @tooltip('i18n:physics2d.collider.points')
@@ -55,8 +55,8 @@ export class PolygonCollider2D extends Collider2D {
     }
 
     /**
-     * @en Get world points
-     * @zh 世界坐标下多边形碰撞体的点
+     * @en Get world points.
+     * @zh 世界坐标下多边形碰撞体的点。
      */
     get worldPoints (): readonly Readonly<Vec2>[] {
         if (this._shape) {

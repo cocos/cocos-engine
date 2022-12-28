@@ -68,7 +68,7 @@ export class Collider2D extends Eventify(Component) {
 
     /**
      * @en The density.
-     * @zh 密度
+     * @zh 密度。
      */
     @property
     @tooltip('i18n:physics2d.collider.density')
@@ -98,7 +98,7 @@ export class Collider2D extends Eventify(Component) {
      * @en
      * The friction coefficient, usually in the range [0,1].
      * @zh
-     * 摩擦系数，取值一般在 [0, 1] 之间
+     * 摩擦系数，取值一般在 [0, 1] 之间。
      */
     @property
     @tooltip('i18n:physics2d.collider.friction')
@@ -113,7 +113,7 @@ export class Collider2D extends Eventify(Component) {
      * @en
      * The restitution (elasticity) usually in the range [0,1].
      * @zh
-     * 弹性系数，取值一般在 [0, 1]之间
+     * 弹性系数，取值一般在 [0, 1]之间。
      */
     @property
     @tooltip('i18n:physics2d.collider.restitution')
@@ -199,9 +199,9 @@ export class Collider2D extends Eventify(Component) {
 
     /**
      * @en
-     * Get the world aabb of the collider
+     * Get the world aabb of the collider.
      * @zh
-     * 获取碰撞体的世界坐标系下的包围盒
+     * 获取碰撞体的世界坐标系下的包围盒。
      */
     get worldAABB (): Readonly<Rect> {
         if (this._shape) {

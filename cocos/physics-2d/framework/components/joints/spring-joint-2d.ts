@@ -76,7 +76,7 @@ export class SpringJoint2D extends Joint2D {
      * @en
      * The distance separating the two ends of the joint.
      * @zh
-     * 关节两端的距离
+     * 关节两端的距离。
      */
     @property
     @tooltip('i18n:physics2d.joint.distance')
@@ -101,7 +101,7 @@ export class SpringJoint2D extends Joint2D {
      * @en
      * Auto calculate the distance between the connected two rigid bodies.
      * @zh
-     * 自动计算关节连接的两个刚体间的距离
+     * 自动计算关节连接的两个刚体间的距离。
      */
     @property
     @tooltip('i18n:physics2d.joint.autoCalcDistance')
