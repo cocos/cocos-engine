@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { BufferInfo, Buffer, BufferUsageBit, ClearFlagBit, Color, DescriptorSet,
+import { BufferInfo, Buffer, BufferUsageBit, ClearFlagBit, Color, DescriptorSet } from '../../gfx';
 import { Camera, CSMLevel, DirectionalLight, Light, LightType, ReflectionProbe, ShadowType, SKYBOX_FLAG, SpotLight } from '../../render-scene/scene';
 import { supportsR32FloatTexture } from '../define';
 import { Pipeline } from './pipeline';
@@ -33,7 +33,7 @@ import { SRGBToLinear } from '../pipeline-funcs';
 import { RenderWindow } from '../../render-scene/core/render-window';
 import { RenderData } from './render-graph';
 import { WebPipeline } from './web-pipeline';
-import { DescriptorBlockData, DescriptorSetData } from './layout-graph';
+import { DescriptorSetData } from './layout-graph';
 
 // Anti-aliasing type, other types will be gradually added in the future
 export enum AntiAliasing {
