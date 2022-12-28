@@ -58,6 +58,16 @@ const _world_rol = new Quat();
 
 const superMaterials = Object.getOwnPropertyDescriptor(Renderer.prototype, 'sharedMaterials')!;
 
+/**
+ * @en 
+ * Particle system component, which can make many effects such as smoke and fire
+ * Include some interesting modules and components such as Velocity Overtime, Force Overtime, Trail and Noise
+ * You can open these modules to see how the particles animate
+ * @zh
+ * 粒子系统能够用来制作许多特效，例如 烟雾和火焰
+ * 包含一些有趣的模块，例如 速度模块，受力模块，拖尾模块和噪声模块
+ * 打开这些模块可以看到粒子如何进行变化
+ */
 @ccclass('cc.ParticleSystem')
 @help('i18n:cc.ParticleSystem')
 @menu('Effects/ParticleSystem')
@@ -94,12 +104,20 @@ export class ParticleSystem extends ModelRenderer {
     @tooltip('i18n:particle_system.startColor')
     public startColor = new GradientRange();
 
+    /**
+     * @en The space of particle scaling
+     * @zh 计算粒子缩放的空间
+     */
     @type(Space)
     @serializable
     @displayOrder(9)
     @tooltip('i18n:particle_system.scaleSpace')
     public scaleSpace = Space.Local;
 
+    /**
+     * @en Whether to modify particle size on XYZ axis
+     * @zh 是否需要修改粒子在三个轴上的大小
+     */
     @serializable
     @displayOrder(10)
     @tooltip('i18n:particle_system.startSize3D')
@@ -150,6 +168,10 @@ export class ParticleSystem extends ModelRenderer {
     @tooltip('i18n:particle_system.startSpeed')
     public startSpeed = new CurveRange();
 
+    /**
+     * @en Whether to modify particle rotation on XYZ axis
+     * @zh 是否需要修改粒子在三个轴上的旋转
+     */
     @serializable
     @displayOrder(12)
     @tooltip('i18n:particle_system.startRotation3D')
@@ -376,6 +398,10 @@ export class ParticleSystem extends ModelRenderer {
     @serializable
     _cullingMode = CullingMode.Pause;
 
+    /**
+     * @en Emitter culling mode
+     * @zh 发射器的各种剔除模式
+     */
     public static CullingMode = CullingMode;
 
     /**
@@ -683,11 +709,15 @@ export class ParticleSystem extends ModelRenderer {
     }
 
     // noise module
+    /**
+     * @en Noise module which can add some interesting effects
+     * @zh 噪声模块能够增加许多有趣的特效
+     */
     @type(NoiseModule)
     private _noiseModule: NoiseModule | null = null;
     /**
      * @en The module controlling noise map applied to the particles, only supported in CPU particle system
-     * @zh 噪声动画模块。
+     * @zh 噪声动画模块，仅支持 CPU 粒子
      */
     @type(NoiseModule)
     @displayOrder(24)
@@ -732,6 +762,10 @@ export class ParticleSystem extends ModelRenderer {
     }
 
     // particle system renderer
+    /**
+     * @en Particle system renderer (CPU or GPU)
+     * @zh 粒子系统渲染器（CPU 还是 GPU）
+     */
     @type(ParticleSystemRenderer)
     @serializable
     @displayOrder(26)
@@ -776,6 +810,10 @@ export class ParticleSystem extends ModelRenderer {
     @serializable
     private _simulationSpace = Space.Local;
 
+    /**
+     * @en Particle update processor (update every particle)
+     * @zh 粒子更新器（负责更新每个粒子）
+     */
     public processor: IParticleSystemRenderer = null!;
 
     constructor () {
@@ -1470,18 +1508,34 @@ export class ParticleSystem extends ModelRenderer {
         return this._isPlaying;
     }
 
+    /**
+     * @en Query particle system is paused or not
+     * @zh 获取粒子系统当前是否已经暂停运行
+     */
     get isPaused () {
         return this._isPaused;
     }
 
+    /**
+     * @en Query particle system is stopped or not
+     * @zh 获取粒子系统当前是否已经停止
+     */
     get isStopped () {
         return this._isStopped;
     }
 
+    /**
+     * @en Query particle system is emitting or not
+     * @zh 获取粒子系统当前是否还在发射
+     */
     get isEmitting () {
         return this._isEmitting;
     }
 
+    /**
+     * @en Query particle system simulation time
+     * @zh 获取粒子系统运行时间
+     */
     get time () {
         return this._time;
     }
