@@ -282,7 +282,7 @@ export class OBB {
      * @en
      * Scales this OBB by a 3d-vector and store the result to the `out` parameter.
      * @zh
-     * 根据 3D 向量对此 OBB 的数据进行缩放并存储在 out 参数中。
+     * 根据 3D 向量对此 OBB 的数据进行缩放并将结果存储在 out 参数中。
      * @param scale @zh 缩放值。 @en 3d-vector scale.
      * @param out @zh 缩放的目标。 @en The output OBB.
      * @note @zh 此方法不会修改当前 OBB 的数据。 @en This method will not modify the data of current OBB.
