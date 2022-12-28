@@ -924,6 +924,9 @@ const Elements = {
             panel.$.nodeLink.addEventListener('click', (event) => {
                 event.stopPropagation();
             });
+
+            Elements.node.i18nChangeBind = Elements.node.i18nChange.bind(panel);
+            Editor.Message.addBroadcastListener('i18n:change', Elements.node.i18nChangeBind);
         },
         async update() {
             const panel = this;
@@ -1160,6 +1163,32 @@ const Elements = {
                     dom.remove();
                 });
                 delete panel.$.nodeSection.__node_panels__;
+            }
+        },
+        close() {
+            Editor.Message.removeBroadcastListener('i18n:change', Elements.node.i18nChangeBind);
+        },
+        i18nChange() {
+            const panel = this;
+
+            panel.$.nodeLink.value = Editor.I18n.t('ENGINE.help.cc.Node');
+
+            const sectionBody = panel.$.sectionBody;
+            for (let index = 0; index < sectionBody.__sections__.length; index++) {
+                const $section = sectionBody.__sections__[index];
+                const $link = $section.querySelector('ui-link');
+
+                if (!$link) {
+                    continue;
+                }
+
+                const dump = $section.dump;
+                const url = panel.getHelpUrl(dump.editor);
+                if (url) {
+                    $link.setAttribute('value', url);
+                } else {
+                    $link.removeAttribute('value');
+                }
             }
         },
     },
