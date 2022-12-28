@@ -100,4 +100,10 @@ bool Asset::destroy() {
     return Super::destroy();
 }
 
+void Asset::destruct() {
+    CCObject::destruct();
+    _native.clear();
+    _nativeUrl.clear();
+}
+
 } // namespace cc
