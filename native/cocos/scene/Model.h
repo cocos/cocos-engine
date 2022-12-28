@@ -246,6 +246,7 @@ protected:
     bool _isCalledFromJS{false};
 
     Vec4 _shadowBias;
+    float _reflectionProbeId;
     Vec4 _lightmapUVParam;
 
     // For JS

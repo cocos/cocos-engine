@@ -107,8 +107,8 @@ CCProgram standard-vs %{
     out mediump vec2 v_uv1;
   #endif
 
-  #if CC_RECEIVE_SHADOW
-    out mediump vec2 v_shadowBias;
+  #if CC_RECEIVE_SHADOW || CC_USE_REFLECTION_PROBE
+    out mediump vec4 v_shadowBiasAndProbeId;
   #endif
 
   #if USE_NORMAL_MAP
@@ -136,7 +136,14 @@ CCProgram standard-vs %{
     v_normal = normalize((matWorldIT * vec4(In.normal, 0.0)).xyz);
 
     #if CC_RECEIVE_SHADOW
-      v_shadowBias = CCGetShadowBias();
+      v_shadowBiasAndProbeId.xy = CCGetShadowBias();
+    #endif
+    #if CC_RECEIVE_SHADOW || CC_USE_REFLECTION_PROBE
+      #if USE_INSTANCING
+        v_shadowBiasAndProbeId.zw = a_localShadowBiasAndProbeId.zw;
+      #else
+        v_shadowBiasAndProbeId.zw = vec2(0.0);
+      #endif
     #endif
 
     #if USE_TWOSIDE
@@ -193,8 +200,8 @@ CCProgram standard-fs %{
   #endif
   in mediump vec3 v_normal;
 
-  #if CC_RECEIVE_SHADOW
-    in mediump vec2 v_shadowBias;
+  #if CC_RECEIVE_SHADOW || CC_USE_REFLECTION_PROBE
+    in mediump vec4 v_shadowBiasAndProbeId;
   #endif
 
   #if USE_VERTEX_COLOR
@@ -255,8 +262,12 @@ CCProgram standard-fs %{
     s.normal = v_normal;
 
     #if CC_RECEIVE_SHADOW
-      s.shadowBias = v_shadowBias;
+      s.shadowBias = v_shadowBiasAndProbeId.xy;
     #endif
+    #if CC_USE_REFLECTION_PROBE
+      s.reflectionProbeId = v_shadowBiasAndProbeId.z;
+    #endif
+
 
     #if USE_NORMAL_MAP
       vec3 nmmp = texture(normalMap, NORMAL_UV).xyz - vec3(0.5);

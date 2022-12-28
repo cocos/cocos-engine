@@ -21,6 +21,15 @@ vec3 SurfacesVertexModifyLocalNormal(in SurfacesStandardVertexIntermediate In)
   #endif
 #endif
 
+// some vertex datas use shared raw data, avoid sample / calculate same raw data multiply times, use this function for better performance
+// this function invokes before world transform
+#ifndef CC_SURFACES_VERTEX_MODIFY_LOCAL_SHARED_DATA
+void SurfacesVertexModifyLocalSharedData(inout SurfacesStandardVertexIntermediate In)
+{
+}
+#endif
+
+
 #ifndef CC_SURFACES_VERTEX_MODIFY_WORLD_POS
 vec3 SurfacesVertexModifyWorldPos(in SurfacesStandardVertexIntermediate In)
 {

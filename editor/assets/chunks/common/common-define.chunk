@@ -26,6 +26,7 @@
 
 // common function
 #pragma define equalf(data1, data2) (abs(float(data1) - float(data2)) < EPSILON)
+#pragma define equalf_epsilon(data1, data2, epsilonValue) (abs(float(data1) - float(data2)) < epsilonValue)
 
 // runtime constants
 #pragma define-meta CC_DEVICE_SUPPORT_FLOAT_TEXTURE default(1)

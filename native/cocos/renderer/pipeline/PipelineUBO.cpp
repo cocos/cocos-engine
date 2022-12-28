@@ -79,6 +79,9 @@ void PipelineUBO::updateGlobalUBOView(const scene::Camera *camera, ccstd::array<
     uboGlobalView[UBOGlobal::NATIVE_SIZE_OFFSET + 2] = 1.0F / uboGlobalView[UBOGlobal::NATIVE_SIZE_OFFSET];
     uboGlobalView[UBOGlobal::NATIVE_SIZE_OFFSET + 3] = 1.0F / uboGlobalView[UBOGlobal::NATIVE_SIZE_OFFSET + 1];
 
+    //xubin: reflection probe count
+    uboGlobalView[UBOGlobal::PROBE_INFO_OFFSET + 0] = 0.0F;
+
     auto debugViewConfig = root->getDebugViewConfig();
     uboGlobalView[UBOGlobal::DEBUG_VIEW_MODE_OFFSET] = debugViewConfig.singleMode;
     uboGlobalView[UBOGlobal::DEBUG_VIEW_MODE_OFFSET + 1] = debugViewConfig.lightingWithAlbedo;

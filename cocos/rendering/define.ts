@@ -180,8 +180,9 @@ export class UBOGlobal {
     public static readonly TIME_OFFSET = 0;
     public static readonly SCREEN_SIZE_OFFSET = UBOGlobal.TIME_OFFSET + 4;
     public static readonly NATIVE_SIZE_OFFSET = UBOGlobal.SCREEN_SIZE_OFFSET + 4;
+    public static readonly PROBE_INFO_OFFSET = UBOGlobal.NATIVE_SIZE_OFFSET + 4;
 
-    public static readonly DEBUG_VIEW_MODE_OFFSET = UBOGlobal.NATIVE_SIZE_OFFSET + 4;
+    public static readonly DEBUG_VIEW_MODE_OFFSET = UBOGlobal.PROBE_INFO_OFFSET + 4;
     public static readonly DEBUG_VIEW_COMPOSITE_PACK_1_OFFSET = UBOGlobal.DEBUG_VIEW_MODE_OFFSET + 4;
     public static readonly DEBUG_VIEW_COMPOSITE_PACK_2_OFFSET = UBOGlobal.DEBUG_VIEW_COMPOSITE_PACK_1_OFFSET + 4;
     public static readonly DEBUG_VIEW_COMPOSITE_PACK_3_OFFSET = UBOGlobal.DEBUG_VIEW_COMPOSITE_PACK_2_OFFSET + 4;
@@ -196,6 +197,7 @@ export class UBOGlobal {
         new Uniform('cc_time', Type.FLOAT4, 1),
         new Uniform('cc_screenSize', Type.FLOAT4, 1),
         new Uniform('cc_nativeSize', Type.FLOAT4, 1),
+        new Uniform('cc_probeInfo', Type.FLOAT4, 1),
 
         new Uniform('cc_debug_view_mode', Type.FLOAT, 4),
         new Uniform('cc_debug_view_composite_pack_1', Type.FLOAT, 4),
@@ -385,7 +387,9 @@ export class UBOLocal {
     public static readonly MAT_WORLD_IT_OFFSET = UBOLocal.MAT_WORLD_OFFSET + 16;
     public static readonly LIGHTINGMAP_UVPARAM = UBOLocal.MAT_WORLD_IT_OFFSET + 16;
     public static readonly LOCAL_SHADOW_BIAS = UBOLocal.LIGHTINGMAP_UVPARAM + 4;
-    public static readonly COUNT = UBOLocal.LOCAL_SHADOW_BIAS + 4;
+    public static readonly REFLECTION_PROBE_DATA1 = UBOLocal.LOCAL_SHADOW_BIAS + 4;
+    public static readonly REFLECTION_PROBE_DATA2 = UBOLocal.REFLECTION_PROBE_DATA1 + 4;
+    public static readonly COUNT = UBOLocal.REFLECTION_PROBE_DATA2 + 4;
     public static readonly SIZE = UBOLocal.COUNT * 4;
 
     public static readonly NAME = 'CCLocal';
@@ -396,6 +400,8 @@ export class UBOLocal {
         new Uniform('cc_matWorldIT', Type.MAT4, 1),
         new Uniform('cc_lightingMapUVParam', Type.FLOAT4, 1),
         new Uniform('cc_localShadowBias', Type.FLOAT4, 1),
+        new Uniform('cc_reflectionProbeData1', Type.FLOAT4, 1),
+        new Uniform('cc_reflectionProbeData2', Type.FLOAT4, 1),
     ], 1);
 }
 localDescriptorSetLayout.layouts[UBOLocal.NAME] = UBOLocal.LAYOUT;

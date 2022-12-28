@@ -242,7 +242,7 @@ export class Model {
      * @en The node to which the model belongs
      * @zh 模型所在的节点
      */
-    get node () : Node {
+    get node (): Node {
         return this._node;
     }
 
@@ -254,7 +254,7 @@ export class Model {
      * @en Model's transform
      * @zh 模型的变换
      */
-    get transform () : Node {
+    get transform (): Node {
         return this._transform;
     }
 
@@ -269,7 +269,7 @@ export class Model {
      * @zh 模型的可见性标志
      * 模型的可见性标志与 [[Node.layer]] 不同，它会在剔除阶段与 [[Camera.visibility]] 进行比较
      */
-    get visFlags () : number {
+    get visFlags (): number {
         return this._visFlags;
     }
 
@@ -281,7 +281,7 @@ export class Model {
      * @en Whether the model is enabled in the render scene so that it will be rendered
      * @zh 模型是否在渲染场景中启用并被渲染
      */
-    get enabled () : boolean {
+    get enabled (): boolean {
         return this._enabled;
     }
 
@@ -293,7 +293,7 @@ export class Model {
      * @en Rendering priority in the transparent queue of model.
      * @zh Model 在透明队列中的渲染排序优先级
      */
-    get priority () : number {
+    get priority (): number {
         return this._priority;
     }
 
@@ -472,6 +472,12 @@ export class Model {
      * @zh 阴影法线偏移
      */
     protected _shadowNormalBias = 0;
+
+    /**
+     * @en Reflect probe Id
+     * @zh 使用第几个反射探针
+     */
+    protected _reflectionProbeId = 0;
 
     /**
      * @en Whether the model is enabled in the render scene so that it will be rendered
@@ -952,7 +958,17 @@ export class Model {
         const sv = this._localData;
         sv[UBOLocal.LOCAL_SHADOW_BIAS + 0] = this._shadowBias;
         sv[UBOLocal.LOCAL_SHADOW_BIAS + 1] = this._shadowNormalBias;
-        sv[UBOLocal.LOCAL_SHADOW_BIAS + 2] = 0;
+        this._localDataUpdated = true;
+    }
+
+    /**
+     * @en Update the id of reflection probe
+     * @zh 更新物体使用哪个反射探针
+     */
+    public updateReflectionProbeId () {
+        const sv = this._localData;
+        //xubin: update Id and REFLECTION_PROBE_DATA1/2
+        sv[UBOLocal.LOCAL_SHADOW_BIAS + 2] = this._reflectionProbeId;
         sv[UBOLocal.LOCAL_SHADOW_BIAS + 3] = 0;
         this._localDataUpdated = true;
     }
