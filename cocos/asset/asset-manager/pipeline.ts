@@ -116,8 +116,8 @@ export class Pipeline {
      * @zh
      * 在某个特定的点为管线插入一个新的 pipe。
      *
-     * @param func - The new pipe
-     * @param func.task - The task handled with pipeline will be transferred to this function
+     * @param func @en The new pipe to be inserted. @zh 待插入的管道。
+     * @param func.task @en The task handled with pipeline will be transferred to this function.
      * @param func.done - Callback you need to invoke manually when this pipe is finished. if the pipeline is synchronous, callback is unnecessary.
      * @param index - The specific point you want to insert at.
      * @return pipeline

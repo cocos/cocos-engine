@@ -92,7 +92,7 @@ export class Asset extends Eventify(CCObject) {
      * Indicates whether this asset is a default asset.
      *
      * @zh
-     * 表明此资源是否是默认资源
+     * 表明此资源是否是默认资源。
      *
      * @deprecated Since v3.7, this is an internal engine interface and you should not call this interface under any circumstances.
      */
@@ -125,7 +125,7 @@ export class Asset extends Eventify(CCObject) {
 
     /**
      * @en
-     * Returns the url of this asset's native object, if none it will  an empty string.
+     * Returns the url of this asset's native object, if none it will returns an empty string.
      * @zh
      * 返回该资源对应的目标平台资源的 URL，如果没有将返回一个空字符串。
      * @readOnly
@@ -277,7 +277,7 @@ export class Asset extends Eventify(CCObject) {
      * @zh
      * 当前该资源被引用的数量。
      *
-     * @ @en The number of references to this asset. @zh 被引用的数量。
+     * @en The number of references to this asset. @zh 被引用的数量。
      */
     public get refCount (): number {
         return this._ref;
@@ -286,12 +286,12 @@ export class Asset extends Eventify(CCObject) {
     /**
      * @en
      * Add references of asset. This will prevent resources from being automatically recycled.
-     * When you no longer need to hold the resource, you need to using [[decRef]] to decrease the refCount.
+     * When you no longer need to hold the asset, you need to using [[decRef]] to decrease the refCount.
      *
      * @zh
      * 增加资源的引用。这将阻止资源被自动释放。当你不再需要持有该资源时，你需要调用 [[decRef]] 来减少引用计数。
      *
-     * @return @en The resource itself. @zh 此资源本身。
+     * @return @en The asset itself. @zh 此资源本身。
      *
      */
     public addRef (): Asset {
@@ -306,7 +306,7 @@ export class Asset extends Eventify(CCObject) {
      * @zh
      * 减少资源的引用，如果引用数量为 0，则将自动释放该资源。
      *
-     * @return @en The resource itself. @zh 此资源本身。
+     * @return @en The asset itself. @zh 此资源本身。
      *
      */
     public decRef (autoRelease = true): Asset {
