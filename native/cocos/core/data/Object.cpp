@@ -58,6 +58,10 @@ CCObject::CCObject(ccstd::string name /* = ""*/)
 
 CCObject::~CCObject() = default;
 
+void CCObject::destruct() {
+    _name.clear();
+}
+
 bool CCObject::destroy() {
     //NOTE: _objFlags will be set to TO_DESTROY when destroy method in TS is triggered.
     // CCObject::destroy method will be invoked at the end. Refer to cocos/core/data/object.ts
