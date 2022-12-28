@@ -1,18 +1,17 @@
 /****************************************************************************
- Copyright (c) 2021-2022 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
 
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -39,14 +38,14 @@ namespace cc {
 
 namespace render {
 
-class ProgramProxy {
+class ProgramProxy : public RefCounted {
 public:
     ProgramProxy() noexcept = default;
     ProgramProxy(ProgramProxy&& rhs) = delete;
     ProgramProxy(ProgramProxy const& rhs) = delete;
     ProgramProxy& operator=(ProgramProxy&& rhs) = delete;
     ProgramProxy& operator=(ProgramProxy const& rhs) = delete;
-    virtual ~ProgramProxy() noexcept = default;
+    ~ProgramProxy() noexcept override = default;
 
     virtual const ccstd::string &getName() const noexcept = 0;
     virtual gfx::Shader *getShader() const noexcept = 0;
@@ -63,15 +62,18 @@ public:
 
     virtual void addEffect(EffectAsset *effectAsset) = 0;
     virtual void precompileEffect(gfx::Device *device, EffectAsset *effectAsset) = 0;
-    virtual ccstd::pmr::string getKey(uint32_t phaseID, const ccstd::pmr::string &programName, const MacroRecord &defines) const = 0;
-    virtual const gfx::PipelineLayout &getPipelineLayout(gfx::Device *device, uint32_t phaseID, const ccstd::pmr::string &programName) const = 0;
-    virtual const gfx::DescriptorSetLayout &getMaterialDescriptorSetLayout(gfx::Device *device, uint32_t phaseID, const ccstd::pmr::string &programName) const = 0;
-    virtual const gfx::DescriptorSetLayout &getLocalDescriptorSetLayout(gfx::Device *device, uint32_t phaseID, const ccstd::pmr::string &programName) const = 0;
+    virtual ccstd::string getKey(uint32_t phaseID, const ccstd::pmr::string &programName, const MacroRecord &defines) const = 0;
+    virtual const gfx::PipelineLayout &getPipelineLayout(gfx::Device *device, uint32_t phaseID, const ccstd::pmr::string &programName) = 0;
+    virtual const gfx::DescriptorSetLayout &getMaterialDescriptorSetLayout(gfx::Device *device, uint32_t phaseID, const ccstd::pmr::string &programName) = 0;
+    virtual const gfx::DescriptorSetLayout &getLocalDescriptorSetLayout(gfx::Device *device, uint32_t phaseID, const ccstd::pmr::string &programName) = 0;
     virtual const IProgramInfo &getProgramInfo(uint32_t phaseID, const ccstd::pmr::string &programName) const = 0;
     virtual const gfx::ShaderInfo &getShaderInfo(uint32_t phaseID, const ccstd::pmr::string &programName) const = 0;
     virtual ProgramProxy *getProgramVariant(gfx::Device *device, uint32_t phaseID, const ccstd::string &name, const MacroRecord &defines, const ccstd::pmr::string *key) const = 0;
     virtual const ccstd::pmr::vector<unsigned> &getBlockSizes(uint32_t phaseID, const ccstd::pmr::string &programName) const = 0;
     virtual const Record<ccstd::string, uint32_t> &getHandleMap(uint32_t phaseID, const ccstd::pmr::string &programName) const = 0;
+    virtual uint32_t getProgramID(uint32_t phaseID, const ccstd::pmr::string &programName) = 0;
+    virtual uint32_t getDescriptorNameID(const ccstd::pmr::string &name) = 0;
+    virtual const ccstd::pmr::string &getDescriptorName(uint32_t nameID) = 0;
     ProgramProxy *getProgramVariant(gfx::Device *device, uint32_t phaseID, const ccstd::string &name, const MacroRecord &defines) const {
         return getProgramVariant(device, phaseID, name, defines, nullptr);
     }
