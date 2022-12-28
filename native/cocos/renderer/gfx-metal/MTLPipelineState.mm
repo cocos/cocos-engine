@@ -196,19 +196,24 @@ bool CCMTLPipelineState::createMTLRenderPipelineState() {
     MTLRenderPipelineDescriptor *descriptor = [[MTLRenderPipelineDescriptor alloc] init];
     if (descriptor == nil) {
         CC_LOG_ERROR("CCMTLPipelineState: MTLRenderPipelineDescriptor could not be allocated.");
-        return false;
+        ret = false;
     }
-    setMTLFunctionsAndFormats(descriptor);
-    setVertexDescriptor(descriptor);
-    setBlendStates(descriptor);
-    ret = createMTLRenderPipeline(descriptor);
+    if(ret) ret = setMTLFunctionsAndFormats(descriptor);
+    if(ret) ret = setVertexDescriptor(descriptor);
+    if(ret) ret = setBlendStates(descriptor);
+    if(ret) ret = createMTLRenderPipeline(descriptor);
     [descriptor release];
+
+    if(!ret) {
+        CC_LOG_ERROR("Failed to create pipeline state, please check if shader/pileinelayout match with each other!");
+    }
 
     return ret;
 }
 
 //TODO: reconstruction
-void CCMTLPipelineState::setVertexDescriptor(MTLRenderPipelineDescriptor *descriptor) {
+bool CCMTLPipelineState::setVertexDescriptor(MTLRenderPipelineDescriptor *descriptor) {
+    bool res = true;
     auto activeAttributes = static_cast<CCMTLShader *>(_shader)->getAttributes();
     ccstd::vector<std::tuple<int /**vertexBufferBindingIndex*/, uint32_t /**stream*/>> layouts;
     ccstd::unordered_map<int /**vertexBufferBindingIndex*/, std::tuple<uint32_t /**stride*/, bool /**isInstanced*/>> map;
@@ -250,6 +255,10 @@ void CCMTLPipelineState::setVertexDescriptor(MTLRenderPipelineDescriptor *descri
         descriptor.vertexDescriptor.attributes[dummy.location].bufferIndex = static_cast<CCMTLShader *>(_shader)->getAvailableBufferBindingIndex(ShaderStageFlagBit::VERTEX, dummy.stream);
         CC_LOG_WARNING("Attribute %s is missing, add a dummy data for it.", dummy.name.c_str());
     }
+    
+    if(layouts.empty()) {
+        res = false;
+    }
 
     // layouts
     for (const auto &layout : layouts) {
@@ -264,9 +273,10 @@ void CCMTLPipelineState::setVertexDescriptor(MTLRenderPipelineDescriptor *descri
     }
 
     _GPUPipelineState->vertexBufferBindingInfo = std::move(layouts);
+    return res;
 }
 
-void CCMTLPipelineState::setMTLFunctionsAndFormats(MTLRenderPipelineDescriptor *descriptor) {
+bool CCMTLPipelineState::setMTLFunctionsAndFormats(MTLRenderPipelineDescriptor *descriptor) {
     const SubpassInfoList &subpasses = _renderPass->getSubpasses();
     const ColorAttachmentList &colorAttachments = _renderPass->getColorAttachments();
     const auto &ccShader = static_cast<CCMTLShader *>(_shader);
@@ -346,9 +356,10 @@ void CCMTLPipelineState::setMTLFunctionsAndFormats(MTLRenderPipelineDescriptor *
         if (depthStencilFormat == Format::DEPTH_STENCIL)
             descriptor.stencilAttachmentPixelFormat = mtlPixelFormat;
     }
+    return true;
 }
 
-void CCMTLPipelineState::setBlendStates(MTLRenderPipelineDescriptor *descriptor) {
+bool CCMTLPipelineState::setBlendStates(MTLRenderPipelineDescriptor *descriptor) {
     //FIXME: how to handle these two attributes?
     //    BlendState::isIndepend
     //    BlendState::blendColor;
@@ -372,6 +383,7 @@ void CCMTLPipelineState::setBlendStates(MTLRenderPipelineDescriptor *descriptor)
 
         ++i;
     }
+    return true;
 }
 
 bool CCMTLPipelineState::createMTLRenderPipeline(MTLRenderPipelineDescriptor *descriptor) {

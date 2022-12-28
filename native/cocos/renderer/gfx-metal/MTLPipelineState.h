@@ -58,9 +58,9 @@ protected:
     bool createGPUPipelineState();
     bool createMTLComputePipelineState();
     bool createMTLRenderPipelineState();
-    void setVertexDescriptor(MTLRenderPipelineDescriptor *);
-    void setMTLFunctionsAndFormats(MTLRenderPipelineDescriptor *);
-    void setBlendStates(MTLRenderPipelineDescriptor *);
+    bool setVertexDescriptor(MTLRenderPipelineDescriptor *);
+    bool setMTLFunctionsAndFormats(MTLRenderPipelineDescriptor *);
+    bool setBlendStates(MTLRenderPipelineDescriptor *);
     bool createMTLRenderPipeline(MTLRenderPipelineDescriptor *);
 
     bool _renderPipelineReady = false;
