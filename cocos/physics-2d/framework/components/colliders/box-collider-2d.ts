@@ -26,7 +26,7 @@ import { Vec2, Size, _decorator } from '../../../../core';
 import { Collider2D } from './collider-2d';
 import { ECollider2DType } from '../../physics-types';
 import { IBoxShape } from '../../../spec/i-physics-shape';
-import { help, tooltip } from '../../../../core/data/decorators';
+import { help, serializable, tooltip, type } from '../../../../core/data/decorators';
 
 const { ccclass, menu, property } = _decorator;
 
@@ -41,7 +41,8 @@ export class BoxCollider2D extends Collider2D {
      * @en Box size.
      * @zh 包围盒大小。
      */
-    @property
+    @type(Size)
+    @serializable
     @tooltip('i18n:physics2d.collider.size')
     get size () {
         return this._size;

@@ -25,8 +25,8 @@
 import { Joint2D } from './joint-2d';
 import { IDistanceJoint } from '../../../spec/i-physics-joint';
 import { EJoint2DType } from '../../physics-types';
-import { Vec3, _decorator } from '../../../../core';
-import { help, tooltip } from '../../../../core/data/decorators';
+import { CCBoolean, CCFloat, Vec3, _decorator } from '../../../../core';
+import { help, serializable, tooltip, type } from '../../../../core/data/decorators';
 
 const { ccclass, menu, property } = _decorator;
 
@@ -42,7 +42,8 @@ export class DistanceJoint2D extends Joint2D {
      * @zh
      * 最大长度。
      */
-    @property
+    @type(CCFloat)
+    @serializable
     @tooltip('i18n:physics2d.joint.maxLength')
     get maxLength () {
         if (this._autoCalcDistance) {
@@ -67,7 +68,8 @@ export class DistanceJoint2D extends Joint2D {
      * @zh
      * 自动计算关节连接的两个刚体间的距离。
      */
-    @property
+    @type(CCBoolean)
+    @serializable
     @tooltip('i18n:physics2d.joint.autoCalcDistance')
     get autoCalcDistance () {
         return this._autoCalcDistance;

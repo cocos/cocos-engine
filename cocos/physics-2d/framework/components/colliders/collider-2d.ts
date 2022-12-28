@@ -24,7 +24,7 @@
 
 import { EDITOR } from 'internal:constants';
 
-import { Vec2, Rect, _decorator, Eventify, cclegacy, tooltip } from '../../../../core';
+import { Vec2, Rect, _decorator, Eventify, cclegacy, tooltip, CCInteger, serializable, CCFloat, CCBoolean } from '../../../../core';
 import { PhysicsGroup } from '../../../../physics/framework/physics-enum';
 
 import { RigidBody2D } from '../rigid-body-2d';
@@ -44,7 +44,8 @@ export class Collider2D extends Eventify(Component) {
      * @en Tag. If a node has several collider components, you can judge which type of collider is collided according to the tag.
      * @zh 标签。当一个节点上有多个碰撞组件时，在发生碰撞后，可以使用此标签来判断是节点上的哪个碰撞组件被碰撞了。
      */
-    @property
+    @type(CCFloat)
+    @serializable
     @tooltip('i18n:physics2d.collider.tag')
     tag = 0;
 
@@ -70,7 +71,8 @@ export class Collider2D extends Eventify(Component) {
      * @en The density.
      * @zh 密度。
      */
-    @property
+    @type(CCFloat)
+    @serializable
     @tooltip('i18n:physics2d.collider.density')
     get density () {
         return this._density;
@@ -85,7 +87,8 @@ export class Collider2D extends Eventify(Component) {
      * @zh
      * 一个传感器类型的碰撞体会产生碰撞回调，但是不会发生物理碰撞效果。
      */
-    @property
+    @type(CCBoolean)
+    @serializable
     @tooltip('i18n:physics2d.collider.sensor')
     get sensor () {
         return this._sensor;
@@ -100,7 +103,8 @@ export class Collider2D extends Eventify(Component) {
      * @zh
      * 摩擦系数，取值一般在 [0, 1] 之间。
      */
-    @property
+    @type(CCFloat)
+    @serializable
     @tooltip('i18n:physics2d.collider.friction')
     get friction () {
         return this._friction;
@@ -115,7 +119,8 @@ export class Collider2D extends Eventify(Component) {
      * @zh
      * 弹性系数，取值一般在 [0, 1]之间。
      */
-    @property
+    @type(CCFloat)
+    @serializable
     @tooltip('i18n:physics2d.collider.restitution')
     get restitution () {
         return this._restitution;
@@ -127,7 +132,8 @@ export class Collider2D extends Eventify(Component) {
      * @en Position offset
      * @zh 位置偏移量
      */
-    @property
+    @type(Vec2)
+    @serializable
     @tooltip('i18n:physics2d.collider.offset')
     get offset () {
         return this._offset;
