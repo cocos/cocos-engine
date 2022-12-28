@@ -83,16 +83,29 @@ export class ReflectionProbeManager {
             buffer[bufferOffset + 1] = this._probes[i].node.worldPosition.y;
             buffer[bufferOffset + 2] = this._probes[i].node.worldPosition.z;
             buffer[bufferOffset + 3] = 0;
-            //half box size
-            buffer[bufferOffset + 4] = 1;
-            buffer[bufferOffset + 5] = 1;
-            buffer[bufferOffset + 6] = 0;
-            buffer[bufferOffset + 7] = 0;
-            //mip count
-            buffer[bufferOffset + 8] = 1;
+            if (this._probes[i].probeType === ProbeType.CUBE) {
+                //half box size
+                buffer[bufferOffset + 4] = 1;
+                buffer[bufferOffset + 5] = 1;
+                buffer[bufferOffset + 6] = 0;
+                buffer[bufferOffset + 7] = 0;
+                //mip count
+                buffer[bufferOffset + 8] = this._probes[i].cubemap!.mipmapLevel;
+            } else {
+                //plane.w;
+                //planarReflectionDepthScale
+                //mipCount;
+                buffer[bufferOffset + 4] = 1;
+                buffer[bufferOffset + 5] = 1;
+                buffer[bufferOffset + 6] = 0;
+                buffer[bufferOffset + 7] = 0;
+
+                buffer[bufferOffset + 8] = 0;
+            }
             buffer[bufferOffset + 9] = 0;
             buffer[bufferOffset + 10] = 0;
             buffer[bufferOffset + 11] = 0;
+
             bufferOffset += 4 * dataWidth;
         }
         const region = new BufferTextureCopy();
