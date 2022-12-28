@@ -285,8 +285,8 @@ export const EnvironmentLightingType = Enum({
 });
 export const ShadowsInfo = jsb.ShadowsInfo;
 export type ShadowsInfo = jsb.ShadowsInfo;
-export const Shadows = jsb.Shadow;
-export type Shadows = jsb.Shadow;
+export const Shadows = jsb.Shadows;
+export type Shadows = jsb.Shadows;
 cclegacy.Shadows = Shadows;
 
 export const Skybox = jsb.Skybox;
