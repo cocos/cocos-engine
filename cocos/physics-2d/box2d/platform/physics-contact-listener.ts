@@ -24,30 +24,11 @@
 
 import b2 from '@cocos/box2d';
 import { js } from '../../../core';
+import { Contact2DType } from '../../framework';
+import { b2ContactExtends, PhysicsContact } from '../physics-contact';
 
 export class PhysicsContactListener extends b2.ContactListener {
-    _contactFixtures: b2.Fixture[] = [];
-
-    _BeginContact: Function | null = null;
-    _EndContact: Function | null = null;
-    _PreSolve: Function | null = null;
-    _PostSolve: Function | null = null;
-
-    setBeginContact (cb) {
-        this._BeginContact = cb;
-    }
-
-    setEndContact (cb) {
-        this._EndContact = cb;
-    }
-
-    setPreSolve (cb) {
-        this._PreSolve = cb;
-    }
-
-    setPostSolve (cb) {
-        this._PostSolve = cb;
-    }
+    private _contactFixtures: b2.Fixture[] = [];
 
     BeginContact (contact: b2.Contact) {
         if (!this._BeginContact) return;
@@ -60,26 +41,26 @@ export class PhysicsContactListener extends b2.ContactListener {
 
         if (fixtures.indexOf(fixtureA) !== -1 || fixtures.indexOf(fixtureB) !== -1) {
             (contact as any)._shouldReport = true; // for quick check whether this contact should report
-            this._BeginContact(contact);
+            this._BeginContact(contact as b2ContactExtends);
         }
     }
 
     EndContact (contact: b2.Contact) {
         if (this._EndContact && (contact as any)._shouldReport) {
             (contact as any)._shouldReport = false;
-            this._EndContact(contact);
+            this._EndContact(contact as b2ContactExtends);
         }
     }
 
     PreSolve (contact: b2.Contact, oldManifold: b2.Manifold) {
         if (this._PreSolve && (contact as any)._shouldReport) {
-            this._PreSolve(contact, oldManifold);
+            this._PreSolve(contact as b2ContactExtends, oldManifold);
         }
     }
 
     PostSolve (contact: b2.Contact, impulse: b2.ContactImpulse) {
         if (this._PostSolve && (contact as any)._shouldReport) {
-            this._PostSolve(contact, impulse);
+            this._PostSolve(contact as b2ContactExtends, impulse);
         }
     }
 
@@ -89,5 +70,41 @@ export class PhysicsContactListener extends b2.ContactListener {
 
     unregisterContactFixture (fixture) {
         js.array.remove(this._contactFixtures, fixture);
+    }
+
+    private _BeginContact (b2contact: b2ContactExtends) {
+        const c = PhysicsContact.get(b2contact);
+        c.emit(Contact2DType.BEGIN_CONTACT);
+    }
+
+    private _EndContact (b2contact: b2ContactExtends) {
+        const c = b2contact.m_userData;
+        if (!c) {
+            return;
+        }
+        c.emit(Contact2DType.END_CONTACT);
+
+        PhysicsContact.put(b2contact);
+    }
+
+    private _PreSolve (b2contact: b2ContactExtends, oldManifold: b2.Manifold) {
+        const c = b2contact.m_userData;
+        if (!c) {
+            return;
+        }
+
+        c.emit(Contact2DType.PRE_SOLVE);
+    }
+
+    private _PostSolve (b2contact: b2ContactExtends, impulse: b2.ContactImpulse) {
+        const c: PhysicsContact = b2contact.m_userData;
+        if (!c) {
+            return;
+        }
+
+        // impulse only survive during post sole callback
+        c._setImpulse(impulse);
+        c.emit(Contact2DType.POST_SOLVE);
+        c._setImpulse(null);
     }
 }

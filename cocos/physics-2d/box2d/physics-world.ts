@@ -35,8 +35,7 @@ import { b2RigidBody2D } from './rigid-body';
 import { PhysicsContactListener } from './platform/physics-contact-listener';
 import { PhysicsAABBQueryCallback } from './platform/physics-aabb-query-callback';
 import { PhysicsRayCastCallback } from './platform/physics-ray-cast-callback';
-import { PhysicsContact, b2ContactExtends } from './physics-contact';
-import { Contact2DType, Collider2D, RaycastResult2D } from '../framework';
+import { Collider2D, RaycastResult2D } from '../framework';
 import { b2Shape2D } from './shapes/shape-2d';
 import { PhysicsDebugDraw } from './platform/physics-debug-draw';
 import { Node, find, Layers } from '../../scene-graph';
@@ -76,12 +75,7 @@ export class b2PhysicsWorld implements IPhysicsWorld {
         //tempBodyDef.position.Set(480 / PHYSICS_2D_PTM_RATIO, 320 / PHYSICS_2D_PTM_RATIO);//temporary
         this._physicsGroundBody = this._world.CreateBody(tempBodyDef);
         const listener = new PhysicsContactListener();
-        listener.setBeginContact(this._onBeginContact);
-        listener.setEndContact(this._onEndContact);
-        listener.setPreSolve(this._onPreSolve);
-        listener.setPostSolve(this._onPostSolve);
         this._world.SetContactListener(listener);
-
         this._contactListener = listener;
 
         this._aabbQueryCallback = new PhysicsAABBQueryCallback();
@@ -389,41 +383,5 @@ export class b2PhysicsWorld implements IPhysicsWorld {
         }
         this._debugGraphics.clear();
         this._world.DrawDebugData();
-    }
-
-    _onBeginContact (b2contact: b2ContactExtends) {
-        const c = PhysicsContact.get(b2contact);
-        c.emit(Contact2DType.BEGIN_CONTACT);
-    }
-
-    _onEndContact (b2contact: b2ContactExtends) {
-        const c = b2contact.m_userData as PhysicsContact;
-        if (!c) {
-            return;
-        }
-        c.emit(Contact2DType.END_CONTACT);
-
-        PhysicsContact.put(b2contact);
-    }
-
-    _onPreSolve (b2contact: b2ContactExtends) {
-        const c = b2contact.m_userData as PhysicsContact;
-        if (!c) {
-            return;
-        }
-
-        c.emit(Contact2DType.PRE_SOLVE);
-    }
-
-    _onPostSolve (b2contact: b2ContactExtends, impulse: b2.ContactImpulse) {
-        const c: PhysicsContact = b2contact.m_userData as PhysicsContact;
-        if (!c) {
-            return;
-        }
-
-        // impulse only survive during post sole callback
-        c._setImpulse(impulse);
-        c.emit(Contact2DType.POST_SOLVE);
-        c._setImpulse(null);
     }
 }
