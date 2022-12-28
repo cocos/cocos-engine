@@ -101,7 +101,7 @@ export function isEmptyObject (obj: any) {
  * @param value_ @en The property value to add or new value to replace a existing attribute.
  * @zh 要添加的属性值，或者取代现有属性的新值。
  * @param writable @en If the property is writable. @zh 属性是否可写。
- * @param enumerable @en If the property is enumerable. @zh 属性是否可列举。
+ * @param enumerable @en If the property is enumerable. @zh 属性是否可枚举。
  */
 export const value = (() => {
     const descriptor: PropertyDescriptor = {
@@ -490,11 +490,8 @@ export function mixin (object?: Record<string | number, any>, ...sources: any[])
 /**
  * @en
  * Makes a class inherit from the supplied base class.
- * Both classes should be native javascript constructors, not created by `Class`, so
- * usually you will want to inherit from [[CCClass]] instead.
  * @zh
  * 将一个类型继承另一个类型。
- * 两个类型都需要是 javascript 的构建函数，而不是 `Class`, 所以你通常可以通过继承 [[CCClass]] 来代替。
  * @param cls @en The class to inherit. @zh 要继承的类。
  * @param base @en The class to inherit from. @zh 被继承的类。
  * @returns @en Passed in `cls`. @zh 传入的 `cls`。
@@ -549,7 +546,7 @@ export function getSuper (constructor: Function) {
  * @param subclass @en Sub class to check. @zh 子类类型。
  * @param superclass @en Super class to check. @zh 父类类型。
  * @return @en True if sub class is child of super class, or they are the same type. False else.
- * 如果子类类型是父类类型的子类，或者二者是相同类型，那么返回 true，否则返回 false。
+ * @zh 如果子类类型是父类类型的子类，或者二者是相同类型，那么返回 true，否则返回 false。
  */
 export function isChildClassOf<T extends Constructor>(subclass: unknown, superclass: T): subclass is T;
 export function isChildClassOf(subclass: unknown, superclass: unknown): boolean;
@@ -655,7 +652,7 @@ const doSetClassName = setup('__classname__', _nameToClass, true);
  * @en Registers a class by specified name manually.
  * @zh 通过指定的名称手动注册类型
  * @param className @en Class name to register. @zh 注册的类名。
- * @param constructor @ Constructor to register. @zh 注册的构造函数。
+ * @param constructor @en Constructor to register. @zh 注册的构造函数。
  */
 export function setClassName (className: string, constructor: Constructor) {
     doSetClassName(className, constructor);

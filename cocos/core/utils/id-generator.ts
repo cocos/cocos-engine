@@ -48,7 +48,7 @@ export class IDGenerator {
     /**
      * @en A number to record current id. It may increase when invoke `getNewId()`. Should use
      * `getNewId()` to get a unique id.
-     * @zh 记录当前 id 值。大概调用 `getNewId()` 是，它可能被加1。应该使用 `getNewId()` 获取唯一的 id。
+     * @zh 记录当前 id 值。调用 `getNewId()` 时，它可能被加1。应该使用 `getNewId()` 获取唯一的 id。
      */
     public id: number;
 
