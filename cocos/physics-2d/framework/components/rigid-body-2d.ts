@@ -1,3 +1,27 @@
+/*
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
+
 import { EDITOR } from 'internal:constants';
 import { IRigidBody2D } from '../../spec/i-rigid-body';
 import { _decorator, Vec2, IVec2Like, cclegacy } from '../../../core';
@@ -5,10 +29,12 @@ import { ERigidBody2DType } from '../physics-types';
 import { createRigidBody } from '../physics-selector';
 import { PhysicsGroup } from '../../../physics/framework/physics-enum';
 import { Component } from '../../../scene-graph';
+import { help, tooltip } from '../../../core/data/decorators';
 
 const { property, type, menu, ccclass } = _decorator;
 
 @ccclass('cc.RigidBody2D')
+@help('i18n:cc.RigidBody2D')
 @menu('Physics2D/RigidBody2D')
 export class RigidBody2D extends Component {
     /**
@@ -18,6 +44,7 @@ export class RigidBody2D extends Component {
      * 获取或设置分组。
      */
     @type(PhysicsGroup)
+    @tooltip('i18n:physics2d.rigidbody.group')
     public get group (): number {
         return this._group;
     }
@@ -26,6 +53,7 @@ export class RigidBody2D extends Component {
     }
 
     @property
+    @tooltip('i18n:physics2d.rigidbody.enabledContactListener')
     enabledContactListener = false;
 
     /**
@@ -42,6 +70,7 @@ export class RigidBody2D extends Component {
      *  - 应该尽量少的使用此选项，因为它会增加程序处理时间。
      */
     @property
+    @tooltip('i18n:physics2d.rigidbody.bullet')
     bullet = false;
 
     /**
@@ -51,6 +80,7 @@ export class RigidBody2D extends Component {
      * 刚体类型： Static, Kinematic, Dynamic or Animated.
      */
     @type(ERigidBody2DType)
+    @tooltip('i18n:physics2d.rigidbody.type')
     get type (): ERigidBody2DType {
         return this._type;
     }
@@ -74,6 +104,7 @@ export class RigidBody2D extends Component {
      * 需要注意这将使 CPU 占用率提高。
      */
     @property
+    @tooltip('i18n:physics2d.rigidbody.allowSleep')
     get allowSleep (): boolean {
         return this._allowSleep;
     }
@@ -91,6 +122,7 @@ export class RigidBody2D extends Component {
      * 缩放应用在此刚体上的重力值。
      */
     @property
+    @tooltip('i18n:physics2d.rigidbody.gravityScale')
     get gravityScale (): number {
         return this._gravityScale;
     }
@@ -110,6 +142,7 @@ export class RigidBody2D extends Component {
      * Linear damping 用于衰减刚体的线性速度。衰减系数可以大于 1，但是当衰减系数比较大的时候，衰减的效果会变得比较敏感。
      */
     @property
+    @tooltip('i18n:physics2d.rigidbody.linearDamping')
     get linearDamping (): number {
         return this._linearDamping;
     }
@@ -129,6 +162,7 @@ export class RigidBody2D extends Component {
      * Angular damping 用于衰减刚体的角速度。衰减系数可以大于 1，但是当衰减系数比较大的时候，衰减的效果会变得比较敏感。
      */
     @property
+    @tooltip('i18n:physics2d.rigidbody.angularDamping')
     get angularDamping (): number {
         return this._angularDamping;
     }
@@ -146,6 +180,7 @@ export class RigidBody2D extends Component {
      * 刚体在世界坐标下的线性速度。
      */
     @property
+    @tooltip('i18n:physics2d.rigidbody.linearVelocity')
     get linearVelocity (): Vec2 {
         if (this._body) {
             this._body.getLinearVelocity(this._linearVelocity);
@@ -166,6 +201,7 @@ export class RigidBody2D extends Component {
      * 刚体的角速度。
      */
     @property
+    @tooltip('i18n:physics2d.rigidbody.angularVelocity')
     get angularVelocity (): number {
         if (this._body) {
             this._angularVelocity = this._body.getAngularVelocity();
@@ -186,6 +222,7 @@ export class RigidBody2D extends Component {
      * 是否禁止此刚体进行旋转。
      */
     @property
+    @tooltip('i18n:physics2d.rigidbody.fixedRotation')
     get fixedRotation (): boolean {
         return this._fixedRotation;
     }
@@ -203,6 +240,7 @@ export class RigidBody2D extends Component {
      * 是否在初始化时唤醒此刚体。
      */
     @property
+    @tooltip('i18n:physics2d.rigidbody.awakeOnLoad')
     awakeOnLoad = true;
 
     // /**

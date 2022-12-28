@@ -1,5 +1,29 @@
+/*
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
+
 import { EDITOR } from 'internal:constants';
-import { Vec2, _decorator, cclegacy } from '../../../../core';
+import { Vec2, _decorator, cclegacy, tooltip } from '../../../../core';
 import { RigidBody2D } from '../rigid-body-2d';
 import { IJoint2D } from '../../../spec/i-physics-joint';
 import { EJoint2DType } from '../../physics-types';
@@ -17,6 +41,7 @@ export class Joint2D extends Component {
      * 在自身刚体的本地空间中，Joint2D的位置。
      */
     @property
+    @tooltip('i18n:physics2d.joint.anchor')
     anchor = new Vec2();
 
     /**
@@ -26,6 +51,7 @@ export class Joint2D extends Component {
      * 在连接刚体的本地空间中，Joint2D的位置。
      */
     @property
+    @tooltip('i18n:physics2d.joint.connectedAnchor')
     connectedAnchor = new Vec2();
 
     /**
@@ -35,6 +61,7 @@ export class Joint2D extends Component {
      * 关节连接的两刚体之间是否开启碰撞。
      */
     @property
+    @tooltip('i18n:physics2d.joint.collideConnected')
     collideConnected = false;
 
     /**
@@ -44,6 +71,7 @@ export class Joint2D extends Component {
      * 关节连接的刚体，为空时表示连接到位于世界原点的静态刚体。
      */
     @type(RigidBody2D)
+    @tooltip('i18n:physics2d.joint.connectedBody')
     connectedBody: RigidBody2D | null = null;
 
     /**
