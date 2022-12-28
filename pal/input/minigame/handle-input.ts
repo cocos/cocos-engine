@@ -43,6 +43,8 @@ export class HandleInputDevice {
     public get rightStick () { return this._rightStick; }
     public get buttonLeftStick () { return this._buttonLeftStick; }
     public get buttonRightStick () { return this._buttonRightStick; }
+    public get buttonOptions () { return this._buttonOptions; }
+    public get buttonStart () { return this._buttonStart; }
     public get handLeftPosition () { return this._handLeftPosition; }
     public get handLeftOrientation () { return this._handLeftOrientation; }
     public get handRightPosition () { return this._handRightPosition; }
@@ -68,6 +70,8 @@ export class HandleInputDevice {
     private _rightStick!: InputSourceStick;
     private _buttonLeftStick!: InputSourceButton;
     private _buttonRightStick!: InputSourceButton;
+    private _buttonOptions!: InputSourceButton;
+    private _buttonStart!: InputSourceButton;
     private _handLeftPosition!: InputSourcePosition;
     private _handLeftOrientation!: InputSourceOrientation;
     private _handRightPosition!: InputSourcePosition;
@@ -134,6 +138,11 @@ export class HandleInputDevice {
         const rightStickRight = new InputSourceButton();
         rightStickRight.getValue = () => 0;
         this._rightStick = new InputSourceStick({ up: rightStickUp, down: rightStickDown, left: rightStickLeft, right: rightStickRight });
+
+        this._buttonOptions = new InputSourceButton();
+        this._buttonOptions.getValue = () => 0;
+        this._buttonStart = new InputSourceButton();
+        this._buttonStart.getValue = () => 0;
 
         this._handLeftPosition = new InputSourcePosition();
         this._handLeftPosition.getValue = () => Vec3.ZERO;
