@@ -56,14 +56,16 @@ let _moveX = 0;
 let _moveY = 0;
 
 let _fillCount = 0;
-let _curTexture : Texture2D | null = null;
-let _tempBuffers : Float32Array;
+let _curTexture: Texture2D | null = null;
+let _tempBuffers: Float32Array;
 let _curLayer: TiledLayer;
 
 let flipTexture: (grid: TiledGrid, gid: MixedGID) => void;
 
 let _accessor: StaticVBAccessor = null!;
+
 /**
+ * @internal Since v3.7.2, This is an engine private object.
  * simple 组装器
  * 可通过 `UI.simple` 获取该组装器。
  */

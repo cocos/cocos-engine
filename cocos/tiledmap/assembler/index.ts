@@ -26,8 +26,9 @@ import { IAssemblerManager } from '../../2d/renderer/base';
 import { TiledLayer } from '../tiled-layer';
 import { simple } from './simple';
 
-// Inline all type switch to avoid jit deoptimization during inlined function change
-
+/**
+ * @internal Since v3.7.2 this is an engine private object.
+ */
 const tiledLayerAssembler: IAssemblerManager = {
     getAssembler () {
         return simple;

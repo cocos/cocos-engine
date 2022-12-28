@@ -33,7 +33,7 @@ import { TextAsset } from '../asset/assets';
  * @en
  * Class for tiled map asset handling.
  * @zh
- * 用于获取 tiled map 资源类
+ * 用于获取 tiled map 资源类。
  * @class TiledMapAsset
  * @extends Asset
  *
@@ -53,9 +53,9 @@ export class TiledMapAsset extends Asset {
 
     /**
      * @en
-     * SpriteFrame array
+     * SpriteFrame array.
      * @zh
-     * SpriteFrame 数组
+     * SpriteFrame 数组。
      */
     @serializable
     @type([SpriteFrame])
@@ -63,9 +63,9 @@ export class TiledMapAsset extends Asset {
 
     /**
      * @en
-     * ImageLayerSpriteFrame array
+     * ImageLayerSpriteFrame array.
      * @zh
-     * ImageLayerSpriteFrame 数组
+     * ImageLayerSpriteFrame 数组。
      * @property {SpriteFrame[]} imageLayerSpriteFrame
      */
     @serializable
@@ -74,9 +74,9 @@ export class TiledMapAsset extends Asset {
 
     /**
      * @en
-     * Name of each object in imageLayerSpriteFrame
+     * Name of each object in imageLayerSpriteFrame.
      * @zh
-     * 每个 imageLayerSpriteFrame 名称
+     * 每个 imageLayerSpriteFrame 名称。
      * @property {String[]} imageLayerTextureNames
      */
     @serializable
@@ -85,9 +85,9 @@ export class TiledMapAsset extends Asset {
 
     /**
      * @en
-     * Name of each object in spriteFrames
+     * Name of each object in spriteFrames.
      * @zh
-     * 每个 SpriteFrame 名称
+     * 每个 SpriteFrame 名称。
      * @property {String[]} spriteFrameNames
      */
     @serializable
@@ -96,9 +96,9 @@ export class TiledMapAsset extends Asset {
 
     /**
      * @en
-     * Size of each object in spriteFrames
+     * Size of each object in spriteFrames.
      * @zh
-     * 每个 SpriteFrame 的大小
+     * 每个 SpriteFrame 的大小。
      * @property {Size[]} spriteFrameSizes
      */
     @serializable

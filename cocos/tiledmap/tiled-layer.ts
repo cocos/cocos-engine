@@ -53,17 +53,43 @@ const _vec3_temp = new Vec3();
 const _vec3_temp2 = new Vec3();
 const _tempRowCol = { row: 0, col: 0 };
 
+/**
+ * @en
+ * User node data, used for adding user node on tiled layer.
+ * @zh
+ * 用户节点数据，可用于在 layer 上添加用户节点。
+ */
 @ccclass('cc.TiledUserNodeData')
 export class TiledUserNodeData extends Component {
+    /**
+     * @en Index in render queue.
+     * @zh 渲染序列。
+    */
     _index = -1;
+    /**
+     * @en Row number of position in layer.
+     * @zh 在图层位置的所在行数。
+    */
     _row = -1;
+    /**
+     * @en Column number of position in layer.
+     * @zh 在图层位置的所在列数。
+    */
     _col = -1;
+    /**
+     * @en Which tiled layer the user node be added.
+     * @zh User node 所被添加到的图层。
+    */
     _tiledLayer: TiledLayer | null = null;
     constructor () {
         super();
     }
 }
 
+/**
+ * @en Base unit element of render data used in tiledMap component, include a Texture2D object.
+ * @zh TiledMap 组件中使用的渲染数据单元，包括一个 Texture2D 对象。
+ */
 export interface TiledRenderData {
     renderData: RenderData | null;
     texture: Texture2D | null;
@@ -76,8 +102,9 @@ interface TiledSubNodeData {
  type TiledDataArray = (TiledRenderData | TiledSubNodeData)[];
 
 /**
-  * @en Render the TMX layer.
-  * @zh 渲染 TMX layer。
+  * @en Rendering Layer. TiledLayer is the rendering body of TiledMap.
+  * A TiledMap can contain one or multiple TiledLayer objects.
+  * @zh 渲染图层。TiledLayer 是 TiledMap 的渲染主体。一个 TiledMap 可以包含一个或多个 TiledLayer。
   * @class TiledLayer
   * @extends Component
   */
@@ -88,7 +115,10 @@ export class TiledLayer extends UIRenderer {
     protected _userNodeMap: { [key: string]: TiledUserNodeData } = {};// [id] = node;
     protected _userNodeDirty = false;
 
-    // store the layer tiles node, index is caculated by 'x + width * y', format likes '[0]=tileNode0,[1]=tileNode1, ...'
+    /**
+     * @en Stores the layer tiles node, index is caculated by 'x + width * y', format likes '[0]=tileNode0,[1]=tileNode1, ...'.
+     * @zh 存储图层上的瓦片节点，序号计算方式为 'x + width * y'。
+    */
     public tiledTiles: (TiledTile | null)[] = [];
 
     // // store the layer tilesets index array
@@ -101,6 +131,10 @@ export class TiledLayer extends UIRenderer {
         leftDown: { row: -1, col: -1 },
         rightTop: { row: -1, col: -1 },
     };
+    /**
+     * @en Stores the layer tiles node, index is caculated by 'x + width * y', format likes '[0]=tileNode0,[1]=tileNode1, ...'.
+     * @zh 裁切矩形范围，超出范围的内容将不进行绘制。
+    */
     get cullingRect () { return this._cullingRect; }
 
     protected _cullingDirty = true;
@@ -117,10 +151,16 @@ export class TiledLayer extends UIRenderer {
     protected _leftOffset = 0;
     protected _rightOffset = 0;
 
-    // store the layer tiles, index is caculated by 'x + width * y', format likes '[0]=gid0,[1]=gid1, ...'
+    /**
+     * @en Store the layer tiles, index is caculated by 'x + width * y', format likes '[0]=gid0,[1]=gid1, ...'.
+     * @zh 存储图层上的瓦片，序号计算方式为 'x + width * y'。
+    */
     public tiles: MixedGID[] = [];
 
-    // vertex array
+    /**
+     * @en Vertex array.
+     * @zh 顶点数组。
+    */
     public vertices: { minCol: number, maxCol: number, [key: number]: { left: number, bottom: number, index: number } }[] = [];
     // vertices dirty
     protected _verticesDirty = true;
@@ -137,7 +177,10 @@ export class TiledLayer extends UIRenderer {
     protected _opacity?: number;
     protected _tintColor?: Color;
 
-    // store all layer gid corresponding texture info, index is gid, format likes '[gid0]=tex-info,[gid1]=tex-info, ...'
+    /**
+     * @en Store all layer grid corresponding texture info, index is gid, format likes '[gid0]=tex-info,[gid1]=tex-info, ...'.
+     * @zh 根据纹理信息存储所有图块数据，序号为 gid。
+    */
     public texGrids: TiledTextureGrids | null = null;
     // store all tileset texture, index is tileset index, format likes '[0]=texture0, [1]=texture1, ...'
     protected _textures: SpriteFrame[] = [];
@@ -152,10 +195,17 @@ export class TiledLayer extends UIRenderer {
 
     // switch of culling
     protected _enableCulling?: boolean;
-
+    /**
+     * @internal
+     * @deprecated Since v3.7, will be removed in the future.
+     */
     public colorChanged = false;
 
     protected _properties?: PropertiesInfo;
+    /**
+     * @en Render order. Can be [RightDown, RightUp, LeftDown, LeftUp].
+     * @zh 渲染顺序，可选值包括[右下，右上，左下，左上]。
+    */
     public renderOrder?: RenderOrder;
     protected _staggerAxis?: StaggerAxis;
     protected _staggerIndex?: StaggerIndex;
@@ -175,7 +225,7 @@ export class TiledLayer extends UIRenderer {
     get leftDownToCenterX () { return this._leftDownToCenterX; }
     get leftDownToCenterY () { return this._leftDownToCenterY; }
 
-    private _drawInfoList : RenderDrawInfo[] = [];
+    private _drawInfoList: RenderDrawInfo[] = [];
     private requestDrawInfo (idx: number) {
         if (!this._drawInfoList[idx]) {
             this._drawInfoList[idx] = new RenderDrawInfo();
@@ -187,17 +237,25 @@ export class TiledLayer extends UIRenderer {
     constructor () {
         super();
     }
-
+    /**
+     * @en Whether contain Tiled Tile Node.
+     * @zh 是否包含瓦片节点。
+     * @returns {Boolean} @en Whether contain Animation Tile. @zh 是否包含瓦片节点。
+    */
     public hasTiledNode () {
         return this._hasTiledNodeGrid;
     }
-
+    /**
+     * @en Whether contain Animation Tile.
+     * @zh 是否包含动画。
+     * @returns {Boolean} @en Whether contain Animation Tile. @zh 是否包含动画。
+    */
     public hasAnimation () {
         return this._hasAniGrid;
     }
 
     /**
-      * @en enable or disable culling
+      * @en enable or disable culling.
       * @zh 开启或关闭裁剪。
       * @method enableCulling
       * @param value
@@ -216,7 +274,7 @@ export class TiledLayer extends UIRenderer {
       * @zh 添加用户节点。
       * @method addUserNode
       * @param {cc.Node} node
-      * @return {Boolean}
+      * @returns {Boolean} @en The node already exists return false. @zh 若节点已存在返回 false。
       */
     public addUserNode (node: Node) {
         let dataComp = node.getComponent(TiledUserNodeData);
@@ -247,7 +305,7 @@ export class TiledLayer extends UIRenderer {
       * @zh 移除用户节点。
       * @method removeUserNode
       * @param {cc.Node} node
-      * @return {Boolean}
+      * @returns {Boolean} @en The node not exists return false. @zh 若节点不存在返回 false。
       */
     public removeUserNode (node: Node) {
         const dataComp = node.getComponent(TiledUserNodeData);
@@ -282,13 +340,19 @@ export class TiledLayer extends UIRenderer {
         out.x = nodePos.x + this._leftDownToCenterX;
         out.y = nodePos.y + this._leftDownToCenterY;
     }
-
+    /**
+      * @en Get user nodes by row and col.
+      * @zh 根据行和列获取对应位置的用户节点。
+      */
     public getNodesByRowCol (row: number, col: number) {
         const rowData = this._userNodeGrid[row];
         if (!rowData) return null;
         return rowData[col];
     }
-
+    /**
+      * @en Get user nodes count in specified row.
+      * @zh 获取指定行上的用户节点数量。
+      */
     public getNodesCountByRow (row) {
         const rowData = this._userNodeGrid[row];
         if (!rowData) return 0;
@@ -391,11 +455,17 @@ export class TiledLayer extends UIRenderer {
         colData.list.push(dataComp);
         this._userNodeDirty = true;
     }
-
+    /**
+      * @en Is user node state dirty.
+      * @zh 用户节点状态是否被修改。
+      */
     public isUserNodeDirty () {
         return this._userNodeDirty;
     }
-
+    /**
+      * @en Set user node state dirty.
+      * @zh 设置用户节点状态为被修改。
+      */
     public setUserNodeDirty (value) {
         this._userNodeDirty = value;
     }
@@ -435,7 +505,7 @@ export class TiledLayer extends UIRenderer {
       * @en Gets the layer name.
       * @zh 获取层的名称。
       * @method getLayerName
-      * @return {String}
+      * @returns {String}
       * @example
       * let layerName = tiledLayer.getLayerName();
       * cc.log(layerName);
@@ -446,7 +516,7 @@ export class TiledLayer extends UIRenderer {
 
     /**
       * @en Set the layer name.
-      * @zh 设置层的名称
+      * @zh 设置层的名称。
       * @method setLayerName
       * @param {String} layerName
       * @example
@@ -461,7 +531,7 @@ export class TiledLayer extends UIRenderer {
       * @zh 获取指定属性名的值。
       * @method getProperty
       * @param {String} propertyName
-      * @return {*}
+      * @returns {*}
       * @example
       * let property = tiledLayer.getProperty("info");
       * cc.log(property);
@@ -471,12 +541,12 @@ export class TiledLayer extends UIRenderer {
     }
 
     /**
-      * @en Returns the position in pixels of a given tile coordinate.
+      * @en Gets the position in pixels of a given tile coordinate.
       * @zh 获取指定 tile 的像素坐标。
       * @method getPositionAt
       * @param {Vec2|Number} pos position or x
       * @param {Number} [y]
-      * @return {Vec2}
+      * @returns {Vec2}
       * @example
       * let pos = tiledLayer.getPositionAt(cc.v2(0, 0));
       * cc.log("Pos: " + pos);
@@ -503,7 +573,10 @@ export class TiledLayer extends UIRenderer {
         }
         return null;
     }
-
+    /**
+     * @en Check the position (x, y) is in range of layer size.
+     * @zh 检查坐标 (x, y) 所在位置是否在 layer 的有效区域内。
+     */
     public isInvalidPosition (x: number, y: number) {
         return x >= this._layerSize!.width || y >= this._layerSize!.height || x < 0 || y < 0;
     }
@@ -590,7 +663,7 @@ export class TiledLayer extends UIRenderer {
       * @en
       * Sets the tiles gid (gid = tile global id) at a given tiles rect.
       * @zh
-      * 设置给定区域的 tile 的 gid (gid = tile 全局 id)，
+      * 设置给定区域的 tile 的 gid (gid = tile 全局 id)。
       * @method setTilesGIDAt
       * @param {Array} gids an array contains gid
       * @param {Number} beginCol begin col number
@@ -673,14 +746,14 @@ export class TiledLayer extends UIRenderer {
 
     /**
       * @en
-      * Returns the tile gid at a given tile coordinate. <br />
+      * Gets the tile gid at a given tile coordinate. <br />
       * if it returns 0, it means that the tile is empty. <br />
       * @zh
       * 通过给定的 tile 坐标、flags（可选）返回 tile 的 GID. <br />
       * 如果它返回 0，则表示该 tile 为空。<br />
       * @method getTileGIDAt
       * @param {Vec2} pos
-      * @return {Number}
+      * @returns {Number}
       * @example
       * let tileGid = tiledLayer.getTileGIDAt(0, 0);
       */
@@ -708,7 +781,7 @@ export class TiledLayer extends UIRenderer {
       * @method getTileGIDAt
       * @param {number}} x
       * @param {number}} y
-      * @return {Number}
+      * @returns {Number}
       * @example
       * let tileGid = tiledLayer.getTileGIDAt(0, 0);
       */
@@ -727,17 +800,26 @@ export class TiledLayer extends UIRenderer {
 
         return ((tile & TileFlag.FLIPPED_ALL) >>> 0) as unknown as GIDFlags;
     }
-
+    /**
+     * @en Set culling flag is dirty.
+     * @zh 设置裁切状态藏标记。
+     */
     public setCullingDirty (value: boolean) {
         this._cullingDirty = value;
     }
-
+    /**
+     * @en Check culling flag is dirty.
+     * @zh 检查裁切状态藏标记。
+     */
     public isCullingDirty (): boolean {
         return this._cullingDirty;
     }
 
-    // 'x, y' is the position of viewPort, which's anchor point is at the center of rect.
-    // 'width, height' is the size of viewPort.
+    /**
+     * @en 'x, y' is the position of viewPort, which's anchor point is at the center of rect.
+     * 'width, height' is the size of viewPort.
+     * @zh x, y 为视口的锚点，width, height 为视口宽高。
+     */
     public updateViewPort (x: number, y: number, width: number, height: number): void {
         if (this._viewPort.width === width
              && this._viewPort.height === height
@@ -850,7 +932,10 @@ export class TiledLayer extends UIRenderer {
         result.col = col;
         return result;
     }
-
+    /**
+     * @en Update rendering data based on the new culling settings.
+     * @zh 根据新的裁切设置生成更新渲染数据。
+     */
     public updateCulling () {
         if (EDITOR && !legacyCC.GAME_VIEW) {
             this.enableCulling = false;
@@ -880,7 +965,7 @@ export class TiledLayer extends UIRenderer {
       * @en Layer orientation, which is the same as the map orientation.
       * @zh 获取 Layer 方向(同地图方向)。
       * @method getLayerOrientation
-      * @return {Number}
+      * @returns {Number}
       * @example
       * let orientation = tiledLayer.getLayerOrientation();
       * cc.log("Layer Orientation: " + orientation);
@@ -890,10 +975,10 @@ export class TiledLayer extends UIRenderer {
     }
 
     /**
-      * @en properties from the layer. They can be added using Tiled.
+      * @en Properties from the layer. They can be added using Tiled.
       * @zh 获取 layer 的属性，可以使用 Tiled 编辑器添加属性。
       * @method getProperties
-      * @return {Object}
+      * @returns {Object}
       * @example
       * let properties = tiledLayer.getProperties();
       * cc.log("Properties: " + properties);
@@ -1092,7 +1177,7 @@ export class TiledLayer extends UIRenderer {
 
     /**
       * @en
-      * Get the TiledTile with the tile coordinate.<br/>
+      * Gets the TiledTile with the tile coordinate.<br/>
       * If there is no tile in the specified coordinate and forceCreate parameter is true, <br/>
       * then will create a new TiledTile at the coordinate.
       * The renderer will render the tile with the rotation, scale, position and color property of the TiledTile.
@@ -1104,7 +1189,7 @@ export class TiledLayer extends UIRenderer {
       * @param {Integer} x
       * @param {Integer} y
       * @param {Boolean} forceCreate
-      * @return {cc.TiledTile}
+      * @returns {cc.TiledTile}
       * @example
       * let tile = tiledLayer.getTiledTileAt(100, 100, true);
       * cc.log(tile);
@@ -1134,15 +1219,13 @@ export class TiledLayer extends UIRenderer {
     }
 
     /**
-      * @en
-      * Change tile to TiledTile at the specified coordinate.
-      * @zh
-      * 将指定的 tile 坐标替换为指定的 TiledTile。
+      * @en Change tile to TiledTile at the specified coordinate.
+      * @zh 替换指定位置的 TiledTile 对象。
       * @method setTiledTileAt
       * @param {Integer} x
       * @param {Integer} y
       * @param {cc.TiledTile} tiledTile
-      * @return {cc.TiledTile}
+      * @returns {cc.TiledTile}
       */
     public setTiledTileAt (x: number, y: number, tiledTile: TiledTile | null): TiledTile | null {
         if (this.isInvalidPosition(x, y)) {
@@ -1167,11 +1250,11 @@ export class TiledLayer extends UIRenderer {
     }
 
     /**
-      * @en Return texture.
+      * @en Returns texture.
       * @zh 获取纹理。
       * @method getTexture
-      * @param index The index of textures
-      * @return {Texture2D}
+      * @param index The index of textures.
+      * @returns {Texture2D}
       */
     public getTexture (index?: number): SpriteFrame | null {
         index = index || 0;
@@ -1182,17 +1265,17 @@ export class TiledLayer extends UIRenderer {
     }
 
     /**
-      * @en Return texture.
+      * @en Returns texture.
       * @zh 获取纹理。
       * @method getTextures
-      * @return {Texture2D}
+      * @returns {Texture2D}
       */
     public getTextures () {
         return this._textures;
     }
 
     /**
-      * @en Set the texture.
+      * @en Sets the texture.
       * @zh 设置纹理。
       * @method setTexture
       * @param {SpriteFrame} texture
@@ -1202,7 +1285,7 @@ export class TiledLayer extends UIRenderer {
     }
 
     /**
-      * @en Set the texture.
+      * @en Sets the texture.
       * @zh 设置纹理。
       * @method setTexture
       * @param {SpriteFrame} textures
@@ -1216,7 +1299,7 @@ export class TiledLayer extends UIRenderer {
       * @en Gets layer size.
       * @zh 获得层大小。
       * @method getLayerSize
-      * @return {Size}
+      * @returns {Size}
       * @example
       * let size = tiledLayer.getLayerSize();
       * cc.log("layer size: " + size);
@@ -1229,7 +1312,7 @@ export class TiledLayer extends UIRenderer {
       * @en Size of the map's tile (could be different from the tile's size).
       * @zh 获取 tile 的大小( tile 的大小可能会有所不同)。
       * @method getMapTileSize
-      * @return {Size}
+      * @returns {Size}
       * @example
       * let mapTileSize = tiledLayer.getMapTileSize();
       * cc.log("MapTile size: " + mapTileSize);
@@ -1240,10 +1323,10 @@ export class TiledLayer extends UIRenderer {
 
     /**
       * @en Gets Tile set first information for the layer.
-      * @zh 获取 layer 索引位置为0的 Tileset 信息。
+      * @zh 获取 layer 索引位置为 0 的 Tileset 信息。
       * @method getTileSet
       * @param index The index of tilesets
-      * @return {TMXTilesetInfo}
+      * @returns {TMXTilesetInfo}
       */
     public getTileSet (index: number): TMXTilesetInfo | null {
         index = index || 0;
@@ -1257,7 +1340,7 @@ export class TiledLayer extends UIRenderer {
       * @en Gets tile set all information for the layer.
       * @zh 获取 layer 所有的 Tileset 信息。
       * @method getTileSet
-      * @return {TMXTilesetInfo}
+      * @returns {TMXTilesetInfo}
       */
     public getTileSets (): TMXTilesetInfo[] {
         return this._tilesets;
@@ -1298,7 +1381,15 @@ export class TiledLayer extends UIRenderer {
         }
         this._prepareToRender();
     }
-
+    /**
+      * @en Tiled layer initialize Data.
+      * @zh 图层初始化数据。
+      * @param {TMXLayerInfo} layerInfo @en Information about tiled layer. @zh 图层信息。
+      * @param {TMXMapInfo} mapInfo @en Information about tiled map. @zh 地图信息。
+      * @param {TMXTilesetInfo} tilesets @en Information about tiled sets. @zh 瓦片集合信息。
+      * @param {SpriteFrame} textures @en Textures used by tiled map. @zh 地图中使用的纹理。
+      * @param {TiledTextureGrids} texGrids @en Grid sets include textures. @zh 图块信息包括纹理。
+      */
     public init (layerInfo: TMXLayerInfo, mapInfo: TMXMapInfo, tilesets: TMXTilesetInfo[], textures: SpriteFrame[], texGrids: TiledTextureGrids) {
         this._cullingDirty = true;
         this._layerInfo = layerInfo;
@@ -1378,7 +1469,9 @@ export class TiledLayer extends UIRenderer {
         this._updateVertices();
         this._updateAllUserNode();
     }
-
+    /**
+     * @internal Since v3.7.2. This is an engine private function.
+     */
     public requestTiledRenderData () {
         const arr = this._tiledDataArray as any[];
         while (arr.length > 0 && arr[arr.length - 1].subNodes && arr[arr.length - 1].subNodes.length === 0) {
@@ -1394,7 +1487,9 @@ export class TiledLayer extends UIRenderer {
         this._tiledDataArray.push(comb);
         return (comb as TiledRenderData);
     }
-
+    /**
+     * @internal Since v3.7.2. This is an engine private function.
+     */
     public requestSubNodesData () {
         const arr = this._tiledDataArray as any[];
         if (arr.length > 0) {
@@ -1407,7 +1502,10 @@ export class TiledLayer extends UIRenderer {
         this._tiledDataArray.push(comb);
         return comb;
     }
-
+    /**
+      * @en Destroy render data. Generally called when the component is being destroyed.
+      * @zh 销毁渲染数据, 一般在组件销毁时调用。
+      */
     public destroyRenderData () {
         this._tiledDataArray.forEach((rd) => {
             const renderData = (rd as TiledRenderData).renderData;
@@ -1431,9 +1529,9 @@ export class TiledLayer extends UIRenderer {
 
     /**
       * @en
-      * Index of mesh render data array
+      * Index of mesh render data array.
       * @zh
-      * 网格渲染数据数组的索引
+      * 网格渲染数据数组的索引。
       * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
       */
     public _tiledDataArrayIdx = 0;
@@ -1456,7 +1554,9 @@ export class TiledLayer extends UIRenderer {
         }
         this.node._static = true;
     }
-
+    /**
+     * @internal Since v3.7.2. This is an engine private function.
+     */
     protected createRenderEntity () {
         return new RenderEntity(RenderEntityType.CROSSED);
     }
@@ -1481,7 +1581,9 @@ export class TiledLayer extends UIRenderer {
         renderData.chunk.meshBuffer.indexOffset = indexOffset;
         drawInfo.setIBCount(quadCount * 6);
     }
-
+    /**
+     * @internal Since v3.7.2. This is an engine private function.
+     */
     public prepareDrawData () {
         this._drawInfoList.length = 0;
         const entity = this.renderEntity;

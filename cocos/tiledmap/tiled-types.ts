@@ -31,6 +31,10 @@ import { Texture2D } from '../asset/assets';
 export type PropertiesInfo = { [key: string]: number | string };
 export type TiledAnimationType = Map<GID, TiledAnimation>;
 
+/**
+ * @en The Animation Data of Tiled. Include frames, delta time and frame index.
+ * @zh Tiled动画，包括帧信息，时间，帧序号。
+ */
 export interface TiledAnimation {
     frames: { grid: TiledGrid | null, tileid: GID, duration: number }[];
     dt: number;
@@ -55,7 +59,7 @@ export enum Orientation {
 
     /**
      * @en Hexagonal orientation.
-     * @zh 六边形地图
+     * @zh 六边形地图。
      * @property HEX
      * @type {Number}
      * @static
@@ -75,7 +79,8 @@ export enum Orientation {
 ccenum(Orientation);
 
 /**
- * The property type of tiled map.
+ * @en The property type of tiled map.
+ * @zh tiled map属性类型枚举。
  * @enum TiledMap.Property
  * @static
  */
@@ -126,7 +131,8 @@ export enum Property {
 ccenum(Property);
 
 /**
- * The tile flags of tiled map.
+ * @en The tile flags of tiled map.
+ * @zh Tiled map中使用的标记信息。
  * @enum TiledMap.TileFlag
  * @static
  */
@@ -171,7 +177,7 @@ ccenum(TileFlag);
 
 /**
  * @en The stagger axis of Hex tiled map.
- * @zh 六边形地图的 stagger axis 值
+ * @zh 六边形地图的 stagger axis 值。
  * @enum TiledMap.StaggerAxis
  * @static
  */
@@ -195,7 +201,7 @@ ccenum(StaggerAxis);
 
 /**
  * @en The stagger index of Hex tiled map.
- * @zh 六边形地图的 stagger index 值
+ * @zh 六边形地图的 stagger index 值。
  * @enum TiledMap.RenderOrder
  * @static
  */
@@ -218,7 +224,7 @@ ccenum(StaggerIndex);
 
 /**
  * @en The render order of tiled map.
- * @zh 地图的渲染顺序
+ * @zh 地图的渲染顺序。
  * @enum TiledMap.RenderOrder
  * @static
  */
@@ -252,8 +258,8 @@ export enum RenderOrder {
 ccenum(RenderOrder);
 
 /**
- * @en TiledMap Object Type
- * @zh 地图物体类型
+ * @en TiledMap Object Type.
+ * @zh 地图物体类型。
  * @enum TiledMap.TMXObjectType
  * @static
  */
@@ -319,20 +325,20 @@ export type GID = number;
 export type GIDFlags = number;
 
 /**
- * Size in pixels of the image
- * @property {cc.Size} imageSize
- */
-
-/**
- * <p>cc.TMXTilesetInfo contains the information about the tilesets like: <br />
- * - Tileset name<br />
- * - Tileset spacing<br />
- * - Tileset margin<br />
- * - size of the tiles<br />
- * - Image used for the tiles<br />
- * - Image size<br />
- *
- * This information is obtained from the TMX file. </p>
+ * @en cc.TMXTilesetInfo contains the information about the tilesets like:
+ * - Tileset name
+ * - Tileset spacing
+ * - Tileset margin
+ * - size of the tiles
+ * - Image used for the tiles
+ * - Image size
+ * @zh cc.TMXTilesetInfo 包括图块集的以下信息：
+ * - 图集名称
+ * - 图集间隔
+ * - 图集内部间隔
+ * - 瓦片尺寸
+ * - 瓦片使用的图像
+ * - 图像大小
  * @class TMXTilesetInfo
  */
 export class TMXTilesetInfo {
@@ -391,13 +397,16 @@ export class TMXTilesetInfo {
 }
 
 /**
- * <p>cc.TMXObjectGroupInfo contains the information about the object group like:
+ * @en cc.TMXObjectGroupInfo contains the information about the object group like:
  * - group name
  * - group size
  * - group opacity at creation time (it can be modified at runtime)
  * - Whether the group is visible
- *
- * This information is obtained from the TMX file.</p>
+ * @zh cc.TMXObjectGroupInfo 包含对象组信息：
+ * - 组名称
+ * - 组大小
+ * - 组创建时容量大小（可在运行时修改）
+ * - 组是否可见
  * @class TMXObjectGroupInfo
  */
 
@@ -418,7 +427,7 @@ export class TMXObjectGroupInfo {
     tintColor: Color | null = null;
     /**
      * Gets the Properties.
-     * @return {Array}
+     * @returns {Array}
      */
     getProperties () {
         return this.properties;
@@ -457,12 +466,16 @@ export interface TMXObject {
 }
 
 /**
- * cc.TMXLayerInfo contains the information about the layers like:
+ * @en cc.TMXLayerInfo contains the information about the layers like:
  * - Layer name
  * - Layer size
  * - Layer opacity at creation time (it can be modified at runtime)
  * - Whether the layer is visible (if it's not visible, then the CocosNode won't be created)
- * This information is obtained from the TMX file.
+ * @zh cc.TMXLayerInfo 包含一下信息：
+ * - 图层名称
+ * - 图层大小
+ * - 图层不透明度
+ * - 图层可见性
  * @class TMXLayerInfo
  */
 export class TMXLayerInfo {
@@ -484,7 +497,7 @@ export class TMXLayerInfo {
 
     /**
      * Gets the Properties.
-     * @return {Object}
+     * @returns {Object}
      */
     getProperties () {
         return this.properties;
@@ -533,8 +546,8 @@ export class TMXLayerInfo {
 }
 
 /**
- * cc.TMXImageLayerInfo contains the information about the image layers.
- * This information is obtained from the TMX file.
+ * @en cc.TMXImageLayerInfo contains the information about the image layers.
+ * @zh cc.TMXImageLayerInfo 包含图像源的一些信息。
  * @class TMXImageLayerInfo
  */
 export class TMXImageLayerInfo {

@@ -30,7 +30,8 @@ import { Label } from '../2d/components/label';
 import { BlendFactor } from '../gfx';
 
 import { TMXMapInfo } from './tmx-xml-parser';
-import { TiledTextureGrids, GID, TileFlag, Orientation, StaggerAxis, TMXObjectType, PropertiesInfo, TiledAnimationType, TMXObject, TMXObjectGroupInfo } from './tiled-types';
+import { TiledTextureGrids, GID, TileFlag, Orientation, StaggerAxis, TMXObjectType, PropertiesInfo,
+    TiledAnimationType, TMXObject, TMXObjectGroupInfo } from './tiled-types';
 import { UITransform } from '../2d/framework/ui-transform';
 import { CCBoolean, Vec2, Color, CCObject } from '../core';
 import { SpriteFrame } from '../2d/assets';
@@ -52,7 +53,7 @@ export class TiledObjectGroup extends Component {
     get premultiplyAlpha () {
         return this._premultiplyAlpha;
     }
-    set premultiplyAlpha (value:boolean) {
+    set premultiplyAlpha (value: boolean) {
         this._premultiplyAlpha = value;
     }
 
@@ -60,7 +61,7 @@ export class TiledObjectGroup extends Component {
      * @en Offset position of child objects.
      * @zh 获取子对象的偏移位置。
      * @method getPositionOffset
-     * @return {Vec2}
+     * @returns {Vec2}
      * @example
      * let offset = tMXObjectGroup.getPositionOffset();
      */
@@ -72,7 +73,7 @@ export class TiledObjectGroup extends Component {
      * @en List of properties stored in a dictionary.
      * @zh 以映射的形式获取属性列表。
      * @method getProperties
-     * @return {Object}
+     * @returns {Object}
      * @example
      * let offset = tMXObjectGroup.getProperties();
      */
@@ -84,7 +85,7 @@ export class TiledObjectGroup extends Component {
      * @en Gets the Group name.
      * @zh 获取组名称。
      * @method getGroupName
-     * @return {String}
+     * @returns {String}
      * @example
      * let groupName = tMXObjectGroup.getGroupName;
      */
@@ -93,9 +94,10 @@ export class TiledObjectGroup extends Component {
     }
 
     /**
-     * Return the value for the specific property name
+     * @en Return the value for the specific property name.
+     * @zh 根据属性名称获取属性。
      * @param {String} propertyName
-     * @return {Object}
+     * @returns {Object}
      */
     public getProperty (propertyName: { toString (): string } | string) {
         return this._properties![propertyName.toString()];
@@ -108,11 +110,11 @@ export class TiledObjectGroup extends Component {
      * @zh 获取指定的对象。
      * @method getObject
      * @param {String} objectName
-     * @return {Object|Null}
+     * @returns {Object|Null}
      * @example
      * let object = tMXObjectGroup.getObject("Group");
      */
-    public getObject (objectName:string) {
+    public getObject (objectName: string) {
         for (let i = 0, len = this._objects.length; i < len; i++) {
             const obj = this._objects[i];
             if (obj && obj.name === objectName) {
@@ -127,7 +129,7 @@ export class TiledObjectGroup extends Component {
      * @en Gets the objects.
      * @zh 获取对象数组。
      * @method getObjects
-     * @return {Array}
+     * @returns {Array}
      * @example
      * let objects = tMXObjectGroup.getObjects();
      */

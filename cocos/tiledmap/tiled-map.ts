@@ -46,7 +46,9 @@ interface ImageExtendedNode extends Node {
 
 /**
  * @en Renders a TMX Tile Map in the scene.
+ * Cocos Creator recommends using Tiled version 1.4.0，you can still try a higher version.
  * @zh 在场景中渲染一个 tmx 格式的 Tile Map。
+ * Cocos Creator推荐使用v1.4.0版本的Tiled编辑器，不过你仍然可以尝试更高版本的编辑器制作地图素材。
  * @class TiledMap
  * @extends Component
  */
@@ -112,7 +114,7 @@ export class TiledMap extends Component {
     /**
      * @en
      * Whether or not enabled tiled map auto culling. If you set the TiledMap skew or rotation, then need to manually
-     *  disable this, otherwise, the rendering will be wrong.
+     * disable this, otherwise, the rendering will be wrong.
      * @zh
      * 是否开启瓦片地图的自动裁减功能。瓦片地图如果设置了 skew, rotation 或者采用了摄像机的话，需要手动关闭，否则渲染会出错。
      */
@@ -137,7 +139,7 @@ export class TiledMap extends Component {
      * @en Gets the map size.
      * @zh 获取地图大小。
      * @method getMapSize
-     * @return {Size}
+     * @returns {Size}
      * @example
      * let mapSize = tiledMap.getMapSize();
      * cc.log("Map Size: " + mapSize);
@@ -150,7 +152,7 @@ export class TiledMap extends Component {
      * @en Gets the tile size.
      * @zh 获取地图背景中 tile 元素的大小。
      * @method getTileSize
-     * @return {Size}
+     * @returns {Size}
      * @example
      * let tileSize = tiledMap.getTileSize();
      * cc.log("Tile Size: " + tileSize);
@@ -163,7 +165,7 @@ export class TiledMap extends Component {
      * @en map orientation.
      * @zh 获取地图方向。
      * @method getMapOrientation
-     * @return {Number}
+     * @returns {Number}
      * @example
      * let mapOrientation = tiledMap.getMapOrientation();
      * cc.log("Map Orientation: " + mapOrientation);
@@ -173,10 +175,10 @@ export class TiledMap extends Component {
     }
 
     /**
-     * @en object groups.
+     * @en Gets object groups.
      * @zh 获取所有的对象层。
      * @method getObjectGroups
-     * @return {TiledObjectGroup[]}
+     * @returns {TiledObjectGroup[]}
      * @example
      * let objGroups = titledMap.getObjectGroups();
      * for (let i = 0; i < objGroups.length; ++i) {
@@ -192,7 +194,7 @@ export class TiledMap extends Component {
      * @zh 获取指定的 TMXObjectGroup。
      * @method getObjectGroup
      * @param {String} groupName
-     * @return {TiledObjectGroup}
+     * @returns {TiledObjectGroup}
      * @example
      * let group = titledMap.getObjectGroup("Players");
      * cc.log("ObjectGroup: " + group);
@@ -213,7 +215,7 @@ export class TiledMap extends Component {
      * @en Gets the map properties.
      * @zh 获取地图的属性。
      * @method getProperties
-     * @return {Object[]}
+     * @returns {Object[]}
      * @example
      * let properties = titledMap.getProperties();
      * for (let i = 0; i < properties.length; ++i) {
@@ -225,10 +227,10 @@ export class TiledMap extends Component {
     }
 
     /**
-     * @en Return All layers array.
+     * @en Return all layers array.
      * @zh 返回包含所有 layer 的数组。
      * @method getLayers
-     * @returns {TiledLayer[]}
+     * @returnss {TiledLayer[]}
      * @example
      * let layers = titledMap.getLayers();
      * for (let i = 0; i < layers.length; ++i) {
@@ -240,11 +242,11 @@ export class TiledMap extends Component {
     }
 
     /**
-     * @en return the cc.TiledLayer for the specific layer.
+     * @en Return the cc.TiledLayer for the specific layer.
      * @zh 获取指定名称的 layer。
      * @method getLayer
      * @param {String} layerName
-     * @return {TiledLayer}
+     * @returns {TiledLayer}
      * @example
      * let layer = titledMap.getLayer("Player");
      * cc.log(layer);
@@ -276,7 +278,7 @@ export class TiledMap extends Component {
      * @zh 通过属性名称，获取指定的属性。
      * @method getProperty
      * @param {String} propertyName
-     * @return {String}
+     * @returns {String}
      * @example
      * let property = titledMap.getProperty("info");
      * cc.log("Property: " + property);
@@ -290,7 +292,7 @@ export class TiledMap extends Component {
      * @zh 通过 GID ，获取指定的属性。
      * @method getPropertiesForGID
      * @param {Number} GID
-     * @return {Object}
+     * @returns {Object}
      * @example
      * let properties = titledMap.getPropertiesForGID(GID);
      * cc.log("Properties: " + properties);
@@ -317,6 +319,12 @@ export class TiledMap extends Component {
         this.node.off(NodeEventType.ANCHOR_CHANGED, this._syncAnchorPoint, this);
     }
 
+    /**
+     * @en
+     * Apply tmx file to build tiled map.
+     * @zh
+     * 应用地图文件创建地图数据。
+     */
     _applyFile () {
         const spriteFrames: SpriteFrame[] = [];
         const spriteFramesCache = {};
@@ -371,6 +379,12 @@ export class TiledMap extends Component {
         }
     }
 
+    /**
+     * @en
+     * Release resource of map information.
+     * @zh
+     * 释放地图资源数据。
+     */
     _releaseMapInfo () {
         // remove the layers & object groups added before
         const layers = this._layers;
@@ -397,6 +411,12 @@ export class TiledMap extends Component {
         images.length = 0;
     }
 
+    /**
+     * @en
+     * Synchronize anchor position.
+     * @zh
+     * 同步锚点位置。
+     */
     _syncAnchorPoint () {
         const anchor = this.node._uiProps.uiTransformComp!.anchorPoint;
         const leftTopX = this.node._uiProps.uiTransformComp!.width * anchor.x;
@@ -432,7 +452,9 @@ export class TiledMap extends Component {
             this._images[i].setPosition(x, y);
         }
     }
-
+    /**
+     * @internal Since v3.7.2 this is an engine private function.
+     */
     _fillAniGrids (texGrids: TiledTextureGrids, animations: TiledAnimationType) {
         for (const i of animations.keys()) {
             const animation = animations.get(i);
@@ -444,7 +466,12 @@ export class TiledMap extends Component {
             }
         }
     }
-
+    /**
+     * @en
+     * Build Information data of tiled layer and group.
+     * @zh
+     * 创建图层和组的数据。
+     */
     _buildLayerAndGroup () {
         const tilesets = this._tilesets;
         const texGrids = this._texGrids;
@@ -602,7 +629,12 @@ export class TiledMap extends Component {
             });
         }
     }
-
+    /**
+     * @en
+     * Release images cache of textures resources.
+     * @zh
+     * 清除释放纹理的图像数据。
+     */
     doCleanupImageCache (texture) {
         if (texture._image instanceof HTMLImageElement) {
             texture._image.src = '';

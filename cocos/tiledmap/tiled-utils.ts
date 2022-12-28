@@ -27,6 +27,9 @@ import { Texture2D } from '../asset/assets';
 import { Rect } from '../core';
 import { GID, TiledGrid, TiledTextureGrids, TMXTilesetInfo } from './tiled-types';
 
+/**
+ * @internal Since v3.7.2 this is an engine private function.
+ */
 export function fillTextureGrids (tileset: TMXTilesetInfo, texGrids: TiledTextureGrids, spFrame?: SpriteFrame) {
     const spf: SpriteFrame = spFrame || tileset.sourceImage!;
     const tex: Texture2D = spf.texture as Texture2D;
