@@ -766,7 +766,7 @@ export class Quat extends ValueType {
 
     /**
      * @en Convert quaternion to Euler angles
-     * @zh 将当前四元数转化为欧拉角（x-y-z）并赋值给出口向量。
+     * @zh 将当前四元数转化为欧拉角（x-y-z）并赋值给输出向量。
      * @param out the output vector
      */
     public getEulerAngles (out: Vec3) {

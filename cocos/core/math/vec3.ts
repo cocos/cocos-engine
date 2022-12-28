@@ -359,7 +359,7 @@ export class Vec3 extends ValueType {
     /**
      * @zh 球面线性插值。多用于插值两个方向向量。
      * @en Spherical linear interpolation. Commonly used in interpolation between directional vectors.
-     * @param out @zh 出口向量。 @en Output vector.
+     * @param out @zh 输出向量。 @en Output vector.
      * @param from @zh 起点向量。 @en Start vector.
      * @param to @zh 终点向量。 @en Destination vector.
      * @param t @zh 插值参数。@en Interpolation parameter.

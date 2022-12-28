@@ -1996,7 +1996,7 @@ export class Mat4 extends ValueType {
 
     /**
      * @en Returns the translation vector component of a transformation matrix.
-     * @zh 从当前矩阵中计算出位移变换的部分，并以各个轴上位移的形式赋值给出口向量。
+     * @zh 从当前矩阵中计算出位移变换的部分，并以各个轴上位移的形式赋值给输出向量。
      * @param out Vector to receive translation component.
      */
     public getTranslation (out: Vec3) {
@@ -2009,7 +2009,7 @@ export class Mat4 extends ValueType {
 
     /**
      * @en Returns the scale factor component of a transformation matrix
-     * @zh 从当前矩阵中计算出缩放变换的部分，并以各个轴上缩放的形式赋值给出口向量。
+     * @zh 从当前矩阵中计算出缩放变换的部分，并以各个轴上缩放的形式赋值给输出向量。
      * @param out Vector to receive scale component
      */
     public getScale (out: Vec3) {
@@ -2032,7 +2032,7 @@ export class Mat4 extends ValueType {
 
     /**
      * @en Returns the rotation factor component of a transformation matrix
-     * @zh 从当前矩阵中计算出旋转变换的部分，并以四元数的形式赋值给出口四元数。
+     * @zh 从当前矩阵中计算出旋转变换的部分，并以四元数的形式赋值给输出四元数。
      * @param out Vector to receive rotation component
      */
     public getRotation (out: Quat) {

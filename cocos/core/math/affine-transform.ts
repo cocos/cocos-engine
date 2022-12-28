@@ -33,7 +33,7 @@ import { legacyCC } from '../global-exports';
 
 /**
  * @en `AffineTransform` class represent an affine transform matrix. It's composed basically by translation, rotation, scale transformations.
- * @zh 二维仿射变换矩阵，描述了平移、缩放和缩放。
+ * @zh 二维仿射变换矩阵，描述了平移、旋转和缩放。
  */
 export class AffineTransform {
     /**
@@ -59,7 +59,7 @@ export class AffineTransform {
 
     /**
      * @en Concatenate a transform matrix to another. The results are reflected in the out `AffineTransform`.
-     * @zh 将两个矩阵相乘的结果赋值给出口矩阵。
+     * @zh 将两个矩阵相乘的结果赋值给输出矩阵。
      * @param out Out object to store the concat result
      * @param t1 The first transform object.
      * @param t2 The transform object to concatenate.
@@ -81,7 +81,7 @@ export class AffineTransform {
 
     /**
      * @en Get the invert transform of an `AffineTransform` object.
-     * @zh 将矩阵求逆的结果赋值给出口矩阵。
+     * @zh 将矩阵求逆的结果赋值给输出矩阵。
      * @param out Out object to store the invert result
      * @param t the input `AffineTransform` object
      */
@@ -97,7 +97,7 @@ export class AffineTransform {
 
     /**
      * @en Get an `AffineTransform` object from a given matrix 4x4.
-     * @zh 将四维矩阵转换为二维仿射变换矩阵并赋值给出口矩阵。
+     * @zh 将四维矩阵转换为二维仿射变换矩阵并赋值给输出矩阵。
      * @param out The output matrix to store the result
      * @param mat transform matrix.
      */
@@ -112,7 +112,7 @@ export class AffineTransform {
 
     /**
      * @en Apply the `AffineTransform` on a 2D vector.
-     * @zh 应用二维仿射变换矩阵到二维向量上，并将结果赋值给出口向量。
+     * @zh 应用二维仿射变换矩阵到二维向量上，并将结果赋值给输出向量。
      * @param out The output vector to store the result
      * @param point Vector to apply transform.
      * @param t transform matrix.
@@ -121,7 +121,7 @@ export class AffineTransform {
 
     /**
      * @en Apply the `AffineTransform` on a 2D vector.
-     * @zh 应用二维仿射变换矩阵到二维向量上，并将结果赋值给出口向量。
+     * @zh 应用二维仿射变换矩阵到二维向量上，并将结果赋值给输出向量。
      * @param out The output vector to store the result
      * @param x x to apply transform.
      * @param y y to apply transform.
@@ -146,7 +146,7 @@ export class AffineTransform {
 
     /**
      * @en Apply the `AffineTransform` on a size.
-     * @zh 应用二维仿射变换矩阵到二维尺寸上，并将结果赋值给出口尺寸。
+     * @zh 应用二维仿射变换矩阵到二维尺寸上，并将结果赋值给输出尺寸。
      * @param out The output size to store the result
      * @param size The size to apply transform.
      * @param t transform matrix.
@@ -158,7 +158,7 @@ export class AffineTransform {
 
     /**
      * @en Apply the `AffineTransform` on a rect.
-     * @zh 应用二维仿射变换矩阵到矩形上，并将结果赋值给出口矩形。
+     * @zh 应用二维仿射变换矩阵到矩形上，并将结果赋值给输出矩形。
      * @param out The output rect object to store the result
      * @param rect The rect object to apply transform.
      * @param t transform matrix.
