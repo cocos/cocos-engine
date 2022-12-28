@@ -389,7 +389,7 @@ class CCObject implements EditorExtendableObject {
              */
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-expect-error
-            if (JSB &&  this.destruct) {
+            if (JSB && this.destruct) {
                 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                 // @ts-expect-error
                 this.destruct();
