@@ -22,6 +22,7 @@
  THE SOFTWARE.
 */
 
+import { EDITOR } from 'internal:constants';
 import { ConfigOrientation, IScreenOptions, SafeAreaEdge } from 'pal/screen-adapter';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { Size } from '../../../cocos/core/math';
@@ -127,7 +128,9 @@ class ScreenAdapter extends EventTarget {
 
     public init (options: IScreenOptions, cbToRebuildFrameBuffer: () => void) {
         this._cbToUpdateFrameBuffer = cbToRebuildFrameBuffer;
-        this._cbToUpdateFrameBuffer();
+        if (!EDITOR) {
+            this._cbToUpdateFrameBuffer();
+        }
     }
 
     public requestFullScreen (): Promise<void> {
