@@ -60,7 +60,7 @@ CCObject::CCObject(ccstd::string name /* = ""*/)
 CCObject::~CCObject() = default;
 
 void CCObject::destruct() {
-    _name = "";
+    _name.clear();
 }
 
 bool CCObject::destroy() {

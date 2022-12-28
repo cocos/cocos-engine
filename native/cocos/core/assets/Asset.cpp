@@ -103,8 +103,8 @@ bool Asset::destroy() {
 
 void Asset::destruct() {
     CCObject::destruct();
-    _native = "";
-    _nativeUrl = "";
+    _native.clear();
+    _nativeUrl.clear();
 }
 
 } // namespace cc

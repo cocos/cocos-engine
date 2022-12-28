@@ -384,7 +384,14 @@ class CCObject implements EditorExtendableObject {
         }
 
         if (!EDITOR || legacyCC.GAME_VIEW) {
-            if (JSB &&  typeof (this.destruct) === 'function') {
+            /*Native properties cannot be reset by _destruct, because the native properties are hung on the prototype and
+             *hasOwnProperty's detection cannot be passed.
+             */
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-expect-error
+            if (JSB &&  this.destruct) {
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-expect-error
                 this.destruct();
             }
             this._destruct();
