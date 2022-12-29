@@ -735,7 +735,7 @@ export class Game extends EventTarget {
 
                 // resize canvas before deviceManager init
                 console.time('phase resize canvas');
-                const locCanvas = legacyCC.game.canvas;
+                const locCanvas = this.canvas;
                 if (locCanvas) {
                     const windowSize = screen.windowSize;
                     if (locCanvas.width !== windowSize.width) {
