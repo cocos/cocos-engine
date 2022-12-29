@@ -90,11 +90,13 @@ function strToColor (value: string): Color {
 
 function getPropertyList (node: Element, map?: PropertiesInfo): PropertiesInfo {
     const res: any[] = [];
-    const properties = node.getElementsByTagName('properties');
-    for (let i = 0; i < properties.length; ++i) {
-        const property = properties[i].getElementsByTagName('property');
-        for (let j = 0; j < property.length; ++j) {
-            res.push(property[j]);
+    for (let childNode = node.firstChild; childNode != null; childNode = childNode.nextSibling) {
+        if (childNode instanceof Element && childNode.nodeName == 'properties') {
+            for (let childNode2 = childNode.firstChild; childNode2 != null; childNode2 = childNode2.nextSibling) {
+                if (childNode2 instanceof Element && childNode2.nodeName === 'property') {
+                    res.push(childNode2);
+                }
+            }
         }
     }
 
@@ -113,6 +115,12 @@ function getPropertyList (node: Element, map?: PropertiesInfo): PropertiesInfo {
             value = value === 'true';
         } else if (type === 'color') {
             value = strToColor(value);
+        } else if (type === 'class') {
+            value = getPropertyList(element, {});
+        } else if (type === 'object') {
+            value = parseInt(value);
+        } else if (type === 'string') {
+            if (value == null) value = element.textContent;
         }
 
         map![name] = value;
