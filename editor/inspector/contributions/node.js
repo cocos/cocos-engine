@@ -924,6 +924,9 @@ const Elements = {
             panel.$.nodeLink.addEventListener('click', (event) => {
                 event.stopPropagation();
             });
+
+            Elements.node.i18nChangeBind = Elements.node.i18nChange.bind(panel);
+            Editor.Message.addBroadcastListener('i18n:change', Elements.node.i18nChangeBind);
         },
         async update() {
             const panel = this;
@@ -1160,6 +1163,32 @@ const Elements = {
                     dom.remove();
                 });
                 delete panel.$.nodeSection.__node_panels__;
+            }
+        },
+        close() {
+            Editor.Message.removeBroadcastListener('i18n:change', Elements.node.i18nChangeBind);
+        },
+        i18nChange() {
+            const panel = this;
+
+            panel.$.nodeLink.value = Editor.I18n.t('ENGINE.help.cc.Node');
+
+            const sectionBody = panel.$.sectionBody;
+            for (let index = 0; index < sectionBody.__sections__.length; index++) {
+                const $section = sectionBody.__sections__[index];
+                const $link = $section.querySelector('ui-link');
+
+                if (!$link) {
+                    continue;
+                }
+
+                const dump = $section.dump;
+                const url = panel.getHelpUrl(dump.editor);
+                if (url) {
+                    $link.setAttribute('value', url);
+                } else {
+                    $link.removeAttribute('value');
+                }
             }
         },
     },
@@ -1637,6 +1666,13 @@ exports.methods = {
         const clipboardNodeWorldTransform = Editor.Clipboard.read('_dump_node_world_transform_');
         const clipboardComponentInfo = Editor.Clipboard.read('_dump_component_');
 
+        function notEqualDefaultValueVec3(propName) {
+            const keys = ['x', 'y', 'z'];
+            return keys.some(key => {
+                return dump[propName].value[key] !== dump[propName].default.value[key].value;
+            });
+        }
+
         Editor.Menu.popup({
             menu: [
                 {
@@ -1758,7 +1794,7 @@ exports.methods = {
                 { type: 'separator' },
                 {
                     label: Editor.I18n.t('ENGINE.menu.reset_node_position'),
-                    enabled: !dump.position.readonly && JSON.stringify(dump.position.value) !== JSON.stringify(dump.position.default),
+                    enabled: !dump.position.readonly && notEqualDefaultValueVec3('position'),
                     async click() {
                         Editor.Message.send('scene', 'snapshot');
 
@@ -1774,7 +1810,7 @@ exports.methods = {
                 },
                 {
                     label: Editor.I18n.t('ENGINE.menu.reset_node_rotation'),
-                    enabled: !dump.rotation.readonly && JSON.stringify(dump.rotation.value) !== JSON.stringify(dump.rotation.default),
+                    enabled: !dump.rotation.readonly && notEqualDefaultValueVec3('rotation'),
                     async click() {
                         Editor.Message.send('scene', 'snapshot');
 
@@ -1790,7 +1826,7 @@ exports.methods = {
                 },
                 {
                     label: Editor.I18n.t('ENGINE.menu.reset_node_scale'),
-                    enabled: !dump.scale.readonly && JSON.stringify(dump.scale.value) !== JSON.stringify(dump.scale.default),
+                    enabled: !dump.scale.readonly && notEqualDefaultValueVec3('scale'),
                     async click() {
                         Editor.Message.send('scene', 'snapshot');
 
@@ -1806,7 +1842,7 @@ exports.methods = {
                 },
                 {
                     label: Editor.I18n.t('ENGINE.menu.reset_node_mobility'),
-                    enabled: !dump.mobility.readonly && JSON.stringify(dump.mobility.value) !== JSON.stringify(dump.mobility.default),
+                    enabled: !dump.mobility.readonly && dump.mobility.value !== dump.mobility.default,
                     async click() {
                         Editor.Message.send('scene', 'snapshot');
 

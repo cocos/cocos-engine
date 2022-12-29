@@ -1,3 +1,27 @@
+/*
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
+
 import { HandleCallback } from 'pal/input';
 import { InputEventType } from '../../../cocos/input/types/event-enum';
 import { EventTarget } from '../../../cocos/core/event/event-target';
@@ -26,6 +50,8 @@ enum Button {
     RIGHT_STICK_DOWN,
     RIGHT_STICK_LEFT,
     RIGHT_STICK_RIGHT,
+    ROKID_MENU,
+    ROKID_START,
 }
 
 enum Pose {
@@ -50,6 +76,8 @@ const _nativeButtonMap = {
     4: Button.BUTTON_WEST,
     9: Button.BUTTON_LEFT_STICK,
     10: Button.BUTTON_RIGHT_STICK,
+    11: Button.ROKID_MENU,
+    12: Button.ROKID_START,
     13: Button.BUTTON_TRIGGER_LEFT,
     14: Button.BUTTON_TRIGGER_RIGHT,
 };
@@ -74,6 +102,8 @@ export class HandleInputDevice {
     public get rightStick () { return this._rightStick; }
     public get buttonLeftStick () { return this._buttonLeftStick; }
     public get buttonRightStick () { return this._buttonRightStick; }
+    public get buttonOptions () { return this._buttonOptions; }
+    public get buttonStart () { return this._buttonStart; }
     public get handLeftPosition () { return this._handLeftPosition; }
     public get handLeftOrientation () { return this._handLeftOrientation; }
     public get handRightPosition () { return this._handRightPosition; }
@@ -99,6 +129,8 @@ export class HandleInputDevice {
     private _rightStick!: InputSourceStick;
     private _buttonLeftStick!: InputSourceButton;
     private _buttonRightStick!: InputSourceButton;
+    private _buttonOptions!: InputSourceButton;
+    private _buttonStart!: InputSourceButton;
     private _handLeftPosition!: InputSourcePosition;
     private _handLeftOrientation!: InputSourceOrientation;
     private _handRightPosition!: InputSourcePosition;
@@ -129,6 +161,8 @@ export class HandleInputDevice {
         [Button.RIGHT_STICK_RIGHT]: 0,
         [Button.BUTTON_LEFT_STICK]: 0,
         [Button.BUTTON_RIGHT_STICK]: 0,
+        [Button.ROKID_MENU]: 0,
+        [Button.ROKID_START]: 0,
     };
 
     private _nativePoseState: NativePoseState = {
@@ -297,6 +331,11 @@ export class HandleInputDevice {
         const rightStickRight = new InputSourceButton();
         rightStickRight.getValue = () => this._nativeButtonState[Button.RIGHT_STICK_RIGHT];
         this._rightStick = new InputSourceStick({ up: rightStickUp, down: rightStickDown, left: rightStickLeft, right: rightStickRight });
+
+        this._buttonOptions = new InputSourceButton();
+        this._buttonOptions.getValue = () => this._nativeButtonState[Button.ROKID_MENU];
+        this._buttonStart = new InputSourceButton();
+        this._buttonStart.getValue = () => this._nativeButtonState[Button.ROKID_START];
 
         this._handLeftPosition = new InputSourcePosition();
         this._handLeftPosition.getValue = () => this._nativePoseState[Pose.HAND_LEFT].position;

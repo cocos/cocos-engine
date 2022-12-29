@@ -1,6 +1,30 @@
+/*
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
+
 import { EDITOR } from 'internal:constants';
 
-import { Vec2, Rect, _decorator, Eventify, cclegacy } from '../../../../core';
+import { Vec2, Rect, _decorator, Eventify, cclegacy, tooltip } from '../../../../core';
 import { PhysicsGroup } from '../../../../physics/framework/physics-enum';
 
 import { RigidBody2D } from '../rigid-body-2d';
@@ -14,12 +38,14 @@ const { ccclass, editable, property, type } = _decorator;
 @ccclass('cc.Collider2D')
 export class Collider2D extends Eventify(Component) {
     @editable
+    @tooltip('i18n:physics2d.collider.editing')
     editing = false;
     /**
      * @en Tag. If a node has several collider components, you can judge which type of collider is collided according to the tag.
      * @zh 标签。当一个节点上有多个碰撞组件时，在发生碰撞后，可以使用此标签来判断是节点上的哪个碰撞组件被碰撞了。
      */
     @property
+    @tooltip('i18n:physics2d.collider.tag')
     tag = 0;
 
     /**
@@ -29,6 +55,7 @@ export class Collider2D extends Eventify(Component) {
      * 获取或设置分组。
      */
     @type(PhysicsGroup)
+    @tooltip('i18n:physics2d.collider.group')
     public get group (): number {
         return this._group;
     }
@@ -41,9 +68,10 @@ export class Collider2D extends Eventify(Component) {
 
     /**
      * @en The density.
-     * @zh 密度
+     * @zh 密度。
      */
     @property
+    @tooltip('i18n:physics2d.collider.density')
     get density () {
         return this._density;
     }
@@ -58,6 +86,7 @@ export class Collider2D extends Eventify(Component) {
      * 一个传感器类型的碰撞体会产生碰撞回调，但是不会发生物理碰撞效果。
      */
     @property
+    @tooltip('i18n:physics2d.collider.sensor')
     get sensor () {
         return this._sensor;
     }
@@ -69,9 +98,10 @@ export class Collider2D extends Eventify(Component) {
      * @en
      * The friction coefficient, usually in the range [0,1].
      * @zh
-     * 摩擦系数，取值一般在 [0, 1] 之间
+     * 摩擦系数，取值一般在 [0, 1] 之间。
      */
     @property
+    @tooltip('i18n:physics2d.collider.friction')
     get friction () {
         return this._friction;
     }
@@ -83,9 +113,10 @@ export class Collider2D extends Eventify(Component) {
      * @en
      * The restitution (elasticity) usually in the range [0,1].
      * @zh
-     * 弹性系数，取值一般在 [0, 1]之间
+     * 弹性系数，取值一般在 [0, 1]之间。
      */
     @property
+    @tooltip('i18n:physics2d.collider.restitution')
     get restitution () {
         return this._restitution;
     }
@@ -97,6 +128,7 @@ export class Collider2D extends Eventify(Component) {
      * @zh 位置偏移量
      */
     @property
+    @tooltip('i18n:physics2d.collider.offset')
     get offset () {
         return this._offset;
     }
@@ -167,9 +199,9 @@ export class Collider2D extends Eventify(Component) {
 
     /**
      * @en
-     * Get the world aabb of the collider
+     * Get the world aabb of the collider.
      * @zh
-     * 获取碰撞体的世界坐标系下的包围盒
+     * 获取碰撞体的世界坐标系下的包围盒。
      */
     get worldAABB (): Readonly<Rect> {
         if (this._shape) {
