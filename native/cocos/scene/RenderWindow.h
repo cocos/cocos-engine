@@ -40,6 +40,7 @@ struct IRenderWindowInfo {
     uint32_t height{0};
     gfx::RenderPassInfo renderPassInfo;
     gfx::Swapchain *swapchain{nullptr};
+    gfx::SampleCount sampleCount = gfx::SampleCount::ONE;
 };
 
 /**
@@ -94,14 +95,14 @@ public:
      * If you want to get oriented size instead, you should use [[Camera.width]] which corresponds to the current screen rotation.
      * @zh 获取窗口宽度。如果支持交换链预变换，返回值将始终处于单位旋转（竖屏）坐标系下。如果需要获取旋转后的尺寸，请使用 [[Camera.width]]。
      */
-    inline uint32_t getWidth() const { return _width; }
+    uint32_t getWidth() const;
 
     /**
      * @en Get window height. Pre-rotated (i.e. rotationally invariant, always in identity/portrait mode) if possible.
      * If you want to get oriented size instead, you should use [[Camera.width]] which corresponds to the current screen rotation.
      * @zh 获取窗口高度。如果支持交换链预变换，返回值将始终处于单位旋转（竖屏）坐标系下。如果需要获取旋转后的尺寸，请使用 [[Camera.height]]。
      */
-    inline uint32_t getHeight() const { return _height; }
+    uint32_t getHeight() const;
 
     /**
      * @en Get the swapchain for this window, if there is one
@@ -119,6 +120,10 @@ public:
 
     inline const ccstd::vector<IntrusivePtr<Camera>> &getCameras() const { return _cameras; }
 
+    gfx::Texture *getOutputTexture() const;
+
+    gfx::SampleCount getSamplerCount() const { return _sampleCount; }
+
 private:
     void generateFrameBuffer();
 
@@ -131,6 +136,7 @@ private:
     IntrusivePtr<gfx::Framebuffer> _frameBuffer;
     ccstd::vector<IntrusivePtr<Camera>> _cameras;
     RefVector<gfx::Texture *> _colorTextures;
+    gfx::SampleCount _sampleCount = gfx::SampleCount::ONE;
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(RenderWindow);
 };
