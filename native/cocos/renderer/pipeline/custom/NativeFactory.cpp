@@ -23,13 +23,48 @@
  THE SOFTWARE.
 ****************************************************************************/
 
+#include <sstream>
+#include "BinaryArchive.h"
+#include "LayoutGraphSerialization.h"
 #include "NativePipelineTypes.h"
 #include "RenderInterfaceTypes.h"
-#include "boost/container/pmr/global_resource.hpp"
+#include "details/GslUtils.h"
+#include "pipeline/custom/LayoutGraphTypes.h"
+#include "pipeline/custom/details/Pmr.h"
 
 namespace cc {
 
 namespace render {
+
+namespace {
+
+NativeRenderingModule* sRenderingModule = nullptr;
+
+} // namespace
+
+RenderingModule* Factory::init(gfx::Device* deviceIn, const ccstd::vector<unsigned char>& bufferIn) {
+    std::ignore = deviceIn;
+
+    std::shared_ptr<NativeProgramLibrary> ptr(
+        allocatePmrUniquePtr<NativeProgramLibrary>(
+            boost::container::pmr::get_default_resource()));
+    {
+        std::string buffer(bufferIn.begin(), bufferIn.end());
+        std::istringstream iss(buffer, std::ios::binary);
+        BinaryInputArchive ar(iss, boost::container::pmr::get_default_resource());
+        load(ar, ptr->layoutGraph);
+    }
+
+    sRenderingModule = ccnew NativeRenderingModule(std::move(ptr));
+    return sRenderingModule;
+}
+
+void Factory::destroy(RenderingModule* renderingModule) noexcept {
+    auto* ptr = dynamic_cast<NativeRenderingModule*>(renderingModule);
+    if (ptr) {
+        ptr->programLibrary.reset();
+    }
+}
 
 Pipeline* Factory::createPipeline() {
     return ccnew NativePipeline(boost::container::pmr::get_default_resource());
