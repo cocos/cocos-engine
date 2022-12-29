@@ -1,18 +1,35 @@
+/****************************************************************************
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+****************************************************************************/
+
 #include <boost/graph/depth_first_search.hpp>
 #include <boost/graph/filtered_graph.hpp>
 #include <variant>
 #include "FGDispatcherGraphs.h"
-#include "GraphTypes.h"
-#include "GraphView.h"
-#include "GslUtils.h"
 #include "NativePipelineFwd.h"
 #include "NativePipelineTypes.h"
-#include "Pmr.h"
-#include "Range.h"
-#include "RenderCommonFwd.h"
 #include "RenderGraphGraphs.h"
 #include "RenderGraphTypes.h"
-#include "Set.h"
 #include "cocos/renderer/gfx-base/GFXBarrier.h"
 #include "cocos/renderer/gfx-base/GFXDef-common.h"
 #include "cocos/renderer/gfx-base/GFXDevice.h"
@@ -22,6 +39,9 @@
 #include "cocos/scene/Pass.h"
 #include "cocos/scene/RenderScene.h"
 #include "cocos/scene/Skybox.h"
+#include "details/GraphView.h"
+#include "details/GslUtils.h"
+#include "details/Range.h"
 
 namespace cc {
 
@@ -971,7 +991,7 @@ void NativePipeline::executeRenderGraph(const RenderGraph& rg) {
     auto& ppl = *this;
     auto* scratch = &ppl.unsyncPool;
 
-    //CC_LOG_INFO(rg.print(scratch).c_str());
+    // CC_LOG_INFO(rg.print(scratch).c_str());
 
     RenderGraphContextCleaner contextCleaner(ppl.nativeContext);
     ResourceCleaner cleaner(ppl.resourceGraph);
