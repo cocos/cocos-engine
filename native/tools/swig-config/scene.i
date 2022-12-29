@@ -538,6 +538,7 @@ using namespace cc;
 %attribute(cc::scene::ReflectionProbe, ccstd::vector<cc::IntrusivePtr<cc::RenderTexture>> &, bakedCubeTextures, getBakedCubeTextures);
 %attribute(cc::scene::ReflectionProbe, cc::TextureCube*, cubemap, getCubeMap, setCubeMap);
 %attribute(cc::scene::ReflectionProbe, cc::Node*, node, getNode);
+%attribute(cc::scene::ReflectionProbe, cc::RenderTexture*, realtimePlanarTexture, getRealtimePlanarTexture);
 
 %attribute(cc::SceneGlobals, bool, bakedWithStationaryMainLight, getBakedWithStationaryMainLight, setBakedWithStationaryMainLight);
 
