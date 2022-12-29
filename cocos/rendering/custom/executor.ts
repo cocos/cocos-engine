@@ -538,7 +538,6 @@ class DeviceRenderPass {
     protected _viewport: Viewport | null = null;
     private _rasterInfo: RasterPassInfo;
     private _layout: RenderPassLayoutInfo | null = null;
-    public submitMap: Map<Camera, SubmitInfo> = new Map<Camera, SubmitInfo>();
     constructor (context: ExecutorContext, passInfo: RasterPassInfo) {
         this._context = context;
         this._rasterInfo = passInfo;
@@ -749,7 +748,7 @@ class DeviceRenderPass {
     }
 
     private _clear () {
-        for (const [cam, info] of this.submitMap) {
+        for (const [cam, info] of this.context.submitMap) {
             info.additiveLight?.clear();
             const it = info.instances.values(); let res = it.next();
             while (!res.done) {
@@ -763,7 +762,7 @@ class DeviceRenderPass {
 
     postPass () {
         this._clear();
-        this.submitMap.clear();
+        // this.submitMap.clear();
         for (const queue of this._deviceQueues) {
             queue.postRecord();
         }
@@ -865,8 +864,8 @@ class DevicePreSceneTask extends WebSceneTask {
             return;
         }
         const devicePass = this._currentQueue.devicePass;
-        const submitMap = devicePass.submitMap;
         const context = devicePass.context;
+        const submitMap = context.submitMap;
         if (submitMap.has(this.camera)) {
             this._submitInfo = submitMap.get(this.camera)!;
         } else {
@@ -1090,7 +1089,7 @@ class DeviceSceneTask extends WebSceneTask {
     get graphScene () { return this._graphScene; }
     public start () {}
     protected _recordRenderList (isTransparent: boolean) {
-        const submitMap = this._currentQueue.devicePass.submitMap;
+        const submitMap = this._currentQueue.devicePass.context.submitMap;
         const renderList = isTransparent ? submitMap.get(this.camera!)!.transparentList : submitMap.get(this.camera!)!.opaqueList;
         for (let i = 0; i < renderList.length; ++i) {
             const { subModel, passIdx } = renderList[i];
@@ -1110,7 +1109,7 @@ class DeviceSceneTask extends WebSceneTask {
         this._recordRenderList(false);
     }
     protected _recordInstences () {
-        const submitMap = this._currentQueue.devicePass.submitMap;
+        const submitMap = this._currentQueue.devicePass.context.submitMap;
         const it = submitMap.get(this.camera!)!.renderInstanceQueue.length === 0
             ? submitMap.get(this.camera!)!.instances.values()
             : submitMap.get(this.camera!)!.renderInstanceQueue.values();
@@ -1140,7 +1139,7 @@ class DeviceSceneTask extends WebSceneTask {
         }
     }
     protected _recordBatches () {
-        const submitMap = this._currentQueue.devicePass.submitMap;
+        const submitMap = this._currentQueue.devicePass.context.submitMap;
         const it = submitMap.get(this.camera!)!.batches.values(); let res = it.next();
         while (!res.done) {
             let boundPSO = false;
@@ -1195,13 +1194,13 @@ class DeviceSceneTask extends WebSceneTask {
     }
     protected _recordShadowMap () {
         const context = this._currentQueue.devicePass.context;
-        const submitMap = this._currentQueue.devicePass.submitMap;
+        const submitMap = context.submitMap;
         submitMap.get(this.camera!)?.shadowMap?.recordCommandBuffer(context.device,
             this._renderPass, context.commandBuffer);
     }
     protected _recordReflectionProbe () {
         const context = this._currentQueue.devicePass.context;
-        const submitMap = this._currentQueue.devicePass.submitMap;
+        const submitMap = context.submitMap;
         submitMap.get(this.camera!)?.reflectionProbe?.recordCommandBuffer(context.device,
             this._renderPass, context.commandBuffer);
     }
@@ -1280,8 +1279,8 @@ class DeviceSceneTask extends WebSceneTask {
     }
     private _recordAdditiveLights () {
         const devicePass = this._currentQueue.devicePass;
-        const submitMap = devicePass.submitMap;
         const context = devicePass.context;
+        const submitMap = context.submitMap;
         submitMap.get(this.camera!)?.additiveLight?.recordCommandBuffer(context.device,
             this._renderPass,
             devicePass.context.commandBuffer);
@@ -1289,8 +1288,8 @@ class DeviceSceneTask extends WebSceneTask {
 
     private _recordPlanarShadows () {
         const devicePass = this._currentQueue.devicePass;
-        const submitMap = devicePass.submitMap;
         const context = devicePass.context;
+        const submitMap = context.submitMap;
         submitMap.get(this.camera!)?.planarQueue?.recordCommandBuffer(context.device,
             this._renderPass,
             devicePass.context.commandBuffer);
@@ -1394,6 +1393,7 @@ class ExecutorContext {
     readonly height: number;
     readonly additiveLight: RenderAdditiveLightQueue;
     readonly shadowMapBatched: RenderShadowMapBatchedQueue;
+    readonly submitMap: Map<Camera, SubmitInfo> = new Map<Camera, SubmitInfo>();
     renderGraph: RenderGraph;
 }
 class ResourceVisitor implements ResourceGraphVisitor {
@@ -1450,6 +1450,7 @@ export class Executor {
 
     execute (rg: RenderGraph) {
         this._context.renderGraph = rg;
+        this._context.submitMap.clear();
         const cmdBuff = this._context.commandBuffer;
         cmdBuff.begin();
         const visitor = new RenderVisitor(this._context);
