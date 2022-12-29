@@ -65,7 +65,7 @@ _global.cc = legacyCC;
 export { engineVersion as VERSION };
 
 if (EDITOR && legacyCC.GAME_VIEW === undefined) {
-    // Whether in native-scene/preview mode
+    // Used to indicate whether it is currently in preview mode
     // 'isPreviewProcess' is defined only in the editor's process
     legacyCC.GAME_VIEW = typeof globalThis.isPreviewProcess !== 'undefined' ? globalThis.isPreviewProcess : false;
 }
