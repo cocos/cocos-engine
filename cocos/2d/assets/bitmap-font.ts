@@ -104,7 +104,6 @@ export class FontAtlas {
 @ccclass('cc.BitmapFont')
 export class BitmapFont extends Font {
     /**
-     * @internal
      * @deprecated since v3.7
      */
     @serializable
@@ -135,7 +134,6 @@ export class BitmapFont extends Font {
     public fntConfig: IConfig | null = null;
 
     /**
-     * @internal
      * @deprecated since v3.7
      */
     public declare fontDefDictionary: FontAtlas;

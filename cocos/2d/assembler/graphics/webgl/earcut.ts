@@ -640,7 +640,6 @@ function signedArea (datas: number[], start: number, end: number, dim: number) {
 }
 
 /**
- * @internal
  * @deprecated since v3.7
  */
 export function earcut (datas: number[], holeIndices: number[] | null, dim: number) {

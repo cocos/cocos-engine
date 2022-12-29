@@ -467,7 +467,6 @@ export class SpriteFrame extends Asset {
     }
 
     /**
-     * @internal
      * @deprecated since v3.7
      */
     set _textureSource (value: TextureBase) {
@@ -552,7 +551,6 @@ export class SpriteFrame extends Asset {
     }
 
     /**
-     * @internal
      * @deprecated since v3.7
      */
     get trimmedBorder () {
@@ -572,7 +570,6 @@ export class SpriteFrame extends Asset {
     public uv: number[] = [];
 
     /**
-     * @internal
      * @deprecated since v3.7
      */
     public unbiasUV: number[] = [];
@@ -652,7 +649,6 @@ export class SpriteFrame extends Asset {
      * @zh
      * 返回是否已加载精灵帧。
      *
-     * @internal
      * @deprecated since v3.3
      */
     public textureLoaded () {
@@ -664,7 +660,6 @@ export class SpriteFrame extends Asset {
      * Returns whether the sprite frame is rotated in the texture.
      * @zh
      * 获取 SpriteFrame 是否旋转。
-     * @internal
      * @deprecated since v1.2, please use [[rotated]] instead
      */
     public isRotated () {
@@ -677,7 +672,6 @@ export class SpriteFrame extends Asset {
      * @zh
      * 设置 SpriteFrame 是否旋转。
      * @param value
-     * @internal
      * @deprecated since v1.2, please use [[rotated]] instead
      */
     public setRotated (rotated: boolean) {
@@ -689,7 +683,6 @@ export class SpriteFrame extends Asset {
      * If it's an atlas texture, a transparent pixel area is proposed for the actual mapping of the current texture.
      * @zh 获取 SpriteFrame 的纹理矩形区域。
      * 如果是一个 atlas 的贴图，则为当前贴图的实际剔除透明像素区域。
-     * @internal
      * @deprecated since v1.2, please use [[rect]]
      */
     public getRect (out?: Rect) {
@@ -704,7 +697,6 @@ export class SpriteFrame extends Asset {
     /**
      * @en Sets the rect of the sprite frame in the texture.
      * @zh 设置 SpriteFrame 的纹理矩形区域。
-     * @internal
      * @deprecated since v1.2, please use [[rect]]
      */
     public setRect (rect: Rect) {
@@ -714,7 +706,6 @@ export class SpriteFrame extends Asset {
     /**
      * @en Returns the original size before trimmed.
      * @zh 获取修剪前的原始大小。
-     * @internal
      * @deprecated since v1.2, please use [[originalSize]]
      */
     public getOriginalSize (out?: Size) {
@@ -730,7 +721,6 @@ export class SpriteFrame extends Asset {
      * @en Sets the original size before trimmed.
      * @zh 设置修剪前的原始大小。
      * @param size The new original size
-     * @internal
      * @deprecated since v1.2, please use [[originalSize]]
      */
     public setOriginalSize (size: Size) {
@@ -741,7 +731,6 @@ export class SpriteFrame extends Asset {
      * @en Returns the offset of the frame
      * @zh 获取偏移量。
      * @param out The output offset object
-     * @internal
      * @deprecated since v1.2, please use [[offset]]
      */
     public getOffset (out?: Vec2) {
@@ -757,7 +746,6 @@ export class SpriteFrame extends Asset {
      * @en Sets the offset of the frame
      * @zh 设置偏移量。
      * @param offset The new offset
-     * @internal
      * @deprecated since v1.2, please use [[offset]]
      */
     public setOffset (offset: Vec2) {
@@ -934,7 +922,6 @@ export class SpriteFrame extends Asset {
 
     /**
      * Calculate UV for sliced
-     * @internal
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _calculateSlicedUV () {
@@ -1001,7 +988,6 @@ export class SpriteFrame extends Asset {
 
     /**
      * Calculate UV
-     * @internal
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _calculateUV () {
@@ -1226,7 +1212,6 @@ export class SpriteFrame extends Asset {
     }
 
     /**
-     * @internal
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _setDynamicAtlasFrame (frame) {
@@ -1245,7 +1230,6 @@ export class SpriteFrame extends Asset {
     }
 
     /**
-     * @internal
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _resetDynamicAtlasFrame () {
@@ -1258,7 +1242,6 @@ export class SpriteFrame extends Asset {
     }
 
     /**
-     * @internal
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _checkPackable () {

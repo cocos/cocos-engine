@@ -105,7 +105,6 @@ export class SpriteAtlas extends Asset {
     }
 
     /**
-     * @internal
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _serialize (ctxForExporting: any): any {
@@ -129,7 +128,6 @@ export class SpriteAtlas extends Asset {
     }
 
     /**
-     * @internal
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _deserialize (serializeData: any, handle: any) {

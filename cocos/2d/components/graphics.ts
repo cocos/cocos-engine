@@ -229,7 +229,6 @@ export class Graphics extends UIRenderer {
     //nativeObj
     protected declare _graphicsNativeProxy: NativeUIModelProxy;
     /**
-     * @internal
      * @deprecated since v3.7.0
      */
     get graphicsNativeProxy () {
@@ -624,7 +623,6 @@ export class Graphics extends UIRenderer {
     }
 
     /**
-     * @internal
      * @deprecated since v3.7
      */
     public activeSubModel (idx: number) {
@@ -726,7 +724,6 @@ export class Graphics extends UIRenderer {
     }
 
     /**
-     * @internal
      * @deprecated since v3.7
      */
     public updateRenderer () {

@@ -198,7 +198,6 @@ export class Label extends UIRenderer {
      */
     public static CacheMode = CacheMode;
     /**
-     * @internal
      * @deprecated since v3.7
      */
     public static _canvasPool = CanvasPool.getInstance();
@@ -603,7 +602,6 @@ export class Label extends UIRenderer {
     }
 
     /**
-     * @internal
      * @deprecated since v3.7
      */
     get spriteFrame () {
@@ -611,7 +609,6 @@ export class Label extends UIRenderer {
     }
 
     /**
-     * @internal
      * @deprecated since v3.7
      */
     get ttfSpriteFrame () {
@@ -619,7 +616,6 @@ export class Label extends UIRenderer {
     }
 
     /**
-     * @internal
      * @deprecated since v3.7
      */
     get assemblerData () {
@@ -627,7 +623,6 @@ export class Label extends UIRenderer {
     }
 
     /**
-     * @internal
      * @deprecated since v3.7
      */
     get fontAtlas () {
@@ -639,7 +634,6 @@ export class Label extends UIRenderer {
     }
 
     /**
-     * @internal
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     get _bmFontOriginalSize () {
@@ -790,7 +784,6 @@ export class Label extends UIRenderer {
     }
 
     /**
-     * @internal
      * @deprecated since v3.7
      */
     public setEntityColor (color: Color) {

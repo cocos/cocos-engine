@@ -768,7 +768,6 @@ export class UITransform extends Component {
     }
 
     /**
-     * @internal
      * @deprecated Since v3.7
      * @engineInternal
      */
@@ -782,7 +781,6 @@ export class UITransform extends Component {
     }
 
     /**
-     * @internal
      * @deprecated Since v3.7
      * @engineInternal
      */

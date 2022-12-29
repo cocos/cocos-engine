@@ -534,7 +534,6 @@ export class Sprite extends UIRenderer {
     }
 
     /**
-     * @internal
      * @deprecated Since v3.7
      */
     public changeMaterialForDefine () {

@@ -73,34 +73,29 @@ export class UIComponent extends Component {
      * @zh 后置渲染数据组装程序，它会在所有子节点的渲染数据组装完成后被调用。
      * 它可能会组装额外的渲染数据到顶点数据缓冲区，也可能只是重置一些渲染状态。
      * 注意：不要手动调用该函数，除非你理解整个流程。
-     * @internal
      * @deprecated since v3.4.1
      */
     public postUpdateAssembler (render: IBatcher) {
     }
 
     /**
-     * @internal
      * @deprecated since v3.4.1
      */
     public markForUpdateRenderData (enable = true) {
     }
 
     /**
-     * @internal
      * @deprecated since v3.4.1
      */
     public stencilStage: Stage = Stage.DISABLED;
 
     /**
-     * @internal
      * @deprecated since v3.4.1
      */
     public setNodeDirty () {
     }
 
     /**
-     * @internal
      * @deprecated since v3.4.1
      */
     public setTextureDirty () {

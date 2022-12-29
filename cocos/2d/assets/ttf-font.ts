@@ -35,14 +35,12 @@ import { Font } from './font';
 @ccclass('cc.TTFFont')
 export class TTFFont extends Font {
     /**
-     * @internal
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     @serializable
     public _fontFamily: string | null = null;
 
     /**
-     * @internal
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     @override
@@ -55,7 +53,6 @@ export class TTFFont extends Font {
     }
 
     /**
-     * @internal
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     @override

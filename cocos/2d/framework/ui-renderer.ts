@@ -201,7 +201,6 @@ export class UIRenderer extends Renderer {
 
     protected _renderData: RenderData | null = null;
     /**
-     * @internal
      * @deprecated Since v3.7
      */
     get renderData () {
@@ -209,7 +208,6 @@ export class UIRenderer extends Renderer {
     }
 
     /**
-     * @internal
      * @deprecated Since v3.7
      */
     get useVertexOpacity () {
@@ -217,7 +215,6 @@ export class UIRenderer extends Renderer {
     }
 
     /**
-     * @internal
      * @deprecated Since v3.7
      * @en The component stencil stage (please do not any modification directly on this object)
      * @zh 组件模板缓冲状态 (注意：请不要直接修改它的值)
@@ -259,18 +256,15 @@ export class UIRenderer extends Renderer {
     protected _dstBlendFactorCache = BlendFactor.ONE_MINUS_SRC_ALPHA;
 
     /**
-     * @internal
      * @deprecated Since v3.7
      */
     public _dirtyVersion = -1;
     /**
-     * @internal
      * @deprecated Since v3.7
      */
     public _internalId = -1;
 
     /**
-     * @internal
      * @deprecated Since v3.7
      */
     get batcher () {
@@ -278,7 +272,6 @@ export class UIRenderer extends Renderer {
     }
 
     /**
-     * @internal
      * @deprecated Since v3.7
      */
     get renderEntity () {
@@ -388,7 +381,6 @@ export class UIRenderer extends Renderer {
     }
 
     /**
-     * @internal
      * @deprecated Since v3.7
      */
     public updateRenderer () {
@@ -400,7 +392,6 @@ export class UIRenderer extends Renderer {
     }
 
     /**
-     * @internal
      * @deprecated Since v3.7
      */
     public fillBuffers (render: IBatcher) {
@@ -468,7 +459,6 @@ export class UIRenderer extends Renderer {
     }
 
     /**
-     * @internal
      * @deprecated Since v3.7
      */
     // for common
@@ -489,7 +479,6 @@ export class UIRenderer extends Renderer {
     }
 
     /**
-     * @internal
      * @deprecated Since v3.7
      */
     public setEntityColor (color: Color) {
@@ -499,7 +488,6 @@ export class UIRenderer extends Renderer {
     }
 
     /**
-     * @internal
      * @deprecated Since v3.7
      */
     public setEntityOpacity (opacity: number) {
@@ -509,7 +497,6 @@ export class UIRenderer extends Renderer {
     }
 
     /**
-     * @internal
      * @deprecated Since v3.7
      */
     public setEntityEnabled (enabled: boolean) {
@@ -519,7 +506,6 @@ export class UIRenderer extends Renderer {
     }
 
     /**
-     * @internal
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _updateBlendFunc () {
@@ -595,7 +581,6 @@ export class UIRenderer extends Renderer {
     protected _flushAssembler?(): void;
 
     /**
-     * @internal
      * @deprecated Since v3.7
      */
     public setNodeDirty () {
@@ -605,7 +590,6 @@ export class UIRenderer extends Renderer {
     }
 
     /**
-     * @internal
      * @deprecated Since v3.7
      */
     public setTextureDirty () {
