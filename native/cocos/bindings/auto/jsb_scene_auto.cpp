@@ -14385,7 +14385,7 @@ static bool js_cc_scene_Model_updateLocalShadowBias(se::State& s)
 }
 SE_BIND_FUNC(js_cc_scene_Model_updateLocalShadowBias) 
 
-static bool js_cc_scene_Model_updateReflctionProbeCubemap(se::State& s)
+static bool js_cc_scene_Model_updateReflectionProbeCubemap(se::State& s)
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
@@ -14402,14 +14402,14 @@ static bool js_cc_scene_Model_updateReflctionProbeCubemap(se::State& s)
     
     ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
     SE_PRECONDITION2(ok, false, "Error processing arguments"); 
-    (arg1)->updateReflctionProbeCubemap(arg2);
+    (arg1)->updateReflectionProbeCubemap(arg2);
     
     
     return true;
 }
-SE_BIND_FUNC(js_cc_scene_Model_updateReflctionProbeCubemap) 
+SE_BIND_FUNC(js_cc_scene_Model_updateReflectionProbeCubemap) 
 
-static bool js_cc_scene_Model_updateReflctionProbePlanarMap(se::State& s)
+static bool js_cc_scene_Model_updateReflectionProbePlanarMap(se::State& s)
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
@@ -14426,12 +14426,12 @@ static bool js_cc_scene_Model_updateReflctionProbePlanarMap(se::State& s)
     
     ok &= sevalue_to_native(args[0], &arg2, s.thisObject());
     SE_PRECONDITION2(ok, false, "Error processing arguments"); 
-    (arg1)->updateReflctionProbePlanarMap(arg2);
+    (arg1)->updateReflectionProbePlanarMap(arg2);
     
     
     return true;
 }
-SE_BIND_FUNC(js_cc_scene_Model_updateReflctionProbePlanarMap) 
+SE_BIND_FUNC(js_cc_scene_Model_updateReflectionProbePlanarMap) 
 
 static bool js_cc_scene_Model_attachToScene(se::State& s)
 {
@@ -15658,8 +15658,8 @@ bool js_register_cc_scene_Model(se::Object* obj) {
     cls->defineFunction("updateSHUBOs", _SE(js_cc_scene_Model_updateSHUBOs)); 
     cls->defineFunction("updateWorldBoundUBOs", _SE(js_cc_scene_Model_updateWorldBoundUBOs)); 
     cls->defineFunction("updateLocalShadowBias", _SE(js_cc_scene_Model_updateLocalShadowBias)); 
-    cls->defineFunction("updateReflctionProbeCubemap", _SE(js_cc_scene_Model_updateReflctionProbeCubemap)); 
-    cls->defineFunction("updateReflctionProbePlanarMap", _SE(js_cc_scene_Model_updateReflctionProbePlanarMap)); 
+    cls->defineFunction("updateReflectionProbeCubemap", _SE(js_cc_scene_Model_updateReflectionProbeCubemap)); 
+    cls->defineFunction("updateReflectionProbePlanarMap", _SE(js_cc_scene_Model_updateReflectionProbePlanarMap)); 
     cls->defineFunction("attachToScene", _SE(js_cc_scene_Model_attachToScene)); 
     cls->defineFunction("detachFromScene", _SE(js_cc_scene_Model_detachFromScene)); 
     cls->defineFunction("setLocalSHBuffer", _SE(js_cc_scene_Model_setLocalSHBuffer)); 
