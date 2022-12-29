@@ -34,6 +34,7 @@ namespace ar {
 
 class CC_DLL ARModule final {
 public:
+    static ARModule* createARModule();
     static ARModule* get();
 
     ARModule();

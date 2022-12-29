@@ -50,6 +50,10 @@ ARModule::ARModule() {
 ARModule::~ARModule() {
 }
 
+ARModule* ARModule::createARModule() {
+    return new ARModule();
+}
+
 ARModule* ARModule::get() {
     return arModuleInstance.get();
 }
