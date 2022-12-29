@@ -214,7 +214,7 @@ export class EffectAsset extends Asset {
      * @en Register the effect asset to the static map.
      * @zh 将指定 effect 注册到全局管理器。
      *
-     * @param asset - @en The effect asset to be registered. @zh 待注册的 effect asset。
+     * @param asset @en The effect asset to be registered. @zh 待注册的 effect asset。
      */
     public static register (asset: EffectAsset) {
         EffectAsset._effects[asset.name] = asset;
@@ -313,7 +313,7 @@ export class EffectAsset extends Asset {
     public combinations: EffectAsset.IPreCompileInfo[] = [];
 
     /**
-     * @en Whether to hide in the editor.
+     * @en Whether to hide in editor mode.
      * @zh 是否在编辑器内隐藏。
      */
     @serializable

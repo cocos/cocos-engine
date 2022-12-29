@@ -42,10 +42,10 @@ export interface IDependencies {
 
 /**
  * @en
- * Control asset's dependency list, it is a singleton. All member can be accessed with [[AssetManager.dependUtil]].
+ * Manages asset's dependency list, it is a singleton. You can access it via [[AssetManager.dependUtil]].
  *
  * @zh
- * 控制资源的依赖列表，这是一个单例, 所有成员能通过 [[AssetManager.dependUtil]] 访问。
+ * 管理资源的依赖列表，这是一个单例, 你能通过 [[AssetManager.dependUtil]] 访问它。
  *
  */
 export class DependUtil {
@@ -76,7 +76,7 @@ export class DependUtil {
 
     /**
      * @en
-     * Get asset's native dependency. For example, ImageAsset's native dependency is image.
+     * Gets asset's native dependency. For example, ImageAsset's native dependency is image.
      * Note: You will need to have loaded this resource to query this information.
      *
      * @zh
@@ -101,7 +101,7 @@ export class DependUtil {
 
     /**
      * @en
-     * Get asset's direct referencing dependency list. For example, Material's dependencies are Texture, effect asset etc.
+     * Gets asset's direct referencing dependency list. For example, Material's dependencies are Texture, effect asset etc.
      * Note: You will need to have loaded this resource to query this information.
      *
      * @zh
@@ -124,7 +124,7 @@ export class DependUtil {
 
     /**
      * @en
-     * Get dependency list of the loaded asset, include indirect reference.
+     * Gets dependency list of the loaded asset, include indirect reference.
      * Note: You will need to have loaded this resource to query this information.
      *
      * @zh
@@ -156,7 +156,7 @@ export class DependUtil {
 
     /**
      * @en
-     * Extract dependency list from serialized data or asset and then store in cache.
+     * Extracts dependency list from serialized data or asset and then store in cache.
      *
      * @zh
      * 从序列化数据或资源中提取出依赖列表，并且存储在缓存中。

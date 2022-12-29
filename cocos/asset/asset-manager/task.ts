@@ -180,6 +180,9 @@ export default class Task {
         return this.isFinished;
     }
 
+    /**
+     * @deprecated Typo. Since v3.7, please use [[Task.isFinished]] instead.
+     */
     public set isFinish (val: boolean) {
         this.isFinished = val;
     }
@@ -260,7 +263,7 @@ export default class Task {
 
     /**
      * @en
-     * Dispatch event with any parameters.
+     * Dispatch event with any parameter.
      *
      * @zh
      * 分发事件，可以传递任意参数。
@@ -306,7 +309,7 @@ export default class Task {
 
     /**
      * @en
-     * Recycle this for reuse.
+     * Recycle this task to be reused.
      *
      * @zh
      * 回收 task 用于复用。

@@ -68,7 +68,7 @@ export class Pipeline {
 
     /**
      * @en
-     * Create a new pipeline.
+     * Creates a new pipeline.
      *
      * @zh
      * 创建一个管线。
@@ -106,7 +106,7 @@ export class Pipeline {
 
     /**
      * @en
-     * At specific point insert a new pipe to pipeline.
+     * Inserts a new pipe to pipeline at specific point .
      *
      * @zh
      * 在某个特定的点为管线插入一个新的 pipe。
@@ -139,7 +139,7 @@ export class Pipeline {
 
     /**
      * @en
-     * Append a new pipe to the pipeline.
+     * Appends a new pipe to the pipeline.
      *
      * @zh
      * 添加一个管道到管线中。
@@ -168,7 +168,7 @@ export class Pipeline {
 
     /**
      * @en
-     * Remove pipe which at specific point.
+     * Removes pipe which at specific point.
      *
      * @zh
      * 移除特定位置的管道。
@@ -191,13 +191,13 @@ export class Pipeline {
 
     /**
      * @en
-     * Execute task synchronously.
+     * Executes task synchronously.
      *
      * @zh
      * 同步执行任务。
      *
      * @param task @en The task will be executed. @zh 要执行的任务。
-     * @returns @en execution result. @zh 执行结果。
+     * @returns @en The execution result. @zh 执行结果。
      *
      * @example
      * var pipeline = new Pipeline('sync', [(task) => {
@@ -232,12 +232,12 @@ export class Pipeline {
 
     /**
      * @en
-     * Execute task asynchronously.
+     * Executes task asynchronously.
      *
      * @zh
      * 异步执行任务。
      *
-     * @param task @en The task will be executed. @zh 执行结果。
+     * @param task @en The task will be executed. @zh 待执行的任务。
      *
      * @example
      * var pipeline = new Pipeline('sync', [(task, done) => {

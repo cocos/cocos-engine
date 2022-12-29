@@ -205,11 +205,11 @@ export class RenderTexture extends TextureBase {
 
     /**
      * @en Read pixel buffer from render texture. @zh 从 render texture 读取像素数据。
-     * @param x @en The location on x axis @zh 起始位置X轴坐标
-     * @param y @en The location on y axis @zh 起始位置Y轴坐标
-     * @param width @en The pixel width @zh 像素宽度
-     * @param height @en The pixel height @zh 像素高度
-     * @param buffer @en The buffer to hold pixel data @zh 像素缓存
+     * @param x @en The location on x axis. @zh 起始位置X轴坐标。
+     * @param y @en The location on y axis. @zh 起始位置Y轴坐标。
+     * @param width @en The pixel width. @zh 像素宽度。
+     * @param height @en The pixel height. @zh 像素高度。
+     * @param buffer @en The buffer to hold pixel data. @zh 像素缓存。
      */
     public readPixels (x = 0, y = 0, width?: number, height?: number, buffer?: Uint8Array): Uint8Array | null {
         width = width || this.width;

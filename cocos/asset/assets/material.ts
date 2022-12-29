@@ -105,36 +105,36 @@ export class Material extends Asset {
     protected _effectAsset: EffectAsset | null = null;
 
     /**
-     * @engineInternal
+     * @internal
      */
     @serializable
     protected _techIdx = 0;
 
     /**
-     * @engineInternal
+     * @internal
      */
     @serializable
     protected _defines: MacroRecord[] = [];
 
     /**
-     * @engineInternal
+     * @internal
      */
     @serializable
     protected _states: PassOverrides[] = [];
 
     /**
-     * @engineInternal
+     * @internal
      */
     @serializable
     protected _props: Record<string, MaterialPropertyFull | MaterialPropertyFull[]>[] = [];
 
     /**
-     * @engineInternal
+     * @internal
      */
     protected _passes: Pass[] = [];
 
     /**
-     * @engineInternal
+     * @internal
      */
     protected _hash = 0;
 
@@ -326,7 +326,7 @@ export class Material extends Asset {
 
     /**
      * @en
-     * Get the specified uniform value for this material.<br>
+     * Gets the specified uniform value for this material.<br>
      * Note that only uniforms set through [[Material.setProperty]] can be acquired here.<br>
      * For the complete rendering data, use [[renderer.Pass.getUniform]] instead.
      * @zh

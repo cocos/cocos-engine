@@ -147,11 +147,11 @@ const downloadBundle = (nameOrUrl: string, options: Record<string, any>, onCompl
 
 /**
  * @en
- * Control all download process, it is a singleton.
- * All member can be accessed with [[AssetManager.downloader]], It can download various types of files.
+ * Manages all download process, it is a singleton.
+ * You can access it via [[AssetManager.downloader]], It can download various types of files.
  *
  * @zh
- * 管理所有下载过程，downloader 是个单例，所有成员能通过 [[AssetManager.downloader]] 访问，它能下载各种类型的文件。
+ * 管理所有下载过程，downloader 是个单例，你能通过 [[AssetManager.downloader]] 访问它，它能下载各种类型的文件。
  *
  */
 export class Downloader {
@@ -209,8 +209,8 @@ export class Downloader {
 
     /**
      * Whether to automatically add a timestamp after the url.
-     * This function is mainly used to prevent the browser from using cache under the editor.
-     * You should not adjust this behavior at runtime.
+     * This function is mainly used to prevent the browser from using cache in editor mode.
+     * You don't need to change it at runtime.
      * @engineInternal
      */
     public appendTimeStamp = !!EDITOR;
@@ -225,13 +225,13 @@ export class Downloader {
      * Wait for while before another retry, unit: ms.
      *
      * @zh
-     * 重试的间隔时间。
+     * 重试的间隔时间，单位为毫秒。
      *
      */
     public retryInterval = 2000;
 
     /**
-     * Version information for all bundles.
+     * Version information of all bundles.
      * @engineInternal
      */
     public bundleVers: Record<string, string> | null = null;
@@ -338,20 +338,20 @@ export class Downloader {
 
     /**
      * @en
-     * Register custom handler if you want to change default behavior or extend downloader to download other format file
+     * Register custom handler if you want to change default behavior or extend downloader to download other format file.
      *
      * @zh
-     * 当你想修改默认行为或者拓展 downloader 来下载其他格式文件时可以注册自定义的 handler
+     * 当你想修改默认行为或者拓展 downloader 来下载其他格式文件时可以注册自定义的 handler。
      *
      * @param type
-     * @en Extension likes '.jpg' or map likes {'.jpg': jpgHandler, '.png': pngHandler}.
+     * @en Extension name likes '.jpg' or map likes {'.jpg': jpgHandler, '.png': pngHandler}.
      * @zh 扩展名，或者形如 {'.jpg': jpgHandler, '.png': pngHandler} 的映射表。
      * @param handler @en Customized handling for this extension. @zh 针对此扩展名的自定义的处理方法。
      * @param handler.url @en The url to be downloaded. @zh 待下载的 url.
      * @param handler.options @en Some optional parameters will be transferred to handler. @zh 传递到处理方法的可选参数。
      * @param handler.onComplete
-     * @en Callback when finishing downloading. You need to call this method manually after the custom handler
-     * is executed and pass in the execution result.
+     * @en Callback when finishing downloading. You need to call this method manually and pass in the execution result after the custom handler
+     * is executed.
      * @zh 完成下载后的回调。你需要在自定义处理方法执行完后手动调用此方法，并将执行结果传入。
      *
      * @example

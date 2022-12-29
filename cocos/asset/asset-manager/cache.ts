@@ -31,7 +31,7 @@ import { js } from '../../core';
 export interface ICache<T> {
     /**
      * @en
-     * Add Key-Value to cache.
+     * Adds a Key-Value pair to cache.
      *
      * @zh
      * 增加键值对到缓存中。
@@ -43,7 +43,7 @@ export interface ICache<T> {
     add (key: string, val: T): T;
     /**
      * @en
-     * Get the cached content by key.
+     * Gets the cached content by key.
      *
      * @zh
      * 通过 key 获取对应的 value。
@@ -54,7 +54,7 @@ export interface ICache<T> {
     get (key: string): T | undefined | null;
     /**
      * @en
-     * Check whether or not content exists by key.
+     * Checks whether or not content exists by key.
      *
      * @zh
      * 通过 Key 判断是否存在对应的内容。
@@ -65,7 +65,7 @@ export interface ICache<T> {
     has (key: string): boolean;
     /**
      * @en
-     * Remove the cached content by key.
+     * Removes the cached content by key.
      *
      * @zh
      * 通过 Key 移除对应的内容。
@@ -77,7 +77,7 @@ export interface ICache<T> {
 
     /**
      * @en
-     * Clear all content.
+     * Clear all contents.
      *
      * @zh
      * 清除所有内容。
@@ -87,7 +87,7 @@ export interface ICache<T> {
     /**
      *
      * @en
-     * Enumerate all content and invoke function.
+     * Enumerates all contents and invokes function.
      *
      * @zh
      * 枚举所有内容并执行方法。
@@ -99,7 +99,7 @@ export interface ICache<T> {
     forEach (func: (val: T, key: string) => void): void;
     /**
      * @en
-     * Enumerate all content to find one element which can fulfill condition.
+     * Enumerates all content to find one element which can fulfill condition.
      *
      * @zh
      * 枚举所有内容，找到一个可以满足条件的元素。
@@ -141,7 +141,7 @@ export default class Cache<T = any> implements ICache<T> {
 
     /**
      * @en
-     * Create a Cache.
+     * Creates a Cache.
      *
      * @zh
      * 创建一个 Cache。
@@ -161,7 +161,7 @@ export default class Cache<T = any> implements ICache<T> {
 
     /**
      * @en
-     * Add Key-Value to cache.
+     * Adds a Key-Value pair to cache.
      *
      * @zh
      * 增加键值对到缓存中。
@@ -184,7 +184,7 @@ export default class Cache<T = any> implements ICache<T> {
 
     /**
      * @en
-     * Get the cached content by key.
+     * Gets the cached content by key.
      *
      * @zh
      * 通过 key 获取对应的 value。
@@ -203,7 +203,7 @@ export default class Cache<T = any> implements ICache<T> {
 
     /**
      * @en
-     * Check whether or not content exists by key.
+     * Checks whether or not content exists by key.
      *
      * @zh
      * 通过 Key 判断是否存在对应的内容。
@@ -222,7 +222,7 @@ export default class Cache<T = any> implements ICache<T> {
 
     /**
      * @en
-     * Remove the cached content by key.
+     * Removes the cached content by key.
      *
      * @zh
      * 通过 Key 移除对应的内容。
@@ -265,7 +265,7 @@ export default class Cache<T = any> implements ICache<T> {
 
     /**
      * @en
-     * Enumerate all content and invoke function.
+     * Enumerates all content and invokes function.
      *
      * @zh
      * 枚举所有内容并执行方法。

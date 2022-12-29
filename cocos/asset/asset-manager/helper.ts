@@ -32,7 +32,7 @@ export { default as decodeUuid } from '../../core/utils/decode-uuid';
 
 /**
  * @en
- * Extract uuid from url.
+ * Extracts uuid from url.
  *
  * @zh
  * 从 url 中提取 uuid。
@@ -54,7 +54,7 @@ export function getUuidFromURL (url: string): string {
 
 /**
  * @en
- * Transform uuid to url.
+ * Transforms uuid to url.
  *
  * @zh
  * 转换 uuid 为 url。
@@ -90,13 +90,13 @@ export function getUrlWithUuid (uuid: string, options?: { [k: string]: any, isNa
 
 /**
  * @en
- * Check if the type of asset is scene.
+ * Checks if the type of asset is scene.
  *
  * @zh
  * 检查资源类型是否是场景。
  *
  * @param asset @en The asset to be checked. @zh 待检查的资源。
- * @returns @en Whether or not type is SceneAsset. @zh 此资源是否是场景资源。
+ * @returns @en Whether or not the asset is a SceneAsset. @zh 此资源是否是场景资源。
  *
  */
 export function isScene (asset) {
@@ -105,7 +105,7 @@ export function isScene (asset) {
 
 /**
  * @en
- * Normalize url, strip './' and '/'.
+ * Normalizes url, strip './' and '/'.
  *
  * @zh
  * 标准化 url ，去除 './' 和 '/'。

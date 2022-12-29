@@ -80,7 +80,7 @@ export default class RequestItem {
      * The uuid of request.
      *
      * @zh
-     * 请求资源的 uuid。
+     * 所请求资源的 uuid。
      *
      */
     public uuid = '';
@@ -169,7 +169,7 @@ export default class RequestItem {
 
     /**
      * @en
-     * Recycle this for reuse.
+     * Recycle this to be reused.
      *
      * @zh
      * 回收 requestItem 用于复用。

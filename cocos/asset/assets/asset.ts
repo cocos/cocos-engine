@@ -124,9 +124,9 @@ export class Asset extends Eventify(CCObject) {
 
     /**
      * @en
-     * Returns the url of this asset's native object, if none it will returns an empty string.
+     * Returns the url of this asset's native object, will return an empty string if this asset does not have any native dependency.
      * @zh
-     * 返回该资源对应的目标平台资源的 URL，如果没有将返回一个空字符串。
+     * 返回该资源对应的目标平台资源的 URL，如果此资源没有原生依赖将返回一个空字符串。
      * @readOnly
      */
     get nativeUrl () {
@@ -206,7 +206,7 @@ export class Asset extends Eventify(CCObject) {
      * 否则，返回空字符串。<br>
      * 子类可能会覆盖此方法。
      * @method toString
-     * @return @en String representation of this asset. @zh 此资源的字符串表示。
+     * @returns @en String representation of this asset. @zh 此资源的字符串表示。
      */
     public toString () {
         return this.nativeUrl;
@@ -217,7 +217,7 @@ export class Asset extends Eventify(CCObject) {
      * 返回一个序列化后的对象
      *
      * @method serialize
-     * @return {String}
+     * @returns {String}
      * @private
      */
     public serialize () { }
@@ -258,7 +258,7 @@ export class Asset extends Eventify(CCObject) {
      * @zh
      * 获取原生依赖信息。
      *
-     * @return @en The native dependency information. @zh 原生依赖信息。
+     * @returns @en The native dependency information. @zh 原生依赖信息。
      *
      * @deprecated Since v3.7, this is an internal engine interface and you should not call this interface under any circumstances.
      */

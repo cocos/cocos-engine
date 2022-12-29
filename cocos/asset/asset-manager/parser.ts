@@ -36,10 +36,10 @@ export type ParseHandler = (file: any, options: Record<string, any>, onComplete:
 
 /**
  * @en
- * Parse the downloaded file, it's a singleton, all member can be accessed with `assetManager.parser`.
+ * Parse the downloaded file, it's a singleton, you can access it via [[AssetManager.parser]].
  *
  * @zh
- * 解析已下载的文件，parser 是一个单例, 所有成员能通过 `assetManager.parser` 访问。
+ * 解析已下载的文件，parser 是一个单例, 你能通过 [[assetManager.parser]] 访问它。
  *
  */
 export class Parser {
@@ -180,11 +180,11 @@ export class Parser {
      * 当你想修改默认行为或者拓展 parser 来解析其他格式文件时可以注册自定义的 handler。
      *
      * @param type
-     * @en Extension likes '.jpg' or map likes {'.jpg': jpgHandler, '.png': pngHandler}.
+     * @en Extension name likes '.jpg' or map likes {'.jpg': jpgHandler, '.png': pngHandler}.
      * @zh 形如 '.jpg' 的扩展名或形如 {'.jpg': jpgHandler, '.png': pngHandler} 的映射表。
      * @param handler @en The corresponding handler. @zh 对应扩展名的处理方法。
      * @param handler.file @en The file to be parsed. @zh 待解析的文件。
-     * @param handler.options @en Some optional parameter. @zh 一些可选的参数。
+     * @param handler.options @en Some optional parameters. @zh 一些可选的参数。
      * @param handler.onComplete @en The callback invoked when parsing finished. @zh 完成解析的回调。
      *
      * @example

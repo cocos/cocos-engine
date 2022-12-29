@@ -44,7 +44,7 @@ export default class Bundle {
     private _config: Config = new Config();
 
     /**
-     * for internal use.
+     * For internal use.
      * @engineInternal
      */
     public get config (): Config {
@@ -89,13 +89,13 @@ export default class Bundle {
 
     /**
      * @en
-     * Get asset's info using path, only valid when asset is in bundle folder.
+     * Gets asset's info using path, only valid when asset is in bundle folder.
      *
      * @zh
      * 使用 path 获取资源的配置信息。
      *
      * @param path @en The relative path of asset, such as 'images/a'. @zh 资源的相对路径，例如 `images/a`。
-     * @param type @en The constructor of asset, such as  `Texture2D`. @zh 资源的类型，例如 [[Texture2D]]。
+     * @param type @en The constructor of asset, such as `Texture2D`. @zh 资源的类型，例如 [[Texture2D]]。
      * @returns @en The asset info. @zh 资源的信息。
      *
      * @example
@@ -108,17 +108,17 @@ export default class Bundle {
 
     /**
      * @en
-     * Get all asset's info within specific folder.
+     * Gets all asset's info within specific folder.
      *
      * @zh
      * 获取在某个指定文件夹下的所有资源信息。
      *
      * @param path @en The relative path of folder, such as 'images'. @zh 文件夹的相对路径，例如 `images`。
      * @param type
-     * @en The asset type, can be used to find the information of the specified type of asset in the directory
+     * @en The asset type, can be used to find the information of the specified type of asset in the directory.
      * @zh 资源的类型，指定后可以用来查找目录下指定类型的资源信息。
      * @param out @en The output array. @zh 输出数组。
-     * @returns @en Queried asset information. @zh 查询到的资源。
+     * @returns @en Queried asset information. @zh 查询到的资源信息。
      *
      * @example
      * const infos = [];
@@ -130,7 +130,7 @@ export default class Bundle {
 
     /**
      * @en
-     * Get asset's info with uuid.
+     * Get asset's information with uuid.
      *
      * @zh
      * 通过 uuid 获取资源信息。
@@ -148,13 +148,13 @@ export default class Bundle {
 
     /**
      * @en
-     * Get scene'info with name.
+     * Gets scene's information with name.
      *
      * @zh
      * 通过场景名获取场景信息。
      *
      * @param name @en The name of scene. @zh 场景名称。
-     * @return @en The information of scene. @zh 场景信息。
+     * @returns @en The information of scene. @zh 场景信息。
      *
      * @example
      * const info = bundle.getSceneInfo('first.fire');
@@ -166,7 +166,7 @@ export default class Bundle {
 
     /**
      * @en
-     * Initialize this bundle with options.
+     * Initializes this bundle with options.
      *
      * @zh
      * 初始化此 bundle。
@@ -182,13 +182,13 @@ export default class Bundle {
 
     /**
      * @en
-     * Load the asset within this bundle by the path which is relative to bundle's path.
+     * Loads the asset within this bundle by the path which is relative to bundle's path.
      *
      * @zh
      * 通过相对路径加载分包中的资源。路径是相对分包文件夹路径的相对路径。
      *
      * @param paths
-     * @en Paths of the target assets.The path is relative to the bundle's folder, extensions must be omitted.
+     * @en Paths of the target assets.These paths are relative to the bundle's folder, extension name must be omitted.
      * @zh 需要加载的资源的路径。此路径为工程中相对于 bundle 文件夹的相对路径，路径中请不要带扩展名。
      * @param type
      * @en Asset type, if this parameter is passed, the asset of the corresponding type will be found in the assets of the corresponding path to finish loading.
@@ -197,7 +197,7 @@ export default class Bundle {
      * @en Callback invoked when the loading progress change.
      * @zh 加载进度发生变化时执行的回调。
      * @param onProgress.finish
-     * @en The number of request items that have finished loading.
+     * @en The number of request items that have been loaded.
      * @zh 已经完成加载的资源数量。
      * @param onProgress.total
      * @en The number of all request items to be loaded.
@@ -249,17 +249,17 @@ export default class Bundle {
 
     /**
      * @en
-     * Preload the asset within this bundle by the path which is relative to bundle's path.
-     * After calling this method, you still need to finish loading by calling `Bundle.load`.
-     * It will be totally fine to call `Bundle.load` at any time even if the preloading is not
+     * Preloads the asset within this bundle by the path which is relative to bundle's path.
+     * After calling this method, you still need to finish loading by calling [[Bundle.load]].
+     * It will be totally fine to call [[Bundle.load]] at any time even if the preloading is not
      * yet finished.
      *
      * @zh
-     * 通过相对路径预加载分包中的资源。路径是相对分包文件夹路径的相对路径。调用完后，你仍然需要通过 `Bundle.load` 来完成加载。
-     * 就算预加载还没完成，你也可以直接调用 `Bundle.load`。
+     * 通过相对路径预加载分包中的资源。路径是相对分包文件夹路径的相对路径。调用完后，你仍然需要通过 [[Bundle.load]] 来完成加载。
+     * 就算预加载还没完成，你也可以直接调用 [[Bundle.load]]。
      *
      * @param paths
-     * @en Paths of the target assets.The path is relative to the bundle's folder, extensions must be omitted.
+     * @en Paths of the target assets.These paths are relative to the bundle's folder, extension name must be omitted.
      * @zh 需要加载的资源的路径。此路径为工程中相对于 bundle 文件夹的相对路径，路径中请不要带扩展名。
      * @param type
      * @en Asset type, if this parameter is passed, the asset of the corresponding type will be found in the assets of the corresponding path to finish preloading.
@@ -268,7 +268,7 @@ export default class Bundle {
      * @en Callback invoked when the preloading progress change.
      * @zh 预加载进度发生变化时执行的回调。
      * @param onProgress.finish
-     * @en The number of request items that have finished preloading.
+     * @en The number of request items that have been preloaded.
      * @zh 已经完成预加载的资源数量。
      * @param onProgress.total
      * @en The number of all request items to be preloaded.
@@ -312,7 +312,7 @@ export default class Bundle {
 
     /**
      * @en
-     * Load all assets under a folder inside the bundle folder.<br>
+     * Loads all assets under a folder inside the bundle folder.<br>
      * <br>
      * Note: All asset paths in Creator use forward slashes, paths using backslashes will not work.
      *
@@ -320,12 +320,12 @@ export default class Bundle {
      * 加载目标文件夹中的所有资源, 注意：路径中只能使用斜杠，反斜杠将停止工作。
      *
      * @param dir @en The path of the target folder. The path is relative to the bundle folder. @zh 目标文件夹路径，此路径为相对于 bundle 文件夹的路径。
-     * @param type @en The asset type. Only asset of this type will be loaded if this argument is supplied. @zh 资源类型，如果指定了此参数，则只会加载目标文件夹下此类型的资源。
+     * @param type @en The asset type. Only specify type asset will be loaded if this argument is supplied. @zh 资源类型，如果指定了此参数，则只会加载目标文件夹下此类型的资源。
      * @param onProgress
      * @en Callback invoked when the loading progress change.
      * @zh 加载进度发生变化时执行的回调。
      * @param onProgress.finish
-     * @en The number of request items that have finished loading.
+     * @en The number of request items that have been loaded.
      * @zh 已经完成加载的资源数量。
      * @param onProgress.total
      * @en The number of all request items to be loaded.
@@ -368,21 +368,21 @@ export default class Bundle {
 
     /**
      * @en
-     * Preload all assets under a folder inside the bundle folder.<br> After calling this method, you still need to
-     * finish loading by calling `Bundle.loadDir`.
-     * It will be totally fine to call `Bundle.loadDir` at any time even if the preloading is not yet finished.
+     * Preloads all assets under a folder inside the bundle folder.<br> After calling this method, you still need to
+     * finish loading by calling [[Bundle.loadDir]].
+     * It will be totally fine to call [[Bundle.loadDir]] at any time even if the preloading is not yet finished.
      *
      * @zh
-     * 预加载目标文件夹中的所有资源。调用完后，你仍然需要通过 `Bundle.loadDir` 来完成加载。
-     * 就算预加载还没完成，你也可以直接调用 `Bundle.loadDir`。
+     * 预加载目标文件夹中的所有资源。调用完后，你仍然需要通过 [[Bundle.loadDir]] 来完成加载。
+     * 就算预加载还没完成，你也可以直接调用 [[Bundle.loadDir]]。
      *
      * @param dir @en The path of the target folder. The path is relative to the bundle folder. @zh 目标文件夹路径，此路径为相对于 bundle 文件夹的路径。
-     * @param type @en The asset type. Only asset of this type will be preloaded if this argument is supplied. @zh 资源类型，如果指定了此参数，则只会预加载目标文件夹下此类型的资源。
+     * @param type @en The asset type. Only specify type asset will be preloaded if this argument is supplied. @zh 资源类型，如果指定了此参数，则只会预加载目标文件夹下此类型的资源。
      * @param onProgress
      * @en Callback invoked when the preloading progress change.
      * @zh 预加载进度发生变化时执行的回调。
      * @param onProgress.finish
-     * @en The number of request items that have finished preloading.
+     * @en The number of request items that have been preloaded.
      * @zh 已经完成预加载的资源数量。
      * @param onProgress.total
      * @en The number of all request items to be preloaded.
@@ -436,7 +436,7 @@ export default class Bundle {
      * @en Callback invoked when the loading progress change.
      * @zh 加载进度发生变化时执行的回调。
      * @param onProgress.finish
-     * @en The number of request items that have finished loading.
+     * @en The number of request items that have been loaded.
      * @zh 已经完成加载的资源数量。
      * @param onProgress.total
      * @en The number of all request items to be loaded.
@@ -481,12 +481,12 @@ export default class Bundle {
     /**
      * @en
      * Preload the scene asset within this bundle by its name. After calling this method, you still need to finish loading
-     * by calling `Bundle.loadScene` or `director.loadScene`.It will be totally fine to call `Bundle.loadDir` at any
+     * by calling [[Bundle.loadScene]] or [[Director.loadScene]].It will be totally fine to call [[Bundle.loadScene]] at any
      * time even if the preloading is not yet finished.
      *
      * @zh
-     * 通过场景名称预加载分包中的场景资源.调用完后，你仍然需要通过 `Bundle.loadScene` 或 `director.loadScene` 来完成加载。
-     * 就算预加载还没完成，你也可以直接调用 `Bundle.loadScene` 或 `director.loadScene`。
+     * 通过场景名称预加载分包中的场景资源.调用完后，你仍然需要通过 [[Bundle.loadScene]] 或 [[Director.loadScene]] 来完成加载。
+     * 就算预加载还没完成，你也可以直接调用 [[Bundle.loadScene]] 或 [[Director.loadScene]]。
      *
      * @param sceneName @en The name of the scene to be preloaded. @zh 待预加载的场景名称。
      * @param options  @en Some optional parameters. @zh 可选参数。
@@ -494,7 +494,7 @@ export default class Bundle {
      * @en Callback invoked when the preloading progress change.
      * @zh 预加载进度发生变化时执行的回调。
      * @param onProgress.finish
-     * @en The number of request items that have finished preloading.
+     * @en The number of request items that have been preloaded.
      * @zh 已经完成预加载的资源数量。
      * @param onProgress.total
      * @en The number of all request items to be preloaded.
@@ -532,7 +532,7 @@ export default class Bundle {
 
     /**
      * @en
-     * Get cached asset within this bundle by path and type. <br>
+     * Gets cached asset within this bundle by path and type. <br>
      * After you load asset with [[load]] or [[loadDir]],
      * you can acquire them by passing the path to this API.
      *
@@ -547,7 +547,7 @@ export default class Bundle {
      * 否则将返回与该名称相匹配的第一个资产。
      *
      * @param path @en The path of asset. @zh 资源的路径。
-     * @param type @en The asset type. Only asset of type will be returned if this argument is supplied. @zh 资源类型，指定后只会返回该类型的资源。
+     * @param type @en The asset type. Only specify type asset will be returned if this argument is supplied. @zh 资源类型，指定后只会返回该类型的资源。
      * @returns @en The asset has been cached. @zh 已缓存的资源。
      *
      * @example
@@ -564,8 +564,8 @@ export default class Bundle {
 
     /**
      * @en
-     * Release the asset loaded by [[load]] or [[loadDir]].
-     * and it's dependencies. Refer to [[AssetManager.releaseAsset]] for detailed informations.
+     * Releases the asset loaded by [[load]] or [[loadDir]].
+     * and it's dependencies. Refer to [[AssetManager.releaseAsset]] for detailed information.
      *
      * NOTE：When there are multiple asset with the same name, you can specify the asset to be released by specifying the type.
      * Otherwise the first resource matching that name will be released.
@@ -644,10 +644,10 @@ export default class Bundle {
 
 /**
  * @en
- * resources is a [[Bundle]] and controls all asset under assets/resources.
+ * A [[Bundle]] instance to manage all assets in assets/resources.
  *
  * @zh
- * resources 是一个 [[Bundle]]，用于管理所有在 assets/resources 下的资源。
+ * 一个 [[Bundle]] 实例，用于管理所有在 assets/resources 下的资源。
  */
 export const resources: Bundle = new Bundle();
 cclegacy.resources = resources;

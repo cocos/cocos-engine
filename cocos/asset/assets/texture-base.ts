@@ -166,18 +166,18 @@ export class TextureBase extends Asset {
     }
 
     /**
-     * @en Gets the pixel format
+     * @en Gets the pixel format.
      * @zh 获取像素格式。
-     * @returns The pixel format
+     * @returns @en The pixel format. @zh 像素格式。
      */
     public getPixelFormat () {
         return this._format;
     }
 
     /**
-     * @en Gets the anisotropy
+     * @en Gets the anisotropy.
      * @zh 获取各向异性。
-     * @returns The anisotropy
+     * @returns @en The anisotropy. @zh 各项异性值。
      */
     public getAnisotropy () {
         return this._anisotropy;
@@ -188,9 +188,9 @@ export class TextureBase extends Asset {
      * Be noted, if the size of the texture is not power of two, only [[WrapMode.CLAMP_TO_EDGE]] is allowed.
      * @zh 设置此贴图的缠绕模式。
      * 注意，若贴图尺寸不是 2 的整数幂，缠绕模式仅允许 [[WrapMode.CLAMP_TO_EDGE]]。
-     * @param wrapS S(U) coordinate wrap mode
-     * @param wrapT T(V) coordinate wrap mode
-     * @param wrapR R(W) coordinate wrap mode
+     * @param wrapS @en S(U) coordinate wrap mode. @zh S(U) 坐标系缠绕模式.
+     * @param wrapT @en T(V) coordinate wrap mode. @zh T(V) 坐标系缠绕模式.
+     * @param wrapR @en R(W) coordinate wrap mode. @zh R(W) 坐标系缠绕模式.
      */
     public setWrapMode (wrapS: WrapMode, wrapT: WrapMode, wrapR?: WrapMode) {
         if (wrapR === undefined) wrapR = wrapS; // wrap modes should be as consistent as possible for performance
