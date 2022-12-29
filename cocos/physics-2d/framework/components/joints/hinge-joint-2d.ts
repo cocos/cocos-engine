@@ -43,7 +43,6 @@ export class HingeJoint2D extends Joint2D {
      * 是否开启关节的限制？
      */
     @type(CCBoolean)
-    @serializable
     @tooltip('i18n:physics2d.joint.enableLimit')
     get enableLimit (): boolean {
         return this._enableLimit;
@@ -59,7 +58,6 @@ export class HingeJoint2D extends Joint2D {
      * 角度的最低限制。
      */
     @type(CCFloat)
-    @serializable
     @tooltip('i18n:physics2d.joint.lowerAngle')
     get lowerAngle (): number {
         return this._lowerAngle;
@@ -78,7 +76,6 @@ export class HingeJoint2D extends Joint2D {
      * 角度的最高限制。
      */
     @type(CCFloat)
-    @serializable
     @tooltip('i18n:physics2d.joint.upperAngle')
     get upperAngle (): number {
         return this._upperAngle;
@@ -97,7 +94,6 @@ export class HingeJoint2D extends Joint2D {
      * 是否开启关节马达？
      */
     @type(CCBoolean)
-    @serializable
     @tooltip('i18n:physics2d.joint.enableMotor')
     get enableMotor (): boolean {
         return this._enableMotor;
@@ -116,7 +112,6 @@ export class HingeJoint2D extends Joint2D {
      * 可以施加到刚体的最大扭矩。
      */
     @type(CCFloat)
-    @serializable
     @tooltip('i18n:physics2d.joint.maxMotorTorque')
     get maxMotorTorque (): number {
         return this._maxMotorTorque;
@@ -135,7 +130,6 @@ export class HingeJoint2D extends Joint2D {
      * 期望的马达速度。
      */
     @type(CCFloat)
-    @serializable
     @tooltip('i18n:physics2d.joint.motorSpeed')
     get motorSpeed (): number {
         return this._motorSpeed;
@@ -149,16 +143,21 @@ export class HingeJoint2D extends Joint2D {
 
     /// private properties
 
-    @property
+    @serializable
     private _enableLimit = false;
-    @property
+
+    @serializable
     private _lowerAngle = 0;
-    @property
+
+    @serializable
     private _upperAngle = 0;
-    @property
+
+    @serializable
     private _enableMotor = false;
-    @property
+
+    @serializable
     private _maxMotorTorque = 1000;
-    @property
+
+    @serializable
     private _motorSpeed = 0;
 }

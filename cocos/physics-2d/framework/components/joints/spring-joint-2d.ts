@@ -43,7 +43,6 @@ export class SpringJoint2D extends Joint2D {
      * 弹性系数。
      */
     @type(CCFloat)
-    @serializable
     @tooltip('i18n:physics2d.joint.frequency')
     get frequency () {
         return this._frequency;
@@ -62,7 +61,6 @@ export class SpringJoint2D extends Joint2D {
      * 阻尼，表示关节变形后，恢复到初始状态受到的阻力。
      */
     @type(CCFloat)
-    @serializable
     @tooltip('i18n:physics2d.joint.dampingRatio')
     get dampingRatio () {
         return this._dampingRatio;
@@ -81,7 +79,6 @@ export class SpringJoint2D extends Joint2D {
      * 关节两端的距离。
      */
     @type(CCFloat)
-    @serializable
     @tooltip('i18n:physics2d.joint.distance')
     get distance () {
         if (this._autoCalcDistance) {
@@ -107,7 +104,6 @@ export class SpringJoint2D extends Joint2D {
      * 自动计算关节连接的两个刚体间的距离。
      */
     @type(CCBoolean)
-    @serializable
     @tooltip('i18n:physics2d.joint.autoCalcDistance')
     get autoCalcDistance () {
         return this._autoCalcDistance;
@@ -118,12 +114,15 @@ export class SpringJoint2D extends Joint2D {
 
     /// private properties
 
-    @property
+    @serializable
     private _frequency = 5;
-    @property
+
+    @serializable
     private _dampingRatio = 0.7;
-    @property
+
+    @serializable
     private _distance = 10;
-    @property
+
+    @serializable
     private _autoCalcDistance = true;
 }

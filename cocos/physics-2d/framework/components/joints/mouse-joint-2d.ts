@@ -53,7 +53,6 @@ export class MouseJoint2D extends Joint2D {
      * 弹簧系数。
      */
     @type(CCFloat)
-    @serializable
     @tooltip('i18n:physics2d.joint.frequency')
     get frequency (): number {
         return this._frequency;
@@ -72,7 +71,6 @@ export class MouseJoint2D extends Joint2D {
      * 阻尼，表示关节变形后，恢复到初始状态受到的阻力。
      */
     @type(CCFloat)
-    @serializable
     @tooltip('i18n:physics2d.joint.dampingRatio')
     get dampingRatio (): number {
         return this._dampingRatio;
@@ -91,7 +89,6 @@ export class MouseJoint2D extends Joint2D {
      * 最大阻力值。
      */
     @type(CCFloat)
-    @serializable
     @tooltip('i18n:physics2d.joint.maxForce')
     get maxForce (): number {
         return this._maxForce;
@@ -107,11 +104,14 @@ export class MouseJoint2D extends Joint2D {
         this._joint!.update!(dt);
     }
 
-    @property
+    @serializable
     private _maxForce = 1000;
-    @property
+
+    @serializable
     private _dampingRatio = 0.7;
-    @property
+
+    @serializable
     private _frequency = 5;
+
     private _target = new Vec2();
 }

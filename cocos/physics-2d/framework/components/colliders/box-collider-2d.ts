@@ -34,7 +34,7 @@ const { ccclass, menu, property } = _decorator;
 @help('i18n:cc.BoxCollider2D')
 @menu('Physics2D/Colliders/BoxCollider2D')
 export class BoxCollider2D extends Collider2D {
-    @property
+    @serializable
     private _size = new Size(1, 1);
 
     /**
@@ -42,7 +42,6 @@ export class BoxCollider2D extends Collider2D {
      * @zh 包围盒大小。
      */
     @type(Size)
-    @serializable
     @tooltip('i18n:physics2d.collider.size')
     get size () {
         return this._size;

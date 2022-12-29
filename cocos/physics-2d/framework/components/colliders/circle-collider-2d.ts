@@ -34,7 +34,7 @@ const { ccclass, menu, property } = _decorator;
 @help('i18n:cc.CircleCollider2D')
 @menu('Physics2D/Colliders/CircleCollider2D')
 export class CircleCollider2D extends Collider2D {
-    @property
+    @serializable
     private _radius = 1;
 
     /**
@@ -42,7 +42,6 @@ export class CircleCollider2D extends Collider2D {
      * @zh 圆形半径。
      */
     @type(CCFloat)
-    @serializable
     @tooltip('i18n:physics2d.collider.radius')
     get radius () {
         return this._radius;

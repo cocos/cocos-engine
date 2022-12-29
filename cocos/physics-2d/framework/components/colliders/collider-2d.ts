@@ -72,7 +72,6 @@ export class Collider2D extends Eventify(Component) {
      * @zh 密度。
      */
     @type(CCFloat)
-    @serializable
     @tooltip('i18n:physics2d.collider.density')
     get density () {
         return this._density;
@@ -88,7 +87,6 @@ export class Collider2D extends Eventify(Component) {
      * 一个传感器类型的碰撞体会产生碰撞回调，但是不会发生物理碰撞效果。
      */
     @type(CCBoolean)
-    @serializable
     @tooltip('i18n:physics2d.collider.sensor')
     get sensor () {
         return this._sensor;
@@ -104,7 +102,6 @@ export class Collider2D extends Eventify(Component) {
      * 摩擦系数，取值一般在 [0, 1] 之间。
      */
     @type(CCFloat)
-    @serializable
     @tooltip('i18n:physics2d.collider.friction')
     get friction () {
         return this._friction;
@@ -120,7 +117,6 @@ export class Collider2D extends Eventify(Component) {
      * 弹性系数，取值一般在 [0, 1]之间。
      */
     @type(CCFloat)
-    @serializable
     @tooltip('i18n:physics2d.collider.restitution')
     get restitution () {
         return this._restitution;
@@ -133,7 +129,6 @@ export class Collider2D extends Eventify(Component) {
      * @zh 位置偏移量
      */
     @type(Vec2)
-    @serializable
     @tooltip('i18n:physics2d.collider.offset')
     get offset () {
         return this._offset;
@@ -222,16 +217,16 @@ export class Collider2D extends Eventify(Component) {
     protected _shape: IBaseShape | null = null;
     protected _body: RigidBody2D | null = null;
 
-    @property
+    @serializable
     protected _group = PhysicsGroup.DEFAULT;
-    @property
+    @serializable
     protected _density = 1.0;
-    @property
+    @serializable
     protected _sensor = false;
-    @property
+    @serializable
     protected _friction = 0.2;
-    @property
+    @serializable
     protected _restitution = 0;
-    @property
+    @serializable
     protected _offset = new Vec2();
 }

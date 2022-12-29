@@ -43,7 +43,6 @@ export class DistanceJoint2D extends Joint2D {
      * 最大长度。
      */
     @type(CCFloat)
-    @serializable
     @tooltip('i18n:physics2d.joint.maxLength')
     get maxLength () {
         if (this._autoCalcDistance) {
@@ -69,7 +68,6 @@ export class DistanceJoint2D extends Joint2D {
      * 自动计算关节连接的两个刚体间的距离。
      */
     @type(CCBoolean)
-    @serializable
     @tooltip('i18n:physics2d.joint.autoCalcDistance')
     get autoCalcDistance () {
         return this._autoCalcDistance;
@@ -80,8 +78,9 @@ export class DistanceJoint2D extends Joint2D {
 
     /// private properties
 
-    @property
+    @serializable
     private _maxLength = 5;
-    @property
+
+    @serializable
     private _autoCalcDistance = true;
 }

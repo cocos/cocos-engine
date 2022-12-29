@@ -39,7 +39,7 @@ export class PolygonCollider2D extends Collider2D {
     @tooltip('i18n:physics2d.collider.threshold')
     threshold = 1;
 
-    @property
+    @serializable
     private _points = [new Vec2(-1, -1), new Vec2(1, -1), new Vec2(1, 1), new Vec2(-1, 1)];
 
     /**
@@ -47,7 +47,6 @@ export class PolygonCollider2D extends Collider2D {
      * @zh 多边形顶点数组。
      */
     @type(Vec2)
-    @serializable
     @tooltip('i18n:physics2d.collider.points')
     get points () {
         return this._points;

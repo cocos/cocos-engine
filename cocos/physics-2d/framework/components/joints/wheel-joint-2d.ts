@@ -41,7 +41,6 @@ export class WheelJoint2D extends Joint2D {
      * @zh 轮子震动方向。
      */
     @type(CCFloat)
-    @serializable
     @tooltip('i18n:physics2d.joint.angle')
     get angle (): number {
         return this._angle;
@@ -57,7 +56,6 @@ export class WheelJoint2D extends Joint2D {
      * 是否开启关节马达？
      */
     @type(CCBoolean)
-    @serializable
     @tooltip('i18n:physics2d.joint.enableMotor')
     get enableMotor (): boolean {
         return this._enableMotor;
@@ -76,7 +74,6 @@ export class WheelJoint2D extends Joint2D {
      * 可以施加到刚体的最大扭矩。
      */
     @type(CCFloat)
-    @serializable
     @tooltip('i18n:physics2d.joint.maxMotorTorque')
     get maxMotorTorque (): number {
         return this._maxMotorTorque;
@@ -95,7 +92,6 @@ export class WheelJoint2D extends Joint2D {
      * 期望的马达速度。
      */
     @type(CCFloat)
-    @serializable
     @tooltip('i18n:physics2d.joint.motorSpeed')
     get motorSpeed (): number {
         return this._motorSpeed;
@@ -114,7 +110,6 @@ export class WheelJoint2D extends Joint2D {
      * 弹性系数。
      */
     @type(CCFloat)
-    @serializable
     @tooltip('i18n:physics2d.joint.frequency')
     get frequency (): number {
         return this._frequency;
@@ -133,7 +128,6 @@ export class WheelJoint2D extends Joint2D {
      * 阻尼，表示关节变形后，恢复到初始状态受到的阻力。
      */
     @type(CCFloat)
-    @serializable
     @tooltip('i18n:physics2d.joint.dampingRatio')
     get dampingRatio (): number {
         return this._dampingRatio;
@@ -147,16 +141,21 @@ export class WheelJoint2D extends Joint2D {
 
     /// private properties
 
-    @property
+    @serializable
     private _angle = 90;
-    @property
+
+    @serializable
     private _enableMotor = false;
-    @property
+
+    @serializable
     private _maxMotorTorque = 1000;
-    @property
+
+    @serializable
     private _motorSpeed = 0;
-    @property
+
+    @serializable
     private _frequency = 5;
-    @property
+
+    @serializable
     private _dampingRatio = 0.7;
 }

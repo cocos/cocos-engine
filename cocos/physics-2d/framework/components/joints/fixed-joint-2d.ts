@@ -43,7 +43,6 @@ export class FixedJoint2D extends Joint2D {
      * 弹性系数。
      */
     @type(CCFloat)
-    @serializable
     @tooltip('i18n:physics2d.joint.frequency')
     get frequency (): number {
         return this._frequency;
@@ -62,7 +61,6 @@ export class FixedJoint2D extends Joint2D {
      * 阻尼，表示关节变形后，恢复到初始状态受到的阻力。
      */
     @type(CCFloat)
-    @serializable
     @tooltip('i18n:physics2d.joint.dampingRatio')
     get dampingRatio (): number {
         return this._dampingRatio;
@@ -76,8 +74,9 @@ export class FixedJoint2D extends Joint2D {
 
     /// private properties
 
-    @property
+    @serializable
     private _frequency = 0.7;
-    @property
+
+    @serializable
     private _dampingRatio = 0.5;
 }

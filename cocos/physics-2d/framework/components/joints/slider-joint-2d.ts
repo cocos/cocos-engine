@@ -42,7 +42,6 @@ export class SliderJoint2D extends Joint2D {
      * @zh 滑动的方向。
      */
     @type(CCFloat)
-    @serializable
     @tooltip('i18n:physics2d.joint.angle')
     get angle (): number {
         if (this._autoCalcAngle) {
@@ -64,7 +63,6 @@ export class SliderJoint2D extends Joint2D {
      * @zh 根据连接的两个刚体自动计算滑动方向。
      */
     @type(CCBoolean)
-    @serializable
     @tooltip('i18n:physics2d.joint.autoCalcAngle')
     get autoCalcAngle (): boolean {
         return this._autoCalcAngle;
@@ -80,7 +78,6 @@ export class SliderJoint2D extends Joint2D {
      * 是否开启关节马达？
      */
     @type(CCBoolean)
-    @serializable
     @tooltip('i18n:physics2d.joint.enableMotor')
     get enableMotor (): boolean {
         return this._enableMotor;
@@ -96,7 +93,6 @@ export class SliderJoint2D extends Joint2D {
      * 可以施加到刚体的最大力。
      */
     @type(CCFloat)
-    @serializable
     @tooltip('i18n:physics2d.joint.maxMotorForce')
     get maxMotorForce (): number {
         return this._maxMotorForce;
@@ -115,7 +111,6 @@ export class SliderJoint2D extends Joint2D {
      * 期望的马达速度。
      */
     @type(CCFloat)
-    @serializable
     @tooltip('i18n:physics2d.joint.motorSpeed')
     get motorSpeed (): number {
         return this._motorSpeed;
@@ -134,7 +129,6 @@ export class SliderJoint2D extends Joint2D {
      * 是否开启关节的距离限制？
      */
     @type(CCBoolean)
-    @serializable
     @tooltip('i18n:physics2d.joint.enableLimit')
     get enableLimit (): boolean {
         return this._enableLimit;
@@ -150,7 +144,6 @@ export class SliderJoint2D extends Joint2D {
      * 刚体能够移动的最小值。
      */
     @type(CCFloat)
-    @serializable
     @tooltip('i18n:physics2d.joint.lowerLimit')
     get lowerLimit (): number {
         return this._lowerLimit;
@@ -169,7 +162,6 @@ export class SliderJoint2D extends Joint2D {
      * 刚体能够移动的最大值。
      */
     @type(CCFloat)
-    @serializable
     @tooltip('i18n:physics2d.joint.upperLimit')
     get upperLimit (): number {
         return this._upperLimit;
@@ -183,20 +175,27 @@ export class SliderJoint2D extends Joint2D {
 
     /// private properties
 
-    @property
+    @serializable
     private _angle = 0;
-    @property
+
+    @serializable
     private _autoCalcAngle = true;
-    @property
+
+    @serializable
     private _enableMotor = false;
-    @property
+
+    @serializable
     private _maxMotorForce = 1000;
-    @property
+
+    @serializable
     private _motorSpeed = 1000;
-    @property
+
+    @serializable
     private _enableLimit = false;
-    @property
+
+    @serializable
     private _lowerLimit = 0;
-    @property
+
+    @serializable
     private _upperLimit = 0;
 }

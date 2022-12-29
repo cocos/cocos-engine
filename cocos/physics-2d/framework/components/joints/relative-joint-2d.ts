@@ -46,7 +46,6 @@ export class RelativeJoint2D extends Joint2D {
      * 可以应用于刚体的最大的力值。
      */
     @type(CCFloat)
-    @serializable
     @tooltip('i18n:physics2d.joint.maxForce')
     get maxForce (): number {
         return this._maxForce;
@@ -65,7 +64,6 @@ export class RelativeJoint2D extends Joint2D {
      * 可以应用于刚体的最大扭矩值。
      */
     @type(CCFloat)
-    @serializable
     @tooltip('i18n:physics2d.joint.maxTorque')
     get maxTorque (): number {
         return this._maxTorque;
@@ -84,7 +82,6 @@ export class RelativeJoint2D extends Joint2D {
      * 位置矫正系数，范围为 [0, 1]。
      */
     @type(CCFloat)
-    @serializable
     @tooltip('i18n:physics2d.joint.correctionFactor')
     get correctionFactor (): number {
         return this._correctionFactor;
@@ -103,7 +100,6 @@ export class RelativeJoint2D extends Joint2D {
      * 关节另一端的刚体相对于起始端刚体的位置偏移量。
      */
     @type(Vec2)
-    @serializable
     @tooltip('i18n:physics2d.joint.linearOffset')
     get linearOffset (): Vec2 {
         if (this._autoCalcOffset) {
@@ -131,7 +127,6 @@ export class RelativeJoint2D extends Joint2D {
      * 关节另一端的刚体相对于起始端刚体的角度偏移量。
      */
     @type(CCFloat)
-    @serializable
     @tooltip('i18n:physics2d.joint.angularOffset')
     get angularOffset (): number {
         if (this._autoCalcOffset) {
@@ -159,7 +154,6 @@ export class RelativeJoint2D extends Joint2D {
      * 自动计算关节连接的两个刚体间的 angularOffset 和 linearOffset。
      */
     @type(CCBoolean)
-    @serializable
     @tooltip('i18n:physics2d.joint.autoCalcOffset')
     get autoCalcOffset (): boolean {
         return this._autoCalcOffset;
@@ -170,16 +164,21 @@ export class RelativeJoint2D extends Joint2D {
 
     /// private properties
 
-    @property
+    @serializable
     private _maxForce = 5;
-    @property
+
+    @serializable
     private _maxTorque = 0.7;
-    @property
+
+    @serializable
     private _correctionFactor = 0.3;
-    @property
+
+    @serializable
     private _angularOffset = 0;
-    @property
+
+    @serializable
     private _linearOffset = new Vec2();
-    @property
+
+    @serializable
     private _autoCalcOffset = true;
 }
