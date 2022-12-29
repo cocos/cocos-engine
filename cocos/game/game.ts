@@ -544,7 +544,7 @@ export class Game extends EventTarget {
     private pauseByEngine () {
         if (this._paused) { return; }
         this._pausedByEngine = true;
-        this.pause(true);
+        this.pause();
     }
 
     /**
@@ -553,7 +553,7 @@ export class Game extends EventTarget {
      */
     private resumeByEngine () {
         if (this._pausedByEngine) {
-            this.resume(true);
+            this.resume();
             this._pausedByEngine = false;
         }
     }
@@ -570,15 +570,14 @@ export class Game extends EventTarget {
      * - 游戏逻辑
      * - 渲染
      * - 输入事件派发（Web 和小游戏平台除外）
-     * * @param engineTrigger @en True indicates trigger from engine internal, otherwise trigger by user. @zh true 代表由引擎內部触发,其他值意味着是用户发起的
      *
      * 这点和只暂停游戏逻辑的 `director.pause()` 不同。
      */
-    public pause (engineTrigger?: boolean) {
+    public pause () {
         if (this._paused) { return; }
         this._paused = true;
         this._pacer?.stop();
-        if (!engineTrigger) {
+        if (!this._pausedByEngine) {
             this.emit(Game.EVENT_PAUSE);
         }
     }
@@ -587,15 +586,14 @@ export class Game extends EventTarget {
      * @en Resume the game from pause. This will resume:<br>
      * game logic execution, rendering process, event manager, background music and all audio effects.<br>
      * @zh 恢复游戏主循环。包含：游戏逻辑，渲染，事件处理，背景音乐和所有音效。
-     * @param engineTrigger @en True indicates trigger from engine internal, otherwise trigger by user. @zh true 代表由引擎內部触发,其他值意味着是用户发起的
      */
-    public resume (engineTrigger?: boolean) {
+    public resume () {
         if (!this._paused) { return; }
         // @ts-expect-error _clearEvents is a private method.
         input._clearEvents();
         this._paused = false;
         this._pacer?.start();
-        if (!engineTrigger) {
+        if (!this._pausedByEngine) {
             this.emit(Game.EVENT_RESUME);
         }
     }
@@ -617,8 +615,8 @@ export class Game extends EventTarget {
         return endFramePromise.then(() => {
             director.reset();
             cclegacy.Object._deferredDestroy();
-            this.pause(true);
-            this.resume(true);
+            this.pause();
+            this.resume();
             this._shouldLoadLaunchScene = true;
             SplashScreen.instance.curTime = 0;
             this._safeEmit(Game.EVENT_RESTART);
@@ -977,7 +975,7 @@ export class Game extends EventTarget {
         if (!this._inited || (EDITOR && !cclegacy.GAME_VIEW)) {
             return;
         }
-        this.resume(true);
+        this.resume();
     }
 
     // @Methods
