@@ -2493,7 +2493,7 @@ export function WebGL2CmdFuncBindStates (
                 const  maxLod = minLod + gpuTextureView.levelCount;
 
                 if (gpuTexture.size > 0) {
-                    if (glTexUnit.glTexture !== gpuTexture.glTexture) {
+                    if ((glTexUnit.glTexture !== gpuTexture.glTexture) || gpuTexture.resolve.dirty) {
                         if (cache.texUnit !== texUnit) {
                             gl.activeTexture(gl.TEXTURE0 + texUnit);
                             cache.texUnit = texUnit;
