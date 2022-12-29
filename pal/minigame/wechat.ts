@@ -54,6 +54,9 @@ minigame.onWindowResize?.(() => {
     _cachedSystemInfo = wx.getSystemInfoSync() as SystemInfo;
 });
 minigame.getSystemInfoSync = function () {
+    // NOTE: wechat want to use screenWidth/screenHeight to create canvas
+    _cachedSystemInfo.windowHeight = _cachedSystemInfo.screenHeight;
+    _cachedSystemInfo.windowWidth = _cachedSystemInfo.screenWidth;
     return _cachedSystemInfo;
 };
 
