@@ -195,36 +195,36 @@ export class HandleInputDevice {
                     negativeButton = Button.LEFT_STICK_LEFT;
                     positiveButton = Button.LEFT_STICK_RIGHT;
                     axisValue = this._axisToButtons(stickAxisValue);
-                  break;
+                    break;
                 case StickAxisCode.LEFT_STICK_Y:
                     negativeButton = Button.LEFT_STICK_DOWN;
                     positiveButton = Button.LEFT_STICK_UP;
                     axisValue = this._axisToButtons(stickAxisValue);
-                  break;
+                    break;
                 case StickAxisCode.RIGHT_STICK_X:
                     negativeButton = Button.RIGHT_STICK_LEFT;
                     positiveButton = Button.RIGHT_STICK_RIGHT;
                     axisValue = this._axisToButtons(stickAxisValue);
-                  break;
+                    break;
                 case StickAxisCode.RIGHT_STICK_Y:
                     negativeButton = Button.RIGHT_STICK_DOWN;
                     positiveButton = Button.RIGHT_STICK_UP;
                     axisValue = this._axisToButtons(stickAxisValue);
-                  break;
+                    break;
                 case StickAxisCode.LEFT_TRIGGER:
                     this._nativeButtonState[Button.TRIGGER_LEFT] = stickAxisValue;
-                  break;
+                    break;
                 case StickAxisCode.RIGHT_TIRGGER:
                     this._nativeButtonState[Button.TRIGGER_RIGHT] = stickAxisValue;
-                  break;
+                    break;
                 case StickAxisCode.LEFT_GRIP:
                     this._nativeButtonState[Button.GRIP_LEFT] = stickAxisValue;
-                  break;
+                    break;
                 case StickAxisCode.RIGHT_GRIP:
                     this._nativeButtonState[Button.GRIP_RIGHT] = stickAxisValue;
-                  break;
+                    break;
                 default:
-                  break;
+                    break;
                 }
 
                 if (negativeButton && positiveButton && axisValue) {
