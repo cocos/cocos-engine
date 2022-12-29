@@ -80,6 +80,9 @@ void ReflectionProbeBatchedQueue::gatherRenderObjects(const scene::Camera *camer
     for (const auto &model : scene->getModels()) {
         const auto *node = model->getNode();
         const auto *worldBounds = model->getWorldBounds();
+        if (scene->isCulledByLod(camera, model)) {
+            continue;
+        }
         if (!node || !model->isEnabled() || !worldBounds || !model->getBakeToReflectionProbe()) continue;
         uint32_t visibility = probe->getCamera()->getVisibility();
         if (probe->getProbeType() == scene::ReflectionProbe::ProbeType::CUBE) {

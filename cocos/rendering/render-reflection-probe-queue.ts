@@ -29,7 +29,7 @@ import { getPhaseID } from './pass-phase';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { Pass, BatchingSchemes } from '../render-scene/core/pass';
 import { Model } from '../render-scene/scene/model';
-import { ProbeType, ReflectionProbe, SKYBOX_FLAG } from '../render-scene/scene';
+import { Camera, ProbeType, ReflectionProbe, SKYBOX_FLAG } from '../render-scene/scene';
 import { PipelineRuntime } from './custom/pipeline';
 import { IMacroPatch, RenderScene } from '../render-scene';
 import { RenderInstancedQueue } from './render-instanced-queue';
@@ -87,8 +87,9 @@ export class RenderReflectionProbeQueue {
         this._instancedQueue = new RenderInstancedQueue();
         this._batchedQueue = new RenderBatchedQueue();
     }
-    public gatherRenderObjects (probe: ReflectionProbe, scene: RenderScene, cmdBuff: CommandBuffer) {
+    public gatherRenderObjects (probe: ReflectionProbe, camera: Camera, cmdBuff: CommandBuffer) {
         this.clear();
+        const scene = camera.scene!;
         const sceneData = this._pipeline.pipelineSceneData;
         const skybox = sceneData.skybox;
 
@@ -101,6 +102,9 @@ export class RenderReflectionProbeQueue {
 
         for (let i = 0; i < models.length; i++) {
             const model = models[i];
+            if (scene.isCulledByLod(camera, model)) {
+                continue;
+            }
             // filter model by view visibility
             if (model.enabled && model.node && model.worldBounds && model.bakeToReflectionProbe) {
                 if (probe.probeType === ProbeType.CUBE) {
