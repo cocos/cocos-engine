@@ -290,8 +290,8 @@ export class Game extends EventTarget {
     public static readonly EVENT_RESTART = 'game_on_restart';
 
     /**
-     * @en Triggered when the user triggers the game pause.<br>
-     * @zh 用户触发游戏暂停时触发该事件。<br>
+     * @en Triggered when the game is paused.<br>
+     * @zh 游戏暂停时触发该事件。<br>
      * @example
      * ```ts
      * import { game, audioEngine } from 'cc';
@@ -304,8 +304,8 @@ export class Game extends EventTarget {
     public static readonly EVENT_PAUSE = 'game_on_pause';
 
     /**
-     * @en Triggered when the user triggers the game resume.<br>
-     * @zh 用户触发游戏恢复时触发该事件。<br>
+     * @en Triggered when the game is resumed.<br>
+     * @zh 游戏恢复时触发该事件。<br>
      */
     public static readonly EVENT_RESUME = 'game_on_resume';
 
