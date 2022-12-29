@@ -9,19 +9,20 @@
  * ----------------------------------------------------------------------------- */
 
 /****************************************************************************
- Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights to
- use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
- of the Software, and to permit persons to whom the Software is furnished to do so,
- subject to the following conditions:
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
 
- The above copyright notice and this permission notice shall be included in
- all copies or substantial portions of the Software.
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -600,6 +601,49 @@ static bool js_cc_ar_ARModule_getCameraDepthBuffer(se::State& s)
 }
 SE_BIND_FUNC(js_cc_ar_ARModule_getCameraDepthBuffer) 
 
+static bool js_cc_ar_ARModule_getTexInitFlag(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::ar::ARModule *arg1 = (cc::ar::ARModule *) NULL ;
+    bool result;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::ar::ARModule>(s);
+    if (nullptr == arg1) return true;
+    result = (bool)((cc::ar::ARModule const *)arg1)->getTexInitFlag();
+    
+    ok &= nativevalue_to_se(result, s.rval(), s.thisObject());
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_ar_ARModule_getTexInitFlag) 
+
+static bool js_cc_ar_ARModule_resetTexInitFlag(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    cc::ar::ARModule *arg1 = (cc::ar::ARModule *) NULL ;
+    
+    if(argc != 0) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+        return false;
+    }
+    arg1 = SE_THIS_OBJECT<cc::ar::ARModule>(s);
+    if (nullptr == arg1) return true;
+    (arg1)->resetTexInitFlag();
+    
+    
+    return true;
+}
+SE_BIND_FUNC(js_cc_ar_ARModule_resetTexInitFlag) 
+
 static bool js_cc_ar_ARModule_enableLightEstimate(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -1163,6 +1207,8 @@ bool js_register_cc_ar_ARModule(se::Object* obj) {
     cls->defineFunction("setCameraTextureName", _SE(js_cc_ar_ARModule_setCameraTextureName)); 
     cls->defineFunction("getCameraTextureRef", _SE(js_cc_ar_ARModule_getCameraTextureRef)); 
     cls->defineFunction("getCameraDepthBuffer", _SE(js_cc_ar_ARModule_getCameraDepthBuffer)); 
+    cls->defineFunction("getTexInitFlag", _SE(js_cc_ar_ARModule_getTexInitFlag)); 
+    cls->defineFunction("resetTexInitFlag", _SE(js_cc_ar_ARModule_resetTexInitFlag)); 
     cls->defineFunction("enableLightEstimate", _SE(js_cc_ar_ARModule_enableLightEstimate)); 
     cls->defineFunction("getMainLightDirection", _SE(js_cc_ar_ARModule_getMainLightDirection)); 
     cls->defineFunction("getMainLightIntensity", _SE(js_cc_ar_ARModule_getMainLightIntensity)); 
