@@ -104,8 +104,8 @@ export class AudioPlayerMinigame implements OperationQueueable {
         this._eventTarget = new EventTarget();
 
         // event
-        game.on(Game.EVENT_PAUSE, this._onHide, this);
-        game.on(Game.EVENT_RESUME, this._onShow, this);
+        game.on(Game.EVENT_PAUSE, this._onInterruptedBegin, this);
+        game.on(Game.EVENT_RESUME, this._onInterruptedEnd, this);
         const eventTarget = this._eventTarget;
         this._onPlay = () => {
             this._state = AudioState.PLAYING;
@@ -160,8 +160,8 @@ export class AudioPlayerMinigame implements OperationQueueable {
         innerAudioContext.onEnded(this._onEnded);
     }
     destroy () {
-        game.off(Game.EVENT_PAUSE, this._onHide, this);
-        game.off(Game.EVENT_RESUME, this._onShow, this);
+        game.off(Game.EVENT_PAUSE, this._onInterruptedBegin, this);
+        game.off(Game.EVENT_RESUME, this._onInterruptedEnd, this);
         if (this._innerAudioContext) {
             ['Play', 'Pause', 'Stop', 'Seeked', 'Ended'].forEach((event) => {
                 this._offEvent(event);
@@ -173,7 +173,7 @@ export class AudioPlayerMinigame implements OperationQueueable {
             this._innerAudioContext = null;
         }
     }
-    private _onHide () {
+    private _onInterruptedBegin () {
         if (this._state === AudioState.PLAYING) {
             this.pause().then(() => {
                 this._state = AudioState.INTERRUPTED;
@@ -182,10 +182,10 @@ export class AudioPlayerMinigame implements OperationQueueable {
             }).catch((e) => {});
         }
     }
-    private _onShow () {
+    private _onInterruptedEnd () {
         // We don't know whether onShow or resolve callback in pause promise is called at first.
         if (!this._readyToHandleOnShow) {
-            this._eventTarget.once(AudioEvent.INTERRUPTION_BEGIN, this._onShow, this);
+            this._eventTarget.once(AudioEvent.INTERRUPTION_BEGIN, this._onInterruptedEnd, this);
             return;
         }
         if (this._state === AudioState.INTERRUPTED) {
